@@ -15,13 +15,65 @@ describe("syncToXml service", () => {
     expect(syncConfigurationToXML).not.toHaveBeenCalled()
   })
 
-  it("defaults referenceDir to xmlDir when referenceDir is omitted", async () => {
+  it("asks to initialize state before incremental sync", async () => {
+    const readXmlSyncState = vi.fn().mockResolvedValue(undefined)
+    const syncConfigurationToXML = vi.fn()
+    const syncConfigurationIncrementallyToXML = vi.fn()
+
+    const result = await syncToXml(
+      { yamlDir: "/yaml", xmlDir: "/xml", allowWrite: true },
+      { readXmlSyncState, syncConfigurationToXML, syncConfigurationIncrementallyToXML },
+    )
+
+    expect(result).toEqual({
+      ok: false,
+      code: "sync_state_required",
+      message:
+        "Файл .nkdk-sync.yaml не найден; вызовите nkdk.init_sync_state перед инкрементальной синхронизацией или явно запросите fullSync=true",
+      details: { yamlDir: "/yaml", xmlDir: "/xml", tool: "nkdk.init_sync_state" },
+    })
+    expect(syncConfigurationIncrementallyToXML).not.toHaveBeenCalled()
+    expect(syncConfigurationToXML).not.toHaveBeenCalled()
+  })
+
+  it("uses incremental sync when state exists", async () => {
+    const readXmlSyncState = vi.fn().mockResolvedValue({ version: 1, files: {} })
+    const syncConfigurationToXML = vi.fn()
+    const syncConfigurationIncrementallyToXML = vi.fn().mockResolvedValue({
+      succeeded: 1,
+      failed: [],
+    })
+
+    const result = await syncToXml(
+      { yamlDir: "/yaml", xmlDir: "/xml", allowWrite: true },
+      { readXmlSyncState, syncConfigurationToXML, syncConfigurationIncrementallyToXML },
+    )
+
+    expect(syncConfigurationIncrementallyToXML).toHaveBeenCalledWith(
+      expect.objectContaining({
+        inputDir: "/yaml",
+        outputDir: "/xml",
+        referenceDir: "/xml",
+      }),
+    )
+    expect(syncConfigurationToXML).not.toHaveBeenCalled()
+    expect(result).toEqual({
+      ok: true,
+      succeeded: 1,
+      failed: [],
+    })
+  })
+
+  it("uses full sync only when fullSync is explicit", async () => {
     const syncConfigurationToXML = vi.fn().mockResolvedValue({
       succeeded: 1,
       failed: [],
     })
 
-    const result = await syncToXml({ yamlDir: "/yaml", xmlDir: "/xml", allowWrite: true }, { syncConfigurationToXML })
+    const result = await syncToXml(
+      { yamlDir: "/yaml", xmlDir: "/xml", allowWrite: true, fullSync: true },
+      { syncConfigurationToXML },
+    )
 
     expect(syncConfigurationToXML).toHaveBeenCalledWith(
       expect.objectContaining({
@@ -51,7 +103,7 @@ describe("syncToXml service", () => {
     })
 
     const result = await syncToXml(
-      { yamlDir: "/yaml", xmlDir: "/xml", referenceDir: "/reference", allowWrite: true },
+      { yamlDir: "/yaml", xmlDir: "/xml", referenceDir: "/reference", allowWrite: true, fullSync: true },
       { syncConfigurationToXML },
     )
 

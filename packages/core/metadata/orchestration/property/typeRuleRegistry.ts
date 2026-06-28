@@ -12,10 +12,13 @@ import {
   ImportFromXMLFunction,
   importFromYAMLFunction as ImportFromYAMLFunction,
   ImportFromYAMLFunctionNew,
+  ProjectResourcesFunction,
   SyncExternalFromXMLFunction,
   SyncExternalToXMLFunction,
   TypeRulesOperations,
   ValidateMetadataTargetFunction,
+  XmlSyncRoutesFunction,
+  XmlSyncWriterFunction,
 } from "./fn"
 
 const typeRulesRegistry = new Map<
@@ -33,6 +36,9 @@ const typeRulesRegistry = new Map<
   | SyncExternalFromXMLFunction
   | SyncExternalToXMLFunction
   | ValidateMetadataTargetFunction
+  | ProjectResourcesFunction
+  | XmlSyncRoutesFunction
+  | XmlSyncWriterFunction
 >()
 
 export const registerTypeRule = <O extends TypeRulesOperations>(
@@ -67,7 +73,13 @@ export const getTypeRule = <O extends TypeRulesOperations>(
               ? SyncExternalToXMLFunction | undefined
               : O extends "validateMetadataTarget"
                 ? ValidateMetadataTargetFunction | undefined
-                : never => {
+                : O extends "projectResources"
+                  ? ProjectResourcesFunction | undefined
+                  : O extends "xmlSyncRoutes"
+                    ? XmlSyncRoutesFunction | undefined
+                    : O extends "xmlSyncWriter"
+                      ? XmlSyncWriterFunction | undefined
+                      : never => {
   const key = createRegistryKey(type, operation)
   const result = typeRulesRegistry.get(key)
   return result as any

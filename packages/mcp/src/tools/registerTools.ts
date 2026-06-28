@@ -5,6 +5,7 @@ import {
 } from "../contracts/describeProjectStructure"
 import { getSchemaInputShape } from "../contracts/getSchema"
 import { importFromXmlInputShape } from "../contracts/importFromXml"
+import { initSyncStateInputShape } from "../contracts/initSyncState"
 import { syncToXmlInputShape } from "../contracts/syncToXml"
 import { validateProjectInputShape } from "../contracts/validateProject"
 import { guideDefinitions } from "../guides"
@@ -12,6 +13,7 @@ import { promptDefinitions } from "../prompts"
 import { describeProjectStructure } from "../services/describeProjectStructure"
 import { getSchema } from "../services/getSchema"
 import { importFromXml } from "../services/importFromXml"
+import { initSyncState } from "../services/initSyncState"
 import { syncToXml } from "../services/syncToXml"
 import { validateYamlProject } from "../services/validateProject"
 
@@ -66,6 +68,16 @@ export function registerNkdkCapabilities(server: RegisterableServer): void {
       inputSchema: syncToXmlInputShape,
     },
     async (input) => jsonToolResult(await syncToXml(input)),
+  )
+
+  server.registerTool(
+    "nkdk.init_sync_state",
+    {
+      title: "Initialize NKDK XML sync state",
+      description: "Создаёт .nkdk-sync.yaml для инкрементальной XML-синхронизации. Пишет файл только при allowWrite=true.",
+      inputSchema: initSyncStateInputShape,
+    },
+    async (input) => jsonToolResult(await initSyncState(input)),
   )
 
   for (const guide of guideDefinitions) {

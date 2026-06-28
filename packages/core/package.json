@@ -18,6 +18,7 @@
     "prepare": "ts-patch install"
   },
   "dependencies": {
+    "@node-rs/xxhash": "^1.7.6",
     "@sinclair/typebox": "^0.34.49",
     "date-fns": "^4.4.0",
     "fast-xml-parser": "^5.9.2",

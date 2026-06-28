@@ -24,7 +24,29 @@ type ConfigDumpInfo = Map<
 >
 
 interface SyncToXmlDeps {
+  readXmlSyncState?: (xmlDir: string) => Promise<unknown | undefined>
   syncConfigurationToXML: (params: {
+    context: {
+      defaultLanguage: "ru"
+      version: "2.20"
+      exportToYAML: { toTyped: false }
+      exportToXML: {
+        itemsTree: []
+        configDumpInfo: ConfigDumpInfo
+        version: "2.20"
+        context: {
+          forms: []
+          templates: []
+          parentName: ""
+          metadataForNumbering: []
+        }
+      }
+    }
+    inputDir: string
+    outputDir: string
+    referenceDir?: string
+  }) => Promise<CoreSyncResult>
+  syncConfigurationIncrementallyToXML?: (params: {
     context: {
       defaultLanguage: "ru"
       version: "2.20"
@@ -64,7 +86,22 @@ export async function syncToXml(input: SyncToXmlInput, deps?: SyncToXmlDeps): Pr
   try {
     const core = deps ?? (await loadCoreApi())
     const referenceDir = input.referenceDir ?? input.xmlDir
-    const result = await core.syncConfigurationToXML({
+    if (input.fullSync !== true) {
+      const state = await core.readXmlSyncState?.(input.xmlDir)
+      if (!state) {
+        return toolError(
+          "sync_state_required",
+          "Файл .nkdk-sync.yaml не найден; вызовите nkdk.init_sync_state перед инкрементальной синхронизацией или явно запросите fullSync=true",
+          { yamlDir: input.yamlDir, xmlDir: input.xmlDir, tool: "nkdk.init_sync_state" },
+        )
+      }
+    }
+
+    const sync =
+      input.fullSync === true ? core.syncConfigurationToXML : core.syncConfigurationIncrementallyToXML
+    if (!sync) return toolError("core_error", "Инкрементальная XML-синхронизация недоступна")
+
+    const result = await sync({
       context: {
         defaultLanguage: "ru",
         version: "2.20",

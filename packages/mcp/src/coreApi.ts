@@ -25,6 +25,11 @@ export interface ConfigurationSyncResult {
   failed: ConfigurationSyncFailure[]
 }
 
+export interface XmlSyncState {
+  version: 1
+  files: Record<string, string>
+}
+
 export interface MetadataProjectStructureNode {
   name: string
   kind: "directory" | "file"
@@ -111,6 +116,32 @@ export interface CoreApi {
     outputDir: string
     referenceDir?: string
   }): Promise<ConfigurationSyncResult>
+  syncConfigurationIncrementallyToXML(params: {
+    context: {
+      defaultLanguage: "ru"
+      version: "2.20"
+      exportToYAML: { toTyped: false }
+      exportToXML: {
+        itemsTree: []
+        configDumpInfo: ConfigDumpInfo
+        version: "2.20"
+        context: {
+          forms: []
+          templates: []
+          parentName: ""
+          metadataForNumbering: []
+        }
+      }
+    }
+    inputDir: string
+    outputDir: string
+    referenceDir?: string
+  }): Promise<ConfigurationSyncResult>
+  readXmlSyncState(xmlDir: string): Promise<XmlSyncState | undefined>
+  initializeXmlSyncState(params: {
+    yamlDir: string
+    xmlDir: string
+  }): Promise<void>
 }
 
 const coreModuleUrl = new URL("../../core/index.ts", import.meta.url).href

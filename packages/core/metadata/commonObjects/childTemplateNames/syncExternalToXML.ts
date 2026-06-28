@@ -12,8 +12,10 @@ export const syncChildTemplateNamesToXML: SyncExternalToXMLFunction = async (par
   const templatesDir = join(nkdkDir, rule.folderName)
   if (!fs.existsSync(templatesDir)) return
 
-  const entries = await fs.promises.readdir(templatesDir, { withFileTypes: true })
-  const templateNames = entries.filter((e) => e.isDirectory()).map((e) => e.name)
+  const templateNames =
+    params.itemName === undefined
+      ? (await fs.promises.readdir(templatesDir, { withFileTypes: true })).filter((e) => e.isDirectory()).map((e) => e.name)
+      : [params.itemName]
   const templateOutputDir = join(xmlDir, name, "Templates")
 
   for (const templateName of templateNames) {
@@ -102,3 +104,35 @@ async function copyTemplateEntryToXML(params: {
 }
 
 registerTypeRule("ChildTemplateNames", "syncExternalToXML", syncChildTemplateNamesToXML)
+registerTypeRule("ChildTemplateNames", "xmlSyncWriter", syncChildTemplateNamesToXML)
+registerTypeRule("ChildTemplateNames", "projectResources", ({ propertyRule }) => {
+  const folderName = (propertyRule as ChildTemplateNamesPropertyRule | undefined)?.folderName ?? "Макеты"
+  return [
+    {
+      kind: "yaml",
+      role: "fileItem",
+      projectPattern: `${folderName}/{itemName}/Template.xml`,
+      required: true,
+      repeatable: true,
+      owner: "currentItem",
+      compositionImpact: "none",
+      source: { kind: "propertyType", type: "ChildTemplateNames" },
+    },
+  ]
+})
+registerTypeRule("ChildTemplateNames", "xmlSyncRoutes", ({ propertyRule }) => {
+  const folderName = (propertyRule as ChildTemplateNamesPropertyRule | undefined)?.folderName ?? "Макеты"
+  return [
+    {
+      kind: "fileItem",
+      yamlPattern: `${folderName}/{itemName}/Template.xml`,
+      xmlPathPattern: "Templates/{itemName}.xml",
+      writerType: "propertyType",
+      source: { kind: "propertyType", type: "ChildTemplateNames" },
+      dumpInfoNamePatterns: [
+        "{dumpRoot}.{ownerName}.Template.{itemName}",
+        "{dumpRoot}.{ownerName}.Template.{itemName}.Template",
+      ],
+    },
+  ]
+})

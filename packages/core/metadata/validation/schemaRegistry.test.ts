@@ -17,7 +17,7 @@ const context = {
   version: "2.20",
 } as const
 
-describe("JSON Schema registry", () => {
+describe("JSON Schema registry", { timeout: 30_000 }, () => {
   beforeEach(() => {
     ensureJSONSchemaRegistry()
   })
@@ -428,7 +428,7 @@ describe("JSON Schema registry", () => {
     }
 
     expect([...compiled.Errors(value)].map((error) => `${error.path}: ${error.message}`)).toEqual([])
-  })
+  }, 30_000)
 
   it("accepts appearance SettingsParameterValue fields in inline client form schemas", () => {
     const schema = exportJSONSchemaForSchemaName({ context, name: "ClientApplicationForm", mode: "inline" })

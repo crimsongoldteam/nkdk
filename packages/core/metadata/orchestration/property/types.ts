@@ -13,6 +13,7 @@ import type { ChildTemplateNamesPropertyRule } from "~/metadata/commonObjects/ch
 import type { MetadataTargetConstraint } from "~/metadata/commonObjects/metadataTargets/types"
 import type { TypeDescriptionAllowedTypes } from "~/metadata/commonObjects/typeDescription/types"
 import type { XMLRootPropertyRule } from "~/metadata/commonObjects/xmlRoot/types"
+import type { SyncAreaDeclaration } from "~/metadata/orchestration/appliedObject/xmlAreas"
 import { MetadataValuePropertyRule } from "~/metadata/commonObjects/metadataValue/types"
 import { NumberPropertyRule } from "~/metadata/commonObjects/number/types"
 import { PredefinedCodePropertyRule } from "~/metadata/commonObjects/predefinedCode/types"
@@ -67,6 +68,9 @@ export interface BasePropertyRule {
 
   /** Свойство участвует только во внешней синхронизации и не входит в XML/YAML/модель. */
   syncExternalOnly?: true
+
+  /** Декларативная подсказка для инкрементального XML sync: какой YAML-файл пишет какую XML-область. */
+  syncArea?: SyncAreaDeclaration
 
   /** Нейтральное описание внешней metadata-записи, которую создаёт внешний файл свойства. */
   externalMetadata?: ExternalMetadataPropertyRule
