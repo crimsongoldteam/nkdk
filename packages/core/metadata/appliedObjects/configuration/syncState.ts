@@ -3,8 +3,14 @@ import { join, resolve } from "path"
 import { xxh3 } from "@node-rs/xxhash"
 import pLimit from "p-limit"
 import YAML from "yaml"
+import {
+  BINARY_SYNC_STATE_FILE,
+  readBinaryXmlSyncState,
+  writeBinaryXmlSyncState,
+} from "./syncStateBinary"
 
 export const SYNC_STATE_FILE = ".nkdk-sync.yaml"
+export { BINARY_SYNC_STATE_FILE }
 const DEFAULT_HASH_CONCURRENCY = 16
 
 export interface XmlSyncState {
@@ -31,6 +37,9 @@ export interface HashProjectFilesOptions {
 type ProjectHashEntry = readonly [string, string]
 
 export async function readXmlSyncState(xmlDir: string): Promise<XmlSyncState | undefined> {
+  const binaryPath = join(xmlDir, BINARY_SYNC_STATE_FILE)
+  if (fs.existsSync(binaryPath)) return readBinaryXmlSyncState(xmlDir)
+
   const path = join(xmlDir, SYNC_STATE_FILE)
   if (!fs.existsSync(path)) return undefined
 
@@ -41,9 +50,7 @@ export async function readXmlSyncState(xmlDir: string): Promise<XmlSyncState | u
 }
 
 export async function writeXmlSyncState(xmlDir: string, state: XmlSyncState): Promise<void> {
-  await fs.promises.mkdir(xmlDir, { recursive: true })
-  const content = YAML.stringify({ version: 1, files: sortRecord(state.files) })
-  await fs.promises.writeFile(join(xmlDir, SYNC_STATE_FILE), content, "utf-8")
+  await writeBinaryXmlSyncState(xmlDir, { version: 1, files: sortRecord(state.files) })
 }
 
 export async function hashProjectFiles(

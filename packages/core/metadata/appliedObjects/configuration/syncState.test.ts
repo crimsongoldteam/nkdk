@@ -74,7 +74,7 @@ describe("xml sync state", () => {
     expect(() => decodeBinaryXmlSyncState(buffer)).toThrow("Некорректный .nkdk-sync.bin")
   })
 
-  it("writes and reads flat xxh3-64 state", async () => {
+  it("writes and reads binary xxh3-64 state", async () => {
     const xmlDir = tempDir()
 
     await writeXmlSyncState(xmlDir, {
@@ -85,12 +85,57 @@ describe("xml sync state", () => {
       },
     })
 
-    expect(readFileSync(join(xmlDir, SYNC_STATE_FILE), "utf-8")).toContain("version: 1")
+    expect(readFileSync(join(xmlDir, BINARY_SYNC_STATE_FILE)).subarray(0, 8).toString("ascii")).toBe("NKDKSYNC")
     await expect(readXmlSyncState(xmlDir)).resolves.toEqual({
       version: 1,
       files: {
-        "Справочник/Товары/Свойства.yaml": "xxh3-64:0000000000000aaa",
         "Справочник/Товары/Модуль.bsl": "xxh3-64:0000000000000bbb",
+        "Справочник/Товары/Свойства.yaml": "xxh3-64:0000000000000aaa",
+      },
+    })
+  })
+
+  it("reads legacy YAML sync state when binary state is absent", async () => {
+    const xmlDir = tempDir()
+    writeFileSync(
+      join(xmlDir, SYNC_STATE_FILE),
+      [
+        "version: 1",
+        "files:",
+        "  Справочник/Товары/Свойства.yaml: xxh3-64:0000000000000aaa",
+        "  Справочник/Товары/Модуль.bsl: xxh3-64:0000000000000bbb",
+        "",
+      ].join("\n"),
+      "utf-8",
+    )
+
+    await expect(readXmlSyncState(xmlDir)).resolves.toEqual({
+      version: 1,
+      files: {
+        "Справочник/Товары/Модуль.bsl": "xxh3-64:0000000000000bbb",
+        "Справочник/Товары/Свойства.yaml": "xxh3-64:0000000000000aaa",
+      },
+    })
+  })
+
+  it("prefers binary sync state over legacy YAML state", async () => {
+    const xmlDir = tempDir()
+    writeFileSync(
+      join(xmlDir, SYNC_STATE_FILE),
+      "version: 1\nfiles:\n  old.yaml: xxh3-64:0000000000000001\n",
+      "utf-8",
+    )
+    await writeXmlSyncState(xmlDir, {
+      version: 1,
+      files: {
+        "new.yaml": "xxh3-64:0000000000000002",
+      },
+    })
+
+    await expect(readXmlSyncState(xmlDir)).resolves.toEqual({
+      version: 1,
+      files: {
+        "new.yaml": "xxh3-64:0000000000000002",
       },
     })
   })
