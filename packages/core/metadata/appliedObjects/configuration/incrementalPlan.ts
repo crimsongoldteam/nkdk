@@ -36,7 +36,9 @@ export function buildIncrementalXmlSyncPlan(params: {
   const areas = [...grouped.values()].sort((left, right) => left.key.localeCompare(right.key, "ru"))
   return {
     areas,
-    rebuildConfigurationXml: areas.some((item) => item.area.kind === "owner" || item.area.ownerCompositionChanges),
+    rebuildConfigurationXml: areas.some(
+      (item) => item.area.kind === "owner" || (item.area.kind === "fileItem" && item.area.ownerCompositionChanges),
+    ),
   }
 }
 

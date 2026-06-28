@@ -6,12 +6,6 @@ interface InitSyncStateDeps {
   initializeXmlSyncState: (params: {
     yamlDir: string
     xmlDir: string
-    context: {
-      defaultLanguage: "ru"
-      version: "2.20"
-      exportToYAML: { toTyped: false }
-      fromXML: { forReference: false }
-    }
   }) => Promise<void>
 }
 
@@ -30,12 +24,6 @@ export async function initSyncState(input: InitSyncStateInput, deps?: InitSyncSt
     await core.initializeXmlSyncState({
       yamlDir: input.yamlDir,
       xmlDir: input.xmlDir,
-      context: {
-        defaultLanguage: "ru",
-        version: "2.20",
-        exportToYAML: { toTyped: false },
-        fromXML: { forReference: false },
-      },
     })
     return toolSuccess({ stateFile: ".nkdk-sync.yaml" as const })
   } catch (caught) {

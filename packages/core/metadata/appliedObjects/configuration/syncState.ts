@@ -1,11 +1,7 @@
-import { createHash } from "crypto"
 import fs from "fs"
-import { mkdtemp } from "fs/promises"
-import { tmpdir } from "os"
 import { join, relative, resolve, sep } from "path"
-import type { ConfigurationContextFromXML } from "~/metadata/context/types"
+import { xxh3 } from "@node-rs/xxhash"
 import YAML from "yaml"
-import { syncConfigurationFromXML } from "./convertFromXML"
 
 export const SYNC_STATE_FILE = ".nkdk-sync.yaml"
 
@@ -21,10 +17,8 @@ export interface XmlSyncStateDiff {
 }
 
 export interface InitializeXmlSyncStateParams {
-  context: ConfigurationContextFromXML
+  yamlDir: string
   xmlDir: string
-  createTempDir?: () => Promise<string>
-  importFromXML?: (params: { context: ConfigurationContextFromXML; inputDir: string; outputDir: string }) => Promise<unknown>
 }
 
 export async function readXmlSyncState(xmlDir: string): Promise<XmlSyncState | undefined> {
@@ -68,19 +62,10 @@ export function diffSyncState(previous: Record<string, string>, current: Record<
 }
 
 export async function initializeXmlSyncState(params: InitializeXmlSyncStateParams): Promise<XmlSyncState> {
-  const createTempDir = params.createTempDir ?? (() => mkdtemp(join(tmpdir(), "nkdk-sync-state-yaml-")))
-  const importFromXML = params.importFromXML ?? syncConfigurationFromXML
-  const yamlDir = await createTempDir()
-
-  try {
-    await importFromXML({ context: params.context, inputDir: params.xmlDir, outputDir: yamlDir })
-    const files = await hashProjectFiles(yamlDir)
-    const state: XmlSyncState = { version: 1, files }
-    await writeXmlSyncState(params.xmlDir, state)
-    return state
-  } finally {
-    await fs.promises.rm(yamlDir, { recursive: true, force: true })
-  }
+  const files = await hashProjectFiles(params.yamlDir)
+  const state: XmlSyncState = { version: 1, files }
+  await writeXmlSyncState(params.xmlDir, state)
+  return state
 }
 
 async function collectProjectFileHashes(
@@ -93,15 +78,18 @@ async function collectProjectFileHashes(
   for (const entry of await fs.promises.readdir(currentDir, { withFileTypes: true })) {
     const absPath = join(currentDir, entry.name)
     if (entry.isDirectory()) {
+      if (entry.name === ".git") continue
       await collectProjectFileHashes(root, absPath, result)
       continue
     }
     if (!entry.isFile()) continue
 
     const relPath = relative(root, absPath).split(sep).join("/")
+    if (entry.name === ".DS_Store") continue
     if (relPath === SYNC_STATE_FILE) continue
 
-    result[relPath] = `sha256:${createHash("sha256").update(await fs.promises.readFile(absPath)).digest("hex")}`
+    const hash = xxh3.xxh64(await fs.promises.readFile(absPath))
+    result[relPath] = `xxh3-64:${hash.toString(16).padStart(16, "0")}`
   }
 }
 
@@ -112,7 +100,7 @@ function isXmlSyncState(value: unknown): value is XmlSyncState {
   if (record.version !== 1) return false
   if (!record.files || typeof record.files !== "object" || Array.isArray(record.files)) return false
 
-  return Object.values(record.files).every((hash) => typeof hash === "string" && /^sha256:[0-9a-f]+$/.test(hash))
+  return Object.values(record.files).every((hash) => typeof hash === "string" && /^xxh3-64:[0-9a-f]{16}$/.test(hash))
 }
 
 function sortRecord(input: Record<string, string>): Record<string, string> {

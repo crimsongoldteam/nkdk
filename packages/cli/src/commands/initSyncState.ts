@@ -4,12 +4,6 @@ export const initSyncState = async (yamlDir: string, xmlDir: string): Promise<vo
   await initializeXmlSyncState({
     yamlDir,
     xmlDir,
-    context: {
-      defaultLanguage: "ru",
-      version: "2.20",
-      exportToYAML: { toTyped: false },
-      fromXML: { forReference: false },
-    },
   })
 
   process.stdout.write("Файл .nkdk-sync.yaml обновлён\n")

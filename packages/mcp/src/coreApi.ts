@@ -141,12 +141,6 @@ export interface CoreApi {
   initializeXmlSyncState(params: {
     yamlDir: string
     xmlDir: string
-    context: {
-      defaultLanguage: "ru"
-      version: "2.20"
-      exportToYAML: { toTyped: false }
-      fromXML: { forReference: false }
-    }
   }): Promise<void>
 }
 

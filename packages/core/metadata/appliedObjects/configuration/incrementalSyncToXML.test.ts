@@ -59,7 +59,7 @@ describe("syncConfigurationIncrementallyToXML", () => {
       version: 1,
       files: {
         ...current,
-        "Справочник/Товары/МодульОбъекта.bsl": "sha256:0000",
+        "Справочник/Товары/МодульОбъекта.bsl": "xxh3-64:0000000000000000",
       },
     })
     writeFileSync(

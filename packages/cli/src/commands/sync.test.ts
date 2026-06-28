@@ -1,9 +1,9 @@
-import { readXmlSyncState, syncConfigurationIncrementallyToXML, syncConfigurationToXML } from "@nakidka/core"
+import { readXmlSyncState, syncConfigurationIncrementallyToXML, syncConfigurationToXML, type XmlSyncState } from "@nakidka/core"
 import { afterEach, beforeEach, describe, expect, it, vi } from "vitest"
 import { syncConfiguration } from "./sync"
 
 const mocks = vi.hoisted(() => ({
-  readXmlSyncState: vi.fn(async () => undefined),
+  readXmlSyncState: vi.fn(async (): Promise<XmlSyncState | undefined> => undefined),
   syncConfigurationIncrementallyToXML: vi.fn(async () => ({ succeeded: 0, failed: [] })),
   syncConfigurationToXML: vi.fn(async () => ({ succeeded: 0, failed: [] })),
 }))
