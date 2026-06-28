@@ -322,14 +322,79 @@
 
 Направление выноса:
 
-- Оставить в `validation` нейтральные части: обход YAML, диагностики, кэш,
-  применение правил и формат сообщений.
-- Вынести owner kind mapping, type-description mapping, virtual fields,
-  стандартные реквизиты и платформенные источники в подключаемый
-  `DataPathResolverRegistry`.
-- Регистрировать capabilities рядом с common/applied rules-объектами:
-  стандартные реквизиты, табличные источники, виртуальные поля, owner refs,
-  register record set columns.
+- Ввести единый подключаемый договор `DataPathResolverRegistry`.
+- Оставить в `validation/dataPath` нейтральное ядро:
+  - разбор `ПутьКДанным` на сегменты;
+  - нормализацию сегментов с индексами;
+  - обход от корня к следующему сегменту;
+  - накопление `DataPathTypeInfo`;
+  - диагностики, кэш YAML и формат сообщений;
+  - проверку policy из `DataPathPropertyRule.allowedKinds`.
+- Убрать из нейтрального ядра знание конкретных платформенных объектов. Оно
+  должно приходить через регистрации рядом с common/applied rules-объектами.
+- `OwnerTypeRef.kind` оставить строковым ключом, без центрального union всех
+  `Справочник`/`Документ`/`ПланСчетов` в `validation`.
+- Регистрировать owner kinds отдельно от обхода:
+  - `kind`: строковый ключ владельца, например `Справочник`;
+  - `projectDir`: папка проекта, например `Справочник`;
+  - `rule`: rules-объект для импорта владельца;
+  - `typeDescriptionBases`: платформенные base-типы, которые дают этот owner,
+    например `CatalogRef`, `CatalogObject`;
+  - `metadataLinkPrefixes`: префиксы ссылок в model-полях, например `Catalog`;
+  - опционально `aliases`, если один project dir или metadata type имеет
+    несколько видимых имён.
+- Регистрировать типы `TypeDescription` отдельно от `typeDescription.ts`.
+  Нейтральная функция должна только разобрать строку вида
+  `<BaseType>.<Name>` и спросить registry, что означает `BaseType`.
+  Примеры:
+  - `CatalogRef.Номенклатура` -> `{ kind: "object", nextTypes:
+    [{ kind: "Справочник", name: "Номенклатура" }] }`;
+  - `InformationRegisterRecordSet.Остатки` -> table source
+    `RegisterRecordSet` с owner `{ kind: "РегистрСведений", name:
+    "Остатки" }`;
+  - `DefinedType.ДоговорКонтрагента` остаётся нейтральным указателем на
+    зарегистрированный owner kind `ОпределяемыйТип`.
+- Регистрировать построение индекса полей объекта через capabilities объекта,
+  а не через центральный список коллекций. Примеры:
+  - `MetadataCatalog` регистрирует коллекции `attributes`,
+    `tabularSections`, `standardAttributes`;
+  - `MetadataInformationRegister` регистрирует `dimensions`, `resources`,
+    `attributes`, `standardAttributes`;
+  - `MetadataTask` регистрирует `addressingAttributes`.
+- Регистрировать типы стандартных реквизитов рядом с их правилами. Общий
+  `objectFields.ts` не должен знать, что `Ref` указывает на текущий объект,
+  `Owner` вычисляется из `owners`, `Parent` возвращает тот же owner, а
+  `BusinessProcess` и `RoutePoint` указывают на `БизнесПроцесс`.
+- Регистрировать виртуальные поля владельца как операции resolver-а. Примеры:
+  - `ПланОбмена` добавляет `ThisNode` и
+    `ОбластьДанныхОсновныеДанные`;
+  - `РегистрСведений` добавляет
+    `ОбластьДанныхВспомогательныеДанные`;
+  - `ПланСчетов` добавляет `ExtDimensionTypes`, `Order`, `Type`,
+    `OffBalance` и поля признаков учёта;
+  - `ПланВидовРасчета` добавляет `ActionPeriodIsBasic`,
+    `BaseCalculationTypes`, `LeadingCalculationTypes`,
+    `DisplacingCalculationTypes`.
+- Регистрировать table-source колонки как операции table kind или owner kind:
+  `ValueList`, `GanttChart`, `RowsCount`, `Total*`, стандартные колонки
+  `RegisterRecordSet`, специальные debit/credit колонки регистра бухгалтерии.
+- Регистрировать особые переходы обхода отдельно:
+  - `Документ` разрешает сегмент `RegisterRecords`/`НаборЗаписей` через
+    `registerRecords`;
+  - `ОтчетОбъект` разрешает `SettingsComposer`/`КомпоновщикНастроек` как
+    пока непроверяемый платформенный источник;
+  - `ConstantsSet` разрешает следующий сегмент через owner kind `Константа`;
+  - `DefinedType` разворачивается через owner kind `ОпределяемыйТип`;
+  - `ОбщийРеквизит` добавляет поле только если его `content` применим к
+    текущему owner.
+- `formIndex.ts` должен строить индекс формы нейтрально из зарегистрированных
+  form rules. Платформенные источники вроде
+  `КомпоновщикНастроекКомпоновкиДанных.Settings` регистрируются как
+  form/dataPath source operation, а не хранятся списком в validation.
+- `resolveDataPath` после выноса должен работать как проходчик:
+  берёт root из form index, на каждом сегменте спрашивает registry о
+  следующем поле/колонке/особом переходе, а сам не содержит проверок вида
+  `isChartOfAccountsOwner`, `isDocumentOwner`, `registerKindByLinkPrefix`.
 
 Категория зависимости: in-process.
 
@@ -433,8 +498,9 @@
     смысла.
 12. Для `validation/dataPath` выделить нейтральное validation-ядро и
     подключаемый `DataPathResolverRegistry`; перенести owner kinds,
-    type-description mapping, стандартные реквизиты и виртуальные поля в
-    регистрации рядом с common/applied правилами.
+    type-description mapping, стандартные реквизиты, виртуальные поля, table
+    columns и особые переходы обхода в регистрации рядом с common/applied
+    правилами.
 13. Разделить `ProjectMetadataResolver` на нейтральный resolver и набор
     registered resolvers для member collections, value collections, child file
     lookup и object path segments.
