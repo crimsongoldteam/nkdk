@@ -24,6 +24,17 @@
   рядом с конкретным объектом. Нарушением становится попадание такого знания в
   `orchestration`, `validation` или `metadata/project`.
 
+## Область текущей спеки
+
+Эта спека планирует реализацию только для Приоритета 1:
+
+- центральные реестры типов в `orchestration`;
+- предметная сборка структуры проекта в `metadata/project`.
+
+Случаи Приоритета 2 и ниже зафиксированы здесь как известные нарушения границ,
+но не решаются в рамках этой спеки. Для них будут отдельные спеки и планы после
+завершения Приоритета 1.
+
 ## Сквозной договор регистраций
 
 - У каждого metadata-объекта должна быть одна точка побочных регистраций:
@@ -49,7 +60,7 @@
 
 ## Очередь разбора
 
-### 1. Центральные реестры типов в `orchestration`
+### 1. Центральные реестры типов в `orchestration` - Приоритет 1
 
 Файлы:
 
@@ -96,7 +107,7 @@
 
 Категория зависимости: in-process.
 
-### 2. Предметная сборка структуры проекта в `metadata/project`
+### 2. Предметная сборка структуры проекта в `metadata/project` - Приоритет 1
 
 Файлы:
 
@@ -142,7 +153,7 @@
 Категория зависимости: local-substitutable, потому что поведение проверяется на
 локальной файловой системе.
 
-### 3. Частные условия в `orchestration/appliedObject`
+### 3. Частные условия в `orchestration/appliedObject` - Приоритет 2, вне текущей спеки
 
 Файлы:
 
@@ -182,7 +193,7 @@
 
 Категория зависимости: local-substitutable.
 
-### 4. Metadata target owner/root в property-оркестрации
+### 4. Metadata target owner/root в property-оркестрации - Приоритет 2, вне текущей спеки
 
 Файлы:
 
@@ -217,7 +228,7 @@
 
 Категория зависимости: in-process.
 
-### 5. `validation/dataPath` как applied-resolver внутри общего слоя
+### 5. `validation/dataPath` как applied-resolver внутри общего слоя - Приоритет 3, вне текущей спеки
 
 Файлы:
 
@@ -268,7 +279,7 @@
 
 Категория зависимости: in-process.
 
-### 6. `ProjectMetadataResolver` как предметный resolver в `validation`
+### 6. `ProjectMetadataResolver` как предметный resolver в `validation` - Приоритет 3, вне текущей спеки
 
 Файлы:
 
@@ -304,7 +315,7 @@
 
 Категория зависимости: local-substitutable.
 
-### 7. Form validation и dynamic list warnings в общем `validation`
+### 7. Form validation и dynamic list warnings в общем `validation` - Приоритет 3, вне текущей спеки
 
 Файлы:
 
@@ -337,7 +348,7 @@
 
 Категория зависимости: in-process.
 
-## Рекомендуемый порядок работ
+## Рекомендуемый порядок работ для Приоритета 1
 
 1. Закрепить и проверить договор `register.ts`: новые регистрации не добавлять
    в `types.ts`/`rules.ts`, а существующие переносить при касании объекта.
@@ -352,13 +363,11 @@
    refs.
 6. `syncStateFiles`, `directoryStructure`, `resources` через единый описатель
    ресурсов проекта.
-7. `orchestration/appliedObject` child-name capability вместо проверок
-   `ChildFormNames`/`ChildTemplateNames`.
-8. Metadata target owner/root registry.
-9. Выделение `validation/dataPath` registry.
-10. Выделение `ProjectMetadataResolver` registered resolvers.
-11. Удаление центральных TypeScript registry в `orchestration` после перевода
+7. Удаление центральных TypeScript registry в `orchestration` после перевода
    достаточного набора объектов на локальные строители и вывод типов из rules.
+
+Разделы Приоритета 2 и 3 остаются в документе только как очередь следующих
+архитектурных тем. Они не входят в план реализации этой спеки.
 
 ## Проверка для каждого шага
 
