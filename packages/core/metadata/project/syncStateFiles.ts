@@ -4,172 +4,207 @@ import { CONFIGURATION_YAML_FILE } from "~/metadata/appliedObjects/configuration
 import { DynamicListRules } from "~/metadata/forms/commonObjects/dynamicList/rules"
 import { ClientApplicationFormRules } from "~/metadata/forms/clientApplicationForm/rules"
 import type { MetadataItemRule, PropertyRule } from "~/metadata/orchestration/property/types"
-import { parseMetadataYaml } from "~/yaml/parseMetadataYaml"
 import { describeMetadataRuleResources } from "./ruleResources"
 import { configurationMetadataProjectSpec, metadataProjectSpecs, type MetadataProjectSpec } from "./specs"
 
 const PROPERTIES_YAML = "Свойства.yaml"
-const FORMS_DIR = "Формы"
-const FORM_YAML = "Форма.yaml"
-const FORM_MODULE = "Модуль.bsl"
 const CHILD_SUBSYSTEMS_DIR = "Подсистемы"
 const SUBSYSTEM_DIR = "Подсистема"
 
-export async function collectSyncStateFilePaths(projectDir: string): Promise<string[]> {
-  const result = new Set<string>()
+interface SyncStatePathMatcherSet {
+  exactFiles: Set<string>
+  regexes: RegExp[]
+}
 
-  await addFileIfExists(result, projectDir, CONFIGURATION_YAML_FILE)
-  await collectDeclaredRuleResources(result, projectDir, configurationMetadataProjectSpec.rule, "", "")
+export async function collectSyncStateFilePaths(projectDir: string): Promise<string[]> {
+  const matchers = compileSyncStatePathMatchers()
+  const result: string[] = []
+
+  await collectProjectFiles(result, projectDir, "", matchers)
+
+  return result.sort((left, right) => left.localeCompare(right, "ru"))
+}
+
+async function collectProjectFiles(
+  result: string[],
+  projectDir: string,
+  relativeDir: string,
+  matchers: SyncStatePathMatcherSet,
+): Promise<void> {
+  const absDir = relativeDir === "" ? projectDir : join(projectDir, ...relativeDir.split("/"))
+  if (!(await isDirectory(absDir))) return
+
+  for (const entry of await fs.promises.readdir(absDir, { withFileTypes: true })) {
+    if (shouldSkipProjectEntry(relativeDir, entry.name)) continue
+
+    const projectPath = joinProjectPath(relativeDir, entry.name)
+    if (entry.isDirectory()) {
+      await collectProjectFiles(result, projectDir, projectPath, matchers)
+    } else if (entry.isFile() && matchesSyncStatePath(projectPath, matchers)) {
+      result.push(projectPath)
+    }
+  }
+}
+
+function shouldSkipProjectEntry(relativeDir: string, name: string): boolean {
+  if (name === ".DS_Store") return true
+  if (relativeDir === "" && (name === ".git" || name === ".nkdk-sync.yaml")) return true
+  if (relativeDir === "" && name === "Миграции") return true
+  return false
+}
+
+function matchesSyncStatePath(projectPath: string, matchers: SyncStatePathMatcherSet): boolean {
+  if (matchers.exactFiles.has(projectPath)) return true
+  return matchers.regexes.some((regex) => regex.test(projectPath))
+}
+
+function compileSyncStatePathMatchers(): SyncStatePathMatcherSet {
+  const matchers: SyncStatePathMatcherSet = { exactFiles: new Set(), regexes: [] }
+
+  addExactFileMatcher(matchers, CONFIGURATION_YAML_FILE)
+  collectRulePathMatchers(matchers, configurationMetadataProjectSpec.rule, "")
 
   for (const spec of metadataProjectSpecs) {
-    await collectSpecFiles(result, projectDir, spec)
+    collectTopLevelSpecMatchers(matchers, spec)
   }
 
-  return [...result].sort((left, right) => left.localeCompare(right, "ru"))
+  return matchers
 }
 
-async function collectSpecFiles(result: Set<string>, projectDir: string, spec: MetadataProjectSpec): Promise<void> {
-  const kindDir = join(projectDir, spec.dir)
-  if (!(await isDirectory(kindDir))) return
+function collectTopLevelSpecMatchers(matchers: SyncStatePathMatcherSet, spec: MetadataProjectSpec): void {
+  const rootPattern = `${escapeRegexSegment(spec.dir)}/[^/]+`
+  addRegexMatcher(matchers, `^${rootPattern}/${escapeRegexSegment(PROPERTIES_YAML)}$`)
+  collectRulePathMatchers(matchers, spec.rule, rootPattern)
 
-  for (const entry of await fs.promises.readdir(kindDir, { withFileTypes: true })) {
-    if (!entry.isDirectory()) continue
-    await collectObjectFiles(result, projectDir, spec, `${spec.dir}/${entry.name}`, entry.name)
-  }
-}
-
-async function collectObjectFiles(
-  result: Set<string>,
-  projectDir: string,
-  spec: MetadataProjectSpec,
-  objectPath: string,
-  objectName: string,
-): Promise<void> {
-  await addFileIfExists(result, projectDir, `${objectPath}/${PROPERTIES_YAML}`)
-  await collectForms(result, projectDir, objectPath)
-  await collectDeclaredRuleResources(result, projectDir, spec.rule, objectPath, objectName)
-  await collectRuleDeclaredChildFiles(result, projectDir, spec.rule, objectPath, objectName)
-
-  if (objectPath.startsWith(`${SUBSYSTEM_DIR}/`)) {
-    await collectNestedSubsystems(result, projectDir, spec.rule, objectPath)
+  if (spec.dir === SUBSYSTEM_DIR) {
+    const nestedSubsystemPattern = `${rootPattern}(?:/${escapeRegexSegment(CHILD_SUBSYSTEMS_DIR)}/[^/]+)*`
+    addRegexMatcher(matchers, `^${nestedSubsystemPattern}/${escapeRegexSegment(PROPERTIES_YAML)}$`)
+    collectRulePathMatchers(matchers, spec.rule, nestedSubsystemPattern)
   }
 }
 
-async function collectForms(result: Set<string>, projectDir: string, objectPath: string): Promise<void> {
-  const formsDir = join(projectDir, ...objectPath.split("/"), FORMS_DIR)
-  if (!(await isDirectory(formsDir))) return
-
-  for (const entry of await fs.promises.readdir(formsDir, { withFileTypes: true })) {
-    if (!entry.isDirectory()) continue
-    const formPath = `${objectPath}/${FORMS_DIR}/${entry.name}`
-    await addFileIfExists(result, projectDir, `${formPath}/${FORM_YAML}`)
-    await addFileIfExists(result, projectDir, `${formPath}/${FORM_MODULE}`)
-  }
-}
-
-async function collectDeclaredRuleResources(
-  result: Set<string>,
-  projectDir: string,
-  rule: MetadataItemRule,
-  objectPath: string,
-  objectName: string,
-): Promise<void> {
+function collectRulePathMatchers(matchers: SyncStatePathMatcherSet, rule: MetadataItemRule, basePattern: string): void {
   for (const resource of describeMetadataRuleResources(rule)) {
     if (resource.kind === "asset") {
-      await collectDirectoryFiles(result, projectDir, joinProjectPath(objectPath, resource.nkdkDir))
+      addDirectoryMatcher(matchers, basePattern, resource.nkdkDir)
     }
   }
 
   for (const propertyRule of Object.values(rule.properties) as PropertyRule[]) {
     const syncArea = propertyRule.syncArea
-    if (syncArea?.kind === "objectModule") {
-      await addFileIfExists(result, projectDir, joinProjectPath(objectPath, syncArea.yamlFile))
-    }
+    if (syncArea?.kind === "objectModule") addPathValueMatcher(matchers, basePattern, syncArea.yamlFile, { family: false })
 
-    if ("nkdkDir" in propertyRule) {
-      const nkdkDir = resolveProjectPathValue(propertyRule.nkdkDir, objectName)
-      if (nkdkDir !== undefined) await collectDirectoryFiles(result, projectDir, joinProjectPath(objectPath, nkdkDir))
-    }
+    if ("nkdkDir" in propertyRule) addPathValueMatcher(matchers, basePattern, propertyRule.nkdkDir, { directory: true })
+    if ("nkdkPath" in propertyRule) addPathValueMatcher(matchers, basePattern, propertyRule.nkdkPath, { family: true })
 
-    if ("nkdkPath" in propertyRule) {
-      const nkdkPath = resolveProjectPathValue(propertyRule.nkdkPath, objectName)
-      if (nkdkPath !== undefined) await addFileFamilyIfExists(result, projectDir, joinProjectPath(objectPath, nkdkPath))
-    }
+    const folderName = getReferenceOnlyFolderName(propertyRule)
+    if (folderName !== undefined) addDirectoryMatcher(matchers, basePattern, folderName)
 
     if (propertyRule.type === "Template" && "nkdkPath" in propertyRule) {
-      const nkdkPath = resolveProjectPathValue(propertyRule.nkdkPath, objectName)
-      if (nkdkPath !== undefined && !nkdkPath.includes("/")) {
-        await collectDirectoryFiles(result, projectDir, objectPath, { exclude: new Set([PROPERTIES_YAML]) })
-      }
+      const nkdkPath = resolveStaticProjectPathValue(propertyRule.nkdkPath)
+      if (nkdkPath !== undefined && !nkdkPath.includes("/")) addDirectoryMatcher(matchers, basePattern, "")
     }
 
     if (propertyRule.type === "ClientApplicationForm") {
-      await addFileFamilyIfExists(result, projectDir, joinProjectPath(objectPath, "Form.xml"))
+      addPathValueMatcher(matchers, basePattern, "Form.xml", { family: true })
     }
 
     for (const resourceDir of getSyncExternalResourceDirs(propertyRule)) {
-      await collectDirectoryFiles(result, projectDir, joinProjectPath(objectPath, resourceDir))
+      addDirectoryMatcher(matchers, basePattern, resourceDir)
     }
   }
-}
-
-async function collectRuleDeclaredChildFiles(
-  result: Set<string>,
-  projectDir: string,
-  rule: MetadataItemRule,
-  objectPath: string,
-  objectName: string,
-): Promise<void> {
-  for (const propertyRule of Object.values(rule.properties) as PropertyRule[]) {
-    const folderName = getReferenceOnlyFolderName(propertyRule)
-    if (folderName !== undefined) await collectDirectoryFiles(result, projectDir, joinProjectPath(objectPath, folderName))
-  }
-
-  const objectYaml = await readObjectYaml(projectDir, objectPath)
-  if (objectYaml === undefined) return
 
   for (const childCollection of rule.childCollections ?? []) {
-    const propertyRule = rule.properties[childCollection.propertyKey]
-    const yamlKey = propertyRule?.yaml
-    if (typeof yamlKey !== "string") continue
+    const childBasePattern =
+      childCollection.nkdkDir === undefined
+        ? basePattern
+        : joinRegexPath(basePattern, pathValueToRegex(childCollection.nkdkDir))
 
-    for (const childName of readYamlCollectionNames(objectYaml, yamlKey)) {
-      const childBasePath =
-        childCollection.nkdkDir === undefined
-          ? objectPath
-          : joinProjectPath(objectPath, resolveProjectPathValue(childCollection.nkdkDir, childName, objectName) ?? "")
-
-      if (childCollection.nkdkDir !== undefined) {
-        await addFileIfExists(result, projectDir, joinProjectPath(childBasePath, PROPERTIES_YAML))
-      }
-      await collectDeclaredRuleResources(result, projectDir, childCollection.itemRule, childBasePath, childName)
-      await collectRuleDeclaredChildFiles(result, projectDir, childCollection.itemRule, childBasePath, childName)
+    if (childCollection.nkdkDir !== undefined) {
+      addRegexMatcher(matchers, `^${childBasePattern}/${escapeRegexSegment(PROPERTIES_YAML)}$`)
     }
+    collectRulePathMatchers(matchers, childCollection.itemRule, childBasePattern)
   }
 }
 
-async function readObjectYaml(projectDir: string, objectPath: string): Promise<unknown | undefined> {
-  const yamlPath = joinProjectPath(objectPath, PROPERTIES_YAML)
-  const absPath = join(projectDir, ...yamlPath.split("/"))
-  if (!(await isFile(absPath))) return undefined
-
-  const text = await fs.promises.readFile(absPath, "utf-8")
-  return parseMetadataYaml(text).data
+function addExactFileMatcher(matchers: SyncStatePathMatcherSet, projectPath: string): void {
+  if (projectPath !== "") matchers.exactFiles.add(projectPath)
 }
 
-function readYamlCollectionNames(yaml: unknown, yamlKey: string): string[] {
-  if (!isRecord(yaml)) return []
+function addRegexMatcher(matchers: SyncStatePathMatcherSet, source: string): void {
+  matchers.regexes.push(new RegExp(source))
+}
 
-  const collection = yaml[yamlKey]
-  if (Array.isArray(collection)) {
-    return collection.flatMap((item) => {
-      if (typeof item === "string") return [item]
-      return isRecord(item) && typeof item["Имя"] === "string" ? [item["Имя"]] : []
-    })
+function addDirectoryMatcher(matchers: SyncStatePathMatcherSet, basePattern: string, directoryPath: string): void {
+  const dirPattern = joinRegexPath(basePattern, staticPathToRegex(directoryPath))
+  if (dirPattern !== "") addRegexMatcher(matchers, `^${dirPattern}/.+$`)
+}
+
+function addPathValueMatcher(
+  matchers: SyncStatePathMatcherSet,
+  basePattern: string,
+  value: string | ((params: { name: string; parentName?: string }) => string) | undefined,
+  options: { directory?: true; family?: boolean },
+): void {
+  const pathPattern = pathValueToRegex(value)
+  if (pathPattern === undefined) return
+
+  if (options.directory === true) {
+    addRegexMatcher(matchers, `^${joinRegexPath(basePattern, pathPattern)}/.+$`)
+    return
   }
 
-  if (isRecord(collection)) return Object.keys(collection)
-  return []
+  const fullPattern = joinRegexPath(basePattern, pathPattern)
+  addRegexMatcher(matchers, `^${fullPattern}$`)
+
+  if (options.family === true && typeof value === "string") {
+    const familyPattern = pathFamilyRegex(pathPattern)
+    if (familyPattern !== undefined) addRegexMatcher(matchers, `^${joinRegexPath(basePattern, familyPattern)}$`)
+  }
+}
+
+function pathValueToRegex(
+  value: string | ((params: { name: string; parentName?: string }) => string) | undefined,
+): string | undefined {
+  if (typeof value === "string") return staticPathToRegex(value)
+  if (typeof value !== "function") return undefined
+
+  const sample = value({ name: "__NKDK_NAME__", parentName: "__NKDK_PARENT__" })
+  return staticPathToRegex(sample)
+    .replaceAll("__NKDK_NAME__", "[^/]+")
+    .replaceAll("__NKDK_PARENT__", "[^/]+")
+}
+
+function resolveStaticProjectPathValue(
+  value: string | ((params: { name: string; parentName?: string }) => string) | undefined,
+): string | undefined {
+  return typeof value === "string" ? value : undefined
+}
+
+function staticPathToRegex(projectPath: string): string {
+  if (projectPath === "") return ""
+  return projectPath.split("/").map(escapeRegexSegment).join("/")
+}
+
+function pathFamilyRegex(pathPattern: string): string | undefined {
+  const slashIndex = pathPattern.lastIndexOf("/")
+  const dirPattern = slashIndex === -1 ? "" : pathPattern.slice(0, slashIndex)
+  const filePattern = slashIndex === -1 ? pathPattern : pathPattern.slice(slashIndex + 1)
+  const dotIndex = filePattern.lastIndexOf("\\.")
+  if (dotIndex <= 0) return undefined
+
+  const stemPattern = filePattern.slice(0, dotIndex)
+  return joinRegexPath(dirPattern, `${stemPattern}\\.[^/]+`)
+}
+
+function joinRegexPath(basePattern: string, childPattern: string | undefined): string {
+  if (childPattern === undefined || childPattern === "") return basePattern
+  if (basePattern === "") return childPattern
+  return `${basePattern}/${childPattern}`
+}
+
+function escapeRegexSegment(segment: string): string {
+  return segment.replace(/[\\^$.*+?()[\]{}|]/g, "\\$&")
 }
 
 function getReferenceOnlyFolderName(rule: PropertyRule): string | undefined {
@@ -200,80 +235,6 @@ function collectResourceDirsFromRule(result: Set<string>, rule: MetadataItemRule
   }
 }
 
-async function collectDirectoryFiles(
-  result: Set<string>,
-  projectDir: string,
-  projectPath: string,
-  options: { exclude?: ReadonlySet<string> } = {},
-): Promise<void> {
-  if (projectPath === "") return
-
-  const absPath = join(projectDir, ...projectPath.split("/"))
-  if (!(await isDirectory(absPath))) return
-
-  for (const entry of await fs.promises.readdir(absPath, { withFileTypes: true })) {
-    if (options.exclude?.has(entry.name)) continue
-    const childPath = `${projectPath}/${entry.name}`
-    if (entry.isDirectory()) {
-      await collectDirectoryFiles(result, projectDir, childPath, options)
-    } else if (entry.isFile()) {
-      result.add(childPath)
-    }
-  }
-}
-
-async function collectNestedSubsystems(
-  result: Set<string>,
-  projectDir: string,
-  rule: MetadataItemRule,
-  objectPath: string,
-): Promise<void> {
-  const childRoot = `${objectPath}/${CHILD_SUBSYSTEMS_DIR}`
-  const childRootAbs = join(projectDir, ...childRoot.split("/"))
-  if (!(await isDirectory(childRootAbs))) return
-
-  for (const entry of await fs.promises.readdir(childRootAbs, { withFileTypes: true })) {
-    if (!entry.isDirectory()) continue
-    const childPath = `${childRoot}/${entry.name}`
-    await addFileIfExists(result, projectDir, `${childPath}/${PROPERTIES_YAML}`)
-    await collectDeclaredRuleResources(result, projectDir, rule, childPath, entry.name)
-    await collectRuleDeclaredChildFiles(result, projectDir, rule, childPath, entry.name)
-    await collectNestedSubsystems(result, projectDir, rule, childPath)
-  }
-}
-
-async function addFileIfExists(result: Set<string>, projectDir: string, projectPath: string): Promise<void> {
-  if (projectPath !== "" && (await isFile(join(projectDir, ...projectPath.split("/"))))) result.add(projectPath)
-}
-
-async function addFileFamilyIfExists(result: Set<string>, projectDir: string, projectPath: string): Promise<void> {
-  await addFileIfExists(result, projectDir, projectPath)
-
-  const slashIndex = projectPath.lastIndexOf("/")
-  const dirPath = slashIndex === -1 ? "" : projectPath.slice(0, slashIndex)
-  const fileName = slashIndex === -1 ? projectPath : projectPath.slice(slashIndex + 1)
-  const dotIndex = fileName.lastIndexOf(".")
-  if (dotIndex <= 0) return
-
-  const stem = fileName.slice(0, dotIndex)
-  const absDir = dirPath === "" ? projectDir : join(projectDir, ...dirPath.split("/"))
-  if (!(await isDirectory(absDir))) return
-
-  for (const entry of await fs.promises.readdir(absDir, { withFileTypes: true })) {
-    if (entry.isFile() && entry.name.startsWith(`${stem}.`)) result.add(joinProjectPath(dirPath, entry.name))
-  }
-}
-
-function resolveProjectPathValue(
-  value: string | ((params: { name: string; parentName?: string }) => string) | undefined,
-  name: string,
-  parentName?: string,
-): string | undefined {
-  if (typeof value === "string") return value
-  if (typeof value === "function") return value({ name, parentName })
-  return undefined
-}
-
 function joinProjectPath(basePath: string, childPath: string): string {
   if (basePath === "") return childPath
   if (childPath === "") return basePath
@@ -289,19 +250,6 @@ async function isDirectory(path: string): Promise<boolean> {
   }
 }
 
-async function isFile(path: string): Promise<boolean> {
-  try {
-    return (await fs.promises.stat(path)).isFile()
-  } catch (caught) {
-    if (isNotFoundError(caught)) return false
-    throw caught
-  }
-}
-
 function isNotFoundError(caught: unknown): boolean {
   return typeof caught === "object" && caught !== null && "code" in caught && caught.code === "ENOENT"
-}
-
-function isRecord(value: unknown): value is Record<string, unknown> {
-  return typeof value === "object" && value !== null && !Array.isArray(value)
 }

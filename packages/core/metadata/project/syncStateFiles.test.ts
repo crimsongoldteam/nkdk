@@ -28,11 +28,7 @@ describe("collectSyncStateFilePaths", () => {
 
     writeProjectFile(projectDir, "Конфигурация.yaml", "Имя: Тест\n")
     writeProjectFile(projectDir, "МодульПриложения.bsl", "Процедура ПриНачалеРаботыСистемы()\nКонецПроцедуры\n")
-    writeProjectFile(
-      projectDir,
-      "Справочник/Товары/Свойства.yaml",
-      ["Имя: Товары", "Команды:", "  Печать:", "    Синоним: Печать", ""].join("\n"),
-    )
+    writeProjectFile(projectDir, "Справочник/Товары/Свойства.yaml", "Имя: Товары\n")
     writeProjectFile(projectDir, "Справочник/Товары/МодульОбъекта.bsl", "Процедура Проверка()\nКонецПроцедуры\n")
     writeProjectFile(projectDir, "Справочник/Товары/Команды/Печать.bsl", "Процедура ОбработкаКоманды()\nКонецПроцедуры\n")
     writeProjectFile(projectDir, "Справочник/Товары/Формы/ФормаЭлемента/Форма.yaml", "Имя: ФормаЭлемента\n")
@@ -50,7 +46,11 @@ describe("collectSyncStateFilePaths", () => {
     writeProjectFile(projectDir, "ОбщийМакет/ПечатнаяФорма/Template.bin", "binary\n")
     writeProjectFile(projectDir, "ОбщийМакет/ПечатнаяФорма/Картинка.png", "png\n")
     writeProjectFile(projectDir, "Справочник/Товары/unknown.tmp", "noise\n")
+    writeProjectFile(projectDir, "Справочник/Товары/Команды/readme.txt", "noise\n")
     writeProjectFile(projectDir, "Миграции/2026-05-05-143000.yaml", "ignored\n")
+    writeProjectFile(projectDir, ".nkdk-sync.yaml", "version: 1\nfiles: {}\n")
+    writeProjectFile(projectDir, ".DS_Store", "ignored\n")
+    writeProjectFile(projectDir, ".git/config", "ignored\n")
 
     await expect(collectSyncStateFilePaths(projectDir)).resolves.toEqual([
       "Конфигурация.yaml",
