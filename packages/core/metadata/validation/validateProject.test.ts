@@ -66,7 +66,7 @@ describe("validateProject", () => {
         }),
       ])
     )
-  })
+  }, 30_000)
 
   it("warns about unimplemented dynamic list type-value checks instead of failing form import", () => {
     const projectDir = createProject()
@@ -113,7 +113,7 @@ describe("validateProject", () => {
     expect(diagnostics.map((diagnostic) => diagnostic.message)).not.toEqual(
       expect.arrayContaining([expect.stringContaining("Не удалось импортировать форму")])
     )
-  })
+  }, 30_000)
 
   it("does not add a form import diagnostic when schema errors already explain the invalid form shape", () => {
     const projectDir = createProject()

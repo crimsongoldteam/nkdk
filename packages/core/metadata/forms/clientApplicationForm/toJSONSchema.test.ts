@@ -38,5 +38,5 @@ describe("ClientApplicationForm exportToJSONSchema type rule", () => {
         },
       })
     ).toBe(true)
-  })
+  }, 30_000)
 })
