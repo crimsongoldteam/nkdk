@@ -1,5 +1,6 @@
 import type { PropertyRuleType } from "~/metadata/orchestration/property/registry"
 import { getTypeRule } from "~/metadata/orchestration/property/typeRuleRegistry"
+import type { ProjectResourceDescriptor, XmlSyncRoute } from "~/metadata/orchestration/property/fn"
 import type { MetadataItemRule, PropertyRule } from "~/metadata/orchestration/property/types"
 
 export type MetadataProjectResourceDescriptor =
@@ -89,6 +90,101 @@ export function describeMetadataRuleResources(rule: MetadataItemRule): MetadataP
   }
 
   return resources
+}
+
+export function describeMetadataRuleProjectResources(rule: MetadataItemRule): ProjectResourceDescriptor[] {
+  const resources: ProjectResourceDescriptor[] = []
+
+  if (configurationItemTypes.has(rule.itemType)) {
+    resources.push({
+      kind: "yaml",
+      role: "configuration",
+      projectPattern: "Конфигурация.yaml",
+      required: true,
+      repeatable: false,
+      owner: "configuration",
+      compositionImpact: "none",
+      source: { kind: "itemRule", itemType: rule.itemType },
+    })
+  } else if (typeof rule.itemTypePrefix === "string") {
+    resources.push({
+      kind: "yaml",
+      role: "properties",
+      projectPattern: "Свойства.yaml",
+      required: true,
+      repeatable: false,
+      owner: "currentItem",
+      compositionImpact: "configurationComposition",
+      source: { kind: "itemRule", itemType: rule.itemType },
+    })
+  }
+
+  for (const [propertyName, propertyRule] of Object.entries(rule.properties) as Array<[string, PropertyRule]>) {
+    const fromType = getTypeRule(propertyRule.type, "projectResources")?.({ propertyRule }) ?? []
+    resources.push(
+      ...fromType.map((resource) => ({
+        ...resource,
+        source:
+          resource.source.kind === "propertyType"
+            ? { kind: "property" as const, propertyName, propertyType: propertyRule.type }
+            : resource.source,
+      }))
+    )
+  }
+
+  return resources
+}
+
+export function describeMetadataRuleXmlSyncRoutes(rule: MetadataItemRule): XmlSyncRoute[] {
+  const routes: XmlSyncRoute[] = []
+
+  if (typeof rule.itemTypePrefix === "string" && typeof rule.xmlDir === "string") {
+    routes.push({
+      kind: "owner",
+      yamlPattern: "Свойства.yaml",
+      xmlPathPattern: `${rule.xmlDir}/{ownerName}.xml`,
+      source: { kind: "itemRule", itemType: rule.itemType },
+    })
+  }
+
+  for (const [propertyName, propertyRule] of Object.entries(rule.properties) as Array<[string, PropertyRule]>) {
+    const fromType = getTypeRule(propertyRule.type, "xmlSyncRoutes")?.({ propertyRule }) ?? []
+    routes.push(
+      ...fromType.map((route) => ({
+        ...route,
+        source:
+          route.source.kind === "propertyType"
+            ? { kind: "property" as const, propertyName, propertyType: propertyRule.type }
+            : route.source,
+      }))
+    )
+  }
+
+  return routes
+}
+
+export function matchProjectPattern(pattern: string, projectPath: string): Record<string, string> | undefined {
+  const patternParts = pattern.split("/")
+  const pathParts = projectPath.split("/")
+  if (patternParts.length !== pathParts.length) return undefined
+
+  const params: Record<string, string> = {}
+  for (let index = 0; index < patternParts.length; index += 1) {
+    const patternPart = patternParts[index]
+    const pathPart = pathParts[index]
+    const match = patternPart.match(/^\{([^}]+)\}$/)
+    if (match) {
+      if (!pathPart) return undefined
+      params[match[1]] = pathPart
+    } else if (patternPart !== pathPart) {
+      return undefined
+    }
+  }
+  return params
+}
+
+export function expandProjectPattern(pattern: string, params: Record<string, string>): string {
+  return pattern.replace(/\{([^}]+)\}/g, (_source, key: string) => params[key] ?? "")
 }
 
 function collectPropertyResources(

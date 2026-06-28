@@ -5,9 +5,13 @@ import { MetadataCommonFormRules } from "~/metadata/appliedObjects/metadataCommo
 import { MetadataReportRules } from "~/metadata/appliedObjects/metadataReport/rules"
 import { DynamicListRules } from "~/metadata/forms/commonObjects/dynamicList/rules"
 import { ClientApplicationFormRules } from "~/metadata/forms/clientApplicationForm/rules"
+import { getTypeRule, registerTypeRule } from "~/metadata/orchestration/property/typeRuleRegistry"
 import { registerCoreMetadata } from "~/metadata/register"
 import {
   describeMetadataRuleResources,
+  describeMetadataRuleProjectResources,
+  describeMetadataRuleXmlSyncRoutes,
+  matchProjectPattern,
   type MetadataProjectDynamicDescriptor,
   type MetadataProjectExternalXmlDescriptor,
   type MetadataProjectXmlDescriptor,
@@ -322,6 +326,87 @@ describe("describeMetadataRuleResources", () => {
 
   it("exports rule resource descriptor API from project index", () => {
     expect(indexDescribeMetadataRuleResources).toBe(describeMetadataRuleResources)
+  })
+})
+
+describe("project resource type-rule contracts", () => {
+  it("registers project resource descriptors for a property type", () => {
+    registerTypeRule("ChildFormNames", "projectResources", () => [
+      {
+        kind: "yaml",
+        role: "fileItem",
+        projectPattern: "Формы/{itemName}/Форма.yaml",
+        required: true,
+        repeatable: true,
+        owner: "currentItem",
+        compositionImpact: "none",
+        source: { kind: "propertyType", type: "ChildFormNames" },
+      },
+    ])
+
+    expect(getTypeRule("ChildFormNames", "projectResources")?.({} as never)).toEqual([
+      expect.objectContaining({
+        kind: "yaml",
+        role: "fileItem",
+        projectPattern: "Формы/{itemName}/Форма.yaml",
+        compositionImpact: "none",
+      }),
+    ])
+  })
+
+  it("registers XML sync routes and writers for a property type", () => {
+    const writer = async () => undefined
+    registerTypeRule("ChildFormNames", "xmlSyncRoutes", () => [
+      {
+        kind: "fileItem",
+        yamlPattern: "Формы/{itemName}/Форма.yaml",
+        xmlPathPattern: "Forms/{itemName}.xml",
+        writerType: "propertyType",
+        source: { kind: "propertyType", type: "ChildFormNames" },
+      },
+    ])
+    registerTypeRule("ChildFormNames", "xmlSyncWriter", writer)
+
+    expect(getTypeRule("ChildFormNames", "xmlSyncRoutes")?.({} as never)[0]).toMatchObject({
+      kind: "fileItem",
+      yamlPattern: "Формы/{itemName}/Форма.yaml",
+      xmlPathPattern: "Forms/{itemName}.xml",
+    })
+    expect(getTypeRule("ChildFormNames", "xmlSyncWriter")).toBe(writer)
+  })
+})
+
+describe("metadata rule resources and XML routes", () => {
+  beforeEach(() => {
+    registerCoreMetadata()
+  })
+
+  it("describes owner properties as configuration composition resource", () => {
+    expect(describeMetadataRuleProjectResources(MetadataCatalogRules)).toContainEqual(
+      expect.objectContaining({
+        kind: "yaml",
+        role: "properties",
+        projectPattern: "Свойства.yaml",
+        compositionImpact: "configurationComposition",
+      })
+    )
+  })
+
+  it("does not hard-code MetadataCatalog for XML root names", () => {
+    expect(describeMetadataRuleXmlSyncRoutes(MetadataCatalogRules)).toContainEqual(
+      expect.objectContaining({
+        kind: "owner",
+        yamlPattern: "Свойства.yaml",
+        xmlPathPattern: "Catalogs/{ownerName}.xml",
+      })
+    )
+  })
+
+  it("matches named project patterns", () => {
+    expect(matchProjectPattern("Формы/{itemName}/Форма.yaml", "Формы/ФормаЭлемента/Форма.yaml")).toEqual({
+      itemName: "ФормаЭлемента",
+    })
+    expect(matchProjectPattern("Формы/{itemName}/Форма.yaml", "Формы/ФормаЭлемента/Модуль.bsl")).toBeUndefined()
   })
 })
 

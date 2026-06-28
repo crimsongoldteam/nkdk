@@ -126,6 +126,71 @@ export type SyncExternalToXMLFunction = (params: {
   currentXMLDir?: string
 }) => Promise<void>
 
+export type ProjectResourceCompositionImpact = "none" | "configurationComposition"
+
+export type ProjectResourceSource =
+  | { kind: "itemRule"; itemType: string }
+  | { kind: "property"; propertyName: string; propertyType: PropertyRuleType }
+  | { kind: "propertyType"; type: PropertyRuleType }
+
+export type ProjectResourceDescriptor =
+  | {
+      kind: "yaml"
+      role: "configuration" | "properties" | "fileItem" | "resourceOnly"
+      projectPattern: string
+      required: boolean
+      repeatable: boolean
+      owner: "configuration" | "currentItem"
+      compositionImpact: ProjectResourceCompositionImpact
+      source: ProjectResourceSource
+    }
+  | {
+      kind: "directory"
+      role: "resourceOnly"
+      projectPattern: string
+      required: boolean
+      repeatable: boolean
+      owner: "currentItem"
+      compositionImpact: "none"
+      source: ProjectResourceSource
+    }
+
+export type XmlSyncRoute =
+  | {
+      kind: "owner"
+      yamlPattern: string
+      xmlPathPattern: string
+      source: ProjectResourceSource
+    }
+  | {
+      kind: "fileItem" | "externalFile"
+      yamlPattern: string
+      xmlPathPattern: string
+      writerType: "propertyType"
+      source: ProjectResourceSource
+      dumpInfoNamePatterns?: string[]
+      deleteParentAreaBeforeWrite?: boolean
+    }
+  | {
+      kind: "resourceOnly"
+      yamlPattern: string
+      source: ProjectResourceSource
+    }
+
+export type ProjectResourcesFunction = (params: { propertyRule?: PropertyRule }) => ProjectResourceDescriptor[]
+export type XmlSyncRoutesFunction = (params: { propertyRule?: PropertyRule }) => XmlSyncRoute[]
+
+export type XmlSyncWriterFunction = (params: {
+  context: ConfigurationContextWithExportToXML
+  rule: PropertyRule
+  nkdkDir: string
+  xmlDir: string
+  name: string
+  itemName?: string
+  referenceDir?: string
+  xmlManifest?: XmlWriteManifest
+}) => Promise<void>
+
 export interface CollectionItemRule {
   itemRule: MetadataItemRule
 }
@@ -141,6 +206,9 @@ export interface TypeRule {
   syncExternalFromXML?: SyncExternalFromXMLFunction
   syncExternalToXML?: SyncExternalToXMLFunction
   validateMetadataTarget?: ValidateMetadataTargetFunction
+  projectResources?: ProjectResourcesFunction
+  xmlSyncRoutes?: XmlSyncRoutesFunction
+  xmlSyncWriter?: XmlSyncWriterFunction
 }
 
 export type TypeRulesOperations =
@@ -154,6 +222,9 @@ export type TypeRulesOperations =
   | "syncExternalFromXML"
   | "syncExternalToXML"
   | "validateMetadataTarget"
+  | "projectResources"
+  | "xmlSyncRoutes"
+  | "xmlSyncWriter"
 type TypeRuleKey = `${PropertyRuleType}:${TypeRulesOperations}`
 
 export const createRegistryKey = (type: PropertyRuleType, operation: TypeRulesOperations): TypeRuleKey => {
@@ -180,4 +251,10 @@ export type importExportFunction<O extends TypeRulesOperations> = O extends "imp
                 ? SyncExternalToXMLFunction | undefined
                 : O extends "validateMetadataTarget"
                   ? ValidateMetadataTargetFunction | undefined
-                  : never
+                  : O extends "projectResources"
+                    ? ProjectResourcesFunction | undefined
+                    : O extends "xmlSyncRoutes"
+                      ? XmlSyncRoutesFunction | undefined
+                      : O extends "xmlSyncWriter"
+                        ? XmlSyncWriterFunction | undefined
+                        : never
