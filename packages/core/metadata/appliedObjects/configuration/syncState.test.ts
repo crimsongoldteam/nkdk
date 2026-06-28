@@ -10,6 +10,11 @@ import {
   SYNC_STATE_FILE,
   writeXmlSyncState,
 } from "./syncState"
+import {
+  BINARY_SYNC_STATE_FILE,
+  decodeBinaryXmlSyncState,
+  encodeBinaryXmlSyncState,
+} from "./syncStateBinary"
 
 describe("xml sync state", () => {
   const dirs: string[] = []
@@ -23,6 +28,51 @@ describe("xml sync state", () => {
     dirs.push(dir)
     return dir
   }
+
+  it("encodes and decodes binary sync state", () => {
+    const state = {
+      version: 1 as const,
+      files: {
+        "Справочник/Товары/Свойства.yaml": "xxh3-64:0000000000000aaa",
+        "Справочник/Товары/Модуль.bsl": "xxh3-64:0000000000000bbb",
+      },
+    }
+
+    const encoded = encodeBinaryXmlSyncState(state)
+
+    expect(encoded.subarray(0, 8).toString("ascii")).toBe("NKDKSYNC")
+    expect(decodeBinaryXmlSyncState(encoded)).toEqual({
+      version: 1,
+      files: {
+        "Справочник/Товары/Модуль.bsl": "xxh3-64:0000000000000bbb",
+        "Справочник/Товары/Свойства.yaml": "xxh3-64:0000000000000aaa",
+      },
+    })
+  })
+
+  it("rejects binary sync state with invalid magic", () => {
+    const buffer = Buffer.from("NOTSTATE")
+
+    expect(() => decodeBinaryXmlSyncState(buffer)).toThrow("Некорректный .nkdk-sync.bin")
+  })
+
+  it("rejects binary sync state with unsupported version", () => {
+    const buffer = Buffer.alloc(14)
+    buffer.write("NKDKSYNC", 0, "ascii")
+    buffer.writeUInt16LE(2, 8)
+    buffer.writeUInt32LE(0, 10)
+
+    expect(() => decodeBinaryXmlSyncState(buffer)).toThrow("Некорректный .nkdk-sync.bin")
+  })
+
+  it("rejects truncated binary sync state entries", () => {
+    const buffer = Buffer.alloc(14)
+    buffer.write("NKDKSYNC", 0, "ascii")
+    buffer.writeUInt16LE(1, 8)
+    buffer.writeUInt32LE(1, 10)
+
+    expect(() => decodeBinaryXmlSyncState(buffer)).toThrow("Некорректный .nkdk-sync.bin")
+  })
 
   it("writes and reads flat xxh3-64 state", async () => {
     const xmlDir = tempDir()
