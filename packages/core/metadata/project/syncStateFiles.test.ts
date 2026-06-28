@@ -89,4 +89,16 @@ describe("collectSyncStateFilePaths", () => {
       "Подсистема/Продажи/Свойства.yaml",
     ])
   })
+
+  it("does not read YAML content to discover child resource files", async () => {
+    const projectDir = tempDir()
+
+    writeProjectFile(projectDir, "Справочник/Товары/Свойства.yaml", "Команды: [\n")
+    writeProjectFile(projectDir, "Справочник/Товары/Команды/Печать.bsl", "Процедура ОбработкаКоманды()\nКонецПроцедуры\n")
+
+    await expect(collectSyncStateFilePaths(projectDir)).resolves.toEqual([
+      "Справочник/Товары/Команды/Печать.bsl",
+      "Справочник/Товары/Свойства.yaml",
+    ])
+  })
 })
