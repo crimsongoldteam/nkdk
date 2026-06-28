@@ -323,7 +323,12 @@ const { enableContentChange: _columnGroupEnableContentChange, ...fullColumnGroup
 const { enableContentChange: _popupEnableContentChange, ...fullPopupFromYAML } = fullPopup
 const { fixingInTable: _tableInputFieldFixingInTable, ...fullTableInputFieldFromYAML } = fullTableInputField
 const { fixingInTable: _tableCheckBoxFieldFixingInTable, ...fullTableCheckBoxFieldFromYAML } = fullTableCheckBoxField
-const { fixingInTable: _tableLabelFieldFixingInTable, ...fullTableLabelFieldFromYAML } = fullTableLabelField
+const {
+  autoMaxHeight: _tableLabelFieldAutoMaxHeight,
+  autoMaxWidth: _tableLabelFieldAutoMaxWidth,
+  fixingInTable: _tableLabelFieldFixingInTable,
+  ...fullTableLabelFieldFromYAML
+} = fullTableLabelField
 const { fixingInTable: _tablePictureFieldFixingInTable, ...fullTablePictureFieldFromYAML } = fullTablePictureField
 const {
   picture: { transparentPixel: _usualButtonTransparentPixel, ...fullUsualButtonPictureFromYAML },

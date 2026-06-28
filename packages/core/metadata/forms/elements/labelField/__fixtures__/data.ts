@@ -79,8 +79,6 @@ export const fullLabelFieldPartialYAML: LabelFieldPartialYAML = {
     Нажатие: "ПроцедураНажатия",
     ОбработкаНавигационнойСсылки: "ПроцедураОбработкиURL",
   },
-  АвтоМаксимальнаяВысота: "Истина",
-  АвтоМаксимальнаяШирина: "Истина",
   ПутьКДанным: "Реквизит",
   Заголовок: "Поле надписи",
   ...fullFormFieldPartialYAMLCommonFixture,
