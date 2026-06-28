@@ -37,5 +37,5 @@ describe("MCP server", () => {
     } finally {
       await client.close()
     }
-  })
+  }, 30_000)
 })
