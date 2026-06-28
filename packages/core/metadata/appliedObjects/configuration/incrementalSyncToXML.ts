@@ -7,7 +7,9 @@ import { buildConfigurationChildObjects, readConfigurationChildObjectsFromXML } 
 import type { ConfigurationSyncResult } from "./convertFromXML"
 import { buildIncrementalXmlSyncPlan } from "./incrementalPlan"
 import {
+  CONFIGURATION_XML_FILE,
   CONFIGURATION_YAML_FILE,
+  readConfigurationFromXML,
   readConfigurationFromYAML,
   writeConfigurationToXML,
 } from "./rootIO"
@@ -65,7 +67,9 @@ export async function syncConfigurationIncrementallyToXML(params: {
           name: planned.area.itemName,
           outputDir: join(params.outputDir, rule.xmlDir),
           externalOutputDir: join(params.outputDir, rule.xmlDir, planned.area.itemName),
-          referenceDir: params.referenceDir ? join(params.referenceDir, rule.xmlDir) : join(params.outputDir, rule.xmlDir),
+          referenceDir: params.referenceDir
+            ? join(params.referenceDir, rule.xmlDir)
+            : join(params.outputDir, rule.xmlDir),
           externalReferenceDir: params.referenceDir
             ? join(params.referenceDir, rule.xmlDir, planned.area.itemName)
             : join(params.outputDir, rule.xmlDir, planned.area.itemName),
@@ -82,7 +86,9 @@ export async function syncConfigurationIncrementallyToXML(params: {
         name: planned.area.itemName,
         outputDir: join(params.outputDir, rule.xmlDir),
         externalOutputDir: join(params.outputDir, rule.xmlDir, planned.area.itemName),
-        referenceDir: params.referenceDir ? join(params.referenceDir, rule.xmlDir) : join(params.outputDir, rule.xmlDir),
+        referenceDir: params.referenceDir
+          ? join(params.referenceDir, rule.xmlDir)
+          : join(params.outputDir, rule.xmlDir),
         externalReferenceDir: params.referenceDir
           ? join(params.referenceDir, rule.xmlDir, planned.area.itemName)
           : join(params.outputDir, rule.xmlDir, planned.area.itemName),
@@ -112,12 +118,25 @@ async function writeConfigurationArea(params: {
 }): Promise<void> {
   if (!fs.existsSync(join(params.inputDir, CONFIGURATION_YAML_FILE))) return
 
-  const referenceChildObjects = params.referenceDir ? readConfigurationChildObjectsFromXML(params.referenceDir) : undefined
-  const configuration = readConfigurationFromYAML({ context: params.context, inputDir: params.inputDir })
+  const referenceDir = params.referenceDir ?? params.outputDir
+  const hasReferenceConfiguration = fs.existsSync(join(referenceDir, CONFIGURATION_XML_FILE))
+  const referenceContext = { ...params.context, fromXML: { forReference: true } }
+  const referenceConfiguration = hasReferenceConfiguration
+    ? readConfigurationFromXML({ context: referenceContext, inputDir: referenceDir })
+    : undefined
+  const referenceChildObjects = hasReferenceConfiguration
+    ? readConfigurationChildObjectsFromXML(referenceDir)
+    : undefined
+  const configuration = readConfigurationFromYAML({
+    context: params.context,
+    inputDir: params.inputDir,
+    source: referenceConfiguration,
+  })
   writeConfigurationToXML({
     context: params.context,
     configuration,
     outputDir: params.outputDir,
+    referenceConfiguration,
     childObjects: buildConfigurationChildObjects({ yamlDir: params.inputDir, referenceChildObjects }),
   })
 }

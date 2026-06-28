@@ -1,7 +1,4 @@
-import {
-  resolveXmlSyncAreaForProjectPath,
-  type XmlSyncArea,
-} from "~/metadata/orchestration/appliedObject/xmlAreas"
+import { resolveXmlSyncAreaForProjectPath, type XmlSyncArea } from "~/metadata/orchestration/appliedObject/xmlAreas"
 import type { MetadataItemRule } from "~/metadata/orchestration/property/types"
 import type { XmlSyncStateDiff } from "./syncState"
 
@@ -9,6 +6,7 @@ export interface PlannedXmlSyncArea {
   key: string
   area: XmlSyncArea
   changedPaths: string[]
+  changesConfigurationComposition: boolean
 }
 
 export interface IncrementalXmlSyncPlan {
@@ -21,25 +19,44 @@ export function buildIncrementalXmlSyncPlan(params: {
   rules: readonly MetadataItemRule[]
 }): IncrementalXmlSyncPlan {
   const grouped = new Map<string, PlannedXmlSyncArea>()
-  const changedPaths = [...params.diff.added, ...params.diff.changed, ...params.diff.deleted]
 
-  for (const path of changedPaths) {
-    const area = resolveXmlSyncAreaForProjectPath(path, params.rules)
-    if (!area) throw new Error(`Нет правила инкрементальной XML-синхронизации для "${path}"`)
-
-    const key = areaKey(area)
-    const existing = grouped.get(key)
-    if (existing) existing.changedPaths.push(path)
-    else grouped.set(key, { key, area, changedPaths: [path] })
+  for (const path of params.diff.added) {
+    addPathToPlan({ grouped, path, rules: params.rules, changesConfigurationComposition: true })
+  }
+  for (const path of params.diff.changed) {
+    addPathToPlan({ grouped, path, rules: params.rules, changesConfigurationComposition: false })
+  }
+  for (const path of params.diff.deleted) {
+    addPathToPlan({ grouped, path, rules: params.rules, changesConfigurationComposition: true })
   }
 
   const areas = [...grouped.values()].sort((left, right) => left.key.localeCompare(right.key, "ru"))
   return {
     areas,
-    rebuildConfigurationXml: areas.some(
-      (item) => item.area.kind === "owner" || (item.area.kind === "fileItem" && item.area.ownerCompositionChanges),
-    ),
+    rebuildConfigurationXml: areas.some((item) => item.changesConfigurationComposition),
   }
+}
+
+function addPathToPlan(params: {
+  grouped: Map<string, PlannedXmlSyncArea>
+  path: string
+  rules: readonly MetadataItemRule[]
+  changesConfigurationComposition: boolean
+}): void {
+  const area = resolveXmlSyncAreaForProjectPath(params.path, params.rules)
+  if (!area) throw new Error(`Нет правила инкрементальной XML-синхронизации для "${params.path}"`)
+
+  const key = areaKey(area)
+  const existing = params.grouped.get(key)
+  const changesConfigurationComposition =
+    params.changesConfigurationComposition &&
+    (area.kind === "owner" || (area.kind === "fileItem" && area.ownerCompositionChanges))
+  if (existing) {
+    existing.changedPaths.push(params.path)
+    existing.changesConfigurationComposition ||= changesConfigurationComposition
+    return
+  }
+  params.grouped.set(key, { key, area, changedPaths: [params.path], changesConfigurationComposition })
 }
 
 export function areaKey(area: XmlSyncArea): string {

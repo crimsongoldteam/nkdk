@@ -2,7 +2,9 @@ import { existsSync, mkdirSync, mkdtempSync, readFileSync, rmSync, writeFileSync
 import { tmpdir } from "os"
 import { join } from "path"
 import { afterEach, describe, expect, it } from "vitest"
+import { getXMLFixturePath } from "~/tests/readAndParseXMLFile"
 import { syncConfigurationIncrementallyToXML } from "./incrementalSyncToXML"
+import { CONFIGURATION_XML_FILE, CONFIGURATION_YAML_FILE } from "./rootIO"
 import { hashProjectFiles, readXmlSyncState, writeXmlSyncState } from "./syncState"
 
 describe("syncConfigurationIncrementallyToXML", () => {
@@ -53,7 +55,11 @@ describe("syncConfigurationIncrementallyToXML", () => {
     const xmlDir = tempDir()
     mkdirSync(join(yamlDir, "Справочник", "Товары"), { recursive: true })
     writeFileSync(join(yamlDir, "Справочник", "Товары", "Свойства.yaml"), "Имя: Товары\n", "utf-8")
-    writeFileSync(join(yamlDir, "Справочник", "Товары", "МодульОбъекта.bsl"), "Процедура Новая()\nКонецПроцедуры\n", "utf-8")
+    writeFileSync(
+      join(yamlDir, "Справочник", "Товары", "МодульОбъекта.bsl"),
+      "Процедура Новая()\nКонецПроцедуры\n",
+      "utf-8"
+    )
     const current = await hashProjectFiles(yamlDir)
     await writeXmlSyncState(xmlDir, {
       version: 1,
@@ -72,7 +78,7 @@ describe("syncConfigurationIncrementallyToXML", () => {
     <Metadata name="Language.Русский" id="lang" configVersion="old-lang"/>
   </ConfigVersions>
 </ConfigDumpInfo>`,
-      "utf-8",
+      "utf-8"
     )
 
     const result = await syncConfigurationIncrementallyToXML({
@@ -83,13 +89,67 @@ describe("syncConfigurationIncrementallyToXML", () => {
 
     expect(result.failed).toEqual([])
     expect(readFileSync(join(xmlDir, "Catalogs", "Товары", "Ext", "ObjectModule.bsl"), "utf-8")).toBe(
-      "Процедура Новая()\nКонецПроцедуры\n",
+      "Процедура Новая()\nКонецПроцедуры\n"
     )
     const dumpInfo = readFileSync(join(xmlDir, "ConfigDumpInfo.xml"), "utf-8")
     expect(dumpInfo).not.toContain('name="Catalog.Товары" id="owner" configVersion="old-owner"')
     expect(dumpInfo).not.toContain('name="Catalog.Товары.ObjectModule" id="owner.0" configVersion="old-module"')
     expect(dumpInfo).toContain('name="Language.Русский" id="lang" configVersion="old-lang"')
     expect(existsSync(join(xmlDir, "Catalogs", "Товары.xml"))).toBe(false)
+  })
+
+  it("does not rewrite root Configuration.xml for changed owner properties", async () => {
+    const yamlDir = tempDir()
+    const xmlDir = tempDir()
+    mkdirSync(join(yamlDir, "Справочник", "Товары"), { recursive: true })
+    writeFileSync(join(yamlDir, CONFIGURATION_YAML_FILE), "Имя: Конфигурация\n", "utf-8")
+    writeFileSync(join(yamlDir, "Справочник", "Товары", "Свойства.yaml"), "Имя: Товары\n", "utf-8")
+    const current = await hashProjectFiles(yamlDir)
+    await writeXmlSyncState(xmlDir, {
+      version: 1,
+      files: {
+        ...current,
+        "Справочник/Товары/Свойства.yaml": "xxh3-64:0000000000000000",
+      },
+    })
+    const existingConfiguration = "<Configuration>reference</Configuration>"
+    writeFileSync(join(xmlDir, CONFIGURATION_XML_FILE), existingConfiguration, "utf-8")
+
+    const result = await syncConfigurationIncrementallyToXML({
+      context: baseContext(),
+      inputDir: yamlDir,
+      outputDir: xmlDir,
+    })
+
+    expect(result.failed).toEqual([])
+    expect(readFileSync(join(xmlDir, CONFIGURATION_XML_FILE), "utf-8")).toBe(existingConfiguration)
+    expect(existsSync(join(xmlDir, "Catalogs", "Товары.xml"))).toBe(true)
+  })
+
+  it("uses current XML directory as reference when rebuilding root Configuration.xml", async () => {
+    const yamlDir = tempDir()
+    const xmlDir = tempDir()
+    mkdirSync(join(yamlDir, "Справочник", "Товары"), { recursive: true })
+    writeFileSync(join(yamlDir, CONFIGURATION_YAML_FILE), "Имя: Конфигурация\n", "utf-8")
+    writeFileSync(join(yamlDir, "Справочник", "Товары", "Свойства.yaml"), "Имя: Товары\n", "utf-8")
+    const current = await hashProjectFiles(yamlDir)
+    const previous = { ...current }
+    delete previous["Справочник/Товары/Свойства.yaml"]
+    await writeXmlSyncState(xmlDir, { version: 1, files: previous })
+    const referenceConfiguration = readFileSync(getXMLFixturePath("configuration/full.xml"), "utf-8")
+    const referenceUuid = referenceConfiguration.match(/<Configuration uuid="([^"]+)">/)?.[1]
+    writeFileSync(join(xmlDir, CONFIGURATION_XML_FILE), referenceConfiguration, "utf-8")
+
+    const result = await syncConfigurationIncrementallyToXML({
+      context: baseContext(),
+      inputDir: yamlDir,
+      outputDir: xmlDir,
+    })
+
+    expect(result.failed).toEqual([])
+    expect(readFileSync(join(xmlDir, CONFIGURATION_XML_FILE), "utf-8")).toContain(
+      `<Configuration uuid="${referenceUuid}">`
+    )
   })
 })
 

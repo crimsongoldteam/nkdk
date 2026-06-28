@@ -3,21 +3,31 @@ import { MetadataCatalogRules } from "../metadataCatalog/rules"
 import { buildIncrementalXmlSyncPlan } from "./incrementalPlan"
 
 describe("buildIncrementalXmlSyncPlan", () => {
-  it("groups duplicate areas and marks Configuration.xml when owner set changes", () => {
+  it("groups duplicate areas without marking Configuration.xml for changed owner properties", () => {
     const plan = buildIncrementalXmlSyncPlan({
       diff: {
-        added: ["Справочник/Товары/Формы/НоваяФорма/Форма.yaml"],
+        added: [],
         changed: ["Справочник/Товары/Свойства.yaml", "Справочник/Товары/Свойства.yaml"],
         deleted: [],
       },
       rules: [MetadataCatalogRules],
     })
 
+    expect(plan.rebuildConfigurationXml).toBe(false)
+    expect(plan.areas.map((area) => area.key).sort()).toEqual(["owner:Справочник/Товары"])
+  })
+
+  it("marks Configuration.xml when root object composition changes", () => {
+    const plan = buildIncrementalXmlSyncPlan({
+      diff: {
+        added: ["Справочник/Товары/Свойства.yaml"],
+        changed: [],
+        deleted: [],
+      },
+      rules: [MetadataCatalogRules],
+    })
+
     expect(plan.rebuildConfigurationXml).toBe(true)
-    expect(plan.areas.map((area) => area.key).sort()).toEqual([
-      "fileItem:Справочник/Товары/form/НоваяФорма",
-      "owner:Справочник/Товары",
-    ])
   })
 
   it("throws when a deleted path cannot be resolved by rules", () => {
@@ -25,7 +35,7 @@ describe("buildIncrementalXmlSyncPlan", () => {
       buildIncrementalXmlSyncPlan({
         diff: { added: [], changed: [], deleted: ["x/y/z.txt"] },
         rules: [MetadataCatalogRules],
-      }),
+      })
     ).toThrow('Нет правила инкрементальной XML-синхронизации для "x/y/z.txt"')
   })
 })
