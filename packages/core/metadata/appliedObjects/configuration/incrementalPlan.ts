@@ -50,7 +50,7 @@ function addPathToPlan(params: {
   const existing = params.grouped.get(key)
   const changesConfigurationComposition =
     params.changesConfigurationComposition &&
-    (area.kind === "owner" || (area.kind === "fileItem" && area.ownerCompositionChanges))
+    (area.kind === "owner" || (area.kind === "fileItem" && area.compositionImpact === "configurationComposition"))
   if (existing) {
     existing.changedPaths.push(params.path)
     existing.changesConfigurationComposition ||= changesConfigurationComposition
@@ -62,7 +62,15 @@ function addPathToPlan(params: {
 export function areaKey(area: XmlSyncArea): string {
   if (area.kind === "owner") return `owner:${area.itemTypePrefix}/${area.itemName}`
   if (area.kind === "fileItem") {
-    return `fileItem:${area.itemTypePrefix}/${area.itemName}/${area.childKind}/${area.childName}`
+    return `fileItem:${area.itemTypePrefix}/${area.itemName}/${area.propertyName}/${routeParamsKey(area.routeParams)}`
   }
   return `externalFile:${area.xmlPath}`
+}
+
+function routeParamsKey(params: Record<string, string>): string {
+  if (typeof params.itemName === "string") return params.itemName
+  return Object.entries(params)
+    .sort(([left], [right]) => left.localeCompare(right, "ru"))
+    .map(([key, value]) => `${key}=${value}`)
+    .join("&")
 }

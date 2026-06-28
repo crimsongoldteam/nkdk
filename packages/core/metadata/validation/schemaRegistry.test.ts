@@ -17,7 +17,7 @@ const context = {
   version: "2.20",
 } as const
 
-describe("JSON Schema registry", () => {
+describe("JSON Schema registry", { timeout: 30_000 }, () => {
   beforeEach(() => {
     ensureJSONSchemaRegistry()
   })

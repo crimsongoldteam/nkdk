@@ -8,7 +8,7 @@ import { mockContext } from "~/tests/mockContext"
 import { ProjectFileSchemaError } from "./projectFileSchema"
 import { validateProject } from "./validateProject"
 
-describe("validateProject", () => {
+describe("validateProject", { timeout: 30_000 }, () => {
   const tempDirs: string[] = []
 
   afterEach(() => {

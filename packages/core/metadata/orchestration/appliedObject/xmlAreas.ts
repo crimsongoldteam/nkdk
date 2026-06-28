@@ -1,4 +1,11 @@
 import { posix } from "path"
+import {
+  describeMetadataRuleXmlSyncRoutes,
+  expandProjectPattern,
+  matchProjectPattern,
+} from "~/metadata/project/ruleResources"
+import type { ProjectResourceCompositionImpact, ProjectResourceSource } from "~/metadata/orchestration/property/fn"
+import type { PropertyRuleType } from "~/metadata/orchestration/property/registry"
 import type { MetadataItemRule, PropertyRule } from "~/metadata/orchestration/property/types"
 
 export type XmlSyncArea =
@@ -14,21 +21,24 @@ export type XmlSyncArea =
       itemType: MetadataItemRule["itemType"]
       itemTypePrefix: string
       itemName: string
-      childKind: "form" | "template"
-      childName: string
       xmlDir: string
-      xmlBasePath: string
-      ownerCompositionChanges: boolean
+      xmlPath: string
+      propertyName: string
+      propertyType: PropertyRuleType
+      routeParams: Record<string, string>
+      compositionImpact: ProjectResourceCompositionImpact
+      dumpInfoNames: string[]
     }
   | {
       kind: "externalFile"
       itemType: MetadataItemRule["itemType"]
       itemTypePrefix: string
       itemName: string
-      childKind?: "form" | "template" | "command"
-      childName?: string
       xmlDir: string
       xmlPath: string
+      propertyName?: string
+      propertyType?: PropertyRuleType
+      routeParams: Record<string, string>
       deleteParentAreaBeforeWrite?: boolean
       dumpInfoNames: string[]
     }
@@ -41,7 +51,6 @@ export type SyncAreaDeclaration =
   | { kind: "commandModule"; yamlFile: string; xmlPath: string }
 
 const PROPERTIES_YAML = "Свойства.yaml"
-const FORM_YAML = "Форма.yaml"
 
 export function resolveXmlSyncAreaForProjectPath(
   projectPath: string,
@@ -59,38 +68,58 @@ export function resolveXmlSyncAreaForProjectPath(
     return { kind: "owner", itemType: rule.itemType, itemTypePrefix, itemName, xmlDir }
   }
 
-  if (parts[2] === "Формы" && parts[3]) {
-    const formName = parts[3]
-    if (parts.length === 5 && parts[4] === FORM_YAML) {
+  const routedArea = resolveRouteArea({ rule, itemTypePrefix, itemName, xmlDir, projectTail: parts.slice(2).join("/") })
+  if (routedArea) return routedArea
+
+  return resolveDeclaredArea({ rule, itemTypePrefix, itemName, xmlDir, parts })
+}
+
+function resolveRouteArea(params: {
+  rule: MetadataItemRule
+  itemTypePrefix: string
+  itemName: string
+  xmlDir: string
+  projectTail: string
+}): XmlSyncArea | undefined {
+  for (const route of describeMetadataRuleXmlSyncRoutes(params.rule)) {
+    if (route.kind === "owner" || route.kind === "resourceOnly") continue
+    const routeParams = matchProjectPattern(route.yamlPattern, params.projectTail)
+    if (routeParams === undefined) continue
+    const sourceProperty = getSourceProperty(route.source)
+    if (sourceProperty === undefined) continue
+    const expansionParams = {
+      ...routeParams,
+      ownerName: params.itemName,
+      dumpRoot: dumpRoot(params.rule),
+    }
+    const areaBase = {
+      itemType: params.rule.itemType,
+      itemTypePrefix: params.itemTypePrefix,
+      itemName: params.itemName,
+      xmlDir: params.xmlDir,
+      xmlPath: posix.join(params.xmlDir, params.itemName, expandProjectPattern(route.xmlPathPattern, expansionParams)),
+      propertyName: sourceProperty.propertyName,
+      propertyType: sourceProperty.propertyType,
+      routeParams,
+      dumpInfoNames: (route.dumpInfoNamePatterns ?? []).map((pattern) => expandProjectPattern(pattern, expansionParams)),
+    }
+
+    if (route.kind === "fileItem") {
       return {
         kind: "fileItem",
-        itemType: rule.itemType,
-        itemTypePrefix,
-        itemName,
-        childKind: "form",
-        childName: formName,
-        xmlDir,
-        xmlBasePath: posix.join(xmlDir, itemName, "Forms", formName),
-        ownerCompositionChanges: false,
+        ...areaBase,
+        compositionImpact: "none",
       }
     }
 
-    if (parts.length === 5 && parts[4] === "Модуль.bsl") {
-      return {
-        kind: "externalFile",
-        itemType: rule.itemType,
-        itemTypePrefix,
-        itemName,
-        childKind: "form",
-        childName: formName,
-        xmlDir,
-        xmlPath: posix.join(xmlDir, itemName, "Forms", formName, "Ext", "Form", "Module.bsl"),
-        dumpInfoNames: [`${dumpRoot(rule)}.${itemName}.Form.${formName}`, `${dumpRoot(rule)}.${itemName}.Form.${formName}.Form`],
-      }
+    return {
+      kind: "externalFile",
+      ...areaBase,
+      deleteParentAreaBeforeWrite: route.deleteParentAreaBeforeWrite,
     }
   }
 
-  return resolveDeclaredArea({ rule, itemTypePrefix, itemName, xmlDir, parts })
+  return undefined
 }
 
 function resolveDeclaredArea(params: {
@@ -112,6 +141,7 @@ function resolveDeclaredArea(params: {
         itemName: params.itemName,
         xmlDir: params.xmlDir,
         xmlPath: posix.join(params.xmlDir, params.itemName, declaration.xmlPath),
+        routeParams: {},
         dumpInfoNames: [`${dumpRoot(params.rule)}.${params.itemName}`, `${dumpRoot(params.rule)}.${params.itemName}.ObjectModule`],
       }
     }
@@ -128,9 +158,20 @@ function matchesTail(parts: string[], tail: string): boolean {
   return parts.slice(2).join("/") === normalizePath(tail)
 }
 
+function getSourceProperty(source: ProjectResourceSource): { propertyName: string; propertyType: PropertyRuleType } | undefined {
+  if (source.kind === "property") {
+    return { propertyName: source.propertyName, propertyType: source.propertyType }
+  }
+  return undefined
+}
+
 function dumpRoot(rule: MetadataItemRule): string {
   const external = rule.externalMetadata
   if (external?.segment) return external.segment
-  if (rule.itemType === "MetadataCatalog") return "Catalog"
+  for (const propertyRule of Object.values(rule.properties)) {
+    if (propertyRule.type === "XMLRoot" && "container" in propertyRule && typeof propertyRule.container === "string") {
+      return propertyRule.container
+    }
+  }
   return String(rule.itemType).replace(/^Metadata/, "")
 }

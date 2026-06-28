@@ -13,6 +13,7 @@ const IO_CONCURRENCY = 64
 
 export type ConfigurationSyncResult = {
   succeeded: number
+  changedXmlFiles?: string[]
   failed: Array<{
     kind: string
     name: string

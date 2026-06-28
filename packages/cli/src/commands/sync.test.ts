@@ -66,4 +66,20 @@ describe("sync command", () => {
     }))
     expect(syncConfigurationToXML).not.toHaveBeenCalled()
   })
+
+  it("печатает изменённые XML-файлы при инкрементальном sync", async () => {
+    const stdout = vi.spyOn(process.stdout, "write").mockImplementation(() => true)
+    vi.spyOn(process.stderr, "write").mockImplementation(() => true)
+    mocks.readXmlSyncState.mockResolvedValue({ version: 1, files: {} })
+    mocks.syncConfigurationIncrementallyToXML.mockResolvedValueOnce({
+      succeeded: 1,
+      changedXmlFiles: ["Catalogs/Товары/Forms/ФормаЭлемента.xml"],
+      failed: [],
+    })
+
+    await syncConfiguration("yaml", "xml")
+
+    expect(stdout).toHaveBeenCalledWith("Изменённые XML-файлы:\n")
+    expect(stdout).toHaveBeenCalledWith("  Catalogs/Товары/Forms/ФормаЭлемента.xml\n")
+  })
 })

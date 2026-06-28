@@ -1,14 +1,19 @@
-import { existsSync, mkdirSync, mkdtempSync, readFileSync, rmSync, writeFileSync } from "fs"
+import { cpSync, existsSync, mkdirSync, mkdtempSync, readFileSync, rmSync, writeFileSync } from "fs"
 import { tmpdir } from "os"
 import { join } from "path"
-import { afterEach, describe, expect, it } from "vitest"
+import { afterEach, beforeEach, describe, expect, it } from "vitest"
 import { getXMLFixturePath } from "~/tests/readAndParseXMLFile"
+import { registerCoreMetadata } from "~/metadata/register"
 import { syncConfigurationIncrementallyToXML } from "./incrementalSyncToXML"
 import { CONFIGURATION_XML_FILE, CONFIGURATION_YAML_FILE } from "./rootIO"
 import { hashProjectFiles, readXmlSyncState, writeXmlSyncState } from "./syncState"
 
 describe("syncConfigurationIncrementallyToXML", () => {
   const dirs: string[] = []
+
+  beforeEach(() => {
+    registerCoreMetadata()
+  })
 
   afterEach(() => {
     for (const dir of dirs.splice(0)) rmSync(dir, { recursive: true, force: true })
@@ -96,6 +101,41 @@ describe("syncConfigurationIncrementallyToXML", () => {
     expect(dumpInfo).not.toContain('name="Catalog.Товары.ObjectModule" id="owner.0" configVersion="old-module"')
     expect(dumpInfo).toContain('name="Language.Русский" id="lang" configVersion="old-lang"')
     expect(existsSync(join(xmlDir, "Catalogs", "Товары.xml"))).toBe(false)
+  })
+
+  it("writes changed form file item and reports changed XML files", async () => {
+    const yamlDir = tempDir()
+    const xmlDir = tempDir()
+    cpSync(getXMLFixturePath("sync/syncConfiguration/yaml"), yamlDir, { recursive: true })
+    cpSync(getXMLFixturePath("sync/syncConfiguration/xml"), xmlDir, { recursive: true })
+    const formYamlPath = join(yamlDir, "Справочник", "Контрагенты", "Формы", "ФормаЭлемента", "Форма.yaml")
+    writeFileSync(
+      formYamlPath,
+      readFileSync(formYamlPath, "utf-8").replace("Синоним: Это форма контрагента", "Синоним: Измененная форма"),
+      "utf-8"
+    )
+    const current = await hashProjectFiles(yamlDir)
+    await writeXmlSyncState(xmlDir, {
+      version: 1,
+      files: {
+        ...current,
+        "Справочник/Контрагенты/Формы/ФормаЭлемента/Форма.yaml": "xxh3-64:0000000000000000",
+      },
+    })
+    const formXmlPath = join(xmlDir, "Catalogs", "Контрагенты", "Forms", "ФормаЭлемента.xml")
+    const beforeXml = readFileSync(formXmlPath, "utf-8")
+
+    const result = await syncConfigurationIncrementallyToXML({
+      context: baseContext(),
+      inputDir: yamlDir,
+      outputDir: xmlDir,
+    })
+
+    expect(result.failed).toEqual([])
+    expect(readFileSync(formXmlPath, "utf-8")).not.toBe(beforeXml)
+    expect(readFileSync(formXmlPath, "utf-8")).toContain("Измененная форма")
+    expect(result.changedXmlFiles).toContain("Catalogs/Контрагенты/Forms/ФормаЭлемента.xml")
+    expect(existsSync(join(xmlDir, "Catalogs", "Контрагенты.xml"))).toBe(true)
   })
 
   it("does not rewrite root Configuration.xml for changed owner properties", async () => {

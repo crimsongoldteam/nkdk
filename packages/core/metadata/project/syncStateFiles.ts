@@ -171,8 +171,10 @@ function pathValueToRegex(
 
   const sample = value({ name: "__NKDK_NAME__", parentName: "__NKDK_PARENT__" })
   return staticPathToRegex(sample)
-    .replaceAll("__NKDK_NAME__", "[^/]+")
-    .replaceAll("__NKDK_PARENT__", "[^/]+")
+    .split("__NKDK_NAME__")
+    .join("[^/]+")
+    .split("__NKDK_PARENT__")
+    .join("[^/]+")
 }
 
 function resolveStaticProjectPathValue(

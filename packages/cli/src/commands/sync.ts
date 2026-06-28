@@ -40,6 +40,12 @@ export const syncConfiguration = async (
   }
 
   process.stdout.write(`Готово: ${result.succeeded} успешно, ${result.failed.length} с ошибкой\n`)
+  if (result.changedXmlFiles && result.changedXmlFiles.length > 0) {
+    process.stdout.write("Изменённые XML-файлы:\n")
+    for (const file of result.changedXmlFiles) {
+      process.stdout.write(`  ${file}\n`)
+    }
+  }
 
   if (result.failed.length > 0) {
     process.exitCode = 1
