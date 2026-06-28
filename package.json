@@ -22,12 +22,5 @@
     "tsc-alias": "^1.8.17",
     "typescript": "~5.9.3",
     "vitest": "^4.1.9"
-  },
-  "pnpm": {
-    "overrides": {
-      "esbuild": "^0.28.1",
-      "picomatch@<2.3.2": "2.3.2",
-      "vite": "^8.0.16"
-    }
   }
 }
