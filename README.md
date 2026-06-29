@@ -1,4 +1,4 @@
-![NKDK preview](docs/assets/readme-preview.gif)
+![NKDK preview](docs/assets/readme-demo.gif)
 
 # Работа с конфигурацией 1С в YAML
 
