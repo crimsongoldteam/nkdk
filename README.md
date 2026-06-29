@@ -1,4 +1,4 @@
-![NKDK banner](file:///private/tmp/nkdk-readme-banner/banner.gif)
+![NKDK banner](docs/assets/banner.gif)
 
 # Работа с конфигурацией 1С в YAML
 
