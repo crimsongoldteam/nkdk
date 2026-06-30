@@ -103,6 +103,7 @@ const contentMemberPaths = [
 
 export const MetadataFunctionalOptionRules = {
   itemType: "MetadataFunctionalOption",
+  metadataTargetOwner: { kind: "self", root: "FunctionalOption" },
   itemTypePrefix: "ФункциональнаяОпция",
   xmlDir: "FunctionalOptions",
   properties: {

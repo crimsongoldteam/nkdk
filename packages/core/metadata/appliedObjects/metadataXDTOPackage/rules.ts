@@ -5,6 +5,7 @@ const properties = ["Properties"]
 
 export const MetadataXDTOPackageRules = {
   itemType: "MetadataXDTOPackage",
+  metadataTargetOwner: { kind: "self", root: "XDTOPackage" },
   itemTypePrefix: "ПакетXDTO",
   xmlDir: "XDTOPackages",
   properties: {

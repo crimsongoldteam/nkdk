@@ -5,6 +5,7 @@ const properties = ["Properties"]
 
 export const MetadataCommonAttributeRules = {
   itemType: "MetadataCommonAttribute",
+  metadataTargetOwner: { kind: "self", root: "CommonAttribute" },
   itemTypePrefix: "ОбщийРеквизит",
   xmlDir: "CommonAttributes",
   properties: {

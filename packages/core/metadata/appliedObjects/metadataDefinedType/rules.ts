@@ -5,6 +5,7 @@ const properties = ["Properties"]
 
 export const MetadataDefinedTypeRules = {
   itemType: "MetadataDefinedType",
+  metadataTargetOwner: { kind: "self", root: "DefinedType" },
   itemTypePrefix: "ОпределяемыйТип",
   xmlDir: "DefinedTypes",
   properties: {

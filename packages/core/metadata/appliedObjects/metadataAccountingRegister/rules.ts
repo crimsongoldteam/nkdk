@@ -57,6 +57,7 @@ const MetadataAccountingRegisterCommandRules = {
 
 export const MetadataAccountingRegisterRules = {
   itemType: "MetadataAccountingRegister",
+  metadataTargetOwner: { kind: "self", root: "AccountingRegister" },
   itemTypePrefix: "РегистрБухгалтерии",
   xmlDir: "AccountingRegisters",
   uniqueNameScopes: [{ collections: ["attributes", "dimensions", "resources"] }],

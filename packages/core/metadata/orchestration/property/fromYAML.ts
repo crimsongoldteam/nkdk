@@ -24,8 +24,8 @@ export function importPropertiesFromYAML<Rule extends MetadataItemRule>(params: 
   } as ToMetadata<Rule["itemType"]>
 
   assertMetadataItemYAMLObject({ itemType: metadataType, yaml })
-  const itemContext = contextWithMetadataTargetOwner(context, metadataType, name)
-  const owner = metadataTargetOwnerFromRule({ itemRule: metadataRule, name, context: itemContext })
+  const owner = metadataTargetOwnerFromRule({ itemRule: metadataRule, name, context })
+  const itemContext = contextWithMetadataTargetOwner(context, metadataType, name, owner)
 
   // Предварительный проход: читаем внешние файлы для свойств с опцией externalFile
   const formDir = context.importFromYAML?.formDir
@@ -108,7 +108,9 @@ export const importPropertyFromYAML = (params: {
   if (!typeimportFn) {
     const rawValue = value ?? sourceValue
     const imported =
-      rule.type === "string" ? importStringMetadataTargetFromYAML({ rule, value: rawValue, owner: params.owner }) : rawValue
+      rule.type === "string"
+        ? importStringMetadataTargetFromYAML({ rule, value: rawValue, owner: params.owner })
+        : rawValue
 
     return getValueOrDefault({
       context,
@@ -179,7 +181,8 @@ function contextWithPropertyParentName(context: ConfigurationContext, name: stri
 function contextWithMetadataTargetOwner(
   context: ConfigurationContext,
   itemType: MetadataItemRule["itemType"],
-  name: string | undefined
+  name: string | undefined,
+  owner: MetadataTargetOwner | undefined
 ): ConfigurationContext {
   if (!name) return context
 
@@ -187,7 +190,10 @@ function contextWithMetadataTargetOwner(
     ...context,
     importFromYAML: {
       ...context.importFromYAML,
-      metadataTargetOwners: [...(context.importFromYAML?.metadataTargetOwners ?? []), { itemType, name }],
+      metadataTargetOwners: [
+        ...(context.importFromYAML?.metadataTargetOwners ?? []),
+        { itemType, name, ...(owner ? { owner } : {}) },
+      ],
     },
   }
 }

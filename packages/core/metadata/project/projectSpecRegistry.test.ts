@@ -1,7 +1,11 @@
 import { Type } from "@sinclair/typebox"
-import { beforeEach, describe, expect, it } from "vitest"
+import { afterEach, describe, expect, it } from "vitest"
 import type { MetadataItemRule } from "~/metadata/orchestration/property/types"
-import { clearProjectSpecRegistryForTests, getRegisteredProjectSpecs, registerProjectSpec } from "./projectSpecRegistry"
+import {
+  getRegisteredProjectSpecByDir,
+  registerProjectSpec,
+  unregisterProjectSpecForTests,
+} from "./projectSpecRegistry"
 
 const SampleRule = {
   itemType: "SampleItem",
@@ -9,29 +13,29 @@ const SampleRule = {
   xmlDir: "Samples",
   properties: {},
 } as const satisfies MetadataItemRule
+const SAMPLE_DIR = "__ТестовыйОбразец__"
 
 describe("projectSpecRegistry", () => {
-  beforeEach(() => clearProjectSpecRegistryForTests())
+  afterEach(() => unregisterProjectSpecForTests(SAMPLE_DIR))
 
   it("registers specs by dir and replaces duplicate registration predictably", () => {
     registerProjectSpec({
-      dir: "Образец",
+      dir: SAMPLE_DIR,
       kind: "sample",
       rule: SampleRule,
       exportSchema: () => Type.Object({ first: Type.String() }),
       importModel: ({ name }) => ({ itemType: "SampleItem", name }) as never,
     })
     registerProjectSpec({
-      dir: "Образец",
+      dir: SAMPLE_DIR,
       kind: "sample2",
       rule: SampleRule,
       exportSchema: () => Type.Object({ second: Type.String() }),
       importModel: ({ name }) => ({ itemType: "SampleItem", name }) as never,
     })
 
-    expect(getRegisteredProjectSpecs()).toHaveLength(1)
-    expect(getRegisteredProjectSpecs()[0]).toMatchObject({
-      dir: "Образец",
+    expect(getRegisteredProjectSpecByDir(SAMPLE_DIR)).toMatchObject({
+      dir: SAMPLE_DIR,
       kind: "sample2",
       rule: SampleRule,
     })

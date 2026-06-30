@@ -5,6 +5,7 @@ const properties = ["Properties"]
 
 export const MetadataScheduledJobRules = {
   itemType: "MetadataScheduledJob",
+  metadataTargetOwner: { kind: "self", root: "ScheduledJob" },
   itemTypePrefix: "РегламентноеЗадание",
   xmlDir: "ScheduledJobs",
   properties: {

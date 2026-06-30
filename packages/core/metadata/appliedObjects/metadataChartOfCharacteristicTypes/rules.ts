@@ -31,6 +31,7 @@ const MetadataChartOfCharacteristicTypesCommandRules = {
 
 export const MetadataChartOfCharacteristicTypesRules = {
   itemType: "MetadataChartOfCharacteristicTypes",
+  metadataTargetOwner: { kind: "self", root: "ChartOfCharacteristicTypes" },
   itemTypePrefix: "ПланВидовХарактеристик",
   xmlDir: "ChartsOfCharacteristicTypes",
   uniqueNameScopes: [{ collections: ["attributes", "tabularSections"] }],

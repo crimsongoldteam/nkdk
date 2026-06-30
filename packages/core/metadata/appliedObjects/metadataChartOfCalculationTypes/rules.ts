@@ -29,6 +29,7 @@ const MetadataChartOfCalculationTypesCommandRules = {
 
 export const MetadataChartOfCalculationTypesRules = {
   itemType: "MetadataChartOfCalculationTypes",
+  metadataTargetOwner: { kind: "self", root: "ChartOfCalculationTypes" },
   itemTypePrefix: "ПланВидовРасчета",
   xmlDir: "ChartsOfCalculationTypes",
   uniqueNameScopes: [{ collections: ["attributes", "tabularSections"] }],

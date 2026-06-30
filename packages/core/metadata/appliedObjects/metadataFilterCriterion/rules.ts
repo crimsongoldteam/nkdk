@@ -7,6 +7,7 @@ const childObjects = ["ChildObjects"]
 
 export const MetadataFilterCriterionRules = {
   itemType: "MetadataFilterCriterion",
+  metadataTargetOwner: { kind: "self", root: "FilterCriterion" },
   itemTypePrefix: "КритерийОтбора",
   xmlDir: "FilterCriteria",
   properties: {

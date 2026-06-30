@@ -8,6 +8,7 @@ import type { ExternalMetadataContextItem } from "~/metadata/orchestration/exter
 import { registerTypeRule } from "~/metadata/orchestration/property/typeRuleRegistry"
 import { describeMetadataRuleProjectResources } from "~/metadata/project/ruleResources"
 import type { SyncExternalToXMLFunction } from "~/metadata/orchestration/property/fn"
+import type { MetadataItemRule } from "~/metadata/orchestration/property/types"
 import type { XmlWriteManifest } from "~/metadata/orchestration/xmlWriteManifest"
 import { xmlExport } from "~/xml/export/exporter"
 import type { ChildFormNamesPropertyRule } from "./types"
@@ -233,6 +234,42 @@ registerTypeRule("ChildFormNames", "xmlSyncRoutes", ({ propertyRule }) => {
     },
   ]
 })
+registerTypeRule("ChildFormNames", "fileChildNamesDescriptor", ({ propertyRule }) => {
+  const rule = propertyRule as ChildFormNamesPropertyRule
+  return {
+    folderName: rule.folderName,
+    xmlFolderName: "Forms",
+    xmlItemName: rule.xml,
+    useOwnerDirectoryForExternalSync: true,
+    preserveReferenceXmlFolder: true,
+    expectedNames: ({ rule: ownerRule, model, propertyValue }) => [
+      ...normalizeFormNames(propertyValue),
+      ...collectMetadataTargetFormNames({ rule: ownerRule, model }),
+    ],
+  }
+})
+
+function collectMetadataTargetFormNames(params: { rule: MetadataItemRule; model: Record<string, unknown> }): string[] {
+  const result = new Set<string>()
+  for (const [propertyName, propertyRule] of Object.entries(params.rule.properties)) {
+    if (propertyRule.type === "ChildFormNames") continue
+
+    const target =
+      propertyRule.metadataTarget ??
+      (propertyRule.referenceScope?.target === "this" && propertyRule.referenceScope.kind === "Form"
+        ? { kind: "member" as const, memberKinds: ["Form" as const] }
+        : undefined)
+    if (target === undefined) continue
+
+    const value = params.model[propertyName]
+    if (typeof value !== "string") continue
+
+    const parts = value.split(".")
+    const formIndex = parts.lastIndexOf("Form")
+    if (formIndex >= 0 && parts[formIndex + 1]) result.add(parts[formIndex + 1])
+  }
+  return [...result]
+}
 
 function describeFormInnerProjectResources(folderName: string) {
   const formRoot = `${folderName}/{itemName}`

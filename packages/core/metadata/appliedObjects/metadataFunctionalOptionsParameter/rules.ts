@@ -5,6 +5,7 @@ const properties = ["Properties"]
 
 export const MetadataFunctionalOptionsParameterRules = {
   itemType: "MetadataFunctionalOptionsParameter",
+  metadataTargetOwner: { kind: "self", root: "FunctionalOptionsParameter" },
   itemTypePrefix: "ПараметрФункциональныхОпций",
   xmlDir: "FunctionalOptionsParameters",
   properties: {

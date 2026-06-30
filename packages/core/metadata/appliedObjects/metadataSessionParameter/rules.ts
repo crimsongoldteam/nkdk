@@ -5,6 +5,7 @@ const properties = ["Properties"]
 
 export const MetadataSessionParameterRules = {
   itemType: "MetadataSessionParameter",
+  metadataTargetOwner: { kind: "self", root: "SessionParameter" },
   itemTypePrefix: "ПараметрСеанса",
   xmlDir: "SessionParameters",
   properties: {

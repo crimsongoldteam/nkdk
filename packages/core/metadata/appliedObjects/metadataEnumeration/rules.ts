@@ -59,6 +59,7 @@ export const MetadataEnumerationValueRules = {
 
 export const MetadataEnumerationRules = {
   itemType: "MetadataEnumeration",
+  metadataTargetOwner: { kind: "self", root: "Enum" },
   itemTypePrefix: "Перечисление",
   xmlDir: "Enums",
   properties: {

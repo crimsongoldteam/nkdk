@@ -36,3 +36,7 @@ export function getRegisteredProjectSpecByDir(dir: string): RegisteredProjectSpe
 export function clearProjectSpecRegistryForTests(): void {
   specsByDir.clear()
 }
+
+export function unregisterProjectSpecForTests(dir: string): void {
+  specsByDir.delete(dir)
+}

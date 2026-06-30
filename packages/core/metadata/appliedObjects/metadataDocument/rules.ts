@@ -27,6 +27,7 @@ const MetadataDocumentCommandRules = {
 
 export const MetadataDocumentRules = {
   itemType: "MetadataDocument",
+  metadataTargetOwner: { kind: "self", root: "Document" },
   itemTypePrefix: "Документ",
   xmlDir: "Documents",
   uniqueNameScopes: [{ collections: ["attributes", "tabularSections"] }],

@@ -57,6 +57,7 @@ const contentObjectPaths = [
 
 export const MetadataSubsystemRules = {
   itemType: "MetadataSubsystem",
+  metadataTargetOwner: { kind: "self", root: "Subsystem" },
   itemTypePrefix: "Подсистема",
   xmlDir: "Subsystems",
   properties: {

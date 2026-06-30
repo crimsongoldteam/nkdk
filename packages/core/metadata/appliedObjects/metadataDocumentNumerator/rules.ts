@@ -3,6 +3,7 @@ import { V8_MDCLASSES_ROOT } from "~/metadata/orchestration/appliedObject/preset
 
 export const MetadataDocumentNumeratorRules = {
   itemType: "MetadataDocumentNumerator",
+  metadataTargetOwner: { kind: "self", root: "DocumentNumerator" },
   itemTypePrefix: "Нумератор",
   xmlDir: "DocumentNumerators",
   properties: {

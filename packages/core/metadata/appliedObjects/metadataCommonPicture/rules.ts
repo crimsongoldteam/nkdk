@@ -5,6 +5,7 @@ const properties = ["Properties"]
 
 export const MetadataCommonPictureRules = {
   itemType: "MetadataCommonPicture",
+  metadataTargetOwner: { kind: "self", root: "CommonPicture" },
   itemTypePrefix: "ОбщаяКартинка",
   xmlDir: "CommonPictures",
   properties: {

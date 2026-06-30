@@ -19,6 +19,7 @@ export const MetadataTaskStandardAttributeNames: Record<string, string> = {
 
 export const MetadataTaskRules = {
   itemType: "MetadataTask",
+  metadataTargetOwner: { kind: "self", root: "Task" },
   itemTypePrefix: "Задача",
   xmlDir: "Tasks",
   uniqueNameScopes: [{ collections: ["attributes", "tabularSections"] }],

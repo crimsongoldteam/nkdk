@@ -3,6 +3,7 @@ import { MetadataItemRule } from "~/metadata/orchestration/property/types"
 
 export const MetadataSequenceRules = {
   itemType: "MetadataSequence",
+  metadataTargetOwner: { kind: "self", root: "Sequence" },
   itemTypePrefix: "Последовательность",
   xmlDir: "Sequences",
   properties: {

@@ -5,6 +5,7 @@ const properties = ["Properties"]
 
 export const MetadataBotRules = {
   itemType: "MetadataBot",
+  metadataTargetOwner: { kind: "self", root: "Bot" },
   itemTypePrefix: "Бот",
   xmlDir: "Bots",
   properties: {
@@ -62,7 +63,8 @@ export const MetadataBotRules = {
     },
     picture: {
       yaml: "Картинка",
-      type: "Picture", metadataTarget: { kind: "object", roots: ["CommonPicture"] },
+      type: "Picture",
+      metadataTarget: { kind: "object", roots: ["CommonPicture"] },
       xmlParents: properties,
       defaultValueXMLRaw: "",
     },

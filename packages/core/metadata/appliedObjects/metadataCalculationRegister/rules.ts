@@ -33,6 +33,7 @@ const MetadataCalculationRegisterCommandRules = {
 
 export const MetadataCalculationRegisterRules = {
   itemType: "MetadataCalculationRegister",
+  metadataTargetOwner: { kind: "self", root: "CalculationRegister" },
   itemTypePrefix: "РегистрРасчета",
   xmlDir: "CalculationRegisters",
   uniqueNameScopes: [{ collections: ["attributes", "dimensions", "resources"] }],

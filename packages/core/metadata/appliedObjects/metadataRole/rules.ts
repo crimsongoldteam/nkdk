@@ -5,6 +5,7 @@ const properties = ["Properties"]
 
 export const MetadataRoleRules = {
   itemType: "MetadataRole",
+  metadataTargetOwner: { kind: "self", root: "Role" },
   itemTypePrefix: "Роль",
   xmlDir: "Roles",
   properties: {

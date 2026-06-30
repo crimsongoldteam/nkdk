@@ -10,6 +10,7 @@ const properties = ["Properties"]
 
 export const MetadataLanguageRules = {
   itemType: "MetadataLanguage",
+  metadataTargetOwner: { kind: "self", root: "Language" },
   itemTypePrefix: "Язык",
   xmlDir: "Languages",
   properties: {

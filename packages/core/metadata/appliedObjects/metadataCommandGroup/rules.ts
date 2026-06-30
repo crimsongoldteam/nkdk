@@ -5,6 +5,7 @@ const properties = ["Properties"]
 
 export const MetadataCommandGroupRules = {
   itemType: "MetadataCommandGroup",
+  metadataTargetOwner: { kind: "self", root: "CommandGroup" },
   itemTypePrefix: "ГруппаКоманд",
   xmlDir: "CommandGroups",
   properties: {
@@ -58,7 +59,8 @@ export const MetadataCommandGroupRules = {
     picture: {
       yaml: "Картинка",
       xml: "Picture",
-      type: "Picture", metadataTarget: { kind: "object", roots: ["CommonPicture"] },
+      type: "Picture",
+      metadataTarget: { kind: "object", roots: ["CommonPicture"] },
       xmlParents: properties,
       defaultValueXMLRaw: "",
     },

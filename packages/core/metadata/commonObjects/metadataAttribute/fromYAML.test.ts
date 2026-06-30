@@ -20,7 +20,9 @@ const rule = { type: "MetadataAttributes" } as const
 const metadataAttributeOwnerContext: ConfigurationContext = {
   ...mockContext,
   importFromYAML: {
-    metadataTargetOwners: [{ itemType: "MetadataCatalog", name: "Справочник" }],
+    metadataTargetOwners: [
+      { itemType: "MetadataCatalog", name: "Справочник", owner: { root: "Catalog", objectName: "Справочник" } },
+    ],
   },
 }
 

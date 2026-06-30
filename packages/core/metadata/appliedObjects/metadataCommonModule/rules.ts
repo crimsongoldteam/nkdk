@@ -5,6 +5,7 @@ const properties = ["Properties"]
 
 export const MetadataCommonModuleRules = {
   itemType: "MetadataCommonModule",
+  metadataTargetOwner: { kind: "self", root: "CommonModule" },
   itemTypePrefix: "ОбщийМодуль",
   xmlDir: "CommonModules",
   properties: {

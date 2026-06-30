@@ -5,6 +5,7 @@ export type { ElementRule, PropertyRule }
 
 export const ClientApplicationFormRules = {
   itemType: "ClientApplicationForm",
+  metadataTargetOwner: { kind: "inherit" },
   properties: {
     // #region Form
 

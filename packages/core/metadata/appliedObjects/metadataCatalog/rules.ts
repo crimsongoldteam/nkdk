@@ -6,6 +6,7 @@ import { MetadataCatalogStandardAttributeNames } from "./types"
 
 export const MetadataCatalogRules = {
   itemType: "MetadataCatalog",
+  metadataTargetOwner: { kind: "self", root: "Catalog" },
   itemTypePrefix: "Справочник",
   xmlDir: "Catalogs",
   uniqueNameScopes: [{ collections: ["attributes", "tabularSections"] }],

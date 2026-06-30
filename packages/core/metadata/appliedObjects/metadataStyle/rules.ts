@@ -5,6 +5,7 @@ const properties = ["Properties"]
 
 export const MetadataStyleRules = {
   itemType: "MetadataStyle",
+  metadataTargetOwner: { kind: "self", root: "Style" },
   itemTypePrefix: "Стиль",
   xmlDir: "Styles",
   properties: {

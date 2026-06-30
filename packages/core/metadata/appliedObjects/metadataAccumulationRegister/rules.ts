@@ -39,6 +39,7 @@ const MetadataAccumulationRegisterCommandRules = {
 
 export const MetadataAccumulationRegisterRules = {
   itemType: "MetadataAccumulationRegister",
+  metadataTargetOwner: { kind: "self", root: "AccumulationRegister" },
   itemTypePrefix: "РегистрНакопления",
   xmlDir: "AccumulationRegisters",
   uniqueNameScopes: [{ collections: ["attributes", "dimensions", "resources"] }],

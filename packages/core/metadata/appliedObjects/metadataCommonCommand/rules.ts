@@ -5,6 +5,7 @@ import { MetadataCommandRules } from "../metadataCommand/rules"
 export const MetadataCommonCommandRules = {
   ...MetadataCommandRules,
   itemType: "MetadataCommonCommand",
+  metadataTargetOwner: { kind: "self", root: "CommonCommand" },
   itemTypePrefix: "ОбщаяКоманда",
   xmlDir: "CommonCommands",
   externalMetadata: { segment: "CommonCommand", placement: "rootEntry" },

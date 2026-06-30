@@ -32,6 +32,7 @@ const MetadataChartOfAccountsCommandRules = {
 
 export const MetadataChartOfAccountsRules = {
   itemType: "MetadataChartOfAccounts",
+  metadataTargetOwner: { kind: "self", root: "ChartOfAccounts" },
   itemTypePrefix: "ПланСчетов",
   xmlDir: "ChartsOfAccounts",
   uniqueNameScopes: [{ collections: ["attributes", "tabularSections"] }],

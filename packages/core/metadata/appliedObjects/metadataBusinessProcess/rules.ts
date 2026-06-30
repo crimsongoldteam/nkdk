@@ -18,6 +18,7 @@ export const MetadataBusinessProcessStandardAttributeNames: Record<string, strin
 
 export const MetadataBusinessProcessRules = {
   itemType: "MetadataBusinessProcess",
+  metadataTargetOwner: { kind: "self", root: "BusinessProcess" },
   itemTypePrefix: "БизнесПроцесс",
   xmlDir: "BusinessProcesses",
   uniqueNameScopes: [{ collections: ["attributes", "tabularSections"] }],

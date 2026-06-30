@@ -31,6 +31,7 @@ const MetadataExchangePlanCommandRules = {
 
 export const MetadataExchangePlanRules = {
   itemType: "MetadataExchangePlan",
+  metadataTargetOwner: { kind: "self", root: "ExchangePlan" },
   itemTypePrefix: "ПланОбмена",
   xmlDir: "ExchangePlans",
   uniqueNameScopes: [{ collections: ["attributes", "tabularSections"] }],

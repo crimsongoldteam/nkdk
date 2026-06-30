@@ -6,6 +6,7 @@ const childObjects = ["ChildObjects"]
 
 export const MetadataWebServiceRules = {
   itemType: "MetadataWebService",
+  metadataTargetOwner: { kind: "self", root: "WebService" },
   itemTypePrefix: "WebСервис",
   xmlDir: "WebServices",
   properties: {

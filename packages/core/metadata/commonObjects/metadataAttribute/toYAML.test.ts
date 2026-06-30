@@ -17,7 +17,9 @@ const metadataAttributeOwnerContext: ConfigurationContext = {
   ...mockContext,
   exportToYAML: {
     toTyped: false,
-    metadataTargetOwners: [{ itemType: "MetadataCatalog", name: "Справочник" }],
+    metadataTargetOwners: [
+      { itemType: "MetadataCatalog", name: "Справочник", owner: { root: "Catalog", objectName: "Справочник" } },
+    ],
   },
 }
 

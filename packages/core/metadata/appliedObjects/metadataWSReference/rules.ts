@@ -5,6 +5,7 @@ const properties = ["Properties"]
 
 export const MetadataWSReferenceRules = {
   itemType: "MetadataWSReference",
+  metadataTargetOwner: { kind: "self", root: "WSReference" },
   itemTypePrefix: "WSСсылка",
   xmlDir: "WSReferences",
   properties: {

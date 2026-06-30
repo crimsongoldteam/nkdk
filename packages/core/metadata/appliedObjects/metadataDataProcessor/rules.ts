@@ -56,6 +56,7 @@ registerTypeRule("MetadataAttributes", "exportToXML", exportMetadataAttributesTo
 
 export const MetadataDataProcessorRules = {
   itemType: "MetadataDataProcessor",
+  metadataTargetOwner: { kind: "self", root: "DataProcessor" },
   itemTypePrefix: "Обработка",
   xmlDir: "DataProcessors",
   uniqueNameScopes: [{ collections: ["attributes", "tabularSections"] }],

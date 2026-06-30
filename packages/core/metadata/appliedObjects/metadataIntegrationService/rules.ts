@@ -6,6 +6,7 @@ const childObjects = ["ChildObjects"]
 
 export const MetadataIntegrationServiceRules = {
   itemType: "MetadataIntegrationService",
+  metadataTargetOwner: { kind: "self", root: "IntegrationService" },
   itemTypePrefix: "СервисИнтеграции",
   xmlDir: "IntegrationServices",
   properties: {

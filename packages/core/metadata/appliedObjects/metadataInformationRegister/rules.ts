@@ -25,6 +25,7 @@ const MetadataInformationRegisterCommandRules = {
 
 export const MetadataInformationRegisterRules = {
   itemType: "MetadataInformationRegister",
+  metadataTargetOwner: { kind: "self", root: "InformationRegister" },
   itemTypePrefix: "РегистрСведений",
   xmlDir: "InformationRegisters",
   uniqueNameScopes: [{ collections: ["attributes", "dimensions", "resources"] }],

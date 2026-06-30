@@ -10,7 +10,7 @@ import type { ChildFileItemNamesPropertyRule } from "~/metadata/commonObjects/ch
 import type { ChildFormNamesPropertyRule } from "~/metadata/commonObjects/childFormNames/types"
 import type { ChildSubsystemNamesPropertyRule } from "~/metadata/commonObjects/childSubsystemNames/types"
 import type { ChildTemplateNamesPropertyRule } from "~/metadata/commonObjects/childTemplateNames/types"
-import type { MetadataTargetConstraint } from "~/metadata/commonObjects/metadataTargets/types"
+import type { MetadataRootName, MetadataTargetConstraint } from "~/metadata/commonObjects/metadataTargets/types"
 import type { TypeDescriptionAllowedTypes } from "~/metadata/commonObjects/typeDescription/types"
 import type { XMLRootPropertyRule } from "~/metadata/commonObjects/xmlRoot/types"
 import type { SyncAreaDeclaration } from "~/metadata/orchestration/appliedObject/xmlAreas"
@@ -48,6 +48,11 @@ export type ReferenceScope = ReferenceScopeThis | ReferenceScopeTopLevel
 export interface MetadataItem {
   itemType: MetadataItemType
 }
+
+export type MetadataTargetOwnerDeclaration =
+  | { kind: "self"; root: MetadataRootName }
+  | { kind: "inherit" }
+  | { kind: "resolver" }
 
 type DefaultValueFunction = (params: {
   context: ConfigurationContext
@@ -438,6 +443,12 @@ export interface MetadataItemRule extends MetadataItem {
    * какой внешний реестр использует это описание.
    */
   externalMetadata?: ExternalMetadataItemRule
+
+  /**
+   * Описывает, как объект участвует в owner/root metadata-target.
+   * Property rules описывают ограничения ссылки, это поле описывает только владельца.
+   */
+  metadataTargetOwner?: MetadataTargetOwnerDeclaration
 
   /**
    * Свойства объекта метаданных

@@ -340,6 +340,7 @@ const attributeExternalMetadata = { segment: "Attribute", placement: "ownerChild
 
 export const MetadataAttributeRules = {
   itemType: "MetadataAttribute",
+  metadataTargetOwner: { kind: "inherit" },
   externalMetadata: attributeExternalMetadata,
   properties: {
     ...commonAttributeProperties,
@@ -370,6 +371,7 @@ export const MetadataAttributeRules = {
 
 export const MetadataCatalogAttributeRules = {
   itemType: "MetadataAttribute",
+  metadataTargetOwner: { kind: "inherit" },
   externalMetadata: attributeExternalMetadata,
   properties: {
     ...commonAttributeProperties,
@@ -404,6 +406,7 @@ export const MetadataCatalogAttributeRules = {
 
 export const MetadataDocumentAttributeRules = {
   itemType: "MetadataAttribute",
+  metadataTargetOwner: { kind: "inherit" },
   externalMetadata: attributeExternalMetadata,
   properties: {
     ...commonAttributeProperties,
@@ -414,6 +417,7 @@ export const MetadataDocumentAttributeRules = {
 
 export const MetadataTabularSectionAttributeRules = {
   itemType: "MetadataAttribute",
+  metadataTargetOwner: { kind: "inherit" },
   externalMetadata: attributeExternalMetadata,
   properties: {
     ...commonAttributeProperties,

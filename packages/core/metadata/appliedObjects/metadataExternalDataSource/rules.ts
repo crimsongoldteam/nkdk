@@ -14,6 +14,7 @@ const childObjects = ["ChildObjects"]
 
 export const MetadataExternalDataSourceRules = {
   itemType: "MetadataExternalDataSource",
+  metadataTargetOwner: { kind: "self", root: "ExternalDataSource" },
   itemTypePrefix: "ВнешнийИсточникДанных",
   xmlDir: "ExternalDataSources",
   properties: {

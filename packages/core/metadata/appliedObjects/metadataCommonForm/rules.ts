@@ -6,6 +6,7 @@ const properties = ["Properties"]
 
 export const MetadataCommonFormRules = {
   itemType: "MetadataCommonForm",
+  metadataTargetOwner: { kind: "self", root: "CommonForm" },
   itemTypePrefix: "ОбщаяФорма",
   xmlDir: "CommonForms",
   properties: {

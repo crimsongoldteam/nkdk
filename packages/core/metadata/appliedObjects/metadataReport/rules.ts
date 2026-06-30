@@ -41,6 +41,7 @@ registerMetadataItemCollectionRule({
 
 export const MetadataReportRules = {
   itemType: "MetadataReport",
+  metadataTargetOwner: { kind: "self", root: "Report" },
   itemTypePrefix: "Отчет",
   xmlDir: "Reports",
   uniqueNameScopes: [{ collections: ["attributes", "tabularSections"] }],

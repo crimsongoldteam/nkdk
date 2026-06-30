@@ -27,6 +27,7 @@ const MetadataDocumentJournalCommandRules = {
 
 export const MetadataDocumentJournalRules = {
   itemType: "MetadataDocumentJournal",
+  metadataTargetOwner: { kind: "self", root: "DocumentJournal" },
   itemTypePrefix: "ЖурналДокументов",
   xmlDir: "DocumentJournals",
   properties: {

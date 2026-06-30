@@ -6,6 +6,7 @@ const childObjects = ["ChildObjects"]
 
 export const MetadataSettingsStorageRules = {
   itemType: "MetadataSettingsStorage",
+  metadataTargetOwner: { kind: "self", root: "SettingsStorage" },
   itemTypePrefix: "ХранилищеНастроек",
   xmlDir: "SettingsStorages",
   properties: {

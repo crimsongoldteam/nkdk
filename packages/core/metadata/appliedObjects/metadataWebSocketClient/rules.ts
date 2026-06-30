@@ -5,6 +5,7 @@ const properties = ["Properties"]
 
 export const MetadataWebSocketClientRules = {
   itemType: "MetadataWebSocketClient",
+  metadataTargetOwner: { kind: "self", root: "WebSocketClient" },
   itemTypePrefix: "WebSocketКлиент",
   xmlDir: "WebSocketClients",
   properties: {

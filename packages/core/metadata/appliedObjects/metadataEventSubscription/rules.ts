@@ -5,6 +5,7 @@ const properties = ["Properties"]
 
 export const MetadataEventSubscriptionRules = {
   itemType: "MetadataEventSubscription",
+  metadataTargetOwner: { kind: "self", root: "EventSubscription" },
   itemTypePrefix: "ПодпискаНаСобытие",
   xmlDir: "EventSubscriptions",
   properties: {

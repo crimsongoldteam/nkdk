@@ -5,6 +5,7 @@ const constantProperties = ["Properties"]
 
 export const MetadataConstantRules = {
   itemType: "MetadataConstant",
+  metadataTargetOwner: { kind: "self", root: "Constant" },
   itemTypePrefix: "Константа",
   xmlDir: "Constants",
   properties: {

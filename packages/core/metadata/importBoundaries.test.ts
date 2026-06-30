@@ -96,6 +96,17 @@ describe("metadata import boundaries", () => {
     expect(offenders).toEqual([])
   })
 
+  it("metadataTargetString не знает concrete metadata itemType/root", () => {
+    const source = readFileSync(join(METADATA_DIR, "orchestration", "property", "metadataTargetString.ts"), "utf-8")
+
+    expect(source).not.toContain("rootByOwnerItemType")
+    expect(source).not.toContain("itemTypePrefixRootFallback")
+    expect(source).not.toContain("DocumentNumerator")
+    expect(source).not.toContain("ClientApplicationForm")
+    expect(source).not.toContain("MetadataAttribute")
+    expect(source).not.toContain("MetadataExternalDataSource")
+  })
+
   it("I8nText registry entry живёт рядом с владельцем", () => {
     const globalRegistry = readFileSync(join(METADATA_DIR, "orchestration", "property", "registry.ts"), "utf-8")
     const localRegistry = readFileSync(join(METADATA_DIR, "commonObjects", "i8nText", "registry.types.ts"), "utf-8")
