@@ -1,5 +1,7 @@
 import { MetadataStyleItem, MetadataStyleItemYAML } from "../types"
 
+type MetadataStyleItemFromCompactYAML = Omit<MetadataStyleItem, "name">
+
 export const font: MetadataStyleItem = {
   itemType: "MetadataStyleItem",
   name: "ЭлементСтиляШрифтВсеСвойства",
@@ -21,7 +23,7 @@ export const font: MetadataStyleItem = {
   },
 }
 
-export const fontFromCompactYAML: MetadataStyleItem = {
+export const fontFromCompactYAML: MetadataStyleItemFromCompactYAML = {
   itemType: "MetadataStyleItem",
   synonym: { items: { ru: "Синоним" } },
   comment: "Комментарий",

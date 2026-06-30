@@ -1,7 +1,7 @@
 import { commonRegisterFieldProperties } from "~/metadata/commonObjects/metadataRegisterField/rules"
 import { addDefaultLanguageNameToSynonym } from "~/metadata/helpers/synonymHelpers"
 import { ConfigurationContext } from "~/metadata/context/types"
-import { MetadataItemRule } from "~/metadata/orchestration/property/types"
+import { MetadataItemRule, PropertyRule } from "~/metadata/orchestration/property/types"
 
 const hasExplicitProperty = (propertyKey: string) => (metadataItem: unknown): boolean =>
   metadataItem !== null &&
@@ -38,7 +38,7 @@ const accountingFlagProperties = {
   binaryDataStorageLocationUse: {
     ...commonRegisterFieldProperties.binaryDataStorageLocationUse,
     noImplicitValueYAML: true,
-  },
+  } satisfies PropertyRule,
 }
 
 export const AccountingFlagRules = {

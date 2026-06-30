@@ -151,7 +151,7 @@ const {
   autoMaxHeight: fullSearchControlAdditionExtendedTooltipAutoMaxHeight,
   autoMaxWidth: fullSearchControlAdditionExtendedTooltipAutoMaxWidth,
   ...fullSearchControlAdditionExtendedTooltipFromCompactYAML
-} = fullSingleSearchControlAdditionExtendedTooltip
+} = fullSingleSearchControlAdditionExtendedTooltip!
 void fullSingleSearchControlAdditionAutoMaxWidth
 void fullSingleSearchControlAdditionEnabled
 void fullSearchControlAdditionExtendedTooltipAutoMaxHeight

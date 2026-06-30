@@ -1,7 +1,6 @@
 import { TypeCompiler } from "@sinclair/typebox/compiler"
 import { describe, expect, it } from "vitest"
 import {
-  fullMetadataAttributes,
   fullMetadataAttributesFromCompactYAML,
   fullMetadataAttributesYAML,
   minimalMetadataAttributes,

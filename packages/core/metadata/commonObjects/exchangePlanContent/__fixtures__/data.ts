@@ -1,29 +1,36 @@
 import { ExchangePlanContent, ExchangePlanContentYAML } from "../types"
 
-export const content: ExchangePlanContent = {
-  itemType: "ExchangePlanContent",
-  items: [
-    {
-      itemType: "ExchangePlanContentItem",
-      metadata: "Catalog.Номенклатура",
-      autoRecord: "Allow",
-    },
-    {
-      itemType: "ExchangePlanContentItem",
-      metadata: "Document.Заказ",
-      autoRecord: "Deny",
-    },
-  ],
+type ExchangePlanContentItem = NonNullable<ExchangePlanContent["items"]>[number]
+type ExchangePlanContentFromCompactYAML = Omit<ExchangePlanContent, "items"> & {
+  items: [Omit<ExchangePlanContentItem, "autoRecord">, ExchangePlanContentItem]
 }
 
-export const contentFromCompactYAML: ExchangePlanContent = {
+const contentItems: [ExchangePlanContentItem, ExchangePlanContentItem] = [
+  {
+    itemType: "ExchangePlanContentItem",
+    metadata: "Catalog.Номенклатура",
+    autoRecord: "Allow",
+  },
+  {
+    itemType: "ExchangePlanContentItem",
+    metadata: "Document.Заказ",
+    autoRecord: "Deny",
+  },
+]
+
+export const content: ExchangePlanContent = {
+  itemType: "ExchangePlanContent",
+  items: contentItems,
+}
+
+export const contentFromCompactYAML: ExchangePlanContentFromCompactYAML = {
   itemType: "ExchangePlanContent",
   items: [
     {
       itemType: "ExchangePlanContentItem",
       metadata: "Catalog.Номенклатура",
     },
-    content.items[1],
+    contentItems[1],
   ],
 }
 

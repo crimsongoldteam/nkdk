@@ -81,7 +81,11 @@ import type { MetadataItemRule, PropertyRule } from "./types"
 
 type RuleModule = Record<string, unknown>
 
-const ruleModules = import.meta.glob<RuleModule>("../../**/rules.ts", { eager: true })
+type ImportMetaWithGlob = ImportMeta & {
+  glob<T>(pattern: string, options: { eager: true }): Record<string, T>
+}
+
+const ruleModules = (import.meta as ImportMetaWithGlob).glob<RuleModule>("../../**/rules.ts", { eager: true })
 
 describe("implicitValueYAML contract", () => {
   it("accepts explicit noImplicitValueYAML for boolean and SystemEnumeration YAML properties", () => {
@@ -113,7 +117,7 @@ describe("implicitValueYAML contract", () => {
 
     const unexpected = Object.entries(expected)
       .filter(([propertyKey, implicitValueYAML]) => {
-        return MetadataCatalogRules.properties[propertyKey].implicitValueYAML !== implicitValueYAML
+        return getRuleProperty(MetadataCatalogRules.properties, propertyKey).implicitValueYAML !== implicitValueYAML
       })
       .map(([propertyKey]) => `MetadataCatalogRules.${propertyKey}`)
 
@@ -159,7 +163,7 @@ describe("implicitValueYAML contract", () => {
 
     const unexpectedImplicitValues = Object.entries(expectedImplicitValues)
       .filter(([propertyKey, implicitValueYAML]) => {
-        return PageRules.properties[propertyKey].implicitValueYAML !== implicitValueYAML
+        return getRuleProperty(PageRules.properties, propertyKey).implicitValueYAML !== implicitValueYAML
       })
       .map(([propertyKey]) => `PageRules.${propertyKey}`)
 
@@ -170,7 +174,7 @@ describe("implicitValueYAML contract", () => {
       "verticalAlign",
     ] as const
     const unexpectedNoImplicitValueYAML = expectedNoImplicitValueYAML
-      .filter((propertyKey) => PageRules.properties[propertyKey].noImplicitValueYAML !== true)
+      .filter((propertyKey) => getRuleProperty(PageRules.properties, propertyKey).noImplicitValueYAML !== true)
       .map((propertyKey) => `PageRules.${propertyKey}`)
 
     expect([...unexpectedImplicitValues, ...unexpectedNoImplicitValueYAML]).toEqual([])
@@ -185,13 +189,13 @@ describe("implicitValueYAML contract", () => {
 
     const unexpectedImplicitValues = Object.entries(expectedImplicitValues)
       .filter(([propertyKey, implicitValueYAML]) => {
-        return PagesRules.properties[propertyKey].implicitValueYAML !== implicitValueYAML
+        return getRuleProperty(PagesRules.properties, propertyKey).implicitValueYAML !== implicitValueYAML
       })
       .map(([propertyKey]) => `PagesRules.${propertyKey}`)
 
     const expectedNoImplicitValueYAML = ["horizontalStretch"] as const
     const unexpectedNoImplicitValueYAML = expectedNoImplicitValueYAML
-      .filter((propertyKey) => PagesRules.properties[propertyKey].noImplicitValueYAML !== true)
+      .filter((propertyKey) => getRuleProperty(PagesRules.properties, propertyKey).noImplicitValueYAML !== true)
       .map((propertyKey) => `PagesRules.${propertyKey}`)
 
     expect([...unexpectedImplicitValues, ...unexpectedNoImplicitValueYAML]).toEqual([])
@@ -212,7 +216,7 @@ describe("implicitValueYAML contract", () => {
 
     const unexpected = Object.entries(expected)
       .filter(([propertyKey, implicitValueYAML]) => {
-        return PDFDocumentFieldRules.properties[propertyKey].implicitValueYAML !== implicitValueYAML
+        return getRuleProperty(PDFDocumentFieldRules.properties, propertyKey).implicitValueYAML !== implicitValueYAML
       })
       .map(([propertyKey]) => `PDFDocumentFieldRules.${propertyKey}`)
 
@@ -242,13 +246,13 @@ describe("implicitValueYAML contract", () => {
 
     const unexpectedImplicitValues = Object.entries(expectedImplicitValues)
       .filter(([propertyKey, implicitValueYAML]) => {
-        return PictureDecorationRules.properties[propertyKey].implicitValueYAML !== implicitValueYAML
+        return getRuleProperty(PictureDecorationRules.properties, propertyKey).implicitValueYAML !== implicitValueYAML
       })
       .map(([propertyKey]) => `PictureDecorationRules.${propertyKey}`)
 
     const expectedNoImplicitValueYAML = ["horizontalStretch", "skipOnInput", "verticalStretch"] as const
     const unexpectedNoImplicitValueYAML = expectedNoImplicitValueYAML
-      .filter((propertyKey) => PictureDecorationRules.properties[propertyKey].noImplicitValueYAML !== true)
+      .filter((propertyKey) => getRuleProperty(PictureDecorationRules.properties, propertyKey).noImplicitValueYAML !== true)
       .map((propertyKey) => `PictureDecorationRules.${propertyKey}`)
 
     expect([...unexpectedImplicitValues, ...unexpectedNoImplicitValueYAML]).toEqual([])
@@ -273,7 +277,7 @@ describe("implicitValueYAML contract", () => {
 
     const unexpected = Object.entries(expected)
       .filter(([propertyKey, implicitValueYAML]) => {
-        return PictureFieldRules.properties[propertyKey].implicitValueYAML !== implicitValueYAML
+        return getRuleProperty(PictureFieldRules.properties, propertyKey).implicitValueYAML !== implicitValueYAML
       })
       .map(([propertyKey]) => `PictureFieldRules.${propertyKey}`)
 
@@ -293,13 +297,13 @@ describe("implicitValueYAML contract", () => {
 
     const unexpectedImplicitValues = Object.entries(expectedImplicitValues)
       .filter(([propertyKey, implicitValueYAML]) => {
-        return PopupRules.properties[propertyKey].implicitValueYAML !== implicitValueYAML
+        return getRuleProperty(PopupRules.properties, propertyKey).implicitValueYAML !== implicitValueYAML
       })
       .map(([propertyKey]) => `PopupRules.${propertyKey}`)
 
     const expectedNoImplicitValueYAML = ["horizontalStretch"] as const
     const unexpectedNoImplicitValueYAML = expectedNoImplicitValueYAML
-      .filter((propertyKey) => PopupRules.properties[propertyKey].noImplicitValueYAML !== true)
+      .filter((propertyKey) => getRuleProperty(PopupRules.properties, propertyKey).noImplicitValueYAML !== true)
       .map((propertyKey) => `PopupRules.${propertyKey}`)
 
     expect([...unexpectedImplicitValues, ...unexpectedNoImplicitValueYAML]).toEqual([])
@@ -321,7 +325,7 @@ describe("implicitValueYAML contract", () => {
 
     const unexpected = Object.entries(expected)
       .filter(([propertyKey, implicitValueYAML]) => {
-        return ProgressBarFieldRules.properties[propertyKey].implicitValueYAML !== implicitValueYAML
+        return getRuleProperty(ProgressBarFieldRules.properties, propertyKey).implicitValueYAML !== implicitValueYAML
       })
       .map(([propertyKey]) => `ProgressBarFieldRules.${propertyKey}`)
 
@@ -340,13 +344,13 @@ describe("implicitValueYAML contract", () => {
 
     const unexpected = Object.entries(expected)
       .filter(([propertyKey, implicitValueYAML]) => {
-        return RadioButtonFieldRules.properties[propertyKey].implicitValueYAML !== implicitValueYAML
+        return getRuleProperty(RadioButtonFieldRules.properties, propertyKey).implicitValueYAML !== implicitValueYAML
       })
       .map(([propertyKey]) => `RadioButtonFieldRules.${propertyKey}`)
 
     const expectedNoImplicitValueYAML = ["equalColumnsWidth"] as const
     const unexpectedNoImplicitValueYAML = expectedNoImplicitValueYAML
-      .filter((propertyKey) => RadioButtonFieldRules.properties[propertyKey].noImplicitValueYAML !== true)
+      .filter((propertyKey) => getRuleProperty(RadioButtonFieldRules.properties, propertyKey).noImplicitValueYAML !== true)
       .map((propertyKey) => `RadioButtonFieldRules.${propertyKey}`)
 
     expect([...unexpected, ...unexpectedNoImplicitValueYAML]).toEqual([])
@@ -379,24 +383,24 @@ describe("implicitValueYAML contract", () => {
 
     const unexpectedSearchControlImplicitValues = searchControlRules.flatMap(([ruleName, rule]) =>
       Object.entries(expectedSearchControlImplicitValues)
-        .filter(([propertyKey, implicitValueYAML]) => rule.properties[propertyKey].implicitValueYAML !== implicitValueYAML)
+        .filter(([propertyKey, implicitValueYAML]) => getRuleProperty(rule.properties, propertyKey).implicitValueYAML !== implicitValueYAML)
         .map(([propertyKey]) => `${ruleName}.${propertyKey}`)
     )
     const unexpectedSearchStringImplicitValues = searchStringRules.flatMap(([ruleName, rule]) =>
       Object.entries(expectedSearchStringImplicitValues)
-        .filter(([propertyKey, implicitValueYAML]) => rule.properties[propertyKey].implicitValueYAML !== implicitValueYAML)
+        .filter(([propertyKey, implicitValueYAML]) => getRuleProperty(rule.properties, propertyKey).implicitValueYAML !== implicitValueYAML)
         .map(([propertyKey]) => `${ruleName}.${propertyKey}`)
     )
 
     const expectedNoImplicitValueYAML = ["horizontalStretch", "visible"] as const
     const unexpectedSearchControlNoImplicitValueYAML = searchControlRules.flatMap(([ruleName, rule]) =>
       expectedNoImplicitValueYAML
-        .filter((propertyKey) => rule.properties[propertyKey].noImplicitValueYAML !== true)
+        .filter((propertyKey) => getRuleProperty(rule.properties, propertyKey).noImplicitValueYAML !== true)
         .map((propertyKey) => `${ruleName}.${propertyKey}`)
     )
     const unexpectedSearchStringNoImplicitValueYAML = searchStringRules.flatMap(([ruleName, rule]) =>
       expectedNoImplicitValueYAML
-        .filter((propertyKey) => rule.properties[propertyKey].noImplicitValueYAML !== true)
+        .filter((propertyKey) => getRuleProperty(rule.properties, propertyKey).noImplicitValueYAML !== true)
         .map((propertyKey) => `${ruleName}.${propertyKey}`)
     )
 
@@ -420,13 +424,13 @@ describe("implicitValueYAML contract", () => {
 
     const unexpectedImplicitValues = Object.entries(expectedImplicitValues)
       .filter(([propertyKey, implicitValueYAML]) => {
-        return SingleViewStatusAdditionRules.properties[propertyKey].implicitValueYAML !== implicitValueYAML
+        return getRuleProperty(SingleViewStatusAdditionRules.properties, propertyKey).implicitValueYAML !== implicitValueYAML
       })
       .map(([propertyKey]) => `SingleViewStatusAdditionRules.${propertyKey}`)
 
     const expectedNoImplicitValueYAML = ["horizontalStretch", "visible"] as const
     const unexpectedNoImplicitValueYAML = expectedNoImplicitValueYAML
-      .filter((propertyKey) => SingleViewStatusAdditionRules.properties[propertyKey].noImplicitValueYAML !== true)
+      .filter((propertyKey) => getRuleProperty(SingleViewStatusAdditionRules.properties, propertyKey).noImplicitValueYAML !== true)
       .map((propertyKey) => `SingleViewStatusAdditionRules.${propertyKey}`)
 
     expect([...unexpectedImplicitValues, ...unexpectedNoImplicitValueYAML]).toEqual([])
@@ -436,7 +440,7 @@ describe("implicitValueYAML contract", () => {
     const explicitRequiredFields = ["use", "periodicity"] as const
 
     const unexpected = explicitRequiredFields
-      .filter((propertyKey) => AccumulationRegisterAggregateRules.properties[propertyKey].noImplicitValueYAML !== true)
+      .filter((propertyKey) => getRuleProperty(AccumulationRegisterAggregateRules.properties, propertyKey).noImplicitValueYAML !== true)
       .map((propertyKey) => `AccumulationRegisterAggregateRules.${propertyKey}`)
 
     expect(unexpected).toEqual([])
@@ -480,7 +484,7 @@ describe("implicitValueYAML contract", () => {
 
     const unexpected = Object.entries(expected)
       .filter(([propertyKey, implicitValueYAML]) => {
-        return MetadataIntegrationServiceChannelRules.properties[propertyKey].implicitValueYAML !== implicitValueYAML
+        return getRuleProperty(MetadataIntegrationServiceChannelRules.properties, propertyKey).implicitValueYAML !== implicitValueYAML
       })
       .map(([propertyKey]) => `MetadataIntegrationServiceChannelRules.${propertyKey}`)
 
@@ -520,7 +524,7 @@ describe("implicitValueYAML contract", () => {
 
     const unexpected = Object.entries(expected)
       .filter(([propertyKey, implicitValueYAML]) => {
-        return CalculatedFieldOrderExpressionRules.properties[propertyKey].implicitValueYAML !== implicitValueYAML
+        return getRuleProperty(CalculatedFieldOrderExpressionRules.properties, propertyKey).implicitValueYAML !== implicitValueYAML
       })
       .map(([propertyKey]) => `CalculatedFieldOrderExpressionRules.${propertyKey}`)
 
@@ -543,13 +547,13 @@ describe("implicitValueYAML contract", () => {
 
     const unexpectedComparisonValues = Object.entries(expectedComparisonValues)
       .filter(([propertyKey, implicitValueYAML]) => {
-        return FilterItemComparisonRules.properties[propertyKey].implicitValueYAML !== implicitValueYAML
+        return getRuleProperty(FilterItemComparisonRules.properties, propertyKey).implicitValueYAML !== implicitValueYAML
       })
       .map(([propertyKey]) => `FilterItemComparisonRules.${propertyKey}`)
 
     const unexpectedGroupValues = Object.entries(expectedGroupValues)
       .filter(([propertyKey, implicitValueYAML]) => {
-        return FilterItemGroupRules.properties[propertyKey].implicitValueYAML !== implicitValueYAML
+        return getRuleProperty(FilterItemGroupRules.properties, propertyKey).implicitValueYAML !== implicitValueYAML
       })
       .map(([propertyKey]) => `FilterItemGroupRules.${propertyKey}`)
 
@@ -577,7 +581,7 @@ describe("implicitValueYAML contract", () => {
 
     const unexpectedImplicitValues = Object.entries(expectedImplicitValues)
       .filter(([propertyKey, implicitValueYAML]) => {
-        return ExtendedTooltipRules.properties[propertyKey].implicitValueYAML !== implicitValueYAML
+        return getRuleProperty(ExtendedTooltipRules.properties, propertyKey).implicitValueYAML !== implicitValueYAML
       })
       .map(([propertyKey]) => `ExtendedTooltipRules.${propertyKey}`)
 
@@ -590,7 +594,7 @@ describe("implicitValueYAML contract", () => {
       "visible",
     ] as const
     const unexpectedNoImplicitValueYAML = expectedNoImplicitValueYAML
-      .filter((propertyKey) => ExtendedTooltipRules.properties[propertyKey].noImplicitValueYAML !== true)
+      .filter((propertyKey) => getRuleProperty(ExtendedTooltipRules.properties, propertyKey).noImplicitValueYAML !== true)
       .map((propertyKey) => `ExtendedTooltipRules.${propertyKey}`)
 
     expect([...unexpectedImplicitValues, ...unexpectedNoImplicitValueYAML]).toEqual([])
@@ -610,7 +614,7 @@ describe("implicitValueYAML contract", () => {
 
     const unexpected = Object.entries(expected)
       .filter(([propertyKey, implicitValueYAML]) => {
-        return FormattedDocumentFieldRules.properties[propertyKey].implicitValueYAML !== implicitValueYAML
+        return getRuleProperty(FormattedDocumentFieldRules.properties, propertyKey).implicitValueYAML !== implicitValueYAML
       })
       .map(([propertyKey]) => `FormattedDocumentFieldRules.${propertyKey}`)
 
@@ -630,7 +634,7 @@ describe("implicitValueYAML contract", () => {
 
     const unexpected = Object.entries(expected)
       .filter(([propertyKey, implicitValueYAML]) => {
-        return TextDocumentFieldRules.properties[propertyKey].implicitValueYAML !== implicitValueYAML
+        return getRuleProperty(TextDocumentFieldRules.properties, propertyKey).implicitValueYAML !== implicitValueYAML
       })
       .map(([propertyKey]) => `TextDocumentFieldRules.${propertyKey}`)
 
@@ -651,7 +655,7 @@ describe("implicitValueYAML contract", () => {
 
     const unexpected = Object.entries(expected)
       .filter(([propertyKey, implicitValueYAML]) => {
-        return TrackBarFieldRules.properties[propertyKey].implicitValueYAML !== implicitValueYAML
+        return getRuleProperty(TrackBarFieldRules.properties, propertyKey).implicitValueYAML !== implicitValueYAML
       })
       .map(([propertyKey]) => `TrackBarFieldRules.${propertyKey}`)
 
@@ -671,13 +675,13 @@ describe("implicitValueYAML contract", () => {
 
     const unexpectedImplicitValues = Object.entries(expectedImplicitValues)
       .filter(([propertyKey, implicitValueYAML]) => {
-        return UsualGroupRules.properties[propertyKey].implicitValueYAML !== implicitValueYAML
+        return getRuleProperty(UsualGroupRules.properties, propertyKey).implicitValueYAML !== implicitValueYAML
       })
       .map(([propertyKey]) => `UsualGroupRules.${propertyKey}`)
 
     const expectedNoImplicitValueYAML = ["slaveItemsWidth"] as const
     const unexpectedNoImplicitValueYAML = expectedNoImplicitValueYAML
-      .filter((propertyKey) => UsualGroupRules.properties[propertyKey].noImplicitValueYAML !== true)
+      .filter((propertyKey) => getRuleProperty(UsualGroupRules.properties, propertyKey).noImplicitValueYAML !== true)
       .map((propertyKey) => `UsualGroupRules.${propertyKey}`)
 
     expect([...unexpectedImplicitValues, ...unexpectedNoImplicitValueYAML]).toEqual([])
@@ -691,7 +695,7 @@ describe("implicitValueYAML contract", () => {
 
     const unexpected = Object.entries(expected)
       .filter(([propertyKey, implicitValueYAML]) => {
-        return FormAttributeRules.properties[propertyKey].implicitValueYAML !== implicitValueYAML
+        return getRuleProperty(FormAttributeRules.properties, propertyKey).implicitValueYAML !== implicitValueYAML
       })
       .map(([propertyKey]) => `FormAttributeRules.${propertyKey}`)
 
@@ -707,7 +711,7 @@ describe("implicitValueYAML contract", () => {
 
     const unexpected = Object.entries(expected)
       .filter(([propertyKey, implicitValueYAML]) => {
-        return FormCommandRules.properties[propertyKey].implicitValueYAML !== implicitValueYAML
+        return getRuleProperty(FormCommandRules.properties, propertyKey).implicitValueYAML !== implicitValueYAML
       })
       .map(([propertyKey]) => `FormCommandRules.${propertyKey}`)
 
@@ -738,13 +742,13 @@ describe("implicitValueYAML contract", () => {
 
     const unexpectedImplicitValues = Object.entries(expectedImplicitValues)
       .filter(([propertyKey, implicitValueYAML]) => {
-        return GanttChartFieldRules.properties[propertyKey].implicitValueYAML !== implicitValueYAML
+        return getRuleProperty(GanttChartFieldRules.properties, propertyKey).implicitValueYAML !== implicitValueYAML
       })
       .map(([propertyKey]) => `GanttChartFieldRules.${propertyKey}`)
 
     const expectedNoImplicitValueYAML = ["horizontalLines", "verticalLines"] as const
     const unexpectedNoImplicitValueYAML = expectedNoImplicitValueYAML
-      .filter((propertyKey) => GanttChartFieldRules.properties[propertyKey].noImplicitValueYAML !== true)
+      .filter((propertyKey) => getRuleProperty(GanttChartFieldRules.properties, propertyKey).noImplicitValueYAML !== true)
       .map((propertyKey) => `GanttChartFieldRules.${propertyKey}`)
 
     expect([...unexpectedImplicitValues, ...unexpectedNoImplicitValueYAML]).toEqual([])
@@ -758,7 +762,7 @@ describe("implicitValueYAML contract", () => {
 
     const unexpected = Object.entries(expected)
       .filter(([propertyKey, implicitValueYAML]) => {
-        return DynamicListRules.properties[propertyKey].implicitValueYAML !== implicitValueYAML
+        return getRuleProperty(DynamicListRules.properties, propertyKey).implicitValueYAML !== implicitValueYAML
       })
       .map(([propertyKey]) => `DynamicListRules.${propertyKey}`)
 
@@ -777,7 +781,7 @@ describe("implicitValueYAML contract", () => {
 
     const unexpected = rules.flatMap(([ruleName, rule]) =>
       sizeFlags
-        .filter((propertyKey) => rule.properties[propertyKey].implicitValueYAML !== true)
+        .filter((propertyKey) => getRuleProperty(rule.properties, propertyKey).implicitValueYAML !== true)
         .map((propertyKey) => `${ruleName}.${propertyKey}`)
     )
 
@@ -793,7 +797,7 @@ describe("implicitValueYAML contract", () => {
 
     const unexpected = Object.entries(expected)
       .filter(([propertyKey, implicitValueYAML]) => {
-        return ChartFieldRules.properties[propertyKey].implicitValueYAML !== implicitValueYAML
+        return getRuleProperty(ChartFieldRules.properties, propertyKey).implicitValueYAML !== implicitValueYAML
       })
       .map(([propertyKey]) => `ChartFieldRules.${propertyKey}`)
 
@@ -809,7 +813,7 @@ describe("implicitValueYAML contract", () => {
 
     const unexpected = Object.entries(expected)
       .filter(([propertyKey, implicitValueYAML]) => {
-        return DendrogramFieldRules.properties[propertyKey].implicitValueYAML !== implicitValueYAML
+        return getRuleProperty(DendrogramFieldRules.properties, propertyKey).implicitValueYAML !== implicitValueYAML
       })
       .map(([propertyKey]) => `DendrogramFieldRules.${propertyKey}`)
 
@@ -825,7 +829,7 @@ describe("implicitValueYAML contract", () => {
 
     const unexpected = Object.entries(expected)
       .filter(([propertyKey, implicitValueYAML]) => {
-        return GeographicalSchemaFieldRules.properties[propertyKey].implicitValueYAML !== implicitValueYAML
+        return getRuleProperty(GeographicalSchemaFieldRules.properties, propertyKey).implicitValueYAML !== implicitValueYAML
       })
       .map(([propertyKey]) => `GeographicalSchemaFieldRules.${propertyKey}`)
 
@@ -841,7 +845,7 @@ describe("implicitValueYAML contract", () => {
 
     const unexpected = Object.entries(expected)
       .filter(([propertyKey, implicitValueYAML]) => {
-        return GraphicalSchemaFieldRules.properties[propertyKey].implicitValueYAML !== implicitValueYAML
+        return getRuleProperty(GraphicalSchemaFieldRules.properties, propertyKey).implicitValueYAML !== implicitValueYAML
       })
       .map(([propertyKey]) => `GraphicalSchemaFieldRules.${propertyKey}`)
 
@@ -857,7 +861,7 @@ describe("implicitValueYAML contract", () => {
 
     const unexpected = Object.entries(expected)
       .filter(([propertyKey, implicitValueYAML]) => {
-        return HTMLDocumentFieldRules.properties[propertyKey].implicitValueYAML !== implicitValueYAML
+        return getRuleProperty(HTMLDocumentFieldRules.properties, propertyKey).implicitValueYAML !== implicitValueYAML
       })
       .map(([propertyKey]) => `HTMLDocumentFieldRules.${propertyKey}`)
 
@@ -886,7 +890,7 @@ describe("implicitValueYAML contract", () => {
 
     const unexpected = Object.entries(expected)
       .filter(([propertyKey, implicitValueYAML]) => {
-        return CalendarFieldRules.properties[propertyKey].implicitValueYAML !== implicitValueYAML
+        return getRuleProperty(CalendarFieldRules.properties, propertyKey).implicitValueYAML !== implicitValueYAML
       })
       .map(([propertyKey]) => `CalendarFieldRules.${propertyKey}`)
 
@@ -905,13 +909,13 @@ describe("implicitValueYAML contract", () => {
 
     const unexpectedImplicitValues = Object.entries(expectedImplicitValues)
       .filter(([propertyKey, implicitValueYAML]) => {
-        return PeriodFieldRules.properties[propertyKey].implicitValueYAML !== implicitValueYAML
+        return getRuleProperty(PeriodFieldRules.properties, propertyKey).implicitValueYAML !== implicitValueYAML
       })
       .map(([propertyKey]) => `PeriodFieldRules.${propertyKey}`)
 
     const expectedNoImplicitValueYAML = ["horizontalStretch", "verticalStretch"] as const
     const unexpectedNoImplicitValueYAML = expectedNoImplicitValueYAML
-      .filter((propertyKey) => PeriodFieldRules.properties[propertyKey].noImplicitValueYAML !== true)
+      .filter((propertyKey) => getRuleProperty(PeriodFieldRules.properties, propertyKey).noImplicitValueYAML !== true)
       .map((propertyKey) => `PeriodFieldRules.${propertyKey}`)
 
     expect([...unexpectedImplicitValues, ...unexpectedNoImplicitValueYAML]).toEqual([])
@@ -944,14 +948,14 @@ describe("implicitValueYAML contract", () => {
     const unexpectedImplicitValues = rules.flatMap(([ruleName, rule]) =>
       Object.entries(expectedImplicitValues)
         .filter(([propertyKey, implicitValueYAML]) => {
-          return rule.properties[propertyKey].implicitValueYAML !== implicitValueYAML
+          return getRuleProperty(rule.properties, propertyKey).implicitValueYAML !== implicitValueYAML
         })
         .map(([propertyKey]) => `${ruleName}.${propertyKey}`)
     )
 
     const unexpectedNoImplicitValueYAML = rules.flatMap(([ruleName, rule]) =>
       expectedNoImplicitValueYAML
-        .filter((propertyKey) => rule.properties[propertyKey].noImplicitValueYAML !== true)
+        .filter((propertyKey) => getRuleProperty(rule.properties, propertyKey).noImplicitValueYAML !== true)
         .map((propertyKey) => `${ruleName}.${propertyKey}`)
     )
 
@@ -969,7 +973,7 @@ describe("implicitValueYAML contract", () => {
 
     const unexpected = Object.entries(expected)
       .filter(([propertyKey, implicitValueYAML]) => {
-        return ButtonGroupRules.properties[propertyKey].implicitValueYAML !== implicitValueYAML
+        return getRuleProperty(ButtonGroupRules.properties, propertyKey).implicitValueYAML !== implicitValueYAML
       })
       .map(([propertyKey]) => `ButtonGroupRules.${propertyKey}`)
 
@@ -985,7 +989,7 @@ describe("implicitValueYAML contract", () => {
 
     const unexpected = Object.entries(expected)
       .filter(([propertyKey, implicitValueYAML]) => {
-        return AutoCommandBarRules.properties[propertyKey].implicitValueYAML !== implicitValueYAML
+        return getRuleProperty(AutoCommandBarRules.properties, propertyKey).implicitValueYAML !== implicitValueYAML
       })
       .map(([propertyKey]) => `AutoCommandBarRules.${propertyKey}`)
 
@@ -1005,7 +1009,7 @@ describe("implicitValueYAML contract", () => {
 
     const unexpected = Object.entries(expected)
       .filter(([propertyKey, implicitValueYAML]) => {
-        return CommandBarRules.properties[propertyKey].implicitValueYAML !== implicitValueYAML
+        return getRuleProperty(CommandBarRules.properties, propertyKey).implicitValueYAML !== implicitValueYAML
       })
       .map(([propertyKey]) => `CommandBarRules.${propertyKey}`)
 
@@ -1016,7 +1020,7 @@ describe("implicitValueYAML contract", () => {
     const explicitFields = ["autofill", "displayImportance"] as const
 
     const unexpected = explicitFields
-      .filter((propertyKey) => ContextMenuRules.properties[propertyKey].noImplicitValueYAML !== true)
+      .filter((propertyKey) => getRuleProperty(ContextMenuRules.properties, propertyKey).noImplicitValueYAML !== true)
       .map((propertyKey) => `ContextMenuRules.${propertyKey}`)
 
     expect(unexpected).toEqual([])
@@ -1031,7 +1035,7 @@ describe("implicitValueYAML contract", () => {
 
     const unexpected = Object.entries(expected)
       .filter(([propertyKey, implicitValueYAML]) => {
-        return ClientApplicationFormRules.properties[propertyKey].implicitValueYAML !== implicitValueYAML
+        return getRuleProperty(ClientApplicationFormRules.properties, propertyKey).implicitValueYAML !== implicitValueYAML
       })
       .map(([propertyKey]) => `ClientApplicationFormRules.${propertyKey}`)
 
@@ -1052,7 +1056,7 @@ describe("implicitValueYAML contract", () => {
     ] as const
 
     const unexpected = explicitFields
-      .filter((propertyKey) => ClientApplicationFormRules.properties[propertyKey].noImplicitValueYAML !== true)
+      .filter((propertyKey) => getRuleProperty(ClientApplicationFormRules.properties, propertyKey).noImplicitValueYAML !== true)
       .map((propertyKey) => `ClientApplicationFormRules.${propertyKey}`)
 
     expect(unexpected).toEqual([])
@@ -1068,7 +1072,7 @@ describe("implicitValueYAML contract", () => {
 
     const unexpected = Object.entries(expected)
       .filter(([propertyKey, implicitValueYAML]) => {
-        return ProgressBarFieldRules.properties[propertyKey].implicitValueYAML !== implicitValueYAML
+        return getRuleProperty(ProgressBarFieldRules.properties, propertyKey).implicitValueYAML !== implicitValueYAML
       })
       .map(([propertyKey]) => `ProgressBarFieldRules.${propertyKey}`)
 
@@ -1121,14 +1125,14 @@ describe("implicitValueYAML contract", () => {
     const unexpectedImplicitValues = rules.flatMap(([ruleName, rule]) =>
       Object.entries(expectedImplicitValues)
         .filter(([propertyKey, implicitValueYAML]) => {
-          return rule.properties[propertyKey].implicitValueYAML !== implicitValueYAML
+          return getRuleProperty(rule.properties, propertyKey).implicitValueYAML !== implicitValueYAML
         })
         .map(([propertyKey]) => `${ruleName}.${propertyKey}`)
     )
 
     const unexpectedNoImplicitValueYAML = rules.flatMap(([ruleName, rule]) =>
       expectedNoImplicitValueYAML
-        .filter((propertyKey) => rule.properties[propertyKey].noImplicitValueYAML !== true)
+        .filter((propertyKey) => getRuleProperty(rule.properties, propertyKey).noImplicitValueYAML !== true)
         .map((propertyKey) => `${ruleName}.${propertyKey}`)
     )
 
@@ -1155,13 +1159,13 @@ describe("implicitValueYAML contract", () => {
 
     const unexpectedImplicitValues = Object.entries(expectedImplicitValues)
       .filter(([propertyKey, implicitValueYAML]) => {
-        return LabelDecorationRules.properties[propertyKey].implicitValueYAML !== implicitValueYAML
+        return getRuleProperty(LabelDecorationRules.properties, propertyKey).implicitValueYAML !== implicitValueYAML
       })
       .map(([propertyKey]) => `LabelDecorationRules.${propertyKey}`)
 
     const expectedNoImplicitValueYAML = ["horizontalStretch", "skipOnInput", "verticalStretch"] as const
     const unexpectedNoImplicitValueYAML = expectedNoImplicitValueYAML
-      .filter((propertyKey) => LabelDecorationRules.properties[propertyKey].noImplicitValueYAML !== true)
+      .filter((propertyKey) => getRuleProperty(LabelDecorationRules.properties, propertyKey).noImplicitValueYAML !== true)
       .map((propertyKey) => `LabelDecorationRules.${propertyKey}`)
 
     expect([...unexpectedImplicitValues, ...unexpectedNoImplicitValueYAML]).toEqual([])
@@ -1186,14 +1190,14 @@ describe("implicitValueYAML contract", () => {
     const unexpectedImplicitValues = rules.flatMap(([ruleName, rule]) =>
       Object.entries(expectedImplicitValues)
         .filter(([propertyKey, implicitValueYAML]) => {
-          return rule.properties[propertyKey].implicitValueYAML !== implicitValueYAML
+          return getRuleProperty(rule.properties, propertyKey).implicitValueYAML !== implicitValueYAML
         })
         .map(([propertyKey]) => `${ruleName}.${propertyKey}`)
     )
 
     const unexpectedNoImplicitValueYAML = rules.flatMap(([ruleName, rule]) =>
       expectedNoImplicitValueYAML
-        .filter((propertyKey) => rule.properties[propertyKey].noImplicitValueYAML !== true)
+        .filter((propertyKey) => getRuleProperty(rule.properties, propertyKey).noImplicitValueYAML !== true)
         .map((propertyKey) => `${ruleName}.${propertyKey}`)
     )
 
@@ -1225,13 +1229,13 @@ describe("implicitValueYAML contract", () => {
     const unexpectedImplicitValues = rules.flatMap(([ruleName, rule]) =>
       Object.entries(expected)
         .filter(([propertyKey, implicitValueYAML]) => {
-          return rule.properties[propertyKey].implicitValueYAML !== implicitValueYAML
+          return getRuleProperty(rule.properties, propertyKey).implicitValueYAML !== implicitValueYAML
         })
         .map(([propertyKey]) => `${ruleName}.${propertyKey}`)
     )
     const unexpectedNoImplicitValueYAML = rules.flatMap(([ruleName, rule]) =>
       ["skipOnInput"]
-        .filter((propertyKey) => rule.properties[propertyKey].noImplicitValueYAML !== true)
+        .filter((propertyKey) => getRuleProperty(rule.properties, propertyKey).noImplicitValueYAML !== true)
         .map((propertyKey) => `${ruleName}.${propertyKey}`)
     )
 
@@ -1249,13 +1253,13 @@ describe("implicitValueYAML contract", () => {
 
     const unexpectedImplicitValues = Object.entries(expectedImplicitValues)
       .filter(([propertyKey, implicitValueYAML]) => {
-        return ColumnGroupRules.properties[propertyKey].implicitValueYAML !== implicitValueYAML
+        return getRuleProperty(ColumnGroupRules.properties, propertyKey).implicitValueYAML !== implicitValueYAML
       })
       .map(([propertyKey]) => `ColumnGroupRules.${propertyKey}`)
 
     const expectedNoImplicitValueYAML = ["showTitle"] as const
     const unexpectedNoImplicitValueYAML = expectedNoImplicitValueYAML
-      .filter((propertyKey) => ColumnGroupRules.properties[propertyKey].noImplicitValueYAML !== true)
+      .filter((propertyKey) => getRuleProperty(ColumnGroupRules.properties, propertyKey).noImplicitValueYAML !== true)
       .map((propertyKey) => `ColumnGroupRules.${propertyKey}`)
 
     expect([...unexpectedImplicitValues, ...unexpectedNoImplicitValueYAML]).toEqual([])
@@ -1332,12 +1336,12 @@ describe("implicitValueYAML contract", () => {
 
     const unexpectedImplicitValues = Object.entries(expectedImplicitValues)
       .filter(([propertyKey, implicitValueYAML]) => {
-        return TableRules.properties[propertyKey].implicitValueYAML !== implicitValueYAML
+        return getRuleProperty(TableRules.properties, propertyKey).implicitValueYAML !== implicitValueYAML
       })
       .map(([propertyKey]) => `TableRules.${propertyKey}`)
 
     const unexpectedNoImplicitValueYAML = expectedNoImplicitValueYAML
-      .filter((propertyKey) => TableRules.properties[propertyKey].noImplicitValueYAML !== true)
+      .filter((propertyKey) => getRuleProperty(TableRules.properties, propertyKey).noImplicitValueYAML !== true)
       .map((propertyKey) => `TableRules.${propertyKey}`)
 
     expect([...unexpectedImplicitValues, ...unexpectedNoImplicitValueYAML]).toEqual([])
@@ -1375,7 +1379,7 @@ describe("implicitValueYAML contract", () => {
 
     const unexpected = Object.entries(expected)
       .filter(([propertyKey, implicitValueYAML]) => {
-        return ClientApplicationFormRules.properties[propertyKey].implicitValueYAML !== implicitValueYAML
+        return getRuleProperty(ClientApplicationFormRules.properties, propertyKey).implicitValueYAML !== implicitValueYAML
       })
       .map(([propertyKey]) => `ClientApplicationFormRules.${propertyKey}`)
 
@@ -1400,7 +1404,7 @@ describe("implicitValueYAML contract", () => {
 
     const unexpected = Object.entries(expected)
       .filter(([propertyKey, implicitValueYAML]) => {
-        return PlannerFieldRules.properties[propertyKey].implicitValueYAML !== implicitValueYAML
+        return getRuleProperty(PlannerFieldRules.properties, propertyKey).implicitValueYAML !== implicitValueYAML
       })
       .map(([propertyKey]) => `PlannerFieldRules.${propertyKey}`)
 
@@ -1435,7 +1439,7 @@ describe("implicitValueYAML contract", () => {
 
     const unexpected = Object.entries(expected)
       .filter(([propertyKey, implicitValueYAML]) => {
-        return SpreadSheetDocumentFieldRules.properties[propertyKey].implicitValueYAML !== implicitValueYAML
+        return getRuleProperty(SpreadSheetDocumentFieldRules.properties, propertyKey).implicitValueYAML !== implicitValueYAML
       })
       .map(([propertyKey]) => `SpreadSheetDocumentFieldRules.${propertyKey}`)
 
@@ -1460,11 +1464,17 @@ describe("implicitValueYAML contract", () => {
 })
 
 function collectRules(): Array<{ exportName: string; rule: MetadataItemRule }> {
-  return Object.values(ruleModules).flatMap((module) =>
-    Object.entries(module)
-      .filter(([exportName, value]) => exportName.endsWith("Rules") && isMetadataItemRule(value))
-      .map(([exportName, rule]) => ({ exportName, rule }))
-  )
+  const rules: Array<{ exportName: string; rule: MetadataItemRule }> = []
+
+  for (const module of Object.values(ruleModules)) {
+    for (const [exportName, value] of Object.entries(module)) {
+      if (exportName.endsWith("Rules") && isMetadataItemRule(value)) {
+        rules.push({ exportName, rule: value })
+      }
+    }
+  }
+
+  return rules
 }
 
 function collectMissingImplicitValueYAML(rule: MetadataItemRule, path: string): string[] {
@@ -1504,6 +1514,10 @@ function collectMissingMaxSizeImplicitValueYAML(rule: MetadataItemRule, path: st
     ) ?? []
 
   return [...propertyMissing, ...childMissing]
+}
+
+function getRuleProperty(properties: MetadataItemRule["properties"], key: string): PropertyRule {
+  return properties[key]
 }
 
 function needsImplicitValueDecision(rule: PropertyRule): boolean {

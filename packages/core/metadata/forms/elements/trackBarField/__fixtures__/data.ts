@@ -86,7 +86,7 @@ export const fullTrackBarFieldPartialYAML: TrackBarFieldPartialYAML = {
   МинимальноеЗначение: 10,
   Ориентация: "Вертикально",
   Шаг: 2,
-} satisfies Omit<Required<TrackBarFieldPartialYAML>, "Использование">
+}
 
 export const minimalTrackBarField: TrackBarField = {
   itemType: "TrackBarField",
