@@ -46,7 +46,7 @@ const yamlFilterItemComparison1 = {
 
 const yamlFixtureFilter = {
   itemType: "Filter",
-  items: [yamlFilterItemComparison1, filterItemGroup],
+  items: [yamlFilterItemComparison1, { itemType: "FilterItemComparison" }],
 } as const satisfies Filter
 
 export const fullConditionalAppearanceItemsFromYAML: ConditionalAppearanceItem[] = [
@@ -77,7 +77,6 @@ export const fullConditionalAppearanceItemsYAML = [
           ПравоеЗначение: "Истина",
         },
         {
-          ТипГруппы: "ГруппаИ",
           Элементы: [
             {
               ЛевоеЗначение: ".Реквизит2",

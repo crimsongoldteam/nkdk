@@ -3,6 +3,7 @@ import { isAbsolute, relative, resolve, sep } from "path"
 import type { ConfigurationContext, JSONSchemaExportMode } from "~/metadata/context/types"
 import { classifyMetadataProjectPath } from "~/metadata/project/resources"
 import {
+  ensureJSONSchemaRegistry,
   exportJSONSchemaForSchemaName as exportRegisteredJSONSchemaForSchemaName,
   ProjectFileSchemaError,
 } from "./schemaRegistry"
@@ -26,6 +27,7 @@ const expectedPatterns =
   "Ожидались Конфигурация.yaml или пути вида <Вид>/<Имя>/Свойства.yaml и <Вид>/<Имя>/Формы/<Форма>/Форма.yaml"
 
 export function exportJSONSchemaForProjectFile(params: ExportJSONSchemaForProjectFileParams): TSchema {
+  ensureJSONSchemaRegistry()
   const normalized = normalizeProjectPath(params)
 
   if (!normalized.toLowerCase().endsWith(".yaml")) {

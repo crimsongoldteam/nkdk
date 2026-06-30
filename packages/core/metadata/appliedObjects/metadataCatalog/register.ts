@@ -1,0 +1,61 @@
+import { registerProjectSpec } from "~/metadata/project/projectSpecRegistry"
+import { createProjectSchemaExporter } from "~/metadata/project/projectSpecHelpers"
+import { registerProjectJSONSchema } from "~/metadata/project/schemaRegistry"
+import { join } from "path"
+import { registerDataPathOwnerKind } from "~/metadata/validation/dataPath/registry"
+import {
+  registerProjectObjectPathResolver,
+  registerProjectValueResolver,
+} from "~/metadata/validation/projectMetadataResolverRegistry"
+import { importMetadataCatalogFromYAML } from "./fromYAML"
+import { MetadataCatalogRules } from "./rules"
+import { exportMetadataCatalogToJSONSchema } from "./toJSONSchema"
+
+registerDataPathOwnerKind({
+  kind: "Справочник",
+  projectDir: "Справочник",
+  rule: MetadataCatalogRules,
+  typeDescriptionBases: ["CatalogRef"],
+  metadataLinkPrefixes: ["Catalog"],
+  aliases: ["СправочникОбъект"],
+})
+registerDataPathOwnerKind({
+  kind: "СправочникОбъект",
+  projectDir: "Справочник",
+  rule: MetadataCatalogRules,
+  typeDescriptionBases: ["CatalogObject"],
+  metadataLinkPrefixes: ["Catalog"],
+})
+
+registerProjectJSONSchema("MetadataCatalog", ({ context }) => exportMetadataCatalogToJSONSchema({ context }))
+registerProjectObjectPathResolver("Catalog", ({ projectDir, target }) => ({
+  filePath: join(projectDir, "Справочник", target.objectName, "Свойства.yaml"),
+}))
+registerProjectValueResolver("Catalog", ({ owner, target }) => {
+  if (target.valueKind === "emptyRef") return undefined
+  const values = metadataRecord(owner.model).predefined
+  return hasNamedItem(values, target.valueName) ? { ok: true, filePath: owner.filePath } : undefined
+})
+
+registerProjectSpec({
+  kind: "catalog",
+  dir: "Справочник",
+  rule: MetadataCatalogRules,
+  exportSchema: createProjectSchemaExporter(({ context }) => exportMetadataCatalogToJSONSchema({ context })),
+  importModel: ({ context, parsed, name }) => importMetadataCatalogFromYAML(context, parsed.data, name),
+})
+
+function hasNamedItem(value: unknown, name: string): boolean {
+  if (Array.isArray(value)) return value.some((item) => hasNamedItem(item, name))
+  if (typeof value !== "object" || value === null) return false
+
+  const record = value as Record<string, unknown>
+  if (record.name === name) return true
+  if (Object.prototype.hasOwnProperty.call(record, name)) return true
+
+  return hasNamedItem(record.items, name) || hasNamedItem(record.childItems, name) || hasNamedItem(record.enumValues, name)
+}
+
+function metadataRecord(value: unknown): Record<string, unknown> {
+  return typeof value === "object" && value !== null ? (value as Record<string, unknown>) : {}
+}

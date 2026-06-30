@@ -34,6 +34,7 @@ export const MetadataHTTPServiceMethodRules = {
       typeSE: "HTTPMethod",
       xmlParents: propertiesParents,
       defaultValueXML: "GET",
+      noImplicitValueYAML: true,
       preserveExplicitDefaultXML: true,
     },
     handler: {

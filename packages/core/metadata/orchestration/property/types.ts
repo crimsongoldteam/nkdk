@@ -1,29 +1,11 @@
-import type { DcsMetadataValuePropertyRule } from "~/metadata/commonObjects/dataCompositionSystem/dcsMetadataValue/types"
 import { SettingsParameterValuePropertyRule } from "~/metadata/commonObjects/dataCompositionSystem/parameterValue/types"
-import { DateTimePropertyRule } from "~/metadata/commonObjects/dateTime/types"
-import type { ExternalFilePropertyRule } from "~/metadata/commonObjects/externalFile/types"
-import type { ExternalPicturePropertyRule } from "~/metadata/commonObjects/externalPicture/types"
-import type { FieldsListPropertyRule } from "~/metadata/commonObjects/fieldsList/types"
-import { FormattedI8nTextPropertyRule } from "~/metadata/commonObjects/formattedI8nText/types"
-import { I8nTextPropertyRule } from "~/metadata/commonObjects/i8nText/types"
-import type { ChildFileItemNamesPropertyRule } from "~/metadata/commonObjects/childFileItemNames/types"
-import type { ChildFormNamesPropertyRule } from "~/metadata/commonObjects/childFormNames/types"
-import type { ChildSubsystemNamesPropertyRule } from "~/metadata/commonObjects/childSubsystemNames/types"
-import type { ChildTemplateNamesPropertyRule } from "~/metadata/commonObjects/childTemplateNames/types"
-import type { MetadataTargetConstraint } from "~/metadata/commonObjects/metadataTargets/types"
+import type { MetadataRootName, MetadataTargetConstraint } from "~/metadata/commonObjects/metadataTargets/types"
 import type { TypeDescriptionAllowedTypes } from "~/metadata/commonObjects/typeDescription/types"
-import type { XMLRootPropertyRule } from "~/metadata/commonObjects/xmlRoot/types"
 import type { SyncAreaDeclaration } from "~/metadata/orchestration/appliedObject/xmlAreas"
-import { MetadataValuePropertyRule } from "~/metadata/commonObjects/metadataValue/types"
-import { NumberPropertyRule } from "~/metadata/commonObjects/number/types"
-import { PredefinedCodePropertyRule } from "~/metadata/commonObjects/predefinedCode/types"
-import { StringOrNumberPropertyRule } from "~/metadata/commonObjects/stringOrNumber/types"
-import type { WSDefinitionSchemasPropertyRule } from "~/metadata/commonObjects/wsDefinitionSchemas/types"
 import type { TypeRulesOperations } from "./fn"
 
 import { ConfigurationContext, ConfigurationContextWithExportToXML } from "~/metadata/context/types"
 import { TableAdditionalSourceTypes } from "~/metadata/forms/commonObjects/tableAdditionalSource/types"
-import { SystemEnumerationPropertyRule } from "~/metadata/systemEnumerations/types"
 import type { ExternalMetadataItemRule, ExternalMetadataPropertyRule } from "../externalMetadata/types"
 import { MetadataItemType } from "../metadataItem/registry"
 import { PropertyRuleType } from "./registry"
@@ -48,6 +30,11 @@ export type ReferenceScope = ReferenceScopeThis | ReferenceScopeTopLevel
 export interface MetadataItem {
   itemType: MetadataItemType
 }
+
+export type MetadataTargetOwnerDeclaration =
+  | { kind: "self"; root: MetadataRootName }
+  | { kind: "inherit" }
+  | { kind: "resolver" }
 
 type DefaultValueFunction = (params: {
   context: ConfigurationContext
@@ -92,6 +79,9 @@ export interface BasePropertyRule {
 
   /** Значение, подразумеваемое отсутствием YAML-ключа; при выгрузке не пишется явно. */
   implicitValueYAML?: any | DefaultValueFunction
+
+  /** Явно фиксирует, что для YAML-свойства нет неявного значения. */
+  noImplicitValueYAML?: true
 
   /** Исключать неявное YAML-значение по модельному значению до преобразования типа. */
   omitImplicitValueYAMLBySource?: true
@@ -376,42 +366,7 @@ export interface SettingsParameterValueCollectionPropertyRule extends BaseProper
 //   exportToYAML: (context: ConfigurationContext, rule: PropertyRule, data: any) => any
 // }
 
-export type PropertyRule =
-  | SystemEnumerationPropertyRule
-  | UserVisiblePropertyRule
-  | I8nTextPropertyRule
-  | FormattedI8nTextPropertyRule
-  | EventsPropertyRule
-  | CleanPropertyRule
-  | TableAdditionalSourcePropertyRule
-  | StandardAttributeDescriptionPropertyRule
-  | StandardAttributeDescriptionsPropertyRule
-  | InternalInfoPropertyRule
-  | ChildItemsPropertyRule
-  | TypeDescriptionPropertyRule
-  | DataPathPropertyRule
-  | MetadataTypePropertyRule
-  | MetadataValuePropertyRule
-  | DcsMetadataValuePropertyRule
-  | SettingsParameterValuePropertyRule
-  | SettingsParameterValueCollectionPropertyRule
-  | NumberPropertyRule
-  | PredefinedCodePropertyRule
-  | StringOrNumberPropertyRule
-  | DateTimePropertyRule
-  | XMLRootPropertyRule
-  | ChildFileItemNamesPropertyRule
-  | ChildFormNamesPropertyRule
-  | ChildTemplateNamesPropertyRule
-  | ChildSubsystemNamesPropertyRule
-  | ModulePropertyRule
-  | TemplatePropertyRule
-  | HelpPropertyRule
-  | ExternalFilePropertyRule
-  | ExternalFormItemFilePropertyRule
-  | ExternalPicturePropertyRule
-  | WSDefinitionSchemasPropertyRule
-  | FieldsListPropertyRule
+export type PropertyRule = BasePropertyRule & Record<string, any>
 
 type PropertiesType = Record<string, PropertyRule>
 
@@ -435,6 +390,12 @@ export interface MetadataItemRule extends MetadataItem {
    * какой внешний реестр использует это описание.
    */
   externalMetadata?: ExternalMetadataItemRule
+
+  /**
+   * Описывает, как объект участвует в owner/root metadata-target.
+   * Property rules описывают ограничения ссылки, это поле описывает только владельца.
+   */
+  metadataTargetOwner?: MetadataTargetOwnerDeclaration
 
   /**
    * Свойства объекта метаданных

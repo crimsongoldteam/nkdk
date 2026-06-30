@@ -17,12 +17,12 @@ describe("import MetadataChartOfCalculationTypes from XML", () => {
     expect(result?.codeType).toBe("Number")
     expect(result?.dependenceOnCalculationTypes).toBe("OnActionPeriod")
     expect(result?.actionPeriodUse).toBe(true)
-    expect(result?.attributes?.map(({ name }) => name)).toEqual([
+    expect(result?.attributes?.map(({ name }: { name: string }) => name)).toEqual([
       "РеквизитВсеСвойства",
       "РеквизитХранилище",
       "РеквизитПоУмолчанию",
     ])
-    expect(result?.tabularSections?.map(({ name }) => name)).toEqual([
+    expect(result?.tabularSections?.map(({ name }: { name: string }) => name)).toEqual([
       "ТабличнаяЧастьПоУмолчанию",
       "ТабличнаяЧастьВсеСвойства",
     ])

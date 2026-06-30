@@ -1,41 +1,62 @@
+import { borderRule } from "~/metadata/commonObjects/border/types"
+import { colorRule } from "~/metadata/commonObjects/color/types"
+import { fontRule } from "~/metadata/commonObjects/font/types"
+import { dataPathRule } from "~/metadata/commonObjects/metadataPath/types"
+import { eventsRule } from "~/metadata/forms/commonObjects/event/types"
+import { booleanRule } from "~/metadata/commonObjects/boolean/types"
+import { numberRule } from "~/metadata/commonObjects/number/types"
+import { stringRule } from "~/metadata/commonObjects/string/types"
+import { systemEnumerationRule } from "~/metadata/systemEnumerations/types"
 import { registerElementRule } from "~/metadata/orchestration/formElement/ruleFactory"
 import { PropertyRule } from "~/metadata/orchestration/property/types"
 import { ElementRule } from "../../../orchestration/formElement/types"
 import { formFieldCommonProperties, formFieldDisabledTableRelatedProperties } from "../formField/rules"
 export type { ElementRule, PropertyRule }
-
 export const CalendarFieldRules = {
   itemType: "CalendarField",
   enterpriseField: "FormField",
   enterpriseFieldType: "FormFieldType.CalendarField",
   properties: {
-    autoMaxHeight: { yaml: "АвтоМаксимальнаяВысота", type: "boolean" },
-    autoMaxWidth: { yaml: "АвтоМаксимальнаяШирина", type: "boolean" },
-    beginOfRepresentationPeriod: { yaml: "НачалоПериодаОтображения", type: "string" },
-    border: { yaml: "Рамка", type: "Border", metadataTarget: { kind: "object", roots: ["StyleItem"], filters: [{ kind: "styleItemType", values: ["Border"] }] } },
-    borderColor: { yaml: "ЦветРамки", type: "Color", metadataTarget: { kind: "object", roots: ["StyleItem"], filters: [{ kind: "styleItemType", values: ["Color"] }] } },
-    calendarNavigation: { yaml: "ПеремещениеПоКалендарю", type: "boolean" },
-    enableDrag: { yaml: "РазрешитьПеретаскивание", type: "boolean" },
-    enableStartDrag: { yaml: "РазрешитьНачалоПеретаскивания", type: "boolean" },
-    endOfRepresentationPeriod: { yaml: "КонецПериодаОтображения", type: "string" },
-    font: { yaml: "Шрифт", type: "Font", metadataTarget: { kind: "object", roots: ["StyleItem"], filters: [{ kind: "styleItemType", values: ["Font"] }] } },
-    height: { yaml: "Высота", type: "number" },
-    heightInMonths: { yaml: "ВысотаВМесяцах", type: "number" },
-    horizontalStretch: { yaml: "РастягиватьПоГоризонтали", type: "boolean" },
-    maxHeight: { yaml: "МаксимальнаяВысота", type: "number" },
-    maxWidth: { yaml: "МаксимальнаяШирина", type: "number" },
-    selectionMode: {
+    autoMaxHeight: booleanRule({ yaml: "АвтоМаксимальнаяВысота", implicitValueYAML: true }),
+    autoMaxWidth: booleanRule({ yaml: "АвтоМаксимальнаяШирина", implicitValueYAML: true }),
+    beginOfRepresentationPeriod: stringRule({ yaml: "НачалоПериодаОтображения" }),
+    border: borderRule({
+      yaml: "Рамка",
+      implicitValueYAML: "Single",
+      metadataTarget: {
+        kind: "object",
+        roots: ["StyleItem"],
+        filters: [{ kind: "styleItemType", values: ["Border"] }],
+      },
+    }),
+    borderColor: colorRule({
+      yaml: "ЦветРамки",
+      metadataTarget: { kind: "object", roots: ["StyleItem"], filters: [{ kind: "styleItemType", values: ["Color"] }] },
+    }),
+    calendarNavigation: booleanRule({ yaml: "ПеремещениеПоКалендарю", implicitValueYAML: true }),
+    enableDrag: booleanRule({ yaml: "РазрешитьПеретаскивание", implicitValueYAML: false }),
+    enableStartDrag: booleanRule({ yaml: "РазрешитьНачалоПеретаскивания", implicitValueYAML: false }),
+    endOfRepresentationPeriod: stringRule({ yaml: "КонецПериодаОтображения" }),
+    font: fontRule({
+      yaml: "Шрифт",
+      metadataTarget: { kind: "object", roots: ["StyleItem"], filters: [{ kind: "styleItemType", values: ["Font"] }] },
+    }),
+    height: numberRule({ yaml: "Высота", implicitValueYAML: 9 }),
+    heightInMonths: numberRule({ yaml: "ВысотаВМесяцах", implicitValueYAML: 1 }),
+    horizontalStretch: booleanRule({ yaml: "РастягиватьПоГоризонтали", implicitValueYAML: true }),
+    maxHeight: numberRule({ yaml: "МаксимальнаяВысота", implicitValueYAML: 0 }),
+    maxWidth: numberRule({ yaml: "МаксимальнаяШирина", implicitValueYAML: 0 }),
+    selectionMode: systemEnumerationRule({
       yaml: "РежимВыделения",
-      type: "SystemEnumeration",
       typeSE: "DateSelectionMode",
-    },
-    showCurrentDate: { yaml: "ОтображатьТекущуюДату", type: "boolean" },
-    showMonthsPanel: { yaml: "ОтображатьПанельМесяцев", type: "boolean" },
-    verticalStretch: { yaml: "РастягиватьПоВертикали", type: "boolean" },
-    width: { yaml: "Ширина", type: "number" },
-    widthInMonths: { yaml: "ШиринаВМесяцах", type: "number" },
-    events: {
-      type: "Events",
+      implicitValueYAML: "Single",
+    }),
+    showCurrentDate: booleanRule({ yaml: "ОтображатьТекущуюДату", implicitValueYAML: true }),
+    showMonthsPanel: booleanRule({ yaml: "ОтображатьПанельМесяцев", implicitValueYAML: false }),
+    verticalStretch: booleanRule({ yaml: "РастягиватьПоВертикали", implicitValueYAML: true }),
+    width: numberRule({ yaml: "Ширина", implicitValueYAML: 16 }),
+    widthInMonths: numberRule({ yaml: "ШиринаВМесяцах", implicitValueYAML: 1 }),
+    events: eventsRule({
       yaml: "События",
       toEnterprise: false,
       items: {
@@ -48,19 +69,18 @@ export const CalendarFieldRules = {
         onPeriodOutput: "ПриВыводеПериода",
         dragCheck: "ПроверкаПеретаскивания",
       },
-    },
-    dataPath: {
+    }),
+    dataPath: dataPathRule({
       yaml: "ПутьКДанным",
-      type: "DataPath",
       toYAML: false,
       fromYAML: false,
       defaultType: "dateTime",
       allowedKinds: ["dateTime"],
       allowComposite: false,
-    },
+    }),
     ...formFieldDisabledTableRelatedProperties,
     ...formFieldCommonProperties,
+    titleHeight: numberRule({ yaml: "ВысотаЗаголовка", implicitValueYAML: 0 }),
   },
 } as const satisfies ElementRule
-
 registerElementRule("CalendarField", CalendarFieldRules)

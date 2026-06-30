@@ -1,3 +1,8 @@
+import {
+  definePropertyRule as defineWidePropertyRule,
+  type ExactRuleParams as WideExactRuleParams,
+} from "~/metadata/commonObjects/ruleBuilder"
+import type { PropertyRule as WidePropertyRuleBase } from "~/metadata/orchestration/property/types"
 import { Static, Type } from "@sinclair/typebox"
 import { BasePropertyRule } from "~/metadata/orchestration/property/types"
 import { StringboolXML } from "../boolean/types"
@@ -26,4 +31,16 @@ export interface FormattedI8nTextXML extends I8nTextXML {
 export interface FormattedI8nTextPropertyRule extends BasePropertyRule {
   type: "FormattedI8nText"
   xmlWithDefaultLanguage?: true
+}
+
+export interface FormattedI8nTextWidePropertyRule extends WidePropertyRuleBase {
+  type: "FormattedI8nText"
+}
+
+export type FormattedI8nTextRuleParams = Omit<FormattedI8nTextWidePropertyRule, "type">
+
+export function formattedI8nTextRule<const Params extends FormattedI8nTextRuleParams>(
+  params: WideExactRuleParams<FormattedI8nTextRuleParams, Params>
+): Readonly<{ type: "FormattedI8nText" } & Params> {
+  return defineWidePropertyRule("FormattedI8nText", params)
 }

@@ -1,3 +1,8 @@
+import {
+  definePropertyRule as defineWidePropertyRule,
+  type ExactRuleParams as WideExactRuleParams,
+} from "~/metadata/commonObjects/ruleBuilder"
+import type { PropertyRule as WidePropertyRuleBase } from "~/metadata/orchestration/property/types"
 import type { Color, ColorYAML } from "~/metadata/commonObjects/color/types"
 import type { Font, FontYAML } from "~/metadata/commonObjects/font/types"
 import type { FormattedI8nText, FormattedI8nTextValueYAML } from "~/metadata/commonObjects/formattedI8nText/types"
@@ -126,4 +131,16 @@ export type MetadataDcsMetadataValueDcsRootXML = {
         "#text"?: string
         [key: string]: unknown
       }
+}
+
+export interface MetadataDcsMetadataValueWidePropertyRule extends WidePropertyRuleBase {
+  type: "MetadataDcsMetadataValue"
+}
+
+export type MetadataDcsMetadataValueRuleParams = Omit<MetadataDcsMetadataValueWidePropertyRule, "type">
+
+export function metadataDcsMetadataValueRule<const Params extends MetadataDcsMetadataValueRuleParams>(
+  params: WideExactRuleParams<MetadataDcsMetadataValueRuleParams, Params>
+): Readonly<{ type: "MetadataDcsMetadataValue" } & Params> {
+  return defineWidePropertyRule("MetadataDcsMetadataValue", params)
 }

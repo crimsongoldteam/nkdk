@@ -1,17 +1,17 @@
-import { lstatSync, readdirSync, readFileSync } from "fs"
+import { existsSync, lstatSync, readdirSync, readFileSync } from "fs"
 import { join, relative } from "path"
 import { describe, expect, it } from "vitest"
+import { createBuilderCatalog } from "./rulesBuilderMigration/builderCatalog"
+import { inventoryRulesSource } from "./rulesBuilderMigration/inventory"
 
 const METADATA_DIR = join(process.cwd(), "metadata")
 const COMMON_OBJECTS_DIR = join(METADATA_DIR, "commonObjects")
 const ORCHESTRATION_DIR = join(METADATA_DIR, "orchestration")
 const ORCHESTRATION_APPLIED_OBJECT_DIR = join(METADATA_DIR, "orchestration", "appliedObject")
 const ORCHESTRATION_FORM_ELEMENT_DIR = join(METADATA_DIR, "orchestration", "formElement")
+const PROJECT_DIR = join(METADATA_DIR, "project")
 
-const FORBIDDEN_COMMON_OBJECT_IMPORTS = [
-  "~/metadata/forms/elements/",
-  "../forms/elements/",
-] as const
+const FORBIDDEN_COMMON_OBJECT_IMPORTS = ["~/metadata/forms/elements/", "../forms/elements/"] as const
 const FORBIDDEN_ORCHESTRATION_APPLIED_OBJECT_IMPORTS = [
   "~/metadata/appliedObjects/configuration/",
   "../../appliedObjects/configuration/",
@@ -21,11 +21,15 @@ const FORBIDDEN_FORM_ELEMENT_FACTORY_IMPORTS = [
   "../formElement/factory",
   "./formElement/factory",
 ] as const
-const FORBIDDEN_FORM_ELEMENT_LOCAL_FACTORY_IMPORTS = [
-  "./factory",
-] as const
-const FORBIDDEN_ORCHESTRATION_FORM_MODEL_IMPORTS = [
-  "~/metadata/forms/elements/baseElement/types",
+const FORBIDDEN_FORM_ELEMENT_LOCAL_FACTORY_IMPORTS = ["./factory"] as const
+const FORBIDDEN_ORCHESTRATION_FORM_MODEL_IMPORTS = ["~/metadata/forms/elements/baseElement/types"] as const
+const FORBIDDEN_PROJECT_CONCRETE_METADATA_IMPORTS = [
+  "~/metadata/appliedObjects/",
+  "~/metadata/commonObjects/",
+  "~/metadata/forms/",
+  "../appliedObjects/",
+  "../commonObjects/",
+  "../forms/",
 ] as const
 const REGISTRATION_ENTRYPOINT_ALLOWLIST = new Set([
   "index.ts",
@@ -86,6 +90,80 @@ describe("metadata import boundaries", () => {
     expect(offenders).toEqual([])
   })
 
+  it("metadata/project не импортирует конкретные реализации metadata", () => {
+    const offenders = findImportOffenders(PROJECT_DIR, FORBIDDEN_PROJECT_CONCRETE_METADATA_IMPORTS).filter(
+      ({ filePath }) => !filePath.endsWith(".test.ts")
+    )
+
+    expect(offenders).toEqual([])
+  })
+
+  it("metadataTargetString не знает concrete metadata itemType/root", () => {
+    const source = readFileSync(join(METADATA_DIR, "orchestration", "property", "metadataTargetString.ts"), "utf-8")
+
+    expect(source).not.toContain("rootByOwnerItemType")
+    expect(source).not.toContain("itemTypePrefixRootFallback")
+    expect(source).not.toContain("DocumentNumerator")
+    expect(source).not.toContain("ClientApplicationForm")
+    expect(source).not.toContain("MetadataAttribute")
+    expect(source).not.toContain("MetadataExternalDataSource")
+  })
+
+  it("ProjectMetadataResolver делегирует concrete metadata knowledge регистрациям", () => {
+    const source = readFileSync(join(METADATA_DIR, "validation", "projectMetadataResolver.ts"), "utf-8")
+
+    for (const forbidden of [
+      "objectRootDir",
+      "nestedObjectFilePath",
+      "DocumentNumerator",
+      "ExternalDataSource",
+      "Template.xml",
+      "Template.txt",
+      "Template.bin",
+      "Формы",
+      "Шаблоны",
+      "Поля",
+      "Команды",
+      "ПризнакиУчета",
+      "MetadataConfiguration",
+    ]) {
+      expect(source).not.toContain(forbidden)
+    }
+  })
+
+  it("validation/dataPath core не содержит concrete owner kinds", () => {
+    const files = [
+      "metadata/validation/dataPath/types.ts",
+      "metadata/validation/dataPath/ownerCache.ts",
+      "metadata/validation/dataPath/typeDescription.ts",
+      "metadata/validation/dataPath/objectFields.ts",
+      "metadata/validation/dataPath/resolver.ts",
+    ]
+
+    for (const filePath of files) {
+      const source = readFileSync(join(process.cwd(), filePath), "utf-8")
+      for (const forbidden of ["Справочник", "Документ", "РегистрСведений", "ПланСчетов", "CatalogRef", "DocumentRef", "RegisterRecords"]) {
+        expect(source).not.toContain(forbidden)
+      }
+    }
+  })
+
+  it("validateForm делегирует concrete form behavior зарегистрированному validator", () => {
+    const source = readFileSync(join(METADATA_DIR, "validation", "validateForm.ts"), "utf-8")
+
+    expect(source).not.toContain("importClientApplicationFormFromYAML")
+    expect(source).not.toContain("ДинамическийСписок")
+    expect(source).not.toContain("InputField")
+    expect(source).toContain("getRegisteredFormValidator")
+  })
+
+  it("dataPath owner registrations живут в register.ts конкретных объектов", () => {
+    const appliedObjectsIndex = readFileSync(join(METADATA_DIR, "appliedObjects", "index.ts"), "utf-8")
+
+    expect(appliedObjectsIndex).not.toContain("dataPathOwnerKinds")
+    expect(existsSync(join(METADATA_DIR, "appliedObjects", "dataPathOwnerKinds", "register.ts"))).toBe(false)
+  })
+
   it("I8nText registry entry живёт рядом с владельцем", () => {
     const globalRegistry = readFileSync(join(METADATA_DIR, "orchestration", "property", "registry.ts"), "utf-8")
     const localRegistry = readFileSync(join(METADATA_DIR, "commonObjects", "i8nText", "registry.types.ts"), "utf-8")
@@ -94,6 +172,33 @@ describe("metadata import boundaries", () => {
     expect(globalRegistry).not.toMatch(/^\s+I8nText: "I8nText",/m)
     expect(localRegistry).toContain("interface PropertyTypeRegistry")
     expect(localRegistry).toContain("I8nText: {")
+  })
+
+  it("orchestration property registry is no longer a concrete metadata type list", () => {
+    const source = readFileSync(join(METADATA_DIR, "orchestration", "property", "registry.ts"), "utf-8")
+
+    expect(source).not.toContain("interface PropertyTypeRegistry")
+    expect(source).not.toMatch(/from "~\/metadata\/(appliedObjects|commonObjects|forms)\//)
+    expect(source).toContain("export type PropertyRuleType = string")
+  })
+
+  it("orchestration metadata item registry is no longer a concrete metadata type list", () => {
+    const source = readFileSync(join(METADATA_DIR, "orchestration", "metadataItem", "registry.ts"), "utf-8")
+
+    expect(source).not.toContain("interface MetadataItemTypeRegistry")
+    expect(source).not.toContain("//#region Applied objects")
+    expect(source).not.toMatch(/from "~\/metadata\/(appliedObjects|commonObjects|forms)\//)
+    expect(source).toContain("export type MetadataItemType = string")
+  })
+
+  it("central metadata registries expose only neutral string keys", () => {
+    const propertyRegistry = readFileSync(join(METADATA_DIR, "orchestration", "property", "registry.ts"), "utf-8")
+    const metadataItemRegistry = readFileSync(join(METADATA_DIR, "orchestration", "metadataItem", "registry.ts"), "utf-8")
+
+    expect(propertyRegistry.trim()).toContain("export type PropertyRuleType = string")
+    expect(metadataItemRegistry.trim()).toContain("export type MetadataItemType = string")
+    expect(propertyRegistry).not.toContain("interface PropertyTypeRegistry")
+    expect(metadataItemRegistry).not.toContain("interface MetadataItemTypeRegistry")
   })
 
   it("новые широкие metadata-регистрации идут через metadata/register", () => {
@@ -111,16 +216,38 @@ describe("metadata import boundaries", () => {
     expect(offenders).toEqual([])
   })
 
+  it("production rules.ts не объявляют property-rule type вручную", () => {
+    const catalog = createBuilderCatalog()
+    const offenders = listRulesFiles(METADATA_DIR)
+      .flatMap((filePath) =>
+        inventoryRulesSource(relative(process.cwd(), filePath), readFileSync(filePath, "utf-8"), catalog)
+      )
+      .filter(({ filePath, propertyPath }) => !ALLOWED_DIRECT_RULE_TYPE_OFFENDERS.has(`${filePath}:${propertyPath}`))
+
+    expect(offenders).toEqual([])
+  })
+
   it("старые boundary-правила поддерживают prefix imports, а broad-регистрации остаются exact", () => {
     expect(
-      findForbiddenImports('import { Button } from "~/metadata/forms/elements/button"', [
-        "~/metadata/forms/elements/",
-      ])
+      findForbiddenImports('import { Button } from "~/metadata/forms/elements/button"', ["~/metadata/forms/elements/"])
     ).toEqual(["~/metadata/forms/elements/"])
 
     expect(
       findForbiddenModuleSpecifiers('import { Button } from "~/metadata/forms/elements/button"', ["~/metadata/forms"])
     ).toEqual([])
+  })
+
+  it("MetadataLanguage runtime registration lives in register.ts, not types.ts", () => {
+    const typesSource = readFileSync(join(METADATA_DIR, "appliedObjects", "metadataLanguage", "types.ts"), "utf-8")
+    const registerSource = readFileSync(
+      join(METADATA_DIR, "appliedObjects", "metadataLanguage", "register.ts"),
+      "utf-8"
+    )
+
+    expect(typesSource).not.toContain("registerMetadataItemRule")
+    expect(typesSource).toContain("import type { MetadataLanguageRules }")
+    expect(registerSource).toContain("registerMetadataItemRule")
+    expect(registerSource).toContain('propertyType: "MetadataLanguage"')
   })
 })
 
@@ -168,6 +295,12 @@ function extractModuleSpecifiers(content: string): string[] {
 
 function listCoreTypeScriptFiles(): string[] {
   return listTypeScriptFiles(process.cwd(), { includeTests: true }).map((filePath) => relative(process.cwd(), filePath))
+}
+
+const ALLOWED_DIRECT_RULE_TYPE_OFFENDERS = new Set<string>()
+
+function listRulesFiles(dir: string): string[] {
+  return listTypeScriptFiles(dir).filter((filePath) => filePath.endsWith("/rules.ts"))
 }
 
 function listTypeScriptFiles(dir: string, options: { includeTests?: boolean } = {}): string[] {

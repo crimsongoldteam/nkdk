@@ -26,12 +26,14 @@ type ClientApplicationFormWithCustomSettingsFolder = ClientApplicationForm & {
 const fullClientApplicationFormFromYAML = {
   parameters: fullClientApplicationForm.parameters,
   commands: fullClientApplicationForm.commands,
-  autoCommandBar: fullClientApplicationForm.autoCommandBar,
+  autoCommandBar: {
+    itemType: "AutoCommandBar",
+    autofill: false,
+    childItems: [],
+  },
   commandInterface: fullClientApplicationForm.commandInterface,
   attributes: fullClientApplicationForm.attributes,
-  autoTitle: fullClientApplicationForm.autoTitle,
   autoSaveDataInSettings: fullClientApplicationForm.autoSaveDataInSettings,
-  autoURL: fullClientApplicationForm.autoURL,
   customizable: fullClientApplicationForm.customizable,
   verticalScroll: fullClientApplicationForm.verticalScroll,
   childItemsVerticalAlign: fullClientApplicationForm.childItemsVerticalAlign,
@@ -41,28 +43,24 @@ const fullClientApplicationFormFromYAML = {
   childItemsHorizontalAlign: fullClientApplicationForm.childItemsHorizontalAlign,
   horizontalSpacing: fullClientApplicationForm.horizontalSpacing,
   groupList: fullClientApplicationForm.groupList,
-  enabled: fullClientApplicationForm.enabled,
+  enterKeyBehavior: fullClientApplicationForm.enterKeyBehavior,
+  group: fullClientApplicationForm.group,
   title: fullClientApplicationForm.title,
   closeOnChoice: fullClientApplicationForm.closeOnChoice,
   closeOnOwnerClose: fullClientApplicationForm.closeOnOwnerClose,
   purposeUseKey: fullClientApplicationForm.purposeUseKey,
   windowOptionsKey: fullClientApplicationForm.windowOptionsKey,
-  scale: fullClientApplicationForm.scale,
   modalMode: fullClientApplicationForm.modalMode,
   modified: fullClientApplicationForm.modified,
-  showTitle: fullClientApplicationForm.showTitle,
-  showCloseButton: fullClientApplicationForm.showCloseButton,
   conversationsRepresentation: fullClientApplicationForm.conversationsRepresentation,
   commandBarLocation: fullClientApplicationForm.commandBarLocation,
   commandSet: fullClientApplicationForm.commandSet,
-  autoFillCheck: fullClientApplicationForm.autoFillCheck,
   formWindowOpeningMode: fullClientApplicationForm.formWindowOpeningMode,
   collapseItemsByImportance: fullClientApplicationForm.collapseItemsByImportance,
   saveDataInSettings: fullClientApplicationForm.saveDataInSettings,
   savedInSettingsDataModified: fullClientApplicationForm.savedInSettingsDataModified,
   readOnly: fullClientApplicationForm.readOnly,
   width: fullClientApplicationForm.width,
-  saveWindowSettings: fullClientApplicationForm.saveWindowSettings,
   childItems: fullClientApplicationForm.childItems,
   choiceAvailable: fullClientApplicationForm.choiceAvailable,
   useForFoldersAndItems: fullClientApplicationForm.useForFoldersAndItems,
@@ -74,7 +72,7 @@ const fullClientApplicationFormFromYAML = {
   includeHelpInContents: fullClientApplicationForm.includeHelpInContents,
   usePurposes: fullClientApplicationForm.usePurposes,
   itemType: fullClientApplicationForm.itemType,
-} satisfies Omit<ClientApplicationForm, "enterKeyBehavior" | "group" | "slaveItemsWidth" | "usedFormServer">
+} satisfies Omit<ClientApplicationForm, "slaveItemsWidth" | "usedFormServer">
 
 const catalogFullClientApplicationFormFromYAML = {
   itemType: catalogFullClientApplicationForm.itemType,
@@ -102,6 +100,7 @@ const catalogFullClientApplicationFormFromYAML = {
   autoFillCheck: catalogFullClientApplicationForm.autoFillCheck,
   customizable: catalogFullClientApplicationForm.customizable,
   enabled: catalogFullClientApplicationForm.enabled,
+  enterKeyBehavior: catalogFullClientApplicationForm.enterKeyBehavior,
   commandBarLocation: catalogFullClientApplicationForm.commandBarLocation,
   verticalScroll: catalogFullClientApplicationForm.verticalScroll,
   scalingMode: catalogFullClientApplicationForm.scalingMode,
@@ -119,7 +118,7 @@ const catalogFullClientApplicationFormFromYAML = {
   attributesConditionalAppearance: catalogFullClientApplicationForm.attributesConditionalAppearance,
   commands: catalogFullClientApplicationForm.commands,
   events: catalogFullClientApplicationForm.events,
-} satisfies Omit<ClientApplicationForm, "enterKeyBehavior">
+} satisfies ClientApplicationForm
 
 const documentFullClientApplicationFormExpectedFromYAML = {
   itemType: documentFullClientApplicationFormFromYAML.itemType,
@@ -147,6 +146,7 @@ const documentFullClientApplicationFormExpectedFromYAML = {
   autoFillCheck: documentFullClientApplicationFormFromYAML.autoFillCheck,
   customizable: documentFullClientApplicationFormFromYAML.customizable,
   enabled: documentFullClientApplicationFormFromYAML.enabled,
+  enterKeyBehavior: documentFullClientApplicationFormFromYAML.enterKeyBehavior,
   commandBarLocation: documentFullClientApplicationFormFromYAML.commandBarLocation,
   verticalScroll: documentFullClientApplicationFormFromYAML.verticalScroll,
   scalingMode: documentFullClientApplicationFormFromYAML.scalingMode,
@@ -166,7 +166,7 @@ const documentFullClientApplicationFormExpectedFromYAML = {
   attributesConditionalAppearance: documentFullClientApplicationFormFromYAML.attributesConditionalAppearance,
   commands: documentFullClientApplicationFormFromYAML.commands,
   autoCommandBar: documentFullClientApplicationFormFromYAML.autoCommandBar,
-} satisfies Omit<ClientApplicationForm, "enterKeyBehavior">
+} satisfies ClientApplicationForm
 
 const reportFormClientApplicationFormFromYAML = {
   itemType: reportFormClientApplicationForm.itemType,
@@ -190,7 +190,13 @@ const reportFormClientApplicationFormFromYAML = {
 const reportOwnerContext: ConfigurationContext = {
   ...mockContext,
   importFromYAML: {
-    metadataTargetOwners: [{ itemType: "MetadataReport", name: "РасшифровкаСтатистики" }],
+    metadataTargetOwners: [
+      {
+        itemType: "MetadataReport",
+        name: "РасшифровкаСтатистики",
+        owner: { root: "Report", objectName: "РасшифровкаСтатистики" },
+      },
+    ],
   },
 }
 

@@ -1,3 +1,8 @@
+import {
+  definePropertyRule as defineWidePropertyRule,
+  type ExactRuleParams as WideExactRuleParams,
+} from "~/metadata/commonObjects/ruleBuilder"
+import type { PropertyRule as WidePropertyRuleBase } from "~/metadata/orchestration/property/types"
 import { Static, Type } from "@sinclair/typebox"
 import { MetadataPrimitiveValueXML } from "../metadataValue/types"
 
@@ -13,3 +18,15 @@ export const UsePurposesJSONSchema = Type.Union([
 ])
 
 export type UsePurposesYAML = Static<typeof UsePurposesJSONSchema>
+
+export interface UsePurposesWidePropertyRule extends WidePropertyRuleBase {
+  type: "UsePurposes"
+}
+
+export type UsePurposesRuleParams = Omit<UsePurposesWidePropertyRule, "type">
+
+export function usePurposesRule<const Params extends UsePurposesRuleParams>(
+  params: WideExactRuleParams<UsePurposesRuleParams, Params>
+): Readonly<{ type: "UsePurposes" } & Params> {
+  return defineWidePropertyRule("UsePurposes", params)
+}

@@ -1,32 +1,32 @@
+import { booleanRule } from "~/metadata/commonObjects/boolean/types"
+import { xmlRootRule } from "~/metadata/commonObjects/xmlRoot/types"
 import { V8_MDCLASSES_ROOT } from "~/metadata/orchestration/appliedObject/presets"
 import { MetadataItemRule } from "~/metadata/orchestration/property/types"
 import { MetadataCommandRules } from "../metadataCommand/rules"
-
 export const MetadataCommonCommandRules = {
   ...MetadataCommandRules,
   itemType: "MetadataCommonCommand",
+  metadataTargetOwner: { kind: "self", root: "CommonCommand" },
   itemTypePrefix: "ОбщаяКоманда",
   xmlDir: "CommonCommands",
   externalMetadata: { segment: "CommonCommand", placement: "rootEntry" },
   properties: {
-    xmlRoot: {
-      type: "XMLRoot",
+    xmlRoot: xmlRootRule({
       container: "CommonCommand",
       rootAttributes: V8_MDCLASSES_ROOT,
       forReferenceOnly: true,
       toYAML: false,
       fromYAML: false,
-    },
+    }),
     ...MetadataCommandRules.properties,
-    includeHelpInContents: {
+    includeHelpInContents: booleanRule({
       yaml: "ВключатьСправкуВСодержание",
       xml: "IncludeHelpInContents",
-      type: "boolean",
       xmlParents: ["Properties"],
       defaultValueXML: false,
       implicitValueYAML: false,
       order: 12,
-    },
+    }),
     commandParameterType: {
       ...MetadataCommandRules.properties.commandParameterType,
       order: 13,

@@ -3,11 +3,7 @@ import { FieldsListYAML } from "~/metadata/commonObjects/fieldsList/types"
 import { FunctionalOptionsYAML } from "~/metadata/commonObjects/functionalOptionsProperty/types"
 import { I8nTextYAML } from "~/metadata/commonObjects/i8nText/types"
 import { TypeDescriptionXML, TypeDescriptionYAML } from "~/metadata/commonObjects/typeDescription/types"
-import {
-  UserEditKeysYAML,
-  UserVisibleYAML,
-  UserViewKeysYAML,
-} from "~/metadata/commonObjects/userVisible/types"
+import { UserEditKeysYAML, UserVisibleYAML, UserViewKeysYAML } from "~/metadata/commonObjects/userVisible/types"
 import { ChartXML, ChartYAML } from "~/metadata/forms/commonObjects/chart/types"
 import { DynamicListXML, DynamicListYAML } from "~/metadata/forms/commonObjects/dynamicList/types"
 import { FlowchartContextXML, FlowchartContextYAML } from "~/metadata/forms/commonObjects/flowchartContext/types"

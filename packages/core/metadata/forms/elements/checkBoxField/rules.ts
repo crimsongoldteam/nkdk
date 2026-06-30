@@ -1,12 +1,20 @@
+import { booleanRule } from "~/metadata/commonObjects/boolean/types"
 import { registerElementRule } from "~/metadata/orchestration/formElement/ruleFactory"
 import { MetadataItemRule, PropertyRule } from "~/metadata/orchestration/property/types"
 import { ElementRule } from "../../../orchestration/formElement/types"
 import { formFieldCommonProperties, formFieldTableRelatedProperties } from "../formField/rules"
 export type { ElementRule, PropertyRule }
-
 const CheckBoxFieldCommonRulesProperties = {
-  backColor: { yaml: "ЦветФона", type: "Color", metadataTarget: { kind: "object", roots: ["StyleItem"], filters: [{ kind: "styleItemType", values: ["Color"] }] } },
-  borderColor: { yaml: "ЦветРамки", type: "Color", metadataTarget: { kind: "object", roots: ["StyleItem"], filters: [{ kind: "styleItemType", values: ["Color"] }] } },
+  backColor: {
+    yaml: "ЦветФона",
+    type: "Color",
+    metadataTarget: { kind: "object", roots: ["StyleItem"], filters: [{ kind: "styleItemType", values: ["Color"] }] },
+  },
+  borderColor: {
+    yaml: "ЦветРамки",
+    type: "Color",
+    metadataTarget: { kind: "object", roots: ["StyleItem"], filters: [{ kind: "styleItemType", values: ["Color"] }] },
+  },
   checkBoxType: {
     yaml: "ВидФлажка",
     type: "SystemEnumeration",
@@ -14,13 +22,21 @@ const CheckBoxFieldCommonRulesProperties = {
     implicitValueYAML: "Auto",
   },
   editFormat: { yaml: "ФорматРедактирования", type: "I8nText" },
-  equalItemsWidth: { yaml: "ОдинаковаяШиринаЭлементов", type: "boolean" },
-  font: { yaml: "Шрифт", type: "Font", metadataTarget: { kind: "object", roots: ["StyleItem"], filters: [{ kind: "styleItemType", values: ["Font"] }] } },
-  itemHeight: { yaml: "ВысотаЭлемента", type: "number" },
-  itemTitleHeight: { yaml: "ВысотаЗаголовкаЭлемента", type: "number" },
-  itemWidth: { yaml: "ШиринаЭлемента", type: "number" },
-  textColor: { yaml: "ЦветТекста", type: "Color", metadataTarget: { kind: "object", roots: ["StyleItem"], filters: [{ kind: "styleItemType", values: ["Color"] }] } },
-  threeState: { yaml: "ТриСостояния", type: "boolean" },
+  equalItemsWidth: { yaml: "ОдинаковаяШиринаЭлементов", type: "boolean", implicitValueYAML: false },
+  font: {
+    yaml: "Шрифт",
+    type: "Font",
+    metadataTarget: { kind: "object", roots: ["StyleItem"], filters: [{ kind: "styleItemType", values: ["Font"] }] },
+  },
+  itemHeight: { yaml: "ВысотаЭлемента", type: "number", implicitValueYAML: 0 },
+  itemTitleHeight: { yaml: "ВысотаЗаголовкаЭлемента", type: "number", implicitValueYAML: 0 },
+  itemWidth: { yaml: "ШиринаЭлемента", type: "number", implicitValueYAML: 0 },
+  textColor: {
+    yaml: "ЦветТекста",
+    type: "Color",
+    metadataTarget: { kind: "object", roots: ["StyleItem"], filters: [{ kind: "styleItemType", values: ["Color"] }] },
+  },
+  threeState: { yaml: "ТриСостояния", type: "boolean", implicitValueYAML: false },
   events: {
     type: "Events",
     yaml: "События",
@@ -38,16 +54,16 @@ const CheckBoxFieldCommonRulesProperties = {
   },
   ...formFieldCommonProperties,
 } as const satisfies MetadataItemRule["properties"]
-
 export const CheckBoxFieldRules = {
   itemType: "CheckBoxField",
   enterpriseField: "FormField",
   enterpriseFieldType: "FormFieldType.CheckBoxField",
   properties: {
     ...CheckBoxFieldCommonRulesProperties,
+    skipOnInput: booleanRule({ yaml: "ПропускатьПриВводе", noImplicitValueYAML: true }),
+    titleHeight: { ...formFieldCommonProperties.titleHeight, implicitValueYAML: 0 },
   },
 } as const satisfies ElementRule
-
 export const TableCheckBoxFieldRules = {
   itemType: "TableCheckBoxField",
   xmlTag: "CheckBoxField",
@@ -55,9 +71,10 @@ export const TableCheckBoxFieldRules = {
   enterpriseFieldType: "FormFieldType.CheckBoxField",
   properties: {
     ...CheckBoxFieldCommonRulesProperties,
+    skipOnInput: booleanRule({ yaml: "ПропускатьПриВводе", noImplicitValueYAML: true }),
+    titleHeight: { ...formFieldCommonProperties.titleHeight, implicitValueYAML: 0 },
     ...formFieldTableRelatedProperties,
   },
 } as const satisfies ElementRule
-
 registerElementRule("CheckBoxField", CheckBoxFieldRules)
 registerElementRule("TableCheckBoxField", TableCheckBoxFieldRules)

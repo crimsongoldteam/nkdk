@@ -76,7 +76,6 @@ export const fullProgressBarFieldPartialYAML: ProgressBarFieldPartialYAML = {
   Ориентация: "Вертикально",
   ОтображатьПроценты: "Истина",
   Отображение: "Прерывистый",
-  РастягиватьПоВертикали: "Ложь",
   РастягиватьПоГоризонтали: "Ложь",
   ЦветРамки: "Черный",
   Заголовок: "Поле индикатора",
@@ -86,10 +85,7 @@ export const fullProgressBarFieldPartialYAML: ProgressBarFieldPartialYAML = {
   },
 
   ...fullFormFieldPartialYAMLCommonFixture,
-} satisfies Omit<
-  Required<ProgressBarFieldPartialYAML>,
-  "Использование"
->
+}
 
 export const minimalProgressBarField: ProgressBarField = {
   itemType: "ProgressBarField",

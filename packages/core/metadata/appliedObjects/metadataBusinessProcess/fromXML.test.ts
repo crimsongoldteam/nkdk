@@ -18,8 +18,8 @@ describe("import MetadataBusinessProcess from XML", () => {
       name: "БизнесПроцессВсеСвойства",
       task: "Task.ЗадачаВсеСвойства",
     })
-    expect(result?.attributes?.map((attribute) => attribute.name)).toContain("РеквизитВсеСвойства")
-    expect(result?.commands?.map((command) => command.name)).toEqual([
+    expect(result?.attributes?.map((attribute: { name: string }) => attribute.name)).toContain("РеквизитВсеСвойства")
+    expect(result?.commands?.map((command: { name: string }) => command.name)).toEqual([
       "РеквизитАдресацииВсеСвойства",
       "РеквизитАдресацииПоУмолчанию",
     ])

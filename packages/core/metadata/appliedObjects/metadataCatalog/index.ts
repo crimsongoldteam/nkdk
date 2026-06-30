@@ -1,3 +1,5 @@
+import "./register"
+
 export * from "./fromYAML"
 export * from "./toJSONSchema"
 export * from "./toYAML"

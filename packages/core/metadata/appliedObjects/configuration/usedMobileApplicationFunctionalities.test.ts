@@ -85,6 +85,30 @@ describe("UsedMobileApplicationFunctionalities", () => {
     })
   })
 
+  it("exports clean XML default for sparse YAML configuration without hidden implicit values", () => {
+    const configuration: MetadataConfiguration = {
+      itemType: "MetadataConfiguration",
+      name: "Конфигурация",
+      defaultLanguage: "Language.Русский",
+    }
+
+    const result = exportMetadataItemToXML({
+      context: mockContextToXML(),
+      data: configuration,
+      rule: MetadataConfigurationRules,
+    })
+
+    expect(result).toMatchObject({
+      MetaDataObject: {
+        Configuration: {
+          Properties: {
+            UsedMobileApplicationFunctionalities: cleanDefaultXML(),
+          },
+        },
+      },
+    })
+  })
+
   it("exports YAML differences with Russian boolean values", () => {
     const result = exportUsedMobileApplicationFunctionalitiesToYAML(
       mockContext,

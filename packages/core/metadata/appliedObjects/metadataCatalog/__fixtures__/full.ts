@@ -201,6 +201,11 @@ export const full = {
   updateDataHistoryImmediatelyAfterWrite: true,
 } satisfies MetadataCatalog
 
+const { descriptionLength, ...fullFromCompactYAMLData } = full
+void descriptionLength
+
+export const fullFromCompactYAML = fullFromCompactYAMLData satisfies MetadataCatalog
+
 export const fullYAML: MetadataCatalogYAML = {
   Автонумерация: "Ложь",
   БыстрыйВыбор: "Истина",
@@ -215,7 +220,6 @@ export const fullYAML: MetadataCatalogYAML = {
   ВыполнятьОбработкуПослеЗаписиВерсииИсторииДанных: "Истина",
   ГруппыСверху: "Ложь",
   ДлинаКода: 11,
-  ДлинаНаименования: 30,
   Иерархический: "Истина",
   ИсторияВыбораПриВводе: "НеИспользовать",
   ИсторияДанных: "Использовать",

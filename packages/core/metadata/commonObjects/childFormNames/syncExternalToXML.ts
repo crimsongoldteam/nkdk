@@ -1,10 +1,14 @@
 import fs from "fs"
 import { dirname, join, posix } from "path"
 import type { ConfigurationContextWithExportToXML } from "~/metadata/context/types"
+import { DynamicListRules } from "~/metadata/forms/commonObjects/dynamicList/rules"
 import { syncFormToXML } from "~/metadata/forms/clientApplicationForm/syncToXML"
+import { ClientApplicationFormRules } from "~/metadata/forms/clientApplicationForm/rules"
 import type { ExternalMetadataContextItem } from "~/metadata/orchestration/externalMetadata/types"
 import { registerTypeRule } from "~/metadata/orchestration/property/typeRuleRegistry"
+import { describeMetadataRuleProjectResources } from "~/metadata/project/ruleResources"
 import type { SyncExternalToXMLFunction } from "~/metadata/orchestration/property/fn"
+import type { MetadataItemRule } from "~/metadata/orchestration/property/types"
 import type { XmlWriteManifest } from "~/metadata/orchestration/xmlWriteManifest"
 import { xmlExport } from "~/xml/export/exporter"
 import type { ChildFormNamesPropertyRule } from "./types"
@@ -206,6 +210,7 @@ registerTypeRule("ChildFormNames", "projectResources", ({ propertyRule }) => {
       compositionImpact: "none",
       source: { kind: "propertyType", type: "ChildFormNames" },
     },
+    ...describeFormInnerProjectResources(folderName),
   ]
 })
 registerTypeRule("ChildFormNames", "xmlSyncRoutes", ({ propertyRule }) => {
@@ -229,3 +234,63 @@ registerTypeRule("ChildFormNames", "xmlSyncRoutes", ({ propertyRule }) => {
     },
   ]
 })
+registerTypeRule("ChildFormNames", "fileChildNamesDescriptor", ({ propertyRule }) => {
+  const rule = propertyRule as ChildFormNamesPropertyRule
+  return {
+    folderName: rule.folderName,
+    xmlFolderName: "Forms",
+    xmlItemName: rule.xml,
+    useOwnerDirectoryForExternalSync: true,
+    preserveReferenceXmlFolder: true,
+    expectedNames: ({ rule: ownerRule, model, propertyValue }) => [
+      ...normalizeFormNames(propertyValue),
+      ...collectMetadataTargetFormNames({ rule: ownerRule, model }),
+    ],
+  }
+})
+
+function collectMetadataTargetFormNames(params: { rule: MetadataItemRule; model: Record<string, unknown> }): string[] {
+  const result = new Set<string>()
+  for (const [propertyName, propertyRule] of Object.entries(params.rule.properties)) {
+    if (propertyRule.type === "ChildFormNames") continue
+
+    const target =
+      propertyRule.metadataTarget ??
+      (propertyRule.referenceScope?.target === "this" && propertyRule.referenceScope.kind === "Form"
+        ? { kind: "member" as const, memberKinds: ["Form" as const] }
+        : undefined)
+    if (target === undefined) continue
+
+    const value = params.model[propertyName]
+    if (typeof value !== "string") continue
+
+    const parts = value.split(".")
+    const formIndex = parts.lastIndexOf("Form")
+    if (formIndex >= 0 && parts[formIndex + 1]) result.add(parts[formIndex + 1])
+  }
+  return [...result]
+}
+
+function describeFormInnerProjectResources(folderName: string) {
+  const formRoot = `${folderName}/{itemName}`
+  return [
+    {
+      kind: "directory" as const,
+      role: "resourceOnly" as const,
+      projectPattern: "Справка",
+      required: false,
+      repeatable: false,
+      owner: "currentItem" as const,
+      compositionImpact: "none" as const,
+      source: { kind: "propertyType" as const, type: "ChildFormNames" as const },
+    },
+    ...describeMetadataRuleProjectResources(ClientApplicationFormRules),
+    ...describeMetadataRuleProjectResources(DynamicListRules),
+  ]
+    .filter((resource) => resource.role === "resourceOnly")
+    .map((resource) => ({
+      ...resource,
+      projectPattern: `${formRoot}/${resource.projectPattern}`,
+      repeatable: true,
+    }))
+}

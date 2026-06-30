@@ -30,11 +30,7 @@ export interface MetadataHTTPServiceXML {
   }
 }
 
-export type {
-  MetadataHTTPServiceURLTemplates,
-  MetadataHTTPServiceURLTemplatesXML,
-  MetadataHTTPServiceURLTemplatesYAML,
-}
+export type { MetadataHTTPServiceURLTemplates, MetadataHTTPServiceURLTemplatesXML, MetadataHTTPServiceURLTemplatesYAML }
 
 registerMetadataItemRule({
   propertyType: "MetadataHTTPService",

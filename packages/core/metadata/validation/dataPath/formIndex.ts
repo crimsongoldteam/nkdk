@@ -2,6 +2,7 @@ import { isMap, isPair, isScalar } from "yaml"
 import type { ParsedYaml } from "~/yaml/parseMetadataYaml"
 import type { ClientApplicationForm } from "~/metadata/forms/clientApplicationForm/types"
 import type { FormAttribute, FormAttributeColumn } from "~/metadata/forms/commonObjects/formAttribute/types"
+import { matchRegisteredFormPlatformSource } from "../formValidationRegistry"
 import type { Diagnostic } from "../types"
 import { diagnosticAtYamlPath } from "../yamlLocations"
 import { typeDescriptionToDataPathTypeInfo } from "./typeDescription"
@@ -12,12 +13,6 @@ import type {
   FormDataPathColumnSource,
   FormDataPathSource,
 } from "./types"
-
-const knownPlatformFormSources = [
-  "КомпоновщикНастроекКомпоновкиДанных.Settings",
-  "КомпоновщикНастроекКомпоновкиДанных.Settings.Filter",
-  "КомпоновщикНастроекКомпоновкиДанных.Settings.Use",
-] as const
 
 export interface FormDataPathIndex {
   roots: Map<string, FormDataPathSource>
@@ -35,7 +30,7 @@ export interface BuildFormDataPathIndexParams {
 export interface KnownPlatformFormSource {
   kind: "platformSource"
   path: string
-  matchedSource: (typeof knownPlatformFormSources)[number]
+  matchedSource: string
   match: "exact" | "prefix"
 }
 
@@ -70,18 +65,7 @@ export function buildFormDataPathIndex({ filePath, parsed, form }: BuildFormData
 }
 
 export function getKnownPlatformFormSource(path: string): KnownPlatformFormSource | undefined {
-  const sourcesBySpecificity = [...knownPlatformFormSources].sort((left, right) => right.length - left.length)
-
-  for (const source of sourcesBySpecificity) {
-    if (path === source) {
-      return { kind: "platformSource", path, matchedSource: source, match: "exact" }
-    }
-    if (path.startsWith(`${source}.`)) {
-      return { kind: "platformSource", path, matchedSource: source, match: "prefix" }
-    }
-  }
-
-  return undefined
+  return matchRegisteredFormPlatformSource(path)
 }
 
 function formAttributeToSource(attribute: FormAttribute): FormDataPathSource {

@@ -119,9 +119,8 @@ const hasExplicitUsedMobileApplicationFunctionalities = (metadataItem: unknown):
 const hasCleanConfigurationIdentityDefaults = (metadataItem: unknown): boolean =>
   typeof metadataItem === "object" &&
   metadataItem !== null &&
-  Object.prototype.hasOwnProperty.call(metadataItem, "configurationExtensionCompatibilityMode") &&
-  Object.prototype.hasOwnProperty.call(metadataItem, "defaultLanguage") &&
-  Object.prototype.hasOwnProperty.call(metadataItem, "compatibilityMode")
+  Object.prototype.hasOwnProperty.call(metadataItem, "name") &&
+  Object.prototype.hasOwnProperty.call(metadataItem, "defaultLanguage")
 
 const exportUsedMobileApplicationFunctionalitiesItemsToXML = (
   data: UsedMobileApplicationFunctionalities

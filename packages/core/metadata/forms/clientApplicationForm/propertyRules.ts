@@ -1,10 +1,13 @@
 import { dirname, join } from "path"
 import { registerTypeRule } from "~/metadata/orchestration/property/typeRuleRegistry"
+import { describeMetadataRuleProjectResources } from "~/metadata/project/ruleResources"
+import { DynamicListRules } from "../commonObjects/dynamicList/rules"
 import type {
   ExportToXMLFunctionNew,
   ExportToYAMLFunctionNew,
   ImportFromXMLFunction,
   ImportFromYAMLFunctionNew,
+  ProjectResourcesFunction,
   SyncExternalFromXMLFunction,
   SyncExternalToXMLFunction,
 } from "~/metadata/orchestration/property/fn"
@@ -13,6 +16,7 @@ import { copyFormItemExternalFilesFromXML, copyFormItemExternalFilesToXML } from
 import { copyExistingRawFile } from "./externalRawFiles"
 import { importClientApplicationFormFromXML } from "./fromXML"
 import { importClientApplicationFormFromYAML } from "./fromYAML"
+import { ClientApplicationFormRules } from "./rules"
 import { exportClientApplicationFormToJSONSchema } from "./toJSONSchema"
 import { exportClientApplicationFormToXML } from "./toXML"
 import { exportClientApplicationFormToYAML } from "./toYAML"
@@ -98,6 +102,31 @@ const syncClientApplicationFormExternalToXML: SyncExternalToXMLFunction = async 
   })
 }
 
+const describeClientApplicationFormProjectResources: ProjectResourcesFunction = () => [
+  {
+    kind: "yaml",
+    role: "resourceOnly",
+    projectPattern: "Form.bin",
+    required: false,
+    repeatable: false,
+    owner: "currentItem",
+    compositionImpact: "none",
+    source: { kind: "propertyType", type: "ClientApplicationForm" },
+  },
+  {
+    kind: "directory",
+    role: "resourceOnly",
+    projectPattern: "Справка",
+    required: false,
+    repeatable: false,
+    owner: "currentItem",
+    compositionImpact: "none",
+    source: { kind: "propertyType", type: "ClientApplicationForm" },
+  },
+  ...describeMetadataRuleProjectResources(ClientApplicationFormRules),
+  ...describeMetadataRuleProjectResources(DynamicListRules),
+]
+
 registerTypeRule("ClientApplicationForm", "importFromYAML", importClientApplicationFormPropertyFromYAML)
 registerTypeRule("ClientApplicationForm", "exportToYAML", exportClientApplicationFormPropertyToYAML)
 registerTypeRule("ClientApplicationForm", "importFromXML", importClientApplicationFormPropertyFromXML)
@@ -105,6 +134,7 @@ registerTypeRule("ClientApplicationForm", "exportToXML", exportClientApplication
 registerTypeRule("ClientApplicationForm", "exportToJSONSchema", exportClientApplicationFormToJSONSchema)
 registerTypeRule("ClientApplicationForm", "syncExternalFromXML", syncClientApplicationFormExternalFromXML)
 registerTypeRule("ClientApplicationForm", "syncExternalToXML", syncClientApplicationFormExternalToXML)
+registerTypeRule("ClientApplicationForm", "projectResources", describeClientApplicationFormProjectResources)
 
 function asClientApplicationForm(value: unknown): ClientApplicationForm | undefined {
   if (!isRecord(value)) return undefined

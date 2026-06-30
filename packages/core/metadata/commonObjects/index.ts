@@ -1,5 +1,6 @@
 import "./uuid/fromXML"
 import "./uuid/toXML"
+import "./schemaRegister"
 
 import "../systemEnumerations"
 
@@ -220,6 +221,7 @@ import "./metadataPath/fromYAML"
 import "./metadataPath/toJSONSchema"
 import "./metadataPath/toYAML"
 import "./metadataTargets/validationHandlers"
+import "./metadataTargetProjectResolvers/register"
 
 import "./dataCompositionSystem/structureItemGroup/toJSONSchema"
 

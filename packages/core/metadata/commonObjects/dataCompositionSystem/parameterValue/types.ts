@@ -1,3 +1,8 @@
+import {
+  definePropertyRule as defineWidePropertyRule,
+  type ExactRuleParams as WideExactRuleParams,
+} from "~/metadata/commonObjects/ruleBuilder"
+import type { PropertyRule as WidePropertyRuleBase } from "~/metadata/orchestration/property/types"
 import { BasePropertyRule } from "~/metadata/orchestration"
 import type { SystemEnumerationTypeMap } from "~/metadata/systemEnumerations/types"
 import * as SE from "~/metadata/systemEnumerations/types"
@@ -73,4 +78,16 @@ export type SettingsParameterValueXML = ParameterValueXML & {
   "dcsset:viewMode"?: SE.DataCompositionSettingsItemViewMode
   "dcsset:userSettingID"?: string
   "dcsset:userSettingPresentation"?: I8nTextXML | UserSettingPresentationShortXML
+}
+
+export interface SettingsParameterValueWidePropertyRule extends WidePropertyRuleBase {
+  type: "SettingsParameterValue"
+}
+
+export type SettingsParameterValueRuleParams = Omit<SettingsParameterValueWidePropertyRule, "type">
+
+export function settingsParameterValueRule<const Params extends SettingsParameterValueRuleParams>(
+  params: WideExactRuleParams<SettingsParameterValueRuleParams, Params>
+): Readonly<{ type: "SettingsParameterValue" } & Params> {
+  return defineWidePropertyRule("SettingsParameterValue", params)
 }

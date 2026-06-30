@@ -31,13 +31,13 @@ describe("import MetadataAccountingRegister from XML", () => {
     expect(result?.chartOfAccounts).toBe("ChartOfAccounts.ПланСчетовВсеСвойства")
     expect(result?.correspondence).toBe(true)
     expect(result?.periodAdjustmentLength).toBe(3)
-    expect(result?.dimensions?.map(({ name }) => name)).toEqual([
+    expect(result?.dimensions?.map(({ name }: { name: string }) => name)).toEqual([
       "ИзмерениеВсеСвойства",
       "ИспользоватьХранилищеДвоичныхДанных",
     ])
-    expect(result?.resources?.map(({ name }) => name)).toEqual(["РесурсВсеСвойства", "ИзмерениеИндексировать"])
-    expect(result?.attributes?.map(({ name }) => name)).toEqual(["РеквизитВсеСвойства", "РеквизитПоУмолчанию"])
-    expect(result?.commands?.map(({ name }) => name)).toEqual(["Команда1"])
+    expect(result?.resources?.map(({ name }: { name: string }) => name)).toEqual(["РесурсВсеСвойства", "ИзмерениеИндексировать"])
+    expect(result?.attributes?.map(({ name }: { name: string }) => name)).toEqual(["РеквизитВсеСвойства", "РеквизитПоУмолчанию"])
+    expect(result?.commands?.map(({ name }: { name: string }) => name)).toEqual(["Команда1"])
   })
 
   it("imports explicitly present empty ExtDimension attributes with accounting standard names", () => {

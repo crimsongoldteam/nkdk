@@ -4,6 +4,7 @@ import {
   exportMetadataItemToYAML,
   importMetadataItemFromYAML,
   PropertyRule,
+  registerMetadataItemCollectionRule,
   registerTypeRule,
 } from "~/metadata/orchestration"
 import { exportMetadataItemToJSONSchema } from "~/metadata/orchestration/metadataItem/toJSONSchema"
@@ -14,6 +15,13 @@ import {
   MetadataEnumerationValueYAML,
   MetadataEnumerationValuesYAML,
 } from "./types"
+
+registerMetadataItemCollectionRule({
+  propertyType: "MetadataEnumerationValues",
+  itemRule: MetadataEnumerationValueRules,
+  xmlElement: "EnumValue",
+  keyField: "name",
+})
 
 export const importMetadataEnumerationValuesFromYAML = (
   context: ConfigurationContext,

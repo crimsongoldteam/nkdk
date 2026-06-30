@@ -1,3 +1,8 @@
+import {
+  definePropertyRule as defineWidePropertyRule,
+  type ExactRuleParams as WideExactRuleParams,
+} from "~/metadata/commonObjects/ruleBuilder"
+import type { PropertyRule as WidePropertyRuleBase } from "~/metadata/orchestration/property/types"
 import type { StringboolYAML } from "~/metadata/commonObjects/boolean/types"
 import type { I8nText, I8nTextXML, I8nTextYAML } from "~/metadata/commonObjects/i8nText/types"
 import type * as SE from "~/metadata/systemEnumerations/types"
@@ -36,4 +41,16 @@ export type AvailableFieldXML = {
 
 export type AvailableFieldsXML = {
   "dcsset:item"?: AvailableFieldXML | AvailableFieldXML[]
+}
+
+export interface AvailableFieldsWidePropertyRule extends WidePropertyRuleBase {
+  type: "AvailableFields"
+}
+
+export type AvailableFieldsRuleParams = Omit<AvailableFieldsWidePropertyRule, "type">
+
+export function availableFieldsRule<const Params extends AvailableFieldsRuleParams>(
+  params: WideExactRuleParams<AvailableFieldsRuleParams, Params>
+): Readonly<{ type: "AvailableFields" } & Params> {
+  return defineWidePropertyRule("AvailableFields", params)
 }

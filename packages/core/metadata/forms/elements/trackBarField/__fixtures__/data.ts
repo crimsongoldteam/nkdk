@@ -80,14 +80,13 @@ export const fullTrackBarFieldPartialYAML: TrackBarFieldPartialYAML = {
   Ширина: 200,
   ...fullFormFieldPartialYAMLCommonFixture,
   РастягиватьПоГоризонтали: "Ложь",
-  РастягиватьПоВертикали: "Ложь",
   БольшойШаг: 5,
   ШагРазметки: 6,
   МаксимальноеЗначение: 90,
   МинимальноеЗначение: 10,
   Ориентация: "Вертикально",
   Шаг: 2,
-} satisfies Omit<Required<TrackBarFieldPartialYAML>, "Использование">
+}
 
 export const minimalTrackBarField: TrackBarField = {
   itemType: "TrackBarField",

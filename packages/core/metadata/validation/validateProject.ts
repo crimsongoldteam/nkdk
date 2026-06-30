@@ -7,6 +7,7 @@ import type { ParsedYaml } from "~/yaml/parseMetadataYaml"
 import { createOwnerMetadataCache } from "./dataPath/ownerCache"
 import { validateMetadataTargetsInModel } from "./metadataTargetTraversal"
 import { createProjectMetadataResolver, type ProjectMetadataResolver } from "./projectMetadataResolver"
+import { getProjectFileValidators } from "./projectMetadataResolverRegistry"
 import { exportJSONSchemaForSchemaName, ProjectFileSchemaError } from "./projectFileSchema"
 import {
   discoverValidationProjectFiles,
@@ -161,7 +162,7 @@ function validateProjectProperties(params: {
   const entry = params.cache.get(params.file.absolutePath)
   if ("error" in entry || entry.parsed.doc.errors.length > 0) return diagnostics
 
-  const requiredDiagnostics = validateRequiredConfigurationYAMLKeys({
+  const requiredDiagnostics = validateRegisteredProjectFileValidators({
     file: params.file,
     parsed: entry.parsed,
   })
@@ -198,29 +199,13 @@ function validateProjectProperties(params: {
   ]
 }
 
-function validateRequiredConfigurationYAMLKeys(params: {
+function validateRegisteredProjectFileValidators(params: {
   file: ValidationProjectFile
   parsed: ParsedYaml
 }): Diagnostic[] {
-  if (params.file.owner.spec.rule.itemType !== "MetadataConfiguration") return []
-  if (params.parsed.data === null || typeof params.parsed.data !== "object" || Array.isArray(params.parsed.data)) {
-    return []
-  }
-
-  const data = params.parsed.data as Record<string, unknown>
-  if (Object.prototype.hasOwnProperty.call(data, "ОсновнойЯзык")) return []
-
-  return [
-    {
-      filePath: params.file.absolutePath,
-      line: 1,
-      col: 1,
-      severity: "error",
-      source: "structure",
-      path: "/ОсновнойЯзык",
-      message: 'Отсутствует обязательное свойство "ОсновнойЯзык"',
-    },
-  ]
+  return getProjectFileValidators(params.file.owner.spec.kind).flatMap((validator) =>
+    validator({ filePath: params.file.absolutePath, parsed: params.parsed }),
+  )
 }
 
 function validateProjectFileSchema(params: {

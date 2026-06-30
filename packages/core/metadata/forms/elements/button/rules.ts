@@ -1,8 +1,8 @@
+import { stringRule } from "~/metadata/commonObjects/string/types"
 import { registerElementRule } from "~/metadata/orchestration/formElement/ruleFactory"
 import { PropertyRule } from "~/metadata/orchestration/property/types"
 import { ElementRule } from "../../../orchestration/formElement/types"
 export type { ElementRule, PropertyRule }
-
 export const commonButtonProperties = {
   type: {
     yaml: "Вид",
@@ -10,31 +10,31 @@ export const commonButtonProperties = {
     typeSE: "FormButtonType",
     implicitValueYAML: "UsualButton",
   },
-  visible: { yaml: "Видимость", type: "boolean" },
+  visible: { yaml: "Видимость", type: "boolean", implicitValueYAML: true },
   userVisible: {
     yaml: "Использование",
     type: "UserVisible",
     toEnterprise: false,
   },
-  titleHeight: { yaml: "ВысотаЗаголовка", type: "number" },
+  titleHeight: { yaml: "ВысотаЗаголовка", type: "number", implicitValueYAML: 0 },
   representation: {
     yaml: "Отображение",
     type: "SystemEnumeration",
     typeSE: "ButtonRepresentation",
     implicitValueYAML: "Auto",
   },
-  defaultButton: { yaml: "КнопкаПоУмолчанию", type: "boolean" },
-  skipOnInput: { yaml: "ПропускатьПриВводе", type: "boolean" },
-  enabled: { yaml: "Доступность", type: "boolean" },
-  defaultItem: { yaml: "АктивизироватьПоУмолчанию", type: "boolean" },
-  width: { yaml: "Ширина", type: "number" },
-  autoMaxWidth: { yaml: "АвтоМаксимальнаяШирина", type: "boolean" },
-  maxWidth: { yaml: "МаксимальнаяШирина", type: "number" },
-  height: { yaml: "Высота", type: "number" },
-  autoMaxHeight: { yaml: "АвтоМаксимальнаяВысота", type: "boolean" },
-  maxHeight: { yaml: "МаксимальнаяВысота", type: "number" },
-  horizontalStretch: { yaml: "РастягиватьПоГоризонтали", type: "boolean" },
-  verticalStretch: { yaml: "РастягиватьПоВертикали", type: "boolean" },
+  defaultButton: { yaml: "КнопкаПоУмолчанию", type: "boolean", implicitValueYAML: false },
+  skipOnInput: { yaml: "ПропускатьПриВводе", type: "boolean", noImplicitValueYAML: true },
+  enabled: { yaml: "Доступность", type: "boolean", implicitValueYAML: true },
+  defaultItem: { yaml: "АктивизироватьПоУмолчанию", type: "boolean", implicitValueYAML: false },
+  width: { yaml: "Ширина", type: "number", implicitValueYAML: 0 },
+  autoMaxWidth: { yaml: "АвтоМаксимальнаяШирина", type: "boolean", implicitValueYAML: true },
+  maxWidth: { yaml: "МаксимальнаяШирина", type: "number", implicitValueYAML: 0 },
+  height: { yaml: "Высота", type: "number", implicitValueYAML: 0 },
+  autoMaxHeight: { yaml: "АвтоМаксимальнаяВысота", type: "boolean", implicitValueYAML: true },
+  maxHeight: { yaml: "МаксимальнаяВысота", type: "number", implicitValueYAML: 0 },
+  horizontalStretch: { yaml: "РастягиватьПоГоризонтали", type: "boolean", implicitValueYAML: false },
+  verticalStretch: { yaml: "РастягиватьПоВертикали", type: "boolean", implicitValueYAML: false },
   horizontalAlignInGroup: {
     yaml: "ГоризонтальноеПоложениеВГруппе",
     xml: "GroupHorizontalAlign",
@@ -49,7 +49,7 @@ export const commonButtonProperties = {
     typeSE: "ItemVerticalAlign",
     implicitValueYAML: "Auto",
   },
-  check: { yaml: "Пометка", type: "boolean" },
+  check: { yaml: "Пометка", type: "boolean", implicitValueYAML: false },
   commandName: { yaml: "ИмяКоманды", type: "CommandName" },
   parameter: {
     yaml: "Параметр",
@@ -58,10 +58,26 @@ export const commonButtonProperties = {
     toEnterprise: false,
   },
   dataPath: { yaml: "Данные", xml: "DataPath", type: "DataPath", defaultType: "string" },
-  textColor: { yaml: "ЦветТекста", type: "Color", metadataTarget: { kind: "object", roots: ["StyleItem"], filters: [{ kind: "styleItemType", values: ["Color"] }] } },
-  backColor: { yaml: "ЦветФона", type: "Color", metadataTarget: { kind: "object", roots: ["StyleItem"], filters: [{ kind: "styleItemType", values: ["Color"] }] } },
-  borderColor: { yaml: "ЦветРамки", type: "Color", metadataTarget: { kind: "object", roots: ["StyleItem"], filters: [{ kind: "styleItemType", values: ["Color"] }] } },
-  font: { yaml: "Шрифт", type: "Font", metadataTarget: { kind: "object", roots: ["StyleItem"], filters: [{ kind: "styleItemType", values: ["Font"] }] } },
+  textColor: {
+    yaml: "ЦветТекста",
+    type: "Color",
+    metadataTarget: { kind: "object", roots: ["StyleItem"], filters: [{ kind: "styleItemType", values: ["Color"] }] },
+  },
+  backColor: {
+    yaml: "ЦветФона",
+    type: "Color",
+    metadataTarget: { kind: "object", roots: ["StyleItem"], filters: [{ kind: "styleItemType", values: ["Color"] }] },
+  },
+  borderColor: {
+    yaml: "ЦветРамки",
+    type: "Color",
+    metadataTarget: { kind: "object", roots: ["StyleItem"], filters: [{ kind: "styleItemType", values: ["Color"] }] },
+  },
+  font: {
+    yaml: "Шрифт",
+    type: "Font",
+    metadataTarget: { kind: "object", roots: ["StyleItem"], filters: [{ kind: "styleItemType", values: ["Font"] }] },
+  },
   picture: { yaml: "Картинка", type: "Picture", metadataTarget: { kind: "object", roots: ["CommonPicture"] } },
   title: {
     yaml: "Заголовок",
@@ -104,7 +120,7 @@ export const commonButtonProperties = {
     typeSE: "ButtonLocationInCommandBar",
     implicitValueYAML: "Auto",
   },
-  commandUniqueness: { yaml: "УникальностьКоманды", type: "boolean" },
+  commandUniqueness: { yaml: "УникальностьКоманды", type: "boolean", implicitValueYAML: true },
   onMainServerUnavalableBehavior: {
     yaml: "ПоведениеПриНедоступностиОсновногоСервера",
     type: "SystemEnumeration",
@@ -123,37 +139,32 @@ export const commonButtonProperties = {
     typeSE: "DisplayImportance",
     implicitValueYAML: "Auto",
   },
-  onlyInAllActions: { yaml: "ТолькоВоВсехДействиях", type: "boolean" },
+  onlyInAllActions: { yaml: "ТолькоВоВсехДействиях", type: "boolean", noImplicitValueYAML: true },
 } as const satisfies Omit<ElementRule["properties"], "name">
-
 export const ButtonRules = {
   itemType: "Button",
   enterpriseField: "FormButton",
   enterpriseFieldType: "FormButtonType.UsualButton",
   properties: {
-    name: {
-      type: "string",
+    name: stringRule({
       xml: "_name",
       required: true,
-    },
+    }),
     ...commonButtonProperties,
   },
 } as const satisfies ElementRule
-
 export const CommandBarButtonRules = {
   itemType: "CommandBarButton",
   xmlTag: "Button",
   enterpriseField: "FormButton",
   enterpriseFieldType: "FormButtonType.CommandBarButton",
   properties: {
-    name: {
-      type: "string",
+    name: stringRule({
       xml: "_name",
       required: true,
-    },
+    }),
     ...commonButtonProperties,
   },
 } as const satisfies ElementRule
-
 registerElementRule("Button", ButtonRules)
 registerElementRule("CommandBarButton", CommandBarButtonRules)

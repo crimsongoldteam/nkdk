@@ -224,6 +224,7 @@ const { xmlRoot: _xmlRoot, ...cubeCollectionProperties } = cubeProperties
 
 export const MetadataExternalDataSourceCubeRules = {
   itemType: "MetadataExternalDataSourceCube",
+  metadataTargetOwner: { kind: "resolver" },
   externalMetadata: { segment: "Cube", placement: "ownedEntry" },
   properties: cubeProperties,
   childCollections: [

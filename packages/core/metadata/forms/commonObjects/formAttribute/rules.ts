@@ -1,31 +1,54 @@
+import { fieldsListRule } from "~/metadata/commonObjects/fieldsList/types"
+import { functionalOptionsPropertyRule } from "~/metadata/commonObjects/functionalOptionsProperty/types"
+import { typeDescriptionRule } from "~/metadata/commonObjects/typeDescription/types"
+import { userVisibleRule } from "~/metadata/commonObjects/userVisible/types"
+import {
+  chartRule,
+  dynamicListRule,
+  flowchartContextRule,
+  formAttributeAdditionalColumnsRule,
+  formAttributeColumnsRule,
+  ganttChartRule,
+  plannerRule,
+  spreadsheetDocumentRule,
+} from "~/metadata/forms/commonObjects/formAttribute/builders"
+import { booleanRule } from "~/metadata/commonObjects/boolean/types"
+import { i8nTextRule } from "~/metadata/commonObjects/i8nText/types"
+import { stringRule } from "~/metadata/commonObjects/string/types"
+import { systemEnumerationRule } from "~/metadata/systemEnumerations/types"
 import { splitPascalCase } from "~/metadata/helpers/canConvertToPascalCase"
 import { MetadataItemRule } from "~/metadata/orchestration/property/types"
-
 export const FormAttributeRules = {
   itemType: "FormAttribute",
   properties: {
-    id: {
+    id: stringRule({
       xml: "_id",
-      type: "string",
       forReferenceOnly: true,
-    },
-    name: {
-      type: "string",
+    }),
+    name: stringRule({
       xml: "_name",
       required: true,
-    },
-    valueType: {
+    }),
+    valueType: typeDescriptionRule({
       yaml: "ТипЗначения",
-      type: "TypeDescription",
       xml: "Settings",
       order: 99,
       addTypeDescriptionAttributeToXML: true,
-    },
-    title: {
+    }),
+    title: i8nTextRule({
       yaml: "Заголовок",
-      type: "I8nText",
       skipEmptyToXML: true,
-      defaultValue: ({ context, name, operation }) => {
+      defaultValue: ({
+        context,
+        name,
+        operation,
+      }: {
+        context: {
+          defaultLanguage: string
+        }
+        name?: string
+        operation: string
+      }) => {
         if (operation === "importFromXML") {
           return {
             items: { [context.defaultLanguage]: "" },
@@ -36,180 +59,148 @@ export const FormAttributeRules = {
           items: { [context.defaultLanguage]: splitPascalCase(name) },
         }
       },
-
       excludeIfEqualNameYAML: true,
       order: 1,
-    },
-    type: {
+    }),
+    type: typeDescriptionRule({
       yaml: "Тип",
-      type: "TypeDescription",
       xml: "Type",
       defaultValueXMLRaw: {},
       order: 2,
-    },
-
-    mainAttribute: {
+    }),
+    mainAttribute: booleanRule({
       yaml: "ОсновнойРеквизит",
       xml: "MainAttribute",
-      type: "boolean",
+      implicitValueYAML: false,
       order: 5,
-    },
-    storedData: {
+    }),
+    storedData: booleanRule({
       yaml: "СохраняемыеДанные",
       xml: "SavedData",
-      type: "boolean",
+      implicitValueYAML: false,
       order: 6,
-    },
-    view: {
+    }),
+    view: userVisibleRule({
       yaml: "Просмотр",
-      type: "UserVisible",
       order: 3,
-    },
-    edit: {
+    }),
+    edit: userVisibleRule({
       yaml: "Редактирование",
-      type: "UserVisible",
       order: 4,
-    },
-    fillCheck: {
+    }),
+    fillCheck: systemEnumerationRule({
       yaml: "ПроверкаЗаполнения",
-      type: "SystemEnumeration",
       typeSE: "FillChecking",
       implicitValueYAML: "DontCheck",
       order: 7,
-    },
-    columns: {
+    }),
+    columns: formAttributeColumnsRule({
       yaml: "Колонки",
-      type: "FormAttributeColumns",
       fromXML: false,
       toXML: false,
       fromYAML: false,
       defaultValue: [],
-    },
-    additionalColumns: {
+    }),
+    additionalColumns: formAttributeAdditionalColumnsRule({
       yaml: "ДополнительныеКолонки",
-      type: "FormAttributeAdditionalColumns",
       fromXML: false,
       toXML: false,
       fromYAML: false,
-    },
-
-    functionalOptions: {
+    }),
+    functionalOptions: functionalOptionsPropertyRule({
       yaml: "ФункциональныеОпции",
-      type: "FunctionalOptionsProperty",
       order: 10,
-    },
-    fieldsList: {
+    }),
+    fieldsList: fieldsListRule({
       yaml: "ИспользоватьВсегда",
-      type: "FieldsList",
       xml: "UseAlways",
       order: 8,
-    },
-    save: {
+    }),
+    save: fieldsListRule({
       yaml: "Сохранение",
-      type: "FieldsList",
       order: 9,
-    },
-    dynamicList: {
-      type: "DynamicList",
+    }),
+    dynamicList: dynamicListRule({
       xml: "Settings",
       yaml: "ДинамическийСписок",
       order: 99,
-    },
-    chart: {
-      type: "Chart",
+    }),
+    chart: chartRule({
       xml: "Settings",
       yaml: "Диаграмма",
       fromXML: false,
       toXML: false,
       order: 99,
-    },
-    ganttChart: {
-      type: "GanttChart",
+    }),
+    ganttChart: ganttChartRule({
       xml: "Settings",
       yaml: "ДиаграммаГанта",
       fromXML: false,
       toXML: false,
       order: 99,
-    },
-    flowchartContext: {
-      type: "FlowchartContext",
+    }),
+    flowchartContext: flowchartContextRule({
       xml: "Settings",
       yaml: "ГрафическаяСхема",
       fromXML: false,
       toXML: false,
       order: 99,
-    },
-    spreadsheetDocument: {
-      type: "SpreadsheetDocument",
+    }),
+    spreadsheetDocument: spreadsheetDocumentRule({
       xml: "Settings",
       yaml: "ТабличныйДокумент",
       fromXML: false,
       toXML: false,
       order: 99,
-    },
-    planner: {
-      type: "Planner",
+    }),
+    planner: plannerRule({
       xml: "Settings",
       yaml: "Планировщик",
       fromXML: false,
       toXML: false,
       order: 99,
-    },
+    }),
   },
 } as const satisfies MetadataItemRule
-
 export const FormAttributeColumnRules = {
   itemType: "FormAttributeColumn",
   properties: {
-    id: {
+    id: stringRule({
       xml: "_id",
-      type: "string",
       forReferenceOnly: true,
-    },
-    name: {
-      type: "string",
+    }),
+    name: stringRule({
       xml: "_name",
       required: true,
-    },
-    title: {
+    }),
+    title: i8nTextRule({
       yaml: "Заголовок",
-      type: "I8nText",
       excludeIfEqualNameYAML: true,
       order: 2,
-      // defaultValue: (context: ConfigurationContext) => {
-      //   return {
-      //     items: { [context.defaultLanguage]: "" },
-      //   }
-      // },
-    },
-    type: {
+    }),
+    type: typeDescriptionRule({
       yaml: "Тип",
-      type: "TypeDescription",
       xml: "Type",
       order: 3,
       defaultValueXMLRaw: {},
-    },
-    view: {
+    }),
+    view: userVisibleRule({
       yaml: "Просмотр",
-      type: "UserVisible",
       order: 4,
-    },
-    edit: {
+    }),
+    edit: userVisibleRule({
       yaml: "Редактирование",
-      type: "UserVisible",
       order: 0,
-    },
-    fillCheck: {
+    }),
+    fillCheck: systemEnumerationRule({
       yaml: "ПроверкаЗаполнения",
-      type: "SystemEnumeration",
       typeSE: "FillChecking",
       order: 1,
       implicitValueYAML: "DontCheck",
-    },
-    functionalOptions: {
+    }),
+    functionalOptions: functionalOptionsPropertyRule({
       yaml: "ФункциональныеОпции",
-      type: "FunctionalOptionsProperty",
       order: 5,
-    },
+    }),
   },
 } as const satisfies MetadataItemRule

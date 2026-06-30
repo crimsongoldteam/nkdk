@@ -19,6 +19,7 @@ export const formGroupCommonProperties = {
   height: {
     yaml: "Высота",
     type: "number",
+    implicitValueYAML: 0,
   },
   horizontalAlignInGroup: {
     yaml: "ГоризонтальноеПоложениеВГруппе",
@@ -30,6 +31,7 @@ export const formGroupCommonProperties = {
   horizontalStretch: {
     yaml: "РастягиватьПоГоризонтали",
     type: "boolean",
+    implicitValueYAML: false,
   },
   parent: {
     type: "string",
@@ -51,11 +53,13 @@ export const formGroupCommonProperties = {
   },
   titleFont: {
     yaml: "ШрифтЗаголовка",
-    type: "Font", metadataTarget: { kind: "object", roots: ["StyleItem"], filters: [{ kind: "styleItemType", values: ["Font"] }] },
+    type: "Font",
+    metadataTarget: { kind: "object", roots: ["StyleItem"], filters: [{ kind: "styleItemType", values: ["Font"] }] },
   },
   titleTextColor: {
     yaml: "ЦветТекстаЗаголовка",
-    type: "Color", metadataTarget: { kind: "object", roots: ["StyleItem"], filters: [{ kind: "styleItemType", values: ["Color"] }] },
+    type: "Color",
+    metadataTarget: { kind: "object", roots: ["StyleItem"], filters: [{ kind: "styleItemType", values: ["Color"] }] },
   },
   toolTip: {
     yaml: "Подсказка",
@@ -87,9 +91,11 @@ export const formGroupCommonProperties = {
   visible: {
     yaml: "Видимость",
     type: "boolean",
+    implicitValueYAML: true,
   },
   width: {
     yaml: "Ширина",
     type: "number",
+    implicitValueYAML: 0,
   },
 } as const satisfies MetadataItemRule["properties"]

@@ -1,3 +1,8 @@
+import {
+  definePropertyRule as defineWidePropertyRule,
+  type ExactRuleParams as WideExactRuleParams,
+} from "~/metadata/commonObjects/ruleBuilder"
+import type { PropertyRule as WidePropertyRuleBase } from "~/metadata/orchestration/property/types"
 import { Static, Type } from "@sinclair/typebox"
 
 export type IndexField = string
@@ -13,3 +18,15 @@ export type IndexFieldYAML = Static<typeof IndexFieldJSONSchema>
 
 export type IndexFields = IndexField[]
 export type IndexFieldsYAML = IndexFieldYAML[]
+
+export interface IndexFieldWidePropertyRule extends WidePropertyRuleBase {
+  type: "IndexField"
+}
+
+export type IndexFieldRuleParams = Omit<IndexFieldWidePropertyRule, "type">
+
+export function indexFieldRule<const Params extends IndexFieldRuleParams>(
+  params: WideExactRuleParams<IndexFieldRuleParams, Params>
+): Readonly<{ type: "IndexField" } & Params> {
+  return defineWidePropertyRule("IndexField", params)
+}

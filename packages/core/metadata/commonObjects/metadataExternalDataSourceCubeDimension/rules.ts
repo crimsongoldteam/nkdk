@@ -1,9 +1,13 @@
+import { metadataItemLinkRule, metadataItemLinksRule } from "~/metadata/commonObjects/metadataPath/types"
+import { typeLinkRule } from "~/metadata/commonObjects/typeLink/types"
+import { booleanRule } from "~/metadata/commonObjects/boolean/types"
+import { stringRule } from "~/metadata/commonObjects/string/types"
+import { systemEnumerationRule } from "~/metadata/systemEnumerations/types"
 import {
   externalDataSourceFieldBaseProperties,
   externalDataSourceObjectServiceProperties,
 } from "~/metadata/commonObjects/metadataExternalDataSourceField/rules"
 import { MetadataItemRule } from "~/metadata/orchestration/property/types"
-
 const propertiesParents = ["Properties"]
 const hasOwnMetadataProperty =
   (propertyKey: string) =>
@@ -12,172 +16,153 @@ const hasOwnMetadataProperty =
     metadataItem !== undefined &&
     typeof metadataItem === "object" &&
     Object.prototype.hasOwnProperty.call(metadataItem, propertyKey)
-
 export const MetadataExternalDataSourceCubeDimensionRules = {
   itemType: "MetadataExternalDataSourceCubeDimension",
   properties: {
     ...externalDataSourceFieldBaseProperties,
-    choiceFoldersAndItems: {
+    choiceFoldersAndItems: systemEnumerationRule({
       yaml: "ВыборГруппИЭлементов",
       xml: "ChoiceFoldersAndItems",
-      type: "SystemEnumeration",
       typeSE: "FoldersAndItemsUse",
       xmlParents: propertiesParents,
       defaultValueXML: "Items",
       implicitValueYAML: "Items",
-    },
-    linkByType: {
+    }),
+    linkByType: typeLinkRule({
       yaml: "СвязьПоТипу",
       xml: "LinkByType",
-      type: "TypeLink",
       xmlParents: propertiesParents,
       defaultValueXMLRaw: "",
-    },
-    documentMap: {
+    }),
+    documentMap: metadataItemLinksRule({
       yaml: "СоответствиеРеквизитамДокументов",
       xml: "DocumentMap",
-      type: "MetadataItemLinks",
       metadataTarget: { kind: "member", owner: "explicit" },
       xmlParents: propertiesParents,
       defaultValueXMLRaw: "",
       toXML: hasOwnMetadataProperty("documentMap"),
-    },
-    registerRecordsMap: {
+    }),
+    registerRecordsMap: metadataItemLinksRule({
       yaml: "СоответствиеРеквизитамДвижений",
       xml: "RegisterRecordsMap",
-      type: "MetadataItemLinks",
       metadataTarget: { kind: "member", owner: "explicit" },
       xmlParents: propertiesParents,
       defaultValueXMLRaw: "",
       toXML: hasOwnMetadataProperty("registerRecordsMap"),
-    },
-    registerDimension: {
+    }),
+    registerDimension: metadataItemLinkRule({
       yaml: "ИзмерениеРегистра",
       xml: "RegisterDimension",
-      type: "MetadataItemLink",
       typedXML: "xr:MDObjectRef",
       xmlParents: propertiesParents,
       defaultValueXMLRaw: "",
       toXML: hasOwnMetadataProperty("registerDimension"),
-    },
-    leadingRegisterData: {
+    }),
+    leadingRegisterData: metadataItemLinksRule({
       yaml: "ДанныеВедущихРегистров",
       xml: "LeadingRegisterData",
-      type: "MetadataItemLinks",
       xmlParents: propertiesParents,
       defaultValueXMLRaw: "",
       toXML: hasOwnMetadataProperty("leadingRegisterData"),
-    },
-    denyIncompleteValues: {
+    }),
+    denyIncompleteValues: booleanRule({
       yaml: "ЗапретНезавершенныхЗначений",
       xml: "DenyIncompleteValues",
-      type: "boolean",
       xmlParents: propertiesParents,
       defaultValueXML: false,
       implicitValueYAML: false,
       toXML: hasOwnMetadataProperty("denyIncompleteValues"),
-    },
-    baseDimension: {
+    }),
+    baseDimension: booleanRule({
       yaml: "БазовоеИзмерение",
       xml: "BaseDimension",
-      type: "boolean",
       xmlParents: propertiesParents,
       defaultValueXML: false,
       implicitValueYAML: false,
       toXML: hasOwnMetadataProperty("baseDimension"),
-    },
-    scheduleLink: {
+    }),
+    scheduleLink: stringRule({
       yaml: "СвязьСГрафиком",
       xml: "ScheduleLink",
-      type: "string",
       xmlParents: propertiesParents,
       defaultValueXMLRaw: "",
       toXML: hasOwnMetadataProperty("scheduleLink"),
-    },
-    useInTotals: {
+    }),
+    useInTotals: booleanRule({
       yaml: "ИспользоватьВИтогах",
       xml: "UseInTotals",
-      type: "boolean",
       xmlParents: propertiesParents,
       defaultValueXML: true,
       implicitValueYAML: true,
       toXML: hasOwnMetadataProperty("useInTotals"),
-    },
-    master: {
+    }),
+    master: booleanRule({
       yaml: "Ведущее",
       xml: "Master",
-      type: "boolean",
       xmlParents: propertiesParents,
       defaultValueXML: false,
       implicitValueYAML: false,
       toXML: hasOwnMetadataProperty("master"),
-    },
-    mainFilter: {
+    }),
+    mainFilter: booleanRule({
       yaml: "ОсновнойОтбор",
       xml: "MainFilter",
-      type: "boolean",
       xmlParents: propertiesParents,
       defaultValueXML: true,
       implicitValueYAML: true,
       toXML: hasOwnMetadataProperty("mainFilter"),
-    },
-    balance: {
+    }),
+    balance: booleanRule({
       yaml: "Балансовый",
       xml: "Balance",
-      type: "boolean",
       xmlParents: propertiesParents,
       defaultValueXML: true,
       implicitValueYAML: true,
       toXML: hasOwnMetadataProperty("balance"),
-    },
-    accountingFlag: {
+    }),
+    accountingFlag: stringRule({
       yaml: "ПризнакУчета",
       xml: "AccountingFlag",
-      type: "string",
       xmlParents: propertiesParents,
       defaultValueXMLRaw: "",
       toXML: hasOwnMetadataProperty("accountingFlag"),
-    },
-    typeReductionMode: {
+    }),
+    typeReductionMode: systemEnumerationRule({
       yaml: "РежимСокращенияТипа",
       xml: "TypeReductionMode",
-      type: "SystemEnumeration",
       typeSE: "TypeReductionMode",
       xmlParents: propertiesParents,
       defaultValueXML: "TransformValues",
       implicitValueYAML: "TransformValues",
       toXML: hasOwnMetadataProperty("typeReductionMode"),
-    },
-    indexing: {
+    }),
+    indexing: systemEnumerationRule({
       yaml: "Индексирование",
       xml: "Indexing",
-      type: "SystemEnumeration",
       typeSE: "Indexing",
       xmlParents: propertiesParents,
       defaultValueXML: "DontIndex",
       implicitValueYAML: "DontIndex",
       toXML: hasOwnMetadataProperty("indexing"),
-    },
-    fullTextSearch: {
+    }),
+    fullTextSearch: systemEnumerationRule({
       yaml: "ПолнотекстовыйПоиск",
       xml: "FullTextSearch",
-      type: "SystemEnumeration",
       typeSE: "UseFullTextSearch",
       xmlParents: propertiesParents,
       defaultValueXML: "Use",
       implicitValueYAML: "Use",
       toXML: hasOwnMetadataProperty("fullTextSearch"),
-    },
-    dataHistory: {
+    }),
+    dataHistory: systemEnumerationRule({
       yaml: "ИсторияДанных",
       xml: "DataHistory",
-      type: "SystemEnumeration",
       typeSE: "DataHistoryUse",
       xmlParents: propertiesParents,
       defaultValueXML: "Use",
       implicitValueYAML: "Use",
       toXML: hasOwnMetadataProperty("dataHistory"),
-    },
+    }),
     ...externalDataSourceObjectServiceProperties,
   },
 } as const satisfies MetadataItemRule

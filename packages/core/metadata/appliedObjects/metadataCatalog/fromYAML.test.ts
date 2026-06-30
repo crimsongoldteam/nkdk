@@ -1,6 +1,6 @@
 import { describe, expect, it } from "vitest"
 import { mockContext } from "~/tests/mockContext"
-import { full, fullYAML } from "./__fixtures__/full"
+import { fullFromCompactYAML, fullYAML } from "./__fixtures__/full"
 import { minimal, minimalYAML } from "./__fixtures__/minimal"
 import { importMetadataCatalogFromYAML } from "./fromYAML"
 import { exportMetadataCatalogToYAML } from "./toYAML"
@@ -14,7 +14,7 @@ describe("importMetadataCatalogFromYAML", () => {
   it("should import full", () => {
     const result = importMetadataCatalogFromYAML(mockContext, fullYAML, "СправочникПолный")
 
-    expect(result).toEqual(full)
+    expect(result).toEqual(fullFromCompactYAML)
   })
 
   it("should import minimal", () => {

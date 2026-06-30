@@ -1,6 +1,6 @@
 import { describe, expect, it } from "vitest"
 import { testImportPropertyFromYAML } from "~/tests/property/importPropertyFromYAML"
-import { fullOrderExpressions, fullOrderExpressionsYAML } from "./__fixtures__/data"
+import { fullOrderExpressionsFromCompactYAML, fullOrderExpressionsYAML } from "./__fixtures__/data"
 import "./types"
 
 describe("import CalculatedFieldOrderExpression from YAML", () => {
@@ -10,6 +10,6 @@ describe("import CalculatedFieldOrderExpression from YAML", () => {
       value: fullOrderExpressionsYAML,
     })
 
-    expect(result).toEqual(fullOrderExpressions)
+    expect(result).toEqual(fullOrderExpressionsFromCompactYAML)
   })
 })

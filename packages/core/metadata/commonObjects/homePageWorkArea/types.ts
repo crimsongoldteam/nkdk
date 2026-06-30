@@ -5,11 +5,7 @@ import { MetadataTypeByRule } from "~/metadata/orchestration/metadataItem/elemen
 import { YAMLTypeByRule } from "~/metadata/orchestration/metadataItem/yaml"
 import { HomePageWorkAreaRules } from "./rules"
 
-export type HomePageWorkAreaTemplate =
-  | "OneColumn"
-  | "TwoColumnsEqualWidth"
-  | "TwoColumnsVariableWidth"
-  | string
+export type HomePageWorkAreaTemplate = "OneColumn" | "TwoColumnsEqualWidth" | "TwoColumnsVariableWidth" | string
 
 export type HomePageWorkAreaCommandInterfaceDisplay = "Top" | "Bottom" | "None" | string
 

@@ -1,7 +1,7 @@
 import { TypeCompiler } from "@sinclair/typebox/compiler"
 import { describe, expect, it } from "vitest"
 import {
-  fullMetadataAttributes,
+  fullMetadataAttributesFromCompactYAML,
   fullMetadataAttributesYAML,
   minimalMetadataAttributes,
   minimalMetadataAttributesYAML,
@@ -20,7 +20,9 @@ const rule = { type: "MetadataAttributes" } as const
 const metadataAttributeOwnerContext: ConfigurationContext = {
   ...mockContext,
   importFromYAML: {
-    metadataTargetOwners: [{ itemType: "MetadataCatalog", name: "Справочник" }],
+    metadataTargetOwners: [
+      { itemType: "MetadataCatalog", name: "Справочник", owner: { root: "Catalog", objectName: "Справочник" } },
+    ],
   },
 }
 
@@ -36,7 +38,7 @@ describe("import MetadataAttributes from YAML", () => {
       rule,
       value: fullMetadataAttributesYAML,
     })
-    expect(result).toEqual(fullMetadataAttributes)
+    expect(result).toEqual(fullMetadataAttributesFromCompactYAML)
   })
 
   it("should import minimal", () => {

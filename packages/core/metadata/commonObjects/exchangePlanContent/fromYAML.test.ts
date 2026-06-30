@@ -1,7 +1,7 @@
 import { describe, expect, it } from "vitest"
 import { importMetadataItemFromYAML } from "~/metadata/orchestration"
 import { mockContext } from "~/tests/mockContext"
-import { content, contentYAML } from "./__fixtures__/data"
+import { contentFromCompactYAML, contentYAML } from "./__fixtures__/data"
 import { ExchangePlanContentRules } from "./rules"
 
 import "./register"
@@ -20,7 +20,7 @@ describe("import ExchangePlanContent from YAML", () => {
       name: "content",
     })
 
-    expect(result).toEqual(content)
+    expect(result).toEqual(contentFromCompactYAML)
   })
 
   it("imports [] as explicit empty content", () => {

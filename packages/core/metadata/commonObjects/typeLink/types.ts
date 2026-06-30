@@ -1,3 +1,8 @@
+import {
+  definePropertyRule as defineWidePropertyRule,
+  type ExactRuleParams as WideExactRuleParams,
+} from "~/metadata/commonObjects/ruleBuilder"
+import type { PropertyRule as WidePropertyRuleBase } from "~/metadata/orchestration/property/types"
 import { Static, Type } from "@sinclair/typebox"
 import { MetadataField } from "../metadataField/types"
 import { MetadataPrimitiveValueXML } from "../metadataValue/types"
@@ -28,3 +33,15 @@ export interface TypeLinkDcsValueRootXML {
 export const TypeLinkJSONSchema = Type.String()
 
 export type TypeLinkYAML = Static<typeof TypeLinkJSONSchema>
+
+export interface TypeLinkWidePropertyRule extends WidePropertyRuleBase {
+  type: "TypeLink"
+}
+
+export type TypeLinkRuleParams = Omit<TypeLinkWidePropertyRule, "type">
+
+export function typeLinkRule<const Params extends TypeLinkRuleParams>(
+  params: WideExactRuleParams<TypeLinkRuleParams, Params>
+): Readonly<{ type: "TypeLink" } & Params> {
+  return defineWidePropertyRule("TypeLink", params)
+}

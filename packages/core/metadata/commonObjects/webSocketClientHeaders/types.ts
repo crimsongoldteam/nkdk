@@ -1,3 +1,8 @@
+import {
+  definePropertyRule as defineWidePropertyRule,
+  type ExactRuleParams as WideExactRuleParams,
+} from "~/metadata/commonObjects/ruleBuilder"
+import type { PropertyRule as WidePropertyRuleBase } from "~/metadata/orchestration/property/types"
 import { Static, Type } from "@sinclair/typebox"
 
 export const WebSocketClientHeadersJSONSchema = Type.Array(
@@ -36,4 +41,16 @@ export interface WebSocketClientHeaderXMLItem {
 export interface WebSocketClientHeadersXML {
   "_xsi:type": "xr:ValueList"
   "xr:Item"?: WebSocketClientHeaderXMLItem | WebSocketClientHeaderXMLItem[]
+}
+
+export interface WebSocketClientHeadersWidePropertyRule extends WidePropertyRuleBase {
+  type: "WebSocketClientHeaders"
+}
+
+export type WebSocketClientHeadersRuleParams = Omit<WebSocketClientHeadersWidePropertyRule, "type">
+
+export function webSocketClientHeadersRule<const Params extends WebSocketClientHeadersRuleParams>(
+  params: WideExactRuleParams<WebSocketClientHeadersRuleParams, Params>
+): Readonly<{ type: "WebSocketClientHeaders" } & Params> {
+  return defineWidePropertyRule("WebSocketClientHeaders", params)
 }

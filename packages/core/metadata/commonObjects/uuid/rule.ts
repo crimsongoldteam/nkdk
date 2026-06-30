@@ -1,9 +1,8 @@
-import { BasePropertyRule } from "~/metadata/orchestration"
+import { uuidRule } from "./types"
 
-export const uuidPropertyRule = {
-  type: "uuid",
+export const uuidPropertyRule = uuidRule({
   xml: "_uuid",
   forReferenceOnly: true,
   toYAML: false,
   fromYAML: false,
-} as const satisfies BasePropertyRule
+})
