@@ -1,3 +1,17 @@
+import { additionalIndexRule, metadataCommandsRule } from "~/metadata/appliedObjects/metadataAccountingRegister/types"
+import { metadataAttributesRule } from "~/metadata/appliedObjects/metadataDataProcessor/types"
+import {
+  metadataTaskAddressingAttributesRule,
+  metadataTaskTabularSectionsRule,
+} from "~/metadata/appliedObjects/metadataTask/types"
+import { characteristicsDescriptionsRule } from "~/metadata/commonObjects/characteristicsDescription/types"
+import { childFormNamesRule } from "~/metadata/commonObjects/childFormNames/types"
+import { childTemplateNamesRule } from "~/metadata/commonObjects/childTemplateNames/types"
+import { helpRule } from "~/metadata/commonObjects/help/types"
+import { internalInfoRule } from "~/metadata/commonObjects/internalInfo/types"
+import { metadataFieldsRule } from "~/metadata/commonObjects/metadataField/types"
+import { metadataItemLinksRule } from "~/metadata/commonObjects/metadataPath/types"
+import { standardAttributeDescriptionsRule } from "~/metadata/commonObjects/standardAttributeDescription/types"
 import { booleanRule } from "~/metadata/commonObjects/boolean/types"
 import { i8nTextRule } from "~/metadata/commonObjects/i8nText/types"
 import { moduleRule } from "~/metadata/commonObjects/module/types"
@@ -36,8 +50,7 @@ export const MetadataTaskRules = {
       toYAML: false,
       fromYAML: false,
     }),
-    internalInfo: {
-      type: "InternalInfo",
+    internalInfo: internalInfoRule({
       xmlParents: [],
       forReferenceOnly: true,
       items: [
@@ -47,7 +60,7 @@ export const MetadataTaskRules = {
         { name: "TaskList", category: "List" },
         { name: "TaskManager", category: "Manager" },
       ],
-    },
+    }),
     uuid: uuidRule({
       xml: "_uuid",
       forReferenceOnly: true,
@@ -136,25 +149,22 @@ export const MetadataTaskRules = {
       metadataTarget: { kind: "object", roots: ["SessionParameter"] },
       defaultValueXMLRaw: "",
     }),
-    basedOn: {
+    basedOn: metadataItemLinksRule({
       yaml: "ВводитсяНаОсновании",
-      type: "MetadataItemLinks",
       metadataTarget: { kind: "object", allowedObjectPaths: commonBasedOnObjectPaths },
       xmlParents: properties,
       defaultValueXMLRaw: {},
-    },
-    standardAttributes: {
+    }),
+    standardAttributes: standardAttributeDescriptionsRule({
       yaml: "СтандартныеРеквизиты",
-      type: "StandardAttributeDescriptions",
       standartAttributeNames: MetadataTaskStandardAttributeNames,
       xmlParents: properties,
-    },
-    characteristics: {
+    }),
+    characteristics: characteristicsDescriptionsRule({
       yaml: "Характеристики",
-      type: "CharacteristicsDescriptions",
       xmlParents: properties,
       defaultValueXMLRaw: {},
-    },
+    }),
     defaultPresentation: systemEnumerationRule({
       yaml: "ОсновноеПредставление",
       typeSE: "TaskMainPresentation",
@@ -169,12 +179,11 @@ export const MetadataTaskRules = {
       implicitValueYAML: "InDialog",
       xmlParents: properties,
     }),
-    inputByString: {
+    inputByString: metadataFieldsRule({
       yaml: "ВводПоСтроке",
-      type: "MetadataFields",
       xmlParents: properties,
       defaultValueXMLRaw: {},
-    },
+    }),
     searchStringModeOnInputByString: systemEnumerationRule({
       yaml: "РежимСтрокиПоискаПриВводеПоСтроке",
       typeSE: "SearchStringModeOnInputByString",
@@ -252,12 +261,11 @@ export const MetadataTaskRules = {
       implicitValueYAML: false,
       xmlParents: properties,
     }),
-    dataLockFields: {
+    dataLockFields: metadataFieldsRule({
       yaml: "ПоляБлокировкиДанных",
-      type: "MetadataFields",
       xmlParents: properties,
       defaultValueXMLRaw: {},
-    },
+    }),
     dataLockControlMode: systemEnumerationRule({
       yaml: "РежимУправленияБлокировкойДанных",
       typeSE: "DefaultDataLockControlMode",
@@ -328,46 +336,40 @@ export const MetadataTaskRules = {
       yaml: "ОбъектРасширяемойКонфигурации",
       runtimeOnly: true,
     }),
-    attributes: {
+    attributes: metadataAttributesRule({
       yaml: "Реквизиты",
       xml: "Attribute",
-      type: "MetadataAttributes",
       xmlParents: childObjects,
-    },
-    tabularSections: {
+    }),
+    tabularSections: metadataTaskTabularSectionsRule({
       yaml: "ТабличныеЧасти",
       xml: "TabularSection",
-      type: "MetadataTaskTabularSections",
       xmlParents: childObjects,
-    },
-    forms: {
+    }),
+    forms: childFormNamesRule({
       yaml: "Формы",
       xml: "Form",
-      type: "ChildFormNames",
       xmlParents: childObjects,
       folderName: "Формы",
       forReferenceOnly: true,
-    },
-    templates: {
+    }),
+    templates: childTemplateNamesRule({
       yaml: "Макеты",
       xml: "Template",
-      type: "ChildTemplateNames",
       xmlParents: childObjects,
       folderName: "Макеты",
       forReferenceOnly: true,
-    },
-    addressingAttributes: {
+    }),
+    addressingAttributes: metadataTaskAddressingAttributesRule({
       yaml: "РеквизитыАдресации",
       xml: "AddressingAttribute",
-      type: "MetadataTaskAddressingAttributes",
       xmlParents: childObjects,
-    },
-    commands: {
+    }),
+    commands: metadataCommandsRule({
       yaml: "Команды",
       xml: "Command",
-      type: "MetadataCommands",
       xmlParents: childObjects,
-    },
+    }),
     objectModule: moduleRule({
       externalMetadata: { segment: "ObjectModule", placement: "derivedEntry" },
       nkdkPath: "МодульОбъекта.bsl",
@@ -382,20 +384,18 @@ export const MetadataTaskRules = {
       toXML: false,
       fromXML: false,
     }),
-    additionalIndexes: {
+    additionalIndexes: additionalIndexRule({
       yaml: "ДополнительныеИндексы",
-      type: "AdditionalIndex",
       filePath: "Ext/AdditionalIndexes.xml",
-    },
-    help: {
-      type: "Help",
+    }),
+    help: helpRule({
       externalMetadata: { segment: "Help", placement: "derivedEntry" },
       filePath: "Ext/Help.xml",
       xmlPath: "Ext/Help.xml",
       nkdkDir: "Справка",
       toXML: false,
       fromXML: false,
-    },
+    }),
   },
   childCollections: [{ propertyKey: "commands", itemRule: MetadataCommandRules }],
 } as const satisfies MetadataItemRule

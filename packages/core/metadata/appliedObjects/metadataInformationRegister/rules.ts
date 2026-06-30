@@ -1,3 +1,15 @@
+import {
+  additionalIndexRule,
+  metadataCommandsRule,
+  metadataRegisterAttributesRule,
+  metadataRegisterDimensionsRule,
+  metadataRegisterResourcesRule,
+} from "~/metadata/appliedObjects/metadataAccountingRegister/types"
+import { childFormNamesRule } from "~/metadata/commonObjects/childFormNames/types"
+import { childTemplateNamesRule } from "~/metadata/commonObjects/childTemplateNames/types"
+import { helpRule } from "~/metadata/commonObjects/help/types"
+import { internalInfoRule } from "~/metadata/commonObjects/internalInfo/types"
+import { standardAttributeDescriptionsRule } from "~/metadata/commonObjects/standardAttributeDescription/types"
 import { booleanRule } from "~/metadata/commonObjects/boolean/types"
 import { i8nTextRule } from "~/metadata/commonObjects/i8nText/types"
 import { moduleRule } from "~/metadata/commonObjects/module/types"
@@ -40,8 +52,7 @@ export const MetadataInformationRegisterRules = {
       toYAML: false,
       fromYAML: false,
     }),
-    internalInfo: {
-      type: "InternalInfo",
+    internalInfo: internalInfoRule({
       xmlParents: [],
       forReferenceOnly: true,
       items: [
@@ -53,7 +64,7 @@ export const MetadataInformationRegisterRules = {
         { name: "InformationRegisterRecordKey", category: "RecordKey" },
         { name: "InformationRegisterRecordManager", category: "RecordManager" },
       ],
-    },
+    }),
     uuid: uuidRule({
       xml: "_uuid",
       forReferenceOnly: true,
@@ -111,12 +122,11 @@ export const MetadataInformationRegisterRules = {
       metadataTarget: { kind: "member", owner: "this", memberKinds: ["Form"], objectRoots: ["CommonForm"] },
       defaultValueXMLRaw: "",
     }),
-    standardAttributes: {
+    standardAttributes: standardAttributeDescriptionsRule({
       yaml: "СтандартныеРеквизиты",
-      type: "StandardAttributeDescriptions",
       standartAttributeNames: MetadataInformationRegisterStandardAttributeNames,
       xmlParents: properties,
-    },
+    }),
     informationRegisterPeriodicity: systemEnumerationRule({
       yaml: "Периодичность",
       typeSE: "InformationRegisterPeriodicity",
@@ -225,48 +235,42 @@ export const MetadataInformationRegisterRules = {
       yaml: "ОбъектРасширяемойКонфигурации",
       runtimeOnly: true,
     }),
-    resources: {
+    resources: metadataRegisterResourcesRule({
       yaml: "Ресурсы",
-      type: "MetadataRegisterResources",
       xmlParents: childObjects,
       xml: "Resource",
-    },
-    dimensions: {
+    }),
+    dimensions: metadataRegisterDimensionsRule({
       yaml: "Измерения",
-      type: "MetadataRegisterDimensions",
       xmlParents: childObjects,
       xml: "Dimension",
-    },
-    attributes: {
+    }),
+    attributes: metadataRegisterAttributesRule({
       yaml: "Реквизиты",
-      type: "MetadataRegisterAttributes",
       xmlParents: childObjects,
       xml: "Attribute",
-    },
-    forms: {
-      type: "ChildFormNames",
+    }),
+    forms: childFormNamesRule({
       xml: "Form",
       folderName: "Формы",
       forReferenceOnly: true,
       toYAML: false,
       fromYAML: false,
       xmlParents: childObjects,
-    },
-    templates: {
-      type: "ChildTemplateNames",
+    }),
+    templates: childTemplateNamesRule({
       xml: "Template",
       folderName: "Шаблоны",
       forReferenceOnly: true,
       toYAML: false,
       fromYAML: false,
       xmlParents: childObjects,
-    },
-    commands: {
+    }),
+    commands: metadataCommandsRule({
       yaml: "Команды",
-      type: "MetadataCommands",
       xmlParents: childObjects,
       xml: "Command",
-    },
+    }),
     recordSetModule: moduleRule({
       nkdkPath: "МодульНабораЗаписей.bsl",
       xmlPath: "Ext/RecordSetModule.bsl",
@@ -280,20 +284,18 @@ export const MetadataInformationRegisterRules = {
       toXML: false,
       fromXML: false,
     }),
-    additionalIndexes: {
+    additionalIndexes: additionalIndexRule({
       yaml: "ДополнительныеИндексы",
-      type: "AdditionalIndex",
       filePath: "Ext/AdditionalIndexes.xml",
-    },
-    help: {
-      type: "Help",
+    }),
+    help: helpRule({
       externalMetadata: { segment: "Help", placement: "derivedEntry" },
       filePath: "Ext/Help.xml",
       xmlPath: "Ext/Help.xml",
       nkdkDir: "Справка",
       toXML: false,
       fromXML: false,
-    },
+    }),
   },
   childCollections: [{ propertyKey: "commands", itemRule: MetadataInformationRegisterCommandRules }],
 } as const satisfies MetadataItemRule

@@ -1,3 +1,8 @@
+import { rootCommandInterfaceRule } from "~/metadata/appliedObjects/configuration/types"
+import { childSubsystemNamesRule } from "~/metadata/commonObjects/childSubsystemNames/types"
+import { helpRule } from "~/metadata/commonObjects/help/types"
+import { metadataItemLinksRule } from "~/metadata/commonObjects/metadataPath/types"
+import { pictureRule } from "~/metadata/commonObjects/metadataTargets/types"
 import { booleanRule } from "~/metadata/commonObjects/boolean/types"
 import { i8nTextRule } from "~/metadata/commonObjects/i8nText/types"
 import { stringRule } from "~/metadata/commonObjects/string/types"
@@ -118,28 +123,25 @@ export const MetadataSubsystemRules = {
       xmlParents: properties,
       defaultValueXMLRaw: "",
     }),
-    picture: {
+    picture: pictureRule({
       yaml: "Картинка",
       xml: "Picture",
-      type: "Picture",
       metadataTarget: { kind: "object", roots: ["CommonPicture"] },
       xmlParents: properties,
       defaultValueXMLRaw: "",
-    },
-    content: {
+    }),
+    content: metadataItemLinksRule({
       yaml: "Состав",
       xml: "Content",
-      type: "MetadataItemLinks",
       metadataTarget: { kind: "object", allowedObjectPaths: contentObjectPaths, nestedObjectRoots: ["Subsystem"] },
       xmlParents: properties,
       defaultValueXMLRaw: {},
-    },
-    subsystems: {
+    }),
+    subsystems: childSubsystemNamesRule({
       yaml: "Подсистемы",
       xml: "Subsystem",
-      type: "ChildSubsystemNames",
       xmlParents: childObjects,
-    },
+    }),
     objectBelonging: systemEnumerationRule({
       yaml: "ПринадлежностьОбъекта",
       xml: "ObjectBelonging",
@@ -154,20 +156,18 @@ export const MetadataSubsystemRules = {
       xmlParents: properties,
       runtimeOnly: true,
     }),
-    commandInterface: {
+    commandInterface: rootCommandInterfaceRule({
       yaml: "КомандныйИнтерфейс",
-      type: "RootCommandInterface",
       filePath: "Ext/CommandInterface.xml",
       exportReferenceFileOnMissingValue: true,
-    },
-    help: {
-      type: "Help",
+    }),
+    help: helpRule({
       externalMetadata: { segment: "Help", placement: "derivedEntry" },
       filePath: "Ext/Help.xml",
       xmlPath: "Ext/Help.xml",
       nkdkDir: "Справка",
       toXML: false,
       fromXML: false,
-    },
+    }),
   },
 } as const satisfies MetadataItemRule

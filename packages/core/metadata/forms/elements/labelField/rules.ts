@@ -1,3 +1,8 @@
+import { borderRule } from "~/metadata/commonObjects/border/types"
+import { colorRule } from "~/metadata/commonObjects/color/types"
+import { fontRule } from "~/metadata/commonObjects/font/types"
+import { dataPathRule } from "~/metadata/commonObjects/metadataPath/types"
+import { eventsRule } from "~/metadata/forms/commonObjects/event/types"
 import { booleanRule } from "~/metadata/commonObjects/boolean/types"
 import { i8nTextRule } from "~/metadata/commonObjects/i8nText/types"
 import { numberRule } from "~/metadata/commonObjects/number/types"
@@ -13,31 +18,27 @@ export const LabelFieldRules = {
   properties: {
     autoMaxHeight: booleanRule({ yaml: "АвтоМаксимальнаяВысота", implicitValueYAML: true }),
     autoMaxWidth: booleanRule({ yaml: "АвтоМаксимальнаяШирина", implicitValueYAML: true }),
-    backColor: {
+    backColor: colorRule({
       yaml: "ЦветФона",
-      type: "Color",
       metadataTarget: { kind: "object", roots: ["StyleItem"], filters: [{ kind: "styleItemType", values: ["Color"] }] },
-    },
-    border: {
+    }),
+    border: borderRule({
       yaml: "Рамка",
-      type: "Border",
       implicitValueYAML: "WithoutBorder",
       metadataTarget: {
         kind: "object",
         roots: ["StyleItem"],
         filters: [{ kind: "styleItemType", values: ["Border"] }],
       },
-    },
-    borderColor: {
+    }),
+    borderColor: colorRule({
       yaml: "ЦветРамки",
-      type: "Color",
       metadataTarget: { kind: "object", roots: ["StyleItem"], filters: [{ kind: "styleItemType", values: ["Color"] }] },
-    },
-    font: {
+    }),
+    font: fontRule({
       yaml: "Шрифт",
-      type: "Font",
       metadataTarget: { kind: "object", roots: ["StyleItem"], filters: [{ kind: "styleItemType", values: ["Font"] }] },
-    },
+    }),
     format: i8nTextRule({ yaml: "Формат" }),
     height: numberRule({ yaml: "Высота", implicitValueYAML: 0 }),
     horizontalStretch: booleanRule({ yaml: "РастягиватьПоГоризонтали", noImplicitValueYAML: true }),
@@ -46,15 +47,13 @@ export const LabelFieldRules = {
     maxHeight: numberRule({ yaml: "МаксимальнаяВысота", implicitValueYAML: 0 }),
     maxWidth: numberRule({ yaml: "МаксимальнаяШирина", implicitValueYAML: 0 }),
     passwordMode: booleanRule({ yaml: "РежимПароля", noImplicitValueYAML: true }),
-    textColor: {
+    textColor: colorRule({
       yaml: "ЦветТекста",
-      type: "Color",
       metadataTarget: { kind: "object", roots: ["StyleItem"], filters: [{ kind: "styleItemType", values: ["Color"] }] },
-    },
+    }),
     verticalStretch: booleanRule({ yaml: "РастягиватьПоВертикали", noImplicitValueYAML: true }),
     width: numberRule({ yaml: "Ширина", implicitValueYAML: 0 }),
-    events: {
-      type: "Events",
+    events: eventsRule({
       yaml: "События",
       toEnterprise: false,
       items: {
@@ -62,12 +61,11 @@ export const LabelFieldRules = {
         click: "Нажатие",
         uRLProcessing: "ОбработкаНавигационнойСсылки",
       },
-    },
-    dataPath: {
+    }),
+    dataPath: dataPathRule({
       yaml: "ПутьКДанным",
-      type: "DataPath",
       defaultType: "string",
-    },
+    }),
     ...formFieldCommonProperties,
     titleHeight: numberRule({ yaml: "ВысотаЗаголовка", implicitValueYAML: 0 }),
   },

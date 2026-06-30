@@ -1,3 +1,8 @@
+import { borderRule } from "~/metadata/commonObjects/border/types"
+import { colorRule } from "~/metadata/commonObjects/color/types"
+import { formattedI8nTextRule } from "~/metadata/commonObjects/formattedI8nText/types"
+import { pictureRule } from "~/metadata/commonObjects/metadataTargets/types"
+import { eventsRule } from "~/metadata/forms/commonObjects/event/types"
 import { booleanRule } from "~/metadata/commonObjects/boolean/types"
 import { i8nTextRule } from "~/metadata/commonObjects/i8nText/types"
 import { numberRule } from "~/metadata/commonObjects/number/types"
@@ -17,10 +22,9 @@ export const PictureDecorationRules = {
       xml: "_name",
       required: true,
     }),
-    title: {
+    title: formattedI8nTextRule({
       yaml: "Заголовок",
-      type: "FormattedI8nText",
-    },
+    }),
     type: systemEnumerationRule({
       typeSE: "FormDecorationType",
       runtimeOnly: true,
@@ -34,20 +38,18 @@ export const PictureDecorationRules = {
       ...formDecorationCommonProperties.autoMaxWidth,
       implicitValueYAML: true,
     },
-    border: {
+    border: borderRule({
       yaml: "Рамка",
-      type: "Border",
       metadataTarget: {
         kind: "object",
         roots: ["StyleItem"],
         filters: [{ kind: "styleItemType", values: ["Border"] }],
       },
-    },
-    borderColor: {
+    }),
+    borderColor: colorRule({
       yaml: "ЦветРамки",
-      type: "Color",
       metadataTarget: { kind: "object", roots: ["StyleItem"], filters: [{ kind: "styleItemType", values: ["Color"] }] },
-    },
+    }),
     displayImportance: {
       ...formDecorationCommonProperties.displayImportance,
       implicitValueYAML: "Auto",
@@ -77,7 +79,7 @@ export const PictureDecorationRules = {
     },
     hyperlink: booleanRule({ yaml: "Гиперссылка", implicitValueYAML: false }),
     nonselectedPictureText: i8nTextRule({ yaml: "ТекстНевыбраннойКартинки" }),
-    picture: { yaml: "Картинка", type: "Picture", metadataTarget: { kind: "object", roots: ["CommonPicture"] } },
+    picture: pictureRule({ yaml: "Картинка", metadataTarget: { kind: "object", roots: ["CommonPicture"] } }),
     pictureSize: systemEnumerationRule({
       yaml: "РазмерКартинки",
       typeSE: "PictureSize",
@@ -109,8 +111,7 @@ export const PictureDecorationRules = {
       implicitValueYAML: 0,
     },
     zoomable: booleanRule({ yaml: "Масштабировать", implicitValueYAML: false }),
-    events: {
-      type: "Events",
+    events: eventsRule({
       yaml: "События",
       toEnterprise: false,
       items: {
@@ -120,7 +121,7 @@ export const PictureDecorationRules = {
         drag: "Перетаскивание",
         dragCheck: "ПроверкаПеретаскивания",
       },
-    },
+    }),
   },
 } as const satisfies ElementRule
 registerElementRule("PictureDecoration", PictureDecorationRules)

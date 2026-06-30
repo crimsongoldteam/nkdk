@@ -1,3 +1,8 @@
+import { colorRule } from "~/metadata/commonObjects/color/types"
+import { dataPathRule } from "~/metadata/commonObjects/metadataPath/types"
+import { commandSetRule } from "~/metadata/forms/commonObjects/commandSet/types"
+import { eventsRule } from "~/metadata/forms/commonObjects/event/types"
+import { singleViewStatusAdditionRule } from "~/metadata/forms/elements/pdfDocumentField/types"
 import { booleanRule } from "~/metadata/commonObjects/boolean/types"
 import { numberRule } from "~/metadata/commonObjects/number/types"
 import { systemEnumerationRule } from "~/metadata/systemEnumerations/types"
@@ -13,12 +18,11 @@ export const PDFDocumentFieldRules = {
   properties: {
     autoMaxHeight: booleanRule({ yaml: "АвтоМаксимальнаяВысота", implicitValueYAML: true }),
     autoMaxWidth: booleanRule({ yaml: "АвтоМаксимальнаяШирина", implicitValueYAML: true }),
-    borderColor: {
+    borderColor: colorRule({
       yaml: "ЦветРамки",
-      type: "Color",
       metadataTarget: { kind: "object", roots: ["StyleItem"], filters: [{ kind: "styleItemType", values: ["Color"] }] },
-    },
-    commandSet: { yaml: "Команда", type: "CommandSet", toEnterprise: false },
+    }),
+    commandSet: commandSetRule({ yaml: "Команда", toEnterprise: false }),
     height: numberRule({ yaml: "Высота", implicitValueYAML: 10 }),
     horizontalStretch: booleanRule({ yaml: "РастягиватьПоГоризонтали", implicitValueYAML: true }),
     maxHeight: numberRule({ yaml: "МаксимальнаяВысота", implicitValueYAML: 0 }),
@@ -29,34 +33,31 @@ export const PDFDocumentFieldRules = {
       implicitValueYAML: "Auto",
     }),
     verticalStretch: booleanRule({ yaml: "РастягиватьПоВертикали", implicitValueYAML: true }),
-    viewStatusRepresentation: {
+    viewStatusRepresentation: singleViewStatusAdditionRule({
       yaml: "ОтображениеСостоянияПросмотра",
-      type: "SingleViewStatusAddition",
       xml: "ViewStatusAddition",
       toEnterprise: false,
-    },
+    }),
     viewStatusLocation: systemEnumerationRule({
       yaml: "ПоложениеСостоянияПросмотра",
       typeSE: "ViewStatusLocation",
       implicitValueYAML: "Auto",
     }),
     width: numberRule({ yaml: "Ширина", implicitValueYAML: 50 }),
-    events: {
-      type: "Events",
+    events: eventsRule({
       yaml: "События",
       toEnterprise: false,
       items: {
         onChange: "ПриИзменении",
         uRLClick: "НажатиеНаНавигационнойСсылке",
       },
-    },
-    dataPath: {
+    }),
+    dataPath: dataPathRule({
       yaml: "ПутьКДанным",
-      type: "DataPath",
       toYAML: false,
       fromYAML: false,
       defaultType: "PDFDocument",
-    },
+    }),
     ...formFieldCommonProperties,
     titleHeight: {
       ...formFieldCommonProperties.titleHeight,

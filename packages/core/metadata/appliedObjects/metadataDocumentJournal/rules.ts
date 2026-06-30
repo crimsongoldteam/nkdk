@@ -1,3 +1,11 @@
+import { additionalIndexRule, metadataCommandsRule } from "~/metadata/appliedObjects/metadataAccountingRegister/types"
+import { metadataDocumentJournalColumnsRule } from "~/metadata/appliedObjects/metadataDocumentJournal/types"
+import { childFormNamesRule } from "~/metadata/commonObjects/childFormNames/types"
+import { childTemplateNamesRule } from "~/metadata/commonObjects/childTemplateNames/types"
+import { helpRule } from "~/metadata/commonObjects/help/types"
+import { internalInfoRule } from "~/metadata/commonObjects/internalInfo/types"
+import { metadataItemLinksRule } from "~/metadata/commonObjects/metadataPath/types"
+import { standardAttributeDescriptionsRule } from "~/metadata/commonObjects/standardAttributeDescription/types"
 import { booleanRule } from "~/metadata/commonObjects/boolean/types"
 import { i8nTextRule } from "~/metadata/commonObjects/i8nText/types"
 import { moduleRule } from "~/metadata/commonObjects/module/types"
@@ -41,8 +49,7 @@ export const MetadataDocumentJournalRules = {
       toYAML: false,
       fromYAML: false,
     }),
-    internalInfo: {
-      type: "InternalInfo",
+    internalInfo: internalInfoRule({
       xmlParents: [],
       forReferenceOnly: true,
       items: [
@@ -50,7 +57,7 @@ export const MetadataDocumentJournalRules = {
         { name: "DocumentJournalList", category: "List" },
         { name: "DocumentJournalManager", category: "Manager" },
       ],
-    },
+    }),
     uuid: uuidRule({
       xml: "_uuid",
       forReferenceOnly: true,
@@ -89,25 +96,23 @@ export const MetadataDocumentJournalRules = {
       implicitValueYAML: true,
       xmlParents: properties,
     }),
-    registeredDocuments: {
+    registeredDocuments: metadataItemLinksRule({
       yaml: "РегистрируемыеДокументы",
-      type: "MetadataItemLinks",
       metadataTarget: { kind: "object", roots: ["Document"] },
       xml: "RegisteredDocuments",
       xmlParents: properties,
-    },
+    }),
     includeHelpInContents: booleanRule({
       yaml: "ВключатьСправкуВСодержание",
       defaultValueXML: false,
       implicitValueYAML: false,
       xmlParents: properties,
     }),
-    standardAttributes: {
+    standardAttributes: standardAttributeDescriptionsRule({
       yaml: "СтандартныеРеквизиты",
-      type: "StandardAttributeDescriptions",
       standartAttributeNames: MetadataDocumentJournalStandardAttributeNames,
       xmlParents: properties,
-    },
+    }),
     listPresentation: i8nTextRule({
       yaml: "ПредставлениеСписка",
       xmlParents: properties,
@@ -135,41 +140,36 @@ export const MetadataDocumentJournalRules = {
       yaml: "ОбъектРасширяемойКонфигурации",
       runtimeOnly: true,
     }),
-    columns: {
+    columns: metadataDocumentJournalColumnsRule({
       yaml: "Графы",
-      type: "MetadataDocumentJournalColumns",
       xmlParents: childObjects,
       xml: "Column",
-    },
-    forms: {
-      type: "ChildFormNames",
+    }),
+    forms: childFormNamesRule({
       xml: "Form",
       folderName: "Формы",
       forReferenceOnly: true,
       toYAML: false,
       fromYAML: false,
       xmlParents: childObjects,
-    },
-    templates: {
-      type: "ChildTemplateNames",
+    }),
+    templates: childTemplateNamesRule({
       xml: "Template",
       folderName: "Шаблоны",
       forReferenceOnly: true,
       toYAML: false,
       fromYAML: false,
       xmlParents: childObjects,
-    },
-    commands: {
+    }),
+    commands: metadataCommandsRule({
       yaml: "Команды",
-      type: "MetadataCommands",
       xmlParents: childObjects,
       xml: "Command",
-    },
-    additionalIndexes: {
+    }),
+    additionalIndexes: additionalIndexRule({
       yaml: "ДополнительныеИндексы",
-      type: "AdditionalIndex",
       filePath: "Ext/AdditionalIndexes.xml",
-    },
+    }),
     managerModule: moduleRule({
       externalMetadata: { segment: "ManagerModule", placement: "derivedEntry" },
       nkdkPath: "МодульМенеджера.bsl",
@@ -177,12 +177,11 @@ export const MetadataDocumentJournalRules = {
       toXML: false,
       fromXML: false,
     }),
-    help: {
-      type: "Help",
+    help: helpRule({
       externalMetadata: { segment: "Help", placement: "derivedEntry" },
       filePath: "Ext/Help.xml",
       nkdkDir: "Справка",
-    },
+    }),
   },
   childCollections: [{ propertyKey: "commands", itemRule: MetadataDocumentJournalCommandRules }],
 } as const satisfies MetadataItemRule

@@ -1,3 +1,8 @@
+import { choiceListRule } from "~/metadata/commonObjects/choiceList/types"
+import { colorRule } from "~/metadata/commonObjects/color/types"
+import { fontRule } from "~/metadata/commonObjects/font/types"
+import { dataPathRule } from "~/metadata/commonObjects/metadataPath/types"
+import { eventsRule } from "~/metadata/forms/commonObjects/event/types"
 import { booleanRule } from "~/metadata/commonObjects/boolean/types"
 import { numberRule } from "~/metadata/commonObjects/number/types"
 import { systemEnumerationRule } from "~/metadata/systemEnumerations/types"
@@ -11,28 +16,24 @@ export const RadioButtonFieldRules = {
   enterpriseField: "FormField",
   enterpriseFieldType: "FormFieldType.RadioButtonField",
   properties: {
-    backColor: {
+    backColor: colorRule({
       yaml: "ЦветФона",
-      type: "Color",
       metadataTarget: { kind: "object", roots: ["StyleItem"], filters: [{ kind: "styleItemType", values: ["Color"] }] },
-    },
-    borderColor: {
+    }),
+    borderColor: colorRule({
       yaml: "ЦветРамки",
-      type: "Color",
       metadataTarget: { kind: "object", roots: ["StyleItem"], filters: [{ kind: "styleItemType", values: ["Color"] }] },
-    },
-    choiceList: {
+    }),
+    choiceList: choiceListRule({
       yaml: "СписокВыбора",
-      type: "ChoiceList",
       toEnterprise: false,
-    },
+    }),
     columnsCount: numberRule({ yaml: "КоличествоКолонок", implicitValueYAML: 0 }),
     equalColumnsWidth: booleanRule({ yaml: "ОдинаковаяШиринаКолонок", noImplicitValueYAML: true }),
-    font: {
+    font: fontRule({
       yaml: "Шрифт",
-      type: "Font",
       metadataTarget: { kind: "object", roots: ["StyleItem"], filters: [{ kind: "styleItemType", values: ["Font"] }] },
-    },
+    }),
     itemHeight: numberRule({ yaml: "ВысотаЭлемента", implicitValueYAML: 0 }),
     itemTitleHeight: numberRule({ yaml: "ВысотаЗаголовкаЭлемента", implicitValueYAML: 0 }),
     itemWidth: numberRule({ yaml: "ШиринаЭлемента", implicitValueYAML: 0 }),
@@ -41,26 +42,23 @@ export const RadioButtonFieldRules = {
       typeSE: "RadioButtonType",
       implicitValueYAML: "Auto",
     }),
-    textColor: {
+    textColor: colorRule({
       yaml: "ЦветТекста",
-      type: "Color",
       metadataTarget: { kind: "object", roots: ["StyleItem"], filters: [{ kind: "styleItemType", values: ["Color"] }] },
-    },
-    events: {
-      type: "Events",
+    }),
+    events: eventsRule({
       yaml: "События",
       toEnterprise: false,
       items: {
         onChange: "ПриИзменении",
       },
-    },
-    dataPath: {
+    }),
+    dataPath: dataPathRule({
       yaml: "ПутьКДанным",
-      type: "DataPath",
       toYAML: false,
       fromYAML: false,
       defaultType: "string",
-    },
+    }),
     ...formFieldCommonProperties,
     ...formFieldDisabledTableRelatedProperties,
     titleHeight: {

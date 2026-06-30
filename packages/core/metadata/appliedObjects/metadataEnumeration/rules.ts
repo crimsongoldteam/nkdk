@@ -1,3 +1,10 @@
+import { metadataCommandsRule } from "~/metadata/appliedObjects/metadataAccountingRegister/types"
+import { metadataEnumerationValuesRule } from "~/metadata/appliedObjects/metadataEnumeration/types"
+import { characteristicsDescriptionsRule } from "~/metadata/commonObjects/characteristicsDescription/types"
+import { childFormNamesRule } from "~/metadata/commonObjects/childFormNames/types"
+import { childTemplateNamesRule } from "~/metadata/commonObjects/childTemplateNames/types"
+import { internalInfoRule } from "~/metadata/commonObjects/internalInfo/types"
+import { standardAttributeDescriptionsRule } from "~/metadata/commonObjects/standardAttributeDescription/types"
 import { booleanRule } from "~/metadata/commonObjects/boolean/types"
 import { i8nTextRule } from "~/metadata/commonObjects/i8nText/types"
 import { moduleRule } from "~/metadata/commonObjects/module/types"
@@ -65,8 +72,7 @@ export const MetadataEnumerationRules = {
       rootAttributes: V8_MDCLASSES_ROOT,
       forReferenceOnly: true,
     }),
-    internalInfo: {
-      type: "InternalInfo",
+    internalInfo: internalInfoRule({
       xmlParents: [],
       forReferenceOnly: true,
       items: [
@@ -74,7 +80,7 @@ export const MetadataEnumerationRules = {
         { name: "EnumManager", category: "Manager" },
         { name: "EnumList", category: "List" },
       ],
-    },
+    }),
     uuid: uuidRule({
       xml: "_uuid",
       forReferenceOnly: true,
@@ -110,18 +116,16 @@ export const MetadataEnumerationRules = {
       implicitValueYAML: false,
       xmlParents: enumProperties,
     }),
-    standardAttributes: {
+    standardAttributes: standardAttributeDescriptionsRule({
       yaml: "СтандартныеРеквизиты",
-      type: "StandardAttributeDescriptions",
       standartAttributeNames: MetadataEnumerationStandardAttributeNames,
       xmlParents: enumProperties,
-    },
-    characteristics: {
+    }),
+    characteristics: characteristicsDescriptionsRule({
       yaml: "Характеристики",
-      type: "CharacteristicsDescriptions",
       xmlParents: enumProperties,
       defaultValueXMLRaw: {},
-    },
+    }),
     quickChoice: booleanRule({
       yaml: "БыстрыйВыбор",
       defaultValueXML: true,
@@ -186,32 +190,28 @@ export const MetadataEnumerationRules = {
       implicitValueYAML: "Auto",
       xmlParents: enumProperties,
     }),
-    enumValues: {
+    enumValues: metadataEnumerationValuesRule({
       yaml: "Значения",
-      type: "MetadataEnumerationValues",
       xmlParents: enumChildObjects,
       xml: "EnumValue",
-    },
-    commands: {
+    }),
+    commands: metadataCommandsRule({
       yaml: "Команды",
-      type: "MetadataCommands",
       xmlParents: enumChildObjects,
       xml: "Command",
-    },
-    forms: {
-      type: "ChildFormNames",
+    }),
+    forms: childFormNamesRule({
       xml: "Form",
       folderName: "Формы",
       forReferenceOnly: true,
       xmlParents: enumChildObjects,
-    },
-    templates: {
-      type: "ChildTemplateNames",
+    }),
+    templates: childTemplateNamesRule({
       xml: "Template",
       folderName: "Шаблоны",
       forReferenceOnly: true,
       xmlParents: enumChildObjects,
-    },
+    }),
   },
   childCollections: [{ propertyKey: "commands", itemRule: MetadataCommandRules }],
 } as const satisfies MetadataItemRule

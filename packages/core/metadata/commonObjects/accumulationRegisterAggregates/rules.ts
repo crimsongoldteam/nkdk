@@ -1,3 +1,7 @@
+import {
+  accumulationRegisterAggregateCollectionRule,
+  accumulationRegisterAggregateDimensionsRule,
+} from "~/metadata/commonObjects/accumulationRegisterAggregates/types"
 import { xmlRootRule } from "~/metadata/commonObjects/xmlRoot/types"
 import { systemEnumerationRule } from "~/metadata/systemEnumerations/types"
 import { uuidPropertyRule } from "~/metadata/commonObjects/uuid/rule"
@@ -23,12 +27,11 @@ export const AccumulationRegisterAggregateRules = {
       required: true,
       noImplicitValueYAML: true,
     }),
-    dimensions: {
+    dimensions: accumulationRegisterAggregateDimensionsRule({
       yaml: "Измерения",
       xml: "Dimensions",
-      type: "AccumulationRegisterAggregateDimensions",
       required: true,
-    },
+    }),
   },
 } as const satisfies MetadataItemRule
 export const AccumulationRegisterAggregatesRules = {
@@ -47,11 +50,10 @@ export const AccumulationRegisterAggregatesRules = {
       forReferenceOnly: true,
       isFileRoot: true,
     }),
-    items: {
-      type: "AccumulationRegisterAggregateCollection",
+    items: accumulationRegisterAggregateCollectionRule({
       xml: "Aggregate",
       yaml: "items",
       yamlInline: true,
-    },
+    }),
   },
 } as const satisfies MetadataItemRule

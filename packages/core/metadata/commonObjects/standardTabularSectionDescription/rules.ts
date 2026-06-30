@@ -1,3 +1,4 @@
+import { standardTabularSectionAttributeDescriptionsRule } from "~/metadata/commonObjects/standardTabularSectionDescription/types"
 import { i8nTextRule } from "~/metadata/commonObjects/i8nText/types"
 import { stringRule } from "~/metadata/commonObjects/string/types"
 import { systemEnumerationRule } from "~/metadata/systemEnumerations/types"
@@ -31,10 +32,9 @@ export const StandardTabularSectionDescriptionRules = {
       defaultValueXML: "DontCheck",
       implicitValueYAML: "DontCheck",
     }),
-    standardAttributes: {
+    standardAttributes: standardTabularSectionAttributeDescriptionsRule({
       yaml: "СтандартныеРеквизиты",
       xml: "xr:StandardAttributes",
-      type: "StandardTabularSectionAttributeDescriptions",
-    },
+    }),
   },
 } as const satisfies MetadataItemRule

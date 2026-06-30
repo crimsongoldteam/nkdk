@@ -1,3 +1,4 @@
+import { typeDescriptionRule } from "~/metadata/commonObjects/typeDescription/types"
 import { booleanRule } from "~/metadata/commonObjects/boolean/types"
 import { stringRule } from "~/metadata/commonObjects/string/types"
 import { MetadataItemRule } from "~/metadata/orchestration/property/types"
@@ -8,12 +9,11 @@ export const FormParameterRules = {
       xml: "_name",
       required: true,
     }),
-    type: {
+    type: typeDescriptionRule({
       yaml: "Тип",
-      type: "TypeDescription",
       xml: "Type",
       defaultValueXMLRaw: {},
-    },
+    }),
     keyParameter: booleanRule({
       yaml: "Ключевой",
       xml: "KeyParameter",

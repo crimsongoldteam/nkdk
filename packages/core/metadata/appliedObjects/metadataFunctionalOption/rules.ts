@@ -1,3 +1,4 @@
+import { metadataItemLinksRule } from "~/metadata/commonObjects/metadataPath/types"
 import { booleanRule } from "~/metadata/commonObjects/boolean/types"
 import { i8nTextRule } from "~/metadata/commonObjects/i8nText/types"
 import { stringRule } from "~/metadata/commonObjects/string/types"
@@ -147,10 +148,9 @@ export const MetadataFunctionalOptionRules = {
       defaultValueXML: true,
       implicitValueYAML: true,
     }),
-    content: {
+    content: metadataItemLinksRule({
       yaml: "СоставФункциональнойОпции",
       xml: "Content",
-      type: "MetadataItemLinks",
       metadataTarget: {
         kind: "member",
         owner: "explicit",
@@ -161,7 +161,7 @@ export const MetadataFunctionalOptionRules = {
       xmlParents: properties,
       metadataItemLinksXMLItem: "xr:Object",
       defaultValueXMLRaw: "",
-    },
+    }),
     objectBelonging: systemEnumerationRule({
       yaml: "ПринадлежностьОбъекта",
       xml: "ObjectBelonging",

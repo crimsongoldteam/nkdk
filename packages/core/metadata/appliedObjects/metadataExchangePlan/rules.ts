@@ -1,3 +1,17 @@
+import { additionalIndexRule, metadataCommandsRule } from "~/metadata/appliedObjects/metadataAccountingRegister/types"
+import { metadataAttributesRule } from "~/metadata/appliedObjects/metadataDataProcessor/types"
+import {
+  exchangePlanContentRule,
+  metadataExchangePlanTabularSectionsRule,
+} from "~/metadata/appliedObjects/metadataExchangePlan/types"
+import { characteristicsDescriptionsRule } from "~/metadata/commonObjects/characteristicsDescription/types"
+import { childFormNamesRule } from "~/metadata/commonObjects/childFormNames/types"
+import { childTemplateNamesRule } from "~/metadata/commonObjects/childTemplateNames/types"
+import { helpRule } from "~/metadata/commonObjects/help/types"
+import { internalInfoRule } from "~/metadata/commonObjects/internalInfo/types"
+import { metadataFieldsRule } from "~/metadata/commonObjects/metadataField/types"
+import { metadataItemLinksRule } from "~/metadata/commonObjects/metadataPath/types"
+import { standardAttributeDescriptionsRule } from "~/metadata/commonObjects/standardAttributeDescription/types"
 import { booleanRule } from "~/metadata/commonObjects/boolean/types"
 import { i8nTextRule } from "~/metadata/commonObjects/i8nText/types"
 import { moduleRule } from "~/metadata/commonObjects/module/types"
@@ -47,8 +61,7 @@ export const MetadataExchangePlanRules = {
       toYAML: false,
       fromYAML: false,
     }),
-    internalInfo: {
-      type: "InternalInfo",
+    internalInfo: internalInfoRule({
       xmlParents: [],
       forReferenceOnly: true,
       thisNode: true,
@@ -59,7 +72,7 @@ export const MetadataExchangePlanRules = {
         { name: "ExchangePlanList", category: "List" },
         { name: "ExchangePlanManager", category: "Manager" },
       ],
-    },
+    }),
     uuid: uuidRule({
       xml: "_uuid",
       forReferenceOnly: true,
@@ -105,12 +118,11 @@ export const MetadataExchangePlanRules = {
       implicitValueYAML: 25,
       xmlParents: properties,
     }),
-    content: {
+    content: exchangePlanContentRule({
       yaml: "Состав",
-      type: "ExchangePlanContent",
       filePath: "Ext/Content.xml",
       exportReferenceFileOnMissingValue: true,
-    },
+    }),
     defaultPresentation: systemEnumerationRule({
       yaml: "ОсновноеПредставление",
       typeSE: "DataExchangeMainPresentation",
@@ -138,9 +150,8 @@ export const MetadataExchangePlanRules = {
       implicitValueYAML: "BothWays",
       xmlParents: properties,
     }),
-    inputByString: {
+    inputByString: metadataFieldsRule({
       yaml: "ВводПоСтроке",
-      type: "MetadataFields",
       metadataTarget: {
         kind: "member",
         owner: "this",
@@ -148,7 +159,7 @@ export const MetadataExchangePlanRules = {
         filters: [{ kind: "stringIndexedAttribute" }],
       },
       xmlParents: properties,
-    },
+    }),
     searchStringModeOnInputByString: systemEnumerationRule({
       yaml: "РежимСтрокиПоискаПриВводеПоСтроке",
       typeSE: "SearchStringModeOnInputByString",
@@ -206,29 +217,26 @@ export const MetadataExchangePlanRules = {
       metadataTarget: { kind: "member", owner: "this", memberKinds: ["Form"], objectRoots: ["CommonForm"] },
       defaultValueXMLRaw: "",
     }),
-    standardAttributes: {
+    standardAttributes: standardAttributeDescriptionsRule({
       yaml: "СтандартныеРеквизиты",
-      type: "StandardAttributeDescriptions",
       standartAttributeNames: MetadataExchangePlanStandardAttributeNames,
       xmlParents: properties,
-    },
-    characteristics: {
+    }),
+    characteristics: characteristicsDescriptionsRule({
       yaml: "Характеристики",
-      type: "CharacteristicsDescriptions",
       xmlParents: properties,
       defaultValue: emptyCollection,
       defaultValueXMLEmpty: emptyCollection,
       defaultValueXMLRaw: "",
-    },
-    basedOn: {
+    }),
+    basedOn: metadataItemLinksRule({
       yaml: "ОснованНа",
-      type: "MetadataItemLinks",
       metadataTarget: { kind: "object", allowedObjectPaths: commonBasedOnObjectPaths },
       xmlParents: properties,
       defaultValue: emptyCollection,
       defaultValueXMLEmpty: emptyCollection,
       defaultValueXMLRaw: "",
-    },
+    }),
     distributedInfoBase: booleanRule({
       yaml: "РаспределеннаяИнформационнаяБаза",
       defaultValueXML: false,
@@ -261,15 +269,14 @@ export const MetadataExchangePlanRules = {
       implicitValueYAML: false,
       xmlParents: properties,
     }),
-    dataLockFields: {
+    dataLockFields: metadataFieldsRule({
       yaml: "ПоляБлокировкиДанных",
-      type: "MetadataFields",
       metadataTarget: { kind: "member", owner: "this" },
       xmlParents: properties,
       defaultValue: emptyCollection,
       defaultValueXMLEmpty: emptyCollection,
       defaultValueXMLRaw: "",
-    },
+    }),
     dataLockControlMode: systemEnumerationRule({
       yaml: "РежимУправленияБлокировкойДанных",
       typeSE: "DefaultDataLockControlMode",
@@ -340,47 +347,41 @@ export const MetadataExchangePlanRules = {
       yaml: "ОбъектРасширяемойКонфигурации",
       runtimeOnly: true,
     }),
-    attributes: {
+    attributes: metadataAttributesRule({
       yaml: "Реквизиты",
-      type: "MetadataAttributes",
       xmlParents: childObjects,
       xml: "Attribute",
-    },
-    tabularSections: {
+    }),
+    tabularSections: metadataExchangePlanTabularSectionsRule({
       yaml: "ТабличныеЧасти",
-      type: "MetadataExchangePlanTabularSections",
       xmlParents: childObjects,
       xml: "TabularSection",
-    },
-    forms: {
-      type: "ChildFormNames",
+    }),
+    forms: childFormNamesRule({
       xml: "Form",
       folderName: "Формы",
       forReferenceOnly: true,
       toYAML: false,
       fromYAML: false,
       xmlParents: childObjects,
-    },
-    templates: {
-      type: "ChildTemplateNames",
+    }),
+    templates: childTemplateNamesRule({
       xml: "Template",
       folderName: "Шаблоны",
       forReferenceOnly: true,
       toYAML: false,
       fromYAML: false,
       xmlParents: childObjects,
-    },
-    commands: {
+    }),
+    commands: metadataCommandsRule({
       yaml: "Команды",
-      type: "MetadataCommands",
       xmlParents: childObjects,
       xml: "Command",
-    },
-    additionalIndexes: {
+    }),
+    additionalIndexes: additionalIndexRule({
       yaml: "ДополнительныеИндексы",
-      type: "AdditionalIndex",
       filePath: "Ext/AdditionalIndexes.xml",
-    },
+    }),
     objectModule: moduleRule({
       externalMetadata: { segment: "ObjectModule", placement: "derivedEntry" },
       nkdkPath: "МодульОбъекта.bsl",
@@ -395,12 +396,11 @@ export const MetadataExchangePlanRules = {
       toXML: false,
       fromXML: false,
     }),
-    help: {
-      type: "Help",
+    help: helpRule({
       externalMetadata: { segment: "Help", placement: "derivedEntry" },
       filePath: "Ext/Help.xml",
       nkdkDir: "Справка",
-    },
+    }),
   },
   childCollections: [{ propertyKey: "commands", itemRule: MetadataExchangePlanCommandRules }],
 } as const satisfies MetadataItemRule

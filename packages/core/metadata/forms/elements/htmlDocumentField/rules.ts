@@ -1,3 +1,6 @@
+import { colorRule } from "~/metadata/commonObjects/color/types"
+import { dataPathRule } from "~/metadata/commonObjects/metadataPath/types"
+import { eventsRule } from "~/metadata/forms/commonObjects/event/types"
 import { booleanRule } from "~/metadata/commonObjects/boolean/types"
 import { numberRule } from "~/metadata/commonObjects/number/types"
 import { stringRule } from "~/metadata/commonObjects/string/types"
@@ -14,11 +17,10 @@ export const HTMLDocumentFieldRules = {
   properties: {
     autoMaxHeight: booleanRule({ yaml: "АвтоМаксимальнаяВысота", implicitValueYAML: true }),
     autoMaxWidth: booleanRule({ yaml: "АвтоМаксимальнаяШирина", implicitValueYAML: true }),
-    borderColor: {
+    borderColor: colorRule({
       yaml: "ЦветРамки",
-      type: "Color",
       metadataTarget: { kind: "object", roots: ["StyleItem"], filters: [{ kind: "styleItemType", values: ["Color"] }] },
-    },
+    }),
     height: numberRule({ yaml: "Высота", implicitValueYAML: 0 }),
     horizontalStretch: booleanRule({ yaml: "РастягиватьПоГоризонтали", implicitValueYAML: true }),
     maxHeight: numberRule({ yaml: "МаксимальнаяВысота", implicitValueYAML: 0 }),
@@ -34,8 +36,7 @@ export const HTMLDocumentFieldRules = {
     }),
     verticalStretch: booleanRule({ yaml: "РастягиватьПоВертикали", implicitValueYAML: true }),
     width: numberRule({ yaml: "Ширина", implicitValueYAML: 0 }),
-    events: {
-      type: "Events",
+    events: eventsRule({
       yaml: "События",
       toEnterprise: false,
       items: {
@@ -46,14 +47,13 @@ export const HTMLDocumentFieldRules = {
         afterWrite: "ПослеЗаписи",
         onClick: "ПриНажатии",
       },
-    },
-    dataPath: {
+    }),
+    dataPath: dataPathRule({
       yaml: "ПутьКДанным",
-      type: "DataPath",
       toYAML: false,
       fromYAML: false,
       defaultType: "string",
-    },
+    }),
     ...formFieldCommonProperties,
     titleHeight: { ...formFieldCommonProperties.titleHeight, implicitValueYAML: 0 },
     ...formFieldDisabledTableRelatedProperties,

@@ -1,3 +1,16 @@
+import {
+  additionalIndexRule,
+  metadataCommandsRule,
+  metadataRegisterAttributesRule,
+  metadataRegisterDimensionsRule,
+  metadataRegisterResourcesRule,
+} from "~/metadata/appliedObjects/metadataAccountingRegister/types"
+import { childFormNamesRule } from "~/metadata/commonObjects/childFormNames/types"
+import { childTemplateNamesRule } from "~/metadata/commonObjects/childTemplateNames/types"
+import { helpRule } from "~/metadata/commonObjects/help/types"
+import { internalInfoRule } from "~/metadata/commonObjects/internalInfo/types"
+import { recalculationsRule } from "~/metadata/commonObjects/recalculation/types"
+import { standardAttributeDescriptionsRule } from "~/metadata/commonObjects/standardAttributeDescription/types"
 import { booleanRule } from "~/metadata/commonObjects/boolean/types"
 import { i8nTextRule } from "~/metadata/commonObjects/i8nText/types"
 import { moduleRule } from "~/metadata/commonObjects/module/types"
@@ -48,8 +61,7 @@ export const MetadataCalculationRegisterRules = {
       toYAML: false,
       fromYAML: false,
     }),
-    internalInfo: {
-      type: "InternalInfo",
+    internalInfo: internalInfoRule({
       xmlParents: [],
       forReferenceOnly: true,
       items: [
@@ -61,7 +73,7 @@ export const MetadataCalculationRegisterRules = {
         { name: "CalculationRegisterRecordKey", category: "RecordKey" },
         { name: "RecalculationsManager", category: "Recalcs" },
       ],
-    },
+    }),
     uuid: uuidRule({ xml: "_uuid", forReferenceOnly: true, xmlParents: [] }),
     name: stringRule({
       xmlParents: properties,
@@ -121,12 +133,11 @@ export const MetadataCalculationRegisterRules = {
       implicitValueYAML: false,
       xmlParents: properties,
     }),
-    standardAttributes: {
+    standardAttributes: standardAttributeDescriptionsRule({
       yaml: "СтандартныеРеквизиты",
-      type: "StandardAttributeDescriptions",
       standartAttributeNames: MetadataCalculationRegisterStandardAttributeNames,
       xmlParents: properties,
-    },
+    }),
     dataLockControlMode: systemEnumerationRule({
       yaml: "РежимУправленияБлокировкойДанных",
       typeSE: "DefaultDataLockControlMode",
@@ -157,31 +168,29 @@ export const MetadataCalculationRegisterRules = {
       implicitValueYAML: "Native",
     }),
     extendedConfigurationObject: stringRule({ runtimeOnly: true }),
-    resources: { yaml: "Ресурсы", xml: "Resource", type: "MetadataRegisterResources", xmlParents: childObjects },
-    dimensions: { yaml: "Измерения", xml: "Dimension", type: "MetadataRegisterDimensions", xmlParents: childObjects },
-    attributes: { yaml: "Реквизиты", xml: "Attribute", type: "MetadataRegisterAttributes", xmlParents: childObjects },
-    recalculations: { yaml: "Перерасчеты", xml: "Recalculation", type: "Recalculations", xmlParents: childObjects },
-    forms: {
+    resources: metadataRegisterResourcesRule({ yaml: "Ресурсы", xml: "Resource", xmlParents: childObjects }),
+    dimensions: metadataRegisterDimensionsRule({ yaml: "Измерения", xml: "Dimension", xmlParents: childObjects }),
+    attributes: metadataRegisterAttributesRule({ yaml: "Реквизиты", xml: "Attribute", xmlParents: childObjects }),
+    recalculations: recalculationsRule({ yaml: "Перерасчеты", xml: "Recalculation", xmlParents: childObjects }),
+    forms: childFormNamesRule({
       yaml: "Формы",
       xml: "Form",
-      type: "ChildFormNames",
       xmlParents: childObjects,
       folderName: "Формы",
       forReferenceOnly: true,
       toYAML: false,
       fromYAML: false,
-    },
-    templates: {
+    }),
+    templates: childTemplateNamesRule({
       yaml: "Макеты",
       xml: "Template",
-      type: "ChildTemplateNames",
       xmlParents: childObjects,
       folderName: "Макеты",
       forReferenceOnly: true,
       toYAML: false,
       fromYAML: false,
-    },
-    commands: { yaml: "Команды", xml: "Command", type: "MetadataCommands", xmlParents: childObjects },
+    }),
+    commands: metadataCommandsRule({ yaml: "Команды", xml: "Command", xmlParents: childObjects }),
     recordSetModule: moduleRule({
       nkdkPath: "МодульНабораЗаписей.bsl",
       xmlPath: "Ext/RecordSetModule.bsl",
@@ -195,20 +204,18 @@ export const MetadataCalculationRegisterRules = {
       toXML: false,
       fromXML: false,
     }),
-    additionalIndexes: {
+    additionalIndexes: additionalIndexRule({
       yaml: "ДополнительныеИндексы",
-      type: "AdditionalIndex",
       filePath: "Ext/AdditionalIndexes.xml",
-    },
-    help: {
-      type: "Help",
+    }),
+    help: helpRule({
       externalMetadata: { segment: "Help", placement: "derivedEntry" },
       filePath: "Ext/Help.xml",
       xmlPath: "Ext/Help.xml",
       nkdkDir: "Справка",
       toXML: false,
       fromXML: false,
-    },
+    }),
   },
   childCollections: [
     { propertyKey: "commands", itemRule: MetadataCalculationRegisterCommandRules },

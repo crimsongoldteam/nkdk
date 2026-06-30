@@ -1,3 +1,4 @@
+import { pictureRule } from "~/metadata/commonObjects/metadataTargets/types"
 import { i8nTextRule } from "~/metadata/commonObjects/i8nText/types"
 import { stringRule } from "~/metadata/commonObjects/string/types"
 import { uuidRule } from "~/metadata/commonObjects/uuid/types"
@@ -52,14 +53,13 @@ export const MetadataCommandGroupRules = {
       xmlParents: properties,
       defaultValueXMLRaw: "",
     }),
-    picture: {
+    picture: pictureRule({
       yaml: "Картинка",
       xml: "Picture",
-      type: "Picture",
       metadataTarget: { kind: "object", roots: ["CommonPicture"] },
       xmlParents: properties,
       defaultValueXMLRaw: "",
-    },
+    }),
     category: systemEnumerationRule({
       yaml: "Категория",
       xml: "Category",

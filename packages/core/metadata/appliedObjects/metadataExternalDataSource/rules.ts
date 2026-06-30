@@ -1,3 +1,6 @@
+import { metadataExternalDataSourceFunctionsRule } from "~/metadata/appliedObjects/metadataExternalDataSource/types"
+import { childFileItemNamesRule } from "~/metadata/commonObjects/childFileItemNames/types"
+import { internalInfoRule } from "~/metadata/commonObjects/internalInfo/types"
 import { i8nTextRule } from "~/metadata/commonObjects/i8nText/types"
 import { stringRule } from "~/metadata/commonObjects/string/types"
 import { uuidRule } from "~/metadata/commonObjects/uuid/types"
@@ -28,8 +31,7 @@ export const MetadataExternalDataSourceRules = {
       toYAML: false,
       fromYAML: false,
     }),
-    internalInfo: {
-      type: "InternalInfo",
+    internalInfo: internalInfoRule({
       xmlParents: [],
       forReferenceOnly: true,
       toYAML: false,
@@ -39,7 +41,7 @@ export const MetadataExternalDataSourceRules = {
         { name: "ExternalDataSourceTablesManager", category: "TablesManager" },
         { name: "ExternalDataSourceCubesManager", category: "CubesManager" },
       ],
-    },
+    }),
     uuid: uuidRule({
       xml: "_uuid",
       forReferenceOnly: true,
@@ -67,26 +69,23 @@ export const MetadataExternalDataSourceRules = {
       defaultValueXML: "Automatic",
       implicitValueYAML: "Automatic",
     }),
-    tables: {
+    tables: childFileItemNamesRule({
       yaml: "Таблицы",
       xml: "Table",
-      type: "ChildFileItemNames",
       xmlParents: childObjects,
       forReferenceOnly: true,
-    },
-    cubes: {
+    }),
+    cubes: childFileItemNamesRule({
       yaml: "Кубы",
       xml: "Cube",
-      type: "ChildFileItemNames",
       xmlParents: childObjects,
       forReferenceOnly: true,
-    },
-    functions: {
+    }),
+    functions: metadataExternalDataSourceFunctionsRule({
       yaml: "Функции",
       xml: "Function",
-      type: "MetadataExternalDataSourceFunctions",
       xmlParents: childObjects,
-    },
+    }),
     objectBelonging: systemEnumerationRule({
       yaml: "ПринадлежностьОбъекта",
       xml: "ObjectBelonging",

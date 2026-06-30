@@ -1,3 +1,9 @@
+import { internalInfoRule } from "~/metadata/commonObjects/internalInfo/types"
+import { minMaxValueRule } from "~/metadata/commonObjects/minMaxValue/types"
+import { typeDescriptionRule } from "~/metadata/commonObjects/typeDescription/types"
+import { typeLinkRule } from "~/metadata/commonObjects/typeLink/types"
+import { choiceParameterLinksRule } from "~/metadata/commonObjects/\u0441hoiceParameterLinks/types"
+import { choiceParametersRule } from "~/metadata/commonObjects/\u0441hoiceParameters/types"
 import { booleanRule } from "~/metadata/commonObjects/boolean/types"
 import { i8nTextRule } from "~/metadata/commonObjects/i8nText/types"
 import { moduleRule } from "~/metadata/commonObjects/module/types"
@@ -21,8 +27,7 @@ export const MetadataConstantRules = {
       toYAML: false,
       fromYAML: false,
     }),
-    internalInfo: {
-      type: "InternalInfo",
+    internalInfo: internalInfoRule({
       xmlParents: [],
       forReferenceOnly: true,
       items: [
@@ -30,7 +35,7 @@ export const MetadataConstantRules = {
         { name: "ConstantValueManager", category: "ValueManager" },
         { name: "ConstantValueKey", category: "ValueKey" },
       ],
-    },
+    }),
     uuid: uuidRule({
       xml: "_uuid",
       forReferenceOnly: true,
@@ -50,11 +55,10 @@ export const MetadataConstantRules = {
       xmlParents: constantProperties,
       defaultValueXMLRaw: "",
     }),
-    type: {
+    type: typeDescriptionRule({
       yaml: "Тип",
-      type: "TypeDescription",
       xmlParents: constantProperties,
-    },
+    }),
     useStandardCommands: booleanRule({
       yaml: "ИспользоватьСтандартныеКоманды",
       defaultValueXML: true,
@@ -121,20 +125,18 @@ export const MetadataConstantRules = {
       implicitValueYAML: false,
       xmlParents: constantProperties,
     }),
-    minValue: {
+    minValue: minMaxValueRule({
       yaml: "МинимальноеЗначение",
-      type: "MinMaxValue",
       typedXML: "xs:string",
       xmlParents: constantProperties,
       defaultValueXMLRaw: { "_xsi:nil": true },
-    },
-    maxValue: {
+    }),
+    maxValue: minMaxValueRule({
       yaml: "МаксимальноеЗначение",
-      type: "MinMaxValue",
       typedXML: "xs:string",
       xmlParents: constantProperties,
       defaultValueXMLRaw: { "_xsi:nil": true },
-    },
+    }),
     fillChecking: systemEnumerationRule({
       yaml: "ПроверкаЗаполнения",
       typeSE: "FillChecking",
@@ -149,18 +151,16 @@ export const MetadataConstantRules = {
       implicitValueYAML: "Items",
       xmlParents: constantProperties,
     }),
-    choiceParameterLinks: {
+    choiceParameterLinks: choiceParameterLinksRule({
       yaml: "СвязиПараметровВыбора",
-      type: "ChoiceParameterLinks",
       xmlParents: constantProperties,
       defaultValueXMLRaw: "",
-    },
-    choiceParameters: {
+    }),
+    choiceParameters: choiceParametersRule({
       yaml: "ПараметрыВыбора",
-      type: "ChoiceParameters",
       xmlParents: constantProperties,
       defaultValueXMLRaw: "",
-    },
+    }),
     quickChoice: systemEnumerationRule({
       yaml: "БыстрыйВыбор",
       typeSE: "UseQuickChoice",
@@ -174,12 +174,11 @@ export const MetadataConstantRules = {
       metadataTarget: { kind: "member", owner: "this", memberKinds: ["Form"], objectRoots: ["CommonForm"] },
       defaultValueXMLRaw: "",
     }),
-    linkByType: {
+    linkByType: typeLinkRule({
       yaml: "СвязьПоТипу",
-      type: "TypeLink",
       xmlParents: constantProperties,
       defaultValueXMLRaw: "",
-    },
+    }),
     choiceHistoryOnInput: systemEnumerationRule({
       yaml: "ИсторияВыбораПриВводе",
       typeSE: "ChoiceHistoryOnInput",

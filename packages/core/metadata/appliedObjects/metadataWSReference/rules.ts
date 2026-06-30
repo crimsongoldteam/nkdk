@@ -1,3 +1,6 @@
+import { internalInfoRule } from "~/metadata/commonObjects/internalInfo/types"
+import { templateRule } from "~/metadata/commonObjects/module/types"
+import { wSDefinitionSchemasRule } from "~/metadata/commonObjects/wsDefinitionSchemas/types"
 import { i8nTextRule } from "~/metadata/commonObjects/i8nText/types"
 import { stringRule } from "~/metadata/commonObjects/string/types"
 import { uuidRule } from "~/metadata/commonObjects/uuid/types"
@@ -19,14 +22,13 @@ export const MetadataWSReferenceRules = {
       toYAML: false,
       fromYAML: false,
     }),
-    internalInfo: {
-      type: "InternalInfo",
+    internalInfo: internalInfoRule({
       xmlParents: [],
       forReferenceOnly: true,
       toYAML: false,
       fromYAML: false,
       items: [{ name: "WSReferenceManager", category: "Manager" }],
-    },
+    }),
     uuid: uuidRule({
       xml: "_uuid",
       forReferenceOnly: true,
@@ -63,14 +65,12 @@ export const MetadataWSReferenceRules = {
       xml: "LocationURL",
       xmlParents: properties,
     }),
-    wsDefinition: {
-      type: "Template",
+    wsDefinition: templateRule({
       nkdkPath: "WSDefinition.xml",
       xmlPath: "Ext/WSDefinition.xml",
-    },
-    wsDefinitionSchemas: {
-      type: "WSDefinitionSchemas",
+    }),
+    wsDefinitionSchemas: wSDefinitionSchemasRule({
       syncExternalOnly: true,
-    },
+    }),
   },
 } as const satisfies MetadataItemRule

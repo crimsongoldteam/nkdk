@@ -1,3 +1,4 @@
+import { commandBarChildItemsRule } from "~/metadata/forms/commonObjects/childItems/types"
 import { booleanRule } from "~/metadata/commonObjects/boolean/types"
 import { numberRule } from "~/metadata/commonObjects/number/types"
 import { stringRule } from "~/metadata/commonObjects/string/types"
@@ -22,11 +23,10 @@ export const ButtonGroupRules = {
       typeSE: "DisplayImportance",
       implicitValueYAML: "Auto",
     }),
-    childItems: {
+    childItems: commandBarChildItemsRule({
       yaml: "Элементы",
-      type: "CommandBarChildItems",
       defaultValue: [],
-    },
+    }),
     // В XML CommandSource идёт сразу после ChildItems
     commandSource: stringRule({ yaml: "ИсточникКоманд" }),
     representation: systemEnumerationRule({

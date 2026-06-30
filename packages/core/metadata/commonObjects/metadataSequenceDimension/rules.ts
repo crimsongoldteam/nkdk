@@ -1,3 +1,5 @@
+import { metadataItemLinksRule } from "~/metadata/commonObjects/metadataPath/types"
+import { typeDescriptionRule } from "~/metadata/commonObjects/typeDescription/types"
 import { i8nTextRule } from "~/metadata/commonObjects/i8nText/types"
 import { stringRule } from "~/metadata/commonObjects/string/types"
 import { uuidPropertyRule } from "~/metadata/commonObjects/uuid/rule"
@@ -24,27 +26,24 @@ export const MetadataSequenceDimensionRules = {
       xmlParents: ["Properties"],
       defaultValueXMLRaw: "",
     }),
-    type: {
+    type: typeDescriptionRule({
       yaml: "Тип",
       xml: "Type",
-      type: "TypeDescription",
       xmlParents: ["Properties"],
-    },
-    documentMap: {
+    }),
+    documentMap: metadataItemLinksRule({
       yaml: "СоответствиеРеквизитамДокументов",
       xml: "DocumentMap",
-      type: "MetadataItemLinks",
       metadataTarget: { kind: "member", owner: "explicit" },
       xmlParents: ["Properties"],
       defaultValueXMLRaw: "",
-    },
-    registerRecordsMap: {
+    }),
+    registerRecordsMap: metadataItemLinksRule({
       yaml: "СоответствиеРеквизитамДвижений",
       xml: "RegisterRecordsMap",
-      type: "MetadataItemLinks",
       metadataTarget: { kind: "member", owner: "explicit" },
       xmlParents: ["Properties"],
       defaultValueXMLRaw: "",
-    },
+    }),
   },
 } as const satisfies MetadataItemRule

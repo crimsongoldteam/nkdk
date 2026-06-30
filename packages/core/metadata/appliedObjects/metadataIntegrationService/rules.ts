@@ -1,3 +1,5 @@
+import { metadataIntegrationServiceChannelsRule } from "~/metadata/appliedObjects/metadataIntegrationService/types"
+import { internalInfoRule } from "~/metadata/commonObjects/internalInfo/types"
 import { i8nTextRule } from "~/metadata/commonObjects/i8nText/types"
 import { moduleRule } from "~/metadata/commonObjects/module/types"
 import { stringRule } from "~/metadata/commonObjects/string/types"
@@ -21,14 +23,13 @@ export const MetadataIntegrationServiceRules = {
       toYAML: false,
       fromYAML: false,
     }),
-    internalInfo: {
-      type: "InternalInfo",
+    internalInfo: internalInfoRule({
       xmlParents: [],
       forReferenceOnly: true,
       toYAML: false,
       fromYAML: false,
       items: [{ name: "IntegrationServiceManager", category: "Manager" }],
-    },
+    }),
     uuid: uuidRule({
       xml: "_uuid",
       forReferenceOnly: true,
@@ -69,14 +70,13 @@ export const MetadataIntegrationServiceRules = {
       xmlParents: properties,
       runtimeOnly: true,
     }),
-    channels: {
+    channels: metadataIntegrationServiceChannelsRule({
       yaml: "Каналы",
       xml: "IntegrationServiceChannel",
-      type: "MetadataIntegrationServiceChannels",
       xmlParents: childObjects,
       defaultValue: [],
       defaultValueXMLRaw: {},
-    },
+    }),
     module: moduleRule({
       nkdkPath: "Модуль.bsl",
       xmlPath: "Ext/Module.bsl",

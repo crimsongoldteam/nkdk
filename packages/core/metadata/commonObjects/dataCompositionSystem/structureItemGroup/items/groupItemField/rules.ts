@@ -1,3 +1,4 @@
+import { dateTimeRule } from "~/metadata/commonObjects/dateTime/types"
 import { booleanRule } from "~/metadata/commonObjects/boolean/types"
 import { stringRule } from "~/metadata/commonObjects/string/types"
 import { systemEnumerationRule } from "~/metadata/systemEnumerations/types"
@@ -32,21 +33,19 @@ export const GroupItemFieldRules = {
       implicitValueYAML: "None",
       order: 4,
     }),
-    periodAdditionBegin: {
-      type: "dateTime",
+    periodAdditionBegin: dateTimeRule({
       typedXML: true,
       xml: "dcsset:periodAdditionBegin",
       yaml: "НачалоПериода",
       defaultValueXML: "0001-01-01T00:00:00",
       order: 5,
-    },
-    periodAdditionEnd: {
-      type: "dateTime",
+    }),
+    periodAdditionEnd: dateTimeRule({
       typedXML: true,
       xml: "dcsset:periodAdditionEnd",
       yaml: "КонецПериода",
       defaultValueXML: "0001-01-01T00:00:00",
       order: 6,
-    },
+    }),
   },
 } as const satisfies MetadataItemRule

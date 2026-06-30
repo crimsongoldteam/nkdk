@@ -1,3 +1,20 @@
+import { metadataItemLinkRule } from "~/metadata/commonObjects/metadataPath/types"
+import { mobileDeviceCommandBarContentRule } from "~/metadata/commonObjects/mobileDeviceCommandBarContent/types"
+import { stringOrNumberRule } from "~/metadata/commonObjects/stringOrNumber/types"
+import { usePurposesRule } from "~/metadata/commonObjects/usePurposes/types"
+import { choiceParametersRule } from "~/metadata/commonObjects/\u0441hoiceParameters/types"
+import {
+  autoCommandBarRule,
+  conditionalAppearanceRule,
+  externalFormItemFileRule,
+} from "~/metadata/forms/clientApplicationForm/types"
+import { groupChildItemsRule } from "~/metadata/forms/commonObjects/childItems/types"
+import { commandInterfaceRule } from "~/metadata/forms/commonObjects/commandInterface/types"
+import { commandSetRule } from "~/metadata/forms/commonObjects/commandSet/types"
+import { eventsRule } from "~/metadata/forms/commonObjects/event/types"
+import { formAttributesRule } from "~/metadata/forms/commonObjects/formAttribute/types"
+import { formCommandsRule } from "~/metadata/forms/commonObjects/formCommand/types"
+import { formParametersRule } from "~/metadata/forms/commonObjects/formParameter/types"
 import { booleanRule } from "~/metadata/commonObjects/boolean/types"
 import { i8nTextRule } from "~/metadata/commonObjects/i8nText/types"
 import { numberRule } from "~/metadata/commonObjects/number/types"
@@ -12,36 +29,31 @@ export const ClientApplicationFormRules = {
   metadataTargetOwner: { kind: "inherit" },
   properties: {
     // #region Form
-    itemPictures: {
-      type: "ExternalFormItemFile",
+    itemPictures: externalFormItemFileRule({
       xml: "Picture",
       yaml: "Картинки",
       syncExternalOnly: true,
-    },
-    itemHeaderPictures: {
-      type: "ExternalFormItemFile",
+    }),
+    itemHeaderPictures: externalFormItemFileRule({
       xml: "HeaderPicture",
       yaml: "КартинкиШапки",
       syncExternalOnly: true,
-    },
-    itemValuesPictures: {
-      type: "ExternalFormItemFile",
+    }),
+    itemValuesPictures: externalFormItemFileRule({
       xml: "ValuesPicture",
       yaml: "КартинкиЗначений",
       syncExternalOnly: true,
-    },
-    itemRowsPictures: {
-      type: "ExternalFormItemFile",
+    }),
+    itemRowsPictures: externalFormItemFileRule({
       xml: "RowsPicture",
       yaml: "КартинкиСтрок",
       syncExternalOnly: true,
-    },
-    autoCommandBar: {
+    }),
+    autoCommandBar: autoCommandBarRule({
       yaml: "КоманднаяПанель",
-      type: "AutoCommandBar",
       tag: FormRulesTags.Form,
       order: 1,
-    },
+    }),
     autoFillCheck: booleanRule({
       yaml: "ПроверятьЗаполнениеАвтоматически",
       tag: FormRulesTags.Form,
@@ -63,27 +75,24 @@ export const ClientApplicationFormRules = {
       tag: FormRulesTags.Form,
       implicitValueYAML: true,
     }),
-    childItems: {
+    childItems: groupChildItemsRule({
       yaml: "Элементы",
-      type: "GroupChildItems",
       tag: FormRulesTags.Form,
       defaultValue: [],
       order: 2,
-    },
-    attributes: {
+    }),
+    attributes: formAttributesRule({
       yaml: "Реквизиты",
-      type: "FormAttributes",
       tag: FormRulesTags.Form,
       defaultValueXMLEmpty: [],
       order: 3,
-    },
-    attributesConditionalAppearance: {
+    }),
+    attributesConditionalAppearance: conditionalAppearanceRule({
       yaml: "УсловноеОформлениеРеквизитов",
-      type: "ConditionalAppearance",
       xml: "ConditionalAppearance",
       xmlParents: ["Attributes"],
       tag: FormRulesTags.Form,
-    },
+    }),
     childItemsHorizontalAlign: systemEnumerationRule({
       yaml: "ГоризонтальноеПоложениеПодчиненных",
       xml: "HorizontalAlign",
@@ -124,28 +133,24 @@ export const ClientApplicationFormRules = {
       tag: FormRulesTags.Form,
       implicitValueYAML: "Auto",
     }),
-    commandInterface: {
+    commandInterface: commandInterfaceRule({
       yaml: "ИнтерфейсКоманды",
-      type: "CommandInterface",
       tag: FormRulesTags.Form,
-    },
-    commandSet: {
+    }),
+    commandSet: commandSetRule({
       yaml: "СоставКоманд",
-      type: "CommandSet",
       tag: FormRulesTags.Form,
-    },
-    reportResult: {
+    }),
+    reportResult: stringOrNumberRule({
       yaml: "РезультатОтчета",
       xml: "ReportResult",
-      type: "StringOrNumber",
       tag: FormRulesTags.Form,
-    },
-    detailsData: {
+    }),
+    detailsData: stringOrNumberRule({
       yaml: "ДанныеРасшифровки",
       xml: "DetailsData",
-      type: "StringOrNumber",
       tag: FormRulesTags.Form,
-    },
+    }),
     reportFormType: systemEnumerationRule({
       yaml: "ТипФормыОтчета",
       xml: "ReportFormType",
@@ -187,17 +192,15 @@ export const ClientApplicationFormRules = {
       implicitValueYAML: "Auto",
       omitImplicitValueYAMLBySource: true,
     }),
-    mobileDeviceCommandBarContent: {
+    mobileDeviceCommandBarContent: mobileDeviceCommandBarContentRule({
       yaml: "СоставКоманднойПанелиНаМобильномУстройстве",
-      type: "MobileDeviceCommandBarContent",
       tag: FormRulesTags.Form,
-    },
-    commands: {
+    }),
+    commands: formCommandsRule({
       yaml: "Команды",
-      type: "FormCommands",
       tag: FormRulesTags.Form,
       defaultValue: [],
-    },
+    }),
     conversationsRepresentation: systemEnumerationRule({
       yaml: "ОтображениеОбсуждений",
       typeSE: "FormConversationsRepresentation",
@@ -267,11 +270,10 @@ export const ClientApplicationFormRules = {
       tag: FormRulesTags.Form,
       noImplicitValueYAML: true,
     }),
-    parameters: {
+    parameters: formParametersRule({
       yaml: "Параметры",
-      type: "FormParameters",
       tag: FormRulesTags.Form,
-    },
+    }),
     purposeUseKey: stringRule({
       yaml: "КлючНазначенияИспользования",
       tag: FormRulesTags.Form,
@@ -302,9 +304,8 @@ export const ClientApplicationFormRules = {
       tag: FormRulesTags.Form,
       implicitValueYAML: true,
     }),
-    settingsStorage: {
+    settingsStorage: metadataItemLinkRule({
       yaml: "ХранилищеНастроек",
-      type: "MetadataItemLink",
       metadataTarget: {
         kind: "member",
         owner: "this",
@@ -313,7 +314,7 @@ export const ClientApplicationFormRules = {
         allowedMemberPaths: [["Report", "Form"]],
       },
       tag: FormRulesTags.Form,
-    },
+    }),
     showCloseButton: booleanRule({
       yaml: "ОтображатьКнопкуЗакрытия",
       tag: FormRulesTags.Form,
@@ -411,12 +412,11 @@ export const ClientApplicationFormRules = {
       defaultValueXMLEmpty: false,
       implicitValueYAML: "Ложь",
     }),
-    usePurposes: {
+    usePurposes: usePurposesRule({
       yaml: "НазначенияИспользования",
-      type: "UsePurposes",
       tag: FormRulesTags.Metadata,
       xmlParents: ["Form", "Properties"],
-    },
+    }),
     extendedPresentation: i8nTextRule({
       yaml: "РасширенноеПредставление",
       tag: FormRulesTags.Metadata,
@@ -439,11 +439,10 @@ export const ClientApplicationFormRules = {
       tag: FormRulesTags.Form,
       implicitValueYAML: "Items",
     }),
-    choiceParameters: {
+    choiceParameters: choiceParametersRule({
       yaml: "ПараметрыВыбора",
-      type: "ChoiceParameters",
       tag: FormRulesTags.Form,
-    },
+    }),
     choiceMode: systemEnumerationRule({
       yaml: "РежимВыбора",
       typeSE: "ChoiceMode",
@@ -471,8 +470,7 @@ export const ClientApplicationFormRules = {
       implicitValueYAML: true,
     }),
     // #endregion
-    events: {
-      type: "Events",
+    events: eventsRule({
       yaml: "События",
       tag: FormRulesTags.Form,
       items: {
@@ -522,7 +520,7 @@ export const ClientApplicationFormRules = {
         onWriteAtServer: "ПриЗаписиНаСервере",
         onReadAtServer: "ПриЧтенииНаСервере",
       },
-    },
+    }),
   },
   eventsTag: FormRulesTags.Form,
 } as const satisfies MetadataItemRule

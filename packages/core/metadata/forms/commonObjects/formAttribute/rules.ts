@@ -1,3 +1,17 @@
+import { fieldsListRule } from "~/metadata/commonObjects/fieldsList/types"
+import { functionalOptionsPropertyRule } from "~/metadata/commonObjects/functionalOptionsProperty/types"
+import { typeDescriptionRule } from "~/metadata/commonObjects/typeDescription/types"
+import { userVisibleRule } from "~/metadata/commonObjects/userVisible/types"
+import {
+  chartRule,
+  dynamicListRule,
+  flowchartContextRule,
+  formAttributeAdditionalColumnsRule,
+  formAttributeColumnsRule,
+  ganttChartRule,
+  plannerRule,
+  spreadsheetDocumentRule,
+} from "~/metadata/forms/commonObjects/formAttribute/types"
 import { booleanRule } from "~/metadata/commonObjects/boolean/types"
 import { i8nTextRule } from "~/metadata/commonObjects/i8nText/types"
 import { stringRule } from "~/metadata/commonObjects/string/types"
@@ -15,13 +29,12 @@ export const FormAttributeRules = {
       xml: "_name",
       required: true,
     }),
-    valueType: {
+    valueType: typeDescriptionRule({
       yaml: "ТипЗначения",
-      type: "TypeDescription",
       xml: "Settings",
       order: 99,
       addTypeDescriptionAttributeToXML: true,
-    },
+    }),
     title: i8nTextRule({
       yaml: "Заголовок",
       skipEmptyToXML: true,
@@ -49,13 +62,12 @@ export const FormAttributeRules = {
       excludeIfEqualNameYAML: true,
       order: 1,
     }),
-    type: {
+    type: typeDescriptionRule({
       yaml: "Тип",
-      type: "TypeDescription",
       xml: "Type",
       defaultValueXMLRaw: {},
       order: 2,
-    },
+    }),
     mainAttribute: booleanRule({
       yaml: "ОсновнойРеквизит",
       xml: "MainAttribute",
@@ -68,99 +80,86 @@ export const FormAttributeRules = {
       implicitValueYAML: false,
       order: 6,
     }),
-    view: {
+    view: userVisibleRule({
       yaml: "Просмотр",
-      type: "UserVisible",
       order: 3,
-    },
-    edit: {
+    }),
+    edit: userVisibleRule({
       yaml: "Редактирование",
-      type: "UserVisible",
       order: 4,
-    },
+    }),
     fillCheck: systemEnumerationRule({
       yaml: "ПроверкаЗаполнения",
       typeSE: "FillChecking",
       implicitValueYAML: "DontCheck",
       order: 7,
     }),
-    columns: {
+    columns: formAttributeColumnsRule({
       yaml: "Колонки",
-      type: "FormAttributeColumns",
       fromXML: false,
       toXML: false,
       fromYAML: false,
       defaultValue: [],
-    },
-    additionalColumns: {
+    }),
+    additionalColumns: formAttributeAdditionalColumnsRule({
       yaml: "ДополнительныеКолонки",
-      type: "FormAttributeAdditionalColumns",
       fromXML: false,
       toXML: false,
       fromYAML: false,
-    },
-    functionalOptions: {
+    }),
+    functionalOptions: functionalOptionsPropertyRule({
       yaml: "ФункциональныеОпции",
-      type: "FunctionalOptionsProperty",
       order: 10,
-    },
-    fieldsList: {
+    }),
+    fieldsList: fieldsListRule({
       yaml: "ИспользоватьВсегда",
-      type: "FieldsList",
       xml: "UseAlways",
       order: 8,
-    },
-    save: {
+    }),
+    save: fieldsListRule({
       yaml: "Сохранение",
-      type: "FieldsList",
       order: 9,
-    },
-    dynamicList: {
-      type: "DynamicList",
+    }),
+    dynamicList: dynamicListRule({
       xml: "Settings",
       yaml: "ДинамическийСписок",
       order: 99,
-    },
-    chart: {
-      type: "Chart",
+    }),
+    chart: chartRule({
       xml: "Settings",
       yaml: "Диаграмма",
       fromXML: false,
       toXML: false,
       order: 99,
-    },
-    ganttChart: {
-      type: "GanttChart",
+    }),
+    ganttChart: ganttChartRule({
       xml: "Settings",
       yaml: "ДиаграммаГанта",
       fromXML: false,
       toXML: false,
       order: 99,
-    },
-    flowchartContext: {
-      type: "FlowchartContext",
+    }),
+    flowchartContext: flowchartContextRule({
       xml: "Settings",
       yaml: "ГрафическаяСхема",
       fromXML: false,
       toXML: false,
       order: 99,
-    },
-    spreadsheetDocument: {
-      type: "SpreadsheetDocument",
+    }),
+    spreadsheetDocument: spreadsheetDocumentRule({
       xml: "Settings",
       yaml: "ТабличныйДокумент",
       fromXML: false,
       toXML: false,
       order: 99,
-    },
-    planner: {
-      type: "Planner",
+    }),
+    planner: plannerRule({
       xml: "Settings",
       yaml: "Планировщик",
       fromXML: false,
       toXML: false,
       order: 99,
-    },
+    }),
   },
 } as const satisfies MetadataItemRule
 export const FormAttributeColumnRules = {
@@ -179,33 +178,29 @@ export const FormAttributeColumnRules = {
       excludeIfEqualNameYAML: true,
       order: 2,
     }),
-    type: {
+    type: typeDescriptionRule({
       yaml: "Тип",
-      type: "TypeDescription",
       xml: "Type",
       order: 3,
       defaultValueXMLRaw: {},
-    },
-    view: {
+    }),
+    view: userVisibleRule({
       yaml: "Просмотр",
-      type: "UserVisible",
       order: 4,
-    },
-    edit: {
+    }),
+    edit: userVisibleRule({
       yaml: "Редактирование",
-      type: "UserVisible",
       order: 0,
-    },
+    }),
     fillCheck: systemEnumerationRule({
       yaml: "ПроверкаЗаполнения",
       typeSE: "FillChecking",
       order: 1,
       implicitValueYAML: "DontCheck",
     }),
-    functionalOptions: {
+    functionalOptions: functionalOptionsPropertyRule({
       yaml: "ФункциональныеОпции",
-      type: "FunctionalOptionsProperty",
       order: 5,
-    },
+    }),
   },
 } as const satisfies MetadataItemRule

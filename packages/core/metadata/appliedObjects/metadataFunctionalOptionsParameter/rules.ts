@@ -1,3 +1,4 @@
+import { metadataItemLinksRule } from "~/metadata/commonObjects/metadataPath/types"
 import { i8nTextRule } from "~/metadata/commonObjects/i8nText/types"
 import { stringRule } from "~/metadata/commonObjects/string/types"
 import { uuidRule } from "~/metadata/commonObjects/uuid/types"
@@ -38,14 +39,13 @@ export const MetadataFunctionalOptionsParameterRules = {
       xmlParents: properties,
       defaultValueXMLRaw: "",
     }),
-    use: {
+    use: metadataItemLinksRule({
       yaml: "Использование",
-      type: "MetadataItemLinks",
       metadataTarget: { kind: "member", owner: "explicit", allowOwner: true },
       xml: "Use",
       xmlParents: properties,
       defaultValueXMLRaw: "",
-    },
+    }),
     objectBelonging: systemEnumerationRule({
       yaml: "ПринадлежностьОбъекта",
       typeSE: "ObjectBelonging",

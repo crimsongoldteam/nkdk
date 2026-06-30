@@ -1,3 +1,4 @@
+import { pictureRule } from "~/metadata/commonObjects/metadataTargets/types"
 import { booleanRule } from "~/metadata/commonObjects/boolean/types"
 import { i8nTextRule } from "~/metadata/commonObjects/i8nText/types"
 import { moduleRule } from "~/metadata/commonObjects/module/types"
@@ -58,13 +59,12 @@ export const MetadataBotRules = {
       implicitValueYAML: true,
       xmlParents: properties,
     }),
-    picture: {
+    picture: pictureRule({
       yaml: "Картинка",
-      type: "Picture",
       metadataTarget: { kind: "object", roots: ["CommonPicture"] },
       xmlParents: properties,
       defaultValueXMLRaw: "",
-    },
+    }),
     module: moduleRule({
       nkdkPath: "Модуль.bsl",
       xmlPath: "Ext/Module.bsl",

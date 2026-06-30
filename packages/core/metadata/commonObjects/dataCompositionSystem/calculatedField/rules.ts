@@ -1,3 +1,11 @@
+import { appearanceFieldsRule } from "~/metadata/commonObjects/dataCompositionSystem/appearanceFields/types"
+import { dcsAvailableValuesRule } from "~/metadata/commonObjects/dataCompositionSystem/availableValues/types"
+import {
+  calculatedFieldOrderExpressionRule,
+  calculatedFieldUseRestrictionRule,
+} from "~/metadata/commonObjects/dataCompositionSystem/calculatedField/types"
+import { dcsLocalStringTypeRule } from "~/metadata/commonObjects/dataCompositionSystem/dcsLocalStringType/types"
+import { typeDescriptionRule } from "~/metadata/commonObjects/typeDescription/types"
 import { stringRule } from "~/metadata/commonObjects/string/types"
 import { MetadataItemRule } from "~/metadata/orchestration"
 export const CalculatedFieldRules = {
@@ -14,46 +22,40 @@ export const CalculatedFieldRules = {
       order: 2,
       defaultValueXMLEmpty: "",
     }),
-    title: {
-      type: "DcsLocalStringType",
+    title: dcsLocalStringTypeRule({
       xml: "dcssch:title",
       yaml: "Заголовок",
       order: 3,
-    },
-    availableValues: {
-      type: "DcsAvailableValues",
+    }),
+    availableValues: dcsAvailableValuesRule({
       xml: "dcssch:availableValue",
       yaml: "ДоступныеЗначения",
       order: 4,
-    },
-    appearance: {
-      type: "AppearanceFields",
+    }),
+    appearance: appearanceFieldsRule({
       xml: "dcssch:appearance",
       yaml: "Оформление",
       order: 5,
-    },
-    useRestriction: {
-      type: "CalculatedFieldUseRestriction",
+    }),
+    useRestriction: calculatedFieldUseRestrictionRule({
       xml: "dcssch:useRestriction",
       yaml: "ОграничениеИспользования",
       order: 6,
-    },
+    }),
     presentationExpression: stringRule({
       xml: "dcssch:presentationExpression",
       yaml: "ВыражениеПредставления",
       order: 7,
     }),
-    orderExpressions: {
-      type: "CalculatedFieldOrderExpression",
+    orderExpressions: calculatedFieldOrderExpressionRule({
       xml: "dcssch:orderExpression",
       yaml: "ВыраженияУпорядочивания",
       order: 8,
-    },
-    valueType: {
-      type: "TypeDescription",
+    }),
+    valueType: typeDescriptionRule({
       xml: "dcssch:valueType",
       yaml: "ТипЗначения",
       order: 9,
-    },
+    }),
   },
 } as const satisfies MetadataItemRule

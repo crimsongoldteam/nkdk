@@ -1,3 +1,4 @@
+import { internalInfoRule } from "~/metadata/commonObjects/internalInfo/types"
 import { systemEnumerationRule } from "~/metadata/systemEnumerations/types"
 import { uuidPropertyRule } from "~/metadata/commonObjects/uuid/rule"
 import { addDefaultLanguageNameToSynonym } from "~/metadata/helpers/synonymHelpers"
@@ -117,8 +118,7 @@ export const MetadataTabularSectionRules = {
   externalMetadata: tabularSectionExternalMetadata,
   properties: {
     ...commonTabularSectionProperties,
-    internalInfo: {
-      type: "InternalInfo",
+    internalInfo: internalInfoRule({
       forReferenceOnly: true,
       getName: (params: {
         context: ConfigurationContextWithExportToXML
@@ -135,7 +135,7 @@ export const MetadataTabularSectionRules = {
         { name: `CatalogTabularSection`, category: "TabularSection" },
         { name: `CatalogTabularSectionRow`, category: "TabularSectionRow" },
       ],
-    },
+    }),
     use: systemEnumerationRule({
       yaml: "Использование",
       xml: "Use",
@@ -152,8 +152,7 @@ export const MetadataDocumentTabularSectionRules = {
   externalMetadata: tabularSectionExternalMetadata,
   properties: {
     ...commonTabularSectionProperties,
-    internalInfo: {
-      type: "InternalInfo",
+    internalInfo: internalInfoRule({
       forReferenceOnly: true,
       getName: (params: {
         context: ConfigurationContextWithExportToXML
@@ -170,7 +169,7 @@ export const MetadataDocumentTabularSectionRules = {
         { name: `DocumentTabularSection`, category: "TabularSection" },
         { name: `DocumentTabularSectionRow`, category: "TabularSectionRow" },
       ],
-    },
+    }),
   },
 } as const satisfies MetadataItemRule
 export const MetadataTaskTabularSectionRules = {
@@ -178,8 +177,7 @@ export const MetadataTaskTabularSectionRules = {
   externalMetadata: tabularSectionExternalMetadata,
   properties: {
     ...commonTabularSectionProperties,
-    internalInfo: {
-      type: "InternalInfo",
+    internalInfo: internalInfoRule({
       forReferenceOnly: true,
       getName: (params: {
         context: ConfigurationContextWithExportToXML
@@ -194,7 +192,7 @@ export const MetadataTaskTabularSectionRules = {
         { name: "TaskTabularSection", category: "TabularSection" },
         { name: "TaskTabularSectionRow", category: "TabularSectionRow" },
       ],
-    },
+    }),
   },
 } as const satisfies MetadataItemRule
 export const MetadataBusinessProcessTabularSectionRules = {
@@ -202,8 +200,7 @@ export const MetadataBusinessProcessTabularSectionRules = {
   externalMetadata: tabularSectionExternalMetadata,
   properties: {
     ...commonTabularSectionProperties,
-    internalInfo: {
-      type: "InternalInfo",
+    internalInfo: internalInfoRule({
       forReferenceOnly: true,
       getName: (params: {
         context: ConfigurationContextWithExportToXML
@@ -218,7 +215,7 @@ export const MetadataBusinessProcessTabularSectionRules = {
         { name: "BusinessProcessTabularSection", category: "TabularSection" },
         { name: "BusinessProcessTabularSectionRow", category: "TabularSectionRow" },
       ],
-    },
+    }),
   },
 } as const satisfies MetadataItemRule
 export const MetadataDataProcessorTabularSectionRules = {
@@ -226,8 +223,7 @@ export const MetadataDataProcessorTabularSectionRules = {
   externalMetadata: tabularSectionExternalMetadata,
   properties: {
     ...commonTabularSectionProperties,
-    internalInfo: {
-      type: "InternalInfo",
+    internalInfo: internalInfoRule({
       forReferenceOnly: true,
       getName: (params: {
         context: ConfigurationContextWithExportToXML
@@ -243,7 +239,7 @@ export const MetadataDataProcessorTabularSectionRules = {
         { name: "DataProcessorTabularSection", category: "TabularSection" },
         { name: "DataProcessorTabularSectionRow", category: "TabularSectionRow" },
       ],
-    },
+    }),
   },
 } as const satisfies MetadataItemRule
 export const MetadataReportTabularSectionRules = {
@@ -251,8 +247,7 @@ export const MetadataReportTabularSectionRules = {
   externalMetadata: tabularSectionExternalMetadata,
   properties: {
     ...commonTabularSectionProperties,
-    internalInfo: {
-      type: "InternalInfo",
+    internalInfo: internalInfoRule({
       forReferenceOnly: true,
       getName: (params: {
         context: ConfigurationContextWithExportToXML
@@ -268,7 +263,7 @@ export const MetadataReportTabularSectionRules = {
         { name: "ReportTabularSection", category: "TabularSection" },
         { name: "ReportTabularSectionRow", category: "TabularSectionRow" },
       ],
-    },
+    }),
   },
 } as const satisfies MetadataItemRule
 export const MetadataExchangePlanTabularSectionRules = {
@@ -276,8 +271,7 @@ export const MetadataExchangePlanTabularSectionRules = {
   externalMetadata: tabularSectionExternalMetadata,
   properties: {
     ...commonTabularSectionProperties,
-    internalInfo: {
-      type: "InternalInfo",
+    internalInfo: internalInfoRule({
       forReferenceOnly: true,
       getName: (params: {
         context: ConfigurationContextWithExportToXML
@@ -293,7 +287,7 @@ export const MetadataExchangePlanTabularSectionRules = {
         { name: "ExchangePlanTabularSection", category: "TabularSection" },
         { name: "ExchangePlanTabularSectionRow", category: "TabularSectionRow" },
       ],
-    },
+    }),
   },
 } as const satisfies MetadataItemRule
 export const MetadataChartOfAccountsTabularSectionRules = {
@@ -301,8 +295,7 @@ export const MetadataChartOfAccountsTabularSectionRules = {
   externalMetadata: tabularSectionExternalMetadata,
   properties: {
     ...commonTabularSectionProperties,
-    internalInfo: {
-      type: "InternalInfo",
+    internalInfo: internalInfoRule({
       forReferenceOnly: true,
       getName: (params: {
         context: ConfigurationContextWithExportToXML
@@ -317,7 +310,7 @@ export const MetadataChartOfAccountsTabularSectionRules = {
         { name: "ChartOfAccountsTabularSection", category: "TabularSection" },
         { name: "ChartOfAccountsTabularSectionRow", category: "TabularSectionRow" },
       ],
-    },
+    }),
   },
 } as const satisfies MetadataItemRule
 export const MetadataChartOfCalculationTypesTabularSectionRules = {
@@ -325,8 +318,7 @@ export const MetadataChartOfCalculationTypesTabularSectionRules = {
   externalMetadata: tabularSectionExternalMetadata,
   properties: {
     ...commonTabularSectionProperties,
-    internalInfo: {
-      type: "InternalInfo",
+    internalInfo: internalInfoRule({
       forReferenceOnly: true,
       getName: (params: {
         context: ConfigurationContextWithExportToXML
@@ -341,7 +333,7 @@ export const MetadataChartOfCalculationTypesTabularSectionRules = {
         { name: "ChartOfCalculationTypesTabularSection", category: "TabularSection" },
         { name: "ChartOfCalculationTypesTabularSectionRow", category: "TabularSectionRow" },
       ],
-    },
+    }),
   },
 } as const satisfies MetadataItemRule
 export const MetadataChartOfCharacteristicTypesTabularSectionRules = {
@@ -349,8 +341,7 @@ export const MetadataChartOfCharacteristicTypesTabularSectionRules = {
   externalMetadata: tabularSectionExternalMetadata,
   properties: {
     ...commonTabularSectionProperties,
-    internalInfo: {
-      type: "InternalInfo",
+    internalInfo: internalInfoRule({
       forReferenceOnly: true,
       getName: (params: {
         context: ConfigurationContextWithExportToXML
@@ -365,7 +356,7 @@ export const MetadataChartOfCharacteristicTypesTabularSectionRules = {
         { name: "ChartOfCharacteristicTypesTabularSection", category: "TabularSection" },
         { name: "ChartOfCharacteristicTypesTabularSectionRow", category: "TabularSectionRow" },
       ],
-    },
+    }),
     use: systemEnumerationRule({
       yaml: "Использование",
       xml: "Use",

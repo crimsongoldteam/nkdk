@@ -1,3 +1,4 @@
+import { typeDescriptionRule } from "~/metadata/commonObjects/typeDescription/types"
 import { i8nTextRule } from "~/metadata/commonObjects/i8nText/types"
 import { stringRule } from "~/metadata/commonObjects/string/types"
 import { uuidRule } from "~/metadata/commonObjects/uuid/types"
@@ -41,12 +42,11 @@ export const MetadataEventSubscriptionRules = {
       defaultValueXMLRaw: "",
       order: 3,
     }),
-    source: {
+    source: typeDescriptionRule({
       yaml: "Источник",
-      type: "TypeDescription",
       xmlParents: properties,
       order: 4,
-    },
+    }),
     event: stringRule({
       yaml: "Событие",
       xmlParents: properties,

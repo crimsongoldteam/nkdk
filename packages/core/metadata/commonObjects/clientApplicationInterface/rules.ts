@@ -1,3 +1,7 @@
+import {
+  clientApplicationInterfaceItemsRule,
+  clientApplicationInterfacePanelDefsRule,
+} from "~/metadata/commonObjects/clientApplicationInterface/types"
 import { xmlRootRule } from "~/metadata/commonObjects/xmlRoot/types"
 import { MetadataItemRule } from "~/metadata/orchestration/property/types"
 const clientApplicationInterfaceRootAttributes = {
@@ -17,31 +21,26 @@ export const ClientApplicationInterfaceRules = {
       toYAML: false,
       fromYAML: false,
     }),
-    panelDefs: {
+    panelDefs: clientApplicationInterfacePanelDefsRule({
       xml: "panelDef",
-      type: "ClientApplicationInterfacePanelDefs",
       toYAML: false,
       fromYAML: false,
-    },
-    top: {
+    }),
+    top: clientApplicationInterfaceItemsRule({
       yaml: "Верх",
       xml: "top",
-      type: "ClientApplicationInterfaceItems",
-    },
-    left: {
+    }),
+    left: clientApplicationInterfaceItemsRule({
       yaml: "Лево",
       xml: "left",
-      type: "ClientApplicationInterfaceItems",
-    },
-    right: {
+    }),
+    right: clientApplicationInterfaceItemsRule({
       yaml: "Право",
       xml: "right",
-      type: "ClientApplicationInterfaceItems",
-    },
-    bottom: {
+    }),
+    bottom: clientApplicationInterfaceItemsRule({
       yaml: "Низ",
       xml: "bottom",
-      type: "ClientApplicationInterfaceItems",
-    },
+    }),
   },
 } as const satisfies MetadataItemRule

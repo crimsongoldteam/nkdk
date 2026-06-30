@@ -1,3 +1,4 @@
+import { typeDescriptionRule } from "~/metadata/commonObjects/typeDescription/types"
 import { i8nTextRule } from "~/metadata/commonObjects/i8nText/types"
 import { stringRule } from "~/metadata/commonObjects/string/types"
 import { uuidRule } from "~/metadata/commonObjects/uuid/types"
@@ -38,12 +39,11 @@ export const MetadataSessionParameterRules = {
       xmlParents: properties,
       defaultValueXMLRaw: "",
     }),
-    type: {
+    type: typeDescriptionRule({
       yaml: "Тип",
-      type: "TypeDescription",
       xmlParents: properties,
       defaultValueXMLRaw: "",
-    },
+    }),
     objectBelonging: systemEnumerationRule({
       yaml: "ПринадлежностьОбъекта",
       typeSE: "ObjectBelonging",

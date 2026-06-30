@@ -1,3 +1,5 @@
+import { metadataItemLinkRule, metadataItemLinksRule } from "~/metadata/commonObjects/metadataPath/types"
+import { typeLinkRule } from "~/metadata/commonObjects/typeLink/types"
 import { booleanRule } from "~/metadata/commonObjects/boolean/types"
 import { stringRule } from "~/metadata/commonObjects/string/types"
 import { systemEnumerationRule } from "~/metadata/systemEnumerations/types"
@@ -26,48 +28,43 @@ export const MetadataExternalDataSourceCubeDimensionRules = {
       defaultValueXML: "Items",
       implicitValueYAML: "Items",
     }),
-    linkByType: {
+    linkByType: typeLinkRule({
       yaml: "СвязьПоТипу",
       xml: "LinkByType",
-      type: "TypeLink",
       xmlParents: propertiesParents,
       defaultValueXMLRaw: "",
-    },
-    documentMap: {
+    }),
+    documentMap: metadataItemLinksRule({
       yaml: "СоответствиеРеквизитамДокументов",
       xml: "DocumentMap",
-      type: "MetadataItemLinks",
       metadataTarget: { kind: "member", owner: "explicit" },
       xmlParents: propertiesParents,
       defaultValueXMLRaw: "",
       toXML: hasOwnMetadataProperty("documentMap"),
-    },
-    registerRecordsMap: {
+    }),
+    registerRecordsMap: metadataItemLinksRule({
       yaml: "СоответствиеРеквизитамДвижений",
       xml: "RegisterRecordsMap",
-      type: "MetadataItemLinks",
       metadataTarget: { kind: "member", owner: "explicit" },
       xmlParents: propertiesParents,
       defaultValueXMLRaw: "",
       toXML: hasOwnMetadataProperty("registerRecordsMap"),
-    },
-    registerDimension: {
+    }),
+    registerDimension: metadataItemLinkRule({
       yaml: "ИзмерениеРегистра",
       xml: "RegisterDimension",
-      type: "MetadataItemLink",
       typedXML: "xr:MDObjectRef",
       xmlParents: propertiesParents,
       defaultValueXMLRaw: "",
       toXML: hasOwnMetadataProperty("registerDimension"),
-    },
-    leadingRegisterData: {
+    }),
+    leadingRegisterData: metadataItemLinksRule({
       yaml: "ДанныеВедущихРегистров",
       xml: "LeadingRegisterData",
-      type: "MetadataItemLinks",
       xmlParents: propertiesParents,
       defaultValueXMLRaw: "",
       toXML: hasOwnMetadataProperty("leadingRegisterData"),
-    },
+    }),
     denyIncompleteValues: booleanRule({
       yaml: "ЗапретНезавершенныхЗначений",
       xml: "DenyIncompleteValues",

@@ -1,3 +1,9 @@
+import { borderRule } from "~/metadata/commonObjects/border/types"
+import { colorRule } from "~/metadata/commonObjects/color/types"
+import { fontRule } from "~/metadata/commonObjects/font/types"
+import { dataPathRule } from "~/metadata/commonObjects/metadataPath/types"
+import { pictureRule } from "~/metadata/commonObjects/metadataTargets/types"
+import { eventsRule } from "~/metadata/forms/commonObjects/event/types"
 import { booleanRule } from "~/metadata/commonObjects/boolean/types"
 import { i8nTextRule } from "~/metadata/commonObjects/i8nText/types"
 import { numberRule } from "~/metadata/commonObjects/number/types"
@@ -14,20 +20,18 @@ export const PictureFieldRules = {
   properties: {
     autoMaxHeight: booleanRule({ yaml: "АвтоМаксимальнаяВысота", implicitValueYAML: true }),
     autoMaxWidth: booleanRule({ yaml: "АвтоМаксимальнаяШирина", implicitValueYAML: true }),
-    border: {
+    border: borderRule({
       yaml: "Рамка",
-      type: "Border",
       metadataTarget: {
         kind: "object",
         roots: ["StyleItem"],
         filters: [{ kind: "styleItemType", values: ["Border"] }],
       },
-    },
-    borderColor: {
+    }),
+    borderColor: colorRule({
       yaml: "ЦветРамки",
-      type: "Color",
       metadataTarget: { kind: "object", roots: ["StyleItem"], filters: [{ kind: "styleItemType", values: ["Color"] }] },
-    },
+    }),
     enableDrag: booleanRule({ yaml: "РазрешитьПеретаскивание", implicitValueYAML: false }),
     enableStartDrag: booleanRule({ yaml: "РазрешитьНачалоПеретаскивания", implicitValueYAML: false }),
     fileDragMode: systemEnumerationRule({
@@ -47,26 +51,22 @@ export const PictureFieldRules = {
       implicitValueYAML: "RealSize",
     }),
     scale: numberRule({ yaml: "Масштаб", xml: "ImageScale", implicitValueYAML: 100 }),
-    textColor: {
+    textColor: colorRule({
       yaml: "ЦветТекста",
-      type: "Color",
       metadataTarget: { kind: "object", roots: ["StyleItem"], filters: [{ kind: "styleItemType", values: ["Color"] }] },
-    },
-    valuesPicture: {
+    }),
+    valuesPicture: pictureRule({
       yaml: "КартинкаЗначений",
-      type: "Picture",
       metadataTarget: { kind: "object", roots: ["CommonPicture"] },
-    },
+    }),
     verticalStretch: booleanRule({ yaml: "РастягиватьПоВертикали", implicitValueYAML: true }),
     width: numberRule({ yaml: "Ширина", implicitValueYAML: 0 }),
     zoomable: booleanRule({ yaml: "Масштабировать", implicitValueYAML: false }),
-    font: {
+    font: fontRule({
       yaml: "Шрифт",
-      type: "Font",
       metadataTarget: { kind: "object", roots: ["StyleItem"], filters: [{ kind: "styleItemType", values: ["Font"] }] },
-    },
-    events: {
-      type: "Events",
+    }),
+    events: eventsRule({
       yaml: "События",
       toEnterprise: false,
       items: {
@@ -77,14 +77,13 @@ export const PictureFieldRules = {
         drag: "Перетаскивание",
         dragCheck: "ПроверкаПеретаскивания",
       },
-    },
-    dataPath: {
+    }),
+    dataPath: dataPathRule({
       yaml: "ПутьКДанным",
-      type: "DataPath",
       defaultType: "Picture",
       allowedKinds: ["Picture", "scalar", "boolean", "object"],
       allowComposite: true,
-    },
+    }),
     ...formFieldCommonProperties,
     titleHeight: {
       ...formFieldCommonProperties.titleHeight,

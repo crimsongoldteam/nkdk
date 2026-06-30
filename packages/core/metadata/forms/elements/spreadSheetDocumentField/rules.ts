@@ -1,3 +1,8 @@
+import { colorRule } from "~/metadata/commonObjects/color/types"
+import { dataPathRule } from "~/metadata/commonObjects/metadataPath/types"
+import { commandSetRule } from "~/metadata/forms/commonObjects/commandSet/types"
+import { eventsRule } from "~/metadata/forms/commonObjects/event/types"
+import { scrollBarUseBooleanRule } from "~/metadata/forms/commonObjects/scrollBarUse/types"
 import { booleanRule } from "~/metadata/commonObjects/boolean/types"
 import { numberRule } from "~/metadata/commonObjects/number/types"
 import { stringRule } from "~/metadata/commonObjects/string/types"
@@ -15,12 +20,11 @@ export const SpreadSheetDocumentFieldRules = {
     autoMaxHeight: booleanRule({ yaml: "АвтоМаксимальнаяВысота", implicitValueYAML: true }),
     autoMaxWidth: booleanRule({ yaml: "АвтоМаксимальнаяШирина", implicitValueYAML: true }),
     blackAndWhiteView: booleanRule({ yaml: "ЧерноБелыйПросмотр", implicitValueYAML: false }),
-    borderColor: {
+    borderColor: colorRule({
       yaml: "ЦветРамки",
-      type: "Color",
       metadataTarget: { kind: "object", roots: ["StyleItem"], filters: [{ kind: "styleItemType", values: ["Color"] }] },
-    },
-    commandSet: { yaml: "Команда", type: "CommandSet", toEnterprise: false },
+    }),
+    commandSet: commandSetRule({ yaml: "Команда", toEnterprise: false }),
     drawingSelectionShowMode: systemEnumerationRule({
       yaml: "РежимОтображенияВыделенияРисунков",
       typeSE: "DrawingSelectionShowMode",
@@ -30,11 +34,10 @@ export const SpreadSheetDocumentFieldRules = {
     enableDrag: booleanRule({ yaml: "РазрешитьПеретаскивание", implicitValueYAML: true }),
     enableStartDrag: booleanRule({ yaml: "РазрешитьНачалоПеретаскивания", implicitValueYAML: true }),
     height: numberRule({ yaml: "Высота", implicitValueYAML: 10 }),
-    horizontalScrollBar: {
+    horizontalScrollBar: scrollBarUseBooleanRule({
       yaml: "ГоризонтальнаяПолосаПрокрутки",
-      type: "ScrollBarUseBoolean",
       implicitValueYAML: "AutoUse",
-    },
+    }),
     horizontalStretch: booleanRule({ yaml: "РастягиватьПоГоризонтали", implicitValueYAML: true }),
     maxHeight: numberRule({ yaml: "МаксимальнаяВысота", implicitValueYAML: 0 }),
     maxWidth: numberRule({ yaml: "МаксимальнаяШирина", implicitValueYAML: 0 }),
@@ -68,11 +71,10 @@ export const SpreadSheetDocumentFieldRules = {
       yaml: "ИспользуемоеИмяФайла",
       runtimeOnly: true,
     }),
-    verticalScrollBar: {
+    verticalScrollBar: scrollBarUseBooleanRule({
       yaml: "ВертикальнаяПолосаПрокрутки",
-      type: "ScrollBarUseBoolean",
       implicitValueYAML: "AutoUse",
-    },
+    }),
     verticalStretch: booleanRule({ yaml: "РастягиватьПоВертикали", implicitValueYAML: true }),
     viewScalingMode: systemEnumerationRule({
       yaml: "РежимМасштабированияПросмотра",
@@ -80,8 +82,7 @@ export const SpreadSheetDocumentFieldRules = {
       implicitValueYAML: "Auto",
     }),
     width: numberRule({ yaml: "Ширина", implicitValueYAML: 50 }),
-    events: {
-      type: "Events",
+    events: eventsRule({
       yaml: "События",
       toEnterprise: false,
       items: {
@@ -100,14 +101,13 @@ export const SpreadSheetDocumentFieldRules = {
         onChangeAreaContent: "ПриИзмененииСодержимогоОбласти",
         dragCheck: "ПроверкаПеретаскивания",
       },
-    },
-    dataPath: {
+    }),
+    dataPath: dataPathRule({
       yaml: "ПутьКДанным",
-      type: "DataPath",
       toYAML: false,
       fromYAML: false,
       defaultType: "SpreadsheetDocument",
-    },
+    }),
     ...formFieldCommonProperties,
     ...formFieldDisabledTableRelatedProperties,
     titleHeight: numberRule({ yaml: "ВысотаЗаголовка", implicitValueYAML: 0 }),

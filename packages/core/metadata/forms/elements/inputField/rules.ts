@@ -1,3 +1,14 @@
+import { choiceListRule } from "~/metadata/commonObjects/choiceList/types"
+import { colorRule } from "~/metadata/commonObjects/color/types"
+import { fontRule } from "~/metadata/commonObjects/font/types"
+import { dataPathRule } from "~/metadata/commonObjects/metadataPath/types"
+import { pictureRule } from "~/metadata/commonObjects/metadataTargets/types"
+import { minMaxValueRule } from "~/metadata/commonObjects/minMaxValue/types"
+import { typeDescriptionRule } from "~/metadata/commonObjects/typeDescription/types"
+import { typeLinkRule } from "~/metadata/commonObjects/typeLink/types"
+import { choiceParameterLinksRule } from "~/metadata/commonObjects/\u0441hoiceParameterLinks/types"
+import { choiceParametersRule } from "~/metadata/commonObjects/\u0441hoiceParameters/types"
+import { eventsRule } from "~/metadata/forms/commonObjects/event/types"
 import { booleanRule } from "~/metadata/commonObjects/boolean/types"
 import { i8nTextRule } from "~/metadata/commonObjects/i8nText/types"
 import { numberRule } from "~/metadata/commonObjects/number/types"
@@ -56,27 +67,23 @@ export const InputFieldRules = {
       xml: "AutoShowOpenButtonMode",
       implicitValueYAML: "Auto",
     }),
-    availableTypes: {
+    availableTypes: typeDescriptionRule({
       yaml: "ДоступныеТипы",
-      type: "TypeDescription",
       toEnterprise: false,
-    },
-    backColor: {
+    }),
+    backColor: colorRule({
       yaml: "ЦветФона",
-      type: "Color",
       metadataTarget: { kind: "object", roots: ["StyleItem"], filters: [{ kind: "styleItemType", values: ["Color"] }] },
-    },
-    borderColor: {
+    }),
+    borderColor: colorRule({
       yaml: "ЦветРамки",
-      type: "Color",
       metadataTarget: { kind: "object", roots: ["StyleItem"], filters: [{ kind: "styleItemType", values: ["Color"] }] },
-    },
+    }),
     choiceButton: booleanRule({ yaml: "КнопкаВыбора", noImplicitValueYAML: true }),
-    choiceButtonPicture: {
+    choiceButtonPicture: pictureRule({
       yaml: "КартинкаКнопкиВыбора",
-      type: "Picture",
       metadataTarget: { kind: "object", roots: ["CommonPicture"] },
-    },
+    }),
     choiceButtonRepresentation: systemEnumerationRule({
       yaml: "ОтображениеКнопкиВыбора",
       typeSE: "ChoiceButtonRepresentation",
@@ -96,11 +103,11 @@ export const InputFieldRules = {
       typeSE: "ChoiceHistoryOnInput",
       implicitValueYAML: "Auto",
     }),
-    choiceList: { yaml: "СписокВыбора", type: "ChoiceList", toEnterprise: false },
+    choiceList: choiceListRule({ yaml: "СписокВыбора", toEnterprise: false }),
     choiceListButton: booleanRule({ yaml: "КнопкаСпискаВыбора", noImplicitValueYAML: true }),
     choiceListHeight: numberRule({ yaml: "ВысотаСпискаВыбора", implicitValueYAML: 0 }),
-    choiceParameterLinks: { yaml: "СвязиПараметровВыбора", type: "ChoiceParameterLinks", toEnterprise: false },
-    choiceParameters: { yaml: "ПараметрыВыбора", type: "ChoiceParameters", toEnterprise: false },
+    choiceParameterLinks: choiceParameterLinksRule({ yaml: "СвязиПараметровВыбора", toEnterprise: false }),
+    choiceParameters: choiceParametersRule({ yaml: "ПараметрыВыбора", toEnterprise: false }),
     chooseType: booleanRule({ yaml: "ВыбиратьТип", implicitValueYAML: true }),
     clearButton: booleanRule({ yaml: "КнопкаОчистки", noImplicitValueYAML: true }),
     createButton: booleanRule({ yaml: "КнопкаСоздания", noImplicitValueYAML: true }),
@@ -117,11 +124,10 @@ export const InputFieldRules = {
       yaml: "РасширенноеРедактирование",
       noImplicitValueYAML: true,
     }),
-    font: {
+    font: fontRule({
       yaml: "Шрифт",
-      type: "Font",
       metadataTarget: { kind: "object", roots: ["StyleItem"], filters: [{ kind: "styleItemType", values: ["Font"] }] },
-    },
+    }),
     format: i8nTextRule({ yaml: "Формат" }),
     height: numberRule({ yaml: "Высота", implicitValueYAML: 0 }),
     heightControlVariant: systemEnumerationRule({
@@ -145,16 +151,15 @@ export const InputFieldRules = {
     markNegatives: booleanRule({ yaml: "ВыделятьОтрицательные", noImplicitValueYAML: true }),
     mask: stringRule({ yaml: "Маска" }),
     maxHeight: numberRule({ yaml: "МаксимальнаяВысота", implicitValueYAML: 0 }),
-    maxValue: { yaml: "МаксимальноеЗначение", type: "MinMaxValue", xml: "MaxValue" },
+    maxValue: minMaxValueRule({ yaml: "МаксимальноеЗначение", xml: "MaxValue" }),
     maxWidth: numberRule({ yaml: "МаксимальнаяШирина", implicitValueYAML: 0 }),
-    minValue: { yaml: "МинимальноеЗначение", type: "MinMaxValue", xml: "MinValue" },
+    minValue: minMaxValueRule({ yaml: "МинимальноеЗначение", xml: "MinValue" }),
     multiLine: booleanRule({ yaml: "МногострочныйРежим", noImplicitValueYAML: true }),
-    multipleValuePictureDataPath: {
+    multipleValuePictureDataPath: dataPathRule({
       yaml: "ПутьКДаннымКартинкиМножественногоЗначения",
-      type: "DataPath",
       defaultType: "string",
       xml: "MultipleValuePictureDataPath",
-    },
+    }),
     multipleValuePictureShape: systemEnumerationRule({
       yaml: "ФигураКартинкиМножественногоЗначения",
       typeSE: "InputFieldMultipleValuePictureShape",
@@ -165,44 +170,38 @@ export const InputFieldRules = {
       typeSE: "InputFieldMultipleValuePictureSize",
       implicitValueYAML: "Auto",
     }),
-    multipleValuePresentationDataPath: {
+    multipleValuePresentationDataPath: dataPathRule({
       yaml: "ПутьКДаннымПредставленияМножественногоЗначения",
-      type: "DataPath",
       defaultType: "string",
       xml: "MultipleValuePresentDataPath",
-    },
-    multipleValuesBackColor: {
+    }),
+    multipleValuesBackColor: colorRule({
       yaml: "ЦветФонаМножественныхЗначений",
-      type: "Color",
       metadataTarget: { kind: "object", roots: ["StyleItem"], filters: [{ kind: "styleItemType", values: ["Color"] }] },
-    },
+    }),
     multipleValuesExtendedEdit: booleanRule({
       yaml: "РасширенноеРедактированиеМножественныхЗначений",
       xml: "ExtendedEditMultipleValues",
       noImplicitValueYAML: true,
     }),
-    multipleValuesFont: {
+    multipleValuesFont: fontRule({
       yaml: "ШрифтМножественныхЗначений",
-      type: "Font",
       metadataTarget: { kind: "object", roots: ["StyleItem"], filters: [{ kind: "styleItemType", values: ["Font"] }] },
-    },
+    }),
     multipleValuesHyperlink: booleanRule({ yaml: "ГиперссылкаМножественныхЗначений", noImplicitValueYAML: true }),
-    multipleValuesPicture: {
+    multipleValuesPicture: pictureRule({
       yaml: "КартинкаМножественныхЗначений",
-      type: "Picture",
       metadataTarget: { kind: "object", roots: ["CommonPicture"] },
-    },
-    multipleValuesTextColor: {
+    }),
+    multipleValuesTextColor: colorRule({
       yaml: "ЦветТекстаМножественныхЗначений",
-      type: "Color",
       metadataTarget: { kind: "object", roots: ["StyleItem"], filters: [{ kind: "styleItemType", values: ["Color"] }] },
-    },
-    multipleValueValueDataPath: {
+    }),
+    multipleValueValueDataPath: dataPathRule({
       yaml: "ПутьКДаннымЗначенияМножественногоЗначения",
-      type: "DataPath",
       defaultType: "string",
       xml: "MultipleValueDataPath",
-    },
+    }),
     onScreenKeyboardReturnKeyText: systemEnumerationRule({
       yaml: "ТекстКнопкиВводаЭкраннойКлавиатуры",
       typeSE: "OnScreenKeyboardReturnKeyText",
@@ -227,18 +226,16 @@ export const InputFieldRules = {
       implicitValueYAML: "Auto",
     }),
     spinButton: booleanRule({ yaml: "КнопкаРегулирования", noImplicitValueYAML: true }),
-    textColor: {
+    textColor: colorRule({
       yaml: "ЦветТекста",
-      type: "Color",
       metadataTarget: { kind: "object", roots: ["StyleItem"], filters: [{ kind: "styleItemType", values: ["Color"] }] },
-    },
+    }),
     textEdit: booleanRule({ yaml: "РедактированиеТекста", implicitValueYAML: true }),
-    typeLink: { yaml: "СвязьПоТипу", type: "TypeLink", toEnterprise: false },
+    typeLink: typeLinkRule({ yaml: "СвязьПоТипу", toEnterprise: false }),
     verticalStretch: booleanRule({ yaml: "РастягиватьПоВертикали", noImplicitValueYAML: true }),
     width: numberRule({ yaml: "Ширина", implicitValueYAML: 0 }),
     wrap: booleanRule({ yaml: "АвтоПереносСтрок", implicitValueYAML: true }),
-    events: {
-      type: "Events",
+    events: eventsRule({
       yaml: "События",
       toEnterprise: false,
       items: {
@@ -259,14 +256,13 @@ export const InputFieldRules = {
         creating: "Создание",
         multipleValuesDelete: "УдалениеМножественныхЗначений",
       },
-    },
-    dataPath: {
+    }),
+    dataPath: dataPathRule({
       yaml: "ПутьКДанным",
-      type: "DataPath",
       // fromYAML: false,
       defaultType: "string",
       allowOpaqueMultipleValue: true,
-    },
+    }),
     ...formFieldCommonProperties,
     skipOnInput: booleanRule({ yaml: "ПропускатьПриВводе", noImplicitValueYAML: true }),
     titleHeight: numberRule({ yaml: "ВысотаЗаголовка", implicitValueYAML: 0 }),
@@ -280,13 +276,12 @@ export const TableInputFieldRules = {
   properties: {
     ...InputFieldRules.properties,
     ...formFieldTableRelatedProperties,
-    dataPath: {
+    dataPath: dataPathRule({
       yaml: "ПутьКДанным",
-      type: "DataPath",
       defaultType: "string",
-    },
-    minValue: { yaml: "МинимальноеЗначение", type: "MinMaxValue", xml: "MinValue" },
-    maxValue: { yaml: "МаксимальноеЗначение", type: "MinMaxValue", xml: "MaxValue" },
+    }),
+    minValue: minMaxValueRule({ yaml: "МинимальноеЗначение", xml: "MinValue" }),
+    maxValue: minMaxValueRule({ yaml: "МаксимальноеЗначение", xml: "MaxValue" }),
   },
 } as const satisfies ElementRule
 registerElementRule("InputField", InputFieldRules)

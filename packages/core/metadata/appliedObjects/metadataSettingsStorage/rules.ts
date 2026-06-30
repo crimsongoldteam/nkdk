@@ -1,3 +1,6 @@
+import { childFormNamesRule } from "~/metadata/commonObjects/childFormNames/types"
+import { childTemplateNamesRule } from "~/metadata/commonObjects/childTemplateNames/types"
+import { internalInfoRule } from "~/metadata/commonObjects/internalInfo/types"
 import { i8nTextRule } from "~/metadata/commonObjects/i8nText/types"
 import { moduleRule } from "~/metadata/commonObjects/module/types"
 import { stringRule } from "~/metadata/commonObjects/string/types"
@@ -21,12 +24,11 @@ export const MetadataSettingsStorageRules = {
       toYAML: false,
       fromYAML: false,
     }),
-    internalInfo: {
-      type: "InternalInfo",
+    internalInfo: internalInfoRule({
       xmlParents: [],
       forReferenceOnly: true,
       items: [{ name: "SettingsStorageManager", category: "Manager" }],
-    },
+    }),
     uuid: uuidRule({
       xml: "_uuid",
       forReferenceOnly: true,
@@ -87,21 +89,19 @@ export const MetadataSettingsStorageRules = {
       nkdkPath: "МодульМенеджера.bsl",
       xmlPath: "Ext/ManagerModule.bsl",
     }),
-    forms: {
+    forms: childFormNamesRule({
       yaml: "Формы",
-      type: "ChildFormNames",
       xml: "Form",
       folderName: "Формы",
       forReferenceOnly: true,
       xmlParents: childObjects,
-    },
-    templates: {
+    }),
+    templates: childTemplateNamesRule({
       yaml: "Шаблоны",
-      type: "ChildTemplateNames",
       xml: "Template",
       folderName: "Шаблоны",
       forReferenceOnly: true,
       xmlParents: childObjects,
-    },
+    }),
   },
 } as const satisfies MetadataItemRule

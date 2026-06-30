@@ -1,3 +1,4 @@
+import { webSocketClientHeadersRule } from "~/metadata/commonObjects/webSocketClientHeaders/types"
 import { booleanRule } from "~/metadata/commonObjects/boolean/types"
 import { i8nTextRule } from "~/metadata/commonObjects/i8nText/types"
 import { moduleRule } from "~/metadata/commonObjects/module/types"
@@ -73,14 +74,13 @@ export const MetadataWebSocketClientRules = {
       xmlParents: properties,
       defaultValueXMLRaw: "",
     }),
-    headers: {
+    headers: webSocketClientHeadersRule({
       yaml: "Заголовки",
       xml: "Headers",
-      type: "WebSocketClientHeaders",
       xmlParents: properties,
       defaultValueXML: [],
       implicitValueYAML: [],
-    },
+    }),
     useOSProxy: booleanRule({
       yaml: "ИспользоватьПроксиОС",
       xml: "UseOSProxy",

@@ -1,3 +1,17 @@
+import { additionalIndexRule, metadataCommandsRule } from "~/metadata/appliedObjects/metadataAccountingRegister/types"
+import {
+  metadataCatalogAttributesRule,
+  metadataTabularSectionsRule,
+} from "~/metadata/appliedObjects/metadataCatalog/types"
+import { characteristicsDescriptionsRule } from "~/metadata/commonObjects/characteristicsDescription/types"
+import { childFormNamesRule } from "~/metadata/commonObjects/childFormNames/types"
+import { childTemplateNamesRule } from "~/metadata/commonObjects/childTemplateNames/types"
+import { helpRule } from "~/metadata/commonObjects/help/types"
+import { internalInfoRule } from "~/metadata/commonObjects/internalInfo/types"
+import { metadataFieldsRule } from "~/metadata/commonObjects/metadataField/types"
+import { metadataObjectRefCollectionRule } from "~/metadata/commonObjects/metadataObjectRefCollection/types"
+import { predefinedRule } from "~/metadata/commonObjects/predefined/types"
+import { standardAttributeDescriptionsRule } from "~/metadata/commonObjects/standardAttributeDescription/types"
 import { booleanRule } from "~/metadata/commonObjects/boolean/types"
 import { i8nTextRule } from "~/metadata/commonObjects/i8nText/types"
 import { moduleRule } from "~/metadata/commonObjects/module/types"
@@ -25,8 +39,7 @@ export const MetadataCatalogRules = {
       toYAML: false,
       fromYAML: false,
     }),
-    internalInfo: {
-      type: "InternalInfo",
+    internalInfo: internalInfoRule({
       xmlParents: [],
       forReferenceOnly: true,
       items: [
@@ -36,23 +49,21 @@ export const MetadataCatalogRules = {
         { name: "CatalogList", category: "List" },
         { name: "CatalogManager", category: "Manager" },
       ],
-    },
+    }),
     uuid: uuidRule({
       xml: "_uuid",
       forReferenceOnly: true,
       xmlParents: [],
     }),
-    additionalIndexes: {
+    additionalIndexes: additionalIndexRule({
       yaml: "ДополнительныеИндексы",
-      type: "AdditionalIndex",
       filePath: "Ext/AdditionalIndexes.xml",
-    },
-    attributes: {
+    }),
+    attributes: metadataCatalogAttributesRule({
       yaml: "Реквизиты",
-      type: "MetadataCatalogAttributes",
       xmlParents: ["ChildObjects"],
       xml: "Attribute",
-    },
+    }),
     autonumbering: booleanRule({
       yaml: "Автонумерация",
       defaultValueXML: true,
@@ -89,19 +100,17 @@ export const MetadataCatalogRules = {
       metadataTarget: { kind: "member", owner: "this", memberKinds: ["Form"], objectRoots: ["CommonForm"] },
       defaultValueXMLRaw: "",
     }),
-    basedOn: {
+    basedOn: metadataObjectRefCollectionRule({
       yaml: "ВводитсяНаОсновании",
-      type: "MetadataObjectRefCollection",
       xmlParents: ["Properties"],
       metadataTarget: { kind: "object", allowedObjectPaths: commonBasedOnObjectPaths },
       defaultValueXMLRaw: {},
-    },
-    characteristics: {
+    }),
+    characteristics: characteristicsDescriptionsRule({
       yaml: "Характеристики",
-      type: "CharacteristicsDescriptions",
       xmlParents: ["Properties"],
       defaultValueXMLRaw: {},
-    },
+    }),
     checkUnique: booleanRule({
       yaml: "КонтрольУникальности",
       defaultValueXML: true,
@@ -182,13 +191,12 @@ export const MetadataCatalogRules = {
       xmlParents: ["Properties"],
       implicitValueYAML: "Managed",
     }),
-    dataLockFields: {
+    dataLockFields: metadataFieldsRule({
       yaml: "ПоляБлокировкиДанных",
-      type: "MetadataFields",
       metadataTarget: { kind: "member", owner: "this" },
       xmlParents: ["Properties"],
       defaultValueXMLRaw: {},
-    },
+    }),
     defaultChoiceForm: stringRule({
       yaml: "ОсновнаяФормаДляВыбора",
       xmlParents: ["Properties"],
@@ -299,9 +307,8 @@ export const MetadataCatalogRules = {
       implicitValueYAML: false,
       xmlParents: ["Properties"],
     }),
-    inputByString: {
+    inputByString: metadataFieldsRule({
       yaml: "ВводПоСтроке",
-      type: "MetadataFields",
       metadataTarget: {
         kind: "member",
         owner: "this",
@@ -311,7 +318,7 @@ export const MetadataCatalogRules = {
       defaultValue: [],
       defaultValueXMLRaw: {},
       xmlParents: ["Properties"],
-    },
+    }),
     levelCount: numberRule({
       yaml: "КоличествоУровней",
       defaultValueXML: 2,
@@ -346,13 +353,12 @@ export const MetadataCatalogRules = {
       xmlParents: ["Properties"],
       defaultValueXMLRaw: {},
     }),
-    owners: {
+    owners: metadataObjectRefCollectionRule({
       yaml: "Владельцы",
-      type: "MetadataObjectRefCollection",
       xmlParents: ["Properties"],
       metadataTarget: { kind: "object", roots: ["Catalog", "Document", "ChartOfCharacteristicTypes", "ExchangePlan"] },
       defaultValueXMLRaw: {},
-    },
+    }),
     objectModule: moduleRule({
       externalMetadata: { segment: "ObjectModule", placement: "derivedEntry" },
       nkdkPath: "МодульОбъекта.bsl",
@@ -368,17 +374,15 @@ export const MetadataCatalogRules = {
       toXML: false,
       fromXML: false,
     }),
-    predefined: {
+    predefined: predefinedRule({
       yaml: "Предопределенные",
-      type: "Predefined",
       filePath: "Ext/Predefined.xml",
-    },
-    help: {
-      type: "Help",
+    }),
+    help: helpRule({
       externalMetadata: { segment: "Help", placement: "derivedEntry" },
       filePath: "Ext/Help.xml",
       nkdkDir: "Справка",
-    },
+    }),
     predefinedDataUpdate: systemEnumerationRule({
       yaml: "ОбновлениеПредопределенныхДанных",
       typeSE: "PredefinedDataUpdate",
@@ -411,42 +415,37 @@ export const MetadataCatalogRules = {
       xmlParents: ["Properties"],
       defaultValueXMLRaw: {},
     }),
-    tabularSections: {
+    tabularSections: metadataTabularSectionsRule({
       yaml: "ТабличныеЧасти",
-      type: "MetadataTabularSections",
       xmlParents: ["ChildObjects"],
       xml: "TabularSection",
-    },
-    standardAttributes: {
+    }),
+    standardAttributes: standardAttributeDescriptionsRule({
       yaml: "СтандартныеРеквизиты",
-      type: "StandardAttributeDescriptions",
       standartAttributeNames: MetadataCatalogStandardAttributeNames,
       xmlParents: ["Properties"],
-    },
-    commands: {
+    }),
+    commands: metadataCommandsRule({
       yaml: "Команды",
-      type: "MetadataCommands",
       xmlParents: ["ChildObjects"],
       xml: "Command",
-    },
-    forms: {
-      type: "ChildFormNames",
+    }),
+    forms: childFormNamesRule({
       xml: "Form",
       folderName: "Формы",
       forReferenceOnly: true,
       toYAML: false,
       fromYAML: false,
       xmlParents: ["ChildObjects"],
-    },
-    templates: {
-      type: "ChildTemplateNames",
+    }),
+    templates: childTemplateNamesRule({
       xml: "Template",
       folderName: "Шаблоны",
       forReferenceOnly: true,
       toYAML: false,
       fromYAML: false,
       xmlParents: ["ChildObjects"],
-    },
+    }),
     updateDataHistoryImmediatelyAfterWrite: booleanRule({
       yaml: "ОбновлятьИсториюДанныхСразуПослеЗаписи",
       defaultValueXML: false,

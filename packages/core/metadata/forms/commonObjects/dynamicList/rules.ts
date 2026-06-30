@@ -1,3 +1,17 @@
+import { filterRule } from "~/metadata/commonObjects/dataCompositionSystem/conditionalAppearanceItem/types"
+import { dcsLocalStringTypeRule } from "~/metadata/commonObjects/dataCompositionSystem/dcsLocalStringType/types"
+import { settingsParameterValueRule } from "~/metadata/commonObjects/dataCompositionSystem/parameterValue/types"
+import { settingsParameterValueCollectionRule } from "~/metadata/commonObjects/dataCompositionSystem/settingsParameterValueCollection/types"
+import { structureItemGroupRule } from "~/metadata/commonObjects/dataCompositionSystem/structureItemGroup/types"
+import { userSettingsIDRule } from "~/metadata/commonObjects/userSettingsID/types"
+import { conditionalAppearanceRule } from "~/metadata/forms/clientApplicationForm/types"
+import {
+  calculatedFieldsRule,
+  dCSParametersRule,
+  dataSetFieldFieldsRule,
+  dynamicListKeyFieldsRule,
+  orderRule,
+} from "~/metadata/forms/commonObjects/dynamicList/types"
 import { booleanRule } from "~/metadata/commonObjects/boolean/types"
 import { stringRule } from "~/metadata/commonObjects/string/types"
 import { systemEnumerationRule } from "~/metadata/systemEnumerations/types"
@@ -16,19 +30,17 @@ export const DynamicListRules = {
       implicitValueYAML: true,
       order: 7,
     }),
-    calculatedFields: {
-      type: "CalculatedFields",
+    calculatedFields: calculatedFieldsRule({
       xml: "CalculatedField",
       yaml: "ВычисляемыеПоля",
       order: 4,
-    },
-    conditionalAppearance: {
-      type: "ConditionalAppearance",
+    }),
+    conditionalAppearance: conditionalAppearanceRule({
       xml: "dcsset:conditionalAppearance",
       yaml: "УсловноеОформление",
       xmlParents: ["ListSettings"],
       order: 11,
-    },
+    }),
     currentUserSettingsKey: stringRule({
       yaml: "КлючТекущихПользовательскихНастроек",
       fromXML: false,
@@ -42,64 +54,57 @@ export const DynamicListRules = {
       defaultValueXML: false,
       implicitValueYAML: false,
     }),
-    dataParameters: {
-      type: "SettingsParameterValueCollection",
+    dataParameters: settingsParameterValueCollectionRule({
       xml: "dcscor:item",
       xmlParents: ["ListSettings", "dcsset:dataParameters"],
       yaml: "ПараметрыДанных",
       order: 9,
-      defaultItemRule: {
-        type: "SettingsParameterValue",
+      defaultItemRule: settingsParameterValueRule({
         valueType: "Field",
-      },
-    },
+      }),
+    }),
     dynamicDataRead: booleanRule({
       yaml: "ДинамическоеСчитываниеДанных",
       order: 2,
       implicitValueYAML: true,
     }),
-    fields: {
-      type: "DataSetFieldFields",
+    fields: dataSetFieldFieldsRule({
       xml: "Field",
       yaml: "Поля",
       order: 4,
-    },
-    filter: {
-      type: "Filter",
+    }),
+    filter: filterRule({
       xml: "dcsset:filter",
       yaml: "Отбор",
       xmlParents: ["ListSettings"],
       order: 8,
-    },
+    }),
     getInvisibleFieldPresentations: booleanRule({
       yaml: "ПолучениеПредставленийДляНевидимыхПолей",
       implicitValueYAML: true,
       order: 7,
     }),
-    group: {
-      type: "StructureItemGroup",
+    group: structureItemGroupRule({
       xml: "dcsset:item",
       yaml: "Группировка",
       xmlParents: ["ListSettings"],
       order: 12,
-    },
+    }),
     mainTable: stringRule({
       yaml: "ОсновнаяТаблица",
       order: 6,
     }),
-    order: {
-      type: "Order",
+    order: orderRule({
       xml: "dcsset:order",
       yaml: "Порядок",
       xmlParents: ["ListSettings"],
       order: 10,
-    },
-    parameters: {
-      type: "DCSParameters",
+    }),
+    parameters: dCSParametersRule({
       xml: "Parameter",
       yaml: "Параметры",
       order: 5,
-    },
+    }),
     queryText: stringRule({
       xml: "QueryText",
       order: 3,
@@ -113,13 +118,12 @@ export const DynamicListRules = {
       order: 4,
       implicitValueYAML: "Auto",
     }),
-    keyFields: {
-      type: "DynamicListKeyFields",
+    keyFields: dynamicListKeyFieldsRule({
       xml: "KeyField",
       yaml: "ПоляКлюча",
       order: 5,
       preserveFromReferenceXML: true,
-    },
+    }),
     itemsViewMode: systemEnumerationRule({
       typeSE: "DataCompositionSettingsItemViewMode",
       xml: "dcsset:itemsViewMode",
@@ -132,19 +136,17 @@ export const DynamicListRules = {
       yaml: "КомпоновщикНастроек",
       runtimeOnly: true,
     }),
-    itemsUserSettingID: {
-      type: "UserSettingsID",
+    itemsUserSettingID: userSettingsIDRule({
       xml: "dcsset:itemsUserSettingID",
       yaml: "ИдентификаторПользовательскойНастройкиСтруктуры",
       xmlParents: ["ListSettings"],
       order: 14,
-    },
-    itemsUserSettingPresentation: {
-      type: "DcsLocalStringType",
+    }),
+    itemsUserSettingPresentation: dcsLocalStringTypeRule({
       xml: "dcsset:itemsUserSettingPresentation",
       yaml: "ПредставлениеПользовательскойНастройкиСтруктуры",
       xmlParents: ["ListSettings"],
       order: 15,
-    },
+    }),
   },
 } as const satisfies MetadataItemRule

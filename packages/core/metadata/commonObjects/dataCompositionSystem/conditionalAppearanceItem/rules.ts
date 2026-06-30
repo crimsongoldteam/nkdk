@@ -1,3 +1,7 @@
+import { appearanceFieldsRule } from "~/metadata/commonObjects/dataCompositionSystem/appearanceFields/types"
+import { availableFieldsRule } from "~/metadata/commonObjects/dataCompositionSystem/availableFields/types"
+import { filterRule } from "~/metadata/commonObjects/dataCompositionSystem/conditionalAppearanceItem/types"
+import { dcsLocalStringTypeRule } from "~/metadata/commonObjects/dataCompositionSystem/dcsLocalStringType/types"
 import { booleanRule } from "~/metadata/commonObjects/boolean/types"
 import { stringRule } from "~/metadata/commonObjects/string/types"
 import { systemEnumerationRule } from "~/metadata/systemEnumerations/types"
@@ -11,32 +15,28 @@ export const ConditionalAppearanceItemRules = {
       implicitValueYAML: true,
       order: 0,
     }),
-    fields: {
-      type: "AvailableFields",
+    fields: availableFieldsRule({
       xml: "dcsset:selection",
       yaml: "Поля",
       order: 1,
       defaultValueXMLRaw: {},
-    },
-    filter: {
-      type: "Filter",
+    }),
+    filter: filterRule({
       xml: "dcsset:filter",
       yaml: "Отбор",
       order: 2,
       defaultValueXMLRaw: {},
-    },
-    appearance: {
-      type: "AppearanceFields",
+    }),
+    appearance: appearanceFieldsRule({
       xml: "dcsset:appearance",
       yaml: "Оформление",
       defaultValueXMLRaw: {},
       order: 3,
-    },
-    presentation: {
-      type: "DcsLocalStringType",
+    }),
+    presentation: dcsLocalStringTypeRule({
       xml: "dcsset:presentation",
       yaml: "Представление",
-    },
+    }),
     viewMode: systemEnumerationRule({
       typeSE: "DataCompositionSettingsItemViewMode",
       xml: "dcsset:viewMode",
@@ -47,11 +47,10 @@ export const ConditionalAppearanceItemRules = {
       xml: "dcsset:userSettingID",
       yaml: "ИдентификаторПользовательскойНастройки",
     }),
-    userSettingPresentation: {
-      type: "DcsLocalStringType",
+    userSettingPresentation: dcsLocalStringTypeRule({
       xml: "dcsset:userSettingPresentation",
       yaml: "ПредставлениеПользовательскойНастройки",
-    },
+    }),
     useInGroup: systemEnumerationRule({
       typeSE: "DataCompositionConditionalAppearanceUse",
       xml: "dcsset:useInGroup",

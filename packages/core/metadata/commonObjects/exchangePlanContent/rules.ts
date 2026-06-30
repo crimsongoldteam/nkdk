@@ -1,15 +1,16 @@
+import { exchangePlanContentItemsRule } from "~/metadata/commonObjects/exchangePlanContent/types"
+import { metadataItemLinkRule } from "~/metadata/commonObjects/metadataPath/types"
 import { xmlRootRule } from "~/metadata/commonObjects/xmlRoot/types"
 import { systemEnumerationRule } from "~/metadata/systemEnumerations/types"
 import { MetadataItemRule } from "~/metadata/orchestration/property/types"
 export const ExchangePlanContentItemRules = {
   itemType: "ExchangePlanContentItem",
   properties: {
-    metadata: {
+    metadata: metadataItemLinkRule({
       yaml: "Метаданные",
       xml: "Metadata",
-      type: "MetadataItemLink",
       required: true,
-    },
+    }),
     autoRecord: systemEnumerationRule({
       yaml: "Авторегистрация",
       xml: "AutoRecord",
@@ -34,13 +35,12 @@ export const ExchangePlanContentRules = {
       forReferenceOnly: true,
       isFileRoot: true,
     }),
-    items: {
-      type: "ExchangePlanContentItems",
+    items: exchangePlanContentItemsRule({
       xml: "Item",
       defaultValueXMLEmpty: [],
       defaultValue: [],
       yamlInline: true,
       yaml: "items",
-    },
+    }),
   },
 } as const satisfies MetadataItemRule

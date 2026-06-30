@@ -1,3 +1,8 @@
+import { dcsLocalStringTypeRule } from "~/metadata/commonObjects/dataCompositionSystem/dcsLocalStringType/types"
+import { metadataDcsMetadataValueRule } from "~/metadata/commonObjects/dataCompositionSystem/dcsMetadataValue/types"
+import { settingsParameterValueRule } from "~/metadata/commonObjects/dataCompositionSystem/parameterValue/types"
+import { settingsParameterValueCollectionRule } from "~/metadata/commonObjects/dataCompositionSystem/settingsParameterValueCollection/types"
+import { typeDescriptionRule } from "~/metadata/commonObjects/typeDescription/types"
 import { booleanRule } from "~/metadata/commonObjects/boolean/types"
 import { stringRule } from "~/metadata/commonObjects/string/types"
 import { systemEnumerationRule } from "~/metadata/systemEnumerations/types"
@@ -11,27 +16,24 @@ export const DCSParameterRules = {
       order: 1,
       toYAML: false,
     }),
-    title: {
-      type: "DcsLocalStringType",
+    title: dcsLocalStringTypeRule({
       xml: "dcssch:title",
       yaml: "Заголовок",
       order: 2,
-    },
-    valueType: {
-      type: "TypeDescription",
+    }),
+    valueType: typeDescriptionRule({
       xml: "dcssch:valueType",
       yaml: "ТипЗначения",
       order: 3,
-    },
-    value: {
-      type: "MetadataDcsMetadataValue",
+    }),
+    value: metadataDcsMetadataValueRule({
       valueType: "Primitive",
       xml: "dcssch:value",
       yaml: "Значение",
       order: 4,
       exportNilValue: true,
       preserveFromReferenceXML: true,
-    },
+    }),
     useRestriction: booleanRule({
       xml: "dcssch:useRestriction",
       yaml: "ОграничениеИспользования",
@@ -61,41 +63,35 @@ export const DCSParameterRules = {
       yaml: "ПараметрФункциональныхОпций",
       order: 9,
     }),
-    editParameters: {
-      type: "SettingsParameterValueCollection",
-      defaultItemRule: {
-        type: "SettingsParameterValue",
+    editParameters: settingsParameterValueCollectionRule({
+      defaultItemRule: settingsParameterValueRule({
         valueType: "Primitive",
         exportSettingsXsiType: false,
-      },
+      }),
       parameterRules: {
-        ВыборГруппИЭлементов: {
-          type: "SettingsParameterValue",
+        ВыборГруппИЭлементов: settingsParameterValueRule({
           valueType: "SystemEnumeration",
           typeSE: "FoldersAndItemsUse",
           exportSettingsXsiType: false,
-        },
-        СвязиПараметровВыбора: {
-          type: "SettingsParameterValue",
+        }),
+        СвязиПараметровВыбора: settingsParameterValueRule({
           valueType: "ChoiceParameterLinks",
           exportSettingsXsiType: false,
-        },
-        ПараметрыВыбора: {
-          type: "SettingsParameterValue",
+        }),
+        ПараметрыВыбора: settingsParameterValueRule({
           valueType: "Parameter",
           exportSettingsXsiType: false,
-        },
-        СвязьПоТипу: {
-          type: "SettingsParameterValue",
+        }),
+        СвязьПоТипу: settingsParameterValueRule({
           valueType: "TypeLink",
           exportSettingsXsiType: false,
-        },
+        }),
       },
       xml: "dcscor:item",
       xmlParents: ["dcssch:inputParameters"],
       yaml: "ПараметрыРедактирования",
       order: 10,
-    },
+    }),
     denyIncompleteValues: booleanRule({
       xml: "dcssch:denyIncompleteValues",
       yaml: "ЗапрещатьНезаполненныеЗначения",

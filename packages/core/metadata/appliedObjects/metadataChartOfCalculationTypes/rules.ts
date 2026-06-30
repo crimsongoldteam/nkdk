@@ -1,3 +1,16 @@
+import { additionalIndexRule, metadataCommandsRule } from "~/metadata/appliedObjects/metadataAccountingRegister/types"
+import { metadataChartOfCalculationTypesTabularSectionsRule } from "~/metadata/appliedObjects/metadataChartOfCalculationTypes/types"
+import { metadataAttributesRule } from "~/metadata/appliedObjects/metadataDataProcessor/types"
+import { characteristicsDescriptionsRule } from "~/metadata/commonObjects/characteristicsDescription/types"
+import { childFormNamesRule } from "~/metadata/commonObjects/childFormNames/types"
+import { childTemplateNamesRule } from "~/metadata/commonObjects/childTemplateNames/types"
+import { helpRule } from "~/metadata/commonObjects/help/types"
+import { internalInfoRule } from "~/metadata/commonObjects/internalInfo/types"
+import { metadataFieldsRule } from "~/metadata/commonObjects/metadataField/types"
+import { metadataItemLinksRule } from "~/metadata/commonObjects/metadataPath/types"
+import { predefinedRule } from "~/metadata/commonObjects/predefined/types"
+import { standardAttributeDescriptionsRule } from "~/metadata/commonObjects/standardAttributeDescription/types"
+import { standardTabularSectionDescriptionsRule } from "~/metadata/commonObjects/standardTabularSectionDescription/types"
 import { booleanRule } from "~/metadata/commonObjects/boolean/types"
 import { i8nTextRule } from "~/metadata/commonObjects/i8nText/types"
 import { moduleRule } from "~/metadata/commonObjects/module/types"
@@ -45,8 +58,7 @@ export const MetadataChartOfCalculationTypesRules = {
       toYAML: false,
       fromYAML: false,
     }),
-    internalInfo: {
-      type: "InternalInfo",
+    internalInfo: internalInfoRule({
       xmlParents: [],
       forReferenceOnly: true,
       items: [
@@ -62,7 +74,7 @@ export const MetadataChartOfCalculationTypesRules = {
         { name: "LeadingCalculationTypes", category: "LeadingCalculationTypes" },
         { name: "LeadingCalculationTypesRow", category: "LeadingCalculationTypesRow" },
       ],
-    },
+    }),
     uuid: uuidRule({ xml: "_uuid", forReferenceOnly: true, xmlParents: [] }),
     name: stringRule({ xmlParents: properties, required: true, defaultValue: ({ name }: { name?: string }) => name }),
     synonym: i8nTextRule({ yaml: "Синоним", xmlParents: properties, defaultValueXMLRaw: "" }),
@@ -121,7 +133,7 @@ export const MetadataChartOfCalculationTypesRules = {
       implicitValueYAML: "BothWays",
       xmlParents: properties,
     }),
-    inputByString: { yaml: "ВводПоСтроке", type: "MetadataFields", xmlParents: properties, defaultValueXMLRaw: {} },
+    inputByString: metadataFieldsRule({ yaml: "ВводПоСтроке", xmlParents: properties, defaultValueXMLRaw: {} }),
     searchStringModeOnInputByString: systemEnumerationRule({
       yaml: "РежимСтрокиПоискаПриВводеПоСтроке",
       typeSE: "SearchStringModeOnInputByString",
@@ -193,13 +205,12 @@ export const MetadataChartOfCalculationTypesRules = {
       metadataTarget: { kind: "member", owner: "this", memberKinds: ["Form"], objectRoots: ["CommonForm"] },
       defaultValueXMLRaw: "",
     }),
-    basedOn: {
+    basedOn: metadataItemLinksRule({
       yaml: "ВводитсяНаОсновании",
-      type: "MetadataItemLinks",
       metadataTarget: { kind: "object", allowedObjectPaths: commonBasedOnObjectPaths },
       xmlParents: properties,
       defaultValueXMLRaw: {},
-    },
+    }),
     dependenceOnCalculationTypes: systemEnumerationRule({
       yaml: "ЗависимостьОтВидовРасчета",
       typeSE: "ChartOfCalculationTypesBaseUse",
@@ -207,36 +218,32 @@ export const MetadataChartOfCalculationTypesRules = {
       implicitValueYAML: "DontUse",
       xmlParents: properties,
     }),
-    baseCalculationTypes: {
+    baseCalculationTypes: metadataItemLinksRule({
       yaml: "БазовыеВидыРасчета",
-      type: "MetadataItemLinks",
       xmlParents: properties,
       defaultValueXMLRaw: {},
-    },
+    }),
     actionPeriodUse: booleanRule({
       yaml: "ПериодДействияБазовый",
       defaultValueXML: false,
       implicitValueYAML: false,
       xmlParents: properties,
     }),
-    standardAttributes: {
+    standardAttributes: standardAttributeDescriptionsRule({
       yaml: "СтандартныеРеквизиты",
-      type: "StandardAttributeDescriptions",
       standartAttributeNames: MetadataChartOfCalculationTypesStandardAttributeNames,
       xmlParents: properties,
-    },
-    characteristics: {
+    }),
+    characteristics: characteristicsDescriptionsRule({
       yaml: "Характеристики",
-      type: "CharacteristicsDescriptions",
       xmlParents: properties,
       defaultValueXMLRaw: {},
-    },
-    standardTabularSections: {
-      type: "StandardTabularSectionDescriptions",
+    }),
+    standardTabularSections: standardTabularSectionDescriptionsRule({
       xmlParents: properties,
       toYAML: false,
       fromYAML: false,
-    },
+    }),
     predefinedDataUpdate: systemEnumerationRule({
       yaml: "ОбновлениеПредопределенныхДанных",
       typeSE: "PredefinedDataUpdate",
@@ -250,12 +257,11 @@ export const MetadataChartOfCalculationTypesRules = {
       implicitValueYAML: false,
       xmlParents: properties,
     }),
-    dataLockFields: {
+    dataLockFields: metadataFieldsRule({
       yaml: "ПоляБлокировкиДанных",
-      type: "MetadataFields",
       xmlParents: properties,
       defaultValueXMLRaw: {},
-    },
+    }),
     dataLockControlMode: systemEnumerationRule({
       yaml: "РежимУправленияБлокировкойДанных",
       typeSE: "DefaultDataLockControlMode",
@@ -311,34 +317,31 @@ export const MetadataChartOfCalculationTypesRules = {
       implicitValueYAML: "Native",
     }),
     extendedConfigurationObject: stringRule({ runtimeOnly: true }),
-    attributes: { yaml: "Реквизиты", xml: "Attribute", type: "MetadataAttributes", xmlParents: childObjects },
-    tabularSections: {
+    attributes: metadataAttributesRule({ yaml: "Реквизиты", xml: "Attribute", xmlParents: childObjects }),
+    tabularSections: metadataChartOfCalculationTypesTabularSectionsRule({
       yaml: "ТабличныеЧасти",
       xml: "TabularSection",
-      type: "MetadataChartOfCalculationTypesTabularSections",
       xmlParents: childObjects,
-    },
-    forms: {
+    }),
+    forms: childFormNamesRule({
       yaml: "Формы",
       xml: "Form",
-      type: "ChildFormNames",
       xmlParents: childObjects,
       folderName: "Формы",
       forReferenceOnly: true,
       toYAML: false,
       fromYAML: false,
-    },
-    templates: {
+    }),
+    templates: childTemplateNamesRule({
       yaml: "Макеты",
       xml: "Template",
-      type: "ChildTemplateNames",
       xmlParents: childObjects,
       folderName: "Макеты",
       forReferenceOnly: true,
       toYAML: false,
       fromYAML: false,
-    },
-    commands: { yaml: "Команды", xml: "Command", type: "MetadataCommands", xmlParents: childObjects },
+    }),
+    commands: metadataCommandsRule({ yaml: "Команды", xml: "Command", xmlParents: childObjects }),
     objectModule: moduleRule({
       externalMetadata: { segment: "ObjectModule", placement: "derivedEntry" },
       nkdkPath: "МодульОбъекта.bsl",
@@ -353,21 +356,19 @@ export const MetadataChartOfCalculationTypesRules = {
       toXML: false,
       fromXML: false,
     }),
-    predefined: { yaml: "Предопределенные", type: "Predefined", filePath: "Ext/Predefined.xml" },
-    additionalIndexes: {
+    predefined: predefinedRule({ yaml: "Предопределенные", filePath: "Ext/Predefined.xml" }),
+    additionalIndexes: additionalIndexRule({
       yaml: "ДополнительныеИндексы",
-      type: "AdditionalIndex",
       filePath: "Ext/AdditionalIndexes.xml",
-    },
-    help: {
-      type: "Help",
+    }),
+    help: helpRule({
       externalMetadata: { segment: "Help", placement: "derivedEntry" },
       filePath: "Ext/Help.xml",
       xmlPath: "Ext/Help.xml",
       nkdkDir: "Справка",
       toXML: false,
       fromXML: false,
-    },
+    }),
   },
   childCollections: [{ propertyKey: "commands", itemRule: MetadataChartOfCalculationTypesCommandRules }],
 } as const satisfies MetadataItemRule

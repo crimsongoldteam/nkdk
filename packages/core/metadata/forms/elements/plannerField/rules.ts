@@ -1,3 +1,6 @@
+import { dataPathRule } from "~/metadata/commonObjects/metadataPath/types"
+import { commandSetRule } from "~/metadata/forms/commonObjects/commandSet/types"
+import { eventsRule } from "~/metadata/forms/commonObjects/event/types"
 import { booleanRule } from "~/metadata/commonObjects/boolean/types"
 import { numberRule } from "~/metadata/commonObjects/number/types"
 import { registerElementRule } from "~/metadata/orchestration/formElement/ruleFactory"
@@ -12,7 +15,7 @@ export const PlannerFieldRules = {
   properties: {
     autoMaxHeight: booleanRule({ yaml: "АвтоМаксимальнаяВысота", implicitValueYAML: true }),
     autoMaxWidth: booleanRule({ yaml: "АвтоМаксимальнаяШирина", implicitValueYAML: true }),
-    commandSet: { yaml: "Команда", type: "CommandSet", toEnterprise: false },
+    commandSet: commandSetRule({ yaml: "Команда", toEnterprise: false }),
     dimensionItemHyperlink: booleanRule({ yaml: "ГиперссылкаЭлементаИзмерения", implicitValueYAML: false }),
     enableDrag: booleanRule({ yaml: "РазрешитьПеретаскивание", implicitValueYAML: false, toEnterprise: false }),
     enableStartDrag: booleanRule({
@@ -31,8 +34,7 @@ export const PlannerFieldRules = {
       yaml: "ГиперссылкаПеренесенногоЗаголовкаШкалыВремени",
       implicitValueYAML: false,
     }),
-    events: {
-      type: "Events",
+    events: eventsRule({
       yaml: "События",
       toEnterprise: false,
       items: {
@@ -60,14 +62,13 @@ export const PlannerFieldRules = {
         dragCheck: "ПроверкаПеретаскивания",
         insideDragCheck: "ПроверкаПеретаскиванияВнутри",
       },
-    },
-    dataPath: {
+    }),
+    dataPath: dataPathRule({
       yaml: "ПутьКДанным",
-      type: "DataPath",
       toYAML: false,
       fromYAML: false,
       defaultType: "Planner",
-    },
+    }),
     ...formFieldCommonProperties,
     ...formFieldDisabledTableRelatedProperties,
     titleHeight: numberRule({ yaml: "ВысотаЗаголовка", implicitValueYAML: 0 }),

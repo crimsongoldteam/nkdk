@@ -1,3 +1,5 @@
+import { dataPathRule } from "~/metadata/commonObjects/metadataPath/types"
+import { eventsRule } from "~/metadata/forms/commonObjects/event/types"
 import { booleanRule } from "~/metadata/commonObjects/boolean/types"
 import { numberRule } from "~/metadata/commonObjects/number/types"
 import { registerElementRule } from "~/metadata/orchestration/formElement/ruleFactory"
@@ -18,8 +20,7 @@ export const ChartFieldRules = {
     maxWidth: numberRule({ yaml: "МаксимальнаяШирина", implicitValueYAML: 0 }),
     verticalStretch: booleanRule({ yaml: "РастягиватьПоВертикали", implicitValueYAML: true }),
     width: numberRule({ yaml: "Ширина", implicitValueYAML: 50 }),
-    events: {
-      type: "Events",
+    events: eventsRule({
       yaml: "События",
       toEnterprise: false,
       items: {
@@ -28,14 +29,13 @@ export const ChartFieldRules = {
         detailProcessing: "ОбработкаРасшифровки",
         onActivate: "ПриАктивизации",
       },
-    },
-    dataPath: {
+    }),
+    dataPath: dataPathRule({
       yaml: "ПутьКДанным",
-      type: "DataPath",
       toYAML: false,
       fromYAML: false,
       defaultType: "Chart",
-    },
+    }),
     ...formFieldCommonProperties,
     titleHeight: numberRule({ yaml: "ВысотаЗаголовка", implicitValueYAML: 0 }),
   },

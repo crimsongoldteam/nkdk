@@ -1,3 +1,4 @@
+import { styleItemValueRule } from "~/metadata/commonObjects/styleItemValue/types"
 import { i8nTextRule } from "~/metadata/commonObjects/i8nText/types"
 import { stringRule } from "~/metadata/commonObjects/string/types"
 import { uuidRule } from "~/metadata/commonObjects/uuid/types"
@@ -44,12 +45,11 @@ export const MetadataStyleItemRules = {
       xmlParents: properties,
       implicitValueYAML: "Font",
     }),
-    value: {
+    value: styleItemValueRule({
       yaml: "Значение",
-      type: "StyleItemValue",
       xml: "Value",
       xmlParents: properties,
-    },
+    }),
     objectBelonging: systemEnumerationRule({
       yaml: "ПринадлежностьОбъекта",
       typeSE: "ObjectBelonging",

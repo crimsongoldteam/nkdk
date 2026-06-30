@@ -1,3 +1,7 @@
+import { colorRule } from "~/metadata/commonObjects/color/types"
+import { dataPathRule } from "~/metadata/commonObjects/metadataPath/types"
+import { pictureRule } from "~/metadata/commonObjects/metadataTargets/types"
+import { groupChildItemsRule } from "~/metadata/forms/commonObjects/childItems/types"
 import { booleanRule } from "~/metadata/commonObjects/boolean/types"
 import { i8nTextRule } from "~/metadata/commonObjects/i8nText/types"
 import { stringRule } from "~/metadata/commonObjects/string/types"
@@ -16,16 +20,14 @@ export const PageRules = {
       xml: "_name",
       required: true,
     }),
-    backColor: {
+    backColor: colorRule({
       yaml: "ЦветФона",
-      type: "Color",
       metadataTarget: { kind: "object", roots: ["StyleItem"], filters: [{ kind: "styleItemType", values: ["Color"] }] },
-    },
-    childItems: {
+    }),
+    childItems: groupChildItemsRule({
       yaml: "Элементы",
-      type: "GroupChildItems",
       defaultValue: [],
-    },
+    }),
     childItemsHorizontalAlign: systemEnumerationRule({
       yaml: "ГоризонтальноеПоложениеПодчиненных",
       xml: "HorizontalAlign",
@@ -60,7 +62,7 @@ export const PageRules = {
       typeSE: "ItemsAndTitlesAlignVariant",
       implicitValueYAML: "Auto",
     }),
-    picture: { yaml: "Картинка", type: "Picture", metadataTarget: { kind: "object", roots: ["CommonPicture"] } },
+    picture: pictureRule({ yaml: "Картинка", metadataTarget: { kind: "object", roots: ["CommonPicture"] } }),
     scrollOnCompress: booleanRule({ yaml: "СкроллПриСжатии", noImplicitValueYAML: true }),
     showTitle: booleanRule({ yaml: "ОтображатьЗаголовок", implicitValueYAML: true }),
     slaveItemsWidth: systemEnumerationRule({
@@ -69,7 +71,7 @@ export const PageRules = {
       typeSE: "ChildFormItemsWidth",
       noImplicitValueYAML: true,
     }),
-    titleDataPath: { yaml: "ПутьКДаннымЗаголовка", type: "DataPath", defaultType: "string" },
+    titleDataPath: dataPathRule({ yaml: "ПутьКДаннымЗаголовка", defaultType: "string" }),
     verticalAlign: systemEnumerationRule({
       yaml: "ВертикальноеПоложение",
       typeSE: "ItemVerticalAlign",

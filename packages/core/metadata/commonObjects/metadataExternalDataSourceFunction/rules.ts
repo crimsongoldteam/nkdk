@@ -1,3 +1,4 @@
+import { typeDescriptionRule } from "~/metadata/commonObjects/typeDescription/types"
 import { booleanRule } from "~/metadata/commonObjects/boolean/types"
 import { i8nTextRule } from "~/metadata/commonObjects/i8nText/types"
 import { stringRule } from "~/metadata/commonObjects/string/types"
@@ -33,13 +34,12 @@ export const MetadataExternalDataSourceFunctionRules = {
       defaultValueXML: true,
       implicitValueYAML: true,
     }),
-    type: {
+    type: typeDescriptionRule({
       yaml: "Тип",
       xml: "Type",
-      type: "TypeDescription",
       required: true,
       xmlParents: propertiesParents,
-    },
+    }),
     expressionInDataSource: stringRule({
       yaml: "ВыражениеВИсточникеДанных",
       xml: "ExpressionInDataSource",

@@ -1,3 +1,7 @@
+import { borderRule } from "~/metadata/commonObjects/border/types"
+import { colorRule } from "~/metadata/commonObjects/color/types"
+import { formattedI8nTextRule } from "~/metadata/commonObjects/formattedI8nText/types"
+import { eventsRule } from "~/metadata/forms/commonObjects/event/types"
 import { booleanRule } from "~/metadata/commonObjects/boolean/types"
 import { numberRule } from "~/metadata/commonObjects/number/types"
 import { stringRule } from "~/metadata/commonObjects/string/types"
@@ -16,10 +20,9 @@ export const LabelDecorationRules = {
       xml: "_name",
       required: true,
     }),
-    title: {
+    title: formattedI8nTextRule({
       yaml: "Заголовок",
-      type: "FormattedI8nText",
-    },
+    }),
     type: systemEnumerationRule({
       typeSE: "FormDecorationType",
       runtimeOnly: true,
@@ -27,25 +30,22 @@ export const LabelDecorationRules = {
     ...formDecorationCommonProperties,
     autoMaxHeight: { ...formDecorationCommonProperties.autoMaxHeight, implicitValueYAML: true },
     autoMaxWidth: { ...formDecorationCommonProperties.autoMaxWidth, implicitValueYAML: true },
-    backColor: {
+    backColor: colorRule({
       yaml: "ЦветФона",
-      type: "Color",
       metadataTarget: { kind: "object", roots: ["StyleItem"], filters: [{ kind: "styleItemType", values: ["Color"] }] },
-    },
-    border: {
+    }),
+    border: borderRule({
       yaml: "Рамка",
-      type: "Border",
       metadataTarget: {
         kind: "object",
         roots: ["StyleItem"],
         filters: [{ kind: "styleItemType", values: ["Border"] }],
       },
-    },
-    borderColor: {
+    }),
+    borderColor: colorRule({
       yaml: "ЦветРамки",
-      type: "Color",
       metadataTarget: { kind: "object", roots: ["StyleItem"], filters: [{ kind: "styleItemType", values: ["Color"] }] },
-    },
+    }),
     displayImportance: { ...formDecorationCommonProperties.displayImportance, implicitValueYAML: "Auto" },
     enabled: { ...formDecorationCommonProperties.enabled, implicitValueYAML: true },
     height: { ...formDecorationCommonProperties.height, implicitValueYAML: 0 },
@@ -69,15 +69,14 @@ export const LabelDecorationRules = {
     verticalStretch: { ...formDecorationCommonProperties.verticalStretch, noImplicitValueYAML: true },
     visible: { ...formDecorationCommonProperties.visible, implicitValueYAML: true },
     width: { ...formDecorationCommonProperties.width, implicitValueYAML: 0 },
-    events: {
-      type: "Events",
+    events: eventsRule({
       yaml: "События",
       toEnterprise: false,
       items: {
         click: "Нажатие",
         uRLProcessing: "ОбработкаНавигационнойСсылки",
       },
-    },
+    }),
   },
 } as const satisfies ElementRule
 registerElementRule("LabelDecoration", LabelDecorationRules)

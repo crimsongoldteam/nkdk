@@ -1,3 +1,7 @@
+import { borderRule } from "~/metadata/commonObjects/border/types"
+import { colorRule } from "~/metadata/commonObjects/color/types"
+import { formattedI8nTextRule } from "~/metadata/commonObjects/formattedI8nText/types"
+import { eventsRule } from "~/metadata/forms/commonObjects/event/types"
 import { booleanRule } from "~/metadata/commonObjects/boolean/types"
 import { numberRule } from "~/metadata/commonObjects/number/types"
 import { systemEnumerationRule } from "~/metadata/systemEnumerations/types"
@@ -38,10 +42,9 @@ export const ExtendedTooltipRules = {
   enterpriseField: "FormDecoration",
   enterpriseFieldType: "None",
   properties: {
-    title: {
-      type: "FormattedI8nText",
+    title: formattedI8nTextRule({
       yaml: "Заголовок",
-    },
+    }),
     type: systemEnumerationRule({
       typeSE: "FormDecorationType",
       runtimeOnly: true,
@@ -49,25 +52,22 @@ export const ExtendedTooltipRules = {
     ...extendedTooltipCommonProperties,
     autoMaxHeight: { ...extendedTooltipCommonProperties.autoMaxHeight, implicitValueYAML: true },
     autoMaxWidth: { ...extendedTooltipCommonProperties.autoMaxWidth, implicitValueYAML: true },
-    backColor: {
+    backColor: colorRule({
       yaml: "ЦветФона",
-      type: "Color",
       metadataTarget: { kind: "object", roots: ["StyleItem"], filters: [{ kind: "styleItemType", values: ["Color"] }] },
-    },
-    border: {
+    }),
+    border: borderRule({
       yaml: "Рамка",
-      type: "Border",
       metadataTarget: {
         kind: "object",
         roots: ["StyleItem"],
         filters: [{ kind: "styleItemType", values: ["Border"] }],
       },
-    },
-    borderColor: {
+    }),
+    borderColor: colorRule({
       yaml: "ЦветРамки",
-      type: "Color",
       metadataTarget: { kind: "object", roots: ["StyleItem"], filters: [{ kind: "styleItemType", values: ["Color"] }] },
-    },
+    }),
     displayImportance: { ...extendedTooltipCommonProperties.displayImportance, implicitValueYAML: "Auto" },
     enabled: { ...extendedTooltipCommonProperties.enabled, noImplicitValueYAML: true },
     height: { ...extendedTooltipCommonProperties.height, implicitValueYAML: 0 },
@@ -91,15 +91,14 @@ export const ExtendedTooltipRules = {
     verticalStretch: { ...extendedTooltipCommonProperties.verticalStretch, noImplicitValueYAML: true },
     visible: { ...extendedTooltipCommonProperties.visible, noImplicitValueYAML: true },
     width: { ...extendedTooltipCommonProperties.width, implicitValueYAML: 0 },
-    events: {
-      type: "Events",
+    events: eventsRule({
       yaml: "События",
       toEnterprise: false,
       items: {
         click: "Нажатие",
         uRLProcessing: "ОбработкаНавигационнойСсылки",
       },
-    },
+    }),
   },
 } as const satisfies ElementRule
 registerElementAsType({

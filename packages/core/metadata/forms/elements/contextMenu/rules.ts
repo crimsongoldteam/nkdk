@@ -1,3 +1,4 @@
+import { commandBarChildItemsRule } from "~/metadata/forms/commonObjects/childItems/types"
 import { booleanRule } from "~/metadata/commonObjects/boolean/types"
 import { stringRule } from "~/metadata/commonObjects/string/types"
 import { systemEnumerationRule } from "~/metadata/systemEnumerations/types"
@@ -24,12 +25,11 @@ export const ContextMenuRules = {
       noImplicitValueYAML: true,
     }),
     autofill: booleanRule({ yaml: "Автозаполнение", xml: "Autofill", noImplicitValueYAML: true }),
-    childItems: {
+    childItems: commandBarChildItemsRule({
       yaml: "Элементы",
       xml: "ChildItems",
-      type: "CommandBarChildItems",
       defaultValue: [],
-    },
+    }),
   },
 } as const satisfies ElementRule
 registerElementAsType({

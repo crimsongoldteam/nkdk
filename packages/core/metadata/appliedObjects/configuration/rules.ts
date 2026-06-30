@@ -1,3 +1,17 @@
+import {
+  allowedIncomingShareRequestTypesRule,
+  clientApplicationInterfaceRule,
+  homePageWorkAreaRule,
+  mobileApplicationURLsRule,
+  rootCommandInterfaceRule,
+  usedMobileApplicationFunctionalitiesRule,
+} from "~/metadata/appliedObjects/configuration/types"
+import { externalFileRule } from "~/metadata/commonObjects/externalFile/types"
+import { externalPictureRule } from "~/metadata/commonObjects/externalPicture/types"
+import { helpRule } from "~/metadata/commonObjects/help/types"
+import { internalInfoRule } from "~/metadata/commonObjects/internalInfo/types"
+import { metadataItemLinkRule, metadataItemLinksRule } from "~/metadata/commonObjects/metadataPath/types"
+import { usePurposesRule } from "~/metadata/commonObjects/usePurposes/types"
 import { booleanRule } from "~/metadata/commonObjects/boolean/types"
 import { i8nTextRule } from "~/metadata/commonObjects/i8nText/types"
 import { moduleRule } from "~/metadata/commonObjects/module/types"
@@ -38,14 +52,13 @@ export const MetadataConfigurationRules = {
       forReferenceOnly: true,
       xmlParents: [],
     }),
-    internalInfo: {
-      type: "InternalInfo",
+    internalInfo: internalInfoRule({
       xmlParents: [],
       forReferenceOnly: true,
       preserveFromReferenceXML: true,
       exportWithoutReferenceXML: true,
       containedObjectClassIds: configurationInternalInfoContainedObjectClassIds,
-    },
+    }),
     name: stringRule({
       yaml: "Имя",
       xmlParents: configurationProperties,
@@ -84,12 +97,11 @@ export const MetadataConfigurationRules = {
       implicitValueYAML: "ManagedApplication",
       xmlParents: configurationProperties,
     }),
-    usePurposes: {
+    usePurposes: usePurposesRule({
       yaml: "НазначенияИспользования",
       xml: "UsePurposes",
-      type: "UsePurposes",
       xmlParents: configurationProperties,
-    },
+    }),
     scriptVariant: systemEnumerationRule({
       yaml: "ВариантВстроенногоЯзыка",
       typeSE: "ScriptVariant",
@@ -97,13 +109,12 @@ export const MetadataConfigurationRules = {
       implicitValueYAML: "Russian",
       xmlParents: configurationProperties,
     }),
-    defaultRoles: {
+    defaultRoles: metadataItemLinksRule({
       yaml: "ОсновныеРоли",
-      type: "MetadataItemLinks",
       xmlParents: configurationProperties,
       defaultValueXML: "",
       defaultValueXMLRaw: "",
-    },
+    }),
     vendor: stringRule({
       yaml: "Поставщик",
       xmlParents: configurationProperties,
@@ -140,56 +151,49 @@ export const MetadataConfigurationRules = {
       implicitValueYAML: false,
       xmlParents: configurationProperties,
     }),
-    additionalFullTextSearchDictionaries: {
+    additionalFullTextSearchDictionaries: metadataItemLinksRule({
       yaml: "ДополнительныеСловариПолнотекстовогоПоиска",
-      type: "MetadataItemLinks",
       xmlParents: configurationProperties,
       defaultValueXML: "",
       defaultValueXMLRaw: "",
-    },
-    commonSettingsStorage: {
+    }),
+    commonSettingsStorage: metadataItemLinkRule({
       yaml: "ХранилищеОбщихНастроек",
-      type: "MetadataItemLink",
       xmlParents: configurationProperties,
       defaultValueXML: "",
       defaultValueXMLRaw: "",
-    },
-    reportsUserSettingsStorage: {
+    }),
+    reportsUserSettingsStorage: metadataItemLinkRule({
       yaml: "ХранилищеПользовательскихНастроекОтчетов",
-      type: "MetadataItemLink",
       xmlParents: configurationProperties,
       defaultValueXML: "",
       defaultValueXMLRaw: "",
-    },
-    reportsVariantsStorage: {
+    }),
+    reportsVariantsStorage: metadataItemLinkRule({
       yaml: "ХранилищеВариантовОтчетов",
-      type: "MetadataItemLink",
       xmlParents: configurationProperties,
       defaultValueXML: "",
       defaultValueXMLRaw: "",
-    },
-    formDataSettingsStorage: {
+    }),
+    formDataSettingsStorage: metadataItemLinkRule({
       yaml: "ХранилищеНастроекДанныхФорм",
-      type: "MetadataItemLink",
       xmlParents: configurationProperties,
       defaultValueXML: "",
       defaultValueXMLRaw: "",
-    },
-    dynamicListsUserSettingsStorage: {
+    }),
+    dynamicListsUserSettingsStorage: metadataItemLinkRule({
       yaml: "ХранилищеПользовательскихНастроекДинамическихСписков",
-      type: "MetadataItemLink",
       xmlParents: configurationProperties,
       defaultValueXML: "",
       defaultValueXMLRaw: "",
-    },
-    urlExternalDataStorage: {
+    }),
+    urlExternalDataStorage: metadataItemLinkRule({
       yaml: "ХранилищеВнешнихДанныхНавигационныхСсылок",
       xml: "URLExternalDataStorage",
-      type: "MetadataItemLink",
       xmlParents: configurationProperties,
       defaultValueXML: "",
       defaultValueXMLRaw: "",
-    },
+    }),
     content: stringRule({
       xml: "Content",
       defaultValueXML: "",
@@ -198,74 +202,66 @@ export const MetadataConfigurationRules = {
       fromYAML: false,
       xmlParents: configurationProperties,
     }),
-    defaultReportForm: {
+    defaultReportForm: metadataItemLinkRule({
       yaml: "ОсновнаяФормаОтчета",
-      type: "MetadataItemLink",
       xmlParents: configurationProperties,
       defaultValueXML: "",
       defaultValueXMLRaw: "",
-    },
-    defaultReportVariantForm: {
+    }),
+    defaultReportVariantForm: metadataItemLinkRule({
       yaml: "ОсновнаяФормаВариантаОтчета",
-      type: "MetadataItemLink",
       xmlParents: configurationProperties,
       defaultValueXML: "",
       defaultValueXMLRaw: "",
-    },
-    defaultReportSettingsForm: {
+    }),
+    defaultReportSettingsForm: metadataItemLinkRule({
       yaml: "ОсновнаяФормаНастроекОтчета",
-      type: "MetadataItemLink",
       xmlParents: configurationProperties,
       defaultValueXML: "",
       defaultValueXMLRaw: "",
-    },
+    }),
     defaultReportAppearanceTemplate: stringRule({
       yaml: "ОсновнойМакетОформленияОтчета",
       xmlParents: configurationProperties,
       defaultValueXML: "",
       defaultValueXMLRaw: "",
     }),
-    defaultDynamicListSettingsForm: {
+    defaultDynamicListSettingsForm: metadataItemLinkRule({
       yaml: "ОсновнаяФормаНастроекДинамическогоСписка",
-      type: "MetadataItemLink",
       xmlParents: configurationProperties,
       defaultValueXML: "",
       defaultValueXMLRaw: "",
-    },
+    }),
     defaultSearchForm: stringRule({
       yaml: "ОсновнаяФормаПоиска",
       xmlParents: configurationProperties,
       defaultValueXML: "",
       defaultValueXMLRaw: "",
     }),
-    defaultDataHistoryChangeHistoryForm: {
+    defaultDataHistoryChangeHistoryForm: metadataItemLinkRule({
       yaml: "ОсновнаяФормаИсторииИзмененийИсторииДанных",
-      type: "MetadataItemLink",
       xmlParents: configurationProperties,
       defaultValueXML: "",
       defaultValueXMLRaw: "",
-    },
-    defaultDataHistoryVersionDataForm: {
+    }),
+    defaultDataHistoryVersionDataForm: metadataItemLinkRule({
       yaml: "ОсновнаяФормаДанныхВерсииИсторииДанных",
-      type: "MetadataItemLink",
       xmlParents: configurationProperties,
       defaultValueXML: "",
       defaultValueXMLRaw: "",
-    },
-    defaultDataHistoryVersionDifferencesForm: {
+    }),
+    defaultDataHistoryVersionDifferencesForm: metadataItemLinkRule({
       yaml: "ОсновнаяФормаРазличийВерсийИсторииДанных",
-      type: "MetadataItemLink",
       xmlParents: configurationProperties,
       defaultValueXML: "",
       defaultValueXMLRaw: "",
-    },
-    defaultCollaborationSystemUsersChoiceForm: {
+    }),
+    defaultCollaborationSystemUsersChoiceForm: metadataItemLinkRule({
       yaml: "ОсновнаяФормаВыбораПользователейСистемыВзаимодействия",
-      type: "MetadataItemLink",
       xmlParents: configurationProperties,
       defaultValueXML: "",
       defaultValueXMLRaw: "",
-    },
+    }),
     requiredMobileApplicationPermissions: stringRule({
       xml: "RequiredMobileApplicationPermissions",
       defaultValueXML: "",
@@ -274,34 +270,30 @@ export const MetadataConfigurationRules = {
       fromYAML: false,
       xmlParents: configurationProperties,
     }),
-    usedMobileApplicationFunctionalities: {
+    usedMobileApplicationFunctionalities: usedMobileApplicationFunctionalitiesRule({
       yaml: "ИспользуемаяФункциональностьМобильногоПриложения",
-      type: "UsedMobileApplicationFunctionalities",
       xmlParents: configurationProperties,
-    },
-    standaloneConfigurationRestrictionRoles: {
+    }),
+    standaloneConfigurationRestrictionRoles: metadataItemLinksRule({
       yaml: "РолиОграниченияАвтономнойКонфигурации",
-      type: "MetadataItemLinks",
       xmlParents: configurationProperties,
       defaultValueXML: "",
       defaultValueXMLRaw: "",
-    },
-    mobileApplicationURLs: {
+    }),
+    mobileApplicationURLs: mobileApplicationURLsRule({
       yaml: "НавигационныеСсылкиМобильногоПриложения",
       xml: "MobileApplicationURLs",
-      type: "MobileApplicationURLs",
       defaultValueXML: "",
       defaultValueXMLRaw: "",
       xmlParents: configurationProperties,
-    },
-    allowedIncomingShareRequestTypes: {
+    }),
+    allowedIncomingShareRequestTypes: allowedIncomingShareRequestTypesRule({
       yaml: "ДопустимыеТипыВходящихЗапросовПоделиться",
       xml: "AllowedIncomingShareRequestTypes",
-      type: "AllowedIncomingShareRequestTypes",
       defaultValueXML: "",
       defaultValueXMLRaw: "",
       xmlParents: configurationProperties,
-    },
+    }),
     mainClientApplicationWindowMode: systemEnumerationRule({
       yaml: "РежимОсновногоОкнаКлиентскогоПриложения",
       typeSE: "MainClientApplicationWindowMode",
@@ -315,20 +307,18 @@ export const MetadataConfigurationRules = {
       defaultValueXML: "",
       defaultValueXMLRaw: "",
     }),
-    defaultStyle: {
+    defaultStyle: metadataItemLinkRule({
       yaml: "ОсновнойСтиль",
-      type: "MetadataItemLink",
       xmlParents: configurationProperties,
       defaultValueXML: "",
       defaultValueXMLRaw: "",
-    },
-    defaultLanguage: {
+    }),
+    defaultLanguage: metadataItemLinkRule({
       yaml: "ОсновнойЯзык",
-      type: "MetadataItemLink",
       metadataTarget: { kind: "object", roots: ["Language"] },
       required: true,
       xmlParents: configurationProperties,
-    },
+    }),
     briefInformation: i8nTextRule({
       yaml: "КраткаяИнформация",
       xmlParents: configurationProperties,
@@ -435,63 +425,53 @@ export const MetadataConfigurationRules = {
       xmlPath: "Ext/OrdinaryApplicationModule.bsl",
       syncExternalOnly: true,
     }),
-    commandInterface: {
+    commandInterface: rootCommandInterfaceRule({
       yaml: "КомандныйИнтерфейс",
-      type: "RootCommandInterface",
       filePath: "Ext/CommandInterface.xml",
-    },
-    mainSectionCommandInterface: {
+    }),
+    mainSectionCommandInterface: rootCommandInterfaceRule({
       yaml: "КомандныйИнтерфейсОсновногоРаздела",
-      type: "RootCommandInterface",
       filePath: "Ext/MainSectionCommandInterface.xml",
-    },
-    clientApplicationInterface: {
+    }),
+    clientApplicationInterface: clientApplicationInterfaceRule({
       yaml: "ИнтерфейсКлиентскогоПриложения",
-      type: "ClientApplicationInterface",
       filePath: "Ext/ClientApplicationInterface.xml",
-    },
-    homePageWorkArea: {
+    }),
+    homePageWorkArea: homePageWorkAreaRule({
       yaml: "РабочаяОбластьНачальнойСтраницы",
-      type: "HomePageWorkArea",
       filePath: "Ext/HomePageWorkArea.xml",
-    },
-    help: {
-      type: "Help",
+    }),
+    help: helpRule({
       filePath: "Ext/Help.xml",
       nkdkDir: "Справка",
-    },
-    mobileClientSignature: {
-      type: "ExternalFile",
+    }),
+    mobileClientSignature: externalFileRule({
       nkdkPath: "ПодписьМобильногоКлиента.bin",
       xmlPath: "Ext/MobileClientSignature.bin",
       syncExternalOnly: true,
-    },
-    mainSectionPicture: {
-      type: "ExternalPicture",
+    }),
+    mainSectionPicture: externalPictureRule({
       nkdkDir: "КартинкаОсновногоРаздела",
       xmlPath: "Ext/MainSectionPicture.xml",
       payloadXmlDir: "Ext/MainSectionPicture",
       syncExternalOnly: true,
-    },
-    logo: {
-      type: "ExternalPicture",
+    }),
+    logo: externalPictureRule({
       nkdkDir: "Логотип",
       xmlPath: "Ext/Logo.xml",
       payloadXmlDir: "Ext/Logo",
       syncExternalOnly: true,
-    },
-    splash: {
-      type: "ExternalPicture",
+    }),
+    splash: externalPictureRule({
       nkdkDir: "Заставка",
       xmlPath: "Ext/Splash.xml",
       payloadXmlDir: "Ext/Splash",
       syncExternalOnly: true,
-    },
-    standaloneConfigurationContent: {
-      type: "ExternalFile",
+    }),
+    standaloneConfigurationContent: externalFileRule({
       nkdkPath: "СодержимоеАвтономнойКонфигурации.bin",
       xmlPath: "Ext/StandaloneConfigurationContent.bin",
       syncExternalOnly: true,
-    },
+    }),
   },
 } satisfies MetadataItemRule

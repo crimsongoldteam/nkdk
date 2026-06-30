@@ -1,3 +1,4 @@
+import { templateRule } from "~/metadata/commonObjects/module/types"
 import { i8nTextRule } from "~/metadata/commonObjects/i8nText/types"
 import { stringRule } from "~/metadata/commonObjects/string/types"
 import { uuidRule } from "~/metadata/commonObjects/uuid/types"
@@ -38,13 +39,12 @@ export const MetadataStyleRules = {
       xmlParents: properties,
       defaultValueXMLRaw: "",
     }),
-    style: {
-      type: "Template",
+    style: templateRule({
       nkdkPath: "Style.xml",
       xmlPath: "Ext/Style.xml",
       toXML: false,
       fromXML: false,
-    },
+    }),
     objectBelonging: systemEnumerationRule({
       yaml: "ПринадлежностьОбъекта",
       xml: "ObjectBelonging",

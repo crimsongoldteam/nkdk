@@ -1,3 +1,4 @@
+import { templateRule } from "~/metadata/commonObjects/module/types"
 import { booleanRule } from "~/metadata/commonObjects/boolean/types"
 import { i8nTextRule } from "~/metadata/commonObjects/i8nText/types"
 import { numberRule } from "~/metadata/commonObjects/number/types"
@@ -85,13 +86,12 @@ export const MetadataScheduledJobRules = {
       defaultValueXML: 10,
       implicitValueYAML: 10,
     }),
-    schedule: {
-      type: "Template",
+    schedule: templateRule({
       nkdkPath: "Schedule.xml",
       xmlPath: "Ext/Schedule.xml",
       toXML: false,
       fromXML: false,
-    },
+    }),
     objectBelonging: systemEnumerationRule({
       yaml: "ПринадлежностьОбъекта",
       xml: "ObjectBelonging",

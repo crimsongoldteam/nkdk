@@ -1,3 +1,7 @@
+import { colorRule } from "~/metadata/commonObjects/color/types"
+import { dataPathRule } from "~/metadata/commonObjects/metadataPath/types"
+import { commandSetRule } from "~/metadata/forms/commonObjects/commandSet/types"
+import { eventsRule } from "~/metadata/forms/commonObjects/event/types"
 import { booleanRule } from "~/metadata/commonObjects/boolean/types"
 import { numberRule } from "~/metadata/commonObjects/number/types"
 import { systemEnumerationRule } from "~/metadata/systemEnumerations/types"
@@ -13,12 +17,11 @@ export const GraphicalSchemaFieldRules = {
   properties: {
     autoMaxHeight: booleanRule({ yaml: "АвтоМаксимальнаяВысота", implicitValueYAML: true }),
     autoMaxWidth: booleanRule({ yaml: "АвтоМаксимальнаяШирина", implicitValueYAML: true }),
-    borderColor: {
+    borderColor: colorRule({
       yaml: "ЦветРамки",
-      type: "Color",
       metadataTarget: { kind: "object", roots: ["StyleItem"], filters: [{ kind: "styleItemType", values: ["Color"] }] },
-    },
-    commandSet: { yaml: "Команда", type: "CommandSet", toEnterprise: false },
+    }),
+    commandSet: commandSetRule({ yaml: "Команда", toEnterprise: false }),
     edit: booleanRule({ yaml: "Редактирование", toYAML: false, fromYAML: false, toEnterprise: false }),
     height: numberRule({ yaml: "Высота", implicitValueYAML: 10 }),
     horizontalStretch: booleanRule({ yaml: "РастягиватьПоГоризонтали", implicitValueYAML: true }),
@@ -31,8 +34,7 @@ export const GraphicalSchemaFieldRules = {
     }),
     verticalStretch: booleanRule({ yaml: "РастягиватьПоВертикали", implicitValueYAML: true }),
     width: numberRule({ yaml: "Ширина", implicitValueYAML: 50 }),
-    events: {
-      type: "Events",
+    events: eventsRule({
       yaml: "События",
       toEnterprise: false,
       items: {
@@ -43,14 +45,13 @@ export const GraphicalSchemaFieldRules = {
         afterWrite: "ПослеЗаписи",
         onActivate: "ПриАктивизации",
       },
-    },
-    dataPath: {
+    }),
+    dataPath: dataPathRule({
       yaml: "ПутьКДанным",
-      type: "DataPath",
       toYAML: false,
       fromYAML: false,
       defaultType: "FlowchartContextType",
-    },
+    }),
     ...formFieldCommonProperties,
     titleHeight: { ...formFieldCommonProperties.titleHeight, implicitValueYAML: 0 },
     ...formFieldDisabledTableRelatedProperties,

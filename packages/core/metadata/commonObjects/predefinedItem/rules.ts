@@ -1,3 +1,6 @@
+import { predefinedCodeRule } from "~/metadata/commonObjects/predefinedCode/types"
+import { predefinedItemCollectionRule } from "~/metadata/commonObjects/predefinedItem/types"
+import { typeDescriptionRule } from "~/metadata/commonObjects/typeDescription/types"
 import { booleanRule } from "~/metadata/commonObjects/boolean/types"
 import { stringRule } from "~/metadata/commonObjects/string/types"
 import { uuidPropertyRule } from "~/metadata/commonObjects/uuid/rule"
@@ -20,12 +23,11 @@ export const PredefinedItemRules = {
       xml: "Name",
       required: true,
     }),
-    code: {
-      type: "PredefinedCode",
+    code: predefinedCodeRule({
       xml: "Code",
       yaml: "Код",
       required: true,
-    },
+    }),
     description: stringRule({
       xml: "Description",
       yaml: "Наименование",
@@ -38,19 +40,17 @@ export const PredefinedItemRules = {
       defaultValueXML: false,
       implicitValueYAML: "Ложь",
     }),
-    type: {
+    type: typeDescriptionRule({
       yaml: "ТипЗначения",
       xml: "Type",
-      type: "TypeDescription",
       declareTypeNamespaceXML: true,
       toXML: (_metadataItem: unknown, context?: ConfigurationContextWithExportToXML) =>
         isChartOfCharacteristicTypesPredefined(context),
       defaultValueXMLRaw: {},
-    },
-    childItems: {
-      type: "PredefinedItemCollection",
+    }),
+    childItems: predefinedItemCollectionRule({
       xml: "ChildItems",
       yaml: "Элементы",
-    },
+    }),
   },
 } as const satisfies MetadataItemRule

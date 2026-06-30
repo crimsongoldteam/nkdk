@@ -1,3 +1,6 @@
+import { helpRule } from "~/metadata/commonObjects/help/types"
+import { usePurposesRule } from "~/metadata/commonObjects/usePurposes/types"
+import { clientApplicationFormRule } from "~/metadata/forms/clientApplicationForm/types"
 import { booleanRule } from "~/metadata/commonObjects/boolean/types"
 import { i8nTextRule } from "~/metadata/commonObjects/i8nText/types"
 import { moduleRule } from "~/metadata/commonObjects/module/types"
@@ -41,12 +44,11 @@ export const MetadataCommonFormRules = {
       xmlParents: properties,
       defaultValueXMLRaw: "",
     }),
-    form: {
+    form: clientApplicationFormRule({
       yaml: "Форма",
-      type: "ClientApplicationForm",
       filePath: "Ext/Form.xml",
       exportReferenceFileOnMissingValue: true,
-    },
+    }),
     module: moduleRule({
       nkdkPath: "Модуль.bsl",
       xmlPath: "Ext/Form/Module.bsl",
@@ -68,21 +70,19 @@ export const MetadataCommonFormRules = {
       defaultValueXML: false,
       implicitValueYAML: false,
     }),
-    help: {
-      type: "Help",
+    help: helpRule({
       externalMetadata: { segment: "Help", placement: "derivedEntry" },
       filePath: "Ext/Help.xml",
       xmlPath: "Ext/Help.xml",
       nkdkDir: "Справка",
       toXML: false,
       fromXML: false,
-    },
-    usePurposes: {
+    }),
+    usePurposes: usePurposesRule({
       yaml: "НазначенияИспользования",
       xml: "UsePurposes",
-      type: "UsePurposes",
       xmlParents: properties,
-    },
+    }),
     useStandardCommands: booleanRule({
       yaml: "ИспользоватьСтандартныеКоманды",
       xml: "UseStandardCommands",

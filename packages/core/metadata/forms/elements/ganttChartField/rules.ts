@@ -1,3 +1,6 @@
+import { dataPathRule } from "~/metadata/commonObjects/metadataPath/types"
+import { eventsRule } from "~/metadata/forms/commonObjects/event/types"
+import { ganttChartFieldTableRule } from "~/metadata/forms/commonObjects/ganttChartFieldTable/types"
 import { booleanRule } from "~/metadata/commonObjects/boolean/types"
 import { numberRule } from "~/metadata/commonObjects/number/types"
 import { systemEnumerationRule } from "~/metadata/systemEnumerations/types"
@@ -32,12 +35,11 @@ export const GanttChartFieldRules = {
       typeSE: "GanttChartTableLocation",
       implicitValueYAML: "Auto",
     }),
-    table: {
+    table: ganttChartFieldTableRule({
       yaml: "Таблица",
       xml: "Table",
-      type: "GanttChartFieldTable",
       toEnterprise: false,
-    },
+    }),
     valuesSelectionMode: systemEnumerationRule({
       yaml: "РежимВыделенияЗначений",
       typeSE: "GanttChartValuesSelectionMode",
@@ -46,8 +48,7 @@ export const GanttChartFieldRules = {
     verticalLines: booleanRule({ yaml: "ВертикальныеЛинии", xml: "ShowVerticalLinesFlag", noImplicitValueYAML: true }),
     verticalStretch: booleanRule({ yaml: "РастягиватьПоВертикали", implicitValueYAML: true }),
     width: numberRule({ yaml: "Ширина", implicitValueYAML: 50 }),
-    events: {
-      type: "Events",
+    events: eventsRule({
       yaml: "События",
       toEnterprise: false,
       items: {
@@ -60,14 +61,13 @@ export const GanttChartFieldRules = {
         onActivateInterval: "ПриАктивизацииИнтервала",
         onIntervalEditEnd: "ПриОкончанииРедактированияИнтервала",
       },
-    },
-    dataPath: {
+    }),
+    dataPath: dataPathRule({
       yaml: "ПутьКДанным",
-      type: "DataPath",
       toYAML: false,
       fromYAML: false,
       defaultType: "GanttChart",
-    },
+    }),
     ...formFieldCommonProperties,
     titleHeight: { ...formFieldCommonProperties.titleHeight, implicitValueYAML: 0 },
   },

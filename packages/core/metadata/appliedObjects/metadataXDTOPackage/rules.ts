@@ -1,3 +1,4 @@
+import { externalFileRule } from "~/metadata/commonObjects/externalFile/types"
 import { i8nTextRule } from "~/metadata/commonObjects/i8nText/types"
 import { stringRule } from "~/metadata/commonObjects/string/types"
 import { uuidRule } from "~/metadata/commonObjects/uuid/types"
@@ -44,14 +45,13 @@ export const MetadataXDTOPackageRules = {
       xmlParents: properties,
       required: true,
     }),
-    package: {
-      type: "ExternalFile",
+    package: externalFileRule({
       nkdkPath: "Package.bin",
       xmlPath: "Ext/Package.bin",
       syncExternalOnly: true,
       toYAML: false,
       fromYAML: false,
-    },
+    }),
     objectBelonging: systemEnumerationRule({
       yaml: "ПринадлежностьОбъекта",
       xml: "ObjectBelonging",

@@ -1,3 +1,5 @@
+import { tableAdditionalSourceRule } from "~/metadata/forms/commonObjects/tableAdditionalSource/types"
+import { contextMenuRule, extendedTooltipRule } from "~/metadata/forms/elements/viewStatusAddition/types"
 import { stringRule } from "~/metadata/commonObjects/string/types"
 import { getParentFromContext } from "~/metadata/context/helpers"
 import { ConfigurationContextWithExportToXML } from "~/metadata/context/types"
@@ -88,12 +90,11 @@ export const SingleViewStatusAdditionRules = {
   enterpriseField: "FormField",
   enterpriseFieldType: "None",
   properties: {
-    additionSource: {
-      type: "TableAdditionalSource",
+    additionSource: tableAdditionalSourceRule({
       additionalSourceType: "ViewStatusRepresentation",
       fromXML: false,
       forSingleElement: true,
-    },
+    }),
     ...commonProperties,
   },
 } as const satisfies ElementRule
@@ -103,22 +104,19 @@ export const ViewStatusAdditionRules = {
   enterpriseFieldType: "None",
   properties: {
     name: stringRule({ xml: "_name", required: true }),
-    additionSource: {
+    additionSource: tableAdditionalSourceRule({
       yaml: "Источник",
-      type: "TableAdditionalSource",
       additionalSourceType: "ViewStatusRepresentation",
-    },
+    }),
     ...commonProperties,
-    contextMenu: {
+    contextMenu: contextMenuRule({
       yaml: "КонтекстноеМеню",
-      type: "ContextMenu",
       defaultValueXMLEmpty: { itemType: "ContextMenu", childItems: [] },
-    },
-    extendedTooltip: {
+    }),
+    extendedTooltip: extendedTooltipRule({
       yaml: "РасширеннаяПодсказка",
-      type: "ExtendedTooltip",
       defaultValueXMLEmpty: { itemType: "ExtendedTooltip" },
-    },
+    }),
   },
 } as const satisfies ElementRule
 registerElementAsType({

@@ -1,3 +1,5 @@
+import { additionalIndexCollectionRule } from "~/metadata/commonObjects/additionalIndex/types"
+import { indexFieldRule } from "~/metadata/commonObjects/indexField/types"
 import { stringRule } from "~/metadata/commonObjects/string/types"
 import { xmlRootRule } from "~/metadata/commonObjects/xmlRoot/types"
 import { uuidPropertyRule } from "~/metadata/commonObjects/uuid/rule"
@@ -9,24 +11,22 @@ export const AdditionalIndexItemRules = {
       ...uuidPropertyRule,
       xml: "_id",
     },
-    additionalFields: {
-      type: "IndexField",
+    additionalFields: indexFieldRule({
       xml: "AdditionalFields",
       yaml: "ДополнительныеПоля",
       order: 4,
-    },
+    }),
     name: stringRule({
       xml: "Name",
       yaml: "Имя",
       required: true,
       order: 1,
     }),
-    indexedFields: {
-      type: "IndexField",
+    indexedFields: indexFieldRule({
       xml: "IndexedFields",
       yaml: "ИндексируемыеПоля",
       order: 3,
-    },
+    }),
     table: stringRule({
       xml: "Table",
       yaml: "Таблица",
@@ -50,13 +50,12 @@ export const AdditionalIndexRules = {
       forReferenceOnly: true,
       isFileRoot: true,
     }),
-    items: {
-      type: "AdditionalIndexCollection",
+    items: additionalIndexCollectionRule({
       // Дочерние <AdditionalIndex>-теги лежат прямо в корне <AdditionalIndexes>:
       // указание xml="AdditionalIndex" подменяет имя обёртки коллекции на имя её элемента.
       xml: "AdditionalIndex",
       yamlInline: true,
       yaml: "items",
-    },
+    }),
   },
 } as const satisfies MetadataItemRule

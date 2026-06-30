@@ -1,3 +1,7 @@
+import { additionalIndexRule } from "~/metadata/appliedObjects/metadataAccountingRegister/types"
+import { metadataSequenceDimensionsRule } from "~/metadata/appliedObjects/metadataSequence/types"
+import { internalInfoRule } from "~/metadata/commonObjects/internalInfo/types"
+import { metadataItemLinksRule } from "~/metadata/commonObjects/metadataPath/types"
 import { i8nTextRule } from "~/metadata/commonObjects/i8nText/types"
 import { moduleRule } from "~/metadata/commonObjects/module/types"
 import { stringRule } from "~/metadata/commonObjects/string/types"
@@ -19,8 +23,7 @@ export const MetadataSequenceRules = {
       toYAML: false,
       fromYAML: false,
     }),
-    internalInfo: {
-      type: "InternalInfo",
+    internalInfo: internalInfoRule({
       xmlParents: [],
       forReferenceOnly: true,
       items: [
@@ -28,7 +31,7 @@ export const MetadataSequenceRules = {
         { name: "SequenceManager", category: "Manager" },
         { name: "SequenceRecordSet", category: "RecordSet" },
       ],
-    },
+    }),
     uuid: uuidRule({
       xml: "_uuid",
       forReferenceOnly: true,
@@ -55,20 +58,18 @@ export const MetadataSequenceRules = {
       implicitValueYAML: "Move",
       xmlParents: ["Properties"],
     }),
-    documents: {
+    documents: metadataItemLinksRule({
       yaml: "Документы",
-      type: "MetadataItemLinks",
       xmlParents: ["Properties"],
       defaultValue: [],
       defaultValueXMLEmpty: [],
-    },
-    registerRecords: {
+    }),
+    registerRecords: metadataItemLinksRule({
       yaml: "Движения",
-      type: "MetadataItemLinks",
       xmlParents: ["Properties"],
       defaultValue: [],
       defaultValueXMLEmpty: [],
-    },
+    }),
     dataLockControlMode: systemEnumerationRule({
       yaml: "РежимУправленияБлокировкойДанных",
       typeSE: "DefaultDataLockControlMode",
@@ -76,11 +77,10 @@ export const MetadataSequenceRules = {
       implicitValueYAML: "Managed",
       xmlParents: ["Properties"],
     }),
-    additionalIndexes: {
+    additionalIndexes: additionalIndexRule({
       yaml: "ДополнительныеИндексы",
-      type: "AdditionalIndex",
       filePath: "Ext/AdditionalIndexes.xml",
-    },
+    }),
     recordSetModule: moduleRule({
       nkdkPath: "МодульНабораЗаписей.bsl",
       xmlPath: "Ext/RecordSetModule.bsl",
@@ -99,11 +99,10 @@ export const MetadataSequenceRules = {
       yaml: "ОбъектРасширяемойКонфигурации",
       runtimeOnly: true,
     }),
-    dimensions: {
+    dimensions: metadataSequenceDimensionsRule({
       yaml: "Измерения",
-      type: "MetadataSequenceDimensions",
       xml: "Dimension",
       xmlParents: ["ChildObjects"],
-    },
+    }),
   },
 } as const satisfies MetadataItemRule

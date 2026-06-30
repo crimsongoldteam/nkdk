@@ -1,3 +1,4 @@
+import { tableAdditionalSourceRule } from "~/metadata/forms/commonObjects/tableAdditionalSource/types"
 import { stringRule } from "~/metadata/commonObjects/string/types"
 import { getParentFromContext } from "~/metadata/context/helpers"
 import { ConfigurationContextWithExportToXML } from "~/metadata/context/types"
@@ -78,12 +79,11 @@ export const SingleSearchStringAdditionRules = {
   enterpriseField: "FormField",
   enterpriseFieldType: "None",
   properties: {
-    additionSource: {
-      type: "TableAdditionalSource",
+    additionSource: tableAdditionalSourceRule({
       additionalSourceType: "SearchStringRepresentation",
       fromXML: false,
       forSingleElement: true,
-    },
+    }),
     ...commonProperties,
   },
 } as const satisfies ElementRule
@@ -96,11 +96,10 @@ export const SearchStringAdditionRules = {
       xml: "_name",
       required: true,
     }),
-    additionSource: {
+    additionSource: tableAdditionalSourceRule({
       yaml: "Источник",
-      type: "TableAdditionalSource",
       additionalSourceType: "SearchStringRepresentation",
-    },
+    }),
     ...commonProperties,
   },
 } as const satisfies ElementRule

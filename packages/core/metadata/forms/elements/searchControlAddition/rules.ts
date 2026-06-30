@@ -1,3 +1,4 @@
+import { tableAdditionalSourceRule } from "~/metadata/forms/commonObjects/tableAdditionalSource/types"
 import { stringRule } from "~/metadata/commonObjects/string/types"
 import { getParentFromContext } from "~/metadata/context/helpers"
 import { ConfigurationContextWithExportToXML } from "~/metadata/context/types"
@@ -101,11 +102,10 @@ export const SearchControlAdditionRules = {
       xml: "_name",
       required: true,
     }),
-    additionSource: {
+    additionSource: tableAdditionalSourceRule({
       yaml: "Источник",
-      type: "TableAdditionalSource",
       additionalSourceType: "SearchControl",
-    },
+    }),
     ...commonProperties,
   },
 } as const satisfies ElementRule

@@ -1,3 +1,11 @@
+import {
+  commandInterfaceCommandGroupsRule,
+  commandInterfaceOrderRule,
+  commandInterfacePlacementMapRule,
+  commandInterfaceSubsystemsOrderRule,
+  commandInterfaceSubsystemsVisibilityMapRule,
+  commandInterfaceVisibilityMapRule,
+} from "~/metadata/commonObjects/rootCommandInterface/types"
 import { xmlRootRule } from "~/metadata/commonObjects/xmlRoot/types"
 import { MetadataItemRule } from "~/metadata/orchestration/property/types"
 const commandInterfaceRootAttributes = {
@@ -18,38 +26,32 @@ export const RootCommandInterfaceRules = {
       toYAML: false,
       fromYAML: false,
     }),
-    commandsVisibility: {
+    commandsVisibility: commandInterfaceVisibilityMapRule({
       yaml: "ВидимостьКоманд",
       xml: "CommandsVisibility",
-      type: "CommandInterfaceVisibilityMap",
-    },
-    commandsPlacement: {
+    }),
+    commandsPlacement: commandInterfacePlacementMapRule({
       yaml: "РазмещениеКоманд",
       xml: "CommandsPlacement",
-      type: "CommandInterfacePlacementMap",
-    },
-    commandsOrder: {
+    }),
+    commandsOrder: commandInterfaceOrderRule({
       yaml: "ПорядокКоманд",
       xml: "CommandsOrder",
-      type: "CommandInterfaceOrder",
-    },
-    subsystemsVisibility: {
+    }),
+    subsystemsVisibility: commandInterfaceSubsystemsVisibilityMapRule({
       yaml: "ВидимостьПодсистем",
       xml: "SubsystemsVisibility",
-      type: "CommandInterfaceSubsystemsVisibilityMap",
-    },
-    subsystemsOrder: {
+    }),
+    subsystemsOrder: commandInterfaceSubsystemsOrderRule({
       yaml: "ПорядокПодсистем",
       xml: "SubsystemsOrder",
-      type: "CommandInterfaceSubsystemsOrder",
       metadataTarget: { kind: "object", roots: ["Subsystem"], allowNested: true },
       metadataItemLinksXMLItem: "Subsystem",
-    },
-    groupsOrder: {
+    }),
+    groupsOrder: commandInterfaceCommandGroupsRule({
       yaml: "ПорядокГрупп",
       xml: "GroupsOrder",
-      type: "CommandInterfaceCommandGroups",
       metadataItemLinksXMLItem: "Group",
-    },
+    }),
   },
 } as const satisfies MetadataItemRule

@@ -1,3 +1,8 @@
+import { borderRule } from "~/metadata/commonObjects/border/types"
+import { colorRule } from "~/metadata/commonObjects/color/types"
+import { fontRule } from "~/metadata/commonObjects/font/types"
+import { dataPathRule } from "~/metadata/commonObjects/metadataPath/types"
+import { eventsRule } from "~/metadata/forms/commonObjects/event/types"
 import { booleanRule } from "~/metadata/commonObjects/boolean/types"
 import { numberRule } from "~/metadata/commonObjects/number/types"
 import { stringRule } from "~/metadata/commonObjects/string/types"
@@ -15,30 +20,27 @@ export const CalendarFieldRules = {
     autoMaxHeight: booleanRule({ yaml: "АвтоМаксимальнаяВысота", implicitValueYAML: true }),
     autoMaxWidth: booleanRule({ yaml: "АвтоМаксимальнаяШирина", implicitValueYAML: true }),
     beginOfRepresentationPeriod: stringRule({ yaml: "НачалоПериодаОтображения" }),
-    border: {
+    border: borderRule({
       yaml: "Рамка",
-      type: "Border",
       implicitValueYAML: "Single",
       metadataTarget: {
         kind: "object",
         roots: ["StyleItem"],
         filters: [{ kind: "styleItemType", values: ["Border"] }],
       },
-    },
-    borderColor: {
+    }),
+    borderColor: colorRule({
       yaml: "ЦветРамки",
-      type: "Color",
       metadataTarget: { kind: "object", roots: ["StyleItem"], filters: [{ kind: "styleItemType", values: ["Color"] }] },
-    },
+    }),
     calendarNavigation: booleanRule({ yaml: "ПеремещениеПоКалендарю", implicitValueYAML: true }),
     enableDrag: booleanRule({ yaml: "РазрешитьПеретаскивание", implicitValueYAML: false }),
     enableStartDrag: booleanRule({ yaml: "РазрешитьНачалоПеретаскивания", implicitValueYAML: false }),
     endOfRepresentationPeriod: stringRule({ yaml: "КонецПериодаОтображения" }),
-    font: {
+    font: fontRule({
       yaml: "Шрифт",
-      type: "Font",
       metadataTarget: { kind: "object", roots: ["StyleItem"], filters: [{ kind: "styleItemType", values: ["Font"] }] },
-    },
+    }),
     height: numberRule({ yaml: "Высота", implicitValueYAML: 9 }),
     heightInMonths: numberRule({ yaml: "ВысотаВМесяцах", implicitValueYAML: 1 }),
     horizontalStretch: booleanRule({ yaml: "РастягиватьПоГоризонтали", implicitValueYAML: true }),
@@ -54,8 +56,7 @@ export const CalendarFieldRules = {
     verticalStretch: booleanRule({ yaml: "РастягиватьПоВертикали", implicitValueYAML: true }),
     width: numberRule({ yaml: "Ширина", implicitValueYAML: 16 }),
     widthInMonths: numberRule({ yaml: "ШиринаВМесяцах", implicitValueYAML: 1 }),
-    events: {
-      type: "Events",
+    events: eventsRule({
       yaml: "События",
       toEnterprise: false,
       items: {
@@ -68,16 +69,15 @@ export const CalendarFieldRules = {
         onPeriodOutput: "ПриВыводеПериода",
         dragCheck: "ПроверкаПеретаскивания",
       },
-    },
-    dataPath: {
+    }),
+    dataPath: dataPathRule({
       yaml: "ПутьКДанным",
-      type: "DataPath",
       toYAML: false,
       fromYAML: false,
       defaultType: "dateTime",
       allowedKinds: ["dateTime"],
       allowComposite: false,
-    },
+    }),
     ...formFieldDisabledTableRelatedProperties,
     ...formFieldCommonProperties,
     titleHeight: numberRule({ yaml: "ВысотаЗаголовка", implicitValueYAML: 0 }),

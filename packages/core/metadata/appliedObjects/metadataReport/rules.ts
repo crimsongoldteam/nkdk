@@ -1,3 +1,12 @@
+import { metadataCommandsRule } from "~/metadata/appliedObjects/metadataAccountingRegister/types"
+import {
+  metadataReportAttributesRule,
+  metadataReportTabularSectionsRule,
+} from "~/metadata/appliedObjects/metadataReport/types"
+import { childFormNamesRule } from "~/metadata/commonObjects/childFormNames/types"
+import { childTemplateNamesRule } from "~/metadata/commonObjects/childTemplateNames/types"
+import { helpRule } from "~/metadata/commonObjects/help/types"
+import { internalInfoRule } from "~/metadata/commonObjects/internalInfo/types"
 import { booleanRule } from "~/metadata/commonObjects/boolean/types"
 import { i8nTextRule } from "~/metadata/commonObjects/i8nText/types"
 import { moduleRule } from "~/metadata/commonObjects/module/types"
@@ -55,15 +64,14 @@ export const MetadataReportRules = {
       toYAML: false,
       fromYAML: false,
     }),
-    internalInfo: {
-      type: "InternalInfo",
+    internalInfo: internalInfoRule({
       xmlParents: [],
       forReferenceOnly: true,
       items: [
         { name: "ReportObject", category: "Object" },
         { name: "ReportManager", category: "Manager" },
       ],
-    },
+    }),
     uuid: uuidRule({
       xml: "_uuid",
       forReferenceOnly: true,
@@ -204,42 +212,37 @@ export const MetadataReportRules = {
       yaml: "ОбъектРасширяемойКонфигурации",
       runtimeOnly: true,
     }),
-    attributes: {
+    attributes: metadataReportAttributesRule({
       yaml: "Реквизиты",
-      type: "MetadataReportAttributes",
       xmlParents: childObjects,
       xml: "Attribute",
-    },
-    tabularSections: {
+    }),
+    tabularSections: metadataReportTabularSectionsRule({
       yaml: "ТабличныеЧасти",
-      type: "MetadataReportTabularSections",
       xmlParents: childObjects,
       xml: "TabularSection",
-    },
-    forms: {
-      type: "ChildFormNames",
+    }),
+    forms: childFormNamesRule({
       xml: "Form",
       folderName: "Формы",
       forReferenceOnly: true,
       toYAML: false,
       fromYAML: false,
       xmlParents: childObjects,
-    },
-    templates: {
-      type: "ChildTemplateNames",
+    }),
+    templates: childTemplateNamesRule({
       xml: "Template",
       folderName: "Шаблоны",
       forReferenceOnly: true,
       toYAML: false,
       fromYAML: false,
       xmlParents: childObjects,
-    },
-    commands: {
+    }),
+    commands: metadataCommandsRule({
       yaml: "Команды",
-      type: "MetadataCommands",
       xmlParents: childObjects,
       xml: "Command",
-    },
+    }),
     objectModule: moduleRule({
       externalMetadata: { segment: "ObjectModule", placement: "derivedEntry" },
       nkdkPath: "МодульОбъекта.bsl",
@@ -254,13 +257,12 @@ export const MetadataReportRules = {
       toXML: false,
       fromXML: false,
     }),
-    help: {
-      type: "Help",
+    help: helpRule({
       externalMetadata: { segment: "Help", placement: "derivedEntry" },
       filePath: "Ext/Help.xml",
       xmlPath: ({ name }: { name: string }) => `${name}/Ext/Help.xml`,
       nkdkDir: "Справка",
-    },
+    }),
   },
   childCollections: [{ propertyKey: "commands", itemRule: MetadataReportCommandRules }],
 } as const satisfies MetadataItemRule

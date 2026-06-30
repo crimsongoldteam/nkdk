@@ -1,3 +1,15 @@
+import { additionalIndexRule, metadataCommandsRule } from "~/metadata/appliedObjects/metadataAccountingRegister/types"
+import { metadataBusinessProcessTabularSectionsRule } from "~/metadata/appliedObjects/metadataBusinessProcess/types"
+import { metadataAttributesRule } from "~/metadata/appliedObjects/metadataDataProcessor/types"
+import { characteristicsDescriptionsRule } from "~/metadata/commonObjects/characteristicsDescription/types"
+import { childFormNamesRule } from "~/metadata/commonObjects/childFormNames/types"
+import { childTemplateNamesRule } from "~/metadata/commonObjects/childTemplateNames/types"
+import { helpRule } from "~/metadata/commonObjects/help/types"
+import { internalInfoRule } from "~/metadata/commonObjects/internalInfo/types"
+import { metadataFieldsRule } from "~/metadata/commonObjects/metadataField/types"
+import { metadataItemLinksRule } from "~/metadata/commonObjects/metadataPath/types"
+import { templateRule } from "~/metadata/commonObjects/module/types"
+import { standardAttributeDescriptionsRule } from "~/metadata/commonObjects/standardAttributeDescription/types"
 import { booleanRule } from "~/metadata/commonObjects/boolean/types"
 import { i8nTextRule } from "~/metadata/commonObjects/i8nText/types"
 import { moduleRule } from "~/metadata/commonObjects/module/types"
@@ -35,8 +47,7 @@ export const MetadataBusinessProcessRules = {
       toYAML: false,
       fromYAML: false,
     }),
-    internalInfo: {
-      type: "InternalInfo",
+    internalInfo: internalInfoRule({
       xmlParents: [],
       forReferenceOnly: true,
       items: [
@@ -47,7 +58,7 @@ export const MetadataBusinessProcessRules = {
         { name: "BusinessProcessManager", category: "Manager" },
         { name: "BusinessProcessRoutePointRef", category: "RoutePointRef" },
       ],
-    },
+    }),
     uuid: uuidRule({
       xml: "_uuid",
       forReferenceOnly: true,
@@ -81,12 +92,11 @@ export const MetadataBusinessProcessRules = {
       implicitValueYAML: "InDialog",
       xmlParents: properties,
     }),
-    inputByString: {
+    inputByString: metadataFieldsRule({
       yaml: "ВводПоСтроке",
-      type: "MetadataFields",
       xmlParents: properties,
       defaultValueXMLRaw: {},
-    },
+    }),
     createOnInput: systemEnumerationRule({
       yaml: "СозданиеПриВводе",
       typeSE: "CreateOnInput",
@@ -184,31 +194,28 @@ export const MetadataBusinessProcessRules = {
       implicitValueYAML: true,
       xmlParents: properties,
     }),
-    standardAttributes: {
+    standardAttributes: standardAttributeDescriptionsRule({
       yaml: "СтандартныеРеквизиты",
-      type: "StandardAttributeDescriptions",
       standartAttributeNames: MetadataBusinessProcessStandardAttributeNames,
       xmlParents: properties,
-    },
-    characteristics: {
+    }),
+    characteristics: characteristicsDescriptionsRule({
       yaml: "Характеристики",
-      type: "CharacteristicsDescriptions",
       xmlParents: properties,
       defaultValueXMLRaw: {},
-    },
+    }),
     autonumbering: booleanRule({
       yaml: "Автонумерация",
       defaultValueXML: true,
       implicitValueYAML: true,
       xmlParents: properties,
     }),
-    basedOn: {
+    basedOn: metadataItemLinksRule({
       yaml: "ВводитсяНаОсновании",
-      type: "MetadataItemLinks",
       metadataTarget: { kind: "object", allowedObjectPaths: commonBasedOnObjectPaths },
       xmlParents: properties,
       defaultValueXMLRaw: {},
-    },
+    }),
     numberPeriodicity: systemEnumerationRule({
       yaml: "ПериодичностьНомера",
       typeSE: "BusinessProcessNumberPeriodicity",
@@ -228,12 +235,11 @@ export const MetadataBusinessProcessRules = {
       implicitValueYAML: true,
       xmlParents: properties,
     }),
-    dataLockFields: {
+    dataLockFields: metadataFieldsRule({
       yaml: "ПоляБлокировкиДанных",
-      type: "MetadataFields",
       xmlParents: properties,
       defaultValueXMLRaw: {},
-    },
+    }),
     dataLockControlMode: systemEnumerationRule({
       yaml: "РежимУправленияБлокировкойДанных",
       typeSE: "DefaultDataLockControlMode",
@@ -310,61 +316,53 @@ export const MetadataBusinessProcessRules = {
       yaml: "ОбъектРасширяемойКонфигурации",
       runtimeOnly: true,
     }),
-    attributes: {
+    attributes: metadataAttributesRule({
       yaml: "Реквизиты",
       xml: "Attribute",
-      type: "MetadataAttributes",
       xmlParents: childObjects,
-    },
-    tabularSections: {
+    }),
+    tabularSections: metadataBusinessProcessTabularSectionsRule({
       yaml: "ТабличныеЧасти",
       xml: "TabularSection",
-      type: "MetadataBusinessProcessTabularSections",
       xmlParents: childObjects,
-    },
-    forms: {
+    }),
+    forms: childFormNamesRule({
       yaml: "Формы",
       xml: "Form",
-      type: "ChildFormNames",
       xmlParents: childObjects,
       folderName: "Формы",
       forReferenceOnly: true,
-    },
-    templates: {
+    }),
+    templates: childTemplateNamesRule({
       yaml: "Макеты",
       xml: "Template",
-      type: "ChildTemplateNames",
       xmlParents: childObjects,
       folderName: "Макеты",
       forReferenceOnly: true,
-    },
-    commands: {
+    }),
+    commands: metadataCommandsRule({
       yaml: "Команды",
       xml: "Command",
-      type: "MetadataCommands",
       xmlParents: childObjects,
-    },
-    additionalIndexes: {
+    }),
+    additionalIndexes: additionalIndexRule({
       yaml: "ДополнительныеИндексы",
-      type: "AdditionalIndex",
       filePath: "Ext/AdditionalIndexes.xml",
-    },
-    help: {
-      type: "Help",
+    }),
+    help: helpRule({
       externalMetadata: { segment: "Help", placement: "derivedEntry" },
       filePath: "Ext/Help.xml",
       xmlPath: "Ext/Help.xml",
       nkdkDir: "Справка",
       toXML: false,
       fromXML: false,
-    },
-    flowchart: {
-      type: "Template",
+    }),
+    flowchart: templateRule({
       nkdkPath: "Flowchart.xml",
       xmlPath: "Ext/Flowchart.xml",
       toXML: false,
       fromXML: false,
-    },
+    }),
     objectModule: moduleRule({
       externalMetadata: { segment: "ObjectModule", placement: "derivedEntry" },
       nkdkPath: "МодульОбъекта.bsl",

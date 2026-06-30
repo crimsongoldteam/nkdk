@@ -1,3 +1,4 @@
+import { metadataHTTPServiceURLTemplatesRule } from "~/metadata/appliedObjects/metadataHTTPService/types"
 import { i8nTextRule } from "~/metadata/commonObjects/i8nText/types"
 import { moduleRule } from "~/metadata/commonObjects/module/types"
 import { numberRule } from "~/metadata/commonObjects/number/types"
@@ -76,12 +77,11 @@ export const MetadataHTTPServiceRules = {
       xmlParents: properties,
       runtimeOnly: true,
     }),
-    urlTemplates: {
+    urlTemplates: metadataHTTPServiceURLTemplatesRule({
       yaml: "ШаблоныURL",
       xml: "URLTemplate",
-      type: "MetadataHTTPServiceURLTemplates",
       xmlParents: childObjects,
-    },
+    }),
     module: moduleRule({
       nkdkPath: "Модуль.bsl",
       xmlPath: "Ext/Module.bsl",

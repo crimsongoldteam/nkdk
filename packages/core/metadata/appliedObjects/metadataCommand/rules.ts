@@ -1,3 +1,6 @@
+import { metadataCommandGroupRule } from "~/metadata/commonObjects/metadataCommandGroup/types"
+import { pictureRule } from "~/metadata/commonObjects/metadataTargets/types"
+import { typeDescriptionRule } from "~/metadata/commonObjects/typeDescription/types"
 import { booleanRule } from "~/metadata/commonObjects/boolean/types"
 import { i8nTextRule } from "~/metadata/commonObjects/i8nText/types"
 import { moduleRule } from "~/metadata/commonObjects/module/types"
@@ -31,21 +34,19 @@ export const MetadataCommandRules = {
       order: 3,
       defaultValueXMLRaw: "",
     }),
-    group: {
+    group: metadataCommandGroupRule({
       yaml: "Группа",
       xml: "Group",
-      type: "MetadataCommandGroup",
       xmlParents: ["Properties"],
       order: 4,
-    },
-    commandParameterType: {
+    }),
+    commandParameterType: typeDescriptionRule({
       yaml: "ТипПараметраКоманды",
       xml: "CommandParameterType",
-      type: "TypeDescription",
       xmlParents: ["Properties"],
       order: 5,
       defaultValueXMLRaw: "",
-    },
+    }),
     parameterUseMode: systemEnumerationRule({
       yaml: "РежимИспользованияПараметра",
       xml: "ParameterUseMode",
@@ -79,15 +80,14 @@ export const MetadataCommandRules = {
       order: 9,
       defaultValueXMLRaw: "",
     }),
-    picture: {
+    picture: pictureRule({
       yaml: "Картинка",
       xml: "Picture",
-      type: "Picture",
       metadataTarget: { kind: "object", roots: ["CommonPicture"] },
       xmlParents: ["Properties"],
       order: 10,
       defaultValueXMLRaw: "",
-    },
+    }),
     shortcut: stringRule({
       yaml: "СочетаниеКлавиш",
       xml: "Shortcut",

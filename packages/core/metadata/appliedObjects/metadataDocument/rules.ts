@@ -1,3 +1,16 @@
+import { additionalIndexRule, metadataCommandsRule } from "~/metadata/appliedObjects/metadataAccountingRegister/types"
+import {
+  metadataDocumentAttributesRule,
+  metadataDocumentTabularSectionsRule,
+} from "~/metadata/appliedObjects/metadataDocument/types"
+import { characteristicsDescriptionsRule } from "~/metadata/commonObjects/characteristicsDescription/types"
+import { childFormNamesRule } from "~/metadata/commonObjects/childFormNames/types"
+import { childTemplateNamesRule } from "~/metadata/commonObjects/childTemplateNames/types"
+import { helpRule } from "~/metadata/commonObjects/help/types"
+import { internalInfoRule } from "~/metadata/commonObjects/internalInfo/types"
+import { metadataFieldsRule } from "~/metadata/commonObjects/metadataField/types"
+import { metadataItemLinksRule } from "~/metadata/commonObjects/metadataPath/types"
+import { standardAttributeDescriptionsRule } from "~/metadata/commonObjects/standardAttributeDescription/types"
 import { booleanRule } from "~/metadata/commonObjects/boolean/types"
 import { i8nTextRule } from "~/metadata/commonObjects/i8nText/types"
 import { moduleRule } from "~/metadata/commonObjects/module/types"
@@ -43,8 +56,7 @@ export const MetadataDocumentRules = {
       toYAML: false,
       fromYAML: false,
     }),
-    internalInfo: {
-      type: "InternalInfo",
+    internalInfo: internalInfoRule({
       xmlParents: [],
       forReferenceOnly: true,
       items: [
@@ -54,7 +66,7 @@ export const MetadataDocumentRules = {
         { name: "DocumentList", category: "List" },
         { name: "DocumentManager", category: "Manager" },
       ],
-    },
+    }),
     uuid: uuidRule({
       xml: "_uuid",
       forReferenceOnly: true,
@@ -68,17 +80,15 @@ export const MetadataDocumentRules = {
       implicitValueYAML: "RealTime",
       xmlParents: documentProperties,
     }),
-    additionalIndexes: {
+    additionalIndexes: additionalIndexRule({
       yaml: "ДополнительныеИндексы",
-      type: "AdditionalIndex",
       filePath: "Ext/AdditionalIndexes.xml",
-    },
-    attributes: {
+    }),
+    attributes: metadataDocumentAttributesRule({
       yaml: "Реквизиты",
-      type: "MetadataDocumentAttributes",
       xmlParents: documentChildObjects,
       xml: "Attribute",
-    },
+    }),
     autonumbering: booleanRule({
       yaml: "Автонумерация",
       defaultValueXML: true,
@@ -103,19 +113,17 @@ export const MetadataDocumentRules = {
       metadataTarget: { kind: "member", owner: "this", memberKinds: ["Form"], objectRoots: ["CommonForm"] },
       defaultValueXMLRaw: "",
     }),
-    basedOn: {
+    basedOn: metadataItemLinksRule({
       yaml: "ВводитсяНаОсновании",
-      type: "MetadataItemLinks",
       metadataTarget: { kind: "object", allowedObjectPaths: commonBasedOnObjectPaths },
       xmlParents: documentProperties,
       defaultValueXMLRaw: {},
-    },
-    characteristics: {
+    }),
+    characteristics: characteristicsDescriptionsRule({
       yaml: "Характеристики",
-      type: "CharacteristicsDescriptions",
       xmlParents: documentProperties,
       defaultValueXMLRaw: {},
-    },
+    }),
     checkUnique: booleanRule({
       yaml: "КонтрольУникальности",
       defaultValueXML: false,
@@ -136,12 +144,11 @@ export const MetadataDocumentRules = {
       implicitValueYAML: "Auto",
       xmlParents: documentProperties,
     }),
-    commands: {
+    commands: metadataCommandsRule({
       yaml: "Команды",
-      type: "MetadataCommands",
       xmlParents: documentChildObjects,
       xml: "Command",
-    },
+    }),
     objectModule: moduleRule({
       externalMetadata: { segment: "ObjectModule", placement: "derivedEntry" },
       nkdkPath: "МодульОбъекта.bsl",
@@ -156,32 +163,29 @@ export const MetadataDocumentRules = {
       toXML: false,
       fromXML: false,
     }),
-    help: {
-      type: "Help",
+    help: helpRule({
       externalMetadata: { segment: "Help", placement: "derivedEntry" },
       filePath: "Ext/Help.xml",
       nkdkDir: "Справка",
       toXML: false,
       fromXML: false,
-    },
-    forms: {
-      type: "ChildFormNames",
+    }),
+    forms: childFormNamesRule({
       xml: "Form",
       folderName: "Формы",
       forReferenceOnly: true,
       toYAML: false,
       fromYAML: false,
       xmlParents: documentChildObjects,
-    },
-    templates: {
-      type: "ChildTemplateNames",
+    }),
+    templates: childTemplateNamesRule({
       xml: "Template",
       folderName: "Шаблоны",
       forReferenceOnly: true,
       toYAML: false,
       fromYAML: false,
       xmlParents: documentChildObjects,
-    },
+    }),
     comment: stringRule({
       yaml: "Комментарий",
       xmlParents: documentProperties,
@@ -208,13 +212,12 @@ export const MetadataDocumentRules = {
       implicitValueYAML: "Managed",
       xmlParents: documentProperties,
     }),
-    dataLockFields: {
+    dataLockFields: metadataFieldsRule({
       yaml: "ПоляБлокировкиДанных",
-      type: "MetadataFields",
       metadataTarget: { kind: "member", owner: "this" },
       xmlParents: documentProperties,
       defaultValueXMLRaw: {},
-    },
+    }),
     defaultChoiceForm: stringRule({
       yaml: "ОсновнаяФормаДляВыбора",
       xmlParents: documentProperties,
@@ -280,9 +283,8 @@ export const MetadataDocumentRules = {
       implicitValueYAML: false,
       xmlParents: documentProperties,
     }),
-    inputByString: {
+    inputByString: metadataFieldsRule({
       yaml: "ВводПоСтроке",
-      type: "MetadataFields",
       metadataTarget: {
         kind: "member",
         owner: "this",
@@ -291,7 +293,7 @@ export const MetadataDocumentRules = {
       },
       xmlParents: documentProperties,
       defaultValueXMLRaw: {},
-    },
+    }),
     listPresentation: i8nTextRule({
       yaml: "ПредставлениеСписка",
       xmlParents: documentProperties,
@@ -376,16 +378,15 @@ export const MetadataDocumentRules = {
       implicitValueYAML: "Deny",
       xmlParents: documentProperties,
     }),
-    registerRecords: {
+    registerRecords: metadataItemLinksRule({
       yaml: "Движения",
-      type: "MetadataItemLinks",
       metadataTarget: {
         kind: "object",
         roots: ["InformationRegister", "AccumulationRegister", "AccountingRegister", "CalculationRegister"],
       },
       xmlParents: documentProperties,
       defaultValueXMLRaw: {},
-    },
+    }),
     registerRecordsDeletion: systemEnumerationRule({
       yaml: "УдалениеДвижений",
       typeSE: "RegisterRecordsDeletion",
@@ -407,23 +408,21 @@ export const MetadataDocumentRules = {
       implicitValueYAML: "AutoFill",
       xmlParents: documentProperties,
     }),
-    standardAttributes: {
+    standardAttributes: standardAttributeDescriptionsRule({
       yaml: "СтандартныеРеквизиты",
-      type: "StandardAttributeDescriptions",
       standartAttributeNames: MetadataDocumentStandardAttributeNames,
       xmlParents: documentProperties,
-    },
+    }),
     synonym: i8nTextRule({
       yaml: "Синоним",
       xmlParents: documentProperties,
       defaultValueXMLRaw: "",
     }),
-    tabularSections: {
+    tabularSections: metadataDocumentTabularSectionsRule({
       yaml: "ТабличныеЧасти",
-      type: "MetadataDocumentTabularSections",
       xmlParents: documentChildObjects,
       xml: "TabularSection",
-    },
+    }),
     updateDataHistoryImmediatelyAfterWrite: booleanRule({
       yaml: "ОбновлятьИсториюДанныхСразуПослеЗаписи",
       defaultValueXML: false,

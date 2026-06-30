@@ -1,3 +1,5 @@
+import { metadataRegisterDimensionsRule } from "~/metadata/appliedObjects/metadataAccountingRegister/types"
+import { internalInfoRule } from "~/metadata/commonObjects/internalInfo/types"
 import { booleanRule } from "~/metadata/commonObjects/boolean/types"
 import { i8nTextRule } from "~/metadata/commonObjects/i8nText/types"
 import { moduleRule } from "~/metadata/commonObjects/module/types"
@@ -10,8 +12,7 @@ const childObjects = ["ChildObjects"]
 export const RecalculationRules = {
   itemType: "Recalculation",
   properties: {
-    internalInfo: {
-      type: "InternalInfo",
+    internalInfo: internalInfoRule({
       xmlParents: [],
       forReferenceOnly: true,
       items: [
@@ -26,7 +27,7 @@ export const RecalculationRules = {
           name: string
         }
       }) => `Recalculation${metadata.name}`,
-    },
+    }),
     uuid: uuidPropertyRule,
     name: stringRule({ xml: "Name", required: true, xmlParents: properties }),
     synonym: i8nTextRule({ yaml: "Синоним", xml: "Synonym", xmlParents: properties, defaultValueXMLRaw: "" }),
@@ -46,14 +47,13 @@ export const RecalculationRules = {
       defaultValueXML: "Managed",
       implicitValueYAML: "Managed",
     }),
-    dimensions: {
+    dimensions: metadataRegisterDimensionsRule({
       yaml: "Измерения",
       xml: "Dimension",
-      type: "MetadataRegisterDimensions",
       xmlParents: childObjects,
       defaultValue: [],
       defaultValueXMLRaw: {},
-    },
+    }),
     objectBelonging: systemEnumerationRule({
       yaml: "ПринадлежностьОбъекта",
       xml: "ObjectBelonging",

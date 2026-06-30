@@ -1,3 +1,6 @@
+import { associatedTableRule } from "~/metadata/commonObjects/metadataValue/types"
+import { pagesChildItemsRule } from "~/metadata/forms/commonObjects/childItems/types"
+import { eventsRule } from "~/metadata/forms/commonObjects/event/types"
 import { stringRule } from "~/metadata/commonObjects/string/types"
 import { systemEnumerationRule } from "~/metadata/systemEnumerations/types"
 import { registerElementRule } from "~/metadata/orchestration/formElement/ruleFactory"
@@ -14,11 +17,10 @@ export const PagesRules = {
       xml: "_name",
       required: true,
     }),
-    childItems: {
+    childItems: pagesChildItemsRule({
       yaml: "Элементы",
-      type: "PagesChildItems",
       defaultValue: [],
-    },
+    }),
     displayImportance: systemEnumerationRule({
       yaml: "ВажностьПриОтображении",
       xml: "_DisplayImportance",
@@ -41,20 +43,18 @@ export const PagesRules = {
       typeSE: "FormPagesRepresentation",
       implicitValueYAML: "Auto",
     }),
-    events: {
-      type: "Events",
+    events: eventsRule({
       yaml: "События",
       toEnterprise: false,
       items: {
         onCurrentPageChange: "ПриСменеСтраницы",
       },
-    },
-    table: {
+    }),
+    table: associatedTableRule({
       yaml: "Таблица",
       xml: "AssociatedTableElementId",
-      type: "AssociatedTable",
       toEnterprise: false,
-    },
+    }),
     ...formGroupCommonProperties,
     height: {
       ...formGroupCommonProperties.height,

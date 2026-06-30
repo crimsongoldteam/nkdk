@@ -1,3 +1,4 @@
+import { commandBarChildItemsRule } from "~/metadata/forms/commonObjects/childItems/types"
 import { booleanRule } from "~/metadata/commonObjects/boolean/types"
 import { stringRule } from "~/metadata/commonObjects/string/types"
 import { systemEnumerationRule } from "~/metadata/systemEnumerations/types"
@@ -16,11 +17,10 @@ export const CommandBarRules = {
       required: true,
     }),
     autofill: booleanRule({ yaml: "Автозаполнение", implicitValueYAML: false }),
-    childItems: {
+    childItems: commandBarChildItemsRule({
       yaml: "Элементы",
-      type: "CommandBarChildItems",
       defaultValue: [],
-    },
+    }),
     displayImportance: systemEnumerationRule({
       yaml: "ВажностьПриОтображении",
       xml: "_DisplayImportance",

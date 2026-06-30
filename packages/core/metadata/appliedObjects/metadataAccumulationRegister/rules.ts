@@ -1,3 +1,16 @@
+import {
+  additionalIndexRule,
+  metadataCommandsRule,
+  metadataRegisterAttributesRule,
+  metadataRegisterDimensionsRule,
+  metadataRegisterResourcesRule,
+} from "~/metadata/appliedObjects/metadataAccountingRegister/types"
+import { accumulationRegisterAggregatesRule } from "~/metadata/appliedObjects/metadataAccumulationRegister/types"
+import { childFormNamesRule } from "~/metadata/commonObjects/childFormNames/types"
+import { childTemplateNamesRule } from "~/metadata/commonObjects/childTemplateNames/types"
+import { helpRule } from "~/metadata/commonObjects/help/types"
+import { internalInfoRule } from "~/metadata/commonObjects/internalInfo/types"
+import { standardAttributeDescriptionsRule } from "~/metadata/commonObjects/standardAttributeDescription/types"
 import { booleanRule } from "~/metadata/commonObjects/boolean/types"
 import { i8nTextRule } from "~/metadata/commonObjects/i8nText/types"
 import { moduleRule } from "~/metadata/commonObjects/module/types"
@@ -52,8 +65,7 @@ export const MetadataAccumulationRegisterRules = {
       toYAML: false,
       fromYAML: false,
     }),
-    internalInfo: {
-      type: "InternalInfo",
+    internalInfo: internalInfoRule({
       xmlParents: [],
       forReferenceOnly: true,
       items: [
@@ -64,7 +76,7 @@ export const MetadataAccumulationRegisterRules = {
         { name: "AccumulationRegisterRecordSet", category: "RecordSet" },
         { name: "AccumulationRegisterRecordKey", category: "RecordKey" },
       ],
-    },
+    }),
     uuid: uuidRule({
       xml: "_uuid",
       forReferenceOnly: true,
@@ -116,16 +128,15 @@ export const MetadataAccumulationRegisterRules = {
       implicitValueYAML: false,
       xmlParents: properties,
     }),
-    standardAttributes: {
+    standardAttributes: standardAttributeDescriptionsRule({
       yaml: "СтандартныеРеквизиты",
-      type: "StandardAttributeDescriptions",
       standartAttributeNames: MetadataAccumulationRegisterStandardAttributeNames,
       standartAttributeNamesXML: (metadataItem: unknown) =>
         isTurnoverAccumulationRegister(metadataItem)
           ? MetadataAccumulationRegisterTurnoverStandardAttributeNames
           : MetadataAccumulationRegisterStandardAttributeNames,
       xmlParents: properties,
-    },
+    }),
     dataLockControlMode: systemEnumerationRule({
       yaml: "РежимУправленияБлокировкойДанных",
       typeSE: "DefaultDataLockControlMode",
@@ -173,58 +184,50 @@ export const MetadataAccumulationRegisterRules = {
       yaml: "ОбъектРасширяемойКонфигурации",
       runtimeOnly: true,
     }),
-    resources: {
+    resources: metadataRegisterResourcesRule({
       yaml: "Ресурсы",
-      type: "MetadataRegisterResources",
       xmlParents: childObjects,
       xml: "Resource",
-    },
-    dimensions: {
+    }),
+    dimensions: metadataRegisterDimensionsRule({
       yaml: "Измерения",
-      type: "MetadataRegisterDimensions",
       xmlParents: childObjects,
       xml: "Dimension",
-    },
-    attributes: {
+    }),
+    attributes: metadataRegisterAttributesRule({
       yaml: "Реквизиты",
-      type: "MetadataRegisterAttributes",
       xmlParents: childObjects,
       xml: "Attribute",
-    },
-    forms: {
-      type: "ChildFormNames",
+    }),
+    forms: childFormNamesRule({
       xml: "Form",
       folderName: "Формы",
       forReferenceOnly: true,
       toYAML: false,
       fromYAML: false,
       xmlParents: childObjects,
-    },
-    templates: {
-      type: "ChildTemplateNames",
+    }),
+    templates: childTemplateNamesRule({
       xml: "Template",
       folderName: "Шаблоны",
       forReferenceOnly: true,
       toYAML: false,
       fromYAML: false,
       xmlParents: childObjects,
-    },
-    commands: {
+    }),
+    commands: metadataCommandsRule({
       yaml: "Команды",
-      type: "MetadataCommands",
       xmlParents: childObjects,
       xml: "Command",
-    },
-    additionalIndexes: {
+    }),
+    additionalIndexes: additionalIndexRule({
       yaml: "ДополнительныеИндексы",
-      type: "AdditionalIndex",
       filePath: "Ext/AdditionalIndexes.xml",
-    },
-    aggregates: {
+    }),
+    aggregates: accumulationRegisterAggregatesRule({
       yaml: "Агрегаты",
-      type: "AccumulationRegisterAggregates",
       filePath: "Ext/Aggregates.xml",
-    },
+    }),
     managerModule: moduleRule({
       externalMetadata: { segment: "ManagerModule", placement: "derivedEntry" },
       nkdkPath: "МодульМенеджера.bsl",
@@ -238,12 +241,11 @@ export const MetadataAccumulationRegisterRules = {
       toXML: false,
       fromXML: false,
     }),
-    help: {
-      type: "Help",
+    help: helpRule({
       externalMetadata: { segment: "Help", placement: "derivedEntry" },
       filePath: "Ext/Help.xml",
       nkdkDir: "Справка",
-    },
+    }),
   },
   childCollections: [{ propertyKey: "commands", itemRule: MetadataAccumulationRegisterCommandRules }],
 } as const satisfies MetadataItemRule

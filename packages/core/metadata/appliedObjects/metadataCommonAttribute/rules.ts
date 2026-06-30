@@ -1,3 +1,9 @@
+import { commonAttributeContentRule } from "~/metadata/commonObjects/commonAttributeContent/types"
+import { minMaxValueRule } from "~/metadata/commonObjects/minMaxValue/types"
+import { typeDescriptionRule } from "~/metadata/commonObjects/typeDescription/types"
+import { typeLinkRule } from "~/metadata/commonObjects/typeLink/types"
+import { choiceParameterLinksRule } from "~/metadata/commonObjects/\u0441hoiceParameterLinks/types"
+import { choiceParametersRule } from "~/metadata/commonObjects/\u0441hoiceParameters/types"
 import { booleanRule } from "~/metadata/commonObjects/boolean/types"
 import { i8nTextRule } from "~/metadata/commonObjects/i8nText/types"
 import { metadataValueRule } from "~/metadata/commonObjects/metadataValue/types"
@@ -40,11 +46,10 @@ export const MetadataCommonAttributeRules = {
       xmlParents: properties,
       defaultValueXMLRaw: "",
     }),
-    type: {
+    type: typeDescriptionRule({
       yaml: "Тип",
-      type: "TypeDescription",
       xmlParents: properties,
-    },
+    }),
     passwordMode: booleanRule({
       yaml: "РежимПароля",
       defaultValueXML: false,
@@ -89,20 +94,18 @@ export const MetadataCommonAttributeRules = {
       implicitValueYAML: false,
       xmlParents: properties,
     }),
-    minValue: {
+    minValue: minMaxValueRule({
       yaml: "МинимальноеЗначение",
-      type: "MinMaxValue",
       typedXML: "xs:string",
       xmlParents: properties,
       defaultValueXMLRaw: { "_xsi:nil": true },
-    },
-    maxValue: {
+    }),
+    maxValue: minMaxValueRule({
       yaml: "МаксимальноеЗначение",
-      type: "MinMaxValue",
       typedXML: "xs:string",
       xmlParents: properties,
       defaultValueXMLRaw: { "_xsi:nil": true },
-    },
+    }),
     fillFromFillingValue: booleanRule({
       yaml: "ЗаполнятьИзДанныхЗаполнения",
       defaultValueXML: false,
@@ -129,18 +132,16 @@ export const MetadataCommonAttributeRules = {
       implicitValueYAML: "Items",
       xmlParents: properties,
     }),
-    choiceParameterLinks: {
+    choiceParameterLinks: choiceParameterLinksRule({
       yaml: "СвязиПараметровВыбора",
-      type: "ChoiceParameterLinks",
       xmlParents: properties,
       defaultValueXMLRaw: "",
-    },
-    choiceParameters: {
+    }),
+    choiceParameters: choiceParametersRule({
       yaml: "ПараметрыВыбора",
-      type: "ChoiceParameters",
       xmlParents: properties,
       defaultValueXMLRaw: "",
-    },
+    }),
     quickChoice: systemEnumerationRule({
       yaml: "БыстрыйВыбор",
       typeSE: "UseQuickChoice",
@@ -160,12 +161,11 @@ export const MetadataCommonAttributeRules = {
       xmlParents: properties,
       defaultValueXMLRaw: "",
     }),
-    linkByType: {
+    linkByType: typeLinkRule({
       yaml: "СвязьПоТипу",
-      type: "TypeLink",
       xmlParents: properties,
       defaultValueXMLRaw: "",
-    },
+    }),
     choiceHistoryOnInput: systemEnumerationRule({
       yaml: "ИсторияВыбораПриВводе",
       typeSE: "ChoiceHistoryOnInput",
@@ -173,13 +173,12 @@ export const MetadataCommonAttributeRules = {
       implicitValueYAML: "Auto",
       xmlParents: properties,
     }),
-    content: {
+    content: commonAttributeContentRule({
       yaml: "Состав",
-      type: "CommonAttributeContent",
       xml: "Content",
       xmlParents: properties,
       defaultValueXMLRaw: "",
-    },
+    }),
     autoUse: systemEnumerationRule({
       yaml: "АвтоИспользование",
       typeSE: "CommonAttributeAutoUse",

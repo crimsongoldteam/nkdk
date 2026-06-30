@@ -1,3 +1,8 @@
+import { functionalOptionsPropertyRule } from "~/metadata/commonObjects/functionalOptionsProperty/types"
+import { pictureRule } from "~/metadata/commonObjects/metadataTargets/types"
+import { associatedTableRule } from "~/metadata/commonObjects/metadataValue/types"
+import { userVisibleRule } from "~/metadata/commonObjects/userVisible/types"
+import { elementIdRule } from "~/metadata/forms/commonObjects/elementId/types"
 import { booleanRule } from "~/metadata/commonObjects/boolean/types"
 import { i8nTextRule } from "~/metadata/commonObjects/i8nText/types"
 import { stringRule } from "~/metadata/commonObjects/string/types"
@@ -7,11 +12,10 @@ import { MetadataItemRule } from "~/metadata/orchestration/property/types"
 export const FormCommandRules = {
   itemType: "FormCommand",
   properties: {
-    id: {
+    id: elementIdRule({
       xml: "_id",
-      type: "ElementId",
       forReferenceOnly: true,
-    },
+    }),
     name: stringRule({
       xml: "_name",
       required: true,
@@ -43,27 +47,24 @@ export const FormCommandRules = {
     toolTip: i8nTextRule({
       yaml: "Подсказка",
     }),
-    use: {
+    use: userVisibleRule({
       yaml: "Использование",
-      type: "UserVisible",
-    },
+    }),
     shortcut: stringRule({
       yaml: "СочетаниеКлавиш",
       xml: "Shortcut",
     }),
-    picture: {
+    picture: pictureRule({
       yaml: "Картинка",
-      type: "Picture",
       metadataTarget: { kind: "object", roots: ["CommonPicture"] },
-    },
+    }),
     action: stringRule({
       yaml: "Действие",
       xml: "Action",
     }),
-    functionalOptions: {
+    functionalOptions: functionalOptionsPropertyRule({
       yaml: "ФункциональныеОпции",
-      type: "FunctionalOptionsProperty",
-    },
+    }),
     representation: systemEnumerationRule({
       yaml: "ОтображениеКнопки",
       xml: "Representation",
@@ -81,11 +82,10 @@ export const FormCommandRules = {
       xml: "ModifiesSavedData",
       implicitValueYAML: false,
     }),
-    table: {
+    table: associatedTableRule({
       yaml: "Таблица",
       xml: "AssociatedTableElementId",
-      type: "AssociatedTable",
       toEnterprise: false,
-    },
+    }),
   },
 } as const satisfies MetadataItemRule

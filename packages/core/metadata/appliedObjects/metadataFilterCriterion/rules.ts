@@ -1,3 +1,8 @@
+import { metadataCommandsRule } from "~/metadata/appliedObjects/metadataAccountingRegister/types"
+import { childFormNamesRule } from "~/metadata/commonObjects/childFormNames/types"
+import { internalInfoRule } from "~/metadata/commonObjects/internalInfo/types"
+import { metadataItemLinksRule } from "~/metadata/commonObjects/metadataPath/types"
+import { typeDescriptionRule } from "~/metadata/commonObjects/typeDescription/types"
 import { booleanRule } from "~/metadata/commonObjects/boolean/types"
 import { i8nTextRule } from "~/metadata/commonObjects/i8nText/types"
 import { moduleRule } from "~/metadata/commonObjects/module/types"
@@ -23,15 +28,14 @@ export const MetadataFilterCriterionRules = {
       toYAML: false,
       fromYAML: false,
     }),
-    internalInfo: {
-      type: "InternalInfo",
+    internalInfo: internalInfoRule({
       xmlParents: [],
       forReferenceOnly: true,
       items: [
         { name: "FilterCriterionManager", category: "Manager" },
         { name: "FilterCriterionList", category: "List" },
       ],
-    },
+    }),
     uuid: uuidRule({
       xml: "_uuid",
       forReferenceOnly: true,
@@ -63,26 +67,24 @@ export const MetadataFilterCriterionRules = {
       yaml: "ОбъектРасширяемойКонфигурации",
       runtimeOnly: true,
     }),
-    type: {
+    type: typeDescriptionRule({
       yaml: "Тип",
-      type: "TypeDescription",
       xmlParents: properties,
       defaultValueXMLRaw: "",
-    },
+    }),
     useStandardCommands: booleanRule({
       yaml: "ИспользоватьСтандартныеКоманды",
       defaultValueXML: true,
       implicitValueYAML: true,
       xmlParents: properties,
     }),
-    content: {
+    content: metadataItemLinksRule({
       yaml: "Состав",
-      type: "MetadataItemLinks",
       metadataTarget: { kind: "member", owner: "explicit" },
       xml: "Content",
       xmlParents: properties,
       defaultValueXMLRaw: "",
-    },
+    }),
     defaultForm: stringRule({
       yaml: "ОсновнаяФорма",
       xmlParents: properties,
@@ -115,20 +117,18 @@ export const MetadataFilterCriterionRules = {
       xmlParents: properties,
       defaultValueXMLRaw: "",
     }),
-    commands: {
+    commands: metadataCommandsRule({
       yaml: "Команды",
-      type: "MetadataCommands",
       xml: "Command",
       xmlParents: childObjects,
-    },
-    forms: {
+    }),
+    forms: childFormNamesRule({
       yaml: "Формы",
-      type: "ChildFormNames",
       xml: "Form",
       folderName: "Формы",
       forReferenceOnly: true,
       xmlParents: childObjects,
-    },
+    }),
   },
   childCollections: [{ propertyKey: "commands", itemRule: MetadataCommandRules }],
 } as const satisfies MetadataItemRule

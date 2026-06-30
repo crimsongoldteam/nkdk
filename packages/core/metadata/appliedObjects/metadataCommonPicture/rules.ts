@@ -1,3 +1,4 @@
+import { externalPictureRule } from "~/metadata/commonObjects/externalPicture/types"
 import { booleanRule } from "~/metadata/commonObjects/boolean/types"
 import { i8nTextRule } from "~/metadata/commonObjects/i8nText/types"
 import { stringRule } from "~/metadata/commonObjects/string/types"
@@ -39,14 +40,13 @@ export const MetadataCommonPictureRules = {
       xmlParents: properties,
       defaultValueXMLRaw: "",
     }),
-    picture: {
-      type: "ExternalPicture",
+    picture: externalPictureRule({
       nkdkDir: "Картинка",
       xmlPath: "Ext/Picture.xml",
       payloadXmlDir: "Ext/Picture",
       toXML: false,
       fromXML: false,
-    },
+    }),
     availabilityForChoice: booleanRule({
       yaml: "ДоступностьДляВыбора",
       xml: "AvailabilityForChoice",

@@ -1,3 +1,20 @@
+import { additionalIndexRule, metadataCommandsRule } from "~/metadata/appliedObjects/metadataAccountingRegister/types"
+import {
+  accountingFlagsRule,
+  extDimensionAccountingFlagsRule,
+  metadataChartOfAccountsTabularSectionsRule,
+} from "~/metadata/appliedObjects/metadataChartOfAccounts/types"
+import { metadataAttributesRule } from "~/metadata/appliedObjects/metadataDataProcessor/types"
+import { characteristicsDescriptionsRule } from "~/metadata/commonObjects/characteristicsDescription/types"
+import { childFormNamesRule } from "~/metadata/commonObjects/childFormNames/types"
+import { childTemplateNamesRule } from "~/metadata/commonObjects/childTemplateNames/types"
+import { helpRule } from "~/metadata/commonObjects/help/types"
+import { internalInfoRule } from "~/metadata/commonObjects/internalInfo/types"
+import { metadataFieldsRule } from "~/metadata/commonObjects/metadataField/types"
+import { metadataItemLinksRule } from "~/metadata/commonObjects/metadataPath/types"
+import { predefinedRule } from "~/metadata/commonObjects/predefined/types"
+import { standardAttributeDescriptionsRule } from "~/metadata/commonObjects/standardAttributeDescription/types"
+import { standardTabularSectionDescriptionsRule } from "~/metadata/commonObjects/standardTabularSectionDescription/types"
 import { booleanRule } from "~/metadata/commonObjects/boolean/types"
 import { i8nTextRule } from "~/metadata/commonObjects/i8nText/types"
 import { moduleRule } from "~/metadata/commonObjects/module/types"
@@ -48,8 +65,7 @@ export const MetadataChartOfAccountsRules = {
       toYAML: false,
       fromYAML: false,
     }),
-    internalInfo: {
-      type: "InternalInfo",
+    internalInfo: internalInfoRule({
       xmlParents: [],
       forReferenceOnly: true,
       items: [
@@ -61,7 +77,7 @@ export const MetadataChartOfAccountsRules = {
         { name: "ChartOfAccountsExtDimensionTypes", category: "ExtDimensionTypes" },
         { name: "ChartOfAccountsExtDimensionTypesRow", category: "ExtDimensionTypesRow" },
       ],
-    },
+    }),
     uuid: uuidRule({ xml: "_uuid", forReferenceOnly: true, xmlParents: [] }),
     name: stringRule({ xmlParents: properties, required: true, defaultValue: ({ name }: { name?: string }) => name }),
     synonym: i8nTextRule({ yaml: "Синоним", xmlParents: properties, defaultValueXMLRaw: "" }),
@@ -78,13 +94,12 @@ export const MetadataChartOfAccountsRules = {
       implicitValueYAML: false,
       xmlParents: properties,
     }),
-    basedOn: {
+    basedOn: metadataItemLinksRule({
       yaml: "ВводитсяНаОсновании",
-      type: "MetadataItemLinks",
       metadataTarget: { kind: "object", allowedObjectPaths: commonBasedOnObjectPaths },
       xmlParents: properties,
       defaultValueXMLRaw: {},
-    },
+    }),
     extDimensionTypes: stringRule({ yaml: "ВидыСубконто", xmlParents: properties, defaultValueXMLRaw: "" }),
     maxExtDimensionCount: numberRule({
       yaml: "МаксКоличествоСубконто",
@@ -120,24 +135,21 @@ export const MetadataChartOfAccountsRules = {
       implicitValueYAML: "AsCode",
       xmlParents: properties,
     }),
-    standardAttributes: {
+    standardAttributes: standardAttributeDescriptionsRule({
       yaml: "СтандартныеРеквизиты",
-      type: "StandardAttributeDescriptions",
       standartAttributeNames: MetadataChartOfAccountsStandardAttributeNames,
       xmlParents: properties,
-    },
-    characteristics: {
+    }),
+    characteristics: characteristicsDescriptionsRule({
       yaml: "Характеристики",
-      type: "CharacteristicsDescriptions",
       xmlParents: properties,
       defaultValueXMLRaw: {},
-    },
-    standardTabularSections: {
-      type: "StandardTabularSectionDescriptions",
+    }),
+    standardTabularSections: standardTabularSectionDescriptionsRule({
       xmlParents: properties,
       toYAML: false,
       fromYAML: false,
-    },
+    }),
     predefinedDataUpdate: systemEnumerationRule({
       yaml: "ОбновлениеПредопределенныхДанных",
       typeSE: "PredefinedDataUpdate",
@@ -165,7 +177,7 @@ export const MetadataChartOfAccountsRules = {
       implicitValueYAML: "BothWays",
       xmlParents: properties,
     }),
-    inputByString: { yaml: "ВводПоСтроке", type: "MetadataFields", xmlParents: properties, defaultValueXMLRaw: {} },
+    inputByString: metadataFieldsRule({ yaml: "ВводПоСтроке", xmlParents: properties, defaultValueXMLRaw: {} }),
     searchStringModeOnInputByString: systemEnumerationRule({
       yaml: "РежимСтрокиПоискаПриВводеПоСтроке",
       typeSE: "SearchStringModeOnInputByString",
@@ -244,12 +256,11 @@ export const MetadataChartOfAccountsRules = {
       xmlParents: properties,
     }),
     orderLength: numberRule({ yaml: "ДлинаПорядка", defaultValueXML: 0, implicitValueYAML: 0, xmlParents: properties }),
-    dataLockFields: {
+    dataLockFields: metadataFieldsRule({
       yaml: "ПоляБлокировкиДанных",
-      type: "MetadataFields",
       xmlParents: properties,
       defaultValueXMLRaw: {},
-    },
+    }),
     dataLockControlMode: systemEnumerationRule({
       yaml: "РежимУправленияБлокировкойДанных",
       typeSE: "DefaultDataLockControlMode",
@@ -305,46 +316,41 @@ export const MetadataChartOfAccountsRules = {
       implicitValueYAML: "Native",
     }),
     extendedConfigurationObject: stringRule({ runtimeOnly: true }),
-    attributes: { yaml: "Реквизиты", xml: "Attribute", type: "MetadataAttributes", xmlParents: childObjects },
-    tabularSections: {
+    attributes: metadataAttributesRule({ yaml: "Реквизиты", xml: "Attribute", xmlParents: childObjects }),
+    tabularSections: metadataChartOfAccountsTabularSectionsRule({
       yaml: "ТабличныеЧасти",
       xml: "TabularSection",
-      type: "MetadataChartOfAccountsTabularSections",
       xmlParents: childObjects,
-    },
-    accountingFlags: {
+    }),
+    accountingFlags: accountingFlagsRule({
       yaml: "ПризнакиУчета",
       xml: "AccountingFlag",
-      type: "AccountingFlags",
       xmlParents: childObjects,
-    },
-    extDimensionAccountingFlags: {
+    }),
+    extDimensionAccountingFlags: extDimensionAccountingFlagsRule({
       yaml: "ПризнакиУчетаСубконто",
       xml: "ExtDimensionAccountingFlag",
-      type: "ExtDimensionAccountingFlags",
       xmlParents: childObjects,
-    },
-    forms: {
+    }),
+    forms: childFormNamesRule({
       yaml: "Формы",
       xml: "Form",
-      type: "ChildFormNames",
       xmlParents: childObjects,
       folderName: "Формы",
       forReferenceOnly: true,
       toYAML: false,
       fromYAML: false,
-    },
-    templates: {
+    }),
+    templates: childTemplateNamesRule({
       yaml: "Макеты",
       xml: "Template",
-      type: "ChildTemplateNames",
       xmlParents: childObjects,
       folderName: "Макеты",
       forReferenceOnly: true,
       toYAML: false,
       fromYAML: false,
-    },
-    commands: { yaml: "Команды", xml: "Command", type: "MetadataCommands", xmlParents: childObjects },
+    }),
+    commands: metadataCommandsRule({ yaml: "Команды", xml: "Command", xmlParents: childObjects }),
     objectModule: moduleRule({
       externalMetadata: { segment: "ObjectModule", placement: "derivedEntry" },
       nkdkPath: "МодульОбъекта.bsl",
@@ -359,21 +365,19 @@ export const MetadataChartOfAccountsRules = {
       toXML: false,
       fromXML: false,
     }),
-    predefined: { yaml: "Предопределенные", type: "Predefined", filePath: "Ext/Predefined.xml" },
-    additionalIndexes: {
+    predefined: predefinedRule({ yaml: "Предопределенные", filePath: "Ext/Predefined.xml" }),
+    additionalIndexes: additionalIndexRule({
       yaml: "ДополнительныеИндексы",
-      type: "AdditionalIndex",
       filePath: "Ext/AdditionalIndexes.xml",
-    },
-    help: {
-      type: "Help",
+    }),
+    help: helpRule({
       externalMetadata: { segment: "Help", placement: "derivedEntry" },
       filePath: "Ext/Help.xml",
       xmlPath: "Ext/Help.xml",
       nkdkDir: "Справка",
       toXML: false,
       fromXML: false,
-    },
+    }),
   },
   childCollections: [{ propertyKey: "commands", itemRule: MetadataChartOfAccountsCommandRules }],
 } as const satisfies MetadataItemRule

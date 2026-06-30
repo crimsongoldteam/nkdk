@@ -1,3 +1,8 @@
+import { minMaxValueRule } from "~/metadata/commonObjects/minMaxValue/types"
+import { typeDescriptionRule } from "~/metadata/commonObjects/typeDescription/types"
+import { typeLinkRule } from "~/metadata/commonObjects/typeLink/types"
+import { choiceParameterLinksRule } from "~/metadata/commonObjects/\u0441hoiceParameterLinks/types"
+import { choiceParametersRule } from "~/metadata/commonObjects/\u0441hoiceParameters/types"
 import { booleanRule } from "~/metadata/commonObjects/boolean/types"
 import { i8nTextRule } from "~/metadata/commonObjects/i8nText/types"
 import { metadataValueRule } from "~/metadata/commonObjects/metadataValue/types"
@@ -26,20 +31,18 @@ export const StandardAttributeDescriptionRules = {
       defaultValueXML: "Auto",
       implicitValueYAML: "Auto",
     }),
-    choiceParameterLinks: {
+    choiceParameterLinks: choiceParameterLinksRule({
       yaml: "СвязиПараметровВыбора",
       xml: "xr:ChoiceParameterLinks",
-      type: "ChoiceParameterLinks",
       order: 22,
       defaultValueXMLRaw: "",
-    },
-    choiceParameters: {
+    }),
+    choiceParameters: choiceParametersRule({
       yaml: "ПараметрыВыбора",
       xml: "xr:ChoiceParameters",
-      type: "ChoiceParameters",
       order: 25,
       defaultValueXMLRaw: "",
-    },
+    }),
     comment: stringRule({
       yaml: "Комментарий",
       xml: "xr:Comment",
@@ -110,13 +113,12 @@ export const StandardAttributeDescriptionRules = {
       defaultValueXML: "Use",
       implicitValueYAML: "Use",
     }),
-    linkByType: {
+    linkByType: typeLinkRule({
       yaml: "СвязьПоТипу",
       xml: "xr:LinkByType",
-      type: "TypeLink",
       order: 1,
       defaultValueXMLRaw: "",
-    },
+    }),
     markNegatives: booleanRule({
       yaml: "ВыделятьОтрицательные",
       xml: "xr:MarkNegatives",
@@ -130,20 +132,18 @@ export const StandardAttributeDescriptionRules = {
       order: 24,
       defaultValueXMLRaw: "",
     }),
-    maxValue: {
+    maxValue: minMaxValueRule({
       yaml: "МаксимальноеЗначение",
       xml: "xr:MaxValue",
-      type: "MinMaxValue",
       order: 7,
       defaultValueXMLRaw: { "_xsi:nil": true },
-    },
-    minValue: {
+    }),
+    minValue: minMaxValueRule({
       yaml: "МинимальноеЗначение",
       xml: "xr:MinValue",
-      type: "MinMaxValue",
       order: 18,
       defaultValueXMLRaw: { "_xsi:nil": true },
-    },
+    }),
     multiLine: booleanRule({
       yaml: "МногострочныйРежим",
       xml: "xr:MultiLine",
@@ -178,11 +178,10 @@ export const StandardAttributeDescriptionRules = {
       order: 8,
       defaultValueXMLRaw: "",
     }),
-    type: {
+    type: typeDescriptionRule({
       yaml: "Тип",
       xml: "xr:Type",
-      type: "TypeDescription",
-    },
+    }),
     typeReductionMode: systemEnumerationRule({
       yaml: "РежимСокращенияТипа",
       xml: "xr:TypeReductionMode",

@@ -1,3 +1,4 @@
+import { typeLinkRule } from "~/metadata/commonObjects/typeLink/types"
 import { booleanRule } from "~/metadata/commonObjects/boolean/types"
 import { stringRule } from "~/metadata/commonObjects/string/types"
 import { systemEnumerationRule } from "~/metadata/systemEnumerations/types"
@@ -55,14 +56,13 @@ export const MetadataExternalDataSourceCubeResourceRules = {
       implicitValueYAML: "Items",
       toXML: hasOwnMetadataProperty("choiceFoldersAndItems"),
     }),
-    linkByType: {
+    linkByType: typeLinkRule({
       yaml: "СвязьПоТипу",
       xml: "LinkByType",
-      type: "TypeLink",
       xmlParents: propertiesParents,
       defaultValueXMLRaw: "",
       toXML: hasOwnMetadataProperty("linkByType"),
-    },
+    }),
     nameInDataSource: stringRule({
       yaml: "ИмяВИсточникеДанных",
       xml: "NameInDataSource",

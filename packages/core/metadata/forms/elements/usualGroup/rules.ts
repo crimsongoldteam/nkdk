@@ -1,3 +1,7 @@
+import { colorRule } from "~/metadata/commonObjects/color/types"
+import { dataPathRule } from "~/metadata/commonObjects/metadataPath/types"
+import { associatedTableRule } from "~/metadata/commonObjects/metadataValue/types"
+import { groupChildItemsRule } from "~/metadata/forms/commonObjects/childItems/types"
 import { booleanRule } from "~/metadata/commonObjects/boolean/types"
 import { i8nTextRule } from "~/metadata/commonObjects/i8nText/types"
 import { stringRule } from "~/metadata/commonObjects/string/types"
@@ -16,21 +20,19 @@ export const UsualGroupRules = {
       xml: "_name",
       required: true,
     }),
-    backColor: {
+    backColor: colorRule({
       yaml: "ЦветФона",
-      type: "Color",
       metadataTarget: { kind: "object", roots: ["StyleItem"], filters: [{ kind: "styleItemType", values: ["Color"] }] },
-    },
+    }),
     behavior: systemEnumerationRule({
       yaml: "Поведение",
       typeSE: "UsualGroupBehavior",
       implicitValueYAML: "Auto",
     }),
-    childItems: {
+    childItems: groupChildItemsRule({
       yaml: "Элементы",
-      type: "GroupChildItems",
       defaultValue: [],
-    },
+    }),
     childItemsHorizontalAlign: systemEnumerationRule({
       yaml: "ГоризонтальноеПоложениеПодчиненных",
       typeSE: "ItemHorizontalLocation",
@@ -71,12 +73,11 @@ export const UsualGroupRules = {
       // defaultValueXML: "HorizontalIfPossible",
       implicitValueYAML: "ГоризонтальнаяЕслиВозможно",
     }),
-    hiddenRepresentationTitleBackColor: {
+    hiddenRepresentationTitleBackColor: colorRule({
       yaml: "ЦветФонаЗаголовкаСкрытогоОтображения",
-      type: "Color",
       metadataTarget: { kind: "object", roots: ["StyleItem"], filters: [{ kind: "styleItemType", values: ["Color"] }] },
       xml: "HiddenStateTitleBackColor",
-    },
+    }),
     horizontalSpacing: systemEnumerationRule({
       yaml: "ГоризонтальныйИнтервал",
       typeSE: "FormItemSpacing",
@@ -105,18 +106,17 @@ export const UsualGroupRules = {
       defaultValue: true,
       implicitValueYAML: "Истина",
     }),
-    table: {
+    table: associatedTableRule({
       yaml: "Таблица",
       xml: "AssociatedTableElementId",
-      type: "AssociatedTable",
       toEnterprise: false,
-    },
+    }),
     throughAlign: systemEnumerationRule({
       yaml: "СквозноеВыравнивание",
       typeSE: "ThroughAlign",
       implicitValueYAML: "Auto",
     }),
-    titleDataPath: { yaml: "ПутьКДаннымЗаголовка", type: "DataPath", defaultType: "string" },
+    titleDataPath: dataPathRule({ yaml: "ПутьКДаннымЗаголовка", defaultType: "string" }),
     united: booleanRule({ yaml: "Объединенная", implicitValueYAML: true }),
     verticalSpacing: systemEnumerationRule({
       yaml: "ВертикальныйИнтервал",

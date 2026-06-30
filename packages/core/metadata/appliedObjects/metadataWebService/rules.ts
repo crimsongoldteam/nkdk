@@ -1,3 +1,5 @@
+import { metadataWebServiceOperationsRule } from "~/metadata/appliedObjects/metadataWebService/types"
+import { xDTOPackagesRule } from "~/metadata/commonObjects/xDTOPackages/types"
 import { i8nTextRule } from "~/metadata/commonObjects/i8nText/types"
 import { moduleRule } from "~/metadata/commonObjects/module/types"
 import { numberRule } from "~/metadata/commonObjects/number/types"
@@ -47,13 +49,12 @@ export const MetadataWebServiceRules = {
       xml: "Namespace",
       xmlParents: properties,
     }),
-    xdtoPackages: {
+    xdtoPackages: xDTOPackagesRule({
       yaml: "ПакетыXDTO",
       xml: "XDTOPackages",
-      type: "XDTOPackages",
       xmlParents: properties,
       defaultValueXMLRaw: {},
-    },
+    }),
     descriptorFileName: stringRule({
       yaml: "ИмяФайлаДескриптора",
       xml: "DescriptorFileName",
@@ -88,14 +89,13 @@ export const MetadataWebServiceRules = {
       xmlParents: properties,
       runtimeOnly: true,
     }),
-    operations: {
+    operations: metadataWebServiceOperationsRule({
       yaml: "Операции",
       xml: "Operation",
-      type: "MetadataWebServiceOperations",
       xmlParents: childObjects,
       defaultValue: [],
       defaultValueXMLRaw: {},
-    },
+    }),
     module: moduleRule({
       nkdkPath: "Модуль.bsl",
       xmlPath: "Ext/Module.bsl",

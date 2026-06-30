@@ -1,3 +1,4 @@
+import { predefinedItemCollectionRule } from "~/metadata/commonObjects/predefinedItem/types"
 import { xmlRootRule } from "~/metadata/commonObjects/xmlRoot/types"
 import { MetadataItemRule } from "~/metadata/orchestration/property/types"
 const predefinedRootAttributes = (params: { ownerMetadataItem: unknown }): Record<string, string> => {
@@ -38,13 +39,12 @@ export const PredefinedRules = {
       forReferenceOnly: true,
       isFileRoot: true,
     }),
-    items: {
-      type: "PredefinedItemCollection",
+    items: predefinedItemCollectionRule({
       // Дочерние <Item>-теги лежат прямо в корне <PredefinedData>, без обёртки <Items>:
       // указание xml="Item" подменяет имя обёртки коллекции на имя её элемента.
       xml: "Item",
       yamlInline: true,
       yaml: "items",
-    },
+    }),
   },
 } as const satisfies MetadataItemRule

@@ -1,3 +1,4 @@
+import { commandBarChildItemsRule } from "~/metadata/forms/commonObjects/childItems/types"
 import { booleanRule } from "~/metadata/commonObjects/boolean/types"
 import { stringRule } from "~/metadata/commonObjects/string/types"
 import { systemEnumerationRule } from "~/metadata/systemEnumerations/types"
@@ -34,11 +35,10 @@ export const AutoCommandBarRules = {
       typeSE: "ItemHorizontalLocation",
       implicitValueYAML: "Left",
     }),
-    childItems: {
+    childItems: commandBarChildItemsRule({
       yaml: "Элементы",
-      type: "CommandBarChildItems",
       defaultValue: [],
-    },
+    }),
   },
 } as const satisfies ElementRule
 registerElementAsType({
