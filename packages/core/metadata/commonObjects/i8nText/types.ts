@@ -42,3 +42,11 @@ export interface I8nTextPropertyRule extends Omit<BasePropertyRule, "defaultValu
   /** Выгружать I8nText с указанием типа: `xsi:type="v8:LocalStringType"` */
   typedXML?: true
 }
+
+export type I8nTextRuleParams = Omit<I8nTextPropertyRule, "type">
+
+export function i8nTextRule<const Params extends I8nTextRuleParams>(
+  params: Params = {} as Params
+): Readonly<{ type: "I8nText" } & Params> {
+  return { type: "I8nText", ...params }
+}

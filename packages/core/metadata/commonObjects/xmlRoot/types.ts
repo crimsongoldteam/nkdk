@@ -21,3 +21,11 @@ export interface XMLRootPropertyRule extends BasePropertyRule {
    *  Используется для внешних файлов вроде Ext/Predefined.xml. По умолчанию (false) корень = <MetaDataObject>. */
   isFileRoot?: true
 }
+
+export type XMLRootRuleParams = Omit<XMLRootPropertyRule, "type">
+
+export function xmlRootRule<const Params extends XMLRootRuleParams>(
+  params: Params
+): Readonly<{ type: "XMLRoot" } & Params> {
+  return { type: "XMLRoot", ...params }
+}
