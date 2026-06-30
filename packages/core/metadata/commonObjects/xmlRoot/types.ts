@@ -1,3 +1,4 @@
+import { definePropertyRule, type ExactRuleParams } from "~/metadata/commonObjects/ruleBuilder"
 import type { BasePropertyRule } from "~/metadata/orchestration/property/types"
 
 /** Правило property-типа XMLRoot — маркер обёртки прикладного объекта/внешнего файла в XML.
@@ -25,7 +26,7 @@ export interface XMLRootPropertyRule extends BasePropertyRule {
 export type XMLRootRuleParams = Omit<XMLRootPropertyRule, "type">
 
 export function xmlRootRule<const Params extends XMLRootRuleParams>(
-  params: Params
+  params: ExactRuleParams<XMLRootRuleParams, Params>
 ): Readonly<{ type: "XMLRoot" } & Params> {
-  return { type: "XMLRoot", ...params }
+  return definePropertyRule("XMLRoot", params)
 }

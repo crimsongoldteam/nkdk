@@ -92,6 +92,15 @@ describe("property rule builders", () => {
       // @ts-expect-error string rules do not accept system-enumeration fields.
       stringRule({ typeSE: "ObjectBelonging" })
 
+      // @ts-expect-error string rules still must reject foreign fields when valid fields are also present.
+      stringRule({ xml: "Name", typeSE: "ObjectBelonging" })
+
+      // @ts-expect-error uuid rules do not accept system-enumeration fields.
+      uuidRule({ xml: "_uuid", typeSE: "ObjectBelonging" })
+
+      // @ts-expect-error I8nText rules do not accept string-only foreign fields from other property kinds.
+      i8nTextRule({ yaml: "Синоним", typeSE: "ObjectBelonging" })
+
       // @ts-expect-error system enumeration rules require typeSE.
       systemEnumerationRule({ xml: "ObjectBelonging" })
 

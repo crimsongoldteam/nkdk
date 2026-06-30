@@ -1,4 +1,5 @@
-import type { BasePropertyRule } from "~/metadata/orchestration"
+import { definePropertyRule, type ExactRuleParams } from "~/metadata/commonObjects/ruleBuilder"
+import type { BasePropertyRule } from "~/metadata/orchestration/property/types"
 
 export interface UuidPropertyRule extends BasePropertyRule {
   type: "uuid"
@@ -6,8 +7,10 @@ export interface UuidPropertyRule extends BasePropertyRule {
 
 export type UuidRuleParams = Omit<UuidPropertyRule, "type">
 
+export function uuidRule(): Readonly<{ type: "uuid" }>
 export function uuidRule<const Params extends UuidRuleParams>(
-  params: Params = {} as Params
-): Readonly<{ type: "uuid" } & Params> {
-  return { type: "uuid", ...params }
+  params: ExactRuleParams<UuidRuleParams, Params>
+): Readonly<{ type: "uuid" } & Params>
+export function uuidRule(params: UuidRuleParams = {}): Readonly<{ type: "uuid" } & UuidRuleParams> {
+  return definePropertyRule("uuid", params)
 }

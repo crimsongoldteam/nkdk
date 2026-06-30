@@ -122,6 +122,16 @@ describe("metadata import boundaries", () => {
       findForbiddenModuleSpecifiers('import { Button } from "~/metadata/forms/elements/button"', ["~/metadata/forms"])
     ).toEqual([])
   })
+
+  it("MetadataLanguage runtime registration lives in register.ts, not types.ts", () => {
+    const typesSource = readFileSync(join(METADATA_DIR, "appliedObjects", "metadataLanguage", "types.ts"), "utf-8")
+    const registerSource = readFileSync(join(METADATA_DIR, "appliedObjects", "metadataLanguage", "register.ts"), "utf-8")
+
+    expect(typesSource).not.toContain("registerMetadataItemRule")
+    expect(typesSource).toContain("import type { MetadataLanguageRules }")
+    expect(registerSource).toContain("registerMetadataItemRule")
+    expect(registerSource).toContain('propertyType: "MetadataLanguage"')
+  })
 })
 
 function findImportOffenders(dir: string, forbiddenImports: readonly string[]) {
