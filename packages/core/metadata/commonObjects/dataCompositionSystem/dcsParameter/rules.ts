@@ -1,15 +1,16 @@
+import { booleanRule } from "~/metadata/commonObjects/boolean/types"
+import { stringRule } from "~/metadata/commonObjects/string/types"
+import { systemEnumerationRule } from "~/metadata/systemEnumerations/types"
 import { MetadataItemRule } from "~/metadata/orchestration"
-
 export const DCSParameterRules = {
   itemType: "DCSParameter",
   properties: {
-    name: {
-      type: "string",
+    name: stringRule({
       xml: "dcssch:name",
       yaml: "Имя",
       order: 1,
       toYAML: false,
-    },
+    }),
     title: {
       type: "DcsLocalStringType",
       xml: "dcssch:title",
@@ -31,40 +32,35 @@ export const DCSParameterRules = {
       exportNilValue: true,
       preserveFromReferenceXML: true,
     },
-    useRestriction: {
-      type: "boolean",
+    useRestriction: booleanRule({
       xml: "dcssch:useRestriction",
       yaml: "ОграничениеИспользования",
       order: 5,
       implicitValueYAML: false,
       defaultValueXML: false,
-    },
-    expression: {
-      type: "string",
+    }),
+    expression: stringRule({
       xml: "dcssch:expression",
       yaml: "Выражение",
       order: 6,
-    },
-    valueListAllowed: {
-      type: "boolean",
+    }),
+    valueListAllowed: booleanRule({
       xml: "dcssch:valueListAllowed",
       yaml: "ДоступенСписокЗначений",
       order: 7,
       implicitValueYAML: false,
-    },
-    includeInAvailableFields: {
-      type: "boolean",
+    }),
+    includeInAvailableFields: booleanRule({
       xml: "dcssch:availableAsField",
       yaml: "ВключатьВДоступныеПоля",
       order: 8,
       implicitValueYAML: true,
-    },
-    functionalOptionsParameter: {
-      type: "string",
+    }),
+    functionalOptionsParameter: stringRule({
       xml: "dcssch:functionalOptionsParameter",
       yaml: "ПараметрФункциональныхОпций",
       order: 9,
-    },
+    }),
     editParameters: {
       type: "SettingsParameterValueCollection",
       defaultItemRule: {
@@ -100,20 +96,18 @@ export const DCSParameterRules = {
       yaml: "ПараметрыРедактирования",
       order: 10,
     },
-    denyIncompleteValues: {
-      type: "boolean",
+    denyIncompleteValues: booleanRule({
       xml: "dcssch:denyIncompleteValues",
       yaml: "ЗапрещатьНезаполненныеЗначения",
       order: 11,
       implicitValueYAML: false,
-    },
-    use: {
-      type: "SystemEnumeration",
+    }),
+    use: systemEnumerationRule({
       typeSE: "DCSParameterUse",
       xml: "dcssch:use",
       yaml: "Использование",
       implicitValueYAML: "Auto",
       order: 12,
-    },
+    }),
   },
 } as const satisfies MetadataItemRule

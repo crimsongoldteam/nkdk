@@ -219,9 +219,7 @@ const assertEmptyValueListXML = (xml: DcsMetadataTypedValueXML): void => {
   const lastIdText =
     typeof lastId === "object" && lastId !== null ? String((lastId as Record<string, unknown>)["#text"]) : undefined
   const lastIdType =
-    typeof lastId === "object" && lastId !== null
-      ? String((lastId as Record<string, unknown>)["_xsi:type"])
-      : undefined
+    typeof lastId === "object" && lastId !== null ? String((lastId as Record<string, unknown>)["_xsi:type"]) : undefined
 
   if (!isEmptyValueType(valueType) || lastIdText !== "-1" || lastIdType !== "xs:decimal") {
     throw new Error("DcsMetadataTypedValue XML: unsupported non-empty v8:ValueListType")

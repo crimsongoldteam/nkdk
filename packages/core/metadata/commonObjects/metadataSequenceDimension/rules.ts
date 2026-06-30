@@ -1,31 +1,29 @@
+import { i8nTextRule } from "~/metadata/commonObjects/i8nText/types"
+import { stringRule } from "~/metadata/commonObjects/string/types"
 import { uuidPropertyRule } from "~/metadata/commonObjects/uuid/rule"
 import { MetadataItemRule } from "~/metadata/orchestration/property/types"
-
 export const MetadataSequenceDimensionRules = {
   itemType: "MetadataSequenceDimension",
   externalMetadata: { segment: "Dimension", placement: "ownerChild" },
   properties: {
     uuid: uuidPropertyRule,
-    name: {
+    name: stringRule({
       xml: "Name",
-      type: "string",
       required: true,
       xmlParents: ["Properties"],
-    },
-    synonym: {
+    }),
+    synonym: i8nTextRule({
       yaml: "Синоним",
       xml: "Synonym",
-      type: "I8nText",
       xmlParents: ["Properties"],
       defaultValueXMLRaw: "",
-    },
-    comment: {
+    }),
+    comment: stringRule({
       yaml: "Комментарий",
       xml: "Comment",
-      type: "string",
       xmlParents: ["Properties"],
       defaultValueXMLRaw: "",
-    },
+    }),
     type: {
       yaml: "Тип",
       xml: "Type",

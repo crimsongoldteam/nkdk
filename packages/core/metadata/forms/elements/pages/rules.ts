@@ -1,50 +1,46 @@
+import { stringRule } from "~/metadata/commonObjects/string/types"
+import { systemEnumerationRule } from "~/metadata/systemEnumerations/types"
 import { registerElementRule } from "~/metadata/orchestration/formElement/ruleFactory"
 import { PropertyRule } from "~/metadata/orchestration/property/types"
 import { ElementRule } from "../../../orchestration/formElement/types"
 import { formGroupCommonProperties } from "../formGroup/rules"
 export type { ElementRule, PropertyRule }
-
 export const PagesRules = {
   itemType: "Pages",
   enterpriseField: "FormGroup",
   enterpriseFieldType: "FormGroupType.Pages",
   properties: {
-    name: {
-      type: "string",
+    name: stringRule({
       xml: "_name",
       required: true,
-    },
+    }),
     childItems: {
       yaml: "Элементы",
       type: "PagesChildItems",
       defaultValue: [],
     },
-    displayImportance: {
+    displayImportance: systemEnumerationRule({
       yaml: "ВажностьПриОтображении",
       xml: "_DisplayImportance",
-      type: "SystemEnumeration",
       typeSE: "DisplayImportance",
       implicitValueYAML: "Auto",
-    },
-    currentPagesState: {
+    }),
+    currentPagesState: systemEnumerationRule({
       yaml: "ТекущееСостояниеСтраниц",
-      type: "SystemEnumeration",
       typeSE: "FormPagesState",
       implicitValueYAML: "CurrentPage",
       runtimeOnly: true,
-    },
-    currentRowUse: {
+    }),
+    currentRowUse: systemEnumerationRule({
       yaml: "ИспользованиеТекущейСтроки",
-      type: "SystemEnumeration",
       typeSE: "CurrentRowUse",
       implicitValueYAML: "Auto",
-    },
-    pagesRepresentation: {
+    }),
+    pagesRepresentation: systemEnumerationRule({
       yaml: "ОтображениеСтраниц",
-      type: "SystemEnumeration",
       typeSE: "FormPagesRepresentation",
       implicitValueYAML: "Auto",
-    },
+    }),
     events: {
       type: "Events",
       yaml: "События",
@@ -76,14 +72,12 @@ export const PagesRules = {
       ...formGroupCommonProperties.width,
       implicitValueYAML: 0,
     },
-    type: {
+    type: systemEnumerationRule({
       yaml: "Вид",
-      type: "SystemEnumeration",
       typeSE: "FormGroupType",
       runtimeOnly: true,
       implicitValueYAML: "Pages",
-    },
+    }),
   },
 } as const satisfies ElementRule
-
 registerElementRule("Pages", PagesRules)

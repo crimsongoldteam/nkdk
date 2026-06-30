@@ -39,14 +39,22 @@ export const TableRules = {
       implicitValueYAML: true,
     },
     autoMaxWidth: { yaml: "АвтоМаксимальнаяШирина", type: "boolean", implicitValueYAML: true },
-    backColor: { yaml: "ЦветФона", type: "Color", metadataTarget: { kind: "object", roots: ["StyleItem"], filters: [{ kind: "styleItemType", values: ["Color"] }] } },
+    backColor: {
+      yaml: "ЦветФона",
+      type: "Color",
+      metadataTarget: { kind: "object", roots: ["StyleItem"], filters: [{ kind: "styleItemType", values: ["Color"] }] },
+    },
     behaviorOnHorizontalCompression: {
       yaml: "ПоведениеПриСжатииПоГоризонтали",
       type: "SystemEnumeration",
       typeSE: "TableBehaviorOnHorizontalCompression",
       implicitValueYAML: "Auto",
     },
-    borderColor: { yaml: "ЦветРамки", type: "Color", metadataTarget: { kind: "object", roots: ["StyleItem"], filters: [{ kind: "styleItemType", values: ["Color"] }] } },
+    borderColor: {
+      yaml: "ЦветРамки",
+      type: "Color",
+      metadataTarget: { kind: "object", roots: ["StyleItem"], filters: [{ kind: "styleItemType", values: ["Color"] }] },
+    },
     changeRowOrder: { yaml: "ИзменятьПорядокСтрок", type: "boolean", implicitValueYAML: true, order: 30 },
     changeRowSet: { yaml: "ИзменятьСоставСтрок", type: "boolean", implicitValueYAML: true, order: 20 },
     childItems: { yaml: "Элементы", type: "TableChildItems", defaultValue: [], order: 180 },
@@ -91,7 +99,11 @@ export const TableRules = {
       typeSE: "FileDragMode",
       implicitValueYAML: "AsFileRef",
     },
-    font: { yaml: "Шрифт", type: "Font", metadataTarget: { kind: "object", roots: ["StyleItem"], filters: [{ kind: "styleItemType", values: ["Font"] }] } },
+    font: {
+      yaml: "Шрифт",
+      type: "Font",
+      metadataTarget: { kind: "object", roots: ["StyleItem"], filters: [{ kind: "styleItemType", values: ["Font"] }] },
+    },
     footer: { yaml: "Подвал", type: "boolean", implicitValueYAML: false },
     footerHeight: { yaml: "ВысотаПодвала", type: "number", implicitValueYAML: 1 },
     header: { yaml: "Шапка", type: "boolean", implicitValueYAML: true },
@@ -187,7 +199,12 @@ export const TableRules = {
       typeSE: "TableRowSelectionMode",
       implicitValueYAML: "Cell",
     },
-    rowsPicture: { yaml: "КартинкаСтрок", type: "Picture", metadataTarget: { kind: "object", roots: ["CommonPicture"] }, order: 90 },
+    rowsPicture: {
+      yaml: "КартинкаСтрок",
+      type: "Picture",
+      metadataTarget: { kind: "object", roots: ["CommonPicture"] },
+      order: 90,
+    },
     searchControl: {
       yaml: "УправлениеПоиском",
       type: "SingleSearchControlAddition",
@@ -228,12 +245,20 @@ export const TableRules = {
     },
     shortcut: { yaml: "СочетаниеКлавиш", type: "string", toEnterprise: false },
     skipOnInput: { yaml: "ПропускатьПриВводе", type: "boolean", noImplicitValueYAML: true },
-    textColor: { yaml: "ЦветТекста", type: "Color", metadataTarget: { kind: "object", roots: ["StyleItem"], filters: [{ kind: "styleItemType", values: ["Color"] }] } },
+    textColor: {
+      yaml: "ЦветТекста",
+      type: "Color",
+      metadataTarget: { kind: "object", roots: ["StyleItem"], filters: [{ kind: "styleItemType", values: ["Color"] }] },
+    },
     title: {
       yaml: "Заголовок",
       type: "I8nText",
     },
-    titleFont: { yaml: "ШрифтЗаголовка", type: "Font", metadataTarget: { kind: "object", roots: ["StyleItem"], filters: [{ kind: "styleItemType", values: ["Font"] }] } },
+    titleFont: {
+      yaml: "ШрифтЗаголовка",
+      type: "Font",
+      metadataTarget: { kind: "object", roots: ["StyleItem"], filters: [{ kind: "styleItemType", values: ["Font"] }] },
+    },
     titleHeight: { yaml: "ВысотаЗаголовка", type: "number", implicitValueYAML: 0 },
     titleLocation: {
       yaml: "ПоложениеЗаголовка",
@@ -241,7 +266,11 @@ export const TableRules = {
       typeSE: "FormItemTitleLocation",
       implicitValueYAML: "None",
     },
-    titleTextColor: { yaml: "ЦветТекстаЗаголовка", type: "Color", metadataTarget: { kind: "object", roots: ["StyleItem"], filters: [{ kind: "styleItemType", values: ["Color"] }] } },
+    titleTextColor: {
+      yaml: "ЦветТекстаЗаголовка",
+      type: "Color",
+      metadataTarget: { kind: "object", roots: ["StyleItem"], filters: [{ kind: "styleItemType", values: ["Color"] }] },
+    },
     toolTip: { yaml: "Подсказка", type: "I8nText" },
     toolTipRepresentation: {
       yaml: "ОтображениеПодсказки",
@@ -303,7 +332,11 @@ export const TableRules = {
     showRoot: { yaml: "ОтображатьКорень", type: "boolean", implicitValueYAML: true },
     autoRefreshPeriod: { yaml: "ПериодАвтоОбновления", type: "number", implicitValueYAML: 60 },
     allowRootChoice: { yaml: "РазрешитьВыборКорня", type: "boolean", implicitValueYAML: false },
-    allowGettingCurrentRowURL: { yaml: "РазрешитьПолучатьНавигационнуюСсылкуТекущейСтроки", type: "boolean", implicitValueYAML: true },
+    allowGettingCurrentRowURL: {
+      yaml: "РазрешитьПолучатьНавигационнуюСсылкуТекущейСтроки",
+      type: "boolean",
+      implicitValueYAML: true,
+    },
     userSettingsGroup: { yaml: "ГруппаПользовательскихНастроек", type: "string" },
     // XML-only service fields are preserved only when present in the reference XML.
     period: {

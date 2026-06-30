@@ -1,5 +1,5 @@
+import { xmlRootRule } from "~/metadata/commonObjects/xmlRoot/types"
 import { MetadataItemRule } from "~/metadata/orchestration/property/types"
-
 const commandInterfaceRootAttributes = {
   _xmlns: "http://v8.1c.ru/8.3/xcf/extrnprops",
   "_xmlns:xr": "http://v8.1c.ru/8.3/xcf/readable",
@@ -7,19 +7,17 @@ const commandInterfaceRootAttributes = {
   "_xmlns:xsi": "http://www.w3.org/2001/XMLSchema-instance",
   _version: "2.20",
 }
-
 export const RootCommandInterfaceRules = {
   itemType: "RootCommandInterface",
   properties: {
-    xmlRoot: {
-      type: "XMLRoot",
+    xmlRoot: xmlRootRule({
       container: "CommandInterface",
       rootAttributes: commandInterfaceRootAttributes,
       forReferenceOnly: true,
       isFileRoot: true,
       toYAML: false,
       fromYAML: false,
-    },
+    }),
     commandsVisibility: {
       yaml: "ВидимостьКоманд",
       xml: "CommandsVisibility",

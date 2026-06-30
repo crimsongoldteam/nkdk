@@ -1,39 +1,36 @@
+import { i8nTextRule } from "~/metadata/commonObjects/i8nText/types"
+import { stringRule } from "~/metadata/commonObjects/string/types"
+import { systemEnumerationRule } from "~/metadata/systemEnumerations/types"
 import { MetadataItemRule } from "~/metadata/orchestration/property/types"
-
 export const StandardTabularSectionDescriptionRules = {
   itemType: "StandardTabularSectionDescription",
   properties: {
-    name: {
+    name: stringRule({
       xml: "_name",
-      type: "string",
       required: true,
-    },
-    synonym: {
+    }),
+    synonym: i8nTextRule({
       yaml: "Синоним",
       xml: "xr:Synonym",
-      type: "I8nText",
       defaultValueXMLRaw: "",
-    },
-    comment: {
+    }),
+    comment: stringRule({
       yaml: "Комментарий",
       xml: "xr:Comment",
-      type: "string",
       defaultValueXMLRaw: "",
-    },
-    toolTip: {
+    }),
+    toolTip: i8nTextRule({
       yaml: "Подсказка",
       xml: "xr:ToolTip",
-      type: "I8nText",
       defaultValueXMLRaw: "",
-    },
-    fillChecking: {
+    }),
+    fillChecking: systemEnumerationRule({
       yaml: "ПроверкаЗаполнения",
       xml: "xr:FillChecking",
-      type: "SystemEnumeration",
       typeSE: "FillChecking",
       defaultValueXML: "DontCheck",
       implicitValueYAML: "DontCheck",
-    },
+    }),
     standardAttributes: {
       yaml: "СтандартныеРеквизиты",
       xml: "xr:StandardAttributes",

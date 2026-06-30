@@ -1,10 +1,14 @@
+import { booleanRule } from "~/metadata/commonObjects/boolean/types"
+import { i8nTextRule } from "~/metadata/commonObjects/i8nText/types"
+import { stringRule } from "~/metadata/commonObjects/string/types"
+import { uuidRule } from "~/metadata/commonObjects/uuid/types"
+import { xmlRootRule } from "~/metadata/commonObjects/xmlRoot/types"
+import { systemEnumerationRule } from "~/metadata/systemEnumerations/types"
 import { V8_MDCLASSES_ROOT } from "~/metadata/orchestration/appliedObject/presets"
 import "~/metadata/commonObjects/rootCommandInterface/register"
 import { MetadataItemRule } from "~/metadata/orchestration/property/types"
-
 const properties = ["Properties"]
 const childObjects = ["ChildObjects"]
-
 const contentObjectPaths = [
   ["Document"],
   ["DocumentNumerator"],
@@ -54,76 +58,66 @@ const contentObjectPaths = [
   ["ExternalDataSource", "Cube", "DimensionTable"],
   ["ExternalDataSource", "Cube"],
 ] as const
-
 export const MetadataSubsystemRules = {
   itemType: "MetadataSubsystem",
   metadataTargetOwner: { kind: "self", root: "Subsystem" },
   itemTypePrefix: "Подсистема",
   xmlDir: "Subsystems",
   properties: {
-    xmlRoot: {
-      type: "XMLRoot",
+    xmlRoot: xmlRootRule({
       container: "Subsystem",
       rootAttributes: V8_MDCLASSES_ROOT,
       forReferenceOnly: true,
       toYAML: false,
       fromYAML: false,
-    },
-    uuid: {
-      type: "uuid",
+    }),
+    uuid: uuidRule({
       xml: "_uuid",
       forReferenceOnly: true,
       xmlParents: [],
-    },
-    name: {
-      type: "string",
+    }),
+    name: stringRule({
       xmlParents: properties,
       required: true,
       defaultValue: ({ name }: { name?: string }) => name,
-    },
-    synonym: {
+    }),
+    synonym: i8nTextRule({
       yaml: "Синоним",
-      type: "I8nText",
       xmlParents: properties,
       defaultValueXMLRaw: "",
-    },
-    comment: {
+    }),
+    comment: stringRule({
       yaml: "Комментарий",
-      type: "string",
       xmlParents: properties,
       defaultValueXMLRaw: "",
-    },
-    includeHelpInContents: {
+    }),
+    includeHelpInContents: booleanRule({
       yaml: "ВключатьСправкуВСодержание",
       xml: "IncludeHelpInContents",
-      type: "boolean",
       xmlParents: properties,
       defaultValueXML: true,
       implicitValueYAML: true,
-    },
-    includeInCommandInterface: {
+    }),
+    includeInCommandInterface: booleanRule({
       yaml: "ВключатьВКомандныйИнтерфейс",
       xml: "IncludeInCommandInterface",
-      type: "boolean",
       xmlParents: properties,
       defaultValueXML: true,
       implicitValueYAML: true,
-    },
-    useOneCommand: {
+    }),
+    useOneCommand: booleanRule({
       yaml: "ИспользоватьОднуКоманду",
       xml: "UseOneCommand",
-      type: "boolean",
       xmlParents: properties,
       defaultValueXML: false,
       implicitValueYAML: false,
-    },
-    explanation: {
+    }),
+    explanation: i8nTextRule({
       yaml: "Пояснение",
       xml: "Explanation",
-      type: "I8nText",
       xmlParents: properties,
       defaultValueXMLRaw: "",
-    },
+    }),
     picture: {
       yaml: "Картинка",
       xml: "Picture",
@@ -146,22 +140,20 @@ export const MetadataSubsystemRules = {
       type: "ChildSubsystemNames",
       xmlParents: childObjects,
     },
-    objectBelonging: {
+    objectBelonging: systemEnumerationRule({
       yaml: "ПринадлежностьОбъекта",
       xml: "ObjectBelonging",
-      type: "SystemEnumeration",
       typeSE: "ObjectBelonging",
       xmlParents: properties,
       toYAML: false,
       fromYAML: false,
       implicitValueYAML: "Native",
-    },
-    extendedConfigurationObject: {
+    }),
+    extendedConfigurationObject: stringRule({
       xml: "ExtendedConfigurationObject",
-      type: "string",
       xmlParents: properties,
       runtimeOnly: true,
-    },
+    }),
     commandInterface: {
       yaml: "КомандныйИнтерфейс",
       type: "RootCommandInterface",

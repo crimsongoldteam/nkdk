@@ -1,3 +1,6 @@
+import { booleanRule } from "~/metadata/commonObjects/boolean/types"
+import { stringRule } from "~/metadata/commonObjects/string/types"
+import { systemEnumerationRule } from "~/metadata/systemEnumerations/types"
 import { getParentFromContext } from "~/metadata/context/helpers"
 import { ConfigurationContextWithExportToXML } from "~/metadata/context/types"
 import { registerElementAsType, registerElementRule } from "~/metadata/orchestration/formElement/ruleFactory"
@@ -5,25 +8,22 @@ import { ElementRule } from "../../../orchestration/formElement/types"
 import { BaseElement } from "../baseElement/types"
 import { getContextMenuName } from "./helper"
 export type { ElementRule }
-
 export const ContextMenuRules = {
   itemType: "ContextMenu",
   enterpriseField: "FormGroup",
   enterpriseFieldType: "FormGroupType.ContextMenu",
   properties: {
-    name: {
-      type: "string",
+    name: stringRule({
       xml: "_name",
       fromXML: false,
-    },
-    displayImportance: {
+    }),
+    displayImportance: systemEnumerationRule({
       yaml: "ВажностьПриОтображении",
       xml: "_DisplayImportance",
-      type: "SystemEnumeration",
       typeSE: "DisplayImportance",
       noImplicitValueYAML: true,
-    },
-    autofill: { yaml: "Автозаполнение", xml: "Autofill", type: "boolean", noImplicitValueYAML: true },
+    }),
+    autofill: booleanRule({ yaml: "Автозаполнение", xml: "Autofill", noImplicitValueYAML: true }),
     childItems: {
       yaml: "Элементы",
       xml: "ChildItems",
@@ -32,7 +32,6 @@ export const ContextMenuRules = {
     },
   },
 } as const satisfies ElementRule
-
 registerElementAsType({
   propertyType: "ContextMenu",
   elementRule: ContextMenuRules,
@@ -47,5 +46,4 @@ registerElementAsType({
     return { name }
   },
 })
-
 registerElementRule("ContextMenu", ContextMenuRules)

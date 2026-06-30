@@ -1,11 +1,16 @@
+import { booleanRule } from "~/metadata/commonObjects/boolean/types"
+import { i8nTextRule } from "~/metadata/commonObjects/i8nText/types"
+import { moduleRule } from "~/metadata/commonObjects/module/types"
+import { stringRule } from "~/metadata/commonObjects/string/types"
+import { uuidRule } from "~/metadata/commonObjects/uuid/types"
+import { xmlRootRule } from "~/metadata/commonObjects/xmlRoot/types"
+import { systemEnumerationRule } from "~/metadata/systemEnumerations/types"
 import { RecalculationRules } from "~/metadata/commonObjects/recalculation/rules"
 import { V8_MDCLASSES_ROOT } from "~/metadata/orchestration/appliedObject/presets"
 import { MetadataItemRule } from "~/metadata/orchestration/property/types"
 import { MetadataCommandRules } from "../metadataCommand/rules"
-
 const properties = ["Properties"]
 const childObjects = ["ChildObjects"]
-
 export const MetadataCalculationRegisterStandardAttributeNames: Record<string, string> = {
   RegistrationPeriod: "ПериодРегистрации",
   ReversingEntry: "Сторно",
@@ -19,7 +24,6 @@ export const MetadataCalculationRegisterStandardAttributeNames: Record<string, s
   LineNumber: "НомерСтроки",
   Recorder: "Регистратор",
 }
-
 const MetadataCalculationRegisterCommandRules = {
   ...MetadataCommandRules,
   properties: {
@@ -30,7 +34,6 @@ const MetadataCalculationRegisterCommandRules = {
     },
   },
 } as const satisfies MetadataItemRule
-
 export const MetadataCalculationRegisterRules = {
   itemType: "MetadataCalculationRegister",
   metadataTargetOwner: { kind: "self", root: "CalculationRegister" },
@@ -38,14 +41,13 @@ export const MetadataCalculationRegisterRules = {
   xmlDir: "CalculationRegisters",
   uniqueNameScopes: [{ collections: ["attributes", "dimensions", "resources"] }],
   properties: {
-    xmlRoot: {
-      type: "XMLRoot",
+    xmlRoot: xmlRootRule({
       container: "CalculationRegister",
       rootAttributes: V8_MDCLASSES_ROOT,
       forReferenceOnly: true,
       toYAML: false,
       fromYAML: false,
-    },
+    }),
     internalInfo: {
       type: "InternalInfo",
       xmlParents: [],
@@ -60,114 +62,101 @@ export const MetadataCalculationRegisterRules = {
         { name: "RecalculationsManager", category: "Recalcs" },
       ],
     },
-    uuid: { type: "uuid", xml: "_uuid", forReferenceOnly: true, xmlParents: [] },
-    name: {
-      type: "string",
+    uuid: uuidRule({ xml: "_uuid", forReferenceOnly: true, xmlParents: [] }),
+    name: stringRule({
       xmlParents: properties,
       required: true,
       defaultValue: ({ name }: { name?: string }) => name,
-    },
-    synonym: { yaml: "Синоним", type: "I8nText", xmlParents: properties, defaultValueXMLRaw: "" },
-    comment: { yaml: "Комментарий", type: "string", xmlParents: properties, defaultValueXMLRaw: "" },
-    useStandardCommands: {
+    }),
+    synonym: i8nTextRule({ yaml: "Синоним", xmlParents: properties, defaultValueXMLRaw: "" }),
+    comment: stringRule({ yaml: "Комментарий", xmlParents: properties, defaultValueXMLRaw: "" }),
+    useStandardCommands: booleanRule({
       yaml: "ИспользоватьСтандартныеКоманды",
-      type: "boolean",
       defaultValueXML: true,
       implicitValueYAML: true,
       xmlParents: properties,
-    },
-    defaultListForm: {
+    }),
+    defaultListForm: stringRule({
       yaml: "ОсновнаяФормаСписка",
-      type: "string",
       xmlParents: properties,
       metadataTarget: { kind: "member", owner: "this", memberKinds: ["Form"], objectRoots: ["CommonForm"] },
       defaultValueXMLRaw: "",
-    },
-    auxiliaryListForm: {
+    }),
+    auxiliaryListForm: stringRule({
       yaml: "ДополнительнаяФормаСписка",
-      type: "string",
       xmlParents: properties,
       metadataTarget: { kind: "member", owner: "this", memberKinds: ["Form"], objectRoots: ["CommonForm"] },
       defaultValueXMLRaw: "",
-    },
-    periodicity: {
+    }),
+    periodicity: systemEnumerationRule({
       yaml: "Периодичность",
-      type: "SystemEnumeration",
       typeSE: "CalculationRegisterPeriodicity",
       defaultValueXML: "Month",
       implicitValueYAML: "Month",
       xmlParents: properties,
-    },
-    actionPeriod: {
+    }),
+    actionPeriod: booleanRule({
       yaml: "ПериодДействия",
-      type: "boolean",
       defaultValueXML: false,
       implicitValueYAML: false,
       xmlParents: properties,
-    },
-    basePeriod: {
+    }),
+    basePeriod: booleanRule({
       yaml: "БазовыйПериод",
-      type: "boolean",
       defaultValueXML: false,
       implicitValueYAML: false,
       xmlParents: properties,
-    },
-    schedule: { yaml: "График", type: "string", xmlParents: properties, defaultValueXMLRaw: "" },
-    scheduleValue: { yaml: "ЗначениеГрафика", type: "string", xmlParents: properties, defaultValueXMLRaw: "" },
-    scheduleDate: { yaml: "ДатаГрафика", type: "string", xmlParents: properties, defaultValueXMLRaw: "" },
-    chartOfCalculationTypes: {
+    }),
+    schedule: stringRule({ yaml: "График", xmlParents: properties, defaultValueXMLRaw: "" }),
+    scheduleValue: stringRule({ yaml: "ЗначениеГрафика", xmlParents: properties, defaultValueXMLRaw: "" }),
+    scheduleDate: stringRule({ yaml: "ДатаГрафика", xmlParents: properties, defaultValueXMLRaw: "" }),
+    chartOfCalculationTypes: stringRule({
       yaml: "ПланВидовРасчета",
-      type: "string",
       xmlParents: properties,
       defaultValueXMLRaw: "",
-    },
-    includeHelpInContents: {
+    }),
+    includeHelpInContents: booleanRule({
       yaml: "ВключатьСправкуВСодержание",
-      type: "boolean",
       defaultValueXML: false,
       implicitValueYAML: false,
       xmlParents: properties,
-    },
+    }),
     standardAttributes: {
       yaml: "СтандартныеРеквизиты",
       type: "StandardAttributeDescriptions",
       standartAttributeNames: MetadataCalculationRegisterStandardAttributeNames,
       xmlParents: properties,
     },
-    dataLockControlMode: {
+    dataLockControlMode: systemEnumerationRule({
       yaml: "РежимУправленияБлокировкойДанных",
-      type: "SystemEnumeration",
       typeSE: "DefaultDataLockControlMode",
       defaultValueXML: "Managed",
       implicitValueYAML: "Managed",
       xmlParents: properties,
-    },
-    fullTextSearch: {
+    }),
+    fullTextSearch: systemEnumerationRule({
       yaml: "ПолнотекстовыйПоиск",
-      type: "SystemEnumeration",
       typeSE: "UseFullTextSearch",
       defaultValueXML: "DontUse",
       implicitValueYAML: "DontUse",
       xmlParents: properties,
-    },
-    listPresentation: { yaml: "ПредставлениеСписка", type: "I8nText", xmlParents: properties, defaultValueXMLRaw: "" },
-    extendedListPresentation: {
+    }),
+    listPresentation: i8nTextRule({ yaml: "ПредставлениеСписка", xmlParents: properties, defaultValueXMLRaw: "" }),
+    extendedListPresentation: i8nTextRule({
       yaml: "РасширенноеПредставлениеСписка",
-      type: "I8nText",
       xmlParents: properties,
       defaultValueXMLRaw: "",
-    },
-    explanation: { yaml: "Пояснение", type: "I8nText", xmlParents: properties, defaultValueXMLRaw: "" },
-    objectBelonging: {
+    }),
+    explanation: i8nTextRule({ yaml: "Пояснение", xmlParents: properties, defaultValueXMLRaw: "" }),
+    objectBelonging: systemEnumerationRule({
       yaml: "ПринадлежностьОбъекта",
-      type: "SystemEnumeration",
       typeSE: "ObjectBelonging",
       xmlParents: properties,
       toYAML: false,
       fromYAML: false,
       implicitValueYAML: "Native",
-    },
-    extendedConfigurationObject: { type: "string", runtimeOnly: true },
+    }),
+    extendedConfigurationObject: stringRule({ runtimeOnly: true }),
     resources: { yaml: "Ресурсы", xml: "Resource", type: "MetadataRegisterResources", xmlParents: childObjects },
     dimensions: { yaml: "Измерения", xml: "Dimension", type: "MetadataRegisterDimensions", xmlParents: childObjects },
     attributes: { yaml: "Реквизиты", xml: "Attribute", type: "MetadataRegisterAttributes", xmlParents: childObjects },
@@ -193,21 +182,19 @@ export const MetadataCalculationRegisterRules = {
       fromYAML: false,
     },
     commands: { yaml: "Команды", xml: "Command", type: "MetadataCommands", xmlParents: childObjects },
-    recordSetModule: {
-      type: "Module",
+    recordSetModule: moduleRule({
       nkdkPath: "МодульНабораЗаписей.bsl",
       xmlPath: "Ext/RecordSetModule.bsl",
       toXML: false,
       fromXML: false,
-    },
-    managerModule: {
-      type: "Module",
+    }),
+    managerModule: moduleRule({
       externalMetadata: { segment: "ManagerModule", placement: "derivedEntry" },
       nkdkPath: "МодульМенеджера.bsl",
       xmlPath: "Ext/ManagerModule.bsl",
       toXML: false,
       fromXML: false,
-    },
+    }),
     additionalIndexes: {
       yaml: "ДополнительныеИндексы",
       type: "AdditionalIndex",

@@ -1,5 +1,6 @@
+import { xmlRootRule } from "~/metadata/commonObjects/xmlRoot/types"
+import { systemEnumerationRule } from "~/metadata/systemEnumerations/types"
 import { MetadataItemRule } from "~/metadata/orchestration/property/types"
-
 export const ExchangePlanContentItemRules = {
   itemType: "ExchangePlanContentItem",
   properties: {
@@ -9,22 +10,19 @@ export const ExchangePlanContentItemRules = {
       type: "MetadataItemLink",
       required: true,
     },
-    autoRecord: {
+    autoRecord: systemEnumerationRule({
       yaml: "Авторегистрация",
       xml: "AutoRecord",
-      type: "SystemEnumeration",
       typeSE: "AutoChangeRecord",
       required: true,
       implicitValueYAML: "Allow",
-    },
+    }),
   },
 } as const satisfies MetadataItemRule
-
 export const ExchangePlanContentRules = {
   itemType: "ExchangePlanContent",
   properties: {
-    xmlRoot: {
-      type: "XMLRoot",
+    xmlRoot: xmlRootRule({
       container: "ExchangePlanContent",
       rootAttributes: {
         _xmlns: "http://v8.1c.ru/8.3/xcf/extrnprops",
@@ -35,7 +33,7 @@ export const ExchangePlanContentRules = {
       },
       forReferenceOnly: true,
       isFileRoot: true,
-    },
+    }),
     items: {
       type: "ExchangePlanContentItems",
       xml: "Item",
@@ -44,10 +42,5 @@ export const ExchangePlanContentRules = {
       yamlInline: true,
       yaml: "items",
     },
-    // extensionProperty: {
-    //   yaml: "СвойствоРасширения",
-    //   xml: "ExtensionProperty",
-    //   type: "string",
-    // },
   },
 } as const satisfies MetadataItemRule

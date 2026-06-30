@@ -3,11 +3,13 @@ import { addDefaultLanguageNameToSynonym } from "~/metadata/helpers/synonymHelpe
 import { ConfigurationContext } from "~/metadata/context/types"
 import { MetadataItemRule, PropertyRule } from "~/metadata/orchestration/property/types"
 
-const hasExplicitProperty = (propertyKey: string) => (metadataItem: unknown): boolean =>
-  metadataItem !== null &&
-  metadataItem !== undefined &&
-  typeof metadataItem === "object" &&
-  Object.prototype.hasOwnProperty.call(metadataItem, propertyKey)
+const hasExplicitProperty =
+  (propertyKey: string) =>
+  (metadataItem: unknown): boolean =>
+    metadataItem !== null &&
+    metadataItem !== undefined &&
+    typeof metadataItem === "object" &&
+    Object.prototype.hasOwnProperty.call(metadataItem, propertyKey)
 
 const accountingFlagProperties = {
   ...commonRegisterFieldProperties,

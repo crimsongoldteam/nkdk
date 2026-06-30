@@ -1,30 +1,29 @@
+import { i8nTextRule } from "~/metadata/commonObjects/i8nText/types"
+import { stringRule } from "~/metadata/commonObjects/string/types"
+import { systemEnumerationRule } from "~/metadata/systemEnumerations/types"
 import { uuidPropertyRule } from "~/metadata/commonObjects/uuid/rule"
 import { MetadataItemRule } from "~/metadata/orchestration/property/types"
-
 export const MetadataDocumentJournalColumnRules = {
   itemType: "MetadataDocumentJournalColumn",
   properties: {
     uuid: uuidPropertyRule,
-    name: {
+    name: stringRule({
       xml: "Name",
-      type: "string",
       required: true,
       xmlParents: ["Properties"],
-    },
-    synonym: {
+    }),
+    synonym: i8nTextRule({
       yaml: "Синоним",
       xml: "Synonym",
-      type: "I8nText",
       xmlParents: ["Properties"],
       defaultValueXMLRaw: "",
-    },
-    comment: {
+    }),
+    comment: stringRule({
       yaml: "Комментарий",
       xml: "Comment",
-      type: "string",
       xmlParents: ["Properties"],
       defaultValueXMLRaw: "",
-    },
+    }),
     type: {
       yaml: "Тип",
       xml: "Type",
@@ -39,24 +38,22 @@ export const MetadataDocumentJournalColumnRules = {
       xmlParents: ["Properties"],
       defaultValueXMLRaw: {},
     },
-    indexing: {
+    indexing: systemEnumerationRule({
       yaml: "Индексирование",
       xml: "Indexing",
-      type: "SystemEnumeration",
       typeSE: "Indexing",
       xmlParents: ["Properties"],
       defaultValueXML: "DontIndex",
       implicitValueYAML: "DontIndex",
-    },
-    objectBelonging: {
+    }),
+    objectBelonging: systemEnumerationRule({
       yaml: "ПринадлежностьОбъекта",
       xml: "ObjectBelonging",
-      type: "SystemEnumeration",
       typeSE: "ObjectBelonging",
       xmlParents: ["Properties"],
       toYAML: false,
       fromYAML: false,
       implicitValueYAML: "Native",
-    },
+    }),
   },
 } as const satisfies MetadataItemRule

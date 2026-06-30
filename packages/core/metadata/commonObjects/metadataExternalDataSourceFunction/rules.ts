@@ -1,43 +1,38 @@
-import {
-  externalDataSourceObjectServiceProperties,
-} from "~/metadata/commonObjects/metadataExternalDataSourceField/rules"
+import { booleanRule } from "~/metadata/commonObjects/boolean/types"
+import { i8nTextRule } from "~/metadata/commonObjects/i8nText/types"
+import { stringRule } from "~/metadata/commonObjects/string/types"
+import { externalDataSourceObjectServiceProperties } from "~/metadata/commonObjects/metadataExternalDataSourceField/rules"
 import { uuidPropertyRule } from "~/metadata/commonObjects/uuid/rule"
 import { MetadataItemRule } from "~/metadata/orchestration/property/types"
-
 const propertiesParents = ["Properties"]
-
 export const MetadataExternalDataSourceFunctionRules = {
   itemType: "MetadataExternalDataSourceFunction",
   properties: {
     uuid: uuidPropertyRule,
-    name: {
+    name: stringRule({
       xml: "Name",
-      type: "string",
       required: true,
       xmlParents: propertiesParents,
-    },
-    synonym: {
+    }),
+    synonym: i8nTextRule({
       yaml: "Синоним",
       xml: "Synonym",
-      type: "I8nText",
       xmlParents: propertiesParents,
       defaultValueXMLRaw: "",
-    },
-    comment: {
+    }),
+    comment: stringRule({
       yaml: "Комментарий",
       xml: "Comment",
-      type: "string",
       xmlParents: propertiesParents,
       defaultValueXMLRaw: "",
-    },
-    returnValue: {
+    }),
+    returnValue: booleanRule({
       yaml: "ВозвращаемоеЗначение",
       xml: "ReturnValue",
-      type: "boolean",
       xmlParents: propertiesParents,
       defaultValueXML: true,
       implicitValueYAML: true,
-    },
+    }),
     type: {
       yaml: "Тип",
       xml: "Type",
@@ -45,13 +40,12 @@ export const MetadataExternalDataSourceFunctionRules = {
       required: true,
       xmlParents: propertiesParents,
     },
-    expressionInDataSource: {
+    expressionInDataSource: stringRule({
       yaml: "ВыражениеВИсточникеДанных",
       xml: "ExpressionInDataSource",
-      type: "string",
       xmlParents: propertiesParents,
       defaultValueXMLRaw: "",
-    },
+    }),
     ...externalDataSourceObjectServiceProperties,
   },
 } as const satisfies MetadataItemRule

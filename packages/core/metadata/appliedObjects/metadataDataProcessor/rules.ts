@@ -1,3 +1,10 @@
+import { booleanRule } from "~/metadata/commonObjects/boolean/types"
+import { i8nTextRule } from "~/metadata/commonObjects/i8nText/types"
+import { moduleRule } from "~/metadata/commonObjects/module/types"
+import { stringRule } from "~/metadata/commonObjects/string/types"
+import { uuidRule } from "~/metadata/commonObjects/uuid/types"
+import { xmlRootRule } from "~/metadata/commonObjects/xmlRoot/types"
+import { systemEnumerationRule } from "~/metadata/systemEnumerations/types"
 import { V8_MDCLASSES_ROOT } from "~/metadata/orchestration/appliedObject/presets"
 import { exportMetadataCollectionToXML } from "~/metadata/orchestration/metadataCollection/toXML"
 import { registerTypeRule } from "~/metadata/orchestration/property/typeRuleRegistry"
@@ -6,10 +13,8 @@ import { MetadataItemRule, PropertyRule } from "~/metadata/orchestration/propert
 import "~/metadata/commonObjects/metadataAttribute/register"
 import { MetadataAttributeRules } from "~/metadata/commonObjects/metadataAttribute/rules"
 import { MetadataCommandRules } from "../metadataCommand/rules"
-
 const properties = ["Properties"]
 const childObjects = ["ChildObjects"]
-
 const MetadataDataProcessorCommandRules = {
   ...MetadataCommandRules,
   properties: {
@@ -21,7 +26,6 @@ const MetadataDataProcessorCommandRules = {
     },
   },
 } as const satisfies MetadataItemRule
-
 const MetadataDataProcessorAttributeRules = {
   ...MetadataAttributeRules,
   properties: {
@@ -32,15 +36,12 @@ const MetadataDataProcessorAttributeRules = {
     },
   },
 } as const satisfies MetadataItemRule
-
 const getMetadataAttributeItemRule = (rule: PropertyRule | undefined): MetadataItemRule => {
   if (rule && "itemRule" in rule && rule.itemRule !== undefined) return rule.itemRule as MetadataItemRule
   return MetadataAttributeRules
 }
-
 const exportMetadataAttributesToXML: ExportToXMLFunctionNew = (params) => {
   const effectiveXmlElement = params.rule.xml === "Attribute" ? undefined : "Attribute"
-
   return exportMetadataCollectionToXML({
     context: params.context,
     rule: params.rule,
@@ -51,9 +52,7 @@ const exportMetadataAttributesToXML: ExportToXMLFunctionNew = (params) => {
     keyField: "name",
   })
 }
-
 registerTypeRule("MetadataAttributes", "exportToXML", exportMetadataAttributesToXML)
-
 export const MetadataDataProcessorRules = {
   itemType: "MetadataDataProcessor",
   metadataTargetOwner: { kind: "self", root: "DataProcessor" },
@@ -61,14 +60,13 @@ export const MetadataDataProcessorRules = {
   xmlDir: "DataProcessors",
   uniqueNameScopes: [{ collections: ["attributes", "tabularSections"] }],
   properties: {
-    xmlRoot: {
-      type: "XMLRoot",
+    xmlRoot: xmlRootRule({
       container: "DataProcessor",
       rootAttributes: V8_MDCLASSES_ROOT,
       forReferenceOnly: true,
       toYAML: false,
       fromYAML: false,
-    },
+    }),
     internalInfo: {
       type: "InternalInfo",
       xmlParents: [],
@@ -78,91 +76,81 @@ export const MetadataDataProcessorRules = {
         { name: "DataProcessorManager", category: "Manager" },
       ],
     },
-    uuid: {
-      type: "uuid",
+    uuid: uuidRule({
       xml: "_uuid",
       forReferenceOnly: true,
       xmlParents: [],
-    },
-    name: {
-      type: "string",
+    }),
+    name: stringRule({
       xmlParents: properties,
       required: true,
       defaultValue: ({ name, operation }: { name?: string; operation?: string }) =>
         operation === "importFromYAML" ? name : undefined,
-    },
-    synonym: {
+    }),
+    synonym: i8nTextRule({
       yaml: "Синоним",
-      type: "I8nText",
       xmlParents: properties,
       defaultValueXMLRaw: "",
-    },
-    comment: {
+    }),
+    comment: stringRule({
       yaml: "Комментарий",
-      type: "string",
       xmlParents: properties,
       defaultValueXMLRaw: "",
-    },
-    useStandardCommands: {
+    }),
+    useStandardCommands: booleanRule({
       yaml: "ИспользоватьСтандартныеКоманды",
-      type: "boolean",
       defaultValueXML: true,
       implicitValueYAML: true,
       xmlParents: properties,
-    },
-    defaultForm: {
+    }),
+    defaultForm: stringRule({
       yaml: "ОсновнаяФорма",
-      type: "string",
       xmlParents: properties,
       metadataTarget: { kind: "member", owner: "this", memberKinds: ["Form"], objectRoots: ["CommonForm"] },
       defaultValueXMLRaw: "",
-    },
-    auxiliaryForm: {
+    }),
+    auxiliaryForm: stringRule({
       yaml: "ДополнительнаяФорма",
-      type: "string",
       xmlParents: properties,
       metadataTarget: { kind: "member", owner: "this", memberKinds: ["Form"], objectRoots: ["CommonForm"] },
       defaultValueXMLRaw: "",
-    },
-    includeHelpInContents: {
+    }),
+    includeHelpInContents: booleanRule({
       yaml: "ВключатьСправкуВСодержание",
-      type: "boolean",
       defaultValueXML: false,
       implicitValueYAML: false,
       xmlParents: properties,
-    },
-    extendedPresentation: {
+    }),
+    extendedPresentation: i8nTextRule({
       yaml: "РасширенноеПредставление",
-      type: "I8nText",
       xmlParents: properties,
       defaultValueXMLRaw: "",
-    },
-    explanation: {
+    }),
+    explanation: i8nTextRule({
       yaml: "Пояснение",
-      type: "I8nText",
       xmlParents: properties,
       defaultValueXMLRaw: "",
-    },
-    objectBelonging: {
+    }),
+    objectBelonging: systemEnumerationRule({
       yaml: "ПринадлежностьОбъекта",
-      type: "SystemEnumeration",
       typeSE: "ObjectBelonging",
       xmlParents: properties,
       toYAML: false,
       fromYAML: false,
       implicitValueYAML: "Native",
-    },
-    extendedConfigurationObject: {
+    }),
+    extendedConfigurationObject: stringRule({
       yaml: "ОбъектРасширяемойКонфигурации",
-      type: "string",
       runtimeOnly: true,
-    },
+    }),
     attributes: {
       yaml: "Реквизиты",
       type: "MetadataAttributes",
       xmlParents: childObjects,
       xml: "Attribute",
-      ...({ itemRule: MetadataDataProcessorAttributeRules } as { itemRule: MetadataItemRule }),
+      ...({ itemRule: MetadataDataProcessorAttributeRules } as {
+        itemRule: MetadataItemRule
+      }),
     },
     tabularSections: {
       yaml: "ТабличныеЧасти",
@@ -194,22 +182,20 @@ export const MetadataDataProcessorRules = {
       xmlParents: childObjects,
       xml: "Command",
     },
-    objectModule: {
-      type: "Module",
+    objectModule: moduleRule({
       externalMetadata: { segment: "ObjectModule", placement: "derivedEntry" },
       nkdkPath: "МодульОбъекта.bsl",
       xmlPath: ({ name }: { name: string }) => `${name}/Ext/ObjectModule.bsl`,
       toXML: false,
       fromXML: false,
-    },
-    managerModule: {
-      type: "Module",
+    }),
+    managerModule: moduleRule({
       externalMetadata: { segment: "ManagerModule", placement: "derivedEntry" },
       nkdkPath: "МодульМенеджера.bsl",
       xmlPath: ({ name }: { name: string }) => `${name}/Ext/ManagerModule.bsl`,
       toXML: false,
       fromXML: false,
-    },
+    }),
     help: {
       type: "Help",
       externalMetadata: { segment: "Help", placement: "derivedEntry" },

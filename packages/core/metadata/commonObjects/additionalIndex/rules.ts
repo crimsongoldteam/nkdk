@@ -1,6 +1,7 @@
+import { stringRule } from "~/metadata/commonObjects/string/types"
+import { xmlRootRule } from "~/metadata/commonObjects/xmlRoot/types"
 import { uuidPropertyRule } from "~/metadata/commonObjects/uuid/rule"
 import { MetadataItemRule } from "~/metadata/orchestration/property/types"
-
 export const AdditionalIndexItemRules = {
   itemType: "AdditionalIndexItem",
   properties: {
@@ -14,33 +15,29 @@ export const AdditionalIndexItemRules = {
       yaml: "ДополнительныеПоля",
       order: 4,
     },
-    name: {
-      type: "string",
+    name: stringRule({
       xml: "Name",
       yaml: "Имя",
       required: true,
       order: 1,
-    },
+    }),
     indexedFields: {
       type: "IndexField",
       xml: "IndexedFields",
       yaml: "ИндексируемыеПоля",
       order: 3,
     },
-    table: {
-      type: "string",
+    table: stringRule({
       xml: "Table",
       yaml: "Таблица",
       order: 2,
-    },
+    }),
   },
 } as const satisfies MetadataItemRule
-
 export const AdditionalIndexRules = {
   itemType: "AdditionalIndex",
   properties: {
-    xmlRoot: {
-      type: "XMLRoot",
+    xmlRoot: xmlRootRule({
       container: "AdditionalIndexes",
       rootAttributes: {
         _xmlns: "http://v8.1c.ru/8.3/xcf/extrnprops",
@@ -52,7 +49,7 @@ export const AdditionalIndexRules = {
       },
       forReferenceOnly: true,
       isFileRoot: true,
-    },
+    }),
     items: {
       type: "AdditionalIndexCollection",
       // Дочерние <AdditionalIndex>-теги лежат прямо в корне <AdditionalIndexes>:

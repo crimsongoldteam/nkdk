@@ -1,22 +1,26 @@
+import { booleanRule } from "~/metadata/commonObjects/boolean/types"
+import { i8nTextRule } from "~/metadata/commonObjects/i8nText/types"
+import { moduleRule } from "~/metadata/commonObjects/module/types"
+import { stringRule } from "~/metadata/commonObjects/string/types"
+import { uuidRule } from "~/metadata/commonObjects/uuid/types"
+import { xmlRootRule } from "~/metadata/commonObjects/xmlRoot/types"
+import { systemEnumerationRule } from "~/metadata/systemEnumerations/types"
 import { V8_MDCLASSES_ROOT } from "~/metadata/orchestration/appliedObject/presets"
 import { MetadataItemRule } from "~/metadata/orchestration/property/types"
-
 const constantProperties = ["Properties"]
-
 export const MetadataConstantRules = {
   itemType: "MetadataConstant",
   metadataTargetOwner: { kind: "self", root: "Constant" },
   itemTypePrefix: "Константа",
   xmlDir: "Constants",
   properties: {
-    xmlRoot: {
-      type: "XMLRoot",
+    xmlRoot: xmlRootRule({
       container: "Constant",
       rootAttributes: V8_MDCLASSES_ROOT,
       forReferenceOnly: true,
       toYAML: false,
       fromYAML: false,
-    },
+    }),
     internalInfo: {
       type: "InternalInfo",
       xmlParents: [],
@@ -27,112 +31,96 @@ export const MetadataConstantRules = {
         { name: "ConstantValueKey", category: "ValueKey" },
       ],
     },
-    uuid: {
-      type: "uuid",
+    uuid: uuidRule({
       xml: "_uuid",
       forReferenceOnly: true,
       xmlParents: [],
-    },
-    name: {
-      type: "string",
+    }),
+    name: stringRule({
       xmlParents: constantProperties,
       required: true,
-    },
-    synonym: {
+    }),
+    synonym: i8nTextRule({
       yaml: "Синоним",
-      type: "I8nText",
       xmlParents: constantProperties,
       defaultValueXMLRaw: "",
-    },
-    comment: {
+    }),
+    comment: stringRule({
       yaml: "Комментарий",
-      type: "string",
       xmlParents: constantProperties,
       defaultValueXMLRaw: "",
-    },
+    }),
     type: {
       yaml: "Тип",
       type: "TypeDescription",
       xmlParents: constantProperties,
     },
-    useStandardCommands: {
+    useStandardCommands: booleanRule({
       yaml: "ИспользоватьСтандартныеКоманды",
-      type: "boolean",
       defaultValueXML: true,
       implicitValueYAML: true,
       xmlParents: constantProperties,
-    },
-    defaultForm: {
+    }),
+    defaultForm: stringRule({
       yaml: "ОсновнаяФорма",
-      type: "string",
       xmlParents: constantProperties,
       metadataTarget: { kind: "member", owner: "this", memberKinds: ["Form"], objectRoots: ["CommonForm"] },
       defaultValueXMLRaw: "",
-    },
-    extendedPresentation: {
+    }),
+    extendedPresentation: i8nTextRule({
       yaml: "РасширенноеПредставление",
-      type: "I8nText",
       xmlParents: constantProperties,
       defaultValueXMLRaw: "",
-    },
-    explanation: {
+    }),
+    explanation: i8nTextRule({
       yaml: "Пояснение",
-      type: "I8nText",
       xmlParents: constantProperties,
       defaultValueXMLRaw: "",
-    },
-    passwordMode: {
+    }),
+    passwordMode: booleanRule({
       yaml: "РежимПароля",
-      type: "boolean",
       defaultValueXML: false,
       implicitValueYAML: false,
       xmlParents: constantProperties,
-    },
-    format: {
+    }),
+    format: i8nTextRule({
       yaml: "Формат",
-      type: "I8nText",
       xmlParents: constantProperties,
       defaultValueXMLRaw: "",
-    },
-    editFormat: {
+    }),
+    editFormat: i8nTextRule({
       yaml: "ФорматРедактирования",
-      type: "I8nText",
       xmlParents: constantProperties,
       defaultValueXMLRaw: "",
-    },
-    toolTip: {
+    }),
+    toolTip: i8nTextRule({
       yaml: "Подсказка",
-      type: "I8nText",
       xmlParents: constantProperties,
       defaultValueXMLRaw: "",
-    },
-    markNegatives: {
+    }),
+    markNegatives: booleanRule({
       yaml: "ВыделятьОтрицательные",
-      type: "boolean",
       defaultValueXML: false,
       implicitValueYAML: false,
       xmlParents: constantProperties,
-    },
-    mask: {
+    }),
+    mask: stringRule({
       yaml: "Маска",
-      type: "string",
       xmlParents: constantProperties,
       defaultValueXMLRaw: "",
-    },
-    multiLine: {
+    }),
+    multiLine: booleanRule({
       yaml: "МногострочныйРежим",
-      type: "boolean",
       defaultValueXML: false,
       implicitValueYAML: false,
       xmlParents: constantProperties,
-    },
-    extendedEdit: {
+    }),
+    extendedEdit: booleanRule({
       yaml: "РасширенноеРедактирование",
-      type: "boolean",
       defaultValueXML: false,
       implicitValueYAML: false,
       xmlParents: constantProperties,
-    },
+    }),
     minValue: {
       yaml: "МинимальноеЗначение",
       type: "MinMaxValue",
@@ -147,22 +135,20 @@ export const MetadataConstantRules = {
       xmlParents: constantProperties,
       defaultValueXMLRaw: { "_xsi:nil": true },
     },
-    fillChecking: {
+    fillChecking: systemEnumerationRule({
       yaml: "ПроверкаЗаполнения",
-      type: "SystemEnumeration",
       typeSE: "FillChecking",
       defaultValueXML: "DontCheck",
       implicitValueYAML: "DontCheck",
       xmlParents: constantProperties,
-    },
-    choiceFoldersAndItems: {
+    }),
+    choiceFoldersAndItems: systemEnumerationRule({
       yaml: "ВыборГруппИЭлементов",
-      type: "SystemEnumeration",
       typeSE: "FoldersAndItemsUse",
       defaultValueXML: "Items",
       implicitValueYAML: "Items",
       xmlParents: constantProperties,
-    },
+    }),
     choiceParameterLinks: {
       yaml: "СвязиПараметровВыбора",
       type: "ChoiceParameterLinks",
@@ -175,89 +161,78 @@ export const MetadataConstantRules = {
       xmlParents: constantProperties,
       defaultValueXMLRaw: "",
     },
-    quickChoice: {
+    quickChoice: systemEnumerationRule({
       yaml: "БыстрыйВыбор",
-      type: "SystemEnumeration",
       typeSE: "UseQuickChoice",
       defaultValueXML: "Auto",
       implicitValueYAML: "Auto",
       xmlParents: constantProperties,
-    },
-    choiceForm: {
+    }),
+    choiceForm: stringRule({
       yaml: "ФормаВыбора",
-      type: "string",
       xmlParents: constantProperties,
       metadataTarget: { kind: "member", owner: "this", memberKinds: ["Form"], objectRoots: ["CommonForm"] },
       defaultValueXMLRaw: "",
-    },
+    }),
     linkByType: {
       yaml: "СвязьПоТипу",
       type: "TypeLink",
       xmlParents: constantProperties,
       defaultValueXMLRaw: "",
     },
-    choiceHistoryOnInput: {
+    choiceHistoryOnInput: systemEnumerationRule({
       yaml: "ИсторияВыбораПриВводе",
-      type: "SystemEnumeration",
       typeSE: "ChoiceHistoryOnInput",
       defaultValueXML: "Auto",
       implicitValueYAML: "Auto",
       xmlParents: constantProperties,
-    },
-    dataLockControlMode: {
+    }),
+    dataLockControlMode: systemEnumerationRule({
       yaml: "РежимУправленияБлокировкойДанных",
-      type: "SystemEnumeration",
       typeSE: "DefaultDataLockControlMode",
       defaultValueXML: "Managed",
       implicitValueYAML: "Managed",
       xmlParents: constantProperties,
-    },
-    dataHistory: {
+    }),
+    dataHistory: systemEnumerationRule({
       yaml: "ИсторияДанных",
-      type: "SystemEnumeration",
       typeSE: "DataHistoryUse",
       defaultValueXML: "DontUse",
       implicitValueYAML: "DontUse",
       xmlParents: constantProperties,
-    },
-    updateDataHistoryImmediatelyAfterWrite: {
+    }),
+    updateDataHistoryImmediatelyAfterWrite: booleanRule({
       yaml: "ОбновлятьИсториюДанныхСразуПослеЗаписи",
-      type: "boolean",
       defaultValueXML: false,
       implicitValueYAML: false,
       xmlParents: constantProperties,
-    },
-    executeAfterWriteDataHistoryVersionProcessing: {
+    }),
+    executeAfterWriteDataHistoryVersionProcessing: booleanRule({
       yaml: "ВыполнятьОбработкуПослеЗаписиВерсииИсторииДанных",
-      type: "boolean",
       defaultValueXML: false,
       implicitValueYAML: false,
       xmlParents: constantProperties,
-    },
-    objectBelonging: {
+    }),
+    objectBelonging: systemEnumerationRule({
       yaml: "ПринадлежностьОбъекта",
-      type: "SystemEnumeration",
       typeSE: "ObjectBelonging",
       implicitValueYAML: "Native",
       toYAML: false,
       fromYAML: false,
       xmlParents: constantProperties,
-    },
-    extendedConfigurationObject: {
+    }),
+    extendedConfigurationObject: stringRule({
       yaml: "ОбъектРасширяемойКонфигурации",
-      type: "string",
       runtimeOnly: true,
-    },
-    managerModule: {
-      type: "Module",
+    }),
+    managerModule: moduleRule({
       externalMetadata: { segment: "ManagerModule", placement: "derivedEntry" },
       nkdkPath: "МодульМенеджера.bsl",
       xmlPath: "Ext/ManagerModule.bsl",
-    },
-    valueManagerModule: {
-      type: "Module",
+    }),
+    valueManagerModule: moduleRule({
       nkdkPath: "МодульМенеджераЗначения.bsl",
       xmlPath: "Ext/ValueManagerModule.bsl",
-    },
+    }),
   },
 } as const satisfies MetadataItemRule

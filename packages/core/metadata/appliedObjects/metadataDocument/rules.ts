@@ -1,11 +1,17 @@
+import { booleanRule } from "~/metadata/commonObjects/boolean/types"
+import { i8nTextRule } from "~/metadata/commonObjects/i8nText/types"
+import { moduleRule } from "~/metadata/commonObjects/module/types"
+import { numberRule } from "~/metadata/commonObjects/number/types"
+import { stringRule } from "~/metadata/commonObjects/string/types"
+import { uuidRule } from "~/metadata/commonObjects/uuid/types"
+import { xmlRootRule } from "~/metadata/commonObjects/xmlRoot/types"
+import { systemEnumerationRule } from "~/metadata/systemEnumerations/types"
 import { V8_MDCLASSES_ROOT } from "~/metadata/orchestration/appliedObject/presets"
 import { MetadataItemRule } from "~/metadata/orchestration/property/types"
 import { commonBasedOnObjectPaths } from "~/metadata/commonObjects/metadataTargets"
 import { MetadataCommandRules } from "../metadataCommand/rules"
-
 const documentProperties = ["Properties"]
 const documentChildObjects = ["ChildObjects"]
-
 export const MetadataDocumentStandardAttributeNames: Record<string, string> = {
   Posted: "Проведен",
   Ref: "Ссылка",
@@ -13,7 +19,6 @@ export const MetadataDocumentStandardAttributeNames: Record<string, string> = {
   Date: "Дата",
   Number: "Номер",
 }
-
 const MetadataDocumentCommandRules = {
   ...MetadataCommandRules,
   properties: {
@@ -24,7 +29,6 @@ const MetadataDocumentCommandRules = {
     },
   },
 } as const satisfies MetadataItemRule
-
 export const MetadataDocumentRules = {
   itemType: "MetadataDocument",
   metadataTargetOwner: { kind: "self", root: "Document" },
@@ -32,14 +36,13 @@ export const MetadataDocumentRules = {
   xmlDir: "Documents",
   uniqueNameScopes: [{ collections: ["attributes", "tabularSections"] }],
   properties: {
-    xmlRoot: {
-      type: "XMLRoot",
+    xmlRoot: xmlRootRule({
       container: "Document",
       rootAttributes: V8_MDCLASSES_ROOT,
       forReferenceOnly: true,
       toYAML: false,
       fromYAML: false,
-    },
+    }),
     internalInfo: {
       type: "InternalInfo",
       xmlParents: [],
@@ -52,21 +55,19 @@ export const MetadataDocumentRules = {
         { name: "DocumentManager", category: "Manager" },
       ],
     },
-    uuid: {
-      type: "uuid",
+    uuid: uuidRule({
       xml: "_uuid",
       forReferenceOnly: true,
       xmlParents: [],
-    },
-    actionsWritingOnPost: {
+    }),
+    actionsWritingOnPost: systemEnumerationRule({
       yaml: "ЗаписьДвиженийПриПроведении",
-      type: "SystemEnumeration",
       typeSE: "RegisterRecordsWritingOnPost",
       xml: "RegisterRecordsWritingOnPost",
       defaultValueXML: "RealTime",
       implicitValueYAML: "RealTime",
       xmlParents: documentProperties,
-    },
+    }),
     additionalIndexes: {
       yaml: "ДополнительныеИндексы",
       type: "AdditionalIndex",
@@ -78,34 +79,30 @@ export const MetadataDocumentRules = {
       xmlParents: documentChildObjects,
       xml: "Attribute",
     },
-    autonumbering: {
+    autonumbering: booleanRule({
       yaml: "Автонумерация",
-      type: "boolean",
       defaultValueXML: true,
       implicitValueYAML: true,
       xmlParents: documentProperties,
-    },
-    auxiliaryChoiceForm: {
+    }),
+    auxiliaryChoiceForm: stringRule({
       yaml: "ДополнительнаяФормаДляВыбора",
-      type: "string",
       xmlParents: documentProperties,
       metadataTarget: { kind: "member", owner: "this", memberKinds: ["Form"], objectRoots: ["CommonForm"] },
       defaultValueXMLRaw: "",
-    },
-    auxiliaryListForm: {
+    }),
+    auxiliaryListForm: stringRule({
       yaml: "ДополнительнаяФормаСписка",
-      type: "string",
       xmlParents: documentProperties,
       metadataTarget: { kind: "member", owner: "this", memberKinds: ["Form"], objectRoots: ["CommonForm"] },
       defaultValueXMLRaw: "",
-    },
-    auxiliaryObjectForm: {
+    }),
+    auxiliaryObjectForm: stringRule({
       yaml: "ДополнительнаяФормаОбъекта",
-      type: "string",
       xmlParents: documentProperties,
       metadataTarget: { kind: "member", owner: "this", memberKinds: ["Form"], objectRoots: ["CommonForm"] },
       defaultValueXMLRaw: "",
-    },
+    }),
     basedOn: {
       yaml: "ВводитсяНаОсновании",
       type: "MetadataItemLinks",
@@ -119,51 +116,46 @@ export const MetadataDocumentRules = {
       xmlParents: documentProperties,
       defaultValueXMLRaw: {},
     },
-    checkUnique: {
+    checkUnique: booleanRule({
       yaml: "КонтрольУникальности",
-      type: "boolean",
       defaultValueXML: false,
       implicitValueYAML: false,
       xmlParents: documentProperties,
-    },
-    choiceDataGetModeOnInputByString: {
+    }),
+    choiceDataGetModeOnInputByString: systemEnumerationRule({
       yaml: "РежимПолученияДанныхВыбораПриВводеПоСтроке",
-      type: "SystemEnumeration",
       typeSE: "ChoiceDataGetModeOnInputByString",
       defaultValueXML: "Directly",
       implicitValueYAML: "Directly",
       xmlParents: documentProperties,
-    },
-    choiceHistoryOnInput: {
+    }),
+    choiceHistoryOnInput: systemEnumerationRule({
       yaml: "ИсторияВыбораПриВводе",
-      type: "SystemEnumeration",
       typeSE: "ChoiceHistoryOnInput",
       defaultValueXML: "Auto",
       implicitValueYAML: "Auto",
       xmlParents: documentProperties,
-    },
+    }),
     commands: {
       yaml: "Команды",
       type: "MetadataCommands",
       xmlParents: documentChildObjects,
       xml: "Command",
     },
-    objectModule: {
-      type: "Module",
+    objectModule: moduleRule({
       externalMetadata: { segment: "ObjectModule", placement: "derivedEntry" },
       nkdkPath: "МодульОбъекта.bsl",
       xmlPath: "Ext/ObjectModule.bsl",
       toXML: false,
       fromXML: false,
-    },
-    managerModule: {
-      type: "Module",
+    }),
+    managerModule: moduleRule({
       externalMetadata: { segment: "ManagerModule", placement: "derivedEntry" },
       nkdkPath: "МодульМенеджера.bsl",
       xmlPath: "Ext/ManagerModule.bsl",
       toXML: false,
       fromXML: false,
-    },
+    }),
     help: {
       type: "Help",
       externalMetadata: { segment: "Help", placement: "derivedEntry" },
@@ -190,36 +182,32 @@ export const MetadataDocumentRules = {
       fromYAML: false,
       xmlParents: documentChildObjects,
     },
-    comment: {
+    comment: stringRule({
       yaml: "Комментарий",
-      type: "string",
       xmlParents: documentProperties,
       defaultValueXMLRaw: "",
-    },
-    createOnInput: {
+    }),
+    createOnInput: systemEnumerationRule({
       yaml: "СозданиеПриВводе",
-      type: "SystemEnumeration",
       typeSE: "CreateOnInput",
       defaultValueXML: "Use",
       implicitValueYAML: "Use",
       xmlParents: documentProperties,
-    },
-    dataHistory: {
+    }),
+    dataHistory: systemEnumerationRule({
       yaml: "ИсторияДанных",
-      type: "SystemEnumeration",
       typeSE: "DataHistoryUse",
       defaultValueXML: "DontUse",
       implicitValueYAML: "DontUse",
       xmlParents: documentProperties,
-    },
-    dataLockControlMode: {
+    }),
+    dataLockControlMode: systemEnumerationRule({
       yaml: "РежимУправленияБлокировкойДанных",
-      type: "SystemEnumeration",
       typeSE: "DefaultDataLockControlMode",
       defaultValueXML: "Managed",
       implicitValueYAML: "Managed",
       xmlParents: documentProperties,
-    },
+    }),
     dataLockFields: {
       yaml: "ПоляБлокировкиДанных",
       type: "MetadataFields",
@@ -227,9 +215,8 @@ export const MetadataDocumentRules = {
       xmlParents: documentProperties,
       defaultValueXMLRaw: {},
     },
-    defaultChoiceForm: {
+    defaultChoiceForm: stringRule({
       yaml: "ОсновнаяФормаДляВыбора",
-      type: "string",
       xmlParents: documentProperties,
       metadataTarget: {
         kind: "member",
@@ -239,69 +226,60 @@ export const MetadataDocumentRules = {
         allowedMemberPaths: [["DocumentJournal", "Form"]],
       },
       defaultValueXMLRaw: "",
-    },
-    defaultListForm: {
+    }),
+    defaultListForm: stringRule({
       yaml: "ОсновнаяФормаСписка",
-      type: "string",
       xmlParents: documentProperties,
       metadataTarget: { kind: "member", owner: "this", memberKinds: ["Form"], objectRoots: ["CommonForm"] },
       defaultValueXMLRaw: "",
-    },
-    defaultObjectForm: {
+    }),
+    defaultObjectForm: stringRule({
       yaml: "ОсновнаяФормаОбъекта",
-      type: "string",
       xmlParents: documentProperties,
       metadataTarget: { kind: "member", owner: "this", memberKinds: ["Form"], objectRoots: ["CommonForm"] },
       defaultValueXMLRaw: "",
-    },
-    executeAfterWriteDataHistoryVersionProcessing: {
+    }),
+    executeAfterWriteDataHistoryVersionProcessing: booleanRule({
       yaml: "ВыполнятьОбработкуПослеЗаписиВерсииИсторииДанных",
-      type: "boolean",
       defaultValueXML: false,
       implicitValueYAML: false,
       xmlParents: documentProperties,
-    },
-    explanation: {
+    }),
+    explanation: i8nTextRule({
       yaml: "Пояснение",
-      type: "I8nText",
       xmlParents: documentProperties,
       defaultValueXMLRaw: "",
-    },
-    extendedListPresentation: {
+    }),
+    extendedListPresentation: i8nTextRule({
       yaml: "РасширенноеПредставлениеСписка",
-      type: "I8nText",
       xmlParents: documentProperties,
       defaultValueXMLRaw: "",
-    },
-    extendedObjectPresentation: {
+    }),
+    extendedObjectPresentation: i8nTextRule({
       yaml: "РасширенноеПредставлениеОбъекта",
-      type: "I8nText",
       xmlParents: documentProperties,
       defaultValueXMLRaw: "",
-    },
-    fullTextSearch: {
+    }),
+    fullTextSearch: systemEnumerationRule({
       yaml: "ПолнотекстовыйПоиск",
-      type: "SystemEnumeration",
       typeSE: "UseFullTextSearch",
       defaultValueXML: "Use",
       implicitValueYAML: "Use",
       xmlParents: documentProperties,
-    },
-    fullTextSearchOnInputByString: {
+    }),
+    fullTextSearchOnInputByString: systemEnumerationRule({
       yaml: "ПолнотекстовыйПоискПриВводеПоСтроке",
-      type: "SystemEnumeration",
       typeSE: "FullTextSearchOnInputByString",
       defaultValueXML: "DontUse",
       implicitValueYAML: "DontUse",
       xmlParents: documentProperties,
-    },
-    includeHelpInContents: {
+    }),
+    includeHelpInContents: booleanRule({
       yaml: "ВключатьСправкуВСодержание",
-      type: "boolean",
       defaultValueXML: false,
       implicitValueYAML: false,
       xmlParents: documentProperties,
-    },
+    }),
     inputByString: {
       yaml: "ВводПоСтроке",
       type: "MetadataFields",
@@ -314,103 +292,90 @@ export const MetadataDocumentRules = {
       xmlParents: documentProperties,
       defaultValueXMLRaw: {},
     },
-    listPresentation: {
+    listPresentation: i8nTextRule({
       yaml: "ПредставлениеСписка",
-      type: "I8nText",
       xmlParents: documentProperties,
       defaultValueXMLRaw: "",
-    },
-    name: {
-      type: "string",
+    }),
+    name: stringRule({
       xmlParents: documentProperties,
       required: true,
       defaultValue: ({ name }: { name?: string }) => name,
-    },
-    numberAllowedLength: {
+    }),
+    numberAllowedLength: systemEnumerationRule({
       yaml: "ДопустимаяДлинаНомера",
-      type: "SystemEnumeration",
       typeSE: "AllowedLength",
       defaultValueXML: "Variable",
       xmlParents: documentProperties,
       implicitValueYAML: "Variable",
-    },
-    numberLength: {
+    }),
+    numberLength: numberRule({
       yaml: "ДлинаНомера",
-      type: "number",
       defaultValueXML: 11,
       xmlParents: documentProperties,
       implicitValueYAML: 11,
-    },
-    numberPeriodicity: {
+    }),
+    numberPeriodicity: systemEnumerationRule({
       yaml: "ПериодичностьНомера",
-      type: "SystemEnumeration",
       typeSE: "BusinessProcessNumberPeriodicity",
       defaultValueXML: "Year",
       implicitValueYAML: "Year",
       xmlParents: documentProperties,
-    },
-    numberType: {
+    }),
+    numberType: systemEnumerationRule({
       yaml: "ТипНомера",
-      type: "SystemEnumeration",
       typeSE: "DocumentNumberType",
       defaultValueXML: "String",
       implicitValueYAML: "String",
       xmlParents: documentProperties,
-    },
-    numerator: {
+    }),
+    numerator: stringRule({
       yaml: "Нумератор",
-      type: "string",
       xmlParents: documentProperties,
       metadataTarget: { kind: "object", roots: ["DocumentNumerator"] },
       defaultValueXMLRaw: "",
-    },
-    objectBelonging: {
+    }),
+    objectBelonging: systemEnumerationRule({
       yaml: "ПринадлежностьОбъекта",
-      type: "SystemEnumeration",
       typeSE: "ObjectBelonging",
       implicitValueYAML: "Native",
       toYAML: false,
       fromYAML: false,
       xmlParents: documentProperties,
-    },
-    objectPresentation: {
+    }),
+    objectPresentation: i8nTextRule({
       yaml: "ПредставлениеОбъекта",
-      type: "I8nText",
       xmlParents: documentProperties,
       defaultValueXMLRaw: "",
-    },
-    posting: {
+    }),
+    posting: systemEnumerationRule({
       yaml: "Проведение",
-      type: "SystemEnumeration",
       typeSE: "Posting",
       defaultValueXML: "Deny",
       implicitValueYAML: "Deny",
       xmlParents: documentProperties,
-    },
-    privilegedPostingMode: {
+    }),
+    privilegedPostingMode: booleanRule({
       yaml: "ПривилегированныйРежимПриПроведении",
-      type: "boolean",
       xml: "PostInPrivilegedMode",
       defaultValueXML: false,
       implicitValueYAML: false,
       xmlParents: documentProperties,
-    },
-    privilegedUnpostingMode: {
+    }),
+    privilegedUnpostingMode: booleanRule({
       yaml: "ПривилегированныйРежимПриОтменеПроведения",
-      type: "boolean",
       xml: "UnpostInPrivilegedMode",
       defaultValueXML: false,
       implicitValueYAML: false,
       xmlParents: documentProperties,
-    },
-    realTimePosting: {
+    }),
+    realTimePosting: systemEnumerationRule({
       yaml: "ОперативноеПроведение",
-      type: "SystemEnumeration",
       typeSE: "RealTimePosting",
       defaultValueXML: "Deny",
       implicitValueYAML: "Deny",
       xmlParents: documentProperties,
-    },
+    }),
     registerRecords: {
       yaml: "Движения",
       type: "MetadataItemLinks",
@@ -421,62 +386,56 @@ export const MetadataDocumentRules = {
       xmlParents: documentProperties,
       defaultValueXMLRaw: {},
     },
-    registerRecordsDeletion: {
+    registerRecordsDeletion: systemEnumerationRule({
       yaml: "УдалениеДвижений",
-      type: "SystemEnumeration",
       typeSE: "RegisterRecordsDeletion",
       defaultValueXML: "AutoDelete",
       implicitValueYAML: "AutoDelete",
       xmlParents: documentProperties,
-    },
-    searchStringModeOnInputByString: {
+    }),
+    searchStringModeOnInputByString: systemEnumerationRule({
       yaml: "СпособПоискаСтрокиПриВводеПоСтроке",
-      type: "SystemEnumeration",
       typeSE: "SearchStringModeOnInputByString",
       defaultValueXML: "Begin",
       implicitValueYAML: "Begin",
       xmlParents: documentProperties,
-    },
-    sequenceFilling: {
+    }),
+    sequenceFilling: systemEnumerationRule({
       yaml: "ЗаполнениеПоследовательностей",
-      type: "SystemEnumeration",
       typeSE: "SequenceFilling",
       defaultValueXML: "AutoFill",
       implicitValueYAML: "AutoFill",
       xmlParents: documentProperties,
-    },
+    }),
     standardAttributes: {
       yaml: "СтандартныеРеквизиты",
       type: "StandardAttributeDescriptions",
       standartAttributeNames: MetadataDocumentStandardAttributeNames,
       xmlParents: documentProperties,
     },
-    synonym: {
+    synonym: i8nTextRule({
       yaml: "Синоним",
-      type: "I8nText",
       xmlParents: documentProperties,
       defaultValueXMLRaw: "",
-    },
+    }),
     tabularSections: {
       yaml: "ТабличныеЧасти",
       type: "MetadataDocumentTabularSections",
       xmlParents: documentChildObjects,
       xml: "TabularSection",
     },
-    updateDataHistoryImmediatelyAfterWrite: {
+    updateDataHistoryImmediatelyAfterWrite: booleanRule({
       yaml: "ОбновлятьИсториюДанныхСразуПослеЗаписи",
-      type: "boolean",
       defaultValueXML: false,
       implicitValueYAML: false,
       xmlParents: documentProperties,
-    },
-    useStandardCommands: {
+    }),
+    useStandardCommands: booleanRule({
       yaml: "ИспользоватьСтандартныеКоманды",
-      type: "boolean",
       defaultValueXML: true,
       implicitValueYAML: true,
       xmlParents: documentProperties,
-    },
+    }),
   },
   childCollections: [{ propertyKey: "commands", itemRule: MetadataDocumentCommandRules }],
 } as const satisfies MetadataItemRule

@@ -1,3 +1,6 @@
+import { booleanRule } from "~/metadata/commonObjects/boolean/types"
+import { numberRule } from "~/metadata/commonObjects/number/types"
+import { systemEnumerationRule } from "~/metadata/systemEnumerations/types"
 import { getParentFromContext } from "~/metadata/context/helpers"
 import { ConfigurationContextWithExportToXML } from "~/metadata/context/types"
 import { registerElementAsType, registerElementRule } from "~/metadata/orchestration/formElement/ruleFactory"
@@ -7,7 +10,6 @@ import { BaseElement } from "../baseElement/types"
 import { formDecorationCommonProperties } from "../formDecoration/rules"
 import { getExtendedTooltipName } from "./helper"
 export type { ElementRule, PropertyRule }
-
 const extendedTooltipCommonProperties = {
   autoMaxHeight: formDecorationCommonProperties.autoMaxHeight,
   autoMaxWidth: formDecorationCommonProperties.autoMaxWidth,
@@ -31,7 +33,6 @@ const extendedTooltipCommonProperties = {
   visible: formDecorationCommonProperties.visible,
   width: formDecorationCommonProperties.width,
 } as const satisfies ElementRule["properties"]
-
 export const ExtendedTooltipRules = {
   itemType: "ExtendedTooltip",
   enterpriseField: "FormDecoration",
@@ -41,38 +42,51 @@ export const ExtendedTooltipRules = {
       type: "FormattedI8nText",
       yaml: "Заголовок",
     },
-    type: {
-      type: "SystemEnumeration",
+    type: systemEnumerationRule({
       typeSE: "FormDecorationType",
       runtimeOnly: true,
-    },
+    }),
     ...extendedTooltipCommonProperties,
     autoMaxHeight: { ...extendedTooltipCommonProperties.autoMaxHeight, implicitValueYAML: true },
     autoMaxWidth: { ...extendedTooltipCommonProperties.autoMaxWidth, implicitValueYAML: true },
-    backColor: { yaml: "ЦветФона", type: "Color", metadataTarget: { kind: "object", roots: ["StyleItem"], filters: [{ kind: "styleItemType", values: ["Color"] }] } },
-    border: { yaml: "Рамка", type: "Border", metadataTarget: { kind: "object", roots: ["StyleItem"], filters: [{ kind: "styleItemType", values: ["Border"] }] } },
-    borderColor: { yaml: "ЦветРамки", type: "Color", metadataTarget: { kind: "object", roots: ["StyleItem"], filters: [{ kind: "styleItemType", values: ["Color"] }] } },
+    backColor: {
+      yaml: "ЦветФона",
+      type: "Color",
+      metadataTarget: { kind: "object", roots: ["StyleItem"], filters: [{ kind: "styleItemType", values: ["Color"] }] },
+    },
+    border: {
+      yaml: "Рамка",
+      type: "Border",
+      metadataTarget: {
+        kind: "object",
+        roots: ["StyleItem"],
+        filters: [{ kind: "styleItemType", values: ["Border"] }],
+      },
+    },
+    borderColor: {
+      yaml: "ЦветРамки",
+      type: "Color",
+      metadataTarget: { kind: "object", roots: ["StyleItem"], filters: [{ kind: "styleItemType", values: ["Color"] }] },
+    },
     displayImportance: { ...extendedTooltipCommonProperties.displayImportance, implicitValueYAML: "Auto" },
     enabled: { ...extendedTooltipCommonProperties.enabled, noImplicitValueYAML: true },
     height: { ...extendedTooltipCommonProperties.height, implicitValueYAML: 0 },
-    horizontalAlign: {
+    horizontalAlign: systemEnumerationRule({
       yaml: "ГоризонтальноеПоложение",
-      type: "SystemEnumeration",
       typeSE: "ItemHorizontalLocation",
       implicitValueYAML: "Left",
-    },
+    }),
     horizontalAlignInGroup: { ...extendedTooltipCommonProperties.horizontalAlignInGroup, implicitValueYAML: "Auto" },
     horizontalStretch: { ...extendedTooltipCommonProperties.horizontalStretch, noImplicitValueYAML: true },
-    hyperlink: { yaml: "Гиперссылка", type: "boolean", implicitValueYAML: false },
+    hyperlink: booleanRule({ yaml: "Гиперссылка", implicitValueYAML: false }),
     skipOnInput: { ...extendedTooltipCommonProperties.skipOnInput, noImplicitValueYAML: true },
-    titleHeight: { yaml: "ВысотаЗаголовка", type: "number", implicitValueYAML: 0 },
+    titleHeight: numberRule({ yaml: "ВысотаЗаголовка", implicitValueYAML: 0 }),
     toolTipRepresentation: { ...extendedTooltipCommonProperties.toolTipRepresentation, noImplicitValueYAML: true },
-    verticalAlign: {
+    verticalAlign: systemEnumerationRule({
       yaml: "ВертикальноеПоложение",
-      type: "SystemEnumeration",
       typeSE: "ItemVerticalAlign",
       implicitValueYAML: "Auto",
-    },
+    }),
     verticalAlignInGroup: { ...extendedTooltipCommonProperties.verticalAlignInGroup, implicitValueYAML: "Auto" },
     verticalStretch: { ...extendedTooltipCommonProperties.verticalStretch, noImplicitValueYAML: true },
     visible: { ...extendedTooltipCommonProperties.visible, noImplicitValueYAML: true },
@@ -88,7 +102,6 @@ export const ExtendedTooltipRules = {
     },
   },
 } as const satisfies ElementRule
-
 registerElementAsType({
   propertyType: "ExtendedTooltip",
   elementRule: ExtendedTooltipRules,
@@ -103,5 +116,4 @@ registerElementAsType({
     return { name }
   },
 })
-
 registerElementRule("ExtendedTooltip", ExtendedTooltipRules)

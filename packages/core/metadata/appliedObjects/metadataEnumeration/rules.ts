@@ -1,74 +1,70 @@
+import { booleanRule } from "~/metadata/commonObjects/boolean/types"
+import { i8nTextRule } from "~/metadata/commonObjects/i8nText/types"
+import { moduleRule } from "~/metadata/commonObjects/module/types"
+import { stringRule } from "~/metadata/commonObjects/string/types"
+import { uuidRule } from "~/metadata/commonObjects/uuid/types"
+import { xmlRootRule } from "~/metadata/commonObjects/xmlRoot/types"
+import { systemEnumerationRule } from "~/metadata/systemEnumerations/types"
 import { V8_MDCLASSES_ROOT } from "~/metadata/orchestration/appliedObject/presets"
 import { MetadataItemRule } from "~/metadata/orchestration/property/types"
 import { MetadataCommandRules } from "../metadataCommand/rules"
-
 const enumProperties = ["Properties"]
 const enumChildObjects = ["ChildObjects"]
-
 export const MetadataEnumerationStandardAttributeNames: Record<string, string> = {
   Order: "Порядок",
   Ref: "Ссылка",
 }
-
 export const MetadataEnumerationValueRules = {
   itemType: "MetadataEnumerationValue",
   externalMetadata: { segment: "EnumValue", placement: "ownerChild" },
   properties: {
-    uuid: {
-      type: "uuid",
+    uuid: uuidRule({
       xml: "_uuid",
       forReferenceOnly: true,
       xmlParents: [],
-    },
-    name: {
+    }),
+    name: stringRule({
       yaml: "Имя",
       xml: "Name",
-      type: "string",
       required: true,
       xmlParents: enumProperties,
-    },
-    synonym: {
+    }),
+    synonym: i8nTextRule({
       yaml: "Синоним",
       xml: "Synonym",
-      type: "I8nText",
       xmlParents: enumProperties,
       defaultValueXMLRaw: "",
-    },
-    comment: {
+    }),
+    comment: stringRule({
       yaml: "Комментарий",
       xml: "Comment",
-      type: "string",
       xmlParents: enumProperties,
       defaultValueXMLRaw: "",
-    },
-    objectBelonging: {
+    }),
+    objectBelonging: systemEnumerationRule({
       yaml: "ПринадлежностьОбъекта",
       xml: "ObjectBelonging",
-      type: "SystemEnumeration",
       typeSE: "ObjectBelonging",
       xmlParents: enumProperties,
       noImplicitValueYAML: true,
-    },
-    extendedConfigurationObject: {
+    }),
+    extendedConfigurationObject: stringRule({
       yaml: "ОбъектРасширяемойКонфигурации",
-      type: "string",
       runtimeOnly: true,
-    },
+    }),
   },
 } as const satisfies MetadataItemRule
-
 export const MetadataEnumerationRules = {
   itemType: "MetadataEnumeration",
   metadataTargetOwner: { kind: "self", root: "Enum" },
   itemTypePrefix: "Перечисление",
   xmlDir: "Enums",
   properties: {
-    xmlRoot: {
-      type: "XMLRoot",
+    xmlRoot: xmlRootRule({
       container: "Enum",
       rootAttributes: V8_MDCLASSES_ROOT,
       forReferenceOnly: true,
-    },
+    }),
     internalInfo: {
       type: "InternalInfo",
       xmlParents: [],
@@ -79,48 +75,41 @@ export const MetadataEnumerationRules = {
         { name: "EnumList", category: "List" },
       ],
     },
-    uuid: {
-      type: "uuid",
+    uuid: uuidRule({
       xml: "_uuid",
       forReferenceOnly: true,
       xmlParents: [],
-    },
-    name: {
-      type: "string",
+    }),
+    name: stringRule({
       xmlParents: enumProperties,
       required: true,
-    },
-    synonym: {
+    }),
+    synonym: i8nTextRule({
       yaml: "Синоним",
-      type: "I8nText",
       xmlParents: enumProperties,
       defaultValueXMLRaw: "",
-    },
-    comment: {
+    }),
+    comment: stringRule({
       yaml: "Комментарий",
-      type: "string",
       xmlParents: enumProperties,
       defaultValueXMLRaw: "",
-    },
-    objectBelonging: {
+    }),
+    objectBelonging: systemEnumerationRule({
       yaml: "ПринадлежностьОбъекта",
-      type: "SystemEnumeration",
       typeSE: "ObjectBelonging",
       xmlParents: enumProperties,
       noImplicitValueYAML: true,
-    },
-    extendedConfigurationObject: {
+    }),
+    extendedConfigurationObject: stringRule({
       yaml: "ОбъектРасширяемойКонфигурации",
-      type: "string",
       runtimeOnly: true,
-    },
-    useStandardCommands: {
+    }),
+    useStandardCommands: booleanRule({
       yaml: "ИспользоватьСтандартныеКоманды",
-      type: "boolean",
       defaultValueXML: false,
       implicitValueYAML: false,
       xmlParents: enumProperties,
-    },
+    }),
     standardAttributes: {
       yaml: "СтандартныеРеквизиты",
       type: "StandardAttributeDescriptions",
@@ -133,81 +122,70 @@ export const MetadataEnumerationRules = {
       xmlParents: enumProperties,
       defaultValueXMLRaw: {},
     },
-    quickChoice: {
+    quickChoice: booleanRule({
       yaml: "БыстрыйВыбор",
-      type: "boolean",
       defaultValueXML: true,
       implicitValueYAML: true,
       xmlParents: enumProperties,
-    },
-    choiceMode: {
+    }),
+    choiceMode: systemEnumerationRule({
       yaml: "СпособВыбора",
-      type: "SystemEnumeration",
       typeSE: "ChoiceMode",
       defaultValueXML: "BothWays",
       implicitValueYAML: "BothWays",
       xmlParents: enumProperties,
-    },
-    defaultListForm: {
+    }),
+    defaultListForm: stringRule({
       yaml: "ОсновнаяФормаСписка",
-      type: "string",
       xmlParents: enumProperties,
       metadataTarget: { kind: "member", owner: "this", memberKinds: ["Form"], objectRoots: ["CommonForm"] },
       defaultValueXMLRaw: "",
-    },
-    defaultChoiceForm: {
+    }),
+    defaultChoiceForm: stringRule({
       yaml: "ОсновнаяФормаДляВыбора",
-      type: "string",
       xmlParents: enumProperties,
       metadataTarget: { kind: "member", owner: "this", memberKinds: ["Form"], objectRoots: ["CommonForm"] },
       defaultValueXMLRaw: "",
-    },
-    auxiliaryListForm: {
+    }),
+    auxiliaryListForm: stringRule({
       yaml: "ДополнительнаяФормаСписка",
-      type: "string",
       xmlParents: enumProperties,
       metadataTarget: { kind: "member", owner: "this", memberKinds: ["Form"], objectRoots: ["CommonForm"] },
       defaultValueXMLRaw: "",
-    },
-    auxiliaryChoiceForm: {
+    }),
+    auxiliaryChoiceForm: stringRule({
       yaml: "ДополнительнаяФормаДляВыбора",
-      type: "string",
       xmlParents: enumProperties,
       metadataTarget: { kind: "member", owner: "this", memberKinds: ["Form"], objectRoots: ["CommonForm"] },
       defaultValueXMLRaw: "",
-    },
-    managerModule: {
-      type: "Module",
+    }),
+    managerModule: moduleRule({
       externalMetadata: { segment: "ManagerModule", placement: "derivedEntry" },
       nkdkPath: "МодульМенеджера.bsl",
       xmlPath: "Ext/ManagerModule.bsl",
-    },
-    listPresentation: {
+    }),
+    listPresentation: i8nTextRule({
       yaml: "ПредставлениеСписка",
-      type: "I8nText",
       xmlParents: enumProperties,
       defaultValueXMLRaw: "",
-    },
-    extendedListPresentation: {
+    }),
+    extendedListPresentation: i8nTextRule({
       yaml: "РасширенноеПредставлениеСписка",
-      type: "I8nText",
       xmlParents: enumProperties,
       defaultValueXMLRaw: "",
-    },
-    explanation: {
+    }),
+    explanation: i8nTextRule({
       yaml: "Пояснение",
-      type: "I8nText",
       xmlParents: enumProperties,
       defaultValueXMLRaw: "",
-    },
-    choiceHistoryOnInput: {
+    }),
+    choiceHistoryOnInput: systemEnumerationRule({
       yaml: "ИсторияВыбораПриВводе",
-      type: "SystemEnumeration",
       typeSE: "ChoiceHistoryOnInput",
       defaultValueXML: "Auto",
       implicitValueYAML: "Auto",
       xmlParents: enumProperties,
-    },
+    }),
     enumValues: {
       yaml: "Значения",
       type: "MetadataEnumerationValues",

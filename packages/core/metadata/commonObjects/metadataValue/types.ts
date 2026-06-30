@@ -1,4 +1,5 @@
 import { Static, Type } from "@sinclair/typebox"
+import { definePropertyRule, type ExactRuleParams } from "~/metadata/commonObjects/ruleBuilder"
 import { BasePropertyRule } from "~/metadata/orchestration"
 import type { ExplicitYAMLString } from "~/yaml/explicitString"
 import { I8nText, I8nTextJSONSchema, I8nTextXML, I8nTextYAML } from "../i8nText/types"
@@ -279,6 +280,14 @@ export interface MetadataValuePropertyRule extends BasePropertyRule {
   valueType?: MetadataValueType[]
 
   exportNilValue?: true
+}
+
+export type MetadataValueRuleParams = Omit<MetadataValuePropertyRule, "type">
+
+export function metadataValueRule<const Params extends MetadataValueRuleParams>(
+  params: ExactRuleParams<MetadataValueRuleParams, Params>
+): Readonly<{ type: "MetadataValue" } & Params> {
+  return definePropertyRule("MetadataValue", params)
 }
 
 /**

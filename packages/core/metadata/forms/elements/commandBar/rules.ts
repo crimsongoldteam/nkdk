@@ -1,40 +1,39 @@
+import { booleanRule } from "~/metadata/commonObjects/boolean/types"
+import { stringRule } from "~/metadata/commonObjects/string/types"
+import { systemEnumerationRule } from "~/metadata/systemEnumerations/types"
 import { registerElementRule } from "~/metadata/orchestration/formElement/ruleFactory"
 import { formGroupCommonProperties } from "../formGroup/rules"
 import { PropertyRule } from "~/metadata/orchestration/property/types"
 import { ElementRule } from "../../../orchestration/formElement/types"
 export type { ElementRule, PropertyRule }
-
 export const CommandBarRules = {
   itemType: "CommandBar",
   enterpriseField: "FormGroup",
   enterpriseFieldType: "FormGroupType.CommandBar",
   properties: {
-    name: {
-      type: "string",
+    name: stringRule({
       xml: "_name",
       required: true,
-    },
-    autofill: { yaml: "Автозаполнение", type: "boolean", implicitValueYAML: false },
+    }),
+    autofill: booleanRule({ yaml: "Автозаполнение", implicitValueYAML: false }),
     childItems: {
       yaml: "Элементы",
       type: "CommandBarChildItems",
       defaultValue: [],
     },
-    displayImportance: {
+    displayImportance: systemEnumerationRule({
       yaml: "ВажностьПриОтображении",
       xml: "_DisplayImportance",
-      type: "SystemEnumeration",
       typeSE: "DisplayImportance",
       implicitValueYAML: "Auto",
-    },
-    horizontalAlign: {
+    }),
+    horizontalAlign: systemEnumerationRule({
       yaml: "ГоризонтальноеПоложение",
-      type: "SystemEnumeration",
       typeSE: "ItemHorizontalLocation",
       xml: "HorizontalLocation",
       implicitValueYAML: "Left",
-    },
-    commandSource: { yaml: "ИсточникКоманд", type: "string" },
+    }),
+    commandSource: stringRule({ yaml: "ИсточникКоманд" }),
     ...formGroupCommonProperties,
     height: {
       ...formGroupCommonProperties.height,
@@ -57,13 +56,11 @@ export const CommandBarRules = {
       ...formGroupCommonProperties.width,
       implicitValueYAML: 0,
     },
-    type: {
+    type: systemEnumerationRule({
       yaml: "Вид",
-      type: "SystemEnumeration",
       typeSE: "FormGroupType",
       runtimeOnly: true,
-    },
+    }),
   },
 } as const satisfies ElementRule
-
 registerElementRule("CommandBar", CommandBarRules)

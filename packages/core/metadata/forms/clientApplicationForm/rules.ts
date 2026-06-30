@@ -1,14 +1,17 @@
+import { booleanRule } from "~/metadata/commonObjects/boolean/types"
+import { i8nTextRule } from "~/metadata/commonObjects/i8nText/types"
+import { numberRule } from "~/metadata/commonObjects/number/types"
+import { stringRule } from "~/metadata/commonObjects/string/types"
+import { systemEnumerationRule } from "~/metadata/systemEnumerations/types"
 import { MetadataItemRule, PropertyRule } from "~/metadata/orchestration"
 import { ElementRule } from "../../orchestration/formElement/types"
 import { FormRulesTags } from "./types"
 export type { ElementRule, PropertyRule }
-
 export const ClientApplicationFormRules = {
   itemType: "ClientApplicationForm",
   metadataTargetOwner: { kind: "inherit" },
   properties: {
     // #region Form
-
     itemPictures: {
       type: "ExternalFormItemFile",
       xml: "Picture",
@@ -39,31 +42,27 @@ export const ClientApplicationFormRules = {
       tag: FormRulesTags.Form,
       order: 1,
     },
-    autoFillCheck: {
+    autoFillCheck: booleanRule({
       yaml: "ПроверятьЗаполнениеАвтоматически",
-      type: "boolean",
       tag: FormRulesTags.Form,
       implicitValueYAML: true,
-    },
-    autoSaveDataInSettings: {
+    }),
+    autoSaveDataInSettings: systemEnumerationRule({
       yaml: "АвтоматическоеСохранениеДанныхВНастройках",
-      type: "SystemEnumeration",
       typeSE: "AutoSaveFormDataInSettings",
       tag: FormRulesTags.Form,
       implicitValueYAML: "DontUse",
-    },
-    autoTitle: {
+    }),
+    autoTitle: booleanRule({
       yaml: "АвтоЗаголовок",
-      type: "boolean",
       tag: FormRulesTags.Form,
       implicitValueYAML: true,
-    },
-    autoURL: {
+    }),
+    autoURL: booleanRule({
       yaml: "АвтоНавигационнаяСсылка",
-      type: "boolean",
       tag: FormRulesTags.Form,
       implicitValueYAML: true,
-    },
+    }),
     childItems: {
       yaml: "Элементы",
       type: "GroupChildItems",
@@ -85,52 +84,46 @@ export const ClientApplicationFormRules = {
       xmlParents: ["Attributes"],
       tag: FormRulesTags.Form,
     },
-    childItemsHorizontalAlign: {
+    childItemsHorizontalAlign: systemEnumerationRule({
       yaml: "ГоризонтальноеПоложениеПодчиненных",
       xml: "HorizontalAlign",
       xmlAliases: ["ChildItemsHorizontalAlign"],
-      type: "SystemEnumeration",
       typeSE: "ItemHorizontalLocation",
       tag: FormRulesTags.Form,
       implicitValueYAML: "Auto",
-    },
-    childItemsVerticalAlign: {
+    }),
+    childItemsVerticalAlign: systemEnumerationRule({
       yaml: "ВертикальноеПоложениеПодчиненных",
       xml: "VerticalAlign",
       xmlAliases: ["ChildItemsVerticalAlign"],
-      type: "SystemEnumeration",
       typeSE: "ItemVerticalAlign",
       tag: FormRulesTags.Form,
       implicitValueYAML: "Auto",
-    },
-    closeOnChoice: {
+    }),
+    closeOnChoice: booleanRule({
       yaml: "ЗакрыватьПриВыборе",
-      type: "boolean",
       tag: FormRulesTags.Form,
       noImplicitValueYAML: true,
-    },
-    closeOnOwnerClose: {
+    }),
+    closeOnOwnerClose: booleanRule({
       yaml: "ЗакрыватьПриЗакрытииВладельца",
-      type: "boolean",
       tag: FormRulesTags.Form,
       noImplicitValueYAML: true,
-    },
-    collapseItemsByImportance: {
+    }),
+    collapseItemsByImportance: systemEnumerationRule({
       yaml: "СворачиваниеЭлементовПоВажности",
       xml: "CollapseItemsByImportanceVariant",
       xmlAliases: ["CollapseItemsByImportance"],
-      type: "SystemEnumeration",
       typeSE: "CollapseFormItemsByImportance",
       tag: FormRulesTags.Form,
       implicitValueYAML: "Auto",
-    },
-    commandBarLocation: {
+    }),
+    commandBarLocation: systemEnumerationRule({
       yaml: "ПоложениеКоманднойПанели",
-      type: "SystemEnumeration",
       typeSE: "FormCommandBarLabelLocation",
       tag: FormRulesTags.Form,
       implicitValueYAML: "Auto",
-    },
+    }),
     commandInterface: {
       yaml: "ИнтерфейсКоманды",
       type: "CommandInterface",
@@ -153,53 +146,47 @@ export const ClientApplicationFormRules = {
       type: "StringOrNumber",
       tag: FormRulesTags.Form,
     },
-    reportFormType: {
+    reportFormType: systemEnumerationRule({
       yaml: "ТипФормыОтчета",
       xml: "ReportFormType",
-      type: "SystemEnumeration",
       typeSE: "ReportFormType",
       tag: FormRulesTags.Form,
       noImplicitValueYAML: true,
-    },
-    variantAppearance: {
+    }),
+    variantAppearance: stringRule({
       yaml: "ПредставлениеВарианта",
       xml: "VariantAppearance",
-      type: "string",
       tag: FormRulesTags.Form,
-    },
-    autoShowState: {
+    }),
+    autoShowState: systemEnumerationRule({
       yaml: "АвтоОтображениеСостояния",
       xml: "AutoShowState",
-      type: "SystemEnumeration",
       typeSE: "AutoShowStateMode",
       tag: FormRulesTags.Form,
       implicitValueYAML: "Auto",
       omitImplicitValueYAMLBySource: true,
-    },
-    customSettingsFolder: {
+    }),
+    customSettingsFolder: stringRule({
       yaml: "ГруппаПользовательскихНастроек",
       xml: "CustomSettingsFolder",
-      type: "string",
       tag: FormRulesTags.Form,
-    },
-    reportResultViewMode: {
+    }),
+    reportResultViewMode: systemEnumerationRule({
       yaml: "РежимОтображенияРезультатаОтчета",
       xml: "ReportResultViewMode",
-      type: "SystemEnumeration",
       typeSE: "ReportResultViewMode",
       tag: FormRulesTags.Form,
       implicitValueYAML: "Auto",
       omitImplicitValueYAMLBySource: true,
-    },
-    viewModeApplicationOnSetReportResult: {
+    }),
+    viewModeApplicationOnSetReportResult: systemEnumerationRule({
       yaml: "ПрименениеРежимаОтображенияПриУстановкеРезультатаОтчета",
       xml: "ViewModeApplicationOnSetReportResult",
-      type: "SystemEnumeration",
       typeSE: "ViewModeApplicationOnSetReportResult",
       tag: FormRulesTags.Form,
       implicitValueYAML: "Auto",
       omitImplicitValueYAMLBySource: true,
-    },
+    }),
     mobileDeviceCommandBarContent: {
       yaml: "СоставКоманднойПанелиНаМобильномУстройстве",
       type: "MobileDeviceCommandBarContent",
@@ -211,128 +198,110 @@ export const ClientApplicationFormRules = {
       tag: FormRulesTags.Form,
       defaultValue: [],
     },
-    conversationsRepresentation: {
+    conversationsRepresentation: systemEnumerationRule({
       yaml: "ОтображениеОбсуждений",
-      type: "SystemEnumeration",
       typeSE: "FormConversationsRepresentation",
       tag: FormRulesTags.Form,
       implicitValueYAML: "Auto",
-    },
-    customizable: {
+    }),
+    customizable: booleanRule({
       yaml: "РазрешитьИзменятьФорму",
-      type: "boolean",
       tag: FormRulesTags.Form,
       implicitValueYAML: true,
-    },
-    enabled: {
+    }),
+    enabled: booleanRule({
       yaml: "Доступность",
-      type: "boolean",
       tag: FormRulesTags.Form,
       implicitValueYAML: true,
-    },
-    enterKeyBehavior: {
+    }),
+    enterKeyBehavior: systemEnumerationRule({
       yaml: "ПоведениеКлавишиEnter",
-      type: "SystemEnumeration",
       typeSE: "EnterKeyBehaviorType",
       tag: FormRulesTags.Form,
       implicitValueYAML: "ControlNavigation",
-    },
-    formWindowOpeningMode: {
+    }),
+    formWindowOpeningMode: systemEnumerationRule({
       yaml: "РежимОткрытияОкнаФормы",
-      type: "SystemEnumeration",
       typeSE: "FormWindowOpeningMode",
       xml: "WindowOpeningMode",
       tag: FormRulesTags.Form,
       implicitValueYAML: "DontBlock",
-    },
-    group: {
+    }),
+    group: systemEnumerationRule({
       yaml: "Группировка",
-      type: "SystemEnumeration",
       typeSE: "ChildFormItemsGroup",
       tag: FormRulesTags.Form,
       implicitValueYAML: "Vertical",
-    },
-    groupList: {
+    }),
+    groupList: stringRule({
       yaml: "СписокГрупп",
       xml: "GroupList",
-      type: "string",
       tag: FormRulesTags.Form,
-    },
-    height: {
+    }),
+    height: numberRule({
       yaml: "Высота",
-      type: "number",
       tag: FormRulesTags.Form,
       implicitValueYAML: 0,
-    },
-    horizontalSpacing: {
+    }),
+    horizontalSpacing: systemEnumerationRule({
       yaml: "ГоризонтальныйИнтервал",
-      type: "SystemEnumeration",
       typeSE: "FormItemSpacing",
       tag: FormRulesTags.Form,
       implicitValueYAML: "Auto",
-    },
-    itemsAndTitlesAlign: {
+    }),
+    itemsAndTitlesAlign: systemEnumerationRule({
       yaml: "ВыравниваниеЭлементовИЗаголовков",
       xml: "ChildrenAlign",
       xmlAliases: ["ItemsAndTitlesAlign"],
-      type: "SystemEnumeration",
       typeSE: "ItemsAndTitlesAlignVariant",
       tag: FormRulesTags.Form,
       implicitValueYAML: "Auto",
-    },
-    modalMode: {
+    }),
+    modalMode: booleanRule({
       yaml: "МодальныйРежим",
-      type: "boolean",
       tag: FormRulesTags.Form,
       noImplicitValueYAML: true,
-    },
-    modified: {
+    }),
+    modified: booleanRule({
       yaml: "Модифицированность",
-      type: "boolean",
       tag: FormRulesTags.Form,
       noImplicitValueYAML: true,
-    },
+    }),
     parameters: {
       yaml: "Параметры",
       type: "FormParameters",
       tag: FormRulesTags.Form,
     },
-    purposeUseKey: {
+    purposeUseKey: stringRule({
       yaml: "КлючНазначенияИспользования",
-      type: "string",
       tag: FormRulesTags.Form,
-    },
-    readOnly: {
+    }),
+    readOnly: booleanRule({
       yaml: "ТолькоПросмотр",
-      type: "boolean",
       tag: FormRulesTags.Form,
       noImplicitValueYAML: true,
-    },
-    saveDataInSettings: {
+    }),
+    saveDataInSettings: systemEnumerationRule({
       yaml: "СохранениеДанныхВНастройках",
-      type: "SystemEnumeration",
       typeSE: "SaveFormDataInSettings",
       tag: FormRulesTags.Form,
       implicitValueYAML: "DontUse",
-    },
-    savedInSettingsDataModified: {
+    }),
+    savedInSettingsDataModified: booleanRule({
       yaml: "СохраняемыеВНастройкахДанныеМодифицированы",
-      type: "boolean",
       tag: FormRulesTags.Form,
       noImplicitValueYAML: true,
-    },
-    scale: {
+    }),
+    scale: numberRule({
       yaml: "Масштаб",
-      type: "number",
       tag: FormRulesTags.Form,
       implicitValueYAML: 100,
-    },
-    saveWindowSettings: {
+    }),
+    saveWindowSettings: booleanRule({
       yaml: "СохранятьНастройкиОкна",
-      type: "boolean",
       tag: FormRulesTags.Form,
       implicitValueYAML: true,
-    },
+    }),
     settingsStorage: {
       yaml: "ХранилищеНастроек",
       type: "MetadataItemLink",
@@ -345,190 +314,163 @@ export const ClientApplicationFormRules = {
       },
       tag: FormRulesTags.Form,
     },
-    showCloseButton: {
+    showCloseButton: booleanRule({
       yaml: "ОтображатьКнопкуЗакрытия",
-      type: "boolean",
       tag: FormRulesTags.Form,
       implicitValueYAML: true,
-    },
-    showTitle: {
+    }),
+    showTitle: booleanRule({
       yaml: "ОтображатьЗаголовок",
-      type: "boolean",
       tag: FormRulesTags.Form,
       implicitValueYAML: true,
-    },
-    slaveItemsWidth: {
+    }),
+    slaveItemsWidth: systemEnumerationRule({
       yaml: "ШиринаПодчиненныхЭлементов",
       xml: "ChildItemsWidth",
       xmlAliases: ["SlaveItemsWidth"],
-      type: "SystemEnumeration",
       typeSE: "ChildFormItemsWidth",
       tag: FormRulesTags.Form,
       implicitValueYAML: "Auto",
-    },
-    title: {
+    }),
+    title: i8nTextRule({
       yaml: "Заголовок",
-      type: "I8nText",
       tag: FormRulesTags.Form,
-    },
-    usedFormServer: {
+    }),
+    usedFormServer: systemEnumerationRule({
       yaml: "ИспользуемыйСерверФормы",
-      type: "SystemEnumeration",
       typeSE: "UsedServer",
       tag: FormRulesTags.Form,
       implicitValueYAML: "Main",
-    },
-    verticalScroll: {
+    }),
+    verticalScroll: systemEnumerationRule({
       yaml: "ВертикальнаяПрокрутка",
-      type: "SystemEnumeration",
       typeSE: "VerticalFormScroll",
       tag: FormRulesTags.Form,
       implicitValueYAML: "auto",
-    },
-    scalingMode: {
+    }),
+    scalingMode: systemEnumerationRule({
       yaml: "ВариантМасштаба",
       xml: "ScalingMode",
-      type: "SystemEnumeration",
       typeSE: "ClientApplicationFormScaleVariant",
       tag: FormRulesTags.Form,
       implicitValueYAML: "Auto",
-    },
-    verticalSpacing: {
+    }),
+    verticalSpacing: systemEnumerationRule({
       yaml: "ВертикальныйИнтервал",
-      type: "SystemEnumeration",
       typeSE: "FormItemSpacing",
       tag: FormRulesTags.Form,
       implicitValueYAML: "Auto",
-    },
-    width: {
+    }),
+    width: numberRule({
       yaml: "Ширина",
-      type: "number",
       tag: FormRulesTags.Form,
       implicitValueYAML: 0,
-    },
-    windowOptionsKey: {
+    }),
+    windowOptionsKey: stringRule({
       yaml: "КлючСохраненияПоложенияОкна",
-      type: "string",
       tag: FormRulesTags.Form,
-    },
+    }),
     // #endregion
     // #region Metadata
-    uuid: {
-      type: "string",
+    uuid: stringRule({
       xml: "_uuid",
       forReferenceOnly: true,
       tag: FormRulesTags.Metadata,
       xmlParents: ["Form"],
-    },
-    name: {
-      type: "string",
+    }),
+    name: stringRule({
       tag: FormRulesTags.Metadata,
       fromXML: false,
       xmlParents: ["Form", "Properties"],
-    },
-    formType: {
-      type: "SystemEnumeration",
+    }),
+    formType: systemEnumerationRule({
       typeSE: "FormType",
       tag: FormRulesTags.Metadata,
       defaultValueXML: "Managed",
       xml: "FormType",
       xmlParents: ["Form", "Properties"],
       implicitValueYAML: "Managed",
-    },
-    synonym: {
+    }),
+    synonym: i8nTextRule({
       yaml: "Синоним",
-      type: "I8nText",
       tag: FormRulesTags.Metadata,
       xmlParents: ["Form", "Properties"],
       defaultValueXMLEmpty: { items: {} },
-    },
-    comment: {
+    }),
+    comment: stringRule({
       yaml: "Комментарий",
-      type: "string",
       tag: FormRulesTags.Metadata,
       xmlParents: ["Form", "Properties"],
       defaultValueXMLEmpty: "",
       implicitValueYAML: "",
-    },
-    includeHelpInContents: {
+    }),
+    includeHelpInContents: booleanRule({
       yaml: "ВключатьСправкуВСодержание",
-      type: "boolean",
       tag: FormRulesTags.Metadata,
       xmlParents: ["Form", "Properties"],
       defaultValueXMLEmpty: false,
       implicitValueYAML: "Ложь",
-    },
+    }),
     usePurposes: {
       yaml: "НазначенияИспользования",
       type: "UsePurposes",
       tag: FormRulesTags.Metadata,
       xmlParents: ["Form", "Properties"],
     },
-    extendedPresentation: {
+    extendedPresentation: i8nTextRule({
       yaml: "РасширенноеПредставление",
-      type: "I8nText",
       tag: FormRulesTags.Metadata,
       xml: "ExtendedPresentation",
       xmlParents: ["Form", "Properties"],
       defaultValueXMLEmpty: { items: {} },
       defaultValueXMLRaw: "",
       preserveFromReferenceXML: true,
-    },
+    }),
     // #endregion
-
     // #region Catalog
-
-    choiceAvailable: {
+    choiceAvailable: booleanRule({
       yaml: "ВыборДоступен",
-      type: "boolean",
       tag: FormRulesTags.Form,
       noImplicitValueYAML: true,
-    },
-    useForFoldersAndItems: {
+    }),
+    useForFoldersAndItems: systemEnumerationRule({
       yaml: "ИспользованиеДляГруппИЭлементов",
-      type: "SystemEnumeration",
       typeSE: "FoldersAndItemsUse",
       tag: FormRulesTags.Form,
       implicitValueYAML: "Items",
-    },
+    }),
     choiceParameters: {
       yaml: "ПараметрыВыбора",
       type: "ChoiceParameters",
       tag: FormRulesTags.Form,
     },
-    choiceMode: {
+    choiceMode: systemEnumerationRule({
       yaml: "РежимВыбора",
-      type: "SystemEnumeration",
       typeSE: "ChoiceMode",
       tag: FormRulesTags.Form,
       noImplicitValueYAML: true,
-    },
+    }),
     // #endregion
-
     // #region Document
-    autoTime: {
+    autoTime: systemEnumerationRule({
       yaml: "АвтоВремя",
-      type: "SystemEnumeration",
       typeSE: "AutoTimeMode",
       tag: FormRulesTags.Form,
       implicitValueYAML: "CurrentOrLast",
-    },
-    usePostingMode: {
+    }),
+    usePostingMode: systemEnumerationRule({
       yaml: "РежимПроведения",
       xml: "UsePostingMode",
-      type: "SystemEnumeration",
       typeSE: "DocumentPostingMode",
       tag: FormRulesTags.Form,
       implicitValueYAML: "Auto",
-    },
-    repostOnWrite: {
+    }),
+    repostOnWrite: booleanRule({
       yaml: "ПерепроводитьПриЗаписи",
-      type: "boolean",
       tag: FormRulesTags.Form,
       implicitValueYAML: true,
-    },
+    }),
     // #endregion
-
     events: {
       type: "Events",
       yaml: "События",
@@ -571,7 +513,6 @@ export const ClientApplicationFormRules = {
         onUpdateUserSettingSetAtServer: "ПриОбновленииСоставаПользовательскихНастроекНаСервере",
         onClientApplicationSuspend: "ПриЗасыпанииКлиентскогоПриложения",
         onClientApplicationResume: "ПриПробужденииКлиентскогоПриложения",
-
         // #region Catalog
         valueChoice: "ВыборЗначения",
         beforeWrite: "ПередЗаписью",
@@ -580,7 +521,6 @@ export const ClientApplicationFormRules = {
         afterWriteAtServer: "ПослеЗаписиНаСервере",
         onWriteAtServer: "ПриЗаписиНаСервере",
         onReadAtServer: "ПриЧтенииНаСервере",
-        // #endregion
       },
     },
   },

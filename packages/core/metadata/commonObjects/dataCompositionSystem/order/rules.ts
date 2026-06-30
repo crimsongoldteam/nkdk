@@ -1,5 +1,5 @@
+import { systemEnumerationRule } from "~/metadata/systemEnumerations/types"
 import { MetadataItemRule } from "~/metadata/orchestration"
-
 export const OrderRules = {
   itemType: "Order",
   properties: {
@@ -8,13 +8,12 @@ export const OrderRules = {
       xml: "dcsset:item",
       yaml: "Элементы",
     },
-    viewMode: {
-      type: "SystemEnumeration",
+    viewMode: systemEnumerationRule({
       typeSE: "DataCompositionSettingsItemViewMode",
       xml: "dcsset:viewMode",
       yaml: "РежимОтображения",
       implicitValueYAML: "Auto",
-    },
+    }),
     userSettingID: {
       type: "UserSettingsID",
       xml: "dcsset:userSettingID",

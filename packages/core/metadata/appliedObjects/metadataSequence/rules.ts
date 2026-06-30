@@ -1,20 +1,24 @@
+import { i8nTextRule } from "~/metadata/commonObjects/i8nText/types"
+import { moduleRule } from "~/metadata/commonObjects/module/types"
+import { stringRule } from "~/metadata/commonObjects/string/types"
+import { uuidRule } from "~/metadata/commonObjects/uuid/types"
+import { xmlRootRule } from "~/metadata/commonObjects/xmlRoot/types"
+import { systemEnumerationRule } from "~/metadata/systemEnumerations/types"
 import { V8_MDCLASSES_ROOT } from "~/metadata/orchestration/appliedObject/presets"
 import { MetadataItemRule } from "~/metadata/orchestration/property/types"
-
 export const MetadataSequenceRules = {
   itemType: "MetadataSequence",
   metadataTargetOwner: { kind: "self", root: "Sequence" },
   itemTypePrefix: "Последовательность",
   xmlDir: "Sequences",
   properties: {
-    xmlRoot: {
-      type: "XMLRoot",
+    xmlRoot: xmlRootRule({
       container: "Sequence",
       rootAttributes: V8_MDCLASSES_ROOT,
       forReferenceOnly: true,
       toYAML: false,
       fromYAML: false,
-    },
+    }),
     internalInfo: {
       type: "InternalInfo",
       xmlParents: [],
@@ -25,37 +29,32 @@ export const MetadataSequenceRules = {
         { name: "SequenceRecordSet", category: "RecordSet" },
       ],
     },
-    uuid: {
-      type: "uuid",
+    uuid: uuidRule({
       xml: "_uuid",
       forReferenceOnly: true,
       xmlParents: [],
-    },
-    name: {
-      type: "string",
+    }),
+    name: stringRule({
       xmlParents: ["Properties"],
       required: true,
-    },
-    synonym: {
+    }),
+    synonym: i8nTextRule({
       yaml: "Синоним",
-      type: "I8nText",
       xmlParents: ["Properties"],
       defaultValueXMLRaw: "",
-    },
-    comment: {
+    }),
+    comment: stringRule({
       yaml: "Комментарий",
-      type: "string",
       xmlParents: ["Properties"],
       defaultValueXMLRaw: "",
-    },
-    moveBoundaryOnPosting: {
+    }),
+    moveBoundaryOnPosting: systemEnumerationRule({
       yaml: "ПеремещениеГраницыПриПроведении",
-      type: "SystemEnumeration",
       typeSE: "MoveBoundaryOnPosting",
       defaultValueXML: "Move",
       implicitValueYAML: "Move",
       xmlParents: ["Properties"],
-    },
+    }),
     documents: {
       yaml: "Документы",
       type: "MetadataItemLinks",
@@ -70,40 +69,36 @@ export const MetadataSequenceRules = {
       defaultValue: [],
       defaultValueXMLEmpty: [],
     },
-    dataLockControlMode: {
+    dataLockControlMode: systemEnumerationRule({
       yaml: "РежимУправленияБлокировкойДанных",
-      type: "SystemEnumeration",
       typeSE: "DefaultDataLockControlMode",
       defaultValueXML: "Managed",
       implicitValueYAML: "Managed",
       xmlParents: ["Properties"],
-    },
+    }),
     additionalIndexes: {
       yaml: "ДополнительныеИндексы",
       type: "AdditionalIndex",
       filePath: "Ext/AdditionalIndexes.xml",
     },
-    recordSetModule: {
-      type: "Module",
+    recordSetModule: moduleRule({
       nkdkPath: "МодульНабораЗаписей.bsl",
       xmlPath: "Ext/RecordSetModule.bsl",
       toXML: false,
       fromXML: false,
-    },
-    objectBelonging: {
+    }),
+    objectBelonging: systemEnumerationRule({
       yaml: "ПринадлежностьОбъекта",
-      type: "SystemEnumeration",
       typeSE: "ObjectBelonging",
       implicitValueYAML: "Native",
       toYAML: false,
       fromYAML: false,
       xmlParents: ["Properties"],
-    },
-    extendedConfigurationObject: {
+    }),
+    extendedConfigurationObject: stringRule({
       yaml: "ОбъектРасширяемойКонфигурации",
-      type: "string",
       runtimeOnly: true,
-    },
+    }),
     dimensions: {
       yaml: "Измерения",
       type: "MetadataSequenceDimensions",

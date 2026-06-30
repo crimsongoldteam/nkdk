@@ -1,30 +1,30 @@
+import { booleanRule } from "~/metadata/commonObjects/boolean/types"
+import { stringRule } from "~/metadata/commonObjects/string/types"
+import { systemEnumerationRule } from "~/metadata/systemEnumerations/types"
 import { MetadataItemRule } from "~/metadata/orchestration"
-
 export const FilterItemComparisonRules = {
   itemType: "FilterItemComparison",
   properties: {
-    use: {
-      type: "boolean",
+    use: booleanRule({
       xml: "dcsset:use",
       yaml: "Использование",
       implicitValueYAML: true,
       order: 1,
-    },
+    }),
     leftValue: {
       type: "DcsMetadataTypedValue",
       xml: "dcsset:left",
       yaml: "ЛевоеЗначение",
       order: 2,
     },
-    comparisonType: {
-      type: "SystemEnumeration",
+    comparisonType: systemEnumerationRule({
       typeSE: "DataCompositionComparisonType",
       xml: "dcsset:comparisonType",
       yaml: "ВидСравнения",
       defaultValueXML: "Equal",
       implicitValueYAML: "Equal",
       order: 3,
-    },
+    }),
     rightValue: {
       type: "DcsMetadataTypedValue",
       xml: "dcsset:right",
@@ -37,22 +37,20 @@ export const FilterItemComparisonRules = {
       yaml: "Представление",
       order: 5,
     },
-    application: {
-      type: "SystemEnumeration",
+    application: systemEnumerationRule({
       typeSE: "DataCompositionFilterApplicationType",
       xml: "dcsset:application",
       yaml: "Применение",
       order: 9,
       implicitValueYAML: "Items",
-    },
-    viewMode: {
-      type: "SystemEnumeration",
+    }),
+    viewMode: systemEnumerationRule({
       typeSE: "DataCompositionSettingsItemViewMode",
       xml: "dcsset:viewMode",
       yaml: "РежимОтображения",
       implicitValueYAML: "Auto",
       order: 6,
-    },
+    }),
     userSettingID: {
       type: "UserSettingsID",
       xml: "dcsset:userSettingID",
@@ -66,33 +64,29 @@ export const FilterItemComparisonRules = {
       yaml: "ПредставлениеПользовательскойНастройки",
       order: 8,
     },
-    parent: {
-      type: "string",
+    parent: stringRule({
       yaml: "Родитель",
       runtimeOnly: true,
       order: 10,
-    },
+    }),
   },
 } as const satisfies MetadataItemRule
-
 export const FilterItemGroupRules = {
   itemType: "FilterItemGroup",
   properties: {
-    use: {
-      type: "boolean",
+    use: booleanRule({
       xml: "dcsset:use",
       yaml: "Использование",
       implicitValueYAML: true,
       order: 7,
-    },
-    groupType: {
-      type: "SystemEnumeration",
+    }),
+    groupType: systemEnumerationRule({
       typeSE: "DataCompositionFilterItemsGroupType",
       xml: "dcsset:groupType",
       yaml: "ТипГруппы",
       implicitValueYAML: "AndGroup",
       order: 1,
-    },
+    }),
     items: {
       type: "FilterItem",
       xml: "dcsset:item",
@@ -105,22 +99,20 @@ export const FilterItemGroupRules = {
       yaml: "Представление",
       order: 2,
     },
-    application: {
-      type: "SystemEnumeration",
+    application: systemEnumerationRule({
       typeSE: "DataCompositionFilterApplicationType",
       xml: "dcsset:application",
       yaml: "Применение",
       implicitValueYAML: "Items",
       order: 8,
-    },
-    viewMode: {
-      type: "SystemEnumeration",
+    }),
+    viewMode: systemEnumerationRule({
       typeSE: "DataCompositionSettingsItemViewMode",
       xml: "dcsset:viewMode",
       yaml: "РежимОтображения",
       implicitValueYAML: "Auto",
       order: 3,
-    },
+    }),
     userSettingID: {
       type: "UserSettingsID",
       xml: "dcsset:userSettingID",

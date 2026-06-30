@@ -1,21 +1,21 @@
+import { booleanRule } from "~/metadata/commonObjects/boolean/types"
+import { stringRule } from "~/metadata/commonObjects/string/types"
+import { systemEnumerationRule } from "~/metadata/systemEnumerations/types"
 import { MetadataItemRule } from "~/metadata/orchestration/property/types"
-
 export const DynamicListRules = {
   itemType: "DynamicList",
   xsiType: "DynamicList",
   properties: {
-    autoFillAvailableFields: {
-      type: "boolean",
+    autoFillAvailableFields: booleanRule({
       yaml: "АвтоЗаполнениеДоступныхПолей",
       order: 0,
       implicitValueYAML: true,
-    },
-    autoSaveUserSettings: {
-      type: "boolean",
+    }),
+    autoSaveUserSettings: booleanRule({
       yaml: "АвтоматическоеСохранениеПользовательскихНастроек",
       implicitValueYAML: true,
       order: 7,
-    },
+    }),
     calculatedFields: {
       type: "CalculatedFields",
       xml: "CalculatedField",
@@ -29,21 +29,19 @@ export const DynamicListRules = {
       xmlParents: ["ListSettings"],
       order: 11,
     },
-    currentUserSettingsKey: {
-      type: "string",
+    currentUserSettingsKey: stringRule({
       yaml: "КлючТекущихПользовательскихНастроек",
       fromXML: false,
       toXML: false,
-    },
-    customQuery: {
-      type: "boolean",
+    }),
+    customQuery: booleanRule({
       xml: "ManualQuery",
       yaml: "ПроизвольныйЗапрос",
       order: 1,
       defaultValue: false,
       defaultValueXML: false,
       implicitValueYAML: false,
-    },
+    }),
     dataParameters: {
       type: "SettingsParameterValueCollection",
       xml: "dcscor:item",
@@ -55,12 +53,11 @@ export const DynamicListRules = {
         valueType: "Field",
       },
     },
-    dynamicDataRead: {
-      type: "boolean",
+    dynamicDataRead: booleanRule({
       yaml: "ДинамическоеСчитываниеДанных",
       order: 2,
       implicitValueYAML: true,
-    },
+    }),
     fields: {
       type: "DataSetFieldFields",
       xml: "Field",
@@ -74,12 +71,11 @@ export const DynamicListRules = {
       xmlParents: ["ListSettings"],
       order: 8,
     },
-    getInvisibleFieldPresentations: {
-      type: "boolean",
+    getInvisibleFieldPresentations: booleanRule({
       yaml: "ПолучениеПредставленийДляНевидимыхПолей",
       implicitValueYAML: true,
       order: 7,
-    },
+    }),
     group: {
       type: "StructureItemGroup",
       xml: "dcsset:item",
@@ -87,11 +83,10 @@ export const DynamicListRules = {
       xmlParents: ["ListSettings"],
       order: 12,
     },
-    mainTable: {
-      type: "string",
+    mainTable: stringRule({
       yaml: "ОсновнаяТаблица",
       order: 6,
-    },
+    }),
     order: {
       type: "Order",
       xml: "dcsset:order",
@@ -105,21 +100,19 @@ export const DynamicListRules = {
       yaml: "Параметры",
       order: 5,
     },
-    queryText: {
-      type: "string",
+    queryText: stringRule({
       xml: "QueryText",
       order: 3,
       // Значение хранится во внешнем файле — не в YAML
       externalFile: { dir: "ДинамическийСписок", extension: "query", nameFrom: "parent" },
-    },
-    keyType: {
-      type: "SystemEnumeration",
+    }),
+    keyType: systemEnumerationRule({
       typeSE: "DynamicListKeyType",
       xml: "KeyType",
       yaml: "ВидКлюча",
       order: 4,
       implicitValueYAML: "Auto",
-    },
+    }),
     keyFields: {
       type: "DynamicListKeyFields",
       xml: "KeyField",
@@ -127,20 +120,18 @@ export const DynamicListRules = {
       order: 5,
       preserveFromReferenceXML: true,
     },
-    itemsViewMode: {
-      type: "SystemEnumeration",
+    itemsViewMode: systemEnumerationRule({
       typeSE: "DataCompositionSettingsItemViewMode",
       xml: "dcsset:itemsViewMode",
       yaml: "РежимОтображенияСтруктуры",
       xmlParents: ["ListSettings"],
       order: 13,
       implicitValueYAML: "Normal",
-    },
-    settingsComposer: {
-      type: "string",
+    }),
+    settingsComposer: stringRule({
       yaml: "КомпоновщикНастроек",
       runtimeOnly: true,
-    },
+    }),
     itemsUserSettingID: {
       type: "UserSettingsID",
       xml: "dcsset:itemsUserSettingID",

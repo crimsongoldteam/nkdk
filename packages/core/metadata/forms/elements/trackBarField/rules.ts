@@ -1,39 +1,39 @@
+import { booleanRule } from "~/metadata/commonObjects/boolean/types"
+import { numberRule } from "~/metadata/commonObjects/number/types"
+import { systemEnumerationRule } from "~/metadata/systemEnumerations/types"
 import { registerElementRule } from "~/metadata/orchestration/formElement/ruleFactory"
 import { PropertyRule } from "~/metadata/orchestration/property/types"
 import { ElementRule } from "../../../orchestration/formElement/types"
 import { formFieldCommonProperties, formFieldDisabledTableRelatedProperties } from "../formField/rules"
 export type { ElementRule, PropertyRule }
-
 export const TrackBarFieldRules = {
   itemType: "TrackBarField",
   enterpriseField: "FormField",
   enterpriseFieldType: "FormFieldType.TrackBarField",
   properties: {
-    autoMaxHeight: { yaml: "АвтоМаксимальнаяВысота", type: "boolean", implicitValueYAML: true },
-    autoMaxWidth: { yaml: "АвтоМаксимальнаяШирина", type: "boolean", implicitValueYAML: true },
-    height: { yaml: "Высота", type: "number", implicitValueYAML: 2 },
-    horizontalStretch: { yaml: "РастягиватьПоГоризонтали", type: "boolean", implicitValueYAML: true },
-    largeStep: { yaml: "БольшойШаг", type: "number", implicitValueYAML: 10 },
-    markingAppearance: {
+    autoMaxHeight: booleanRule({ yaml: "АвтоМаксимальнаяВысота", implicitValueYAML: true }),
+    autoMaxWidth: booleanRule({ yaml: "АвтоМаксимальнаяШирина", implicitValueYAML: true }),
+    height: numberRule({ yaml: "Высота", implicitValueYAML: 2 }),
+    horizontalStretch: booleanRule({ yaml: "РастягиватьПоГоризонтали", implicitValueYAML: true }),
+    largeStep: numberRule({ yaml: "БольшойШаг", implicitValueYAML: 10 }),
+    markingAppearance: systemEnumerationRule({
       yaml: "ОтображениеРазметки",
-      type: "SystemEnumeration",
       typeSE: "TrackBarMarkingAppearance",
       implicitValueYAML: "BottomRight",
-    },
-    markingStep: { yaml: "ШагРазметки", type: "number", implicitValueYAML: 5 },
-    maxHeight: { yaml: "МаксимальнаяВысота", type: "number", implicitValueYAML: 0 },
-    maxValue: { yaml: "МаксимальноеЗначение", type: "number", implicitValueYAML: 100 },
-    maxWidth: { yaml: "МаксимальнаяШирина", type: "number", implicitValueYAML: 0 },
-    minValue: { yaml: "МинимальноеЗначение", type: "number", implicitValueYAML: 0 },
-    orientation: {
+    }),
+    markingStep: numberRule({ yaml: "ШагРазметки", implicitValueYAML: 5 }),
+    maxHeight: numberRule({ yaml: "МаксимальнаяВысота", implicitValueYAML: 0 }),
+    maxValue: numberRule({ yaml: "МаксимальноеЗначение", implicitValueYAML: 100 }),
+    maxWidth: numberRule({ yaml: "МаксимальнаяШирина", implicitValueYAML: 0 }),
+    minValue: numberRule({ yaml: "МинимальноеЗначение", implicitValueYAML: 0 }),
+    orientation: systemEnumerationRule({
       yaml: "Ориентация",
-      type: "SystemEnumeration",
       typeSE: "FormItemOrientation",
       implicitValueYAML: "Horizontal",
-    },
-    step: { yaml: "Шаг", type: "number", implicitValueYAML: 1 },
-    verticalStretch: { yaml: "РастягиватьПоВертикали", type: "boolean", implicitValueYAML: false },
-    width: { yaml: "Ширина", type: "number", implicitValueYAML: 32 },
+    }),
+    step: numberRule({ yaml: "Шаг", implicitValueYAML: 1 }),
+    verticalStretch: booleanRule({ yaml: "РастягиватьПоВертикали", implicitValueYAML: false }),
+    width: numberRule({ yaml: "Ширина", implicitValueYAML: 32 }),
     events: {
       type: "Events",
       yaml: "События",
@@ -53,5 +53,4 @@ export const TrackBarFieldRules = {
     ...formFieldDisabledTableRelatedProperties,
   },
 } as const satisfies ElementRule
-
 registerElementRule("TrackBarField", TrackBarFieldRules)

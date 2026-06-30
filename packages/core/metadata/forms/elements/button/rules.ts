@@ -1,8 +1,8 @@
+import { stringRule } from "~/metadata/commonObjects/string/types"
 import { registerElementRule } from "~/metadata/orchestration/formElement/ruleFactory"
 import { PropertyRule } from "~/metadata/orchestration/property/types"
 import { ElementRule } from "../../../orchestration/formElement/types"
 export type { ElementRule, PropertyRule }
-
 export const commonButtonProperties = {
   type: {
     yaml: "Вид",
@@ -58,10 +58,26 @@ export const commonButtonProperties = {
     toEnterprise: false,
   },
   dataPath: { yaml: "Данные", xml: "DataPath", type: "DataPath", defaultType: "string" },
-  textColor: { yaml: "ЦветТекста", type: "Color", metadataTarget: { kind: "object", roots: ["StyleItem"], filters: [{ kind: "styleItemType", values: ["Color"] }] } },
-  backColor: { yaml: "ЦветФона", type: "Color", metadataTarget: { kind: "object", roots: ["StyleItem"], filters: [{ kind: "styleItemType", values: ["Color"] }] } },
-  borderColor: { yaml: "ЦветРамки", type: "Color", metadataTarget: { kind: "object", roots: ["StyleItem"], filters: [{ kind: "styleItemType", values: ["Color"] }] } },
-  font: { yaml: "Шрифт", type: "Font", metadataTarget: { kind: "object", roots: ["StyleItem"], filters: [{ kind: "styleItemType", values: ["Font"] }] } },
+  textColor: {
+    yaml: "ЦветТекста",
+    type: "Color",
+    metadataTarget: { kind: "object", roots: ["StyleItem"], filters: [{ kind: "styleItemType", values: ["Color"] }] },
+  },
+  backColor: {
+    yaml: "ЦветФона",
+    type: "Color",
+    metadataTarget: { kind: "object", roots: ["StyleItem"], filters: [{ kind: "styleItemType", values: ["Color"] }] },
+  },
+  borderColor: {
+    yaml: "ЦветРамки",
+    type: "Color",
+    metadataTarget: { kind: "object", roots: ["StyleItem"], filters: [{ kind: "styleItemType", values: ["Color"] }] },
+  },
+  font: {
+    yaml: "Шрифт",
+    type: "Font",
+    metadataTarget: { kind: "object", roots: ["StyleItem"], filters: [{ kind: "styleItemType", values: ["Font"] }] },
+  },
   picture: { yaml: "Картинка", type: "Picture", metadataTarget: { kind: "object", roots: ["CommonPicture"] } },
   title: {
     yaml: "Заголовок",
@@ -125,35 +141,30 @@ export const commonButtonProperties = {
   },
   onlyInAllActions: { yaml: "ТолькоВоВсехДействиях", type: "boolean", noImplicitValueYAML: true },
 } as const satisfies Omit<ElementRule["properties"], "name">
-
 export const ButtonRules = {
   itemType: "Button",
   enterpriseField: "FormButton",
   enterpriseFieldType: "FormButtonType.UsualButton",
   properties: {
-    name: {
-      type: "string",
+    name: stringRule({
       xml: "_name",
       required: true,
-    },
+    }),
     ...commonButtonProperties,
   },
 } as const satisfies ElementRule
-
 export const CommandBarButtonRules = {
   itemType: "CommandBarButton",
   xmlTag: "Button",
   enterpriseField: "FormButton",
   enterpriseFieldType: "FormButtonType.CommandBarButton",
   properties: {
-    name: {
-      type: "string",
+    name: stringRule({
       xml: "_name",
       required: true,
-    },
+    }),
     ...commonButtonProperties,
   },
 } as const satisfies ElementRule
-
 registerElementRule("Button", ButtonRules)
 registerElementRule("CommandBarButton", CommandBarButtonRules)

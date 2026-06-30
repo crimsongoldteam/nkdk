@@ -1,25 +1,22 @@
+import { systemEnumerationRule } from "~/metadata/systemEnumerations/types"
 import { uuidPropertyRule } from "~/metadata/commonObjects/uuid/rule"
 import { addDefaultLanguageNameToSynonym } from "~/metadata/helpers/synonymHelpers"
 import { getParentFromContext } from "~/metadata/context/helpers"
 import { ConfigurationContext } from "~/metadata/context/types"
 import { ConfigurationContextWithExportToXML } from "~/metadata/context/types"
 import { MetadataItemRule, PropertyRule } from "~/metadata/orchestration/property/types"
-
 const propertiesParents = ["Properties"]
 const childObjectsParents = ["ChildObjects"]
 const emptyAttributes: [] = []
 const tabularSectionExternalMetadata = { segment: "TabularSection", placement: "ownerChild" } as const
-
 const getParentNameByItemType = (context: ConfigurationContextWithExportToXML, parentItemType: string): string => {
   const elements = context.exportToXML.itemsTree
   for (let i = elements.length - 1; i >= 0; i--) {
     const element = elements[i]
     if (String(element.itemType) === parentItemType) return element.name
   }
-
   return getParentFromContext(context).name
 }
-
 const commonTabularSectionProperties = {
   uuid: uuidPropertyRule,
   name: {
@@ -115,7 +112,6 @@ const commonTabularSectionProperties = {
     xml: "Attribute",
   },
 } as const satisfies Record<string, PropertyRule>
-
 export const MetadataTabularSectionRules = {
   itemType: "MetadataTabularSection",
   externalMetadata: tabularSectionExternalMetadata,
@@ -124,7 +120,12 @@ export const MetadataTabularSectionRules = {
     internalInfo: {
       type: "InternalInfo",
       forReferenceOnly: true,
-      getName: (params: { context: ConfigurationContextWithExportToXML; metadata: { name: string } }) => {
+      getName: (params: {
+        context: ConfigurationContextWithExportToXML
+        metadata: {
+          name: string
+        }
+      }) => {
         const { context, metadata } = params
         const parent = getParentFromContext(context, ["MetadataCatalog"])
         const parentPath = parent.name
@@ -135,19 +136,17 @@ export const MetadataTabularSectionRules = {
         { name: `CatalogTabularSectionRow`, category: "TabularSectionRow" },
       ],
     },
-    use: {
+    use: systemEnumerationRule({
       yaml: "Использование",
       xml: "Use",
-      type: "SystemEnumeration",
       typeSE: "AttributeUse",
       xmlParents: propertiesParents,
       defaultValueXML: "ForItem",
       implicitValueYAML: "ForItem",
       order: 7,
-    },
+    }),
   },
 } as const satisfies MetadataItemRule
-
 export const MetadataDocumentTabularSectionRules = {
   itemType: "MetadataTabularSection",
   externalMetadata: tabularSectionExternalMetadata,
@@ -156,7 +155,12 @@ export const MetadataDocumentTabularSectionRules = {
     internalInfo: {
       type: "InternalInfo",
       forReferenceOnly: true,
-      getName: (params: { context: ConfigurationContextWithExportToXML; metadata: { name: string } }) => {
+      getName: (params: {
+        context: ConfigurationContextWithExportToXML
+        metadata: {
+          name: string
+        }
+      }) => {
         const { context, metadata } = params
         const parent = getParentFromContext(context, ["MetadataDocument"])
         const parentPath = parent.name
@@ -169,7 +173,6 @@ export const MetadataDocumentTabularSectionRules = {
     },
   },
 } as const satisfies MetadataItemRule
-
 export const MetadataTaskTabularSectionRules = {
   itemType: "MetadataTabularSection",
   externalMetadata: tabularSectionExternalMetadata,
@@ -178,7 +181,12 @@ export const MetadataTaskTabularSectionRules = {
     internalInfo: {
       type: "InternalInfo",
       forReferenceOnly: true,
-      getName: (params: { context: ConfigurationContextWithExportToXML; metadata: { name: string } }) => {
+      getName: (params: {
+        context: ConfigurationContextWithExportToXML
+        metadata: {
+          name: string
+        }
+      }) => {
         const parentPath = getParentNameByItemType(params.context, "MetadataTask")
         return `${parentPath}.${params.metadata.name}`
       },
@@ -189,7 +197,6 @@ export const MetadataTaskTabularSectionRules = {
     },
   },
 } as const satisfies MetadataItemRule
-
 export const MetadataBusinessProcessTabularSectionRules = {
   itemType: "MetadataTabularSection",
   externalMetadata: tabularSectionExternalMetadata,
@@ -198,7 +205,12 @@ export const MetadataBusinessProcessTabularSectionRules = {
     internalInfo: {
       type: "InternalInfo",
       forReferenceOnly: true,
-      getName: (params: { context: ConfigurationContextWithExportToXML; metadata: { name: string } }) => {
+      getName: (params: {
+        context: ConfigurationContextWithExportToXML
+        metadata: {
+          name: string
+        }
+      }) => {
         const parentPath = getParentNameByItemType(params.context, "MetadataBusinessProcess")
         return `${parentPath}.${params.metadata.name}`
       },
@@ -209,7 +221,6 @@ export const MetadataBusinessProcessTabularSectionRules = {
     },
   },
 } as const satisfies MetadataItemRule
-
 export const MetadataDataProcessorTabularSectionRules = {
   itemType: "MetadataTabularSection",
   externalMetadata: tabularSectionExternalMetadata,
@@ -218,7 +229,12 @@ export const MetadataDataProcessorTabularSectionRules = {
     internalInfo: {
       type: "InternalInfo",
       forReferenceOnly: true,
-      getName: (params: { context: ConfigurationContextWithExportToXML; metadata: { name: string } }) => {
+      getName: (params: {
+        context: ConfigurationContextWithExportToXML
+        metadata: {
+          name: string
+        }
+      }) => {
         const { context, metadata } = params
         const parentPath = getParentNameByItemType(context, "MetadataDataProcessor")
         return `${parentPath}.${metadata.name}`
@@ -230,7 +246,6 @@ export const MetadataDataProcessorTabularSectionRules = {
     },
   },
 } as const satisfies MetadataItemRule
-
 export const MetadataReportTabularSectionRules = {
   itemType: "MetadataTabularSection",
   externalMetadata: tabularSectionExternalMetadata,
@@ -239,7 +254,12 @@ export const MetadataReportTabularSectionRules = {
     internalInfo: {
       type: "InternalInfo",
       forReferenceOnly: true,
-      getName: (params: { context: ConfigurationContextWithExportToXML; metadata: { name: string } }) => {
+      getName: (params: {
+        context: ConfigurationContextWithExportToXML
+        metadata: {
+          name: string
+        }
+      }) => {
         const { context, metadata } = params
         const parentPath = getParentNameByItemType(context, "MetadataReport")
         return `${parentPath}.${metadata.name}`
@@ -251,7 +271,6 @@ export const MetadataReportTabularSectionRules = {
     },
   },
 } as const satisfies MetadataItemRule
-
 export const MetadataExchangePlanTabularSectionRules = {
   itemType: "MetadataTabularSection",
   externalMetadata: tabularSectionExternalMetadata,
@@ -260,7 +279,12 @@ export const MetadataExchangePlanTabularSectionRules = {
     internalInfo: {
       type: "InternalInfo",
       forReferenceOnly: true,
-      getName: (params: { context: ConfigurationContextWithExportToXML; metadata: { name: string } }) => {
+      getName: (params: {
+        context: ConfigurationContextWithExportToXML
+        metadata: {
+          name: string
+        }
+      }) => {
         const { context, metadata } = params
         const parentPath = getParentNameByItemType(context, "MetadataExchangePlan")
         return `${parentPath}.${metadata.name}`
@@ -272,7 +296,6 @@ export const MetadataExchangePlanTabularSectionRules = {
     },
   },
 } as const satisfies MetadataItemRule
-
 export const MetadataChartOfAccountsTabularSectionRules = {
   itemType: "MetadataTabularSection",
   externalMetadata: tabularSectionExternalMetadata,
@@ -281,7 +304,12 @@ export const MetadataChartOfAccountsTabularSectionRules = {
     internalInfo: {
       type: "InternalInfo",
       forReferenceOnly: true,
-      getName: (params: { context: ConfigurationContextWithExportToXML; metadata: { name: string } }) => {
+      getName: (params: {
+        context: ConfigurationContextWithExportToXML
+        metadata: {
+          name: string
+        }
+      }) => {
         const parent = getParentFromContext(params.context, ["MetadataChartOfAccounts" as never])
         return `${parent.name}.${params.metadata.name}`
       },
@@ -292,7 +320,6 @@ export const MetadataChartOfAccountsTabularSectionRules = {
     },
   },
 } as const satisfies MetadataItemRule
-
 export const MetadataChartOfCalculationTypesTabularSectionRules = {
   itemType: "MetadataTabularSection",
   externalMetadata: tabularSectionExternalMetadata,
@@ -301,7 +328,12 @@ export const MetadataChartOfCalculationTypesTabularSectionRules = {
     internalInfo: {
       type: "InternalInfo",
       forReferenceOnly: true,
-      getName: (params: { context: ConfigurationContextWithExportToXML; metadata: { name: string } }) => {
+      getName: (params: {
+        context: ConfigurationContextWithExportToXML
+        metadata: {
+          name: string
+        }
+      }) => {
         const parent = getParentFromContext(params.context, ["MetadataChartOfCalculationTypes" as never])
         return `${parent.name}.${params.metadata.name}`
       },
@@ -312,7 +344,6 @@ export const MetadataChartOfCalculationTypesTabularSectionRules = {
     },
   },
 } as const satisfies MetadataItemRule
-
 export const MetadataChartOfCharacteristicTypesTabularSectionRules = {
   itemType: "MetadataTabularSection",
   externalMetadata: tabularSectionExternalMetadata,
@@ -321,7 +352,12 @@ export const MetadataChartOfCharacteristicTypesTabularSectionRules = {
     internalInfo: {
       type: "InternalInfo",
       forReferenceOnly: true,
-      getName: (params: { context: ConfigurationContextWithExportToXML; metadata: { name: string } }) => {
+      getName: (params: {
+        context: ConfigurationContextWithExportToXML
+        metadata: {
+          name: string
+        }
+      }) => {
         const parent = getParentFromContext(params.context, ["MetadataChartOfCharacteristicTypes" as never])
         return `${parent.name}.${params.metadata.name}`
       },
@@ -330,15 +366,14 @@ export const MetadataChartOfCharacteristicTypesTabularSectionRules = {
         { name: "ChartOfCharacteristicTypesTabularSectionRow", category: "TabularSectionRow" },
       ],
     },
-    use: {
+    use: systemEnumerationRule({
       yaml: "Использование",
       xml: "Use",
-      type: "SystemEnumeration",
       typeSE: "AttributeUse",
       xmlParents: propertiesParents,
       defaultValueXML: "ForItem",
       implicitValueYAML: "ForItem",
       order: 7,
-    },
+    }),
   },
 } as const satisfies MetadataItemRule

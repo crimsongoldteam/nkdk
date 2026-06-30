@@ -1,9 +1,8 @@
+import { systemEnumerationRule } from "~/metadata/systemEnumerations/types"
 import { MetadataItemRule } from "~/metadata/orchestration"
 import type { TypeRulesOperations } from "~/metadata/orchestration/property/fn"
-
 const conditionalAppearanceViewModeDefaultValue = ({ operation }: { operation: TypeRulesOperations }) =>
   operation === "importFromYAML" ? undefined : "QuickAccess"
-
 export const ConditionalAppearanceRules = {
   itemType: "ConditionalAppearance",
   properties: {
@@ -12,15 +11,14 @@ export const ConditionalAppearanceRules = {
       xml: "dcsset:item",
       yaml: "Элементы",
     },
-    viewMode: {
-      type: "SystemEnumeration",
+    viewMode: systemEnumerationRule({
       typeSE: "DataCompositionSettingsItemViewMode",
       xml: "dcsset:viewMode",
       yaml: "РежимОтображения",
       implicitValueYAML: "Normal",
       defaultValueXML: "QuickAccess",
       defaultValue: conditionalAppearanceViewModeDefaultValue,
-    },
+    }),
     userSettingID: {
       type: "UserSettingsID",
       xml: "dcsset:userSettingID",

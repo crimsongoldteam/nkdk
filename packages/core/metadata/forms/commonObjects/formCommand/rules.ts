@@ -1,6 +1,9 @@
+import { booleanRule } from "~/metadata/commonObjects/boolean/types"
+import { i8nTextRule } from "~/metadata/commonObjects/i8nText/types"
+import { stringRule } from "~/metadata/commonObjects/string/types"
+import { systemEnumerationRule } from "~/metadata/systemEnumerations/types"
 import { splitPascalCase } from "~/metadata/helpers/canConvertToPascalCase"
 import { MetadataItemRule } from "~/metadata/orchestration/property/types"
-
 export const FormCommandRules = {
   itemType: "FormCommand",
   properties: {
@@ -9,16 +12,24 @@ export const FormCommandRules = {
       type: "ElementId",
       forReferenceOnly: true,
     },
-    name: {
-      type: "string",
+    name: stringRule({
       xml: "_name",
       required: true,
-    },
-    title: {
+    }),
+    title: i8nTextRule({
       yaml: "Заголовок",
-      type: "I8nText",
       skipEmptyToXML: true,
-      defaultValue: ({ context, name, operation }: { context: { defaultLanguage: string }; name?: string; operation: string }) => {
+      defaultValue: ({
+        context,
+        name,
+        operation,
+      }: {
+        context: {
+          defaultLanguage: string
+        }
+        name?: string
+        operation: string
+      }) => {
         if (operation === "importFromXML") {
           return { items: { [context.defaultLanguage]: "" } }
         }
@@ -28,53 +39,48 @@ export const FormCommandRules = {
         }
       },
       excludeIfEqualNameYAML: true,
-    },
-    toolTip: {
+    }),
+    toolTip: i8nTextRule({
       yaml: "Подсказка",
-      type: "I8nText",
-    },
+    }),
     use: {
       yaml: "Использование",
       type: "UserVisible",
     },
-    shortcut: {
+    shortcut: stringRule({
       yaml: "СочетаниеКлавиш",
       xml: "Shortcut",
-      type: "string",
-    },
+    }),
     picture: {
       yaml: "Картинка",
-      type: "Picture", metadataTarget: { kind: "object", roots: ["CommonPicture"] },
+      type: "Picture",
+      metadataTarget: { kind: "object", roots: ["CommonPicture"] },
     },
-    action: {
+    action: stringRule({
       yaml: "Действие",
       xml: "Action",
-      type: "string",
-    },
+    }),
     functionalOptions: {
       yaml: "ФункциональныеОпции",
       type: "FunctionalOptionsProperty",
     },
-    representation: {
+    representation: systemEnumerationRule({
       yaml: "ОтображениеКнопки",
       xml: "Representation",
-      type: "SystemEnumeration",
       typeSE: "ButtonRepresentation",
       implicitValueYAML: "Auto",
-    },
-    currentRowUse: {
+    }),
+    currentRowUse: systemEnumerationRule({
       yaml: "ИспользованиеТекущейСтроки",
       xml: "CurrentRowUse",
-      type: "SystemEnumeration",
       typeSE: "CurrentRowUse",
       implicitValueYAML: "Auto",
-    },
-    modifiesSavedData: {
+    }),
+    modifiesSavedData: booleanRule({
       yaml: "ИзменяемыеДанные",
       xml: "ModifiesSavedData",
-      type: "boolean",
       implicitValueYAML: false,
-    },
+    }),
     table: {
       yaml: "Таблица",
       xml: "AssociatedTableElementId",

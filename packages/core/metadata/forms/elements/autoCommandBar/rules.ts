@@ -1,3 +1,6 @@
+import { booleanRule } from "~/metadata/commonObjects/boolean/types"
+import { stringRule } from "~/metadata/commonObjects/string/types"
+import { systemEnumerationRule } from "~/metadata/systemEnumerations/types"
 import { getParentFromContext } from "~/metadata/context/helpers"
 import { BaseElement } from "~/metadata/forms/elements/baseElement/types"
 import { registerElementAsType, registerElementRule } from "~/metadata/orchestration/formElement/ruleFactory"
@@ -6,36 +9,31 @@ import { ConfigurationContextWithExportToXML } from "../../../context/types"
 import { ElementRule } from "../../../orchestration/formElement/types"
 import { getAutoCommandBarName } from "./helper"
 export type { ElementRule, PropertyRule }
-
 export const AutoCommandBarRules = {
   itemType: "AutoCommandBar",
   enterpriseField: "FormGroup",
   enterpriseFieldType: "FormGroupType.CommandBar",
   properties: {
-    name: {
-      type: "string",
+    name: stringRule({
       xml: "_name",
       fromXML: false,
-    },
-    autofill: {
+    }),
+    autofill: booleanRule({
       yaml: "Автозаполнение",
-      type: "boolean",
       defaultValue: true,
       implicitValueYAML: "Истина",
-    },
-    displayImportance: {
+    }),
+    displayImportance: systemEnumerationRule({
       yaml: "ВажностьПриОтображении",
-      type: "SystemEnumeration",
       typeSE: "DisplayImportance",
       xml: "_DisplayImportance",
       implicitValueYAML: "Auto",
-    },
-    horizontalAlign: {
+    }),
+    horizontalAlign: systemEnumerationRule({
       yaml: "ГоризонтальноеПоложение",
-      type: "SystemEnumeration",
       typeSE: "ItemHorizontalLocation",
       implicitValueYAML: "Left",
-    },
+    }),
     childItems: {
       yaml: "Элементы",
       type: "CommandBarChildItems",
@@ -43,7 +41,6 @@ export const AutoCommandBarRules = {
     },
   },
 } as const satisfies ElementRule
-
 registerElementAsType({
   propertyType: "AutoCommandBar",
   elementRule: AutoCommandBarRules,
@@ -56,7 +53,6 @@ registerElementAsType({
     name: "ФормаКоманднаяПанель",
   }),
 })
-
 registerElementAsType({
   propertyType: "TableAutoCommandBar",
   elementRule: AutoCommandBarRules,
@@ -71,5 +67,4 @@ registerElementAsType({
     return { name: elementName }
   },
 })
-
 registerElementRule("AutoCommandBar", AutoCommandBarRules)

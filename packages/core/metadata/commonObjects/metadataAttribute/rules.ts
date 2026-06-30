@@ -1,8 +1,8 @@
+import { systemEnumerationRule } from "~/metadata/systemEnumerations/types"
 import { addDefaultLanguageNameToSynonym } from "~/metadata/helpers/synonymHelpers"
 import { ConfigurationContext } from "~/metadata/context/types"
 import { MetadataItemRule, PropertyRule } from "~/metadata/orchestration/property/types"
 import { uuidPropertyRule } from "~/metadata/commonObjects/uuid/rule"
-
 const commonAttributeProperties = {
   uuid: uuidPropertyRule,
   name: {
@@ -263,7 +263,6 @@ const commonAttributeProperties = {
     xmlParents: ["Properties"],
   },
 } as const satisfies Record<string, PropertyRule>
-
 const fillProperties = {
   fillFromFillingValue: {
     yaml: "ЗаполнятьИзДанныхЗаполнения",
@@ -285,7 +284,6 @@ const fillProperties = {
     defaultValueXMLRaw: { "_xsi:nil": true },
   },
 } as const satisfies Record<string, PropertyRule>
-
 const binaryDataStorageLocationUseFieldProperty = {
   binaryDataStorageLocationUseField: {
     yaml: "ПолеИспользованияХраненияВХранилищеДвоичныхДанных",
@@ -301,7 +299,6 @@ const binaryDataStorageLocationUseFieldProperty = {
     },
   },
 } as const satisfies Record<string, PropertyRule>
-
 export const CATALOG_ATTRIBUTE_ALLOWED_TYPES = [
   "string",
   "decimal",
@@ -335,9 +332,7 @@ export const CATALOG_ATTRIBUTE_ALLOWED_TYPES = [
   "ExternalDataSourceTableRef.*",
   "ExternalDataSourceCubeDimensionTableRef.*",
 ] as const
-
 const attributeExternalMetadata = { segment: "Attribute", placement: "ownerChild" } as const
-
 export const MetadataAttributeRules = {
   itemType: "MetadataAttribute",
   metadataTargetOwner: { kind: "inherit" },
@@ -345,30 +340,27 @@ export const MetadataAttributeRules = {
   properties: {
     ...commonAttributeProperties,
     ...fillProperties,
-    use: {
+    use: systemEnumerationRule({
       yaml: "Использование",
       xml: "Use",
-      type: "SystemEnumeration",
       typeSE: "AttributeUse",
       defaultValueXML: "ForItem",
       implicitValueYAML: "ForItem",
       preserveFromReferenceXML: true,
       xmlParents: ["Properties"],
       order: 26,
-    },
-    binaryDataStorageLocationUse: {
+    }),
+    binaryDataStorageLocationUse: systemEnumerationRule({
       yaml: "ИспользованиеХраненияВХранилищеДвоичныхДанных",
       xml: "BinaryDataStorageLocationUse",
-      type: "SystemEnumeration",
       typeSE: "BinaryDataStorageLocationUse",
       implicitValueYAML: "Use",
       xmlParents: ["Properties"],
       order: 30,
-    },
+    }),
     ...binaryDataStorageLocationUseFieldProperty,
   },
 } as const satisfies MetadataItemRule
-
 export const MetadataCatalogAttributeRules = {
   itemType: "MetadataAttribute",
   metadataTargetOwner: { kind: "inherit" },
@@ -380,30 +372,27 @@ export const MetadataCatalogAttributeRules = {
       allowedTypes: CATALOG_ATTRIBUTE_ALLOWED_TYPES,
     },
     ...fillProperties,
-    use: {
+    use: systemEnumerationRule({
       yaml: "Использование",
       xml: "Use",
-      type: "SystemEnumeration",
       typeSE: "AttributeUse",
       defaultValueXML: "ForItem",
       implicitValueYAML: "ForItem",
       preserveFromReferenceXML: true,
       xmlParents: ["Properties"],
       order: 26,
-    },
-    binaryDataStorageLocationUse: {
+    }),
+    binaryDataStorageLocationUse: systemEnumerationRule({
       yaml: "ИспользованиеХраненияВХранилищеДвоичныхДанных",
       xml: "BinaryDataStorageLocationUse",
-      type: "SystemEnumeration",
       typeSE: "BinaryDataStorageLocationUse",
       implicitValueYAML: "Use",
       xmlParents: ["Properties"],
       order: 30,
-    },
+    }),
     ...binaryDataStorageLocationUseFieldProperty,
   },
 } as const satisfies MetadataItemRule
-
 export const MetadataDocumentAttributeRules = {
   itemType: "MetadataAttribute",
   metadataTargetOwner: { kind: "inherit" },
@@ -414,7 +403,6 @@ export const MetadataDocumentAttributeRules = {
     ...binaryDataStorageLocationUseFieldProperty,
   },
 } as const satisfies MetadataItemRule
-
 export const MetadataTabularSectionAttributeRules = {
   itemType: "MetadataAttribute",
   metadataTargetOwner: { kind: "inherit" },

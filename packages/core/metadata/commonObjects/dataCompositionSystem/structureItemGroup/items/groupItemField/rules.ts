@@ -1,39 +1,37 @@
+import { booleanRule } from "~/metadata/commonObjects/boolean/types"
+import { stringRule } from "~/metadata/commonObjects/string/types"
+import { systemEnumerationRule } from "~/metadata/systemEnumerations/types"
 import { MetadataItemRule } from "~/metadata/orchestration"
-
 export const GroupItemFieldRules = {
   itemType: "GroupItemField",
   properties: {
-    use: {
-      type: "boolean",
+    use: booleanRule({
       xml: "dcsset:use",
       yaml: "Использование",
       implicitValueYAML: true,
       order: 1,
-    },
-    field: {
-      type: "string",
+    }),
+    field: stringRule({
       xml: "dcsset:field",
       yaml: "Поле",
       order: 2,
-    },
-    groupType: {
-      type: "SystemEnumeration",
+    }),
+    groupType: systemEnumerationRule({
       typeSE: "DataCompositionGroupType",
       xml: "dcsset:groupType",
       yaml: "ТипГруппировки",
       defaultValueXML: "Items",
       implicitValueYAML: "Items",
       order: 3,
-    },
-    periodAdditionType: {
-      type: "SystemEnumeration",
+    }),
+    periodAdditionType: systemEnumerationRule({
       typeSE: "DataCompositionPeriodAdditionType",
       xml: "dcsset:periodAdditionType",
       yaml: "ТипДополнения",
       defaultValueXML: "None",
       implicitValueYAML: "None",
       order: 4,
-    },
+    }),
     periodAdditionBegin: {
       type: "dateTime",
       typedXML: true,

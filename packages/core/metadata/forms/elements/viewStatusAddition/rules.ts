@@ -1,3 +1,4 @@
+import { stringRule } from "~/metadata/commonObjects/string/types"
 import { getParentFromContext } from "~/metadata/context/helpers"
 import { ConfigurationContextWithExportToXML } from "~/metadata/context/types"
 import { registerElementAsType, registerElementRule } from "~/metadata/orchestration/formElement/ruleFactory"
@@ -6,14 +7,34 @@ import { ElementRule } from "../../../orchestration/formElement/types"
 import { BaseElement } from "../baseElement/types"
 import { getViewStatusAdditionName } from "./helper"
 export type { ElementRule, PropertyRule }
-
 const commonProperties = {
   autoMaxWidth: { yaml: "АвтоМаксимальнаяШирина", type: "boolean", implicitValueYAML: true },
-  backColor: { yaml: "ЦветФона", type: "Color", metadataTarget: { kind: "object", roots: ["StyleItem"], filters: [{ kind: "styleItemType", values: ["Color"] }] } },
-  border: { yaml: "Рамка", type: "Border", metadataTarget: { kind: "object", roots: ["StyleItem"], filters: [{ kind: "styleItemType", values: ["Border"] }] } },
-  borderColor: { yaml: "ЦветРамки", type: "Color", metadataTarget: { kind: "object", roots: ["StyleItem"], filters: [{ kind: "styleItemType", values: ["Color"] }] } },
-  buttonsBackColor: { yaml: "ЦветФонаКнопок", type: "Color", metadataTarget: { kind: "object", roots: ["StyleItem"], filters: [{ kind: "styleItemType", values: ["Color"] }] }, xml: "ButtonColor" },
-  font: { yaml: "Шрифт", type: "Font", metadataTarget: { kind: "object", roots: ["StyleItem"], filters: [{ kind: "styleItemType", values: ["Font"] }] } },
+  backColor: {
+    yaml: "ЦветФона",
+    type: "Color",
+    metadataTarget: { kind: "object", roots: ["StyleItem"], filters: [{ kind: "styleItemType", values: ["Color"] }] },
+  },
+  border: {
+    yaml: "Рамка",
+    type: "Border",
+    metadataTarget: { kind: "object", roots: ["StyleItem"], filters: [{ kind: "styleItemType", values: ["Border"] }] },
+  },
+  borderColor: {
+    yaml: "ЦветРамки",
+    type: "Color",
+    metadataTarget: { kind: "object", roots: ["StyleItem"], filters: [{ kind: "styleItemType", values: ["Color"] }] },
+  },
+  buttonsBackColor: {
+    yaml: "ЦветФонаКнопок",
+    type: "Color",
+    metadataTarget: { kind: "object", roots: ["StyleItem"], filters: [{ kind: "styleItemType", values: ["Color"] }] },
+    xml: "ButtonColor",
+  },
+  font: {
+    yaml: "Шрифт",
+    type: "Font",
+    metadataTarget: { kind: "object", roots: ["StyleItem"], filters: [{ kind: "styleItemType", values: ["Font"] }] },
+  },
   horizontalAlign: {
     yaml: "ГоризонтальноеПоложение",
     xml: "HorizontalLocation",
@@ -23,9 +44,21 @@ const commonProperties = {
   },
   horizontalStretch: { yaml: "РастягиватьПоГоризонтали", type: "boolean", noImplicitValueYAML: true },
   maxWidth: { yaml: "МаксимальнаяШирина", type: "number", implicitValueYAML: 0 },
-  textColor: { yaml: "ЦветТекста", type: "Color", metadataTarget: { kind: "object", roots: ["StyleItem"], filters: [{ kind: "styleItemType", values: ["Color"] }] } },
-  titleFont: { yaml: "ШрифтЗаголовка", type: "Font", metadataTarget: { kind: "object", roots: ["StyleItem"], filters: [{ kind: "styleItemType", values: ["Font"] }] } },
-  titleTextColor: { yaml: "ЦветТекстаЗаголовка", type: "Color", metadataTarget: { kind: "object", roots: ["StyleItem"], filters: [{ kind: "styleItemType", values: ["Color"] }] } },
+  textColor: {
+    yaml: "ЦветТекста",
+    type: "Color",
+    metadataTarget: { kind: "object", roots: ["StyleItem"], filters: [{ kind: "styleItemType", values: ["Color"] }] },
+  },
+  titleFont: {
+    yaml: "ШрифтЗаголовка",
+    type: "Font",
+    metadataTarget: { kind: "object", roots: ["StyleItem"], filters: [{ kind: "styleItemType", values: ["Font"] }] },
+  },
+  titleTextColor: {
+    yaml: "ЦветТекстаЗаголовка",
+    type: "Color",
+    metadataTarget: { kind: "object", roots: ["StyleItem"], filters: [{ kind: "styleItemType", values: ["Color"] }] },
+  },
   width: { yaml: "Ширина", type: "number", implicitValueYAML: 0 },
   contextMenu: { yaml: "КонтекстноеМеню", type: "ContextMenu" },
   displayImportance: {
@@ -50,7 +83,6 @@ const commonProperties = {
     implicitValueYAML: "Auto",
   },
 } as const satisfies MetadataItemRule["properties"]
-
 export const SingleViewStatusAdditionRules = {
   itemType: "SingleViewStatusAddition",
   enterpriseField: "FormField",
@@ -65,13 +97,12 @@ export const SingleViewStatusAdditionRules = {
     ...commonProperties,
   },
 } as const satisfies ElementRule
-
 export const ViewStatusAdditionRules = {
   itemType: "ViewStatusAddition",
   enterpriseField: "FormField",
   enterpriseFieldType: "None",
   properties: {
-    name: { type: "string", xml: "_name", required: true },
+    name: stringRule({ xml: "_name", required: true }),
     additionSource: {
       yaml: "Источник",
       type: "TableAdditionalSource",
@@ -90,7 +121,6 @@ export const ViewStatusAdditionRules = {
     },
   },
 } as const satisfies ElementRule
-
 registerElementAsType({
   propertyType: "SingleViewStatusAddition",
   elementRule: SingleViewStatusAdditionRules,
@@ -105,6 +135,5 @@ registerElementAsType({
     return { name }
   },
 })
-
 registerElementRule("ViewStatusAddition", ViewStatusAdditionRules)
 registerElementRule("SingleViewStatusAddition", SingleViewStatusAdditionRules)

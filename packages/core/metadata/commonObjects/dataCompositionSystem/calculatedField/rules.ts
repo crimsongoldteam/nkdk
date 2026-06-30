@@ -1,21 +1,19 @@
+import { stringRule } from "~/metadata/commonObjects/string/types"
 import { MetadataItemRule } from "~/metadata/orchestration"
-
 export const CalculatedFieldRules = {
   itemType: "CalculatedField",
   properties: {
-    dataPath: {
-      type: "string",
+    dataPath: stringRule({
       xml: "dcssch:dataPath",
       yaml: "ПутьКДанным",
       order: 1,
-    },
-    expression: {
-      type: "string",
+    }),
+    expression: stringRule({
       xml: "dcssch:expression",
       yaml: "Выражение",
       order: 2,
       defaultValueXMLEmpty: "",
-    },
+    }),
     title: {
       type: "DcsLocalStringType",
       xml: "dcssch:title",
@@ -40,12 +38,11 @@ export const CalculatedFieldRules = {
       yaml: "ОграничениеИспользования",
       order: 6,
     },
-    presentationExpression: {
-      type: "string",
+    presentationExpression: stringRule({
       xml: "dcssch:presentationExpression",
       yaml: "ВыражениеПредставления",
       order: 7,
-    },
+    }),
     orderExpressions: {
       type: "CalculatedFieldOrderExpression",
       xml: "dcssch:orderExpression",

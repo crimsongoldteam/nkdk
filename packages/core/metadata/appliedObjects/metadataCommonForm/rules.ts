@@ -1,76 +1,73 @@
+import { booleanRule } from "~/metadata/commonObjects/boolean/types"
+import { i8nTextRule } from "~/metadata/commonObjects/i8nText/types"
+import { moduleRule } from "~/metadata/commonObjects/module/types"
+import { stringRule } from "~/metadata/commonObjects/string/types"
+import { uuidRule } from "~/metadata/commonObjects/uuid/types"
+import { xmlRootRule } from "~/metadata/commonObjects/xmlRoot/types"
+import { systemEnumerationRule } from "~/metadata/systemEnumerations/types"
 import "~/metadata/forms/clientApplicationForm/propertyRules"
 import { V8_MDCLASSES_ROOT } from "~/metadata/orchestration/appliedObject/presets"
 import { MetadataItemRule } from "~/metadata/orchestration/property/types"
-
 const properties = ["Properties"]
-
 export const MetadataCommonFormRules = {
   itemType: "MetadataCommonForm",
   metadataTargetOwner: { kind: "self", root: "CommonForm" },
   itemTypePrefix: "ОбщаяФорма",
   xmlDir: "CommonForms",
   properties: {
-    xmlRoot: {
-      type: "XMLRoot",
+    xmlRoot: xmlRootRule({
       container: "CommonForm",
       rootAttributes: V8_MDCLASSES_ROOT,
       forReferenceOnly: true,
       toYAML: false,
       fromYAML: false,
-    },
-    uuid: {
-      type: "uuid",
+    }),
+    uuid: uuidRule({
       xml: "_uuid",
       forReferenceOnly: true,
       xmlParents: [],
-    },
-    name: {
-      type: "string",
+    }),
+    name: stringRule({
       xmlParents: properties,
       required: true,
-    },
-    synonym: {
+    }),
+    synonym: i8nTextRule({
       yaml: "Синоним",
-      type: "I8nText",
       xmlParents: properties,
       defaultValueXMLRaw: "",
-    },
-    comment: {
+    }),
+    comment: stringRule({
       yaml: "Комментарий",
-      type: "string",
       xmlParents: properties,
       defaultValueXMLRaw: "",
-    },
+    }),
     form: {
       yaml: "Форма",
       type: "ClientApplicationForm",
       filePath: "Ext/Form.xml",
       exportReferenceFileOnMissingValue: true,
     },
-    module: {
-      type: "Module",
+    module: moduleRule({
       nkdkPath: "Модуль.bsl",
       xmlPath: "Ext/Form/Module.bsl",
       toXML: false,
       fromXML: false,
-    },
-    formType: {
+    }),
+    formType: systemEnumerationRule({
       yaml: "ТипФормы",
       xml: "FormType",
-      type: "SystemEnumeration",
       typeSE: "FormType",
       xmlParents: properties,
       defaultValueXML: "Managed",
       implicitValueYAML: "Managed",
-    },
-    includeHelpInContents: {
+    }),
+    includeHelpInContents: booleanRule({
       yaml: "ВключатьСправкуВСодержание",
       xml: "IncludeHelpInContents",
-      type: "boolean",
       xmlParents: properties,
       defaultValueXML: false,
       implicitValueYAML: false,
-    },
+    }),
     help: {
       type: "Help",
       externalMetadata: { segment: "Help", placement: "derivedEntry" },
@@ -86,27 +83,24 @@ export const MetadataCommonFormRules = {
       type: "UsePurposes",
       xmlParents: properties,
     },
-    useStandardCommands: {
+    useStandardCommands: booleanRule({
       yaml: "ИспользоватьСтандартныеКоманды",
       xml: "UseStandardCommands",
-      type: "boolean",
       xmlParents: properties,
       defaultValueXML: true,
       implicitValueYAML: true,
-    },
-    extendedPresentation: {
+    }),
+    extendedPresentation: i8nTextRule({
       yaml: "РасширенноеПредставление",
       xml: "ExtendedPresentation",
-      type: "I8nText",
       xmlParents: properties,
       defaultValueXMLRaw: "",
-    },
-    explanation: {
+    }),
+    explanation: i8nTextRule({
       yaml: "Пояснение",
       xml: "Explanation",
-      type: "I8nText",
       xmlParents: properties,
       defaultValueXMLRaw: "",
-    },
+    }),
   },
 } as const satisfies MetadataItemRule

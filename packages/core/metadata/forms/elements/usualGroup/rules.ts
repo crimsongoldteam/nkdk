@@ -1,150 +1,135 @@
+import { booleanRule } from "~/metadata/commonObjects/boolean/types"
+import { i8nTextRule } from "~/metadata/commonObjects/i8nText/types"
+import { stringRule } from "~/metadata/commonObjects/string/types"
+import { systemEnumerationRule } from "~/metadata/systemEnumerations/types"
 import { registerElementRule } from "~/metadata/orchestration/formElement/ruleFactory"
 import { PropertyRule } from "~/metadata/orchestration/property/types"
 import { ElementRule } from "../../../orchestration/formElement/types"
 import { formGroupCommonProperties } from "../formGroup/rules"
 export type { ElementRule, PropertyRule }
-
 export const UsualGroupRules = {
   itemType: "UsualGroup",
   enterpriseField: "FormGroup",
   enterpriseFieldType: "FormGroupType.UsualGroup",
   properties: {
-    name: {
-      type: "string",
+    name: stringRule({
       xml: "_name",
       required: true,
-    },
+    }),
     backColor: {
       yaml: "ЦветФона",
       type: "Color",
       metadataTarget: { kind: "object", roots: ["StyleItem"], filters: [{ kind: "styleItemType", values: ["Color"] }] },
     },
-    behavior: {
+    behavior: systemEnumerationRule({
       yaml: "Поведение",
-      type: "SystemEnumeration",
       typeSE: "UsualGroupBehavior",
       implicitValueYAML: "Auto",
-    },
+    }),
     childItems: {
       yaml: "Элементы",
       type: "GroupChildItems",
       defaultValue: [],
     },
-    childItemsHorizontalAlign: {
+    childItemsHorizontalAlign: systemEnumerationRule({
       yaml: "ГоризонтальноеПоложениеПодчиненных",
-      type: "SystemEnumeration",
       typeSE: "ItemHorizontalLocation",
       xml: "HorizontalAlign",
       implicitValueYAML: "Auto",
-    },
-    childItemsVerticalAlign: {
+    }),
+    childItemsVerticalAlign: systemEnumerationRule({
       yaml: "ВертикальноеПоложениеПодчиненных",
-      type: "SystemEnumeration",
       typeSE: "ItemVerticalAlign",
       xml: "VerticalAlign",
       implicitValueYAML: "Auto",
-    },
-    collapsed: { yaml: "Свернута", type: "boolean", implicitValueYAML: false },
-    collapsedRepresentationTitle: {
+    }),
+    collapsed: booleanRule({ yaml: "Свернута", implicitValueYAML: false }),
+    collapsedRepresentationTitle: i8nTextRule({
       yaml: "ЗаголовокСвернутогоОтображения",
-      type: "I8nText",
-    },
-    controlRepresentation: {
+    }),
+    controlRepresentation: systemEnumerationRule({
       yaml: "ОтображениеУправления",
-      type: "SystemEnumeration",
       typeSE: "UsualGroupControlRepresentation",
       implicitValueYAML: "TitleHyperlink",
-    },
-    currentRowUse: {
+    }),
+    currentRowUse: systemEnumerationRule({
       yaml: "ИспользованиеТекущейСтроки",
-      type: "SystemEnumeration",
       typeSE: "CurrentRowUse",
       implicitValueYAML: "Auto",
-    },
-    displayImportance: {
+    }),
+    displayImportance: systemEnumerationRule({
       yaml: "ВажностьПриОтображении",
       xml: "_DisplayImportance",
-      type: "SystemEnumeration",
       typeSE: "DisplayImportance",
       implicitValueYAML: "Auto",
-    },
-    format: { yaml: "Формат", type: "I8nText" },
-    group: {
+    }),
+    format: i8nTextRule({ yaml: "Формат" }),
+    group: systemEnumerationRule({
       yaml: "Группировка",
-      type: "SystemEnumeration",
       typeSE: "ChildFormItemsGroup",
       defaultValue: "HorizontalIfPossible",
       // defaultValueXML: "HorizontalIfPossible",
       implicitValueYAML: "ГоризонтальнаяЕслиВозможно",
-    },
+    }),
     hiddenRepresentationTitleBackColor: {
       yaml: "ЦветФонаЗаголовкаСкрытогоОтображения",
       type: "Color",
       metadataTarget: { kind: "object", roots: ["StyleItem"], filters: [{ kind: "styleItemType", values: ["Color"] }] },
       xml: "HiddenStateTitleBackColor",
     },
-    horizontalSpacing: {
+    horizontalSpacing: systemEnumerationRule({
       yaml: "ГоризонтальныйИнтервал",
-      type: "SystemEnumeration",
       typeSE: "FormItemSpacing",
       implicitValueYAML: "Auto",
-    },
-    itemsAndTitlesAlign: {
+    }),
+    itemsAndTitlesAlign: systemEnumerationRule({
       yaml: "ВыравниваниеЭлементовИЗаголовков",
       xml: "ChildrenAlign",
-      type: "SystemEnumeration",
       typeSE: "ItemsAndTitlesAlignVariant",
       implicitValueYAML: "Auto",
-    },
-    representation: {
+    }),
+    representation: systemEnumerationRule({
       yaml: "Отображение",
-      type: "SystemEnumeration",
       typeSE: "UsualGroupRepresentation",
       implicitValueYAML: "WeakSeparation",
-    },
-    slaveItemsWidth: {
+    }),
+    slaveItemsWidth: systemEnumerationRule({
       yaml: "ШиринаПодчиненныхЭлементов",
       xml: "ChildItemsWidth",
-      type: "SystemEnumeration",
       typeSE: "ChildFormItemsWidth",
       noImplicitValueYAML: true,
-    },
-    showLeftMargin: { yaml: "ОтображатьОтступСлева", type: "boolean", implicitValueYAML: true },
-    showTitle: {
+    }),
+    showLeftMargin: booleanRule({ yaml: "ОтображатьОтступСлева", implicitValueYAML: true }),
+    showTitle: booleanRule({
       yaml: "ОтображатьЗаголовок",
-      type: "boolean",
       defaultValue: true,
       implicitValueYAML: "Истина",
-    },
+    }),
     table: {
       yaml: "Таблица",
       xml: "AssociatedTableElementId",
       type: "AssociatedTable",
       toEnterprise: false,
     },
-    throughAlign: {
+    throughAlign: systemEnumerationRule({
       yaml: "СквозноеВыравнивание",
-      type: "SystemEnumeration",
       typeSE: "ThroughAlign",
       implicitValueYAML: "Auto",
-    },
+    }),
     titleDataPath: { yaml: "ПутьКДаннымЗаголовка", type: "DataPath", defaultType: "string" },
-    united: { yaml: "Объединенная", type: "boolean", implicitValueYAML: true },
-    verticalSpacing: {
+    united: booleanRule({ yaml: "Объединенная", implicitValueYAML: true }),
+    verticalSpacing: systemEnumerationRule({
       yaml: "ВертикальныйИнтервал",
-      type: "SystemEnumeration",
       typeSE: "FormItemSpacing",
       implicitValueYAML: "Auto",
-    },
+    }),
     ...formGroupCommonProperties,
-    type: {
+    type: systemEnumerationRule({
       yaml: "Вид",
-      type: "SystemEnumeration",
       typeSE: "FormGroupType",
       runtimeOnly: true,
       implicitValueYAML: "UsualGroup",
-    },
+    }),
   },
 } as const satisfies ElementRule
-
 registerElementRule("UsualGroup", UsualGroupRules)

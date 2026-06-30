@@ -1,19 +1,20 @@
+import { booleanRule } from "~/metadata/commonObjects/boolean/types"
+import { i8nTextRule } from "~/metadata/commonObjects/i8nText/types"
+import { stringRule } from "~/metadata/commonObjects/string/types"
+import { systemEnumerationRule } from "~/metadata/systemEnumerations/types"
 import { splitPascalCase } from "~/metadata/helpers/canConvertToPascalCase"
 import { MetadataItemRule } from "~/metadata/orchestration/property/types"
-
 export const FormAttributeRules = {
   itemType: "FormAttribute",
   properties: {
-    id: {
+    id: stringRule({
       xml: "_id",
-      type: "string",
       forReferenceOnly: true,
-    },
-    name: {
-      type: "string",
+    }),
+    name: stringRule({
       xml: "_name",
       required: true,
-    },
+    }),
     valueType: {
       yaml: "ТипЗначения",
       type: "TypeDescription",
@@ -21,11 +22,20 @@ export const FormAttributeRules = {
       order: 99,
       addTypeDescriptionAttributeToXML: true,
     },
-    title: {
+    title: i8nTextRule({
       yaml: "Заголовок",
-      type: "I8nText",
       skipEmptyToXML: true,
-      defaultValue: ({ context, name, operation }: { context: { defaultLanguage: string }; name?: string; operation: string }) => {
+      defaultValue: ({
+        context,
+        name,
+        operation,
+      }: {
+        context: {
+          defaultLanguage: string
+        }
+        name?: string
+        operation: string
+      }) => {
         if (operation === "importFromXML") {
           return {
             items: { [context.defaultLanguage]: "" },
@@ -36,10 +46,9 @@ export const FormAttributeRules = {
           items: { [context.defaultLanguage]: splitPascalCase(name) },
         }
       },
-
       excludeIfEqualNameYAML: true,
       order: 1,
-    },
+    }),
     type: {
       yaml: "Тип",
       type: "TypeDescription",
@@ -47,21 +56,18 @@ export const FormAttributeRules = {
       defaultValueXMLRaw: {},
       order: 2,
     },
-
-    mainAttribute: {
+    mainAttribute: booleanRule({
       yaml: "ОсновнойРеквизит",
       xml: "MainAttribute",
-      type: "boolean",
       implicitValueYAML: false,
       order: 5,
-    },
-    storedData: {
+    }),
+    storedData: booleanRule({
       yaml: "СохраняемыеДанные",
       xml: "SavedData",
-      type: "boolean",
       implicitValueYAML: false,
       order: 6,
-    },
+    }),
     view: {
       yaml: "Просмотр",
       type: "UserVisible",
@@ -72,13 +78,12 @@ export const FormAttributeRules = {
       type: "UserVisible",
       order: 4,
     },
-    fillCheck: {
+    fillCheck: systemEnumerationRule({
       yaml: "ПроверкаЗаполнения",
-      type: "SystemEnumeration",
       typeSE: "FillChecking",
       implicitValueYAML: "DontCheck",
       order: 7,
-    },
+    }),
     columns: {
       yaml: "Колонки",
       type: "FormAttributeColumns",
@@ -94,7 +99,6 @@ export const FormAttributeRules = {
       toXML: false,
       fromYAML: false,
     },
-
     functionalOptions: {
       yaml: "ФункциональныеОпции",
       type: "FunctionalOptionsProperty",
@@ -159,31 +163,22 @@ export const FormAttributeRules = {
     },
   },
 } as const satisfies MetadataItemRule
-
 export const FormAttributeColumnRules = {
   itemType: "FormAttributeColumn",
   properties: {
-    id: {
+    id: stringRule({
       xml: "_id",
-      type: "string",
       forReferenceOnly: true,
-    },
-    name: {
-      type: "string",
+    }),
+    name: stringRule({
       xml: "_name",
       required: true,
-    },
-    title: {
+    }),
+    title: i8nTextRule({
       yaml: "Заголовок",
-      type: "I8nText",
       excludeIfEqualNameYAML: true,
       order: 2,
-      // defaultValue: (context: ConfigurationContext) => {
-      //   return {
-      //     items: { [context.defaultLanguage]: "" },
-      //   }
-      // },
-    },
+    }),
     type: {
       yaml: "Тип",
       type: "TypeDescription",
@@ -201,13 +196,12 @@ export const FormAttributeColumnRules = {
       type: "UserVisible",
       order: 0,
     },
-    fillCheck: {
+    fillCheck: systemEnumerationRule({
       yaml: "ПроверкаЗаполнения",
-      type: "SystemEnumeration",
       typeSE: "FillChecking",
       order: 1,
       implicitValueYAML: "DontCheck",
-    },
+    }),
     functionalOptions: {
       yaml: "ФункциональныеОпции",
       type: "FunctionalOptionsProperty",

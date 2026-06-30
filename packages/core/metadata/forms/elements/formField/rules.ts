@@ -108,8 +108,16 @@ export const formFieldCommonProperties = {
     yaml: "Заголовок",
     type: "I8nText",
   },
-  footerPicture: { yaml: "КартинкаПодвала", type: "Picture", metadataTarget: { kind: "object", roots: ["CommonPicture"] } },
-  headerPicture: { yaml: "КартинкаШапки", type: "Picture", metadataTarget: { kind: "object", roots: ["CommonPicture"] } },
+  footerPicture: {
+    yaml: "КартинкаПодвала",
+    type: "Picture",
+    metadataTarget: { kind: "object", roots: ["CommonPicture"] },
+  },
+  headerPicture: {
+    yaml: "КартинкаШапки",
+    type: "Picture",
+    metadataTarget: { kind: "object", roots: ["CommonPicture"] },
+  },
   contextMenu: { yaml: "КонтекстноеМеню", type: "ContextMenu", toEnterprise: false },
   showInFooter: {
     yaml: "ОтображатьВПодвале",
@@ -160,12 +168,36 @@ export const formFieldCommonProperties = {
   shortcut: { yaml: "СочетаниеКлавиш", type: "string", toEnterprise: false },
   footerText: { yaml: "ТекстПодвала", type: "I8nText" },
   readOnly: { yaml: "ТолькоПросмотр", type: "boolean", implicitValueYAML: false },
-  titleTextColor: { yaml: "ЦветТекстаЗаголовка", type: "Color", metadataTarget: { kind: "object", roots: ["StyleItem"], filters: [{ kind: "styleItemType", values: ["Color"] }] } },
-  footerTextColor: { yaml: "ЦветТекстаПодвала", type: "Color", metadataTarget: { kind: "object", roots: ["StyleItem"], filters: [{ kind: "styleItemType", values: ["Color"] }] } },
-  titleBackColor: { yaml: "ЦветФонаЗаголовка", type: "Color", metadataTarget: { kind: "object", roots: ["StyleItem"], filters: [{ kind: "styleItemType", values: ["Color"] }] } },
-  footerBackColor: { yaml: "ЦветФонаПодвала", type: "Color", metadataTarget: { kind: "object", roots: ["StyleItem"], filters: [{ kind: "styleItemType", values: ["Color"] }] } },
-  titleFont: { yaml: "ШрифтЗаголовка", type: "Font", metadataTarget: { kind: "object", roots: ["StyleItem"], filters: [{ kind: "styleItemType", values: ["Font"] }] } },
-  footerFont: { yaml: "ШрифтПодвала", type: "Font", metadataTarget: { kind: "object", roots: ["StyleItem"], filters: [{ kind: "styleItemType", values: ["Font"] }] } },
+  titleTextColor: {
+    yaml: "ЦветТекстаЗаголовка",
+    type: "Color",
+    metadataTarget: { kind: "object", roots: ["StyleItem"], filters: [{ kind: "styleItemType", values: ["Color"] }] },
+  },
+  footerTextColor: {
+    yaml: "ЦветТекстаПодвала",
+    type: "Color",
+    metadataTarget: { kind: "object", roots: ["StyleItem"], filters: [{ kind: "styleItemType", values: ["Color"] }] },
+  },
+  titleBackColor: {
+    yaml: "ЦветФонаЗаголовка",
+    type: "Color",
+    metadataTarget: { kind: "object", roots: ["StyleItem"], filters: [{ kind: "styleItemType", values: ["Color"] }] },
+  },
+  footerBackColor: {
+    yaml: "ЦветФонаПодвала",
+    type: "Color",
+    metadataTarget: { kind: "object", roots: ["StyleItem"], filters: [{ kind: "styleItemType", values: ["Color"] }] },
+  },
+  titleFont: {
+    yaml: "ШрифтЗаголовка",
+    type: "Font",
+    metadataTarget: { kind: "object", roots: ["StyleItem"], filters: [{ kind: "styleItemType", values: ["Font"] }] },
+  },
+  footerFont: {
+    yaml: "ШрифтПодвала",
+    type: "Font",
+    metadataTarget: { kind: "object", roots: ["StyleItem"], filters: [{ kind: "styleItemType", values: ["Font"] }] },
+  },
   userVisible: {
     yaml: "Использование",
     type: "UserVisible",

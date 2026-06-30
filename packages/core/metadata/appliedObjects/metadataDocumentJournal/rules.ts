@@ -1,10 +1,15 @@
+import { booleanRule } from "~/metadata/commonObjects/boolean/types"
+import { i8nTextRule } from "~/metadata/commonObjects/i8nText/types"
+import { moduleRule } from "~/metadata/commonObjects/module/types"
+import { stringRule } from "~/metadata/commonObjects/string/types"
+import { uuidRule } from "~/metadata/commonObjects/uuid/types"
+import { xmlRootRule } from "~/metadata/commonObjects/xmlRoot/types"
+import { systemEnumerationRule } from "~/metadata/systemEnumerations/types"
 import { V8_MDCLASSES_ROOT } from "~/metadata/orchestration/appliedObject/presets"
 import { MetadataItemRule } from "~/metadata/orchestration/property/types"
 import { MetadataCommandRules } from "../metadataCommand/rules"
-
 const properties = ["Properties"]
 const childObjects = ["ChildObjects"]
-
 export const MetadataDocumentJournalStandardAttributeNames: Record<string, string> = {
   Type: "Тип",
   Ref: "Ссылка",
@@ -13,7 +18,6 @@ export const MetadataDocumentJournalStandardAttributeNames: Record<string, strin
   DeletionMark: "ПометкаУдаления",
   Number: "Номер",
 }
-
 const MetadataDocumentJournalCommandRules = {
   ...MetadataCommandRules,
   properties: {
@@ -24,21 +28,19 @@ const MetadataDocumentJournalCommandRules = {
     },
   },
 } as const satisfies MetadataItemRule
-
 export const MetadataDocumentJournalRules = {
   itemType: "MetadataDocumentJournal",
   metadataTargetOwner: { kind: "self", root: "DocumentJournal" },
   itemTypePrefix: "ЖурналДокументов",
   xmlDir: "DocumentJournals",
   properties: {
-    xmlRoot: {
-      type: "XMLRoot",
+    xmlRoot: xmlRootRule({
       container: "DocumentJournal",
       rootAttributes: V8_MDCLASSES_ROOT,
       forReferenceOnly: true,
       toYAML: false,
       fromYAML: false,
-    },
+    }),
     internalInfo: {
       type: "InternalInfo",
       xmlParents: [],
@@ -49,51 +51,44 @@ export const MetadataDocumentJournalRules = {
         { name: "DocumentJournalManager", category: "Manager" },
       ],
     },
-    uuid: {
-      type: "uuid",
+    uuid: uuidRule({
       xml: "_uuid",
       forReferenceOnly: true,
       xmlParents: [],
-    },
-    name: {
-      type: "string",
+    }),
+    name: stringRule({
       xmlParents: properties,
       required: true,
       defaultValue: ({ name }: { name?: string }) => name,
-    },
-    synonym: {
+    }),
+    synonym: i8nTextRule({
       yaml: "Синоним",
-      type: "I8nText",
       xmlParents: properties,
       defaultValueXMLRaw: "",
-    },
-    comment: {
+    }),
+    comment: stringRule({
       yaml: "Комментарий",
-      type: "string",
       xmlParents: properties,
       defaultValueXMLRaw: "",
-    },
-    defaultForm: {
+    }),
+    defaultForm: stringRule({
       yaml: "ОсновнаяФорма",
-      type: "string",
       xmlParents: properties,
       metadataTarget: { kind: "member", owner: "this", memberKinds: ["Form"], objectRoots: ["CommonForm"] },
       defaultValueXMLRaw: "",
-    },
-    auxiliaryForm: {
+    }),
+    auxiliaryForm: stringRule({
       yaml: "ДополнительнаяФорма",
-      type: "string",
       xmlParents: properties,
       metadataTarget: { kind: "member", owner: "this", memberKinds: ["Form"], objectRoots: ["CommonForm"] },
       defaultValueXMLRaw: "",
-    },
-    useStandardCommands: {
+    }),
+    useStandardCommands: booleanRule({
       yaml: "ИспользоватьСтандартныеКоманды",
-      type: "boolean",
       defaultValueXML: true,
       implicitValueYAML: true,
       xmlParents: properties,
-    },
+    }),
     registeredDocuments: {
       yaml: "РегистрируемыеДокументы",
       type: "MetadataItemLinks",
@@ -101,51 +96,45 @@ export const MetadataDocumentJournalRules = {
       xml: "RegisteredDocuments",
       xmlParents: properties,
     },
-    includeHelpInContents: {
+    includeHelpInContents: booleanRule({
       yaml: "ВключатьСправкуВСодержание",
-      type: "boolean",
       defaultValueXML: false,
       implicitValueYAML: false,
       xmlParents: properties,
-    },
+    }),
     standardAttributes: {
       yaml: "СтандартныеРеквизиты",
       type: "StandardAttributeDescriptions",
       standartAttributeNames: MetadataDocumentJournalStandardAttributeNames,
       xmlParents: properties,
     },
-    listPresentation: {
+    listPresentation: i8nTextRule({
       yaml: "ПредставлениеСписка",
-      type: "I8nText",
       xmlParents: properties,
       defaultValueXMLRaw: "",
-    },
-    extendedListPresentation: {
+    }),
+    extendedListPresentation: i8nTextRule({
       yaml: "РасширенноеПредставлениеСписка",
-      type: "I8nText",
       xmlParents: properties,
       defaultValueXMLRaw: "",
-    },
-    explanation: {
+    }),
+    explanation: i8nTextRule({
       yaml: "Пояснение",
-      type: "I8nText",
       xmlParents: properties,
       defaultValueXMLRaw: "",
-    },
-    objectBelonging: {
+    }),
+    objectBelonging: systemEnumerationRule({
       yaml: "ПринадлежностьОбъекта",
-      type: "SystemEnumeration",
       typeSE: "ObjectBelonging",
       xmlParents: properties,
       toYAML: false,
       fromYAML: false,
       implicitValueYAML: "Native",
-    },
-    extendedConfigurationObject: {
+    }),
+    extendedConfigurationObject: stringRule({
       yaml: "ОбъектРасширяемойКонфигурации",
-      type: "string",
       runtimeOnly: true,
-    },
+    }),
     columns: {
       yaml: "Графы",
       type: "MetadataDocumentJournalColumns",
@@ -181,14 +170,13 @@ export const MetadataDocumentJournalRules = {
       type: "AdditionalIndex",
       filePath: "Ext/AdditionalIndexes.xml",
     },
-    managerModule: {
-      type: "Module",
+    managerModule: moduleRule({
       externalMetadata: { segment: "ManagerModule", placement: "derivedEntry" },
       nkdkPath: "МодульМенеджера.bsl",
       xmlPath: "Ext/ManagerModule.bsl",
       toXML: false,
       fromXML: false,
-    },
+    }),
     help: {
       type: "Help",
       externalMetadata: { segment: "Help", placement: "derivedEntry" },
