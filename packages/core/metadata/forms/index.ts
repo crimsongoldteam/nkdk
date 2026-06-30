@@ -7,6 +7,7 @@ export type { ElementRule } from "./elements/orchestration/types"
 import "./elements"
 import "./commonObjects/index"
 import "./schemaRegister"
+import "./clientApplicationForm/register"
 
 let formsRegistered = false
 

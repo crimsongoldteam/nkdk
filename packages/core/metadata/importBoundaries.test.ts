@@ -129,6 +129,32 @@ describe("metadata import boundaries", () => {
     }
   })
 
+  it("validation/dataPath core не содержит concrete owner kinds", () => {
+    const files = [
+      "metadata/validation/dataPath/types.ts",
+      "metadata/validation/dataPath/ownerCache.ts",
+      "metadata/validation/dataPath/typeDescription.ts",
+      "metadata/validation/dataPath/objectFields.ts",
+      "metadata/validation/dataPath/resolver.ts",
+    ]
+
+    for (const filePath of files) {
+      const source = readFileSync(join(process.cwd(), filePath), "utf-8")
+      for (const forbidden of ["Справочник", "Документ", "РегистрСведений", "ПланСчетов", "CatalogRef", "DocumentRef", "RegisterRecords"]) {
+        expect(source).not.toContain(forbidden)
+      }
+    }
+  })
+
+  it("validateForm делегирует concrete form behavior зарегистрированному validator", () => {
+    const source = readFileSync(join(METADATA_DIR, "validation", "validateForm.ts"), "utf-8")
+
+    expect(source).not.toContain("importClientApplicationFormFromYAML")
+    expect(source).not.toContain("ДинамическийСписок")
+    expect(source).not.toContain("InputField")
+    expect(source).toContain("getRegisteredFormValidator")
+  })
+
   it("I8nText registry entry живёт рядом с владельцем", () => {
     const globalRegistry = readFileSync(join(METADATA_DIR, "orchestration", "property", "registry.ts"), "utf-8")
     const localRegistry = readFileSync(join(METADATA_DIR, "commonObjects", "i8nText", "registry.types.ts"), "utf-8")

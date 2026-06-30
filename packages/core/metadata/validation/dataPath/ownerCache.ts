@@ -1,21 +1,16 @@
 import { join, resolve } from "path"
 import { Type } from "@sinclair/typebox"
-import { MetadataConstantRules } from "~/metadata/appliedObjects/metadataConstant/rules"
-import { MetadataDefinedTypeRules } from "~/metadata/appliedObjects/metadataDefinedType/rules"
-import { MetadataCommonAttributeRules } from "~/metadata/appliedObjects/metadataCommonAttribute/rules"
-import { MetadataDocumentNumeratorRules } from "~/metadata/appliedObjects/metadataDocumentNumerator/rules"
-import { MetadataFilterCriterionRules } from "~/metadata/appliedObjects/metadataFilterCriterion/rules"
-import { MetadataSettingsStorageRules } from "~/metadata/appliedObjects/metadataSettingsStorage/rules"
 import type { ConfigurationContext } from "~/metadata/context/types"
 import { importMetadataItemFromYAML } from "~/metadata/orchestration/metadataItem/fromYAML"
 import type { MetadataItem, MetadataItemRule } from "~/metadata/orchestration/property/types"
 import type { ParsedYaml } from "~/yaml/parseMetadataYaml"
-import { getValidationProjectSpecByDir, type ValidationProjectSpec } from "../projectSpecs"
+import type { ValidationProjectSpec } from "../projectSpecs"
 import type { ProjectYamlCache } from "../projectYamlCache"
 import type { Diagnostic } from "../types"
 import { validateUniqueNameScopes } from "../uniqueNameScopes"
 import { buildObjectFieldIndex, type ObjectFieldIndex } from "./objectFields"
-import type { KnownOwnerTypeKind, OwnerTypeRef } from "./types"
+import { getDataPathOwnerKind, type DataPathOwnerKindRegistration } from "./registry"
+import type { OwnerTypeRef } from "./types"
 
 export interface OwnerMetadataCache {
   get(ref: OwnerTypeRef): OwnerMetadataResult
@@ -42,90 +37,14 @@ export interface CreateOwnerMetadataCacheParams {
   context: ConfigurationContext
 }
 
-const ownerDirByRefKind = {
-  Справочник: "Справочник",
-  СправочникОбъект: "Справочник",
-  Документ: "Документ",
-  ДокументОбъект: "Документ",
-  Перечисление: "Перечисление",
-  РегистрСведений: "РегистрСведений",
-  РегистрНакопления: "РегистрНакопления",
-  РегистрБухгалтерии: "РегистрБухгалтерии",
-  РегистрРасчета: "РегистрРасчета",
-  ПланОбмена: "ПланОбмена",
-  ПланОбменаОбъект: "ПланОбмена",
-  ПланВидовРасчета: "ПланВидовРасчета",
-  ПланВидовРасчетаОбъект: "ПланВидовРасчета",
-  ПланВидовХарактеристик: "ПланВидовХарактеристик",
-  ПланВидовХарактеристикОбъект: "ПланВидовХарактеристик",
-  ПланСчетов: "ПланСчетов",
-  ПланСчетовОбъект: "ПланСчетов",
-  Обработка: "Обработка",
-  ОбработкаОбъект: "Обработка",
-  ВнешнийИсточникДанных: "ВнешнийИсточникДанных",
-  ЖурналДокументов: "ЖурналДокументов",
-  Отчет: "Отчет",
-  ОтчетОбъект: "Отчет",
-  БизнесПроцесс: "БизнесПроцесс",
-  БизнесПроцессОбъект: "БизнесПроцесс",
-  Задача: "Задача",
-  ЗадачаОбъект: "Задача",
-  ОбщийРеквизит: "ОбщийРеквизит",
-  КритерийОтбора: "КритерийОтбора",
-  ХранилищеНастроек: "ХранилищеНастроек",
-  НумераторДокументов: "Нумератор",
-  Константа: "Константа",
-  ОпределяемыйТип: "ОпределяемыйТип",
-} satisfies Readonly<Record<KnownOwnerTypeKind, string>>
-
-const constantOwnerSpec = createLocalOwnerSpec({
-  kind: "constant",
-  dir: "Константа",
-  rule: MetadataConstantRules,
-})
-
-const definedTypeOwnerSpec = createLocalOwnerSpec({
-  kind: "definedType",
-  dir: "ОпределяемыйТип",
-  rule: MetadataDefinedTypeRules,
-})
-
-const commonAttributeOwnerSpec = createLocalOwnerSpec({
-  kind: "commonAttribute",
-  dir: "ОбщийРеквизит",
-  rule: MetadataCommonAttributeRules,
-})
-
-const filterCriterionOwnerSpec = createLocalOwnerSpec({
-  kind: "filterCriterion",
-  dir: "КритерийОтбора",
-  rule: MetadataFilterCriterionRules,
-})
-
-const settingsStorageOwnerSpec = createLocalOwnerSpec({
-  kind: "settingsStorage",
-  dir: "ХранилищеНастроек",
-  rule: MetadataSettingsStorageRules,
-})
-
-const documentNumeratorOwnerSpec = createLocalOwnerSpec({
-  kind: "documentNumerator",
-  dir: "Нумератор",
-  rule: MetadataDocumentNumeratorRules,
-})
-
-function createLocalOwnerSpec(params: {
-  kind: string
-  dir: string
-  rule: MetadataItemRule
-}): ValidationProjectSpec {
+function createValidationSpecFromOwnerKind(ownerKind: DataPathOwnerKindRegistration): ValidationProjectSpec {
   return {
-    kind: params.kind,
-    dir: params.dir,
-    rule: params.rule,
+    kind: ownerKind.kind,
+    dir: ownerKind.projectDir,
+    rule: ownerKind.rule,
     exportSchema: () => Type.Object({}),
     importModel: ({ context, parsed, name }) => {
-      const model: unknown = importMetadataItemFromYAML({ context, yaml: parsed.data, rule: params.rule, name })
+      const model: unknown = importMetadataItemFromYAML({ context, yaml: parsed.data, rule: ownerKind.rule, name })
 
       return isMetadataItem(model) ? model : undefined
     },
@@ -160,7 +79,8 @@ function loadOwner(params: {
   ref: OwnerTypeRef
 }): OwnerMetadataResult {
   const { projectDir, yamlCache, context, ref } = params
-  const dir = ownerDirForRefKind(ref.kind)
+  const ownerKind = getDataPathOwnerKind(ref.kind)
+  const dir = ownerKind?.projectDir
   if (!dir || !ref.name) {
     return {
       status: "not-found",
@@ -168,14 +88,8 @@ function loadOwner(params: {
     }
   }
 
-  const spec = getOwnerProjectSpecByDir(dir)
+  const spec = createValidationSpecFromOwnerKind(ownerKind)
   const filePath = ownerFilePath(projectDir, dir, ref.name)
-  if (!spec) {
-    return {
-      status: "not-found",
-      diagnostics: [crossFileDiagnostic(filePath, ownerNotFoundMessage(ref))],
-    }
-  }
 
   const entry = yamlCache.get(filePath)
   if ("error" in entry) {
@@ -215,22 +129,6 @@ function loadOwner(params: {
   } finally {
     yamlCache.release(filePath)
   }
-}
-
-function getOwnerProjectSpecByDir(dir: string): ValidationProjectSpec | undefined {
-  if (dir === constantOwnerSpec.dir) return constantOwnerSpec
-  if (dir === definedTypeOwnerSpec.dir) return definedTypeOwnerSpec
-  if (dir === commonAttributeOwnerSpec.dir) return commonAttributeOwnerSpec
-  if (dir === filterCriterionOwnerSpec.dir) return filterCriterionOwnerSpec
-  if (dir === settingsStorageOwnerSpec.dir) return settingsStorageOwnerSpec
-  if (dir === documentNumeratorOwnerSpec.dir) return documentNumeratorOwnerSpec
-  return getValidationProjectSpecByDir(dir)
-}
-
-function ownerDirForRefKind(kind: OwnerTypeRef["kind"]): string | undefined {
-  return Object.prototype.hasOwnProperty.call(ownerDirByRefKind, kind)
-    ? ownerDirByRefKind[kind as KnownOwnerTypeKind]
-    : undefined
 }
 
 function importOwnerModel(params: {

@@ -1,5 +1,6 @@
 import "./metadataCommand/register"
 import "./metadataCommonCommand"
+import "./dataPathOwnerKinds/register"
 
 import "./metadataCatalog/register"
 import "./metadataCatalog/fromYAML"
