@@ -97,21 +97,23 @@ export function createProgram(options: CreateProgramOptions = {}): Command {
 
   program
     .command("rename")
-    .description("Создать миграцию переименования")
+    .description("Переименовать metadata-объект или дочерний элемент")
     .argument("<yaml-dir>", "путь к каталогу YAML-проекта")
     .argument("<path>", "полный путь элемента")
     .argument("<new-name>", "новое локальное имя")
-    .action((yamlDir: string, path: string, newName: string) => {
-      run(() => Promise.resolve(renameMigration(yamlDir, path, newName)), options)
+    .option("--write", "записать изменения; без флага печатается план")
+    .action((yamlDir: string, path: string, newName: string, opts: { write?: boolean }) => {
+      run(() => Promise.resolve(renameMigration(yamlDir, path, newName, opts.write === true)), options)
     })
 
   program
     .command("delete")
-    .description("Создать миграцию удаления")
+    .description("Удалить metadata-объект или дочерний элемент")
     .argument("<yaml-dir>", "путь к каталогу YAML-проекта")
     .argument("<path>", "полный путь элемента")
-    .action((yamlDir: string, path: string) => {
-      run(() => Promise.resolve(deleteMigration(yamlDir, path)), options)
+    .option("--write", "записать изменения; без флага печатается план")
+    .action((yamlDir: string, path: string, opts: { write?: boolean }) => {
+      run(() => Promise.resolve(deleteMigration(yamlDir, path, opts.write === true)), options)
     })
 
   program

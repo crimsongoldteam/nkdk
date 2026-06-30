@@ -1,40 +1,68 @@
 import fs from "fs"
 import { select } from "@inquirer/prompts"
 import {
-  ADD_ACTION,
-  DELETE_ACTION,
   applyPendingMigrationFiles,
-  buildRenameTargetPath,
   collectStructuralStateFromXML,
   collectStructuralStateFromYAML,
+  deleteMetadataItem,
   detectMigrationConflicts,
   readAppliedMigrationsState,
   readPendingMigrationEntries,
+  renameMetadataItem,
   validateAppliedMigrationTarget,
   writeMigrationFile,
+  type MetadataOperationResult,
+  type MetadataOperationTarget,
   type MigrationConflict,
   type MigrationEntry,
   type StructuralState,
 } from "@nakidka/core"
 
-export function renameMigration(yamlDir: string, path: string, newName: string, now = new Date()): void {
-  if (path.length === 0) throw new Error("Путь не должен быть пустым")
-  if (newName.length === 0) throw new Error("Новое имя не должно быть пустым")
-  buildRenameTargetPath(path, newName)
-  const filePath = writeMigrationFile({ yamlDir, now, entries: [{ path, value: newName }] })
-  process.stdout.write(filePath + "\n")
+export function parseOperationTargetPath(path: string): MetadataOperationTarget {
+  const parts = path.split(".")
+  if (parts.length === 2) return { kind: "object", itemTypePrefix: parts[0]!, name: parts[1]! }
+  if (parts.length === 4 && parts[2] === "Реквизит") {
+    return { kind: "attribute", owner: { itemTypePrefix: parts[0]!, name: parts[1]! }, name: parts[3]! }
+  }
+  if (parts.length === 4 && parts[2] === "ТабличнаяЧасть") {
+    return { kind: "tabularSection", owner: { itemTypePrefix: parts[0]!, name: parts[1]! }, name: parts[3]! }
+  }
+  if (parts.length === 6 && parts[2] === "ТабличнаяЧасть" && parts[4] === "Реквизит") {
+    return {
+      kind: "attribute",
+      owner: { itemTypePrefix: parts[0]!, name: parts[1]! },
+      parent: { kind: "tabularSection", name: parts[3]! },
+      name: parts[5]!,
+    }
+  }
+  if (parts.length === 4 && parts[2] === "Форма") {
+    return { kind: "fileItem", owner: { itemTypePrefix: parts[0]!, name: parts[1]! }, role: "form", name: parts[3]! }
+  }
+  throw new Error(`Неподдерживаемый путь metadata-операции: ${path}`)
 }
 
-export function deleteMigration(yamlDir: string, path: string, now = new Date()): void {
-  if (path.length === 0) throw new Error("Путь не должен быть пустым")
-  const filePath = writeMigrationFile({ yamlDir, now, entries: [{ path, value: DELETE_ACTION }] })
-  process.stdout.write(filePath + "\n")
+export function renameMigration(yamlDir: string, path: string, newName: string, allowWrite = false): void {
+  printOperationResult(renameMetadataItem({
+    projectDir: yamlDir,
+    target: parseOperationTargetPath(path),
+    newName,
+    allowWrite,
+  }))
+}
+
+export function deleteMigration(yamlDir: string, path: string, allowWrite = false): void {
+  printOperationResult(deleteMetadataItem({
+    projectDir: yamlDir,
+    target: parseOperationTargetPath(path),
+    allowWrite,
+  }))
 }
 
 export interface GenerateMigrationResult {
   exitCode: number
   conflicts: MigrationConflict[]
   filePath?: string
+  filePaths?: string[]
 }
 
 export async function generateMigration(params: {
@@ -58,18 +86,20 @@ export async function generateMigration(params: {
   if (params.dryRun) return { exitCode: 1, conflicts }
 
   const entries = await resolveConflictsInteractively(migrated.state, yamlState)
+  if (entries.length === 0) return { exitCode: 0, conflicts }
 
-  const filePath = writeMigrationFile({ yamlDir: params.yamlDir, entries, now: params.now })
-  process.stdout.write(filePath + "\n")
-  return { exitCode: 0, conflicts, filePath }
+  const filePaths = entries.map((entry) => writeMigrationFile({ yamlDir: params.yamlDir, entries: [entry], now: params.now }))
+  for (const filePath of filePaths) process.stdout.write(filePath + "\n")
+  return { exitCode: 0, conflicts, filePath: filePaths[0], filePaths }
 }
 
 async function resolveConflictsInteractively(initial: StructuralState, target: StructuralState): Promise<MigrationEntry[]> {
   let current = initial
   const entries: MigrationEntry[] = []
+  const skipped = new Set<string>()
 
   while (true) {
-    const conflict = detectMigrationConflicts(current, target)[0]
+    const conflict = nextConflict(current, target, skipped)
     if (!conflict) return entries
 
     const chunk: MigrationEntry[] = []
@@ -79,18 +109,36 @@ async function resolveConflictsInteractively(initial: StructuralState, target: S
         message: `${conflict.levelPath}.${deleted}`,
         choices: [
           ...availableAdded.map((name) => ({ name, value: name })),
-          { name: DELETE_ACTION, value: DELETE_ACTION },
+          { name: "Не переименовывать", value: "" },
         ],
       })
       const fullPath = `${conflict.levelPath}.${deleted}`
+      if (choice === "") {
+        skipped.add(fullPath)
+        continue
+      }
       chunk.push({ path: fullPath, value: choice })
-      if (choice !== DELETE_ACTION) availableAdded.splice(availableAdded.indexOf(choice), 1)
+      availableAdded.splice(availableAdded.indexOf(choice), 1)
     }
-    for (const added of availableAdded) chunk.push({ path: `${conflict.levelPath}.${added}`, value: ADD_ACTION })
 
+    if (chunk.length === 0) continue
     entries.push(...chunk)
     current = applyPendingMigrationFiles(current, [{ fileName: "generated.yaml", entries: chunk }]).state
   }
+}
+
+function nextConflict(current: StructuralState, target: StructuralState, skipped: Set<string>): MigrationConflict | undefined {
+  for (const conflict of detectMigrationConflicts(current, target)) {
+    const deleted = conflict.deleted.filter((name) => !skipped.has(`${conflict.levelPath}.${name}`))
+    if (deleted.length === 0) continue
+    return { ...conflict, deleted }
+  }
+  return undefined
+}
+
+function printOperationResult(result: MetadataOperationResult): void {
+  process.stdout.write(`${JSON.stringify(result, null, 2)}\n`)
+  if (!result.ok) process.exitCode = 1
 }
 
 function makeFromXMLContext() {
@@ -115,5 +163,3 @@ function makeToXMLContext() {
     },
   }
 }
-
-export { ADD_ACTION }
