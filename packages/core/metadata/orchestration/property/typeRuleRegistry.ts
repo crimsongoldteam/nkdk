@@ -14,6 +14,7 @@ import {
   importFromYAMLFunction as ImportFromYAMLFunction,
   ImportFromYAMLFunctionNew,
   ProjectResourcesFunction,
+  StructuralReferencesFunction,
   SyncExternalFromXMLFunction,
   SyncExternalToXMLFunction,
   TypeRulesOperations,
@@ -37,6 +38,7 @@ const typeRulesRegistry = new Map<
   | SyncExternalFromXMLFunction
   | SyncExternalToXMLFunction
   | ValidateMetadataTargetFunction
+  | StructuralReferencesFunction
   | ProjectResourcesFunction
   | XmlSyncRoutesFunction
   | FileChildNamesDescriptorFunction
@@ -75,15 +77,17 @@ export const getTypeRule = <O extends TypeRulesOperations>(
                   ? SyncExternalToXMLFunction | undefined
                   : O extends "validateMetadataTarget"
                     ? ValidateMetadataTargetFunction | undefined
-                    : O extends "projectResources"
-                      ? ProjectResourcesFunction | undefined
-                      : O extends "xmlSyncRoutes"
-                        ? XmlSyncRoutesFunction | undefined
-                        : O extends "fileChildNamesDescriptor"
-                          ? FileChildNamesDescriptorFunction | undefined
-                          : O extends "xmlSyncWriter"
-                            ? XmlSyncWriterFunction | undefined
-                            : never => {
+                    : O extends "structuralReferences"
+                      ? StructuralReferencesFunction | undefined
+                      : O extends "projectResources"
+                        ? ProjectResourcesFunction | undefined
+                        : O extends "xmlSyncRoutes"
+                          ? XmlSyncRoutesFunction | undefined
+                          : O extends "fileChildNamesDescriptor"
+                            ? FileChildNamesDescriptorFunction | undefined
+                            : O extends "xmlSyncWriter"
+                              ? XmlSyncWriterFunction | undefined
+                              : never => {
   const key = createRegistryKey(type, operation)
   const result = typeRulesRegistry.get(key)
   return result as any
