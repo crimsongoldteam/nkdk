@@ -81,6 +81,7 @@ export {
   type ExportJSONSchemaForProjectFileParams,
   type ExportJSONSchemaForSchemaNameParams,
 } from "./metadata/validation/projectFileSchema"
+export * from "./metadata/operations"
 export {
   describeMetadataProjectDirectoryStructure,
   type DescribeMetadataProjectDirectoryStructureParams,
