@@ -1,4 +1,4 @@
-import { lstatSync, readdirSync, readFileSync } from "fs"
+import { existsSync, lstatSync, readdirSync, readFileSync } from "fs"
 import { join, relative } from "path"
 import { describe, expect, it } from "vitest"
 
@@ -153,6 +153,13 @@ describe("metadata import boundaries", () => {
     expect(source).not.toContain("ДинамическийСписок")
     expect(source).not.toContain("InputField")
     expect(source).toContain("getRegisteredFormValidator")
+  })
+
+  it("dataPath owner registrations живут в register.ts конкретных объектов", () => {
+    const appliedObjectsIndex = readFileSync(join(METADATA_DIR, "appliedObjects", "index.ts"), "utf-8")
+
+    expect(appliedObjectsIndex).not.toContain("dataPathOwnerKinds")
+    expect(existsSync(join(METADATA_DIR, "appliedObjects", "dataPathOwnerKinds", "register.ts"))).toBe(false)
   })
 
   it("I8nText registry entry живёт рядом с владельцем", () => {

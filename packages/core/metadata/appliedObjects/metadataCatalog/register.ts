@@ -2,6 +2,7 @@ import { registerProjectSpec } from "~/metadata/project/projectSpecRegistry"
 import { createProjectSchemaExporter } from "~/metadata/project/projectSpecHelpers"
 import { registerProjectJSONSchema } from "~/metadata/project/schemaRegistry"
 import { join } from "path"
+import { registerDataPathOwnerKind } from "~/metadata/validation/dataPath/registry"
 import {
   registerProjectObjectPathResolver,
   registerProjectValueResolver,
@@ -9,6 +10,22 @@ import {
 import { importMetadataCatalogFromYAML } from "./fromYAML"
 import { MetadataCatalogRules } from "./rules"
 import { exportMetadataCatalogToJSONSchema } from "./toJSONSchema"
+
+registerDataPathOwnerKind({
+  kind: "Справочник",
+  projectDir: "Справочник",
+  rule: MetadataCatalogRules,
+  typeDescriptionBases: ["CatalogRef"],
+  metadataLinkPrefixes: ["Catalog"],
+  aliases: ["СправочникОбъект"],
+})
+registerDataPathOwnerKind({
+  kind: "СправочникОбъект",
+  projectDir: "Справочник",
+  rule: MetadataCatalogRules,
+  typeDescriptionBases: ["CatalogObject"],
+  metadataLinkPrefixes: ["Catalog"],
+})
 
 registerProjectJSONSchema("MetadataCatalog", ({ context }) => exportMetadataCatalogToJSONSchema({ context }))
 registerProjectObjectPathResolver("Catalog", ({ projectDir, target }) => ({

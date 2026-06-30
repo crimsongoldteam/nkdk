@@ -1,9 +1,17 @@
 import "./types"
 import { join } from "path"
+import { registerDataPathOwnerKind } from "~/metadata/validation/dataPath/registry"
 import {
   registerProjectInlineObjectResolver,
   registerProjectObjectPathResolver,
 } from "~/metadata/validation/projectMetadataResolverRegistry"
+import { MetadataExternalDataSourceRules } from "./rules"
+
+registerDataPathOwnerKind({
+  kind: "ВнешнийИсточникДанных",
+  projectDir: "ВнешнийИсточникДанных",
+  rule: MetadataExternalDataSourceRules,
+})
 
 registerProjectObjectPathResolver("ExternalDataSource", ({ projectDir, target }) => {
   const parts = [projectDir, "ВнешнийИсточникДанных", target.objectName]

@@ -3,6 +3,7 @@ import { registerProjectSpec } from "~/metadata/project/projectSpecRegistry"
 import { createProjectSchemaExporter } from "~/metadata/project/projectSpecHelpers"
 import { registerProjectJSONSchema } from "~/metadata/project/schemaRegistry"
 import { join } from "path"
+import { registerDataPathOwnerKind } from "~/metadata/validation/dataPath/registry"
 import {
   registerProjectObjectPathResolver,
   registerProjectValueResolver,
@@ -14,6 +15,14 @@ import { exportMetadataEnumerationToJSONSchema } from "./toJSONSchema"
 registerMetadataItemRule({
   propertyType: "MetadataEnumeration",
   itemRule: MetadataEnumerationRules,
+})
+
+registerDataPathOwnerKind({
+  kind: "Перечисление",
+  projectDir: "Перечисление",
+  rule: MetadataEnumerationRules,
+  typeDescriptionBases: ["EnumRef"],
+  metadataLinkPrefixes: ["Enum"],
 })
 
 registerProjectJSONSchema("MetadataEnumeration", ({ context }) => exportMetadataEnumerationToJSONSchema({ context }))
