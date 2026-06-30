@@ -75,6 +75,43 @@ export async function planConfigurationToXMLMigrations(params: {
   }
 }
 
+export async function planSyncToXml(params: {
+  inputDir: string
+  outputDir: string
+  referenceDir?: string
+}): Promise<
+  | { ok: true; mode: "plan"; migrationsToApply: MigrationPlanItem[] }
+  | MigrationChainInvalidResult
+> {
+  const result = await planConfigurationToXMLMigrations({
+    context: defaultConfigurationToXmlContext(),
+    inputDir: params.inputDir,
+    outputDir: params.outputDir,
+    referenceDir: params.referenceDir,
+  })
+  if (!result.ok) return result
+  return { ok: true, mode: "plan", migrationsToApply: result.migrationsToApply }
+}
+
+function defaultConfigurationToXmlContext(): ConfigurationContextWithExportToXML {
+  return {
+    defaultLanguage: "ru",
+    version: "2.20",
+    exportToYAML: { toTyped: false },
+    exportToXML: {
+      itemsTree: [],
+      configDumpInfo: new Map(),
+      version: "2.20",
+      context: {
+        forms: [],
+        templates: [],
+        parentName: "",
+        metadataForNumbering: [],
+      },
+    },
+  }
+}
+
 export async function prepareConfigurationXmlMigrationChain(params: {
   context: ConfigurationContextWithExportToXML
   inputDir: string

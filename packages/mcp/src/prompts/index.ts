@@ -12,6 +12,7 @@ export const promptDefinitions: PromptDefinition[] = [
     description: "Создать или изменить YAML-файл конфигурации по схеме NKDK.",
     text: [
       "Прочитай resource `nkdk://guides/config-edit-yaml`.",
+      "Если пользователь просит переименовать metadata-объект или дочерний элемент, сначала вызови `nkdk.list_operation_targets`, затем `nkdk.rename_item`; не правь YAML руками для такого переименования. Удаление выполняй через `nkdk.delete_item`, потому что tool проверяет структурные ссылки.",
       "Используй `nkdk.get_schema`, чтобы получить схему целевого YAML-файла.",
       "Измени YAML файловыми инструментами агента.",
       "Проверь результат через `nkdk.validate_project`.",

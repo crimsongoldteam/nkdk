@@ -6,7 +6,7 @@ export { registerCoreMetadata } from "./metadata/register"
 export { syncConfigurationFromXML } from "./metadata/appliedObjects/configuration/convertFromXML"
 export type { ConfigurationSyncResult } from "./metadata/appliedObjects/configuration/convertFromXML"
 export { syncConfigurationIncrementallyToXML } from "./metadata/appliedObjects/configuration/incrementalSyncToXML"
-export { syncConfigurationToXML } from "./metadata/appliedObjects/configuration/syncToXML"
+export { planSyncToXml, syncConfigurationToXML } from "./metadata/appliedObjects/configuration/syncToXML"
 export {
   SYNC_STATE_FILE,
   diffSyncState,

@@ -12,8 +12,18 @@ export const syncToXmlInputShape = {
 
 export const syncToXmlSuccessOutputShape = {
   ok: z.literal(true),
-  succeeded: z.number(),
-  failed: z.array(failedObjectSchema),
+  result: z.unknown().optional(),
+  succeeded: z.number().optional(),
+  changedXmlFiles: z.array(z.object({
+    path: z.string(),
+    change: z.union([z.literal("added"), z.literal("changed"), z.literal("deleted")]),
+  })).optional(),
+  migrationsApplied: z.array(z.object({
+    fileName: z.string(),
+    from: z.string(),
+    to: z.string(),
+  })).optional(),
+  failed: z.array(failedObjectSchema).optional(),
 }
 
 export const syncToXmlOutputShape = z.union([z.object(syncToXmlSuccessOutputShape), z.object(toolErrorOutputShape)])

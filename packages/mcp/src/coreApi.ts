@@ -1,3 +1,12 @@
+import type {
+  ListMetadataOperationTargetsResult,
+  MetadataOperationChangedXmlFile,
+  MetadataOperationResult,
+  MetadataOperationTarget,
+  MigrationChainInvalidResult,
+  MigrationPlanItem,
+} from "@nakidka/core"
+
 export interface SchemaSummaryOptions {
   requiredOnly?: boolean
   search?: string
@@ -20,27 +29,9 @@ export interface ConfigurationSyncFailure {
   error: unknown
 }
 
-export interface ConfigurationChangedXmlFile {
-  path: string
-  change: "added" | "changed" | "deleted"
-}
-
-export interface MigrationPlanItem {
-  fileName: string
-  from: string
-  to: string
-}
-
-export interface MigrationChainInvalidResult {
-  ok: false
-  code: "migration_chain_invalid"
-  message: string
-  migrationErrors: unknown[]
-}
-
 export interface ConfigurationSyncResult {
   succeeded: number
-  changedXmlFiles?: ConfigurationChangedXmlFile[]
+  changedXmlFiles?: MetadataOperationChangedXmlFile[]
   migrationsApplied?: MigrationPlanItem[]
   migrationChain?: MigrationChainInvalidResult
   failed: ConfigurationSyncFailure[]
@@ -106,6 +97,28 @@ export interface CoreApi {
     depth?: number
   }): MetadataProjectDirectoryStructure
   validateProject(params: { projectDir: string; filePath?: string }): { diagnostics: Diagnostic[] }
+  listMetadataOperationTargets(params: {
+    projectDir: string
+    query?: string
+    kind?: MetadataOperationTarget["kind"]
+    owner?: { itemTypePrefix: string; name: string }
+    limit?: number
+  }): ListMetadataOperationTargetsResult
+  renameMetadataItem(params: {
+    projectDir: string
+    target: MetadataOperationTarget
+    newName: string
+    allowWrite?: boolean
+  }): MetadataOperationResult
+  deleteMetadataItem(params: {
+    projectDir: string
+    target: MetadataOperationTarget
+    allowWrite?: boolean
+  }): MetadataOperationResult
+  planSyncToXml(params: { inputDir: string; outputDir: string; referenceDir?: string }): Promise<
+    | { ok: true; mode: "plan"; migrationsToApply: MigrationPlanItem[] }
+    | MigrationChainInvalidResult
+  >
   syncConfigurationFromXML(params: {
     context: {
       defaultLanguage: "ru"
