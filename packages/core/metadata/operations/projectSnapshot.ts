@@ -4,7 +4,7 @@ import type { ConfigurationContext } from "~/metadata/context/types"
 import { importMetadataItemFromYAML } from "~/metadata/orchestration"
 import { discoverMetadataProjectResources, type MetadataProjectPropertiesYamlRef } from "~/metadata/project/resources"
 import { validateProject } from "~/metadata/validation/validateProject"
-import { importFromYAML } from "~/yaml/import"
+import { parseMetadataYaml, type ParsedYaml } from "~/yaml/parseMetadataYaml"
 import { defaultMetadataOperationsContext } from "./context"
 import type { MetadataOperationValidationFailed } from "./types"
 
@@ -12,6 +12,7 @@ export interface OperationSnapshotItem {
   resource: MetadataProjectPropertiesYamlRef
   filePath: string
   ownerDirPath: string
+  parsed: ParsedYaml
   model: Record<string, unknown>
 }
 
@@ -68,15 +69,16 @@ function importSnapshotItem(params: {
   | { ok: true; item: OperationSnapshotItem }
   | { ok: false; failure: MetadataOperationValidationFailed } {
   try {
-    const yaml = importFromYAML<Record<string, unknown>>(readFileSync(params.resource.absolutePath!, "utf-8"))
+    const parsed = parseMetadataYaml(readFileSync(params.resource.absolutePath!, "utf-8"))
     const model = importMetadataItemFromYAML({
       context: params.context,
-      yaml,
+      yaml: parsed.data,
       rule: params.resource.owner.spec.rule,
       name: params.resource.owner.name,
     }) as Record<string, unknown> | undefined
 
     if (model === undefined) throw new Error("Не удалось импортировать свойства")
+    model.name ??= params.resource.owner.name
 
     return {
       ok: true,
@@ -84,6 +86,7 @@ function importSnapshotItem(params: {
         resource: params.resource,
         filePath: params.resource.absolutePath!,
         ownerDirPath: dirname(params.resource.absolutePath!),
+        parsed,
         model,
       },
     }

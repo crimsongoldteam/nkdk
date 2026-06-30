@@ -1,5 +1,6 @@
 import { existsSync, readdirSync } from "fs"
 import { join } from "path"
+import { rootFromYAML } from "~/metadata/commonObjects/metadataTargets/roots"
 import { describeMetadataRuleOperationTargets } from "~/metadata/project/ruleResources"
 import type { MetadataOperationSnapshot, OperationSnapshotItem } from "./projectSnapshot"
 import type { MetadataOperationTarget } from "./types"
@@ -57,7 +58,7 @@ function resolveObjectTarget(
     resources: [item.ownerDirPath],
     requiresMigration: true,
     migrationPath: displayPath,
-    targetPrefix: displayPath,
+    targetPrefix: canonicalObjectPrefix(target.itemTypePrefix, target.name),
   }
 }
 
@@ -96,7 +97,12 @@ function resolveNamedCollectionTarget(
     resources: [item.filePath],
     requiresMigration: descriptor.declaration.requiresMigration,
     migrationPath: displayPath,
-    targetPrefix: displayPath,
+    targetPrefix: canonicalNamedTargetPrefix({
+      ownerPrefix: target.owner.itemTypePrefix,
+      ownerName: target.owner.name,
+      kind: target.kind,
+      name: target.name,
+    }),
   }
 }
 
@@ -132,7 +138,7 @@ function resolveFileItemTarget(
     absolutePath: yamlPath,
     resources: [itemDir, yamlPath],
     requiresMigration: false,
-    targetPrefix: displayPath,
+    targetPrefix: `${canonicalObjectPrefix(target.owner.itemTypePrefix, target.owner.name)}.${canonicalFileItemKind(target.role)}.${target.name}`,
   }
 }
 
@@ -163,6 +169,36 @@ function roleDisplaySegment(role: Extract<MetadataOperationTarget, { kind: "file
   if (role === "form") return "Форма"
   if (role === "template") return "Макет"
   return "Команда"
+}
+
+function canonicalObjectPrefix(itemTypePrefix: string, name: string): string {
+  return `${rootFromYAML[itemTypePrefix] ?? itemTypePrefix}.${name}`
+}
+
+function canonicalNamedTargetPrefix(params: {
+  ownerPrefix: string
+  ownerName: string
+  kind: Exclude<MetadataOperationTarget, { kind: "object" } | { kind: "fileItem" }>["kind"]
+  name: string
+}): string {
+  return `${canonicalObjectPrefix(params.ownerPrefix, params.ownerName)}.${canonicalNamedKind(params.kind)}.${params.name}`
+}
+
+function canonicalNamedKind(
+  kind: Exclude<MetadataOperationTarget, { kind: "object" } | { kind: "fileItem" }>["kind"],
+): string {
+  if (kind === "attribute") return "Attribute"
+  if (kind === "tabularSection") return "TabularSection"
+  if (kind === "dimension") return "Dimension"
+  if (kind === "resource") return "Resource"
+  if (kind === "addressingAttribute") return "AddressingAttribute"
+  return "Command"
+}
+
+function canonicalFileItemKind(role: Extract<MetadataOperationTarget, { kind: "fileItem" }>["role"]): string {
+  if (role === "form") return "Form"
+  if (role === "template") return "Template"
+  return "Command"
 }
 
 function targetNotFound(message: string): ResolveMetadataOperationTargetFailure {
