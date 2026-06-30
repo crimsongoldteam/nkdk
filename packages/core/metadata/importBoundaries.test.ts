@@ -1,6 +1,8 @@
 import { existsSync, lstatSync, readdirSync, readFileSync } from "fs"
 import { join, relative } from "path"
 import { describe, expect, it } from "vitest"
+import { createBuilderCatalog } from "./rulesBuilderMigration/builderCatalog"
+import { inventoryRulesSource } from "./rulesBuilderMigration/inventory"
 
 const METADATA_DIR = join(process.cwd(), "metadata")
 const COMMON_OBJECTS_DIR = join(METADATA_DIR, "commonObjects")
@@ -214,6 +216,17 @@ describe("metadata import boundaries", () => {
     expect(offenders).toEqual([])
   })
 
+  it("production rules.ts не объявляют property-rule type вручную", () => {
+    const catalog = createBuilderCatalog()
+    const offenders = listRulesFiles(METADATA_DIR)
+      .flatMap((filePath) =>
+        inventoryRulesSource(relative(process.cwd(), filePath), readFileSync(filePath, "utf-8"), catalog)
+      )
+      .filter(({ filePath, propertyPath }) => !ALLOWED_DIRECT_RULE_TYPE_OFFENDERS.has(`${filePath}:${propertyPath}`))
+
+    expect(offenders).toEqual([])
+  })
+
   it("старые boundary-правила поддерживают prefix imports, а broad-регистрации остаются exact", () => {
     expect(
       findForbiddenImports('import { Button } from "~/metadata/forms/elements/button"', ["~/metadata/forms/elements/"])
@@ -282,6 +295,12 @@ function extractModuleSpecifiers(content: string): string[] {
 
 function listCoreTypeScriptFiles(): string[] {
   return listTypeScriptFiles(process.cwd(), { includeTests: true }).map((filePath) => relative(process.cwd(), filePath))
+}
+
+const ALLOWED_DIRECT_RULE_TYPE_OFFENDERS = new Set<string>()
+
+function listRulesFiles(dir: string): string[] {
+  return listTypeScriptFiles(dir).filter((filePath) => filePath.endsWith("/rules.ts"))
 }
 
 function listTypeScriptFiles(dir: string, options: { includeTests?: boolean } = {}): string[] {
