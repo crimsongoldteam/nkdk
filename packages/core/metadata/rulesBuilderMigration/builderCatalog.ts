@@ -17,6 +17,7 @@ const entries = [
   ["XMLRoot", "xmlRootRule", "~/metadata/commonObjects/xmlRoot/types", "strict"],
   ["I8nText", "i8nTextRule", "~/metadata/commonObjects/i8nText/types", "strict"],
   ["SystemEnumeration", "systemEnumerationRule", "~/metadata/systemEnumerations/types", "strict"],
+  ["Module", "moduleRule", "~/metadata/commonObjects/module/types", "strict"],
   ["MetadataValue", "metadataValueRule", "~/metadata/commonObjects/metadataValue/types", "wide"],
 ] as const satisfies readonly (readonly [string, string, string, BuilderMode])[]
 

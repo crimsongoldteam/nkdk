@@ -1,5 +1,8 @@
 import { describe, expect, it } from "vitest"
+import { booleanRule } from "~/metadata/commonObjects/boolean/types"
 import { i8nTextRule } from "~/metadata/commonObjects/i8nText/types"
+import { moduleRule } from "~/metadata/commonObjects/module/types"
+import { numberRule } from "~/metadata/commonObjects/number/types"
 import { stringRule } from "~/metadata/commonObjects/string/types"
 import { uuidRule } from "~/metadata/commonObjects/uuid/types"
 import { xmlRootRule } from "~/metadata/commonObjects/xmlRoot/types"
@@ -106,6 +109,19 @@ describe("property rule builders", () => {
 
       // @ts-expect-error XMLRoot rules require rootAttributes.
       xmlRootRule({ container: "Language", forReferenceOnly: true })
+
+      booleanRule({ defaultValueXML: true })
+      numberRule({ defaultValueXML: 1 })
+      moduleRule({ xmlPath: "Ext/Module.bsl", nkdkPath: "Модуль.bsl" })
+
+      // @ts-expect-error boolean rules do not accept system-enumeration fields.
+      booleanRule({ typeSE: "ObjectBelonging" })
+
+      // @ts-expect-error number rules do not accept module paths.
+      numberRule({ xmlPath: "Ext/Module.bsl" })
+
+      // @ts-expect-error module rules do not accept numeric defaults.
+      moduleRule({ defaultValueXML: 1 })
     }
 
     expect(true).toBe(true)
