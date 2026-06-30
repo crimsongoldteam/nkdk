@@ -1,4 +1,5 @@
 export * from "./context"
 export * from "./listOperationTargets"
+export * from "./migrationChain"
 export * from "./targetSchema"
 export * from "./types"

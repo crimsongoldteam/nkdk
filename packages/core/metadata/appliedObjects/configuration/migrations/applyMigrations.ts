@@ -1,6 +1,4 @@
 import {
-  ADD_ACTION,
-  DELETE_ACTION,
   type AppliedMigrationResult,
   type MigrationEntry,
   type MigrationTargetCheck,
@@ -22,22 +20,12 @@ export function applyMigrationEntries(
   const targetChecks: MigrationTargetCheck[] = []
 
   for (const entry of entries) {
-    if (entry.value === DELETE_ACTION) {
-      deletePath(nodes, entry.path)
-      targetChecks.push({ path: entry.path, expected: "absent" })
-      continue
-    }
-    if (entry.value === ADD_ACTION) {
-      addPath(nodes, entry.path)
-      targetChecks.push({ path: entry.path, expected: "exists" })
-      continue
-    }
     if (typeof entry.value !== "string" || entry.value.length === 0) {
       throw new Error(`Некорректное значение миграции для "${entry.path}"`)
     }
     const targetPath = buildRenameTargetPath(entry.path, entry.value)
     renamePath(nodes, entry.path, targetPath)
-    targetChecks.push({ path: entry.path, expected: "absent" }, { path: targetPath, expected: "exists" })
+    addRenameTargetChecks(targetChecks, entry.path, targetPath)
   }
 
   return {
@@ -72,7 +60,11 @@ export function applyPendingMigrationFiles(initial: StructuralState, files: Pend
 }
 
 export function validateAppliedMigrationTarget(result: AppliedMigrationResult, target: StructuralState): void {
-  for (const check of result.targetChecks) {
+  const checks = [
+    ...result.targetChecks.filter((check) => check.expected === "exists"),
+    ...result.targetChecks.filter((check) => check.expected === "absent"),
+  ]
+  for (const check of checks) {
     if (check.expected === "exists") {
       if (!target.nodes.has(check.path)) throw new Error(`Миграция ожидает путь в YAML "${check.path}"`)
       continue
@@ -89,19 +81,6 @@ function cloneNodes(nodes: Map<string, StructuralNode>): Map<string, StructuralN
   return new Map([...nodes].map(([path, node]) => [path, { ...node }]))
 }
 
-function addPath(nodes: Map<string, StructuralNode>, path: string): void {
-  if (nodes.has(path)) throw new Error(`Путь для добавления уже существует "${path}"`)
-  const parsed = parseMigrationPath(path)
-  nodes.set(path, { path, kind: parsed.kind, name: parsed.localName })
-}
-
-function deletePath(nodes: Map<string, StructuralNode>, path: string): void {
-  if (!nodes.has(path)) throw new Error(`Путь для удаления не найден "${path}"`)
-  for (const key of [...nodes.keys()]) {
-    if (key === path || key.startsWith(`${path}.`)) nodes.delete(key)
-  }
-}
-
 function renamePath(nodes: Map<string, StructuralNode>, from: string, to: string): void {
   if (!nodes.has(from)) throw new Error(`Путь для переименования не найден "${from}"`)
   if ([...nodes.keys()].some((path) => path === to || path.startsWith(`${to}.`))) {
@@ -115,4 +94,14 @@ function renamePath(nodes: Map<string, StructuralNode>, from: string, to: string
     const parsed = parseMigrationPath(nextPath)
     nodes.set(nextPath, { ...node, path: nextPath, name: parsed.localName })
   }
+}
+
+function addRenameTargetChecks(targetChecks: MigrationTargetCheck[], from: string, to: string): void {
+  removeTargetCheck(targetChecks, from, "exists")
+  targetChecks.push({ path: from, expected: "absent" }, { path: to, expected: "exists" })
+}
+
+function removeTargetCheck(targetChecks: MigrationTargetCheck[], path: string, expected: MigrationTargetCheck["expected"]): void {
+  const index = targetChecks.findIndex((check) => check.path === path && check.expected === expected)
+  if (index >= 0) targetChecks.splice(index, 1)
 }
