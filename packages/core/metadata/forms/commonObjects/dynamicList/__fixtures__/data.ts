@@ -244,6 +244,27 @@ export const fullDynamicList = {
   ],
 } as const satisfies DynamicList
 
+export const fullDynamicListFromCompactYAML = {
+  ...fullDynamicList,
+  calculatedFields: [
+    {
+      ...fullDynamicList.calculatedFields[0],
+      orderExpressions: [
+        {
+          itemType: "CalculatedFieldOrderExpression",
+          expression: "Наименование",
+          autoOrder: true,
+        },
+        {
+          itemType: "CalculatedFieldOrderExpression",
+          expression: "Ссылка",
+          orderType: "Desc",
+        },
+      ],
+    },
+  ],
+} as const satisfies DynamicList
+
 export const fullDynamicListYAML = {
   АвтоЗаполнениеДоступныхПолей: "Ложь",
   АвтоматическоеСохранениеПользовательскихНастроек: "Ложь",
@@ -260,13 +281,11 @@ export const fullDynamicListYAML = {
       ВыраженияУпорядочивания: [
         {
           Выражение: "Наименование",
-          ТипУпорядочивания: "Возр",
           Автоупорядочивание: "Истина",
         },
         {
           Выражение: "Ссылка",
           ТипУпорядочивания: "Убыв",
-          Автоупорядочивание: "Ложь",
         },
       ],
       ТипЗначения: "Строка",

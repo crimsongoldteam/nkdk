@@ -4,7 +4,7 @@ import { join } from "node:path"
 import { TypeCompiler } from "@sinclair/typebox/compiler"
 import { describe, expect, it } from "vitest"
 import {
-  fullDynamicList,
+  fullDynamicListFromCompactYAML,
   fullDynamicListYAML,
   keyFieldDynamicListYAML,
   queryTextWithManualQueryFalseDynamicListYAML,
@@ -35,7 +35,7 @@ describe("import DynamicList from YAML", () => {
       rule,
       value: fullDynamicListYAML,
     })
-    expect(result).toEqual(fullDynamicList)
+    expect(result).toEqual(fullDynamicListFromCompactYAML)
   })
 
   it("round-trip: import → export даёт тот же YAML", () => {

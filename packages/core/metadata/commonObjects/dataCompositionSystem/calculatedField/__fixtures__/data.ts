@@ -23,6 +23,17 @@ export const fullCalculatedField = {
   valueType: { type: ["string"] },
 } as const satisfies CalculatedField
 
+export const fullCalculatedFieldFromCompactYAML = {
+  ...fullCalculatedField,
+  orderExpressions: [
+    {
+      itemType: "CalculatedFieldOrderExpression",
+      expression: "Наименование",
+      autoOrder: true,
+    },
+  ],
+} as const satisfies CalculatedField
+
 export const fullCalculatedFieldYAML = {
   ПутьКДанным: "Поле1",
   Выражение: "Истина",
@@ -35,7 +46,6 @@ export const fullCalculatedFieldYAML = {
   ВыраженияУпорядочивания: [
     {
       Выражение: "Наименование",
-      ТипУпорядочивания: "Возр",
       Автоупорядочивание: "Истина",
     },
   ],
