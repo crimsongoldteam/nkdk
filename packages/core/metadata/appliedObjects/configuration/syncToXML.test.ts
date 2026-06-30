@@ -7,7 +7,7 @@ import { getXMLFixturePath, readXMLFileAsString } from "~/tests/readAndParseXMLF
 import { importContentFromXML } from "~/xml/import/importer"
 import { syncConfigurationFromXML } from "./convertFromXML"
 import { CONFIGURATION_XML_FILE, CONFIGURATION_YAML_FILE } from "./rootIO"
-import { syncConfigurationToXML } from "./syncToXML"
+import { planConfigurationToXMLMigrations, syncConfigurationToXML } from "./syncToXML"
 
 describe("sync configuration to XML", () => {
   const inputDir = getXMLFixturePath("sync/syncConfiguration/yaml")
@@ -767,11 +767,11 @@ describe("sync configuration to XML", () => {
       "    Тип: Строка",
       "",
     ].join("\n"))
-    fs.writeFileSync(join(yamlDir, "Миграции", "2026-05-05-143000.yaml"), [
-      '"Справочник.Товары": "Номенклатура"',
-      '"Справочник.Номенклатура.Реквизит.Артикул": "НовыйАртикул"',
-      "",
-    ].join("\n"))
+    fs.writeFileSync(join(yamlDir, "Миграции", "2026-05-05-143000.yaml"), '"Справочник.Товары": "Номенклатура"\n')
+    fs.writeFileSync(
+      join(yamlDir, "Миграции", "2026-05-05-143001.yaml"),
+      '"Справочник.Номенклатура.Реквизит.Артикул": "НовыйАртикул"\n',
+    )
     fs.writeFileSync(join(xmlDir, "Catalogs", "Товары.xml"), `<?xml version="1.0" encoding="UTF-8"?>
 <MetaDataObject xmlns="http://v8.1c.ru/8.3/MDClasses" version="2.20">
 	<Catalog uuid="00000000-0000-0000-0000-000000000001">
@@ -848,13 +848,26 @@ describe("sync configuration to XML", () => {
 </MetaDataObject>`, "utf-8")
 
     try {
-      await syncConfigurationToXML({
+      const syncResult = await syncConfigurationToXML({
         context: mockContextToXML(),
         inputDir: yamlDir,
         outputDir: outDir,
         referenceDir: xmlDir,
       })
 
+      expect(syncResult.failed).toEqual([])
+      expect(syncResult.migrationsApplied).toEqual([
+        { fileName: "2026-05-05-143000.yaml", from: "Справочник.Товары", to: "Справочник.Номенклатура" },
+        {
+          fileName: "2026-05-05-143001.yaml",
+          from: "Справочник.Номенклатура.Реквизит.Артикул",
+          to: "Справочник.Номенклатура.Реквизит.НовыйАртикул",
+        },
+      ])
+      expect(syncResult.changedXmlFiles).toContainEqual({ path: "Catalogs/Номенклатура.xml", change: "added" })
+      expect(fs.readFileSync(join(outDir, ".nakidka-migrations.yaml"), "utf-8")).toBe(
+        ["applied:", "  - 2026-05-05-143000.yaml", "  - 2026-05-05-143001.yaml", ""].join("\n"),
+      )
       const result = fs.readFileSync(join(outDir, "Catalogs", "Номенклатура.xml"), "utf-8")
       expect(result).toContain('<Catalog uuid="00000000-0000-0000-0000-000000000001">')
       expect(result).toContain('<Attribute uuid="00000000-0000-0000-0000-000000000101">')
@@ -864,7 +877,7 @@ describe("sync configuration to XML", () => {
     }
   })
 
-  it("останавливает sync при конфликте без миграции", async () => {
+  it("без миграции считает удаление и создание обычным изменением", async () => {
     const tmp = getXMLFixturePath("sync/syncConfiguration/_tmp_migration_conflict")
     const yamlDir = join(tmp, "yaml")
     const xmlDir = join(tmp, "xml")
@@ -889,8 +902,76 @@ describe("sync configuration to XML", () => {
         referenceDir: xmlDir,
       })
 
-      expect(result.failed[0]?.error.message).toContain("Найдены возможные переименования")
-      expect(result.failed[0]?.error.message).toContain("nkdk generate-migration")
+      expect(result.failed).toEqual([])
+      expect(fs.existsSync(join(outDir, "Catalogs", "Номенклатура.xml"))).toBe(true)
+      expect(result.migrationsApplied).toEqual([])
+    } finally {
+      if (fs.existsSync(tmp)) fs.rmSync(tmp, { recursive: true })
+    }
+  })
+
+  it("строит план миграций без записи XML и applied-state", async () => {
+    const tmp = getXMLFixturePath("sync/syncConfiguration/_tmp_migration_plan")
+    const yamlDir = join(tmp, "yaml")
+    const xmlDir = join(tmp, "xml")
+    const outDir = join(tmp, "out")
+    if (fs.existsSync(tmp)) fs.rmSync(tmp, { recursive: true })
+    fs.mkdirSync(join(yamlDir, "Справочник", "Номенклатура"), { recursive: true })
+    fs.mkdirSync(join(yamlDir, "Миграции"), { recursive: true })
+    fs.mkdirSync(join(xmlDir, "Catalogs"), { recursive: true })
+
+    fs.writeFileSync(join(yamlDir, "Справочник", "Номенклатура", "Свойства.yaml"), "")
+    fs.writeFileSync(join(yamlDir, "Миграции", "2026-05-05-143000.yaml"), '"Справочник.Товары": "Номенклатура"\n')
+    fs.copyFileSync(getXMLFixturePath("sync/syncConfiguration/xml/Catalogs/Контрагенты.xml"), join(xmlDir, "Catalogs", "Товары.xml"))
+
+    try {
+      const result = await planConfigurationToXMLMigrations({
+        context: mockContextToXML(),
+        inputDir: yamlDir,
+        outputDir: outDir,
+        referenceDir: xmlDir,
+      })
+
+      expect(result).toEqual({
+        ok: true,
+        migrationsToApply: [{ fileName: "2026-05-05-143000.yaml", from: "Справочник.Товары", to: "Справочник.Номенклатура" }],
+      })
+      expect(fs.existsSync(join(outDir, "Catalogs"))).toBe(false)
+      expect(fs.existsSync(join(outDir, ".nakidka-migrations.yaml"))).toBe(false)
+    } finally {
+      if (fs.existsSync(tmp)) fs.rmSync(tmp, { recursive: true })
+    }
+  })
+
+  it("останавливает sync при ошибке цепочки миграций до записи XML", async () => {
+    const tmp = getXMLFixturePath("sync/syncConfiguration/_tmp_migration_chain_error")
+    const yamlDir = join(tmp, "yaml")
+    const xmlDir = join(tmp, "xml")
+    const outDir = join(tmp, "out")
+    if (fs.existsSync(tmp)) fs.rmSync(tmp, { recursive: true })
+    fs.mkdirSync(join(yamlDir, "Справочник", "Номенклатура"), { recursive: true })
+    fs.mkdirSync(join(yamlDir, "Миграции"), { recursive: true })
+    fs.mkdirSync(join(xmlDir, "Catalogs"), { recursive: true })
+    fs.mkdirSync(join(outDir, "Catalogs"), { recursive: true })
+
+    fs.writeFileSync(join(yamlDir, "Справочник", "Номенклатура", "Свойства.yaml"), "")
+    fs.writeFileSync(join(yamlDir, "Миграции", "2026-05-05-143000.yaml"), '"Справочник.НетТакого": "Номенклатура"\n')
+    fs.writeFileSync(join(outDir, "Catalogs", "Old.xml"), "<Old/>", "utf-8")
+
+    try {
+      const result = await syncConfigurationToXML({
+        context: mockContextToXML(),
+        inputDir: yamlDir,
+        outputDir: outDir,
+        referenceDir: xmlDir,
+      })
+
+      expect(result.failed[0]?.kind).toBe("migration")
+      expect(result.migrationChain).toMatchObject({ ok: false, code: "migration_chain_invalid" })
+      expect(result.migrationsApplied).toBeUndefined()
+      expect(result.changedXmlFiles).toBeUndefined()
+      expect(fs.readFileSync(join(outDir, "Catalogs", "Old.xml"), "utf-8")).toBe("<Old/>")
+      expect(fs.existsSync(join(outDir, ".nakidka-migrations.yaml"))).toBe(false)
     } finally {
       if (fs.existsSync(tmp)) fs.rmSync(tmp, { recursive: true })
     }

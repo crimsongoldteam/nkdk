@@ -98,7 +98,7 @@ export function prepareMetadataMigrationChain(
     migrationsToApply.push({ fileName: file.fileName, from: file.path, to: targetPath })
   }
 
-  if (errors.length === 0) validateFinalYamlPaths(current, params.yamlPaths, errors)
+  if (errors.length === 0) validateMigrationTargetsExist(migrationsToApply, params.yamlPaths, errors)
   const xmlAreas = errors.length === 0 ? collectXmlAreas(migrationsToApply, params.xmlAreaByMigrationPath, errors) : []
   if (errors.length > 0) return invalid(errors)
 
@@ -236,18 +236,19 @@ function movePathWithDescendants(current: Map<string, string>, from: string, to:
   for (const [currentPath, referencePath] of moved) current.set(currentPath, referencePath)
 }
 
-function validateFinalYamlPaths(
-  current: Map<string, string>,
+function validateMigrationTargetsExist(
+  migrationsToApply: readonly MigrationPlanItem[],
   yamlPaths: readonly string[],
   errors: MigrationChainError[],
 ): void {
   const yaml = new Set(yamlPaths)
-  for (const currentPath of current.keys()) {
-    if (!yaml.has(currentPath)) {
+  for (const migration of migrationsToApply) {
+    if (!yaml.has(migration.to)) {
       errors.push({
         code: "missing_source_path",
-        message: `Итоговый путь миграции отсутствует в YAML: ${currentPath}`,
-        path: currentPath,
+        message: `Итоговый путь миграции отсутствует в YAML: ${migration.to}`,
+        fileName: migration.fileName,
+        path: migration.to,
       })
     }
   }

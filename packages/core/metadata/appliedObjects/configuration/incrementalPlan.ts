@@ -7,6 +7,7 @@ export interface PlannedXmlSyncArea {
   area: XmlSyncArea
   changedPaths: string[]
   changesConfigurationComposition: boolean
+  fromMigration: boolean
 }
 
 export interface IncrementalXmlSyncPlan {
@@ -17,6 +18,7 @@ export interface IncrementalXmlSyncPlan {
 export function buildIncrementalXmlSyncPlan(params: {
   diff: XmlSyncStateDiff
   rules: readonly MetadataItemRule[]
+  extraAreas?: readonly XmlSyncArea[]
 }): IncrementalXmlSyncPlan {
   const grouped = new Map<string, PlannedXmlSyncArea>()
 
@@ -28,6 +30,9 @@ export function buildIncrementalXmlSyncPlan(params: {
   }
   for (const path of params.diff.deleted) {
     addPathToPlan({ grouped, path, rules: params.rules, changesConfigurationComposition: true })
+  }
+  for (const area of params.extraAreas ?? []) {
+    addAreaToPlan({ grouped, area, changedPath: "Миграции", changesConfigurationComposition: true, fromMigration: true })
   }
 
   const areas = [...grouped.values()].sort((left, right) => left.key.localeCompare(right.key, "ru"))
@@ -56,7 +61,31 @@ function addPathToPlan(params: {
     existing.changesConfigurationComposition ||= changesConfigurationComposition
     return
   }
-  params.grouped.set(key, { key, area, changedPaths: [params.path], changesConfigurationComposition })
+  params.grouped.set(key, { key, area, changedPaths: [params.path], changesConfigurationComposition, fromMigration: false })
+}
+
+function addAreaToPlan(params: {
+  grouped: Map<string, PlannedXmlSyncArea>
+  area: XmlSyncArea
+  changedPath: string
+  changesConfigurationComposition: boolean
+  fromMigration: boolean
+}): void {
+  const key = areaKey(params.area)
+  const existing = params.grouped.get(key)
+  if (existing) {
+    existing.changedPaths.push(params.changedPath)
+    existing.changesConfigurationComposition ||= params.changesConfigurationComposition
+    existing.fromMigration ||= params.fromMigration
+    return
+  }
+  params.grouped.set(key, {
+    key,
+    area: params.area,
+    changedPaths: [params.changedPath],
+    changesConfigurationComposition: params.changesConfigurationComposition,
+    fromMigration: params.fromMigration,
+  })
 }
 
 export function areaKey(area: XmlSyncArea): string {

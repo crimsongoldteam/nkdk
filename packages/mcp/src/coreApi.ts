@@ -20,8 +20,29 @@ export interface ConfigurationSyncFailure {
   error: unknown
 }
 
+export interface ConfigurationChangedXmlFile {
+  path: string
+  change: "added" | "changed" | "deleted"
+}
+
+export interface MigrationPlanItem {
+  fileName: string
+  from: string
+  to: string
+}
+
+export interface MigrationChainInvalidResult {
+  ok: false
+  code: "migration_chain_invalid"
+  message: string
+  migrationErrors: unknown[]
+}
+
 export interface ConfigurationSyncResult {
   succeeded: number
+  changedXmlFiles?: ConfigurationChangedXmlFile[]
+  migrationsApplied?: MigrationPlanItem[]
+  migrationChain?: MigrationChainInvalidResult
   failed: ConfigurationSyncFailure[]
 }
 

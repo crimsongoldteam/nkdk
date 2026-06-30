@@ -52,14 +52,14 @@ export interface MetadataOperationChangedXmlFile {
 
 export interface MetadataOperationReferenceChange {
   filePath: string
-  yamlPath: Array<string | number>
+  yamlPath: readonly (string | number)[]
   from: string
   to: string
 }
 
 export interface MetadataOperationBlockedReference {
   filePath: string
-  yamlPath: Array<string | number>
+  yamlPath: readonly (string | number)[]
   value: string
 }
 

@@ -43,11 +43,17 @@ export const syncConfiguration = async (
   if (result.changedXmlFiles && result.changedXmlFiles.length > 0) {
     process.stdout.write("Изменённые XML-файлы:\n")
     for (const file of result.changedXmlFiles) {
-      process.stdout.write(`  ${file}\n`)
+      process.stdout.write(`  ${changedXmlFileLabel(file.change)} ${file.path}\n`)
     }
   }
 
   if (result.failed.length > 0) {
     process.exitCode = 1
   }
+}
+
+function changedXmlFileLabel(change: "added" | "changed" | "deleted"): string {
+  if (change === "added") return "добавлен:"
+  if (change === "deleted") return "удалён:"
+  return "изменён:"
 }

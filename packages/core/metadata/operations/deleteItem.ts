@@ -45,7 +45,7 @@ export function deleteMetadataItem(params: DeleteMetadataItemParams): MetadataOp
     }
   }
 
-  if (params.allowWrite !== true) return success("plan", plan, plan.plannedChangedFiles)
+  if (params.allowWrite !== true) return success("plan", plan.plannedChangedFiles)
 
   const applied = applyMetadataOperationFilePlan({ steps: plan.steps })
   if (!applied.ok) {
@@ -62,7 +62,7 @@ export function deleteMetadataItem(params: DeleteMetadataItemParams): MetadataOp
     }
   }
 
-  return success("applied", plan, applied.changedFiles)
+  return success("applied", applied.changedFiles)
 }
 
 function buildDeletePlan(params: {
@@ -133,7 +133,7 @@ function deletedTreeMatcher(resolved: ResolvedMetadataOperationTarget): (filePat
   return () => false
 }
 
-function success(mode: MetadataOperationMode, plan: DeletePlan, changedFiles: string[]): MetadataOperationResult {
+function success(mode: MetadataOperationMode, changedFiles: string[]): MetadataOperationResult {
   return {
     ok: true,
     mode,

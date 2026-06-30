@@ -81,13 +81,13 @@ describe("sync command", () => {
     mocks.readXmlSyncState.mockResolvedValue({ version: 1, files: {} })
     mocks.syncConfigurationIncrementallyToXML.mockResolvedValueOnce({
       succeeded: 1,
-      changedXmlFiles: ["Catalogs/Товары/Forms/ФормаЭлемента.xml"],
+      changedXmlFiles: [{ path: "Catalogs/Товары/Forms/ФормаЭлемента.xml", change: "changed" }],
       failed: [],
     })
 
     await syncConfiguration("yaml", "xml")
 
     expect(stdout).toHaveBeenCalledWith("Изменённые XML-файлы:\n")
-    expect(stdout).toHaveBeenCalledWith("  Catalogs/Товары/Forms/ФормаЭлемента.xml\n")
+    expect(stdout).toHaveBeenCalledWith("  изменён: Catalogs/Товары/Forms/ФормаЭлемента.xml\n")
   })
 })
