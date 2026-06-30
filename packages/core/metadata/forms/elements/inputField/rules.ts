@@ -12,8 +12,9 @@ export const InputFieldRules = {
     allowInputEmptyMultipleValues: {
       yaml: "РазрешитьВводПустыхМножественныхЗначений",
       type: "boolean",
+      noImplicitValueYAML: true,
     },
-    allowMultipleValuesDuplicates: { yaml: "РазрешитьДублированиеМножественныхЗначений", type: "boolean" },
+    allowMultipleValuesDuplicates: { yaml: "РазрешитьДублированиеМножественныхЗначений", type: "boolean", noImplicitValueYAML: true },
     autoCapitalizationOnTextInput: {
       yaml: "АвтоИзменениеРегистраПриВводеТекста",
       type: "SystemEnumeration",
@@ -134,7 +135,7 @@ export const InputFieldRules = {
       implicitValueYAML: true,
     },
     // markIncomplete: { yaml: "ОтметкаНезаполненного", type: "boolean" },
-    markNegatives: { yaml: "ВыделятьОтрицательные", type: "boolean" },
+    markNegatives: { yaml: "ВыделятьОтрицательные", type: "boolean", noImplicitValueYAML: true },
     mask: { yaml: "Маска", type: "string" },
     maxHeight: { yaml: "МаксимальнаяВысота", type: "number", implicitValueYAML: 0 },
     maxValue: { yaml: "МаксимальноеЗначение", type: "MinMaxValue", xml: "MaxValue" },
@@ -170,9 +171,10 @@ export const InputFieldRules = {
       yaml: "РасширенноеРедактированиеМножественныхЗначений",
       type: "boolean",
       xml: "ExtendedEditMultipleValues",
+      noImplicitValueYAML: true,
     },
     multipleValuesFont: { yaml: "ШрифтМножественныхЗначений", type: "Font", metadataTarget: { kind: "object", roots: ["StyleItem"], filters: [{ kind: "styleItemType", values: ["Font"] }] } },
-    multipleValuesHyperlink: { yaml: "ГиперссылкаМножественныхЗначений", type: "boolean" },
+    multipleValuesHyperlink: { yaml: "ГиперссылкаМножественныхЗначений", type: "boolean", noImplicitValueYAML: true },
     multipleValuesPicture: {
       yaml: "КартинкаМножественныхЗначений",
       type: "Picture", metadataTarget: { kind: "object", roots: ["CommonPicture"] },
@@ -197,6 +199,7 @@ export const InputFieldRules = {
       yaml: "ОтображатьФлажкиВВыпадающемСпискеПриВводеМножественныхЗначений",
       type: "boolean",
       xml: "ShowCheckBoxesInDropList",
+      noImplicitValueYAML: true,
     },
     specialTextInputMode: {
       yaml: "СпециальныйРежимВводаТекста",

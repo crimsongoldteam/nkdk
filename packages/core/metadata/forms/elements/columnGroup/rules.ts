@@ -48,18 +48,34 @@ export const ColumnGroupRules = {
       type: "Picture",
       metadataTarget: { kind: "object", roots: ["CommonPicture"] },
     },
-    showInHeader: { yaml: "ОтображатьВШапке", type: "boolean" },
-    showTitle: { yaml: "ОтображатьЗаголовок", type: "boolean" },
+    showInHeader: { yaml: "ОтображатьВШапке", type: "boolean", implicitValueYAML: false },
+    showTitle: { yaml: "ОтображатьЗаголовок", type: "boolean", noImplicitValueYAML: true },
     titleBackColor: {
       yaml: "ЦветФонаЗаголовка",
       type: "Color",
       metadataTarget: { kind: "object", roots: ["StyleItem"], filters: [{ kind: "styleItemType", values: ["Color"] }] },
     },
     ...formGroupCommonProperties,
+    height: {
+      ...formGroupCommonProperties.height,
+      implicitValueYAML: 0,
+    },
+    horizontalStretch: {
+      ...formGroupCommonProperties.horizontalStretch,
+      implicitValueYAML: false,
+    },
     shortcut: {
       ...formGroupCommonProperties.shortcut,
       toYAML: false,
       fromYAML: false,
+    },
+    visible: {
+      ...formGroupCommonProperties.visible,
+      implicitValueYAML: true,
+    },
+    width: {
+      ...formGroupCommonProperties.width,
+      implicitValueYAML: 0,
     },
     type: {
       yaml: "Вид",

@@ -77,7 +77,7 @@ export const formFieldCommonProperties = {
   //   typeSE: "FormFieldType",
   // },
   visible: { yaml: "Видимость", type: "boolean", implicitValueYAML: true },
-  titleHeight: { yaml: "ВысотаЗаголовка", type: "number" },
+  titleHeight: { yaml: "ВысотаЗаголовка", type: "number", implicitValueYAML: 0 },
   cellHyperlink: { yaml: "ГиперссылкаЯчейки", type: "boolean", implicitValueYAML: false },
   autoCellHeight: {
     yaml: "АвтоВысотаЯчейки",

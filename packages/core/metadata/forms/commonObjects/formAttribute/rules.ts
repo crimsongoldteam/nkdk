@@ -52,12 +52,14 @@ export const FormAttributeRules = {
       yaml: "ОсновнойРеквизит",
       xml: "MainAttribute",
       type: "boolean",
+      implicitValueYAML: false,
       order: 5,
     },
     storedData: {
       yaml: "СохраняемыеДанные",
       xml: "SavedData",
       type: "boolean",
+      implicitValueYAML: false,
       order: 6,
     },
     view: {

@@ -12,7 +12,7 @@ export const GeographicalSchemaFieldRules = {
     autoMaxHeight: { yaml: "АвтоМаксимальнаяВысота", type: "boolean", implicitValueYAML: true },
     autoMaxWidth: { yaml: "АвтоМаксимальнаяШирина", type: "boolean", implicitValueYAML: true },
     borderColor: { yaml: "ЦветРамки", type: "Color", metadataTarget: { kind: "object", roots: ["StyleItem"], filters: [{ kind: "styleItemType", values: ["Color"] }] } },
-    height: { yaml: "Высота", type: "number" },
+    height: { yaml: "Высота", type: "number", implicitValueYAML: 10 },
     horizontalStretch: { yaml: "РастягиватьПоГоризонтали", type: "boolean", implicitValueYAML: true },
     maxHeight: { yaml: "МаксимальнаяВысота", type: "number", implicitValueYAML: 0 },
     maxWidth: { yaml: "МаксимальнаяШирина", type: "number", implicitValueYAML: 0 },
@@ -23,7 +23,7 @@ export const GeographicalSchemaFieldRules = {
       implicitValueYAML: "Auto",
     },
     verticalStretch: { yaml: "РастягиватьПоВертикали", type: "boolean", implicitValueYAML: true },
-    width: { yaml: "Ширина", type: "number" },
+    width: { yaml: "Ширина", type: "number", implicitValueYAML: 50 },
     events: {
       type: "Events",
       yaml: "События",
@@ -44,6 +44,7 @@ export const GeographicalSchemaFieldRules = {
       defaultType: "GeographicalSchema",
     },
     ...formFieldCommonProperties,
+    titleHeight: { ...formFieldCommonProperties.titleHeight, implicitValueYAML: 0 },
   },
 } as const satisfies ElementRule
 

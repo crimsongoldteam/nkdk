@@ -43,7 +43,7 @@ export const FilterItemComparisonRules = {
       xml: "dcsset:application",
       yaml: "Применение",
       order: 9,
-      //   implicitValueYAML: "Items",
+      implicitValueYAML: "Items",
     },
     viewMode: {
       type: "SystemEnumeration",
@@ -82,6 +82,7 @@ export const FilterItemGroupRules = {
       type: "boolean",
       xml: "dcsset:use",
       yaml: "Использование",
+      implicitValueYAML: true,
       order: 7,
     },
     groupType: {
@@ -89,6 +90,7 @@ export const FilterItemGroupRules = {
       typeSE: "DataCompositionFilterItemsGroupType",
       xml: "dcsset:groupType",
       yaml: "ТипГруппы",
+      implicitValueYAML: "AndGroup",
       order: 1,
     },
     items: {
@@ -108,6 +110,7 @@ export const FilterItemGroupRules = {
       typeSE: "DataCompositionFilterApplicationType",
       xml: "dcsset:application",
       yaml: "Применение",
+      implicitValueYAML: "Items",
       order: 8,
     },
     viewMode: {

@@ -92,6 +92,7 @@ const commonTabularSectionProperties = {
     type: "number",
     xmlParents: propertiesParents,
     defaultValueXML: 5,
+    implicitValueYAML: 5,
     preserveFromReferenceXML: true,
     order: 8,
   },
@@ -101,6 +102,7 @@ const commonTabularSectionProperties = {
     type: "SystemEnumeration",
     typeSE: "ObjectBelonging",
     xmlParents: propertiesParents,
+    noImplicitValueYAML: true,
     order: 9,
   },
   attributes: {

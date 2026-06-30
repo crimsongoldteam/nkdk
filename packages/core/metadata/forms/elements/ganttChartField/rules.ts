@@ -9,15 +9,16 @@ export const GanttChartFieldRules = {
   enterpriseField: "FormField",
   enterpriseFieldType: "FormFieldType.GanttChartField",
   properties: {
-    autoMaxHeight: { yaml: "АвтоМаксимальнаяВысота", type: "boolean" },
-    autoMaxWidth: { yaml: "АвтоМаксимальнаяШирина", type: "boolean" },
-    height: { yaml: "Высота", type: "number" },
-    horizontalLines: { yaml: "ГоризонтальныеЛинии", xml: "ShowHorizontalLinesFlag", type: "boolean" },
-    horizontalStretch: { yaml: "РастягиватьПоГоризонтали", type: "boolean" },
+    autoMaxHeight: { yaml: "АвтоМаксимальнаяВысота", type: "boolean", implicitValueYAML: true },
+    autoMaxWidth: { yaml: "АвтоМаксимальнаяШирина", type: "boolean", implicitValueYAML: true },
+    height: { yaml: "Высота", type: "number", implicitValueYAML: 10 },
+    horizontalLines: { yaml: "ГоризонтальныеЛинии", xml: "ShowHorizontalLinesFlag", type: "boolean", noImplicitValueYAML: true },
+    horizontalStretch: { yaml: "РастягиватьПоГоризонтали", type: "boolean", implicitValueYAML: true },
     intervalsSelectionMode: {
       yaml: "РежимВыделенияИнтервалов",
       type: "SystemEnumeration",
       typeSE: "GanttChartIntervalsSelectionMode",
+      implicitValueYAML: "Auto",
     },
     maxHeight: { yaml: "МаксимальнаяВысота", type: "number", implicitValueYAML: 0 },
     maxWidth: { yaml: "МаксимальнаяШирина", type: "number", implicitValueYAML: 0 },
@@ -25,6 +26,7 @@ export const GanttChartFieldRules = {
       yaml: "ПоложениеТаблицы",
       type: "SystemEnumeration",
       typeSE: "GanttChartTableLocation",
+      implicitValueYAML: "Auto",
     },
     table: {
       yaml: "Таблица",
@@ -36,10 +38,11 @@ export const GanttChartFieldRules = {
       yaml: "РежимВыделенияЗначений",
       type: "SystemEnumeration",
       typeSE: "GanttChartValuesSelectionMode",
+      implicitValueYAML: "Auto",
     },
-    verticalLines: { yaml: "ВертикальныеЛинии", xml: "ShowVerticalLinesFlag", type: "boolean" },
-    verticalStretch: { yaml: "РастягиватьПоВертикали", type: "boolean" },
-    width: { yaml: "Ширина", type: "number" },
+    verticalLines: { yaml: "ВертикальныеЛинии", xml: "ShowVerticalLinesFlag", type: "boolean", noImplicitValueYAML: true },
+    verticalStretch: { yaml: "РастягиватьПоВертикали", type: "boolean", implicitValueYAML: true },
+    width: { yaml: "Ширина", type: "number", implicitValueYAML: 50 },
     events: {
       type: "Events",
       yaml: "События",
@@ -63,6 +66,7 @@ export const GanttChartFieldRules = {
       defaultType: "GanttChart",
     },
     ...formFieldCommonProperties,
+    titleHeight: { ...formFieldCommonProperties.titleHeight, implicitValueYAML: 0 },
   },
 } as const satisfies ElementRule
 

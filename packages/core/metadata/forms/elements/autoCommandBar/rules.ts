@@ -28,11 +28,13 @@ export const AutoCommandBarRules = {
       type: "SystemEnumeration",
       typeSE: "DisplayImportance",
       xml: "_DisplayImportance",
+      implicitValueYAML: "Auto",
     },
     horizontalAlign: {
       yaml: "ГоризонтальноеПоложение",
       type: "SystemEnumeration",
       typeSE: "ItemHorizontalLocation",
+      implicitValueYAML: "Left",
     },
     childItems: {
       yaml: "Элементы",

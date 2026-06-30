@@ -35,6 +35,10 @@ const accountingFlagProperties = {
     ...commonRegisterFieldProperties.fullTextSearch,
     toXML: hasExplicitProperty("fullTextSearch"),
   },
+  binaryDataStorageLocationUse: {
+    ...commonRegisterFieldProperties.binaryDataStorageLocationUse,
+    noImplicitValueYAML: true,
+  },
 }
 
 export const AccountingFlagRules = {

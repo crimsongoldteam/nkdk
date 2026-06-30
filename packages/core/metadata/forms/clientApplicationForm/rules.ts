@@ -106,11 +106,13 @@ export const ClientApplicationFormRules = {
       yaml: "ЗакрыватьПриВыборе",
       type: "boolean",
       tag: FormRulesTags.Form,
+      noImplicitValueYAML: true,
     },
     closeOnOwnerClose: {
       yaml: "ЗакрыватьПриЗакрытииВладельца",
       type: "boolean",
       tag: FormRulesTags.Form,
+      noImplicitValueYAML: true,
     },
     collapseItemsByImportance: {
       yaml: "СворачиваниеЭлементовПоВажности",
@@ -156,6 +158,7 @@ export const ClientApplicationFormRules = {
       type: "SystemEnumeration",
       typeSE: "ReportFormType",
       tag: FormRulesTags.Form,
+      noImplicitValueYAML: true,
     },
     variantAppearance: {
       yaml: "ПредставлениеВарианта",
@@ -280,11 +283,13 @@ export const ClientApplicationFormRules = {
       yaml: "МодальныйРежим",
       type: "boolean",
       tag: FormRulesTags.Form,
+      noImplicitValueYAML: true,
     },
     modified: {
       yaml: "Модифицированность",
       type: "boolean",
       tag: FormRulesTags.Form,
+      noImplicitValueYAML: true,
     },
     parameters: {
       yaml: "Параметры",
@@ -300,6 +305,7 @@ export const ClientApplicationFormRules = {
       yaml: "ТолькоПросмотр",
       type: "boolean",
       tag: FormRulesTags.Form,
+      noImplicitValueYAML: true,
     },
     saveDataInSettings: {
       yaml: "СохранениеДанныхВНастройках",
@@ -312,6 +318,7 @@ export const ClientApplicationFormRules = {
       yaml: "СохраняемыеВНастройкахДанныеМодифицированы",
       type: "boolean",
       tag: FormRulesTags.Form,
+      noImplicitValueYAML: true,
     },
     scale: {
       yaml: "Масштаб",
@@ -474,6 +481,7 @@ export const ClientApplicationFormRules = {
       yaml: "ВыборДоступен",
       type: "boolean",
       tag: FormRulesTags.Form,
+      noImplicitValueYAML: true,
     },
     useForFoldersAndItems: {
       yaml: "ИспользованиеДляГруппИЭлементов",
@@ -492,6 +500,7 @@ export const ClientApplicationFormRules = {
       type: "SystemEnumeration",
       typeSE: "ChoiceMode",
       tag: FormRulesTags.Form,
+      noImplicitValueYAML: true,
     },
     // #endregion
 
@@ -501,6 +510,7 @@ export const ClientApplicationFormRules = {
       type: "SystemEnumeration",
       typeSE: "AutoTimeMode",
       tag: FormRulesTags.Form,
+      implicitValueYAML: "CurrentOrLast",
     },
     usePostingMode: {
       yaml: "РежимПроведения",
@@ -508,11 +518,13 @@ export const ClientApplicationFormRules = {
       type: "SystemEnumeration",
       typeSE: "DocumentPostingMode",
       tag: FormRulesTags.Form,
+      implicitValueYAML: "Auto",
     },
     repostOnWrite: {
       yaml: "ПерепроводитьПриЗаписи",
       type: "boolean",
       tag: FormRulesTags.Form,
+      implicitValueYAML: true,
     },
     // #endregion
 

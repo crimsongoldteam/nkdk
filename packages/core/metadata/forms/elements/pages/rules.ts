@@ -60,6 +60,22 @@ export const PagesRules = {
       toEnterprise: false,
     },
     ...formGroupCommonProperties,
+    height: {
+      ...formGroupCommonProperties.height,
+      implicitValueYAML: 0,
+    },
+    horizontalStretch: {
+      ...formGroupCommonProperties.horizontalStretch,
+      noImplicitValueYAML: true,
+    },
+    visible: {
+      ...formGroupCommonProperties.visible,
+      implicitValueYAML: true,
+    },
+    width: {
+      ...formGroupCommonProperties.width,
+      implicitValueYAML: 0,
+    },
     type: {
       yaml: "Вид",
       type: "SystemEnumeration",

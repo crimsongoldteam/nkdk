@@ -106,6 +106,7 @@ export const MetadataExternalDataSourceCubeResourceRules = {
       type: "SystemEnumeration",
       typeSE: "BinaryDataStorageLocationUse",
       xmlParents: propertiesParents,
+      noImplicitValueYAML: true,
     },
     binaryDataStorageLocationUseField: {
       yaml: "ПолеИспользованияХраненияВХранилищеДвоичныхДанных",

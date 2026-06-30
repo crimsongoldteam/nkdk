@@ -60,17 +60,20 @@ export const FormCommandRules = {
       xml: "Representation",
       type: "SystemEnumeration",
       typeSE: "ButtonRepresentation",
+      implicitValueYAML: "Auto",
     },
     currentRowUse: {
       yaml: "ИспользованиеТекущейСтроки",
       xml: "CurrentRowUse",
       type: "SystemEnumeration",
       typeSE: "CurrentRowUse",
+      implicitValueYAML: "Auto",
     },
     modifiesSavedData: {
       yaml: "ИзменяемыеДанные",
       xml: "ModifiesSavedData",
       type: "boolean",
+      implicitValueYAML: false,
     },
     table: {
       yaml: "Таблица",

@@ -16,16 +16,17 @@ export const RadioButtonFieldRules = {
       type: "ChoiceList",
       toEnterprise: false,
     },
-    columnsCount: { yaml: "КоличествоКолонок", type: "number" },
-    equalColumnsWidth: { yaml: "ОдинаковаяШиринаКолонок", type: "boolean" },
+    columnsCount: { yaml: "КоличествоКолонок", type: "number", implicitValueYAML: 0 },
+    equalColumnsWidth: { yaml: "ОдинаковаяШиринаКолонок", type: "boolean", noImplicitValueYAML: true },
     font: { yaml: "Шрифт", type: "Font", metadataTarget: { kind: "object", roots: ["StyleItem"], filters: [{ kind: "styleItemType", values: ["Font"] }] } },
-    itemHeight: { yaml: "ВысотаЭлемента", type: "number" },
-    itemTitleHeight: { yaml: "ВысотаЗаголовкаЭлемента", type: "number" },
-    itemWidth: { yaml: "ШиринаЭлемента", type: "number" },
+    itemHeight: { yaml: "ВысотаЭлемента", type: "number", implicitValueYAML: 0 },
+    itemTitleHeight: { yaml: "ВысотаЗаголовкаЭлемента", type: "number", implicitValueYAML: 0 },
+    itemWidth: { yaml: "ШиринаЭлемента", type: "number", implicitValueYAML: 0 },
     radioButtonType: {
       yaml: "ВидПереключателя",
       type: "SystemEnumeration",
       typeSE: "RadioButtonType",
+      implicitValueYAML: "Auto",
     },
     textColor: { yaml: "ЦветТекста", type: "Color", metadataTarget: { kind: "object", roots: ["StyleItem"], filters: [{ kind: "styleItemType", values: ["Color"] }] } },
     events: {
@@ -45,6 +46,10 @@ export const RadioButtonFieldRules = {
     },
     ...formFieldCommonProperties,
     ...formFieldDisabledTableRelatedProperties,
+    titleHeight: {
+      ...formFieldCommonProperties.titleHeight,
+      implicitValueYAML: 0,
+    },
   },
 } as const satisfies ElementRule
 

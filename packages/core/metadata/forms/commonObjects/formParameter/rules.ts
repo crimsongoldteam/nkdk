@@ -18,6 +18,7 @@ export const FormParameterRules = {
       yaml: "Ключевой",
       type: "boolean",
       xml: "KeyParameter",
+      implicitValueYAML: false,
     },
   },
 } as const satisfies MetadataItemRule

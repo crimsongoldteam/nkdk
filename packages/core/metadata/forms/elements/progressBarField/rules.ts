@@ -9,11 +9,11 @@ export const ProgressBarFieldRules = {
   enterpriseField: "FormField",
   enterpriseFieldType: "FormFieldType.ProgressBarField",
   properties: {
-    autoMaxHeight: { yaml: "АвтоМаксимальнаяВысота", type: "boolean" },
-    autoMaxWidth: { yaml: "АвтоМаксимальнаяШирина", type: "boolean" },
+    autoMaxHeight: { yaml: "АвтоМаксимальнаяВысота", type: "boolean", implicitValueYAML: true },
+    autoMaxWidth: { yaml: "АвтоМаксимальнаяШирина", type: "boolean", implicitValueYAML: true },
     borderColor: { yaml: "ЦветРамки", type: "Color", metadataTarget: { kind: "object", roots: ["StyleItem"], filters: [{ kind: "styleItemType", values: ["Color"] }] } },
-    height: { yaml: "Высота", type: "number" },
-    horizontalStretch: { yaml: "РастягиватьПоГоризонтали", type: "boolean" },
+    height: { yaml: "Высота", type: "number", implicitValueYAML: 1 },
+    horizontalStretch: { yaml: "РастягиватьПоГоризонтали", type: "boolean", implicitValueYAML: true },
     maxHeight: { yaml: "МаксимальнаяВысота", type: "number", implicitValueYAML: 0 },
     maxValue: { yaml: "МаксимальноеЗначение", type: "number", implicitValueYAML: 100 },
     maxWidth: { yaml: "МаксимальнаяШирина", type: "number", implicitValueYAML: 0 },
@@ -22,15 +22,17 @@ export const ProgressBarFieldRules = {
       yaml: "Ориентация",
       type: "SystemEnumeration",
       typeSE: "FormItemOrientation",
+      implicitValueYAML: "Horizontal",
     },
     representation: {
       yaml: "Отображение",
       type: "SystemEnumeration",
       typeSE: "ProgressBarSmoothingMode",
+      implicitValueYAML: "Smooth",
     },
-    showPercent: { yaml: "ОтображатьПроценты", type: "boolean" },
-    verticalStretch: { yaml: "РастягиватьПоВертикали", type: "boolean" },
-    width: { yaml: "Ширина", type: "number" },
+    showPercent: { yaml: "ОтображатьПроценты", type: "boolean", implicitValueYAML: false },
+    verticalStretch: { yaml: "РастягиватьПоВертикали", type: "boolean", implicitValueYAML: false },
+    width: { yaml: "Ширина", type: "number", implicitValueYAML: 32 },
     events: {
       type: "Events",
       yaml: "События",
@@ -48,6 +50,10 @@ export const ProgressBarFieldRules = {
     },
     ...formFieldCommonProperties,
     ...formFieldDisabledTableRelatedProperties,
+    titleHeight: {
+      ...formFieldCommonProperties.titleHeight,
+      implicitValueYAML: 0,
+    },
   },
 } as const satisfies ElementRule
 

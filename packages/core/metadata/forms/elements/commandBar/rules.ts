@@ -14,7 +14,7 @@ export const CommandBarRules = {
       xml: "_name",
       required: true,
     },
-    autofill: { yaml: "Автозаполнение", type: "boolean" },
+    autofill: { yaml: "Автозаполнение", type: "boolean", implicitValueYAML: false },
     childItems: {
       yaml: "Элементы",
       type: "CommandBarChildItems",
@@ -25,19 +25,37 @@ export const CommandBarRules = {
       xml: "_DisplayImportance",
       type: "SystemEnumeration",
       typeSE: "DisplayImportance",
+      implicitValueYAML: "Auto",
     },
     horizontalAlign: {
       yaml: "ГоризонтальноеПоложение",
       type: "SystemEnumeration",
       typeSE: "ItemHorizontalLocation",
       xml: "HorizontalLocation",
+      implicitValueYAML: "Left",
     },
     commandSource: { yaml: "ИсточникКоманд", type: "string" },
     ...formGroupCommonProperties,
+    height: {
+      ...formGroupCommonProperties.height,
+      implicitValueYAML: 0,
+    },
+    horizontalStretch: {
+      ...formGroupCommonProperties.horizontalStretch,
+      implicitValueYAML: false,
+    },
     shortcut: {
       ...formGroupCommonProperties.shortcut,
       toYAML: false,
       fromYAML: false,
+    },
+    visible: {
+      ...formGroupCommonProperties.visible,
+      implicitValueYAML: true,
+    },
+    width: {
+      ...formGroupCommonProperties.width,
+      implicitValueYAML: 0,
     },
     type: {
       yaml: "Вид",

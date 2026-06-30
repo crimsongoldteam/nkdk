@@ -17,6 +17,7 @@ export const CalculatedFieldOrderExpressionRules = {
       yaml: "ТипУпорядочивания",
       order: 2,
       xmlNamespace: "http://v8.1c.ru/8.1/data-composition-system/common",
+      implicitValueYAML: "Asc",
     },
     autoOrder: {
       type: "boolean",
@@ -24,6 +25,7 @@ export const CalculatedFieldOrderExpressionRules = {
       yaml: "Автоупорядочивание",
       order: 3,
       xmlNamespace: "http://v8.1c.ru/8.1/data-composition-system/common",
+      implicitValueYAML: false,
     },
   },
 } as const satisfies MetadataItemRule

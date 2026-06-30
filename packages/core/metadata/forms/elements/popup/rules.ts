@@ -35,24 +35,36 @@ export const PopupRules = {
       xml: "_DisplayImportance",
       type: "SystemEnumeration",
       typeSE: "DisplayImportance",
+      implicitValueYAML: "Auto",
     },
     picture: { yaml: "Картинка", type: "Picture", metadataTarget: { kind: "object", roots: ["CommonPicture"] } },
     representation: {
       yaml: "Отображение",
       type: "SystemEnumeration",
       typeSE: "ButtonRepresentation",
+      implicitValueYAML: "Auto",
     },
     shape: {
       yaml: "Фигура",
       type: "SystemEnumeration",
       typeSE: "ButtonShape",
+      implicitValueYAML: "Auto",
     },
     shapeRepresentation: {
       yaml: "ОтображениеФигуры",
       type: "SystemEnumeration",
       typeSE: "ButtonShapeRepresentation",
+      implicitValueYAML: "Auto",
     },
     ...formGroupCommonProperties,
+    height: {
+      ...formGroupCommonProperties.height,
+      implicitValueYAML: 0,
+    },
+    horizontalStretch: {
+      ...formGroupCommonProperties.horizontalStretch,
+      noImplicitValueYAML: true,
+    },
     shortcut: {
       ...formGroupCommonProperties.shortcut,
       toYAML: false,
@@ -62,6 +74,14 @@ export const PopupRules = {
       ...formGroupCommonProperties.extendedTooltip,
       toYAML: false,
       fromYAML: false,
+    },
+    visible: {
+      ...formGroupCommonProperties.visible,
+      implicitValueYAML: true,
+    },
+    width: {
+      ...formGroupCommonProperties.width,
+      implicitValueYAML: 0,
     },
     type: {
       yaml: "Вид",

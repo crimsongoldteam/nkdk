@@ -323,6 +323,7 @@ export const commonRegisterFieldProperties = {
     type: "SystemEnumeration",
     typeSE: "BinaryDataStorageLocationUse",
     xmlParents: propertiesParents,
+    noImplicitValueYAML: true,
     order: 30,
   },
   binaryDataStorageLocationUseField: {

@@ -19,6 +19,7 @@ export const formGroupCommonProperties = {
   height: {
     yaml: "Высота",
     type: "number",
+    implicitValueYAML: 0,
   },
   horizontalAlignInGroup: {
     yaml: "ГоризонтальноеПоложениеВГруппе",
@@ -30,6 +31,7 @@ export const formGroupCommonProperties = {
   horizontalStretch: {
     yaml: "РастягиватьПоГоризонтали",
     type: "boolean",
+    implicitValueYAML: false,
   },
   parent: {
     type: "string",
@@ -87,9 +89,11 @@ export const formGroupCommonProperties = {
   visible: {
     yaml: "Видимость",
     type: "boolean",
+    implicitValueYAML: true,
   },
   width: {
     yaml: "Ширина",
     type: "number",
+    implicitValueYAML: 0,
   },
 } as const satisfies MetadataItemRule["properties"]

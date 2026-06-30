@@ -7,6 +7,7 @@ export const GroupItemAutoRules = {
       type: "boolean",
       xml: "dcsset:use",
       yaml: "Использование",
+      implicitValueYAML: true,
     },
   },
 } as const satisfies MetadataItemRule

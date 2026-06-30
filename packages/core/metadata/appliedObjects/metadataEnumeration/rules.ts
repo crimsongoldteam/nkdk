@@ -47,6 +47,7 @@ export const MetadataEnumerationValueRules = {
       type: "SystemEnumeration",
       typeSE: "ObjectBelonging",
       xmlParents: enumProperties,
+      noImplicitValueYAML: true,
     },
     extendedConfigurationObject: {
       yaml: "ОбъектРасширяемойКонфигурации",
@@ -105,6 +106,7 @@ export const MetadataEnumerationRules = {
       type: "SystemEnumeration",
       typeSE: "ObjectBelonging",
       xmlParents: enumProperties,
+      noImplicitValueYAML: true,
     },
     extendedConfigurationObject: {
       yaml: "ОбъектРасширяемойКонфигурации",

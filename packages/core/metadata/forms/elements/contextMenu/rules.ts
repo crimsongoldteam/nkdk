@@ -21,8 +21,9 @@ export const ContextMenuRules = {
       xml: "_DisplayImportance",
       type: "SystemEnumeration",
       typeSE: "DisplayImportance",
+      noImplicitValueYAML: true,
     },
-    autofill: { yaml: "Автозаполнение", xml: "Autofill", type: "boolean" },
+    autofill: { yaml: "Автозаполнение", xml: "Autofill", type: "boolean", noImplicitValueYAML: true },
     childItems: {
       yaml: "Элементы",
       xml: "ChildItems",

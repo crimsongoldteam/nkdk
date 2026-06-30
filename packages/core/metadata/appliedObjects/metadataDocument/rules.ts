@@ -338,6 +338,7 @@ export const MetadataDocumentRules = {
       type: "number",
       defaultValueXML: 11,
       xmlParents: documentProperties,
+      implicitValueYAML: 11,
     },
     numberPeriodicity: {
       yaml: "ПериодичностьНомера",

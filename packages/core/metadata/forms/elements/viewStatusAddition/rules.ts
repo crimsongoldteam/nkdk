@@ -8,7 +8,7 @@ import { getViewStatusAdditionName } from "./helper"
 export type { ElementRule, PropertyRule }
 
 const commonProperties = {
-  autoMaxWidth: { yaml: "АвтоМаксимальнаяШирина", type: "boolean" },
+  autoMaxWidth: { yaml: "АвтоМаксимальнаяШирина", type: "boolean", implicitValueYAML: true },
   backColor: { yaml: "ЦветФона", type: "Color", metadataTarget: { kind: "object", roots: ["StyleItem"], filters: [{ kind: "styleItemType", values: ["Color"] }] } },
   border: { yaml: "Рамка", type: "Border", metadataTarget: { kind: "object", roots: ["StyleItem"], filters: [{ kind: "styleItemType", values: ["Border"] }] } },
   borderColor: { yaml: "ЦветРамки", type: "Color", metadataTarget: { kind: "object", roots: ["StyleItem"], filters: [{ kind: "styleItemType", values: ["Color"] }] } },
@@ -19,22 +19,24 @@ const commonProperties = {
     xml: "HorizontalLocation",
     type: "SystemEnumeration",
     typeSE: "ItemHorizontalLocation",
+    implicitValueYAML: "Auto",
   },
-  horizontalStretch: { yaml: "РастягиватьПоГоризонтали", type: "boolean" },
+  horizontalStretch: { yaml: "РастягиватьПоГоризонтали", type: "boolean", noImplicitValueYAML: true },
   maxWidth: { yaml: "МаксимальнаяШирина", type: "number", implicitValueYAML: 0 },
   textColor: { yaml: "ЦветТекста", type: "Color", metadataTarget: { kind: "object", roots: ["StyleItem"], filters: [{ kind: "styleItemType", values: ["Color"] }] } },
   titleFont: { yaml: "ШрифтЗаголовка", type: "Font", metadataTarget: { kind: "object", roots: ["StyleItem"], filters: [{ kind: "styleItemType", values: ["Font"] }] } },
   titleTextColor: { yaml: "ЦветТекстаЗаголовка", type: "Color", metadataTarget: { kind: "object", roots: ["StyleItem"], filters: [{ kind: "styleItemType", values: ["Color"] }] } },
-  width: { yaml: "Ширина", type: "number" },
+  width: { yaml: "Ширина", type: "number", implicitValueYAML: 0 },
   contextMenu: { yaml: "КонтекстноеМеню", type: "ContextMenu" },
   displayImportance: {
     yaml: "ВажностьПриОтображении",
     xml: "_DisplayImportance",
     type: "SystemEnumeration",
     typeSE: "DisplayImportance",
+    implicitValueYAML: "Auto",
   },
-  enabled: { yaml: "Доступность", type: "boolean" },
-  visible: { yaml: "Видимость", type: "boolean" },
+  enabled: { yaml: "Доступность", type: "boolean", implicitValueYAML: true },
+  visible: { yaml: "Видимость", type: "boolean", noImplicitValueYAML: true },
   extendedTooltip: { yaml: "РасширеннаяПодсказка", type: "ExtendedTooltip" },
   title: {
     yaml: "Заголовок",
@@ -45,6 +47,7 @@ const commonProperties = {
     yaml: "ОтображениеПодсказки",
     type: "SystemEnumeration",
     typeSE: "ToolTipRepresentation",
+    implicitValueYAML: "Auto",
   },
 } as const satisfies MetadataItemRule["properties"]
 

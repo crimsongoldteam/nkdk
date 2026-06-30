@@ -32,8 +32,13 @@ export const ButtonGroupRules = {
       yaml: "Отображение",
       type: "SystemEnumeration",
       typeSE: "ButtonGroupRepresentation",
+      implicitValueYAML: "Auto",
     },
     ...formGroupCommonProperties,
+    height: { yaml: "Высота", type: "number", implicitValueYAML: 0 },
+    horizontalStretch: { yaml: "РастягиватьПоГоризонтали", type: "boolean", implicitValueYAML: false },
+    visible: { yaml: "Видимость", type: "boolean", implicitValueYAML: true },
+    width: { yaml: "Ширина", type: "number", implicitValueYAML: 0 },
     type: {
       yaml: "Вид",
       type: "SystemEnumeration",

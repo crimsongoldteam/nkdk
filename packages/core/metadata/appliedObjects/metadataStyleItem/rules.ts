@@ -44,6 +44,7 @@ export const MetadataStyleItemRules = {
       type: "SystemEnumeration",
       typeSE: "StyleElementType",
       xmlParents: properties,
+      implicitValueYAML: "Font",
     },
     value: {
       yaml: "Значение",

@@ -12,7 +12,7 @@ export const HTMLDocumentFieldRules = {
     autoMaxHeight: { yaml: "АвтоМаксимальнаяВысота", type: "boolean", implicitValueYAML: true },
     autoMaxWidth: { yaml: "АвтоМаксимальнаяШирина", type: "boolean", implicitValueYAML: true },
     borderColor: { yaml: "ЦветРамки", type: "Color", metadataTarget: { kind: "object", roots: ["StyleItem"], filters: [{ kind: "styleItemType", values: ["Color"] }] } },
-    height: { yaml: "Высота", type: "number" },
+    height: { yaml: "Высота", type: "number", implicitValueYAML: 0 },
     horizontalStretch: { yaml: "РастягиватьПоГоризонтали", type: "boolean", implicitValueYAML: true },
     maxHeight: { yaml: "МаксимальнаяВысота", type: "number", implicitValueYAML: 0 },
     maxWidth: { yaml: "МаксимальнаяШирина", type: "number", implicitValueYAML: 0 },
@@ -28,7 +28,7 @@ export const HTMLDocumentFieldRules = {
       runtimeOnly: true,
     },
     verticalStretch: { yaml: "РастягиватьПоВертикали", type: "boolean", implicitValueYAML: true },
-    width: { yaml: "Ширина", type: "number" },
+    width: { yaml: "Ширина", type: "number", implicitValueYAML: 0 },
     events: {
       type: "Events",
       yaml: "События",
@@ -50,6 +50,7 @@ export const HTMLDocumentFieldRules = {
       defaultType: "string",
     },
     ...formFieldCommonProperties,
+    titleHeight: { ...formFieldCommonProperties.titleHeight, implicitValueYAML: 0 },
     ...formFieldDisabledTableRelatedProperties,
   },
 } as const satisfies ElementRule

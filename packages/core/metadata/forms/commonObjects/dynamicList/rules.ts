@@ -8,6 +8,7 @@ export const DynamicListRules = {
       type: "boolean",
       yaml: "АвтоЗаполнениеДоступныхПолей",
       order: 0,
+      implicitValueYAML: true,
     },
     autoSaveUserSettings: {
       type: "boolean",
@@ -133,6 +134,7 @@ export const DynamicListRules = {
       yaml: "РежимОтображенияСтруктуры",
       xmlParents: ["ListSettings"],
       order: 13,
+      implicitValueYAML: "Normal",
     },
     settingsComposer: {
       type: "string",

@@ -44,7 +44,7 @@ export const UsualGroupRules = {
       xml: "VerticalAlign",
       implicitValueYAML: "Auto",
     },
-    collapsed: { yaml: "Свернута", type: "boolean" },
+    collapsed: { yaml: "Свернута", type: "boolean", implicitValueYAML: false },
     collapsedRepresentationTitle: {
       yaml: "ЗаголовокСвернутогоОтображения",
       type: "I8nText",
@@ -107,8 +107,9 @@ export const UsualGroupRules = {
       xml: "ChildItemsWidth",
       type: "SystemEnumeration",
       typeSE: "ChildFormItemsWidth",
+      noImplicitValueYAML: true,
     },
-    showLeftMargin: { yaml: "ОтображатьОтступСлева", type: "boolean" },
+    showLeftMargin: { yaml: "ОтображатьОтступСлева", type: "boolean", implicitValueYAML: true },
     showTitle: {
       yaml: "ОтображатьЗаголовок",
       type: "boolean",
@@ -128,7 +129,7 @@ export const UsualGroupRules = {
       implicitValueYAML: "Auto",
     },
     titleDataPath: { yaml: "ПутьКДаннымЗаголовка", type: "DataPath", defaultType: "string" },
-    united: { yaml: "Объединенная", type: "boolean" },
+    united: { yaml: "Объединенная", type: "boolean", implicitValueYAML: true },
     verticalSpacing: {
       yaml: "ВертикальныйИнтервал",
       type: "SystemEnumeration",

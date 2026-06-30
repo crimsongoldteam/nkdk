@@ -146,6 +146,7 @@ export const MetadataCatalogRules = {
       type: "number",
       defaultValueXML: 9,
       xmlParents: ["Properties"],
+      implicitValueYAML: 10,
     },
     codeSeries: {
       yaml: "СерииКодов",
@@ -248,6 +249,7 @@ export const MetadataCatalogRules = {
       type: "number",
       defaultValueXML: 25,
       xmlParents: ["Properties"],
+      implicitValueYAML: 30,
     },
     editType: {
       yaml: "СпособРедактирования",
@@ -345,6 +347,7 @@ export const MetadataCatalogRules = {
       type: "number",
       defaultValueXML: 2,
       xmlParents: ["Properties"],
+      implicitValueYAML: 2,
     },
     limitLevelCount: {
       yaml: "ОграничиватьКоличествоУровней",

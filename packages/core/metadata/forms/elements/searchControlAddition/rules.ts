@@ -8,7 +8,7 @@ import { getSearchControlAdditionName } from "./helper"
 export type { ElementRule, PropertyRule }
 
 const commonProperties = {
-  autoMaxWidth: { yaml: "АвтоМаксимальнаяШирина", type: "boolean" },
+  autoMaxWidth: { yaml: "АвтоМаксимальнаяШирина", type: "boolean", implicitValueYAML: true },
   backColor: {
     yaml: "ЦветФона",
     type: "Color",
@@ -30,8 +30,9 @@ const commonProperties = {
     xml: "_DisplayImportance",
     type: "SystemEnumeration",
     typeSE: "DisplayImportance",
+    implicitValueYAML: "Auto",
   },
-  enabled: { yaml: "Доступность", type: "boolean" },
+  enabled: { yaml: "Доступность", type: "boolean", implicitValueYAML: true },
   extendedTooltip: { yaml: "РасширеннаяПодсказка", type: "ExtendedTooltip" },
   font: {
     yaml: "Шрифт",
@@ -43,8 +44,9 @@ const commonProperties = {
     xml: "GroupHorizontalAlign",
     type: "SystemEnumeration",
     typeSE: "ItemHorizontalLocation",
+    implicitValueYAML: "Auto",
   },
-  horizontalStretch: { yaml: "РастягиватьПоГоризонтали", type: "boolean" },
+  horizontalStretch: { yaml: "РастягиватьПоГоризонтали", type: "boolean", noImplicitValueYAML: true },
   maxWidth: { yaml: "МаксимальнаяШирина", type: "number", implicitValueYAML: 0 },
   textColor: {
     yaml: "ЦветТекста",
@@ -60,6 +62,7 @@ const commonProperties = {
     yaml: "ОтображениеПодсказки",
     type: "SystemEnumeration",
     typeSE: "ToolTipRepresentation",
+    implicitValueYAML: "Auto",
   },
   userVisible: {
     yaml: "Использование",
@@ -70,9 +73,10 @@ const commonProperties = {
     xml: "GroupVerticalAlign",
     type: "SystemEnumeration",
     typeSE: "ItemVerticalAlign",
+    implicitValueYAML: "Auto",
   },
-  visible: { yaml: "Видимость", type: "boolean" },
-  width: { yaml: "Ширина", type: "number" },
+  visible: { yaml: "Видимость", type: "boolean", noImplicitValueYAML: true },
+  width: { yaml: "Ширина", type: "number", implicitValueYAML: 0 },
 } as const satisfies MetadataItemRule["properties"]
 
 export const SingleSearchControlAdditionRules = {

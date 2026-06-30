@@ -15,6 +15,7 @@ export const ExchangePlanContentItemRules = {
       type: "SystemEnumeration",
       typeSE: "AutoChangeRecord",
       required: true,
+      implicitValueYAML: "Allow",
     },
   },
 } as const satisfies MetadataItemRule

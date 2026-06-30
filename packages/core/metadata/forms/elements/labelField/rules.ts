@@ -19,7 +19,7 @@ export const LabelFieldRules = {
     height: { yaml: "Высота", type: "number", implicitValueYAML: 0 },
     horizontalStretch: { yaml: "РастягиватьПоГоризонтали", type: "boolean", noImplicitValueYAML: true },
     hyperlink: { yaml: "Гиперссылка", type: "boolean", xml: "Hiperlink", implicitValueYAML: false },
-    markNegatives: { yaml: "ВыделятьОтрицательные", type: "boolean" },
+    markNegatives: { yaml: "ВыделятьОтрицательные", type: "boolean", noImplicitValueYAML: true },
     maxHeight: { yaml: "МаксимальнаяВысота", type: "number", implicitValueYAML: 0 },
     maxWidth: { yaml: "МаксимальнаяШирина", type: "number", implicitValueYAML: 0 },
     passwordMode: { yaml: "РежимПароля", type: "boolean", noImplicitValueYAML: true },

@@ -105,6 +105,7 @@ export const DCSParameterRules = {
       xml: "dcssch:denyIncompleteValues",
       yaml: "ЗапрещатьНезаполненныеЗначения",
       order: 11,
+      implicitValueYAML: false,
     },
     use: {
       type: "SystemEnumeration",

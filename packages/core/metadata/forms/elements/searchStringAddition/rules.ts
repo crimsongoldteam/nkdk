@@ -8,14 +8,14 @@ import { getSearchStringAdditionName } from "./helper"
 export type { ElementRule, PropertyRule }
 
 const commonProperties = {
-  autoMaxWidth: { yaml: "АвтоМаксимальнаяШирина", type: "boolean" },
+  autoMaxWidth: { yaml: "АвтоМаксимальнаяШирина", type: "boolean", implicitValueYAML: true },
   backColor: { yaml: "ЦветФона", type: "Color", metadataTarget: { kind: "object", roots: ["StyleItem"], filters: [{ kind: "styleItemType", values: ["Color"] }] } },
   borderColor: { yaml: "ЦветРамки", type: "Color", metadataTarget: { kind: "object", roots: ["StyleItem"], filters: [{ kind: "styleItemType", values: ["Color"] }] } },
   font: { yaml: "Шрифт", type: "Font", metadataTarget: { kind: "object", roots: ["StyleItem"], filters: [{ kind: "styleItemType", values: ["Font"] }] } },
-  horizontalStretch: { yaml: "РастягиватьПоГоризонтали", type: "boolean" },
+  horizontalStretch: { yaml: "РастягиватьПоГоризонтали", type: "boolean", noImplicitValueYAML: true },
   maxWidth: { yaml: "МаксимальнаяШирина", type: "number", implicitValueYAML: 0 },
   textColor: { yaml: "ЦветТекста", type: "Color", metadataTarget: { kind: "object", roots: ["StyleItem"], filters: [{ kind: "styleItemType", values: ["Color"] }] } },
-  width: { yaml: "Ширина", type: "number" },
+  width: { yaml: "Ширина", type: "number", implicitValueYAML: 0 },
   contextMenu: { yaml: "КонтекстноеМеню", type: "ContextMenu" },
   displayImportance: {
     yaml: "ВажностьПриОтображении",
@@ -24,7 +24,7 @@ const commonProperties = {
     typeSE: "DisplayImportance",
     implicitValueYAML: "Auto",
   },
-  enabled: { yaml: "Доступность", type: "boolean" },
+  enabled: { yaml: "Доступность", type: "boolean", implicitValueYAML: true },
   extendedTooltip: { yaml: "РасширеннаяПодсказка", type: "ExtendedTooltip" },
   horizontalAlignInGroup: {
     yaml: "ГоризонтальноеПоложениеВГруппе",
@@ -55,7 +55,7 @@ const commonProperties = {
     typeSE: "ItemVerticalAlign",
     implicitValueYAML: "Auto",
   },
-  visible: { yaml: "Видимость", type: "boolean" },
+  visible: { yaml: "Видимость", type: "boolean", noImplicitValueYAML: true },
 } as const satisfies MetadataItemRule["properties"]
 
 export const SingleSearchStringAdditionRules = {

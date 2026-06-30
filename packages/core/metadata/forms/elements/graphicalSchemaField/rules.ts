@@ -14,7 +14,7 @@ export const GraphicalSchemaFieldRules = {
     borderColor: { yaml: "ЦветРамки", type: "Color", metadataTarget: { kind: "object", roots: ["StyleItem"], filters: [{ kind: "styleItemType", values: ["Color"] }] } },
     commandSet: { yaml: "Команда", type: "CommandSet", toEnterprise: false },
     edit: { yaml: "Редактирование", type: "boolean", toYAML: false, fromYAML: false, toEnterprise: false },
-    height: { yaml: "Высота", type: "number" },
+    height: { yaml: "Высота", type: "number", implicitValueYAML: 10 },
     horizontalStretch: { yaml: "РастягиватьПоГоризонтали", type: "boolean", implicitValueYAML: true },
     maxHeight: { yaml: "МаксимальнаяВысота", type: "number", implicitValueYAML: 0 },
     maxWidth: { yaml: "МаксимальнаяШирина", type: "number", implicitValueYAML: 0 },
@@ -25,7 +25,7 @@ export const GraphicalSchemaFieldRules = {
       implicitValueYAML: "Auto",
     },
     verticalStretch: { yaml: "РастягиватьПоВертикали", type: "boolean", implicitValueYAML: true },
-    width: { yaml: "Ширина", type: "number" },
+    width: { yaml: "Ширина", type: "number", implicitValueYAML: 50 },
     events: {
       type: "Events",
       yaml: "События",
@@ -47,6 +47,7 @@ export const GraphicalSchemaFieldRules = {
       defaultType: "FlowchartContextType",
     },
     ...formFieldCommonProperties,
+    titleHeight: { ...formFieldCommonProperties.titleHeight, implicitValueYAML: 0 },
     ...formFieldDisabledTableRelatedProperties,
   },
 } as const satisfies ElementRule

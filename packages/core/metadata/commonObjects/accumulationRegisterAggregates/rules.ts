@@ -14,6 +14,7 @@ export const AccumulationRegisterAggregateRules = {
       type: "SystemEnumeration",
       typeSE: "AccumulationRegisterAggregateUse",
       required: true,
+      noImplicitValueYAML: true,
     },
     periodicity: {
       yaml: "Периодичность",
@@ -21,6 +22,7 @@ export const AccumulationRegisterAggregateRules = {
       type: "SystemEnumeration",
       typeSE: "AccumulationRegisterAggregatePeriodicity",
       required: true,
+      noImplicitValueYAML: true,
     },
     dimensions: {
       yaml: "Измерения",
