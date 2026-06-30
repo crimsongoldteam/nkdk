@@ -19,7 +19,6 @@ export const content: ExchangePlanContent = {
 export const contentYAML: ExchangePlanContentYAML = [
   {
     Метаданные: "Справочник.Номенклатура",
-    Авторегистрация: "Разрешить",
   },
   {
     Метаданные: "Документ.Заказ",

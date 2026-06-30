@@ -21,10 +21,16 @@ export const font: MetadataStyleItem = {
   },
 }
 
+export const fontFromCompactYAML: MetadataStyleItem = {
+  itemType: "MetadataStyleItem",
+  synonym: { items: { ru: "Синоним" } },
+  comment: "Комментарий",
+  value: font.value,
+}
+
 export const fontYAML: MetadataStyleItemYAML = {
   Синоним: "Синоним",
   Комментарий: "Комментарий",
-  Тип: "Шрифт",
   Значение: {
     Вид: "Шрифт",
     Значение: {

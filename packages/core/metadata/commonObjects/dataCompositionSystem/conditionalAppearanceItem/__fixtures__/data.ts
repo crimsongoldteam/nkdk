@@ -77,7 +77,6 @@ export const fullConditionalAppearanceItemsYAML = [
           ПравоеЗначение: "Истина",
         },
         {
-          ТипГруппы: "ГруппаИ",
           Элементы: [
             {
               ЛевоеЗначение: ".Реквизит2",

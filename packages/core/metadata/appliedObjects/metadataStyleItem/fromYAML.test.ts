@@ -4,7 +4,7 @@ import { testExportPropertyToYAML } from "~/tests/property/exportPropertyToYAML"
 import { testImportPropertyFromYAML } from "~/tests/property/importPropertyFromYAML"
 import { border, borderYAML } from "./__fixtures__/border"
 import { color, colorYAML } from "./__fixtures__/color"
-import { font, fontYAML } from "./__fixtures__/font"
+import { fontFromCompactYAML, fontYAML } from "./__fixtures__/font"
 
 const rule: PropertyRule = { type: "MetadataStyleItem", yaml: "ЭлементСтиля" }
 
@@ -14,8 +14,12 @@ describe("import MetadataStyleItem from YAML", () => {
     expect(result).toBeUndefined()
   })
 
+  it("imports compact font fixture", () => {
+    const result = testImportPropertyFromYAML({ rule, value: fontYAML })
+    expect(result).toEqual(fontFromCompactYAML)
+  })
+
   it.each([
-    ["font", fontYAML, font],
     ["color", colorYAML, color],
     ["border", borderYAML, border],
   ] as const)("imports %s fixture", (_name, value, expected) => {
