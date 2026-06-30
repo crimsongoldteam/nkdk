@@ -1,6 +1,7 @@
 import "./metadataCommand/register"
 import "./metadataCommonCommand"
 
+import "./metadataCatalog/register"
 import "./metadataCatalog/fromYAML"
 import "./metadataCatalog/toYAML"
 
@@ -13,6 +14,7 @@ import "./metadataFilterCriterion"
 import "./metadataFunctionalOptionsParameter"
 import "./metadataSettingsStorage"
 
+import "./metadataDocument/register"
 import "./metadataDocument"
 import "./metadataDataProcessor"
 import "./metadataReport"
@@ -23,6 +25,7 @@ import "./metadataAccumulationRegister"
 import "./metadataExchangePlan"
 import "./metadataDocumentNumerator"
 
+import "./metadataEnumeration/register"
 import "./metadataEnumeration"
 
 import "./metadataSequence"

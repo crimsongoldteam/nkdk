@@ -1,9 +1,12 @@
 import fs from "fs"
 import { dirname, join, posix } from "path"
 import type { ConfigurationContextWithExportToXML } from "~/metadata/context/types"
+import { DynamicListRules } from "~/metadata/forms/commonObjects/dynamicList/rules"
 import { syncFormToXML } from "~/metadata/forms/clientApplicationForm/syncToXML"
+import { ClientApplicationFormRules } from "~/metadata/forms/clientApplicationForm/rules"
 import type { ExternalMetadataContextItem } from "~/metadata/orchestration/externalMetadata/types"
 import { registerTypeRule } from "~/metadata/orchestration/property/typeRuleRegistry"
+import { describeMetadataRuleProjectResources } from "~/metadata/project/ruleResources"
 import type { SyncExternalToXMLFunction } from "~/metadata/orchestration/property/fn"
 import type { XmlWriteManifest } from "~/metadata/orchestration/xmlWriteManifest"
 import { xmlExport } from "~/xml/export/exporter"
@@ -206,6 +209,7 @@ registerTypeRule("ChildFormNames", "projectResources", ({ propertyRule }) => {
       compositionImpact: "none",
       source: { kind: "propertyType", type: "ChildFormNames" },
     },
+    ...describeFormInnerProjectResources(folderName),
   ]
 })
 registerTypeRule("ChildFormNames", "xmlSyncRoutes", ({ propertyRule }) => {
@@ -229,3 +233,27 @@ registerTypeRule("ChildFormNames", "xmlSyncRoutes", ({ propertyRule }) => {
     },
   ]
 })
+
+function describeFormInnerProjectResources(folderName: string) {
+  const formRoot = `${folderName}/{itemName}`
+  return [
+    {
+      kind: "directory" as const,
+      role: "resourceOnly" as const,
+      projectPattern: "Справка",
+      required: false,
+      repeatable: false,
+      owner: "currentItem" as const,
+      compositionImpact: "none" as const,
+      source: { kind: "propertyType" as const, type: "ChildFormNames" as const },
+    },
+    ...describeMetadataRuleProjectResources(ClientApplicationFormRules),
+    ...describeMetadataRuleProjectResources(DynamicListRules),
+  ]
+    .filter((resource) => resource.role === "resourceOnly")
+    .map((resource) => ({
+      ...resource,
+      projectPattern: `${formRoot}/${resource.projectPattern}`,
+      repeatable: true,
+    }))
+}

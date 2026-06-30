@@ -1,4 +1,4 @@
-import { mkdirSync, mkdtempSync, rmSync, writeFileSync } from "fs"
+import { mkdirSync, mkdtempSync, readFileSync, rmSync, writeFileSync } from "fs"
 import { tmpdir } from "os"
 import { dirname, join } from "path"
 import { afterEach, describe, expect, it } from "vitest"
@@ -30,9 +30,17 @@ describe("collectSyncStateFilePaths", () => {
     writeProjectFile(projectDir, "МодульПриложения.bsl", "Процедура ПриНачалеРаботыСистемы()\nКонецПроцедуры\n")
     writeProjectFile(projectDir, "Справочник/Товары/Свойства.yaml", "Имя: Товары\n")
     writeProjectFile(projectDir, "Справочник/Товары/МодульОбъекта.bsl", "Процедура Проверка()\nКонецПроцедуры\n")
-    writeProjectFile(projectDir, "Справочник/Товары/Команды/Печать.bsl", "Процедура ОбработкаКоманды()\nКонецПроцедуры\n")
+    writeProjectFile(
+      projectDir,
+      "Справочник/Товары/Команды/Печать.bsl",
+      "Процедура ОбработкаКоманды()\nКонецПроцедуры\n"
+    )
     writeProjectFile(projectDir, "Справочник/Товары/Формы/ФормаЭлемента/Форма.yaml", "Имя: ФормаЭлемента\n")
-    writeProjectFile(projectDir, "Справочник/Товары/Формы/ФормаЭлемента/Модуль.bsl", "Процедура Проверка()\nКонецПроцедуры\n")
+    writeProjectFile(
+      projectDir,
+      "Справочник/Товары/Формы/ФормаЭлемента/Модуль.bsl",
+      "Процедура Проверка()\nКонецПроцедуры\n"
+    )
     writeProjectFile(projectDir, "Справочник/Товары/Формы/ФормаЭлемента/Справка/ru.html", "<html>form help</html>\n")
     writeProjectFile(projectDir, "Справочник/Товары/Формы/ФормаЭлемента/ДинамическийСписок/Список.query", "ВЫБРАТЬ 1\n")
     writeProjectFile(projectDir, "Справочник/Товары/Формы/ФормаЭлемента/Картинки/Иконка.png", "png\n")
@@ -94,11 +102,24 @@ describe("collectSyncStateFilePaths", () => {
     const projectDir = tempDir()
 
     writeProjectFile(projectDir, "Справочник/Товары/Свойства.yaml", "Команды: [\n")
-    writeProjectFile(projectDir, "Справочник/Товары/Команды/Печать.bsl", "Процедура ОбработкаКоманды()\nКонецПроцедуры\n")
+    writeProjectFile(
+      projectDir,
+      "Справочник/Товары/Команды/Печать.bsl",
+      "Процедура ОбработкаКоманды()\nКонецПроцедуры\n"
+    )
 
     await expect(collectSyncStateFilePaths(projectDir)).resolves.toEqual([
       "Справочник/Товары/Команды/Печать.bsl",
       "Справочник/Товары/Свойства.yaml",
     ])
+  })
+
+  it("does not hard-code child form/template or ws schema property types", () => {
+    const source = readFileSync(join(process.cwd(), "metadata/project/syncStateFiles.ts"), "utf-8")
+
+    expect(source).not.toContain('propertyRule.type === "ClientApplicationForm"')
+    expect(source).not.toContain('propertyRule.type === "WSDefinitionSchemas"')
+    expect(source).not.toContain('propertyRule.type === "Template"')
+    expect(source).not.toContain("spec.dir === SUBSYSTEM_DIR")
   })
 })

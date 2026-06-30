@@ -18,12 +18,13 @@ import { importContentFromXML } from "~/xml/import/importer"
 import { xmlExport } from "~/xml/export/exporter"
 import { exportToYAML } from "~/yaml/export"
 import { importFromYAML } from "~/yaml/import"
+import { CONFIGURATION_YAML_FILE } from "~/metadata/project/constants"
 import { MetadataConfigurationRules } from "./rules"
 import type { MetadataConfiguration, MetadataConfigurationYAML } from "./types"
 import type { ConfigurationChildObjectsXML } from "./childObjects"
 
 export const CONFIGURATION_XML_FILE = "Configuration.xml"
-export const CONFIGURATION_YAML_FILE = "Конфигурация.yaml"
+export { CONFIGURATION_YAML_FILE }
 
 type MetadataConfigurationXMLObject = {
   MetaDataObject?: {

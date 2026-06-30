@@ -1,5 +1,6 @@
 import "./uuid/fromXML"
 import "./uuid/toXML"
+import "./schemaRegister"
 
 import "../systemEnumerations"
 

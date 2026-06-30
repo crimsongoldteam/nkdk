@@ -29,7 +29,7 @@ describe("metadata project directory structure", () => {
     expect(result.depth).toBe(1)
     expect(result.node.children?.map((child) => child.name)).toContain("Конфигурация.yaml")
     expect(result.node.children?.map((child) => child.name)).toEqual(
-      expect.arrayContaining(metadataProjectSpecs.map((spec) => spec.dir)),
+      expect.arrayContaining(metadataProjectSpecs.map((spec) => spec.dir))
     )
     expect(result.node.children?.find((child) => child.name === "Справочник")).toMatchObject({
       kind: "directory",
@@ -85,11 +85,11 @@ describe("metadata project directory structure", () => {
         expect.objectContaining({
           name: "Формы",
           kind: "directory",
-          role: "forms",
+          role: "fileItemDirectory",
           pathTemplate: "Документ/Заказ/Формы",
           required: false,
         }),
-      ]),
+      ])
     )
   })
 
@@ -103,10 +103,10 @@ describe("metadata project directory structure", () => {
     })
     expect(forms.node.children).toEqual([
       expect.objectContaining({
-        name: "<ИмяФормы>",
+        name: "<ИмяОбъекта>",
         kind: "directory",
-        role: "form",
-        pathTemplate: "Справочник/Товары/Формы/<ИмяФормы>",
+        role: "fileItem",
+        pathTemplate: "Справочник/Товары/Формы/<ИмяОбъекта>",
         repeatable: true,
       }),
     ])
@@ -120,7 +120,7 @@ describe("metadata project directory structure", () => {
       expect.objectContaining({
         name: "Форма.yaml",
         kind: "file",
-        role: "formYaml",
+        role: "fileItemYaml",
         pathTemplate: "Справочник/Товары/Формы/ФормаЭлемента/Форма.yaml",
         required: true,
       }),
@@ -145,13 +145,13 @@ describe("metadata project directory structure", () => {
           role: "subsystems",
           children: [
             expect.objectContaining({
-              name: "<ИмяПодсистемы>",
+              name: "<ИмяОбъекта>",
               role: "subsystem",
               repeatable: true,
             }),
           ],
         }),
-      ]),
+      ])
     )
   })
 
@@ -179,7 +179,7 @@ describe("metadata project directory structure", () => {
       describeMetadataProjectDirectoryStructure({
         projectDir,
         directoryPath: outsideDir,
-      }),
+      })
     ).toThrow("Каталог находится вне указанного YAML-проекта")
   })
 
@@ -190,14 +190,14 @@ describe("metadata project directory structure", () => {
       describeMetadataProjectDirectoryStructure({
         projectDir,
         directoryPath: "Справочник/Товары/Команды",
-      }),
+      })
     ).toThrow("Каталог не соответствует структуре metadata-проекта")
 
     expect(() =>
       describeMetadataProjectDirectoryStructure({
         projectDir,
         depth: 0,
-      }),
+      })
     ).toThrow("depth должен быть положительным целым числом")
   })
 

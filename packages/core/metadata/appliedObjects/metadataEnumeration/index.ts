@@ -1,3 +1,4 @@
+import "./register"
 import "./types"
 import "./fromYAML"
 

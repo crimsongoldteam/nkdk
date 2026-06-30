@@ -7,11 +7,9 @@ const COMMON_OBJECTS_DIR = join(METADATA_DIR, "commonObjects")
 const ORCHESTRATION_DIR = join(METADATA_DIR, "orchestration")
 const ORCHESTRATION_APPLIED_OBJECT_DIR = join(METADATA_DIR, "orchestration", "appliedObject")
 const ORCHESTRATION_FORM_ELEMENT_DIR = join(METADATA_DIR, "orchestration", "formElement")
+const PROJECT_DIR = join(METADATA_DIR, "project")
 
-const FORBIDDEN_COMMON_OBJECT_IMPORTS = [
-  "~/metadata/forms/elements/",
-  "../forms/elements/",
-] as const
+const FORBIDDEN_COMMON_OBJECT_IMPORTS = ["~/metadata/forms/elements/", "../forms/elements/"] as const
 const FORBIDDEN_ORCHESTRATION_APPLIED_OBJECT_IMPORTS = [
   "~/metadata/appliedObjects/configuration/",
   "../../appliedObjects/configuration/",
@@ -21,11 +19,15 @@ const FORBIDDEN_FORM_ELEMENT_FACTORY_IMPORTS = [
   "../formElement/factory",
   "./formElement/factory",
 ] as const
-const FORBIDDEN_FORM_ELEMENT_LOCAL_FACTORY_IMPORTS = [
-  "./factory",
-] as const
-const FORBIDDEN_ORCHESTRATION_FORM_MODEL_IMPORTS = [
-  "~/metadata/forms/elements/baseElement/types",
+const FORBIDDEN_FORM_ELEMENT_LOCAL_FACTORY_IMPORTS = ["./factory"] as const
+const FORBIDDEN_ORCHESTRATION_FORM_MODEL_IMPORTS = ["~/metadata/forms/elements/baseElement/types"] as const
+const FORBIDDEN_PROJECT_CONCRETE_METADATA_IMPORTS = [
+  "~/metadata/appliedObjects/",
+  "~/metadata/commonObjects/",
+  "~/metadata/forms/",
+  "../appliedObjects/",
+  "../commonObjects/",
+  "../forms/",
 ] as const
 const REGISTRATION_ENTRYPOINT_ALLOWLIST = new Set([
   "index.ts",
@@ -86,6 +88,14 @@ describe("metadata import boundaries", () => {
     expect(offenders).toEqual([])
   })
 
+  it("metadata/project не импортирует конкретные реализации metadata", () => {
+    const offenders = findImportOffenders(PROJECT_DIR, FORBIDDEN_PROJECT_CONCRETE_METADATA_IMPORTS).filter(
+      ({ filePath }) => !filePath.endsWith(".test.ts")
+    )
+
+    expect(offenders).toEqual([])
+  })
+
   it("I8nText registry entry живёт рядом с владельцем", () => {
     const globalRegistry = readFileSync(join(METADATA_DIR, "orchestration", "property", "registry.ts"), "utf-8")
     const localRegistry = readFileSync(join(METADATA_DIR, "commonObjects", "i8nText", "registry.types.ts"), "utf-8")
@@ -113,9 +123,7 @@ describe("metadata import boundaries", () => {
 
   it("старые boundary-правила поддерживают prefix imports, а broad-регистрации остаются exact", () => {
     expect(
-      findForbiddenImports('import { Button } from "~/metadata/forms/elements/button"', [
-        "~/metadata/forms/elements/",
-      ])
+      findForbiddenImports('import { Button } from "~/metadata/forms/elements/button"', ["~/metadata/forms/elements/"])
     ).toEqual(["~/metadata/forms/elements/"])
 
     expect(
@@ -125,7 +133,10 @@ describe("metadata import boundaries", () => {
 
   it("MetadataLanguage runtime registration lives in register.ts, not types.ts", () => {
     const typesSource = readFileSync(join(METADATA_DIR, "appliedObjects", "metadataLanguage", "types.ts"), "utf-8")
-    const registerSource = readFileSync(join(METADATA_DIR, "appliedObjects", "metadataLanguage", "register.ts"), "utf-8")
+    const registerSource = readFileSync(
+      join(METADATA_DIR, "appliedObjects", "metadataLanguage", "register.ts"),
+      "utf-8"
+    )
 
     expect(typesSource).not.toContain("registerMetadataItemRule")
     expect(typesSource).toContain("import type { MetadataLanguageRules }")
