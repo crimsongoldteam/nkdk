@@ -1,4 +1,4 @@
-import { metadataWebServiceOperationsRule } from "~/metadata/appliedObjects/metadataWebService/types"
+import { metadataWebServiceOperationsRule } from "~/metadata/appliedObjects/metadataWebService/builders"
 import { xDTOPackagesRule } from "~/metadata/commonObjects/xDTOPackages/types"
 import { i8nTextRule } from "~/metadata/commonObjects/i8nText/types"
 import { moduleRule } from "~/metadata/commonObjects/module/types"

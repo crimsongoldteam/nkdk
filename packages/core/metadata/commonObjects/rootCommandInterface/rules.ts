@@ -5,7 +5,7 @@ import {
   commandInterfaceSubsystemsOrderRule,
   commandInterfaceSubsystemsVisibilityMapRule,
   commandInterfaceVisibilityMapRule,
-} from "~/metadata/commonObjects/rootCommandInterface/types"
+} from "~/metadata/commonObjects/rootCommandInterface/builders"
 import { xmlRootRule } from "~/metadata/commonObjects/xmlRoot/types"
 import { MetadataItemRule } from "~/metadata/orchestration/property/types"
 const commandInterfaceRootAttributes = {

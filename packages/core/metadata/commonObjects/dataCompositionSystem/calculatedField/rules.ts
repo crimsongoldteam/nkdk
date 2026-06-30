@@ -1,9 +1,9 @@
-import { appearanceFieldsRule } from "~/metadata/commonObjects/dataCompositionSystem/appearanceFields/types"
+import { appearanceFieldsRule } from "~/metadata/commonObjects/dataCompositionSystem/appearanceFields/builders"
 import { dcsAvailableValuesRule } from "~/metadata/commonObjects/dataCompositionSystem/availableValues/types"
 import {
   calculatedFieldOrderExpressionRule,
   calculatedFieldUseRestrictionRule,
-} from "~/metadata/commonObjects/dataCompositionSystem/calculatedField/types"
+} from "~/metadata/commonObjects/dataCompositionSystem/calculatedField/builders"
 import { dcsLocalStringTypeRule } from "~/metadata/commonObjects/dataCompositionSystem/dcsLocalStringType/types"
 import { typeDescriptionRule } from "~/metadata/commonObjects/typeDescription/types"
 import { stringRule } from "~/metadata/commonObjects/string/types"

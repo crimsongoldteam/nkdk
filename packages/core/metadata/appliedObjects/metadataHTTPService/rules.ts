@@ -1,4 +1,4 @@
-import { metadataHTTPServiceURLTemplatesRule } from "~/metadata/appliedObjects/metadataHTTPService/types"
+import { metadataHTTPServiceURLTemplatesRule } from "~/metadata/appliedObjects/metadataHTTPService/builders"
 import { i8nTextRule } from "~/metadata/commonObjects/i8nText/types"
 import { moduleRule } from "~/metadata/commonObjects/module/types"
 import { numberRule } from "~/metadata/commonObjects/number/types"

@@ -2,11 +2,11 @@ import { dcsAvailableValuesRule } from "~/metadata/commonObjects/dataComposition
 import {
   calculatedFieldUseRestrictionRule,
   type CalculatedFieldUseRestrictionRuleParams,
-} from "~/metadata/commonObjects/dataCompositionSystem/calculatedField/types"
+} from "~/metadata/commonObjects/dataCompositionSystem/calculatedField/builders"
 import {
   dataCompositionSchemaDataSetFieldKindRule,
   type DataCompositionSchemaDataSetFieldKindRuleParams,
-} from "~/metadata/commonObjects/dataCompositionSystem/dataCompositionSchemaDataSetField/types"
+} from "~/metadata/commonObjects/dataCompositionSystem/dataCompositionSchemaDataSetField/builders"
 import { dcsLocalStringTypeRule } from "~/metadata/commonObjects/dataCompositionSystem/dcsLocalStringType/types"
 import { typeDescriptionRule } from "~/metadata/commonObjects/typeDescription/types"
 import { stringRule, type StringRuleParams } from "~/metadata/commonObjects/string/types"

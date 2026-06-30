@@ -1,8 +1,3 @@
-import {
-  definePropertyRule as defineWidePropertyRule,
-  type ExactRuleParams as WideExactRuleParams,
-} from "~/metadata/commonObjects/ruleBuilder"
-import type { PropertyRule as WidePropertyRuleBase } from "~/metadata/orchestration/property/types"
 import { I8nTextXML } from "~/metadata/commonObjects/i8nText/types"
 import { InternalInfoItemsXML } from "~/metadata/commonObjects/internalInfo/types"
 import {
@@ -47,20 +42,3 @@ registerMetadataItemRule({
   propertyType: "MetadataIntegrationService",
   itemRule: MetadataIntegrationServiceRules,
 })
-
-export interface MetadataIntegrationServiceChannelsWidePropertyRule extends WidePropertyRuleBase {
-  type: "MetadataIntegrationServiceChannels"
-}
-
-export type MetadataIntegrationServiceChannelsRuleParams = Omit<
-  MetadataIntegrationServiceChannelsWidePropertyRule,
-  "type"
->
-
-export function metadataIntegrationServiceChannelsRule<
-  const Params extends MetadataIntegrationServiceChannelsRuleParams,
->(
-  params: WideExactRuleParams<MetadataIntegrationServiceChannelsRuleParams, Params>
-): Readonly<{ type: "MetadataIntegrationServiceChannels" } & Params> {
-  return defineWidePropertyRule("MetadataIntegrationServiceChannels", params)
-}

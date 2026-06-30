@@ -1,8 +1,11 @@
-import { additionalIndexRule, metadataCommandsRule } from "~/metadata/appliedObjects/metadataAccountingRegister/types"
+import {
+  additionalIndexRule,
+  metadataCommandsRule,
+} from "~/metadata/appliedObjects/metadataAccountingRegister/builders"
 import {
   metadataCatalogAttributesRule,
   metadataTabularSectionsRule,
-} from "~/metadata/appliedObjects/metadataCatalog/types"
+} from "~/metadata/appliedObjects/metadataCatalog/builders"
 import { characteristicsDescriptionsRule } from "~/metadata/commonObjects/characteristicsDescription/types"
 import { childFormNamesRule } from "~/metadata/commonObjects/childFormNames/types"
 import { childTemplateNamesRule } from "~/metadata/commonObjects/childTemplateNames/types"
@@ -10,8 +13,8 @@ import { helpRule } from "~/metadata/commonObjects/help/types"
 import { internalInfoRule } from "~/metadata/commonObjects/internalInfo/types"
 import { metadataFieldsRule } from "~/metadata/commonObjects/metadataField/types"
 import { metadataObjectRefCollectionRule } from "~/metadata/commonObjects/metadataObjectRefCollection/types"
-import { predefinedRule } from "~/metadata/commonObjects/predefined/types"
-import { standardAttributeDescriptionsRule } from "~/metadata/commonObjects/standardAttributeDescription/types"
+import { predefinedRule } from "~/metadata/commonObjects/predefined/builders"
+import { standardAttributeDescriptionsRule } from "~/metadata/commonObjects/standardAttributeDescription/builders"
 import { booleanRule } from "~/metadata/commonObjects/boolean/types"
 import { i8nTextRule } from "~/metadata/commonObjects/i8nText/types"
 import { moduleRule } from "~/metadata/commonObjects/module/types"

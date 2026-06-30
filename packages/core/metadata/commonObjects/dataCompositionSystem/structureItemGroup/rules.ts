@@ -1,5 +1,5 @@
 import { structureItemGroupCollectionRule } from "~/metadata/commonObjects/dataCompositionSystem/structureItemGroup/collection/types"
-import { structureItemGroupRule } from "~/metadata/commonObjects/dataCompositionSystem/structureItemGroup/types"
+import { structureItemGroupRule } from "~/metadata/commonObjects/dataCompositionSystem/structureItemGroup/builders"
 import { MetadataItemRule } from "~/metadata/orchestration"
 export const StructureItemGroupRules = {
   itemType: "StructureItemGroup",

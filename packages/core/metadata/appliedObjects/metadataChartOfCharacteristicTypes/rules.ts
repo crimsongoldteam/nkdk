@@ -1,6 +1,9 @@
-import { additionalIndexRule, metadataCommandsRule } from "~/metadata/appliedObjects/metadataAccountingRegister/types"
-import { metadataChartOfCharacteristicTypesTabularSectionsRule } from "~/metadata/appliedObjects/metadataChartOfCharacteristicTypes/types"
-import { metadataAttributesRule } from "~/metadata/appliedObjects/metadataDataProcessor/types"
+import {
+  additionalIndexRule,
+  metadataCommandsRule,
+} from "~/metadata/appliedObjects/metadataAccountingRegister/builders"
+import { metadataChartOfCharacteristicTypesTabularSectionsRule } from "~/metadata/appliedObjects/metadataChartOfCharacteristicTypes/builders"
+import { metadataAttributesRule } from "~/metadata/appliedObjects/metadataDataProcessor/builders"
 import { characteristicsDescriptionsRule } from "~/metadata/commonObjects/characteristicsDescription/types"
 import { childFormNamesRule } from "~/metadata/commonObjects/childFormNames/types"
 import { childTemplateNamesRule } from "~/metadata/commonObjects/childTemplateNames/types"
@@ -8,8 +11,8 @@ import { helpRule } from "~/metadata/commonObjects/help/types"
 import { internalInfoRule } from "~/metadata/commonObjects/internalInfo/types"
 import { metadataFieldsRule } from "~/metadata/commonObjects/metadataField/types"
 import { metadataItemLinksRule } from "~/metadata/commonObjects/metadataPath/types"
-import { predefinedRule } from "~/metadata/commonObjects/predefined/types"
-import { standardAttributeDescriptionsRule } from "~/metadata/commonObjects/standardAttributeDescription/types"
+import { predefinedRule } from "~/metadata/commonObjects/predefined/builders"
+import { standardAttributeDescriptionsRule } from "~/metadata/commonObjects/standardAttributeDescription/builders"
 import { typeDescriptionRule } from "~/metadata/commonObjects/typeDescription/types"
 import { booleanRule } from "~/metadata/commonObjects/boolean/types"
 import { i8nTextRule } from "~/metadata/commonObjects/i8nText/types"

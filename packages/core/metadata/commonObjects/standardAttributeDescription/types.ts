@@ -1,8 +1,3 @@
-import {
-  definePropertyRule as defineWidePropertyRule,
-  type ExactRuleParams as WideExactRuleParams,
-} from "~/metadata/commonObjects/ruleBuilder"
-import type { PropertyRule as WidePropertyRuleBase } from "~/metadata/orchestration/property/types"
 import { I8nTextXML } from "~/metadata/commonObjects/i8nText/types"
 import { MetadataValueXML } from "~/metadata/commonObjects/metadataValue/types"
 import { TypeDescriptionXML } from "~/metadata/commonObjects/typeDescription/types"
@@ -59,15 +54,3 @@ export type StandardAttributeDescriptions = StandardAttributeDescription[]
 export type StandardAttributeDescriptionsXML = { "xr:StandardAttribute": StandardAttributeDescriptionXML[] }
 
 export type StandardAttributeDescriptionsYAML = Partial<Record<StandartAttributeYAML, StandardAttributeDescriptionYAML>>
-
-export interface StandardAttributeDescriptionsWidePropertyRule extends WidePropertyRuleBase {
-  type: "StandardAttributeDescriptions"
-}
-
-export type StandardAttributeDescriptionsRuleParams = Omit<StandardAttributeDescriptionsWidePropertyRule, "type">
-
-export function standardAttributeDescriptionsRule<const Params extends StandardAttributeDescriptionsRuleParams>(
-  params: WideExactRuleParams<StandardAttributeDescriptionsRuleParams, Params>
-): Readonly<{ type: "StandardAttributeDescriptions" } & Params> {
-  return defineWidePropertyRule("StandardAttributeDescriptions", params)
-}

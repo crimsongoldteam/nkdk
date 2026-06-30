@@ -1,5 +1,5 @@
 import { tableAdditionalSourceRule } from "~/metadata/forms/commonObjects/tableAdditionalSource/types"
-import { contextMenuRule, extendedTooltipRule } from "~/metadata/forms/elements/viewStatusAddition/types"
+import { contextMenuRule, extendedTooltipRule } from "~/metadata/forms/elements/viewStatusAddition/builders"
 import { stringRule } from "~/metadata/commonObjects/string/types"
 import { getParentFromContext } from "~/metadata/context/helpers"
 import { ConfigurationContextWithExportToXML } from "~/metadata/context/types"

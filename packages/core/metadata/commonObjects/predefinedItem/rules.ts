@@ -1,5 +1,5 @@
 import { predefinedCodeRule } from "~/metadata/commonObjects/predefinedCode/types"
-import { predefinedItemCollectionRule } from "~/metadata/commonObjects/predefinedItem/types"
+import { predefinedItemCollectionRule } from "~/metadata/commonObjects/predefinedItem/builders"
 import { typeDescriptionRule } from "~/metadata/commonObjects/typeDescription/types"
 import { booleanRule } from "~/metadata/commonObjects/boolean/types"
 import { stringRule } from "~/metadata/commonObjects/string/types"

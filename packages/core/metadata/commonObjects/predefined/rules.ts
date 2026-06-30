@@ -1,4 +1,4 @@
-import { predefinedItemCollectionRule } from "~/metadata/commonObjects/predefinedItem/types"
+import { predefinedItemCollectionRule } from "~/metadata/commonObjects/predefinedItem/builders"
 import { xmlRootRule } from "~/metadata/commonObjects/xmlRoot/types"
 import { MetadataItemRule } from "~/metadata/orchestration/property/types"
 const predefinedRootAttributes = (params: { ownerMetadataItem: unknown }): Record<string, string> => {

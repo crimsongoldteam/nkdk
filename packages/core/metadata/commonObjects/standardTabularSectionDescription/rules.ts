@@ -1,4 +1,4 @@
-import { standardTabularSectionAttributeDescriptionsRule } from "~/metadata/commonObjects/standardTabularSectionDescription/types"
+import { standardTabularSectionAttributeDescriptionsRule } from "~/metadata/commonObjects/standardTabularSectionDescription/builders"
 import { i8nTextRule } from "~/metadata/commonObjects/i8nText/types"
 import { stringRule } from "~/metadata/commonObjects/string/types"
 import { systemEnumerationRule } from "~/metadata/systemEnumerations/types"

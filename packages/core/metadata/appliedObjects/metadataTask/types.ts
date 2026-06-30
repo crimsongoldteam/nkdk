@@ -1,8 +1,3 @@
-import {
-  definePropertyRule as defineWidePropertyRule,
-  type ExactRuleParams as WideExactRuleParams,
-} from "~/metadata/commonObjects/ruleBuilder"
-import type { PropertyRule as WidePropertyRuleBase } from "~/metadata/orchestration/property/types"
 import { registerMetadataItemRule } from "~/metadata/orchestration"
 import { MetadataTypeByRule } from "~/metadata/orchestration/metadataItem/element"
 import { YAMLTypeByRule } from "~/metadata/orchestration/metadataItem/yaml"
@@ -15,26 +10,3 @@ registerMetadataItemRule({
   propertyType: "MetadataTask",
   itemRule: MetadataTaskRules,
 })
-
-export interface MetadataTaskAddressingAttributesWidePropertyRule extends WidePropertyRuleBase {
-  type: "MetadataTaskAddressingAttributes"
-}
-
-export type MetadataTaskAddressingAttributesRuleParams = Omit<MetadataTaskAddressingAttributesWidePropertyRule, "type">
-
-export function metadataTaskAddressingAttributesRule<const Params extends MetadataTaskAddressingAttributesRuleParams>(
-  params: WideExactRuleParams<MetadataTaskAddressingAttributesRuleParams, Params>
-): Readonly<{ type: "MetadataTaskAddressingAttributes" } & Params> {
-  return defineWidePropertyRule("MetadataTaskAddressingAttributes", params)
-}
-export interface MetadataTaskTabularSectionsWidePropertyRule extends WidePropertyRuleBase {
-  type: "MetadataTaskTabularSections"
-}
-
-export type MetadataTaskTabularSectionsRuleParams = Omit<MetadataTaskTabularSectionsWidePropertyRule, "type">
-
-export function metadataTaskTabularSectionsRule<const Params extends MetadataTaskTabularSectionsRuleParams>(
-  params: WideExactRuleParams<MetadataTaskTabularSectionsRuleParams, Params>
-): Readonly<{ type: "MetadataTaskTabularSections" } & Params> {
-  return defineWidePropertyRule("MetadataTaskTabularSections", params)
-}

@@ -11,7 +11,7 @@ import {
   ganttChartRule,
   plannerRule,
   spreadsheetDocumentRule,
-} from "~/metadata/forms/commonObjects/formAttribute/types"
+} from "~/metadata/forms/commonObjects/formAttribute/builders"
 import { booleanRule } from "~/metadata/commonObjects/boolean/types"
 import { i8nTextRule } from "~/metadata/commonObjects/i8nText/types"
 import { stringRule } from "~/metadata/commonObjects/string/types"

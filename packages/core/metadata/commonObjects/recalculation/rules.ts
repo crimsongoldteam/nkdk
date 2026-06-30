@@ -1,4 +1,4 @@
-import { metadataRegisterDimensionsRule } from "~/metadata/appliedObjects/metadataAccountingRegister/types"
+import { metadataRegisterDimensionsRule } from "~/metadata/appliedObjects/metadataAccountingRegister/builders"
 import { internalInfoRule } from "~/metadata/commonObjects/internalInfo/types"
 import { booleanRule } from "~/metadata/commonObjects/boolean/types"
 import { i8nTextRule } from "~/metadata/commonObjects/i8nText/types"

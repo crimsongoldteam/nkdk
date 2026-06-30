@@ -1,10 +1,13 @@
-import { additionalIndexRule, metadataCommandsRule } from "~/metadata/appliedObjects/metadataAccountingRegister/types"
+import {
+  additionalIndexRule,
+  metadataCommandsRule,
+} from "~/metadata/appliedObjects/metadataAccountingRegister/builders"
 import {
   accountingFlagsRule,
   extDimensionAccountingFlagsRule,
   metadataChartOfAccountsTabularSectionsRule,
-} from "~/metadata/appliedObjects/metadataChartOfAccounts/types"
-import { metadataAttributesRule } from "~/metadata/appliedObjects/metadataDataProcessor/types"
+} from "~/metadata/appliedObjects/metadataChartOfAccounts/builders"
+import { metadataAttributesRule } from "~/metadata/appliedObjects/metadataDataProcessor/builders"
 import { characteristicsDescriptionsRule } from "~/metadata/commonObjects/characteristicsDescription/types"
 import { childFormNamesRule } from "~/metadata/commonObjects/childFormNames/types"
 import { childTemplateNamesRule } from "~/metadata/commonObjects/childTemplateNames/types"
@@ -12,9 +15,9 @@ import { helpRule } from "~/metadata/commonObjects/help/types"
 import { internalInfoRule } from "~/metadata/commonObjects/internalInfo/types"
 import { metadataFieldsRule } from "~/metadata/commonObjects/metadataField/types"
 import { metadataItemLinksRule } from "~/metadata/commonObjects/metadataPath/types"
-import { predefinedRule } from "~/metadata/commonObjects/predefined/types"
-import { standardAttributeDescriptionsRule } from "~/metadata/commonObjects/standardAttributeDescription/types"
-import { standardTabularSectionDescriptionsRule } from "~/metadata/commonObjects/standardTabularSectionDescription/types"
+import { predefinedRule } from "~/metadata/commonObjects/predefined/builders"
+import { standardAttributeDescriptionsRule } from "~/metadata/commonObjects/standardAttributeDescription/builders"
+import { standardTabularSectionDescriptionsRule } from "~/metadata/commonObjects/standardTabularSectionDescription/builders"
 import { booleanRule } from "~/metadata/commonObjects/boolean/types"
 import { i8nTextRule } from "~/metadata/commonObjects/i8nText/types"
 import { moduleRule } from "~/metadata/commonObjects/module/types"

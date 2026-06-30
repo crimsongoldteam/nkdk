@@ -1,8 +1,3 @@
-import {
-  definePropertyRule as defineWidePropertyRule,
-  type ExactRuleParams as WideExactRuleParams,
-} from "~/metadata/commonObjects/ruleBuilder"
-import type { PropertyRule as WidePropertyRuleBase } from "~/metadata/orchestration/property/types"
 import { MetadataCommandsXML, MetadataCommandsYAML } from "~/metadata/appliedObjects/metadataCommand/types"
 import { AdditionalIndexesXML, AdditionalIndexesYAML } from "~/metadata/commonObjects/additionalIndex/types"
 import { StringboolYAML } from "~/metadata/commonObjects/boolean/types"
@@ -214,27 +209,4 @@ export interface MetadataCatalogYAML {
   ТабличныеЧасти?: MetadataTabularSectionsYAML
   ТипКода?: SE.CatalogCodeTypeYAML
   Характеристики?: CharacteristicsDescriptionsYAML
-}
-
-export interface MetadataCatalogAttributesWidePropertyRule extends WidePropertyRuleBase {
-  type: "MetadataCatalogAttributes"
-}
-
-export type MetadataCatalogAttributesRuleParams = Omit<MetadataCatalogAttributesWidePropertyRule, "type">
-
-export function metadataCatalogAttributesRule<const Params extends MetadataCatalogAttributesRuleParams>(
-  params: WideExactRuleParams<MetadataCatalogAttributesRuleParams, Params>
-): Readonly<{ type: "MetadataCatalogAttributes" } & Params> {
-  return defineWidePropertyRule("MetadataCatalogAttributes", params)
-}
-export interface MetadataTabularSectionsWidePropertyRule extends WidePropertyRuleBase {
-  type: "MetadataTabularSections"
-}
-
-export type MetadataTabularSectionsRuleParams = Omit<MetadataTabularSectionsWidePropertyRule, "type">
-
-export function metadataTabularSectionsRule<const Params extends MetadataTabularSectionsRuleParams>(
-  params: WideExactRuleParams<MetadataTabularSectionsRuleParams, Params>
-): Readonly<{ type: "MetadataTabularSections" } & Params> {
-  return defineWidePropertyRule("MetadataTabularSections", params)
 }

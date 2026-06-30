@@ -1,4 +1,4 @@
-import { additionalIndexCollectionRule } from "~/metadata/commonObjects/additionalIndex/types"
+import { additionalIndexCollectionRule } from "~/metadata/commonObjects/additionalIndex/builders"
 import { indexFieldRule } from "~/metadata/commonObjects/indexField/types"
 import { stringRule } from "~/metadata/commonObjects/string/types"
 import { xmlRootRule } from "~/metadata/commonObjects/xmlRoot/types"

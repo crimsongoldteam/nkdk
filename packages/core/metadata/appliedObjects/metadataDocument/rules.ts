@@ -1,4 +1,7 @@
-import { additionalIndexRule, metadataCommandsRule } from "~/metadata/appliedObjects/metadataAccountingRegister/types"
+import {
+  additionalIndexRule,
+  metadataCommandsRule,
+} from "~/metadata/appliedObjects/metadataAccountingRegister/builders"
 import {
   metadataDocumentAttributesRule,
   metadataDocumentTabularSectionsRule,
@@ -10,7 +13,7 @@ import { helpRule } from "~/metadata/commonObjects/help/types"
 import { internalInfoRule } from "~/metadata/commonObjects/internalInfo/types"
 import { metadataFieldsRule } from "~/metadata/commonObjects/metadataField/types"
 import { metadataItemLinksRule } from "~/metadata/commonObjects/metadataPath/types"
-import { standardAttributeDescriptionsRule } from "~/metadata/commonObjects/standardAttributeDescription/types"
+import { standardAttributeDescriptionsRule } from "~/metadata/commonObjects/standardAttributeDescription/builders"
 import { booleanRule } from "~/metadata/commonObjects/boolean/types"
 import { i8nTextRule } from "~/metadata/commonObjects/i8nText/types"
 import { moduleRule } from "~/metadata/commonObjects/module/types"

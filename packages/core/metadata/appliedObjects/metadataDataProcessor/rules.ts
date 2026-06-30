@@ -1,8 +1,8 @@
-import { metadataCommandsRule } from "~/metadata/appliedObjects/metadataAccountingRegister/types"
+import { metadataCommandsRule } from "~/metadata/appliedObjects/metadataAccountingRegister/builders"
 import {
   metadataAttributesRule,
   metadataDataProcessorTabularSectionsRule,
-} from "~/metadata/appliedObjects/metadataDataProcessor/types"
+} from "~/metadata/appliedObjects/metadataDataProcessor/builders"
 import { childFormNamesRule } from "~/metadata/commonObjects/childFormNames/types"
 import { childTemplateNamesRule } from "~/metadata/commonObjects/childTemplateNames/types"
 import { helpRule } from "~/metadata/commonObjects/help/types"

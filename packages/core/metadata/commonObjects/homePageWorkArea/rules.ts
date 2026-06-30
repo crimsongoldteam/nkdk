@@ -2,7 +2,7 @@ import {
   homePageWorkAreaColumnItemsRule,
   homePageWorkAreaCommandInterfaceDisplayRule,
   homePageWorkAreaTemplateRule,
-} from "~/metadata/commonObjects/homePageWorkArea/types"
+} from "~/metadata/commonObjects/homePageWorkArea/builders"
 import { xmlRootRule } from "~/metadata/commonObjects/xmlRoot/types"
 import { MetadataItemRule } from "~/metadata/orchestration/property/types"
 const homePageWorkAreaRootAttributes = {

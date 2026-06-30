@@ -1,8 +1,3 @@
-import {
-  definePropertyRule as defineWidePropertyRule,
-  type ExactRuleParams as WideExactRuleParams,
-} from "~/metadata/commonObjects/ruleBuilder"
-import type { PropertyRule as WidePropertyRuleBase } from "~/metadata/orchestration/property/types"
 import { Type } from "@sinclair/typebox"
 import { ConfigurationContext, ConfigurationContextFromXML } from "~/metadata/context/types"
 import {
@@ -133,60 +128,4 @@ const normalizeDynamicListSource = (context: ConfigurationContext, source: unkno
     xml: source,
     rule: DynamicListRules,
   }) as DynamicList | undefined
-}
-
-export interface CalculatedFieldsWidePropertyRule extends WidePropertyRuleBase {
-  type: "CalculatedFields"
-}
-
-export type CalculatedFieldsRuleParams = Omit<CalculatedFieldsWidePropertyRule, "type">
-
-export function calculatedFieldsRule<const Params extends CalculatedFieldsRuleParams>(
-  params: WideExactRuleParams<CalculatedFieldsRuleParams, Params>
-): Readonly<{ type: "CalculatedFields" } & Params> {
-  return defineWidePropertyRule("CalculatedFields", params)
-}
-export interface DataSetFieldFieldsWidePropertyRule extends WidePropertyRuleBase {
-  type: "DataSetFieldFields"
-}
-
-export type DataSetFieldFieldsRuleParams = Omit<DataSetFieldFieldsWidePropertyRule, "type">
-
-export function dataSetFieldFieldsRule<const Params extends DataSetFieldFieldsRuleParams>(
-  params: WideExactRuleParams<DataSetFieldFieldsRuleParams, Params>
-): Readonly<{ type: "DataSetFieldFields" } & Params> {
-  return defineWidePropertyRule("DataSetFieldFields", params)
-}
-export interface DCSParametersWidePropertyRule extends WidePropertyRuleBase {
-  type: "DCSParameters"
-}
-
-export type DCSParametersRuleParams = Omit<DCSParametersWidePropertyRule, "type">
-
-export function dCSParametersRule<const Params extends DCSParametersRuleParams>(
-  params: WideExactRuleParams<DCSParametersRuleParams, Params>
-): Readonly<{ type: "DCSParameters" } & Params> {
-  return defineWidePropertyRule("DCSParameters", params)
-}
-export interface DynamicListKeyFieldsWidePropertyRule extends WidePropertyRuleBase {
-  type: "DynamicListKeyFields"
-}
-
-export type DynamicListKeyFieldsRuleParams = Omit<DynamicListKeyFieldsWidePropertyRule, "type">
-
-export function dynamicListKeyFieldsRule<const Params extends DynamicListKeyFieldsRuleParams>(
-  params: WideExactRuleParams<DynamicListKeyFieldsRuleParams, Params>
-): Readonly<{ type: "DynamicListKeyFields" } & Params> {
-  return defineWidePropertyRule("DynamicListKeyFields", params)
-}
-export interface OrderWidePropertyRule extends WidePropertyRuleBase {
-  type: "Order"
-}
-
-export type OrderRuleParams = Omit<OrderWidePropertyRule, "type">
-
-export function orderRule<const Params extends OrderRuleParams>(
-  params: WideExactRuleParams<OrderRuleParams, Params>
-): Readonly<{ type: "Order" } & Params> {
-  return defineWidePropertyRule("Order", params)
 }

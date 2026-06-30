@@ -1,6 +1,6 @@
-import { appearanceFieldsRule } from "~/metadata/commonObjects/dataCompositionSystem/appearanceFields/types"
+import { appearanceFieldsRule } from "~/metadata/commonObjects/dataCompositionSystem/appearanceFields/builders"
 import { availableFieldsRule } from "~/metadata/commonObjects/dataCompositionSystem/availableFields/types"
-import { filterRule } from "~/metadata/commonObjects/dataCompositionSystem/conditionalAppearanceItem/types"
+import { filterRule } from "~/metadata/commonObjects/dataCompositionSystem/conditionalAppearanceItem/builders"
 import { dcsLocalStringTypeRule } from "~/metadata/commonObjects/dataCompositionSystem/dcsLocalStringType/types"
 import { booleanRule } from "~/metadata/commonObjects/boolean/types"
 import { stringRule } from "~/metadata/commonObjects/string/types"

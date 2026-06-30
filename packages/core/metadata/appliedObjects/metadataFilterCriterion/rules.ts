@@ -1,4 +1,4 @@
-import { metadataCommandsRule } from "~/metadata/appliedObjects/metadataAccountingRegister/types"
+import { metadataCommandsRule } from "~/metadata/appliedObjects/metadataAccountingRegister/builders"
 import { childFormNamesRule } from "~/metadata/commonObjects/childFormNames/types"
 import { internalInfoRule } from "~/metadata/commonObjects/internalInfo/types"
 import { metadataItemLinksRule } from "~/metadata/commonObjects/metadataPath/types"

@@ -1,4 +1,4 @@
-import { metadataExternalDataSourceFunctionsRule } from "~/metadata/appliedObjects/metadataExternalDataSource/types"
+import { metadataExternalDataSourceFunctionsRule } from "~/metadata/appliedObjects/metadataExternalDataSource/builders"
 import { childFileItemNamesRule } from "~/metadata/commonObjects/childFileItemNames/types"
 import { internalInfoRule } from "~/metadata/commonObjects/internalInfo/types"
 import { i8nTextRule } from "~/metadata/commonObjects/i8nText/types"

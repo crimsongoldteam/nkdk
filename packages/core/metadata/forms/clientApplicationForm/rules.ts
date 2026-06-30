@@ -7,13 +7,13 @@ import {
   autoCommandBarRule,
   conditionalAppearanceRule,
   externalFormItemFileRule,
-} from "~/metadata/forms/clientApplicationForm/types"
+} from "~/metadata/forms/clientApplicationForm/builders"
 import { groupChildItemsRule } from "~/metadata/forms/commonObjects/childItems/types"
 import { commandInterfaceRule } from "~/metadata/forms/commonObjects/commandInterface/types"
 import { commandSetRule } from "~/metadata/forms/commonObjects/commandSet/types"
 import { eventsRule } from "~/metadata/forms/commonObjects/event/types"
-import { formAttributesRule } from "~/metadata/forms/commonObjects/formAttribute/types"
-import { formCommandsRule } from "~/metadata/forms/commonObjects/formCommand/types"
+import { formAttributesRule } from "~/metadata/forms/commonObjects/formAttribute/builders"
+import { formCommandsRule } from "~/metadata/forms/commonObjects/formCommand/builders"
 import { formParametersRule } from "~/metadata/forms/commonObjects/formParameter/types"
 import { booleanRule } from "~/metadata/commonObjects/boolean/types"
 import { i8nTextRule } from "~/metadata/commonObjects/i8nText/types"

@@ -1,7 +1,7 @@
 import {
   accumulationRegisterAggregateCollectionRule,
   accumulationRegisterAggregateDimensionsRule,
-} from "~/metadata/commonObjects/accumulationRegisterAggregates/types"
+} from "~/metadata/commonObjects/accumulationRegisterAggregates/builders"
 import { xmlRootRule } from "~/metadata/commonObjects/xmlRoot/types"
 import { systemEnumerationRule } from "~/metadata/systemEnumerations/types"
 import { uuidPropertyRule } from "~/metadata/commonObjects/uuid/rule"

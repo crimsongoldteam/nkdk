@@ -1,11 +1,14 @@
-import { additionalIndexRule, metadataCommandsRule } from "~/metadata/appliedObjects/metadataAccountingRegister/types"
-import { metadataDocumentJournalColumnsRule } from "~/metadata/appliedObjects/metadataDocumentJournal/types"
+import {
+  additionalIndexRule,
+  metadataCommandsRule,
+} from "~/metadata/appliedObjects/metadataAccountingRegister/builders"
+import { metadataDocumentJournalColumnsRule } from "~/metadata/appliedObjects/metadataDocumentJournal/builders"
 import { childFormNamesRule } from "~/metadata/commonObjects/childFormNames/types"
 import { childTemplateNamesRule } from "~/metadata/commonObjects/childTemplateNames/types"
 import { helpRule } from "~/metadata/commonObjects/help/types"
 import { internalInfoRule } from "~/metadata/commonObjects/internalInfo/types"
 import { metadataItemLinksRule } from "~/metadata/commonObjects/metadataPath/types"
-import { standardAttributeDescriptionsRule } from "~/metadata/commonObjects/standardAttributeDescription/types"
+import { standardAttributeDescriptionsRule } from "~/metadata/commonObjects/standardAttributeDescription/builders"
 import { booleanRule } from "~/metadata/commonObjects/boolean/types"
 import { i8nTextRule } from "~/metadata/commonObjects/i8nText/types"
 import { moduleRule } from "~/metadata/commonObjects/module/types"

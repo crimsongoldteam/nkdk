@@ -1,4 +1,4 @@
-import { exchangePlanContentItemsRule } from "~/metadata/commonObjects/exchangePlanContent/types"
+import { exchangePlanContentItemsRule } from "~/metadata/commonObjects/exchangePlanContent/builders"
 import { metadataItemLinkRule } from "~/metadata/commonObjects/metadataPath/types"
 import { xmlRootRule } from "~/metadata/commonObjects/xmlRoot/types"
 import { systemEnumerationRule } from "~/metadata/systemEnumerations/types"

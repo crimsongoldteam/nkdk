@@ -1,4 +1,4 @@
-import { rootCommandInterfaceRule } from "~/metadata/appliedObjects/configuration/types"
+import { rootCommandInterfaceRule } from "~/metadata/appliedObjects/configuration/builders"
 import { childSubsystemNamesRule } from "~/metadata/commonObjects/childSubsystemNames/types"
 import { helpRule } from "~/metadata/commonObjects/help/types"
 import { metadataItemLinksRule } from "~/metadata/commonObjects/metadataPath/types"

@@ -1,6 +1,6 @@
 import { helpRule } from "~/metadata/commonObjects/help/types"
 import { usePurposesRule } from "~/metadata/commonObjects/usePurposes/types"
-import { clientApplicationFormRule } from "~/metadata/forms/clientApplicationForm/types"
+import { clientApplicationFormRule } from "~/metadata/forms/clientApplicationForm/builders"
 import { booleanRule } from "~/metadata/commonObjects/boolean/types"
 import { i8nTextRule } from "~/metadata/commonObjects/i8nText/types"
 import { moduleRule } from "~/metadata/commonObjects/module/types"

@@ -1,5 +1,5 @@
-import { additionalIndexRule } from "~/metadata/appliedObjects/metadataAccountingRegister/types"
-import { metadataSequenceDimensionsRule } from "~/metadata/appliedObjects/metadataSequence/types"
+import { additionalIndexRule } from "~/metadata/appliedObjects/metadataAccountingRegister/builders"
+import { metadataSequenceDimensionsRule } from "~/metadata/appliedObjects/metadataSequence/builders"
 import { internalInfoRule } from "~/metadata/commonObjects/internalInfo/types"
 import { metadataItemLinksRule } from "~/metadata/commonObjects/metadataPath/types"
 import { i8nTextRule } from "~/metadata/commonObjects/i8nText/types"

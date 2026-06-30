@@ -1,4 +1,4 @@
-import { metadataIntegrationServiceChannelsRule } from "~/metadata/appliedObjects/metadataIntegrationService/types"
+import { metadataIntegrationServiceChannelsRule } from "~/metadata/appliedObjects/metadataIntegrationService/builders"
 import { internalInfoRule } from "~/metadata/commonObjects/internalInfo/types"
 import { i8nTextRule } from "~/metadata/commonObjects/i8nText/types"
 import { moduleRule } from "~/metadata/commonObjects/module/types"

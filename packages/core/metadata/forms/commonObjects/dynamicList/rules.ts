@@ -1,17 +1,17 @@
-import { filterRule } from "~/metadata/commonObjects/dataCompositionSystem/conditionalAppearanceItem/types"
+import { filterRule } from "~/metadata/commonObjects/dataCompositionSystem/conditionalAppearanceItem/builders"
 import { dcsLocalStringTypeRule } from "~/metadata/commonObjects/dataCompositionSystem/dcsLocalStringType/types"
 import { settingsParameterValueRule } from "~/metadata/commonObjects/dataCompositionSystem/parameterValue/types"
 import { settingsParameterValueCollectionRule } from "~/metadata/commonObjects/dataCompositionSystem/settingsParameterValueCollection/types"
-import { structureItemGroupRule } from "~/metadata/commonObjects/dataCompositionSystem/structureItemGroup/types"
+import { structureItemGroupRule } from "~/metadata/commonObjects/dataCompositionSystem/structureItemGroup/builders"
 import { userSettingsIDRule } from "~/metadata/commonObjects/userSettingsID/types"
-import { conditionalAppearanceRule } from "~/metadata/forms/clientApplicationForm/types"
+import { conditionalAppearanceRule } from "~/metadata/forms/clientApplicationForm/builders"
 import {
   calculatedFieldsRule,
   dCSParametersRule,
   dataSetFieldFieldsRule,
   dynamicListKeyFieldsRule,
   orderRule,
-} from "~/metadata/forms/commonObjects/dynamicList/types"
+} from "~/metadata/forms/commonObjects/dynamicList/builders"
 import { booleanRule } from "~/metadata/commonObjects/boolean/types"
 import { stringRule } from "~/metadata/commonObjects/string/types"
 import { systemEnumerationRule } from "~/metadata/systemEnumerations/types"

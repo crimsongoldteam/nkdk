@@ -5,7 +5,7 @@ import {
   mobileApplicationURLsRule,
   rootCommandInterfaceRule,
   usedMobileApplicationFunctionalitiesRule,
-} from "~/metadata/appliedObjects/configuration/types"
+} from "~/metadata/appliedObjects/configuration/builders"
 import { externalFileRule } from "~/metadata/commonObjects/externalFile/types"
 import { externalPictureRule } from "~/metadata/commonObjects/externalPicture/types"
 import { helpRule } from "~/metadata/commonObjects/help/types"

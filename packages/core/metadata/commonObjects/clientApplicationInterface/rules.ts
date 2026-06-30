@@ -1,7 +1,7 @@
 import {
   clientApplicationInterfaceItemsRule,
   clientApplicationInterfacePanelDefsRule,
-} from "~/metadata/commonObjects/clientApplicationInterface/types"
+} from "~/metadata/commonObjects/clientApplicationInterface/builders"
 import { xmlRootRule } from "~/metadata/commonObjects/xmlRoot/types"
 import { MetadataItemRule } from "~/metadata/orchestration/property/types"
 const clientApplicationInterfaceRootAttributes = {

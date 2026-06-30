@@ -1,6 +1,9 @@
-import { additionalIndexRule, metadataCommandsRule } from "~/metadata/appliedObjects/metadataAccountingRegister/types"
-import { metadataBusinessProcessTabularSectionsRule } from "~/metadata/appliedObjects/metadataBusinessProcess/types"
-import { metadataAttributesRule } from "~/metadata/appliedObjects/metadataDataProcessor/types"
+import {
+  additionalIndexRule,
+  metadataCommandsRule,
+} from "~/metadata/appliedObjects/metadataAccountingRegister/builders"
+import { metadataBusinessProcessTabularSectionsRule } from "~/metadata/appliedObjects/metadataBusinessProcess/builders"
+import { metadataAttributesRule } from "~/metadata/appliedObjects/metadataDataProcessor/builders"
 import { characteristicsDescriptionsRule } from "~/metadata/commonObjects/characteristicsDescription/types"
 import { childFormNamesRule } from "~/metadata/commonObjects/childFormNames/types"
 import { childTemplateNamesRule } from "~/metadata/commonObjects/childTemplateNames/types"
@@ -9,7 +12,7 @@ import { internalInfoRule } from "~/metadata/commonObjects/internalInfo/types"
 import { metadataFieldsRule } from "~/metadata/commonObjects/metadataField/types"
 import { metadataItemLinksRule } from "~/metadata/commonObjects/metadataPath/types"
 import { templateRule } from "~/metadata/commonObjects/module/types"
-import { standardAttributeDescriptionsRule } from "~/metadata/commonObjects/standardAttributeDescription/types"
+import { standardAttributeDescriptionsRule } from "~/metadata/commonObjects/standardAttributeDescription/builders"
 import { booleanRule } from "~/metadata/commonObjects/boolean/types"
 import { i8nTextRule } from "~/metadata/commonObjects/i8nText/types"
 import { moduleRule } from "~/metadata/commonObjects/module/types"
