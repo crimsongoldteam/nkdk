@@ -80,7 +80,6 @@ export const fullTrackBarFieldPartialYAML: TrackBarFieldPartialYAML = {
   Ширина: 200,
   ...fullFormFieldPartialYAMLCommonFixture,
   РастягиватьПоГоризонтали: "Ложь",
-  РастягиватьПоВертикали: "Ложь",
   БольшойШаг: 5,
   ШагРазметки: 6,
   МаксимальноеЗначение: 90,

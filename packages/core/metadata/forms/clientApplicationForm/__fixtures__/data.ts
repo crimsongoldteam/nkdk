@@ -362,7 +362,6 @@ export const fullClientApplicationFormYAML: ClientApplicationFormYAML = {
   КлючСохраненияПоложенияОкна: "WindowOptionsKey",
   КоманднаяПанель: {
     Автозаполнение: "Ложь",
-    ГоризонтальноеПоложение: "Лево",
   },
   Команды: {
     Команда1: {

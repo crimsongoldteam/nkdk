@@ -85,7 +85,6 @@ export const fullSingleSearchControlAddition: SingleSearchControlAddition = {
 }
 
 export const fullSingleSearchControlAdditionYAML: SingleSearchControlAdditionYAML = {
-  АвтоМаксимальнаяШирина: "Истина",
   МаксимальнаяШирина: 400,
   РастягиватьПоГоризонтали: "Истина",
   ЦветРамки: "Черный",
@@ -97,7 +96,6 @@ export const fullSingleSearchControlAdditionYAML: SingleSearchControlAdditionYAM
   ВертикальноеПоложениеВГруппе: "Верх",
   Видимость: "Истина",
   ГоризонтальноеПоложениеВГруппе: "Лево",
-  Доступность: "Истина",
   Заголовок: "Добавление элемента формы",
   КонтекстноеМеню: {
     ВажностьПриОтображении: "Высокая",
@@ -110,8 +108,6 @@ export const fullSingleSearchControlAdditionYAML: SingleSearchControlAdditionYAM
     Заголовок: {
       Текст: "Оформление формы",
     },
-    АвтоМаксимальнаяВысота: "Истина",
-    АвтоМаксимальнаяШирина: "Истина",
     ВажностьПриОтображении: "Высокая",
     ВертикальноеПоложениеВГруппе: "Верх",
     Видимость: "Истина",
