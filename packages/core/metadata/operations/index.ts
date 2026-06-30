@@ -1,5 +1,6 @@
 export * from "./context"
 export * from "./dataPathReferences"
+export * from "./deleteItem"
 export * from "./filePlan"
 export * from "./listOperationTargets"
 export * from "./migrationChain"
