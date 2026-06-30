@@ -16,7 +16,7 @@ export const RecalculationRules = {
         { name: "RecalculationManager", category: "Manager" },
         { name: "RecalculationRecordSet", category: "RecordSet" },
       ],
-      getName: ({ metadata }) => `Recalculation${metadata.name}`,
+      getName: ({ metadata }: { metadata: { name: string } }) => `Recalculation${metadata.name}`,
     },
     uuid: uuidPropertyRule,
     name: { xml: "Name", type: "string", required: true, xmlParents: properties },

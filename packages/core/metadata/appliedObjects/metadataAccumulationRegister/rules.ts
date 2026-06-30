@@ -129,7 +129,7 @@ export const MetadataAccumulationRegisterRules = {
       yaml: "СтандартныеРеквизиты",
       type: "StandardAttributeDescriptions",
       standartAttributeNames: MetadataAccumulationRegisterStandardAttributeNames,
-      standartAttributeNamesXML: (metadataItem) =>
+      standartAttributeNamesXML: (metadataItem: unknown) =>
         isTurnoverAccumulationRegister(metadataItem)
           ? MetadataAccumulationRegisterTurnoverStandardAttributeNames
           : MetadataAccumulationRegisterStandardAttributeNames,

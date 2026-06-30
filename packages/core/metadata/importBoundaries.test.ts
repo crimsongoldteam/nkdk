@@ -172,6 +172,33 @@ describe("metadata import boundaries", () => {
     expect(localRegistry).toContain("I8nText: {")
   })
 
+  it("orchestration property registry is no longer a concrete metadata type list", () => {
+    const source = readFileSync(join(METADATA_DIR, "orchestration", "property", "registry.ts"), "utf-8")
+
+    expect(source).not.toContain("interface PropertyTypeRegistry")
+    expect(source).not.toMatch(/from "~\/metadata\/(appliedObjects|commonObjects|forms)\//)
+    expect(source).toContain("export type PropertyRuleType = string")
+  })
+
+  it("orchestration metadata item registry is no longer a concrete metadata type list", () => {
+    const source = readFileSync(join(METADATA_DIR, "orchestration", "metadataItem", "registry.ts"), "utf-8")
+
+    expect(source).not.toContain("interface MetadataItemTypeRegistry")
+    expect(source).not.toContain("//#region Applied objects")
+    expect(source).not.toMatch(/from "~\/metadata\/(appliedObjects|commonObjects|forms)\//)
+    expect(source).toContain("export type MetadataItemType = string")
+  })
+
+  it("central metadata registries expose only neutral string keys", () => {
+    const propertyRegistry = readFileSync(join(METADATA_DIR, "orchestration", "property", "registry.ts"), "utf-8")
+    const metadataItemRegistry = readFileSync(join(METADATA_DIR, "orchestration", "metadataItem", "registry.ts"), "utf-8")
+
+    expect(propertyRegistry.trim()).toContain("export type PropertyRuleType = string")
+    expect(metadataItemRegistry.trim()).toContain("export type MetadataItemType = string")
+    expect(propertyRegistry).not.toContain("interface PropertyTypeRegistry")
+    expect(metadataItemRegistry).not.toContain("interface MetadataItemTypeRegistry")
+  })
+
   it("новые широкие metadata-регистрации идут через metadata/register", () => {
     const offenders = listCoreTypeScriptFiles()
       .filter((filePath) => !REGISTRATION_ENTRYPOINT_ALLOWLIST.has(filePath))

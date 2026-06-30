@@ -25,7 +25,7 @@ export const FormAttributeRules = {
       yaml: "Заголовок",
       type: "I8nText",
       skipEmptyToXML: true,
-      defaultValue: ({ context, name, operation }) => {
+      defaultValue: ({ context, name, operation }: { context: { defaultLanguage: string }; name?: string; operation: string }) => {
         if (operation === "importFromXML") {
           return {
             items: { [context.defaultLanguage]: "" },
