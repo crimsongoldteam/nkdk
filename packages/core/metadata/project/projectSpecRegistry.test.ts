@@ -7,13 +7,22 @@ import {
   unregisterProjectSpecForTests,
 } from "./projectSpecRegistry"
 
-const SampleRule = {
+const SampleRule = testOnlyMetadataItemRule({
   itemType: "SampleItem",
   itemTypePrefix: "Образец",
   xmlDir: "Samples",
   properties: {},
-} as const satisfies MetadataItemRule
+})
 const SAMPLE_DIR = "__ТестовыйОбразец__"
+
+function testOnlyMetadataItemRule(rule: {
+  itemType: string
+  itemTypePrefix: string
+  xmlDir: string
+  properties: {}
+}): MetadataItemRule {
+  return rule as unknown as MetadataItemRule
+}
 
 describe("projectSpecRegistry", () => {
   afterEach(() => unregisterProjectSpecForTests(SAMPLE_DIR))

@@ -221,6 +221,7 @@ import "./metadataPath/fromYAML"
 import "./metadataPath/toJSONSchema"
 import "./metadataPath/toYAML"
 import "./metadataTargets/validationHandlers"
+import "./metadataTargetProjectResolvers/register"
 
 import "./dataCompositionSystem/structureItemGroup/toJSONSchema"
 

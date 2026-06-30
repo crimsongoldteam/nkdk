@@ -107,6 +107,28 @@ describe("metadata import boundaries", () => {
     expect(source).not.toContain("MetadataExternalDataSource")
   })
 
+  it("ProjectMetadataResolver делегирует concrete metadata knowledge регистрациям", () => {
+    const source = readFileSync(join(METADATA_DIR, "validation", "projectMetadataResolver.ts"), "utf-8")
+
+    for (const forbidden of [
+      "objectRootDir",
+      "nestedObjectFilePath",
+      "DocumentNumerator",
+      "ExternalDataSource",
+      "Template.xml",
+      "Template.txt",
+      "Template.bin",
+      "Формы",
+      "Шаблоны",
+      "Поля",
+      "Команды",
+      "ПризнакиУчета",
+      "MetadataConfiguration",
+    ]) {
+      expect(source).not.toContain(forbidden)
+    }
+  })
+
   it("I8nText registry entry живёт рядом с владельцем", () => {
     const globalRegistry = readFileSync(join(METADATA_DIR, "orchestration", "property", "registry.ts"), "utf-8")
     const localRegistry = readFileSync(join(METADATA_DIR, "commonObjects", "i8nText", "registry.types.ts"), "utf-8")
