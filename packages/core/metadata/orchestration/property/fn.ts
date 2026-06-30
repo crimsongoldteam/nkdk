@@ -102,6 +102,7 @@ export type StructuralReferencesFunction = (params: {
   propRule: PropertyRule
   propertyName: string
   value: unknown
+  setValue(nextValue: unknown): void
   owner?: MetadataTargetOwner
 }) => StructuralReferenceCandidate[]
 
