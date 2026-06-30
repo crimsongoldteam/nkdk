@@ -4,6 +4,7 @@ import {
 } from "~/metadata/commonObjects/ruleBuilder"
 import type { PropertyRule as WidePropertyRuleBase } from "~/metadata/orchestration/property/types"
 import type { BasePropertyRule } from "~/metadata/orchestration/property/types"
+import { fileItemCollectionTarget } from "~/metadata/orchestration/property/operationTargets"
 
 /** Правило property-типа ChildFormNames — список имён форм в ChildObjects XML.
  *
@@ -29,5 +30,12 @@ export type ChildFormNamesRuleParams = Omit<ChildFormNamesWidePropertyRule, "typ
 export function childFormNamesRule<const Params extends ChildFormNamesRuleParams>(
   params: WideExactRuleParams<ChildFormNamesRuleParams, Params>
 ): Readonly<{ type: "ChildFormNames" } & Params> {
-  return defineWidePropertyRule("ChildFormNames", params)
+  return defineWidePropertyRule("ChildFormNames", {
+    ...params,
+    operationTarget: fileItemCollectionTarget({
+      role: "form",
+      folderName: params.folderName,
+      yamlFileName: "Форма.yaml",
+    }),
+  })
 }

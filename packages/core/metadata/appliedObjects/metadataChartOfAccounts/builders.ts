@@ -1,4 +1,5 @@
 import { definePropertyRule as defineWidePropertyRule, type ExactRuleParams as WideExactRuleParams } from "~/metadata/commonObjects/ruleBuilder"
+import { namedCollectionTarget } from "~/metadata/orchestration/property/operationTargets"
 import type { PropertyRule as WidePropertyRuleBase } from "~/metadata/orchestration/property/types"
 
 export interface AccountingFlagsWidePropertyRule extends WidePropertyRuleBase {
@@ -37,5 +38,12 @@ export function metadataChartOfAccountsTabularSectionsRule<
 >(
   params: WideExactRuleParams<MetadataChartOfAccountsTabularSectionsRuleParams, Params>
 ): Readonly<{ type: "MetadataChartOfAccountsTabularSections" } & Params> {
-  return defineWidePropertyRule("MetadataChartOfAccountsTabularSections", params)
+  return defineWidePropertyRule("MetadataChartOfAccountsTabularSections", {
+    ...params,
+    operationTarget: namedCollectionTarget({
+      kind: "tabularSection",
+      migrationSegment: "ТабличнаяЧасть",
+      requiresMigration: true,
+    }),
+  })
 }

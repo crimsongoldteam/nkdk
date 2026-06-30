@@ -4,6 +4,7 @@ import {
 } from "~/metadata/commonObjects/ruleBuilder"
 import type { PropertyRule as WidePropertyRuleBase } from "~/metadata/orchestration/property/types"
 import type { BasePropertyRule } from "~/metadata/orchestration/property/types"
+import { fileItemCollectionTarget } from "~/metadata/orchestration/property/operationTargets"
 
 /** Правило property-типа ChildTemplateNames — список имён макетов в ChildObjects XML.
  *
@@ -28,5 +29,12 @@ export type ChildTemplateNamesRuleParams = Omit<ChildTemplateNamesWidePropertyRu
 export function childTemplateNamesRule<const Params extends ChildTemplateNamesRuleParams>(
   params: WideExactRuleParams<ChildTemplateNamesRuleParams, Params>
 ): Readonly<{ type: "ChildTemplateNames" } & Params> {
-  return defineWidePropertyRule("ChildTemplateNames", params)
+  return defineWidePropertyRule("ChildTemplateNames", {
+    ...params,
+    operationTarget: fileItemCollectionTarget({
+      role: "template",
+      folderName: params.folderName,
+      yamlFileName: "Шаблон.yaml",
+    }),
+  })
 }
