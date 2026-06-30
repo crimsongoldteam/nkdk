@@ -1,3 +1,8 @@
+import {
+  definePropertyRule as defineWidePropertyRule,
+  type ExactRuleParams as WideExactRuleParams,
+} from "~/metadata/commonObjects/ruleBuilder"
+import type { PropertyRule as WidePropertyRuleBase } from "~/metadata/orchestration/property/types"
 import type {
   ParameterValueXML,
   SettingsParameterValue,
@@ -21,4 +26,16 @@ export type SettingsParameterValueCollectionYAML = Record<string, SettingsParame
 
 export type SettingsParameterValueCollectionXML = {
   "dcscor:item"?: ParameterValueXML | ParameterValueXML[]
+}
+
+export interface SettingsParameterValueCollectionWidePropertyRule extends WidePropertyRuleBase {
+  type: "SettingsParameterValueCollection"
+}
+
+export type SettingsParameterValueCollectionRuleParams = Omit<SettingsParameterValueCollectionWidePropertyRule, "type">
+
+export function settingsParameterValueCollectionRule<const Params extends SettingsParameterValueCollectionRuleParams>(
+  params: WideExactRuleParams<SettingsParameterValueCollectionRuleParams, Params>
+): Readonly<{ type: "SettingsParameterValueCollection" } & Params> {
+  return defineWidePropertyRule("SettingsParameterValueCollection", params)
 }

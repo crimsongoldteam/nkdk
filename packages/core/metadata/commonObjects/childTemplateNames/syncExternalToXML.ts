@@ -14,7 +14,9 @@ export const syncChildTemplateNamesToXML: SyncExternalToXMLFunction = async (par
 
   const templateNames =
     params.itemName === undefined
-      ? (await fs.promises.readdir(templatesDir, { withFileTypes: true })).filter((e) => e.isDirectory()).map((e) => e.name)
+      ? (await fs.promises.readdir(templatesDir, { withFileTypes: true }))
+          .filter((e) => e.isDirectory())
+          .map((e) => e.name)
       : [params.itemName]
   const templateOutputDir = join(xmlDir, name, "Templates")
 
@@ -42,11 +44,7 @@ export const syncChildTemplateNamesToXML: SyncExternalToXMLFunction = async (par
   }
 }
 
-async function copyIfExists(params: {
-  src: string
-  dst: string
-  xmlManifest?: XmlWriteManifest
-}): Promise<void> {
+async function copyIfExists(params: { src: string; dst: string; xmlManifest?: XmlWriteManifest }): Promise<void> {
   const { src, dst, xmlManifest } = params
   if (!fs.existsSync(src)) return
   await fs.promises.mkdir(dirname(dst), { recursive: true })
@@ -135,4 +133,16 @@ registerTypeRule("ChildTemplateNames", "xmlSyncRoutes", ({ propertyRule }) => {
       ],
     },
   ]
+})
+registerTypeRule("ChildTemplateNames", "fileChildNamesDescriptor", ({ propertyRule }) => {
+  const rule = propertyRule as ChildTemplateNamesPropertyRule
+  return {
+    folderName: rule.folderName,
+    xmlFolderName: "Templates",
+    xmlItemName: rule.xml,
+    useOwnerDirectoryForExternalSync: true,
+    preserveReferenceXmlFolder: true,
+    expectedNames: ({ propertyValue }) =>
+      Array.isArray(propertyValue) ? propertyValue.filter((item): item is string => typeof item === "string") : [],
+  }
 })

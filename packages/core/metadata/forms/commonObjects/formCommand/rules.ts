@@ -1,24 +1,39 @@
+import { functionalOptionsPropertyRule } from "~/metadata/commonObjects/functionalOptionsProperty/types"
+import { pictureRule } from "~/metadata/commonObjects/metadataTargets/types"
+import { associatedTableRule } from "~/metadata/commonObjects/metadataValue/types"
+import { userVisibleRule } from "~/metadata/commonObjects/userVisible/types"
+import { elementIdRule } from "~/metadata/forms/commonObjects/elementId/types"
+import { booleanRule } from "~/metadata/commonObjects/boolean/types"
+import { i8nTextRule } from "~/metadata/commonObjects/i8nText/types"
+import { stringRule } from "~/metadata/commonObjects/string/types"
+import { systemEnumerationRule } from "~/metadata/systemEnumerations/types"
 import { splitPascalCase } from "~/metadata/helpers/canConvertToPascalCase"
 import { MetadataItemRule } from "~/metadata/orchestration/property/types"
-
 export const FormCommandRules = {
   itemType: "FormCommand",
   properties: {
-    id: {
+    id: elementIdRule({
       xml: "_id",
-      type: "ElementId",
       forReferenceOnly: true,
-    },
-    name: {
-      type: "string",
+    }),
+    name: stringRule({
       xml: "_name",
       required: true,
-    },
-    title: {
+    }),
+    title: i8nTextRule({
       yaml: "Заголовок",
-      type: "I8nText",
       skipEmptyToXML: true,
-      defaultValue: ({ context, name, operation }) => {
+      defaultValue: ({
+        context,
+        name,
+        operation,
+      }: {
+        context: {
+          defaultLanguage: string
+        }
+        name?: string
+        operation: string
+      }) => {
         if (operation === "importFromXML") {
           return { items: { [context.defaultLanguage]: "" } }
         }
@@ -28,58 +43,49 @@ export const FormCommandRules = {
         }
       },
       excludeIfEqualNameYAML: true,
-    },
-    toolTip: {
+    }),
+    toolTip: i8nTextRule({
       yaml: "Подсказка",
-      type: "I8nText",
-    },
-    use: {
+    }),
+    use: userVisibleRule({
       yaml: "Использование",
-      type: "UserVisible",
-    },
-    shortcut: {
+    }),
+    shortcut: stringRule({
       yaml: "СочетаниеКлавиш",
       xml: "Shortcut",
-      type: "string",
-    },
-    picture: {
+    }),
+    picture: pictureRule({
       yaml: "Картинка",
-      type: "Picture", metadataTarget: { kind: "object", roots: ["CommonPicture"] },
-    },
-    action: {
+      metadataTarget: { kind: "object", roots: ["CommonPicture"] },
+    }),
+    action: stringRule({
       yaml: "Действие",
       xml: "Action",
-      type: "string",
-    },
-    functionalOptions: {
+    }),
+    functionalOptions: functionalOptionsPropertyRule({
       yaml: "ФункциональныеОпции",
-      type: "FunctionalOptionsProperty",
-    },
-    representation: {
+    }),
+    representation: systemEnumerationRule({
       yaml: "ОтображениеКнопки",
       xml: "Representation",
-      type: "SystemEnumeration",
       typeSE: "ButtonRepresentation",
       implicitValueYAML: "Auto",
-    },
-    currentRowUse: {
+    }),
+    currentRowUse: systemEnumerationRule({
       yaml: "ИспользованиеТекущейСтроки",
       xml: "CurrentRowUse",
-      type: "SystemEnumeration",
       typeSE: "CurrentRowUse",
       implicitValueYAML: "Auto",
-    },
-    modifiesSavedData: {
+    }),
+    modifiesSavedData: booleanRule({
       yaml: "ИзменяемыеДанные",
       xml: "ModifiesSavedData",
-      type: "boolean",
       implicitValueYAML: false,
-    },
-    table: {
+    }),
+    table: associatedTableRule({
       yaml: "Таблица",
       xml: "AssociatedTableElementId",
-      type: "AssociatedTable",
       toEnterprise: false,
-    },
+    }),
   },
 } as const satisfies MetadataItemRule

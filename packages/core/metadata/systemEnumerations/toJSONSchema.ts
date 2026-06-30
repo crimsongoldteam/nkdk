@@ -3,9 +3,11 @@ import { ExportToJSONSchemaFn, registerTypeRule } from "~/metadata/orchestration
 import * as SE from "./types"
 import { SystemEnumerationPropertyRule } from "./types"
 
+const systemEnumerationTables = SE as unknown as Record<string, Record<string, string>>
+
 export const exportSystemEnumerationToJSONSchema: ExportToJSONSchemaFn = (params): TSchema => {
   const rule = params.rule as SystemEnumerationPropertyRule
-  const enumeration = (SE as Record<string, Record<string, string>>)[rule.typeSE + "FromYAML"]
+  const enumeration = systemEnumerationTables[rule.typeSE + "FromYAML"]
   if (!enumeration) {
     throw new Error(`Enumeration ${rule.typeSE} not found`)
   }

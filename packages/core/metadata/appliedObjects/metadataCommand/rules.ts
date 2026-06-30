@@ -1,131 +1,124 @@
+import { metadataCommandGroupRule } from "~/metadata/commonObjects/metadataCommandGroup/types"
+import { pictureRule } from "~/metadata/commonObjects/metadataTargets/types"
+import { typeDescriptionRule } from "~/metadata/commonObjects/typeDescription/types"
+import { booleanRule } from "~/metadata/commonObjects/boolean/types"
+import { i8nTextRule } from "~/metadata/commonObjects/i8nText/types"
+import { moduleRule } from "~/metadata/commonObjects/module/types"
+import { stringRule } from "~/metadata/commonObjects/string/types"
+import { systemEnumerationRule } from "~/metadata/systemEnumerations/types"
 import { uuidPropertyRule } from "~/metadata/commonObjects/uuid/rule"
 import { MetadataItemRule } from "~/metadata/orchestration/property/types"
-
 export const MetadataCommandRules = {
   itemType: "MetadataCommand",
   externalMetadata: { segment: "Command", placement: "ownerChild" },
   properties: {
     uuid: uuidPropertyRule,
-    name: {
+    name: stringRule({
       xml: "Name",
-      type: "string",
       required: true,
       xmlParents: ["Properties"],
       order: 1,
-    },
-    synonym: {
+    }),
+    synonym: i8nTextRule({
       yaml: "Синоним",
       xml: "Synonym",
-      type: "I8nText",
       excludeIfEqualNameYAML: true,
       xmlParents: ["Properties"],
       order: 2,
       defaultValueXMLRaw: "",
-    },
-    comment: {
+    }),
+    comment: stringRule({
       yaml: "Комментарий",
       xml: "Comment",
-      type: "string",
       xmlParents: ["Properties"],
       order: 3,
       defaultValueXMLRaw: "",
-    },
-    group: {
+    }),
+    group: metadataCommandGroupRule({
       yaml: "Группа",
       xml: "Group",
-      type: "MetadataCommandGroup",
       xmlParents: ["Properties"],
       order: 4,
-    },
-    commandParameterType: {
+    }),
+    commandParameterType: typeDescriptionRule({
       yaml: "ТипПараметраКоманды",
       xml: "CommandParameterType",
-      type: "TypeDescription",
       xmlParents: ["Properties"],
       order: 5,
       defaultValueXMLRaw: "",
-    },
-    parameterUseMode: {
+    }),
+    parameterUseMode: systemEnumerationRule({
       yaml: "РежимИспользованияПараметра",
       xml: "ParameterUseMode",
-      type: "SystemEnumeration",
       typeSE: "CommandParameterUseMode",
       xmlParents: ["Properties"],
       order: 6,
       defaultValueXML: "Single",
       implicitValueYAML: "Single",
-    },
-    modifiesData: {
+    }),
+    modifiesData: booleanRule({
       yaml: "ИзменяетДанные",
       xml: "ModifiesData",
-      type: "boolean",
       xmlParents: ["Properties"],
       order: 7,
       defaultValueXML: false,
       implicitValueYAML: false,
-    },
-    representation: {
+    }),
+    representation: systemEnumerationRule({
       yaml: "Отображение",
       xml: "Representation",
-      type: "SystemEnumeration",
       typeSE: "ButtonRepresentation",
       implicitValueYAML: "Auto",
       defaultValueXML: "Auto",
       xmlParents: ["Properties"],
       order: 8,
-    },
-    toolTip: {
+    }),
+    toolTip: i8nTextRule({
       yaml: "Подсказка",
       xml: "ToolTip",
-      type: "I8nText",
       xmlParents: ["Properties"],
       order: 9,
       defaultValueXMLRaw: "",
-    },
-    picture: {
+    }),
+    picture: pictureRule({
       yaml: "Картинка",
       xml: "Picture",
-      type: "Picture",
       metadataTarget: { kind: "object", roots: ["CommonPicture"] },
       xmlParents: ["Properties"],
       order: 10,
       defaultValueXMLRaw: "",
-    },
-    shortcut: {
+    }),
+    shortcut: stringRule({
       yaml: "СочетаниеКлавиш",
       xml: "Shortcut",
-      type: "string",
       xmlParents: ["Properties"],
       order: 11,
       defaultValueXMLRaw: "",
-    },
-    onMainServerUnavalableBehavior: {
+    }),
+    onMainServerUnavalableBehavior: systemEnumerationRule({
       yaml: "ПоведениеПриНедоступностиОсновногоСервера",
       xml: "OnMainServerUnavalableBehavior",
-      type: "SystemEnumeration",
       typeSE: "OnMainServerUnavalableBehavior",
       implicitValueYAML: "Auto",
       defaultValueXML: "Auto",
       xmlParents: ["Properties"],
       order: 12,
-    },
-    objectBelonging: {
+    }),
+    objectBelonging: systemEnumerationRule({
       yaml: "ПринадлежностьОбъекта",
       xml: "ObjectBelonging",
-      type: "SystemEnumeration",
       typeSE: "ObjectBelonging",
       implicitValueYAML: "Native",
       toYAML: false,
       fromYAML: false,
       xmlParents: ["Properties"],
-    },
-    commandModule: {
-      type: "Module",
+    }),
+    commandModule: moduleRule({
       externalMetadata: { segment: "CommandModule", placement: "derivedEntry" },
       nkdkPath: ({ name }: { name: string }) => "Команды/" + name + ".bsl",
       xmlPath: ({ name }: { name: string }) => "Commands/" + name + "/Ext/CommandModule.bsl",
       toXML: false,
       fromXML: false,
-    },
+    }),
   },
 } as const satisfies MetadataItemRule

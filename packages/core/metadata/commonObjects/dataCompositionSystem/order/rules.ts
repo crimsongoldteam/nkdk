@@ -1,29 +1,28 @@
+import { dcsLocalStringTypeRule } from "~/metadata/commonObjects/dataCompositionSystem/dcsLocalStringType/types"
+import { orderItemFieldsRule } from "~/metadata/commonObjects/dataCompositionSystem/order/builders"
+import { userSettingsIDRule } from "~/metadata/commonObjects/userSettingsID/types"
+import { systemEnumerationRule } from "~/metadata/systemEnumerations/types"
 import { MetadataItemRule } from "~/metadata/orchestration"
-
 export const OrderRules = {
   itemType: "Order",
   properties: {
-    items: {
-      type: "OrderItemFields",
+    items: orderItemFieldsRule({
       xml: "dcsset:item",
       yaml: "Элементы",
-    },
-    viewMode: {
-      type: "SystemEnumeration",
+    }),
+    viewMode: systemEnumerationRule({
       typeSE: "DataCompositionSettingsItemViewMode",
       xml: "dcsset:viewMode",
       yaml: "РежимОтображения",
       implicitValueYAML: "Auto",
-    },
-    userSettingID: {
-      type: "UserSettingsID",
+    }),
+    userSettingID: userSettingsIDRule({
       xml: "dcsset:userSettingID",
       yaml: "ИспользоватьПользовательскуюНастройку",
-    },
-    userSettingPresentation: {
-      type: "DcsLocalStringType",
+    }),
+    userSettingPresentation: dcsLocalStringTypeRule({
       xml: "dcsset:userSettingPresentation",
       yaml: "ПредставлениеПользовательскойНастройки",
-    },
+    }),
   },
 } as const satisfies MetadataItemRule

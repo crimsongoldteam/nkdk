@@ -1,6 +1,11 @@
+import {
+  accumulationRegisterAggregateCollectionRule,
+  accumulationRegisterAggregateDimensionsRule,
+} from "~/metadata/commonObjects/accumulationRegisterAggregates/builders"
+import { xmlRootRule } from "~/metadata/commonObjects/xmlRoot/types"
+import { systemEnumerationRule } from "~/metadata/systemEnumerations/types"
 import { uuidPropertyRule } from "~/metadata/commonObjects/uuid/rule"
 import { MetadataItemRule } from "~/metadata/orchestration/property/types"
-
 export const AccumulationRegisterAggregateRules = {
   itemType: "AccumulationRegisterAggregate",
   properties: {
@@ -8,36 +13,31 @@ export const AccumulationRegisterAggregateRules = {
       ...uuidPropertyRule,
       xml: "_id",
     },
-    use: {
+    use: systemEnumerationRule({
       yaml: "Использование",
       xml: "Use",
-      type: "SystemEnumeration",
       typeSE: "AccumulationRegisterAggregateUse",
       required: true,
       noImplicitValueYAML: true,
-    },
-    periodicity: {
+    }),
+    periodicity: systemEnumerationRule({
       yaml: "Периодичность",
       xml: "Periodicity",
-      type: "SystemEnumeration",
       typeSE: "AccumulationRegisterAggregatePeriodicity",
       required: true,
       noImplicitValueYAML: true,
-    },
-    dimensions: {
+    }),
+    dimensions: accumulationRegisterAggregateDimensionsRule({
       yaml: "Измерения",
       xml: "Dimensions",
-      type: "AccumulationRegisterAggregateDimensions",
       required: true,
-    },
+    }),
   },
 } as const satisfies MetadataItemRule
-
 export const AccumulationRegisterAggregatesRules = {
   itemType: "AccumulationRegisterAggregates",
   properties: {
-    xmlRoot: {
-      type: "XMLRoot",
+    xmlRoot: xmlRootRule({
       container: "AccumulationRegisterAggregates",
       rootAttributes: {
         _xmlns: "http://v8.1c.ru/8.3/xcf/extrnprops",
@@ -49,12 +49,11 @@ export const AccumulationRegisterAggregatesRules = {
       },
       forReferenceOnly: true,
       isFileRoot: true,
-    },
-    items: {
-      type: "AccumulationRegisterAggregateCollection",
+    }),
+    items: accumulationRegisterAggregateCollectionRule({
       xml: "Aggregate",
       yaml: "items",
       yamlInline: true,
-    },
+    }),
   },
 } as const satisfies MetadataItemRule

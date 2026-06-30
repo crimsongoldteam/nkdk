@@ -33,7 +33,7 @@ describe("export MetadataWebServiceOperations to XML", () => {
             namespace: "http://www.w3.org/2001/XMLSchema",
             name: "string",
           },
-          parameters: parameters?.map((parameter) => ({
+          parameters: parameters?.map((parameter: { name: string }) => ({
             ...parameter,
             xdtoValueType: {
               namespace: "http://www.w3.org/2001/XMLSchema",
@@ -63,7 +63,7 @@ describe("export MetadataWebServiceOperations to XML", () => {
             namespace: "http://www.w3.org/2001/XMLSchema",
             name: "string",
           },
-          parameters: parameters?.map((parameter) => ({
+          parameters: parameters?.map((parameter: { name: string }) => ({
             ...parameter,
             xdtoValueType: {
               namespace: "http://www.w3.org/2001/XMLSchema",

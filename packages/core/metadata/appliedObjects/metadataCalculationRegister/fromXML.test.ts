@@ -18,8 +18,8 @@ describe("import MetadataCalculationRegister from XML", () => {
     expect(result?.actionPeriod).toBe(true)
     expect(result?.basePeriod).toBe(true)
     expect(result?.chartOfCalculationTypes).toBe("ChartOfCalculationTypes.ПланРасчетаВсеСвойства")
-    expect(result?.recalculations?.map(({ name }) => name)).toEqual(["ПерерасчетВсеСвойства", "ПерерасчетПоУмолчанию"])
-    expect(result?.dimensions?.map(({ name }) => name)).toEqual([
+    expect(result?.recalculations?.map(({ name }: { name: string }) => name)).toEqual(["ПерерасчетВсеСвойства", "ПерерасчетПоУмолчанию"])
+    expect(result?.dimensions?.map(({ name }: { name: string }) => name)).toEqual([
       "ИзмерениеВсеСвойства",
       "ИспользоватьХранилищеДвоичныхДанных",
       "ИзмерениеПоУмолчанию",

@@ -1,3 +1,8 @@
+import {
+  definePropertyRule as defineWidePropertyRule,
+  type ExactRuleParams as WideExactRuleParams,
+} from "~/metadata/commonObjects/ruleBuilder"
+import type { PropertyRule as WidePropertyRuleBase } from "~/metadata/orchestration/property/types"
 import { Static, Type } from "@sinclair/typebox"
 import { BasePropertyRule } from "~/metadata/orchestration"
 
@@ -12,4 +17,16 @@ export interface DateTimePropertyRule extends BasePropertyRule {
   type: "dateTime"
   /** Выгружать дату/время с указанием типа: `xsi:type="xs:dateTime"` */
   typedXML?: true
+}
+
+export interface dateTimeWidePropertyRule extends WidePropertyRuleBase {
+  type: "dateTime"
+}
+
+export type dateTimeRuleParams = Omit<dateTimeWidePropertyRule, "type">
+
+export function dateTimeRule<const Params extends dateTimeRuleParams>(
+  params: WideExactRuleParams<dateTimeRuleParams, Params>
+): Readonly<{ type: "dateTime" } & Params> {
+  return defineWidePropertyRule("dateTime", params)
 }

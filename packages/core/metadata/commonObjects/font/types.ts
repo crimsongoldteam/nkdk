@@ -1,3 +1,8 @@
+import {
+  definePropertyRule as defineWidePropertyRule,
+  type ExactRuleParams as WideExactRuleParams,
+} from "~/metadata/commonObjects/ruleBuilder"
+import type { PropertyRule as WidePropertyRuleBase } from "~/metadata/orchestration/property/types"
 import { Static, Type } from "@sinclair/typebox"
 import * as SE from "~/metadata/systemEnumerations/types"
 import { BooleanJSONSchema, StringboolYAML } from "../boolean/types"
@@ -95,4 +100,16 @@ export interface FontEnterprise {
   Italic?: boolean
   Underline?: boolean
   Strikeout?: boolean
+}
+
+export interface FontWidePropertyRule extends WidePropertyRuleBase {
+  type: "Font"
+}
+
+export type FontRuleParams = Omit<FontWidePropertyRule, "type">
+
+export function fontRule<const Params extends FontRuleParams>(
+  params: WideExactRuleParams<FontRuleParams, Params>
+): Readonly<{ type: "Font" } & Params> {
+  return defineWidePropertyRule("Font", params)
 }

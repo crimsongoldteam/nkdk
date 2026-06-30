@@ -1,3 +1,8 @@
+import {
+  definePropertyRule as defineWidePropertyRule,
+  type ExactRuleParams as WideExactRuleParams,
+} from "~/metadata/commonObjects/ruleBuilder"
+import type { PropertyRule as WidePropertyRuleBase } from "~/metadata/orchestration/property/types"
 import { Static, Type } from "@sinclair/typebox"
 
 export interface CommandSetXML {
@@ -9,3 +14,15 @@ export type CommandSet = string[]
 export const CommandSetJSONSchema = Type.Array(Type.String())
 
 export type CommandSetYAML = Static<typeof CommandSetJSONSchema>
+
+export interface CommandSetWidePropertyRule extends WidePropertyRuleBase {
+  type: "CommandSet"
+}
+
+export type CommandSetRuleParams = Omit<CommandSetWidePropertyRule, "type">
+
+export function commandSetRule<const Params extends CommandSetRuleParams>(
+  params: WideExactRuleParams<CommandSetRuleParams, Params>
+): Readonly<{ type: "CommandSet" } & Params> {
+  return defineWidePropertyRule("CommandSet", params)
+}

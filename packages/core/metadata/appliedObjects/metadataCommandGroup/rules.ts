@@ -1,91 +1,86 @@
+import { pictureRule } from "~/metadata/commonObjects/metadataTargets/types"
+import { i8nTextRule } from "~/metadata/commonObjects/i8nText/types"
+import { stringRule } from "~/metadata/commonObjects/string/types"
+import { uuidRule } from "~/metadata/commonObjects/uuid/types"
+import { xmlRootRule } from "~/metadata/commonObjects/xmlRoot/types"
+import { systemEnumerationRule } from "~/metadata/systemEnumerations/types"
 import { V8_MDCLASSES_ROOT } from "~/metadata/orchestration/appliedObject/presets"
 import { MetadataItemRule } from "~/metadata/orchestration/property/types"
-
 const properties = ["Properties"]
-
 export const MetadataCommandGroupRules = {
   itemType: "MetadataCommandGroup",
+  metadataTargetOwner: { kind: "self", root: "CommandGroup" },
   itemTypePrefix: "ГруппаКоманд",
   xmlDir: "CommandGroups",
   properties: {
-    xmlRoot: {
-      type: "XMLRoot",
+    xmlRoot: xmlRootRule({
       container: "CommandGroup",
       rootAttributes: V8_MDCLASSES_ROOT,
       forReferenceOnly: true,
       toYAML: false,
       fromYAML: false,
-    },
-    uuid: {
-      type: "uuid",
+    }),
+    uuid: uuidRule({
       xml: "_uuid",
       forReferenceOnly: true,
       xmlParents: [],
-    },
-    name: {
-      type: "string",
+    }),
+    name: stringRule({
       xmlParents: properties,
       required: true,
-    },
-    synonym: {
+    }),
+    synonym: i8nTextRule({
       yaml: "Синоним",
-      type: "I8nText",
       xmlParents: properties,
       defaultValueXMLRaw: "",
-    },
-    comment: {
+    }),
+    comment: stringRule({
       yaml: "Комментарий",
-      type: "string",
       xmlParents: properties,
       defaultValueXMLRaw: "",
-    },
-    representation: {
+    }),
+    representation: systemEnumerationRule({
       yaml: "Представление",
       xml: "Representation",
-      type: "SystemEnumeration",
       typeSE: "ButtonRepresentation",
       xmlParents: properties,
       defaultValueXML: "Auto",
       implicitValueYAML: "Auto",
-    },
-    toolTip: {
+    }),
+    toolTip: i8nTextRule({
       yaml: "Подсказка",
       xml: "ToolTip",
-      type: "I8nText",
       xmlParents: properties,
       defaultValueXMLRaw: "",
-    },
-    picture: {
+    }),
+    picture: pictureRule({
       yaml: "Картинка",
       xml: "Picture",
-      type: "Picture", metadataTarget: { kind: "object", roots: ["CommonPicture"] },
+      metadataTarget: { kind: "object", roots: ["CommonPicture"] },
       xmlParents: properties,
       defaultValueXMLRaw: "",
-    },
-    category: {
+    }),
+    category: systemEnumerationRule({
       yaml: "Категория",
       xml: "Category",
-      type: "SystemEnumeration",
       typeSE: "CommandGroupCategory",
       xmlParents: properties,
       defaultValueXML: "NavigationPanel",
       implicitValueYAML: "NavigationPanel",
-    },
-    objectBelonging: {
+    }),
+    objectBelonging: systemEnumerationRule({
       yaml: "ПринадлежностьОбъекта",
       xml: "ObjectBelonging",
-      type: "SystemEnumeration",
       typeSE: "ObjectBelonging",
       xmlParents: properties,
       toYAML: false,
       fromYAML: false,
       implicitValueYAML: "Native",
-    },
-    extendedConfigurationObject: {
+    }),
+    extendedConfigurationObject: stringRule({
       xml: "ExtendedConfigurationObject",
-      type: "string",
       xmlParents: properties,
       runtimeOnly: true,
-    },
+    }),
   },
 } as const satisfies MetadataItemRule

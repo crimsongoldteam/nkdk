@@ -1,79 +1,74 @@
+import { typeDescriptionRule } from "~/metadata/commonObjects/typeDescription/types"
+import { i8nTextRule } from "~/metadata/commonObjects/i8nText/types"
+import { stringRule } from "~/metadata/commonObjects/string/types"
+import { uuidRule } from "~/metadata/commonObjects/uuid/types"
+import { xmlRootRule } from "~/metadata/commonObjects/xmlRoot/types"
+import { systemEnumerationRule } from "~/metadata/systemEnumerations/types"
 import { V8_MDCLASSES_ROOT } from "~/metadata/orchestration/appliedObject/presets"
 import { MetadataItemRule } from "~/metadata/orchestration/property/types"
-
 const properties = ["Properties"]
-
 export const MetadataEventSubscriptionRules = {
   itemType: "MetadataEventSubscription",
+  metadataTargetOwner: { kind: "self", root: "EventSubscription" },
   itemTypePrefix: "ПодпискаНаСобытие",
   xmlDir: "EventSubscriptions",
   properties: {
-    xmlRoot: {
-      type: "XMLRoot",
+    xmlRoot: xmlRootRule({
       container: "EventSubscription",
       rootAttributes: V8_MDCLASSES_ROOT,
       forReferenceOnly: true,
       toYAML: false,
       fromYAML: false,
-    },
-    uuid: {
-      type: "uuid",
+    }),
+    uuid: uuidRule({
       xml: "_uuid",
       forReferenceOnly: true,
       xmlParents: [],
-    },
-    name: {
-      type: "string",
+    }),
+    name: stringRule({
       xmlParents: properties,
       required: true,
       order: 1,
-    },
-    synonym: {
+    }),
+    synonym: i8nTextRule({
       yaml: "Синоним",
-      type: "I8nText",
       xmlParents: properties,
       defaultValueXMLRaw: "",
       order: 2,
-    },
-    comment: {
+    }),
+    comment: stringRule({
       yaml: "Комментарий",
-      type: "string",
       xmlParents: properties,
       defaultValueXMLRaw: "",
       order: 3,
-    },
-    source: {
+    }),
+    source: typeDescriptionRule({
       yaml: "Источник",
-      type: "TypeDescription",
       xmlParents: properties,
       order: 4,
-    },
-    event: {
+    }),
+    event: stringRule({
       yaml: "Событие",
-      type: "string",
       xmlParents: properties,
       order: 5,
-    },
-    handler: {
+    }),
+    handler: stringRule({
       yaml: "Обработчик",
-      type: "string",
       xmlParents: properties,
       order: 6,
-    },
-    objectBelonging: {
+    }),
+    objectBelonging: systemEnumerationRule({
       yaml: "ПринадлежностьОбъекта",
-      type: "SystemEnumeration",
       typeSE: "ObjectBelonging",
       implicitValueYAML: "Native",
       toYAML: false,
       fromYAML: false,
       xmlParents: properties,
       order: 7,
-    },
-    extendedConfigurationObject: {
+    }),
+    extendedConfigurationObject: stringRule({
       yaml: "ОбъектРасширяемойКонфигурации",
-      type: "string",
       runtimeOnly: true,
-    },
+    }),
   },
 } as const satisfies MetadataItemRule

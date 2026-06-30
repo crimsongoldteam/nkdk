@@ -8,6 +8,7 @@ import {
   ExportToXMLFunctionNew,
   ExportToYAMLFunction,
   ExportToYAMLFunctionNew,
+  FileChildNamesDescriptorFunction,
   importExportFunction,
   ImportFromXMLFunction,
   importFromYAMLFunction as ImportFromYAMLFunction,
@@ -38,6 +39,7 @@ const typeRulesRegistry = new Map<
   | ValidateMetadataTargetFunction
   | ProjectResourcesFunction
   | XmlSyncRoutesFunction
+  | FileChildNamesDescriptorFunction
   | XmlSyncWriterFunction
 >()
 
@@ -62,24 +64,26 @@ export const getTypeRule = <O extends TypeRulesOperations>(
       : O extends "importFromXML"
         ? ImportFromXMLFunction | undefined
         : O extends "exportToEnterprise"
-      ? ExportToEnterpriseFunction | undefined
-      : O extends "exportToJSONSchema"
-        ? ExportToJSONSchemaFn | undefined
-        : O extends "collectionItemRule"
-          ? CollectionItemRule | undefined
-          : O extends "syncExternalFromXML"
-            ? SyncExternalFromXMLFunction | undefined
-            : O extends "syncExternalToXML"
-              ? SyncExternalToXMLFunction | undefined
-              : O extends "validateMetadataTarget"
-                ? ValidateMetadataTargetFunction | undefined
-                : O extends "projectResources"
-                  ? ProjectResourcesFunction | undefined
-                  : O extends "xmlSyncRoutes"
-                    ? XmlSyncRoutesFunction | undefined
-                    : O extends "xmlSyncWriter"
-                      ? XmlSyncWriterFunction | undefined
-                      : never => {
+          ? ExportToEnterpriseFunction | undefined
+          : O extends "exportToJSONSchema"
+            ? ExportToJSONSchemaFn | undefined
+            : O extends "collectionItemRule"
+              ? CollectionItemRule | undefined
+              : O extends "syncExternalFromXML"
+                ? SyncExternalFromXMLFunction | undefined
+                : O extends "syncExternalToXML"
+                  ? SyncExternalToXMLFunction | undefined
+                  : O extends "validateMetadataTarget"
+                    ? ValidateMetadataTargetFunction | undefined
+                    : O extends "projectResources"
+                      ? ProjectResourcesFunction | undefined
+                      : O extends "xmlSyncRoutes"
+                        ? XmlSyncRoutesFunction | undefined
+                        : O extends "fileChildNamesDescriptor"
+                          ? FileChildNamesDescriptorFunction | undefined
+                          : O extends "xmlSyncWriter"
+                            ? XmlSyncWriterFunction | undefined
+                            : never => {
   const key = createRegistryKey(type, operation)
   const result = typeRulesRegistry.get(key)
   return result as any

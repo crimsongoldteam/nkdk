@@ -114,7 +114,13 @@ describe("exportClientApplicationFormToYAML", () => {
       ...mockContextToYAML,
       exportToYAML: {
         ...mockContextToYAML.exportToYAML!,
-        metadataTargetOwners: [{ itemType: "MetadataReport", name: "РасшифровкаСтатистики" }],
+        metadataTargetOwners: [
+          {
+            itemType: "MetadataReport",
+            name: "РасшифровкаСтатистики",
+            owner: { root: "Report", objectName: "РасшифровкаСтатистики" },
+          },
+        ],
       },
     }
     const form: ClientApplicationForm = {
@@ -137,7 +143,11 @@ describe("exportClientApplicationFormToYAML", () => {
       exportToYAML: {
         ...mockContextToYAML.exportToYAML!,
         metadataTargetOwners: [
-          { itemType: "MetadataReport", name: "РегистрНалоговогоУчетаФедеральногоИнвестиционногоВычета" },
+          {
+            itemType: "MetadataReport",
+            name: "РегистрНалоговогоУчетаФедеральногоИнвестиционногоВычета",
+            owner: { root: "Report", objectName: "РегистрНалоговогоУчетаФедеральногоИнвестиционногоВычета" },
+          },
         ],
       },
     }

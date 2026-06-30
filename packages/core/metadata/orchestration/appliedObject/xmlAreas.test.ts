@@ -22,7 +22,7 @@ describe("resolveXmlSyncAreaForProjectPath", () => {
 
   it("maps form yaml to form xml area", () => {
     expect(
-      resolveXmlSyncAreaForProjectPath("Справочник/Товары/Формы/ФормаЭлемента/Форма.yaml", [MetadataCatalogRules]),
+      resolveXmlSyncAreaForProjectPath("Справочник/Товары/Формы/ФормаЭлемента/Форма.yaml", [MetadataCatalogRules])
     ).toMatchObject({
       kind: "fileItem",
       itemType: "MetadataCatalog",
@@ -38,7 +38,7 @@ describe("resolveXmlSyncAreaForProjectPath", () => {
 
   it("maps form module to form module area", () => {
     expect(
-      resolveXmlSyncAreaForProjectPath("Справочник/Товары/Формы/ФормаЭлемента/Модуль.bsl", [MetadataCatalogRules]),
+      resolveXmlSyncAreaForProjectPath("Справочник/Товары/Формы/ФормаЭлемента/Модуль.bsl", [MetadataCatalogRules])
     ).toMatchObject({
       kind: "externalFile",
       itemName: "Товары",
@@ -55,7 +55,9 @@ describe("resolveXmlSyncAreaForProjectPath", () => {
   })
 
   it("maps object module through declarative rule", () => {
-    expect(resolveXmlSyncAreaForProjectPath("Справочник/Товары/МодульОбъекта.bsl", [MetadataCatalogRules])).toMatchObject({
+    expect(
+      resolveXmlSyncAreaForProjectPath("Справочник/Товары/МодульОбъекта.bsl", [MetadataCatalogRules])
+    ).toMatchObject({
       kind: "externalFile",
       xmlPath: "Catalogs/Товары/Ext/ObjectModule.bsl",
       dumpInfoNames: ["Catalog.Товары", "Catalog.Товары.ObjectModule"],
@@ -69,5 +71,17 @@ describe("resolveXmlSyncAreaForProjectPath", () => {
     expect(source).not.toContain('rule.itemType === "MetadataCatalog"')
     expect(source).not.toContain('rule.type === "ChildFormNames"')
     expect(source).not.toContain('rule.type === "ChildTemplateNames"')
+  })
+
+  it("appliedObject sync uses fileChildNamesDescriptor instead of child form/template strings", () => {
+    const syncToXmlSource = readFileSync(fileURLToPath(new URL("./syncToXML.ts", import.meta.url)), "utf-8")
+    const convertSource = readFileSync(fileURLToPath(new URL("./convertFromXML.ts", import.meta.url)), "utf-8")
+
+    expect(syncToXmlSource).toContain("fileChildNamesDescriptor")
+    expect(convertSource).toContain("fileChildNamesDescriptor")
+    expect(syncToXmlSource).not.toContain('rule.type === "ChildFormNames"')
+    expect(syncToXmlSource).not.toContain('rule.type === "ChildTemplateNames"')
+    expect(convertSource).not.toContain('rule.type === "ChildFormNames"')
+    expect(convertSource).not.toContain('rule.type === "ChildTemplateNames"')
   })
 })

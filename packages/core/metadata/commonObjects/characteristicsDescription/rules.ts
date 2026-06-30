@@ -1,106 +1,95 @@
+import { metadataValueRule } from "~/metadata/commonObjects/metadataValue/types"
+import { stringRule } from "~/metadata/commonObjects/string/types"
 import { MetadataItemRule } from "~/metadata/orchestration/property/types"
-
 export const CharacteristicsDescriptionRules = {
   itemType: "CharacteristicsDescription",
   properties: {
-    characteristicTypes: {
+    characteristicTypes: stringRule({
       yaml: "ВидыХарактеристик",
       xml: "_from",
       xmlParents: ["xr:CharacteristicTypes"],
-      type: "string",
       order: 1,
-    },
-    keyField: {
+    }),
+    keyField: stringRule({
       yaml: "ПолеКлюча",
       xml: "xr:KeyField",
       xmlParents: ["xr:CharacteristicTypes"],
-      type: "string",
       defaultValueXML: "-1",
       order: 2,
-    },
-    typesFilterField: {
+    }),
+    typesFilterField: stringRule({
       yaml: "ПолеОтбораВидов",
       xml: "xr:TypesFilterField",
       xmlParents: ["xr:CharacteristicTypes"],
-      type: "string",
       defaultValueXML: "-1",
       order: 3,
-    },
-    typesFilterValue: {
+    }),
+    typesFilterValue: metadataValueRule({
       yaml: "ЗначениеОтбораВидов",
       xml: "xr:TypesFilterValue",
       xmlParents: ["xr:CharacteristicTypes"],
-      type: "MetadataValue",
       valueType: ["string", "ref", "boolean"],
       exportNilValue: true,
       order: 4,
-    },
-    dataPathField: {
+    }),
+    dataPathField: stringRule({
       yaml: "ПолеПутиКДанным",
       xml: "xr:DataPathField",
       xmlParents: ["xr:CharacteristicTypes"],
-      type: "string",
       defaultValueXML: "-1",
       preserveFromReferenceXML: true,
       order: 5,
-    },
-    multipleValuesUseField: {
+    }),
+    multipleValuesUseField: stringRule({
       yaml: "ПолеИспользованияМножественныхЗначений",
       xml: "xr:MultipleValuesUseField",
       xmlParents: ["xr:CharacteristicTypes"],
-      type: "string",
       defaultValueXML: "-1",
       preserveFromReferenceXML: true,
       order: 6,
-    },
-    characteristicValues: {
+    }),
+    characteristicValues: stringRule({
       yaml: "ЗначенияХарактеристик",
       xml: "_from",
       xmlParents: ["xr:CharacteristicValues"],
-      type: "string",
       order: 7,
-    },
-    objectField: {
+    }),
+    objectField: stringRule({
       yaml: "ПолеОбъекта",
       xml: "xr:ObjectField",
       xmlParents: ["xr:CharacteristicValues"],
-      type: "string",
       defaultValueXML: "-1",
       order: 8,
-    },
-    typeField: {
+    }),
+    typeField: stringRule({
       yaml: "ПолеВида",
       xml: "xr:TypeField",
       xmlParents: ["xr:CharacteristicValues"],
-      type: "string",
       defaultValueXML: "-1",
       order: 9,
-    },
-    valueField: {
+    }),
+    valueField: stringRule({
       yaml: "ПолеЗначения",
       xml: "xr:ValueField",
       xmlParents: ["xr:CharacteristicValues"],
-      type: "string",
       defaultValueXML: "-1",
       order: 10,
-    },
-    multipleValuesKeyField: {
+    }),
+    multipleValuesKeyField: stringRule({
       yaml: "ПолеКлючаМножественныхЗначений",
       xml: "xr:MultipleValuesKeyField",
       xmlParents: ["xr:CharacteristicValues"],
-      type: "string",
       defaultValueXML: "-1",
       preserveFromReferenceXML: true,
       order: 11,
-    },
-    multipleValuesOrderField: {
+    }),
+    multipleValuesOrderField: stringRule({
       yaml: "ПолеПорядкаМножественныхЗначений",
       xml: "xr:MultipleValuesOrderField",
       xmlParents: ["xr:CharacteristicValues"],
-      type: "string",
       defaultValueXML: "-1",
       preserveFromReferenceXML: true,
       order: 12,
-    },
+    }),
   },
 } as const satisfies MetadataItemRule

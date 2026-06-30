@@ -1,14 +1,18 @@
+import { metadataRegisterDimensionsRule } from "~/metadata/appliedObjects/metadataAccountingRegister/builders"
+import { internalInfoRule } from "~/metadata/commonObjects/internalInfo/types"
+import { booleanRule } from "~/metadata/commonObjects/boolean/types"
+import { i8nTextRule } from "~/metadata/commonObjects/i8nText/types"
+import { moduleRule } from "~/metadata/commonObjects/module/types"
+import { stringRule } from "~/metadata/commonObjects/string/types"
+import { systemEnumerationRule } from "~/metadata/systemEnumerations/types"
 import { uuidPropertyRule } from "~/metadata/commonObjects/uuid/rule"
 import { MetadataItemRule } from "~/metadata/orchestration/property/types"
-
 const properties = ["Properties"]
 const childObjects = ["ChildObjects"]
-
 export const RecalculationRules = {
   itemType: "Recalculation",
   properties: {
-    internalInfo: {
-      type: "InternalInfo",
+    internalInfo: internalInfoRule({
       xmlParents: [],
       forReferenceOnly: true,
       items: [
@@ -16,59 +20,59 @@ export const RecalculationRules = {
         { name: "RecalculationManager", category: "Manager" },
         { name: "RecalculationRecordSet", category: "RecordSet" },
       ],
-      getName: ({ metadata }) => `Recalculation${metadata.name}`,
-    },
+      getName: ({
+        metadata,
+      }: {
+        metadata: {
+          name: string
+        }
+      }) => `Recalculation${metadata.name}`,
+    }),
     uuid: uuidPropertyRule,
-    name: { xml: "Name", type: "string", required: true, xmlParents: properties },
-    synonym: { yaml: "Синоним", xml: "Synonym", type: "I8nText", xmlParents: properties, defaultValueXMLRaw: "" },
-    comment: { yaml: "Комментарий", xml: "Comment", type: "string", xmlParents: properties, defaultValueXMLRaw: "" },
-    use: {
+    name: stringRule({ xml: "Name", required: true, xmlParents: properties }),
+    synonym: i8nTextRule({ yaml: "Синоним", xml: "Synonym", xmlParents: properties, defaultValueXMLRaw: "" }),
+    comment: stringRule({ yaml: "Комментарий", xml: "Comment", xmlParents: properties, defaultValueXMLRaw: "" }),
+    use: booleanRule({
       yaml: "Использование",
       xml: "Use",
-      type: "boolean",
       xmlParents: properties,
       defaultValueXML: true,
       implicitValueYAML: true,
-    },
-    dataLockControlMode: {
+    }),
+    dataLockControlMode: systemEnumerationRule({
       yaml: "РежимУправленияБлокировкойДанных",
       xml: "DataLockControlMode",
-      type: "SystemEnumeration",
       typeSE: "DefaultDataLockControlMode",
       xmlParents: properties,
       defaultValueXML: "Managed",
       implicitValueYAML: "Managed",
-    },
-    dimensions: {
+    }),
+    dimensions: metadataRegisterDimensionsRule({
       yaml: "Измерения",
       xml: "Dimension",
-      type: "MetadataRegisterDimensions",
       xmlParents: childObjects,
       defaultValue: [],
       defaultValueXMLRaw: {},
-    },
-    objectBelonging: {
+    }),
+    objectBelonging: systemEnumerationRule({
       yaml: "ПринадлежностьОбъекта",
       xml: "ObjectBelonging",
-      type: "SystemEnumeration",
       typeSE: "ObjectBelonging",
       xmlParents: properties,
       toYAML: false,
       fromYAML: false,
       implicitValueYAML: "Native",
-    },
-    extendedConfigurationObject: {
+    }),
+    extendedConfigurationObject: stringRule({
       xml: "ExtendedConfigurationObject",
-      type: "string",
       xmlParents: properties,
       runtimeOnly: true,
-    },
-    recordSetModule: {
-      type: "Module",
+    }),
+    recordSetModule: moduleRule({
       nkdkPath: ({ name }: { name: string }) => `Перерасчеты/${name}/МодульНабораЗаписей.bsl`,
       xmlPath: ({ name }: { name: string }) => `Recalculations/${name}/Ext/RecordSetModule.bsl`,
       toXML: false,
       fromXML: false,
-    },
+    }),
   },
 } as const satisfies MetadataItemRule

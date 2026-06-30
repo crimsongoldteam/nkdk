@@ -1,13 +1,27 @@
+import { metadataCommandsRule } from "~/metadata/appliedObjects/metadataAccountingRegister/builders"
+import {
+  metadataReportAttributesRule,
+  metadataReportTabularSectionsRule,
+} from "~/metadata/appliedObjects/metadataReport/builders"
+import { childFormNamesRule } from "~/metadata/commonObjects/childFormNames/types"
+import { childTemplateNamesRule } from "~/metadata/commonObjects/childTemplateNames/types"
+import { helpRule } from "~/metadata/commonObjects/help/types"
+import { internalInfoRule } from "~/metadata/commonObjects/internalInfo/types"
+import { booleanRule } from "~/metadata/commonObjects/boolean/types"
+import { i8nTextRule } from "~/metadata/commonObjects/i8nText/types"
+import { moduleRule } from "~/metadata/commonObjects/module/types"
+import { stringRule } from "~/metadata/commonObjects/string/types"
+import { uuidRule } from "~/metadata/commonObjects/uuid/types"
+import { xmlRootRule } from "~/metadata/commonObjects/xmlRoot/types"
+import { systemEnumerationRule } from "~/metadata/systemEnumerations/types"
 import { V8_MDCLASSES_ROOT } from "~/metadata/orchestration/appliedObject/presets"
 import { registerMetadataItemCollectionRule } from "~/metadata/orchestration/metadataCollection/ruleFactory"
 import type { MetadataItemRule } from "~/metadata/orchestration/property/types"
 import "~/metadata/commonObjects/metadataAttribute/register"
 import { MetadataAttributeRules } from "~/metadata/commonObjects/metadataAttribute/rules"
 import { MetadataCommandRules } from "../metadataCommand/rules"
-
 const properties = ["Properties"]
 const childObjects = ["ChildObjects"]
-
 const MetadataReportCommandRules = {
   ...MetadataCommandRules,
   properties: {
@@ -19,7 +33,6 @@ const MetadataReportCommandRules = {
     },
   },
 } as const satisfies MetadataItemRule
-
 const MetadataReportAttributeRules = {
   ...MetadataAttributeRules,
   properties: {
@@ -30,7 +43,6 @@ const MetadataReportAttributeRules = {
     },
   },
 } as const satisfies MetadataItemRule
-
 registerMetadataItemCollectionRule({
   propertyType: "MetadataReportAttributes",
   itemRule: MetadataReportAttributeRules,
@@ -38,247 +50,219 @@ registerMetadataItemCollectionRule({
   keyField: "name",
   collectionItemRule: true,
 })
-
 export const MetadataReportRules = {
   itemType: "MetadataReport",
+  metadataTargetOwner: { kind: "self", root: "Report" },
   itemTypePrefix: "Отчет",
   xmlDir: "Reports",
   uniqueNameScopes: [{ collections: ["attributes", "tabularSections"] }],
   properties: {
-    xmlRoot: {
-      type: "XMLRoot",
+    xmlRoot: xmlRootRule({
       container: "Report",
       rootAttributes: V8_MDCLASSES_ROOT,
       forReferenceOnly: true,
       toYAML: false,
       fromYAML: false,
-    },
-    internalInfo: {
-      type: "InternalInfo",
+    }),
+    internalInfo: internalInfoRule({
       xmlParents: [],
       forReferenceOnly: true,
       items: [
         { name: "ReportObject", category: "Object" },
         { name: "ReportManager", category: "Manager" },
       ],
-    },
-    uuid: {
-      type: "uuid",
+    }),
+    uuid: uuidRule({
       xml: "_uuid",
       forReferenceOnly: true,
       xmlParents: [],
-    },
-    name: {
-      type: "string",
+    }),
+    name: stringRule({
       xmlParents: properties,
       required: true,
       defaultValue: ({ name, operation }: { name?: string; operation?: string }) =>
         operation === "importFromYAML" ? name : undefined,
-    },
-    synonym: {
+    }),
+    synonym: i8nTextRule({
       yaml: "Синоним",
-      type: "I8nText",
       xmlParents: properties,
       defaultValueXMLRaw: "",
       defaultValueXMLEmpty: { items: {} },
       defaultValue: { items: {} },
-    },
-    comment: {
+    }),
+    comment: stringRule({
       yaml: "Комментарий",
-      type: "string",
       xmlParents: properties,
       defaultValueXMLRaw: "",
       defaultValueXMLEmpty: "",
       defaultValue: "",
       implicitValueYAML: "",
-    },
-    useStandardCommands: {
+    }),
+    useStandardCommands: booleanRule({
       yaml: "ИспользоватьСтандартныеКоманды",
-      type: "boolean",
       defaultValue: true,
       defaultValueXML: true,
       implicitValueYAML: true,
       omitImplicitValueYAMLBySource: true,
       preserveExplicitDefaultXML: true,
       xmlParents: properties,
-    },
-    defaultForm: {
+    }),
+    defaultForm: stringRule({
       yaml: "ОсновнаяФорма",
-      type: "string",
       xmlParents: properties,
       metadataTarget: { kind: "member", owner: "this", memberKinds: ["Form"], objectRoots: ["CommonForm"] },
       defaultValueXMLRaw: "",
       defaultValueXMLEmpty: "",
       defaultValue: "",
       implicitValueYAML: "",
-    },
-    auxiliaryForm: {
+    }),
+    auxiliaryForm: stringRule({
       yaml: "ДополнительнаяФорма",
-      type: "string",
       xmlParents: properties,
       metadataTarget: { kind: "member", owner: "this", memberKinds: ["Form"], objectRoots: ["CommonForm"] },
       defaultValueXMLRaw: "",
       defaultValueXMLEmpty: "",
       defaultValue: "",
       implicitValueYAML: "",
-    },
-    mainDataCompositionSchema: {
+    }),
+    mainDataCompositionSchema: stringRule({
       yaml: "ОсновнаяСхемаКомпоновкиДанных",
-      type: "string",
       xmlParents: properties,
       metadataTarget: { kind: "member", owner: "this", memberKinds: ["Template"] },
       defaultValueXMLRaw: "",
       defaultValueXMLEmpty: "",
       defaultValue: "",
       implicitValueYAML: "",
-    },
-    defaultSettingsForm: {
+    }),
+    defaultSettingsForm: stringRule({
       yaml: "ОсновнаяФормаНастроекОтчета",
-      type: "string",
       xmlParents: properties,
       metadataTarget: { kind: "member", owner: "this", memberKinds: ["Form"], objectRoots: ["CommonForm"] },
       defaultValueXMLRaw: "",
       defaultValueXMLEmpty: "",
       defaultValue: "",
       implicitValueYAML: "",
-    },
-    auxiliarySettingsForm: {
+    }),
+    auxiliarySettingsForm: stringRule({
       yaml: "ДополнительнаяФормаНастроекОтчета",
-      type: "string",
       xmlParents: properties,
       metadataTarget: { kind: "member", owner: "this", memberKinds: ["Form"], objectRoots: ["CommonForm"] },
       defaultValueXMLRaw: "",
       defaultValueXMLEmpty: "",
       defaultValue: "",
       implicitValueYAML: "",
-    },
-    defaultVariantForm: {
+    }),
+    defaultVariantForm: stringRule({
       yaml: "ОсновнаяФормаВариантаОтчета",
-      type: "string",
       xmlParents: properties,
       metadataTarget: { kind: "member", owner: "this", memberKinds: ["Form"], objectRoots: ["CommonForm"] },
       defaultValueXMLRaw: "",
       defaultValueXMLEmpty: "",
       defaultValue: "",
       implicitValueYAML: "",
-    },
-    variantsStorage: {
+    }),
+    variantsStorage: stringRule({
       yaml: "ХранилищеВариантовОтчетов",
-      type: "string",
       xmlParents: properties,
       defaultValueXMLRaw: "",
       defaultValueXMLEmpty: "",
       defaultValue: "",
       implicitValueYAML: "",
-    },
-    settingsStorage: {
+    }),
+    settingsStorage: stringRule({
       yaml: "ХранилищеПользовательскихНастроекОтчетов",
-      type: "string",
       xmlParents: properties,
       defaultValueXMLRaw: "",
       defaultValueXMLEmpty: "",
       defaultValue: "",
       implicitValueYAML: "",
-    },
-    includeHelpInContents: {
+    }),
+    includeHelpInContents: booleanRule({
       yaml: "ВключатьСправкуВСодержание",
-      type: "boolean",
       defaultValue: false,
       defaultValueXML: false,
       implicitValueYAML: false,
       omitImplicitValueYAMLBySource: true,
       preserveExplicitDefaultXML: true,
       xmlParents: properties,
-    },
-    extendedPresentation: {
+    }),
+    extendedPresentation: i8nTextRule({
       yaml: "РасширенноеПредставление",
-      type: "I8nText",
       xmlParents: properties,
       defaultValueXMLRaw: "",
       defaultValueXMLEmpty: { items: {} },
       defaultValue: { items: {} },
-    },
-    explanation: {
+    }),
+    explanation: i8nTextRule({
       yaml: "Пояснение",
-      type: "I8nText",
       xmlParents: properties,
       defaultValueXMLRaw: "",
       defaultValueXMLEmpty: { items: {} },
       defaultValue: { items: {} },
-    },
-    objectBelonging: {
+    }),
+    objectBelonging: systemEnumerationRule({
       yaml: "ПринадлежностьОбъекта",
-      type: "SystemEnumeration",
       typeSE: "ObjectBelonging",
       xmlParents: properties,
       toYAML: false,
       fromYAML: false,
       implicitValueYAML: "Native",
-    },
-    extendedConfigurationObject: {
+    }),
+    extendedConfigurationObject: stringRule({
       yaml: "ОбъектРасширяемойКонфигурации",
-      type: "string",
       runtimeOnly: true,
-    },
-    attributes: {
+    }),
+    attributes: metadataReportAttributesRule({
       yaml: "Реквизиты",
-      type: "MetadataReportAttributes",
       xmlParents: childObjects,
       xml: "Attribute",
-    },
-    tabularSections: {
+    }),
+    tabularSections: metadataReportTabularSectionsRule({
       yaml: "ТабличныеЧасти",
-      type: "MetadataReportTabularSections",
       xmlParents: childObjects,
       xml: "TabularSection",
-    },
-    forms: {
-      type: "ChildFormNames",
+    }),
+    forms: childFormNamesRule({
       xml: "Form",
       folderName: "Формы",
       forReferenceOnly: true,
       toYAML: false,
       fromYAML: false,
       xmlParents: childObjects,
-    },
-    templates: {
-      type: "ChildTemplateNames",
+    }),
+    templates: childTemplateNamesRule({
       xml: "Template",
       folderName: "Шаблоны",
       forReferenceOnly: true,
       toYAML: false,
       fromYAML: false,
       xmlParents: childObjects,
-    },
-    commands: {
+    }),
+    commands: metadataCommandsRule({
       yaml: "Команды",
-      type: "MetadataCommands",
       xmlParents: childObjects,
       xml: "Command",
-    },
-    objectModule: {
-      type: "Module",
+    }),
+    objectModule: moduleRule({
       externalMetadata: { segment: "ObjectModule", placement: "derivedEntry" },
       nkdkPath: "МодульОбъекта.bsl",
       xmlPath: ({ name }: { name: string }) => `${name}/Ext/ObjectModule.bsl`,
       toXML: false,
       fromXML: false,
-    },
-    managerModule: {
-      type: "Module",
+    }),
+    managerModule: moduleRule({
       externalMetadata: { segment: "ManagerModule", placement: "derivedEntry" },
       nkdkPath: "МодульМенеджера.bsl",
       xmlPath: ({ name }: { name: string }) => `${name}/Ext/ManagerModule.bsl`,
       toXML: false,
       fromXML: false,
-    },
-    help: {
-      type: "Help",
+    }),
+    help: helpRule({
       externalMetadata: { segment: "Help", placement: "derivedEntry" },
       filePath: "Ext/Help.xml",
       xmlPath: ({ name }: { name: string }) => `${name}/Ext/Help.xml`,
       nkdkDir: "Справка",
-    },
+    }),
   },
   childCollections: [{ propertyKey: "commands", itemRule: MetadataReportCommandRules }],
 } as const satisfies MetadataItemRule

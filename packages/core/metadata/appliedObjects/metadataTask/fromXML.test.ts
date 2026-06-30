@@ -20,7 +20,7 @@ describe("import MetadataTask from XML", () => {
       currentPerformer: "SessionParameter.ПараметрСеансаТекущийИсполнитель",
       commands: [{ name: "Команда1" }],
     })
-    expect(result?.addressingAttributes?.map((attribute) => attribute.name)).toEqual([
+    expect(result?.addressingAttributes?.map((attribute: { name: string }) => attribute.name)).toEqual([
       "РеквизитАдресацииВсеСвойства",
       "РеквизитАдресацииПоУмолчанию",
     ])

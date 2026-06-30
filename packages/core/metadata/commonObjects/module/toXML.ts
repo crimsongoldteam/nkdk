@@ -3,6 +3,7 @@ import { basename, dirname, join } from "path"
 import type { ConfigurationContextWithExportToXML } from "~/metadata/context/types"
 import { registerTypeRule } from "~/metadata/orchestration"
 import { recordDerivedExternalMetadata } from "~/metadata/orchestration/externalMetadata/record"
+import type { ProjectResourcesFunction } from "~/metadata/orchestration/property/fn"
 import type { XmlWriteManifest } from "~/metadata/orchestration/xmlWriteManifest"
 import type { ModulePropertyRule, PropertyRule, TemplatePropertyRule } from "~/metadata/orchestration/property/types"
 
@@ -67,6 +68,21 @@ export const syncModuleToXML = async (params: {
 
 registerTypeRule("Module", "syncExternalToXML", syncModuleToXML)
 registerTypeRule("Template", "syncExternalToXML", syncModuleToXML)
+
+const describeTemplateProjectResources: ProjectResourcesFunction = () => [
+  {
+    kind: "directory",
+    role: "resourceOnly",
+    projectPattern: "",
+    required: false,
+    repeatable: false,
+    owner: "currentItem",
+    compositionImpact: "none",
+    source: { kind: "propertyType", type: "Template" },
+  },
+]
+
+registerTypeRule("Template", "projectResources", describeTemplateProjectResources)
 
 const stripObjectPrefix = (params: { xmlDir: string; xmlPath: string; objectName?: string }): string => {
   const { xmlDir, xmlPath, objectName } = params

@@ -140,7 +140,7 @@ describe("export RootCommandInterface to XML", () => {
 
     const result = roundTripRootCommandInterfaceThroughYAML(xmlString, (yaml) => {
       const visibility = yaml.ВидимостьКоманд!.find(
-        (item) => item.Команда === "Catalog.Товары.StandardCommand.OpenList"
+        (item: { Команда?: string }) => item.Команда === "Catalog.Товары.StandardCommand.OpenList"
       )
       expect(visibility).toBeDefined()
       visibility!.Роли!.Администратор = "Истина"
@@ -171,7 +171,7 @@ describe("export RootCommandInterface to XML", () => {
 
     const result = roundTripRootCommandInterfaceThroughYAML(xmlString, (yaml) => {
       const placement = yaml.РазмещениеКоманд!.find(
-        (item) => item.Команда === "Catalog.Товары.StandardCommand.OpenList"
+        (item: { Команда?: string }) => item.Команда === "Catalog.Товары.StandardCommand.OpenList"
       )
       expect(placement).toBeDefined()
       placement!.Размещение = "Авто"

@@ -1,61 +1,57 @@
+import { colorRule } from "~/metadata/commonObjects/color/types"
+import { pictureRule } from "~/metadata/commonObjects/metadataTargets/types"
+import { commandBarChildItemsRule } from "~/metadata/forms/commonObjects/childItems/types"
+import { stringRule } from "~/metadata/commonObjects/string/types"
+import { systemEnumerationRule } from "~/metadata/systemEnumerations/types"
 import { registerElementRule } from "~/metadata/orchestration/formElement/ruleFactory"
 import { formGroupCommonProperties } from "../formGroup/rules"
 import { PropertyRule } from "~/metadata/orchestration/property/types"
 import { ElementRule } from "../../../orchestration/formElement/types"
 export type { ElementRule, PropertyRule }
-
 export const PopupRules = {
   itemType: "Popup",
   enterpriseField: "FormGroup",
   enterpriseFieldType: "FormGroupType.Popup",
   properties: {
-    name: {
-      type: "string",
+    name: stringRule({
       xml: "_name",
       required: true,
-    },
-    backColor: {
+    }),
+    backColor: colorRule({
       yaml: "ЦветФона",
-      type: "Color",
       metadataTarget: { kind: "object", roots: ["StyleItem"], filters: [{ kind: "styleItemType", values: ["Color"] }] },
-    },
-    borderColor: {
+    }),
+    borderColor: colorRule({
       yaml: "ЦветРамки",
-      type: "Color",
       metadataTarget: { kind: "object", roots: ["StyleItem"], filters: [{ kind: "styleItemType", values: ["Color"] }] },
-    },
-    commandSource: { yaml: "ИсточникКоманд", type: "string" },
-    childItems: {
+    }),
+    commandSource: stringRule({ yaml: "ИсточникКоманд" }),
+    childItems: commandBarChildItemsRule({
       yaml: "Элементы",
-      type: "CommandBarChildItems",
       defaultValue: [],
-    },
-    displayImportance: {
+    }),
+    displayImportance: systemEnumerationRule({
       yaml: "ВажностьПриОтображении",
       xml: "_DisplayImportance",
-      type: "SystemEnumeration",
       typeSE: "DisplayImportance",
       implicitValueYAML: "Auto",
-    },
-    picture: { yaml: "Картинка", type: "Picture", metadataTarget: { kind: "object", roots: ["CommonPicture"] } },
-    representation: {
+    }),
+    picture: pictureRule({ yaml: "Картинка", metadataTarget: { kind: "object", roots: ["CommonPicture"] } }),
+    representation: systemEnumerationRule({
       yaml: "Отображение",
-      type: "SystemEnumeration",
       typeSE: "ButtonRepresentation",
       implicitValueYAML: "Auto",
-    },
-    shape: {
+    }),
+    shape: systemEnumerationRule({
       yaml: "Фигура",
-      type: "SystemEnumeration",
       typeSE: "ButtonShape",
       implicitValueYAML: "Auto",
-    },
-    shapeRepresentation: {
+    }),
+    shapeRepresentation: systemEnumerationRule({
       yaml: "ОтображениеФигуры",
-      type: "SystemEnumeration",
       typeSE: "ButtonShapeRepresentation",
       implicitValueYAML: "Auto",
-    },
+    }),
     ...formGroupCommonProperties,
     height: {
       ...formGroupCommonProperties.height,
@@ -83,13 +79,11 @@ export const PopupRules = {
       ...formGroupCommonProperties.width,
       implicitValueYAML: 0,
     },
-    type: {
+    type: systemEnumerationRule({
       yaml: "Вид",
-      type: "SystemEnumeration",
       typeSE: "FormGroupType",
       runtimeOnly: true,
-    },
+    }),
   },
 } as const satisfies ElementRule
-
 registerElementRule("Popup", PopupRules)

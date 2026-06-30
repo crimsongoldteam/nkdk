@@ -1,3 +1,5 @@
+import { readFileSync } from "fs"
+import { join } from "path"
 import { describe, expect, it } from "vitest"
 import type { TypeDescription } from "~/metadata/commonObjects/typeDescription/types"
 import { typeDescriptionToDataPathTypeInfo } from "./typeDescription"
@@ -203,5 +205,14 @@ describe("typeDescriptionToDataPathTypeInfo", () => {
       nextTypes: [],
       sourceText: "ValueStorage",
     })
+  })
+
+  it("does not hard-code owner base type maps", () => {
+    const source = readFileSync(join(process.cwd(), "metadata/validation/dataPath/typeDescription.ts"), "utf-8")
+
+    expect(source).not.toContain("ownerKindsByBaseType")
+    expect(source).not.toContain("registerRecordSetOwnerKindsByBaseType")
+    expect(source).toContain("getOwnerKindByTypeDescriptionBase")
+    expect(source).toContain("getOwnerKindByRegisterRecordSetBase")
   })
 })

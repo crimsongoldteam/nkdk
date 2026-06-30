@@ -8,6 +8,13 @@ import {
   type ObjectFieldTableSource,
 } from "./objectFields"
 import type { OwnerMetadata, OwnerMetadataCache, OwnerMetadataResult } from "./ownerCache"
+import {
+  getMetadataLinkPrefixesByOwnerKind,
+  resolveRegisteredTableColumn,
+  resolveMovementItem as resolveRegisteredMovementItem,
+  resolveTraversalTransition,
+  resolveVirtualOwnerField,
+} from "./registry"
 import { typeDescriptionToDataPathTypeInfo } from "./typeDescription"
 import type {
   DataPathTypeInfo,
@@ -128,7 +135,7 @@ export function resolveDataPath(params: ResolveDataPathParams): ResolveDataPathR
         return error(params, `ПутьКДанным "${value}": неизвестный регистр движений "${segment}"`)
       }
 
-      const registerResult = resolveRegisterRecordsItem({
+      const registerResult = resolveMovementItemSegment({
         params,
         value,
         owner: registerRecordsOwner,
@@ -175,23 +182,30 @@ export function resolveDataPath(params: ResolveDataPathParams): ResolveDataPathR
     const ownerResult = params.ownerCache.get(resolvedTypeInfo.nextTypes[0] as OwnerTypeRef)
     if (ownerResult.status !== "ok") return ownerError(ownerResult)
 
-    if (isRegisterRecordsSegment(lookupSegment) && isDocumentOwner(ownerResult.owner.ref)) {
+    const transition = resolveTraversalTransition({
+      owner: ownerResult.owner,
+      segment: lookupSegment,
+      ownerCache: params.ownerCache,
+    })
+    if (transition?.kind === "warning") {
+      return warning(params, `ПутьКДанным "${value}": платформенный источник пока не проверяется`)
+    }
+    if (transition !== undefined) {
       state = {
-        typeInfo: { kinds: ["registerRecords"], nextTypes: [], sourceText: lookupSegment },
-        source: { kind: "registerRecords", owner: ownerResult.owner.ref, name: lookupSegment },
-        registerRecordsOwner: ownerResult.owner,
+        typeInfo: transition.typeInfo,
+        source: transition.sourceKind === "registerRecords"
+          ? { kind: "registerRecords", owner: ownerResult.owner.ref, name: transition.sourceName }
+          : { kind: "objectField", owner: ownerResult.owner.ref, name: transition.sourceName },
+        ...(transition.tableSource !== undefined ? { tableSource: transition.tableSource } : {}),
+        ...(transition.registerRecordsOwner !== undefined ? { registerRecordsOwner: transition.registerRecordsOwner } : {}),
       }
 
       if (isLast) return okTarget({ value, segments, state })
       continue
     }
 
-    if (isSettingsComposerSegment(lookupSegment) && isReportOwner(ownerResult.owner.ref)) {
-      return warning(params, `ПутьКДанным "${value}": платформенный источник пока не проверяется`)
-    }
-
     const field = resolveObjectFieldSegment({ index: ownerResult.owner.fieldIndex, segment: lookupSegment })
-    const virtualField = virtualOwnerField({
+    const virtualField = resolveVirtualOwnerField({
       owner: ownerResult.owner,
       segment: lookupSegment,
     })
@@ -415,131 +429,43 @@ function commonAttributeAppliesToOwner(model: unknown, ownerRef: OwnerTypeRef): 
   })
 }
 
+function modelObjectValue(model: unknown, key: string): unknown {
+  if (typeof model !== "object" || model === null) return undefined
+  return (model as Record<string, unknown>)[key]
+}
+
 function ownerMetadataLinks(ref: OwnerTypeRef): string[] {
   if (!ref.name) return []
 
-  const prefix = metadataLinkPrefixByOwnerKind(ref.kind)
-  return prefix === undefined ? [] : [`${prefix}.${ref.name}`]
-}
-
-function metadataLinkPrefixByOwnerKind(kind: OwnerTypeRef["kind"]): string | undefined {
-  switch (kind) {
-    case "Справочник":
-    case "СправочникОбъект":
-      return "Catalog"
-    case "Документ":
-    case "ДокументОбъект":
-      return "Document"
-    case "Перечисление":
-      return "Enum"
-    case "РегистрСведений":
-      return "InformationRegister"
-    case "РегистрНакопления":
-      return "AccumulationRegister"
-    case "РегистрБухгалтерии":
-      return "AccountingRegister"
-    case "РегистрРасчета":
-      return "CalculationRegister"
-    case "ПланОбмена":
-    case "ПланОбменаОбъект":
-      return "ExchangePlan"
-    case "ПланВидовРасчета":
-    case "ПланВидовРасчетаОбъект":
-      return "ChartOfCalculationTypes"
-    case "ПланВидовХарактеристик":
-    case "ПланВидовХарактеристикОбъект":
-      return "ChartOfCharacteristicTypes"
-    case "ПланСчетов":
-    case "ПланСчетовОбъект":
-      return "ChartOfAccounts"
-    case "Обработка":
-    case "ОбработкаОбъект":
-      return "DataProcessor"
-    case "Отчет":
-    case "ОтчетОбъект":
-      return "Report"
-    case "БизнесПроцесс":
-    case "БизнесПроцессОбъект":
-      return "BusinessProcess"
-    case "Задача":
-    case "ЗадачаОбъект":
-      return "Task"
-    default:
-      return undefined
-  }
+  return getMetadataLinkPrefixesByOwnerKind(ref.kind).map((prefix) => `${prefix}.${ref.name}`)
 }
 
 function ownerRefEquals(left: OwnerTypeRef, right: OwnerTypeRef): boolean {
   return left.kind === right.kind && left.name === right.name
 }
 
-function resolveRegisterRecordsItem(params: {
+function resolveMovementItemSegment(params: {
   params: ResolveDataPathParams
   value: string
   owner: OwnerMetadata
   segment: string
 }): { status: "ok"; state: TraversalState } | { status: "error"; result: ResolveDataPathResult } {
-  const registerRef = documentRegisterRecordRefs(params.owner).find((ref) => ref.name === params.segment)
-  if (registerRef === undefined) {
+  const registered = resolveRegisteredMovementItem({ owner: params.owner, segment: params.segment })
+  if (registered === undefined) {
     return {
       status: "error",
       result: error(params.params, `ПутьКДанным "${params.value}": неизвестный регистр движений "${params.segment}"`),
     }
   }
 
-  const table = { kind: "RegisterRecordSet" as const, owner: registerRef }
   return {
     status: "ok",
     state: {
-      typeInfo: {
-        kinds: ["tableSource"],
-        nextTypes: [],
-        table,
-        sourceText: `RegisterRecords.${params.segment}`,
-      },
-      source: { kind: "registerRecordSet", owner: registerRef, name: params.segment },
-      tableSource: {
-        table,
-        columns: new Map(),
-        hasColumns: true,
-      },
+      typeInfo: registered.typeInfo,
+      source: { kind: "registerRecordSet", owner: registered.owner, name: params.segment },
+      tableSource: registered.tableSource,
     },
   }
-}
-
-function documentRegisterRecordRefs(owner: OwnerMetadata): OwnerTypeRef[] {
-  const value = modelObjectValue(owner.model, "registerRecords")
-  if (!Array.isArray(value)) return []
-
-  return value
-    .map(registerRecordRefFromLink)
-    .filter((ref): ref is OwnerTypeRef => ref !== undefined)
-}
-
-function registerRecordRefFromLink(value: unknown): OwnerTypeRef | undefined {
-  if (typeof value !== "string") return undefined
-
-  const dotIndex = value.indexOf(".")
-  if (dotIndex === -1) return undefined
-
-  const kind = registerKindByLinkPrefix[value.substring(0, dotIndex)]
-  if (kind === undefined) return undefined
-
-  const name = value.substring(dotIndex + 1)
-  if (name.length === 0) return undefined
-
-  return { kind, name }
-}
-
-const registerKindByLinkPrefix: Readonly<Record<string, OwnerTypeRef["kind"] | undefined>> = {
-  InformationRegister: "РегистрСведений",
-  AccumulationRegister: "РегистрНакопления",
-  AccountingRegister: "РегистрБухгалтерии",
-  CalculationRegister: "РегистрРасчета",
-  РегистрСведений: "РегистрСведений",
-  РегистрНакопления: "РегистрНакопления",
-  РегистрБухгалтерии: "РегистрБухгалтерии",
-  РегистрРасчета: "РегистрРасчета",
 }
 
 function constantType(model: unknown): Parameters<typeof typeDescriptionToDataPathTypeInfo>[0] {
@@ -599,13 +525,13 @@ function resolveTableColumn(params: {
   const tablePath = params.segments.slice(0, params.segmentIndex).join(".")
   const normalizedTablePath = normalizeIndexedPath(tablePath)
   const lookupSegment = segmentLookupName(params.segment)
-  const registerRecordSetColumnResult = resolveRegisterRecordSetColumn({
+  const registeredColumnResult = resolveRegisteredColumn({
     params: params.params,
     tableSource,
     segment: lookupSegment,
   })
-  if (registerRecordSetColumnResult.status === "error") {
-    return { status: "done", result: registerRecordSetColumnResult.result }
+  if (registeredColumnResult.status === "error") {
+    return { status: "done", result: registeredColumnResult.result }
   }
 
   const column =
@@ -614,8 +540,7 @@ function resolveTableColumn(params: {
       columns: params.params.index.additionalColumnsByTablePath.get(normalizedTablePath),
       segment: lookupSegment,
     }) ??
-    registerRecordSetColumnResult.column ??
-    virtualTableColumn({ tableSource, segment: lookupSegment })
+    registeredColumnResult.column
   if (column === undefined) {
     if (tableSource.hasColumns) {
       return {
@@ -662,379 +587,30 @@ function tableSourceFromColumn(params: {
   }
 }
 
-function virtualOwnerField(params: {
-  owner: OwnerMetadata
-  segment: string
-}): { name: string; typeInfo: DataPathTypeInfo; tableSource?: FormDataPathTableSource } | undefined {
-  return exchangePlanVirtualOwnerField(params) ??
-    informationRegisterVirtualOwnerField(params) ??
-    chartOfAccountsVirtualOwnerField(params) ??
-    chartOfCalculationTypesVirtualOwnerField(params)
-}
-
-function exchangePlanVirtualOwnerField(params: {
-  owner: OwnerMetadata
-  segment: string
-}): { name: string; typeInfo: DataPathTypeInfo } | undefined {
-  if (!isExchangePlanOwner(params.owner.ref)) return undefined
-
-  if (params.segment === "ThisNode") {
-    return {
-      name: params.segment,
-      typeInfo: { kinds: ["boolean"], nextTypes: [], sourceText: "ExchangePlan.ThisNode" },
-    }
-  }
-
-  if (params.segment === "ОбластьДанныхОсновныеДанные") {
-    return {
-      name: params.segment,
-      typeInfo: { kinds: ["scalar"], nextTypes: [], sourceText: "ExchangePlan.DataArea" },
-    }
-  }
-
-  return undefined
-}
-
-function informationRegisterVirtualOwnerField(params: {
-  owner: OwnerMetadata
-  segment: string
-}): { name: string; typeInfo: DataPathTypeInfo } | undefined {
-  if (!isInformationRegisterOwner(params.owner.ref)) return undefined
-  if (params.segment !== "ОбластьДанныхВспомогательныеДанные") return undefined
-
-  return {
-    name: params.segment,
-    typeInfo: { kinds: ["scalar"], nextTypes: [], sourceText: "InformationRegister.DataArea" },
-  }
-}
-
-function chartOfAccountsVirtualOwnerField(params: {
-  owner: OwnerMetadata
-  segment: string
-}): { name: string; typeInfo: DataPathTypeInfo; tableSource?: FormDataPathTableSource } | undefined {
-  if (!isChartOfAccountsOwner(params.owner.ref)) return undefined
-
-  if (params.segment === "ExtDimensionTypes") return chartOfAccountsExtDimensionTypesField(params)
-
-  const field = chartOfAccountsTerminalVirtualField(params.owner, params.segment)
-  if (field === undefined) return undefined
-
-  return {
-    name: params.segment,
-    typeInfo: field.typeInfo,
-  }
-}
-
-function chartOfAccountsExtDimensionTypesField(params: {
-  owner: OwnerMetadata
-  segment: string
-}): { name: string; typeInfo: DataPathTypeInfo; tableSource: FormDataPathTableSource } {
-  const table = { kind: "ValueTable" as const }
-  return {
-    name: params.segment,
-    typeInfo: {
-      kinds: ["tableSource"],
-      nextTypes: [],
-      table,
-      sourceText: "ChartOfAccounts.ExtDimensionTypes",
-    },
-    tableSource: {
-      table,
-      columns: chartOfAccountsExtDimensionTypesColumns(params.owner),
-      hasColumns: true,
-    },
-  }
-}
-
-function chartOfAccountsTerminalVirtualField(owner: OwnerMetadata, segment: string): TableColumnSource | undefined {
-  if (segment === "Order" || segment === "Type") {
-    return {
-      name: segment,
-      typeInfo: { kinds: ["scalar"], nextTypes: [], sourceText: `ChartOfAccounts.${segment}` },
-    }
-  }
-
-  if (segment === "OffBalance") {
-    return {
-      name: segment,
-      typeInfo: { kinds: ["boolean"], nextTypes: [], sourceText: "ChartOfAccounts.OffBalance" },
-    }
-  }
-
-  if (chartOfAccountsAccountingFlagNames(owner.model).includes(segment)) {
-    return {
-      name: segment,
-      typeInfo: { kinds: ["boolean"], nextTypes: [], sourceText: "ChartOfAccounts.AccountingFlag" },
-    }
-  }
-
-  return undefined
-}
-
-function chartOfAccountsExtDimensionTypesColumns(owner: OwnerMetadata): FormDataPathTableSource["columns"] {
-  const columns = new Map<string, TableColumnSource>()
-  columns.set("ExtDimensionType", {
-    name: "ExtDimensionType",
-    typeInfo: chartOfAccountsExtDimensionTypeInfo(owner.model),
-  })
-
-  for (const name of ["TurnoversOnly", "ТолькоСальдо"]) {
-    columns.set(name, {
-      name,
-      typeInfo: { kinds: ["boolean"], nextTypes: [], sourceText: `ChartOfAccounts.ExtDimensionTypes.${name}` },
-    })
-  }
-
-  for (const name of chartOfAccountsExtDimensionAccountingFlagNames(owner.model)) {
-    columns.set(name, {
-      name,
-      typeInfo: { kinds: ["boolean"], nextTypes: [], sourceText: "ChartOfAccounts.ExtDimensionAccountingFlag" },
-    })
-  }
-
-  return columns
-}
-
-function chartOfAccountsExtDimensionTypeInfo(model: unknown): DataPathTypeInfo {
-  const value = modelObjectValue(model, "extDimensionTypes")
-  if (typeof value !== "string") return { kinds: ["unknown"], nextTypes: [], sourceText: "ChartOfAccounts.ExtDimensionTypes.ExtDimensionType" }
-
-  const prefix = "ChartOfCharacteristicTypes."
-  if (!value.startsWith(prefix)) return { kinds: ["unknown"], nextTypes: [], sourceText: value }
-
-  const name = value.substring(prefix.length)
-  if (name.length === 0) return { kinds: ["unknown"], nextTypes: [], sourceText: value }
-
-  return {
-    kinds: ["object"],
-    nextTypes: [{ kind: "ПланВидовХарактеристик", name }],
-    sourceText: value,
-  }
-}
-
-function chartOfAccountsExtDimensionAccountingFlagNames(model: unknown): string[] {
-  const flags = modelObjectValue(model, "extDimensionAccountingFlags")
-  if (!Array.isArray(flags)) return []
-
-  return flags
-    .map((flag) => modelObjectValue(flag, "name"))
-    .filter((name): name is string => typeof name === "string" && name.length > 0)
-}
-
-function chartOfAccountsAccountingFlagNames(model: unknown): string[] {
-  const flags = modelObjectValue(model, "accountingFlags")
-  if (!Array.isArray(flags)) return []
-
-  return flags
-    .map((flag) => modelObjectValue(flag, "name"))
-    .filter((name): name is string => typeof name === "string" && name.length > 0)
-}
-
-function chartOfCalculationTypesVirtualOwnerField(params: {
-  owner: OwnerMetadata
-  segment: string
-}): { name: string; typeInfo: DataPathTypeInfo; tableSource?: FormDataPathTableSource } | undefined {
-  if (!isChartOfCalculationTypesOwner(params.owner.ref)) return undefined
-
-  if (params.segment === "ActionPeriodIsBasic") {
-    return {
-      name: params.segment,
-      typeInfo: { kinds: ["boolean"], nextTypes: [], sourceText: "ChartOfCalculationTypes.ActionPeriodIsBasic" },
-    }
-  }
-
-  if (!isCalculationTypesVirtualTableName(params.segment)) return undefined
-
-  const table = { kind: "ValueTable" as const }
-  return {
-    name: params.segment,
-    typeInfo: {
-      kinds: ["tableSource"],
-      nextTypes: [],
-      table,
-      sourceText: `ChartOfCalculationTypes.${params.segment}`,
-    },
-    tableSource: {
-      table,
-      columns: chartOfCalculationTypesVirtualTableColumns(params.owner),
-      hasColumns: true,
-    },
-  }
-}
-
-function chartOfCalculationTypesVirtualTableColumns(owner: OwnerMetadata): FormDataPathTableSource["columns"] {
-  const columns = new Map<string, TableColumnSource>()
-  columns.set("CalculationType", {
-    name: "CalculationType",
-    typeInfo: {
-      kinds: ["object"],
-      nextTypes: [owner.ref],
-      sourceText: `ChartOfCalculationTypes.${owner.ref.name}`,
-    },
-  })
-  return columns
-}
-
-function isCalculationTypesVirtualTableName(segment: string): boolean {
-  return segment === "BaseCalculationTypes" ||
-    segment === "LeadingCalculationTypes" ||
-    segment === "DisplacingCalculationTypes"
-}
-
-function modelObjectValue(model: unknown, key: string): unknown {
-  if (typeof model !== "object" || model === null) return undefined
-  return (model as Record<string, unknown>)[key]
-}
-
-function resolveRegisterRecordSetColumn(params: {
+function resolveRegisteredColumn(params: {
   params: ResolveDataPathParams
   tableSource: FormDataPathTableSource | ObjectFieldTableSource
   segment: string
 }): { status: "ok"; column?: TableColumnSource } | { status: "error"; result: ResolveDataPathResult } {
-  if (params.tableSource.table.kind !== "RegisterRecordSet") return { status: "ok" }
+  const ownerResult = params.tableSource.table.kind === "RegisterRecordSet"
+    ? params.params.ownerCache.get(params.tableSource.table.owner)
+    : undefined
+  if (ownerResult?.status !== undefined && ownerResult.status !== "ok") return { status: "error", result: ownerError(ownerResult) }
 
-  const ownerResult = params.params.ownerCache.get(params.tableSource.table.owner)
-  if (ownerResult.status !== "ok") return { status: "error", result: ownerError(ownerResult) }
-
-  const field = resolveObjectFieldSegment({ index: ownerResult.owner.fieldIndex, segment: params.segment })
-  const virtualStandardColumn = registerRecordSetStandardColumn(params.segment, field?.name)
-  const accountingVirtualColumn = accountingRegisterRecordSetColumn({
-    owner: ownerResult.owner,
+  const field = ownerResult?.status === "ok"
+    ? resolveObjectFieldSegment({ index: ownerResult.owner.fieldIndex, segment: params.segment })
+    : undefined
+  const column = resolveRegisteredTableColumn({
+    table: params.tableSource.table,
     segment: params.segment,
+    index: params.params.index,
+    ...(ownerResult?.status === "ok" ? { owner: ownerResult.owner } : {}),
+    ...(field !== undefined ? { field } : {}),
   })
-  if (field === undefined) {
-    if (virtualStandardColumn !== undefined) return { status: "ok", column: virtualStandardColumn }
-    if (accountingVirtualColumn !== undefined) return { status: "ok", column: accountingVirtualColumn }
-    return { status: "ok" }
-  }
-
   return {
     status: "ok",
-    column: {
-      name: isUnknownTypeInfo(field.typeInfo) && accountingVirtualColumn !== undefined
-        ? accountingVirtualColumn.name
-        : isUnknownTypeInfo(field.typeInfo) && virtualStandardColumn !== undefined
-          ? virtualStandardColumn.name
-          : field.name,
-      typeInfo: isUnknownTypeInfo(field.typeInfo) && accountingVirtualColumn !== undefined
-        ? accountingVirtualColumn.typeInfo
-        : isUnknownTypeInfo(field.typeInfo) && virtualStandardColumn !== undefined
-          ? virtualStandardColumn.typeInfo
-          : field.typeInfo,
-    },
+    ...(column !== undefined ? { column } : {}),
   }
-}
-
-function accountingRegisterRecordSetColumn(params: {
-  owner: OwnerMetadata
-  segment: string
-}): TableColumnSource | undefined {
-  if (params.owner.ref.kind !== "РегистрБухгалтерии") return undefined
-
-  const accountColumn = accountingRegisterAccountColumn(params.owner, params.segment)
-  if (accountColumn !== undefined) return accountColumn
-
-  const extDimensionColumn = accountingRegisterExtDimensionColumn(params.segment)
-  if (extDimensionColumn !== undefined) return extDimensionColumn
-
-  return accountingRegisterDebitCreditFieldColumn(params.owner, params.segment)
-}
-
-function accountingRegisterAccountColumn(owner: OwnerMetadata, segment: string): TableColumnSource | undefined {
-  if (segment !== "Account" && segment !== "AccountDr" && segment !== "AccountCr") return undefined
-
-  const chartOfAccounts = accountingRegisterChartOfAccounts(owner.model)
-  if (chartOfAccounts === undefined) return undefined
-
-  return {
-    name: segment,
-    typeInfo: {
-      kinds: ["object"],
-      nextTypes: [chartOfAccounts],
-      sourceText: `ChartOfAccounts.${chartOfAccounts.name ?? ""}`,
-    },
-  }
-}
-
-function accountingRegisterChartOfAccounts(model: unknown): OwnerTypeRef | undefined {
-  if (typeof model !== "object" || model === null) return undefined
-
-  const value = (model as Record<string, unknown>).chartOfAccounts
-  if (typeof value !== "string") return undefined
-
-  const prefix = "ChartOfAccounts."
-  if (!value.startsWith(prefix)) return undefined
-
-  const name = value.substring(prefix.length)
-  if (name.length === 0) return undefined
-
-  return { kind: "ПланСчетов", name }
-}
-
-function accountingRegisterExtDimensionColumn(segment: string): TableColumnSource | undefined {
-  const match = /^ExtDimension(?:Dr|Cr)?(?<number>[1-9]\d?)$/.exec(segment)
-  const number = match?.groups?.number
-  if (number === undefined || Number(number) > 50) return undefined
-
-  return {
-    name: segment,
-    typeInfo: {
-      kinds: ["any"],
-      nextTypes: [],
-      sourceText: "AccountingRegisterRecordSet.ExtDimension",
-    },
-  }
-}
-
-function accountingRegisterDebitCreditFieldColumn(owner: OwnerMetadata, segment: string): TableColumnSource | undefined {
-  const match = /^(?<name>.+)(?:Dr|Cr)$/.exec(segment)
-  const name = match?.groups?.name
-  if (name === undefined) return undefined
-
-  const field = resolveObjectFieldSegment({ index: owner.fieldIndex, segment: name })
-  if (field === undefined) return undefined
-
-  return {
-    name: segment,
-    typeInfo: field.typeInfo,
-  }
-}
-
-function registerRecordSetStandardColumn(segment: string, fieldName: string | undefined): TableColumnSource | undefined {
-  const yamlName = segment === "PeriodAdjustment" ? segment : fieldName ?? standardAttributeAliasToYAML(segment) ?? segment
-  switch (segment) {
-    case "Active":
-    case "Активность":
-      return {
-        name: yamlName,
-        typeInfo: { kinds: ["boolean"], nextTypes: [], sourceText: "RegisterRecordSet.Active" },
-      }
-    case "Period":
-    case "Период":
-      return {
-        name: yamlName,
-        typeInfo: { kinds: ["dateTime"], nextTypes: [], sourceText: "RegisterRecordSet.Period" },
-      }
-    case "LineNumber":
-    case "НомерСтроки":
-      return {
-        name: yamlName,
-        typeInfo: { kinds: ["scalar"], nextTypes: [], sourceText: "RegisterRecordSet.LineNumber" },
-      }
-    case "PeriodAdjustment":
-      return {
-        name: yamlName,
-        typeInfo: { kinds: ["scalar"], nextTypes: [], sourceText: "RegisterRecordSet.PeriodAdjustment" },
-      }
-    case "RecordType":
-    case "ВидДвижения":
-      return {
-        name: yamlName,
-        typeInfo: { kinds: ["scalar"], nextTypes: [], sourceText: "RegisterRecordSet.RecordType" },
-      }
-  }
-
-  return undefined
 }
 
 function isUnknownTypeInfo(typeInfo: DataPathTypeInfo): boolean {
@@ -1071,75 +647,6 @@ function resolveTableColumnSource(params: {
   const alias = standardAttributeAliasToYAML(params.segment)
   if (alias !== undefined) return params.columns.get(alias) ?? params.columns.get(params.segment)
   return params.columns.get(params.segment)
-}
-
-function virtualTableColumn(params: {
-  tableSource: FormDataPathTableSource | ObjectFieldTableSource
-  segment: string
-}): TableColumnSource | undefined {
-  if (params.segment === "RowsCount") {
-    return {
-      name: params.segment,
-      typeInfo: { kinds: ["scalar"], nextTypes: [], sourceText: "RowsCount" },
-    }
-  }
-
-  if (params.tableSource.table.kind === "ValueList") {
-    return valueListColumn(params.segment)
-  }
-
-  if (params.tableSource.table.kind === "GanttChart") {
-    return ganttChartColumn(params.segment)
-  }
-
-  if (params.segment.startsWith("Total")) {
-    return {
-      name: params.segment,
-      typeInfo: { kinds: ["scalar"], nextTypes: [], sourceText: "Total" },
-    }
-  }
-
-  return undefined
-}
-
-function ganttChartColumn(segment: string): TableColumnSource | undefined {
-  switch (segment) {
-    case "Point":
-    case "Text":
-      return {
-        name: segment,
-        typeInfo: { kinds: ["scalar"], nextTypes: [], sourceText: `GanttChart.${segment}` },
-      }
-  }
-
-  return undefined
-}
-
-function valueListColumn(segment: string): TableColumnSource | undefined {
-  switch (segment) {
-    case "Value":
-      return {
-        name: segment,
-        typeInfo: { kinds: ["scalar"], nextTypes: [], sourceText: "ValueList.Value" },
-      }
-    case "Presentation":
-      return {
-        name: segment,
-        typeInfo: { kinds: ["scalar"], nextTypes: [], sourceText: "ValueList.Presentation" },
-      }
-    case "Check":
-      return {
-        name: segment,
-        typeInfo: { kinds: ["boolean"], nextTypes: [], sourceText: "ValueList.Check" },
-      }
-    case "Picture":
-      return {
-        name: segment,
-        typeInfo: { kinds: ["Picture"], nextTypes: [], sourceText: "ValueList.Picture" },
-      }
-  }
-
-  return undefined
 }
 
 function stateFromTableColumn(params: {
@@ -1213,38 +720,6 @@ function validateIntermediateType(params: {
 
 function isScalarTerminalKind(kind: string): boolean {
   return kind === "boolean" || kind === "dateTime" || kind === "Picture" || kind === "scalar" || kind === "typeDescription"
-}
-
-function isRegisterRecordsSegment(segment: string): boolean {
-  return segment === "RegisterRecords" || segment === "НаборЗаписей"
-}
-
-function isDocumentOwner(ref: OwnerTypeRef): boolean {
-  return ref.kind === "Документ" || ref.kind === "ДокументОбъект"
-}
-
-function isExchangePlanOwner(ref: OwnerTypeRef): boolean {
-  return ref.kind === "ПланОбмена" || ref.kind === "ПланОбменаОбъект"
-}
-
-function isInformationRegisterOwner(ref: OwnerTypeRef): boolean {
-  return ref.kind === "РегистрСведений"
-}
-
-function isChartOfAccountsOwner(ref: OwnerTypeRef): boolean {
-  return ref.kind === "ПланСчетов" || ref.kind === "ПланСчетовОбъект"
-}
-
-function isChartOfCalculationTypesOwner(ref: OwnerTypeRef): boolean {
-  return ref.kind === "ПланВидовРасчета" || ref.kind === "ПланВидовРасчетаОбъект"
-}
-
-function isSettingsComposerSegment(segment: string): boolean {
-  return segment === "SettingsComposer" || segment === "КомпоновщикНастроек"
-}
-
-function isReportOwner(ref: OwnerTypeRef): boolean {
-  return ref.kind === "ОтчетОбъект"
 }
 
 function ownerError(result: Exclude<OwnerMetadataResult, { status: "ok" }>): ResolveDataPathResult {

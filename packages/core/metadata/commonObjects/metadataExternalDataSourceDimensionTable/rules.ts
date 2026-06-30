@@ -252,6 +252,7 @@ const { xmlRoot: _xmlRoot, ...dimensionTableCollectionProperties } = dimensionTa
 
 export const MetadataExternalDataSourceDimensionTableRules = {
   itemType: "MetadataExternalDataSourceDimensionTable",
+  metadataTargetOwner: { kind: "resolver" },
   externalMetadata: { segment: "DimensionTable", placement: "ownedEntry" },
   properties: dimensionTableProperties,
   childCollections: [{ propertyKey: "commands", itemRule: MetadataExternalDataSourceDimensionTableCommandRules }],

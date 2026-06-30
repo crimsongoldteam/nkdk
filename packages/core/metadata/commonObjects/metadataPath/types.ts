@@ -1,3 +1,8 @@
+import {
+  definePropertyRule as defineWidePropertyRule,
+  type ExactRuleParams as WideExactRuleParams,
+} from "~/metadata/commonObjects/ruleBuilder"
+import type { PropertyRule as WidePropertyRuleBase } from "~/metadata/orchestration/property/types"
 import { Static, Type } from "@sinclair/typebox"
 import { createMetadataTypesRules, createMetadataValuesRules, swapMetadataFieldsRulesKeys } from "./helper"
 
@@ -264,3 +269,37 @@ export const MetadataValuesRulesFromYAML = swapMetadataFieldsRulesKeys(MetadataV
 
 export const DataPathJSONSchema = Type.String()
 export type DataPathYAML = Static<typeof DataPathJSONSchema>
+
+export interface DataPathWidePropertyRule extends WidePropertyRuleBase {
+  type: "DataPath"
+}
+
+export type DataPathRuleParams = Omit<DataPathWidePropertyRule, "type">
+
+export function dataPathRule<const Params extends DataPathRuleParams>(
+  params: WideExactRuleParams<DataPathRuleParams, Params>
+): Readonly<{ type: "DataPath" } & Params> {
+  return defineWidePropertyRule("DataPath", params)
+}
+export interface MetadataItemLinksWidePropertyRule extends WidePropertyRuleBase {
+  type: "MetadataItemLinks"
+}
+
+export type MetadataItemLinksRuleParams = Omit<MetadataItemLinksWidePropertyRule, "type">
+
+export function metadataItemLinksRule<const Params extends MetadataItemLinksRuleParams>(
+  params: WideExactRuleParams<MetadataItemLinksRuleParams, Params>
+): Readonly<{ type: "MetadataItemLinks" } & Params> {
+  return defineWidePropertyRule("MetadataItemLinks", params)
+}
+export interface MetadataItemLinkWidePropertyRule extends WidePropertyRuleBase {
+  type: "MetadataItemLink"
+}
+
+export type MetadataItemLinkRuleParams = Omit<MetadataItemLinkWidePropertyRule, "type">
+
+export function metadataItemLinkRule<const Params extends MetadataItemLinkRuleParams>(
+  params: WideExactRuleParams<MetadataItemLinkRuleParams, Params>
+): Readonly<{ type: "MetadataItemLink" } & Params> {
+  return defineWidePropertyRule("MetadataItemLink", params)
+}

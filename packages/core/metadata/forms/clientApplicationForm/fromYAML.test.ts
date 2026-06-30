@@ -190,7 +190,13 @@ const reportFormClientApplicationFormFromYAML = {
 const reportOwnerContext: ConfigurationContext = {
   ...mockContext,
   importFromYAML: {
-    metadataTargetOwners: [{ itemType: "MetadataReport", name: "РасшифровкаСтатистики" }],
+    metadataTargetOwners: [
+      {
+        itemType: "MetadataReport",
+        name: "РасшифровкаСтатистики",
+        owner: { root: "Report", objectName: "РасшифровкаСтатистики" },
+      },
+    ],
   },
 }
 

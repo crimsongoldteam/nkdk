@@ -1,3 +1,8 @@
+import {
+  definePropertyRule as defineWidePropertyRule,
+  type ExactRuleParams as WideExactRuleParams,
+} from "~/metadata/commonObjects/ruleBuilder"
+import type { PropertyRule as WidePropertyRuleBase } from "~/metadata/orchestration/property/types"
 import type { BasePropertyRule } from "~/metadata/orchestration"
 
 export type ExternalPicture = true
@@ -10,4 +15,16 @@ export interface ExternalPicturePropertyRule extends BasePropertyRule {
   payloadXmlDir: string
   toXML?: false
   fromXML?: false
+}
+
+export interface ExternalPictureWidePropertyRule extends WidePropertyRuleBase {
+  type: "ExternalPicture"
+}
+
+export type ExternalPictureRuleParams = Omit<ExternalPictureWidePropertyRule, "type">
+
+export function externalPictureRule<const Params extends ExternalPictureRuleParams>(
+  params: WideExactRuleParams<ExternalPictureRuleParams, Params>
+): Readonly<{ type: "ExternalPicture" } & Params> {
+  return defineWidePropertyRule("ExternalPicture", params)
 }

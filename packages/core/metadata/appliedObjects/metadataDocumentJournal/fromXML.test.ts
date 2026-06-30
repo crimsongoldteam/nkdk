@@ -21,7 +21,7 @@ describe("import MetadataDocumentJournal from XML", () => {
       "Document.ДокументДругойДляЖурнала",
     ])
     expect(result?.columns).toHaveLength(2)
-    expect(result?.standardAttributes?.map((attribute) => attribute.name)).toEqual(["Ref", "Date"])
+    expect(result?.standardAttributes?.map((attribute: { name: string }) => attribute.name)).toEqual(["Ref", "Date"])
   })
 
   it("should import minimal", () => {

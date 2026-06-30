@@ -4,6 +4,7 @@ import { EnterpriseAttributeMapItem } from "../forms/clientApplicationForm/types
 import { FormChildItemsPartialYAML, FormElementsYAML } from "../forms/commonObjects/childItems/types"
 import { ElementType, ElementXMLWithoutId, MetadataItemType, ToMetadata } from "../orchestration"
 import type { ExternalMetadataCollector, ExternalMetadataItemRule } from "../orchestration/externalMetadata/types"
+import type { MetadataTargetOwner } from "../commonObjects/metadataTargets/types"
 import type { PropertyRuleType } from "../orchestration/property/registry"
 
 export type ContextElementToXML = {
@@ -88,6 +89,7 @@ export interface ExternalFileEntry {
 export interface MetadataTargetOwnerContext {
   itemType: MetadataItemType
   name: string
+  owner?: MetadataTargetOwner
 }
 
 export interface FormExportToYAMLContext {

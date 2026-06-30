@@ -1,8 +1,8 @@
+import { booleanRule } from "~/metadata/commonObjects/boolean/types"
+import { stringRule } from "~/metadata/commonObjects/string/types"
 import { uuidPropertyRule } from "~/metadata/commonObjects/uuid/rule"
 import { MetadataItemRule, PropertyRule } from "~/metadata/orchestration/property/types"
-
 const propertiesParents = ["Properties"]
-
 export const externalDataSourceFieldBaseProperties = {
   uuid: uuidPropertyRule,
   name: {
@@ -181,7 +181,6 @@ export const externalDataSourceFieldBaseProperties = {
     defaultValueXMLRaw: "",
   },
 } as const satisfies Record<string, PropertyRule>
-
 const externalDataSourceServiceProperties = {
   objectBelonging: {
     yaml: "ПринадлежностьОбъекта",
@@ -200,35 +199,30 @@ const externalDataSourceServiceProperties = {
     runtimeOnly: true,
   },
 } as const satisfies Record<string, PropertyRule>
-
 export const externalDataSourceObjectServiceProperties = externalDataSourceServiceProperties
-
 export const MetadataExternalDataSourceFieldRules = {
   itemType: "MetadataExternalDataSourceField",
   properties: {
     ...externalDataSourceFieldBaseProperties,
-    nameInDataSource: {
+    nameInDataSource: stringRule({
       yaml: "ИмяВИсточникеДанных",
       xml: "NameInDataSource",
-      type: "string",
       xmlParents: propertiesParents,
-    },
-    readOnly: {
+    }),
+    readOnly: booleanRule({
       yaml: "ТолькоЧтение",
       xml: "ReadOnly",
-      type: "boolean",
       xmlParents: propertiesParents,
       defaultValueXML: false,
       implicitValueYAML: false,
-    },
-    allowNull: {
+    }),
+    allowNull: booleanRule({
       yaml: "РазрешитьNull",
       xml: "AllowNull",
-      type: "boolean",
       xmlParents: propertiesParents,
       defaultValueXML: true,
       implicitValueYAML: true,
-    },
+    }),
     ...externalDataSourceServiceProperties,
   },
 } as const satisfies MetadataItemRule

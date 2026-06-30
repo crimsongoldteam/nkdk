@@ -180,6 +180,23 @@ export type XmlSyncRoute =
 export type ProjectResourcesFunction = (params: { propertyRule?: PropertyRule }) => ProjectResourceDescriptor[]
 export type XmlSyncRoutesFunction = (params: { propertyRule?: PropertyRule }) => XmlSyncRoute[]
 
+export interface FileChildNamesDescriptor {
+  folderName: string
+  xmlFolderName: string
+  xmlItemName: string
+  useOwnerDirectoryForExternalSync: boolean
+  preserveReferenceXmlFolder: boolean
+  expectedNames: (params: {
+    rule: MetadataItemRule
+    model: Record<string, unknown>
+    propertyValue: unknown
+  }) => string[]
+}
+
+export type FileChildNamesDescriptorFunction = (params: {
+  propertyRule: PropertyRule
+}) => FileChildNamesDescriptor | undefined
+
 export type XmlSyncWriterFunction = (params: {
   context: ConfigurationContextWithExportToXML
   rule: PropertyRule
@@ -208,6 +225,7 @@ export interface TypeRule {
   validateMetadataTarget?: ValidateMetadataTargetFunction
   projectResources?: ProjectResourcesFunction
   xmlSyncRoutes?: XmlSyncRoutesFunction
+  fileChildNamesDescriptor?: FileChildNamesDescriptorFunction
   xmlSyncWriter?: XmlSyncWriterFunction
 }
 
@@ -224,6 +242,7 @@ export type TypeRulesOperations =
   | "validateMetadataTarget"
   | "projectResources"
   | "xmlSyncRoutes"
+  | "fileChildNamesDescriptor"
   | "xmlSyncWriter"
 type TypeRuleKey = `${PropertyRuleType}:${TypeRulesOperations}`
 
@@ -240,21 +259,23 @@ export type importExportFunction<O extends TypeRulesOperations> = O extends "imp
       : O extends "importFromXML"
         ? ImportFromXMLFunction | undefined
         : O extends "exportToEnterprise"
-      ? ExportToEnterpriseFunction | undefined
-      : O extends "exportToJSONSchema"
-        ? ExportToJSONSchemaFn | undefined
-          : O extends "collectionItemRule"
-            ? CollectionItemRule | undefined
-            : O extends "syncExternalFromXML"
-              ? SyncExternalFromXMLFunction | undefined
-              : O extends "syncExternalToXML"
-                ? SyncExternalToXMLFunction | undefined
-                : O extends "validateMetadataTarget"
-                  ? ValidateMetadataTargetFunction | undefined
-                  : O extends "projectResources"
-                    ? ProjectResourcesFunction | undefined
-                    : O extends "xmlSyncRoutes"
-                      ? XmlSyncRoutesFunction | undefined
-                      : O extends "xmlSyncWriter"
-                        ? XmlSyncWriterFunction | undefined
-                        : never
+          ? ExportToEnterpriseFunction | undefined
+          : O extends "exportToJSONSchema"
+            ? ExportToJSONSchemaFn | undefined
+            : O extends "collectionItemRule"
+              ? CollectionItemRule | undefined
+              : O extends "syncExternalFromXML"
+                ? SyncExternalFromXMLFunction | undefined
+                : O extends "syncExternalToXML"
+                  ? SyncExternalToXMLFunction | undefined
+                  : O extends "validateMetadataTarget"
+                    ? ValidateMetadataTargetFunction | undefined
+                    : O extends "projectResources"
+                      ? ProjectResourcesFunction | undefined
+                      : O extends "xmlSyncRoutes"
+                        ? XmlSyncRoutesFunction | undefined
+                        : O extends "fileChildNamesDescriptor"
+                          ? FileChildNamesDescriptorFunction | undefined
+                          : O extends "xmlSyncWriter"
+                            ? XmlSyncWriterFunction | undefined
+                            : never

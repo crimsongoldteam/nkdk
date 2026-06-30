@@ -1,3 +1,24 @@
+import {
+  allowedIncomingShareRequestTypesRule,
+  clientApplicationInterfaceRule,
+  homePageWorkAreaRule,
+  mobileApplicationURLsRule,
+  rootCommandInterfaceRule,
+  usedMobileApplicationFunctionalitiesRule,
+} from "~/metadata/appliedObjects/configuration/builders"
+import { externalFileRule } from "~/metadata/commonObjects/externalFile/types"
+import { externalPictureRule } from "~/metadata/commonObjects/externalPicture/types"
+import { helpRule } from "~/metadata/commonObjects/help/types"
+import { internalInfoRule } from "~/metadata/commonObjects/internalInfo/types"
+import { metadataItemLinkRule, metadataItemLinksRule } from "~/metadata/commonObjects/metadataPath/types"
+import { usePurposesRule } from "~/metadata/commonObjects/usePurposes/types"
+import { booleanRule } from "~/metadata/commonObjects/boolean/types"
+import { i8nTextRule } from "~/metadata/commonObjects/i8nText/types"
+import { moduleRule } from "~/metadata/commonObjects/module/types"
+import { stringRule } from "~/metadata/commonObjects/string/types"
+import { uuidRule } from "~/metadata/commonObjects/uuid/types"
+import { xmlRootRule } from "~/metadata/commonObjects/xmlRoot/types"
+import { systemEnumerationRule } from "~/metadata/systemEnumerations/types"
 import "./allowedIncomingShareRequestTypes"
 import "./mobileApplicationURLs"
 import "./usedMobileApplicationFunctionalities"
@@ -6,9 +27,7 @@ import "~/metadata/commonObjects/homePageWorkArea/register"
 import "~/metadata/commonObjects/rootCommandInterface/register"
 import { V8_MDCLASSES_ROOT } from "~/metadata/orchestration/appliedObject/presets"
 import type { MetadataItemRule } from "~/metadata/orchestration/property/types"
-
 const configurationProperties = ["Properties"]
-
 const configurationInternalInfoContainedObjectClassIds = [
   "9cd510cd-abfc-11d4-9434-004095e12fc7",
   "9fcd25a0-4822-11d4-9414-008048da11f9",
@@ -18,514 +37,441 @@ const configurationInternalInfoContainedObjectClassIds = [
   "e68182ea-4237-4383-967f-90c1e3370bc7",
   "fb282519-d103-4dd3-bc12-cb271d631dfc",
 ]
-
 export const MetadataConfigurationRules = {
   itemType: "MetadataConfiguration",
   properties: {
-    xmlRoot: {
-      type: "XMLRoot",
+    xmlRoot: xmlRootRule({
       container: "Configuration",
       rootAttributes: V8_MDCLASSES_ROOT,
       forReferenceOnly: true,
       toYAML: false,
       fromYAML: false,
-    },
-    uuid: {
-      type: "uuid",
+    }),
+    uuid: uuidRule({
       xml: "_uuid",
       forReferenceOnly: true,
       xmlParents: [],
-    },
-    internalInfo: {
-      type: "InternalInfo",
+    }),
+    internalInfo: internalInfoRule({
       xmlParents: [],
       forReferenceOnly: true,
       preserveFromReferenceXML: true,
       exportWithoutReferenceXML: true,
       containedObjectClassIds: configurationInternalInfoContainedObjectClassIds,
-    },
-    name: {
+    }),
+    name: stringRule({
       yaml: "Имя",
-      type: "string",
       xmlParents: configurationProperties,
       required: true,
-    },
-    synonym: {
+    }),
+    synonym: i8nTextRule({
       yaml: "Синоним",
-      type: "I8nText",
       xmlParents: configurationProperties,
       defaultValueXML: "",
       defaultValueXMLRaw: "",
-    },
-    comment: {
+    }),
+    comment: stringRule({
       yaml: "Комментарий",
-      type: "string",
       xmlParents: configurationProperties,
       defaultValueXML: "",
       defaultValueXMLRaw: "",
-    },
-    namePrefix: {
+    }),
+    namePrefix: stringRule({
       yaml: "ПрефиксИмен",
-      type: "string",
       xmlParents: configurationProperties,
       defaultValueXML: "",
       defaultValueXMLRaw: "",
-    },
-    configurationExtensionCompatibilityMode: {
+    }),
+    configurationExtensionCompatibilityMode: systemEnumerationRule({
       yaml: "РежимСовместимостиРасширенияКонфигурации",
-      type: "SystemEnumeration",
       typeSE: "CompatibilityMode",
       defaultValueXML: "Version8_3_27",
       implicitValueYAML: "Version8_3_27",
       preserveExplicitDefaultXML: true,
       xmlParents: configurationProperties,
-    },
-    defaultRunMode: {
+    }),
+    defaultRunMode: systemEnumerationRule({
       yaml: "ОсновнойРежимЗапуска",
-      type: "SystemEnumeration",
       typeSE: "ClientRunMode",
       defaultValueXML: "ManagedApplication",
       implicitValueYAML: "ManagedApplication",
       xmlParents: configurationProperties,
-    },
-    usePurposes: {
+    }),
+    usePurposes: usePurposesRule({
       yaml: "НазначенияИспользования",
       xml: "UsePurposes",
-      type: "UsePurposes",
       xmlParents: configurationProperties,
-    },
-    scriptVariant: {
+    }),
+    scriptVariant: systemEnumerationRule({
       yaml: "ВариантВстроенногоЯзыка",
-      type: "SystemEnumeration",
       typeSE: "ScriptVariant",
       defaultValueXML: "Russian",
       implicitValueYAML: "Russian",
       xmlParents: configurationProperties,
-    },
-    defaultRoles: {
+    }),
+    defaultRoles: metadataItemLinksRule({
       yaml: "ОсновныеРоли",
-      type: "MetadataItemLinks",
       xmlParents: configurationProperties,
       defaultValueXML: "",
       defaultValueXMLRaw: "",
-    },
-    vendor: {
+    }),
+    vendor: stringRule({
       yaml: "Поставщик",
-      type: "string",
       xmlParents: configurationProperties,
       defaultValueXML: "",
       defaultValueXMLRaw: "",
-    },
-    version: {
+    }),
+    version: stringRule({
       yaml: "Версия",
-      type: "string",
       xmlParents: configurationProperties,
       defaultValueXML: "",
       defaultValueXMLRaw: "",
-    },
-    updateCatalogAddress: {
+    }),
+    updateCatalogAddress: stringRule({
       yaml: "АдресКаталогаОбновлений",
-      type: "string",
       xmlParents: configurationProperties,
       defaultValueXML: "",
       defaultValueXMLRaw: "",
-    },
-    includeHelpInContents: {
+    }),
+    includeHelpInContents: booleanRule({
       yaml: "ВключатьСправкуВСодержание",
-      type: "boolean",
       defaultValueXML: false,
       implicitValueYAML: false,
       xmlParents: configurationProperties,
-    },
-    useManagedFormInOrdinaryApplication: {
+    }),
+    useManagedFormInOrdinaryApplication: booleanRule({
       yaml: "ИспользоватьУправляемыеФормыВОбычномПриложении",
-      type: "boolean",
       defaultValueXML: false,
       implicitValueYAML: false,
       xmlParents: configurationProperties,
-    },
-    useOrdinaryFormInManagedApplication: {
+    }),
+    useOrdinaryFormInManagedApplication: booleanRule({
       yaml: "ИспользоватьОбычныеФормыВУправляемомПриложении",
-      type: "boolean",
       defaultValueXML: false,
       implicitValueYAML: false,
       xmlParents: configurationProperties,
-    },
-    additionalFullTextSearchDictionaries: {
+    }),
+    additionalFullTextSearchDictionaries: metadataItemLinksRule({
       yaml: "ДополнительныеСловариПолнотекстовогоПоиска",
-      type: "MetadataItemLinks",
       xmlParents: configurationProperties,
       defaultValueXML: "",
       defaultValueXMLRaw: "",
-    },
-    commonSettingsStorage: {
+    }),
+    commonSettingsStorage: metadataItemLinkRule({
       yaml: "ХранилищеОбщихНастроек",
-      type: "MetadataItemLink",
       xmlParents: configurationProperties,
       defaultValueXML: "",
       defaultValueXMLRaw: "",
-    },
-    reportsUserSettingsStorage: {
+    }),
+    reportsUserSettingsStorage: metadataItemLinkRule({
       yaml: "ХранилищеПользовательскихНастроекОтчетов",
-      type: "MetadataItemLink",
       xmlParents: configurationProperties,
       defaultValueXML: "",
       defaultValueXMLRaw: "",
-    },
-    reportsVariantsStorage: {
+    }),
+    reportsVariantsStorage: metadataItemLinkRule({
       yaml: "ХранилищеВариантовОтчетов",
-      type: "MetadataItemLink",
       xmlParents: configurationProperties,
       defaultValueXML: "",
       defaultValueXMLRaw: "",
-    },
-    formDataSettingsStorage: {
+    }),
+    formDataSettingsStorage: metadataItemLinkRule({
       yaml: "ХранилищеНастроекДанныхФорм",
-      type: "MetadataItemLink",
       xmlParents: configurationProperties,
       defaultValueXML: "",
       defaultValueXMLRaw: "",
-    },
-    dynamicListsUserSettingsStorage: {
+    }),
+    dynamicListsUserSettingsStorage: metadataItemLinkRule({
       yaml: "ХранилищеПользовательскихНастроекДинамическихСписков",
-      type: "MetadataItemLink",
       xmlParents: configurationProperties,
       defaultValueXML: "",
       defaultValueXMLRaw: "",
-    },
-    urlExternalDataStorage: {
+    }),
+    urlExternalDataStorage: metadataItemLinkRule({
       yaml: "ХранилищеВнешнихДанныхНавигационныхСсылок",
       xml: "URLExternalDataStorage",
-      type: "MetadataItemLink",
       xmlParents: configurationProperties,
       defaultValueXML: "",
       defaultValueXMLRaw: "",
-    },
-    content: {
+    }),
+    content: stringRule({
       xml: "Content",
-      type: "string",
       defaultValueXML: "",
       defaultValueXMLRaw: "",
       toYAML: false,
       fromYAML: false,
       xmlParents: configurationProperties,
-    },
-    defaultReportForm: {
+    }),
+    defaultReportForm: metadataItemLinkRule({
       yaml: "ОсновнаяФормаОтчета",
-      type: "MetadataItemLink",
       xmlParents: configurationProperties,
       defaultValueXML: "",
       defaultValueXMLRaw: "",
-    },
-    defaultReportVariantForm: {
+    }),
+    defaultReportVariantForm: metadataItemLinkRule({
       yaml: "ОсновнаяФормаВариантаОтчета",
-      type: "MetadataItemLink",
       xmlParents: configurationProperties,
       defaultValueXML: "",
       defaultValueXMLRaw: "",
-    },
-    defaultReportSettingsForm: {
+    }),
+    defaultReportSettingsForm: metadataItemLinkRule({
       yaml: "ОсновнаяФормаНастроекОтчета",
-      type: "MetadataItemLink",
       xmlParents: configurationProperties,
       defaultValueXML: "",
       defaultValueXMLRaw: "",
-    },
-    defaultReportAppearanceTemplate: {
+    }),
+    defaultReportAppearanceTemplate: stringRule({
       yaml: "ОсновнойМакетОформленияОтчета",
-      type: "string",
       xmlParents: configurationProperties,
       defaultValueXML: "",
       defaultValueXMLRaw: "",
-    },
-    defaultDynamicListSettingsForm: {
+    }),
+    defaultDynamicListSettingsForm: metadataItemLinkRule({
       yaml: "ОсновнаяФормаНастроекДинамическогоСписка",
-      type: "MetadataItemLink",
       xmlParents: configurationProperties,
       defaultValueXML: "",
       defaultValueXMLRaw: "",
-    },
-    defaultSearchForm: {
+    }),
+    defaultSearchForm: stringRule({
       yaml: "ОсновнаяФормаПоиска",
-      type: "string",
       xmlParents: configurationProperties,
       defaultValueXML: "",
       defaultValueXMLRaw: "",
-    },
-    defaultDataHistoryChangeHistoryForm: {
+    }),
+    defaultDataHistoryChangeHistoryForm: metadataItemLinkRule({
       yaml: "ОсновнаяФормаИсторииИзмененийИсторииДанных",
-      type: "MetadataItemLink",
       xmlParents: configurationProperties,
       defaultValueXML: "",
       defaultValueXMLRaw: "",
-    },
-    defaultDataHistoryVersionDataForm: {
+    }),
+    defaultDataHistoryVersionDataForm: metadataItemLinkRule({
       yaml: "ОсновнаяФормаДанныхВерсииИсторииДанных",
-      type: "MetadataItemLink",
       xmlParents: configurationProperties,
       defaultValueXML: "",
       defaultValueXMLRaw: "",
-    },
-    defaultDataHistoryVersionDifferencesForm: {
+    }),
+    defaultDataHistoryVersionDifferencesForm: metadataItemLinkRule({
       yaml: "ОсновнаяФормаРазличийВерсийИсторииДанных",
-      type: "MetadataItemLink",
       xmlParents: configurationProperties,
       defaultValueXML: "",
       defaultValueXMLRaw: "",
-    },
-    defaultCollaborationSystemUsersChoiceForm: {
+    }),
+    defaultCollaborationSystemUsersChoiceForm: metadataItemLinkRule({
       yaml: "ОсновнаяФормаВыбораПользователейСистемыВзаимодействия",
-      type: "MetadataItemLink",
       xmlParents: configurationProperties,
       defaultValueXML: "",
       defaultValueXMLRaw: "",
-    },
-    requiredMobileApplicationPermissions: {
+    }),
+    requiredMobileApplicationPermissions: stringRule({
       xml: "RequiredMobileApplicationPermissions",
-      type: "string",
       defaultValueXML: "",
       defaultValueXMLRaw: "",
       toYAML: false,
       fromYAML: false,
       xmlParents: configurationProperties,
-    },
-    usedMobileApplicationFunctionalities: {
+    }),
+    usedMobileApplicationFunctionalities: usedMobileApplicationFunctionalitiesRule({
       yaml: "ИспользуемаяФункциональностьМобильногоПриложения",
-      type: "UsedMobileApplicationFunctionalities",
       xmlParents: configurationProperties,
-    },
-    standaloneConfigurationRestrictionRoles: {
+    }),
+    standaloneConfigurationRestrictionRoles: metadataItemLinksRule({
       yaml: "РолиОграниченияАвтономнойКонфигурации",
-      type: "MetadataItemLinks",
       xmlParents: configurationProperties,
       defaultValueXML: "",
       defaultValueXMLRaw: "",
-    },
-    mobileApplicationURLs: {
+    }),
+    mobileApplicationURLs: mobileApplicationURLsRule({
       yaml: "НавигационныеСсылкиМобильногоПриложения",
       xml: "MobileApplicationURLs",
-      type: "MobileApplicationURLs",
       defaultValueXML: "",
       defaultValueXMLRaw: "",
       xmlParents: configurationProperties,
-    },
-    allowedIncomingShareRequestTypes: {
+    }),
+    allowedIncomingShareRequestTypes: allowedIncomingShareRequestTypesRule({
       yaml: "ДопустимыеТипыВходящихЗапросовПоделиться",
       xml: "AllowedIncomingShareRequestTypes",
-      type: "AllowedIncomingShareRequestTypes",
       defaultValueXML: "",
       defaultValueXMLRaw: "",
       xmlParents: configurationProperties,
-    },
-    mainClientApplicationWindowMode: {
+    }),
+    mainClientApplicationWindowMode: systemEnumerationRule({
       yaml: "РежимОсновногоОкнаКлиентскогоПриложения",
-      type: "SystemEnumeration",
       typeSE: "MainClientApplicationWindowMode",
       defaultValueXML: "Normal",
       implicitValueYAML: "Normal",
       xmlParents: configurationProperties,
-    },
-    defaultInterface: {
+    }),
+    defaultInterface: stringRule({
       yaml: "ОсновнойИнтерфейс",
-      type: "string",
       xmlParents: configurationProperties,
       defaultValueXML: "",
       defaultValueXMLRaw: "",
-    },
-    defaultStyle: {
+    }),
+    defaultStyle: metadataItemLinkRule({
       yaml: "ОсновнойСтиль",
-      type: "MetadataItemLink",
       xmlParents: configurationProperties,
       defaultValueXML: "",
       defaultValueXMLRaw: "",
-    },
-    defaultLanguage: {
+    }),
+    defaultLanguage: metadataItemLinkRule({
       yaml: "ОсновнойЯзык",
-      type: "MetadataItemLink",
       metadataTarget: { kind: "object", roots: ["Language"] },
       required: true,
       xmlParents: configurationProperties,
-    },
-    briefInformation: {
+    }),
+    briefInformation: i8nTextRule({
       yaml: "КраткаяИнформация",
-      type: "I8nText",
       xmlParents: configurationProperties,
       defaultValueXML: "",
       defaultValueXMLRaw: "",
-    },
-    detailedInformation: {
+    }),
+    detailedInformation: i8nTextRule({
       yaml: "ПодробнаяИнформация",
-      type: "I8nText",
       xmlParents: configurationProperties,
       defaultValueXML: "",
       defaultValueXMLRaw: "",
-    },
-    copyright: {
+    }),
+    copyright: i8nTextRule({
       yaml: "АвторскиеПрава",
-      type: "I8nText",
       xmlParents: configurationProperties,
       defaultValueXML: "",
       defaultValueXMLRaw: "",
-    },
-    vendorInformationAddress: {
+    }),
+    vendorInformationAddress: i8nTextRule({
       yaml: "АдресИнформацииОПоставщике",
-      type: "I8nText",
       xmlParents: configurationProperties,
       defaultValueXML: "",
       defaultValueXMLRaw: "",
-    },
-    configurationInformationAddress: {
+    }),
+    configurationInformationAddress: i8nTextRule({
       yaml: "АдресИнформацииОКонфигурации",
-      type: "I8nText",
       xmlParents: configurationProperties,
       defaultValueXML: "",
       defaultValueXMLRaw: "",
-    },
-    dataLockControlMode: {
+    }),
+    dataLockControlMode: systemEnumerationRule({
       yaml: "РежимУправленияБлокировкойДанных",
-      type: "SystemEnumeration",
       typeSE: "DataLockControlMode",
       defaultValueXML: "Managed",
       implicitValueYAML: "Managed",
       xmlParents: configurationProperties,
-    },
-    objectAutonumerationMode: {
+    }),
+    objectAutonumerationMode: systemEnumerationRule({
       yaml: "РежимАвтонумерацииОбъектов",
-      type: "SystemEnumeration",
       typeSE: "ObjectAutonumerationMode",
       defaultValueXML: "NotAutoFree",
       implicitValueYAML: "NotAutoFree",
       xmlParents: configurationProperties,
-    },
-    modalityUseMode: {
+    }),
+    modalityUseMode: systemEnumerationRule({
       yaml: "РежимИспользованияМодальности",
-      type: "SystemEnumeration",
       typeSE: "ModalityUseMode",
       defaultValueXML: "DontUse",
       implicitValueYAML: "DontUse",
       xmlParents: configurationProperties,
-    },
-    synchronousPlatformExtensionAndAddInCallUseMode: {
+    }),
+    synchronousPlatformExtensionAndAddInCallUseMode: systemEnumerationRule({
       yaml: "РежимИспользованияСинхронныхВызововРасширенийПлатформыИВнешнихКомпонент",
-      type: "SystemEnumeration",
       typeSE: "SynchronousExtensionAndAddInCallUseMode",
       defaultValueXML: "DontUse",
       implicitValueYAML: "DontUse",
       xmlParents: configurationProperties,
-    },
-    interfaceCompatibilityMode: {
+    }),
+    interfaceCompatibilityMode: systemEnumerationRule({
       yaml: "РежимСовместимостиИнтерфейса",
-      type: "SystemEnumeration",
       typeSE: "InterfaceCompatibilityMode",
       defaultValueXML: "Taxi",
       implicitValueYAML: "Taxi",
       xmlParents: configurationProperties,
-    },
-    databaseTablespacesUseMode: {
+    }),
+    databaseTablespacesUseMode: systemEnumerationRule({
       yaml: "РежимИспользованияТабличныхПространствБазыДанных",
-      type: "SystemEnumeration",
       typeSE: "DatabaseTablespacesUseMode",
       defaultValueXML: "DontUse",
       implicitValueYAML: "DontUse",
       xmlParents: configurationProperties,
-    },
-    compatibilityMode: {
+    }),
+    compatibilityMode: systemEnumerationRule({
       yaml: "РежимСовместимости",
-      type: "SystemEnumeration",
       typeSE: "CompatibilityMode",
       defaultValueXML: "Version8_3_27",
       implicitValueYAML: "Version8_3_27",
       preserveExplicitDefaultXML: true,
       xmlParents: configurationProperties,
-    },
-    defaultConstantsForm: {
+    }),
+    defaultConstantsForm: stringRule({
       yaml: "ОсновнаяФормаКонстант",
-      type: "string",
       xmlParents: configurationProperties,
       defaultValueXML: "",
       defaultValueXMLRaw: "",
-    },
-    managedApplicationModule: {
-      type: "Module",
+    }),
+    managedApplicationModule: moduleRule({
       nkdkPath: "МодульПриложения.bsl",
       xmlPath: "Ext/ManagedApplicationModule.bsl",
       syncExternalOnly: true,
-    },
-    sessionModule: {
-      type: "Module",
+    }),
+    sessionModule: moduleRule({
       nkdkPath: "МодульСеанса.bsl",
       xmlPath: "Ext/SessionModule.bsl",
       syncExternalOnly: true,
-    },
-    externalConnectionModule: {
-      type: "Module",
+    }),
+    externalConnectionModule: moduleRule({
       nkdkPath: "МодульВнешнегоСоединения.bsl",
       xmlPath: "Ext/ExternalConnectionModule.bsl",
       syncExternalOnly: true,
-    },
-    ordinaryApplicationModule: {
-      type: "Module",
+    }),
+    ordinaryApplicationModule: moduleRule({
       nkdkPath: "МодульОбычногоПриложения.bsl",
       xmlPath: "Ext/OrdinaryApplicationModule.bsl",
       syncExternalOnly: true,
-    },
-    commandInterface: {
+    }),
+    commandInterface: rootCommandInterfaceRule({
       yaml: "КомандныйИнтерфейс",
-      type: "RootCommandInterface",
       filePath: "Ext/CommandInterface.xml",
-    },
-    mainSectionCommandInterface: {
+    }),
+    mainSectionCommandInterface: rootCommandInterfaceRule({
       yaml: "КомандныйИнтерфейсОсновногоРаздела",
-      type: "RootCommandInterface",
       filePath: "Ext/MainSectionCommandInterface.xml",
-    },
-    clientApplicationInterface: {
+    }),
+    clientApplicationInterface: clientApplicationInterfaceRule({
       yaml: "ИнтерфейсКлиентскогоПриложения",
-      type: "ClientApplicationInterface",
       filePath: "Ext/ClientApplicationInterface.xml",
-    },
-    homePageWorkArea: {
+    }),
+    homePageWorkArea: homePageWorkAreaRule({
       yaml: "РабочаяОбластьНачальнойСтраницы",
-      type: "HomePageWorkArea",
       filePath: "Ext/HomePageWorkArea.xml",
-    },
-    help: {
-      type: "Help",
+    }),
+    help: helpRule({
       filePath: "Ext/Help.xml",
       nkdkDir: "Справка",
-    },
-    mobileClientSignature: {
-      type: "ExternalFile",
+    }),
+    mobileClientSignature: externalFileRule({
       nkdkPath: "ПодписьМобильногоКлиента.bin",
       xmlPath: "Ext/MobileClientSignature.bin",
       syncExternalOnly: true,
-    },
-    mainSectionPicture: {
-      type: "ExternalPicture",
+    }),
+    mainSectionPicture: externalPictureRule({
       nkdkDir: "КартинкаОсновногоРаздела",
       xmlPath: "Ext/MainSectionPicture.xml",
       payloadXmlDir: "Ext/MainSectionPicture",
       syncExternalOnly: true,
-    },
-    logo: {
-      type: "ExternalPicture",
+    }),
+    logo: externalPictureRule({
       nkdkDir: "Логотип",
       xmlPath: "Ext/Logo.xml",
       payloadXmlDir: "Ext/Logo",
       syncExternalOnly: true,
-    },
-    splash: {
-      type: "ExternalPicture",
+    }),
+    splash: externalPictureRule({
       nkdkDir: "Заставка",
       xmlPath: "Ext/Splash.xml",
       payloadXmlDir: "Ext/Splash",
       syncExternalOnly: true,
-    },
-    standaloneConfigurationContent: {
-      type: "ExternalFile",
+    }),
+    standaloneConfigurationContent: externalFileRule({
       nkdkPath: "СодержимоеАвтономнойКонфигурации.bin",
       xmlPath: "Ext/StandaloneConfigurationContent.bin",
       syncExternalOnly: true,
-    },
+    }),
   },
 } satisfies MetadataItemRule

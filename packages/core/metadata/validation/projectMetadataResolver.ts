@@ -1,5 +1,5 @@
 import { existsSync } from "fs"
-import { dirname, join, resolve } from "path"
+import { resolve } from "path"
 import {
   memberKindToYAML,
   objectPathKindToYAML,
@@ -15,12 +15,18 @@ import {
   type StyleItemTargetType,
 } from "~/metadata/commonObjects/metadataTargets"
 import type { ConfigurationContext } from "~/metadata/context/types"
-import * as SE from "~/metadata/systemEnumerations/types"
 import type { DataPathTypeInfo } from "./dataPath/types"
 import { createOwnerMetadataCache, type OwnerMetadata, type OwnerMetadataCache } from "./dataPath/ownerCache"
 import { getObjectField, type ObjectField, type ObjectFieldKind } from "./dataPath/objectFields"
 import { typeDescriptionToDataPathTypeInfo } from "./dataPath/typeDescription"
 import type { ProjectYamlCache } from "./projectYamlCache"
+import {
+  getProjectInlineObjectResolvers,
+  getProjectMemberResolvers,
+  getProjectNamedResourceResolver,
+  getProjectObjectPathResolver,
+  getProjectValueResolver,
+} from "./projectMetadataResolverRegistry"
 import type { Diagnostic } from "./types"
 
 export interface CreateProjectMetadataResolverParams {
@@ -69,9 +75,14 @@ export function createProjectMetadataResolver(params: CreateProjectMetadataResol
 
   return {
     resolveObject({ target, filters }) {
-      const filePath = objectFilePath(projectDir, target.root, target.objectName)
-      if (!existsSync(filePath)) {
-        return referenceError(filePath, `Не найден объект "${formatObjectTarget(target)}"`)
+      const rootResolver = getProjectObjectPathResolver(target.root)
+      const rootPath = rootResolver?.({
+        projectDir,
+        target: { kind: "object", root: target.root, objectName: target.objectName },
+      })
+      const filePath = rootPath?.filePath
+      if (!filePath || !existsSync(filePath)) {
+        return referenceError(filePath ?? projectDir, `Не найден объект "${formatObjectTarget(target)}"`)
       }
 
       const filterResult = resolveObjectFilters({
@@ -82,17 +93,15 @@ export function createProjectMetadataResolver(params: CreateProjectMetadataResol
       if (!filterResult.ok) return filterResult
 
       if (target.segments && target.segments.length > 0) {
-        const nestedFilePath = nestedObjectFilePath(projectDir, target)
-        if (existsSync(nestedFilePath)) return { ok: true, filePath: nestedFilePath }
+        const nestedPath = rootResolver?.({ projectDir, target })
+        if (nestedPath?.filePath && existsSync(nestedPath.filePath)) return { ok: true, filePath: nestedPath.filePath }
 
-        const inlineObject = resolveInlineNestedObject({
-          target,
-          yamlCache: params.yamlCache,
-          ownerCache,
-        })
-        if (inlineObject) return inlineObject
+        for (const resolver of getProjectInlineObjectResolvers(target.root)) {
+          const inlineObject = resolver({ projectDir, target, yamlCache: params.yamlCache, ownerCache })
+          if (inlineObject) return inlineObject
+        }
 
-        return referenceError(nestedFilePath, `Не найден объект "${formatObjectTarget(target)}"`)
+        return referenceError(nestedPath?.filePath ?? filePath, `Не найден объект "${formatObjectTarget(target)}"`)
       }
 
       return { ok: true, filePath }
@@ -102,32 +111,55 @@ export function createProjectMetadataResolver(params: CreateProjectMetadataResol
       const object = this.resolveObject({ target: { kind: "object", root: target.root, objectName: target.objectName } })
       if (!object.ok) return object
 
-      const nestedMember = resolveNestedExternalDataSourceMember({
-        projectDir,
-        target,
-        yamlCache: params.yamlCache,
-      })
-      if (nestedMember) return nestedMember
+      if (target.objectSegments) {
+        const nestedObject = this.resolveObject({
+          target: {
+            kind: "object",
+            root: target.root,
+            objectName: target.objectName,
+            segments: target.objectSegments,
+          },
+        })
+        if (!nestedObject.ok) return nestedObject
+        if (!nestedObject.filePath) return referenceError(projectDir, `Не найден объект "${formatMemberTarget(target)}"`)
+
+        const rawYaml = ownerRawYaml({ filePath: nestedObject.filePath, yamlCache: params.yamlCache })
+        const resolved = resolveRegisteredMember({
+          projectDir,
+          ownerFilePath: nestedObject.filePath,
+          rawYaml,
+          target,
+          yamlCache: params.yamlCache,
+          ownerCache,
+        })
+        if (resolved) {
+          return resolved.ok
+            ? { ok: true, filePath: resolved.filePath ?? nestedObject.filePath, details: resolved.details }
+            : resolved
+        }
+
+        return referenceError(nestedObject.filePath, `Не найден член "${formatMemberTarget(target)}": нет сегмента "${target.segments[0]?.name ?? ""}"`)
+      }
 
       const owner = ownerCache.get({ kind: rootToYAML[target.root], name: target.objectName })
       if (owner.status !== "ok") return { ok: false, diagnostics: owner.diagnostics }
 
       const resolved = resolveMemberSegments({
+        projectDir,
         owner: owner.owner,
+        ownerFilePath: owner.owner.filePath,
         rawYaml: ownerRawYaml({ filePath: owner.owner.filePath, yamlCache: params.yamlCache }),
+        target,
         segments: target.segments,
+        yamlCache: params.yamlCache,
+        ownerCache,
       })
       if (!resolved.ok) {
-        const childForm = resolveChildFormFile({ ownerFilePath: owner.owner.filePath, target, message: resolved.message })
-        if (childForm) return childForm
-        const childTemplate = resolveChildTemplateFile({ ownerFilePath: owner.owner.filePath, target, message: resolved.message })
-        if (childTemplate) return childTemplate
-
         return referenceError(owner.owner.filePath, `Не найден член "${formatMemberTarget(target)}": ${resolved.message}`)
       }
 
       const filterResult = applyMetadataTargetFilters({
-        filePath: owner.owner.filePath,
+        filePath: resolved.filePath ?? owner.owner.filePath,
         displayName: formatMemberTarget(target),
         target,
         details: resolved.details,
@@ -136,7 +168,7 @@ export function createProjectMetadataResolver(params: CreateProjectMetadataResol
       })
       if (!filterResult.ok) return filterResult
 
-      return { ok: true, filePath: owner.owner.filePath, details: resolved.details }
+      return { ok: true, filePath: resolved.filePath ?? owner.owner.filePath, details: resolved.details }
     },
 
     resolveValue({ target }) {
@@ -147,161 +179,36 @@ export function createProjectMetadataResolver(params: CreateProjectMetadataResol
       const owner = ownerCache.get({ kind: rootToYAML[target.root], name: target.objectName })
       if (owner.status !== "ok") return { ok: false, diagnostics: owner.diagnostics }
 
-      const values = target.root === "Enum" ? metadataRecord(owner.owner.model).enumValues : metadataRecord(owner.owner.model).predefined
-      if (hasNamedItem(values, target.valueName)) return { ok: true, filePath: owner.owner.filePath }
+      const valueResolver = getProjectValueResolver(target.root)
+      const resolved = valueResolver?.({ owner: owner.owner, target })
+      if (resolved) return resolved
 
       return referenceError(owner.owner.filePath, `Не найдено значение "${formatValueTarget(target)}"`)
     },
 
     resolveStyleItem({ name, expectedTypes }) {
-      const filePath = join(projectDir, rootToYAML.StyleItem, name, "Свойства.yaml")
-      if (!existsSync(filePath)) return referenceError(filePath, `Не найден элемент стиля "ЭлементСтиля.${name}"`)
-
-      const styleItemType = readStyleItemType({ filePath, yamlCache: params.yamlCache })
-      if (styleItemType && expectedTypes.length > 0 && !expectedTypes.includes(styleItemType)) {
-        return referenceError(
-          filePath,
-          `Элемент стиля "ЭлементСтиля.${name}" имеет тип "${styleItemType}", ожидался: ${expectedTypes.join(", ")}`,
-        )
-      }
-
-      return { ok: true, filePath }
+      const resolver = getProjectNamedResourceResolver("StyleItem")
+      return resolver
+        ? resolver({ projectDir, name, expectedTypes, yamlCache: params.yamlCache })
+        : referenceError(projectDir, `Не найден элемент стиля "ЭлементСтиля.${name}"`)
     },
 
     resolveCommonPicture({ name }) {
-      const filePath = join(projectDir, rootToYAML.CommonPicture, name, "Свойства.yaml")
-      return existsSync(filePath) ? { ok: true, filePath } : referenceError(filePath, `Не найдена общая картинка "ОбщаяКартинка.${name}"`)
+      const resolver = getProjectNamedResourceResolver("CommonPicture")
+      return resolver
+        ? resolver({ projectDir, name, yamlCache: params.yamlCache })
+        : referenceError(projectDir, `Не найдена общая картинка "ОбщаяКартинка.${name}"`)
     },
-  }
-}
-
-function resolveChildFormFile(params: {
-  ownerFilePath: string
-  target: Extract<ParsedMetadataTarget, { kind: "member" }>
-  message: string
-}): MetadataResolveResult | undefined {
-  const [segment] = params.target.segments
-  if (params.target.segments.length !== 1 || segment.kind !== "Form") return undefined
-  if (params.message !== `нет сегмента "${segment.name}"`) return undefined
-
-  const filePath = join(dirname(params.ownerFilePath), "Формы", segment.name, "Форма.yaml")
-  if (!existsSync(filePath)) return undefined
-
-  return { ok: true, filePath, details: { kind: "Form", name: segment.name, item: segment.name } }
-}
-
-function resolveChildTemplateFile(params: {
-  ownerFilePath: string
-  target: Extract<ParsedMetadataTarget, { kind: "member" }>
-  message: string
-}): MetadataResolveResult | undefined {
-  const [segment] = params.target.segments
-  if (params.target.segments.length !== 1 || segment.kind !== "Template") return undefined
-  if (params.message !== `нет сегмента "${segment.name}"`) return undefined
-
-  const templateDir = join(dirname(params.ownerFilePath), "Шаблоны", segment.name)
-  for (const fileName of ["Template.xml", "Template.txt", "Template.bin"]) {
-    const filePath = join(templateDir, fileName)
-    if (existsSync(filePath)) return { ok: true, filePath, details: { kind: "Template", name: segment.name, item: segment.name } }
-  }
-
-  return undefined
-}
-
-function resolveInlineNestedObject(params: {
-  target: Extract<ParsedMetadataTarget, { kind: "object" }>
-  yamlCache: ProjectYamlCache
-  ownerCache: OwnerMetadataCache
-}): MetadataResolveResult | undefined {
-  const [segment] = params.target.segments ?? []
-  if (params.target.root !== "ExternalDataSource" || params.target.segments?.length !== 1 || segment?.kind !== "Function") {
-    return undefined
-  }
-
-  const owner = params.ownerCache.get({ kind: rootToYAML[params.target.root], name: params.target.objectName })
-  if (owner.status !== "ok") return { ok: false, diagnostics: owner.diagnostics }
-
-  const rawYaml = ownerRawYaml({ filePath: owner.owner.filePath, yamlCache: params.yamlCache })
-  const functions = metadataRecord(owner.owner.model).functions ?? metadataRecord(rawYaml).Функции
-  if (!hasNamedItem(functions, segment.objectName)) return undefined
-
-  return { ok: true, filePath: owner.owner.filePath, details: { kind: "Function", name: segment.objectName, item: segment.objectName } }
-}
-
-function resolveNestedExternalDataSourceMember(params: {
-  projectDir: string
-  target: Extract<ParsedMetadataTarget, { kind: "member" }>
-  yamlCache: ProjectYamlCache
-}): MetadataResolveResult | undefined {
-  if (params.target.root !== "ExternalDataSource" || !params.target.objectSegments || params.target.segments.length !== 1) {
-    return undefined
-  }
-
-  const nestedObjectTarget: Extract<ParsedMetadataTarget, { kind: "object" }> = {
-    kind: "object",
-    root: params.target.root,
-    objectName: params.target.objectName,
-    segments: params.target.objectSegments,
-  }
-  const filePath = nestedObjectFilePath(params.projectDir, nestedObjectTarget)
-  if (!existsSync(filePath)) return referenceError(filePath, `Не найден объект "${formatObjectTarget(nestedObjectTarget)}"`)
-
-  const [segment] = params.target.segments
-  if (!isExternalDataSourceNestedMemberKind(segment.kind)) return undefined
-
-  const rawYaml = ownerRawYaml({ filePath, yamlCache: params.yamlCache })
-  const item = memberCollectionItem(metadataRecord(rawYaml)[externalDataSourceNestedMemberCollectionYamlName(segment.kind)], segment.name)
-  if (item === undefined) return undefined
-
-  return { ok: true, filePath, details: { kind: segment.kind, name: segment.name, item } }
-}
-
-function isExternalDataSourceNestedMemberKind(
-  kind: MetadataMemberKind,
-): kind is "Field" | "Command" | "Dimension" | "Resource" {
-  return kind === "Field" || kind === "Command" || kind === "Dimension" || kind === "Resource"
-}
-
-function externalDataSourceNestedMemberCollectionYamlName(
-  kind: "Field" | "Command" | "Dimension" | "Resource",
-): string {
-  switch (kind) {
-    case "Field":
-      return "Поля"
-    case "Command":
-      return "Команды"
-    case "Dimension":
-      return "Измерения"
-    case "Resource":
-      return "Ресурсы"
   }
 }
 
 type ResolvedMemberDetails =
   | ObjectField
   | {
-      kind: NamedMemberKind
+      kind: MetadataMemberKind
       name: string
       item: unknown
     }
-
-function readStyleItemType(params: { filePath: string; yamlCache: ProjectYamlCache }): StyleItemTargetType | undefined {
-  const entry = params.yamlCache.get(params.filePath)
-  if ("error" in entry || entry.parsed.doc.errors.length > 0) return undefined
-
-  const typeValue = styleItemTypeValue(entry.parsed.data)
-  if (typeof typeValue !== "string") return undefined
-
-  return SE.StyleElementTypeFromYAML[typeValue as SE.StyleElementTypeYAML] ?? styleItemTypeFromModelValue(typeValue)
-}
-
-function styleItemTypeValue(data: unknown): unknown {
-  return typeof data === "object" && data !== null ? (data as Record<string, unknown>).Тип : undefined
-}
-
-function styleItemTypeFromModelValue(value: string): StyleItemTargetType | undefined {
-  return Object.prototype.hasOwnProperty.call(SE.StyleElementTypeToYAML, value) ? (value as StyleItemTargetType) : undefined
-}
 
 function resolveObjectFilters(params: {
   target: Extract<ParsedMetadataTarget, { kind: "object" }>
@@ -318,10 +225,15 @@ function resolveObjectFilters(params: {
 }
 
 function resolveMemberSegments(params: {
+  projectDir: string
   owner: OwnerMetadata
+  ownerFilePath: string
   rawYaml: unknown
+  target: Extract<ParsedMetadataTarget, { kind: "member" }>
   segments: Extract<ParsedMetadataTarget, { kind: "member" }>["segments"]
-}): { ok: true; details: ResolvedMemberDetails } | { ok: false; message: string } {
+  yamlCache: ProjectYamlCache
+  ownerCache: OwnerMetadataCache
+}): { ok: true; filePath?: string; details: ResolvedMemberDetails } | { ok: false; message: string } {
   const { owner, segments } = params
   const firstSegment = segments[0]
   if (!firstSegment) return { ok: false, message: "пустой путь" }
@@ -333,14 +245,48 @@ function resolveMemberSegments(params: {
 
   if (segments.length > 1) return { ok: false, message: `"${firstSegment.name}" не содержит вложенных членов` }
 
-  const item = memberCollectionItem(
-    metadataRecord(owner.model)[memberCollectionName(firstSegment.kind)] ??
-      metadataRecord(params.rawYaml)[memberCollectionYamlName(firstSegment.kind)],
-    firstSegment.name,
-  )
-  if (item === undefined) return { ok: false, message: `нет сегмента "${firstSegment.name}"` }
+  const registered = resolveRegisteredMember({
+    projectDir: params.projectDir,
+    ownerFilePath: params.ownerFilePath,
+    owner,
+    rawYaml: params.rawYaml,
+    target: params.target,
+    yamlCache: params.yamlCache,
+    ownerCache: params.ownerCache,
+  })
+  if (registered?.ok) return { ok: true, filePath: registered.filePath, details: registered.details as ResolvedMemberDetails }
+  if (registered && !registered.ok) return { ok: false, message: registered.diagnostics[0]?.message ?? "не найдено" }
 
-  return { ok: true, details: { kind: firstSegment.kind, name: firstSegment.name, item } }
+  return { ok: false, message: `нет сегмента "${firstSegment.name}"` }
+}
+
+function resolveRegisteredMember(params: {
+  projectDir: string
+  ownerFilePath: string
+  owner?: OwnerMetadata
+  rawYaml: unknown
+  target: Extract<ParsedMetadataTarget, { kind: "member" }>
+  yamlCache: ProjectYamlCache
+  ownerCache: OwnerMetadataCache
+}): MetadataResolveResult | undefined {
+  const firstSegment = params.target.segments[0]
+  if (!firstSegment) return undefined
+
+  for (const resolver of getProjectMemberResolvers(firstSegment.kind)) {
+    const resolved = resolver({
+      projectDir: params.projectDir,
+      ownerFilePath: params.ownerFilePath,
+      owner: params.owner,
+      rawYaml: params.rawYaml,
+      segment: firstSegment,
+      target: params.target,
+      yamlCache: params.yamlCache,
+      ownerCache: params.ownerCache,
+    })
+    if (resolved !== undefined) return resolved
+  }
+
+  return undefined
 }
 
 function ownerRawYaml(params: { filePath: string; yamlCache: ProjectYamlCache }): unknown {
@@ -482,84 +428,6 @@ function isFieldMemberKind(kind: MetadataMemberKind): kind is MetadataFieldKind 
   return Object.prototype.hasOwnProperty.call(objectFieldKindByTargetKind, kind)
 }
 
-type NamedMemberKind = Extract<
-  MetadataMemberKind,
-  "Form" | "Template" | "Command" | "AccountingFlag" | "ExtDimensionAccountingFlag" | "Field"
->
-
-function memberCollectionName(kind: NamedMemberKind): string {
-  switch (kind) {
-    case "Form":
-      return "forms"
-    case "Template":
-      return "templates"
-    case "Command":
-      return "commands"
-    case "AccountingFlag":
-      return "accountingFlags"
-    case "ExtDimensionAccountingFlag":
-      return "extDimensionAccountingFlags"
-    case "Field":
-      return "fields"
-  }
-}
-
-function memberCollectionYamlName(kind: NamedMemberKind): string {
-  switch (kind) {
-    case "Form":
-      return "Формы"
-    case "Template":
-      return "Макеты"
-    case "Command":
-      return "Команды"
-    case "AccountingFlag":
-      return "ПризнакиУчета"
-    case "ExtDimensionAccountingFlag":
-      return "ПризнакиУчетаСубконто"
-    case "Field":
-      return "Поля"
-  }
-}
-
-function memberCollectionItem(collection: unknown, name: string): unknown {
-  if (typeof collection === "string") return collection === name ? collection : undefined
-
-  if (Array.isArray(collection)) {
-    return collection.find((item) => item === name || (typeof item === "object" && item !== null && (item as Record<string, unknown>).name === name))
-  }
-
-  if (typeof collection === "object" && collection !== null && Object.prototype.hasOwnProperty.call(collection, name)) {
-    return (collection as Record<string, unknown>)[name]
-  }
-
-  return undefined
-}
-
-function objectFilePath(projectDir: string, root: MetadataRootName, name: string): string {
-  return join(projectDir, objectRootDir(root), name, "Свойства.yaml")
-}
-
-function nestedObjectFilePath(
-  projectDir: string,
-  target: Extract<ParsedMetadataTarget, { kind: "object" }>,
-): string {
-  const parts = [projectDir, objectRootDir(target.root), target.objectName]
-  for (const segment of target.segments ?? []) {
-    parts.push(nestedObjectFolderName(segment.kind), segment.objectName)
-  }
-
-  return join(...parts, "Свойства.yaml")
-}
-
-function nestedObjectFolderName(kind: MetadataRootName | MetadataObjectPathKind): string {
-  if (kind === "Subsystem") return "Подсистемы"
-  if (kind === "Table") return "Таблицы"
-  if (kind === "Cube") return "Кубы"
-  if (kind === "DimensionTable") return "ТаблицыИзмерений"
-  if (kind === "Function") return "Функции"
-  return objectSegmentKindToYAML(kind)
-}
-
 function objectSegmentKindToYAML(kind: MetadataRootName | MetadataObjectPathKind): string {
   if (isMetadataRootName(kind)) return rootToYAML[kind]
   return objectPathKindToYAML[kind]
@@ -569,28 +437,12 @@ function isMetadataRootName(kind: MetadataRootName | MetadataObjectPathKind): ki
   return Object.prototype.hasOwnProperty.call(rootToYAML, kind)
 }
 
-function objectRootDir(root: MetadataRootName): string {
-  if (root === "DocumentNumerator") return "Нумератор"
-  return rootToYAML[root]
+function metadataRecord(value: unknown): Record<string, unknown> {
+  return typeof value === "object" && value !== null ? (value as Record<string, unknown>) : {}
 }
 
 function memberLookupName(segment: Extract<ParsedMetadataTarget, { kind: "member" }>["segments"][number]): string {
   return segment.kind === "StandardAttribute" ? (standardAttributeToYAML[segment.name] ?? segment.name) : segment.name
-}
-
-function hasNamedItem(value: unknown, name: string): boolean {
-  if (Array.isArray(value)) return value.some((item) => hasNamedItem(item, name))
-  if (typeof value !== "object" || value === null) return false
-
-  const record = value as Record<string, unknown>
-  if (record.name === name) return true
-  if (Object.prototype.hasOwnProperty.call(record, name)) return true
-
-  return hasNamedItem(record.items, name) || hasNamedItem(record.childItems, name) || hasNamedItem(record.enumValues, name)
-}
-
-function metadataRecord(value: unknown): Record<string, unknown> {
-  return typeof value === "object" && value !== null ? (value as Record<string, unknown>) : {}
 }
 
 function formatMemberTarget(target: Extract<ParsedMetadataTarget, { kind: "member" }>): string {

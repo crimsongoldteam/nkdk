@@ -67,7 +67,7 @@ interface ChildObjectSpec {
 const getXMLRootContainer = (rule: MetadataItemRule): string | undefined => {
   const xmlRoot = Object.values(rule.properties).find((property) => property.type === "XMLRoot")
   return typeof (xmlRoot as { container?: unknown } | undefined)?.container === "string"
-    ? ((xmlRoot as { container: string }).container)
+    ? ((xmlRoot as unknown as { container: string }).container)
     : undefined
 }
 

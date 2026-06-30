@@ -1,4 +1,5 @@
 import { Static, Type } from "@sinclair/typebox"
+import { definePropertyRule, type ExactRuleParams } from "~/metadata/commonObjects/ruleBuilder"
 import { ConfigurationContext } from "~/metadata/context/types"
 import { TypeRulesOperations } from "~/metadata/orchestration"
 import { BasePropertyRule } from "~/metadata/orchestration/property/types"
@@ -41,4 +42,12 @@ export interface I8nTextPropertyRule extends Omit<BasePropertyRule, "defaultValu
   defaultValue?: I8nText | I8nTextDefaultValueFunction
   /** Выгружать I8nText с указанием типа: `xsi:type="v8:LocalStringType"` */
   typedXML?: true
+}
+
+export type I8nTextRuleParams = Omit<I8nTextPropertyRule, "type">
+
+export function i8nTextRule<const Params extends I8nTextRuleParams>(
+  params: ExactRuleParams<I8nTextRuleParams, Params>
+): Readonly<{ type: "I8nText" } & Params> {
+  return definePropertyRule("I8nText", params)
 }

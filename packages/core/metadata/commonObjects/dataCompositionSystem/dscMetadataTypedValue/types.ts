@@ -1,3 +1,8 @@
+import {
+  definePropertyRule as defineWidePropertyRule,
+  type ExactRuleParams as WideExactRuleParams,
+} from "~/metadata/commonObjects/ruleBuilder"
+import type { PropertyRule as WidePropertyRuleBase } from "~/metadata/orchestration/property/types"
 import { Static, Type } from "@sinclair/typebox"
 import { BasePropertyRule } from "~/metadata/orchestration"
 import { BooleanJSONSchema } from "../../boolean/types"
@@ -120,3 +125,15 @@ export type DcsMetadataTypedValueXML =
   | DcsMetadataTypedValueUndefinedTypeXML
   | DcsMetadataTypedValueNilXML
   | StandartBeginningDateXML
+
+export interface DcsMetadataTypedValueWidePropertyRule extends WidePropertyRuleBase {
+  type: "DcsMetadataTypedValue"
+}
+
+export type DcsMetadataTypedValueRuleParams = Omit<DcsMetadataTypedValueWidePropertyRule, "type">
+
+export function dcsMetadataTypedValueRule<const Params extends DcsMetadataTypedValueRuleParams>(
+  params: WideExactRuleParams<DcsMetadataTypedValueRuleParams, Params>
+): Readonly<{ type: "DcsMetadataTypedValue" } & Params> {
+  return defineWidePropertyRule("DcsMetadataTypedValue", params)
+}

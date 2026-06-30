@@ -1,14 +1,10 @@
 import { existsSync, statSync } from "fs"
 import { isAbsolute, relative, resolve, sep } from "path"
-import { CONFIGURATION_YAML_FILE } from "~/metadata/appliedObjects/configuration/rootIO"
-import { describeMetadataRuleResources } from "./ruleResources"
+import { CONFIGURATION_YAML_FILE } from "./constants"
+import { describeMetadataRuleProjectResources } from "./ruleResources"
 import { getMetadataProjectSpecByDir, metadataProjectSpecs, type MetadataProjectSpec } from "./specs"
 
 const PROPERTIES_FILE = "Свойства.yaml"
-const FORM_FILE = "Форма.yaml"
-const FORMS_DIR = "Формы"
-const SUBSYSTEM_DIR = "Подсистема"
-const CHILD_SUBSYSTEMS_DIR = "Подсистемы"
 
 export interface DescribeMetadataProjectDirectoryStructureParams {
   projectDir: string
@@ -38,12 +34,12 @@ type DirectoryPosition =
   | { kind: "root" }
   | { kind: "metadataKind"; dir: string; spec: MetadataProjectSpec }
   | { kind: "metadataObject"; dir: string; name: string; spec: MetadataProjectSpec }
-  | { kind: "forms"; dir: string; ownerName: string; spec: MetadataProjectSpec }
-  | { kind: "form"; dir: string; ownerName: string; formName: string; spec: MetadataProjectSpec }
-  | { kind: "subsystems"; ownerPath: string }
+  | { kind: "fileItemDirectory"; dirName: string; ownerPath: string; resourcePattern: string }
+  | { kind: "fileItem"; itemName: string; fileName: string; ownerPath: string; resourcePattern: string }
+  | { kind: "recursiveChildren"; ownerPath: string; spec: MetadataProjectSpec }
 
 export function describeMetadataProjectDirectoryStructure(
-  params: DescribeMetadataProjectDirectoryStructureParams,
+  params: DescribeMetadataProjectDirectoryStructureParams
 ): MetadataProjectDirectoryStructure {
   const projectDir = resolve(params.projectDir)
   const directoryPath = normalizeProjectDirectoryPath(projectDir, params.directoryPath)
@@ -89,7 +85,6 @@ function classifyDirectoryPosition(directoryPath: string): DirectoryPosition | u
 
   const parts = directoryPath.split("/")
   if (parts.some((part) => part.length === 0)) return undefined
-  if (parts[0] === SUBSYSTEM_DIR) return classifySubsystemPosition(parts)
 
   if (parts.length === 1) {
     const spec = getMetadataProjectSpecByDir(parts[0])
@@ -101,37 +96,62 @@ function classifyDirectoryPosition(directoryPath: string): DirectoryPosition | u
     return spec ? { kind: "metadataObject", dir: parts[0], name: parts[1], spec } : undefined
   }
 
-  if (parts.length === 3 && parts[2] === FORMS_DIR) {
-    const spec = getMetadataProjectSpecByDir(parts[0])
-    return spec ? { kind: "forms", dir: parts[0], ownerName: parts[1], spec } : undefined
-  }
+  const spec = getMetadataProjectSpecByDir(parts[0])
+  if (!spec) return undefined
+  const ownerPath = parts.slice(0, 2).join("/")
+  const fileItemPosition = classifyFileItemPosition(parts.slice(2), ownerPath, spec)
+  if (fileItemPosition) return fileItemPosition
 
-  if (parts.length === 4 && parts[2] === FORMS_DIR) {
-    const spec = getMetadataProjectSpecByDir(parts[0])
-    return spec ? { kind: "form", dir: parts[0], ownerName: parts[1], formName: parts[3], spec } : undefined
+  const recursivePosition = classifyRecursiveChildrenPosition(parts, spec)
+  if (recursivePosition) return recursivePosition
+
+  return undefined
+}
+
+function classifyFileItemPosition(
+  relativeParts: string[],
+  ownerPath: string,
+  spec: MetadataProjectSpec
+): DirectoryPosition | undefined {
+  for (const resource of describeMetadataRuleProjectResources(spec.rule)) {
+    if (resource.kind !== "yaml" || resource.role !== "fileItem") continue
+    const [dirName, itemPlaceholder, fileName] = resource.projectPattern.split("/")
+    if (!dirName || itemPlaceholder !== "{itemName}" || !fileName) continue
+
+    if (relativeParts.length === 1 && relativeParts[0] === dirName) {
+      return { kind: "fileItemDirectory", dirName, ownerPath, resourcePattern: resource.projectPattern }
+    }
+
+    if (relativeParts.length === 2 && relativeParts[0] === dirName && relativeParts[1]) {
+      return {
+        kind: "fileItem",
+        itemName: relativeParts[1],
+        fileName,
+        ownerPath,
+        resourcePattern: resource.projectPattern,
+      }
+    }
   }
 
   return undefined
 }
 
-function classifySubsystemPosition(parts: string[]): DirectoryPosition | undefined {
-  const spec = getMetadataProjectSpecByDir(SUBSYSTEM_DIR)
-  if (!spec) return undefined
-
-  if (parts.length === 1) return { kind: "metadataKind", dir: SUBSYSTEM_DIR, spec }
+function classifyRecursiveChildrenPosition(parts: string[], spec: MetadataProjectSpec): DirectoryPosition | undefined {
+  const nesting = spec.nesting
+  if (nesting?.kind !== "recursiveChildDir") return undefined
 
   if (parts.length % 2 === 0) {
     for (let index = 2; index < parts.length; index += 2) {
-      if (parts[index] !== CHILD_SUBSYSTEMS_DIR) return undefined
+      if (parts[index] !== nesting.childDir) return undefined
     }
-    return { kind: "metadataObject", dir: SUBSYSTEM_DIR, name: parts[parts.length - 1], spec }
+    return { kind: "metadataObject", dir: spec.dir, name: parts[parts.length - 1], spec }
   }
 
-  if (parts.length >= 3 && parts[parts.length - 1] === CHILD_SUBSYSTEMS_DIR) {
+  if (parts.length >= 3 && parts[parts.length - 1] === nesting.childDir) {
     for (let index = 2; index < parts.length - 1; index += 2) {
-      if (parts[index] !== CHILD_SUBSYSTEMS_DIR) return undefined
+      if (parts[index] !== nesting.childDir) return undefined
     }
-    return { kind: "subsystems", ownerPath: parts.slice(0, -1).join("/") }
+    return { kind: "recursiveChildren", ownerPath: parts.slice(0, -1).join("/"), spec }
   }
 
   return undefined
@@ -141,11 +161,17 @@ function createNode(position: DirectoryPosition, directoryPath: string): Metadat
   switch (position.kind) {
     case "root":
       return directory("", "root", "", "Корень YAML-проекта", false, false, [
-        file(CONFIGURATION_YAML_FILE, "configuration", CONFIGURATION_YAML_FILE, "Корневой YAML-файл конфигурации", true),
+        file(
+          CONFIGURATION_YAML_FILE,
+          "configuration",
+          CONFIGURATION_YAML_FILE,
+          "Корневой YAML-файл конфигурации",
+          true
+        ),
         ...metadataProjectSpecs.map((spec) =>
           directory(spec.dir, "metadataKind", spec.dir, `Каталог metadata-объектов вида ${spec.dir}`, false, false, [
             objectTemplate(spec.dir),
-          ]),
+          ])
         ),
       ])
     case "metadataKind":
@@ -156,94 +182,131 @@ function createNode(position: DirectoryPosition, directoryPath: string): Metadat
         `Каталог metadata-объектов вида ${position.dir}`,
         false,
         false,
-        [objectTemplate(position.dir)],
+        [objectTemplate(position.dir)]
       )
     case "metadataObject":
       return metadataObjectNode(position, directoryPath)
-    case "forms":
-      return directory(lastSegment(directoryPath), "forms", directoryPath, "Каталог форм metadata-объекта", false, false, [
-        directory("<ИмяФормы>", "form", `${directoryPath}/<ИмяФормы>`, "Каталог формы", false, true, [
-          file(FORM_FILE, "formYaml", `${directoryPath}/<ИмяФормы>/${FORM_FILE}`, "YAML-файл формы", true),
-        ]),
-      ])
-    case "form":
-      return directory(position.formName, "form", directoryPath, "Каталог формы", false, false, [
-        file(FORM_FILE, "formYaml", `${directoryPath}/${FORM_FILE}`, "YAML-файл формы", true),
-      ])
-    case "subsystems":
-      return directory(lastSegment(directoryPath), "subsystems", directoryPath, "Каталог вложенных подсистем", false, false, [
-        directory(
-          "<ИмяПодсистемы>",
-          "subsystem",
-          `${directoryPath}/<ИмяПодсистемы>`,
-          "Каталог вложенной подсистемы",
-          false,
-          true,
-          [
-            file(
-              PROPERTIES_FILE,
-              "properties",
-              `${directoryPath}/<ИмяПодсистемы>/${PROPERTIES_FILE}`,
-              "YAML-файл свойств подсистемы",
-              true,
-            ),
-            directory(
-              CHILD_SUBSYSTEMS_DIR,
-              "subsystems",
-              `${directoryPath}/<ИмяПодсистемы>/${CHILD_SUBSYSTEMS_DIR}`,
-              "Каталог вложенных подсистем",
-              false,
-              false,
-            ),
-          ],
-        ),
-      ])
-  }
-}
-
-function metadataObjectNode(
-  position: Extract<DirectoryPosition, { kind: "metadataObject" }>,
-  directoryPath: string,
-): MetadataProjectStructureNode {
-  const children: MetadataProjectStructureNode[] = [
-    file(PROPERTIES_FILE, "properties", `${directoryPath}/${PROPERTIES_FILE}`, `YAML-файл свойств объекта ${position.dir}`, true),
-    directory(FORMS_DIR, "forms", `${directoryPath}/${FORMS_DIR}`, "Каталог форм metadata-объекта", false, false, [
-      directory("<ИмяФормы>", "form", `${directoryPath}/${FORMS_DIR}/<ИмяФормы>`, "Каталог формы", false, true, [
-        file(FORM_FILE, "formYaml", `${directoryPath}/${FORMS_DIR}/<ИмяФормы>/${FORM_FILE}`, "YAML-файл формы", true),
-      ]),
-    ]),
-    ...externalResourceNodes(position.spec, directoryPath),
-  ]
-
-  if (position.dir === SUBSYSTEM_DIR) {
-    children.push(
-      directory(
-        CHILD_SUBSYSTEMS_DIR,
-        "subsystems",
-        `${directoryPath}/${CHILD_SUBSYSTEMS_DIR}`,
-        "Каталог вложенных подсистем",
+    case "fileItemDirectory":
+      return directory(
+        lastSegment(directoryPath),
+        "fileItemDirectory",
+        directoryPath,
+        "Каталог файловых дочерних объектов",
         false,
         false,
         [
           directory(
-            "<ИмяПодсистемы>",
-            "subsystem",
-            `${directoryPath}/${CHILD_SUBSYSTEMS_DIR}/<ИмяПодсистемы>`,
-            "Каталог вложенной подсистемы",
+            "<ИмяОбъекта>",
+            "fileItem",
+            `${directoryPath}/<ИмяОбъекта>`,
+            "Каталог файлового дочернего объекта",
+            false,
+            true,
+            [
+              file(
+                lastSegment(position.resourcePattern),
+                "fileItemYaml",
+                `${directoryPath}/<ИмяОбъекта>/${lastSegment(position.resourcePattern)}`,
+                "YAML-файл файлового дочернего объекта",
+                true
+              ),
+            ]
+          ),
+        ]
+      )
+    case "fileItem":
+      return directory(
+        position.itemName,
+        "fileItem",
+        directoryPath,
+        "Каталог файлового дочернего объекта",
+        false,
+        false,
+        [
+          file(
+            position.fileName,
+            "fileItemYaml",
+            `${directoryPath}/${position.fileName}`,
+            "YAML-файл файлового дочернего объекта",
+            true
+          ),
+        ]
+      )
+    case "recursiveChildren":
+      return directory(
+        lastSegment(directoryPath),
+        position.spec.nesting?.collectionRole ?? "recursiveChildren",
+        directoryPath,
+        "Каталог вложенных объектов",
+        false,
+        false,
+        [
+          directory(
+            "<ИмяОбъекта>",
+            position.spec.nesting?.itemRole ?? "recursiveChild",
+            `${directoryPath}/<ИмяОбъекта>`,
+            "Каталог вложенного объекта",
             false,
             true,
             [
               file(
                 PROPERTIES_FILE,
                 "properties",
-                `${directoryPath}/${CHILD_SUBSYSTEMS_DIR}/<ИмяПодсистемы>/${PROPERTIES_FILE}`,
-                "YAML-файл свойств подсистемы",
-                true,
+                `${directoryPath}/<ИмяОбъекта>/${PROPERTIES_FILE}`,
+                "YAML-файл свойств вложенного объекта",
+                true
               ),
-            ],
+            ]
           ),
-        ],
-      ),
+        ]
+      )
+  }
+}
+
+function metadataObjectNode(
+  position: Extract<DirectoryPosition, { kind: "metadataObject" }>,
+  directoryPath: string
+): MetadataProjectStructureNode {
+  const children: MetadataProjectStructureNode[] = [
+    file(
+      PROPERTIES_FILE,
+      "properties",
+      `${directoryPath}/${PROPERTIES_FILE}`,
+      `YAML-файл свойств объекта ${position.dir}`,
+      true
+    ),
+    ...projectResourceNodes(position.spec, directoryPath),
+  ]
+
+  if (position.spec.nesting?.kind === "recursiveChildDir") {
+    children.push(
+      directory(
+        position.spec.nesting.childDir,
+        position.spec.nesting.collectionRole,
+        `${directoryPath}/${position.spec.nesting.childDir}`,
+        "Каталог вложенных объектов",
+        false,
+        false,
+        [
+          directory(
+            "<ИмяОбъекта>",
+            position.spec.nesting.itemRole,
+            `${directoryPath}/${position.spec.nesting.childDir}/<ИмяОбъекта>`,
+            "Каталог вложенного объекта",
+            false,
+            true,
+            [
+              file(
+                PROPERTIES_FILE,
+                "properties",
+                `${directoryPath}/${position.spec.nesting.childDir}/<ИмяОбъекта>/${PROPERTIES_FILE}`,
+                "YAML-файл свойств вложенного объекта",
+                true
+              ),
+            ]
+          ),
+        ]
+      )
     )
   }
 
@@ -254,34 +317,54 @@ function metadataObjectNode(
     `Каталог metadata-объекта вида ${position.dir}`,
     false,
     false,
-    children,
+    children
   )
 }
 
-function externalResourceNodes(spec: MetadataProjectSpec, objectPath: string): MetadataProjectStructureNode[] {
-  return describeMetadataRuleResources(spec.rule).flatMap((resource) => {
-    if (resource.kind === "asset") {
+function projectResourceNodes(spec: MetadataProjectSpec, objectPath: string): MetadataProjectStructureNode[] {
+  return describeMetadataRuleProjectResources(spec.rule).flatMap((resource) => {
+    if (resource.kind === "yaml" && resource.role === "fileItem") {
+      const [dirName, itemName, fileName] = resource.projectPattern.split("/")
       return [
         directory(
-          resource.nkdkDir,
-          "externalFileDirectory",
-          `${objectPath}/${resource.nkdkDir}`,
-          `Каталог внешних файлов свойства ${resource.propertyName}`,
+          dirName,
+          "fileItemDirectory",
+          `${objectPath}/${dirName}`,
+          "Каталог файловых дочерних объектов",
           false,
           false,
+          [
+            directory(
+              itemName,
+              "fileItem",
+              `${objectPath}/${dirName}/${itemName}`,
+              "Каталог файлового дочернего объекта",
+              false,
+              true,
+              [
+                file(
+                  fileName,
+                  "fileItemYaml",
+                  `${objectPath}/${dirName}/${itemName}/${fileName}`,
+                  "YAML-файл файлового дочернего объекта",
+                  resource.required
+                ),
+              ]
+            ),
+          ]
         ),
       ]
     }
 
-    if (resource.kind === "dynamic") {
+    if (resource.kind === "directory" && resource.role === "resourceOnly") {
       return [
         directory(
-          "<ДинамическиеРесурсы>",
-          "dynamicExternalResources",
-          `${objectPath}/<ДинамическиеРесурсы>`,
-          `Динамические внешние ресурсы свойства ${resource.propertyName}`,
-          false,
-          true,
+          resource.projectPattern,
+          "externalResourceDirectory",
+          `${objectPath}/${resource.projectPattern}`,
+          "Каталог внешних ресурсов",
+          resource.required,
+          resource.repeatable
         ),
       ]
     }
@@ -293,7 +376,6 @@ function externalResourceNodes(spec: MetadataProjectSpec, objectPath: string): M
 function objectTemplate(dir: string): MetadataProjectStructureNode {
   return directory("<ИмяОбъекта>", "metadataObject", `${dir}/<ИмяОбъекта>`, "Каталог metadata-объекта", false, true, [
     file(PROPERTIES_FILE, "properties", `${dir}/<ИмяОбъекта>/${PROPERTIES_FILE}`, "YAML-файл свойств объекта", true),
-    directory(FORMS_DIR, "forms", `${dir}/<ИмяОбъекта>/${FORMS_DIR}`, "Каталог форм metadata-объекта", false, false),
   ])
 }
 
@@ -306,7 +388,9 @@ function withLimitedChildren(node: MetadataProjectStructureNode, depth: number |
 
   return {
     ...node,
-    ...(node.children === undefined ? {} : { children: node.children.map((child) => withLimitedChildren(child, depth - 1)) }),
+    ...(node.children === undefined
+      ? {}
+      : { children: node.children.map((child) => withLimitedChildren(child, depth - 1)) }),
   }
 }
 
@@ -317,7 +401,7 @@ function directory(
   description: string,
   required: boolean,
   repeatable: boolean,
-  children?: MetadataProjectStructureNode[],
+  children?: MetadataProjectStructureNode[]
 ): MetadataProjectStructureNode {
   return {
     name,
@@ -336,7 +420,7 @@ function file(
   role: string,
   pathTemplate: string,
   description: string,
-  required: boolean,
+  required: boolean
 ): MetadataProjectStructureNode {
   return {
     name,

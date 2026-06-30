@@ -1,119 +1,109 @@
+import { dcsLocalStringTypeRule } from "~/metadata/commonObjects/dataCompositionSystem/dcsLocalStringType/types"
+import { metadataDcsMetadataValueRule } from "~/metadata/commonObjects/dataCompositionSystem/dcsMetadataValue/types"
+import { settingsParameterValueRule } from "~/metadata/commonObjects/dataCompositionSystem/parameterValue/types"
+import { settingsParameterValueCollectionRule } from "~/metadata/commonObjects/dataCompositionSystem/settingsParameterValueCollection/types"
+import { typeDescriptionRule } from "~/metadata/commonObjects/typeDescription/types"
+import { booleanRule } from "~/metadata/commonObjects/boolean/types"
+import { stringRule } from "~/metadata/commonObjects/string/types"
+import { systemEnumerationRule } from "~/metadata/systemEnumerations/types"
 import { MetadataItemRule } from "~/metadata/orchestration"
-
 export const DCSParameterRules = {
   itemType: "DCSParameter",
   properties: {
-    name: {
-      type: "string",
+    name: stringRule({
       xml: "dcssch:name",
       yaml: "Имя",
       order: 1,
       toYAML: false,
-    },
-    title: {
-      type: "DcsLocalStringType",
+    }),
+    title: dcsLocalStringTypeRule({
       xml: "dcssch:title",
       yaml: "Заголовок",
       order: 2,
-    },
-    valueType: {
-      type: "TypeDescription",
+    }),
+    valueType: typeDescriptionRule({
       xml: "dcssch:valueType",
       yaml: "ТипЗначения",
       order: 3,
-    },
-    value: {
-      type: "MetadataDcsMetadataValue",
+    }),
+    value: metadataDcsMetadataValueRule({
       valueType: "Primitive",
       xml: "dcssch:value",
       yaml: "Значение",
       order: 4,
       exportNilValue: true,
       preserveFromReferenceXML: true,
-    },
-    useRestriction: {
-      type: "boolean",
+    }),
+    useRestriction: booleanRule({
       xml: "dcssch:useRestriction",
       yaml: "ОграничениеИспользования",
       order: 5,
       implicitValueYAML: false,
       defaultValueXML: false,
-    },
-    expression: {
-      type: "string",
+    }),
+    expression: stringRule({
       xml: "dcssch:expression",
       yaml: "Выражение",
       order: 6,
-    },
-    valueListAllowed: {
-      type: "boolean",
+    }),
+    valueListAllowed: booleanRule({
       xml: "dcssch:valueListAllowed",
       yaml: "ДоступенСписокЗначений",
       order: 7,
       implicitValueYAML: false,
-    },
-    includeInAvailableFields: {
-      type: "boolean",
+    }),
+    includeInAvailableFields: booleanRule({
       xml: "dcssch:availableAsField",
       yaml: "ВключатьВДоступныеПоля",
       order: 8,
       implicitValueYAML: true,
-    },
-    functionalOptionsParameter: {
-      type: "string",
+    }),
+    functionalOptionsParameter: stringRule({
       xml: "dcssch:functionalOptionsParameter",
       yaml: "ПараметрФункциональныхОпций",
       order: 9,
-    },
-    editParameters: {
-      type: "SettingsParameterValueCollection",
-      defaultItemRule: {
-        type: "SettingsParameterValue",
+    }),
+    editParameters: settingsParameterValueCollectionRule({
+      defaultItemRule: settingsParameterValueRule({
         valueType: "Primitive",
         exportSettingsXsiType: false,
-      },
+      }),
       parameterRules: {
-        ВыборГруппИЭлементов: {
-          type: "SettingsParameterValue",
+        ВыборГруппИЭлементов: settingsParameterValueRule({
           valueType: "SystemEnumeration",
           typeSE: "FoldersAndItemsUse",
           exportSettingsXsiType: false,
-        },
-        СвязиПараметровВыбора: {
-          type: "SettingsParameterValue",
+        }),
+        СвязиПараметровВыбора: settingsParameterValueRule({
           valueType: "ChoiceParameterLinks",
           exportSettingsXsiType: false,
-        },
-        ПараметрыВыбора: {
-          type: "SettingsParameterValue",
+        }),
+        ПараметрыВыбора: settingsParameterValueRule({
           valueType: "Parameter",
           exportSettingsXsiType: false,
-        },
-        СвязьПоТипу: {
-          type: "SettingsParameterValue",
+        }),
+        СвязьПоТипу: settingsParameterValueRule({
           valueType: "TypeLink",
           exportSettingsXsiType: false,
-        },
+        }),
       },
       xml: "dcscor:item",
       xmlParents: ["dcssch:inputParameters"],
       yaml: "ПараметрыРедактирования",
       order: 10,
-    },
-    denyIncompleteValues: {
-      type: "boolean",
+    }),
+    denyIncompleteValues: booleanRule({
       xml: "dcssch:denyIncompleteValues",
       yaml: "ЗапрещатьНезаполненныеЗначения",
       order: 11,
       implicitValueYAML: false,
-    },
-    use: {
-      type: "SystemEnumeration",
+    }),
+    use: systemEnumerationRule({
       typeSE: "DCSParameterUse",
       xml: "dcssch:use",
       yaml: "Использование",
       implicitValueYAML: "Auto",
       order: 12,
-    },
+    }),
   },
 } as const satisfies MetadataItemRule

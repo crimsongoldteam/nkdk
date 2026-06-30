@@ -1,3 +1,8 @@
+import {
+  definePropertyRule as defineWidePropertyRule,
+  type ExactRuleParams as WideExactRuleParams,
+} from "~/metadata/commonObjects/ruleBuilder"
+import type { PropertyRule as WidePropertyRuleBase } from "~/metadata/orchestration/property/types"
 import { Static, Type } from "@sinclair/typebox"
 
 export type TypeModifier = "complex" | "typeset" | "alwaysType"
@@ -804,3 +809,15 @@ export interface TypeDescriptionEnterprise {
 }
 
 //#endregion
+
+export interface TypeDescriptionWidePropertyRule extends WidePropertyRuleBase {
+  type: "TypeDescription"
+}
+
+export type TypeDescriptionRuleParams = Omit<TypeDescriptionWidePropertyRule, "type">
+
+export function typeDescriptionRule<const Params extends TypeDescriptionRuleParams>(
+  params: WideExactRuleParams<TypeDescriptionRuleParams, Params>
+): Readonly<{ type: "TypeDescription" } & Params> {
+  return defineWidePropertyRule("TypeDescription", params)
+}

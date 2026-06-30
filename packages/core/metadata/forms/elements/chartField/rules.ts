@@ -1,24 +1,26 @@
+import { dataPathRule } from "~/metadata/commonObjects/metadataPath/types"
+import { eventsRule } from "~/metadata/forms/commonObjects/event/types"
+import { booleanRule } from "~/metadata/commonObjects/boolean/types"
+import { numberRule } from "~/metadata/commonObjects/number/types"
 import { registerElementRule } from "~/metadata/orchestration/formElement/ruleFactory"
 import { PropertyRule } from "~/metadata/orchestration/property/types"
 import { ElementRule } from "../../../orchestration/formElement/types"
 import { formFieldCommonProperties } from "../formField/rules"
 export type { ElementRule, PropertyRule }
-
 export const ChartFieldRules = {
   itemType: "ChartField",
   enterpriseField: "FormField",
   enterpriseFieldType: "FormFieldType.ChartField",
   properties: {
-    autoMaxHeight: { yaml: "АвтоМаксимальнаяВысота", type: "boolean", implicitValueYAML: true },
-    autoMaxWidth: { yaml: "АвтоМаксимальнаяШирина", type: "boolean", implicitValueYAML: true },
-    height: { yaml: "Высота", type: "number", implicitValueYAML: 10 },
-    horizontalStretch: { yaml: "РастягиватьПоГоризонтали", type: "boolean", implicitValueYAML: true },
-    maxHeight: { yaml: "МаксимальнаяВысота", type: "number", implicitValueYAML: 0 },
-    maxWidth: { yaml: "МаксимальнаяШирина", type: "number", implicitValueYAML: 0 },
-    verticalStretch: { yaml: "РастягиватьПоВертикали", type: "boolean", implicitValueYAML: true },
-    width: { yaml: "Ширина", type: "number", implicitValueYAML: 50 },
-    events: {
-      type: "Events",
+    autoMaxHeight: booleanRule({ yaml: "АвтоМаксимальнаяВысота", implicitValueYAML: true }),
+    autoMaxWidth: booleanRule({ yaml: "АвтоМаксимальнаяШирина", implicitValueYAML: true }),
+    height: numberRule({ yaml: "Высота", implicitValueYAML: 10 }),
+    horizontalStretch: booleanRule({ yaml: "РастягиватьПоГоризонтали", implicitValueYAML: true }),
+    maxHeight: numberRule({ yaml: "МаксимальнаяВысота", implicitValueYAML: 0 }),
+    maxWidth: numberRule({ yaml: "МаксимальнаяШирина", implicitValueYAML: 0 }),
+    verticalStretch: booleanRule({ yaml: "РастягиватьПоВертикали", implicitValueYAML: true }),
+    width: numberRule({ yaml: "Ширина", implicitValueYAML: 50 }),
+    events: eventsRule({
       yaml: "События",
       toEnterprise: false,
       items: {
@@ -27,17 +29,15 @@ export const ChartFieldRules = {
         detailProcessing: "ОбработкаРасшифровки",
         onActivate: "ПриАктивизации",
       },
-    },
-    dataPath: {
+    }),
+    dataPath: dataPathRule({
       yaml: "ПутьКДанным",
-      type: "DataPath",
       toYAML: false,
       fromYAML: false,
       defaultType: "Chart",
-    },
+    }),
     ...formFieldCommonProperties,
-    titleHeight: { yaml: "ВысотаЗаголовка", type: "number", implicitValueYAML: 0 },
+    titleHeight: numberRule({ yaml: "ВысотаЗаголовка", implicitValueYAML: 0 }),
   },
 } as const satisfies ElementRule
-
 registerElementRule("ChartField", ChartFieldRules)

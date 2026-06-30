@@ -6,7 +6,6 @@ import { afterEach, describe, expect, it, vi } from "vitest"
 import { mockContext } from "~/tests/mockContext"
 import { createProjectYamlCache } from "../projectYamlCache"
 import { createOwnerMetadataCache } from "./ownerCache"
-import type { KnownOwnerTypeKind } from "./types"
 
 describe("OwnerMetadataCache", () => {
   const tempDirs: string[] = []
@@ -102,7 +101,7 @@ describe("OwnerMetadataCache", () => {
     ["КритерийОтбора", "КритерийОтбора"],
     ["ХранилищеНастроек", "ХранилищеНастроек"],
     ["НумераторДокументов", "Нумератор"],
-  ] satisfies Array<[kind: KnownOwnerTypeKind, dir: string]>)("maps %s owner refs to %s directory", (kind, dir) => {
+  ] satisfies Array<[kind: string, dir: string]>)("maps %s owner refs to %s directory", (kind, dir) => {
     const projectDir = createProject()
     const cache = createOwnerMetadataCache({
       projectDir,

@@ -1,50 +1,54 @@
+import { dataPathRule } from "~/metadata/commonObjects/metadataPath/types"
+import { eventsRule } from "~/metadata/forms/commonObjects/event/types"
+import { ganttChartFieldTableRule } from "~/metadata/forms/commonObjects/ganttChartFieldTable/types"
+import { booleanRule } from "~/metadata/commonObjects/boolean/types"
+import { numberRule } from "~/metadata/commonObjects/number/types"
+import { systemEnumerationRule } from "~/metadata/systemEnumerations/types"
 import { registerElementRule } from "~/metadata/orchestration/formElement/ruleFactory"
 import { PropertyRule } from "~/metadata/orchestration/property/types"
 import { ElementRule } from "../../../orchestration/formElement/types"
 import { formFieldCommonProperties } from "../formField/rules"
 export type { ElementRule, PropertyRule }
-
 export const GanttChartFieldRules = {
   itemType: "GanttChartField",
   enterpriseField: "FormField",
   enterpriseFieldType: "FormFieldType.GanttChartField",
   properties: {
-    autoMaxHeight: { yaml: "АвтоМаксимальнаяВысота", type: "boolean", implicitValueYAML: true },
-    autoMaxWidth: { yaml: "АвтоМаксимальнаяШирина", type: "boolean", implicitValueYAML: true },
-    height: { yaml: "Высота", type: "number", implicitValueYAML: 10 },
-    horizontalLines: { yaml: "ГоризонтальныеЛинии", xml: "ShowHorizontalLinesFlag", type: "boolean", noImplicitValueYAML: true },
-    horizontalStretch: { yaml: "РастягиватьПоГоризонтали", type: "boolean", implicitValueYAML: true },
-    intervalsSelectionMode: {
+    autoMaxHeight: booleanRule({ yaml: "АвтоМаксимальнаяВысота", implicitValueYAML: true }),
+    autoMaxWidth: booleanRule({ yaml: "АвтоМаксимальнаяШирина", implicitValueYAML: true }),
+    height: numberRule({ yaml: "Высота", implicitValueYAML: 10 }),
+    horizontalLines: booleanRule({
+      yaml: "ГоризонтальныеЛинии",
+      xml: "ShowHorizontalLinesFlag",
+      noImplicitValueYAML: true,
+    }),
+    horizontalStretch: booleanRule({ yaml: "РастягиватьПоГоризонтали", implicitValueYAML: true }),
+    intervalsSelectionMode: systemEnumerationRule({
       yaml: "РежимВыделенияИнтервалов",
-      type: "SystemEnumeration",
       typeSE: "GanttChartIntervalsSelectionMode",
       implicitValueYAML: "Auto",
-    },
-    maxHeight: { yaml: "МаксимальнаяВысота", type: "number", implicitValueYAML: 0 },
-    maxWidth: { yaml: "МаксимальнаяШирина", type: "number", implicitValueYAML: 0 },
-    tableLocation: {
+    }),
+    maxHeight: numberRule({ yaml: "МаксимальнаяВысота", implicitValueYAML: 0 }),
+    maxWidth: numberRule({ yaml: "МаксимальнаяШирина", implicitValueYAML: 0 }),
+    tableLocation: systemEnumerationRule({
       yaml: "ПоложениеТаблицы",
-      type: "SystemEnumeration",
       typeSE: "GanttChartTableLocation",
       implicitValueYAML: "Auto",
-    },
-    table: {
+    }),
+    table: ganttChartFieldTableRule({
       yaml: "Таблица",
       xml: "Table",
-      type: "GanttChartFieldTable",
       toEnterprise: false,
-    },
-    valuesSelectionMode: {
+    }),
+    valuesSelectionMode: systemEnumerationRule({
       yaml: "РежимВыделенияЗначений",
-      type: "SystemEnumeration",
       typeSE: "GanttChartValuesSelectionMode",
       implicitValueYAML: "Auto",
-    },
-    verticalLines: { yaml: "ВертикальныеЛинии", xml: "ShowVerticalLinesFlag", type: "boolean", noImplicitValueYAML: true },
-    verticalStretch: { yaml: "РастягиватьПоВертикали", type: "boolean", implicitValueYAML: true },
-    width: { yaml: "Ширина", type: "number", implicitValueYAML: 50 },
-    events: {
-      type: "Events",
+    }),
+    verticalLines: booleanRule({ yaml: "ВертикальныеЛинии", xml: "ShowVerticalLinesFlag", noImplicitValueYAML: true }),
+    verticalStretch: booleanRule({ yaml: "РастягиватьПоВертикали", implicitValueYAML: true }),
+    width: numberRule({ yaml: "Ширина", implicitValueYAML: 50 }),
+    events: eventsRule({
       yaml: "События",
       toEnterprise: false,
       items: {
@@ -57,17 +61,15 @@ export const GanttChartFieldRules = {
         onActivateInterval: "ПриАктивизацииИнтервала",
         onIntervalEditEnd: "ПриОкончанииРедактированияИнтервала",
       },
-    },
-    dataPath: {
+    }),
+    dataPath: dataPathRule({
       yaml: "ПутьКДанным",
-      type: "DataPath",
       toYAML: false,
       fromYAML: false,
       defaultType: "GanttChart",
-    },
+    }),
     ...formFieldCommonProperties,
     titleHeight: { ...formFieldCommonProperties.titleHeight, implicitValueYAML: 0 },
   },
 } as const satisfies ElementRule
-
 registerElementRule("GanttChartField", GanttChartFieldRules)

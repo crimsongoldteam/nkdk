@@ -1,4 +1,9 @@
 import type { TypeDescription } from "~/metadata/commonObjects/typeDescription/types"
+import {
+  getOwnerKindByRegisterRecordSetBase,
+  getOwnerKindByTypeDescriptionBase,
+  resolveRegisteredDataPathType,
+} from "./registry"
 import type { DataPathTableInfo, DataPathTypeInfo, DataPathValueKind, OwnerTypeRef } from "./types"
 
 export interface TypeDescriptionToDataPathTypeInfoOptions {
@@ -13,40 +18,6 @@ const scalarTypes = new Set([
   "Null",
   "UUID",
 ])
-
-const ownerKindsByBaseType: Readonly<Record<string, OwnerTypeRef["kind"] | undefined>> = {
-  CatalogRef: "Справочник",
-  CatalogObject: "СправочникОбъект",
-  DocumentRef: "Документ",
-  DocumentObject: "ДокументОбъект",
-  EnumRef: "Перечисление",
-  InformationRegisterRecordManager: "РегистрСведений",
-  AccumulationRegisterRecordManager: "РегистрНакопления",
-  AccountingRegisterRecordManager: "РегистрБухгалтерии",
-  CalculationRegisterRecordManager: "РегистрРасчета",
-  ExchangePlanRef: "ПланОбмена",
-  ExchangePlanObject: "ПланОбменаОбъект",
-  ChartOfCalculationTypesRef: "ПланВидовРасчета",
-  ChartOfCalculationTypesObject: "ПланВидовРасчетаОбъект",
-  ChartOfCharacteristicTypesRef: "ПланВидовХарактеристик",
-  ChartOfCharacteristicTypesObject: "ПланВидовХарактеристикОбъект",
-  ChartOfAccountsRef: "ПланСчетов",
-  ChartOfAccountObject: "ПланСчетовОбъект",
-  ChartOfAccountsObject: "ПланСчетовОбъект",
-  DataProcessorObject: "ОбработкаОбъект",
-  ReportObject: "ОтчетОбъект",
-  BusinessProcessRef: "БизнесПроцесс",
-  BusinessProcessObject: "БизнесПроцессОбъект",
-  TaskRef: "Задача",
-  TaskObject: "ЗадачаОбъект",
-}
-
-const registerRecordSetOwnerKindsByBaseType: Readonly<Record<string, OwnerTypeRef["kind"] | undefined>> = {
-  InformationRegisterRecordSet: "РегистрСведений",
-  AccumulationRegisterRecordSet: "РегистрНакопления",
-  AccountingRegisterRecordSet: "РегистрБухгалтерии",
-  CalculationRegisterRecordSet: "РегистрРасчета",
-}
 
 export function typeDescriptionToDataPathTypeInfo(
   typeDescription: TypeDescription | undefined,
@@ -140,12 +111,23 @@ function mapType(type: string): {
   if (ownerRef !== undefined) return { kind: "object", nextType: ownerRef }
   if (scalarTypes.has(type)) return { kind: "scalar" }
 
+  const [baseType, name] = splitType(type)
+  const registered = resolveRegisteredDataPathType({ baseType, ...(name !== undefined ? { name } : {}) })
+  if (registered !== undefined) {
+    return {
+      kind: registered.kinds[0] ?? "unknown",
+      ...(registered.nextTypes[0] !== undefined ? { nextType: registered.nextTypes[0] } : {}),
+      ...(registered.definedTypes?.[0] !== undefined ? { definedType: registered.definedTypes[0] } : {}),
+      ...(registered.table !== undefined ? { table: registered.table } : {}),
+    }
+  }
+
   return { kind: "unsupportedIntermediate" }
 }
 
 function registerRecordSetOwnerTypeRefFromType(type: string): OwnerTypeRef | undefined {
   const [baseType, name] = splitType(type)
-  const kind = registerRecordSetOwnerKindsByBaseType[baseType]
+  const kind = getOwnerKindByRegisterRecordSetBase(baseType)
   if (kind === undefined) return undefined
   return {
     kind,
@@ -155,7 +137,7 @@ function registerRecordSetOwnerTypeRefFromType(type: string): OwnerTypeRef | und
 
 function ownerTypeRefFromType(type: string): OwnerTypeRef | undefined {
   const [baseType, name] = splitType(type)
-  const kind = ownerKindsByBaseType[baseType]
+  const kind = getOwnerKindByTypeDescriptionBase(baseType)
   if (kind === undefined) return undefined
   return {
     kind,

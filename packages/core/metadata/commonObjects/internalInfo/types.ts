@@ -1,3 +1,8 @@
+import {
+  definePropertyRule as defineWidePropertyRule,
+  type ExactRuleParams as WideExactRuleParams,
+} from "~/metadata/commonObjects/ruleBuilder"
+import type { PropertyRule as WidePropertyRuleBase } from "~/metadata/orchestration/property/types"
 import { Static, Type } from "@sinclair/typebox"
 
 export type InternalInfoItem = {
@@ -57,3 +62,15 @@ export const InternalInfoParamJSONSchema = Type.Object({
   category: Type.String(),
 })
 export type InternalInfoParamFromSchema = Static<typeof InternalInfoParamJSONSchema>
+
+export interface InternalInfoWidePropertyRule extends WidePropertyRuleBase {
+  type: "InternalInfo"
+}
+
+export type InternalInfoRuleParams = Omit<InternalInfoWidePropertyRule, "type">
+
+export function internalInfoRule<const Params extends InternalInfoRuleParams>(
+  params: WideExactRuleParams<InternalInfoRuleParams, Params>
+): Readonly<{ type: "InternalInfo" } & Params> {
+  return defineWidePropertyRule("InternalInfo", params)
+}
