@@ -1,4 +1,9 @@
 import {
+  definePropertyRule as defineWidePropertyRule,
+  type ExactRuleParams as WideExactRuleParams,
+} from "~/metadata/commonObjects/ruleBuilder"
+import type { PropertyRule as WidePropertyRuleBase } from "~/metadata/orchestration/property/types"
+import {
   MetadataCommands,
   MetadataCommandsXML,
   MetadataCommandsYAML,
@@ -199,4 +204,27 @@ export interface MetadataDocumentYAML {
   ТипНомера?: SE.DocumentNumberTypeYAML
   УдалениеДвижений?: SE.RegisterRecordsDeletionYAML
   Характеристики?: CharacteristicsDescriptionsYAML
+}
+
+export interface MetadataDocumentAttributesWidePropertyRule extends WidePropertyRuleBase {
+  type: "MetadataDocumentAttributes"
+}
+
+export type MetadataDocumentAttributesRuleParams = Omit<MetadataDocumentAttributesWidePropertyRule, "type">
+
+export function metadataDocumentAttributesRule<const Params extends MetadataDocumentAttributesRuleParams>(
+  params: WideExactRuleParams<MetadataDocumentAttributesRuleParams, Params>
+): Readonly<{ type: "MetadataDocumentAttributes" } & Params> {
+  return defineWidePropertyRule("MetadataDocumentAttributes", params)
+}
+export interface MetadataDocumentTabularSectionsWidePropertyRule extends WidePropertyRuleBase {
+  type: "MetadataDocumentTabularSections"
+}
+
+export type MetadataDocumentTabularSectionsRuleParams = Omit<MetadataDocumentTabularSectionsWidePropertyRule, "type">
+
+export function metadataDocumentTabularSectionsRule<const Params extends MetadataDocumentTabularSectionsRuleParams>(
+  params: WideExactRuleParams<MetadataDocumentTabularSectionsRuleParams, Params>
+): Readonly<{ type: "MetadataDocumentTabularSections" } & Params> {
+  return defineWidePropertyRule("MetadataDocumentTabularSections", params)
 }

@@ -1,9 +1,19 @@
+import {
+  definePropertyRule as defineWidePropertyRule,
+  type ExactRuleParams as WideExactRuleParams,
+} from "~/metadata/commonObjects/ruleBuilder"
+import type { PropertyRule as WidePropertyRuleBase } from "~/metadata/orchestration/property/types"
 import { Static, Type } from "@sinclair/typebox"
 import { definePropertyRule, type ExactRuleParams } from "~/metadata/commonObjects/ruleBuilder"
 import { BasePropertyRule } from "~/metadata/orchestration"
 import type { ExplicitYAMLString } from "~/yaml/explicitString"
 import { I8nText, I8nTextJSONSchema, I8nTextXML, I8nTextYAML } from "../i8nText/types"
-import { StandardPeriod, StandardPeriodXML, StandardPeriodYAML, StandardPeriodYAMLJSONSchema } from "../standardPeriod/types"
+import {
+  StandardPeriod,
+  StandardPeriodXML,
+  StandardPeriodYAML,
+  StandardPeriodYAMLJSONSchema,
+} from "../standardPeriod/types"
 
 //#region MetadataValue
 
@@ -311,4 +321,16 @@ export const assertValueType = (
   if (allowed !== undefined && !allowed.includes(actual)) {
     throw new Error(`MetadataValue: ожидались [${allowed.join(",")}], получен ${actual} в ${direction}`)
   }
+}
+
+export interface AssociatedTableWidePropertyRule extends WidePropertyRuleBase {
+  type: "AssociatedTable"
+}
+
+export type AssociatedTableRuleParams = Omit<AssociatedTableWidePropertyRule, "type">
+
+export function associatedTableRule<const Params extends AssociatedTableRuleParams>(
+  params: WideExactRuleParams<AssociatedTableRuleParams, Params>
+): Readonly<{ type: "AssociatedTable" } & Params> {
+  return defineWidePropertyRule("AssociatedTable", params)
 }

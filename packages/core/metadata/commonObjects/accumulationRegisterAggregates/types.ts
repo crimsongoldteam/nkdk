@@ -1,3 +1,8 @@
+import {
+  definePropertyRule as defineWidePropertyRule,
+  type ExactRuleParams as WideExactRuleParams,
+} from "~/metadata/commonObjects/ruleBuilder"
+import type { PropertyRule as WidePropertyRuleBase } from "~/metadata/orchestration/property/types"
 import { StringboolYAML, StringboolXML } from "~/metadata/commonObjects/boolean/types"
 import { registerMetadataItemCollectionRule, registerMetadataItemRule } from "~/metadata/orchestration"
 import { MetadataTypeByRule } from "~/metadata/orchestration/metadataItem/element"
@@ -41,3 +46,36 @@ registerMetadataItemRule({
   propertyType: "AccumulationRegisterAggregates",
   itemRule: AccumulationRegisterAggregatesRules,
 })
+
+export interface AccumulationRegisterAggregateCollectionWidePropertyRule extends WidePropertyRuleBase {
+  type: "AccumulationRegisterAggregateCollection"
+}
+
+export type AccumulationRegisterAggregateCollectionRuleParams = Omit<
+  AccumulationRegisterAggregateCollectionWidePropertyRule,
+  "type"
+>
+
+export function accumulationRegisterAggregateCollectionRule<
+  const Params extends AccumulationRegisterAggregateCollectionRuleParams,
+>(
+  params: WideExactRuleParams<AccumulationRegisterAggregateCollectionRuleParams, Params>
+): Readonly<{ type: "AccumulationRegisterAggregateCollection" } & Params> {
+  return defineWidePropertyRule("AccumulationRegisterAggregateCollection", params)
+}
+export interface AccumulationRegisterAggregateDimensionsWidePropertyRule extends WidePropertyRuleBase {
+  type: "AccumulationRegisterAggregateDimensions"
+}
+
+export type AccumulationRegisterAggregateDimensionsRuleParams = Omit<
+  AccumulationRegisterAggregateDimensionsWidePropertyRule,
+  "type"
+>
+
+export function accumulationRegisterAggregateDimensionsRule<
+  const Params extends AccumulationRegisterAggregateDimensionsRuleParams,
+>(
+  params: WideExactRuleParams<AccumulationRegisterAggregateDimensionsRuleParams, Params>
+): Readonly<{ type: "AccumulationRegisterAggregateDimensions" } & Params> {
+  return defineWidePropertyRule("AccumulationRegisterAggregateDimensions", params)
+}

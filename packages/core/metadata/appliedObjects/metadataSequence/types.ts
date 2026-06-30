@@ -1,3 +1,8 @@
+import {
+  definePropertyRule as defineWidePropertyRule,
+  type ExactRuleParams as WideExactRuleParams,
+} from "~/metadata/commonObjects/ruleBuilder"
+import type { PropertyRule as WidePropertyRuleBase } from "~/metadata/orchestration/property/types"
 import { AdditionalIndexesXML } from "~/metadata/commonObjects/additionalIndex/types"
 import { I8nTextXML } from "~/metadata/commonObjects/i8nText/types"
 import { InternalInfoItemsXML } from "~/metadata/commonObjects/internalInfo/types"
@@ -61,3 +66,15 @@ registerMetadataItemRule({
   propertyType: "MetadataSequence",
   itemRule: MetadataSequenceRules,
 })
+
+export interface MetadataSequenceDimensionsWidePropertyRule extends WidePropertyRuleBase {
+  type: "MetadataSequenceDimensions"
+}
+
+export type MetadataSequenceDimensionsRuleParams = Omit<MetadataSequenceDimensionsWidePropertyRule, "type">
+
+export function metadataSequenceDimensionsRule<const Params extends MetadataSequenceDimensionsRuleParams>(
+  params: WideExactRuleParams<MetadataSequenceDimensionsRuleParams, Params>
+): Readonly<{ type: "MetadataSequenceDimensions" } & Params> {
+  return defineWidePropertyRule("MetadataSequenceDimensions", params)
+}

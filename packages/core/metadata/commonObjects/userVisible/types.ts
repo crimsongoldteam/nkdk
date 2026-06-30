@@ -1,3 +1,8 @@
+import {
+  definePropertyRule as defineWidePropertyRule,
+  type ExactRuleParams as WideExactRuleParams,
+} from "~/metadata/commonObjects/ruleBuilder"
+import type { PropertyRule as WidePropertyRuleBase } from "~/metadata/orchestration/property/types"
 import { Static, Type } from "@sinclair/typebox"
 import { BooleanJSONSchema, StringboolXML } from "../boolean/types"
 
@@ -63,3 +68,15 @@ export type UserViewKeysYAML = (typeof UserViewKeysYAML)[keyof typeof UserViewKe
 export type UserEditKeysYAML = (typeof UserEditKeysYAML)[keyof typeof UserEditKeysYAML]
 export type UserViewYAML = UserVisibleYAML
 export type UserEditYAML = UserVisibleYAML
+
+export interface UserVisibleWidePropertyRule extends WidePropertyRuleBase {
+  type: "UserVisible"
+}
+
+export type UserVisibleRuleParams = Omit<UserVisibleWidePropertyRule, "type">
+
+export function userVisibleRule<const Params extends UserVisibleRuleParams>(
+  params: WideExactRuleParams<UserVisibleRuleParams, Params>
+): Readonly<{ type: "UserVisible" } & Params> {
+  return defineWidePropertyRule("UserVisible", params)
+}

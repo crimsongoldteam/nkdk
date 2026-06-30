@@ -1,3 +1,8 @@
+import {
+  definePropertyRule as defineWidePropertyRule,
+  type ExactRuleParams as WideExactRuleParams,
+} from "~/metadata/commonObjects/ruleBuilder"
+import type { PropertyRule as WidePropertyRuleBase } from "~/metadata/orchestration/property/types"
 import { Type } from "@sinclair/typebox"
 import * as SE from "~/metadata/systemEnumerations/types"
 import { MetadataPrimitiveValueXML } from "../metadataValue/types"
@@ -69,3 +74,15 @@ export const ChoiceParameterLinksJSONSchema = Type.Union([Type.String(), Type.Ar
 export type ChoiceParameterLinksYAML = string | ChoiceParameterLinkYAML[]
 
 //#endregion
+
+export interface ChoiceParameterLinksWidePropertyRule extends WidePropertyRuleBase {
+  type: "ChoiceParameterLinks"
+}
+
+export type ChoiceParameterLinksRuleParams = Omit<ChoiceParameterLinksWidePropertyRule, "type">
+
+export function choiceParameterLinksRule<const Params extends ChoiceParameterLinksRuleParams>(
+  params: WideExactRuleParams<ChoiceParameterLinksRuleParams, Params>
+): Readonly<{ type: "ChoiceParameterLinks" } & Params> {
+  return defineWidePropertyRule("ChoiceParameterLinks", params)
+}

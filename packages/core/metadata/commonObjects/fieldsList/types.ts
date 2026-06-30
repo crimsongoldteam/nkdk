@@ -1,3 +1,8 @@
+import {
+  definePropertyRule as defineWidePropertyRule,
+  type ExactRuleParams as WideExactRuleParams,
+} from "~/metadata/commonObjects/ruleBuilder"
+import type { PropertyRule as WidePropertyRuleBase } from "~/metadata/orchestration/property/types"
 import { Static, Type } from "@sinclair/typebox"
 import type { BasePropertyRule } from "~/metadata/orchestration/property/types"
 
@@ -18,3 +23,15 @@ export interface FieldsListPropertyRule extends BasePropertyRule {
 export const FieldsListJSONSchema = Type.Array(Type.String())
 
 export type FieldsListYAML = Static<typeof FieldsListJSONSchema>
+
+export interface FieldsListWidePropertyRule extends WidePropertyRuleBase {
+  type: "FieldsList"
+}
+
+export type FieldsListRuleParams = Omit<FieldsListWidePropertyRule, "type">
+
+export function fieldsListRule<const Params extends FieldsListRuleParams>(
+  params: WideExactRuleParams<FieldsListRuleParams, Params>
+): Readonly<{ type: "FieldsList" } & Params> {
+  return defineWidePropertyRule("FieldsList", params)
+}

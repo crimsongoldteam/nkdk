@@ -1,3 +1,8 @@
+import {
+  definePropertyRule as defineWidePropertyRule,
+  type ExactRuleParams as WideExactRuleParams,
+} from "~/metadata/commonObjects/ruleBuilder"
+import type { PropertyRule as WidePropertyRuleBase } from "~/metadata/orchestration/property/types"
 import { registerMetadataItemCollectionRule } from "~/metadata/orchestration"
 import { FormTypeByRule } from "~/metadata/orchestration/metadataItem/element"
 import { YAMLTypeByRule } from "~/metadata/orchestration/metadataItem/yaml"
@@ -28,3 +33,15 @@ registerMetadataItemCollectionRule({
   toJSONSchema: exportFilterItemToJSONSchema,
   yamlAsArray: true,
 })
+
+export interface FilterItemPresentationValueWidePropertyRule extends WidePropertyRuleBase {
+  type: "FilterItemPresentationValue"
+}
+
+export type FilterItemPresentationValueRuleParams = Omit<FilterItemPresentationValueWidePropertyRule, "type">
+
+export function filterItemPresentationValueRule<const Params extends FilterItemPresentationValueRuleParams>(
+  params: WideExactRuleParams<FilterItemPresentationValueRuleParams, Params>
+): Readonly<{ type: "FilterItemPresentationValue" } & Params> {
+  return defineWidePropertyRule("FilterItemPresentationValue", params)
+}

@@ -1,3 +1,8 @@
+import {
+  definePropertyRule as defineWidePropertyRule,
+  type ExactRuleParams as WideExactRuleParams,
+} from "~/metadata/commonObjects/ruleBuilder"
+import type { PropertyRule as WidePropertyRuleBase } from "~/metadata/orchestration/property/types"
 import { Static, Type } from "@sinclair/typebox"
 import { StringboolXML } from "~/metadata/commonObjects/boolean/types"
 import { DataPath, DataPathXML, DataPathYAML } from "~/metadata/forms/commonObjects/dataPath/types"
@@ -77,3 +82,15 @@ export type CommandInterfaceItemYAML = Static<typeof CommandInterfaceItemJSONSch
 }
 
 //#endregion
+
+export interface CommandInterfaceWidePropertyRule extends WidePropertyRuleBase {
+  type: "CommandInterface"
+}
+
+export type CommandInterfaceRuleParams = Omit<CommandInterfaceWidePropertyRule, "type">
+
+export function commandInterfaceRule<const Params extends CommandInterfaceRuleParams>(
+  params: WideExactRuleParams<CommandInterfaceRuleParams, Params>
+): Readonly<{ type: "CommandInterface" } & Params> {
+  return defineWidePropertyRule("CommandInterface", params)
+}

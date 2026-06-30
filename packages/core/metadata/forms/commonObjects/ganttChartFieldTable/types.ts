@@ -1,3 +1,8 @@
+import {
+  definePropertyRule as defineWidePropertyRule,
+  type ExactRuleParams as WideExactRuleParams,
+} from "~/metadata/commonObjects/ruleBuilder"
+import type { PropertyRule as WidePropertyRuleBase } from "~/metadata/orchestration/property/types"
 import type { TSchema } from "@sinclair/typebox"
 import { getParentFromContext } from "~/metadata/context/helpers"
 import type {
@@ -174,3 +179,15 @@ registerTypeRule("GanttChartFieldTable", "exportToXML", exportGanttChartFieldTab
 registerTypeRule("GanttChartFieldTable", "exportToYAML", exportGanttChartFieldTableToYAML)
 registerTypeRule("GanttChartFieldTable", "importFromYAML", importGanttChartFieldTableFromYAML)
 registerTypeRule("GanttChartFieldTable", "exportToJSONSchema", exportGanttChartFieldTableToJSONSchema)
+
+export interface GanttChartFieldTableWidePropertyRule extends WidePropertyRuleBase {
+  type: "GanttChartFieldTable"
+}
+
+export type GanttChartFieldTableRuleParams = Omit<GanttChartFieldTableWidePropertyRule, "type">
+
+export function ganttChartFieldTableRule<const Params extends GanttChartFieldTableRuleParams>(
+  params: WideExactRuleParams<GanttChartFieldTableRuleParams, Params>
+): Readonly<{ type: "GanttChartFieldTable" } & Params> {
+  return defineWidePropertyRule("GanttChartFieldTable", params)
+}

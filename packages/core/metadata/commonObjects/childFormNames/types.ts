@@ -1,3 +1,8 @@
+import {
+  definePropertyRule as defineWidePropertyRule,
+  type ExactRuleParams as WideExactRuleParams,
+} from "~/metadata/commonObjects/ruleBuilder"
+import type { PropertyRule as WidePropertyRuleBase } from "~/metadata/orchestration/property/types"
 import type { BasePropertyRule } from "~/metadata/orchestration/property/types"
 
 /** Правило property-типа ChildFormNames — список имён форм в ChildObjects XML.
@@ -13,4 +18,16 @@ export interface ChildFormNamesPropertyRule extends BasePropertyRule {
   /** Имя папки на диске, например "Формы" */
   folderName: string
   forReferenceOnly: true
+}
+
+export interface ChildFormNamesWidePropertyRule extends WidePropertyRuleBase {
+  type: "ChildFormNames"
+}
+
+export type ChildFormNamesRuleParams = Omit<ChildFormNamesWidePropertyRule, "type">
+
+export function childFormNamesRule<const Params extends ChildFormNamesRuleParams>(
+  params: WideExactRuleParams<ChildFormNamesRuleParams, Params>
+): Readonly<{ type: "ChildFormNames" } & Params> {
+  return defineWidePropertyRule("ChildFormNames", params)
 }
