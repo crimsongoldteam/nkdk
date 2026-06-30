@@ -201,6 +201,11 @@ export const fullMetadataAttributes: MetadataAttributes = [
   },
 ]
 
+const { binaryDataStorageLocationUse, ...fullMetadataAttributeFromCompactYAML } = fullMetadataAttributes[0]
+void binaryDataStorageLocationUse
+
+export const fullMetadataAttributesFromCompactYAML: MetadataAttributes = [fullMetadataAttributeFromCompactYAML]
+
 export const fullMetadataAttributesYAML: MetadataAttributesYAML = {
   ТестовыйРеквизит: {
     Тип: "Строка",

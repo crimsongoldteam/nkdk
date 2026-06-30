@@ -16,6 +16,17 @@ export const content: ExchangePlanContent = {
   ],
 }
 
+export const contentFromCompactYAML: ExchangePlanContent = {
+  itemType: "ExchangePlanContent",
+  items: [
+    {
+      itemType: "ExchangePlanContentItem",
+      metadata: "Catalog.Номенклатура",
+    },
+    content.items[1],
+  ],
+}
+
 export const contentYAML: ExchangePlanContentYAML = [
   {
     Метаданные: "Справочник.Номенклатура",

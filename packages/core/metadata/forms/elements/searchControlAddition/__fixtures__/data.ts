@@ -141,6 +141,30 @@ export const fullSearchControlAddition: SearchControlAddition = {
   name: "ДополнениеУправлениеПоиском",
 }
 
+const {
+  autoMaxWidth: fullSingleSearchControlAdditionAutoMaxWidth,
+  enabled: fullSingleSearchControlAdditionEnabled,
+  extendedTooltip: fullSingleSearchControlAdditionExtendedTooltip,
+  ...fullSingleSearchControlAdditionFromCompactYAML
+} = fullSingleSearchControlAddition
+const {
+  autoMaxHeight: fullSearchControlAdditionExtendedTooltipAutoMaxHeight,
+  autoMaxWidth: fullSearchControlAdditionExtendedTooltipAutoMaxWidth,
+  ...fullSearchControlAdditionExtendedTooltipFromCompactYAML
+} = fullSingleSearchControlAdditionExtendedTooltip
+void fullSingleSearchControlAdditionAutoMaxWidth
+void fullSingleSearchControlAdditionEnabled
+void fullSearchControlAdditionExtendedTooltipAutoMaxHeight
+void fullSearchControlAdditionExtendedTooltipAutoMaxWidth
+
+export const fullSearchControlAdditionFromCompactYAML: SearchControlAddition = {
+  ...fullSingleSearchControlAdditionFromCompactYAML,
+  extendedTooltip: fullSearchControlAdditionExtendedTooltipFromCompactYAML,
+  itemType: "SearchControlAddition",
+  additionSource: "РодительскийЭлемент",
+  name: "ДополнениеУправлениеПоиском",
+}
+
 export const minimalSearchControlAddition: SearchControlAddition = {
   itemType: "SearchControlAddition",
   name: "ДополнениеУправлениеПоиском",

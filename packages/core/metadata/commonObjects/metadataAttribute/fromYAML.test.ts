@@ -2,6 +2,7 @@ import { TypeCompiler } from "@sinclair/typebox/compiler"
 import { describe, expect, it } from "vitest"
 import {
   fullMetadataAttributes,
+  fullMetadataAttributesFromCompactYAML,
   fullMetadataAttributesYAML,
   minimalMetadataAttributes,
   minimalMetadataAttributesYAML,
@@ -36,7 +37,7 @@ describe("import MetadataAttributes from YAML", () => {
       rule,
       value: fullMetadataAttributesYAML,
     })
-    expect(result).toEqual(fullMetadataAttributes)
+    expect(result).toEqual(fullMetadataAttributesFromCompactYAML)
   })
 
   it("should import minimal", () => {

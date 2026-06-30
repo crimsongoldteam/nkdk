@@ -84,6 +84,17 @@ export const fullSearchStringAddition: SearchStringAddition = {
   name: "КакойТоЭлементСтрокаПоиска",
 }
 
+const { enabled: fullSingleSearchStringAdditionEnabled, ...fullSingleSearchStringAdditionFromCompactYAML } =
+  fullSingleSearchStringAddition
+void fullSingleSearchStringAdditionEnabled
+
+export const fullSearchStringAdditionFromCompactYAML: SearchStringAddition = {
+  ...fullSingleSearchStringAdditionFromCompactYAML,
+  itemType: "SearchStringAddition",
+  additionSource: "КакойТоЭлемент",
+  name: "КакойТоЭлементСтрокаПоиска",
+}
+
 export const minimalSearchStringAddition: SearchStringAddition = {
   itemType: "SearchStringAddition",
   name: "КакойТоЭлементСтрокаПоиска",

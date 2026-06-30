@@ -234,12 +234,14 @@ import {
 } from "../radioButtonField/__fixtures__/data"
 import {
   fullSearchControlAddition,
+  fullSearchControlAdditionFromCompactYAML,
   fullSearchControlAdditionYAML,
   minimalSearchControlAddition,
   sourceSearchControlAddition,
 } from "../searchControlAddition/__fixtures__/data"
 import {
   fullSearchStringAddition,
+  fullSearchStringAdditionFromCompactYAML,
   fullSearchStringAdditionYAML,
   minimalSearchStringAddition,
   sourceSearchStringAddition,
@@ -1229,6 +1231,7 @@ export const ElementFixtures: ElementFixture[] = [
     xml: "full.xml",
     xmlFolder: undefined,
     model: fullSearchStringAddition,
+    yamlModel: fullSearchStringAdditionFromCompactYAML,
     source: sourceSearchStringAddition,
     yaml: fullSearchStringAdditionYAML,
     enterprise: undefined,
@@ -1253,6 +1256,7 @@ export const ElementFixtures: ElementFixture[] = [
     xml: "full.xml",
     xmlFolder: undefined,
     model: fullSearchControlAddition,
+    yamlModel: fullSearchControlAdditionFromCompactYAML,
     source: sourceSearchControlAddition,
     yaml: fullSearchControlAdditionYAML,
     enterprise: undefined,

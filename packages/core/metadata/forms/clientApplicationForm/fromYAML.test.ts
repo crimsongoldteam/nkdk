@@ -26,7 +26,11 @@ type ClientApplicationFormWithCustomSettingsFolder = ClientApplicationForm & {
 const fullClientApplicationFormFromYAML = {
   parameters: fullClientApplicationForm.parameters,
   commands: fullClientApplicationForm.commands,
-  autoCommandBar: fullClientApplicationForm.autoCommandBar,
+  autoCommandBar: {
+    itemType: "AutoCommandBar",
+    autofill: false,
+    childItems: [],
+  },
   commandInterface: fullClientApplicationForm.commandInterface,
   attributes: fullClientApplicationForm.attributes,
   autoSaveDataInSettings: fullClientApplicationForm.autoSaveDataInSettings,
