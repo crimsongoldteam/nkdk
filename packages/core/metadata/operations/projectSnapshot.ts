@@ -40,7 +40,7 @@ export async function buildMetadataOperationSnapshot(params: {
   const context = params.context ?? defaultMetadataOperationsContext()
 
   if (params.requireValidProject) {
-    const validation = await validateProject({ projectDir, context })
+    const validation = await validateProject({ projectDir, context, concurrency: 1 })
     const errors = validation.diagnostics.filter((diagnostic) => diagnostic.severity === "error")
     if (errors.length > 0) {
       return {
