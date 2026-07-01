@@ -2,6 +2,11 @@ import { Type } from "@sinclair/typebox"
 import { TypeCompiler, ValueErrorType } from "@sinclair/typebox/compiler"
 import { parseMetadataYaml } from "~/yaml/parseMetadataYaml"
 import { describe, expect, it } from "vitest"
+import {
+  expandDiscriminatedUnionErrors,
+  getDiscriminatedUnionExpansionContextBuildCountForTests,
+  resetDiscriminatedUnionExpansionContextCacheForTests,
+} from "./discriminatedUnionErrors"
 import { typeboxErrorsToDiagnostics } from "./typeboxErrorsToDiagnostics"
 import { validateFile, validateParsedFile } from "./validateFile"
 
@@ -312,6 +317,20 @@ describe("validateFile", () => {
         }),
       ])
     )
+  })
+
+  it("кэширует контекст ссылок для повторного раскрытия одной TypeCheck-схемы", () => {
+    resetDiscriminatedUnionExpansionContextCacheForTests()
+    const parsed = parseMetadataYaml(
+      `Элементы:\n  Группа1:\n    Вид: Группа\n    Элементы:\n      Надпись1:\n        Вид: Надпись\n        Заголовок: 123\n`
+    )
+    const errors = [...referencedNestedDiscriminatedUnionSchema.Errors(parsed.data)]
+
+    const first = expandDiscriminatedUnionErrors(errors, referencedNestedDiscriminatedUnionSchema)
+    const second = expandDiscriminatedUnionErrors(errors, referencedNestedDiscriminatedUnionSchema)
+
+    expect(second).toEqual(first)
+    expect(getDiscriminatedUnionExpansionContextBuildCountForTests()).toBe(1)
   })
 
   it("оставляет Type.Ref union без падения при прямом вызове diagnostics без root schema", () => {
