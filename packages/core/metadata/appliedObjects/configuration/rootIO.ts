@@ -93,6 +93,7 @@ export const readConfigurationFromYAML = (params: {
     yaml: yamlObject,
     source: filterFilePathSourceForYAMLImport({ yaml: yamlObject, source: params.source }),
     rule: MetadataConfigurationRules,
+    name: typeof yamlObject?.Имя === "string" ? yamlObject.Имя : undefined,
   }) as MetadataConfiguration | undefined
 }
 

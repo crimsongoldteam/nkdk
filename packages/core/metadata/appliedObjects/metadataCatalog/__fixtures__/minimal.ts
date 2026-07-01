@@ -11,6 +11,4 @@ export const minimal: MetadataCatalog = {
   },
 }
 
-export const minimalYAML: MetadataCatalogYAML = {
-  Синоним: "По умолчанию",
-}
+export const minimalYAML: MetadataCatalogYAML = {}

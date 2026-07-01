@@ -197,16 +197,17 @@ function validateProjectProperties(params: {
       : params.file.kind === "properties"
         ? params.file.owner.name
         : undefined
+  const equalNameDiagnostics = validateExcludedEqualNameYAML({
+    filePath: params.file.absolutePath,
+    parsed,
+    rule: params.file.owner.spec.rule,
+    context: params.context,
+    name: equalNameValidationName,
+  })
 
   return [
-    ...diagnostics,
-    ...validateExcludedEqualNameYAML({
-      filePath: params.file.absolutePath,
-      parsed,
-      rule: params.file.owner.spec.rule,
-      context: params.context,
-      name: equalNameValidationName,
-    }),
+    ...suppressEqualNameSchemaDiagnostics(diagnostics, equalNameDiagnostics),
+    ...equalNameDiagnostics,
     ...validateUniqueNameScopes({
       filePath: params.file.absolutePath,
       parsed,
@@ -266,6 +267,24 @@ function parsedForProjectFile(file: ValidationProjectFile, parsed: ParsedYaml): 
   }
 
   return parsed
+}
+
+function suppressEqualNameSchemaDiagnostics(
+  schemaDiagnostics: Diagnostic[],
+  equalNameDiagnostics: Diagnostic[]
+): Diagnostic[] {
+  if (equalNameDiagnostics.length === 0) return schemaDiagnostics
+
+  return schemaDiagnostics.filter((diagnostic) => !isCoveredByEqualNameDiagnostic(diagnostic, equalNameDiagnostics))
+}
+
+function isCoveredByEqualNameDiagnostic(diagnostic: Diagnostic, equalNameDiagnostics: Diagnostic[]): boolean {
+  if (diagnostic.source !== "structure" || diagnostic.path === undefined) return false
+
+  return equalNameDiagnostics.some((equalNameDiagnostic) => {
+    const equalNamePath = equalNameDiagnostic.path
+    return equalNamePath === diagnostic.path || equalNamePath?.startsWith(`${diagnostic.path}/`) === true
+  })
 }
 
 function importPropertiesModel(params: {

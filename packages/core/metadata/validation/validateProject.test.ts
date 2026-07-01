@@ -667,7 +667,7 @@ describe("validateProject", { timeout: 30_000 }, () => {
 
     validateProject({ projectDir, context: mockContext })
 
-    expect(compile).toHaveBeenCalledTimes(3)
+    expect(compile).toHaveBeenCalledTimes(4)
   })
 
   it("validates MetadataObjectRefCollection targets from rules metadataTarget", () => {
