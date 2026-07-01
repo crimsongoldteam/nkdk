@@ -23,7 +23,6 @@ describe("registerNkdkCapabilities", () => {
       "nkdk.import_from_xml",
       "nkdk.sync_to_xml",
       "nkdk.init_sync_state",
-      "nkdk.list_operation_targets",
       "nkdk.rename_item",
       "nkdk.delete_item",
     ])

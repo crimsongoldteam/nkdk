@@ -2,8 +2,7 @@ import { describe, expect, it, vi } from "vitest"
 import { renameItem } from "./renameItem"
 
 describe("renameItem service", () => {
-  it("passes structured target to core", async () => {
-    const target = { kind: "object" as const, itemTypePrefix: "Справочник", name: "Товары" }
+  it("passes operation path to core", async () => {
     const coreResult = {
       ok: true,
       mode: "applied",
@@ -16,7 +15,7 @@ describe("renameItem service", () => {
     const result = await renameItem(
       {
         projectDir: "/project",
-        target,
+        path: "Справочник.Товары",
         newName: "Номенклатура",
         allowWrite: true,
       },
@@ -25,7 +24,7 @@ describe("renameItem service", () => {
 
     expect(renameMetadataItem).toHaveBeenCalledWith({
       projectDir: "/project",
-      target,
+      path: "Справочник.Товары",
       newName: "Номенклатура",
       allowWrite: true,
     })

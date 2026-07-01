@@ -2,12 +2,7 @@ import { describe, expect, it, vi } from "vitest"
 import { deleteItem } from "./deleteItem"
 
 describe("deleteItem service", () => {
-  it("passes structured target to core without requiring write mode", async () => {
-    const target = {
-      kind: "attribute" as const,
-      owner: { itemTypePrefix: "Справочник", name: "Товары" },
-      name: "Артикул",
-    }
+  it("passes operation path to core without requiring write mode", async () => {
     const coreResult = {
       ok: true,
       mode: "plan",
@@ -20,14 +15,14 @@ describe("deleteItem service", () => {
     const result = await deleteItem(
       {
         projectDir: "/project",
-        target,
+        path: "Справочник.Товары",
       },
       { deleteMetadataItem },
     )
 
     expect(deleteMetadataItem).toHaveBeenCalledWith({
       projectDir: "/project",
-      target,
+      path: "Справочник.Товары",
       allowWrite: undefined,
     })
     expect(result).toEqual(coreResult)

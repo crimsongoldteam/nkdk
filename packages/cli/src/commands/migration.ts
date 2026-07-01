@@ -12,39 +12,15 @@ import {
   validateAppliedMigrationTarget,
   writeMigrationFile,
   type MetadataOperationResult,
-  type MetadataOperationTarget,
   type MigrationConflict,
   type MigrationEntry,
   type StructuralState,
 } from "@nakidka/core"
 
-export function parseOperationTargetPath(path: string): MetadataOperationTarget {
-  const parts = path.split(".")
-  if (parts.length === 2) return { kind: "object", itemTypePrefix: parts[0]!, name: parts[1]! }
-  if (parts.length === 4 && parts[2] === "Реквизит") {
-    return { kind: "attribute", owner: { itemTypePrefix: parts[0]!, name: parts[1]! }, name: parts[3]! }
-  }
-  if (parts.length === 4 && parts[2] === "ТабличнаяЧасть") {
-    return { kind: "tabularSection", owner: { itemTypePrefix: parts[0]!, name: parts[1]! }, name: parts[3]! }
-  }
-  if (parts.length === 6 && parts[2] === "ТабличнаяЧасть" && parts[4] === "Реквизит") {
-    return {
-      kind: "attribute",
-      owner: { itemTypePrefix: parts[0]!, name: parts[1]! },
-      parent: { kind: "tabularSection", name: parts[3]! },
-      name: parts[5]!,
-    }
-  }
-  if (parts.length === 4 && parts[2] === "Форма") {
-    return { kind: "fileItem", owner: { itemTypePrefix: parts[0]!, name: parts[1]! }, role: "form", name: parts[3]! }
-  }
-  throw new Error(`Неподдерживаемый путь metadata-операции: ${path}`)
-}
-
 export function renameMigration(yamlDir: string, path: string, newName: string, allowWrite = false): void {
   printOperationResult(renameMetadataItem({
     projectDir: yamlDir,
-    target: parseOperationTargetPath(path),
+    path,
     newName,
     allowWrite,
   }))
@@ -53,7 +29,7 @@ export function renameMigration(yamlDir: string, path: string, newName: string, 
 export function deleteMigration(yamlDir: string, path: string, allowWrite = false): void {
   printOperationResult(deleteMetadataItem({
     projectDir: yamlDir,
-    target: parseOperationTargetPath(path),
+    path,
     allowWrite,
   }))
 }

@@ -1,21 +1,5 @@
 import type { Diagnostic } from "~/metadata/validation/types"
 
-export type MetadataOperationTarget =
-  | MetadataObjectOperationTarget
-  | MetadataNamedChildOperationTarget
-  | MetadataFileItemOperationTarget
-
-export interface MetadataOperationOwnerTarget {
-  itemTypePrefix: string
-  name: string
-}
-
-export interface MetadataObjectOperationTarget {
-  kind: "object"
-  itemTypePrefix: string
-  name: string
-}
-
 export type MetadataNamedChildKind =
   | "attribute"
   | "tabularSection"
@@ -24,24 +8,7 @@ export type MetadataNamedChildKind =
   | "addressingAttribute"
   | "command"
 
-export interface MetadataNamedChildOperationTarget {
-  kind: MetadataNamedChildKind
-  owner: MetadataOperationOwnerTarget
-  parent?: {
-    kind: "tabularSection"
-    name: string
-  }
-  name: string
-}
-
 export type MetadataFileItemRole = "form" | "template" | "command"
-
-export interface MetadataFileItemOperationTarget {
-  kind: "fileItem"
-  owner: MetadataOperationOwnerTarget
-  role: MetadataFileItemRole
-  name: string
-}
 
 export type MetadataOperationMode = "plan" | "applied"
 

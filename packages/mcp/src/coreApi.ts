@@ -1,8 +1,6 @@
 import type {
-  ListMetadataOperationTargetsResult,
   MetadataOperationChangedXmlFile,
   MetadataOperationResult,
-  MetadataOperationTarget,
   MigrationChainInvalidResult,
   MigrationPlanItem,
 } from "@nakidka/core"
@@ -97,22 +95,15 @@ export interface CoreApi {
     depth?: number
   }): MetadataProjectDirectoryStructure
   validateProject(params: { projectDir: string; filePath?: string }): { diagnostics: Diagnostic[] }
-  listMetadataOperationTargets(params: {
-    projectDir: string
-    query?: string
-    kind?: MetadataOperationTarget["kind"]
-    owner?: { itemTypePrefix: string; name: string }
-    limit?: number
-  }): ListMetadataOperationTargetsResult
   renameMetadataItem(params: {
     projectDir: string
-    target: MetadataOperationTarget
+    path: string
     newName: string
     allowWrite?: boolean
   }): MetadataOperationResult
   deleteMetadataItem(params: {
     projectDir: string
-    target: MetadataOperationTarget
+    path: string
     allowWrite?: boolean
   }): MetadataOperationResult
   planSyncToXml(params: { inputDir: string; outputDir: string; referenceDir?: string }): Promise<

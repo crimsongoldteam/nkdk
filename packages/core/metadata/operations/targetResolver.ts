@@ -7,7 +7,7 @@ import type { MetadataRuleOperationTargetDescriptor } from "~/metadata/project/r
 import { describeMetadataRuleOperationTargets } from "~/metadata/project/ruleResources"
 import type { ParsedMetadataOperationPath, ParsedMetadataOperationPathSegment } from "./operationPath"
 import type { MetadataOperationSnapshot, OperationSnapshotItem } from "./projectSnapshot"
-import type { MetadataOperationTarget } from "./types"
+import type { MetadataFileItemRole, MetadataNamedChildKind } from "./types"
 
 type FileItemTargetDescriptor = MetadataRuleOperationTargetDescriptor & {
   declaration: Extract<MetadataRuleOperationTargetDescriptor["declaration"], { kind: "fileItemCollectionTarget" }>
@@ -15,7 +15,6 @@ type FileItemTargetDescriptor = MetadataRuleOperationTargetDescriptor & {
 
 export interface ResolvedMetadataOperationTarget {
   ok: true
-  target: MetadataOperationTarget
   displayPath: string
   item: OperationSnapshotItem
   modelNode: Record<string, unknown>
@@ -40,9 +39,8 @@ export interface ResolveMetadataOperationTargetFailure {
 
 export function resolveMetadataOperationTarget(
   snapshot: MetadataOperationSnapshot,
-  target: ParsedMetadataOperationPath | MetadataOperationTarget,
+  path: ParsedMetadataOperationPath,
 ): ResolvedMetadataOperationTarget | ResolveMetadataOperationTargetFailure {
-  const path = isParsedMetadataOperationPath(target) ? target : legacyTargetToParsedPath(target)
   if (path.chain.length === 0) return resolveObjectTarget(snapshot, path)
   return resolveChainedTarget(snapshot, path)
 }
@@ -57,7 +55,6 @@ function resolveObjectTarget(
   const displayPath = `${path.owner.itemTypePrefix}.${path.owner.name}`
   return {
     ok: true,
-    target: { kind: "object", itemTypePrefix: path.owner.itemTypePrefix, name: path.owner.name },
     displayPath,
     item,
     modelNode: item.model,
@@ -86,7 +83,6 @@ function resolveChainedTarget(
   let currentNode = item.model
   const displayParts = [path.owner.itemTypePrefix, path.owner.name]
   const canonicalParts = [canonicalObjectPrefix(path.owner.itemTypePrefix, path.owner.name)]
-  const visitedNamedSegments: Array<{ kind: MetadataOperationTargetKind; name: string }> = []
 
   for (let index = 0; index < path.chain.length; index += 1) {
     const segment = path.chain[index]!
@@ -119,13 +115,11 @@ function resolveChainedTarget(
 
     displayParts.push(descriptor.declaration.migrationSegment, segment.name)
     canonicalParts.push(canonicalNamedKind(descriptor.declaration.targetKind), segment.name)
-    visitedNamedSegments.push({ kind: descriptor.declaration.targetKind, name: segment.name })
 
     if (index === path.chain.length - 1) {
       const displayPath = displayParts.join(".")
       return {
         ok: true,
-        target: legacyNamedTarget(path, visitedNamedSegments),
         displayPath,
         item,
         modelNode,
@@ -176,12 +170,6 @@ function resolveFileItemTarget(params: {
   const displayPath = [...params.displayParts, params.descriptor.declaration.migrationSegment, params.segment.name].join(".")
   return {
     ok: true,
-    target: {
-      kind: "fileItem",
-      owner: params.path.owner,
-      role: params.descriptor.declaration.role,
-      name: params.segment.name,
-    },
     displayPath,
     item: params.item,
     modelNode: { name: params.segment.name },
@@ -256,9 +244,7 @@ function canonicalObjectPrefix(itemTypePrefix: string, name: string): string {
   return `${rootFromYAML[itemTypePrefix] ?? itemTypePrefix}.${name}`
 }
 
-type MetadataOperationTargetKind = Exclude<MetadataOperationTarget, { kind: "object" } | { kind: "fileItem" }>["kind"]
-
-function canonicalNamedKind(kind: MetadataOperationTargetKind): string {
+function canonicalNamedKind(kind: MetadataNamedChildKind): string {
   if (kind === "attribute") return "Attribute"
   if (kind === "tabularSection") return "TabularSection"
   if (kind === "dimension") return "Dimension"
@@ -267,73 +253,10 @@ function canonicalNamedKind(kind: MetadataOperationTargetKind): string {
   return "Command"
 }
 
-function canonicalFileItemKind(role: Extract<MetadataOperationTarget, { kind: "fileItem" }>["role"]): string {
+function canonicalFileItemKind(role: MetadataFileItemRole): string {
   if (role === "form") return "Form"
   if (role === "template") return "Template"
   return "Command"
-}
-
-function isParsedMetadataOperationPath(value: ParsedMetadataOperationPath | MetadataOperationTarget): value is ParsedMetadataOperationPath {
-  return "ok" in value && value.ok === true && "chain" in value
-}
-
-function legacyTargetToParsedPath(target: MetadataOperationTarget): ParsedMetadataOperationPath {
-  if (target.kind === "object") {
-    return {
-      ok: true,
-      path: `${target.itemTypePrefix}.${target.name}`,
-      owner: { itemTypePrefix: target.itemTypePrefix, name: target.name },
-      chain: [],
-      localName: target.name,
-    }
-  }
-
-  const owner = target.owner
-  const chain: ParsedMetadataOperationPathSegment[] = []
-  if (target.kind !== "fileItem" && target.parent !== undefined) {
-    chain.push({ collectionSegment: "ТабличнаяЧасть", name: target.parent.name })
-  }
-  chain.push({
-    collectionSegment: target.kind === "fileItem" ? legacyFileRoleSegment(target.role) : legacyNamedKindSegment(target.kind),
-    name: target.name,
-  })
-
-  return {
-    ok: true,
-    path: [owner.itemTypePrefix, owner.name, ...chain.flatMap((item) => [item.collectionSegment, item.name])].join("."),
-    owner,
-    chain,
-    localName: target.name,
-  }
-}
-
-function legacyNamedTarget(
-  path: ParsedMetadataOperationPath,
-  segments: Array<{ kind: MetadataOperationTargetKind; name: string }>,
-): Exclude<MetadataOperationTarget, { kind: "object" } | { kind: "fileItem" }> {
-  const last = segments.length > 0 ? segments[segments.length - 1] : undefined
-  if (!last) {
-    return { kind: "attribute", owner: path.owner, name: path.localName }
-  }
-  const parent = segments.length > 1 && segments[segments.length - 2]?.kind === "tabularSection"
-    ? { kind: "tabularSection" as const, name: segments[segments.length - 2]!.name }
-    : undefined
-  return { kind: last.kind, owner: path.owner, parent, name: last.name }
-}
-
-function legacyNamedKindSegment(kind: MetadataOperationTargetKind): string {
-  if (kind === "attribute") return "Реквизит"
-  if (kind === "tabularSection") return "ТабличнаяЧасть"
-  if (kind === "dimension") return "Измерение"
-  if (kind === "resource") return "Ресурс"
-  if (kind === "addressingAttribute") return "РеквизитАдресации"
-  return "Команда"
-}
-
-function legacyFileRoleSegment(role: Extract<MetadataOperationTarget, { kind: "fileItem" }>["role"]): string {
-  if (role === "form") return "Форма"
-  if (role === "template") return "Макет"
-  return "Команда"
 }
 
 function targetNotFound(message: string): ResolveMetadataOperationTargetFailure {

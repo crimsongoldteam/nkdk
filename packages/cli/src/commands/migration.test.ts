@@ -4,7 +4,7 @@ import { tmpdir } from "os"
 import { join } from "path"
 import { select } from "@inquirer/prompts"
 import { afterEach, beforeEach, describe, expect, it, vi } from "vitest"
-import { deleteMigration, generateMigration, parseOperationTargetPath, renameMigration } from "./migration"
+import { deleteMigration, generateMigration, renameMigration } from "./migration"
 
 vi.mock("@inquirer/prompts", () => ({
   select: vi.fn(),
@@ -14,31 +14,6 @@ const selectMock = vi.mocked(select)
 
 describe("migration commands", () => {
   afterEach(() => vi.restoreAllMocks())
-
-  it("parses supported metadata operation paths", () => {
-    expect(parseOperationTargetPath("Справочник.Товары")).toEqual({
-      kind: "object",
-      itemTypePrefix: "Справочник",
-      name: "Товары",
-    })
-    expect(parseOperationTargetPath("Справочник.Товары.Реквизит.Артикул")).toEqual({
-      kind: "attribute",
-      owner: { itemTypePrefix: "Справочник", name: "Товары" },
-      name: "Артикул",
-    })
-    expect(parseOperationTargetPath("Документ.Заказ.ТабличнаяЧасть.Товары.Реквизит.Количество")).toEqual({
-      kind: "attribute",
-      owner: { itemTypePrefix: "Документ", name: "Заказ" },
-      parent: { kind: "tabularSection", name: "Товары" },
-      name: "Количество",
-    })
-    expect(parseOperationTargetPath("Справочник.Товары.Форма.ФормаЭлемента")).toEqual({
-      kind: "fileItem",
-      owner: { itemTypePrefix: "Справочник", name: "Товары" },
-      role: "form",
-      name: "ФормаЭлемента",
-    })
-  })
 
   it("prints rename plan by default", () => {
     const yamlDir = mkdtempSync(join(tmpdir(), "nkdk-yaml-"))
