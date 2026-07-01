@@ -120,7 +120,7 @@ function validateProjectForm(params: {
   schemaCache: ValidationSchemaCache
 }): Diagnostic[] {
   const schemaDiagnostics = validateProjectFileSchema({
-    filePath: params.file.absolutePath,
+    file: params.file,
     cache: params.cache,
     schema: params.schemaCache.form(),
   })
@@ -154,24 +154,34 @@ function validateProjectProperties(params: {
   metadataResolver: ProjectMetadataResolver
   schemaCache: ValidationSchemaCache
 }): Diagnostic[] {
+  const entry = params.cache.get(params.file.absolutePath)
+  if ("error" in entry) {
+    return validateProjectFileSchema({
+      file: params.file,
+      cache: params.cache,
+      schema: params.schemaCache.properties(params.file.owner.spec),
+    })
+  }
+
+  const parsed = parsedForProjectFile(params.file, entry.parsed)
   const diagnostics = validateProjectFileSchema({
-    filePath: params.file.absolutePath,
+    file: params.file,
     cache: params.cache,
     schema: params.schemaCache.properties(params.file.owner.spec),
+    parsed,
   })
-  const entry = params.cache.get(params.file.absolutePath)
-  if ("error" in entry || entry.parsed.doc.errors.length > 0) return diagnostics
+  if (entry.parsed.doc.errors.length > 0) return diagnostics
 
   const requiredDiagnostics = validateRegisteredProjectFileValidators({
     file: params.file,
-    parsed: entry.parsed,
+    parsed,
   })
   if (requiredDiagnostics.length > 0) return [...diagnostics, ...requiredDiagnostics]
 
   const imported = importPropertiesModel({
     spec: params.file.owner.spec,
     context: params.context,
-    parsed: entry.parsed,
+    parsed,
     name: params.file.owner.name,
     filePath: params.file.absolutePath,
   })
@@ -184,13 +194,13 @@ function validateProjectProperties(params: {
     ...diagnostics,
     ...validateUniqueNameScopes({
       filePath: params.file.absolutePath,
-      parsed: entry.parsed,
+      parsed,
       model: imported.model,
       rule: params.file.owner.spec.rule,
     }),
     ...validateMetadataTargetsInModel({
       filePath: params.file.absolutePath,
-      parsed: entry.parsed,
+      parsed,
       model: imported.model,
       rule: params.file.owner.spec.rule,
       resolver: params.metadataResolver,
@@ -209,11 +219,12 @@ function validateRegisteredProjectFileValidators(params: {
 }
 
 function validateProjectFileSchema(params: {
-  filePath: string
+  file: ValidationProjectFile
   cache: ProjectYamlCache
   schema: CompiledSchema
+  parsed?: ParsedYaml
 }): Diagnostic[] {
-  const entry = params.cache.get(params.filePath)
+  const entry = params.cache.get(params.file.absolutePath)
   if ("error" in entry) {
     return [
       {
@@ -229,9 +240,17 @@ function validateProjectFileSchema(params: {
 
   return validateParsedFile({
     filePath: entry.filePath,
-    parsed: entry.parsed,
+    parsed: params.parsed ?? entry.parsed,
     schema: params.schema,
   })
+}
+
+function parsedForProjectFile(file: ValidationProjectFile, parsed: ParsedYaml): ParsedYaml {
+  if (file.kind === "properties" && parsed.doc.errors.length === 0 && parsed.data === undefined) {
+    return { ...parsed, data: {} }
+  }
+
+  return parsed
 }
 
 function importPropertiesModel(params: {

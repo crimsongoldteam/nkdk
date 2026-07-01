@@ -179,6 +179,40 @@ describe("validateProject", { timeout: 30_000 }, () => {
     expect(diagnostics).toEqual([])
   })
 
+  it("accepts an empty properties YAML file as an empty object", () => {
+    const projectDir = createProject()
+    writeProjectFile(projectDir, "Справочник/Договоры/Свойства.yaml", "")
+
+    const diagnostics = validateProject({
+      projectDir,
+      filePath: "Справочник/Договоры/Свойства.yaml",
+      context: mockContext,
+    }).diagnostics
+
+    expect(diagnostics).toEqual([])
+  })
+
+  it("keeps an empty root configuration YAML invalid because Имя is required", () => {
+    const projectDir = createProject()
+    writeProjectFile(projectDir, "Конфигурация.yaml", "")
+
+    const diagnostics = validateProject({
+      projectDir,
+      filePath: "Конфигурация.yaml",
+      context: mockContext,
+    }).diagnostics
+
+    expect(diagnostics).toEqual(
+      expect.arrayContaining([
+        expect.objectContaining({
+          filePath: join(projectDir, "Конфигурация.yaml"),
+          source: "structure",
+          severity: "error",
+        }),
+      ])
+    )
+  })
+
   it("rejects explicit document implicit YAML boolean value", () => {
     const projectDir = createProject()
     writeProjectFile(projectDir, "Документ/ПоступлениеТоваровУслуг/Свойства.yaml", ["Автонумерация: Истина"])
