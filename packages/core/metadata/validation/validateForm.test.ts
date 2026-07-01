@@ -3,6 +3,10 @@ import { tmpdir } from "os"
 import { join } from "path"
 import { afterEach, describe, expect, it, vi } from "vitest"
 import "~/metadata/forms"
+import {
+  validateClientApplicationFormFirstPass,
+  validateClientApplicationFormSecondPass,
+} from "~/metadata/forms/clientApplicationForm/validate"
 import { mockContext } from "~/tests/mockContext"
 import { createOwnerMetadataCache } from "./dataPath/ownerCache"
 import { createProjectYamlCache } from "./projectYamlCache"
@@ -245,6 +249,49 @@ describe("validateForm", () => {
     expect(
       readFileSync.mock.calls.filter(([filePath]) => filePath === join(project.projectDir, "Справочник", "Номенклатура", "Свойства.yaml")),
     ).toHaveLength(1)
+  })
+
+  it("returns the same diagnostics through form validation passes and the registered wrapper", () => {
+    const project = createProject({
+      owner: [
+        "Реквизиты:",
+        "  Товар:",
+        "    Тип: Справочник.Номенклатура",
+      ],
+      form: [
+        "Реквизиты:",
+        "  Объект:",
+        "    Тип: СправочникОбъект.Номенклатура",
+        "Элементы:",
+        "  Поле:",
+        "    Вид: ПолеВвода",
+        "    ПутьКДанным: Объект.НетТакогоРеквизита",
+      ],
+    })
+    const cache = createProjectYamlCache()
+    const ownerCache = createOwnerMetadataCache({ projectDir: project.projectDir, yamlCache: cache, context: mockContext })
+
+    const wrapperDiagnostics = runValidateForm(project, { cache, ownerCache })
+    const first = validateClientApplicationFormFirstPass({
+      projectDir: project.projectDir,
+      formDir: project.formDir,
+      formName: project.formName,
+      owner: { dir: project.ownerDir, name: project.ownerName },
+      cache,
+      context: mockContext,
+    })
+    expect(first.status).toBe("ok")
+    if (first.status !== "ok") return
+
+    const passDiagnostics = [
+      ...first.diagnostics,
+      ...validateClientApplicationFormSecondPass({
+        state: first.state,
+        ownerCache,
+      }),
+    ]
+
+    expect(passDiagnostics).toEqual(wrapperDiagnostics)
   })
 
   it("reports intermediate composite type errors", () => {
