@@ -6,28 +6,35 @@ import { shouldProcessProperty } from "./helpers"
 import { MetadataItem, MetadataItemRule, PropertyRule } from "./types"
 
 /**
- * Возвращает YAML-представление defaultValue (для исключения из JSON Schema).
- * Только для литеральных defaultValue, не для функций.
+ * Возвращает YAML-представление implicitValueYAML.
+ * Только для литеральных значений: функции зависят от контекста объекта.
  */
-function getDefaultValueYAML(rule: PropertyRule): string | number | undefined {
-  const v = rule.defaultValue
+function getImplicitValueYAML(rule: PropertyRule): string | number | undefined {
+  const v = rule.implicitValueYAML
   if (v === undefined || typeof v === "function") return undefined
-  if (rule.type === "boolean") return v ? "Истина" : "Ложь"
-  if (rule.type === "number" || rule.type === "string") return v
+  if (rule.type === "boolean" && typeof v === "boolean") return v ? "Истина" : "Ложь"
+  if (rule.type === "number" && typeof v === "number") return v
+  if (rule.type === "string" && typeof v === "string") return v
   if (rule.type === "SystemEnumeration" && typeof v === "string") return v
   return undefined
 }
 
 /**
- * Исключает значение по умолчанию из схемы (union/anyOf): убирает вариант с const === defaultYAML.
+ * Исключает неявное YAML-значение из схемы.
+ * Для anyOf/const удаляет конкретный вариант, для свободных схем добавляет not/const.
  */
-function excludeDefaultFromSchema(schema: TSchema, defaultYAML: string | number): TSchema {
-  const s = schema as { anyOf?: Array<{ const?: unknown }> }
-  if (!s.anyOf || !Array.isArray(s.anyOf)) return schema
-  const rest = s.anyOf.filter((opt) => opt.const !== defaultYAML)
-  if (rest.length === 0) return schema
-  if (rest.length === 1) return rest[0] as TSchema
-  return Type.Union(rest as [TSchema, TSchema, ...TSchema[]])
+function excludeImplicitValueFromSchema(schema: TSchema, implicitYAML: string | number): TSchema {
+  const s = schema as { anyOf?: TSchema[] }
+  if (Array.isArray(s.anyOf)) {
+    const rest = s.anyOf.filter((opt) => (opt as { const?: unknown }).const !== implicitYAML)
+    if (rest.length === 0) return Type.Never()
+    if (rest.length < s.anyOf.length) {
+      if (rest.length === 1) return rest[0]
+      return Type.Union(rest as [TSchema, TSchema, ...TSchema[]])
+    }
+  }
+
+  return Type.Intersect([schema, Type.Not(Type.Literal(implicitYAML))])
 }
 
 export const exportPropertiesToJSONSchema = <T extends MetadataItem>(params: {
@@ -95,9 +102,9 @@ export const exportPropertyToJSONSchema = (params: {
     value,
   })
 
-  const defaultYAML = getDefaultValueYAML(rule)
-  if (defaultYAML !== undefined && exportedValue !== undefined) {
-    return excludeDefaultFromSchema(exportedValue, defaultYAML)
+  const implicitYAML = getImplicitValueYAML(rule)
+  if (implicitYAML !== undefined && exportedValue !== undefined) {
+    return excludeImplicitValueFromSchema(exportedValue, implicitYAML)
   }
 
   return exportedValue
