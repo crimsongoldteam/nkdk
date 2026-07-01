@@ -25,10 +25,10 @@ export async function validateYamlProject(yamlDir: string, options: ValidateComm
 
   let diagnostics: Diagnostic[]
   try {
-    diagnostics = validateProject({
+    diagnostics = (await validateProject({
       projectDir,
       ...(options.file !== undefined ? { filePath: options.file } : {}),
-    }).diagnostics
+    })).diagnostics
   } catch (caught) {
     if (isCommandUsageError(caught)) {
       writeUsageError(caught.message)

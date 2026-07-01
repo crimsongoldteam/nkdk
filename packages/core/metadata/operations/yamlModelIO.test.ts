@@ -12,14 +12,14 @@ describe("metadata operation YAML model IO", () => {
     for (const dir of tempDirs.splice(0)) rmSync(dir, { recursive: true, force: true })
   })
 
-  it("exports and writes a touched metadata item through the model exporter", () => {
+  it("exports and writes a touched metadata item through the model exporter", async () => {
     const projectDir = mkdtempSync(join(tmpdir(), "nkdk-yaml-model-io-"))
     tempDirs.push(projectDir)
     const propertiesPath = join(projectDir, "Справочник", "Товары", "Свойства.yaml")
     mkdirSync(join(propertiesPath, ".."), { recursive: true })
     writeFileSync(propertiesPath, ["Реквизиты:", "  Артикул:", "    Тип: Строка"].join("\n"))
 
-    const snapshot = buildMetadataOperationSnapshot({ projectDir, requireValidProject: false })
+    const snapshot = await buildMetadataOperationSnapshot({ projectDir, requireValidProject: false })
     expect(snapshot.ok).toBe(true)
     if (!snapshot.ok) return
     const item = snapshot.items[0]!

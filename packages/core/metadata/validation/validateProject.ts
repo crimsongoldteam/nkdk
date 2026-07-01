@@ -26,6 +26,7 @@ export interface ValidateProjectParams {
   projectDir: string
   filePath?: string
   context?: ConfigurationContext
+  concurrency?: number
 }
 
 export interface ValidateProjectResult {
@@ -42,7 +43,11 @@ interface ValidationSchemaCache {
   properties: (spec: ValidationProjectSpec) => CompiledSchema
 }
 
-export function validateProject(params: ValidateProjectParams): ValidateProjectResult {
+export async function validateProject(params: ValidateProjectParams): Promise<ValidateProjectResult> {
+  return validateProjectSequential(params)
+}
+
+function validateProjectSequential(params: ValidateProjectParams): ValidateProjectResult {
   const projectDir = resolve(params.projectDir)
   const context = params.context ?? defaultValidationContext()
   const cache = createProjectYamlCache()

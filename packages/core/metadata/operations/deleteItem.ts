@@ -32,8 +32,8 @@ interface DeletePlan {
 
 type DeletePlanResult = { ok: true; plan: DeletePlan } | { ok: false; failure: MetadataOperationFailure }
 
-export function deleteMetadataItem(params: DeleteMetadataItemParams): MetadataOperationResult {
-  const snapshot = buildMetadataOperationSnapshot({ projectDir: params.projectDir, requireValidProject: true })
+export async function deleteMetadataItem(params: DeleteMetadataItemParams): Promise<MetadataOperationResult> {
+  const snapshot = await buildMetadataOperationSnapshot({ projectDir: params.projectDir, requireValidProject: true })
   if (!snapshot.ok) return snapshot
 
   const parsedPath = parseMetadataOperationPath(params.path)

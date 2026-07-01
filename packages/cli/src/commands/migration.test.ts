@@ -15,13 +15,13 @@ const selectMock = vi.mocked(select)
 describe("migration commands", () => {
   afterEach(() => vi.restoreAllMocks())
 
-  it("prints rename plan by default", () => {
+  it("prints rename plan by default", async () => {
     const yamlDir = mkdtempSync(join(tmpdir(), "nkdk-yaml-"))
     const log = vi.spyOn(process.stdout, "write").mockImplementation(() => true)
     fs.mkdirSync(join(yamlDir, "Справочник", "Товары"), { recursive: true })
     fs.writeFileSync(join(yamlDir, "Справочник", "Товары", "Свойства.yaml"), "{}\n")
 
-    renameMigration(yamlDir, "Справочник.Товары", "Номенклатура")
+    await renameMigration(yamlDir, "Справочник.Товары", "Номенклатура")
 
     const result = JSON.parse(writtenStdout(log))
     expect(result).toMatchObject({
@@ -32,13 +32,13 @@ describe("migration commands", () => {
     expect(fs.existsSync(join(yamlDir, "Справочник", "Товары"))).toBe(true)
   })
 
-  it("prints delete plan by default", () => {
+  it("prints delete plan by default", async () => {
     const yamlDir = mkdtempSync(join(tmpdir(), "nkdk-yaml-"))
     const log = vi.spyOn(process.stdout, "write").mockImplementation(() => true)
     fs.mkdirSync(join(yamlDir, "Справочник", "Товары"), { recursive: true })
     fs.writeFileSync(join(yamlDir, "Справочник", "Товары", "Свойства.yaml"), "{}\n")
 
-    deleteMigration(yamlDir, "Справочник.Товары")
+    await deleteMigration(yamlDir, "Справочник.Товары")
 
     const result = JSON.parse(writtenStdout(log))
     expect(result).toMatchObject({ ok: true, mode: "plan" })

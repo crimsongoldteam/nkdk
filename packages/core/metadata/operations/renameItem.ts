@@ -40,8 +40,8 @@ type StructuralReferenceRewriteResult =
   | { ok: true; references: MetadataOperationReferenceChange[] }
   | { ok: false; code: "rule_contract_violation"; message: string }
 
-export function renameMetadataItem(params: RenameMetadataItemParams): MetadataOperationResult {
-  const snapshot = buildMetadataOperationSnapshot({ projectDir: params.projectDir, requireValidProject: true })
+export async function renameMetadataItem(params: RenameMetadataItemParams): Promise<MetadataOperationResult> {
+  const snapshot = await buildMetadataOperationSnapshot({ projectDir: params.projectDir, requireValidProject: true })
   if (!snapshot.ok) return snapshot
 
   const name = validateMetadataLocalName(params.newName)

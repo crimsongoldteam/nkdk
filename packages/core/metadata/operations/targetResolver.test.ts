@@ -30,8 +30,8 @@ describe("resolveMetadataOperationPath", () => {
     return projectDir
   }
 
-  function resolve(projectDir: string, path: string) {
-    const snapshot = buildMetadataOperationSnapshot({ projectDir, requireValidProject: false })
+  async function resolve(projectDir: string, path: string) {
+    const snapshot = await buildMetadataOperationSnapshot({ projectDir, requireValidProject: false })
     expect(snapshot.ok).toBe(true)
     if (!snapshot.ok) throw new Error("snapshot failed")
     const parsed = parseMetadataOperationPath(path)
@@ -40,31 +40,31 @@ describe("resolveMetadataOperationPath", () => {
     return resolveMetadataOperationPath(snapshot, parsed)
   }
 
-  it("resolves object, child, nested child and file item targets", () => {
+  it("resolves object, child, nested child and file item targets", async () => {
     const projectDir = createProject()
 
-    expect(resolve(projectDir, "Справочник.Товары")).toMatchObject({
+    expect(await resolve(projectDir, "Справочник.Товары")).toMatchObject({
       ok: true,
       displayPath: "Справочник.Товары",
       migrationPath: "Справочник.Товары",
       requiresMigration: true,
       currentName: "Товары",
     })
-    expect(resolve(projectDir, "Справочник.Товары.Реквизит.Артикул")).toMatchObject({
+    expect(await resolve(projectDir, "Справочник.Товары.Реквизит.Артикул")).toMatchObject({
       ok: true,
       displayPath: "Справочник.Товары.Реквизит.Артикул",
       migrationPath: "Справочник.Товары.Реквизит.Артикул",
       requiresMigration: true,
       currentName: "Артикул",
     })
-    expect(resolve(projectDir, "Документ.Заказ.ТабличнаяЧасть.Товары.Реквизит.Количество")).toMatchObject({
+    expect(await resolve(projectDir, "Документ.Заказ.ТабличнаяЧасть.Товары.Реквизит.Количество")).toMatchObject({
       ok: true,
       displayPath: "Документ.Заказ.ТабличнаяЧасть.Товары.Реквизит.Количество",
       migrationPath: "Документ.Заказ.ТабличнаяЧасть.Товары.Реквизит.Количество",
       requiresMigration: true,
       currentName: "Количество",
     })
-    expect(resolve(projectDir, "Справочник.Товары.Форма.ФормаЭлемента")).toMatchObject({
+    expect(await resolve(projectDir, "Справочник.Товары.Форма.ФормаЭлемента")).toMatchObject({
       ok: true,
       displayPath: "Справочник.Товары.Форма.ФормаЭлемента",
       requiresMigration: false,
@@ -72,14 +72,14 @@ describe("resolveMetadataOperationPath", () => {
     })
   })
 
-  it("distinguishes unsupported target and missing node", () => {
+  it("distinguishes unsupported target and missing node", async () => {
     const projectDir = createProject()
 
-    expect(resolve(projectDir, "Справочник.Товары.Реквизит.НетТакого")).toMatchObject({
+    expect(await resolve(projectDir, "Справочник.Товары.Реквизит.НетТакого")).toMatchObject({
       ok: false,
       code: "target_not_found",
     })
-    expect(resolve(projectDir, "Справочник.Товары.ПредопределенныйЭлемент.БезНДС")).toMatchObject({
+    expect(await resolve(projectDir, "Справочник.Товары.ПредопределенныйЭлемент.БезНДС")).toMatchObject({
       ok: false,
       code: "unsupported_target",
     })
