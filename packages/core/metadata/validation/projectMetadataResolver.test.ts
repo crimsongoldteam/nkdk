@@ -55,8 +55,10 @@ describe("ProjectMetadataResolver", () => {
   })
 
   it("returns needsDependency in partial mode when an object file can be resolved but is not loaded yet", () => {
+    const projectDir = createProject()
+    writeProjectFile(projectDir, "Справочник/Товары/Свойства.yaml", "{}")
     const resolver = createProjectMetadataResolverFromValidationTable({
-      projectDir: "/project",
+      projectDir,
       table: createValidationObjectTable(),
       mode: "partial",
     })

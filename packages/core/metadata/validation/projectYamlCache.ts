@@ -39,6 +39,25 @@ export function createProjectYamlCache(): ProjectYamlCache {
   }
 }
 
+export function createProjectYamlCacheFromEntries(entries: readonly ProjectYamlEntry[]): ProjectYamlCache {
+  const byPath = new Map(entries.map((entry) => [resolve(entry.filePath), entry]))
+
+  return {
+    get(filePath) {
+      const absolutePath = resolve(filePath)
+      const entry = byPath.get(absolutePath)
+      if (entry) return entry
+      return {
+        filePath: absolutePath,
+        error: new Error(`YAML-файл отсутствует в validation snapshot: ${absolutePath}`),
+      }
+    },
+    release() {
+      // Snapshot entries live for the whole validation pass.
+    },
+  }
+}
+
 function readProjectYamlEntry(filePath: string): ProjectYamlCacheValue {
   try {
     const text = fs.readFileSync(filePath, "utf8")

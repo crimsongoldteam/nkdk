@@ -263,6 +263,7 @@ function dependencyRequest(params: {
 }): ValidationDependencyRequest | undefined {
   const file = resolveValidationProjectFile(params.projectDir, params.filePath)
   if (file === undefined) return undefined
+  if (!existsSync(file.absolutePath)) return undefined
   return { kind: "needsDependency", file, requestedBy: params.requestedBy }
 }
 

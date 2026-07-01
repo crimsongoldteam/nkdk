@@ -98,9 +98,10 @@ function loadOwnerFromValidationTable(params: {
   table: ValidationObjectTable
   ref: OwnerTypeRef
 }): OwnerMetadataResult {
-  const record = params.table.getOwner(params.ref)
+  const ownerKind = getDataPathOwnerKind(params.ref.kind)
+  const tableRef = ownerKind ? { kind: ownerKind.projectDir, name: params.ref.name } : params.ref
+  const record = params.table.getOwner(tableRef)
   if (record === undefined) {
-    const ownerKind = getDataPathOwnerKind(params.ref.kind)
     const dir = ownerKind?.projectDir ?? params.ref.kind
     return {
       status: "not-found",
@@ -112,7 +113,6 @@ function loadOwnerFromValidationTable(params: {
     return { status: "import-error", diagnostics: record.importDiagnostics }
   }
 
-  const ownerKind = getDataPathOwnerKind(params.ref.kind)
   if (ownerKind === undefined || record.model === undefined || record.fieldIndex === undefined) {
     return {
       status: "import-error",

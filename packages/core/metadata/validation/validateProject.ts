@@ -1,20 +1,24 @@
 import { resolve } from "path"
 import type { ConfigurationContext } from "~/metadata/context/types"
-import { createOwnerMetadataCache } from "./dataPath/ownerCache"
-import { createProjectMetadataResolver } from "./projectMetadataResolver"
+import { createOwnerMetadataCacheFromValidationTable } from "./dataPath/ownerCache"
+import { createProjectMetadataResolverFromValidationTable } from "./projectMetadataResolver"
 import { ProjectFileSchemaError } from "./projectFileSchema"
 import {
   discoverValidationProjectFiles,
   resolveValidationProjectFile,
   type ValidationProjectFile,
 } from "./projectFiles"
-import { createProjectYamlCache } from "./projectYamlCache"
+import { createProjectYamlCacheFromEntries, type ProjectYamlEntry } from "./projectYamlCache"
+import { createValidationObjectTable } from "./projectValidationObjectTable"
 import {
   createValidationSchemaCache,
+  readProjectYamlDiagnostic,
+  readProjectYamlEntryForValidation,
   validateProjectFileFirstPass,
   validateProjectFileSecondPass,
   type ProjectValidationFileState,
 } from "./projectValidationPasses"
+import { createValidationYamlQueue } from "./projectValidationQueue"
 import type { Diagnostic } from "./types"
 
 export interface ValidateProjectParams {
@@ -38,32 +42,98 @@ export async function validateProject(params: ValidateProjectParams): Promise<Va
 function validateProjectSequential(params: ValidateProjectParams): ValidateProjectResult {
   const projectDir = resolve(params.projectDir)
   const context = params.context ?? defaultValidationContext()
-  const cache = createProjectYamlCache()
   const schemaCache = createValidationSchemaCache(context)
   const files =
     params.filePath === undefined
       ? discoverValidationProjectFiles(projectDir)
       : [resolveSingleProjectFile(projectDir, params.filePath)]
+  const queue = createValidationYamlQueue({
+    mode: params.filePath === undefined ? "full" : "partial",
+    initialFiles: files,
+  })
+  const objectTable = createValidationObjectTable()
+  const entries = new Map<string, ProjectYamlEntry>()
+  const states = new Map<string, ProjectValidationFileState>()
 
   const diagnostics: Diagnostic[] = []
-  const states: ProjectValidationFileState[] = []
-  for (const file of files) {
-    const first = validateProjectFileFirstPass({ projectDir, file, cache, context, schemaCache })
-    states.push(first.state)
-    diagnostics.push(...first.diagnostics)
-  }
+  processPendingFirstPasses({ projectDir, context, schemaCache, queue, entries, states, objectTable, diagnostics })
 
-  const ownerCache = createOwnerMetadataCache({ projectDir, yamlCache: cache, context })
-  const metadataResolver = createProjectMetadataResolver({ projectDir, yamlCache: cache, context, ownerCache })
-  for (const state of states) {
-    diagnostics.push(...validateProjectFileSecondPass({ projectDir, state, cache, context, ownerCache, metadataResolver }))
-  }
+  const secondPassPending = new Set(states.keys())
+  while (secondPassPending.size > 0) {
+    let enqueuedDependency = false
+    for (const stateKey of [...secondPassPending]) {
+      const state = states.get(stateKey)
+      if (state === undefined) {
+        secondPassPending.delete(stateKey)
+        continue
+      }
 
-  for (const file of files) {
-    cache.release(file.absolutePath)
+      const cache = createProjectYamlCacheFromEntries([...entries.values()])
+      const ownerCache = createOwnerMetadataCacheFromValidationTable({ projectDir, table: objectTable })
+      const metadataResolver = createProjectMetadataResolverFromValidationTable({
+        projectDir,
+        table: objectTable,
+        mode: queue.mode,
+        ownerCache,
+        yamlCache: cache,
+      })
+      const second = validateProjectFileSecondPass({ projectDir, state, cache, context, ownerCache, metadataResolver })
+
+      if (second.status === "needsDependency" && queue.enqueueDependency(second.dependency.file) === "enqueued") {
+        enqueuedDependency = true
+        break
+      }
+
+      diagnostics.push(...second.diagnostics)
+      secondPassPending.delete(stateKey)
+    }
+
+    if (enqueuedDependency) {
+      processPendingFirstPasses({ projectDir, context, schemaCache, queue, entries, states, objectTable, diagnostics })
+      for (const stateKey of states.keys()) secondPassPending.add(stateKey)
+    }
   }
 
   return { diagnostics: sortDiagnostics(dedupeDiagnostics(diagnostics)) }
+}
+
+function processPendingFirstPasses(params: {
+  projectDir: string
+  context: ConfigurationContext
+  schemaCache: ReturnType<typeof createValidationSchemaCache>
+  queue: ReturnType<typeof createValidationYamlQueue>
+  entries: Map<string, ProjectYamlEntry>
+  states: Map<string, ProjectValidationFileState>
+  objectTable: ReturnType<typeof createValidationObjectTable>
+  diagnostics: Diagnostic[]
+}): void {
+  while (params.queue.hasPending()) {
+    const batch = params.queue.takePending(64)
+    for (const file of batch) {
+      params.queue.markRunning(file.absolutePath)
+      const entry = readProjectYamlEntryForValidation(file.absolutePath)
+      if ("error" in entry) {
+        params.queue.markError(file.absolutePath)
+        params.diagnostics.push(readProjectYamlDiagnostic(entry))
+        continue
+      }
+
+      const entryKey = resolve(entry.filePath)
+      params.entries.set(entryKey, entry)
+      const cache = createProjectYamlCacheFromEntries([...params.entries.values()])
+      const first = validateProjectFileFirstPass({
+        projectDir: params.projectDir,
+        file,
+        cache,
+        context: params.context,
+        schemaCache: params.schemaCache,
+      })
+      params.states.set(resolve(file.absolutePath), first.state)
+      params.objectTable.mergeRecords(first.objectRecords)
+      params.diagnostics.push(...first.diagnostics)
+      params.queue.markReady(file.absolutePath)
+    }
+  }
 }
 
 function resolveSingleProjectFile(projectDir: string, filePath: string): ValidationProjectFile {

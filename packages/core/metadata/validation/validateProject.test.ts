@@ -6,6 +6,10 @@ import { afterEach, describe, expect, it, vi } from "vitest"
 import { TopLevelMetadataItemRules } from "~/metadata/appliedObjects/configuration/topLevelRules"
 import { mockContext } from "~/tests/mockContext"
 import { ProjectFileSchemaError } from "./projectFileSchema"
+import {
+  getProjectValidationReadCountForTests,
+  resetProjectValidationReadCountForTests,
+} from "./projectValidationPasses"
 import { validateProject } from "./validateProject"
 
 describe("validateProject", { timeout: 30_000 }, () => {
@@ -685,6 +689,20 @@ describe("validateProject", { timeout: 30_000 }, () => {
 
     const ownerPath = join(projectDir, "Справочник", "Номенклатура", "Свойства.yaml")
     expect(readFileSync.mock.calls.filter(([filePath]) => filePath === ownerPath)).toHaveLength(1)
+  })
+
+  it("does not read a YAML file twice during full validation", async () => {
+    const projectDir = createProject()
+    writeProjectFile(projectDir, "Справочник/Товары/Свойства.yaml", "{}\n")
+    writeProjectFile(projectDir, "Справочник/Товары/Формы/ФормаЭлемента/Форма.yaml", "Элементы: {}\n")
+
+    resetProjectValidationReadCountForTests()
+    await validateProject({ projectDir, context: mockContext, concurrency: 1 })
+
+    expect(getProjectValidationReadCountForTests(join(projectDir, "Справочник", "Товары", "Свойства.yaml"))).toBe(1)
+    expect(
+      getProjectValidationReadCountForTests(join(projectDir, "Справочник", "Товары", "Формы", "ФормаЭлемента", "Форма.yaml")),
+    ).toBe(1)
   })
 
   it("compiles each validation schema once per project validation run", async () => {

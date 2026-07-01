@@ -1,9 +1,10 @@
 import { TypeCompiler } from "@sinclair/typebox/compiler"
-import { join } from "path"
+import fs from "fs"
+import { join, resolve } from "path"
 import { rootFromYAML } from "~/metadata/commonObjects/metadataTargets/roots"
 import type { ConfigurationContext } from "~/metadata/context/types"
 import type { MetadataItem } from "~/metadata/orchestration/property/types"
-import type { ParsedYaml } from "~/yaml/parseMetadataYaml"
+import { parseMetadataYaml, type ParsedYaml } from "~/yaml/parseMetadataYaml"
 import { type OwnerMetadataCache } from "./dataPath/ownerCache"
 import { buildObjectFieldIndex } from "./dataPath/objectFields"
 import { validateExcludedEqualNameYAML } from "./excludeIfEqualNameYAML"
@@ -13,9 +14,9 @@ import type { ProjectMetadataResolver } from "./projectMetadataResolver"
 import { getProjectFileValidators } from "./projectMetadataResolverRegistry"
 import { exportJSONSchemaForSchemaName } from "./projectFileSchema"
 import type { ValidationProjectFile } from "./projectFiles"
-import type { ProjectYamlCache } from "./projectYamlCache"
+import type { ProjectYamlCache, ProjectYamlEntry } from "./projectYamlCache"
 import type { ValidationProjectSpec } from "./projectSpecs"
-import type { ValidationObjectRecord } from "./projectValidationTypes"
+import type { ValidationDependencyRequest, ValidationObjectRecord } from "./projectValidationTypes"
 import type { Diagnostic } from "./types"
 import { validateParsedFile } from "./validateFile"
 import { validateUniqueNameScopes } from "./uniqueNameScopes"
@@ -58,6 +59,44 @@ export interface ProjectValidationSecondPassParams {
   metadataResolver: ProjectMetadataResolver
 }
 
+export type ProjectValidationSecondPassResult =
+  | { status: "ok"; diagnostics: Diagnostic[] }
+  | { status: "needsDependency"; diagnostics: Diagnostic[]; dependency: ValidationDependencyRequest }
+
+type ProjectValidationYamlReadResult = ProjectYamlEntry | { filePath: string; error: Error }
+
+const readCountsForTests = new Map<string, number>()
+
+export function resetProjectValidationReadCountForTests(): void {
+  readCountsForTests.clear()
+}
+
+export function getProjectValidationReadCountForTests(filePath: string): number {
+  return readCountsForTests.get(resolve(filePath)) ?? 0
+}
+
+export function readProjectYamlEntryForValidation(filePath: string): ProjectValidationYamlReadResult {
+  const absolutePath = resolve(filePath)
+  readCountsForTests.set(absolutePath, (readCountsForTests.get(absolutePath) ?? 0) + 1)
+  try {
+    const text = fs.readFileSync(absolutePath, "utf8")
+    return { filePath: absolutePath, text, parsed: parseMetadataYaml(text) }
+  } catch (caught) {
+    return { filePath: absolutePath, error: caught instanceof Error ? caught : new Error(String(caught)) }
+  }
+}
+
+export function readProjectYamlDiagnostic(entry: { filePath: string; error: Error }): Diagnostic {
+  return {
+    filePath: entry.filePath,
+    line: 1,
+    col: 1,
+    severity: "error",
+    source: "external-file",
+    message: `Не удалось прочитать YAML-файл: ${entry.error.message}`,
+  }
+}
+
 export function createValidationSchemaCache(context: ConfigurationContext): ValidationSchemaCache {
   const propertiesSchemas = new Map<string, CompiledSchema>()
   let formSchema: CompiledSchema | undefined
@@ -92,26 +131,30 @@ export function validateProjectFileFirstPass(params: {
   return validateProjectPropertiesFirstPass(params)
 }
 
-export function validateProjectFileSecondPass(params: ProjectValidationSecondPassParams): Diagnostic[] {
-  if (params.state.kind === "failed") return []
+export function validateProjectFileSecondPass(params: ProjectValidationSecondPassParams): ProjectValidationSecondPassResult {
+  if (params.state.kind === "failed") return { status: "ok", diagnostics: [] }
 
   if (params.state.kind === "form") {
     const passes = getRegisteredFormValidationPasses()
-    if (passes === undefined) return []
-    return passes.secondPass({ state: params.state.formState, ownerCache: params.ownerCache })
+    if (passes === undefined) return { status: "ok", diagnostics: [] }
+    return { status: "ok", diagnostics: passes.secondPass({ state: params.state.formState, ownerCache: params.ownerCache }) }
   }
 
   const ownerRoot = rootFromYAML[params.state.file.owner.dir]
   const owner = ownerRoot ? { root: ownerRoot, objectName: params.state.file.owner.name } : undefined
+  const recorder = createDependencyRecordingResolver(params.metadataResolver)
 
-  return validateMetadataTargetsInModel({
+  const diagnostics = validateMetadataTargetsInModel({
     filePath: params.state.file.absolutePath,
     parsed: params.state.parsed,
     model: params.state.model,
     rule: params.state.file.owner.spec.rule,
-    resolver: params.metadataResolver,
+    resolver: recorder.resolver,
     owner,
   })
+  const dependency = recorder.firstDependency()
+  if (dependency !== undefined) return { status: "needsDependency", diagnostics, dependency }
+  return { status: "ok", diagnostics }
 }
 
 function validateProjectFormFirstPass(params: {
@@ -269,6 +312,43 @@ function failedFirstPass(file: ValidationProjectFile, diagnostics: Diagnostic[])
     state: { kind: "failed", file, diagnostics },
     diagnostics,
     objectRecords: [],
+  }
+}
+
+function createDependencyRecordingResolver(resolver: ProjectMetadataResolver): {
+  resolver: ProjectMetadataResolver
+  firstDependency(): ValidationDependencyRequest | undefined
+} {
+  let dependency: ValidationDependencyRequest | undefined
+
+  function record<T extends ReturnType<ProjectMetadataResolver[keyof ProjectMetadataResolver]>>(result: T): T {
+    if (!result.ok && result.dependency !== undefined && dependency === undefined) {
+      dependency = result.dependency
+    }
+    return result
+  }
+
+  return {
+    resolver: {
+      resolveObject(params) {
+        return record(resolver.resolveObject(params))
+      },
+      resolveMember(params) {
+        return record(resolver.resolveMember(params))
+      },
+      resolveValue(params) {
+        return record(resolver.resolveValue(params))
+      },
+      resolveStyleItem(params) {
+        return record(resolver.resolveStyleItem(params))
+      },
+      resolveCommonPicture(params) {
+        return record(resolver.resolveCommonPicture(params))
+      },
+    },
+    firstDependency() {
+      return dependency
+    },
   }
 }
 
