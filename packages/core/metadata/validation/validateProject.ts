@@ -1,26 +1,21 @@
-import { TypeCompiler } from "@sinclair/typebox/compiler"
-import { join, resolve } from "path"
-import { rootFromYAML } from "~/metadata/commonObjects/metadataTargets/roots"
+import { resolve } from "path"
 import type { ConfigurationContext } from "~/metadata/context/types"
-import type { MetadataItem } from "~/metadata/orchestration/property/types"
-import type { ParsedYaml } from "~/yaml/parseMetadataYaml"
 import { createOwnerMetadataCache } from "./dataPath/ownerCache"
-import { validateMetadataTargetsInModel } from "./metadataTargetTraversal"
-import { createProjectMetadataResolver, type ProjectMetadataResolver } from "./projectMetadataResolver"
-import { getProjectFileValidators } from "./projectMetadataResolverRegistry"
-import { exportJSONSchemaForSchemaName, ProjectFileSchemaError } from "./projectFileSchema"
+import { createProjectMetadataResolver } from "./projectMetadataResolver"
+import { ProjectFileSchemaError } from "./projectFileSchema"
 import {
   discoverValidationProjectFiles,
   resolveValidationProjectFile,
   type ValidationProjectFile,
 } from "./projectFiles"
-import { createProjectYamlCache, type ProjectYamlCache } from "./projectYamlCache"
-import type { ValidationProjectSpec } from "./projectSpecs"
+import { createProjectYamlCache } from "./projectYamlCache"
+import {
+  createValidationSchemaCache,
+  validateProjectFileFirstPass,
+  validateProjectFileSecondPass,
+  type ProjectValidationFileState,
+} from "./projectValidationPasses"
 import type { Diagnostic } from "./types"
-import { validateExcludedEqualNameYAML } from "./excludeIfEqualNameYAML"
-import { validateParsedFile } from "./validateFile"
-import { validateForm } from "./validateForm"
-import { validateUniqueNameScopes } from "./uniqueNameScopes"
 
 export interface ValidateProjectParams {
   projectDir: string
@@ -36,13 +31,6 @@ export interface ValidateProjectResult {
 const expectedPatterns =
   "Ожидались Конфигурация.yaml или пути вида <Вид>/<Имя>/Свойства.yaml и <Вид>/<Имя>/Формы/<Форма>/Форма.yaml"
 
-type CompiledSchema = ReturnType<(typeof TypeCompiler)["Compile"]>
-
-interface ValidationSchemaCache {
-  form: () => CompiledSchema
-  properties: (spec: ValidationProjectSpec) => CompiledSchema
-}
-
 export async function validateProject(params: ValidateProjectParams): Promise<ValidateProjectResult> {
   return validateProjectSequential(params)
 }
@@ -51,8 +39,6 @@ function validateProjectSequential(params: ValidateProjectParams): ValidateProje
   const projectDir = resolve(params.projectDir)
   const context = params.context ?? defaultValidationContext()
   const cache = createProjectYamlCache()
-  const ownerCache = createOwnerMetadataCache({ projectDir, yamlCache: cache, context })
-  const metadataResolver = createProjectMetadataResolver({ projectDir, yamlCache: cache, context, ownerCache })
   const schemaCache = createValidationSchemaCache(context)
   const files =
     params.filePath === undefined
@@ -60,38 +46,24 @@ function validateProjectSequential(params: ValidateProjectParams): ValidateProje
       : [resolveSingleProjectFile(projectDir, params.filePath)]
 
   const diagnostics: Diagnostic[] = []
+  const states: ProjectValidationFileState[] = []
   for (const file of files) {
-    try {
-      diagnostics.push(...validateProjectFile({ projectDir, file, cache, context, ownerCache, metadataResolver, schemaCache }))
-    } finally {
-      cache.release(file.absolutePath)
-    }
+    const first = validateProjectFileFirstPass({ projectDir, file, cache, context, schemaCache })
+    states.push(first.state)
+    diagnostics.push(...first.diagnostics)
+  }
+
+  const ownerCache = createOwnerMetadataCache({ projectDir, yamlCache: cache, context })
+  const metadataResolver = createProjectMetadataResolver({ projectDir, yamlCache: cache, context, ownerCache })
+  for (const state of states) {
+    diagnostics.push(...validateProjectFileSecondPass({ projectDir, state, cache, context, ownerCache, metadataResolver }))
+  }
+
+  for (const file of files) {
+    cache.release(file.absolutePath)
   }
 
   return { diagnostics: sortDiagnostics(dedupeDiagnostics(diagnostics)) }
-}
-
-function createValidationSchemaCache(context: ConfigurationContext): ValidationSchemaCache {
-  const propertiesSchemas = new Map<string, CompiledSchema>()
-  let formSchema: CompiledSchema | undefined
-
-  return {
-    form() {
-      formSchema ??= TypeCompiler.Compile(exportFormSchema(context))
-
-      return formSchema
-    },
-    properties(spec) {
-      const key = spec.dir
-      const existing = propertiesSchemas.get(key)
-      if (existing) return existing
-
-      const compiled = TypeCompiler.Compile(spec.exportSchema({ context, mode: "inline" }))
-      propertiesSchemas.set(key, compiled)
-
-      return compiled
-    },
-  }
 }
 
 function resolveSingleProjectFile(projectDir: string, filePath: string): ValidationProjectFile {
@@ -99,243 +71,6 @@ function resolveSingleProjectFile(projectDir: string, filePath: string): Validat
   if (file) return file
 
   throw new ProjectFileSchemaError(expectedPatterns)
-}
-
-function validateProjectFile(params: {
-  projectDir: string
-  file: ValidationProjectFile
-  cache: ProjectYamlCache
-  context: ConfigurationContext
-  ownerCache: ReturnType<typeof createOwnerMetadataCache>
-  metadataResolver: ProjectMetadataResolver
-  schemaCache: ValidationSchemaCache
-}): Diagnostic[] {
-  if (params.file.kind === "form") {
-    return validateProjectForm(params)
-  }
-
-  return validateProjectProperties(params)
-}
-
-function validateProjectForm(params: {
-  projectDir: string
-  file: ValidationProjectFile
-  cache: ProjectYamlCache
-  context: ConfigurationContext
-  ownerCache: ReturnType<typeof createOwnerMetadataCache>
-  metadataResolver: ProjectMetadataResolver
-  schemaCache: ValidationSchemaCache
-}): Diagnostic[] {
-  const schemaDiagnostics = validateProjectFileSchema({
-    file: params.file,
-    cache: params.cache,
-    schema: params.schemaCache.form(),
-  })
-  if (schemaDiagnostics.some((diagnostic) => diagnostic.source === "syntax")) return schemaDiagnostics
-
-  return [
-    ...schemaDiagnostics,
-    ...validateForm({
-      projectDir: params.projectDir,
-      formDir: join(
-        params.projectDir,
-        params.file.owner.dir,
-        params.file.owner.name,
-        "Формы",
-        params.file.formName ?? "",
-      ),
-      formName: params.file.formName ?? "",
-      owner: { dir: params.file.owner.dir, name: params.file.owner.name },
-      cache: params.cache,
-      context: params.context,
-      ownerCache: params.ownerCache,
-      suppressFormImportDiagnostics: schemaDiagnostics.length > 0,
-    }),
-  ]
-}
-
-function validateProjectProperties(params: {
-  file: ValidationProjectFile
-  cache: ProjectYamlCache
-  context: ConfigurationContext
-  metadataResolver: ProjectMetadataResolver
-  schemaCache: ValidationSchemaCache
-}): Diagnostic[] {
-  const entry = params.cache.get(params.file.absolutePath)
-  if ("error" in entry) {
-    return validateProjectFileSchema({
-      file: params.file,
-      cache: params.cache,
-      schema: params.schemaCache.properties(params.file.owner.spec),
-    })
-  }
-
-  const parsed = parsedForProjectFile(params.file, entry.parsed)
-  const diagnostics = validateProjectFileSchema({
-    file: params.file,
-    cache: params.cache,
-    schema: params.schemaCache.properties(params.file.owner.spec),
-    parsed,
-  })
-  if (entry.parsed.doc.errors.length > 0) return diagnostics
-
-  const requiredDiagnostics = validateRegisteredProjectFileValidators({
-    file: params.file,
-    parsed,
-  })
-  if (requiredDiagnostics.length > 0) return [...diagnostics, ...requiredDiagnostics]
-
-  const imported = importPropertiesModel({
-    spec: params.file.owner.spec,
-    context: params.context,
-    parsed,
-    name: params.file.owner.name,
-    filePath: params.file.absolutePath,
-  })
-  if ("diagnostic" in imported) return [...diagnostics, imported.diagnostic]
-
-  const ownerRoot = rootFromYAML[params.file.owner.dir]
-  const owner = ownerRoot ? { root: ownerRoot, objectName: params.file.owner.name } : undefined
-  const equalNameValidationName =
-    params.file.kind === "configuration"
-      ? metadataModelName(imported.model)
-      : params.file.kind === "properties"
-        ? params.file.owner.name
-        : undefined
-  const equalNameDiagnostics = validateExcludedEqualNameYAML({
-    filePath: params.file.absolutePath,
-    parsed,
-    rule: params.file.owner.spec.rule,
-    context: params.context,
-    name: equalNameValidationName,
-  })
-
-  return [
-    ...suppressEqualNameSchemaDiagnostics(diagnostics, equalNameDiagnostics),
-    ...equalNameDiagnostics,
-    ...validateUniqueNameScopes({
-      filePath: params.file.absolutePath,
-      parsed,
-      model: imported.model,
-      rule: params.file.owner.spec.rule,
-    }),
-    ...validateMetadataTargetsInModel({
-      filePath: params.file.absolutePath,
-      parsed,
-      model: imported.model,
-      rule: params.file.owner.spec.rule,
-      resolver: params.metadataResolver,
-      owner,
-    }),
-  ]
-}
-
-function validateRegisteredProjectFileValidators(params: {
-  file: ValidationProjectFile
-  parsed: ParsedYaml
-}): Diagnostic[] {
-  return getProjectFileValidators(params.file.owner.spec.kind).flatMap((validator) =>
-    validator({ filePath: params.file.absolutePath, parsed: params.parsed }),
-  )
-}
-
-function validateProjectFileSchema(params: {
-  file: ValidationProjectFile
-  cache: ProjectYamlCache
-  schema: CompiledSchema
-  parsed?: ParsedYaml
-}): Diagnostic[] {
-  const entry = params.cache.get(params.file.absolutePath)
-  if ("error" in entry) {
-    return [
-      {
-        filePath: entry.filePath,
-        line: 1,
-        col: 1,
-        severity: "error",
-        source: "external-file",
-        message: `Не удалось прочитать YAML-файл: ${entry.error.message}`,
-      },
-    ]
-  }
-
-  return validateParsedFile({
-    filePath: entry.filePath,
-    parsed: params.parsed ?? entry.parsed,
-    schema: params.schema,
-  })
-}
-
-function parsedForProjectFile(file: ValidationProjectFile, parsed: ParsedYaml): ParsedYaml {
-  if (file.kind === "properties" && parsed.doc.errors.length === 0 && parsed.data === undefined) {
-    return { ...parsed, data: {} }
-  }
-
-  return parsed
-}
-
-function suppressEqualNameSchemaDiagnostics(
-  schemaDiagnostics: Diagnostic[],
-  equalNameDiagnostics: Diagnostic[]
-): Diagnostic[] {
-  if (equalNameDiagnostics.length === 0) return schemaDiagnostics
-
-  return schemaDiagnostics.filter((diagnostic) => !isCoveredByEqualNameDiagnostic(diagnostic, equalNameDiagnostics))
-}
-
-function isCoveredByEqualNameDiagnostic(diagnostic: Diagnostic, equalNameDiagnostics: Diagnostic[]): boolean {
-  if (diagnostic.source !== "structure" || diagnostic.path === undefined) return false
-
-  return equalNameDiagnostics.some((equalNameDiagnostic) => {
-    const equalNamePath = equalNameDiagnostic.path
-    return equalNamePath === diagnostic.path || equalNamePath?.startsWith(`${diagnostic.path}/`) === true
-  })
-}
-
-function importPropertiesModel(params: {
-  spec: ValidationProjectSpec
-  context: ConfigurationContext
-  parsed: ParsedYaml
-  name: string
-  filePath: string
-}): { model: MetadataItem } | { diagnostic: Diagnostic } {
-  try {
-    const model = params.spec.importModel({
-      context: params.context,
-      parsed: params.parsed,
-      name: params.name,
-    })
-    if (model !== undefined) return { model }
-
-    return {
-      diagnostic: importDiagnostic(params.filePath, "Не удалось импортировать свойства"),
-    }
-  } catch (caught) {
-    const message = caught instanceof Error ? caught.message : String(caught)
-    return {
-      diagnostic: importDiagnostic(params.filePath, `Не удалось импортировать свойства: ${message}`),
-    }
-  }
-}
-
-function metadataModelName(model: MetadataItem): string | undefined {
-  const record = model as { name?: unknown }
-  return typeof record.name === "string" ? record.name : undefined
-}
-
-function importDiagnostic(filePath: string, message: string): Diagnostic {
-  return {
-    filePath,
-    line: 1,
-    col: 1,
-    severity: "error",
-    source: "structure",
-    message,
-  }
-}
-
-function exportFormSchema(context: ConfigurationContext) {
-  return exportJSONSchemaForSchemaName({ context, name: "ClientApplicationForm", mode: "inline" })
 }
 
 function sortDiagnostics(diagnostics: Diagnostic[]): Diagnostic[] {

@@ -78,6 +78,33 @@ describe("validateProject", { timeout: 30_000 }, () => {
     )
   }, 30_000)
 
+  it("concurrency 1 keeps existing project diagnostics", async () => {
+    const projectDir = createProject()
+    writeProjectFile(projectDir, "Справочник/Товары/Свойства.yaml", [
+      "Реквизиты:",
+      "  Товар:",
+      "    Тип: Справочник.Номенклатура",
+    ])
+    writeProjectFile(projectDir, "Справочник/Товары/Формы/ФормаЭлемента/Форма.yaml", [
+      "Реквизиты:",
+      "  Объект:",
+      "    Тип: СправочникОбъект.Товары",
+      "Элементы:",
+      "  Поле:",
+      "    Вид: ПолеВвода",
+      "    ПутьКДанным: Объект.НетТакогоРеквизита",
+    ])
+
+    const result = await validateProject({ projectDir, context: mockContext, concurrency: 1 })
+
+    expect(result.diagnostics).toEqual([
+      expect.objectContaining({
+        filePath: expect.stringContaining("Форма.yaml"),
+        message: 'ПутьКДанным "Объект.НетТакогоРеквизита": неизвестный реквизит "НетТакогоРеквизита"',
+      }),
+    ])
+  })
+
   it("warns about unimplemented dynamic list type-value checks instead of failing form import", async () => {
     const projectDir = createProject()
     writeProjectFile(projectDir, "Справочник/Товары/Свойства.yaml", "")
