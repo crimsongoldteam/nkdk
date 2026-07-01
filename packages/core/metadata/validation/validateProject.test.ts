@@ -179,6 +179,39 @@ describe("validateProject", { timeout: 30_000 }, () => {
     expect(diagnostics).toEqual([])
   })
 
+  it("rejects explicit document implicit YAML boolean value", () => {
+    const projectDir = createProject()
+    writeProjectFile(projectDir, "Документ/ПоступлениеТоваровУслуг/Свойства.yaml", ["Автонумерация: Истина"])
+
+    const diagnostics = validateProject({
+      projectDir,
+      filePath: "Документ/ПоступлениеТоваровУслуг/Свойства.yaml",
+      context: mockContext,
+    }).diagnostics
+
+    expect(diagnostics).toEqual([
+      expect.objectContaining({
+        filePath: join(projectDir, "Документ", "ПоступлениеТоваровУслуг", "Свойства.yaml"),
+        path: "/Автонумерация",
+        source: "structure",
+        severity: "error",
+      }),
+    ])
+  })
+
+  it("accepts explicit document non-implicit YAML boolean value", () => {
+    const projectDir = createProject()
+    writeProjectFile(projectDir, "Документ/ПоступлениеТоваровУслуг/Свойства.yaml", ["Автонумерация: Ложь"])
+
+    const diagnostics = validateProject({
+      projectDir,
+      filePath: "Документ/ПоступлениеТоваровУслуг/Свойства.yaml",
+      context: mockContext,
+    }).diagnostics
+
+    expect(diagnostics).toEqual([])
+  })
+
   it("validates nested subsystem properties with schema rules", () => {
     const projectDir = createProject()
     writeProjectFile(projectDir, "Подсистема/Администрирование/Свойства.yaml", "{}\n")
