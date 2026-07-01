@@ -2,15 +2,26 @@ import { describe, expect, it, vi } from "vitest"
 import { syncToXml } from "./syncToXml"
 
 describe("syncToXml service", () => {
-  it("requires allowWrite before calling core", async () => {
+  it("returns migration plan without writing when allowWrite is not true", async () => {
+    const planSyncToXml = vi.fn().mockResolvedValue({
+      ok: true,
+      mode: "plan",
+      migrationsToApply: [],
+    })
     const syncConfigurationToXML = vi.fn()
-    const result = await syncToXml({ yamlDir: "/yaml", xmlDir: "/xml" }, { syncConfigurationToXML })
+    const result = await syncToXml({ yamlDir: "/yaml", xmlDir: "/xml" }, { planSyncToXml, syncConfigurationToXML })
 
-    expect(result).toEqual({
-      ok: false,
-      code: "confirmation_required",
-      message: "sync_to_xml пишет XML-файлы; повторите вызов с allowWrite=true",
-      details: { yamlDir: "/yaml", xmlDir: "/xml", referenceDir: undefined },
+    expect(result).toMatchObject({
+      ok: true,
+      result: {
+        mode: "plan",
+        migrationsToApply: [],
+      },
+    })
+    expect(planSyncToXml).toHaveBeenCalledWith({
+      inputDir: "/yaml",
+      outputDir: "/xml",
+      referenceDir: "/xml",
     })
     expect(syncConfigurationToXML).not.toHaveBeenCalled()
   })

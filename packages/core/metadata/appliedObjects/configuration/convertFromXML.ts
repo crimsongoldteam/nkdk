@@ -4,6 +4,7 @@ import { BatchTask, runBatch } from "~/helpers/runBatch"
 import { ConfigurationContextFromXML } from "~/metadata/context/types"
 import { convertAppliedObjectFromXML } from "~/metadata/orchestration/appliedObject/convertFromXML"
 import { getTypeRule } from "~/metadata/orchestration/property/typeRuleRegistry"
+import type { MetadataOperationChangedXmlFile, MigrationChainInvalidResult, MigrationPlanItem } from "~/metadata/operations"
 import { CONFIGURATION_XML_FILE, readConfigurationFromXML, writeConfigurationToYAML } from "./rootIO"
 import { MetadataConfigurationRules } from "./rules"
 import { TopLevelMetadataItemRules } from "./topLevelRules"
@@ -13,7 +14,9 @@ const IO_CONCURRENCY = 64
 
 export type ConfigurationSyncResult = {
   succeeded: number
-  changedXmlFiles?: string[]
+  changedXmlFiles?: MetadataOperationChangedXmlFile[]
+  migrationsApplied?: MigrationPlanItem[]
+  migrationChain?: MigrationChainInvalidResult
   failed: Array<{
     kind: string
     name: string

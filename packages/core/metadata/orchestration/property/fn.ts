@@ -89,6 +89,23 @@ export type ValidateMetadataTargetFunction = (params: {
   owner?: MetadataTargetOwner
 }) => Diagnostic[]
 
+export interface StructuralReferenceCandidate {
+  yamlPath: YamlPath
+  canonical: string
+  setCanonical(nextCanonical: string): void
+}
+
+export type StructuralReferencesFunction = (params: {
+  filePath: string
+  parsed: ParsedYaml
+  yamlPath: YamlPath
+  propRule: PropertyRule
+  propertyName: string
+  value: unknown
+  setValue(nextValue: unknown): void
+  owner?: MetadataTargetOwner
+}) => StructuralReferenceCandidate[]
+
 /**
  * Хендлер для свойств, хранящих значение во внешних файлах (Help.xml, .bsl, формы).
  * Вызывается оркестратором в сторону nkdk — читает XML-сторону и пишет nkdk-сторону.
@@ -223,6 +240,7 @@ export interface TypeRule {
   syncExternalFromXML?: SyncExternalFromXMLFunction
   syncExternalToXML?: SyncExternalToXMLFunction
   validateMetadataTarget?: ValidateMetadataTargetFunction
+  structuralReferences?: StructuralReferencesFunction
   projectResources?: ProjectResourcesFunction
   xmlSyncRoutes?: XmlSyncRoutesFunction
   fileChildNamesDescriptor?: FileChildNamesDescriptorFunction
@@ -240,6 +258,7 @@ export type TypeRulesOperations =
   | "syncExternalFromXML"
   | "syncExternalToXML"
   | "validateMetadataTarget"
+  | "structuralReferences"
   | "projectResources"
   | "xmlSyncRoutes"
   | "fileChildNamesDescriptor"
@@ -270,12 +289,14 @@ export type importExportFunction<O extends TypeRulesOperations> = O extends "imp
                   ? SyncExternalToXMLFunction | undefined
                   : O extends "validateMetadataTarget"
                     ? ValidateMetadataTargetFunction | undefined
-                    : O extends "projectResources"
-                      ? ProjectResourcesFunction | undefined
-                      : O extends "xmlSyncRoutes"
-                        ? XmlSyncRoutesFunction | undefined
-                        : O extends "fileChildNamesDescriptor"
-                          ? FileChildNamesDescriptorFunction | undefined
-                          : O extends "xmlSyncWriter"
-                            ? XmlSyncWriterFunction | undefined
-                            : never
+                    : O extends "structuralReferences"
+                      ? StructuralReferencesFunction | undefined
+                      : O extends "projectResources"
+                        ? ProjectResourcesFunction | undefined
+                        : O extends "xmlSyncRoutes"
+                          ? XmlSyncRoutesFunction | undefined
+                          : O extends "fileChildNamesDescriptor"
+                            ? FileChildNamesDescriptorFunction | undefined
+                            : O extends "xmlSyncWriter"
+                              ? XmlSyncWriterFunction | undefined
+                              : never

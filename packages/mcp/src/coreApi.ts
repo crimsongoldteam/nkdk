@@ -1,3 +1,10 @@
+import type {
+  MetadataOperationChangedXmlFile,
+  MetadataOperationResult,
+  MigrationChainInvalidResult,
+  MigrationPlanItem,
+} from "@nakidka/core"
+
 export interface SchemaSummaryOptions {
   requiredOnly?: boolean
   search?: string
@@ -22,6 +29,9 @@ export interface ConfigurationSyncFailure {
 
 export interface ConfigurationSyncResult {
   succeeded: number
+  changedXmlFiles?: MetadataOperationChangedXmlFile[]
+  migrationsApplied?: MigrationPlanItem[]
+  migrationChain?: MigrationChainInvalidResult
   failed: ConfigurationSyncFailure[]
 }
 
@@ -85,6 +95,21 @@ export interface CoreApi {
     depth?: number
   }): MetadataProjectDirectoryStructure
   validateProject(params: { projectDir: string; filePath?: string }): { diagnostics: Diagnostic[] }
+  renameMetadataItem(params: {
+    projectDir: string
+    path: string
+    newName: string
+    allowWrite?: boolean
+  }): MetadataOperationResult
+  deleteMetadataItem(params: {
+    projectDir: string
+    path: string
+    allowWrite?: boolean
+  }): MetadataOperationResult
+  planSyncToXml(params: { inputDir: string; outputDir: string; referenceDir?: string }): Promise<
+    | { ok: true; mode: "plan"; migrationsToApply: MigrationPlanItem[] }
+    | MigrationChainInvalidResult
+  >
   syncConfigurationFromXML(params: {
     context: {
       defaultLanguage: "ru"

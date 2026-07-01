@@ -1,4 +1,5 @@
 import { definePropertyRule as defineWidePropertyRule, type ExactRuleParams as WideExactRuleParams } from "~/metadata/commonObjects/ruleBuilder"
+import { namedCollectionTarget } from "~/metadata/orchestration/property/operationTargets"
 import type { PropertyRule as WidePropertyRuleBase } from "~/metadata/orchestration/property/types"
 
 export interface ExchangePlanContentWidePropertyRule extends WidePropertyRuleBase {
@@ -26,5 +27,12 @@ export function metadataExchangePlanTabularSectionsRule<
 >(
   params: WideExactRuleParams<MetadataExchangePlanTabularSectionsRuleParams, Params>
 ): Readonly<{ type: "MetadataExchangePlanTabularSections" } & Params> {
-  return defineWidePropertyRule("MetadataExchangePlanTabularSections", params)
+  return defineWidePropertyRule("MetadataExchangePlanTabularSections", {
+    ...params,
+    operationTarget: namedCollectionTarget({
+      kind: "tabularSection",
+      migrationSegment: "ТабличнаяЧасть",
+      requiresMigration: true,
+    }),
+  })
 }

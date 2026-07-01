@@ -1,4 +1,4 @@
-import type { ValidateMetadataTargetFunction } from "~/metadata/orchestration/property/fn"
+import type { StructuralReferencesFunction, ValidateMetadataTargetFunction } from "~/metadata/orchestration/property/fn"
 import { registerTypeRule } from "~/metadata/orchestration/property/typeRuleRegistry"
 import * as SE from "~/metadata/systemEnumerations/types"
 import { diagnosticAtYamlPath } from "~/metadata/validation/yamlLocations"
@@ -10,6 +10,27 @@ const validateStringTarget: ValidateMetadataTargetFunction = (params) => {
   if (typeof params.value !== "string" || params.value === "") return []
   if (params.propRule.type === "string" && params.propRule.metadataTarget?.kind !== "member") return []
   return validateCanonicalTarget(params, params.value)
+}
+
+const collectStringTargetReference: StructuralReferencesFunction = (params) => {
+  if (!params.propRule.metadataTarget) return []
+  if (typeof params.value !== "string" || params.value === "") return []
+  if (params.propRule.type === "string" && params.propRule.metadataTarget.kind !== "member") return []
+
+  const parsed = parseMetadataTargetFromModel({
+    canonical: params.value,
+    constraint: params.propRule.metadataTarget,
+    owner: params.owner,
+  })
+  if (!parsed.ok) return []
+
+  return [
+    {
+      yamlPath: params.yamlPath,
+      canonical: parsed.canonical,
+      setCanonical: (nextCanonical: string) => params.setValue(nextCanonical),
+    },
+  ]
 }
 
 const validateStringTargetList: ValidateMetadataTargetFunction = (params) => {
@@ -24,11 +45,50 @@ const validateStringTargetList: ValidateMetadataTargetFunction = (params) => {
   )
 }
 
+const collectStringTargetReferenceList: StructuralReferencesFunction = (params) => {
+  if (!Array.isArray(params.value)) return []
+
+  return params.value.flatMap((value, index) => {
+    const result = collectStringTargetReference({
+      ...params,
+      value,
+      yamlPath: [...params.yamlPath, index],
+      setValue: (nextValue) => {
+        if (Array.isArray(params.value)) params.value[index] = nextValue
+      },
+    })
+    return result
+  })
+}
+
 const validateMetadataValueTarget: ValidateMetadataTargetFunction = (params) => {
   if (!isRecord(params.value) || params.value.type !== "ref" || typeof params.value.value !== "string") return []
   if (params.value.value === "" || isDesignTimeRefUuid(params.value.value)) return []
 
   return validateCanonicalTarget(params, params.value.value)
+}
+
+const collectMetadataValueReference: StructuralReferencesFunction = (params) => {
+  if (!params.propRule.metadataTarget) return []
+  if (!isRecord(params.value) || params.value.type !== "ref" || typeof params.value.value !== "string") return []
+  if (params.value.value === "" || isDesignTimeRefUuid(params.value.value)) return []
+
+  const parsed = parseMetadataTargetFromModel({
+    canonical: params.value.value,
+    constraint: params.propRule.metadataTarget,
+    owner: params.owner,
+  })
+  if (!parsed.ok) return []
+
+  return [
+    {
+      yamlPath: params.yamlPath,
+      canonical: parsed.canonical,
+      setCanonical: (nextCanonical: string) => {
+        if (isRecord(params.value)) params.value.value = nextCanonical
+      },
+    },
+  ]
 }
 
 const validateColorTarget: ValidateMetadataTargetFunction = (params) => {
@@ -56,6 +116,29 @@ const validatePictureTarget: ValidateMetadataTargetFunction = (params) => {
 
   const result = params.resolver.resolveCommonPicture({ name: params.value.ref })
   return result.ok ? [] : result.diagnostics
+}
+
+const collectPictureReference: StructuralReferencesFunction = (params) => {
+  if (!params.propRule.metadataTarget) return []
+  if (!isRecord(params.value) || params.value.type !== "CommonPicture" || typeof params.value.ref !== "string") return []
+
+  return [
+    {
+      yamlPath: params.yamlPath,
+      canonical: `CommonPicture.${params.value.ref}`,
+      setCanonical: (nextCanonical: string) => {
+        const parsed = parseMetadataTargetFromModel({
+          canonical: nextCanonical,
+          constraint: params.propRule.metadataTarget!,
+          owner: params.owner,
+        })
+        if (!parsed.ok || parsed.target.kind !== "object" || parsed.target.root !== "CommonPicture") {
+          throw new Error(`Не удалось записать ссылку на общую картинку: ${nextCanonical}`)
+        }
+        if (isRecord(params.value)) params.value.ref = parsed.target.objectName
+      },
+    },
+  ]
 }
 
 function validateCanonicalTarget(
@@ -145,6 +228,14 @@ registerTypeRule("MetadataField", "validateMetadataTarget", validateStringTarget
 registerTypeRule("MetadataFields", "validateMetadataTarget", validateStringTargetList)
 registerTypeRule("MetadataObjectRefCollection", "validateMetadataTarget", validateStringTargetList)
 registerTypeRule("MetadataValue", "validateMetadataTarget", validateMetadataValueTarget)
+registerTypeRule("MetadataItemLink", "structuralReferences", collectStringTargetReference)
+registerTypeRule("string", "structuralReferences", collectStringTargetReference)
+registerTypeRule("MetadataItemLinks", "structuralReferences", collectStringTargetReferenceList)
+registerTypeRule("MetadataField", "structuralReferences", collectStringTargetReference)
+registerTypeRule("MetadataFields", "structuralReferences", collectStringTargetReferenceList)
+registerTypeRule("MetadataObjectRefCollection", "structuralReferences", collectStringTargetReferenceList)
+registerTypeRule("MetadataValue", "structuralReferences", collectMetadataValueReference)
+registerTypeRule("Picture", "structuralReferences", collectPictureReference)
 registerTypeRule("Color", "validateMetadataTarget", validateColorTarget)
 registerTypeRule("Font", "validateMetadataTarget", validateFontTarget)
 registerTypeRule("Border", "validateMetadataTarget", validateBorderTarget)

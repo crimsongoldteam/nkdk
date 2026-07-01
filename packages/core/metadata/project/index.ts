@@ -1,4 +1,5 @@
 export {
+  describeMetadataRuleOperationTargets,
   describeMetadataRuleResources,
   type MetadataProjectAssetDescriptor,
   type MetadataProjectConfigurationYamlDescriptor,
@@ -11,4 +12,5 @@ export {
   type MetadataProjectResourceDescriptor,
   type MetadataProjectXmlDescriptor,
   type MetadataProjectYamlDescriptor,
+  type MetadataRuleOperationTargetDescriptor,
 } from "./ruleResources"

@@ -202,6 +202,16 @@ describe("xml sync state", () => {
     await expect(hashProjectFiles(tempDir(), { concurrency: 0 })).rejects.toThrow("concurrency")
   })
 
+  it("не хэширует файлы миграций", async () => {
+    const yamlDir = tempDir()
+    mkdirSync(join(yamlDir, "Миграции"), { recursive: true })
+    writeFileSync(join(yamlDir, "Миграции", "2026-06-30-120000.yaml"), '"Справочник.Товары": "Номенклатура"\n', "utf-8")
+
+    expect(Object.keys(await hashProjectFiles(yamlDir))).not.toEqual(
+      expect.arrayContaining(["Миграции/2026-06-30-120000.yaml"]),
+    )
+  })
+
   it("detects added changed and deleted files", () => {
     expect(
       diffSyncState(

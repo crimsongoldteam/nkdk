@@ -15,34 +15,35 @@ const selectMock = vi.mocked(select)
 describe("migration commands", () => {
   afterEach(() => vi.restoreAllMocks())
 
-  it("creates rename migration with local new name", () => {
+  it("prints rename plan by default", () => {
     const yamlDir = mkdtempSync(join(tmpdir(), "nkdk-yaml-"))
     const log = vi.spyOn(process.stdout, "write").mockImplementation(() => true)
+    fs.mkdirSync(join(yamlDir, "Справочник", "Товары"), { recursive: true })
+    fs.writeFileSync(join(yamlDir, "Справочник", "Товары", "Свойства.yaml"), "{}\n")
 
-    renameMigration(yamlDir, "Справочник.Товары.Реквизит.Артикул", "НовыйАртикул", new Date("2026-05-05T14:30:00.000Z"))
+    renameMigration(yamlDir, "Справочник.Товары", "Номенклатура")
 
-    const filePath = join(yamlDir, "Миграции", "2026-05-05-143000.yaml")
-    expect(fs.readFileSync(filePath, "utf-8")).toBe('"Справочник.Товары.Реквизит.Артикул": НовыйАртикул\n')
-    expect(log).toHaveBeenCalledWith(filePath + "\n")
+    const result = JSON.parse(writtenStdout(log))
+    expect(result).toMatchObject({
+      ok: true,
+      mode: "plan",
+      createdMigration: { from: "Справочник.Товары", to: "Справочник.Номенклатура" },
+    })
+    expect(fs.existsSync(join(yamlDir, "Справочник", "Товары"))).toBe(true)
   })
 
-  it("rejects rename no-op and names with dot", () => {
-    const yamlDir = mkdtempSync(join(tmpdir(), "nkdk-yaml-"))
-    expect(() => renameMigration(yamlDir, "Справочник.Товары", "Товары")).toThrow("Переименование в то же имя запрещено")
-    expect(() => renameMigration(yamlDir, "Справочник.Товары", "Новые.Товары")).toThrow("Новое имя не должно содержать точку")
-  })
-
-  it("creates delete migration", () => {
+  it("prints delete plan by default", () => {
     const yamlDir = mkdtempSync(join(tmpdir(), "nkdk-yaml-"))
     const log = vi.spyOn(process.stdout, "write").mockImplementation(() => true)
+    fs.mkdirSync(join(yamlDir, "Справочник", "Товары"), { recursive: true })
+    fs.writeFileSync(join(yamlDir, "Справочник", "Товары", "Свойства.yaml"), "{}\n")
 
-    deleteMigration(yamlDir, "Справочник.Товары.Реквизит.СтароеПоле", new Date("2026-05-05T14:30:00.000Z"))
+    deleteMigration(yamlDir, "Справочник.Товары")
 
-    const filePath = join(yamlDir, "Миграции", "2026-05-05-143000.yaml")
-    expect(fs.readFileSync(filePath, "utf-8")).toBe(
-      '"Справочник.Товары.Реквизит.СтароеПоле": Удалить\n',
-    )
-    expect(log).toHaveBeenCalledWith(filePath + "\n")
+    const result = JSON.parse(writtenStdout(log))
+    expect(result).toMatchObject({ ok: true, mode: "plan" })
+    expect(result).not.toHaveProperty("createdMigration")
+    expect(fs.existsSync(join(yamlDir, "Справочник", "Товары"))).toBe(true)
   })
 })
 
@@ -125,16 +126,19 @@ describe("generateMigration", () => {
     })
 
     expect(fs.readFileSync(join(yamlDir, "Миграции", "2026-05-05-143000.yaml"), "utf-8")).toBe(
-      '"Справочник.Товары": Номенклатура\n"Справочник.Номенклатура.Реквизит.Артикул": НовыйАртикул\n',
+      '"Справочник.Товары": Номенклатура\n',
+    )
+    expect(fs.readFileSync(join(yamlDir, "Миграции", "2026-05-05-143001.yaml"), "utf-8")).toBe(
+      '"Справочник.Номенклатура.Реквизит.Артикул": НовыйАртикул\n',
     )
     expect(selectMock).toHaveBeenCalledTimes(2)
   })
 
-  it("creates delete and leftover add migration when delete is selected", async () => {
+  it("does not write migration entries for skipped delete/create changes", async () => {
     const yamlDir = mkdtempSync(join(tmpdir(), "nkdk-yaml-"))
     const xmlDir = mkdtempSync(join(tmpdir(), "nkdk-xml-"))
     vi.spyOn(process.stdout, "write").mockImplementation(() => true)
-    selectMock.mockResolvedValue("Удалить")
+    selectMock.mockResolvedValue("")
     fs.mkdirSync(join(yamlDir, "Справочник", "Новый"), { recursive: true })
     fs.mkdirSync(join(xmlDir, "Catalogs"), { recursive: true })
     fs.writeFileSync(join(yamlDir, "Справочник", "Новый", "Свойства.yaml"), "")
@@ -148,16 +152,15 @@ describe("generateMigration", () => {
     })
 
     expect(result.exitCode).toBe(0)
-    expect(fs.readFileSync(join(yamlDir, "Миграции", "2026-05-05-143000.yaml"), "utf-8")).toBe(
-      '"Справочник.Старый": Удалить\n"Справочник.Новый": Добавить\n',
-    )
+    expect(result.filePath).toBeUndefined()
+    expect(fs.existsSync(join(yamlDir, "Миграции"))).toBe(false)
   })
 
-  it("removes selected added item from later choices and leftovers", async () => {
+  it("removes selected added item from later choices and ignores leftovers", async () => {
     const yamlDir = mkdtempSync(join(tmpdir(), "nkdk-yaml-"))
     const xmlDir = mkdtempSync(join(tmpdir(), "nkdk-xml-"))
     vi.spyOn(process.stdout, "write").mockImplementation(() => true)
-    selectMock.mockResolvedValueOnce("Новый1").mockResolvedValueOnce("Удалить")
+    selectMock.mockResolvedValueOnce("Новый1").mockResolvedValueOnce("")
     fs.mkdirSync(join(yamlDir, "Справочник", "Новый1"), { recursive: true })
     fs.mkdirSync(join(yamlDir, "Справочник", "Новый2"), { recursive: true })
     fs.mkdirSync(join(xmlDir, "Catalogs"), { recursive: true })
@@ -174,15 +177,19 @@ describe("generateMigration", () => {
     })
 
     expect(fs.readFileSync(join(yamlDir, "Миграции", "2026-05-05-143000.yaml"), "utf-8")).toBe(
-      '"Справочник.Старый1": Новый1\n"Справочник.Старый2": Удалить\n"Справочник.Новый2": Добавить\n',
+      '"Справочник.Старый1": Новый1\n',
     )
     expect(selectMock).toHaveBeenCalledTimes(2)
     expect(selectMock.mock.calls[1]?.[0].choices).toEqual([
       { name: "Новый2", value: "Новый2" },
-      { name: "Удалить", value: "Удалить" },
+      { name: "Не переименовывать", value: "" },
     ])
   })
 })
+
+function writtenStdout(writer: { mock: { calls: unknown[][] } }): string {
+  return writer.mock.calls.map(([chunk]) => String(chunk)).join("")
+}
 
 function catalogXML(name: string): string {
   return `<?xml version="1.0" encoding="UTF-8"?>

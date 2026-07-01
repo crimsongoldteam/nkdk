@@ -3,6 +3,7 @@ import type { MetadataRootName, MetadataTargetConstraint } from "~/metadata/comm
 import type { TypeDescriptionAllowedTypes } from "~/metadata/commonObjects/typeDescription/types"
 import type { SyncAreaDeclaration } from "~/metadata/orchestration/appliedObject/xmlAreas"
 import type { TypeRulesOperations } from "./fn"
+import type { PropertyOperationTargetDeclaration } from "./operationTargets"
 
 import { ConfigurationContext, ConfigurationContextWithExportToXML } from "~/metadata/context/types"
 import { TableAdditionalSourceTypes } from "~/metadata/forms/commonObjects/tableAdditionalSource/types"
@@ -58,6 +59,9 @@ export interface BasePropertyRule {
 
   /** Декларативная подсказка для инкрементального XML sync: какой YAML-файл пишет какую XML-область. */
   syncArea?: SyncAreaDeclaration
+
+  /** Нейтральное описание цели rename/delete для коллекции, которую задаёт это свойство. */
+  operationTarget?: PropertyOperationTargetDeclaration
 
   /** Нейтральное описание внешней metadata-записи, которую создаёт внешний файл свойства. */
   externalMetadata?: ExternalMetadataPropertyRule

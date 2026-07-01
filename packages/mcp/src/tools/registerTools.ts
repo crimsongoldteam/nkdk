@@ -6,6 +6,7 @@ import {
 import { getSchemaInputShape } from "../contracts/getSchema"
 import { importFromXmlInputShape } from "../contracts/importFromXml"
 import { initSyncStateInputShape } from "../contracts/initSyncState"
+import { deleteItemInputShape, renameItemInputShape } from "../contracts/operations"
 import { syncToXmlInputShape } from "../contracts/syncToXml"
 import { validateProjectInputShape } from "../contracts/validateProject"
 import { guideDefinitions } from "../guides"
@@ -14,6 +15,8 @@ import { describeProjectStructure } from "../services/describeProjectStructure"
 import { getSchema } from "../services/getSchema"
 import { importFromXml } from "../services/importFromXml"
 import { initSyncState } from "../services/initSyncState"
+import { deleteItem } from "../services/deleteItem"
+import { renameItem } from "../services/renameItem"
 import { syncToXml } from "../services/syncToXml"
 import { validateYamlProject } from "../services/validateProject"
 
@@ -78,6 +81,28 @@ export function registerNkdkCapabilities(server: RegisterableServer): void {
       inputSchema: initSyncStateInputShape,
     },
     async (input) => jsonToolResult(await initSyncState(input)),
+  )
+
+  server.registerTool(
+    "nkdk.rename_item",
+    {
+      title: "Rename NKDK metadata item",
+      description:
+        "Единственный MCP-способ сохранить XML/reference identity при переименовании metadata-объекта или дочернего элемента.",
+      inputSchema: renameItemInputShape,
+    },
+    async (input) => jsonToolResult(await renameItem(input)),
+  )
+
+  server.registerTool(
+    "nkdk.delete_item",
+    {
+      title: "Delete NKDK metadata item",
+      description:
+        "Удаляет metadata-объект или дочерний элемент в YAML. Миграцию не пишет; отсутствующий YAML-узел будет удален при XML-синхронизации.",
+      inputSchema: deleteItemInputShape,
+    },
+    async (input) => jsonToolResult(await deleteItem(input)),
   )
 
   for (const guide of guideDefinitions) {

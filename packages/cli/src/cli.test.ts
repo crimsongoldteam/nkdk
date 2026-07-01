@@ -1,3 +1,7 @@
+import fs from "fs"
+import { mkdtempSync } from "fs"
+import { tmpdir } from "os"
+import { join } from "path"
 import { afterEach, describe, expect, it, vi } from "vitest"
 import { createProgram, runCli } from "./cli"
 
@@ -28,7 +32,64 @@ describe("cli", () => {
     expect(writtenText(stderr)).toContain("--inline можно использовать только вместе с --json-schema")
     expect(exit).toHaveBeenCalledWith(1)
   })
+
+  it("prints no-write rename plan by default", async () => {
+    const stdout = captureStdout()
+    const yamlDir = createProject()
+    const program = createProgram({ exitOnUnhandledError: false })
+
+    program.parse(["node", "nkdk", "rename", yamlDir, "Справочник.Товары", "Номенклатура"], { from: "node" })
+    await waitForAsyncCatch()
+
+    const result = JSON.parse(writtenText(stdout))
+    expect(result).toMatchObject({ ok: true, mode: "plan" })
+    expect(fs.existsSync(join(yamlDir, "Справочник", "Товары"))).toBe(true)
+  })
+
+  it("applies rename only with --write", async () => {
+    const stdout = captureStdout()
+    const yamlDir = createProject()
+    const program = createProgram({ exitOnUnhandledError: false })
+
+    program.parse(["node", "nkdk", "rename", yamlDir, "Справочник.Товары", "Номенклатура", "--write"], { from: "node" })
+    await waitForAsyncCatch()
+
+    const result = JSON.parse(writtenText(stdout))
+    expect(result).toMatchObject({ ok: true, mode: "applied" })
+    expect(fs.existsSync(join(yamlDir, "Справочник", "Товары"))).toBe(false)
+    expect(fs.existsSync(join(yamlDir, "Справочник", "Номенклатура"))).toBe(true)
+  })
+
+  it("delete prints blocked references and exits non-zero", async () => {
+    const stdout = captureStdout()
+    const yamlDir = createProject()
+    writeProjectFile(yamlDir, "Справочник/Заказы/Свойства.yaml", ["Владельцы:", "  - Справочник.Товары"])
+    const program = createProgram({ exitOnUnhandledError: false })
+
+    program.parse(["node", "nkdk", "delete", yamlDir, "Справочник.Товары", "--write"], { from: "node" })
+    await waitForAsyncCatch()
+
+    const result = JSON.parse(writtenText(stdout))
+    expect(result).toMatchObject({ ok: false, code: "references_found" })
+    expect(process.exitCode).toBe(1)
+  })
 })
+
+function createProject(): string {
+  const yamlDir = mkdtempSync(join(tmpdir(), "nkdk-cli-"))
+  writeProjectFile(yamlDir, "Справочник/Товары/Свойства.yaml", "{}\n")
+  return yamlDir
+}
+
+function writeProjectFile(projectDir: string, projectPath: string, lines: string[] | string): void {
+  const filePath = join(projectDir, ...projectPath.split("/"))
+  fs.mkdirSync(join(filePath, ".."), { recursive: true })
+  fs.writeFileSync(filePath, Array.isArray(lines) ? `${lines.join("\n")}\n` : lines)
+}
+
+function captureStdout() {
+  return vi.spyOn(process.stdout, "write").mockImplementation(() => true)
+}
 
 function captureStderr() {
   return vi.spyOn(process.stderr, "write").mockImplementation(() => true)

@@ -11,6 +11,8 @@ interface CoreFailure {
 
 interface CoreSyncResult {
   succeeded: number
+  changedXmlFiles?: Array<{ path: string; change: "added" | "changed" | "deleted" }>
+  migrationsApplied?: Array<{ fileName: string; from: string; to: string }>
   failed: CoreFailure[]
 }
 
@@ -24,6 +26,11 @@ type ConfigDumpInfo = Map<
 >
 
 interface SyncToXmlDeps {
+  planSyncToXml?: (params: { inputDir: string; outputDir: string; referenceDir?: string }) => Promise<{
+    ok: boolean
+    mode?: "plan"
+    migrationsToApply?: Array<{ fileName: string; from: string; to: string }>
+  }>
   readXmlSyncState?: (xmlDir: string) => Promise<unknown | undefined>
   syncConfigurationToXML: (params: {
     context: {
@@ -70,22 +77,27 @@ interface SyncToXmlDeps {
 }
 
 export type SyncToXmlPayload = ToolPayload<{
-  succeeded: number
-  failed: Array<{ kind: string; name: string; parent?: string; message: string }>
+  result?: unknown
+  succeeded?: number
+  changedXmlFiles?: Array<{ path: string; change: "added" | "changed" | "deleted" }>
+  migrationsApplied?: Array<{ fileName: string; from: string; to: string }>
+  failed?: Array<{ kind: string; name: string; parent?: string; message: string }>
 }>
 
 export async function syncToXml(input: SyncToXmlInput, deps?: SyncToXmlDeps): Promise<SyncToXmlPayload> {
-  if (input.allowWrite !== true) {
-    return toolError("confirmation_required", "sync_to_xml пишет XML-файлы; повторите вызов с allowWrite=true", {
-      yamlDir: input.yamlDir,
-      xmlDir: input.xmlDir,
-      referenceDir: input.referenceDir,
-    })
-  }
-
   try {
     const core = deps ?? (await loadCoreApi())
     const referenceDir = input.referenceDir ?? input.xmlDir
+    if (input.allowWrite !== true) {
+      if (!core.planSyncToXml) return toolError("core_error", "План XML-синхронизации недоступен")
+      const result = await core.planSyncToXml({
+        inputDir: input.yamlDir,
+        outputDir: input.xmlDir,
+        referenceDir,
+      })
+      return toolSuccess({ result })
+    }
+
     if (input.fullSync !== true) {
       const state = await core.readXmlSyncState?.(input.xmlDir)
       if (!state) {
@@ -125,6 +137,8 @@ export async function syncToXml(input: SyncToXmlInput, deps?: SyncToXmlDeps): Pr
 
     return toolSuccess({
       succeeded: result.succeeded,
+      ...(result.changedXmlFiles !== undefined ? { changedXmlFiles: result.changedXmlFiles } : {}),
+      ...(result.migrationsApplied !== undefined ? { migrationsApplied: result.migrationsApplied } : {}),
       failed: result.failed.map(mapFailure),
     })
   } catch (caught) {

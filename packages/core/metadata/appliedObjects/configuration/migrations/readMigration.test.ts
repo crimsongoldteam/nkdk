@@ -6,15 +6,20 @@ import { describe, expect, it } from "vitest"
 import { readMigrationFile, readPendingMigrationEntries } from "./readMigration"
 
 describe("readMigration", () => {
-  it("reads a flat string map in object order", () => {
+  it("reads one flat string map entry", () => {
+    const dir = mkdtempSync(join(tmpdir(), "nkdk-migrations-"))
+    const path = join(dir, "2026-05-05-143000.yaml")
+    fs.writeFileSync(path, '"Справочник.Товары": "Номенклатура"\n')
+
+    expect(readMigrationFile(path)).toEqual([{ path: "Справочник.Товары", value: "Номенклатура" }])
+  })
+
+  it("rejects multiple entries", () => {
     const dir = mkdtempSync(join(tmpdir(), "nkdk-migrations-"))
     const path = join(dir, "2026-05-05-143000.yaml")
     fs.writeFileSync(path, '"Справочник.Товары": "Номенклатура"\n"Справочник.Номенклатура": Удалить\n')
 
-    expect(readMigrationFile(path)).toEqual([
-      { path: "Справочник.Товары", value: "Номенклатура" },
-      { path: "Справочник.Номенклатура", value: "Удалить" },
-    ])
+    expect(() => readMigrationFile(path)).toThrow("Файл миграции должен содержать ровно одно переименование")
   })
 
   it("rejects empty and non-string values", () => {

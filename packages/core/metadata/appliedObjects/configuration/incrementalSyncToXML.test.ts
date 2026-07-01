@@ -134,8 +134,55 @@ describe("syncConfigurationIncrementallyToXML", () => {
     expect(result.failed).toEqual([])
     expect(readFileSync(formXmlPath, "utf-8")).not.toBe(beforeXml)
     expect(readFileSync(formXmlPath, "utf-8")).toContain("Измененная форма")
-    expect(result.changedXmlFiles).toContain("Catalogs/Контрагенты/Forms/ФормаЭлемента.xml")
+    expect(result.changedXmlFiles).toContainEqual({
+      path: "Catalogs/Контрагенты/Forms/ФормаЭлемента.xml",
+      change: "changed",
+    })
     expect(existsSync(join(xmlDir, "Catalogs", "Контрагенты.xml"))).toBe(true)
+  })
+
+  it("применяет неприменённые миграции даже без разницы в YAML-состоянии", async () => {
+    const yamlDir = tempDir()
+    const xmlDir = tempDir()
+    mkdirSync(join(yamlDir, "Справочник", "Номенклатура"), { recursive: true })
+    mkdirSync(join(xmlDir, "Catalogs"), { recursive: true })
+    writeFileSync(join(yamlDir, "Справочник", "Номенклатура", "Свойства.yaml"), "", "utf-8")
+    writeFileSync(
+      join(xmlDir, "Catalogs", "Товары.xml"),
+      `<?xml version="1.0" encoding="UTF-8"?>
+<MetaDataObject xmlns="http://v8.1c.ru/8.3/MDClasses" version="2.20">
+  <Catalog uuid="00000000-0000-0000-0000-000000000001">
+    <Properties><Name>Товары</Name><Synonym/><Comment/></Properties>
+  </Catalog>
+</MetaDataObject>`,
+      "utf-8",
+    )
+    const current = await hashProjectFiles(yamlDir)
+    await writeXmlSyncState(xmlDir, { version: 1, files: current })
+    mkdirSync(join(yamlDir, "Миграции"), { recursive: true })
+    writeFileSync(join(yamlDir, "Миграции", "2026-05-05-143000.yaml"), '"Справочник.Товары": "Номенклатура"\n', "utf-8")
+
+    const result = await syncConfigurationIncrementallyToXML({
+      context: baseContext(),
+      inputDir: yamlDir,
+      outputDir: xmlDir,
+    })
+
+    expect(result.failed).toEqual([])
+    expect(result.migrationsApplied).toEqual([
+      { fileName: "2026-05-05-143000.yaml", from: "Справочник.Товары", to: "Справочник.Номенклатура" },
+    ])
+    expect(readFileSync(join(xmlDir, ".nakidka-migrations.yaml"), "utf-8")).toBe(
+      ["applied:", "  - 2026-05-05-143000.yaml", ""].join("\n"),
+    )
+    expect(existsSync(join(xmlDir, "Catalogs", "Номенклатура.xml"))).toBe(true)
+    expect(existsSync(join(xmlDir, "Catalogs", "Товары.xml"))).toBe(false)
+    expect(result.changedXmlFiles).toEqual(
+      expect.arrayContaining([
+        { path: "Catalogs/Номенклатура.xml", change: "added" },
+        { path: "Catalogs/Товары.xml", change: "deleted" },
+      ]),
+    )
   })
 
   it("does not rewrite root Configuration.xml for changed owner properties", async () => {

@@ -1,6 +1,7 @@
 import type { PropertyRuleType } from "~/metadata/orchestration/property/registry"
 import { getTypeRule } from "~/metadata/orchestration/property/typeRuleRegistry"
 import type { ProjectResourceDescriptor, XmlSyncRoute } from "~/metadata/orchestration/property/fn"
+import type { PropertyOperationTargetDeclaration } from "~/metadata/orchestration/property/operationTargets"
 import type { MetadataItemRule, PropertyRule } from "~/metadata/orchestration/property/types"
 
 export type MetadataProjectResourceDescriptor =
@@ -133,6 +134,26 @@ export function describeMetadataRuleProjectResources(rule: MetadataItemRule): Pr
   }
 
   return resources
+}
+
+export interface MetadataRuleOperationTargetDescriptor {
+  propertyName: string
+  propertyYaml?: string
+  declaration: PropertyOperationTargetDeclaration
+}
+
+export function describeMetadataRuleOperationTargets(rule: MetadataItemRule): MetadataRuleOperationTargetDescriptor[] {
+  return Object.entries(rule.properties).flatMap(([propertyName, propertyRule]) => {
+    const declaration = propertyRule.operationTarget
+    if (!declaration) return []
+    return [
+      {
+        propertyName,
+        propertyYaml: typeof propertyRule.yaml === "string" ? propertyRule.yaml : undefined,
+        declaration,
+      },
+    ]
+  })
 }
 
 function collectPropertyProjectResources(

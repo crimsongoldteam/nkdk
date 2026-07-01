@@ -1,13 +1,17 @@
 import fs from "fs"
-import { join, relative, sep } from "path"
+import { join } from "path"
 import type { ConfigurationContextWithExportToXML } from "~/metadata/context/types"
-import { syncAppliedObjectAreaToXML } from "~/metadata/orchestration/appliedObject/syncToXML"
+import { syncAppliedObjectAreaToXML, syncAppliedObjectToXML } from "~/metadata/orchestration/appliedObject/syncToXML"
+import type { ReferenceModelRemapper } from "~/metadata/orchestration/appliedObject/syncToXML"
 import { getTypeRule } from "~/metadata/orchestration/property/typeRuleRegistry"
 import type { XmlWriteManifest } from "~/metadata/orchestration/xmlWriteManifest"
+import { diffXmlTree, snapshotXmlTree, type PreparedMetadataMigrationChain } from "~/metadata/operations"
 import { updateConfigDumpInfoVersionsToXML } from "../configDumpInfo/sync"
 import { buildConfigurationChildObjects, readConfigurationChildObjectsFromXML } from "./childObjects"
 import type { ConfigurationSyncResult } from "./convertFromXML"
 import { buildIncrementalXmlSyncPlan } from "./incrementalPlan"
+import { parseMigrationPath, writeAppliedMigrationsState } from "./migrations"
+import { remapReferenceModel } from "./migrations/referenceRemap"
 import {
   CONFIGURATION_XML_FILE,
   CONFIGURATION_YAML_FILE,
@@ -16,6 +20,7 @@ import {
   writeConfigurationToXML,
 } from "./rootIO"
 import { diffSyncState, hashProjectFiles, readXmlSyncState, SYNC_STATE_FILE, writeXmlSyncState } from "./syncState"
+import { prepareConfigurationXmlMigrationChain } from "./syncToXML"
 import { TopLevelMetadataItemRules } from "./topLevelRules"
 
 export async function syncConfigurationIncrementallyToXML(params: {
@@ -34,13 +39,32 @@ export async function syncConfigurationIncrementallyToXML(params: {
 
   const currentFiles = await hashProjectFiles(params.inputDir)
   const diff = diffSyncState(previousState.files, currentFiles)
-  if (diff.added.length === 0 && diff.changed.length === 0 && diff.deleted.length === 0) {
+  const migrationChain = await prepareConfigurationXmlMigrationChain({
+    context: params.context,
+    inputDir: params.inputDir,
+    outputDir: params.outputDir,
+    referenceDir: params.referenceDir,
+    useOutputAsReference: true,
+  })
+  if (!migrationChain.ok) {
+    return {
+      succeeded: 0,
+      failed: [{ kind: "migration", name: "Миграции", error: new Error(JSON.stringify(migrationChain)) }],
+      migrationChain,
+    }
+  }
+  if (
+    diff.added.length === 0 &&
+    diff.changed.length === 0 &&
+    diff.deleted.length === 0 &&
+    migrationChain.migrationsToApply.length === 0
+  ) {
     return { succeeded: 0, failed: [] }
   }
 
   let plan
   try {
-    plan = buildIncrementalXmlSyncPlan({ diff, rules: TopLevelMetadataItemRules })
+    plan = buildIncrementalXmlSyncPlan({ diff, rules: TopLevelMetadataItemRules, extraAreas: migrationChain.xmlAreas })
   } catch (error) {
     return {
       succeeded: 0,
@@ -50,10 +74,9 @@ export async function syncConfigurationIncrementallyToXML(params: {
 
   try {
     const dumpInfoNames = new Set<string>()
-    const changedXmlFiles = new Set<string>()
+    const xmlBefore = await snapshotXmlTree(params.outputDir)
     if (plan.rebuildConfigurationXml) {
       await writeConfigurationArea(params)
-      changedXmlFiles.add(CONFIGURATION_XML_FILE)
     }
 
     for (const planned of plan.areas) {
@@ -63,6 +86,11 @@ export async function syncConfigurationIncrementallyToXML(params: {
       switch (planned.area.kind) {
         case "externalFile": {
           for (const name of planned.area.dumpInfoNames) dumpInfoNames.add(name)
+          const reference = buildMigrationReference({
+            migrationChain,
+            itemTypePrefix: planned.area.itemTypePrefix,
+            itemName: planned.area.itemName,
+          })
           const tracker = await createXmlChangeTracker(params.outputDir, join(params.outputDir, rule.xmlDir, planned.area.itemName))
           await fs.promises.rm(join(params.outputDir, planned.area.xmlPath), { force: true })
           await syncAppliedObjectAreaToXML({
@@ -76,10 +104,11 @@ export async function syncConfigurationIncrementallyToXML(params: {
             referenceDir: params.referenceDir ? join(params.referenceDir, rule.xmlDir) : join(params.outputDir, rule.xmlDir),
             externalReferenceDir: params.referenceDir
               ? join(params.referenceDir, rule.xmlDir, planned.area.itemName)
-              : join(params.outputDir, rule.xmlDir, planned.area.itemName),
+              : join(params.outputDir, rule.xmlDir, reference.referenceName),
+            referenceName: reference.referenceName,
+            referenceModelRemapper: reference.referenceModelRemapper,
             xmlManifest: tracker.manifest,
           })
-          for (const path of await tracker.changedXmlFiles()) changedXmlFiles.add(path)
           break
         }
         case "fileItem": {
@@ -98,16 +127,19 @@ export async function syncConfigurationIncrementallyToXML(params: {
             referenceDir: params.referenceDir ? join(params.referenceDir, rule.xmlDir) : join(params.outputDir, rule.xmlDir),
             xmlManifest: tracker.manifest,
           })
-          for (const path of await tracker.changedXmlFiles()) changedXmlFiles.add(path)
           break
         }
         case "owner": {
+          const reference = buildMigrationReference({
+            migrationChain,
+            itemTypePrefix: planned.area.itemTypePrefix,
+            itemName: planned.area.itemName,
+          })
           const tracker = await createXmlChangeTracker(
             params.outputDir,
             join(params.outputDir, rule.xmlDir, `${planned.area.itemName}.xml`)
           )
-          await syncAppliedObjectAreaToXML({
-            area: { kind: "owner" },
+          const syncParams = {
             rule,
             context: { ...params.context, exportToXML: { ...params.context.exportToXML } },
             inputDir: join(params.inputDir, rule.itemTypePrefix),
@@ -116,11 +148,17 @@ export async function syncConfigurationIncrementallyToXML(params: {
             externalOutputDir: join(params.outputDir, rule.xmlDir, planned.area.itemName),
             referenceDir: params.referenceDir ? join(params.referenceDir, rule.xmlDir) : join(params.outputDir, rule.xmlDir),
             externalReferenceDir: params.referenceDir
-              ? join(params.referenceDir, rule.xmlDir, planned.area.itemName)
-              : join(params.outputDir, rule.xmlDir, planned.area.itemName),
+              ? join(params.referenceDir, rule.xmlDir, reference.referenceName)
+              : join(params.outputDir, rule.xmlDir, reference.referenceName),
+            referenceName: reference.referenceName,
+            referenceModelRemapper: reference.referenceModelRemapper,
             xmlManifest: tracker.manifest,
-          })
-          for (const path of await tracker.changedXmlFiles()) changedXmlFiles.add(path)
+          }
+          if (planned.fromMigration) {
+            await syncAppliedObjectToXML(syncParams)
+          } else {
+            await syncAppliedObjectAreaToXML({ ...syncParams, area: { kind: "owner" } })
+          }
           break
         }
         default:
@@ -133,8 +171,21 @@ export async function syncConfigurationIncrementallyToXML(params: {
       outputDir: params.outputDir,
       names: dumpInfoNames,
     })
+    await removeRenamedObjectXmlFiles({
+      outputDir: params.outputDir,
+      migrations: migrationChain.migrationsToApply,
+    })
+    const changedXmlFiles = await diffXmlTree(params.outputDir, xmlBefore)
+    writeAppliedMigrationsState(params.outputDir, {
+      applied: [...migrationChain.appliedState.applied, ...migrationChain.pendingFileNames],
+    })
     await writeXmlSyncState(params.outputDir, { version: 1, files: currentFiles })
-    return { succeeded: plan.areas.length, changedXmlFiles: [...changedXmlFiles].sort(), failed: [] }
+    return {
+      succeeded: plan.areas.length,
+      changedXmlFiles,
+      migrationsApplied: migrationChain.migrationsToApply,
+      failed: [],
+    }
   } catch (error) {
     return {
       succeeded: 0,
@@ -144,52 +195,56 @@ export async function syncConfigurationIncrementallyToXML(params: {
 }
 
 async function createXmlChangeTracker(
-  outputDir: string,
-  targetPath: string
-): Promise<{ manifest: XmlWriteManifest; changedXmlFiles: () => Promise<string[]> }> {
-  const before = await snapshotXmlFiles(targetPath)
-  const writtenFiles = new Set<string>()
+  _outputDir: string,
+  _targetPath: string
+): Promise<{ manifest: XmlWriteManifest }> {
   return {
     manifest: {
-      addFile(absPath: string): void {
-        writtenFiles.add(absPath)
-      },
-    },
-    changedXmlFiles: async () => {
-      const changed: string[] = []
-      for (const absPath of [...writtenFiles].sort()) {
-        const previous = before.get(absPath)
-        const current = await readFileIfExists(absPath)
-        if (previous !== current) changed.push(relative(outputDir, absPath).split(sep).join("/"))
-      }
-      return changed
+      addFile(): void {},
     },
   }
 }
 
-async function snapshotXmlFiles(targetPath: string): Promise<Map<string, string | undefined>> {
-  const result = new Map<string, string | undefined>()
-  await snapshotPath(targetPath, result)
-  return result
+function buildMigrationReference(params: {
+  migrationChain: PreparedMetadataMigrationChain
+  itemTypePrefix: string
+  itemName: string
+}): { referenceName: string; referenceModelRemapper?: ReferenceModelRemapper } {
+  const currentObjectPath = `${params.itemTypePrefix}.${params.itemName}`
+  const referencePath = params.migrationChain.referencePathByCurrentPath.get(currentObjectPath) ?? currentObjectPath
+  const segments = referencePath.split(".")
+  const referenceName = segments[segments.length - 1] ?? params.itemName
+  const referenceModelRemapper: ReferenceModelRemapper | undefined =
+    params.migrationChain.referencePathByCurrentPath.size > 0
+      ? ({ rule, currentModel, referenceModel }) =>
+          remapReferenceModel({
+            rule,
+            currentObjectPath,
+            currentModel,
+            referenceModel,
+            referencePathByCurrentPath: params.migrationChain.referencePathByCurrentPath,
+          })
+      : undefined
+
+  return { referenceName, referenceModelRemapper }
 }
 
-async function snapshotPath(targetPath: string, result: Map<string, string | undefined>): Promise<void> {
-  if (!fs.existsSync(targetPath)) return
-  const stat = await fs.promises.stat(targetPath)
-  if (stat.isFile()) {
-    result.set(targetPath, await fs.promises.readFile(targetPath, "utf-8"))
-    return
-  }
-  if (!stat.isDirectory()) return
-  const entries = await fs.promises.readdir(targetPath, { withFileTypes: true })
-  for (const entry of entries) {
-    await snapshotPath(join(targetPath, entry.name), result)
-  }
-}
+async function removeRenamedObjectXmlFiles(params: {
+  outputDir: string
+  migrations: readonly { from: string; to: string }[]
+}): Promise<void> {
+  for (const migration of params.migrations) {
+    const from = parseMigrationPath(migration.from)
+    const to = parseMigrationPath(migration.to)
+    if (from.kind !== "object" || to.kind !== "object") continue
+    if (from.localName.toLocaleLowerCase("ru") === to.localName.toLocaleLowerCase("ru")) continue
 
-async function readFileIfExists(path: string): Promise<string | undefined> {
-  if (!fs.existsSync(path)) return undefined
-  return fs.promises.readFile(path, "utf-8")
+    const rule = TopLevelMetadataItemRules.find((candidate) => candidate.itemTypePrefix === from.segments[0])
+    if (!rule?.xmlDir) continue
+
+    await fs.promises.rm(join(params.outputDir, rule.xmlDir, `${from.localName}.xml`), { force: true })
+    await fs.promises.rm(join(params.outputDir, rule.xmlDir, from.localName), { recursive: true, force: true })
+  }
 }
 
 function assertNever(value: never): never {

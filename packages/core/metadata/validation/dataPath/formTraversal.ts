@@ -11,6 +11,7 @@ import type { TableContext } from "./resolver"
 export interface FormDataPathOccurrence {
   rule: DataPathPropertyRule
   value: string
+  setValue(nextValue: string): void
   yamlPath: YamlPath
   elementType?: ElementType
   hasValuesPicture?: boolean
@@ -110,6 +111,9 @@ function collectDataPathProperties(params: {
     occurrences.push({
       rule,
       value,
+      setValue: (nextValue) => {
+        owner[propertyName] = nextValue
+      },
       yamlPath: [...params.yamlPath, rule.yaml],
       ...(params.elementType !== undefined ? { elementType: params.elementType } : {}),
       ...(owner["valuesPicture"] !== undefined ? { hasValuesPicture: true } : {}),
