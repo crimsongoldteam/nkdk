@@ -262,34 +262,89 @@ describe("exportJSONSchemaForProjectFile", () => {
     ).not.toEqual([])
   })
 
-  it("keeps document attribute TypeDescription broad in the first version", () => {
+  it.each([
+    {
+      label: "catalog attribute",
+      filePath: "Справочник/Товары/Свойства.yaml",
+      validText: ["Реквизиты:", "  Контрагент:", "    Тип: Справочник.Контрагенты"].join("\n"),
+      invalidText: ["Реквизиты:", "  Контрагент:", "    Тип: СправочникСсылка.Контрагенты"].join("\n"),
+    },
+    {
+      label: "document attribute",
+      filePath: "Документ/Заказ/Свойства.yaml",
+      validText: ["Реквизиты:", "  Контрагент:", "    Тип: Справочник.Контрагенты"].join("\n"),
+      invalidText: ["Реквизиты:", "  Контрагент:", "    Тип: СправочникСсылка.Контрагенты"].join("\n"),
+    },
+    {
+      label: "document tabular section attribute",
+      filePath: "Документ/Заказ/Свойства.yaml",
+      validText: [
+        "ТабличныеЧасти:",
+        "  Товары:",
+        "    Реквизиты:",
+        "      Номенклатура:",
+        "        Тип: Справочник.Номенклатура",
+      ].join("\n"),
+      invalidText: [
+        "ТабличныеЧасти:",
+        "  Товары:",
+        "    Реквизиты:",
+        "      Номенклатура:",
+        "        Тип: СправочникСсылка.Номенклатура",
+      ].join("\n"),
+    },
+    {
+      label: "chart of characteristic types attribute",
+      filePath: "ПланВидовХарактеристик/ВидыСубконто/Свойства.yaml",
+      validText: ["Реквизиты:", "  Контрагент:", "    Тип: Справочник.Контрагенты"].join("\n"),
+      invalidText: ["Реквизиты:", "  Контрагент:", "    Тип: СправочникСсылка.Контрагенты"].join("\n"),
+    },
+    {
+      label: "chart of characteristic types tabular section attribute",
+      filePath: "ПланВидовХарактеристик/ВидыСубконто/Свойства.yaml",
+      validText: [
+        "ТабличныеЧасти:",
+        "  Значения:",
+        "    Реквизиты:",
+        "      Номенклатура:",
+        "        Тип: Справочник.Номенклатура",
+      ].join("\n"),
+      invalidText: [
+        "ТабличныеЧасти:",
+        "  Значения:",
+        "    Реквизиты:",
+        "      Номенклатура:",
+        "        Тип: СправочникСсылка.Номенклатура",
+      ].join("\n"),
+    },
+  ])("validates allowed TypeDescription values for $label", ({ filePath, validText, invalidText }) => {
     const schema = TypeCompiler.Compile(
       exportJSONSchemaForProjectFile({
         context,
-        filePath: "Документ/Заказ/Свойства.yaml",
+        filePath,
         mode: "inline",
       })
     )
 
+    expect(validateFile({ filePath, schema, text: validText })).toEqual([])
+    expect(validateFile({ filePath, schema, text: invalidText })).not.toEqual([])
     expect(
       validateFile({
-        filePath: "Документ/Заказ/Свойства.yaml",
+        filePath,
         schema,
-        text: ["Реквизиты:", "  ПокаШирокий:", "    Тип: НесуществующийТип"].join("\n"),
+        text: ["Реквизиты:", "  Неверный:", "    Тип: НесуществующийТип"].join("\n"),
       })
-    ).toEqual([])
-
+    ).not.toEqual([])
     expect(
       validateFile({
-        filePath: "Документ/Заказ/Свойства.yaml",
+        filePath,
         schema,
-        text: ["Реквизиты:", "  ПокаШирокий:", "    Тип: НесуществующийТип"].join("\n"),
+        text: ["Реквизиты:", "  Таблица:", "    Тип:", "      - Строка", "      - ХранилищеЗначения"].join("\n"),
       })
-    ).toEqual([])
-
+    ).not.toEqual([])
     expect(
       validateFile({
-        filePath: "Документ/Заказ/Свойства.yaml",
+        filePath,
         schema,
         text: [
           "Реквизиты:",
@@ -298,22 +353,6 @@ describe("exportJSONSchemaForProjectFile", () => {
           "      ИдентификаторТипа:",
           "        - 8c1e3694-da12-44d5-8b1f-d134b89a1282",
         ].join("\n"),
-      })
-    ).toEqual([])
-
-    expect(
-      validateFile({
-        filePath: "Документ/Заказ/Свойства.yaml",
-        schema,
-        text: ["Реквизиты:", "  Идентификатор:", "    ИдентификаторТипа: []"].join("\n"),
-      })
-    ).not.toEqual([])
-
-    expect(
-      validateFile({
-        filePath: "Документ/Заказ/Свойства.yaml",
-        schema,
-        text: ["Реквизиты:", "  Идентификатор:", "    Тип: {}"].join("\n"),
       })
     ).not.toEqual([])
   })

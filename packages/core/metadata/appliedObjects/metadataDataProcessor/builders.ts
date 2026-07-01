@@ -16,6 +16,26 @@ export function metadataAttributesRule<const Params extends MetadataAttributesRu
     operationTarget: namedCollectionTarget({ kind: "attribute", migrationSegment: "Реквизит", requiresMigration: true }),
   })
 }
+
+export interface MetadataAttributesWithAllowedTypesWidePropertyRule extends WidePropertyRuleBase {
+  type: "MetadataAttributesWithAllowedTypes"
+}
+
+export type MetadataAttributesWithAllowedTypesRuleParams = Omit<
+  MetadataAttributesWithAllowedTypesWidePropertyRule,
+  "type"
+>
+
+export function metadataAttributesWithAllowedTypesRule<
+  const Params extends MetadataAttributesWithAllowedTypesRuleParams,
+>(
+  params: WideExactRuleParams<MetadataAttributesWithAllowedTypesRuleParams, Params>
+): Readonly<{ type: "MetadataAttributesWithAllowedTypes" } & Params> {
+  return defineWidePropertyRule("MetadataAttributesWithAllowedTypes", {
+    ...params,
+    operationTarget: namedCollectionTarget({ kind: "attribute", migrationSegment: "Реквизит", requiresMigration: true }),
+  })
+}
 export interface MetadataDataProcessorTabularSectionsWidePropertyRule extends WidePropertyRuleBase {
   type: "MetadataDataProcessorTabularSections"
 }

@@ -3,7 +3,7 @@ import {
   metadataCommandsRule,
 } from "~/metadata/appliedObjects/metadataAccountingRegister/builders"
 import { metadataChartOfCharacteristicTypesTabularSectionsRule } from "~/metadata/appliedObjects/metadataChartOfCharacteristicTypes/builders"
-import { metadataAttributesRule } from "~/metadata/appliedObjects/metadataDataProcessor/builders"
+import { metadataAttributesWithAllowedTypesRule } from "~/metadata/appliedObjects/metadataDataProcessor/builders"
 import { characteristicsDescriptionsRule } from "~/metadata/commonObjects/characteristicsDescription/types"
 import { childFormNamesRule } from "~/metadata/commonObjects/childFormNames/types"
 import { childTemplateNamesRule } from "~/metadata/commonObjects/childTemplateNames/types"
@@ -348,7 +348,7 @@ export const MetadataChartOfCharacteristicTypesRules = {
       implicitValueYAML: "Native",
     }),
     extendedConfigurationObject: stringRule({ runtimeOnly: true }),
-    attributes: metadataAttributesRule({ yaml: "Реквизиты", xml: "Attribute", xmlParents: childObjects }),
+    attributes: metadataAttributesWithAllowedTypesRule({ yaml: "Реквизиты", xml: "Attribute", xmlParents: childObjects }),
     tabularSections: metadataChartOfCharacteristicTypesTabularSectionsRule({
       yaml: "ТабличныеЧасти",
       xml: "TabularSection",

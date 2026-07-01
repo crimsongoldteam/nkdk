@@ -179,6 +179,135 @@ describe("validateProject", { timeout: 30_000 }, () => {
     expect(diagnostics).toEqual([])
   })
 
+  it("rejects explicit document implicit YAML boolean value", () => {
+    const projectDir = createProject()
+    writeProjectFile(projectDir, "Документ/ПоступлениеТоваровУслуг/Свойства.yaml", ["Автонумерация: Истина"])
+
+    const diagnostics = validateProject({
+      projectDir,
+      filePath: "Документ/ПоступлениеТоваровУслуг/Свойства.yaml",
+      context: mockContext,
+    }).diagnostics
+
+    expect(diagnostics).toEqual([
+      expect.objectContaining({
+        filePath: join(projectDir, "Документ", "ПоступлениеТоваровУслуг", "Свойства.yaml"),
+        path: "/Автонумерация",
+        source: "structure",
+        severity: "error",
+      }),
+    ])
+  })
+
+  it("accepts explicit document non-implicit YAML boolean value", () => {
+    const projectDir = createProject()
+    writeProjectFile(projectDir, "Документ/ПоступлениеТоваровУслуг/Свойства.yaml", ["Автонумерация: Ложь"])
+
+    const diagnostics = validateProject({
+      projectDir,
+      filePath: "Документ/ПоступлениеТоваровУслуг/Свойства.yaml",
+      context: mockContext,
+    }).diagnostics
+
+    expect(diagnostics).toEqual([])
+  })
+
+  it("rejects non-canonical document attribute reference type names", () => {
+    const projectDir = createProject()
+    writeProjectFile(projectDir, "Документ/Заказ/Свойства.yaml", [
+      "Реквизиты:",
+      "  Контрагент:",
+      "    Тип: СправочникСсылка.Контрагенты",
+      "ТабличныеЧасти:",
+      "  Товары:",
+      "    Реквизиты:",
+      "      Номенклатура:",
+      "        Тип: СправочникСсылка.Номенклатура",
+    ])
+
+    const diagnostics = validateProject({
+      projectDir,
+      filePath: "Документ/Заказ/Свойства.yaml",
+      context: mockContext,
+    }).diagnostics
+
+    expect(diagnostics).toEqual(
+      expect.arrayContaining([
+        expect.objectContaining({
+          filePath: join(projectDir, "Документ", "Заказ", "Свойства.yaml"),
+          path: "/Реквизиты/Контрагент/Тип",
+          source: "structure",
+          severity: "error",
+        }),
+        expect.objectContaining({
+          filePath: join(projectDir, "Документ", "Заказ", "Свойства.yaml"),
+          path: "/ТабличныеЧасти/Товары/Реквизиты/Номенклатура/Тип",
+          source: "structure",
+          severity: "error",
+        }),
+      ])
+    )
+  })
+
+  it("accepts canonical document attribute reference type names", () => {
+    const projectDir = createProject()
+    writeProjectFile(projectDir, "Документ/Заказ/Свойства.yaml", [
+      "Реквизиты:",
+      "  Контрагент:",
+      "    Тип: Справочник.Контрагенты",
+      "ТабличныеЧасти:",
+      "  Товары:",
+      "    Реквизиты:",
+      "      Номенклатура:",
+      "        Тип: Справочник.Номенклатура",
+    ])
+
+    const diagnostics = validateProject({
+      projectDir,
+      filePath: "Документ/Заказ/Свойства.yaml",
+      context: mockContext,
+    }).diagnostics
+
+    expect(diagnostics).toEqual([])
+  })
+
+  it("rejects non-canonical chart of characteristic types attribute reference type names", () => {
+    const projectDir = createProject()
+    writeProjectFile(projectDir, "ПланВидовХарактеристик/ВидыСубконто/Свойства.yaml", [
+      "Реквизиты:",
+      "  Контрагент:",
+      "    Тип: СправочникСсылка.Контрагенты",
+      "ТабличныеЧасти:",
+      "  Значения:",
+      "    Реквизиты:",
+      "      Номенклатура:",
+      "        Тип: СправочникСсылка.Номенклатура",
+    ])
+
+    const diagnostics = validateProject({
+      projectDir,
+      filePath: "ПланВидовХарактеристик/ВидыСубконто/Свойства.yaml",
+      context: mockContext,
+    }).diagnostics
+
+    expect(diagnostics).toEqual(
+      expect.arrayContaining([
+        expect.objectContaining({
+          filePath: join(projectDir, "ПланВидовХарактеристик", "ВидыСубконто", "Свойства.yaml"),
+          path: "/Реквизиты/Контрагент/Тип",
+          source: "structure",
+          severity: "error",
+        }),
+        expect.objectContaining({
+          filePath: join(projectDir, "ПланВидовХарактеристик", "ВидыСубконто", "Свойства.yaml"),
+          path: "/ТабличныеЧасти/Значения/Реквизиты/Номенклатура/Тип",
+          source: "structure",
+          severity: "error",
+        }),
+      ])
+    )
+  })
+
   it("validates nested subsystem properties with schema rules", () => {
     const projectDir = createProject()
     writeProjectFile(projectDir, "Подсистема/Администрирование/Свойства.yaml", "{}\n")

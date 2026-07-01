@@ -299,7 +299,7 @@ const binaryDataStorageLocationUseFieldProperty = {
     },
   },
 } as const satisfies Record<string, PropertyRule>
-export const CATALOG_ATTRIBUTE_ALLOWED_TYPES = [
+export const METADATA_ATTRIBUTE_ALLOWED_TYPES = [
   "string",
   "decimal",
   "date",
@@ -361,6 +361,16 @@ export const MetadataAttributeRules = {
     ...binaryDataStorageLocationUseFieldProperty,
   },
 } as const satisfies MetadataItemRule
+export const MetadataAttributesWithAllowedTypesRules = {
+  ...MetadataAttributeRules,
+  properties: {
+    ...MetadataAttributeRules.properties,
+    type: {
+      ...commonAttributeProperties.type,
+      allowedTypes: METADATA_ATTRIBUTE_ALLOWED_TYPES,
+    },
+  },
+} as const satisfies MetadataItemRule
 export const MetadataCatalogAttributeRules = {
   itemType: "MetadataAttribute",
   metadataTargetOwner: { kind: "inherit" },
@@ -369,7 +379,7 @@ export const MetadataCatalogAttributeRules = {
     ...commonAttributeProperties,
     type: {
       ...commonAttributeProperties.type,
-      allowedTypes: CATALOG_ATTRIBUTE_ALLOWED_TYPES,
+      allowedTypes: METADATA_ATTRIBUTE_ALLOWED_TYPES,
     },
     ...fillProperties,
     use: systemEnumerationRule({
@@ -399,6 +409,10 @@ export const MetadataDocumentAttributeRules = {
   externalMetadata: attributeExternalMetadata,
   properties: {
     ...commonAttributeProperties,
+    type: {
+      ...commonAttributeProperties.type,
+      allowedTypes: METADATA_ATTRIBUTE_ALLOWED_TYPES,
+    },
     ...fillProperties,
     ...binaryDataStorageLocationUseFieldProperty,
   },
@@ -409,6 +423,10 @@ export const MetadataTabularSectionAttributeRules = {
   externalMetadata: attributeExternalMetadata,
   properties: {
     ...commonAttributeProperties,
+    type: {
+      ...commonAttributeProperties.type,
+      allowedTypes: METADATA_ATTRIBUTE_ALLOWED_TYPES,
+    },
     ...fillProperties,
   },
 } as const satisfies MetadataItemRule
