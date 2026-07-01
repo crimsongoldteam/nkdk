@@ -1,3 +1,4 @@
+import { availableParallelism } from "node:os"
 import { resolve } from "path"
 import type { ConfigurationContext } from "~/metadata/context/types"
 import { createOwnerMetadataCacheFromValidationTable } from "./dataPath/ownerCache"
@@ -10,6 +11,7 @@ import {
 } from "./projectFiles"
 import { createProjectYamlCacheFromEntries, type ProjectYamlEntry } from "./projectYamlCache"
 import { createValidationObjectTable } from "./projectValidationObjectTable"
+import { createProjectValidationWorkerPool } from "./projectValidationWorkerPool"
 import {
   createValidationSchemaCache,
   readProjectYamlDiagnostic,
@@ -36,10 +38,14 @@ const expectedPatterns =
   "Ожидались Конфигурация.yaml или пути вида <Вид>/<Имя>/Свойства.yaml и <Вид>/<Имя>/Формы/<Форма>/Форма.yaml"
 
 export async function validateProject(params: ValidateProjectParams): Promise<ValidateProjectResult> {
-  return validateProjectSequential(params)
+  const concurrency = normalizeValidationConcurrency(params.concurrency)
+  if (params.filePath !== undefined || concurrency === 1) {
+    return validateProjectInProcess({ ...params, concurrency: 1 })
+  }
+  return validateProjectWithWorkers({ ...params, concurrency })
 }
 
-function validateProjectSequential(params: ValidateProjectParams): ValidateProjectResult {
+function validateProjectInProcess(params: ValidateProjectParams): ValidateProjectResult {
   const projectDir = resolve(params.projectDir)
   const context = params.context ?? defaultValidationContext()
   const schemaCache = createValidationSchemaCache(context)
@@ -95,6 +101,39 @@ function validateProjectSequential(params: ValidateProjectParams): ValidateProje
   }
 
   return { diagnostics: sortDiagnostics(dedupeDiagnostics(diagnostics)) }
+}
+
+async function validateProjectWithWorkers(params: ValidateProjectParams & { concurrency: number }): Promise<ValidateProjectResult> {
+  const projectDir = resolve(params.projectDir)
+  const context = params.context ?? defaultValidationContext()
+  const files = discoverValidationProjectFiles(projectDir)
+  const pool = createProjectValidationWorkerPool({ concurrency: params.concurrency })
+
+  try {
+    await pool.start()
+    const first = await pool.runFirstPass({ projectDir, context, files })
+    const objectTable = createValidationObjectTable()
+    objectTable.mergeRecords(first.objectRecords)
+    const second = await pool.runSecondPass({
+      projectDir,
+      context,
+      mode: "full",
+      objectTable: objectTable.snapshot(),
+    })
+
+    return { diagnostics: sortDiagnostics(dedupeDiagnostics([...first.diagnostics, ...second.diagnostics])) }
+  } finally {
+    await pool.close()
+  }
+}
+
+function normalizeValidationConcurrency(value: number | undefined): number {
+  if (value !== undefined) {
+    if (!Number.isInteger(value) || value < 1) throw new Error("validation concurrency must be a positive integer")
+    return value
+  }
+
+  return Math.max(1, Math.min(4, availableParallelism() - 1))
 }
 
 function processPendingFirstPasses(params: {

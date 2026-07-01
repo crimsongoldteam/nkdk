@@ -109,6 +109,29 @@ describe("validateProject", { timeout: 30_000 }, () => {
     ])
   })
 
+  it("parallel full validation returns the same diagnostics as concurrency 1", async () => {
+    const projectDir = createProject()
+    writeProjectFile(projectDir, "Справочник/Товары/Свойства.yaml", [
+      "Реквизиты:",
+      "  Товар:",
+      "    Тип: Справочник.Номенклатура",
+    ])
+    writeProjectFile(projectDir, "Справочник/Товары/Формы/ФормаЭлемента/Форма.yaml", [
+      "Реквизиты:",
+      "  Объект:",
+      "    Тип: СправочникОбъект.Товары",
+      "Элементы:",
+      "  Поле:",
+      "    Вид: ПолеВвода",
+      "    ПутьКДанным: Объект.НетТакогоРеквизита",
+    ])
+
+    const sequential = await validateProject({ projectDir, context: mockContext, concurrency: 1 })
+    const parallel = await validateProject({ projectDir, context: mockContext, concurrency: 2 })
+
+    expect(parallel.diagnostics).toEqual(sequential.diagnostics)
+  })
+
   it("warns about unimplemented dynamic list type-value checks instead of failing form import", async () => {
     const projectDir = createProject()
     writeProjectFile(projectDir, "Справочник/Товары/Свойства.yaml", "")
@@ -685,7 +708,7 @@ describe("validateProject", { timeout: 30_000 }, () => {
     ])
     const readFileSync = vi.spyOn(fs, "readFileSync")
 
-    await validateProject({ projectDir, context: mockContext })
+    await validateProject({ projectDir, context: mockContext, concurrency: 1 })
 
     const ownerPath = join(projectDir, "Справочник", "Номенклатура", "Свойства.yaml")
     expect(readFileSync.mock.calls.filter(([filePath]) => filePath === ownerPath)).toHaveLength(1)
@@ -720,7 +743,7 @@ describe("validateProject", { timeout: 30_000 }, () => {
     ])
     const compile = vi.spyOn(TypeCompiler, "Compile")
 
-    await validateProject({ projectDir, context: mockContext })
+    await validateProject({ projectDir, context: mockContext, concurrency: 1 })
 
     expect(compile).toHaveBeenCalledTimes(3)
   })
