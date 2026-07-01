@@ -18,7 +18,7 @@ describe("collectStructuralState", () => {
       "  Состав:",
       "    Реквизиты:",
       "      Количество:",
-      "        Тип: number",
+      "        Тип: Число",
       "",
     ].join("\n"))
 
@@ -77,7 +77,7 @@ describe("collectStructuralState", () => {
     fs.writeFileSync(join(dir, "Задача", "Исполнение", "Свойства.yaml"), [
       "РеквизитыАдресации:",
       "  Исполнитель:",
-      "    Тип: string",
+      "    Тип: Строка",
       "    ИзмерениеАдресации: InformationRegister.Адресация.Dimension.Исполнитель",
       "",
     ].join("\n"))

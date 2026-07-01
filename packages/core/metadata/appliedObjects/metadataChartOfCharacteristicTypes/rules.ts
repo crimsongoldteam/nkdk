@@ -348,7 +348,10 @@ export const MetadataChartOfCharacteristicTypesRules = {
       implicitValueYAML: "Native",
     }),
     extendedConfigurationObject: stringRule({ runtimeOnly: true }),
-    attributes: metadataAttributesRule({ yaml: "Реквизиты", xml: "Attribute", xmlParents: childObjects }),
+    attributes: {
+      ...metadataAttributesRule({ yaml: "Реквизиты", xml: "Attribute", xmlParents: childObjects }),
+      type: "MetadataAttributesWithAllowedTypes",
+    },
     tabularSections: metadataChartOfCharacteristicTypesTabularSectionsRule({
       yaml: "ТабличныеЧасти",
       xml: "TabularSection",

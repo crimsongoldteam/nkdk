@@ -339,10 +339,6 @@ export const MetadataAttributeRules = {
   externalMetadata: attributeExternalMetadata,
   properties: {
     ...commonAttributeProperties,
-    type: {
-      ...commonAttributeProperties.type,
-      allowedTypes: METADATA_ATTRIBUTE_ALLOWED_TYPES,
-    },
     ...fillProperties,
     use: systemEnumerationRule({
       yaml: "Использование",
@@ -363,6 +359,16 @@ export const MetadataAttributeRules = {
       order: 30,
     }),
     ...binaryDataStorageLocationUseFieldProperty,
+  },
+} as const satisfies MetadataItemRule
+export const MetadataAttributesWithAllowedTypesRules = {
+  ...MetadataAttributeRules,
+  properties: {
+    ...MetadataAttributeRules.properties,
+    type: {
+      ...commonAttributeProperties.type,
+      allowedTypes: METADATA_ATTRIBUTE_ALLOWED_TYPES,
+    },
   },
 } as const satisfies MetadataItemRule
 export const MetadataCatalogAttributeRules = {

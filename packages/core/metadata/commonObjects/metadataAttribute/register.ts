@@ -9,6 +9,7 @@ import { importPropertyFromXML } from "~/metadata/orchestration/property/fromXML
 import { PropertyRule } from "~/metadata/orchestration/property/types"
 import {
   MetadataAttributeRules,
+  MetadataAttributesWithAllowedTypesRules,
   MetadataCatalogAttributeRules,
   MetadataDocumentAttributeRules,
   MetadataTabularSectionAttributeRules,
@@ -16,6 +17,7 @@ import {
 
 type MetadataAttributeItemRule =
   | typeof MetadataAttributeRules
+  | typeof MetadataAttributesWithAllowedTypesRules
   | typeof MetadataCatalogAttributeRules
   | typeof MetadataDocumentAttributeRules
   | typeof MetadataTabularSectionAttributeRules
@@ -94,6 +96,16 @@ registerMetadataItemCollectionRule({
   keyField: "name",
   fromYAML: createImportMetadataAttributesFromYAML(MetadataAttributeRules),
   toJSONSchema: exportMetadataAttributesToJSONSchema,
+  collectionItemRule: true,
+})
+
+registerMetadataItemCollectionRule({
+  propertyType: "MetadataAttributesWithAllowedTypes",
+  itemRule: MetadataAttributesWithAllowedTypesRules,
+  xmlElement: "Attribute",
+  keyField: "name",
+  fromYAML: createImportMetadataAttributesFromYAML(MetadataAttributesWithAllowedTypesRules),
+  toJSONSchema: createExportMetadataAttributesToJSONSchema(MetadataAttributesWithAllowedTypesRules),
   collectionItemRule: true,
 })
 
