@@ -142,4 +142,29 @@ describe("deleteMetadataItem", () => {
       blockedReferences: [expect.objectContaining({ value: "CommonPicture.Состояния" })],
     })
   })
+
+  it("blocks delete when a form DataPath points to the target", () => {
+    const projectDir = createProject()
+    writeProjectFile(projectDir, "Справочник/Товары/Свойства.yaml", [
+      "Реквизиты:",
+      "  Артикул:",
+      "    Тип: Строка",
+    ])
+    writeProjectFile(projectDir, "Справочник/Товары/Формы/ФормаЭлемента/Форма.yaml", [
+      "Реквизиты:",
+      "  Объект:",
+      "    Тип: Справочник.Товары",
+      "Элементы:",
+      "  Артикул:",
+      "    Вид: ПолеВвода",
+      "    ПутьКДанным: Объект.Артикул",
+    ])
+
+    const result = deleteMetadataItem({
+      projectDir,
+      path: "Справочник.Товары.Реквизит.Артикул",
+    })
+
+    expect(result).toMatchObject({ ok: false, code: "references_found" })
+  })
 })

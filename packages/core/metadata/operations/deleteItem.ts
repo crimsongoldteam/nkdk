@@ -1,6 +1,10 @@
 import { dirname } from "path"
 import { rootFromYAML } from "~/metadata/commonObjects/metadataTargets/roots"
 import type { MetadataTargetOwner } from "~/metadata/commonObjects/metadataTargets"
+import {
+  collectFormDataPathReferencesForItem,
+  createOperationDataPathOwnerCache,
+} from "./dataPathReferences"
 import { applyMetadataOperationFilePlan, type MetadataOperationFileStep } from "./filePlan"
 import { parseMetadataOperationPath } from "./operationPath"
 import { buildMetadataOperationSnapshot, type MetadataOperationSnapshot, type OperationSnapshotItem } from "./projectSnapshot"
@@ -82,11 +86,19 @@ function buildDeletePlan(params: {
     if (!collected.ok) return { ok: false, failure: failure(collected.code, collected.message) }
     references.push(...collected.references)
   }
+  const isInsideDeletedTree = deletedTreeMatcher(params.resolved)
   const blockedReferences = collectBlockedReferences({
     items: references,
     deletedPrefix: params.resolved.targetPrefix,
-    isInsideDeletedTree: deletedTreeMatcher(params.resolved),
+    isInsideDeletedTree,
   })
+  blockedReferences.push(
+    ...collectBlockedDataPathReferences({
+      snapshot: params.snapshot,
+      targetPrefix: params.resolved.targetPrefix,
+      isInsideDeletedTree,
+    }),
+  )
 
   const steps: MetadataOperationFileStep[] = []
   if (blockedReferences.length === 0) {
@@ -121,6 +133,31 @@ function removeNamedNode(resolved: ResolvedMetadataOperationTarget): void {
 
   const index = collection.indexOf(resolved.modelNode)
   if (index >= 0) collection.splice(index, 1)
+}
+
+function collectBlockedDataPathReferences(params: {
+  snapshot: MetadataOperationSnapshot
+  targetPrefix: string
+  isInsideDeletedTree: (filePath: string) => boolean
+}): MetadataOperationBlockedReference[] {
+  const ownerCache = createOperationDataPathOwnerCache({
+    projectDir: params.snapshot.projectDir,
+    context: params.snapshot.context,
+  })
+  const blockedReferences: MetadataOperationBlockedReference[] = []
+
+  for (const item of params.snapshot.items) {
+    for (const reference of collectFormDataPathReferencesForItem({
+      item,
+      ownerCache,
+      targetPrefix: params.targetPrefix,
+    })) {
+      if (params.isInsideDeletedTree(reference.filePath)) continue
+      blockedReferences.push({ filePath: reference.filePath, yamlPath: reference.yamlPath, value: reference.value })
+    }
+  }
+
+  return blockedReferences
 }
 
 function collectItemReferences(item: OperationSnapshotItem): StructuralReferenceCollectionResult {

@@ -200,4 +200,32 @@ describe("renameMetadataItem", () => {
     expect(result.ok).toBe(true)
     expect(readFileSync(formPath, "utf-8")).toContain("КартинкаЗначений: ОбщаяКартинка.Статусы")
   })
+
+  it("rewrites resolvable form DataPath when an attribute is renamed", () => {
+    const projectDir = createProject()
+    writeProjectFile(projectDir, "Справочник/Товары/Свойства.yaml", [
+      "Реквизиты:",
+      "  Артикул:",
+      "    Тип: Строка",
+    ])
+    const formPath = writeProjectFile(projectDir, "Справочник/Товары/Формы/ФормаЭлемента/Форма.yaml", [
+      "Реквизиты:",
+      "  Объект:",
+      "    Тип: Справочник.Товары",
+      "Элементы:",
+      "  Артикул:",
+      "    Вид: ПолеВвода",
+      "    ПутьКДанным: Объект.Артикул",
+    ])
+
+    const result = renameMetadataItem({
+      projectDir,
+      path: "Справочник.Товары.Реквизит.Артикул",
+      newName: "Код",
+      allowWrite: true,
+    })
+
+    expect(result.ok).toBe(true)
+    expect(readFileSync(formPath, "utf-8")).toContain("ПутьКДанным: Объект.Код")
+  })
 })

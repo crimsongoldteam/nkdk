@@ -3,6 +3,11 @@ import { stringify } from "yaml"
 import { MIGRATIONS_DIR, nextMigrationFileName } from "~/metadata/appliedObjects/configuration/migrations"
 import { rootFromYAML } from "~/metadata/commonObjects/metadataTargets/roots"
 import type { MetadataTargetOwner } from "~/metadata/commonObjects/metadataTargets"
+import {
+  collectFormDataPathReferencesForItem,
+  createOperationDataPathOwnerCache,
+  rewriteDataPathSegments,
+} from "./dataPathReferences"
 import { applyMetadataOperationFilePlan, type MetadataOperationFileStep } from "./filePlan"
 import { hasCaseInsensitiveConflict, validateMetadataLocalName } from "./nameRules"
 import { parseMetadataOperationPath } from "./operationPath"
@@ -114,6 +119,12 @@ function buildRenamePlan(params: {
   if (!rewrittenReferences.ok) {
     return { ok: false, failure: failure(rewrittenReferences.code, rewrittenReferences.message) }
   }
+  const rewrittenDataPaths = rewriteDataPathReferences({
+    snapshot: params.snapshot,
+    targetPrefix: params.resolved.targetPrefix,
+    nextName: params.newName,
+    touchedItems,
+  })
 
   const steps: MetadataOperationFileStep[] = [...touchedItems].map((item) => ({
     kind: "writeFile" as const,
@@ -149,7 +160,7 @@ function buildRenamePlan(params: {
     plan: {
       steps,
       plannedChangedFiles: steps.flatMap(filesForStep),
-      rewrittenReferences: rewrittenReferences.references,
+      rewrittenReferences: [...rewrittenReferences.references, ...rewrittenDataPaths],
       createdMigration,
     },
   }
@@ -174,6 +185,36 @@ function rewriteStructuralReferences(params: {
     }
   }
   return { ok: true, references: changes }
+}
+
+function rewriteDataPathReferences(params: {
+  snapshot: MetadataOperationSnapshot
+  targetPrefix: string
+  nextName: string
+  touchedItems: Set<OperationSnapshotItem>
+}): MetadataOperationReferenceChange[] {
+  const ownerCache = createOperationDataPathOwnerCache({
+    projectDir: params.snapshot.projectDir,
+    context: params.snapshot.context,
+  })
+  const changes: MetadataOperationReferenceChange[] = []
+
+  for (const item of params.snapshot.items) {
+    for (const reference of collectFormDataPathReferencesForItem({
+      item,
+      ownerCache,
+      targetPrefix: params.targetPrefix,
+    })) {
+      const to = rewriteDataPathSegments(reference.value, reference.target.segments, reference.segmentIndex, params.nextName)
+      if (to === reference.value) continue
+
+      reference.setValue(to)
+      params.touchedItems.add(reference.item)
+      changes.push({ filePath: reference.filePath, yamlPath: reference.yamlPath, from: reference.value, to })
+    }
+  }
+
+  return changes
 }
 
 function collectItemReferences(item: OperationSnapshotItem): StructuralReferenceCollectionResult {
