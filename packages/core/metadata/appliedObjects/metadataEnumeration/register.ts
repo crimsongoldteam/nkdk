@@ -39,7 +39,7 @@ registerProjectSpec({
   kind: "enumeration",
   dir: "Перечисление",
   rule: MetadataEnumerationRules,
-  exportSchema: createProjectSchemaExporter(({ context, name }) => exportMetadataEnumerationToJSONSchema({ context, name })),
+  exportSchema: createProjectSchemaExporter(({ context }) => exportMetadataEnumerationToJSONSchema({ context })),
   importModel: ({ context, parsed, name }) => importMetadataEnumerationFromYAML(context, parsed.data, name),
 })
 

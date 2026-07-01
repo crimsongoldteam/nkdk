@@ -42,9 +42,8 @@ export const exportPropertiesToJSONSchema = <T extends MetadataItem>(params: {
   context: ConfigurationContext
   rule: MetadataItemRule
   metadataItem?: T
-  name?: string
 }): TSchema => {
-  const { context, metadataItem, rule, name } = params
+  const { context, metadataItem, rule } = params
 
   const result = {} as TSchema
 
@@ -64,7 +63,6 @@ export const exportPropertiesToJSONSchema = <T extends MetadataItem>(params: {
       context,
       rule: ruleProp,
       value,
-      name,
     })
     if (exportedValue !== undefined) {
       result[yamlKey] = ruleProp.required === true ? exportedValue : Type.Optional(exportedValue)
@@ -78,7 +76,6 @@ export const exportPropertyToJSONSchema = (params: {
   context: ConfigurationContext
   rule: PropertyRule
   value: any
-  name?: string
 }): TSchema | undefined => {
   const { context, rule, value } = params
 

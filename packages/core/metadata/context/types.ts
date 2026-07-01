@@ -21,7 +21,6 @@ export interface JSONSchemaExportContext {
   refs: Set<string>
   propertySchemaOverrides?: Partial<Record<PropertyRuleType, TSchema>>
   schemaStack?: PropertyRuleType[]
-  currentItemName?: string
 }
 
 export type ContextElementToEnterprise =

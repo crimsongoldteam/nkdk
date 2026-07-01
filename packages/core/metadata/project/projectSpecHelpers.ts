@@ -7,27 +7,17 @@ import type { MetadataItem, MetadataItemRule } from "~/metadata/orchestration/pr
 import type { RegisteredProjectSpec } from "./projectSpecRegistry"
 
 export function createMetadataItemProjectSchemaExporter(rule: MetadataItemRule): RegisteredProjectSpec["exportSchema"] {
-  return createProjectSchemaExporter(({ context, name }) => exportMetadataItemToJSONSchema({ context, rule, name }))
+  return createProjectSchemaExporter(({ context }) => exportMetadataItemToJSONSchema({ context, rule }))
 }
 
 export function createProjectSchemaExporter(
-  exporter: (params: { context: ConfigurationContext; name?: string }) => TSchema
+  exporter: (params: { context: ConfigurationContext }) => TSchema
 ): RegisteredProjectSpec["exportSchema"] {
-  return ({ context, mode = "externalRefs", name }) => {
+  return ({ context, mode = "externalRefs" }) => {
     const schemaContext = createJSONSchemaExportContext(context, mode)
-    const namedSchemaContext =
-      name === undefined
-        ? schemaContext
-        : {
-            ...schemaContext,
-            exportToJSONSchema: {
-              ...schemaContext.exportToJSONSchema!,
-              currentItemName: name,
-            },
-          }
-    const schema = exporter({ context: namedSchemaContext, name })
+    const schema = exporter({ context: schemaContext })
 
-    return mode === "externalRefs" ? attachCollectedSchemaRefs(namedSchemaContext, schema) : schema
+    return mode === "externalRefs" ? attachCollectedSchemaRefs(schemaContext, schema) : schema
   }
 }
 

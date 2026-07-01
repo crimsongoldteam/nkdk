@@ -41,7 +41,7 @@ registerProjectSpec({
   kind: "catalog",
   dir: "Справочник",
   rule: MetadataCatalogRules,
-  exportSchema: createProjectSchemaExporter(({ context, name }) => exportMetadataCatalogToJSONSchema({ context, name })),
+  exportSchema: createProjectSchemaExporter(({ context }) => exportMetadataCatalogToJSONSchema({ context })),
   importModel: ({ context, parsed, name }) => importMetadataCatalogFromYAML(context, parsed.data, name),
 })
 

@@ -39,7 +39,7 @@ type CompiledSchema = ReturnType<(typeof TypeCompiler)["Compile"]>
 
 interface ValidationSchemaCache {
   form: () => CompiledSchema
-  properties: (spec: ValidationProjectSpec, name: string) => CompiledSchema
+  properties: (spec: ValidationProjectSpec) => CompiledSchema
 }
 
 export function validateProject(params: ValidateProjectParams): ValidateProjectResult {
@@ -76,12 +76,12 @@ function createValidationSchemaCache(context: ConfigurationContext): ValidationS
 
       return formSchema
     },
-    properties(spec, name) {
-      const key = `${spec.dir}\0${name}`
+    properties(spec) {
+      const key = spec.dir
       const existing = propertiesSchemas.get(key)
       if (existing) return existing
 
-      const compiled = TypeCompiler.Compile(spec.exportSchema({ context, mode: "inline", name }))
+      const compiled = TypeCompiler.Compile(spec.exportSchema({ context, mode: "inline" }))
       propertiesSchemas.set(key, compiled)
 
       return compiled
@@ -161,7 +161,7 @@ function validateProjectProperties(params: {
     return validateProjectFileSchema({
       file: params.file,
       cache: params.cache,
-      schema: params.schemaCache.properties(params.file.owner.spec, params.file.owner.name),
+      schema: params.schemaCache.properties(params.file.owner.spec),
     })
   }
 
@@ -169,7 +169,7 @@ function validateProjectProperties(params: {
   const diagnostics = validateProjectFileSchema({
     file: params.file,
     cache: params.cache,
-    schema: params.schemaCache.properties(params.file.owner.spec, params.file.owner.name),
+    schema: params.schemaCache.properties(params.file.owner.spec),
     parsed,
   })
   if (entry.parsed.doc.errors.length > 0) return diagnostics

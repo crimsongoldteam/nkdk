@@ -8,15 +8,13 @@ export const exportMetadataItemToJSONSchema = <T extends MetadataItem>(params: {
   context: ConfigurationContext
   rule: MetadataItemRule
   value?: T
-  name?: string
 }): TSchema => {
-  const { context, rule, value, name } = params
+  const { context, rule, value } = params
 
   const properties = exportPropertiesToJSONSchema({
     context,
     metadataItem: value,
     rule,
-    name,
   })
 
   const objectSchema = Type.Object(
@@ -28,7 +26,7 @@ export const exportMetadataItemToJSONSchema = <T extends MetadataItem>(params: {
 
   const inline = findInlineProperty(rule)
   if (inline) {
-    const inlineSchema = exportPropertyToJSONSchema({ context, rule: inline.prop, value: undefined, name })
+    const inlineSchema = exportPropertyToJSONSchema({ context, rule: inline.prop, value: undefined })
     if (inlineSchema !== undefined) return inlineSchema
   }
 

@@ -3,14 +3,11 @@ import { ConfigurationContext } from "~/metadata/context/types"
 import { exportMetadataItemToJSONSchema } from "~/metadata/orchestration/metadataItem/toJSONSchema"
 import { MetadataDocumentRules } from "./rules"
 
-export const exportMetadataDocumentToJSONSchema = (params: { context: ConfigurationContext; name?: string }): TSchema => {
-  const { context, name } = params
+export const exportMetadataDocumentToJSONSchema = (params: { context: ConfigurationContext }): TSchema => {
+  const { context } = params
 
-  const schema = exportMetadataItemToJSONSchema({
+  return exportMetadataItemToJSONSchema({
     context,
     rule: MetadataDocumentRules,
-    name,
   })
-
-  return schema
 }
