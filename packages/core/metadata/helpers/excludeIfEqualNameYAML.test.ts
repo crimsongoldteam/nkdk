@@ -3,6 +3,7 @@ import { describe, expect, it } from "vitest"
 import { FormattedI8nTextJSONSchema } from "~/metadata/commonObjects/formattedI8nText/types"
 import { I8nTextJSONSchema } from "~/metadata/commonObjects/i8nText/types"
 import {
+  EXCLUDE_IF_EQUAL_NAME_YAML_DESCRIPTION,
   applyExcludedEqualNameYAMLToJSONSchema,
   findExcludedEqualNameYAMLOccurrence,
 } from "./excludeIfEqualNameYAML"
@@ -76,35 +77,40 @@ describe("findExcludedEqualNameYAMLOccurrence", () => {
 })
 
 describe("applyExcludedEqualNameYAMLToJSONSchema", () => {
-  it("rejects equal I8nText string and default-language map values", () => {
-    const schema = TypeCompiler.Compile(
-      applyExcludedEqualNameYAMLToJSONSchema({
-        context,
-        rule: { type: "I8nText", yaml: "Синоним", excludeIfEqualNameYAML: true },
-        schema: I8nTextJSONSchema,
-        name: "КакоеТоПоле",
-      })
-    )
+  it("adds a universal description to I8nText rules without rejecting concrete values", () => {
+    const schema = applyExcludedEqualNameYAMLToJSONSchema({
+      rule: { type: "I8nText", yaml: "Синоним", excludeIfEqualNameYAML: true },
+      schema: I8nTextJSONSchema,
+    })
 
-    expect(schema.Check("Какое то поле")).toBe(false)
-    expect(schema.Check({ ru: "Какое то поле", en: "Some field" })).toBe(false)
-    expect(schema.Check({ en: "Some field" })).toBe(true)
-    expect(schema.Check("Другое поле")).toBe(true)
+    expect((schema as { description?: string }).description).toBe(EXCLUDE_IF_EQUAL_NAME_YAML_DESCRIPTION)
+
+    const compiled = TypeCompiler.Compile(schema)
+    expect(compiled.Check("Какое то поле")).toBe(true)
+    expect(compiled.Check({ ru: "Какое то поле", en: "Some field" })).toBe(true)
+    expect(compiled.Check({ en: "Some field" })).toBe(true)
   })
 
-  it("rejects equal FormattedI8nText default-language text values", () => {
-    const schema = TypeCompiler.Compile(
-      applyExcludedEqualNameYAMLToJSONSchema({
-        context,
-        rule: { type: "FormattedI8nText", yaml: "Заголовок", excludeIfEqualNameYAML: true },
-        schema: FormattedI8nTextJSONSchema,
-        name: "КакоеТоПоле",
-      })
-    )
+  it("adds a universal description to FormattedI8nText rules without rejecting concrete values", () => {
+    const schema = applyExcludedEqualNameYAMLToJSONSchema({
+      rule: { type: "FormattedI8nText", yaml: "Заголовок", excludeIfEqualNameYAML: true },
+      schema: FormattedI8nTextJSONSchema,
+    })
 
-    expect(schema.Check({ Текст: "Какое то поле" })).toBe(false)
-    expect(schema.Check({ Текст: { ru: "Какое то поле", en: "Some field" } })).toBe(false)
-    expect(schema.Check({ Форматированный: "Истина", Текст: { en: "Some field" } })).toBe(true)
-    expect(schema.Check({ Текст: "Другое поле" })).toBe(true)
+    expect((schema as { description?: string }).description).toBe(EXCLUDE_IF_EQUAL_NAME_YAML_DESCRIPTION)
+
+    const compiled = TypeCompiler.Compile(schema)
+    expect(compiled.Check({ Текст: "Какое то поле" })).toBe(true)
+    expect(compiled.Check({ Текст: { ru: "Какое то поле", en: "Some field" } })).toBe(true)
+    expect(compiled.Check({ Форматированный: "Истина", Текст: { en: "Some field" } })).toBe(true)
+  })
+
+  it("keeps schemas without excludeIfEqualNameYAML unchanged", () => {
+    const schema = applyExcludedEqualNameYAMLToJSONSchema({
+      rule: { type: "I8nText", yaml: "Синоним" },
+      schema: I8nTextJSONSchema,
+    })
+
+    expect(schema).toBe(I8nTextJSONSchema)
   })
 })

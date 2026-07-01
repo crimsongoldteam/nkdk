@@ -1,9 +1,12 @@
-import { Type, type TSchema } from "@sinclair/typebox"
+import type { TSchema } from "@sinclair/typebox"
 import type { ConfigurationContext } from "~/metadata/context/types"
 import type { PropertyRule } from "~/metadata/orchestration/property/types"
-import { canConvertToPascalCase, splitPascalCase } from "./canConvertToPascalCase"
+import { canConvertToPascalCase } from "./canConvertToPascalCase"
 
 type YamlPath = readonly (string | number)[]
+
+export const EXCLUDE_IF_EQUAL_NAME_YAML_DESCRIPTION =
+  "Не указывайте это поле, если значение совпадает с именем объекта/элемента после нормализации пробелов и PascalCase."
 
 export interface ExcludedEqualNameYAMLOccurrence {
   path: YamlPath
@@ -19,10 +22,8 @@ export interface FindExcludedEqualNameYAMLOccurrenceParams {
 }
 
 export interface ApplyExcludedEqualNameYAMLToJSONSchemaParams {
-  context: Pick<ConfigurationContext, "defaultLanguage">
   rule: PropertyRule
   schema: TSchema
-  name: string | undefined
 }
 
 export function isExcludeIfEqualNameYAMLTextRule(rule: PropertyRule): boolean {
@@ -56,17 +57,10 @@ export function findExcludedEqualNameYAMLOccurrence(
 export function applyExcludedEqualNameYAMLToJSONSchema(
   params: ApplyExcludedEqualNameYAMLToJSONSchemaParams
 ): TSchema {
-  const { context, rule, schema, name } = params
-  if (!name || !isExcludeIfEqualNameYAMLTextRule(rule)) return schema
+  const { rule, schema } = params
+  if (!isExcludeIfEqualNameYAMLTextRule(rule)) return schema
 
-  const excludedText = splitPascalCase(name)
-  const forbiddenText = forbiddenI8nTextSchema(context.defaultLanguage, excludedText)
-  const forbiddenValue =
-    rule.type === "FormattedI8nText"
-      ? Type.Object({ Текст: forbiddenText }, { additionalProperties: true })
-      : forbiddenText
-
-  return Type.Intersect([schema, Type.Not(forbiddenValue)])
+  return withDescription(schema, EXCLUDE_IF_EQUAL_NAME_YAML_DESCRIPTION)
 }
 
 function findI8nTextOccurrence(params: {
@@ -92,11 +86,15 @@ function findI8nTextOccurrence(params: {
     : undefined
 }
 
-function forbiddenI8nTextSchema(defaultLanguage: string, excludedText: string): TSchema {
-  return Type.Union([
-    Type.Literal(excludedText),
-    Type.Object({ [defaultLanguage]: Type.Literal(excludedText) }, { additionalProperties: true }),
-  ])
+function withDescription(schema: TSchema, description: string): TSchema {
+  const currentDescription = (schema as { description?: unknown }).description
+  if (typeof currentDescription === "string") {
+    if (currentDescription.includes(description)) return schema
+
+    return { ...schema, description: `${currentDescription}\n\n${description}` } as TSchema
+  }
+
+  return { ...schema, description } as TSchema
 }
 
 function asRecord(value: unknown): Record<string, unknown> | undefined {

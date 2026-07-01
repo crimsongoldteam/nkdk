@@ -115,9 +115,7 @@ export const exportPropertyToJSONSchema = (params: {
   if (schemaWithDefaults === undefined) return undefined
 
   return applyExcludedEqualNameYAMLToJSONSchema({
-    context,
     rule,
     schema: schemaWithDefaults,
-    name: params.name ?? context.exportToJSONSchema?.currentItemName,
   })
 }
