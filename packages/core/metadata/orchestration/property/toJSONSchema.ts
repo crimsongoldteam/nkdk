@@ -1,5 +1,6 @@
 import { TSchema, Type } from "@sinclair/typebox"
 import { ConfigurationContext } from "~/metadata/context/types"
+import { applyExcludedEqualNameYAMLToJSONSchema } from "~/metadata/helpers/excludeIfEqualNameYAML"
 import { getTypeRule } from "./typeRuleRegistry"
 import { exportPropertyExternalRefSchema, exportPropertyOverrideSchema } from "../jsonSchemaRefs"
 import { shouldProcessProperty } from "./helpers"
@@ -41,8 +42,9 @@ export const exportPropertiesToJSONSchema = <T extends MetadataItem>(params: {
   context: ConfigurationContext
   rule: MetadataItemRule
   metadataItem?: T
+  name?: string
 }): TSchema => {
-  const { context, metadataItem, rule } = params
+  const { context, metadataItem, rule, name } = params
 
   const result = {} as TSchema
 
@@ -62,6 +64,7 @@ export const exportPropertiesToJSONSchema = <T extends MetadataItem>(params: {
       context,
       rule: ruleProp,
       value,
+      name,
     })
     if (exportedValue !== undefined) {
       result[yamlKey] = ruleProp.required === true ? exportedValue : Type.Optional(exportedValue)
@@ -75,6 +78,7 @@ export const exportPropertyToJSONSchema = (params: {
   context: ConfigurationContext
   rule: PropertyRule
   value: any
+  name?: string
 }): TSchema | undefined => {
   const { context, rule, value } = params
 
@@ -103,9 +107,17 @@ export const exportPropertyToJSONSchema = (params: {
   })
 
   const implicitYAML = getImplicitValueYAML(rule)
-  if (implicitYAML !== undefined && exportedValue !== undefined) {
-    return excludeImplicitValueFromSchema(exportedValue, implicitYAML)
-  }
+  const schemaWithDefaults =
+    implicitYAML !== undefined && exportedValue !== undefined
+      ? excludeImplicitValueFromSchema(exportedValue, implicitYAML)
+      : exportedValue
 
-  return exportedValue
+  if (schemaWithDefaults === undefined) return undefined
+
+  return applyExcludedEqualNameYAMLToJSONSchema({
+    context,
+    rule,
+    schema: schemaWithDefaults,
+    name: params.name ?? context.exportToJSONSchema?.currentItemName,
+  })
 }

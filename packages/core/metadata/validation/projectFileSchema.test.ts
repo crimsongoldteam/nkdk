@@ -131,6 +131,34 @@ describe("exportJSONSchemaForProjectFile", () => {
     })
   })
 
+  it("rejects equal object synonym in a concrete properties file schema", () => {
+    const schema = TypeCompiler.Compile(
+      exportJSONSchemaForProjectFile({
+        context,
+        filePath: "Справочник/КакоеТоПоле/Свойства.yaml",
+        mode: "inline",
+      })
+    )
+
+    expect(
+      validateFile({
+        filePath: "Справочник/КакоеТоПоле/Свойства.yaml",
+        schema,
+        text: "Синоним: Какое то поле\n",
+      })
+    ).toEqual(
+      expect.arrayContaining([expect.objectContaining({ source: "structure", severity: "error", path: "/Синоним" })])
+    )
+
+    expect(
+      validateFile({
+        filePath: "Справочник/КакоеТоПоле/Свойства.yaml",
+        schema,
+        text: ["Синоним:", "  en: Some field"].join("\n"),
+      })
+    ).toEqual([])
+  })
+
   it("exports document schema for project-relative properties path", () => {
     const projectDir = createProject()
 
@@ -367,6 +395,24 @@ describe("exportJSONSchemaForSchemaName", () => {
         Вид: expect.objectContaining({ const: "ПолеВвода" }),
       }),
     })
+  })
+
+  it("keeps generic schema by type name free from concrete object-name restrictions", () => {
+    const schema = TypeCompiler.Compile(
+      exportJSONSchemaForSchemaName({
+        context,
+        name: "MetadataCatalog",
+        mode: "inline",
+      })
+    )
+
+    expect(
+      validateFile({
+        filePath: "Свойства.yaml",
+        schema,
+        text: "Синоним: Какое то поле\n",
+      })
+    ).toEqual([])
   })
 
   it("reports unknown schema names", () => {

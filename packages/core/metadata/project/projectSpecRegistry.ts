@@ -7,7 +7,7 @@ export interface RegisteredProjectSpec {
   dir: string
   kind: string
   rule: MetadataItemRule
-  exportSchema: (params: { context: ConfigurationContext; mode?: JSONSchemaExportMode }) => TSchema
+  exportSchema: (params: { context: ConfigurationContext; mode?: JSONSchemaExportMode; name?: string }) => TSchema
   importModel: (params: { context: ConfigurationContext; parsed: ParsedYaml; name: string }) => MetadataItem | undefined
   nesting?: ProjectSpecNesting
 }

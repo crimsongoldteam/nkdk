@@ -72,7 +72,7 @@ registerProjectSpec({
   kind: "document",
   dir: "Документ",
   rule: MetadataDocumentRules,
-  exportSchema: createProjectSchemaExporter(({ context }) => exportMetadataDocumentToJSONSchema({ context })),
+  exportSchema: createProjectSchemaExporter(({ context, name }) => exportMetadataDocumentToJSONSchema({ context, name })),
   importModel: createGenericProjectImportModel(MetadataDocumentRules),
 })
 
