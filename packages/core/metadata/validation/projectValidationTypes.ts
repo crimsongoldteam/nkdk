@@ -34,3 +34,7 @@ export interface ValidationDependencyRequest {
   file: ValidationProjectFile
   requestedBy: string
 }
+
+export type ValidationResolveResult =
+  | { ok: true; filePath?: string; details?: unknown }
+  | { ok: false; diagnostics: Diagnostic[]; dependency?: ValidationDependencyRequest }

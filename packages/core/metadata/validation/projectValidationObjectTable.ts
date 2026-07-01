@@ -1,3 +1,4 @@
+import { resolve } from "path"
 import type { OwnerTypeRef } from "./dataPath/types"
 import type {
   ValidationObjectRecord,
@@ -20,7 +21,7 @@ export function createValidationObjectTable(
   const table: ValidationObjectTable = {
     mergeRecords(records) {
       for (const record of records) {
-        filePaths.add(record.filePath)
+        filePaths.add(resolve(record.filePath))
         if (record.ownerRef) recordsByOwner.set(ownerKey(record.ownerRef), record)
       }
     },
@@ -28,7 +29,7 @@ export function createValidationObjectTable(
       return recordsByOwner.get(ownerKey(ref))
     },
     hasFile(filePath) {
-      return filePaths.has(filePath)
+      return filePaths.has(resolve(filePath))
     },
     snapshot() {
       return { records: [...recordsByOwner.values()] }
