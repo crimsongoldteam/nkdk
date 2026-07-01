@@ -44,7 +44,7 @@ export function parseMetadataOperationPath(path: string): MetadataOperationPathP
     path,
     owner: { itemTypePrefix: parts[0]!, name: parts[1]! },
     chain,
-    localName: chain.at(-1)?.name ?? parts[1]!,
+    localName: chain.length > 0 ? chain[chain.length - 1]!.name : parts[1]!,
   }
 }
 

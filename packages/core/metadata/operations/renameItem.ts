@@ -5,8 +5,13 @@ import { rootFromYAML } from "~/metadata/commonObjects/metadataTargets/roots"
 import type { MetadataTargetOwner } from "~/metadata/commonObjects/metadataTargets"
 import { applyMetadataOperationFilePlan, type MetadataOperationFileStep } from "./filePlan"
 import { hasCaseInsensitiveConflict, validateMetadataLocalName } from "./nameRules"
+import { parseMetadataOperationPath } from "./operationPath"
 import { buildMetadataOperationSnapshot, type MetadataOperationSnapshot, type OperationSnapshotItem } from "./projectSnapshot"
-import { collectStructuralReferencesForItem, rewriteCanonicalPrefix, type StructuralReferenceInput } from "./references"
+import {
+  collectStructuralReferencesForItem,
+  rewriteCanonicalPrefix,
+  type StructuralReferenceCollectionResult,
+} from "./references"
 import { resolveMetadataOperationTarget, type ResolvedMetadataOperationTarget } from "./targetResolver"
 import type {
   MetadataOperationFailure,
@@ -14,17 +19,9 @@ import type {
   MetadataOperationMode,
   MetadataOperationReferenceChange,
   MetadataOperationResult,
-  MetadataOperationTarget,
+  RenameMetadataItemParams,
 } from "./types"
 import { exportOperationItemToYamlText } from "./yamlModelIO"
-
-export interface RenameMetadataItemParams {
-  projectDir: string
-  target: MetadataOperationTarget
-  newName: string
-  allowWrite?: boolean
-  now?: Date
-}
 
 interface RenamePlan {
   steps: MetadataOperationFileStep[]
@@ -33,6 +30,11 @@ interface RenamePlan {
   createdMigration?: MetadataOperationMigrationInfo
 }
 
+type RenamePlanResult = { ok: true; plan: RenamePlan } | { ok: false; failure: MetadataOperationFailure }
+type StructuralReferenceRewriteResult =
+  | { ok: true; references: MetadataOperationReferenceChange[] }
+  | { ok: false; code: "rule_contract_violation"; message: string }
+
 export function renameMetadataItem(params: RenameMetadataItemParams): MetadataOperationResult {
   const snapshot = buildMetadataOperationSnapshot({ projectDir: params.projectDir, requireValidProject: true })
   if (!snapshot.ok) return snapshot
@@ -40,20 +42,23 @@ export function renameMetadataItem(params: RenameMetadataItemParams): MetadataOp
   const name = validateMetadataLocalName(params.newName)
   if (!name.ok) return failure("invalid_name", name.message)
 
-  const resolved = resolveMetadataOperationTarget(snapshot, params.target)
+  const parsedPath = parseMetadataOperationPath(params.path)
+  if (!parsedPath.ok) return failure(parsedPath.code, parsedPath.message)
+
+  const resolved = resolveMetadataOperationTarget(snapshot, parsedPath)
   if (!resolved.ok) return failure(resolved.code, resolved.message)
 
   if (
     hasCaseInsensitiveConflict({
       existingNames: resolved.collectionNames,
-      currentName: localName(params.target),
+      currentName: resolved.currentName,
       nextName: params.newName,
     })
   ) {
     return failure("name_conflict", `Имя "${params.newName}" уже занято в этой области имен`)
   }
 
-  const plan = buildRenamePlan({
+  const planResult = buildRenamePlan({
     projectDir: params.projectDir,
     snapshot,
     resolved,
@@ -61,6 +66,8 @@ export function renameMetadataItem(params: RenameMetadataItemParams): MetadataOp
     allowWrite: params.allowWrite === true,
     now: params.now,
   })
+  if (!planResult.ok) return planResult.failure
+  const plan = planResult.plan
 
   if (params.allowWrite !== true) return success("plan", plan, plan.plannedChangedFiles)
 
@@ -89,11 +96,11 @@ function buildRenamePlan(params: {
   newName: string
   allowWrite: boolean
   now?: Date
-}): RenamePlan {
+}): RenamePlanResult {
   const touchedItems = new Set<OperationSnapshotItem>()
-  if (params.resolved.target.kind === "object") {
+  if (params.resolved.targetKind === "object") {
     params.resolved.item.model.name = params.newName
-  } else if (params.resolved.target.kind !== "fileItem") {
+  } else if (params.resolved.targetKind === "namedCollection") {
     params.resolved.modelNode.name = params.newName
     touchedItems.add(params.resolved.item)
   }
@@ -104,6 +111,9 @@ function buildRenamePlan(params: {
     toPrefix: replaceLastSegment(params.resolved.targetPrefix, params.newName),
     touchedItems,
   })
+  if (!rewrittenReferences.ok) {
+    return { ok: false, failure: failure(rewrittenReferences.code, rewrittenReferences.message) }
+  }
 
   const steps: MetadataOperationFileStep[] = [...touchedItems].map((item) => ({
     kind: "writeFile" as const,
@@ -111,14 +121,14 @@ function buildRenamePlan(params: {
     content: exportOperationItemToYamlText(item, params.snapshot.context),
   }))
 
-  if (params.resolved.target.kind === "object") {
+  if (params.resolved.targetKind === "object") {
     steps.push({
       kind: "renamePath",
       from: params.resolved.item.ownerDirPath,
       to: join(dirname(params.resolved.item.ownerDirPath), params.newName),
     })
   }
-  if (params.resolved.target.kind === "fileItem") {
+  if (params.resolved.targetKind === "fileItem") {
     const from = dirname(params.resolved.absolutePath)
     steps.push({ kind: "renamePath", from, to: join(dirname(from), params.newName) })
   }
@@ -135,10 +145,13 @@ function buildRenamePlan(params: {
   }
 
   return {
-    steps,
-    plannedChangedFiles: steps.flatMap(filesForStep),
-    rewrittenReferences,
-    createdMigration,
+    ok: true,
+    plan: {
+      steps,
+      plannedChangedFiles: steps.flatMap(filesForStep),
+      rewrittenReferences: rewrittenReferences.references,
+      createdMigration,
+    },
   }
 }
 
@@ -147,10 +160,12 @@ function rewriteStructuralReferences(params: {
   fromPrefix: string
   toPrefix: string
   touchedItems: Set<OperationSnapshotItem>
-}): MetadataOperationReferenceChange[] {
+}): StructuralReferenceRewriteResult {
   const changes: MetadataOperationReferenceChange[] = []
   for (const item of params.snapshot.items) {
-    for (const reference of collectItemReferences(item)) {
+    const collected = collectItemReferences(item)
+    if (!collected.ok) return collected
+    for (const reference of collected.references) {
       const to = rewriteCanonicalPrefix(reference.canonical, params.fromPrefix, params.toPrefix)
       if (to === undefined) continue
       reference.setCanonical(to)
@@ -158,10 +173,10 @@ function rewriteStructuralReferences(params: {
       changes.push({ filePath: reference.filePath, yamlPath: reference.yamlPath, from: reference.canonical, to })
     }
   }
-  return changes
+  return { ok: true, references: changes }
 }
 
-function collectItemReferences(item: OperationSnapshotItem): StructuralReferenceInput[] {
+function collectItemReferences(item: OperationSnapshotItem): StructuralReferenceCollectionResult {
   return collectStructuralReferencesForItem({
     item,
     parsed: item.parsed,
@@ -202,10 +217,6 @@ function failure(code: MetadataOperationFailure["code"], message: string): Metad
     rewrittenReferences: [],
     blockedReferences: [],
   }
-}
-
-function localName(target: MetadataOperationTarget): string {
-  return target.name
 }
 
 function replaceLastSegment(path: string, nextName: string): string {

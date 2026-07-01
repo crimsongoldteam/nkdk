@@ -9,6 +9,10 @@ import type { ParsedMetadataOperationPath, ParsedMetadataOperationPathSegment } 
 import type { MetadataOperationSnapshot, OperationSnapshotItem } from "./projectSnapshot"
 import type { MetadataOperationTarget } from "./types"
 
+type FileItemTargetDescriptor = MetadataRuleOperationTargetDescriptor & {
+  declaration: Extract<MetadataRuleOperationTargetDescriptor["declaration"], { kind: "fileItemCollectionTarget" }>
+}
+
 export interface ResolvedMetadataOperationTarget {
   ok: true
   target: MetadataOperationTarget
@@ -91,7 +95,7 @@ function resolveChainedTarget(
       return unsupportedTarget(`Для сегмента "${segment.collectionSegment}" нет operationTarget-декларации`)
     }
 
-    if (descriptor.declaration.kind === "fileItemCollectionTarget") {
+    if (isFileItemTargetDescriptor(descriptor)) {
       if (index !== path.chain.length - 1) {
         return unsupportedTarget(`Файловая цель "${segment.collectionSegment}" не может иметь вложенные цели`)
       }
@@ -104,6 +108,9 @@ function resolveChainedTarget(
         displayParts,
         canonicalParts,
       })
+    }
+    if (descriptor.declaration.kind !== "namedCollectionTarget") {
+      return unsupportedTarget(`Для сегмента "${segment.collectionSegment}" нет collection operationTarget-декларации`)
     }
 
     const collection = namedCollection(currentNode[descriptor.propertyName])
@@ -151,7 +158,7 @@ function resolveFileItemTarget(params: {
   snapshot: MetadataOperationSnapshot
   item: OperationSnapshotItem
   path: ParsedMetadataOperationPath
-  descriptor: Extract<MetadataRuleOperationTargetDescriptor, { declaration: { kind: "fileItemCollectionTarget" } }>
+  descriptor: FileItemTargetDescriptor
   segment: ParsedMetadataOperationPathSegment
   displayParts: string[]
   canonicalParts: string[]
@@ -203,6 +210,10 @@ function findTargetDescriptor(
     if (declaration.kind === "fileItemCollectionTarget") return declaration.migrationSegment === segment.collectionSegment
     return false
   })
+}
+
+function isFileItemTargetDescriptor(descriptor: MetadataRuleOperationTargetDescriptor): descriptor is FileItemTargetDescriptor {
+  return descriptor.declaration.kind === "fileItemCollectionTarget"
 }
 
 function findOwner(
@@ -300,7 +311,7 @@ function legacyNamedTarget(
   path: ParsedMetadataOperationPath,
   segments: Array<{ kind: MetadataOperationTargetKind; name: string }>,
 ): Exclude<MetadataOperationTarget, { kind: "object" } | { kind: "fileItem" }> {
-  const last = segments.at(-1)
+  const last = segments.length > 0 ? segments[segments.length - 1] : undefined
   if (!last) {
     return { kind: "attribute", owner: path.owner, name: path.localName }
   }

@@ -17,10 +17,10 @@ describe("renameMetadataItem", () => {
     return dir
   }
 
-  function writeProjectFile(projectDir: string, projectPath: string, lines: string[]): string {
+  function writeProjectFile(projectDir: string, projectPath: string, lines: string | string[]): string {
     const filePath = join(projectDir, ...projectPath.split("/"))
     mkdirSync(join(filePath, ".."), { recursive: true })
-    writeFileSync(filePath, lines.join("\n"))
+    writeFileSync(filePath, Array.isArray(lines) ? lines.join("\n") : lines)
     return filePath
   }
 
@@ -30,7 +30,7 @@ describe("renameMetadataItem", () => {
 
     const result = renameMetadataItem({
       projectDir,
-      target: { kind: "object", itemTypePrefix: "Справочник", name: "Товары" },
+      path: "Справочник.Товары",
       newName: "Некорректное имя",
     })
 
@@ -50,7 +50,7 @@ describe("renameMetadataItem", () => {
 
     const result = renameMetadataItem({
       projectDir,
-      target: { kind: "object", itemTypePrefix: "Справочник", name: "Товары" },
+      path: "Справочник.Товары",
       newName: "Номенклатура",
     })
 
@@ -77,11 +77,7 @@ describe("renameMetadataItem", () => {
 
     const result = renameMetadataItem({
       projectDir,
-      target: {
-        kind: "attribute",
-        owner: { itemTypePrefix: "Справочник", name: "Товары" },
-        name: "Артикул",
-      },
+      path: "Справочник.Товары.Реквизит.Артикул",
       newName: "КодПоставщика",
       allowWrite: true,
       now: new Date("2026-06-30T12:00:00.000Z"),
@@ -104,6 +100,34 @@ describe("renameMetadataItem", () => {
     )
   })
 
+  it("renames nested tabular section attribute through operation path", () => {
+    const projectDir = createProject()
+    const propertiesPath = writeProjectFile(projectDir, "Документ/Заказ/Свойства.yaml", [
+      "ТабличныеЧасти:",
+      "  Товары:",
+      "    Реквизиты:",
+      "      Количество:",
+      "        Тип: Число",
+    ])
+
+    const result = renameMetadataItem({
+      projectDir,
+      path: "Документ.Заказ.ТабличнаяЧасть.Товары.Реквизит.Количество",
+      newName: "Цена",
+      allowWrite: true,
+      now: new Date("2026-07-01T08:00:00.000Z"),
+    })
+
+    expect(result).toMatchObject({
+      ok: true,
+      createdMigration: {
+        from: "Документ.Заказ.ТабличнаяЧасть.Товары.Реквизит.Количество",
+        to: "Документ.Заказ.ТабличнаяЧасть.Товары.Реквизит.Цена",
+      },
+    })
+    expect(readFileSync(propertiesPath, "utf-8")).toContain("Цена:")
+  })
+
   it("allows case-only rename and blocks case-insensitive sibling conflicts", () => {
     const projectDir = createProject()
     writeProjectFile(projectDir, "Справочник/Товары/Свойства.yaml", [
@@ -117,11 +141,7 @@ describe("renameMetadataItem", () => {
     expect(
       renameMetadataItem({
         projectDir,
-        target: {
-          kind: "attribute",
-          owner: { itemTypePrefix: "Справочник", name: "Товары" },
-          name: "Артикул",
-        },
+        path: "Справочник.Товары.Реквизит.Артикул",
         newName: "артикул",
       }),
     ).toMatchObject({ ok: true, mode: "plan" })
@@ -129,11 +149,7 @@ describe("renameMetadataItem", () => {
     expect(
       renameMetadataItem({
         projectDir,
-        target: {
-          kind: "attribute",
-          owner: { itemTypePrefix: "Справочник", name: "Товары" },
-          name: "Артикул",
-        },
+        path: "Справочник.Товары.Реквизит.Артикул",
         newName: "код",
       }),
     ).toMatchObject({ ok: false, code: "name_conflict" })
@@ -148,12 +164,7 @@ describe("renameMetadataItem", () => {
 
     const result = renameMetadataItem({
       projectDir,
-      target: {
-        kind: "fileItem",
-        owner: { itemTypePrefix: "Справочник", name: "Товары" },
-        role: "form",
-        name: "ФормаЭлемента",
-      },
+      path: "Справочник.Товары.Форма.ФормаЭлемента",
       newName: "ФормаКарточки",
       allowWrite: true,
     })
@@ -162,5 +173,31 @@ describe("renameMetadataItem", () => {
     expect(existsSync(join(projectDir, "Справочник", "Товары", "Формы", "ФормаКарточки", "Форма.yaml"))).toBe(true)
     expect(existsSync(join(projectDir, "Миграции"))).toBe(false)
     expect(readFileSync(propertiesPath, "utf-8")).toContain("ОсновнаяФормаОбъекта: ФормаКарточки")
+  })
+
+  it("rewrites form structural references when a referenced object is renamed", () => {
+    const projectDir = createProject()
+    writeProjectFile(projectDir, "ОбщаяКартинка/Состояния/Свойства.yaml", "{}")
+    writeProjectFile(projectDir, "Справочник/Товары/Свойства.yaml", "{}")
+    const formPath = writeProjectFile(projectDir, "Справочник/Товары/Формы/ФормаЭлемента/Форма.yaml", [
+      "Реквизиты:",
+      "  ИндексКартинки:",
+      "    Тип: Число",
+      "Элементы:",
+      "  Картинка:",
+      "    Вид: ПолеРисунка",
+      "    КартинкаЗначений: ОбщаяКартинка.Состояния",
+      "    ПутьКДанным: ИндексКартинки",
+    ])
+
+    const result = renameMetadataItem({
+      projectDir,
+      path: "ОбщаяКартинка.Состояния",
+      newName: "Статусы",
+      allowWrite: true,
+    })
+
+    expect(result.ok).toBe(true)
+    expect(readFileSync(formPath, "utf-8")).toContain("КартинкаЗначений: ОбщаяКартинка.Статусы")
   })
 })

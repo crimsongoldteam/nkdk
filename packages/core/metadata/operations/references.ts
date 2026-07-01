@@ -1,5 +1,8 @@
+import "~/metadata/forms"
 import type { MetadataTargetOwner } from "~/metadata/commonObjects/metadataTargets"
 import type { StructuralReferenceCandidate } from "~/metadata/orchestration/property/fn"
+import type { ElementRule, ElementType } from "~/metadata/orchestration/formElement/types"
+import { getElementRule } from "~/metadata/orchestration/formElement/ruleFactory"
 import { getTypeRule } from "~/metadata/orchestration/property/typeRuleRegistry"
 import type { MetadataItemRule } from "~/metadata/orchestration/property/types"
 import type { ParsedYaml } from "~/yaml/parseMetadataYaml"
@@ -9,6 +12,10 @@ import type { MetadataOperationBlockedReference, MetadataOperationReferenceChang
 export interface StructuralReferenceInput extends StructuralReferenceCandidate {
   filePath: string
 }
+
+export type StructuralReferenceCollectionResult =
+  | { ok: true; references: StructuralReferenceInput[] }
+  | { ok: false; code: "rule_contract_violation"; message: string }
 
 export function collectStructuralReferenceChanges(params: {
   projectDir: string
@@ -45,11 +52,11 @@ export function collectStructuralReferencesForItem(params: {
   item: OperationSnapshotItem
   parsed: ParsedYaml
   owner?: MetadataTargetOwner
-}): StructuralReferenceInput[] {
+}): StructuralReferenceCollectionResult {
   return collectStructuralReferencesInObject({
     filePath: params.item.filePath,
     parsed: params.parsed,
-    rule: params.item.resource.owner.spec.rule,
+    rule: params.item.rule,
     value: params.item.model,
     yamlPath: [],
     owner: params.owner,
@@ -63,9 +70,9 @@ function collectStructuralReferencesInObject(params: {
   value: unknown
   yamlPath: Array<string | number>
   owner?: MetadataTargetOwner
-}): StructuralReferenceInput[] {
+}): StructuralReferenceCollectionResult {
   const record = asRecord(params.value)
-  if (!record) return []
+  if (!record) return { ok: true, references: [] }
 
   const references: StructuralReferenceInput[] = []
   for (const [propertyName, propRule] of Object.entries(params.rule.properties)) {
@@ -76,36 +83,94 @@ function collectStructuralReferencesInObject(params: {
 
     const handler = getTypeRule(propRule.type, "structuralReferences")
     if (handler) {
-      references.push(
-        ...handler({
-          filePath: params.filePath,
-          parsed: params.parsed,
-          yamlPath: [...params.yamlPath, propRule.yaml],
-          propRule,
-          propertyName,
-          value,
-          setValue: (nextValue) => {
-            record[propertyName] = nextValue
-          },
-          owner: params.owner,
-        }).map((candidate) => ({ ...candidate, filePath: params.filePath })),
-      )
+      const candidates = handler({
+        filePath: params.filePath,
+        parsed: params.parsed,
+        yamlPath: [...params.yamlPath, propRule.yaml],
+        propRule,
+        propertyName,
+        value,
+        setValue: (nextValue) => {
+          record[propertyName] = nextValue
+        },
+        owner: params.owner,
+      })
+      for (const candidate of candidates) {
+        const runtimeCandidate = candidate as StructuralReferenceCandidate & { setCanonical?: unknown }
+        if (typeof runtimeCandidate.setCanonical !== "function") {
+          return {
+            ok: false,
+            code: "rule_contract_violation",
+            message: `Правило ${propRule.type} распознало ссылку без setter в ${params.filePath}`,
+          }
+        }
+        references.push({ ...candidate, filePath: params.filePath })
+      }
+    }
+
+    const elementReferences = collectFormElementReferences({
+      ...params,
+      value,
+      yamlPath: [...params.yamlPath, propRule.yaml],
+    })
+    if (elementReferences !== undefined) {
+      if (!elementReferences.ok) return elementReferences
+      references.push(...elementReferences.references)
     }
 
     const itemRule = nestedItemRule(propRule)
     if (!itemRule) continue
 
-    references.push(
-      ...collectNestedStructuralReferences({
-        ...params,
-        value,
-        itemRule,
-        yamlPath: [...params.yamlPath, propRule.yaml],
-      }),
-    )
+    const nested = collectNestedStructuralReferences({
+      ...params,
+      value,
+      itemRule,
+      yamlPath: [...params.yamlPath, propRule.yaml],
+    })
+    if (!nested.ok) return nested
+    references.push(...nested.references)
   }
 
-  return references
+  return { ok: true, references }
+}
+
+function collectFormElementReferences(params: {
+  filePath: string
+  parsed: ParsedYaml
+  value: unknown
+  yamlPath: Array<string | number>
+  owner?: MetadataTargetOwner
+}): StructuralReferenceCollectionResult | undefined {
+  const single = getElementRecord(params.value)
+  if (single !== undefined) {
+    return collectStructuralReferencesInObject({
+      ...params,
+      rule: getElementRule(single.itemType),
+      value: single,
+    })
+  }
+
+  if (Array.isArray(params.value)) {
+    const references: StructuralReferenceInput[] = []
+    let hasElement = false
+    for (let index = 0; index < params.value.length; index += 1) {
+      const element = getElementRecord(params.value[index])
+      if (element === undefined) continue
+
+      hasElement = true
+      const result = collectStructuralReferencesInObject({
+        ...params,
+        rule: getElementRule(element.itemType),
+        value: element,
+        yamlPath: [...params.yamlPath, typeof element.name === "string" ? element.name : index],
+      })
+      if (!result.ok) return result
+      references.push(...result.references)
+    }
+    return hasElement ? { ok: true, references } : undefined
+  }
+
+  return undefined
 }
 
 function collectNestedStructuralReferences(params: {
@@ -115,29 +180,37 @@ function collectNestedStructuralReferences(params: {
   value: unknown
   yamlPath: Array<string | number>
   owner?: MetadataTargetOwner
-}): StructuralReferenceInput[] {
+}): StructuralReferenceCollectionResult {
   if (Array.isArray(params.value)) {
-    return params.value.flatMap((item, index) =>
-      collectStructuralReferencesInObject({
+    const references: StructuralReferenceInput[] = []
+    for (let index = 0; index < params.value.length; index += 1) {
+      const result = collectStructuralReferencesInObject({
         ...params,
-        value: item,
+        value: params.value[index],
         rule: params.itemRule,
-        yamlPath: [...params.yamlPath, nestedItemPathSegment(item, index)],
-      }),
-    )
+        yamlPath: [...params.yamlPath, nestedItemPathSegment(params.value[index], index)],
+      })
+      if (!result.ok) return result
+      references.push(...result.references)
+    }
+    return { ok: true, references }
   }
 
   const record = asRecord(params.value)
-  if (!record) return []
+  if (!record) return { ok: true, references: [] }
 
-  return Object.entries(record).flatMap(([key, item]) =>
-    collectStructuralReferencesInObject({
+  const references: StructuralReferenceInput[] = []
+  for (const [key, item] of Object.entries(record)) {
+    const result = collectStructuralReferencesInObject({
       ...params,
       value: item,
       rule: params.itemRule,
       yamlPath: [...params.yamlPath, key],
-    }),
-  )
+    })
+    if (!result.ok) return result
+    references.push(...result.references)
+  }
+  return { ok: true, references }
 }
 
 function nestedItemRule(propRule: MetadataItemRule["properties"][string]): MetadataItemRule | undefined {
@@ -162,4 +235,23 @@ function canonicalMatchesPrefix(value: string, prefix: string): boolean {
 
 function asRecord(value: unknown): Record<string, unknown> | undefined {
   return typeof value === "object" && value !== null ? (value as Record<string, unknown>) : undefined
+}
+
+interface ElementRecord extends Record<string, unknown> {
+  itemType: ElementType
+}
+
+function getElementRecord(value: unknown): ElementRecord | undefined {
+  const record = asRecord(value)
+  if (record === undefined || typeof record.itemType !== "string") return undefined
+
+  return getElementRuleIfKnown(record.itemType) === undefined ? undefined : (record as ElementRecord)
+}
+
+function getElementRuleIfKnown(itemType: string): ElementRule | undefined {
+  try {
+    return getElementRule(itemType as ElementType)
+  } catch {
+    return undefined
+  }
 }

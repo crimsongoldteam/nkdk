@@ -17,10 +17,10 @@ describe("deleteMetadataItem", () => {
     return dir
   }
 
-  function writeProjectFile(projectDir: string, projectPath: string, lines: string[]): string {
+  function writeProjectFile(projectDir: string, projectPath: string, lines: string | string[]): string {
     const filePath = join(projectDir, ...projectPath.split("/"))
     mkdirSync(join(filePath, ".."), { recursive: true })
-    writeFileSync(filePath, lines.join("\n"))
+    writeFileSync(filePath, Array.isArray(lines) ? lines.join("\n") : lines)
     return filePath
   }
 
@@ -30,7 +30,7 @@ describe("deleteMetadataItem", () => {
 
     const result = deleteMetadataItem({
       projectDir,
-      target: { kind: "object", itemTypePrefix: "Справочник", name: "Товары" },
+      path: "Справочник.Товары",
     })
 
     expect(result).toMatchObject({ ok: false, code: "validation_failed" })
@@ -47,7 +47,7 @@ describe("deleteMetadataItem", () => {
 
     const result = deleteMetadataItem({
       projectDir,
-      target: { kind: "object", itemTypePrefix: "Справочник", name: "Товары" },
+      path: "Справочник.Товары",
     })
 
     expect(result).toMatchObject({
@@ -71,7 +71,7 @@ describe("deleteMetadataItem", () => {
 
     const result = deleteMetadataItem({
       projectDir,
-      target: { kind: "object", itemTypePrefix: "Справочник", name: "Товары" },
+      path: "Справочник.Товары",
     })
 
     expect(result).toMatchObject({ ok: true, mode: "plan", blockedReferences: [] })
@@ -89,11 +89,7 @@ describe("deleteMetadataItem", () => {
 
     const result = deleteMetadataItem({
       projectDir,
-      target: {
-        kind: "attribute",
-        owner: { itemTypePrefix: "Справочник", name: "Товары" },
-        name: "Артикул",
-      },
+      path: "Справочник.Товары.Реквизит.Артикул",
       allowWrite: true,
     })
 
@@ -111,17 +107,39 @@ describe("deleteMetadataItem", () => {
 
     const result = deleteMetadataItem({
       projectDir,
-      target: {
-        kind: "fileItem",
-        owner: { itemTypePrefix: "Справочник", name: "Товары" },
-        role: "form",
-        name: "ФормаЭлемента",
-      },
+      path: "Справочник.Товары.Форма.ФормаЭлемента",
       allowWrite: true,
     })
 
     expect(result).toMatchObject({ ok: true, mode: "applied", createdMigration: undefined })
     expect(existsSync(join(projectDir, "Справочник", "Товары", "Формы", "ФормаЭлемента"))).toBe(false)
     expect(existsSync(join(projectDir, "Миграции"))).toBe(false)
+  })
+
+  it("blocks delete when a form contains a structural reference", () => {
+    const projectDir = createProject()
+    writeProjectFile(projectDir, "ОбщаяКартинка/Состояния/Свойства.yaml", "{}")
+    writeProjectFile(projectDir, "Справочник/Товары/Свойства.yaml", "{}")
+    writeProjectFile(projectDir, "Справочник/Товары/Формы/ФормаЭлемента/Форма.yaml", [
+      "Реквизиты:",
+      "  ИндексКартинки:",
+      "    Тип: Число",
+      "Элементы:",
+      "  Картинка:",
+      "    Вид: ПолеРисунка",
+      "    КартинкаЗначений: ОбщаяКартинка.Состояния",
+      "    ПутьКДанным: ИндексКартинки",
+    ])
+
+    const result = deleteMetadataItem({
+      projectDir,
+      path: "ОбщаяКартинка.Состояния",
+    })
+
+    expect(result).toMatchObject({
+      ok: false,
+      code: "references_found",
+      blockedReferences: [expect.objectContaining({ value: "CommonPicture.Состояния" })],
+    })
   })
 })

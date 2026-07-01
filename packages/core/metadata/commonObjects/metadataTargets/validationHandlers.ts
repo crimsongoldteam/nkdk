@@ -118,6 +118,29 @@ const validatePictureTarget: ValidateMetadataTargetFunction = (params) => {
   return result.ok ? [] : result.diagnostics
 }
 
+const collectPictureReference: StructuralReferencesFunction = (params) => {
+  if (!params.propRule.metadataTarget) return []
+  if (!isRecord(params.value) || params.value.type !== "CommonPicture" || typeof params.value.ref !== "string") return []
+
+  return [
+    {
+      yamlPath: params.yamlPath,
+      canonical: `CommonPicture.${params.value.ref}`,
+      setCanonical: (nextCanonical: string) => {
+        const parsed = parseMetadataTargetFromModel({
+          canonical: nextCanonical,
+          constraint: params.propRule.metadataTarget!,
+          owner: params.owner,
+        })
+        if (!parsed.ok || parsed.target.kind !== "object" || parsed.target.root !== "CommonPicture") {
+          throw new Error(`Не удалось записать ссылку на общую картинку: ${nextCanonical}`)
+        }
+        if (isRecord(params.value)) params.value.ref = parsed.target.objectName
+      },
+    },
+  ]
+}
+
 function validateCanonicalTarget(
   params: Parameters<ValidateMetadataTargetFunction>[0],
   value: string,
@@ -212,6 +235,7 @@ registerTypeRule("MetadataField", "structuralReferences", collectStringTargetRef
 registerTypeRule("MetadataFields", "structuralReferences", collectStringTargetReferenceList)
 registerTypeRule("MetadataObjectRefCollection", "structuralReferences", collectStringTargetReferenceList)
 registerTypeRule("MetadataValue", "structuralReferences", collectMetadataValueReference)
+registerTypeRule("Picture", "structuralReferences", collectPictureReference)
 registerTypeRule("Color", "validateMetadataTarget", validateColorTarget)
 registerTypeRule("Font", "validateMetadataTarget", validateFontTarget)
 registerTypeRule("Border", "validateMetadataTarget", validateBorderTarget)

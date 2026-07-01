@@ -2,23 +2,23 @@ import { dirname } from "path"
 import { rootFromYAML } from "~/metadata/commonObjects/metadataTargets/roots"
 import type { MetadataTargetOwner } from "~/metadata/commonObjects/metadataTargets"
 import { applyMetadataOperationFilePlan, type MetadataOperationFileStep } from "./filePlan"
+import { parseMetadataOperationPath } from "./operationPath"
 import { buildMetadataOperationSnapshot, type MetadataOperationSnapshot, type OperationSnapshotItem } from "./projectSnapshot"
-import { collectBlockedReferences, collectStructuralReferencesForItem, type StructuralReferenceInput } from "./references"
+import {
+  collectBlockedReferences,
+  collectStructuralReferencesForItem,
+  type StructuralReferenceCollectionResult,
+  type StructuralReferenceInput,
+} from "./references"
 import { resolveMetadataOperationTarget, type ResolvedMetadataOperationTarget } from "./targetResolver"
 import type {
+  DeleteMetadataItemParams,
   MetadataOperationBlockedReference,
   MetadataOperationFailure,
   MetadataOperationMode,
   MetadataOperationResult,
-  MetadataOperationTarget,
 } from "./types"
 import { exportOperationItemToYamlText } from "./yamlModelIO"
-
-export interface DeleteMetadataItemParams {
-  projectDir: string
-  target: MetadataOperationTarget
-  allowWrite?: boolean
-}
 
 interface DeletePlan {
   steps: MetadataOperationFileStep[]
@@ -26,14 +26,21 @@ interface DeletePlan {
   blockedReferences: MetadataOperationBlockedReference[]
 }
 
+type DeletePlanResult = { ok: true; plan: DeletePlan } | { ok: false; failure: MetadataOperationFailure }
+
 export function deleteMetadataItem(params: DeleteMetadataItemParams): MetadataOperationResult {
   const snapshot = buildMetadataOperationSnapshot({ projectDir: params.projectDir, requireValidProject: true })
   if (!snapshot.ok) return snapshot
 
-  const resolved = resolveMetadataOperationTarget(snapshot, params.target)
+  const parsedPath = parseMetadataOperationPath(params.path)
+  if (!parsedPath.ok) return failure(parsedPath.code, parsedPath.message)
+
+  const resolved = resolveMetadataOperationTarget(snapshot, parsedPath)
   if (!resolved.ok) return failure(resolved.code, resolved.message)
 
-  const plan = buildDeletePlan({ snapshot, resolved })
+  const planResult = buildDeletePlan({ snapshot, resolved })
+  if (!planResult.ok) return planResult.failure
+  const plan = planResult.plan
   if (plan.blockedReferences.length > 0) {
     return {
       ok: false,
@@ -68,8 +75,13 @@ export function deleteMetadataItem(params: DeleteMetadataItemParams): MetadataOp
 function buildDeletePlan(params: {
   snapshot: MetadataOperationSnapshot
   resolved: ResolvedMetadataOperationTarget
-}): DeletePlan {
-  const references = params.snapshot.items.flatMap(collectItemReferences)
+}): DeletePlanResult {
+  const references: StructuralReferenceInput[] = []
+  for (const item of params.snapshot.items) {
+    const collected = collectItemReferences(item)
+    if (!collected.ok) return { ok: false, failure: failure(collected.code, collected.message) }
+    references.push(...collected.references)
+  }
   const blockedReferences = collectBlockedReferences({
     items: references,
     deletedPrefix: params.resolved.targetPrefix,
@@ -78,9 +90,9 @@ function buildDeletePlan(params: {
 
   const steps: MetadataOperationFileStep[] = []
   if (blockedReferences.length === 0) {
-    if (params.resolved.target.kind === "object") {
+    if (params.resolved.targetKind === "object") {
       steps.push({ kind: "removePath", path: params.resolved.item.ownerDirPath })
-    } else if (params.resolved.target.kind === "fileItem") {
+    } else if (params.resolved.targetKind === "fileItem") {
       steps.push({ kind: "removePath", path: dirname(params.resolved.absolutePath) })
     } else {
       removeNamedNode(params.resolved)
@@ -93,22 +105,25 @@ function buildDeletePlan(params: {
   }
 
   return {
-    steps,
-    plannedChangedFiles: steps.flatMap(filesForStep),
-    blockedReferences,
+    ok: true,
+    plan: {
+      steps,
+      plannedChangedFiles: steps.flatMap(filesForStep),
+      blockedReferences,
+    },
   }
 }
 
 function removeNamedNode(resolved: ResolvedMetadataOperationTarget): void {
   if (!resolved.collectionProperty) return
-  const collection = resolved.item.model[resolved.collectionProperty]
+  const collection = resolved.collectionOwnerNode?.[resolved.collectionProperty]
   if (!Array.isArray(collection)) return
 
   const index = collection.indexOf(resolved.modelNode)
   if (index >= 0) collection.splice(index, 1)
 }
 
-function collectItemReferences(item: OperationSnapshotItem): StructuralReferenceInput[] {
+function collectItemReferences(item: OperationSnapshotItem): StructuralReferenceCollectionResult {
   return collectStructuralReferencesForItem({
     item,
     parsed: item.parsed,
@@ -122,11 +137,11 @@ function ownerForItem(item: OperationSnapshotItem): MetadataTargetOwner | undefi
 }
 
 function deletedTreeMatcher(resolved: ResolvedMetadataOperationTarget): (filePath: string) => boolean {
-  if (resolved.target.kind === "object") {
+  if (resolved.targetKind === "object") {
     const root = resolved.item.ownerDirPath
     return (filePath) => filePath === root || filePath.startsWith(`${root}/`)
   }
-  if (resolved.target.kind === "fileItem") {
+  if (resolved.targetKind === "fileItem") {
     const root = dirname(resolved.absolutePath)
     return (filePath) => filePath === root || filePath.startsWith(`${root}/`)
   }

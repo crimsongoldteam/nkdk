@@ -85,14 +85,30 @@ export interface MetadataOperationValidationFailed {
   diagnostics: Diagnostic[]
 }
 
+export interface RenameMetadataItemParams {
+  projectDir: string
+  path: string
+  newName: string
+  allowWrite?: boolean
+  now?: Date
+}
+
+export interface DeleteMetadataItemParams {
+  projectDir: string
+  path: string
+  allowWrite?: boolean
+}
+
 export interface MetadataOperationFailure {
   ok: false
   code:
     | "target_not_found"
+    | "invalid_path"
     | "invalid_name"
     | "name_conflict"
     | "references_found"
     | "unsupported_target"
+    | "rule_contract_violation"
     | "write_failed"
   message: string
   changedFiles: string[]
