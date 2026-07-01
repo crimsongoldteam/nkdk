@@ -213,6 +213,112 @@ describe("validateProject", { timeout: 30_000 }, () => {
     )
   })
 
+  it("rejects an explicit object synonym equal to the object name", () => {
+    const projectDir = createProject()
+    writeProjectFile(projectDir, "Справочник/КакоеТоПоле/Свойства.yaml", ["Синоним: Какое то поле"])
+
+    const diagnostics = validateProject({
+      projectDir,
+      filePath: "Справочник/КакоеТоПоле/Свойства.yaml",
+      context: mockContext,
+    }).diagnostics
+
+    expect(diagnostics).toEqual([
+      expect.objectContaining({
+        filePath: join(projectDir, "Справочник", "КакоеТоПоле", "Свойства.yaml"),
+        source: "structure",
+        severity: "error",
+        path: "/Синоним",
+        message: expect.stringContaining('Поле "Синоним" не нужно указывать'),
+      }),
+    ])
+  })
+
+  it("allows only non-default languages when the default synonym equals the object name", () => {
+    const projectDir = createProject()
+    writeProjectFile(projectDir, "Справочник/КакоеТоПоле/Свойства.yaml", ["Синоним:", "  en: Some field"])
+
+    const diagnostics = validateProject({
+      projectDir,
+      filePath: "Справочник/КакоеТоПоле/Свойства.yaml",
+      context: mockContext,
+    }).diagnostics
+
+    expect(diagnostics).toEqual([])
+  })
+
+  it("rejects only the default language when a multilingual synonym equals the object name", () => {
+    const projectDir = createProject()
+    writeProjectFile(projectDir, "Справочник/КакоеТоПоле/Свойства.yaml", [
+      "Синоним:",
+      "  ru: Какое то поле",
+      "  en: Some field",
+    ])
+
+    const diagnostics = validateProject({
+      projectDir,
+      filePath: "Справочник/КакоеТоПоле/Свойства.yaml",
+      context: mockContext,
+    }).diagnostics
+
+    expect(diagnostics).toEqual([
+      expect.objectContaining({
+        path: "/Синоним/ru",
+      }),
+    ])
+  })
+
+  it("rejects a configuration synonym equal to the required configuration name", () => {
+    const projectDir = createProject()
+    writeProjectFile(projectDir, "Конфигурация.yaml", [
+      "Имя: КакоеТоПоле",
+      "Синоним: Какое то поле",
+      "ОсновнойЯзык: Русский",
+    ])
+    writeProjectFile(projectDir, "Язык/Русский/Свойства.yaml", ["КодЯзыка: ru"])
+
+    const diagnostics = validateProject({
+      projectDir,
+      filePath: "Конфигурация.yaml",
+      context: mockContext,
+    }).diagnostics
+
+    expect(diagnostics).toEqual([
+      expect.objectContaining({
+        filePath: join(projectDir, "Конфигурация.yaml"),
+        source: "structure",
+        severity: "error",
+        path: "/Синоним",
+      }),
+    ])
+  })
+
+  it("rejects a nested form attribute title equal to the attribute name", () => {
+    const projectDir = createProject()
+    writeProjectFile(projectDir, "Справочник/Товары/Свойства.yaml", "")
+    writeProjectFile(projectDir, "Справочник/Товары/Формы/ФормаЭлемента/Форма.yaml", [
+      "Реквизиты:",
+      "  КакоеТоПоле:",
+      "    Заголовок: Какое то поле",
+    ])
+
+    const diagnostics = validateProject({
+      projectDir,
+      filePath: "Справочник/Товары/Формы/ФормаЭлемента/Форма.yaml",
+      context: mockContext,
+    }).diagnostics
+
+    expect(diagnostics).toEqual([
+      expect.objectContaining({
+        filePath: join(projectDir, "Справочник", "Товары", "Формы", "ФормаЭлемента", "Форма.yaml"),
+        source: "structure",
+        severity: "error",
+        path: "/Реквизиты/КакоеТоПоле/Заголовок",
+        message: expect.stringContaining('Поле "Заголовок" не нужно указывать'),
+      }),
+    ])
+  })
+
   it("rejects explicit document implicit YAML boolean value", () => {
     const projectDir = createProject()
     writeProjectFile(projectDir, "Документ/ПоступлениеТоваровУслуг/Свойства.yaml", ["Автонумерация: Истина"])

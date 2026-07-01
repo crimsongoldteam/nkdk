@@ -10,10 +10,12 @@ import {
   getFormWarningProviders,
   type RegisteredFormValidator,
 } from "~/metadata/validation/formValidationRegistry"
+import { validateExcludedEqualNameYAML } from "~/metadata/validation/excludeIfEqualNameYAML"
 import type { Diagnostic } from "~/metadata/validation/types"
 import { diagnosticAtYamlPath, type YamlPath } from "~/metadata/validation/yamlLocations"
 import type { ParsedYaml } from "~/yaml/parseMetadataYaml"
 import { importClientApplicationFormFromYAML } from "./fromYAML"
+import { ClientApplicationFormRules } from "./rules"
 import type { ClientApplicationFormYAML } from "./types"
 
 export const validateClientApplicationForm: RegisteredFormValidator = (params) => {
@@ -55,7 +57,16 @@ export const validateClientApplicationForm: RegisteredFormValidator = (params) =
     parsed: entry.parsed,
     form: form.value,
   })
-  const diagnostics = [...index.duplicateDiagnostics]
+  const diagnostics = [
+    ...validateExcludedEqualNameYAML({
+      filePath: entry.filePath,
+      parsed: entry.parsed,
+      rule: ClientApplicationFormRules,
+      context,
+      name: params.formName,
+    }),
+    ...index.duplicateDiagnostics,
+  ]
   for (const provider of getFormWarningProviders()) {
     diagnostics.push(...provider({ filePath: entry.filePath, parsed: entry.parsed }))
   }

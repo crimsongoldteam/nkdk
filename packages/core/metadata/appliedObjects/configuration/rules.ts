@@ -69,6 +69,7 @@ export const MetadataConfigurationRules = {
       xmlParents: configurationProperties,
       defaultValueXML: "",
       defaultValueXMLRaw: "",
+      excludeIfEqualNameYAML: true,
     }),
     comment: stringRule({
       yaml: "Комментарий",

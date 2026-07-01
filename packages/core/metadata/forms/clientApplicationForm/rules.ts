@@ -13,6 +13,7 @@ import { commandInterfaceRule } from "~/metadata/forms/commonObjects/commandInte
 import { commandSetRule } from "~/metadata/forms/commonObjects/commandSet/types"
 import { eventsRule } from "~/metadata/forms/commonObjects/event/types"
 import { formAttributesRule } from "~/metadata/forms/commonObjects/formAttribute/builders"
+import { FormAttributeRules } from "~/metadata/forms/commonObjects/formAttribute/rules"
 import { formCommandsRule } from "~/metadata/forms/commonObjects/formCommand/builders"
 import { formParametersRule } from "~/metadata/forms/commonObjects/formParameter/types"
 import { booleanRule } from "~/metadata/commonObjects/boolean/types"
@@ -85,6 +86,7 @@ export const ClientApplicationFormRules = {
       yaml: "Реквизиты",
       tag: FormRulesTags.Form,
       defaultValueXMLEmpty: [],
+      itemRule: FormAttributeRules,
       order: 3,
     }),
     attributesConditionalAppearance: conditionalAppearanceRule({

@@ -417,6 +417,7 @@ export const MetadataCatalogRules = {
       yaml: "Синоним",
       xmlParents: ["Properties"],
       defaultValueXMLRaw: {},
+      excludeIfEqualNameYAML: true,
     }),
     tabularSections: metadataTabularSectionsRule({
       yaml: "ТабличныеЧасти",

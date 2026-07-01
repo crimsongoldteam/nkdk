@@ -17,6 +17,7 @@ import {
 import { createProjectYamlCache, type ProjectYamlCache } from "./projectYamlCache"
 import type { ValidationProjectSpec } from "./projectSpecs"
 import type { Diagnostic } from "./types"
+import { validateExcludedEqualNameYAML } from "./excludeIfEqualNameYAML"
 import { validateParsedFile } from "./validateFile"
 import { validateForm } from "./validateForm"
 import { validateUniqueNameScopes } from "./uniqueNameScopes"
@@ -189,9 +190,22 @@ function validateProjectProperties(params: {
 
   const ownerRoot = rootFromYAML[params.file.owner.dir]
   const owner = ownerRoot ? { root: ownerRoot, objectName: params.file.owner.name } : undefined
+  const equalNameValidationName =
+    params.file.kind === "configuration"
+      ? metadataModelName(imported.model)
+      : params.file.kind === "properties"
+        ? params.file.owner.name
+        : undefined
 
   return [
     ...diagnostics,
+    ...validateExcludedEqualNameYAML({
+      filePath: params.file.absolutePath,
+      parsed,
+      rule: params.file.owner.spec.rule,
+      context: params.context,
+      name: equalNameValidationName,
+    }),
     ...validateUniqueNameScopes({
       filePath: params.file.absolutePath,
       parsed,
@@ -277,6 +291,11 @@ function importPropertiesModel(params: {
       diagnostic: importDiagnostic(params.filePath, `Не удалось импортировать свойства: ${message}`),
     }
   }
+}
+
+function metadataModelName(model: MetadataItem): string | undefined {
+  const record = model as { name?: unknown }
+  return typeof record.name === "string" ? record.name : undefined
 }
 
 function importDiagnostic(filePath: string, message: string): Diagnostic {
