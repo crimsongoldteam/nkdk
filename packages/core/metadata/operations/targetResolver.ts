@@ -13,7 +13,7 @@ type FileItemTargetDescriptor = MetadataRuleOperationTargetDescriptor & {
   declaration: Extract<MetadataRuleOperationTargetDescriptor["declaration"], { kind: "fileItemCollectionTarget" }>
 }
 
-export interface ResolvedMetadataOperationTarget {
+export interface ResolvedMetadataOperationPath {
   ok: true
   displayPath: string
   item: OperationSnapshotItem
@@ -31,16 +31,16 @@ export interface ResolvedMetadataOperationTarget {
   targetKind: "object" | "namedCollection" | "fileItem"
 }
 
-export interface ResolveMetadataOperationTargetFailure {
+export interface ResolveMetadataOperationPathFailure {
   ok: false
   code: "target_not_found" | "unsupported_target"
   message: string
 }
 
-export function resolveMetadataOperationTarget(
+export function resolveMetadataOperationPath(
   snapshot: MetadataOperationSnapshot,
   path: ParsedMetadataOperationPath,
-): ResolvedMetadataOperationTarget | ResolveMetadataOperationTargetFailure {
+): ResolvedMetadataOperationPath | ResolveMetadataOperationPathFailure {
   if (path.chain.length === 0) return resolveObjectTarget(snapshot, path)
   return resolveChainedTarget(snapshot, path)
 }
@@ -48,7 +48,7 @@ export function resolveMetadataOperationTarget(
 function resolveObjectTarget(
   snapshot: MetadataOperationSnapshot,
   path: ParsedMetadataOperationPath,
-): ResolvedMetadataOperationTarget | ResolveMetadataOperationTargetFailure {
+): ResolvedMetadataOperationPath | ResolveMetadataOperationPathFailure {
   const item = findOwner(snapshot, path.owner)
   if (!item) return targetNotFound(`Объект не найден: ${path.owner.itemTypePrefix}.${path.owner.name}`)
 
@@ -75,7 +75,7 @@ function resolveObjectTarget(
 function resolveChainedTarget(
   snapshot: MetadataOperationSnapshot,
   path: ParsedMetadataOperationPath,
-): ResolvedMetadataOperationTarget | ResolveMetadataOperationTargetFailure {
+): ResolvedMetadataOperationPath | ResolveMetadataOperationPathFailure {
   const item = findOwner(snapshot, path.owner)
   if (!item) return targetNotFound(`Владелец не найден: ${path.owner.itemTypePrefix}.${path.owner.name}`)
 
@@ -156,7 +156,7 @@ function resolveFileItemTarget(params: {
   segment: ParsedMetadataOperationPathSegment
   displayParts: string[]
   canonicalParts: string[]
-}): ResolvedMetadataOperationTarget | ResolveMetadataOperationTargetFailure {
+}): ResolvedMetadataOperationPath | ResolveMetadataOperationPathFailure {
   const folderPath = join(
     params.snapshot.projectDir,
     params.path.owner.itemTypePrefix,
@@ -259,10 +259,10 @@ function canonicalFileItemKind(role: MetadataFileItemRole): string {
   return "Command"
 }
 
-function targetNotFound(message: string): ResolveMetadataOperationTargetFailure {
+function targetNotFound(message: string): ResolveMetadataOperationPathFailure {
   return { ok: false, code: "target_not_found", message }
 }
 
-function unsupportedTarget(message: string): ResolveMetadataOperationTargetFailure {
+function unsupportedTarget(message: string): ResolveMetadataOperationPathFailure {
   return { ok: false, code: "unsupported_target", message }
 }

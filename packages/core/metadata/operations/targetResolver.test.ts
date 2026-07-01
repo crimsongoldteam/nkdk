@@ -4,9 +4,9 @@ import { join } from "path"
 import { afterEach, describe, expect, it } from "vitest"
 import { parseMetadataOperationPath } from "./operationPath"
 import { buildMetadataOperationSnapshot } from "./projectSnapshot"
-import { resolveMetadataOperationTarget } from "./targetResolver"
+import { resolveMetadataOperationPath } from "./targetResolver"
 
-describe("resolveMetadataOperationTarget", () => {
+describe("resolveMetadataOperationPath", () => {
   const tempDirs: string[] = []
 
   afterEach(() => {
@@ -37,7 +37,7 @@ describe("resolveMetadataOperationTarget", () => {
     const parsed = parseMetadataOperationPath(path)
     expect(parsed.ok).toBe(true)
     if (!parsed.ok) throw new Error(parsed.message)
-    return resolveMetadataOperationTarget(snapshot, parsed)
+    return resolveMetadataOperationPath(snapshot, parsed)
   }
 
   it("resolves object, child, nested child and file item targets", () => {

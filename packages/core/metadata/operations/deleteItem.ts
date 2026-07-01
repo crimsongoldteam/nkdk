@@ -14,7 +14,7 @@ import {
   type StructuralReferenceCollectionResult,
   type StructuralReferenceInput,
 } from "./references"
-import { resolveMetadataOperationTarget, type ResolvedMetadataOperationTarget } from "./targetResolver"
+import { resolveMetadataOperationPath, type ResolvedMetadataOperationPath } from "./targetResolver"
 import type {
   DeleteMetadataItemParams,
   MetadataOperationBlockedReference,
@@ -39,7 +39,7 @@ export function deleteMetadataItem(params: DeleteMetadataItemParams): MetadataOp
   const parsedPath = parseMetadataOperationPath(params.path)
   if (!parsedPath.ok) return failure(parsedPath.code, parsedPath.message)
 
-  const resolved = resolveMetadataOperationTarget(snapshot, parsedPath)
+  const resolved = resolveMetadataOperationPath(snapshot, parsedPath)
   if (!resolved.ok) return failure(resolved.code, resolved.message)
 
   const planResult = buildDeletePlan({ snapshot, resolved })
@@ -78,7 +78,7 @@ export function deleteMetadataItem(params: DeleteMetadataItemParams): MetadataOp
 
 function buildDeletePlan(params: {
   snapshot: MetadataOperationSnapshot
-  resolved: ResolvedMetadataOperationTarget
+  resolved: ResolvedMetadataOperationPath
 }): DeletePlanResult {
   const references: StructuralReferenceInput[] = []
   for (const item of params.snapshot.items) {
@@ -126,7 +126,7 @@ function buildDeletePlan(params: {
   }
 }
 
-function removeNamedNode(resolved: ResolvedMetadataOperationTarget): void {
+function removeNamedNode(resolved: ResolvedMetadataOperationPath): void {
   if (!resolved.collectionProperty) return
   const collection = resolved.collectionOwnerNode?.[resolved.collectionProperty]
   if (!Array.isArray(collection)) return
@@ -173,7 +173,7 @@ function ownerForItem(item: OperationSnapshotItem): MetadataTargetOwner | undefi
   return root ? { root, objectName: item.resource.owner.name } : undefined
 }
 
-function deletedTreeMatcher(resolved: ResolvedMetadataOperationTarget): (filePath: string) => boolean {
+function deletedTreeMatcher(resolved: ResolvedMetadataOperationPath): (filePath: string) => boolean {
   if (resolved.targetKind === "object") {
     const root = resolved.item.ownerDirPath
     return (filePath) => filePath === root || filePath.startsWith(`${root}/`)

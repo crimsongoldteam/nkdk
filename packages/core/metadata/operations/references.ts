@@ -1,4 +1,3 @@
-import "~/metadata/forms"
 import type { MetadataTargetOwner } from "~/metadata/commonObjects/metadataTargets"
 import type { StructuralReferenceCandidate } from "~/metadata/orchestration/property/fn"
 import type { ElementRule, ElementType } from "~/metadata/orchestration/formElement/types"

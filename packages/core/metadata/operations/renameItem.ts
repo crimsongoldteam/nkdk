@@ -17,7 +17,7 @@ import {
   rewriteCanonicalPrefix,
   type StructuralReferenceCollectionResult,
 } from "./references"
-import { resolveMetadataOperationTarget, type ResolvedMetadataOperationTarget } from "./targetResolver"
+import { resolveMetadataOperationPath, type ResolvedMetadataOperationPath } from "./targetResolver"
 import type {
   MetadataOperationFailure,
   MetadataOperationMigrationInfo,
@@ -50,7 +50,7 @@ export function renameMetadataItem(params: RenameMetadataItemParams): MetadataOp
   const parsedPath = parseMetadataOperationPath(params.path)
   if (!parsedPath.ok) return failure(parsedPath.code, parsedPath.message)
 
-  const resolved = resolveMetadataOperationTarget(snapshot, parsedPath)
+  const resolved = resolveMetadataOperationPath(snapshot, parsedPath)
   if (!resolved.ok) return failure(resolved.code, resolved.message)
 
   if (
@@ -97,7 +97,7 @@ export function renameMetadataItem(params: RenameMetadataItemParams): MetadataOp
 function buildRenamePlan(params: {
   projectDir: string
   snapshot: MetadataOperationSnapshot
-  resolved: ResolvedMetadataOperationTarget
+  resolved: ResolvedMetadataOperationPath
   newName: string
   allowWrite: boolean
   now?: Date
@@ -231,7 +231,7 @@ function ownerForItem(item: OperationSnapshotItem): MetadataTargetOwner | undefi
 }
 
 function buildMigrationInfo(
-  resolved: ResolvedMetadataOperationTarget,
+  resolved: ResolvedMetadataOperationPath,
   newName: string,
 ): MetadataOperationMigrationInfo | undefined {
   if (!resolved.requiresMigration || !resolved.migrationPath) return undefined

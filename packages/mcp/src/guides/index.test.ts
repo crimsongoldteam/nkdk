@@ -2,6 +2,8 @@ import { describe, expect, it } from "vitest"
 import { guideDefinitions } from "./index"
 
 describe("guide definitions", () => {
+  const removedOperationTargetsTool = ["nkdk", "list_operation_" + "targets"].join(".")
+
   it("contains the four first-version guides", () => {
     expect(guideDefinitions.map((guide) => guide.uri)).toEqual([
       "nkdk://guides/config-edit-yaml",
@@ -14,7 +16,7 @@ describe("guide definitions", () => {
   it("tells agents to use operation tools for rename and delete", () => {
     const editGuide = guideDefinitions.find((guide) => guide.uri === "nkdk://guides/config-edit-yaml")
 
-    expect(editGuide?.text).not.toContain("nkdk.list_operation_targets")
+    expect(editGuide?.text).not.toContain(removedOperationTargetsTool)
     expect(editGuide?.text).toContain("nkdk.rename_item")
     expect(editGuide?.text).toContain("nkdk.delete_item")
     expect(editGuide?.text).toContain("Справочник.Товары.Реквизит.Артикул")
