@@ -7,8 +7,9 @@ import {
   type AppliedMigrationsState,
 } from "~/metadata/appliedObjects/configuration/migrations"
 import { isMigrationFileName } from "~/metadata/appliedObjects/configuration/migrations/fileNames"
-import { buildRenameTargetPath } from "~/metadata/appliedObjects/configuration/migrations/paths"
 import type { XmlSyncArea } from "~/metadata/orchestration/appliedObject/xmlAreas"
+import { validateMetadataLocalName } from "./nameRules"
+import { buildRenameTargetPathFromOperationPath, parseMetadataOperationPath } from "./operationPath"
 import type { MigrationChainError, MigrationChainInvalidResult, MigrationPlanItem } from "./types"
 
 export interface PreparedMetadataMigrationChain {
@@ -70,7 +71,10 @@ export function prepareMetadataMigrationChain(
       })
       continue
     }
-    if (current.has(targetPath) || [...current.keys()].some((path) => path.startsWith(`${targetPath}.`))) {
+    if (
+      hasCaseInsensitivePathConflict({ currentPaths: current.keys(), fromPath: file.path, targetPath }) ||
+      hasDescendantPathConflict({ currentPaths: current.keys(), fromPath: file.path, targetPath })
+    ) {
       errors.push({
         fileName: file.fileName,
         code: "name_conflict",
@@ -192,9 +196,10 @@ function readPendingMigrationFileStrict(
     if (entries.length !== 1) throw new Error("Файл миграции должен содержать ровно одно переименование")
     const [path, value] = entries[0]!
     if (typeof value !== "string" || value.length === 0) throw new Error("Значение миграции должно быть непустой строкой")
-    if (!isValidMetadataLocalName(value) || value.includes(".")) {
-      throw new Error("Значение миграции должно быть локальным именем без точки")
-    }
+    const parsedPath = parseMetadataOperationPath(path)
+    if (!parsedPath.ok) throw new Error(parsedPath.message)
+    const validName = validateMetadataLocalName(value)
+    if (!validName.ok) throw new Error(validName.message)
     return { fileName, path, value }
   } catch (caught) {
     errors.push({
@@ -212,7 +217,7 @@ function buildRenameTargetPathStrict(
   errors: MigrationChainError[],
 ): string | undefined {
   try {
-    return buildRenameTargetPath(file.path, file.value)
+    return buildRenameTargetPathFromOperationPath(file.path, file.value)
   } catch (caught) {
     errors.push({
       fileName: file.fileName,
@@ -234,6 +239,45 @@ function movePathWithDescendants(current: Map<string, string>, from: string, to:
     }
   }
   for (const [currentPath, referencePath] of moved) current.set(currentPath, referencePath)
+}
+
+function hasCaseInsensitivePathConflict(params: {
+  currentPaths: Iterable<string>
+  fromPath: string
+  targetPath: string
+}): boolean {
+  const targetParent = parentPath(params.targetPath)
+  const targetName = localName(params.targetPath).toLocaleLowerCase("ru")
+  const fromLower = params.fromPath.toLocaleLowerCase("ru")
+
+  for (const path of params.currentPaths) {
+    if (path.toLocaleLowerCase("ru") === fromLower) continue
+    if (parentPath(path) !== targetParent) continue
+    if (localName(path).toLocaleLowerCase("ru") === targetName) return true
+  }
+  return false
+}
+
+function hasDescendantPathConflict(params: {
+  currentPaths: Iterable<string>
+  fromPath: string
+  targetPath: string
+}): boolean {
+  for (const path of params.currentPaths) {
+    if (path === params.fromPath || path.startsWith(`${params.fromPath}.`)) continue
+    if (path.startsWith(`${params.targetPath}.`)) return true
+  }
+  return false
+}
+
+function parentPath(path: string): string {
+  const dot = path.lastIndexOf(".")
+  return dot < 0 ? "" : path.slice(0, dot)
+}
+
+function localName(path: string): string {
+  const dot = path.lastIndexOf(".")
+  return dot < 0 ? path : path.slice(dot + 1)
 }
 
 function validateMigrationTargetsExist(
@@ -294,8 +338,4 @@ function invalid(errors: MigrationChainError[]): MigrationChainInvalidResult {
 
 function isRecord(value: unknown): value is Record<string, unknown> {
   return typeof value === "object" && value !== null && !Array.isArray(value)
-}
-
-function isValidMetadataLocalName(value: string): boolean {
-  return /^[A-Za-zА-Яа-яЁё_][A-Za-zА-Яа-яЁё0-9_]*$/.test(value)
 }

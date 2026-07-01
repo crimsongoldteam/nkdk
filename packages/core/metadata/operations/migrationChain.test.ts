@@ -110,4 +110,65 @@ describe("prepareMetadataMigrationChain", () => {
       migrationErrors: [expect.objectContaining({ code: "invalid_applied_migrations_state" })],
     })
   })
+
+  it("allows case-only rename and blocks case-insensitive sibling conflict", () => {
+    const { yamlDir, xmlDir } = createDirs()
+    writeFileSync(join(yamlDir, "Миграции", "2026-06-30-120000.yaml"), '"Справочник.Товары.Реквизит.Артикул": артикул\n')
+
+    const caseOnly = prepareMetadataMigrationChain({
+      yamlDir,
+      xmlDir,
+      referencePaths: ["Справочник.Товары.Реквизит.Артикул"],
+      yamlPaths: ["Справочник.Товары.Реквизит.артикул"],
+      xmlAreaByMigrationPath: () => ({
+        kind: "owner",
+        itemType: "MetadataCatalog",
+        itemTypePrefix: "Справочник",
+        itemName: "Товары",
+        xmlDir: "Catalogs",
+      }),
+    })
+    expect(caseOnly.ok).toBe(true)
+
+    const conflictDirs = createDirs()
+    writeFileSync(
+      join(conflictDirs.yamlDir, "Миграции", "2026-06-30-120000.yaml"),
+      '"Справочник.Товары.Реквизит.Артикул": код\n',
+    )
+    const conflict = prepareMetadataMigrationChain({
+      yamlDir: conflictDirs.yamlDir,
+      xmlDir: conflictDirs.xmlDir,
+      referencePaths: ["Справочник.Товары.Реквизит.Артикул", "Справочник.Товары.Реквизит.Код"],
+      yamlPaths: ["Справочник.Товары.Реквизит.код", "Справочник.Товары.Реквизит.Код"],
+      xmlAreaByMigrationPath: () => ({
+        kind: "owner",
+        itemType: "MetadataCatalog",
+        itemTypePrefix: "Справочник",
+        itemName: "Товары",
+        xmlDir: "Catalogs",
+      }),
+    })
+    expect(conflict).toMatchObject({
+      ok: false,
+      migrationErrors: [expect.objectContaining({ code: "name_conflict" })],
+    })
+  })
+
+  it("rejects syntactically invalid migration paths", () => {
+    const { yamlDir, xmlDir } = createDirs()
+    writeFileSync(join(yamlDir, "Миграции", "2026-06-30-120000.yaml"), '"Справочник.Товары.Реквизит": Код\n')
+
+    const result = prepareMetadataMigrationChain({
+      yamlDir,
+      xmlDir,
+      referencePaths: [],
+      yamlPaths: [],
+      xmlAreaByMigrationPath: () => undefined,
+    })
+
+    expect(result).toMatchObject({
+      ok: false,
+      migrationErrors: [expect.objectContaining({ code: "invalid_migration_file" })],
+    })
+  })
 })
