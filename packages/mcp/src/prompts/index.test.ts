@@ -14,8 +14,10 @@ describe("prompt definitions", () => {
   it("tells agents to use operation tools before manual YAML edits", () => {
     const editPrompt = promptDefinitions.find((prompt) => prompt.name === "nkdk_config_edit_yaml")
 
-    expect(editPrompt?.text).toContain("nkdk.list_operation_targets")
+    expect(editPrompt?.text).not.toContain("nkdk.list_operation_targets")
     expect(editPrompt?.text).toContain("nkdk.rename_item")
     expect(editPrompt?.text).toContain("nkdk.delete_item")
+    expect(editPrompt?.text).toContain("Справочник.Товары.Реквизит.Артикул")
+    expect(editPrompt?.text).toContain("Документ.Заказ.ТабличнаяЧасть.Товары.Реквизит.Количество")
   })
 })
