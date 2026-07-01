@@ -299,7 +299,7 @@ const binaryDataStorageLocationUseFieldProperty = {
     },
   },
 } as const satisfies Record<string, PropertyRule>
-export const CATALOG_ATTRIBUTE_ALLOWED_TYPES = [
+export const METADATA_ATTRIBUTE_ALLOWED_TYPES = [
   "string",
   "decimal",
   "date",
@@ -339,6 +339,10 @@ export const MetadataAttributeRules = {
   externalMetadata: attributeExternalMetadata,
   properties: {
     ...commonAttributeProperties,
+    type: {
+      ...commonAttributeProperties.type,
+      allowedTypes: METADATA_ATTRIBUTE_ALLOWED_TYPES,
+    },
     ...fillProperties,
     use: systemEnumerationRule({
       yaml: "Использование",
@@ -369,7 +373,7 @@ export const MetadataCatalogAttributeRules = {
     ...commonAttributeProperties,
     type: {
       ...commonAttributeProperties.type,
-      allowedTypes: CATALOG_ATTRIBUTE_ALLOWED_TYPES,
+      allowedTypes: METADATA_ATTRIBUTE_ALLOWED_TYPES,
     },
     ...fillProperties,
     use: systemEnumerationRule({
@@ -399,6 +403,10 @@ export const MetadataDocumentAttributeRules = {
   externalMetadata: attributeExternalMetadata,
   properties: {
     ...commonAttributeProperties,
+    type: {
+      ...commonAttributeProperties.type,
+      allowedTypes: METADATA_ATTRIBUTE_ALLOWED_TYPES,
+    },
     ...fillProperties,
     ...binaryDataStorageLocationUseFieldProperty,
   },
@@ -409,6 +417,10 @@ export const MetadataTabularSectionAttributeRules = {
   externalMetadata: attributeExternalMetadata,
   properties: {
     ...commonAttributeProperties,
+    type: {
+      ...commonAttributeProperties.type,
+      allowedTypes: METADATA_ATTRIBUTE_ALLOWED_TYPES,
+    },
     ...fillProperties,
   },
 } as const satisfies MetadataItemRule
