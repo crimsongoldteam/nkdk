@@ -1,14 +1,19 @@
 import fs from "fs"
 import type { ConfigurationContext } from "~/metadata/context/types"
+import { exportClientApplicationFormToYAML } from "~/metadata/forms/clientApplicationForm/toYAML"
 import { exportMetadataItemToYAML } from "~/metadata/orchestration"
 import { exportToYAML } from "~/yaml/export"
 import type { OperationSnapshotItem } from "./projectSnapshot"
 
 export function exportOperationItemToYamlText(item: OperationSnapshotItem, context: ConfigurationContext): string {
+  if (item.kind === "form") {
+    return exportToYAML(exportClientApplicationFormToYAML(context, item.model as never).yaml)
+  }
+
   const yaml = exportMetadataItemToYAML({
     context,
     data: item.model as never,
-    rule: item.resource.owner.spec.rule as never,
+    rule: item.rule as never,
   })
   return exportToYAML(yaml)
 }

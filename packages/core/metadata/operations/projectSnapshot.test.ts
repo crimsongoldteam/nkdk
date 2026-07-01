@@ -36,4 +36,21 @@ describe("buildMetadataOperationSnapshot", () => {
 
     expect(result.ok).toBe(true)
   })
+
+  it("includes the same YAML file kinds as validation discovery", () => {
+    const projectDir = mkdtempSync(join(tmpdir(), "nkdk-operation-snapshot-"))
+    tempDirs.push(projectDir)
+    mkdirSync(join(projectDir, "Справочник", "Товары", "Формы", "ФормаЭлемента"), { recursive: true })
+    writeFileSync(join(projectDir, "Справочник", "Товары", "Свойства.yaml"), "{}\n")
+    writeFileSync(join(projectDir, "Справочник", "Товары", "Формы", "ФормаЭлемента", "Форма.yaml"), "Элементы: {}\n")
+
+    const result = buildMetadataOperationSnapshot({ projectDir, requireValidProject: false })
+
+    expect(result.ok).toBe(true)
+    if (!result.ok) return
+    expect(result.items.map((item) => item.projectPath).sort()).toEqual([
+      "Справочник/Товары/Свойства.yaml",
+      "Справочник/Товары/Формы/ФормаЭлемента/Форма.yaml",
+    ])
+  })
 })

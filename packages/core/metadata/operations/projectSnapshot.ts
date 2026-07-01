@@ -1,19 +1,25 @@
 import { readFileSync } from "fs"
 import { dirname, resolve } from "path"
 import type { ConfigurationContext } from "~/metadata/context/types"
+import { importClientApplicationFormFromYAML } from "~/metadata/forms/clientApplicationForm/fromYAML"
+import { ClientApplicationFormRules } from "~/metadata/forms/clientApplicationForm/rules"
 import { importMetadataItemFromYAML } from "~/metadata/orchestration"
-import { discoverMetadataProjectResources, type MetadataProjectPropertiesYamlRef } from "~/metadata/project/resources"
+import type { MetadataItemRule } from "~/metadata/orchestration/property/types"
+import { discoverValidationProjectFiles, type ValidationProjectFile } from "~/metadata/validation/projectFiles"
 import { validateProject } from "~/metadata/validation/validateProject"
 import { parseMetadataYaml, type ParsedYaml } from "~/yaml/parseMetadataYaml"
 import { defaultMetadataOperationsContext } from "./context"
 import type { MetadataOperationValidationFailed } from "./types"
 
 export interface OperationSnapshotItem {
-  resource: MetadataProjectPropertiesYamlRef
+  resource: ValidationProjectFile
   filePath: string
+  projectPath: string
   ownerDirPath: string
   parsed: ParsedYaml
   model: Record<string, unknown>
+  rule: MetadataItemRule
+  kind: ValidationProjectFile["kind"]
 }
 
 export interface MetadataOperationSnapshot {
@@ -47,9 +53,7 @@ export function buildMetadataOperationSnapshot(params: {
   }
 
   const items: OperationSnapshotItem[] = []
-  for (const resource of discoverMetadataProjectResources(projectDir)) {
-    if (resource.role !== "properties" || resource.nesting.length > 0 || resource.absolutePath === undefined) continue
-
+  for (const resource of discoverValidationProjectFiles(projectDir)) {
     const item = importSnapshotItem({ resource, context, requireValidProject: params.requireValidProject })
     if (item.ok) {
       items.push(item.item)
@@ -62,32 +66,39 @@ export function buildMetadataOperationSnapshot(params: {
 }
 
 function importSnapshotItem(params: {
-  resource: MetadataProjectPropertiesYamlRef
+  resource: ValidationProjectFile
   context: ConfigurationContext
   requireValidProject: boolean
 }):
   | { ok: true; item: OperationSnapshotItem }
   | { ok: false; failure: MetadataOperationValidationFailed } {
   try {
-    const parsed = parseMetadataYaml(readFileSync(params.resource.absolutePath!, "utf-8"))
-    const model = importMetadataItemFromYAML({
-      context: params.context,
-      yaml: parsed.data,
-      rule: params.resource.owner.spec.rule,
-      name: params.resource.owner.name,
-    }) as Record<string, unknown> | undefined
+    const parsed = parseMetadataYaml(readFileSync(params.resource.absolutePath, "utf-8"))
+    const rule = params.resource.kind === "form" ? ClientApplicationFormRules : params.resource.owner.spec.rule
+    const model =
+      params.resource.kind === "form"
+        ? (importClientApplicationFormFromYAML(params.context, parsed.data as never) as Record<string, unknown>)
+        : (importMetadataItemFromYAML({
+            context: params.context,
+            yaml: parsed.data,
+            rule,
+            name: params.resource.owner.name,
+          }) as Record<string, unknown> | undefined)
 
     if (model === undefined) throw new Error("Не удалось импортировать свойства")
-    model.name ??= params.resource.owner.name
+    if (params.resource.kind === "properties") model.name ??= params.resource.owner.name
 
     return {
       ok: true,
       item: {
         resource: params.resource,
-        filePath: params.resource.absolutePath!,
-        ownerDirPath: dirname(params.resource.absolutePath!),
+        filePath: params.resource.absolutePath,
+        projectPath: params.resource.projectPath,
+        ownerDirPath: dirname(params.resource.absolutePath),
         parsed,
         model,
+        rule,
+        kind: params.resource.kind,
       },
     }
   } catch (caught) {
@@ -99,7 +110,7 @@ function importSnapshotItem(params: {
         message: caught instanceof Error ? caught.message : String(caught),
         diagnostics: [
           {
-            filePath: params.resource.absolutePath!,
+            filePath: params.resource.absolutePath,
             line: 1,
             col: 1,
             severity: "error",
