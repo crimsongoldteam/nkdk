@@ -12,9 +12,17 @@ describe("operation target declarations", () => {
   })
 
   it("creates file item target declarations", () => {
-    expect(fileItemCollectionTarget({ role: "form", folderName: "Формы", yamlFileName: "Форма.yaml" })).toEqual({
+    expect(
+      fileItemCollectionTarget({
+        role: "form",
+        migrationSegment: "Форма",
+        folderName: "Формы",
+        yamlFileName: "Форма.yaml",
+      }),
+    ).toEqual({
       kind: "fileItemCollectionTarget",
       role: "form",
+      migrationSegment: "Форма",
       folderName: "Формы",
       yamlFileName: "Форма.yaml",
       requiresMigration: false,

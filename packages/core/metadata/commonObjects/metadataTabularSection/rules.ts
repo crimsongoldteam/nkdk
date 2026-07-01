@@ -5,6 +5,7 @@ import { addDefaultLanguageNameToSynonym } from "~/metadata/helpers/synonymHelpe
 import { getParentFromContext } from "~/metadata/context/helpers"
 import { ConfigurationContext } from "~/metadata/context/types"
 import { ConfigurationContextWithExportToXML } from "~/metadata/context/types"
+import { namedCollectionTarget } from "~/metadata/orchestration/property/operationTargets"
 import { MetadataItemRule, PropertyRule } from "~/metadata/orchestration/property/types"
 const propertiesParents = ["Properties"]
 const childObjectsParents = ["ChildObjects"]
@@ -106,6 +107,7 @@ const commonTabularSectionProperties = {
   attributes: {
     yaml: "Реквизиты",
     type: "MetadataTabularSectionAttributes",
+    operationTarget: namedCollectionTarget({ kind: "attribute", migrationSegment: "Реквизит", requiresMigration: true }),
     defaultValue: emptyAttributes,
     defaultValueXMLEmpty: emptyAttributes,
     defaultValueXMLRaw: {},

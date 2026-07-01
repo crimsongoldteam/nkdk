@@ -14,6 +14,7 @@ export interface NamedCollectionOperationTargetDeclaration {
 export interface FileItemCollectionOperationTargetDeclaration {
   kind: "fileItemCollectionTarget"
   role: MetadataFileItemRole
+  migrationSegment: string
   folderName: string
   yamlFileName: string
   requiresMigration: false
@@ -34,12 +35,14 @@ export function namedCollectionTarget(params: {
 
 export function fileItemCollectionTarget(params: {
   role: MetadataFileItemRole
+  migrationSegment: string
   folderName: string
   yamlFileName: string
 }): FileItemCollectionOperationTargetDeclaration {
   return {
     kind: "fileItemCollectionTarget",
     role: params.role,
+    migrationSegment: params.migrationSegment,
     folderName: params.folderName,
     yamlFileName: params.yamlFileName,
     requiresMigration: false,

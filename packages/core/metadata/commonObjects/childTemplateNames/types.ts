@@ -33,6 +33,7 @@ export function childTemplateNamesRule<const Params extends ChildTemplateNamesRu
     ...params,
     operationTarget: fileItemCollectionTarget({
       role: "template",
+      migrationSegment: "Макет",
       folderName: params.folderName,
       yamlFileName: "Шаблон.yaml",
     }),

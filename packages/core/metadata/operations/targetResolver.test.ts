@@ -2,6 +2,7 @@ import { mkdirSync, mkdtempSync, rmSync, writeFileSync } from "fs"
 import { tmpdir } from "os"
 import { join } from "path"
 import { afterEach, describe, expect, it } from "vitest"
+import { parseMetadataOperationPath } from "./operationPath"
 import { buildMetadataOperationSnapshot } from "./projectSnapshot"
 import { resolveMetadataOperationTarget } from "./targetResolver"
 
@@ -12,49 +13,75 @@ describe("resolveMetadataOperationTarget", () => {
     for (const dir of tempDirs.splice(0)) rmSync(dir, { recursive: true, force: true })
   })
 
-  it("resolves object and child targets with migration paths", () => {
+  function createProject(): string {
     const projectDir = mkdtempSync(join(tmpdir(), "nkdk-target-resolver-"))
     tempDirs.push(projectDir)
     mkdirSync(join(projectDir, "Справочник", "Товары", "Формы", "ФормаЭлемента"), { recursive: true })
+    mkdirSync(join(projectDir, "Документ", "Заказ"), { recursive: true })
     writeFileSync(
       join(projectDir, "Справочник", "Товары", "Свойства.yaml"),
       ["Реквизиты:", "  Артикул:", "    Тип: Строка"].join("\n"),
     )
     writeFileSync(join(projectDir, "Справочник", "Товары", "Формы", "ФормаЭлемента", "Форма.yaml"), "Элементы: {}\n")
+    writeFileSync(
+      join(projectDir, "Документ", "Заказ", "Свойства.yaml"),
+      ["ТабличныеЧасти:", "  Товары:", "    Реквизиты:", "      Количество:", "        Тип: Число"].join("\n"),
+    )
+    return projectDir
+  }
 
+  function resolve(projectDir: string, path: string) {
     const snapshot = buildMetadataOperationSnapshot({ projectDir, requireValidProject: false })
     expect(snapshot.ok).toBe(true)
-    if (!snapshot.ok) return
+    if (!snapshot.ok) throw new Error("snapshot failed")
+    const parsed = parseMetadataOperationPath(path)
+    expect(parsed.ok).toBe(true)
+    if (!parsed.ok) throw new Error(parsed.message)
+    return resolveMetadataOperationTarget(snapshot, parsed)
+  }
 
-    expect(resolveMetadataOperationTarget(snapshot, { kind: "object", itemTypePrefix: "Справочник", name: "Товары" })).toMatchObject({
+  it("resolves object, child, nested child and file item targets", () => {
+    const projectDir = createProject()
+
+    expect(resolve(projectDir, "Справочник.Товары")).toMatchObject({
       ok: true,
       displayPath: "Справочник.Товары",
       migrationPath: "Справочник.Товары",
       requiresMigration: true,
+      currentName: "Товары",
     })
-    expect(
-      resolveMetadataOperationTarget(snapshot, {
-        kind: "attribute",
-        owner: { itemTypePrefix: "Справочник", name: "Товары" },
-        name: "Артикул",
-      }),
-    ).toMatchObject({
+    expect(resolve(projectDir, "Справочник.Товары.Реквизит.Артикул")).toMatchObject({
       ok: true,
       displayPath: "Справочник.Товары.Реквизит.Артикул",
       migrationPath: "Справочник.Товары.Реквизит.Артикул",
       requiresMigration: true,
+      currentName: "Артикул",
     })
-    expect(
-      resolveMetadataOperationTarget(snapshot, {
-        kind: "fileItem",
-        owner: { itemTypePrefix: "Справочник", name: "Товары" },
-        role: "form",
-        name: "ФормаЭлемента",
-      }),
-    ).toMatchObject({
+    expect(resolve(projectDir, "Документ.Заказ.ТабличнаяЧасть.Товары.Реквизит.Количество")).toMatchObject({
+      ok: true,
+      displayPath: "Документ.Заказ.ТабличнаяЧасть.Товары.Реквизит.Количество",
+      migrationPath: "Документ.Заказ.ТабличнаяЧасть.Товары.Реквизит.Количество",
+      requiresMigration: true,
+      currentName: "Количество",
+    })
+    expect(resolve(projectDir, "Справочник.Товары.Форма.ФормаЭлемента")).toMatchObject({
       ok: true,
       displayPath: "Справочник.Товары.Форма.ФормаЭлемента",
       requiresMigration: false,
+      currentName: "ФормаЭлемента",
+    })
+  })
+
+  it("distinguishes unsupported target and missing node", () => {
+    const projectDir = createProject()
+
+    expect(resolve(projectDir, "Справочник.Товары.Реквизит.НетТакого")).toMatchObject({
+      ok: false,
+      code: "target_not_found",
+    })
+    expect(resolve(projectDir, "Справочник.Товары.ПредопределенныйЭлемент.БезНДС")).toMatchObject({
+      ok: false,
+      code: "unsupported_target",
     })
   })
 })

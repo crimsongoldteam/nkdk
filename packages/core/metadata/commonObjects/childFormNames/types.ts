@@ -34,6 +34,7 @@ export function childFormNamesRule<const Params extends ChildFormNamesRuleParams
     ...params,
     operationTarget: fileItemCollectionTarget({
       role: "form",
+      migrationSegment: "Форма",
       folderName: params.folderName,
       yamlFileName: "Форма.yaml",
     }),
