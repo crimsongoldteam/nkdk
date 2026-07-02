@@ -15,7 +15,6 @@ export const ExchangePlanContentItemRules = {
       yaml: "Авторегистрация",
       xml: "AutoRecord",
       typeSE: "AutoChangeRecord",
-      required: true,
       implicitValueYAML: "Allow",
     }),
   },
