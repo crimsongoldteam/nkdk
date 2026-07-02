@@ -1,5 +1,7 @@
 # Validation Shared Second Pass Design
 
+> Historical note: this design described an opt-in shared second pass while the branch was testing hypotheses. The current target design is `2026-07-02-validation-unified-shared-snapshot-design.md`: binary shared snapshot is the only supported owner/reference transfer mechanism.
+
 ## Цель
 
 Полностью убрать передачу больших JS-объектов проекта во `second pass` worker-ов full validation.

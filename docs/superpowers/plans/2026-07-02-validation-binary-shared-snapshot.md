@@ -1,5 +1,7 @@
 # Validation Binary Shared Snapshot Implementation Plan
 
+> Historical note: this plan introduced binary as a selectable format for comparison. The active implementation plan is `2026-07-02-validation-unified-shared-snapshot.md`, where binary is the only owner snapshot format.
+
 > **For agentic workers:** REQUIRED SUB-SKILL: Use superpowers:subagent-driven-development (recommended) or superpowers:executing-plans to implement this plan task-by-task. Steps use checkbox (`- [ ]`) syntax for tracking.
 
 **Goal:** Replace the JSON-backed shared owner snapshot with a compact binary `SharedArrayBuffer` owner/field/file snapshot for full validation second pass.

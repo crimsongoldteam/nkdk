@@ -1,5 +1,7 @@
 # Validation Shared Second Pass Implementation Plan
 
+> Historical note: this plan kept a legacy fallback while shared second pass was experimental. The active implementation plan is `2026-07-02-validation-unified-shared-snapshot.md`.
+
 > **For agentic workers:** REQUIRED SUB-SKILL: Use superpowers:subagent-driven-development (recommended) or superpowers:executing-plans to implement this plan task-by-task. Steps use checkbox (`- [ ]`) syntax for tracking.
 
 **Goal:** Try replacing full validation second-pass `objectTable` supplement transfer with a SharedArrayBuffer-backed project snapshot, measure the result, and keep the path behind a flag until it is faster than the existing path.

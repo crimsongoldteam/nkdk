@@ -1,5 +1,7 @@
 # Validation Binary Shared Snapshot Design
 
+> Historical note: this design compared JSON and binary owner snapshots. The current target design is `2026-07-02-validation-unified-shared-snapshot-design.md`: JSON owner snapshot and format-selection flags are removed.
+
 ## Цель
 
 Заменить JSON inside `SharedArrayBuffer` для owner/field данных на компактный бинарный read-only snapshot.
