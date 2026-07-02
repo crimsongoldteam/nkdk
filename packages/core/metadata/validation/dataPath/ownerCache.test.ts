@@ -60,6 +60,7 @@ describe("OwnerMetadataCache", () => {
           importDiagnostics: [],
         },
       ],
+      filePaths: [],
     })
     const cache = createOwnerMetadataCacheFromValidationTable({ projectDir: "/project", table })
 

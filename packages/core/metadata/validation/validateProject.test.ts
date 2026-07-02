@@ -134,6 +134,26 @@ describe("validateProject", { timeout: 30_000 }, () => {
     expect(parallel.diagnostics).toEqual(sequential.diagnostics)
   })
 
+  it("parallel validation keeps subsystem files with duplicate local names", async () => {
+    const projectDir = createProject()
+    writeProjectFile(projectDir, "Подсистема/A/Свойства.yaml", [
+      "КомандныйИнтерфейс:",
+      "  ПорядокПодсистем:",
+      "    - Подсистема.A.Подсистема.Настройки",
+    ])
+    writeProjectFile(projectDir, "Подсистема/A/Подсистемы/Настройки/Свойства.yaml", "{}\n")
+    writeProjectFile(projectDir, "Подсистема/B/Свойства.yaml", [
+      "КомандныйИнтерфейс:",
+      "  ПорядокПодсистем:",
+      "    - Подсистема.B.Подсистема.Настройки",
+    ])
+    writeProjectFile(projectDir, "Подсистема/B/Подсистемы/Настройки/Свойства.yaml", "{}\n")
+
+    const parallel = await validateProject({ projectDir, context: mockContext, concurrency: 2 })
+
+    expect(parallel.diagnostics).toEqual([])
+  })
+
   it("warns about unimplemented dynamic list type-value checks instead of failing form import", async () => {
     const projectDir = createProject()
     writeProjectFile(projectDir, "Справочник/Товары/Свойства.yaml", "")

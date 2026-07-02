@@ -27,6 +27,7 @@ export interface ValidationObjectRecord {
 
 export interface ValidationObjectTableSnapshot {
   records: ValidationObjectRecord[]
+  filePaths: string[]
 }
 
 export interface ValidationDependencyRequest {

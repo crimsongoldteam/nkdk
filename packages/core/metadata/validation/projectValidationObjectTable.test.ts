@@ -17,12 +17,33 @@ describe("ValidationObjectTable", () => {
 
     expect(table.getOwner({ kind: "Справочник", name: "НеСуществует" })).toBeUndefined()
   })
+
+  it("preserves all file paths in snapshots when owner keys collide", () => {
+    const table = createValidationObjectTable()
+    const first = record(
+      { kind: "Подсистема", name: "Настройки" },
+      "/project/Подсистема/A/Подсистемы/Настройки/Свойства.yaml"
+    )
+    const second = record(
+      { kind: "Подсистема", name: "Настройки" },
+      "/project/Подсистема/B/Подсистемы/Настройки/Свойства.yaml"
+    )
+    table.mergeRecords([first, second])
+
+    const restored = createValidationObjectTable(table.snapshot())
+
+    expect(restored.hasFile(first.filePath)).toBe(true)
+    expect(restored.hasFile(second.filePath)).toBe(true)
+    expect(restored.getOwner({ kind: "Подсистема", name: "Настройки" })?.filePath).toBe(second.filePath)
+  })
 })
 
-function record(owner: { kind: string; name: string }): ValidationObjectRecord {
+function record(owner: { kind: string; name: string }, filePath?: string): ValidationObjectRecord {
+  const resolvedFilePath = filePath ?? `/project/${owner.kind}/${owner.name}/Свойства.yaml`
+
   return {
-    filePath: `/project/${owner.kind}/${owner.name}/Свойства.yaml`,
-    projectPath: `${owner.kind}/${owner.name}/Свойства.yaml`,
+    filePath: resolvedFilePath,
+    projectPath: resolvedFilePath.replace(/^\/project\//, ""),
     kind: "properties",
     owner: { dir: owner.kind, name: owner.name },
     ownerRef: { kind: owner.kind, name: owner.name },

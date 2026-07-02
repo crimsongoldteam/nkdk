@@ -10,7 +10,7 @@ export interface ValidationObjectTable {
 }
 
 export function createValidationObjectTable(
-  snapshot: ValidationObjectTableSnapshot = { records: [] }
+  snapshot: ValidationObjectTableSnapshot = { records: [], filePaths: [] }
 ): ValidationObjectTable {
   const recordsByOwner = new Map<string, ValidationObjectRecord>()
   const filePaths = new Set<string>()
@@ -29,11 +29,14 @@ export function createValidationObjectTable(
       return filePaths.has(resolve(filePath))
     },
     snapshot() {
-      return { records: [...recordsByOwner.values()] }
+      return { records: [...recordsByOwner.values()], filePaths: [...filePaths] }
     },
   }
 
   table.mergeRecords(snapshot.records)
+  for (const filePath of snapshot.filePaths) {
+    filePaths.add(resolve(filePath))
+  }
   return table
 }
 
