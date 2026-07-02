@@ -5,9 +5,7 @@ export type SingletonNameStyle = {
   referenceSuffixes: readonly string[]
 }
 
-export type ReferenceNameMode =
-  | { kind: "suffix"; suffix: string }
-  | { kind: "exact"; name: string }
+export type ReferenceNameMode = { kind: "suffix"; suffix: string } | { kind: "exact"; name: string }
 
 type ReferenceNameModeCarrier = {
   [REFERENCE_NAME_MODE]?: ReferenceNameMode

@@ -1,16 +1,16 @@
 import { Type } from "@sinclair/typebox"
-import { importBooleanFromYAML } from "~/metadata/commonObjects/boolean/fromYAML"
-import { exportBooleanToYAML } from "~/metadata/commonObjects/boolean/toYAML"
-import { BooleanJSONSchema, StringboolYAML } from "~/metadata/commonObjects/boolean/types"
-import { ExportToJSONSchemaFn, registerTypeRule } from "~/metadata/orchestration"
-import type { ConfigurationContext } from "~/metadata/context/types"
-import type { PropertyRule } from "~/metadata/orchestration/property/types"
+import { importBooleanFromYAML } from "../../commonObjects/boolean/fromYAML"
+import { exportBooleanToYAML } from "../../commonObjects/boolean/toYAML"
+import { BooleanJSONSchema, StringboolYAML } from "../../commonObjects/boolean/types"
+import { ExportToJSONSchemaFn, registerTypeRule } from "../../orchestration"
+import type { ConfigurationContext } from "../../context/types"
+import type { PropertyRule } from "../../orchestration/property/types"
 import {
   MobileApplicationFunctionalities,
   MobileApplicationFunctionalitiesFromYAML,
   MobileApplicationFunctionalitiesToYAML,
   MobileApplicationFunctionalitiesYAML,
-} from "~/metadata/systemEnumerations/types"
+} from "../../systemEnumerations/types"
 
 export interface UsedMobileApplicationFunctionality {
   functionality: MobileApplicationFunctionalities
@@ -99,9 +99,7 @@ const normalizeArray = <T>(value: T | T[] | undefined): T[] => {
   return Array.isArray(value) ? value : [value]
 }
 
-const isCleanDefaultUsedMobileApplicationFunctionalities = (
-  data: UsedMobileApplicationFunctionalities
-): boolean =>
+const isCleanDefaultUsedMobileApplicationFunctionalities = (data: UsedMobileApplicationFunctionalities): boolean =>
   data.length === CLEAN_USED_MOBILE_APPLICATION_FUNCTIONALITIES.length &&
   data.every((item, index) => {
     const defaultItem = CLEAN_USED_MOBILE_APPLICATION_FUNCTIONALITIES[index]
@@ -156,9 +154,7 @@ export function exportUsedMobileApplicationFunctionalitiesToXML(
   data: UsedMobileApplicationFunctionalities | undefined
 ): UsedMobileApplicationFunctionalitiesXML | "" | undefined {
   if (data === undefined) {
-    return exportUsedMobileApplicationFunctionalitiesItemsToXML(
-      cloneCleanDefaultUsedMobileApplicationFunctionalities()
-    )
+    return exportUsedMobileApplicationFunctionalitiesItemsToXML(cloneCleanDefaultUsedMobileApplicationFunctionalities())
   }
   if (data.length === 0) return ""
 

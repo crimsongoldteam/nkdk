@@ -62,7 +62,11 @@ export function transformRulesSource(filePath: string, sourceText: string, catal
         node.properties.map((property) => {
           if (!ts.isPropertyAssignment(property)) return property
           if (!ts.isObjectLiteralExpression(property.initializer)) return property
-          return factory.updatePropertyAssignment(property, property.name, visitObjectLiteral(property.initializer, true))
+          return factory.updatePropertyAssignment(
+            property,
+            property.name,
+            visitObjectLiteral(property.initializer, true)
+          )
         })
       )
     }
@@ -111,7 +115,10 @@ function addImports(sourceFile: ts.SourceFile, imports: Map<string, Set<string>>
     if (!ts.isStringLiteral(statement.moduleSpecifier)) continue
     const clause = statement.importClause
     if (!clause?.namedBindings || !ts.isNamedImports(clause.namedBindings)) continue
-    existing.set(statement.moduleSpecifier.text, new Set(clause.namedBindings.elements.map((element) => element.name.text)))
+    existing.set(
+      statement.moduleSpecifier.text,
+      new Set(clause.namedBindings.elements.map((element) => element.name.text))
+    )
   }
 
   const newImports: ts.ImportDeclaration[] = []

@@ -1,10 +1,10 @@
-import { commandBarChildItemsRule } from "~/metadata/forms/commonObjects/childItems/types"
-import { booleanRule } from "~/metadata/commonObjects/boolean/types"
-import { stringRule } from "~/metadata/commonObjects/string/types"
-import { systemEnumerationRule } from "~/metadata/systemEnumerations/types"
-import { registerElementRule } from "~/metadata/orchestration/formElement/ruleFactory"
+import { commandBarChildItemsRule } from "../../commonObjects/childItems/types"
+import { booleanRule } from "../../../commonObjects/boolean/types"
+import { stringRule } from "../../../commonObjects/string/types"
+import { systemEnumerationRule } from "../../../systemEnumerations/types"
+import { registerElementRule } from "../../../orchestration/formElement/ruleFactory"
 import { formGroupCommonProperties } from "../formGroup/rules"
-import type { PropertyRule } from "~/metadata/orchestration/property/types"
+import type { PropertyRule } from "../../../orchestration/property/types"
 import { ElementRule } from "../../../orchestration/formElement/types"
 export type { ElementRule, PropertyRule }
 export const CommandBarRules = {

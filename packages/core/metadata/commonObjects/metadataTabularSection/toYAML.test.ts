@@ -1,6 +1,11 @@
 import { describe, expect, it } from "vitest"
-import { fullTabularSections, fullTabularSectionsYAML, minimalTabularSections, minimalTabularSectionsYAML } from "./__fixtures__/data"
-import { mockContext } from "~/tests/mockContext"
+import {
+  fullTabularSections,
+  fullTabularSectionsYAML,
+  minimalTabularSections,
+  minimalTabularSectionsYAML,
+} from "./__fixtures__/data"
+import { mockContext } from "../../../tests/mockContext"
 import { exportMetadataTabularSectionsToYAML } from "./register"
 
 describe("export MetadataTabularSections to YAML", () => {

@@ -1,7 +1,7 @@
-import { exportI8nTextToXML } from "~/metadata/commonObjects/i8nText/toXML"
-import { I8nText } from "~/metadata/commonObjects/i8nText/types"
-import { ConfigurationContext } from "~/metadata/context/types"
-import { PropertyRule, registerTypeRule } from "~/metadata/orchestration"
+import { exportI8nTextToXML } from "../../i8nText/toXML"
+import { I8nText } from "../../i8nText/types"
+import { ConfigurationContext } from "../../../context/types"
+import { PropertyRule, registerTypeRule } from "../../../orchestration"
 import { DcsLocalStringTypeReference } from "./types"
 
 const exportAsLocalString = (context: ConfigurationContext, data: I8nText) => {

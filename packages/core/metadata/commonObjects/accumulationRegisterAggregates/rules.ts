@@ -1,11 +1,8 @@
-import {
-  accumulationRegisterAggregateCollectionRule,
-  accumulationRegisterAggregateDimensionsRule,
-} from "~/metadata/commonObjects/accumulationRegisterAggregates/builders"
-import { xmlRootRule } from "~/metadata/commonObjects/xmlRoot/types"
-import { systemEnumerationRule } from "~/metadata/systemEnumerations/types"
-import { uuidPropertyRule } from "~/metadata/commonObjects/uuid/rule"
-import type { MetadataItemRule } from "~/metadata/orchestration/property/types"
+import { accumulationRegisterAggregateCollectionRule, accumulationRegisterAggregateDimensionsRule } from "./builders"
+import { xmlRootRule } from "../xmlRoot/types"
+import { systemEnumerationRule } from "../../systemEnumerations/types"
+import { uuidPropertyRule } from "../uuid/rule"
+import type { MetadataItemRule } from "../../orchestration/property/types"
 export const AccumulationRegisterAggregateRules = {
   itemType: "AccumulationRegisterAggregate",
   properties: {

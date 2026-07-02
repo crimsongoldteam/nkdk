@@ -19,5 +19,4 @@ export const minimal: MetadataReport = {
   explanation: { items: {} },
 }
 
-export const minimalYAML: MetadataReportYAML = {
-}
+export const minimalYAML: MetadataReportYAML = {}

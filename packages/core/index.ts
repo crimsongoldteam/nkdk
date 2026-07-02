@@ -35,7 +35,11 @@ export {
   writeAppliedMigrationsState,
   writeMigrationFile,
 } from "./metadata/appliedObjects/configuration/migrations"
-export type { MigrationConflict, MigrationEntry, StructuralState } from "./metadata/appliedObjects/configuration/migrations"
+export type {
+  MigrationConflict,
+  MigrationEntry,
+  StructuralState,
+} from "./metadata/appliedObjects/configuration/migrations"
 export {
   exportMetadataCatalogToJSONSchema,
   exportMetadataCatalogToYAML,

@@ -1,6 +1,6 @@
-import type { OwnerMetadata } from "~/metadata/validation/dataPath/ownerCache"
-import type { DataPathTableInfo, DataPathTypeInfo, FormDataPathColumnSource } from "~/metadata/validation/dataPath/types"
-import { registerDataPathOwnerKind, registerVirtualOwnerFieldResolver } from "~/metadata/validation/dataPath/registry"
+import type { OwnerMetadata } from "../../validation/dataPath/ownerCache"
+import type { DataPathTableInfo, DataPathTypeInfo, FormDataPathColumnSource } from "../../validation/dataPath/types"
+import { registerDataPathOwnerKind, registerVirtualOwnerFieldResolver } from "../../validation/dataPath/registry"
 import { booleanColumn, metadataRecord, scalarColumn } from "../dataPathCommon/register"
 import { MetadataChartOfAccountsRules } from "./rules"
 
@@ -28,7 +28,10 @@ registerVirtualOwnerFieldResolver(({ owner, segment }) => {
   return field === undefined ? undefined : { name: segment, typeInfo: field.typeInfo }
 })
 
-function chartOfAccountsExtDimensionTypesField(owner: OwnerMetadata, segment: string): {
+function chartOfAccountsExtDimensionTypesField(
+  owner: OwnerMetadata,
+  segment: string
+): {
   name: string
   typeInfo: DataPathTypeInfo
   tableSource: { table: DataPathTableInfo; columns: Map<string, FormDataPathColumnSource>; hasColumns: boolean }
@@ -50,7 +53,10 @@ function chartOfAccountsExtDimensionTypesField(owner: OwnerMetadata, segment: st
   }
 }
 
-function chartOfAccountsTerminalVirtualField(owner: OwnerMetadata, segment: string): FormDataPathColumnSource | undefined {
+function chartOfAccountsTerminalVirtualField(
+  owner: OwnerMetadata,
+  segment: string
+): FormDataPathColumnSource | undefined {
   if (segment === "Order" || segment === "Type") {
     return scalarColumn(segment, `ChartOfAccounts.${segment}`)
   }
@@ -83,7 +89,8 @@ function chartOfAccountsExtDimensionTypesColumns(owner: OwnerMetadata): Map<stri
 
 function chartOfAccountsExtDimensionTypeInfo(model: unknown): DataPathTypeInfo {
   const value = metadataRecord(model).extDimensionTypes
-  if (typeof value !== "string") return { kinds: ["unknown"], nextTypes: [], sourceText: "ChartOfAccounts.ExtDimensionTypes.ExtDimensionType" }
+  if (typeof value !== "string")
+    return { kinds: ["unknown"], nextTypes: [], sourceText: "ChartOfAccounts.ExtDimensionTypes.ExtDimensionType" }
 
   const prefix = "ChartOfCharacteristicTypes."
   if (!value.startsWith(prefix)) return { kinds: ["unknown"], nextTypes: [], sourceText: value }

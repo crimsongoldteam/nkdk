@@ -4,9 +4,9 @@ import {
   exportMetadataItemToYAML,
   importMetadataItemFromXML,
   importMetadataItemFromYAML,
-} from "~/metadata/orchestration"
-import { mockContext, mockContextFromXML, mockContextToXML } from "~/tests/mockContext"
-import { xmlExport } from "~/xml/export/exporter"
+} from "../../orchestration"
+import { mockContext, mockContextFromXML, mockContextToXML } from "../../../tests/mockContext"
+import { xmlExport } from "../../../xml/export/exporter"
 import { HomePageWorkAreaRules } from "./rules"
 import type { HomePageWorkAreaYAML } from "./types"
 
@@ -37,7 +37,11 @@ const HOME_PAGE_WORK_AREA_XML = `<?xml version="1.0" encoding="UTF-8"?>
 \t<MACommandInterfaceDisplays>Top</MACommandInterfaceDisplays>
 </HomePageWorkArea>`
 
-const normalizeXML = (value: string): string => value.replace(/\r\n/g, "\n").replace(/^\uFEFF/, "").trimEnd()
+const normalizeXML = (value: string): string =>
+  value
+    .replace(/\r\n/g, "\n")
+    .replace(/^\uFEFF/, "")
+    .trimEnd()
 
 const roundTripHomePageWorkArea = (xmlString: string): string => {
   const data = importMetadataItemFromXML({

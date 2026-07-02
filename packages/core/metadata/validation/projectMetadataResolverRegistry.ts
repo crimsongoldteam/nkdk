@@ -3,11 +3,11 @@ import type {
   MetadataRootName,
   ParsedMetadataTarget,
   StyleItemTargetType,
-} from "~/metadata/commonObjects/metadataTargets"
+} from "../commonObjects/metadataTargets"
 import type { OwnerMetadata, OwnerMetadataCache } from "./dataPath/ownerCache"
 import type { ProjectYamlCache } from "./projectYamlCache"
 import type { Diagnostic } from "./types"
-import type { ParsedYaml } from "~/yaml/parseMetadataYaml"
+import type { ParsedYaml } from "../../yaml/parseMetadataYaml"
 
 export type MetadataResolveResult =
   | { ok: true; filePath?: string; details?: unknown }
@@ -48,10 +48,7 @@ export type ProjectNamedResourceResolver = (params: {
   yamlCache: ProjectYamlCache
 }) => MetadataResolveResult
 
-export type ProjectFileValidator = (params: {
-  filePath: string
-  parsed: ParsedYaml
-}) => Diagnostic[]
+export type ProjectFileValidator = (params: { filePath: string; parsed: ParsedYaml }) => Diagnostic[]
 
 const objectPathResolvers = new Map<MetadataRootName, ProjectObjectPathResolver>()
 const memberResolvers = new Map<MetadataMemberKind, ProjectMemberResolver[]>()
@@ -97,7 +94,10 @@ export function getProjectValueResolver(root: MetadataRootName): ProjectValueRes
   return valueResolvers.get(root)
 }
 
-export function registerProjectInlineObjectResolver(root: MetadataRootName, resolver: ProjectInlineObjectResolver): void {
+export function registerProjectInlineObjectResolver(
+  root: MetadataRootName,
+  resolver: ProjectInlineObjectResolver
+): void {
   inlineObjectResolvers.set(root, [...(inlineObjectResolvers.get(root) ?? []), resolver])
 }
 
@@ -141,7 +141,9 @@ export function snapshotProjectMetadataResolverRegistryForTests(): ProjectMetada
   }
 }
 
-export function restoreProjectMetadataResolverRegistryForTests(snapshot: ProjectMetadataResolverRegistrySnapshot): void {
+export function restoreProjectMetadataResolverRegistryForTests(
+  snapshot: ProjectMetadataResolverRegistrySnapshot
+): void {
   replaceMap(objectPathResolvers, snapshot.objectPathResolvers)
   replaceMap(memberResolvers, snapshot.memberResolvers)
   replaceMap(valueResolvers, snapshot.valueResolvers)

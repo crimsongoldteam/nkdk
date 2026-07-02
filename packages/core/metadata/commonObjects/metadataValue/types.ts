@@ -1,13 +1,13 @@
 import {
   definePropertyRule as defineWidePropertyRule,
   type ExactRuleParams as WideExactRuleParams,
-} from "~/metadata/commonObjects/ruleBuilder"
-import type { PropertyRule as WidePropertyRuleBase } from "~/metadata/orchestration/property/types"
+} from "../ruleBuilder"
+import type { PropertyRule as WidePropertyRuleBase } from "../../orchestration/property/types"
 import { Type } from "@sinclair/typebox"
 import type { Static } from "@sinclair/typebox"
-import { definePropertyRule, type ExactRuleParams } from "~/metadata/commonObjects/ruleBuilder"
-import { BasePropertyRule } from "~/metadata/orchestration"
-import type { ExplicitYAMLString } from "~/yaml/explicitString"
+import { definePropertyRule, type ExactRuleParams } from "../ruleBuilder"
+import { BasePropertyRule } from "../../orchestration"
+import type { ExplicitYAMLString } from "../../../yaml/explicitString"
 import { I8nText, I8nTextJSONSchema, I8nTextXML, I8nTextYAML } from "../i8nText/types"
 import {
   StandardPeriod,

@@ -1,4 +1,4 @@
-import { PropertyRule } from "~/metadata/forms/elements/calendarField/rules"
+import { PropertyRule } from "../metadata/forms/elements/calendarField/rules"
 import {
   ConfigurationContext,
   ConfigurationContextFromXML,

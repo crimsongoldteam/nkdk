@@ -1,4 +1,4 @@
-import { registerMetadataItemRule } from "~/metadata/orchestration"
+import { registerMetadataItemRule } from "../../orchestration"
 import { MetadataLanguageRules } from "./rules"
 
 registerMetadataItemRule({

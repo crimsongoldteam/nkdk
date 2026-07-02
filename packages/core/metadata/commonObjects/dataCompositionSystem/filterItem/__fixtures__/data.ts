@@ -21,9 +21,7 @@ export const fullFilterItemComparisonYAML = {
   ПредставлениеПользовательскойНастройки: "Пользовательское представление",
   РежимОтображения: "Обычный",
   ИспользоватьПользовательскуюНастройку: "Истина",
-} as const satisfies Required<
-  Omit<FilterItemComparisonYAML, "ВидСравнения" | "Применение">
-> & {
+} as const satisfies Required<Omit<FilterItemComparisonYAML, "ВидСравнения" | "Применение">> & {
   ВидСравнения: "Равно"
 }
 
@@ -76,6 +74,4 @@ export const fullFilterItemGroupYAML = {
   ПредставлениеПользовательскойНастройки: "Пользовательское представление",
   РежимОтображения: "Обычный",
   ИспользоватьПользовательскуюНастройку: "Истина",
-} as const satisfies Required<
-  Omit<FilterItemGroupYAML, "Элементы" | "Использование" | "Применение">
->
+} as const satisfies Required<Omit<FilterItemGroupYAML, "Элементы" | "Использование" | "Применение">>

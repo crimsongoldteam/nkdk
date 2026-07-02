@@ -1,9 +1,11 @@
 import { describe, expect, it } from "vitest"
-import { testImportAppliedObjectFromYAML } from "~/tests/appliedObject"
+import { testImportAppliedObjectFromYAML } from "../../../tests/appliedObject"
 import { full, fullYAML } from "./__fixtures__/full"
 import { minimal, minimalYAML } from "./__fixtures__/minimal"
 import { MetadataDocumentJournalRules } from "./rules"
 import { MetadataDocumentJournal } from "./types"
+
+type MetadataDocumentJournalColumn = NonNullable<typeof full.columns>[number]
 
 describe("import MetadataDocumentJournal from YAML", () => {
   it("should import full", () => {
@@ -14,7 +16,7 @@ describe("import MetadataDocumentJournal from YAML", () => {
     })
     expect(result).toEqual({
       ...full,
-      columns: full.columns?.map((column) =>
+      columns: full.columns?.map((column: MetadataDocumentJournalColumn) =>
         column.name === "ГрафаПоУмолчанию" ? { ...column, synonym: undefined } : column
       ),
     })

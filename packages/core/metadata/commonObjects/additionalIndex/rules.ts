@@ -1,9 +1,9 @@
-import { additionalIndexCollectionRule } from "~/metadata/commonObjects/additionalIndex/builders"
-import { indexFieldRule } from "~/metadata/commonObjects/indexField/types"
-import { stringRule } from "~/metadata/commonObjects/string/types"
-import { xmlRootRule } from "~/metadata/commonObjects/xmlRoot/types"
-import { uuidPropertyRule } from "~/metadata/commonObjects/uuid/rule"
-import type { MetadataItemRule } from "~/metadata/orchestration/property/types"
+import { additionalIndexCollectionRule } from "./builders"
+import { indexFieldRule } from "../indexField/types"
+import { stringRule } from "../string/types"
+import { xmlRootRule } from "../xmlRoot/types"
+import { uuidPropertyRule } from "../uuid/rule"
+import type { MetadataItemRule } from "../../orchestration/property/types"
 export const AdditionalIndexItemRules = {
   itemType: "AdditionalIndexItem",
   properties: {

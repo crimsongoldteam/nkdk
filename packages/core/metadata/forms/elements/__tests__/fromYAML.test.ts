@@ -1,7 +1,7 @@
 import { describe, expect, it } from "vitest"
-import type { CollectableElement } from "~/metadata/orchestration"
-import { importElementFromPartialYAML, importElementFromTypedYAML } from "~/metadata/orchestration"
-import { mockContext } from "~/tests/mockContext"
+import type { CollectableElement } from "../../../orchestration"
+import { importElementFromPartialYAML, importElementFromTypedYAML } from "../../../orchestration"
+import { mockContext } from "../../../../tests/mockContext"
 import { commandButtonWithTypeDescriptionParameter } from "../button/__fixtures__/data"
 import { groupedFixtures, groupedTypedFixtures } from "./fixtures"
 

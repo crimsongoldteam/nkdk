@@ -1,10 +1,10 @@
 import "./types"
 import { join } from "path"
-import { registerDataPathOwnerKind } from "~/metadata/validation/dataPath/registry"
+import { registerDataPathOwnerKind } from "../../validation/dataPath/registry"
 import {
   registerProjectInlineObjectResolver,
   registerProjectObjectPathResolver,
-} from "~/metadata/validation/projectMetadataResolverRegistry"
+} from "../../validation/projectMetadataResolverRegistry"
 import { MetadataExternalDataSourceRules } from "./rules"
 
 registerDataPathOwnerKind({
@@ -37,10 +37,17 @@ registerProjectInlineObjectResolver("ExternalDataSource", ({ target, yamlCache, 
   const functions = metadataRecord(owner.owner.model).functions ?? metadataRecord(rawYaml).Функции
   if (!hasNamedItem(functions, segment.objectName)) return undefined
 
-  return { ok: true, filePath: owner.owner.filePath, details: { kind: "Function", name: segment.objectName, item: segment.objectName } }
+  return {
+    ok: true,
+    filePath: owner.owner.filePath,
+    details: { kind: "Function", name: segment.objectName, item: segment.objectName },
+  }
 })
 
-function ownerRawYaml(params: { filePath: string; yamlCache: { get(filePath: string): unknown; release(filePath: string): void } }): unknown {
+function ownerRawYaml(params: {
+  filePath: string
+  yamlCache: { get(filePath: string): unknown; release(filePath: string): void }
+}): unknown {
   const entry = params.yamlCache.get(params.filePath)
   try {
     return typeof entry === "object" && entry !== null && "parsed" in entry
@@ -59,7 +66,9 @@ function hasNamedItem(value: unknown, name: string): boolean {
   if (record.name === name) return true
   if (Object.prototype.hasOwnProperty.call(record, name)) return true
 
-  return hasNamedItem(record.items, name) || hasNamedItem(record.childItems, name) || hasNamedItem(record.enumValues, name)
+  return (
+    hasNamedItem(record.items, name) || hasNamedItem(record.childItems, name) || hasNamedItem(record.enumValues, name)
+  )
 }
 
 function metadataRecord(value: unknown): Record<string, unknown> {

@@ -1,16 +1,12 @@
-import {
-  RadioButtonField,
-  RadioButtonFieldEnterprise,
-  RadioButtonFieldPartialYAML,
-} from "~/metadata/forms/elements/radioButtonField/types"
-import { explicitYAMLString } from "~/yaml/explicitString"
+import { RadioButtonField, RadioButtonFieldEnterprise, RadioButtonFieldPartialYAML } from "../types"
+import { explicitYAMLString } from "../../../../../yaml/explicitString"
 
 import {
   fullFormFieldCommonFixture,
   fullFormFieldEnterpriseCommonFixture,
   fullFormFieldPartialYAMLCommonFixture,
-} from "~/metadata/forms/elements/__fixtures__/formField/rules"
-import { RequiredFieldsElement } from "~/tests/types"
+} from "../../__fixtures__/formField/rules"
+import { RequiredFieldsElement } from "../../../../../tests/types"
 
 export const fullRadioButtonField: RequiredFieldsElement<RadioButtonField> = {
   itemType: "RadioButtonField",

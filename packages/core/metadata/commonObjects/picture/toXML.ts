@@ -1,7 +1,7 @@
-import type { PropertyRule } from "~/metadata/orchestration/property/types"
-import { registerTypeRule } from "~/metadata/orchestration/property/typeRuleRegistry"
+import type { PropertyRule } from "../../orchestration/property/types"
+import { registerTypeRule } from "../../orchestration/property/typeRuleRegistry"
 import { ConfigurationContext } from "../../context/types"
-import type { isRawPictureRef, Picture, PictureXML } from "./types"
+import { isRawPictureRef, type Picture, type PictureXML } from "./types"
 
 export const exportPictureToXML = (
   _context: ConfigurationContext,

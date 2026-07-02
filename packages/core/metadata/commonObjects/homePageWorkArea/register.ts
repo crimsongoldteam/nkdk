@@ -1,17 +1,17 @@
 import { Type } from "@sinclair/typebox"
-import { importBooleanFromXML } from "~/metadata/commonObjects/boolean/fromXML"
-import { importBooleanFromYAML } from "~/metadata/commonObjects/boolean/fromYAML"
-import { exportBooleanToYAML } from "~/metadata/commonObjects/boolean/toYAML"
-import { buildMetadataTargetSchema, METADATA_NAME_PATTERN } from "~/metadata/commonObjects/metadataTargets"
-import { importMetadataItemLinkFromYAML } from "~/metadata/commonObjects/metadataRef/fromYAML"
-import { exportMetadataItemLinkToYAML } from "~/metadata/commonObjects/metadataRef/toYAML"
+import { importBooleanFromXML } from "../boolean/fromXML"
+import { importBooleanFromYAML } from "../boolean/fromYAML"
+import { exportBooleanToYAML } from "../boolean/toYAML"
+import { buildMetadataTargetSchema, METADATA_NAME_PATTERN } from "../metadataTargets"
+import { importMetadataItemLinkFromYAML } from "../metadataRef/fromYAML"
+import { exportMetadataItemLinkToYAML } from "../metadataRef/toYAML"
 import {
   ExportToXMLFunctionNew,
   registerMetadataItemRule,
   registerTypeRule,
   type PropertyRule,
-} from "~/metadata/orchestration"
-import type { ConfigurationContext, ConfigurationContextFromXML } from "~/metadata/context/types"
+} from "../../orchestration"
+import type { ConfigurationContext, ConfigurationContextFromXML } from "../../context/types"
 import { HomePageWorkAreaRules } from "./rules"
 import {
   HomePageWorkAreaColumnItem,
@@ -130,8 +130,11 @@ const mapToYAML = <Map extends Record<string, string>>(map: Map, value: string |
 const mapFromYAML = <Map extends Record<string, string>>(map: Map, value: string | undefined): string | undefined =>
   value === undefined ? undefined : value in map ? map[value] : value
 
-const importEnumFromXML = (_context: ConfigurationContextFromXML, _rule: PropertyRule, xml: unknown): string | undefined =>
-  typeof xml === "string" ? xml : undefined
+const importEnumFromXML = (
+  _context: ConfigurationContextFromXML,
+  _rule: PropertyRule,
+  xml: unknown
+): string | undefined => (typeof xml === "string" ? xml : undefined)
 
 const exportEnumToXML: ExportToXMLFunctionNew = ({ value }) => (typeof value === "string" ? value : undefined)
 
@@ -189,7 +192,8 @@ const exportVisibilityToXML = (params: {
   const { value, referenceMetadata } = params
   if (value === undefined) return undefined
 
-  const reference = getReferenceRawXML(referenceMetadata) ?? (isRecord(referenceMetadata) ? referenceMetadata : undefined)
+  const reference =
+    getReferenceRawXML(referenceMetadata) ?? (isRecord(referenceMetadata) ? referenceMetadata : undefined)
   const result = copyUnknownXMLKeys(reference, ["xr:Common", "xr:Value"]) as HomePageWorkAreaVisibilityXML
   if (value.common !== undefined) result["xr:Common"] = value.common
   if (value.roles !== undefined) {

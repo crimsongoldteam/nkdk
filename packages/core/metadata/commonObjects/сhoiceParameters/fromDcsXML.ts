@@ -1,11 +1,7 @@
-import type { PropertyRule } from "~/metadata/orchestration/property/types"
+import type { PropertyRule } from "../../orchestration/property/types"
 import { ConfigurationContextFromXML } from "../../context/types"
 import { importMetadataValueFromXML } from "../metadataValue/fromXML"
-import {
-  ChoiceParameter,
-  ChoiceParameterDcsItemXML,
-  ChoiceParameterDcsValueRootXML,
-} from "./types"
+import { ChoiceParameter, ChoiceParameterDcsItemXML, ChoiceParameterDcsValueRootXML } from "./types"
 
 const textNode = (value: string | { "#text"?: string } | undefined): string => {
   if (value === undefined) {
@@ -45,7 +41,10 @@ export const importChoiceParameterFromDcsXML = (
     valueXml !== undefined
       ? importMetadataValueFromXML({
           context,
-          rule: { type: "MetadataValue", valueType: ["string", "decimal", "boolean", "ref", "objectRef", "fixedArray", "formChoiceListDesTimeValue"] },
+          rule: {
+            type: "MetadataValue",
+            valueType: ["string", "decimal", "boolean", "ref", "objectRef", "fixedArray", "formChoiceListDesTimeValue"],
+          },
           value: valueXml,
         })
       : undefined

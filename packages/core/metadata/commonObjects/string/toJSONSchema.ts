@@ -1,6 +1,6 @@
 import { TSchema } from "@sinclair/typebox"
-import { buildMetadataTargetSchema } from "~/metadata/commonObjects/metadataTargets"
-import { ExportToJSONSchemaFn, registerTypeRule } from "~/metadata/orchestration"
+import { buildMetadataTargetSchema } from "../metadataTargets"
+import { ExportToJSONSchemaFn, registerTypeRule } from "../../orchestration"
 import { StringJSONSchema } from "./types"
 
 export const exportStringToJSONSchema: ExportToJSONSchemaFn = ({ rule }): TSchema => {

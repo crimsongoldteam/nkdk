@@ -1,8 +1,8 @@
 import { format, parse } from "date-fns"
-import { ConfigurationContext } from "~/metadata/context/types"
-import type { PropertyRule } from "~/metadata/orchestration/property/types"
-import { importSystemEnumerationFromYAML } from "~/metadata/systemEnumerations/fromYAML"
-import type { StandardBeginningDateVariant } from "~/metadata/systemEnumerations/types"
+import { ConfigurationContext } from "../../context/types"
+import type { PropertyRule } from "../../orchestration/property/types"
+import { importSystemEnumerationFromYAML } from "../../systemEnumerations/fromYAML"
+import type { StandardBeginningDateVariant } from "../../systemEnumerations/types"
 import type { StandartBeginningDate, StandartBeginningDateYAML } from "./types"
 
 const parseRussianDateTimeToISO = (value: string): string => {

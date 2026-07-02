@@ -1,4 +1,4 @@
-import { PropertyRuleType, PropertyToEnterprise } from "~/metadata/orchestration/property/registry"
+import { PropertyRuleType, PropertyToEnterprise } from "../property/registry"
 import { PropertyRule } from "../property/types"
 
 export type EnterpriseType<
@@ -8,10 +8,10 @@ export type EnterpriseType<
       [K in keyof Properties as Properties[K] extends { runtimeOnly: true }
         ? never
         : Properties[K] extends { syncExternalOnly: true }
-        ? never
-        : Properties[K] extends { toEnterprise?: false }
-        ? never
-        : Capitalize<K extends string ? K : never>]?: Properties[K] extends {
+          ? never
+          : Properties[K] extends { toEnterprise?: false }
+            ? never
+            : Capitalize<K extends string ? K : never>]?: Properties[K] extends {
         type: infer PropertyType
       }
         ? PropertyType extends PropertyRuleType

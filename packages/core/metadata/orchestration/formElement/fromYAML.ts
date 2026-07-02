@@ -1,1 +1,1 @@
-export * from "~/metadata/forms/elements/orchestration/fromYAML"
+export * from "../../forms/elements/orchestration/fromYAML"

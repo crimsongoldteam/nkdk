@@ -1,7 +1,7 @@
 import { describe, expect, it } from "vitest"
 import { methodsFromYAML, methodsYAML } from "./__fixtures__/data"
 import "./register"
-import { testImportPropertyFromYAML } from "~/tests/property/importPropertyFromYAML"
+import { testImportPropertyFromYAML } from "../../../tests/property/importPropertyFromYAML"
 
 const rule = { type: "MetadataHTTPServiceMethods" } as const
 

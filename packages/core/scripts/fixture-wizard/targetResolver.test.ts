@@ -12,11 +12,7 @@ async function createTempProject() {
   return projectRoot
 }
 
-async function createMetadataItem(
-  projectRoot: string,
-  metadataItem: string,
-  rulesSource?: string,
-) {
+async function createMetadataItem(projectRoot: string, metadataItem: string, rulesSource?: string) {
   const itemDir = join(projectRoot, "packages/core/metadata/appliedObjects", metadataItem)
   await mkdir(join(itemDir, "__fixtures__/sync/xml"), { recursive: true })
 
@@ -40,7 +36,7 @@ describe("targetResolver", () => {
       `export const MetadataCatalogRules = {
         itemType: "MetadataCatalog",
         xmlDir: "Catalogs",
-      }`,
+      }`
     )
 
     await expect(readXmlDirFromRules(itemDir)).resolves.toBe("Catalogs")
@@ -53,7 +49,7 @@ describe("targetResolver", () => {
       "configDumpInfo",
       `export const ConfigDumpInfoRules = {
         itemType: "ConfigDumpInfo",
-      }`,
+      }`
     )
 
     await expect(readXmlDirFromRules(itemDir)).resolves.toBeUndefined()
@@ -66,7 +62,7 @@ describe("targetResolver", () => {
       "metadataDocument",
       `export const MetadataDocumentRules = {
         xmlDir: "Documents",
-      }`,
+      }`
     )
 
     await expect(resolveMetadataTarget(projectRoot, "metadataDocument")).resolves.toEqual({
@@ -84,7 +80,7 @@ describe("targetResolver", () => {
     await createMetadataItem(projectRoot, "metadataDocument")
 
     await expect(resolveMetadataTarget(projectRoot, "metadataUnknown")).rejects.toThrow(
-      "metadataItem metadataUnknown не найден. Доступные: metadataCatalog, metadataDocument",
+      "metadataItem metadataUnknown не найден. Доступные: metadataCatalog, metadataDocument"
     )
   })
 })

@@ -1,5 +1,5 @@
 import { describe, expect, it } from "vitest"
-import { testExportAppliedObjectToXML, testImportAppliedObjectFromXML } from "~/tests/appliedObject"
+import { testExportAppliedObjectToXML, testImportAppliedObjectFromXML } from "../../../tests/appliedObject"
 import { full } from "./__fixtures__/full"
 import { minimal } from "./__fixtures__/minimal"
 import { MetadataDocumentJournalRules } from "./rules"
@@ -16,10 +16,7 @@ describe("import MetadataDocumentJournal from XML", () => {
     })
 
     expect(result).toEqual(full)
-    expect(result?.registeredDocuments).toEqual([
-      "Document.ДокументВсеСвойства",
-      "Document.ДокументДругойДляЖурнала",
-    ])
+    expect(result?.registeredDocuments).toEqual(["Document.ДокументВсеСвойства", "Document.ДокументДругойДляЖурнала"])
     expect(result?.columns).toHaveLength(2)
     expect(result?.standardAttributes?.map((attribute: { name: string }) => attribute.name)).toEqual(["Ref", "Date"])
   })
@@ -34,24 +31,21 @@ describe("import MetadataDocumentJournal from XML", () => {
     ).toEqual(minimal)
   })
 
-  it.each(["full.xml", "minimal.xml"])(
-    "round-trip: %s — import затем export совпадает с исходным XML",
-    (fixture) => {
-      const data = testImportAppliedObjectFromXML<MetadataDocumentJournal>({
-        rule: MetadataDocumentJournalRules,
-        importMetaUrl: import.meta.url,
-        fixture,
-      })
-      const { result, expected } = testExportAppliedObjectToXML({
-        rule: MetadataDocumentJournalRules,
-        importMetaUrl: import.meta.url,
-        fixture,
-        data: data!,
-      })
-      expect(normalizeLineEndings(result)).toEqual(normalizeLineEndings(expected))
-      if (fixture === "full.xml") {
-        expect(result).toContain('<xr:StandardAttribute name="Type">')
-      }
+  it.each(["full.xml", "minimal.xml"])("round-trip: %s — import затем export совпадает с исходным XML", (fixture) => {
+    const data = testImportAppliedObjectFromXML<MetadataDocumentJournal>({
+      rule: MetadataDocumentJournalRules,
+      importMetaUrl: import.meta.url,
+      fixture,
+    })
+    const { result, expected } = testExportAppliedObjectToXML({
+      rule: MetadataDocumentJournalRules,
+      importMetaUrl: import.meta.url,
+      fixture,
+      data: data!,
+    })
+    expect(normalizeLineEndings(result)).toEqual(normalizeLineEndings(expected))
+    if (fixture === "full.xml") {
+      expect(result).toContain('<xr:StandardAttribute name="Type">')
     }
-  )
+  })
 })

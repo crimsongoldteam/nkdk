@@ -1,7 +1,7 @@
 import { describe, expect, it } from "vitest"
-import { fontYAMLFixtures } from "~/metadata/commonObjects/font/__fixtures__/data"
-import { mockContext, mockRule } from "~/tests/mockContext"
-import { xmlExport } from "~/xml/export/exporter"
+import { fontYAMLFixtures } from "./__fixtures__/data"
+import { mockContext, mockRule } from "../../../tests/mockContext"
+import { xmlExport } from "../../../xml/export/exporter"
 import { exportFontToXML } from "./toXML"
 
 describe("exportFontToXML", () => {

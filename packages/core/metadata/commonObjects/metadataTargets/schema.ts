@@ -85,7 +85,8 @@ const fieldObjectNameByRoot: Partial<Record<MetadataRootName, string>> = {
 
 const primitiveTypePatterns = {
   string: "Строка(?:\\([1-9][0-9]*\\))?|ФиксированнаяСтрока\\([1-9][0-9]*\\)",
-  decimal: "Число(?:\\([1-9][0-9]*(?:\\s*,\\s*[0-9]+)?\\))?|ПоложительноеЧисло(?:\\([1-9][0-9]*(?:\\s*,\\s*[0-9]+)?\\))?",
+  decimal:
+    "Число(?:\\([1-9][0-9]*(?:\\s*,\\s*[0-9]+)?\\))?|ПоложительноеЧисло(?:\\([1-9][0-9]*(?:\\s*,\\s*[0-9]+)?\\))?",
   dateTime: "Дата|Время|ДатаВремя",
   boolean: "Булево",
   ValueStorage: "ХранилищеЗначения",
@@ -145,7 +146,9 @@ function objectSchema(constraint: Extract<MetadataTargetConstraint, { kind: "obj
         : singleRootShort
           ? `^(${METADATA_NAME_PATTERN})$`
           : `^((${yamlRoots})\\.${METADATA_NAME_PATTERN}${tailPattern})$`,
-    examples: singleRootShort ? [fieldObjectName(selectedRoots[0])] : objectExamples(selectedRoots, constraint.allowNested === true),
+    examples: singleRootShort
+      ? [fieldObjectName(selectedRoots[0])]
+      : objectExamples(selectedRoots, constraint.allowNested === true),
     description:
       selectedRoots.length === 0
         ? "Ссылка на объект метаданных. Ограничение не разрешает корневые типы; подробная проверка выполняется validate."
@@ -159,12 +162,8 @@ function memberSchema(constraint: Extract<MetadataTargetConstraint, { kind: "mem
   const memberKinds = constraint.memberKinds ?? allMemberKinds
   const memberGroup = memberKinds.map((kind) => memberKindToYAML[kind]).join("|")
   const selectedRoots = selectRoots(constraint.roots)
-  const yamlMemberPath = constraint.allowedMemberPaths
-    ? undefined
-    : memberPathPattern(memberKinds, "yaml")
-  const modelMemberPath = constraint.allowedMemberPaths
-    ? undefined
-    : memberPathPattern(memberKinds, "model")
+  const yamlMemberPath = constraint.allowedMemberPaths ? undefined : memberPathPattern(memberKinds, "yaml")
+  const modelMemberPath = constraint.allowedMemberPaths ? undefined : memberPathPattern(memberKinds, "model")
   const exactMemberBranches = exactMemberPathPatterns(constraint.allowedMemberPaths, "yaml")
   const exactModelMemberBranches = exactMemberPathPatterns(constraint.allowedMemberPaths, "model")
   const objectBranches = memberObjectPathPatterns(constraint, "yaml")
@@ -239,7 +238,8 @@ function memberPathPattern(memberKinds: readonly MetadataMemberKind[], source: "
   if (memberKinds.length === 0) return undefined
 
   const tabularSection = source === "yaml" ? memberKindToYAML.TabularSection : "TabularSection"
-  const terminalGroup = source === "yaml" ? memberKinds.map((kind) => memberKindToYAML[kind]).join("|") : memberKinds.join("|")
+  const terminalGroup =
+    source === "yaml" ? memberKinds.map((kind) => memberKindToYAML[kind]).join("|") : memberKinds.join("|")
   return `(?:${tabularSection}\\.${METADATA_NAME_PATTERN}\\.)*(?:${terminalGroup})\\.${METADATA_NAME_PATTERN}`
 }
 
@@ -264,7 +264,10 @@ function memberObjectPathPatterns(
   return branches
 }
 
-function nestedRootObjectPathPatterns(roots: readonly MetadataRootName[] | undefined, source: "yaml" | "model"): string[] {
+function nestedRootObjectPathPatterns(
+  roots: readonly MetadataRootName[] | undefined,
+  source: "yaml" | "model"
+): string[] {
   return (roots ?? []).map((root) => {
     const rootName = source === "yaml" ? rootToYAML[root] : root
     return `${rootName}\\.${METADATA_NAME_PATTERN}(?:\\.${rootName}\\.${METADATA_NAME_PATTERN})+`
@@ -278,7 +281,9 @@ function exactObjectPathPatterns(
   return (paths ?? []).map((path) => exactPathPattern(path, source))
 }
 
-function exactObjectPathExamples(paths: readonly (readonly [MetadataRootName, ...MetadataObjectPathKind[]])[]): string[] {
+function exactObjectPathExamples(
+  paths: readonly (readonly [MetadataRootName, ...MetadataObjectPathKind[]])[]
+): string[] {
   return paths.slice(0, 2).map((path) => {
     const [root, ...segments] = path
     const segmentParts = segments.flatMap((kind) => [objectPathKindToYAML[kind], objectSegmentName(kind)])
@@ -357,7 +362,8 @@ function dataPathSchema(constraint: Extract<MetadataTargetConstraint, { kind: "d
     constraint.allowedKinds === undefined || constraint.allowedKinds.length === 0
       ? ""
       : ` Допустимые виды значения: ${constraint.allowedKinds.join(", ")}.`
-  const composite = constraint.allowComposite === true ? " Составные значения разрешены." : " Составные значения запрещены."
+  const composite =
+    constraint.allowComposite === true ? " Составные значения разрешены." : " Составные значения запрещены."
   const indexedSegmentPattern = `${METADATA_NAME_PATTERN}(?:\\[[0-9]+\\])?`
   const simplePathPattern = `${indexedSegmentPattern}(?:\\.${indexedSegmentPattern})*`
   const tildeVariantPathPattern = `~${simplePathPattern}(?:~${simplePathPattern})*`
@@ -482,7 +488,10 @@ function valueExamples(constraint: Extract<MetadataTargetConstraint, { kind: "va
   const examples: string[] = []
 
   if (valueKindAllowed(constraint, "predefinedValue") && selectedRoots.some((root) => root !== "Enum")) {
-    const root = preferredRoot(selectedRoots.filter((item) => item !== "Enum"), "Catalog")
+    const root = preferredRoot(
+      selectedRoots.filter((item) => item !== "Enum"),
+      "Catalog"
+    )
     if (root === "Catalog") {
       examples.push("Справочник.ИмяСправочника.ИмяПредопределенногоЗначения")
     } else if (root) {
@@ -604,7 +613,9 @@ function typeDescription(constraint: Extract<MetadataTargetConstraint, { kind: "
 
   if (typeKinds.includes("primitive")) {
     const primitives = constraint.primitives ?? allPrimitiveTypes
-    parts.push(`primitive-типы платформы: ${primitives.map((primitive) => primitiveTypeExamples[primitive]).join(", ")}`)
+    parts.push(
+      `primitive-типы платформы: ${primitives.map((primitive) => primitiveTypeExamples[primitive]).join(", ")}`
+    )
   }
 
   const variants = parts.length === 0 ? "ограничение не разрешает типы" : parts.join("; ")

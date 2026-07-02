@@ -1,7 +1,7 @@
 import { readFileSync } from "fs"
 import { join } from "path"
 import { describe, expect, it } from "vitest"
-import type { TypeDescription } from "~/metadata/commonObjects/typeDescription/types"
+import type { TypeDescription } from "../../commonObjects/typeDescription/types"
 import { typeDescriptionToDataPathTypeInfo } from "./typeDescription"
 
 describe("typeDescriptionToDataPathTypeInfo", () => {
@@ -36,7 +36,7 @@ describe("typeDescriptionToDataPathTypeInfo", () => {
     expect(
       typeDescriptionToDataPathTypeInfo({
         type: ["CatalogRef.Контрагенты", "DocumentObject.ЗаказПокупателя"],
-      }),
+      })
     ).toEqual({
       kinds: ["object"],
       nextTypes: [
@@ -52,7 +52,7 @@ describe("typeDescriptionToDataPathTypeInfo", () => {
     expect(
       typeDescriptionToDataPathTypeInfo({
         type: ["EnumRef.Состояния", "DefinedType.Организация"],
-      }),
+      })
     ).toEqual({
       kinds: ["object"],
       nextTypes: [{ kind: "Перечисление", name: "Состояния" }],

@@ -1,8 +1,8 @@
-import { formatMetadataTargetToYAML } from "~/metadata/commonObjects/metadataTargets"
-import { isMetadataRootName } from "~/metadata/commonObjects/metadataTargets/roots"
-import type { MetadataTargetConstraint, MetadataTargetOwner } from "~/metadata/commonObjects/metadataTargets/types"
-import type { ConfigurationContext } from "~/metadata/context/types"
-import type { PropertyRule } from "~/metadata/orchestration/property/types"
+import { formatMetadataTargetToYAML } from "../metadataTargets"
+import { isMetadataRootName } from "../metadataTargets/roots"
+import type { MetadataTargetConstraint, MetadataTargetOwner } from "../metadataTargets/types"
+import type { ConfigurationContext } from "../../context/types"
+import type { PropertyRule } from "../../orchestration/property/types"
 
 const metadataObjectTargetFallback = { kind: "object" } as const satisfies MetadataTargetConstraint
 const metadataFieldTargetFallback = { kind: "member", owner: "explicit" } as const satisfies MetadataTargetConstraint
@@ -18,7 +18,12 @@ export const exportMetadataFieldStringToYAML = (
   name: string,
   owner?: MetadataTargetOwner
 ): string | undefined => {
-  return formatMetadataTargetStringToYAML(name, metadataTargetForRule(rule, metadataFieldTargetFallback), owner, isStrictObjectTargetRule(rule))
+  return formatMetadataTargetStringToYAML(
+    name,
+    metadataTargetForRule(rule, metadataFieldTargetFallback),
+    owner,
+    isStrictObjectTargetRule(rule)
+  )
 }
 
 export const exportMetadataObjectStringToYAML = (
@@ -27,7 +32,12 @@ export const exportMetadataObjectStringToYAML = (
   name: string,
   owner?: MetadataTargetOwner
 ): string | undefined => {
-  return formatMetadataTargetStringToYAML(name, metadataTargetForRule(rule, metadataObjectTargetFallback), owner, isStrictObjectTargetRule(rule))
+  return formatMetadataTargetStringToYAML(
+    name,
+    metadataTargetForRule(rule, metadataObjectTargetFallback),
+    owner,
+    isStrictObjectTargetRule(rule)
+  )
 }
 
 export const exportMetadataValueStringToYAML = (

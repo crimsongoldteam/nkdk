@@ -1,7 +1,7 @@
-import { ConfigurationContextWithExportToXML } from "~/metadata/context/types"
-import { registerTypeRule } from "~/metadata/orchestration/property/typeRuleRegistry"
-import type { PropertyRule } from "~/metadata/orchestration/property/types"
-import type { getMinMaxValueXMLText, getMinMaxValueXsiType, MinMaxValueXsiType } from "./types"
+import { ConfigurationContextWithExportToXML } from "../../context/types"
+import { registerTypeRule } from "../../orchestration/property/typeRuleRegistry"
+import type { PropertyRule } from "../../orchestration/property/types"
+import { getMinMaxValueXMLText, getMinMaxValueXsiType, type MinMaxValueXsiType } from "./types"
 
 type RuleWithTypedXML = PropertyRule & { typedXML?: unknown }
 
@@ -21,10 +21,7 @@ export const exportMinMaxValueToXML = (
   }
 }
 
-const getUnchangedReferenceXMLText = (
-  value: number | Number,
-  referenceValue: unknown
-): string | undefined => {
+const getUnchangedReferenceXMLText = (value: number | Number, referenceValue: unknown): string | undefined => {
   const currentNumber = Number(value)
   const referenceNumber = Number(referenceValue)
 

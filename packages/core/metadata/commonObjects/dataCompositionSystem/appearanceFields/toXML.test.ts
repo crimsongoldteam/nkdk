@@ -1,5 +1,5 @@
 import { describe, expect, it } from "vitest"
-import { testExportPropertyToXML } from "~/tests/property/exportPropertyToXML"
+import { testExportPropertyToXML } from "../../../../tests/property/exportPropertyToXML"
 import { fixtureAppearanceFields, fixtureAppearanceRule } from "./__fixtures__/data"
 
 describe("export Appearance to XML", () => {

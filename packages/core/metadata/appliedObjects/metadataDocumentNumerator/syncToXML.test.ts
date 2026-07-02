@@ -1,5 +1,5 @@
 import { describe, expect, it } from "vitest"
-import { testSyncAppliedObjectToXML } from "~/tests/appliedObject"
+import { testSyncAppliedObjectToXML } from "../../../tests/appliedObject"
 import { MetadataDocumentNumeratorRules } from "./rules"
 
 describe("syncAppliedObjectToXML — MetadataDocumentNumerator", () => {

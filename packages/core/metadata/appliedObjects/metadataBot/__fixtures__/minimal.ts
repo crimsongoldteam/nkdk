@@ -6,5 +6,4 @@ export const minimal: MetadataBot = {
   synonym: { items: { ru: "Бот по умолчанию" } },
 }
 
-export const minimalYAML: MetadataBotYAML = {
-}
+export const minimalYAML: MetadataBotYAML = {}

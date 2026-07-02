@@ -1,5 +1,5 @@
 import { describe, expect, it } from "vitest"
-import { testExportPropertyToYAML } from "~/tests/property/exportPropertyToYAML"
+import { testExportPropertyToYAML } from "../../../../../../tests/property/exportPropertyToYAML"
 import {
   fixtureGroupItemAuto,
   fixtureGroupItemAutoUseFalse,

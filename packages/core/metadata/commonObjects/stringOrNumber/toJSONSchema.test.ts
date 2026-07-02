@@ -1,8 +1,8 @@
 import { Type } from "@sinclair/typebox"
 import { describe, expect, it } from "vitest"
-import { PropertyRule } from "~/metadata/orchestration"
-import { exportPropertyToJSONSchema } from "~/metadata/orchestration/property/toJSONSchema"
-import { mockContext } from "~/tests/mockContext"
+import { PropertyRule } from "../../orchestration"
+import { exportPropertyToJSONSchema } from "../../orchestration/property/toJSONSchema"
+import { mockContext } from "../../../tests/mockContext"
 import "./toJSONSchema"
 
 const rule: PropertyRule = {

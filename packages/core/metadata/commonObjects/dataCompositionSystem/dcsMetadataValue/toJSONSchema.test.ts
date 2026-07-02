@@ -1,7 +1,7 @@
 import { TypeCompiler } from "@sinclair/typebox/compiler"
 import { describe, expect, it } from "vitest"
-import { exportPropertyToJSONSchema } from "~/metadata/orchestration/property/toJSONSchema"
-import { mockContext } from "~/tests/mockContext"
+import { exportPropertyToJSONSchema } from "../../../orchestration/property/toJSONSchema"
+import { mockContext } from "../../../../tests/mockContext"
 import type { DcsMetadataValuePropertyRule } from "./types"
 import "./toJSONSchema"
 
@@ -126,9 +126,7 @@ describe("MetadataDcsMetadataValue exportToJSONSchema", () => {
     ).toBe(false)
     expect(schemaFor(fieldRule).Check({ Тип: "Строка", Значение: "", Лишнее: "значение" })).toBe(false)
     expect(schemaFor(designTimeRule).Check({ Тип: "Поле", Значение: "Поле", Лишнее: "значение" })).toBe(false)
-    expect(
-      schemaFor(primitiveRule).Check({ Тип: "ВидСчета", Значение: "Активный", Лишнее: "значение" })
-    ).toBe(false)
+    expect(schemaFor(primitiveRule).Check({ Тип: "ВидСчета", Значение: "Активный", Лишнее: "значение" })).toBe(false)
     expect(schemaFor(primitiveRule).Check([[1]])).toBe(false)
     expect(schemaFor(primitiveRule).Check({ Вариант: "Вчера", Лишнее: "значение" })).toBe(false)
   })

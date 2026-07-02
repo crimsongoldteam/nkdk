@@ -1,1 +1,1 @@
-export * from "~/metadata/forms/elements/orchestration/toXML"
+export * from "../../forms/elements/orchestration/toXML"

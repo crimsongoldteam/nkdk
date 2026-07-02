@@ -55,11 +55,16 @@ function visitYamlData(
   lines: readonly string[],
   locations: YamlLocationIndex,
   parent?: object,
-  key?: YAMLStyleKey,
+  key?: YAMLStyleKey
 ): unknown {
   if (value === null || isSourceEmptyValue(value, path, lines, locations)) return undefined
 
-  if (parent !== undefined && key !== undefined && typeof value === "string" && isDoubleQuotedValue(path, lines, locations)) {
+  if (
+    parent !== undefined &&
+    key !== undefined &&
+    typeof value === "string" &&
+    isDoubleQuotedValue(path, lines, locations)
+  ) {
     markDoubleQuotedScalar(parent, key)
   }
 
@@ -81,7 +86,7 @@ function isSourceEmptyValue(
   value: unknown,
   path: readonly (string | number)[],
   lines: readonly string[],
-  locations: YamlLocationIndex,
+  locations: YamlLocationIndex
 ): boolean {
   if (value !== "" || path.length === 0) return false
   if (isDoubleQuotedValue(path, lines, locations)) return false
@@ -91,11 +96,11 @@ function isSourceEmptyValue(
 function isDoubleQuotedValue(
   path: readonly (string | number)[],
   lines: readonly string[],
-  locations: YamlLocationIndex,
+  locations: YamlLocationIndex
 ): boolean {
   const position = locations.valuePosition(path) ?? locations.nodePosition(path)
   if (position === undefined) return false
-  return lines[position.line - 1]?.[position.col - 1] === "\""
+  return lines[position.line - 1]?.[position.col - 1] === '"'
 }
 
 function isRecord(value: unknown): value is Record<string, unknown> {

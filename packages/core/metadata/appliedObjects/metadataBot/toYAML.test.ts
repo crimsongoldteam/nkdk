@@ -1,8 +1,8 @@
 import { describe, expect, it } from "vitest"
-import { PropertyRule } from "~/metadata/orchestration"
-import { testExportPropertyToYAML } from "~/tests/property/exportPropertyToYAML"
+import { PropertyRule } from "../../orchestration"
+import { testExportPropertyToYAML } from "../../../tests/property/exportPropertyToYAML"
 import { full, fullYAML } from "./__fixtures__/full"
-import { minimal, minimalYAML } from "./__fixtures__/minimal"
+import { minimal } from "./__fixtures__/minimal"
 
 const rule: PropertyRule = { type: "MetadataBot", yaml: "Бот" }
 

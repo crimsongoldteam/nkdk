@@ -1,6 +1,6 @@
 import { describe, expect, it } from "vitest"
-import { importMetadataItemFromYAML } from "~/metadata/orchestration"
-import { mockContext } from "~/tests/mockContext"
+import { importMetadataItemFromYAML } from "../../orchestration"
+import { mockContext } from "../../../tests/mockContext"
 import { PredefinedRules } from "./rules"
 
 import "./types"

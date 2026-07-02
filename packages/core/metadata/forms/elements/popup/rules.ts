@@ -1,11 +1,11 @@
-import { colorRule } from "~/metadata/commonObjects/color/types"
-import { pictureRule } from "~/metadata/commonObjects/metadataTargets/types"
-import { commandBarChildItemsRule } from "~/metadata/forms/commonObjects/childItems/types"
-import { stringRule } from "~/metadata/commonObjects/string/types"
-import { systemEnumerationRule } from "~/metadata/systemEnumerations/types"
-import { registerElementRule } from "~/metadata/orchestration/formElement/ruleFactory"
+import { colorRule } from "../../../commonObjects/color/types"
+import { pictureRule } from "../../../commonObjects/metadataTargets/types"
+import { commandBarChildItemsRule } from "../../commonObjects/childItems/types"
+import { stringRule } from "../../../commonObjects/string/types"
+import { systemEnumerationRule } from "../../../systemEnumerations/types"
+import { registerElementRule } from "../../../orchestration/formElement/ruleFactory"
 import { formGroupCommonProperties } from "../formGroup/rules"
-import type { PropertyRule } from "~/metadata/orchestration/property/types"
+import type { PropertyRule } from "../../../orchestration/property/types"
 import { ElementRule } from "../../../orchestration/formElement/types"
 export type { ElementRule, PropertyRule }
 export const PopupRules = {

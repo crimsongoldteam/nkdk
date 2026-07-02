@@ -1,13 +1,13 @@
-import { registerMetadataItemRule } from "~/metadata/orchestration"
-import { registerProjectSpec } from "~/metadata/project/projectSpecRegistry"
-import { createProjectSchemaExporter } from "~/metadata/project/projectSpecHelpers"
-import { registerProjectJSONSchema } from "~/metadata/project/schemaRegistry"
+import { registerMetadataItemRule } from "../../orchestration"
+import { registerProjectSpec } from "../../project/projectSpecRegistry"
+import { createProjectSchemaExporter } from "../../project/projectSpecHelpers"
+import { registerProjectJSONSchema } from "../../project/schemaRegistry"
 import { join } from "path"
-import { registerDataPathOwnerKind } from "~/metadata/validation/dataPath/registry"
+import { registerDataPathOwnerKind } from "../../validation/dataPath/registry"
 import {
   registerProjectObjectPathResolver,
   registerProjectValueResolver,
-} from "~/metadata/validation/projectMetadataResolverRegistry"
+} from "../../validation/projectMetadataResolverRegistry"
 import { importMetadataEnumerationFromYAML } from "./fromYAML"
 import { MetadataEnumerationRules } from "./rules"
 import { exportMetadataEnumerationToJSONSchema } from "./toJSONSchema"
@@ -53,7 +53,9 @@ function hasNamedItem(value: unknown, name: string): boolean {
   if (record.name === name) return true
   if (Object.prototype.hasOwnProperty.call(record, name)) return true
 
-  return hasNamedItem(record.items, name) || hasNamedItem(record.childItems, name) || hasNamedItem(record.enumValues, name)
+  return (
+    hasNamedItem(record.items, name) || hasNamedItem(record.childItems, name) || hasNamedItem(record.enumValues, name)
+  )
 }
 
 function metadataRecord(value: unknown): Record<string, unknown> {

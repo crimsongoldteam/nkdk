@@ -4,12 +4,17 @@ import type { StructuralState } from "./types"
 
 function state(paths: string[]): StructuralState {
   return {
-    nodes: new Map(paths.map((path) => [path, {
-      path,
-      kind: path.includes("Реквизит") ? "attribute" : "object",
-      name: lastSegment(path),
-      referencePath: path,
-    }])),
+    nodes: new Map(
+      paths.map((path) => [
+        path,
+        {
+          path,
+          kind: path.includes("Реквизит") ? "attribute" : "object",
+          name: lastSegment(path),
+          referencePath: path,
+        },
+      ])
+    ),
   }
 }
 
@@ -25,10 +30,12 @@ describe("detectMigrationConflicts", () => {
   })
 
   it("reports deleted plus added on same level", () => {
-    expect(detectMigrationConflicts(
-      state(["Справочник.Товары.Реквизит.Артикул"]),
-      state(["Справочник.Товары.Реквизит.НовыйАртикул"]),
-    )).toEqual([
+    expect(
+      detectMigrationConflicts(
+        state(["Справочник.Товары.Реквизит.Артикул"]),
+        state(["Справочник.Товары.Реквизит.НовыйАртикул"])
+      )
+    ).toEqual([
       {
         levelPath: "Справочник.Товары.Реквизит",
         deleted: ["Артикул"],
@@ -38,9 +45,11 @@ describe("detectMigrationConflicts", () => {
   })
 
   it("allows deletion and addition on different levels", () => {
-    expect(detectMigrationConflicts(
-      state(["Справочник.Товары.Реквизит.Артикул"]),
-      state(["Справочник.Товары.ТабличнаяЧасть.Состав"]),
-    )).toEqual([])
+    expect(
+      detectMigrationConflicts(
+        state(["Справочник.Товары.Реквизит.Артикул"]),
+        state(["Справочник.Товары.ТабличнаяЧасть.Состав"])
+      )
+    ).toEqual([])
   })
 })

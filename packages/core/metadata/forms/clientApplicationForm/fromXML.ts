@@ -1,6 +1,6 @@
-import { ConfigurationContextFromXML } from "~/metadata/context/types"
-import { importPropertiesFromXML } from "~/metadata/orchestration"
-import { XML_SOURCE_KEYS } from "~/metadata/orchestration/property/helpers"
+import { ConfigurationContextFromXML } from "../../context/types"
+import { importPropertiesFromXML } from "../../orchestration"
+import { XML_SOURCE_KEYS } from "../../orchestration/property/helpers"
 import { ClientApplicationFormRules } from "./rules"
 import { ClientApplicationForm, ClientApplicationFormXML, FormMetadataXML, FormRulesTags } from "./types"
 

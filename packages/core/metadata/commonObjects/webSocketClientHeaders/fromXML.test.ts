@@ -1,5 +1,5 @@
 import { describe, expect, it } from "vitest"
-import { mockContextFromXML, mockRule } from "~/tests/mockContext"
+import { mockContextFromXML, mockRule } from "../../../tests/mockContext"
 import { importWebSocketClientHeadersFromXML } from "./fromXML"
 import type { WebSocketClientHeadersXML } from "./types"
 

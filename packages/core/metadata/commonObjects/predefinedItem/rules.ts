@@ -1,12 +1,12 @@
-import { predefinedCodeRule } from "~/metadata/commonObjects/predefinedCode/types"
-import { predefinedItemCollectionRule } from "~/metadata/commonObjects/predefinedItem/builders"
-import { typeDescriptionRule } from "~/metadata/commonObjects/typeDescription/types"
-import { booleanRule } from "~/metadata/commonObjects/boolean/types"
-import { stringRule } from "~/metadata/commonObjects/string/types"
-import { uuidPropertyRule } from "~/metadata/commonObjects/uuid/rule"
-import { getParentFromContext } from "~/metadata/context/helpers"
-import { ConfigurationContextWithExportToXML } from "~/metadata/context/types"
-import type { MetadataItemRule } from "~/metadata/orchestration/property/types"
+import { predefinedCodeRule } from "../predefinedCode/types"
+import { predefinedItemCollectionRule } from "./builders"
+import { typeDescriptionRule } from "../typeDescription/types"
+import { booleanRule } from "../boolean/types"
+import { stringRule } from "../string/types"
+import { uuidPropertyRule } from "../uuid/rule"
+import { getParentFromContext } from "../../context/helpers"
+import { ConfigurationContextWithExportToXML } from "../../context/types"
+import type { MetadataItemRule } from "../../orchestration/property/types"
 const isChartOfCharacteristicTypesPredefined = (context?: ConfigurationContextWithExportToXML): boolean =>
   context
     ? getParentFromContext(context, ["MetadataChartOfCharacteristicTypes" as never]).itemType ===

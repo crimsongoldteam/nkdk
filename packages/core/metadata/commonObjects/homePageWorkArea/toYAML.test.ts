@@ -1,6 +1,6 @@
 import { describe, expect, it } from "vitest"
-import { exportMetadataItemToYAML, importMetadataItemFromXML } from "~/metadata/orchestration"
-import { mockContext, mockContextFromXML } from "~/tests/mockContext"
+import { exportMetadataItemToYAML, importMetadataItemFromXML } from "../../orchestration"
+import { mockContext, mockContextFromXML } from "../../../tests/mockContext"
 import { HomePageWorkAreaRules } from "./rules"
 
 import "./register"

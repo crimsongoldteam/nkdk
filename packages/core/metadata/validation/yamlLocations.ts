@@ -1,4 +1,4 @@
-import type { ParsedYaml } from "~/yaml/parseMetadataYaml"
+import type { ParsedYaml } from "../../yaml/parseMetadataYaml"
 import type { Diagnostic, DiagnosticSeverity, DiagnosticSource } from "./types"
 
 export type YamlPath = readonly (string | number)[]

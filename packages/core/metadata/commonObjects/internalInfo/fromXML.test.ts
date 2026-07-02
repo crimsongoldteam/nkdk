@@ -2,10 +2,10 @@ import { readFileSync } from "node:fs"
 import { dirname, join } from "node:path"
 import { fileURLToPath } from "node:url"
 import { describe, expect, it } from "vitest"
-import { mockContextFromXML, mockContextToXML } from "~/tests/mockContext"
-import { xmlExport } from "~/xml/export/exporter"
-import { importContentFromXML } from "~/xml/import/importer"
-import { PropertyRule } from "~/metadata/orchestration"
+import { mockContextFromXML, mockContextToXML } from "../../../tests/mockContext"
+import { xmlExport } from "../../../xml/export/exporter"
+import { importContentFromXML } from "../../../xml/import/importer"
+import { PropertyRule } from "../../orchestration"
 import { importInternalInfoFromXML } from "./fromXML"
 import { exportInternalInfoToXML } from "./toXML"
 import { InternalInfoRootXML } from "./types"
@@ -24,10 +24,7 @@ const containedObjectsRule: PropertyRule = {
 const generatedContainedObjectsRule: PropertyRule = {
   type: "InternalInfo",
   forReferenceOnly: true,
-  containedObjectClassIds: [
-    "00000000-0000-0000-0000-000000000101",
-    "00000000-0000-0000-0000-000000000102",
-  ],
+  containedObjectClassIds: ["00000000-0000-0000-0000-000000000101", "00000000-0000-0000-0000-000000000102"],
 }
 
 const ruleWithThisNode: PropertyRule = { ...rule, thisNode: true }
@@ -51,7 +48,11 @@ const fixturesDir = join(dirname(fileURLToPath(import.meta.url)), "__fixtures__"
 const importContainedObjectsFixture = () => {
   const source = readFileSync(join(fixturesDir, "containedObjects.xml"), "utf8")
   const parsed = importContentFromXML<{ InternalInfo: InternalInfoRootXML }>(source)
-  return importInternalInfoFromXML(mockContextFromXML({ forReference: true }), containedObjectsRule, parsed.InternalInfo)
+  return importInternalInfoFromXML(
+    mockContextFromXML({ forReference: true }),
+    containedObjectsRule,
+    parsed.InternalInfo
+  )
 }
 
 describe("importInternalInfoFromXML", () => {

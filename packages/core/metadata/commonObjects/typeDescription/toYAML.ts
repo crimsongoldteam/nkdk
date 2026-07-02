@@ -1,9 +1,9 @@
-import type { PropertyRule } from "~/metadata/orchestration/property/types"
-import { registerTypeRule } from "~/metadata/orchestration/property/typeRuleRegistry"
+import type { PropertyRule } from "../../orchestration/property/types"
+import { registerTypeRule } from "../../orchestration/property/typeRuleRegistry"
 import { ConfigurationContext } from "../../context/types"
 import { METADATA_NAME_YAML_PATTERN } from "./allowedTypes"
 import { getSystemEnumerationYAMLType, getTypeDescriptionRule } from "./helper"
-import type { PrimitiveTypeToYAML, TypeDescription, TypeDescriptionYAML } from "./types"
+import { PrimitiveTypeToYAML, type TypeDescription, type TypeDescriptionYAML } from "./types"
 
 export const exportTypeDescriptionToYAML = (
   _context: ConfigurationContext,

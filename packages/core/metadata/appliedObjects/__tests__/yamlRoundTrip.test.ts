@@ -3,7 +3,7 @@ import {
   testExportAppliedObjectToYAML,
   testImportAppliedObjectFromXML,
   testImportAppliedObjectFromYAML,
-} from "~/tests/appliedObject"
+} from "../../../tests/appliedObject"
 import { appliedObjectModelCases } from "./yamlFixtures"
 
 describe("applied object YAML model round-trip", () => {

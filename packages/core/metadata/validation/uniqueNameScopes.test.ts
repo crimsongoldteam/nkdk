@@ -1,8 +1,8 @@
 import { describe, expect, it } from "vitest"
-import { MetadataCatalogRules } from "~/metadata/appliedObjects/metadataCatalog/rules"
-import { MetadataInformationRegisterRules } from "~/metadata/appliedObjects/metadataInformationRegister/rules"
-import type { MetadataItem } from "~/metadata/orchestration/property/types"
-import { parseMetadataYaml } from "~/yaml/parseMetadataYaml"
+import { MetadataCatalogRules } from "../appliedObjects/metadataCatalog/rules"
+import { MetadataInformationRegisterRules } from "../appliedObjects/metadataInformationRegister/rules"
+import type { MetadataItem } from "../orchestration/property/types"
+import { parseMetadataYaml } from "../../yaml/parseMetadataYaml"
 import { validateUniqueNameScopes } from "./uniqueNameScopes"
 
 type ValidationModel = MetadataItem & Record<string, unknown>
@@ -129,7 +129,7 @@ describe("validateUniqueNameScopes", () => {
         line: 5,
         col: 3,
         path: "/ТабличныеЧасти/ОбщееИмя",
-      }),
+      })
     )
   })
 })

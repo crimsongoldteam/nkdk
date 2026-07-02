@@ -12,12 +12,12 @@ import {
 } from "./__fixtures__/data"
 import { documentFullClientApplicationFormFromYAML } from "./__fixtures__/documentFull"
 import { documentFullClientApplicationFormYAMLForImport } from "./__fixtures__/documentFull.yaml"
-import { mockContext } from "~/tests/mockContext"
+import { mockContext } from "../../../tests/mockContext"
 import { ButtonGroup } from "../elements/buttonGroup/types"
 import { Table } from "../elements/table/types"
 import { importClientApplicationFormFromYAML } from "./fromYAML"
 import { ClientApplicationForm, ClientApplicationFormYAML } from "./types"
-import type { ConfigurationContext } from "~/metadata/context/types"
+import type { ConfigurationContext } from "../../context/types"
 
 type ClientApplicationFormWithCustomSettingsFolder = ClientApplicationForm & {
   customSettingsFolder?: string

@@ -1,14 +1,9 @@
-import {
-  ColumnGroup,
-  ColumnGroupEnterprise,
-  ColumnGroupPartialYAML,
-  ColumnGroupTypedYAML,
-} from "~/metadata/forms/elements/columnGroup/types"
+import { ColumnGroup, ColumnGroupEnterprise, ColumnGroupPartialYAML, ColumnGroupTypedYAML } from "../types"
 import {
   fullFormGroupCommonFixture,
   fullFormGroupEnterpriseCommonFixture,
   fullFormGroupPartialYAMLCommonFixture,
-} from "~/metadata/forms/elements/formGroup/__fixtures__/data"
+} from "../../formGroup/__fixtures__/data"
 
 const {
   horizontalAlignInGroup: _hAignCG,
@@ -74,9 +69,7 @@ export const fullColumnGroupEnterprise = {
   Title: "Заголовок элемента",
   HeaderPicture: { Type: "Picture", Value: "PictureLib.Print" },
   ...fullFormGroupEnterpriseCommonFixtureForColumnGroup,
-} satisfies Required<
-  Omit<ColumnGroupEnterprise, "HeaderDataPath" | "HorizontalAlignInGroup" | "VerticalAlignInGroup">
->
+} satisfies Required<Omit<ColumnGroupEnterprise, "HeaderDataPath" | "HorizontalAlignInGroup" | "VerticalAlignInGroup">>
 
 export const fullColumnGroupPartialYAML: ColumnGroupPartialYAML = {
   ...fullFormGroupPartialYAMLCommonFixtureForColumnGroup,

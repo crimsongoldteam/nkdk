@@ -38,11 +38,7 @@ describe("deleteMetadataItem", () => {
 
   it("blocks external references to deleted object descendants", async () => {
     const projectDir = createProject()
-    writeProjectFile(projectDir, "Справочник/Товары/Свойства.yaml", [
-      "Реквизиты:",
-      "  Артикул:",
-      "    Тип: Строка",
-    ])
+    writeProjectFile(projectDir, "Справочник/Товары/Свойства.yaml", ["Реквизиты:", "  Артикул:", "    Тип: Строка"])
     writeProjectFile(projectDir, "Справочник/Заказы/Свойства.yaml", ["Владельцы:", "  - Справочник.Товары"])
 
     const result = await deleteMetadataItem({
@@ -145,11 +141,7 @@ describe("deleteMetadataItem", () => {
 
   it("blocks delete when a form DataPath points to the target", async () => {
     const projectDir = createProject()
-    writeProjectFile(projectDir, "Справочник/Товары/Свойства.yaml", [
-      "Реквизиты:",
-      "  Артикул:",
-      "    Тип: Строка",
-    ])
+    writeProjectFile(projectDir, "Справочник/Товары/Свойства.yaml", ["Реквизиты:", "  Артикул:", "    Тип: Строка"])
     writeProjectFile(projectDir, "Справочник/Товары/Формы/ФормаЭлемента/Форма.yaml", [
       "Реквизиты:",
       "  Объект:",

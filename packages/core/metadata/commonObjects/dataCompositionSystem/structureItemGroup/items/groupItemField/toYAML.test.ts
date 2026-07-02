@@ -1,9 +1,6 @@
 import { describe, expect, it } from "vitest"
-import { testExportPropertyToYAML } from "~/tests/property/exportPropertyToYAML"
-import {
-  dynamicListGroupItemFieldDefault,
-  dynamicListGroupItemFieldDefaultYAML,
-} from "./__fixtures__/data"
+import { testExportPropertyToYAML } from "../../../../../../tests/property/exportPropertyToYAML"
+import { dynamicListGroupItemFieldDefault, dynamicListGroupItemFieldDefaultYAML } from "./__fixtures__/data"
 import "./index"
 
 const rule = { type: "GroupItemField", yaml: "ПоляГруппировки" } as const

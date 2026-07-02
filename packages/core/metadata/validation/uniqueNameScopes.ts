@@ -1,5 +1,5 @@
-import type { MetadataItem, MetadataItemRule } from "~/metadata/orchestration/property/types"
-import type { ParsedYaml } from "~/yaml/parseMetadataYaml"
+import type { MetadataItem, MetadataItemRule } from "../orchestration/property/types"
+import type { ParsedYaml } from "../../yaml/parseMetadataYaml"
 import type { Diagnostic } from "./types"
 
 interface ValidateUniqueNameScopesParams {

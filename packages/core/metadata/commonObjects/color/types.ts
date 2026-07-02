@@ -1,15 +1,15 @@
 import {
   definePropertyRule as defineWidePropertyRule,
   type ExactRuleParams as WideExactRuleParams,
-} from "~/metadata/commonObjects/ruleBuilder"
-import type { PropertyRule as WidePropertyRuleBase } from "~/metadata/orchestration/property/types"
+} from "../ruleBuilder"
+import type { PropertyRule as WidePropertyRuleBase } from "../../orchestration/property/types"
 import { TSchema, Type } from "@sinclair/typebox"
 import {
   ColorType,
   StyleColorsFromYAML,
   WebColorsFromYAML,
   WindowsColorsFromYAML,
-} from "~/metadata/systemEnumerations/types"
+} from "../../systemEnumerations/types"
 import { buildMetadataTargetSchema, type MetadataTargetConstraint } from "../metadataTargets"
 
 export interface TypedColor {

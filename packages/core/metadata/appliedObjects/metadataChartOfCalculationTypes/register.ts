@@ -1,6 +1,6 @@
-import type { OwnerMetadata } from "~/metadata/validation/dataPath/ownerCache"
-import type { FormDataPathColumnSource } from "~/metadata/validation/dataPath/types"
-import { registerDataPathOwnerKind, registerVirtualOwnerFieldResolver } from "~/metadata/validation/dataPath/registry"
+import type { OwnerMetadata } from "../../validation/dataPath/ownerCache"
+import type { FormDataPathColumnSource } from "../../validation/dataPath/types"
+import { registerDataPathOwnerKind, registerVirtualOwnerFieldResolver } from "../../validation/dataPath/registry"
 import { MetadataChartOfCalculationTypesRules } from "./rules"
 
 registerDataPathOwnerKind({
@@ -60,7 +60,9 @@ function chartOfCalculationTypesVirtualTableColumns(owner: OwnerMetadata): Map<s
 }
 
 function isCalculationTypesVirtualTableName(segment: string): boolean {
-  return segment === "BaseCalculationTypes" ||
+  return (
+    segment === "BaseCalculationTypes" ||
     segment === "LeadingCalculationTypes" ||
     segment === "DisplacingCalculationTypes"
+  )
 }

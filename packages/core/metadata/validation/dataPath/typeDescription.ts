@@ -1,4 +1,4 @@
-import type { TypeDescription } from "~/metadata/commonObjects/typeDescription/types"
+import type { TypeDescription } from "../../commonObjects/typeDescription/types"
 import {
   getOwnerKindByRegisterRecordSetBase,
   getOwnerKindByTypeDescriptionBase,
@@ -10,18 +10,11 @@ export interface TypeDescriptionToDataPathTypeInfoOptions {
   defaultType?: string
 }
 
-const scalarTypes = new Set([
-  "string",
-  "decimal",
-  "base64Binary",
-  "date",
-  "Null",
-  "UUID",
-])
+const scalarTypes = new Set(["string", "decimal", "base64Binary", "date", "Null", "UUID"])
 
 export function typeDescriptionToDataPathTypeInfo(
   typeDescription: TypeDescription | undefined,
-  _options: TypeDescriptionToDataPathTypeInfoOptions = {},
+  _options: TypeDescriptionToDataPathTypeInfoOptions = {}
 ): DataPathTypeInfo {
   const types = typeDescription?.type
   if (!Array.isArray(types) || types.length === 0 || hasOnlyTypeId(typeDescription)) {

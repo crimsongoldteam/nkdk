@@ -1,6 +1,6 @@
 import { TSchema, Type } from "@sinclair/typebox"
-import { ConfigurationContext } from "~/metadata/context/types"
-import { applyExcludedEqualNameYAMLToJSONSchema } from "~/metadata/helpers/excludeIfEqualNameYAML"
+import { ConfigurationContext } from "../../context/types"
+import { applyExcludedEqualNameYAMLToJSONSchema } from "../../helpers/excludeIfEqualNameYAML"
 import { getTypeRule } from "./typeRuleRegistry"
 import { exportPropertyExternalRefSchema, exportPropertyOverrideSchema } from "../jsonSchemaRefs"
 import { shouldProcessProperty } from "./helpers"

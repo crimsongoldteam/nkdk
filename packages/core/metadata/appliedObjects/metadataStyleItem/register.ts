@@ -1,13 +1,13 @@
 import "./types"
 import { existsSync } from "fs"
 import { join } from "path"
-import * as SE from "~/metadata/systemEnumerations/types"
+import * as SE from "../../systemEnumerations/types"
 import {
   registerProjectNamedResourceResolver,
   type MetadataResolveResult,
-} from "~/metadata/validation/projectMetadataResolverRegistry"
-import type { ProjectYamlCache } from "~/metadata/validation/projectYamlCache"
-import type { StyleItemTargetType } from "~/metadata/commonObjects/metadataTargets"
+} from "../../validation/projectMetadataResolverRegistry"
+import type { ProjectYamlCache } from "../../validation/projectYamlCache"
+import type { StyleItemTargetType } from "../../commonObjects/metadataTargets"
 
 registerProjectNamedResourceResolver("StyleItem", ({ projectDir, name, expectedTypes = [], yamlCache }) => {
   const filePath = join(projectDir, "ЭлементСтиля", name, "Свойства.yaml")
@@ -17,7 +17,7 @@ registerProjectNamedResourceResolver("StyleItem", ({ projectDir, name, expectedT
   if (styleItemType && expectedTypes.length > 0 && !expectedTypes.includes(styleItemType)) {
     return referenceError(
       filePath,
-      `Элемент стиля "ЭлементСтиля.${name}" имеет тип "${styleItemType}", ожидался: ${expectedTypes.join(", ")}`,
+      `Элемент стиля "ЭлементСтиля.${name}" имеет тип "${styleItemType}", ожидался: ${expectedTypes.join(", ")}`
     )
   }
 
@@ -39,7 +39,9 @@ function styleItemTypeValue(data: unknown): unknown {
 }
 
 function styleItemTypeFromModelValue(value: string): StyleItemTargetType | undefined {
-  return Object.prototype.hasOwnProperty.call(SE.StyleElementTypeToYAML, value) ? (value as StyleItemTargetType) : undefined
+  return Object.prototype.hasOwnProperty.call(SE.StyleElementTypeToYAML, value)
+    ? (value as StyleItemTargetType)
+    : undefined
 }
 
 function referenceError(filePath: string, message: string): MetadataResolveResult {

@@ -1,7 +1,7 @@
 import { describe, expect, it } from "vitest"
-import { PropertyRule } from "~/metadata/orchestration"
-import { testImportPropertyFromYAML } from "~/tests/property/importPropertyFromYAML"
-import { importFromYAML } from "~/yaml/import"
+import { PropertyRule } from "../../../orchestration"
+import { testImportPropertyFromYAML } from "../../../../tests/property/importPropertyFromYAML"
+import { importFromYAML } from "../../../../yaml/import"
 import {
   fullFilterItemComparison,
   fullFilterItemComparisonYAML,

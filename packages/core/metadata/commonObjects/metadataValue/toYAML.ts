@@ -1,6 +1,6 @@
-import { ConfigurationContext } from "~/metadata/context/types"
-import type { PropertyRule } from "~/metadata/orchestration/property/types"
-import { registerTypeRule } from "~/metadata/orchestration/property/typeRuleRegistry"
+import { ConfigurationContext } from "../../context/types"
+import type { PropertyRule } from "../../orchestration/property/types"
+import { registerTypeRule } from "../../orchestration/property/typeRuleRegistry"
 import { exportFixedArrayToYAML } from "./fixedArray/toYAML"
 import { exportFormChoiceListToYAML } from "./formChoiceList/toYAML"
 import { primitiveValueHandlers } from "./handlers"
@@ -45,7 +45,8 @@ export const exportMetadataValueToYAML = (
   assertValueType(ruleTyped?.valueType, data.type, "toYAML")
 
   if (data.type === "fixedArray") return exportFixedArrayToYAML(context, data as MetadataFixedArrayValue)
-  if (data.type === "formChoiceListDesTimeValue") return exportFormChoiceListToYAML(context, data as MetadataFormChoiceListValue)
+  if (data.type === "formChoiceListDesTimeValue")
+    return exportFormChoiceListToYAML(context, data as MetadataFormChoiceListValue)
   if (data.type === "valueList") return "СписокЗначений"
   if (data.type === "standardPeriod") return exportStandardPeriodToYAML(data.value, context, rule)
 

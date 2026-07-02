@@ -1,5 +1,5 @@
-import type { MetadataTargetOwner } from "~/metadata/commonObjects/metadataTargets/types"
-import type { ConfigurationContext } from "~/metadata/context/types"
+import type { MetadataTargetOwner } from "../../commonObjects/metadataTargets/types"
+import type { ConfigurationContext } from "../../context/types"
 import type { MetadataItemRule } from "./types"
 
 export interface MetadataTargetOwnerFrame {

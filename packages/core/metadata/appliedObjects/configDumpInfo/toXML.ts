@@ -1,4 +1,4 @@
-import { ConfigurationContext } from "~/metadata/context/types"
+import { ConfigurationContext } from "../../context/types"
 import { ConfigDumpInfo, ConfigDumpInfoMetadataInnerXML, ConfigDumpInfoMetadataXML, ConfigDumpInfoXML } from "./types"
 
 export const exportConfigDumpInfoToXML = (params: {

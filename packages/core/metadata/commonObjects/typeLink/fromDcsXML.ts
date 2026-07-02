@@ -1,4 +1,4 @@
-import type { PropertyRule } from "~/metadata/orchestration/property/types"
+import type { PropertyRule } from "../../orchestration/property/types"
 import { ConfigurationContextFromXML } from "../../context/types"
 import { MetadataField } from "../metadataField/types"
 import type { TypeLink, TypeLinkDcsValueRootXML } from "./types"

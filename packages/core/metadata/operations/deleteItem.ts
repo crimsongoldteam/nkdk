@@ -1,13 +1,14 @@
 import { dirname } from "path"
-import { rootFromYAML } from "~/metadata/commonObjects/metadataTargets/roots"
-import type { MetadataTargetOwner } from "~/metadata/commonObjects/metadataTargets"
-import {
-  collectFormDataPathReferencesForItem,
-  createOperationDataPathOwnerCache,
-} from "./dataPathReferences"
+import { rootFromYAML } from "../commonObjects/metadataTargets/roots"
+import type { MetadataTargetOwner } from "../commonObjects/metadataTargets"
+import { collectFormDataPathReferencesForItem, createOperationDataPathOwnerCache } from "./dataPathReferences"
 import { applyMetadataOperationFilePlan, type MetadataOperationFileStep } from "./filePlan"
 import { parseMetadataOperationPath } from "./operationPath"
-import { buildMetadataOperationSnapshot, type MetadataOperationSnapshot, type OperationSnapshotItem } from "./projectSnapshot"
+import {
+  buildMetadataOperationSnapshot,
+  type MetadataOperationSnapshot,
+  type OperationSnapshotItem,
+} from "./projectSnapshot"
 import {
   collectBlockedReferences,
   collectStructuralReferencesForItem,
@@ -97,7 +98,7 @@ function buildDeletePlan(params: {
       snapshot: params.snapshot,
       targetPrefix: params.resolved.targetPrefix,
       isInsideDeletedTree,
-    }),
+    })
   )
 
   const steps: MetadataOperationFileStep[] = []

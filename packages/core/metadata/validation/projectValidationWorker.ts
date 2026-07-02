@@ -1,7 +1,7 @@
 import { parentPort } from "node:worker_threads"
 import { resolve } from "path"
-import type { ConfigurationContext } from "~/metadata/context/types"
-import { registerCoreMetadata } from "~/metadata/register"
+import type { ConfigurationContext } from "../context/types"
+import { registerCoreMetadata } from "../register"
 import { createOwnerMetadataCacheFromValidationTable } from "./dataPath/ownerCache"
 import { createProjectMetadataResolverFromValidationTable } from "./projectMetadataResolver"
 import { resolveValidationProjectFile } from "./projectFiles"
@@ -20,11 +20,7 @@ import {
   type ProjectValidationFileState,
 } from "./projectValidationPasses"
 import { createValidationObjectTable } from "./projectValidationObjectTable"
-import type {
-  ValidationMode,
-  ValidationObjectRecord,
-  ValidationObjectTableSnapshot,
-} from "./projectValidationTypes"
+import type { ValidationMode, ValidationObjectRecord, ValidationObjectTableSnapshot } from "./projectValidationTypes"
 import type { Diagnostic } from "./types"
 
 registerCoreMetadata()

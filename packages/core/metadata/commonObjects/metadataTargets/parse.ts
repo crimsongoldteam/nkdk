@@ -567,7 +567,13 @@ function parseLocalOwnerMember(
   const canOmitKind = memberKinds.length === 1
 
   if (canOmitKind && parts.length === 1) {
-    return parseMemberSegments(owner.root, owner.objectName, [memberKindToYAML[memberKinds[0]], parts[0]], constraint, "yaml")
+    return parseMemberSegments(
+      owner.root,
+      owner.objectName,
+      [memberKindToYAML[memberKinds[0]], parts[0]],
+      constraint,
+      "yaml"
+    )
   }
 
   if (canOmitKind && parts.length === 2) {
@@ -652,17 +658,14 @@ function formatCanonicalTarget(target: ParsedMetadataTarget): string {
         ...target.segments.flatMap((segment) => [segment.kind, segment.name]),
       ].join(".")
     case "value":
-      if (target.valueKind === "enumValue") return `${target.root}.${target.objectName}.${enumValueModel}.${target.valueName}`
+      if (target.valueKind === "enumValue")
+        return `${target.root}.${target.objectName}.${enumValueModel}.${target.valueName}`
       if (target.valueKind === "emptyRef") return `${target.root}.${target.objectName}.${emptyRefModel}`
       return `${target.root}.${target.objectName}.${target.valueName}`
   }
 }
 
-function normalizeMemberSegmentName(
-  kind: MetadataMemberKind,
-  name: string,
-  source: "yaml" | "model"
-): string {
+function normalizeMemberSegmentName(kind: MetadataMemberKind, name: string, source: "yaml" | "model"): string {
   if (kind !== "StandardAttribute" || source !== "yaml") return name
   return standardAttributeFromYAML[name] ?? name
 }
@@ -783,10 +786,15 @@ function parseMemberKindFromModel(value: string | undefined): MetadataMemberKind
     : undefined
 }
 
-function parseObjectPathKind(value: string | undefined, source: MetadataTargetSource): MetadataObjectPathKind | undefined {
+function parseObjectPathKind(
+  value: string | undefined,
+  source: MetadataTargetSource
+): MetadataObjectPathKind | undefined {
   if (value === undefined) return undefined
   if (source === "yaml") return objectPathKindFromYAML[value]
-  return Object.prototype.hasOwnProperty.call(objectPathKindToYAML, value) ? (value as MetadataObjectPathKind) : undefined
+  return Object.prototype.hasOwnProperty.call(objectPathKindToYAML, value)
+    ? (value as MetadataObjectPathKind)
+    : undefined
 }
 
 function parseObjectSegmentKind(
@@ -794,8 +802,8 @@ function parseObjectSegmentKind(
   source: MetadataTargetSource
 ): MetadataRootName | MetadataObjectPathKind | undefined {
   return source === "yaml"
-    ? parseObjectRootFromYAML(value) ?? parseObjectPathKind(value, source)
-    : parseObjectRootFromModel(value) ?? parseObjectPathKind(value, source)
+    ? (parseObjectRootFromYAML(value) ?? parseObjectPathKind(value, source))
+    : (parseObjectRootFromModel(value) ?? parseObjectPathKind(value, source))
 }
 
 function isMetadataObjectPathKind(value: string): value is MetadataObjectPathKind {
@@ -844,7 +852,11 @@ function extractExactPathKinds(
 ): (MetadataObjectPathKind | MetadataMemberKind)[] {
   return tail.flatMap((part, index) => {
     if (index % 2 !== 0) return []
-    return parseObjectPathKind(part, source) ?? (source === "yaml" ? parseMemberKindFromYAML(part) : parseMemberKindFromModel(part)) ?? []
+    return (
+      parseObjectPathKind(part, source) ??
+      (source === "yaml" ? parseMemberKindFromYAML(part) : parseMemberKindFromModel(part)) ??
+      []
+    )
   })
 }
 

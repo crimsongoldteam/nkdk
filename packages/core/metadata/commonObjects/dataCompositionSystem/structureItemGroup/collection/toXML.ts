@@ -1,5 +1,5 @@
-import { ConfigurationContextWithExportToXML } from "~/metadata/context/types"
-import { exportPropertyToXML, PropertyRule, registerTypeRule } from "~/metadata/orchestration"
+import { ConfigurationContextWithExportToXML } from "../../../../context/types"
+import { exportPropertyToXML, PropertyRule, registerTypeRule } from "../../../../orchestration"
 import { StructureItemGroupRegistry } from "./registry"
 import { StructureItemGroupCollection, StructureItemGroupCollectionItem } from "./types"
 

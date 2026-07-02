@@ -1,11 +1,11 @@
 import { describe, expect, it } from "vitest"
-import { exportPropertyToXML, exportPropertyToYAML, importPropertyFromYAML, PropertyRule } from "~/metadata/orchestration"
-import { mockContext } from "~/tests/mockContext"
-import { mockContextToXML } from "~/tests/mockContext"
-import { testImportPropertyFromXML } from "~/tests/property/importPropertyFromXML"
-import { exportToYAML } from "~/yaml/export"
-import { importFromYAML } from "~/yaml/import"
-import { xmlExport } from "~/xml/export/exporter"
+import { exportPropertyToXML, exportPropertyToYAML, importPropertyFromYAML, PropertyRule } from "../../../orchestration"
+import { mockContext } from "../../../../tests/mockContext"
+import { mockContextToXML } from "../../../../tests/mockContext"
+import { testImportPropertyFromXML } from "../../../../tests/property/importPropertyFromXML"
+import { exportToYAML } from "../../../../yaml/export"
+import { importFromYAML } from "../../../../yaml/import"
+import { xmlExport } from "../../../../xml/export/exporter"
 import { fullDCSParameters, minimalDCSParameters } from "./__fixtures__/data"
 import "./types"
 
@@ -155,7 +155,7 @@ describe("import DCSParameter from XML", () => {
 
     const exported = exportDCSParameters(result, referenceMetadata)
     expect(exported).toContain(
-      '<dcssch:value xmlns:d6p1="http://v8.1c.ru/8.2/data/types" xsi:type="v8:Type">d6p1:Undefined</dcssch:value>',
+      '<dcssch:value xmlns:d6p1="http://v8.1c.ru/8.2/data/types" xsi:type="v8:Type">d6p1:Undefined</dcssch:value>'
     )
   })
 
@@ -206,7 +206,7 @@ describe("import DCSParameter from XML", () => {
     ])
 
     expect(exportDCSParameters(result)).toContain(
-      '<dcssch:value xsi:type="ent:AccumulationRecordType">Expense</dcssch:value>',
+      '<dcssch:value xsi:type="ent:AccumulationRecordType">Expense</dcssch:value>'
     )
   })
 

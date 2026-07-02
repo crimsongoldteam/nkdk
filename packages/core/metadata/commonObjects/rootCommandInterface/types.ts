@@ -1,10 +1,10 @@
 import { Type } from "@sinclair/typebox"
 import type { Static } from "@sinclair/typebox"
-import { StringboolYAML, StringboolXML } from "~/metadata/commonObjects/boolean/types"
-import { MetadataItemLink, MetadataItemLinks, MetadataItemLinksYAML } from "~/metadata/commonObjects/metadataRef/types"
-import { MetadataItem } from "~/metadata/orchestration"
-import { MetadataTypeByRule } from "~/metadata/orchestration/metadataItem/element"
-import { YAMLTypeByRule } from "~/metadata/orchestration/metadataItem/yaml"
+import { StringboolYAML, StringboolXML } from "../boolean/types"
+import { MetadataItemLink, MetadataItemLinks, MetadataItemLinksYAML } from "../metadataRef/types"
+import { MetadataItem } from "../../orchestration"
+import { MetadataTypeByRule } from "../../orchestration/metadataItem/element"
+import { YAMLTypeByRule } from "../../orchestration/metadataItem/yaml"
 import { RootCommandInterfaceRules } from "./rules"
 
 export type CommandInterfacePlacement = "Auto" | "Manual" | string

@@ -2,7 +2,7 @@ import { describe, expect, it } from "vitest"
 import { methodsFromXML } from "./__fixtures__/data"
 import "./register"
 import { MetadataHTTPServiceMethods } from "./types"
-import { testImportPropertyFromXML } from "~/tests/property/importPropertyFromXML"
+import { testImportPropertyFromXML } from "../../../tests/property/importPropertyFromXML"
 
 const rule = { type: "MetadataHTTPServiceMethods", xml: "Method" } as const
 

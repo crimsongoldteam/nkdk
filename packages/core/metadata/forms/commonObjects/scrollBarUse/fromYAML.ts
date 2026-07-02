@@ -1,6 +1,6 @@
-import { ConfigurationContext } from "~/metadata/context/types"
-import { PropertyRule, registerTypeRule } from "~/metadata/orchestration"
-import * as SE from "~/metadata/systemEnumerations/types"
+import { ConfigurationContext } from "../../../context/types"
+import { PropertyRule, registerTypeRule } from "../../../orchestration"
+import * as SE from "../../../systemEnumerations/types"
 
 const importScrollBarUseFromYAML = (
   _context: ConfigurationContext,

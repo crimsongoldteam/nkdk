@@ -1,8 +1,8 @@
 import { describe, expect, it } from "vitest"
-import type { UserVisiblePropertyRule } from "~/metadata/orchestration/property/types"
+import type { UserVisiblePropertyRule } from "../../orchestration/property/types"
 import { mockContext } from "../../../tests/mockContext"
 import { importUserVisibleFromYAML } from "./fromYAML"
-import type { UserVisibleKeysYAML } from "./types"
+import { UserVisibleKeysYAML } from "./types"
 
 const userVisibleRule: UserVisiblePropertyRule = {
   type: "UserVisible",

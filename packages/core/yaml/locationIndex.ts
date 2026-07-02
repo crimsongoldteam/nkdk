@@ -69,7 +69,15 @@ export function buildYamlLocationIndex(text: string): YamlLocationIndex {
 
     const parentPath = stack[stack.length - 1]?.path ?? []
     const currentPath = [...parentPath, keyToken.key]
-    saveKeyTokenPositions({ keyToken, lineNumber, currentPath, keyPositions, keyOccurrences, valuePositions, nodePositions })
+    saveKeyTokenPositions({
+      keyToken,
+      lineNumber,
+      currentPath,
+      keyPositions,
+      keyOccurrences,
+      valuePositions,
+      nodePositions,
+    })
 
     if (!keyToken.hasValue || isBlockScalarHeaderAt(line, keyToken.valueColumn)) {
       stack.push({ indent, path: currentPath })
@@ -96,8 +104,17 @@ function readSequenceItem(params: {
   valuePositions: Map<string, YamlPosition>
   nodePositions: Map<string, YamlPosition>
 }): void {
-  const { content, indent, lineNumber, stack, sequenceIndexes, keyPositions, keyOccurrences, valuePositions, nodePositions } =
-    params
+  const {
+    content,
+    indent,
+    lineNumber,
+    stack,
+    sequenceIndexes,
+    keyPositions,
+    keyOccurrences,
+    valuePositions,
+    nodePositions,
+  } = params
   const parentPath = stack[stack.length - 1]?.path ?? []
   const parentKey = pathKey(parentPath)
   const itemIndex = sequenceIndexes.get(parentKey) ?? 0
@@ -161,7 +178,8 @@ function saveKeyTokenPositions(params: {
     occurrences.push(keyPosition)
   }
   nodePositions.set(currentPathKey, keyPosition)
-  if (keyToken.valueColumn !== undefined) valuePositions.set(currentPathKey, { line: lineNumber, col: keyToken.valueColumn })
+  if (keyToken.valueColumn !== undefined)
+    valuePositions.set(currentPathKey, { line: lineNumber, col: keyToken.valueColumn })
 }
 
 function readKeyToken(line: string, indent: number): KeyToken | undefined {
@@ -181,7 +199,7 @@ function readKeyToken(line: string, indent: number): KeyToken | undefined {
 }
 
 function findMappingColon(line: string, start: number): number | undefined {
-  let quote: "\"" | "'" | undefined
+  let quote: '"' | "'" | undefined
 
   for (let index = start; index < line.length; index += 1) {
     const char = line[index]
@@ -190,7 +208,7 @@ function findMappingColon(line: string, start: number): number | undefined {
       continue
     }
 
-    if (char === "\"" || char === "'") {
+    if (char === '"' || char === "'") {
       quote = char
       continue
     }
@@ -216,7 +234,7 @@ function leadingSpaceCount(value: string): number {
 }
 
 function unquoteKey(key: string): string {
-  if (key.length >= 2 && ((key.startsWith("\"") && key.endsWith("\"")) || (key.startsWith("'") && key.endsWith("'")))) {
+  if (key.length >= 2 && ((key.startsWith('"') && key.endsWith('"')) || (key.startsWith("'") && key.endsWith("'")))) {
     return key.slice(1, -1)
   }
   return key

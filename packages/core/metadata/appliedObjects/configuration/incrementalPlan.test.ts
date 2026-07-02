@@ -1,6 +1,6 @@
 import { beforeEach, describe, expect, it } from "vitest"
 import { MetadataCatalogRules } from "../metadataCatalog/rules"
-import { registerCoreMetadata } from "~/metadata/register"
+import { registerCoreMetadata } from "../../register"
 import { buildIncrementalXmlSyncPlan } from "./incrementalPlan"
 
 describe("buildIncrementalXmlSyncPlan", () => {
@@ -48,7 +48,6 @@ describe("buildIncrementalXmlSyncPlan", () => {
     expect(plan.rebuildConfigurationXml).toBe(false)
     expect(plan.areas.map((area) => area.key)).toEqual(["fileItem:Справочник/Товары/forms/ФормаЭлемента"])
   })
-
 
   it("throws when a deleted path cannot be resolved by rules", () => {
     expect(() =>

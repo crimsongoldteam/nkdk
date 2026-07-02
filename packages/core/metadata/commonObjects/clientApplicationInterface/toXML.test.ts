@@ -6,9 +6,9 @@ import {
   exportMetadataItemToYAML,
   importMetadataItemFromXML,
   importMetadataItemFromYAML,
-} from "~/metadata/orchestration"
-import { mockContext, mockContextFromXML, mockContextToXML } from "~/tests/mockContext"
-import { xmlExport } from "~/xml/export/exporter"
+} from "../../orchestration"
+import { mockContext, mockContextFromXML, mockContextToXML } from "../../../tests/mockContext"
+import { xmlExport } from "../../../xml/export/exporter"
 import { ClientApplicationInterfaceRules } from "./rules"
 import type { ClientApplicationInterfaceYAML } from "./types"
 

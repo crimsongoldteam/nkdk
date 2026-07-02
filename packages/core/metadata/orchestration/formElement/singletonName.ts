@@ -1,1 +1,1 @@
-export * from "~/metadata/forms/elements/orchestration/singletonName"
+export * from "../../forms/elements/orchestration/singletonName"

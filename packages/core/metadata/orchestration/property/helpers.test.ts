@@ -1,10 +1,5 @@
 import { describe, expect, it } from "vitest"
-import {
-  getOrderedKeysFromXML,
-  getOrderedKeysToXML,
-  shouldProcessProperty,
-  XML_SOURCE_KEYS,
-} from "./helpers"
+import { getOrderedKeysFromXML, getOrderedKeysToXML, shouldProcessProperty, XML_SOURCE_KEYS } from "./helpers"
 import { setXMLValue } from "./toXML"
 
 const createRule = (

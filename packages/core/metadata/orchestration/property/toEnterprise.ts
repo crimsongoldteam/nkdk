@@ -1,5 +1,5 @@
-import { capitalize } from "~/helpers/capitalize"
-import { ConfigurationContext } from "~/metadata/context/types"
+import { capitalize } from "../../../helpers/capitalize"
+import { ConfigurationContext } from "../../context/types"
 import { EnterpriseExportableMetadataType, ToEnterprise, ToMetadata } from ".."
 import { getTypeRule } from "./typeRuleRegistry"
 import type { MetadataItemRule, PropertyRule } from "./types"

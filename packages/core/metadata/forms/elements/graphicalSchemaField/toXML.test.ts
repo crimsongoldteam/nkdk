@@ -1,7 +1,7 @@
 import { describe, expect, it } from "vitest"
-import { exportElementToXML } from "~/metadata/orchestration"
-import { mockContextToXML } from "~/tests/mockContext"
-import { xmlExport } from "~/xml/export/exporter"
+import { exportElementToXML } from "../../../orchestration"
+import { mockContextToXML } from "../../../../tests/mockContext"
+import { xmlExport } from "../../../../xml/export/exporter"
 import { GraphicalSchemaField } from "./types"
 
 describe("export GraphicalSchemaField to XML", () => {

@@ -1,11 +1,14 @@
-import { ConfigurationContextFromXML } from "~/metadata/context/types"
-import { PropertyRule, registerTypeRule } from "~/metadata/orchestration"
+import { ConfigurationContextFromXML } from "../../../context/types"
+import { PropertyRule, registerTypeRule } from "../../../orchestration"
 import { importDcsLocalStringTypeFromXML } from "../dcsLocalStringType/fromXML"
 import { importDcsMetadataValueFromDcsXML } from "../dcsMetadataValue/fromXML"
 import type { DcsMetadataValuePropertyRule, MetadataDcsMetadataValueDcsRootXML } from "../dcsMetadataValue/types"
 import type { DcsAvailableValue, DcsAvailableValues } from "./types"
 
-const valueRule = { type: "MetadataDcsMetadataValue", valueType: "Primitive" } as const satisfies DcsMetadataValuePropertyRule
+const valueRule = {
+  type: "MetadataDcsMetadataValue",
+  valueType: "Primitive",
+} as const satisfies DcsMetadataValuePropertyRule
 
 const toArray = <T>(value: T | T[] | undefined): T[] => {
   if (value === undefined) return []

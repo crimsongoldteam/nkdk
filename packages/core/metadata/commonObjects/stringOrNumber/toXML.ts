@@ -1,6 +1,6 @@
-import { ConfigurationContextWithExportToXML } from "~/metadata/context/types"
-import { PropertyRule } from "~/metadata/orchestration"
-import { registerTypeRule } from "~/metadata/orchestration/property/typeRuleRegistry"
+import { ConfigurationContextWithExportToXML } from "../../context/types"
+import { PropertyRule } from "../../orchestration"
+import { registerTypeRule } from "../../orchestration/property/typeRuleRegistry"
 import { StringOrNumber, StringOrNumberReference } from "./types"
 
 const isReference = (value: unknown): value is StringOrNumberReference =>

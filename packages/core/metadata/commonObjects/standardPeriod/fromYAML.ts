@@ -1,6 +1,6 @@
 import { format, parse } from "date-fns"
-import type { PropertyRule } from "~/metadata/orchestration/property/types"
-import { StandardPeriodVariant, StandardPeriodVariantFromYAML } from "~/metadata/systemEnumerations/types"
+import type { PropertyRule } from "../../orchestration/property/types"
+import { StandardPeriodVariant, StandardPeriodVariantFromYAML } from "../../systemEnumerations/types"
 import { ConfigurationContext } from "../../context/types"
 import type { StandardPeriod, StandardPeriodYAML } from "./types"
 

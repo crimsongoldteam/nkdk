@@ -1,6 +1,6 @@
 // #region SystemEnumerations
 
-import { definePropertyRule, type ExactRuleParams } from "~/metadata/commonObjects/ruleBuilder"
+import { definePropertyRule, type ExactRuleParams } from "../commonObjects/ruleBuilder"
 import type { BasePropertyRule } from "../orchestration/property/types"
 
 export const DynamicListSearchStringViewModeToYAML = {

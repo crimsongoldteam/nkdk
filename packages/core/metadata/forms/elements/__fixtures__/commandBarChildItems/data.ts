@@ -1,8 +1,5 @@
-import {
-  CommandBarChildItem,
-  FormElementsYAML,
-} from "~/metadata/forms/commonObjects/childItems/types"
-import { ButtonPartialYAML } from "~/metadata/forms/elements/button/types"
+import { CommandBarChildItem, FormElementsYAML } from "../../../commonObjects/childItems/types"
+import { ButtonPartialYAML } from "../../button/types"
 
 export const fullCommandBarChildItemsAllYAML: FormElementsYAML = {
   Кнопка1: {

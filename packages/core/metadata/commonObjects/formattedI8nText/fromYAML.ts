@@ -1,5 +1,5 @@
-import { ConfigurationContext } from "~/metadata/context/types"
-import { ImportFromYAMLFunctionNew, PropertyRule, registerTypeRule } from "~/metadata/orchestration"
+import { ConfigurationContext } from "../../context/types"
+import { ImportFromYAMLFunctionNew, PropertyRule, registerTypeRule } from "../../orchestration"
 import { importI8nTextFromYAML } from "../i8nText/fromYAML"
 import { I8nText } from "../i8nText/types"
 import { FormattedI8nText, FormattedI8nTextValueYAML } from "./types"

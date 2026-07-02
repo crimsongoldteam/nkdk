@@ -1,7 +1,7 @@
 import type { TSchema } from "@sinclair/typebox"
-import type { ConfigurationContext, JSONSchemaExportMode } from "~/metadata/context/types"
-import type { MetadataItem, MetadataItemRule } from "~/metadata/orchestration/property/types"
-import type { ParsedYaml } from "~/yaml/parseMetadataYaml"
+import type { ConfigurationContext, JSONSchemaExportMode } from "../context/types"
+import type { MetadataItem, MetadataItemRule } from "../orchestration/property/types"
+import type { ParsedYaml } from "../../yaml/parseMetadataYaml"
 
 export interface RegisteredProjectSpec {
   dir: string

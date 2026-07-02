@@ -1,6 +1,6 @@
 import { describe, expect, it } from "vitest"
-import type { ConfigurationContextWithExportToXML } from "~/metadata/context/types"
-import type { Table } from "~/metadata/forms/elements/table/types"
+import type { ConfigurationContextWithExportToXML } from "../../context/types"
+import type { Table } from "./table/types"
 import {
   exportElementToXML,
   exportPropertyToXML,
@@ -8,9 +8,9 @@ import {
   importPropertyFromXML,
   type ElementXML,
   type PropertyRule,
-} from "~/metadata/orchestration"
-import { getReferenceNameSuffix } from "~/metadata/orchestration/formElement/singletonName"
-import { mockContextFromXML, mockContextToXML } from "~/tests/mockContext"
+} from "../../orchestration"
+import { getReferenceNameSuffix } from "../../orchestration/formElement/singletonName"
+import { mockContextFromXML, mockContextToXML } from "../../../tests/mockContext"
 
 type SingletonReferenceXML = {
   _name: unknown

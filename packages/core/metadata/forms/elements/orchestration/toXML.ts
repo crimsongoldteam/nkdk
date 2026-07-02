@@ -1,9 +1,9 @@
-import { getChildContextToXML } from "~/metadata/context/helpers"
-import { ConfigurationContextWithExportToXML } from "~/metadata/context/types"
-import { NamedElement } from "~/metadata/forms/elements/baseElement/types"
-import { ToMetadata } from "~/metadata/orchestration/metadataItem/registry"
-import { exportPropertiesToXML } from "~/metadata/orchestration/property/toXML"
-import { XML_SOURCE_KEYS } from "~/metadata/orchestration/property/helpers"
+import { getChildContextToXML } from "../../../context/helpers"
+import { ConfigurationContextWithExportToXML } from "../../../context/types"
+import { NamedElement } from "../baseElement/types"
+import { ToMetadata } from "../../../orchestration/metadataItem/registry"
+import { exportPropertiesToXML } from "../../../orchestration/property/toXML"
+import { XML_SOURCE_KEYS } from "../../../orchestration/property/helpers"
 import { getElementRule } from "./ruleFactory"
 import { ElementRule, ElementXMLWithoutId } from "./types"
 
@@ -90,7 +90,12 @@ function removeSyntheticEmptyTitle(result: ElementXMLWithoutId, referenceElement
 function hasXMLSourceKey(value: unknown, key: string): boolean {
   if (value === null || value === undefined || typeof value !== "object") return false
   const sourceKeys = (value as Record<PropertyKey, unknown>)[XML_SOURCE_KEYS]
-  return sourceKeys !== null && sourceKeys !== undefined && typeof sourceKeys === "object" && Object.prototype.hasOwnProperty.call(sourceKeys, key)
+  return (
+    sourceKeys !== null &&
+    sourceKeys !== undefined &&
+    typeof sourceKeys === "object" &&
+    Object.prototype.hasOwnProperty.call(sourceKeys, key)
+  )
 }
 
 function isEmptyI8nTextXML(value: unknown): boolean {

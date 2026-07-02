@@ -1,7 +1,7 @@
 import { describe, expect, it } from "vitest"
-import { getTypeRule } from "~/metadata/orchestration"
-import { ExportToYAMLFunctionNew } from "~/metadata/orchestration/property/fn"
-import { mockContext, mockRule } from "~/tests/mockContext"
+import { getTypeRule } from "../../orchestration"
+import { ExportToYAMLFunctionNew } from "../../orchestration/property/fn"
+import { mockContext, mockRule } from "../../../tests/mockContext"
 import { exportMetadataItemLinkToYAML, exportMetadataItemLinksToYAML } from "./toYAML"
 
 describe("exportMetadataItemLinkToYAML", () => {

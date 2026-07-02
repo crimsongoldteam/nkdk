@@ -1,48 +1,40 @@
 import {
   definePropertyRule as defineWidePropertyRule,
   type ExactRuleParams as WideExactRuleParams,
-} from "~/metadata/commonObjects/ruleBuilder"
-import { namedCollectionTarget } from "~/metadata/orchestration/property/operationTargets"
-import type { PropertyRule as WidePropertyRuleBase } from "~/metadata/orchestration/property/types"
-import {
-  MetadataCommands,
-  MetadataCommandsXML,
-  MetadataCommandsYAML,
-} from "~/metadata/appliedObjects/metadataCommand/types"
+} from "../../commonObjects/ruleBuilder"
+import { namedCollectionTarget } from "../../orchestration/property/operationTargets"
+import type { PropertyRule as WidePropertyRuleBase } from "../../orchestration/property/types"
+import { MetadataCommands, MetadataCommandsXML, MetadataCommandsYAML } from "../metadataCommand/types"
 import {
   AdditionalIndexes,
   AdditionalIndexesXML,
   AdditionalIndexesYAML,
-} from "~/metadata/commonObjects/additionalIndex/types"
-import { StringboolYAML } from "~/metadata/commonObjects/boolean/types"
+} from "../../commonObjects/additionalIndex/types"
+import { StringboolYAML } from "../../commonObjects/boolean/types"
 import {
   CharacteristicsDescriptions,
   CharacteristicsDescriptionsXML,
   CharacteristicsDescriptionsYAML,
-} from "~/metadata/commonObjects/characteristicsDescription/types"
-import { I8nText, I8nTextXML, I8nTextYAML } from "~/metadata/commonObjects/i8nText/types"
+} from "../../commonObjects/characteristicsDescription/types"
+import { I8nText, I8nTextXML, I8nTextYAML } from "../../commonObjects/i8nText/types"
 import {
   MetadataAttributes,
   MetadataAttributesXML,
   MetadataAttributesYAML,
-} from "~/metadata/commonObjects/metadataAttribute/types"
-import { MetadataFields, MetadataFieldsXML, MetadataFieldsYAML } from "~/metadata/commonObjects/metadataField/types"
-import {
-  MetadataItemLinks,
-  MetadataItemLinksXML,
-  MetadataItemLinksYAML,
-} from "~/metadata/commonObjects/metadataRef/types"
+} from "../../commonObjects/metadataAttribute/types"
+import { MetadataFields, MetadataFieldsXML, MetadataFieldsYAML } from "../../commonObjects/metadataField/types"
+import { MetadataItemLinks, MetadataItemLinksXML, MetadataItemLinksYAML } from "../../commonObjects/metadataRef/types"
 import {
   MetadataTabularSections,
   MetadataTabularSectionsXML,
   MetadataTabularSectionsYAML,
-} from "~/metadata/commonObjects/metadataTabularSection/types"
+} from "../../commonObjects/metadataTabularSection/types"
 import {
   StandardAttributeDescriptions,
   StandardAttributeDescriptionsXML,
   StandardAttributeDescriptionsYAML,
-} from "~/metadata/commonObjects/standardAttributeDescription/types"
-import * as SE from "~/metadata/systemEnumerations/types"
+} from "../../commonObjects/standardAttributeDescription/types"
+import * as SE from "../../systemEnumerations/types"
 
 export interface MetadataDocument {
   itemType?: "MetadataDocument"
@@ -218,7 +210,11 @@ export function metadataDocumentAttributesRule<const Params extends MetadataDocu
 ): Readonly<{ type: "MetadataDocumentAttributes" } & Params> {
   return defineWidePropertyRule("MetadataDocumentAttributes", {
     ...params,
-    operationTarget: namedCollectionTarget({ kind: "attribute", migrationSegment: "Реквизит", requiresMigration: true }),
+    operationTarget: namedCollectionTarget({
+      kind: "attribute",
+      migrationSegment: "Реквизит",
+      requiresMigration: true,
+    }),
   })
 }
 export interface MetadataDocumentTabularSectionsWidePropertyRule extends WidePropertyRuleBase {

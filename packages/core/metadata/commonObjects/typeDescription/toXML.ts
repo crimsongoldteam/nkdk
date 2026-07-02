@@ -1,7 +1,12 @@
-import type { PropertyRule } from "~/metadata/orchestration/property/types"
-import { registerTypeRule } from "~/metadata/orchestration/property/typeRuleRegistry"
+import type { PropertyRule } from "../../orchestration/property/types"
+import { registerTypeRule } from "../../orchestration/property/typeRuleRegistry"
 import { ConfigurationContext } from "../../context/types"
-import { getSystemEnumerationTypeDescriptionRule, getTypeDescriptionRule, getTypePrefix, removeTypePrefix } from "./helper"
+import {
+  getSystemEnumerationTypeDescriptionRule,
+  getTypeDescriptionRule,
+  getTypePrefix,
+  removeTypePrefix,
+} from "./helper"
 import {
   TYPE_DESCRIPTION_SOURCE_TYPES,
   TYPE_DESCRIPTION_XML_CONTAINER_BY_TYPE,
@@ -79,14 +84,13 @@ const getTypesXML = (
     const isComplex = dotIndex !== -1
     const baseType = isComplex ? type.substring(0, dotIndex) : type
 
-    const rule = getTypeDescriptionRule(baseType) ?? (!isComplex ? getSystemEnumerationTypeDescriptionRule(type) : undefined)
+    const rule =
+      getTypeDescriptionRule(baseType) ?? (!isComplex ? getSystemEnumerationTypeDescriptionRule(type) : undefined)
     if (!rule) throw new Error(`Type ${type} not found in TypeDescriptionRules`)
 
     const sourceType = getMatchingReferenceSourceType(type, rule, referenceSourceTypes)
     const item =
-      sourceType !== undefined
-        ? getSourceTypeXML(sourceType)
-        : getCanonicalTypeXML(type, rule, declareTypeNamespace)
+      sourceType !== undefined ? getSourceTypeXML(sourceType) : getCanonicalTypeXML(type, rule, declareTypeNamespace)
 
     if (referenceContainerByType?.[type] === "TypeSetAttribute") {
       typesXML.push(item)

@@ -1,6 +1,6 @@
 import { describe, expect, it } from "vitest"
-import { testExportAppliedObjectToXML } from "~/tests/appliedObject"
-import { testExportPropertyToXML } from "~/tests/property/exportPropertyToXML"
+import { testExportAppliedObjectToXML } from "../../../tests/appliedObject"
+import { testExportPropertyToXML } from "../../../tests/property/exportPropertyToXML"
 import { full } from "./__fixtures__/full"
 import { minimal } from "./__fixtures__/minimal"
 import { MetadataDataProcessorRules } from "./rules"
@@ -38,7 +38,7 @@ describe("export MetadataDataProcessor attributes to XML", () => {
     })
 
     expect(result).toContain(
-      '<v8:Type xmlns:dcsset="http://v8.1c.ru/8.1/data-composition-system/settings">dcsset:SettingsComposer</v8:Type>',
+      '<v8:Type xmlns:dcsset="http://v8.1c.ru/8.1/data-composition-system/settings">dcsset:SettingsComposer</v8:Type>'
     )
   })
 })

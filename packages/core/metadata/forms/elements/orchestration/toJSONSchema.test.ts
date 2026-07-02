@@ -1,11 +1,11 @@
-import "~/metadata/forms/elements/button/rules"
-import "~/metadata/forms/elements/inputField/rules"
-import "~/metadata/forms/elements/table/rules"
+import "../button/rules"
+import "../inputField/rules"
+import "../table/rules"
 import { describe, expect, it } from "vitest"
 import {
   getChildItemTypesByPropertyType,
   getTreeNodeJSONSchemaPropertyAliases,
-} from "~/metadata/forms/commonObjects/childItems/treeYAML"
+} from "../../commonObjects/childItems/treeYAML"
 import { getElementRule } from "./ruleFactory"
 import { exportElementRuleToJSONSchema } from "./toJSONSchema"
 

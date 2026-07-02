@@ -1,8 +1,8 @@
-import { exportBooleanToYAML } from "~/metadata/commonObjects/boolean/toYAML"
-import { registerTypeRule } from "~/metadata/orchestration/property/typeRuleRegistry"
-import type { UserVisiblePropertyRule } from "~/metadata/orchestration/property/types"
+import { exportBooleanToYAML } from "../boolean/toYAML"
+import { registerTypeRule } from "../../orchestration/property/typeRuleRegistry"
+import type { UserVisiblePropertyRule } from "../../orchestration/property/types"
 import { ConfigurationContext } from "../../context/types"
-import type { UserVisibleYAML, type UserVisible, type UserVisibleRolesYAML } from "./types"
+import type { UserVisible, UserVisibleRolesYAML, UserVisibleYAML } from "./types"
 
 export const exportUserVisibleToYAML = (
   context: ConfigurationContext,

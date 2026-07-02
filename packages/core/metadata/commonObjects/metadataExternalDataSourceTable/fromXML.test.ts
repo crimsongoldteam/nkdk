@@ -1,10 +1,12 @@
 import { describe, expect, it } from "vitest"
-import { testExportPropertyToXML } from "~/tests/property/exportPropertyToXML"
-import { testImportPropertyFromXML } from "~/tests/property/importPropertyFromXML"
+import { testExportPropertyToXML } from "../../../tests/property/exportPropertyToXML"
+import { testImportPropertyFromXML } from "../../../tests/property/importPropertyFromXML"
 import "./register"
 
 const rule = { type: "MetadataExternalDataSourceTable" } as const
-const itemsTree = [{ itemType: "MetadataExternalDataSource" as const, name: "ВнешнийИсточникДанныхВсеСвойства", path: "" }]
+const itemsTree = [
+  { itemType: "MetadataExternalDataSource" as const, name: "ВнешнийИсточникДанныхВсеСвойства", path: "" },
+]
 const normalizeXML = (value: string) => value.replace(/^\uFEFF?<\?xml[^\n]*\?>\r?\n?/, "").replace(/\r\n/g, "\n")
 
 describe("MetadataExternalDataSourceTable XML", () => {

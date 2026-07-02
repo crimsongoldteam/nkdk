@@ -1,5 +1,5 @@
-import { booleanRule } from "~/metadata/commonObjects/boolean/types"
-import { MetadataItemRule } from "~/metadata/orchestration"
+import { booleanRule } from "../../../../boolean/types"
+import { MetadataItemRule } from "../../../../../orchestration"
 export const GroupItemAutoRules = {
   itemType: "GroupItemAuto",
   properties: {

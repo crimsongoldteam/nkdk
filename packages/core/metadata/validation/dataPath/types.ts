@@ -1,4 +1,4 @@
-export type { DataPathAllowedKind } from "~/metadata/orchestration/property/types"
+export type { DataPathAllowedKind } from "../../orchestration/property/types"
 
 export type DataPathValueKind =
   | "unknown"

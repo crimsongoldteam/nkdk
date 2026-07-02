@@ -1,6 +1,6 @@
 import { describe, expect, it } from "vitest"
-import { SystemEnumerationPropertyRule } from "~/metadata/systemEnumerations/types"
-import { mockContext, mockRule } from "~/tests/mockContext"
+import { SystemEnumerationPropertyRule } from "./types"
+import { mockContext, mockRule } from "../../tests/mockContext"
 import { importSystemEnumerationFromYAML } from "./fromYAML"
 
 describe("importSystemEnumerationFromYAML", () => {

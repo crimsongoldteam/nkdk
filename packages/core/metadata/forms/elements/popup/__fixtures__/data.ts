@@ -1,10 +1,10 @@
-import { Popup, PopupEnterprise, PopupPartialYAML, PopupTypedYAML } from "~/metadata/forms/elements/popup/types"
-import { RequiredFieldsElement } from "~/tests/types"
+import { Popup, PopupEnterprise, PopupPartialYAML, PopupTypedYAML } from "../types"
+import { RequiredFieldsElement } from "../../../../../tests/types"
 import {
   fullFormGroupCommonFixture,
   fullFormGroupEnterpriseCommonFixture,
   fullFormGroupPartialYAMLCommonFixture,
-} from "~/metadata/forms/elements/formGroup/__fixtures__/data"
+} from "../../formGroup/__fixtures__/data"
 
 const {
   horizontalAlignInGroup: _hAign,

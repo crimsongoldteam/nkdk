@@ -1,6 +1,6 @@
 import { describe, expect, it } from "vitest"
-import { fontYAMLFixtures } from "~/metadata/commonObjects/font/__fixtures__/data"
-import { mockContext, mockRule } from "~/tests/mockContext"
+import { fontYAMLFixtures } from "./__fixtures__/data"
+import { mockContext, mockRule } from "../../../tests/mockContext"
 import { exportFontToYAML } from "./toYAML"
 
 describe("exportFontToYAML", () => {

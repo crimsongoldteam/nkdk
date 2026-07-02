@@ -1,13 +1,13 @@
 import { describe, expect, it } from "vitest"
-import "~/metadata/register"
-import { MetadataConfigurationRules } from "~/metadata/appliedObjects/configuration/rules"
-import { TopLevelMetadataItemRules } from "~/metadata/appliedObjects/configuration/topLevelRules"
+import "../register"
+import { MetadataConfigurationRules } from "../appliedObjects/configuration/rules"
+import { TopLevelMetadataItemRules } from "../appliedObjects/configuration/topLevelRules"
 import {
   configurationValidationProjectSpec,
   getValidationProjectSpecByDir,
   validationProjectSpecByDir,
   validationProjectSpecs,
-} from "~/metadata/validation/projectSpecs"
+} from "../validation/projectSpecs"
 import {
   configurationMetadataProjectSpec,
   getMetadataProjectSpecByDir,

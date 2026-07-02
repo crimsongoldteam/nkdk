@@ -1,5 +1,5 @@
 import { describe, expect, it } from "vitest"
-import { mockContextFromXML } from "~/tests/mockContext"
+import { mockContextFromXML } from "../../../tests/mockContext"
 import { importMetadataItemLinkFromXML } from "./fromXML"
 
 describe("importMetadataItemLinkFromXML", () => {

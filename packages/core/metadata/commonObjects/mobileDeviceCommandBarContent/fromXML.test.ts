@@ -1,6 +1,6 @@
 import { describe, expect, it } from "vitest"
-import { readAndParseXMLFixture } from "~/tests/readFixtureXML"
-import { mockContextFromXML, mockRule } from "~/tests/mockContext"
+import { readAndParseXMLFixture } from "../../../tests/readFixtureXML"
+import { mockContextFromXML, mockRule } from "../../../tests/mockContext"
 import { fullMobileDeviceCommandBarContent, twoItemsMobileDeviceCommandBarContent } from "./__fixtures__/data"
 import { importMobileDeviceCommandBarContentFromXML } from "./fromXML"
 import { MobileDeviceCommandBarContentXML } from "./types"

@@ -1,5 +1,5 @@
 import type { DcsAvailableValues, DcsAvailableValuesYAML } from "../types"
-import { explicitYAMLString } from "~/yaml/explicitString"
+import { explicitYAMLString } from "../../../../../yaml/explicitString"
 
 export const stringAvailableValues = [
   {

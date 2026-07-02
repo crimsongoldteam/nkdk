@@ -1,6 +1,6 @@
 import { Type } from "@sinclair/typebox"
 import { TypeCompiler, ValueErrorType } from "@sinclair/typebox/compiler"
-import { parseMetadataYaml } from "~/yaml/parseMetadataYaml"
+import { parseMetadataYaml } from "../../yaml/parseMetadataYaml"
 import { describe, expect, it } from "vitest"
 import {
   expandDiscriminatedUnionErrors,

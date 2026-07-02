@@ -1,8 +1,8 @@
-import { ConfigurationContextFromXML } from "~/metadata/context/types"
-import type { PropertyRule } from "~/metadata/orchestration/property/types"
-import { registerTypeRule } from "~/metadata/orchestration/property/typeRuleRegistry"
+import { ConfigurationContextFromXML } from "../../context/types"
+import type { PropertyRule } from "../../orchestration/property/types"
+import { registerTypeRule } from "../../orchestration/property/typeRuleRegistry"
 import { importBooleanFromXML } from "../boolean/fromXML"
-import type { isRawPictureRefValue, Picture, PictureXML } from "./types"
+import { isRawPictureRefValue, type Picture, type PictureXML } from "./types"
 
 const importTransparentPixel = (
   transparentPixel: PictureXML["xr:TransparentPixel"] | undefined

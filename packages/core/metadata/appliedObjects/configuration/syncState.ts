@@ -2,12 +2,8 @@ import fs from "fs"
 import { join, resolve } from "path"
 import { xxh3 } from "@node-rs/xxhash"
 import pLimit from "p-limit"
-import { importFromYAML } from "~/yaml/import"
-import {
-  BINARY_SYNC_STATE_FILE,
-  readBinaryXmlSyncState,
-  writeBinaryXmlSyncState,
-} from "./syncStateBinary"
+import { importFromYAML } from "../../../yaml/import"
+import { BINARY_SYNC_STATE_FILE, readBinaryXmlSyncState, writeBinaryXmlSyncState } from "./syncStateBinary"
 
 export const SYNC_STATE_FILE = ".nkdk-sync.yaml"
 export { BINARY_SYNC_STATE_FILE }
@@ -55,12 +51,12 @@ export async function writeXmlSyncState(xmlDir: string, state: XmlSyncState): Pr
 
 export async function hashProjectFiles(
   projectDir: string,
-  options: HashProjectFilesOptions = {},
+  options: HashProjectFilesOptions = {}
 ): Promise<Record<string, string>> {
   const root = resolve(projectDir)
   const concurrency = normalizeHashConcurrency(options.concurrency)
   const limit = pLimit(concurrency)
-  const { collectSyncStateFilePaths } = await import("~/metadata/project/syncStateFiles")
+  const { collectSyncStateFilePaths } = await import("../../project/syncStateFiles")
   const paths = await collectSyncStateFilePaths(root)
 
   const entries = await Promise.all(
@@ -71,8 +67,8 @@ export async function hashProjectFiles(
         const hash = xxh3.xxh64(await fs.promises.readFile(absPath))
         const hashValue: string = `xxh3-64:${hash.toString(16).padStart(16, "0")}`
         return [projectPath, hashValue] as const
-      }),
-    ),
+      })
+    )
   )
 
   return sortRecord(Object.fromEntries(entries.filter((entry): entry is ProjectHashEntry => entry !== undefined)))

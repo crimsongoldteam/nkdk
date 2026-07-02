@@ -1,10 +1,10 @@
 import { TypeCompiler } from "@sinclair/typebox/compiler"
 import { describe, expect, it } from "vitest"
-import "~/metadata/commonObjects/boolean/toJSONSchema"
-import "~/metadata/commonObjects/number/toJSONSchema"
-import "~/metadata/commonObjects/string/toJSONSchema"
-import "~/metadata/systemEnumerations/toJSONSchema"
-import { mockContext } from "~/tests/mockContext"
+import "../../commonObjects/boolean/toJSONSchema"
+import "../../commonObjects/number/toJSONSchema"
+import "../../commonObjects/string/toJSONSchema"
+import "../../systemEnumerations/toJSONSchema"
+import { mockContext } from "../../../tests/mockContext"
 import { exportPropertyToJSONSchema } from "./toJSONSchema"
 
 describe("exportPropertyToJSONSchema implicitValueYAML", () => {

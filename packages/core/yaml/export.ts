@@ -1,15 +1,7 @@
-import { JSON_SCHEMA, NOT_RESOLVED, defineScalarTag, dump, type Document, type Node } from "js-yaml"
+import { JSON_SCHEMA, dump } from "js-yaml"
 import { isExplicitYAMLString, unwrapExplicitYAMLString } from "./explicitString"
 
-const explicitStringTagName = "tag:nakidka.dev,2026:explicit-string"
-
-const explicitStringType = defineScalarTag(explicitStringTagName, {
-  resolve: () => NOT_RESOLVED,
-  identify: isExplicitYAMLString,
-  represent: (value: unknown) => String(unwrapExplicitYAMLString(value)),
-})
-
-const NKDK_DUMP_SCHEMA = JSON_SCHEMA.withTags(explicitStringType)
+const EXPLICIT_STRING_MARKER_PREFIX = "__NKDK_EXPLICIT_STRING_"
 
 const leadingSpaceCount = (line: string): number => line.length - line.trimStart().length
 
@@ -40,12 +32,19 @@ const removeDocumentFinalLineEnding = (yaml: string): string => {
   return yaml.slice(0, -1)
 }
 
-function prepareForDump(value: unknown): unknown {
-  if (isExplicitYAMLString(value)) return value
-  if (Array.isArray(value)) return value.map(prepareForDump)
+function prepareForDump(value: unknown, explicitStrings: Map<string, string>): unknown {
+  if (isExplicitYAMLString(value)) {
+    const marker = `${EXPLICIT_STRING_MARKER_PREFIX}${explicitStrings.size}__`
+    explicitStrings.set(marker, String(unwrapExplicitYAMLString(value)))
+    return marker
+  }
+  if (Array.isArray(value)) return value.map((item) => prepareForDump(item, explicitStrings))
   if (value !== null && typeof value === "object") {
     return Object.fromEntries(
-      Object.entries(value).map(([key, item]) => [key, item === undefined ? null : prepareForDump(item)]),
+      Object.entries(value).map(([key, item]) => [
+        key,
+        item === undefined ? null : prepareForDump(item, explicitStrings),
+      ])
     )
   }
   return value
@@ -55,45 +54,31 @@ function normalizeEmptyNullValues(yaml: string): string {
   return yaml.replace(/: null$/gm, ":")
 }
 
+function normalizeQuotedTypeLinkValues(yaml: string): string {
+  return yaml.replace(/(: )"(-?\d+\(\d+\))"$/gm, "$1$2")
+}
+
+function quoteExplicitStrings(yaml: string, explicitStrings: Map<string, string>): string {
+  let result = yaml
+  for (const [marker, value] of explicitStrings) {
+    result = result.split(marker).join(JSON.stringify(value))
+  }
+  return result
+}
+
 export const exportToYAML = <T>(data: T): string => {
-  const yaml = dump(prepareForDump(data), {
-    schema: NKDK_DUMP_SCHEMA,
+  const explicitStrings = new Map<string, string>()
+  const yaml = dump(prepareForDump(data, explicitStrings), {
+    schema: JSON_SCHEMA,
     indent: 2,
     lineWidth: -1,
     noRefs: true,
     skipInvalid: false,
     sortKeys: false,
-    quoteStyle: "double",
+    quotingType: '"',
     forceQuotes: false,
-    transform: quoteExplicitStringNodes,
   })
-  return removeDocumentFinalLineEnding(normalizeEmptyNullValues(yaml))
-}
-
-function quoteExplicitStringNodes(documents: Document[]): void {
-  documents.forEach((document) => {
-    quoteExplicitStringNode(document.contents)
-  })
-}
-
-function quoteExplicitStringNode(node: Node | null): void {
-  if (node === null) return
-  if (node.kind === "scalar") {
-    if (node.tag.includes(explicitStringTagName) || (node.tag === "tag:yaml.org,2002:str" && node.value === "")) {
-      node.tag = "tag:yaml.org,2002:str"
-      node.style.tagged = false
-      node.style.doubleQuoted = true
-    }
-    return
-  }
-  if (node.kind === "sequence") {
-    node.items.forEach(quoteExplicitStringNode)
-    return
-  }
-  if (node.kind === "mapping") {
-    node.items.forEach((item) => {
-      quoteExplicitStringNode(item.key)
-      quoteExplicitStringNode(item.value)
-    })
-  }
+  return removeDocumentFinalLineEnding(
+    normalizeQuotedTypeLinkValues(quoteExplicitStrings(normalizeEmptyNullValues(yaml), explicitStrings))
+  )
 }

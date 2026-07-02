@@ -1,6 +1,6 @@
 import fs from "fs"
 import { join } from "path"
-import type { MetadataItemRule } from "~/metadata/orchestration/property/types"
+import type { MetadataItemRule } from "../property/types"
 
 const PROPERTIES_YAML = "Свойства.yaml"
 

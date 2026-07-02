@@ -1,5 +1,5 @@
-import { ConfigurationContext } from "~/metadata/context/types"
-import { PropertyRule, importPropertyFromYAML, registerTypeRule } from "~/metadata/orchestration"
+import { ConfigurationContext } from "../../../../context/types"
+import { PropertyRule, importPropertyFromYAML, registerTypeRule } from "../../../../orchestration"
 import { StructureItemGroupRegistry } from "./registry"
 import {
   StructureItemGroupCollection,

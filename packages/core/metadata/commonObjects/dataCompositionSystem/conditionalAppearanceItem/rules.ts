@@ -1,11 +1,11 @@
-import { appearanceFieldsRule } from "~/metadata/commonObjects/dataCompositionSystem/appearanceFields/builders"
-import { availableFieldsRule } from "~/metadata/commonObjects/dataCompositionSystem/availableFields/types"
-import { filterRule } from "~/metadata/commonObjects/dataCompositionSystem/conditionalAppearanceItem/builders"
-import { dcsLocalStringTypeRule } from "~/metadata/commonObjects/dataCompositionSystem/dcsLocalStringType/types"
-import { booleanRule } from "~/metadata/commonObjects/boolean/types"
-import { stringRule } from "~/metadata/commonObjects/string/types"
-import { systemEnumerationRule } from "~/metadata/systemEnumerations/types"
-import { MetadataItemRule } from "~/metadata/orchestration"
+import { appearanceFieldsRule } from "../appearanceFields/builders"
+import { availableFieldsRule } from "../availableFields/types"
+import { filterRule } from "./builders"
+import { dcsLocalStringTypeRule } from "../dcsLocalStringType/types"
+import { booleanRule } from "../../boolean/types"
+import { stringRule } from "../../string/types"
+import { systemEnumerationRule } from "../../../systemEnumerations/types"
+import { MetadataItemRule } from "../../../orchestration"
 export const ConditionalAppearanceItemRules = {
   itemType: "ConditionalAppearanceItem",
   properties: {

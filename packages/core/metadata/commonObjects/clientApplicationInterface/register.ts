@@ -1,19 +1,19 @@
 import { Type } from "@sinclair/typebox"
-import { getUUID } from "~/metadata/helpers/uuid"
+import { getUUID } from "../../helpers/uuid"
 import {
   ExportToXMLFunctionNew,
   ImportFromYAMLFunctionNew,
   registerMetadataItemRule,
   registerTypeRule,
   type PropertyRule,
-} from "~/metadata/orchestration"
-import type { ConfigurationContext, ConfigurationContextFromXML } from "~/metadata/context/types"
+} from "../../orchestration"
+import type { ConfigurationContext, ConfigurationContextFromXML } from "../../context/types"
 import {
   SectionsPanelRepresentationFromYAML,
   SectionsPanelRepresentationToYAML,
   type SectionsPanelRepresentation,
   type SectionsPanelRepresentationYAML,
-} from "~/metadata/systemEnumerations/types"
+} from "../../systemEnumerations/types"
 import { ClientApplicationInterfaceRules } from "./rules"
 import {
   ClientApplicationInterfaceGroup,

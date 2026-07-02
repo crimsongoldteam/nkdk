@@ -1,12 +1,12 @@
 import { format, parse } from "date-fns"
-import { ConfigurationContext, ConfigurationContextFromXML } from "~/metadata/context/types"
-import { explicitYAMLString, isExplicitYAMLString } from "~/yaml/explicitString"
+import { ConfigurationContext, ConfigurationContextFromXML } from "../../context/types"
+import { explicitYAMLString, isExplicitYAMLString } from "../../../yaml/explicitString"
 import {
   AccountTypeFromYAML,
   AccountTypeToYAML,
   DataCompositionComparisonTypeFromYAML,
   DataCompositionComparisonTypeToYAML,
-} from "~/metadata/systemEnumerations/types"
+} from "../../systemEnumerations/types"
 import { importBooleanFromXML } from "../boolean/fromXML"
 import { exportBooleanToYAML } from "../boolean/toYAML"
 import { importMetadataValueStringFromYAML } from "../metadataPath/fromYAML"
@@ -254,8 +254,12 @@ export const primitiveValueHandlers: Record<MetadataPrimitiveValueType, Metadata
     },
     toYAML: (_ctx: ConfigurationContext, v: MetadataTypedValue) =>
       DataCompositionComparisonTypeToYAML[
-        (v as unknown as { type: "DataCompositionComparisonType"; value: keyof typeof DataCompositionComparisonTypeToYAML })
-          .value
+        (
+          v as unknown as {
+            type: "DataCompositionComparisonType"
+            value: keyof typeof DataCompositionComparisonTypeToYAML
+          }
+        ).value
       ],
   } satisfies MetadataPrimitiveValueHandler,
 

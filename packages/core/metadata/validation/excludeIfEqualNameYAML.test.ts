@@ -1,7 +1,7 @@
 import { describe, expect, it } from "vitest"
-import { registerTypeRule } from "~/metadata/orchestration/property/typeRuleRegistry"
-import type { MetadataItemRule } from "~/metadata/orchestration/property/types"
-import { parseMetadataYaml } from "~/yaml/parseMetadataYaml"
+import { registerTypeRule } from "../orchestration/property/typeRuleRegistry"
+import type { MetadataItemRule } from "../orchestration/property/types"
+import { parseMetadataYaml } from "../../yaml/parseMetadataYaml"
 import { validateExcludedEqualNameYAML } from "./excludeIfEqualNameYAML"
 
 const context = {

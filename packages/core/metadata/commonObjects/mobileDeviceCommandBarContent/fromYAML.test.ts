@@ -1,7 +1,7 @@
 import { describe, expect, it } from "vitest"
-import type { MetadataValueYAML } from "~/metadata/commonObjects/metadataValue/types"
-import { mockContext, mockRule } from "~/tests/mockContext"
-import { importFromYAML } from "~/yaml/import"
+import type { MetadataValueYAML } from "../metadataValue/types"
+import { mockContext, mockRule } from "../../../tests/mockContext"
+import { importFromYAML } from "../../../yaml/import"
 import {
   fullMobileDeviceCommandBarContent,
   fullMobileDeviceCommandBarContentYAML,

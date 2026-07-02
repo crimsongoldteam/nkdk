@@ -17,8 +17,7 @@
     "noUnusedParameters": true,
     "noFallthroughCasesInSwitch": true,
     "strictNullChecks": true,
-    "plugins": [],
-    "paths": { "~/*": ["./*"] }
+    "plugins": []
   },
   "include": ["**/*.ts", "vitest.config.ts"],
   "exclude": ["node_modules", "dist"]

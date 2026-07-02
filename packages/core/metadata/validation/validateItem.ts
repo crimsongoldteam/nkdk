@@ -39,7 +39,9 @@ export function validateItem({ itemDir, schema }: ValidateItemParams): Diagnosti
     const entries = readdirSync(formsDir, { withFileTypes: true })
     for (const entry of entries.filter((e) => e.isDirectory())) {
       const formDir = join(formsDir, entry.name)
-      diagnostics.push(...validateForm({ projectDir, formDir, formName: entry.name, owner, cache, context, ownerCache }))
+      diagnostics.push(
+        ...validateForm({ projectDir, formDir, formName: entry.name, owner, cache, context, ownerCache })
+      )
     }
   }
 

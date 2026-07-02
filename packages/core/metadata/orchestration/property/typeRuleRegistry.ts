@@ -1,4 +1,4 @@
-import { PropertyRuleType } from "~/metadata/orchestration/property/registry"
+import { PropertyRuleType } from "./registry"
 import {
   CollectionItemRule,
   createRegistryKey,

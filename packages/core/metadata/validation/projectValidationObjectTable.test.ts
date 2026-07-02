@@ -7,8 +7,9 @@ describe("ValidationObjectTable", () => {
     const table = createValidationObjectTable()
     table.mergeRecords([record({ kind: "Справочник", name: "Товары" })])
 
-    expect(table.getOwner({ kind: "Справочник", name: "Товары" })?.filePath)
-      .toBe("/project/Справочник/Товары/Свойства.yaml")
+    expect(table.getOwner({ kind: "Справочник", name: "Товары" })?.filePath).toBe(
+      "/project/Справочник/Товары/Свойства.yaml"
+    )
   })
 
   it("returns undefined for missing owners", () => {

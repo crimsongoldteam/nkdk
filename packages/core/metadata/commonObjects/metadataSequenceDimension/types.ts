@@ -1,7 +1,7 @@
-import { I8nTextXML, I8nTextYAML } from "~/metadata/commonObjects/i8nText/types"
-import { MetadataItemLinksXML, MetadataItemLinksYAML } from "~/metadata/commonObjects/metadataRef/types"
-import { TypeDescriptionXML, TypeDescriptionYAML } from "~/metadata/commonObjects/typeDescription/types"
-import { MetadataTypeByRule } from "~/metadata/orchestration/metadataItem/element"
+import { I8nTextXML, I8nTextYAML } from "../i8nText/types"
+import { MetadataItemLinksXML, MetadataItemLinksYAML } from "../metadataRef/types"
+import { TypeDescriptionXML, TypeDescriptionYAML } from "../typeDescription/types"
+import { MetadataTypeByRule } from "../../orchestration/metadataItem/element"
 import { MetadataSequenceDimensionRules } from "./rules"
 import { MetadataNameYAML } from "../metadataName/types"
 

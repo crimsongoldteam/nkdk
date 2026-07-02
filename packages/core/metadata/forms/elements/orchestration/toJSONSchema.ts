@@ -1,7 +1,7 @@
 import { TProperties, TSchema, Type } from "@sinclair/typebox"
-import { ConfigurationContext } from "~/metadata/context/types"
-import { NamedElement } from "~/metadata/forms/elements/baseElement/types"
-import { exportPropertiesToJSONSchema } from "~/metadata/orchestration/property/toJSONSchema"
+import { ConfigurationContext } from "../../../context/types"
+import { NamedElement } from "../baseElement/types"
+import { exportPropertiesToJSONSchema } from "../../../orchestration/property/toJSONSchema"
 import { getElementRule } from "./ruleFactory"
 import { ElementRule } from "./types"
 

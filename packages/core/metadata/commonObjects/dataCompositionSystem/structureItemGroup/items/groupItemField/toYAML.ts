@@ -1,10 +1,10 @@
-import type { ConfigurationContext } from "~/metadata/context/types"
-import { registerTypeRule } from "~/metadata/orchestration/property/typeRuleRegistry"
-import type { PropertyRule } from "~/metadata/orchestration/property/types"
+import type { ConfigurationContext } from "../../../../../context/types"
+import { registerTypeRule } from "../../../../../orchestration/property/typeRuleRegistry"
+import type { PropertyRule } from "../../../../../orchestration/property/types"
 import {
   DataCompositionGroupTypeToYAML,
   DataCompositionPeriodAdditionTypeToYAML,
-} from "~/metadata/systemEnumerations/types"
+} from "../../../../../systemEnumerations/types"
 import type { GroupItemField, GroupItemFieldYAML } from "./types"
 
 const isDefaultGroupItemField = (value: GroupItemField): boolean =>

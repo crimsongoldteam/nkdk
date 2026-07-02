@@ -1,7 +1,7 @@
 import fs from "fs"
 import { join } from "path"
 import { describe, expect, it } from "vitest"
-import { testConvertAppliedObjectFromXML } from "~/tests/appliedObject"
+import { testConvertAppliedObjectFromXML } from "../../../tests/appliedObject"
 import { readReportYAML } from "./__fixtures__/sync/data"
 import { MetadataReportRules } from "./rules"
 
@@ -54,10 +54,7 @@ describe("convertAppliedObjectFromXML — MetadataReport", () => {
       expectedFormModule
     )
 
-    const expectedFormHelp = fs.readFileSync(
-      join(objectDir, "Forms", "ФормаОтчета", "Ext", "Help", "ru.html"),
-      "utf-8"
-    )
+    const expectedFormHelp = fs.readFileSync(join(objectDir, "Forms", "ФормаОтчета", "Ext", "Help", "ru.html"), "utf-8")
     expect(fs.readFileSync(join(outputDir, name, "Формы", "ФормаОтчета", "Справка", "ru.html"), "utf-8")).toBe(
       expectedFormHelp
     )

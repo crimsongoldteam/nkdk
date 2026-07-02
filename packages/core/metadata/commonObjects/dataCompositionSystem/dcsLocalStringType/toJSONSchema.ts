@@ -1,4 +1,4 @@
-import { exportI8nTextToJSONSchema } from "~/metadata/commonObjects/i8nText/toJSONSchema"
-import { registerTypeRule } from "~/metadata/orchestration"
+import { exportI8nTextToJSONSchema } from "../../i8nText/toJSONSchema"
+import { registerTypeRule } from "../../../orchestration"
 
 registerTypeRule("DcsLocalStringType", "exportToJSONSchema", exportI8nTextToJSONSchema)

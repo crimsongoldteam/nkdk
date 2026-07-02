@@ -1,6 +1,6 @@
 import { describe, expect, it } from "vitest"
-import type { DataPathPropertyRule } from "~/metadata/orchestration/property/types"
-import { parseMetadataYaml } from "~/yaml/parseMetadataYaml"
+import type { DataPathPropertyRule } from "../../orchestration/property/types"
+import { parseMetadataYaml } from "../../../yaml/parseMetadataYaml"
 import type { ResolvedDataPathTarget } from "./resolver"
 import { validateResolvedDataPathPolicy } from "./policies"
 
@@ -54,7 +54,7 @@ describe("validateResolvedDataPathPolicy", () => {
         rule: dataPathRule({ allowedKinds: ["dateTime"], allowComposite: true }),
         kinds: ["dateTime"],
         isComposite: true,
-      }),
+      })
     ).toEqual([])
   })
 
@@ -64,7 +64,7 @@ describe("validateResolvedDataPathPolicy", () => {
         rule: dataPathRule({ allowedKinds: ["Picture", "scalar"], allowComposite: true }),
         kinds: ["object", "scalar"],
         isComposite: true,
-      }),
+      })
     ).toEqual([])
   })
 
@@ -95,11 +95,15 @@ describe("validateResolvedDataPathPolicy", () => {
   })
 
   it("accepts scalar terminal kind when the rule explicitly allows it", () => {
-    expect(validatePolicy({ rule: dataPathRule({ allowedKinds: ["Picture", "scalar"] }), kinds: ["scalar"] })).toEqual([])
+    expect(validatePolicy({ rule: dataPathRule({ allowedKinds: ["Picture", "scalar"] }), kinds: ["scalar"] })).toEqual(
+      []
+    )
   })
 
   it("accepts boolean terminal kind when the rule explicitly allows it", () => {
-    expect(validatePolicy({ rule: dataPathRule({ allowedKinds: ["Picture", "boolean"] }), kinds: ["boolean"] })).toEqual([])
+    expect(
+      validatePolicy({ rule: dataPathRule({ allowedKinds: ["Picture", "boolean"] }), kinds: ["boolean"] })
+    ).toEqual([])
   })
 
   it("accepts scalar and date terminal kinds when the rule explicitly allows checkbox-compatible values", () => {
@@ -111,7 +115,9 @@ describe("validateResolvedDataPathPolicy", () => {
   })
 
   it("accepts object terminal kind when the rule explicitly allows it", () => {
-    expect(validatePolicy({ rule: dataPathRule({ allowedKinds: ["Picture", "object"] }), kinds: ["object"] })).toEqual([])
+    expect(validatePolicy({ rule: dataPathRule({ allowedKinds: ["Picture", "object"] }), kinds: ["object"] })).toEqual(
+      []
+    )
   })
 
   it("still rejects scalar terminal kind when only Picture is allowed", () => {

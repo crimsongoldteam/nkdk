@@ -3,11 +3,11 @@ import os from "os"
 import { dirname, join } from "path"
 import { fileURLToPath } from "url"
 import { describe, expect, it, vi } from "vitest"
-import { XmlSyncManifest } from "~/metadata/appliedObjects/configuration/migrations/xmlManifest"
-import { convertAppliedObjectFromXML } from "~/metadata/orchestration/appliedObject/convertFromXML"
-import { syncAppliedObjectToXML } from "~/metadata/orchestration/appliedObject/syncToXML"
-import { testSyncAppliedObjectToXML } from "~/tests/appliedObject"
-import { mockContextFromXML, mockContextToXML } from "~/tests/mockContext"
+import { XmlSyncManifest } from "../configuration/migrations/xmlManifest"
+import { convertAppliedObjectFromXML } from "../../orchestration/appliedObject/convertFromXML"
+import { syncAppliedObjectToXML } from "../../orchestration/appliedObject/syncToXML"
+import { testSyncAppliedObjectToXML } from "../../../tests/appliedObject"
+import { mockContextFromXML, mockContextToXML } from "../../../tests/mockContext"
 import { MetadataCommonFormRules } from "./rules"
 
 const normalizeLineEndings = (value: string) => value.replace(/\r\n/g, "\n")
@@ -90,14 +90,14 @@ describe("syncAppliedObjectToXML — MetadataCommonForm", () => {
   it("enables ClientApplicationForm export after direct MetadataCommonFormRules import", async () => {
     vi.resetModules()
 
-    const { clearTypeRulesRegistry, getTypeRule } = await import("~/metadata/orchestration/property/typeRuleRegistry")
+    const { clearTypeRulesRegistry, getTypeRule } = await import("../../orchestration/property/typeRuleRegistry")
     clearTypeRulesRegistry()
     expect(getTypeRule("ClientApplicationForm", "exportToXML")).toBeUndefined()
 
     const { MetadataCommonFormRules } = await import("./rules")
-    const { createEmptyClientApplicationForm } = await import("~/metadata/forms/clientApplicationForm/createEmpty")
-    const { exportPropertyToXML } = await import("~/metadata/orchestration/property/toXML")
-    const { mockContextToXML } = await import("~/tests/mockContext")
+    const { createEmptyClientApplicationForm } = await import("../../forms/clientApplicationForm/createEmpty")
+    const { exportPropertyToXML } = await import("../../orchestration/property/toXML")
+    const { mockContextToXML } = await import("../../../tests/mockContext")
 
     const exportToXML = getTypeRule("ClientApplicationForm", "exportToXML")
     expect(exportToXML).toBeTypeOf("function")
@@ -220,9 +220,7 @@ describe("syncAppliedObjectToXML — MetadataCommonForm", () => {
 
     const outputPicturePath = join(outputDir, name, "Ext", "Form", "Items", "ГруппаСШапкой", "HeaderPicture.png")
     expect([...fs.readFileSync(outputPicturePath)]).toEqual([7, 8, 9])
-    expect(xmlManifest.expectedFiles()).toContain(
-      `${name}/Ext/Form/Items/ГруппаСШапкой/HeaderPicture.png`
-    )
+    expect(xmlManifest.expectedFiles()).toContain(`${name}/Ext/Form/Items/ГруппаСШапкой/HeaderPicture.png`)
   })
 
   it("writes ManualQuery and QueryText for direct common form dynamic list", async () => {
@@ -309,7 +307,7 @@ describe("syncAppliedObjectToXML — MetadataCommonForm", () => {
         "Форма:",
         "  Реквизиты:",
         "    Канбан:",
-        "      Заголовок: \"\"",
+        '      Заголовок: ""',
         "      Тип: Планировщик",
         "      Планировщик: |-",
         "        <pl:item>",

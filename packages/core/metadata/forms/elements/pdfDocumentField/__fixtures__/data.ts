@@ -1,14 +1,10 @@
-import {
-  PDFDocumentField,
-  PDFDocumentFieldEnterprise,
-  PDFDocumentFieldPartialYAML,
-} from "~/metadata/forms/elements/pdfDocumentField/types"
+import { PDFDocumentField, PDFDocumentFieldEnterprise, PDFDocumentFieldPartialYAML } from "../types"
 import {
   fullFormFieldCommonFixture,
   fullFormFieldEnterpriseCommonFixture,
   fullFormFieldPartialYAMLCommonFixture,
-} from "~/metadata/forms/elements/__fixtures__/formField/rules"
-import { RequiredFieldsElement } from "~/tests/types"
+} from "../../__fixtures__/formField/rules"
+import { RequiredFieldsElement } from "../../../../../tests/types"
 
 export const fullPDFDocumentField = {
   itemType: "PDFDocumentField",
@@ -152,10 +148,7 @@ export const fullPDFDocumentFieldPartialYAML = {
     НажатиеНаНавигационнойСсылке: "НажатиеНаНавигационнойСсылке",
   },
   ...fullFormFieldPartialYAMLCommonFixture,
-} satisfies Omit<
-  Required<PDFDocumentFieldPartialYAML>,
-  "Использование"
->
+} satisfies Omit<Required<PDFDocumentFieldPartialYAML>, "Использование">
 
 export const minimalPDFDocumentField: PDFDocumentField = {
   itemType: "PDFDocumentField",

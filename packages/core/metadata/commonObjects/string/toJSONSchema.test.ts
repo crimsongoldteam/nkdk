@@ -1,6 +1,6 @@
 import { TypeCompiler } from "@sinclair/typebox/compiler"
 import { describe, expect, it } from "vitest"
-import { mockContext } from "~/tests/mockContext"
+import { mockContext } from "../../../tests/mockContext"
 import { exportStringToJSONSchema } from "./toJSONSchema"
 
 describe("exportStringToJSONSchema", () => {

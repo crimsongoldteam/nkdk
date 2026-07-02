@@ -1,7 +1,7 @@
 import fs from "fs"
 import { join } from "path"
 import { afterEach, describe, expect, it } from "vitest"
-import { XmlSyncManifest } from "~/metadata/appliedObjects/configuration/migrations/xmlManifest"
+import { XmlSyncManifest } from "../../appliedObjects/configuration/migrations/xmlManifest"
 import { syncExternalPictureFromXML } from "./fromXML"
 import { syncExternalPictureToXML } from "./toXML"
 
@@ -42,7 +42,9 @@ describe("ExternalPicture sync", () => {
     await syncExternalPictureToXML({ rule: rootRule, nkdkDir, xmlDir: outDir, xmlManifest })
     expect(fs.readFileSync(join(outDir, "Ext", "Splash.xml"), "utf-8")).toBe("<ExtPicture/>")
     expect([...fs.readFileSync(join(outDir, "Ext", "Splash", "Picture.png"))]).toEqual([137, 80, 78, 71])
-    expect([...xmlManifest.expectedFiles()]).toEqual(expect.arrayContaining(["Ext/Splash.xml", "Ext/Splash/Picture.png"]))
+    expect([...xmlManifest.expectedFiles()]).toEqual(
+      expect.arrayContaining(["Ext/Splash.xml", "Ext/Splash/Picture.png"])
+    )
   })
 
   it("copies Picture.xml and binary payload from XML to nkdk", async () => {
@@ -51,7 +53,10 @@ describe("ExternalPicture sync", () => {
     const nkdkDir = join(tmpRoot, "nkdk", "ОбщаяКартинкаВсеСвойства")
     fs.mkdirSync(join(xmlDir, "ОбщаяКартинкаВсеСвойства", "Ext", "Picture"), { recursive: true })
     fs.writeFileSync(join(xmlDir, "ОбщаяКартинкаВсеСвойства", "Ext", "Picture.xml"), "<ExtPicture/>")
-    fs.writeFileSync(join(xmlDir, "ОбщаяКартинкаВсеСвойства", "Ext", "Picture", "Picture.zip"), Buffer.from([0, 1, 2, 255]))
+    fs.writeFileSync(
+      join(xmlDir, "ОбщаяКартинкаВсеСвойства", "Ext", "Picture", "Picture.zip"),
+      Buffer.from([0, 1, 2, 255])
+    )
 
     await syncExternalPictureFromXML({ rule, xmlDir, nkdkDir, name: "ОбщаяКартинкаВсеСвойства" })
 
@@ -70,13 +75,10 @@ describe("ExternalPicture sync", () => {
     await syncExternalPictureToXML({ rule, nkdkDir, xmlDir, name: "ОбщаяКартинкаВсеСвойства" })
 
     expect(fs.readFileSync(join(xmlDir, "ОбщаяКартинкаВсеСвойства", "Ext", "Picture.xml"), "utf-8")).toBe(
-      "<ExtPicture/>",
+      "<ExtPicture/>"
     )
     expect([...fs.readFileSync(join(xmlDir, "ОбщаяКартинкаВсеСвойства", "Ext", "Picture", "Picture.png"))]).toEqual([
-      137,
-      80,
-      78,
-      71,
+      137, 80, 78, 71,
     ])
   })
 
@@ -92,11 +94,7 @@ describe("ExternalPicture sync", () => {
 
     expect(fs.readFileSync(join(xmlDir, "Ext", "Picture.xml"), "utf-8")).toBe("<ExtPicture/>")
     expect([...fs.readFileSync(join(xmlDir, "Ext", "Picture", "Picture.png"))]).toEqual([137, 80, 78, 71])
-    expect(
-      fs.existsSync(join(xmlDir, "ОбщаяКартинкаВсеСвойства", "Ext", "Picture.xml")),
-    ).toBe(false)
-    expect(
-      fs.existsSync(join(xmlDir, "ОбщаяКартинкаВсеСвойства", "Ext", "Picture", "Picture.png")),
-    ).toBe(false)
+    expect(fs.existsSync(join(xmlDir, "ОбщаяКартинкаВсеСвойства", "Ext", "Picture.xml"))).toBe(false)
+    expect(fs.existsSync(join(xmlDir, "ОбщаяКартинкаВсеСвойства", "Ext", "Picture", "Picture.png"))).toBe(false)
   })
 })

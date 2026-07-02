@@ -1,6 +1,6 @@
-// // import { Configuration, ConfigurationYAML } from "~/metadata/appliedObjects/configuration/types"
+// // import { Configuration, ConfigurationYAML } from "../types"
 
-// import { Configuration } from "~/metadata/appliedObjects/configuration"
+// import { Configuration } from ".."
 
 // // //#region Configuration
 

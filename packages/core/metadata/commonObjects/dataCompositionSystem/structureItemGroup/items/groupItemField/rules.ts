@@ -1,8 +1,8 @@
-import { dateTimeRule } from "~/metadata/commonObjects/dateTime/types"
-import { booleanRule } from "~/metadata/commonObjects/boolean/types"
-import { stringRule } from "~/metadata/commonObjects/string/types"
-import { systemEnumerationRule } from "~/metadata/systemEnumerations/types"
-import { MetadataItemRule } from "~/metadata/orchestration"
+import { dateTimeRule } from "../../../../dateTime/types"
+import { booleanRule } from "../../../../boolean/types"
+import { stringRule } from "../../../../string/types"
+import { systemEnumerationRule } from "../../../../../systemEnumerations/types"
+import { MetadataItemRule } from "../../../../../orchestration"
 export const GroupItemFieldRules = {
   itemType: "GroupItemField",
   properties: {

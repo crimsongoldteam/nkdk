@@ -1,6 +1,6 @@
 import { describe, expect, it } from "vitest"
-import { mockContextFromXML } from "~/tests/mockContext"
-import { importContentFromXML } from "~/xml/import/importer"
+import { mockContextFromXML } from "../../../../tests/mockContext"
+import { importContentFromXML } from "../../../../xml/import/importer"
 import {
   refsWithNilFixedArray,
   refsWithNilFixedArrayXML,

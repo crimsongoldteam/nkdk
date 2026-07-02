@@ -1,12 +1,12 @@
-import { ConfigurationContext } from "~/metadata/context/types"
-import { buildExternalFileEntry } from "~/metadata/forms/commonObjects/dynamicList/externalFile"
+import { ConfigurationContext } from "../../context/types"
+import { buildExternalFileEntry } from "../../forms/commonObjects/dynamicList/externalFile"
 import { ToMetadata, ToYAML } from ".."
 import { getTypeRule } from "./typeRuleRegistry"
 import { ExportToYAMLFunction, ExportToYAMLFunctionNew } from "./fn"
 import { shouldProcessProperty } from "./helpers"
 import { exportStringMetadataTargetToYAML, metadataTargetOwnerFromRule } from "./metadataTargetString"
 import type { MetadataItemRule, PropertyRule } from "./types"
-import type { MetadataTargetOwner } from "~/metadata/commonObjects/metadataTargets/types"
+import type { MetadataTargetOwner } from "../../commonObjects/metadataTargets/types"
 
 export function exportPropertiesToYAML<Rule extends MetadataItemRule>(params: {
   context: ConfigurationContext

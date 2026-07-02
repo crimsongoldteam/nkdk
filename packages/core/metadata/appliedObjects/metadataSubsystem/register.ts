@@ -1,7 +1,7 @@
 export * from "./types"
 export * from "./rules"
 import { join } from "path"
-import { registerProjectObjectPathResolver } from "~/metadata/validation/projectMetadataResolverRegistry"
+import { registerProjectObjectPathResolver } from "../../validation/projectMetadataResolverRegistry"
 
 registerProjectObjectPathResolver("Subsystem", ({ projectDir, target }) => {
   const parts = [projectDir, "Подсистема", target.objectName]

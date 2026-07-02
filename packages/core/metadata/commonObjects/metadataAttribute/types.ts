@@ -1,20 +1,12 @@
 import { Type } from "@sinclair/typebox"
-import { StringboolXML, StringboolYAML } from "~/metadata/commonObjects/boolean/types"
-import { I8nTextXML, I8nTextYAML } from "~/metadata/commonObjects/i8nText/types"
-import {
-  MetadataPrimitiveValueXML,
-  MetadataValueXML,
-  MetadataValueYAML,
-} from "~/metadata/commonObjects/metadataValue/types"
-import {
-  TypeDescriptionJSONSchema,
-  TypeDescriptionXML,
-  TypeDescriptionYAML,
-} from "~/metadata/commonObjects/typeDescription/types"
-import { TypeLinkXML, TypeLinkYAML } from "~/metadata/commonObjects/typeLink/types"
-import { ChoiceParameterLinksXML, ChoiceParameterLinksYAML } from "~/metadata/commonObjects/сhoiceParameterLinks/types"
-import { MetadataTypeByRule } from "~/metadata/orchestration/metadataItem/element"
-import * as SE from "~/metadata/systemEnumerations/types"
+import { StringboolXML, StringboolYAML } from "../boolean/types"
+import { I8nTextXML, I8nTextYAML } from "../i8nText/types"
+import { MetadataPrimitiveValueXML, MetadataValueXML, MetadataValueYAML } from "../metadataValue/types"
+import { TypeDescriptionJSONSchema, TypeDescriptionXML, TypeDescriptionYAML } from "../typeDescription/types"
+import { TypeLinkXML, TypeLinkYAML } from "../typeLink/types"
+import { ChoiceParameterLinksXML, ChoiceParameterLinksYAML } from "../сhoiceParameterLinks/types"
+import { MetadataTypeByRule } from "../../orchestration/metadataItem/element"
+import * as SE from "../../systemEnumerations/types"
 import { MetadataNameYAML } from "../metadataName/types"
 import { ChoiceParametersXML, ChoiceParametersYAML } from "../сhoiceParameters/types"
 import { MetadataAttributeRules } from "./rules"

@@ -1,13 +1,13 @@
 import type { TSchema } from "@sinclair/typebox"
-import type { ConfigurationContext, JSONSchemaExportMode } from "~/metadata/context/types"
+import type { ConfigurationContext, JSONSchemaExportMode } from "../context/types"
 import {
   attachCollectedSchemaRefs,
   createJSONSchemaExportContext,
   recordOfOneOfSchemaRefs,
   recordOfSchemaRef,
   registerJSONSchemaPropertyRef,
-} from "~/metadata/orchestration/jsonSchemaRefs"
-import type { PropertyRuleType } from "~/metadata/orchestration/property/registry"
+} from "../orchestration/jsonSchemaRefs"
+import type { PropertyRuleType } from "../orchestration/property/registry"
 
 export class ProjectFileSchemaError extends Error {
   constructor(message: string) {

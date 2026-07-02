@@ -1,5 +1,5 @@
 import { describe, expect, it } from "vitest"
-import { mockContext } from "~/tests/mockContext"
+import { mockContext } from "../../../tests/mockContext"
 import type { MetadataItemRule } from "../property/types"
 import { importMetadataItemFromYAML } from "./fromYAML"
 import { exportMetadataItemToJSONSchema } from "./toJSONSchema"

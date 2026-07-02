@@ -1,8 +1,12 @@
 import { Type } from "@sinclair/typebox"
-import { StringboolXML, StringboolYAML } from "~/metadata/commonObjects/boolean/types"
-import { MetadataNameYAML } from "~/metadata/commonObjects/metadataName/types"
-import { MetadataTypeByRule } from "~/metadata/orchestration/metadataItem/element"
-import { MetadataRegisterFieldFullYAML, MetadataRegisterFieldYAML, MetadataRegisterFieldXML } from "../metadataRegisterField/types"
+import { StringboolXML, StringboolYAML } from "../boolean/types"
+import { MetadataNameYAML } from "../metadataName/types"
+import { MetadataTypeByRule } from "../../orchestration/metadataItem/element"
+import {
+  MetadataRegisterFieldFullYAML,
+  MetadataRegisterFieldYAML,
+  MetadataRegisterFieldXML,
+} from "../metadataRegisterField/types"
 import { MetadataRegisterResourceRules } from "./rules"
 
 export type MetadataRegisterResource = MetadataTypeByRule<typeof MetadataRegisterResourceRules>

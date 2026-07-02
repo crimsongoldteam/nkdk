@@ -1,11 +1,11 @@
-import { exportMetadataItemToJSONSchema } from "~/metadata/orchestration/metadataItem/toJSONSchema"
-import { recordOfSchemaRef } from "~/metadata/orchestration/jsonSchemaRefs"
+import { exportMetadataItemToJSONSchema } from "../orchestration/metadataItem/toJSONSchema"
+import { recordOfSchemaRef } from "../orchestration/jsonSchemaRefs"
 import {
   registerProjectJSONSchema,
   registerProjectJSONSchemaPropertyRef,
   registerProjectJSONSchemaPropertyRefFactory,
-} from "~/metadata/project/schemaRegistry"
-import { MetadataCommandRules } from "~/metadata/appliedObjects/metadataCommand/rules"
+} from "../project/schemaRegistry"
+import { MetadataCommandRules } from "../appliedObjects/metadataCommand/rules"
 import {
   MetadataAttributeRules,
   MetadataCatalogAttributeRules,

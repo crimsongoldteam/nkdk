@@ -1,13 +1,13 @@
 import { describe, expect, it } from "vitest"
-import { MetadataBusinessProcessRules } from "~/metadata/appliedObjects/metadataBusinessProcess/rules"
-import { MetadataCatalogRules } from "~/metadata/appliedObjects/metadataCatalog/rules"
-import { MetadataChartOfAccountsRules } from "~/metadata/appliedObjects/metadataChartOfAccounts/rules"
-import { MetadataChartOfCalculationTypesRules } from "~/metadata/appliedObjects/metadataChartOfCalculationTypes/rules"
-import { MetadataChartOfCharacteristicTypesRules } from "~/metadata/appliedObjects/metadataChartOfCharacteristicTypes/rules"
-import { MetadataDocumentRules } from "~/metadata/appliedObjects/metadataDocument/rules"
-import { MetadataExchangePlanRules } from "~/metadata/appliedObjects/metadataExchangePlan/rules"
-import { MetadataTaskRules } from "~/metadata/appliedObjects/metadataTask/rules"
-import { MetadataExternalDataSourceTableRules } from "~/metadata/commonObjects/metadataExternalDataSourceTable/rules"
+import { MetadataBusinessProcessRules } from "../../appliedObjects/metadataBusinessProcess/rules"
+import { MetadataCatalogRules } from "../../appliedObjects/metadataCatalog/rules"
+import { MetadataChartOfAccountsRules } from "../../appliedObjects/metadataChartOfAccounts/rules"
+import { MetadataChartOfCalculationTypesRules } from "../../appliedObjects/metadataChartOfCalculationTypes/rules"
+import { MetadataChartOfCharacteristicTypesRules } from "../../appliedObjects/metadataChartOfCharacteristicTypes/rules"
+import { MetadataDocumentRules } from "../../appliedObjects/metadataDocument/rules"
+import { MetadataExchangePlanRules } from "../../appliedObjects/metadataExchangePlan/rules"
+import { MetadataTaskRules } from "../../appliedObjects/metadataTask/rules"
+import { MetadataExternalDataSourceTableRules } from "../metadataExternalDataSourceTable/rules"
 import {
   commonBasedOnObjectPaths,
   formatMetadataTargetToYAML,
@@ -67,7 +67,7 @@ describe("common basedOn metadata targets", () => {
       parseMetadataTargetFromModel({
         canonical: "ExternalDataSource.ВнешнийИсточникДанныхВсеСвойства.Cube.КубВсеСвойства",
         constraint,
-      }),
+      })
     ).toMatchObject({ ok: false, code: "disallowed-kind" })
   })
 

@@ -1,7 +1,7 @@
-import { ConfigurationContextWithExportToXML } from "~/metadata/context/types"
-import { ExportToXMLFunctionNew } from "~/metadata/orchestration"
-import { exportMetadataItemToXML } from "~/metadata/orchestration/metadataItem/toXML"
-import type { PropertyRule } from "~/metadata/orchestration/property/types"
+import { ConfigurationContextWithExportToXML } from "../../../context/types"
+import { ExportToXMLFunctionNew } from "../../../orchestration"
+import { exportMetadataItemToXML } from "../../../orchestration/metadataItem/toXML"
+import type { PropertyRule } from "../../../orchestration/property/types"
 import { OrderItemFieldRules } from "./rules"
 import type { OrderItemFields } from "./types"
 

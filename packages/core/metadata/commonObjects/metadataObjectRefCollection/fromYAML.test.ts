@@ -1,6 +1,6 @@
 import { describe, expect, it } from "vitest"
-import { multiple, multipleYAML, single, singleYAML } from "~/metadata/commonObjects/metadataObjectRefCollection/__fixtures__/data"
-import { mockContext, mockRule } from "~/tests/mockContext"
+import { multiple, multipleYAML, single, singleYAML } from "./__fixtures__/data"
+import { mockContext, mockRule } from "../../../tests/mockContext"
 import { importMetadataObjectRefCollectionFromYAML } from "./fromYAML"
 
 describe("importMetadataObjectRefCollectionFromYAML", () => {

@@ -1,4 +1,4 @@
-import { ChoiceParameterLinks } from "~/metadata/commonObjects/сhoiceParameterLinks/types"
+import { ChoiceParameterLinks } from "../types"
 
 export const multipleChoiceParameterLinks: ChoiceParameterLinks = [
   {

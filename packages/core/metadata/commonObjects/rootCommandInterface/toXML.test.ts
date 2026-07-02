@@ -6,10 +6,10 @@ import {
   exportMetadataItemToYAML,
   importMetadataItemFromXML,
   importMetadataItemFromYAML,
-} from "~/metadata/orchestration"
-import { mockContextFromXML, mockContextToXML } from "~/tests/mockContext"
-import { mockContext } from "~/tests/mockContext"
-import { xmlExport } from "~/xml/export/exporter"
+} from "../../orchestration"
+import { mockContextFromXML, mockContextToXML } from "../../../tests/mockContext"
+import { mockContext } from "../../../tests/mockContext"
+import { xmlExport } from "../../../xml/export/exporter"
 import { RootCommandInterfaceRules } from "./rules"
 import type { RootCommandInterfaceYAML } from "./types"
 

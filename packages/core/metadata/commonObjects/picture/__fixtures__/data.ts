@@ -1,4 +1,4 @@
-import { Picture, PictureEnterprise, PictureYAML } from "~/metadata/commonObjects/picture/types"
+import { Picture, PictureEnterprise, PictureYAML } from "../types"
 
 export interface PictureTestCase {
   name: string

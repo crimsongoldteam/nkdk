@@ -1,7 +1,7 @@
 import { describe, expect, it } from "vitest"
-import { pictureTestCases } from "~/metadata/commonObjects/picture/__fixtures__/data"
-import { mockContextFromXML, mockRule } from "~/tests/mockContext"
-import { readAndParseXMLFile } from "~/tests/readAndParseXMLFile"
+import { pictureTestCases } from "./__fixtures__/data"
+import { mockContextFromXML, mockRule } from "../../../tests/mockContext"
+import { readAndParseXMLFile } from "../../../tests/readAndParseXMLFile"
 import { importPictureFromXML } from "./fromXML"
 import { PictureXML } from "./types"
 

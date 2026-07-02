@@ -13,8 +13,8 @@ import {
   type MetadataRootName,
   type ParsedMetadataTarget,
   type StyleItemTargetType,
-} from "~/metadata/commonObjects/metadataTargets"
-import type { ConfigurationContext } from "~/metadata/context/types"
+} from "../commonObjects/metadataTargets"
+import type { ConfigurationContext } from "../context/types"
 import type { DataPathTypeInfo } from "./dataPath/types"
 import {
   createOwnerMetadataCache,
@@ -86,8 +86,7 @@ export function createProjectMetadataResolver(params: CreateProjectMetadataResol
     yamlCache: params.yamlCache,
     ownerCache,
     hasFile: existsSync,
-    missingObject: (target, filePath) =>
-      referenceError(filePath, `Не найден объект "${formatObjectTarget(target)}"`),
+    missingObject: (target, filePath) => referenceError(filePath, `Не найден объект "${formatObjectTarget(target)}"`),
   })
 }
 
@@ -160,7 +159,9 @@ function createProjectMetadataResolverCore(params: {
     },
 
     resolveMember({ target, filters }) {
-      const object = resolver.resolveObject({ target: { kind: "object", root: target.root, objectName: target.objectName } })
+      const object = resolver.resolveObject({
+        target: { kind: "object", root: target.root, objectName: target.objectName },
+      })
       if (!object.ok) return object
 
       if (target.objectSegments) {
@@ -173,7 +174,8 @@ function createProjectMetadataResolverCore(params: {
           },
         })
         if (!nestedObject.ok) return nestedObject
-        if (!nestedObject.filePath) return referenceError(projectDir, `Не найден объект "${formatMemberTarget(target)}"`)
+        if (!nestedObject.filePath)
+          return referenceError(projectDir, `Не найден объект "${formatMemberTarget(target)}"`)
 
         const rawYaml = ownerRawYaml({ filePath: nestedObject.filePath, yamlCache })
         const resolved = resolveRegisteredMember({
@@ -190,7 +192,10 @@ function createProjectMetadataResolverCore(params: {
             : resolved
         }
 
-        return referenceError(nestedObject.filePath, `Не найден член "${formatMemberTarget(target)}": нет сегмента "${target.segments[0]?.name ?? ""}"`)
+        return referenceError(
+          nestedObject.filePath,
+          `Не найден член "${formatMemberTarget(target)}": нет сегмента "${target.segments[0]?.name ?? ""}"`
+        )
       }
 
       const owner = ownerCache.get({ kind: rootToYAML[target.root], name: target.objectName })
@@ -207,7 +212,10 @@ function createProjectMetadataResolverCore(params: {
         ownerCache,
       })
       if (!resolved.ok) {
-        return referenceError(owner.owner.filePath, `Не найден член "${formatMemberTarget(target)}": ${resolved.message}`)
+        return referenceError(
+          owner.owner.filePath,
+          `Не найден член "${formatMemberTarget(target)}": ${resolved.message}`
+        )
       }
 
       const filterResult = applyMetadataTargetFilters({
@@ -224,7 +232,9 @@ function createProjectMetadataResolverCore(params: {
     },
 
     resolveValue({ target }) {
-      const object = resolver.resolveObject({ target: { kind: "object", root: target.root, objectName: target.objectName } })
+      const object = resolver.resolveObject({
+        target: { kind: "object", root: target.root, objectName: target.objectName },
+      })
       if (!object.ok) return object
       if (target.valueKind === "emptyRef") return object
 
@@ -319,7 +329,8 @@ function resolveMemberSegments(params: {
     yamlCache: params.yamlCache,
     ownerCache: params.ownerCache,
   })
-  if (registered?.ok) return { ok: true, filePath: registered.filePath, details: registered.details as ResolvedMemberDetails }
+  if (registered?.ok)
+    return { ok: true, filePath: registered.filePath, details: registered.details as ResolvedMemberDetails }
   if (registered && !registered.ok) return { ok: false, message: registered.diagnostics[0]?.message ?? "не найдено" }
 
   return { ok: false, message: `нет сегмента "${firstSegment.name}"` }
@@ -377,7 +388,7 @@ function applyMetadataTargetFilters(params: {
         if (params.target.segments.length !== 1) {
           return referenceError(
             params.filePath,
-            `Член "${params.displayName}" не подходит: ожидаются прямые члены текущего объекта`,
+            `Член "${params.displayName}" не подходит: ожидаются прямые члены текущего объекта`
           )
         }
         break
@@ -385,7 +396,7 @@ function applyMetadataTargetFilters(params: {
         if (!matchesHasTypeFilter(params.details, filter.type)) {
           return referenceError(
             params.filePath,
-            `Член "${params.displayName}" не подходит: ожидаются члены, тип которых содержит ${formatTypeFilter(filter.type)}`,
+            `Член "${params.displayName}" не подходит: ожидаются члены, тип которых содержит ${formatTypeFilter(filter.type)}`
           )
         }
         break
@@ -397,7 +408,7 @@ function applyMetadataTargetFilters(params: {
         }
         return referenceError(
           params.filePath,
-          `Член "${params.displayName}" не подходит: ожидаются реквизиты, пригодные для ввода по строке`,
+          `Член "${params.displayName}" не подходит: ожидаются реквизиты, пригодные для ввода по строке`
         )
       case "styleItemType":
         break
@@ -409,7 +420,7 @@ function applyMetadataTargetFilters(params: {
 
 function resolveStringIndexedAttributeFilter(
   details: ResolvedMemberDetails,
-  ownerCache: OwnerMetadataCache,
+  ownerCache: OwnerMetadataCache
 ): { ok: true; matches: boolean } | { ok: false; diagnostics: Diagnostic[] } {
   if (matchesStringIndexedAttributeFilter(details)) return { ok: true, matches: true }
   if (!isObjectField(details)) return { ok: true, matches: false }
@@ -434,7 +445,7 @@ function definedTypeType(model: unknown): Parameters<typeof typeDescriptionToDat
 
 function resolveMemberFieldSegments(
   fields: Map<string, ObjectField>,
-  segments: Extract<ParsedMetadataTarget, { kind: "member" }>["segments"],
+  segments: Extract<ParsedMetadataTarget, { kind: "member" }>["segments"]
 ): { ok: true; field: ObjectField } | { ok: false; message: string } {
   let currentFields = fields
   let currentField: ObjectField | undefined

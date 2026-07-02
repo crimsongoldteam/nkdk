@@ -3,7 +3,7 @@ import { dirname, join } from "path"
 import {
   registerProjectMemberResolver,
   type ProjectMemberResolver,
-} from "~/metadata/validation/projectMetadataResolverRegistry"
+} from "../../validation/projectMetadataResolverRegistry"
 
 registerProjectMemberResolver("Form", ({ ownerFilePath, segment, target }) => {
   if (target.segments.length !== 1) return undefined
@@ -29,16 +29,28 @@ registerProjectMemberResolver("Template", ({ ownerFilePath, segment, target }) =
 })
 
 registerProjectMemberResolver("Form", createCollectionMemberResolver({ modelName: "forms", yamlName: "Формы" }))
-registerProjectMemberResolver("Template", createCollectionMemberResolver({ modelName: "templates", yamlName: "Макеты" }))
+registerProjectMemberResolver(
+  "Template",
+  createCollectionMemberResolver({ modelName: "templates", yamlName: "Макеты" })
+)
 registerProjectMemberResolver("Command", createCollectionMemberResolver({ modelName: "commands", yamlName: "Команды" }))
-registerProjectMemberResolver("AccountingFlag", createCollectionMemberResolver({ modelName: "accountingFlags", yamlName: "ПризнакиУчета" }))
+registerProjectMemberResolver(
+  "AccountingFlag",
+  createCollectionMemberResolver({ modelName: "accountingFlags", yamlName: "ПризнакиУчета" })
+)
 registerProjectMemberResolver(
   "ExtDimensionAccountingFlag",
-  createCollectionMemberResolver({ modelName: "extDimensionAccountingFlags", yamlName: "ПризнакиУчетаСубконто" }),
+  createCollectionMemberResolver({ modelName: "extDimensionAccountingFlags", yamlName: "ПризнакиУчетаСубконто" })
 )
 registerProjectMemberResolver("Field", createCollectionMemberResolver({ modelName: "fields", yamlName: "Поля" }))
-registerProjectMemberResolver("Dimension", createCollectionMemberResolver({ modelName: "dimensions", yamlName: "Измерения" }))
-registerProjectMemberResolver("Resource", createCollectionMemberResolver({ modelName: "resources", yamlName: "Ресурсы" }))
+registerProjectMemberResolver(
+  "Dimension",
+  createCollectionMemberResolver({ modelName: "dimensions", yamlName: "Измерения" })
+)
+registerProjectMemberResolver(
+  "Resource",
+  createCollectionMemberResolver({ modelName: "resources", yamlName: "Ресурсы" })
+)
 
 function createCollectionMemberResolver(params: { modelName: string; yamlName: string }): ProjectMemberResolver {
   return ({ owner, rawYaml, segment, target }) => {
@@ -46,7 +58,7 @@ function createCollectionMemberResolver(params: { modelName: string; yamlName: s
 
     const item = memberCollectionItem(
       (owner ? metadataRecord(owner.model)[params.modelName] : undefined) ?? metadataRecord(rawYaml)[params.yamlName],
-      segment.name,
+      segment.name
     )
     return item === undefined
       ? undefined
@@ -58,7 +70,10 @@ function memberCollectionItem(collection: unknown, name: string): unknown {
   if (typeof collection === "string") return collection === name ? collection : undefined
 
   if (Array.isArray(collection)) {
-    return collection.find((item) => item === name || (typeof item === "object" && item !== null && (item as Record<string, unknown>).name === name))
+    return collection.find(
+      (item) =>
+        item === name || (typeof item === "object" && item !== null && (item as Record<string, unknown>).name === name)
+    )
   }
 
   if (typeof collection === "object" && collection !== null && Object.prototype.hasOwnProperty.call(collection, name)) {

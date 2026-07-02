@@ -1,5 +1,5 @@
 import { afterEach, beforeEach, describe, expect, it } from "vitest"
-import type { ParsedMetadataTarget } from "~/metadata/commonObjects/metadataTargets"
+import type { ParsedMetadataTarget } from "../commonObjects/metadataTargets"
 import {
   clearProjectMetadataResolverRegistryForTests,
   getProjectMemberResolver,

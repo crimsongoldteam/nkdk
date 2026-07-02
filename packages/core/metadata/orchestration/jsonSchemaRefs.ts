@@ -1,5 +1,5 @@
 import { type TSchema } from "@sinclair/typebox"
-import type { ConfigurationContext, JSONSchemaExportMode } from "~/metadata/context/types"
+import type { ConfigurationContext, JSONSchemaExportMode } from "../context/types"
 import type { PropertyRuleType } from "./property/registry"
 import type { PropertyRule } from "./property/types"
 

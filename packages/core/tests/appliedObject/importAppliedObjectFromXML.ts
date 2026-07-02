@@ -1,6 +1,6 @@
-import { importMetadataItemFromXML, MetadataItemRule } from "~/metadata/orchestration"
-import { mockContextFromXML } from "~/tests/mockContext"
-import { readAndParseXMLFixture } from "~/tests/readFixtureXML"
+import { importMetadataItemFromXML, MetadataItemRule } from "../../metadata/orchestration"
+import { mockContextFromXML } from "../mockContext"
+import { readAndParseXMLFixture } from "../readFixtureXML"
 
 type Params = {
   rule: MetadataItemRule

@@ -1,5 +1,5 @@
 import { describe, expect, it } from "vitest"
-import { mockContext, mockRule } from "~/tests/mockContext"
+import { mockContext, mockRule } from "../../../../tests/mockContext"
 import { fullCommandInterface, fullCommandInterfaceYAML } from "./__fixtures__/full"
 import { exportCommandInterfaceToYAML } from "./toYAML"
 

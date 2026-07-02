@@ -1,7 +1,7 @@
-import type { ConfigurationContext } from "~/metadata/context/types"
-import type { CommandBarChildItem } from "~/metadata/forms/commonObjects/childItems/types"
-import { fullCommandBarChildItemsAllYAML } from "~/metadata/forms/elements/__fixtures__/commandBarChildItems/data"
-import { mockContext } from "~/tests/mockContext"
+import type { ConfigurationContext } from "../../../context/types"
+import type { CommandBarChildItem } from "../../commonObjects/childItems/types"
+import { fullCommandBarChildItemsAllYAML } from "../__fixtures__/commandBarChildItems/data"
+import { mockContext } from "../../../../tests/mockContext"
 
 const Button = undefined
 const CheckBoxField = undefined

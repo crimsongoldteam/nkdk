@@ -1,7 +1,4 @@
-import type {
-  SettingsParameterValueCollection,
-  SettingsParameterValueCollectionYAML,
-} from "../types"
+import type { SettingsParameterValueCollection, SettingsParameterValueCollectionYAML } from "../types"
 
 export const settingsParameterValueCollectionFixture = {
   itemType: "SettingsParameterValueCollection",

@@ -6,9 +6,9 @@ import {
   TableCheckBoxFieldEnterprise,
   TableCheckBoxFieldPartialYAML,
   TableCheckBoxFieldTypedYAML,
-} from "~/metadata/forms/elements/checkBoxField/types"
+} from "../types"
 
-import { StructureResult } from "~/tests/types"
+import { StructureResult } from "../../../../../tests/types"
 import {
   fullFormFieldCommonFixture,
   fullFormFieldEnterpriseCommonFixture,
@@ -16,8 +16,8 @@ import {
   fullFormFieldPartialYAMLCommonFixture,
   fullFormFieldTableRelatedFixture,
   fullFormFieldTableRelatedPartialYAMLCommonFixture,
-} from "~/metadata/forms/elements/__fixtures__/formField/rules"
-import { RequiredFieldsElement } from "~/tests/types"
+} from "../../__fixtures__/formField/rules"
+import { RequiredFieldsElement } from "../../../../../tests/types"
 
 const fullCheckBoxFieldCommon: Omit<RequiredFieldsElement<CheckBoxField>, "itemType"> = {
   name: "Флажок",

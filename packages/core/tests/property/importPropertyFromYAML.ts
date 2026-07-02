@@ -1,5 +1,5 @@
-import { importPropertyFromYAML, PropertyRule } from "~/metadata/orchestration"
-import { mockContext } from "~/tests/mockContext"
+import { importPropertyFromYAML, PropertyRule } from "../../metadata/orchestration"
+import { mockContext } from "../mockContext"
 
 export const testImportPropertyFromYAML = (params: {
   rule: PropertyRule

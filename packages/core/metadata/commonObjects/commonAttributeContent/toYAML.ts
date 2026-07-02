@@ -1,7 +1,7 @@
-import { ConfigurationContext } from "~/metadata/context/types"
-import { PropertyRule, registerTypeRule } from "~/metadata/orchestration"
-import { exportSystemEnumerationToYAML } from "~/metadata/systemEnumerations/toYAML"
-import * as SE from "~/metadata/systemEnumerations/types"
+import { ConfigurationContext } from "../../context/types"
+import { PropertyRule, registerTypeRule } from "../../orchestration"
+import { exportSystemEnumerationToYAML } from "../../systemEnumerations/toYAML"
+import * as SE from "../../systemEnumerations/types"
 import { exportCommonAttributeContentPathToYAML } from "./metadataPath"
 import { CommonAttributeContent, CommonAttributeContentYAML } from "./types"
 

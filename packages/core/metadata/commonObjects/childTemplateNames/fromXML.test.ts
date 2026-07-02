@@ -1,5 +1,5 @@
 import { describe, expect, it } from "vitest"
-import { mockContextFromXML, mockRule } from "~/tests/mockContext"
+import { mockContextFromXML, mockRule } from "../../../tests/mockContext"
 import { importChildTemplateNamesFromXML } from "./fromXML"
 
 describe("importChildTemplateNamesFromXML", () => {
@@ -16,9 +16,10 @@ describe("importChildTemplateNamesFromXML", () => {
   })
 
   it("возвращает массив имён макетов при xml = массив", () => {
-    expect(
-      importChildTemplateNamesFromXML(mockContextFromXML(), mockRule, ["Макет", "МакетПечати"])
-    ).toEqual(["Макет", "МакетПечати"])
+    expect(importChildTemplateNamesFromXML(mockContextFromXML(), mockRule, ["Макет", "МакетПечати"])).toEqual([
+      "Макет",
+      "МакетПечати",
+    ])
   })
 
   it("оборачивает одиночную строку в массив", () => {

@@ -35,13 +35,10 @@ describe("parseMetadataOperationPath", () => {
 
   it("replaces only the last local name for migration target path", () => {
     expect(buildRenameTargetPathFromOperationPath("Справочник.Товары.Реквизит.Артикул", "КодПоставщика")).toBe(
-      "Справочник.Товары.Реквизит.КодПоставщика",
+      "Справочник.Товары.Реквизит.КодПоставщика"
     )
     expect(
-      buildRenameTargetPathFromOperationPath(
-        "Документ.Заказ.ТабличнаяЧасть.Товары.Реквизит.Количество",
-        "Цена",
-      ),
+      buildRenameTargetPathFromOperationPath("Документ.Заказ.ТабличнаяЧасть.Товары.Реквизит.Количество", "Цена")
     ).toBe("Документ.Заказ.ТабличнаяЧасть.Товары.Реквизит.Цена")
   })
 })

@@ -1,7 +1,7 @@
 import { describe, expect, it } from "vitest"
 import { fullMetadataCommandsFromXML, minimalMetadataCommandsFromXML } from "./__fixtures__/data"
-import { testImportPropertyFromXML } from "~/tests/property/importPropertyFromXML"
-import { testExportPropertyToXML } from "~/tests/property/exportPropertyToXML"
+import { testImportPropertyFromXML } from "../../../tests/property/importPropertyFromXML"
+import { testExportPropertyToXML } from "../../../tests/property/exportPropertyToXML"
 
 const rule = { type: "MetadataCommands", xml: "Command" } as const
 

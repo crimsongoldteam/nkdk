@@ -1,9 +1,9 @@
-import type { PropertyRule } from "~/metadata/orchestration/property/types"
-import { registerTypeRule } from "~/metadata/orchestration/property/typeRuleRegistry"
+import type { PropertyRule } from "../../orchestration/property/types"
+import { registerTypeRule } from "../../orchestration/property/typeRuleRegistry"
 import { importBooleanFromXML } from "../boolean/fromXML"
 import { importI8nTextFromXML } from "../i8nText/fromXML"
 import type { FormattedI8nText, FormattedI8nTextXML } from "./types"
-import { ConfigurationContextFromXML } from "~/metadata/context/types"
+import { ConfigurationContextFromXML } from "../../context/types"
 
 export const importFormattedI8nTextFromXML = (
   context: ConfigurationContextFromXML,

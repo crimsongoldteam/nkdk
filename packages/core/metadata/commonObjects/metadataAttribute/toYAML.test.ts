@@ -9,9 +9,9 @@ import {
   skipSynonymFromMetadataAttribute,
   skipSynonymFromMetadataAttributeYAML,
 } from "./__fixtures__/data"
-import { mockContext } from "~/tests/mockContext"
+import { mockContext } from "../../../tests/mockContext"
 import { exportMetadataAttributesToYAML } from "./register"
-import type { ConfigurationContext } from "~/metadata/context/types"
+import type { ConfigurationContext } from "../../context/types"
 
 const metadataAttributeOwnerContext: ConfigurationContext = {
   ...mockContext,

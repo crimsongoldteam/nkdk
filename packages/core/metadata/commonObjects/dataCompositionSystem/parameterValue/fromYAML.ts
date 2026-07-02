@@ -1,9 +1,13 @@
-import type { PropertyRule } from "~/metadata/orchestration/property/types"
+import type { PropertyRule } from "../../../orchestration/property/types"
 import { ConfigurationContext } from "../../../context/types"
-import { registerTypeRule } from "~/metadata/orchestration/property/typeRuleRegistry"
-import { importI8nTextFromYAML } from "~/metadata/commonObjects/i8nText/fromYAML"
-import * as SE from "~/metadata/systemEnumerations/types"
-import { asExplicitYAMLStringIfMarked, isExplicitYAMLString, unwrapExplicitYAMLString } from "~/yaml/explicitString"
+import { registerTypeRule } from "../../../orchestration/property/typeRuleRegistry"
+import { importI8nTextFromYAML } from "../../i8nText/fromYAML"
+import * as SE from "../../../systemEnumerations/types"
+import {
+  asExplicitYAMLStringIfMarked,
+  isExplicitYAMLString,
+  unwrapExplicitYAMLString,
+} from "../../../../yaml/explicitString"
 import { importDcsMetadataValueFromYAML } from "../dcsMetadataValue/fromYAML"
 import type { MetadataDcsMetadataValue } from "../dcsMetadataValue/types"
 import { toDcsMetadataValueRule } from "./dcsValueRule"
@@ -154,10 +158,10 @@ export const importParameterValueFromYAML = (
       : hasLiftedDcsType
         ? liftedDcsValue
         : hasExplicitValue
-        ? normalizeExplicitRawValue(rule.valueType, y, "Значение", y["Значение"])
-        : isExpandedSpvShape
-          ? undefined
-          : yamlToParse
+          ? normalizeExplicitRawValue(rule.valueType, y, "Значение", y["Значение"])
+          : isExpandedSpvShape
+            ? undefined
+            : yamlToParse
   const rawValue =
     unwrapped !== undefined
       ? normalizeExplicitRawValue(rule.valueType, yaml, unwrapped.parameter, rawValueBase)

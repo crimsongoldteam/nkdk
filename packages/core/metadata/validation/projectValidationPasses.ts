@@ -1,10 +1,10 @@
 import { TypeCompiler } from "@sinclair/typebox/compiler"
 import fs from "fs"
 import { join, resolve } from "path"
-import { rootFromYAML } from "~/metadata/commonObjects/metadataTargets/roots"
-import type { ConfigurationContext } from "~/metadata/context/types"
-import type { MetadataItem } from "~/metadata/orchestration/property/types"
-import { parseMetadataYaml, type ParsedYaml } from "~/yaml/parseMetadataYaml"
+import { rootFromYAML } from "../commonObjects/metadataTargets/roots"
+import type { ConfigurationContext } from "../context/types"
+import type { MetadataItem } from "../orchestration/property/types"
+import { parseMetadataYaml, type ParsedYaml } from "../../yaml/parseMetadataYaml"
 import { type OwnerMetadataCache } from "./dataPath/ownerCache"
 import { buildObjectFieldIndex } from "./dataPath/objectFields"
 import { validateExcludedEqualNameYAML } from "./excludeIfEqualNameYAML"
@@ -131,13 +131,18 @@ export function validateProjectFileFirstPass(params: {
   return validateProjectPropertiesFirstPass(params)
 }
 
-export function validateProjectFileSecondPass(params: ProjectValidationSecondPassParams): ProjectValidationSecondPassResult {
+export function validateProjectFileSecondPass(
+  params: ProjectValidationSecondPassParams
+): ProjectValidationSecondPassResult {
   if (params.state.kind === "failed") return { status: "ok", diagnostics: [] }
 
   if (params.state.kind === "form") {
     const passes = getRegisteredFormValidationPasses()
     if (passes === undefined) return { status: "ok", diagnostics: [] }
-    return { status: "ok", diagnostics: passes.secondPass({ state: params.state.formState, ownerCache: params.ownerCache }) }
+    return {
+      status: "ok",
+      diagnostics: passes.secondPass({ state: params.state.formState, ownerCache: params.ownerCache }),
+    }
   }
 
   const ownerRoot = rootFromYAML[params.state.file.owner.dir]
@@ -184,7 +189,13 @@ function validateProjectFormFirstPass(params: {
 
   const first = passes.firstPass({
     projectDir: params.projectDir,
-    formDir: join(params.projectDir, params.file.owner.dir, params.file.owner.name, "Формы", params.file.formName ?? ""),
+    formDir: join(
+      params.projectDir,
+      params.file.owner.dir,
+      params.file.owner.name,
+      "Формы",
+      params.file.formName ?? ""
+    ),
     formName: params.file.formName ?? "",
     owner: { dir: params.file.owner.dir, name: params.file.owner.name },
     cache: params.cache,
@@ -220,7 +231,7 @@ function validateProjectPropertiesFirstPass(params: {
         file: params.file,
         cache: params.cache,
         schema: params.schemaCache.properties(params.file.owner.spec),
-      }),
+      })
     )
   }
 
@@ -357,7 +368,7 @@ function validateRegisteredProjectFileValidators(params: {
   parsed: ParsedYaml
 }): Diagnostic[] {
   return getProjectFileValidators(params.file.owner.spec.kind).flatMap((validator) =>
-    validator({ filePath: params.file.absolutePath, parsed: params.parsed }),
+    validator({ filePath: params.file.absolutePath, parsed: params.parsed })
   )
 }
 
@@ -398,7 +409,7 @@ function parsedForProjectFile(file: ValidationProjectFile, parsed: ParsedYaml): 
 
 function suppressEqualNameSchemaDiagnostics(
   schemaDiagnostics: Diagnostic[],
-  equalNameDiagnostics: Diagnostic[],
+  equalNameDiagnostics: Diagnostic[]
 ): Diagnostic[] {
   if (equalNameDiagnostics.length === 0) return schemaDiagnostics
 

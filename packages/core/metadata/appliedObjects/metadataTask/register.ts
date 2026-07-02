@@ -1,4 +1,4 @@
-import { registerDataPathOwnerKind, registerStandardAttributeTypeResolver } from "~/metadata/validation/dataPath/registry"
+import { registerDataPathOwnerKind, registerStandardAttributeTypeResolver } from "../../validation/dataPath/registry"
 import { MetadataTaskRules } from "./rules"
 
 registerDataPathOwnerKind({

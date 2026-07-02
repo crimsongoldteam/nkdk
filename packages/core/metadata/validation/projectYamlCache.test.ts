@@ -2,7 +2,7 @@ import fs, { mkdtempSync, rmSync, writeFileSync } from "fs"
 import { tmpdir } from "os"
 import { join } from "path"
 import { afterEach, describe, expect, it, vi } from "vitest"
-import { parseMetadataYaml } from "~/yaml/parseMetadataYaml"
+import { parseMetadataYaml } from "../../yaml/parseMetadataYaml"
 import { createProjectYamlCache, createProjectYamlCacheFromEntries } from "./projectYamlCache"
 
 describe("ProjectYamlCache", () => {

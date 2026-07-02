@@ -1,6 +1,6 @@
 import { availableParallelism } from "node:os"
 import { resolve } from "path"
-import type { ConfigurationContext } from "~/metadata/context/types"
+import type { ConfigurationContext } from "../context/types"
 import { createOwnerMetadataCacheFromValidationTable } from "./dataPath/ownerCache"
 import { createProjectMetadataResolverFromValidationTable } from "./projectMetadataResolver"
 import { ProjectFileSchemaError } from "./projectFileSchema"
@@ -103,7 +103,9 @@ function validateProjectInProcess(params: ValidateProjectParams): ValidateProjec
   return { diagnostics: sortDiagnostics(dedupeDiagnostics(diagnostics)) }
 }
 
-async function validateProjectWithWorkers(params: ValidateProjectParams & { concurrency: number }): Promise<ValidateProjectResult> {
+async function validateProjectWithWorkers(
+  params: ValidateProjectParams & { concurrency: number }
+): Promise<ValidateProjectResult> {
   const projectDir = resolve(params.projectDir)
   const context = params.context ?? defaultValidationContext()
   const files = discoverValidationProjectFiles(projectDir)

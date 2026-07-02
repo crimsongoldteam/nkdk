@@ -1,7 +1,7 @@
 import { describe, expect, it } from "vitest"
-import { importMetadataItemFromXML } from "~/metadata/orchestration"
-import { mockContextFromXML } from "~/tests/mockContext"
-import { readXMLFixtureAsString } from "~/tests/readFixtureXML"
+import { importMetadataItemFromXML } from "../../orchestration"
+import { mockContextFromXML } from "../../../tests/mockContext"
+import { readXMLFixtureAsString } from "../../../tests/readFixtureXML"
 import { PredefinedRules } from "./rules"
 
 // Активируем регистрацию правила

@@ -1,6 +1,6 @@
 import { describe, expect, it } from "vitest"
-import { mockContextToXML } from "~/tests/mockContext"
-import { testExportPropertyToXML } from "~/tests/property/exportPropertyToXML"
+import { mockContextToXML } from "../../../../tests/mockContext"
+import { testExportPropertyToXML } from "../../../../tests/property/exportPropertyToXML"
 import { dcsMetadataValueXMLFixtures } from "./__fixtures__/data"
 import { exportDcsMetadataValueToXML } from "./toXML"
 

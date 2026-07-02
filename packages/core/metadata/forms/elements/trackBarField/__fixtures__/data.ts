@@ -1,14 +1,10 @@
-import {
-  TrackBarField,
-  TrackBarFieldEnterprise,
-  TrackBarFieldPartialYAML,
-} from "~/metadata/forms/elements/trackBarField/types"
+import { TrackBarField, TrackBarFieldEnterprise, TrackBarFieldPartialYAML } from "../types"
 import {
   fullFormFieldCommonFixture,
   fullFormFieldEnterpriseCommonFixture,
   fullFormFieldPartialYAMLCommonFixture,
-} from "~/metadata/forms/elements/__fixtures__/formField/rules"
-import { RequiredFieldsElement } from "~/tests/types"
+} from "../../__fixtures__/formField/rules"
+import { RequiredFieldsElement } from "../../../../../tests/types"
 
 export const fullTrackBarField: RequiredFieldsElement<TrackBarField> = {
   itemType: "TrackBarField",

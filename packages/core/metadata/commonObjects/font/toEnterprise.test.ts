@@ -1,5 +1,5 @@
 import { describe, expect, it } from "vitest"
-import { fontYAMLFixtures } from "~/metadata/commonObjects/font/__fixtures__/data"
+import { fontYAMLFixtures } from "./__fixtures__/data"
 import { exportFontToEnterprise } from "./toEnterprise"
 
 describe("exportFontToEnterprise", () => {

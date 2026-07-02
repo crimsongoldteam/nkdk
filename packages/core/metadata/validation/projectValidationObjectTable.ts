@@ -1,9 +1,6 @@
 import { resolve } from "path"
 import type { OwnerTypeRef } from "./dataPath/types"
-import type {
-  ValidationObjectRecord,
-  ValidationObjectTableSnapshot,
-} from "./projectValidationTypes"
+import type { ValidationObjectRecord, ValidationObjectTableSnapshot } from "./projectValidationTypes"
 
 export interface ValidationObjectTable {
   mergeRecords(records: readonly ValidationObjectRecord[]): void
@@ -13,7 +10,7 @@ export interface ValidationObjectTable {
 }
 
 export function createValidationObjectTable(
-  snapshot: ValidationObjectTableSnapshot = { records: [] },
+  snapshot: ValidationObjectTableSnapshot = { records: [] }
 ): ValidationObjectTable {
   const recordsByOwner = new Map<string, ValidationObjectRecord>()
   const filePaths = new Set<string>()

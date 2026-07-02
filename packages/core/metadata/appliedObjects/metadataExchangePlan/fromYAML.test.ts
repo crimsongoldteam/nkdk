@@ -3,7 +3,7 @@ import {
   testExportAppliedObjectToYAML,
   testImportAppliedObjectFromXML,
   testImportAppliedObjectFromYAML,
-} from "~/tests/appliedObject"
+} from "../../../tests/appliedObject"
 import { MetadataExchangePlanRules } from "./rules"
 import { MetadataExchangePlan } from "./types"
 
@@ -52,7 +52,7 @@ describe("import MetadataExchangePlan from YAML", () => {
           ОснованНа: ["ВнешнийИсточникДанных.ВнешнийИсточникДанныхВсеСвойства.Куб.КубВсеСвойства"],
         },
         name: "ПланОбмена1",
-      }),
+      })
     ).toThrow("не разрешён")
   })
 })

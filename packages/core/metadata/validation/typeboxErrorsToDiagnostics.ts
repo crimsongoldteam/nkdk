@@ -1,6 +1,6 @@
 import { TSchema } from "@sinclair/typebox"
 import { TypeCheck, ValueError, ValueErrorType } from "@sinclair/typebox/compiler"
-import { ParsedYaml } from "~/yaml/parseMetadataYaml"
+import { ParsedYaml } from "../../yaml/parseMetadataYaml"
 import { expandDiscriminatedUnionErrors } from "./discriminatedUnionErrors"
 import { Diagnostic } from "./types"
 import { diagnosticAtYamlPath } from "./yamlLocations"
@@ -59,7 +59,7 @@ export function typeboxErrorsToDiagnostics(
     const position =
       (isRequired
         ? parsed.locations.nodePosition(lookupKeys)
-        : parsed.locations.valuePosition(lookupKeys) ?? parsed.locations.nodePosition(lookupKeys)) ??
+        : (parsed.locations.valuePosition(lookupKeys) ?? parsed.locations.nodePosition(lookupKeys))) ??
       (lookupKeys.length === 0 ? parsed.locations.rootPosition() : { line: 1, col: 1 })
     const line = position.line
     const col = position.col

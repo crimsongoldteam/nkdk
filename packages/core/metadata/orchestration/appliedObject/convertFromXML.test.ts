@@ -2,11 +2,11 @@ import fs from "fs"
 import os from "os"
 import { join } from "path"
 import { afterEach, beforeEach, describe, expect, it } from "vitest"
-import { MetadataCatalogRules } from "~/metadata/appliedObjects/metadataCatalog/rules"
-import { MetadataDocumentRules } from "~/metadata/appliedObjects/metadataDocument/rules"
-import { MetadataDocumentNumeratorRules } from "~/metadata/appliedObjects/metadataDocumentNumerator/rules"
-import { MetadataSequenceRules } from "~/metadata/appliedObjects/metadataSequence/rules"
-import { mockContextFromXML } from "~/tests/mockContext"
+import { MetadataCatalogRules } from "../../appliedObjects/metadataCatalog/rules"
+import { MetadataDocumentRules } from "../../appliedObjects/metadataDocument/rules"
+import { MetadataDocumentNumeratorRules } from "../../appliedObjects/metadataDocumentNumerator/rules"
+import { MetadataSequenceRules } from "../../appliedObjects/metadataSequence/rules"
+import { mockContextFromXML } from "../../../tests/mockContext"
 import { convertAppliedObjectFromXML } from "./convertFromXML"
 
 // Minimal catalog XML with a form in ChildObjects
@@ -58,10 +58,7 @@ describe("convertAppliedObjectFromXML — объект без форм/шабл�
   })
 
   it("convertAppliedObjectFromXML работает для Document (xmlParents-обёртка вместо XMLRoot)", async () => {
-    const fixtureXml = join(
-      import.meta.dirname,
-      "../../appliedObjects/metadataDocument/__fixtures__/minimal.xml"
-    )
+    const fixtureXml = join(import.meta.dirname, "../../appliedObjects/metadataDocument/__fixtures__/minimal.xml")
     const inputDir = join(tmpDir, "input")
     const outputDir = join(tmpDir, "output")
     fs.mkdirSync(inputDir, { recursive: true })
@@ -80,10 +77,7 @@ describe("convertAppliedObjectFromXML — объект без форм/шабл�
   })
 
   it("convertAppliedObjectFromXML работает для Sequence", async () => {
-    const fixtureXml = join(
-      import.meta.dirname,
-      "../../appliedObjects/metadataSequence/__fixtures__/minimal.xml"
-    )
+    const fixtureXml = join(import.meta.dirname, "../../appliedObjects/metadataSequence/__fixtures__/minimal.xml")
     const inputDir = join(tmpDir, "input")
     const outputDir = join(tmpDir, "output")
     fs.mkdirSync(inputDir, { recursive: true })

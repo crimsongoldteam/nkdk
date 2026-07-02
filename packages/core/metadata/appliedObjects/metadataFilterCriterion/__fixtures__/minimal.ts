@@ -6,5 +6,4 @@ export const minimal: MetadataFilterCriterion = {
   synonym: { items: { ru: "Критерий отбора по умолчанию" } },
 }
 
-export const minimalYAML: MetadataFilterCriterionYAML = {
-}
+export const minimalYAML: MetadataFilterCriterionYAML = {}

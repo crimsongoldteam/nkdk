@@ -1,6 +1,6 @@
 import { describe, expect, it } from "vitest"
-import { colorTestCases } from "~/metadata/commonObjects/color/__fixtures__/data"
-import { mockContext, mockRule } from "~/tests/mockContext"
+import { colorTestCases } from "./__fixtures__/data"
+import { mockContext, mockRule } from "../../../tests/mockContext"
 import { exportColorToYAML } from "./toYAML"
 
 describe("exportColorToYAML", () => {

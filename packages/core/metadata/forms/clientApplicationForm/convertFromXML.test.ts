@@ -4,8 +4,8 @@ import os from "os"
 import { join } from "path"
 import { promisify } from "util"
 import { afterEach, beforeEach, describe, expect, it } from "vitest"
-import { mockContextFromXML } from "~/tests/mockContext"
-import { getXMLFixtureDir, readXMLFixtureAsString } from "~/tests/readFixtureXML"
+import { mockContextFromXML } from "../../../tests/mockContext"
+import { getXMLFixtureDir, readXMLFixtureAsString } from "../../../tests/readFixtureXML"
 import { convertFormFromXML, readFormFromXML } from "./convertFromXML"
 
 const execFileAsync = promisify(execFile)

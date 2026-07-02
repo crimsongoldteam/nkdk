@@ -1,9 +1,9 @@
 import {
   definePropertyRule as defineWidePropertyRule,
   type ExactRuleParams as WideExactRuleParams,
-} from "~/metadata/commonObjects/ruleBuilder"
-import type { PropertyRule as WidePropertyRuleBase } from "~/metadata/orchestration/property/types"
-import * as SE from "~/metadata/systemEnumerations/types"
+} from "../ruleBuilder"
+import type { PropertyRule as WidePropertyRuleBase } from "../../orchestration/property/types"
+import * as SE from "../../systemEnumerations/types"
 
 export interface CommonAttributeContentItem {
   metadata: string

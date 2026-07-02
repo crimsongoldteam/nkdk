@@ -1,5 +1,5 @@
 import { describe, expect, it } from "vitest"
-import { mockContextFromXML, mockRule } from "~/tests/mockContext"
+import { mockContextFromXML, mockRule } from "../../../tests/mockContext"
 import { importChildFormNamesFromXML } from "./fromXML"
 
 describe("importChildFormNamesFromXML", () => {
@@ -16,14 +16,13 @@ describe("importChildFormNamesFromXML", () => {
   })
 
   it("возвращает массив имён форм при xml = массив", () => {
-    expect(
-      importChildFormNamesFromXML(mockContextFromXML(), mockRule, ["ФормаЭлемента", "ФормаСписка"])
-    ).toEqual(["ФормаЭлемента", "ФормаСписка"])
+    expect(importChildFormNamesFromXML(mockContextFromXML(), mockRule, ["ФормаЭлемента", "ФормаСписка"])).toEqual([
+      "ФормаЭлемента",
+      "ФормаСписка",
+    ])
   })
 
   it("оборачивает одиночную строку в массив", () => {
-    expect(importChildFormNamesFromXML(mockContextFromXML(), mockRule, "ФормаЭлемента")).toEqual([
-      "ФормаЭлемента",
-    ])
+    expect(importChildFormNamesFromXML(mockContextFromXML(), mockRule, "ФормаЭлемента")).toEqual(["ФормаЭлемента"])
   })
 })

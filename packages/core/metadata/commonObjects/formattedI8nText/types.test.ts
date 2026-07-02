@@ -1,5 +1,5 @@
 import { describe, expect, it } from "vitest"
-import type { PropertyToYAML } from "~/metadata/orchestration/property/registry"
+import type { PropertyToYAML } from "../../orchestration/property/registry"
 import type { FormattedI8nTextValueYAML, FormattedI8nTextYAML } from "./types"
 
 describe("FormattedI8nText YAML types", () => {

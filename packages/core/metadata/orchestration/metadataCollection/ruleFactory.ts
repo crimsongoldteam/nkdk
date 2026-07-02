@@ -5,9 +5,9 @@ import {
   ExportToYAMLFunction,
   ImportFromXMLFunction,
   importFromYAMLFunction,
-} from "~/metadata/orchestration/property/fn"
-import { PropertyRuleType } from "~/metadata/orchestration/property/registry"
-import type { MetadataItemRule } from "~/metadata/orchestration/property/types"
+} from "../property/fn"
+import { PropertyRuleType } from "../property/registry"
+import type { MetadataItemRule } from "../property/types"
 import { ToMetadata } from "../metadataItem/registry"
 import { exportMetadataItemToJSONSchema } from "../metadataItem/toJSONSchema"
 import { registerTypeRule } from "../property/typeRuleRegistry"

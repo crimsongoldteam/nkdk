@@ -1,6 +1,6 @@
-import { registerMetadataItemCollectionRule, registerMetadataItemRule } from "~/metadata/orchestration"
-import { MetadataTypeByRule } from "~/metadata/orchestration/metadataItem/element"
-import { YAMLTypeByRule } from "~/metadata/orchestration/metadataItem/yaml"
+import { registerMetadataItemCollectionRule, registerMetadataItemRule } from "../../orchestration"
+import { MetadataTypeByRule } from "../../orchestration/metadataItem/element"
+import { YAMLTypeByRule } from "../../orchestration/metadataItem/yaml"
 import { MetadataExternalDataSourceCubeDimensionRules } from "./rules"
 
 export type MetadataExternalDataSourceCubeDimension = MetadataTypeByRule<
@@ -11,10 +11,7 @@ export type MetadataExternalDataSourceCubeDimensionYAML = YAMLTypeByRule<
 >
 
 export type MetadataExternalDataSourceCubeDimensions = MetadataExternalDataSourceCubeDimension[]
-export type MetadataExternalDataSourceCubeDimensionsYAML = Record<
-  string,
-  MetadataExternalDataSourceCubeDimensionYAML
->
+export type MetadataExternalDataSourceCubeDimensionsYAML = Record<string, MetadataExternalDataSourceCubeDimensionYAML>
 
 registerMetadataItemRule({
   propertyType: "MetadataExternalDataSourceCubeDimension",

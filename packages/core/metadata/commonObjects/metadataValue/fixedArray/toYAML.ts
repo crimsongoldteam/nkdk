@@ -1,4 +1,4 @@
-import { ConfigurationContext } from "~/metadata/context/types"
+import { ConfigurationContext } from "../../../context/types"
 import { exportMetadataValueToYAML } from "../toYAML"
 import { MetadataFixedArrayValue, MetadataFixedArrayValueYAML, MetadataTypedValue } from "../types"
 import { exportFormChoiceListToYAML } from "../formChoiceList/toYAML"

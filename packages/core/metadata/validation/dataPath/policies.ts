@@ -1,6 +1,6 @@
-import type { DataPathPropertyRule } from "~/metadata/orchestration/property/types"
-import type { ElementType } from "~/metadata/orchestration"
-import type { ParsedYaml } from "~/yaml/parseMetadataYaml"
+import type { DataPathPropertyRule } from "../../orchestration/property/types"
+import type { ElementType } from "../../orchestration"
+import type { ParsedYaml } from "../../../yaml/parseMetadataYaml"
 import type { Diagnostic } from "../types"
 import { diagnosticAtYamlPath, type YamlPath } from "../yamlLocations"
 import type { ResolvedDataPathTarget } from "./resolver"
@@ -34,14 +34,15 @@ export function validateResolvedDataPathPolicy(params: {
       elementType: params.elementType,
       hasValuesPicture: params.hasValuesPicture,
     })
-  ) return []
+  )
+    return []
 
   if (target.typeInfo.kinds.some((kind) => allowedKinds.some((allowedKind) => allowedKind === kind))) return []
 
   return [
     policyDiagnostic(
       params,
-      `ПутьКДанным "${params.value}": конечный тип не подходит, ожидается ${allowedKinds.join(" или ")}`,
+      `ПутьКДанным "${params.value}": конечный тип не подходит, ожидается ${allowedKinds.join(" или ")}`
     ),
   ]
 }
@@ -74,7 +75,7 @@ function policyDiagnostic(
     parsed: ParsedYaml
     yamlPath: YamlPath
   },
-  message: string,
+  message: string
 ): Diagnostic {
   return diagnosticAtYamlPath({
     filePath: params.filePath,

@@ -1,4 +1,4 @@
-import { ExportToXMLFunctionNew, registerTypeRule } from "~/metadata/orchestration"
+import { ExportToXMLFunctionNew, registerTypeRule } from "../../orchestration"
 
 /** Экспортирует список имён форм.
  * Приоритет: сначала referenceData (round-trip), затем context.forms (IO-путь).

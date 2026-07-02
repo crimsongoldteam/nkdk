@@ -1,4 +1,4 @@
-import { Events } from "~/metadata/forms/commonObjects/event"
+import { Events } from ".."
 
 export const singleEvent: Events = {
   click: "РаспознаваниеДокументаНадписьНажатие",

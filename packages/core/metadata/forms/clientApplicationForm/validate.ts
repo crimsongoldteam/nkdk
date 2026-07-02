@@ -1,20 +1,20 @@
 import { join } from "path"
-import { rootFromYAML } from "~/metadata/commonObjects/metadataTargets/roots"
-import type { ConfigurationContext } from "~/metadata/context/types"
-import { buildFormDataPathIndex, type FormDataPathIndex } from "~/metadata/validation/dataPath/formIndex"
-import { collectFormDataPathOccurrences } from "~/metadata/validation/dataPath/formTraversal"
-import { createOwnerMetadataCache, type OwnerMetadataCache } from "~/metadata/validation/dataPath/ownerCache"
-import { validateResolvedDataPathPolicy } from "~/metadata/validation/dataPath/policies"
-import { resolveDataPath } from "~/metadata/validation/dataPath/resolver"
+import { rootFromYAML } from "../../commonObjects/metadataTargets/roots"
+import type { ConfigurationContext } from "../../context/types"
+import { buildFormDataPathIndex, type FormDataPathIndex } from "../../validation/dataPath/formIndex"
+import { collectFormDataPathOccurrences } from "../../validation/dataPath/formTraversal"
+import { createOwnerMetadataCache, type OwnerMetadataCache } from "../../validation/dataPath/ownerCache"
+import { validateResolvedDataPathPolicy } from "../../validation/dataPath/policies"
+import { resolveDataPath } from "../../validation/dataPath/resolver"
 import {
   getFormWarningProviders,
   type RegisteredFormValidator,
   type RegisteredFormValidatorParams,
-} from "~/metadata/validation/formValidationRegistry"
-import { validateExcludedEqualNameYAML } from "~/metadata/validation/excludeIfEqualNameYAML"
-import type { Diagnostic } from "~/metadata/validation/types"
-import { diagnosticAtYamlPath, type YamlPath } from "~/metadata/validation/yamlLocations"
-import type { ParsedYaml } from "~/yaml/parseMetadataYaml"
+} from "../../validation/formValidationRegistry"
+import { validateExcludedEqualNameYAML } from "../../validation/excludeIfEqualNameYAML"
+import type { Diagnostic } from "../../validation/types"
+import { diagnosticAtYamlPath, type YamlPath } from "../../validation/yamlLocations"
+import type { ParsedYaml } from "../../../yaml/parseMetadataYaml"
 import { importClientApplicationFormFromYAML } from "./fromYAML"
 import { ClientApplicationFormRules } from "./rules"
 import type { ClientApplicationFormYAML } from "./types"
@@ -28,7 +28,7 @@ interface ClientApplicationFormValidationState {
 }
 
 export function validateClientApplicationFormFirstPass(
-  params: RegisteredFormValidatorParams,
+  params: RegisteredFormValidatorParams
 ):
   | { status: "ok"; diagnostics: Diagnostic[]; state: ClientApplicationFormValidationState }
   | { status: "failed"; diagnostics: Diagnostic[] } {
@@ -112,7 +112,7 @@ export function validateClientApplicationFormSecondPass(params: {
         target: result.target,
         ...(occurrence.elementType !== undefined ? { elementType: occurrence.elementType } : {}),
         ...(occurrence.hasValuesPicture !== undefined ? { hasValuesPicture: occurrence.hasValuesPicture } : {}),
-      }),
+      })
     )
   }
 
@@ -160,10 +160,7 @@ function syntaxDiagnostics(filePath: string, parsed: ParsedYaml): Diagnostic[] {
   }))
 }
 
-export function collectDynamicListTypeValueWarnings(params: {
-  filePath: string
-  parsed: ParsedYaml
-}): Diagnostic[] {
+export function collectDynamicListTypeValueWarnings(params: { filePath: string; parsed: ParsedYaml }): Diagnostic[] {
   const data = params.parsed.data
   if (!isRecord(data)) return []
 
@@ -186,7 +183,7 @@ export function collectDynamicListTypeValueWarnings(params: {
         parsed: params.parsed,
         rootPath: ["Реквизиты", attributeName, "ДинамическийСписок", "УсловноеОформление"],
         value: conditionalAppearance,
-      }),
+      })
     )
   }
 
@@ -194,12 +191,14 @@ export function collectDynamicListTypeValueWarnings(params: {
 }
 
 function isAcceptedOpaqueMultipleValueDataPath(
-  occurrence: ReturnType<typeof collectFormDataPathOccurrences>[number],
+  occurrence: ReturnType<typeof collectFormDataPathOccurrences>[number]
 ): boolean {
   return (
     occurrence.rule.allowOpaqueMultipleValue === true &&
     occurrence.hasMultipleValuesExtendedEdit === true &&
-    /^[0-9]+\/[0-9]+:[0-9a-fA-F]{8}-[0-9a-fA-F]{4}-[0-9a-fA-F]{4}-[0-9a-fA-F]{4}-[0-9a-fA-F]{12}$/.test(occurrence.value)
+    /^[0-9]+\/[0-9]+:[0-9a-fA-F]{8}-[0-9a-fA-F]{4}-[0-9a-fA-F]{4}-[0-9a-fA-F]{4}-[0-9a-fA-F]{12}$/.test(
+      occurrence.value
+    )
   )
 }
 
@@ -250,7 +249,7 @@ function visitConditionalAppearanceNode(params: {
         severity: "warning",
         source: "structure",
         message: `Проверка значения типа "${rightValue}" в условном оформлении динамического списка пока не реализована и будет добавлена в будущих версиях`,
-      }),
+      })
     )
   }
 

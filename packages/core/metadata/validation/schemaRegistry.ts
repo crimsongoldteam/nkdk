@@ -3,4 +3,4 @@ export {
   ensureJSONSchemaRegistry,
   exportJSONSchemaForSchemaName,
   listJSONSchemaNames,
-} from "~/metadata/project/schemaRegistry"
+} from "../project/schemaRegistry"

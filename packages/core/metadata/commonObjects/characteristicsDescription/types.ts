@@ -1,18 +1,18 @@
 import {
   definePropertyRule as defineWidePropertyRule,
   type ExactRuleParams as WideExactRuleParams,
-} from "~/metadata/commonObjects/ruleBuilder"
-import type { PropertyRule as WidePropertyRuleBase } from "~/metadata/orchestration/property/types"
+} from "../ruleBuilder"
+import type { PropertyRule as WidePropertyRuleBase } from "../../orchestration/property/types"
 import { Type } from "@sinclair/typebox"
-import { MetadataField, MetadataFieldJSONSchema, MetadataFieldYAML } from "~/metadata/commonObjects/metadataField/types"
-import { MetadataItemLink, MetadataItemLinkYAML } from "~/metadata/commonObjects/metadataRef/types"
+import { MetadataField, MetadataFieldJSONSchema, MetadataFieldYAML } from "../metadataField/types"
+import { MetadataItemLink, MetadataItemLinkYAML } from "../metadataRef/types"
 import {
   MetadataValue,
   MetadataValueJSONSchema,
   MetadataValuePropertyRule,
   MetadataValueXML,
   MetadataValueYAML,
-} from "~/metadata/commonObjects/metadataValue/types"
+} from "../metadataValue/types"
 
 export interface CharacteristicsDescription {
   itemType?: "CharacteristicsDescription"

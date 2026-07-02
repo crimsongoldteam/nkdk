@@ -2,10 +2,13 @@ import { mkdirSync, mkdtempSync, rmSync, writeFileSync } from "fs"
 import { tmpdir } from "os"
 import { dirname, join } from "path"
 import { afterEach, describe, expect, it } from "vitest"
-import { parseMetadataTargetFromYAML } from "~/metadata/commonObjects/metadataTargets"
-import type { ParsedMetadataTarget } from "~/metadata/commonObjects/metadataTargets/types"
-import { mockContext } from "~/tests/mockContext"
-import { createProjectMetadataResolver, createProjectMetadataResolverFromValidationTable } from "./projectMetadataResolver"
+import { parseMetadataTargetFromYAML } from "../commonObjects/metadataTargets"
+import type { ParsedMetadataTarget } from "../commonObjects/metadataTargets/types"
+import { mockContext } from "../../tests/mockContext"
+import {
+  createProjectMetadataResolver,
+  createProjectMetadataResolverFromValidationTable,
+} from "./projectMetadataResolver"
 import { createProjectYamlCache } from "./projectYamlCache"
 import { createValidationObjectTable } from "./projectValidationObjectTable"
 
@@ -42,7 +45,9 @@ describe("ProjectMetadataResolver", () => {
     const projectDir = createProject()
     const resolver = createResolver(projectDir)
 
-    expect(resolver.resolveObject({ target: { kind: "object", root: "Catalog", objectName: "НетТакого" } })).toMatchObject({
+    expect(
+      resolver.resolveObject({ target: { kind: "object", root: "Catalog", objectName: "НетТакого" } })
+    ).toMatchObject({
       ok: false,
       diagnostics: [
         expect.objectContaining({
@@ -81,7 +86,9 @@ describe("ProjectMetadataResolver", () => {
     writeProjectFile(projectDir, "Подсистема/Администрирование/Свойства.yaml", "Синоним: Администрирование")
     const resolver = createResolver(projectDir)
 
-    expect(resolver.resolveObject({ target: objectTarget("Подсистема.Администрирование.Подсистема.Настройки", true) })).toMatchObject({
+    expect(
+      resolver.resolveObject({ target: objectTarget("Подсистема.Администрирование.Подсистема.Настройки", true) })
+    ).toMatchObject({
       ok: false,
       diagnostics: [
         expect.objectContaining({
@@ -94,10 +101,12 @@ describe("ProjectMetadataResolver", () => {
     writeProjectFile(
       projectDir,
       "Подсистема/Администрирование/Подсистемы/Настройки/Свойства.yaml",
-      "Синоним: Настройки",
+      "Синоним: Настройки"
     )
 
-    expect(resolver.resolveObject({ target: objectTarget("Подсистема.Администрирование.Подсистема.Настройки", true) })).toMatchObject({
+    expect(
+      resolver.resolveObject({ target: objectTarget("Подсистема.Администрирование.Подсистема.Настройки", true) })
+    ).toMatchObject({
       ok: true,
       filePath: join(projectDir, "Подсистема", "Администрирование", "Подсистемы", "Настройки", "Свойства.yaml"),
     })
@@ -117,14 +126,16 @@ describe("ProjectMetadataResolver", () => {
     ])
     const resolver = createResolver(projectDir)
 
-    expect(resolver.resolveMember({ target: memberTarget("Справочник.Номенклатура.СтандартныйРеквизит.Наименование") })).toMatchObject({
+    expect(
+      resolver.resolveMember({ target: memberTarget("Справочник.Номенклатура.СтандартныйРеквизит.Наименование") })
+    ).toMatchObject({
       ok: true,
     })
 
     expect(
       resolver.resolveMember({
         target: memberTarget("Справочник.Номенклатура.ТабличнаяЧасть.Товары.Реквизит.Количество"),
-      }),
+      })
     ).toMatchObject({ ok: true })
   })
 
@@ -139,15 +150,19 @@ describe("ProjectMetadataResolver", () => {
     ])
     const resolver = createResolver(projectDir)
 
-    expect(resolver.resolveMember({ target: memberTarget("Документ.АвансовыйОтчет.Форма.ФормаДокумента") })).toMatchObject({
+    expect(
+      resolver.resolveMember({ target: memberTarget("Документ.АвансовыйОтчет.Форма.ФормаДокумента") })
+    ).toMatchObject({
       ok: true,
     })
-    expect(resolver.resolveMember({ target: memberTarget("Документ.АвансовыйОтчет.Реквизит.Провести") })).toMatchObject({
-      ok: true,
-      details: expect.objectContaining({
-        typeInfo: expect.objectContaining({ kinds: expect.arrayContaining(["boolean"]) }),
-      }),
-    })
+    expect(resolver.resolveMember({ target: memberTarget("Документ.АвансовыйОтчет.Реквизит.Провести") })).toMatchObject(
+      {
+        ok: true,
+        details: expect.objectContaining({
+          typeInfo: expect.objectContaining({ kinds: expect.arrayContaining(["boolean"]) }),
+        }),
+      }
+    )
   })
 
   it("resolves members for direct YAML owner kinds", () => {
@@ -157,22 +172,19 @@ describe("ProjectMetadataResolver", () => {
       "  ВидБюджета:",
       "    Тип: Строка",
     ])
-    writeProjectFile(projectDir, "ЖурналДокументов/РегламентныеДокументы/Свойства.yaml", [
-      "Формы:",
-      "  ФормаСписка",
-    ])
+    writeProjectFile(projectDir, "ЖурналДокументов/РегламентныеДокументы/Свойства.yaml", ["Формы:", "  ФормаСписка"])
     const resolver = createResolver(projectDir)
 
     expect(
       resolver.resolveMember({
         target: memberTarget("Обработка.ПодборПлановЛимитов.Реквизит.ВидБюджета"),
-      }),
+      })
     ).toMatchObject({ ok: true })
 
     expect(
       resolver.resolveMember({
         target: memberTarget("ЖурналДокументов.РегламентныеДокументы.Форма.ФормаСписка"),
-      }),
+      })
     ).toMatchObject({ ok: true })
   })
 
@@ -234,7 +246,9 @@ describe("ProjectMetadataResolver", () => {
     writeProjectFile(projectDir, "Документ/АвансовыйОтчет/Формы/ФормаДокумента/Форма.yaml", "Реквизиты: {}")
     const resolver = createResolver(projectDir)
 
-    expect(resolver.resolveMember({ target: memberTarget("Документ.АвансовыйОтчет.Форма.ФормаДокумента") })).toMatchObject({
+    expect(
+      resolver.resolveMember({ target: memberTarget("Документ.АвансовыйОтчет.Форма.ФормаДокумента") })
+    ).toMatchObject({
       ok: true,
       filePath: join(projectDir, "Документ", "АвансовыйОтчет", "Формы", "ФормаДокумента", "Форма.yaml"),
       details: { kind: "Form", name: "ФормаДокумента", item: "ФормаДокумента" },
@@ -246,7 +260,9 @@ describe("ProjectMetadataResolver", () => {
     writeProjectFile(projectDir, "Документ/АвансовыйОтчет/Свойства.yaml", "Реквизиты: {}")
     const resolver = createResolver(projectDir)
 
-    expect(resolver.resolveMember({ target: memberTarget("Документ.АвансовыйОтчет.Форма.НетТакойФормы") })).toMatchObject({
+    expect(
+      resolver.resolveMember({ target: memberTarget("Документ.АвансовыйОтчет.Форма.НетТакойФормы") })
+    ).toMatchObject({
       ok: false,
       diagnostics: [
         expect.objectContaining({
@@ -260,10 +276,16 @@ describe("ProjectMetadataResolver", () => {
   it("resolves local templates from child template files when owner YAML does not contain reference-only template names", () => {
     const projectDir = createProject()
     writeProjectFile(projectDir, "Отчет/Продажи/Свойства.yaml", "Реквизиты: {}")
-    writeProjectFile(projectDir, "Отчет/Продажи/Шаблоны/ОсновнаяСхемаКомпоновкиДанных/Template.xml", "<DataCompositionSchema/>")
+    writeProjectFile(
+      projectDir,
+      "Отчет/Продажи/Шаблоны/ОсновнаяСхемаКомпоновкиДанных/Template.xml",
+      "<DataCompositionSchema/>"
+    )
     const resolver = createResolver(projectDir)
 
-    expect(resolver.resolveMember({ target: memberTarget("Отчет.Продажи.Макет.ОсновнаяСхемаКомпоновкиДанных") })).toMatchObject({
+    expect(
+      resolver.resolveMember({ target: memberTarget("Отчет.Продажи.Макет.ОсновнаяСхемаКомпоновкиДанных") })
+    ).toMatchObject({
       ok: true,
       filePath: join(projectDir, "Отчет", "Продажи", "Шаблоны", "ОсновнаяСхемаКомпоновкиДанных", "Template.xml"),
       details: {
@@ -300,7 +322,9 @@ describe("ProjectMetadataResolver", () => {
     ])
     const resolver = createResolver(projectDir)
 
-    expect(resolver.resolveObject({ target: objectTarget("ВнешнийИсточникДанных.Продажи.Функция.Получить", true) })).toMatchObject({
+    expect(
+      resolver.resolveObject({ target: objectTarget("ВнешнийИсточникДанных.Продажи.Функция.Получить", true) })
+    ).toMatchObject({
       ok: true,
       filePath: join(projectDir, "ВнешнийИсточникДанных", "Продажи", "Свойства.yaml"),
       details: { kind: "Function", name: "Получить", item: "Получить" },
@@ -312,7 +336,9 @@ describe("ProjectMetadataResolver", () => {
     writeProjectFile(projectDir, "ВнешнийИсточникДанных/Продажи/Свойства.yaml", "Синоним: Продажи")
     const resolver = createResolver(projectDir)
 
-    expect(resolver.resolveObject({ target: objectTarget("ВнешнийИсточникДанных.Продажи.Функция.НетТакой", true) })).toMatchObject({
+    expect(
+      resolver.resolveObject({ target: objectTarget("ВнешнийИсточникДанных.Продажи.Функция.НетТакой", true) })
+    ).toMatchObject({
       ok: false,
       diagnostics: [
         expect.objectContaining({
@@ -334,7 +360,9 @@ describe("ProjectMetadataResolver", () => {
     const resolver = createResolver(projectDir)
 
     expect(
-      resolver.resolveObject({ target: objectTarget("ВнешнийИсточникДанных.Продажи.Функция.Получить.Таблица.Таблица1", true) }),
+      resolver.resolveObject({
+        target: objectTarget("ВнешнийИсточникДанных.Продажи.Функция.Получить.Таблица.Таблица1", true),
+      })
     ).toMatchObject({
       ok: false,
       diagnostics: [
@@ -406,13 +434,14 @@ describe("ProjectMetadataResolver", () => {
           "Table",
           "Field",
         ]),
-      }),
+      })
     ).toMatchObject({
       ok: false,
       diagnostics: [
         expect.objectContaining({
           source: "reference",
-          message: 'Не найден член "ВнешнийИсточникДанных.Продажи.Таблица.Заказы.Поле.НетТакого": нет сегмента "НетТакого"',
+          message:
+            'Не найден член "ВнешнийИсточникДанных.Продажи.Таблица.Заказы.Поле.НетТакого": нет сегмента "НетТакого"',
         }),
       ],
     })
@@ -421,7 +450,11 @@ describe("ProjectMetadataResolver", () => {
   it("does not resolve nested template targets from child template files", () => {
     const projectDir = createProject()
     writeProjectFile(projectDir, "Отчет/Продажи/Свойства.yaml", "Реквизиты: {}")
-    writeProjectFile(projectDir, "Отчет/Продажи/Шаблоны/ОсновнаяСхемаКомпоновкиДанных/Template.xml", "<DataCompositionSchema/>")
+    writeProjectFile(
+      projectDir,
+      "Отчет/Продажи/Шаблоны/ОсновнаяСхемаКомпоновкиДанных/Template.xml",
+      "<DataCompositionSchema/>"
+    )
     const resolver = createResolver(projectDir)
 
     expect(
@@ -435,7 +468,7 @@ describe("ProjectMetadataResolver", () => {
             { kind: "Attribute", name: "Поле" },
           ],
         },
-      }),
+      })
     ).toMatchObject({
       ok: false,
       diagnostics: [
@@ -454,7 +487,9 @@ describe("ProjectMetadataResolver", () => {
     writeProjectFile(projectDir, "Документ/АвансовыйОтчет/Формы/ПечатнаяФорма/Форма.yaml", "Реквизиты: {}")
     const resolver = createResolver(projectDir)
 
-    expect(resolver.resolveMember({ target: memberTarget("Документ.АвансовыйОтчет.Макет.ПечатнаяФорма") })).toMatchObject({
+    expect(
+      resolver.resolveMember({ target: memberTarget("Документ.АвансовыйОтчет.Макет.ПечатнаяФорма") })
+    ).toMatchObject({
       ok: false,
       diagnostics: [
         expect.objectContaining({
@@ -480,14 +515,14 @@ describe("ProjectMetadataResolver", () => {
       resolver.resolveMember({
         target: memberTarget("Документ.АвансовыйОтчет.Реквизит.Провести"),
         filters: [{ kind: "hasType", type: "boolean" }],
-      }),
+      })
     ).toMatchObject({ ok: true })
 
     expect(
       resolver.resolveMember({
         target: memberTarget("Документ.АвансовыйОтчет.Реквизит.Комментарий"),
         filters: [{ kind: "hasType", type: "boolean" }],
-      }),
+      })
     ).toMatchObject({
       ok: false,
       diagnostics: [expect.objectContaining({ message: expect.stringContaining("тип которых содержит Булево") })],
@@ -507,23 +542,20 @@ describe("ProjectMetadataResolver", () => {
       "        Тип: Булево",
     ])
     const resolver = createResolver(projectDir)
-    const filters = [
-      { kind: "directMember" },
-      { kind: "hasType", type: "boolean" },
-    ] as const
+    const filters = [{ kind: "directMember" }, { kind: "hasType", type: "boolean" }] as const
 
     expect(
       resolver.resolveMember({
         target: memberTarget("Документ.АвансовыйОтчет.Реквизит.Провести"),
         filters,
-      }),
+      })
     ).toMatchObject({ ok: true })
 
     expect(
       resolver.resolveMember({
         target: memberTarget("Документ.АвансовыйОтчет.ТабличнаяЧасть.Товары.Реквизит.Использовать"),
         filters,
-      }),
+      })
     ).toMatchObject({
       ok: false,
       diagnostics: [expect.objectContaining({ message: expect.stringContaining("прямые члены текущего объекта") })],
@@ -546,7 +578,9 @@ describe("ProjectMetadataResolver", () => {
     ])
     const resolver = createResolver(projectDir)
 
-    expect(resolver.resolveMember({ target: memberTarget("Документ.АвансовыйОтчет.Макет.ПечатнаяФорма") })).toMatchObject({
+    expect(
+      resolver.resolveMember({ target: memberTarget("Документ.АвансовыйОтчет.Макет.ПечатнаяФорма") })
+    ).toMatchObject({
       ok: true,
     })
     expect(resolver.resolveMember({ target: memberTarget("Документ.АвансовыйОтчет.Команда.Печать") })).toMatchObject({
@@ -555,7 +589,7 @@ describe("ProjectMetadataResolver", () => {
     expect(
       resolver.resolveMember({
         target: memberTarget("Документ.АвансовыйОтчет.ТабличнаяЧасть.Товары.Реквизит.Количество"),
-      }),
+      })
     ).toMatchObject({ ok: true })
   })
 
@@ -593,14 +627,14 @@ describe("ProjectMetadataResolver", () => {
       resolver.resolveMember({
         target: memberTarget("Документ.АвансовыйОтчет.Реквизит.Комментарий"),
         filters: [{ kind: "stringIndexedAttribute" }],
-      }),
+      })
     ).toMatchObject({ ok: true })
 
     expect(
       resolver.resolveMember({
         target: memberTarget("Документ.АвансовыйОтчет.ТабличнаяЧасть.Товары"),
         filters: [{ kind: "stringIndexedAttribute" }],
-      }),
+      })
     ).toMatchObject({
       ok: false,
       diagnostics: [expect.objectContaining({ message: expect.stringContaining("пригодные для ввода по строке") })],
@@ -621,7 +655,7 @@ describe("ProjectMetadataResolver", () => {
       resolver.resolveMember({
         target: memberTarget("Справочник.Контрагенты.Реквизит.ИНН"),
         filters: [{ kind: "stringIndexedAttribute" }],
-      }),
+      })
     ).toMatchObject({ ok: true })
   })
 
@@ -639,7 +673,7 @@ describe("ProjectMetadataResolver", () => {
       resolver.resolveMember({
         target: memberTarget("Справочник.Контрагенты.Реквизит.Организация"),
         filters: [{ kind: "stringIndexedAttribute" }],
-      }),
+      })
     ).toMatchObject({
       ok: false,
       diagnostics: [expect.objectContaining({ message: expect.stringContaining("пригодные для ввода по строке") })],
@@ -659,7 +693,7 @@ describe("ProjectMetadataResolver", () => {
       resolver.resolveMember({
         target: memberTarget("Справочник.Контрагенты.Реквизит.ИНН"),
         filters: [{ kind: "stringIndexedAttribute" }],
-      }),
+      })
     ).toMatchObject({
       ok: false,
       diagnostics: [
@@ -691,7 +725,7 @@ describe("ProjectMetadataResolver", () => {
     writeProjectFile(projectDir, "Справочник/СтавкиНДС/Свойства.yaml", [
       "Предопределенные:",
       "  БезНДС:",
-      "    Код: \"000000001\"",
+      '    Код: "000000001"',
       "    Наименование: Без НДС",
     ])
     writeProjectFile(projectDir, "Перечисление/ВидыДоговоров/Свойства.yaml", [
@@ -701,7 +735,9 @@ describe("ProjectMetadataResolver", () => {
     ])
     const resolver = createResolver(projectDir)
 
-    expect(resolver.resolveValue({ target: valueTarget("Справочник.СтавкиНДС.ПустаяСсылка") })).toMatchObject({ ok: true })
+    expect(resolver.resolveValue({ target: valueTarget("Справочник.СтавкиНДС.ПустаяСсылка") })).toMatchObject({
+      ok: true,
+    })
     expect(resolver.resolveValue({ target: valueTarget("Справочник.СтавкиНДС.БезНДС") })).toMatchObject({ ok: true })
     expect(resolver.resolveValue({ target: valueTarget("Перечисление.ВидыДоговоров.СПоставщиком") })).toMatchObject({
       ok: true,
@@ -710,7 +746,12 @@ describe("ProjectMetadataResolver", () => {
 
   it("checks style item type when expected types are provided", () => {
     const projectDir = createProject()
-    writeProjectFile(projectDir, "ЭлементСтиля/ОсновнойЦвет/Свойства.yaml", ["Тип: Цвет", "Значение:", "  Вид: Цвет", "  Значение: '#112233'"])
+    writeProjectFile(projectDir, "ЭлементСтиля/ОсновнойЦвет/Свойства.yaml", [
+      "Тип: Цвет",
+      "Значение:",
+      "  Вид: Цвет",
+      "  Значение: '#112233'",
+    ])
     const resolver = createResolver(projectDir)
 
     expect(resolver.resolveStyleItem({ name: "ОсновнойЦвет", expectedTypes: ["Color"] })).toMatchObject({ ok: true })
@@ -727,7 +768,12 @@ describe("ProjectMetadataResolver", () => {
 
   it("checks style item type when object target filters are provided", () => {
     const projectDir = createProject()
-    writeProjectFile(projectDir, "ЭлементСтиля/ОсновнойЦвет/Свойства.yaml", ["Тип: Цвет", "Значение:", "  Вид: Цвет", "  Значение: '#112233'"])
+    writeProjectFile(projectDir, "ЭлементСтиля/ОсновнойЦвет/Свойства.yaml", [
+      "Тип: Цвет",
+      "Значение:",
+      "  Вид: Цвет",
+      "  Значение: '#112233'",
+    ])
     const resolver = createResolver(projectDir)
     const target = { kind: "object", root: "StyleItem", objectName: "ОсновнойЦвет" } as const
 
@@ -781,7 +827,10 @@ function memberTarget(value: string): Extract<ParsedMetadataTarget, { kind: "mem
 
 function externalDataSourceMemberTarget(
   value: string,
-  allowedPath: readonly ["ExternalDataSource", ...Array<"Table" | "Cube" | "DimensionTable" | "Field" | "Command" | "Dimension" | "Resource">],
+  allowedPath: readonly [
+    "ExternalDataSource",
+    ...Array<"Table" | "Cube" | "DimensionTable" | "Field" | "Command" | "Dimension" | "Resource">,
+  ]
 ): Extract<ParsedMetadataTarget, { kind: "member" }> {
   const parsed = parseMetadataTargetFromYAML({
     value,

@@ -1,12 +1,12 @@
 import { Type, type TSchema } from "@sinclair/typebox"
 import type { MetadataAttributeYAML, MetadataAttributes, MetadataAttributesXML, MetadataAttributesYAML } from "./types"
-import { ConfigurationContext, ConfigurationContextFromXML } from "~/metadata/context/types"
-import { importMetadataItemFromYAML } from "~/metadata/orchestration/metadataItem/fromYAML"
-import { exportMetadataItemToJSONSchema } from "~/metadata/orchestration/metadataItem/toJSONSchema"
-import { registerMetadataItemCollectionRule } from "~/metadata/orchestration/metadataCollection/ruleFactory"
-import { exportMetadataCollectionToYAMLAsRecord } from "~/metadata/orchestration/metadataCollection/toYAML"
-import { importPropertyFromXML } from "~/metadata/orchestration/property/fromXML"
-import type { PropertyRule } from "~/metadata/orchestration/property/types"
+import { ConfigurationContext, ConfigurationContextFromXML } from "../../context/types"
+import { importMetadataItemFromYAML } from "../../orchestration/metadataItem/fromYAML"
+import { exportMetadataItemToJSONSchema } from "../../orchestration/metadataItem/toJSONSchema"
+import { registerMetadataItemCollectionRule } from "../../orchestration/metadataCollection/ruleFactory"
+import { exportMetadataCollectionToYAMLAsRecord } from "../../orchestration/metadataCollection/toYAML"
+import { importPropertyFromXML } from "../../orchestration/property/fromXML"
+import type { PropertyRule } from "../../orchestration/property/types"
 import {
   MetadataAttributeRules,
   MetadataAttributesWithAllowedTypesRules,
@@ -76,8 +76,7 @@ const createExportMetadataAttributesToJSONSchema =
     return Type.Record(Type.String(), attributeSchema)
   }
 
-export const exportMetadataAttributesToJSONSchema =
-  createExportMetadataAttributesToJSONSchema(MetadataAttributeRules)
+export const exportMetadataAttributesToJSONSchema = createExportMetadataAttributesToJSONSchema(MetadataAttributeRules)
 
 registerMetadataItemCollectionRule({
   propertyType: "MetadataCatalogAttributes",

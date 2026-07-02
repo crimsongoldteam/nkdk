@@ -1,6 +1,6 @@
 import { describe, expect, it } from "vitest"
-import { exportPropertyToXML } from "~/metadata/orchestration"
-import { mockContextToXML } from "~/tests/mockContext"
+import { exportPropertyToXML } from "../../../orchestration"
+import { mockContextToXML } from "../../../../tests/mockContext"
 import { nilAndBooleanAvailableValues, stringAvailableValues } from "./__fixtures__/data"
 
 const rule = { type: "DcsAvailableValues", xml: "dcssch:availableValue" } as const

@@ -1,6 +1,6 @@
 import { describe, expect, it } from "vitest"
-import { i8nTextFixtures } from "~/metadata/commonObjects/i8nText/__fixtures__/legacy/data"
-import { mockContext } from "~/tests/mockContext"
+import { i8nTextFixtures } from "./__fixtures__/legacy/data"
+import { mockContext } from "../../../tests/mockContext"
 import { exportI8nTextDefaultToYAML, exportI8nTextToYAML } from "./toYAML"
 import { I8nTextPropertyRule } from "./types"
 

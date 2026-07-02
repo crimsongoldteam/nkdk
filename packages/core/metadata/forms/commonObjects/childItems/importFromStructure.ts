@@ -1,4 +1,4 @@
-// import { ConfigurationContext } from "~/metadata/context/types"
+// import { ConfigurationContext } from "../../../context/types"
 // import { parseAutoCommandBar, parseElement } from "./parser/elementsParser/parse"
 // import { tokenize } from "./parser/tokenizer/tokenizer"
 // import { parseTree } from "./parser/treeParser/treeParser"

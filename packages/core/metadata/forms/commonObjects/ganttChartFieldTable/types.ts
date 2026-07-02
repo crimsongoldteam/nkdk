@@ -1,36 +1,36 @@
 import {
   definePropertyRule as defineWidePropertyRule,
   type ExactRuleParams as WideExactRuleParams,
-} from "~/metadata/commonObjects/ruleBuilder"
-import type { PropertyRule as WidePropertyRuleBase } from "~/metadata/orchestration/property/types"
+} from "../../../commonObjects/ruleBuilder"
+import type { PropertyRule as WidePropertyRuleBase } from "../../../orchestration/property/types"
 import type { TSchema } from "@sinclair/typebox"
-import { getParentFromContext } from "~/metadata/context/helpers"
+import { getParentFromContext } from "../../../context/helpers"
 import type {
   ConfigurationContext,
   ConfigurationContextFromXML,
   ConfigurationContextWithExportToXML,
-} from "~/metadata/context/types"
-import { TableRules } from "~/metadata/forms/elements/table/rules"
-import type { Table, TablePartialYAML } from "~/metadata/forms/elements/table/types"
-import { exportElementToJSONSchema } from "~/metadata/orchestration/formElement/toJSONSchema"
-import { importElementFromPartialYAML } from "~/metadata/orchestration/formElement/fromYAML"
-import { importElementFromXML } from "~/metadata/orchestration/formElement/fromXML"
-import { exportSingleElementToXML } from "~/metadata/orchestration/formElement/toXML"
-import { exportElementToPartialYAML } from "~/metadata/orchestration/formElement/toYAML"
+} from "../../../context/types"
+import { TableRules } from "../../elements/table/rules"
+import type { Table, TablePartialYAML } from "../../elements/table/types"
+import { exportElementToJSONSchema } from "../../../orchestration/formElement/toJSONSchema"
+import { importElementFromPartialYAML } from "../../../orchestration/formElement/fromYAML"
+import { importElementFromXML } from "../../../orchestration/formElement/fromXML"
+import { exportSingleElementToXML } from "../../../orchestration/formElement/toXML"
+import { exportElementToPartialYAML } from "../../../orchestration/formElement/toYAML"
 import {
   applyReferenceNameMode,
   attachReferenceNameMode,
   type SingletonNameStyle,
-} from "~/metadata/orchestration/formElement/singletonName"
-import { registerTypeRule } from "~/metadata/orchestration/property/typeRuleRegistry"
-import type { ElementXML, ElementXMLWithoutId } from "~/metadata/orchestration/formElement/types"
-import { XML_SOURCE_KEYS } from "~/metadata/orchestration/property/helpers"
+} from "../../../orchestration/formElement/singletonName"
+import { registerTypeRule } from "../../../orchestration/property/typeRuleRegistry"
+import type { ElementXML, ElementXMLWithoutId } from "../../../orchestration/formElement/types"
+import { XML_SOURCE_KEYS } from "../../../orchestration/property/helpers"
 import type {
   ExportToJSONSchemaFn,
   ExportToXMLFunctionNew,
   ImportFromXMLFunction,
   PropertyRule,
-} from "~/metadata/orchestration"
+} from "../../../orchestration"
 
 export type GanttChartFieldTable = Table
 export type GanttChartFieldTableYAML = TablePartialYAML

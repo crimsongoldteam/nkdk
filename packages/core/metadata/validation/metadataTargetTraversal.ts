@@ -1,7 +1,7 @@
-import { getTypeRule } from "~/metadata/orchestration/property/typeRuleRegistry"
-import type { MetadataTargetOwner } from "~/metadata/commonObjects/metadataTargets"
-import type { MetadataItem, MetadataItemRule } from "~/metadata/orchestration/property/types"
-import type { ParsedYaml } from "~/yaml/parseMetadataYaml"
+import { getTypeRule } from "../orchestration/property/typeRuleRegistry"
+import type { MetadataTargetOwner } from "../commonObjects/metadataTargets"
+import type { MetadataItem, MetadataItemRule } from "../orchestration/property/types"
+import type { ParsedYaml } from "../../yaml/parseMetadataYaml"
 import type { ProjectMetadataResolver } from "./projectMetadataResolver"
 import type { Diagnostic } from "./types"
 import type { YamlPath } from "./yamlLocations"
@@ -24,7 +24,7 @@ export function validateMetadataTargetsInModel(params: ValidateMetadataTargetsIn
 }
 
 function validateObject(
-  params: ValidateMetadataTargetsInModelParams & { value: unknown; yamlPath: YamlPath },
+  params: ValidateMetadataTargetsInModelParams & { value: unknown; yamlPath: YamlPath }
 ): Diagnostic[] {
   const record = asRecord(params.value)
   if (!record) return []
@@ -49,7 +49,7 @@ function validateObject(
             value,
             resolver: params.resolver,
             owner: params.owner,
-          }),
+          })
         )
       }
     }
@@ -63,7 +63,7 @@ function validateObject(
         value,
         itemRule,
         yamlPath: [...params.yamlPath, propRule.yaml],
-      }),
+      })
     )
   }
 
@@ -75,7 +75,7 @@ function validateNestedItems(
     value: unknown
     itemRule: MetadataItemRule
     yamlPath: YamlPath
-  },
+  }
 ): Diagnostic[] {
   if (Array.isArray(params.value)) {
     return params.value.flatMap((item, index) =>
@@ -84,7 +84,7 @@ function validateNestedItems(
         value: item,
         rule: params.itemRule,
         yamlPath: [...params.yamlPath, nestedItemPathSegment(item, index)],
-      }),
+      })
     )
   }
 
@@ -97,7 +97,7 @@ function validateNestedItems(
       value: item,
       rule: params.itemRule,
       yamlPath: [...params.yamlPath, key],
-    }),
+    })
   )
 }
 

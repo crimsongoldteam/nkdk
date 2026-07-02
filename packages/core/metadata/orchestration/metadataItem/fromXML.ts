@@ -1,16 +1,18 @@
-import { ConfigurationContextFromXML } from "~/metadata/context/types"
-import { importContentFromXML } from "~/xml/import/importer"
+import { ConfigurationContextFromXML } from "../../context/types"
+import { importContentFromXML } from "../../../xml/import/importer"
 import { importPropertiesFromXML } from "../property/fromXML"
 import { MetadataItemRule } from "../property/types"
 import { ToMetadata } from "./registry"
 
 const XML_REFERENCE_RAW = "__xmlReferenceRaw"
 
-export const importMetadataItemFromXML = <Rule extends MetadataItemRule>(params: {
-  context: ConfigurationContextFromXML
-  rule: Rule
-  tags?: string[]
-} & ({ xml: any } | { xmlString: string })): ToMetadata<Rule["itemType"]> | undefined => {
+export const importMetadataItemFromXML = <Rule extends MetadataItemRule>(
+  params: {
+    context: ConfigurationContextFromXML
+    rule: Rule
+    tags?: string[]
+  } & ({ xml: any } | { xmlString: string })
+): ToMetadata<Rule["itemType"]> | undefined => {
   const { context, rule, tags } = params
 
   let xml = "xmlString" in params ? importContentFromXML(params.xmlString) : params.xml

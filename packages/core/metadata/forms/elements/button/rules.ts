@@ -1,6 +1,6 @@
-import { stringRule } from "~/metadata/commonObjects/string/types"
-import { registerElementRule } from "~/metadata/orchestration/formElement/ruleFactory"
-import type { PropertyRule } from "~/metadata/orchestration/property/types"
+import { stringRule } from "../../../commonObjects/string/types"
+import { registerElementRule } from "../../../orchestration/formElement/ruleFactory"
+import type { PropertyRule } from "../../../orchestration/property/types"
 import { ElementRule } from "../../../orchestration/formElement/types"
 export type { ElementRule, PropertyRule }
 export const commonButtonProperties = {

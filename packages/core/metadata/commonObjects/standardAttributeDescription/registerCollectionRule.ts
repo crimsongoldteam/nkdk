@@ -2,14 +2,18 @@ import {
   ConfigurationContext,
   ConfigurationContextFromXML,
   ConfigurationContextWithExportToXML,
-} from "~/metadata/context/types"
-import { importMetadataItemCollectionFromXML } from "~/metadata/orchestration/metadataCollection/fromXML"
-import { importMetadataItemCollectionFromYAMLAsRecord } from "~/metadata/orchestration/metadataCollection/fromYAML"
-import { exportMetadataCollectionToYAMLAsRecord } from "~/metadata/orchestration/metadataCollection/toYAML"
-import { exportMetadataItemToXML } from "~/metadata/orchestration/metadataItem/toXML"
-import { registerMetadataItemCollectionRule } from "~/metadata/orchestration/metadataCollection/ruleFactory"
-import { isEmptyMetadataItem } from "~/metadata/orchestration/formElement/helper"
-import type { ItemXML, PropertyRule, StandardAttributeDescriptionsPropertyRule } from "~/metadata/orchestration/property/types"
+} from "../../context/types"
+import { importMetadataItemCollectionFromXML } from "../../orchestration/metadataCollection/fromXML"
+import { importMetadataItemCollectionFromYAMLAsRecord } from "../../orchestration/metadataCollection/fromYAML"
+import { exportMetadataCollectionToYAMLAsRecord } from "../../orchestration/metadataCollection/toYAML"
+import { exportMetadataItemToXML } from "../../orchestration/metadataItem/toXML"
+import { registerMetadataItemCollectionRule } from "../../orchestration/metadataCollection/ruleFactory"
+import { isEmptyMetadataItem } from "../../orchestration/formElement/helper"
+import type {
+  ItemXML,
+  PropertyRule,
+  StandardAttributeDescriptionsPropertyRule,
+} from "../../orchestration/property/types"
 import { StandardAttributeDescriptionRules } from "./rules"
 import {
   StandartAttributeNameFromYAML,

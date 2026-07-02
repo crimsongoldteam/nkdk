@@ -1,7 +1,7 @@
 import { describe, expect, it } from "vitest"
-import { mockContext } from "~/tests/mockContext"
-import { testImportPropertyFromYAML } from "~/tests/property/importPropertyFromYAML"
-import { importFromYAML } from "~/yaml/import"
+import { mockContext } from "../../../../tests/mockContext"
+import { testImportPropertyFromYAML } from "../../../../tests/property/importPropertyFromYAML"
+import { importFromYAML } from "../../../../yaml/import"
 import { importDcsMetadataValueFromYAML } from "./fromYAML"
 import { dcsMetadataValueYAMLFixtures } from "./__fixtures__/data"
 
@@ -113,7 +113,7 @@ describe("import MetadataDcsMetadataValue from YAML", () => {
       testImportPropertyFromYAML({
         rule: { type: "MetadataDcsMetadataValue", valueType: "DesignTimeValue", yaml: "value" },
         value: undefined,
-        sourceValue
+        sourceValue,
       })
     ).toEqual(sourceValue)
   })

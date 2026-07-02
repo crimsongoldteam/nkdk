@@ -72,10 +72,34 @@ describe("known form XML anomalies", () => {
 
   it("restores duplicate CommandBarButton ids only for the known master form sequence", () => {
     const items = [
-      { CommandBarButton: { _name: "ЕстьКЭП", _id: "", ExtendedTooltip: { _name: "ЕстьКЭПРасширеннаяПодсказка", _id: "" } } },
-      { CommandBarButton: { _name: "НетКЭП", _id: "", ExtendedTooltip: { _name: "НетКЭПРасширеннаяПодсказка", _id: "" } } },
-      { CommandBarButton: { _name: "ЕстьКЭП", _id: "", ExtendedTooltip: { _name: "ЕстьКЭПРасширеннаяПодсказка", _id: "" } } },
-      { CommandBarButton: { _name: "НетКЭП", _id: "", ExtendedTooltip: { _name: "НетКЭПРасширеннаяПодсказка", _id: "" } } },
+      {
+        CommandBarButton: {
+          _name: "ЕстьКЭП",
+          _id: "",
+          ExtendedTooltip: { _name: "ЕстьКЭПРасширеннаяПодсказка", _id: "" },
+        },
+      },
+      {
+        CommandBarButton: {
+          _name: "НетКЭП",
+          _id: "",
+          ExtendedTooltip: { _name: "НетКЭПРасширеннаяПодсказка", _id: "" },
+        },
+      },
+      {
+        CommandBarButton: {
+          _name: "ЕстьКЭП",
+          _id: "",
+          ExtendedTooltip: { _name: "ЕстьКЭПРасширеннаяПодсказка", _id: "" },
+        },
+      },
+      {
+        CommandBarButton: {
+          _name: "НетКЭП",
+          _id: "",
+          ExtendedTooltip: { _name: "НетКЭПРасширеннаяПодсказка", _id: "" },
+        },
+      },
     ]
 
     expect(
@@ -84,10 +108,34 @@ describe("known form XML anomalies", () => {
         items,
       })
     ).toEqual([
-      { CommandBarButton: { _name: "ЕстьКЭП", _id: "1823", ExtendedTooltip: { _name: "ЕстьКЭПРасширеннаяПодсказка", _id: "1825" } } },
-      { CommandBarButton: { _name: "НетКЭП", _id: "1824", ExtendedTooltip: { _name: "НетКЭПРасширеннаяПодсказка", _id: "1826" } } },
-      { CommandBarButton: { _name: "ЕстьКЭП", _id: "1314", ExtendedTooltip: { _name: "ЕстьКЭПРасширеннаяПодсказка", _id: "1315" } } },
-      { CommandBarButton: { _name: "НетКЭП", _id: "1316", ExtendedTooltip: { _name: "НетКЭПРасширеннаяПодсказка", _id: "1317" } } },
+      {
+        CommandBarButton: {
+          _name: "ЕстьКЭП",
+          _id: "1823",
+          ExtendedTooltip: { _name: "ЕстьКЭПРасширеннаяПодсказка", _id: "1825" },
+        },
+      },
+      {
+        CommandBarButton: {
+          _name: "НетКЭП",
+          _id: "1824",
+          ExtendedTooltip: { _name: "НетКЭПРасширеннаяПодсказка", _id: "1826" },
+        },
+      },
+      {
+        CommandBarButton: {
+          _name: "ЕстьКЭП",
+          _id: "1314",
+          ExtendedTooltip: { _name: "ЕстьКЭПРасширеннаяПодсказка", _id: "1315" },
+        },
+      },
+      {
+        CommandBarButton: {
+          _name: "НетКЭП",
+          _id: "1316",
+          ExtendedTooltip: { _name: "НетКЭПРасширеннаяПодсказка", _id: "1317" },
+        },
+      },
     ])
   })
 

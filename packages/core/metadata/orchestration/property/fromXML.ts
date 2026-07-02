@@ -1,8 +1,8 @@
-import { capitalize } from "~/helpers/capitalize"
-import { ConfigurationContextFromXML } from "~/metadata/context/types"
+import { capitalize } from "../../../helpers/capitalize"
+import { ConfigurationContextFromXML } from "../../context/types"
 import { MetadataItemRule, PropertyRule, ToMetadata } from ".."
 import { getTypeRule } from "./typeRuleRegistry"
-import { importContentFromXML } from "~/xml/import/importer"
+import { importContentFromXML } from "../../../xml/import/importer"
 import { getOrderedKeysFromXML, getValueOrDefault, shouldProcessProperty, XML_SOURCE_KEYS } from "./helpers"
 
 export function importPropertiesFromXML<Rule extends MetadataItemRule>(

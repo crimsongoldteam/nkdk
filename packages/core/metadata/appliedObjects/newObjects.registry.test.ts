@@ -1,5 +1,5 @@
 import { describe, expect, it } from "vitest"
-import { TopLevelMetadataItemRules } from "~/metadata/appliedObjects/configuration/topLevelRules"
+import { TopLevelMetadataItemRules } from "./configuration/topLevelRules"
 
 const expectedItemTypes = [
   "MetadataFunctionalOption",

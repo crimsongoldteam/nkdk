@@ -1,8 +1,8 @@
 import { describe, expect, it } from "vitest"
-import { MetadataCatalogRules } from "~/metadata/appliedObjects/metadataCatalog/rules"
-import { MetadataDocumentRules } from "~/metadata/appliedObjects/metadataDocument/rules"
-import { MetadataInformationRegisterRules } from "~/metadata/appliedObjects/metadataInformationRegister/rules"
-import type { PropertyRule } from "~/metadata/orchestration/property/types"
+import { MetadataCatalogRules } from "../appliedObjects/metadataCatalog/rules"
+import { MetadataDocumentRules } from "../appliedObjects/metadataDocument/rules"
+import { MetadataInformationRegisterRules } from "../appliedObjects/metadataInformationRegister/rules"
+import type { PropertyRule } from "../orchestration/property/types"
 
 describe("operation target registrations", () => {
   it("declares catalog attributes, tabular sections and file items", () => {

@@ -1,4 +1,4 @@
-import { ViewStatusAddition, ViewStatusAdditionYAML } from "~/metadata/forms/elements/viewStatusAddition/types"
+import { ViewStatusAddition, ViewStatusAdditionYAML } from "../types"
 
 export const fullViewStatusAddition: ViewStatusAddition = {
   itemType: "ViewStatusAddition",

@@ -1,7 +1,7 @@
 import { describe, expect, it } from "vitest"
-import { PropertyRule } from "~/metadata/orchestration"
-import { testExportPropertyToXML } from "~/tests/property/exportPropertyToXML"
-import { testImportPropertyFromXML } from "~/tests/property/importPropertyFromXML"
+import { PropertyRule } from "../../../orchestration"
+import { testExportPropertyToXML } from "../../../../tests/property/exportPropertyToXML"
+import { testImportPropertyFromXML } from "../../../../tests/property/importPropertyFromXML"
 import {
   fixtureFormatLocalString,
   nilSettingsParameterValue,
@@ -139,7 +139,9 @@ describe("exportParameterValueToDcsXML", () => {
       referenceMetadata: reference,
     })
 
-    expect(result).toContain('<dcsset:userSettingPresentation xsi:type="xs:string">после</dcsset:userSettingPresentation>')
+    expect(result).toContain(
+      '<dcsset:userSettingPresentation xsi:type="xs:string">после</dcsset:userSettingPresentation>'
+    )
     expect(result).not.toContain("<v8:item>")
   })
 })

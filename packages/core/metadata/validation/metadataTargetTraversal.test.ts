@@ -1,8 +1,8 @@
 import { describe, expect, it } from "vitest"
-import "~/metadata/commonObjects/metadataTargets/validationHandlers"
-import { registerTypeRule } from "~/metadata/orchestration/property/typeRuleRegistry"
-import type { MetadataItemRule } from "~/metadata/orchestration/property/types"
-import { parseMetadataYaml } from "~/yaml/parseMetadataYaml"
+import "../commonObjects/metadataTargets/validationHandlers"
+import { registerTypeRule } from "../orchestration/property/typeRuleRegistry"
+import type { MetadataItemRule } from "../orchestration/property/types"
+import { parseMetadataYaml } from "../../yaml/parseMetadataYaml"
 import { validateMetadataTargetsInModel } from "./metadataTargetTraversal"
 
 const emptyParsedYaml = () => parseMetadataYaml("")

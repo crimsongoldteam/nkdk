@@ -1,8 +1,8 @@
 import { describe, expect, it } from "vitest"
 import { multipleCharacteristics, singleCharacteristic } from "./__fixtures__/data"
-import { importPropertyFromXML } from "~/metadata/orchestration"
-import { testExportPropertyToXML } from "~/tests/property/exportPropertyToXML"
-import { mockContextFromXML } from "~/tests/mockContext"
+import { importPropertyFromXML } from "../../orchestration"
+import { testExportPropertyToXML } from "../../../tests/property/exportPropertyToXML"
+import { mockContextFromXML } from "../../../tests/mockContext"
 
 const rule = { type: "CharacteristicsDescriptions" } as const
 

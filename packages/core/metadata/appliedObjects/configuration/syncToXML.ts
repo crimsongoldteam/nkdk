@@ -1,11 +1,11 @@
 import fs from "fs"
 import { dirname, join } from "path"
-import { BatchTask, runBatch } from "~/helpers/runBatch"
-import type { ConfigurationContextFromXML } from "~/metadata/context/types"
-import { ConfigurationContextWithExportToXML } from "~/metadata/context/types"
-import { syncAppliedObjectToXML } from "~/metadata/orchestration/appliedObject/syncToXML"
-import type { ReferenceModelRemapper } from "~/metadata/orchestration/appliedObject/syncToXML"
-import { resolveXmlSyncAreaForProjectPath, type XmlSyncArea } from "~/metadata/orchestration/appliedObject/xmlAreas"
+import { BatchTask, runBatch } from "../../../helpers/runBatch"
+import type { ConfigurationContextFromXML } from "../../context/types"
+import { ConfigurationContextWithExportToXML } from "../../context/types"
+import { syncAppliedObjectToXML } from "../../orchestration/appliedObject/syncToXML"
+import type { ReferenceModelRemapper } from "../../orchestration/appliedObject/syncToXML"
+import { resolveXmlSyncAreaForProjectPath, type XmlSyncArea } from "../../orchestration/appliedObject/xmlAreas"
 import {
   diffXmlTree,
   prepareMetadataMigrationChain,
@@ -13,12 +13,12 @@ import {
   type MigrationChainInvalidResult,
   type MigrationPlanItem,
   type PreparedMetadataMigrationChain,
-} from "~/metadata/operations"
-import { getTypeRule } from "~/metadata/orchestration/property/typeRuleRegistry"
-import { exportPropertyToXML } from "~/metadata/orchestration/property/toXML"
-import type { PropertyRule } from "~/metadata/orchestration/property/types"
-import { discoverMetadataProjectResources, type MetadataProjectPropertiesYamlRef } from "~/metadata/project/resources"
-import { xmlExport } from "~/xml/export/exporter"
+} from "../../operations"
+import { getTypeRule } from "../../orchestration/property/typeRuleRegistry"
+import { exportPropertyToXML } from "../../orchestration/property/toXML"
+import type { PropertyRule } from "../../orchestration/property/types"
+import { discoverMetadataProjectResources, type MetadataProjectPropertiesYamlRef } from "../../project/resources"
+import { xmlExport } from "../../../xml/export/exporter"
 import {
   collectStructuralStateFromXML,
   collectStructuralStateFromYAML,
@@ -79,10 +79,7 @@ export async function planSyncToXml(params: {
   inputDir: string
   outputDir: string
   referenceDir?: string
-}): Promise<
-  | { ok: true; mode: "plan"; migrationsToApply: MigrationPlanItem[] }
-  | MigrationChainInvalidResult
-> {
+}): Promise<{ ok: true; mode: "plan"; migrationsToApply: MigrationPlanItem[] } | MigrationChainInvalidResult> {
   const result = await planConfigurationToXMLMigrations({
     context: defaultConfigurationToXmlContext(),
     inputDir: params.inputDir,

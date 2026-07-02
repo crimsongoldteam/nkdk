@@ -1,9 +1,9 @@
-import { availableFieldsRule } from "~/metadata/commonObjects/dataCompositionSystem/availableFields/types"
-import { dcsLocalStringTypeRule } from "~/metadata/commonObjects/dataCompositionSystem/dcsLocalStringType/types"
-import { filterItemRule } from "~/metadata/commonObjects/dataCompositionSystem/filter/builders"
-import { userSettingsIDRule } from "~/metadata/commonObjects/userSettingsID/types"
-import { systemEnumerationRule } from "~/metadata/systemEnumerations/types"
-import { MetadataItemRule } from "~/metadata/orchestration"
+import { availableFieldsRule } from "../availableFields/types"
+import { dcsLocalStringTypeRule } from "../dcsLocalStringType/types"
+import { filterItemRule } from "./builders"
+import { userSettingsIDRule } from "../../userSettingsID/types"
+import { systemEnumerationRule } from "../../../systemEnumerations/types"
+import { MetadataItemRule } from "../../../orchestration"
 export const FilterRules = {
   itemType: "Filter",
   properties: {

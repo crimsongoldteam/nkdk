@@ -1,5 +1,5 @@
 import { describe, expect, it } from "vitest"
-import { mockContext, mockRule } from "~/tests/mockContext"
+import { mockContext, mockRule } from "../../../tests/mockContext"
 import { exportChoiceParameterLinksToYAML } from "./toYAML"
 import { ChoiceParameterLinks } from "./types"
 
@@ -17,8 +17,7 @@ describe("exportToYAML", () => {
     expect(result).toEqual([
       {
         Имя: "Отбор.Владелец",
-        ПутьКДанным:
-          "Catalog.ВетеринарноСопроводительныйДокументВЕТИС.Attribute.ГрузоотправительХозяйствующийСубъект",
+        ПутьКДанным: "Catalog.ВетеринарноСопроводительныйДокументВЕТИС.Attribute.ГрузоотправительХозяйствующийСубъект",
       },
     ])
   })

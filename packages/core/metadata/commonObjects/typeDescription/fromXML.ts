@@ -1,6 +1,6 @@
-import { importNumberFromXML } from "~/metadata/commonObjects/number/fromXML"
-import type { PropertyRule } from "~/metadata/orchestration/property/types"
-import { registerTypeRule } from "~/metadata/orchestration/property/typeRuleRegistry"
+import { importNumberFromXML } from "../number/fromXML"
+import type { PropertyRule } from "../../orchestration/property/types"
+import { registerTypeRule } from "../../orchestration/property/typeRuleRegistry"
 import { ConfigurationContext, ConfigurationContextFromXML } from "../../context/types"
 import { getTypePrefix, removeTypePrefix } from "./helper"
 import {
@@ -144,10 +144,8 @@ const getTypeNamespace = (type: TypeDescriptionXMLType, value: string): string |
   return namespaces[`_xmlns:${prefix}`]
 }
 
-const importQualifierNumber = (
-  context: ConfigurationContext,
-  value: number | string | undefined
-): number | undefined => importNumberFromXML(context, undefined, value)
+const importQualifierNumber = (context: ConfigurationContext, value: number | string | undefined): number | undefined =>
+  importNumberFromXML(context, undefined, value)
 
 function getStringQualifiers(
   context: ConfigurationContext,

@@ -1,10 +1,10 @@
-import { ConfigurationContext, ConfigurationContextFromXML } from "~/metadata/context/types"
-import { importMetadataItemFromYAML } from "~/metadata/orchestration"
-import { registerMetadataItemCollectionRule } from "~/metadata/orchestration/metadataCollection/ruleFactory"
-import { exportMetadataCollectionToYAMLAsRecord } from "~/metadata/orchestration/metadataCollection/toYAML"
-import { importPropertyFromXML } from "~/metadata/orchestration/property/fromXML"
-import type { PropertyRule } from "~/metadata/orchestration/property/types"
-import "~/metadata/commonObjects/metadataHTTPServiceMethod/register"
+import { ConfigurationContext, ConfigurationContextFromXML } from "../../context/types"
+import { importMetadataItemFromYAML } from "../../orchestration"
+import { registerMetadataItemCollectionRule } from "../../orchestration/metadataCollection/ruleFactory"
+import { exportMetadataCollectionToYAMLAsRecord } from "../../orchestration/metadataCollection/toYAML"
+import { importPropertyFromXML } from "../../orchestration/property/fromXML"
+import type { PropertyRule } from "../../orchestration/property/types"
+import "../metadataHTTPServiceMethod/register"
 import { MetadataHTTPServiceURLTemplateRules } from "./rules"
 import {
   MetadataHTTPServiceURLTemplateYAML,

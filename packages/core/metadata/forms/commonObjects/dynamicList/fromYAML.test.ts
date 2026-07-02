@@ -8,12 +8,12 @@ import {
   fullDynamicListYAML,
   keyFieldDynamicListYAML,
   queryTextWithManualQueryFalseDynamicListYAML,
-} from "~/metadata/forms/commonObjects/dynamicList/__fixtures__/data"
-import { importPropertyFromYAML, PropertyRule } from "~/metadata/orchestration"
-import { exportMetadataItemToJSONSchema } from "~/metadata/orchestration/metadataItem/toJSONSchema"
-import { mockContext } from "~/tests/mockContext"
-import { testExportPropertyToYAML } from "~/tests/property/exportPropertyToYAML"
-import { testImportPropertyFromYAML } from "~/tests/property/importPropertyFromYAML"
+} from "./__fixtures__/data"
+import { importPropertyFromYAML, PropertyRule } from "../../../orchestration"
+import { exportMetadataItemToJSONSchema } from "../../../orchestration/metadataItem/toJSONSchema"
+import { mockContext } from "../../../../tests/mockContext"
+import { testExportPropertyToYAML } from "../../../../tests/property/exportPropertyToYAML"
+import { testImportPropertyFromYAML } from "../../../../tests/property/importPropertyFromYAML"
 import { DynamicListRules } from "./rules"
 
 const rule: PropertyRule = {

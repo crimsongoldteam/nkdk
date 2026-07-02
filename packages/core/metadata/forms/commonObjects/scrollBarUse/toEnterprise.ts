@@ -1,5 +1,5 @@
-import { ConfigurationContext } from "~/metadata/context/types"
-import { registerTypeRule } from "~/metadata/orchestration"
+import { ConfigurationContext } from "../../../context/types"
+import { registerTypeRule } from "../../../orchestration"
 import { ScrollBarUse, ScrollBarUseEnterprise } from "./types"
 
 export const exportScrollBarUseToEnterprise = (params: {

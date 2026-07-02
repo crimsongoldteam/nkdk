@@ -1,12 +1,8 @@
 import { describe, expect, it } from "vitest"
-import { PropertyRule } from "~/metadata/orchestration"
-import {
-  accountingExtDimensions,
-  all,
-  multiple,
-} from "~/metadata/commonObjects/standardAttributeDescription/__fixtures__/data"
-import { fillValueEmptyRefTypeLoss } from "~/metadata/commonObjects/standardAttributeDescription/__fixtures__/fillValueEmptyRefTypeLoss"
-import { testImportPropertyFromXML } from "~/tests/property/importPropertyFromXML"
+import { PropertyRule } from "../../orchestration"
+import { accountingExtDimensions, all, multiple } from "./__fixtures__/data"
+import { fillValueEmptyRefTypeLoss } from "./__fixtures__/fillValueEmptyRefTypeLoss"
+import { testImportPropertyFromXML } from "../../../tests/property/importPropertyFromXML"
 import { StandartAttributeNameToYAML } from "./types"
 
 const rule: PropertyRule = {

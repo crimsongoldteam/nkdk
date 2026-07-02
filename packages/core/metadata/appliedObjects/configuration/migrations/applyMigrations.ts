@@ -10,7 +10,7 @@ import type { PendingMigrationFile } from "./readMigration"
 
 export function applyMigrationEntries(
   initial: StructuralState,
-  entries: MigrationEntry[],
+  entries: MigrationEntry[]
 ): {
   state: StructuralState
   referencePathByCurrentPath: Map<string, string>
@@ -31,13 +31,16 @@ export function applyMigrationEntries(
   return {
     state: { nodes },
     referencePathByCurrentPath: new Map(
-      [...nodes].flatMap(([path, node]) => (node.referencePath ? [[path, node.referencePath] as const] : [])),
+      [...nodes].flatMap(([path, node]) => (node.referencePath ? [[path, node.referencePath] as const] : []))
     ),
     targetChecks,
   }
 }
 
-export function applyPendingMigrationFiles(initial: StructuralState, files: PendingMigrationFile[]): {
+export function applyPendingMigrationFiles(
+  initial: StructuralState,
+  files: PendingMigrationFile[]
+): {
   state: StructuralState
   referencePathByCurrentPath: Map<string, string>
   appliedFileNames: string[]
@@ -101,7 +104,11 @@ function addRenameTargetChecks(targetChecks: MigrationTargetCheck[], from: strin
   targetChecks.push({ path: from, expected: "absent" }, { path: to, expected: "exists" })
 }
 
-function removeTargetCheck(targetChecks: MigrationTargetCheck[], path: string, expected: MigrationTargetCheck["expected"]): void {
+function removeTargetCheck(
+  targetChecks: MigrationTargetCheck[],
+  path: string,
+  expected: MigrationTargetCheck["expected"]
+): void {
   const index = targetChecks.findIndex((check) => check.path === path && check.expected === expected)
   if (index >= 0) targetChecks.splice(index, 1)
 }

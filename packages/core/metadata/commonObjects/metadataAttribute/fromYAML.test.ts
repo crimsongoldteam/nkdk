@@ -10,11 +10,11 @@ import {
   shortMultilanguageMetadataAttribute,
   shortMultilanguageMetadataAttributeYAML,
 } from "./__fixtures__/data"
-import { testImportPropertyFromYAML } from "~/tests/property/importPropertyFromYAML"
-import { mockContext } from "~/tests/mockContext"
+import { testImportPropertyFromYAML } from "../../../tests/property/importPropertyFromYAML"
+import { mockContext } from "../../../tests/mockContext"
 import { exportMetadataAttributesToJSONSchema } from "./register"
-import { importPropertyFromYAML } from "~/metadata/orchestration/property/fromYAML"
-import type { ConfigurationContext } from "~/metadata/context/types"
+import { importPropertyFromYAML } from "../../orchestration/property/fromYAML"
+import type { ConfigurationContext } from "../../context/types"
 
 const rule = { type: "MetadataAttributes" } as const
 const metadataAttributeOwnerContext: ConfigurationContext = {

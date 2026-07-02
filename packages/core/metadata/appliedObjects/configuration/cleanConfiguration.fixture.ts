@@ -77,7 +77,4 @@ ${CLEAN_USED_MOBILE_APPLICATION_FUNCTIONALITIES_XML}
 \t</Configuration>
 </MetaDataObject>`
 
-export const EXPECTED_CLEAN_CONFIGURATION_YAML = [
-  "Имя: Конфигурация",
-  "ОсновнойЯзык: Русский",
-].join("\n")
+export const EXPECTED_CLEAN_CONFIGURATION_YAML = ["Имя: Конфигурация", "ОсновнойЯзык: Русский"].join("\n")

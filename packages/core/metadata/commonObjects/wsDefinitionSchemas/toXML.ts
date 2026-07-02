@@ -1,8 +1,8 @@
 import fs from "fs"
 import { dirname, join } from "path"
-import { registerTypeRule } from "~/metadata/orchestration"
-import type { PropertyRule } from "~/metadata/orchestration/property/types"
-import type { XmlWriteManifest } from "~/metadata/orchestration/xmlWriteManifest"
+import { registerTypeRule } from "../../orchestration"
+import type { PropertyRule } from "../../orchestration/property/types"
+import type { XmlWriteManifest } from "../../orchestration/xmlWriteManifest"
 
 export const syncWSDefinitionSchemasToXML = async (params: {
   rule: PropertyRule

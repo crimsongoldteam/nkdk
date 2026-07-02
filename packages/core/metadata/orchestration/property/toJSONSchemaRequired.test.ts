@@ -1,9 +1,9 @@
 import { Type, type TProperties } from "@sinclair/typebox"
 import { describe, expect, it } from "vitest"
-import { AutoCommandBarRules } from "~/metadata/forms/elements/autoCommandBar/rules"
-import { ColumnGroupRules } from "~/metadata/forms/elements/columnGroup/rules"
-import { UsualGroupRules } from "~/metadata/forms/elements/usualGroup/rules"
-import { mockContext } from "~/tests/mockContext"
+import { AutoCommandBarRules } from "../../forms/elements/autoCommandBar/rules"
+import { ColumnGroupRules } from "../../forms/elements/columnGroup/rules"
+import { UsualGroupRules } from "../../forms/elements/usualGroup/rules"
+import { mockContext } from "../../../tests/mockContext"
 import { exportPropertiesToJSONSchema } from "./toJSONSchema"
 import type { MetadataItemRule, PropertyRule } from "./types"
 

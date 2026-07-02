@@ -1,14 +1,14 @@
 import fs from "fs"
 import { join } from "path"
-import type { ConfigurationContextFromXML, ExternalFileEntry } from "~/metadata/context/types"
-import { exportMetadataItemToYAML, importMetadataItemFromXML } from "~/metadata/orchestration"
-import { getTypeRule } from "~/metadata/orchestration/property/typeRuleRegistry"
-import { importPropertyFromXML } from "~/metadata/orchestration/property/fromXML"
-import type { FileChildNamesDescriptor } from "~/metadata/orchestration/property/fn"
-import { metadataTargetOwnerFromRule } from "~/metadata/orchestration/property/metadataTargetString"
-import type { MetadataItemRule, PropertyRule } from "~/metadata/orchestration/property/types"
-import { importContentFromXML } from "~/xml/import/importer"
-import { exportToYAML } from "~/yaml/export"
+import type { ConfigurationContextFromXML, ExternalFileEntry } from "../../context/types"
+import { exportMetadataItemToYAML, importMetadataItemFromXML } from ".."
+import { getTypeRule } from "../property/typeRuleRegistry"
+import { importPropertyFromXML } from "../property/fromXML"
+import type { FileChildNamesDescriptor } from "../property/fn"
+import { metadataTargetOwnerFromRule } from "../property/metadataTargetString"
+import type { MetadataItemRule, PropertyRule } from "../property/types"
+import { importContentFromXML } from "../../../xml/import/importer"
+import { exportToYAML } from "../../../yaml/export"
 import {
   getFileItemXMLRootContainer,
   normalizeFileItemCollectionItems,

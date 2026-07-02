@@ -1,6 +1,6 @@
 import { describe, expect, it } from "vitest"
-import { pictureTestCases } from "~/metadata/commonObjects/picture/__fixtures__/data"
-import { mockContext, mockRule } from "~/tests/mockContext"
+import { pictureTestCases } from "./__fixtures__/data"
+import { mockContext, mockRule } from "../../../tests/mockContext"
 import { importPictureFromYAML } from "./fromYAML"
 
 describe("importPictureFromYAML", () => {
@@ -20,14 +20,11 @@ describe("importPictureFromYAML", () => {
       }
     )
 
-    it.each(["0", "0:ca5b178d-2d5a-4cf7-b88e-6fbdb2e56065"])(
-      "should import %s as raw ref from YAML",
-      (rawRef) => {
-        const result = importPictureFromYAML(mockContext, mockRule, rawRef)
+    it.each(["0", "0:ca5b178d-2d5a-4cf7-b88e-6fbdb2e56065"])("should import %s as raw ref from YAML", (rawRef) => {
+      const result = importPictureFromYAML(mockContext, mockRule, rawRef)
 
-        expect(result).toEqual({ rawRef })
-      }
-    )
+      expect(result).toEqual({ rawRef })
+    })
 
     it("imports expanded raw picture refs with LoadTransparent from YAML", () => {
       const result = importPictureFromYAML(mockContext, mockRule, {

@@ -1,8 +1,8 @@
-import { FormElementTreeYAML } from "~/metadata/forms/commonObjects/childItems/types"
-import { TableInputField } from "~/metadata/forms/elements/inputField/types"
-import { Table, TableEnterprise, TablePartialYAML } from "~/metadata/forms/elements/table/types"
-import { StructureResult } from "~/tests/types"
-import { RequiredFieldsElement } from "~/tests/types"
+import { FormElementTreeYAML } from "../../../commonObjects/childItems/types"
+import { TableInputField } from "../../inputField/types"
+import { Table, TableEnterprise, TablePartialYAML } from "../types"
+import { StructureResult } from "../../../../../tests/types"
+import { RequiredFieldsElement } from "../../../../../tests/types"
 
 export interface TableFixture {
   name: string

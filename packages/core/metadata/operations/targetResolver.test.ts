@@ -20,12 +20,12 @@ describe("resolveMetadataOperationPath", () => {
     mkdirSync(join(projectDir, "Документ", "Заказ"), { recursive: true })
     writeFileSync(
       join(projectDir, "Справочник", "Товары", "Свойства.yaml"),
-      ["Реквизиты:", "  Артикул:", "    Тип: Строка"].join("\n"),
+      ["Реквизиты:", "  Артикул:", "    Тип: Строка"].join("\n")
     )
     writeFileSync(join(projectDir, "Справочник", "Товары", "Формы", "ФормаЭлемента", "Форма.yaml"), "Элементы: {}\n")
     writeFileSync(
       join(projectDir, "Документ", "Заказ", "Свойства.yaml"),
-      ["ТабличныеЧасти:", "  Товары:", "    Реквизиты:", "      Количество:", "        Тип: Число"].join("\n"),
+      ["ТабличныеЧасти:", "  Товары:", "    Реквизиты:", "      Количество:", "        Тип: Число"].join("\n")
     )
     return projectDir
   }

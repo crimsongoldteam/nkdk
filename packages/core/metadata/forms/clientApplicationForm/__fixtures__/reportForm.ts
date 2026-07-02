@@ -1,4 +1,4 @@
-import { ClientApplicationForm } from "~/metadata/forms/clientApplicationForm/types"
+import { ClientApplicationForm } from "../types"
 
 type ReportFormClientApplicationForm = ClientApplicationForm & {
   reportResult: string

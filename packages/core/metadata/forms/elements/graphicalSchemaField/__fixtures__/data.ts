@@ -1,15 +1,11 @@
-import {
-  GraphicalSchemaField,
-  GraphicalSchemaFieldEnterprise,
-  GraphicalSchemaFieldPartialYAML,
-} from "~/metadata/forms/elements/graphicalSchemaField/types"
+import { GraphicalSchemaField, GraphicalSchemaFieldEnterprise, GraphicalSchemaFieldPartialYAML } from "../types"
 
 import {
   fullFormFieldCommonFixture,
   fullFormFieldEnterpriseCommonFixture,
   fullFormFieldPartialYAMLCommonFixture,
-} from "~/metadata/forms/elements/__fixtures__/formField/rules"
-import { RequiredFieldsElement } from "~/tests/types"
+} from "../../__fixtures__/formField/rules"
+import { RequiredFieldsElement } from "../../../../../tests/types"
 
 export const fullGraphicalSchemaField = {
   itemType: "GraphicalSchemaField",
@@ -88,10 +84,7 @@ export const fullGraphicalSchemaFieldPartialYAML: GraphicalSchemaFieldPartialYAM
     ПриАктивизации: "ПроцедураАктивации",
   },
   ...fullFormFieldPartialYAMLCommonFixture,
-} satisfies Omit<
-  Required<GraphicalSchemaFieldPartialYAML>,
-  "Использование"
->
+} satisfies Omit<Required<GraphicalSchemaFieldPartialYAML>, "Использование">
 
 export const minimalGraphicalSchemaField: GraphicalSchemaField = {
   itemType: "GraphicalSchemaField",

@@ -5,20 +5,20 @@ import {
   exportMetadataItemToYAML,
   importMetadataItemFromXML,
   importMetadataItemFromYAML,
-} from "~/metadata/orchestration"
+} from "../../orchestration"
 import {
   ConfigurationContext,
   ConfigurationContextFromXML,
   ConfigurationContextWithExportToXML,
-} from "~/metadata/context/types"
-import { getTypeRule } from "~/metadata/orchestration/property/typeRuleRegistry"
-import { importPropertyFromXML } from "~/metadata/orchestration/property/fromXML"
-import type { PropertyRule } from "~/metadata/orchestration/property/types"
-import { importContentFromXML } from "~/xml/import/importer"
-import { xmlExport } from "~/xml/export/exporter"
-import { exportToYAML } from "~/yaml/export"
-import { importFromYAML } from "~/yaml/import"
-import { CONFIGURATION_YAML_FILE } from "~/metadata/project/constants"
+} from "../../context/types"
+import { getTypeRule } from "../../orchestration/property/typeRuleRegistry"
+import { importPropertyFromXML } from "../../orchestration/property/fromXML"
+import type { PropertyRule } from "../../orchestration/property/types"
+import { importContentFromXML } from "../../../xml/import/importer"
+import { xmlExport } from "../../../xml/export/exporter"
+import { exportToYAML } from "../../../yaml/export"
+import { importFromYAML } from "../../../yaml/import"
+import { CONFIGURATION_YAML_FILE } from "../../project/constants"
 import { MetadataConfigurationRules } from "./rules"
 import type { MetadataConfiguration, MetadataConfigurationYAML } from "./types"
 import type { ConfigurationChildObjectsXML } from "./childObjects"

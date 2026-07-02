@@ -4,7 +4,7 @@ import { join } from "path"
 import {
   registerProjectNamedResourceResolver,
   type MetadataResolveResult,
-} from "~/metadata/validation/projectMetadataResolverRegistry"
+} from "../../validation/projectMetadataResolverRegistry"
 
 registerProjectNamedResourceResolver("CommonPicture", ({ projectDir, name }) => {
   const filePath = join(projectDir, "ОбщаяКартинка", name, "Свойства.yaml")

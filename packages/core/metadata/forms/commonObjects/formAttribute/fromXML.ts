@@ -1,7 +1,7 @@
-import { ConfigurationContextFromXML } from "~/metadata/context/types"
-import { PropertyRule } from "~/metadata/forms/elements/calendarField/rules"
-import { importMetadataItemFromXML, registerTypeRule } from "~/metadata/orchestration"
-import { XML_SOURCE_KEYS } from "~/metadata/orchestration/property/helpers"
+import { ConfigurationContextFromXML } from "../../../context/types"
+import { PropertyRule } from "../../elements/calendarField/rules"
+import { importMetadataItemFromXML, registerTypeRule } from "../../../orchestration"
+import { XML_SOURCE_KEYS } from "../../../orchestration/property/helpers"
 import { FormAttributeColumnRules, FormAttributeRules } from "./rules"
 import { importTypedFormAttributeSettingsFromXML } from "./settings"
 import {

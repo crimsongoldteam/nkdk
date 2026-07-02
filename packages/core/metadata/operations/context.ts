@@ -1,4 +1,4 @@
-import type { ConfigurationContext } from "~/metadata/context/types"
+import type { ConfigurationContext } from "../context/types"
 
 export function defaultMetadataOperationsContext(): ConfigurationContext {
   return {

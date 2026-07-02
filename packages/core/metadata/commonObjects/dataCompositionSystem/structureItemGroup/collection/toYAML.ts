@@ -1,6 +1,10 @@
-import { ConfigurationContext } from "~/metadata/context/types"
-import { exportPropertyToYAML, PropertyRule, registerTypeRule } from "~/metadata/orchestration"
-import { StructureItemGroupCollectionItemYAML, StructureItemGroupCollectionYAML, StructureItemGroupCollection } from "./types"
+import { ConfigurationContext } from "../../../../context/types"
+import { exportPropertyToYAML, PropertyRule, registerTypeRule } from "../../../../orchestration"
+import {
+  StructureItemGroupCollectionItemYAML,
+  StructureItemGroupCollectionYAML,
+  StructureItemGroupCollection,
+} from "./types"
 
 export const exportStructureItemGroupCollectionToYAML = (
   context: ConfigurationContext,

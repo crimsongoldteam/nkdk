@@ -1,12 +1,12 @@
 import { describe, expect, it } from "vitest"
-import { booleanRule } from "~/metadata/commonObjects/boolean/types"
-import { i8nTextRule } from "~/metadata/commonObjects/i8nText/types"
-import { moduleRule } from "~/metadata/commonObjects/module/types"
-import { numberRule } from "~/metadata/commonObjects/number/types"
-import { stringRule } from "~/metadata/commonObjects/string/types"
-import { uuidRule } from "~/metadata/commonObjects/uuid/types"
-import { xmlRootRule } from "~/metadata/commonObjects/xmlRoot/types"
-import { systemEnumerationRule } from "~/metadata/systemEnumerations/types"
+import { booleanRule } from "./boolean/types"
+import { i8nTextRule } from "./i8nText/types"
+import { moduleRule } from "./module/types"
+import { numberRule } from "./number/types"
+import { stringRule } from "./string/types"
+import { uuidRule } from "./uuid/types"
+import { xmlRootRule } from "./xmlRoot/types"
+import { systemEnumerationRule } from "../systemEnumerations/types"
 
 describe("property rule builders", () => {
   it("return the same plain object shape as inline rule declarations", () => {

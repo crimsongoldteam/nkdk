@@ -1,8 +1,8 @@
-import { systemEnumerationRule } from "~/metadata/systemEnumerations/types"
-import { addDefaultLanguageNameToSynonym } from "~/metadata/helpers/synonymHelpers"
-import { ConfigurationContext } from "~/metadata/context/types"
-import type { MetadataItemRule, PropertyRule } from "~/metadata/orchestration/property/types"
-import { uuidPropertyRule } from "~/metadata/commonObjects/uuid/rule"
+import { systemEnumerationRule } from "../../systemEnumerations/types"
+import { addDefaultLanguageNameToSynonym } from "../../helpers/synonymHelpers"
+import { ConfigurationContext } from "../../context/types"
+import type { MetadataItemRule, PropertyRule } from "../../orchestration/property/types"
+import { uuidPropertyRule } from "../uuid/rule"
 const commonAttributeProperties = {
   uuid: uuidPropertyRule,
   name: {

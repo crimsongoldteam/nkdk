@@ -1,10 +1,10 @@
 import {
   definePropertyRule as defineWidePropertyRule,
   type ExactRuleParams as WideExactRuleParams,
-} from "~/metadata/commonObjects/ruleBuilder"
-import type { PropertyRule as WidePropertyRuleBase } from "~/metadata/orchestration/property/types"
+} from "../ruleBuilder"
+import type { PropertyRule as WidePropertyRuleBase } from "../../orchestration/property/types"
 import { Type } from "@sinclair/typebox"
-import * as SE from "~/metadata/systemEnumerations/types"
+import * as SE from "../../systemEnumerations/types"
 import { MetadataPrimitiveValueXML } from "../metadataValue/types"
 
 //#region ChoiceParameterLink

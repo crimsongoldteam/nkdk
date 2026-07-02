@@ -1,10 +1,10 @@
-import { NamedElement } from "~/metadata/forms/elements/baseElement/types"
+import { NamedElement } from "../../baseElement/types"
 import {
   SearchControlAddition,
   SearchControlAdditionYAML,
   SingleSearchControlAddition,
   SingleSearchControlAdditionYAML,
-} from "~/metadata/forms/elements/searchControlAddition/types"
+} from "../types"
 
 export const parentElement: NamedElement = {
   itemType: "CheckBoxField",

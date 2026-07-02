@@ -1,6 +1,6 @@
-import { ConfigurationContext } from "~/metadata/context/types"
-import { registerTypeRule } from "~/metadata/orchestration/property/typeRuleRegistry"
-import type { EventsPropertyRule, PropertyRule } from "~/metadata/orchestration/property/types"
+import { ConfigurationContext } from "../../../context/types"
+import { registerTypeRule } from "../../../orchestration/property/typeRuleRegistry"
+import type { EventsPropertyRule, PropertyRule } from "../../../orchestration/property/types"
 
 const isNonEmptyObject = (value: unknown): value is Record<string, unknown> => {
   return typeof value === "object" && value !== null && !Array.isArray(value) && Object.keys(value as object).length > 0

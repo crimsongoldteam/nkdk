@@ -1,20 +1,20 @@
 import fs from "fs"
 import { basename, dirname, join } from "path"
-import { ConfigurationContext, ConfigurationContextFromXML } from "~/metadata/context/types"
-import { importMetadataItemFromYAML } from "~/metadata/orchestration"
-import { registerTypeRule } from "~/metadata/orchestration/property/typeRuleRegistry"
-import { exportMetadataCollectionToYAMLAsRecord } from "~/metadata/orchestration/metadataCollection/toYAML"
-import { exportMetadataItemToJSONSchema } from "~/metadata/orchestration/metadataItem/toJSONSchema"
-import { exportMetadataItemToXML } from "~/metadata/orchestration/metadataItem/toXML"
+import { ConfigurationContext, ConfigurationContextFromXML } from "../../context/types"
+import { importMetadataItemFromYAML } from "../../orchestration"
+import { registerTypeRule } from "../../orchestration/property/typeRuleRegistry"
+import { exportMetadataCollectionToYAMLAsRecord } from "../../orchestration/metadataCollection/toYAML"
+import { exportMetadataItemToJSONSchema } from "../../orchestration/metadataItem/toJSONSchema"
+import { exportMetadataItemToXML } from "../../orchestration/metadataItem/toXML"
 import {
   ExportToJSONSchemaFn,
   ExportToXMLFunctionNew,
   SyncExternalFromXMLFunction,
   SyncExternalToXMLFunction,
-} from "~/metadata/orchestration/property/fn"
+} from "../../orchestration/property/fn"
 import { Type } from "@sinclair/typebox"
-import type { PropertyRule } from "~/metadata/orchestration/property/types"
-import type { XmlWriteManifest } from "~/metadata/orchestration/xmlWriteManifest"
+import type { PropertyRule } from "../../orchestration/property/types"
+import type { XmlWriteManifest } from "../../orchestration/xmlWriteManifest"
 import { RecalculationRules } from "./rules"
 import type { Recalculation, RecalculationYAML, Recalculations, RecalculationsYAML } from "./types"
 
@@ -123,7 +123,9 @@ export const syncRecalculationsToXML: SyncExternalToXMLFunction = async ({
   for (const recalculationName of recalculationNames) {
     await copyIfExists({
       src: join(recalculationsDir, recalculationName, RECALCULATION_NKDK_XML),
-      fallbackSrc: referenceRecalculationsDir ? join(referenceRecalculationsDir, `${recalculationName}.xml`) : undefined,
+      fallbackSrc: referenceRecalculationsDir
+        ? join(referenceRecalculationsDir, `${recalculationName}.xml`)
+        : undefined,
       dst: join(xmlRecalculationsDir, `${recalculationName}.xml`),
       xmlManifest,
     })
@@ -141,11 +143,7 @@ async function copyIfExists(params: {
   xmlManifest?: XmlWriteManifest
 }): Promise<void> {
   const { src, fallbackSrc, dst, xmlManifest } = params
-  const existingSrc = fs.existsSync(src)
-    ? src
-    : fallbackSrc && fs.existsSync(fallbackSrc)
-      ? fallbackSrc
-      : undefined
+  const existingSrc = fs.existsSync(src) ? src : fallbackSrc && fs.existsSync(fallbackSrc) ? fallbackSrc : undefined
   if (!existingSrc) return
   await fs.promises.mkdir(dirname(dst), { recursive: true })
   await fs.promises.copyFile(existingSrc, dst)

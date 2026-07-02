@@ -1,6 +1,6 @@
-import { ConfigurationContextWithExportToXML } from "~/metadata/context/types"
-import type { PropertyRule } from "~/metadata/orchestration/property/types"
-import { registerTypeRule } from "~/metadata/orchestration/property/typeRuleRegistry"
+import { ConfigurationContextWithExportToXML } from "../../context/types"
+import type { PropertyRule } from "../../orchestration/property/types"
+import { registerTypeRule } from "../../orchestration/property/typeRuleRegistry"
 import type { NumberPropertyRule } from "./types"
 
 export const exportNumberToXML = (

@@ -1,6 +1,9 @@
-import { definePropertyRule as defineWidePropertyRule, type ExactRuleParams as WideExactRuleParams } from "~/metadata/commonObjects/ruleBuilder"
-import { namedCollectionTarget } from "~/metadata/orchestration/property/operationTargets"
-import type { PropertyRule as WidePropertyRuleBase } from "~/metadata/orchestration/property/types"
+import {
+  definePropertyRule as defineWidePropertyRule,
+  type ExactRuleParams as WideExactRuleParams,
+} from "../../commonObjects/ruleBuilder"
+import { namedCollectionTarget } from "../../orchestration/property/operationTargets"
+import type { PropertyRule as WidePropertyRuleBase } from "../../orchestration/property/types"
 
 export interface MetadataCommandsWidePropertyRule extends WidePropertyRuleBase {
   type: "MetadataCommands"
@@ -38,7 +41,11 @@ export function metadataRegisterDimensionsRule<const Params extends MetadataRegi
 ): Readonly<{ type: "MetadataRegisterDimensions" } & Params> {
   return defineWidePropertyRule("MetadataRegisterDimensions", {
     ...params,
-    operationTarget: namedCollectionTarget({ kind: "dimension", migrationSegment: "Измерение", requiresMigration: true }),
+    operationTarget: namedCollectionTarget({
+      kind: "dimension",
+      migrationSegment: "Измерение",
+      requiresMigration: true,
+    }),
   })
 }
 export interface MetadataRegisterAttributesWidePropertyRule extends WidePropertyRuleBase {
@@ -52,7 +59,11 @@ export function metadataRegisterAttributesRule<const Params extends MetadataRegi
 ): Readonly<{ type: "MetadataRegisterAttributes" } & Params> {
   return defineWidePropertyRule("MetadataRegisterAttributes", {
     ...params,
-    operationTarget: namedCollectionTarget({ kind: "attribute", migrationSegment: "Реквизит", requiresMigration: true }),
+    operationTarget: namedCollectionTarget({
+      kind: "attribute",
+      migrationSegment: "Реквизит",
+      requiresMigration: true,
+    }),
   })
 }
 export interface MetadataRegisterResourcesWidePropertyRule extends WidePropertyRuleBase {

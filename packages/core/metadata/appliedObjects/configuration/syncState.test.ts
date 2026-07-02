@@ -10,11 +10,7 @@ import {
   SYNC_STATE_FILE,
   writeXmlSyncState,
 } from "./syncState"
-import {
-  BINARY_SYNC_STATE_FILE,
-  decodeBinaryXmlSyncState,
-  encodeBinaryXmlSyncState,
-} from "./syncStateBinary"
+import { BINARY_SYNC_STATE_FILE, decodeBinaryXmlSyncState, encodeBinaryXmlSyncState } from "./syncStateBinary"
 
 describe("xml sync state", () => {
   const dirs: string[] = []
@@ -106,7 +102,7 @@ describe("xml sync state", () => {
         "  Справочник/Товары/Модуль.bsl: xxh3-64:0000000000000bbb",
         "",
       ].join("\n"),
-      "utf-8",
+      "utf-8"
     )
 
     await expect(readXmlSyncState(xmlDir)).resolves.toEqual({
@@ -120,11 +116,7 @@ describe("xml sync state", () => {
 
   it("prefers binary sync state over legacy YAML state", async () => {
     const xmlDir = tempDir()
-    writeFileSync(
-      join(xmlDir, SYNC_STATE_FILE),
-      "version: 1\nfiles:\n  old.yaml: xxh3-64:0000000000000001\n",
-      "utf-8",
-    )
+    writeFileSync(join(xmlDir, SYNC_STATE_FILE), "version: 1\nfiles:\n  old.yaml: xxh3-64:0000000000000001\n", "utf-8")
     await writeXmlSyncState(xmlDir, {
       version: 1,
       files: {
@@ -145,7 +137,7 @@ describe("xml sync state", () => {
     writeFileSync(
       join(xmlDir, SYNC_STATE_FILE),
       "version: 1\nfiles:\n  a.yaml: sha256:aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa\n",
-      "utf-8",
+      "utf-8"
     )
 
     await expect(readXmlSyncState(xmlDir)).rejects.toThrow(`Некорректный ${SYNC_STATE_FILE}`)
@@ -163,21 +155,35 @@ describe("xml sync state", () => {
     writeFileSync(
       join(yamlDir, "Справочник", "Товары", "Свойства.yaml"),
       ["Имя: Товары", "Команды:", "  Печать:", "    Синоним: Печать", ""].join("\n"),
-      "utf-8",
+      "utf-8"
     )
     writeFileSync(join(yamlDir, "Справочник", "Товары", "МодульОбъекта.bsl"), "b\r\n", "utf-8")
     writeFileSync(join(yamlDir, "Справочник", "Товары", "Команды", "Печать.bsl"), "c\n", "utf-8")
-    writeFileSync(join(yamlDir, "Справочник", "Товары", "Формы", "ФормаЭлемента", "Форма.yaml"), "Имя: ФормаЭлемента\n", "utf-8")
+    writeFileSync(
+      join(yamlDir, "Справочник", "Товары", "Формы", "ФормаЭлемента", "Форма.yaml"),
+      "Имя: ФормаЭлемента\n",
+      "utf-8"
+    )
     writeFileSync(
       join(yamlDir, "Справочник", "Товары", "Формы", "ФормаЭлемента", "Справка", "ru.html"),
       "<html>form help</html>\n",
-      "utf-8",
+      "utf-8"
     )
-    mkdirSync(join(yamlDir, "Справочник", "Товары", "Формы", "ФормаЭлемента", "ДинамическийСписок"), { recursive: true })
-    writeFileSync(join(yamlDir, "Справочник", "Товары", "Формы", "ФормаЭлемента", "ДинамическийСписок", "Список.query"), "ВЫБРАТЬ 1\n", "utf-8")
+    mkdirSync(join(yamlDir, "Справочник", "Товары", "Формы", "ФормаЭлемента", "ДинамическийСписок"), {
+      recursive: true,
+    })
+    writeFileSync(
+      join(yamlDir, "Справочник", "Товары", "Формы", "ФормаЭлемента", "ДинамическийСписок", "Список.query"),
+      "ВЫБРАТЬ 1\n",
+      "utf-8"
+    )
     mkdirSync(join(yamlDir, "Справочник", "Товары", "Справка"), { recursive: true })
     writeFileSync(join(yamlDir, "Справочник", "Товары", "Справка", "ru.html"), "<html>help</html>\n", "utf-8")
-    writeFileSync(join(yamlDir, "Справочник", "Товары", "Шаблоны", "ПечатнаяФорма", "Template.xml"), "<template/>\n", "utf-8")
+    writeFileSync(
+      join(yamlDir, "Справочник", "Товары", "Шаблоны", "ПечатнаяФорма", "Template.xml"),
+      "<template/>\n",
+      "utf-8"
+    )
     writeFileSync(join(yamlDir, "Справочник", "Товары", "unknown.tmp"), "noise\n", "utf-8")
     writeFileSync(join(yamlDir, "Миграции", "2026-05-05-143000.yaml"), "ignored\n", "utf-8")
 
@@ -208,7 +214,7 @@ describe("xml sync state", () => {
     writeFileSync(join(yamlDir, "Миграции", "2026-06-30-120000.yaml"), '"Справочник.Товары": "Номенклатура"\n', "utf-8")
 
     expect(Object.keys(await hashProjectFiles(yamlDir))).not.toEqual(
-      expect.arrayContaining(["Миграции/2026-06-30-120000.yaml"]),
+      expect.arrayContaining(["Миграции/2026-06-30-120000.yaml"])
     )
   })
 
@@ -224,8 +230,8 @@ describe("xml sync state", () => {
           "a.yaml": "xxh3-64:0000000000000004",
           "added.yaml": "xxh3-64:0000000000000005",
           "same.yaml": "xxh3-64:0000000000000003",
-        },
-      ),
+        }
+      )
     ).toEqual({
       added: ["added.yaml"],
       changed: ["a.yaml"],
@@ -267,7 +273,7 @@ describe("xml sync state", () => {
 
   it("validates hash concurrency during initialization", async () => {
     await expect(initializeXmlSyncState({ yamlDir: tempDir(), xmlDir: tempDir(), hashConcurrency: 0 })).rejects.toThrow(
-      "concurrency",
+      "concurrency"
     )
   })
 })

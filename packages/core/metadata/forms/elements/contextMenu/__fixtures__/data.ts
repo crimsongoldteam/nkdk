@@ -1,5 +1,5 @@
-import { NamedElement } from "~/metadata/forms/elements/baseElement/types"
-import { ContextMenu, ContextMenuYAML } from "~/metadata/forms/elements/contextMenu/types"
+import { NamedElement } from "../../baseElement/types"
+import { ContextMenu, ContextMenuYAML } from "../types"
 
 export const parentElement: NamedElement = {
   itemType: "InputField",

@@ -1,7 +1,7 @@
-import { fieldsListRule } from "~/metadata/commonObjects/fieldsList/types"
-import { functionalOptionsPropertyRule } from "~/metadata/commonObjects/functionalOptionsProperty/types"
-import { typeDescriptionRule } from "~/metadata/commonObjects/typeDescription/types"
-import { userVisibleRule } from "~/metadata/commonObjects/userVisible/types"
+import { fieldsListRule } from "../../../commonObjects/fieldsList/types"
+import { functionalOptionsPropertyRule } from "../../../commonObjects/functionalOptionsProperty/types"
+import { typeDescriptionRule } from "../../../commonObjects/typeDescription/types"
+import { userVisibleRule } from "../../../commonObjects/userVisible/types"
 import {
   chartRule,
   dynamicListRule,
@@ -11,13 +11,13 @@ import {
   ganttChartRule,
   plannerRule,
   spreadsheetDocumentRule,
-} from "~/metadata/forms/commonObjects/formAttribute/builders"
-import { booleanRule } from "~/metadata/commonObjects/boolean/types"
-import { i8nTextRule } from "~/metadata/commonObjects/i8nText/types"
-import { stringRule } from "~/metadata/commonObjects/string/types"
-import { systemEnumerationRule } from "~/metadata/systemEnumerations/types"
-import { splitPascalCase } from "~/metadata/helpers/canConvertToPascalCase"
-import type { MetadataItemRule } from "~/metadata/orchestration/property/types"
+} from "./builders"
+import { booleanRule } from "../../../commonObjects/boolean/types"
+import { i8nTextRule } from "../../../commonObjects/i8nText/types"
+import { stringRule } from "../../../commonObjects/string/types"
+import { systemEnumerationRule } from "../../../systemEnumerations/types"
+import { splitPascalCase } from "../../../helpers/canConvertToPascalCase"
+import type { MetadataItemRule } from "../../../orchestration/property/types"
 export const FormAttributeRules = {
   itemType: "FormAttribute",
   properties: {

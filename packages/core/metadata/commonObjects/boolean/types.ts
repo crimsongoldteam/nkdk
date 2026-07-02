@@ -1,7 +1,7 @@
 import { Type } from "@sinclair/typebox"
 import type { Static } from "@sinclair/typebox"
-import { definePropertyRule, type ExactRuleParams } from "~/metadata/commonObjects/ruleBuilder"
-import type { BasePropertyRule } from "~/metadata/orchestration/property/types"
+import { definePropertyRule, type ExactRuleParams } from "../ruleBuilder"
+import type { BasePropertyRule } from "../../orchestration/property/types"
 
 export type StringboolXML = "true" | "false" | boolean
 

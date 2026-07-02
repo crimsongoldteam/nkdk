@@ -3,11 +3,7 @@ import { join } from "path"
 import { migrationFileNameToDate, nextMigrationFileName } from "./fileNames"
 import { MIGRATIONS_DIR, type MigrationEntry } from "./types"
 
-export function writeMigrationFile(params: {
-  yamlDir: string
-  entries: MigrationEntry[]
-  now?: Date
-}): string {
+export function writeMigrationFile(params: { yamlDir: string; entries: MigrationEntry[]; now?: Date }): string {
   if (!fs.existsSync(params.yamlDir)) throw new Error(`YAML-каталог не найден: ${params.yamlDir}`)
   const migrationsDir = join(params.yamlDir, MIGRATIONS_DIR)
   fs.mkdirSync(migrationsDir, { recursive: true })

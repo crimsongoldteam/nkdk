@@ -1,8 +1,8 @@
-import type { PropertyRuleType } from "~/metadata/orchestration/property/registry"
-import { getTypeRule } from "~/metadata/orchestration/property/typeRuleRegistry"
-import type { ProjectResourceDescriptor, XmlSyncRoute } from "~/metadata/orchestration/property/fn"
-import type { PropertyOperationTargetDeclaration } from "~/metadata/orchestration/property/operationTargets"
-import type { MetadataItemRule, PropertyRule } from "~/metadata/orchestration/property/types"
+import type { PropertyRuleType } from "../orchestration/property/registry"
+import { getTypeRule } from "../orchestration/property/typeRuleRegistry"
+import type { ProjectResourceDescriptor, XmlSyncRoute } from "../orchestration/property/fn"
+import type { PropertyOperationTargetDeclaration } from "../orchestration/property/operationTargets"
+import type { MetadataItemRule, PropertyRule } from "../orchestration/property/types"
 
 export type MetadataProjectResourceDescriptor =
   | MetadataProjectYamlDescriptor

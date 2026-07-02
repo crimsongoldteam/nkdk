@@ -1,6 +1,6 @@
 import fs from "fs"
 import { resolve } from "path"
-import { parseMetadataYaml, type ParsedYaml } from "~/yaml/parseMetadataYaml"
+import { parseMetadataYaml, type ParsedYaml } from "../../yaml/parseMetadataYaml"
 
 export interface ProjectYamlEntry {
   filePath: string

@@ -1,6 +1,6 @@
-import { importBooleanFromYAML } from "~/metadata/commonObjects/boolean/fromYAML"
-import type { PropertyRule } from "~/metadata/orchestration/property/types"
-import { registerTypeRule } from "~/metadata/orchestration/property/typeRuleRegistry"
+import { importBooleanFromYAML } from "../boolean/fromYAML"
+import type { PropertyRule } from "../../orchestration/property/types"
+import { registerTypeRule } from "../../orchestration/property/typeRuleRegistry"
 import { ConfigurationContext } from "../../context/types"
 import type { UserSettingsID, UserSettingsIDYAML } from "./types"
 

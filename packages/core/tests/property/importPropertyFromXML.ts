@@ -1,8 +1,8 @@
-import { ElementXML, importPropertyFromXML, PropertyRule } from "~/metadata/orchestration"
-import { importContentFromXML } from "~/xml/import/importer"
-import { mockContextFromXML } from "~/tests/mockContext"
-import { readAndParseXMLFile } from "~/tests/readAndParseXMLFile"
-import { testFixturesDir } from "~/tests/testFixturesDir"
+import { ElementXML, importPropertyFromXML, PropertyRule } from "../../metadata/orchestration"
+import { importContentFromXML } from "../../xml/import/importer"
+import { mockContextFromXML } from "../mockContext"
+import { readAndParseXMLFile } from "../readAndParseXMLFile"
+import { testFixturesDir } from "../testFixturesDir"
 
 export const testImportPropertyFromXML = (
   params: {

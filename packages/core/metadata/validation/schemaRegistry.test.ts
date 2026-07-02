@@ -1,16 +1,12 @@
-import "~/metadata/appliedObjects"
-import "~/metadata/forms"
+import "../appliedObjects"
+import "../forms"
 import { TypeCompiler } from "@sinclair/typebox/compiler"
 import { beforeEach, describe, expect, it } from "vitest"
-import { MetadataConfigurationRules } from "~/metadata/appliedObjects/configuration/rules"
-import { MetadataLanguageRules } from "~/metadata/appliedObjects/metadataLanguage/rules"
-import { exportMetadataItemToJSONSchema } from "~/metadata/orchestration/metadataItem/toJSONSchema"
-import { clearJSONSchemaRefRegistries } from "~/metadata/orchestration/jsonSchemaRefs"
-import {
-  ensureJSONSchemaRegistry,
-  exportJSONSchemaForSchemaName,
-  listJSONSchemaNames,
-} from "~/metadata/validation/schemaRegistry"
+import { MetadataConfigurationRules } from "../appliedObjects/configuration/rules"
+import { MetadataLanguageRules } from "../appliedObjects/metadataLanguage/rules"
+import { exportMetadataItemToJSONSchema } from "../orchestration/metadataItem/toJSONSchema"
+import { clearJSONSchemaRefRegistries } from "../orchestration/jsonSchemaRefs"
+import { ensureJSONSchemaRegistry, exportJSONSchemaForSchemaName, listJSONSchemaNames } from "./schemaRegistry"
 
 const context = {
   defaultLanguage: "ru",

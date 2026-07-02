@@ -1,6 +1,6 @@
-import type { ConfigurationContextFromXML } from "~/metadata/context/types"
-import type { PropertyRule } from "~/metadata/orchestration"
-import { registerTypeRule } from "~/metadata/orchestration"
+import type { ConfigurationContextFromXML } from "../../context/types"
+import type { PropertyRule } from "../../orchestration"
+import { registerTypeRule } from "../../orchestration"
 
 export const importChildFileItemNamesFromXML = (
   _context: ConfigurationContextFromXML,

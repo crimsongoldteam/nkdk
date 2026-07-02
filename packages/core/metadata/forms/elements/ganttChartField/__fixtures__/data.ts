@@ -1,16 +1,12 @@
-import {
-  GanttChartField,
-  GanttChartFieldEnterprise,
-  GanttChartFieldPartialYAML,
-} from "~/metadata/forms/elements/ganttChartField/types"
-import { Table, TablePartialYAML } from "~/metadata/forms/elements/table/types"
+import { GanttChartField, GanttChartFieldEnterprise, GanttChartFieldPartialYAML } from "../types"
+import { Table, TablePartialYAML } from "../../table/types"
 
 import {
   fullFormFieldCommonFixture,
   fullFormFieldEnterpriseCommonFixture,
   fullFormFieldPartialYAMLCommonFixture,
-} from "~/metadata/forms/elements/__fixtures__/formField/rules"
-import { RequiredFieldsElement } from "~/tests/types"
+} from "../../__fixtures__/formField/rules"
+import { RequiredFieldsElement } from "../../../../../tests/types"
 
 const fullGanttChartFieldTable = {
   itemType: "Table",

@@ -1,14 +1,14 @@
 import { TSchema, Type } from "@sinclair/typebox"
-import { ConfigurationContext } from "~/metadata/context/types"
-import { ExportToJSONSchemaFn, registerTypeRule } from "~/metadata/orchestration"
-import { getElementRule } from "~/metadata/orchestration/formElement/ruleFactory"
+import { ConfigurationContext } from "../../../context/types"
+import { ExportToJSONSchemaFn, registerTypeRule } from "../../../orchestration"
+import { getElementRule } from "../../../orchestration/formElement/ruleFactory"
 import {
   exportElementRuleToJSONSchema,
   exportElementToJSONSchema,
-} from "~/metadata/orchestration/formElement/toJSONSchema"
-import { ElementRule, CollectableElementTypeToYAML } from "~/metadata/orchestration/formElement/types"
-import { createJSONSchemaPropertyOverrideContext } from "~/metadata/orchestration/jsonSchemaRefs"
-import type { PropertyRuleType } from "~/metadata/orchestration/property/registry"
+} from "../../../orchestration/formElement/toJSONSchema"
+import { ElementRule, CollectableElementTypeToYAML } from "../../../orchestration/formElement/types"
+import { createJSONSchemaPropertyOverrideContext } from "../../../orchestration/jsonSchemaRefs"
+import type { PropertyRuleType } from "../../../orchestration/property/registry"
 import {
   childItemsTreePropertyTypes,
   ChildItemsTreePropertyType,
@@ -78,13 +78,13 @@ type ChildItemsSchemaModule = {
   Import: (key: ChildItemsTreePropertyType) => TSchema
 }
 
-function createChildItemsSchemaModule(definitions: Record<ChildItemsTreePropertyType, TSchema>): ChildItemsSchemaModule {
+function createChildItemsSchemaModule(
+  definitions: Record<ChildItemsTreePropertyType, TSchema>
+): ChildItemsSchemaModule {
   return Type.Module(definitions) as unknown as ChildItemsSchemaModule
 }
 
-function createInlineChildItemsDefinitions(
-  context: ConfigurationContext
-): Record<ChildItemsTreePropertyType, TSchema> {
+function createInlineChildItemsDefinitions(context: ConfigurationContext): Record<ChildItemsTreePropertyType, TSchema> {
   const childItemsContext = createJSONSchemaPropertyOverrideContext(context, createChildItemsPropertyRefs())
 
   return Object.fromEntries(

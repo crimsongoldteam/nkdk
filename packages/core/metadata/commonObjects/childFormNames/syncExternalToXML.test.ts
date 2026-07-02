@@ -1,11 +1,11 @@
 import fs from "fs"
 import { dirname, join } from "path"
 import { beforeEach, describe, expect, it } from "vitest"
-import { mockContextToXML } from "~/tests/mockContext"
-import { getXMLFixturePath } from "~/tests/readAndParseXMLFile"
-import { MetadataCatalogRules } from "~/metadata/appliedObjects/metadataCatalog/rules"
-import { syncAppliedObjectToXML } from "~/metadata/orchestration/appliedObject/syncToXML"
-import { importContentFromXML } from "~/xml/import/importer"
+import { mockContextToXML } from "../../../tests/mockContext"
+import { getXMLFixturePath } from "../../../tests/readAndParseXMLFile"
+import { MetadataCatalogRules } from "../../appliedObjects/metadataCatalog/rules"
+import { syncAppliedObjectToXML } from "../../orchestration/appliedObject/syncToXML"
+import { importContentFromXML } from "../../../xml/import/importer"
 import { buildChildFormCurrentXMLPath } from "./syncExternalToXML"
 
 describe("syncChildFormNamesToXML (через syncAppliedObjectToXML)", () => {
@@ -97,7 +97,7 @@ describe("syncChildFormNamesToXML (через syncAppliedObjectToXML)", () => {
     fs.writeFileSync(
       referenceHelpXmlPath,
       `<?xml version="1.0" encoding="UTF-8"?>\n<Help xmlns="http://v8.1c.ru/8.3/xcf/extrnprops" xmlns:xs="http://www.w3.org/2001/XMLSchema" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" version="2.20">\n\t<Page>stale</Page>\n</Help>`,
-      "utf-8",
+      "utf-8"
     )
     fs.writeFileSync(join(referenceHelpDir, "stale.html"), "<html>stale</html>", "utf-8")
 

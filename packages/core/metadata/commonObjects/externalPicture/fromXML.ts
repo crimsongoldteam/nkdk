@@ -1,7 +1,7 @@
 import fs from "fs"
 import { basename, dirname, join } from "path"
-import { registerTypeRule } from "~/metadata/orchestration"
-import type { PropertyRule } from "~/metadata/orchestration/property/types"
+import { registerTypeRule } from "../../orchestration"
+import type { PropertyRule } from "../../orchestration/property/types"
 import type { ExternalPicturePropertyRule } from "./types"
 
 export const syncExternalPictureFromXML = async (params: {

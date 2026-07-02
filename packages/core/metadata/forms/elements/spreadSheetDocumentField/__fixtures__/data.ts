@@ -2,14 +2,14 @@ import {
   SpreadSheetDocumentField,
   SpreadSheetDocumentFieldEnterprise,
   SpreadSheetDocumentFieldPartialYAML,
-} from "~/metadata/forms/elements/spreadSheetDocumentField/types"
+} from "../types"
 
 import {
   fullFormFieldCommonFixture,
   fullFormFieldEnterpriseCommonFixture,
   fullFormFieldPartialYAMLCommonFixture,
-} from "~/metadata/forms/elements/__fixtures__/formField/rules"
-import { RequiredFieldsElement } from "~/tests/types"
+} from "../../__fixtures__/formField/rules"
+import { RequiredFieldsElement } from "../../../../../tests/types"
 
 export const fullSpreadSheetDocumentField = {
   itemType: "SpreadSheetDocumentField",
@@ -170,10 +170,7 @@ export const fullSpreadSheetDocumentFieldPartialYAML: SpreadSheetDocumentFieldPa
   РазрешитьПеретаскивание: "Ложь",
   РазрешитьНачалоПеретаскивания: "Ложь",
   ...fullFormFieldPartialYAMLCommonFixture,
-} satisfies Omit<
-  Required<SpreadSheetDocumentFieldPartialYAML>,
-  "Использование"
->
+} satisfies Omit<Required<SpreadSheetDocumentFieldPartialYAML>, "Использование">
 
 export const minimalSpreadSheetDocumentField: SpreadSheetDocumentField = {
   itemType: "SpreadSheetDocumentField",

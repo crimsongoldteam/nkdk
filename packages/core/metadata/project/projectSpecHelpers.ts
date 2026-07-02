@@ -1,9 +1,9 @@
 import type { TSchema } from "@sinclair/typebox"
-import type { ConfigurationContext } from "~/metadata/context/types"
-import { attachCollectedSchemaRefs, createJSONSchemaExportContext } from "~/metadata/orchestration/jsonSchemaRefs"
-import { importMetadataItemFromYAML } from "~/metadata/orchestration/metadataItem/fromYAML"
-import { exportMetadataItemToJSONSchema } from "~/metadata/orchestration/metadataItem/toJSONSchema"
-import type { MetadataItem, MetadataItemRule } from "~/metadata/orchestration/property/types"
+import type { ConfigurationContext } from "../context/types"
+import { attachCollectedSchemaRefs, createJSONSchemaExportContext } from "../orchestration/jsonSchemaRefs"
+import { importMetadataItemFromYAML } from "../orchestration/metadataItem/fromYAML"
+import { exportMetadataItemToJSONSchema } from "../orchestration/metadataItem/toJSONSchema"
+import type { MetadataItem, MetadataItemRule } from "../orchestration/property/types"
 import type { RegisteredProjectSpec } from "./projectSpecRegistry"
 
 export function createMetadataItemProjectSchemaExporter(rule: MetadataItemRule): RegisteredProjectSpec["exportSchema"] {

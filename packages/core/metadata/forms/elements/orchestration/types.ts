@@ -1,6 +1,11 @@
-import type { FormButtonType, FormDecorationType, FormFieldType, FormGroupType } from "~/metadata/systemEnumerations/types"
-import { ToYAML } from "~/metadata/orchestration/metadataItem/registry"
-import type { MetadataItemRule } from "~/metadata/orchestration/property/types"
+import type {
+  FormButtonType,
+  FormDecorationType,
+  FormFieldType,
+  FormGroupType,
+} from "../../../systemEnumerations/types"
+import { ToYAML } from "../../../orchestration/metadataItem/registry"
+import type { MetadataItemRule } from "../../../orchestration/property/types"
 
 //#region FormElementType
 

@@ -1,5 +1,5 @@
 import { describe, expect, it } from "vitest"
-import { mockContext, mockContextFromXML } from "~/tests/mockContext"
+import { mockContext, mockContextFromXML } from "../../../../tests/mockContext"
 import {
   formChoiceRefsFixedArray,
   refsWithNilFixedArray,

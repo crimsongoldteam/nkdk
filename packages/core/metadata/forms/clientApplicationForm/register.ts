@@ -3,7 +3,7 @@ import {
   registerFormValidationPasses,
   registerFormValidator,
   registerFormWarningProvider,
-} from "~/metadata/validation/formValidationRegistry"
+} from "../../validation/formValidationRegistry"
 import {
   collectDynamicListTypeValueWarnings,
   validateClientApplicationForm,

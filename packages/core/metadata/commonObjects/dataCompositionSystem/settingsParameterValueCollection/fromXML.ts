@@ -1,6 +1,6 @@
-import { ConfigurationContextFromXML } from "~/metadata/context/types"
-import { PropertyRule, registerTypeRule } from "~/metadata/orchestration"
-import type { SettingsParameterValueCollectionPropertyRule } from "~/metadata/orchestration/property/types"
+import { ConfigurationContextFromXML } from "../../../context/types"
+import { PropertyRule, registerTypeRule } from "../../../orchestration"
+import type { SettingsParameterValueCollectionPropertyRule } from "../../../orchestration/property/types"
 import { importSettingsParameterValueDcscorItemsFromXML } from "./dcscorItemsXML"
 import type { SettingsParameterValueCollection, SettingsParameterValueCollectionXML } from "./types"
 

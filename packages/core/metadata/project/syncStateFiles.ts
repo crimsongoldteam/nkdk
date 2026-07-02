@@ -1,6 +1,6 @@
 import fs from "fs"
 import { join } from "path"
-import type { MetadataItemRule } from "~/metadata/orchestration/property/types"
+import type { MetadataItemRule } from "../orchestration/property/types"
 import { CONFIGURATION_YAML_FILE } from "./constants"
 import { describeMetadataRuleProjectResources } from "./ruleResources"
 import { configurationMetadataProjectSpec, metadataProjectSpecs, type MetadataProjectSpec } from "./specs"

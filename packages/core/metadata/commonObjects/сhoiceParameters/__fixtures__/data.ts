@@ -1,9 +1,6 @@
-import { ChoiceParameter, ChoiceParameters, ChoiceParametersYAML } from "~/metadata/commonObjects/сhoiceParameters/types"
-import { explicitYAMLString } from "~/yaml/explicitString"
-import {
-  refsWithNilFixedArray,
-  refsWithNilFixedArrayYAML,
-} from "~/metadata/commonObjects/metadataValue/fixedArray/__fixtures__/data"
+import { ChoiceParameter, ChoiceParameters, ChoiceParametersYAML } from "../types"
+import { explicitYAMLString } from "../../../../yaml/explicitString"
+import { refsWithNilFixedArray, refsWithNilFixedArrayYAML } from "../../metadataValue/fixedArray/__fixtures__/data"
 
 //#region DCS (один параметр для фрагмента СКД)
 export const dcsDecimalChoiceParameter: ChoiceParameter = {

@@ -1,5 +1,5 @@
 import { describe, expect, it } from "vitest"
-import { mockContext, mockRule } from "~/tests/mockContext"
+import { mockContext, mockRule } from "../../../../tests/mockContext"
 import { exportFormParametersToYAML } from "./toYAML"
 import { FormParameters } from "./types"
 

@@ -4,11 +4,11 @@ import {
   ConfigurationContextFromXML,
   ConfigurationContextWithExportToXML,
 } from "../../context/types"
-import type { MetadataTargetOwner } from "~/metadata/commonObjects/metadataTargets"
-import type { ProjectMetadataResolver } from "~/metadata/validation/projectMetadataResolver"
-import type { Diagnostic } from "~/metadata/validation/types"
-import type { YamlPath } from "~/metadata/validation/yamlLocations"
-import type { ParsedYaml } from "~/yaml/parseMetadataYaml"
+import type { MetadataTargetOwner } from "../../commonObjects/metadataTargets"
+import type { ProjectMetadataResolver } from "../../validation/projectMetadataResolver"
+import type { Diagnostic } from "../../validation/types"
+import type { YamlPath } from "../../validation/yamlLocations"
+import type { ParsedYaml } from "../../../yaml/parseMetadataYaml"
 import type { XmlWriteManifest } from "../xmlWriteManifest"
 import { PropertyRuleType } from "./registry"
 import type { MetadataItem, MetadataItemRule, PropertyRule } from "./types"

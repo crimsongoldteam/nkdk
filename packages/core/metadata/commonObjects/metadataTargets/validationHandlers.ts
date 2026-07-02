@@ -1,7 +1,7 @@
-import type { StructuralReferencesFunction, ValidateMetadataTargetFunction } from "~/metadata/orchestration/property/fn"
-import { registerTypeRule } from "~/metadata/orchestration/property/typeRuleRegistry"
-import * as SE from "~/metadata/systemEnumerations/types"
-import { diagnosticAtYamlPath } from "~/metadata/validation/yamlLocations"
+import type { StructuralReferencesFunction, ValidateMetadataTargetFunction } from "../../orchestration/property/fn"
+import { registerTypeRule } from "../../orchestration/property/typeRuleRegistry"
+import * as SE from "../../systemEnumerations/types"
+import { diagnosticAtYamlPath } from "../../validation/yamlLocations"
 import { parseMetadataTargetFromModel } from "./parse"
 import type { StyleItemTargetType } from "./types"
 import type { MetadataTargetConstraint, ParsedMetadataTarget } from "./types"
@@ -41,7 +41,7 @@ const validateStringTargetList: ValidateMetadataTargetFunction = (params) => {
       ...params,
       value,
       yamlPath: [...params.yamlPath, index],
-    }),
+    })
   )
 }
 
@@ -112,7 +112,8 @@ const validateBorderTarget: ValidateMetadataTargetFunction = (params) => {
 }
 
 const validatePictureTarget: ValidateMetadataTargetFunction = (params) => {
-  if (!isRecord(params.value) || params.value.type !== "CommonPicture" || typeof params.value.ref !== "string") return []
+  if (!isRecord(params.value) || params.value.type !== "CommonPicture" || typeof params.value.ref !== "string")
+    return []
 
   const result = params.resolver.resolveCommonPicture({ name: params.value.ref })
   return result.ok ? [] : result.diagnostics
@@ -120,7 +121,8 @@ const validatePictureTarget: ValidateMetadataTargetFunction = (params) => {
 
 const collectPictureReference: StructuralReferencesFunction = (params) => {
   if (!params.propRule.metadataTarget) return []
-  if (!isRecord(params.value) || params.value.type !== "CommonPicture" || typeof params.value.ref !== "string") return []
+  if (!isRecord(params.value) || params.value.type !== "CommonPicture" || typeof params.value.ref !== "string")
+    return []
 
   return [
     {
@@ -143,7 +145,7 @@ const collectPictureReference: StructuralReferencesFunction = (params) => {
 
 function validateCanonicalTarget(
   params: Parameters<ValidateMetadataTargetFunction>[0],
-  value: string,
+  value: string
 ): ReturnType<ValidateMetadataTargetFunction> {
   const constraint = params.propRule.metadataTarget
   if (!constraint) return []
@@ -197,7 +199,7 @@ function resolveParsedTarget(params: {
 function resolveStyleItem(
   params: Parameters<ValidateMetadataTargetFunction>[0],
   name: string,
-  expectedTypes: readonly StyleItemTargetType[],
+  expectedTypes: readonly StyleItemTargetType[]
 ): ReturnType<ValidateMetadataTargetFunction> {
   const result = params.resolver.resolveStyleItem({ name, expectedTypes })
   return result.ok ? [] : result.diagnostics
@@ -209,7 +211,7 @@ function isRecord(value: unknown): value is Record<string, unknown> {
 
 function isDesignTimeRefUuid(value: string): boolean {
   return /^[0-9a-f]{8}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{12}\.[0-9a-f]{8}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{12}$/i.test(
-    value,
+    value
   )
 }
 

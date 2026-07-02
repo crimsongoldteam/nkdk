@@ -1,15 +1,11 @@
-import {
-  PlannerField,
-  PlannerFieldEnterprise,
-  PlannerFieldPartialYAML,
-} from "~/metadata/forms/elements/plannerField/types"
+import { PlannerField, PlannerFieldEnterprise, PlannerFieldPartialYAML } from "../types"
 
 import {
   fullFormFieldCommonFixture,
   fullFormFieldEnterpriseCommonFixture,
   fullFormFieldPartialYAMLCommonFixture,
-} from "~/metadata/forms/elements/__fixtures__/formField/rules"
-import { RequiredFieldsElement } from "~/tests/types"
+} from "../../__fixtures__/formField/rules"
+import { RequiredFieldsElement } from "../../../../../tests/types"
 
 type PlannerFieldWithoutDrag = Omit<PlannerField, "enableDrag" | "enableStartDrag">
 type PlannerFieldPartialYAMLWithoutDrag = Omit<
@@ -131,10 +127,7 @@ export const fullPlannerFieldPartialYAML: PlannerFieldPartialYAML = {
     ПроверкаПеретаскиванияВнутри: "ПроцедураПроверкиПеретаскиванияВнутри",
   },
   ...fullFormFieldPartialYAMLCommonFixture,
-} satisfies Omit<
-  Required<PlannerFieldPartialYAMLWithoutDrag>,
-  "Использование"
->
+} satisfies Omit<Required<PlannerFieldPartialYAMLWithoutDrag>, "Использование">
 
 export const dragPlannerField: PlannerField = {
   itemType: "PlannerField",

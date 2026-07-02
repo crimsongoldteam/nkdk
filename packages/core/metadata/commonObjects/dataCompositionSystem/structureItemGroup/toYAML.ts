@@ -1,5 +1,5 @@
-import { ConfigurationContextWithExportToXML } from "~/metadata/context/types"
-import { exportPropertyToYAML, PropertyRule, registerTypeRule } from "~/metadata/orchestration"
+import { ConfigurationContextWithExportToXML } from "../../../context/types"
+import { exportPropertyToYAML, PropertyRule, registerTypeRule } from "../../../orchestration"
 import type { StructureItemGroupCollectionYAML } from "./collection/types"
 import { StructureItemGroupRules } from "./rules"
 import type { StructureItemGroup, StructureItemGroupYAML } from "./types"
@@ -11,9 +11,7 @@ type ToYAMLParams = {
   name?: string
 }
 
-export const exportStructureItemGroupToYAML = (
-  params: ToYAMLParams
-): StructureItemGroupYAML | undefined => {
+export const exportStructureItemGroupToYAML = (params: ToYAMLParams): StructureItemGroupYAML | undefined => {
   if (!params.value || typeof params.value !== "object" || Array.isArray(params.value)) return undefined
 
   const result: StructureItemGroupCollectionYAML = []

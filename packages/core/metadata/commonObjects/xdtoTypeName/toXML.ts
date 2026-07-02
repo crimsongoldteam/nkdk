@@ -1,5 +1,5 @@
-import { ConfigurationContextWithExportToXML } from "~/metadata/context/types"
-import { PropertyRule, registerTypeRule } from "~/metadata/orchestration"
+import { ConfigurationContextWithExportToXML } from "../../context/types"
+import { PropertyRule, registerTypeRule } from "../../orchestration"
 import { XDTOTypeName, XDTOTypeNameXML } from "./types"
 
 const XML_SCHEMA_NAMESPACE = "http://www.w3.org/2001/XMLSchema"

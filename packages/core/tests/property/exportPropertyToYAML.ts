@@ -1,11 +1,7 @@
-import { exportPropertyToYAML, PropertyRule } from "~/metadata/orchestration"
-import { mockContext } from "~/tests/mockContext"
+import { exportPropertyToYAML, PropertyRule } from "../../metadata/orchestration"
+import { mockContext } from "../mockContext"
 
-export const testExportPropertyToYAML = (params: {
-  rule: PropertyRule
-  value: unknown
-  name?: string
-}): unknown => {
+export const testExportPropertyToYAML = (params: { rule: PropertyRule; value: unknown; name?: string }): unknown => {
   const { rule, value, name } = params
 
   const result = exportPropertyToYAML({

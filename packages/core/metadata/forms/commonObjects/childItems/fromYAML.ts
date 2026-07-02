@@ -1,4 +1,4 @@
-import { registerTypeRule } from "~/metadata/orchestration/property/typeRuleRegistry"
+import { registerTypeRule } from "../../../orchestration/property/typeRuleRegistry"
 import { importChildItemsFromTreeYAMLProperty } from "./treeYAML"
 
 registerTypeRule("GroupChildItems", "importFromYAML", importChildItemsFromTreeYAMLProperty)

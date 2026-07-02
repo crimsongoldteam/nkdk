@@ -89,8 +89,8 @@ describe("buildYamlLocationIndex", () => {
         "      - Состояние",
         "    Оформление:",
         "      ЦветТекста:",
-        "      Заголовок: \"\"",
-      ].join("\n"),
+        '      Заголовок: ""',
+      ].join("\n")
     )
 
     expect(index.keyPosition(["Элементы", 0, "Оформление"])).toEqual({ line: 4, col: 5 })

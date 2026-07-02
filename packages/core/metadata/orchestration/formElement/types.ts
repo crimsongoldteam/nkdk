@@ -1,1 +1,1 @@
-export * from "~/metadata/forms/elements/orchestration/types"
+export * from "../../forms/elements/orchestration/types"

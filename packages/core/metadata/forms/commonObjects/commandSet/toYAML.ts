@@ -1,5 +1,5 @@
-import { PropertyRule } from "~/metadata/forms/elements/calendarField/rules"
-import { registerTypeRule } from "~/metadata/orchestration/property/typeRuleRegistry"
+import { PropertyRule } from "../../elements/calendarField/rules"
+import { registerTypeRule } from "../../../orchestration/property/typeRuleRegistry"
 import { ConfigurationContext } from "../../../context/types"
 import { CommandSet, CommandSetYAML } from "./types"
 

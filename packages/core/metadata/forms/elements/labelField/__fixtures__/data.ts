@@ -6,9 +6,9 @@ import {
   TableLabelFieldEnterprise,
   TableLabelFieldPartialYAML,
   TableLabelFieldTypedYAML,
-} from "~/metadata/forms/elements/labelField/types"
+} from "../types"
 
-import { StructureResult } from "~/tests/types"
+import { StructureResult } from "../../../../../tests/types"
 import {
   fullFormFieldCommonFixture,
   fullFormFieldEnterpriseCommonFixture,
@@ -16,8 +16,8 @@ import {
   fullFormFieldPartialYAMLCommonFixture,
   fullFormFieldTableRelatedFixture,
   fullFormFieldTableRelatedPartialYAMLCommonFixture,
-} from "~/metadata/forms/elements/__fixtures__/formField/rules"
-import { RequiredFieldsElement } from "~/tests/types"
+} from "../../__fixtures__/formField/rules"
+import { RequiredFieldsElement } from "../../../../../tests/types"
 
 export const fullLabelField: RequiredFieldsElement<LabelField> = {
   itemType: "LabelField",

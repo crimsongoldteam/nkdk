@@ -3,7 +3,7 @@ import { tmpdir } from "os"
 import { join, resolve } from "path"
 import { TypeCompiler } from "@sinclair/typebox/compiler"
 import { afterEach, describe, expect, it } from "vitest"
-import { EXCLUDE_IF_EQUAL_NAME_YAML_DESCRIPTION } from "~/metadata/helpers/excludeIfEqualNameYAML"
+import { EXCLUDE_IF_EQUAL_NAME_YAML_DESCRIPTION } from "../helpers/excludeIfEqualNameYAML"
 import {
   exportJSONSchemaForProjectFile,
   exportJSONSchemaForSchemaName,

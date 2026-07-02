@@ -3,7 +3,7 @@ import { tmpdir } from "os"
 import { join } from "path"
 import { TypeCompiler } from "@sinclair/typebox/compiler"
 import { afterEach, describe, expect, it, vi } from "vitest"
-import { mockContext } from "~/tests/mockContext"
+import { mockContext } from "../../../tests/mockContext"
 import { createValidationObjectTable } from "../projectValidationObjectTable"
 import { createProjectYamlCache } from "../projectYamlCache"
 import { createOwnerMetadataCache, createOwnerMetadataCacheFromValidationTable } from "./ownerCache"
@@ -206,7 +206,7 @@ describe("OwnerMetadataCache", () => {
         "Состав:",
         "  - Объект: Справочники.НематериальныеАктивы",
         "    Использование: Использовать",
-      ].join("\n"),
+      ].join("\n")
     )
     const cache = createOwnerMetadataCache({
       projectDir,
@@ -252,7 +252,12 @@ describe("OwnerMetadataCache", () => {
 
   it("returns import-error when model import throws", () => {
     const projectDir = createProject()
-    writeProperties(projectDir, "Справочник", "Товары", ["Реквизиты:", "  Неверный:", "    Тип: НесуществующийТип"].join("\n"))
+    writeProperties(
+      projectDir,
+      "Справочник",
+      "Товары",
+      ["Реквизиты:", "  Неверный:", "    Тип: НесуществующийТип"].join("\n")
+    )
     const cache = createOwnerMetadataCache({
       projectDir,
       yamlCache: createProjectYamlCache(),
@@ -289,7 +294,7 @@ describe("OwnerMetadataCache", () => {
       projectDir,
       "Справочник",
       "Товары",
-      ["Реквизиты:", "  ОбщееИмя:", "    Тип: Строка", "ТабличныеЧасти:", "  ОбщееИмя:", "    Реквизиты: {}"].join("\n"),
+      ["Реквизиты:", "  ОбщееИмя:", "    Тип: Строка", "ТабличныеЧасти:", "  ОбщееИмя:", "    Реквизиты: {}"].join("\n")
     )
     const cache = createOwnerMetadataCache({
       projectDir,

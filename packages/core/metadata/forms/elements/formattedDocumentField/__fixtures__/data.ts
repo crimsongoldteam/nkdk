@@ -1,15 +1,11 @@
-import {
-  FormattedDocumentField,
-  FormattedDocumentFieldEnterprise,
-  FormattedDocumentFieldPartialYAML,
-} from "~/metadata/forms/elements/formattedDocumentField/types"
+import { FormattedDocumentField, FormattedDocumentFieldEnterprise, FormattedDocumentFieldPartialYAML } from "../types"
 
 import {
   fullFormFieldCommonFixture,
   fullFormFieldEnterpriseCommonFixture,
   fullFormFieldPartialYAMLCommonFixture,
-} from "~/metadata/forms/elements/__fixtures__/formField/rules"
-import { RequiredFieldsElement } from "~/tests/types"
+} from "../../__fixtures__/formField/rules"
+import { RequiredFieldsElement } from "../../../../../tests/types"
 
 export const fullFormattedDocumentField: RequiredFieldsElement<FormattedDocumentField> = {
   itemType: "FormattedDocumentField",
@@ -102,10 +98,7 @@ export const fullFormattedDocumentFieldPartialYAML: FormattedDocumentFieldPartia
     ПослеЗаписи: "ПроцедураПослеЗаписи",
   },
   ...fullFormFieldPartialYAMLCommonFixture,
-} satisfies Omit<
-  Required<FormattedDocumentFieldPartialYAML>,
-  "Использование"
->
+} satisfies Omit<Required<FormattedDocumentFieldPartialYAML>, "Использование">
 
 export const minimalFormattedDocumentField: FormattedDocumentField = {
   itemType: "FormattedDocumentField",

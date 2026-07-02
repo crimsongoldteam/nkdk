@@ -3,7 +3,7 @@ export * from "./types"
 import {
   registerMetadataTargetOwnerResolver,
   type MetadataTargetOwnerFrame,
-} from "~/metadata/orchestration/property/metadataTargetOwnerRegistry"
+} from "../../orchestration/property/metadataTargetOwnerRegistry"
 
 registerMetadataTargetOwnerResolver("MetadataExternalDataSourceCube", ({ name, frames }) => {
   const externalDataSource = findLastOwnerByRoot(frames, "ExternalDataSource")

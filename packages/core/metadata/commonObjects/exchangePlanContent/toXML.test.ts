@@ -1,8 +1,8 @@
 import { describe, expect, it } from "vitest"
-import { exportMetadataItemToXML, importMetadataItemFromXML } from "~/metadata/orchestration"
-import { mockContextFromXML, mockContextToXML } from "~/tests/mockContext"
-import { readXMLFixtureAsString } from "~/tests/readFixtureXML"
-import { xmlExport } from "~/xml/export/exporter"
+import { exportMetadataItemToXML, importMetadataItemFromXML } from "../../orchestration"
+import { mockContextFromXML, mockContextToXML } from "../../../tests/mockContext"
+import { readXMLFixtureAsString } from "../../../tests/readFixtureXML"
+import { xmlExport } from "../../../xml/export/exporter"
 import { content } from "./__fixtures__/data"
 import { ExchangePlanContentRules } from "./rules"
 

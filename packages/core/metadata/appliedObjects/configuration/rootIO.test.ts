@@ -2,9 +2,9 @@ import fs from "fs"
 import os from "os"
 import { join } from "path"
 import { afterEach, beforeEach, describe, expect, it } from "vitest"
-import { mockContextFromXML, mockContextToXML, mockContextToYAML } from "~/tests/mockContext"
-import { getXMLFixturePath, readXMLFileAsString } from "~/tests/readAndParseXMLFile"
-import { importContentFromXML } from "~/xml/import/importer"
+import { mockContextFromXML, mockContextToXML, mockContextToYAML } from "../../../tests/mockContext"
+import { getXMLFixturePath, readXMLFileAsString } from "../../../tests/readAndParseXMLFile"
+import { importContentFromXML } from "../../../xml/import/importer"
 import {
   CONFIGURATION_XML_FILE,
   CONFIGURATION_YAML_FILE,
@@ -15,7 +15,11 @@ import {
 } from "./rootIO"
 import { CLEAN_CONFIGURATION_XML, EXPECTED_CLEAN_CONFIGURATION_YAML } from "./cleanConfiguration.fixture"
 
-const normalizeXML = (value: string) => value.replace(/^\uFEFF/, "").replace(/\r\n/g, "\n").replace(/\n$/, "")
+const normalizeXML = (value: string) =>
+  value
+    .replace(/^\uFEFF/, "")
+    .replace(/\r\n/g, "\n")
+    .replace(/\n$/, "")
 
 const getConfigurationProperties = (xml: string) => {
   const parsed = importContentFromXML<{

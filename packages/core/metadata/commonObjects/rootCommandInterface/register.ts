@@ -1,20 +1,20 @@
 import { Type } from "@sinclair/typebox"
-import { importBooleanFromXML } from "~/metadata/commonObjects/boolean/fromXML"
-import { importBooleanFromYAML } from "~/metadata/commonObjects/boolean/fromYAML"
-import { exportBooleanToYAML } from "~/metadata/commonObjects/boolean/toYAML"
-import { buildMetadataTargetSchema } from "~/metadata/commonObjects/metadataTargets"
-import { importMetadataItemLinksFromXML } from "~/metadata/commonObjects/metadataRef/fromXML"
-import { importMetadataItemLinkFromYAML, importMetadataItemLinksFromYAML } from "~/metadata/commonObjects/metadataRef/fromYAML"
-import { exportMetadataItemLinksToXML } from "~/metadata/commonObjects/metadataRef/toXML"
-import { exportMetadataItemLinkToYAML, exportMetadataItemLinksToYAML } from "~/metadata/commonObjects/metadataRef/toYAML"
+import { importBooleanFromXML } from "../boolean/fromXML"
+import { importBooleanFromYAML } from "../boolean/fromYAML"
+import { exportBooleanToYAML } from "../boolean/toYAML"
+import { buildMetadataTargetSchema } from "../metadataTargets"
+import { importMetadataItemLinksFromXML } from "../metadataRef/fromXML"
+import { importMetadataItemLinkFromYAML, importMetadataItemLinksFromYAML } from "../metadataRef/fromYAML"
+import { exportMetadataItemLinksToXML } from "../metadataRef/toXML"
+import { exportMetadataItemLinkToYAML, exportMetadataItemLinksToYAML } from "../metadataRef/toYAML"
 import {
   ExportToXMLFunctionNew,
   type ExportToJSONSchemaFn,
   registerMetadataItemRule,
   registerTypeRule,
   type PropertyRule,
-} from "~/metadata/orchestration"
-import type { ConfigurationContext, ConfigurationContextFromXML } from "~/metadata/context/types"
+} from "../../orchestration"
+import type { ConfigurationContext, ConfigurationContextFromXML } from "../../context/types"
 import {
   CommandInterfaceOrder,
   CommandInterfaceOrderJSONSchema,
@@ -610,8 +610,10 @@ registerTypeRule("CommandInterfaceSubsystemsVisibilityMap", "importFromXML", imp
 registerTypeRule("CommandInterfaceSubsystemsVisibilityMap", "exportToXML", exportSubsystemsVisibilityMapToXML)
 registerTypeRule("CommandInterfaceSubsystemsVisibilityMap", "importFromYAML", importSubsystemsVisibilityMapFromYAML)
 registerTypeRule("CommandInterfaceSubsystemsVisibilityMap", "exportToYAML", exportSubsystemsVisibilityMapToYAML)
-registerTypeRule("CommandInterfaceSubsystemsVisibilityMap", "exportToJSONSchema", () =>
-  CommandInterfaceSubsystemsVisibilityMapJSONSchema
+registerTypeRule(
+  "CommandInterfaceSubsystemsVisibilityMap",
+  "exportToJSONSchema",
+  () => CommandInterfaceSubsystemsVisibilityMapJSONSchema
 )
 
 registerTypeRule("CommandInterfacePlacementMap", "importFromXML", importPlacementMapFromXML)

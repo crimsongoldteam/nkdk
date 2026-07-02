@@ -1,8 +1,8 @@
 import { describe, expect, it } from "vitest"
-import { metadataValueFixtures } from "~/metadata/commonObjects/metadataValue/__fixtures__/data"
-import { mockContext } from "~/tests/mockContext"
-import { exportToYAML } from "~/yaml/export"
-import { isExplicitYAMLString } from "~/yaml/explicitString"
+import { metadataValueFixtures } from "./__fixtures__/data"
+import { mockContext } from "../../../tests/mockContext"
+import { exportToYAML } from "../../../yaml/export"
+import { isExplicitYAMLString } from "../../../yaml/explicitString"
 import { exportMetadataValueToYAML } from "./toYAML"
 
 describe("exportMetadataValueToYAML", () => {

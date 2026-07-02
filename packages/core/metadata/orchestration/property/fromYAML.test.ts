@@ -1,6 +1,6 @@
 import { describe, expect, it } from "vitest"
-import { mockContext } from "~/tests/mockContext"
-import "~/metadata/commonObjects/i8nText/fromYAML"
+import { mockContext } from "../../../tests/mockContext"
+import "../../commonObjects/i8nText/fromYAML"
 import { importPropertiesFromYAML, importPropertyFromYAML } from "./fromYAML"
 import type { MetadataItemRule, PropertyRule } from "./types"
 

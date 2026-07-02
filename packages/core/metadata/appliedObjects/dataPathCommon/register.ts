@@ -1,15 +1,21 @@
-import type { DataPathTypeInfo, FormDataPathColumnSource, OwnerTypeRef } from "~/metadata/validation/dataPath/types"
+import type { DataPathTypeInfo, FormDataPathColumnSource, OwnerTypeRef } from "../../validation/dataPath/types"
 import {
   getOwnerKindByMetadataLinkPrefix,
   registerObjectFieldCollectionProvider,
   registerStandardAttributeTypeResolver,
   registerTableColumnResolver,
-} from "~/metadata/validation/dataPath/registry"
-import { standardAttributeAliasToYAML } from "~/metadata/validation/dataPath/objectFields"
+} from "../../validation/dataPath/registry"
+import { standardAttributeAliasToYAML } from "../../validation/dataPath/objectFields"
 
 registerObjectFieldCollectionProvider(({ owner }) => {
   const descriptors = []
-  for (const collection of ["attributes", "tabularSections", "dimensions", "resources", "addressingAttributes"] as const) {
+  for (const collection of [
+    "attributes",
+    "tabularSections",
+    "dimensions",
+    "resources",
+    "addressingAttributes",
+  ] as const) {
     if (owner.rule.properties[collection] === undefined) continue
     descriptors.push({
       collection,
@@ -30,7 +36,8 @@ registerObjectFieldCollectionProvider(({ owner }) => {
 
 registerStandardAttributeTypeResolver(({ owner, internalName, yamlName, explicitTypeInfo }) => {
   if (explicitTypeInfo !== undefined) return explicitTypeInfo
-  if (internalName === "Ref" || yamlName === "Ссылка") return { kinds: ["object"], nextTypes: [sameOwnerRef(owner.ref)] }
+  if (internalName === "Ref" || yamlName === "Ссылка")
+    return { kinds: ["object"], nextTypes: [sameOwnerRef(owner.ref)] }
   if (internalName === "Parent" || yamlName === "Родитель") {
     return {
       kinds: ["object"],
@@ -171,8 +178,12 @@ function ganttChartColumn(segment: string): FormDataPathColumnSource | undefined
   return undefined
 }
 
-function registerRecordSetStandardColumn(segment: string, fieldName: string | undefined): FormDataPathColumnSource | undefined {
-  const yamlName = segment === "PeriodAdjustment" ? segment : fieldName ?? standardAttributeAliasToYAML(segment) ?? segment
+function registerRecordSetStandardColumn(
+  segment: string,
+  fieldName: string | undefined
+): FormDataPathColumnSource | undefined {
+  const yamlName =
+    segment === "PeriodAdjustment" ? segment : (fieldName ?? standardAttributeAliasToYAML(segment) ?? segment)
   switch (segment) {
     case "Active":
     case "Активность":

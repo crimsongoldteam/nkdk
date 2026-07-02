@@ -1,4 +1,4 @@
-import { StandardAttributeDescriptionYAML } from "~/metadata/commonObjects/standardAttributeDescription/types"
+import { StandardAttributeDescriptionYAML } from "../../../commonObjects/standardAttributeDescription/types"
 import { MetadataEnumeration, MetadataEnumerationYAML } from "../types"
 
 type MetadataEnumerationFixtureYAML = Omit<MetadataEnumerationYAML, "СтандартныеРеквизиты"> & {

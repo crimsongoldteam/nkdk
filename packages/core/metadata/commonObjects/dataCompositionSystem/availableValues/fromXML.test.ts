@@ -1,10 +1,10 @@
 import { dirname, join } from "path"
 import { fileURLToPath } from "url"
 import { describe, expect, it } from "vitest"
-import { importPropertyFromXML } from "~/metadata/orchestration"
-import { mockContextFromXML } from "~/tests/mockContext"
-import { readAndParseXMLFile } from "~/tests/readAndParseXMLFile"
-import { importContentFromXML } from "~/xml/import/importer"
+import { importPropertyFromXML } from "../../../orchestration"
+import { mockContextFromXML } from "../../../../tests/mockContext"
+import { readAndParseXMLFile } from "../../../../tests/readAndParseXMLFile"
+import { importContentFromXML } from "../../../../xml/import/importer"
 import { nilAndBooleanAvailableValues, stringAvailableValues } from "./__fixtures__/data"
 
 const fixturesDir = join(dirname(fileURLToPath(import.meta.url)), "__fixtures__")
@@ -23,10 +23,7 @@ describe("import DcsAvailableValues from XML", () => {
   })
 
   it("imports nil and boolean values without null", () => {
-    const xml = readAndParseXMLFile<{ root: { "dcssch:availableValue": unknown } }>(
-      "nilAndBoolean.xml",
-      fixturesDir
-    )
+    const xml = readAndParseXMLFile<{ root: { "dcssch:availableValue": unknown } }>("nilAndBoolean.xml", fixturesDir)
     const result = importPropertyFromXML({
       context: mockContextFromXML(),
       rule,

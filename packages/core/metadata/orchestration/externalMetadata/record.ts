@@ -1,4 +1,4 @@
-import type { ConfigurationContextWithExportToXML } from "~/metadata/context/types"
+import type { ConfigurationContextWithExportToXML } from "../../context/types"
 import type { PropertyRule } from "../property/types"
 
 export function recordCurrentExternalMetadataUuid(params: {

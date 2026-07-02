@@ -5,8 +5,8 @@ import {
   typeLinkYamlCatalogWithLinkItem,
   typeLinkYamlCatalogWithoutLinkItem,
 } from "./__fixtures__/data"
-import { PropertyRule } from "~/metadata/orchestration"
-import { testExportPropertyToYAML } from "~/tests/property/exportPropertyToYAML"
+import { PropertyRule } from "../../orchestration"
+import { testExportPropertyToYAML } from "../../../tests/property/exportPropertyToYAML"
 
 const rule: PropertyRule = {
   type: "TypeLink",

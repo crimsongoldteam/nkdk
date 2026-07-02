@@ -1,16 +1,16 @@
-import { registerProjectSpec } from "~/metadata/project/projectSpecRegistry"
-import { createGenericProjectImportModel, createProjectSchemaExporter } from "~/metadata/project/projectSpecHelpers"
-import { registerProjectJSONSchema } from "~/metadata/project/schemaRegistry"
+import { registerProjectSpec } from "../../project/projectSpecRegistry"
+import { createGenericProjectImportModel, createProjectSchemaExporter } from "../../project/projectSpecHelpers"
+import { registerProjectJSONSchema } from "../../project/schemaRegistry"
 import { join } from "path"
-import type { OwnerMetadata } from "~/metadata/validation/dataPath/ownerCache"
-import type { OwnerTypeRef } from "~/metadata/validation/dataPath/types"
+import type { OwnerMetadata } from "../../validation/dataPath/ownerCache"
+import type { OwnerTypeRef } from "../../validation/dataPath/types"
 import {
   getOwnerKindByMetadataLinkPrefix,
   registerDataPathOwnerKind,
   registerRegisterRecordsItemResolver,
   registerTraversalTransitionResolver,
-} from "~/metadata/validation/dataPath/registry"
-import { registerProjectObjectPathResolver } from "~/metadata/validation/projectMetadataResolverRegistry"
+} from "../../validation/dataPath/registry"
+import { registerProjectObjectPathResolver } from "../../validation/projectMetadataResolverRegistry"
 import { MetadataDocumentRules } from "./rules"
 import { exportMetadataDocumentToJSONSchema } from "./toJSONSchema"
 
@@ -80,9 +80,7 @@ function documentRegisterRecordRefs(owner: OwnerMetadata): OwnerTypeRef[] {
   const value = metadataRecord(owner.model).registerRecords
   if (!Array.isArray(value)) return []
 
-  return value
-    .map(registerRecordRefFromLink)
-    .filter((ref): ref is OwnerTypeRef => ref !== undefined)
+  return value.map(registerRecordRefFromLink).filter((ref): ref is OwnerTypeRef => ref !== undefined)
 }
 
 function registerRecordRefFromLink(value: unknown): OwnerTypeRef | undefined {

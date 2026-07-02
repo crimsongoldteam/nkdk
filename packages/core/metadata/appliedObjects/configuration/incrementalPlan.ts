@@ -1,5 +1,5 @@
-import { resolveXmlSyncAreaForProjectPath, type XmlSyncArea } from "~/metadata/orchestration/appliedObject/xmlAreas"
-import type { MetadataItemRule } from "~/metadata/orchestration/property/types"
+import { resolveXmlSyncAreaForProjectPath, type XmlSyncArea } from "../../orchestration/appliedObject/xmlAreas"
+import type { MetadataItemRule } from "../../orchestration/property/types"
 import type { XmlSyncStateDiff } from "./syncState"
 
 export interface PlannedXmlSyncArea {
@@ -32,7 +32,13 @@ export function buildIncrementalXmlSyncPlan(params: {
     addPathToPlan({ grouped, path, rules: params.rules, changesConfigurationComposition: true })
   }
   for (const area of params.extraAreas ?? []) {
-    addAreaToPlan({ grouped, area, changedPath: "Миграции", changesConfigurationComposition: true, fromMigration: true })
+    addAreaToPlan({
+      grouped,
+      area,
+      changedPath: "Миграции",
+      changesConfigurationComposition: true,
+      fromMigration: true,
+    })
   }
 
   const areas = [...grouped.values()].sort((left, right) => left.key.localeCompare(right.key, "ru"))
@@ -61,7 +67,13 @@ function addPathToPlan(params: {
     existing.changesConfigurationComposition ||= changesConfigurationComposition
     return
   }
-  params.grouped.set(key, { key, area, changedPaths: [params.path], changesConfigurationComposition, fromMigration: false })
+  params.grouped.set(key, {
+    key,
+    area,
+    changedPaths: [params.path],
+    changesConfigurationComposition,
+    fromMigration: false,
+  })
 }
 
 function addAreaToPlan(params: {

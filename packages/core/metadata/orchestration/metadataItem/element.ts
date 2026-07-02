@@ -1,6 +1,6 @@
-import { MetadataItemType } from "~/metadata/orchestration/metadataItem/registry"
-import { PropertyRuleType, PropertyToMetadata } from "~/metadata/orchestration/property/registry"
-import * as SE from "~/metadata/systemEnumerations/types"
+import { MetadataItemType } from "./registry"
+import { PropertyRuleType, PropertyToMetadata } from "../property/registry"
+import * as SE from "../../systemEnumerations/types"
 import { MetadataItemRule, PropertyRule } from "../property/types"
 
 /** Тип системного перечисления по имени typeSE (обращение по имени через SE[`${name}ToYAML`]). */

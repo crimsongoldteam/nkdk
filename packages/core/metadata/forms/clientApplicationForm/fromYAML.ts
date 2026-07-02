@@ -1,5 +1,5 @@
-import { ConfigurationContext } from "~/metadata/context/types"
-import { importMetadataItemFromYAML } from "~/metadata/orchestration"
+import { ConfigurationContext } from "../../context/types"
+import { importMetadataItemFromYAML } from "../../orchestration"
 import { ClientApplicationFormRules } from "./rules"
 import { ClientApplicationForm, ClientApplicationFormYAML } from "./types"
 

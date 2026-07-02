@@ -1,5 +1,5 @@
-import { ChoiceList, ChoiceListYAML } from "~/metadata/commonObjects/choiceList/types"
-import { explicitYAMLString } from "~/yaml/explicitString"
+import { ChoiceList, ChoiceListYAML } from "../types"
+import { explicitYAMLString } from "../../../../yaml/explicitString"
 
 export const oneItemChoiceList: ChoiceList = [
   {

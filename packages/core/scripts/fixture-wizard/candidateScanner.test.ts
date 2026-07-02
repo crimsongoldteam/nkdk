@@ -84,8 +84,6 @@ describe("candidateScanner", () => {
   it("scanCandidates сообщает понятную ошибку, если XML-каталог не найден", async () => {
     const dumpRoot = await createTempDump()
 
-    await expect(scanCandidates(dumpRoot, "Documents")).rejects.toThrow(
-      "XML-каталог Documents не найден в выгрузке",
-    )
+    await expect(scanCandidates(dumpRoot, "Documents")).rejects.toThrow("XML-каталог Documents не найден в выгрузке")
   })
 })

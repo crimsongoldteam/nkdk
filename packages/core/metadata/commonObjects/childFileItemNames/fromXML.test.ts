@@ -1,5 +1,5 @@
 import { describe, expect, it } from "vitest"
-import { mockContextFromXML } from "~/tests/mockContext"
+import { mockContextFromXML } from "../../../tests/mockContext"
 import { importChildFileItemNamesFromXML } from "./fromXML"
 
 const rule = { type: "ChildFileItemNames" as const, xml: "Table", forReferenceOnly: true as const }
@@ -18,10 +18,7 @@ describe("importChildFileItemNamesFromXML", () => {
   })
 
   it("возвращает массив имён file-item объектов при xml = массив", () => {
-    expect(importChildFileItemNamesFromXML(mockContextFromXML(), rule, ["Таблица", "Куб"])).toEqual([
-      "Таблица",
-      "Куб",
-    ])
+    expect(importChildFileItemNamesFromXML(mockContextFromXML(), rule, ["Таблица", "Куб"])).toEqual(["Таблица", "Куб"])
   })
 
   it("оборачивает одиночную строку в массив", () => {

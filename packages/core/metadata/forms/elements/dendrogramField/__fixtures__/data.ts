@@ -1,15 +1,11 @@
-import {
-  DendrogramField,
-  DendrogramFieldEnterprise,
-  DendrogramFieldPartialYAML,
-} from "~/metadata/forms/elements/dendrogramField/types"
+import { DendrogramField, DendrogramFieldEnterprise, DendrogramFieldPartialYAML } from "../types"
 
 import {
   fullFormFieldCommonFixture,
   fullFormFieldEnterpriseCommonFixture,
   fullFormFieldPartialYAMLCommonFixture,
-} from "~/metadata/forms/elements/__fixtures__/formField/rules"
-import { RequiredFieldsElement } from "~/tests/types"
+} from "../../__fixtures__/formField/rules"
+import { RequiredFieldsElement } from "../../../../../tests/types"
 
 export const fullDendrogramField: RequiredFieldsElement<DendrogramField> = {
   itemType: "DendrogramField",
@@ -69,10 +65,7 @@ export const fullDendrogramFieldPartialYAML: DendrogramFieldPartialYAML = {
   },
 
   ...fullFormFieldPartialYAMLCommonFixture,
-} satisfies Omit<
-  Required<DendrogramFieldPartialYAML>,
-  "Использование"
->
+} satisfies Omit<Required<DendrogramFieldPartialYAML>, "Использование">
 
 export const minimalDendrogramField: DendrogramField = {
   itemType: "DendrogramField",

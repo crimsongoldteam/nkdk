@@ -1,12 +1,8 @@
 import fs from "fs"
 import { join } from "path"
-import { registerTypeRule } from "~/metadata/orchestration"
-import type { XmlWriteManifest } from "~/metadata/orchestration/xmlWriteManifest"
-import type {
-  ChildSubsystemNames,
-  ChildSubsystemNamesPropertyRule,
-  ChildSubsystemNamesXML,
-} from "./types"
+import { registerTypeRule } from "../../orchestration"
+import type { XmlWriteManifest } from "../../orchestration/xmlWriteManifest"
+import type { ChildSubsystemNames, ChildSubsystemNamesPropertyRule, ChildSubsystemNamesXML } from "./types"
 
 export const exportChildSubsystemNamesToXML = (
   value: ChildSubsystemNames | undefined
@@ -20,8 +16,8 @@ registerTypeRule("ChildSubsystemNames", "exportToXML", (_context, _rule, value) 
 )
 
 export const syncChildSubsystemNamesToXML = async (params: {
-  context: import("~/metadata/context/types").ConfigurationContextWithExportToXML
-  rule: import("~/metadata/orchestration/property/types").PropertyRule
+  context: import("../../context/types").ConfigurationContextWithExportToXML
+  rule: import("../../orchestration/property/types").PropertyRule
   nkdkDir: string
   xmlDir: string
   name: string
@@ -33,8 +29,8 @@ export const syncChildSubsystemNamesToXML = async (params: {
   const childNames = normalizeChildNames(params.propertyValue).filter(isSafeName)
   if (!childNames.length) return
 
-  const { syncAppliedObjectToXML } = await import("~/metadata/orchestration/appliedObject/syncToXML")
-  const { MetadataSubsystemRules } = await import("~/metadata/appliedObjects/metadataSubsystem/rules")
+  const { syncAppliedObjectToXML } = await import("../../orchestration/appliedObject/syncToXML")
+  const { MetadataSubsystemRules } = await import("../../appliedObjects/metadataSubsystem/rules")
   const nestedSubsystemRules = {
     ...MetadataSubsystemRules,
     externalMetadata: { segment: "Subsystem", placement: "ownedEntry" as const },
@@ -46,7 +42,9 @@ export const syncChildSubsystemNamesToXML = async (params: {
 
   const parentReferenceName = params.referenceName ?? params.name
   const childXmlDir = childSubsystemDir(params.xmlDir, params.name)
-  const childReferenceDir = params.referenceDir ? childSubsystemDir(params.referenceDir, parentReferenceName) : undefined
+  const childReferenceDir = params.referenceDir
+    ? childSubsystemDir(params.referenceDir, parentReferenceName)
+    : undefined
 
   for (const childName of childNames) {
     await syncAppliedObjectToXML({
@@ -66,13 +64,16 @@ export const syncChildSubsystemNamesToXML = async (params: {
 
 registerTypeRule("ChildSubsystemNames", "syncExternalToXML", syncChildSubsystemNamesToXML)
 
-const getFolderName = (rule: import("~/metadata/orchestration/property/types").PropertyRule): string =>
+const getFolderName = (rule: import("../../orchestration/property/types").PropertyRule): string =>
   (rule as ChildSubsystemNamesPropertyRule).folderName ?? rule.yaml ?? "Подсистемы"
 
-const isSafeName = (name: string): boolean => name !== "." && name !== ".." && !name.includes("/") && !name.includes("\\")
+const isSafeName = (name: string): boolean =>
+  name !== "." && name !== ".." && !name.includes("/") && !name.includes("\\")
 
 const childSubsystemDir = (xmlDir: string, name: string): string =>
-  xmlDir.endsWith(`/${name}`) || xmlDir.endsWith(`\\${name}`) ? join(xmlDir, "Subsystems") : join(xmlDir, name, "Subsystems")
+  xmlDir.endsWith(`/${name}`) || xmlDir.endsWith(`\\${name}`)
+    ? join(xmlDir, "Subsystems")
+    : join(xmlDir, name, "Subsystems")
 
 const normalizeChildNames = (value: unknown): ChildSubsystemNames => {
   if (typeof value === "string") return [value]

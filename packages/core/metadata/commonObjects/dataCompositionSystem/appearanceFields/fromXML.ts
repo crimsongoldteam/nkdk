@@ -1,6 +1,10 @@
-import { ConfigurationContextFromXML } from "~/metadata/context/types"
-import { importPropertyFromXML, PropertyRule, registerTypeRule } from "~/metadata/orchestration"
-import type { ParameterValueXML, SettingsParameterValue, SettingsParameterValuePropertyRule } from "../parameterValue/types"
+import { ConfigurationContextFromXML } from "../../../context/types"
+import { importPropertyFromXML, PropertyRule, registerTypeRule } from "../../../orchestration"
+import type {
+  ParameterValueXML,
+  SettingsParameterValue,
+  SettingsParameterValuePropertyRule,
+} from "../parameterValue/types"
 import { importSettingsParameterValueDcscorItemsFromXML } from "../settingsParameterValueCollection/dcscorItemsXML"
 import { AppearanceFieldsPropertyRule, AppearanceFieldsRules, directAppearanceXmlTags } from "./rules"
 import type { AppearanceFields, AppearanceFieldsXML } from "./types"

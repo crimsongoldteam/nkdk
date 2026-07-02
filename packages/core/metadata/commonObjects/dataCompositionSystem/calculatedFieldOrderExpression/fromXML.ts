@@ -1,6 +1,6 @@
-import { ConfigurationContextFromXML } from "~/metadata/context/types"
-import { ImportFromXMLFunction } from "~/metadata/orchestration/property/fn"
-import { importMetadataItemFromXML } from "~/metadata/orchestration/metadataItem/fromXML"
+import { ConfigurationContextFromXML } from "../../../context/types"
+import { ImportFromXMLFunction } from "../../../orchestration/property/fn"
+import { importMetadataItemFromXML } from "../../../orchestration/metadataItem/fromXML"
 import { CalculatedFieldOrderExpressionRules } from "./rules"
 
 export const importCalculatedFieldOrderExpressionFromXML: ImportFromXMLFunction = (

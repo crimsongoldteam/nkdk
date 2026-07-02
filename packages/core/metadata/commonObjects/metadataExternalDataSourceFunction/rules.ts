@@ -1,10 +1,10 @@
-import { typeDescriptionRule } from "~/metadata/commonObjects/typeDescription/types"
-import { booleanRule } from "~/metadata/commonObjects/boolean/types"
-import { i8nTextRule } from "~/metadata/commonObjects/i8nText/types"
-import { stringRule } from "~/metadata/commonObjects/string/types"
-import { externalDataSourceObjectServiceProperties } from "~/metadata/commonObjects/metadataExternalDataSourceField/rules"
-import { uuidPropertyRule } from "~/metadata/commonObjects/uuid/rule"
-import type { MetadataItemRule } from "~/metadata/orchestration/property/types"
+import { typeDescriptionRule } from "../typeDescription/types"
+import { booleanRule } from "../boolean/types"
+import { i8nTextRule } from "../i8nText/types"
+import { stringRule } from "../string/types"
+import { externalDataSourceObjectServiceProperties } from "../metadataExternalDataSourceField/rules"
+import { uuidPropertyRule } from "../uuid/rule"
+import type { MetadataItemRule } from "../../orchestration/property/types"
 const propertiesParents = ["Properties"]
 export const MetadataExternalDataSourceFunctionRules = {
   itemType: "MetadataExternalDataSourceFunction",

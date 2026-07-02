@@ -1,12 +1,12 @@
-import { metadataRegisterDimensionsRule } from "~/metadata/appliedObjects/metadataAccountingRegister/builders"
-import { internalInfoRule } from "~/metadata/commonObjects/internalInfo/types"
-import { booleanRule } from "~/metadata/commonObjects/boolean/types"
-import { i8nTextRule } from "~/metadata/commonObjects/i8nText/types"
-import { moduleRule } from "~/metadata/commonObjects/module/types"
-import { stringRule } from "~/metadata/commonObjects/string/types"
-import { systemEnumerationRule } from "~/metadata/systemEnumerations/types"
-import { uuidPropertyRule } from "~/metadata/commonObjects/uuid/rule"
-import type { MetadataItemRule } from "~/metadata/orchestration/property/types"
+import { metadataRegisterDimensionsRule } from "../../appliedObjects/metadataAccountingRegister/builders"
+import { internalInfoRule } from "../internalInfo/types"
+import { booleanRule } from "../boolean/types"
+import { i8nTextRule } from "../i8nText/types"
+import { moduleRule } from "../module/types"
+import { stringRule } from "../string/types"
+import { systemEnumerationRule } from "../../systemEnumerations/types"
+import { uuidPropertyRule } from "../uuid/rule"
+import type { MetadataItemRule } from "../../orchestration/property/types"
 const properties = ["Properties"]
 const childObjects = ["ChildObjects"]
 export const RecalculationRules = {

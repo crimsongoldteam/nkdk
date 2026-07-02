@@ -1,10 +1,13 @@
-import { ConfigurationContextFromXML } from "~/metadata/context/types"
-import { importMetadataItemFromXML } from "~/metadata/orchestration/metadataItem/fromXML"
-import type { PropertyRule } from "~/metadata/orchestration/property/types"
+import { ConfigurationContextFromXML } from "../../../context/types"
+import { importMetadataItemFromXML } from "../../../orchestration/metadataItem/fromXML"
+import type { PropertyRule } from "../../../orchestration/property/types"
 import { OrderItemFieldRules } from "./rules"
 import type { OrderItemFields } from "./types"
 
-const importOrderItemFromXML = (context: ConfigurationContextFromXML, xml: unknown): OrderItemFields[number] | undefined => {
+const importOrderItemFromXML = (
+  context: ConfigurationContextFromXML,
+  xml: unknown
+): OrderItemFields[number] | undefined => {
   if (!xml || typeof xml !== "object") return undefined
   const xsiType = (xml as Record<string, unknown>)["_xsi:type"]
 

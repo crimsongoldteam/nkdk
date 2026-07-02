@@ -1,4 +1,4 @@
-import { registerDataPathOwnerKind, registerTraversalTransitionResolver } from "~/metadata/validation/dataPath/registry"
+import { registerDataPathOwnerKind, registerTraversalTransitionResolver } from "../../validation/dataPath/registry"
 import { MetadataReportRules } from "./rules"
 
 registerDataPathOwnerKind({

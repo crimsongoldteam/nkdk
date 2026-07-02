@@ -1,16 +1,16 @@
-import { dcsAvailableValuesRule } from "~/metadata/commonObjects/dataCompositionSystem/availableValues/types"
+import { dcsAvailableValuesRule } from "../availableValues/types"
 import {
   calculatedFieldUseRestrictionRule,
   type CalculatedFieldUseRestrictionRuleParams,
-} from "~/metadata/commonObjects/dataCompositionSystem/calculatedField/builders"
+} from "../calculatedField/builders"
 import {
   dataCompositionSchemaDataSetFieldKindRule,
   type DataCompositionSchemaDataSetFieldKindRuleParams,
-} from "~/metadata/commonObjects/dataCompositionSystem/dataCompositionSchemaDataSetField/builders"
-import { dcsLocalStringTypeRule } from "~/metadata/commonObjects/dataCompositionSystem/dcsLocalStringType/types"
-import { typeDescriptionRule } from "~/metadata/commonObjects/typeDescription/types"
-import { stringRule, type StringRuleParams } from "~/metadata/commonObjects/string/types"
-import { MetadataItemRule } from "~/metadata/orchestration"
+} from "./builders"
+import { dcsLocalStringTypeRule } from "../dcsLocalStringType/types"
+import { typeDescriptionRule } from "../../typeDescription/types"
+import { stringRule, type StringRuleParams } from "../../string/types"
+import { MetadataItemRule } from "../../../orchestration"
 import type { AppearanceFieldsPropertyRule } from "../appearanceFields/rules"
 import {
   DATA_COMPOSITION_SCHEMA_DATA_SET_FIELD_KIND_FIELD,

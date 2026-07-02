@@ -1,7 +1,7 @@
-import { registerTypeRule } from "~/metadata/orchestration"
-import type { PropertyRuleType } from "~/metadata/orchestration/property/registry"
-import { importContentFromXML } from "~/xml/import/importer"
-import { xmlExport } from "~/xml/export/exporter"
+import { registerTypeRule } from "../../../orchestration"
+import type { PropertyRuleType } from "../../../orchestration/property/registry"
+import { importContentFromXML } from "../../../../xml/import/importer"
+import { xmlExport } from "../../../../xml/export/exporter"
 
 export type SettingsFragment = Record<string, unknown>
 export type SettingsFragmentXML = SettingsFragment & {
@@ -55,7 +55,9 @@ const expandEmptyElements = (value: unknown): unknown => {
   if (Array.isArray(value)) return value.map(expandEmptyElements)
 
   if (isSettingsFragmentXML(value)) {
-    return Object.fromEntries(Object.entries(value).map(([key, nestedValue]) => [key, expandEmptyElements(nestedValue)]))
+    return Object.fromEntries(
+      Object.entries(value).map(([key, nestedValue]) => [key, expandEmptyElements(nestedValue)])
+    )
   }
 
   return value

@@ -1,29 +1,29 @@
-import { MetadataCommandsXML, MetadataCommandsYAML } from "~/metadata/appliedObjects/metadataCommand/types"
-import { AdditionalIndexesXML, AdditionalIndexesYAML } from "~/metadata/commonObjects/additionalIndex/types"
-import { StringboolYAML } from "~/metadata/commonObjects/boolean/types"
+import { MetadataCommandsXML, MetadataCommandsYAML } from "../metadataCommand/types"
+import { AdditionalIndexesXML, AdditionalIndexesYAML } from "../../commonObjects/additionalIndex/types"
+import { StringboolYAML } from "../../commonObjects/boolean/types"
 import {
   CharacteristicsDescriptionsXML,
   CharacteristicsDescriptionsYAML,
-} from "~/metadata/commonObjects/characteristicsDescription/types"
-import { I8nTextXML, I8nTextYAML } from "~/metadata/commonObjects/i8nText/types"
-import { MetadataAttributesXML, MetadataAttributesYAML } from "~/metadata/commonObjects/metadataAttribute/types"
-import { MetadataFieldsXML, MetadataFieldsYAML } from "~/metadata/commonObjects/metadataField/types"
+} from "../../commonObjects/characteristicsDescription/types"
+import { I8nTextXML, I8nTextYAML } from "../../commonObjects/i8nText/types"
+import { MetadataAttributesXML, MetadataAttributesYAML } from "../../commonObjects/metadataAttribute/types"
+import { MetadataFieldsXML, MetadataFieldsYAML } from "../../commonObjects/metadataField/types"
 import {
   MetadataTabularSectionsXML,
   MetadataTabularSectionsYAML,
-} from "~/metadata/commonObjects/metadataTabularSection/types"
-import { Predefined, PredefinedYAML } from "~/metadata/commonObjects/predefined/types"
+} from "../../commonObjects/metadataTabularSection/types"
+import { Predefined, PredefinedYAML } from "../../commonObjects/predefined/types"
 import {
   StandardAttributeDescriptionsXML,
   StandardAttributeDescriptionsYAML,
-} from "~/metadata/commonObjects/standardAttributeDescription/types"
-import * as SE from "~/metadata/systemEnumerations/types"
+} from "../../commonObjects/standardAttributeDescription/types"
+import * as SE from "../../systemEnumerations/types"
 
 import {
   MetadataObjectRefCollectionXML,
   MetadataObjectRefCollectionYAML,
-} from "~/metadata/commonObjects/metadataObjectRefCollection/types"
-import { MetadataTypeByRule } from "~/metadata/orchestration/metadataItem/element"
+} from "../../commonObjects/metadataObjectRefCollection/types"
+import { MetadataTypeByRule } from "../../orchestration/metadataItem/element"
 import { InternalInfoItemsXML } from "../../commonObjects/internalInfo/types"
 import { MetadataCatalogRules } from "./rules"
 

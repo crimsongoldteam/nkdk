@@ -1,15 +1,11 @@
-import {
-  HTMLDocumentField,
-  HTMLDocumentFieldEnterprise,
-  HTMLDocumentFieldPartialYAML,
-} from "~/metadata/forms/elements/htmlDocumentField/types"
+import { HTMLDocumentField, HTMLDocumentFieldEnterprise, HTMLDocumentFieldPartialYAML } from "../types"
 
 import {
   fullFormFieldCommonFixture,
   fullFormFieldEnterpriseCommonFixture,
   fullFormFieldPartialYAMLCommonFixture,
-} from "~/metadata/forms/elements/__fixtures__/formField/rules"
-import { RequiredFieldsElement } from "~/tests/types"
+} from "../../__fixtures__/formField/rules"
+import { RequiredFieldsElement } from "../../../../../tests/types"
 
 export const fullHtmlDocumentField: RequiredFieldsElement<HTMLDocumentField> = {
   itemType: "HTMLDocumentField",
@@ -88,10 +84,7 @@ export const fullHtmlDocumentFieldPartialYAML: HTMLDocumentFieldPartialYAML = {
     ПриНажатии: "ПроцедураНажатия",
   },
   ...fullFormFieldPartialYAMLCommonFixture,
-} satisfies Omit<
-  Required<HTMLDocumentFieldPartialYAML>,
-  "Использование"
->
+} satisfies Omit<Required<HTMLDocumentFieldPartialYAML>, "Использование">
 
 export const minimalHtmlDocumentField: HTMLDocumentField = {
   itemType: "HTMLDocumentField",

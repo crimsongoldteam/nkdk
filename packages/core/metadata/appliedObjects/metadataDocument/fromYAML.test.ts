@@ -1,5 +1,5 @@
 import { describe, expect, it } from "vitest"
-import { testImportAppliedObjectFromYAML } from "~/tests/appliedObject"
+import { testImportAppliedObjectFromYAML } from "../../../tests/appliedObject"
 import { full, fullYAML } from "./__fixtures__/full"
 import { minimal, minimalYAML } from "./__fixtures__/minimal"
 import { withNumerator, withNumeratorYAML } from "./__fixtures__/withNumerator"
@@ -55,7 +55,7 @@ describe("import MetadataDocument from YAML", () => {
           ВводитсяНаОсновании: ["Перечисление.Статусы"],
         },
         name: "ЗаказПокупателя",
-      }),
+      })
     ).toThrow('Вид цели "Enum" не разрешён')
   })
 })

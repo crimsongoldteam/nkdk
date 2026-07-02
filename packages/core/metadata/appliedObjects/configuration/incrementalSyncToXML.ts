@@ -1,11 +1,11 @@
 import fs from "fs"
 import { join } from "path"
-import type { ConfigurationContextWithExportToXML } from "~/metadata/context/types"
-import { syncAppliedObjectAreaToXML, syncAppliedObjectToXML } from "~/metadata/orchestration/appliedObject/syncToXML"
-import type { ReferenceModelRemapper } from "~/metadata/orchestration/appliedObject/syncToXML"
-import { getTypeRule } from "~/metadata/orchestration/property/typeRuleRegistry"
-import type { XmlWriteManifest } from "~/metadata/orchestration/xmlWriteManifest"
-import { diffXmlTree, snapshotXmlTree, type PreparedMetadataMigrationChain } from "~/metadata/operations"
+import type { ConfigurationContextWithExportToXML } from "../../context/types"
+import { syncAppliedObjectAreaToXML, syncAppliedObjectToXML } from "../../orchestration/appliedObject/syncToXML"
+import type { ReferenceModelRemapper } from "../../orchestration/appliedObject/syncToXML"
+import { getTypeRule } from "../../orchestration/property/typeRuleRegistry"
+import type { XmlWriteManifest } from "../../orchestration/xmlWriteManifest"
+import { diffXmlTree, snapshotXmlTree, type PreparedMetadataMigrationChain } from "../../operations"
 import { updateConfigDumpInfoVersionsToXML } from "../configDumpInfo/sync"
 import { buildConfigurationChildObjects, readConfigurationChildObjectsFromXML } from "./childObjects"
 import type { ConfigurationSyncResult } from "./convertFromXML"
@@ -91,7 +91,10 @@ export async function syncConfigurationIncrementallyToXML(params: {
             itemTypePrefix: planned.area.itemTypePrefix,
             itemName: planned.area.itemName,
           })
-          const tracker = await createXmlChangeTracker(params.outputDir, join(params.outputDir, rule.xmlDir, planned.area.itemName))
+          const tracker = await createXmlChangeTracker(
+            params.outputDir,
+            join(params.outputDir, rule.xmlDir, planned.area.itemName)
+          )
           await fs.promises.rm(join(params.outputDir, planned.area.xmlPath), { force: true })
           await syncAppliedObjectAreaToXML({
             area: { kind: "externalFile", xmlPath: planned.area.xmlPath },
@@ -101,7 +104,9 @@ export async function syncConfigurationIncrementallyToXML(params: {
             name: planned.area.itemName,
             outputDir: join(params.outputDir, rule.xmlDir),
             externalOutputDir: join(params.outputDir, rule.xmlDir, planned.area.itemName),
-            referenceDir: params.referenceDir ? join(params.referenceDir, rule.xmlDir) : join(params.outputDir, rule.xmlDir),
+            referenceDir: params.referenceDir
+              ? join(params.referenceDir, rule.xmlDir)
+              : join(params.outputDir, rule.xmlDir),
             externalReferenceDir: params.referenceDir
               ? join(params.referenceDir, rule.xmlDir, planned.area.itemName)
               : join(params.outputDir, rule.xmlDir, reference.referenceName),
@@ -116,7 +121,10 @@ export async function syncConfigurationIncrementallyToXML(params: {
           const propertyRule = rule.properties[planned.area.propertyName]
           const writer = getTypeRule(planned.area.propertyType, "xmlSyncWriter")
           if (!propertyRule || !writer) throw new Error(`Не найден writer для ${planned.key}`)
-          const tracker = await createXmlChangeTracker(params.outputDir, join(params.outputDir, rule.xmlDir, planned.area.itemName))
+          const tracker = await createXmlChangeTracker(
+            params.outputDir,
+            join(params.outputDir, rule.xmlDir, planned.area.itemName)
+          )
           await writer({
             context: { ...params.context, exportToXML: { ...params.context.exportToXML } },
             rule: propertyRule,
@@ -124,7 +132,9 @@ export async function syncConfigurationIncrementallyToXML(params: {
             xmlDir: join(params.outputDir, rule.xmlDir),
             name: planned.area.itemName,
             itemName: planned.area.routeParams.itemName,
-            referenceDir: params.referenceDir ? join(params.referenceDir, rule.xmlDir) : join(params.outputDir, rule.xmlDir),
+            referenceDir: params.referenceDir
+              ? join(params.referenceDir, rule.xmlDir)
+              : join(params.outputDir, rule.xmlDir),
             xmlManifest: tracker.manifest,
           })
           break
@@ -146,7 +156,9 @@ export async function syncConfigurationIncrementallyToXML(params: {
             name: planned.area.itemName,
             outputDir: join(params.outputDir, rule.xmlDir),
             externalOutputDir: join(params.outputDir, rule.xmlDir, planned.area.itemName),
-            referenceDir: params.referenceDir ? join(params.referenceDir, rule.xmlDir) : join(params.outputDir, rule.xmlDir),
+            referenceDir: params.referenceDir
+              ? join(params.referenceDir, rule.xmlDir)
+              : join(params.outputDir, rule.xmlDir),
             externalReferenceDir: params.referenceDir
               ? join(params.referenceDir, rule.xmlDir, reference.referenceName)
               : join(params.outputDir, rule.xmlDir, reference.referenceName),

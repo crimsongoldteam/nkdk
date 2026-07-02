@@ -1,22 +1,18 @@
 import fs from "fs"
 import { basename, dirname, join, posix, relative, sep } from "path"
-import { getChildContextToXML } from "~/metadata/context/helpers"
-import type { ConfigurationContextFromXML, ConfigurationContextWithExportToXML } from "~/metadata/context/types"
-import {
-  exportMetadataItemToXML,
-  importMetadataItemFromXML,
-  importMetadataItemFromYAML,
-} from "~/metadata/orchestration"
-import { getTypeRule } from "~/metadata/orchestration/property/typeRuleRegistry"
-import { importPropertyFromXML } from "~/metadata/orchestration/property/fromXML"
-import { exportPropertyToXML } from "~/metadata/orchestration/property/toXML"
-import type { FileChildNamesDescriptor } from "~/metadata/orchestration/property/fn"
-import { metadataTargetOwnerFromRule } from "~/metadata/orchestration/property/metadataTargetString"
-import type { MetadataItemRule, PropertyRule } from "~/metadata/orchestration/property/types"
-import type { XmlWriteManifest } from "~/metadata/orchestration/xmlWriteManifest"
-import { xmlExport } from "~/xml/export/exporter"
-import { importContentFromXML } from "~/xml/import/importer"
-import { importFromYAML } from "~/yaml/import"
+import { getChildContextToXML } from "../../context/helpers"
+import type { ConfigurationContextFromXML, ConfigurationContextWithExportToXML } from "../../context/types"
+import { exportMetadataItemToXML, importMetadataItemFromXML, importMetadataItemFromYAML } from ".."
+import { getTypeRule } from "../property/typeRuleRegistry"
+import { importPropertyFromXML } from "../property/fromXML"
+import { exportPropertyToXML } from "../property/toXML"
+import type { FileChildNamesDescriptor } from "../property/fn"
+import { metadataTargetOwnerFromRule } from "../property/metadataTargetString"
+import type { MetadataItemRule, PropertyRule } from "../property/types"
+import type { XmlWriteManifest } from "../xmlWriteManifest"
+import { xmlExport } from "../../../xml/export/exporter"
+import { importContentFromXML } from "../../../xml/import/importer"
+import { importFromYAML } from "../../../yaml/import"
 import {
   getFileItemXMLRootContainer,
   listYAMLFileItemNames,

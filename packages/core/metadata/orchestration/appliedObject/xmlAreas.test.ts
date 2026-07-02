@@ -1,8 +1,8 @@
 import { readFileSync } from "fs"
 import { fileURLToPath } from "url"
 import { beforeEach, describe, expect, it } from "vitest"
-import { MetadataCatalogRules } from "~/metadata/appliedObjects/metadataCatalog/rules"
-import { registerCoreMetadata } from "~/metadata/register"
+import { MetadataCatalogRules } from "../../appliedObjects/metadataCatalog/rules"
+import { registerCoreMetadata } from "../../register"
 import { resolveXmlSyncAreaForProjectPath } from "./xmlAreas"
 
 describe("resolveXmlSyncAreaForProjectPath", () => {

@@ -1,7 +1,4 @@
-import {
-  StandardAttributeDescriptions,
-  StandardAttributeDescriptionsYAML,
-} from "~/metadata/commonObjects/standardAttributeDescription/types"
+import { StandardAttributeDescriptions, StandardAttributeDescriptionsYAML } from "../types"
 
 // all reflects the content of __fixtures__/all.xml after filterNonEmpty:
 // only Owner (non-default), Parent (fillFromFillingValue=true), Description (fillChecking=ShowError)

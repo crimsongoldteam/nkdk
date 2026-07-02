@@ -1,9 +1,9 @@
 import { join, resolve } from "path"
 import { Type } from "@sinclair/typebox"
-import type { ConfigurationContext } from "~/metadata/context/types"
-import { importMetadataItemFromYAML } from "~/metadata/orchestration/metadataItem/fromYAML"
-import type { MetadataItem, MetadataItemRule } from "~/metadata/orchestration/property/types"
-import type { ParsedYaml } from "~/yaml/parseMetadataYaml"
+import type { ConfigurationContext } from "../../context/types"
+import { importMetadataItemFromYAML } from "../../orchestration/metadataItem/fromYAML"
+import type { MetadataItem, MetadataItemRule } from "../../orchestration/property/types"
+import type { ParsedYaml } from "../../../yaml/parseMetadataYaml"
 import type { ValidationObjectTable } from "../projectValidationObjectTable"
 import type { ValidationProjectSpec } from "../projectSpecs"
 import type { ProjectYamlCache } from "../projectYamlCache"
@@ -105,7 +105,12 @@ function loadOwnerFromValidationTable(params: {
     const dir = ownerKind?.projectDir ?? params.ref.kind
     return {
       status: "not-found",
-      diagnostics: [crossFileDiagnostic(ownerFilePath(params.projectDir, dir, params.ref.name ?? ""), ownerNotFoundMessage(params.ref))],
+      diagnostics: [
+        crossFileDiagnostic(
+          ownerFilePath(params.projectDir, dir, params.ref.name ?? ""),
+          ownerNotFoundMessage(params.ref)
+        ),
+      ],
     }
   }
 
@@ -116,7 +121,9 @@ function loadOwnerFromValidationTable(params: {
   if (ownerKind === undefined || record.model === undefined || record.fieldIndex === undefined) {
     return {
       status: "import-error",
-      diagnostics: [crossFileDiagnostic(record.filePath, `Не удалось импортировать владельца ${formatOwnerRef(params.ref)}`)],
+      diagnostics: [
+        crossFileDiagnostic(record.filePath, `Не удалось импортировать владельца ${formatOwnerRef(params.ref)}`),
+      ],
     }
   }
 
@@ -146,7 +153,9 @@ function loadOwner(params: {
   if (!dir || !ref.name) {
     return {
       status: "not-found",
-      diagnostics: [crossFileDiagnostic(ownerFilePath(projectDir, dir ?? ref.kind, ref.name ?? ""), ownerNotFoundMessage(ref))],
+      diagnostics: [
+        crossFileDiagnostic(ownerFilePath(projectDir, dir ?? ref.kind, ref.name ?? ""), ownerNotFoundMessage(ref)),
+      ],
     }
   }
 
@@ -157,7 +166,9 @@ function loadOwner(params: {
   if ("error" in entry) {
     return {
       status: "not-found",
-      diagnostics: [crossFileDiagnostic(filePath, `Не найден файл владельца ${formatOwnerRef(ref)}: ${entry.error.message}`)],
+      diagnostics: [
+        crossFileDiagnostic(filePath, `Не найден файл владельца ${formatOwnerRef(ref)}: ${entry.error.message}`),
+      ],
     }
   }
 
@@ -211,14 +222,19 @@ function importOwnerModel(params: {
 
     return {
       status: "import-error",
-      diagnostics: [crossFileDiagnostic(params.filePath, `Не удалось импортировать владельца ${formatOwnerRef(params.ref)}`)],
+      diagnostics: [
+        crossFileDiagnostic(params.filePath, `Не удалось импортировать владельца ${formatOwnerRef(params.ref)}`),
+      ],
     }
   } catch (caught) {
     const message = caught instanceof Error ? caught.message : String(caught)
     return {
       status: "import-error",
       diagnostics: [
-        crossFileDiagnostic(params.filePath, `Не удалось импортировать владельца ${formatOwnerRef(params.ref)}: ${message}`),
+        crossFileDiagnostic(
+          params.filePath,
+          `Не удалось импортировать владельца ${formatOwnerRef(params.ref)}: ${message}`
+        ),
       ],
     }
   }

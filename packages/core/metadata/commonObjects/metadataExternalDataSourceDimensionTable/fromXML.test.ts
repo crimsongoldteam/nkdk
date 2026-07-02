@@ -1,6 +1,6 @@
 import { describe, expect, it } from "vitest"
-import { testExportPropertyToXML } from "~/tests/property/exportPropertyToXML"
-import { testImportPropertyFromXML } from "~/tests/property/importPropertyFromXML"
+import { testExportPropertyToXML } from "../../../tests/property/exportPropertyToXML"
+import { testImportPropertyFromXML } from "../../../tests/property/importPropertyFromXML"
 import "./register"
 
 const rule = { type: "MetadataExternalDataSourceDimensionTable" } as const

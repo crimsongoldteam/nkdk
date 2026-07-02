@@ -1,6 +1,6 @@
-import { ConfigurationContext } from "~/metadata/context/types"
-import { ToMetadata, ToTypedYAML, ToYAML } from "~/metadata/orchestration/metadataItem/registry"
-import { importPropertiesFromYAML } from "~/metadata/orchestration/property/fromYAML"
+import { ConfigurationContext } from "../../../context/types"
+import { ToMetadata, ToTypedYAML, ToYAML } from "../../../orchestration/metadataItem/registry"
+import { importPropertiesFromYAML } from "../../../orchestration/property/fromYAML"
 import { isEmptyMetadataItem } from "./helper"
 import { getElementRule } from "./ruleFactory"
 import {

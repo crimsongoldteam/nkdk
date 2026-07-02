@@ -1,11 +1,7 @@
-import type { PropertyRule } from "~/metadata/orchestration/property/types"
+import type { PropertyRule } from "../../orchestration/property/types"
 import { ConfigurationContext } from "../../context/types"
 import { exportMetadataValueToXML } from "../metadataValue/toXML"
-import {
-  ChoiceParameter,
-  ChoiceParameterDcsItemXML,
-  ChoiceParameterDcsValueRootXML,
-} from "./types"
+import { ChoiceParameter, ChoiceParameterDcsItemXML, ChoiceParameterDcsValueRootXML } from "./types"
 
 export const exportChoiceParameterToDcsXML = (
   context: ConfigurationContext,

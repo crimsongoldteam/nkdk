@@ -1,8 +1,8 @@
 import { describe, expect, it } from "vitest"
-import type { ConfigurationContext } from "~/metadata/context/types"
-import type { CollectableElement } from "~/metadata/orchestration"
-import { exportElementToEnterprise } from "~/metadata/orchestration/formElement/toEnterprise"
-import { mockContextToEnterprise } from "~/tests/mockContext"
+import type { ConfigurationContext } from "../../../context/types"
+import type { CollectableElement } from "../../../orchestration"
+import { exportElementToEnterprise } from "../../../orchestration/formElement/toEnterprise"
+import { mockContextToEnterprise } from "../../../../tests/mockContext"
 import { groupedFixtures } from "./fixtures"
 
 const createContextToEnterprise = (): ConfigurationContext => ({
@@ -18,7 +18,7 @@ const createContextToEnterprise = (): ConfigurationContext => ({
 const enterpriseGroupedFixtures = Object.fromEntries(
   Object.entries(groupedFixtures)
     .map(([g, fixtures]) => [g, fixtures.filter((f) => f.enterprise !== undefined)] as const)
-    .filter(([, fixtures]) => fixtures.length > 0),
+    .filter(([, fixtures]) => fixtures.length > 0)
 )
 
 describe("exportElementToEnterprise", () => {

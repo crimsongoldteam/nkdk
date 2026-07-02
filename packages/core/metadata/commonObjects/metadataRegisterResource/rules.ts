@@ -1,9 +1,9 @@
-import { booleanRule } from "~/metadata/commonObjects/boolean/types"
-import { stringRule } from "~/metadata/commonObjects/string/types"
-import { commonRegisterFieldProperties } from "~/metadata/commonObjects/metadataRegisterField/rules"
-import { getParentFromContext } from "~/metadata/context/helpers"
-import { ConfigurationContextWithExportToXML } from "~/metadata/context/types"
-import type { MetadataItemRule } from "~/metadata/orchestration/property/types"
+import { booleanRule } from "../boolean/types"
+import { stringRule } from "../string/types"
+import { commonRegisterFieldProperties } from "../metadataRegisterField/rules"
+import { getParentFromContext } from "../../context/helpers"
+import { ConfigurationContextWithExportToXML } from "../../context/types"
+import type { MetadataItemRule } from "../../orchestration/property/types"
 const resourceExternalMetadata = { segment: "Resource", placement: "ownerChild" } as const
 export const MetadataRegisterResourceRules = {
   itemType: "MetadataRegisterResource",

@@ -1,7 +1,7 @@
 import { dirname, join } from "path"
-import { MIGRATIONS_DIR, nextMigrationFileName } from "~/metadata/appliedObjects/configuration/migrations"
-import { rootFromYAML } from "~/metadata/commonObjects/metadataTargets/roots"
-import type { MetadataTargetOwner } from "~/metadata/commonObjects/metadataTargets"
+import { MIGRATIONS_DIR, nextMigrationFileName } from "../appliedObjects/configuration/migrations"
+import { rootFromYAML } from "../commonObjects/metadataTargets/roots"
+import type { MetadataTargetOwner } from "../commonObjects/metadataTargets"
 import {
   collectFormDataPathReferencesForItem,
   createOperationDataPathOwnerCache,
@@ -10,7 +10,11 @@ import {
 import { applyMetadataOperationFilePlan, type MetadataOperationFileStep } from "./filePlan"
 import { hasCaseInsensitiveConflict, validateMetadataLocalName } from "./nameRules"
 import { parseMetadataOperationPath } from "./operationPath"
-import { buildMetadataOperationSnapshot, type MetadataOperationSnapshot, type OperationSnapshotItem } from "./projectSnapshot"
+import {
+  buildMetadataOperationSnapshot,
+  type MetadataOperationSnapshot,
+  type OperationSnapshotItem,
+} from "./projectSnapshot"
 import {
   collectStructuralReferencesForItem,
   rewriteCanonicalPrefix,
@@ -210,7 +214,12 @@ function rewriteDataPathReferences(params: {
       ownerCache,
       targetPrefix: params.targetPrefix,
     })) {
-      const to = rewriteDataPathSegments(reference.value, reference.target.segments, reference.segmentIndex, params.nextName)
+      const to = rewriteDataPathSegments(
+        reference.value,
+        reference.target.segments,
+        reference.segmentIndex,
+        params.nextName
+      )
       if (to === reference.value) continue
 
       reference.setValue(to)
@@ -237,7 +246,7 @@ function ownerForItem(item: OperationSnapshotItem): MetadataTargetOwner | undefi
 
 function buildMigrationInfo(
   resolved: ResolvedMetadataOperationPath,
-  newName: string,
+  newName: string
 ): MetadataOperationMigrationInfo | undefined {
   if (!resolved.requiresMigration || !resolved.migrationPath) return undefined
   return { from: resolved.migrationPath, to: replaceLastSegment(resolved.migrationPath, newName) }

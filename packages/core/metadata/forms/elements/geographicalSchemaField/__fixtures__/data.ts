@@ -2,14 +2,14 @@ import {
   GeographicalSchemaField,
   GeographicalSchemaFieldEnterprise,
   GeographicalSchemaFieldPartialYAML,
-} from "~/metadata/forms/elements/geographicalSchemaField/types"
+} from "../types"
 
 import {
   fullFormFieldCommonFixture,
   fullFormFieldEnterpriseCommonFixture,
   fullFormFieldPartialYAMLCommonFixture,
-} from "~/metadata/forms/elements/__fixtures__/formField/rules"
-import { RequiredFieldsElement } from "~/tests/types"
+} from "../../__fixtures__/formField/rules"
+import { RequiredFieldsElement } from "../../../../../tests/types"
 
 export const fullGeographicalSchemaField: RequiredFieldsElement<GeographicalSchemaField> = {
   itemType: "GeographicalSchemaField",

@@ -1,4 +1,4 @@
-import { CommandSet, CommandSetYAML } from "~/metadata/forms/commonObjects/commandSet/types"
+import { CommandSet, CommandSetYAML } from "../types"
 
 export const singleCommandSet: CommandSet = ["WriteAndClose"]
 

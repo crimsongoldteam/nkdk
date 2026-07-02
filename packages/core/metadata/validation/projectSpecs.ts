@@ -4,4 +4,4 @@ export {
   metadataProjectSpecByDir as validationProjectSpecByDir,
   metadataProjectSpecs as validationProjectSpecs,
   type MetadataProjectSpec as ValidationProjectSpec,
-} from "~/metadata/project/specs"
+} from "../project/specs"

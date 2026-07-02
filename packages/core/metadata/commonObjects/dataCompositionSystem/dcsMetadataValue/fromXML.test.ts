@@ -1,5 +1,5 @@
 import { describe, expect, it } from "vitest"
-import { testImportPropertyFromXML } from "~/tests/property/importPropertyFromXML"
+import { testImportPropertyFromXML } from "../../../../tests/property/importPropertyFromXML"
 import { dcsMetadataValueFromXMLFixtures } from "./__fixtures__/data"
 
 describe("import MetadataDcsMetadataValue from XML", () => {

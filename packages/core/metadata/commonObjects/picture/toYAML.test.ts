@@ -1,6 +1,6 @@
 import { describe, expect, it } from "vitest"
-import { pictureTestCases } from "~/metadata/commonObjects/picture/__fixtures__/data"
-import { mockContext, mockRule } from "~/tests/mockContext"
+import { pictureTestCases } from "./__fixtures__/data"
+import { mockContext, mockRule } from "../../../tests/mockContext"
 import { exportPictureToYAML } from "./toYAML"
 import { Picture } from "./types"
 

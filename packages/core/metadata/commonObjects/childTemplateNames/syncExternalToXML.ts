@@ -1,8 +1,8 @@
 import fs from "fs"
 import { dirname, join } from "path"
-import type { XmlWriteManifest } from "~/metadata/orchestration/xmlWriteManifest"
-import { registerTypeRule } from "~/metadata/orchestration/property/typeRuleRegistry"
-import type { SyncExternalToXMLFunction } from "~/metadata/orchestration/property/fn"
+import type { XmlWriteManifest } from "../../orchestration/xmlWriteManifest"
+import { registerTypeRule } from "../../orchestration/property/typeRuleRegistry"
+import type { SyncExternalToXMLFunction } from "../../orchestration/property/fn"
 import type { ChildTemplateNamesPropertyRule } from "./types"
 
 export const syncChildTemplateNamesToXML: SyncExternalToXMLFunction = async (params) => {

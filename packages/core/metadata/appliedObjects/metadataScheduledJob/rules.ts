@@ -1,13 +1,13 @@
-import { templateRule } from "~/metadata/commonObjects/module/types"
-import { booleanRule } from "~/metadata/commonObjects/boolean/types"
-import { i8nTextRule } from "~/metadata/commonObjects/i8nText/types"
-import { numberRule } from "~/metadata/commonObjects/number/types"
-import { stringRule } from "~/metadata/commonObjects/string/types"
-import { uuidRule } from "~/metadata/commonObjects/uuid/types"
-import { xmlRootRule } from "~/metadata/commonObjects/xmlRoot/types"
-import { systemEnumerationRule } from "~/metadata/systemEnumerations/types"
-import { V8_MDCLASSES_ROOT } from "~/metadata/orchestration/appliedObject/presets"
-import type { MetadataItemRule } from "~/metadata/orchestration/property/types"
+import { templateRule } from "../../commonObjects/module/types"
+import { booleanRule } from "../../commonObjects/boolean/types"
+import { i8nTextRule } from "../../commonObjects/i8nText/types"
+import { numberRule } from "../../commonObjects/number/types"
+import { stringRule } from "../../commonObjects/string/types"
+import { uuidRule } from "../../commonObjects/uuid/types"
+import { xmlRootRule } from "../../commonObjects/xmlRoot/types"
+import { systemEnumerationRule } from "../../systemEnumerations/types"
+import { V8_MDCLASSES_ROOT } from "../../orchestration/appliedObject/presets"
+import type { MetadataItemRule } from "../../orchestration/property/types"
 const properties = ["Properties"]
 export const MetadataScheduledJobRules = {
   itemType: "MetadataScheduledJob",

@@ -1,6 +1,6 @@
-import { ClientApplicationForm } from "~/metadata/forms/clientApplicationForm/types"
-import { Button } from "~/metadata/forms/elements/button/types"
-import { InputField } from "~/metadata/forms/elements/inputField/types"
+import { ClientApplicationForm } from "../types"
+import { Button } from "../../elements/button/types"
+import { InputField } from "../../elements/inputField/types"
 
 type DocumentClientApplicationForm = ClientApplicationForm & {
   autoTime: "Last"

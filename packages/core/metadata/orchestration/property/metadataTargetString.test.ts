@@ -1,5 +1,5 @@
 import { describe, expect, it } from "vitest"
-import { mockContext } from "~/tests/mockContext"
+import { mockContext } from "../../../tests/mockContext"
 import { importPropertiesFromYAML } from "./fromYAML"
 import { metadataTargetOwnerFromRule } from "./metadataTargetString"
 import { exportPropertiesToYAML } from "./toYAML"

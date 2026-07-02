@@ -1,6 +1,6 @@
-import { ClientApplicationForm, ClientApplicationFormYAML } from "~/metadata/forms/clientApplicationForm/types"
-import { CommandInterface } from "~/metadata/forms/commonObjects/commandInterface/types"
-import { explicitYAMLString } from "~/yaml/explicitString"
+import { ClientApplicationForm, ClientApplicationFormYAML } from "../types"
+import { CommandInterface } from "../../commonObjects/commandInterface/types"
+import { explicitYAMLString } from "../../../../yaml/explicitString"
 
 type ClientApplicationFormWithCustomSettingsFolder = ClientApplicationForm & {
   customSettingsFolder: string

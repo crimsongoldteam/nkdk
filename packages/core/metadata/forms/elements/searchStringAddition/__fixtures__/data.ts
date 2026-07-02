@@ -3,7 +3,7 @@ import {
   SearchStringAdditionYAML,
   SingleSearchStringAddition,
   SingleSearchStringAdditionYAML,
-} from "~/metadata/forms/elements/searchStringAddition/types"
+} from "../types"
 
 export const parentElement = {
   name: "КакойТоЭлемент",

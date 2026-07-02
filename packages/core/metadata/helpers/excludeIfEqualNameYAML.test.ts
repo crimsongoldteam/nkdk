@@ -1,7 +1,7 @@
 import { TypeCompiler } from "@sinclair/typebox/compiler"
 import { describe, expect, it } from "vitest"
-import { FormattedI8nTextJSONSchema } from "~/metadata/commonObjects/formattedI8nText/types"
-import { I8nTextJSONSchema } from "~/metadata/commonObjects/i8nText/types"
+import { FormattedI8nTextJSONSchema } from "../commonObjects/formattedI8nText/types"
+import { I8nTextJSONSchema } from "../commonObjects/i8nText/types"
 import {
   EXCLUDE_IF_EQUAL_NAME_YAML_DESCRIPTION,
   applyExcludedEqualNameYAMLToJSONSchema,

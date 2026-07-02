@@ -1,7 +1,7 @@
-import { StringboolYAML } from "~/metadata/commonObjects/boolean/types"
-import { FormTypeByRule } from "~/metadata/orchestration/metadataItem/element"
-import { EnterpriseType } from "~/metadata/orchestration/metadataItem/enterprise"
-import * as SE from "~/metadata/systemEnumerations/types"
+import { StringboolYAML } from "../../../commonObjects/boolean/types"
+import { FormTypeByRule } from "../../../orchestration/metadataItem/element"
+import { EnterpriseType } from "../../../orchestration/metadataItem/enterprise"
+import * as SE from "../../../systemEnumerations/types"
 import { FormElementTreeYAML } from "../../commonObjects/childItems/types"
 import { ContextMenuRules } from "./rules"
 

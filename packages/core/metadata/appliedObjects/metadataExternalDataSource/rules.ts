@@ -1,21 +1,21 @@
-import { metadataExternalDataSourceFunctionsRule } from "~/metadata/appliedObjects/metadataExternalDataSource/builders"
-import { childFileItemNamesRule } from "~/metadata/commonObjects/childFileItemNames/types"
-import { internalInfoRule } from "~/metadata/commonObjects/internalInfo/types"
-import { i8nTextRule } from "~/metadata/commonObjects/i8nText/types"
-import { stringRule } from "~/metadata/commonObjects/string/types"
-import { uuidRule } from "~/metadata/commonObjects/uuid/types"
-import { xmlRootRule } from "~/metadata/commonObjects/xmlRoot/types"
-import { systemEnumerationRule } from "~/metadata/systemEnumerations/types"
-import { V8_MDCLASSES_ROOT } from "~/metadata/orchestration/appliedObject/presets"
-import type { MetadataItemRule } from "~/metadata/orchestration/property/types"
+import { metadataExternalDataSourceFunctionsRule } from "./builders"
+import { childFileItemNamesRule } from "../../commonObjects/childFileItemNames/types"
+import { internalInfoRule } from "../../commonObjects/internalInfo/types"
+import { i8nTextRule } from "../../commonObjects/i8nText/types"
+import { stringRule } from "../../commonObjects/string/types"
+import { uuidRule } from "../../commonObjects/uuid/types"
+import { xmlRootRule } from "../../commonObjects/xmlRoot/types"
+import { systemEnumerationRule } from "../../systemEnumerations/types"
+import { V8_MDCLASSES_ROOT } from "../../orchestration/appliedObject/presets"
+import type { MetadataItemRule } from "../../orchestration/property/types"
 import {
   MetadataExternalDataSourceCubeCollectionRules,
   MetadataExternalDataSourceCubeRules,
-} from "~/metadata/commonObjects/metadataExternalDataSourceCube/rules"
+} from "../../commonObjects/metadataExternalDataSourceCube/rules"
 import {
   MetadataExternalDataSourceTableCollectionRules,
   MetadataExternalDataSourceTableRules,
-} from "~/metadata/commonObjects/metadataExternalDataSourceTable/rules"
+} from "../../commonObjects/metadataExternalDataSourceTable/rules"
 const properties = ["Properties"]
 const childObjects = ["ChildObjects"]
 export const MetadataExternalDataSourceRules = {

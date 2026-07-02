@@ -1,22 +1,22 @@
 import { TSchema, Type } from "@sinclair/typebox"
-import { ColorJSONSchema } from "~/metadata/commonObjects/color/types"
-import { FontJSONSchema } from "~/metadata/commonObjects/font/types"
-import { FormattedI8nTextJSONSchema } from "~/metadata/commonObjects/formattedI8nText/types"
-import { I8nTextJSONSchema } from "~/metadata/commonObjects/i8nText/types"
-import { MetadataFieldJSONSchema } from "~/metadata/commonObjects/metadataField/types"
-import { MetadataSingleValueJSONSchema } from "~/metadata/commonObjects/metadataValue/types"
-import { TypeLinkJSONSchema } from "~/metadata/commonObjects/typeLink/types"
-import { ChoiceParameterLinksJSONSchema } from "~/metadata/commonObjects/сhoiceParameterLinks/types"
-import { ChoiceParametersJSONSchema } from "~/metadata/commonObjects/сhoiceParameters/types"
-import type { ConfigurationContext } from "~/metadata/context/types"
-import { ExportToJSONSchemaFn, registerTypeRule } from "~/metadata/orchestration"
-import { exportSystemEnumerationToJSONSchema } from "~/metadata/systemEnumerations/toJSONSchema"
-import * as SE from "~/metadata/systemEnumerations/types"
+import { ColorJSONSchema } from "../../color/types"
+import { FontJSONSchema } from "../../font/types"
+import { FormattedI8nTextJSONSchema } from "../../formattedI8nText/types"
+import { I8nTextJSONSchema } from "../../i8nText/types"
+import { MetadataFieldJSONSchema } from "../../metadataField/types"
+import { MetadataSingleValueJSONSchema } from "../../metadataValue/types"
+import { TypeLinkJSONSchema } from "../../typeLink/types"
+import { ChoiceParameterLinksJSONSchema } from "../../сhoiceParameterLinks/types"
+import { ChoiceParametersJSONSchema } from "../../сhoiceParameters/types"
+import type { ConfigurationContext } from "../../../context/types"
+import { ExportToJSONSchemaFn, registerTypeRule } from "../../../orchestration"
+import { exportSystemEnumerationToJSONSchema } from "../../../systemEnumerations/toJSONSchema"
+import * as SE from "../../../systemEnumerations/types"
 import {
   StandardPeriodVariantFromYAML,
   type SystemEnumerationPropertyRule,
   type SystemEnumerationTypeMap,
-} from "~/metadata/systemEnumerations/types"
+} from "../../../systemEnumerations/types"
 import type { DcsMetadataValuePropertyRule } from "./types"
 
 const russianDateTimeWithSecondsPattern =
@@ -102,7 +102,9 @@ const DcsMetadataSingleValueJSONSchema = Type.Recursive((ThisType) =>
     Type.Object(
       {
         Представление: I8nTextJSONSchema,
-        Значение: Type.Optional(Type.Union([ThisType, Type.Array(Type.Union([ThisType, Type.Undefined(), Type.Null()]))])),
+        Значение: Type.Optional(
+          Type.Union([ThisType, Type.Array(Type.Union([ThisType, Type.Undefined(), Type.Null()]))])
+        ),
       },
       { additionalProperties: false }
     ),

@@ -1,21 +1,21 @@
-import { filterRule } from "~/metadata/commonObjects/dataCompositionSystem/conditionalAppearanceItem/builders"
-import { dcsLocalStringTypeRule } from "~/metadata/commonObjects/dataCompositionSystem/dcsLocalStringType/types"
-import { settingsParameterValueRule } from "~/metadata/commonObjects/dataCompositionSystem/parameterValue/types"
-import { settingsParameterValueCollectionRule } from "~/metadata/commonObjects/dataCompositionSystem/settingsParameterValueCollection/types"
-import { structureItemGroupRule } from "~/metadata/commonObjects/dataCompositionSystem/structureItemGroup/builders"
-import { userSettingsIDRule } from "~/metadata/commonObjects/userSettingsID/types"
-import { conditionalAppearanceRule } from "~/metadata/forms/clientApplicationForm/builders"
+import { filterRule } from "../../../commonObjects/dataCompositionSystem/conditionalAppearanceItem/builders"
+import { dcsLocalStringTypeRule } from "../../../commonObjects/dataCompositionSystem/dcsLocalStringType/types"
+import { settingsParameterValueRule } from "../../../commonObjects/dataCompositionSystem/parameterValue/types"
+import { settingsParameterValueCollectionRule } from "../../../commonObjects/dataCompositionSystem/settingsParameterValueCollection/types"
+import { structureItemGroupRule } from "../../../commonObjects/dataCompositionSystem/structureItemGroup/builders"
+import { userSettingsIDRule } from "../../../commonObjects/userSettingsID/types"
+import { conditionalAppearanceRule } from "../../clientApplicationForm/builders"
 import {
   calculatedFieldsRule,
   dCSParametersRule,
   dataSetFieldFieldsRule,
   dynamicListKeyFieldsRule,
   orderRule,
-} from "~/metadata/forms/commonObjects/dynamicList/builders"
-import { booleanRule } from "~/metadata/commonObjects/boolean/types"
-import { stringRule } from "~/metadata/commonObjects/string/types"
-import { systemEnumerationRule } from "~/metadata/systemEnumerations/types"
-import type { MetadataItemRule } from "~/metadata/orchestration/property/types"
+} from "./builders"
+import { booleanRule } from "../../../commonObjects/boolean/types"
+import { stringRule } from "../../../commonObjects/string/types"
+import { systemEnumerationRule } from "../../../systemEnumerations/types"
+import type { MetadataItemRule } from "../../../orchestration/property/types"
 export const DynamicListRules = {
   itemType: "DynamicList",
   xsiType: "DynamicList",

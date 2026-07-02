@@ -1,13 +1,8 @@
 import { describe, expect, it } from "vitest"
-import {
-  all,
-  allYAML,
-  minimal,
-  minimalYAML,
-} from "~/metadata/commonObjects/standardAttributeDescription/__fixtures__/data"
-import type { StandartAttributeNameToYAML } from "./types"
-import type { PropertyRule } from "~/metadata/orchestration/property/types"
-import { testExportPropertyToYAML } from "~/tests/property/exportPropertyToYAML"
+import { all, allYAML, minimal, minimalYAML } from "./__fixtures__/data"
+import { StandartAttributeNameToYAML } from "./types"
+import type { PropertyRule } from "../../orchestration/property/types"
+import { testExportPropertyToYAML } from "../../../tests/property/exportPropertyToYAML"
 
 const rule: PropertyRule = {
   type: "StandardAttributeDescriptions",

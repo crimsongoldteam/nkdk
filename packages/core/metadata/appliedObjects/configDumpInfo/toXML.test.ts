@@ -1,8 +1,8 @@
 import { describe, expect, it } from "vitest"
-import { idMap } from "~/metadata/appliedObjects/configDumpInfo/__fixtures__/data"
-import { mockContext } from "~/tests/mockContext"
-import { readXMLFileAsString } from "~/tests/readAndParseXMLFile"
-import { xmlExport } from "~/xml/export/exporter"
+import { idMap } from "./__fixtures__/data"
+import { mockContext } from "../../../tests/mockContext"
+import { readXMLFileAsString } from "../../../tests/readAndParseXMLFile"
+import { xmlExport } from "../../../xml/export/exporter"
 import { exportConfigDumpInfoToXML } from "./toXML"
 
 describe("exportConfigDumpInfoToXML", () => {

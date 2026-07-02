@@ -1,7 +1,4 @@
-import {
-  getRegisteredFormValidator,
-  type RegisteredFormValidatorParams,
-} from "./formValidationRegistry"
+import { getRegisteredFormValidator, type RegisteredFormValidatorParams } from "./formValidationRegistry"
 import type { Diagnostic } from "./types"
 
 export type ValidateFormParams = RegisteredFormValidatorParams

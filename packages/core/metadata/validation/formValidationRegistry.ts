@@ -1,5 +1,5 @@
-import type { ConfigurationContext } from "~/metadata/context/types"
-import type { ParsedYaml } from "~/yaml/parseMetadataYaml"
+import type { ConfigurationContext } from "../context/types"
+import type { ParsedYaml } from "../../yaml/parseMetadataYaml"
 import type { OwnerMetadataCache } from "./dataPath/ownerCache"
 import type { ProjectYamlCache } from "./projectYamlCache"
 import type { Diagnostic } from "./types"
@@ -28,9 +28,7 @@ export interface RegisteredFormFirstPassFailed {
   diagnostics: Diagnostic[]
 }
 
-export type RegisteredFormFirstPassResult =
-  | RegisteredFormFirstPassOk
-  | RegisteredFormFirstPassFailed
+export type RegisteredFormFirstPassResult = RegisteredFormFirstPassOk | RegisteredFormFirstPassFailed
 
 export interface RegisteredFormFirstPassParams extends RegisteredFormValidatorParams {}
 
@@ -39,13 +37,9 @@ export interface RegisteredFormSecondPassParams {
   ownerCache: OwnerMetadataCache
 }
 
-export type RegisteredFormFirstPassValidator = (
-  params: RegisteredFormFirstPassParams,
-) => RegisteredFormFirstPassResult
+export type RegisteredFormFirstPassValidator = (params: RegisteredFormFirstPassParams) => RegisteredFormFirstPassResult
 
-export type RegisteredFormSecondPassValidator = (
-  params: RegisteredFormSecondPassParams,
-) => Diagnostic[]
+export type RegisteredFormSecondPassValidator = (params: RegisteredFormSecondPassParams) => Diagnostic[]
 
 export type FormPlatformSourceMatcher = (path: string) =>
   | {

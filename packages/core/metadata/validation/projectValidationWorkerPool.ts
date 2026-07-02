@@ -1,13 +1,9 @@
 import { dirname, join } from "node:path"
 import { Worker } from "node:worker_threads"
 import { fileURLToPath, pathToFileURL } from "node:url"
-import type { ConfigurationContext } from "~/metadata/context/types"
+import type { ConfigurationContext } from "../context/types"
 import type { ValidationProjectFile } from "./projectFiles"
-import type {
-  ValidationMode,
-  ValidationObjectRecord,
-  ValidationObjectTableSnapshot,
-} from "./projectValidationTypes"
+import type { ValidationMode, ValidationObjectRecord, ValidationObjectTableSnapshot } from "./projectValidationTypes"
 import type { Diagnostic } from "./types"
 
 export interface FirstPassPoolParams {
@@ -92,7 +88,7 @@ export function createProjectValidationWorkerPool(params: { concurrency: number 
           })
           if (response.kind !== "firstPassResult") throw new Error("Worker вернул неожиданный результат firstPass")
           return response
-        }),
+        })
       )
 
       return {
@@ -116,7 +112,7 @@ export function createProjectValidationWorkerPool(params: { concurrency: number 
           })
           if (response.kind !== "secondPassResult") throw new Error("Worker вернул неожиданный результат secondPass")
           return response
-        }),
+        })
       )
 
       return { diagnostics: results.flatMap((result) => result.diagnostics) }
@@ -129,9 +125,7 @@ function createWorker(): Worker {
   const workerFile = currentFile.endsWith(".ts")
     ? join(dirname(currentFile), "projectValidationWorker.ts")
     : join(dirname(currentFile), "projectValidationWorker.js")
-  const execArgv = workerFile.endsWith(".ts")
-    ? withTypeScriptWorkerLoader(dirname(currentFile))
-    : process.execArgv
+  const execArgv = workerFile.endsWith(".ts") ? withTypeScriptWorkerLoader(dirname(currentFile)) : process.execArgv
 
   return new Worker(workerFile, { execArgv })
 }

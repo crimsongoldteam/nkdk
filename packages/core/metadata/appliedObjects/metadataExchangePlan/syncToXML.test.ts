@@ -2,9 +2,9 @@ import fs from "fs"
 import os from "os"
 import { join } from "path"
 import { describe, expect, it } from "vitest"
-import { syncAppliedObjectToXML } from "~/metadata/orchestration/appliedObject/syncToXML"
-import { testSyncAppliedObjectToXML } from "~/tests/appliedObject"
-import { mockContextToXML } from "~/tests/mockContext"
+import { syncAppliedObjectToXML } from "../../orchestration/appliedObject/syncToXML"
+import { testSyncAppliedObjectToXML } from "../../../tests/appliedObject"
+import { mockContextToXML } from "../../../tests/mockContext"
 import { MetadataExchangePlanRules } from "./rules"
 
 const normalizeLineEndings = (value: string) => value.replace(/\r\n/g, "\n")

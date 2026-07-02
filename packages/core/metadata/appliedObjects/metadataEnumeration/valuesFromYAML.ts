@@ -1,4 +1,4 @@
-import { ConfigurationContext } from "~/metadata/context/types"
+import { ConfigurationContext } from "../../context/types"
 import { Type, type TSchema } from "@sinclair/typebox"
 import {
   exportMetadataItemToYAML,
@@ -6,8 +6,8 @@ import {
   PropertyRule,
   registerMetadataItemCollectionRule,
   registerTypeRule,
-} from "~/metadata/orchestration"
-import { exportMetadataItemToJSONSchema } from "~/metadata/orchestration/metadataItem/toJSONSchema"
+} from "../../orchestration"
+import { exportMetadataItemToJSONSchema } from "../../orchestration/metadataItem/toJSONSchema"
 import { MetadataEnumerationValueRules } from "./rules"
 import {
   MetadataEnumerationValue,

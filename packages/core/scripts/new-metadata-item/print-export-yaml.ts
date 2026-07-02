@@ -1,7 +1,7 @@
 import { dirname, join } from "node:path"
 import { fileURLToPath, pathToFileURL } from "node:url"
-import type { PropertyRule } from "~/metadata/orchestration"
-import { testExportPropertyToYAML } from "~/tests/property/exportPropertyToYAML"
+import type { PropertyRule } from "../../metadata/orchestration"
+import { testExportPropertyToYAML } from "../../tests/property/exportPropertyToYAML"
 
 const coreRoot = join(dirname(fileURLToPath(import.meta.url)), "../..")
 

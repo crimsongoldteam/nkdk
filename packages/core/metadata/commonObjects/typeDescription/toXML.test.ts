@@ -1,7 +1,7 @@
 import { describe, expect, it } from "vitest"
-import { mockContext, mockContextFromXML, mockRule } from "~/tests/mockContext"
-import { importContentFromXML } from "~/xml/import/importer"
-import { xmlExport } from "~/xml/export/exporter"
+import { mockContext, mockContextFromXML, mockRule } from "../../../tests/mockContext"
+import { importContentFromXML } from "../../../xml/import/importer"
+import { xmlExport } from "../../../xml/export/exporter"
 import { typeFixturesTable } from "./__fixtures__/data"
 import { importTypeDescriptionFromXML } from "./fromXML"
 import { exportTypeDescriptionToXML } from "./toXML"
@@ -48,11 +48,9 @@ describe("exportTypeDescriptionToXML", () => {
   })
 
   it("exports local type namespace when rule requests it", () => {
-    const resultXml = exportTypeDescriptionToXML(
-      mockContext,
-      typeDescriptionRuleWithLocalNamespace,
-      { type: ["SettingsComposer"] }
-    )
+    const resultXml = exportTypeDescriptionToXML(mockContext, typeDescriptionRuleWithLocalNamespace, {
+      type: ["SettingsComposer"],
+    })
 
     const result = xmlExport({ TypeDescription: resultXml }, false)
 
@@ -62,11 +60,9 @@ describe("exportTypeDescriptionToXML", () => {
   })
 
   it("exports cfg namespace when rule requests local type namespace", () => {
-    const resultXml = exportTypeDescriptionToXML(
-      mockContext,
-      typeDescriptionRuleWithLocalNamespace,
-      { type: ["CatalogRef.ЗначенияХарактеристик"] }
-    )
+    const resultXml = exportTypeDescriptionToXML(mockContext, typeDescriptionRuleWithLocalNamespace, {
+      type: ["CatalogRef.ЗначенияХарактеристик"],
+    })
 
     const result = xmlExport({ TypeDescription: resultXml }, false)
 
@@ -207,14 +203,14 @@ describe("exportTypeDescriptionToXML", () => {
   })
 
   it("should throw on unknown non-enumeration type during XML export", () => {
-    expect(() =>
-      exportTypeDescriptionToXML(mockContext, mockRule, { type: ["DefinitelyUnknownType"] })
-    ).toThrow("Type DefinitelyUnknownType not found in TypeDescriptionRules")
+    expect(() => exportTypeDescriptionToXML(mockContext, mockRule, { type: ["DefinitelyUnknownType"] })).toThrow(
+      "Type DefinitelyUnknownType not found in TypeDescriptionRules"
+    )
   })
 
   it("should throw on dotted system enumeration type during XML export", () => {
-    expect(() =>
-      exportTypeDescriptionToXML(mockContext, mockRule, { type: ["FillChecking.Anything"] })
-    ).toThrow("Type FillChecking.Anything not found in TypeDescriptionRules")
+    expect(() => exportTypeDescriptionToXML(mockContext, mockRule, { type: ["FillChecking.Anything"] })).toThrow(
+      "Type FillChecking.Anything not found in TypeDescriptionRules"
+    )
   })
 })
