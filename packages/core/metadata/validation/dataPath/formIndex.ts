@@ -1,4 +1,3 @@
-import { isMap, isPair, isScalar } from "yaml"
 import type { ParsedYaml } from "~/yaml/parseMetadataYaml"
 import type { ClientApplicationForm } from "~/metadata/forms/clientApplicationForm/types"
 import type { FormAttribute, FormAttributeColumn } from "~/metadata/forms/commonObjects/formAttribute/types"
@@ -169,21 +168,5 @@ function findRequisitesKeyOccurrence(
   name: string,
   occurrence: number,
 ): { line: number; col: number } | undefined {
-  const root = parsed.doc.contents
-  if (!isMap(root)) return undefined
-
-  const requisitesPair = root.items.find((item) => isPair(item) && isScalar(item.key) && item.key.value === "Реквизиты")
-  if (!requisitesPair || !isPair(requisitesPair) || !isMap(requisitesPair.value)) return undefined
-
-  let seen = 0
-  for (const item of requisitesPair.value.items) {
-    if (!isPair(item) || !isScalar(item.key) || item.key.value !== name) continue
-    seen += 1
-    if (seen !== occurrence) continue
-
-    const offset = item.key.range?.[0]
-    return offset === undefined ? undefined : parsed.lineCounter.linePos(offset)
-  }
-
-  return undefined
+  return parsed.locations.keyOccurrences(["Реквизиты", name])[occurrence - 1]
 }

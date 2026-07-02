@@ -2,7 +2,10 @@ import { describe, expect, it } from "vitest"
 import "~/metadata/commonObjects/metadataTargets/validationHandlers"
 import { registerTypeRule } from "~/metadata/orchestration/property/typeRuleRegistry"
 import type { MetadataItemRule } from "~/metadata/orchestration/property/types"
+import { parseMetadataYaml } from "~/yaml/parseMetadataYaml"
 import { validateMetadataTargetsInModel } from "./metadataTargetTraversal"
+
+const emptyParsedYaml = () => parseMetadataYaml("")
 
 describe("validateMetadataTargetsInModel", () => {
   it("calls registered validation handler for properties with metadataTarget", () => {
@@ -27,7 +30,7 @@ describe("validateMetadataTargetsInModel", () => {
 
     const diagnostics = validateMetadataTargetsInModel({
       filePath: "/tmp/Свойства.yaml",
-      parsed: { doc: { contents: undefined }, lineCounter: { linePos: () => ({ line: 1, col: 1 }) } } as never,
+      parsed: emptyParsedYaml(),
       model: { itemType: "MetadataCatalog", inputByString: "Catalog.Контрагенты" } as never,
       rule,
       resolver: {} as never,
@@ -52,7 +55,7 @@ describe("validateMetadataTargetsInModel", () => {
 
     const diagnostics = validateMetadataTargetsInModel({
       filePath: "/tmp/Документ/АвансовыйОтчет/Свойства.yaml",
-      parsed: { doc: { contents: undefined }, lineCounter: { linePos: () => ({ line: 1, col: 1 }) } } as never,
+      parsed: emptyParsedYaml(),
       model: { itemType: "MetadataDocument", formRef: "Document.АвансовыйОтчет.Form.ФормаДокумента" } as never,
       rule,
       resolver: {
@@ -91,7 +94,7 @@ describe("validateMetadataTargetsInModel", () => {
 
     const diagnostics = validateMetadataTargetsInModel({
       filePath: "/tmp/Документ/АвансовыйОтчет/Свойства.yaml",
-      parsed: { doc: { contents: undefined }, lineCounter: { linePos: () => ({ line: 1, col: 1 }) } } as never,
+      parsed: emptyParsedYaml(),
       model: { itemType: "MetadataDocument", mainForm: "CommonForm.ФормаДокумента" } as never,
       rule,
       resolver: {} as never,
@@ -120,7 +123,7 @@ describe("validateMetadataTargetsInModel", () => {
 
     const diagnostics = validateMetadataTargetsInModel({
       filePath: "/tmp/ФункциональнаяОпция/Опция/Свойства.yaml",
-      parsed: { doc: { contents: undefined }, lineCounter: { linePos: () => ({ line: 1, col: 1 }) } } as never,
+      parsed: emptyParsedYaml(),
       model: { itemType: "MetadataFunctionalOption", content: "Catalog.НетТакого" } as never,
       rule,
       resolver: {
@@ -170,7 +173,7 @@ describe("validateMetadataTargetsInModel", () => {
 
     const diagnostics = validateMetadataTargetsInModel({
       filePath: "/tmp/Справочник/Товары/Свойства.yaml",
-      parsed: { doc: { contents: undefined }, lineCounter: { linePos: () => ({ line: 1, col: 1 }) } } as never,
+      parsed: emptyParsedYaml(),
       model: { itemType: "MetadataCatalog", styleColor: "StyleItem.ОсновнойЦвет" } as never,
       rule,
       resolver: {
@@ -225,7 +228,7 @@ describe("validateMetadataTargetsInModel", () => {
 
     const diagnostics = validateMetadataTargetsInModel({
       filePath: "/tmp/Документ/АвансовыйОтчет/Свойства.yaml",
-      parsed: { doc: { contents: undefined }, lineCounter: { linePos: () => ({ line: 1, col: 1 }) } } as never,
+      parsed: emptyParsedYaml(),
       model: {
         itemType: "MetadataDocument",
         tabularSections: [

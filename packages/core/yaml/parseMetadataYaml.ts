@@ -1,29 +1,19 @@
-import { Document, LineCounter, parseDocument } from "yaml"
-import { documentToJSWithScalarStyles } from "./import"
 import { parseWithJsYaml, type JsYamlSyntaxError } from "./jsYamlParser"
 import type { YamlLocationIndex } from "./locationIndex"
 
 export interface ParsedYaml {
   text: string
-  doc: Document
-  // eslint-disable-next-line @typescript-eslint/no-explicit-any
-  data: any
-  lineCounter: LineCounter
+  data: unknown
   locations: YamlLocationIndex
   syntaxErrors: JsYamlSyntaxError[]
 }
 
 export function parseMetadataYaml(text: string): ParsedYaml {
-  const parsedWithJsYaml = parseWithJsYaml(text)
-  const lineCounter = new LineCounter()
-  const doc = parseDocument(text, { lineCounter })
-  const data = documentToJSWithScalarStyles(doc)
+  const parsed = parseWithJsYaml(text)
   return {
     text,
-    doc,
-    data,
-    lineCounter,
-    locations: parsedWithJsYaml.locations,
-    syntaxErrors: parsedWithJsYaml.syntaxErrors,
+    data: parsed.data,
+    locations: parsed.locations,
+    syntaxErrors: parsed.syntaxErrors,
   }
 }

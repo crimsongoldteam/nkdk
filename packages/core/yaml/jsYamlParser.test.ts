@@ -36,3 +36,14 @@ describe("parseWithJsYaml", () => {
     expect(parsed.syntaxErrors[0].col).toBeGreaterThanOrEqual(1)
   })
 })
+
+describe("parseMetadataYaml", () => {
+  it("does not expose yaml AST compatibility fields", async () => {
+    const { parseMetadataYaml } = await import("./parseMetadataYaml")
+    const parsed = parseMetadataYaml("Имя: Тест\n")
+
+    expect("doc" in parsed).toBe(false)
+    expect("lineCounter" in parsed).toBe(false)
+    expect(parsed.data).toEqual({ Имя: "Тест" })
+  })
+})
