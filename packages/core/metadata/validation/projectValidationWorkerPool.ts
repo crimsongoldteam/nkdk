@@ -36,6 +36,22 @@ interface WorkerSecondPassTiming {
   supplementFilePaths: number
 }
 
+interface WorkerSecondPassProfile {
+  byKind: Array<{
+    key: string
+    count: number
+    diagnostics: number
+    totalMs: number
+    maxMs: number
+  }>
+  slowFiles: Array<{
+    filePath: string
+    key: string
+    diagnostics: number
+    ms: number
+  }>
+}
+
 export interface ProjectValidationWorkerPool {
   start(): Promise<void>
   close(): Promise<void>
@@ -62,7 +78,12 @@ type WorkerRequest =
 
 type WorkerResponse =
   | { kind: "firstPassResult"; diagnostics: Diagnostic[]; objectRecords: ValidationObjectRecord[] }
-  | { kind: "secondPassResult"; diagnostics: Diagnostic[]; timing?: WorkerSecondPassTiming }
+  | {
+      kind: "secondPassResult"
+      diagnostics: Diagnostic[]
+      timing?: WorkerSecondPassTiming
+      profile?: WorkerSecondPassProfile
+    }
   | { kind: "error"; message: string }
 
 export function createProjectValidationWorkerPool(params: { concurrency: number }): ProjectValidationWorkerPool {
@@ -133,6 +154,7 @@ export function createProjectValidationWorkerPool(params: { concurrency: number 
       )
 
       logSecondPassTiming(results)
+      logSecondPassProfile(results)
 
       return { diagnostics: results.flatMap((result) => result.diagnostics) }
     },
@@ -152,6 +174,51 @@ function logSecondPassTiming(results: Array<{ index: number; timing?: WorkerSeco
         `supplementFilePaths=${result.timing.supplementFilePaths}`,
         `context=${result.timing.contextMs.toFixed(2)}ms`,
         `validation=${result.timing.validationMs.toFixed(2)}ms`,
+      ].join(" ")
+    )
+  }
+}
+
+function logSecondPassProfile(results: Array<{ index: number; profile?: WorkerSecondPassProfile }>): void {
+  if (process.env["NKDK_VALIDATION_PROFILE"] !== "1") return
+
+  const summary = new Map<string, { count: number; diagnostics: number; totalMs: number; maxMs: number }>()
+
+  for (const result of results) {
+    if (result.profile === undefined) continue
+    for (const item of result.profile.byKind) {
+      const current = summary.get(item.key) ?? { count: 0, diagnostics: 0, totalMs: 0, maxMs: 0 }
+      current.count += item.count
+      current.diagnostics += item.diagnostics
+      current.totalMs += item.totalMs
+      current.maxMs = Math.max(current.maxMs, item.maxMs)
+      summary.set(item.key, current)
+    }
+
+    console.error(`[validation-profile] worker ${result.index} slow files`)
+    for (const file of result.profile.slowFiles) {
+      console.error(
+        [
+          `[validation-profile] worker ${result.index}`,
+          `ms=${file.ms.toFixed(2)}`,
+          `kind=${file.key}`,
+          `diagnostics=${file.diagnostics}`,
+          `file=${file.filePath}`,
+        ].join(" ")
+      )
+    }
+  }
+
+  console.error("[validation-profile] second pass by kind")
+  for (const [key, item] of [...summary.entries()].sort((left, right) => right[1].totalMs - left[1].totalMs)) {
+    console.error(
+      [
+        `[validation-profile] kind=${key}`,
+        `count=${item.count}`,
+        `diagnostics=${item.diagnostics}`,
+        `total=${item.totalMs.toFixed(2)}ms`,
+        `avg=${(item.totalMs / item.count).toFixed(2)}ms`,
+        `max=${item.maxMs.toFixed(2)}ms`,
       ].join(" ")
     )
   }

@@ -126,9 +126,11 @@ function runSecondPass(message: Extract<ValidationWorkerMessage, { kind: "second
     supplementRecords: number
     supplementFilePaths: number
   }
+  profile?: WorkerSecondPassProfile
 } {
   const contextStartedAt = performance.now()
   const diagnostics: Diagnostic[] = []
+  const profile = createWorkerSecondPassProfile()
   const localSnapshot = workerState.localTable.snapshot()
   const supplementedTable = createValidationObjectTable({
     records: [...localSnapshot.records, ...message.objectTable.records],
@@ -148,6 +150,7 @@ function runSecondPass(message: Extract<ValidationWorkerMessage, { kind: "second
   for (const filePath of message.filePaths) {
     const state = workerState.states.get(resolve(filePath))
     if (state === undefined) continue
+    const fileStartedAt = performance.now()
     const second = validateProjectFileSecondPass({
       projectDir: message.projectDir,
       state,
@@ -156,6 +159,7 @@ function runSecondPass(message: Extract<ValidationWorkerMessage, { kind: "second
       ownerCache,
       metadataResolver,
     })
+    profile?.record(state, performance.now() - fileStartedAt, second.diagnostics.length)
     diagnostics.push(...second.diagnostics)
   }
 
@@ -168,7 +172,66 @@ function runSecondPass(message: Extract<ValidationWorkerMessage, { kind: "second
       supplementRecords: message.objectTable.records.length,
       supplementFilePaths: message.objectTable.filePaths.length,
     },
+    ...(profile === undefined ? {} : { profile: profile.snapshot() }),
   }
+}
+
+interface WorkerSecondPassProfile {
+  byKind: Array<{
+    key: string
+    count: number
+    diagnostics: number
+    totalMs: number
+    maxMs: number
+  }>
+  slowFiles: Array<{
+    filePath: string
+    key: string
+    diagnostics: number
+    ms: number
+  }>
+}
+
+function createWorkerSecondPassProfile():
+  | {
+      record(state: ProjectValidationFileState, ms: number, diagnostics: number): void
+      snapshot(): WorkerSecondPassProfile
+    }
+  | undefined {
+  if (process.env["NKDK_VALIDATION_PROFILE"] !== "1") return undefined
+
+  const byKind = new Map<string, { count: number; diagnostics: number; totalMs: number; maxMs: number }>()
+  const slowFiles: WorkerSecondPassProfile["slowFiles"] = []
+
+  return {
+    record(state, ms, diagnostics) {
+      const key = validationProfileKey(state)
+      const current = byKind.get(key) ?? { count: 0, diagnostics: 0, totalMs: 0, maxMs: 0 }
+      current.count += 1
+      current.diagnostics += diagnostics
+      current.totalMs += ms
+      current.maxMs = Math.max(current.maxMs, ms)
+      byKind.set(key, current)
+
+      slowFiles.push({ filePath: state.file.absolutePath, key, diagnostics, ms })
+      slowFiles.sort((left, right) => right.ms - left.ms)
+      slowFiles.length = Math.min(slowFiles.length, 10)
+    },
+    snapshot() {
+      return {
+        byKind: [...byKind.entries()]
+          .map(([key, value]) => ({ key, ...value }))
+          .sort((left, right) => right.totalMs - left.totalMs),
+        slowFiles: [...slowFiles],
+      }
+    },
+  }
+}
+
+function validationProfileKey(state: ProjectValidationFileState): string {
+  if (state.kind === "failed") return "failed"
+  if (state.kind === "form") return "form"
+  return `properties:${state.file.owner.dir}`
 }
 
 function createWorkerYamlCache(): ProjectYamlCache {
