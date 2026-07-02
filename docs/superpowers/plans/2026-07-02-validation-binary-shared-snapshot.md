@@ -849,7 +849,7 @@ git commit -m "perf: :zap: добавить бинарный owner snapshot vali
 - Modify: `packages/core/metadata/validation/dataPath/sharedOwnerCache.ts`
 - Modify: `packages/core/metadata/validation/sharedValidationSnapshot.test.ts`
 
-- [ ] **Step 1: Add tests for binary format selection**
+- [x] **Step 1: Add tests for binary format selection**
 
 Append this test to `packages/core/metadata/validation/sharedValidationSnapshot.test.ts`:
 
@@ -873,7 +873,7 @@ Append this test to `packages/core/metadata/validation/sharedValidationSnapshot.
   })
 ```
 
-- [ ] **Step 2: Run the failing format selection test**
+- [x] **Step 2: Run the failing format selection test**
 
 Run:
 
@@ -883,7 +883,7 @@ pnpm --filter @nakidka/core test -- sharedValidationSnapshot.test.ts
 
 Expected: FAIL because `owners.format` does not exist.
 
-- [ ] **Step 3: Modify `SharedValidationSnapshot` to support JSON and binary owners**
+- [x] **Step 3: Modify `SharedValidationSnapshot` to support JSON and binary owners**
 
 In `packages/core/metadata/validation/sharedValidationSnapshot.ts`, import the binary builder and change the owner type:
 
@@ -955,7 +955,7 @@ export function decodeSharedValidationOwners(snapshot: SharedValidationSnapshot)
 }
 ```
 
-- [ ] **Step 4: Route shared owner cache by format**
+- [x] **Step 4: Route shared owner cache by format**
 
 Modify `packages/core/metadata/validation/dataPath/sharedOwnerCache.ts`:
 
@@ -976,7 +976,7 @@ At the start of `createOwnerMetadataCacheFromSharedValidationSnapshot`, add:
 
 Keep the existing JSON code below this branch.
 
-- [ ] **Step 5: Run snapshot and owner tests**
+- [x] **Step 5: Run snapshot and owner tests**
 
 Run:
 

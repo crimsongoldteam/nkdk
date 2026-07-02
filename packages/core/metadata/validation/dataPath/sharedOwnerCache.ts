@@ -8,12 +8,20 @@ import {
   type SharedValidationSnapshot,
   type SharedValidationOwnerRecord,
 } from "../sharedValidationSnapshot"
+import { createOwnerMetadataCacheFromBinarySharedOwners } from "../sharedValidationBinaryOwners"
 import type { Diagnostic } from "../types"
 
 export function createOwnerMetadataCacheFromSharedValidationSnapshot(params: {
   projectDir: string
   snapshot: SharedValidationSnapshot
 }): OwnerMetadataCache {
+  if (params.snapshot.owners.format === "binary") {
+    return createOwnerMetadataCacheFromBinarySharedOwners({
+      projectDir: params.projectDir,
+      snapshot: params.snapshot.owners,
+    })
+  }
+
   const payload = decodeSharedValidationOwners(params.snapshot)
   const byOwner = new Map(payload.records.map((record) => [ownerKey(record.ref), record]))
   const results = new Map<string, OwnerMetadataResult>()

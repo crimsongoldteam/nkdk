@@ -4,6 +4,7 @@ import {
   createSharedProjectReferenceSnapshot,
   type SharedProjectReferenceSnapshot,
 } from "./sharedProjectReferenceIndex"
+import { createBinarySharedOwnersSnapshot, type BinarySharedOwnersSnapshot } from "./sharedValidationBinaryOwners"
 import type { Diagnostic } from "./types"
 import type { ValidationObjectRecord, ValidationObjectTableSnapshot } from "./projectValidationTypes"
 
@@ -12,12 +13,15 @@ const textDecoder = new TextDecoder()
 
 export interface SharedValidationSnapshot {
   reference: SharedProjectReferenceSnapshot
-  owners: {
-    buffer: SharedArrayBuffer
-    bytes: number
-    records: number
-    files: number
-  }
+  owners: JsonSharedOwnersSnapshot | BinarySharedOwnersSnapshot
+}
+
+export interface JsonSharedOwnersSnapshot {
+  format: "json"
+  buffer: SharedArrayBuffer
+  bytes: number
+  records: number
+  files: number
 }
 
 export interface SharedValidationOwnerRecord {
@@ -60,6 +64,33 @@ export function createSharedValidationSnapshot(snapshot: ValidationObjectTableSn
       `Некорректный ValidationObjectTableSnapshot для shared validation: keys=${Object.keys(snapshot as object).join(",")} records=${typeof snapshot.records}`
     )
   }
+  const owners =
+    process.env["NKDK_VALIDATION_SHARED_OWNER_FORMAT"] === "binary"
+      ? createBinarySharedOwnersSnapshot(snapshot)
+      : createJsonSharedOwnersSnapshot(snapshot)
+
+  return {
+    reference: createSharedProjectReferenceSnapshot({
+      objectIndexEntries: snapshot.objectIndexEntries ?? [],
+      memberIndexEntries: snapshot.memberIndexEntries ?? [],
+      valueIndexEntries: snapshot.valueIndexEntries ?? [],
+    }),
+    owners,
+  }
+}
+
+export function decodeSharedValidationOwners(snapshot: SharedValidationSnapshot): SharedOwnersPayload {
+  if (snapshot.owners.format !== "json") throw new Error("Shared owner snapshot не является JSON snapshot")
+  const decoded = JSON.parse(textDecoder.decode(new Uint8Array(snapshot.owners.buffer))) as Partial<SharedOwnersPayload>
+  if (!Array.isArray(decoded.records) || !Array.isArray(decoded.filePaths)) {
+    throw new Error(
+      `Некорректный shared owner snapshot: keys=${Object.keys(decoded).join(",")} records=${typeof decoded.records}`
+    )
+  }
+  return { records: decoded.records, filePaths: decoded.filePaths }
+}
+
+function createJsonSharedOwnersSnapshot(snapshot: ValidationObjectTableSnapshot): JsonSharedOwnersSnapshot {
   const payload: SharedOwnersPayload = {
     records: snapshot.records.filter((record) => record.ownerRef !== undefined).map(encodeOwnerRecord),
     filePaths: snapshot.filePaths,
@@ -68,30 +99,13 @@ export function createSharedValidationSnapshot(snapshot: ValidationObjectTableSn
   const bytes = textEncoder.encode(json)
   const buffer = new SharedArrayBuffer(bytes.byteLength)
   new Uint8Array(buffer).set(bytes)
-
   return {
-    reference: createSharedProjectReferenceSnapshot({
-      objectIndexEntries: snapshot.objectIndexEntries ?? [],
-      memberIndexEntries: snapshot.memberIndexEntries ?? [],
-      valueIndexEntries: snapshot.valueIndexEntries ?? [],
-    }),
-    owners: {
-      buffer,
-      bytes: bytes.byteLength,
-      records: payload.records.length,
-      files: payload.filePaths.length,
-    },
+    format: "json",
+    buffer,
+    bytes: bytes.byteLength,
+    records: payload.records.length,
+    files: payload.filePaths.length,
   }
-}
-
-export function decodeSharedValidationOwners(snapshot: SharedValidationSnapshot): SharedOwnersPayload {
-  const decoded = JSON.parse(textDecoder.decode(new Uint8Array(snapshot.owners.buffer))) as Partial<SharedOwnersPayload>
-  if (!Array.isArray(decoded.records) || !Array.isArray(decoded.filePaths)) {
-    throw new Error(
-      `Некорректный shared owner snapshot: keys=${Object.keys(decoded).join(",")} records=${typeof decoded.records}`
-    )
-  }
-  return { records: decoded.records, filePaths: decoded.filePaths }
 }
 
 export function decodeObjectFieldIndex(value: SharedObjectFieldIndex): ObjectFieldIndex {
