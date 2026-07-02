@@ -194,7 +194,10 @@ function findMappingColon(line: string, start: number): number | undefined {
       continue
     }
 
-    if (char === ":") return index
+    if (char !== ":") continue
+
+    const next = line[index + 1]
+    if (next === undefined || next === " " || next === "\t") return index
   }
 
   return undefined
