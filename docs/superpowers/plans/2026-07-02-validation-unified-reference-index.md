@@ -523,7 +523,7 @@ pnpm --filter @nakidka/core exec vitest run packages/core/metadata/validation/pr
 
 Expected: new tests pass; existing `projectMetadataReferences.test.ts` may fail where it expects `"miss"` because result reason is now `"notFound"`. Update those expectations to the new public reason.
 
-- [ ] **Step 7: Commit core index**
+- [x] **Step 7: Commit core index**
 
 ```bash
 git add packages/core/metadata/validation/projectReferenceIndex.ts packages/core/metadata/validation/projectMetadataReferences.ts packages/core/metadata/validation/projectMetadataReferences.test.ts
@@ -540,7 +540,7 @@ git commit -m "feat: :sparkles: добавить project reference index"
 - Test: `packages/core/metadata/validation/projectReferenceIndex.test.ts`
 - Test: `packages/core/metadata/validation/projectValidationWorkerPool.test.ts`
 
-- [ ] **Step 1: Add `validatePendingReferencesWithIndex()` failing tests**
+- [x] **Step 1: Add `validatePendingReferencesWithIndex()` failing tests**
 
 Append to `projectReferenceIndex.test.ts`:
 
@@ -566,7 +566,7 @@ it("validates pending references without fallback", () => {
 
 Import `validatePendingReferencesWithIndex`.
 
-- [ ] **Step 2: Implement `validatePendingReferencesWithIndex()`**
+- [x] **Step 2: Implement `validatePendingReferencesWithIndex()`**
 
 Add to `projectReferenceIndex.ts`:
 
@@ -589,7 +589,7 @@ export function validatePendingReferencesWithIndex(params: {
 }
 ```
 
-- [ ] **Step 3: Replace in-process full validation fallback**
+- [x] **Step 3: Replace in-process full validation fallback**
 
 In `validateProject.ts`, replace full-validation resolver creation block with:
 
@@ -615,7 +615,7 @@ diagnostics.push(...referenceResult.diagnostics)
 
 Update imports from `projectMetadataReferences`/`projectReferenceIndex` accordingly.
 
-- [ ] **Step 4: Replace worker second-pass fallback**
+- [x] **Step 4: Replace worker second-pass fallback**
 
 In `projectValidationWorker.ts`, replace `createProjectMetadataResolverFromValidationTable()` and `validatePendingReferences({ resolver })` with:
 
@@ -633,7 +633,7 @@ const referenceResult = validatePendingReferencesWithIndex({
 
 Return `referenceResult.stats` fields in the timing payload instead of `hits/misses/fallbacks` from the old result.
 
-- [ ] **Step 5: Update profile logging names**
+- [x] **Step 5: Update profile logging names**
 
 In `validateProject.ts` and `projectValidationWorkerPool.ts`, use:
 
@@ -649,7 +649,7 @@ In `validateProject.ts` and `projectValidationWorkerPool.ts`, use:
 
 Expected after this task on current code: `fallbacks=0`; `unsupported` may still be non-zero until object/value index entries are fully built.
 
-- [ ] **Step 6: Run focused tests**
+- [x] **Step 6: Run focused tests**
 
 ```bash
 pnpm --filter @nakidka/core exec vitest run packages/core/metadata/validation/projectReferenceIndex.test.ts packages/core/metadata/validation/projectValidationWorkerPool.test.ts

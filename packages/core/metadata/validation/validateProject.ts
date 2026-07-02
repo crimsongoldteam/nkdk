@@ -3,7 +3,11 @@ import { resolve } from "path"
 import type { ConfigurationContext } from "../context/types"
 import { createOwnerMetadataCacheFromValidationTable } from "./dataPath/ownerCache"
 import { createProjectMetadataResolverFromValidationTable } from "./projectMetadataResolver"
-import { createProjectReferenceSnapshot, validatePendingReferences } from "./projectMetadataReferences"
+import {
+  createProjectReferenceIndex,
+  createProjectReferenceSnapshot,
+  validatePendingReferencesWithIndex,
+} from "./projectReferenceIndex"
 import { ProjectFileSchemaError } from "./projectFileSchema"
 import {
   discoverValidationProjectFiles,
@@ -69,22 +73,19 @@ function validateProjectInProcess(params: ValidateProjectParams): ValidateProjec
   if (skipMetadataTargetValidation) {
     const objectTableSnapshot = objectTable.snapshot()
     const referenceSnapshot = createProjectReferenceSnapshot({
+      objectIndexEntries: objectTableSnapshot.objectIndexEntries ?? [],
       memberIndexEntries: objectTableSnapshot.memberIndexEntries ?? [],
+      valueIndexEntries: objectTableSnapshot.valueIndexEntries ?? [],
       pendingReferences: objectTableSnapshot.pendingReferences ?? [],
     })
-    const cache = createProjectYamlCacheFromEntries([...entries.values()])
-    const ownerCache = createOwnerMetadataCacheFromValidationTable({ projectDir, table: objectTable })
-    const metadataResolver = createProjectMetadataResolverFromValidationTable({
+    const referenceIndex = createProjectReferenceIndex({
       projectDir,
-      table: objectTable,
       mode: queue.mode,
-      ownerCache,
-      yamlCache: cache,
-    })
-    const referenceResult = validatePendingReferences({
       snapshot: referenceSnapshot,
+    })
+    const referenceResult = validatePendingReferencesWithIndex({
+      index: referenceIndex,
       references: referenceSnapshot.pendingReferences,
-      resolver: metadataResolver,
     })
     logInProcessReferenceProfile({ snapshot: referenceSnapshot, result: referenceResult })
     diagnostics.push(...referenceResult.diagnostics)
@@ -256,16 +257,21 @@ function diagnosticKey(diagnostic: Diagnostic): string {
 
 function logInProcessReferenceProfile(params: {
   snapshot: ReturnType<typeof createProjectReferenceSnapshot>
-  result: ReturnType<typeof validatePendingReferences>
+  result: ReturnType<typeof validatePendingReferencesWithIndex>
 }): void {
   if (process.env["NKDK_VALIDATION_PROFILE"] !== "1") return
+  const references = params.result.stats
 
   console.error(
     [
       "[validation-profile] references second-pass",
-      `hits=${params.result.hits}`,
-      `misses=${params.result.misses}`,
-      `fallbacks=${params.result.fallbacks}`,
+      `hits=${references.hits}`,
+      `misses=${references.misses}`,
+      `conflicts=${references.conflicts}`,
+      `filters=${references.filterFailures}`,
+      `dependencies=${references.dependencies}`,
+      `unsupported=${references.unsupported}`,
+      `fallbacks=${references.fallbacks}`,
       `snapshotBytes=${params.snapshot.stats.snapshotBytes}`,
       `pending=${params.snapshot.stats.pendingReferences}`,
       `entries=${params.snapshot.stats.memberEntries}`,

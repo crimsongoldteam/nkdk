@@ -10,7 +10,7 @@ import type {
   ProjectMemberIndexEntry,
   ProjectReferenceSnapshot,
 } from "./projectMetadataReferences"
-import { validatePendingReferences } from "./projectMetadataReferences"
+import { createProjectReferenceIndex, validatePendingReferencesWithIndex } from "./projectReferenceIndex"
 import { resolveValidationProjectFile } from "./projectFiles"
 import {
   createProjectYamlCache,
@@ -149,6 +149,10 @@ function runSecondPass(message: Extract<ValidationWorkerMessage, { kind: "second
     supplementFilePaths: number
     referenceHits: number
     referenceMisses: number
+    referenceConflicts: number
+    referenceFilterFailures: number
+    referenceDependencies: number
+    referenceUnsupported: number
     referenceFallbacks: number
     snapshotBytes: number
     pendingReferences: number
@@ -174,10 +178,14 @@ function runSecondPass(message: Extract<ValidationWorkerMessage, { kind: "second
     yamlCache: cache,
   })
   const referenceStartedAt = performance.now()
-  const referenceResult = validatePendingReferences({
+  const referenceIndex = createProjectReferenceIndex({
+    projectDir: message.projectDir,
+    mode: message.mode,
     snapshot: message.referenceSnapshot,
+  })
+  const referenceResult = validatePendingReferencesWithIndex({
+    index: referenceIndex,
     references: message.pendingReferences,
-    resolver: metadataResolver,
   })
   diagnostics.push(...referenceResult.diagnostics)
   const validationStartedAt = performance.now()
@@ -208,9 +216,13 @@ function runSecondPass(message: Extract<ValidationWorkerMessage, { kind: "second
       fileCount: message.filePaths.length,
       supplementRecords: message.objectTable.records.length,
       supplementFilePaths: message.objectTable.filePaths.length,
-      referenceHits: referenceResult.hits,
-      referenceMisses: referenceResult.misses,
-      referenceFallbacks: referenceResult.fallbacks,
+      referenceHits: referenceResult.stats.hits,
+      referenceMisses: referenceResult.stats.misses,
+      referenceConflicts: referenceResult.stats.conflicts,
+      referenceFilterFailures: referenceResult.stats.filterFailures,
+      referenceDependencies: referenceResult.stats.dependencies,
+      referenceUnsupported: referenceResult.stats.unsupported,
+      referenceFallbacks: referenceResult.stats.fallbacks,
       snapshotBytes: message.referenceSnapshot.stats.snapshotBytes,
       pendingReferences: message.pendingReferences.length,
       memberIndexEntries: message.referenceSnapshot.stats.memberEntries,

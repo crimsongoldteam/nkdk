@@ -45,6 +45,10 @@ interface WorkerSecondPassTiming {
   supplementFilePaths: number
   referenceHits: number
   referenceMisses: number
+  referenceConflicts: number
+  referenceFilterFailures: number
+  referenceDependencies: number
+  referenceUnsupported: number
   referenceFallbacks: number
   snapshotBytes: number
   pendingReferences: number
@@ -157,7 +161,9 @@ export function createProjectValidationWorkerPool(params: { concurrency: number 
     },
     async runSecondPass(secondPassParams) {
       const referenceSnapshot = createProjectReferenceSnapshot({
+        objectIndexEntries: secondPassParams.objectTable.objectIndexEntries ?? [],
         memberIndexEntries: secondPassParams.objectTable.memberIndexEntries ?? [],
+        valueIndexEntries: secondPassParams.objectTable.valueIndexEntries ?? [],
         pendingReferences: secondPassParams.objectTable.pendingReferences ?? [],
       })
       const referencePartitions = partitionPendingReferencesForWorkers(referenceSnapshot.pendingReferences, workers.length)
@@ -208,6 +214,10 @@ function logSecondPassTiming(results: Array<{ index: number; timing?: WorkerSeco
         `referenceValidation=${result.timing.referenceValidationMs.toFixed(2)}ms`,
         `referenceHits=${result.timing.referenceHits}`,
         `referenceMisses=${result.timing.referenceMisses}`,
+        `referenceConflicts=${result.timing.referenceConflicts}`,
+        `referenceFilters=${result.timing.referenceFilterFailures}`,
+        `referenceDependencies=${result.timing.referenceDependencies}`,
+        `referenceUnsupported=${result.timing.referenceUnsupported}`,
         `referenceFallbacks=${result.timing.referenceFallbacks}`,
         `snapshotBytes=${result.timing.snapshotBytes}`,
         `validation=${result.timing.validationMs.toFixed(2)}ms`,
@@ -228,13 +238,28 @@ function logSecondPassProfile(
       if (timing === undefined) return total
       total.hits += timing.referenceHits
       total.misses += timing.referenceMisses
+      total.conflicts += timing.referenceConflicts
+      total.filterFailures += timing.referenceFilterFailures
+      total.dependencies += timing.referenceDependencies
+      total.unsupported += timing.referenceUnsupported
       total.fallbacks += timing.referenceFallbacks
       total.pendingReferences += timing.pendingReferences
       total.snapshotBytes = Math.max(total.snapshotBytes, timing.snapshotBytes)
       total.memberIndexEntries = Math.max(total.memberIndexEntries, timing.memberIndexEntries)
       return total
     },
-    { hits: 0, misses: 0, fallbacks: 0, snapshotBytes: 0, pendingReferences: 0, memberIndexEntries: 0 }
+    {
+      hits: 0,
+      misses: 0,
+      conflicts: 0,
+      filterFailures: 0,
+      dependencies: 0,
+      unsupported: 0,
+      fallbacks: 0,
+      snapshotBytes: 0,
+      pendingReferences: 0,
+      memberIndexEntries: 0,
+    }
   )
 
   console.error(
@@ -242,6 +267,10 @@ function logSecondPassProfile(
       "[validation-profile] references second-pass",
       `hits=${references.hits}`,
       `misses=${references.misses}`,
+      `conflicts=${references.conflicts}`,
+      `filters=${references.filterFailures}`,
+      `dependencies=${references.dependencies}`,
+      `unsupported=${references.unsupported}`,
       `fallbacks=${references.fallbacks}`,
       `snapshotBytes=${references.snapshotBytes}`,
       `pending=${references.pendingReferences}`,

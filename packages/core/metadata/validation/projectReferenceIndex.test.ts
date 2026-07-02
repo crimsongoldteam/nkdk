@@ -8,6 +8,7 @@ import {
   projectMemberIndexKey,
   projectObjectIndexKey,
   projectValueIndexKey,
+  validatePendingReferencesWithIndex,
   type ProjectMemberIndexEntry,
   type ProjectObjectIndexEntry,
   type ProjectValueIndexEntry,
@@ -103,6 +104,32 @@ describe("ProjectReferenceIndex", () => {
       }),
     ).toEqual({ ok: true })
     expect(index.stats()).toMatchObject({ hits: 1, misses: 0, unsupported: 0, fallbacks: 0 })
+  })
+
+  it("validates pending references without fallback", () => {
+    const projectDir = "/tmp/nkdk-project"
+    const target = memberTarget("Справочник.Номенклатура.Реквизит.Артикул")
+    const filePath = join(projectDir, "Справочник", "Номенклатура", "Свойства.yaml")
+    const snapshot = createProjectReferenceSnapshot({
+      objectIndexEntries: [],
+      memberIndexEntries: [{ canonical: projectMemberIndexKey(target), target, result: { ok: true, filePath } }],
+      valueIndexEntries: [],
+      pendingReferences: [
+        {
+          filePath,
+          yamlPath: ["Поле"],
+          canonical: "Catalog.Номенклатура.Attribute.Артикул",
+          target,
+          constraint: { kind: "member", owner: "explicit" },
+        },
+      ],
+    })
+    const index = createProjectReferenceIndex({ projectDir, mode: "full", snapshot })
+
+    expect(validatePendingReferencesWithIndex({ index, references: snapshot.pendingReferences })).toEqual({
+      diagnostics: [],
+      stats: { hits: 1, misses: 0, conflicts: 0, filterFailures: 0, dependencies: 0, unsupported: 0, fallbacks: 0 },
+    })
   })
 })
 

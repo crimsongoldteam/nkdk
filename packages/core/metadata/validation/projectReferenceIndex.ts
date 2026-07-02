@@ -81,6 +81,11 @@ export interface ProjectReferenceIndexStats {
   fallbacks: 0
 }
 
+export interface ValidatePendingReferencesWithIndexResult {
+  diagnostics: Diagnostic[]
+  stats: ProjectReferenceIndexStats
+}
+
 export function projectObjectIndexKey(target: Extract<ParsedMetadataTarget, { kind: "object" }>): string {
   return [
     target.root,
@@ -184,6 +189,18 @@ export function createProjectReferenceIndex(params: {
       return { ...stats }
     },
   }
+}
+
+export function validatePendingReferencesWithIndex(params: {
+  index: ProjectReferenceIndex
+  references: readonly PendingMetadataTargetReference[]
+}): ValidatePendingReferencesWithIndexResult {
+  const diagnostics: Diagnostic[] = []
+  for (const reference of params.references) {
+    const result = params.index.resolve(reference)
+    if (!result.ok) diagnostics.push(...result.diagnostics)
+  }
+  return { diagnostics, stats: params.index.stats() }
 }
 
 function resolveReference(
