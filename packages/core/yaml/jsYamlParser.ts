@@ -36,11 +36,11 @@ export function parseWithJsYaml(text: string): JsParsedYaml {
 
 function toSyntaxError(error: unknown, text: string): JsYamlSyntaxError {
   if (error instanceof YAMLException && error.mark !== undefined) {
-    const lineText = text.split(/\r?\n/)[error.mark.line] ?? ""
+    const normalized = normalizeYamlMark(error.mark.line, error.mark.column, text)
     return {
       message: error.reason || error.message,
-      line: error.mark.line + 1,
-      col: Math.max(1, Math.min(error.mark.column + 1, lineText.length)),
+      line: normalized.line,
+      col: normalized.col,
     }
   }
 
@@ -49,4 +49,22 @@ function toSyntaxError(error: unknown, text: string): JsYamlSyntaxError {
     line: 1,
     col: 1,
   }
+}
+
+function normalizeYamlMark(line: number, column: number, text: string): { line: number; col: number } {
+  const lines = text.split(/\r?\n/)
+  const rawLine = lines[line]
+  if (rawLine !== undefined && column < rawLine.length) {
+    return { line: line + 1, col: Math.max(1, column + 1) }
+  }
+
+  const previousLineIndex = Math.min(line, lines.length - 1)
+  for (let index = previousLineIndex; index >= 0; index -= 1) {
+    const candidate = lines[index]
+    const flowIndex = Math.max(candidate.lastIndexOf("["), candidate.lastIndexOf("{"))
+    if (flowIndex >= 0) return { line: index + 1, col: flowIndex + 1 }
+    if (candidate.trim() !== "") return { line: index + 1, col: Math.max(1, candidate.length) }
+  }
+
+  return { line: 1, col: 1 }
 }

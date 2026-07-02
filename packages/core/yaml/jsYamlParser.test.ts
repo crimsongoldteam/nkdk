@@ -16,4 +16,23 @@ describe("parseWithJsYaml", () => {
     expect(parsed.syntaxErrors).toHaveLength(1)
     expect(parsed.syntaxErrors[0]).toMatchObject({ line: 1, col: 6 })
   })
+
+  it("normalizes EOF diagnostics to the unterminated flow collection", () => {
+    const parsed = parseWithJsYaml("Имя: [")
+
+    expect(parsed.syntaxErrors).toHaveLength(1)
+    expect(parsed.syntaxErrors[0]).toMatchObject({
+      line: 1,
+      col: 6,
+      message: expect.stringContaining("unexpected end"),
+    })
+  })
+
+  it("keeps direct mark diagnostics when the parser points into an existing line", () => {
+    const parsed = parseWithJsYaml("Имя: Тест\n  ЛишнийОтступ: 1\n")
+
+    expect(parsed.syntaxErrors).toHaveLength(1)
+    expect(parsed.syntaxErrors[0].line).toBeGreaterThanOrEqual(1)
+    expect(parsed.syntaxErrors[0].col).toBeGreaterThanOrEqual(1)
+  })
 })
