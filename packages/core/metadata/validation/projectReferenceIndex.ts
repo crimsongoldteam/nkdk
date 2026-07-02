@@ -363,6 +363,7 @@ function matchesStringIndexedAttributeFilter(details: unknown): boolean {
   const typeInfo = details.typeInfo
   if (typeInfo.kinds.includes("unknown")) return true
   if (typeInfo.kinds.includes("boolean")) return true
+  if (typeInfo.definedTypes !== undefined && typeInfo.definedTypes.length > 0) return true
   return ["string", "decimal", "dateTime", "UUID"].some((type) => typeInfoSourceContains(typeInfo, type))
 }
 
@@ -385,6 +386,7 @@ interface ObjectFieldDetails {
   typeInfo: {
     kinds: readonly string[]
     sourceText?: string
+    definedTypes?: readonly string[]
   }
 }
 

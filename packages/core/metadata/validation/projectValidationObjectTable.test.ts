@@ -52,6 +52,19 @@ describe("ValidationObjectTable", () => {
       valueIndexEntries: [expect.objectContaining({ canonical: "Catalog.Товары.EmptyRef" })],
     })
   })
+
+  it("preserves reference index entries without owner records", () => {
+    const table = createValidationObjectTable()
+    table.mergeReferenceIndexEntries({
+      memberIndexEntries: [{ canonical: "Catalog.Товары.Form.ФормаЭлемента", target: {} as never, result: { ok: true } }],
+    })
+
+    const restored = createValidationObjectTable(table.snapshot())
+
+    expect(restored.snapshot()).toMatchObject({
+      memberIndexEntries: [expect.objectContaining({ canonical: "Catalog.Товары.Form.ФормаЭлемента" })],
+    })
+  })
 })
 
 function record(owner: { kind: string; name: string }, filePath?: string): ValidationObjectRecord {

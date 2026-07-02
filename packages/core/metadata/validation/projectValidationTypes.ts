@@ -35,13 +35,16 @@ export interface ValidationObjectRecord {
   importDiagnostics: Diagnostic[]
 }
 
-export interface ValidationObjectTableSnapshot {
-  records: ValidationObjectRecord[]
-  filePaths: string[]
+export interface ValidationReferenceIndexEntries {
   objectIndexEntries?: ProjectObjectIndexEntry[]
   memberIndexEntries?: ProjectMemberIndexEntry[]
   valueIndexEntries?: ProjectValueIndexEntry[]
   pendingReferences?: PendingMetadataTargetReference[]
+}
+
+export interface ValidationObjectTableSnapshot extends ValidationReferenceIndexEntries {
+  records: ValidationObjectRecord[]
+  filePaths: string[]
 }
 
 export interface ValidationDependencyRequest {

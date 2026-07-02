@@ -1458,7 +1458,7 @@ pnpm --filter @nakidka/core exec vitest run packages/core/metadata/validation/pr
 
 Expected: PASS and snapshot bytes lower than before on the real project.
 
-- [ ] **Step 5: Commit snapshot compaction**
+- [x] **Step 5: Commit snapshot compaction**
 
 ```bash
 git add packages/core/metadata/validation/projectReferenceIndex.ts packages/core/metadata/validation/projectReferenceIndex.test.ts packages/core/metadata/validation/projectValidationWorkerPool.ts
@@ -1470,7 +1470,7 @@ git commit -m "perf: :zap: уменьшить snapshot reference index"
 **Files:**
 - Modify only if verification exposes failures.
 
-- [ ] **Step 1: Run full test suite**
+- [x] **Step 1: Run full test suite**
 
 ```bash
 pnpm test
@@ -1478,7 +1478,7 @@ pnpm test
 
 Expected: all packages green, including `core`, `cli`, `mcp`.
 
-- [ ] **Step 2: Run clean search**
+- [x] **Step 2: Run clean search**
 
 ```bash
 rg -n "ProjectMetadataResolver|createProjectMetadataResolver|createProjectMetadataResolverFromValidationTable|validateMetadataTargetsInModel|projectMetadataResolverRegistry" packages/core/metadata packages/cli packages/mcp
@@ -1486,7 +1486,7 @@ rg -n "ProjectMetadataResolver|createProjectMetadataResolver|createProjectMetada
 
 Expected: no runtime usage.
 
-- [ ] **Step 3: Run full validation once**
+- [x] **Step 3: Run full validation once**
 
 ```bash
 /usr/bin/time -p pnpm --filter @nakidka/cli exec nkdk validate /Users/nikita/git/nkdk-yaml
@@ -1502,7 +1502,7 @@ unsupported=0
 
 Performance target: not slower than current baseline `real 41.33-45.45s`.
 
-- [ ] **Step 4: Run profile validation**
+- [x] **Step 4: Run profile validation**
 
 ```bash
 /usr/bin/time -p pnpm --filter @nakidka/cli exec nkdk validate /Users/nikita/git/nkdk-yaml --profile
@@ -1520,7 +1520,16 @@ sort/dedupe diagnostics: ...
 references: pending=..., entries=..., hits=..., misses=..., conflicts=..., filters=..., dependencies=..., unsupported=0, fallbacks=0, snapshotBytes=...
 ```
 
-- [ ] **Step 5: Commit verification fixes if any**
+Measured on `/Users/nikita/git/nkdk-yaml` after verification fixes:
+
+```text
+summary: 0 error, 0 warning
+validation real: 42.16s
+profile real: 43.18s
+references: pending=80224, entries=174748, hits=80224, misses=0, conflicts=0, filters=0, dependencies=0, unsupported=0, fallbacks=0, snapshotBytes=290836932
+```
+
+- [x] **Step 5: Commit verification fixes if any**
 
 If verification required code changes:
 

@@ -153,6 +153,7 @@ async function validateProjectWithWorkers(
     const first = await pool.runFirstPass({ projectDir, context, files })
     const objectTable = createValidationObjectTable()
     objectTable.mergeRecords(first.objectRecords)
+    objectTable.mergeReferenceIndexEntries(first)
     const second = await pool.runSecondPass({
       projectDir,
       context,
@@ -208,6 +209,7 @@ function processPendingFirstPasses(params: {
       })
       params.states.set(resolve(file.absolutePath), first.state)
       params.objectTable.mergeRecords(first.objectRecords)
+      params.objectTable.mergeReferenceIndexEntries(first)
       params.diagnostics.push(...first.diagnostics)
       params.queue.markReady(file.absolutePath)
     }

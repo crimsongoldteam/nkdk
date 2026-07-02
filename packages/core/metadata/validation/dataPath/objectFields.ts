@@ -22,6 +22,7 @@ export type ObjectFieldKind =
 
 export interface ObjectField {
   name: string
+  targetName?: string
   kind: ObjectFieldKind
   typeInfo: DataPathTypeInfo
   tableSource?: ObjectFieldTableSource
@@ -127,6 +128,7 @@ function addStandardAttributeFields(params: {
     standardAttributeAliases.set(internalName, yamlName)
     fields.set(yamlName, {
       name: yamlName,
+      targetName: internalName,
       kind: "standardAttribute",
       sourceCollection,
       typeInfo: standardAttributeTypeInfo({ owner, internalName, yamlName, explicit }),

@@ -1,9 +1,10 @@
 import { TypeCompiler } from "@sinclair/typebox/compiler"
 import fs from "fs"
-import { join, resolve } from "path"
+import { dirname, join, resolve } from "path"
 import { rootFromYAML } from "../commonObjects/metadataTargets/roots"
 import type { MetadataFieldKind, ParsedMetadataTarget } from "../commonObjects/metadataTargets/types"
 import type { ConfigurationContext } from "../context/types"
+import { metadataTargetOwnerFromRule } from "../orchestration/property/metadataTargetString"
 import type { MetadataItem } from "../orchestration/property/types"
 import { parseMetadataYaml, type ParsedYaml } from "../../yaml/parseMetadataYaml"
 import { type OwnerMetadata, type OwnerMetadataCache } from "./dataPath/ownerCache"
@@ -240,7 +241,7 @@ function validateProjectFormFirstPass(params: {
     diagnostics,
     objectRecords: [],
     objectIndexEntries: [],
-    memberIndexEntries: [],
+    memberIndexEntries: buildFormFileMemberIndexEntries(params.file),
     valueIndexEntries: [],
     pendingReferences: [],
   }
@@ -304,8 +305,11 @@ function validateProjectPropertiesFirstPass(params: {
     context: params.context,
     name: equalNameValidationName,
   })
-  const ownerRoot = rootFromYAML[params.file.owner.dir]
-  const metadataTargetOwner = ownerRoot ? { root: ownerRoot, objectName: params.file.owner.name } : undefined
+  const metadataTargetOwner = metadataTargetOwnerFromRule({
+    itemRule: params.file.owner.spec.rule,
+    name: params.file.owner.name,
+    context: params.context,
+  })
   const pendingReferences = collectMetadataTargetReferencesInModel({
     filePath: params.file.absolutePath,
     parsed,
@@ -395,7 +399,7 @@ function buildObjectIndexEntry(params: {
   owner: OwnerMetadata
   file: ValidationProjectFile
 }): ProjectObjectIndexEntry | undefined {
-  const target = objectTargetForProjectFile(params.file)
+  const target = objectTargetForProjectFile({ file: params.file, owner: params.owner })
   if (target === undefined) return undefined
   return {
     canonical: projectObjectIndexKey(target),
@@ -413,10 +417,13 @@ function metadataRecord(value: unknown): Record<string, unknown> {
   return typeof value === "object" && value !== null ? (value as Record<string, unknown>) : {}
 }
 
-function objectTargetForProjectFile(
+function objectTargetForProjectFile(params: {
   file: ValidationProjectFile
-): Extract<ParsedMetadataTarget, { kind: "object" }> | undefined {
-  const root = rootFromYAML[file.owner.dir]
+  owner: OwnerMetadata
+}): Extract<ParsedMetadataTarget, { kind: "object" }> | undefined {
+  const { file, owner } = params
+  const root =
+    metadataTargetOwnerFromRule({ itemRule: owner.rule, name: file.owner.name })?.root ?? rootFromYAML[file.owner.dir]
   if (!root || file.owner.name.length === 0) return undefined
   const nesting = file.owner.spec.nesting
   if (nesting?.kind !== "recursiveChildDir") {
@@ -451,16 +458,39 @@ function buildValueIndexEntries(_params: { owner: OwnerMetadata }): ProjectValue
   return []
 }
 
+function buildFormFileMemberIndexEntries(file: ValidationProjectFile): ProjectMemberIndexEntry[] {
+  if (file.kind !== "form" || !file.formName) return []
+
+  const root = rootFromYAML[file.owner.dir]
+  if (!root) return []
+
+  const target: Extract<ParsedMetadataTarget, { kind: "member" }> = {
+    kind: "member",
+    root: root as never,
+    objectName: file.owner.name,
+    segments: [{ kind: "Form", name: file.formName }],
+  }
+
+  return [
+    {
+      canonical: projectMemberIndexKey(target),
+      target,
+      result: { ok: true, filePath: file.absolutePath, details: { kind: "Form", name: file.formName } },
+    },
+  ]
+}
+
 function buildMemberIndexEntries(params: {
   projectDir: string
   owner: OwnerMetadata
   hasFile: (filePath: string) => boolean
 }): ProjectMemberIndexEntry[] {
   const entries: ProjectMemberIndexEntry[] = []
+  const seen = new Set<string>()
 
   for (const field of params.owner.fieldIndex.fields.values()) {
     const target = fieldTarget(params.owner, field)
-    entries.push({
+    addMemberIndexEntry(entries, seen, {
       canonical: projectMemberIndexKey(target),
       target,
       result: { ok: true, filePath: params.owner.filePath, details: field },
@@ -469,7 +499,7 @@ function buildMemberIndexEntries(params: {
     if (field.kind === "tabularSection" && field.tableSource) {
       for (const column of field.tableSource.columns.values()) {
         const nestedTarget = nestedFieldTarget(params.owner, field.name, column)
-        entries.push({
+        addMemberIndexEntry(entries, seen, {
           canonical: projectMemberIndexKey(nestedTarget),
           target: nestedTarget,
           result: { ok: true, filePath: params.owner.filePath, details: column },
@@ -479,10 +509,68 @@ function buildMemberIndexEntries(params: {
   }
 
   for (const contributor of getProjectReferenceMemberIndexContributors()) {
-    entries.push(...contributor(params))
+    for (const entry of contributor(params)) addMemberIndexEntry(entries, seen, entry)
   }
 
+  for (const entry of buildTemplateFileMemberIndexEntries(params.owner)) addMemberIndexEntry(entries, seen, entry)
+
   return entries
+}
+
+function addMemberIndexEntry(
+  entries: ProjectMemberIndexEntry[],
+  seen: Set<string>,
+  entry: ProjectMemberIndexEntry
+): void {
+  if (seen.has(entry.canonical)) return
+  seen.add(entry.canonical)
+  entries.push(entry)
+}
+
+function buildTemplateFileMemberIndexEntries(owner: OwnerMetadata): ProjectMemberIndexEntry[] {
+  const root = rootFromYAML[owner.ref.kind]
+  if (!root || !owner.ref.name) return []
+
+  const entries: ProjectMemberIndexEntry[] = []
+  for (const folderName of ["Шаблоны", "Макеты"]) {
+    const templatesDir = join(dirname(owner.filePath), folderName)
+    if (!isDirectory(templatesDir)) continue
+
+    for (const entry of fs.readdirSync(templatesDir, { withFileTypes: true })) {
+      if (!entry.isDirectory()) continue
+      const templateDir = join(templatesDir, entry.name)
+      if (!hasTemplateContent(templateDir)) continue
+
+      const target: Extract<ParsedMetadataTarget, { kind: "member" }> = {
+        kind: "member",
+        root: root as never,
+        objectName: owner.ref.name,
+        segments: [{ kind: "Template", name: entry.name }],
+      }
+      entries.push({
+        canonical: projectMemberIndexKey(target),
+        target,
+        result: { ok: true, filePath: templateDir, details: { kind: "Template", name: entry.name } },
+      })
+    }
+  }
+  return entries
+}
+
+function hasTemplateContent(templateDir: string): boolean {
+  if (["Template.xml", "Template.txt", "Template.bin"].some((fileName) => fs.existsSync(join(templateDir, fileName)))) {
+    return true
+  }
+  const extDir = join(templateDir, "Ext")
+  return isDirectory(extDir) && fs.readdirSync(extDir).length > 0
+}
+
+function isDirectory(path: string): boolean {
+  try {
+    return fs.statSync(path).isDirectory()
+  } catch {
+    return false
+  }
 }
 
 function fieldTarget(owner: OwnerMetadata, field: ObjectField): Extract<ParsedMetadataTarget, { kind: "member" }> {
@@ -490,7 +578,7 @@ function fieldTarget(owner: OwnerMetadata, field: ObjectField): Extract<ParsedMe
     kind: "member",
     root: rootFromYAML[owner.ref.kind] as never,
     objectName: owner.ref.name ?? "",
-    segments: [{ kind: metadataFieldKindFromObjectFieldKind(field.kind), name: field.name }],
+    segments: [{ kind: metadataFieldKindFromObjectFieldKind(field.kind), name: metadataFieldTargetName(field) }],
   }
 }
 
@@ -505,9 +593,13 @@ function nestedFieldTarget(
     objectName: owner.ref.name ?? "",
     segments: [
       { kind: "TabularSection", name: tabularSectionName },
-      { kind: metadataFieldKindFromObjectFieldKind(field.kind), name: field.name },
+      { kind: metadataFieldKindFromObjectFieldKind(field.kind), name: metadataFieldTargetName(field) },
     ],
   }
+}
+
+function metadataFieldTargetName(field: ObjectField): string {
+  return field.targetName ?? field.name
 }
 
 function metadataFieldKindFromObjectFieldKind(kind: ObjectFieldKind): MetadataFieldKind {

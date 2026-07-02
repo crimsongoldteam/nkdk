@@ -104,6 +104,38 @@ describe("validateProject", { timeout: 30_000 }, () => {
     expect(result.diagnostics.filter((diagnostic) => diagnostic.source === "reference")).toEqual([])
   })
 
+  it("resolves file forms through reference index", async () => {
+    const projectDir = createProject()
+    writeProjectFile(projectDir, "Справочник/Товары/Свойства.yaml", ["ОсновнаяФормаОбъекта: ФормаЭлемента"])
+    writeProjectFile(projectDir, "Справочник/Товары/Формы/ФормаЭлемента/Форма.yaml", ["Элементы: {}"])
+
+    await expect(validateProject({ projectDir, context: mockContext, concurrency: 1 })).resolves.toEqual({
+      diagnostics: [],
+    })
+  })
+
+  it("resolves file templates through reference index", async () => {
+    const projectDir = createProject()
+    writeProjectFile(projectDir, "Отчет/Продажи/Свойства.yaml", [
+      "ОсновнаяСхемаКомпоновкиДанных: ОсновнаяСхемаКомпоновкиДанных",
+    ])
+    writeProjectFile(projectDir, "Отчет/Продажи/Шаблоны/ОсновнаяСхемаКомпоновкиДанных/Template.xml", "<Template/>")
+
+    await expect(validateProject({ projectDir, context: mockContext, concurrency: 1 })).resolves.toEqual({
+      diagnostics: [],
+    })
+  })
+
+  it("indexes document numerators by metadata target root", async () => {
+    const projectDir = createProject()
+    writeProjectFile(projectDir, "Нумератор/Заказы/Свойства.yaml", "{}")
+    writeProjectFile(projectDir, "Документ/Заказ/Свойства.yaml", ["Нумератор: Заказы"])
+
+    await expect(validateProject({ projectDir, context: mockContext, concurrency: 1 })).resolves.toEqual({
+      diagnostics: [],
+    })
+  })
+
   it("concurrency 1 keeps existing project diagnostics", async () => {
     const projectDir = createProject()
     writeProjectFile(projectDir, "Справочник/Товары/Свойства.yaml", [
@@ -207,6 +239,54 @@ describe("validateProject", { timeout: 30_000 }, () => {
     ])
 
     await expect(validateProject({ projectDir, context: mockContext, concurrency: 2 })).resolves.toEqual({
+      diagnostics: [],
+    })
+  })
+
+  it("keeps one reference index entry for register resources", async () => {
+    const projectDir = createProject()
+    writeProjectFile(projectDir, "РегистрСведений/Остатки/Свойства.yaml", [
+      "Ресурсы:",
+      "  Количество:",
+      "    Тип: Число",
+    ])
+    writeProjectFile(projectDir, "ФункциональнаяОпция/УчетОстатков/Свойства.yaml", [
+      "СоставФункциональнойОпции:",
+      "  - InformationRegister.Остатки.Resource.Количество",
+    ])
+
+    await expect(validateProject({ projectDir, context: mockContext, concurrency: 1 })).resolves.toEqual({
+      diagnostics: [],
+    })
+  })
+
+  it("accepts defined type attributes for input by string validation", async () => {
+    const projectDir = createProject()
+    writeProjectFile(projectDir, "Справочник/Документы/Свойства.yaml", [
+      "Реквизиты:",
+      "  Идентификатор:",
+      "    Тип: ОпределяемыйТип.ВнешнийИдентификатор",
+      "ВводПоСтроке:",
+      "  - Реквизит.Идентификатор",
+    ])
+
+    await expect(validateProject({ projectDir, context: mockContext, concurrency: 1 })).resolves.toEqual({
+      diagnostics: [],
+    })
+  })
+
+  it("resolves standard attributes by metadata target names", async () => {
+    const projectDir = createProject()
+    writeProjectFile(projectDir, "Документ/Заказ/Свойства.yaml", [
+      "Реквизиты:",
+      "  Ответственный:",
+      "    Тип: Строка",
+      "    СвязиПараметровВыбора:",
+      "      - Имя: Отбор.Дата",
+      "        ПутьКДанным: Document.Заказ.StandardAttribute.Date",
+    ])
+
+    await expect(validateProject({ projectDir, context: mockContext, concurrency: 1 })).resolves.toEqual({
       diagnostics: [],
     })
   })
