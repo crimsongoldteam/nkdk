@@ -62,6 +62,33 @@ export interface ProjectMetadataResolver {
   resolveCommonPicture(params: { name: string }): MetadataResolveResult
 }
 
+interface ResolverCacheCounter {
+  hits: number
+  misses: number
+}
+
+export interface ProjectMetadataResolverCacheStatsForTests {
+  object: ResolverCacheCounter
+  member: ResolverCacheCounter
+  value: ResolverCacheCounter
+}
+
+const resolverCacheStatsForTests = new WeakMap<ProjectMetadataResolver, ProjectMetadataResolverCacheStatsForTests>()
+
+function createResolverCacheStatsForTests(): ProjectMetadataResolverCacheStatsForTests {
+  return {
+    object: { hits: 0, misses: 0 },
+    member: { hits: 0, misses: 0 },
+    value: { hits: 0, misses: 0 },
+  }
+}
+
+export function getProjectMetadataResolverCacheStatsForTests(
+  resolver: ProjectMetadataResolver
+): ProjectMetadataResolverCacheStatsForTests {
+  return resolverCacheStatsForTests.get(resolver) ?? createResolverCacheStatsForTests()
+}
+
 const objectFieldKindByTargetKind = {
   Attribute: "attribute",
   StandardAttribute: "standardAttribute",
@@ -118,6 +145,28 @@ export function createProjectMetadataResolverFromValidationTable(params: {
   })
 }
 
+function objectResolveCacheKey(params: {
+  target: Extract<ParsedMetadataTarget, { kind: "object" }>
+  filters?: readonly MetadataTargetFilter[]
+}): string {
+  return ["object", formatObjectTarget(params.target), metadataTargetFiltersCacheKey(params.filters)].join("|")
+}
+
+function memberResolveCacheKey(params: {
+  target: Extract<ParsedMetadataTarget, { kind: "member" }>
+  filters?: readonly MetadataTargetFilter[]
+}): string {
+  return ["member", formatMemberTarget(params.target), metadataTargetFiltersCacheKey(params.filters)].join("|")
+}
+
+function valueResolveCacheKey(params: { target: Extract<ParsedMetadataTarget, { kind: "value" }> }): string {
+  return ["value", formatValueTarget(params.target)].join("|")
+}
+
+function metadataTargetFiltersCacheKey(filters: readonly MetadataTargetFilter[] | undefined): string {
+  return filters === undefined || filters.length === 0 ? "-" : JSON.stringify(filters)
+}
+
 function createProjectMetadataResolverCore(params: {
   projectDir: string
   yamlCache: ProjectYamlCache
@@ -126,126 +175,188 @@ function createProjectMetadataResolverCore(params: {
   missingObject: (target: Extract<ParsedMetadataTarget, { kind: "object" }>, filePath: string) => MetadataResolveResult
 }): ProjectMetadataResolver {
   const { projectDir, yamlCache, ownerCache, hasFile, missingObject } = params
-  const resolver: ProjectMetadataResolver = {
-    resolveObject({ target, filters }) {
-      const rootResolver = getProjectObjectPathResolver(target.root)
-      const rootPath = rootResolver?.({
-        projectDir,
-        target: { kind: "object", root: target.root, objectName: target.objectName },
-      })
-      const filePath = rootPath?.filePath
-      if (!filePath || !hasFile(filePath)) return missingObject(target, filePath ?? projectDir)
+  const objectResolveCache = new Map<string, MetadataResolveResult>()
+  const memberResolveCache = new Map<string, MetadataResolveResult>()
+  const valueResolveCache = new Map<string, MetadataResolveResult>()
+  const cacheStats = createResolverCacheStatsForTests()
 
-      const filterResult = resolveObjectFilters({
-        target,
-        filters,
-        resolveStyleItemByName: (name, expectedTypes) => resolver.resolveStyleItem({ name, expectedTypes }),
-      })
-      if (!filterResult.ok) return filterResult
+  function resolveObjectUncached(params: {
+    target: Extract<ParsedMetadataTarget, { kind: "object" }>
+    filters?: readonly MetadataTargetFilter[]
+  }): MetadataResolveResult {
+    const { target, filters } = params
+    const rootResolver = getProjectObjectPathResolver(target.root)
+    const rootPath = rootResolver?.({
+      projectDir,
+      target: { kind: "object", root: target.root, objectName: target.objectName },
+    })
+    const filePath = rootPath?.filePath
+    if (!filePath || !hasFile(filePath)) return missingObject(target, filePath ?? projectDir)
 
-      if (target.segments && target.segments.length > 0) {
-        const nestedPath = rootResolver?.({ projectDir, target })
-        if (nestedPath?.filePath && hasFile(nestedPath.filePath)) return { ok: true, filePath: nestedPath.filePath }
+    const filterResult = resolveObjectFilters({
+      target,
+      filters,
+      resolveStyleItemByName: (name, expectedTypes) => resolver.resolveStyleItem({ name, expectedTypes }),
+    })
+    if (!filterResult.ok) return filterResult
 
-        for (const resolver of getProjectInlineObjectResolvers(target.root)) {
-          const inlineObject = resolver({ projectDir, target, yamlCache, ownerCache })
-          if (inlineObject) return inlineObject
-        }
+    if (target.segments && target.segments.length > 0) {
+      const nestedPath = rootResolver?.({ projectDir, target })
+      if (nestedPath?.filePath && hasFile(nestedPath.filePath)) return { ok: true, filePath: nestedPath.filePath }
 
-        return missingObject(target, nestedPath?.filePath ?? filePath)
+      for (const resolver of getProjectInlineObjectResolvers(target.root)) {
+        const inlineObject = resolver({ projectDir, target, yamlCache, ownerCache })
+        if (inlineObject) return inlineObject
       }
 
-      return { ok: true, filePath }
-    },
+      return missingObject(target, nestedPath?.filePath ?? filePath)
+    }
 
-    resolveMember({ target, filters }) {
-      const object = resolver.resolveObject({
-        target: { kind: "object", root: target.root, objectName: target.objectName },
+    return { ok: true, filePath }
+  }
+
+  function resolveMemberUncached(params: {
+    target: Extract<ParsedMetadataTarget, { kind: "member" }>
+    filters?: readonly MetadataTargetFilter[]
+  }): MetadataResolveResult {
+    const { target, filters } = params
+    const object = resolver.resolveObject({
+      target: { kind: "object", root: target.root, objectName: target.objectName },
+    })
+    if (!object.ok) return object
+
+    if (target.objectSegments) {
+      const nestedObject = resolver.resolveObject({
+        target: {
+          kind: "object",
+          root: target.root,
+          objectName: target.objectName,
+          segments: target.objectSegments,
+        },
       })
-      if (!object.ok) return object
+      if (!nestedObject.ok) return nestedObject
+      if (!nestedObject.filePath)
+        return referenceError(projectDir, `Не найден объект "${formatMemberTarget(target)}"`)
 
-      if (target.objectSegments) {
-        const nestedObject = resolver.resolveObject({
-          target: {
-            kind: "object",
-            root: target.root,
-            objectName: target.objectName,
-            segments: target.objectSegments,
-          },
-        })
-        if (!nestedObject.ok) return nestedObject
-        if (!nestedObject.filePath)
-          return referenceError(projectDir, `Не найден объект "${formatMemberTarget(target)}"`)
-
-        const rawYaml = ownerRawYaml({ filePath: nestedObject.filePath, yamlCache })
-        const resolved = resolveRegisteredMember({
-          projectDir,
-          ownerFilePath: nestedObject.filePath,
-          rawYaml,
-          target,
-          yamlCache,
-          ownerCache,
-        })
-        if (resolved) {
-          return resolved.ok
-            ? { ok: true, filePath: resolved.filePath ?? nestedObject.filePath, details: resolved.details }
-            : resolved
-        }
-
-        return referenceError(
-          nestedObject.filePath,
-          `Не найден член "${formatMemberTarget(target)}": нет сегмента "${target.segments[0]?.name ?? ""}"`
-        )
-      }
-
-      const owner = ownerCache.get({ kind: rootToYAML[target.root], name: target.objectName })
-      if (owner.status !== "ok") return { ok: false, diagnostics: owner.diagnostics }
-
-      const resolved = resolveMemberSegments({
+      const rawYaml = ownerRawYaml({ filePath: nestedObject.filePath, yamlCache })
+      const resolved = resolveRegisteredMember({
         projectDir,
-        owner: owner.owner,
-        ownerFilePath: owner.owner.filePath,
-        rawYaml: ownerRawYaml({ filePath: owner.owner.filePath, yamlCache }),
+        ownerFilePath: nestedObject.filePath,
+        rawYaml,
         target,
-        segments: target.segments,
         yamlCache,
         ownerCache,
       })
-      if (!resolved.ok) {
-        return referenceError(
-          owner.owner.filePath,
-          `Не найден член "${formatMemberTarget(target)}": ${resolved.message}`
-        )
+      if (resolved) {
+        return resolved.ok
+          ? { ok: true, filePath: resolved.filePath ?? nestedObject.filePath, details: resolved.details }
+          : resolved
       }
 
-      const filterResult = applyMetadataTargetFilters({
-        filePath: resolved.filePath ?? owner.owner.filePath,
-        displayName: formatMemberTarget(target),
-        target,
-        details: resolved.details,
-        filters,
-        ownerCache,
-      })
-      if (!filterResult.ok) return filterResult
+      return referenceError(
+        nestedObject.filePath,
+        `Не найден член "${formatMemberTarget(target)}": нет сегмента "${target.segments[0]?.name ?? ""}"`
+      )
+    }
 
-      return { ok: true, filePath: resolved.filePath ?? owner.owner.filePath, details: resolved.details }
+    const owner = ownerCache.get({ kind: rootToYAML[target.root], name: target.objectName })
+    if (owner.status !== "ok") return { ok: false, diagnostics: owner.diagnostics }
+
+    const resolved = resolveMemberSegments({
+      projectDir,
+      owner: owner.owner,
+      ownerFilePath: owner.owner.filePath,
+      rawYaml: ownerRawYaml({ filePath: owner.owner.filePath, yamlCache }),
+      target,
+      segments: target.segments,
+      yamlCache,
+      ownerCache,
+    })
+    if (!resolved.ok) {
+      return referenceError(
+        owner.owner.filePath,
+        `Не найден член "${formatMemberTarget(target)}": ${resolved.message}`
+      )
+    }
+
+    const filterResult = applyMetadataTargetFilters({
+      filePath: resolved.filePath ?? owner.owner.filePath,
+      displayName: formatMemberTarget(target),
+      target,
+      details: resolved.details,
+      filters,
+      ownerCache,
+    })
+    if (!filterResult.ok) return filterResult
+
+    return { ok: true, filePath: resolved.filePath ?? owner.owner.filePath, details: resolved.details }
+  }
+
+  function resolveValueUncached(params: {
+    target: Extract<ParsedMetadataTarget, { kind: "value" }>
+  }): MetadataResolveResult {
+    const { target } = params
+    const object = resolver.resolveObject({
+      target: { kind: "object", root: target.root, objectName: target.objectName },
+    })
+    if (!object.ok) return object
+    if (target.valueKind === "emptyRef") return object
+
+    const owner = ownerCache.get({ kind: rootToYAML[target.root], name: target.objectName })
+    if (owner.status !== "ok") return { ok: false, diagnostics: owner.diagnostics }
+
+    const valueResolver = getProjectValueResolver(target.root)
+    const resolved = valueResolver?.({ owner: owner.owner, target })
+    if (resolved) return resolved
+
+    return referenceError(owner.owner.filePath, `Не найдено значение "${formatValueTarget(target)}"`)
+  }
+
+  const resolver: ProjectMetadataResolver = {
+    resolveObject(params) {
+      const key = objectResolveCacheKey(params)
+      const cached = objectResolveCache.get(key)
+      if (cached !== undefined) {
+        if (cached.ok || !cached.diagnostics.some((diagnostic) => hasFile(diagnostic.filePath))) {
+          cacheStats.object.hits += 1
+          return cached
+        }
+
+        objectResolveCache.delete(key)
+      }
+
+      cacheStats.object.misses += 1
+      const result = resolveObjectUncached(params)
+      objectResolveCache.set(key, result)
+      return result
     },
 
-    resolveValue({ target }) {
-      const object = resolver.resolveObject({
-        target: { kind: "object", root: target.root, objectName: target.objectName },
-      })
-      if (!object.ok) return object
-      if (target.valueKind === "emptyRef") return object
+    resolveMember(params) {
+      const key = memberResolveCacheKey(params)
+      const cached = memberResolveCache.get(key)
+      if (cached !== undefined) {
+        cacheStats.member.hits += 1
+        return cached
+      }
 
-      const owner = ownerCache.get({ kind: rootToYAML[target.root], name: target.objectName })
-      if (owner.status !== "ok") return { ok: false, diagnostics: owner.diagnostics }
+      cacheStats.member.misses += 1
+      const result = resolveMemberUncached(params)
+      memberResolveCache.set(key, result)
+      return result
+    },
 
-      const valueResolver = getProjectValueResolver(target.root)
-      const resolved = valueResolver?.({ owner: owner.owner, target })
-      if (resolved) return resolved
+    resolveValue(params) {
+      const key = valueResolveCacheKey(params)
+      const cached = valueResolveCache.get(key)
+      if (cached !== undefined) {
+        cacheStats.value.hits += 1
+        return cached
+      }
 
-      return referenceError(owner.owner.filePath, `Не найдено значение "${formatValueTarget(target)}"`)
+      cacheStats.value.misses += 1
+      const result = resolveValueUncached(params)
+      valueResolveCache.set(key, result)
+      return result
     },
 
     resolveStyleItem({ name, expectedTypes }) {
@@ -263,6 +374,7 @@ function createProjectMetadataResolverCore(params: {
     },
   }
 
+  resolverCacheStatsForTests.set(resolver, cacheStats)
   return resolver
 }
 

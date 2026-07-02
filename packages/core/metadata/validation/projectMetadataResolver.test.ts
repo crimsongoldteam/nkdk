@@ -8,6 +8,7 @@ import { mockContext } from "../../tests/mockContext"
 import {
   createProjectMetadataResolver,
   createProjectMetadataResolverFromValidationTable,
+  getProjectMetadataResolverCacheStatsForTests,
 } from "./projectMetadataResolver"
 import { createProjectYamlCache } from "./projectYamlCache"
 import { createValidationObjectTable } from "./projectValidationObjectTable"
@@ -788,6 +789,126 @@ describe("ProjectMetadataResolver", () => {
           message: 'Элемент стиля "ЭлементСтиля.ОсновнойЦвет" имеет тип "Color", ожидался: Font',
         }),
       ],
+    })
+  })
+
+  describe("resolver cache", () => {
+    it("caches successful object resolution by target and filters", () => {
+      const projectDir = createProject()
+      writeProjectFile(projectDir, "Справочник/Контрагенты/Свойства.yaml", "Комментарий: ok")
+      const resolver = createResolver(projectDir)
+      const target = objectTarget("Справочник.Контрагенты")
+
+      expect(resolver.resolveObject({ target })).toMatchObject({ ok: true })
+      expect(resolver.resolveObject({ target })).toMatchObject({ ok: true })
+
+      expect(getProjectMetadataResolverCacheStatsForTests(resolver).object).toEqual({ hits: 1, misses: 1 })
+    })
+
+    it("caches missing object diagnostics", () => {
+      const projectDir = createProject()
+      const resolver = createResolver(projectDir)
+      const target = { kind: "object", root: "Catalog", objectName: "НетТакого" } as const
+
+      const first = resolver.resolveObject({ target })
+      const second = resolver.resolveObject({ target })
+
+      expect(first).toMatchObject({
+        ok: false,
+        diagnostics: [
+          expect.objectContaining({
+            source: "reference",
+            severity: "error",
+            message: 'Не найден объект "Справочник.НетТакого"',
+          }),
+        ],
+      })
+      expect(second).toEqual(first)
+      expect(getProjectMetadataResolverCacheStatsForTests(resolver).object).toEqual({ hits: 1, misses: 1 })
+    })
+
+    it("caches successful member resolution", () => {
+      const projectDir = createProject()
+      writeProjectFile(projectDir, "Справочник/Номенклатура/Свойства.yaml", [
+        "Реквизиты:",
+        "  Артикул:",
+        "    Тип: Строка",
+      ])
+      const resolver = createResolver(projectDir)
+      const target = memberTarget("Справочник.Номенклатура.Реквизит.Артикул")
+
+      expect(resolver.resolveMember({ target })).toMatchObject({ ok: true })
+      expect(resolver.resolveMember({ target })).toMatchObject({ ok: true })
+
+      expect(getProjectMetadataResolverCacheStatsForTests(resolver).member).toEqual({ hits: 1, misses: 1 })
+    })
+
+    it("caches missing member diagnostics", () => {
+      const projectDir = createProject()
+      writeProjectFile(projectDir, "Справочник/Номенклатура/Свойства.yaml", "Комментарий: ok")
+      const resolver = createResolver(projectDir)
+      const target = memberTarget("Справочник.Номенклатура.Реквизит.НетТакого")
+
+      const first = resolver.resolveMember({ target })
+      const second = resolver.resolveMember({ target })
+
+      expect(first).toMatchObject({
+        ok: false,
+        diagnostics: [
+          expect.objectContaining({
+            source: "reference",
+            severity: "error",
+            message: 'Не найден член "Справочник.Номенклатура.Реквизит.НетТакого": нет сегмента "НетТакого"',
+          }),
+        ],
+      })
+      expect(second).toEqual(first)
+      expect(getProjectMetadataResolverCacheStatsForTests(resolver).member).toEqual({ hits: 1, misses: 1 })
+    })
+
+    it("keeps object cache entries separate for different filters", () => {
+      const projectDir = createProject()
+      writeProjectFile(projectDir, "ЭлементСтиля/ОсновнойЦвет/Свойства.yaml", [
+        "Тип: Цвет",
+        "Значение:",
+        "  Вид: Цвет",
+        "  Значение: '#112233'",
+      ])
+      const resolver = createResolver(projectDir)
+      const target = { kind: "object", root: "StyleItem", objectName: "ОсновнойЦвет" } as const
+
+      expect(resolver.resolveObject({ target, filters: [{ kind: "styleItemType", values: ["Color"] }] })).toMatchObject(
+        {
+          ok: true,
+        }
+      )
+      expect(resolver.resolveObject({ target, filters: [{ kind: "styleItemType", values: ["Font"] }] })).toMatchObject({
+        ok: false,
+      })
+      expect(resolver.resolveObject({ target, filters: [{ kind: "styleItemType", values: ["Color"] }] })).toMatchObject(
+        {
+          ok: true,
+        }
+      )
+
+      expect(getProjectMetadataResolverCacheStatsForTests(resolver).object).toEqual({ hits: 1, misses: 2 })
+    })
+
+    it("caches value resolution", () => {
+      const projectDir = createProject()
+      writeProjectFile(projectDir, "Справочник/СтавкиНДС/Свойства.yaml", [
+        "Предопределенные:",
+        "  БезНДС:",
+        '    Код: "000000001"',
+        "    Наименование: Без НДС",
+      ])
+      const resolver = createResolver(projectDir)
+      const target = valueTarget("Справочник.СтавкиНДС.БезНДС")
+
+      expect(resolver.resolveValue({ target })).toMatchObject({ ok: true })
+      expect(resolver.resolveValue({ target })).toMatchObject({ ok: true })
+
+      expect(getProjectMetadataResolverCacheStatsForTests(resolver).value).toEqual({ hits: 1, misses: 1 })
     })
   })
 
