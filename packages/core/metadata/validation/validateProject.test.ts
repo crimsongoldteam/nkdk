@@ -104,6 +104,27 @@ describe("validateProject", { timeout: 30_000 }, () => {
     expect(result.diagnostics.filter((diagnostic) => diagnostic.source === "reference")).toEqual([])
   })
 
+  it("keeps dependency enqueue for single-file validation through the shared snapshot provider", async () => {
+    const projectDir = createProject()
+    writeProjectFile(projectDir, "Документ/Заказ/Свойства.yaml", [
+      "Имя: Заказ",
+      "Синоним: Заказ",
+      "Реквизиты:",
+      "  Товар:",
+      "    Тип:",
+      "      - СправочникСсылка.Товары",
+    ])
+    writeProjectFile(projectDir, "Справочник/Товары/Свойства.yaml", ["Имя: Товары", "Синоним: Товары"])
+
+    const result = await validateProject({
+      projectDir,
+      filePath: join(projectDir, "Документ", "Заказ", "Свойства.yaml"),
+      context: mockContext,
+    })
+
+    expect(result.diagnostics.filter((diagnostic) => diagnostic.source === "reference")).toEqual([])
+  })
+
   it("resolves file forms through reference index", async () => {
     const projectDir = createProject()
     writeProjectFile(projectDir, "Справочник/Товары/Свойства.yaml", ["ОсновнаяФормаОбъекта: ФормаЭлемента"])
