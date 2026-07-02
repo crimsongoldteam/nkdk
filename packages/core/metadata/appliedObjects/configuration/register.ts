@@ -8,8 +8,8 @@ import {
 import { exportMetadataItemToJSONSchema } from "../../orchestration/metadataItem/toJSONSchema"
 import {
   registerProjectFileValidator,
-  registerProjectObjectPathResolver,
-  registerProjectValueResolver,
+  registerProjectReferenceObjectPathContributor,
+  registerProjectReferenceValueContributor,
 } from "../../validation/projectMetadataResolverRegistry"
 import { MetadataSubsystemRules } from "../metadataSubsystem/rules"
 import { MetadataConfigurationRules } from "./rules"
@@ -59,11 +59,11 @@ for (const rule of TopLevelMetadataItemRules) {
   registerProjectJSONSchema(rule.itemType, ({ context }) => exportMetadataItemToJSONSchema({ context, rule }))
   const owner = rule.metadataTargetOwner
   if (owner?.kind === "self" && !specialObjectPathProjectSpecDirs.has(dir)) {
-    registerProjectObjectPathResolver(owner.root, ({ projectDir, target }) => ({
+    registerProjectReferenceObjectPathContributor(owner.root, ({ projectDir, target }) => ({
       filePath: join(projectDir, dir, target.objectName, "Свойства.yaml"),
     }))
     if (predefinedValueRoots.has(owner.root)) {
-      registerProjectValueResolver(owner.root, ({ owner, target }) => {
+      registerProjectReferenceValueContributor(owner.root, ({ owner, target }) => {
         if (target.valueKind === "emptyRef") return undefined
         const values = metadataRecord(owner.model).predefined
         return hasNamedItem(values, target.valueName) ? { ok: true, filePath: owner.filePath } : undefined

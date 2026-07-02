@@ -2,16 +2,16 @@ import { afterEach, beforeEach, describe, expect, it } from "vitest"
 import type { ParsedMetadataTarget } from "../commonObjects/metadataTargets"
 import {
   clearProjectMetadataResolverRegistryForTests,
-  getProjectMemberResolver,
-  getProjectObjectPathResolver,
-  registerProjectMemberResolver,
-  registerProjectObjectPathResolver,
+  getProjectReferenceMemberContributors,
+  getProjectReferenceObjectPathContributor,
+  registerProjectReferenceMemberContributor,
+  registerProjectReferenceObjectPathContributor,
   restoreProjectMetadataResolverRegistryForTests,
   snapshotProjectMetadataResolverRegistryForTests,
   type ProjectMetadataResolverRegistrySnapshot,
 } from "./projectMetadataResolverRegistry"
 
-describe("projectMetadataResolverRegistry", () => {
+describe("project reference index registry", () => {
   let snapshot: ProjectMetadataResolverRegistrySnapshot
 
   beforeEach(() => {
@@ -22,10 +22,10 @@ describe("projectMetadataResolverRegistry", () => {
   afterEach(() => restoreProjectMetadataResolverRegistryForTests(snapshot))
 
   it("registers object path and member resolvers by root/kind", () => {
-    registerProjectObjectPathResolver("Document", ({ projectDir, target }) => ({
+    registerProjectReferenceObjectPathContributor("Document", ({ projectDir, target }) => ({
       filePath: `${projectDir}/Документ/${target.objectName}/Свойства.yaml`,
     }))
-    registerProjectMemberResolver("Form", ({ ownerFilePath, segment }) => ({
+    registerProjectReferenceMemberContributor("Form", ({ ownerFilePath, segment }) => ({
       ok: true,
       filePath: `${ownerFilePath}/../Формы/${segment.name}/Форма.yaml`,
       details: { kind: "Form", name: segment.name, item: segment.name },
@@ -36,9 +36,9 @@ describe("projectMetadataResolverRegistry", () => {
       root: "Document",
       objectName: "Заказ",
     } as Extract<ParsedMetadataTarget, { kind: "object" }>
-    expect(getProjectObjectPathResolver("Document")?.({ projectDir: "/p", target })).toEqual({
+    expect(getProjectReferenceObjectPathContributor("Document")?.({ projectDir: "/p", target })).toEqual({
       filePath: "/p/Документ/Заказ/Свойства.yaml",
     })
-    expect(getProjectMemberResolver("Form")).toBeTypeOf("function")
+    expect(getProjectReferenceMemberContributors("Form")[0]).toBeTypeOf("function")
   })
 })

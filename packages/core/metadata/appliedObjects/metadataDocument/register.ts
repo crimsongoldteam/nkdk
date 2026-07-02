@@ -10,7 +10,7 @@ import {
   registerRegisterRecordsItemResolver,
   registerTraversalTransitionResolver,
 } from "../../validation/dataPath/registry"
-import { registerProjectObjectPathResolver } from "../../validation/projectMetadataResolverRegistry"
+import { registerProjectReferenceObjectPathContributor } from "../../validation/projectMetadataResolverRegistry"
 import { MetadataDocumentRules } from "./rules"
 import { exportMetadataDocumentToJSONSchema } from "./toJSONSchema"
 
@@ -64,7 +64,7 @@ registerRegisterRecordsItemResolver(({ owner, segment }) => {
 })
 
 registerProjectJSONSchema("MetadataDocument", ({ context }) => exportMetadataDocumentToJSONSchema({ context }))
-registerProjectObjectPathResolver("Document", ({ projectDir, target }) => ({
+registerProjectReferenceObjectPathContributor("Document", ({ projectDir, target }) => ({
   filePath: join(projectDir, "Документ", target.objectName, "Свойства.yaml"),
 }))
 

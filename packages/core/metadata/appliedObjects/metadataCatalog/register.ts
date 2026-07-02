@@ -4,8 +4,8 @@ import { registerProjectJSONSchema } from "../../project/schemaRegistry"
 import { join } from "path"
 import { registerDataPathOwnerKind } from "../../validation/dataPath/registry"
 import {
-  registerProjectObjectPathResolver,
-  registerProjectValueResolver,
+  registerProjectReferenceObjectPathContributor,
+  registerProjectReferenceValueContributor,
 } from "../../validation/projectMetadataResolverRegistry"
 import { importMetadataCatalogFromYAML } from "./fromYAML"
 import { MetadataCatalogRules } from "./rules"
@@ -29,10 +29,10 @@ registerDataPathOwnerKind({
 })
 
 registerProjectJSONSchema("MetadataCatalog", ({ context }) => exportMetadataCatalogToJSONSchema({ context }))
-registerProjectObjectPathResolver("Catalog", ({ projectDir, target }) => ({
+registerProjectReferenceObjectPathContributor("Catalog", ({ projectDir, target }) => ({
   filePath: join(projectDir, "Справочник", target.objectName, "Свойства.yaml"),
 }))
-registerProjectValueResolver("Catalog", ({ owner, target }) => {
+registerProjectReferenceValueContributor("Catalog", ({ owner, target }) => {
   if (target.valueKind === "emptyRef") return undefined
   const values = metadataRecord(owner.model).predefined
   return hasNamedItem(values, target.valueName) ? { ok: true, filePath: owner.filePath } : undefined

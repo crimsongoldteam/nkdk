@@ -810,7 +810,7 @@ pnpm --filter @nakidka/core exec vitest run packages/core/metadata/validation/pr
 
 Expected: PASS.
 
-- [ ] **Step 8: Commit snapshot extension**
+- [x] **Step 8: Commit snapshot extension**
 
 ```bash
 git add packages/core/metadata/validation/projectValidationTypes.ts packages/core/metadata/validation/projectValidationObjectTable.ts packages/core/metadata/validation/projectValidationPasses.ts packages/core/metadata/validation/projectValidationWorker.ts packages/core/metadata/validation/projectValidationWorkerPool.ts packages/core/metadata/validation/projectValidationPasses.test.ts packages/core/metadata/validation/projectValidationObjectTable.test.ts
@@ -833,7 +833,7 @@ git commit -m "feat: :sparkles: добавить object и value entries в vali
 - Test: `packages/core/metadata/validation/projectMetadataResolverRegistry.test.ts`
 - Test: `packages/core/metadata/importBoundaries.test.ts`
 
-- [ ] **Step 1: Add new contributor names while keeping old exports temporarily**
+- [x] **Step 1: Add new contributor names while keeping old exports temporarily**
 
 In `projectMetadataResolverRegistry.ts`, add aliases:
 
@@ -855,7 +855,7 @@ export const getProjectReferenceMemberIndexContributors = getProjectMemberIndexC
 
 This is a temporary bridge for a small commit; Task 9 removes old names completely.
 
-- [ ] **Step 2: Update registration imports**
+- [x] **Step 2: Update registration imports**
 
 In each listed `register.ts`, replace imports like:
 
@@ -883,7 +883,7 @@ registerProjectReferenceObjectPathContributor(...)
 
 Apply equivalent replacements for member/value/member-index registrations.
 
-- [ ] **Step 3: Update tests names**
+- [x] **Step 3: Update tests names**
 
 In `projectMetadataResolverRegistry.test.ts`, change the `describe()` name to:
 
@@ -897,7 +897,7 @@ In `importBoundaries.test.ts`, update assertion text:
 it("ProjectReferenceIndex делегирует concrete metadata knowledge регистрациям", () => {
 ```
 
-- [ ] **Step 4: Run boundary/registry tests**
+- [x] **Step 4: Run boundary/registry tests**
 
 ```bash
 pnpm --filter @nakidka/core exec vitest run packages/core/metadata/validation/projectMetadataResolverRegistry.test.ts packages/core/metadata/importBoundaries.test.ts

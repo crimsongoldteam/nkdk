@@ -57,6 +57,11 @@ export type ProjectMemberIndexContributor = (params: {
   hasFile: (filePath: string) => boolean
 }) => Iterable<ProjectMemberIndexEntry>
 
+export type ProjectReferenceObjectPathContributor = ProjectObjectPathResolver
+export type ProjectReferenceMemberContributor = ProjectMemberResolver
+export type ProjectReferenceValueContributor = ProjectValueResolver
+export type ProjectReferenceMemberIndexContributor = ProjectMemberIndexContributor
+
 const objectPathResolvers = new Map<MetadataRootName, ProjectObjectPathResolver>()
 const memberResolvers = new Map<MetadataMemberKind, ProjectMemberResolver[]>()
 const valueResolvers = new Map<MetadataRootName, ProjectValueResolver>()
@@ -137,6 +142,15 @@ export function registerProjectMemberIndexContributor(contributor: ProjectMember
 export function getProjectMemberIndexContributors(): readonly ProjectMemberIndexContributor[] {
   return memberIndexContributors
 }
+
+export const registerProjectReferenceObjectPathContributor = registerProjectObjectPathResolver
+export const getProjectReferenceObjectPathContributor = getProjectObjectPathResolver
+export const registerProjectReferenceMemberContributor = registerProjectMemberResolver
+export const getProjectReferenceMemberContributors = getProjectMemberResolvers
+export const registerProjectReferenceValueContributor = registerProjectValueResolver
+export const getProjectReferenceValueContributor = getProjectValueResolver
+export const registerProjectReferenceMemberIndexContributor = registerProjectMemberIndexContributor
+export const getProjectReferenceMemberIndexContributors = getProjectMemberIndexContributors
 
 export function clearProjectMetadataResolverRegistryForTests(): void {
   objectPathResolvers.clear()

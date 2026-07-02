@@ -3,14 +3,14 @@ import { dirname, join } from "path"
 import { rootFromYAML } from "../metadataTargets/roots"
 import type { ParsedMetadataTarget } from "../metadataTargets/types"
 import {
-  registerProjectMemberIndexContributor,
-  registerProjectMemberResolver,
-  type ProjectMemberIndexContributor,
-  type ProjectMemberResolver,
+  registerProjectReferenceMemberIndexContributor,
+  registerProjectReferenceMemberContributor,
+  type ProjectReferenceMemberIndexContributor,
+  type ProjectReferenceMemberContributor,
 } from "../../validation/projectMetadataResolverRegistry"
 import { projectMemberIndexKey, type ProjectMemberIndexEntry } from "../../validation/projectMetadataReferences"
 
-registerProjectMemberResolver("Form", ({ ownerFilePath, segment, target }) => {
+registerProjectReferenceMemberContributor("Form", ({ ownerFilePath, segment, target }) => {
   if (target.segments.length !== 1) return undefined
 
   const filePath = join(dirname(ownerFilePath), "Формы", segment.name, "Форма.yaml")
@@ -19,7 +19,7 @@ registerProjectMemberResolver("Form", ({ ownerFilePath, segment, target }) => {
     : undefined
 })
 
-registerProjectMemberResolver("Template", ({ ownerFilePath, segment, target }) => {
+registerProjectReferenceMemberContributor("Template", ({ ownerFilePath, segment, target }) => {
   if (target.segments.length !== 1) return undefined
 
   const templateDir = join(dirname(ownerFilePath), "Шаблоны", segment.name)
@@ -33,43 +33,43 @@ registerProjectMemberResolver("Template", ({ ownerFilePath, segment, target }) =
   return undefined
 })
 
-registerProjectMemberResolver("Form", createCollectionMemberResolver({ modelName: "forms", yamlName: "Формы" }))
-registerProjectMemberResolver(
+registerProjectReferenceMemberContributor("Form", createCollectionMemberResolver({ modelName: "forms", yamlName: "Формы" }))
+registerProjectReferenceMemberContributor(
   "Template",
   createCollectionMemberResolver({ modelName: "templates", yamlName: "Макеты" })
 )
-registerProjectMemberResolver("Command", createCollectionMemberResolver({ modelName: "commands", yamlName: "Команды" }))
-registerProjectMemberResolver(
+registerProjectReferenceMemberContributor("Command", createCollectionMemberResolver({ modelName: "commands", yamlName: "Команды" }))
+registerProjectReferenceMemberContributor(
   "AccountingFlag",
   createCollectionMemberResolver({ modelName: "accountingFlags", yamlName: "ПризнакиУчета" })
 )
-registerProjectMemberResolver(
+registerProjectReferenceMemberContributor(
   "ExtDimensionAccountingFlag",
   createCollectionMemberResolver({ modelName: "extDimensionAccountingFlags", yamlName: "ПризнакиУчетаСубконто" })
 )
-registerProjectMemberResolver("Field", createCollectionMemberResolver({ modelName: "fields", yamlName: "Поля" }))
-registerProjectMemberResolver(
+registerProjectReferenceMemberContributor("Field", createCollectionMemberResolver({ modelName: "fields", yamlName: "Поля" }))
+registerProjectReferenceMemberContributor(
   "Dimension",
   createCollectionMemberResolver({ modelName: "dimensions", yamlName: "Измерения" })
 )
-registerProjectMemberResolver(
+registerProjectReferenceMemberContributor(
   "Resource",
   createCollectionMemberResolver({ modelName: "resources", yamlName: "Ресурсы" })
 )
-registerProjectMemberIndexContributor(collectionMemberIndexContributor({ modelName: "forms", kind: "Form" }))
-registerProjectMemberIndexContributor(collectionMemberIndexContributor({ modelName: "templates", kind: "Template" }))
-registerProjectMemberIndexContributor(collectionMemberIndexContributor({ modelName: "commands", kind: "Command" }))
-registerProjectMemberIndexContributor(
+registerProjectReferenceMemberIndexContributor(collectionMemberIndexContributor({ modelName: "forms", kind: "Form" }))
+registerProjectReferenceMemberIndexContributor(collectionMemberIndexContributor({ modelName: "templates", kind: "Template" }))
+registerProjectReferenceMemberIndexContributor(collectionMemberIndexContributor({ modelName: "commands", kind: "Command" }))
+registerProjectReferenceMemberIndexContributor(
   collectionMemberIndexContributor({ modelName: "accountingFlags", kind: "AccountingFlag" })
 )
-registerProjectMemberIndexContributor(
+registerProjectReferenceMemberIndexContributor(
   collectionMemberIndexContributor({ modelName: "extDimensionAccountingFlags", kind: "ExtDimensionAccountingFlag" })
 )
-registerProjectMemberIndexContributor(collectionMemberIndexContributor({ modelName: "fields", kind: "Field" }))
-registerProjectMemberIndexContributor(collectionMemberIndexContributor({ modelName: "dimensions", kind: "Dimension" }))
-registerProjectMemberIndexContributor(collectionMemberIndexContributor({ modelName: "resources", kind: "Resource" }))
+registerProjectReferenceMemberIndexContributor(collectionMemberIndexContributor({ modelName: "fields", kind: "Field" }))
+registerProjectReferenceMemberIndexContributor(collectionMemberIndexContributor({ modelName: "dimensions", kind: "Dimension" }))
+registerProjectReferenceMemberIndexContributor(collectionMemberIndexContributor({ modelName: "resources", kind: "Resource" }))
 
-function createCollectionMemberResolver(params: { modelName: string; yamlName: string }): ProjectMemberResolver {
+function createCollectionMemberResolver(params: { modelName: string; yamlName: string }): ProjectReferenceMemberContributor {
   return ({ owner, rawYaml, segment, target }) => {
     if (target.segments.length !== 1) return undefined
 
@@ -86,7 +86,7 @@ function createCollectionMemberResolver(params: { modelName: string; yamlName: s
 function collectionMemberIndexContributor(params: {
   modelName: string
   kind: ProjectMemberIndexEntry["target"]["segments"][number]["kind"]
-}): ProjectMemberIndexContributor {
+}): ProjectReferenceMemberIndexContributor {
   return ({ owner }) => {
     const root = rootFromYAML[owner.ref.kind]
     if (!root || !owner.ref.name) return []

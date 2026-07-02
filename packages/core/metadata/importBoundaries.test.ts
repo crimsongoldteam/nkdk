@@ -127,7 +127,7 @@ describe("metadata import boundaries", () => {
     expect(source).not.toContain("MetadataExternalDataSource")
   })
 
-  it("ProjectMetadataResolver делегирует concrete metadata knowledge регистрациям", () => {
+  it("ProjectReferenceIndex делегирует concrete metadata knowledge регистрациям", () => {
     const source = readFileSync(join(METADATA_DIR, "validation", "projectMetadataResolver.ts"), "utf-8")
 
     for (const forbidden of [

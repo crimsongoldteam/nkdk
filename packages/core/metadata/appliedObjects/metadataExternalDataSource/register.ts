@@ -3,7 +3,7 @@ import { join } from "path"
 import { registerDataPathOwnerKind } from "../../validation/dataPath/registry"
 import {
   registerProjectInlineObjectResolver,
-  registerProjectObjectPathResolver,
+  registerProjectReferenceObjectPathContributor,
 } from "../../validation/projectMetadataResolverRegistry"
 import { MetadataExternalDataSourceRules } from "./rules"
 
@@ -13,7 +13,7 @@ registerDataPathOwnerKind({
   rule: MetadataExternalDataSourceRules,
 })
 
-registerProjectObjectPathResolver("ExternalDataSource", ({ projectDir, target }) => {
+registerProjectReferenceObjectPathContributor("ExternalDataSource", ({ projectDir, target }) => {
   const parts = [projectDir, "ВнешнийИсточникДанных", target.objectName]
   for (const segment of target.segments ?? []) {
     if (segment.kind === "Table") parts.push("Таблицы", segment.objectName)

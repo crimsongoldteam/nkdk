@@ -5,8 +5,8 @@ import { registerProjectJSONSchema } from "../../project/schemaRegistry"
 import { join } from "path"
 import { registerDataPathOwnerKind } from "../../validation/dataPath/registry"
 import {
-  registerProjectObjectPathResolver,
-  registerProjectValueResolver,
+  registerProjectReferenceObjectPathContributor,
+  registerProjectReferenceValueContributor,
 } from "../../validation/projectMetadataResolverRegistry"
 import { importMetadataEnumerationFromYAML } from "./fromYAML"
 import { MetadataEnumerationRules } from "./rules"
@@ -27,10 +27,10 @@ registerDataPathOwnerKind({
 })
 
 registerProjectJSONSchema("MetadataEnumeration", ({ context }) => exportMetadataEnumerationToJSONSchema({ context }))
-registerProjectObjectPathResolver("Enum", ({ projectDir, target }) => ({
+registerProjectReferenceObjectPathContributor("Enum", ({ projectDir, target }) => ({
   filePath: join(projectDir, "Перечисление", target.objectName, "Свойства.yaml"),
 }))
-registerProjectValueResolver("Enum", ({ owner, target }) => {
+registerProjectReferenceValueContributor("Enum", ({ owner, target }) => {
   if (target.valueKind === "emptyRef") return undefined
   const values = metadataRecord(owner.model).enumValues
   return hasNamedItem(values, target.valueName) ? { ok: true, filePath: owner.filePath } : undefined
