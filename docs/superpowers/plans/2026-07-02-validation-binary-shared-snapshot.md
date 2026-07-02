@@ -37,7 +37,7 @@
 - Create: `packages/core/metadata/validation/sharedStringPool.ts`
 - Test: `packages/core/metadata/validation/sharedStringPool.test.ts`
 
-- [ ] **Step 1: Write failing tests for string interning and lookup**
+- [x] **Step 1: Write failing tests for string interning and lookup**
 
 Create `packages/core/metadata/validation/sharedStringPool.test.ts`:
 
@@ -70,7 +70,7 @@ describe("SharedStringPool", () => {
 })
 ```
 
-- [ ] **Step 2: Run the failing string pool tests**
+- [x] **Step 2: Run the failing string pool tests**
 
 Run:
 
@@ -80,7 +80,7 @@ pnpm --filter @nakidka/core test -- sharedStringPool.test.ts
 
 Expected: FAIL because `sharedStringPool.ts` does not exist.
 
-- [ ] **Step 3: Implement the shared string pool**
+- [x] **Step 3: Implement the shared string pool**
 
 Create `packages/core/metadata/validation/sharedStringPool.ts`:
 
@@ -158,7 +158,7 @@ export function createSharedStringPoolView(pool: Pick<SharedStringPool, "buffer"
 }
 ```
 
-- [ ] **Step 4: Run string pool tests**
+- [x] **Step 4: Run string pool tests**
 
 Run:
 
