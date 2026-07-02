@@ -29,7 +29,13 @@ export function createValidationObjectTable(
       return filePaths.has(resolve(filePath))
     },
     snapshot() {
-      return { records: [...recordsByOwner.values()], filePaths: [...filePaths] }
+      const records = [...recordsByOwner.values()]
+      return {
+        records,
+        filePaths: [...filePaths],
+        memberIndexEntries: records.flatMap((record) => record.memberIndexEntries ?? []),
+        pendingReferences: records.flatMap((record) => record.pendingReferences ?? []),
+      }
     },
   }
 

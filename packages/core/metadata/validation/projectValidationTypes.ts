@@ -31,6 +31,8 @@ export interface ValidationObjectRecord {
 export interface ValidationObjectTableSnapshot {
   records: ValidationObjectRecord[]
   filePaths: string[]
+  memberIndexEntries?: ProjectMemberIndexEntry[]
+  pendingReferences?: PendingMetadataTargetReference[]
 }
 
 export interface ValidationDependencyRequest {

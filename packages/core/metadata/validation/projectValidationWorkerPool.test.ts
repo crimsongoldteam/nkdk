@@ -4,7 +4,9 @@ import { describe, expect, it } from "vitest"
 import {
   createProjectValidationWorkerPool,
   createWorkerTableSupplement,
+  partitionPendingReferencesForWorkers,
 } from "./projectValidationWorkerPool"
+import type { PendingMetadataTargetReference } from "./projectMetadataReferences"
 import type { ValidationObjectRecord, ValidationObjectTableSnapshot } from "./projectValidationTypes"
 
 const execFileAsync = promisify(execFile)
@@ -77,6 +79,14 @@ describe("createWorkerTableSupplement", () => {
   })
 })
 
+describe("partitionPendingReferencesForWorkers", () => {
+  it("partitions pending references by count instead of file ownership", () => {
+    const references = Array.from({ length: 7 }, (_, index) => pendingReference(index))
+
+    expect(partitionPendingReferencesForWorkers(references, 3).map((items) => items.length)).toEqual([3, 2, 2])
+  })
+})
+
 function record(owner: { kind: string; name: string }, filePath: string): ValidationObjectRecord {
   return {
     filePath,
@@ -86,5 +96,20 @@ function record(owner: { kind: string; name: string }, filePath: string): Valida
     ownerRef: { kind: owner.kind, name: owner.name },
     model: { itemType: owner.kind, name: owner.name },
     importDiagnostics: [],
+  }
+}
+
+function pendingReference(index: number): PendingMetadataTargetReference {
+  return {
+    filePath: `/tmp/${index}.yaml`,
+    yamlPath: ["Состав", index],
+    canonical: `Catalog.Номенклатура.Attribute.Поле${index}`,
+    target: {
+      kind: "member",
+      root: "Catalog",
+      objectName: "Номенклатура",
+      segments: [{ kind: "Attribute", name: `Поле${index}` }],
+    },
+    constraint: { kind: "member", owner: "explicit" },
   }
 }

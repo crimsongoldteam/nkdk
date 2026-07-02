@@ -5,6 +5,11 @@ import type { ConfigurationContext } from "../context/types"
 import { registerCoreMetadata } from "../register"
 import { createOwnerMetadataCacheFromValidationTable } from "./dataPath/ownerCache"
 import { createProjectMetadataResolverFromValidationTable } from "./projectMetadataResolver"
+import type {
+  PendingMetadataTargetReference,
+  ProjectMemberIndexEntry,
+  ProjectReferenceSnapshot,
+} from "./projectMetadataReferences"
 import { resolveValidationProjectFile } from "./projectFiles"
 import {
   createProjectYamlCache,
@@ -41,6 +46,8 @@ type ValidationWorkerMessage =
       context: ConfigurationContext
       mode: ValidationMode
       objectTable: ValidationObjectTableSnapshot
+      referenceSnapshot: ProjectReferenceSnapshot
+      pendingReferences: PendingMetadataTargetReference[]
       filePaths: string[]
     }
 
@@ -48,6 +55,8 @@ interface WorkerValidationState {
   entries: Map<string, ProjectYamlEntry>
   states: Map<string, ProjectValidationFileState>
   localTable: ReturnType<typeof createValidationObjectTable>
+  memberIndexEntries: ProjectMemberIndexEntry[]
+  pendingReferences: PendingMetadataTargetReference[]
 }
 
 let workerState = createEmptyWorkerValidationState()
@@ -57,6 +66,8 @@ function createEmptyWorkerValidationState(): WorkerValidationState {
     entries: new Map(),
     states: new Map(),
     localTable: createValidationObjectTable(),
+    memberIndexEntries: [],
+    pendingReferences: [],
   }
 }
 
@@ -80,6 +91,8 @@ parentPort?.on("message", (message: ValidationWorkerMessage) => {
 function runFirstPass(message: Extract<ValidationWorkerMessage, { kind: "firstPass" }>): {
   diagnostics: Diagnostic[]
   objectRecords: ValidationObjectRecord[]
+  memberIndexEntries: ProjectMemberIndexEntry[]
+  pendingReferences: PendingMetadataTargetReference[]
 } {
   workerState = createEmptyWorkerValidationState()
   const diagnostics: Diagnostic[] = []
@@ -110,11 +123,18 @@ function runFirstPass(message: Extract<ValidationWorkerMessage, { kind: "firstPa
     })
     workerState.states.set(resolve(file.absolutePath), first.state)
     workerState.localTable.mergeRecords(first.objectRecords)
+    workerState.memberIndexEntries.push(...first.memberIndexEntries)
+    workerState.pendingReferences.push(...first.pendingReferences)
     diagnostics.push(...first.diagnostics)
     objectRecords.push(...first.objectRecords)
   }
 
-  return { diagnostics, objectRecords }
+  return {
+    diagnostics,
+    objectRecords,
+    memberIndexEntries: workerState.memberIndexEntries,
+    pendingReferences: workerState.pendingReferences,
+  }
 }
 
 function runSecondPass(message: Extract<ValidationWorkerMessage, { kind: "secondPass" }>): {

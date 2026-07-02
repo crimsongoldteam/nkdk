@@ -2,6 +2,12 @@ import { dirname, join, resolve } from "node:path"
 import { Worker } from "node:worker_threads"
 import { fileURLToPath, pathToFileURL } from "node:url"
 import type { ConfigurationContext } from "../context/types"
+import {
+  createProjectReferenceSnapshot,
+  type PendingMetadataTargetReference,
+  type ProjectMemberIndexEntry,
+  type ProjectReferenceSnapshot,
+} from "./projectMetadataReferences"
 import type { ValidationProjectFile } from "./projectFiles"
 import type { ValidationMode, ValidationObjectRecord, ValidationObjectTableSnapshot } from "./projectValidationTypes"
 import type { Diagnostic } from "./types"
@@ -15,6 +21,8 @@ export interface FirstPassPoolParams {
 export interface FirstPassPoolResult {
   diagnostics: Diagnostic[]
   objectRecords: ValidationObjectRecord[]
+  memberIndexEntries: ProjectMemberIndexEntry[]
+  pendingReferences: PendingMetadataTargetReference[]
 }
 
 export interface SecondPassPoolParams {
@@ -73,11 +81,19 @@ type WorkerRequest =
       context: ConfigurationContext
       mode: ValidationMode
       objectTable: ValidationObjectTableSnapshot
+      referenceSnapshot: ProjectReferenceSnapshot
+      pendingReferences: PendingMetadataTargetReference[]
       filePaths: string[]
     }
 
 type WorkerResponse =
-  | { kind: "firstPassResult"; diagnostics: Diagnostic[]; objectRecords: ValidationObjectRecord[] }
+  | {
+      kind: "firstPassResult"
+      diagnostics: Diagnostic[]
+      objectRecords: ValidationObjectRecord[]
+      memberIndexEntries: ProjectMemberIndexEntry[]
+      pendingReferences: PendingMetadataTargetReference[]
+    }
   | {
       kind: "secondPassResult"
       diagnostics: Diagnostic[]
@@ -110,7 +126,7 @@ export function createProjectValidationWorkerPool(params: { concurrency: number 
           assignedFilePaths.set(worker, filePaths)
           if (filePaths.length === 0) {
             localObjectRecordPaths.set(worker, new Set())
-            return { diagnostics: [], objectRecords: [] }
+            return { diagnostics: [], objectRecords: [], memberIndexEntries: [], pendingReferences: [] }
           }
 
           const response = await request(worker, {
@@ -128,9 +144,16 @@ export function createProjectValidationWorkerPool(params: { concurrency: number 
       return {
         diagnostics: results.flatMap((result) => result.diagnostics),
         objectRecords: results.flatMap((result) => result.objectRecords),
+        memberIndexEntries: results.flatMap((result) => result.memberIndexEntries),
+        pendingReferences: results.flatMap((result) => result.pendingReferences),
       }
     },
     async runSecondPass(secondPassParams) {
+      const referenceSnapshot = createProjectReferenceSnapshot({
+        memberIndexEntries: secondPassParams.objectTable.memberIndexEntries ?? [],
+        pendingReferences: secondPassParams.objectTable.pendingReferences ?? [],
+      })
+      const referencePartitions = partitionPendingReferencesForWorkers(referenceSnapshot.pendingReferences, workers.length)
       const results = await Promise.all(
         workers.map(async (worker, index) => {
           const filePaths = assignedFilePaths.get(worker) ?? []
@@ -146,6 +169,8 @@ export function createProjectValidationWorkerPool(params: { concurrency: number 
             context: secondPassParams.context,
             mode: secondPassParams.mode,
             objectTable,
+            referenceSnapshot,
+            pendingReferences: referencePartitions[index] ?? [],
             filePaths,
           })
           if (response.kind !== "secondPassResult") throw new Error("Worker вернул неожиданный результат secondPass")
@@ -234,6 +259,15 @@ export function createWorkerTableSupplement(
     records: snapshot.records.filter((record) => !local.has(resolve(record.filePath))),
     filePaths: snapshot.filePaths.filter((filePath) => !local.has(resolve(filePath))),
   }
+}
+
+export function partitionPendingReferencesForWorkers(
+  references: readonly PendingMetadataTargetReference[],
+  count: number
+): PendingMetadataTargetReference[][] {
+  const partitions = Array.from({ length: count }, () => [] as PendingMetadataTargetReference[])
+  references.forEach((reference, index) => partitions[index % count]?.push(reference))
+  return partitions
 }
 
 function createWorker(): Worker {
