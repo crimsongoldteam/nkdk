@@ -1,4 +1,5 @@
 import { availableParallelism } from "node:os"
+import { performance } from "node:perf_hooks"
 import { existsSync } from "fs"
 import { resolve } from "path"
 import type { ConfigurationContext } from "../context/types"
@@ -143,28 +144,93 @@ function validateProjectInProcess(params: ValidateProjectParams): ValidateProjec
 async function validateProjectWithWorkers(
   params: ValidateProjectParams & { concurrency: number }
 ): Promise<ValidateProjectResult> {
+  const totalStartedAt = performance.now()
   const projectDir = resolve(params.projectDir)
   const context = params.context ?? defaultValidationContext()
+  const discoverStartedAt = performance.now()
   const files = discoverValidationProjectFiles(projectDir)
+  const discoverMs = performance.now() - discoverStartedAt
   const pool = createProjectValidationWorkerPool({ concurrency: params.concurrency })
+  let startMs = 0
+  let firstPassMs = 0
+  let mergeMs = 0
+  let snapshotMs = 0
+  let secondPassMs = 0
+  let sortMs = 0
 
   try {
+    const startStartedAt = performance.now()
     await pool.start()
+    startMs = performance.now() - startStartedAt
+    const firstPassStartedAt = performance.now()
     const first = await pool.runFirstPass({ projectDir, context, files })
+    firstPassMs = performance.now() - firstPassStartedAt
+    const mergeStartedAt = performance.now()
     const objectTable = createValidationObjectTable()
     objectTable.mergeRecords(first.objectRecords)
     objectTable.mergeReferenceIndexEntries(first)
+    mergeMs = performance.now() - mergeStartedAt
+    const snapshotStartedAt = performance.now()
+    const objectTableSnapshot = objectTable.snapshot()
+    snapshotMs = performance.now() - snapshotStartedAt
+    const secondPassStartedAt = performance.now()
     const second = await pool.runSecondPass({
       projectDir,
       context,
       mode: "full",
-      objectTable: objectTable.snapshot(),
+      objectTable: objectTableSnapshot,
+    })
+    secondPassMs = performance.now() - secondPassStartedAt
+    const sortStartedAt = performance.now()
+    const diagnostics = sortDiagnostics(dedupeDiagnostics([...first.diagnostics, ...second.diagnostics]))
+    sortMs = performance.now() - sortStartedAt
+    logWorkerValidationProfile({
+      files: files.length,
+      concurrency: params.concurrency,
+      discoverMs,
+      startMs,
+      firstPassMs,
+      mergeMs,
+      snapshotMs,
+      secondPassMs,
+      sortMs,
+      totalMs: performance.now() - totalStartedAt,
     })
 
-    return { diagnostics: sortDiagnostics(dedupeDiagnostics([...first.diagnostics, ...second.diagnostics])) }
+    return { diagnostics }
   } finally {
     await pool.close()
   }
+}
+
+function logWorkerValidationProfile(params: {
+  files: number
+  concurrency: number
+  discoverMs: number
+  startMs: number
+  firstPassMs: number
+  mergeMs: number
+  snapshotMs: number
+  secondPassMs: number
+  sortMs: number
+  totalMs: number
+}): void {
+  if (process.env["NKDK_VALIDATION_PROFILE"] !== "1") return
+  console.error(
+    [
+      "[validation-profile] orchestration",
+      `files=${params.files}`,
+      `concurrency=${params.concurrency}`,
+      `discover=${params.discoverMs.toFixed(2)}ms`,
+      `startWorkers=${params.startMs.toFixed(2)}ms`,
+      `firstPassWall=${params.firstPassMs.toFixed(2)}ms`,
+      `mergeFirstPass=${params.mergeMs.toFixed(2)}ms`,
+      `objectTableSnapshot=${params.snapshotMs.toFixed(2)}ms`,
+      `secondPassWall=${params.secondPassMs.toFixed(2)}ms`,
+      `sortDedupe=${params.sortMs.toFixed(2)}ms`,
+      `total=${params.totalMs.toFixed(2)}ms`,
+    ].join(" ")
+  )
 }
 
 function normalizeValidationConcurrency(value: number | undefined): number {

@@ -1,4 +1,5 @@
 import { dirname, join, resolve } from "node:path"
+import { performance } from "node:perf_hooks"
 import { Worker } from "node:worker_threads"
 import { fileURLToPath, pathToFileURL } from "node:url"
 import type { ConfigurationContext } from "../context/types"
@@ -11,6 +12,7 @@ import {
   type ProjectValueIndexEntry,
 } from "./projectMetadataReferences"
 import type { ValidationProjectFile } from "./projectFiles"
+import type { ProjectValidationFirstPassProfile } from "./projectValidationPasses"
 import type { ValidationMode, ValidationObjectRecord, ValidationObjectTableSnapshot } from "./projectValidationTypes"
 import type { Diagnostic } from "./types"
 
@@ -57,6 +59,23 @@ interface WorkerSecondPassTiming {
   snapshotBytes: number
   pendingReferences: number
   memberIndexEntries: number
+}
+
+interface WorkerFirstPassTiming {
+  readMs: number
+  firstPassMs: number
+  workerWallMs: number
+  fileCount: number
+}
+
+interface WorkerFirstPassProfile {
+  byKind: Array<ProjectValidationFirstPassProfile & { count: number; maxMs: number }>
+  slowFiles: Array<{
+    filePath: string
+    key: string
+    diagnostics: number
+    ms: number
+  }>
 }
 
 interface WorkerSecondPassProfile {
@@ -110,6 +129,8 @@ type WorkerResponse =
       memberIndexEntries: ProjectMemberIndexEntry[]
       valueIndexEntries: ProjectValueIndexEntry[]
       pendingReferences: PendingMetadataTargetReference[]
+      timing?: Omit<WorkerFirstPassTiming, "workerWallMs">
+      profile?: WorkerFirstPassProfile
     }
   | {
       kind: "secondPassResult"
@@ -153,6 +174,7 @@ export function createProjectValidationWorkerPool(params: { concurrency: number 
             }
           }
 
+          const requestStartedAt = performance.now()
           const response = await request(worker, {
             kind: "firstPass",
             projectDir: firstPassParams.projectDir,
@@ -161,9 +183,19 @@ export function createProjectValidationWorkerPool(params: { concurrency: number 
           })
           if (response.kind !== "firstPassResult") throw new Error("Worker вернул неожиданный результат firstPass")
           localObjectRecordPaths.set(worker, new Set(response.objectRecords.map((record) => record.filePath)))
-          return response
+          return {
+            index,
+            ...response,
+            timing:
+              response.timing === undefined
+                ? undefined
+                : { ...response.timing, workerWallMs: performance.now() - requestStartedAt },
+          }
         })
       )
+
+      logFirstPassTiming(results)
+      logFirstPassProfile(results)
 
       return {
         diagnostics: results.flatMap((result) => result.diagnostics),
@@ -175,13 +207,16 @@ export function createProjectValidationWorkerPool(params: { concurrency: number 
       }
     },
     async runSecondPass(secondPassParams) {
+      const snapshotStartedAt = performance.now()
       const referenceSnapshot = createProjectReferenceSnapshot({
         objectIndexEntries: secondPassParams.objectTable.objectIndexEntries ?? [],
         memberIndexEntries: secondPassParams.objectTable.memberIndexEntries ?? [],
         valueIndexEntries: secondPassParams.objectTable.valueIndexEntries ?? [],
         pendingReferences: secondPassParams.objectTable.pendingReferences ?? [],
       })
+      const snapshotMs = performance.now() - snapshotStartedAt
       const referencePartitions = partitionPendingReferencesForWorkers(referenceSnapshot.pendingReferences, workers.length)
+      const requestStartedAt = performance.now()
       const results = await Promise.all(
         workers.map(async (worker, index) => {
           const filePaths = assignedFilePaths.get(worker) ?? []
@@ -205,6 +240,7 @@ export function createProjectValidationWorkerPool(params: { concurrency: number 
           return { index, ...response }
         })
       )
+      logSecondPassPoolProfile({ snapshotMs, workerWallMs: performance.now() - requestStartedAt })
 
       logSecondPassTiming(results)
       logSecondPassProfile(results)
@@ -212,6 +248,151 @@ export function createProjectValidationWorkerPool(params: { concurrency: number 
       return { diagnostics: results.flatMap((result) => result.diagnostics) }
     },
   }
+}
+
+function logFirstPassTiming(results: Array<{ index: number; timing?: WorkerFirstPassTiming }>): void {
+  if (process.env["NKDK_VALIDATION_TIMING"] !== "1") return
+
+  for (const result of results) {
+    if (result.timing === undefined) continue
+    console.error(
+      [
+        `[validation] worker ${result.index} first pass`,
+        `files=${result.timing.fileCount}`,
+        `read=${result.timing.readMs.toFixed(2)}ms`,
+        `firstPass=${result.timing.firstPassMs.toFixed(2)}ms`,
+        `wall=${result.timing.workerWallMs.toFixed(2)}ms`,
+      ].join(" ")
+    )
+  }
+}
+
+function logFirstPassProfile(
+  results: Array<{ index: number; timing?: WorkerFirstPassTiming; profile?: WorkerFirstPassProfile }>
+): void {
+  if (process.env["NKDK_VALIDATION_PROFILE"] !== "1") return
+
+  const summary = new Map<string, ProjectValidationFirstPassProfile & { count: number; maxMs: number }>()
+  const total = results.reduce(
+    (current, result) => {
+      const timing = result.timing
+      if (timing === undefined) return current
+      current.files += timing.fileCount
+      current.readMs += timing.readMs
+      current.firstPassMs += timing.firstPassMs
+      current.workerWallMs = Math.max(current.workerWallMs, timing.workerWallMs)
+      return current
+    },
+    { files: 0, readMs: 0, firstPassMs: 0, workerWallMs: 0 }
+  )
+
+  console.error(
+    [
+      "[validation-profile] first pass summary",
+      `files=${total.files}`,
+      `read=${total.readMs.toFixed(2)}ms`,
+      `firstPass=${total.firstPassMs.toFixed(2)}ms`,
+      `slowestWorkerWall=${total.workerWallMs.toFixed(2)}ms`,
+    ].join(" ")
+  )
+
+  for (const result of results) {
+    if (result.profile === undefined) continue
+    for (const item of result.profile.byKind) {
+      const current = summary.get(item.key) ?? { ...emptyFirstPassProfile(item.key), count: 0, maxMs: 0 }
+      addFirstPassProfile(current, item)
+      summary.set(item.key, current)
+    }
+
+    console.error(`[validation-profile] worker ${result.index} first pass slow files`)
+    for (const file of result.profile.slowFiles) {
+      console.error(
+        [
+          `[validation-profile] worker ${result.index}`,
+          `firstPassMs=${file.ms.toFixed(2)}`,
+          `kind=${file.key}`,
+          `diagnostics=${file.diagnostics}`,
+          `file=${file.filePath}`,
+        ].join(" ")
+      )
+    }
+  }
+
+  console.error("[validation-profile] first pass by kind")
+  for (const [key, item] of [...summary.entries()].sort((left, right) => right[1].totalMs - left[1].totalMs)) {
+    console.error(
+      [
+        `[validation-profile] kind=${key}`,
+        `count=${item.count}`,
+        `diagnostics=${item.diagnostics}`,
+        `total=${item.totalMs.toFixed(2)}ms`,
+        `avg=${(item.totalMs / item.count).toFixed(2)}ms`,
+        `max=${item.maxMs.toFixed(2)}ms`,
+        `schema=${item.schemaMs.toFixed(2)}ms`,
+        `import=${item.importMs.toFixed(2)}ms`,
+        `formImport=${item.formImportMs.toFixed(2)}ms`,
+        `references=${item.referencesMs.toFixed(2)}ms`,
+        `fieldIndex=${item.fieldIndexMs.toFixed(2)}ms`,
+        `memberIndex=${item.memberIndexMs.toFixed(2)}ms`,
+        `uniqueScopes=${item.uniqueScopesMs.toFixed(2)}ms`,
+      ].join(" ")
+    )
+  }
+}
+
+function addFirstPassProfile(
+  target: ProjectValidationFirstPassProfile & { count: number; maxMs: number },
+  source: ProjectValidationFirstPassProfile & { count: number; maxMs: number }
+): void {
+  target.count += source.count
+  target.totalMs += source.totalMs
+  target.cacheMs += source.cacheMs
+  target.schemaMs += source.schemaMs
+  target.validatorsMs += source.validatorsMs
+  target.importMs += source.importMs
+  target.equalNameMs += source.equalNameMs
+  target.uniqueScopesMs += source.uniqueScopesMs
+  target.referencesMs += source.referencesMs
+  target.fieldIndexMs += source.fieldIndexMs
+  target.objectIndexMs += source.objectIndexMs
+  target.memberIndexMs += source.memberIndexMs
+  target.valueIndexMs += source.valueIndexMs
+  target.formImportMs += source.formImportMs
+  target.diagnostics += source.diagnostics
+  target.maxMs = Math.max(target.maxMs, source.maxMs)
+}
+
+function emptyFirstPassProfile(key: string): ProjectValidationFirstPassProfile & { count: number; maxMs: number } {
+  return {
+    key,
+    count: 0,
+    totalMs: 0,
+    maxMs: 0,
+    cacheMs: 0,
+    schemaMs: 0,
+    validatorsMs: 0,
+    importMs: 0,
+    equalNameMs: 0,
+    uniqueScopesMs: 0,
+    referencesMs: 0,
+    fieldIndexMs: 0,
+    objectIndexMs: 0,
+    memberIndexMs: 0,
+    valueIndexMs: 0,
+    formImportMs: 0,
+    diagnostics: 0,
+  }
+}
+
+function logSecondPassPoolProfile(params: { snapshotMs: number; workerWallMs: number }): void {
+  if (process.env["NKDK_VALIDATION_PROFILE"] !== "1") return
+  console.error(
+    [
+      "[validation-profile] second pass orchestration",
+      `snapshot=${params.snapshotMs.toFixed(2)}ms`,
+      `workerWall=${params.workerWallMs.toFixed(2)}ms`,
+    ].join(" ")
+  )
 }
 
 function logSecondPassTiming(results: Array<{ index: number; timing?: WorkerSecondPassTiming }>): void {

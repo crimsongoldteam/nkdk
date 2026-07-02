@@ -26,6 +26,7 @@ import {
   readProjectYamlEntryForValidation,
   validateProjectFileFirstPass,
   validateProjectFileSecondPass,
+  type ProjectValidationFirstPassProfile,
   type ProjectValidationFileState,
 } from "./projectValidationPasses"
 import { createValidationObjectTable } from "./projectValidationObjectTable"
@@ -102,11 +103,15 @@ function runFirstPass(message: Extract<ValidationWorkerMessage, { kind: "firstPa
   memberIndexEntries: ProjectMemberIndexEntry[]
   valueIndexEntries: ProjectValueIndexEntry[]
   pendingReferences: PendingMetadataTargetReference[]
+  timing?: WorkerFirstPassTiming
+  profile?: WorkerFirstPassProfile
 } {
   workerState = createEmptyWorkerValidationState()
   const diagnostics: Diagnostic[] = []
   const objectRecords: ValidationObjectRecord[] = []
   const schemaCache = createValidationSchemaCache(message.context)
+  const timing = createWorkerFirstPassTiming()
+  const profile = createWorkerFirstPassProfile()
 
   for (const filePath of message.filePaths) {
     const file = resolveValidationProjectFile(message.projectDir, filePath)
@@ -115,7 +120,9 @@ function runFirstPass(message: Extract<ValidationWorkerMessage, { kind: "firstPa
       continue
     }
 
+    const readStartedAt = performance.now()
     const entry = readProjectYamlEntryForValidation(file.absolutePath)
+    timing?.recordRead(performance.now() - readStartedAt)
     if ("error" in entry) {
       diagnostics.push(readProjectYamlDiagnostic(entry))
       continue
@@ -123,6 +130,7 @@ function runFirstPass(message: Extract<ValidationWorkerMessage, { kind: "firstPa
 
     workerState.entries.set(resolve(entry.filePath), entry)
     const cache = createProjectYamlCacheFromEntries([entry])
+    const firstPassStartedAt = performance.now()
     const first = validateProjectFileFirstPass({
       projectDir: message.projectDir,
       file,
@@ -130,6 +138,9 @@ function runFirstPass(message: Extract<ValidationWorkerMessage, { kind: "firstPa
       context: message.context,
       schemaCache,
     })
+    const firstPassMs = performance.now() - firstPassStartedAt
+    timing?.recordFirstPass(firstPassMs)
+    profile?.record(file.absolutePath, firstPassMs, first)
     workerState.states.set(resolve(file.absolutePath), first.state)
     workerState.localTable.mergeRecords(first.objectRecords)
     workerState.objectIndexEntries.push(...first.objectIndexEntries)
@@ -147,6 +158,8 @@ function runFirstPass(message: Extract<ValidationWorkerMessage, { kind: "firstPa
     memberIndexEntries: workerState.memberIndexEntries,
     valueIndexEntries: workerState.valueIndexEntries,
     pendingReferences: workerState.pendingReferences,
+    ...(timing === undefined ? {} : { timing: timing.snapshot(message.filePaths.length) }),
+    ...(profile === undefined ? {} : { profile: profile.snapshot() }),
   }
 }
 
@@ -259,6 +272,117 @@ interface WorkerSecondPassProfile {
     diagnostics: number
     ms: number
   }>
+}
+
+interface WorkerFirstPassTiming {
+  readMs: number
+  firstPassMs: number
+  fileCount: number
+}
+
+interface WorkerFirstPassProfile {
+  byKind: Array<ProjectValidationFirstPassProfile & { count: number; maxMs: number }>
+  slowFiles: Array<{
+    filePath: string
+    key: string
+    diagnostics: number
+    ms: number
+  }>
+}
+
+function createWorkerFirstPassTiming():
+  | {
+      recordRead(ms: number): void
+      recordFirstPass(ms: number): void
+      snapshot(fileCount: number): WorkerFirstPassTiming
+    }
+  | undefined {
+  if (process.env["NKDK_VALIDATION_TIMING"] !== "1" && process.env["NKDK_VALIDATION_PROFILE"] !== "1") return undefined
+
+  let readMs = 0
+  let firstPassMs = 0
+
+  return {
+    recordRead(ms) {
+      readMs += ms
+    },
+    recordFirstPass(ms) {
+      firstPassMs += ms
+    },
+    snapshot(fileCount) {
+      return { readMs, firstPassMs, fileCount }
+    },
+  }
+}
+
+function createWorkerFirstPassProfile():
+  | {
+      record(filePath: string, ms: number, result: { diagnostics: Diagnostic[]; profile?: ProjectValidationFirstPassProfile }): void
+      snapshot(): WorkerFirstPassProfile
+    }
+  | undefined {
+  if (process.env["NKDK_VALIDATION_PROFILE"] !== "1") return undefined
+
+  const byKind = new Map<string, ProjectValidationFirstPassProfile & { count: number; maxMs: number }>()
+  const slowFiles: WorkerFirstPassProfile["slowFiles"] = []
+
+  return {
+    record(filePath, ms, result) {
+      const item = result.profile ?? {
+        ...emptyWorkerFirstPassProfile("unknown"),
+        totalMs: ms,
+        diagnostics: result.diagnostics.length,
+      }
+      const current = byKind.get(item.key) ?? { ...emptyWorkerFirstPassProfile(item.key), count: 0, maxMs: 0 }
+      current.count += 1
+      current.totalMs += item.totalMs
+      current.cacheMs += item.cacheMs
+      current.schemaMs += item.schemaMs
+      current.validatorsMs += item.validatorsMs
+      current.importMs += item.importMs
+      current.equalNameMs += item.equalNameMs
+      current.uniqueScopesMs += item.uniqueScopesMs
+      current.referencesMs += item.referencesMs
+      current.fieldIndexMs += item.fieldIndexMs
+      current.objectIndexMs += item.objectIndexMs
+      current.memberIndexMs += item.memberIndexMs
+      current.valueIndexMs += item.valueIndexMs
+      current.formImportMs += item.formImportMs
+      current.diagnostics += item.diagnostics
+      current.maxMs = Math.max(current.maxMs, item.totalMs)
+      byKind.set(item.key, current)
+
+      slowFiles.push({ filePath, key: item.key, diagnostics: result.diagnostics.length, ms })
+      slowFiles.sort((left, right) => right.ms - left.ms)
+      slowFiles.length = Math.min(slowFiles.length, 10)
+    },
+    snapshot() {
+      return {
+        byKind: [...byKind.values()].sort((left, right) => right.totalMs - left.totalMs),
+        slowFiles: [...slowFiles],
+      }
+    },
+  }
+}
+
+function emptyWorkerFirstPassProfile(key: string): ProjectValidationFirstPassProfile {
+  return {
+    key,
+    totalMs: 0,
+    cacheMs: 0,
+    schemaMs: 0,
+    validatorsMs: 0,
+    importMs: 0,
+    equalNameMs: 0,
+    uniqueScopesMs: 0,
+    referencesMs: 0,
+    fieldIndexMs: 0,
+    objectIndexMs: 0,
+    memberIndexMs: 0,
+    valueIndexMs: 0,
+    formImportMs: 0,
+    diagnostics: 0,
+  }
 }
 
 function createWorkerSecondPassProfile():

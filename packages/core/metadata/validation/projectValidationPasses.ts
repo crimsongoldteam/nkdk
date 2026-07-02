@@ -1,5 +1,6 @@
 import { TypeCompiler } from "@sinclair/typebox/compiler"
 import fs from "fs"
+import { performance } from "node:perf_hooks"
 import { dirname, join, resolve } from "path"
 import { rootFromYAML } from "../commonObjects/metadataTargets/roots"
 import type { MetadataFieldKind, ParsedMetadataTarget } from "../commonObjects/metadataTargets/types"
@@ -63,6 +64,25 @@ export interface ProjectValidationFirstPassResult {
   valueIndexEntries: ProjectValueIndexEntry[]
   pendingReferences: PendingMetadataTargetReference[]
   diagnostics: Diagnostic[]
+  profile?: ProjectValidationFirstPassProfile
+}
+
+export interface ProjectValidationFirstPassProfile {
+  key: string
+  totalMs: number
+  cacheMs: number
+  schemaMs: number
+  validatorsMs: number
+  importMs: number
+  equalNameMs: number
+  uniqueScopesMs: number
+  referencesMs: number
+  fieldIndexMs: number
+  objectIndexMs: number
+  memberIndexMs: number
+  valueIndexMs: number
+  formImportMs: number
+  diagnostics: number
 }
 
 export interface ProjectValidationSecondPassParams {
@@ -191,17 +211,31 @@ function validateProjectFormFirstPass(params: {
   context: ConfigurationContext
   schemaCache: ValidationSchemaCache
 }): ProjectValidationFirstPassResult {
+  const totalStartedAt = performance.now()
+  const schemaStartedAt = performance.now()
   const schemaDiagnostics = validateProjectFileSchema({
     file: params.file,
     cache: params.cache,
     schema: params.schemaCache.form(),
   })
+  const schemaMs = performance.now() - schemaStartedAt
   if (schemaDiagnostics.some((diagnostic) => diagnostic.source === "syntax")) {
-    return failedFirstPass(params.file, schemaDiagnostics)
+    return failedFirstPass(params.file, schemaDiagnostics, {
+      ...emptyFirstPassProfile("form"),
+      totalMs: performance.now() - totalStartedAt,
+      schemaMs,
+      diagnostics: schemaDiagnostics.length,
+    })
   }
 
   const passes = getRegisteredFormValidationPasses()
   if (passes === undefined) {
+    const profile = {
+      ...emptyFirstPassProfile("form"),
+      totalMs: performance.now() - totalStartedAt,
+      schemaMs,
+      diagnostics: schemaDiagnostics.length,
+    }
     return {
       state: { kind: "failed", file: params.file, diagnostics: schemaDiagnostics },
       diagnostics: schemaDiagnostics,
@@ -210,9 +244,11 @@ function validateProjectFormFirstPass(params: {
       memberIndexEntries: [],
       valueIndexEntries: [],
       pendingReferences: [],
+      profile,
     }
   }
 
+  const formImportStartedAt = performance.now()
   const first = passes.firstPass({
     projectDir: params.projectDir,
     formDir: join(
@@ -228,8 +264,21 @@ function validateProjectFormFirstPass(params: {
     context: params.context,
     suppressFormImportDiagnostics: schemaDiagnostics.length > 0,
   })
+  const formImportMs = performance.now() - formImportStartedAt
   const diagnostics = [...schemaDiagnostics, ...first.diagnostics]
-  if (first.status === "failed") return failedFirstPass(params.file, diagnostics)
+  if (first.status === "failed") {
+    return failedFirstPass(params.file, diagnostics, {
+      ...emptyFirstPassProfile("form"),
+      totalMs: performance.now() - totalStartedAt,
+      schemaMs,
+      formImportMs,
+      diagnostics: diagnostics.length,
+    })
+  }
+
+  const memberIndexStartedAt = performance.now()
+  const memberIndexEntries = buildFormFileMemberIndexEntries(params.file)
+  const memberIndexMs = performance.now() - memberIndexStartedAt
 
   return {
     state: {
@@ -241,9 +290,17 @@ function validateProjectFormFirstPass(params: {
     diagnostics,
     objectRecords: [],
     objectIndexEntries: [],
-    memberIndexEntries: buildFormFileMemberIndexEntries(params.file),
+    memberIndexEntries,
     valueIndexEntries: [],
     pendingReferences: [],
+    profile: {
+      ...emptyFirstPassProfile("form"),
+      totalMs: performance.now() - totalStartedAt,
+      schemaMs,
+      memberIndexMs,
+      formImportMs,
+      diagnostics: diagnostics.length,
+    },
   }
 }
 
@@ -254,35 +311,65 @@ function validateProjectPropertiesFirstPass(params: {
   context: ConfigurationContext
   schemaCache: ValidationSchemaCache
 }): ProjectValidationFirstPassResult {
+  const totalStartedAt = performance.now()
+  const cacheStartedAt = performance.now()
   const entry = params.cache.get(params.file.absolutePath)
+  const cacheMs = performance.now() - cacheStartedAt
   if ("error" in entry) {
-    return failedFirstPass(
-      params.file,
-      validateProjectFileSchema({
+    const schemaStartedAt = performance.now()
+    const diagnostics = validateProjectFileSchema({
         file: params.file,
         cache: params.cache,
         schema: params.schemaCache.properties(params.file.owner.spec),
       })
-    )
+    const schemaMs = performance.now() - schemaStartedAt
+    return failedFirstPass(params.file, diagnostics, {
+      ...emptyFirstPassProfile(validationFirstPassProfileKey(params.file)),
+      totalMs: performance.now() - totalStartedAt,
+      cacheMs,
+      schemaMs,
+      diagnostics: diagnostics.length,
+    })
   }
 
   const parsed = parsedForProjectFile(params.file, entry.parsed)
+  const schemaStartedAt = performance.now()
   const schemaDiagnostics = validateProjectFileSchema({
     file: params.file,
     cache: params.cache,
     schema: params.schemaCache.properties(params.file.owner.spec),
     parsed,
   })
-  if (entry.parsed.syntaxErrors.length > 0) return failedFirstPass(params.file, schemaDiagnostics)
+  const schemaMs = performance.now() - schemaStartedAt
+  if (entry.parsed.syntaxErrors.length > 0) {
+    return failedFirstPass(params.file, schemaDiagnostics, {
+      ...emptyFirstPassProfile(validationFirstPassProfileKey(params.file)),
+      totalMs: performance.now() - totalStartedAt,
+      cacheMs,
+      schemaMs,
+      diagnostics: schemaDiagnostics.length,
+    })
+  }
 
+  const validatorsStartedAt = performance.now()
   const requiredDiagnostics = validateRegisteredProjectFileValidators({
     file: params.file,
     parsed,
   })
+  const validatorsMs = performance.now() - validatorsStartedAt
   if (requiredDiagnostics.length > 0) {
-    return failedFirstPass(params.file, [...schemaDiagnostics, ...requiredDiagnostics])
+    const diagnostics = [...schemaDiagnostics, ...requiredDiagnostics]
+    return failedFirstPass(params.file, diagnostics, {
+      ...emptyFirstPassProfile(validationFirstPassProfileKey(params.file)),
+      totalMs: performance.now() - totalStartedAt,
+      cacheMs,
+      schemaMs,
+      validatorsMs,
+      diagnostics: diagnostics.length,
+    })
   }
 
+  const importStartedAt = performance.now()
   const imported = importPropertiesModel({
     spec: params.file.owner.spec,
     context: params.context,
@@ -290,7 +377,19 @@ function validateProjectPropertiesFirstPass(params: {
     name: params.file.owner.name,
     filePath: params.file.absolutePath,
   })
-  if ("diagnostic" in imported) return failedFirstPass(params.file, [...schemaDiagnostics, imported.diagnostic])
+  const importMs = performance.now() - importStartedAt
+  if ("diagnostic" in imported) {
+    const diagnostics = [...schemaDiagnostics, imported.diagnostic]
+    return failedFirstPass(params.file, diagnostics, {
+      ...emptyFirstPassProfile(validationFirstPassProfileKey(params.file)),
+      totalMs: performance.now() - totalStartedAt,
+      cacheMs,
+      schemaMs,
+      validatorsMs,
+      importMs,
+      diagnostics: diagnostics.length,
+    })
+  }
 
   const equalNameValidationName =
     params.file.kind === "configuration"
@@ -298,6 +397,7 @@ function validateProjectPropertiesFirstPass(params: {
       : params.file.kind === "properties"
         ? params.file.owner.name
         : undefined
+  const equalNameStartedAt = performance.now()
   const equalNameDiagnostics = validateExcludedEqualNameYAML({
     filePath: params.file.absolutePath,
     parsed,
@@ -305,11 +405,13 @@ function validateProjectPropertiesFirstPass(params: {
     context: params.context,
     name: equalNameValidationName,
   })
+  const equalNameMs = performance.now() - equalNameStartedAt
   const metadataTargetOwner = metadataTargetOwnerFromRule({
     itemRule: params.file.owner.spec.rule,
     name: params.file.owner.name,
     context: params.context,
   })
+  const referencesStartedAt = performance.now()
   const pendingReferences = collectMetadataTargetReferencesInModel({
     filePath: params.file.absolutePath,
     parsed,
@@ -317,16 +419,21 @@ function validateProjectPropertiesFirstPass(params: {
     rule: params.file.owner.spec.rule,
     owner: metadataTargetOwner,
   })
+  const referencesMs = performance.now() - referencesStartedAt
+
+  const uniqueScopesStartedAt = performance.now()
+  const uniqueScopeDiagnostics = validateUniqueNameScopes({
+    filePath: params.file.absolutePath,
+    parsed,
+    model: imported.model,
+    rule: params.file.owner.spec.rule,
+  })
+  const uniqueScopesMs = performance.now() - uniqueScopesStartedAt
 
   const diagnostics = [
     ...suppressEqualNameSchemaDiagnostics(schemaDiagnostics, equalNameDiagnostics),
     ...equalNameDiagnostics,
-    ...validateUniqueNameScopes({
-      filePath: params.file.absolutePath,
-      parsed,
-      model: imported.model,
-      rule: params.file.owner.spec.rule,
-    }),
+    ...uniqueScopeDiagnostics,
     ...pendingReferences.diagnostics,
   ]
   const ownerRef = { kind: params.file.owner.dir, name: params.file.owner.name }
@@ -337,19 +444,27 @@ function validateProjectPropertiesFirstPass(params: {
     rule: params.file.owner.spec.rule,
     spec: params.file.owner.spec,
   }
+  const fieldIndexStartedAt = performance.now()
   const fieldIndex = buildObjectFieldIndex(ownerWithoutIndex)
+  const fieldIndexMs = performance.now() - fieldIndexStartedAt
   const owner: OwnerMetadata = {
     ...ownerWithoutIndex,
     fieldIndex,
   }
+  const memberIndexStartedAt = performance.now()
   const memberIndexEntries = buildMemberIndexEntries({
     projectDir: params.projectDir,
     owner,
     hasFile: fs.existsSync,
   })
+  const memberIndexMs = performance.now() - memberIndexStartedAt
+  const objectIndexStartedAt = performance.now()
   const objectIndexEntry = buildObjectIndexEntry({ owner, file: params.file })
   const objectIndexEntries = objectIndexEntry ? [objectIndexEntry] : []
+  const objectIndexMs = performance.now() - objectIndexStartedAt
+  const valueIndexStartedAt = performance.now()
   const valueIndexEntries = buildValueIndexEntries({ owner })
+  const valueIndexMs = performance.now() - valueIndexStartedAt
 
   return {
     state: {
@@ -380,10 +495,31 @@ function validateProjectPropertiesFirstPass(params: {
         importDiagnostics: [],
       },
     ],
+    profile: {
+      key: validationFirstPassProfileKey(params.file),
+      totalMs: performance.now() - totalStartedAt,
+      cacheMs,
+      schemaMs,
+      validatorsMs,
+      importMs,
+      equalNameMs,
+      uniqueScopesMs,
+      referencesMs,
+      fieldIndexMs,
+      objectIndexMs,
+      memberIndexMs,
+      valueIndexMs,
+      formImportMs: 0,
+      diagnostics: diagnostics.length,
+    },
   }
 }
 
-function failedFirstPass(file: ValidationProjectFile, diagnostics: Diagnostic[]): ProjectValidationFirstPassResult {
+function failedFirstPass(
+  file: ValidationProjectFile,
+  diagnostics: Diagnostic[],
+  profile?: ProjectValidationFirstPassProfile
+): ProjectValidationFirstPassResult {
   return {
     state: { kind: "failed", file, diagnostics },
     diagnostics,
@@ -392,7 +528,33 @@ function failedFirstPass(file: ValidationProjectFile, diagnostics: Diagnostic[])
     memberIndexEntries: [],
     valueIndexEntries: [],
     pendingReferences: [],
+    ...(profile === undefined ? {} : { profile }),
   }
+}
+
+function emptyFirstPassProfile(key: string): ProjectValidationFirstPassProfile {
+  return {
+    key,
+    totalMs: 0,
+    cacheMs: 0,
+    schemaMs: 0,
+    validatorsMs: 0,
+    importMs: 0,
+    equalNameMs: 0,
+    uniqueScopesMs: 0,
+    referencesMs: 0,
+    fieldIndexMs: 0,
+    objectIndexMs: 0,
+    memberIndexMs: 0,
+    valueIndexMs: 0,
+    formImportMs: 0,
+    diagnostics: 0,
+  }
+}
+
+function validationFirstPassProfileKey(file: ValidationProjectFile): string {
+  if (file.kind === "form") return "form"
+  return `properties:${file.owner.dir}`
 }
 
 function buildObjectIndexEntry(params: {
