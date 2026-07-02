@@ -1,5 +1,6 @@
 import type { MetadataTargetConstraint, ParsedMetadataTarget } from "../commonObjects/metadataTargets"
-import type { MetadataResolveResult } from "./projectMetadataResolver"
+import type { MetadataResolveResult, ProjectMetadataResolver } from "./projectMetadataResolver"
+import type { Diagnostic } from "./types"
 import type { YamlPath } from "./yamlLocations"
 
 export interface ProjectMemberIndexEntry {
@@ -98,6 +99,64 @@ export function estimateProjectReferenceSnapshotBytes(
   snapshot: Omit<ProjectReferenceSnapshot, "stats"> | ProjectReferenceSnapshot
 ): number {
   return Buffer.byteLength(JSON.stringify(snapshot), "utf8")
+}
+
+export interface ValidatePendingReferencesResult {
+  diagnostics: Diagnostic[]
+  hits: number
+  misses: number
+  fallbacks: number
+}
+
+export function validatePendingReferences(params: {
+  snapshot: ProjectReferenceSnapshot
+  references: readonly PendingMetadataTargetReference[]
+  resolver: ProjectMetadataResolver
+}): ValidatePendingReferencesResult {
+  const diagnostics: Diagnostic[] = []
+  let hits = 0
+  let misses = 0
+  let fallbacks = 0
+
+  for (const reference of params.references) {
+    const fast = resolvePendingReference({ snapshot: params.snapshot, reference })
+    if (fast.ok) {
+      hits += 1
+      continue
+    }
+
+    misses += 1
+    fallbacks += 1
+    diagnostics.push(...resolveReferenceByResolver({ reference, resolver: params.resolver }))
+  }
+
+  return { diagnostics, hits, misses, fallbacks }
+}
+
+function resolveReferenceByResolver(params: {
+  reference: PendingMetadataTargetReference
+  resolver: ProjectMetadataResolver
+}): Diagnostic[] {
+  const { target, constraint } = params.reference
+  if (target.kind === "object") {
+    const result = params.resolver.resolveObject({
+      target,
+      filters: constraint.kind === "object" ? constraint.filters : undefined,
+    })
+    return result.ok ? [] : result.diagnostics
+  }
+
+  if (target.kind === "member" && constraint.kind === "member") {
+    const result = params.resolver.resolveMember({ target, filters: constraint.filters })
+    return result.ok ? [] : result.diagnostics
+  }
+
+  if (target.kind === "value") {
+    const result = params.resolver.resolveValue({ target })
+    return result.ok ? [] : result.diagnostics
+  }
+
+  return []
 }
 
 function isConflict(entry: ProjectMemberIndexEntry | ProjectMemberIndexConflict): entry is ProjectMemberIndexConflict {

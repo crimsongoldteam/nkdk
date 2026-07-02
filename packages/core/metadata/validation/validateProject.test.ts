@@ -174,6 +174,23 @@ describe("validateProject", { timeout: 30_000 }, () => {
     expect(parallel.diagnostics).toEqual([])
   })
 
+  it("validates functional option content through pending reference snapshot", async () => {
+    const projectDir = createProject()
+    writeProjectFile(projectDir, "Справочник/Номенклатура/Свойства.yaml", [
+      "Реквизиты:",
+      "  Артикул:",
+      "    Тип: Строка",
+    ])
+    writeProjectFile(projectDir, "ФункциональнаяОпция/ИспользоватьАртикулы/Свойства.yaml", [
+      "СоставФункциональнойОпции:",
+      "  - Catalog.Номенклатура.Attribute.Артикул",
+    ])
+
+    await expect(validateProject({ projectDir, context: mockContext, concurrency: 2 })).resolves.toEqual({
+      diagnostics: [],
+    })
+  })
+
   it("warns about unimplemented dynamic list type-value checks instead of failing form import", async () => {
     const projectDir = createProject()
     writeProjectFile(projectDir, "Справочник/Товары/Свойства.yaml", "")

@@ -5,6 +5,7 @@ import {
   estimateProjectReferenceSnapshotBytes,
   projectMemberIndexKey,
   resolvePendingReference,
+  validatePendingReferences,
   type PendingMetadataTargetReference,
   type ProjectMemberIndexEntry,
 } from "./projectMetadataReferences"
@@ -53,6 +54,28 @@ describe("project metadata references", () => {
     })
 
     expect(estimateProjectReferenceSnapshotBytes(snapshot)).toBeGreaterThan(100)
+  })
+
+  it("validates pending references through the fast path", () => {
+    const target = memberTarget("Catalog.Номенклатура.Attribute.Артикул")
+    const snapshot = createProjectReferenceSnapshot({
+      memberIndexEntries: [
+        {
+          canonical: "Catalog.Номенклатура.Attribute.Артикул",
+          target,
+          result: { ok: true, filePath: "/tmp/Справочник/Номенклатура/Свойства.yaml" },
+        },
+      ],
+      pendingReferences: [pending(target)],
+    })
+
+    expect(
+      validatePendingReferences({
+        snapshot,
+        references: snapshot.pendingReferences,
+        resolver: {} as never,
+      })
+    ).toEqual({ diagnostics: [], hits: 1, misses: 0, fallbacks: 0 })
   })
 })
 

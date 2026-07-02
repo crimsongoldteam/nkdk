@@ -65,6 +65,7 @@ export interface ProjectValidationSecondPassParams {
   cache: ProjectYamlCache
   ownerCache: OwnerMetadataCache
   metadataResolver: ProjectMetadataResolver
+  skipMetadataTargetValidation?: boolean
 }
 
 export type ProjectValidationSecondPassResult =
@@ -157,14 +158,16 @@ export function validateProjectFileSecondPass(
   const owner = ownerRoot ? { root: ownerRoot, objectName: params.state.file.owner.name } : undefined
   const recorder = createDependencyRecordingResolver(params.metadataResolver)
 
-  const diagnostics = validateMetadataTargetsInModel({
-    filePath: params.state.file.absolutePath,
-    parsed: params.state.parsed,
-    model: params.state.model,
-    rule: params.state.file.owner.spec.rule,
-    resolver: recorder.resolver,
-    owner,
-  })
+  const diagnostics = params.skipMetadataTargetValidation
+    ? []
+    : validateMetadataTargetsInModel({
+        filePath: params.state.file.absolutePath,
+        parsed: params.state.parsed,
+        model: params.state.model,
+        rule: params.state.file.owner.spec.rule,
+        resolver: recorder.resolver,
+        owner,
+      })
   const dependency = recorder.firstDependency()
   if (dependency !== undefined) return { status: "needsDependency", diagnostics, dependency }
   return { status: "ok", diagnostics }

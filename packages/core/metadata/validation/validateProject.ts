@@ -3,6 +3,7 @@ import { resolve } from "path"
 import type { ConfigurationContext } from "../context/types"
 import { createOwnerMetadataCacheFromValidationTable } from "./dataPath/ownerCache"
 import { createProjectMetadataResolverFromValidationTable } from "./projectMetadataResolver"
+import { createProjectReferenceSnapshot, validatePendingReferences } from "./projectMetadataReferences"
 import { ProjectFileSchemaError } from "./projectFileSchema"
 import {
   discoverValidationProjectFiles,
@@ -63,6 +64,30 @@ function validateProjectInProcess(params: ValidateProjectParams): ValidateProjec
 
   const diagnostics: Diagnostic[] = []
   processPendingFirstPasses({ projectDir, context, schemaCache, queue, entries, states, objectTable, diagnostics })
+  const skipMetadataTargetValidation = params.filePath === undefined
+
+  if (skipMetadataTargetValidation) {
+    const objectTableSnapshot = objectTable.snapshot()
+    const referenceSnapshot = createProjectReferenceSnapshot({
+      memberIndexEntries: objectTableSnapshot.memberIndexEntries ?? [],
+      pendingReferences: objectTableSnapshot.pendingReferences ?? [],
+    })
+    const cache = createProjectYamlCacheFromEntries([...entries.values()])
+    const ownerCache = createOwnerMetadataCacheFromValidationTable({ projectDir, table: objectTable })
+    const metadataResolver = createProjectMetadataResolverFromValidationTable({
+      projectDir,
+      table: objectTable,
+      mode: queue.mode,
+      ownerCache,
+      yamlCache: cache,
+    })
+    const referenceResult = validatePendingReferences({
+      snapshot: referenceSnapshot,
+      references: referenceSnapshot.pendingReferences,
+      resolver: metadataResolver,
+    })
+    diagnostics.push(...referenceResult.diagnostics)
+  }
 
   const secondPassPending = new Set(states.keys())
   while (secondPassPending.size > 0) {
@@ -83,7 +108,15 @@ function validateProjectInProcess(params: ValidateProjectParams): ValidateProjec
         ownerCache,
         yamlCache: cache,
       })
-      const second = validateProjectFileSecondPass({ projectDir, state, cache, context, ownerCache, metadataResolver })
+      const second = validateProjectFileSecondPass({
+        projectDir,
+        state,
+        cache,
+        context,
+        ownerCache,
+        metadataResolver,
+        skipMetadataTargetValidation,
+      })
 
       if (second.status === "needsDependency" && queue.enqueueDependency(second.dependency.file) === "enqueued") {
         enqueuedDependency = true

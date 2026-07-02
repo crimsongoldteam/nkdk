@@ -10,6 +10,7 @@ import type {
   ProjectMemberIndexEntry,
   ProjectReferenceSnapshot,
 } from "./projectMetadataReferences"
+import { validatePendingReferences } from "./projectMetadataReferences"
 import { resolveValidationProjectFile } from "./projectFiles"
 import {
   createProjectYamlCache,
@@ -166,6 +167,12 @@ function runSecondPass(message: Extract<ValidationWorkerMessage, { kind: "second
     yamlCache: cache,
   })
   const validationStartedAt = performance.now()
+  const referenceResult = validatePendingReferences({
+    snapshot: message.referenceSnapshot,
+    references: message.pendingReferences,
+    resolver: metadataResolver,
+  })
+  diagnostics.push(...referenceResult.diagnostics)
 
   for (const filePath of message.filePaths) {
     const state = workerState.states.get(resolve(filePath))
@@ -178,6 +185,7 @@ function runSecondPass(message: Extract<ValidationWorkerMessage, { kind: "second
       context: message.context,
       ownerCache,
       metadataResolver,
+      skipMetadataTargetValidation: true,
     })
     profile?.record(state, performance.now() - fileStartedAt, second.diagnostics.length)
     diagnostics.push(...second.diagnostics)
