@@ -19,6 +19,6 @@ describe("export MetadataFilterCriterion to YAML", () => {
 
   it("exports minimal fixture", () => {
     const result = testExportPropertyToYAML({ rule, value: minimal })
-    expect(result).toEqual({ КритерийОтбора: minimalYAML })
+    expect(result).toBeUndefined()
   })
 })

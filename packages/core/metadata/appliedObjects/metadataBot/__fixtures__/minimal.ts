@@ -7,5 +7,4 @@ export const minimal: MetadataBot = {
 }
 
 export const minimalYAML: MetadataBotYAML = {
-  Синоним: "Бот по умолчанию",
 }

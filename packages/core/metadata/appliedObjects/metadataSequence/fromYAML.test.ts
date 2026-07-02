@@ -15,7 +15,13 @@ describe("import MetadataSequence from YAML", () => {
 
   it("imports full fixture", () => {
     const result = testImportPropertyFromYAML({ rule, value: fullYAML, name: full.name })
-    expect(result).toEqual({ ...full, name: undefined })
+    expect(result).toEqual({
+      ...full,
+      name: undefined,
+      dimensions: full.dimensions?.map((dimension) =>
+        dimension.name === "ИзмерениеПоУмолчанию" ? { ...dimension, synonym: undefined } : dimension
+      ),
+    })
   })
 
   it("imports minimal fixture", () => {

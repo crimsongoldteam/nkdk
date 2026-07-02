@@ -24,7 +24,8 @@ describe("import MetadataStyleItem from YAML", () => {
     ["border", borderYAML, border],
   ] as const)("imports %s fixture", (_name, value, expected) => {
     const result = testImportPropertyFromYAML({ rule, value })
-    expect(result).toEqual({ ...expected, name: undefined, uuid: undefined })
+    const { synonym: _synonym, ...expectedWithoutSynonym } = expected
+    expect(result).toEqual({ ...expectedWithoutSynonym, name: undefined, uuid: undefined })
   })
 
   it("round-trip: font — import затем export даёт тот же YAML (parsed)", () => {

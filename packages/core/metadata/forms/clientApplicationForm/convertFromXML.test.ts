@@ -98,8 +98,44 @@ describe("import from XML string", () => {
 
     const formDir = join(outputDir, "Формы", ordinaryFormName)
     const yaml = fs.readFileSync(join(formDir, "Форма.yaml"), "utf-8")
-    expect(yaml).toContain("Синоним: Обычная форма")
+    expect(yaml).not.toContain("Синоним:")
     expect([...fs.readFileSync(join(formDir, "Form.bin"))]).toEqual([0, 1, 2, 255])
+  })
+
+  it("omits form synonym equal to the form name", async () => {
+    const equalSynonymFormName = "ФормаСписка"
+    const input = join(outputDir, "equal-synonym-input")
+    fs.mkdirSync(input, { recursive: true })
+
+    const metadataXML = `<?xml version="1.0" encoding="UTF-8"?>
+<MetaDataObject xmlns="http://v8.1c.ru/8.3/MDClasses" xmlns:v8="http://v8.1c.ru/8.1/data/core" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" version="2.20">
+  <Form uuid="ff77d419-36ca-4447-95fe-9f60443c2455">
+    <Properties>
+      <Name>${equalSynonymFormName}</Name>
+      <Synonym>
+        <v8:item>
+          <v8:lang>ru</v8:lang>
+          <v8:content>Форма списка</v8:content>
+        </v8:item>
+      </Synonym>
+      <Comment/>
+      <FormType>Ordinary</FormType>
+      <IncludeHelpInContents>false</IncludeHelpInContents>
+    </Properties>
+  </Form>
+</MetaDataObject>`
+
+    fs.writeFileSync(join(input, `${equalSynonymFormName}.xml`), metadataXML)
+
+    await convertFormFromXML({
+      context: mockContextFromXML(),
+      inputDir: input,
+      formName: equalSynonymFormName,
+      outputDir,
+    })
+
+    const yaml = fs.readFileSync(join(outputDir, "Формы", equalSynonymFormName, "Форма.yaml"), "utf-8")
+    expect(yaml).not.toContain("Синоним:")
   })
 
   it("imports metadata-only ordinary form without creating Form.bin", async () => {
@@ -136,7 +172,7 @@ describe("import from XML string", () => {
 
     const formDir = join(outputDir, "Формы", ordinaryFormName)
     const yaml = fs.readFileSync(join(formDir, "Форма.yaml"), "utf-8")
-    expect(yaml).toContain("Синоним: Обычная без тела")
+    expect(yaml).not.toContain("Синоним:")
     expect(fs.existsSync(join(formDir, "Form.bin"))).toBe(false)
   })
 

@@ -8,6 +8,5 @@ export const minimal: MetadataConstant = {
 }
 
 export const minimalYAML: MetadataConstantYAML = {
-  Синоним: "Константа по умолчанию",
   Тип: "ЛюбаяСсылка",
 }

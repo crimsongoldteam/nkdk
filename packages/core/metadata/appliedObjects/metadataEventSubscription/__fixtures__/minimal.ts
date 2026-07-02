@@ -10,7 +10,6 @@ export const minimal: MetadataEventSubscription = {
 }
 
 export const minimalYAML: MetadataEventSubscriptionYAML = {
-  Синоним: "Подписка на событие по умолчанию",
   Источник: "СправочникОбъект.СправочникПолный",
   Событие: "OnSetNewCode",
   Обработчик: "CommonModule.ОбщийМодульПодпискаНаСобытие.ПодпискаНаСобытиеВсеСвойстваПриУстановкеНовогоКода",

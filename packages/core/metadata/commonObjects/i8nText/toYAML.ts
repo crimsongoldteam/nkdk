@@ -41,7 +41,7 @@ const getTextWithoutName = (params: {
   const { context, rule, text, name } = params
   if (text === undefined) return undefined
   if (!rule.excludeIfEqualNameYAML) return text
-  if (!name) throw new Error("name is required for excludeIfEqualNameYAML")
+  if (!name) return text
 
   return excludeNameFromI8nText(context, text, name)
 }

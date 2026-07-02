@@ -7,5 +7,4 @@ export const minimal: MetadataDataProcessor = {
 }
 
 export const minimalYAML: MetadataDataProcessorYAML = {
-  Синоним: "Обработка по умолчанию",
 }

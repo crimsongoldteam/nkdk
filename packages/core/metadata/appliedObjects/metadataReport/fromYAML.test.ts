@@ -13,7 +13,7 @@ describe("import MetadataReport from YAML", () => {
         yaml: minimalYAML,
         name: "ОтчетПоУмолчанию",
       })
-    ).toEqual(minimal)
+    ).toEqual({ ...minimal, synonym: { items: {} } })
   })
 
   it("imports full report YAML", () => {

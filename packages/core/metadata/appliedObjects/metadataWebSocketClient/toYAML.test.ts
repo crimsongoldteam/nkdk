@@ -8,7 +8,7 @@ import type { MetadataWebSocketClient } from "./types"
 const cases = [
   {
     fixture: "minimal.xml",
-    yaml: { Синоним: "Web socket клиент по умолчанию" },
+    yaml: {},
   },
   {
     fixture: "full.xml",

@@ -8,7 +8,7 @@ import type { MetadataExternalDataSource } from "./types"
 const cases = [
   {
     fixture: "minimal.xml",
-    yaml: { Синоним: "Внешний источник данных по умолчанию" },
+    yaml: {},
   },
   {
     fixture: "full.xml",

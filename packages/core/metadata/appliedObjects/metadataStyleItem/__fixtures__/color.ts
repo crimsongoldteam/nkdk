@@ -12,7 +12,6 @@ export const color: MetadataStyleItem = {
 }
 
 export const colorYAML: MetadataStyleItemYAML = {
-  Синоним: "Элемент стиля цвет",
   Тип: "Цвет",
   Значение: {
     Вид: "Цвет",

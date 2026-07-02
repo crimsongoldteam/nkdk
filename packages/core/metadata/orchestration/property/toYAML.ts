@@ -12,12 +12,13 @@ export function exportPropertiesToYAML<Rule extends MetadataItemRule>(params: {
   context: ConfigurationContext
   data: ToMetadata<Rule["itemType"]> | undefined
   rule: Rule
+  name?: string
 }): ToYAML<Rule["itemType"]> | undefined {
   const { context, data, rule: rule } = params
   if (data === undefined) return undefined
 
   const result = {}
-  const name = "name" in data ? (data["name"] as string) : undefined
+  const name = params.name ?? ("name" in data ? (data["name"] as string) : undefined)
   const owner = metadataTargetOwnerFromRule({
     itemRule: rule,
     name,

@@ -13,7 +13,15 @@ describe("import MetadataHTTPService from YAML", () => {
       name: "HTTPСервисВсеСвойства",
     })
 
-    expect(result).toEqual(full)
+    expect(result).toEqual({
+      ...full,
+      urlTemplates: full.urlTemplates?.map((template) => ({
+        ...template,
+        methods: template.methods?.map((method) =>
+          method.name === "МетодПоУмолчанию" ? { ...method, synonym: undefined } : method
+        ),
+      })),
+    })
     expect(result?.urlTemplates?.[0]?.methods?.[1]?.httpMethod).toBe("GET")
   })
 
@@ -24,6 +32,7 @@ describe("import MetadataHTTPService from YAML", () => {
       name: "HTTPСервисПоУмолчанию",
     })
 
-    expect(result).toEqual(minimal)
+    const { synonym: _synonym, ...expected } = minimal
+    expect(result).toEqual(expected)
   })
 })

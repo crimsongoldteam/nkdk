@@ -8,7 +8,7 @@ import type { MetadataCommonModule } from "./types"
 const cases = [
   {
     fixture: "minimal.xml",
-    yaml: { Синоним: "Общий модуль по умолчанию" },
+    yaml: {},
   },
   {
     fixture: "full.xml",

@@ -7,5 +7,4 @@ export const minimal: MetadataSettingsStorage = {
 }
 
 export const minimalYAML: MetadataSettingsStorageYAML = {
-  Синоним: "Хранилище настроек по умолчанию",
 }

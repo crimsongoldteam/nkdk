@@ -58,6 +58,7 @@ const exportMetadataEnumerationValuesToYAML = (
         context,
         rule: MetadataEnumerationValueRules,
         data: valueForYAML,
+        name,
       }) as MetadataEnumerationValueYAML | undefined
 
       return [name, yaml ?? {}]

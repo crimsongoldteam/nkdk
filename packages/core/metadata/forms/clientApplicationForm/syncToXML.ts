@@ -55,7 +55,7 @@ export const syncFormToXML = async (params: {
       })
     : undefined
 
-  const form = importClientApplicationFormFromYAML(contextWithFormExternalMetadata, yamlObj, referenceForm)
+  const form = importClientApplicationFormFromYAML(contextWithFormExternalMetadata, yamlObj, referenceForm, formName)
   const isOrdinaryForm = form.formType === "Ordinary"
   const referenceHasFormXML = effectiveReferenceDir
     ? hasReferenceFormXML({ referenceDir: effectiveReferenceDir, formName })

@@ -19,6 +19,6 @@ describe("export MetadataDefinedType to YAML", () => {
 
   it("exports minimal fixture", () => {
     const result = testExportPropertyToYAML({ rule, value: minimal })
-    expect(result).toEqual({ ОпределяемыйТип: minimalYAML })
+    expect(result).toBeUndefined()
   })
 })

@@ -11,5 +11,4 @@ export const minimal = {
 } satisfies MetadataEnumeration
 
 export const minimalYAML: MetadataEnumerationYAML = {
-  Синоним: "Перечисление по умолчанию",
 } satisfies MetadataEnumerationYAML

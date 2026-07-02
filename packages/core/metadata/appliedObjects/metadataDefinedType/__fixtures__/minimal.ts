@@ -7,5 +7,4 @@ export const minimal: MetadataDefinedType = {
 }
 
 export const minimalYAML: MetadataDefinedTypeYAML = {
-  Синоним: "Определяемый тип по умолчанию",
 }

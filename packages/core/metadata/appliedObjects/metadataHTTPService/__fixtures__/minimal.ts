@@ -8,6 +8,5 @@ export const minimal: MetadataHTTPService = {
 }
 
 export const minimalYAML: MetadataHTTPServiceYAML = {
-  Синоним: "HTTPСервис по умолчанию",
   КорневойURL: "default",
 }

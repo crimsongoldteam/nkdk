@@ -19,6 +19,6 @@ describe("export MetadataSettingsStorage to YAML", () => {
 
   it("exports minimal fixture", () => {
     const result = testExportPropertyToYAML({ rule, value: minimal })
-    expect(result).toEqual({ ХранилищеНастроек: minimalYAML })
+    expect(result).toBeUndefined()
   })
 })

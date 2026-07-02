@@ -6,13 +6,15 @@ import { ClientApplicationForm, ClientApplicationFormYAML } from "./types"
 export const importClientApplicationFormFromYAML = (
   context: ConfigurationContext,
   data: ClientApplicationFormYAML,
-  source?: ClientApplicationForm
+  source?: ClientApplicationForm,
+  name?: string
 ): ClientApplicationForm => {
   const properties = importMetadataItemFromYAML({
     context,
     yaml: data,
     rule: ClientApplicationFormRules,
     source,
+    name,
   })
 
   if (properties == undefined) throw new Error("Properties are required")

@@ -21,6 +21,7 @@ describe("import MetadataDataProcessor from YAML", () => {
       yaml: minimalYAML,
       name: "ОбработкаПоУмолчанию",
     })
-    expect(result).toEqual(minimal)
+    const { synonym: _synonym, ...expected } = minimal
+    expect(result).toEqual(expected)
   })
 })

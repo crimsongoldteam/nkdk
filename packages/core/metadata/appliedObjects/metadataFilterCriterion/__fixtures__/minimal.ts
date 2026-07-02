@@ -7,5 +7,4 @@ export const minimal: MetadataFilterCriterion = {
 }
 
 export const minimalYAML: MetadataFilterCriterionYAML = {
-  Синоним: "Критерий отбора по умолчанию",
 }

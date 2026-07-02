@@ -19,7 +19,8 @@ describe("import MetadataConstant from YAML", () => {
 
   it("imports minimal fixture", () => {
     const result = testImportPropertyFromYAML({ rule, value: minimalYAML, name: minimal.name })
-    expect(result).toEqual({ ...minimal, name: undefined })
+    const { synonym: _synonym, ...expected } = minimal
+    expect(result).toEqual({ ...expected, name: undefined })
   })
 
 })

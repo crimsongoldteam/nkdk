@@ -20,7 +20,8 @@ describe("import MetadataWSReference from YAML", () => {
 
   it("imports minimal fixture", () => {
     const result = testImportPropertyFromYAML({ rule, value: minimalYAML, name: minimal.name })
-    expect(result).toEqual({ ...minimal, name: undefined, internalInfo: undefined })
+    const { synonym: _synonym, ...expected } = minimal
+    expect(result).toEqual({ ...expected, name: undefined, internalInfo: undefined })
   })
 
   it("round-trip: full — import затем export даёт тот же YAML (parsed)", () => {

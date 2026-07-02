@@ -80,7 +80,7 @@ describe("convertAppliedObjectFromXML — MetadataSubsystem", () => {
         join(outputDir, "Администрирование", "Подсистемы", "НастройкиПрограммы", "Свойства.yaml"),
         "utf-8"
       )
-    ).toContain("Синоним: Настройки программы")
+    ).not.toContain("Синоним: Настройки программы")
     const yaml = fs.readFileSync(
       join(outputDir, "Администрирование", "Подсистемы", "НастройкиПрограммы", "Свойства.yaml"),
       "utf-8"

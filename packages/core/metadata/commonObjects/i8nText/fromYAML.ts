@@ -31,7 +31,7 @@ export const importI8nTextFromYAML: ImportFromYAMLFunctionNew = (params: {
   if (Object.keys(result.items).length === 0) return undefined
 
   if (i8nRule.excludeIfEqualNameYAML) {
-    if (name === undefined) throw new Error("name is required for excludeIfEqualNameYAML")
+    if (name === undefined) return result
     if (source !== undefined && source.items[context.defaultLanguage] === undefined) return result
     return addDefaultLanguageNameToSynonym(context, result, name)
   }

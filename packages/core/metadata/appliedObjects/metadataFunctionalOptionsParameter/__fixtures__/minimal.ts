@@ -8,6 +8,5 @@ export const minimal: MetadataFunctionalOptionsParameter = {
 }
 
 export const minimalYAML: MetadataFunctionalOptionsParameterYAML = {
-  Синоним: "Параметр функциональных опций по умолчанию",
   Использование: ["Справочник.СправочникВладелец"],
 }

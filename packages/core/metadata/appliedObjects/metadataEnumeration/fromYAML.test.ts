@@ -21,7 +21,8 @@ describe("import MetadataEnumeration from YAML", () => {
 
   it("imports minimal fixture", () => {
     const result = importMetadataEnumerationFromYAML(mockContext, minimalYAML, "ПеречислениеПоУмолчанию")
-    expect(result).toEqual(minimal)
+    const { synonym: _synonym, ...expected } = minimal
+    expect(result).toEqual(expected)
   })
 
   it("round-trip: full — import затем export даёт тот же YAML (parsed)", () => {
@@ -31,6 +32,23 @@ describe("import MetadataEnumeration from YAML", () => {
       data: imported,
     })
     expect(exported).toEqual(fullYAML)
+  })
+
+  it("omits enum value synonym equal to the value name", () => {
+    const exported = testExportAppliedObjectToYAML({
+      rule: MetadataEnumerationRules,
+      data: {
+        name: "ABCКлассификация",
+        enumValues: [
+          {
+            name: "ЗначениеA",
+            synonym: { items: { ru: "Значение A" } },
+          },
+        ],
+      },
+    })
+
+    expect(exported).toEqual({ Значения: { ЗначениеA: {} } })
   })
 
   it("accepts enum values whose name is taken from the YAML key in JSON Schema", () => {

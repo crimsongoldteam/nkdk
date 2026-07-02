@@ -38,6 +38,7 @@ describe("MetadataLanguageRules", () => {
         yaml: "Синоним",
         xmlParents: ["Properties"],
         defaultValueXMLRaw: "",
+        excludeIfEqualNameYAML: true,
       },
       comment: {
         type: "string",

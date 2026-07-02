@@ -10,7 +10,6 @@ export const minimal: MetadataCommonAttribute = {
 }
 
 export const minimalYAML: MetadataCommonAttributeYAML = {
-  Синоним: "Общий реквизит по умолчанию",
   Тип: "Строка(10)",
   ЗначениеЗаполнения: explicitYAMLString(""),
 }

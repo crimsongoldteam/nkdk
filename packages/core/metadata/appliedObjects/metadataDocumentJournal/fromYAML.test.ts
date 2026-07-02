@@ -12,7 +12,12 @@ describe("import MetadataDocumentJournal from YAML", () => {
       yaml: fullYAML,
       name: "ЖурналДокументовВсеСвойства",
     })
-    expect(result).toEqual(full)
+    expect(result).toEqual({
+      ...full,
+      columns: full.columns?.map((column) =>
+        column.name === "ГрафаПоУмолчанию" ? { ...column, synonym: undefined } : column
+      ),
+    })
   })
 
   it("should import minimal", () => {
@@ -21,6 +26,7 @@ describe("import MetadataDocumentJournal from YAML", () => {
       yaml: minimalYAML,
       name: "ЖурналДокументовПоУмолчанию",
     })
-    expect(result).toEqual(minimal)
+    const { synonym: _synonym, ...expected } = minimal
+    expect(result).toEqual(expected)
   })
 })
