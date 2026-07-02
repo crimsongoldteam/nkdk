@@ -142,10 +142,17 @@ function runSecondPass(message: Extract<ValidationWorkerMessage, { kind: "second
   diagnostics: Diagnostic[]
   timing: {
     contextMs: number
+    referenceValidationMs: number
     validationMs: number
     fileCount: number
     supplementRecords: number
     supplementFilePaths: number
+    referenceHits: number
+    referenceMisses: number
+    referenceFallbacks: number
+    snapshotBytes: number
+    pendingReferences: number
+    memberIndexEntries: number
   }
   profile?: WorkerSecondPassProfile
 } {
@@ -166,13 +173,14 @@ function runSecondPass(message: Extract<ValidationWorkerMessage, { kind: "second
     ownerCache,
     yamlCache: cache,
   })
-  const validationStartedAt = performance.now()
+  const referenceStartedAt = performance.now()
   const referenceResult = validatePendingReferences({
     snapshot: message.referenceSnapshot,
     references: message.pendingReferences,
     resolver: metadataResolver,
   })
   diagnostics.push(...referenceResult.diagnostics)
+  const validationStartedAt = performance.now()
 
   for (const filePath of message.filePaths) {
     const state = workerState.states.get(resolve(filePath))
@@ -194,11 +202,18 @@ function runSecondPass(message: Extract<ValidationWorkerMessage, { kind: "second
   return {
     diagnostics,
     timing: {
-      contextMs: validationStartedAt - contextStartedAt,
+      contextMs: referenceStartedAt - contextStartedAt,
+      referenceValidationMs: validationStartedAt - referenceStartedAt,
       validationMs: performance.now() - validationStartedAt,
       fileCount: message.filePaths.length,
       supplementRecords: message.objectTable.records.length,
       supplementFilePaths: message.objectTable.filePaths.length,
+      referenceHits: referenceResult.hits,
+      referenceMisses: referenceResult.misses,
+      referenceFallbacks: referenceResult.fallbacks,
+      snapshotBytes: message.referenceSnapshot.stats.snapshotBytes,
+      pendingReferences: message.pendingReferences.length,
+      memberIndexEntries: message.referenceSnapshot.stats.memberEntries,
     },
     ...(profile === undefined ? {} : { profile: profile.snapshot() }),
   }

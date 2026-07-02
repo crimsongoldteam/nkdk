@@ -38,10 +38,17 @@ export interface SecondPassPoolResult {
 
 interface WorkerSecondPassTiming {
   contextMs: number
+  referenceValidationMs: number
   validationMs: number
   fileCount: number
   supplementRecords: number
   supplementFilePaths: number
+  referenceHits: number
+  referenceMisses: number
+  referenceFallbacks: number
+  snapshotBytes: number
+  pendingReferences: number
+  memberIndexEntries: number
 }
 
 interface WorkerSecondPassProfile {
@@ -198,16 +205,49 @@ function logSecondPassTiming(results: Array<{ index: number; timing?: WorkerSeco
         `supplementRecords=${result.timing.supplementRecords}`,
         `supplementFilePaths=${result.timing.supplementFilePaths}`,
         `context=${result.timing.contextMs.toFixed(2)}ms`,
+        `referenceValidation=${result.timing.referenceValidationMs.toFixed(2)}ms`,
+        `referenceHits=${result.timing.referenceHits}`,
+        `referenceMisses=${result.timing.referenceMisses}`,
+        `referenceFallbacks=${result.timing.referenceFallbacks}`,
+        `snapshotBytes=${result.timing.snapshotBytes}`,
         `validation=${result.timing.validationMs.toFixed(2)}ms`,
       ].join(" ")
     )
   }
 }
 
-function logSecondPassProfile(results: Array<{ index: number; profile?: WorkerSecondPassProfile }>): void {
+function logSecondPassProfile(
+  results: Array<{ index: number; timing?: WorkerSecondPassTiming; profile?: WorkerSecondPassProfile }>
+): void {
   if (process.env["NKDK_VALIDATION_PROFILE"] !== "1") return
 
   const summary = new Map<string, { count: number; diagnostics: number; totalMs: number; maxMs: number }>()
+  const references = results.reduce(
+    (total, result) => {
+      const timing = result.timing
+      if (timing === undefined) return total
+      total.hits += timing.referenceHits
+      total.misses += timing.referenceMisses
+      total.fallbacks += timing.referenceFallbacks
+      total.pendingReferences += timing.pendingReferences
+      total.snapshotBytes = Math.max(total.snapshotBytes, timing.snapshotBytes)
+      total.memberIndexEntries = Math.max(total.memberIndexEntries, timing.memberIndexEntries)
+      return total
+    },
+    { hits: 0, misses: 0, fallbacks: 0, snapshotBytes: 0, pendingReferences: 0, memberIndexEntries: 0 }
+  )
+
+  console.error(
+    [
+      "[validation-profile] references second-pass",
+      `hits=${references.hits}`,
+      `misses=${references.misses}`,
+      `fallbacks=${references.fallbacks}`,
+      `snapshotBytes=${references.snapshotBytes}`,
+      `pending=${references.pendingReferences}`,
+      `entries=${references.memberIndexEntries}`,
+    ].join(" ")
+  )
 
   for (const result of results) {
     if (result.profile === undefined) continue

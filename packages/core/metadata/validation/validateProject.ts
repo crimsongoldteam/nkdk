@@ -86,6 +86,7 @@ function validateProjectInProcess(params: ValidateProjectParams): ValidateProjec
       references: referenceSnapshot.pendingReferences,
       resolver: metadataResolver,
     })
+    logInProcessReferenceProfile({ snapshot: referenceSnapshot, result: referenceResult })
     diagnostics.push(...referenceResult.diagnostics)
   }
 
@@ -251,6 +252,25 @@ function diagnosticKey(diagnostic: Diagnostic): string {
     diagnostic.path ?? "",
     diagnostic.message,
   ].join("\0")
+}
+
+function logInProcessReferenceProfile(params: {
+  snapshot: ReturnType<typeof createProjectReferenceSnapshot>
+  result: ReturnType<typeof validatePendingReferences>
+}): void {
+  if (process.env["NKDK_VALIDATION_PROFILE"] !== "1") return
+
+  console.error(
+    [
+      "[validation-profile] references second-pass",
+      `hits=${params.result.hits}`,
+      `misses=${params.result.misses}`,
+      `fallbacks=${params.result.fallbacks}`,
+      `snapshotBytes=${params.snapshot.stats.snapshotBytes}`,
+      `pending=${params.snapshot.stats.pendingReferences}`,
+      `entries=${params.snapshot.stats.memberEntries}`,
+    ].join(" ")
+  )
 }
 
 function defaultValidationContext(): ConfigurationContext {
