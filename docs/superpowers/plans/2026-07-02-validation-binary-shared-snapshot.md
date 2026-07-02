@@ -1103,7 +1103,7 @@ git commit -m "perf: :zap: профилировать бинарный shared ow
 **Files:**
 - Modify only if verification exposes a bug.
 
-- [ ] **Step 1: Run full project tests**
+- [x] **Step 1: Run full project tests**
 
 Run:
 
@@ -1117,7 +1117,7 @@ Expected:
 - cli tests pass;
 - mcp tests pass.
 
-- [ ] **Step 2: Check git status**
+- [x] **Step 2: Check git status**
 
 Run:
 
@@ -1127,7 +1127,7 @@ git status --short
 
 Expected: no uncommitted changes, or only the plan checkbox updates from this verification task.
 
-- [ ] **Step 3: Commit final plan checkbox update if needed**
+- [x] **Step 3: Commit final plan checkbox update if needed**
 
 If only this plan changed, run:
 
@@ -1144,5 +1144,5 @@ Expected: commit created, or skip if the tree is clean.
 
 - Keep `NKDK_VALIDATION_SHARED_SECOND_PASS` opt-in until the profile proves the binary owner snapshot is faster.
 - Do not move parsed YAML, imported full model, or `ProjectValidationFileState` into shared memory.
-- If a real validation error shows that a data path needs extra `model` data, add a narrow binary fact for that query instead of storing the whole model.
+- Full validation showed that data path resolvers still read `owner.model` through extension points; binary owners therefore keep the owner model as a lazily decoded string in the shared string pool.
 - If table source columns fail in full validation, extend `FIELD_INTS` to include real `columnStart/columnCount` and update the tests before changing production behavior.
