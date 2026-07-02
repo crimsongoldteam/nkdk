@@ -22,14 +22,15 @@ parseMetadataTargetFromModel
   -> resolveMemberSegments / registered member resolvers
 ```
 
-В `first pass` проект уже импортирует модели владельцев и строит `fieldIndex`. Эти данные попадают в `ValidationObjectTable`, поэтому на `second pass` можно построить worker-local индекс members без повторного чтения YAML.
+В `first pass` проект уже читает YAML, валидирует структуру, импортирует модели владельцев и строит `fieldIndex`. Это лучший момент, чтобы сразу построить "оглавление" members для каждого объекта и собрать список ссылок, которые потом нужно проверить.
 
 ## Goal
 
-Кардинально ускорить validation больших member-ссылок за счёт индекса:
+Кардинально ускорить validation больших member-ссылок за счёт двух результатов `first pass`:
 
 ```text
 canonical member target -> MetadataResolveResult
+pending reference -> где ссылка находится и как её проверить
 ```
 
 Решение должно:
@@ -37,26 +38,43 @@ canonical member target -> MetadataResolveResult
 - работать для всех правил через общий `ProjectMetadataResolver`, а не через частные условия для `ФункциональнаяОпция` или `КритерийОтбора`;
 - не менять формат YAML, canonical target и diagnostics;
 - не менять `rules.ts`;
-- использовать уже построенные данные `ValidationObjectTable` и `OwnerMetadata`;
+- использовать уже разобранный YAML и построенные модели во время `first pass`;
+- во `second pass` проверять готовые `pendingReferences`, а не заново обходить каждую модель;
 - сохранять старый resolver как запасной путь для непокрытых случаев;
-- дать профиль по времени построения индекса, числу entries, hit/miss/запасных проходов.
+- дать профиль по числу index entries, pending references, размеру snapshot, hit/miss/запасных проходов.
 
 ## Proposed Approach
 
-Добавить worker-local `ProjectMemberIndex`, который строится один раз в `runSecondPass` после сборки `supplementedTable`.
+Добавить два новых результата `first pass`:
+
+- `memberIndexEntries`: что существует в данном YAML-файле;
+- `pendingReferences`: какие metadataTarget-ссылки нужно проверить после того, как известен весь проект.
+
+Главный поток после `first pass` склеивает результаты worker-ов в общий snapshot и передаёт его во `second pass`. Worker-ы второго прохода проверяют ссылки lookup-ом по готовому индексу.
 
 Новый поток:
 
 ```text
-runSecondPass
-  -> createValidationObjectTable(...)
-  -> createOwnerMetadataCacheFromValidationTable(...)
-  -> createProjectMemberIndex(...)
-  -> createProjectMetadataResolverFromValidationTable({ memberIndex })
-  -> validateProjectFileSecondPass(...)
+first pass worker
+  -> read YAML
+  -> schema validation
+  -> import model
+  -> build fieldIndex
+  -> build memberIndexEntries for this owner
+  -> collect pendingReferences from this model
+
+main thread
+  -> merge objectRecords
+  -> merge memberIndexEntries into ProjectMemberIndexSnapshot
+  -> partition pendingReferences
+
+second pass worker
+  -> receive ProjectMemberIndexSnapshot
+  -> validate assigned pendingReferences by lookup
+  -> fallback to ProjectMetadataResolver only for uncovered cases
 ```
 
-`ProjectMetadataResolver.resolveMember` сначала спрашивает индекс. Если индекс возвращает результат, resolver отдаёт его сразу. Если индекс не умеет такой target или не может безопасно ответить, resolver идёт старым путём.
+`ProjectMetadataResolver.resolveMember` остаётся запасным механизмом и используется для непокрытых случаев, partial validation и совместимости старого потока. Для full validation горячий путь больших коллекций должен идти через `pendingReferences -> ProjectMemberIndexSnapshot`.
 
 ## Member Index Contract
 
@@ -86,6 +104,24 @@ getProjectMemberIndexContributors()
 
 Существующие registered resolvers остаются источником поведения для точечного запасного пути. Contributors добавляются там же, где сейчас регистрируются member resolvers, например в `metadataTargetProjectResolvers/register.ts`.
 
+## Pending Reference Contract
+
+`pendingReferences` должны быть компактными. Не нужно переносить модель или весь YAML.
+
+```ts
+export interface PendingMetadataTargetReference {
+  filePath: string
+  yamlPath: YamlPath
+  canonical: string
+  target: ParsedMetadataTarget
+  constraint: MetadataTargetConstraintSnapshot
+}
+```
+
+`constraint` должен быть пригоден для structured clone. Если полный `MetadataTargetConstraint` содержит лишние поля или функции, нужно передавать компактный снимок только с тем, что нужно для проверки: `kind`, `filters`, разрешённые roots/path restrictions и режим owner.
+
+Первый этап может собирать pending references только для full validation. Partial validation может остаться на старом resolver-пути, потому что там важнее корректная дозагрузка зависимостей.
+
 ## Indexed Members
 
 Первый этап индекса должен покрыть основные горячие виды:
@@ -107,7 +143,7 @@ getProjectMemberIndexContributors()
 member|<canonical member target>
 ```
 
-Filters не входят в сам индекс. Lookup получает `target` и `filters`:
+Filters не входят в сам индекс. Lookup получает `target` и `filters` из pending reference:
 
 1. Если filters отсутствуют, можно вернуть indexed result сразу.
 2. Если filters есть и result успешный, нужно применить тот же `applyMetadataTargetFilters`, что использует старый resolver.
@@ -129,46 +165,101 @@ Filters не входят в сам индекс. Lookup получает `targe
 
 ## Data Flow Details
 
-### Build
+### First Pass Build
 
-`createProjectMemberIndex` принимает:
+`validateProjectFileFirstPass` после успешного импорта модели возвращает:
 
-- `projectDir`;
-- `ValidationObjectTable`;
-- `OwnerMetadataCache`;
-- `hasFile`.
+- `objectRecords`, как сейчас;
+- `memberIndexEntries`;
+- `pendingReferences`.
 
-Он проходит по object records из table, получает owner через `ownerCache.get(record.ownerRef)`, пропускает неуспешные owners и передаёт успешные owners всем contributors.
+`memberIndexEntries` строятся из уже доступных данных owner-а:
+
+- `fieldIndex`;
+- модель владельца;
+- физические соседние файлы, если contributor может проверить их дёшево и безопасно.
+
+`pendingReferences` собираются тем же обходом правил, который сейчас выполняет metadata target validation, но вместо немедленного `resolver.resolveMember` он записывает задачу проверки.
 
 Для каждого entry:
 
 - строится canonical key;
-- если ключ ещё не занят, entry кладётся в map;
+- если ключ ещё не занят, entry попадает в snapshot;
 - если ключ конфликтует, индекс хранит ambiguous marker или не индексирует ключ, чтобы старый resolver сохранил текущую диагностику.
 
-### Resolve
+### Merge
 
-`ProjectMetadataResolver` получает необязательный `memberIndex`.
+Главный поток после `runFirstPass` объединяет:
 
-В `resolveMember(params)`:
+- `ValidationObjectRecord[]`;
+- `ProjectMemberIndexEntry[]`;
+- `PendingMetadataTargetReference[]`.
 
-1. Проверить resolver cache.
-2. Если есть `memberIndex`, вызвать `memberIndex.resolve(params)`.
-3. Если result не `undefined`, сохранить его в resolver cache и вернуть.
-4. Иначе выполнить старую `resolveMemberUncached`.
+Склейка индекса остаётся последовательной, но она должна быть короткой: это вставка уже готовых entries в `Map` и построение компактного snapshot для worker-ов.
 
-Resolver cache остаётся полезным поверх индекса: он кэширует diagnostics, filters и результаты старого resolver-а.
+### Second Pass Resolve
+
+Worker второго прохода получает:
+
+- общий `ProjectMemberIndexSnapshot`;
+- свою часть `pendingReferences`;
+- `objectTable` для запасного resolver-а.
+
+Основной путь:
+
+1. Взять pending reference.
+2. Если target не `member`, проверить через соответствующий индекс/старый resolver.
+3. Для member target сделать lookup в `ProjectMemberIndexSnapshot`.
+4. Если найдено и filters применимы, ссылка валидна.
+5. Если не найдено или случай не покрыт индексом, вызвать старый `ProjectMetadataResolver`.
+
+Resolver cache остаётся полезным для запасного пути: он кэширует diagnostics, filters и результаты старого resolver-а.
+
+## Parallelism
+
+Параллелятся две тяжёлые фазы:
+
+1. `first pass`: чтение YAML, schema validation, импорт модели, построение local member entries и pending references.
+2. `second pass`: проверка pending references по готовому индексу.
+
+Не параллелится только склейка общего snapshot между проходами. Она должна быть быстрой и измеряемой.
+
+`pendingReferences` нужно делить между worker-ами отдельно от файлов. Для равномерности лучше делить по количеству references, а не по количеству YAML-файлов: один файл функциональной опции может содержать сильно больше ссылок, чем обычный объект.
+
+## Memory Model
+
+Первый этап использует обычный cloneable snapshot, без `SharedArrayBuffer`.
+
+Память будет расходоваться на:
+
+- `memberIndexEntries`: что существует;
+- `pendingReferences`: что нужно проверить;
+- копии snapshot в worker-ах второго прохода.
+
+Чтобы удержать память:
+
+- `details` в index entry должны быть компактными и хранить только данные, нужные для filters и diagnostics;
+- повторяющиеся строки `filePath`, `kind`, `memberKind`, `typeInfo` желательно кодировать id внутри snapshot;
+- `pendingReferences` не должны хранить model/raw YAML;
+- профиль должен показывать число entries/references и примерный размер сериализованного snapshot.
+
+`SharedArrayBuffer` не входит в первый этап. Он может стать отдельным вторым этапом только если замеры покажут, что копирование snapshot в worker-ы стало главным ограничением. Готовой надёжной JS `Map`-структуры поверх `SharedArrayBuffer` для этого места не закладываем; если понадобится, это будет отдельный бинарный read-only индекс.
 
 ## Profiling
 
 Добавить профильные строки при `NKDK_VALIDATION_PROFILE=1`:
 
 ```text
-[validation-profile] member-index build entries=<n> owners=<n> skipped=<n> conflicts=<n> ms=<n>
-[validation-profile] member-index lookup hits=<n> misses=<n> fallbacks=<n>
+[validation-profile] references first-pass entries=<n> pending=<n> conflicts=<n> bytes=<n> ms=<n>
+[validation-profile] references second-pass hits=<n> misses=<n> fallbacks=<n> diagnostics=<n> ms=<n>
 ```
 
-В `runSecondPass` timing можно добавить `memberIndexMs`, чтобы видеть стоимость подготовки отдельно от `validationMs`.
+В timing стоит добавить:
+
+- `referenceBuildMs` для first pass;
+- `referenceMergeMs` для главного потока;
+- `referenceValidationMs` для second pass;
+- `snapshotBytes` как приблизительный размер передаваемых данных.
 
 ## Success Criteria
 
@@ -177,8 +268,9 @@ Resolver cache остаётся полезным поверх индекса: о
 - `summary: 0 error, 0 warning`;
 - `pnpm test` проходит полностью;
 - `properties:ФункциональнаяОпция + properties:КритерийОтбора` падают заметно сильнее текущих `35.23s`;
-- `second pass validation` уменьшается сильнее стоимости `memberIndex build`;
-- профиль показывает высокий hit rate на member-index для больших коллекций.
+- `second pass validation` уменьшается сильнее стоимости сборки/передачи snapshot;
+- профиль показывает высокий hit rate на member-index для больших коллекций;
+- `snapshotBytes` и память worker-ов остаются приемлемыми для текущего проекта.
 
 Целевой ориентир для первой реализации: снизить сумму `ФункциональнаяОпция + КритерийОтбора` хотя бы в 2 раза. Если индекс покрывает большинство ссылок, ожидаемый выигрыш может быть больше.
 
@@ -198,7 +290,7 @@ Resolver cache остаётся полезным поверх индекса: о
 
 ### Память
 
-Индекс хранится на worker second pass и ограничен числом members в проекте. Для большого проекта это заметная, но контролируемая плата за ускорение. Нужно вывести `entries` в профиль и смотреть на рост памяти косвенно через `user/sys` и стабильность процесса.
+Обычный snapshot будет скопирован в worker-ы. Это осознанное упрощение первого этапа. Нужно измерить `snapshotBytes`, число entries и число pending references. Если копирование станет главным ограничением, отдельно проектировать `SharedArrayBuffer`-индекс.
 
 ### Filters
 
@@ -211,3 +303,4 @@ Member filters должны применяться так же, как в ста
 - Не менять parser metadata target.
 - Не убирать текущий resolver cache.
 - Не делать глобальный кэш между запусками.
+- Не использовать `SharedArrayBuffer` в первом этапе.
