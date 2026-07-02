@@ -1,6 +1,12 @@
-import type { StructuralReferencesFunction, ValidateMetadataTargetFunction } from "../../orchestration/property/fn"
+import type {
+  CollectMetadataTargetReferencesFunction,
+  PendingMetadataTargetReferenceCandidate,
+  StructuralReferencesFunction,
+  ValidateMetadataTargetFunction,
+} from "../../orchestration/property/fn"
 import { registerTypeRule } from "../../orchestration/property/typeRuleRegistry"
 import * as SE from "../../systemEnumerations/types"
+import type { Diagnostic } from "../../validation/types"
 import { diagnosticAtYamlPath } from "../../validation/yamlLocations"
 import { parseMetadataTargetFromModel } from "./parse"
 import type { StyleItemTargetType } from "./types"
@@ -91,6 +97,40 @@ const collectMetadataValueReference: StructuralReferencesFunction = (params) => 
   ]
 }
 
+const collectStringTargetForValidation: CollectMetadataTargetReferencesFunction = (params) => {
+  if (typeof params.value !== "string" || params.value === "") return { references: [], diagnostics: [] }
+  if (params.propRule.type === "string" && params.propRule.metadataTarget?.kind !== "member") {
+    return { references: [], diagnostics: [] }
+  }
+  return collectCanonicalTarget(params, params.value)
+}
+
+const collectStringTargetListForValidation: CollectMetadataTargetReferencesFunction = (params) => {
+  if (!Array.isArray(params.value)) return { references: [], diagnostics: [] }
+
+  const references: PendingMetadataTargetReferenceCandidate[] = []
+  const diagnostics: Diagnostic[] = []
+  for (const [index, value] of params.value.entries()) {
+    const result = collectStringTargetForValidation({
+      ...params,
+      value,
+      yamlPath: [...params.yamlPath, index],
+    })
+    references.push(...result.references)
+    diagnostics.push(...result.diagnostics)
+  }
+  return { references, diagnostics }
+}
+
+const collectMetadataValueTargetForValidation: CollectMetadataTargetReferencesFunction = (params) => {
+  if (!isRecord(params.value) || params.value.type !== "ref" || typeof params.value.value !== "string") {
+    return { references: [], diagnostics: [] }
+  }
+  if (params.value.value === "" || isDesignTimeRefUuid(params.value.value)) return { references: [], diagnostics: [] }
+
+  return collectCanonicalTarget(params, params.value.value)
+}
+
 const validateColorTarget: ValidateMetadataTargetFunction = (params) => {
   if (!isRecord(params.value) || params.value.type !== "StyleItem" || typeof params.value.value !== "string") return []
   if (isKnownStyleColor(params.value.value)) return []
@@ -167,6 +207,43 @@ function validateCanonicalTarget(
   return resolveParsedTarget({ constraint, parsed: parsed.target, resolver: params.resolver })
 }
 
+function collectCanonicalTarget(
+  params: Parameters<CollectMetadataTargetReferencesFunction>[0],
+  value: string
+): ReturnType<CollectMetadataTargetReferencesFunction> {
+  const constraint = params.propRule.metadataTarget
+  if (!constraint) return { references: [], diagnostics: [] }
+
+  const parsed = parseMetadataTargetFromModel({ canonical: value, constraint, owner: params.owner })
+  if (!parsed.ok) {
+    return {
+      references: [],
+      diagnostics: [
+        diagnosticAtYamlPath({
+          filePath: params.filePath,
+          parsed: params.parsed,
+          path: params.yamlPath,
+          source: "structure",
+          severity: "error",
+          message: parsed.message,
+        }),
+      ],
+    }
+  }
+
+  return {
+    references: [
+      {
+        yamlPath: params.yamlPath,
+        canonical: parsed.canonical,
+        target: parsed.target,
+        constraint,
+      },
+    ],
+    diagnostics: [],
+  }
+}
+
 function resolveParsedTarget(params: {
   constraint: MetadataTargetConstraint
   parsed: ParsedMetadataTarget
@@ -230,6 +307,13 @@ registerTypeRule("MetadataField", "validateMetadataTarget", validateStringTarget
 registerTypeRule("MetadataFields", "validateMetadataTarget", validateStringTargetList)
 registerTypeRule("MetadataObjectRefCollection", "validateMetadataTarget", validateStringTargetList)
 registerTypeRule("MetadataValue", "validateMetadataTarget", validateMetadataValueTarget)
+registerTypeRule("MetadataItemLink", "collectMetadataTargetReferences", collectStringTargetForValidation)
+registerTypeRule("string", "collectMetadataTargetReferences", collectStringTargetForValidation)
+registerTypeRule("MetadataItemLinks", "collectMetadataTargetReferences", collectStringTargetListForValidation)
+registerTypeRule("MetadataField", "collectMetadataTargetReferences", collectStringTargetForValidation)
+registerTypeRule("MetadataFields", "collectMetadataTargetReferences", collectStringTargetListForValidation)
+registerTypeRule("MetadataObjectRefCollection", "collectMetadataTargetReferences", collectStringTargetListForValidation)
+registerTypeRule("MetadataValue", "collectMetadataTargetReferences", collectMetadataValueTargetForValidation)
 registerTypeRule("MetadataItemLink", "structuralReferences", collectStringTargetReference)
 registerTypeRule("string", "structuralReferences", collectStringTargetReference)
 registerTypeRule("MetadataItemLinks", "structuralReferences", collectStringTargetReferenceList)

@@ -4,7 +4,7 @@ import {
   ConfigurationContextFromXML,
   ConfigurationContextWithExportToXML,
 } from "../../context/types"
-import type { MetadataTargetOwner } from "../../commonObjects/metadataTargets"
+import type { MetadataTargetConstraint, MetadataTargetOwner, ParsedMetadataTarget } from "../../commonObjects/metadataTargets"
 import type { ProjectMetadataResolver } from "../../validation/projectMetadataResolver"
 import type { Diagnostic } from "../../validation/types"
 import type { YamlPath } from "../../validation/yamlLocations"
@@ -88,6 +88,26 @@ export type ValidateMetadataTargetFunction = (params: {
   resolver: ProjectMetadataResolver
   owner?: MetadataTargetOwner
 }) => Diagnostic[]
+
+export interface PendingMetadataTargetReferenceCandidate {
+  yamlPath: YamlPath
+  canonical: string
+  target: ParsedMetadataTarget
+  constraint: MetadataTargetConstraint
+}
+
+export type CollectMetadataTargetReferencesFunction = (params: {
+  filePath: string
+  parsed: ParsedYaml
+  yamlPath: YamlPath
+  propRule: PropertyRule
+  propertyName: string
+  value: unknown
+  owner?: MetadataTargetOwner
+}) => {
+  references: PendingMetadataTargetReferenceCandidate[]
+  diagnostics: Diagnostic[]
+}
 
 export interface StructuralReferenceCandidate {
   yamlPath: YamlPath
@@ -240,6 +260,7 @@ export interface TypeRule {
   syncExternalFromXML?: SyncExternalFromXMLFunction
   syncExternalToXML?: SyncExternalToXMLFunction
   validateMetadataTarget?: ValidateMetadataTargetFunction
+  collectMetadataTargetReferences?: CollectMetadataTargetReferencesFunction
   structuralReferences?: StructuralReferencesFunction
   projectResources?: ProjectResourcesFunction
   xmlSyncRoutes?: XmlSyncRoutesFunction
@@ -258,6 +279,7 @@ export type TypeRulesOperations =
   | "syncExternalFromXML"
   | "syncExternalToXML"
   | "validateMetadataTarget"
+  | "collectMetadataTargetReferences"
   | "structuralReferences"
   | "projectResources"
   | "xmlSyncRoutes"
@@ -289,14 +311,16 @@ export type importExportFunction<O extends TypeRulesOperations> = O extends "imp
                   ? SyncExternalToXMLFunction | undefined
                   : O extends "validateMetadataTarget"
                     ? ValidateMetadataTargetFunction | undefined
-                    : O extends "structuralReferences"
-                      ? StructuralReferencesFunction | undefined
-                      : O extends "projectResources"
-                        ? ProjectResourcesFunction | undefined
-                        : O extends "xmlSyncRoutes"
-                          ? XmlSyncRoutesFunction | undefined
-                          : O extends "fileChildNamesDescriptor"
-                            ? FileChildNamesDescriptorFunction | undefined
-                            : O extends "xmlSyncWriter"
-                              ? XmlSyncWriterFunction | undefined
-                              : never
+                    : O extends "collectMetadataTargetReferences"
+                      ? CollectMetadataTargetReferencesFunction | undefined
+                      : O extends "structuralReferences"
+                        ? StructuralReferencesFunction | undefined
+                        : O extends "projectResources"
+                          ? ProjectResourcesFunction | undefined
+                          : O extends "xmlSyncRoutes"
+                            ? XmlSyncRoutesFunction | undefined
+                            : O extends "fileChildNamesDescriptor"
+                              ? FileChildNamesDescriptorFunction | undefined
+                              : O extends "xmlSyncWriter"
+                                ? XmlSyncWriterFunction | undefined
+                                : never
