@@ -84,6 +84,26 @@ describe("validateProject", { timeout: 30_000 }, () => {
     )
   }, 30_000)
 
+  it("uses reference index to enqueue missing dependency in partial validation", async () => {
+    const projectDir = createProject()
+    writeProjectFile(projectDir, "Справочник/Товары/Свойства.yaml", "Комментарий: ok")
+    writeProjectFile(projectDir, "Документ/Заказ/Свойства.yaml", [
+      "Реквизиты:",
+      "  Товар:",
+      "    Тип:",
+      "      - СправочникСсылка.Товары",
+    ])
+
+    const result = await validateProject({
+      projectDir,
+      filePath: join(projectDir, "Документ", "Заказ", "Свойства.yaml"),
+      context: mockContext,
+      concurrency: 1,
+    })
+
+    expect(result.diagnostics.filter((diagnostic) => diagnostic.source === "reference")).toEqual([])
+  })
+
   it("concurrency 1 keeps existing project diagnostics", async () => {
     const projectDir = createProject()
     writeProjectFile(projectDir, "Справочник/Товары/Свойства.yaml", [

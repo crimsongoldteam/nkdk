@@ -4,7 +4,7 @@ import { resolve } from "path"
 import type { ConfigurationContext } from "../context/types"
 import { registerCoreMetadata } from "../register"
 import { createOwnerMetadataCacheFromValidationTable } from "./dataPath/ownerCache"
-import { createProjectMetadataResolverFromValidationTable } from "./projectMetadataResolver"
+import { getProjectReferenceObjectPathContributor } from "./projectMetadataResolverRegistry"
 import type {
   PendingMetadataTargetReference,
   ProjectMemberIndexEntry,
@@ -182,18 +182,12 @@ function runSecondPass(message: Extract<ValidationWorkerMessage, { kind: "second
   })
   const cache = createWorkerYamlCache()
   const ownerCache = createOwnerMetadataCacheFromValidationTable({ projectDir: message.projectDir, table: supplementedTable })
-  const metadataResolver = createProjectMetadataResolverFromValidationTable({
-    projectDir: message.projectDir,
-    table: supplementedTable,
-    mode: message.mode,
-    ownerCache,
-    yamlCache: cache,
-  })
   const referenceStartedAt = performance.now()
   const referenceIndex = createProjectReferenceIndex({
     projectDir: message.projectDir,
     mode: message.mode,
     snapshot: message.referenceSnapshot,
+    resolveObjectFilePath: (target) => resolveObjectFilePath({ projectDir: message.projectDir, target }),
   })
   const referenceResult = validatePendingReferencesWithIndex({
     index: referenceIndex,
@@ -212,7 +206,7 @@ function runSecondPass(message: Extract<ValidationWorkerMessage, { kind: "second
       cache,
       context: message.context,
       ownerCache,
-      metadataResolver,
+      referenceIndex,
       skipMetadataTargetValidation: true,
     })
     profile?.record(state, performance.now() - fileStartedAt, second.diagnostics.length)
@@ -241,6 +235,14 @@ function runSecondPass(message: Extract<ValidationWorkerMessage, { kind: "second
     },
     ...(profile === undefined ? {} : { profile: profile.snapshot() }),
   }
+}
+
+function resolveObjectFilePath(params: {
+  projectDir: string
+  target: Parameters<NonNullable<ReturnType<typeof getProjectReferenceObjectPathContributor>>>[0]["target"]
+}): string | undefined {
+  const contributor = getProjectReferenceObjectPathContributor(params.target.root)
+  return contributor?.({ projectDir: params.projectDir, target: params.target })?.filePath
 }
 
 interface WorkerSecondPassProfile {

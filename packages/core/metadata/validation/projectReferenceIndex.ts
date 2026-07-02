@@ -1,9 +1,12 @@
 import type {
+  MetadataObjectPathKind,
+  MetadataRootName,
   MetadataTargetConstraint,
   MetadataTargetFilter,
   MetadataTypeFilterValue,
   ParsedMetadataTarget,
 } from "../commonObjects/metadataTargets"
+import { objectPathKindToYAML, rootToYAML } from "../commonObjects/metadataTargets/roots"
 import type { ValidationDependencyRequest } from "./projectValidationTypes"
 import type { Diagnostic } from "./types"
 import type { YamlPath } from "./yamlLocations"
@@ -89,6 +92,7 @@ export interface ProjectReferenceIndexStats {
 export interface ValidatePendingReferencesWithIndexResult {
   diagnostics: Diagnostic[]
   stats: ProjectReferenceIndexStats
+  firstDependency?: ValidationDependencyRequest
 }
 
 export function projectObjectIndexKey(target: Extract<ParsedMetadataTarget, { kind: "object" }>): string {
@@ -168,6 +172,7 @@ export function createProjectReferenceIndex(params: {
   projectDir: string
   mode: "full" | "partial"
   snapshot: ProjectReferenceSnapshot
+  resolveObjectFilePath?: (target: Extract<ParsedMetadataTarget, { kind: "object" }>) => string | undefined
   resolveProjectFile?: (target: Extract<ParsedMetadataTarget, { kind: "object" }>) => ValidationDependencyRequest | undefined
 }): ProjectReferenceIndex {
   const stats: ProjectReferenceIndexStats = {
@@ -202,17 +207,26 @@ export function validatePendingReferencesWithIndex(params: {
   references: readonly PendingMetadataTargetReference[]
 }): ValidatePendingReferencesWithIndexResult {
   const diagnostics: Diagnostic[] = []
+  let firstDependency: ValidationDependencyRequest | undefined
   for (const reference of params.references) {
     const result = params.index.resolve(reference)
+    if (!result.ok && result.reason === "needsDependency" && firstDependency === undefined) {
+      firstDependency = result.dependency
+    }
     if (!result.ok) diagnostics.push(...result.diagnostics)
   }
-  return { diagnostics, stats: params.index.stats() }
+  return {
+    diagnostics,
+    stats: params.index.stats(),
+    ...(firstDependency === undefined ? {} : { firstDependency }),
+  }
 }
 
 function resolveReference(
   params: {
     mode: "full" | "partial"
     snapshot: ProjectReferenceSnapshot
+    resolveObjectFilePath?: (target: Extract<ParsedMetadataTarget, { kind: "object" }>) => string | undefined
     resolveProjectFile?: (target: Extract<ParsedMetadataTarget, { kind: "object" }>) => ValidationDependencyRequest | undefined
   },
   reference: PendingMetadataTargetReference
@@ -225,6 +239,16 @@ function resolveReference(
         : undefined
     if (dependency !== undefined) {
       return { ok: false, reason: "needsDependency", dependency, diagnostics: [] }
+    }
+    if (reference.target.kind === "object") {
+      const filePath = params.resolveObjectFilePath?.(reference.target)
+      return {
+        ok: false,
+        reason: "notFound",
+        diagnostics: [
+          referenceDiagnostic(reference, `Не найден объект "${formatObjectTarget(reference.target)}"`, filePath),
+        ],
+      }
     }
     return {
       ok: false,
@@ -395,15 +419,31 @@ function lookupEntry(snapshot: ProjectReferenceSnapshot, target: ParsedMetadataT
   return undefined
 }
 
-function referenceDiagnostic(reference: PendingMetadataTargetReference, message: string): Diagnostic {
+function referenceDiagnostic(
+  reference: PendingMetadataTargetReference,
+  message: string,
+  filePath = reference.filePath
+): Diagnostic {
   return {
-    filePath: reference.filePath,
+    filePath,
     line: 1,
     col: 1,
     severity: "error",
     source: "reference",
     message,
   }
+}
+
+function formatObjectTarget(target: Extract<ParsedMetadataTarget, { kind: "object" }>): string {
+  return [
+    rootToYAML[target.root],
+    target.objectName,
+    ...(target.segments ?? []).flatMap((segment) => [objectSegmentKindToYAML(segment.kind), segment.objectName]),
+  ].join(".")
+}
+
+function objectSegmentKindToYAML(kind: MetadataRootName | MetadataObjectPathKind): string {
+  return rootToYAML[kind as MetadataRootName] ?? objectPathKindToYAML[kind as MetadataObjectPathKind]
 }
 
 function uniqueEntries<Entry extends { canonical: string }>(

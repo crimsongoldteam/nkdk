@@ -10,8 +10,7 @@ import { type OwnerMetadata, type OwnerMetadataCache } from "./dataPath/ownerCac
 import { buildObjectFieldIndex, type ObjectField, type ObjectFieldKind } from "./dataPath/objectFields"
 import { validateExcludedEqualNameYAML } from "./excludeIfEqualNameYAML"
 import { getRegisteredFormValidationPasses } from "./formValidationRegistry"
-import { collectMetadataTargetReferencesInModel, validateMetadataTargetsInModel } from "./metadataTargetTraversal"
-import type { ProjectMetadataResolver } from "./projectMetadataResolver"
+import { collectMetadataTargetReferencesInModel } from "./metadataTargetTraversal"
 import { getProjectFileValidators, getProjectMemberIndexContributors } from "./projectMetadataResolverRegistry"
 import {
   projectMemberIndexKey,
@@ -19,7 +18,9 @@ import {
   type PendingMetadataTargetReference,
   type ProjectMemberIndexEntry,
   type ProjectObjectIndexEntry,
+  type ProjectReferenceIndex,
   type ProjectValueIndexEntry,
+  validatePendingReferencesWithIndex,
 } from "./projectReferenceIndex"
 import { exportJSONSchemaForSchemaName } from "./projectFileSchema"
 import type { ValidationProjectFile } from "./projectFiles"
@@ -69,7 +70,7 @@ export interface ProjectValidationSecondPassParams {
   context: ConfigurationContext
   cache: ProjectYamlCache
   ownerCache: OwnerMetadataCache
-  metadataResolver: ProjectMetadataResolver
+  referenceIndex: ProjectReferenceIndex
   skipMetadataTargetValidation?: boolean
 }
 
@@ -161,20 +162,24 @@ export function validateProjectFileSecondPass(
 
   const ownerRoot = rootFromYAML[params.state.file.owner.dir]
   const owner = ownerRoot ? { root: ownerRoot, objectName: params.state.file.owner.name } : undefined
-  const recorder = createDependencyRecordingResolver(params.metadataResolver)
 
-  const diagnostics = params.skipMetadataTargetValidation
-    ? []
-    : validateMetadataTargetsInModel({
+  const collected = params.skipMetadataTargetValidation
+    ? { references: [], diagnostics: [] }
+    : collectMetadataTargetReferencesInModel({
         filePath: params.state.file.absolutePath,
         parsed: params.state.parsed,
         model: params.state.model,
         rule: params.state.file.owner.spec.rule,
-        resolver: recorder.resolver,
         owner,
       })
-  const dependency = recorder.firstDependency()
-  if (dependency !== undefined) return { status: "needsDependency", diagnostics, dependency }
+  const resolved = validatePendingReferencesWithIndex({
+    index: params.referenceIndex,
+    references: collected.references,
+  })
+  const diagnostics = [...collected.diagnostics, ...resolved.diagnostics]
+  if (resolved.firstDependency !== undefined) {
+    return { status: "needsDependency", diagnostics, dependency: resolved.firstDependency }
+  }
   return { status: "ok", diagnostics }
 }
 
@@ -395,8 +400,17 @@ function buildObjectIndexEntry(params: {
   return {
     canonical: projectObjectIndexKey(target),
     target,
-    result: { ok: true, filePath: params.owner.filePath, details: params.owner },
+    result: { ok: true, filePath: params.owner.filePath, details: objectIndexDetails(params.owner) },
   }
+}
+
+function objectIndexDetails(owner: OwnerMetadata): { type?: string } {
+  const type = metadataRecord(owner.model)["type"]
+  return typeof type === "string" ? { type } : {}
+}
+
+function metadataRecord(value: unknown): Record<string, unknown> {
+  return typeof value === "object" && value !== null ? (value as Record<string, unknown>) : {}
 }
 
 function objectTargetForProjectFile(
@@ -510,43 +524,6 @@ function metadataFieldKindFromObjectFieldKind(kind: ObjectFieldKind): MetadataFi
       return "Resource"
     case "addressingAttribute":
       return "AddressingAttribute"
-  }
-}
-
-function createDependencyRecordingResolver(resolver: ProjectMetadataResolver): {
-  resolver: ProjectMetadataResolver
-  firstDependency(): ValidationDependencyRequest | undefined
-} {
-  let dependency: ValidationDependencyRequest | undefined
-
-  function record<T extends ReturnType<ProjectMetadataResolver[keyof ProjectMetadataResolver]>>(result: T): T {
-    if (!result.ok && result.dependency !== undefined && dependency === undefined) {
-      dependency = result.dependency
-    }
-    return result
-  }
-
-  return {
-    resolver: {
-      resolveObject(params) {
-        return record(resolver.resolveObject(params))
-      },
-      resolveMember(params) {
-        return record(resolver.resolveMember(params))
-      },
-      resolveValue(params) {
-        return record(resolver.resolveValue(params))
-      },
-      resolveStyleItem(params) {
-        return record(resolver.resolveStyleItem(params))
-      },
-      resolveCommonPicture(params) {
-        return record(resolver.resolveCommonPicture(params))
-      },
-    },
-    firstDependency() {
-      return dependency
-    },
   }
 }
 

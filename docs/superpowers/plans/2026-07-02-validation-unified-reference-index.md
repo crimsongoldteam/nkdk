@@ -1187,7 +1187,7 @@ pnpm --filter @nakidka/core exec vitest run packages/core/metadata/validation/pr
 
 Expected: PASS.
 
-- [ ] **Step 6: Commit named resource migration**
+- [x] **Step 6: Commit named resource migration**
 
 ```bash
 git add packages/core/metadata/commonObjects/metadataTargets packages/core/metadata/validation/projectReferenceIndex.ts packages/core/metadata/validation/projectValidationPasses.ts packages/core/metadata/validation/projectMetadataResolverRegistry.ts packages/core/metadata/validation/projectReferenceIndex.test.ts packages/core/metadata/validation/metadataTargetTraversal.test.ts
@@ -1203,7 +1203,7 @@ git commit -m "feat: :sparkles: перенести named resources в reference 
 - Test: `packages/core/metadata/validation/validateProject.test.ts`
 - Test: `packages/core/metadata/validation/projectValidationQueue.test.ts`
 
-- [ ] **Step 1: Add partial needsDependency regression test**
+- [x] **Step 1: Add partial needsDependency regression test**
 
 In `validateProject.test.ts`, add:
 
@@ -1230,7 +1230,7 @@ it("uses reference index to enqueue missing dependency in partial validation", a
 
 Use existing helpers in the file; if helper names differ, reuse the local pattern.
 
-- [ ] **Step 2: Change second-pass params**
+- [x] **Step 2: Change second-pass params**
 
 In `projectValidationPasses.ts`, replace:
 
@@ -1246,7 +1246,7 @@ referenceIndex: ProjectReferenceIndex
 
 Remove `createDependencyRecordingResolver()`.
 
-- [ ] **Step 3: Validate collected references through index in second pass**
+- [x] **Step 3: Validate collected references through index in second pass**
 
 In `validateProjectFileSecondPass()`, replace `validateMetadataTargetsInModel()` with:
 
@@ -1279,7 +1279,7 @@ export interface ValidatePendingReferencesWithIndexResult {
 }
 ```
 
-- [ ] **Step 4: Rebuild index after new dependencies are loaded**
+- [x] **Step 4: Rebuild index after new dependencies are loaded**
 
 In `validateProject.ts`, inside the second-pass loop, build `referenceSnapshot` and `referenceIndex` from the current `objectTable.snapshot()` after every `processPendingFirstPasses()` call.
 
@@ -1301,7 +1301,7 @@ function createReferenceIndexFromObjectTable(params: {
 }
 ```
 
-- [ ] **Step 5: Run partial validation tests**
+- [x] **Step 5: Run partial validation tests**
 
 ```bash
 pnpm --filter @nakidka/core exec vitest run packages/core/metadata/validation/validateProject.test.ts packages/core/metadata/validation/projectValidationQueue.test.ts

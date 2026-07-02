@@ -3,7 +3,6 @@ import { existsSync } from "fs"
 import { resolve } from "path"
 import type { ConfigurationContext } from "../context/types"
 import { createOwnerMetadataCacheFromValidationTable } from "./dataPath/ownerCache"
-import { createProjectMetadataResolverFromValidationTable } from "./projectMetadataResolver"
 import { getProjectReferenceObjectPathContributor } from "./projectMetadataResolverRegistry"
 import {
   createProjectReferenceIndex,
@@ -19,6 +18,7 @@ import {
 import { createProjectYamlCacheFromEntries, type ProjectYamlEntry } from "./projectYamlCache"
 import { createValidationObjectTable } from "./projectValidationObjectTable"
 import { createProjectValidationWorkerPool } from "./projectValidationWorkerPool"
+import type { ValidationMode, ValidationObjectTableSnapshot } from "./projectValidationTypes"
 import {
   createValidationSchemaCache,
   readProjectYamlDiagnostic,
@@ -84,6 +84,7 @@ function validateProjectInProcess(params: ValidateProjectParams): ValidateProjec
       projectDir,
       mode: queue.mode,
       snapshot: referenceSnapshot,
+      resolveObjectFilePath: (target) => resolveObjectFilePath({ projectDir, target }),
       resolveProjectFile: (target) => resolveProjectFileDependency({ projectDir, target }),
     })
     const referenceResult = validatePendingReferencesWithIndex({
@@ -106,12 +107,10 @@ function validateProjectInProcess(params: ValidateProjectParams): ValidateProjec
 
       const cache = createProjectYamlCacheFromEntries([...entries.values()])
       const ownerCache = createOwnerMetadataCacheFromValidationTable({ projectDir, table: objectTable })
-      const metadataResolver = createProjectMetadataResolverFromValidationTable({
+      const referenceIndex = createReferenceIndexFromObjectTable({
         projectDir,
-        table: objectTable,
         mode: queue.mode,
-        ownerCache,
-        yamlCache: cache,
+        objectTable: objectTable.snapshot(),
       })
       const second = validateProjectFileSecondPass({
         projectDir,
@@ -119,7 +118,7 @@ function validateProjectInProcess(params: ValidateProjectParams): ValidateProjec
         cache,
         context,
         ownerCache,
-        metadataResolver,
+        referenceIndex,
         skipMetadataTargetValidation,
       })
 
@@ -286,12 +285,39 @@ function resolveProjectFileDependency(params: {
   projectDir: string
   target: Parameters<NonNullable<ReturnType<typeof getProjectReferenceObjectPathContributor>>>[0]["target"]
 }) {
-  const contributor = getProjectReferenceObjectPathContributor(params.target.root)
-  const filePath = contributor?.({ projectDir: params.projectDir, target: params.target })?.filePath
+  const filePath = resolveObjectFilePath(params)
   if (filePath === undefined || !existsSync(filePath)) return undefined
   const file = resolveValidationProjectFile(params.projectDir, filePath)
   if (file === undefined) return undefined
   return { kind: "needsDependency" as const, file, requestedBy: filePath }
+}
+
+function resolveObjectFilePath(params: {
+  projectDir: string
+  target: Parameters<NonNullable<ReturnType<typeof getProjectReferenceObjectPathContributor>>>[0]["target"]
+}): string | undefined {
+  const contributor = getProjectReferenceObjectPathContributor(params.target.root)
+  return contributor?.({ projectDir: params.projectDir, target: params.target })?.filePath
+}
+
+function createReferenceIndexFromObjectTable(params: {
+  projectDir: string
+  mode: ValidationMode
+  objectTable: ValidationObjectTableSnapshot
+}) {
+  const snapshot = createProjectReferenceSnapshot({
+    objectIndexEntries: params.objectTable.objectIndexEntries ?? [],
+    memberIndexEntries: params.objectTable.memberIndexEntries ?? [],
+    valueIndexEntries: params.objectTable.valueIndexEntries ?? [],
+    pendingReferences: params.objectTable.pendingReferences ?? [],
+  })
+  return createProjectReferenceIndex({
+    projectDir: params.projectDir,
+    mode: params.mode,
+    snapshot,
+    resolveObjectFilePath: (target) => resolveObjectFilePath({ projectDir: params.projectDir, target }),
+    resolveProjectFile: (target) => resolveProjectFileDependency({ projectDir: params.projectDir, target }),
+  })
 }
 
 function defaultValidationContext(): ConfigurationContext {
