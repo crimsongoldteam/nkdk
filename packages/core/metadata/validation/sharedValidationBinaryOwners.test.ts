@@ -25,6 +25,10 @@ describe("SharedValidationBinaryOwners", () => {
     expect([...binaryOwner.owner.fieldIndex.standardAttributeAliases.entries()]).toEqual(
       [...regularOwner.owner.fieldIndex.standardAttributeAliases.entries()]
     )
+    const binaryTable = binaryOwner.owner.fieldIndex.fields.get("Товары")
+    const regularTable = regularOwner.owner.fieldIndex.fields.get("Товары")
+    expect(binaryTable).toEqual(regularTable)
+    expect(binaryOwner.owner.model).toEqual(regularOwner.owner.model)
   })
 
   it("returns not-found diagnostics for missing owners", () => {

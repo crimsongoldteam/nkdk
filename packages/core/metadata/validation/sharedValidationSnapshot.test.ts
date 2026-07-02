@@ -28,22 +28,15 @@ describe("SharedValidationSnapshot", () => {
     )
   })
 
-  it("uses binary owner snapshot when NKDK_VALIDATION_SHARED_OWNER_FORMAT=binary", () => {
-    const previous = process.env["NKDK_VALIDATION_SHARED_OWNER_FORMAT"]
-    process.env["NKDK_VALIDATION_SHARED_OWNER_FORMAT"] = "binary"
-    try {
-      const table = createValidationObjectTable({
-        records: [catalogRecord()],
-        filePaths: ["/project/Справочник/Номенклатура/Свойства.yaml"],
-      })
-      const shared = createSharedValidationSnapshot(table.snapshot())
+  it("always uses binary owner snapshot", () => {
+    const table = createValidationObjectTable({
+      records: [catalogRecord()],
+      filePaths: ["/project/Справочник/Номенклатура/Свойства.yaml"],
+    })
+    const shared = createSharedValidationSnapshot(table.snapshot())
 
-      expect(shared.owners.format).toBe("binary")
-      expect(shared.owners.bytes).toBeGreaterThan(0)
-    } finally {
-      if (previous === undefined) delete process.env["NKDK_VALIDATION_SHARED_OWNER_FORMAT"]
-      else process.env["NKDK_VALIDATION_SHARED_OWNER_FORMAT"] = previous
-    }
+    expect(shared.owners.format).toBe("binary")
+    expect(shared.owners.bytes).toBeGreaterThan(0)
   })
 })
 
