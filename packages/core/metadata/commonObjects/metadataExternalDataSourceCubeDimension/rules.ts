@@ -7,7 +7,7 @@ import {
   externalDataSourceFieldBaseProperties,
   externalDataSourceObjectServiceProperties,
 } from "~/metadata/commonObjects/metadataExternalDataSourceField/rules"
-import { MetadataItemRule } from "~/metadata/orchestration/property/types"
+import type { MetadataItemRule } from "~/metadata/orchestration/property/types"
 const propertiesParents = ["Properties"]
 const hasOwnMetadataProperty =
   (propertyKey: string) =>

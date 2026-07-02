@@ -4,7 +4,7 @@ import { registerMetadataItemCollectionRule } from "~/metadata/orchestration/met
 import { exportMetadataCollectionToXML } from "~/metadata/orchestration/metadataCollection/toXML"
 import { exportMetadataCollectionToYAMLAsRecord } from "~/metadata/orchestration/metadataCollection/toYAML"
 import { importPropertyFromXML } from "~/metadata/orchestration/property/fromXML"
-import { PropertyRule } from "~/metadata/orchestration/property/types"
+import type { PropertyRule } from "~/metadata/orchestration/property/types"
 import { MetadataHTTPServiceMethodRules } from "./rules"
 import {
   MetadataHTTPServiceMethodYAML,

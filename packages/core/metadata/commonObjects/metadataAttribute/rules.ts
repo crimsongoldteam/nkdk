@@ -1,7 +1,7 @@
 import { systemEnumerationRule } from "~/metadata/systemEnumerations/types"
 import { addDefaultLanguageNameToSynonym } from "~/metadata/helpers/synonymHelpers"
 import { ConfigurationContext } from "~/metadata/context/types"
-import { MetadataItemRule, PropertyRule } from "~/metadata/orchestration/property/types"
+import type { MetadataItemRule, PropertyRule } from "~/metadata/orchestration/property/types"
 import { uuidPropertyRule } from "~/metadata/commonObjects/uuid/rule"
 const commonAttributeProperties = {
   uuid: uuidPropertyRule,

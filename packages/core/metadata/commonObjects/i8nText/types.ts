@@ -1,8 +1,9 @@
-import { Static, Type } from "@sinclair/typebox"
+import { Type } from "@sinclair/typebox"
+import type { Static } from "@sinclair/typebox"
 import { definePropertyRule, type ExactRuleParams } from "~/metadata/commonObjects/ruleBuilder"
 import { ConfigurationContext } from "~/metadata/context/types"
 import { TypeRulesOperations } from "~/metadata/orchestration"
-import { BasePropertyRule } from "~/metadata/orchestration/property/types"
+import type { BasePropertyRule } from "~/metadata/orchestration/property/types"
 
 export interface I8nText {
   items: Record<string, string>

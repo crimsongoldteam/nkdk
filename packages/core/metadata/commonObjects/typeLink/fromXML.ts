@@ -1,9 +1,9 @@
 import { importNumberFromXML } from "~/metadata/commonObjects/number/fromXML"
-import { PropertyRule } from "~/metadata/orchestration/property/types"
+import type { PropertyRule } from "~/metadata/orchestration/property/types"
 import { registerTypeRule } from "~/metadata/orchestration/property/typeRuleRegistry"
 import { ConfigurationContext } from "../../context/types"
 import { MetadataField } from "../metadataField/types"
-import { TypeLink, TypeLinkXML } from "./types"
+import type { TypeLink, TypeLinkXML } from "./types"
 
 export const importTypeLinkFromXML = (
   _context: ConfigurationContext,

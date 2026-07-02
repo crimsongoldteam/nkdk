@@ -5,7 +5,7 @@ import {
   singleCharacteristic,
   singleCharacteristicYAML,
 } from "./__fixtures__/data"
-import { PropertyRule } from "~/metadata/orchestration/property/types"
+import type { PropertyRule } from "~/metadata/orchestration/property/types"
 import { testExportPropertyToYAML } from "~/tests/property/exportPropertyToYAML"
 
 const rule: PropertyRule = {

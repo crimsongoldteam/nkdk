@@ -1,7 +1,7 @@
-import { PropertyRule } from "~/metadata/orchestration/property/types"
+import type { PropertyRule } from "~/metadata/orchestration/property/types"
 import { registerTypeRule } from "~/metadata/orchestration/property/typeRuleRegistry"
 import { ConfigurationContext } from "../../context/types"
-import { ChoiceParameterLinks, ChoiceParameterLinksYAML } from "./types"
+import type { ChoiceParameterLinks, ChoiceParameterLinksYAML } from "./types"
 
 export const exportChoiceParameterLinksToYAML = (
   _context: ConfigurationContext,

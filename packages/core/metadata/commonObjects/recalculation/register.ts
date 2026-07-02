@@ -13,10 +13,10 @@ import {
   SyncExternalToXMLFunction,
 } from "~/metadata/orchestration/property/fn"
 import { Type } from "@sinclair/typebox"
-import { PropertyRule } from "~/metadata/orchestration/property/types"
+import type { PropertyRule } from "~/metadata/orchestration/property/types"
 import type { XmlWriteManifest } from "~/metadata/orchestration/xmlWriteManifest"
 import { RecalculationRules } from "./rules"
-import { Recalculation, RecalculationYAML, Recalculations, RecalculationsYAML } from "./types"
+import type { Recalculation, RecalculationYAML, Recalculations, RecalculationsYAML } from "./types"
 
 const RECALCULATIONS_XML_DIR = "Recalculations"
 const RECALCULATIONS_NKDK_DIR = "Перерасчеты"

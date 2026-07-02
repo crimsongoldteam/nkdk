@@ -2,7 +2,7 @@ import { capitalize } from "~/helpers/capitalize"
 import { ConfigurationContext } from "~/metadata/context/types"
 import { ToMetadata } from ".."
 import { TypeRulesOperations } from "./fn"
-import { ItemXML, MetadataItemRule, PropertyRule } from "./types"
+import type { ItemXML, MetadataItemRule, PropertyRule } from "./types"
 
 type Path = string[]
 

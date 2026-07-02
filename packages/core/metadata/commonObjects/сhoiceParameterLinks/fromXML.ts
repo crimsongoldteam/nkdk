@@ -1,9 +1,9 @@
-import { PropertyRule } from "~/metadata/orchestration/property/types"
+import type { PropertyRule } from "~/metadata/orchestration/property/types"
 import { registerTypeRule } from "~/metadata/orchestration/property/typeRuleRegistry"
 import { ConfigurationContextFromXML } from "../../context/types"
 import { importMetadataSimpleValueFromXML } from "../metadataValue/fromXML"
 import { MetadataPrimitiveValueXML } from "../metadataValue/types"
-import { ChoiceParameterLinks, ChoiceParameterLinksXML } from "./types"
+import type { ChoiceParameterLinks, ChoiceParameterLinksXML } from "./types"
 
 export const importChoiceParameterLinksFromXML = (
   context: ConfigurationContextFromXML,

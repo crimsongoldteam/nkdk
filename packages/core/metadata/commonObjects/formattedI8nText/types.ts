@@ -3,8 +3,9 @@ import {
   type ExactRuleParams as WideExactRuleParams,
 } from "~/metadata/commonObjects/ruleBuilder"
 import type { PropertyRule as WidePropertyRuleBase } from "~/metadata/orchestration/property/types"
-import { Static, Type } from "@sinclair/typebox"
-import { BasePropertyRule } from "~/metadata/orchestration/property/types"
+import { Type } from "@sinclair/typebox"
+import type { Static } from "@sinclair/typebox"
+import type { BasePropertyRule } from "~/metadata/orchestration/property/types"
 import { StringboolXML } from "../boolean/types"
 import { I8nText, I8nTextJSONSchema, I8nTextXML } from "../i8nText/types"
 

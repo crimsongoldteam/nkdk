@@ -2,7 +2,7 @@ import { TypeCompiler } from "@sinclair/typebox/compiler"
 import { describe, expect, it } from "vitest"
 import { importPropertyFromXML, PropertyRule } from "~/metadata/orchestration"
 import { exportPropertyToJSONSchema } from "~/metadata/orchestration/property/toJSONSchema"
-import { MetadataItemRule } from "~/metadata/orchestration/property/types"
+import type { MetadataItemRule } from "~/metadata/orchestration/property/types"
 import { mockContextFromXML } from "~/tests/mockContext"
 import { registerMetadataItemCollectionRule } from "./ruleFactory"
 

@@ -11,7 +11,7 @@ import type { YamlPath } from "~/metadata/validation/yamlLocations"
 import type { ParsedYaml } from "~/yaml/parseMetadataYaml"
 import type { XmlWriteManifest } from "../xmlWriteManifest"
 import { PropertyRuleType } from "./registry"
-import { MetadataItem, MetadataItemRule, PropertyRule } from "./types"
+import type { MetadataItem, MetadataItemRule, PropertyRule } from "./types"
 
 export type ExportToXMLFunction = (
   context: ConfigurationContextWithExportToXML,

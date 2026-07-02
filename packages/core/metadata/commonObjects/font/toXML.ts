@@ -1,7 +1,7 @@
-import { PropertyRule } from "~/metadata/orchestration/property/types"
+import type { PropertyRule } from "~/metadata/orchestration/property/types"
 import { registerTypeRule } from "~/metadata/orchestration/property/typeRuleRegistry"
 import { ConfigurationContext } from "../../context/types"
-import { Font, FontXML, PrefixedFontsToXML } from "./types"
+import type { Font, FontXML, PrefixedFontsToXML } from "./types"
 
 export const exportFontToXML = (
   _context: ConfigurationContext,

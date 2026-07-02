@@ -1,11 +1,11 @@
 import { ConfigurationContextFromXML, ConfigurationContextWithExportToXML } from "~/metadata/context/types"
 import { importPropertyFromXML } from "~/metadata/orchestration/property/fromXML"
 import { exportPropertyToXML } from "~/metadata/orchestration/property/toXML"
-import { PropertyRule } from "~/metadata/orchestration/property/types"
+import type { PropertyRule } from "~/metadata/orchestration/property/types"
 import "~/metadata/forms/commonObjects/flowchartContext/types"
 import "~/metadata/forms/commonObjects/ganttChart/types"
 import "~/metadata/forms/commonObjects/planner/types"
-import { FormAttribute, FormAttributeXML } from "./types"
+import type { FormAttribute, FormAttributeXML } from "./types"
 
 const chartSettingsRule = {
   type: "Chart",

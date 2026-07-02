@@ -1,7 +1,7 @@
 import { ConfigurationContext } from "~/metadata/context/types"
-import { PropertyRule } from "~/metadata/orchestration/property/types"
+import type { PropertyRule } from "~/metadata/orchestration/property/types"
 import { registerTypeRule } from "~/metadata/orchestration/property/typeRuleRegistry"
-import { FieldsList, FieldsListPropertyRule, FieldsListXML } from "./types"
+import type { FieldsList, FieldsListPropertyRule, FieldsListXML } from "./types"
 
 export const exportFieldsListToXML = (
   _context: ConfigurationContext,

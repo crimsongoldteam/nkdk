@@ -1,7 +1,7 @@
 import { ConfigurationContextFromXML } from "~/metadata/context/types"
 import { registerTypeRule } from "~/metadata/orchestration/property/typeRuleRegistry"
-import { PropertyRule } from "~/metadata/orchestration/property/types"
-import { attachMinMaxValueXsiType, MinMaxValueXsiType } from "./types"
+import type { PropertyRule } from "~/metadata/orchestration/property/types"
+import type { attachMinMaxValueXsiType, MinMaxValueXsiType } from "./types"
 
 const MIN_MAX_VALUE_XSI_TYPES = new Set<MinMaxValueXsiType>(["xs:string", "xs:decimal"])
 

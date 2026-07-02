@@ -1,7 +1,7 @@
 import { ConfigurationContextFromXML } from "~/metadata/context/types"
 import { registerTypeRule } from "~/metadata/orchestration/property/typeRuleRegistry"
 import { importMetadataItemFromXML } from "~/metadata/orchestration/metadataItem/fromXML"
-import { PropertyRule } from "~/metadata/orchestration/property/types"
+import type { PropertyRule } from "~/metadata/orchestration/property/types"
 import { GroupItemFieldRules } from "./rules"
 import type { GroupItemField } from "./types"
 

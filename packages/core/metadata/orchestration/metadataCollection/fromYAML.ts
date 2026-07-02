@@ -1,5 +1,5 @@
 import { ConfigurationContext } from "~/metadata/context/types"
-import { MetadataItemRule } from "~/metadata/orchestration/property/types"
+import type { MetadataItemRule } from "~/metadata/orchestration/property/types"
 import { importMetadataItemFromYAML } from "../metadataItem/fromYAML"
 import { ToMetadata, ToYAML } from "../metadataItem/registry"
 

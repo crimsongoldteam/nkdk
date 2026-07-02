@@ -11,7 +11,7 @@ import { xmlRootRule } from "~/metadata/commonObjects/xmlRoot/types"
 import { systemEnumerationRule } from "~/metadata/systemEnumerations/types"
 import { V8_MDCLASSES_ROOT } from "~/metadata/orchestration/appliedObject/presets"
 import "~/metadata/commonObjects/rootCommandInterface/register"
-import { MetadataItemRule } from "~/metadata/orchestration/property/types"
+import type { MetadataItemRule } from "~/metadata/orchestration/property/types"
 const properties = ["Properties"]
 const childObjects = ["ChildObjects"]
 const contentObjectPaths = [

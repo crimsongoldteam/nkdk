@@ -5,7 +5,7 @@ import { exportMetadataCollectionToXML } from "~/metadata/orchestration/metadata
 import { importMetadataItemCollectionFromYAMLAsRecord } from "~/metadata/orchestration/metadataCollection/fromYAML"
 import { exportMetadataCollectionToYAMLAsRecord } from "~/metadata/orchestration/metadataCollection/toYAML"
 import { ExportToXMLFunctionNew } from "~/metadata/orchestration/property/fn"
-import { PropertyRule } from "~/metadata/orchestration/property/types"
+import type { PropertyRule } from "~/metadata/orchestration/property/types"
 import { StandardAttributeDescriptionRules } from "~/metadata/commonObjects/standardAttributeDescription/rules"
 import {
   StandardAttributeDescriptions,

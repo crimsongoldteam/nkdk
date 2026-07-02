@@ -3,7 +3,7 @@ import { importMetadataItemFromYAML } from "~/metadata/orchestration/metadataIte
 import { registerMetadataItemCollectionRule } from "~/metadata/orchestration/metadataCollection/ruleFactory"
 import { exportMetadataCollectionToYAMLAsRecord } from "~/metadata/orchestration/metadataCollection/toYAML"
 import { importPropertyFromXML } from "~/metadata/orchestration/property/fromXML"
-import { PropertyRule } from "~/metadata/orchestration/property/types"
+import type { PropertyRule } from "~/metadata/orchestration/property/types"
 import {
   MetadataChartOfAccountsTabularSectionRules,
   MetadataBusinessProcessTabularSectionRules,

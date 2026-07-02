@@ -1,7 +1,7 @@
-import { PropertyRule } from "~/metadata/orchestration/property/types"
+import type { PropertyRule } from "~/metadata/orchestration/property/types"
 import { ConfigurationContextFromXML } from "../../context/types"
 import { MetadataField } from "../metadataField/types"
-import { TypeLink, TypeLinkDcsValueRootXML } from "./types"
+import type { TypeLink, TypeLinkDcsValueRootXML } from "./types"
 
 const textNode = (value: string | { "#text"?: string } | undefined): string => {
   if (value === undefined) {

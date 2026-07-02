@@ -1,6 +1,6 @@
 import { exportI8nTextToYAML } from "~/metadata/commonObjects/i8nText/toYAML"
 import type { Color } from "~/metadata/commonObjects/color/types"
-import { PropertyRule } from "~/metadata/orchestration/property/types"
+import type { PropertyRule } from "~/metadata/orchestration/property/types"
 import { registerTypeRule } from "~/metadata/orchestration/property/typeRuleRegistry"
 import * as SE from "~/metadata/systemEnumerations/types"
 import { ConfigurationContext } from "../../../context/types"

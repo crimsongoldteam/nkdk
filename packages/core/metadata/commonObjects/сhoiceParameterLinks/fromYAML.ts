@@ -1,8 +1,8 @@
-import { PropertyRule } from "~/metadata/orchestration/property/types"
+import type { PropertyRule } from "~/metadata/orchestration/property/types"
 import { registerTypeRule } from "~/metadata/orchestration/property/typeRuleRegistry"
 import { ConfigurationContext } from "../../context/types"
 import { importMetadataFieldFromYAML } from "../metadataField/fromYAML"
-import { ChoiceParameterLinks, ChoiceParameterLinksYAML } from "./types"
+import type { ChoiceParameterLinks, ChoiceParameterLinksYAML } from "./types"
 
 /**
  * Парсит строку вида "Отбор.Владелец(Справочник.Справочник1.Реквизит.Реквизит1), Отбор.Владелец2(Справочник.Справочник2.Реквизит.Реквизит2)"

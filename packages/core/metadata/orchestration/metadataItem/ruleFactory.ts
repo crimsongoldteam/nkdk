@@ -1,6 +1,6 @@
 import { Type } from "@sinclair/typebox"
 import { PropertyRuleType } from "~/metadata/orchestration/property/registry"
-import { MetadataItemRule } from "~/metadata/orchestration/property/types"
+import type { MetadataItemRule } from "~/metadata/orchestration/property/types"
 import { registerTypeRule } from "../property/typeRuleRegistry"
 import { registerExportToXML } from "./registerExportToXML"
 import { registerExportToYAML } from "./registerExportToYAML"

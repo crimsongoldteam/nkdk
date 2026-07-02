@@ -1,6 +1,6 @@
 import { ConfigurationContext } from "~/metadata/context/types"
 import { PropertyRuleType } from "~/metadata/orchestration/property/registry"
-import { MetadataItemRule, PropertyRule } from "~/metadata/orchestration/property/types"
+import type { MetadataItemRule, PropertyRule } from "~/metadata/orchestration/property/types"
 import { registerTypeRule } from "../property/typeRuleRegistry"
 import { ToMetadata, ToYAML } from "./registry"
 import { exportMetadataItemToYAML } from "./toYAML"

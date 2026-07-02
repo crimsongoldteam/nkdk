@@ -3,7 +3,7 @@ import { registerTypeRule } from "~/metadata/orchestration/property/typeRuleRegi
 import { ConfigurationContext } from "../../context/types"
 import { METADATA_NAME_YAML_PATTERN } from "./allowedTypes"
 import { getSystemEnumerationYAMLType, getTypeDescriptionRule } from "./helper"
-import { PrimitiveTypeToYAML, TypeDescription, TypeDescriptionYAML } from "./types"
+import type { PrimitiveTypeToYAML, TypeDescription, TypeDescriptionYAML } from "./types"
 
 export const exportTypeDescriptionToYAML = (
   _context: ConfigurationContext,

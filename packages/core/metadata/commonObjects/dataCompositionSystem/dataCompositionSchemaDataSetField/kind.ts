@@ -1,7 +1,7 @@
 import { Type } from "@sinclair/typebox"
 import { ConfigurationContext } from "~/metadata/context/types"
 import { registerTypeRule } from "~/metadata/orchestration/property/typeRuleRegistry"
-import { PropertyRule } from "~/metadata/orchestration/property/types"
+import type { PropertyRule } from "~/metadata/orchestration/property/types"
 
 export const DATA_COMPOSITION_SCHEMA_DATA_SET_FIELD_KIND_FIELD =
   "ПолеНабораДанныхСхемыКомпоновкиДанных"

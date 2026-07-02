@@ -1,7 +1,7 @@
-import { PropertyRule } from "~/metadata/orchestration/property/types"
+import type { PropertyRule } from "~/metadata/orchestration/property/types"
 import { registerTypeRule } from "~/metadata/orchestration/property/typeRuleRegistry"
 import { ConfigurationContext } from "../../context/types"
-import { StringboolXML } from "./types"
+import type { StringboolXML } from "./types"
 
 export const importBooleanFromXML = (
   _context: ConfigurationContext,

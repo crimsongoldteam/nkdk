@@ -24,10 +24,10 @@ import { uuidRule } from "~/metadata/commonObjects/uuid/types"
 import { xmlRootRule } from "~/metadata/commonObjects/xmlRoot/types"
 import { systemEnumerationRule } from "~/metadata/systemEnumerations/types"
 import { V8_MDCLASSES_ROOT } from "~/metadata/orchestration/appliedObject/presets"
-import { MetadataItemRule } from "~/metadata/orchestration/property/types"
+import type { MetadataItemRule } from "~/metadata/orchestration/property/types"
 import { commonBasedOnObjectPaths } from "~/metadata/commonObjects/metadataTargets"
 import { MetadataCommandRules } from "../metadataCommand/rules"
-import { MetadataCatalogStandardAttributeNames } from "./types"
+import type { MetadataCatalogStandardAttributeNames } from "./types"
 export const MetadataCatalogRules = {
   itemType: "MetadataCatalog",
   metadataTargetOwner: { kind: "self", root: "Catalog" },

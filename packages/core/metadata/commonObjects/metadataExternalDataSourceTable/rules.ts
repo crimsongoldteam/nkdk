@@ -2,7 +2,7 @@ import { getParentFromContext } from "~/metadata/context/helpers"
 import { ConfigurationContextWithExportToXML } from "~/metadata/context/types"
 import { MetadataCommandRules } from "~/metadata/appliedObjects/metadataCommand/rules"
 import { V8_MDCLASSES_ROOT } from "~/metadata/orchestration/appliedObject/presets"
-import { MetadataItemRule } from "~/metadata/orchestration/property/types"
+import type { MetadataItemRule } from "~/metadata/orchestration/property/types"
 import { commonBasedOnObjectPaths } from "~/metadata/commonObjects/metadataTargets"
 import { externalDataSourceObjectServiceProperties } from "../metadataExternalDataSourceField/rules"
 

@@ -1,9 +1,9 @@
-import { PropertyRule } from "~/metadata/orchestration/property/types"
+import type { PropertyRule } from "~/metadata/orchestration/property/types"
 import { registerTypeRule } from "~/metadata/orchestration/property/typeRuleRegistry"
 import { ConfigurationContext } from "../../context/types"
 import { exportMetadataValueToXML } from "../metadataValue/toXML"
 import { MetadataFormChoiceListValueXML } from "../metadataValue/types"
-import { ChoiceList, ChoiceListItemXML, ChoiceListXML } from "./types"
+import type { ChoiceList, ChoiceListItemXML, ChoiceListXML } from "./types"
 
 export const exportChoiceListToXML = (
   context: ConfigurationContext,

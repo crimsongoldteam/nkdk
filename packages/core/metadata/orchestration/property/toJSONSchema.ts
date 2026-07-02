@@ -4,7 +4,7 @@ import { applyExcludedEqualNameYAMLToJSONSchema } from "~/metadata/helpers/exclu
 import { getTypeRule } from "./typeRuleRegistry"
 import { exportPropertyExternalRefSchema, exportPropertyOverrideSchema } from "../jsonSchemaRefs"
 import { shouldProcessProperty } from "./helpers"
-import { MetadataItem, MetadataItemRule, PropertyRule } from "./types"
+import type { MetadataItem, MetadataItemRule, PropertyRule } from "./types"
 
 /**
  * Возвращает YAML-представление implicitValueYAML.

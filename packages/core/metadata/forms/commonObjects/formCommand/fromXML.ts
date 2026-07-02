@@ -1,9 +1,9 @@
 import { ConfigurationContextFromXML } from "~/metadata/context/types"
 import { importMetadataItemCollectionFromXML } from "~/metadata/orchestration/metadataCollection/fromXML"
-import { PropertyRule } from "~/metadata/orchestration/property/types"
+import type { PropertyRule } from "~/metadata/orchestration/property/types"
 import type { ButtonRepresentation } from "~/metadata/systemEnumerations/types"
 import { FormCommandRules } from "./rules"
-import { FormCommand, FormCommands, FormCommandsXML } from "./types"
+import type { FormCommand, FormCommands, FormCommandsXML } from "./types"
 
 const importFormCommandsDefaultFromXML = importMetadataItemCollectionFromXML(FormCommandRules, "Command")
 
