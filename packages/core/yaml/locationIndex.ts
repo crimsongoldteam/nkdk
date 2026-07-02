@@ -126,7 +126,8 @@ function readSequenceItem(params: {
   })
 
   if (!itemKeyToken.hasValue || isBlockScalarHeaderAt(itemLine, itemKeyToken.valueColumn)) {
-    stack.push({ indent, path: currentPath })
+    stack.push({ indent, path: itemPath })
+    stack.push({ indent: indent + 2, path: currentPath })
     return
   }
 

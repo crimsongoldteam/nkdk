@@ -80,4 +80,22 @@ describe("buildYamlLocationIndex", () => {
       { line: 3, col: 3 },
     ])
   })
+
+  it("keeps sibling keys of sequence mappings outside the previous block value", () => {
+    const index = buildYamlLocationIndex(
+      [
+        "Элементы:",
+        "  - Поля:",
+        "      - Состояние",
+        "    Оформление:",
+        "      ЦветТекста:",
+        "      Заголовок: \"\"",
+      ].join("\n"),
+    )
+
+    expect(index.keyPosition(["Элементы", 0, "Оформление"])).toEqual({ line: 4, col: 5 })
+    expect(index.keyPosition(["Элементы", 0, "Оформление", "ЦветТекста"])).toEqual({ line: 5, col: 7 })
+    expect(index.valuePosition(["Элементы", 0, "Оформление", "ЦветТекста"])).toBeUndefined()
+    expect(index.valuePosition(["Элементы", 0, "Оформление", "Заголовок"])).toEqual({ line: 6, col: 18 })
+  })
 })
