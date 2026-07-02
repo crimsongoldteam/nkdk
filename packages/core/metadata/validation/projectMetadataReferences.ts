@@ -19,6 +19,7 @@ export interface PendingMetadataTargetReference {
 
 export interface ProjectReferenceSnapshot {
   memberIndex: Array<ProjectMemberIndexEntry | ProjectMemberIndexConflict>
+  memberIndexByKey: Record<string, ProjectMemberIndexEntry | ProjectMemberIndexConflict>
   pendingReferences: PendingMetadataTargetReference[]
   stats: {
     memberEntries: number
@@ -62,8 +63,10 @@ export function createProjectReferenceSnapshot(params: {
   }
 
   const memberIndex = [...entriesByKey.values()]
+  const memberIndexByKey = Object.fromEntries(entriesByKey)
   const snapshotWithoutBytes = {
     memberIndex,
+    memberIndexByKey,
     pendingReferences: [...params.pendingReferences],
     stats: {
       memberEntries: memberIndex.length,
@@ -88,8 +91,7 @@ export function resolvePendingReference(params: {
 }): PendingReferenceFastResult {
   if (params.reference.target.kind !== "member") return { ok: false, reason: "unsupported" }
 
-  const index = new Map(params.snapshot.memberIndex.map((entry) => [entry.canonical, entry]))
-  const entry = index.get(projectMemberIndexKey(params.reference.target))
+  const entry = params.snapshot.memberIndexByKey[projectMemberIndexKey(params.reference.target)]
   if (entry === undefined) return { ok: false, reason: "miss" }
   if (isConflict(entry)) return { ok: false, reason: "conflict" }
   return { ok: true }

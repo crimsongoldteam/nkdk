@@ -46,6 +46,20 @@ describe("project metadata references", () => {
     })
   })
 
+  it("builds member lookup once in the snapshot", () => {
+    const target = memberTarget("Catalog.Номенклатура.Attribute.Артикул")
+    const snapshot = createProjectReferenceSnapshot({
+      memberIndexEntries: [
+        { canonical: "Catalog.Номенклатура.Attribute.Артикул", target, result: { ok: true, filePath: "/tmp/1.yaml" } },
+      ],
+      pendingReferences: [],
+    })
+
+    expect(snapshot.memberIndexByKey["Catalog.Номенклатура.Attribute.Артикул"]).toEqual(
+      expect.objectContaining({ canonical: "Catalog.Номенклатура.Attribute.Артикул" })
+    )
+  })
+
   it("estimates cloneable snapshot bytes", () => {
     const target = memberTarget("Catalog.Номенклатура.Attribute.Артикул")
     const snapshot = createProjectReferenceSnapshot({
