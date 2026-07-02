@@ -3,8 +3,8 @@ import { tmpdir } from "os"
 import { join, resolve } from "path"
 import { TypeCompiler } from "@sinclair/typebox/compiler"
 import { afterEach, describe, expect, it, vi } from "vitest"
-import { TopLevelMetadataItemRules } from "~/metadata/appliedObjects/configuration/topLevelRules"
-import { mockContext } from "~/tests/mockContext"
+import { TopLevelMetadataItemRules } from "../appliedObjects/configuration/topLevelRules"
+import { mockContext } from "../../tests/mockContext"
 import { ProjectFileSchemaError } from "./projectFileSchema"
 import {
   getProjectValidationReadCountForTests,
@@ -64,11 +64,13 @@ describe("validateProject", { timeout: 30_000 }, () => {
       "    ПутьКДанным: Неизвестный",
     ])
 
-    const diagnostics = (await validateProject({
-      projectDir,
-      filePath: "Справочник/Товары/Формы/ФормаЭлемента/Форма.yaml",
-      context: mockContext,
-    })).diagnostics
+    const diagnostics = (
+      await validateProject({
+        projectDir,
+        filePath: "Справочник/Товары/Формы/ФормаЭлемента/Форма.yaml",
+        context: mockContext,
+      })
+    ).diagnostics
 
     expect(diagnostics).toEqual(
       expect.arrayContaining([
@@ -81,6 +83,79 @@ describe("validateProject", { timeout: 30_000 }, () => {
       ])
     )
   }, 30_000)
+
+  it("uses reference index to enqueue missing dependency in partial validation", async () => {
+    const projectDir = createProject()
+    writeProjectFile(projectDir, "Справочник/Товары/Свойства.yaml", "Комментарий: ok")
+    writeProjectFile(projectDir, "Документ/Заказ/Свойства.yaml", [
+      "Реквизиты:",
+      "  Товар:",
+      "    Тип:",
+      "      - СправочникСсылка.Товары",
+    ])
+
+    const result = await validateProject({
+      projectDir,
+      filePath: join(projectDir, "Документ", "Заказ", "Свойства.yaml"),
+      context: mockContext,
+      concurrency: 1,
+    })
+
+    expect(result.diagnostics.filter((diagnostic) => diagnostic.source === "reference")).toEqual([])
+  })
+
+  it("keeps dependency enqueue for single-file validation through the shared snapshot provider", async () => {
+    const projectDir = createProject()
+    writeProjectFile(projectDir, "Документ/Заказ/Свойства.yaml", [
+      "Имя: Заказ",
+      "Синоним: Заказ",
+      "Реквизиты:",
+      "  Товар:",
+      "    Тип:",
+      "      - СправочникСсылка.Товары",
+    ])
+    writeProjectFile(projectDir, "Справочник/Товары/Свойства.yaml", ["Имя: Товары", "Синоним: Товары"])
+
+    const result = await validateProject({
+      projectDir,
+      filePath: join(projectDir, "Документ", "Заказ", "Свойства.yaml"),
+      context: mockContext,
+    })
+
+    expect(result.diagnostics.filter((diagnostic) => diagnostic.source === "reference")).toEqual([])
+  })
+
+  it("resolves file forms through reference index", async () => {
+    const projectDir = createProject()
+    writeProjectFile(projectDir, "Справочник/Товары/Свойства.yaml", ["ОсновнаяФормаОбъекта: ФормаЭлемента"])
+    writeProjectFile(projectDir, "Справочник/Товары/Формы/ФормаЭлемента/Форма.yaml", ["Элементы: {}"])
+
+    await expect(validateProject({ projectDir, context: mockContext, concurrency: 1 })).resolves.toEqual({
+      diagnostics: [],
+    })
+  })
+
+  it("resolves file templates through reference index", async () => {
+    const projectDir = createProject()
+    writeProjectFile(projectDir, "Отчет/Продажи/Свойства.yaml", [
+      "ОсновнаяСхемаКомпоновкиДанных: ОсновнаяСхемаКомпоновкиДанных",
+    ])
+    writeProjectFile(projectDir, "Отчет/Продажи/Шаблоны/ОсновнаяСхемаКомпоновкиДанных/Template.xml", "<Template/>")
+
+    await expect(validateProject({ projectDir, context: mockContext, concurrency: 1 })).resolves.toEqual({
+      diagnostics: [],
+    })
+  })
+
+  it("indexes document numerators by metadata target root", async () => {
+    const projectDir = createProject()
+    writeProjectFile(projectDir, "Нумератор/Заказы/Свойства.yaml", "{}")
+    writeProjectFile(projectDir, "Документ/Заказ/Свойства.yaml", ["Нумератор: Заказы"])
+
+    await expect(validateProject({ projectDir, context: mockContext, concurrency: 1 })).resolves.toEqual({
+      diagnostics: [],
+    })
+  })
 
   it("concurrency 1 keeps existing project diagnostics", async () => {
     const projectDir = createProject()
@@ -132,6 +207,111 @@ describe("validateProject", { timeout: 30_000 }, () => {
     expect(parallel.diagnostics).toEqual(sequential.diagnostics)
   })
 
+  it("parallel validation keeps subsystem files with duplicate local names", async () => {
+    const projectDir = createProject()
+    writeProjectFile(projectDir, "Подсистема/A/Свойства.yaml", [
+      "КомандныйИнтерфейс:",
+      "  ПорядокПодсистем:",
+      "    - Подсистема.A.Подсистема.Настройки",
+    ])
+    writeProjectFile(projectDir, "Подсистема/A/Подсистемы/Настройки/Свойства.yaml", "{}\n")
+    writeProjectFile(projectDir, "Подсистема/B/Свойства.yaml", [
+      "КомандныйИнтерфейс:",
+      "  ПорядокПодсистем:",
+      "    - Подсистема.B.Подсистема.Настройки",
+    ])
+    writeProjectFile(projectDir, "Подсистема/B/Подсистемы/Настройки/Свойства.yaml", "{}\n")
+
+    const parallel = await validateProject({ projectDir, context: mockContext, concurrency: 2 })
+
+    expect(parallel.diagnostics).toEqual([])
+  })
+
+  it("parallel validation resolves remote records from worker supplements", async () => {
+    const projectDir = createProject()
+    writeProjectFile(projectDir, "Подсистема/A/Свойства.yaml", [
+      "КомандныйИнтерфейс:",
+      "  ПорядокПодсистем:",
+      "    - Подсистема.B.Подсистема.Настройки",
+    ])
+    writeProjectFile(projectDir, "Подсистема/A/Подсистемы/Настройки/Свойства.yaml", "{}\n")
+    writeProjectFile(projectDir, "Подсистема/B/Свойства.yaml", [
+      "КомандныйИнтерфейс:",
+      "  ПорядокПодсистем:",
+      "    - Подсистема.A.Подсистема.Настройки",
+    ])
+    writeProjectFile(projectDir, "Подсистема/B/Подсистемы/Настройки/Свойства.yaml", "{}\n")
+
+    const parallel = await validateProject({ projectDir, context: mockContext, concurrency: 2 })
+
+    expect(parallel.diagnostics).toEqual([])
+  })
+
+  it("validates functional option content through pending reference snapshot", async () => {
+    const projectDir = createProject()
+    writeProjectFile(projectDir, "Справочник/Номенклатура/Свойства.yaml", [
+      "Реквизиты:",
+      "  Артикул:",
+      "    Тип: Строка",
+    ])
+    writeProjectFile(projectDir, "ФункциональнаяОпция/ИспользоватьАртикулы/Свойства.yaml", [
+      "СоставФункциональнойОпции:",
+      "  - Catalog.Номенклатура.Attribute.Артикул",
+    ])
+
+    await expect(validateProject({ projectDir, context: mockContext, concurrency: 2 })).resolves.toEqual({
+      diagnostics: [],
+    })
+  })
+
+  it("keeps one reference index entry for register resources", async () => {
+    const projectDir = createProject()
+    writeProjectFile(projectDir, "РегистрСведений/Остатки/Свойства.yaml", [
+      "Ресурсы:",
+      "  Количество:",
+      "    Тип: Число",
+    ])
+    writeProjectFile(projectDir, "ФункциональнаяОпция/УчетОстатков/Свойства.yaml", [
+      "СоставФункциональнойОпции:",
+      "  - InformationRegister.Остатки.Resource.Количество",
+    ])
+
+    await expect(validateProject({ projectDir, context: mockContext, concurrency: 1 })).resolves.toEqual({
+      diagnostics: [],
+    })
+  })
+
+  it("accepts defined type attributes for input by string validation", async () => {
+    const projectDir = createProject()
+    writeProjectFile(projectDir, "Справочник/Документы/Свойства.yaml", [
+      "Реквизиты:",
+      "  Идентификатор:",
+      "    Тип: ОпределяемыйТип.ВнешнийИдентификатор",
+      "ВводПоСтроке:",
+      "  - Реквизит.Идентификатор",
+    ])
+
+    await expect(validateProject({ projectDir, context: mockContext, concurrency: 1 })).resolves.toEqual({
+      diagnostics: [],
+    })
+  })
+
+  it("resolves standard attributes by metadata target names", async () => {
+    const projectDir = createProject()
+    writeProjectFile(projectDir, "Документ/Заказ/Свойства.yaml", [
+      "Реквизиты:",
+      "  Ответственный:",
+      "    Тип: Строка",
+      "    СвязиПараметровВыбора:",
+      "      - Имя: Отбор.Дата",
+      "        ПутьКДанным: Document.Заказ.StandardAttribute.Date",
+    ])
+
+    await expect(validateProject({ projectDir, context: mockContext, concurrency: 1 })).resolves.toEqual({
+      diagnostics: [],
+    })
+  })
+
   it("warns about unimplemented dynamic list type-value checks instead of failing form import", async () => {
     const projectDir = createProject()
     writeProjectFile(projectDir, "Справочник/Товары/Свойства.yaml", "")
@@ -157,11 +337,13 @@ describe("validateProject", { timeout: 30_000 }, () => {
       "    ПутьКДанным: Список",
     ])
 
-    const diagnostics = (await validateProject({
-      projectDir,
-      filePath: "Справочник/Товары/Формы/ФормаСписка/Форма.yaml",
-      context: mockContext,
-    })).diagnostics
+    const diagnostics = (
+      await validateProject({
+        projectDir,
+        filePath: "Справочник/Товары/Формы/ФормаСписка/Форма.yaml",
+        context: mockContext,
+      })
+    ).diagnostics
 
     expect(diagnostics).toEqual(
       expect.arrayContaining([
@@ -184,11 +366,13 @@ describe("validateProject", { timeout: 30_000 }, () => {
     writeProjectFile(projectDir, "Справочник/Товары/Свойства.yaml", "")
     writeProjectFile(projectDir, "Справочник/Товары/Формы/ФормаЭлемента/Форма.yaml", ["Элементы: []"])
 
-    const diagnostics = (await validateProject({
-      projectDir,
-      filePath: "Справочник/Товары/Формы/ФормаЭлемента/Форма.yaml",
-      context: mockContext,
-    })).diagnostics
+    const diagnostics = (
+      await validateProject({
+        projectDir,
+        filePath: "Справочник/Товары/Формы/ФормаЭлемента/Форма.yaml",
+        context: mockContext,
+      })
+    ).diagnostics
 
     expect(diagnostics).toEqual(
       expect.arrayContaining([expect.objectContaining({ source: "structure", severity: "error", path: "/Элементы" })])
@@ -215,11 +399,13 @@ describe("validateProject", { timeout: 30_000 }, () => {
       "    ПутьКДанным: Неизвестный",
     ])
 
-    const diagnostics = (await validateProject({
-      projectDir,
-      filePath: "Справочник/Товары/Свойства.yaml",
-      context: mockContext,
-    })).diagnostics
+    const diagnostics = (
+      await validateProject({
+        projectDir,
+        filePath: "Справочник/Товары/Свойства.yaml",
+        context: mockContext,
+      })
+    ).diagnostics
 
     expect(diagnostics).toHaveLength(1)
     expect(diagnostics[0]).toMatchObject({
@@ -247,11 +433,13 @@ describe("validateProject", { timeout: 30_000 }, () => {
     const projectDir = createProject()
     writeProjectFile(projectDir, "Справочник/Договоры/Свойства.yaml", "")
 
-    const diagnostics = (await validateProject({
-      projectDir,
-      filePath: "Справочник/Договоры/Свойства.yaml",
-      context: mockContext,
-    })).diagnostics
+    const diagnostics = (
+      await validateProject({
+        projectDir,
+        filePath: "Справочник/Договоры/Свойства.yaml",
+        context: mockContext,
+      })
+    ).diagnostics
 
     expect(diagnostics).toEqual([])
   })
@@ -260,11 +448,13 @@ describe("validateProject", { timeout: 30_000 }, () => {
     const projectDir = createProject()
     writeProjectFile(projectDir, "Конфигурация.yaml", "")
 
-    const diagnostics = (await validateProject({
-      projectDir,
-      filePath: "Конфигурация.yaml",
-      context: mockContext,
-    })).diagnostics
+    const diagnostics = (
+      await validateProject({
+        projectDir,
+        filePath: "Конфигурация.yaml",
+        context: mockContext,
+      })
+    ).diagnostics
 
     expect(diagnostics).toEqual(
       expect.arrayContaining([
@@ -281,11 +471,13 @@ describe("validateProject", { timeout: 30_000 }, () => {
     const projectDir = createProject()
     writeProjectFile(projectDir, "Справочник/КакоеТоПоле/Свойства.yaml", ["Синоним: Какое то поле"])
 
-    const diagnostics = (await validateProject({
-      projectDir,
-      filePath: "Справочник/КакоеТоПоле/Свойства.yaml",
-      context: mockContext,
-    })).diagnostics
+    const diagnostics = (
+      await validateProject({
+        projectDir,
+        filePath: "Справочник/КакоеТоПоле/Свойства.yaml",
+        context: mockContext,
+      })
+    ).diagnostics
 
     expect(diagnostics).toEqual([
       expect.objectContaining({
@@ -304,11 +496,13 @@ describe("validateProject", { timeout: 30_000 }, () => {
       "Синоним: Задачи универсальных процессов",
     ])
 
-    const diagnostics = (await validateProject({
-      projectDir,
-      filePath: "РегистрСведений/ЗадачиУниверсальныхПроцессов/Свойства.yaml",
-      context: mockContext,
-    })).diagnostics
+    const diagnostics = (
+      await validateProject({
+        projectDir,
+        filePath: "РегистрСведений/ЗадачиУниверсальныхПроцессов/Свойства.yaml",
+        context: mockContext,
+      })
+    ).diagnostics
 
     expect(diagnostics).toEqual([
       expect.objectContaining({
@@ -325,11 +519,13 @@ describe("validateProject", { timeout: 30_000 }, () => {
     const projectDir = createProject()
     writeProjectFile(projectDir, "Справочник/КакоеТоПоле/Свойства.yaml", ["Синоним:", "  en: Some field"])
 
-    const diagnostics = (await validateProject({
-      projectDir,
-      filePath: "Справочник/КакоеТоПоле/Свойства.yaml",
-      context: mockContext,
-    })).diagnostics
+    const diagnostics = (
+      await validateProject({
+        projectDir,
+        filePath: "Справочник/КакоеТоПоле/Свойства.yaml",
+        context: mockContext,
+      })
+    ).diagnostics
 
     expect(diagnostics).toEqual([])
   })
@@ -342,11 +538,13 @@ describe("validateProject", { timeout: 30_000 }, () => {
       "  en: Some field",
     ])
 
-    const diagnostics = (await validateProject({
-      projectDir,
-      filePath: "Справочник/КакоеТоПоле/Свойства.yaml",
-      context: mockContext,
-    })).diagnostics
+    const diagnostics = (
+      await validateProject({
+        projectDir,
+        filePath: "Справочник/КакоеТоПоле/Свойства.yaml",
+        context: mockContext,
+      })
+    ).diagnostics
 
     expect(diagnostics).toEqual([
       expect.objectContaining({
@@ -364,11 +562,13 @@ describe("validateProject", { timeout: 30_000 }, () => {
     ])
     writeProjectFile(projectDir, "Язык/Русский/Свойства.yaml", ["КодЯзыка: ru"])
 
-    const diagnostics = (await validateProject({
-      projectDir,
-      filePath: "Конфигурация.yaml",
-      context: mockContext,
-    })).diagnostics
+    const diagnostics = (
+      await validateProject({
+        projectDir,
+        filePath: "Конфигурация.yaml",
+        context: mockContext,
+      })
+    ).diagnostics
 
     expect(diagnostics).toEqual([
       expect.objectContaining({
@@ -389,11 +589,13 @@ describe("validateProject", { timeout: 30_000 }, () => {
       "    Заголовок: Какое то поле",
     ])
 
-    const diagnostics = (await validateProject({
-      projectDir,
-      filePath: "Справочник/Товары/Формы/ФормаЭлемента/Форма.yaml",
-      context: mockContext,
-    })).diagnostics
+    const diagnostics = (
+      await validateProject({
+        projectDir,
+        filePath: "Справочник/Товары/Формы/ФормаЭлемента/Форма.yaml",
+        context: mockContext,
+      })
+    ).diagnostics
 
     expect(diagnostics).toEqual([
       expect.objectContaining({
@@ -410,11 +612,13 @@ describe("validateProject", { timeout: 30_000 }, () => {
     const projectDir = createProject()
     writeProjectFile(projectDir, "Документ/ПоступлениеТоваровУслуг/Свойства.yaml", ["Автонумерация: Истина"])
 
-    const diagnostics = (await validateProject({
-      projectDir,
-      filePath: "Документ/ПоступлениеТоваровУслуг/Свойства.yaml",
-      context: mockContext,
-    })).diagnostics
+    const diagnostics = (
+      await validateProject({
+        projectDir,
+        filePath: "Документ/ПоступлениеТоваровУслуг/Свойства.yaml",
+        context: mockContext,
+      })
+    ).diagnostics
 
     expect(diagnostics).toEqual([
       expect.objectContaining({
@@ -430,11 +634,13 @@ describe("validateProject", { timeout: 30_000 }, () => {
     const projectDir = createProject()
     writeProjectFile(projectDir, "Документ/ПоступлениеТоваровУслуг/Свойства.yaml", ["Автонумерация: Ложь"])
 
-    const diagnostics = (await validateProject({
-      projectDir,
-      filePath: "Документ/ПоступлениеТоваровУслуг/Свойства.yaml",
-      context: mockContext,
-    })).diagnostics
+    const diagnostics = (
+      await validateProject({
+        projectDir,
+        filePath: "Документ/ПоступлениеТоваровУслуг/Свойства.yaml",
+        context: mockContext,
+      })
+    ).diagnostics
 
     expect(diagnostics).toEqual([])
   })
@@ -452,11 +658,13 @@ describe("validateProject", { timeout: 30_000 }, () => {
       "        Тип: СправочникСсылка.Номенклатура",
     ])
 
-    const diagnostics = (await validateProject({
-      projectDir,
-      filePath: "Документ/Заказ/Свойства.yaml",
-      context: mockContext,
-    })).diagnostics
+    const diagnostics = (
+      await validateProject({
+        projectDir,
+        filePath: "Документ/Заказ/Свойства.yaml",
+        context: mockContext,
+      })
+    ).diagnostics
 
     expect(diagnostics).toEqual(
       expect.arrayContaining([
@@ -489,11 +697,13 @@ describe("validateProject", { timeout: 30_000 }, () => {
       "        Тип: Справочник.Номенклатура",
     ])
 
-    const diagnostics = (await validateProject({
-      projectDir,
-      filePath: "Документ/Заказ/Свойства.yaml",
-      context: mockContext,
-    })).diagnostics
+    const diagnostics = (
+      await validateProject({
+        projectDir,
+        filePath: "Документ/Заказ/Свойства.yaml",
+        context: mockContext,
+      })
+    ).diagnostics
 
     expect(diagnostics).toEqual([])
   })
@@ -511,11 +721,13 @@ describe("validateProject", { timeout: 30_000 }, () => {
       "        Тип: СправочникСсылка.Номенклатура",
     ])
 
-    const diagnostics = (await validateProject({
-      projectDir,
-      filePath: "ПланВидовХарактеристик/ВидыСубконто/Свойства.yaml",
-      context: mockContext,
-    })).diagnostics
+    const diagnostics = (
+      await validateProject({
+        projectDir,
+        filePath: "ПланВидовХарактеристик/ВидыСубконто/Свойства.yaml",
+        context: mockContext,
+      })
+    ).diagnostics
 
     expect(diagnostics).toEqual(
       expect.arrayContaining([
@@ -663,11 +875,13 @@ describe("validateProject", { timeout: 30_000 }, () => {
     writeProjectFile(projectDir, "Конфигурация.yaml", ["Имя: Конфигурация", "ОсновнойЯзык: НеСуществует"])
     writeProjectFile(projectDir, "Справочник/Товары/Свойства.yaml", ['НесуществующееПоле: "лишнее поле"'])
 
-    const diagnostics = (await validateProject({
-      projectDir,
-      filePath: "Конфигурация.yaml",
-      context: mockContext,
-    })).diagnostics
+    const diagnostics = (
+      await validateProject({
+        projectDir,
+        filePath: "Конфигурация.yaml",
+        context: mockContext,
+      })
+    ).diagnostics
 
     expect(diagnostics).toHaveLength(1)
     expect(diagnostics[0]).toMatchObject({
@@ -693,11 +907,13 @@ describe("validateProject", { timeout: 30_000 }, () => {
       "    ПроверкаЗаполнения: ВыдаватьОшибку",
     ])
 
-    const diagnostics = (await validateProject({
-      projectDir,
-      filePath: "Справочник/Файлы/Свойства.yaml",
-      context: mockContext,
-    })).diagnostics
+    const diagnostics = (
+      await validateProject({
+        projectDir,
+        filePath: "Справочник/Файлы/Свойства.yaml",
+        context: mockContext,
+      })
+    ).diagnostics
 
     expect(diagnostics).toEqual([])
   })
@@ -747,7 +963,9 @@ describe("validateProject", { timeout: 30_000 }, () => {
 
     expect(getProjectValidationReadCountForTests(join(projectDir, "Справочник", "Товары", "Свойства.yaml"))).toBe(1)
     expect(
-      getProjectValidationReadCountForTests(join(projectDir, "Справочник", "Товары", "Формы", "ФормаЭлемента", "Форма.yaml")),
+      getProjectValidationReadCountForTests(
+        join(projectDir, "Справочник", "Товары", "Формы", "ФормаЭлемента", "Форма.yaml")
+      )
     ).toBe(1)
   })
 

@@ -1,12 +1,12 @@
-import { typeLinkRule } from "~/metadata/commonObjects/typeLink/types"
-import { booleanRule } from "~/metadata/commonObjects/boolean/types"
-import { stringRule } from "~/metadata/commonObjects/string/types"
-import { systemEnumerationRule } from "~/metadata/systemEnumerations/types"
+import { typeLinkRule } from "../typeLink/types"
+import { booleanRule } from "../boolean/types"
+import { stringRule } from "../string/types"
+import { systemEnumerationRule } from "../../systemEnumerations/types"
 import {
   externalDataSourceFieldBaseProperties,
   externalDataSourceObjectServiceProperties,
-} from "~/metadata/commonObjects/metadataExternalDataSourceField/rules"
-import { MetadataItemRule } from "~/metadata/orchestration/property/types"
+} from "../metadataExternalDataSourceField/rules"
+import type { MetadataItemRule } from "../../orchestration/property/types"
 const propertiesParents = ["Properties"]
 const hasOwnMetadataProperty =
   (propertyKey: string) =>

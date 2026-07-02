@@ -2,12 +2,12 @@ import fs, { mkdirSync, mkdtempSync, rmSync, writeFileSync } from "fs"
 import { tmpdir } from "os"
 import { join } from "path"
 import { afterEach, describe, expect, it, vi } from "vitest"
-import "~/metadata/forms"
+import "../forms"
 import {
   validateClientApplicationFormFirstPass,
   validateClientApplicationFormSecondPass,
-} from "~/metadata/forms/clientApplicationForm/validate"
-import { mockContext } from "~/tests/mockContext"
+} from "../forms/clientApplicationForm/validate"
+import { mockContext } from "../../tests/mockContext"
 import { createOwnerMetadataCache } from "./dataPath/ownerCache"
 import { createProjectYamlCache } from "./projectYamlCache"
 import { validateForm } from "./validateForm"
@@ -101,11 +101,7 @@ describe("validateForm", () => {
     const project = createProject({
       ownerDir: "Отчет",
       ownerName: "АнализСубконто",
-      owner: [
-        "Реквизиты:",
-        "  СписокВидовСубконто:",
-        "    Тип: СписокЗначений",
-      ],
+      owner: ["Реквизиты:", "  СписокВидовСубконто:", "    Тип: СписокЗначений"],
       form: [
         "Реквизиты:",
         "  Отчет:",
@@ -203,13 +199,7 @@ describe("validateForm", () => {
 
   it("resolves owner tabular section fields lazily through owner cache", () => {
     const project = createProject({
-      owner: [
-        "ТабличныеЧасти:",
-        "  Товары:",
-        "    Реквизиты:",
-        "      Количество:",
-        "        Тип: Число",
-      ],
+      owner: ["ТабличныеЧасти:", "  Товары:", "    Реквизиты:", "      Количество:", "        Тип: Число"],
       form: [
         "Реквизиты:",
         "  Объект:",
@@ -242,22 +232,27 @@ describe("validateForm", () => {
     })
     const readFileSync = vi.spyOn(fs, "readFileSync")
     const cache = createProjectYamlCache()
-    const ownerCache = createOwnerMetadataCache({ projectDir: project.projectDir, yamlCache: cache, context: mockContext })
+    const ownerCache = createOwnerMetadataCache({
+      projectDir: project.projectDir,
+      yamlCache: cache,
+      context: mockContext,
+    })
 
     expect(runValidateForm(project, { cache, ownerCache })).toEqual([])
-    expect(readFileSync).toHaveBeenCalledWith(join(project.projectDir, "Справочник", "Номенклатура", "Свойства.yaml"), "utf8")
+    expect(readFileSync).toHaveBeenCalledWith(
+      join(project.projectDir, "Справочник", "Номенклатура", "Свойства.yaml"),
+      "utf8"
+    )
     expect(
-      readFileSync.mock.calls.filter(([filePath]) => filePath === join(project.projectDir, "Справочник", "Номенклатура", "Свойства.yaml")),
+      readFileSync.mock.calls.filter(
+        ([filePath]) => filePath === join(project.projectDir, "Справочник", "Номенклатура", "Свойства.yaml")
+      )
     ).toHaveLength(1)
   })
 
   it("returns the same diagnostics through form validation passes and the registered wrapper", () => {
     const project = createProject({
-      owner: [
-        "Реквизиты:",
-        "  Товар:",
-        "    Тип: Справочник.Номенклатура",
-      ],
+      owner: ["Реквизиты:", "  Товар:", "    Тип: Справочник.Номенклатура"],
       form: [
         "Реквизиты:",
         "  Объект:",
@@ -269,7 +264,11 @@ describe("validateForm", () => {
       ],
     })
     const cache = createProjectYamlCache()
-    const ownerCache = createOwnerMetadataCache({ projectDir: project.projectDir, yamlCache: cache, context: mockContext })
+    const ownerCache = createOwnerMetadataCache({
+      projectDir: project.projectDir,
+      yamlCache: cache,
+      context: mockContext,
+    })
 
     const wrapperDiagnostics = runValidateForm(project, { cache, ownerCache })
     const first = validateClientApplicationFormFirstPass({
@@ -310,7 +309,7 @@ describe("validateForm", () => {
     })
 
     expect(messages(runValidateForm(project))).toContain(
-      'ПутьКДанным "Контрагент.Наименование": промежуточный реквизит "Контрагент" имеет составной тип',
+      'ПутьКДанным "Контрагент.Наименование": промежуточный реквизит "Контрагент" имеет составной тип'
     )
   })
 
@@ -327,9 +326,7 @@ describe("validateForm", () => {
       ],
     })
 
-    expect(messages(runValidateForm(project))).toEqual([
-      expect.stringContaining('ПутьКДанным "Флаг"'),
-    ])
+    expect(messages(runValidateForm(project))).toEqual([expect.stringContaining('ПутьКДанным "Флаг"')])
   })
 
   it("accepts DynamicList as Table.dataPath and warns for DynamicList fields", () => {
@@ -658,20 +655,16 @@ describe("validateForm", () => {
       ],
     })
 
-    expect(messages(runValidateForm(project))).toContain('ПутьКДанным "Количество": путь колонки должен начинаться с "Таблица."')
+    expect(messages(runValidateForm(project))).toContain(
+      'ПутьКДанным "Количество": путь колонки должен начинаться с "Таблица."'
+    )
   })
 
   it("accepts table child footer data path outside parent table data path", () => {
     const project = createProject({
       ownerDir: "Документ",
       ownerName: "Заказ",
-      owner: [
-        "ТабличныеЧасти:",
-        "  Начисления:",
-        "    Реквизиты:",
-        "      НДФЛ:",
-        "        Тип: Число",
-      ],
+      owner: ["ТабличныеЧасти:", "  Начисления:", "    Реквизиты:", "      НДФЛ:", "        Тип: Число"],
       form: [
         "Реквизиты:",
         "  Объект:",
@@ -697,13 +690,7 @@ describe("validateForm", () => {
     const project = createProject({
       ownerDir: "Документ",
       ownerName: "Заказ",
-      owner: [
-        "ТабличныеЧасти:",
-        "  Начисления:",
-        "    Реквизиты:",
-        "      НДФЛ:",
-        "        Тип: Число",
-      ],
+      owner: ["ТабличныеЧасти:", "  Начисления:", "    Реквизиты:", "      НДФЛ:", "        Тип: Число"],
       form: [
         "Реквизиты:",
         "  Объект:",
@@ -898,13 +885,7 @@ describe("validateForm", () => {
     const project = createProject({
       ownerDir: "Документ",
       ownerName: "Заказ",
-      owner: [
-        "ТабличныеЧасти:",
-        "  Товары:",
-        "    Реквизиты:",
-        "      Сумма:",
-        "        Тип: Число",
-      ],
+      owner: ["ТабличныеЧасти:", "  Товары:", "    Реквизиты:", "      Сумма:", "        Тип: Число"],
       form: [
         "Реквизиты:",
         "  Объект:",
@@ -993,13 +974,7 @@ describe("validateForm", () => {
     const project = createProject({
       ownerDir: "Документ",
       ownerName: "Заказ",
-      owner: [
-        "ТабличныеЧасти:",
-        "  Товары:",
-        "    Реквизиты:",
-        "      Сумма:",
-        "        Тип: Число",
-      ],
+      owner: ["ТабличныеЧасти:", "  Товары:", "    Реквизиты:", "      Сумма:", "        Тип: Число"],
       form: [
         "Реквизиты:",
         "  Объект:",
@@ -1023,13 +998,7 @@ describe("validateForm", () => {
     const project = createProject({
       ownerDir: "Документ",
       ownerName: "Заказ",
-      owner: [
-        "ТабличныеЧасти:",
-        "  Товары:",
-        "    Реквизиты:",
-        "      Сумма:",
-        "        Тип: Число",
-      ],
+      owner: ["ТабличныеЧасти:", "  Товары:", "    Реквизиты:", "      Сумма:", "        Тип: Число"],
       form: [
         "Реквизиты:",
         "  Объект:",
@@ -1168,10 +1137,7 @@ describe("validateForm", () => {
     const project = createProject({
       ownerDir: "Документ",
       ownerName: "Заказ",
-      owner: [
-        "Движения:",
-        "  - РегистрНакопления.Продажи",
-      ],
+      owner: ["Движения:", "  - РегистрНакопления.Продажи"],
       extraOwners: [
         {
           dir: "РегистрНакопления",
@@ -1241,10 +1207,7 @@ describe("validateForm", () => {
     const project = createProject({
       ownerDir: "Документ",
       ownerName: "Операция",
-      owner: [
-        "Движения:",
-        "  - РегистрБухгалтерии.Хозрасчетный",
-      ],
+      owner: ["Движения:", "  - РегистрБухгалтерии.Хозрасчетный"],
       extraOwners: [
         {
           dir: "РегистрБухгалтерии",
@@ -1347,11 +1310,7 @@ describe("validateForm", () => {
     const project = createProject({
       ownerDir: "ПланСчетов",
       ownerName: "Хозрасчетный",
-      owner: [
-        "ПризнакиУчета:",
-        "  Валютный:",
-        "    Тип: Булево",
-      ],
+      owner: ["ПризнакиУчета:", "  Валютный:", "    Тип: Булево"],
       form: [
         "Реквизиты:",
         "  Объект:",
@@ -1531,7 +1490,7 @@ describe("validateForm", () => {
     })
 
     expect(messages(runValidateForm(project))).toContain(
-      'ПутьКДанным "1/0:796f500f-c364-45d1-bce6-9e7e8e15b664": неизвестный корень "1/0:796f500f-c364-45d1-bce6-9e7e8e15b664"',
+      'ПутьКДанным "1/0:796f500f-c364-45d1-bce6-9e7e8e15b664": неизвестный корень "1/0:796f500f-c364-45d1-bce6-9e7e8e15b664"'
     )
   })
 
@@ -1565,7 +1524,8 @@ describe("validateForm", () => {
     expect(runValidateForm(project)).toEqual([
       expect.objectContaining({
         severity: "warning",
-        message: 'ПутьКДанным "КомпоновщикНастроекКомпоновкиДанных.Settings.Filter.Items": платформенный источник пока не проверяется',
+        message:
+          'ПутьКДанным "КомпоновщикНастроекКомпоновкиДанных.Settings.Filter.Items": платформенный источник пока не проверяется',
       }),
     ])
   })
@@ -1643,7 +1603,7 @@ interface TestProject {
 
 function runValidateForm(
   project: TestProject,
-  params: Partial<Pick<Parameters<typeof validateForm>[0], "cache" | "ownerCache">> = {},
+  params: Partial<Pick<Parameters<typeof validateForm>[0], "cache" | "ownerCache">> = {}
 ) {
   const cache = params.cache ?? createProjectYamlCache()
   return validateForm({
@@ -1654,7 +1614,8 @@ function runValidateForm(
     cache,
     context: mockContext,
     ownerCache:
-      params.ownerCache ?? createOwnerMetadataCache({ projectDir: project.projectDir, yamlCache: cache, context: mockContext }),
+      params.ownerCache ??
+      createOwnerMetadataCache({ projectDir: project.projectDir, yamlCache: cache, context: mockContext }),
   })
 }
 

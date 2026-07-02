@@ -1,6 +1,6 @@
 import { describe, expect, it } from "vitest"
 import { fullFromXML, minimalFromXML } from "./__fixtures__/data"
-import { testImportPropertyFromXML } from "~/tests/property/importPropertyFromXML"
+import { testImportPropertyFromXML } from "../../../tests/property/importPropertyFromXML"
 
 const rule = { type: "MetadataTabularSections", xml: "TabularSection" } as const
 

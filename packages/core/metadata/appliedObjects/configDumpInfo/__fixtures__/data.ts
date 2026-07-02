@@ -1,4 +1,4 @@
-import type { ConfigDumpInfo } from "~/metadata/appliedObjects/configDumpInfo/types"
+import type { ConfigDumpInfo } from "../types"
 
 // В data.xml все три дочерних узла — прямые дети Catalog.КакойТоСправочник (нет вложенности TabularSection → Attribute).
 export const idMap: ConfigDumpInfo = new Map([

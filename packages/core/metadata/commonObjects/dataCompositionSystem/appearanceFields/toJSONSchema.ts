@@ -1,17 +1,17 @@
 import { TSchema, Type } from "@sinclair/typebox"
-import { BooleanJSONSchema } from "~/metadata/commonObjects/boolean/types"
-import { ColorJSONSchema } from "~/metadata/commonObjects/color/types"
-import { FormattedI8nTextJSONSchema } from "~/metadata/commonObjects/formattedI8nText/types"
-import { I8nTextJSONSchema } from "~/metadata/commonObjects/i8nText/types"
-import { MetadataSingleValueJSONSchema } from "~/metadata/commonObjects/metadataValue/types"
-import { ConfigurationContext } from "~/metadata/context/types"
-import { ExportToJSONSchemaFn, registerTypeRule } from "~/metadata/orchestration"
-import { exportSystemEnumerationToJSONSchema } from "~/metadata/systemEnumerations/toJSONSchema"
+import { BooleanJSONSchema } from "../../boolean/types"
+import { ColorJSONSchema } from "../../color/types"
+import { FormattedI8nTextJSONSchema } from "../../formattedI8nText/types"
+import { I8nTextJSONSchema } from "../../i8nText/types"
+import { MetadataSingleValueJSONSchema } from "../../metadataValue/types"
+import { ConfigurationContext } from "../../../context/types"
+import { ExportToJSONSchemaFn, registerTypeRule } from "../../../orchestration"
+import { exportSystemEnumerationToJSONSchema } from "../../../systemEnumerations/toJSONSchema"
 import {
   StandardPeriodVariantFromYAML,
   type SystemEnumerationPropertyRule,
   type SystemEnumerationTypeMap,
-} from "~/metadata/systemEnumerations/types"
+} from "../../../systemEnumerations/types"
 import { createSettingsParameterValueJSONSchema } from "../parameterValue/toJSONSchema"
 import type { SettingsParameterValuePropertyRule } from "../parameterValue/types"
 import { AppearanceFieldsRules } from "./rules"

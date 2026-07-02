@@ -1,6 +1,6 @@
 import type { TSchema } from "@sinclair/typebox"
-import type { ConfigurationContext } from "~/metadata/context/types"
-import type { PropertyRule } from "~/metadata/orchestration/property/types"
+import type { ConfigurationContext } from "../context/types"
+import type { PropertyRule } from "../orchestration/property/types"
 import { canConvertToPascalCase } from "./canConvertToPascalCase"
 
 type YamlPath = readonly (string | number)[]
@@ -27,10 +27,7 @@ export interface ApplyExcludedEqualNameYAMLToJSONSchemaParams {
 }
 
 export function isExcludeIfEqualNameYAMLTextRule(rule: PropertyRule): boolean {
-  return (
-    rule.excludeIfEqualNameYAML === true &&
-    (rule.type === "I8nText" || rule.type === "FormattedI8nText")
-  )
+  return rule.excludeIfEqualNameYAML === true && (rule.type === "I8nText" || rule.type === "FormattedI8nText")
 }
 
 export function findExcludedEqualNameYAMLOccurrence(
@@ -54,9 +51,7 @@ export function findExcludedEqualNameYAMLOccurrence(
   return findI8nTextOccurrence({ context, value, name, path })
 }
 
-export function applyExcludedEqualNameYAMLToJSONSchema(
-  params: ApplyExcludedEqualNameYAMLToJSONSchemaParams
-): TSchema {
+export function applyExcludedEqualNameYAMLToJSONSchema(params: ApplyExcludedEqualNameYAMLToJSONSchemaParams): TSchema {
   const { rule, schema } = params
   if (!isExcludeIfEqualNameYAMLTextRule(rule)) return schema
 

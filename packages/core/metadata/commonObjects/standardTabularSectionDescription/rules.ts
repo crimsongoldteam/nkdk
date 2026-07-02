@@ -1,8 +1,8 @@
-import { standardTabularSectionAttributeDescriptionsRule } from "~/metadata/commonObjects/standardTabularSectionDescription/builders"
-import { i8nTextRule } from "~/metadata/commonObjects/i8nText/types"
-import { stringRule } from "~/metadata/commonObjects/string/types"
-import { systemEnumerationRule } from "~/metadata/systemEnumerations/types"
-import { MetadataItemRule } from "~/metadata/orchestration/property/types"
+import { standardTabularSectionAttributeDescriptionsRule } from "./builders"
+import { i8nTextRule } from "../i8nText/types"
+import { stringRule } from "../string/types"
+import { systemEnumerationRule } from "../../systemEnumerations/types"
+import type { MetadataItemRule } from "../../orchestration/property/types"
 export const StandardTabularSectionDescriptionRules = {
   itemType: "StandardTabularSectionDescription",
   properties: {

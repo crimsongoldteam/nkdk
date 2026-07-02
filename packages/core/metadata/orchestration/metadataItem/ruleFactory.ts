@@ -1,6 +1,6 @@
 import { Type } from "@sinclair/typebox"
-import { PropertyRuleType } from "~/metadata/orchestration/property/registry"
-import { MetadataItemRule } from "~/metadata/orchestration/property/types"
+import { PropertyRuleType } from "../property/registry"
+import type { MetadataItemRule } from "../property/types"
 import { registerTypeRule } from "../property/typeRuleRegistry"
 import { registerExportToXML } from "./registerExportToXML"
 import { registerExportToYAML } from "./registerExportToYAML"
@@ -13,10 +13,7 @@ type MetadataItemRuleParams<Rule extends MetadataItemRule, PropertyType extends 
   itemRule: Rule
 }
 
-export const registerMetadataItemRule = <
-  Rule extends MetadataItemRule,
-  PropertyType extends PropertyRuleType,
->(
+export const registerMetadataItemRule = <Rule extends MetadataItemRule, PropertyType extends PropertyRuleType>(
   params: MetadataItemRuleParams<Rule, PropertyType>
 ): void => {
   const { propertyType, itemRule } = params

@@ -1,11 +1,11 @@
 import {
   definePropertyRule as defineWidePropertyRule,
   type ExactRuleParams as WideExactRuleParams,
-} from "~/metadata/commonObjects/ruleBuilder"
-import type { PropertyRule as WidePropertyRuleBase } from "~/metadata/orchestration/property/types"
-import { BasePropertyRule } from "~/metadata/orchestration"
-import type { SystemEnumerationTypeMap } from "~/metadata/systemEnumerations/types"
-import * as SE from "~/metadata/systemEnumerations/types"
+} from "../../ruleBuilder"
+import type { PropertyRule as WidePropertyRuleBase } from "../../../orchestration/property/types"
+import { BasePropertyRule } from "../../../orchestration"
+import type { SystemEnumerationTypeMap } from "../../../systemEnumerations/types"
+import * as SE from "../../../systemEnumerations/types"
 import type { I8nText, I8nTextXML, I8nTextYAML } from "../../i8nText/types"
 import type {
   DcsMetadataValueValueType,

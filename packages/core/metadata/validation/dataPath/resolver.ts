@@ -1,12 +1,8 @@
-import type { ParsedYaml } from "~/yaml/parseMetadataYaml"
+import type { ParsedYaml } from "../../../yaml/parseMetadataYaml"
 import type { Diagnostic } from "../types"
 import { diagnosticAtYamlPath, type YamlPath } from "../yamlLocations"
 import { getKnownPlatformFormSource, type FormDataPathIndex } from "./formIndex"
-import {
-  resolveObjectFieldSegment,
-  standardAttributeAliasToYAML,
-  type ObjectFieldTableSource,
-} from "./objectFields"
+import { resolveObjectFieldSegment, standardAttributeAliasToYAML, type ObjectFieldTableSource } from "./objectFields"
 import type { OwnerMetadata, OwnerMetadataCache, OwnerMetadataResult } from "./ownerCache"
 import {
   getMetadataLinkPrefixesByOwnerKind,
@@ -16,12 +12,7 @@ import {
   resolveVirtualOwnerField,
 } from "./registry"
 import { typeDescriptionToDataPathTypeInfo } from "./typeDescription"
-import type {
-  DataPathTypeInfo,
-  FormDataPathSource,
-  FormDataPathTableSource,
-  OwnerTypeRef,
-} from "./types"
+import type { DataPathTypeInfo, FormDataPathSource, FormDataPathTableSource, OwnerTypeRef } from "./types"
 
 export interface ResolveDataPathParams {
   filePath: string
@@ -177,7 +168,8 @@ export function resolveDataPath(params: ResolveDataPathParams): ResolveDataPathR
       segment: segments[index - 1] ?? "",
       state: { ...state, typeInfo: resolvedTypeInfo },
     })
-    if (intermediateErrorAfterDefinedType !== undefined) return { status: "error", diagnostics: [intermediateErrorAfterDefinedType] }
+    if (intermediateErrorAfterDefinedType !== undefined)
+      return { status: "error", diagnostics: [intermediateErrorAfterDefinedType] }
 
     const ownerResult = params.ownerCache.get(resolvedTypeInfo.nextTypes[0] as OwnerTypeRef)
     if (ownerResult.status !== "ok") return ownerError(ownerResult)
@@ -193,11 +185,14 @@ export function resolveDataPath(params: ResolveDataPathParams): ResolveDataPathR
     if (transition !== undefined) {
       state = {
         typeInfo: transition.typeInfo,
-        source: transition.sourceKind === "registerRecords"
-          ? { kind: "registerRecords", owner: ownerResult.owner.ref, name: transition.sourceName }
-          : { kind: "objectField", owner: ownerResult.owner.ref, name: transition.sourceName },
+        source:
+          transition.sourceKind === "registerRecords"
+            ? { kind: "registerRecords", owner: ownerResult.owner.ref, name: transition.sourceName }
+            : { kind: "objectField", owner: ownerResult.owner.ref, name: transition.sourceName },
         ...(transition.tableSource !== undefined ? { tableSource: transition.tableSource } : {}),
-        ...(transition.registerRecordsOwner !== undefined ? { registerRecordsOwner: transition.registerRecordsOwner } : {}),
+        ...(transition.registerRecordsOwner !== undefined
+          ? { registerRecordsOwner: transition.registerRecordsOwner }
+          : {}),
       }
 
       if (isLast) return okTarget({ value, segments, state })
@@ -240,9 +235,10 @@ export function resolveDataPath(params: ResolveDataPathParams): ResolveDataPathR
       continue
     }
 
-    const commonAttribute = field === undefined
-      ? resolveCommonAttributeField({ params, owner: ownerResult.owner, segment: lookupSegment })
-      : undefined
+    const commonAttribute =
+      field === undefined
+        ? resolveCommonAttributeField({ params, owner: ownerResult.owner, segment: lookupSegment })
+        : undefined
     if (commonAttribute !== undefined) {
       state = {
         typeInfo: commonAttribute.typeInfo,
@@ -312,10 +308,7 @@ function tableSourceFromObjectField(field: {
   return {
     table,
     columns: new Map(),
-    hasColumns:
-      table.kind === "ValueList" ||
-      table.kind === "GanttChart" ||
-      table.kind === "RegisterRecordSet",
+    hasColumns: table.kind === "ValueList" || table.kind === "GanttChart" || table.kind === "RegisterRecordSet",
   }
 }
 
@@ -332,9 +325,7 @@ function standardPeriodField(segment: string): { typeInfo: DataPathTypeInfo } | 
 function resolveConstantSetItem(params: {
   params: ResolveDataPathParams
   segment: string
-}):
-  | { status: "ok"; typeInfo: DataPathTypeInfo }
-  | Exclude<OwnerMetadataResult, { status: "ok" }> {
+}): { status: "ok"; typeInfo: DataPathTypeInfo } | Exclude<OwnerMetadataResult, { status: "ok" }> {
   const ownerResult = params.params.ownerCache.get({ kind: "Константа", name: params.segment })
   if (ownerResult.status !== "ok") return ownerResult
 
@@ -363,7 +354,10 @@ function resolveDefinedTypeInfo(params: {
   return { status: "ok", typeInfo: mergeResolvedDefinedTypeInfo(params.typeInfo, typeInfos) }
 }
 
-function mergeResolvedDefinedTypeInfo(source: DataPathTypeInfo, resolvedItems: readonly DataPathTypeInfo[]): DataPathTypeInfo {
+function mergeResolvedDefinedTypeInfo(
+  source: DataPathTypeInfo,
+  resolvedItems: readonly DataPathTypeInfo[]
+): DataPathTypeInfo {
   const kinds = [...source.kinds]
   const nextTypes = [...source.nextTypes]
   const sourceTexts = source.sourceText !== undefined ? [source.sourceText] : []
@@ -509,9 +503,7 @@ function resolveTableColumn(params: {
   state: TraversalState
   segment: string
   isLast: boolean
-}):
-  | { status: "continue"; state: TraversalState }
-  | { status: "done"; result: ResolveDataPathResult } {
+}): { status: "continue"; state: TraversalState } | { status: "done"; result: ResolveDataPathResult } {
   const { tableSource } = params.state
   if (tableSource === undefined) return { status: "continue", state: params.state }
 
@@ -566,7 +558,8 @@ function resolveTableColumn(params: {
       tablePath: nestedTablePath,
     }),
   })
-  if (params.isLast) return { status: "done", result: okTarget({ value: params.value, segments: params.segments, state }) }
+  if (params.isLast)
+    return { status: "done", result: okTarget({ value: params.value, segments: params.segments, state }) }
 
   return { status: "continue", state }
 }
@@ -583,7 +576,11 @@ function tableSourceFromColumn(params: {
   return {
     table,
     columns,
-    hasColumns: columns.size > 0 || table.kind === "ValueList" || table.kind === "GanttChart" || table.kind === "RegisterRecordSet",
+    hasColumns:
+      columns.size > 0 ||
+      table.kind === "ValueList" ||
+      table.kind === "GanttChart" ||
+      table.kind === "RegisterRecordSet",
   }
 }
 
@@ -592,14 +589,17 @@ function resolveRegisteredColumn(params: {
   tableSource: FormDataPathTableSource | ObjectFieldTableSource
   segment: string
 }): { status: "ok"; column?: TableColumnSource } | { status: "error"; result: ResolveDataPathResult } {
-  const ownerResult = params.tableSource.table.kind === "RegisterRecordSet"
-    ? params.params.ownerCache.get(params.tableSource.table.owner)
-    : undefined
-  if (ownerResult?.status !== undefined && ownerResult.status !== "ok") return { status: "error", result: ownerError(ownerResult) }
+  const ownerResult =
+    params.tableSource.table.kind === "RegisterRecordSet"
+      ? params.params.ownerCache.get(params.tableSource.table.owner)
+      : undefined
+  if (ownerResult?.status !== undefined && ownerResult.status !== "ok")
+    return { status: "error", result: ownerError(ownerResult) }
 
-  const field = ownerResult?.status === "ok"
-    ? resolveObjectFieldSegment({ index: ownerResult.owner.fieldIndex, segment: params.segment })
-    : undefined
+  const field =
+    ownerResult?.status === "ok"
+      ? resolveObjectFieldSegment({ index: ownerResult.owner.fieldIndex, segment: params.segment })
+      : undefined
   const column = resolveRegisteredTableColumn({
     table: params.tableSource.table,
     segment: params.segment,
@@ -617,13 +617,11 @@ function isUnknownTypeInfo(typeInfo: DataPathTypeInfo): boolean {
   return typeInfo.kinds.length === 1 && typeInfo.kinds[0] === "unknown"
 }
 
-function tableNameForTableSource(params: {
-  state: TraversalState
-  segments: readonly string[]
-}): string {
+function tableNameForTableSource(params: { state: TraversalState; segments: readonly string[] }): string {
   const table = params.state.tableSource?.table
   if (table?.kind === "TabularSection") return table.name
-  if (table?.kind === "RegisterRecordSet" && params.state.source.kind === "registerRecordSet") return params.state.source.name
+  if (table?.kind === "RegisterRecordSet" && params.state.source.kind === "registerRecordSet")
+    return params.state.source.name
   if (params.state.source.kind === "tableColumn") return params.state.source.name
   if (params.state.source.kind === "objectField") return params.state.source.name
   return segmentLookupName(params.segments[0] ?? "")
@@ -672,7 +670,7 @@ function validateIntermediateType(params: {
     return diagnostic(
       params.params,
       "error",
-      `ПутьКДанным "${params.value}": промежуточный реквизит "${params.segment}" имеет составной тип`,
+      `ПутьКДанным "${params.value}": промежуточный реквизит "${params.segment}" имеет составной тип`
     )
   }
 
@@ -688,7 +686,7 @@ function validateIntermediateType(params: {
       return diagnostic(
         params.params,
         "error",
-        `ПутьКДанным "${params.value}": промежуточный реквизит "${params.segment}" имеет неподдерживаемый тип`,
+        `ПутьКДанным "${params.value}": промежуточный реквизит "${params.segment}" имеет неподдерживаемый тип`
       )
     }
 
@@ -696,14 +694,14 @@ function validateIntermediateType(params: {
       return diagnostic(
         params.params,
         "error",
-        `ПутьКДанным "${params.value}": промежуточный реквизит "${params.segment}" не является объектом`,
+        `ПутьКДанным "${params.value}": промежуточный реквизит "${params.segment}" не является объектом`
       )
     }
 
     return diagnostic(
       params.params,
       "error",
-      `ПутьКДанным "${params.value}": промежуточный реквизит "${params.segment}" имеет неизвестный тип`,
+      `ПутьКДанным "${params.value}": промежуточный реквизит "${params.segment}" имеет неизвестный тип`
     )
   }
 
@@ -711,7 +709,7 @@ function validateIntermediateType(params: {
     return diagnostic(
       params.params,
       "error",
-      `ПутьКДанным "${params.value}": промежуточный реквизит "${params.segment}" имеет неподдерживаемый тип`,
+      `ПутьКДанным "${params.value}": промежуточный реквизит "${params.segment}" имеет неподдерживаемый тип`
     )
   }
 
@@ -719,7 +717,9 @@ function validateIntermediateType(params: {
 }
 
 function isScalarTerminalKind(kind: string): boolean {
-  return kind === "boolean" || kind === "dateTime" || kind === "Picture" || kind === "scalar" || kind === "typeDescription"
+  return (
+    kind === "boolean" || kind === "dateTime" || kind === "Picture" || kind === "scalar" || kind === "typeDescription"
+  )
 }
 
 function ownerError(result: Exclude<OwnerMetadataResult, { status: "ok" }>): ResolveDataPathResult {
@@ -757,11 +757,7 @@ function error(params: ResolveDataPathParams, message: string): ResolveDataPathR
   }
 }
 
-function diagnostic(
-  params: ResolveDataPathParams,
-  severity: Diagnostic["severity"],
-  message: string,
-): Diagnostic {
+function diagnostic(params: ResolveDataPathParams, severity: Diagnostic["severity"], message: string): Diagnostic {
   return diagnosticAtYamlPath({
     filePath: params.filePath,
     parsed: params.parsed,

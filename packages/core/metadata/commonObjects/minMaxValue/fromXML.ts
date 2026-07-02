@@ -1,15 +1,11 @@
-import { ConfigurationContextFromXML } from "~/metadata/context/types"
-import { registerTypeRule } from "~/metadata/orchestration/property/typeRuleRegistry"
-import { PropertyRule } from "~/metadata/orchestration/property/types"
-import { attachMinMaxValueXsiType, MinMaxValueXsiType } from "./types"
+import { ConfigurationContextFromXML } from "../../context/types"
+import { registerTypeRule } from "../../orchestration/property/typeRuleRegistry"
+import type { PropertyRule } from "../../orchestration/property/types"
+import { attachMinMaxValueXsiType, type MinMaxValueXsiType } from "./types"
 
 const MIN_MAX_VALUE_XSI_TYPES = new Set<MinMaxValueXsiType>(["xs:string", "xs:decimal"])
 
-type MinMaxValueXML =
-  | number
-  | string
-  | { "#text"?: number | string; "_xsi:type"?: string }
-  | undefined
+type MinMaxValueXML = number | string | { "#text"?: number | string; "_xsi:type"?: string } | undefined
 
 export const importMinMaxValueFromXML = (
   context: ConfigurationContextFromXML,

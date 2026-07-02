@@ -1,4 +1,4 @@
-import { PropertyRule } from "~/metadata/orchestration/property/types"
+import type { PropertyRule } from "../../orchestration/property/types"
 import { ConfigurationContext } from "../../context/types"
 import {
   ChoiceParameterLink,

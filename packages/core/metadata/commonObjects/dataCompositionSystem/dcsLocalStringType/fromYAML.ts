@@ -1,4 +1,4 @@
-import { importI8nTextFromYAML } from "~/metadata/commonObjects/i8nText/fromYAML"
-import { registerTypeRule } from "~/metadata/orchestration"
+import { importI8nTextFromYAML } from "../../i8nText/fromYAML"
+import { registerTypeRule } from "../../../orchestration"
 
 registerTypeRule("DcsLocalStringType", "importFromYAML", importI8nTextFromYAML)

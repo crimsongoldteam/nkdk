@@ -1,5 +1,5 @@
-import { NamedElement } from "~/metadata/forms/elements/baseElement/types"
-import { ExtendedTooltip, ExtendedTooltipYAML } from "~/metadata/forms/elements/extendedTooltip/types"
+import { NamedElement } from "../../baseElement/types"
+import { ExtendedTooltip, ExtendedTooltipYAML } from "../types"
 
 export const defaultExtendedTooltip: ExtendedTooltip = {
   itemType: "ExtendedTooltip",

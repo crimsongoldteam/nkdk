@@ -1,5 +1,5 @@
-import { MetadataAttributes, MetadataAttributesYAML } from "~/metadata/commonObjects/metadataAttribute/types"
-import { explicitYAMLString } from "~/yaml/explicitString"
+import { MetadataAttributes, MetadataAttributesYAML } from "../types"
+import { explicitYAMLString } from "../../../../yaml/explicitString"
 
 //#region XML fixtures
 

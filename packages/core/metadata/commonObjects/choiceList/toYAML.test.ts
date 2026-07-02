@@ -6,8 +6,8 @@ import {
   oneItemChoiceListYAML,
   twoItemsChoiceList,
   twoItemsChoiceListYAML,
-} from "~/metadata/commonObjects/choiceList/__fixtures__/data"
-import { mockContext, mockRule } from "~/tests/mockContext"
+} from "./__fixtures__/data"
+import { mockContext, mockRule } from "../../../tests/mockContext"
 import { exportChoiceListToYAML } from "./toYAML"
 
 describe("exportChoiceListToYAML", () => {

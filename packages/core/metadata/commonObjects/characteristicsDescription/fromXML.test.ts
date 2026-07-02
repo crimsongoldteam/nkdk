@@ -1,6 +1,6 @@
 import { describe, expect, it } from "vitest"
 import { multipleCharacteristics, singleCharacteristic } from "./__fixtures__/data"
-import { testImportPropertyFromXML } from "~/tests/property/importPropertyFromXML"
+import { testImportPropertyFromXML } from "../../../tests/property/importPropertyFromXML"
 
 const rule = { type: "CharacteristicsDescriptions" } as const
 

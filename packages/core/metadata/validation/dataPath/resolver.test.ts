@@ -1,23 +1,23 @@
 import { describe, expect, it } from "vitest"
-import type { TypeDescription } from "~/metadata/commonObjects/typeDescription/types"
-import type { ClientApplicationForm } from "~/metadata/forms/clientApplicationForm/types"
-import type { FormAttribute } from "~/metadata/forms/commonObjects/formAttribute/types"
-import { MetadataAccountingRegisterRules } from "~/metadata/appliedObjects/metadataAccountingRegister/rules"
-import { MetadataAccumulationRegisterRules } from "~/metadata/appliedObjects/metadataAccumulationRegister/rules"
-import { MetadataCatalogRules } from "~/metadata/appliedObjects/metadataCatalog/rules"
-import { MetadataChartOfAccountsRules } from "~/metadata/appliedObjects/metadataChartOfAccounts/rules"
-import { MetadataChartOfCalculationTypesRules } from "~/metadata/appliedObjects/metadataChartOfCalculationTypes/rules"
-import { MetadataChartOfCharacteristicTypesRules } from "~/metadata/appliedObjects/metadataChartOfCharacteristicTypes/rules"
-import { MetadataCommonAttributeRules } from "~/metadata/appliedObjects/metadataCommonAttribute/rules"
-import { MetadataConstantRules } from "~/metadata/appliedObjects/metadataConstant/rules"
-import { MetadataDefinedTypeRules } from "~/metadata/appliedObjects/metadataDefinedType/rules"
-import { MetadataDocumentRules } from "~/metadata/appliedObjects/metadataDocument/rules"
-import { MetadataExchangePlanRules } from "~/metadata/appliedObjects/metadataExchangePlan/rules"
-import { MetadataInformationRegisterRules } from "~/metadata/appliedObjects/metadataInformationRegister/rules"
-import { MetadataReportRules } from "~/metadata/appliedObjects/metadataReport/rules"
-import { MetadataTaskRules } from "~/metadata/appliedObjects/metadataTask/rules"
-import type { MetadataItem, MetadataItemRule } from "~/metadata/orchestration/property/types"
-import { parseMetadataYaml } from "~/yaml/parseMetadataYaml"
+import type { TypeDescription } from "../../commonObjects/typeDescription/types"
+import type { ClientApplicationForm } from "../../forms/clientApplicationForm/types"
+import type { FormAttribute } from "../../forms/commonObjects/formAttribute/types"
+import { MetadataAccountingRegisterRules } from "../../appliedObjects/metadataAccountingRegister/rules"
+import { MetadataAccumulationRegisterRules } from "../../appliedObjects/metadataAccumulationRegister/rules"
+import { MetadataCatalogRules } from "../../appliedObjects/metadataCatalog/rules"
+import { MetadataChartOfAccountsRules } from "../../appliedObjects/metadataChartOfAccounts/rules"
+import { MetadataChartOfCalculationTypesRules } from "../../appliedObjects/metadataChartOfCalculationTypes/rules"
+import { MetadataChartOfCharacteristicTypesRules } from "../../appliedObjects/metadataChartOfCharacteristicTypes/rules"
+import { MetadataCommonAttributeRules } from "../../appliedObjects/metadataCommonAttribute/rules"
+import { MetadataConstantRules } from "../../appliedObjects/metadataConstant/rules"
+import { MetadataDefinedTypeRules } from "../../appliedObjects/metadataDefinedType/rules"
+import { MetadataDocumentRules } from "../../appliedObjects/metadataDocument/rules"
+import { MetadataExchangePlanRules } from "../../appliedObjects/metadataExchangePlan/rules"
+import { MetadataInformationRegisterRules } from "../../appliedObjects/metadataInformationRegister/rules"
+import { MetadataReportRules } from "../../appliedObjects/metadataReport/rules"
+import { MetadataTaskRules } from "../../appliedObjects/metadataTask/rules"
+import type { MetadataItem, MetadataItemRule } from "../../orchestration/property/types"
+import { parseMetadataYaml } from "../../../yaml/parseMetadataYaml"
 import { buildFormDataPathIndex, type FormDataPathIndex } from "./formIndex"
 import { buildObjectFieldIndex } from "./objectFields"
 import type { OwnerMetadata, OwnerMetadataCache, OwnerMetadataResult } from "./ownerCache"
@@ -72,7 +72,7 @@ describe("resolveDataPath", () => {
       expect(
         resolve(path, {
           index: indexWithAttributes([attribute("Список", { type: ["ValueListType"] })]),
-        }),
+        })
       ).toMatchObject({
         status: "ok",
         diagnostics: [],
@@ -127,7 +127,7 @@ describe("resolveDataPath", () => {
       expect(
         resolve(path, {
           index: indexWithAttributes([attribute("ДиаграммаГанта", { type: ["ДиаграммаГанта"] })]),
-        }),
+        })
       ).toMatchObject({
         status: "ok",
         diagnostics: [],
@@ -197,9 +197,7 @@ describe("resolveDataPath", () => {
     const result = resolve("Доверенность[0].Документ[0].Довер[0].НомДовер", {
       index: indexWithAttributes([
         {
-          ...attribute("Доверенность", { type: ["ValueTable"] }, [
-            column("Документ", { type: ["ValueTable"] }),
-          ]),
+          ...attribute("Доверенность", { type: ["ValueTable"] }, [column("Документ", { type: ["ValueTable"] })]),
           additionalColumns: [
             {
               table: "Доверенность.Документ",
@@ -230,9 +228,7 @@ describe("resolveDataPath", () => {
     const result = resolve("Доверенность[0].Документ[0].НетТакойКолонки", {
       index: indexWithAttributes([
         {
-          ...attribute("Доверенность", { type: ["ValueTable"] }, [
-            column("Документ", { type: ["ValueTable"] }),
-          ]),
+          ...attribute("Доверенность", { type: ["ValueTable"] }, [column("Документ", { type: ["ValueTable"] })]),
           additionalColumns: [
             {
               table: "Доверенность.Документ",
@@ -247,8 +243,7 @@ describe("resolveDataPath", () => {
       status: "error",
       diagnostics: [
         expect.objectContaining({
-          message:
-            'ПутьКДанным "Доверенность[0].Документ[0].НетТакойКолонки": неизвестная колонка "НетТакойКолонки"',
+          message: 'ПутьКДанным "Доверенность[0].Документ[0].НетТакойКолонки": неизвестная колонка "НетТакойКолонки"',
         }),
       ],
     })
@@ -306,9 +301,7 @@ describe("resolveDataPath", () => {
 
   it("reports an intermediate composite object and scalar type", () => {
     const result = resolve("Контрагент.Наименование", {
-      index: indexWithAttributes([
-        attribute("Контрагент", { type: ["CatalogRef.Контрагенты", "string"] }),
-      ]),
+      index: indexWithAttributes([attribute("Контрагент", { type: ["CatalogRef.Контрагенты", "string"] })]),
       ownerCache: ownerCache([owner({ ref: { kind: "Справочник", name: "Контрагенты" } })]),
     })
 
@@ -823,7 +816,7 @@ describe("resolveDataPath", () => {
         resolve(path, {
           index: indexWithAttributes([attribute("Отчет", { type: ["ReportObject.АнализСубконто"] })]),
           ownerCache: owners,
-        }),
+        })
       ).toMatchObject({
         status: "ok",
         diagnostics: [],
@@ -1033,7 +1026,7 @@ describe("resolveDataPath", () => {
         resolve(path, {
           index: indexWithAttributes([attribute("Объект", { type: ["DocumentRef.Операция"] })]),
           ownerCache: owners,
-        }),
+        })
       ).toMatchObject({
         status: "ok",
         diagnostics: [],
@@ -1062,7 +1055,7 @@ describe("resolveDataPath", () => {
         resolve(path, {
           index: indexWithAttributes([attribute("Объект", { type: ["DocumentRef.Операция"] })]),
           ownerCache: owners,
-        }),
+        })
       ).toMatchObject({
         status: "ok",
         diagnostics: [],
@@ -1082,7 +1075,7 @@ describe("resolveDataPath", () => {
       resolve("Объект.RegisterRecords.Хозрасчетный.ВалютаDr", {
         index: indexWithAttributes([attribute("Объект", { type: ["DocumentRef.Операция"] })]),
         ownerCache: owners,
-      }),
+      })
     ).toMatchObject({
       status: "ok",
       diagnostics: [],
@@ -1100,7 +1093,7 @@ describe("resolveDataPath", () => {
       resolve("Объект.RegisterRecords.Хозрасчетный.КоличествоCr", {
         index: indexWithAttributes([attribute("Объект", { type: ["DocumentRef.Операция"] })]),
         ownerCache: owners,
-      }),
+      })
     ).toMatchObject({
       status: "ok",
       diagnostics: [],
@@ -1156,7 +1149,7 @@ describe("resolveDataPath", () => {
         resolve(path, {
           index: indexWithAttributes([attribute("Объект", { type: ["DocumentRef.Операция"] })]),
           ownerCache: owners,
-        }),
+        })
       ).toMatchObject({
         status: "error",
         diagnostics: [
@@ -1193,7 +1186,7 @@ describe("resolveDataPath", () => {
       resolve("Объект.ExtDimensionTypes.ExtDimensionType", {
         index: indexWithAttributes([attribute("Объект", { type: ["ChartOfAccountsRef.Хозрасчетный"] })]),
         ownerCache: owners,
-      }),
+      })
     ).toMatchObject({
       status: "ok",
       diagnostics: [],
@@ -1216,7 +1209,7 @@ describe("resolveDataPath", () => {
         resolve(path, {
           index: indexWithAttributes([attribute("Объект", { type: ["ChartOfAccountsRef.Хозрасчетный"] })]),
           ownerCache: owners,
-        }),
+        })
       ).toMatchObject({
         status: "ok",
         diagnostics: [],
@@ -1273,7 +1266,7 @@ describe("resolveDataPath", () => {
         resolve(path, {
           index: indexWithAttributes([attribute("Объект", { type: ["ChartOfAccountsRef.Хозрасчетный"] })]),
           ownerCache: owners,
-        }),
+        })
       ).toMatchObject({
         status: "ok",
         diagnostics: [],
@@ -1328,7 +1321,7 @@ describe("resolveDataPath", () => {
         resolve(path, {
           index: indexWithAttributes([attribute("Объект", { type: ["ChartOfCalculationTypesRef.Начисления"] })]),
           ownerCache: owners,
-        }),
+        })
       ).toMatchObject({
         status: "ok",
         diagnostics: [],
@@ -1344,7 +1337,7 @@ describe("resolveDataPath", () => {
       resolve("Объект.BaseCalculationTypes.CalculationType", {
         index: indexWithAttributes([attribute("Объект", { type: ["ChartOfCalculationTypesRef.Начисления"] })]),
         ownerCache: owners,
-      }),
+      })
     ).toMatchObject({
       status: "ok",
       diagnostics: [],
@@ -1465,11 +1458,15 @@ describe("resolveDataPath", () => {
 
     expect(rowsCount).toMatchObject({
       status: "error",
-      diagnostics: [expect.objectContaining({ message: 'ПутьКДанным "Объект.RowsCount": неизвестный реквизит "RowsCount"' })],
+      diagnostics: [
+        expect.objectContaining({ message: 'ПутьКДанным "Объект.RowsCount": неизвестный реквизит "RowsCount"' }),
+      ],
     })
     expect(total).toMatchObject({
       status: "error",
-      diagnostics: [expect.objectContaining({ message: 'ПутьКДанным "Объект.TotalСумма": неизвестный реквизит "TotalСумма"' })],
+      diagnostics: [
+        expect.objectContaining({ message: 'ПутьКДанным "Объект.TotalСумма": неизвестный реквизит "TotalСумма"' }),
+      ],
     })
   })
 
@@ -1663,7 +1660,7 @@ describe("resolveDataPath", () => {
         resolve(path, {
           index: indexWithAttributes([attribute("Объект", { type: ["CatalogRef.Номенклатура"] })]),
           ownerCache: owners,
-        }),
+        })
       ).toMatchObject({
         status: "ok",
         diagnostics: [],
@@ -1700,7 +1697,7 @@ describe("resolveDataPath", () => {
         resolve(path, {
           index: indexWithAttributes([attribute("Объект", { type: ["TaskObject.ЗадачаИсполнителя"] })]),
           ownerCache: owners,
-        }),
+        })
       ).toMatchObject({
         status: "ok",
         diagnostics: [],
@@ -1785,7 +1782,11 @@ describe("resolveDataPath", () => {
       target: {
         value: "Объект.ValueType",
         segments: ["Объект", "ValueType"],
-        source: { kind: "objectField", owner: { kind: "ПланВидовХарактеристик", name: "ВидыСубконто" }, name: "ТипЗначения" },
+        source: {
+          kind: "objectField",
+          owner: { kind: "ПланВидовХарактеристик", name: "ВидыСубконто" },
+          name: "ТипЗначения",
+        },
         typeInfo: { kinds: ["typeDescription"], sourceText: "ПланВидовХарактеристик.ValueType" },
       },
     })
@@ -1846,7 +1847,7 @@ describe("resolveDataPath", () => {
         resolve(path, {
           index: indexWithAttributes([attribute("Объект", { type: ["ExchangePlanRef.Синхронизация"] })]),
           ownerCache: owners,
-        }),
+        })
       ).toMatchObject({
         status: "ok",
         diagnostics: [],
@@ -1875,7 +1876,11 @@ describe("resolveDataPath", () => {
       status: "ok",
       diagnostics: [],
       target: {
-        source: { kind: "objectField", owner: { kind: "Справочник", name: "ГруппыАналитик" }, name: "Предопределенный" },
+        source: {
+          kind: "objectField",
+          owner: { kind: "Справочник", name: "ГруппыАналитик" },
+          name: "Предопределенный",
+        },
         typeInfo: { kinds: ["boolean"], sourceText: "Справочник.Predefined" },
       },
     })
@@ -1894,7 +1899,7 @@ describe("resolveDataPath", () => {
       resolve("Объект.ОбластьДанныхОсновныеДанные", {
         index: indexWithAttributes([attribute("Объект", { type: ["ExchangePlanObject.Синхронизация"] })]),
         ownerCache: owners,
-      }),
+      })
     ).toMatchObject({
       status: "ok",
       diagnostics: [],
@@ -1912,7 +1917,7 @@ describe("resolveDataPath", () => {
       resolve("Объект.ThisNode", {
         index: indexWithAttributes([attribute("Объект", { type: ["ExchangePlanObject.Синхронизация"] })]),
         ownerCache: owners,
-      }),
+      })
     ).toMatchObject({
       status: "ok",
       diagnostics: [],
@@ -1963,7 +1968,7 @@ describe("resolveDataPath", () => {
         resolve(path, {
           index: indexWithAttributes([attribute("Объект", { type: ["CatalogRef.Номенклатура"] })]),
           ownerCache: ownerCache([owner({ ref: { kind: "Справочник", name: "Номенклатура" } })]),
-        }),
+        })
       ).toMatchObject({
         status: "error",
       })
@@ -1998,7 +2003,7 @@ describe("resolveDataPath", () => {
         resolve(path, {
           index: indexWithAttributes([attribute("Объект", { type: ["CatalogRef.Номенклатура"] })]),
           ownerCache: ownerCache([owner({ ref: { kind: "Справочник", name: "Номенклатура" } })]),
-        }),
+        })
       ).toMatchObject({
         status: "error",
         diagnostics: [
@@ -2134,7 +2139,8 @@ describe("resolveDataPath", () => {
       status: "error",
       diagnostics: [
         expect.objectContaining({
-          message: 'ПутьКДанным "Хранилище.Settings.Filter": промежуточный реквизит "Хранилище" имеет неподдерживаемый тип',
+          message:
+            'ПутьКДанным "Хранилище.Settings.Filter": промежуточный реквизит "Хранилище" имеет неподдерживаемый тип',
         }),
       ],
     })
@@ -2161,7 +2167,7 @@ describe("resolveDataPath", () => {
       expect(
         resolve(path, {
           index: indexWithAttributes([attribute("Период", { type: ["StandardPeriod"] })]),
-        }),
+        })
       ).toMatchObject({
         status: "ok",
         diagnostics: [],
@@ -2341,7 +2347,7 @@ function resolve(
     ownerCache?: OwnerMetadataCache
     tableContext?: { dataPath: string }
     yamlPath?: string[]
-  },
+  }
 ) {
   const parsed = parseMetadataYaml(`ПутьКДанным: ${JSON.stringify(value)}\n`)
 
@@ -2413,10 +2419,7 @@ function reportWithFormOnlyTable(): FormAttribute {
       },
       {
         table: "Отчет.СписокВидовСубконто",
-        columns: [
-          column("Value", { type: ["string"] }),
-          column("Picture", { type: ["Picture"] }),
-        ],
+        columns: [column("Value", { type: ["string"] }), column("Picture", { type: ["Picture"] })],
       },
     ],
   } as FormAttribute
@@ -2473,9 +2476,7 @@ function chartOfAccountsOwners(): OwnerMetadataCache {
           { name: "Суммовой", type: { type: ["boolean"] } },
           { name: "Валютный", type: { type: ["boolean"] } },
         ],
-        accountingFlags: [
-          { name: "Валютный", type: { type: ["boolean"] } },
-        ],
+        accountingFlags: [{ name: "Валютный", type: { type: ["boolean"] } }],
       },
     }),
   ])
@@ -2504,7 +2505,11 @@ function indexWithAttributes(attributes: FormAttribute[]): FormDataPathIndex {
   })
 }
 
-function attribute(name: string, type: TypeDescription | undefined, columns: FormAttribute["columns"] = []): FormAttribute {
+function attribute(
+  name: string,
+  type: TypeDescription | undefined,
+  columns: FormAttribute["columns"] = []
+): FormAttribute {
   return {
     itemType: "FormAttribute",
     name,

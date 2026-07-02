@@ -1,10 +1,10 @@
 import { existsSync, readdirSync } from "fs"
 import { join } from "path"
-import { rootFromYAML } from "~/metadata/commonObjects/metadataTargets/roots"
-import { getTypeRule } from "~/metadata/orchestration/property/typeRuleRegistry"
-import type { MetadataItemRule } from "~/metadata/orchestration/property/types"
-import type { MetadataRuleOperationTargetDescriptor } from "~/metadata/project/ruleResources"
-import { describeMetadataRuleOperationTargets } from "~/metadata/project/ruleResources"
+import { rootFromYAML } from "../commonObjects/metadataTargets/roots"
+import { getTypeRule } from "../orchestration/property/typeRuleRegistry"
+import type { MetadataItemRule } from "../orchestration/property/types"
+import type { MetadataRuleOperationTargetDescriptor } from "../project/ruleResources"
+import { describeMetadataRuleOperationTargets } from "../project/ruleResources"
 import type { ParsedMetadataOperationPath, ParsedMetadataOperationPathSegment } from "./operationPath"
 import type { MetadataOperationSnapshot, OperationSnapshotItem } from "./projectSnapshot"
 import type { MetadataFileItemRole, MetadataNamedChildKind } from "./types"
@@ -39,7 +39,7 @@ export interface ResolveMetadataOperationPathFailure {
 
 export function resolveMetadataOperationPath(
   snapshot: MetadataOperationSnapshot,
-  path: ParsedMetadataOperationPath,
+  path: ParsedMetadataOperationPath
 ): ResolvedMetadataOperationPath | ResolveMetadataOperationPathFailure {
   if (path.chain.length === 0) return resolveObjectTarget(snapshot, path)
   return resolveChainedTarget(snapshot, path)
@@ -47,7 +47,7 @@ export function resolveMetadataOperationPath(
 
 function resolveObjectTarget(
   snapshot: MetadataOperationSnapshot,
-  path: ParsedMetadataOperationPath,
+  path: ParsedMetadataOperationPath
 ): ResolvedMetadataOperationPath | ResolveMetadataOperationPathFailure {
   const item = findOwner(snapshot, path.owner)
   if (!item) return targetNotFound(`Объект не найден: ${path.owner.itemTypePrefix}.${path.owner.name}`)
@@ -74,7 +74,7 @@ function resolveObjectTarget(
 
 function resolveChainedTarget(
   snapshot: MetadataOperationSnapshot,
-  path: ParsedMetadataOperationPath,
+  path: ParsedMetadataOperationPath
 ): ResolvedMetadataOperationPath | ResolveMetadataOperationPathFailure {
   const item = findOwner(snapshot, path.owner)
   if (!item) return targetNotFound(`Владелец не найден: ${path.owner.itemTypePrefix}.${path.owner.name}`)
@@ -161,13 +161,17 @@ function resolveFileItemTarget(params: {
     params.snapshot.projectDir,
     params.path.owner.itemTypePrefix,
     params.path.owner.name,
-    params.descriptor.declaration.folderName,
+    params.descriptor.declaration.folderName
   )
   const itemDir = join(folderPath, params.segment.name)
   const yamlPath = join(itemDir, params.descriptor.declaration.yamlFileName)
   if (!existsSync(yamlPath)) return targetNotFound(`Файловый элемент не найден: ${params.segment.name}`)
 
-  const displayPath = [...params.displayParts, params.descriptor.declaration.migrationSegment, params.segment.name].join(".")
+  const displayPath = [
+    ...params.displayParts,
+    params.descriptor.declaration.migrationSegment,
+    params.segment.name,
+  ].join(".")
   return {
     ok: true,
     displayPath,
@@ -181,41 +185,48 @@ function resolveFileItemTarget(params: {
     absolutePath: yamlPath,
     resources: [itemDir, yamlPath],
     requiresMigration: false,
-    targetPrefix: [...params.canonicalParts, canonicalFileItemKind(params.descriptor.declaration.role), params.segment.name].join(
-      ".",
-    ),
+    targetPrefix: [
+      ...params.canonicalParts,
+      canonicalFileItemKind(params.descriptor.declaration.role),
+      params.segment.name,
+    ].join("."),
     targetKind: "fileItem",
   }
 }
 
 function findTargetDescriptor(
   rule: MetadataItemRule,
-  segment: ParsedMetadataOperationPathSegment,
+  segment: ParsedMetadataOperationPathSegment
 ): MetadataRuleOperationTargetDescriptor | undefined {
   return describeMetadataRuleOperationTargets(rule).find((candidate) => {
     const declaration = candidate.declaration
     if (declaration.kind === "namedCollectionTarget") return declaration.migrationSegment === segment.collectionSegment
-    if (declaration.kind === "fileItemCollectionTarget") return declaration.migrationSegment === segment.collectionSegment
+    if (declaration.kind === "fileItemCollectionTarget")
+      return declaration.migrationSegment === segment.collectionSegment
     return false
   })
 }
 
-function isFileItemTargetDescriptor(descriptor: MetadataRuleOperationTargetDescriptor): descriptor is FileItemTargetDescriptor {
+function isFileItemTargetDescriptor(
+  descriptor: MetadataRuleOperationTargetDescriptor
+): descriptor is FileItemTargetDescriptor {
   return descriptor.declaration.kind === "fileItemCollectionTarget"
 }
 
 function findOwner(
   snapshot: MetadataOperationSnapshot,
-  owner: { itemTypePrefix: string; name: string },
+  owner: { itemTypePrefix: string; name: string }
 ): OperationSnapshotItem | undefined {
-  return snapshot.items.find((item) => item.resource.owner.dir === owner.itemTypePrefix && item.resource.owner.name === owner.name)
+  return snapshot.items.find(
+    (item) => item.resource.owner.dir === owner.itemTypePrefix && item.resource.owner.name === owner.name
+  )
 }
 
 function namedCollection(value: unknown): Array<Record<string, unknown> & { name: string }> {
   if (!Array.isArray(value)) return []
   return value.filter(
     (item): item is Record<string, unknown> & { name: string } =>
-      typeof item === "object" && item !== null && typeof (item as { name?: unknown }).name === "string",
+      typeof item === "object" && item !== null && typeof (item as { name?: unknown }).name === "string"
   )
 }
 

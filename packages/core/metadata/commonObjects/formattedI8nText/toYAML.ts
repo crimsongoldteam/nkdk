@@ -1,5 +1,5 @@
-import { ConfigurationContext } from "~/metadata/context/types"
-import { PropertyRule, registerTypeRule } from "~/metadata/orchestration"
+import { ConfigurationContext } from "../../context/types"
+import { PropertyRule, registerTypeRule } from "../../orchestration"
 import { exportI8nTextDefaultToYAML, exportI8nTextToYAML } from "../i8nText/toYAML"
 import { FormattedI8nText, FormattedI8nTextPropertyRule, FormattedI8nTextValueYAML } from "./types"
 
@@ -14,7 +14,9 @@ export const exportFormattedI8nTextToYAML = <R extends FormattedI8nTextPropertyR
 
   const formattedRule = rule as FormattedI8nTextPropertyRule
 
-  return exportToYAML(context, formattedRule, text, name) as { [K in NonNullable<R["yaml"]>]?: FormattedI8nTextValueYAML }
+  return exportToYAML(context, formattedRule, text, name) as {
+    [K in NonNullable<R["yaml"]>]?: FormattedI8nTextValueYAML
+  }
 }
 
 const exportToYAML = <R extends FormattedI8nTextPropertyRule>(

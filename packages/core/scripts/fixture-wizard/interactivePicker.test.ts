@@ -45,7 +45,7 @@ describe("interactivePicker", () => {
         title: "Выберите каталог",
         items: ["Catalogs", "Documents"],
         defaultIndex: 1,
-      }),
+      })
     ).resolves.toBe("Documents")
   })
 
@@ -57,7 +57,7 @@ describe("interactivePicker", () => {
         prompt,
         title: "Выберите XML",
         items: ["Первый", "Второй"],
-      }),
+      })
     ).resolves.toBe("Второй")
   })
 
@@ -69,7 +69,7 @@ describe("interactivePicker", () => {
         prompt,
         title: "Выберите XML",
         items: ["Первый", "Второй"],
-      }),
+      })
     ).resolves.toBe("Первый")
     expect(questions).toHaveLength(3)
     expect(questions[1]).toContain("Введите число от 1 до 2")
@@ -83,7 +83,7 @@ describe("interactivePicker", () => {
         prompt,
         title: "Выберите XML",
         items: [],
-      }),
+      })
     ).rejects.toThrow("Нечего выбирать: список для «Выберите XML» пуст")
   })
 
@@ -110,8 +110,6 @@ describe("interactivePicker", () => {
   it("chooseXmlDir выбирает defaultXmlDir по Enter, если он есть в списке", async () => {
     const { prompt } = createPrompt([""])
 
-    await expect(chooseXmlDir(prompt, ["Catalogs", "Documents"], "Documents")).resolves.toBe(
-      "Documents",
-    )
+    await expect(chooseXmlDir(prompt, ["Catalogs", "Documents"], "Documents")).resolves.toBe("Documents")
   })
 })

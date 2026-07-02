@@ -1,4 +1,4 @@
-import { ExportToEnterpriseFunction } from "~/metadata/orchestration/property/fn"
+import { ExportToEnterpriseFunction } from "../../../orchestration/property/fn"
 
 // #endregion
 // #region factory

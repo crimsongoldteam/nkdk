@@ -1,6 +1,6 @@
 import { describe, expect, it } from "vitest"
-import { testExportAppliedObjectToYAML, testImportAppliedObjectFromXML } from "~/tests/appliedObject"
-import { explicitYAMLString } from "~/yaml/explicitString"
+import { testExportAppliedObjectToYAML, testImportAppliedObjectFromXML } from "../../../tests/appliedObject"
+import { explicitYAMLString } from "../../../yaml/explicitString"
 import { MetadataInformationRegisterRules } from "./rules"
 import { MetadataInformationRegister } from "./types"
 

@@ -1,7 +1,7 @@
 import { describe, expect, it } from "vitest"
-import { getTypeRule } from "~/metadata/orchestration"
-import type { PropertyRule } from "~/metadata/orchestration/property/types"
-import { mockContext } from "~/tests/mockContext"
+import { getTypeRule } from "../../orchestration"
+import type { PropertyRule } from "../../orchestration/property/types"
+import { mockContext } from "../../../tests/mockContext"
 import {
   exportAllowedIncomingShareRequestTypesToJSONSchema,
   exportAllowedIncomingShareRequestTypesToXML,
@@ -80,15 +80,11 @@ describe("AllowedIncomingShareRequestTypes", () => {
   })
 
   it("imports populated XML from all fixture shape", () => {
-    expect(importAllowedIncomingShareRequestTypesFromXML(mockContext, undefined, xmlFromAll)).toEqual(
-      modelFromAll
-    )
+    expect(importAllowedIncomingShareRequestTypesFromXML(mockContext, undefined, xmlFromAll)).toEqual(modelFromAll)
   })
 
   it("imports neutral XML empty text fields as empty strings", () => {
-    expect(
-      importAllowedIncomingShareRequestTypesFromXML(mockContext, undefined, neutralXmlWithEmptyFields)
-    ).toEqual([
+    expect(importAllowedIncomingShareRequestTypesFromXML(mockContext, undefined, neutralXmlWithEmptyFields)).toEqual([
       {
         mime: "",
         uti: "",
@@ -122,12 +118,8 @@ describe("AllowedIncomingShareRequestTypes", () => {
   })
 
   it("imports and exports YAML with technical nested names", () => {
-    expect(importAllowedIncomingShareRequestTypesFromYAML(mockContext, undefined, yamlFromAll)).toEqual(
-      modelFromAll
-    )
-    expect(exportAllowedIncomingShareRequestTypesToYAML(mockContext, undefined, modelFromAll)).toEqual(
-      yamlFromAll
-    )
+    expect(importAllowedIncomingShareRequestTypesFromYAML(mockContext, undefined, yamlFromAll)).toEqual(modelFromAll)
+    expect(exportAllowedIncomingShareRequestTypesToYAML(mockContext, undefined, modelFromAll)).toEqual(yamlFromAll)
   })
 
   it("keeps an explicitly empty collection as empty XML", () => {

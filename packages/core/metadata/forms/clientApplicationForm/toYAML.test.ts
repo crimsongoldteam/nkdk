@@ -13,10 +13,10 @@ import {
 } from "./__fixtures__/data"
 import { documentFullClientApplicationForm } from "./__fixtures__/documentFull"
 import { documentFullClientApplicationFormYAML } from "./__fixtures__/documentFull.yaml"
-import { mockContextToYAML } from "~/tests/mockContext"
+import { mockContextToYAML } from "../../../tests/mockContext"
 import { exportClientApplicationFormToYAML } from "./toYAML"
 import { ClientApplicationForm } from "./types"
-import type { ConfigurationContext } from "~/metadata/context/types"
+import type { ConfigurationContext } from "../../context/types"
 
 describe("exportClientApplicationFormToYAML", () => {
   // it("should return undefined when data is undefined", () => {

@@ -1,11 +1,11 @@
-import { AutoCommandBar, AutoCommandBarYAML } from "~/metadata/forms/elements/autoCommandBar/types"
-import { NamedElement } from "~/metadata/forms/elements/baseElement/types"
-import { StructureResult } from "~/tests/types"
+import { AutoCommandBar, AutoCommandBarYAML } from "../types"
+import { NamedElement } from "../../baseElement/types"
+import { StructureResult } from "../../../../../tests/types"
 import {
   fullCommandBarChildItemsAllYAML,
   fullCommandBarChildItemsStructure,
   fullCommandBarChildItemsTyped,
-} from "~/metadata/forms/elements/__fixtures__/commandBarChildItems/data"
+} from "../../__fixtures__/commandBarChildItems/data"
 
 export const parentElement: NamedElement = {
   name: "КакойТоЭлемент",

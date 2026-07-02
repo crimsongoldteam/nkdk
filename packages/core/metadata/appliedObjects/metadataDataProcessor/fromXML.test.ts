@@ -1,5 +1,5 @@
 import { describe, expect, it } from "vitest"
-import { testExportAppliedObjectToXML, testImportAppliedObjectFromXML } from "~/tests/appliedObject"
+import { testExportAppliedObjectToXML, testImportAppliedObjectFromXML } from "../../../tests/appliedObject"
 import { full } from "./__fixtures__/full"
 import { minimal } from "./__fixtures__/minimal"
 import { MetadataDataProcessorRules } from "./rules"
@@ -28,21 +28,18 @@ describe("import MetadataDataProcessor from XML", () => {
     ).toEqual(minimal)
   })
 
-  it.each(["full.xml", "minimal.xml"])(
-    "round-trip: %s — import затем export совпадает с исходным XML",
-    (fixture) => {
-      const data = testImportAppliedObjectFromXML<MetadataDataProcessor>({
-        rule: MetadataDataProcessorRules,
-        importMetaUrl: import.meta.url,
-        fixture,
-      })
-      const { result, expected } = testExportAppliedObjectToXML({
-        rule: MetadataDataProcessorRules,
-        importMetaUrl: import.meta.url,
-        fixture,
-        data: data!,
-      })
-      expect(normalizeLineEndings(result)).toEqual(normalizeLineEndings(expected))
-    }
-  )
+  it.each(["full.xml", "minimal.xml"])("round-trip: %s — import затем export совпадает с исходным XML", (fixture) => {
+    const data = testImportAppliedObjectFromXML<MetadataDataProcessor>({
+      rule: MetadataDataProcessorRules,
+      importMetaUrl: import.meta.url,
+      fixture,
+    })
+    const { result, expected } = testExportAppliedObjectToXML({
+      rule: MetadataDataProcessorRules,
+      importMetaUrl: import.meta.url,
+      fixture,
+      data: data!,
+    })
+    expect(normalizeLineEndings(result)).toEqual(normalizeLineEndings(expected))
+  })
 })

@@ -1,13 +1,10 @@
-import { appearanceFieldsRule } from "~/metadata/commonObjects/dataCompositionSystem/appearanceFields/builders"
-import { dcsAvailableValuesRule } from "~/metadata/commonObjects/dataCompositionSystem/availableValues/types"
-import {
-  calculatedFieldOrderExpressionRule,
-  calculatedFieldUseRestrictionRule,
-} from "~/metadata/commonObjects/dataCompositionSystem/calculatedField/builders"
-import { dcsLocalStringTypeRule } from "~/metadata/commonObjects/dataCompositionSystem/dcsLocalStringType/types"
-import { typeDescriptionRule } from "~/metadata/commonObjects/typeDescription/types"
-import { stringRule } from "~/metadata/commonObjects/string/types"
-import { MetadataItemRule } from "~/metadata/orchestration"
+import { appearanceFieldsRule } from "../appearanceFields/builders"
+import { dcsAvailableValuesRule } from "../availableValues/types"
+import { calculatedFieldOrderExpressionRule, calculatedFieldUseRestrictionRule } from "./builders"
+import { dcsLocalStringTypeRule } from "../dcsLocalStringType/types"
+import { typeDescriptionRule } from "../../typeDescription/types"
+import { stringRule } from "../../string/types"
+import { MetadataItemRule } from "../../../orchestration"
 export const CalculatedFieldRules = {
   itemType: "CalculatedField",
   properties: {

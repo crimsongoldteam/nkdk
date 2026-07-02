@@ -1,4 +1,4 @@
-import { ConfigurationContext } from "~/metadata/context/types"
+import { ConfigurationContext } from "../../../context/types"
 import {
   CollectableElementType,
   CollectableElementTypeToYAML,
@@ -11,9 +11,9 @@ import {
   ToTypedYAML,
   ToYAML,
   exportPropertyToYAML,
-} from "~/metadata/orchestration"
-import { getElementRule } from "~/metadata/orchestration/formElement/ruleFactory"
-import { exportElementToYAML, exportFormElementTypeToYAML } from "~/metadata/orchestration/formElement/toYAML"
+} from "../../../orchestration"
+import { getElementRule } from "../../../orchestration/formElement/ruleFactory"
+import { exportElementToYAML, exportFormElementTypeToYAML } from "../../../orchestration/formElement/toYAML"
 import { ChildItem, FormElementTreeNodeYAML, FormElementTreeYAML, TypedElement } from "./types"
 
 export const childItemsTreePropertyTypes = [
@@ -267,10 +267,7 @@ const importChildItemsFromLegacyTypedYAML = (params: {
   return result
 }
 
-const getTreeNodeObject = (params: {
-  name: string
-  node: unknown
-}): Record<string, unknown> => {
+const getTreeNodeObject = (params: { name: string; node: unknown }): Record<string, unknown> => {
   const { name, node } = params
   if (!isRecord(node)) throw new Error(`Элемент "${name}": должен быть объектом`)
   if (typeof node.Вид !== "string") throw new Error(`Элемент "${name}": обязательное поле "Вид" не задано`)

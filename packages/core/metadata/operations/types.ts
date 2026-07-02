@@ -1,4 +1,4 @@
-import type { Diagnostic } from "~/metadata/validation/types"
+import type { Diagnostic } from "../validation/types"
 
 export type MetadataNamedChildKind =
   | "attribute"

@@ -2,20 +2,20 @@ import {
   ConfigurationContext,
   ConfigurationContextFromXML,
   ConfigurationContextWithExportToXML,
-} from "~/metadata/context/types"
-import { BaseElement } from "~/metadata/forms/elements/baseElement/types"
-import { ToMetadata, ToYAML } from "~/metadata/orchestration/metadataItem/registry"
-import { ExportToXMLFunctionNew } from "~/metadata/orchestration/property/fn"
-import { exportSingleElementToXML } from "~/metadata/forms/elements/orchestration/toXML"
-import { exportElementToPartialYAML } from "~/metadata/forms/elements/orchestration/toYAML"
+} from "../../../context/types"
+import { BaseElement } from "../baseElement/types"
+import { ToMetadata, ToYAML } from "../../../orchestration/metadataItem/registry"
+import { ExportToXMLFunctionNew } from "../../../orchestration/property/fn"
+import { exportSingleElementToXML } from "./toXML"
+import { exportElementToPartialYAML } from "./toYAML"
 import { exportSingleElementRuleToJSONSchema } from "./toJSONSchema"
-import { PropertyRuleType } from "~/metadata/orchestration/property/registry"
-import { registerTypeRule } from "~/metadata/orchestration/property/typeRuleRegistry"
-import { MetadataItem, PropertyRule } from "~/metadata/orchestration/property/types"
+import { PropertyRuleType } from "../../../orchestration/property/registry"
+import { registerTypeRule } from "../../../orchestration/property/typeRuleRegistry"
+import type { MetadataItem, PropertyRule } from "../../../orchestration/property/types"
 import { importSingleElementFromXML } from "./fromXML"
 import { importSingleElementFromYAML } from "./fromYAML"
 import { applyReferenceNameMode, type SingletonNameStyle } from "./singletonName"
-import { ElementRule, ElementType, ElementXML, ElementXMLWithoutId, SingleElementType } from "./types"
+import type { ElementRule, ElementType, ElementXML, ElementXMLWithoutId, SingleElementType } from "./types"
 
 export const getElementRule = <Rule extends ElementRule>(itemType: Rule["itemType"]): Rule => {
   const rule = elementRulesRegistry.get(itemType)

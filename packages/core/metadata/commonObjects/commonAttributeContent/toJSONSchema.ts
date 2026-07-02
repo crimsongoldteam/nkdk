@@ -1,6 +1,6 @@
 import { Type } from "@sinclair/typebox"
-import { registerTypeRule } from "~/metadata/orchestration"
-import { exportSystemEnumerationToJSONSchema } from "~/metadata/systemEnumerations/toJSONSchema"
+import { registerTypeRule } from "../../orchestration"
+import { exportSystemEnumerationToJSONSchema } from "../../systemEnumerations/toJSONSchema"
 
 export const exportCommonAttributeContentToJSONSchema = ({
   context,

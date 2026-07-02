@@ -1,7 +1,7 @@
-import { typeDescriptionRule } from "~/metadata/commonObjects/typeDescription/types"
-import { booleanRule } from "~/metadata/commonObjects/boolean/types"
-import { stringRule } from "~/metadata/commonObjects/string/types"
-import { MetadataItemRule } from "~/metadata/orchestration/property/types"
+import { typeDescriptionRule } from "../../../commonObjects/typeDescription/types"
+import { booleanRule } from "../../../commonObjects/boolean/types"
+import { stringRule } from "../../../commonObjects/string/types"
+import type { MetadataItemRule } from "../../../orchestration/property/types"
 export const FormParameterRules = {
   itemType: "FormParameter",
   properties: {

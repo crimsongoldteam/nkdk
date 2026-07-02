@@ -1,10 +1,10 @@
 import fs from "fs"
 import { basename, join } from "path"
-import type { ConfigurationContext, ConfigurationContextFromXML } from "~/metadata/context/types"
-import { importMetadataItemFromXML, importMetadataItemFromYAML } from "~/metadata/orchestration"
-import type { MetadataItemRule } from "~/metadata/orchestration/property/types"
-import { importContentFromXML } from "~/xml/import/importer"
-import { importFromYAML } from "~/yaml/import"
+import type { ConfigurationContext, ConfigurationContextFromXML } from "../../../context/types"
+import { importMetadataItemFromXML, importMetadataItemFromYAML } from "../../../orchestration"
+import type { MetadataItemRule } from "../../../orchestration/property/types"
+import { importContentFromXML } from "../../../../xml/import/importer"
+import { importFromYAML } from "../../../../yaml/import"
 import { TopLevelMetadataItemRules } from "../topLevelRules"
 import type { StructuralNode, StructuralState } from "./types"
 
@@ -56,7 +56,12 @@ export async function collectStructuralStateFromXML(params: {
   return { nodes }
 }
 
-function addModel(nodes: Map<string, StructuralNode>, rule: MetadataItemRule, name: string, model: Record<string, unknown>): void {
+function addModel(
+  nodes: Map<string, StructuralNode>,
+  rule: MetadataItemRule,
+  name: string,
+  model: Record<string, unknown>
+): void {
   const prefix = rule.itemTypePrefix!
   const objectPath = `${prefix}.${name}`
   nodes.set(objectPath, { path: objectPath, kind: "object", name, referencePath: objectPath })
@@ -104,6 +109,7 @@ function requireNodeName(item: Record<string, unknown>, ownerPath: string, nodeT
 }
 
 function asItems(value: unknown): Array<Record<string, unknown>> {
-  if (Array.isArray(value)) return value.filter((item): item is Record<string, unknown> => item !== null && typeof item === "object")
+  if (Array.isArray(value))
+    return value.filter((item): item is Record<string, unknown> => item !== null && typeof item === "object")
   return []
 }

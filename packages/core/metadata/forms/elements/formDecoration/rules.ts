@@ -1,4 +1,4 @@
-import { MetadataItemRule } from "~/metadata/orchestration/property/types"
+import type { MetadataItemRule } from "../../../orchestration/property/types"
 
 export const formDecorationCommonProperties = {
   autoMaxHeight: { yaml: "АвтоМаксимальнаяВысота", type: "boolean" },

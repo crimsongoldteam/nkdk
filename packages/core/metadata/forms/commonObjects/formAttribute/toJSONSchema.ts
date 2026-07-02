@@ -1,15 +1,12 @@
 import { TObject, TProperties, TSchema, Type } from "@sinclair/typebox"
-import { ConfigurationContext } from "~/metadata/context/types"
-import { ExportToJSONSchemaFn, registerTypeRule } from "~/metadata/orchestration"
-import { exportMetadataItemToJSONSchema } from "~/metadata/orchestration/metadataItem/toJSONSchema"
+import { ConfigurationContext } from "../../../context/types"
+import { ExportToJSONSchemaFn, registerTypeRule } from "../../../orchestration"
+import { exportMetadataItemToJSONSchema } from "../../../orchestration/metadataItem/toJSONSchema"
 import { FormAttributeColumnRules, FormAttributeRules } from "./rules"
 
 export const exportFormAttributesToJSONSchema: ExportToJSONSchemaFn = (params): TSchema => {
   const { context } = params
-  const attributeSchema = extendFormAttributeColumnsSchema(
-    requiredFormAttributeSchema(context),
-    context
-  )
+  const attributeSchema = extendFormAttributeColumnsSchema(requiredFormAttributeSchema(context), context)
   return Type.Record(Type.String(), attributeSchema)
 }
 

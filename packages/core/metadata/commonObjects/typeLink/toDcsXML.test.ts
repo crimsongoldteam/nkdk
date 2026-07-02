@@ -1,7 +1,7 @@
 import { describe, expect, it } from "vitest"
-import type { DcsMetadataValuePropertyRule } from "~/metadata/commonObjects/dataCompositionSystem/dcsMetadataValue/types"
-import type { PropertyRule } from "~/metadata/orchestration"
-import { testExportPropertyToXML } from "~/tests/property/exportPropertyToXML"
+import type { DcsMetadataValuePropertyRule } from "../dataCompositionSystem/dcsMetadataValue/types"
+import type { PropertyRule } from "../../orchestration"
+import { testExportPropertyToXML } from "../../../tests/property/exportPropertyToXML"
 import { dcsTypeLink } from "./__fixtures__/data"
 
 const rule = {

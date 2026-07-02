@@ -1,6 +1,6 @@
-import { importMetadataObjectStringFromYAML } from "~/metadata/commonObjects/metadataPath/fromYAML"
-import { exportMetadataObjectStringToYAML } from "~/metadata/commonObjects/metadataPath/toYAML"
-import { ConfigurationContext } from "~/metadata/context/types"
+import { importMetadataObjectStringFromYAML } from "../metadataPath/fromYAML"
+import { exportMetadataObjectStringToYAML } from "../metadataPath/toYAML"
+import { ConfigurationContext } from "../../context/types"
 
 const importPrefixOverrides: Record<string, string> = {
   "Справочники.": "Справочник.",

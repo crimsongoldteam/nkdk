@@ -1,9 +1,9 @@
 import { TSchema, Type } from "@sinclair/typebox"
-import { I8nTextJSONSchema } from "~/metadata/commonObjects/i8nText/types"
-import type { ConfigurationContext } from "~/metadata/context/types"
-import { ExportToJSONSchemaFn, registerTypeRule } from "~/metadata/orchestration"
-import { exportSystemEnumerationToJSONSchema } from "~/metadata/systemEnumerations/toJSONSchema"
-import type { SystemEnumerationPropertyRule, SystemEnumerationTypeMap } from "~/metadata/systemEnumerations/types"
+import { I8nTextJSONSchema } from "../../i8nText/types"
+import type { ConfigurationContext } from "../../../context/types"
+import { ExportToJSONSchemaFn, registerTypeRule } from "../../../orchestration"
+import { exportSystemEnumerationToJSONSchema } from "../../../systemEnumerations/toJSONSchema"
+import type { SystemEnumerationPropertyRule, SystemEnumerationTypeMap } from "../../../systemEnumerations/types"
 import { exportDcsMetadataValueToJSONSchema } from "../dcsMetadataValue/toJSONSchema"
 import type { DcsMetadataValuePropertyRule } from "../dcsMetadataValue/types"
 import { toDcsMetadataValueRule } from "./dcsValueRule"
@@ -114,10 +114,7 @@ const rejectCompactObjectShapes = (schema: TSchema, settingsRule: SettingsParame
     Type.Not(ObjectWithWrapperKeysExceptValueJSONSchema),
     ...(settingsRule.valueType === "Parameter" ? [] : [Type.Not(ObjectWithParameterKeyJSONSchema)]),
   ]
-  const fontObjectShapeRejects: TSchema[] = [
-    ...valueObjectShapeRejects,
-    Type.Not(ObjectWithTypeKeyJSONSchema),
-  ]
+  const fontObjectShapeRejects: TSchema[] = [...valueObjectShapeRejects, Type.Not(ObjectWithTypeKeyJSONSchema)]
   const valueObjectMarkerSchemas: DefinedValueObjectMarker[] = []
   const addMarker = (marker: ValueObjectMarker): void => {
     if (marker[0] !== undefined) valueObjectMarkerSchemas.push([marker[0], marker[1]])
@@ -127,7 +124,9 @@ const rejectCompactObjectShapes = (schema: TSchema, settingsRule: SettingsParame
   addMarker([fontObjectMarkerJSONSchema(settingsRule), fontObjectShapeRejects])
   const compactSchemas = [
     intersectOf([rejectEmptyObject(schema), ...compactShapeRejects]),
-    ...valueObjectMarkerSchemas.map(([marker, rejects]) => Type.Intersect([rejectEmptyObject(schema), marker, ...rejects])),
+    ...valueObjectMarkerSchemas.map(([marker, rejects]) =>
+      Type.Intersect([rejectEmptyObject(schema), marker, ...rejects])
+    ),
   ]
 
   return unionOf(compactSchemas)
@@ -169,9 +168,13 @@ const valueOrArrayJSONSchema = (valueSchema: TSchema, settingsRule: SettingsPara
   return Type.Union([valueSchema, Type.Array(valueSchema)])
 }
 
-const optionalValueLessExplicitTypeJSONSchema = (settingsRule: SettingsParameterValuePropertyRule): TSchema | undefined => {
+const optionalValueLessExplicitTypeJSONSchema = (
+  settingsRule: SettingsParameterValuePropertyRule
+): TSchema | undefined => {
   if (settingsRule.valueType !== "DesignTimeValue") return undefined
-  return Type.Optional(Type.Union([Type.Literal("МногоязычнаяСтрока"), Type.Literal("МногоязычнаяФорматированнаяСтрока")]))
+  return Type.Optional(
+    Type.Union([Type.Literal("МногоязычнаяСтрока"), Type.Literal("МногоязычнаяФорматированнаяСтрока")])
+  )
 }
 
 const explicitStringFieldWrapperJSONSchema = (

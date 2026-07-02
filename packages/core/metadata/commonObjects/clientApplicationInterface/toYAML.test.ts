@@ -1,9 +1,9 @@
 import { readFileSync } from "fs"
 import { join } from "path"
 import { describe, expect, it } from "vitest"
-import { exportMetadataItemToYAML, importMetadataItemFromXML } from "~/metadata/orchestration"
-import { mockContext, mockContextFromXML } from "~/tests/mockContext"
-import { exportToYAML } from "~/yaml/export"
+import { exportMetadataItemToYAML, importMetadataItemFromXML } from "../../orchestration"
+import { mockContext, mockContextFromXML } from "../../../tests/mockContext"
+import { exportToYAML } from "../../../yaml/export"
 import { ClientApplicationInterfaceRules } from "./rules"
 
 import "./register"

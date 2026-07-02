@@ -1,9 +1,9 @@
-import { ConfigurationContextFromXML } from "~/metadata/context/types"
-import { PropertyRule } from "~/metadata/orchestration/property/types"
-import { registerTypeRule } from "~/metadata/orchestration/property/typeRuleRegistry"
+import { ConfigurationContextFromXML } from "../../context/types"
+import type { PropertyRule } from "../../orchestration/property/types"
+import { registerTypeRule } from "../../orchestration/property/typeRuleRegistry"
 import { importMetadataValueFromXML } from "../metadataValue/fromXML"
 import { MetadataPrimitiveValueXML } from "../metadataValue/types"
-import { MetadataObjectRefCollection, MetadataObjectRefCollectionXML } from "./types"
+import type { MetadataObjectRefCollection, MetadataObjectRefCollectionXML } from "./types"
 
 export const importMetadataObjectRefCollectionFromXML = (
   context: ConfigurationContextFromXML,

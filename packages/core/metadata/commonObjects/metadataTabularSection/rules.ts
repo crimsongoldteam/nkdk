@@ -1,12 +1,12 @@
-import { internalInfoRule } from "~/metadata/commonObjects/internalInfo/types"
-import { systemEnumerationRule } from "~/metadata/systemEnumerations/types"
-import { uuidPropertyRule } from "~/metadata/commonObjects/uuid/rule"
-import { addDefaultLanguageNameToSynonym } from "~/metadata/helpers/synonymHelpers"
-import { getParentFromContext } from "~/metadata/context/helpers"
-import { ConfigurationContext } from "~/metadata/context/types"
-import { ConfigurationContextWithExportToXML } from "~/metadata/context/types"
-import { namedCollectionTarget } from "~/metadata/orchestration/property/operationTargets"
-import { MetadataItemRule, PropertyRule } from "~/metadata/orchestration/property/types"
+import { internalInfoRule } from "../internalInfo/types"
+import { systemEnumerationRule } from "../../systemEnumerations/types"
+import { uuidPropertyRule } from "../uuid/rule"
+import { addDefaultLanguageNameToSynonym } from "../../helpers/synonymHelpers"
+import { getParentFromContext } from "../../context/helpers"
+import { ConfigurationContext } from "../../context/types"
+import { ConfigurationContextWithExportToXML } from "../../context/types"
+import { namedCollectionTarget } from "../../orchestration/property/operationTargets"
+import type { MetadataItemRule, PropertyRule } from "../../orchestration/property/types"
 const propertiesParents = ["Properties"]
 const childObjectsParents = ["ChildObjects"]
 const emptyAttributes: [] = []
@@ -107,7 +107,11 @@ const commonTabularSectionProperties = {
   attributes: {
     yaml: "Реквизиты",
     type: "MetadataTabularSectionAttributes",
-    operationTarget: namedCollectionTarget({ kind: "attribute", migrationSegment: "Реквизит", requiresMigration: true }),
+    operationTarget: namedCollectionTarget({
+      kind: "attribute",
+      migrationSegment: "Реквизит",
+      requiresMigration: true,
+    }),
     defaultValue: emptyAttributes,
     defaultValueXMLEmpty: emptyAttributes,
     defaultValueXMLRaw: {},

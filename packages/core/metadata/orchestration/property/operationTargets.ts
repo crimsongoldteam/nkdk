@@ -1,4 +1,4 @@
-import type { MetadataFileItemRole, MetadataNamedChildKind } from "~/metadata/operations/types"
+import type { MetadataFileItemRole, MetadataNamedChildKind } from "../../operations/types"
 
 export type PropertyOperationTargetDeclaration =
   | NamedCollectionOperationTargetDeclaration

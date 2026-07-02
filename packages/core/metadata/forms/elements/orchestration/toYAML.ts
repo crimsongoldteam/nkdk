@@ -1,8 +1,8 @@
-import { ConfigurationContext } from "~/metadata/context/types"
-import { BaseElement } from "~/metadata/forms/elements/baseElement/types"
-import { ToMetadata, ToTypedYAML, ToYAML } from "~/metadata/orchestration/metadataItem/registry"
-import { exportPropertyToYAML } from "~/metadata/orchestration/property/toYAML"
-import { PropertyRule } from "~/metadata/orchestration/property/types"
+import { ConfigurationContext } from "../../../context/types"
+import { BaseElement } from "../baseElement/types"
+import { ToMetadata, ToTypedYAML, ToYAML } from "../../../orchestration/metadataItem/registry"
+import { exportPropertyToYAML } from "../../../orchestration/property/toYAML"
+import type { PropertyRule } from "../../../orchestration/property/types"
 import { getElementRule } from "./ruleFactory"
 import {
   CollectableElementToYAML,

@@ -1,5 +1,5 @@
-import { ConfigurationContext } from "~/metadata/context/types"
-import { asExplicitYAMLStringIfMarked } from "~/yaml/explicitString"
+import { ConfigurationContext } from "../../../context/types"
+import { asExplicitYAMLStringIfMarked } from "../../../../yaml/explicitString"
 import { importMetadataValueFromYAML } from "../fromYAML"
 import {
   MetadataExplicitFormChoiceListValueYAML,
@@ -25,11 +25,10 @@ export const importFixedArrayFromYAML = (
   value: data.map((v, index) => {
     if (v === undefined || v === null) return undefined
 
-    const value = asExplicitYAMLStringIfMarked(
-      data,
-      index,
-      v
-    ) as Exclude<MetadataFixedArrayValueYAMLInput[number], null | undefined>
+    const value = asExplicitYAMLStringIfMarked(data, index, v) as Exclude<
+      MetadataFixedArrayValueYAMLInput[number],
+      null | undefined
+    >
 
     if (isExplicitFormChoiceListValueYAML(value)) {
       const { Тип: _type, ...formChoiceListValue } = value

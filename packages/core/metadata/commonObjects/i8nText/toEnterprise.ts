@@ -1,5 +1,5 @@
-import { ConfigurationContext } from "~/metadata/context/types"
-import { registerTypeRule } from "~/metadata/orchestration/property/typeRuleRegistry"
+import { ConfigurationContext } from "../../context/types"
+import { registerTypeRule } from "../../orchestration/property/typeRuleRegistry"
 import "./registerPropertyType"
 import { exportI8nTextDefaultToYAML } from "./toYAML"
 import { I8nText } from "./types"

@@ -1,9 +1,9 @@
 import {
   definePropertyRule as defineWidePropertyRule,
   type ExactRuleParams as WideExactRuleParams,
-} from "~/metadata/commonObjects/ruleBuilder"
-import type { PropertyRule as WidePropertyRuleBase } from "~/metadata/orchestration/property/types"
-import type { I8nText } from "~/metadata/commonObjects/i8nText/types"
+} from "../../ruleBuilder"
+import type { PropertyRule as WidePropertyRuleBase } from "../../../orchestration/property/types"
+import type { I8nText } from "../../i8nText/types"
 
 export type DcsLocalStringTypeXML =
   | string

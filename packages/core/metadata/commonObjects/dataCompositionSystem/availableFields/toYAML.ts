@@ -1,7 +1,7 @@
-import { ConfigurationContext } from "~/metadata/context/types"
-import { exportI8nTextToYAML } from "~/metadata/commonObjects/i8nText/toYAML"
-import { PropertyRule, registerTypeRule } from "~/metadata/orchestration"
-import * as SE from "~/metadata/systemEnumerations/types"
+import { ConfigurationContext } from "../../../context/types"
+import { exportI8nTextToYAML } from "../../i8nText/toYAML"
+import { PropertyRule, registerTypeRule } from "../../../orchestration"
+import * as SE from "../../../systemEnumerations/types"
 import type { AvailableFieldItem, AvailableFieldItemYAML, AvailableFields, AvailableFieldsYAML } from "./types"
 
 const exportBoolean = (value: boolean): "Истина" | "Ложь" => (value ? "Истина" : "Ложь")

@@ -1,5 +1,5 @@
 import { describe, expect, it } from "vitest"
-import { mockContextToYAML, mockRule } from "~/tests/mockContext"
+import { mockContextToYAML, mockRule } from "../../../tests/mockContext"
 import { exportStyleItemValueToYAML } from "./toYAML"
 import { StyleItemValue } from "./types"
 

@@ -1,6 +1,6 @@
-import { ConfigurationContext } from "~/metadata/context/types"
-import { importMetadataItemFromYAML } from "~/metadata/orchestration/metadataItem/fromYAML"
-import { PropertyRule } from "~/metadata/orchestration/property/types"
+import { ConfigurationContext } from "../../../context/types"
+import { importMetadataItemFromYAML } from "../../../orchestration/metadataItem/fromYAML"
+import type { PropertyRule } from "../../../orchestration/property/types"
 import { OrderItemFieldRules } from "./rules"
 import type { OrderItemFields, OrderItemFieldsYAML } from "./types"
 

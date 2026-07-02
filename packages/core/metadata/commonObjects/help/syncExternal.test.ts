@@ -1,10 +1,10 @@
 import fs from "fs"
 import { dirname, join } from "path"
 import { afterEach, beforeEach, describe, expect, it } from "vitest"
-import { XmlSyncManifest } from "~/metadata/appliedObjects/configuration/migrations/xmlManifest"
-import { getXMLFixturePath } from "~/tests/readAndParseXMLFile"
-import type { HelpPropertyRule } from "~/metadata/orchestration/property/types"
-import { importContentFromXML } from "~/xml/import/importer"
+import { XmlSyncManifest } from "../../appliedObjects/configuration/migrations/xmlManifest"
+import { getXMLFixturePath } from "../../../tests/readAndParseXMLFile"
+import type { HelpPropertyRule } from "../../orchestration/property/types"
+import { importContentFromXML } from "../../../xml/import/importer"
 import { syncHelpFromXML } from "./fromXML"
 import { syncHelpToXML } from "./toXML"
 
@@ -34,7 +34,7 @@ describe("syncHelp", () => {
     fs.writeFileSync(
       helpXmlPath,
       `<?xml version="1.0" encoding="UTF-8"?>\n<Help xmlns="http://v8.1c.ru/8.3/xcf/extrnprops" xmlns:xs="http://www.w3.org/2001/XMLSchema" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" version="2.20">\n\t<Page>ru</Page>\n</Help>`,
-      "utf-8",
+      "utf-8"
     )
     fs.writeFileSync(join(helpDir, "ru.html"), "<html>current</html>", "utf-8")
     fs.writeFileSync(join(helpDir, "stale.html"), "<html>stale</html>", "utf-8")

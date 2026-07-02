@@ -1,11 +1,7 @@
-import {
-  exportMetadataItemToXML,
-  importMetadataItemFromXML,
-  MetadataItemRule,
-} from "~/metadata/orchestration"
-import { mockContextFromXML, mockContextToXML } from "~/tests/mockContext"
-import { readAndParseXMLFixture, readXMLFixtureAsString } from "~/tests/readFixtureXML"
-import { xmlExport } from "~/xml/export/exporter"
+import { exportMetadataItemToXML, importMetadataItemFromXML, MetadataItemRule } from "../../metadata/orchestration"
+import { mockContextFromXML, mockContextToXML } from "../mockContext"
+import { readAndParseXMLFixture, readXMLFixtureAsString } from "../readFixtureXML"
+import { xmlExport } from "../../xml/export/exporter"
 
 type Params<T> = {
   rule: MetadataItemRule
@@ -15,9 +11,7 @@ type Params<T> = {
   referenceData?: T
 }
 
-export const testExportAppliedObjectToXML = <T>(
-  params: Params<T>
-): { result: string; expected: string } => {
+export const testExportAppliedObjectToXML = <T>(params: Params<T>): { result: string; expected: string } => {
   const { rule, importMetaUrl, fixture, data } = params
 
   let referenceData = params.referenceData

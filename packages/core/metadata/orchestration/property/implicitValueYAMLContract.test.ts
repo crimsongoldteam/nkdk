@@ -1,17 +1,17 @@
 import { describe, expect, it } from "vitest"
-import { MetadataCatalogRules } from "~/metadata/appliedObjects/metadataCatalog/rules"
-import { MetadataConfigurationRules } from "~/metadata/appliedObjects/configuration/rules"
-import { MetadataDocumentRules } from "~/metadata/appliedObjects/metadataDocument/rules"
-import { MetadataEnumerationRules, MetadataEnumerationValueRules } from "~/metadata/appliedObjects/metadataEnumeration/rules"
-import { MetadataStyleItemRules } from "~/metadata/appliedObjects/metadataStyleItem/rules"
-import { AccumulationRegisterAggregateRules } from "~/metadata/commonObjects/accumulationRegisterAggregates/rules"
-import { AccountingFlagRules, ExtDimensionAccountingFlagRules } from "~/metadata/commonObjects/accountingFlag/rules"
-import { MetadataExternalDataSourceCubeResourceRules } from "~/metadata/commonObjects/metadataExternalDataSourceCubeResource/rules"
-import { MetadataIntegrationServiceChannelRules } from "~/metadata/commonObjects/metadataIntegrationServiceChannel/rules"
-import { MetadataAttributeRules, MetadataCatalogAttributeRules } from "~/metadata/commonObjects/metadataAttribute/rules"
-import { MetadataRegisterAttributeRules } from "~/metadata/commonObjects/metadataRegisterAttribute/rules"
-import { MetadataRegisterDimensionRules } from "~/metadata/commonObjects/metadataRegisterDimension/rules"
-import { MetadataRegisterResourceRules } from "~/metadata/commonObjects/metadataRegisterResource/rules"
+import { MetadataCatalogRules } from "../../appliedObjects/metadataCatalog/rules"
+import { MetadataConfigurationRules } from "../../appliedObjects/configuration/rules"
+import { MetadataDocumentRules } from "../../appliedObjects/metadataDocument/rules"
+import { MetadataEnumerationRules, MetadataEnumerationValueRules } from "../../appliedObjects/metadataEnumeration/rules"
+import { MetadataStyleItemRules } from "../../appliedObjects/metadataStyleItem/rules"
+import { AccumulationRegisterAggregateRules } from "../../commonObjects/accumulationRegisterAggregates/rules"
+import { AccountingFlagRules, ExtDimensionAccountingFlagRules } from "../../commonObjects/accountingFlag/rules"
+import { MetadataExternalDataSourceCubeResourceRules } from "../../commonObjects/metadataExternalDataSourceCubeResource/rules"
+import { MetadataIntegrationServiceChannelRules } from "../../commonObjects/metadataIntegrationServiceChannel/rules"
+import { MetadataAttributeRules, MetadataCatalogAttributeRules } from "../../commonObjects/metadataAttribute/rules"
+import { MetadataRegisterAttributeRules } from "../../commonObjects/metadataRegisterAttribute/rules"
+import { MetadataRegisterDimensionRules } from "../../commonObjects/metadataRegisterDimension/rules"
+import { MetadataRegisterResourceRules } from "../../commonObjects/metadataRegisterResource/rules"
 import {
   MetadataBusinessProcessTabularSectionRules,
   MetadataChartOfAccountsTabularSectionRules,
@@ -23,60 +23,63 @@ import {
   MetadataReportTabularSectionRules,
   MetadataTabularSectionRules,
   MetadataTaskTabularSectionRules,
-} from "~/metadata/commonObjects/metadataTabularSection/rules"
-import { CalculatedFieldOrderExpressionRules } from "~/metadata/commonObjects/dataCompositionSystem/calculatedFieldOrderExpression/rules"
-import { DCSParameterRules } from "~/metadata/commonObjects/dataCompositionSystem/dcsParameter/rules"
-import { FilterItemComparisonRules, FilterItemGroupRules } from "~/metadata/commonObjects/dataCompositionSystem/filterItem/rules"
-import { ExchangePlanContentItemRules } from "~/metadata/commonObjects/exchangePlanContent/rules"
-import { ClientApplicationFormRules } from "~/metadata/forms/clientApplicationForm/rules"
-import { FormAttributeRules } from "~/metadata/forms/commonObjects/formAttribute/rules"
-import { FormCommandRules } from "~/metadata/forms/commonObjects/formCommand/rules"
-import { FormParameterRules } from "~/metadata/forms/commonObjects/formParameter/rules"
-import { ButtonRules, CommandBarButtonRules } from "~/metadata/forms/elements/button/rules"
-import { ButtonGroupRules } from "~/metadata/forms/elements/buttonGroup/rules"
-import { CalendarFieldRules } from "~/metadata/forms/elements/calendarField/rules"
-import { CheckBoxFieldRules, TableCheckBoxFieldRules } from "~/metadata/forms/elements/checkBoxField/rules"
-import { AutoCommandBarRules } from "~/metadata/forms/elements/autoCommandBar/rules"
-import { ChartFieldRules } from "~/metadata/forms/elements/chartField/rules"
-import { ColumnGroupRules } from "~/metadata/forms/elements/columnGroup/rules"
-import { CommandBarRules } from "~/metadata/forms/elements/commandBar/rules"
-import { ContextMenuRules } from "~/metadata/forms/elements/contextMenu/rules"
-import { DendrogramFieldRules } from "~/metadata/forms/elements/dendrogramField/rules"
-import { DynamicListRules } from "~/metadata/forms/commonObjects/dynamicList/rules"
-import { ExtendedTooltipRules } from "~/metadata/forms/elements/extendedTooltip/rules"
-import { FormattedDocumentFieldRules } from "~/metadata/forms/elements/formattedDocumentField/rules"
-import { GanttChartFieldRules } from "~/metadata/forms/elements/ganttChartField/rules"
-import { GeographicalSchemaFieldRules } from "~/metadata/forms/elements/geographicalSchemaField/rules"
-import { GraphicalSchemaFieldRules } from "~/metadata/forms/elements/graphicalSchemaField/rules"
-import { GroupItemAutoRules } from "~/metadata/commonObjects/dataCompositionSystem/structureItemGroup/items/groupItemAuto/rules"
-import { HTMLDocumentFieldRules } from "~/metadata/forms/elements/htmlDocumentField/rules"
-import { InputFieldRules, TableInputFieldRules } from "~/metadata/forms/elements/inputField/rules"
-import { LabelDecorationRules } from "~/metadata/forms/elements/labelDecoration/rules"
-import { LabelFieldRules, TableLabelFieldRules } from "~/metadata/forms/elements/labelField/rules"
-import { PageRules } from "~/metadata/forms/elements/page/rules"
-import { PagesRules } from "~/metadata/forms/elements/pages/rules"
-import { PDFDocumentFieldRules } from "~/metadata/forms/elements/pdfDocumentField/rules"
-import { PictureDecorationRules } from "~/metadata/forms/elements/pictureDecoration/rules"
-import { PictureFieldRules } from "~/metadata/forms/elements/pictureField/rules"
-import { PopupRules } from "~/metadata/forms/elements/popup/rules"
-import { PeriodFieldRules } from "~/metadata/forms/elements/periodField/rules"
-import { PlannerFieldRules } from "~/metadata/forms/elements/plannerField/rules"
-import { ProgressBarFieldRules } from "~/metadata/forms/elements/progressBarField/rules"
-import { RadioButtonFieldRules } from "~/metadata/forms/elements/radioButtonField/rules"
+} from "../../commonObjects/metadataTabularSection/rules"
+import { CalculatedFieldOrderExpressionRules } from "../../commonObjects/dataCompositionSystem/calculatedFieldOrderExpression/rules"
+import { DCSParameterRules } from "../../commonObjects/dataCompositionSystem/dcsParameter/rules"
+import {
+  FilterItemComparisonRules,
+  FilterItemGroupRules,
+} from "../../commonObjects/dataCompositionSystem/filterItem/rules"
+import { ExchangePlanContentItemRules } from "../../commonObjects/exchangePlanContent/rules"
+import { ClientApplicationFormRules } from "../../forms/clientApplicationForm/rules"
+import { FormAttributeRules } from "../../forms/commonObjects/formAttribute/rules"
+import { FormCommandRules } from "../../forms/commonObjects/formCommand/rules"
+import { FormParameterRules } from "../../forms/commonObjects/formParameter/rules"
+import { ButtonRules, CommandBarButtonRules } from "../../forms/elements/button/rules"
+import { ButtonGroupRules } from "../../forms/elements/buttonGroup/rules"
+import { CalendarFieldRules } from "../../forms/elements/calendarField/rules"
+import { CheckBoxFieldRules, TableCheckBoxFieldRules } from "../../forms/elements/checkBoxField/rules"
+import { AutoCommandBarRules } from "../../forms/elements/autoCommandBar/rules"
+import { ChartFieldRules } from "../../forms/elements/chartField/rules"
+import { ColumnGroupRules } from "../../forms/elements/columnGroup/rules"
+import { CommandBarRules } from "../../forms/elements/commandBar/rules"
+import { ContextMenuRules } from "../../forms/elements/contextMenu/rules"
+import { DendrogramFieldRules } from "../../forms/elements/dendrogramField/rules"
+import { DynamicListRules } from "../../forms/commonObjects/dynamicList/rules"
+import { ExtendedTooltipRules } from "../../forms/elements/extendedTooltip/rules"
+import { FormattedDocumentFieldRules } from "../../forms/elements/formattedDocumentField/rules"
+import { GanttChartFieldRules } from "../../forms/elements/ganttChartField/rules"
+import { GeographicalSchemaFieldRules } from "../../forms/elements/geographicalSchemaField/rules"
+import { GraphicalSchemaFieldRules } from "../../forms/elements/graphicalSchemaField/rules"
+import { GroupItemAutoRules } from "../../commonObjects/dataCompositionSystem/structureItemGroup/items/groupItemAuto/rules"
+import { HTMLDocumentFieldRules } from "../../forms/elements/htmlDocumentField/rules"
+import { InputFieldRules, TableInputFieldRules } from "../../forms/elements/inputField/rules"
+import { LabelDecorationRules } from "../../forms/elements/labelDecoration/rules"
+import { LabelFieldRules, TableLabelFieldRules } from "../../forms/elements/labelField/rules"
+import { PageRules } from "../../forms/elements/page/rules"
+import { PagesRules } from "../../forms/elements/pages/rules"
+import { PDFDocumentFieldRules } from "../../forms/elements/pdfDocumentField/rules"
+import { PictureDecorationRules } from "../../forms/elements/pictureDecoration/rules"
+import { PictureFieldRules } from "../../forms/elements/pictureField/rules"
+import { PopupRules } from "../../forms/elements/popup/rules"
+import { PeriodFieldRules } from "../../forms/elements/periodField/rules"
+import { PlannerFieldRules } from "../../forms/elements/plannerField/rules"
+import { ProgressBarFieldRules } from "../../forms/elements/progressBarField/rules"
+import { RadioButtonFieldRules } from "../../forms/elements/radioButtonField/rules"
 import {
   SearchControlAdditionRules,
   SingleSearchControlAdditionRules,
-} from "~/metadata/forms/elements/searchControlAddition/rules"
+} from "../../forms/elements/searchControlAddition/rules"
 import {
   SearchStringAdditionRules,
   SingleSearchStringAdditionRules,
-} from "~/metadata/forms/elements/searchStringAddition/rules"
-import { SingleViewStatusAdditionRules } from "~/metadata/forms/elements/viewStatusAddition/rules"
-import { SpreadSheetDocumentFieldRules } from "~/metadata/forms/elements/spreadSheetDocumentField/rules"
-import { TableRules } from "~/metadata/forms/elements/table/rules"
-import { TextDocumentFieldRules } from "~/metadata/forms/elements/textDocumentField/rules"
-import { TrackBarFieldRules } from "~/metadata/forms/elements/trackBarField/rules"
-import { UsualGroupRules } from "~/metadata/forms/elements/usualGroup/rules"
+} from "../../forms/elements/searchStringAddition/rules"
+import { SingleViewStatusAdditionRules } from "../../forms/elements/viewStatusAddition/rules"
+import { SpreadSheetDocumentFieldRules } from "../../forms/elements/spreadSheetDocumentField/rules"
+import { TableRules } from "../../forms/elements/table/rules"
+import { TextDocumentFieldRules } from "../../forms/elements/textDocumentField/rules"
+import { TrackBarFieldRules } from "../../forms/elements/trackBarField/rules"
+import { UsualGroupRules } from "../../forms/elements/usualGroup/rules"
 import type { MetadataItemRule, PropertyRule } from "./types"
 
 type RuleModule = Record<string, unknown>
@@ -252,7 +255,9 @@ describe("implicitValueYAML contract", () => {
 
     const expectedNoImplicitValueYAML = ["horizontalStretch", "skipOnInput", "verticalStretch"] as const
     const unexpectedNoImplicitValueYAML = expectedNoImplicitValueYAML
-      .filter((propertyKey) => getRuleProperty(PictureDecorationRules.properties, propertyKey).noImplicitValueYAML !== true)
+      .filter(
+        (propertyKey) => getRuleProperty(PictureDecorationRules.properties, propertyKey).noImplicitValueYAML !== true
+      )
       .map((propertyKey) => `PictureDecorationRules.${propertyKey}`)
 
     expect([...unexpectedImplicitValues, ...unexpectedNoImplicitValueYAML]).toEqual([])
@@ -350,7 +355,9 @@ describe("implicitValueYAML contract", () => {
 
     const expectedNoImplicitValueYAML = ["equalColumnsWidth"] as const
     const unexpectedNoImplicitValueYAML = expectedNoImplicitValueYAML
-      .filter((propertyKey) => getRuleProperty(RadioButtonFieldRules.properties, propertyKey).noImplicitValueYAML !== true)
+      .filter(
+        (propertyKey) => getRuleProperty(RadioButtonFieldRules.properties, propertyKey).noImplicitValueYAML !== true
+      )
       .map((propertyKey) => `RadioButtonFieldRules.${propertyKey}`)
 
     expect([...unexpected, ...unexpectedNoImplicitValueYAML]).toEqual([])
@@ -383,12 +390,18 @@ describe("implicitValueYAML contract", () => {
 
     const unexpectedSearchControlImplicitValues = searchControlRules.flatMap(([ruleName, rule]) =>
       Object.entries(expectedSearchControlImplicitValues)
-        .filter(([propertyKey, implicitValueYAML]) => getRuleProperty(rule.properties, propertyKey).implicitValueYAML !== implicitValueYAML)
+        .filter(
+          ([propertyKey, implicitValueYAML]) =>
+            getRuleProperty(rule.properties, propertyKey).implicitValueYAML !== implicitValueYAML
+        )
         .map(([propertyKey]) => `${ruleName}.${propertyKey}`)
     )
     const unexpectedSearchStringImplicitValues = searchStringRules.flatMap(([ruleName, rule]) =>
       Object.entries(expectedSearchStringImplicitValues)
-        .filter(([propertyKey, implicitValueYAML]) => getRuleProperty(rule.properties, propertyKey).implicitValueYAML !== implicitValueYAML)
+        .filter(
+          ([propertyKey, implicitValueYAML]) =>
+            getRuleProperty(rule.properties, propertyKey).implicitValueYAML !== implicitValueYAML
+        )
         .map(([propertyKey]) => `${ruleName}.${propertyKey}`)
     )
 
@@ -424,13 +437,18 @@ describe("implicitValueYAML contract", () => {
 
     const unexpectedImplicitValues = Object.entries(expectedImplicitValues)
       .filter(([propertyKey, implicitValueYAML]) => {
-        return getRuleProperty(SingleViewStatusAdditionRules.properties, propertyKey).implicitValueYAML !== implicitValueYAML
+        return (
+          getRuleProperty(SingleViewStatusAdditionRules.properties, propertyKey).implicitValueYAML !== implicitValueYAML
+        )
       })
       .map(([propertyKey]) => `SingleViewStatusAdditionRules.${propertyKey}`)
 
     const expectedNoImplicitValueYAML = ["horizontalStretch", "visible"] as const
     const unexpectedNoImplicitValueYAML = expectedNoImplicitValueYAML
-      .filter((propertyKey) => getRuleProperty(SingleViewStatusAdditionRules.properties, propertyKey).noImplicitValueYAML !== true)
+      .filter(
+        (propertyKey) =>
+          getRuleProperty(SingleViewStatusAdditionRules.properties, propertyKey).noImplicitValueYAML !== true
+      )
       .map((propertyKey) => `SingleViewStatusAdditionRules.${propertyKey}`)
 
     expect([...unexpectedImplicitValues, ...unexpectedNoImplicitValueYAML]).toEqual([])
@@ -440,7 +458,10 @@ describe("implicitValueYAML contract", () => {
     const explicitRequiredFields = ["use", "periodicity"] as const
 
     const unexpected = explicitRequiredFields
-      .filter((propertyKey) => getRuleProperty(AccumulationRegisterAggregateRules.properties, propertyKey).noImplicitValueYAML !== true)
+      .filter(
+        (propertyKey) =>
+          getRuleProperty(AccumulationRegisterAggregateRules.properties, propertyKey).noImplicitValueYAML !== true
+      )
       .map((propertyKey) => `AccumulationRegisterAggregateRules.${propertyKey}`)
 
     expect(unexpected).toEqual([])
@@ -484,7 +505,10 @@ describe("implicitValueYAML contract", () => {
 
     const unexpected = Object.entries(expected)
       .filter(([propertyKey, implicitValueYAML]) => {
-        return getRuleProperty(MetadataIntegrationServiceChannelRules.properties, propertyKey).implicitValueYAML !== implicitValueYAML
+        return (
+          getRuleProperty(MetadataIntegrationServiceChannelRules.properties, propertyKey).implicitValueYAML !==
+          implicitValueYAML
+        )
       })
       .map(([propertyKey]) => `MetadataIntegrationServiceChannelRules.${propertyKey}`)
 
@@ -524,7 +548,10 @@ describe("implicitValueYAML contract", () => {
 
     const unexpected = Object.entries(expected)
       .filter(([propertyKey, implicitValueYAML]) => {
-        return getRuleProperty(CalculatedFieldOrderExpressionRules.properties, propertyKey).implicitValueYAML !== implicitValueYAML
+        return (
+          getRuleProperty(CalculatedFieldOrderExpressionRules.properties, propertyKey).implicitValueYAML !==
+          implicitValueYAML
+        )
       })
       .map(([propertyKey]) => `CalculatedFieldOrderExpressionRules.${propertyKey}`)
 
@@ -547,7 +574,9 @@ describe("implicitValueYAML contract", () => {
 
     const unexpectedComparisonValues = Object.entries(expectedComparisonValues)
       .filter(([propertyKey, implicitValueYAML]) => {
-        return getRuleProperty(FilterItemComparisonRules.properties, propertyKey).implicitValueYAML !== implicitValueYAML
+        return (
+          getRuleProperty(FilterItemComparisonRules.properties, propertyKey).implicitValueYAML !== implicitValueYAML
+        )
       })
       .map(([propertyKey]) => `FilterItemComparisonRules.${propertyKey}`)
 
@@ -594,7 +623,9 @@ describe("implicitValueYAML contract", () => {
       "visible",
     ] as const
     const unexpectedNoImplicitValueYAML = expectedNoImplicitValueYAML
-      .filter((propertyKey) => getRuleProperty(ExtendedTooltipRules.properties, propertyKey).noImplicitValueYAML !== true)
+      .filter(
+        (propertyKey) => getRuleProperty(ExtendedTooltipRules.properties, propertyKey).noImplicitValueYAML !== true
+      )
       .map((propertyKey) => `ExtendedTooltipRules.${propertyKey}`)
 
     expect([...unexpectedImplicitValues, ...unexpectedNoImplicitValueYAML]).toEqual([])
@@ -614,7 +645,9 @@ describe("implicitValueYAML contract", () => {
 
     const unexpected = Object.entries(expected)
       .filter(([propertyKey, implicitValueYAML]) => {
-        return getRuleProperty(FormattedDocumentFieldRules.properties, propertyKey).implicitValueYAML !== implicitValueYAML
+        return (
+          getRuleProperty(FormattedDocumentFieldRules.properties, propertyKey).implicitValueYAML !== implicitValueYAML
+        )
       })
       .map(([propertyKey]) => `FormattedDocumentFieldRules.${propertyKey}`)
 
@@ -748,7 +781,9 @@ describe("implicitValueYAML contract", () => {
 
     const expectedNoImplicitValueYAML = ["horizontalLines", "verticalLines"] as const
     const unexpectedNoImplicitValueYAML = expectedNoImplicitValueYAML
-      .filter((propertyKey) => getRuleProperty(GanttChartFieldRules.properties, propertyKey).noImplicitValueYAML !== true)
+      .filter(
+        (propertyKey) => getRuleProperty(GanttChartFieldRules.properties, propertyKey).noImplicitValueYAML !== true
+      )
       .map((propertyKey) => `GanttChartFieldRules.${propertyKey}`)
 
     expect([...unexpectedImplicitValues, ...unexpectedNoImplicitValueYAML]).toEqual([])
@@ -829,7 +864,9 @@ describe("implicitValueYAML contract", () => {
 
     const unexpected = Object.entries(expected)
       .filter(([propertyKey, implicitValueYAML]) => {
-        return getRuleProperty(GeographicalSchemaFieldRules.properties, propertyKey).implicitValueYAML !== implicitValueYAML
+        return (
+          getRuleProperty(GeographicalSchemaFieldRules.properties, propertyKey).implicitValueYAML !== implicitValueYAML
+        )
       })
       .map(([propertyKey]) => `GeographicalSchemaFieldRules.${propertyKey}`)
 
@@ -845,7 +882,9 @@ describe("implicitValueYAML contract", () => {
 
     const unexpected = Object.entries(expected)
       .filter(([propertyKey, implicitValueYAML]) => {
-        return getRuleProperty(GraphicalSchemaFieldRules.properties, propertyKey).implicitValueYAML !== implicitValueYAML
+        return (
+          getRuleProperty(GraphicalSchemaFieldRules.properties, propertyKey).implicitValueYAML !== implicitValueYAML
+        )
       })
       .map(([propertyKey]) => `GraphicalSchemaFieldRules.${propertyKey}`)
 
@@ -1035,7 +1074,9 @@ describe("implicitValueYAML contract", () => {
 
     const unexpected = Object.entries(expected)
       .filter(([propertyKey, implicitValueYAML]) => {
-        return getRuleProperty(ClientApplicationFormRules.properties, propertyKey).implicitValueYAML !== implicitValueYAML
+        return (
+          getRuleProperty(ClientApplicationFormRules.properties, propertyKey).implicitValueYAML !== implicitValueYAML
+        )
       })
       .map(([propertyKey]) => `ClientApplicationFormRules.${propertyKey}`)
 
@@ -1056,7 +1097,10 @@ describe("implicitValueYAML contract", () => {
     ] as const
 
     const unexpected = explicitFields
-      .filter((propertyKey) => getRuleProperty(ClientApplicationFormRules.properties, propertyKey).noImplicitValueYAML !== true)
+      .filter(
+        (propertyKey) =>
+          getRuleProperty(ClientApplicationFormRules.properties, propertyKey).noImplicitValueYAML !== true
+      )
       .map((propertyKey) => `ClientApplicationFormRules.${propertyKey}`)
 
     expect(unexpected).toEqual([])
@@ -1165,7 +1209,9 @@ describe("implicitValueYAML contract", () => {
 
     const expectedNoImplicitValueYAML = ["horizontalStretch", "skipOnInput", "verticalStretch"] as const
     const unexpectedNoImplicitValueYAML = expectedNoImplicitValueYAML
-      .filter((propertyKey) => getRuleProperty(LabelDecorationRules.properties, propertyKey).noImplicitValueYAML !== true)
+      .filter(
+        (propertyKey) => getRuleProperty(LabelDecorationRules.properties, propertyKey).noImplicitValueYAML !== true
+      )
       .map((propertyKey) => `LabelDecorationRules.${propertyKey}`)
 
     expect([...unexpectedImplicitValues, ...unexpectedNoImplicitValueYAML]).toEqual([])
@@ -1181,7 +1227,12 @@ describe("implicitValueYAML contract", () => {
       titleHeight: 0,
       width: 0,
     } as const
-    const expectedNoImplicitValueYAML = ["horizontalStretch", "markNegatives", "passwordMode", "verticalStretch"] as const
+    const expectedNoImplicitValueYAML = [
+      "horizontalStretch",
+      "markNegatives",
+      "passwordMode",
+      "verticalStretch",
+    ] as const
     const rules = [
       ["LabelFieldRules", LabelFieldRules],
       ["TableLabelFieldRules", TableLabelFieldRules],
@@ -1379,7 +1430,9 @@ describe("implicitValueYAML contract", () => {
 
     const unexpected = Object.entries(expected)
       .filter(([propertyKey, implicitValueYAML]) => {
-        return getRuleProperty(ClientApplicationFormRules.properties, propertyKey).implicitValueYAML !== implicitValueYAML
+        return (
+          getRuleProperty(ClientApplicationFormRules.properties, propertyKey).implicitValueYAML !== implicitValueYAML
+        )
       })
       .map(([propertyKey]) => `ClientApplicationFormRules.${propertyKey}`)
 
@@ -1439,7 +1492,9 @@ describe("implicitValueYAML contract", () => {
 
     const unexpected = Object.entries(expected)
       .filter(([propertyKey, implicitValueYAML]) => {
-        return getRuleProperty(SpreadSheetDocumentFieldRules.properties, propertyKey).implicitValueYAML !== implicitValueYAML
+        return (
+          getRuleProperty(SpreadSheetDocumentFieldRules.properties, propertyKey).implicitValueYAML !== implicitValueYAML
+        )
       })
       .map(([propertyKey]) => `SpreadSheetDocumentFieldRules.${propertyKey}`)
 

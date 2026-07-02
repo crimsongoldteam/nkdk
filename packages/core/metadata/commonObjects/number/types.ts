@@ -1,6 +1,7 @@
-import { Static, Type } from "@sinclair/typebox"
-import { definePropertyRule, type ExactRuleParams } from "~/metadata/commonObjects/ruleBuilder"
-import type { BasePropertyRule } from "~/metadata/orchestration"
+import { Type } from "@sinclair/typebox"
+import type { Static } from "@sinclair/typebox"
+import { definePropertyRule, type ExactRuleParams } from "../ruleBuilder"
+import type { BasePropertyRule } from "../../orchestration"
 
 export const NumberJSONSchema = Type.Number()
 

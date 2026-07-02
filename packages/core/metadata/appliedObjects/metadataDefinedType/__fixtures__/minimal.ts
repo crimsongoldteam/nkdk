@@ -6,5 +6,4 @@ export const minimal: MetadataDefinedType = {
   synonym: { items: { ru: "Определяемый тип по умолчанию" } },
 }
 
-export const minimalYAML: MetadataDefinedTypeYAML = {
-}
+export const minimalYAML: MetadataDefinedTypeYAML = {}

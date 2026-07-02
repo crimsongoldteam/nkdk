@@ -6,13 +6,13 @@ import {
   exportElementToXML,
   importElementFromXML,
   type ElementXML,
-} from "~/metadata/orchestration"
-import { getReferenceNameSuffix } from "~/metadata/orchestration/formElement/singletonName"
-import { setIdsToElements } from "~/metadata/forms/clientApplicationForm/toXML"
-import type { Table } from "~/metadata/forms/elements/table/types"
-import { mockContext, mockContextFromXML, mockContextToXML } from "~/tests/mockContext"
-import { readAndParseXMLFile, readXMLFileAsString } from "~/tests/readAndParseXMLFile"
-import { xmlExport } from "~/xml/export/exporter"
+} from "../../orchestration"
+import { getReferenceNameSuffix } from "../../orchestration/formElement/singletonName"
+import { setIdsToElements } from "../clientApplicationForm/toXML"
+import type { Table } from "./table/types"
+import { mockContext, mockContextFromXML, mockContextToXML } from "../../../tests/mockContext"
+import { readAndParseXMLFile, readXMLFileAsString } from "../../../tests/readAndParseXMLFile"
+import { xmlExport } from "../../../xml/export/exporter"
 import {
   nonCanonicalSingletonNames,
   nonCanonicalSingletonNamesYAML,
@@ -74,7 +74,7 @@ describe("singleton noncanonical XML names with reference", () => {
     const result = exportElementToPartialYAML({ context: mockContext, element: nonCanonicalSingletonNames })
 
     expect(result).toEqual(nonCanonicalSingletonNamesYAML)
-    expect(JSON.stringify(result)).not.toContain("\"Имя\"")
+    expect(JSON.stringify(result)).not.toContain('"Имя"')
     expect(JSON.stringify(result)).not.toContain("ТаблицаЭП")
   })
 })

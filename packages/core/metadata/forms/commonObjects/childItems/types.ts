@@ -1,9 +1,9 @@
 import {
   definePropertyRule as defineWidePropertyRule,
   type ExactRuleParams as WideExactRuleParams,
-} from "~/metadata/commonObjects/ruleBuilder"
-import type { PropertyRule as WidePropertyRuleBase } from "~/metadata/orchestration/property/types"
-// import { ToEnterpriseType } from "~/metadata/metadataFactory/types"
+} from "../../../commonObjects/ruleBuilder"
+import type { PropertyRule as WidePropertyRuleBase } from "../../../orchestration/property/types"
+// import { ToEnterpriseType } from "../../../metadataFactory/types"
 import {
   CollectableElement,
   CollectableElementToYAML,
@@ -11,7 +11,7 @@ import {
   ToEnterprise,
   ToTypedYAML,
   ToYAML,
-} from "~/metadata/orchestration"
+} from "../../../orchestration"
 import { AutoCommandBar } from "../../elements/autoCommandBar/types"
 import { Button, ButtonTypedYAML, CommandBarButton, CommandBarButtonTypedYAML } from "../../elements/button/types"
 import { ButtonGroup, ButtonGroupTypedYAML } from "../../elements/buttonGroup/types"

@@ -38,20 +38,11 @@ export async function chooseFromList<T>({
       return items[selectedIndex]
     }
 
-    message = `Введите число от 1 до ${items.length}.\n\n${buildQuestion(
-      title,
-      items,
-      label,
-      safeDefaultIndex,
-    )}`
+    message = `Введите число от 1 до ${items.length}.\n\n${buildQuestion(title, items, label, safeDefaultIndex)}`
   }
 }
 
-export async function chooseXmlDir(
-  prompt: Prompt,
-  availableXmlDirs: string[],
-  defaultXmlDir: string,
-): Promise<string> {
+export async function chooseXmlDir(prompt: Prompt, availableXmlDirs: string[], defaultXmlDir: string): Promise<string> {
   const defaultIndex = availableXmlDirs.indexOf(defaultXmlDir)
 
   return chooseFromList({
@@ -62,12 +53,8 @@ export async function chooseXmlDir(
   })
 }
 
-export async function chooseFixtureSelection(
-  prompt: Prompt,
-  scan: CandidateScan,
-): Promise<FixtureSelection> {
-  const fullCandidates =
-    scan.fullCandidates.length > 0 ? scan.fullCandidates : scan.candidates
+export async function chooseFixtureSelection(prompt: Prompt, scan: CandidateScan): Promise<FixtureSelection> {
+  const fullCandidates = scan.fullCandidates.length > 0 ? scan.fullCandidates : scan.candidates
   const full = await chooseFromList({
     prompt,
     title: "Выберите full.xml",
@@ -92,12 +79,7 @@ export async function chooseFixtureSelection(
   }
 }
 
-function buildQuestion<T>(
-  title: string,
-  items: T[],
-  label: (item: T) => string,
-  defaultIndex: number,
-): string {
+function buildQuestion<T>(title: string, items: T[], label: (item: T) => string, defaultIndex: number): string {
   const lines = items.map((item, index) => {
     const suffix = index === defaultIndex ? " [Enter]" : ""
     return `${index + 1}. ${label(item)}${suffix}`

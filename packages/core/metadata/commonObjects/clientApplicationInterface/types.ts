@@ -1,8 +1,9 @@
-import { Static, Type } from "@sinclair/typebox"
-import { MetadataItem } from "~/metadata/orchestration"
-import { MetadataTypeByRule } from "~/metadata/orchestration/metadataItem/element"
-import { YAMLTypeByRule } from "~/metadata/orchestration/metadataItem/yaml"
-import type { SectionsPanelRepresentation } from "~/metadata/systemEnumerations/types"
+import { Type } from "@sinclair/typebox"
+import type { Static } from "@sinclair/typebox"
+import { MetadataItem } from "../../orchestration"
+import { MetadataTypeByRule } from "../../orchestration/metadataItem/element"
+import { YAMLTypeByRule } from "../../orchestration/metadataItem/yaml"
+import type { SectionsPanelRepresentation } from "../../systemEnumerations/types"
 import { ClientApplicationInterfaceRules } from "./rules"
 
 export type ClientApplicationInterfaceStandardPanel =

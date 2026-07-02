@@ -1,7 +1,7 @@
 import { describe, expect, it } from "vitest"
-import { fullFieldsList } from "~/metadata/commonObjects/fieldsList/__fixtures__/data"
-import { mockContextFromXML, mockRule } from "~/tests/mockContext"
-import { readAndParseXMLFile } from "~/tests/readAndParseXMLFile"
+import { fullFieldsList } from "./__fixtures__/data"
+import { mockContextFromXML, mockRule } from "../../../tests/mockContext"
+import { readAndParseXMLFile } from "../../../tests/readAndParseXMLFile"
 import { importFieldsListFromXML } from "./fromXML"
 import { FieldsListXML } from "./types"
 

@@ -1,9 +1,9 @@
 import {
   definePropertyRule as defineWidePropertyRule,
   type ExactRuleParams as WideExactRuleParams,
-} from "~/metadata/commonObjects/ruleBuilder"
-import type { PropertyRule as WidePropertyRuleBase } from "~/metadata/orchestration/property/types"
-import type { I8nText, I8nTextYAML } from "~/metadata/commonObjects/i8nText/types"
+} from "../../ruleBuilder"
+import type { PropertyRule as WidePropertyRuleBase } from "../../../orchestration/property/types"
+import type { I8nText, I8nTextYAML } from "../../i8nText/types"
 import type { MetadataDcsMetadataValue, MetadataDcsMetadataValueYAML } from "../dcsMetadataValue/types"
 
 export interface DcsAvailableValue {

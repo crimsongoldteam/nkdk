@@ -1,7 +1,7 @@
 import { describe, expect, it } from "vitest"
-import { mockContext, mockRule } from "~/tests/mockContext"
-import { readXMLFixtureAsString } from "~/tests/readFixtureXML"
-import { xmlExport } from "~/xml/export/exporter"
+import { mockContext, mockRule } from "../../../tests/mockContext"
+import { readXMLFixtureAsString } from "../../../tests/readFixtureXML"
+import { xmlExport } from "../../../xml/export/exporter"
 import { fullMobileDeviceCommandBarContent, twoItemsMobileDeviceCommandBarContent } from "./__fixtures__/data"
 import { exportMobileDeviceCommandBarContentToXML } from "./toXML"
 

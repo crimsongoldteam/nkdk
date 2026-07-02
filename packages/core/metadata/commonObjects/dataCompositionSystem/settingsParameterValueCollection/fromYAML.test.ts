@@ -1,11 +1,11 @@
 import { TypeCompiler } from "@sinclair/typebox/compiler"
 import { describe, expect, it } from "vitest"
-import { PropertyRule } from "~/metadata/orchestration"
-import { exportPropertyToJSONSchema } from "~/metadata/orchestration/property/toJSONSchema"
-import { mockContext } from "~/tests/mockContext"
-import { testImportPropertyFromYAML } from "~/tests/property/importPropertyFromYAML"
-import { exportToYAML } from "~/yaml/export"
-import { importFromYAML } from "~/yaml/import"
+import { PropertyRule } from "../../../orchestration"
+import { exportPropertyToJSONSchema } from "../../../orchestration/property/toJSONSchema"
+import { mockContext } from "../../../../tests/mockContext"
+import { testImportPropertyFromYAML } from "../../../../tests/property/importPropertyFromYAML"
+import { exportToYAML } from "../../../../yaml/export"
+import { importFromYAML } from "../../../../yaml/import"
 import {
   settingsParameterValueCollectionFixture,
   settingsParameterValueCollectionFixtureYAML,

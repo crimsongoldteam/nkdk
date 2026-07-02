@@ -1,7 +1,7 @@
-import { FormTypeByRule } from "~/metadata/orchestration/metadataItem/element"
-import { EnterpriseType } from "~/metadata/orchestration/metadataItem/enterprise"
-import { YAMLTypeByRule } from "~/metadata/orchestration/metadataItem/yaml"
-import * as SE from "~/metadata/systemEnumerations/types"
+import { FormTypeByRule } from "../../../orchestration/metadataItem/element"
+import { EnterpriseType } from "../../../orchestration/metadataItem/enterprise"
+import { YAMLTypeByRule } from "../../../orchestration/metadataItem/yaml"
+import * as SE from "../../../systemEnumerations/types"
 import { ColumnGroupRules } from "./rules"
 
 export type ColumnGroup = FormTypeByRule<typeof ColumnGroupRules>

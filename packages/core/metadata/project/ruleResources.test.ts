@@ -1,11 +1,11 @@
 import { beforeEach, describe, expect, it, vi } from "vitest"
-import { MetadataConfigurationRules } from "~/metadata/appliedObjects/configuration/rules"
-import { MetadataCatalogRules } from "~/metadata/appliedObjects/metadataCatalog/rules"
-import { MetadataCommonFormRules } from "~/metadata/appliedObjects/metadataCommonForm/rules"
-import { MetadataReportRules } from "~/metadata/appliedObjects/metadataReport/rules"
-import { DynamicListRules } from "~/metadata/forms/commonObjects/dynamicList/rules"
-import { ClientApplicationFormRules } from "~/metadata/forms/clientApplicationForm/rules"
-import { registerCoreMetadata } from "~/metadata/register"
+import { MetadataConfigurationRules } from "../appliedObjects/configuration/rules"
+import { MetadataCatalogRules } from "../appliedObjects/metadataCatalog/rules"
+import { MetadataCommonFormRules } from "../appliedObjects/metadataCommonForm/rules"
+import { MetadataReportRules } from "../appliedObjects/metadataReport/rules"
+import { DynamicListRules } from "../forms/commonObjects/dynamicList/rules"
+import { ClientApplicationFormRules } from "../forms/clientApplicationForm/rules"
+import { registerCoreMetadata } from "../register"
 import {
   describeMetadataRuleResources,
   describeMetadataRuleProjectResources,
@@ -285,10 +285,8 @@ describe("describeMetadataRuleResources", () => {
 
   it("does not register type rules while describing resources", async () => {
     await withFreshRegistry(async () => {
-      const { clearTypeRulesRegistry, getTypeRule } = await import(
-        "~/metadata/orchestration/property/typeRuleRegistry"
-      )
-      const { MetadataCatalogRules } = await import("~/metadata/appliedObjects/metadataCatalog/rules")
+      const { clearTypeRulesRegistry, getTypeRule } = await import("../orchestration/property/typeRuleRegistry")
+      const { MetadataCatalogRules } = await import("../appliedObjects/metadataCatalog/rules")
       const { describeMetadataRuleResources } = await import("./ruleResources")
 
       clearTypeRulesRegistry()
@@ -309,9 +307,7 @@ describe("describeMetadataRuleResources", () => {
 
   it("does not register type rules from the public descriptor entrypoint", async () => {
     await withFreshRegistry(async () => {
-      const { clearTypeRulesRegistry, getTypeRule } = await import(
-        "~/metadata/orchestration/property/typeRuleRegistry"
-      )
+      const { clearTypeRulesRegistry, getTypeRule } = await import("../orchestration/property/typeRuleRegistry")
 
       clearTypeRulesRegistry()
 
@@ -331,7 +327,7 @@ describe("describeMetadataRuleResources", () => {
 describe("project resource type-rule contracts", () => {
   it("registers project resource descriptors for a property type", async () => {
     await withFreshRegistry(async () => {
-      const { getTypeRule, registerTypeRule } = await import("~/metadata/orchestration/property/typeRuleRegistry")
+      const { getTypeRule, registerTypeRule } = await import("../orchestration/property/typeRuleRegistry")
 
       registerTypeRule("ChildFormNames", "projectResources", () => [
         {
@@ -359,7 +355,7 @@ describe("project resource type-rule contracts", () => {
 
   it("registers XML sync routes and writers for a property type", async () => {
     await withFreshRegistry(async () => {
-      const { getTypeRule, registerTypeRule } = await import("~/metadata/orchestration/property/typeRuleRegistry")
+      const { getTypeRule, registerTypeRule } = await import("../orchestration/property/typeRuleRegistry")
       const writer = async () => undefined
 
       registerTypeRule("ChildFormNames", "xmlSyncRoutes", () => [
@@ -466,7 +462,7 @@ async function withFreshRegistry(assertions: () => Promise<void>): Promise<void>
     await assertions()
   } finally {
     vi.resetModules()
-    const { registerCoreMetadata } = await import("~/metadata/register")
+    const { registerCoreMetadata } = await import("../register")
     registerCoreMetadata()
   }
 }

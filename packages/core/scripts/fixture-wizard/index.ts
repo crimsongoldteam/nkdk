@@ -3,12 +3,7 @@ import { stdin as input, stdout as output } from "node:process"
 import { resolve } from "node:path"
 import { pathToFileURL } from "node:url"
 import { listXmlDirs, scanCandidates } from "./candidateScanner"
-import {
-  buildCopyPlan,
-  copyFixtures,
-  formatCopyPlan,
-  formatTestCommands,
-} from "./fixtureCopier"
+import { buildCopyPlan, copyFixtures, formatCopyPlan, formatTestCommands } from "./fixtureCopier"
 import { chooseFixtureSelection, chooseXmlDir } from "./interactivePicker"
 import { resolveMetadataTarget } from "./targetResolver"
 import type { CopyReport, Prompt } from "./types"
@@ -56,9 +51,7 @@ export async function runFixtureWizard({
 
   output.write(`${formatCopyPlan(plan)}\n`)
 
-  const confirmed = yesAnswers.has(
-    (await prompt("Выполнить копирование? [y/N]")).trim().toLowerCase(),
-  )
+  const confirmed = yesAnswers.has((await prompt("Выполнить копирование? [y/N]")).trim().toLowerCase())
 
   if (!confirmed) {
     output.write("Копирование отменено. Файлы не изменены.\n")

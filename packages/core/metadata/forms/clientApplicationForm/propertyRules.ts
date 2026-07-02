@@ -1,6 +1,6 @@
 import { dirname, join } from "path"
-import { registerTypeRule } from "~/metadata/orchestration/property/typeRuleRegistry"
-import { describeMetadataRuleProjectResources } from "~/metadata/project/ruleResources"
+import { registerTypeRule } from "../../orchestration/property/typeRuleRegistry"
+import { describeMetadataRuleProjectResources } from "../../project/ruleResources"
 import { DynamicListRules } from "../commonObjects/dynamicList/rules"
 import type {
   ExportToXMLFunctionNew,
@@ -10,7 +10,7 @@ import type {
   ProjectResourcesFunction,
   SyncExternalFromXMLFunction,
   SyncExternalToXMLFunction,
-} from "~/metadata/orchestration/property/fn"
+} from "../../orchestration/property/fn"
 import { createEmptyClientApplicationForm } from "./createEmpty"
 import { copyFormItemExternalFilesFromXML, copyFormItemExternalFilesToXML } from "./externalItemFiles"
 import { copyExistingRawFile } from "./externalRawFiles"

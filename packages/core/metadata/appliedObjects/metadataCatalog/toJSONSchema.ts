@@ -1,6 +1,6 @@
 import { TSchema } from "@sinclair/typebox"
-import { ConfigurationContext } from "~/metadata/context/types"
-import { exportMetadataItemToJSONSchema } from "~/metadata/orchestration/metadataItem/toJSONSchema"
+import { ConfigurationContext } from "../../context/types"
+import { exportMetadataItemToJSONSchema } from "../../orchestration/metadataItem/toJSONSchema"
 import { MetadataCatalogRules } from "./rules"
 
 export const exportMetadataCatalogToJSONSchema = (params: { context: ConfigurationContext }): TSchema => {

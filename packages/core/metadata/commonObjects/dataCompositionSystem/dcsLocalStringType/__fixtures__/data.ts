@@ -1,4 +1,4 @@
-import { I8nText } from "~/metadata/commonObjects/i8nText/types"
+import { I8nText } from "../../../i8nText/types"
 
 export const fixtureDcsStringSingleLang: I8nText = { items: { ru: "Один язык - string" } }
 export const fixtureDcsLocalStringSingleLang: I8nText = { items: { ru: "Один язык - local string" } }

@@ -1,5 +1,5 @@
-import { ConfigurationContext } from "~/metadata/context/types"
-import { PropertyRule, registerTypeRule } from "~/metadata/orchestration"
+import { ConfigurationContext } from "../../context/types"
+import { PropertyRule, registerTypeRule } from "../../orchestration"
 import { XDTOTypeName, XDTOTypeNameYAML } from "./types"
 
 const isXDTOTypeNameYAML = (value: unknown): value is XDTOTypeNameYAML => {

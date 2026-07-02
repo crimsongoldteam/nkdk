@@ -1,12 +1,6 @@
 import { access, copyFile, mkdir, readFile, readdir } from "node:fs/promises"
 import { dirname, join, relative } from "node:path"
-import type {
-  CopyOperation,
-  CopyPlan,
-  CopyReport,
-  FixtureSelection,
-  MetadataTarget,
-} from "./types"
+import type { CopyOperation, CopyPlan, CopyReport, FixtureSelection, MetadataTarget } from "./types"
 
 type BuildCopyPlanOptions = {
   target: MetadataTarget
@@ -16,11 +10,7 @@ type BuildCopyPlanOptions = {
 
 const relatedDirs = ["Ext", "Forms", "Templates", "Commands"] as const
 
-export async function buildCopyPlan({
-  target,
-  sourceXmlDir,
-  selection,
-}: BuildCopyPlanOptions): Promise<CopyPlan> {
+export async function buildCopyPlan({ target, sourceXmlDir, selection }: BuildCopyPlanOptions): Promise<CopyPlan> {
   const operations: CopyOperation[] = [
     {
       source: selection.full.path,
@@ -48,7 +38,7 @@ export async function buildCopyPlan({
       sourceXmlDir,
       syncXmlDir: target.syncXmlDir,
       fullName: selection.full.name,
-    })),
+    }))
   )
 
   const overwrites = await filterExistingTargets(operations)
@@ -89,10 +79,7 @@ export async function verifyCopyPlan(plan: CopyPlan): Promise<string[]> {
   const verified: string[] = []
 
   for (const operation of plan.operations) {
-    const [source, target] = await Promise.all([
-      readFile(operation.source),
-      readFile(operation.target),
-    ])
+    const [source, target] = await Promise.all([readFile(operation.source), readFile(operation.target)])
 
     if (!source.equals(target)) {
       throw new Error(`Скопированный файл отличается от источника: ${operation.target}`)
@@ -123,17 +110,13 @@ export function formatCopyPlan(plan: CopyPlan): string {
     `syncXmlDir: ${plan.syncXmlDir}`,
     `fullName: ${plan.fullName}`,
     "Операции:",
-    ...plan.operations.map(
-      (operation) => `[${operation.kind}] ${operation.source} -> ${operation.target}`,
-    ),
+    ...plan.operations.map((operation) => `[${operation.kind}] ${operation.source} -> ${operation.target}`),
   ]
 
   if (plan.overwrites.length > 0) {
     lines.push(
       "Перезаписи:",
-      ...plan.overwrites.map(
-        (operation) => `[${operation.kind}] ${operation.source} -> ${operation.target}`,
-      ),
+      ...plan.overwrites.map((operation) => `[${operation.kind}] ${operation.source} -> ${operation.target}`)
     )
   }
 
@@ -161,11 +144,13 @@ async function listRelatedOperations({
 
     const files = await listFilesRecursively(relatedSourceDir)
     operations.push(
-      ...files.map((source): CopyOperation => ({
-        source,
-        target: join(syncXmlDir, relatedDir, relative(relatedSourceDir, source)),
-        kind: "related",
-      })),
+      ...files.map(
+        (source): CopyOperation => ({
+          source,
+          target: join(syncXmlDir, relatedDir, relative(relatedSourceDir, source)),
+          kind: "related",
+        })
+      )
     )
   }
 
@@ -185,7 +170,7 @@ async function listFilesRecursively(root: string): Promise<string[]> {
         }
 
         return entry.isFile() ? [path] : []
-      }),
+      })
   )
 
   return files.flat()
@@ -196,7 +181,7 @@ async function filterExistingTargets(operations: CopyOperation[]): Promise<CopyO
     operations.map(async (operation) => ({
       operation,
       exists: await pathExists(operation.target),
-    })),
+    }))
   )
 
   return checks.filter((check) => check.exists).map((check) => check.operation)
@@ -216,10 +201,5 @@ async function pathExists(path: string): Promise<boolean> {
 }
 
 function isErrorWithCode(error: unknown): error is { code: string } {
-  return (
-    typeof error === "object" &&
-    error !== null &&
-    "code" in error &&
-    typeof error.code === "string"
-  )
+  return typeof error === "object" && error !== null && "code" in error && typeof error.code === "string"
 }

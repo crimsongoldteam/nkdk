@@ -1,18 +1,13 @@
-import { InputField } from "~/metadata/forms/elements/inputField/types"
-import {
-  UsualGroup,
-  UsualGroupEnterprise,
-  UsualGroupPartialYAML,
-  UsualGroupTypedYAML,
-} from "~/metadata/forms/elements/usualGroup/types"
+import { InputField } from "../../inputField/types"
+import { UsualGroup, UsualGroupEnterprise, UsualGroupPartialYAML, UsualGroupTypedYAML } from "../types"
 
-import { StructureResult } from "~/tests/types"
-import { RequiredFieldsElement } from "~/tests/types"
+import { StructureResult } from "../../../../../tests/types"
+import { RequiredFieldsElement } from "../../../../../tests/types"
 import {
   fullFormGroupCommonFixture,
   fullFormGroupEnterpriseCommonFixture,
   fullFormGroupPartialYAMLCommonFixture,
-} from "~/metadata/forms/elements/formGroup/__fixtures__/data"
+} from "../../formGroup/__fixtures__/data"
 
 export const fullUsualGroup: RequiredFieldsElement<UsualGroup> = {
   itemType: "UsualGroup",
@@ -71,13 +66,7 @@ export const fullUsualGroupSource: UsualGroup = {
 }
 
 export const fullUsualGroupPartialYAML: Required<
-  Omit<
-    UsualGroupPartialYAML,
-    | "Заголовок"
-    | "Использование"
-    | "РазрешитьИзменениеСостава"
-    | "РастягиватьПоВертикали"
-  >
+  Omit<UsualGroupPartialYAML, "Заголовок" | "Использование" | "РазрешитьИзменениеСостава" | "РастягиватьПоВертикали">
 > = {
   ...fullFormGroupPartialYAMLCommonFixture,
   СочетаниеКлавиш: "S",

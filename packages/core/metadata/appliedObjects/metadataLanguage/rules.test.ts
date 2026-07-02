@@ -1,6 +1,6 @@
 import { describe, expect, it } from "vitest"
-import { V8_MDCLASSES_ROOT } from "~/metadata/orchestration/appliedObject/presets"
-import { getTypeRule } from "~/metadata/orchestration/property/typeRuleRegistry"
+import { V8_MDCLASSES_ROOT } from "../../orchestration/appliedObject/presets"
+import { getTypeRule } from "../../orchestration/property/typeRuleRegistry"
 import { MetadataLanguageRules } from "./rules"
 import "./register"
 

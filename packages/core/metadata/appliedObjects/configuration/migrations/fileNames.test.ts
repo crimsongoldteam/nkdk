@@ -14,10 +14,7 @@ describe("migration file names", () => {
     fs.writeFileSync(join(dir, "Миграции", "2026-05-05-143000-note.yaml"), "")
     fs.writeFileSync(join(dir, "Миграции", "2026-05-05-143001.YAML"), "")
 
-    expect(listMigrationFileNames(dir)).toEqual([
-      "2026-05-05-142959.yaml",
-      "2026-05-05-143000.yaml",
-    ])
+    expect(listMigrationFileNames(dir)).toEqual(["2026-05-05-142959.yaml", "2026-05-05-143000.yaml"])
   })
 
   it("rejects impossible UTC timestamp names", () => {
@@ -29,10 +26,10 @@ describe("migration file names", () => {
 
     expect(listMigrationFileNames(dir)).toEqual(["2026-05-05-143000.yaml"])
     expect(() => migrationFileNameToDate("2026-02-31-000000.yaml")).toThrow(
-      "Некорректное имя миграции: 2026-02-31-000000.yaml",
+      "Некорректное имя миграции: 2026-02-31-000000.yaml"
     )
     expect(() => migrationFileNameToDate("2026-05-05-246000.yaml")).toThrow(
-      "Некорректное имя миграции: 2026-05-05-246000.yaml",
+      "Некорректное имя миграции: 2026-05-05-246000.yaml"
     )
   })
 

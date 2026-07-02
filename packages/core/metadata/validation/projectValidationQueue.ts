@@ -1,10 +1,6 @@
 import { resolve } from "path"
 import type { ValidationProjectFile } from "./projectFiles"
-import type {
-  EnqueueDependencyResult,
-  ValidationMode,
-  ValidationQueueEntry,
-} from "./projectValidationTypes"
+import type { EnqueueDependencyResult, ValidationMode, ValidationQueueEntry } from "./projectValidationTypes"
 
 export interface ValidationYamlQueue {
   readonly mode: ValidationMode
@@ -62,7 +58,7 @@ export function createValidationYamlQueue(params: {
 function setStatus(
   entries: Map<string, ValidationQueueEntry>,
   filePath: string,
-  status: ValidationQueueEntry["status"],
+  status: ValidationQueueEntry["status"]
 ): void {
   const entry = entries.get(normalizePath(filePath))
   if (entry) entry.status = status

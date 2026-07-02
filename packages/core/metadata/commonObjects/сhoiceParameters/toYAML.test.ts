@@ -27,8 +27,8 @@ import {
   withoutOneValueChoiceParametersYAML,
   withoutValueChoiceParameter,
   withoutValueChoiceParametersYAML,
-} from "~/metadata/commonObjects/сhoiceParameters/__fixtures__/data"
-import { mockContext, mockRule } from "~/tests/mockContext"
+} from "./__fixtures__/data"
+import { mockContext, mockRule } from "../../../tests/mockContext"
 import { exportChoiceParametersToYAML } from "./toYAML"
 
 describe("exportChoiceParametersToYAML", () => {

@@ -1,11 +1,11 @@
-import { PropertyRule } from "~/metadata/orchestration/property/types"
-import { registerTypeRule } from "~/metadata/orchestration/property/typeRuleRegistry"
+import type { PropertyRule } from "../../orchestration/property/types"
+import { registerTypeRule } from "../../orchestration/property/typeRuleRegistry"
 import { ConfigurationContext } from "../../context/types"
 import { importSystemEnumerationFromYAMLDeprecated } from "../../systemEnumerations/fromYAML"
 import * as SE from "../../systemEnumerations/types"
 import { importBooleanFromYAML } from "../boolean/fromYAML"
 import { parseMetadataTargetFromYAML, type MetadataTargetConstraint } from "../metadataTargets"
-import { isRawPictureRefValue, Picture, PictureYAML, PictureYAMLExtended } from "./types"
+import { isRawPictureRefValue, type Picture, type PictureYAML, type PictureYAMLExtended } from "./types"
 
 const commonPictureTarget = {
   kind: "object",
@@ -102,7 +102,9 @@ function tryImportCommonPicture(ref: string): string | undefined {
     constraint: commonPictureTarget,
   })
   if (!parsed.ok) throw new Error(parsed.message)
-  return parsed.target.kind === "object" && parsed.target.root === "CommonPicture" ? parsed.target.objectName : undefined
+  return parsed.target.kind === "object" && parsed.target.root === "CommonPicture"
+    ? parsed.target.objectName
+    : undefined
 }
 
 function createPicture(

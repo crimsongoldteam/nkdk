@@ -1,8 +1,8 @@
-import { ConfigurationContext } from "~/metadata/context/types"
-import { exportMetadataItemToYAML } from "~/metadata/orchestration/metadataItem/toYAML"
-import { PropertyRule } from "~/metadata/orchestration/property/types"
+import { ConfigurationContext } from "../../../context/types"
+import { exportMetadataItemToYAML } from "../../../orchestration/metadataItem/toYAML"
+import type { PropertyRule } from "../../../orchestration/property/types"
 import { FilterItemComparisonRules, FilterItemGroupRules } from "./rules"
-import { FilterItem } from "./types"
+import type { FilterItem } from "./types"
 import "./inlineTypes"
 import "./typedValues"
 

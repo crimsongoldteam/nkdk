@@ -9,16 +9,16 @@ import {
   withAdditionalColumnFormAttribute,
   withEmptySettingsFormAttribute,
   withoutTypeFormAttribute,
-} from "~/metadata/forms/commonObjects/formAttribute/__fixtures__/legacy/data"
-import { ERP_DUPLICATE_ADDITIONAL_COLUMNS_FORM } from "~/metadata/forms/knownAnomalies"
-import { mockContextFromXML, mockContextToXML, mockRule } from "~/tests/mockContext"
-import { testExportPropertyToXML } from "~/tests/property/exportPropertyToXML"
-import { testImportPropertyFromXML } from "~/tests/property/importPropertyFromXML"
-import { readXMLFileAsString } from "~/tests/readAndParseXMLFile"
-import { readXMLFixtureAsString } from "~/tests/readFixtureXML"
-import { importContentFromXML } from "~/xml/import/importer"
-import { xmlExport } from "~/xml/export/exporter"
-import { importPropertyFromXML } from "~/metadata/orchestration"
+} from "./__fixtures__/legacy/data"
+import { ERP_DUPLICATE_ADDITIONAL_COLUMNS_FORM } from "../../knownAnomalies"
+import { mockContextFromXML, mockContextToXML, mockRule } from "../../../../tests/mockContext"
+import { testExportPropertyToXML } from "../../../../tests/property/exportPropertyToXML"
+import { testImportPropertyFromXML } from "../../../../tests/property/importPropertyFromXML"
+import { readXMLFileAsString } from "../../../../tests/readAndParseXMLFile"
+import { readXMLFixtureAsString } from "../../../../tests/readFixtureXML"
+import { importContentFromXML } from "../../../../xml/import/importer"
+import { xmlExport } from "../../../../xml/export/exporter"
+import { importPropertyFromXML } from "../../../orchestration"
 import { setIdsToElements } from "../../clientApplicationForm/toXML"
 import { attributeAnyType } from "./__fixtures__/attributeAnyType"
 import { chartSettings } from "./__fixtures__/chartSettings"
@@ -75,10 +75,12 @@ const withErpAdditionalColumn = (params: { table?: string; column?: string; extr
           },
           ...(params.extraColumn === undefined
             ? []
-            : [{
-                ...formAttributesWithCanonicalErpAdditionalColumn[0].additionalColumns![0].columns[0],
-                name: params.extraColumn,
-              }]),
+            : [
+                {
+                  ...formAttributesWithCanonicalErpAdditionalColumn[0].additionalColumns![0].columns[0],
+                  name: params.extraColumn,
+                },
+              ]),
         ],
       },
     ],
@@ -363,11 +365,7 @@ describe("exportFormAttributesToXML", () => {
     const context = mockContextToXML()
     context.exportToXML.context!.currentXMLPath = ERP_DUPLICATE_ADDITIONAL_COLUMNS_FORM
 
-    const xmlData = exportFormAttributesToXML(
-      context,
-      mockRule,
-      withErpAdditionalColumn({ extraColumn: "Реквизит2" })
-    )
+    const xmlData = exportFormAttributesToXML(context, mockRule, withErpAdditionalColumn({ extraColumn: "Реквизит2" }))
     const columns = getFirstAdditionalColumnNodes(xmlData)
 
     expect(columns).toHaveLength(2)
@@ -446,11 +444,9 @@ describe("exportFormAttributesToXML", () => {
 
   it("round-trip keeps repeated DynamicList KeyField nodes in Settings", () => {
     const context = mockContextToXML()
-    const value = importFormAttributesFromXML(
-      mockContextFromXML({ forReference: true }),
-      mockRule,
-      {
-        Attribute: [{
+    const value = importFormAttributesFromXML(mockContextFromXML({ forReference: true }), mockRule, {
+      Attribute: [
+        {
           _name: "Список",
           _id: "1",
           Settings: {
@@ -458,9 +454,9 @@ describe("exportFormAttributesToXML", () => {
             KeyType: "RowKey",
             KeyField: ["КлючПриглашения", "Контрагент", "ИдентификаторОрганизации"],
           },
-        }],
-      }
-    )
+        },
+      ],
+    })
 
     const xmlData = exportFormAttributesToXML(context, mockRule, value, value)
     const result = xmlExport(xmlData!, false)
@@ -474,16 +470,18 @@ describe("exportFormAttributesToXML", () => {
 
   it("exports FlowchartContextType Settings", () => {
     const context = mockContextToXML()
-    const value = [{
-      itemType: "FormAttribute" as const,
-      name: "Схема",
-      type: { type: ["FlowchartContextType"] },
-      title: { items: { ru: "" } },
-      columns: [],
-      flowchartContext: {
-        "d4p1:pointsCurId": "7",
+    const value = [
+      {
+        itemType: "FormAttribute" as const,
+        name: "Схема",
+        type: { type: ["FlowchartContextType"] },
+        title: { items: { ru: "" } },
+        columns: [],
+        flowchartContext: {
+          "d4p1:pointsCurId": "7",
+        },
       },
-    }]
+    ]
 
     const xmlData = exportFormAttributesToXML(context, mockRule, value)
     const result = xmlExport(xmlData!, false)
@@ -577,20 +575,22 @@ describe("exportFormAttributesToXML", () => {
   it("export plannerSettingsWithNil", () => {
     const { result, expectedResult } = testExportPropertyToXML({
       rule: formAttributesRule,
-      value: [{
-        itemType: "FormAttribute",
-        name: "Канбан",
-        id: "1",
-        type: { type: ["Planner"] },
-        title: { items: { ru: "" } },
-        columns: [],
-        planner: {
-          "pl:item": {
-            "pl:value": { "_xsi:nil": true },
-            "pl:text": "Встреча",
+      value: [
+        {
+          itemType: "FormAttribute",
+          name: "Канбан",
+          id: "1",
+          type: { type: ["Planner"] },
+          title: { items: { ru: "" } },
+          columns: [],
+          planner: {
+            "pl:item": {
+              "pl:value": { "_xsi:nil": true },
+              "pl:text": "Встреча",
+            },
           },
         },
-      }],
+      ],
       xmlRootTag: "Attribute",
       exportXmlDataAsRoot: true,
       path: "plannerSettingsWithNil.xml",

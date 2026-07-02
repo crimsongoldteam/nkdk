@@ -1,8 +1,8 @@
 import { describe, expect, it } from "vitest"
-import { exportPropertyToJSONSchema } from "~/metadata/orchestration/property/toJSONSchema"
-import { mockContext } from "~/tests/mockContext"
+import { exportPropertyToJSONSchema } from "../../orchestration/property/toJSONSchema"
+import { mockContext } from "../../../tests/mockContext"
 import { MetadataWebServiceOperationRules, MetadataWebServiceParameterRules } from "./rules"
-import "~/metadata/commonObjects/xdtoTypeName/toJSONSchema"
+import "../xdtoTypeName/toJSONSchema"
 
 describe("MetadataWebServiceOperation JSON Schema", () => {
   it("exports XDTO type name fields as expanded name objects", () => {

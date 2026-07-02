@@ -1,6 +1,6 @@
 import { describe, expect, it } from "vitest"
-import { getTypeRule } from "~/metadata/orchestration"
-import { mockContext, mockRule } from "~/tests/mockContext"
+import { getTypeRule } from "../../orchestration"
+import { mockContext, mockRule } from "../../../tests/mockContext"
 import { exportMetadataItemLinkToJSONSchema } from "./toJSONSchema"
 
 describe("exportMetadataItemLinkToJSONSchema", () => {

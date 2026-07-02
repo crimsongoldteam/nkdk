@@ -1,4 +1,4 @@
-import * as SE from "~/metadata/systemEnumerations/types"
+import * as SE from "./types"
 import { ConfigurationContext } from "../context/types"
 import { PropertyRule } from "../forms/elements/calendarField/rules"
 import { ExportToYAMLFunction } from "../orchestration"

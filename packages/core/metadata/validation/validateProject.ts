@@ -1,8 +1,10 @@
 import { availableParallelism } from "node:os"
+import { performance } from "node:perf_hooks"
+import { existsSync } from "fs"
 import { resolve } from "path"
-import type { ConfigurationContext } from "~/metadata/context/types"
-import { createOwnerMetadataCacheFromValidationTable } from "./dataPath/ownerCache"
-import { createProjectMetadataResolverFromValidationTable } from "./projectMetadataResolver"
+import type { ConfigurationContext } from "../context/types"
+import { getProjectReferenceObjectPathContributor } from "./projectReferenceIndexRegistry"
+import { validatePendingReferencesWithIndex } from "./projectReferenceIndex"
 import { ProjectFileSchemaError } from "./projectFileSchema"
 import {
   discoverValidationProjectFiles,
@@ -21,6 +23,7 @@ import {
   type ProjectValidationFileState,
 } from "./projectValidationPasses"
 import { createValidationYamlQueue } from "./projectValidationQueue"
+import { createValidationSnapshotProvider } from "./validationSnapshotProvider"
 import type { Diagnostic } from "./types"
 
 export interface ValidateProjectParams {
@@ -63,6 +66,30 @@ function validateProjectInProcess(params: ValidateProjectParams): ValidateProjec
 
   const diagnostics: Diagnostic[] = []
   processPendingFirstPasses({ projectDir, context, schemaCache, queue, entries, states, objectTable, diagnostics })
+  const skipMetadataTargetValidation = params.filePath === undefined
+
+  if (skipMetadataTargetValidation) {
+    const objectTableSnapshot = objectTable.snapshot()
+    const provider = createValidationSnapshotProvider(objectTableSnapshot)
+    const referenceIndex = provider.referenceIndex({
+      projectDir,
+      mode: queue.mode,
+      resolveObjectFilePath: (target) => resolveObjectFilePath({ projectDir, target }),
+      resolveProjectFile: (target) => resolveProjectFileDependency({ projectDir, target }),
+    })
+    const pendingReferences = objectTableSnapshot.pendingReferences ?? []
+    const referenceResult = validatePendingReferencesWithIndex({
+      index: referenceIndex,
+      references: pendingReferences,
+    })
+    logInProcessReferenceProfile({
+      snapshotBytes: provider.sharedPayload().reference.stats.snapshotBytes,
+      pendingReferences: pendingReferences.length,
+      memberIndexEntries: provider.sharedPayload().reference.stats.memberEntries,
+      result: referenceResult,
+    })
+    diagnostics.push(...referenceResult.diagnostics)
+  }
 
   const secondPassPending = new Set(states.keys())
   while (secondPassPending.size > 0) {
@@ -75,15 +102,24 @@ function validateProjectInProcess(params: ValidateProjectParams): ValidateProjec
       }
 
       const cache = createProjectYamlCacheFromEntries([...entries.values()])
-      const ownerCache = createOwnerMetadataCacheFromValidationTable({ projectDir, table: objectTable })
-      const metadataResolver = createProjectMetadataResolverFromValidationTable({
+      const objectTableSnapshot = objectTable.snapshot()
+      const provider = createValidationSnapshotProvider(objectTableSnapshot)
+      const ownerCache = provider.ownerCache(projectDir)
+      const referenceIndex = provider.referenceIndex({
         projectDir,
-        table: objectTable,
         mode: queue.mode,
-        ownerCache,
-        yamlCache: cache,
+        resolveObjectFilePath: (target) => resolveObjectFilePath({ projectDir, target }),
+        resolveProjectFile: (target) => resolveProjectFileDependency({ projectDir, target }),
       })
-      const second = validateProjectFileSecondPass({ projectDir, state, cache, context, ownerCache, metadataResolver })
+      const second = validateProjectFileSecondPass({
+        projectDir,
+        state,
+        cache,
+        context,
+        ownerCache,
+        referenceIndex,
+        skipMetadataTargetValidation,
+      })
 
       if (second.status === "needsDependency" && queue.enqueueDependency(second.dependency.file) === "enqueued") {
         enqueuedDependency = true
@@ -103,28 +139,96 @@ function validateProjectInProcess(params: ValidateProjectParams): ValidateProjec
   return { diagnostics: sortDiagnostics(dedupeDiagnostics(diagnostics)) }
 }
 
-async function validateProjectWithWorkers(params: ValidateProjectParams & { concurrency: number }): Promise<ValidateProjectResult> {
+async function validateProjectWithWorkers(
+  params: ValidateProjectParams & { concurrency: number }
+): Promise<ValidateProjectResult> {
+  const totalStartedAt = performance.now()
   const projectDir = resolve(params.projectDir)
   const context = params.context ?? defaultValidationContext()
+  const discoverStartedAt = performance.now()
   const files = discoverValidationProjectFiles(projectDir)
+  const discoverMs = performance.now() - discoverStartedAt
   const pool = createProjectValidationWorkerPool({ concurrency: params.concurrency })
+  let startMs = 0
+  let firstPassMs = 0
+  let mergeMs = 0
+  let snapshotMs = 0
+  let secondPassMs = 0
+  let sortMs = 0
 
   try {
+    const startStartedAt = performance.now()
     await pool.start()
+    startMs = performance.now() - startStartedAt
+    const firstPassStartedAt = performance.now()
     const first = await pool.runFirstPass({ projectDir, context, files })
+    firstPassMs = performance.now() - firstPassStartedAt
+    const mergeStartedAt = performance.now()
     const objectTable = createValidationObjectTable()
     objectTable.mergeRecords(first.objectRecords)
+    objectTable.mergeReferenceIndexEntries(first)
+    mergeMs = performance.now() - mergeStartedAt
+    const snapshotStartedAt = performance.now()
+    const objectTableSnapshot = objectTable.snapshot()
+    snapshotMs = performance.now() - snapshotStartedAt
+    const secondPassStartedAt = performance.now()
     const second = await pool.runSecondPass({
       projectDir,
       context,
       mode: "full",
-      objectTable: objectTable.snapshot(),
+      objectTable: objectTableSnapshot,
+    })
+    secondPassMs = performance.now() - secondPassStartedAt
+    const sortStartedAt = performance.now()
+    const diagnostics = sortDiagnostics(dedupeDiagnostics([...first.diagnostics, ...second.diagnostics]))
+    sortMs = performance.now() - sortStartedAt
+    logWorkerValidationProfile({
+      files: files.length,
+      concurrency: params.concurrency,
+      discoverMs,
+      startMs,
+      firstPassMs,
+      mergeMs,
+      snapshotMs,
+      secondPassMs,
+      sortMs,
+      totalMs: performance.now() - totalStartedAt,
     })
 
-    return { diagnostics: sortDiagnostics(dedupeDiagnostics([...first.diagnostics, ...second.diagnostics])) }
+    return { diagnostics }
   } finally {
     await pool.close()
   }
+}
+
+function logWorkerValidationProfile(params: {
+  files: number
+  concurrency: number
+  discoverMs: number
+  startMs: number
+  firstPassMs: number
+  mergeMs: number
+  snapshotMs: number
+  secondPassMs: number
+  sortMs: number
+  totalMs: number
+}): void {
+  if (process.env["NKDK_VALIDATION_PROFILE"] !== "1") return
+  console.error(
+    [
+      "[validation-profile] orchestration",
+      `files=${params.files}`,
+      `concurrency=${params.concurrency}`,
+      `discover=${params.discoverMs.toFixed(2)}ms`,
+      `startWorkers=${params.startMs.toFixed(2)}ms`,
+      `firstPassWall=${params.firstPassMs.toFixed(2)}ms`,
+      `mergeFirstPass=${params.mergeMs.toFixed(2)}ms`,
+      `objectTableSnapshot=${params.snapshotMs.toFixed(2)}ms`,
+      `secondPassWall=${params.secondPassMs.toFixed(2)}ms`,
+      `sortDedupe=${params.sortMs.toFixed(2)}ms`,
+      `total=${params.totalMs.toFixed(2)}ms`,
+    ].join(" ")
+  )
 }
 
 function normalizeValidationConcurrency(value: number | undefined): number {
@@ -169,6 +273,7 @@ function processPendingFirstPasses(params: {
       })
       params.states.set(resolve(file.absolutePath), first.state)
       params.objectTable.mergeRecords(first.objectRecords)
+      params.objectTable.mergeReferenceIndexEntries(first)
       params.diagnostics.push(...first.diagnostics)
       params.queue.markReady(file.absolutePath)
     }
@@ -216,6 +321,51 @@ function diagnosticKey(diagnostic: Diagnostic): string {
     diagnostic.path ?? "",
     diagnostic.message,
   ].join("\0")
+}
+
+function logInProcessReferenceProfile(params: {
+  snapshotBytes: number
+  pendingReferences: number
+  memberIndexEntries: number
+  result: ReturnType<typeof validatePendingReferencesWithIndex>
+}): void {
+  if (process.env["NKDK_VALIDATION_PROFILE"] !== "1") return
+  const references = params.result.stats
+
+  console.error(
+    [
+      "[validation-profile] references second-pass",
+      `hits=${references.hits}`,
+      `misses=${references.misses}`,
+      `conflicts=${references.conflicts}`,
+      `filters=${references.filterFailures}`,
+      `dependencies=${references.dependencies}`,
+      `unsupported=${references.unsupported}`,
+      `fallbacks=${references.fallbacks}`,
+      `snapshotBytes=${params.snapshotBytes}`,
+      `pending=${params.pendingReferences}`,
+      `entries=${params.memberIndexEntries}`,
+    ].join(" ")
+  )
+}
+
+function resolveProjectFileDependency(params: {
+  projectDir: string
+  target: Parameters<NonNullable<ReturnType<typeof getProjectReferenceObjectPathContributor>>>[0]["target"]
+}) {
+  const filePath = resolveObjectFilePath(params)
+  if (filePath === undefined || !existsSync(filePath)) return undefined
+  const file = resolveValidationProjectFile(params.projectDir, filePath)
+  if (file === undefined) return undefined
+  return { kind: "needsDependency" as const, file, requestedBy: filePath }
+}
+
+function resolveObjectFilePath(params: {
+  projectDir: string
+  target: Parameters<NonNullable<ReturnType<typeof getProjectReferenceObjectPathContributor>>>[0]["target"]
+}): string | undefined {
+  const contributor = getProjectReferenceObjectPathContributor(params.target.root)
+  return contributor?.({ projectDir: params.projectDir, target: params.target })?.filePath
 }
 
 function defaultValidationContext(): ConfigurationContext {

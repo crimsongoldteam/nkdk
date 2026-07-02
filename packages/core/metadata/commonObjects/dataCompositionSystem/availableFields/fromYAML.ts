@@ -1,7 +1,7 @@
-import { ConfigurationContext } from "~/metadata/context/types"
-import { importI8nTextFromYAML } from "~/metadata/commonObjects/i8nText/fromYAML"
-import { PropertyRule, registerTypeRule } from "~/metadata/orchestration"
-import * as SE from "~/metadata/systemEnumerations/types"
+import { ConfigurationContext } from "../../../context/types"
+import { importI8nTextFromYAML } from "../../i8nText/fromYAML"
+import { PropertyRule, registerTypeRule } from "../../../orchestration"
+import * as SE from "../../../systemEnumerations/types"
 import type { AvailableFieldItem, AvailableFieldItemYAML, AvailableFields, AvailableFieldsYAML } from "./types"
 
 const isYamlObject = (value: AvailableFieldItemYAML): value is Exclude<AvailableFieldItemYAML, string> =>
@@ -57,7 +57,9 @@ const importAvailableFieldsFromYAML = (
 ): AvailableFields | undefined => {
   if (!yaml) return undefined
 
-  const fields = yaml.map((item) => importItem(context, item)).filter((field): field is AvailableFieldItem => Boolean(field))
+  const fields = yaml
+    .map((item) => importItem(context, item))
+    .filter((field): field is AvailableFieldItem => Boolean(field))
   return fields.length > 0 ? fields : undefined
 }
 

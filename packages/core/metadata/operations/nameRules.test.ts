@@ -14,14 +14,14 @@ describe("metadata operation name rules", () => {
         existingNames: ["Артикул", "Код"],
         currentName: "Артикул",
         nextName: "артикул",
-      }),
+      })
     ).toBe(false)
     expect(
       hasCaseInsensitiveConflict({
         existingNames: ["Артикул", "Код"],
         currentName: "Артикул",
         nextName: "код",
-      }),
+      })
     ).toBe(true)
   })
 })

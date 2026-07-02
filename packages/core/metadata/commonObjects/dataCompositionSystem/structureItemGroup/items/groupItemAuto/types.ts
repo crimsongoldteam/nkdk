@@ -1,5 +1,5 @@
-import { registerTypeRule } from "~/metadata/orchestration/property/typeRuleRegistry"
-import { MetadataTypeByRule } from "~/metadata/orchestration/metadataItem/element"
+import { registerTypeRule } from "../../../../../orchestration/property/typeRuleRegistry"
+import { MetadataTypeByRule } from "../../../../../orchestration/metadataItem/element"
 import { importGroupItemAutoFromXML } from "./fromXML"
 import { importGroupItemAutoFromYAML } from "./fromYAML"
 import { GroupItemAutoRules } from "./rules"

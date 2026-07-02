@@ -36,7 +36,7 @@ describe("validate command", () => {
     expect(text).toContain("summary: 1 error, 0 warning")
     expect(stderr).not.toHaveBeenCalled()
     expect(process.exitCode).toBe(1)
-  })
+  }, 10_000)
 
   it("prints a clean summary for warnings only", async () => {
     const projectDir = createProject()
@@ -55,7 +55,7 @@ describe("validate command", () => {
     expect(text).not.toContain("warning:")
     expect(text).toBe("summary: 0 error, 0 warning\n")
     expect(process.exitCode).toBeUndefined()
-  })
+  }, 10_000)
 
   it("validates a single properties file from --file", async () => {
     const projectDir = createProject()

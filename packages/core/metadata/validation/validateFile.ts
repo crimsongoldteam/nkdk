@@ -1,6 +1,6 @@
 import { TSchema } from "@sinclair/typebox"
 import { TypeCheck } from "@sinclair/typebox/compiler"
-import { parseMetadataYaml, type ParsedYaml } from "~/yaml/parseMetadataYaml"
+import { parseMetadataYaml, type ParsedYaml } from "../../yaml/parseMetadataYaml"
 import { typeboxErrorsToDiagnostics } from "./typeboxErrorsToDiagnostics"
 import { Diagnostic } from "./types"
 
@@ -24,18 +24,15 @@ export function validateFile({ filePath, text, schema }: ValidateFileParams): Di
 
 export function validateParsedFile({ filePath, parsed, schema }: ValidateParsedFileParams): Diagnostic[] {
   // Short-circuit: при синтаксической ошибке TypeBox и external-file не запускаются
-  if (parsed.doc.errors.length > 0) {
-    return parsed.doc.errors.map((err) => {
-      const pos = parsed.lineCounter.linePos(err.pos[0])
-      return {
-        filePath,
-        line: pos.line,
-        col: pos.col,
-        message: err.message,
-        severity: "error" as const,
-        source: "syntax" as const,
-      }
-    })
+  if (parsed.syntaxErrors.length > 0) {
+    return parsed.syntaxErrors.map((error) => ({
+      filePath,
+      line: error.line,
+      col: error.col,
+      message: error.message,
+      severity: "error" as const,
+      source: "syntax" as const,
+    }))
   }
 
   // Структурная валидация через TypeBox

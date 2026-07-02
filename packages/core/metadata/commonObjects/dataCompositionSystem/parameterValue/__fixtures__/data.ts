@@ -1,10 +1,7 @@
-import type { Color, ColorYAML } from "~/metadata/commonObjects/color/types"
-import type { I8nText } from "~/metadata/commonObjects/i8nText/types"
-import type {
-  ChoiceParameterLinks,
-  ChoiceParameterLinksYAML,
-} from "~/metadata/commonObjects/сhoiceParameterLinks/types"
-import type { ChoiceParameter, ChoiceParametersYAML } from "~/metadata/commonObjects/сhoiceParameters/types"
+import type { Color, ColorYAML } from "../../../color/types"
+import type { I8nText } from "../../../i8nText/types"
+import type { ChoiceParameterLinks, ChoiceParameterLinksYAML } from "../../../сhoiceParameterLinks/types"
+import type { ChoiceParameter, ChoiceParametersYAML } from "../../../сhoiceParameters/types"
 import { fixtureTypeLink } from "../../dcsMetadataValue/__fixtures__/data"
 import type {
   ParameterValue,

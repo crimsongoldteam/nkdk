@@ -1,4 +1,1 @@
-export {
-  exportMetadataItemLinkToJSONSchema,
-  exportMetadataItemLinksToJSONSchema,
-} from "../metadataPath/toJSONSchema"
+export { exportMetadataItemLinkToJSONSchema, exportMetadataItemLinksToJSONSchema } from "../metadataPath/toJSONSchema"

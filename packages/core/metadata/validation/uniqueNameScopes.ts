@@ -1,7 +1,5 @@
-import { isMap } from "yaml"
-import type { MetadataItem, MetadataItemRule } from "~/metadata/orchestration/property/types"
-import { computeKeyPosition, findSubmap } from "~/metadata/orchestration/property/position"
-import type { ParsedYaml } from "~/yaml/parseMetadataYaml"
+import type { MetadataItem, MetadataItemRule } from "../orchestration/property/types"
+import type { ParsedYaml } from "../../yaml/parseMetadataYaml"
 import type { Diagnostic } from "./types"
 
 interface ValidateUniqueNameScopesParams {
@@ -29,18 +27,7 @@ function getYamlCollectionName(rule: MetadataItemRule, collection: string): stri
 }
 
 function findYamlKeyPosition(parsed: ParsedYaml, collectionYaml: string, name: string): { line: number; col: number } {
-  const root = parsed.doc.contents
-  if (isMap(root)) {
-    const collectionMap = findSubmap(root, collectionYaml)
-    if (collectionMap) {
-      const position = computeKeyPosition(collectionMap, name, parsed.lineCounter)
-      if (position) {
-        return { line: position.line, col: position.column }
-      }
-    }
-  }
-
-  return { line: 1, col: 1 }
+  return parsed.locations.keyPosition([collectionYaml, name]) ?? { line: 1, col: 1 }
 }
 
 export function validateUniqueNameScopes({

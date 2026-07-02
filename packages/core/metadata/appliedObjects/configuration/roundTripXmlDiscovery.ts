@@ -1,20 +1,20 @@
 import fs from "fs"
 import { XMLValidator } from "fast-xml-parser"
 import { basename, dirname, join, relative } from "path"
-import type { ConfigurationContextFromXML } from "~/metadata/context/types"
-import { importMetadataItemFromXML, type MetadataItemRule } from "~/metadata/orchestration"
+import type { ConfigurationContextFromXML } from "../../context/types"
+import { importMetadataItemFromXML, type MetadataItemRule } from "../../orchestration"
 import {
   normalizeFileItemCollectionItems,
   resolveChildCollectionDir,
-} from "~/metadata/orchestration/appliedObject/fileItemChildCollections"
+} from "../../orchestration/appliedObject/fileItemChildCollections"
 import {
   appendMetadataItemOwner,
   type MetadataItemOwnerContextEntry,
-} from "~/metadata/orchestration/appliedObject/metadataItemOwnerContext"
-import { getTypeRule } from "~/metadata/orchestration/property/typeRuleRegistry"
-import type { PropertyRule } from "~/metadata/orchestration/property/types"
-import { describeMetadataRuleResources } from "~/metadata/project/ruleResources"
-import { importContentFromXML } from "~/xml/import/importer"
+} from "../../orchestration/appliedObject/metadataItemOwnerContext"
+import { getTypeRule } from "../../orchestration/property/typeRuleRegistry"
+import type { PropertyRule } from "../../orchestration/property/types"
+import { describeMetadataRuleResources } from "../../project/ruleResources"
+import { importContentFromXML } from "../../../xml/import/importer"
 import { CONFIGURATION_XML_FILE } from "./rootIO"
 import { MetadataConfigurationRules } from "./rules"
 import { TopLevelMetadataItemRules } from "./topLevelRules"

@@ -1,11 +1,11 @@
 import { describe, expect, it } from "vitest"
 import { catalogTabularAttributeTypeLink } from "./__fixtures__/data"
 import { exportTypeLinkWithXSITypeToXML } from "./toXML"
-import { PropertyRule } from "~/metadata/orchestration"
-import { mockContext, mockRule } from "~/tests/mockContext"
-import { readXMLFixtureAsString } from "~/tests/readFixtureXML"
-import { testExportPropertyToXML } from "~/tests/property/exportPropertyToXML"
-import { xmlExport } from "~/xml/export/exporter"
+import { PropertyRule } from "../../orchestration"
+import { mockContext, mockRule } from "../../../tests/mockContext"
+import { readXMLFixtureAsString } from "../../../tests/readFixtureXML"
+import { testExportPropertyToXML } from "../../../tests/property/exportPropertyToXML"
+import { xmlExport } from "../../../xml/export/exporter"
 
 const rule: PropertyRule = {
   type: "TypeLink",

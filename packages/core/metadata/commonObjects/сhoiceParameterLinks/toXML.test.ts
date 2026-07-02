@@ -1,10 +1,10 @@
 import { describe, expect, it } from "vitest"
-import { multipleChoiceParameterLinks } from "~/metadata/commonObjects/сhoiceParameterLinks/__fixtures__/multiple"
-import { singleChoiceParameterLinks } from "~/metadata/commonObjects/сhoiceParameterLinks/__fixtures__/single"
-import { withStringDataPathChoiceParameterLinks } from "~/metadata/commonObjects/сhoiceParameterLinks/__fixtures__/withStringDataPath"
-import { mockContext, mockRule } from "~/tests/mockContext"
-import { readXMLFixtureAsString } from "~/tests/readFixtureXML"
-import { xmlExport } from "~/xml/export/exporter"
+import { multipleChoiceParameterLinks } from "./__fixtures__/multiple"
+import { singleChoiceParameterLinks } from "./__fixtures__/single"
+import { withStringDataPathChoiceParameterLinks } from "./__fixtures__/withStringDataPath"
+import { mockContext, mockRule } from "../../../tests/mockContext"
+import { readXMLFixtureAsString } from "../../../tests/readFixtureXML"
+import { xmlExport } from "../../../xml/export/exporter"
 import { exportChoiceParameterLinksToXML } from "./toXML"
 
 describe("exportChoiceParameterLinksToXML", () => {

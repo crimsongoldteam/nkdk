@@ -1,8 +1,8 @@
-import { exchangePlanContentItemsRule } from "~/metadata/commonObjects/exchangePlanContent/builders"
-import { metadataItemLinkRule } from "~/metadata/commonObjects/metadataPath/types"
-import { xmlRootRule } from "~/metadata/commonObjects/xmlRoot/types"
-import { systemEnumerationRule } from "~/metadata/systemEnumerations/types"
-import { MetadataItemRule } from "~/metadata/orchestration/property/types"
+import { exchangePlanContentItemsRule } from "./builders"
+import { metadataItemLinkRule } from "../metadataPath/types"
+import { xmlRootRule } from "../xmlRoot/types"
+import { systemEnumerationRule } from "../../systemEnumerations/types"
+import type { MetadataItemRule } from "../../orchestration/property/types"
 export const ExchangePlanContentItemRules = {
   itemType: "ExchangePlanContentItem",
   properties: {
@@ -15,7 +15,6 @@ export const ExchangePlanContentItemRules = {
       yaml: "Авторегистрация",
       xml: "AutoRecord",
       typeSE: "AutoChangeRecord",
-      required: true,
       implicitValueYAML: "Allow",
     }),
   },

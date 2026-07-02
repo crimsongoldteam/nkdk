@@ -1,10 +1,10 @@
-import { PropertyRule } from "~/metadata/orchestration/property/types"
-import { registerTypeRule } from "~/metadata/orchestration/property/typeRuleRegistry"
+import type { PropertyRule } from "../../orchestration/property/types"
+import { registerTypeRule } from "../../orchestration/property/typeRuleRegistry"
 import { ConfigurationContext } from "../../context/types"
 import { exportSystemEnumerationToYAMLDeprecated } from "../../systemEnumerations/toYAML"
 import * as SE from "../../systemEnumerations/types"
 import { formatMetadataTargetToYAML } from "../metadataTargets"
-import { Color, colorStyleItemTarget, isRawColorRef } from "./types"
+import { colorStyleItemTarget, isRawColorRef, type Color } from "./types"
 
 export const exportColorToYAML = <T extends Color | undefined>(
   context: ConfigurationContext,

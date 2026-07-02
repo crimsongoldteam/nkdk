@@ -1,5 +1,5 @@
-// import { ConfigurationContext } from "~/metadata/context/types"
-// import { exportElementToEnterprise } from "~/metadata/orchestration"
+// import { ConfigurationContext } from "../../../context/types"
+// import { exportElementToEnterprise } from "../../../orchestration"
 // import { InputField } from "./types"
 
 // export function exportInputFieldToPreview(

@@ -1,4 +1,4 @@
-import { Border, BorderEnterprise, BorderYAML } from "~/metadata/commonObjects/border/types"
+import { Border, BorderEnterprise, BorderYAML } from "../types"
 
 export interface BorderTestCase {
   name: string

@@ -1,7 +1,7 @@
 import { describe, expect, it } from "vitest"
-import "~/metadata/commonObjects"
-import "~/metadata/systemEnumerations"
-import { testExportAppliedObjectToYAML, testImportAppliedObjectFromXML } from "~/tests/appliedObject"
+import "../../commonObjects"
+import "../../systemEnumerations"
+import { testExportAppliedObjectToYAML, testImportAppliedObjectFromXML } from "../../../tests/appliedObject"
 import { MetadataCommonModuleRules } from "./rules"
 import type { MetadataCommonModule } from "./types"
 

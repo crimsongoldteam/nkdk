@@ -1,8 +1,8 @@
-import { exportBooleanToYAML } from "~/metadata/commonObjects/boolean/toYAML"
-import { PropertyRule } from "~/metadata/orchestration/property/types"
-import { registerTypeRule } from "~/metadata/orchestration/property/typeRuleRegistry"
+import { exportBooleanToYAML } from "../boolean/toYAML"
+import type { PropertyRule } from "../../orchestration/property/types"
+import { registerTypeRule } from "../../orchestration/property/typeRuleRegistry"
 import { ConfigurationContext } from "../../context/types"
-import { UserSettingsID, UserSettingsIDYAML } from "./types"
+import type { UserSettingsID, UserSettingsIDYAML } from "./types"
 
 export const exportUserSettingsIDToYAML = (
   context: ConfigurationContext,

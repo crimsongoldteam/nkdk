@@ -1,7 +1,7 @@
 import fs from "fs"
 import { join } from "path"
-import { ExternalFileEntry } from "~/metadata/context/types"
-import { BasePropertyRule } from "~/metadata/orchestration/property/types"
+import { ExternalFileEntry } from "../../../context/types"
+import type { BasePropertyRule } from "../../../orchestration/property/types"
 
 type ExternalFileRule = Required<Pick<BasePropertyRule, "externalFile">>["externalFile"]
 
@@ -34,11 +34,7 @@ export function buildExternalFileEntry(
  * @param formDir - путь к каталогу формы
  * @returns содержимое файла или `undefined`, если файл/каталог отсутствует
  */
-export function readExternalFile(
-  rule: ExternalFileRule,
-  parentName: string,
-  formDir: string
-): string | undefined {
+export function readExternalFile(rule: ExternalFileRule, parentName: string, formDir: string): string | undefined {
   const { dir, extension } = rule
   const filePath = join(formDir, dir, `${parentName}.${extension}`)
   try {

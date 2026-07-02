@@ -1,4 +1,4 @@
-import { registerDataPathOwnerKind } from "~/metadata/validation/dataPath/registry"
+import { registerDataPathOwnerKind } from "../../validation/dataPath/registry"
 import { MetadataCommonAttributeRules } from "./rules"
 
 registerDataPathOwnerKind({ kind: "ОбщийРеквизит", projectDir: "ОбщийРеквизит", rule: MetadataCommonAttributeRules })

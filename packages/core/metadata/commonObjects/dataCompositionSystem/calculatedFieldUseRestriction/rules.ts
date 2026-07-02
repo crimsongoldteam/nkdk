@@ -1,5 +1,5 @@
-import { booleanRule } from "~/metadata/commonObjects/boolean/types"
-import type { MetadataItemRule } from "~/metadata/orchestration/property/types"
+import { booleanRule } from "../../boolean/types"
+import type { MetadataItemRule } from "../../../orchestration/property/types"
 export const CalculatedFieldUseRestrictionRules = {
   itemType: "CalculatedFieldUseRestriction",
   properties: {

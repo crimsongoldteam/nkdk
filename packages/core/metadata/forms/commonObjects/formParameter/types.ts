@@ -1,15 +1,16 @@
 import {
   definePropertyRule as defineWidePropertyRule,
   type ExactRuleParams as WideExactRuleParams,
-} from "~/metadata/commonObjects/ruleBuilder"
-import type { PropertyRule as WidePropertyRuleBase } from "~/metadata/orchestration/property/types"
-import { Static, Type } from "@sinclair/typebox"
-import { StringboolXML } from "~/metadata/commonObjects/boolean/types"
+} from "../../../commonObjects/ruleBuilder"
+import type { PropertyRule as WidePropertyRuleBase } from "../../../orchestration/property/types"
+import { Type } from "@sinclair/typebox"
+import type { Static } from "@sinclair/typebox"
+import { StringboolXML } from "../../../commonObjects/boolean/types"
 import {
   TypeDescription,
   TypeDescriptionJSONSchema,
   TypeDescriptionXML,
-} from "~/metadata/commonObjects/typeDescription/types"
+} from "../../../commonObjects/typeDescription/types"
 
 export interface FormParameter {
   name: string

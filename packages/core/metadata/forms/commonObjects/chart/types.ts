@@ -1,9 +1,5 @@
-import { registerSettingsFragmentType } from "~/metadata/forms/commonObjects/settingsFragment/types"
-import type {
-  SettingsFragment,
-  SettingsFragmentXML,
-  SettingsFragmentYAML,
-} from "~/metadata/forms/commonObjects/settingsFragment/types"
+import { registerSettingsFragmentType } from "../settingsFragment/types"
+import type { SettingsFragment, SettingsFragmentXML, SettingsFragmentYAML } from "../settingsFragment/types"
 
 export type Chart = SettingsFragment
 export type ChartXML = SettingsFragmentXML

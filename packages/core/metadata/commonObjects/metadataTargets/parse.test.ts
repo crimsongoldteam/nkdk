@@ -1,9 +1,5 @@
 import { describe, expect, it } from "vitest"
-import {
-  formatMetadataTargetToYAML,
-  parseMetadataTargetFromModel,
-  parseMetadataTargetFromYAML,
-} from "./index"
+import { formatMetadataTargetToYAML, parseMetadataTargetFromModel, parseMetadataTargetFromYAML } from "./index"
 
 describe("metadataTargets parser", () => {
   it("parses object references from Russian YAML to canonical model strings", () => {
@@ -394,7 +390,11 @@ describe("metadataTargets parser", () => {
 
   it("parses and formats additional top-level roots used by subsystem content", () => {
     const cases = [
-      ["ПодпискаНаСобытие.ПодпискаНаСобытиеВсеСвойства", "EventSubscription.ПодпискаНаСобытиеВсеСвойства", "EventSubscription"],
+      [
+        "ПодпискаНаСобытие.ПодпискаНаСобытиеВсеСвойства",
+        "EventSubscription.ПодпискаНаСобытиеВсеСвойства",
+        "EventSubscription",
+      ],
       ["ПакетXDTO.ПакетXDTOВсеСвойства", "XDTOPackage.ПакетXDTOВсеСвойства", "XDTOPackage"],
       ["WSСсылка.WSСсылкаВсеСвойства", "WSReference.WSСсылкаВсеСвойства", "WSReference"],
       [

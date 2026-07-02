@@ -1,11 +1,11 @@
 import { dirname, resolve } from "path"
 import { fileURLToPath } from "url"
 import { describe, expect, it } from "vitest"
-import { exportPropertyToXML, type PropertyRule } from "~/metadata/orchestration"
-import { setIdsToElements } from "~/metadata/forms/clientApplicationForm/toXML"
-import { mockContextToXML } from "~/tests/mockContext"
-import { readXMLFileAsString } from "~/tests/readAndParseXMLFile"
-import { xmlExport } from "~/xml/export/exporter"
+import { exportPropertyToXML, type PropertyRule } from "../../../orchestration"
+import { setIdsToElements } from "../../clientApplicationForm/toXML"
+import { mockContextToXML } from "../../../../tests/mockContext"
+import { readXMLFileAsString } from "../../../../tests/readAndParseXMLFile"
+import { xmlExport } from "../../../../xml/export/exporter"
 import { formattedEmptyTitleExtendedTooltip, fullExtendedTooltip, minimalExtendedTooltip } from "./__fixtures__/data"
 
 const __dirname = dirname(fileURLToPath(import.meta.url))

@@ -99,7 +99,7 @@ function createUnknownDiscriminatorError(
   error: ValueError,
   discriminantKey: string,
   expectedValues: string[],
-  value: unknown,
+  value: unknown
 ): ValueError {
   return {
     type: ValueErrorType.Union,
@@ -107,7 +107,7 @@ function createUnknownDiscriminatorError(
     path: prefixJsonPointer(error.path, `/${escapeJsonPointerSegment(discriminantKey)}`),
     value,
     message: `Неизвестное значение дискриминатора "${discriminantKey}": ${formatDiscriminatorValue(
-      value,
+      value
     )}. Ожидается одно из: ${expectedValues.join(", ")}`,
     errors: [],
   }
@@ -146,14 +146,16 @@ function expandDiscriminatedUnionError(error: ValueError, context: ExpansionCont
     markAdditionalPropertyAtKey({
       ...branchError,
       path: prefixJsonPointer(error.path, branchError.path),
-    }),
+    })
   )
 }
 
 function collectSchemaReferences(schema: TSchema, references: TSchema[]): TSchema[] {
   const result = [...references]
   const seen = new WeakSet<object>()
-  const knownIds = new Set(result.map((reference) => reference.$id).filter((id): id is string => typeof id === "string"))
+  const knownIds = new Set(
+    result.map((reference) => reference.$id).filter((id): id is string => typeof id === "string")
+  )
 
   function visit(value: unknown): void {
     if (typeof value !== "object" || value === null || seen.has(value)) return

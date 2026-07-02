@@ -24,7 +24,7 @@ describe("prepareMetadataMigrationChain", () => {
     writeFileSync(join(yamlDir, "Миграции", "2026-06-30-120000.yaml"), '"Справочник.Товары": Номенклатура\n')
     writeFileSync(
       join(yamlDir, "Миграции", "2026-06-30-120001.yaml"),
-      '"Справочник.Номенклатура.Реквизит.Артикул": КодПоставщика\n',
+      '"Справочник.Номенклатура.Реквизит.Артикул": КодПоставщика\n'
     )
 
     const result = prepareMetadataMigrationChain({
@@ -113,7 +113,10 @@ describe("prepareMetadataMigrationChain", () => {
 
   it("allows case-only rename and blocks case-insensitive sibling conflict", () => {
     const { yamlDir, xmlDir } = createDirs()
-    writeFileSync(join(yamlDir, "Миграции", "2026-06-30-120000.yaml"), '"Справочник.Товары.Реквизит.Артикул": артикул\n')
+    writeFileSync(
+      join(yamlDir, "Миграции", "2026-06-30-120000.yaml"),
+      '"Справочник.Товары.Реквизит.Артикул": артикул\n'
+    )
 
     const caseOnly = prepareMetadataMigrationChain({
       yamlDir,
@@ -133,7 +136,7 @@ describe("prepareMetadataMigrationChain", () => {
     const conflictDirs = createDirs()
     writeFileSync(
       join(conflictDirs.yamlDir, "Миграции", "2026-06-30-120000.yaml"),
-      '"Справочник.Товары.Реквизит.Артикул": код\n',
+      '"Справочник.Товары.Реквизит.Артикул": код\n'
     )
     const conflict = prepareMetadataMigrationChain({
       yamlDir: conflictDirs.yamlDir,

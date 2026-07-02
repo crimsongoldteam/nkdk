@@ -1,7 +1,7 @@
 import { describe, expect, it } from "vitest"
-import { formattedI8nTextFixtures } from "~/metadata/commonObjects/formattedI8nText/__fixtures__/data"
-import { mockContextFromXML, mockRule } from "~/tests/mockContext"
-import importContentFromXML from "~/xml/import/importer"
+import { formattedI8nTextFixtures } from "./__fixtures__/data"
+import { mockContextFromXML, mockRule } from "../../../tests/mockContext"
+import importContentFromXML from "../../../xml/import/importer"
 import { importFormattedI8nTextFromXML } from "./fromXML"
 import { FormattedI8nTextXML } from "./types"
 

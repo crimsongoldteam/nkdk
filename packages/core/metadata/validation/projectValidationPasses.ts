@@ -1,17 +1,29 @@
 import { TypeCompiler } from "@sinclair/typebox/compiler"
 import fs from "fs"
-import { join, resolve } from "path"
-import { rootFromYAML } from "~/metadata/commonObjects/metadataTargets/roots"
-import type { ConfigurationContext } from "~/metadata/context/types"
-import type { MetadataItem } from "~/metadata/orchestration/property/types"
-import { parseMetadataYaml, type ParsedYaml } from "~/yaml/parseMetadataYaml"
-import { type OwnerMetadataCache } from "./dataPath/ownerCache"
-import { buildObjectFieldIndex } from "./dataPath/objectFields"
+import { performance } from "node:perf_hooks"
+import { dirname, join, resolve } from "path"
+import { rootFromYAML } from "../commonObjects/metadataTargets/roots"
+import type { MetadataFieldKind, ParsedMetadataTarget } from "../commonObjects/metadataTargets/types"
+import type { ConfigurationContext } from "../context/types"
+import { metadataTargetOwnerFromRule } from "../orchestration/property/metadataTargetString"
+import type { MetadataItem } from "../orchestration/property/types"
+import { parseMetadataYaml, type ParsedYaml } from "../../yaml/parseMetadataYaml"
+import { type OwnerMetadata, type OwnerMetadataCache } from "./dataPath/ownerCache"
+import { buildObjectFieldIndex, type ObjectField, type ObjectFieldKind } from "./dataPath/objectFields"
 import { validateExcludedEqualNameYAML } from "./excludeIfEqualNameYAML"
 import { getRegisteredFormValidationPasses } from "./formValidationRegistry"
-import { validateMetadataTargetsInModel } from "./metadataTargetTraversal"
-import type { ProjectMetadataResolver } from "./projectMetadataResolver"
-import { getProjectFileValidators } from "./projectMetadataResolverRegistry"
+import { collectMetadataTargetReferencesInModel } from "./metadataTargetTraversal"
+import { getProjectFileValidators, getProjectReferenceMemberIndexContributors } from "./projectReferenceIndexRegistry"
+import {
+  projectMemberIndexKey,
+  projectObjectIndexKey,
+  type PendingMetadataTargetReference,
+  type ProjectMemberIndexEntry,
+  type ProjectObjectIndexEntry,
+  type ProjectReferenceIndex,
+  type ProjectValueIndexEntry,
+  validatePendingReferencesWithIndex,
+} from "./projectReferenceIndex"
 import { exportJSONSchemaForSchemaName } from "./projectFileSchema"
 import type { ValidationProjectFile } from "./projectFiles"
 import type { ProjectYamlCache, ProjectYamlEntry } from "./projectYamlCache"
@@ -47,7 +59,30 @@ export type ProjectValidationFileState =
 export interface ProjectValidationFirstPassResult {
   state: ProjectValidationFileState
   objectRecords: ValidationObjectRecord[]
+  objectIndexEntries: ProjectObjectIndexEntry[]
+  memberIndexEntries: ProjectMemberIndexEntry[]
+  valueIndexEntries: ProjectValueIndexEntry[]
+  pendingReferences: PendingMetadataTargetReference[]
   diagnostics: Diagnostic[]
+  profile?: ProjectValidationFirstPassProfile
+}
+
+export interface ProjectValidationFirstPassProfile {
+  key: string
+  totalMs: number
+  cacheMs: number
+  schemaMs: number
+  validatorsMs: number
+  importMs: number
+  equalNameMs: number
+  uniqueScopesMs: number
+  referencesMs: number
+  fieldIndexMs: number
+  objectIndexMs: number
+  memberIndexMs: number
+  valueIndexMs: number
+  formImportMs: number
+  diagnostics: number
 }
 
 export interface ProjectValidationSecondPassParams {
@@ -56,7 +91,8 @@ export interface ProjectValidationSecondPassParams {
   context: ConfigurationContext
   cache: ProjectYamlCache
   ownerCache: OwnerMetadataCache
-  metadataResolver: ProjectMetadataResolver
+  referenceIndex: ProjectReferenceIndex
+  skipMetadataTargetValidation?: boolean
 }
 
 export type ProjectValidationSecondPassResult =
@@ -131,29 +167,40 @@ export function validateProjectFileFirstPass(params: {
   return validateProjectPropertiesFirstPass(params)
 }
 
-export function validateProjectFileSecondPass(params: ProjectValidationSecondPassParams): ProjectValidationSecondPassResult {
+export function validateProjectFileSecondPass(
+  params: ProjectValidationSecondPassParams
+): ProjectValidationSecondPassResult {
   if (params.state.kind === "failed") return { status: "ok", diagnostics: [] }
 
   if (params.state.kind === "form") {
     const passes = getRegisteredFormValidationPasses()
     if (passes === undefined) return { status: "ok", diagnostics: [] }
-    return { status: "ok", diagnostics: passes.secondPass({ state: params.state.formState, ownerCache: params.ownerCache }) }
+    return {
+      status: "ok",
+      diagnostics: passes.secondPass({ state: params.state.formState, ownerCache: params.ownerCache }),
+    }
   }
 
   const ownerRoot = rootFromYAML[params.state.file.owner.dir]
   const owner = ownerRoot ? { root: ownerRoot, objectName: params.state.file.owner.name } : undefined
-  const recorder = createDependencyRecordingResolver(params.metadataResolver)
 
-  const diagnostics = validateMetadataTargetsInModel({
-    filePath: params.state.file.absolutePath,
-    parsed: params.state.parsed,
-    model: params.state.model,
-    rule: params.state.file.owner.spec.rule,
-    resolver: recorder.resolver,
-    owner,
+  const collected = params.skipMetadataTargetValidation
+    ? { references: [], diagnostics: [] }
+    : collectMetadataTargetReferencesInModel({
+        filePath: params.state.file.absolutePath,
+        parsed: params.state.parsed,
+        model: params.state.model,
+        rule: params.state.file.owner.spec.rule,
+        owner,
+      })
+  const resolved = validatePendingReferencesWithIndex({
+    index: params.referenceIndex,
+    references: collected.references,
   })
-  const dependency = recorder.firstDependency()
-  if (dependency !== undefined) return { status: "needsDependency", diagnostics, dependency }
+  const diagnostics = [...collected.diagnostics, ...resolved.diagnostics]
+  if (resolved.firstDependency !== undefined) {
+    return { status: "needsDependency", diagnostics, dependency: resolved.firstDependency }
+  }
   return { status: "ok", diagnostics }
 }
 
@@ -164,35 +211,74 @@ function validateProjectFormFirstPass(params: {
   context: ConfigurationContext
   schemaCache: ValidationSchemaCache
 }): ProjectValidationFirstPassResult {
+  const totalStartedAt = performance.now()
+  const schemaStartedAt = performance.now()
   const schemaDiagnostics = validateProjectFileSchema({
     file: params.file,
     cache: params.cache,
     schema: params.schemaCache.form(),
   })
+  const schemaMs = performance.now() - schemaStartedAt
   if (schemaDiagnostics.some((diagnostic) => diagnostic.source === "syntax")) {
-    return failedFirstPass(params.file, schemaDiagnostics)
+    return failedFirstPass(params.file, schemaDiagnostics, {
+      ...emptyFirstPassProfile("form"),
+      totalMs: performance.now() - totalStartedAt,
+      schemaMs,
+      diagnostics: schemaDiagnostics.length,
+    })
   }
 
   const passes = getRegisteredFormValidationPasses()
   if (passes === undefined) {
+    const profile = {
+      ...emptyFirstPassProfile("form"),
+      totalMs: performance.now() - totalStartedAt,
+      schemaMs,
+      diagnostics: schemaDiagnostics.length,
+    }
     return {
       state: { kind: "failed", file: params.file, diagnostics: schemaDiagnostics },
       diagnostics: schemaDiagnostics,
       objectRecords: [],
+      objectIndexEntries: [],
+      memberIndexEntries: [],
+      valueIndexEntries: [],
+      pendingReferences: [],
+      profile,
     }
   }
 
+  const formImportStartedAt = performance.now()
   const first = passes.firstPass({
     projectDir: params.projectDir,
-    formDir: join(params.projectDir, params.file.owner.dir, params.file.owner.name, "Формы", params.file.formName ?? ""),
+    formDir: join(
+      params.projectDir,
+      params.file.owner.dir,
+      params.file.owner.name,
+      "Формы",
+      params.file.formName ?? ""
+    ),
     formName: params.file.formName ?? "",
     owner: { dir: params.file.owner.dir, name: params.file.owner.name },
     cache: params.cache,
     context: params.context,
     suppressFormImportDiagnostics: schemaDiagnostics.length > 0,
   })
+  const formImportMs = performance.now() - formImportStartedAt
   const diagnostics = [...schemaDiagnostics, ...first.diagnostics]
-  if (first.status === "failed") return failedFirstPass(params.file, diagnostics)
+  if (first.status === "failed") {
+    return failedFirstPass(params.file, diagnostics, {
+      ...emptyFirstPassProfile("form"),
+      totalMs: performance.now() - totalStartedAt,
+      schemaMs,
+      formImportMs,
+      diagnostics: diagnostics.length,
+    })
+  }
+
+  const memberIndexStartedAt = performance.now()
+  const memberIndexEntries = buildFormFileMemberIndexEntries(params.file)
+  const memberIndexMs = performance.now() - memberIndexStartedAt
 
   return {
     state: {
@@ -203,44 +289,87 @@ function validateProjectFormFirstPass(params: {
     },
     diagnostics,
     objectRecords: [],
+    objectIndexEntries: [],
+    memberIndexEntries,
+    valueIndexEntries: [],
+    pendingReferences: [],
+    profile: {
+      ...emptyFirstPassProfile("form"),
+      totalMs: performance.now() - totalStartedAt,
+      schemaMs,
+      memberIndexMs,
+      formImportMs,
+      diagnostics: diagnostics.length,
+    },
   }
 }
 
 function validateProjectPropertiesFirstPass(params: {
+  projectDir: string
   file: ValidationProjectFile
   cache: ProjectYamlCache
   context: ConfigurationContext
   schemaCache: ValidationSchemaCache
 }): ProjectValidationFirstPassResult {
+  const totalStartedAt = performance.now()
+  const cacheStartedAt = performance.now()
   const entry = params.cache.get(params.file.absolutePath)
+  const cacheMs = performance.now() - cacheStartedAt
   if ("error" in entry) {
-    return failedFirstPass(
-      params.file,
-      validateProjectFileSchema({
+    const schemaStartedAt = performance.now()
+    const diagnostics = validateProjectFileSchema({
         file: params.file,
         cache: params.cache,
         schema: params.schemaCache.properties(params.file.owner.spec),
-      }),
-    )
+      })
+    const schemaMs = performance.now() - schemaStartedAt
+    return failedFirstPass(params.file, diagnostics, {
+      ...emptyFirstPassProfile(validationFirstPassProfileKey(params.file)),
+      totalMs: performance.now() - totalStartedAt,
+      cacheMs,
+      schemaMs,
+      diagnostics: diagnostics.length,
+    })
   }
 
   const parsed = parsedForProjectFile(params.file, entry.parsed)
+  const schemaStartedAt = performance.now()
   const schemaDiagnostics = validateProjectFileSchema({
     file: params.file,
     cache: params.cache,
     schema: params.schemaCache.properties(params.file.owner.spec),
     parsed,
   })
-  if (entry.parsed.doc.errors.length > 0) return failedFirstPass(params.file, schemaDiagnostics)
+  const schemaMs = performance.now() - schemaStartedAt
+  if (entry.parsed.syntaxErrors.length > 0) {
+    return failedFirstPass(params.file, schemaDiagnostics, {
+      ...emptyFirstPassProfile(validationFirstPassProfileKey(params.file)),
+      totalMs: performance.now() - totalStartedAt,
+      cacheMs,
+      schemaMs,
+      diagnostics: schemaDiagnostics.length,
+    })
+  }
 
+  const validatorsStartedAt = performance.now()
   const requiredDiagnostics = validateRegisteredProjectFileValidators({
     file: params.file,
     parsed,
   })
+  const validatorsMs = performance.now() - validatorsStartedAt
   if (requiredDiagnostics.length > 0) {
-    return failedFirstPass(params.file, [...schemaDiagnostics, ...requiredDiagnostics])
+    const diagnostics = [...schemaDiagnostics, ...requiredDiagnostics]
+    return failedFirstPass(params.file, diagnostics, {
+      ...emptyFirstPassProfile(validationFirstPassProfileKey(params.file)),
+      totalMs: performance.now() - totalStartedAt,
+      cacheMs,
+      schemaMs,
+      validatorsMs,
+      diagnostics: diagnostics.length,
+    })
   }
 
+  const importStartedAt = performance.now()
   const imported = importPropertiesModel({
     spec: params.file.owner.spec,
     context: params.context,
@@ -248,7 +377,19 @@ function validateProjectPropertiesFirstPass(params: {
     name: params.file.owner.name,
     filePath: params.file.absolutePath,
   })
-  if ("diagnostic" in imported) return failedFirstPass(params.file, [...schemaDiagnostics, imported.diagnostic])
+  const importMs = performance.now() - importStartedAt
+  if ("diagnostic" in imported) {
+    const diagnostics = [...schemaDiagnostics, imported.diagnostic]
+    return failedFirstPass(params.file, diagnostics, {
+      ...emptyFirstPassProfile(validationFirstPassProfileKey(params.file)),
+      totalMs: performance.now() - totalStartedAt,
+      cacheMs,
+      schemaMs,
+      validatorsMs,
+      importMs,
+      diagnostics: diagnostics.length,
+    })
+  }
 
   const equalNameValidationName =
     params.file.kind === "configuration"
@@ -256,6 +397,7 @@ function validateProjectPropertiesFirstPass(params: {
       : params.file.kind === "properties"
         ? params.file.owner.name
         : undefined
+  const equalNameStartedAt = performance.now()
   const equalNameDiagnostics = validateExcludedEqualNameYAML({
     filePath: params.file.absolutePath,
     parsed,
@@ -263,16 +405,36 @@ function validateProjectPropertiesFirstPass(params: {
     context: params.context,
     name: equalNameValidationName,
   })
+  const equalNameMs = performance.now() - equalNameStartedAt
+  const metadataTargetOwner = metadataTargetOwnerFromRule({
+    itemRule: params.file.owner.spec.rule,
+    name: params.file.owner.name,
+    context: params.context,
+  })
+  const referencesStartedAt = performance.now()
+  const pendingReferences = collectMetadataTargetReferencesInModel({
+    filePath: params.file.absolutePath,
+    parsed,
+    model: imported.model,
+    rule: params.file.owner.spec.rule,
+    owner: metadataTargetOwner,
+  })
+  const referencesMs = performance.now() - referencesStartedAt
+
+  const uniqueScopesStartedAt = performance.now()
+  const uniqueScopeDiagnostics = validateUniqueNameScopes({
+    filePath: params.file.absolutePath,
+    parsed,
+    model: imported.model,
+    rule: params.file.owner.spec.rule,
+  })
+  const uniqueScopesMs = performance.now() - uniqueScopesStartedAt
 
   const diagnostics = [
     ...suppressEqualNameSchemaDiagnostics(schemaDiagnostics, equalNameDiagnostics),
     ...equalNameDiagnostics,
-    ...validateUniqueNameScopes({
-      filePath: params.file.absolutePath,
-      parsed,
-      model: imported.model,
-      rule: params.file.owner.spec.rule,
-    }),
+    ...uniqueScopeDiagnostics,
+    ...pendingReferences.diagnostics,
   ]
   const ownerRef = { kind: params.file.owner.dir, name: params.file.owner.name }
   const ownerWithoutIndex = {
@@ -282,6 +444,27 @@ function validateProjectPropertiesFirstPass(params: {
     rule: params.file.owner.spec.rule,
     spec: params.file.owner.spec,
   }
+  const fieldIndexStartedAt = performance.now()
+  const fieldIndex = buildObjectFieldIndex(ownerWithoutIndex)
+  const fieldIndexMs = performance.now() - fieldIndexStartedAt
+  const owner: OwnerMetadata = {
+    ...ownerWithoutIndex,
+    fieldIndex,
+  }
+  const memberIndexStartedAt = performance.now()
+  const memberIndexEntries = buildMemberIndexEntries({
+    projectDir: params.projectDir,
+    owner,
+    hasFile: fs.existsSync,
+  })
+  const memberIndexMs = performance.now() - memberIndexStartedAt
+  const objectIndexStartedAt = performance.now()
+  const objectIndexEntry = buildObjectIndexEntry({ owner, file: params.file })
+  const objectIndexEntries = objectIndexEntry ? [objectIndexEntry] : []
+  const objectIndexMs = performance.now() - objectIndexStartedAt
+  const valueIndexStartedAt = performance.now()
+  const valueIndexEntries = buildValueIndexEntries({ owner })
+  const valueIndexMs = performance.now() - valueIndexStartedAt
 
   return {
     state: {
@@ -292,6 +475,10 @@ function validateProjectPropertiesFirstPass(params: {
       firstPassDiagnostics: diagnostics,
     },
     diagnostics,
+    objectIndexEntries,
+    memberIndexEntries,
+    valueIndexEntries,
+    pendingReferences: pendingReferences.references,
     objectRecords: [
       {
         filePath: params.file.absolutePath,
@@ -300,55 +487,297 @@ function validateProjectPropertiesFirstPass(params: {
         owner: { dir: params.file.owner.dir, name: params.file.owner.name },
         ownerRef,
         model: imported.model,
-        fieldIndex: buildObjectFieldIndex(ownerWithoutIndex),
+        fieldIndex,
+        objectIndexEntries,
+        memberIndexEntries,
+        valueIndexEntries,
+        pendingReferences: pendingReferences.references,
         importDiagnostics: [],
       },
     ],
+    profile: {
+      key: validationFirstPassProfileKey(params.file),
+      totalMs: performance.now() - totalStartedAt,
+      cacheMs,
+      schemaMs,
+      validatorsMs,
+      importMs,
+      equalNameMs,
+      uniqueScopesMs,
+      referencesMs,
+      fieldIndexMs,
+      objectIndexMs,
+      memberIndexMs,
+      valueIndexMs,
+      formImportMs: 0,
+      diagnostics: diagnostics.length,
+    },
   }
 }
 
-function failedFirstPass(file: ValidationProjectFile, diagnostics: Diagnostic[]): ProjectValidationFirstPassResult {
+function failedFirstPass(
+  file: ValidationProjectFile,
+  diagnostics: Diagnostic[],
+  profile?: ProjectValidationFirstPassProfile
+): ProjectValidationFirstPassResult {
   return {
     state: { kind: "failed", file, diagnostics },
     diagnostics,
     objectRecords: [],
+    objectIndexEntries: [],
+    memberIndexEntries: [],
+    valueIndexEntries: [],
+    pendingReferences: [],
+    ...(profile === undefined ? {} : { profile }),
   }
 }
 
-function createDependencyRecordingResolver(resolver: ProjectMetadataResolver): {
-  resolver: ProjectMetadataResolver
-  firstDependency(): ValidationDependencyRequest | undefined
-} {
-  let dependency: ValidationDependencyRequest | undefined
+function emptyFirstPassProfile(key: string): ProjectValidationFirstPassProfile {
+  return {
+    key,
+    totalMs: 0,
+    cacheMs: 0,
+    schemaMs: 0,
+    validatorsMs: 0,
+    importMs: 0,
+    equalNameMs: 0,
+    uniqueScopesMs: 0,
+    referencesMs: 0,
+    fieldIndexMs: 0,
+    objectIndexMs: 0,
+    memberIndexMs: 0,
+    valueIndexMs: 0,
+    formImportMs: 0,
+    diagnostics: 0,
+  }
+}
 
-  function record<T extends ReturnType<ProjectMetadataResolver[keyof ProjectMetadataResolver]>>(result: T): T {
-    if (!result.ok && result.dependency !== undefined && dependency === undefined) {
-      dependency = result.dependency
+function validationFirstPassProfileKey(file: ValidationProjectFile): string {
+  if (file.kind === "form") return "form"
+  return `properties:${file.owner.dir}`
+}
+
+function buildObjectIndexEntry(params: {
+  owner: OwnerMetadata
+  file: ValidationProjectFile
+}): ProjectObjectIndexEntry | undefined {
+  const target = objectTargetForProjectFile({ file: params.file, owner: params.owner })
+  if (target === undefined) return undefined
+  return {
+    canonical: projectObjectIndexKey(target),
+    target,
+    result: { ok: true, filePath: params.owner.filePath, details: objectIndexDetails(params.owner) },
+  }
+}
+
+function objectIndexDetails(owner: OwnerMetadata): { type?: string } {
+  const type = metadataRecord(owner.model)["type"]
+  return typeof type === "string" ? { type } : {}
+}
+
+function metadataRecord(value: unknown): Record<string, unknown> {
+  return typeof value === "object" && value !== null ? (value as Record<string, unknown>) : {}
+}
+
+function objectTargetForProjectFile(params: {
+  file: ValidationProjectFile
+  owner: OwnerMetadata
+}): Extract<ParsedMetadataTarget, { kind: "object" }> | undefined {
+  const { file, owner } = params
+  const root =
+    metadataTargetOwnerFromRule({ itemRule: owner.rule, name: file.owner.name })?.root ?? rootFromYAML[file.owner.dir]
+  if (!root || file.owner.name.length === 0) return undefined
+  const nesting = file.owner.spec.nesting
+  if (nesting?.kind !== "recursiveChildDir") {
+    return {
+      kind: "object",
+      root: root as never,
+      objectName: file.owner.name,
     }
-    return result
+  }
+
+  const parts = file.projectPath.split("/")
+  if (parts[0] !== file.owner.dir || parts[parts.length - 1] !== "Свойства.yaml") return undefined
+  const rootObjectName = parts[1]
+  if (rootObjectName === undefined || rootObjectName.length === 0) return undefined
+  const nestedNames: string[] = []
+  for (let index = 2; index < parts.length - 2; index += 2) {
+    if (parts[index] !== nesting.childDir) return undefined
+    const objectName = parts[index + 1]
+    if (objectName === undefined || objectName.length === 0) return undefined
+    nestedNames.push(objectName)
   }
 
   return {
-    resolver: {
-      resolveObject(params) {
-        return record(resolver.resolveObject(params))
-      },
-      resolveMember(params) {
-        return record(resolver.resolveMember(params))
-      },
-      resolveValue(params) {
-        return record(resolver.resolveValue(params))
-      },
-      resolveStyleItem(params) {
-        return record(resolver.resolveStyleItem(params))
-      },
-      resolveCommonPicture(params) {
-        return record(resolver.resolveCommonPicture(params))
-      },
+    kind: "object",
+    root: root as never,
+    objectName: rootObjectName,
+    segments: nestedNames.map((objectName) => ({ kind: root as never, objectName })),
+  }
+}
+
+function buildValueIndexEntries(_params: { owner: OwnerMetadata }): ProjectValueIndexEntry[] {
+  return []
+}
+
+function buildFormFileMemberIndexEntries(file: ValidationProjectFile): ProjectMemberIndexEntry[] {
+  if (file.kind !== "form" || !file.formName) return []
+
+  const root = rootFromYAML[file.owner.dir]
+  if (!root) return []
+
+  const target: Extract<ParsedMetadataTarget, { kind: "member" }> = {
+    kind: "member",
+    root: root as never,
+    objectName: file.owner.name,
+    segments: [{ kind: "Form", name: file.formName }],
+  }
+
+  return [
+    {
+      canonical: projectMemberIndexKey(target),
+      target,
+      result: { ok: true, filePath: file.absolutePath, details: { kind: "Form", name: file.formName } },
     },
-    firstDependency() {
-      return dependency
-    },
+  ]
+}
+
+function buildMemberIndexEntries(params: {
+  projectDir: string
+  owner: OwnerMetadata
+  hasFile: (filePath: string) => boolean
+}): ProjectMemberIndexEntry[] {
+  const entries: ProjectMemberIndexEntry[] = []
+  const seen = new Set<string>()
+
+  for (const field of params.owner.fieldIndex.fields.values()) {
+    const target = fieldTarget(params.owner, field)
+    addMemberIndexEntry(entries, seen, {
+      canonical: projectMemberIndexKey(target),
+      target,
+      result: { ok: true, filePath: params.owner.filePath, details: field },
+    })
+
+    if (field.kind === "tabularSection" && field.tableSource) {
+      for (const column of field.tableSource.columns.values()) {
+        const nestedTarget = nestedFieldTarget(params.owner, field.name, column)
+        addMemberIndexEntry(entries, seen, {
+          canonical: projectMemberIndexKey(nestedTarget),
+          target: nestedTarget,
+          result: { ok: true, filePath: params.owner.filePath, details: column },
+        })
+      }
+    }
+  }
+
+  for (const contributor of getProjectReferenceMemberIndexContributors()) {
+    for (const entry of contributor(params)) addMemberIndexEntry(entries, seen, entry)
+  }
+
+  for (const entry of buildTemplateFileMemberIndexEntries(params.owner)) addMemberIndexEntry(entries, seen, entry)
+
+  return entries
+}
+
+function addMemberIndexEntry(
+  entries: ProjectMemberIndexEntry[],
+  seen: Set<string>,
+  entry: ProjectMemberIndexEntry
+): void {
+  if (seen.has(entry.canonical)) return
+  seen.add(entry.canonical)
+  entries.push(entry)
+}
+
+function buildTemplateFileMemberIndexEntries(owner: OwnerMetadata): ProjectMemberIndexEntry[] {
+  const root = rootFromYAML[owner.ref.kind]
+  if (!root || !owner.ref.name) return []
+
+  const entries: ProjectMemberIndexEntry[] = []
+  for (const folderName of ["Шаблоны", "Макеты"]) {
+    const templatesDir = join(dirname(owner.filePath), folderName)
+    if (!isDirectory(templatesDir)) continue
+
+    for (const entry of fs.readdirSync(templatesDir, { withFileTypes: true })) {
+      if (!entry.isDirectory()) continue
+      const templateDir = join(templatesDir, entry.name)
+      if (!hasTemplateContent(templateDir)) continue
+
+      const target: Extract<ParsedMetadataTarget, { kind: "member" }> = {
+        kind: "member",
+        root: root as never,
+        objectName: owner.ref.name,
+        segments: [{ kind: "Template", name: entry.name }],
+      }
+      entries.push({
+        canonical: projectMemberIndexKey(target),
+        target,
+        result: { ok: true, filePath: templateDir, details: { kind: "Template", name: entry.name } },
+      })
+    }
+  }
+  return entries
+}
+
+function hasTemplateContent(templateDir: string): boolean {
+  if (["Template.xml", "Template.txt", "Template.bin"].some((fileName) => fs.existsSync(join(templateDir, fileName)))) {
+    return true
+  }
+  const extDir = join(templateDir, "Ext")
+  return isDirectory(extDir) && fs.readdirSync(extDir).length > 0
+}
+
+function isDirectory(path: string): boolean {
+  try {
+    return fs.statSync(path).isDirectory()
+  } catch {
+    return false
+  }
+}
+
+function fieldTarget(owner: OwnerMetadata, field: ObjectField): Extract<ParsedMetadataTarget, { kind: "member" }> {
+  return {
+    kind: "member",
+    root: rootFromYAML[owner.ref.kind] as never,
+    objectName: owner.ref.name ?? "",
+    segments: [{ kind: metadataFieldKindFromObjectFieldKind(field.kind), name: metadataFieldTargetName(field) }],
+  }
+}
+
+function nestedFieldTarget(
+  owner: OwnerMetadata,
+  tabularSectionName: string,
+  field: ObjectField
+): Extract<ParsedMetadataTarget, { kind: "member" }> {
+  return {
+    kind: "member",
+    root: rootFromYAML[owner.ref.kind] as never,
+    objectName: owner.ref.name ?? "",
+    segments: [
+      { kind: "TabularSection", name: tabularSectionName },
+      { kind: metadataFieldKindFromObjectFieldKind(field.kind), name: metadataFieldTargetName(field) },
+    ],
+  }
+}
+
+function metadataFieldTargetName(field: ObjectField): string {
+  return field.targetName ?? field.name
+}
+
+function metadataFieldKindFromObjectFieldKind(kind: ObjectFieldKind): MetadataFieldKind {
+  switch (kind) {
+    case "attribute":
+      return "Attribute"
+    case "standardAttribute":
+      return "StandardAttribute"
+    case "tabularSection":
+      return "TabularSection"
+    case "dimension":
+      return "Dimension"
+    case "resource":
+      return "Resource"
+    case "addressingAttribute":
+      return "AddressingAttribute"
   }
 }
 
@@ -357,7 +786,7 @@ function validateRegisteredProjectFileValidators(params: {
   parsed: ParsedYaml
 }): Diagnostic[] {
   return getProjectFileValidators(params.file.owner.spec.kind).flatMap((validator) =>
-    validator({ filePath: params.file.absolutePath, parsed: params.parsed }),
+    validator({ filePath: params.file.absolutePath, parsed: params.parsed })
   )
 }
 
@@ -389,7 +818,7 @@ function validateProjectFileSchema(params: {
 }
 
 function parsedForProjectFile(file: ValidationProjectFile, parsed: ParsedYaml): ParsedYaml {
-  if (file.kind === "properties" && parsed.doc.errors.length === 0 && parsed.data === undefined) {
+  if (file.kind === "properties" && parsed.syntaxErrors.length === 0 && parsed.data === undefined) {
     return { ...parsed, data: {} }
   }
 
@@ -398,7 +827,7 @@ function parsedForProjectFile(file: ValidationProjectFile, parsed: ParsedYaml): 
 
 function suppressEqualNameSchemaDiagnostics(
   schemaDiagnostics: Diagnostic[],
-  equalNameDiagnostics: Diagnostic[],
+  equalNameDiagnostics: Diagnostic[]
 ): Diagnostic[] {
   if (equalNameDiagnostics.length === 0) return schemaDiagnostics
 

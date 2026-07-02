@@ -23,7 +23,7 @@ describe("rules builder migration inventory", () => {
         propertyPath: "properties.name",
         propertyType: "string",
         builderName: "stringRule",
-        importPath: "~/metadata/commonObjects/string/types",
+        importPath: "../commonObjects/string/types",
         mode: "strict",
       },
       {
@@ -31,7 +31,7 @@ describe("rules builder migration inventory", () => {
         propertyPath: "properties.defaults",
         propertyType: "MetadataValue",
         builderName: "metadataValueRule",
-        importPath: "~/metadata/commonObjects/metadataValue/types",
+        importPath: "../commonObjects/metadataValue/types",
         mode: "wide",
       },
       {
@@ -39,7 +39,7 @@ describe("rules builder migration inventory", () => {
         propertyPath: "properties.defaults.defaultItemRule",
         propertyType: "string",
         builderName: "stringRule",
-        importPath: "~/metadata/commonObjects/string/types",
+        importPath: "../commonObjects/string/types",
         mode: "strict",
       },
     ])

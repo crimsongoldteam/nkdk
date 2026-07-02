@@ -1,5 +1,5 @@
 import { describe, expect, it } from "vitest"
-import { testExportAppliedObjectToXML, testImportAppliedObjectFromXML } from "~/tests/appliedObject"
+import { testExportAppliedObjectToXML, testImportAppliedObjectFromXML } from "../../../tests/appliedObject"
 import { MetadataIntegrationServiceRules } from "./rules"
 import { MetadataIntegrationService } from "./types"
 
@@ -22,23 +22,20 @@ describe("import MetadataIntegrationService from XML", () => {
     })
   })
 
-  it.each(["full.xml", "minimal.xml"])(
-    "round-trip: %s — import затем export совпадает с исходным XML",
-    (fixture) => {
-      const data = testImportAppliedObjectFromXML<MetadataIntegrationService>({
-        rule: MetadataIntegrationServiceRules,
-        importMetaUrl: import.meta.url,
-        fixture,
-      })
+  it.each(["full.xml", "minimal.xml"])("round-trip: %s — import затем export совпадает с исходным XML", (fixture) => {
+    const data = testImportAppliedObjectFromXML<MetadataIntegrationService>({
+      rule: MetadataIntegrationServiceRules,
+      importMetaUrl: import.meta.url,
+      fixture,
+    })
 
-      const { result, expected } = testExportAppliedObjectToXML({
-        rule: MetadataIntegrationServiceRules,
-        importMetaUrl: import.meta.url,
-        fixture,
-        data: data!,
-      })
+    const { result, expected } = testExportAppliedObjectToXML({
+      rule: MetadataIntegrationServiceRules,
+      importMetaUrl: import.meta.url,
+      fixture,
+      data: data!,
+    })
 
-      expect(normalizeXml(result)).toEqual(normalizeXml(expected))
-    }
-  )
+    expect(normalizeXml(result)).toEqual(normalizeXml(expected))
+  })
 })

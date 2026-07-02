@@ -1,7 +1,7 @@
 import { TypeCompiler } from "@sinclair/typebox/compiler"
 import { describe, expect, it } from "vitest"
-import { exportPropertyToJSONSchema } from "~/metadata/orchestration/property/toJSONSchema"
-import { mockContext } from "~/tests/mockContext"
+import { exportPropertyToJSONSchema } from "../../../orchestration/property/toJSONSchema"
+import { mockContext } from "../../../../tests/mockContext"
 import type { SettingsParameterValuePropertyRule } from "./types"
 import "./toJSONSchema"
 

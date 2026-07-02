@@ -1,12 +1,12 @@
 import fs from "fs"
 import { basename, join } from "path"
-import { importMetadataItemFromXML } from "~/metadata/orchestration"
-import { importContentFromXML } from "~/xml/import/importer"
-import { ConfigurationContextFromXML, ConfigurationContextWithExportToXML } from "~/metadata/context/types"
-import { readFormFromXML } from "~/metadata/forms/clientApplicationForm/convertFromXML"
-import { exportClientApplicationFormToXML, exportFormMetadataToXML } from "~/metadata/forms/clientApplicationForm/toXML"
-import { exportMetadataItemToXML } from "~/metadata/orchestration"
-import { xmlExport } from "~/xml/export/exporter"
+import { importMetadataItemFromXML } from "../../orchestration"
+import { importContentFromXML } from "../../../xml/import/importer"
+import { ConfigurationContextFromXML, ConfigurationContextWithExportToXML } from "../../context/types"
+import { readFormFromXML } from "../../forms/clientApplicationForm/convertFromXML"
+import { exportClientApplicationFormToXML, exportFormMetadataToXML } from "../../forms/clientApplicationForm/toXML"
+import { exportMetadataItemToXML } from "../../orchestration"
+import { xmlExport } from "../../../xml/export/exporter"
 import { CONFIGURATION_XML_FILE } from "./rootIO"
 import { MetadataConfigurationRules } from "./rules"
 import { TopLevelMetadataItemRules } from "./topLevelRules"
@@ -175,7 +175,10 @@ const roundTripFormsXML = (params: { inputDir: string; outputDir: string; itemNa
       fs.writeFileSync(join(formsOutputDir, `${formName}.xml`), xmlExport({ MetaDataObject: metadataXML }), "utf-8")
       fs.writeFileSync(join(formExtOutputDir, "Form.xml"), xmlExport({ Form: formXML }), "utf-8")
     } catch (err) {
-      throw new RoundTripXMLContextError(`Ошибка round-trip формы "${params.xmlDir}/${params.itemName}/${formName}"`, err)
+      throw new RoundTripXMLContextError(
+        `Ошибка round-trip формы "${params.xmlDir}/${params.itemName}/${formName}"`,
+        err
+      )
     }
   }
 }

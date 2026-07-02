@@ -1,13 +1,13 @@
-import { metadataCommandGroupRule } from "~/metadata/commonObjects/metadataCommandGroup/types"
-import { pictureRule } from "~/metadata/commonObjects/metadataTargets/types"
-import { typeDescriptionRule } from "~/metadata/commonObjects/typeDescription/types"
-import { booleanRule } from "~/metadata/commonObjects/boolean/types"
-import { i8nTextRule } from "~/metadata/commonObjects/i8nText/types"
-import { moduleRule } from "~/metadata/commonObjects/module/types"
-import { stringRule } from "~/metadata/commonObjects/string/types"
-import { systemEnumerationRule } from "~/metadata/systemEnumerations/types"
-import { uuidPropertyRule } from "~/metadata/commonObjects/uuid/rule"
-import { MetadataItemRule } from "~/metadata/orchestration/property/types"
+import { metadataCommandGroupRule } from "../../commonObjects/metadataCommandGroup/types"
+import { pictureRule } from "../../commonObjects/metadataTargets/types"
+import { typeDescriptionRule } from "../../commonObjects/typeDescription/types"
+import { booleanRule } from "../../commonObjects/boolean/types"
+import { i8nTextRule } from "../../commonObjects/i8nText/types"
+import { moduleRule } from "../../commonObjects/module/types"
+import { stringRule } from "../../commonObjects/string/types"
+import { systemEnumerationRule } from "../../systemEnumerations/types"
+import { uuidPropertyRule } from "../../commonObjects/uuid/rule"
+import type { MetadataItemRule } from "../../orchestration/property/types"
 export const MetadataCommandRules = {
   itemType: "MetadataCommand",
   externalMetadata: { segment: "Command", placement: "ownerChild" },

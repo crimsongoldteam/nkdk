@@ -1,4 +1,4 @@
-import { Color, ColorEnterprise, ColorYAML } from "~/metadata/commonObjects/color/types"
+import { Color, ColorEnterprise, ColorYAML } from "../types"
 
 export interface ColorTestCase {
   name: string

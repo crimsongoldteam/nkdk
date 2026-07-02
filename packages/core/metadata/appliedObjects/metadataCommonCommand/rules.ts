@@ -1,7 +1,7 @@
-import { booleanRule } from "~/metadata/commonObjects/boolean/types"
-import { xmlRootRule } from "~/metadata/commonObjects/xmlRoot/types"
-import { V8_MDCLASSES_ROOT } from "~/metadata/orchestration/appliedObject/presets"
-import { MetadataItemRule } from "~/metadata/orchestration/property/types"
+import { booleanRule } from "../../commonObjects/boolean/types"
+import { xmlRootRule } from "../../commonObjects/xmlRoot/types"
+import { V8_MDCLASSES_ROOT } from "../../orchestration/appliedObject/presets"
+import type { MetadataItemRule } from "../../orchestration/property/types"
 import { MetadataCommandRules } from "../metadataCommand/rules"
 export const MetadataCommonCommandRules = {
   ...MetadataCommandRules,

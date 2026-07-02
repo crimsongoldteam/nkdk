@@ -1,9 +1,9 @@
-import { I8nTextXML } from "~/metadata/commonObjects/i8nText/types"
-import { InternalInfoItemsXML } from "~/metadata/commonObjects/internalInfo/types"
-import { MetadataNameYAML } from "~/metadata/commonObjects/metadataName/types"
-import { MetadataTypeByRule } from "~/metadata/orchestration/metadataItem/element"
-import { YAMLTypeByRule } from "~/metadata/orchestration/metadataItem/yaml"
-import * as SE from "~/metadata/systemEnumerations/types"
+import { I8nTextXML } from "../i8nText/types"
+import { InternalInfoItemsXML } from "../internalInfo/types"
+import { MetadataNameYAML } from "../metadataName/types"
+import { MetadataTypeByRule } from "../../orchestration/metadataItem/element"
+import { YAMLTypeByRule } from "../../orchestration/metadataItem/yaml"
+import * as SE from "../../systemEnumerations/types"
 import { MetadataIntegrationServiceChannelRules } from "./rules"
 
 export type MetadataIntegrationServiceChannel = MetadataTypeByRule<typeof MetadataIntegrationServiceChannelRules>
@@ -32,7 +32,4 @@ export type MetadataIntegrationServiceChannels = MetadataIntegrationServiceChann
 export type MetadataIntegrationServiceChannelsXML =
   | MetadataIntegrationServiceChannelXML
   | MetadataIntegrationServiceChannelXML[]
-export type MetadataIntegrationServiceChannelsYAML = Record<
-  MetadataNameYAML,
-  MetadataIntegrationServiceChannelYAML
->
+export type MetadataIntegrationServiceChannelsYAML = Record<MetadataNameYAML, MetadataIntegrationServiceChannelYAML>

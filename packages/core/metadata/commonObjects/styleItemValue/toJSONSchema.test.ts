@@ -1,8 +1,8 @@
 import { TypeCompiler } from "@sinclair/typebox/compiler"
 import { describe, expect, it } from "vitest"
-import { getTypeRule, type PropertyRule } from "~/metadata/orchestration"
-import { registerCoreMetadata } from "~/metadata/register"
-import { mockContext } from "~/tests/mockContext"
+import { getTypeRule, type PropertyRule } from "../../orchestration"
+import { registerCoreMetadata } from "../../register"
+import { mockContext } from "../../../tests/mockContext"
 
 registerCoreMetadata()
 

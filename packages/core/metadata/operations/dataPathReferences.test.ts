@@ -1,11 +1,11 @@
 import { describe, expect, it } from "vitest"
-import type { ResolvedDataPathTarget } from "~/metadata/validation/dataPath/resolver"
+import type { ResolvedDataPathTarget } from "../validation/dataPath/resolver"
 import { dataPathTargetMatchesCanonicalPrefix, rewriteDataPathSegments } from "./dataPathReferences"
 
 describe("rewriteDataPathSegments", () => {
   it("rewrites only the resolved segment", () => {
     expect(rewriteDataPathSegments("Объект.Товары.Артикул", ["Объект", "Товары", "Артикул"], 2, "Код")).toBe(
-      "Объект.Товары.Код",
+      "Объект.Товары.Код"
     )
   })
 

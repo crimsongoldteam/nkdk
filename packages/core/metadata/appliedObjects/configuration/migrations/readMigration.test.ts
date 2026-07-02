@@ -39,9 +39,11 @@ describe("readMigration", () => {
     fs.writeFileSync(join(yamlDir, "Миграции", "2026-05-05-143000.yaml"), '"Справочник.Товары": "Номенклатура"\n')
     fs.writeFileSync(join(yamlDir, "Миграции", "2026-05-05-143001.yaml"), '"Справочник.Номенклатура": Удалить\n')
 
-    expect(readPendingMigrationEntries(yamlDir, {
-      applied: ["2026-05-05-143000.yaml", "2026-05-05-142000.yaml"],
-    })).toEqual([
+    expect(
+      readPendingMigrationEntries(yamlDir, {
+        applied: ["2026-05-05-143000.yaml", "2026-05-05-142000.yaml"],
+      })
+    ).toEqual([
       {
         fileName: "2026-05-05-143001.yaml",
         entries: [{ path: "Справочник.Номенклатура", value: "Удалить" }],

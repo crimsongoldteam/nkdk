@@ -1,9 +1,9 @@
-import { importBooleanFromYAML } from "~/metadata/commonObjects/boolean/fromYAML"
-import { PropertyRule } from "~/metadata/orchestration/property/types"
-import { ImportFromYAMLFunctionNew } from "~/metadata/orchestration"
-import { registerTypeRule } from "~/metadata/orchestration/property/typeRuleRegistry"
+import { importBooleanFromYAML } from "../boolean/fromYAML"
+import type { PropertyRule } from "../../orchestration/property/types"
+import { ImportFromYAMLFunctionNew } from "../../orchestration"
+import { registerTypeRule } from "../../orchestration/property/typeRuleRegistry"
 import { ConfigurationContext } from "../../context/types"
-import { UserVisibleYAML, type UserVisible, type UserVisibleRolesYAML } from "./types"
+import type { UserVisible, UserVisibleRolesYAML, UserVisibleYAML } from "./types"
 
 export const importUserVisibleFromYAML: ImportFromYAMLFunctionNew = (params: {
   context: ConfigurationContext

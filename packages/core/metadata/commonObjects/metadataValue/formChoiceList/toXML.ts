@@ -1,4 +1,4 @@
-import { ConfigurationContext } from "~/metadata/context/types"
+import { ConfigurationContext } from "../../../context/types"
 import { exportI8nTextToXML } from "../../i8nText/toXML"
 import { exportMetadataValueToXML } from "../toXML"
 import {

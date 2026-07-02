@@ -1,13 +1,8 @@
-import type { MetadataItemRule } from "~/metadata/orchestration/property/types"
+import type { MetadataItemRule } from "../../orchestration/property/types"
 import type { FormDataPathIndex } from "./formIndex"
 import type { ObjectField } from "./objectFields"
 import type { OwnerMetadata, OwnerMetadataCache } from "./ownerCache"
-import type {
-  DataPathTableInfo,
-  DataPathTypeInfo,
-  FormDataPathColumnSource,
-  OwnerTypeRef,
-} from "./types"
+import type { DataPathTableInfo, DataPathTypeInfo, FormDataPathColumnSource, OwnerTypeRef } from "./types"
 
 export interface DataPathOwnerKindRegistration {
   kind: OwnerTypeRef["kind"]
@@ -37,10 +32,7 @@ export type StandardAttributeTypeResolver = (params: {
   explicitTypeInfo?: DataPathTypeInfo
 }) => DataPathTypeInfo | undefined
 
-export type VirtualOwnerFieldResolver = (params: {
-  owner: OwnerMetadata
-  segment: string
-}) =>
+export type VirtualOwnerFieldResolver = (params: { owner: OwnerMetadata; segment: string }) =>
   | {
       name: string
       typeInfo: DataPathTypeInfo
@@ -82,10 +74,7 @@ export type TraversalTransitionResolver = (params: {
     }
   | undefined
 
-export type RegisterRecordsItemResolver = (params: {
-  owner: OwnerMetadata
-  segment: string
-}) =>
+export type RegisterRecordsItemResolver = (params: { owner: OwnerMetadata; segment: string }) =>
   | {
       owner: OwnerTypeRef
       typeInfo: DataPathTypeInfo
@@ -127,7 +116,8 @@ export function registerDataPathOwnerKind(registration: DataPathOwnerKindRegistr
   ownerKinds.set(registration.kind, registration)
   for (const alias of registration.aliases ?? []) ownerKinds.set(alias, registration)
   for (const base of registration.typeDescriptionBases ?? []) ownerKindByTypeBase.set(base, registration.kind)
-  for (const base of registration.registerRecordSetBases ?? []) ownerKindByRegisterRecordSetBase.set(base, registration.kind)
+  for (const base of registration.registerRecordSetBases ?? [])
+    ownerKindByRegisterRecordSetBase.set(base, registration.kind)
   for (const prefix of registration.metadataLinkPrefixes ?? []) {
     if (!ownerKindByMetadataLinkPrefix.has(prefix)) ownerKindByMetadataLinkPrefix.set(prefix, registration.kind)
   }
@@ -181,7 +171,7 @@ export function registerStandardAttributeTypeResolver(resolver: StandardAttribut
 }
 
 export function resolveStandardAttributeType(
-  params: Parameters<StandardAttributeTypeResolver>[0],
+  params: Parameters<StandardAttributeTypeResolver>[0]
 ): DataPathTypeInfo | undefined {
   for (const resolver of standardAttributeTypeResolvers) {
     const result = resolver(params)
@@ -195,7 +185,7 @@ export function registerVirtualOwnerFieldResolver(resolver: VirtualOwnerFieldRes
 }
 
 export function resolveVirtualOwnerField(
-  params: Parameters<VirtualOwnerFieldResolver>[0],
+  params: Parameters<VirtualOwnerFieldResolver>[0]
 ): ReturnType<VirtualOwnerFieldResolver> {
   for (const resolver of virtualOwnerFieldResolvers) {
     const result = resolver(params)
@@ -208,7 +198,9 @@ export function registerTableColumnResolver(resolver: TableColumnResolver): void
   tableColumnResolvers.push(resolver)
 }
 
-export function resolveRegisteredTableColumn(params: Parameters<TableColumnResolver>[0]): FormDataPathColumnSource | undefined {
+export function resolveRegisteredTableColumn(
+  params: Parameters<TableColumnResolver>[0]
+): FormDataPathColumnSource | undefined {
   for (const resolver of tableColumnResolvers) {
     const result = resolver(params)
     if (result !== undefined) return result
@@ -221,7 +213,7 @@ export function registerTraversalTransitionResolver(resolver: TraversalTransitio
 }
 
 export function resolveTraversalTransition(
-  params: Parameters<TraversalTransitionResolver>[0],
+  params: Parameters<TraversalTransitionResolver>[0]
 ): ReturnType<TraversalTransitionResolver> {
   for (const resolver of traversalTransitionResolvers) {
     const result = resolver(params)
@@ -235,13 +227,13 @@ export function registerRegisterRecordsItemResolver(resolver: RegisterRecordsIte
 }
 
 export function resolveRegisterRecordsItem(
-  params: Parameters<RegisterRecordsItemResolver>[0],
+  params: Parameters<RegisterRecordsItemResolver>[0]
 ): ReturnType<RegisterRecordsItemResolver> {
   return resolveMovementItem(params)
 }
 
 export function resolveMovementItem(
-  params: Parameters<RegisterRecordsItemResolver>[0],
+  params: Parameters<RegisterRecordsItemResolver>[0]
 ): ReturnType<RegisterRecordsItemResolver> {
   for (const resolver of registerRecordsItemResolvers) {
     const result = resolver(params)

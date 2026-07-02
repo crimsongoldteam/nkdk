@@ -96,7 +96,7 @@ describe("renameMetadataItem", () => {
     expect(yaml).toContain("КодПоставщика:")
     expect(yaml).not.toContain("Артикул:")
     expect(readFileSync(join(projectDir, "Миграции", "2026-06-30-120000.yaml"), "utf-8")).toContain(
-      '"Справочник.Товары.Реквизит.Артикул": КодПоставщика',
+      '"Справочник.Товары.Реквизит.Артикул": КодПоставщика'
     )
   })
 
@@ -201,11 +201,7 @@ describe("renameMetadataItem", () => {
 
   it("rewrites resolvable form DataPath when an attribute is renamed", async () => {
     const projectDir = createProject()
-    writeProjectFile(projectDir, "Справочник/Товары/Свойства.yaml", [
-      "Реквизиты:",
-      "  Артикул:",
-      "    Тип: Строка",
-    ])
+    writeProjectFile(projectDir, "Справочник/Товары/Свойства.yaml", ["Реквизиты:", "  Артикул:", "    Тип: Строка"])
     const formPath = writeProjectFile(projectDir, "Справочник/Товары/Формы/ФормаЭлемента/Форма.yaml", [
       "Реквизиты:",
       "  Объект:",

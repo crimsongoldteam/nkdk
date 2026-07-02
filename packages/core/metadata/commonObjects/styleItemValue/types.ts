@@ -1,11 +1,11 @@
 import {
   definePropertyRule as defineWidePropertyRule,
   type ExactRuleParams as WideExactRuleParams,
-} from "~/metadata/commonObjects/ruleBuilder"
-import type { PropertyRule as WidePropertyRuleBase } from "~/metadata/orchestration/property/types"
-import { Border, BorderXML, BorderYAML } from "~/metadata/commonObjects/border/types"
-import { Color, ColorXML, ColorYAML } from "~/metadata/commonObjects/color/types"
-import { Font, FontXML, FontYAML } from "~/metadata/commonObjects/font/types"
+} from "../ruleBuilder"
+import type { PropertyRule as WidePropertyRuleBase } from "../../orchestration/property/types"
+import { Border, BorderXML, BorderYAML } from "../border/types"
+import { Color, ColorXML, ColorYAML } from "../color/types"
+import { Font, FontXML, FontYAML } from "../font/types"
 
 export type StyleItemValue =
   | { type: "Font"; value: Font }

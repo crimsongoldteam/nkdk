@@ -1,6 +1,6 @@
 import { Type } from "@sinclair/typebox"
-import { registerCoreMetadata } from "~/metadata/register"
-import type { MetadataItemRule } from "~/metadata/orchestration/property/types"
+import { registerCoreMetadata } from "../register"
+import type { MetadataItemRule } from "../orchestration/property/types"
 import {
   getRegisteredProjectSpecByDir,
   getRegisteredProjectSpecs,

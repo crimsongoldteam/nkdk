@@ -11,12 +11,12 @@ import {
   singleChoiceParameter,
   stringChoiceParameter,
   withoutOneValueChoiceParameter,
-} from "~/metadata/commonObjects/сhoiceParameters/__fixtures__/data"
-import { mockContext, mockContextFromXML, mockRule } from "~/tests/mockContext"
-import { readAndParseXMLFixture } from "~/tests/readFixtureXML"
-import { xmlExport } from "~/xml/export/exporter"
-import { exportToYAML } from "~/yaml/export"
-import { importFromYAML } from "~/yaml/import"
+} from "./__fixtures__/data"
+import { mockContext, mockContextFromXML, mockRule } from "../../../tests/mockContext"
+import { readAndParseXMLFixture } from "../../../tests/readFixtureXML"
+import { xmlExport } from "../../../xml/export/exporter"
+import { exportToYAML } from "../../../yaml/export"
+import { importFromYAML } from "../../../yaml/import"
 import { importChoiceParametersFromYAML } from "./fromYAML"
 import { importChoiceParametersFromXML } from "./fromXML"
 import { exportChoiceParametersToXML } from "./toXML"
@@ -31,10 +31,7 @@ describe("importChoiceParametersFromXML", () => {
   })
 
   it("should import choice parameters with single parameter correctly", () => {
-    const xmlData = readAndParseXMLFixture<{ ChoiceParameters: ChoiceParametersXML }>(
-      import.meta.url,
-      "single.xml"
-    )
+    const xmlData = readAndParseXMLFixture<{ ChoiceParameters: ChoiceParametersXML }>(import.meta.url, "single.xml")
 
     const result = importChoiceParametersFromXML(mockContextFromXML(), mockRule, xmlData.ChoiceParameters)
 
@@ -42,10 +39,7 @@ describe("importChoiceParametersFromXML", () => {
   })
 
   it("should import choice parameters with multiple parameters correctly", () => {
-    const xmlData = readAndParseXMLFixture<{ ChoiceParameters: ChoiceParametersXML }>(
-      import.meta.url,
-      "multiple.xml"
-    )
+    const xmlData = readAndParseXMLFixture<{ ChoiceParameters: ChoiceParametersXML }>(import.meta.url, "multiple.xml")
 
     const result = importChoiceParametersFromXML(mockContextFromXML(), mockRule, xmlData.ChoiceParameters)
 
@@ -61,10 +55,7 @@ describe("importChoiceParametersFromXML", () => {
   })
 
   it("should import choice parameters with fixedArray value correctly", () => {
-    const xmlData = readAndParseXMLFixture<{ ChoiceParameters: ChoiceParametersXML }>(
-      import.meta.url,
-      "fixedArray.xml"
-    )
+    const xmlData = readAndParseXMLFixture<{ ChoiceParameters: ChoiceParametersXML }>(import.meta.url, "fixedArray.xml")
 
     const result = importChoiceParametersFromXML(mockContextFromXML(), mockRule, xmlData.ChoiceParameters)
 
@@ -83,10 +74,7 @@ describe("importChoiceParametersFromXML", () => {
   })
 
   it("should import choice parameters with string value correctly", () => {
-    const xmlData = readAndParseXMLFixture<{ ChoiceParameters: ChoiceParametersXML }>(
-      import.meta.url,
-      "string.xml"
-    )
+    const xmlData = readAndParseXMLFixture<{ ChoiceParameters: ChoiceParametersXML }>(import.meta.url, "string.xml")
 
     const result = importChoiceParametersFromXML(mockContextFromXML(), mockRule, xmlData.ChoiceParameters)
 
@@ -105,10 +93,7 @@ describe("importChoiceParametersFromXML", () => {
   })
 
   it("should import choice parameters with form enum value correctly", () => {
-    const xmlData = readAndParseXMLFixture<{ ChoiceParameters: ChoiceParametersXML }>(
-      import.meta.url,
-      "form/enum.xml"
-    )
+    const xmlData = readAndParseXMLFixture<{ ChoiceParameters: ChoiceParametersXML }>(import.meta.url, "form/enum.xml")
 
     const result = importChoiceParametersFromXML(mockContextFromXML(), mockRule, xmlData.ChoiceParameters)
 
@@ -116,10 +101,7 @@ describe("importChoiceParametersFromXML", () => {
   })
 
   it("preserves empty FormChoiceListDesTimeValue through YAML", () => {
-    const xmlData = readAndParseXMLFixture<{ ChoiceParameters: ChoiceParametersXML }>(
-      import.meta.url,
-      "form/empty.xml"
-    )
+    const xmlData = readAndParseXMLFixture<{ ChoiceParameters: ChoiceParametersXML }>(import.meta.url, "form/empty.xml")
 
     const imported = importChoiceParametersFromXML(mockContextFromXML(), mockRule, xmlData.ChoiceParameters)
     const yamlObject = exportChoiceParametersToYAML(mockContext, mockRule, imported)

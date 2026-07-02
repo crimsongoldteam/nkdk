@@ -1,5 +1,5 @@
-import { ClientApplicationFormYAML } from "~/metadata/forms/clientApplicationForm/types"
-import { FormElementTreeNodeYAML, FormElementTreeYAML } from "~/metadata/forms/commonObjects/childItems/types"
+import { ClientApplicationFormYAML } from "../types"
+import { FormElementTreeNodeYAML, FormElementTreeYAML } from "../../commonObjects/childItems/types"
 
 type DocumentClientApplicationFormYAML = Omit<ClientApplicationFormYAML, "Элементы"> & {
   АвтоВремя: "Последним"

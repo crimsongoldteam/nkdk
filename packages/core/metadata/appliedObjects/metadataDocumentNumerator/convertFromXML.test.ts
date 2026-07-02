@@ -1,5 +1,5 @@
 import { describe, expect, it } from "vitest"
-import { testConvertAppliedObjectFromXML } from "~/tests/appliedObject"
+import { testConvertAppliedObjectFromXML } from "../../../tests/appliedObject"
 import { readNumeratorYAML } from "./__fixtures__/sync/data"
 import { MetadataDocumentNumeratorRules } from "./rules"
 

@@ -1,7 +1,7 @@
-import { importI8nTextFromXML } from "~/metadata/commonObjects/i8nText/fromXML"
-import { I8nText, I8nTextXML } from "~/metadata/commonObjects/i8nText/types"
-import { ConfigurationContextFromXML } from "~/metadata/context/types"
-import { PropertyRule, registerTypeRule } from "~/metadata/orchestration"
+import { importI8nTextFromXML } from "../../i8nText/fromXML"
+import { I8nText, I8nTextXML } from "../../i8nText/types"
+import { ConfigurationContextFromXML } from "../../../context/types"
+import { PropertyRule, registerTypeRule } from "../../../orchestration"
 import { DcsLocalStringTypeXML } from "./types"
 
 const extractStringValue = (xml: DcsLocalStringTypeXML): string | undefined => {

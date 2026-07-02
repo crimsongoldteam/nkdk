@@ -1,4 +1,4 @@
-import type { MetadataItemRule } from "~/metadata/orchestration/property/types"
+import type { MetadataItemRule } from "../../../orchestration/property/types"
 
 export function remapReferenceModel(params: {
   rule: MetadataItemRule
@@ -65,11 +65,7 @@ function remapCollection(params: {
   currentItems: unknown
   referenceItems: unknown
   referencePathByCurrentPath: Map<string, string>
-  nested?: (
-    sectionPath: string,
-    currentItem: Record<string, unknown>,
-    referenceItem: Record<string, unknown>,
-  ) => void
+  nested?: (sectionPath: string, currentItem: Record<string, unknown>, referenceItem: Record<string, unknown>) => void
 }): void {
   const { ownerPath, segment, referencePathByCurrentPath, nested } = params
   if (!Array.isArray(params.currentItems) || !Array.isArray(params.referenceItems)) return
@@ -88,10 +84,12 @@ function remapCollection(params: {
     const referencePathParts = referencePath.split(".")
     const referenceName = referencePathParts[referencePathParts.length - 1]
     const referenceRecord = params.referenceItems.find((item): item is Record<string, unknown> => {
-      return item !== null &&
+      return (
+        item !== null &&
         typeof item === "object" &&
         !Array.isArray(item) &&
         (item as Record<string, unknown>)["name"] === referenceName
+      )
     })
     if (!referenceRecord) continue
 

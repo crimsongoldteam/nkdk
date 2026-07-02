@@ -1,7 +1,7 @@
-import { ConfigurationContext } from "~/metadata/context/types"
-import { PropertyRule, registerTypeRule } from "~/metadata/orchestration"
-import type { SettingsParameterValueCollectionPropertyRule } from "~/metadata/orchestration/property/types"
-import { asExplicitYAMLStringIfMarked } from "~/yaml/explicitString"
+import { ConfigurationContext } from "../../../context/types"
+import { PropertyRule, registerTypeRule } from "../../../orchestration"
+import type { SettingsParameterValueCollectionPropertyRule } from "../../../orchestration/property/types"
+import { asExplicitYAMLStringIfMarked } from "../../../../yaml/explicitString"
 import { importParameterValueFromYAML } from "../parameterValue/fromYAML"
 import type { SettingsParameterValueYAML } from "../parameterValue/types"
 import { getSettingsParameterValueRuleForParameter } from "./ruleSet"
@@ -48,9 +48,7 @@ const importSettingsParameterValueCollectionFromYAML = (
     }
   }
 
-  return Object.keys(parameters).length > 0
-    ? { itemType: "SettingsParameterValueCollection", parameters }
-    : undefined
+  return Object.keys(parameters).length > 0 ? { itemType: "SettingsParameterValueCollection", parameters } : undefined
 }
 
 registerTypeRule("SettingsParameterValueCollection", "importFromYAML", importSettingsParameterValueCollectionFromYAML)

@@ -1,7 +1,4 @@
-import {
-  MetadataHTTPServiceMethods,
-  MetadataHTTPServiceMethodsYAML,
-} from "~/metadata/commonObjects/metadataHTTPServiceMethod/types"
+import { MetadataHTTPServiceMethods, MetadataHTTPServiceMethodsYAML } from "../types"
 
 export const methodsFromXML: MetadataHTTPServiceMethods = [
   {

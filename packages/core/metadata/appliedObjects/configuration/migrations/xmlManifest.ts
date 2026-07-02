@@ -40,7 +40,12 @@ export async function pruneXmlByManifest(params: {
   }
 }
 
-async function pruneDir(root: string, absDir: string, expectedFiles: Set<string>, expectedDirs: Set<string>): Promise<void> {
+async function pruneDir(
+  root: string,
+  absDir: string,
+  expectedFiles: Set<string>,
+  expectedDirs: Set<string>
+): Promise<void> {
   for (const entry of await fs.promises.readdir(absDir, { withFileTypes: true })) {
     const absPath = join(absDir, entry.name)
     const rel = relative(resolve(root), absPath).split(sep).join("/")

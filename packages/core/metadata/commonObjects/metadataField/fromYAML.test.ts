@@ -1,6 +1,6 @@
 import { describe, expect, it } from "vitest"
-import { importPropertyFromYAML } from "~/metadata/orchestration"
-import { mockContext, mockRule } from "~/tests/mockContext"
+import { importPropertyFromYAML } from "../../orchestration"
+import { mockContext, mockRule } from "../../../tests/mockContext"
 import { importMetadataFieldFromYAML, importMetadataFieldsFromYAML } from "./fromYAML"
 
 describe("importMetadataFieldFromYAML", () => {

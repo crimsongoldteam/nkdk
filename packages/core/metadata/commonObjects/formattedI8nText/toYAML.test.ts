@@ -1,6 +1,6 @@
 import { describe, expect, it } from "vitest"
-import { formattedI8nTextFixtures } from "~/metadata/commonObjects/formattedI8nText/__fixtures__/data"
-import { mockContextToYAML, mockRule } from "~/tests/mockContext"
+import { formattedI8nTextFixtures } from "./__fixtures__/data"
+import { mockContextToYAML, mockRule } from "../../../tests/mockContext"
 import { exportFormattedI8nTextDefaultToYAML, exportFormattedI8nTextToYAML } from "./toYAML"
 import { FormattedI8nTextPropertyRule } from "./types"
 
@@ -55,5 +55,4 @@ describe("exportFormattedI8nTextToYAML", () => {
       })
     })
   })
-
 })

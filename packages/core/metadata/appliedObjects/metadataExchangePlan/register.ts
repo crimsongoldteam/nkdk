@@ -1,4 +1,4 @@
-import { registerDataPathOwnerKind, registerVirtualOwnerFieldResolver } from "~/metadata/validation/dataPath/registry"
+import { registerDataPathOwnerKind, registerVirtualOwnerFieldResolver } from "../../validation/dataPath/registry"
 import { MetadataExchangePlanRules } from "./rules"
 
 registerDataPathOwnerKind({

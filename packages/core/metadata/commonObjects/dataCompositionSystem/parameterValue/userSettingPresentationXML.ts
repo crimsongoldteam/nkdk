@@ -1,6 +1,6 @@
-import { importI8nTextFromXML } from "~/metadata/commonObjects/i8nText/fromXML"
-import { exportI8nTextToXML } from "~/metadata/commonObjects/i8nText/toXML"
-import type { I8nText, I8nTextXML } from "~/metadata/commonObjects/i8nText/types"
+import { importI8nTextFromXML } from "../../i8nText/fromXML"
+import { exportI8nTextToXML } from "../../i8nText/toXML"
+import type { I8nText, I8nTextXML } from "../../i8nText/types"
 import type { ConfigurationContext, ConfigurationContextFromXML } from "../../../context/types"
 import type { UserSettingPresentationShortXML } from "./types"
 

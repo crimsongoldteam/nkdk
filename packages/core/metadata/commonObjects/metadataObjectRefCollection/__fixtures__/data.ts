@@ -1,7 +1,4 @@
-import {
-  MetadataObjectRefCollection,
-  MetadataObjectRefCollectionYAML,
-} from "~/metadata/commonObjects/metadataObjectRefCollection/types"
+import { MetadataObjectRefCollection, MetadataObjectRefCollectionYAML } from "../types"
 
 export const single: MetadataObjectRefCollection = ["Catalog.Контрагенты"]
 

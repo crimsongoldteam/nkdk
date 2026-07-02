@@ -1,10 +1,11 @@
 import {
   definePropertyRule as defineWidePropertyRule,
   type ExactRuleParams as WideExactRuleParams,
-} from "~/metadata/commonObjects/ruleBuilder"
-import type { PropertyRule as WidePropertyRuleBase } from "~/metadata/orchestration/property/types"
-import { Static, Type } from "@sinclair/typebox"
-import { BasePropertyRule } from "~/metadata/orchestration"
+} from "../ruleBuilder"
+import type { PropertyRule as WidePropertyRuleBase } from "../../orchestration/property/types"
+import { Type } from "@sinclair/typebox"
+import type { Static } from "@sinclair/typebox"
+import { BasePropertyRule } from "../../orchestration"
 
 const russianDateTimePattern =
   "^(0[1-9]|[12][0-9]|3[01])\\.(0[1-9]|1[0-2])\\.[0-9]{4}( ([01][0-9]|2[0-3]):[0-5][0-9])?$"

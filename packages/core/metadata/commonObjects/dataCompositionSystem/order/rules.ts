@@ -1,8 +1,8 @@
-import { dcsLocalStringTypeRule } from "~/metadata/commonObjects/dataCompositionSystem/dcsLocalStringType/types"
-import { orderItemFieldsRule } from "~/metadata/commonObjects/dataCompositionSystem/order/builders"
-import { userSettingsIDRule } from "~/metadata/commonObjects/userSettingsID/types"
-import { systemEnumerationRule } from "~/metadata/systemEnumerations/types"
-import { MetadataItemRule } from "~/metadata/orchestration"
+import { dcsLocalStringTypeRule } from "../dcsLocalStringType/types"
+import { orderItemFieldsRule } from "./builders"
+import { userSettingsIDRule } from "../../userSettingsID/types"
+import { systemEnumerationRule } from "../../../systemEnumerations/types"
+import { MetadataItemRule } from "../../../orchestration"
 export const OrderRules = {
   itemType: "Order",
   properties: {

@@ -1,16 +1,12 @@
-import {
-  PictureDecoration,
-  PictureDecorationEnterprise,
-  PictureDecorationPartialYAML,
-} from "~/metadata/forms/elements/pictureDecoration/types"
+import { PictureDecoration, PictureDecorationEnterprise, PictureDecorationPartialYAML } from "../types"
 
-import { StructureResult } from "~/tests/types"
-import { RequiredFieldsElement } from "~/tests/types"
+import { StructureResult } from "../../../../../tests/types"
+import { RequiredFieldsElement } from "../../../../../tests/types"
 import {
   fullFormDecorationCommonFixture,
   fullFormDecorationEnterpriseCommonFixture,
   fullFormDecorationPartialYAMLCommonFixture,
-} from "~/metadata/forms/elements/formDecoration/__fixtures__/data"
+} from "../../formDecoration/__fixtures__/data"
 
 export const fullPictureDecoration: Omit<
   RequiredFieldsElement<PictureDecoration>,
@@ -58,10 +54,7 @@ export const fullPictureDecorationEnterprise = {
 } satisfies Omit<Required<PictureDecorationEnterprise>, "Border" | "BorderColor" | "Picture" | "PictureSize">
 
 export const fullPictureDecorationPartialYAML: Required<
-  Omit<
-    PictureDecorationPartialYAML,
-    "Использование" | "Картинка" | "Рамка" | "ЦветРамки" | "РазмерКартинки"
-  >
+  Omit<PictureDecorationPartialYAML, "Использование" | "Картинка" | "Рамка" | "ЦветРамки" | "РазмерКартинки">
 > = {
   ...fullFormDecorationPartialYAMLCommonFixture,
   Гиперссылка: "Истина",

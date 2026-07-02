@@ -1,8 +1,8 @@
 import fs from "fs"
 import { dirname, join } from "path"
-import { registerTypeRule } from "~/metadata/orchestration"
-import type { HelpPropertyRule, PropertyRule } from "~/metadata/orchestration/property/types"
-import { importContentFromXML } from "~/xml/import/importer"
+import { registerTypeRule } from "../../orchestration"
+import type { HelpPropertyRule, PropertyRule } from "../../orchestration/property/types"
+import { importContentFromXML } from "../../../xml/import/importer"
 
 /**
  * Читает Ext/Help.xml и копирует HTML-страницы каждого языка в nkdk-директорию объекта.

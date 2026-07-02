@@ -2,8 +2,8 @@ import fs from "fs"
 import os from "os"
 import { join } from "path"
 import { beforeEach, describe, expect, it } from "vitest"
-import { mockContextFromXML } from "~/tests/mockContext"
-import { readXMLFileAsString } from "~/tests/readAndParseXMLFile"
+import { mockContextFromXML } from "../../../tests/mockContext"
+import { readXMLFileAsString } from "../../../tests/readAndParseXMLFile"
 import { syncConfigurationFromXML } from "./convertFromXML"
 import { CONFIGURATION_XML_FILE, CONFIGURATION_YAML_FILE } from "./rootIO"
 
@@ -112,10 +112,7 @@ describe("sync configuration from xml", () => {
     const rootOutput = join(tmp, "yaml")
     try {
       fs.mkdirSync(rootInput, { recursive: true })
-      fs.copyFileSync(
-        join(__dirname, "__fixtures__/full.xml"),
-        join(rootInput, CONFIGURATION_XML_FILE)
-      )
+      fs.copyFileSync(join(__dirname, "__fixtures__/full.xml"), join(rootInput, CONFIGURATION_XML_FILE))
 
       await syncConfigurationFromXML({
         context: mockContextFromXML(),
@@ -137,10 +134,7 @@ describe("sync configuration from xml", () => {
     const rootOutput = join(tmp, "yaml")
     try {
       fs.mkdirSync(join(rootInput, "Ext"), { recursive: true })
-      fs.copyFileSync(
-        join(__dirname, "__fixtures__/minimal.xml"),
-        join(rootInput, CONFIGURATION_XML_FILE)
-      )
+      fs.copyFileSync(join(__dirname, "__fixtures__/minimal.xml"), join(rootInput, CONFIGURATION_XML_FILE))
       fs.copyFileSync(
         join(rootCommandInterfaceFixturesDir, "CommandInterface.xml"),
         join(rootInput, "Ext", "CommandInterface.xml")
@@ -174,10 +168,7 @@ describe("sync configuration from xml", () => {
     const rootOutput = join(tmp, "yaml")
     try {
       fs.mkdirSync(join(rootInput, "Ext"), { recursive: true })
-      fs.copyFileSync(
-        join(__dirname, "__fixtures__/minimal.xml"),
-        join(rootInput, CONFIGURATION_XML_FILE)
-      )
+      fs.copyFileSync(join(__dirname, "__fixtures__/minimal.xml"), join(rootInput, CONFIGURATION_XML_FILE))
       fs.copyFileSync(
         join(clientApplicationInterfaceFixturesDir, "ClientApplicationInterface.xml"),
         join(rootInput, "Ext", "ClientApplicationInterface.xml")
@@ -206,10 +197,7 @@ describe("sync configuration from xml", () => {
     const rootOutput = join(tmp, "yaml")
     try {
       fs.mkdirSync(join(rootInput, "Ext"), { recursive: true })
-      fs.copyFileSync(
-        join(__dirname, "__fixtures__/minimal.xml"),
-        join(rootInput, CONFIGURATION_XML_FILE)
-      )
+      fs.copyFileSync(join(__dirname, "__fixtures__/minimal.xml"), join(rootInput, CONFIGURATION_XML_FILE))
       fs.writeFileSync(join(rootInput, "Ext", "HomePageWorkArea.xml"), homePageWorkAreaXML, "utf-8")
 
       await syncConfigurationFromXML({
@@ -244,10 +232,7 @@ describe("sync configuration from xml", () => {
       fs.mkdirSync(join(rootInput, "Ext", "Logo"), { recursive: true })
       fs.mkdirSync(join(rootInput, "Ext", "MainSectionPicture"), { recursive: true })
       fs.mkdirSync(join(rootInput, "Ext", "Splash"), { recursive: true })
-      fs.copyFileSync(
-        join(__dirname, "__fixtures__/minimal.xml"),
-        join(rootInput, CONFIGURATION_XML_FILE)
-      )
+      fs.copyFileSync(join(__dirname, "__fixtures__/minimal.xml"), join(rootInput, CONFIGURATION_XML_FILE))
       fs.writeFileSync(join(rootInput, "Ext", "ManagedApplicationModule.bsl"), managedApplicationModule, "utf-8")
       fs.writeFileSync(join(rootInput, "Ext", "SessionModule.bsl"), sessionModule, "utf-8")
       fs.writeFileSync(join(rootInput, "Ext", "ExternalConnectionModule.bsl"), externalConnectionModule, "utf-8")
@@ -300,10 +285,7 @@ describe("sync configuration from xml", () => {
     const rootInput = fs.mkdtempSync(join(os.tmpdir(), "configuration-xml-"))
     const outputDir = fs.mkdtempSync(join(os.tmpdir(), "configuration-yaml-"))
     try {
-      fs.copyFileSync(
-        new URL("__fixtures__/minimal.xml", import.meta.url),
-        join(rootInput, "Configuration.xml")
-      )
+      fs.copyFileSync(new URL("__fixtures__/minimal.xml", import.meta.url), join(rootInput, "Configuration.xml"))
       fs.mkdirSync(join(rootInput, "Ext"), { recursive: true })
       fs.writeFileSync(
         join(rootInput, "Ext", "ManagedApplicationModule.bsl"),

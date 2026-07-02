@@ -1,13 +1,13 @@
-import { I8nTextXML } from "~/metadata/commonObjects/i8nText/types"
+import { I8nTextXML } from "../i8nText/types"
 import {
   MetadataHTTPServiceMethods,
   MetadataHTTPServiceMethodsXML,
   MetadataHTTPServiceMethodsYAML,
-} from "~/metadata/commonObjects/metadataHTTPServiceMethod/types"
-import { MetadataNameYAML } from "~/metadata/commonObjects/metadataName/types"
-import { MetadataTypeByRule } from "~/metadata/orchestration/metadataItem/element"
-import { YAMLTypeByRule } from "~/metadata/orchestration/metadataItem/yaml"
-import * as SE from "~/metadata/systemEnumerations/types"
+} from "../metadataHTTPServiceMethod/types"
+import { MetadataNameYAML } from "../metadataName/types"
+import { MetadataTypeByRule } from "../../orchestration/metadataItem/element"
+import { YAMLTypeByRule } from "../../orchestration/metadataItem/yaml"
+import * as SE from "../../systemEnumerations/types"
 import { MetadataHTTPServiceURLTemplateRules } from "./rules"
 
 export type MetadataHTTPServiceURLTemplate = MetadataTypeByRule<typeof MetadataHTTPServiceURLTemplateRules>

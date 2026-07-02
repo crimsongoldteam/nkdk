@@ -1,12 +1,12 @@
-import { dcsLocalStringTypeRule } from "~/metadata/commonObjects/dataCompositionSystem/dcsLocalStringType/types"
-import { dcsMetadataTypedValueRule } from "~/metadata/commonObjects/dataCompositionSystem/dscMetadataTypedValue/types"
-import { filterItemRule } from "~/metadata/commonObjects/dataCompositionSystem/filter/builders"
-import { filterItemPresentationValueRule } from "~/metadata/commonObjects/dataCompositionSystem/filterItem/builders"
-import { userSettingsIDRule } from "~/metadata/commonObjects/userSettingsID/types"
-import { booleanRule } from "~/metadata/commonObjects/boolean/types"
-import { stringRule } from "~/metadata/commonObjects/string/types"
-import { systemEnumerationRule } from "~/metadata/systemEnumerations/types"
-import { MetadataItemRule } from "~/metadata/orchestration"
+import { dcsLocalStringTypeRule } from "../dcsLocalStringType/types"
+import { dcsMetadataTypedValueRule } from "../dscMetadataTypedValue/types"
+import { filterItemRule } from "../filter/builders"
+import { filterItemPresentationValueRule } from "./builders"
+import { userSettingsIDRule } from "../../userSettingsID/types"
+import { booleanRule } from "../../boolean/types"
+import { stringRule } from "../../string/types"
+import { systemEnumerationRule } from "../../../systemEnumerations/types"
+import { MetadataItemRule } from "../../../orchestration"
 export const FilterItemComparisonRules = {
   itemType: "FilterItemComparison",
   properties: {

@@ -1,5 +1,5 @@
 import { describe, expect, it } from "vitest"
-import type { MetadataItemRule } from "~/metadata/orchestration/property/types"
+import type { MetadataItemRule } from "../../../orchestration/property/types"
 import { remapReferenceModel } from "./referenceRemap"
 
 const rule = {} as MetadataItemRule
@@ -128,16 +128,11 @@ describe("remapReferenceModel", () => {
       currentModel,
       referenceModel,
       referencePathByCurrentPath: new Map([
-        [
-          "Задача.Исполнение.РеквизитАдресации.НовыйИсполнитель",
-          "Задача.Исполнение.РеквизитАдресации.Исполнитель",
-        ],
+        ["Задача.Исполнение.РеквизитАдресации.НовыйИсполнитель", "Задача.Исполнение.РеквизитАдресации.Исполнитель"],
       ]),
     })
 
-    expect(result?.addressingAttributes).toEqual([
-      { name: "НовыйИсполнитель", uuid: "addressing-attribute-old-uuid" },
-    ])
+    expect(result?.addressingAttributes).toEqual([{ name: "НовыйИсполнитель", uuid: "addressing-attribute-old-uuid" }])
     expect(referenceModel.addressingAttributes).toEqual([
       { name: "Исполнитель", uuid: "addressing-attribute-old-uuid" },
     ])

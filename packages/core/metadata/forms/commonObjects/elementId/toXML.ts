@@ -1,5 +1,5 @@
-import { ExportToXMLFunctionNew, registerTypeRule } from "~/metadata/orchestration"
-import { ElementXMLWithoutId } from "~/metadata/orchestration/formElement/types"
+import { ExportToXMLFunctionNew, registerTypeRule } from "../../../orchestration"
+import { ElementXMLWithoutId } from "../../../orchestration/formElement/types"
 
 export const exportElementIdToXML: ExportToXMLFunctionNew = (params): undefined => {
   const { context, metadataItem, referenceMetadata } = params

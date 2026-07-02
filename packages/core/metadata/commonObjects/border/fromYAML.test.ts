@@ -1,5 +1,5 @@
 import { describe, expect, it } from "vitest"
-import { borderTestCases } from "~/metadata/commonObjects/border/__fixtures__/data"
+import { borderTestCases } from "./__fixtures__/data"
 import { mockContext, mockRule } from "../../../tests/mockContext"
 import { importBorderFromYAML } from "./fromYAML"
 

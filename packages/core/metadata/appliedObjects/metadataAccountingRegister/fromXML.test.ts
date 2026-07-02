@@ -1,8 +1,8 @@
 import { describe, expect, it } from "vitest"
-import { testExportAppliedObjectToXML, testImportAppliedObjectFromXML } from "~/tests/appliedObject"
-import { accountingExtDimensions } from "~/metadata/commonObjects/standardAttributeDescription/__fixtures__/data"
-import { PropertyRule } from "~/metadata/orchestration"
-import { testImportPropertyFromXML } from "~/tests/property/importPropertyFromXML"
+import { testExportAppliedObjectToXML, testImportAppliedObjectFromXML } from "../../../tests/appliedObject"
+import { accountingExtDimensions } from "../../commonObjects/standardAttributeDescription/__fixtures__/data"
+import { PropertyRule } from "../../orchestration"
+import { testImportPropertyFromXML } from "../../../tests/property/importPropertyFromXML"
 import { MetadataAccountingRegisterRules, MetadataAccountingRegisterStandardAttributeNames } from "./rules"
 import { MetadataAccountingRegister } from "./types"
 
@@ -35,8 +35,14 @@ describe("import MetadataAccountingRegister from XML", () => {
       "ИзмерениеВсеСвойства",
       "ИспользоватьХранилищеДвоичныхДанных",
     ])
-    expect(result?.resources?.map(({ name }: { name: string }) => name)).toEqual(["РесурсВсеСвойства", "ИзмерениеИндексировать"])
-    expect(result?.attributes?.map(({ name }: { name: string }) => name)).toEqual(["РеквизитВсеСвойства", "РеквизитПоУмолчанию"])
+    expect(result?.resources?.map(({ name }: { name: string }) => name)).toEqual([
+      "РесурсВсеСвойства",
+      "ИзмерениеИндексировать",
+    ])
+    expect(result?.attributes?.map(({ name }: { name: string }) => name)).toEqual([
+      "РеквизитВсеСвойства",
+      "РеквизитПоУмолчанию",
+    ])
     expect(result?.commands?.map(({ name }: { name: string }) => name)).toEqual(["Команда1"])
   })
 

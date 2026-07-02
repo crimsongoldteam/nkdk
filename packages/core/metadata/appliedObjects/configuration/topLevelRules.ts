@@ -1,4 +1,4 @@
-import type { MetadataItemRule } from "~/metadata/orchestration/property/types"
+import type { MetadataItemRule } from "../../orchestration/property/types"
 import { MetadataBotRules } from "../metadataBot/rules"
 import { MetadataCatalogRules } from "../metadataCatalog/rules"
 import { MetadataCommonAttributeRules } from "../metadataCommonAttribute/rules"

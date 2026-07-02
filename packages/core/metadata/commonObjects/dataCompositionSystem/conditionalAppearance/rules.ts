@@ -1,9 +1,9 @@
-import { conditionalAppearanceItemsRule } from "~/metadata/commonObjects/dataCompositionSystem/conditionalAppearance/builders"
-import { dcsLocalStringTypeRule } from "~/metadata/commonObjects/dataCompositionSystem/dcsLocalStringType/types"
-import { userSettingsIDRule } from "~/metadata/commonObjects/userSettingsID/types"
-import { systemEnumerationRule } from "~/metadata/systemEnumerations/types"
-import { MetadataItemRule } from "~/metadata/orchestration"
-import type { TypeRulesOperations } from "~/metadata/orchestration/property/fn"
+import { conditionalAppearanceItemsRule } from "./builders"
+import { dcsLocalStringTypeRule } from "../dcsLocalStringType/types"
+import { userSettingsIDRule } from "../../userSettingsID/types"
+import { systemEnumerationRule } from "../../../systemEnumerations/types"
+import { MetadataItemRule } from "../../../orchestration"
+import type { TypeRulesOperations } from "../../../orchestration/property/fn"
 const conditionalAppearanceViewModeDefaultValue = ({ operation }: { operation: TypeRulesOperations }) =>
   operation === "importFromYAML" ? undefined : "QuickAccess"
 export const ConditionalAppearanceRules = {

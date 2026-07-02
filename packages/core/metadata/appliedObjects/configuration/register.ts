@@ -1,16 +1,16 @@
-import { registerProjectSpec } from "~/metadata/project/projectSpecRegistry"
-import { registerProjectJSONSchema } from "~/metadata/project/schemaRegistry"
+import { registerProjectSpec } from "../../project/projectSpecRegistry"
+import { registerProjectJSONSchema } from "../../project/schemaRegistry"
 import { join } from "path"
 import {
   createGenericProjectImportModel,
   createMetadataItemProjectSchemaExporter,
-} from "~/metadata/project/projectSpecHelpers"
-import { exportMetadataItemToJSONSchema } from "~/metadata/orchestration/metadataItem/toJSONSchema"
+} from "../../project/projectSpecHelpers"
+import { exportMetadataItemToJSONSchema } from "../../orchestration/metadataItem/toJSONSchema"
 import {
   registerProjectFileValidator,
-  registerProjectObjectPathResolver,
-  registerProjectValueResolver,
-} from "~/metadata/validation/projectMetadataResolverRegistry"
+  registerProjectReferenceObjectPathContributor,
+  registerProjectReferenceValueContributor,
+} from "../../validation/projectReferenceIndexRegistry"
 import { MetadataSubsystemRules } from "../metadataSubsystem/rules"
 import { MetadataConfigurationRules } from "./rules"
 import { TopLevelMetadataItemRules } from "./topLevelRules"
@@ -59,11 +59,11 @@ for (const rule of TopLevelMetadataItemRules) {
   registerProjectJSONSchema(rule.itemType, ({ context }) => exportMetadataItemToJSONSchema({ context, rule }))
   const owner = rule.metadataTargetOwner
   if (owner?.kind === "self" && !specialObjectPathProjectSpecDirs.has(dir)) {
-    registerProjectObjectPathResolver(owner.root, ({ projectDir, target }) => ({
+    registerProjectReferenceObjectPathContributor(owner.root, ({ projectDir, target }) => ({
       filePath: join(projectDir, dir, target.objectName, "Свойства.yaml"),
     }))
     if (predefinedValueRoots.has(owner.root)) {
-      registerProjectValueResolver(owner.root, ({ owner, target }) => {
+      registerProjectReferenceValueContributor(owner.root, ({ owner, target }) => {
         if (target.valueKind === "emptyRef") return undefined
         const values = metadataRecord(owner.model).predefined
         return hasNamedItem(values, target.valueName) ? { ok: true, filePath: owner.filePath } : undefined
@@ -98,7 +98,9 @@ function hasNamedItem(value: unknown, name: string): boolean {
   if (record.name === name) return true
   if (Object.prototype.hasOwnProperty.call(record, name)) return true
 
-  return hasNamedItem(record.items, name) || hasNamedItem(record.childItems, name) || hasNamedItem(record.enumValues, name)
+  return (
+    hasNamedItem(record.items, name) || hasNamedItem(record.childItems, name) || hasNamedItem(record.enumValues, name)
+  )
 }
 
 function metadataRecord(value: unknown): Record<string, unknown> {

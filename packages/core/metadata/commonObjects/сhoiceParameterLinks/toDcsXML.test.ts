@@ -1,8 +1,8 @@
 import { describe, expect, it } from "vitest"
-import { singleChoiceParameterLinks } from "~/metadata/commonObjects/сhoiceParameterLinks/__fixtures__/single"
-import { mockContext, mockRule } from "~/tests/mockContext"
-import { readXMLFixtureAsString } from "~/tests/readFixtureXML"
-import { xmlExport } from "~/xml/export/exporter"
+import { singleChoiceParameterLinks } from "./__fixtures__/single"
+import { mockContext, mockRule } from "../../../tests/mockContext"
+import { readXMLFixtureAsString } from "../../../tests/readFixtureXML"
+import { xmlExport } from "../../../xml/export/exporter"
 import { exportChoiceParameterLinkToDcsXML } from "./toDcsXML"
 
 describe("exportChoiceParameterLinkToDcsXML", () => {

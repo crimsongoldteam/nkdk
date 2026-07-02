@@ -1,10 +1,10 @@
-import { metadataItemLinksRule } from "~/metadata/commonObjects/metadataPath/types"
-import { typeDescriptionRule } from "~/metadata/commonObjects/typeDescription/types"
-import { i8nTextRule } from "~/metadata/commonObjects/i8nText/types"
-import { stringRule } from "~/metadata/commonObjects/string/types"
-import { systemEnumerationRule } from "~/metadata/systemEnumerations/types"
-import { uuidPropertyRule } from "~/metadata/commonObjects/uuid/rule"
-import { MetadataItemRule } from "~/metadata/orchestration/property/types"
+import { metadataItemLinksRule } from "../metadataPath/types"
+import { typeDescriptionRule } from "../typeDescription/types"
+import { i8nTextRule } from "../i8nText/types"
+import { stringRule } from "../string/types"
+import { systemEnumerationRule } from "../../systemEnumerations/types"
+import { uuidPropertyRule } from "../uuid/rule"
+import type { MetadataItemRule } from "../../orchestration/property/types"
 export const MetadataDocumentJournalColumnRules = {
   itemType: "MetadataDocumentJournalColumn",
   properties: {

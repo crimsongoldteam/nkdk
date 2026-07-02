@@ -1,8 +1,8 @@
 import { describe, expect, it } from "vitest"
-import { pictureTestCases } from "~/metadata/commonObjects/picture/__fixtures__/data"
-import { mockContext, mockRule } from "~/tests/mockContext"
-import { readXMLFileAsString } from "~/tests/readAndParseXMLFile"
-import { xmlExport } from "~/xml/export/exporter"
+import { pictureTestCases } from "./__fixtures__/data"
+import { mockContext, mockRule } from "../../../tests/mockContext"
+import { readXMLFileAsString } from "../../../tests/readAndParseXMLFile"
+import { xmlExport } from "../../../xml/export/exporter"
 import { exportPictureToXML } from "./toXML"
 
 describe("exportPictureToXML", () => {

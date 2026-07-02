@@ -1,6 +1,6 @@
 import { describe, expect, it } from "vitest"
-import { exportMetadataItemToXML } from "~/metadata/orchestration"
-import { mockContext, mockContextFromXML, mockContextToXML } from "~/tests/mockContext"
+import { exportMetadataItemToXML } from "../../orchestration"
+import { mockContext, mockContextFromXML, mockContextToXML } from "../../../tests/mockContext"
 import { MetadataConfigurationRules } from "./rules"
 import type { MetadataConfiguration } from "./types"
 import {
@@ -33,11 +33,7 @@ const yamlDifferences: UsedMobileApplicationFunctionalitiesYAML = [
 
 describe("UsedMobileApplicationFunctionalities", () => {
   it("imports clean XML default as undefined", () => {
-    const result = importUsedMobileApplicationFunctionalitiesFromXML(
-      mockContext,
-      undefined,
-      cleanDefaultXML()
-    )
+    const result = importUsedMobileApplicationFunctionalitiesFromXML(mockContext, undefined, cleanDefaultXML())
 
     expect(result).toBeUndefined()
   })
@@ -110,21 +106,13 @@ describe("UsedMobileApplicationFunctionalities", () => {
   })
 
   it("exports YAML differences with Russian boolean values", () => {
-    const result = exportUsedMobileApplicationFunctionalitiesToYAML(
-      mockContext,
-      undefined,
-      modelWithDifferences()
-    )
+    const result = exportUsedMobileApplicationFunctionalitiesToYAML(mockContext, undefined, modelWithDifferences())
 
     expect(result).toEqual(yamlDifferences)
   })
 
   it("imports YAML differences into full model merged with clean default", () => {
-    const result = importUsedMobileApplicationFunctionalitiesFromYAML(
-      mockContext,
-      undefined,
-      yamlDifferences
-    )
+    const result = importUsedMobileApplicationFunctionalitiesFromYAML(mockContext, undefined, yamlDifferences)
 
     expect(result).toEqual(modelWithDifferences())
     expect(result?.find((item) => item.functionality === "OSBackup")).toEqual({

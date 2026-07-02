@@ -1,5 +1,5 @@
 import { describe, expect, it } from "vitest"
-import type { MetadataItemRule } from "~/metadata/orchestration/property/types"
+import type { MetadataItemRule } from "../orchestration/property/types"
 import { createValidationYamlQueue } from "./projectValidationQueue"
 import type { ValidationProjectFile } from "./projectFiles"
 import type { ValidationProjectSpec } from "./projectSpecs"

@@ -1,4 +1,4 @@
-import type { CalculatedField, CalculatedFieldYAML } from "~/metadata/commonObjects/dataCompositionSystem/calculatedField/types"
+import type { CalculatedField, CalculatedFieldYAML } from "../../calculatedField/types"
 
 export const calculatedFields = [
   {

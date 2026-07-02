@@ -1,7 +1,7 @@
-import { ConfigurationContext } from "~/metadata/context/types"
-import { addDefaultLanguageNameToSynonym } from "~/metadata/helpers/synonymHelpers"
-import { ImportFromYAMLFunctionNew, PropertyRule } from "~/metadata/orchestration"
-import { registerTypeRule } from "~/metadata/orchestration/property/typeRuleRegistry"
+import { ConfigurationContext } from "../../context/types"
+import { addDefaultLanguageNameToSynonym } from "../../helpers/synonymHelpers"
+import { ImportFromYAMLFunctionNew, PropertyRule } from "../../orchestration"
+import { registerTypeRule } from "../../orchestration/property/typeRuleRegistry"
 import { I8nText, I8nTextPropertyRule, I8nTextYAML } from "./types"
 
 export const importI8nTextFromYAML: ImportFromYAMLFunctionNew = (params: {

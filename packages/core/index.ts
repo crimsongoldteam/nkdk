@@ -35,7 +35,11 @@ export {
   writeAppliedMigrationsState,
   writeMigrationFile,
 } from "./metadata/appliedObjects/configuration/migrations"
-export type { MigrationConflict, MigrationEntry, StructuralState } from "./metadata/appliedObjects/configuration/migrations"
+export type {
+  MigrationConflict,
+  MigrationEntry,
+  StructuralState,
+} from "./metadata/appliedObjects/configuration/migrations"
 export {
   exportMetadataCatalogToJSONSchema,
   exportMetadataCatalogToYAML,
@@ -63,6 +67,10 @@ export { xmlExport } from "./xml/export/exporter"
 export { importContentFromXML } from "./xml/import/importer"
 export { exportToYAML } from "./yaml/export"
 export { importFromYAML } from "./yaml/import"
+export { parseWithJsYaml } from "./yaml/jsYamlParser"
+export type { JsParsedYaml, JsYamlSyntaxError } from "./yaml/jsYamlParser"
+export { buildYamlLocationIndex } from "./yaml/locationIndex"
+export type { YamlLocationIndex, YamlPath, YamlPosition } from "./yaml/locationIndex"
 export { parseMetadataYaml } from "./yaml/parseMetadataYaml"
 export type { ParsedYaml } from "./yaml/parseMetadataYaml"
 export { importMetadataEnumerationFromYAML } from "./metadata/appliedObjects/metadataEnumeration/fromYAML"

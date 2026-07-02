@@ -1,7 +1,7 @@
-import { ConfigurationContext } from "~/metadata/context/types"
-import { PropertyRule } from "~/metadata/forms/elements/calendarField/rules"
-import { importMetadataItemFromYAML, registerTypeRule } from "~/metadata/orchestration"
-import "~/metadata/forms/commonObjects/dynamicList/types"
+import { ConfigurationContext } from "../../../context/types"
+import { PropertyRule } from "../../elements/calendarField/rules"
+import { importMetadataItemFromYAML, registerTypeRule } from "../../../orchestration"
+import "../dynamicList/types"
 import { FormAttributeColumnRules, FormAttributeRules } from "./rules"
 import {
   FormAttribute,

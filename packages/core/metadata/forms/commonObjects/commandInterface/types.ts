@@ -1,14 +1,15 @@
 import {
   definePropertyRule as defineWidePropertyRule,
   type ExactRuleParams as WideExactRuleParams,
-} from "~/metadata/commonObjects/ruleBuilder"
-import type { PropertyRule as WidePropertyRuleBase } from "~/metadata/orchestration/property/types"
-import { Static, Type } from "@sinclair/typebox"
-import { StringboolXML } from "~/metadata/commonObjects/boolean/types"
-import { DataPath, DataPathXML, DataPathYAML } from "~/metadata/forms/commonObjects/dataPath/types"
-import { UserVisible, UserVisibleJSONSchema, UserVisibleXML } from "~/metadata/commonObjects/userVisible/types"
-import { MetadataItem } from "~/metadata/orchestration"
-import * as SE from "~/metadata/systemEnumerations/types"
+} from "../../../commonObjects/ruleBuilder"
+import type { PropertyRule as WidePropertyRuleBase } from "../../../orchestration/property/types"
+import { Type } from "@sinclair/typebox"
+import type { Static } from "@sinclair/typebox"
+import { StringboolXML } from "../../../commonObjects/boolean/types"
+import { DataPath, DataPathXML, DataPathYAML } from "../dataPath/types"
+import { UserVisible, UserVisibleJSONSchema, UserVisibleXML } from "../../../commonObjects/userVisible/types"
+import { MetadataItem } from "../../../orchestration"
+import * as SE from "../../../systemEnumerations/types"
 
 type RawCommandGroup = string
 

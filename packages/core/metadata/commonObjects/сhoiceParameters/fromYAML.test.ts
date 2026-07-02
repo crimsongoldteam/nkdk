@@ -25,9 +25,9 @@ import {
   withoutOneValueChoiceParametersYAML,
   withoutValueChoiceParameter,
   withoutValueChoiceParametersYAML,
-} from "~/metadata/commonObjects/сhoiceParameters/__fixtures__/data"
-import { mockContext, mockRule } from "~/tests/mockContext"
-import { importFromYAML } from "~/yaml/import"
+} from "./__fixtures__/data"
+import { mockContext, mockRule } from "../../../tests/mockContext"
+import { importFromYAML } from "../../../yaml/import"
 import { importChoiceParametersFromYAML } from "./fromYAML"
 import type { ChoiceParametersYAML } from "./types"
 

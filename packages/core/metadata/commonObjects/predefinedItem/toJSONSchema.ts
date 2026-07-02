@@ -1,8 +1,8 @@
 import { TSchema, Type } from "@sinclair/typebox"
-import { PredefinedCodeJSONSchema } from "~/metadata/commonObjects/predefinedCode/types"
-import { ConfigurationContext } from "~/metadata/context/types"
-import { exportPropertyToJSONSchema } from "~/metadata/orchestration/property/toJSONSchema"
-import { registerTypeRule } from "~/metadata/orchestration/property/typeRuleRegistry"
+import { PredefinedCodeJSONSchema } from "../predefinedCode/types"
+import { ConfigurationContext } from "../../context/types"
+import { exportPropertyToJSONSchema } from "../../orchestration/property/toJSONSchema"
+import { registerTypeRule } from "../../orchestration/property/typeRuleRegistry"
 import { PredefinedItemRules } from "./rules"
 
 export const exportPredefinedItemCollectionToJSONSchema = (context: ConfigurationContext): TSchema => {

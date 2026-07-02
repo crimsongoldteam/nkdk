@@ -1,15 +1,11 @@
-import {
-  ProgressBarField,
-  ProgressBarFieldEnterprise,
-  ProgressBarFieldPartialYAML,
-} from "~/metadata/forms/elements/progressBarField/types"
+import { ProgressBarField, ProgressBarFieldEnterprise, ProgressBarFieldPartialYAML } from "../types"
 
 import {
   fullFormFieldCommonFixture,
   fullFormFieldEnterpriseCommonFixture,
   fullFormFieldPartialYAMLCommonFixture,
-} from "~/metadata/forms/elements/__fixtures__/formField/rules"
-import { RequiredFieldsElement } from "~/tests/types"
+} from "../../__fixtures__/formField/rules"
+import { RequiredFieldsElement } from "../../../../../tests/types"
 
 export const fullProgressBarField = {
   itemType: "ProgressBarField",

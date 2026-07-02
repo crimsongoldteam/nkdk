@@ -6,7 +6,7 @@ import {
   minimalFromXML,
   multipleFromXML,
 } from "./__fixtures__/data"
-import { testImportPropertyFromXML } from "~/tests/property/importPropertyFromXML"
+import { testImportPropertyFromXML } from "../../../tests/property/importPropertyFromXML"
 
 const rule = { type: "MetadataAttributes", xml: "Attribute" } as const
 

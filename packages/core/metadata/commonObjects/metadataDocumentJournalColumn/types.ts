@@ -1,9 +1,9 @@
-import { I8nTextXML, I8nTextYAML } from "~/metadata/commonObjects/i8nText/types"
-import { MetadataNameYAML } from "~/metadata/commonObjects/metadataName/types"
-import { MetadataItemLinksXML, MetadataItemLinksYAML } from "~/metadata/commonObjects/metadataRef/types"
-import { TypeDescriptionXML, TypeDescriptionYAML } from "~/metadata/commonObjects/typeDescription/types"
-import { MetadataTypeByRule } from "~/metadata/orchestration/metadataItem/element"
-import * as SE from "~/metadata/systemEnumerations/types"
+import { I8nTextXML, I8nTextYAML } from "../i8nText/types"
+import { MetadataNameYAML } from "../metadataName/types"
+import { MetadataItemLinksXML, MetadataItemLinksYAML } from "../metadataRef/types"
+import { TypeDescriptionXML, TypeDescriptionYAML } from "../typeDescription/types"
+import { MetadataTypeByRule } from "../../orchestration/metadataItem/element"
+import * as SE from "../../systemEnumerations/types"
 import { MetadataDocumentJournalColumnRules } from "./rules"
 
 export type MetadataDocumentJournalColumn = MetadataTypeByRule<typeof MetadataDocumentJournalColumnRules>

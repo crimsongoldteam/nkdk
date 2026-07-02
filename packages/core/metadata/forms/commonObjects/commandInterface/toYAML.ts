@@ -1,8 +1,8 @@
-import { exportUserVisibleToYAML } from "~/metadata/commonObjects/userVisible/toYAML"
-import { UserVisibleKeysYAML } from "~/metadata/commonObjects/userVisible/types"
-import { registerTypeRule } from "~/metadata/orchestration/property/typeRuleRegistry"
-import { StandardCommandsGroupToYAML } from "~/metadata/systemEnumerations/types"
-import type { StandardCommandsGroup } from "~/metadata/systemEnumerations/types"
+import { exportUserVisibleToYAML } from "../../../commonObjects/userVisible/toYAML"
+import { UserVisibleKeysYAML } from "../../../commonObjects/userVisible/types"
+import { registerTypeRule } from "../../../orchestration/property/typeRuleRegistry"
+import { StandardCommandsGroupToYAML } from "../../../systemEnumerations/types"
+import type { StandardCommandsGroup } from "../../../systemEnumerations/types"
 import { ConfigurationContext } from "../../../context/types"
 import { PropertyRule } from "../../elements/calendarField/rules"
 import { CommandInterface, CommandInterfaceItem, CommandInterfaceItemYAML, CommandInterfaceYAML } from "./types"
@@ -64,7 +64,11 @@ const exportCommandInterfaceItemToYAML = (
   }
 
   if (item.visible) {
-    const visibleYAML = exportUserVisibleToYAML(context, { type: "UserVisible", yaml: UserVisibleKeysYAML.Value }, item.visible)
+    const visibleYAML = exportUserVisibleToYAML(
+      context,
+      { type: "UserVisible", yaml: UserVisibleKeysYAML.Value },
+      item.visible
+    )
     if (visibleYAML) {
       Object.assign(result, visibleYAML)
     }

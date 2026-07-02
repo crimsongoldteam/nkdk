@@ -1,16 +1,16 @@
-import { MetadataTabularSectionRules } from "~/metadata/commonObjects/metadataTabularSection/rules"
-import { StandartAttributeNameToYAML } from "~/metadata/commonObjects/standardAttributeDescription/standartAttributeNames"
-import type { TypeDescription } from "~/metadata/commonObjects/typeDescription/types"
-import type { MetadataItem, PropertyRule, StandardAttributeDescriptionsPropertyRule } from "~/metadata/orchestration/property/types"
+import { MetadataTabularSectionRules } from "../../commonObjects/metadataTabularSection/rules"
+import { StandartAttributeNameToYAML } from "../../commonObjects/standardAttributeDescription/standartAttributeNames"
+import type { TypeDescription } from "../../commonObjects/typeDescription/types"
+import type {
+  MetadataItem,
+  PropertyRule,
+  StandardAttributeDescriptionsPropertyRule,
+} from "../../orchestration/property/types"
 import type { Diagnostic } from "../types"
 import type { OwnerMetadata } from "./ownerCache"
 import { getObjectFieldCollectionDescriptors, resolveStandardAttributeType } from "./registry"
 import { typeDescriptionToDataPathTypeInfo } from "./typeDescription"
-import {
-  type DataPathTableInfo,
-  type DataPathTypeInfo,
-  unknownDataPathTypeInfo,
-} from "./types"
+import { type DataPathTableInfo, type DataPathTypeInfo, unknownDataPathTypeInfo } from "./types"
 
 export type ObjectFieldKind =
   | "attribute"
@@ -22,6 +22,7 @@ export type ObjectFieldKind =
 
 export interface ObjectField {
   name: string
+  targetName?: string
   kind: ObjectFieldKind
   typeInfo: DataPathTypeInfo
   tableSource?: ObjectFieldTableSource
@@ -70,8 +71,12 @@ export function getObjectField(params: { index: ObjectFieldIndex; name: string }
   return params.index.fields.get(params.name)
 }
 
-export function resolveObjectFieldSegment(params: { index: ObjectFieldIndex; segment: string }): ObjectField | undefined {
-  const alias = params.index.standardAttributeAliases.get(params.segment) ?? standardAttributeAliasToYAML(params.segment)
+export function resolveObjectFieldSegment(params: {
+  index: ObjectFieldIndex
+  segment: string
+}): ObjectField | undefined {
+  const alias =
+    params.index.standardAttributeAliases.get(params.segment) ?? standardAttributeAliasToYAML(params.segment)
   if (alias !== undefined) return params.index.fields.get(alias) ?? params.index.fields.get(params.segment)
   return params.index.fields.get(params.segment)
 }
@@ -123,6 +128,7 @@ function addStandardAttributeFields(params: {
     standardAttributeAliases.set(internalName, yamlName)
     fields.set(yamlName, {
       name: yamlName,
+      targetName: internalName,
       kind: "standardAttribute",
       sourceCollection,
       typeInfo: standardAttributeTypeInfo({ owner, internalName, yamlName, explicit }),
@@ -133,7 +139,7 @@ function addStandardAttributeFields(params: {
 function buildTabularSectionField(
   owner: ObjectFieldIndexOwner,
   tabularSection: NamedTypedItem,
-  sourceCollection: string,
+  sourceCollection: string
 ): ObjectField {
   const table: DataPathTableInfo = {
     kind: "TabularSection",
@@ -188,9 +194,8 @@ function standardAttributeTypeInfo(params: {
   yamlName: string
   explicit: NamedTypedItem | undefined
 }): DataPathTypeInfo {
-  const explicitTypeInfo = params.explicit?.type === undefined
-    ? undefined
-    : typeDescriptionToDataPathTypeInfo(params.explicit.type)
+  const explicitTypeInfo =
+    params.explicit?.type === undefined ? undefined : typeDescriptionToDataPathTypeInfo(params.explicit.type)
   return (
     resolveStandardAttributeType({
       owner: params.owner as OwnerMetadata,
@@ -203,7 +208,11 @@ function standardAttributeTypeInfo(params: {
 
 function standardAttributesByInternalName(value: unknown): Map<string, NamedTypedItem> {
   const items = getNamedItems(value)
-  return new Map(items.filter((item): item is NamedTypedItem & { name: string } => typeof item.name === "string").map((item) => [item.name, item]))
+  return new Map(
+    items
+      .filter((item): item is NamedTypedItem & { name: string } => typeof item.name === "string")
+      .map((item) => [item.name, item])
+  )
 }
 
 function getNamedItems(value: unknown): NamedTypedItem[] {

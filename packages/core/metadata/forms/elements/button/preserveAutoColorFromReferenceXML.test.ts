@@ -1,7 +1,7 @@
 import { describe, expect, it } from "vitest"
-import { importPropertiesFromXML } from "~/metadata/orchestration/property/fromXML"
-import { exportPropertiesToXML } from "~/metadata/orchestration/property/toXML"
-import { mockContextFromXML, mockContextToXML } from "~/tests/mockContext"
+import { importPropertiesFromXML } from "../../../orchestration/property/fromXML"
+import { exportPropertiesToXML } from "../../../orchestration/property/toXML"
+import { mockContextFromXML, mockContextToXML } from "../../../../tests/mockContext"
 import { ButtonRules } from "./rules"
 import type { Button } from "./types"
 

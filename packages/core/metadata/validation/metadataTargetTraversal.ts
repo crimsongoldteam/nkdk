@@ -1,34 +1,40 @@
-import { getTypeRule } from "~/metadata/orchestration/property/typeRuleRegistry"
-import type { MetadataTargetOwner } from "~/metadata/commonObjects/metadataTargets"
-import type { MetadataItem, MetadataItemRule } from "~/metadata/orchestration/property/types"
-import type { ParsedYaml } from "~/yaml/parseMetadataYaml"
-import type { ProjectMetadataResolver } from "./projectMetadataResolver"
+import { getTypeRule } from "../orchestration/property/typeRuleRegistry"
+import type { MetadataTargetOwner } from "../commonObjects/metadataTargets"
+import type { PendingMetadataTargetReferenceCandidate } from "../orchestration/property/fn"
+import type { MetadataItem, MetadataItemRule } from "../orchestration/property/types"
+import type { ParsedYaml } from "../../yaml/parseMetadataYaml"
+import type { PendingMetadataTargetReference } from "./projectMetadataReferences"
 import type { Diagnostic } from "./types"
 import type { YamlPath } from "./yamlLocations"
 
-export interface ValidateMetadataTargetsInModelParams {
+export interface CollectMetadataTargetReferencesInModelParams {
   filePath: string
   parsed: ParsedYaml
   model: MetadataItem
   rule: MetadataItemRule
-  resolver: ProjectMetadataResolver
   owner?: MetadataTargetOwner
 }
 
-export function validateMetadataTargetsInModel(params: ValidateMetadataTargetsInModelParams): Diagnostic[] {
-  return validateObject({
+export function collectMetadataTargetReferencesInModel(
+  params: CollectMetadataTargetReferencesInModelParams
+): {
+  references: PendingMetadataTargetReference[]
+  diagnostics: Diagnostic[]
+} {
+  return collectObjectReferences({
     ...params,
     value: params.model,
     yamlPath: [],
   })
 }
 
-function validateObject(
-  params: ValidateMetadataTargetsInModelParams & { value: unknown; yamlPath: YamlPath },
-): Diagnostic[] {
+function collectObjectReferences(
+  params: CollectMetadataTargetReferencesInModelParams & { value: unknown; yamlPath: YamlPath }
+): { references: PendingMetadataTargetReference[]; diagnostics: Diagnostic[] } {
   const record = asRecord(params.value)
-  if (!record) return []
+  if (!record) return { references: [], diagnostics: [] }
 
+  const references: PendingMetadataTargetReference[] = []
   const diagnostics: Diagnostic[] = []
   for (const [propertyName, propRule] of Object.entries(params.rule.properties)) {
     if (typeof propRule.yaml !== "string") continue
@@ -37,68 +43,96 @@ function validateObject(
     if (value === undefined) continue
 
     if (propRule.metadataTarget) {
-      const handler = getTypeRule(propRule.type, "validateMetadataTarget")
+      const handler = getTypeRule(propRule.type, "collectMetadataTargetReferences")
       if (handler) {
-        diagnostics.push(
-          ...handler({
-            filePath: params.filePath,
-            parsed: params.parsed,
-            yamlPath: [...params.yamlPath, propRule.yaml],
-            propRule,
-            propertyName,
-            value,
-            resolver: params.resolver,
-            owner: params.owner,
-          }),
+        const result = handler({
+          filePath: params.filePath,
+          parsed: params.parsed,
+          yamlPath: [...params.yamlPath, propRule.yaml],
+          propRule,
+          propertyName,
+          value,
+          owner: params.owner,
+        })
+        references.push(
+          ...result.references.map((reference) =>
+            pendingReferenceFromCandidate({
+              filePath: params.filePath,
+              candidate: reference,
+            })
+          )
         )
+        diagnostics.push(...result.diagnostics)
       }
     }
 
     const itemRule = nestedItemRule(propRule)
     if (!itemRule) continue
 
-    diagnostics.push(
-      ...validateNestedItems({
-        ...params,
-        value,
-        itemRule,
-        yamlPath: [...params.yamlPath, propRule.yaml],
-      }),
-    )
+    const nested = collectNestedReferences({
+      ...params,
+      value,
+      itemRule,
+      yamlPath: [...params.yamlPath, propRule.yaml],
+    })
+    references.push(...nested.references)
+    diagnostics.push(...nested.diagnostics)
   }
 
-  return diagnostics
+  return { references, diagnostics }
 }
 
-function validateNestedItems(
-  params: ValidateMetadataTargetsInModelParams & {
+function collectNestedReferences(
+  params: CollectMetadataTargetReferencesInModelParams & {
     value: unknown
     itemRule: MetadataItemRule
     yamlPath: YamlPath
-  },
-): Diagnostic[] {
+  }
+): { references: PendingMetadataTargetReference[]; diagnostics: Diagnostic[] } {
+  const references: PendingMetadataTargetReference[] = []
+  const diagnostics: Diagnostic[] = []
+
   if (Array.isArray(params.value)) {
-    return params.value.flatMap((item, index) =>
-      validateObject({
+    for (const [index, item] of params.value.entries()) {
+      const nested = collectObjectReferences({
         ...params,
         value: item,
         rule: params.itemRule,
         yamlPath: [...params.yamlPath, nestedItemPathSegment(item, index)],
-      }),
-    )
+      })
+      references.push(...nested.references)
+      diagnostics.push(...nested.diagnostics)
+    }
+    return { references, diagnostics }
   }
 
   const record = asRecord(params.value)
-  if (!record) return []
+  if (!record) return { references: [], diagnostics: [] }
 
-  return Object.entries(record).flatMap(([key, item]) =>
-    validateObject({
+  for (const [key, item] of Object.entries(record)) {
+    const nested = collectObjectReferences({
       ...params,
       value: item,
       rule: params.itemRule,
       yamlPath: [...params.yamlPath, key],
-    }),
-  )
+    })
+    references.push(...nested.references)
+    diagnostics.push(...nested.diagnostics)
+  }
+  return { references, diagnostics }
+}
+
+function pendingReferenceFromCandidate(params: {
+  filePath: string
+  candidate: PendingMetadataTargetReferenceCandidate
+}): PendingMetadataTargetReference {
+  return {
+    filePath: params.filePath,
+    yamlPath: params.candidate.yamlPath,
+    canonical: params.candidate.canonical,
+    target: params.candidate.target,
+    constraint: params.candidate.constraint,
+  }
 }
 
 function nestedItemRule(propRule: MetadataItemRule["properties"][string]): MetadataItemRule | undefined {

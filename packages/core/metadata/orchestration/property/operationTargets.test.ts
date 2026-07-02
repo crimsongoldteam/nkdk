@@ -3,12 +3,14 @@ import { fileItemCollectionTarget, namedCollectionTarget } from "./operationTarg
 
 describe("operation target declarations", () => {
   it("creates named collection target declarations", () => {
-    expect(namedCollectionTarget({ kind: "attribute", migrationSegment: "Реквизит", requiresMigration: true })).toEqual({
-      kind: "namedCollectionTarget",
-      targetKind: "attribute",
-      migrationSegment: "Реквизит",
-      requiresMigration: true,
-    })
+    expect(namedCollectionTarget({ kind: "attribute", migrationSegment: "Реквизит", requiresMigration: true })).toEqual(
+      {
+        kind: "namedCollectionTarget",
+        targetKind: "attribute",
+        migrationSegment: "Реквизит",
+        requiresMigration: true,
+      }
+    )
   })
 
   it("creates file item target declarations", () => {
@@ -18,7 +20,7 @@ describe("operation target declarations", () => {
         migrationSegment: "Форма",
         folderName: "Формы",
         yamlFileName: "Форма.yaml",
-      }),
+      })
     ).toEqual({
       kind: "fileItemCollectionTarget",
       role: "form",

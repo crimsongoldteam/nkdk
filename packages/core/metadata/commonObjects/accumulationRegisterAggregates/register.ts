@@ -1,15 +1,15 @@
 import { Type } from "@sinclair/typebox"
-import { getParentFromContext } from "~/metadata/context/helpers"
+import { getParentFromContext } from "../../context/helpers"
 import {
   ConfigurationContext,
   ConfigurationContextFromXML,
   ConfigurationContextWithExportToXML,
-} from "~/metadata/context/types"
-import { importBooleanFromXML } from "~/metadata/commonObjects/boolean/fromXML"
-import { importBooleanFromYAML } from "~/metadata/commonObjects/boolean/fromYAML"
-import { exportBooleanToYAML } from "~/metadata/commonObjects/boolean/toYAML"
-import { registerTypeRule } from "~/metadata/orchestration/property/typeRuleRegistry"
-import { PropertyRule } from "~/metadata/orchestration/property/types"
+} from "../../context/types"
+import { importBooleanFromXML } from "../boolean/fromXML"
+import { importBooleanFromYAML } from "../boolean/fromYAML"
+import { exportBooleanToYAML } from "../boolean/toYAML"
+import { registerTypeRule } from "../../orchestration/property/typeRuleRegistry"
+import type { PropertyRule } from "../../orchestration/property/types"
 import {
   AccumulationRegisterAggregateDimensionXML,
   AccumulationRegisterAggregateDimensions,

@@ -1,8 +1,8 @@
-import { PropertyRule } from "~/metadata/orchestration/property/types"
-import { registerTypeRule } from "~/metadata/orchestration/property/typeRuleRegistry"
+import type { PropertyRule } from "../../orchestration/property/types"
+import { registerTypeRule } from "../../orchestration/property/typeRuleRegistry"
 import { ConfigurationContext } from "../../context/types"
 import { importMetadataObjectStringFromYAML } from "../metadataPath/fromYAML"
-import { MetadataObjectRefCollection, MetadataObjectRefCollectionYAML } from "./types"
+import type { MetadataObjectRefCollection, MetadataObjectRefCollectionYAML } from "./types"
 
 const metadataObjectRefCollectionTargetRule = {
   type: "MetadataItemLink",

@@ -1,10 +1,10 @@
-import "~/metadata/forms"
-import type { ClientApplicationForm } from "~/metadata/forms/clientApplicationForm/types"
-import type { ChildItem } from "~/metadata/forms/commonObjects/childItems/types"
-import type { ElementRule, ElementType } from "~/metadata/orchestration"
-import { getElementRule } from "~/metadata/orchestration/formElement/ruleFactory"
-import type { DataPathPropertyRule, PropertyRule } from "~/metadata/orchestration/property/types"
-import { ClientApplicationFormRules } from "~/metadata/forms/clientApplicationForm/rules"
+import "../../forms"
+import type { ClientApplicationForm } from "../../forms/clientApplicationForm/types"
+import type { ChildItem } from "../../forms/commonObjects/childItems/types"
+import type { ElementRule, ElementType } from "../../orchestration"
+import { getElementRule } from "../../orchestration/formElement/ruleFactory"
+import type { DataPathPropertyRule, PropertyRule } from "../../orchestration/property/types"
+import { ClientApplicationFormRules } from "../../forms/clientApplicationForm/rules"
 import type { YamlPath } from "../yamlLocations"
 import type { TableContext } from "./resolver"
 
@@ -45,11 +45,13 @@ function collectChildItems(params: {
 }): FormDataPathOccurrence[] {
   const occurrences: FormDataPathOccurrence[] = []
   for (const childItem of params.childItems ?? []) {
-    occurrences.push(...collectElementOccurrences({
-      element: childItem,
-      yamlPath: [...params.yamlPath, childItem.name],
-      tableContext: params.tableContext,
-    }))
+    occurrences.push(
+      ...collectElementOccurrences({
+        element: childItem,
+        yamlPath: [...params.yamlPath, childItem.name],
+        tableContext: params.tableContext,
+      })
+    )
   }
 
   return occurrences
@@ -125,7 +127,10 @@ function collectDataPathProperties(params: {
   return occurrences
 }
 
-function tableContextForDataPathRule(rule: DataPathPropertyRule, tableContext: TableContext | undefined): { tableContext: TableContext } | {} {
+function tableContextForDataPathRule(
+  rule: DataPathPropertyRule,
+  tableContext: TableContext | undefined
+): { tableContext: TableContext } | {} {
   return tableContext !== undefined && rule.yaml === "ПутьКДанным" ? { tableContext } : {}
 }
 
@@ -151,7 +156,7 @@ function collectSingletonElementProperties(params: {
         element: nestedElement,
         yamlPath: [...params.yamlPath, rule.yaml],
         ...(params.tableContext !== undefined ? { tableContext: params.tableContext } : {}),
-      }),
+      })
     )
   }
 

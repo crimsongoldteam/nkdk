@@ -1,10 +1,11 @@
 import {
   definePropertyRule as defineWidePropertyRule,
   type ExactRuleParams as WideExactRuleParams,
-} from "~/metadata/commonObjects/ruleBuilder"
-import type { PropertyRule as WidePropertyRuleBase } from "~/metadata/orchestration/property/types"
-import { Static, Type } from "@sinclair/typebox"
-import { BasePropertyRule } from "~/metadata/orchestration"
+} from "../ruleBuilder"
+import type { PropertyRule as WidePropertyRuleBase } from "../../orchestration/property/types"
+import { Type } from "@sinclair/typebox"
+import type { Static } from "@sinclair/typebox"
+import { BasePropertyRule } from "../../orchestration"
 
 export const PredefinedCodeJSONSchema = Type.Union([Type.String(), Type.Number()])
 

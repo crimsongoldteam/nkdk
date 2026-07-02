@@ -1,7 +1,7 @@
-import type { OwnerMetadata } from "~/metadata/validation/dataPath/ownerCache"
-import type { FormDataPathColumnSource, OwnerTypeRef } from "~/metadata/validation/dataPath/types"
-import { resolveObjectFieldSegment } from "~/metadata/validation/dataPath/objectFields"
-import { registerDataPathOwnerKind, registerTableColumnResolver } from "~/metadata/validation/dataPath/registry"
+import type { OwnerMetadata } from "../../validation/dataPath/ownerCache"
+import type { FormDataPathColumnSource, OwnerTypeRef } from "../../validation/dataPath/types"
+import { resolveObjectFieldSegment } from "../../validation/dataPath/objectFields"
+import { registerDataPathOwnerKind, registerTableColumnResolver } from "../../validation/dataPath/registry"
 import { MetadataAccountingRegisterRules } from "./rules"
 
 registerDataPathOwnerKind({
@@ -75,7 +75,10 @@ function accountingRegisterExtDimensionColumn(segment: string): FormDataPathColu
   }
 }
 
-function accountingRegisterDebitCreditFieldColumn(owner: OwnerMetadata, segment: string): FormDataPathColumnSource | undefined {
+function accountingRegisterDebitCreditFieldColumn(
+  owner: OwnerMetadata,
+  segment: string
+): FormDataPathColumnSource | undefined {
   const match = /^(?<name>.+)(?:Dr|Cr)$/.exec(segment)
   const name = match?.groups?.name
   if (name === undefined) return undefined

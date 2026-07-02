@@ -1,8 +1,8 @@
 import {
   definePropertyRule as defineWidePropertyRule,
   type ExactRuleParams as WideExactRuleParams,
-} from "~/metadata/commonObjects/ruleBuilder"
-import type { PropertyRule as WidePropertyRuleBase } from "~/metadata/orchestration/property/types"
+} from "../../../commonObjects/ruleBuilder"
+import type { PropertyRule as WidePropertyRuleBase } from "../../../orchestration/property/types"
 export type ScrollBarUse = "AutoUse" | "DontUse" | "UseAlways"
 
 export type ScrollBarUseEnterprise = {

@@ -1,7 +1,4 @@
-import {
-  MetadataRegisterDimensions,
-  MetadataRegisterDimensionsYAML,
-} from "~/metadata/commonObjects/metadataRegisterDimension/types"
+import { MetadataRegisterDimensions, MetadataRegisterDimensionsYAML } from "../types"
 
 export const dimensionsFromXML: MetadataRegisterDimensions = [
   {

@@ -1,4 +1,4 @@
-import type { PropertyRule } from "~/metadata/orchestration"
+import type { PropertyRule } from "../../../orchestration"
 
 export const typedNumberRule = {
   type: "number",

@@ -2,7 +2,7 @@ import fs from "fs"
 import os from "os"
 import { join } from "path"
 import { afterEach, beforeEach, describe, expect, it } from "vitest"
-import type { MetadataItemRule } from "~/metadata/orchestration/property/types"
+import type { MetadataItemRule } from "../property/types"
 import {
   getFileItemXMLRootContainer,
   listYAMLFileItemNames,

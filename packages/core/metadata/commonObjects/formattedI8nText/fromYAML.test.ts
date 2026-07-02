@@ -1,6 +1,6 @@
 import { describe, expect, it } from "vitest"
-import { formattedI8nTextFixtures } from "~/metadata/commonObjects/formattedI8nText/__fixtures__/data"
-import { mockContext } from "~/tests/mockContext"
+import { formattedI8nTextFixtures } from "./__fixtures__/data"
+import { mockContext } from "../../../tests/mockContext"
 import { importFormattedI8nTextFromYAML } from "./fromYAML"
 import { FormattedI8nTextPropertyRule } from "./types"
 

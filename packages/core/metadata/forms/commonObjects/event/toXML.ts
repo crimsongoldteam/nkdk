@@ -1,8 +1,8 @@
-import { capitalize } from "~/helpers/capitalize"
-import { ConfigurationContextWithExportToXML } from "~/metadata/context/types"
-import { registerTypeRule } from "~/metadata/orchestration/property/typeRuleRegistry"
-import { PropertyRule } from "~/metadata/orchestration/property/types"
-import { EventsXML, EventXML } from "./types"
+import { capitalize } from "../../../../helpers/capitalize"
+import { ConfigurationContextWithExportToXML } from "../../../context/types"
+import { registerTypeRule } from "../../../orchestration/property/typeRuleRegistry"
+import type { PropertyRule } from "../../../orchestration/property/types"
+import type { EventsXML, EventXML } from "./types"
 
 const isEventsPropertyRule = (rule: PropertyRule): rule is PropertyRule & { items: Record<string, string> } => {
   return rule.type === "Events"
@@ -19,7 +19,8 @@ export const exportEventsToXML = (
   const dataEvents = value as Record<string, string>
   const items: EventXML[] = []
 
-  const referenceEvents = _referenceValue && typeof _referenceValue === "object" ? (_referenceValue as Record<string, string>) : undefined
+  const referenceEvents =
+    _referenceValue && typeof _referenceValue === "object" ? (_referenceValue as Record<string, string>) : undefined
   const knownEventKeys = isEventsPropertyRule(_rule) ? new Set(Object.keys(_rule.items)) : new Set<string>()
 
   const orderedKeys: string[] = []
@@ -48,7 +49,8 @@ export const exportEventsToXML = (
   for (const key of orderedKeys) {
     const eventValue = dataEvents[key] ?? referenceEvents?.[key]
     if (eventValue === undefined) continue
-    const xmlName = referenceEvents !== undefined && key in referenceEvents && !knownEventKeys.has(key) ? key : capitalize(key)
+    const xmlName =
+      referenceEvents !== undefined && key in referenceEvents && !knownEventKeys.has(key) ? key : capitalize(key)
     items.push({ _name: xmlName, "#text": eventValue })
   }
 

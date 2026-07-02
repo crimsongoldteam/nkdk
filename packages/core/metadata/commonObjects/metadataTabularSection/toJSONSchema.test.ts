@@ -1,7 +1,7 @@
 import { TypeCompiler } from "@sinclair/typebox/compiler"
 import { describe, expect, it } from "vitest"
-import { exportMetadataItemToJSONSchema } from "~/metadata/orchestration/metadataItem/toJSONSchema"
-import { mockContext } from "~/tests/mockContext"
+import { exportMetadataItemToJSONSchema } from "../../orchestration/metadataItem/toJSONSchema"
+import { mockContext } from "../../../tests/mockContext"
 import { MetadataTabularSectionRules } from "./rules"
 
 describe("MetadataTabularSection JSON Schema", () => {

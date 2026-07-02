@@ -1,12 +1,12 @@
-import { dcsLocalStringTypeRule } from "~/metadata/commonObjects/dataCompositionSystem/dcsLocalStringType/types"
-import { metadataDcsMetadataValueRule } from "~/metadata/commonObjects/dataCompositionSystem/dcsMetadataValue/types"
-import { settingsParameterValueRule } from "~/metadata/commonObjects/dataCompositionSystem/parameterValue/types"
-import { settingsParameterValueCollectionRule } from "~/metadata/commonObjects/dataCompositionSystem/settingsParameterValueCollection/types"
-import { typeDescriptionRule } from "~/metadata/commonObjects/typeDescription/types"
-import { booleanRule } from "~/metadata/commonObjects/boolean/types"
-import { stringRule } from "~/metadata/commonObjects/string/types"
-import { systemEnumerationRule } from "~/metadata/systemEnumerations/types"
-import { MetadataItemRule } from "~/metadata/orchestration"
+import { dcsLocalStringTypeRule } from "../dcsLocalStringType/types"
+import { metadataDcsMetadataValueRule } from "../dcsMetadataValue/types"
+import { settingsParameterValueRule } from "../parameterValue/types"
+import { settingsParameterValueCollectionRule } from "../settingsParameterValueCollection/types"
+import { typeDescriptionRule } from "../../typeDescription/types"
+import { booleanRule } from "../../boolean/types"
+import { stringRule } from "../../string/types"
+import { systemEnumerationRule } from "../../../systemEnumerations/types"
+import { MetadataItemRule } from "../../../orchestration"
 export const DCSParameterRules = {
   itemType: "DCSParameter",
   properties: {

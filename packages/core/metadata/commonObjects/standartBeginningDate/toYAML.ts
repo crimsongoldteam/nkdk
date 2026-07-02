@@ -1,5 +1,5 @@
 import { format } from "date-fns"
-import { StandardBeginningDateVariantToYAML } from "~/metadata/systemEnumerations/types"
+import { StandardBeginningDateVariantToYAML } from "../../systemEnumerations/types"
 import type { StandartBeginningDate, StandartBeginningDateYAML } from "./types"
 
 const formatISODateTimeToRussian = (value: string): string => {

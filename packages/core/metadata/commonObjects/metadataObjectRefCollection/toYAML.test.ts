@@ -1,6 +1,6 @@
 import { describe, expect, it } from "vitest"
-import { multiple, multipleYAML, single, singleYAML } from "~/metadata/commonObjects/metadataObjectRefCollection/__fixtures__/data"
-import { mockContext, mockRule } from "~/tests/mockContext"
+import { multiple, multipleYAML, single, singleYAML } from "./__fixtures__/data"
+import { mockContext, mockRule } from "../../../tests/mockContext"
 import { exportMetadataObjectRefCollectionToYAML } from "./toYAML"
 
 describe("exportMetadataObjectRefCollectionToYAML", () => {
@@ -35,9 +35,9 @@ describe("exportMetadataObjectRefCollectionToYAML", () => {
       },
     } as const
 
-    expect(exportMetadataObjectRefCollectionToYAML(mockContext, rule, ["ExchangePlan.ИнтеграцияСМагазинамиСоцСетей"])).toEqual([
-      "ПланОбмена.ИнтеграцияСМагазинамиСоцСетей",
-    ])
+    expect(
+      exportMetadataObjectRefCollectionToYAML(mockContext, rule, ["ExchangePlan.ИнтеграцияСМагазинамиСоцСетей"])
+    ).toEqual(["ПланОбмена.ИнтеграцияСМагазинамиСоцСетей"])
 
     expect(() => exportMetadataObjectRefCollectionToYAML(mockContext, rule, ["Catalog.Номенклатура"])).toThrow(
       'Вид цели "Catalog" не разрешён'

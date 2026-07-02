@@ -1,5 +1,5 @@
 import { TSchema, Type } from "@sinclair/typebox"
-import { ExportToJSONSchemaFn, registerTypeRule } from "~/metadata/orchestration"
+import { ExportToJSONSchemaFn, registerTypeRule } from "../orchestration"
 import * as SE from "./types"
 import { SystemEnumerationPropertyRule } from "./types"
 

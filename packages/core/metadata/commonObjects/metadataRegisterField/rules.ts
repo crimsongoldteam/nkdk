@@ -1,8 +1,8 @@
-import { uuidPropertyRule } from "~/metadata/commonObjects/uuid/rule"
-import { getParentFromContext } from "~/metadata/context/helpers"
-import { ConfigurationContext, ConfigurationContextWithExportToXML } from "~/metadata/context/types"
-import { addDefaultLanguageNameToSynonym } from "~/metadata/helpers/synonymHelpers"
-import { PropertyRule } from "~/metadata/orchestration/property/types"
+import { uuidPropertyRule } from "../uuid/rule"
+import { getParentFromContext } from "../../context/helpers"
+import { ConfigurationContext, ConfigurationContextWithExportToXML } from "../../context/types"
+import { addDefaultLanguageNameToSynonym } from "../../helpers/synonymHelpers"
+import type { PropertyRule } from "../../orchestration/property/types"
 
 const propertiesParents = ["Properties"]
 const emptySynonym = { items: {} }

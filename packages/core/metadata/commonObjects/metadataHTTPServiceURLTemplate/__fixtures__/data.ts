@@ -1,7 +1,4 @@
-import {
-  MetadataHTTPServiceURLTemplates,
-  MetadataHTTPServiceURLTemplatesYAML,
-} from "~/metadata/commonObjects/metadataHTTPServiceURLTemplate/types"
+import { MetadataHTTPServiceURLTemplates, MetadataHTTPServiceURLTemplatesYAML } from "../types"
 
 export const urlTemplatesFromXML: MetadataHTTPServiceURLTemplates = [
   {

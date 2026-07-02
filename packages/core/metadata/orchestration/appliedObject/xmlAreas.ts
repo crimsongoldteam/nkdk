@@ -3,10 +3,10 @@ import {
   describeMetadataRuleXmlSyncRoutes,
   expandProjectPattern,
   matchProjectPattern,
-} from "~/metadata/project/ruleResources"
-import type { ProjectResourceCompositionImpact, ProjectResourceSource } from "~/metadata/orchestration/property/fn"
-import type { PropertyRuleType } from "~/metadata/orchestration/property/registry"
-import type { MetadataItemRule, PropertyRule } from "~/metadata/orchestration/property/types"
+} from "../../project/ruleResources"
+import type { ProjectResourceCompositionImpact, ProjectResourceSource } from "../property/fn"
+import type { PropertyRuleType } from "../property/registry"
+import type { MetadataItemRule, PropertyRule } from "../property/types"
 
 export type XmlSyncArea =
   | {
@@ -101,7 +101,9 @@ function resolveRouteArea(params: {
       propertyName: sourceProperty.propertyName,
       propertyType: sourceProperty.propertyType,
       routeParams,
-      dumpInfoNames: (route.dumpInfoNamePatterns ?? []).map((pattern) => expandProjectPattern(pattern, expansionParams)),
+      dumpInfoNames: (route.dumpInfoNamePatterns ?? []).map((pattern) =>
+        expandProjectPattern(pattern, expansionParams)
+      ),
     }
 
     if (route.kind === "fileItem") {
@@ -142,7 +144,10 @@ function resolveDeclaredArea(params: {
         xmlDir: params.xmlDir,
         xmlPath: posix.join(params.xmlDir, params.itemName, declaration.xmlPath),
         routeParams: {},
-        dumpInfoNames: [`${dumpRoot(params.rule)}.${params.itemName}`, `${dumpRoot(params.rule)}.${params.itemName}.ObjectModule`],
+        dumpInfoNames: [
+          `${dumpRoot(params.rule)}.${params.itemName}`,
+          `${dumpRoot(params.rule)}.${params.itemName}.ObjectModule`,
+        ],
       }
     }
   }
@@ -151,14 +156,19 @@ function resolveDeclaredArea(params: {
 }
 
 function normalizePath(path: string): string {
-  return path.split(/[\\/]+/).filter(Boolean).join("/")
+  return path
+    .split(/[\\/]+/)
+    .filter(Boolean)
+    .join("/")
 }
 
 function matchesTail(parts: string[], tail: string): boolean {
   return parts.slice(2).join("/") === normalizePath(tail)
 }
 
-function getSourceProperty(source: ProjectResourceSource): { propertyName: string; propertyType: PropertyRuleType } | undefined {
+function getSourceProperty(
+  source: ProjectResourceSource
+): { propertyName: string; propertyType: PropertyRuleType } | undefined {
   if (source.kind === "property") {
     return { propertyName: source.propertyName, propertyType: source.propertyType }
   }

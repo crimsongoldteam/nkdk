@@ -1,8 +1,8 @@
 import { readFileSync } from "node:fs"
 import { dirname, join } from "node:path"
 import { fileURLToPath } from "node:url"
-import type { PropertyRule } from "~/metadata/orchestration"
-import { testImportPropertyFromXML } from "~/tests/property/importPropertyFromXML"
+import type { PropertyRule } from "../../metadata/orchestration"
+import { testImportPropertyFromXML } from "../../tests/property/importPropertyFromXML"
 
 const coreRoot = join(dirname(fileURLToPath(import.meta.url)), "../..")
 

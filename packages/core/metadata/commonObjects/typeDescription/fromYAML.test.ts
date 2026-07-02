@@ -1,5 +1,5 @@
 import { describe, expect, it } from "vitest"
-import { mockContext, mockRule } from "~/tests/mockContext"
+import { mockContext, mockRule } from "../../../tests/mockContext"
 import { typeFixturesTable } from "./__fixtures__/data"
 import { importTypeDescriptionFromYAML } from "./fromYAML"
 import { TypeDescriptionYAML } from "./types"
@@ -59,11 +59,7 @@ describe("importTypeDescriptionFromYAML", () => {
   })
 
   it("should import known system enumeration type from explicit YAML form", () => {
-    const result = importTypeDescriptionFromYAML(
-      mockContext,
-      mockRule,
-      "СистемноеПеречисление.ПроверкаЗаполнения"
-    )
+    const result = importTypeDescriptionFromYAML(mockContext, mockRule, "СистемноеПеречисление.ПроверкаЗаполнения")
 
     expect(result).toEqual({ type: ["FillChecking"] })
   })
@@ -114,18 +110,15 @@ describe("importTypeDescriptionFromYAML with allowedTypes", () => {
   })
 
   it("rejects invalid primitive parameter syntax", () => {
-    expect(() =>
-      importTypeDescriptionFromYAML(mockContext, restrictedCatalogAttributeRule, "Число(abc, 2)")
-    ).toThrow("TypeDescription YAML value is not allowed by rule.allowedTypes")
+    expect(() => importTypeDescriptionFromYAML(mockContext, restrictedCatalogAttributeRule, "Число(abc, 2)")).toThrow(
+      "TypeDescription YAML value is not allowed by rule.allowedTypes"
+    )
   })
 })
 
 const externalDataSourceRule = {
   type: "TypeDescription",
-  allowedTypes: [
-    "ExternalDataSourceTableRef.*",
-    "ExternalDataSourceCubeDimensionTableRef.*",
-  ],
+  allowedTypes: ["ExternalDataSourceTableRef.*", "ExternalDataSourceCubeDimensionTableRef.*"],
 } as const
 
 describe("external data source TypeDescription YAML import", () => {
@@ -134,8 +127,8 @@ describe("external data source TypeDescription YAML import", () => {
       importTypeDescriptionFromYAML(
         mockContext,
         externalDataSourceRule,
-        "ВнешнийИсточникДанныхВсеСвойства.ТаблицаВсеСвойства",
-      ),
+        "ВнешнийИсточникДанныхВсеСвойства.ТаблицаВсеСвойства"
+      )
     ).toEqual({
       type: ["ExternalDataSourceTableRef.ВнешнийИсточникДанныхВсеСвойства.ТаблицаВсеСвойства"],
     })
@@ -146,8 +139,8 @@ describe("external data source TypeDescription YAML import", () => {
       importTypeDescriptionFromYAML(
         mockContext,
         { type: "TypeDescription" },
-        "ВнешнийИсточникДанныхТаблицаОбъект.ВнешнийИсточникДанныхВсеСвойства.ТаблицаВсеСвойства",
-      ),
+        "ВнешнийИсточникДанныхТаблицаОбъект.ВнешнийИсточникДанныхВсеСвойства.ТаблицаВсеСвойства"
+      )
     ).toEqual({
       type: ["ExternalDataSourceTableObject.ВнешнийИсточникДанныхВсеСвойства.ТаблицаВсеСвойства"],
     })
@@ -158,8 +151,8 @@ describe("external data source TypeDescription YAML import", () => {
       importTypeDescriptionFromYAML(
         mockContext,
         externalDataSourceRule,
-        "ВнешнийИсточникДанныхВсеСвойства.КубВсеСвойства.ТаблицаИзмеренияВсеСвойства",
-      ),
+        "ВнешнийИсточникДанныхВсеСвойства.КубВсеСвойства.ТаблицаИзмеренияВсеСвойства"
+      )
     ).toEqual({
       type: [
         "ExternalDataSourceCubeDimensionTableRef.ВнешнийИсточникДанныхВсеСвойства.КубВсеСвойства.ТаблицаИзмеренияВсеСвойства",
@@ -172,8 +165,8 @@ describe("external data source TypeDescription YAML import", () => {
       importTypeDescriptionFromYAML(
         mockContext,
         { type: "TypeDescription" },
-        "ВнешнийИсточникДанныхКубМенеджерЗаписи.ВнешнийИсточникДанныхВсеСвойства.КубВсеСвойства",
-      ),
+        "ВнешнийИсточникДанныхКубМенеджерЗаписи.ВнешнийИсточникДанныхВсеСвойства.КубВсеСвойства"
+      )
     ).toEqual({
       type: ["ExternalDataSourceCubeRecordManager.ВнешнийИсточникДанныхВсеСвойства.КубВсеСвойства"],
     })

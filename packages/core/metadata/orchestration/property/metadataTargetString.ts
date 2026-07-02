@@ -1,6 +1,6 @@
-import { formatMetadataTargetToYAML, parseMetadataTargetFromYAML } from "~/metadata/commonObjects/metadataTargets"
-import type { ConfigurationContext } from "~/metadata/context/types"
-import type { MetadataTargetConstraint, MetadataTargetOwner } from "~/metadata/commonObjects/metadataTargets/types"
+import { formatMetadataTargetToYAML, parseMetadataTargetFromYAML } from "../../commonObjects/metadataTargets"
+import type { ConfigurationContext } from "../../context/types"
+import type { MetadataTargetConstraint, MetadataTargetOwner } from "../../commonObjects/metadataTargets/types"
 import { getMetadataTargetOwnerResolver, type MetadataTargetOwnerFrame } from "./metadataTargetOwnerRegistry"
 import type { MetadataItemRule, PropertyRule } from "./types"
 

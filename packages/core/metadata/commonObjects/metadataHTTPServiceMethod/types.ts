@@ -1,8 +1,8 @@
-import { I8nTextXML } from "~/metadata/commonObjects/i8nText/types"
-import { MetadataNameYAML } from "~/metadata/commonObjects/metadataName/types"
-import { MetadataTypeByRule } from "~/metadata/orchestration/metadataItem/element"
-import { YAMLTypeByRule } from "~/metadata/orchestration/metadataItem/yaml"
-import * as SE from "~/metadata/systemEnumerations/types"
+import { I8nTextXML } from "../i8nText/types"
+import { MetadataNameYAML } from "../metadataName/types"
+import { MetadataTypeByRule } from "../../orchestration/metadataItem/element"
+import { YAMLTypeByRule } from "../../orchestration/metadataItem/yaml"
+import * as SE from "../../systemEnumerations/types"
 import { MetadataHTTPServiceMethodRules } from "./rules"
 
 export type MetadataHTTPServiceMethod = MetadataTypeByRule<typeof MetadataHTTPServiceMethodRules>

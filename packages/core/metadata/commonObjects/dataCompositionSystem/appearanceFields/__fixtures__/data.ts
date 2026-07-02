@@ -1,8 +1,8 @@
-import type { Color } from "~/metadata/commonObjects/color/types"
-import type { Font } from "~/metadata/commonObjects/font/types"
-import type { I8nText } from "~/metadata/commonObjects/i8nText/types"
-import type { MetadataTypedPrimitiveValue } from "~/metadata/commonObjects/metadataValue/types"
-import type { PropertyRule } from "~/metadata/orchestration"
+import type { Color } from "../../../color/types"
+import type { Font } from "../../../font/types"
+import type { I8nText } from "../../../i8nText/types"
+import type { MetadataTypedPrimitiveValue } from "../../../metadataValue/types"
+import type { PropertyRule } from "../../../../orchestration"
 import type { SettingsParameterValue } from "../../parameterValue/types"
 import type { AppearanceFields, AppearanceFieldsYAML } from "../types"
 

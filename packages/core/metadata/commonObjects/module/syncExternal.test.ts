@@ -2,8 +2,8 @@ import fs from "fs"
 import os from "os"
 import { join } from "path"
 import { describe, expect, it } from "vitest"
-import { XmlSyncManifest } from "~/metadata/appliedObjects/configuration/migrations/xmlManifest"
-import { MetadataCommonTemplateRules } from "~/metadata/appliedObjects/metadataCommonTemplate/rules"
+import { XmlSyncManifest } from "../../appliedObjects/configuration/migrations/xmlManifest"
+import { MetadataCommonTemplateRules } from "../../appliedObjects/metadataCommonTemplate/rules"
 import { syncModuleFromXML } from "./fromXML"
 import { syncModuleToXML } from "./toXML"
 
@@ -25,7 +25,7 @@ describe("syncModule external files", () => {
     await syncModuleToXML({ rule, nkdkDir, xmlDir, xmlManifest })
 
     expect(fs.readFileSync(join(xmlDir, "Ext", "SessionModule.bsl"), "utf-8")).toBe(
-      "Процедура ПриНачалеСеанса()\nКонецПроцедуры\n",
+      "Процедура ПриНачалеСеанса()\nКонецПроцедуры\n"
     )
     expect(xmlManifest.expectedFiles()).toContain("Ext/SessionModule.bsl")
   })

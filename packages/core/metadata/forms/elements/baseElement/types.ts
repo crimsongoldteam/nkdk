@@ -1,4 +1,4 @@
-import { ElementType, MetadataItem } from "~/metadata/orchestration"
+import { ElementType, MetadataItem } from "../../../orchestration"
 
 export interface BaseElement extends MetadataItem {
   itemType: ElementType

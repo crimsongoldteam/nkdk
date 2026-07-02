@@ -1,7 +1,7 @@
 import { describe, expect, it } from "vitest"
 import { urlTemplatesFromXML } from "./__fixtures__/data"
 import "./register"
-import { testImportPropertyFromXML } from "~/tests/property/importPropertyFromXML"
+import { testImportPropertyFromXML } from "../../../tests/property/importPropertyFromXML"
 
 const rule = { type: "MetadataHTTPServiceURLTemplates", xml: "URLTemplate" } as const
 

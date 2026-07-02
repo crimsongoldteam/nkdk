@@ -1,5 +1,5 @@
 import { describe, expect, it } from "vitest"
-import { mockContext } from "~/tests/mockContext"
+import { mockContext } from "../../../tests/mockContext"
 import { importWebSocketClientHeadersFromYAML } from "./fromYAML"
 
 const rule = { type: "WebSocketClientHeaders", yaml: "Заголовки" } as const

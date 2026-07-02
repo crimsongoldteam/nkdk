@@ -1,7 +1,7 @@
-import { uuidPropertyRule } from "~/metadata/commonObjects/uuid/rule"
-import { getParentFromContext } from "~/metadata/context/helpers"
-import { ConfigurationContextWithExportToXML } from "~/metadata/context/types"
-import { MetadataItemRule, PropertyRule } from "~/metadata/orchestration/property/types"
+import { uuidPropertyRule } from "../uuid/rule"
+import { getParentFromContext } from "../../context/helpers"
+import { ConfigurationContextWithExportToXML } from "../../context/types"
+import type { MetadataItemRule, PropertyRule } from "../../orchestration/property/types"
 
 const propertiesParents = ["Properties"]
 

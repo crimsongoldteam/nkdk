@@ -1,5 +1,5 @@
-import { importMetadataItemFromYAML, MetadataItemRule } from "~/metadata/orchestration"
-import { mockContext } from "~/tests/mockContext"
+import { importMetadataItemFromYAML, MetadataItemRule } from "../../metadata/orchestration"
+import { mockContext } from "../mockContext"
 
 type Params = {
   rule: MetadataItemRule

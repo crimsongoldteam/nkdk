@@ -1,7 +1,6 @@
-import { isMap, isPair, isScalar } from "yaml"
-import type { ParsedYaml } from "~/yaml/parseMetadataYaml"
-import type { ClientApplicationForm } from "~/metadata/forms/clientApplicationForm/types"
-import type { FormAttribute, FormAttributeColumn } from "~/metadata/forms/commonObjects/formAttribute/types"
+import type { ParsedYaml } from "../../../yaml/parseMetadataYaml"
+import type { ClientApplicationForm } from "../../forms/clientApplicationForm/types"
+import type { FormAttribute, FormAttributeColumn } from "../../forms/commonObjects/formAttribute/types"
 import { matchRegisteredFormPlatformSource } from "../formValidationRegistry"
 import type { Diagnostic } from "../types"
 import { diagnosticAtYamlPath } from "../yamlLocations"
@@ -69,9 +68,7 @@ export function getKnownPlatformFormSource(path: string): KnownPlatformFormSourc
 }
 
 function formAttributeToSource(attribute: FormAttribute): FormDataPathSource {
-  const typeInfo = attribute.dynamicList
-    ? dynamicListTypeInfo()
-    : typeDescriptionToDataPathTypeInfo(attribute.type)
+  const typeInfo = attribute.dynamicList ? dynamicListTypeInfo() : typeDescriptionToDataPathTypeInfo(attribute.type)
   const tableSource = tableSourceFromAttribute(attribute, typeInfo)
 
   return {
@@ -84,7 +81,7 @@ function formAttributeToSource(attribute: FormAttribute): FormDataPathSource {
 
 function tableSourceFromAttribute(
   attribute: FormAttribute,
-  typeInfo: DataPathTypeInfo,
+  typeInfo: DataPathTypeInfo
 ): FormDataPathSource["tableSource"] {
   if (typeInfo.table === undefined) return undefined
   const columns = tableColumns(attribute, typeInfo.table)
@@ -123,7 +120,7 @@ function addAdditionalColumns(params: {
   for (const additionalColumnGroup of params.attribute.additionalColumns ?? []) {
     params.additionalColumnsByTablePath.set(
       normalizeIndexedPath(additionalColumnGroup.table),
-      columnsToMap(additionalColumnGroup.columns),
+      columnsToMap(additionalColumnGroup.columns)
     )
   }
 }
@@ -167,23 +164,7 @@ function duplicateRootDiagnostic(params: {
 function findRequisitesKeyOccurrence(
   parsed: ParsedYaml,
   name: string,
-  occurrence: number,
+  occurrence: number
 ): { line: number; col: number } | undefined {
-  const root = parsed.doc.contents
-  if (!isMap(root)) return undefined
-
-  const requisitesPair = root.items.find((item) => isPair(item) && isScalar(item.key) && item.key.value === "Реквизиты")
-  if (!requisitesPair || !isPair(requisitesPair) || !isMap(requisitesPair.value)) return undefined
-
-  let seen = 0
-  for (const item of requisitesPair.value.items) {
-    if (!isPair(item) || !isScalar(item.key) || item.key.value !== name) continue
-    seen += 1
-    if (seen !== occurrence) continue
-
-    const offset = item.key.range?.[0]
-    return offset === undefined ? undefined : parsed.lineCounter.linePos(offset)
-  }
-
-  return undefined
+  return parsed.locations.keyOccurrences(["Реквизиты", name])[occurrence - 1]
 }

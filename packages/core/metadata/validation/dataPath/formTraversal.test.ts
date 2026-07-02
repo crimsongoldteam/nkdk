@@ -1,7 +1,7 @@
 import { describe, expect, it } from "vitest"
-import "~/metadata/forms"
-import type { ClientApplicationForm } from "~/metadata/forms/clientApplicationForm/types"
-import type { ChildItem } from "~/metadata/forms/commonObjects/childItems/types"
+import "../../forms"
+import type { ClientApplicationForm } from "../../forms/clientApplicationForm/types"
+import type { ChildItem } from "../../forms/commonObjects/childItems/types"
 import { collectFormDataPathOccurrences } from "./formTraversal"
 
 describe("collectFormDataPathOccurrences", () => {
@@ -36,7 +36,7 @@ describe("collectFormDataPathOccurrences", () => {
         elementType: occurrence.elementType,
         tableContext: occurrence.tableContext,
         yaml: occurrence.rule.yaml,
-      })),
+      }))
     ).toEqual([
       {
         value: "Реквизит",
@@ -68,15 +68,7 @@ describe("collectFormDataPathOccurrences", () => {
       },
       {
         value: "Товары.Представление",
-        yamlPath: [
-          "Элементы",
-          "Таблица",
-          "Элементы",
-          "ГруппаКолонок",
-          "Элементы",
-          "Представление",
-          "ПутьКДанным",
-        ],
+        yamlPath: ["Элементы", "Таблица", "Элементы", "ГруппаКолонок", "Элементы", "Представление", "ПутьКДанным"],
         elementType: "TableLabelField",
         tableContext: { dataPath: "Товары" },
         yaml: "ПутьКДанным",
@@ -118,7 +110,7 @@ describe("collectFormDataPathOccurrences", () => {
         value: occurrence.value,
         yamlPath: occurrence.yamlPath,
         elementType: occurrence.elementType,
-      })),
+      }))
     ).toContainEqual({
       value: "Реквизит",
       yamlPath: ["КоманднаяПанель", "Элементы", "КомандаФормы", "Данные"],
@@ -129,7 +121,7 @@ describe("collectFormDataPathOccurrences", () => {
         value: occurrence.value,
         yamlPath: occurrence.yamlPath,
         elementType: occurrence.elementType,
-      })),
+      }))
     ).toContainEqual({
       value: "Реквизит",
       yamlPath: ["Элементы", "Поле", "КонтекстноеМеню", "Элементы", "КомандаМеню", "Данные"],

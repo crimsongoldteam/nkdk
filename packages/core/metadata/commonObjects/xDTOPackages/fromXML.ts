@@ -1,5 +1,5 @@
-import { registerTypeRule } from "~/metadata/orchestration/property/typeRuleRegistry"
-import { ImportFromXMLFunction } from "~/metadata/orchestration/property/fn"
+import { registerTypeRule } from "../../orchestration/property/typeRuleRegistry"
+import { ImportFromXMLFunction } from "../../orchestration/property/fn"
 import { XDTOPackages, XDTOPackagesXML } from "./types"
 
 export const importXDTOPackagesFromXML: ImportFromXMLFunction = (_context, _rule, xml: XDTOPackagesXML | undefined) => {

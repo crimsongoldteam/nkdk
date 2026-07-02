@@ -1,9 +1,6 @@
-import {
-  clientApplicationInterfaceItemsRule,
-  clientApplicationInterfacePanelDefsRule,
-} from "~/metadata/commonObjects/clientApplicationInterface/builders"
-import { xmlRootRule } from "~/metadata/commonObjects/xmlRoot/types"
-import { MetadataItemRule } from "~/metadata/orchestration/property/types"
+import { clientApplicationInterfaceItemsRule, clientApplicationInterfacePanelDefsRule } from "./builders"
+import { xmlRootRule } from "../xmlRoot/types"
+import type { MetadataItemRule } from "../../orchestration/property/types"
 const clientApplicationInterfaceRootAttributes = {
   _xmlns: "http://v8.1c.ru/8.2/managed-application/core",
   "_xmlns:xs": "http://www.w3.org/2001/XMLSchema",

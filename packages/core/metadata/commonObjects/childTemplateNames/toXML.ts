@@ -1,4 +1,4 @@
-import { ExportToXMLFunctionNew, registerTypeRule } from "~/metadata/orchestration"
+import { ExportToXMLFunctionNew, registerTypeRule } from "../../orchestration"
 
 /** Экспортирует список имён макетов.
  * Приоритет: сначала referenceData (round-trip), затем context.templates (IO-путь).

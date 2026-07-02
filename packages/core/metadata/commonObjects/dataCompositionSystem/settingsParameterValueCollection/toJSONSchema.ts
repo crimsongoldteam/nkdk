@@ -1,7 +1,7 @@
 import { TSchema, Type } from "@sinclair/typebox"
-import type { ConfigurationContext } from "~/metadata/context/types"
-import { ExportToJSONSchemaFn, registerTypeRule } from "~/metadata/orchestration"
-import type { SettingsParameterValueCollectionPropertyRule } from "~/metadata/orchestration/property/types"
+import type { ConfigurationContext } from "../../../context/types"
+import { ExportToJSONSchemaFn, registerTypeRule } from "../../../orchestration"
+import type { SettingsParameterValueCollectionPropertyRule } from "../../../orchestration/property/types"
 import type { SettingsParameterValuePropertyRule } from "../parameterValue/types"
 import { exportSettingsParameterValueToJSONSchema } from "../parameterValue/toJSONSchema"
 
@@ -18,7 +18,10 @@ const schemaForParameterRule = (context: ConfigurationContext, rule: SettingsPar
   return Type.Object(parameterRules, { additionalProperties: false })
 }
 
-export const exportSettingsParameterValueCollectionToJSONSchema: ExportToJSONSchemaFn = ({ context, rule }): TSchema => {
+export const exportSettingsParameterValueCollectionToJSONSchema: ExportToJSONSchemaFn = ({
+  context,
+  rule,
+}): TSchema => {
   const collectionRule = rule as SettingsParameterValueCollectionPropertyRule
 
   if (collectionRule.defaultItemRule !== undefined) {

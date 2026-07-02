@@ -1,7 +1,4 @@
-import {
-  MetadataDocumentJournalColumns,
-  MetadataDocumentJournalColumnsYAML,
-} from "~/metadata/commonObjects/metadataDocumentJournalColumn/types"
+import { MetadataDocumentJournalColumns, MetadataDocumentJournalColumnsYAML } from "../types"
 
 export const columnsFromXML: MetadataDocumentJournalColumns = [
   {

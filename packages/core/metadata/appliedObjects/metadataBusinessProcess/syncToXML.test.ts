@@ -4,10 +4,10 @@ import { tmpdir } from "os"
 import { dirname, join } from "path"
 import { fileURLToPath } from "url"
 import { describe, expect, it } from "vitest"
-import { convertAppliedObjectFromXML } from "~/metadata/orchestration/appliedObject/convertFromXML"
-import { syncAppliedObjectToXML } from "~/metadata/orchestration/appliedObject/syncToXML"
+import { convertAppliedObjectFromXML } from "../../orchestration/appliedObject/convertFromXML"
+import { syncAppliedObjectToXML } from "../../orchestration/appliedObject/syncToXML"
 import { MetadataBusinessProcessRules } from "./rules"
-import { mockContextFromXML, mockContextToXML } from "~/tests/mockContext"
+import { mockContextFromXML, mockContextToXML } from "../../../tests/mockContext"
 
 const normalizeLineEndings = (value: string) => value.replace(/\r\n/g, "\n")
 

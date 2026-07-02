@@ -1,13 +1,13 @@
 import fs from "fs"
 import { join } from "path"
-import { parse } from "yaml"
 import {
   APPLIED_MIGRATIONS_FILE,
   MIGRATIONS_DIR,
   type AppliedMigrationsState,
-} from "~/metadata/appliedObjects/configuration/migrations"
-import { isMigrationFileName } from "~/metadata/appliedObjects/configuration/migrations/fileNames"
-import type { XmlSyncArea } from "~/metadata/orchestration/appliedObject/xmlAreas"
+} from "../appliedObjects/configuration/migrations"
+import { isMigrationFileName } from "../appliedObjects/configuration/migrations/fileNames"
+import type { XmlSyncArea } from "../orchestration/appliedObject/xmlAreas"
+import { importFromYAML } from "../../yaml/import"
 import { validateMetadataLocalName } from "./nameRules"
 import { buildRenameTargetPathFromOperationPath, parseMetadataOperationPath } from "./operationPath"
 import type { MigrationChainError, MigrationChainInvalidResult, MigrationPlanItem } from "./types"
@@ -36,7 +36,7 @@ interface PendingMigrationFile {
 }
 
 export function prepareMetadataMigrationChain(
-  params: PrepareMetadataMigrationChainParams,
+  params: PrepareMetadataMigrationChainParams
 ): PreparedMetadataMigrationChain | MigrationChainInvalidResult {
   const errors: MigrationChainError[] = []
   const appliedState = readAppliedStateStrict(params.xmlDir, errors)
@@ -126,7 +126,7 @@ function readAppliedStateStrict(xmlDir: string, errors: MigrationChainError[]): 
   if (!fs.existsSync(path)) return { applied: [] }
 
   try {
-    const parsed = parse(fs.readFileSync(path, "utf-8")) as unknown
+    const parsed = importFromYAML<unknown>(fs.readFileSync(path, "utf-8"))
     if (!isRecord(parsed)) throw new Error(`${APPLIED_MIGRATIONS_FILE}: ожидается YAML-словарь`)
     if (!Array.isArray(parsed.applied)) throw new Error(`${APPLIED_MIGRATIONS_FILE}: поле applied должно быть списком`)
 
@@ -154,7 +154,7 @@ function readAppliedStateStrict(xmlDir: string, errors: MigrationChainError[]): 
 function readPendingMigrationFilesStrict(
   yamlDir: string,
   appliedFileNames: readonly string[],
-  errors: MigrationChainError[],
+  errors: MigrationChainError[]
 ): PendingMigrationFile[] {
   const dir = join(yamlDir, MIGRATIONS_DIR)
   if (!fs.existsSync(dir)) return []
@@ -187,15 +187,16 @@ function readPendingMigrationFilesStrict(
 function readPendingMigrationFileStrict(
   filePath: string,
   fileName: string,
-  errors: MigrationChainError[],
+  errors: MigrationChainError[]
 ): PendingMigrationFile | undefined {
   try {
-    const parsed = parse(fs.readFileSync(filePath, "utf-8")) as unknown
+    const parsed = importFromYAML<unknown>(fs.readFileSync(filePath, "utf-8"))
     if (!isRecord(parsed)) throw new Error("Файл миграции должен быть YAML-словарём")
     const entries = Object.entries(parsed)
     if (entries.length !== 1) throw new Error("Файл миграции должен содержать ровно одно переименование")
     const [path, value] = entries[0]!
-    if (typeof value !== "string" || value.length === 0) throw new Error("Значение миграции должно быть непустой строкой")
+    if (typeof value !== "string" || value.length === 0)
+      throw new Error("Значение миграции должно быть непустой строкой")
     const parsedPath = parseMetadataOperationPath(path)
     if (!parsedPath.ok) throw new Error(parsedPath.message)
     const validName = validateMetadataLocalName(value)
@@ -212,10 +213,7 @@ function readPendingMigrationFileStrict(
   }
 }
 
-function buildRenameTargetPathStrict(
-  file: PendingMigrationFile,
-  errors: MigrationChainError[],
-): string | undefined {
+function buildRenameTargetPathStrict(file: PendingMigrationFile, errors: MigrationChainError[]): string | undefined {
   try {
     return buildRenameTargetPathFromOperationPath(file.path, file.value)
   } catch (caught) {
@@ -283,7 +281,7 @@ function localName(path: string): string {
 function validateMigrationTargetsExist(
   migrationsToApply: readonly MigrationPlanItem[],
   yamlPaths: readonly string[],
-  errors: MigrationChainError[],
+  errors: MigrationChainError[]
 ): void {
   const yaml = new Set(yamlPaths)
   for (const migration of migrationsToApply) {
@@ -301,7 +299,7 @@ function validateMigrationTargetsExist(
 function collectXmlAreas(
   migrationsToApply: readonly MigrationPlanItem[],
   xmlAreaByMigrationPath: (path: string) => XmlSyncArea | undefined,
-  errors: MigrationChainError[],
+  errors: MigrationChainError[]
 ): XmlSyncArea[] {
   const areas = new Map<string, XmlSyncArea>()
   for (const migration of migrationsToApply) {

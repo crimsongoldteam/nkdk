@@ -3,8 +3,8 @@ import { mkdtempSync } from "fs"
 import { tmpdir } from "os"
 import { join } from "path"
 import { afterEach, describe, expect, it } from "vitest"
-import { MetadataDataProcessorRules } from "~/metadata/appliedObjects/metadataDataProcessor/rules"
-import { mockContextToXML } from "~/tests/mockContext"
+import { MetadataDataProcessorRules } from "../../appliedObjects/metadataDataProcessor/rules"
+import { mockContextToXML } from "../../../tests/mockContext"
 import { syncAppliedObjectAreaToXML } from "./syncToXML"
 
 describe("syncAppliedObjectAreaToXML", () => {

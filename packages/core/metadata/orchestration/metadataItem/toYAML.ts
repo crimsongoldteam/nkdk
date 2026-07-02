@@ -1,4 +1,4 @@
-import { ConfigurationContext } from "~/metadata/context/types"
+import { ConfigurationContext } from "../../context/types"
 import { exportPropertiesToYAML } from "../property/toYAML"
 import { MetadataItemRule } from "../property/types"
 import { ToMetadata, ToYAML } from "./registry"

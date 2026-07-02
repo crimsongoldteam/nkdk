@@ -1,11 +1,8 @@
-import { ConfigurationContextWithExportToXML } from "~/metadata/context/types"
-import { PropertyRule, registerTypeRule } from "~/metadata/orchestration"
-import type { SettingsParameterValueCollectionPropertyRule } from "~/metadata/orchestration/property/types"
+import { ConfigurationContextWithExportToXML } from "../../../context/types"
+import { PropertyRule, registerTypeRule } from "../../../orchestration"
+import type { SettingsParameterValueCollectionPropertyRule } from "../../../orchestration/property/types"
 import type { ParameterValueXML } from "../parameterValue/types"
-import {
-  exportSettingsParameterValueDcscorItemsToXML,
-  getDcscorItemExportValueForXmlParents,
-} from "./dcscorItemsXML"
+import { exportSettingsParameterValueDcscorItemsToXML, getDcscorItemExportValueForXmlParents } from "./dcscorItemsXML"
 import type { SettingsParameterValueCollection, SettingsParameterValueCollectionXML } from "./types"
 
 const exportSettingsParameterValueCollectionToXML = (
@@ -13,11 +10,7 @@ const exportSettingsParameterValueCollectionToXML = (
   rule: PropertyRule,
   value: SettingsParameterValueCollection | undefined,
   referenceMetadata?: SettingsParameterValueCollection | undefined
-):
-  | SettingsParameterValueCollectionXML
-  | ParameterValueXML
-  | ParameterValueXML[]
-  | undefined => {
+): SettingsParameterValueCollectionXML | ParameterValueXML | ParameterValueXML[] | undefined => {
   if (!value?.parameters) return undefined
 
   const collRule = rule as SettingsParameterValueCollectionPropertyRule

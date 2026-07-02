@@ -1,6 +1,6 @@
 import { TypeCompiler } from "@sinclair/typebox/compiler"
 import { describe, expect, it } from "vitest"
-import { mockContext } from "~/tests/mockContext"
+import { mockContext } from "../../../tests/mockContext"
 import { exportTypeDescriptionToJSONSchema } from "./toJSONSchema"
 
 const unrestrictedRule = { type: "TypeDescription" } as const
@@ -66,11 +66,7 @@ describe("exportTypeDescriptionToJSONSchema", () => {
     })
 
     expect(schema).toMatchObject({
-      anyOf: [
-        { type: "string" },
-        { type: "array", items: { type: "string" } },
-        { type: "object" },
-      ],
+      anyOf: [{ type: "string" }, { type: "array", items: { type: "string" } }, { type: "object" }],
     })
 
     if (schema === undefined) {
@@ -102,10 +98,7 @@ describe("exportTypeDescriptionToJSONSchema", () => {
       value: undefined,
     })
 
-    const catalogRef = findSchemaBranchByPattern(
-      schema,
-      "^Справочник\\.[a-zA-Zа-яА-ЯёЁ_][a-zA-Zа-яА-ЯёЁ0-9_]*$"
-    )
+    const catalogRef = findSchemaBranchByPattern(schema, "^Справочник\\.[a-zA-Zа-яА-ЯёЁ_][a-zA-Zа-яА-ЯёЁ0-9_]*$")
 
     expect(catalogRef).toMatchObject({
       type: "string",
@@ -132,7 +125,8 @@ describe("exportTypeDescriptionToJSONSchema", () => {
 
     expect(externalTableRef).toMatchObject({
       type: "string",
-      pattern: "^ВнешнийИсточникДанных[a-zA-Zа-яА-ЯёЁ_][a-zA-Zа-яА-ЯёЁ0-9_]*\\.Таблица[a-zA-Zа-яА-ЯёЁ_][a-zA-Zа-яА-ЯёЁ0-9_]*$",
+      pattern:
+        "^ВнешнийИсточникДанных[a-zA-Zа-яА-ЯёЁ_][a-zA-Zа-яА-ЯёЁ0-9_]*\\.Таблица[a-zA-Zа-яА-ЯёЁ_][a-zA-Zа-яА-ЯёЁ0-9_]*$",
     })
     expect(externalCubeDimensionTableRef).toMatchObject({
       type: "string",
@@ -154,9 +148,7 @@ describe("exportTypeDescriptionToJSONSchema", () => {
     const schema = TypeCompiler.Compile(jsonSchema)
 
     expect(schema.Check("ВнешнийИсточникДанныхВсеСвойства.ТаблицаВсеСвойства")).toBe(true)
-    expect(
-      schema.Check("ВнешнийИсточникДанныхВсеСвойства.КубВсеСвойства.ТаблицаИзмеренияВсеСвойства")
-    ).toBe(true)
+    expect(schema.Check("ВнешнийИсточникДанныхВсеСвойства.КубВсеСвойства.ТаблицаИзмеренияВсеСвойства")).toBe(true)
     expect(schema.Check(["ВнешнийИсточникДанныхВсеСвойства.ТаблицаВсеСвойства"])).toBe(false)
     expect(schema.Check("ВнешнийИсточникДанныхВсеСвойства.КубВсеСвойства")).toBe(false)
   })

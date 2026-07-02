@@ -1,6 +1,9 @@
-import { definePropertyRule as defineWidePropertyRule, type ExactRuleParams as WideExactRuleParams } from "~/metadata/commonObjects/ruleBuilder"
-import { namedCollectionTarget } from "~/metadata/orchestration/property/operationTargets"
-import type { PropertyRule as WidePropertyRuleBase } from "~/metadata/orchestration/property/types"
+import {
+  definePropertyRule as defineWidePropertyRule,
+  type ExactRuleParams as WideExactRuleParams,
+} from "../../commonObjects/ruleBuilder"
+import { namedCollectionTarget } from "../../orchestration/property/operationTargets"
+import type { PropertyRule as WidePropertyRuleBase } from "../../orchestration/property/types"
 
 export interface MetadataChartOfCharacteristicTypesTabularSectionsWidePropertyRule extends WidePropertyRuleBase {
   type: "MetadataChartOfCharacteristicTypesTabularSections"

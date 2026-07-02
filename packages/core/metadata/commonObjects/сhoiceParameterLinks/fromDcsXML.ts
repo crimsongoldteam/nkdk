@@ -1,5 +1,5 @@
-import { PropertyRule } from "~/metadata/orchestration/property/types"
-import * as SE from "~/metadata/systemEnumerations/types"
+import type { PropertyRule } from "../../orchestration/property/types"
+import * as SE from "../../systemEnumerations/types"
 import { ConfigurationContextFromXML } from "../../context/types"
 import {
   ChoiceParameterLink,
@@ -22,9 +22,7 @@ const textNode = (value: string | { "#text"?: string } | undefined): string => {
   throw new Error("DCS ChoiceParameterLink: invalid text node")
 }
 
-const optionalMode = (
-  mode: ChoiceParameterLinkDcsItemXML["dcscor:mode"]
-): SE.LinkedValueChangeMode | undefined => {
+const optionalMode = (mode: ChoiceParameterLinkDcsItemXML["dcscor:mode"]): SE.LinkedValueChangeMode | undefined => {
   if (mode === undefined) {
     return undefined
   }

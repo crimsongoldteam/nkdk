@@ -1,9 +1,9 @@
-import { Static } from "@sinclair/typebox"
+import type { Static } from "@sinclair/typebox"
 import {
   ConfigurationContext,
   ConfigurationContextFromXML,
   ConfigurationContextWithExportToXML,
-} from "~/metadata/context/types"
+} from "../../../context/types"
 import { importMetadataFieldStringFromYAML, importMetadataValueStringFromYAML } from "../../metadataPath/fromYAML"
 import { exportMetadataFieldStringToYAML, exportMetadataValueStringToYAML } from "../../metadataPath/toYAML"
 import { importMetadataValueFromXML } from "../../metadataValue/fromXML"

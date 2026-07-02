@@ -30,7 +30,7 @@ describe("updateConfigDumpInfoVersionsToXML", () => {
     <Metadata name="Language.Русский" id="lang" configVersion="old-lang"/>
   </ConfigVersions>
 </ConfigDumpInfo>`,
-      "utf-8",
+      "utf-8"
     )
 
     await updateConfigDumpInfoVersionsToXML({

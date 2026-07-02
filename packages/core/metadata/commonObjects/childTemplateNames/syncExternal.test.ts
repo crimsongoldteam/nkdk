@@ -2,12 +2,17 @@ import fs from "fs"
 import os from "os"
 import { join } from "path"
 import { describe, expect, it } from "vitest"
-import { XmlSyncManifest } from "~/metadata/appliedObjects/configuration/migrations/xmlManifest"
-import { mockContextFromXML, mockContextToXML } from "~/tests/mockContext"
+import { XmlSyncManifest } from "../../appliedObjects/configuration/migrations/xmlManifest"
+import { mockContextFromXML, mockContextToXML } from "../../../tests/mockContext"
 import { syncChildTemplateNamesFromXML } from "./syncExternalFromXML"
 import { syncChildTemplateNamesToXML } from "./syncExternalToXML"
 
-const rule = { type: "ChildTemplateNames" as const, xml: "Template", folderName: "Шаблоны", forReferenceOnly: true as const }
+const rule = {
+  type: "ChildTemplateNames" as const,
+  xml: "Template",
+  folderName: "Шаблоны",
+  forReferenceOnly: true as const,
+}
 
 const writeFile = (path: string, content: string | Buffer) => {
   fs.mkdirSync(join(path, ".."), { recursive: true })
@@ -29,7 +34,10 @@ describe("syncChildTemplateNames external files", () => {
     writeFile(join(xmlDir, "Отчет", "Templates", "Схема", "Ext", "Template.xml"), "<DataCompositionSchema/>")
     writeFile(join(xmlDir, "Отчет", "Templates", "HTML.xml"), "<MetaDataObject/>")
     writeFile(join(xmlDir, "Отчет", "Templates", "HTML", "Ext", "Template", "index.html"), "<html></html>")
-    writeFile(join(xmlDir, "Отчет", "Templates", "HTML", "Ext", "Template", "_files", "logo.png"), Buffer.from([137, 80]))
+    writeFile(
+      join(xmlDir, "Отчет", "Templates", "HTML", "Ext", "Template", "_files", "logo.png"),
+      Buffer.from([137, 80])
+    )
     writeFile(
       join(xmlDir, "Отчет", "Templates", "СКартинкой", "Ext", "Template", "Items", "Подложка", "Picture.png"),
       Buffer.from([10, 20, 30])
@@ -82,9 +90,9 @@ describe("syncChildTemplateNames external files", () => {
     expect(fs.readFileSync(join(outputDir, "Отчет", "Templates", "Схема", "Ext", "Template.xml"), "utf-8")).toBe(
       "<DataCompositionSchema/>"
     )
-    expect(fs.readFileSync(join(outputDir, "Отчет", "Templates", "HTML", "Ext", "Template", "index.html"), "utf-8")).toBe(
-      "<html></html>"
-    )
+    expect(
+      fs.readFileSync(join(outputDir, "Отчет", "Templates", "HTML", "Ext", "Template", "index.html"), "utf-8")
+    ).toBe("<html></html>")
     expect([
       ...fs.readFileSync(join(outputDir, "Отчет", "Templates", "HTML", "Ext", "Template", "_files", "logo.png")),
     ]).toEqual([137, 80])
@@ -93,8 +101,6 @@ describe("syncChildTemplateNames external files", () => {
         join(outputDir, "Отчет", "Templates", "СКартинкой", "Ext", "Template", "Items", "Подложка", "Picture.png")
       ),
     ]).toEqual([10, 20, 30])
-    expect(xmlManifest.expectedFiles()).toContain(
-      "Отчет/Templates/СКартинкой/Ext/Template/Items/Подложка/Picture.png"
-    )
+    expect(xmlManifest.expectedFiles()).toContain("Отчет/Templates/СКартинкой/Ext/Template/Items/Подложка/Picture.png")
   })
 })

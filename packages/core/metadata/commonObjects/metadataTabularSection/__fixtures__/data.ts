@@ -1,4 +1,4 @@
-import { MetadataTabularSections, MetadataTabularSectionsYAML } from "~/metadata/commonObjects/metadataTabularSection/types"
+import { MetadataTabularSections, MetadataTabularSectionsYAML } from "../types"
 
 //#region XML fixtures
 

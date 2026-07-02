@@ -1,6 +1,6 @@
 import { TypeCompiler } from "@sinclair/typebox/compiler"
 import { describe, expect, it } from "vitest"
-import { exportPropertyToJSONSchema } from "~/metadata/orchestration/property/toJSONSchema"
+import { exportPropertyToJSONSchema } from "../../../orchestration/property/toJSONSchema"
 import "./toJSONSchema"
 
 const context = {

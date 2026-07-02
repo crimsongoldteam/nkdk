@@ -1,6 +1,6 @@
 import { describe, expect, it } from "vitest"
-import { PropertyRule } from "~/metadata/orchestration"
-import { testExportPropertyToYAML } from "~/tests/property/exportPropertyToYAML"
+import { PropertyRule } from "../../orchestration"
+import { testExportPropertyToYAML } from "../../../tests/property/exportPropertyToYAML"
 import { group, groupYAML } from "./__fixtures__/group"
 import { item, itemYAML } from "./__fixtures__/item"
 import "./types"

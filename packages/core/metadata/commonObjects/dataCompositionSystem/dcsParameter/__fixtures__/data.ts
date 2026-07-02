@@ -1,5 +1,5 @@
-import type { TypeDescription } from "~/metadata/commonObjects/typeDescription/types"
-import { explicitYAMLString } from "~/yaml/explicitString"
+import type { TypeDescription } from "../../../typeDescription/types"
+import { explicitYAMLString } from "../../../../../yaml/explicitString"
 import type { DCSParameters, DCSParametersYAML } from "../types"
 
 const compositeValueType = {

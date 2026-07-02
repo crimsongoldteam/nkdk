@@ -1,6 +1,6 @@
 import { describe, expect, test } from "vitest"
-import { tableMetadataFields, tableMetadataValues } from "~/metadata/commonObjects/metadataPath/__fixtures__/table"
-import { mockContext, mockRule } from "~/tests/mockContext"
+import { tableMetadataFields, tableMetadataValues } from "./__fixtures__/table"
+import { mockContext, mockRule } from "../../../tests/mockContext"
 import { importMetadataFieldStringFromYAML, importMetadataValueStringFromYAML } from "./fromYAML"
 
 describe("importMetadataFieldFromYAML", () => {

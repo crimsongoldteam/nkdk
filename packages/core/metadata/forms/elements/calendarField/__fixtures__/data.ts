@@ -1,15 +1,11 @@
-import {
-  CalendarField,
-  CalendarFieldEnterprise,
-  CalendarFieldPartialYAML,
-} from "~/metadata/forms/elements/calendarField/types"
+import { CalendarField, CalendarFieldEnterprise, CalendarFieldPartialYAML } from "../types"
 
 import {
   fullFormFieldCommonFixture,
   fullFormFieldEnterpriseCommonFixture,
   fullFormFieldPartialYAMLCommonFixture,
-} from "~/metadata/forms/elements/__fixtures__/formField/rules"
-import { RequiredFieldsElement } from "~/tests/types"
+} from "../../__fixtures__/formField/rules"
+import { RequiredFieldsElement } from "../../../../../tests/types"
 
 export const fullCalendarField = {
   itemType: "CalendarField",

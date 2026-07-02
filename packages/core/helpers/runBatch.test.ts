@@ -31,8 +31,18 @@ describe("runBatch", () => {
 
   it("все задачи падают — succeeded = 0, failed содержит все ошибки", async () => {
     const tasks = [
-      makeTask({ name: "A", run: async () => { throw new Error("err A") } }),
-      makeTask({ name: "B", run: async () => { throw new Error("err B") } }),
+      makeTask({
+        name: "A",
+        run: async () => {
+          throw new Error("err A")
+        },
+      }),
+      makeTask({
+        name: "B",
+        run: async () => {
+          throw new Error("err B")
+        },
+      }),
     ]
     const result = await runBatch(tasks, { concurrency: 4 })
     expect(result.succeeded).toBe(0)
@@ -45,7 +55,12 @@ describe("runBatch", () => {
   it("смешанный исход — правильно разделяет succeeded и failed", async () => {
     const tasks = [
       makeTask({ name: "ok", run: async () => "success" }),
-      makeTask({ name: "bad", run: async () => { throw new Error("boom") } }),
+      makeTask({
+        name: "bad",
+        run: async () => {
+          throw new Error("boom")
+        },
+      }),
       makeTask({ name: "ok2", run: async () => "also success" }),
     ]
     const result = await runBatch(tasks, { concurrency: 4 })
@@ -62,7 +77,9 @@ describe("runBatch", () => {
       name: "ФормаВыбора",
       parent: "Контрагенты",
       sourcePath: "path/to/form.xml",
-      run: async () => { throw new Error("parse error") },
+      run: async () => {
+        throw new Error("parse error")
+      },
     })
     const result = await runBatch([task], { concurrency: 1 })
     const failure = result.failed[0]!
@@ -75,9 +92,24 @@ describe("runBatch", () => {
 
   it("приводит не-Error значения к Error", async () => {
     const tasks = [
-      makeTask({ name: "str", run: async () => { throw "строковая ошибка" } }),
-      makeTask({ name: "num", run: async () => { throw 42 } }),
-      makeTask({ name: "obj", run: async () => { throw { code: "ENOENT" } } }),
+      makeTask({
+        name: "str",
+        run: async () => {
+          throw "строковая ошибка"
+        },
+      }),
+      makeTask({
+        name: "num",
+        run: async () => {
+          throw 42
+        },
+      }),
+      makeTask({
+        name: "obj",
+        run: async () => {
+          throw { code: "ENOENT" }
+        },
+      }),
     ]
     const result = await runBatch(tasks, { concurrency: 4 })
     expect(result.failed).toHaveLength(3)
@@ -103,7 +135,7 @@ describe("runBatch", () => {
           running--
           return i
         },
-      }),
+      })
     )
 
     await runBatch(tasks, { concurrency })

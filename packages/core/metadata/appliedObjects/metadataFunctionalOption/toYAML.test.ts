@@ -1,6 +1,6 @@
 import { describe, expect, it } from "vitest"
-import { exportMetadataItemToYAML } from "~/metadata/orchestration"
-import { mockContext } from "~/tests/mockContext"
+import { exportMetadataItemToYAML } from "../../orchestration"
+import { mockContext } from "../../../tests/mockContext"
 import { MetadataFunctionalOptionRules } from "./rules"
 import type { MetadataFunctionalOption } from "./types"
 

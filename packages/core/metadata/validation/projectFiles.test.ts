@@ -2,12 +2,8 @@ import { mkdirSync, mkdtempSync, rmSync, writeFileSync } from "fs"
 import { tmpdir } from "os"
 import { join, resolve } from "path"
 import { afterEach, describe, expect, it } from "vitest"
-import { TopLevelMetadataItemRules } from "~/metadata/appliedObjects/configuration/topLevelRules"
-import {
-  assertProjectFileInside,
-  discoverValidationProjectFiles,
-  resolveValidationProjectFile,
-} from "./projectFiles"
+import { TopLevelMetadataItemRules } from "../appliedObjects/configuration/topLevelRules"
+import { assertProjectFileInside, discoverValidationProjectFiles, resolveValidationProjectFile } from "./projectFiles"
 import { validationProjectSpecs } from "./projectSpecs"
 
 describe("validation project files", () => {
@@ -33,7 +29,7 @@ describe("validation project files", () => {
 
   it("has validation specs for every top-level metadata object with YAML directory", () => {
     const topLevelDirs = TopLevelMetadataItemRules.flatMap((rule) =>
-      typeof rule.itemTypePrefix === "string" ? [rule.itemTypePrefix] : [],
+      typeof rule.itemTypePrefix === "string" ? [rule.itemTypePrefix] : []
     ).sort((left, right) => left.localeCompare(right, "ru"))
 
     const validationDirs = validationProjectSpecs
@@ -67,7 +63,7 @@ describe("validation project files", () => {
   it("discovers properties for every top-level metadata object with YAML directory", () => {
     const projectDir = createProject()
     const dirs = TopLevelMetadataItemRules.flatMap((rule) =>
-      typeof rule.itemTypePrefix === "string" ? [rule.itemTypePrefix] : [],
+      typeof rule.itemTypePrefix === "string" ? [rule.itemTypePrefix] : []
     )
 
     for (const dir of dirs) {
@@ -75,9 +71,7 @@ describe("validation project files", () => {
     }
 
     expect(discoverValidationProjectFiles(projectDir).map((file) => file.projectPath)).toEqual(
-      dirs
-        .map((dir) => `${dir}/Тест/Свойства.yaml`)
-        .sort((left, right) => left.localeCompare(right, "ru")),
+      dirs.map((dir) => `${dir}/Тест/Свойства.yaml`).sort((left, right) => left.localeCompare(right, "ru"))
     )
   })
 
@@ -137,8 +131,8 @@ describe("validation project files", () => {
     expect(
       resolveValidationProjectFile(
         projectDir,
-        "Подсистема/Администрирование/Подсистемы/Настройки/Подсистемы/Интерфейс/Свойства.yaml",
-      ),
+        "Подсистема/Администрирование/Подсистемы/Настройки/Подсистемы/Интерфейс/Свойства.yaml"
+      )
     ).toMatchObject({
       projectPath: "Подсистема/Администрирование/Подсистемы/Настройки/Подсистемы/Интерфейс/Свойства.yaml",
       kind: "properties",
@@ -156,13 +150,13 @@ describe("validation project files", () => {
     touchProjectFile(projectDir, "Подсистема/Администрирование/Подсистемы/Настройки/Формы/Форма/Форма.yaml")
 
     expect(
-      resolveValidationProjectFile(projectDir, "Подсистема/Администрирование/Подсистемы/Свойства.yaml"),
+      resolveValidationProjectFile(projectDir, "Подсистема/Администрирование/Подсистемы/Свойства.yaml")
     ).toBeUndefined()
     expect(
       resolveValidationProjectFile(
         projectDir,
-        "Подсистема/Администрирование/Подсистемы/Настройки/Формы/Форма/Форма.yaml",
-      ),
+        "Подсистема/Администрирование/Подсистемы/Настройки/Формы/Форма/Форма.yaml"
+      )
     ).toBeUndefined()
     expect(discoverValidationProjectFiles(projectDir)).toEqual([])
   })
@@ -171,9 +165,7 @@ describe("validation project files", () => {
     const projectDir = createProject()
     const outsidePath = resolve(projectDir, "..", "outside", "Справочник", "Товары", "Свойства.yaml")
 
-    expect(() => assertProjectFileInside(projectDir, outsidePath)).toThrow(
-      "Файл находится вне указанного YAML-проекта",
-    )
+    expect(() => assertProjectFileInside(projectDir, outsidePath)).toThrow("Файл находится вне указанного YAML-проекта")
   })
 
   it("returns undefined for unsupported YAML files inside the project", () => {

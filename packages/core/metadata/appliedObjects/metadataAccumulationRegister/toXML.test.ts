@@ -1,8 +1,8 @@
 import { describe, expect, it } from "vitest"
-import { exportMetadataItemToXML } from "~/metadata/orchestration"
-import { testExportAppliedObjectToXML, testImportAppliedObjectFromXML } from "~/tests/appliedObject"
-import { mockContextToXML } from "~/tests/mockContext"
-import { xmlExport } from "~/xml/export/exporter"
+import { exportMetadataItemToXML } from "../../orchestration"
+import { testExportAppliedObjectToXML, testImportAppliedObjectFromXML } from "../../../tests/appliedObject"
+import { mockContextToXML } from "../../../tests/mockContext"
+import { xmlExport } from "../../../xml/export/exporter"
 import { MetadataAccumulationRegisterRules } from "./rules"
 import { MetadataAccumulationRegister } from "./types"
 

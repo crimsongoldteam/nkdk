@@ -12,7 +12,7 @@ export async function snapshotXmlTree(root: string): Promise<Map<string, string>
 
 export async function diffXmlTree(
   root: string,
-  before: Map<string, string>,
+  before: Map<string, string>
 ): Promise<MetadataOperationChangedXmlFile[]> {
   const after = await snapshotXmlTree(root)
   const paths = new Set([...before.keys(), ...after.keys()])

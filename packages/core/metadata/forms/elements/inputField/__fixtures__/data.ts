@@ -6,17 +6,17 @@ import {
   TableInputFieldEnterprise,
   TableInputFieldPartialYAML,
   TableInputFieldTypedYAML,
-} from "~/metadata/forms/elements/inputField/types"
-import { StructureResult } from "~/tests/types"
-import { explicitYAMLString } from "~/yaml/explicitString"
+} from "../types"
+import { StructureResult } from "../../../../../tests/types"
+import { explicitYAMLString } from "../../../../../yaml/explicitString"
 import {
   fullFormFieldCommonFixture,
   fullFormFieldEnterpriseCommonFixture,
   fullFormFieldEnterpriseTableRelatedFixture,
   fullFormFieldPartialYAMLCommonFixture,
   fullFormFieldTableRelatedPartialYAMLCommonFixture,
-} from "~/metadata/forms/elements/__fixtures__/formField/rules"
-import { RequiredFieldsElement } from "~/tests/types"
+} from "../../__fixtures__/formField/rules"
+import { RequiredFieldsElement } from "../../../../../tests/types"
 
 export const fullInputField: RequiredFieldsElement<InputField> = {
   itemType: "InputField",

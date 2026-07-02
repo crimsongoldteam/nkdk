@@ -1,5 +1,5 @@
-import { registerTypeRule } from "~/metadata/orchestration/property/typeRuleRegistry"
-import { ExportToYAMLFunction } from "~/metadata/orchestration/property/fn"
+import { registerTypeRule } from "../../orchestration/property/typeRuleRegistry"
+import { ExportToYAMLFunction } from "../../orchestration/property/fn"
 import { XDTOPackages, XDTOPackagesYAML } from "./types"
 
 export const exportXDTOPackagesToYAML: ExportToYAMLFunction = (

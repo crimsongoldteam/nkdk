@@ -1,7 +1,7 @@
 import fs from "fs"
 import { join } from "path"
 import { describe, expect, it } from "vitest"
-import { testConvertAppliedObjectFromXML } from "~/tests/appliedObject"
+import { testConvertAppliedObjectFromXML } from "../../../tests/appliedObject"
 import { readHTTPServiceYAML } from "./__fixtures__/sync/data"
 import { MetadataHTTPServiceRules } from "./rules"
 

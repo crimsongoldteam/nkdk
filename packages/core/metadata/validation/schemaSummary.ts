@@ -238,7 +238,9 @@ function areValuesEqual(left: unknown, right: unknown): boolean {
     const leftEntries = Object.entries(left)
     const rightKeys = Object.keys(right)
 
-    return leftEntries.length === rightKeys.length && leftEntries.every(([key, value]) => areValuesEqual(value, right[key]))
+    return (
+      leftEntries.length === rightKeys.length && leftEntries.every(([key, value]) => areValuesEqual(value, right[key]))
+    )
   }
 
   return false

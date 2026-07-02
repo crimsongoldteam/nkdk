@@ -1,6 +1,6 @@
 import { describe, expect, it } from "vitest"
-import type { SettingsParameterValueCollectionPropertyRule } from "~/metadata/orchestration/property/types"
-import { mockContextFromXML, mockContextToXML } from "~/tests/mockContext"
+import type { SettingsParameterValueCollectionPropertyRule } from "../../../orchestration/property/types"
+import { mockContextFromXML, mockContextToXML } from "../../../../tests/mockContext"
 import {
   exportSettingsParameterValueDcscorItemsToXML,
   getDcscorItemExportValueForXmlParents,

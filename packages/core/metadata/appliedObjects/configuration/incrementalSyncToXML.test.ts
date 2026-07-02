@@ -2,8 +2,8 @@ import { cpSync, existsSync, mkdirSync, mkdtempSync, readFileSync, rmSync, write
 import { tmpdir } from "os"
 import { join } from "path"
 import { afterEach, beforeEach, describe, expect, it } from "vitest"
-import { getXMLFixturePath } from "~/tests/readAndParseXMLFile"
-import { registerCoreMetadata } from "~/metadata/register"
+import { getXMLFixturePath } from "../../../tests/readAndParseXMLFile"
+import { registerCoreMetadata } from "../../register"
 import { syncConfigurationIncrementallyToXML } from "./incrementalSyncToXML"
 import { CONFIGURATION_XML_FILE, CONFIGURATION_YAML_FILE } from "./rootIO"
 import { hashProjectFiles, readXmlSyncState, writeXmlSyncState } from "./syncState"
@@ -155,7 +155,7 @@ describe("syncConfigurationIncrementallyToXML", () => {
     <Properties><Name>Товары</Name><Synonym/><Comment/></Properties>
   </Catalog>
 </MetaDataObject>`,
-      "utf-8",
+      "utf-8"
     )
     const current = await hashProjectFiles(yamlDir)
     await writeXmlSyncState(xmlDir, { version: 1, files: current })
@@ -173,7 +173,7 @@ describe("syncConfigurationIncrementallyToXML", () => {
       { fileName: "2026-05-05-143000.yaml", from: "Справочник.Товары", to: "Справочник.Номенклатура" },
     ])
     expect(readFileSync(join(xmlDir, ".nakidka-migrations.yaml"), "utf-8")).toBe(
-      ["applied:", "  - 2026-05-05-143000.yaml", ""].join("\n"),
+      ["applied:", "  - 2026-05-05-143000.yaml", ""].join("\n")
     )
     expect(existsSync(join(xmlDir, "Catalogs", "Номенклатура.xml"))).toBe(true)
     expect(existsSync(join(xmlDir, "Catalogs", "Товары.xml"))).toBe(false)
@@ -181,7 +181,7 @@ describe("syncConfigurationIncrementallyToXML", () => {
       expect.arrayContaining([
         { path: "Catalogs/Номенклатура.xml", change: "added" },
         { path: "Catalogs/Товары.xml", change: "deleted" },
-      ]),
+      ])
     )
   })
 

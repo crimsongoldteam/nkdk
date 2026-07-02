@@ -1,7 +1,7 @@
 import { describe, expect, it } from "vitest"
-import * as SE from "~/metadata/systemEnumerations/types"
-import { SystemEnumerationPropertyRule } from "~/metadata/systemEnumerations/types"
-import { mockContext, mockRule } from "~/tests/mockContext"
+import * as SE from "./types"
+import { SystemEnumerationPropertyRule } from "./types"
+import { mockContext, mockRule } from "../../tests/mockContext"
 import { exportSystemEnumerationToYAML, exportSystemEnumerationToYAMLDeprecated } from "./toYAML"
 
 describe("exportSystemEnumerationToYAML", () => {

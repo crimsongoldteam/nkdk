@@ -1,11 +1,11 @@
-import { rootFromYAML } from "~/metadata/commonObjects/metadataTargets/roots"
-import type { ConfigurationContext } from "~/metadata/context/types"
-import type { ClientApplicationForm } from "~/metadata/forms/clientApplicationForm/types"
-import { buildFormDataPathIndex } from "~/metadata/validation/dataPath/formIndex"
-import { collectFormDataPathOccurrences } from "~/metadata/validation/dataPath/formTraversal"
-import { createOwnerMetadataCache, type OwnerMetadataCache } from "~/metadata/validation/dataPath/ownerCache"
-import { resolveDataPath, type ResolvedDataPathTarget } from "~/metadata/validation/dataPath/resolver"
-import { createProjectYamlCache } from "~/metadata/validation/projectYamlCache"
+import { rootFromYAML } from "../commonObjects/metadataTargets/roots"
+import type { ConfigurationContext } from "../context/types"
+import type { ClientApplicationForm } from "../forms/clientApplicationForm/types"
+import { buildFormDataPathIndex } from "../validation/dataPath/formIndex"
+import { collectFormDataPathOccurrences } from "../validation/dataPath/formTraversal"
+import { createOwnerMetadataCache, type OwnerMetadataCache } from "../validation/dataPath/ownerCache"
+import { resolveDataPath, type ResolvedDataPathTarget } from "../validation/dataPath/resolver"
+import { createProjectYamlCache } from "../validation/projectYamlCache"
 import type { OperationSnapshotItem } from "./projectSnapshot"
 
 export interface DataPathReferenceInput {
@@ -22,7 +22,7 @@ export function rewriteDataPathSegments(
   value: string,
   resolvedSegments: readonly string[],
   segmentIndex: number,
-  nextName: string,
+  nextName: string
 ): string {
   const sourceSegments = value.split(".")
   return sourceSegments
@@ -93,7 +93,7 @@ export function collectFormDataPathReferencesForItem(params: {
 
 export function dataPathTargetMatchesCanonicalPrefix(
   target: ResolvedDataPathTarget,
-  canonicalPrefix: string,
+  canonicalPrefix: string
 ): { segmentIndex: number } | undefined {
   if (target.source.kind !== "objectField") return undefined
   const ownerRoot = rootFromYAML[target.source.owner.kind] ?? target.source.owner.kind

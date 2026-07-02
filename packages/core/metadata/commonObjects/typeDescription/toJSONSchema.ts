@@ -1,5 +1,5 @@
 import { TSchema } from "@sinclair/typebox"
-import { ExportToJSONSchemaFn, registerTypeRule } from "~/metadata/orchestration"
+import { ExportToJSONSchemaFn, registerTypeRule } from "../../orchestration"
 import { buildTypeDescriptionJSONSchema } from "./allowedTypes"
 import { TypeDescriptionJSONSchema } from "./types"
 

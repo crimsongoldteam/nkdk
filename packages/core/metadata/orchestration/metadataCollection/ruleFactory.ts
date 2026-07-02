@@ -5,13 +5,13 @@ import {
   ExportToYAMLFunction,
   ImportFromXMLFunction,
   importFromYAMLFunction,
-} from "~/metadata/orchestration/property/fn"
-import { PropertyRuleType } from "~/metadata/orchestration/property/registry"
-import { MetadataItemRule } from "~/metadata/orchestration/property/types"
+} from "../property/fn"
+import { PropertyRuleType } from "../property/registry"
+import type { MetadataItemRule } from "../property/types"
 import { ToMetadata } from "../metadataItem/registry"
 import { exportMetadataItemToJSONSchema } from "../metadataItem/toJSONSchema"
 import { registerTypeRule } from "../property/typeRuleRegistry"
-import { NamedMetadataItem } from "./types"
+import type { NamedMetadataItem } from "./types"
 import { importMetadataItemCollectionFromXML } from "./fromXML"
 import { importMetadataItemCollectionFromYAMLAsArray, importMetadataItemCollectionFromYAMLAsRecord } from "./fromYAML"
 import { exportMetadataCollectionToXML } from "./toXML"

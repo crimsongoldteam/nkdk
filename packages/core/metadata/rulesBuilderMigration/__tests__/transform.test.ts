@@ -25,8 +25,8 @@ describe("rules builder migration transform", () => {
     const result = transformRulesSource("example/rules.ts", source, createBuilderCatalog())
 
     expect(result.code).toContain(
-      'import { i8nTextRule } from "~/metadata/commonObjects/i8nText/types";\n' +
-        'import { stringRule } from "~/metadata/commonObjects/string/types";'
+      'import { i8nTextRule } from "../commonObjects/i8nText/types";\n' +
+        'import { stringRule } from "../commonObjects/string/types";'
     )
     expect(result.code).toContain("name: stringRule({")
     expect(result.code).toContain("defaultValue: ({ name }: {\n                name?: string;\n            }) => name")

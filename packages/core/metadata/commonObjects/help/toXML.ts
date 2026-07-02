@@ -1,11 +1,11 @@
 import fs from "fs"
 import { basename, dirname, join } from "path"
-import type { ConfigurationContextWithExportToXML } from "~/metadata/context/types"
-import { registerTypeRule } from "~/metadata/orchestration"
-import { recordDerivedExternalMetadata } from "~/metadata/orchestration/externalMetadata/record"
-import type { HelpPropertyRule, PropertyRule } from "~/metadata/orchestration/property/types"
-import type { XmlWriteManifest } from "~/metadata/orchestration/xmlWriteManifest"
-import { xmlExport } from "~/xml/export/exporter"
+import type { ConfigurationContextWithExportToXML } from "../../context/types"
+import { registerTypeRule } from "../../orchestration"
+import { recordDerivedExternalMetadata } from "../../orchestration/externalMetadata/record"
+import type { HelpPropertyRule, PropertyRule } from "../../orchestration/property/types"
+import type { XmlWriteManifest } from "../../orchestration/xmlWriteManifest"
+import { xmlExport } from "../../../xml/export/exporter"
 
 /**
  * Генерирует Ext/Help.xml по списку .html-файлов в nkdk-директории справки

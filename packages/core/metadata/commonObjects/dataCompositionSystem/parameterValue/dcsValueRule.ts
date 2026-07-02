@@ -1,9 +1,7 @@
 import type { DcsMetadataValuePropertyRule } from "../dcsMetadataValue/types"
 import type { SettingsParameterValuePropertyRule } from "./types"
 
-export const toDcsMetadataValueRule = (
-  rule: SettingsParameterValuePropertyRule
-): DcsMetadataValuePropertyRule => {
+export const toDcsMetadataValueRule = (rule: SettingsParameterValuePropertyRule): DcsMetadataValuePropertyRule => {
   if (rule.valueType === "SystemEnumeration") {
     return {
       type: "MetadataDcsMetadataValue",

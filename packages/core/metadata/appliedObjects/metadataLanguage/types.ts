@@ -1,5 +1,5 @@
-import type { MetadataTypeByRule } from "~/metadata/orchestration/metadataItem/element"
-import type { YAMLTypeByRule } from "~/metadata/orchestration/metadataItem/yaml"
+import type { MetadataTypeByRule } from "../../orchestration/metadataItem/element"
+import type { YAMLTypeByRule } from "../../orchestration/metadataItem/yaml"
 import type { MetadataLanguageRules } from "./rules"
 
 export type MetadataLanguage = MetadataTypeByRule<typeof MetadataLanguageRules>

@@ -1,4 +1,4 @@
-import { FormCommand, FormCommandsYAML } from "~/metadata/forms/commonObjects/formCommand/types"
+import { FormCommand, FormCommandsYAML } from "../types"
 
 export const fullFormCommands: Omit<Required<FormCommand>, "id">[] = [
   {

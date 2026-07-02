@@ -13,7 +13,8 @@ export function isMigrationFileName(name: string): boolean {
 export function listMigrationFileNames(yamlDir: string): string[] {
   const dir = join(yamlDir, MIGRATIONS_DIR)
   if (!fs.existsSync(dir)) return []
-  return fs.readdirSync(dir, { withFileTypes: true })
+  return fs
+    .readdirSync(dir, { withFileTypes: true })
     .filter((entry) => entry.isFile())
     .map((entry) => entry.name)
     .filter(isMigrationFileName)

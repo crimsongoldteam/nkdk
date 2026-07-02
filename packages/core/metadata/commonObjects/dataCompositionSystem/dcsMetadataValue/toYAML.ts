@@ -1,20 +1,20 @@
-import { exportColorToYAML } from "~/metadata/commonObjects/color/toYAML"
-import { exportFontToYAML } from "~/metadata/commonObjects/font/toYAML"
-import { exportFormattedI8nTextToYAML } from "~/metadata/commonObjects/formattedI8nText/toYAML"
-import type { FormattedI8nText } from "~/metadata/commonObjects/formattedI8nText/types"
-import { exportI8nTextToYAML } from "~/metadata/commonObjects/i8nText/toYAML"
-import { I8nText } from "~/metadata/commonObjects/i8nText/types"
-import { exportMetadataFieldToYAML } from "~/metadata/commonObjects/metadataField/toYAML"
-import { exportMetadataFieldStringToYAML, exportMetadataValueStringToYAML } from "~/metadata/commonObjects/metadataPath/toYAML"
-import { exportMetadataValueToYAML } from "~/metadata/commonObjects/metadataValue/toYAML"
-import { exportTypeLinkToYAML } from "~/metadata/commonObjects/typeLink/toYAML"
-import { exportChoiceParameterLinksToYAML } from "~/metadata/commonObjects/сhoiceParameterLinks/toYAML"
-import { exportChoiceParametersToYAML } from "~/metadata/commonObjects/сhoiceParameters/toYAML"
-import { ChoiceParameter } from "~/metadata/commonObjects/сhoiceParameters/types"
-import { PropertyRule } from "~/metadata/orchestration/property/types"
-import { registerTypeRule } from "~/metadata/orchestration/property/typeRuleRegistry"
-import { exportSystemEnumerationToYAMLDeprecated } from "~/metadata/systemEnumerations/toYAML"
-import { SystemEnumerationPropertyRule } from "~/metadata/systemEnumerations/types"
+import { exportColorToYAML } from "../../color/toYAML"
+import { exportFontToYAML } from "../../font/toYAML"
+import { exportFormattedI8nTextToYAML } from "../../formattedI8nText/toYAML"
+import type { FormattedI8nText } from "../../formattedI8nText/types"
+import { exportI8nTextToYAML } from "../../i8nText/toYAML"
+import { I8nText } from "../../i8nText/types"
+import { exportMetadataFieldToYAML } from "../../metadataField/toYAML"
+import { exportMetadataFieldStringToYAML, exportMetadataValueStringToYAML } from "../../metadataPath/toYAML"
+import { exportMetadataValueToYAML } from "../../metadataValue/toYAML"
+import { exportTypeLinkToYAML } from "../../typeLink/toYAML"
+import { exportChoiceParameterLinksToYAML } from "../../сhoiceParameterLinks/toYAML"
+import { exportChoiceParametersToYAML } from "../../сhoiceParameters/toYAML"
+import { ChoiceParameter } from "../../сhoiceParameters/types"
+import type { PropertyRule } from "../../../orchestration/property/types"
+import { registerTypeRule } from "../../../orchestration/property/typeRuleRegistry"
+import { exportSystemEnumerationToYAMLDeprecated } from "../../../systemEnumerations/toYAML"
+import { SystemEnumerationPropertyRule } from "../../../systemEnumerations/types"
 import { ConfigurationContext } from "../../../context/types"
 import {
   DcsMetadataValuePropertyRule,
@@ -33,9 +33,7 @@ const isExplicitTextValue = (data: MetadataDcsMetadataValue): data is MetadataDc
   (data.type === "DesignTimeValue" || data.type === "Field") &&
   typeof data.value === "string"
 
-const isDcsSystemEnumerationValue = (
-  data: MetadataDcsMetadataValue
-): data is MetadataDcsSystemEnumerationValue =>
+const isDcsSystemEnumerationValue = (data: MetadataDcsMetadataValue): data is MetadataDcsSystemEnumerationValue =>
   data !== null &&
   typeof data === "object" &&
   !Array.isArray(data) &&
@@ -45,9 +43,7 @@ const isDcsSystemEnumerationValue = (
   data.type === "SystemEnumeration" &&
   typeof data.value === "string"
 
-const isPrimitiveStringValue = (
-  data: MetadataDcsMetadataValue
-): data is { type: "string"; value: string } =>
+const isPrimitiveStringValue = (data: MetadataDcsMetadataValue): data is { type: "string"; value: string } =>
   data !== null &&
   typeof data === "object" &&
   !Array.isArray(data) &&
@@ -97,9 +93,7 @@ export const exportDcsMetadataValueToYAML = (
   if (data === undefined) return undefined
   if (data === null) return null as unknown as MetadataDcsMetadataValueYAML
   if (Array.isArray(data) && rule.valueType === "Primitive") {
-    return data.map((item) =>
-      exportDcsMetadataValueToYAML(context, rule, item)
-    ) as MetadataDcsMetadataValueYAML
+    return data.map((item) => exportDcsMetadataValueToYAML(context, rule, item)) as MetadataDcsMetadataValueYAML
   }
 
   if (rule.valueType === "Field" && isPrimitiveStringValue(data)) {
@@ -118,10 +112,12 @@ export const exportDcsMetadataValueToYAML = (
     }
 
     if (data.type === "DesignTimeValue") {
-      return (exportMetadataValueStringToYAML(context, undefined, data.value) ?? data.value) as MetadataDcsMetadataValueYAML
+      return (exportMetadataValueStringToYAML(context, undefined, data.value) ??
+        data.value) as MetadataDcsMetadataValueYAML
     }
 
-    return (exportMetadataFieldStringToYAML(context, undefined, data.value) ?? data.value) as MetadataDcsMetadataValueYAML
+    return (exportMetadataFieldStringToYAML(context, undefined, data.value) ??
+      data.value) as MetadataDcsMetadataValueYAML
   }
 
   switch (rule.valueType) {

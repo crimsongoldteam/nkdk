@@ -1,9 +1,6 @@
 import { describe, expect, it } from "vitest"
-import { mockContextFromXML, mockContextToXML } from "~/tests/mockContext"
-import {
-  exportUserSettingPresentationToXML,
-  importUserSettingPresentationFromXML,
-} from "./userSettingPresentationXML"
+import { mockContextFromXML, mockContextToXML } from "../../../../tests/mockContext"
+import { exportUserSettingPresentationToXML, importUserSettingPresentationFromXML } from "./userSettingPresentationXML"
 
 describe("userSettingPresentation XML helpers", () => {
   it("imports xs:string as I8nText", () => {
@@ -16,13 +13,10 @@ describe("userSettingPresentation XML helpers", () => {
   })
 
   it("preserves xs:string short form for unchanged reference", () => {
-    const reference = importUserSettingPresentationFromXML(
-      mockContextFromXML({ forReference: true }),
-      {
-        "_xsi:type": "xs:string",
-        "#text": "по",
-      }
-    )
+    const reference = importUserSettingPresentationFromXML(mockContextFromXML({ forReference: true }), {
+      "_xsi:type": "xs:string",
+      "#text": "по",
+    })
 
     expect(
       exportUserSettingPresentationToXML({
@@ -43,13 +37,10 @@ describe("userSettingPresentation XML helpers", () => {
   })
 
   it("exports changed single-language value as xs:string", () => {
-    const reference = importUserSettingPresentationFromXML(
-      mockContextFromXML({ forReference: true }),
-      {
-        "_xsi:type": "xs:string",
-        "#text": "по",
-      }
-    )
+    const reference = importUserSettingPresentationFromXML(mockContextFromXML({ forReference: true }), {
+      "_xsi:type": "xs:string",
+      "#text": "по",
+    })
 
     expect(
       exportUserSettingPresentationToXML({

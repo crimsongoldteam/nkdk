@@ -1,4 +1,4 @@
-import { I8nText, I8nTextYAML } from "~/metadata/commonObjects/i8nText/types"
+import { I8nText, I8nTextYAML } from "../../types"
 
 export interface I8nTextFixture {
   name: string
@@ -117,10 +117,10 @@ export const i8nTextFixtures: I8nTextFixture[] = [
   },
   {
     name: "with escaped content",
-    text: { items: { ru: 'Тест экранирования: & < > " \' ]]>' } },
-    textFromStructure: { items: { ru: 'Тест экранирования: & < > " \' ]]>' } },
-    fullYAML: 'Тест экранирования: & < > " \' ]]>',
-    defaultLanguageYAML: 'Тест экранирования: & < > " \' ]]>',
+    text: { items: { ru: "Тест экранирования: & < > \" ' ]]>" } },
+    textFromStructure: { items: { ru: "Тест экранирования: & < > \" ' ]]>" } },
+    fullYAML: "Тест экранирования: & < > \" ' ]]>",
+    defaultLanguageYAML: "Тест экранирования: & < > \" ' ]]>",
     otherLanguagesYAML: undefined,
     xml: `<Title>
 	<v8:item>

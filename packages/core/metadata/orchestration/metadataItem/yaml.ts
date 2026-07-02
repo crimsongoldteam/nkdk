@@ -1,7 +1,7 @@
-import { UserVisibleYAML } from "~/metadata/commonObjects/userVisible/types"
-import { MetadataItemType } from "~/metadata/orchestration/metadataItem/registry"
-import { PropertyRuleType, PropertyToYAML } from "~/metadata/orchestration/property/registry"
-import * as SE from "~/metadata/systemEnumerations/types"
+import { UserVisibleYAML } from "../../commonObjects/userVisible/types"
+import { MetadataItemType } from "./registry"
+import { PropertyRuleType, PropertyToYAML } from "../property/registry"
+import * as SE from "../../systemEnumerations/types"
 import { PropertyRule } from "../property/types"
 
 /**
@@ -69,8 +69,7 @@ type PropertiesByRule<Rule extends { properties: Record<string, PropertyRule> }>
                   ? YAMLName extends string
                     ? YAMLName
                     : never
-                  : never
-          ]?: Properties[K] extends {
+                  : never]?: Properties[K] extends {
           type: "SystemEnumeration"
           typeSE: infer TypeSE
         }

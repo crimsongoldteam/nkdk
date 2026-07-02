@@ -1,5 +1,5 @@
 import { describe, expect, it } from "vitest"
-import { ConfigurationContextWithExportToXML } from "~/metadata/context/types"
+import { ConfigurationContextWithExportToXML } from "../../context/types"
 import { exportXDTOTypeNameToXML } from "./toXML"
 
 const context = {} as ConfigurationContextWithExportToXML

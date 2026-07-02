@@ -1,4 +1,4 @@
-import { MetadataTabularSections } from "~/metadata/commonObjects/metadataTabularSection/types"
+import { MetadataTabularSections } from "../../types"
 
 export const fullTabularSections: MetadataTabularSections = [
   {

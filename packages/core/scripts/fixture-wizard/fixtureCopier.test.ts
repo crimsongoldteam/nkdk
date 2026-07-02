@@ -2,13 +2,7 @@ import { mkdir, mkdtemp, readFile, readdir, rm, writeFile } from "node:fs/promis
 import { tmpdir } from "node:os"
 import { dirname, join } from "node:path"
 import { afterEach, describe, expect, it } from "vitest"
-import {
-  buildCopyPlan,
-  copyFixtures,
-  formatCopyPlan,
-  formatTestCommands,
-  verifyCopyPlan,
-} from "./fixtureCopier"
+import { buildCopyPlan, copyFixtures, formatCopyPlan, formatTestCommands, verifyCopyPlan } from "./fixtureCopier"
 import type { CopyPlan, FixtureSelection, MetadataTarget, XmlCandidate } from "./types"
 
 const tempRoots: string[] = []
@@ -62,9 +56,7 @@ describe("fixtureCopier", () => {
     await writeFixture(join(sourceXmlDir, full.name, "Forms/Форма/Ext/Form.xml"), "<form />")
     await mkdir(join(sourceXmlDir, full.name, "Templates"), { recursive: true })
 
-    await expect(
-      buildCopyPlan({ target: metadataTarget, sourceXmlDir, selection }),
-    ).resolves.toMatchObject({
+    await expect(buildCopyPlan({ target: metadataTarget, sourceXmlDir, selection })).resolves.toMatchObject({
       metadataItem: "metadataDocument",
       sourceXmlDir,
       fixturesDir: metadataTarget.fixturesDir,
@@ -190,9 +182,7 @@ describe("fixtureCopier", () => {
       overwrites: [],
     }
 
-    await expect(verifyCopyPlan(plan)).rejects.toThrow(
-      `Скопированный файл отличается от источника: ${targetPath}`,
-    )
+    await expect(verifyCopyPlan(plan)).rejects.toThrow(`Скопированный файл отличается от источника: ${targetPath}`)
   })
 
   it("copyFixtures не создаёт пустые связанные директории", async () => {
@@ -231,12 +221,8 @@ describe("fixtureCopier", () => {
       fixturesDir: "/project/fixtures",
       syncXmlDir: "/project/fixtures/sync/xml",
       fullName: "ДокументВсеСвойства",
-      operations: [
-        { source: "/dump/full.xml", target: "/project/fixtures/full.xml", kind: "full" },
-      ],
-      overwrites: [
-        { source: "/dump/full.xml", target: "/project/fixtures/full.xml", kind: "full" },
-      ],
+      operations: [{ source: "/dump/full.xml", target: "/project/fixtures/full.xml", kind: "full" }],
+      overwrites: [{ source: "/dump/full.xml", target: "/project/fixtures/full.xml", kind: "full" }],
     }
 
     expect(formatCopyPlan(plan)).toContain("metadataDocument")

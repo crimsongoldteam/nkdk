@@ -1,5 +1,5 @@
-import { ConfigurationContext } from "~/metadata/context/types"
-import { PropertyRule, registerTypeRule } from "~/metadata/orchestration"
+import { ConfigurationContext } from "../../context/types"
+import { PropertyRule, registerTypeRule } from "../../orchestration"
 import { importMetadataValueFromYAML } from "../metadataValue/fromYAML"
 import { MobileDeviceCommandBarContent, MobileDeviceCommandBarContentYAML } from "./types"
 
@@ -12,7 +12,9 @@ export const importMobileDeviceCommandBarContentFromYAML = (
 
   const items = yaml
     .map((item) =>
-      typeof item === "string" ? { type: "string" as const, value: item } : importMetadataValueFromYAML(context, { type: "MetadataValue" }, item)
+      typeof item === "string"
+        ? { type: "string" as const, value: item }
+        : importMetadataValueFromYAML(context, { type: "MetadataValue" }, item)
     )
     .filter((item): item is MobileDeviceCommandBarContent[number] => item !== undefined)
 

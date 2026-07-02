@@ -2,9 +2,9 @@ import {
   homePageWorkAreaColumnItemsRule,
   homePageWorkAreaCommandInterfaceDisplayRule,
   homePageWorkAreaTemplateRule,
-} from "~/metadata/commonObjects/homePageWorkArea/builders"
-import { xmlRootRule } from "~/metadata/commonObjects/xmlRoot/types"
-import { MetadataItemRule } from "~/metadata/orchestration/property/types"
+} from "./builders"
+import { xmlRootRule } from "../xmlRoot/types"
+import type { MetadataItemRule } from "../../orchestration/property/types"
 const homePageWorkAreaRootAttributes = {
   _xmlns: "http://v8.1c.ru/8.3/xcf/extrnprops",
   "_xmlns:xr": "http://v8.1c.ru/8.3/xcf/readable",

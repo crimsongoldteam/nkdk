@@ -1,7 +1,4 @@
-import type {
-  ExternalMetadataCollector,
-  ExternalMetadataContextItem,
-} from "~/metadata/orchestration/externalMetadata/types"
+import type { ExternalMetadataCollector, ExternalMetadataContextItem } from "../../orchestration/externalMetadata/types"
 import type { ConfigDumpInfo, ConfigDumpInfoEntry } from "./types"
 
 export function createConfigDumpInfoExternalMetadataCollector(target: ConfigDumpInfo): ExternalMetadataCollector {

@@ -1,9 +1,9 @@
 import { TypeCompiler } from "@sinclair/typebox/compiler"
 import { describe, expect, it } from "vitest"
-import { importPropertyFromXML, PropertyRule } from "~/metadata/orchestration"
-import { exportPropertyToJSONSchema } from "~/metadata/orchestration/property/toJSONSchema"
-import { MetadataItemRule } from "~/metadata/orchestration/property/types"
-import { mockContextFromXML } from "~/tests/mockContext"
+import { importPropertyFromXML, PropertyRule } from ".."
+import { exportPropertyToJSONSchema } from "../property/toJSONSchema"
+import type { MetadataItemRule } from "../property/types"
+import { mockContextFromXML } from "../../../tests/mockContext"
 import { registerMetadataItemCollectionRule } from "./ruleFactory"
 
 // Минимальное правило одиночного элемента для тестов коллекции.

@@ -1,6 +1,6 @@
 import { Type } from "@sinclair/typebox"
 import { TypeCompiler, ValueErrorType } from "@sinclair/typebox/compiler"
-import { parseMetadataYaml } from "~/yaml/parseMetadataYaml"
+import { parseMetadataYaml } from "../../yaml/parseMetadataYaml"
 import { describe, expect, it } from "vitest"
 import {
   expandDiscriminatedUnionErrors,
@@ -156,6 +156,27 @@ describe("validateFile", () => {
     const result = validateFile({ filePath: "test.yaml", text, schema: simpleSchema })
     // Только синтаксическая ошибка, никаких structure-диагностик
     expect(result.every((d) => d.source === "syntax")).toBe(true)
+  })
+
+  it("uses js-yaml syntax diagnostics from ParsedYaml", () => {
+    const parsed = parseMetadataYaml("Имя: [")
+
+    expect(parsed.syntaxErrors).toHaveLength(1)
+    expect(
+      validateParsedFile({
+        filePath: "test.yaml",
+        parsed,
+        schema: simpleSchema,
+      })
+    ).toEqual([
+      expect.objectContaining({
+        filePath: "test.yaml",
+        line: 1,
+        col: 6,
+        source: "syntax",
+        severity: "error",
+      }),
+    ])
   })
 
   it("обнаруживает поле с недопустимым дополнительным ключом", () => {

@@ -1,5 +1,5 @@
 import { Type, TSchema } from "@sinclair/typebox"
-import { ExportToJSONSchemaFn, registerTypeRule } from "~/metadata/orchestration"
+import { ExportToJSONSchemaFn, registerTypeRule } from "../../orchestration"
 
 export const XDTOTypeNameJSONSchema = Type.Object({
   ПространствоИмен: Type.String(),

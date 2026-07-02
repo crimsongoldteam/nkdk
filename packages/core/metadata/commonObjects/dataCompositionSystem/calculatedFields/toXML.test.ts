@@ -1,6 +1,6 @@
 import { describe, expect, it } from "vitest"
-import { exportPropertyToXML, type PropertyRule } from "~/metadata/orchestration"
-import { mockContextToXML } from "~/tests/mockContext"
+import { exportPropertyToXML, type PropertyRule } from "../../../orchestration"
+import { mockContextToXML } from "../../../../tests/mockContext"
 import { calculatedFields } from "./__fixtures__/data"
 
 const rule: PropertyRule = {

@@ -1,6 +1,6 @@
 import { describe, expect, it } from "vitest"
-import { getTypeRule } from "~/metadata/orchestration"
-import { mockContext, mockRule } from "~/tests/mockContext"
+import { getTypeRule } from "../../orchestration"
+import { mockContext, mockRule } from "../../../tests/mockContext"
 import { exportMetadataFieldToJSONSchema } from "./toJSONSchema"
 
 describe("exportMetadataFieldToJSONSchema", () => {
@@ -10,7 +10,12 @@ describe("exportMetadataFieldToJSONSchema", () => {
       rule: {
         ...mockRule,
         type: "MetadataField",
-        metadataTarget: { kind: "member", owner: "explicit", roots: ["Catalog"], memberKinds: ["Attribute", "StandardAttribute"] },
+        metadataTarget: {
+          kind: "member",
+          owner: "explicit",
+          roots: ["Catalog"],
+          memberKinds: ["Attribute", "StandardAttribute"],
+        },
       },
       value: undefined,
     })
@@ -24,11 +29,7 @@ describe("exportMetadataFieldToJSONSchema", () => {
 
     expect(pattern.test("Справочник.ИмяСправочника.Реквизит.ИмяРеквизита")).toBe(true)
     for (const example of examples) expect(pattern.test(String(example))).toBe(true)
-    expect(
-      pattern.test(
-        "Справочник.ИмяСправочника.ТабличнаяЧасть.ИмяТабличнойЧасти.Реквизит.ИмяРеквизита"
-      )
-    ).toBe(true)
+    expect(pattern.test("Справочник.ИмяСправочника.ТабличнаяЧасть.ИмяТабличнойЧасти.Реквизит.ИмяРеквизита")).toBe(true)
     expect(pattern.test("Документ.ИмяДокумента.Реквизит.ИмяРеквизита")).toBe(false)
   })
 
@@ -40,7 +41,12 @@ describe("exportMetadataFieldToJSONSchema", () => {
       rule: {
         ...mockRule,
         type: "MetadataFields",
-        metadataTarget: { kind: "member", owner: "explicit", roots: ["Document"], memberKinds: ["Attribute", "StandardAttribute"] },
+        metadataTarget: {
+          kind: "member",
+          owner: "explicit",
+          roots: ["Document"],
+          memberKinds: ["Attribute", "StandardAttribute"],
+        },
       },
       value: undefined,
     })

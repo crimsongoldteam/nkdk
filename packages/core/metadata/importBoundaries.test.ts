@@ -10,27 +10,23 @@ const ORCHESTRATION_DIR = join(METADATA_DIR, "orchestration")
 const ORCHESTRATION_APPLIED_OBJECT_DIR = join(METADATA_DIR, "orchestration", "appliedObject")
 const ORCHESTRATION_FORM_ELEMENT_DIR = join(METADATA_DIR, "orchestration", "formElement")
 const PROJECT_DIR = join(METADATA_DIR, "project")
+const WORKSPACE_ROOT = join(process.cwd(), "..", "..")
+const PACKAGES_FOR_ALIAS_SCAN = ["packages/core", "packages/cli", "packages/mcp"] as const
+const CONFIG_FILES_FOR_ALIAS_SCAN = [
+  "packages/core/tsconfig.json",
+  "packages/cli/tsconfig.json",
+  "packages/mcp/tsconfig.json",
+  "packages/core/vitest.config.ts",
+  "packages/cli/vitest.config.ts",
+  "packages/mcp/vitest.config.ts",
+] as const
 
-const FORBIDDEN_COMMON_OBJECT_IMPORTS = ["~/metadata/forms/elements/", "../forms/elements/"] as const
-const FORBIDDEN_ORCHESTRATION_APPLIED_OBJECT_IMPORTS = [
-  "~/metadata/appliedObjects/configuration/",
-  "../../appliedObjects/configuration/",
-] as const
-const FORBIDDEN_FORM_ELEMENT_FACTORY_IMPORTS = [
-  "~/metadata/orchestration/formElement/factory",
-  "../formElement/factory",
-  "./formElement/factory",
-] as const
+const FORBIDDEN_COMMON_OBJECT_IMPORTS = ["../forms/elements/"] as const
+const FORBIDDEN_ORCHESTRATION_APPLIED_OBJECT_IMPORTS = ["../../appliedObjects/configuration/"] as const
+const FORBIDDEN_FORM_ELEMENT_FACTORY_IMPORTS = ["../formElement/factory", "./formElement/factory"] as const
 const FORBIDDEN_FORM_ELEMENT_LOCAL_FACTORY_IMPORTS = ["./factory"] as const
-const FORBIDDEN_ORCHESTRATION_FORM_MODEL_IMPORTS = ["~/metadata/forms/elements/baseElement/types"] as const
-const FORBIDDEN_PROJECT_CONCRETE_METADATA_IMPORTS = [
-  "~/metadata/appliedObjects/",
-  "~/metadata/commonObjects/",
-  "~/metadata/forms/",
-  "../appliedObjects/",
-  "../commonObjects/",
-  "../forms/",
-] as const
+const FORBIDDEN_ORCHESTRATION_FORM_MODEL_IMPORTS = ["../forms/elements/baseElement/types"] as const
+const FORBIDDEN_PROJECT_CONCRETE_METADATA_IMPORTS = ["../appliedObjects/", "../commonObjects/", "../forms/"] as const
 const REGISTRATION_ENTRYPOINT_ALLOWLIST = new Set([
   "index.ts",
   "metadata/register.ts",
@@ -55,14 +51,36 @@ const REGISTRATION_ENTRYPOINT_ALLOWLIST = new Set([
   "metadata/appliedObjects/metadataExternalDataSource/fromYAML.test.ts",
   "metadata/appliedObjects/metadataExternalDataSource/toYAML.test.ts",
 ])
-const BROAD_METADATA_REGISTRATION_IMPORTS = [
-  "~/metadata/appliedObjects",
-  "~/metadata/commonObjects",
-  "~/metadata/forms",
-] as const
+const BROAD_METADATA_REGISTRATION_IMPORTS = ["../appliedObjects", "../commonObjects", "../forms"] as const
 const SKIPPED_SCAN_DIRS = new Set(["node_modules", ".git", ".worktrees", "dist", "coverage"])
 
 describe("metadata import boundaries", () => {
+  it("workspace TypeScript and test configs do not use legacy ~ alias", () => {
+    const importOffenders = PACKAGES_FOR_ALIAS_SCAN.flatMap((packagePath) =>
+      listTypeScriptFiles(join(WORKSPACE_ROOT, packagePath), { includeTests: true })
+        .map((filePath) => ({
+          filePath: relative(WORKSPACE_ROOT, filePath),
+          specifiers: extractModuleSpecifiers(readFileSync(filePath, "utf-8")).filter(
+            (specifier) => specifier === "~" || specifier.startsWith("~/")
+          ),
+        }))
+        .filter(({ specifiers }) => specifiers.length > 0)
+    )
+
+    const configOffenders = CONFIG_FILES_FOR_ALIAS_SCAN.map((filePath) => {
+      const source = readFileSync(join(WORKSPACE_ROOT, filePath), "utf-8")
+      return {
+        filePath,
+        hasAlias: /["']~(?:\/\*)?["']/.test(source),
+      }
+    }).filter(({ hasAlias }) => hasAlias)
+
+    expect({ importOffenders, configOffenders }).toEqual({
+      importOffenders: [],
+      configOffenders: [],
+    })
+  })
+
   it("commonObjects не импортирует конкретные элементы формы", () => {
     expect(findImportOffenders(COMMON_OBJECTS_DIR, FORBIDDEN_COMMON_OBJECT_IMPORTS)).toEqual([])
   })
@@ -109,8 +127,8 @@ describe("metadata import boundaries", () => {
     expect(source).not.toContain("MetadataExternalDataSource")
   })
 
-  it("ProjectMetadataResolver делегирует concrete metadata knowledge регистрациям", () => {
-    const source = readFileSync(join(METADATA_DIR, "validation", "projectMetadataResolver.ts"), "utf-8")
+  it("ProjectReferenceIndex делегирует concrete metadata knowledge регистрациям", () => {
+    const source = readFileSync(join(METADATA_DIR, "validation", "projectReferenceIndex.ts"), "utf-8")
 
     for (const forbidden of [
       "objectRootDir",
@@ -142,7 +160,15 @@ describe("metadata import boundaries", () => {
 
     for (const filePath of files) {
       const source = readFileSync(join(process.cwd(), filePath), "utf-8")
-      for (const forbidden of ["Справочник", "Документ", "РегистрСведений", "ПланСчетов", "CatalogRef", "DocumentRef", "RegisterRecords"]) {
+      for (const forbidden of [
+        "Справочник",
+        "Документ",
+        "РегистрСведений",
+        "ПланСчетов",
+        "CatalogRef",
+        "DocumentRef",
+        "RegisterRecords",
+      ]) {
         expect(source).not.toContain(forbidden)
       }
     }
@@ -193,7 +219,10 @@ describe("metadata import boundaries", () => {
 
   it("central metadata registries expose only neutral string keys", () => {
     const propertyRegistry = readFileSync(join(METADATA_DIR, "orchestration", "property", "registry.ts"), "utf-8")
-    const metadataItemRegistry = readFileSync(join(METADATA_DIR, "orchestration", "metadataItem", "registry.ts"), "utf-8")
+    const metadataItemRegistry = readFileSync(
+      join(METADATA_DIR, "orchestration", "metadataItem", "registry.ts"),
+      "utf-8"
+    )
 
     expect(propertyRegistry.trim()).toContain("export type PropertyRuleType = string")
     expect(metadataItemRegistry.trim()).toContain("export type MetadataItemType = string")
@@ -228,13 +257,11 @@ describe("metadata import boundaries", () => {
   })
 
   it("старые boundary-правила поддерживают prefix imports, а broad-регистрации остаются exact", () => {
-    expect(
-      findForbiddenImports('import { Button } from "~/metadata/forms/elements/button"', ["~/metadata/forms/elements/"])
-    ).toEqual(["~/metadata/forms/elements/"])
+    expect(findForbiddenImports('import { Button } from "../forms/elements/button"', ["../forms/elements/"])).toEqual([
+      "../forms/elements/",
+    ])
 
-    expect(
-      findForbiddenModuleSpecifiers('import { Button } from "~/metadata/forms/elements/button"', ["~/metadata/forms"])
-    ).toEqual([])
+    expect(findForbiddenModuleSpecifiers('import { Button } from "../forms/elements/button"', ["../forms"])).toEqual([])
   })
 
   it("MetadataLanguage runtime registration lives in register.ts, not types.ts", () => {
@@ -309,7 +336,13 @@ function listTypeScriptFiles(dir: string, options: { includeTests?: boolean } = 
     if (SKIPPED_SCAN_DIRS.has(entry)) continue
 
     const fullPath = join(dir, entry)
-    const stat = lstatSync(fullPath)
+    let stat
+    try {
+      stat = lstatSync(fullPath)
+    } catch (caught) {
+      if (caught instanceof Error && "code" in caught && caught.code === "ENOENT") continue
+      throw caught
+    }
     if (stat.isSymbolicLink()) continue
     if (stat.isDirectory()) {
       result.push(...listTypeScriptFiles(fullPath, options))

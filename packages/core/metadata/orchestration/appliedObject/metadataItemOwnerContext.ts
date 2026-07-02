@@ -3,9 +3,9 @@ import type {
   ConfigurationContextWithExportToXML,
   ContextElementToXML,
   MetadataTargetOwnerContext,
-} from "~/metadata/context/types"
-import type { MetadataTargetOwner } from "~/metadata/commonObjects/metadataTargets/types"
-import type { MetadataItemType } from "~/metadata/orchestration/metadataItem/registry"
+} from "../../context/types"
+import type { MetadataTargetOwner } from "../../commonObjects/metadataTargets/types"
+import type { MetadataItemType } from "../metadataItem/registry"
 
 export interface MetadataItemOwnerContextEntry {
   itemType: MetadataItemType

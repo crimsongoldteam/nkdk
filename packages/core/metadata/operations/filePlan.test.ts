@@ -21,15 +21,17 @@ describe("applyMetadataOperationFilePlan", () => {
 
     const result = applyMetadataOperationFilePlan({
       steps: [
-        { kind: "writeFile", path: join(dir, "Справочник", "Товары", "Свойства.yaml"), content: "Комментарий: Новый\n" },
+        {
+          kind: "writeFile",
+          path: join(dir, "Справочник", "Товары", "Свойства.yaml"),
+          content: "Комментарий: Новый\n",
+        },
         { kind: "renamePath", from: join(dir, "Справочник", "Товары"), to: join(dir, "Справочник", "Номенклатура") },
       ],
     })
 
     expect(result.ok).toBe(true)
-    expect(readFileSync(join(dir, "Справочник", "Номенклатура", "Свойства.yaml"), "utf-8")).toBe(
-      "Комментарий: Новый\n",
-    )
+    expect(readFileSync(join(dir, "Справочник", "Номенклатура", "Свойства.yaml"), "utf-8")).toBe("Комментарий: Новый\n")
   })
 
   it("reports partial write failure without rollback", () => {

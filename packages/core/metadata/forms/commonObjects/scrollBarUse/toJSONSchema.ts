@@ -1,6 +1,6 @@
 import { TSchema, Type } from "@sinclair/typebox"
-import { ExportToJSONSchemaFn, registerTypeRule } from "~/metadata/orchestration"
-import * as SE from "~/metadata/systemEnumerations/types"
+import { ExportToJSONSchemaFn, registerTypeRule } from "../../../orchestration"
+import * as SE from "../../../systemEnumerations/types"
 
 export const exportScrollBarUseToJSONSchema: ExportToJSONSchemaFn = (): TSchema => {
   const enumeration = SE.ScrollBarUseFromYAML
@@ -15,4 +15,3 @@ export const exportScrollBarUseToJSONSchema: ExportToJSONSchemaFn = (): TSchema 
 }
 
 registerTypeRule("ScrollBarUseBoolean", "exportToJSONSchema", exportScrollBarUseToJSONSchema)
-

@@ -83,9 +83,7 @@ describe("buildMetadataTargetSchema", () => {
 
     expect(schema).toMatchObject({
       type: "string",
-      examples: [
-        "Справочник.ИмяСправочника.Реквизит.ИмяРеквизита",
-      ],
+      examples: ["Справочник.ИмяСправочника.Реквизит.ИмяРеквизита"],
     })
     expect(String(schema.description)).toContain("Полный путь члена объекта")
   })
@@ -110,14 +108,9 @@ describe("buildMetadataTargetSchema", () => {
       memberKinds: ["Attribute", "StandardAttribute"],
     })
 
-    expect(schema.examples).toEqual([
-      "Справочник.ИмяСправочника.Реквизит.ИмяРеквизита",
-    ])
+    expect(schema.examples).toEqual(["Справочник.ИмяСправочника.Реквизит.ИмяРеквизита"])
     expectMatches(schema, "Справочник.ИмяСправочника.Реквизит.ИмяРеквизита")
-    expectMatches(
-      schema,
-      "Справочник.ИмяСправочника.ТабличнаяЧасть.ИмяТабличнойЧасти.Реквизит.ИмяРеквизита"
-    )
+    expectMatches(schema, "Справочник.ИмяСправочника.ТабличнаяЧасть.ИмяТабличнойЧасти.Реквизит.ИмяРеквизита")
     expectNotMatches(schema, "Справочник.ИмяСправочника.ТабличнаяЧасть.ИмяТабличнойЧасти")
   })
 
@@ -131,10 +124,7 @@ describe("buildMetadataTargetSchema", () => {
 
     expect(schema).toMatchObject({
       type: "string",
-      examples: [
-        "Справочник.ИмяСправочника.ИмяПредопределенногоЗначения",
-        "Справочник.ИмяСправочника.ПустаяСсылка",
-      ],
+      examples: ["Справочник.ИмяСправочника.ИмяПредопределенногоЗначения", "Справочник.ИмяСправочника.ПустаяСсылка"],
     })
     expect(String(schema.description)).toContain("<ИмяСправочника>")
   })
@@ -275,7 +265,11 @@ describe("buildMetadataTargetSchema", () => {
 
   it("accepts opaque multiple-value form data paths only when explicitly allowed", () => {
     const strictSchema = buildMetadataTargetSchema({ kind: "dataPath", context: "form" })
-    const opaqueSchema = buildMetadataTargetSchema({ kind: "dataPath", context: "form", allowOpaqueMultipleValue: true })
+    const opaqueSchema = buildMetadataTargetSchema({
+      kind: "dataPath",
+      context: "form",
+      allowOpaqueMultipleValue: true,
+    })
     const opaquePath = "1/0:796f500f-c364-45d1-bce6-9e7e8e15b664"
 
     expectNotMatches(strictSchema, opaquePath)
@@ -310,7 +304,12 @@ describe("buildMetadataTargetSchema", () => {
   })
 
   it("keeps root constraints for current-owner compatible model member paths", () => {
-    const schema = buildMetadataTargetSchema({ kind: "member", owner: "this", roots: ["Document"], memberKinds: ["Form"] })
+    const schema = buildMetadataTargetSchema({
+      kind: "member",
+      owner: "this",
+      roots: ["Document"],
+      memberKinds: ["Form"],
+    })
     const compiled = TypeCompiler.Compile(schema)
 
     expect(compiled.Check("Document.АвансовыйОтчет.Form.ФормаДокумента")).toBe(true)

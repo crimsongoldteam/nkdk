@@ -1,5 +1,5 @@
 import { describe, expect, it } from "vitest"
-import { testExportPropertyToXML } from "~/tests/property/exportPropertyToXML"
+import { testExportPropertyToXML } from "../../../../../../tests/property/exportPropertyToXML"
 import { fixtureGroupItemAuto, fixtureGroupItemAutoUseFalse } from "./__fixtures__/data"
 
 describe("export GroupItemAuto to XML", () => {

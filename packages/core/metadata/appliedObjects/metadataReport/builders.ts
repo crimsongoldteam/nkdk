@@ -1,6 +1,9 @@
-import { definePropertyRule as defineWidePropertyRule, type ExactRuleParams as WideExactRuleParams } from "~/metadata/commonObjects/ruleBuilder"
-import { namedCollectionTarget } from "~/metadata/orchestration/property/operationTargets"
-import type { PropertyRule as WidePropertyRuleBase } from "~/metadata/orchestration/property/types"
+import {
+  definePropertyRule as defineWidePropertyRule,
+  type ExactRuleParams as WideExactRuleParams,
+} from "../../commonObjects/ruleBuilder"
+import { namedCollectionTarget } from "../../orchestration/property/operationTargets"
+import type { PropertyRule as WidePropertyRuleBase } from "../../orchestration/property/types"
 
 export interface MetadataReportAttributesWidePropertyRule extends WidePropertyRuleBase {
   type: "MetadataReportAttributes"
@@ -13,7 +16,11 @@ export function metadataReportAttributesRule<const Params extends MetadataReport
 ): Readonly<{ type: "MetadataReportAttributes" } & Params> {
   return defineWidePropertyRule("MetadataReportAttributes", {
     ...params,
-    operationTarget: namedCollectionTarget({ kind: "attribute", migrationSegment: "Реквизит", requiresMigration: true }),
+    operationTarget: namedCollectionTarget({
+      kind: "attribute",
+      migrationSegment: "Реквизит",
+      requiresMigration: true,
+    }),
   })
 }
 export interface MetadataReportTabularSectionsWidePropertyRule extends WidePropertyRuleBase {

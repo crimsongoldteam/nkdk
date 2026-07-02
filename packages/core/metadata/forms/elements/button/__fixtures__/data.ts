@@ -7,8 +7,8 @@ import {
   CommandBarButtonEnterprise,
   CommandBarButtonPartialYAML,
   CommandBarButtonTypedYAML,
-} from "~/metadata/forms/elements/button/types"
-import { StructureResult } from "~/tests/types"
+} from "../types"
+import { StructureResult } from "../../../../../tests/types"
 
 export interface CommandBarButtonStructureFixture {
   name: string

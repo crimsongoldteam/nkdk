@@ -1,5 +1,5 @@
-import { registerTypeRule } from "~/metadata/orchestration/property/typeRuleRegistry"
-import * as SE from "~/metadata/systemEnumerations/types"
+import { registerTypeRule } from "../../orchestration/property/typeRuleRegistry"
+import * as SE from "../../systemEnumerations/types"
 import { Font, FontEnterprise, isRawPrefixedFontRef } from "./types"
 
 export const exportFontToEnterprise = (params: { value: Font | undefined }): FontEnterprise | undefined => {

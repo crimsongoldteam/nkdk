@@ -3,24 +3,27 @@ import { mkdtempSync } from "fs"
 import { tmpdir } from "os"
 import { join } from "path"
 import { describe, expect, it } from "vitest"
-import { mockContextFromXML, mockContextToXML } from "~/tests/mockContext"
+import { mockContextFromXML, mockContextToXML } from "../../../../tests/mockContext"
 import { collectStructuralStateFromXML, collectStructuralStateFromYAML } from "./collectState"
 
 describe("collectStructuralState", () => {
   it("collects catalog object, attributes and tabular section attributes from YAML", async () => {
     const dir = mkdtempSync(join(tmpdir(), "nkdk-yaml-"))
     fs.mkdirSync(join(dir, "Справочник", "Товары"), { recursive: true })
-    fs.writeFileSync(join(dir, "Справочник", "Товары", "Свойства.yaml"), [
-      "Реквизиты:",
-      "  Артикул:",
-      "    Тип: Строка",
-      "ТабличныеЧасти:",
-      "  Состав:",
-      "    Реквизиты:",
-      "      Количество:",
-      "        Тип: Число",
-      "",
-    ].join("\n"))
+    fs.writeFileSync(
+      join(dir, "Справочник", "Товары", "Свойства.yaml"),
+      [
+        "Реквизиты:",
+        "  Артикул:",
+        "    Тип: Строка",
+        "ТабличныеЧасти:",
+        "  Состав:",
+        "    Реквизиты:",
+        "      Количество:",
+        "        Тип: Число",
+        "",
+      ].join("\n")
+    )
 
     const state = await collectStructuralStateFromYAML({ yamlDir: dir, context: mockContextToXML() })
     expect([...state.nodes.keys()].sort()).toEqual([
@@ -34,12 +37,10 @@ describe("collectStructuralState", () => {
   it("throws when structural node name is empty", async () => {
     const dir = mkdtempSync(join(tmpdir(), "nkdk-yaml-"))
     fs.mkdirSync(join(dir, "Справочник", "Товары"), { recursive: true })
-    fs.writeFileSync(join(dir, "Справочник", "Товары", "Свойства.yaml"), [
-      "Реквизиты:",
-      "  \"\":",
-      "    Тип: Строка",
-      "",
-    ].join("\n"))
+    fs.writeFileSync(
+      join(dir, "Справочник", "Товары", "Свойства.yaml"),
+      ["Реквизиты:", '  "":', "    Тип: Строка", ""].join("\n")
+    )
 
     await expect(collectStructuralStateFromYAML({ yamlDir: dir, context: mockContextToXML() })).rejects.toThrow(
       "Некорректное имя узла: владелец Справочник.Товары, тип Реквизит"
@@ -49,18 +50,21 @@ describe("collectStructuralState", () => {
   it("collects register resources, dimensions and attributes from YAML", async () => {
     const dir = mkdtempSync(join(tmpdir(), "nkdk-yaml-"))
     fs.mkdirSync(join(dir, "РегистрНакопления", "Остатки"), { recursive: true })
-    fs.writeFileSync(join(dir, "РегистрНакопления", "Остатки", "Свойства.yaml"), [
-      "Ресурсы:",
-      "  Количество:",
-      "    Тип: Число(10, 0)",
-      "Измерения:",
-      "  Склад:",
-      "    Тип: Строка(10)",
-      "Реквизиты:",
-      "  Комментарий:",
-      "    Тип: Строка(10)",
-      "",
-    ].join("\n"))
+    fs.writeFileSync(
+      join(dir, "РегистрНакопления", "Остатки", "Свойства.yaml"),
+      [
+        "Ресурсы:",
+        "  Количество:",
+        "    Тип: Число(10, 0)",
+        "Измерения:",
+        "  Склад:",
+        "    Тип: Строка(10)",
+        "Реквизиты:",
+        "  Комментарий:",
+        "    Тип: Строка(10)",
+        "",
+      ].join("\n")
+    )
 
     const state = await collectStructuralStateFromYAML({ yamlDir: dir, context: mockContextToXML() })
     expect([...state.nodes.keys()].sort()).toEqual([
@@ -74,13 +78,16 @@ describe("collectStructuralState", () => {
   it("collects task addressing attributes from YAML", async () => {
     const dir = mkdtempSync(join(tmpdir(), "nkdk-yaml-"))
     fs.mkdirSync(join(dir, "Задача", "Исполнение"), { recursive: true })
-    fs.writeFileSync(join(dir, "Задача", "Исполнение", "Свойства.yaml"), [
-      "РеквизитыАдресации:",
-      "  Исполнитель:",
-      "    Тип: Строка",
-      "    ИзмерениеАдресации: InformationRegister.Адресация.Dimension.Исполнитель",
-      "",
-    ].join("\n"))
+    fs.writeFileSync(
+      join(dir, "Задача", "Исполнение", "Свойства.yaml"),
+      [
+        "РеквизитыАдресации:",
+        "  Исполнитель:",
+        "    Тип: Строка",
+        "    ИзмерениеАдресации: InformationRegister.Адресация.Dimension.Исполнитель",
+        "",
+      ].join("\n")
+    )
 
     const state = await collectStructuralStateFromYAML({ yamlDir: dir, context: mockContextToXML() })
     expect([...state.nodes.keys()].sort()).toEqual([

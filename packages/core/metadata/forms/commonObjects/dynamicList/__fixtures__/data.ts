@@ -1,5 +1,5 @@
-import { DynamicList, DynamicListYAML } from "~/metadata/forms/commonObjects/dynamicList/types"
-import { explicitYAMLString } from "~/yaml/explicitString"
+import { DynamicList, DynamicListYAML } from "../types"
+import { explicitYAMLString } from "../../../../../yaml/explicitString"
 
 export const queryText = "ВЫБРАТЬ\nСправочник1.Реквизит1 КАК Реквизит1\nИЗ\nСправочник.Справочник1 КАК Справочник1"
 

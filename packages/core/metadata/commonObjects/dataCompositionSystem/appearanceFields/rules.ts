@@ -1,5 +1,5 @@
-import { settingsParameterValueRule } from "~/metadata/commonObjects/dataCompositionSystem/parameterValue/types"
-import { MetadataItemRule, PropertyRule } from "~/metadata/orchestration"
+import { settingsParameterValueRule } from "../parameterValue/types"
+import { MetadataItemRule, PropertyRule } from "../../../orchestration"
 export type AppearanceFieldsXMLMode = "dataSetField"
 export type AppearanceFieldsPropertyRule = PropertyRule & {
   type: "AppearanceFields"

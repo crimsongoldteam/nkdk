@@ -1,5 +1,5 @@
 import { describe, expect, it } from "vitest"
-import { testExportPropertyToYAML } from "~/tests/property/exportPropertyToYAML"
+import { testExportPropertyToYAML } from "../../../../../tests/property/exportPropertyToYAML"
 import { fixtureGroupItemAuto, fixtureGroupItemAutoYAML } from "../items/groupItemAuto/__fixtures__/data"
 import {
   dynamicListGroupItemFieldUseFalse,

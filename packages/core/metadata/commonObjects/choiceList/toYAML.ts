@@ -1,8 +1,8 @@
-import { PropertyRule } from "~/metadata/orchestration/property/types"
-import { registerTypeRule } from "~/metadata/orchestration/property/typeRuleRegistry"
+import type { PropertyRule } from "../../orchestration/property/types"
+import { registerTypeRule } from "../../orchestration/property/typeRuleRegistry"
 import { ConfigurationContext } from "../../context/types"
 import { exportFormChoiceListValueToYAML } from "../metadataValue/toYAML"
-import { ChoiceList, ChoiceListYAML } from "./types"
+import type { ChoiceList, ChoiceListYAML } from "./types"
 
 export const exportChoiceListToYAML = (
   context: ConfigurationContext,

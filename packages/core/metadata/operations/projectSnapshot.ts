@@ -1,13 +1,13 @@
 import { readFileSync } from "fs"
 import { dirname, resolve } from "path"
-import type { ConfigurationContext } from "~/metadata/context/types"
-import { importClientApplicationFormFromYAML } from "~/metadata/forms/clientApplicationForm/fromYAML"
-import { ClientApplicationFormRules } from "~/metadata/forms/clientApplicationForm/rules"
-import { importMetadataItemFromYAML } from "~/metadata/orchestration"
-import type { MetadataItemRule } from "~/metadata/orchestration/property/types"
-import { discoverValidationProjectFiles, type ValidationProjectFile } from "~/metadata/validation/projectFiles"
-import { validateProject } from "~/metadata/validation/validateProject"
-import { parseMetadataYaml, type ParsedYaml } from "~/yaml/parseMetadataYaml"
+import type { ConfigurationContext } from "../context/types"
+import { importClientApplicationFormFromYAML } from "../forms/clientApplicationForm/fromYAML"
+import { ClientApplicationFormRules } from "../forms/clientApplicationForm/rules"
+import { importMetadataItemFromYAML } from "../orchestration"
+import type { MetadataItemRule } from "../orchestration/property/types"
+import { discoverValidationProjectFiles, type ValidationProjectFile } from "../validation/projectFiles"
+import { validateProject } from "../validation/validateProject"
+import { parseMetadataYaml, type ParsedYaml } from "../../yaml/parseMetadataYaml"
 import { defaultMetadataOperationsContext } from "./context"
 import type { MetadataOperationValidationFailed } from "./types"
 
@@ -69,9 +69,7 @@ function importSnapshotItem(params: {
   resource: ValidationProjectFile
   context: ConfigurationContext
   requireValidProject: boolean
-}):
-  | { ok: true; item: OperationSnapshotItem }
-  | { ok: false; failure: MetadataOperationValidationFailed } {
+}): { ok: true; item: OperationSnapshotItem } | { ok: false; failure: MetadataOperationValidationFailed } {
   try {
     const parsed = parseMetadataYaml(readFileSync(params.resource.absolutePath, "utf-8"))
     const rule = params.resource.kind === "form" ? ClientApplicationFormRules : params.resource.owner.spec.rule

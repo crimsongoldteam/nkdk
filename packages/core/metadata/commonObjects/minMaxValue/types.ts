@@ -1,8 +1,8 @@
 import {
   definePropertyRule as defineWidePropertyRule,
   type ExactRuleParams as WideExactRuleParams,
-} from "~/metadata/commonObjects/ruleBuilder"
-import type { PropertyRule as WidePropertyRuleBase } from "~/metadata/orchestration/property/types"
+} from "../ruleBuilder"
+import type { PropertyRule as WidePropertyRuleBase } from "../../orchestration/property/types"
 const MIN_MAX_VALUE_XSI_TYPE: unique symbol = Symbol("minMaxValueXsiType")
 const MIN_MAX_VALUE_XML_TEXT: unique symbol = Symbol("minMaxValueXMLText")
 

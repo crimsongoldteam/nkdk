@@ -1,7 +1,7 @@
 import { describe, expect, it } from "vitest"
-import "~/metadata/commonObjects/childFormNames/syncExternalToXML"
-import "~/metadata/commonObjects/childTemplateNames/syncExternalToXML"
-import { getTypeRule } from "~/metadata/orchestration/property/typeRuleRegistry"
+import "../../commonObjects/childFormNames/syncExternalToXML"
+import "../../commonObjects/childTemplateNames/syncExternalToXML"
+import { getTypeRule } from "../property/typeRuleRegistry"
 
 describe("fileChildNamesDescriptor", () => {
   it("describes child forms without appliedObject knowing ChildFormNames", () => {

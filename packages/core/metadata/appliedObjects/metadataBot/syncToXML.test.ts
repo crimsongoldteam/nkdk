@@ -1,5 +1,5 @@
 import { describe, expect, it } from "vitest"
-import { testSyncAppliedObjectToXML } from "~/tests/appliedObject"
+import { testSyncAppliedObjectToXML } from "../../../tests/appliedObject"
 import { MetadataBotRules } from "./rules"
 
 const normalizeLineEndings = (value: string) => value.replace(/\r\n/g, "\n")

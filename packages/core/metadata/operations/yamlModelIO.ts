@@ -1,8 +1,8 @@
 import fs from "fs"
-import type { ConfigurationContext } from "~/metadata/context/types"
-import { exportClientApplicationFormToYAML } from "~/metadata/forms/clientApplicationForm/toYAML"
-import { exportMetadataItemToYAML } from "~/metadata/orchestration"
-import { exportToYAML } from "~/yaml/export"
+import type { ConfigurationContext } from "../context/types"
+import { exportClientApplicationFormToYAML } from "../forms/clientApplicationForm/toYAML"
+import { exportMetadataItemToYAML } from "../orchestration"
+import { exportToYAML } from "../../yaml/export"
 import type { OperationSnapshotItem } from "./projectSnapshot"
 
 export function exportOperationItemToYamlText(item: OperationSnapshotItem, context: ConfigurationContext): string {

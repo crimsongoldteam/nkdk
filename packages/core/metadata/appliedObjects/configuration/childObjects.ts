@@ -1,7 +1,7 @@
 import fs from "fs"
 import { join } from "path"
-import { importContentFromXML } from "~/xml/import/importer"
-import type { MetadataItemRule } from "~/metadata/orchestration/property/types"
+import { importContentFromXML } from "../../../xml/import/importer"
+import type { MetadataItemRule } from "../../orchestration/property/types"
 import { CONFIGURATION_XML_FILE } from "./rootIO"
 import { TopLevelMetadataItemRules } from "./topLevelRules"
 
@@ -67,7 +67,7 @@ interface ChildObjectSpec {
 const getXMLRootContainer = (rule: MetadataItemRule): string | undefined => {
   const xmlRoot = Object.values(rule.properties).find((property) => property.type === "XMLRoot")
   return typeof (xmlRoot as { container?: unknown } | undefined)?.container === "string"
-    ? ((xmlRoot as unknown as { container: string }).container)
+    ? (xmlRoot as unknown as { container: string }).container
     : undefined
 }
 

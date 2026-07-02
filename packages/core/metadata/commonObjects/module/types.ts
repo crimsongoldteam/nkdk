@@ -1,10 +1,10 @@
 import {
   definePropertyRule as defineWidePropertyRule,
   type ExactRuleParams as WideExactRuleParams,
-} from "~/metadata/commonObjects/ruleBuilder"
-import type { PropertyRule as WidePropertyRuleBase } from "~/metadata/orchestration/property/types"
-import { definePropertyRule, type ExactRuleParams } from "~/metadata/commonObjects/ruleBuilder"
-import type { ModulePropertyRule } from "~/metadata/orchestration/property/types"
+} from "../ruleBuilder"
+import type { PropertyRule as WidePropertyRuleBase } from "../../orchestration/property/types"
+import { definePropertyRule, type ExactRuleParams } from "../ruleBuilder"
+import type { ModulePropertyRule } from "../../orchestration/property/types"
 
 export type ModuleRuleParams = Omit<ModulePropertyRule, "type">
 
