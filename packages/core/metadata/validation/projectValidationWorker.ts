@@ -4,7 +4,7 @@ import { resolve } from "path"
 import type { ConfigurationContext } from "../context/types"
 import { registerCoreMetadata } from "../register"
 import { createOwnerMetadataCacheFromValidationTable } from "./dataPath/ownerCache"
-import { getProjectReferenceObjectPathContributor } from "./projectMetadataResolverRegistry"
+import { getProjectReferenceObjectPathContributor } from "./projectReferenceIndexRegistry"
 import type {
   PendingMetadataTargetReference,
   ProjectMemberIndexEntry,

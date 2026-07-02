@@ -4,29 +4,19 @@ import type { PendingMetadataTargetReferenceCandidate } from "../orchestration/p
 import type { MetadataItem, MetadataItemRule } from "../orchestration/property/types"
 import type { ParsedYaml } from "../../yaml/parseMetadataYaml"
 import type { PendingMetadataTargetReference } from "./projectMetadataReferences"
-import type { ProjectMetadataResolver } from "./projectMetadataResolver"
 import type { Diagnostic } from "./types"
 import type { YamlPath } from "./yamlLocations"
 
-export interface ValidateMetadataTargetsInModelParams {
+export interface CollectMetadataTargetReferencesInModelParams {
   filePath: string
   parsed: ParsedYaml
   model: MetadataItem
   rule: MetadataItemRule
-  resolver: ProjectMetadataResolver
   owner?: MetadataTargetOwner
 }
 
-export function validateMetadataTargetsInModel(params: ValidateMetadataTargetsInModelParams): Diagnostic[] {
-  return validateObject({
-    ...params,
-    value: params.model,
-    yamlPath: [],
-  })
-}
-
 export function collectMetadataTargetReferencesInModel(
-  params: Omit<ValidateMetadataTargetsInModelParams, "resolver">
+  params: CollectMetadataTargetReferencesInModelParams
 ): {
   references: PendingMetadataTargetReference[]
   diagnostics: Diagnostic[]
@@ -38,55 +28,8 @@ export function collectMetadataTargetReferencesInModel(
   })
 }
 
-function validateObject(
-  params: ValidateMetadataTargetsInModelParams & { value: unknown; yamlPath: YamlPath }
-): Diagnostic[] {
-  const record = asRecord(params.value)
-  if (!record) return []
-
-  const diagnostics: Diagnostic[] = []
-  for (const [propertyName, propRule] of Object.entries(params.rule.properties)) {
-    if (typeof propRule.yaml !== "string") continue
-
-    const value = record[propertyName]
-    if (value === undefined) continue
-
-    if (propRule.metadataTarget) {
-      const handler = getTypeRule(propRule.type, "validateMetadataTarget")
-      if (handler) {
-        diagnostics.push(
-          ...handler({
-            filePath: params.filePath,
-            parsed: params.parsed,
-            yamlPath: [...params.yamlPath, propRule.yaml],
-            propRule,
-            propertyName,
-            value,
-            resolver: params.resolver,
-            owner: params.owner,
-          })
-        )
-      }
-    }
-
-    const itemRule = nestedItemRule(propRule)
-    if (!itemRule) continue
-
-    diagnostics.push(
-      ...validateNestedItems({
-        ...params,
-        value,
-        itemRule,
-        yamlPath: [...params.yamlPath, propRule.yaml],
-      })
-    )
-  }
-
-  return diagnostics
-}
-
 function collectObjectReferences(
-  params: Omit<ValidateMetadataTargetsInModelParams, "resolver"> & { value: unknown; yamlPath: YamlPath }
+  params: CollectMetadataTargetReferencesInModelParams & { value: unknown; yamlPath: YamlPath }
 ): { references: PendingMetadataTargetReference[]; diagnostics: Diagnostic[] } {
   const record = asRecord(params.value)
   if (!record) return { references: [], diagnostics: [] }
@@ -139,39 +82,8 @@ function collectObjectReferences(
   return { references, diagnostics }
 }
 
-function validateNestedItems(
-  params: ValidateMetadataTargetsInModelParams & {
-    value: unknown
-    itemRule: MetadataItemRule
-    yamlPath: YamlPath
-  }
-): Diagnostic[] {
-  if (Array.isArray(params.value)) {
-    return params.value.flatMap((item, index) =>
-      validateObject({
-        ...params,
-        value: item,
-        rule: params.itemRule,
-        yamlPath: [...params.yamlPath, nestedItemPathSegment(item, index)],
-      })
-    )
-  }
-
-  const record = asRecord(params.value)
-  if (!record) return []
-
-  return Object.entries(record).flatMap(([key, item]) =>
-    validateObject({
-      ...params,
-      value: item,
-      rule: params.itemRule,
-      yamlPath: [...params.yamlPath, key],
-    })
-  )
-}
-
 function collectNestedReferences(
-  params: Omit<ValidateMetadataTargetsInModelParams, "resolver"> & {
+  params: CollectMetadataTargetReferencesInModelParams & {
     value: unknown
     itemRule: MetadataItemRule
     yamlPath: YamlPath

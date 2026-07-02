@@ -1,25 +1,25 @@
 import { afterEach, beforeEach, describe, expect, it } from "vitest"
 import type { ParsedMetadataTarget } from "../commonObjects/metadataTargets"
 import {
-  clearProjectMetadataResolverRegistryForTests,
+  clearProjectReferenceIndexRegistryForTests,
   getProjectReferenceMemberContributors,
   getProjectReferenceObjectPathContributor,
   registerProjectReferenceMemberContributor,
   registerProjectReferenceObjectPathContributor,
-  restoreProjectMetadataResolverRegistryForTests,
-  snapshotProjectMetadataResolverRegistryForTests,
-  type ProjectMetadataResolverRegistrySnapshot,
-} from "./projectMetadataResolverRegistry"
+  restoreProjectReferenceIndexRegistryForTests,
+  snapshotProjectReferenceIndexRegistryForTests,
+  type ProjectReferenceIndexRegistrySnapshot,
+} from "./projectReferenceIndexRegistry"
 
 describe("project reference index registry", () => {
-  let snapshot: ProjectMetadataResolverRegistrySnapshot
+  let snapshot: ProjectReferenceIndexRegistrySnapshot
 
   beforeEach(() => {
-    snapshot = snapshotProjectMetadataResolverRegistryForTests()
-    clearProjectMetadataResolverRegistryForTests()
+    snapshot = snapshotProjectReferenceIndexRegistryForTests()
+    clearProjectReferenceIndexRegistryForTests()
   })
 
-  afterEach(() => restoreProjectMetadataResolverRegistryForTests(snapshot))
+  afterEach(() => restoreProjectReferenceIndexRegistryForTests(snapshot))
 
   it("registers object path and member resolvers by root/kind", () => {
     registerProjectReferenceObjectPathContributor("Document", ({ projectDir, target }) => ({

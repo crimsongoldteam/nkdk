@@ -7,7 +7,7 @@ import {
   registerProjectReferenceMemberContributor,
   type ProjectReferenceMemberIndexContributor,
   type ProjectReferenceMemberContributor,
-} from "../../validation/projectMetadataResolverRegistry"
+} from "../../validation/projectReferenceIndexRegistry"
 import { projectMemberIndexKey, type ProjectMemberIndexEntry } from "../../validation/projectMetadataReferences"
 
 registerProjectReferenceMemberContributor("Form", ({ ownerFilePath, segment, target }) => {

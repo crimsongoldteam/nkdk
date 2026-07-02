@@ -6,7 +6,7 @@ import { registerDataPathOwnerKind } from "../../validation/dataPath/registry"
 import {
   registerProjectReferenceObjectPathContributor,
   registerProjectReferenceValueContributor,
-} from "../../validation/projectMetadataResolverRegistry"
+} from "../../validation/projectReferenceIndexRegistry"
 import { importMetadataCatalogFromYAML } from "./fromYAML"
 import { MetadataCatalogRules } from "./rules"
 import { exportMetadataCatalogToJSONSchema } from "./toJSONSchema"

@@ -10,7 +10,7 @@ import {
   registerProjectFileValidator,
   registerProjectReferenceObjectPathContributor,
   registerProjectReferenceValueContributor,
-} from "../../validation/projectMetadataResolverRegistry"
+} from "../../validation/projectReferenceIndexRegistry"
 import { MetadataSubsystemRules } from "../metadataSubsystem/rules"
 import { MetadataConfigurationRules } from "./rules"
 import { TopLevelMetadataItemRules } from "./topLevelRules"

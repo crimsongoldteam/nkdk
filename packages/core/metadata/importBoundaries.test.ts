@@ -128,7 +128,7 @@ describe("metadata import boundaries", () => {
   })
 
   it("ProjectReferenceIndex делегирует concrete metadata knowledge регистрациям", () => {
-    const source = readFileSync(join(METADATA_DIR, "validation", "projectMetadataResolver.ts"), "utf-8")
+    const source = readFileSync(join(METADATA_DIR, "validation", "projectReferenceIndex.ts"), "utf-8")
 
     for (const forbidden of [
       "objectRootDir",

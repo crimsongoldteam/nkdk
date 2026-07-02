@@ -11,7 +11,7 @@ import { buildObjectFieldIndex, type ObjectField, type ObjectFieldKind } from ".
 import { validateExcludedEqualNameYAML } from "./excludeIfEqualNameYAML"
 import { getRegisteredFormValidationPasses } from "./formValidationRegistry"
 import { collectMetadataTargetReferencesInModel } from "./metadataTargetTraversal"
-import { getProjectFileValidators, getProjectMemberIndexContributors } from "./projectMetadataResolverRegistry"
+import { getProjectFileValidators, getProjectReferenceMemberIndexContributors } from "./projectReferenceIndexRegistry"
 import {
   projectMemberIndexKey,
   projectObjectIndexKey,
@@ -478,7 +478,7 @@ function buildMemberIndexEntries(params: {
     }
   }
 
-  for (const contributor of getProjectMemberIndexContributors()) {
+  for (const contributor of getProjectReferenceMemberIndexContributors()) {
     entries.push(...contributor(params))
   }
 

@@ -1309,7 +1309,7 @@ pnpm --filter @nakidka/core exec vitest run packages/core/metadata/validation/va
 
 Expected: PASS.
 
-- [ ] **Step 6: Commit partial index validation**
+- [x] **Step 6: Commit partial index validation**
 
 ```bash
 git add packages/core/metadata/validation/validateProject.ts packages/core/metadata/validation/projectValidationPasses.ts packages/core/metadata/validation/projectValidationQueue.ts packages/core/metadata/validation/validateProject.test.ts packages/core/metadata/validation/projectValidationQueue.test.ts
@@ -1326,7 +1326,7 @@ git commit -m "feat: :sparkles: использовать reference index в part
 - Modify: `packages/core/metadata/commonObjects/metadataTargets/validationHandlers.ts`
 - Modify: any files found by `rg`.
 
-- [ ] **Step 1: Search runtime usage**
+- [x] **Step 1: Search runtime usage**
 
 Run:
 
@@ -1336,7 +1336,7 @@ rg -n "ProjectMetadataResolver|createProjectMetadataResolver|createProjectMetada
 
 Expected before deletion: only known usage remains.
 
-- [ ] **Step 2: Remove resolver validation function**
+- [x] **Step 2: Remove resolver validation function**
 
 In `metadataTargetTraversal.ts`, delete `validateMetadataTargetsInModel()` and keep `collectMetadataTargetReferencesInModel()`.
 
@@ -1348,7 +1348,7 @@ const result = validatePendingReferencesWithIndex({ index, references: collected
 expect([...collected.diagnostics, ...result.diagnostics]).toEqual(...)
 ```
 
-- [ ] **Step 3: Remove resolver type from property function contracts**
+- [x] **Step 3: Remove resolver type from property function contracts**
 
 In `fn.ts`, delete:
 
@@ -1359,7 +1359,7 @@ export type ValidateMetadataTargetFunction = ...
 
 Keep `CollectMetadataTargetReferencesFunction` as the runtime validation contract.
 
-- [ ] **Step 4: Remove old resolver file and test**
+- [x] **Step 4: Remove old resolver file and test**
 
 Delete:
 
@@ -1367,7 +1367,7 @@ Delete:
 git rm packages/core/metadata/validation/projectMetadataResolver.ts packages/core/metadata/validation/projectMetadataResolver.test.ts
 ```
 
-- [ ] **Step 5: Remove old registry names**
+- [x] **Step 5: Remove old registry names**
 
 In `projectMetadataResolverRegistry.ts`, remove resolver-named exports:
 
@@ -1389,7 +1389,7 @@ getProjectMemberIndexContributors
 
 Keep only index-named contributor APIs and file validators.
 
-- [ ] **Step 6: Verify search is clean**
+- [x] **Step 6: Verify search is clean**
 
 Run:
 
@@ -1399,7 +1399,7 @@ rg -n "ProjectMetadataResolver|createProjectMetadataResolver|createProjectMetada
 
 Expected: either no matches, or only file names/test descriptions that are intentionally renamed in the next step. Prefer no matches.
 
-- [ ] **Step 7: Run core tests**
+- [x] **Step 7: Run core tests**
 
 ```bash
 pnpm --filter @nakidka/core exec vitest run packages/core/metadata/validation packages/core/metadata/importBoundaries.test.ts

@@ -4,8 +4,12 @@ import {
   ConfigurationContextFromXML,
   ConfigurationContextWithExportToXML,
 } from "../../context/types"
-import type { MetadataTargetConstraint, MetadataTargetOwner, ParsedMetadataTarget } from "../../commonObjects/metadataTargets"
-import type { ProjectMetadataResolver } from "../../validation/projectMetadataResolver"
+import type {
+  MetadataTargetConstraint,
+  MetadataTargetOwner,
+  ParsedMetadataTarget,
+  StyleItemTargetType,
+} from "../../commonObjects/metadataTargets"
 import type { Diagnostic } from "../../validation/types"
 import type { YamlPath } from "../../validation/yamlLocations"
 import type { ParsedYaml } from "../../../yaml/parseMetadataYaml"
@@ -85,9 +89,25 @@ export type ValidateMetadataTargetFunction = (params: {
   propRule: PropertyRule
   propertyName: string
   value: unknown
-  resolver: ProjectMetadataResolver
+  resolver: MetadataTargetValidationResolver
   owner?: MetadataTargetOwner
 }) => Diagnostic[]
+
+export interface MetadataTargetValidationResolver {
+  resolveObject(params: {
+    target: Extract<ParsedMetadataTarget, { kind: "object" }>
+    filters?: Extract<MetadataTargetConstraint, { kind: "object" }>["filters"]
+  }): MetadataTargetValidationResult
+  resolveMember(params: {
+    target: Extract<ParsedMetadataTarget, { kind: "member" }>
+    filters?: Extract<MetadataTargetConstraint, { kind: "member" }>["filters"]
+  }): MetadataTargetValidationResult
+  resolveValue(params: { target: Extract<ParsedMetadataTarget, { kind: "value" }> }): MetadataTargetValidationResult
+  resolveStyleItem(params: { name: string; expectedTypes: readonly StyleItemTargetType[] }): MetadataTargetValidationResult
+  resolveCommonPicture(params: { name: string }): MetadataTargetValidationResult
+}
+
+export type MetadataTargetValidationResult = { ok: true } | { ok: false; diagnostics: Diagnostic[] }
 
 export interface PendingMetadataTargetReferenceCandidate {
   yamlPath: YamlPath

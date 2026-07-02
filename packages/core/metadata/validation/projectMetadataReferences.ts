@@ -1,5 +1,3 @@
-import type { ParsedMetadataTarget } from "../commonObjects/metadataTargets"
-import type { MetadataResolveResult, ProjectMetadataResolver } from "./projectMetadataResolver"
 import {
   createProjectReferenceSnapshot as createUnifiedProjectReferenceSnapshot,
   estimateProjectReferenceSnapshotBytes,
@@ -7,13 +5,11 @@ import {
   type PendingMetadataTargetReference,
   type ProjectMemberIndexEntry,
   type ProjectObjectIndexEntry,
-  type ProjectReferenceIndex,
   type ProjectReferenceIndexConflict,
   type ProjectReferenceIndexResult,
   type ProjectReferenceSnapshot,
   type ProjectValueIndexEntry,
 } from "./projectReferenceIndex"
-import type { Diagnostic } from "./types"
 
 export {
   estimateProjectReferenceSnapshotBytes,
@@ -21,7 +17,6 @@ export {
   type PendingMetadataTargetReference,
   type ProjectMemberIndexEntry,
   type ProjectObjectIndexEntry,
-  type ProjectReferenceIndex,
   type ProjectReferenceIndexConflict,
   type ProjectReferenceIndexResult,
   type ProjectReferenceSnapshot,
@@ -58,69 +53,8 @@ export function resolvePendingReference(params: {
   return { ok: true }
 }
 
-export interface ValidatePendingReferencesResult {
-  diagnostics: Diagnostic[]
-  hits: number
-  misses: number
-  fallbacks: number
-}
-
-export function validatePendingReferences(params: {
-  snapshot: ProjectReferenceSnapshot
-  references: readonly PendingMetadataTargetReference[]
-  resolver: ProjectMetadataResolver
-}): ValidatePendingReferencesResult {
-  const diagnostics: Diagnostic[] = []
-  let hits = 0
-  let misses = 0
-  let fallbacks = 0
-
-  for (const reference of params.references) {
-    const fast = resolvePendingReference({ snapshot: params.snapshot, reference })
-    if (fast.ok) {
-      hits += 1
-      continue
-    }
-
-    misses += 1
-    fallbacks += 1
-    diagnostics.push(...resolveReferenceByResolver({ reference, resolver: params.resolver }))
-  }
-
-  return { diagnostics, hits, misses, fallbacks }
-}
-
-function resolveReferenceByResolver(params: {
-  reference: PendingMetadataTargetReference
-  resolver: ProjectMetadataResolver
-}): Diagnostic[] {
-  const { target, constraint } = params.reference
-  if (target.kind === "object") {
-    const result = params.resolver.resolveObject({
-      target,
-      filters: constraint.kind === "object" ? constraint.filters : undefined,
-    })
-    return result.ok ? [] : result.diagnostics
-  }
-
-  if (target.kind === "member" && constraint.kind === "member") {
-    const result = params.resolver.resolveMember({ target, filters: constraint.filters })
-    return result.ok ? [] : result.diagnostics
-  }
-
-  if (target.kind === "value") {
-    const result = params.resolver.resolveValue({ target })
-    return result.ok ? [] : result.diagnostics
-  }
-
-  return []
-}
-
 function isConflict(
   entry: ProjectMemberIndexEntry | ProjectReferenceIndexConflict
 ): entry is ProjectReferenceIndexConflict {
   return "conflict" in entry
 }
-
-export type LegacyMetadataReferenceResolveResult = MetadataResolveResult
-export type LegacyParsedMetadataTarget = ParsedMetadataTarget

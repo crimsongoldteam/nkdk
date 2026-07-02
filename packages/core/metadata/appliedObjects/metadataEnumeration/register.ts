@@ -7,7 +7,7 @@ import { registerDataPathOwnerKind } from "../../validation/dataPath/registry"
 import {
   registerProjectReferenceObjectPathContributor,
   registerProjectReferenceValueContributor,
-} from "../../validation/projectMetadataResolverRegistry"
+} from "../../validation/projectReferenceIndexRegistry"
 import { importMetadataEnumerationFromYAML } from "./fromYAML"
 import { MetadataEnumerationRules } from "./rules"
 import { exportMetadataEnumerationToJSONSchema } from "./toJSONSchema"

@@ -10,7 +10,7 @@ import {
   registerRegisterRecordsItemResolver,
   registerTraversalTransitionResolver,
 } from "../../validation/dataPath/registry"
-import { registerProjectReferenceObjectPathContributor } from "../../validation/projectMetadataResolverRegistry"
+import { registerProjectReferenceObjectPathContributor } from "../../validation/projectReferenceIndexRegistry"
 import { MetadataDocumentRules } from "./rules"
 import { exportMetadataDocumentToJSONSchema } from "./toJSONSchema"
 
