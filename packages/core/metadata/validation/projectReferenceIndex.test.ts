@@ -70,7 +70,7 @@ describe("ProjectReferenceIndex", () => {
         yamlPath: ["Поле"],
         canonical: "Справочник.Номенклатура.Реквизит.Артикул",
         target,
-        constraint: { kind: "member", filters: { hasType: ["string"] } },
+        constraint: { kind: "member", owner: "explicit", filters: [{ kind: "hasType", type: "string" }] },
       }),
     ).toEqual({ ok: true })
     expect(index.stats()).toMatchObject({ hits: 1, misses: 0, unsupported: 0, fallbacks: 0 })
@@ -171,6 +171,62 @@ describe("ProjectReferenceIndex", () => {
       dependency: expect.objectContaining({ kind: "needsDependency" }),
     })
     expect(index.stats()).toMatchObject({ dependencies: 1, fallbacks: 0 })
+  })
+
+  it("applies member filters from indexed field details", () => {
+    const projectDir = "/tmp/nkdk-project"
+    const booleanTarget = memberTarget("Документ.АвансовыйОтчет.Реквизит.Провести")
+    const tableTarget = memberTarget("Документ.АвансовыйОтчет.ТабличнаяЧасть.Товары.Реквизит.Использовать")
+    const filePath = join(projectDir, "Документ", "АвансовыйОтчет", "Свойства.yaml")
+    const index = createProjectReferenceIndex({
+      projectDir,
+      mode: "full",
+      snapshot: createProjectReferenceSnapshot({
+        objectIndexEntries: [],
+        memberIndexEntries: [
+          {
+            canonical: projectMemberIndexKey(booleanTarget),
+            target: booleanTarget,
+            result: { ok: true, filePath, details: { kind: "attribute", typeInfo: { kinds: ["boolean"] } } },
+          },
+          {
+            canonical: projectMemberIndexKey(tableTarget),
+            target: tableTarget,
+            result: { ok: true, filePath, details: { kind: "attribute", typeInfo: { kinds: ["boolean"] } } },
+          },
+        ],
+        valueIndexEntries: [],
+        pendingReferences: [],
+      }),
+    })
+
+    expect(
+      index.resolve({
+        filePath,
+        yamlPath: ["Поле"],
+        canonical: projectMemberIndexKey(booleanTarget),
+        target: booleanTarget,
+        constraint: { kind: "member", owner: "explicit", filters: [{ kind: "hasType", type: "boolean" }] },
+      }),
+    ).toEqual({ ok: true })
+    expect(
+      index.resolve({
+        filePath,
+        yamlPath: ["Поле"],
+        canonical: projectMemberIndexKey(tableTarget),
+        target: tableTarget,
+        constraint: {
+          kind: "member",
+          owner: "explicit",
+          filters: [{ kind: "directMember" }, { kind: "hasType", type: "boolean" }],
+        },
+      }),
+    ).toMatchObject({
+      ok: false,
+      reason: "filter",
+      diagnostics: [expect.objectContaining({ message: expect.stringContaining("прямые члены текущего объекта") })],
+    })
+    expect(index.stats()).toMatchObject({ hits: 1, filterFailures: 1, fallbacks: 0 })
   })
 })
 

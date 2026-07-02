@@ -1,4 +1,9 @@
-import type { MetadataTargetConstraint, ParsedMetadataTarget } from "../commonObjects/metadataTargets"
+import type {
+  MetadataTargetConstraint,
+  MetadataTargetFilter,
+  MetadataTypeFilterValue,
+  ParsedMetadataTarget,
+} from "../commonObjects/metadataTargets"
 import type { ValidationDependencyRequest } from "./projectValidationTypes"
 import type { Diagnostic } from "./types"
 import type { YamlPath } from "./yamlLocations"
@@ -245,7 +250,110 @@ function resolveReference(
     }
     return { ok: false, reason: "notFound", diagnostics: entry.result.diagnostics }
   }
+  if (reference.target.kind === "member") {
+    const filterResult = matchesMemberFilters({ reference, entry: entry as ProjectMemberIndexEntry })
+    if (!filterResult.ok) return filterResult
+  }
   return { ok: true }
+}
+
+function matchesMemberFilters(params: {
+  reference: PendingMetadataTargetReference
+  entry: ProjectMemberIndexEntry
+}): ProjectReferenceIndexResult {
+  if (params.reference.constraint.kind !== "member") return { ok: true }
+
+  for (const filter of params.reference.constraint.filters ?? []) {
+    const result = matchesMemberFilter({ ...params, filter })
+    if (!result.ok) return result
+  }
+
+  return { ok: true }
+}
+
+function matchesMemberFilter(params: {
+  reference: PendingMetadataTargetReference
+  entry: ProjectMemberIndexEntry
+  filter: MetadataTargetFilter
+}): ProjectReferenceIndexResult {
+  const displayName = params.reference.canonical
+  switch (params.filter.kind) {
+    case "directMember":
+      if (params.entry.target.segments.length === 1) return { ok: true }
+      return memberFilterError(
+        params.reference,
+        `Член "${displayName}" не подходит: ожидаются прямые члены текущего объекта`
+      )
+    case "hasType":
+      if (matchesHasTypeFilter(params.entry.result.ok ? params.entry.result.details : undefined, params.filter.type)) {
+        return { ok: true }
+      }
+      return memberFilterError(
+        params.reference,
+        `Член "${displayName}" не подходит: ожидаются члены, тип которых содержит ${formatTypeFilter(params.filter.type)}`
+      )
+    case "stringIndexedAttribute":
+      if (matchesStringIndexedAttributeFilter(params.entry.result.ok ? params.entry.result.details : undefined)) {
+        return { ok: true }
+      }
+      return memberFilterError(
+        params.reference,
+        `Член "${displayName}" не подходит: ожидаются реквизиты, пригодные для ввода по строке`
+      )
+    case "styleItemType":
+      return { ok: true }
+  }
+}
+
+function memberFilterError(reference: PendingMetadataTargetReference, message: string): ProjectReferenceIndexResult {
+  return { ok: false, reason: "filter", diagnostics: [referenceDiagnostic(reference, message)] }
+}
+
+function matchesHasTypeFilter(details: unknown, type: MetadataTypeFilterValue): boolean {
+  const typeInfo = objectFieldTypeInfo(details)
+  if (typeInfo === undefined) return false
+  if (type === "boolean") return typeInfo.kinds.includes("boolean")
+  return typeInfoSourceContains(typeInfo, type)
+}
+
+function matchesStringIndexedAttributeFilter(details: unknown): boolean {
+  if (!isObjectFieldDetails(details)) return false
+  if (details.kind !== "attribute" && details.kind !== "standardAttribute") return false
+  const typeInfo = details.typeInfo
+  if (typeInfo.kinds.includes("unknown")) return true
+  if (typeInfo.kinds.includes("boolean")) return true
+  return ["string", "decimal", "dateTime", "UUID"].some((type) => typeInfoSourceContains(typeInfo, type))
+}
+
+function typeInfoSourceContains(typeInfo: ObjectFieldDetails["typeInfo"], type: string): boolean {
+  if (typeInfo.kinds.includes(type)) return true
+  return typeInfo.sourceText?.split(" | ").includes(type) === true
+}
+
+function formatTypeFilter(type: MetadataTypeFilterValue): string {
+  if (type === "boolean") return "Булево"
+  return type
+}
+
+function objectFieldTypeInfo(details: unknown): ObjectFieldDetails["typeInfo"] | undefined {
+  return isObjectFieldDetails(details) ? details.typeInfo : undefined
+}
+
+interface ObjectFieldDetails {
+  kind: string
+  typeInfo: {
+    kinds: readonly string[]
+    sourceText?: string
+  }
+}
+
+function isObjectFieldDetails(details: unknown): details is ObjectFieldDetails {
+  if (typeof details !== "object" || details === null) return false
+  const record = details as Record<string, unknown>
+  const typeInfo = record["typeInfo"]
+  if (typeof record["kind"] !== "string" || typeof typeInfo !== "object" || typeInfo === null) return false
+  const typeInfoRecord = typeInfo as Record<string, unknown>
+  return Array.isArray(typeInfoRecord["kinds"])
 }
 
 function lookupEntry(snapshot: ProjectReferenceSnapshot, target: ParsedMetadataTarget) {

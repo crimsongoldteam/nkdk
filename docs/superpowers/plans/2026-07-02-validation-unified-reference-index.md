@@ -989,7 +989,7 @@ pnpm --filter @nakidka/core exec vitest run packages/core/metadata/validation/pr
 
 Expected: object tests PASS.
 
-- [ ] **Step 5: Commit object index parity**
+- [x] **Step 5: Commit object index parity**
 
 ```bash
 git add packages/core/metadata/validation/projectReferenceIndex.ts packages/core/metadata/validation/validateProject.ts packages/core/metadata/validation/projectReferenceIndex.test.ts
@@ -1003,7 +1003,7 @@ git commit -m "feat: :sparkles: перенести object validation в referenc
 - Modify: `packages/core/metadata/validation/projectValidationPasses.ts`
 - Test: `packages/core/metadata/validation/projectReferenceIndex.test.ts`
 
-- [ ] **Step 1: Port member filter tests**
+- [x] **Step 1: Port member filter tests**
 
 Move/adapt old resolver tests covering:
 
@@ -1018,7 +1018,7 @@ it("rejects unsupported member kind with reference diagnostic", () => {})
 
 Each test should build index entries through first pass where possible, not by hand, so it exercises real details.
 
-- [ ] **Step 2: Implement `matchesMemberFilters()`**
+- [x] **Step 2: Implement `matchesMemberFilters()`**
 
 In `projectReferenceIndex.ts`, add:
 
