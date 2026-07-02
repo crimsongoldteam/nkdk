@@ -4,6 +4,7 @@ import { resolve } from "path"
 import type { ConfigurationContext } from "../context/types"
 import { registerCoreMetadata } from "../register"
 import { createOwnerMetadataCacheFromValidationTable } from "./dataPath/ownerCache"
+import { createOwnerMetadataCacheFromSharedValidationSnapshot } from "./dataPath/sharedOwnerCache"
 import { getProjectReferenceObjectPathContributor } from "./projectReferenceIndexRegistry"
 import type {
   PendingMetadataTargetReference,
@@ -13,6 +14,8 @@ import type {
   ProjectValueIndexEntry,
 } from "./projectMetadataReferences"
 import { createProjectReferenceIndex, validatePendingReferencesWithIndex } from "./projectReferenceIndex"
+import { createSharedProjectReferenceIndex, type SharedProjectReferenceSnapshot } from "./sharedProjectReferenceIndex"
+import type { SharedValidationSnapshot } from "./sharedValidationSnapshot"
 import { resolveValidationProjectFile } from "./projectFiles"
 import {
   createProjectYamlCache,
@@ -49,8 +52,10 @@ type ValidationWorkerMessage =
       projectDir: string
       context: ConfigurationContext
       mode: ValidationMode
-      objectTable: ValidationObjectTableSnapshot
-      referenceSnapshot: ProjectReferenceSnapshot
+      objectTable?: ValidationObjectTableSnapshot
+      referenceSnapshot?: ProjectReferenceSnapshot
+      sharedReferenceSnapshot?: SharedProjectReferenceSnapshot
+      sharedValidationSnapshot?: SharedValidationSnapshot
       pendingReferences: PendingMetadataTargetReference[]
       filePaths: string[]
     }
@@ -188,20 +193,32 @@ function runSecondPass(message: Extract<ValidationWorkerMessage, { kind: "second
   const contextStartedAt = performance.now()
   const diagnostics: Diagnostic[] = []
   const profile = createWorkerSecondPassProfile()
-  const localSnapshot = workerState.localTable.snapshot()
-  const supplementedTable = createValidationObjectTable({
-    records: [...localSnapshot.records, ...message.objectTable.records],
-    filePaths: [...localSnapshot.filePaths, ...message.objectTable.filePaths],
-  })
   const cache = createWorkerYamlCache()
-  const ownerCache = createOwnerMetadataCacheFromValidationTable({ projectDir: message.projectDir, table: supplementedTable })
+  const ownerCache =
+    message.sharedValidationSnapshot === undefined
+      ? createOwnerMetadataCacheFromValidationTable({
+          projectDir: message.projectDir,
+          table: supplementedValidationTable(message),
+        })
+      : createOwnerMetadataCacheFromSharedValidationSnapshot({
+          projectDir: message.projectDir,
+          snapshot: message.sharedValidationSnapshot,
+        })
   const referenceStartedAt = performance.now()
-  const referenceIndex = createProjectReferenceIndex({
-    projectDir: message.projectDir,
-    mode: message.mode,
-    snapshot: message.referenceSnapshot,
-    resolveObjectFilePath: (target) => resolveObjectFilePath({ projectDir: message.projectDir, target }),
-  })
+  const referenceIndex =
+    message.sharedReferenceSnapshot === undefined
+      ? createProjectReferenceIndex({
+          projectDir: message.projectDir,
+          mode: message.mode,
+          snapshot: requiredReferenceSnapshot(message),
+          resolveObjectFilePath: (target) => resolveObjectFilePath({ projectDir: message.projectDir, target }),
+        })
+      : createSharedProjectReferenceIndex({
+          projectDir: message.projectDir,
+          mode: message.mode,
+          snapshot: message.sharedReferenceSnapshot,
+          resolveObjectFilePath: (target) => resolveObjectFilePath({ projectDir: message.projectDir, target }),
+        })
   const referenceResult = validatePendingReferencesWithIndex({
     index: referenceIndex,
     references: message.pendingReferences,
@@ -233,8 +250,8 @@ function runSecondPass(message: Extract<ValidationWorkerMessage, { kind: "second
       referenceValidationMs: validationStartedAt - referenceStartedAt,
       validationMs: performance.now() - validationStartedAt,
       fileCount: message.filePaths.length,
-      supplementRecords: message.objectTable.records.length,
-      supplementFilePaths: message.objectTable.filePaths.length,
+      supplementRecords: message.objectTable?.records.length ?? 0,
+      supplementFilePaths: message.objectTable?.filePaths.length ?? 0,
       referenceHits: referenceResult.stats.hits,
       referenceMisses: referenceResult.stats.misses,
       referenceConflicts: referenceResult.stats.conflicts,
@@ -242,12 +259,28 @@ function runSecondPass(message: Extract<ValidationWorkerMessage, { kind: "second
       referenceDependencies: referenceResult.stats.dependencies,
       referenceUnsupported: referenceResult.stats.unsupported,
       referenceFallbacks: referenceResult.stats.fallbacks,
-      snapshotBytes: message.referenceSnapshot.stats.snapshotBytes,
+      snapshotBytes: message.sharedReferenceSnapshot?.stats.snapshotBytes ?? requiredReferenceSnapshot(message).stats.snapshotBytes,
       pendingReferences: message.pendingReferences.length,
-      memberIndexEntries: message.referenceSnapshot.stats.memberEntries,
+      memberIndexEntries: message.sharedReferenceSnapshot?.stats.memberEntries ?? requiredReferenceSnapshot(message).stats.memberEntries,
     },
     ...(profile === undefined ? {} : { profile: profile.snapshot() }),
   }
+}
+
+function supplementedValidationTable(message: Extract<ValidationWorkerMessage, { kind: "secondPass" }>) {
+  if (message.objectTable === undefined) throw new Error("Worker secondPass не получил object table")
+  const localSnapshot = workerState.localTable.snapshot()
+  return createValidationObjectTable({
+    records: [...localSnapshot.records, ...message.objectTable.records],
+    filePaths: [...localSnapshot.filePaths, ...message.objectTable.filePaths],
+  })
+}
+
+function requiredReferenceSnapshot(
+  message: Extract<ValidationWorkerMessage, { kind: "secondPass" }>
+): ProjectReferenceSnapshot {
+  if (message.referenceSnapshot === undefined) throw new Error("Worker secondPass не получил reference snapshot")
+  return message.referenceSnapshot
 }
 
 function resolveObjectFilePath(params: {

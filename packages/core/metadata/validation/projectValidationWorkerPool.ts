@@ -13,6 +13,8 @@ import {
 } from "./projectMetadataReferences"
 import type { ValidationProjectFile } from "./projectFiles"
 import type { ProjectValidationFirstPassProfile } from "./projectValidationPasses"
+import { createSharedProjectReferenceSnapshot, type SharedProjectReferenceSnapshot } from "./sharedProjectReferenceIndex"
+import { createSharedValidationSnapshot, type SharedValidationSnapshot } from "./sharedValidationSnapshot"
 import type { ValidationMode, ValidationObjectRecord, ValidationObjectTableSnapshot } from "./projectValidationTypes"
 import type { Diagnostic } from "./types"
 
@@ -114,8 +116,10 @@ type WorkerRequest =
       projectDir: string
       context: ConfigurationContext
       mode: ValidationMode
-      objectTable: ValidationObjectTableSnapshot
-      referenceSnapshot: ProjectReferenceSnapshot
+      objectTable?: ValidationObjectTableSnapshot
+      referenceSnapshot?: ProjectReferenceSnapshot
+      sharedReferenceSnapshot?: SharedProjectReferenceSnapshot
+      sharedValidationSnapshot?: SharedValidationSnapshot
       pendingReferences: PendingMetadataTargetReference[]
       filePaths: string[]
     }
@@ -208,31 +212,49 @@ export function createProjectValidationWorkerPool(params: { concurrency: number 
     },
     async runSecondPass(secondPassParams) {
       const snapshotStartedAt = performance.now()
-      const referenceSnapshot = createProjectReferenceSnapshot({
-        objectIndexEntries: secondPassParams.objectTable.objectIndexEntries ?? [],
-        memberIndexEntries: secondPassParams.objectTable.memberIndexEntries ?? [],
-        valueIndexEntries: secondPassParams.objectTable.valueIndexEntries ?? [],
-        pendingReferences: secondPassParams.objectTable.pendingReferences ?? [],
-      })
+      const useSharedReferenceSnapshot =
+        secondPassParams.mode === "full" && process.env["NKDK_VALIDATION_SHARED_REFERENCE_INDEX"] !== "0"
+      const useSharedSecondPass =
+        secondPassParams.mode === "full" && process.env["NKDK_VALIDATION_SHARED_SECOND_PASS"] === "1"
+      const referenceSnapshot = useSharedReferenceSnapshot
+        ? undefined
+        : createProjectReferenceSnapshot({
+            objectIndexEntries: secondPassParams.objectTable.objectIndexEntries ?? [],
+            memberIndexEntries: secondPassParams.objectTable.memberIndexEntries ?? [],
+            valueIndexEntries: secondPassParams.objectTable.valueIndexEntries ?? [],
+            pendingReferences: secondPassParams.objectTable.pendingReferences ?? [],
+          })
+      const sharedReferenceSnapshot = useSharedReferenceSnapshot
+        ? createSharedProjectReferenceSnapshot({
+            objectIndexEntries: secondPassParams.objectTable.objectIndexEntries ?? [],
+            memberIndexEntries: secondPassParams.objectTable.memberIndexEntries ?? [],
+            valueIndexEntries: secondPassParams.objectTable.valueIndexEntries ?? [],
+          })
+        : undefined
+      const sharedValidationSnapshot = useSharedSecondPass
+        ? createSharedValidationSnapshot(secondPassParams.objectTable)
+        : undefined
       const snapshotMs = performance.now() - snapshotStartedAt
-      const referencePartitions = partitionPendingReferencesForWorkers(referenceSnapshot.pendingReferences, workers.length)
+      const pendingReferences = secondPassParams.objectTable.pendingReferences ?? referenceSnapshot?.pendingReferences ?? []
+      const referencePartitions = partitionPendingReferencesForWorkers(pendingReferences, workers.length)
       const requestStartedAt = performance.now()
       const results = await Promise.all(
         workers.map(async (worker, index) => {
           const filePaths = assignedFilePaths.get(worker) ?? []
           if (filePaths.length === 0) return { index, diagnostics: [] }
-          const objectTable = createWorkerTableSupplement(
-            secondPassParams.objectTable,
-            localObjectRecordPaths.get(worker) ?? new Set()
-          )
+          const objectTable = useSharedSecondPass
+            ? undefined
+            : createWorkerTableSupplement(secondPassParams.objectTable, localObjectRecordPaths.get(worker) ?? new Set())
 
           const response = await request(worker, {
             kind: "secondPass",
             projectDir: secondPassParams.projectDir,
             context: secondPassParams.context,
             mode: secondPassParams.mode,
-            objectTable,
-            referenceSnapshot,
+            ...(objectTable === undefined ? {} : { objectTable }),
+            ...(referenceSnapshot === undefined ? {} : { referenceSnapshot }),
+            ...(sharedReferenceSnapshot === undefined ? {} : { sharedReferenceSnapshot }),
+            ...(sharedValidationSnapshot === undefined ? {} : { sharedValidationSnapshot }),
             pendingReferences: referencePartitions[index] ?? [],
             filePaths,
           })
@@ -240,7 +262,12 @@ export function createProjectValidationWorkerPool(params: { concurrency: number 
           return { index, ...response }
         })
       )
-      logSecondPassPoolProfile({ snapshotMs, workerWallMs: performance.now() - requestStartedAt })
+      logSecondPassPoolProfile({
+        snapshotMs,
+        workerWallMs: performance.now() - requestStartedAt,
+        sharedSnapshotBytes: sharedReferenceSnapshot?.stats.snapshotBytes,
+        sharedOwnerBytes: sharedValidationSnapshot?.owners.bytes,
+      })
 
       logSecondPassTiming(results)
       logSecondPassProfile(results)
@@ -384,13 +411,20 @@ function emptyFirstPassProfile(key: string): ProjectValidationFirstPassProfile &
   }
 }
 
-function logSecondPassPoolProfile(params: { snapshotMs: number; workerWallMs: number }): void {
+function logSecondPassPoolProfile(params: {
+  snapshotMs: number
+  workerWallMs: number
+  sharedSnapshotBytes?: number
+  sharedOwnerBytes?: number
+}): void {
   if (process.env["NKDK_VALIDATION_PROFILE"] !== "1") return
   console.error(
     [
       "[validation-profile] second pass orchestration",
       `snapshot=${params.snapshotMs.toFixed(2)}ms`,
       `workerWall=${params.workerWallMs.toFixed(2)}ms`,
+      ...(params.sharedSnapshotBytes === undefined ? [] : [`sharedSnapshotBytes=${params.sharedSnapshotBytes}`]),
+      ...(params.sharedOwnerBytes === undefined ? [] : [`sharedOwnerBytes=${params.sharedOwnerBytes}`]),
     ].join(" ")
   )
 }
