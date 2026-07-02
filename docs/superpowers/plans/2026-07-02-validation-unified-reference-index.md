@@ -77,7 +77,7 @@ Source spec: `docs/superpowers/specs/2026-07-02-validation-unified-reference-ind
 - Create: `packages/core/metadata/validation/projectReferenceIndex.test.ts`
 - Modify: `packages/core/metadata/validation/projectMetadataReferences.test.ts`
 
-- [ ] **Step 1: Create failing object/member/value contract tests**
+- [x] **Step 1: Create failing object/member/value contract tests**
 
 Add this test file:
 
@@ -191,7 +191,7 @@ function valueTarget(value: string): Extract<ParsedMetadataTarget, { kind: "valu
 }
 ```
 
-- [ ] **Step 2: Run test and verify it fails**
+- [x] **Step 2: Run test and verify it fails**
 
 Run:
 
@@ -201,7 +201,7 @@ pnpm --filter @nakidka/core exec vitest run packages/core/metadata/validation/pr
 
 Expected: FAIL because `projectReferenceIndex.ts`, `createProjectReferenceIndex`, `projectObjectIndexKey` and `projectValueIndexKey` do not exist yet.
 
-- [ ] **Step 3: Commit failing contract tests**
+- [x] **Step 3: Commit failing contract tests**
 
 ```bash
 git add packages/core/metadata/validation/projectReferenceIndex.test.ts
@@ -215,7 +215,7 @@ git commit -m "test: :white_check_mark: описать contract project referenc
 - Modify: `packages/core/metadata/validation/projectMetadataReferences.ts`
 - Modify: `packages/core/metadata/validation/projectMetadataReferences.test.ts`
 
-- [ ] **Step 1: Add index types and key builders**
+- [x] **Step 1: Add index types and key builders**
 
 Create `packages/core/metadata/validation/projectReferenceIndex.ts` with these public contracts:
 
@@ -312,7 +312,7 @@ export function projectValueIndexKey(target: Extract<ParsedMetadataTarget, { kin
 }
 ```
 
-- [ ] **Step 2: Add snapshot builder**
+- [x] **Step 2: Add snapshot builder**
 
 In the same file, add:
 
@@ -385,7 +385,7 @@ function uniqueEntries<Entry extends { canonical: string }>(
 }
 ```
 
-- [ ] **Step 3: Add `createProjectReferenceIndex()`**
+- [x] **Step 3: Add `createProjectReferenceIndex()`**
 
 Add:
 
@@ -446,7 +446,7 @@ export function createProjectReferenceIndex(params: {
 }
 ```
 
-- [ ] **Step 4: Add minimal resolver logic**
+- [x] **Step 4: Add minimal resolver logic**
 
 Add `resolveReference()` and conflict helper:
 
@@ -491,7 +491,7 @@ function isConflict(entry: unknown): entry is ProjectReferenceIndexConflict {
 }
 ```
 
-- [ ] **Step 5: Move exports from `projectMetadataReferences.ts`**
+- [x] **Step 5: Move exports from `projectMetadataReferences.ts`**
 
 Change `projectMetadataReferences.ts` to re-export from the new module for one commit:
 
@@ -513,7 +513,7 @@ export {
 } from "./projectReferenceIndex"
 ```
 
-- [ ] **Step 6: Run focused tests**
+- [x] **Step 6: Run focused tests**
 
 Run:
 

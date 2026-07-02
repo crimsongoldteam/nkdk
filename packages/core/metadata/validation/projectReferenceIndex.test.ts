@@ -77,7 +77,7 @@ describe("ProjectReferenceIndex", () => {
 
   it("resolves value entries", () => {
     const projectDir = "/tmp/nkdk-project"
-    const target = valueTarget("Перечисление.ВидыЦен.Значение.Розничная")
+    const target = valueTarget("Перечисление.ВидыЦен.Розничная")
     const filePath = join(projectDir, "Перечисление", "ВидыЦен", "Свойства.yaml")
     const valueEntries: ProjectValueIndexEntry[] = [
       { canonical: projectValueIndexKey(target), target, result: { ok: true, filePath } },
@@ -97,7 +97,7 @@ describe("ProjectReferenceIndex", () => {
       index.resolve({
         filePath,
         yamlPath: ["Поле"],
-        canonical: "Перечисление.ВидыЦен.Значение.Розничная",
+        canonical: "Enum.ВидыЦен.EnumValue.Розничная",
         target,
         constraint: { kind: "object" },
       }),
@@ -107,19 +107,19 @@ describe("ProjectReferenceIndex", () => {
 })
 
 function objectTarget(value: string): Extract<ParsedMetadataTarget, { kind: "object" }> {
-  const parsed = parseMetadataTargetFromYAML(value, { kind: "object" })
+  const parsed = parseMetadataTargetFromYAML({ value, constraint: { kind: "object" } })
   if (!parsed.ok || parsed.target.kind !== "object") throw new Error(value)
   return parsed.target
 }
 
 function memberTarget(value: string): Extract<ParsedMetadataTarget, { kind: "member" }> {
-  const parsed = parseMetadataTargetFromYAML(value, { kind: "member" })
+  const parsed = parseMetadataTargetFromYAML({ value, constraint: { kind: "member", owner: "explicit" } })
   if (!parsed.ok || parsed.target.kind !== "member") throw new Error(value)
   return parsed.target
 }
 
 function valueTarget(value: string): Extract<ParsedMetadataTarget, { kind: "value" }> {
-  const parsed = parseMetadataTargetFromYAML(value, { kind: "value" })
+  const parsed = parseMetadataTargetFromYAML({ value, constraint: { kind: "value", roots: ["Enum"], valueKinds: ["enumValue"] } })
   if (!parsed.ok || parsed.target.kind !== "value") throw new Error(value)
   return parsed.target
 }

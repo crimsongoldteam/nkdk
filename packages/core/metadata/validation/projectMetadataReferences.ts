@@ -1,88 +1,49 @@
-import type { MetadataTargetConstraint, ParsedMetadataTarget } from "../commonObjects/metadataTargets"
+import type { ParsedMetadataTarget } from "../commonObjects/metadataTargets"
 import type { MetadataResolveResult, ProjectMetadataResolver } from "./projectMetadataResolver"
+import {
+  createProjectReferenceSnapshot as createUnifiedProjectReferenceSnapshot,
+  estimateProjectReferenceSnapshotBytes,
+  projectMemberIndexKey,
+  type PendingMetadataTargetReference,
+  type ProjectMemberIndexEntry,
+  type ProjectObjectIndexEntry,
+  type ProjectReferenceIndex,
+  type ProjectReferenceIndexConflict,
+  type ProjectReferenceIndexResult,
+  type ProjectReferenceSnapshot,
+  type ProjectValueIndexEntry,
+} from "./projectReferenceIndex"
 import type { Diagnostic } from "./types"
-import type { YamlPath } from "./yamlLocations"
 
-export interface ProjectMemberIndexEntry {
-  canonical: string
-  target: Extract<ParsedMetadataTarget, { kind: "member" }>
-  result: MetadataResolveResult
-}
-
-export interface PendingMetadataTargetReference {
-  filePath: string
-  yamlPath: YamlPath
-  canonical: string
-  target: ParsedMetadataTarget
-  constraint: MetadataTargetConstraint
-}
-
-export interface ProjectReferenceSnapshot {
-  memberIndex: Array<ProjectMemberIndexEntry | ProjectMemberIndexConflict>
-  memberIndexByKey: Record<string, ProjectMemberIndexEntry | ProjectMemberIndexConflict>
-  pendingReferences: PendingMetadataTargetReference[]
-  stats: {
-    memberEntries: number
-    pendingReferences: number
-    conflicts: number
-    snapshotBytes: number
-  }
-}
-
-export interface ProjectMemberIndexConflict {
-  canonical: string
-  conflict: true
+export {
+  estimateProjectReferenceSnapshotBytes,
+  projectMemberIndexKey,
+  type PendingMetadataTargetReference,
+  type ProjectMemberIndexEntry,
+  type ProjectObjectIndexEntry,
+  type ProjectReferenceIndex,
+  type ProjectReferenceIndexConflict,
+  type ProjectReferenceIndexResult,
+  type ProjectReferenceSnapshot,
+  type ProjectValueIndexEntry,
 }
 
 export type PendingReferenceFastResult =
   | { ok: true }
   | { ok: false; reason: "miss" | "conflict" | "unsupported" }
 
-export function projectMemberIndexKey(target: Extract<ParsedMetadataTarget, { kind: "member" }>): string {
-  return [
-    target.root,
-    target.objectName,
-    ...(target.objectSegments ?? []).flatMap((segment) => [segment.kind, segment.objectName]),
-    ...target.segments.flatMap((segment) => [segment.kind, segment.name]),
-  ].join(".")
-}
-
 export function createProjectReferenceSnapshot(params: {
+  objectIndexEntries?: readonly ProjectObjectIndexEntry[]
   memberIndexEntries: readonly ProjectMemberIndexEntry[]
+  valueIndexEntries?: readonly ProjectValueIndexEntry[]
   pendingReferences: readonly PendingMetadataTargetReference[]
 }): ProjectReferenceSnapshot {
-  const entriesByKey = new Map<string, ProjectMemberIndexEntry | ProjectMemberIndexConflict>()
-  for (const entry of params.memberIndexEntries) {
-    const existing = entriesByKey.get(entry.canonical)
-    if (existing === undefined) {
-      entriesByKey.set(entry.canonical, entry)
-      continue
-    }
-
-    entriesByKey.set(entry.canonical, { canonical: entry.canonical, conflict: true })
-  }
-
-  const memberIndex = [...entriesByKey.values()]
-  const memberIndexByKey = Object.fromEntries(entriesByKey)
-  const snapshotWithoutBytes = {
-    memberIndex,
-    memberIndexByKey,
-    pendingReferences: [...params.pendingReferences],
-    stats: {
-      memberEntries: memberIndex.length,
-      pendingReferences: params.pendingReferences.length,
-      conflicts: memberIndex.filter(isConflict).length,
-      snapshotBytes: 0,
-    },
-  }
-
-  return {
-    ...snapshotWithoutBytes,
-    stats: {
-      ...snapshotWithoutBytes.stats,
-      snapshotBytes: estimateProjectReferenceSnapshotBytes(snapshotWithoutBytes),
-    },
-  }
+  return createUnifiedProjectReferenceSnapshot({
+    objectIndexEntries: params.objectIndexEntries ?? [],
+    memberIndexEntries: params.memberIndexEntries,
+    valueIndexEntries: params.valueIndexEntries ?? [],
+    pendingReferences: params.pendingReferences,
+  })
 }
 
 export function resolvePendingReference(params: {
@@ -95,12 +56,6 @@ export function resolvePendingReference(params: {
   if (entry === undefined) return { ok: false, reason: "miss" }
   if (isConflict(entry)) return { ok: false, reason: "conflict" }
   return { ok: true }
-}
-
-export function estimateProjectReferenceSnapshotBytes(
-  snapshot: Omit<ProjectReferenceSnapshot, "stats"> | ProjectReferenceSnapshot
-): number {
-  return Buffer.byteLength(JSON.stringify(snapshot), "utf8")
 }
 
 export interface ValidatePendingReferencesResult {
@@ -161,6 +116,11 @@ function resolveReferenceByResolver(params: {
   return []
 }
 
-function isConflict(entry: ProjectMemberIndexEntry | ProjectMemberIndexConflict): entry is ProjectMemberIndexConflict {
+function isConflict(
+  entry: ProjectMemberIndexEntry | ProjectReferenceIndexConflict
+): entry is ProjectReferenceIndexConflict {
   return "conflict" in entry
 }
+
+export type LegacyMetadataReferenceResolveResult = MetadataResolveResult
+export type LegacyParsedMetadataTarget = ParsedMetadataTarget
