@@ -1,7 +1,11 @@
 import { execFile } from "node:child_process"
 import { promisify } from "node:util"
 import { describe, expect, it } from "vitest"
-import { createProjectValidationWorkerPool } from "./projectValidationWorkerPool"
+import {
+  createProjectValidationWorkerPool,
+  createWorkerTableSupplement,
+} from "./projectValidationWorkerPool"
+import type { ValidationObjectRecord, ValidationObjectTableSnapshot } from "./projectValidationTypes"
 
 const execFileAsync = promisify(execFile)
 
@@ -32,3 +36,55 @@ describe("ProjectValidationWorkerPool", () => {
     expect(stdout.trim()).toBe("worker-size=1")
   })
 })
+
+describe("createWorkerTableSupplement", () => {
+  it("excludes records and file paths already owned by the worker", () => {
+    const local = record({ kind: "Справочник", name: "Товары" }, "/project/Справочник/Товары/Свойства.yaml")
+    const remote = record({ kind: "Документ", name: "Заказ" }, "/project/Документ/Заказ/Свойства.yaml")
+    const snapshot: ValidationObjectTableSnapshot = {
+      records: [local, remote],
+      filePaths: [local.filePath, remote.filePath],
+    }
+
+    const supplement = createWorkerTableSupplement(snapshot, new Set([local.filePath]))
+
+    expect(supplement).toEqual({
+      records: [remote],
+      filePaths: [remote.filePath],
+    })
+  })
+
+  it("keeps remote owner records when they override a local owner key", () => {
+    const local = record(
+      { kind: "Подсистема", name: "Настройки" },
+      "/project/Подсистема/A/Подсистемы/Настройки/Свойства.yaml"
+    )
+    const remote = record(
+      { kind: "Подсистема", name: "Настройки" },
+      "/project/Подсистема/B/Подсистемы/Настройки/Свойства.yaml"
+    )
+    const snapshot: ValidationObjectTableSnapshot = {
+      records: [remote],
+      filePaths: [local.filePath, remote.filePath],
+    }
+
+    const supplement = createWorkerTableSupplement(snapshot, new Set([local.filePath]))
+
+    expect(supplement).toEqual({
+      records: [remote],
+      filePaths: [remote.filePath],
+    })
+  })
+})
+
+function record(owner: { kind: string; name: string }, filePath: string): ValidationObjectRecord {
+  return {
+    filePath,
+    projectPath: filePath.replace(/^\/project\//, ""),
+    kind: "properties",
+    owner: { dir: owner.kind, name: owner.name },
+    ownerRef: { kind: owner.kind, name: owner.name },
+    model: { itemType: owner.kind, name: owner.name },
+    importDiagnostics: [],
+  }
+}

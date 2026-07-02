@@ -1,3 +1,4 @@
+import { performance } from "node:perf_hooks"
 import { parentPort } from "node:worker_threads"
 import { resolve } from "path"
 import type { ConfigurationContext } from "../context/types"
@@ -43,8 +44,21 @@ type ValidationWorkerMessage =
       filePaths: string[]
     }
 
-const entries = new Map<string, ProjectYamlEntry>()
-const states = new Map<string, ProjectValidationFileState>()
+interface WorkerValidationState {
+  entries: Map<string, ProjectYamlEntry>
+  states: Map<string, ProjectValidationFileState>
+  localTable: ReturnType<typeof createValidationObjectTable>
+}
+
+let workerState = createEmptyWorkerValidationState()
+
+function createEmptyWorkerValidationState(): WorkerValidationState {
+  return {
+    entries: new Map(),
+    states: new Map(),
+    localTable: createValidationObjectTable(),
+  }
+}
 
 parentPort?.on("message", (message: ValidationWorkerMessage) => {
   try {
@@ -67,6 +81,7 @@ function runFirstPass(message: Extract<ValidationWorkerMessage, { kind: "firstPa
   diagnostics: Diagnostic[]
   objectRecords: ValidationObjectRecord[]
 } {
+  workerState = createEmptyWorkerValidationState()
   const diagnostics: Diagnostic[] = []
   const objectRecords: ValidationObjectRecord[] = []
   const schemaCache = createValidationSchemaCache(message.context)
@@ -84,7 +99,7 @@ function runFirstPass(message: Extract<ValidationWorkerMessage, { kind: "firstPa
       continue
     }
 
-    entries.set(resolve(entry.filePath), entry)
+    workerState.entries.set(resolve(entry.filePath), entry)
     const cache = createProjectYamlCacheFromEntries([entry])
     const first = validateProjectFileFirstPass({
       projectDir: message.projectDir,
@@ -93,7 +108,8 @@ function runFirstPass(message: Extract<ValidationWorkerMessage, { kind: "firstPa
       context: message.context,
       schemaCache,
     })
-    states.set(resolve(file.absolutePath), first.state)
+    workerState.states.set(resolve(file.absolutePath), first.state)
+    workerState.localTable.mergeRecords(first.objectRecords)
     diagnostics.push(...first.diagnostics)
     objectRecords.push(...first.objectRecords)
   }
@@ -103,21 +119,34 @@ function runFirstPass(message: Extract<ValidationWorkerMessage, { kind: "firstPa
 
 function runSecondPass(message: Extract<ValidationWorkerMessage, { kind: "secondPass" }>): {
   diagnostics: Diagnostic[]
+  timing: {
+    contextMs: number
+    validationMs: number
+    fileCount: number
+    supplementRecords: number
+    supplementFilePaths: number
+  }
 } {
+  const contextStartedAt = performance.now()
   const diagnostics: Diagnostic[] = []
-  const table = createValidationObjectTable(message.objectTable)
+  const localSnapshot = workerState.localTable.snapshot()
+  const supplementedTable = createValidationObjectTable({
+    records: [...localSnapshot.records, ...message.objectTable.records],
+    filePaths: [...localSnapshot.filePaths, ...message.objectTable.filePaths],
+  })
   const cache = createWorkerYamlCache()
-  const ownerCache = createOwnerMetadataCacheFromValidationTable({ projectDir: message.projectDir, table })
+  const ownerCache = createOwnerMetadataCacheFromValidationTable({ projectDir: message.projectDir, table: supplementedTable })
   const metadataResolver = createProjectMetadataResolverFromValidationTable({
     projectDir: message.projectDir,
-    table,
+    table: supplementedTable,
     mode: message.mode,
     ownerCache,
     yamlCache: cache,
   })
+  const validationStartedAt = performance.now()
 
   for (const filePath of message.filePaths) {
-    const state = states.get(resolve(filePath))
+    const state = workerState.states.get(resolve(filePath))
     if (state === undefined) continue
     const second = validateProjectFileSecondPass({
       projectDir: message.projectDir,
@@ -130,11 +159,20 @@ function runSecondPass(message: Extract<ValidationWorkerMessage, { kind: "second
     diagnostics.push(...second.diagnostics)
   }
 
-  return { diagnostics }
+  return {
+    diagnostics,
+    timing: {
+      contextMs: validationStartedAt - contextStartedAt,
+      validationMs: performance.now() - validationStartedAt,
+      fileCount: message.filePaths.length,
+      supplementRecords: message.objectTable.records.length,
+      supplementFilePaths: message.objectTable.filePaths.length,
+    },
+  }
 }
 
 function createWorkerYamlCache(): ProjectYamlCache {
-  const local = createProjectYamlCacheFromEntries([...entries.values()])
+  const local = createProjectYamlCacheFromEntries([...workerState.entries.values()])
   const fallback = createProjectYamlCache()
 
   return {

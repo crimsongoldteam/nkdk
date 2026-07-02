@@ -1,4 +1,4 @@
-import { dirname, join } from "node:path"
+import { dirname, join, resolve } from "node:path"
 import { Worker } from "node:worker_threads"
 import { fileURLToPath, pathToFileURL } from "node:url"
 import type { ConfigurationContext } from "../context/types"
@@ -28,6 +28,14 @@ export interface SecondPassPoolResult {
   diagnostics: Diagnostic[]
 }
 
+interface WorkerSecondPassTiming {
+  contextMs: number
+  validationMs: number
+  fileCount: number
+  supplementRecords: number
+  supplementFilePaths: number
+}
+
 export interface ProjectValidationWorkerPool {
   start(): Promise<void>
   close(): Promise<void>
@@ -54,12 +62,13 @@ type WorkerRequest =
 
 type WorkerResponse =
   | { kind: "firstPassResult"; diagnostics: Diagnostic[]; objectRecords: ValidationObjectRecord[] }
-  | { kind: "secondPassResult"; diagnostics: Diagnostic[] }
+  | { kind: "secondPassResult"; diagnostics: Diagnostic[]; timing?: WorkerSecondPassTiming }
   | { kind: "error"; message: string }
 
 export function createProjectValidationWorkerPool(params: { concurrency: number }): ProjectValidationWorkerPool {
   const workers: Worker[] = []
   const assignedFilePaths = new Map<Worker, string[]>()
+  const localObjectRecordPaths = new Map<Worker, Set<string>>()
 
   return {
     async start() {
@@ -78,7 +87,10 @@ export function createProjectValidationWorkerPool(params: { concurrency: number 
           const files = partitions[index] ?? []
           const filePaths = files.map((file) => file.absolutePath)
           assignedFilePaths.set(worker, filePaths)
-          if (filePaths.length === 0) return { diagnostics: [], objectRecords: [] }
+          if (filePaths.length === 0) {
+            localObjectRecordPaths.set(worker, new Set())
+            return { diagnostics: [], objectRecords: [] }
+          }
 
           const response = await request(worker, {
             kind: "firstPass",
@@ -87,6 +99,7 @@ export function createProjectValidationWorkerPool(params: { concurrency: number 
             filePaths,
           })
           if (response.kind !== "firstPassResult") throw new Error("Worker вернул неожиданный результат firstPass")
+          localObjectRecordPaths.set(worker, new Set(response.objectRecords.map((record) => record.filePath)))
           return response
         })
       )
@@ -98,25 +111,61 @@ export function createProjectValidationWorkerPool(params: { concurrency: number 
     },
     async runSecondPass(secondPassParams) {
       const results = await Promise.all(
-        workers.map(async (worker) => {
+        workers.map(async (worker, index) => {
           const filePaths = assignedFilePaths.get(worker) ?? []
-          if (filePaths.length === 0) return { diagnostics: [] }
+          if (filePaths.length === 0) return { index, diagnostics: [] }
+          const objectTable = createWorkerTableSupplement(
+            secondPassParams.objectTable,
+            localObjectRecordPaths.get(worker) ?? new Set()
+          )
 
           const response = await request(worker, {
             kind: "secondPass",
             projectDir: secondPassParams.projectDir,
             context: secondPassParams.context,
             mode: secondPassParams.mode,
-            objectTable: secondPassParams.objectTable,
+            objectTable,
             filePaths,
           })
           if (response.kind !== "secondPassResult") throw new Error("Worker вернул неожиданный результат secondPass")
-          return response
+          return { index, ...response }
         })
       )
 
+      logSecondPassTiming(results)
+
       return { diagnostics: results.flatMap((result) => result.diagnostics) }
     },
+  }
+}
+
+function logSecondPassTiming(results: Array<{ index: number; timing?: WorkerSecondPassTiming }>): void {
+  if (process.env["NKDK_VALIDATION_TIMING"] !== "1") return
+
+  for (const result of results) {
+    if (result.timing === undefined) continue
+    console.error(
+      [
+        `[validation] worker ${result.index} second pass`,
+        `files=${result.timing.fileCount}`,
+        `supplementRecords=${result.timing.supplementRecords}`,
+        `supplementFilePaths=${result.timing.supplementFilePaths}`,
+        `context=${result.timing.contextMs.toFixed(2)}ms`,
+        `validation=${result.timing.validationMs.toFixed(2)}ms`,
+      ].join(" ")
+    )
+  }
+}
+
+export function createWorkerTableSupplement(
+  snapshot: ValidationObjectTableSnapshot,
+  localFilePaths: ReadonlySet<string>
+): ValidationObjectTableSnapshot {
+  const local = new Set([...localFilePaths].map((filePath) => resolve(filePath)))
+
+  return {
+    records: snapshot.records.filter((record) => !local.has(resolve(record.filePath))),
+    filePaths: snapshot.filePaths.filter((filePath) => !local.has(resolve(filePath))),
   }
 }
 
