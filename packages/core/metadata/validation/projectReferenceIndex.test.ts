@@ -131,6 +131,47 @@ describe("ProjectReferenceIndex", () => {
       stats: { hits: 1, misses: 0, conflicts: 0, filterFailures: 0, dependencies: 0, unsupported: 0, fallbacks: 0 },
     })
   })
+
+  it("returns needsDependency in partial mode when object file can be resolved", () => {
+    const projectDir = "/tmp/nkdk-project"
+    const target = objectTarget("Справочник.Товары")
+    const index = createProjectReferenceIndex({
+      projectDir,
+      mode: "partial",
+      snapshot: createProjectReferenceSnapshot({
+        objectIndexEntries: [],
+        memberIndexEntries: [],
+        valueIndexEntries: [],
+        pendingReferences: [],
+      }),
+      resolveProjectFile: () => ({
+        kind: "needsDependency",
+        requestedBy: "Catalog.Товары",
+        file: {
+          absolutePath: "/tmp/nkdk-project/Справочник/Товары/Свойства.yaml",
+          projectPath: "Справочник/Товары/Свойства.yaml",
+          kind: "properties",
+          owner: { dir: "Справочник", name: "Товары", spec: {} as never },
+        },
+      }),
+    })
+
+    expect(
+      index.resolve({
+        filePath: "/tmp/request.yaml",
+        yamlPath: ["Поле"],
+        canonical: "Catalog.Товары",
+        target,
+        constraint: { kind: "object" },
+      }),
+    ).toMatchObject({
+      ok: false,
+      reason: "needsDependency",
+      diagnostics: [],
+      dependency: expect.objectContaining({ kind: "needsDependency" }),
+    })
+    expect(index.stats()).toMatchObject({ dependencies: 1, fallbacks: 0 })
+  })
 })
 
 function objectTarget(value: string): Extract<ParsedMetadataTarget, { kind: "object" }> {

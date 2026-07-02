@@ -163,6 +163,7 @@ export function createProjectReferenceIndex(params: {
   projectDir: string
   mode: "full" | "partial"
   snapshot: ProjectReferenceSnapshot
+  resolveProjectFile?: (target: Extract<ParsedMetadataTarget, { kind: "object" }>) => ValidationDependencyRequest | undefined
 }): ProjectReferenceIndex {
   const stats: ProjectReferenceIndexStats = {
     hits: 0,
@@ -176,7 +177,7 @@ export function createProjectReferenceIndex(params: {
 
   return {
     resolve(reference) {
-      const result = resolveReference(params.snapshot, reference)
+      const result = resolveReference(params, reference)
       if (result.ok) stats.hits += 1
       else if (result.reason === "notFound") stats.misses += 1
       else if (result.reason === "conflict") stats.conflicts += 1
@@ -204,11 +205,22 @@ export function validatePendingReferencesWithIndex(params: {
 }
 
 function resolveReference(
-  snapshot: ProjectReferenceSnapshot,
+  params: {
+    mode: "full" | "partial"
+    snapshot: ProjectReferenceSnapshot
+    resolveProjectFile?: (target: Extract<ParsedMetadataTarget, { kind: "object" }>) => ValidationDependencyRequest | undefined
+  },
   reference: PendingMetadataTargetReference
 ): ProjectReferenceIndexResult {
-  const entry = lookupEntry(snapshot, reference.target)
+  const entry = lookupEntry(params.snapshot, reference.target)
   if (entry === undefined) {
+    const dependency =
+      params.mode === "partial" && reference.target.kind === "object"
+        ? params.resolveProjectFile?.(reference.target)
+        : undefined
+    if (dependency !== undefined) {
+      return { ok: false, reason: "needsDependency", dependency, diagnostics: [] }
+    }
     return {
       ok: false,
       reason: "notFound",

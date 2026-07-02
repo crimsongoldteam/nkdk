@@ -338,7 +338,7 @@ function validateProjectPropertiesFirstPass(params: {
     owner,
     hasFile: fs.existsSync,
   })
-  const objectIndexEntry = buildObjectIndexEntry({ owner })
+  const objectIndexEntry = buildObjectIndexEntry({ owner, file: params.file })
   const objectIndexEntries = objectIndexEntry ? [objectIndexEntry] : []
   const valueIndexEntries = buildValueIndexEntries({ owner })
 
@@ -386,18 +386,50 @@ function failedFirstPass(file: ValidationProjectFile, diagnostics: Diagnostic[])
   }
 }
 
-function buildObjectIndexEntry(params: { owner: OwnerMetadata }): ProjectObjectIndexEntry | undefined {
-  const root = rootFromYAML[params.owner.ref.kind]
-  if (!root || params.owner.ref.name === undefined) return undefined
-  const target: Extract<ParsedMetadataTarget, { kind: "object" }> = {
-    kind: "object",
-    root: root as never,
-    objectName: params.owner.ref.name,
-  }
+function buildObjectIndexEntry(params: {
+  owner: OwnerMetadata
+  file: ValidationProjectFile
+}): ProjectObjectIndexEntry | undefined {
+  const target = objectTargetForProjectFile(params.file)
+  if (target === undefined) return undefined
   return {
     canonical: projectObjectIndexKey(target),
     target,
     result: { ok: true, filePath: params.owner.filePath, details: params.owner },
+  }
+}
+
+function objectTargetForProjectFile(
+  file: ValidationProjectFile
+): Extract<ParsedMetadataTarget, { kind: "object" }> | undefined {
+  const root = rootFromYAML[file.owner.dir]
+  if (!root || file.owner.name.length === 0) return undefined
+  const nesting = file.owner.spec.nesting
+  if (nesting?.kind !== "recursiveChildDir") {
+    return {
+      kind: "object",
+      root: root as never,
+      objectName: file.owner.name,
+    }
+  }
+
+  const parts = file.projectPath.split("/")
+  if (parts[0] !== file.owner.dir || parts[parts.length - 1] !== "Свойства.yaml") return undefined
+  const rootObjectName = parts[1]
+  if (rootObjectName === undefined || rootObjectName.length === 0) return undefined
+  const nestedNames: string[] = []
+  for (let index = 2; index < parts.length - 2; index += 2) {
+    if (parts[index] !== nesting.childDir) return undefined
+    const objectName = parts[index + 1]
+    if (objectName === undefined || objectName.length === 0) return undefined
+    nestedNames.push(objectName)
+  }
+
+  return {
+    kind: "object",
+    root: root as never,
+    objectName: rootObjectName,
+    segments: nestedNames.map((objectName) => ({ kind: root as never, objectName })),
   }
 }
 

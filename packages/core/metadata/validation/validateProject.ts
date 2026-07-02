@@ -1,8 +1,10 @@
 import { availableParallelism } from "node:os"
+import { existsSync } from "fs"
 import { resolve } from "path"
 import type { ConfigurationContext } from "../context/types"
 import { createOwnerMetadataCacheFromValidationTable } from "./dataPath/ownerCache"
 import { createProjectMetadataResolverFromValidationTable } from "./projectMetadataResolver"
+import { getProjectReferenceObjectPathContributor } from "./projectMetadataResolverRegistry"
 import {
   createProjectReferenceIndex,
   createProjectReferenceSnapshot,
@@ -82,6 +84,7 @@ function validateProjectInProcess(params: ValidateProjectParams): ValidateProjec
       projectDir,
       mode: queue.mode,
       snapshot: referenceSnapshot,
+      resolveProjectFile: (target) => resolveProjectFileDependency({ projectDir, target }),
     })
     const referenceResult = validatePendingReferencesWithIndex({
       index: referenceIndex,
@@ -277,6 +280,18 @@ function logInProcessReferenceProfile(params: {
       `entries=${params.snapshot.stats.memberEntries}`,
     ].join(" ")
   )
+}
+
+function resolveProjectFileDependency(params: {
+  projectDir: string
+  target: Parameters<NonNullable<ReturnType<typeof getProjectReferenceObjectPathContributor>>>[0]["target"]
+}) {
+  const contributor = getProjectReferenceObjectPathContributor(params.target.root)
+  const filePath = contributor?.({ projectDir: params.projectDir, target: params.target })?.filePath
+  if (filePath === undefined || !existsSync(filePath)) return undefined
+  const file = resolveValidationProjectFile(params.projectDir, filePath)
+  if (file === undefined) return undefined
+  return { kind: "needsDependency" as const, file, requestedBy: filePath }
 }
 
 function defaultValidationContext(): ConfigurationContext {

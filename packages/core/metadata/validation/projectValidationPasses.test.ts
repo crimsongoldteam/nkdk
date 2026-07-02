@@ -79,6 +79,36 @@ describe("validateProjectFileFirstPass references", () => {
       }),
     ])
   })
+
+  it("builds object index entries for nested recursive objects", () => {
+    const projectDir = mkdtempSync(join(tmpdir(), "nkdk-validation-first-pass-"))
+    tempDirs.push(projectDir)
+    writeProjectFile(
+      projectDir,
+      "Подсистема/Администрирование/Подсистемы/Настройки/Свойства.yaml",
+      "Синоним: Настройки"
+    )
+    const file = resolveValidationProjectFile(
+      projectDir,
+      join(projectDir, "Подсистема/Администрирование/Подсистемы/Настройки/Свойства.yaml")
+    )
+    if (!file) throw new Error("file not resolved")
+
+    const first = validateProjectFileFirstPass({
+      projectDir,
+      file,
+      cache: createProjectYamlCache(),
+      context: mockContext,
+      schemaCache: createValidationSchemaCache(mockContext),
+    })
+
+    expect(first.objectIndexEntries).toContainEqual(
+      expect.objectContaining({
+        canonical: "Subsystem.Администрирование.Subsystem.Настройки",
+        result: expect.objectContaining({ ok: true }),
+      })
+    )
+  })
 })
 
 function writeProjectFile(projectDir: string, projectPath: string, lines: string[] | string): void {

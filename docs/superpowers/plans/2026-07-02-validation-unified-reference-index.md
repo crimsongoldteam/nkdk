@@ -905,7 +905,7 @@ pnpm --filter @nakidka/core exec vitest run packages/core/metadata/validation/pr
 
 Expected: PASS.
 
-- [ ] **Step 5: Commit registry rename bridge**
+- [x] **Step 5: Commit registry rename bridge**
 
 ```bash
 git add packages/core/metadata/validation/projectMetadataResolverRegistry.ts packages/core/metadata/commonObjects/metadataTargetProjectResolvers/register.ts packages/core/metadata/appliedObjects packages/core/metadata/validation/projectMetadataResolverRegistry.test.ts packages/core/metadata/importBoundaries.test.ts
@@ -920,7 +920,7 @@ git commit -m "refactor: :recycle: переименовать resolver registry 
 - Modify: registration files from Task 5 where object path contributors live.
 - Test: `packages/core/metadata/validation/projectReferenceIndex.test.ts`
 
-- [ ] **Step 1: Port object tests from old resolver**
+- [x] **Step 1: Port object tests from old resolver**
 
 Move these cases from `projectMetadataResolver.test.ts` into `projectReferenceIndex.test.ts` and adapt them to snapshot/index setup:
 
@@ -944,7 +944,7 @@ it("returns needsDependency in partial mode when object file exists but is not l
 
 Use the same helper functions from the old test: `createProject()`, `writeProjectFile()`, `objectTarget()`.
 
-- [ ] **Step 2: Add object path dependency lookup**
+- [x] **Step 2: Add object path dependency lookup**
 
 In `projectReferenceIndex.ts`, extend `createProjectReferenceIndex()` params:
 
@@ -968,7 +968,7 @@ if (dependency !== undefined) {
 }
 ```
 
-- [ ] **Step 3: Wire project-file resolver from validation queue**
+- [x] **Step 3: Wire project-file resolver from validation queue**
 
 In `validateProject.ts`, create `resolveProjectFile` near the queue:
 
@@ -981,7 +981,7 @@ const resolveProjectFileForReference = (target: Extract<ParsedMetadataTarget, { 
 
 Pass it to every `createProjectReferenceIndex()` in partial/in-process path.
 
-- [ ] **Step 4: Run object tests**
+- [x] **Step 4: Run object tests**
 
 ```bash
 pnpm --filter @nakidka/core exec vitest run packages/core/metadata/validation/projectReferenceIndex.test.ts
