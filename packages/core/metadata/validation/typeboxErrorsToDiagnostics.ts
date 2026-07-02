@@ -56,27 +56,13 @@ export function typeboxErrorsToDiagnostics(
     const isRequired = error.type === ValueErrorType.ObjectRequiredProperty
     const lookupKeys = isRequired && keys.length > 0 ? keys.slice(0, -1) : keys
 
-    const indexedPosition = isRequired
-      ? parsed.locations?.nodePosition(lookupKeys)
-      : parsed.locations?.valuePosition(lookupKeys) ?? parsed.locations?.nodePosition(lookupKeys)
-    let line = indexedPosition?.line ?? 1
-    let col = indexedPosition?.col ?? 1
-
-    if (indexedPosition === undefined && lookupKeys.length > 0) {
-      const node = parsed.doc.getIn(lookupKeys, true) as { range?: number[] } | null
-      if (node?.range) {
-        const pos = parsed.lineCounter.linePos(node.range[0])
-        line = pos.line
-        col = pos.col
-      }
-    } else if (indexedPosition === undefined) {
-      const rootNode = parsed.doc.contents as { range?: number[] } | null
-      if (rootNode?.range) {
-        const pos = parsed.lineCounter.linePos(rootNode.range[0])
-        line = pos.line
-        col = pos.col
-      }
-    }
+    const position =
+      (isRequired
+        ? parsed.locations.nodePosition(lookupKeys)
+        : parsed.locations.valuePosition(lookupKeys) ?? parsed.locations.nodePosition(lookupKeys)) ??
+      (lookupKeys.length === 0 ? parsed.locations.rootPosition() : { line: 1, col: 1 })
+    const line = position.line
+    const col = position.col
 
     diagnostics.push({
       filePath,

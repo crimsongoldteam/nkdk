@@ -9,7 +9,7 @@ import { importBooleanFromXML } from "~/metadata/commonObjects/boolean/fromXML"
 import { importBooleanFromYAML } from "~/metadata/commonObjects/boolean/fromYAML"
 import { exportBooleanToYAML } from "~/metadata/commonObjects/boolean/toYAML"
 import { registerTypeRule } from "~/metadata/orchestration/property/typeRuleRegistry"
-import { PropertyRule } from "~/metadata/orchestration/property/types"
+import type { PropertyRule } from "~/metadata/orchestration/property/types"
 import {
   AccumulationRegisterAggregateDimensionXML,
   AccumulationRegisterAggregateDimensions,

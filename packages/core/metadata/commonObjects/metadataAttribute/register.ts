@@ -1,12 +1,12 @@
 import { Type, type TSchema } from "@sinclair/typebox"
-import { MetadataAttributeYAML, MetadataAttributes, MetadataAttributesXML, MetadataAttributesYAML } from "./types"
+import type { MetadataAttributeYAML, MetadataAttributes, MetadataAttributesXML, MetadataAttributesYAML } from "./types"
 import { ConfigurationContext, ConfigurationContextFromXML } from "~/metadata/context/types"
 import { importMetadataItemFromYAML } from "~/metadata/orchestration/metadataItem/fromYAML"
 import { exportMetadataItemToJSONSchema } from "~/metadata/orchestration/metadataItem/toJSONSchema"
 import { registerMetadataItemCollectionRule } from "~/metadata/orchestration/metadataCollection/ruleFactory"
 import { exportMetadataCollectionToYAMLAsRecord } from "~/metadata/orchestration/metadataCollection/toYAML"
 import { importPropertyFromXML } from "~/metadata/orchestration/property/fromXML"
-import { PropertyRule } from "~/metadata/orchestration/property/types"
+import type { PropertyRule } from "~/metadata/orchestration/property/types"
 import {
   MetadataAttributeRules,
   MetadataAttributesWithAllowedTypesRules,

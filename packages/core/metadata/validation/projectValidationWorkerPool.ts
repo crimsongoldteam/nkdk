@@ -1,6 +1,6 @@
 import { dirname, join } from "node:path"
 import { Worker } from "node:worker_threads"
-import { fileURLToPath } from "node:url"
+import { fileURLToPath, pathToFileURL } from "node:url"
 import type { ConfigurationContext } from "~/metadata/context/types"
 import type { ValidationProjectFile } from "./projectFiles"
 import type {
@@ -129,12 +129,16 @@ function createWorker(): Worker {
   const workerFile = currentFile.endsWith(".ts")
     ? join(dirname(currentFile), "projectValidationWorker.ts")
     : join(dirname(currentFile), "projectValidationWorker.js")
-  const execArgv =
-    workerFile.endsWith(".ts") && !process.execArgv.some((arg) => arg.includes("tsx"))
-      ? ["--import", "tsx", ...process.execArgv]
-      : process.execArgv
+  const execArgv = workerFile.endsWith(".ts")
+    ? withTypeScriptWorkerLoader(dirname(currentFile))
+    : process.execArgv
 
   return new Worker(workerFile, { execArgv })
+}
+
+function withTypeScriptWorkerLoader(workerDir: string): string[] {
+  const registerUrl = pathToFileURL(join(workerDir, "projectValidationWorkerRegister.mjs")).href
+  return ["--import", "tsx", "--import", registerUrl]
 }
 
 let nextRequestId = 1

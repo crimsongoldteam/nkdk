@@ -1,8 +1,8 @@
-import { PropertyRule } from "~/metadata/orchestration/property/types"
+import type { PropertyRule } from "~/metadata/orchestration/property/types"
 import { registerTypeRule } from "~/metadata/orchestration/property/typeRuleRegistry"
 import { ConfigurationContext } from "../../context/types"
 import { importMetadataFieldFromYAML } from "../metadataField/fromYAML"
-import { TypeLink, TypeLinkYAML } from "./types"
+import type { TypeLink, TypeLinkYAML } from "./types"
 
 const typeLinkMetadataTargetRule = {
   type: "MetadataField",

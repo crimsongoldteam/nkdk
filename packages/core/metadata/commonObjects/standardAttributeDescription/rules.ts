@@ -8,7 +8,7 @@ import { i8nTextRule } from "~/metadata/commonObjects/i8nText/types"
 import { metadataValueRule } from "~/metadata/commonObjects/metadataValue/types"
 import { stringRule } from "~/metadata/commonObjects/string/types"
 import { systemEnumerationRule } from "~/metadata/systemEnumerations/types"
-import { MetadataItemRule } from "~/metadata/orchestration/property/types"
+import type { MetadataItemRule } from "~/metadata/orchestration/property/types"
 import { StandartAttributeNameFromYAML } from "./standartAttributeNames"
 export const StandardAttributeDescriptionRules = {
   itemType: "StandardAttributeDescription",

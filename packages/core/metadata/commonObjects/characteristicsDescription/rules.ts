@@ -1,6 +1,6 @@
 import { metadataValueRule } from "~/metadata/commonObjects/metadataValue/types"
 import { stringRule } from "~/metadata/commonObjects/string/types"
-import { MetadataItemRule } from "~/metadata/orchestration/property/types"
+import type { MetadataItemRule } from "~/metadata/orchestration/property/types"
 export const CharacteristicsDescriptionRules = {
   itemType: "CharacteristicsDescription",
   properties: {

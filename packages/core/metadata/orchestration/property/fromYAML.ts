@@ -6,7 +6,7 @@ import { getTypeRule } from "./typeRuleRegistry"
 import { importFromYAMLFunction, ImportFromYAMLFunctionNew } from "./fn"
 import { getValueOrDefault, shouldProcessProperty } from "./helpers"
 import { importStringMetadataTargetFromYAML, metadataTargetOwnerFromRule } from "./metadataTargetString"
-import { MetadataItemRule, PropertyRule } from "./types"
+import type { MetadataItemRule, PropertyRule } from "./types"
 import type { MetadataTargetOwner } from "~/metadata/commonObjects/metadataTargets/types"
 
 export function importPropertiesFromYAML<Rule extends MetadataItemRule>(params: {

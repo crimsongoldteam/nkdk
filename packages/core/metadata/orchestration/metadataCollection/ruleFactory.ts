@@ -7,11 +7,11 @@ import {
   importFromYAMLFunction,
 } from "~/metadata/orchestration/property/fn"
 import { PropertyRuleType } from "~/metadata/orchestration/property/registry"
-import { MetadataItemRule } from "~/metadata/orchestration/property/types"
+import type { MetadataItemRule } from "~/metadata/orchestration/property/types"
 import { ToMetadata } from "../metadataItem/registry"
 import { exportMetadataItemToJSONSchema } from "../metadataItem/toJSONSchema"
 import { registerTypeRule } from "../property/typeRuleRegistry"
-import { NamedMetadataItem } from "./types"
+import type { NamedMetadataItem } from "./types"
 import { importMetadataItemCollectionFromXML } from "./fromXML"
 import { importMetadataItemCollectionFromYAMLAsArray, importMetadataItemCollectionFromYAMLAsRecord } from "./fromYAML"
 import { exportMetadataCollectionToXML } from "./toXML"

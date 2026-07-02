@@ -1,6 +1,6 @@
 import { ConfigurationContextWithExportToXML } from "~/metadata/context/types"
 import { exportMetadataItemToXML } from "~/metadata/orchestration/metadataItem/toXML"
-import { PropertyRule } from "~/metadata/orchestration/property/types"
+import type { PropertyRule } from "~/metadata/orchestration/property/types"
 import { GroupItemAutoRules } from "./rules"
 import type { GroupItemAuto } from "./types"
 

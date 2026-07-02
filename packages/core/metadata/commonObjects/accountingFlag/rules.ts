@@ -1,7 +1,7 @@
 import { commonRegisterFieldProperties } from "~/metadata/commonObjects/metadataRegisterField/rules"
 import { addDefaultLanguageNameToSynonym } from "~/metadata/helpers/synonymHelpers"
 import { ConfigurationContext } from "~/metadata/context/types"
-import { MetadataItemRule, PropertyRule } from "~/metadata/orchestration/property/types"
+import type { MetadataItemRule, PropertyRule } from "~/metadata/orchestration/property/types"
 
 const hasExplicitProperty =
   (propertyKey: string) =>

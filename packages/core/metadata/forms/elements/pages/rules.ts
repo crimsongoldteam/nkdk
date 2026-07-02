@@ -4,7 +4,7 @@ import { eventsRule } from "~/metadata/forms/commonObjects/event/types"
 import { stringRule } from "~/metadata/commonObjects/string/types"
 import { systemEnumerationRule } from "~/metadata/systemEnumerations/types"
 import { registerElementRule } from "~/metadata/orchestration/formElement/ruleFactory"
-import { PropertyRule } from "~/metadata/orchestration/property/types"
+import type { PropertyRule } from "~/metadata/orchestration/property/types"
 import { ElementRule } from "../../../orchestration/formElement/types"
 import { formGroupCommonProperties } from "../formGroup/rules"
 export type { ElementRule, PropertyRule }

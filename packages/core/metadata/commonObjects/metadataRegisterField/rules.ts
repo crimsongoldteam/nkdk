@@ -2,7 +2,7 @@ import { uuidPropertyRule } from "~/metadata/commonObjects/uuid/rule"
 import { getParentFromContext } from "~/metadata/context/helpers"
 import { ConfigurationContext, ConfigurationContextWithExportToXML } from "~/metadata/context/types"
 import { addDefaultLanguageNameToSynonym } from "~/metadata/helpers/synonymHelpers"
-import { PropertyRule } from "~/metadata/orchestration/property/types"
+import type { PropertyRule } from "~/metadata/orchestration/property/types"
 
 const propertiesParents = ["Properties"]
 const emptySynonym = { items: {} }

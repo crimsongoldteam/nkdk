@@ -1,7 +1,7 @@
 import { registerTypeRule } from "~/metadata/orchestration"
-import { PropertyRule } from "~/metadata/orchestration/property/types"
+import type { PropertyRule } from "~/metadata/orchestration/property/types"
 import { ConfigurationContext } from "../../context/types"
-import { MetadataItemLink, MetadataItemLinks, MetadataItemLinksXML, MetadataItemLinkXML } from "./types"
+import type { MetadataItemLink, MetadataItemLinks, MetadataItemLinksXML, MetadataItemLinkXML } from "./types"
 
 export function exportMetadataItemLinkToXML(
   _context: ConfigurationContext,

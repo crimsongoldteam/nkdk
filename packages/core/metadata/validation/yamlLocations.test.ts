@@ -63,11 +63,7 @@ describe("diagnosticAtYamlPath", () => {
     const parsed = parseMetadataYaml(yaml)
     const diagnostic = diagnosticAtYamlPath({
       filePath: "/tmp/item.yaml",
-      parsed: {
-        ...parsed,
-        doc: { contents: undefined } as never,
-        lineCounter: { linePos: () => ({ line: 99, col: 99 }) } as never,
-      },
+      parsed,
       path: ["Настройки", "Группа", "Поле"],
       severity: "error",
       source: "structure",

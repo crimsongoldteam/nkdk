@@ -4,11 +4,11 @@ import "../color/fromYAML"
 import "../font/fromYAML"
 import { registerTypeRule } from "~/metadata/orchestration/property/typeRuleRegistry"
 import { importPropertyFromYAML } from "~/metadata/orchestration/property/fromYAML"
-import { PropertyRule } from "~/metadata/orchestration/property/types"
+import type { PropertyRule } from "~/metadata/orchestration/property/types"
 import { Border } from "../border/types"
 import { Color } from "../color/types"
 import { Font } from "../font/types"
-import { StyleItemValue, StyleItemValueYAML } from "./types"
+import type { StyleItemValue, StyleItemValueYAML } from "./types"
 
 const kindFromYAML = {
   Шрифт: "Font",

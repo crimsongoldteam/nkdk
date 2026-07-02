@@ -1,7 +1,7 @@
-import { PropertyRule } from "~/metadata/orchestration/property/types"
+import type { PropertyRule } from "~/metadata/orchestration/property/types"
 import { registerTypeRule } from "~/metadata/orchestration/property/typeRuleRegistry"
 import { ConfigurationContext } from "../../context/types"
-import { Color, ColorTypeToPrefix, ColorXML, isRawColorRef } from "./types"
+import type { Color, ColorTypeToPrefix, ColorXML, isRawColorRef } from "./types"
 
 export const exportColorToXML = (
   _context: ConfigurationContext,

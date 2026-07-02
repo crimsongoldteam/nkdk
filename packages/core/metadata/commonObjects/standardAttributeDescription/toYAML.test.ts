@@ -5,8 +5,8 @@ import {
   minimal,
   minimalYAML,
 } from "~/metadata/commonObjects/standardAttributeDescription/__fixtures__/data"
-import { StandartAttributeNameToYAML } from "./types"
-import { PropertyRule } from "~/metadata/orchestration/property/types"
+import type { StandartAttributeNameToYAML } from "./types"
+import type { PropertyRule } from "~/metadata/orchestration/property/types"
 import { testExportPropertyToYAML } from "~/tests/property/exportPropertyToYAML"
 
 const rule: PropertyRule = {

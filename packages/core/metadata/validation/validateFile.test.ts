@@ -165,11 +165,7 @@ describe("validateFile", () => {
     expect(
       validateParsedFile({
         filePath: "test.yaml",
-        parsed: {
-          ...parsed,
-          doc: { errors: [] } as never,
-          lineCounter: { linePos: () => ({ line: 99, col: 99 }) } as never,
-        },
+        parsed,
         schema: simpleSchema,
       })
     ).toEqual([

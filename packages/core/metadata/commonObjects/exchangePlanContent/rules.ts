@@ -2,7 +2,7 @@ import { exchangePlanContentItemsRule } from "~/metadata/commonObjects/exchangeP
 import { metadataItemLinkRule } from "~/metadata/commonObjects/metadataPath/types"
 import { xmlRootRule } from "~/metadata/commonObjects/xmlRoot/types"
 import { systemEnumerationRule } from "~/metadata/systemEnumerations/types"
-import { MetadataItemRule } from "~/metadata/orchestration/property/types"
+import type { MetadataItemRule } from "~/metadata/orchestration/property/types"
 export const ExchangePlanContentItemRules = {
   itemType: "ExchangePlanContentItem",
   properties: {

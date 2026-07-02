@@ -1,4 +1,4 @@
-import { PropertyRule } from "~/metadata/orchestration/property/types"
+import type { PropertyRule } from "~/metadata/orchestration/property/types"
 import { I8nText } from "../types"
 
 export const typedI8nTextRule = {

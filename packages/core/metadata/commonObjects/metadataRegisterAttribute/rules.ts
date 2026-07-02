@@ -2,7 +2,7 @@ import { stringRule } from "~/metadata/commonObjects/string/types"
 import { commonRegisterFieldProperties } from "~/metadata/commonObjects/metadataRegisterField/rules"
 import { getParentFromContext } from "~/metadata/context/helpers"
 import { ConfigurationContextWithExportToXML } from "~/metadata/context/types"
-import { MetadataItemRule } from "~/metadata/orchestration/property/types"
+import type { MetadataItemRule } from "~/metadata/orchestration/property/types"
 export const MetadataRegisterAttributeRules = {
   itemType: "MetadataRegisterAttribute",
   externalMetadata: { segment: "Attribute", placement: "ownerChild" },

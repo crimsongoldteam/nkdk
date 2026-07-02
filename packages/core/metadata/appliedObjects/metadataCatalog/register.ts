@@ -10,6 +10,7 @@ import {
 import { importMetadataCatalogFromYAML } from "./fromYAML"
 import { MetadataCatalogRules } from "./rules"
 import { exportMetadataCatalogToJSONSchema } from "./toJSONSchema"
+import type { MetadataCatalogYAML } from "./types"
 
 registerDataPathOwnerKind({
   kind: "Справочник",
@@ -42,7 +43,8 @@ registerProjectSpec({
   dir: "Справочник",
   rule: MetadataCatalogRules,
   exportSchema: createProjectSchemaExporter(({ context }) => exportMetadataCatalogToJSONSchema({ context })),
-  importModel: ({ context, parsed, name }) => importMetadataCatalogFromYAML(context, parsed.data, name),
+  importModel: ({ context, parsed, name }) =>
+    importMetadataCatalogFromYAML(context, parsed.data as MetadataCatalogYAML | undefined, name),
 })
 
 function hasNamedItem(value: unknown, name: string): boolean {

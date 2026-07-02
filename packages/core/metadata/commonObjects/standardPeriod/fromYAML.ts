@@ -1,8 +1,8 @@
 import { format, parse } from "date-fns"
-import { PropertyRule } from "~/metadata/orchestration/property/types"
+import type { PropertyRule } from "~/metadata/orchestration/property/types"
 import { StandardPeriodVariant, StandardPeriodVariantFromYAML } from "~/metadata/systemEnumerations/types"
 import { ConfigurationContext } from "../../context/types"
-import { StandardPeriod, StandardPeriodYAML } from "./types"
+import type { StandardPeriod, StandardPeriodYAML } from "./types"
 
 export const isStandardPeriodYAML = (data: unknown): data is StandardPeriodYAML =>
   typeof data === "object" &&

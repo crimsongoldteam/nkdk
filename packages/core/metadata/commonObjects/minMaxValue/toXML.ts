@@ -1,7 +1,7 @@
 import { ConfigurationContextWithExportToXML } from "~/metadata/context/types"
 import { registerTypeRule } from "~/metadata/orchestration/property/typeRuleRegistry"
-import { PropertyRule } from "~/metadata/orchestration/property/types"
-import { getMinMaxValueXMLText, getMinMaxValueXsiType, MinMaxValueXsiType } from "./types"
+import type { PropertyRule } from "~/metadata/orchestration/property/types"
+import type { getMinMaxValueXMLText, getMinMaxValueXsiType, MinMaxValueXsiType } from "./types"
 
 type RuleWithTypedXML = PropertyRule & { typedXML?: unknown }
 

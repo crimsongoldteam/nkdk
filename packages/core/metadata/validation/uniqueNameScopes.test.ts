@@ -1,7 +1,7 @@
 import { describe, expect, it } from "vitest"
 import { MetadataCatalogRules } from "~/metadata/appliedObjects/metadataCatalog/rules"
 import { MetadataInformationRegisterRules } from "~/metadata/appliedObjects/metadataInformationRegister/rules"
-import { MetadataItem } from "~/metadata/orchestration/property/types"
+import type { MetadataItem } from "~/metadata/orchestration/property/types"
 import { parseMetadataYaml } from "~/yaml/parseMetadataYaml"
 import { validateUniqueNameScopes } from "./uniqueNameScopes"
 

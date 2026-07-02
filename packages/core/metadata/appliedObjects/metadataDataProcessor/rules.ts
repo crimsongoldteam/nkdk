@@ -18,7 +18,7 @@ import { V8_MDCLASSES_ROOT } from "~/metadata/orchestration/appliedObject/preset
 import { exportMetadataCollectionToXML } from "~/metadata/orchestration/metadataCollection/toXML"
 import { registerTypeRule } from "~/metadata/orchestration/property/typeRuleRegistry"
 import { ExportToXMLFunctionNew } from "~/metadata/orchestration/property/fn"
-import { MetadataItemRule, PropertyRule } from "~/metadata/orchestration/property/types"
+import type { MetadataItemRule, PropertyRule } from "~/metadata/orchestration/property/types"
 import "~/metadata/commonObjects/metadataAttribute/register"
 import { MetadataAttributeRules } from "~/metadata/commonObjects/metadataAttribute/rules"
 import { MetadataCommandRules } from "../metadataCommand/rules"

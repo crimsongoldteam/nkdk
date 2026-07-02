@@ -1,6 +1,6 @@
 import { booleanRule } from "~/metadata/commonObjects/boolean/types"
 import { registerElementRule } from "~/metadata/orchestration/formElement/ruleFactory"
-import { MetadataItemRule, PropertyRule } from "~/metadata/orchestration/property/types"
+import type { MetadataItemRule, PropertyRule } from "~/metadata/orchestration/property/types"
 import { ElementRule } from "../../../orchestration/formElement/types"
 import { formFieldCommonProperties, formFieldTableRelatedProperties } from "../formField/rules"
 export type { ElementRule, PropertyRule }

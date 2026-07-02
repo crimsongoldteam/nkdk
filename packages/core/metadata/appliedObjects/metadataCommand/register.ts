@@ -2,9 +2,9 @@ import { ConfigurationContext, ConfigurationContextFromXML } from "~/metadata/co
 import { registerMetadataItemCollectionRule } from "~/metadata/orchestration/metadataCollection/ruleFactory"
 import { exportMetadataCollectionToYAMLAsRecord } from "~/metadata/orchestration/metadataCollection/toYAML"
 import { importPropertyFromXML } from "~/metadata/orchestration/property/fromXML"
-import { PropertyRule } from "~/metadata/orchestration/property/types"
+import type { PropertyRule } from "~/metadata/orchestration/property/types"
 import { MetadataCommandRules } from "./rules"
-import { MetadataCommands, MetadataCommandsXML, MetadataCommandsYAML } from "./types"
+import type { MetadataCommands, MetadataCommandsXML, MetadataCommandsYAML } from "./types"
 
 registerMetadataItemCollectionRule({
   propertyType: "MetadataCommands",

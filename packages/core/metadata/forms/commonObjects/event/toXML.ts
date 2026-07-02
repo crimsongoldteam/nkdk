@@ -1,8 +1,8 @@
 import { capitalize } from "~/helpers/capitalize"
 import { ConfigurationContextWithExportToXML } from "~/metadata/context/types"
 import { registerTypeRule } from "~/metadata/orchestration/property/typeRuleRegistry"
-import { PropertyRule } from "~/metadata/orchestration/property/types"
-import { EventsXML, EventXML } from "./types"
+import type { PropertyRule } from "~/metadata/orchestration/property/types"
+import type { EventsXML, EventXML } from "./types"
 
 const isEventsPropertyRule = (rule: PropertyRule): rule is PropertyRule & { items: Record<string, string> } => {
   return rule.type === "Events"

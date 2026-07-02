@@ -62,4 +62,40 @@ describe("buildYamlLocationIndex", () => {
     ])
     expect(index.keyOccurrences(["Группа", "Поле"])).toEqual([{ line: 4, col: 3 }])
   })
+
+  it("does not treat scalar sequence values with colon as mapping keys", () => {
+    const index = buildYamlLocationIndex(["Ссылки:", "  - http://example.com", "  - urn:value"].join("\n"))
+
+    expect(index.nodePosition(["Ссылки", 0])).toEqual({ line: 2, col: 5 })
+    expect(index.nodePosition(["Ссылки", 1])).toEqual({ line: 3, col: 5 })
+    expect(index.keyPosition(["Ссылки", 0, "http"])).toBeUndefined()
+    expect(index.keyPosition(["Ссылки", 1, "urn"])).toBeUndefined()
+  })
+
+  it("finds duplicate key occurrences without AST fallback", () => {
+    const index = buildYamlLocationIndex(["Реквизиты:", "  Имя: Один", "  Имя: Два"].join("\n"))
+
+    expect(index.keyOccurrences(["Реквизиты", "Имя"])).toEqual([
+      { line: 2, col: 3 },
+      { line: 3, col: 3 },
+    ])
+  })
+
+  it("keeps sibling keys of sequence mappings outside the previous block value", () => {
+    const index = buildYamlLocationIndex(
+      [
+        "Элементы:",
+        "  - Поля:",
+        "      - Состояние",
+        "    Оформление:",
+        "      ЦветТекста:",
+        "      Заголовок: \"\"",
+      ].join("\n"),
+    )
+
+    expect(index.keyPosition(["Элементы", 0, "Оформление"])).toEqual({ line: 4, col: 5 })
+    expect(index.keyPosition(["Элементы", 0, "Оформление", "ЦветТекста"])).toEqual({ line: 5, col: 7 })
+    expect(index.valuePosition(["Элементы", 0, "Оформление", "ЦветТекста"])).toBeUndefined()
+    expect(index.valuePosition(["Элементы", 0, "Оформление", "Заголовок"])).toEqual({ line: 6, col: 18 })
+  })
 })

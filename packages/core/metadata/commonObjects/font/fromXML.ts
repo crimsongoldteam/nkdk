@@ -1,9 +1,9 @@
-import { PropertyRule } from "~/metadata/orchestration/property/types"
+import type { PropertyRule } from "~/metadata/orchestration/property/types"
 import { registerTypeRule } from "~/metadata/orchestration/property/typeRuleRegistry"
 import * as SE from "~/metadata/systemEnumerations/types"
 import { ConfigurationContext } from "../../context/types"
 import { importBooleanFromXML } from "../boolean/fromXML"
-import { Font, FontXML, PrefixedFontsFromXML, PrefixedFontsXML } from "./types"
+import type { Font, FontXML, PrefixedFontsFromXML, PrefixedFontsXML } from "./types"
 
 export const importFontFromXML = (
   _context: ConfigurationContext,

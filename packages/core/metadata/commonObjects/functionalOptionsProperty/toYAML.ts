@@ -1,7 +1,7 @@
 import { ConfigurationContext } from "~/metadata/context/types"
-import { PropertyRule } from "~/metadata/orchestration/property/types"
+import type { PropertyRule } from "~/metadata/orchestration/property/types"
 import { registerTypeRule } from "~/metadata/orchestration/property/typeRuleRegistry"
-import { FunctionalOptions, FunctionalOptionsYAML } from "./types"
+import type { FunctionalOptions, FunctionalOptionsYAML } from "./types"
 
 export const exportFunctionalOptionsToYAML = (
   _context: ConfigurationContext,

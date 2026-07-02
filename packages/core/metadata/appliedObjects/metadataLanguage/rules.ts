@@ -3,7 +3,7 @@ import { stringRule } from "~/metadata/commonObjects/string/types"
 import { uuidRule } from "~/metadata/commonObjects/uuid/types"
 import { xmlRootRule } from "~/metadata/commonObjects/xmlRoot/types"
 import { V8_MDCLASSES_ROOT } from "~/metadata/orchestration/appliedObject/presets"
-import { MetadataItemRule } from "~/metadata/orchestration/property/types"
+import type { MetadataItemRule } from "~/metadata/orchestration/property/types"
 import { systemEnumerationRule } from "~/metadata/systemEnumerations/types"
 
 const properties = ["Properties"]

@@ -1,5 +1,5 @@
 import { registerElementRule } from "~/metadata/orchestration/formElement/ruleFactory"
-import { PropertyRule } from "~/metadata/orchestration/property/types"
+import type { PropertyRule } from "~/metadata/orchestration/property/types"
 import { ElementRule } from "../../../orchestration/formElement/types"
 export type { ElementRule, PropertyRule }
 

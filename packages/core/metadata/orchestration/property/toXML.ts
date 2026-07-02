@@ -11,7 +11,7 @@ import {
   shouldProcessProperty,
   XML_SOURCE_KEYS,
 } from "./helpers"
-import { ItemXML, MetadataItemRule, PropertyRule } from "./types"
+import type { ItemXML, MetadataItemRule, PropertyRule } from "./types"
 
 export const exportPropertiesToXML = <Rule extends MetadataItemRule>(params: {
   context: ConfigurationContextWithExportToXML

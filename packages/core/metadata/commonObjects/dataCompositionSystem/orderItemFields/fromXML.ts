@@ -1,6 +1,6 @@
 import { ConfigurationContextFromXML } from "~/metadata/context/types"
 import { importMetadataItemFromXML } from "~/metadata/orchestration/metadataItem/fromXML"
-import { PropertyRule } from "~/metadata/orchestration/property/types"
+import type { PropertyRule } from "~/metadata/orchestration/property/types"
 import { OrderItemFieldRules } from "./rules"
 import type { OrderItemFields } from "./types"
 

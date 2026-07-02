@@ -1,4 +1,4 @@
-import { MetadataItemRule } from "~/metadata/orchestration/property/types"
+import type { MetadataItemRule } from "~/metadata/orchestration/property/types"
 
 /** Поля, связанные с таблицей/колонкой: есть не у всех элементов формы (напр. нет у PDFDocumentField). */
 export const formFieldTableRelatedProperties = {

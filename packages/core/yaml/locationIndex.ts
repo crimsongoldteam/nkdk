@@ -126,7 +126,8 @@ function readSequenceItem(params: {
   })
 
   if (!itemKeyToken.hasValue || isBlockScalarHeaderAt(itemLine, itemKeyToken.valueColumn)) {
-    stack.push({ indent, path: currentPath })
+    stack.push({ indent, path: itemPath })
+    stack.push({ indent: indent + 2, path: currentPath })
     return
   }
 
@@ -194,7 +195,10 @@ function findMappingColon(line: string, start: number): number | undefined {
       continue
     }
 
-    if (char === ":") return index
+    if (char !== ":") continue
+
+    const next = line[index + 1]
+    if (next === undefined || next === " " || next === "\t") return index
   }
 
   return undefined

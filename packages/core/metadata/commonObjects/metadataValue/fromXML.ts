@@ -1,4 +1,4 @@
-import { PropertyRule } from "~/metadata/orchestration/property/types"
+import type { PropertyRule } from "~/metadata/orchestration/property/types"
 import { registerTypeRule } from "~/metadata/orchestration/property/typeRuleRegistry"
 import { ImportFromXMLFunction } from "~/metadata/orchestration/property/fn"
 import { ConfigurationContextFromXML } from "../../context/types"
