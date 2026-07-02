@@ -51,10 +51,18 @@ export function exportJSONSchemaForProjectFile(params: ExportJSONSchemaForProjec
     })
   }
 
-  if (resource.role === "configuration" || resource.role === "properties") {
+  if (resource.role === "configuration") {
     return resource.owner.spec.exportSchema({
       context: params.context,
       mode: params.mode,
+    })
+  }
+
+  if (resource.role === "properties") {
+    return resource.owner.spec.exportSchema({
+      context: params.context,
+      mode: params.mode,
+      name: resource.owner.name,
     })
   }
 

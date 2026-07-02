@@ -29,7 +29,10 @@ interface ExpansionContext {
   referenceKey: string
 }
 
+const emptyExpansionContext: ExpansionContext = { references: [], referenceKey: "" }
 const unionSchemaCache = new WeakMap<TSchema, Map<string, BranchCache>>()
+let expansionContextCache = new WeakMap<TypeCheck<TSchema>, ExpansionContext>()
+let expansionContextBuildCountForTests = 0
 
 function isDiscriminatedUnionSchema(schema: TSchema): schema is DiscriminatedUnionSchema {
   return typeof schema.discriminantKey === "string" && Array.isArray(schema.anyOf)
@@ -181,14 +184,42 @@ function isSchema(value: object): value is TSchema {
   return "$id" in value || "type" in value || "anyOf" in value || "$ref" in value
 }
 
-export function expandDiscriminatedUnionErrors(errors: ValueError[], schema?: TypeCheck<TSchema>): ValueError[] {
-  const references = schema === undefined ? [] : collectSchemaReferences(schema.Schema(), schema.References())
-  const context = {
-    references,
-    referenceKey: references.map((reference) => reference.$id).filter((id): id is string => typeof id === "string").join("\u0000"),
-  }
+function getExpansionContext(schema?: TypeCheck<TSchema>): ExpansionContext {
+  if (schema === undefined) return emptyExpansionContext
 
-  return expandDiscriminatedUnionErrorsWithContext(errors, context)
+  const cached = expansionContextCache.get(schema)
+  if (cached !== undefined) return cached
+
+  const context = createExpansionContext(schema)
+  expansionContextCache.set(schema, context)
+
+  return context
+}
+
+function createExpansionContext(schema: TypeCheck<TSchema>): ExpansionContext {
+  expansionContextBuildCountForTests += 1
+  const references = collectSchemaReferences(schema.Schema(), schema.References())
+
+  return {
+    references,
+    referenceKey: references
+      .map((reference) => reference.$id)
+      .filter((id): id is string => typeof id === "string")
+      .join("\u0000"),
+  }
+}
+
+export function resetDiscriminatedUnionExpansionContextCacheForTests(): void {
+  expansionContextCache = new WeakMap<TypeCheck<TSchema>, ExpansionContext>()
+  expansionContextBuildCountForTests = 0
+}
+
+export function getDiscriminatedUnionExpansionContextBuildCountForTests(): number {
+  return expansionContextBuildCountForTests
+}
+
+export function expandDiscriminatedUnionErrors(errors: ValueError[], schema?: TypeCheck<TSchema>): ValueError[] {
+  return expandDiscriminatedUnionErrorsWithContext(errors, getExpansionContext(schema))
 }
 
 function expandDiscriminatedUnionErrorsWithContext(errors: ValueError[], context: ExpansionContext): ValueError[] {

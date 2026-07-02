@@ -10,7 +10,7 @@ describe("renameItem service", () => {
       rewrittenReferences: [],
       blockedReferences: [],
     }
-    const renameMetadataItem = vi.fn().mockReturnValue(coreResult)
+    const renameMetadataItem = vi.fn().mockResolvedValue(coreResult)
 
     const result = await renameItem(
       {

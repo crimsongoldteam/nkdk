@@ -17,8 +17,8 @@ import {
   type StructuralState,
 } from "@nakidka/core"
 
-export function renameMigration(yamlDir: string, path: string, newName: string, allowWrite = false): void {
-  printOperationResult(renameMetadataItem({
+export async function renameMigration(yamlDir: string, path: string, newName: string, allowWrite = false): Promise<void> {
+  printOperationResult(await renameMetadataItem({
     projectDir: yamlDir,
     path,
     newName,
@@ -26,8 +26,8 @@ export function renameMigration(yamlDir: string, path: string, newName: string, 
   }))
 }
 
-export function deleteMigration(yamlDir: string, path: string, allowWrite = false): void {
-  printOperationResult(deleteMetadataItem({
+export async function deleteMigration(yamlDir: string, path: string, allowWrite = false): Promise<void> {
+  printOperationResult(await deleteMetadataItem({
     projectDir: yamlDir,
     path,
     allowWrite,

@@ -6,7 +6,8 @@ import { MetadataCatalogRules } from "./rules"
 export const importMetadataCatalogFromYAML = (
   context: ConfigurationContext,
   data: MetadataCatalogYAML | undefined,
-  name: string
+  name: string,
+  source?: MetadataCatalog
 ): MetadataCatalog | undefined => {
   if (!data) return undefined
 
@@ -15,6 +16,7 @@ export const importMetadataCatalogFromYAML = (
     yaml: data,
     rule: MetadataCatalogRules,
     name,
+    source,
   })
 
   if (result == undefined) return undefined

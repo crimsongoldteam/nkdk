@@ -1,82 +1,101 @@
 import { join } from "path"
 import { rootFromYAML } from "~/metadata/commonObjects/metadataTargets/roots"
 import type { ConfigurationContext } from "~/metadata/context/types"
-import { buildFormDataPathIndex } from "~/metadata/validation/dataPath/formIndex"
+import { buildFormDataPathIndex, type FormDataPathIndex } from "~/metadata/validation/dataPath/formIndex"
 import { collectFormDataPathOccurrences } from "~/metadata/validation/dataPath/formTraversal"
-import { createOwnerMetadataCache } from "~/metadata/validation/dataPath/ownerCache"
+import { createOwnerMetadataCache, type OwnerMetadataCache } from "~/metadata/validation/dataPath/ownerCache"
 import { validateResolvedDataPathPolicy } from "~/metadata/validation/dataPath/policies"
 import { resolveDataPath } from "~/metadata/validation/dataPath/resolver"
 import {
   getFormWarningProviders,
   type RegisteredFormValidator,
+  type RegisteredFormValidatorParams,
 } from "~/metadata/validation/formValidationRegistry"
+import { validateExcludedEqualNameYAML } from "~/metadata/validation/excludeIfEqualNameYAML"
 import type { Diagnostic } from "~/metadata/validation/types"
 import { diagnosticAtYamlPath, type YamlPath } from "~/metadata/validation/yamlLocations"
 import type { ParsedYaml } from "~/yaml/parseMetadataYaml"
 import { importClientApplicationFormFromYAML } from "./fromYAML"
+import { ClientApplicationFormRules } from "./rules"
 import type { ClientApplicationFormYAML } from "./types"
 
-export const validateClientApplicationForm: RegisteredFormValidator = (params) => {
+interface ClientApplicationFormValidationState {
+  filePath: string
+  parsed: ParsedYaml
+  form: ReturnType<typeof importClientApplicationFormFromYAML>
+  index: FormDataPathIndex
+  occurrences: ReturnType<typeof collectFormDataPathOccurrences>
+}
+
+export function validateClientApplicationFormFirstPass(
+  params: RegisteredFormValidatorParams,
+):
+  | { status: "ok"; diagnostics: Diagnostic[]; state: ClientApplicationFormValidationState }
+  | { status: "failed"; diagnostics: Diagnostic[] } {
   const filePath = join(params.formDir, "Форма.yaml")
   const entry = params.cache.get(filePath)
   if ("error" in entry) {
-    return [
-      {
-        filePath: entry.filePath,
-        line: 1,
-        col: 1,
-        severity: "error",
-        source: "external-file",
-        message: `Не удалось прочитать форму "${params.formName}": ${entry.error.message}`,
-      },
-    ]
+    return { status: "failed", diagnostics: [readFormError(entry.filePath, params.formName, entry.error)] }
   }
 
   if (entry.parsed.doc.errors.length > 0) {
-    return entry.parsed.doc.errors.map((error) => {
-      const position = entry.parsed.lineCounter.linePos(error.pos[0])
-      return {
-        filePath: entry.filePath,
-        line: position.line,
-        col: position.col,
-        severity: "error" as const,
-        source: "syntax" as const,
-        message: error.message,
-      }
-    })
+    return { status: "failed", diagnostics: syntaxDiagnostics(entry.filePath, entry.parsed) }
   }
 
   const context = params.context ?? defaultValidationContext()
   const form = importForm({ context, yaml: entry.parsed.data, filePath: entry.filePath })
-  if ("diagnostics" in form) return params.suppressFormImportDiagnostics === true ? [] : form.diagnostics
+  if ("diagnostics" in form) {
+    return { status: "failed", diagnostics: params.suppressFormImportDiagnostics === true ? [] : form.diagnostics }
+  }
 
   const index = buildFormDataPathIndex({
     filePath: entry.filePath,
     parsed: entry.parsed,
     form: form.value,
   })
-  const diagnostics = [...index.duplicateDiagnostics]
+  const diagnostics = [
+    ...validateExcludedEqualNameYAML({
+      filePath: entry.filePath,
+      parsed: entry.parsed,
+      rule: ClientApplicationFormRules,
+      context,
+      name: params.formName,
+    }),
+    ...index.duplicateDiagnostics,
+  ]
   for (const provider of getFormWarningProviders()) {
     diagnostics.push(...provider({ filePath: entry.filePath, parsed: entry.parsed }))
   }
-  const ownerCache =
-    params.ownerCache ??
-    createOwnerMetadataCache({
-      projectDir: params.projectDir,
-      yamlCache: params.cache,
-      context,
-    })
 
-  for (const occurrence of collectFormDataPathOccurrences(form.value)) {
+  return {
+    status: "ok",
+    diagnostics,
+    state: {
+      filePath: entry.filePath,
+      parsed: entry.parsed,
+      form: form.value,
+      index,
+      occurrences: collectFormDataPathOccurrences(form.value),
+    },
+  }
+}
+
+export function validateClientApplicationFormSecondPass(params: {
+  state: ClientApplicationFormValidationState
+  ownerCache: OwnerMetadataCache
+}): Diagnostic[] {
+  const diagnostics: Diagnostic[] = []
+
+  for (const occurrence of params.state.occurrences) {
     if (isAcceptedOpaqueMultipleValueDataPath(occurrence)) continue
 
     const result = resolveDataPath({
-      filePath: entry.filePath,
-      parsed: entry.parsed,
+      filePath: params.state.filePath,
+      parsed: params.state.parsed,
       yamlPath: occurrence.yamlPath,
       value: occurrence.value,
-      index,
-      ownerCache,
+      index: params.state.index,
+      ownerCache: params.ownerCache,
       ...(occurrence.tableContext !== undefined ? { tableContext: occurrence.tableContext } : {}),
     })
 
@@ -85,8 +104,8 @@ export const validateClientApplicationForm: RegisteredFormValidator = (params) =
 
     diagnostics.push(
       ...validateResolvedDataPathPolicy({
-        filePath: entry.filePath,
-        parsed: entry.parsed,
+        filePath: params.state.filePath,
+        parsed: params.state.parsed,
         yamlPath: occurrence.yamlPath,
         value: occurrence.value,
         rule: occurrence.rule,
@@ -98,6 +117,50 @@ export const validateClientApplicationForm: RegisteredFormValidator = (params) =
   }
 
   return dedupeDiagnostics(diagnostics)
+}
+
+export const validateClientApplicationForm: RegisteredFormValidator = (params) => {
+  const first = validateClientApplicationFormFirstPass(params)
+  if (first.status === "failed") return first.diagnostics
+
+  const context = params.context ?? defaultValidationContext()
+  const ownerCache =
+    params.ownerCache ??
+    createOwnerMetadataCache({
+      projectDir: params.projectDir,
+      yamlCache: params.cache,
+      context,
+    })
+
+  return dedupeDiagnostics([
+    ...first.diagnostics,
+    ...validateClientApplicationFormSecondPass({ state: first.state, ownerCache }),
+  ])
+}
+
+function readFormError(filePath: string, formName: string, error: Error): Diagnostic {
+  return {
+    filePath,
+    line: 1,
+    col: 1,
+    severity: "error",
+    source: "external-file",
+    message: `Не удалось прочитать форму "${formName}": ${error.message}`,
+  }
+}
+
+function syntaxDiagnostics(filePath: string, parsed: ParsedYaml): Diagnostic[] {
+  return parsed.doc.errors.map((error) => {
+    const position = parsed.lineCounter.linePos(error.pos[0])
+    return {
+      filePath,
+      line: position.line,
+      col: position.col,
+      severity: "error" as const,
+      source: "syntax" as const,
+      message: error.message,
+    }
+  })
 }
 
 export function collectDynamicListTypeValueWarnings(params: {

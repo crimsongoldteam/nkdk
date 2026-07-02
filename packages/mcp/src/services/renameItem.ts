@@ -10,7 +10,7 @@ export async function renameItem(
 ): Promise<ToolPayload> {
   try {
     const core = deps ?? (await loadCoreApi())
-    return core.renameMetadataItem(input) as unknown as ToolPayload
+    return (await core.renameMetadataItem(input)) as unknown as ToolPayload
   } catch (caught) {
     return toolError("core_error", errorMessage(caught))
   }

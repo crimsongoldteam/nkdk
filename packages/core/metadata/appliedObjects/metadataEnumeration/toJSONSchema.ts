@@ -6,10 +6,8 @@ import { MetadataEnumerationRules } from "./rules"
 export const exportMetadataEnumerationToJSONSchema = (params: { context: ConfigurationContext }): TSchema => {
   const { context } = params
 
-  const schema = exportMetadataItemToJSONSchema({
+  return exportMetadataItemToJSONSchema({
     context,
     rule: MetadataEnumerationRules,
   })
-
-  return schema
 }

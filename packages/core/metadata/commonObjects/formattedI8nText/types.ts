@@ -31,6 +31,8 @@ export interface FormattedI8nTextXML extends I8nTextXML {
 export interface FormattedI8nTextPropertyRule extends BasePropertyRule {
   type: "FormattedI8nText"
   xmlWithDefaultLanguage?: true
+  /** Если значение поля приведенное к pascalCase равно имени элемента - поле не будет выгружено в yaml */
+  excludeIfEqualNameYAML?: true
 }
 
 export interface FormattedI8nTextWidePropertyRule extends WidePropertyRuleBase {

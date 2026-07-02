@@ -17,6 +17,36 @@ export interface RegisteredFormValidatorParams {
 
 export type RegisteredFormValidator = (params: RegisteredFormValidatorParams) => Diagnostic[]
 
+export interface RegisteredFormFirstPassOk {
+  status: "ok"
+  diagnostics: Diagnostic[]
+  state: unknown
+}
+
+export interface RegisteredFormFirstPassFailed {
+  status: "failed"
+  diagnostics: Diagnostic[]
+}
+
+export type RegisteredFormFirstPassResult =
+  | RegisteredFormFirstPassOk
+  | RegisteredFormFirstPassFailed
+
+export interface RegisteredFormFirstPassParams extends RegisteredFormValidatorParams {}
+
+export interface RegisteredFormSecondPassParams {
+  state: unknown
+  ownerCache: OwnerMetadataCache
+}
+
+export type RegisteredFormFirstPassValidator = (
+  params: RegisteredFormFirstPassParams,
+) => RegisteredFormFirstPassResult
+
+export type RegisteredFormSecondPassValidator = (
+  params: RegisteredFormSecondPassParams,
+) => Diagnostic[]
+
 export type FormPlatformSourceMatcher = (path: string) =>
   | {
       kind: "platformSource"
@@ -29,6 +59,8 @@ export type FormPlatformSourceMatcher = (path: string) =>
 export type FormWarningProvider = (params: { filePath: string; parsed: ParsedYaml }) => Diagnostic[]
 
 let formValidator: RegisteredFormValidator | undefined
+let formFirstPassValidator: RegisteredFormFirstPassValidator | undefined
+let formSecondPassValidator: RegisteredFormSecondPassValidator | undefined
 const platformSourceMatchers: FormPlatformSourceMatcher[] = []
 const warningProviders: FormWarningProvider[] = []
 
@@ -38,6 +70,22 @@ export function registerFormValidator(validator: RegisteredFormValidator): void 
 
 export function getRegisteredFormValidator(): RegisteredFormValidator | undefined {
   return formValidator
+}
+
+export function registerFormValidationPasses(params: {
+  firstPass: RegisteredFormFirstPassValidator
+  secondPass: RegisteredFormSecondPassValidator
+}): void {
+  formFirstPassValidator = params.firstPass
+  formSecondPassValidator = params.secondPass
+}
+
+export function getRegisteredFormValidationPasses():
+  | { firstPass: RegisteredFormFirstPassValidator; secondPass: RegisteredFormSecondPassValidator }
+  | undefined {
+  return formFirstPassValidator && formSecondPassValidator
+    ? { firstPass: formFirstPassValidator, secondPass: formSecondPassValidator }
+    : undefined
 }
 
 export function registerFormPlatformSourceMatcher(matcher: FormPlatformSourceMatcher): void {

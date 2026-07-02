@@ -24,11 +24,11 @@ describe("deleteMetadataItem", () => {
     return filePath
   }
 
-  it("returns validation_failed before looking for references", () => {
+  it("returns validation_failed before looking for references", async () => {
     const projectDir = createProject()
     writeProjectFile(projectDir, "Справочник/Товары/Свойства.yaml", ["НеизвестноеПоле: true"])
 
-    const result = deleteMetadataItem({
+    const result = await deleteMetadataItem({
       projectDir,
       path: "Справочник.Товары",
     })
@@ -36,7 +36,7 @@ describe("deleteMetadataItem", () => {
     expect(result).toMatchObject({ ok: false, code: "validation_failed" })
   })
 
-  it("blocks external references to deleted object descendants", () => {
+  it("blocks external references to deleted object descendants", async () => {
     const projectDir = createProject()
     writeProjectFile(projectDir, "Справочник/Товары/Свойства.yaml", [
       "Реквизиты:",
@@ -45,7 +45,7 @@ describe("deleteMetadataItem", () => {
     ])
     writeProjectFile(projectDir, "Справочник/Заказы/Свойства.yaml", ["Владельцы:", "  - Справочник.Товары"])
 
-    const result = deleteMetadataItem({
+    const result = await deleteMetadataItem({
       projectDir,
       path: "Справочник.Товары",
     })
@@ -59,7 +59,7 @@ describe("deleteMetadataItem", () => {
     })
   })
 
-  it("ignores references inside the deleted object subtree", () => {
+  it("ignores references inside the deleted object subtree", async () => {
     const projectDir = createProject()
     writeProjectFile(projectDir, "Справочник/Товары/Свойства.yaml", [
       "ПоляБлокировкиДанных:",
@@ -69,7 +69,7 @@ describe("deleteMetadataItem", () => {
       "    Тип: Строка",
     ])
 
-    const result = deleteMetadataItem({
+    const result = await deleteMetadataItem({
       projectDir,
       path: "Справочник.Товары",
     })
@@ -77,7 +77,7 @@ describe("deleteMetadataItem", () => {
     expect(result).toMatchObject({ ok: true, mode: "plan", blockedReferences: [] })
   })
 
-  it("applies attribute deletion through model export without migration", () => {
+  it("applies attribute deletion through model export without migration", async () => {
     const projectDir = createProject()
     const propertiesPath = writeProjectFile(projectDir, "Справочник/Товары/Свойства.yaml", [
       "Реквизиты:",
@@ -87,7 +87,7 @@ describe("deleteMetadataItem", () => {
       "    Тип: Строка",
     ])
 
-    const result = deleteMetadataItem({
+    const result = await deleteMetadataItem({
       projectDir,
       path: "Справочник.Товары.Реквизит.Артикул",
       allowWrite: true,
@@ -100,12 +100,12 @@ describe("deleteMetadataItem", () => {
     expect(existsSync(join(projectDir, "Миграции"))).toBe(false)
   })
 
-  it("deletes file item resources without migration", () => {
+  it("deletes file item resources without migration", async () => {
     const projectDir = createProject()
     writeProjectFile(projectDir, "Справочник/Товары/Свойства.yaml", ["{}"])
     writeProjectFile(projectDir, "Справочник/Товары/Формы/ФормаЭлемента/Форма.yaml", ["Элементы: {}"])
 
-    const result = deleteMetadataItem({
+    const result = await deleteMetadataItem({
       projectDir,
       path: "Справочник.Товары.Форма.ФормаЭлемента",
       allowWrite: true,
@@ -116,7 +116,7 @@ describe("deleteMetadataItem", () => {
     expect(existsSync(join(projectDir, "Миграции"))).toBe(false)
   })
 
-  it("blocks delete when a form contains a structural reference", () => {
+  it("blocks delete when a form contains a structural reference", async () => {
     const projectDir = createProject()
     writeProjectFile(projectDir, "ОбщаяКартинка/Состояния/Свойства.yaml", "{}")
     writeProjectFile(projectDir, "Справочник/Товары/Свойства.yaml", "{}")
@@ -131,7 +131,7 @@ describe("deleteMetadataItem", () => {
       "    ПутьКДанным: ИндексКартинки",
     ])
 
-    const result = deleteMetadataItem({
+    const result = await deleteMetadataItem({
       projectDir,
       path: "ОбщаяКартинка.Состояния",
     })
@@ -143,7 +143,7 @@ describe("deleteMetadataItem", () => {
     })
   })
 
-  it("blocks delete when a form DataPath points to the target", () => {
+  it("blocks delete when a form DataPath points to the target", async () => {
     const projectDir = createProject()
     writeProjectFile(projectDir, "Справочник/Товары/Свойства.yaml", [
       "Реквизиты:",
@@ -160,7 +160,7 @@ describe("deleteMetadataItem", () => {
       "    ПутьКДанным: Объект.Артикул",
     ])
 
-    const result = deleteMetadataItem({
+    const result = await deleteMetadataItem({
       projectDir,
       path: "Справочник.Товары.Реквизит.Артикул",
     })

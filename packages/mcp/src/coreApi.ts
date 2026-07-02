@@ -94,18 +94,18 @@ export interface CoreApi {
     directoryPath?: string
     depth?: number
   }): MetadataProjectDirectoryStructure
-  validateProject(params: { projectDir: string; filePath?: string }): { diagnostics: Diagnostic[] }
+  validateProject(params: { projectDir: string; filePath?: string }): Promise<{ diagnostics: Diagnostic[] }>
   renameMetadataItem(params: {
     projectDir: string
     path: string
     newName: string
     allowWrite?: boolean
-  }): MetadataOperationResult
+  }): Promise<MetadataOperationResult>
   deleteMetadataItem(params: {
     projectDir: string
     path: string
     allowWrite?: boolean
-  }): MetadataOperationResult
+  }): Promise<MetadataOperationResult>
   planSyncToXml(params: { inputDir: string; outputDir: string; referenceDir?: string }): Promise<
     | { ok: true; mode: "plan"; migrationsToApply: MigrationPlanItem[] }
     | MigrationChainInvalidResult

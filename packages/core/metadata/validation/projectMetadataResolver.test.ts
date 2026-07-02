@@ -5,8 +5,9 @@ import { afterEach, describe, expect, it } from "vitest"
 import { parseMetadataTargetFromYAML } from "~/metadata/commonObjects/metadataTargets"
 import type { ParsedMetadataTarget } from "~/metadata/commonObjects/metadataTargets/types"
 import { mockContext } from "~/tests/mockContext"
-import { createProjectMetadataResolver } from "./projectMetadataResolver"
+import { createProjectMetadataResolver, createProjectMetadataResolverFromValidationTable } from "./projectMetadataResolver"
 import { createProjectYamlCache } from "./projectYamlCache"
+import { createValidationObjectTable } from "./projectValidationObjectTable"
 
 describe("ProjectMetadataResolver", () => {
   const tempDirs: string[] = []
@@ -50,6 +51,28 @@ describe("ProjectMetadataResolver", () => {
           message: 'Не найден объект "Справочник.НетТакого"',
         }),
       ],
+    })
+  })
+
+  it("returns needsDependency in partial mode when an object file can be resolved but is not loaded yet", () => {
+    const projectDir = createProject()
+    writeProjectFile(projectDir, "Справочник/Товары/Свойства.yaml", "{}")
+    const resolver = createProjectMetadataResolverFromValidationTable({
+      projectDir,
+      table: createValidationObjectTable(),
+      mode: "partial",
+    })
+
+    const result = resolver.resolveObject({
+      target: { kind: "object", root: "Catalog", objectName: "Товары" },
+    })
+
+    expect(result).toMatchObject({
+      ok: false,
+      dependency: expect.objectContaining({
+        kind: "needsDependency",
+        file: expect.objectContaining({ projectPath: "Справочник/Товары/Свойства.yaml" }),
+      }),
     })
   })
 

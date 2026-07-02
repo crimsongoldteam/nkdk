@@ -6,10 +6,8 @@ import { MetadataDocumentRules } from "./rules"
 export const exportMetadataDocumentToJSONSchema = (params: { context: ConfigurationContext }): TSchema => {
   const { context } = params
 
-  const schema = exportMetadataItemToJSONSchema({
+  return exportMetadataItemToJSONSchema({
     context,
     rule: MetadataDocumentRules,
   })
-
-  return schema
 }

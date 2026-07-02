@@ -4,6 +4,7 @@ import type { ConfigurationContext } from "~/metadata/context/types"
 import { importMetadataItemFromYAML } from "~/metadata/orchestration/metadataItem/fromYAML"
 import type { MetadataItem, MetadataItemRule } from "~/metadata/orchestration/property/types"
 import type { ParsedYaml } from "~/yaml/parseMetadataYaml"
+import type { ValidationObjectTable } from "../projectValidationObjectTable"
 import type { ValidationProjectSpec } from "../projectSpecs"
 import type { ProjectYamlCache } from "../projectYamlCache"
 import type { Diagnostic } from "../types"
@@ -68,6 +69,67 @@ export function createOwnerMetadataCache({
       const result = loadOwner({ projectDir: rootDir, yamlCache, context, ref })
       results.set(key, result)
       return result
+    },
+  }
+}
+
+export function createOwnerMetadataCacheFromValidationTable(params: {
+  projectDir: string
+  table: ValidationObjectTable
+}): OwnerMetadataCache {
+  const results = new Map<string, OwnerMetadataResult>()
+  const projectDir = resolve(params.projectDir)
+
+  return {
+    get(ref) {
+      const key = canonicalOwnerKey(ref)
+      const cached = results.get(key)
+      if (cached) return cached
+
+      const result = loadOwnerFromValidationTable({ projectDir, table: params.table, ref })
+      results.set(key, result)
+      return result
+    },
+  }
+}
+
+function loadOwnerFromValidationTable(params: {
+  projectDir: string
+  table: ValidationObjectTable
+  ref: OwnerTypeRef
+}): OwnerMetadataResult {
+  const ownerKind = getDataPathOwnerKind(params.ref.kind)
+  const tableRef = ownerKind ? { kind: ownerKind.projectDir, name: params.ref.name } : params.ref
+  const record = params.table.getOwner(tableRef)
+  if (record === undefined) {
+    const dir = ownerKind?.projectDir ?? params.ref.kind
+    return {
+      status: "not-found",
+      diagnostics: [crossFileDiagnostic(ownerFilePath(params.projectDir, dir, params.ref.name ?? ""), ownerNotFoundMessage(params.ref))],
+    }
+  }
+
+  if (record.importDiagnostics.length > 0) {
+    return { status: "import-error", diagnostics: record.importDiagnostics }
+  }
+
+  if (ownerKind === undefined || record.model === undefined || record.fieldIndex === undefined) {
+    return {
+      status: "import-error",
+      diagnostics: [crossFileDiagnostic(record.filePath, `Не удалось импортировать владельца ${formatOwnerRef(params.ref)}`)],
+    }
+  }
+
+  const spec = createValidationSpecFromOwnerKind(ownerKind)
+  return {
+    status: "ok",
+    owner: {
+      ref: params.ref,
+      filePath: record.filePath,
+      model: record.model as MetadataItem,
+      rule: spec.rule,
+      spec,
+      fieldIndex: record.fieldIndex,
     },
   }
 }

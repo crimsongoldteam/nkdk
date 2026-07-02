@@ -16,10 +16,16 @@ import {
 } from "~/metadata/commonObjects/metadataTargets"
 import type { ConfigurationContext } from "~/metadata/context/types"
 import type { DataPathTypeInfo } from "./dataPath/types"
-import { createOwnerMetadataCache, type OwnerMetadata, type OwnerMetadataCache } from "./dataPath/ownerCache"
+import {
+  createOwnerMetadataCache,
+  createOwnerMetadataCacheFromValidationTable,
+  type OwnerMetadata,
+  type OwnerMetadataCache,
+} from "./dataPath/ownerCache"
 import { getObjectField, type ObjectField, type ObjectFieldKind } from "./dataPath/objectFields"
 import { typeDescriptionToDataPathTypeInfo } from "./dataPath/typeDescription"
-import type { ProjectYamlCache } from "./projectYamlCache"
+import { resolveValidationProjectFile } from "./projectFiles"
+import { createProjectYamlCache, type ProjectYamlCache } from "./projectYamlCache"
 import {
   getProjectInlineObjectResolvers,
   getProjectMemberResolvers,
@@ -27,6 +33,8 @@ import {
   getProjectObjectPathResolver,
   getProjectValueResolver,
 } from "./projectMetadataResolverRegistry"
+import type { ValidationObjectTable } from "./projectValidationObjectTable"
+import type { ValidationDependencyRequest, ValidationMode } from "./projectValidationTypes"
 import type { Diagnostic } from "./types"
 
 export interface CreateProjectMetadataResolverParams {
@@ -38,7 +46,7 @@ export interface CreateProjectMetadataResolverParams {
 
 export type MetadataResolveResult =
   | { ok: true; filePath?: string; details?: unknown }
-  | { ok: false; diagnostics: Diagnostic[] }
+  | { ok: false; diagnostics: Diagnostic[]; dependency?: ValidationDependencyRequest }
 
 export interface ProjectMetadataResolver {
   resolveObject(params: {
@@ -73,7 +81,53 @@ export function createProjectMetadataResolver(params: CreateProjectMetadataResol
       context: params.context,
     })
 
-  return {
+  return createProjectMetadataResolverCore({
+    projectDir,
+    yamlCache: params.yamlCache,
+    ownerCache,
+    hasFile: existsSync,
+    missingObject: (target, filePath) =>
+      referenceError(filePath, `Не найден объект "${formatObjectTarget(target)}"`),
+  })
+}
+
+export function createProjectMetadataResolverFromValidationTable(params: {
+  projectDir: string
+  table: ValidationObjectTable
+  mode: ValidationMode
+  ownerCache?: OwnerMetadataCache
+  yamlCache?: ProjectYamlCache
+}): ProjectMetadataResolver {
+  const projectDir = resolve(params.projectDir)
+  const yamlCache = params.yamlCache ?? createProjectYamlCache()
+  const ownerCache =
+    params.ownerCache ?? createOwnerMetadataCacheFromValidationTable({ projectDir, table: params.table })
+
+  return createProjectMetadataResolverCore({
+    projectDir,
+    yamlCache,
+    ownerCache,
+    hasFile: (filePath) => params.table.hasFile(filePath),
+    missingObject: (target, filePath) => {
+      if (params.mode === "partial") {
+        const dependency = dependencyRequest({ projectDir, filePath, requestedBy: filePath })
+        if (dependency !== undefined) return { ok: false, diagnostics: [], dependency }
+      }
+
+      return referenceError(filePath, `Не найден объект "${formatObjectTarget(target)}"`)
+    },
+  })
+}
+
+function createProjectMetadataResolverCore(params: {
+  projectDir: string
+  yamlCache: ProjectYamlCache
+  ownerCache: OwnerMetadataCache
+  hasFile: (filePath: string) => boolean
+  missingObject: (target: Extract<ParsedMetadataTarget, { kind: "object" }>, filePath: string) => MetadataResolveResult
+}): ProjectMetadataResolver {
+  const { projectDir, yamlCache, ownerCache, hasFile, missingObject } = params
+  const resolver: ProjectMetadataResolver = {
     resolveObject({ target, filters }) {
       const rootResolver = getProjectObjectPathResolver(target.root)
       const rootPath = rootResolver?.({
@@ -81,38 +135,36 @@ export function createProjectMetadataResolver(params: CreateProjectMetadataResol
         target: { kind: "object", root: target.root, objectName: target.objectName },
       })
       const filePath = rootPath?.filePath
-      if (!filePath || !existsSync(filePath)) {
-        return referenceError(filePath ?? projectDir, `Не найден объект "${formatObjectTarget(target)}"`)
-      }
+      if (!filePath || !hasFile(filePath)) return missingObject(target, filePath ?? projectDir)
 
       const filterResult = resolveObjectFilters({
         target,
         filters,
-        resolveStyleItemByName: (name, expectedTypes) => this.resolveStyleItem({ name, expectedTypes }),
+        resolveStyleItemByName: (name, expectedTypes) => resolver.resolveStyleItem({ name, expectedTypes }),
       })
       if (!filterResult.ok) return filterResult
 
       if (target.segments && target.segments.length > 0) {
         const nestedPath = rootResolver?.({ projectDir, target })
-        if (nestedPath?.filePath && existsSync(nestedPath.filePath)) return { ok: true, filePath: nestedPath.filePath }
+        if (nestedPath?.filePath && hasFile(nestedPath.filePath)) return { ok: true, filePath: nestedPath.filePath }
 
         for (const resolver of getProjectInlineObjectResolvers(target.root)) {
-          const inlineObject = resolver({ projectDir, target, yamlCache: params.yamlCache, ownerCache })
+          const inlineObject = resolver({ projectDir, target, yamlCache, ownerCache })
           if (inlineObject) return inlineObject
         }
 
-        return referenceError(nestedPath?.filePath ?? filePath, `Не найден объект "${formatObjectTarget(target)}"`)
+        return missingObject(target, nestedPath?.filePath ?? filePath)
       }
 
       return { ok: true, filePath }
     },
 
     resolveMember({ target, filters }) {
-      const object = this.resolveObject({ target: { kind: "object", root: target.root, objectName: target.objectName } })
+      const object = resolver.resolveObject({ target: { kind: "object", root: target.root, objectName: target.objectName } })
       if (!object.ok) return object
 
       if (target.objectSegments) {
-        const nestedObject = this.resolveObject({
+        const nestedObject = resolver.resolveObject({
           target: {
             kind: "object",
             root: target.root,
@@ -123,13 +175,13 @@ export function createProjectMetadataResolver(params: CreateProjectMetadataResol
         if (!nestedObject.ok) return nestedObject
         if (!nestedObject.filePath) return referenceError(projectDir, `Не найден объект "${formatMemberTarget(target)}"`)
 
-        const rawYaml = ownerRawYaml({ filePath: nestedObject.filePath, yamlCache: params.yamlCache })
+        const rawYaml = ownerRawYaml({ filePath: nestedObject.filePath, yamlCache })
         const resolved = resolveRegisteredMember({
           projectDir,
           ownerFilePath: nestedObject.filePath,
           rawYaml,
           target,
-          yamlCache: params.yamlCache,
+          yamlCache,
           ownerCache,
         })
         if (resolved) {
@@ -148,10 +200,10 @@ export function createProjectMetadataResolver(params: CreateProjectMetadataResol
         projectDir,
         owner: owner.owner,
         ownerFilePath: owner.owner.filePath,
-        rawYaml: ownerRawYaml({ filePath: owner.owner.filePath, yamlCache: params.yamlCache }),
+        rawYaml: ownerRawYaml({ filePath: owner.owner.filePath, yamlCache }),
         target,
         segments: target.segments,
-        yamlCache: params.yamlCache,
+        yamlCache,
         ownerCache,
       })
       if (!resolved.ok) {
@@ -172,7 +224,7 @@ export function createProjectMetadataResolver(params: CreateProjectMetadataResol
     },
 
     resolveValue({ target }) {
-      const object = this.resolveObject({ target: { kind: "object", root: target.root, objectName: target.objectName } })
+      const object = resolver.resolveObject({ target: { kind: "object", root: target.root, objectName: target.objectName } })
       if (!object.ok) return object
       if (target.valueKind === "emptyRef") return object
 
@@ -189,17 +241,30 @@ export function createProjectMetadataResolver(params: CreateProjectMetadataResol
     resolveStyleItem({ name, expectedTypes }) {
       const resolver = getProjectNamedResourceResolver("StyleItem")
       return resolver
-        ? resolver({ projectDir, name, expectedTypes, yamlCache: params.yamlCache })
+        ? resolver({ projectDir, name, expectedTypes, yamlCache })
         : referenceError(projectDir, `Не найден элемент стиля "ЭлементСтиля.${name}"`)
     },
 
     resolveCommonPicture({ name }) {
       const resolver = getProjectNamedResourceResolver("CommonPicture")
       return resolver
-        ? resolver({ projectDir, name, yamlCache: params.yamlCache })
+        ? resolver({ projectDir, name, yamlCache })
         : referenceError(projectDir, `Не найдена общая картинка "ОбщаяКартинка.${name}"`)
     },
   }
+
+  return resolver
+}
+
+function dependencyRequest(params: {
+  projectDir: string
+  filePath: string
+  requestedBy: string
+}): ValidationDependencyRequest | undefined {
+  const file = resolveValidationProjectFile(params.projectDir, params.filePath)
+  if (file === undefined) return undefined
+  if (!existsSync(file.absolutePath)) return undefined
+  return { kind: "needsDependency", file, requestedBy: params.requestedBy }
 }
 
 type ResolvedMemberDetails =

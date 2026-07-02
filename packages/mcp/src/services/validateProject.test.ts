@@ -18,7 +18,7 @@ describe("validateProject service", () => {
 
   beforeEach(() => {
     core.validateProject.mockReset()
-    core.validateProject.mockReturnValue({ diagnostics: [] })
+    core.validateProject.mockResolvedValue({ diagnostics: [] })
   })
 
   afterEach(() => {
@@ -28,7 +28,7 @@ describe("validateProject service", () => {
   it("returns diagnostics and summary as JSON", async () => {
     const projectDir = createProject()
     writeProjectFile(projectDir, "Справочник/Товары/Свойства.yaml", ['НесуществующееПоле: "лишнее"'])
-    core.validateProject.mockReturnValue({
+    core.validateProject.mockResolvedValue({
       diagnostics: [
         {
           filePath: join(projectDir, "Справочник", "Товары", "Свойства.yaml"),
@@ -65,7 +65,7 @@ describe("validateProject service", () => {
       "    Вид: Кнопка",
       "    Данные: Items.Таблица.CurrentData.Номенклатура",
     ])
-    core.validateProject.mockReturnValue({
+    core.validateProject.mockResolvedValue({
       diagnostics: [
         {
           filePath: join(projectDir, "Справочник", "Товары", "Свойства.yaml"),

@@ -3,6 +3,7 @@ import { tmpdir } from "os"
 import { join, resolve } from "path"
 import { TypeCompiler } from "@sinclair/typebox/compiler"
 import { afterEach, describe, expect, it } from "vitest"
+import { EXCLUDE_IF_EQUAL_NAME_YAML_DESCRIPTION } from "~/metadata/helpers/excludeIfEqualNameYAML"
 import {
   exportJSONSchemaForProjectFile,
   exportJSONSchemaForSchemaName,
@@ -129,6 +130,28 @@ describe("exportJSONSchemaForProjectFile", () => {
         Синоним: expect.any(Object),
       }),
     })
+  })
+
+  it("describes equal-name exclusion without making the schema name-dependent", () => {
+    const schema = exportJSONSchemaForProjectFile({
+      context,
+      filePath: "Справочник/КакоеТоПоле/Свойства.yaml",
+      mode: "inline",
+    })
+    const synonymSchema = propertySchema(schema, "Синоним")
+
+    expect(synonymSchema.description).toBe(EXCLUDE_IF_EQUAL_NAME_YAML_DESCRIPTION)
+    expect(JSON.stringify(synonymSchema)).not.toContain("Какое то поле")
+    expect(JSON.stringify(synonymSchema)).not.toContain('"not"')
+
+    const compiled = TypeCompiler.Compile(schema)
+    expect(
+      validateFile({
+        filePath: "Справочник/КакоеТоПоле/Свойства.yaml",
+        schema: compiled,
+        text: "Синоним: Какое то поле\n",
+      })
+    ).toEqual([])
   })
 
   it("exports document schema for project-relative properties path", () => {
@@ -358,6 +381,16 @@ describe("exportJSONSchemaForProjectFile", () => {
   })
 })
 
+function propertySchema(schema: unknown, key: string): { description?: string } {
+  const properties = (schema as { properties?: Record<string, unknown> }).properties
+  const property = properties?.[key]
+  if (typeof property !== "object" || property === null) {
+    throw new Error(`Expected schema property "${key}"`)
+  }
+
+  return property as { description?: string }
+}
+
 describe("exportJSONSchemaForSchemaName", () => {
   it("exports schema by registered name", () => {
     const schema = exportJSONSchemaForSchemaName({ context, name: "InputField" })
@@ -367,6 +400,24 @@ describe("exportJSONSchemaForSchemaName", () => {
         Вид: expect.objectContaining({ const: "ПолеВвода" }),
       }),
     })
+  })
+
+  it("keeps generic schema by type name free from concrete object-name restrictions", () => {
+    const schema = TypeCompiler.Compile(
+      exportJSONSchemaForSchemaName({
+        context,
+        name: "MetadataCatalog",
+        mode: "inline",
+      })
+    )
+
+    expect(
+      validateFile({
+        filePath: "Свойства.yaml",
+        schema,
+        text: "Синоним: Какое то поле\n",
+      })
+    ).toEqual([])
   })
 
   it("reports unknown schema names", () => {

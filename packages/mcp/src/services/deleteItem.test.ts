@@ -10,7 +10,7 @@ describe("deleteItem service", () => {
       rewrittenReferences: [],
       blockedReferences: [],
     }
-    const deleteMetadataItem = vi.fn().mockReturnValue(coreResult)
+    const deleteMetadataItem = vi.fn().mockResolvedValue(coreResult)
 
     const result = await deleteItem(
       {

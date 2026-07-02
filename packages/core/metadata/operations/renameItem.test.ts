@@ -24,11 +24,11 @@ describe("renameMetadataItem", () => {
     return filePath
   }
 
-  it("returns validation_failed before invalid_name when project has validation errors", () => {
+  it("returns validation_failed before invalid_name when project has validation errors", async () => {
     const projectDir = createProject()
     writeProjectFile(projectDir, "Справочник/Товары/Свойства.yaml", ["НеизвестноеПоле: true"])
 
-    const result = renameMetadataItem({
+    const result = await renameMetadataItem({
       projectDir,
       path: "Справочник.Товары",
       newName: "Некорректное имя",
@@ -38,7 +38,7 @@ describe("renameMetadataItem", () => {
     expect(existsSync(join(projectDir, "Миграции"))).toBe(false)
   })
 
-  it("plans object rename with migration and descendant reference rewrite", () => {
+  it("plans object rename with migration and descendant reference rewrite", async () => {
     const projectDir = createProject()
     writeProjectFile(projectDir, "Справочник/Товары/Свойства.yaml", [
       "ПоляБлокировкиДанных:",
@@ -48,7 +48,7 @@ describe("renameMetadataItem", () => {
       "    Тип: Строка",
     ])
 
-    const result = renameMetadataItem({
+    const result = await renameMetadataItem({
       projectDir,
       path: "Справочник.Товары",
       newName: "Номенклатура",
@@ -67,7 +67,7 @@ describe("renameMetadataItem", () => {
     })
   })
 
-  it("applies attribute rename through model export and writes a migration file", () => {
+  it("applies attribute rename through model export and writes a migration file", async () => {
     const projectDir = createProject()
     const propertiesPath = writeProjectFile(projectDir, "Справочник/Товары/Свойства.yaml", [
       "Реквизиты:",
@@ -75,7 +75,7 @@ describe("renameMetadataItem", () => {
       "    Тип: Строка",
     ])
 
-    const result = renameMetadataItem({
+    const result = await renameMetadataItem({
       projectDir,
       path: "Справочник.Товары.Реквизит.Артикул",
       newName: "КодПоставщика",
@@ -100,7 +100,7 @@ describe("renameMetadataItem", () => {
     )
   })
 
-  it("renames nested tabular section attribute through operation path", () => {
+  it("renames nested tabular section attribute through operation path", async () => {
     const projectDir = createProject()
     const propertiesPath = writeProjectFile(projectDir, "Документ/Заказ/Свойства.yaml", [
       "ТабличныеЧасти:",
@@ -110,7 +110,7 @@ describe("renameMetadataItem", () => {
       "        Тип: Число",
     ])
 
-    const result = renameMetadataItem({
+    const result = await renameMetadataItem({
       projectDir,
       path: "Документ.Заказ.ТабличнаяЧасть.Товары.Реквизит.Количество",
       newName: "Цена",
@@ -128,7 +128,7 @@ describe("renameMetadataItem", () => {
     expect(readFileSync(propertiesPath, "utf-8")).toContain("Цена:")
   })
 
-  it("allows case-only rename and blocks case-insensitive sibling conflicts", () => {
+  it("allows case-only rename and blocks case-insensitive sibling conflicts", async () => {
     const projectDir = createProject()
     writeProjectFile(projectDir, "Справочник/Товары/Свойства.yaml", [
       "Реквизиты:",
@@ -138,31 +138,29 @@ describe("renameMetadataItem", () => {
       "    Тип: Строка",
     ])
 
-    expect(
-      renameMetadataItem({
-        projectDir,
-        path: "Справочник.Товары.Реквизит.Артикул",
-        newName: "артикул",
-      }),
-    ).toMatchObject({ ok: true, mode: "plan" })
+    const caseOnly = await renameMetadataItem({
+      projectDir,
+      path: "Справочник.Товары.Реквизит.Артикул",
+      newName: "артикул",
+    })
+    expect(caseOnly).toMatchObject({ ok: true, mode: "plan" })
 
-    expect(
-      renameMetadataItem({
-        projectDir,
-        path: "Справочник.Товары.Реквизит.Артикул",
-        newName: "код",
-      }),
-    ).toMatchObject({ ok: false, code: "name_conflict" })
+    const conflict = await renameMetadataItem({
+      projectDir,
+      path: "Справочник.Товары.Реквизит.Артикул",
+      newName: "код",
+    })
+    expect(conflict).toMatchObject({ ok: false, code: "name_conflict" })
   })
 
-  it("renames file item without migration and rewrites form references", () => {
+  it("renames file item without migration and rewrites form references", async () => {
     const projectDir = createProject()
     const propertiesPath = writeProjectFile(projectDir, "Справочник/Товары/Свойства.yaml", [
       "ОсновнаяФормаОбъекта: ФормаЭлемента",
     ])
     writeProjectFile(projectDir, "Справочник/Товары/Формы/ФормаЭлемента/Форма.yaml", ["Элементы: {}"])
 
-    const result = renameMetadataItem({
+    const result = await renameMetadataItem({
       projectDir,
       path: "Справочник.Товары.Форма.ФормаЭлемента",
       newName: "ФормаКарточки",
@@ -175,7 +173,7 @@ describe("renameMetadataItem", () => {
     expect(readFileSync(propertiesPath, "utf-8")).toContain("ОсновнаяФормаОбъекта: ФормаКарточки")
   })
 
-  it("rewrites form structural references when a referenced object is renamed", () => {
+  it("rewrites form structural references when a referenced object is renamed", async () => {
     const projectDir = createProject()
     writeProjectFile(projectDir, "ОбщаяКартинка/Состояния/Свойства.yaml", "{}")
     writeProjectFile(projectDir, "Справочник/Товары/Свойства.yaml", "{}")
@@ -190,7 +188,7 @@ describe("renameMetadataItem", () => {
       "    ПутьКДанным: ИндексКартинки",
     ])
 
-    const result = renameMetadataItem({
+    const result = await renameMetadataItem({
       projectDir,
       path: "ОбщаяКартинка.Состояния",
       newName: "Статусы",
@@ -201,7 +199,7 @@ describe("renameMetadataItem", () => {
     expect(readFileSync(formPath, "utf-8")).toContain("КартинкаЗначений: ОбщаяКартинка.Статусы")
   })
 
-  it("rewrites resolvable form DataPath when an attribute is renamed", () => {
+  it("rewrites resolvable form DataPath when an attribute is renamed", async () => {
     const projectDir = createProject()
     writeProjectFile(projectDir, "Справочник/Товары/Свойства.yaml", [
       "Реквизиты:",
@@ -218,7 +216,7 @@ describe("renameMetadataItem", () => {
       "    ПутьКДанным: Объект.Артикул",
     ])
 
-    const result = renameMetadataItem({
+    const result = await renameMetadataItem({
       projectDir,
       path: "Справочник.Товары.Реквизит.Артикул",
       newName: "Код",

@@ -2,7 +2,8 @@ import fs, { mkdtempSync, rmSync, writeFileSync } from "fs"
 import { tmpdir } from "os"
 import { join } from "path"
 import { afterEach, describe, expect, it, vi } from "vitest"
-import { createProjectYamlCache } from "./projectYamlCache"
+import { parseMetadataYaml } from "~/yaml/parseMetadataYaml"
+import { createProjectYamlCache, createProjectYamlCacheFromEntries } from "./projectYamlCache"
 
 describe("ProjectYamlCache", () => {
   const tempDirs: string[] = []
@@ -90,5 +91,22 @@ describe("ProjectYamlCache", () => {
     expect(second).toBe(first)
     expect(second).toMatchObject({ filePath, error: expect.any(Error) })
     expect(readFileSync).toHaveBeenCalledTimes(1)
+  })
+
+  it("can serve pre-parsed entries without invoking the reader again", () => {
+    const parsed = parseMetadataYaml("Имя: Товары\n")
+    const cache = createProjectYamlCacheFromEntries([
+      { filePath: "/project/Справочник/Товары/Свойства.yaml", text: parsed.text, parsed },
+    ])
+
+    expect(cache.get("/project/Справочник/Товары/Свойства.yaml")).toMatchObject({
+      filePath: "/project/Справочник/Товары/Свойства.yaml",
+      parsed,
+    })
+    cache.release("/project/Справочник/Товары/Свойства.yaml")
+    expect(cache.get("/project/Справочник/Товары/Свойства.yaml")).toMatchObject({
+      filePath: "/project/Справочник/Товары/Свойства.yaml",
+      parsed,
+    })
   })
 })

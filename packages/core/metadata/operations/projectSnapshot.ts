@@ -31,16 +31,16 @@ export interface MetadataOperationSnapshot {
 
 export type MetadataOperationSnapshotResult = MetadataOperationSnapshot | MetadataOperationValidationFailed
 
-export function buildMetadataOperationSnapshot(params: {
+export async function buildMetadataOperationSnapshot(params: {
   projectDir: string
   context?: ConfigurationContext
   requireValidProject: boolean
-}): MetadataOperationSnapshotResult {
+}): Promise<MetadataOperationSnapshotResult> {
   const projectDir = resolve(params.projectDir)
   const context = params.context ?? defaultMetadataOperationsContext()
 
   if (params.requireValidProject) {
-    const validation = validateProject({ projectDir, context })
+    const validation = await validateProject({ projectDir, context, concurrency: 1 })
     const errors = validation.diagnostics.filter((diagnostic) => diagnostic.severity === "error")
     if (errors.length > 0) {
       return {

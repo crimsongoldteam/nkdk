@@ -4,8 +4,9 @@ import { join } from "path"
 import { TypeCompiler } from "@sinclair/typebox/compiler"
 import { afterEach, describe, expect, it, vi } from "vitest"
 import { mockContext } from "~/tests/mockContext"
+import { createValidationObjectTable } from "../projectValidationObjectTable"
 import { createProjectYamlCache } from "../projectYamlCache"
-import { createOwnerMetadataCache } from "./ownerCache"
+import { createOwnerMetadataCache, createOwnerMetadataCacheFromValidationTable } from "./ownerCache"
 
 describe("OwnerMetadataCache", () => {
   const tempDirs: string[] = []
@@ -43,6 +44,30 @@ describe("OwnerMetadataCache", () => {
       },
     })
     expect(readFileSync).toHaveBeenCalledTimes(1)
+  })
+
+  it("can resolve owner metadata from validation object table without reading YAML", () => {
+    const table = createValidationObjectTable({
+      records: [
+        {
+          filePath: "/project/Справочник/Товары/Свойства.yaml",
+          projectPath: "Справочник/Товары/Свойства.yaml",
+          kind: "properties",
+          owner: { dir: "Справочник", name: "Товары" },
+          ownerRef: { kind: "Справочник", name: "Товары" },
+          model: { itemType: "MetadataCatalog", name: "Товары" },
+          fieldIndex: { fields: new Map(), standardAttributeAliases: new Map(), diagnostics: [] },
+          importDiagnostics: [],
+        },
+      ],
+    })
+    const cache = createOwnerMetadataCacheFromValidationTable({ projectDir: "/project", table })
+
+    const result = cache.get({ kind: "Справочник", name: "Товары" })
+
+    expect(result.status).toBe("ok")
+    if (result.status !== "ok") return
+    expect(result.owner.filePath).toBe("/project/Справочник/Товары/Свойства.yaml")
   })
 
   it("returns not-found with cross-file diagnostic when owner file is missing", () => {

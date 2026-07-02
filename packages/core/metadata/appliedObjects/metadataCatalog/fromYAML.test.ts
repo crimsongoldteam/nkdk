@@ -18,7 +18,7 @@ describe("importMetadataCatalogFromYAML", () => {
   })
 
   it("should import minimal", () => {
-    const result = importMetadataCatalogFromYAML(mockContext, minimalYAML, "ПоУмолчанию")
+    const result = importMetadataCatalogFromYAML(mockContext, minimalYAML, "ПоУмолчанию", minimal)
 
     expect(result).toEqual(minimal)
   })

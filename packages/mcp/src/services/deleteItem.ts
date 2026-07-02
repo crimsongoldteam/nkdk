@@ -10,7 +10,7 @@ export async function deleteItem(
 ): Promise<ToolPayload> {
   try {
     const core = deps ?? (await loadCoreApi())
-    return core.deleteMetadataItem(input) as unknown as ToolPayload
+    return (await core.deleteMetadataItem(input)) as unknown as ToolPayload
   } catch (caught) {
     return toolError("core_error", errorMessage(caught))
   }

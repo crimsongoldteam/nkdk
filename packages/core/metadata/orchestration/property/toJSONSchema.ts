@@ -1,5 +1,6 @@
 import { TSchema, Type } from "@sinclair/typebox"
 import { ConfigurationContext } from "~/metadata/context/types"
+import { applyExcludedEqualNameYAMLToJSONSchema } from "~/metadata/helpers/excludeIfEqualNameYAML"
 import { getTypeRule } from "./typeRuleRegistry"
 import { exportPropertyExternalRefSchema, exportPropertyOverrideSchema } from "../jsonSchemaRefs"
 import { shouldProcessProperty } from "./helpers"
@@ -103,9 +104,15 @@ export const exportPropertyToJSONSchema = (params: {
   })
 
   const implicitYAML = getImplicitValueYAML(rule)
-  if (implicitYAML !== undefined && exportedValue !== undefined) {
-    return excludeImplicitValueFromSchema(exportedValue, implicitYAML)
-  }
+  const schemaWithDefaults =
+    implicitYAML !== undefined && exportedValue !== undefined
+      ? excludeImplicitValueFromSchema(exportedValue, implicitYAML)
+      : exportedValue
 
-  return exportedValue
+  if (schemaWithDefaults === undefined) return undefined
+
+  return applyExcludedEqualNameYAMLToJSONSchema({
+    rule,
+    schema: schemaWithDefaults,
+  })
 }
