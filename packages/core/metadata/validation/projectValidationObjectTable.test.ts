@@ -36,6 +36,22 @@ describe("ValidationObjectTable", () => {
     expect(restored.hasFile(second.filePath)).toBe(true)
     expect(restored.getOwner({ kind: "Подсистема", name: "Настройки" })?.filePath).toBe(second.filePath)
   })
+
+  it("includes reference index entries in snapshots", () => {
+    const table = createValidationObjectTable()
+    table.mergeRecords([
+      {
+        ...record({ kind: "Справочник", name: "Товары" }),
+        objectIndexEntries: [{ canonical: "Catalog.Товары", target: {} as never, result: { ok: true } }],
+        valueIndexEntries: [{ canonical: "Catalog.Товары.EmptyRef", target: {} as never, result: { ok: true } }],
+      },
+    ])
+
+    expect(table.snapshot()).toMatchObject({
+      objectIndexEntries: [expect.objectContaining({ canonical: "Catalog.Товары" })],
+      valueIndexEntries: [expect.objectContaining({ canonical: "Catalog.Товары.EmptyRef" })],
+    })
+  })
 })
 
 function record(owner: { kind: string; name: string }, filePath?: string): ValidationObjectRecord {

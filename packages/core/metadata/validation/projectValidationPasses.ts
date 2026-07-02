@@ -15,9 +15,12 @@ import type { ProjectMetadataResolver } from "./projectMetadataResolver"
 import { getProjectFileValidators, getProjectMemberIndexContributors } from "./projectMetadataResolverRegistry"
 import {
   projectMemberIndexKey,
+  projectObjectIndexKey,
   type PendingMetadataTargetReference,
   type ProjectMemberIndexEntry,
-} from "./projectMetadataReferences"
+  type ProjectObjectIndexEntry,
+  type ProjectValueIndexEntry,
+} from "./projectReferenceIndex"
 import { exportJSONSchemaForSchemaName } from "./projectFileSchema"
 import type { ValidationProjectFile } from "./projectFiles"
 import type { ProjectYamlCache, ProjectYamlEntry } from "./projectYamlCache"
@@ -53,7 +56,9 @@ export type ProjectValidationFileState =
 export interface ProjectValidationFirstPassResult {
   state: ProjectValidationFileState
   objectRecords: ValidationObjectRecord[]
+  objectIndexEntries: ProjectObjectIndexEntry[]
   memberIndexEntries: ProjectMemberIndexEntry[]
+  valueIndexEntries: ProjectValueIndexEntry[]
   pendingReferences: PendingMetadataTargetReference[]
   diagnostics: Diagnostic[]
 }
@@ -195,7 +200,9 @@ function validateProjectFormFirstPass(params: {
       state: { kind: "failed", file: params.file, diagnostics: schemaDiagnostics },
       diagnostics: schemaDiagnostics,
       objectRecords: [],
+      objectIndexEntries: [],
       memberIndexEntries: [],
+      valueIndexEntries: [],
       pendingReferences: [],
     }
   }
@@ -227,7 +234,9 @@ function validateProjectFormFirstPass(params: {
     },
     diagnostics,
     objectRecords: [],
+    objectIndexEntries: [],
     memberIndexEntries: [],
+    valueIndexEntries: [],
     pendingReferences: [],
   }
 }
@@ -329,6 +338,9 @@ function validateProjectPropertiesFirstPass(params: {
     owner,
     hasFile: fs.existsSync,
   })
+  const objectIndexEntry = buildObjectIndexEntry({ owner })
+  const objectIndexEntries = objectIndexEntry ? [objectIndexEntry] : []
+  const valueIndexEntries = buildValueIndexEntries({ owner })
 
   return {
     state: {
@@ -339,7 +351,9 @@ function validateProjectPropertiesFirstPass(params: {
       firstPassDiagnostics: diagnostics,
     },
     diagnostics,
+    objectIndexEntries,
     memberIndexEntries,
+    valueIndexEntries,
     pendingReferences: pendingReferences.references,
     objectRecords: [
       {
@@ -350,7 +364,9 @@ function validateProjectPropertiesFirstPass(params: {
         ownerRef,
         model: imported.model,
         fieldIndex,
+        objectIndexEntries,
         memberIndexEntries,
+        valueIndexEntries,
         pendingReferences: pendingReferences.references,
         importDiagnostics: [],
       },
@@ -363,9 +379,30 @@ function failedFirstPass(file: ValidationProjectFile, diagnostics: Diagnostic[])
     state: { kind: "failed", file, diagnostics },
     diagnostics,
     objectRecords: [],
+    objectIndexEntries: [],
     memberIndexEntries: [],
+    valueIndexEntries: [],
     pendingReferences: [],
   }
+}
+
+function buildObjectIndexEntry(params: { owner: OwnerMetadata }): ProjectObjectIndexEntry | undefined {
+  const root = rootFromYAML[params.owner.ref.kind]
+  if (!root || params.owner.ref.name === undefined) return undefined
+  const target: Extract<ParsedMetadataTarget, { kind: "object" }> = {
+    kind: "object",
+    root: root as never,
+    objectName: params.owner.ref.name,
+  }
+  return {
+    canonical: projectObjectIndexKey(target),
+    target,
+    result: { ok: true, filePath: params.owner.filePath, details: params.owner },
+  }
+}
+
+function buildValueIndexEntries(_params: { owner: OwnerMetadata }): ProjectValueIndexEntry[] {
+  return []
 }
 
 function buildMemberIndexEntries(params: {

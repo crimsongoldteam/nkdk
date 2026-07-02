@@ -1,6 +1,11 @@
 import type { ObjectFieldIndex } from "./dataPath/objectFields"
 import type { OwnerTypeRef } from "./dataPath/types"
-import type { PendingMetadataTargetReference, ProjectMemberIndexEntry } from "./projectMetadataReferences"
+import type {
+  PendingMetadataTargetReference,
+  ProjectMemberIndexEntry,
+  ProjectObjectIndexEntry,
+  ProjectValueIndexEntry,
+} from "./projectReferenceIndex"
 import type { ValidationProjectFile } from "./projectFiles"
 import type { Diagnostic } from "./types"
 
@@ -23,7 +28,9 @@ export interface ValidationObjectRecord {
   ownerRef?: OwnerTypeRef
   model?: unknown
   fieldIndex?: ObjectFieldIndex
+  objectIndexEntries?: ProjectObjectIndexEntry[]
   memberIndexEntries?: ProjectMemberIndexEntry[]
+  valueIndexEntries?: ProjectValueIndexEntry[]
   pendingReferences?: PendingMetadataTargetReference[]
   importDiagnostics: Diagnostic[]
 }
@@ -31,7 +38,9 @@ export interface ValidationObjectRecord {
 export interface ValidationObjectTableSnapshot {
   records: ValidationObjectRecord[]
   filePaths: string[]
+  objectIndexEntries?: ProjectObjectIndexEntry[]
   memberIndexEntries?: ProjectMemberIndexEntry[]
+  valueIndexEntries?: ProjectValueIndexEntry[]
   pendingReferences?: PendingMetadataTargetReference[]
 }
 

@@ -33,7 +33,9 @@ export function createValidationObjectTable(
       return {
         records,
         filePaths: [...filePaths],
+        objectIndexEntries: records.flatMap((record) => record.objectIndexEntries ?? []),
         memberIndexEntries: records.flatMap((record) => record.memberIndexEntries ?? []),
+        valueIndexEntries: records.flatMap((record) => record.valueIndexEntries ?? []),
         pendingReferences: records.flatMap((record) => record.pendingReferences ?? []),
       }
     },

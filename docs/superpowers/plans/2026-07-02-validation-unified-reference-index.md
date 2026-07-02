@@ -657,7 +657,7 @@ pnpm --filter @nakidka/core exec vitest run packages/core/metadata/validation/pr
 
 Expected: PASS or failures only from missing object/value snapshot fields that will be added in Task 4.
 
-- [ ] **Step 7: Commit index-only pending validation**
+- [x] **Step 7: Commit index-only pending validation**
 
 ```bash
 git add packages/core/metadata/validation/projectReferenceIndex.ts packages/core/metadata/validation/validateProject.ts packages/core/metadata/validation/projectValidationWorker.ts packages/core/metadata/validation/projectValidationWorkerPool.ts packages/core/metadata/validation/projectReferenceIndex.test.ts packages/core/metadata/validation/projectValidationWorkerPool.test.ts
@@ -675,7 +675,7 @@ git commit -m "perf: :zap: валидировать pending references чере�
 - Test: `packages/core/metadata/validation/projectValidationPasses.test.ts`
 - Test: `packages/core/metadata/validation/projectValidationObjectTable.test.ts`
 
-- [ ] **Step 1: Add object/value arrays to validation record types**
+- [x] **Step 1: Add object/value arrays to validation record types**
 
 In `projectValidationTypes.ts`, extend records:
 
@@ -704,7 +704,7 @@ export interface ValidationObjectTableSnapshot {
 }
 ```
 
-- [ ] **Step 2: Merge new arrays in object table**
+- [x] **Step 2: Merge new arrays in object table**
 
 In `projectValidationObjectTable.ts`, update `snapshot()` to include:
 
@@ -715,7 +715,7 @@ valueIndexEntries: records.flatMap((record) => record.valueIndexEntries ?? []),
 pendingReferences: records.flatMap((record) => record.pendingReferences ?? []),
 ```
 
-- [ ] **Step 3: Build owner object entry in first pass**
+- [x] **Step 3: Build owner object entry in first pass**
 
 In `projectValidationPasses.ts`, add helper:
 
@@ -746,7 +746,7 @@ const valueIndexEntries = buildValueIndexEntries({ owner })
 
 Return both at top level and inside the `objectRecords` entry.
 
-- [ ] **Step 4: Add minimal value entry builder**
+- [x] **Step 4: Add minimal value entry builder**
 
 In `projectValidationPasses.ts`, add:
 
@@ -774,7 +774,7 @@ function buildValueIndexEntries(params: { owner: OwnerMetadata }): ProjectValueI
 
 If `ObjectFieldIndex` does not expose `values`, do not add an ad hoc parser. Instead add the value contributor interface in Task 5 and keep this function returning `[]` until contributors provide values.
 
-- [ ] **Step 5: Update worker first-pass payloads**
+- [x] **Step 5: Update worker first-pass payloads**
 
 In `projectValidationWorker.ts` and `projectValidationWorkerPool.ts`, add `objectIndexEntries` and `valueIndexEntries` beside `memberIndexEntries` in:
 
@@ -783,7 +783,7 @@ In `projectValidationWorker.ts` and `projectValidationWorkerPool.ts`, add `objec
 - merged pool result;
 - snapshot creation.
 
-- [ ] **Step 6: Add first-pass regression tests**
+- [x] **Step 6: Add first-pass regression tests**
 
 In `projectValidationPasses.test.ts`, add assertions near the existing member-index test:
 
@@ -802,7 +802,7 @@ expect(first.memberIndexEntries).toContainEqual(
 )
 ```
 
-- [ ] **Step 7: Run focused tests**
+- [x] **Step 7: Run focused tests**
 
 ```bash
 pnpm --filter @nakidka/core exec vitest run packages/core/metadata/validation/projectValidationPasses.test.ts packages/core/metadata/validation/projectValidationObjectTable.test.ts

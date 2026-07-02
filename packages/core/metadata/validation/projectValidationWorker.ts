@@ -8,7 +8,9 @@ import { createProjectMetadataResolverFromValidationTable } from "./projectMetad
 import type {
   PendingMetadataTargetReference,
   ProjectMemberIndexEntry,
+  ProjectObjectIndexEntry,
   ProjectReferenceSnapshot,
+  ProjectValueIndexEntry,
 } from "./projectMetadataReferences"
 import { createProjectReferenceIndex, validatePendingReferencesWithIndex } from "./projectReferenceIndex"
 import { resolveValidationProjectFile } from "./projectFiles"
@@ -56,7 +58,9 @@ interface WorkerValidationState {
   entries: Map<string, ProjectYamlEntry>
   states: Map<string, ProjectValidationFileState>
   localTable: ReturnType<typeof createValidationObjectTable>
+  objectIndexEntries: ProjectObjectIndexEntry[]
   memberIndexEntries: ProjectMemberIndexEntry[]
+  valueIndexEntries: ProjectValueIndexEntry[]
   pendingReferences: PendingMetadataTargetReference[]
 }
 
@@ -67,7 +71,9 @@ function createEmptyWorkerValidationState(): WorkerValidationState {
     entries: new Map(),
     states: new Map(),
     localTable: createValidationObjectTable(),
+    objectIndexEntries: [],
     memberIndexEntries: [],
+    valueIndexEntries: [],
     pendingReferences: [],
   }
 }
@@ -92,7 +98,9 @@ parentPort?.on("message", (message: ValidationWorkerMessage) => {
 function runFirstPass(message: Extract<ValidationWorkerMessage, { kind: "firstPass" }>): {
   diagnostics: Diagnostic[]
   objectRecords: ValidationObjectRecord[]
+  objectIndexEntries: ProjectObjectIndexEntry[]
   memberIndexEntries: ProjectMemberIndexEntry[]
+  valueIndexEntries: ProjectValueIndexEntry[]
   pendingReferences: PendingMetadataTargetReference[]
 } {
   workerState = createEmptyWorkerValidationState()
@@ -124,7 +132,9 @@ function runFirstPass(message: Extract<ValidationWorkerMessage, { kind: "firstPa
     })
     workerState.states.set(resolve(file.absolutePath), first.state)
     workerState.localTable.mergeRecords(first.objectRecords)
+    workerState.objectIndexEntries.push(...first.objectIndexEntries)
     workerState.memberIndexEntries.push(...first.memberIndexEntries)
+    workerState.valueIndexEntries.push(...first.valueIndexEntries)
     workerState.pendingReferences.push(...first.pendingReferences)
     diagnostics.push(...first.diagnostics)
     objectRecords.push(...first.objectRecords)
@@ -133,7 +143,9 @@ function runFirstPass(message: Extract<ValidationWorkerMessage, { kind: "firstPa
   return {
     diagnostics,
     objectRecords,
+    objectIndexEntries: workerState.objectIndexEntries,
     memberIndexEntries: workerState.memberIndexEntries,
+    valueIndexEntries: workerState.valueIndexEntries,
     pendingReferences: workerState.pendingReferences,
   }
 }

@@ -6,7 +6,9 @@ import {
   createProjectReferenceSnapshot,
   type PendingMetadataTargetReference,
   type ProjectMemberIndexEntry,
+  type ProjectObjectIndexEntry,
   type ProjectReferenceSnapshot,
+  type ProjectValueIndexEntry,
 } from "./projectMetadataReferences"
 import type { ValidationProjectFile } from "./projectFiles"
 import type { ValidationMode, ValidationObjectRecord, ValidationObjectTableSnapshot } from "./projectValidationTypes"
@@ -21,7 +23,9 @@ export interface FirstPassPoolParams {
 export interface FirstPassPoolResult {
   diagnostics: Diagnostic[]
   objectRecords: ValidationObjectRecord[]
+  objectIndexEntries: ProjectObjectIndexEntry[]
   memberIndexEntries: ProjectMemberIndexEntry[]
+  valueIndexEntries: ProjectValueIndexEntry[]
   pendingReferences: PendingMetadataTargetReference[]
 }
 
@@ -102,7 +106,9 @@ type WorkerResponse =
       kind: "firstPassResult"
       diagnostics: Diagnostic[]
       objectRecords: ValidationObjectRecord[]
+      objectIndexEntries: ProjectObjectIndexEntry[]
       memberIndexEntries: ProjectMemberIndexEntry[]
+      valueIndexEntries: ProjectValueIndexEntry[]
       pendingReferences: PendingMetadataTargetReference[]
     }
   | {
@@ -137,7 +143,14 @@ export function createProjectValidationWorkerPool(params: { concurrency: number 
           assignedFilePaths.set(worker, filePaths)
           if (filePaths.length === 0) {
             localObjectRecordPaths.set(worker, new Set())
-            return { diagnostics: [], objectRecords: [], memberIndexEntries: [], pendingReferences: [] }
+            return {
+              diagnostics: [],
+              objectRecords: [],
+              objectIndexEntries: [],
+              memberIndexEntries: [],
+              valueIndexEntries: [],
+              pendingReferences: [],
+            }
           }
 
           const response = await request(worker, {
@@ -155,7 +168,9 @@ export function createProjectValidationWorkerPool(params: { concurrency: number 
       return {
         diagnostics: results.flatMap((result) => result.diagnostics),
         objectRecords: results.flatMap((result) => result.objectRecords),
+        objectIndexEntries: results.flatMap((result) => result.objectIndexEntries),
         memberIndexEntries: results.flatMap((result) => result.memberIndexEntries),
+        valueIndexEntries: results.flatMap((result) => result.valueIndexEntries),
         pendingReferences: results.flatMap((result) => result.pendingReferences),
       }
     },

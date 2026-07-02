@@ -33,6 +33,12 @@ describe("validateProjectFileFirstPass references", () => {
       schemaCache: createValidationSchemaCache(mockContext),
     })
 
+    expect(first.objectIndexEntries).toContainEqual(
+      expect.objectContaining({
+        canonical: "Catalog.Номенклатура",
+        result: expect.objectContaining({ ok: true }),
+      })
+    )
     expect(first.memberIndexEntries).toContainEqual(
       expect.objectContaining({
         canonical: "Catalog.Номенклатура.Attribute.Артикул",
