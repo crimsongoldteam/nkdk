@@ -1,22 +1,20 @@
-import { dirname, join, resolve } from "node:path"
+import { dirname, join } from "node:path"
 import { performance } from "node:perf_hooks"
 import { Worker } from "node:worker_threads"
 import { fileURLToPath, pathToFileURL } from "node:url"
 import type { ConfigurationContext } from "../context/types"
 import {
-  createProjectReferenceSnapshot,
   type PendingMetadataTargetReference,
   type ProjectMemberIndexEntry,
   type ProjectObjectIndexEntry,
-  type ProjectReferenceSnapshot,
   type ProjectValueIndexEntry,
 } from "./projectMetadataReferences"
 import type { ValidationProjectFile } from "./projectFiles"
 import type { ProjectValidationFirstPassProfile } from "./projectValidationPasses"
-import { createSharedProjectReferenceSnapshot, type SharedProjectReferenceSnapshot } from "./sharedProjectReferenceIndex"
-import { createSharedValidationSnapshot, type SharedValidationSnapshot } from "./sharedValidationSnapshot"
+import type { SharedValidationSnapshot } from "./sharedValidationSnapshot"
 import type { ValidationMode, ValidationObjectRecord, ValidationObjectTableSnapshot } from "./projectValidationTypes"
 import type { Diagnostic } from "./types"
+import { createValidationSnapshotProvider } from "./validationSnapshotProvider"
 
 export interface FirstPassPoolParams {
   projectDir: string
@@ -49,8 +47,6 @@ interface WorkerSecondPassTiming {
   referenceValidationMs: number
   validationMs: number
   fileCount: number
-  supplementRecords: number
-  supplementFilePaths: number
   referenceHits: number
   referenceMisses: number
   referenceConflicts: number
@@ -116,10 +112,7 @@ type WorkerRequest =
       projectDir: string
       context: ConfigurationContext
       mode: ValidationMode
-      objectTable?: ValidationObjectTableSnapshot
-      referenceSnapshot?: ProjectReferenceSnapshot
-      sharedReferenceSnapshot?: SharedProjectReferenceSnapshot
-      sharedValidationSnapshot?: SharedValidationSnapshot
+      sharedValidationSnapshot: SharedValidationSnapshot
       pendingReferences: PendingMetadataTargetReference[]
       filePaths: string[]
     }
@@ -147,7 +140,6 @@ type WorkerResponse =
 export function createProjectValidationWorkerPool(params: { concurrency: number }): ProjectValidationWorkerPool {
   const workers: Worker[] = []
   const assignedFilePaths = new Map<Worker, string[]>()
-  const localObjectRecordPaths = new Map<Worker, Set<string>>()
 
   return {
     async start() {
@@ -167,7 +159,6 @@ export function createProjectValidationWorkerPool(params: { concurrency: number 
           const filePaths = files.map((file) => file.absolutePath)
           assignedFilePaths.set(worker, filePaths)
           if (filePaths.length === 0) {
-            localObjectRecordPaths.set(worker, new Set())
             return {
               diagnostics: [],
               objectRecords: [],
@@ -186,7 +177,6 @@ export function createProjectValidationWorkerPool(params: { concurrency: number 
             filePaths,
           })
           if (response.kind !== "firstPassResult") throw new Error("Worker вернул неожиданный результат firstPass")
-          localObjectRecordPaths.set(worker, new Set(response.objectRecords.map((record) => record.filePath)))
           return {
             index,
             ...response,
@@ -212,49 +202,23 @@ export function createProjectValidationWorkerPool(params: { concurrency: number 
     },
     async runSecondPass(secondPassParams) {
       const snapshotStartedAt = performance.now()
-      const useSharedReferenceSnapshot =
-        secondPassParams.mode === "full" && process.env["NKDK_VALIDATION_SHARED_REFERENCE_INDEX"] !== "0"
-      const useSharedSecondPass =
-        secondPassParams.mode === "full" && process.env["NKDK_VALIDATION_SHARED_SECOND_PASS"] === "1"
-      const referenceSnapshot = useSharedReferenceSnapshot
-        ? undefined
-        : createProjectReferenceSnapshot({
-            objectIndexEntries: secondPassParams.objectTable.objectIndexEntries ?? [],
-            memberIndexEntries: secondPassParams.objectTable.memberIndexEntries ?? [],
-            valueIndexEntries: secondPassParams.objectTable.valueIndexEntries ?? [],
-            pendingReferences: secondPassParams.objectTable.pendingReferences ?? [],
-          })
-      const sharedReferenceSnapshot = useSharedReferenceSnapshot
-        ? createSharedProjectReferenceSnapshot({
-            objectIndexEntries: secondPassParams.objectTable.objectIndexEntries ?? [],
-            memberIndexEntries: secondPassParams.objectTable.memberIndexEntries ?? [],
-            valueIndexEntries: secondPassParams.objectTable.valueIndexEntries ?? [],
-          })
-        : undefined
-      const sharedValidationSnapshot = useSharedSecondPass
-        ? createSharedValidationSnapshot(secondPassParams.objectTable)
-        : undefined
+      const provider = createValidationSnapshotProvider(secondPassParams.objectTable)
+      const sharedValidationSnapshot = provider.sharedPayload()
       const snapshotMs = performance.now() - snapshotStartedAt
-      const pendingReferences = secondPassParams.objectTable.pendingReferences ?? referenceSnapshot?.pendingReferences ?? []
+      const pendingReferences = secondPassParams.objectTable.pendingReferences ?? []
       const referencePartitions = partitionPendingReferencesForWorkers(pendingReferences, workers.length)
       const requestStartedAt = performance.now()
       const results = await Promise.all(
         workers.map(async (worker, index) => {
           const filePaths = assignedFilePaths.get(worker) ?? []
           if (filePaths.length === 0) return { index, diagnostics: [] }
-          const objectTable = useSharedSecondPass
-            ? undefined
-            : createWorkerTableSupplement(secondPassParams.objectTable, localObjectRecordPaths.get(worker) ?? new Set())
 
           const response = await request(worker, {
             kind: "secondPass",
             projectDir: secondPassParams.projectDir,
             context: secondPassParams.context,
             mode: secondPassParams.mode,
-            ...(objectTable === undefined ? {} : { objectTable }),
-            ...(referenceSnapshot === undefined ? {} : { referenceSnapshot }),
-            ...(sharedReferenceSnapshot === undefined ? {} : { sharedReferenceSnapshot }),
-            ...(sharedValidationSnapshot === undefined ? {} : { sharedValidationSnapshot }),
+            sharedValidationSnapshot,
             pendingReferences: referencePartitions[index] ?? [],
             filePaths,
           })
@@ -265,9 +229,8 @@ export function createProjectValidationWorkerPool(params: { concurrency: number 
       logSecondPassPoolProfile({
         snapshotMs,
         workerWallMs: performance.now() - requestStartedAt,
-        sharedSnapshotBytes: sharedReferenceSnapshot?.stats.snapshotBytes,
-        sharedOwnerBytes: sharedValidationSnapshot?.owners.bytes,
-        ownerFormat: sharedValidationSnapshot?.owners.format,
+        sharedSnapshotBytes: sharedValidationSnapshot.reference.stats.snapshotBytes,
+        sharedOwnerBytes: sharedValidationSnapshot.owners.bytes,
       })
 
       logSecondPassTiming(results)
@@ -417,7 +380,6 @@ function logSecondPassPoolProfile(params: {
   workerWallMs: number
   sharedSnapshotBytes?: number
   sharedOwnerBytes?: number
-  ownerFormat?: string
 }): void {
   if (process.env["NKDK_VALIDATION_PROFILE"] !== "1") return
   console.error(
@@ -425,7 +387,6 @@ function logSecondPassPoolProfile(params: {
       "[validation-profile] second pass orchestration",
       `snapshot=${params.snapshotMs.toFixed(2)}ms`,
       `workerWall=${params.workerWallMs.toFixed(2)}ms`,
-      ...(params.ownerFormat === undefined ? [] : [`ownerFormat=${params.ownerFormat}`]),
       ...(params.sharedSnapshotBytes === undefined ? [] : [`sharedSnapshotBytes=${params.sharedSnapshotBytes}`]),
       ...(params.sharedOwnerBytes === undefined ? [] : [`sharedOwnerBytes=${params.sharedOwnerBytes}`]),
     ].join(" ")
@@ -441,8 +402,6 @@ function logSecondPassTiming(results: Array<{ index: number; timing?: WorkerSeco
       [
         `[validation] worker ${result.index} second pass`,
         `files=${result.timing.fileCount}`,
-        `supplementRecords=${result.timing.supplementRecords}`,
-        `supplementFilePaths=${result.timing.supplementFilePaths}`,
         `context=${result.timing.contextMs.toFixed(2)}ms`,
         `referenceValidation=${result.timing.referenceValidationMs.toFixed(2)}ms`,
         `referenceHits=${result.timing.referenceHits}`,
@@ -548,18 +507,6 @@ function logSecondPassProfile(
         `max=${item.maxMs.toFixed(2)}ms`,
       ].join(" ")
     )
-  }
-}
-
-export function createWorkerTableSupplement(
-  snapshot: ValidationObjectTableSnapshot,
-  localFilePaths: ReadonlySet<string>
-): ValidationObjectTableSnapshot {
-  const local = new Set([...localFilePaths].map((filePath) => resolve(filePath)))
-
-  return {
-    records: snapshot.records.filter((record) => !local.has(resolve(record.filePath))),
-    filePaths: snapshot.filePaths.filter((filePath) => !local.has(resolve(filePath))),
   }
 }
 

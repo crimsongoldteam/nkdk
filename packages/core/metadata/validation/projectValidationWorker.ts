@@ -3,18 +3,16 @@ import { parentPort } from "node:worker_threads"
 import { resolve } from "path"
 import type { ConfigurationContext } from "../context/types"
 import { registerCoreMetadata } from "../register"
-import { createOwnerMetadataCacheFromValidationTable } from "./dataPath/ownerCache"
 import { createOwnerMetadataCacheFromSharedValidationSnapshot } from "./dataPath/sharedOwnerCache"
 import { getProjectReferenceObjectPathContributor } from "./projectReferenceIndexRegistry"
 import type {
   PendingMetadataTargetReference,
   ProjectMemberIndexEntry,
   ProjectObjectIndexEntry,
-  ProjectReferenceSnapshot,
   ProjectValueIndexEntry,
 } from "./projectMetadataReferences"
-import { createProjectReferenceIndex, validatePendingReferencesWithIndex } from "./projectReferenceIndex"
-import { createSharedProjectReferenceIndex, type SharedProjectReferenceSnapshot } from "./sharedProjectReferenceIndex"
+import { validatePendingReferencesWithIndex } from "./projectReferenceIndex"
+import { createSharedProjectReferenceIndex } from "./sharedProjectReferenceIndex"
 import type { SharedValidationSnapshot } from "./sharedValidationSnapshot"
 import { resolveValidationProjectFile } from "./projectFiles"
 import {
@@ -32,8 +30,7 @@ import {
   type ProjectValidationFirstPassProfile,
   type ProjectValidationFileState,
 } from "./projectValidationPasses"
-import { createValidationObjectTable } from "./projectValidationObjectTable"
-import type { ValidationMode, ValidationObjectRecord, ValidationObjectTableSnapshot } from "./projectValidationTypes"
+import type { ValidationMode, ValidationObjectRecord } from "./projectValidationTypes"
 import type { Diagnostic } from "./types"
 
 registerCoreMetadata()
@@ -52,10 +49,7 @@ type ValidationWorkerMessage =
       projectDir: string
       context: ConfigurationContext
       mode: ValidationMode
-      objectTable?: ValidationObjectTableSnapshot
-      referenceSnapshot?: ProjectReferenceSnapshot
-      sharedReferenceSnapshot?: SharedProjectReferenceSnapshot
-      sharedValidationSnapshot?: SharedValidationSnapshot
+      sharedValidationSnapshot: SharedValidationSnapshot
       pendingReferences: PendingMetadataTargetReference[]
       filePaths: string[]
     }
@@ -63,7 +57,6 @@ type ValidationWorkerMessage =
 interface WorkerValidationState {
   entries: Map<string, ProjectYamlEntry>
   states: Map<string, ProjectValidationFileState>
-  localTable: ReturnType<typeof createValidationObjectTable>
   objectIndexEntries: ProjectObjectIndexEntry[]
   memberIndexEntries: ProjectMemberIndexEntry[]
   valueIndexEntries: ProjectValueIndexEntry[]
@@ -76,7 +69,6 @@ function createEmptyWorkerValidationState(): WorkerValidationState {
   return {
     entries: new Map(),
     states: new Map(),
-    localTable: createValidationObjectTable(),
     objectIndexEntries: [],
     memberIndexEntries: [],
     valueIndexEntries: [],
@@ -147,7 +139,6 @@ function runFirstPass(message: Extract<ValidationWorkerMessage, { kind: "firstPa
     timing?.recordFirstPass(firstPassMs)
     profile?.record(file.absolutePath, firstPassMs, first)
     workerState.states.set(resolve(file.absolutePath), first.state)
-    workerState.localTable.mergeRecords(first.objectRecords)
     workerState.objectIndexEntries.push(...first.objectIndexEntries)
     workerState.memberIndexEntries.push(...first.memberIndexEntries)
     workerState.valueIndexEntries.push(...first.valueIndexEntries)
@@ -175,8 +166,6 @@ function runSecondPass(message: Extract<ValidationWorkerMessage, { kind: "second
     referenceValidationMs: number
     validationMs: number
     fileCount: number
-    supplementRecords: number
-    supplementFilePaths: number
     referenceHits: number
     referenceMisses: number
     referenceConflicts: number
@@ -194,31 +183,17 @@ function runSecondPass(message: Extract<ValidationWorkerMessage, { kind: "second
   const diagnostics: Diagnostic[] = []
   const profile = createWorkerSecondPassProfile()
   const cache = createWorkerYamlCache()
-  const ownerCache =
-    message.sharedValidationSnapshot === undefined
-      ? createOwnerMetadataCacheFromValidationTable({
-          projectDir: message.projectDir,
-          table: supplementedValidationTable(message),
-        })
-      : createOwnerMetadataCacheFromSharedValidationSnapshot({
-          projectDir: message.projectDir,
-          snapshot: message.sharedValidationSnapshot,
-        })
+  const ownerCache = createOwnerMetadataCacheFromSharedValidationSnapshot({
+    projectDir: message.projectDir,
+    snapshot: message.sharedValidationSnapshot,
+  })
   const referenceStartedAt = performance.now()
-  const referenceIndex =
-    message.sharedReferenceSnapshot === undefined
-      ? createProjectReferenceIndex({
-          projectDir: message.projectDir,
-          mode: message.mode,
-          snapshot: requiredReferenceSnapshot(message),
-          resolveObjectFilePath: (target) => resolveObjectFilePath({ projectDir: message.projectDir, target }),
-        })
-      : createSharedProjectReferenceIndex({
-          projectDir: message.projectDir,
-          mode: message.mode,
-          snapshot: message.sharedReferenceSnapshot,
-          resolveObjectFilePath: (target) => resolveObjectFilePath({ projectDir: message.projectDir, target }),
-        })
+  const referenceIndex = createSharedProjectReferenceIndex({
+    projectDir: message.projectDir,
+    mode: message.mode,
+    snapshot: message.sharedValidationSnapshot.reference,
+    resolveObjectFilePath: (target) => resolveObjectFilePath({ projectDir: message.projectDir, target }),
+  })
   const referenceResult = validatePendingReferencesWithIndex({
     index: referenceIndex,
     references: message.pendingReferences,
@@ -250,8 +225,6 @@ function runSecondPass(message: Extract<ValidationWorkerMessage, { kind: "second
       referenceValidationMs: validationStartedAt - referenceStartedAt,
       validationMs: performance.now() - validationStartedAt,
       fileCount: message.filePaths.length,
-      supplementRecords: message.objectTable?.records.length ?? 0,
-      supplementFilePaths: message.objectTable?.filePaths.length ?? 0,
       referenceHits: referenceResult.stats.hits,
       referenceMisses: referenceResult.stats.misses,
       referenceConflicts: referenceResult.stats.conflicts,
@@ -259,28 +232,12 @@ function runSecondPass(message: Extract<ValidationWorkerMessage, { kind: "second
       referenceDependencies: referenceResult.stats.dependencies,
       referenceUnsupported: referenceResult.stats.unsupported,
       referenceFallbacks: referenceResult.stats.fallbacks,
-      snapshotBytes: message.sharedReferenceSnapshot?.stats.snapshotBytes ?? requiredReferenceSnapshot(message).stats.snapshotBytes,
+      snapshotBytes: message.sharedValidationSnapshot.reference.stats.snapshotBytes,
       pendingReferences: message.pendingReferences.length,
-      memberIndexEntries: message.sharedReferenceSnapshot?.stats.memberEntries ?? requiredReferenceSnapshot(message).stats.memberEntries,
+      memberIndexEntries: message.sharedValidationSnapshot.reference.stats.memberEntries,
     },
     ...(profile === undefined ? {} : { profile: profile.snapshot() }),
   }
-}
-
-function supplementedValidationTable(message: Extract<ValidationWorkerMessage, { kind: "secondPass" }>) {
-  if (message.objectTable === undefined) throw new Error("Worker secondPass не получил object table")
-  const localSnapshot = workerState.localTable.snapshot()
-  return createValidationObjectTable({
-    records: [...localSnapshot.records, ...message.objectTable.records],
-    filePaths: [...localSnapshot.filePaths, ...message.objectTable.filePaths],
-  })
-}
-
-function requiredReferenceSnapshot(
-  message: Extract<ValidationWorkerMessage, { kind: "secondPass" }>
-): ProjectReferenceSnapshot {
-  if (message.referenceSnapshot === undefined) throw new Error("Worker secondPass не получил reference snapshot")
-  return message.referenceSnapshot
 }
 
 function resolveObjectFilePath(params: {
