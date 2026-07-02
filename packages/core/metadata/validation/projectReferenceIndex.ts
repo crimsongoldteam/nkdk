@@ -42,11 +42,8 @@ export interface PendingMetadataTargetReference {
 }
 
 export interface ProjectReferenceSnapshot {
-  objectIndex: Array<ProjectObjectIndexEntry | ProjectReferenceIndexConflict>
   objectIndexByKey: Record<string, ProjectObjectIndexEntry | ProjectReferenceIndexConflict>
-  memberIndex: Array<ProjectMemberIndexEntry | ProjectReferenceIndexConflict>
   memberIndexByKey: Record<string, ProjectMemberIndexEntry | ProjectReferenceIndexConflict>
-  valueIndex: Array<ProjectValueIndexEntry | ProjectReferenceIndexConflict>
   valueIndexByKey: Record<string, ProjectValueIndexEntry | ProjectReferenceIndexConflict>
   pendingReferences: PendingMetadataTargetReference[]
   stats: ProjectReferenceSnapshotStats
@@ -136,11 +133,8 @@ export function createProjectReferenceSnapshot(params: {
   const memberIndex = uniqueEntries(params.memberIndexEntries)
   const valueIndex = uniqueEntries(params.valueIndexEntries)
   const snapshotWithoutBytes = {
-    objectIndex: objectIndex.entries,
     objectIndexByKey: objectIndex.byKey,
-    memberIndex: memberIndex.entries,
     memberIndexByKey: memberIndex.byKey,
-    valueIndex: valueIndex.entries,
     valueIndexByKey: valueIndex.byKey,
     pendingReferences: [...params.pendingReferences],
     stats: {

@@ -269,6 +269,20 @@ describe("ProjectReferenceIndex", () => {
       }),
     ).toMatchObject({ ok: false, reason: "filter" })
   })
+
+  it("does not duplicate index arrays when lookup maps are enough for worker snapshot", () => {
+    const target = memberTarget("Справочник.Номенклатура.Реквизит.Артикул")
+    const snapshot = createProjectReferenceSnapshot({
+      objectIndexEntries: [],
+      memberIndexEntries: [{ canonical: projectMemberIndexKey(target), target, result: { ok: true, filePath: "/tmp/Свойства.yaml" } }],
+      valueIndexEntries: [],
+      pendingReferences: [],
+    })
+
+    expect(snapshot.memberIndexByKey[projectMemberIndexKey(target)]).toBeDefined()
+    expect("memberIndex" in snapshot).toBe(false)
+    expect(snapshot.stats.snapshotBytes).toBeGreaterThan(0)
+  })
 })
 
 function objectTarget(value: string): Extract<ParsedMetadataTarget, { kind: "object" }> {

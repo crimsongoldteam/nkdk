@@ -1407,7 +1407,7 @@ pnpm --filter @nakidka/core exec vitest run packages/core/metadata/validation pa
 
 Expected: PASS.
 
-- [ ] **Step 8: Commit resolver deletion**
+- [x] **Step 8: Commit resolver deletion**
 
 ```bash
 git add packages/core/metadata packages/cli packages/mcp
@@ -1421,7 +1421,7 @@ git commit -m "refactor: :fire: удалить runtime project metadata resolver
 - Modify: `packages/core/metadata/validation/projectValidationWorkerPool.ts`
 - Test: `packages/core/metadata/validation/projectReferenceIndex.test.ts`
 
-- [ ] **Step 1: Add snapshot size regression test**
+- [x] **Step 1: Add snapshot size regression test**
 
 In `projectReferenceIndex.test.ts`, add:
 
@@ -1440,17 +1440,17 @@ it("does not duplicate index arrays when lookup maps are enough for worker snaps
 })
 ```
 
-- [ ] **Step 2: Remove duplicated arrays from worker snapshot if tests allow**
+- [x] **Step 2: Remove duplicated arrays from worker snapshot if tests allow**
 
 If no code uses `objectIndex`, `memberIndex`, `valueIndex` arrays after snapshot creation, change `ProjectReferenceSnapshot` to keep only `objectIndexByKey`, `memberIndexByKey`, `valueIndexByKey`.
 
 Keep counts in `stats`.
 
-- [ ] **Step 3: Update estimate and tests**
+- [x] **Step 3: Update estimate and tests**
 
 Update tests that read `snapshot.memberIndex` to check `snapshot.stats.memberEntries` or `snapshot.memberIndexByKey`.
 
-- [ ] **Step 4: Run focused tests**
+- [x] **Step 4: Run focused tests**
 
 ```bash
 pnpm --filter @nakidka/core exec vitest run packages/core/metadata/validation/projectReferenceIndex.test.ts packages/core/metadata/validation/projectValidationWorkerPool.test.ts
