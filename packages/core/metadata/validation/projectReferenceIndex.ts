@@ -250,10 +250,33 @@ function resolveReference(
     }
     return { ok: false, reason: "notFound", diagnostics: entry.result.diagnostics }
   }
+  if (reference.target.kind === "object") {
+    const filterResult = matchesObjectFilters({ reference, entry: entry as ProjectObjectIndexEntry })
+    if (!filterResult.ok) return filterResult
+  }
   if (reference.target.kind === "member") {
     const filterResult = matchesMemberFilters({ reference, entry: entry as ProjectMemberIndexEntry })
     if (!filterResult.ok) return filterResult
   }
+  return { ok: true }
+}
+
+function matchesObjectFilters(params: {
+  reference: PendingMetadataTargetReference
+  entry: ProjectObjectIndexEntry
+}): ProjectReferenceIndexResult {
+  if (params.reference.constraint.kind !== "object") return { ok: true }
+
+  for (const filter of params.reference.constraint.filters ?? []) {
+    if (filter.kind !== "styleItemType") continue
+    const actualType = styleItemTypeFromDetails(params.entry.result.ok ? params.entry.result.details : undefined)
+    if (actualType === undefined || filter.values.includes(actualType)) continue
+    return memberFilterError(
+      params.reference,
+      `Объект "${params.reference.canonical}" имеет тип "${actualType}", ожидался: ${filter.values.join(", ")}`
+    )
+  }
+
   return { ok: true }
 }
 
@@ -345,6 +368,15 @@ interface ObjectFieldDetails {
     kinds: readonly string[]
     sourceText?: string
   }
+}
+
+function styleItemTypeFromDetails(details: unknown): "Color" | "Font" | "Border" | undefined {
+  if (typeof details !== "object" || details === null) return undefined
+  const record = details as Record<string, unknown>
+  const model = record["model"]
+  const source = typeof model === "object" && model !== null ? (model as Record<string, unknown>) : record
+  const value = source["type"] ?? source["Тип"]
+  return value === "Color" || value === "Font" || value === "Border" ? value : undefined
 }
 
 function isObjectFieldDetails(details: unknown): details is ObjectFieldDetails {

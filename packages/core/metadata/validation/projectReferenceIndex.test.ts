@@ -228,6 +228,47 @@ describe("ProjectReferenceIndex", () => {
     })
     expect(index.stats()).toMatchObject({ hits: 1, filterFailures: 1, fallbacks: 0 })
   })
+
+  it("applies style item type filter to object entries", () => {
+    const projectDir = "/tmp/nkdk-project"
+    const target = objectTarget("ЭлементСтиля.ОсновнойШрифт")
+    const filePath = join(projectDir, "ЭлементСтиля", "ОсновнойШрифт", "Свойства.yaml")
+    const index = createProjectReferenceIndex({
+      projectDir,
+      mode: "full",
+      snapshot: createProjectReferenceSnapshot({
+        objectIndexEntries: [
+          {
+            canonical: projectObjectIndexKey(target),
+            target,
+            result: { ok: true, filePath, details: { model: { type: "Font" } } },
+          },
+        ],
+        memberIndexEntries: [],
+        valueIndexEntries: [],
+        pendingReferences: [],
+      }),
+    })
+
+    expect(
+      index.resolve({
+        filePath,
+        yamlPath: ["Шрифт"],
+        canonical: "StyleItem.ОсновнойШрифт",
+        target,
+        constraint: { kind: "object", roots: ["StyleItem"], filters: [{ kind: "styleItemType", values: ["Font"] }] },
+      }),
+    ).toEqual({ ok: true })
+    expect(
+      index.resolve({
+        filePath,
+        yamlPath: ["Цвет"],
+        canonical: "StyleItem.ОсновнойШрифт",
+        target,
+        constraint: { kind: "object", roots: ["StyleItem"], filters: [{ kind: "styleItemType", values: ["Color"] }] },
+      }),
+    ).toMatchObject({ ok: false, reason: "filter" })
+  })
 })
 
 function objectTarget(value: string): Extract<ParsedMetadataTarget, { kind: "object" }> {

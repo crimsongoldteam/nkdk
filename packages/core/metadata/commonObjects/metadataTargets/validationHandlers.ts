@@ -131,6 +131,53 @@ const collectMetadataValueTargetForValidation: CollectMetadataTargetReferencesFu
   return collectCanonicalTarget(params, params.value.value)
 }
 
+const collectColorTargetForValidation: CollectMetadataTargetReferencesFunction = (params) => {
+  if (!isRecord(params.value) || params.value.type !== "StyleItem" || typeof params.value.value !== "string") {
+    return { references: [], diagnostics: [] }
+  }
+  if (isKnownStyleColor(params.value.value)) return { references: [], diagnostics: [] }
+
+  return collectCanonicalTargetWithConstraint(params, `StyleItem.${params.value.value}`, {
+    kind: "object",
+    roots: ["StyleItem"],
+    filters: [{ kind: "styleItemType", values: ["Color"] }],
+  })
+}
+
+const collectFontTargetForValidation: CollectMetadataTargetReferencesFunction = (params) => {
+  if (!isRecord(params.value) || params.value.kind !== "StyleItem" || typeof params.value.ref !== "string") {
+    return { references: [], diagnostics: [] }
+  }
+  if (isKnownStyleFont(params.value.ref)) return { references: [], diagnostics: [] }
+
+  return collectCanonicalTargetWithConstraint(params, `StyleItem.${params.value.ref}`, {
+    kind: "object",
+    roots: ["StyleItem"],
+    filters: [{ kind: "styleItemType", values: ["Font"] }],
+  })
+}
+
+const collectBorderTargetForValidation: CollectMetadataTargetReferencesFunction = (params) => {
+  if (!isRecord(params.value) || typeof params.value.ref !== "string") return { references: [], diagnostics: [] }
+
+  return collectCanonicalTargetWithConstraint(params, `StyleItem.${params.value.ref}`, {
+    kind: "object",
+    roots: ["StyleItem"],
+    filters: [{ kind: "styleItemType", values: ["Border"] }],
+  })
+}
+
+const collectPictureTargetForValidation: CollectMetadataTargetReferencesFunction = (params) => {
+  if (!isRecord(params.value) || params.value.type !== "CommonPicture" || typeof params.value.ref !== "string") {
+    return { references: [], diagnostics: [] }
+  }
+
+  return collectCanonicalTargetWithConstraint(params, `CommonPicture.${params.value.ref}`, {
+    kind: "object",
+    roots: ["CommonPicture"],
+  })
+}
+
 const validateColorTarget: ValidateMetadataTargetFunction = (params) => {
   if (!isRecord(params.value) || params.value.type !== "StyleItem" || typeof params.value.value !== "string") return []
   if (isKnownStyleColor(params.value.value)) return []
@@ -213,6 +260,15 @@ function collectCanonicalTarget(
 ): ReturnType<CollectMetadataTargetReferencesFunction> {
   const constraint = params.propRule.metadataTarget
   if (!constraint) return { references: [], diagnostics: [] }
+
+  return collectCanonicalTargetWithConstraint(params, value, constraint)
+}
+
+function collectCanonicalTargetWithConstraint(
+  params: Parameters<CollectMetadataTargetReferencesFunction>[0],
+  value: string,
+  constraint: MetadataTargetConstraint
+): ReturnType<CollectMetadataTargetReferencesFunction> {
 
   const parsed = parseMetadataTargetFromModel({ canonical: value, constraint, owner: params.owner })
   if (!parsed.ok) {
@@ -314,6 +370,10 @@ registerTypeRule("MetadataField", "collectMetadataTargetReferences", collectStri
 registerTypeRule("MetadataFields", "collectMetadataTargetReferences", collectStringTargetListForValidation)
 registerTypeRule("MetadataObjectRefCollection", "collectMetadataTargetReferences", collectStringTargetListForValidation)
 registerTypeRule("MetadataValue", "collectMetadataTargetReferences", collectMetadataValueTargetForValidation)
+registerTypeRule("Color", "collectMetadataTargetReferences", collectColorTargetForValidation)
+registerTypeRule("Font", "collectMetadataTargetReferences", collectFontTargetForValidation)
+registerTypeRule("Border", "collectMetadataTargetReferences", collectBorderTargetForValidation)
+registerTypeRule("Picture", "collectMetadataTargetReferences", collectPictureTargetForValidation)
 registerTypeRule("MetadataItemLink", "structuralReferences", collectStringTargetReference)
 registerTypeRule("string", "structuralReferences", collectStringTargetReference)
 registerTypeRule("MetadataItemLinks", "structuralReferences", collectStringTargetReferenceList)

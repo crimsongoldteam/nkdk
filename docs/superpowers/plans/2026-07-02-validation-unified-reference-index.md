@@ -1068,7 +1068,7 @@ function isRecord(value: unknown): value is Record<string, unknown> {
 }
 ```
 
-- [ ] **Step 3: Call filters from `resolveReference()`**
+- [x] **Step 3: Call filters from `resolveReference()`**
 
 After a member entry resolves successfully:
 
@@ -1079,7 +1079,7 @@ if (reference.target.kind === "member") {
 }
 ```
 
-- [ ] **Step 4: Run member filter tests**
+- [x] **Step 4: Run member filter tests**
 
 ```bash
 pnpm --filter @nakidka/core exec vitest run packages/core/metadata/validation/projectReferenceIndex.test.ts
@@ -1087,7 +1087,7 @@ pnpm --filter @nakidka/core exec vitest run packages/core/metadata/validation/pr
 
 Expected: PASS.
 
-- [ ] **Step 5: Commit member filters**
+- [x] **Step 5: Commit member filters**
 
 ```bash
 git add packages/core/metadata/validation/projectReferenceIndex.ts packages/core/metadata/validation/projectValidationPasses.ts packages/core/metadata/validation/projectReferenceIndex.test.ts
@@ -1104,7 +1104,7 @@ git commit -m "feat: :sparkles: перенести member filters в reference i
 - Test: `packages/core/metadata/validation/projectReferenceIndex.test.ts`
 - Test: `packages/core/metadata/validation/metadataTargetTraversal.test.ts`
 
-- [ ] **Step 1: Make collectors cover style and picture references**
+- [x] **Step 1: Make collectors cover style and picture references**
 
 In `metadataTargets/validationHandlers.ts`, add collection handlers for color/font/border/picture validation targets:
 
@@ -1141,7 +1141,7 @@ registerTypeRule("Border", "collectMetadataTargetReferences", collectStyleBorder
 registerTypeRule("Picture", "collectMetadataTargetReferences", collectCommonPictureReferenceForValidation)
 ```
 
-- [ ] **Step 2: Represent style filters as object constraints**
+- [x] **Step 2: Represent style filters as object constraints**
 
 If `MetadataTargetConstraint` already has style filters, reuse them. If not, add a neutral named-resource constraint in `metadataTargets/types.ts`:
 
@@ -1153,7 +1153,7 @@ export type MetadataTargetConstraint =
 
 Do not add concrete folder knowledge to validation layer.
 
-- [ ] **Step 3: Add named resource index entries**
+- [x] **Step 3: Add named resource index entries**
 
 If style/common picture are already object entries, use object index. If they are not, add:
 
@@ -1169,7 +1169,7 @@ export interface ProjectNamedResourceIndexEntry {
 
 Add `namedResourceIndex` and `namedResourceIndexByKey` to snapshot, with `projectNamedResourceIndexKey(kind, name)`.
 
-- [ ] **Step 4: Port named resource tests**
+- [x] **Step 4: Port named resource tests**
 
 Add tests:
 
@@ -1179,7 +1179,7 @@ it("rejects style item with wrong expected type", () => {})
 it("resolves common picture references without resolver", () => {})
 ```
 
-- [ ] **Step 5: Run traversal tests**
+- [x] **Step 5: Run traversal tests**
 
 ```bash
 pnpm --filter @nakidka/core exec vitest run packages/core/metadata/validation/projectReferenceIndex.test.ts packages/core/metadata/validation/metadataTargetTraversal.test.ts
