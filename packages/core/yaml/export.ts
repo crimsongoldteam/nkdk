@@ -6,7 +6,7 @@ const explicitStringTagName = "tag:nakidka.dev,2026:explicit-string"
 const explicitStringType = defineScalarTag(explicitStringTagName, {
   resolve: () => NOT_RESOLVED,
   identify: isExplicitYAMLString,
-  represent: (value: unknown) => unwrapExplicitYAMLString(value),
+  represent: (value: unknown) => String(unwrapExplicitYAMLString(value)),
 })
 
 const NKDK_DUMP_SCHEMA = JSON_SCHEMA.withTags(explicitStringType)
