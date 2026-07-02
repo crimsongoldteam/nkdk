@@ -267,6 +267,7 @@ export function createProjectValidationWorkerPool(params: { concurrency: number 
         workerWallMs: performance.now() - requestStartedAt,
         sharedSnapshotBytes: sharedReferenceSnapshot?.stats.snapshotBytes,
         sharedOwnerBytes: sharedValidationSnapshot?.owners.bytes,
+        ownerFormat: sharedValidationSnapshot?.owners.format,
       })
 
       logSecondPassTiming(results)
@@ -416,6 +417,7 @@ function logSecondPassPoolProfile(params: {
   workerWallMs: number
   sharedSnapshotBytes?: number
   sharedOwnerBytes?: number
+  ownerFormat?: string
 }): void {
   if (process.env["NKDK_VALIDATION_PROFILE"] !== "1") return
   console.error(
@@ -423,6 +425,7 @@ function logSecondPassPoolProfile(params: {
       "[validation-profile] second pass orchestration",
       `snapshot=${params.snapshotMs.toFixed(2)}ms`,
       `workerWall=${params.workerWallMs.toFixed(2)}ms`,
+      ...(params.ownerFormat === undefined ? [] : [`ownerFormat=${params.ownerFormat}`]),
       ...(params.sharedSnapshotBytes === undefined ? [] : [`sharedSnapshotBytes=${params.sharedSnapshotBytes}`]),
       ...(params.sharedOwnerBytes === undefined ? [] : [`sharedOwnerBytes=${params.sharedOwnerBytes}`]),
     ].join(" ")

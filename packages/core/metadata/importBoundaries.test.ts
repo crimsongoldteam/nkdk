@@ -336,7 +336,13 @@ function listTypeScriptFiles(dir: string, options: { includeTests?: boolean } = 
     if (SKIPPED_SCAN_DIRS.has(entry)) continue
 
     const fullPath = join(dir, entry)
-    const stat = lstatSync(fullPath)
+    let stat
+    try {
+      stat = lstatSync(fullPath)
+    } catch (caught) {
+      if (caught instanceof Error && "code" in caught && caught.code === "ENOENT") continue
+      throw caught
+    }
     if (stat.isSymbolicLink()) continue
     if (stat.isDirectory()) {
       result.push(...listTypeScriptFiles(fullPath, options))

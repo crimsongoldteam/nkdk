@@ -34,6 +34,36 @@ describe("SharedValidationBinaryOwners", () => {
 
     expect(binary.get({ kind: "Справочник", name: "НетТакого" })).toMatchObject({ status: "not-found" })
   })
+
+  it("restores owner model data used by data path resolvers", () => {
+    const table = createValidationObjectTable({
+      records: [
+        {
+          filePath: "/project/Константа/ИспользоватьСинхронизациюДанных/Свойства.yaml",
+          projectPath: "Константа/ИспользоватьСинхронизациюДанных/Свойства.yaml",
+          kind: "properties",
+          owner: { dir: "Константа", name: "ИспользоватьСинхронизациюДанных" },
+          ownerRef: { kind: "Константа", name: "ИспользоватьСинхронизациюДанных" },
+          model: {
+            itemType: "MetadataConstant",
+            name: "ИспользоватьСинхронизациюДанных",
+            type: { type: ["boolean"] },
+          },
+          fieldIndex: { fields: new Map(), standardAttributeAliases: new Map(), diagnostics: [] },
+          importDiagnostics: [],
+        },
+      ],
+      filePaths: ["/project/Константа/ИспользоватьСинхронизациюДанных/Свойства.yaml"],
+    })
+    const snapshot = createBinarySharedOwnersSnapshot(table.snapshot())
+    const binary = createOwnerMetadataCacheFromBinarySharedOwners({ projectDir: "/project", snapshot })
+
+    const owner = binary.get({ kind: "Константа", name: "ИспользоватьСинхронизациюДанных" })
+
+    expect(owner.status).toBe("ok")
+    if (owner.status !== "ok") throw new Error("owner expected")
+    expect(owner.owner.model).toMatchObject({ type: { type: ["boolean"] } })
+  })
 })
 
 function catalogRecord(): ValidationObjectRecord {

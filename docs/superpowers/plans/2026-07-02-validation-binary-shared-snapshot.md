@@ -1001,7 +1001,7 @@ git commit -m "perf: :zap: включить бинарный формат shared
 - Modify: `packages/core/metadata/validation/projectValidationWorkerPool.ts`
 - Modify: `docs/superpowers/plans/2026-07-02-validation-binary-shared-snapshot.md`
 
-- [ ] **Step 1: Ensure profile logs owner format**
+- [x] **Step 1: Ensure profile logs owner format**
 
 In `packages/core/metadata/validation/projectValidationWorkerPool.ts`, extend `logSecondPassPoolProfile` params:
 
@@ -1021,7 +1021,7 @@ Add it to the logged fields:
 ...(params.ownerFormat === undefined ? [] : [`ownerFormat=${params.ownerFormat}`]),
 ```
 
-- [ ] **Step 2: Run focused worker tests**
+- [x] **Step 2: Run focused worker tests**
 
 Run:
 
@@ -1031,7 +1031,7 @@ pnpm --filter @nakidka/core test -- projectValidationWorkerPool.test.ts validate
 
 Expected: PASS.
 
-- [ ] **Step 3: Run full validation with binary shared owners**
+- [x] **Step 3: Run full validation with binary shared owners**
 
 Run:
 
@@ -1046,7 +1046,7 @@ Expected:
 - profile contains `sharedOwnerBytes=<number>`
 - profile contains `secondPassWall=<number>ms`
 
-- [ ] **Step 4: Run full validation with JSON shared owners**
+- [x] **Step 4: Run full validation with JSON shared owners**
 
 Run:
 
@@ -1061,13 +1061,35 @@ Expected:
 - profile contains `sharedOwnerBytes=<number>`
 - profile contains `secondPassWall=<number>ms`
 
-- [ ] **Step 5: Update this plan with measured results**
+- [x] **Step 5: Update this plan with measured results**
 
 In this file, add a `## Measurement` section with:
 
 Use the exact values printed by the two commands from Steps 3 and 4. Do not estimate them from memory. The section must include `summary`, `real`, `secondPassWall`, `snapshot`, `workerWall`, and `sharedOwnerBytes` for both runs, plus one sentence saying whether binary is faster, slower, or neutral.
 
-- [ ] **Step 6: Commit Task 4**
+## Measurement
+
+Binary shared owners (`NKDK_VALIDATION_SHARED_OWNER_FORMAT=binary`):
+
+- summary: `0 error, 0 warning`
+- real: `34.24s`
+- secondPassWall: `2949.51ms`
+- snapshot: `1151.45ms`
+- workerWall: `1794.39ms`
+- sharedOwnerBytes: `96521618`
+
+JSON shared owners (`NKDK_VALIDATION_SHARED_OWNER_FORMAT=json`):
+
+- summary: `0 error, 0 warning`
+- real: `38.70s`
+- secondPassWall: `7153.38ms`
+- snapshot: `1218.56ms`
+- workerWall: `5922.47ms`
+- sharedOwnerBytes: `129265248`
+
+Binary is faster in this run: second pass dropped by `4203.87ms`, total real time dropped by `4.46s`, and owner snapshot size dropped by `32743630` bytes.
+
+- [x] **Step 6: Commit Task 4**
 
 ```bash
 git add packages/core/metadata/validation/projectValidationWorkerPool.ts docs/superpowers/plans/2026-07-02-validation-binary-shared-snapshot.md

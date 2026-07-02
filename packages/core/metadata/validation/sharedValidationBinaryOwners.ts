@@ -10,7 +10,7 @@ import type { Diagnostic } from "./types"
 const MAGIC = 0x4e4b444f
 const VERSION = 1
 const HEADER_INTS = 8
-const OWNER_INTS = 10
+const OWNER_INTS = 11
 const FIELD_INTS = 19
 const ALIAS_INTS = 2
 const DIAGNOSTIC_INTS = 5
@@ -42,6 +42,7 @@ export interface BinarySharedOwnersSnapshot {
 interface EncodedOwner {
   ref: OwnerTypeRef
   filePath: string
+  modelText?: string
   status: number
   diagnostics: Diagnostic[]
   fields: EncodedField[]
@@ -86,7 +87,7 @@ export function createBinarySharedOwnersSnapshot(snapshot: ValidationObjectTable
 
   const stringValues = [EMPTY, ...snapshot.filePaths]
   for (const owner of owners) {
-    stringValues.push(owner.ref.kind, owner.ref.name ?? EMPTY, owner.filePath)
+    stringValues.push(owner.ref.kind, owner.ref.name ?? EMPTY, owner.filePath, owner.modelText ?? EMPTY)
     for (const diagnostic of owner.diagnostics) {
       stringValues.push(diagnostic.filePath, diagnostic.source, diagnostic.message)
     }
@@ -130,6 +131,7 @@ export function createBinarySharedOwnersSnapshot(snapshot: ValidationObjectTable
     ints[base + 7] = diagnosticStart
     ints[base + 8] = owner.diagnostics.length
     ints[base + 9] = owner.status
+    ints[base + 10] = stringId(owner.modelText ?? EMPTY)
   })
 
   flatFields.forEach(({ field, columnStart, columnCount }, index) => {
@@ -249,6 +251,7 @@ function createBinaryOwnersView(snapshot: BinarySharedOwnersSnapshot) {
         diagnosticStart: ints[base + 7] ?? 0,
         diagnosticCount: ints[base + 8] ?? 0,
         status: ints[base + 9] ?? 0,
+        modelText: strings.get(ints[base + 10] ?? 0),
       }
     },
     field(index: number): ObjectField {
@@ -307,6 +310,7 @@ function encodeOwner(record: ValidationObjectRecord): EncodedOwner {
   return {
     ref: record.ownerRef as OwnerTypeRef,
     filePath: record.filePath,
+    ...(record.model === undefined ? {} : { modelText: JSON.stringify(record.model) }),
     status: record.importDiagnostics.length > 0 ? STATUS_IMPORT_ERROR : STATUS_OK,
     diagnostics: record.importDiagnostics,
     fields: fieldIndex === undefined ? [] : [...fieldIndex.fields.values()].map(encodeField),
@@ -384,7 +388,7 @@ function ownerResult(ref: OwnerTypeRef, view: ReturnType<typeof createBinaryOwne
     owner: {
       ref,
       filePath: owner.filePath,
-      model: {} as never,
+      model: decodeOwnerModel(owner.modelText) as never,
       rule: spec.rule,
       spec,
       fieldIndex: readFieldIndex(view, owner),
@@ -409,6 +413,11 @@ function readFieldIndex(
   }
 
   return { fields, standardAttributeAliases, diagnostics: readDiagnostics(view, owner) }
+}
+
+function decodeOwnerModel(modelText: string): unknown {
+  if (modelText === EMPTY) return {}
+  return JSON.parse(modelText) as unknown
 }
 
 function readDiagnostics(
