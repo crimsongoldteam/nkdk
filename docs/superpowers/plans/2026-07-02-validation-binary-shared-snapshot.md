@@ -168,7 +168,7 @@ pnpm --filter @nakidka/core test -- sharedStringPool.test.ts
 
 Expected: PASS.
 
-- [ ] **Step 5: Commit Task 1**
+- [x] **Step 5: Commit Task 1**
 
 ```bash
 git add packages/core/metadata/validation/sharedStringPool.ts packages/core/metadata/validation/sharedStringPool.test.ts
@@ -183,7 +183,7 @@ git commit -m "perf: :zap: добавить shared string pool validation"
 - Create: `packages/core/metadata/validation/sharedValidationBinaryOwners.ts`
 - Test: `packages/core/metadata/validation/sharedValidationBinaryOwners.test.ts`
 
-- [ ] **Step 1: Write failing tests for binary owner lookup**
+- [x] **Step 1: Write failing tests for binary owner lookup**
 
 Create `packages/core/metadata/validation/sharedValidationBinaryOwners.test.ts`:
 
@@ -282,7 +282,7 @@ function catalogRecord(): ValidationObjectRecord {
 }
 ```
 
-- [ ] **Step 2: Run the failing binary owner tests**
+- [x] **Step 2: Run the failing binary owner tests**
 
 Run:
 
@@ -292,7 +292,7 @@ pnpm --filter @nakidka/core test -- sharedValidationBinaryOwners.test.ts
 
 Expected: FAIL because `sharedValidationBinaryOwners.ts` does not exist.
 
-- [ ] **Step 3: Implement binary owner snapshot types and constants**
+- [x] **Step 3: Implement binary owner snapshot types and constants**
 
 Create `packages/core/metadata/validation/sharedValidationBinaryOwners.ts` with these exported interfaces and constants, then continue in the next step in the same file:
 
@@ -364,7 +364,7 @@ interface EncodedField {
 }
 ```
 
-- [ ] **Step 4: Implement binary snapshot creation**
+- [x] **Step 4: Implement binary snapshot creation**
 
 Add this code below the constants and interfaces:
 
@@ -490,7 +490,7 @@ export function createBinarySharedOwnersSnapshot(snapshot: ValidationObjectTable
 }
 ```
 
-- [ ] **Step 5: Implement binary owner cache view**
+- [x] **Step 5: Implement binary owner cache view**
 
 Add this code below snapshot creation:
 
@@ -608,7 +608,7 @@ function createBinaryOwnersView(snapshot: BinarySharedOwnersSnapshot) {
 }
 ```
 
-- [ ] **Step 6: Implement helpers for encoding, decoding, and diagnostics**
+- [x] **Step 6: Implement helpers for encoding, decoding, and diagnostics**
 
 Add these helpers at the bottom of `sharedValidationBinaryOwners.ts`:
 
@@ -823,7 +823,7 @@ function crossFileDiagnostic(filePath: string, message: string): Diagnostic {
 }
 ```
 
-- [ ] **Step 7: Run binary owner tests**
+- [x] **Step 7: Run binary owner tests**
 
 Run:
 
