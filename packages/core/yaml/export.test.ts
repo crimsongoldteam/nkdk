@@ -38,6 +38,10 @@ describe("exportToYAML", () => {
     expect(yaml).toBe('Отбор.Код: "456"')
   })
 
+  it("exports explicit YAML strings with double quotes", () => {
+    expect(exportToYAML({ Значение: explicitYAMLString("001") })).toBe('Значение: "001"')
+  })
+
   it("escapes explicit YAML string content through double-quoted scalar rules", () => {
     const yaml = exportToYAML({ Значение: explicitYAMLString('a"b') })
 
@@ -48,5 +52,18 @@ describe("exportToYAML", () => {
     const yaml = exportToYAML({ Имя: "Тест" })
 
     expect(yaml).toBe("Имя: Тест")
+  })
+
+  it("exports without document final line ending", () => {
+    expect(exportToYAML({ Имя: "Тест" })).toBe("Имя: Тест")
+  })
+
+  it("exports undefined as empty value", () => {
+    expect(exportToYAML({ Поле: undefined })).toBe("Поле:")
+  })
+
+  it("does not wrap long scalar lines", () => {
+    const longValue = "x".repeat(160)
+    expect(exportToYAML({ Поле: longValue })).toBe(`Поле: ${longValue}`)
   })
 })
