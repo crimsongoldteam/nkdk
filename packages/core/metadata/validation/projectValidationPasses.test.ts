@@ -44,6 +44,35 @@ describe("validateProjectFileFirstPass references", () => {
       })
     )
   })
+
+  it("collects pending metadata target references during first pass", () => {
+    const projectDir = mkdtempSync(join(tmpdir(), "nkdk-validation-first-pass-"))
+    tempDirs.push(projectDir)
+    writeProjectFile(projectDir, "ФункциональнаяОпция/ИспользоватьАртикулы/Свойства.yaml", [
+      "СоставФункциональнойОпции:",
+      "  - Catalog.Номенклатура.Attribute.Артикул",
+    ])
+    const file = resolveValidationProjectFile(
+      projectDir,
+      join(projectDir, "ФункциональнаяОпция/ИспользоватьАртикулы/Свойства.yaml")
+    )
+    if (!file) throw new Error("file not resolved")
+
+    const first = validateProjectFileFirstPass({
+      projectDir,
+      file,
+      cache: createProjectYamlCache(),
+      context: mockContext,
+      schemaCache: createValidationSchemaCache(mockContext),
+    })
+
+    expect(first.pendingReferences).toEqual([
+      expect.objectContaining({
+        canonical: "Catalog.Номенклатура.Attribute.Артикул",
+        target: expect.objectContaining({ kind: "member", objectName: "Номенклатура" }),
+      }),
+    ])
+  })
 })
 
 function writeProjectFile(projectDir: string, projectPath: string, lines: string[] | string): void {

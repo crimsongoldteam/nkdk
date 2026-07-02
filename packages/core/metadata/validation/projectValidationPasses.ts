@@ -10,7 +10,7 @@ import { type OwnerMetadata, type OwnerMetadataCache } from "./dataPath/ownerCac
 import { buildObjectFieldIndex, type ObjectField, type ObjectFieldKind } from "./dataPath/objectFields"
 import { validateExcludedEqualNameYAML } from "./excludeIfEqualNameYAML"
 import { getRegisteredFormValidationPasses } from "./formValidationRegistry"
-import { validateMetadataTargetsInModel } from "./metadataTargetTraversal"
+import { collectMetadataTargetReferencesInModel, validateMetadataTargetsInModel } from "./metadataTargetTraversal"
 import type { ProjectMetadataResolver } from "./projectMetadataResolver"
 import { getProjectFileValidators, getProjectMemberIndexContributors } from "./projectMetadataResolverRegistry"
 import {
@@ -287,6 +287,15 @@ function validateProjectPropertiesFirstPass(params: {
     context: params.context,
     name: equalNameValidationName,
   })
+  const ownerRoot = rootFromYAML[params.file.owner.dir]
+  const metadataTargetOwner = ownerRoot ? { root: ownerRoot, objectName: params.file.owner.name } : undefined
+  const pendingReferences = collectMetadataTargetReferencesInModel({
+    filePath: params.file.absolutePath,
+    parsed,
+    model: imported.model,
+    rule: params.file.owner.spec.rule,
+    owner: metadataTargetOwner,
+  })
 
   const diagnostics = [
     ...suppressEqualNameSchemaDiagnostics(schemaDiagnostics, equalNameDiagnostics),
@@ -297,6 +306,7 @@ function validateProjectPropertiesFirstPass(params: {
       model: imported.model,
       rule: params.file.owner.spec.rule,
     }),
+    ...pendingReferences.diagnostics,
   ]
   const ownerRef = { kind: params.file.owner.dir, name: params.file.owner.name }
   const ownerWithoutIndex = {
@@ -327,7 +337,7 @@ function validateProjectPropertiesFirstPass(params: {
     },
     diagnostics,
     memberIndexEntries,
-    pendingReferences: [],
+    pendingReferences: pendingReferences.references,
     objectRecords: [
       {
         filePath: params.file.absolutePath,
@@ -338,7 +348,7 @@ function validateProjectPropertiesFirstPass(params: {
         model: imported.model,
         fieldIndex,
         memberIndexEntries,
-        pendingReferences: [],
+        pendingReferences: pendingReferences.references,
         importDiagnostics: [],
       },
     ],
