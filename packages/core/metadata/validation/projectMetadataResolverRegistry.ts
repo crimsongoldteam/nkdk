@@ -5,6 +5,7 @@ import type {
   StyleItemTargetType,
 } from "../commonObjects/metadataTargets"
 import type { OwnerMetadata, OwnerMetadataCache } from "./dataPath/ownerCache"
+import type { ProjectMemberIndexEntry } from "./projectMetadataReferences"
 import type { ProjectYamlCache } from "./projectYamlCache"
 import type { Diagnostic } from "./types"
 import type { ParsedYaml } from "../../yaml/parseMetadataYaml"
@@ -50,12 +51,19 @@ export type ProjectNamedResourceResolver = (params: {
 
 export type ProjectFileValidator = (params: { filePath: string; parsed: ParsedYaml }) => Diagnostic[]
 
+export type ProjectMemberIndexContributor = (params: {
+  projectDir: string
+  owner: OwnerMetadata
+  hasFile: (filePath: string) => boolean
+}) => Iterable<ProjectMemberIndexEntry>
+
 const objectPathResolvers = new Map<MetadataRootName, ProjectObjectPathResolver>()
 const memberResolvers = new Map<MetadataMemberKind, ProjectMemberResolver[]>()
 const valueResolvers = new Map<MetadataRootName, ProjectValueResolver>()
 const inlineObjectResolvers = new Map<MetadataRootName, ProjectInlineObjectResolver[]>()
 const namedResourceResolvers = new Map<string, ProjectNamedResourceResolver>()
 const projectFileValidators = new Map<string, ProjectFileValidator[]>()
+const memberIndexContributors: ProjectMemberIndexContributor[] = []
 
 export interface ProjectMetadataResolverRegistrySnapshot {
   objectPathResolvers: Map<MetadataRootName, ProjectObjectPathResolver>
@@ -64,6 +72,7 @@ export interface ProjectMetadataResolverRegistrySnapshot {
   inlineObjectResolvers: Map<MetadataRootName, ProjectInlineObjectResolver[]>
   namedResourceResolvers: Map<string, ProjectNamedResourceResolver>
   projectFileValidators: Map<string, ProjectFileValidator[]>
+  memberIndexContributors: ProjectMemberIndexContributor[]
 }
 
 export function registerProjectObjectPathResolver(root: MetadataRootName, resolver: ProjectObjectPathResolver): void {
@@ -121,6 +130,14 @@ export function getProjectFileValidators(role: string): readonly ProjectFileVali
   return projectFileValidators.get(role) ?? []
 }
 
+export function registerProjectMemberIndexContributor(contributor: ProjectMemberIndexContributor): void {
+  memberIndexContributors.push(contributor)
+}
+
+export function getProjectMemberIndexContributors(): readonly ProjectMemberIndexContributor[] {
+  return memberIndexContributors
+}
+
 export function clearProjectMetadataResolverRegistryForTests(): void {
   objectPathResolvers.clear()
   memberResolvers.clear()
@@ -128,6 +145,7 @@ export function clearProjectMetadataResolverRegistryForTests(): void {
   inlineObjectResolvers.clear()
   namedResourceResolvers.clear()
   projectFileValidators.clear()
+  memberIndexContributors.splice(0)
 }
 
 export function snapshotProjectMetadataResolverRegistryForTests(): ProjectMetadataResolverRegistrySnapshot {
@@ -138,6 +156,7 @@ export function snapshotProjectMetadataResolverRegistryForTests(): ProjectMetada
     inlineObjectResolvers: cloneArrayMap(inlineObjectResolvers),
     namedResourceResolvers: new Map(namedResourceResolvers),
     projectFileValidators: cloneArrayMap(projectFileValidators),
+    memberIndexContributors: [...memberIndexContributors],
   }
 }
 
@@ -150,6 +169,7 @@ export function restoreProjectMetadataResolverRegistryForTests(
   replaceMap(inlineObjectResolvers, snapshot.inlineObjectResolvers)
   replaceMap(namedResourceResolvers, snapshot.namedResourceResolvers)
   replaceMap(projectFileValidators, snapshot.projectFileValidators)
+  memberIndexContributors.splice(0, memberIndexContributors.length, ...snapshot.memberIndexContributors)
 }
 
 function cloneArrayMap<Key, Value>(map: Map<Key, Value[]>): Map<Key, Value[]> {

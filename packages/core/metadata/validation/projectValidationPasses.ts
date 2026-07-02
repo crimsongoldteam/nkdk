@@ -2,16 +2,22 @@ import { TypeCompiler } from "@sinclair/typebox/compiler"
 import fs from "fs"
 import { join, resolve } from "path"
 import { rootFromYAML } from "../commonObjects/metadataTargets/roots"
+import type { MetadataFieldKind, ParsedMetadataTarget } from "../commonObjects/metadataTargets/types"
 import type { ConfigurationContext } from "../context/types"
 import type { MetadataItem } from "../orchestration/property/types"
 import { parseMetadataYaml, type ParsedYaml } from "../../yaml/parseMetadataYaml"
-import { type OwnerMetadataCache } from "./dataPath/ownerCache"
-import { buildObjectFieldIndex } from "./dataPath/objectFields"
+import { type OwnerMetadata, type OwnerMetadataCache } from "./dataPath/ownerCache"
+import { buildObjectFieldIndex, type ObjectField, type ObjectFieldKind } from "./dataPath/objectFields"
 import { validateExcludedEqualNameYAML } from "./excludeIfEqualNameYAML"
 import { getRegisteredFormValidationPasses } from "./formValidationRegistry"
 import { validateMetadataTargetsInModel } from "./metadataTargetTraversal"
 import type { ProjectMetadataResolver } from "./projectMetadataResolver"
-import { getProjectFileValidators } from "./projectMetadataResolverRegistry"
+import { getProjectFileValidators, getProjectMemberIndexContributors } from "./projectMetadataResolverRegistry"
+import {
+  projectMemberIndexKey,
+  type PendingMetadataTargetReference,
+  type ProjectMemberIndexEntry,
+} from "./projectMetadataReferences"
 import { exportJSONSchemaForSchemaName } from "./projectFileSchema"
 import type { ValidationProjectFile } from "./projectFiles"
 import type { ProjectYamlCache, ProjectYamlEntry } from "./projectYamlCache"
@@ -47,6 +53,8 @@ export type ProjectValidationFileState =
 export interface ProjectValidationFirstPassResult {
   state: ProjectValidationFileState
   objectRecords: ValidationObjectRecord[]
+  memberIndexEntries: ProjectMemberIndexEntry[]
+  pendingReferences: PendingMetadataTargetReference[]
   diagnostics: Diagnostic[]
 }
 
@@ -184,6 +192,8 @@ function validateProjectFormFirstPass(params: {
       state: { kind: "failed", file: params.file, diagnostics: schemaDiagnostics },
       diagnostics: schemaDiagnostics,
       objectRecords: [],
+      memberIndexEntries: [],
+      pendingReferences: [],
     }
   }
 
@@ -214,10 +224,13 @@ function validateProjectFormFirstPass(params: {
     },
     diagnostics,
     objectRecords: [],
+    memberIndexEntries: [],
+    pendingReferences: [],
   }
 }
 
 function validateProjectPropertiesFirstPass(params: {
+  projectDir: string
   file: ValidationProjectFile
   cache: ProjectYamlCache
   context: ConfigurationContext
@@ -293,6 +306,16 @@ function validateProjectPropertiesFirstPass(params: {
     rule: params.file.owner.spec.rule,
     spec: params.file.owner.spec,
   }
+  const fieldIndex = buildObjectFieldIndex(ownerWithoutIndex)
+  const owner: OwnerMetadata = {
+    ...ownerWithoutIndex,
+    fieldIndex,
+  }
+  const memberIndexEntries = buildMemberIndexEntries({
+    projectDir: params.projectDir,
+    owner,
+    hasFile: fs.existsSync,
+  })
 
   return {
     state: {
@@ -303,6 +326,8 @@ function validateProjectPropertiesFirstPass(params: {
       firstPassDiagnostics: diagnostics,
     },
     diagnostics,
+    memberIndexEntries,
+    pendingReferences: [],
     objectRecords: [
       {
         filePath: params.file.absolutePath,
@@ -311,7 +336,9 @@ function validateProjectPropertiesFirstPass(params: {
         owner: { dir: params.file.owner.dir, name: params.file.owner.name },
         ownerRef,
         model: imported.model,
-        fieldIndex: buildObjectFieldIndex(ownerWithoutIndex),
+        fieldIndex,
+        memberIndexEntries,
+        pendingReferences: [],
         importDiagnostics: [],
       },
     ],
@@ -323,6 +350,84 @@ function failedFirstPass(file: ValidationProjectFile, diagnostics: Diagnostic[])
     state: { kind: "failed", file, diagnostics },
     diagnostics,
     objectRecords: [],
+    memberIndexEntries: [],
+    pendingReferences: [],
+  }
+}
+
+function buildMemberIndexEntries(params: {
+  projectDir: string
+  owner: OwnerMetadata
+  hasFile: (filePath: string) => boolean
+}): ProjectMemberIndexEntry[] {
+  const entries: ProjectMemberIndexEntry[] = []
+
+  for (const field of params.owner.fieldIndex.fields.values()) {
+    const target = fieldTarget(params.owner, field)
+    entries.push({
+      canonical: projectMemberIndexKey(target),
+      target,
+      result: { ok: true, filePath: params.owner.filePath, details: field },
+    })
+
+    if (field.kind === "tabularSection" && field.tableSource) {
+      for (const column of field.tableSource.columns.values()) {
+        const nestedTarget = nestedFieldTarget(params.owner, field.name, column)
+        entries.push({
+          canonical: projectMemberIndexKey(nestedTarget),
+          target: nestedTarget,
+          result: { ok: true, filePath: params.owner.filePath, details: column },
+        })
+      }
+    }
+  }
+
+  for (const contributor of getProjectMemberIndexContributors()) {
+    entries.push(...contributor(params))
+  }
+
+  return entries
+}
+
+function fieldTarget(owner: OwnerMetadata, field: ObjectField): Extract<ParsedMetadataTarget, { kind: "member" }> {
+  return {
+    kind: "member",
+    root: rootFromYAML[owner.ref.kind] as never,
+    objectName: owner.ref.name ?? "",
+    segments: [{ kind: metadataFieldKindFromObjectFieldKind(field.kind), name: field.name }],
+  }
+}
+
+function nestedFieldTarget(
+  owner: OwnerMetadata,
+  tabularSectionName: string,
+  field: ObjectField
+): Extract<ParsedMetadataTarget, { kind: "member" }> {
+  return {
+    kind: "member",
+    root: rootFromYAML[owner.ref.kind] as never,
+    objectName: owner.ref.name ?? "",
+    segments: [
+      { kind: "TabularSection", name: tabularSectionName },
+      { kind: metadataFieldKindFromObjectFieldKind(field.kind), name: field.name },
+    ],
+  }
+}
+
+function metadataFieldKindFromObjectFieldKind(kind: ObjectFieldKind): MetadataFieldKind {
+  switch (kind) {
+    case "attribute":
+      return "Attribute"
+    case "standardAttribute":
+      return "StandardAttribute"
+    case "tabularSection":
+      return "TabularSection"
+    case "dimension":
+      return "Dimension"
+    case "resource":
+      return "Resource"
+    case "addressingAttribute":
+      return "AddressingAttribute"
   }
 }
 
