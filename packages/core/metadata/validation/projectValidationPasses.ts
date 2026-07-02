@@ -231,7 +231,7 @@ function validateProjectPropertiesFirstPass(params: {
     schema: params.schemaCache.properties(params.file.owner.spec),
     parsed,
   })
-  if (entry.parsed.doc.errors.length > 0) return failedFirstPass(params.file, schemaDiagnostics)
+  if (entry.parsed.syntaxErrors.length > 0) return failedFirstPass(params.file, schemaDiagnostics)
 
   const requiredDiagnostics = validateRegisteredProjectFileValidators({
     file: params.file,
@@ -389,7 +389,7 @@ function validateProjectFileSchema(params: {
 }
 
 function parsedForProjectFile(file: ValidationProjectFile, parsed: ParsedYaml): ParsedYaml {
-  if (file.kind === "properties" && parsed.doc.errors.length === 0 && parsed.data === undefined) {
+  if (file.kind === "properties" && parsed.syntaxErrors.length === 0 && parsed.data === undefined) {
     return { ...parsed, data: {} }
   }
 

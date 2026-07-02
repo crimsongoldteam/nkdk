@@ -56,17 +56,20 @@ export function typeboxErrorsToDiagnostics(
     const isRequired = error.type === ValueErrorType.ObjectRequiredProperty
     const lookupKeys = isRequired && keys.length > 0 ? keys.slice(0, -1) : keys
 
-    let line = 1
-    let col = 1
+    const indexedPosition = isRequired
+      ? parsed.locations?.nodePosition(lookupKeys)
+      : parsed.locations?.valuePosition(lookupKeys) ?? parsed.locations?.nodePosition(lookupKeys)
+    let line = indexedPosition?.line ?? 1
+    let col = indexedPosition?.col ?? 1
 
-    if (lookupKeys.length > 0) {
+    if (indexedPosition === undefined && lookupKeys.length > 0) {
       const node = parsed.doc.getIn(lookupKeys, true) as { range?: number[] } | null
       if (node?.range) {
         const pos = parsed.lineCounter.linePos(node.range[0])
         line = pos.line
         col = pos.col
       }
-    } else {
+    } else if (indexedPosition === undefined) {
       const rootNode = parsed.doc.contents as { range?: number[] } | null
       if (rootNode?.range) {
         const pos = parsed.lineCounter.linePos(rootNode.range[0])

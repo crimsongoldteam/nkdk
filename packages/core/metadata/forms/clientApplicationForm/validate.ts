@@ -38,7 +38,7 @@ export function validateClientApplicationFormFirstPass(
     return { status: "failed", diagnostics: [readFormError(entry.filePath, params.formName, entry.error)] }
   }
 
-  if (entry.parsed.doc.errors.length > 0) {
+  if (entry.parsed.syntaxErrors.length > 0) {
     return { status: "failed", diagnostics: syntaxDiagnostics(entry.filePath, entry.parsed) }
   }
 
@@ -150,17 +150,14 @@ function readFormError(filePath: string, formName: string, error: Error): Diagno
 }
 
 function syntaxDiagnostics(filePath: string, parsed: ParsedYaml): Diagnostic[] {
-  return parsed.doc.errors.map((error) => {
-    const position = parsed.lineCounter.linePos(error.pos[0])
-    return {
-      filePath,
-      line: position.line,
-      col: position.col,
-      severity: "error" as const,
-      source: "syntax" as const,
-      message: error.message,
-    }
-  })
+  return parsed.syntaxErrors.map((error) => ({
+    filePath,
+    line: error.line,
+    col: error.col,
+    severity: "error" as const,
+    source: "syntax" as const,
+    message: error.message,
+  }))
 }
 
 export function collectDynamicListTypeValueWarnings(params: {

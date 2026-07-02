@@ -58,4 +58,26 @@ describe("diagnosticAtYamlPath", () => {
       path: "/Реквизиты/10/Тип",
     })
   })
+
+  it("uses the neutral YAML location index when it is present", () => {
+    const parsed = parseMetadataYaml(yaml)
+    const diagnostic = diagnosticAtYamlPath({
+      filePath: "/tmp/item.yaml",
+      parsed: {
+        ...parsed,
+        doc: { contents: undefined } as never,
+        lineCounter: { linePos: () => ({ line: 99, col: 99 }) } as never,
+      },
+      path: ["Настройки", "Группа", "Поле"],
+      severity: "error",
+      source: "structure",
+      message: "Сообщение",
+    })
+
+    expect(diagnostic).toMatchObject({
+      line: 9,
+      col: 5,
+      path: "/Настройки/Группа/Поле",
+    })
+  })
 })

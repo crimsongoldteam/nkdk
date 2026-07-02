@@ -158,6 +158,31 @@ describe("validateFile", () => {
     expect(result.every((d) => d.source === "syntax")).toBe(true)
   })
 
+  it("uses js-yaml syntax diagnostics from ParsedYaml", () => {
+    const parsed = parseMetadataYaml("Имя: [")
+
+    expect(parsed.syntaxErrors).toHaveLength(1)
+    expect(
+      validateParsedFile({
+        filePath: "test.yaml",
+        parsed: {
+          ...parsed,
+          doc: { errors: [] } as never,
+          lineCounter: { linePos: () => ({ line: 99, col: 99 }) } as never,
+        },
+        schema: simpleSchema,
+      })
+    ).toEqual([
+      expect.objectContaining({
+        filePath: "test.yaml",
+        line: 1,
+        col: 6,
+        source: "syntax",
+        severity: "error",
+      }),
+    ])
+  })
+
   it("обнаруживает поле с недопустимым дополнительным ключом", () => {
     const text = `НесуществующееПоле: значение\n`
     const result = validateFile({ filePath: "test.yaml", text, schema: simpleSchema })

@@ -26,7 +26,7 @@ registerProjectNamedResourceResolver("StyleItem", ({ projectDir, name, expectedT
 
 function readStyleItemType(params: { filePath: string; yamlCache: ProjectYamlCache }): StyleItemTargetType | undefined {
   const entry = params.yamlCache.get(params.filePath)
-  if ("error" in entry || entry.parsed.doc.errors.length > 0) return undefined
+  if ("error" in entry || entry.parsed.syntaxErrors.length > 0) return undefined
 
   const typeValue = styleItemTypeValue(entry.parsed.data)
   if (typeof typeValue !== "string") return undefined

@@ -22,8 +22,9 @@ export function diagnosticAtYamlPath({
   source,
   message,
 }: DiagnosticAtYamlPathParams): Diagnostic {
-  const offset = findYamlPathOffset(parsed.doc.contents, path)
-  const position = offset === undefined ? { line: 1, col: 1 } : parsed.lineCounter.linePos(offset)
+  const indexPosition = parsed.locations?.keyPosition(path)
+  const offset = indexPosition === undefined ? findYamlPathOffset(parsed.doc.contents, path) : undefined
+  const position = indexPosition ?? (offset === undefined ? { line: 1, col: 1 } : parsed.lineCounter.linePos(offset))
 
   return {
     filePath,
