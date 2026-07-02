@@ -72,6 +72,7 @@ const cubeProperties = {
     type: "I8nText",
     xmlParents: properties,
     defaultValueXMLRaw: "",
+    excludeIfEqualNameYAML: true,
   },
   comment: {
     yaml: "Комментарий",

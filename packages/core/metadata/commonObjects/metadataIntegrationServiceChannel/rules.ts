@@ -32,6 +32,7 @@ export const MetadataIntegrationServiceChannelRules = {
       type: "I8nText",
       xmlParents: propertiesParents,
       defaultValueXMLRaw: "",
+      excludeIfEqualNameYAML: true,
     },
     comment: {
       yaml: "Комментарий",

@@ -17,6 +17,7 @@ export const externalDataSourceFieldBaseProperties = {
     type: "I8nText",
     xmlParents: propertiesParents,
     defaultValueXMLRaw: "",
+    excludeIfEqualNameYAML: true,
   },
   comment: {
     yaml: "Комментарий",

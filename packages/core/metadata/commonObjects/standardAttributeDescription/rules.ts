@@ -171,6 +171,7 @@ export const StandardAttributeDescriptionRules = {
       xml: "xr:Synonym",
       order: 19,
       defaultValueXMLRaw: "",
+      excludeIfEqualNameYAML: true,
     }),
     toolTip: i8nTextRule({
       yaml: "Подсказка",

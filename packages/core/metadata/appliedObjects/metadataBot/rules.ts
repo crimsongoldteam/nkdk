@@ -35,6 +35,7 @@ export const MetadataBotRules = {
       yaml: "Синоним",
       xmlParents: properties,
       defaultValueXMLRaw: "",
+      excludeIfEqualNameYAML: true,
     }),
     comment: stringRule({
       yaml: "Комментарий",

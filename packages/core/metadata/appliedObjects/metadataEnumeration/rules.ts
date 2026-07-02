@@ -41,6 +41,7 @@ export const MetadataEnumerationValueRules = {
       xml: "Synonym",
       xmlParents: enumProperties,
       defaultValueXMLRaw: "",
+      excludeIfEqualNameYAML: true,
     }),
     comment: stringRule({
       yaml: "Комментарий",
@@ -94,6 +95,7 @@ export const MetadataEnumerationRules = {
       yaml: "Синоним",
       xmlParents: enumProperties,
       defaultValueXMLRaw: "",
+      excludeIfEqualNameYAML: true,
     }),
     comment: stringRule({
       yaml: "Комментарий",

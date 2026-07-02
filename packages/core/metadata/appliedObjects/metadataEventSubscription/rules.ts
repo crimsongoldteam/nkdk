@@ -34,6 +34,7 @@ export const MetadataEventSubscriptionRules = {
       yaml: "Синоним",
       xmlParents: properties,
       defaultValueXMLRaw: "",
+      excludeIfEqualNameYAML: true,
       order: 2,
     }),
     comment: stringRule({

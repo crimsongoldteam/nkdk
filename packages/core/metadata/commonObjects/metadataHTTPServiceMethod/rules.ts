@@ -19,6 +19,7 @@ export const MetadataHTTPServiceMethodRules = {
       type: "I8nText",
       xmlParents: propertiesParents,
       defaultValueXMLRaw: "",
+      excludeIfEqualNameYAML: true,
     },
     comment: {
       yaml: "Комментарий",

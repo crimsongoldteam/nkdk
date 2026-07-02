@@ -87,6 +87,7 @@ export const MetadataReportRules = {
       yaml: "Синоним",
       xmlParents: properties,
       defaultValueXMLRaw: "",
+      excludeIfEqualNameYAML: true,
       defaultValueXMLEmpty: { items: {} },
       defaultValue: { items: {} },
     }),

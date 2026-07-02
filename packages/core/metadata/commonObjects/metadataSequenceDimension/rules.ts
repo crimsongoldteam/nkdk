@@ -19,6 +19,7 @@ export const MetadataSequenceDimensionRules = {
       xml: "Synonym",
       xmlParents: ["Properties"],
       defaultValueXMLRaw: "",
+      excludeIfEqualNameYAML: true,
     }),
     comment: stringRule({
       yaml: "Комментарий",

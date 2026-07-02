@@ -14,6 +14,7 @@ export const StandardTabularSectionDescriptionRules = {
       yaml: "Синоним",
       xml: "xr:Synonym",
       defaultValueXMLRaw: "",
+      excludeIfEqualNameYAML: true,
     }),
     comment: stringRule({
       yaml: "Комментарий",

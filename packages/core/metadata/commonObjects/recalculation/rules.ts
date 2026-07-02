@@ -30,7 +30,13 @@ export const RecalculationRules = {
     }),
     uuid: uuidPropertyRule,
     name: stringRule({ xml: "Name", required: true, xmlParents: properties }),
-    synonym: i8nTextRule({ yaml: "Синоним", xml: "Synonym", xmlParents: properties, defaultValueXMLRaw: "" }),
+    synonym: i8nTextRule({
+      yaml: "Синоним",
+      xml: "Synonym",
+      xmlParents: properties,
+      defaultValueXMLRaw: "",
+      excludeIfEqualNameYAML: true,
+    }),
     comment: stringRule({ yaml: "Комментарий", xml: "Comment", xmlParents: properties, defaultValueXMLRaw: "" }),
     use: booleanRule({
       yaml: "Использование",

@@ -396,6 +396,7 @@ export const ClientApplicationFormRules = {
     }),
     synonym: i8nTextRule({
       yaml: "Синоним",
+      excludeIfEqualNameYAML: true,
       tag: FormRulesTags.Metadata,
       xmlParents: ["Form", "Properties"],
       defaultValueXMLEmpty: { items: {} },

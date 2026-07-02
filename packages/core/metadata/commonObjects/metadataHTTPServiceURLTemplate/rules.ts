@@ -20,6 +20,7 @@ export const MetadataHTTPServiceURLTemplateRules = {
       type: "I8nText",
       xmlParents: propertiesParents,
       defaultValueXMLRaw: "",
+      excludeIfEqualNameYAML: true,
     },
     comment: {
       yaml: "Комментарий",

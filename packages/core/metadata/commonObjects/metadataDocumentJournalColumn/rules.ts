@@ -19,6 +19,7 @@ export const MetadataDocumentJournalColumnRules = {
       xml: "Synonym",
       xmlParents: ["Properties"],
       defaultValueXMLRaw: "",
+      excludeIfEqualNameYAML: true,
     }),
     comment: stringRule({
       yaml: "Комментарий",

@@ -20,6 +20,7 @@ export const MetadataExternalDataSourceFunctionRules = {
       xml: "Synonym",
       xmlParents: propertiesParents,
       defaultValueXMLRaw: "",
+      excludeIfEqualNameYAML: true,
     }),
     comment: stringRule({
       yaml: "Комментарий",

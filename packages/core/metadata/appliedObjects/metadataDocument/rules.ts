@@ -420,6 +420,7 @@ export const MetadataDocumentRules = {
       yaml: "Синоним",
       xmlParents: documentProperties,
       defaultValueXMLRaw: "",
+      excludeIfEqualNameYAML: true,
     }),
     tabularSections: metadataDocumentTabularSectionsRule({
       yaml: "ТабличныеЧасти",

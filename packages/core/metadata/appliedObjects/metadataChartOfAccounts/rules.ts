@@ -83,7 +83,12 @@ export const MetadataChartOfAccountsRules = {
     }),
     uuid: uuidRule({ xml: "_uuid", forReferenceOnly: true, xmlParents: [] }),
     name: stringRule({ xmlParents: properties, required: true, defaultValue: ({ name }: { name?: string }) => name }),
-    synonym: i8nTextRule({ yaml: "Синоним", xmlParents: properties, defaultValueXMLRaw: "" }),
+    synonym: i8nTextRule({
+      yaml: "Синоним",
+      xmlParents: properties,
+      defaultValueXMLRaw: "",
+      excludeIfEqualNameYAML: true,
+    }),
     comment: stringRule({ yaml: "Комментарий", xmlParents: properties, defaultValueXMLRaw: "" }),
     useStandardCommands: booleanRule({
       yaml: "ИспользоватьСтандартныеКоманды",

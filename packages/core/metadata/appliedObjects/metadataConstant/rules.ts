@@ -49,6 +49,7 @@ export const MetadataConstantRules = {
       yaml: "Синоним",
       xmlParents: constantProperties,
       defaultValueXMLRaw: "",
+      excludeIfEqualNameYAML: true,
     }),
     comment: stringRule({
       yaml: "Комментарий",

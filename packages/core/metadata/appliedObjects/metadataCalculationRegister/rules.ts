@@ -80,7 +80,12 @@ export const MetadataCalculationRegisterRules = {
       required: true,
       defaultValue: ({ name }: { name?: string }) => name,
     }),
-    synonym: i8nTextRule({ yaml: "Синоним", xmlParents: properties, defaultValueXMLRaw: "" }),
+    synonym: i8nTextRule({
+      yaml: "Синоним",
+      xmlParents: properties,
+      defaultValueXMLRaw: "",
+      excludeIfEqualNameYAML: true,
+    }),
     comment: stringRule({ yaml: "Комментарий", xmlParents: properties, defaultValueXMLRaw: "" }),
     useStandardCommands: booleanRule({
       yaml: "ИспользоватьСтандартныеКоманды",

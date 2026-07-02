@@ -33,6 +33,7 @@ export const MetadataDocumentNumeratorRules = {
       yaml: "Синоним",
       xmlParents: ["Properties"],
       defaultValueXMLRaw: "",
+      excludeIfEqualNameYAML: true,
     }),
     comment: stringRule({
       yaml: "Комментарий",

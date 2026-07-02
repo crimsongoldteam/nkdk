@@ -298,6 +298,29 @@ describe("validateProject", { timeout: 30_000 }, () => {
     ])
   })
 
+  it("rejects an explicit information register synonym equal to the register name", async () => {
+    const projectDir = createProject()
+    writeProjectFile(projectDir, "РегистрСведений/ЗадачиУниверсальныхПроцессов/Свойства.yaml", [
+      "Синоним: Задачи универсальных процессов",
+    ])
+
+    const diagnostics = (await validateProject({
+      projectDir,
+      filePath: "РегистрСведений/ЗадачиУниверсальныхПроцессов/Свойства.yaml",
+      context: mockContext,
+    })).diagnostics
+
+    expect(diagnostics).toEqual([
+      expect.objectContaining({
+        filePath: join(projectDir, "РегистрСведений", "ЗадачиУниверсальныхПроцессов", "Свойства.yaml"),
+        source: "structure",
+        severity: "error",
+        path: "/Синоним",
+        message: expect.stringContaining('Поле "Синоним" не нужно указывать'),
+      }),
+    ])
+  })
+
   it("allows only non-default languages when the default synonym equals the object name", async () => {
     const projectDir = createProject()
     writeProjectFile(projectDir, "Справочник/КакоеТоПоле/Свойства.yaml", ["Синоним:", "  en: Some field"])

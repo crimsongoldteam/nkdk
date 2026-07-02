@@ -20,6 +20,7 @@ export const MetadataWebServiceParameterRules = {
       type: "I8nText",
       xmlParents: propertiesParents,
       defaultValueXMLRaw: "",
+      excludeIfEqualNameYAML: true,
     },
     comment: {
       yaml: "Комментарий",
@@ -89,6 +90,7 @@ export const MetadataWebServiceOperationRules = {
       type: "I8nText",
       xmlParents: propertiesParents,
       defaultValueXMLRaw: "",
+      excludeIfEqualNameYAML: true,
     },
     comment: {
       yaml: "Комментарий",
