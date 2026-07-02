@@ -2,7 +2,7 @@ import fs from "fs"
 import { join, resolve } from "path"
 import { xxh3 } from "@node-rs/xxhash"
 import pLimit from "p-limit"
-import YAML from "yaml"
+import { importFromYAML } from "~/yaml/import"
 import {
   BINARY_SYNC_STATE_FILE,
   readBinaryXmlSyncState,
@@ -43,7 +43,7 @@ export async function readXmlSyncState(xmlDir: string): Promise<XmlSyncState | u
   const path = join(xmlDir, SYNC_STATE_FILE)
   if (!fs.existsSync(path)) return undefined
 
-  const parsed = YAML.parse(await fs.promises.readFile(path, "utf-8")) as unknown
+  const parsed = importFromYAML<unknown>(await fs.promises.readFile(path, "utf-8"))
   if (!isXmlSyncState(parsed)) throw new Error(`Некорректный ${SYNC_STATE_FILE}`)
 
   return { version: 1, files: sortRecord(parsed.files) }

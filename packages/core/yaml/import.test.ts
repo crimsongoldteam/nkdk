@@ -29,6 +29,10 @@ describe("importFromYAML", () => {
     expect(importFromYAML<{ Поле?: string }>("Поле:\n")).toEqual({ Поле: undefined })
   })
 
+  it("imports empty documents as undefined", () => {
+    expect(importFromYAML("")).toBeUndefined()
+  })
+
   it("keeps double quoted string markers", () => {
     const result = importFromYAML<{ Значение: string }>('Значение: "001"\n')
 

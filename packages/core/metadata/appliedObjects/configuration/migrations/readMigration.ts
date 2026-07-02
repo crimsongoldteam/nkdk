@@ -1,6 +1,6 @@
 import fs from "fs"
 import { join } from "path"
-import { parse } from "yaml"
+import { importFromYAML } from "~/yaml/import"
 import { listMigrationFileNames } from "./fileNames"
 import { MIGRATIONS_DIR, type AppliedMigrationsState, type MigrationEntry } from "./types"
 
@@ -10,7 +10,7 @@ export interface PendingMigrationFile {
 }
 
 export function readMigrationFile(path: string): MigrationEntry[] {
-  const parsed = parse(fs.readFileSync(path, "utf-8")) as unknown
+  const parsed = importFromYAML<unknown>(fs.readFileSync(path, "utf-8"))
   if (!parsed || typeof parsed !== "object" || Array.isArray(parsed)) {
     throw new Error(`Файл миграции должен быть YAML-словарём: ${path}`)
   }

@@ -17,6 +17,14 @@ export interface JsParsedYaml {
 
 export function parseWithJsYaml(text: string): JsParsedYaml {
   const locations = buildYamlLocationIndex(text)
+  if (text.trim() === "") {
+    return {
+      text,
+      data: undefined,
+      locations,
+      syntaxErrors: [],
+    }
+  }
 
   try {
     const data = load(text, { schema: JSON_SCHEMA })

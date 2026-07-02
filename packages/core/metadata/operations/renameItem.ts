@@ -1,5 +1,4 @@
 import { dirname, join } from "path"
-import { stringify } from "yaml"
 import { MIGRATIONS_DIR, nextMigrationFileName } from "~/metadata/appliedObjects/configuration/migrations"
 import { rootFromYAML } from "~/metadata/commonObjects/metadataTargets/roots"
 import type { MetadataTargetOwner } from "~/metadata/commonObjects/metadataTargets"
@@ -151,7 +150,7 @@ function buildRenamePlan(params: {
     steps.push({
       kind: "writeFile",
       path: join(params.projectDir, MIGRATIONS_DIR, fileName),
-      content: stringify({ [createdMigration.from]: params.newName }, { defaultKeyType: "QUOTE_DOUBLE" }),
+      content: exportMigrationRenameMap({ [createdMigration.from]: params.newName }),
     })
   }
 
@@ -164,6 +163,12 @@ function buildRenamePlan(params: {
       createdMigration,
     },
   }
+}
+
+function exportMigrationRenameMap(value: Record<string, string>): string {
+  return Object.entries(value)
+    .map(([key, item]) => `${JSON.stringify(key)}: ${item}\n`)
+    .join("")
 }
 
 function rewriteStructuralReferences(params: {

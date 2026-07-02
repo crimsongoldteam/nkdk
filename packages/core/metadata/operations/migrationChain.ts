@@ -1,6 +1,5 @@
 import fs from "fs"
 import { join } from "path"
-import { parse } from "yaml"
 import {
   APPLIED_MIGRATIONS_FILE,
   MIGRATIONS_DIR,
@@ -8,6 +7,7 @@ import {
 } from "~/metadata/appliedObjects/configuration/migrations"
 import { isMigrationFileName } from "~/metadata/appliedObjects/configuration/migrations/fileNames"
 import type { XmlSyncArea } from "~/metadata/orchestration/appliedObject/xmlAreas"
+import { importFromYAML } from "~/yaml/import"
 import { validateMetadataLocalName } from "./nameRules"
 import { buildRenameTargetPathFromOperationPath, parseMetadataOperationPath } from "./operationPath"
 import type { MigrationChainError, MigrationChainInvalidResult, MigrationPlanItem } from "./types"
@@ -126,7 +126,7 @@ function readAppliedStateStrict(xmlDir: string, errors: MigrationChainError[]): 
   if (!fs.existsSync(path)) return { applied: [] }
 
   try {
-    const parsed = parse(fs.readFileSync(path, "utf-8")) as unknown
+    const parsed = importFromYAML<unknown>(fs.readFileSync(path, "utf-8"))
     if (!isRecord(parsed)) throw new Error(`${APPLIED_MIGRATIONS_FILE}: ожидается YAML-словарь`)
     if (!Array.isArray(parsed.applied)) throw new Error(`${APPLIED_MIGRATIONS_FILE}: поле applied должно быть списком`)
 
@@ -190,7 +190,7 @@ function readPendingMigrationFileStrict(
   errors: MigrationChainError[],
 ): PendingMigrationFile | undefined {
   try {
-    const parsed = parse(fs.readFileSync(filePath, "utf-8")) as unknown
+    const parsed = importFromYAML<unknown>(fs.readFileSync(filePath, "utf-8"))
     if (!isRecord(parsed)) throw new Error("Файл миграции должен быть YAML-словарём")
     const entries = Object.entries(parsed)
     if (entries.length !== 1) throw new Error("Файл миграции должен содержать ровно одно переименование")

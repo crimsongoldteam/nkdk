@@ -35,6 +35,13 @@ describe("parseWithJsYaml", () => {
     expect(parsed.syntaxErrors[0].line).toBeGreaterThanOrEqual(1)
     expect(parsed.syntaxErrors[0].col).toBeGreaterThanOrEqual(1)
   })
+
+  it("parses empty documents as undefined without syntax errors", () => {
+    const parsed = parseWithJsYaml("")
+
+    expect(parsed.data).toBeUndefined()
+    expect(parsed.syntaxErrors).toEqual([])
+  })
 })
 
 describe("parseMetadataYaml", () => {
