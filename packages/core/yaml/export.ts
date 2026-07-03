@@ -34,10 +34,9 @@ const removeDocumentFinalLineEnding = (yaml: string): string => {
 
 function prepareForDump(value: unknown, explicitStrings: Map<string, string>): unknown {
   if (isExplicitYAMLString(value)) {
-    const marker = `${EXPLICIT_STRING_MARKER_PREFIX}${explicitStrings.size}__`
-    explicitStrings.set(marker, String(unwrapExplicitYAMLString(value)))
-    return marker
+    return explicitStringMarker(String(unwrapExplicitYAMLString(value)), explicitStrings)
   }
+  if (typeof value === "string" && shouldExportAsExplicitString(value)) return explicitStringMarker(value, explicitStrings)
   if (Array.isArray(value)) return value.map((item) => prepareForDump(item, explicitStrings))
   if (value !== null && typeof value === "object") {
     return Object.fromEntries(
@@ -48,6 +47,20 @@ function prepareForDump(value: unknown, explicitStrings: Map<string, string>): u
     )
   }
   return value
+}
+
+function explicitStringMarker(value: string, explicitStrings: Map<string, string>): string {
+  const marker = `${EXPLICIT_STRING_MARKER_PREFIX}${explicitStrings.size}__`
+  explicitStrings.set(marker, value)
+  return marker
+}
+
+function shouldExportAsExplicitString(value: string): boolean {
+  if (value.includes("\n")) return false
+  if (value === "") return true
+  if (value.trim() !== value) return true
+  if (!Number.isNaN(Number(value)) && value.trim() !== "") return true
+  return /^[`@]/.test(value)
 }
 
 function normalizeEmptyNullValues(yaml: string): string {

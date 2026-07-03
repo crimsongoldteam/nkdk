@@ -61,7 +61,7 @@ export function importPropertiesFromYAML<Rule extends MetadataItemRule>(params: 
       (curRule.type === "MetadataValue" ||
         curRule.type === "FilterItemPresentationValue" ||
         (curRule.type === "SettingsParameterValue" &&
-          (curRule as { valueType?: unknown }).valueType === "DesignTimeValue"))
+          shouldRestoreSettingsParameterValueString((curRule as { valueType?: unknown }).valueType)))
     const valueForImport = shouldRestoreExplicitYAMLString
       ? asExplicitYAMLStringIfMarked(yaml, yamlKey as string, yamlValue)
       : yamlValue
@@ -82,6 +82,10 @@ export function importPropertiesFromYAML<Rule extends MetadataItemRule>(params: 
   }
 
   return result
+}
+
+function shouldRestoreSettingsParameterValueString(valueType: unknown): boolean {
+  return valueType === "DesignTimeValue" || valueType === "Primitive" || valueType === "Field"
 }
 
 function assertMetadataItemYAMLObject(params: { itemType: string; yaml: unknown }): void {

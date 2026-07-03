@@ -62,6 +62,10 @@ describe("exportToYAML", () => {
     expect(exportToYAML({ Поле: undefined })).toBe("Поле:")
   })
 
+  it("exports empty and numeric-looking strings as double-quoted scalars", () => {
+    expect(exportToYAML({ Пусто: "", Код: "000000001" })).toBe('Пусто: ""\nКод: "000000001"')
+  })
+
   it("does not wrap long scalar lines", () => {
     const longValue = "x".repeat(160)
     expect(exportToYAML({ Поле: longValue })).toBe(`Поле: ${longValue}`)
