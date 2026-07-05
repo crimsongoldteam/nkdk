@@ -1,4 +1,4 @@
-import { TypeCompiler } from "@sinclair/typebox/compiler"
+import Schema from "typebox/schema"
 import { describe, expect, it } from "vitest"
 import { getTypeRule } from "../../orchestration/property/typeRuleRegistry"
 import { mockContext } from "../../../tests/mockContext"
@@ -14,7 +14,7 @@ const compileSchema = () => {
   })
   if (schema === undefined) throw new Error("Recalculations JSON schema export returned undefined")
 
-  return TypeCompiler.Compile(schema)
+  return Schema.Compile(schema)
 }
 
 describe("Recalculations exportToJSONSchema", () => {

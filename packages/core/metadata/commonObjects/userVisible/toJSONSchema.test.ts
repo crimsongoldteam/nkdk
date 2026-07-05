@@ -1,9 +1,9 @@
-import { TypeCompiler } from "@sinclair/typebox/compiler"
+import Schema from "typebox/schema"
 import { describe, expect, it } from "vitest"
 import { UserVisibleJSONSchema } from "./types"
 
 describe("UserVisibleJSONSchema", () => {
-  const compiled = TypeCompiler.Compile(UserVisibleJSONSchema)
+  const compiled = Schema.Compile(UserVisibleJSONSchema)
 
   it("accepts allow mode without explicit Разрешить", () => {
     expect(compiled.Check({ Роли: { "Role.Администратор": "Ложь" } })).toBe(true)

@@ -1,4 +1,4 @@
-import { Type, TSchema } from "@sinclair/typebox"
+import { Type, TSchema } from "@sinclairtypebox"
 import { Value } from "@sinclair/typebox/value"
 import { TypeDescriptionAllowedType, TypeDescriptionAllowedTypes } from "./types"
 

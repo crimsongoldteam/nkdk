@@ -1,4 +1,4 @@
-import { TypeCompiler } from "@sinclair/typebox/compiler"
+import Schema from "typebox/schema"
 import { describe, expect, it } from "vitest"
 import { PropertyRule } from "../../orchestration"
 import { testExportPropertyToYAML } from "../../../tests/property/exportPropertyToYAML"
@@ -63,7 +63,7 @@ describe("import PredefinedItemCollection from YAML", () => {
 })
 
 describe("PredefinedItemCollection JSON Schema", () => {
-  const check = TypeCompiler.Compile(exportPredefinedItemCollectionToJSONSchema(mockContext))
+  const check = Schema.Compile(exportPredefinedItemCollectionToJSONSchema(mockContext))
 
   it("принимает keyed-запись без Кода и Наименования", () => {
     expect(check.Check({ ПредопределенноеЗначение: {} })).toBe(true)

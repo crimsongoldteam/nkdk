@@ -1,9 +1,9 @@
-import { TypeCompiler } from "@sinclair/typebox/compiler"
+import Schema from "typebox/schema"
 import { describe, expect, it } from "vitest"
 import { BorderJSONSchema } from "./types"
 
 describe("BorderJSONSchema", () => {
-  const schema = TypeCompiler.Compile(BorderJSONSchema)
+  const schema = Schema.Compile(BorderJSONSchema)
 
   it("accepts empty style name", () => {
     expect(schema.Check({ Имя: null, Ширина: 1, ТипРамки: "БезРамки" })).toBe(true)

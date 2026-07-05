@@ -1,5 +1,5 @@
 import { describe, expect, it } from "vitest"
-import { TypeCompiler } from "@sinclair/typebox/compiler"
+import Schema from "typebox/schema"
 import { testExportAppliedObjectToYAML } from "../../../tests/appliedObject"
 import { mockContext } from "../../../tests/mockContext"
 import { full, fullYAML } from "./__fixtures__/full"
@@ -52,7 +52,7 @@ describe("import MetadataEnumeration from YAML", () => {
   })
 
   it("accepts enum values whose name is taken from the YAML key in JSON Schema", () => {
-    const schema = TypeCompiler.Compile(exportMetadataEnumerationToJSONSchema({ context: mockContext }))
+    const schema = Schema.Compile(exportMetadataEnumerationToJSONSchema({ context: mockContext }))
 
     expect(schema.Check({ Значения: { Значение1: {} } })).toBe(true)
     expect(schema.Check({ Значения: { Значение1: { Синоним: "Синоним" } } })).toBe(true)
@@ -60,7 +60,7 @@ describe("import MetadataEnumeration from YAML", () => {
   })
 
   it("rejects invalid enum value properties in JSON Schema", () => {
-    const schema = TypeCompiler.Compile(exportMetadataEnumerationToJSONSchema({ context: mockContext }))
+    const schema = Schema.Compile(exportMetadataEnumerationToJSONSchema({ context: mockContext }))
 
     expect(schema.Check({ Значения: { Значение1: { Лишнее: "значение" } } })).toBe(false)
     expect(schema.Check({ Значения: { Значение1: { Имя: 1 } } })).toBe(false)

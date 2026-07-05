@@ -1,4 +1,4 @@
-import { TypeCompiler } from "@sinclair/typebox/compiler"
+import Schema from "typebox/schema"
 import { describe, expect, it } from "vitest"
 import { exportPropertyToJSONSchema } from "../../../orchestration/property/toJSONSchema"
 import "./toJSONSchema"
@@ -15,7 +15,7 @@ describe("AvailableFields JSON Schema", () => {
       rule: { type: "AvailableFields", yaml: "ДоступныеПоляОтбора" },
       value: undefined,
     })
-    const compiled = TypeCompiler.Compile(schema!)
+    const compiled = Schema.Compile(schema!)
 
     expect(compiled.Check(["Документ", { Поле: "Документ", Использование: "Ложь" }])).toBe(true)
   })
@@ -26,7 +26,7 @@ describe("AvailableFields JSON Schema", () => {
       rule: { type: "AvailableFields", yaml: "ДоступныеПоляОтбора" },
       value: undefined,
     })
-    const compiled = TypeCompiler.Compile(schema!)
+    const compiled = Schema.Compile(schema!)
 
     expect(compiled.Check({ Документ: { Поле: "Документ" } })).toBe(false)
   })

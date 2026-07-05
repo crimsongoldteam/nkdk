@@ -1,4 +1,4 @@
-import { TSchema, Type } from "@sinclair/typebox"
+import { TSchema, Type } from "@sinclairtypebox"
 import { ConfigurationContext } from "../../context/types"
 import { applyExcludedEqualNameYAMLToJSONSchema } from "../../helpers/excludeIfEqualNameYAML"
 import { getTypeRule } from "./typeRuleRegistry"

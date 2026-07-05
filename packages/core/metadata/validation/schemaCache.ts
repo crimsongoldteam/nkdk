@@ -1,4 +1,4 @@
-import { TSchema } from "@sinclair/typebox"
+import { TSchema } from "@sinclairtypebox"
 import { TypeCheck, TypeCompiler } from "@sinclair/typebox/compiler"
 import { MetadataAccumulationRegisterRules } from "../appliedObjects/metadataAccumulationRegister/rules"
 import { ConfigurationContext } from "../context/types"
@@ -56,7 +56,7 @@ export function createSchemaCache(context: ConfigurationContext): SchemaCache {
           break
       }
 
-      const compiled = TypeCompiler.Compile(schema)
+      const compiled = Schema.Compile(schema)
       cache.set(kind, compiled)
       return compiled
     },

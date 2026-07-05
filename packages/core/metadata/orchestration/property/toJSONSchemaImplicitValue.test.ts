@@ -1,4 +1,4 @@
-import { TypeCompiler } from "@sinclair/typebox/compiler"
+import Schema from "typebox/schema"
 import { describe, expect, it } from "vitest"
 import "../../commonObjects/boolean/toJSONSchema"
 import "../../commonObjects/number/toJSONSchema"
@@ -16,7 +16,7 @@ describe("exportPropertyToJSONSchema implicitValueYAML", () => {
     })
 
     if (schema === undefined) throw new Error("Expected JSON schema")
-    const check = TypeCompiler.Compile(schema)
+    const check = Schema.Compile(schema)
 
     expect(check.Check("Истина")).toBe(false)
     expect(check.Check("Ложь")).toBe(true)
@@ -30,7 +30,7 @@ describe("exportPropertyToJSONSchema implicitValueYAML", () => {
     })
 
     if (schema === undefined) throw new Error("Expected JSON schema")
-    const check = TypeCompiler.Compile(schema)
+    const check = Schema.Compile(schema)
 
     expect(check.Check("Использовать")).toBe(false)
     expect(check.Check("НеИспользовать")).toBe(true)
@@ -44,7 +44,7 @@ describe("exportPropertyToJSONSchema implicitValueYAML", () => {
     })
 
     if (schema === undefined) throw new Error("Expected JSON schema")
-    const check = TypeCompiler.Compile(schema)
+    const check = Schema.Compile(schema)
 
     expect(check.Check(9)).toBe(false)
     expect(check.Check(8)).toBe(true)
@@ -59,7 +59,7 @@ describe("exportPropertyToJSONSchema implicitValueYAML", () => {
     })
 
     if (schema === undefined) throw new Error("Expected JSON schema")
-    const check = TypeCompiler.Compile(schema)
+    const check = Schema.Compile(schema)
 
     expect(check.Check("")).toBe(false)
     expect(check.Check("значение")).toBe(true)
@@ -74,7 +74,7 @@ describe("exportPropertyToJSONSchema implicitValueYAML", () => {
     })
 
     if (schema === undefined) throw new Error("Expected JSON schema")
-    const check = TypeCompiler.Compile(schema)
+    const check = Schema.Compile(schema)
 
     expect(check.Check("Истина")).toBe(true)
     expect(check.Check("Ложь")).toBe(true)
@@ -88,7 +88,7 @@ describe("exportPropertyToJSONSchema implicitValueYAML", () => {
     })
 
     if (schema === undefined) throw new Error("Expected JSON schema")
-    const check = TypeCompiler.Compile(schema)
+    const check = Schema.Compile(schema)
 
     expect(check.Check("")).toBe(true)
     expect(check.Check("Документ")).toBe(true)

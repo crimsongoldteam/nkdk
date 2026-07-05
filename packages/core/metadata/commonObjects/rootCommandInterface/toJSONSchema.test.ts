@@ -1,4 +1,4 @@
-import { TypeCompiler } from "@sinclair/typebox/compiler"
+import Schema from "typebox/schema"
 import { describe, expect, it } from "vitest"
 import { exportMetadataItemToJSONSchema } from "../../orchestration/metadataItem/toJSONSchema"
 import { registerCoreMetadata } from "../../register"
@@ -10,7 +10,7 @@ registerCoreMetadata()
 describe("RootCommandInterface JSON Schema", () => {
   it("accepts empty subsystem order separators", () => {
     const schema = exportMetadataItemToJSONSchema({ context: mockContext, rule: RootCommandInterfaceRules })
-    const compiled = TypeCompiler.Compile(schema)
+    const compiled = Schema.Compile(schema)
 
     expect(
       compiled.Check({

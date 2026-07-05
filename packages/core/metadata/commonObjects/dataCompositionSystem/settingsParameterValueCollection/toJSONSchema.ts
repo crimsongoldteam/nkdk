@@ -1,4 +1,4 @@
-import { TSchema, Type } from "@sinclair/typebox"
+import { TSchema, Type } from "@sinclairtypebox"
 import type { ConfigurationContext } from "../../../context/types"
 import { ExportToJSONSchemaFn, registerTypeRule } from "../../../orchestration"
 import type { SettingsParameterValueCollectionPropertyRule } from "../../../orchestration/property/types"

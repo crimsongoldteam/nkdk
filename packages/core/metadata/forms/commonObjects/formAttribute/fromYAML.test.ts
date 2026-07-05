@@ -1,4 +1,4 @@
-import { TypeCompiler } from "@sinclair/typebox/compiler"
+import Schema from "typebox/schema"
 import { describe, expect, it } from "vitest"
 import {
   choiceListFormAttribute,
@@ -110,7 +110,7 @@ const compileFormAttributesJSONSchema = () => {
     value: undefined,
   })
   if (formAttributesSchema === undefined) throw new Error("FormAttributes JSON schema is not registered")
-  return TypeCompiler.Compile(formAttributesSchema)
+  return Schema.Compile(formAttributesSchema)
 }
 
 describe("importFormAttributesFromYAML", () => {

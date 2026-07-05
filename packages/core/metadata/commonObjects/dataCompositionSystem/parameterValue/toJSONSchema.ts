@@ -1,4 +1,4 @@
-import { TSchema, Type } from "@sinclair/typebox"
+import { TSchema, Type } from "@sinclairtypebox"
 import { I8nTextJSONSchema } from "../../i8nText/types"
 import type { ConfigurationContext } from "../../../context/types"
 import { ExportToJSONSchemaFn, registerTypeRule } from "../../../orchestration"

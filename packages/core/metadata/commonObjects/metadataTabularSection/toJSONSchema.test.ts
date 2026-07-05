@@ -1,4 +1,4 @@
-import { TypeCompiler } from "@sinclair/typebox/compiler"
+import Schema from "typebox/schema"
 import { describe, expect, it } from "vitest"
 import { exportMetadataItemToJSONSchema } from "../../orchestration/metadataItem/toJSONSchema"
 import { mockContext } from "../../../tests/mockContext"
@@ -6,7 +6,7 @@ import { MetadataTabularSectionRules } from "./rules"
 
 describe("MetadataTabularSection JSON Schema", () => {
   const compiled = () =>
-    TypeCompiler.Compile(
+    Schema.Compile(
       exportMetadataItemToJSONSchema({
         context: mockContext,
         rule: MetadataTabularSectionRules,

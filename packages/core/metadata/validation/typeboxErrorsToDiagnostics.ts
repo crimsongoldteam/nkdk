@@ -1,4 +1,4 @@
-import { TSchema } from "@sinclair/typebox"
+import { TSchema } from "@sinclairtypebox"
 import { TypeCheck, ValueError, ValueErrorType } from "@sinclair/typebox/compiler"
 import { ParsedYaml } from "../../yaml/parseMetadataYaml"
 import { expandDiscriminatedUnionErrors } from "./discriminatedUnionErrors"

@@ -1,4 +1,4 @@
-import { TypeCompiler } from "@sinclair/typebox/compiler"
+import Schema from "typebox/schema"
 import { describe, expect, it } from "vitest"
 import { getTypeRule, PropertyRule } from "../orchestration"
 import { registerCoreMetadata } from "../register"
@@ -28,7 +28,7 @@ const schemaFor = (type: SchemaRuleType) => {
   expect(schema).toBeDefined()
   if (schema === undefined) throw new Error(`${type} JSON schema is not registered`)
 
-  return TypeCompiler.Compile(schema)
+  return Schema.Compile(schema)
 }
 
 describe("YAML type JSON Schema registrations", () => {

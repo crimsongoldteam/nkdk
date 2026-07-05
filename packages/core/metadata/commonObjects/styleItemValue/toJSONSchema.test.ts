@@ -1,4 +1,4 @@
-import { TypeCompiler } from "@sinclair/typebox/compiler"
+import Schema from "typebox/schema"
 import { describe, expect, it } from "vitest"
 import { getTypeRule, type PropertyRule } from "../../orchestration"
 import { registerCoreMetadata } from "../../register"
@@ -18,7 +18,7 @@ describe("StyleItemValue exportToJSONSchema", () => {
     expect(schema).toBeDefined()
     if (schema === undefined) throw new Error("StyleItemValue JSON schema is not registered")
 
-    return TypeCompiler.Compile(schema)
+    return Schema.Compile(schema)
   }
 
   it("accepts supported style item value kinds", () => {

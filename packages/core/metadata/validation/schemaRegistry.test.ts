@@ -1,6 +1,6 @@
 import "../appliedObjects"
 import "../forms"
-import { TypeCompiler } from "@sinclair/typebox/compiler"
+import Schema from "typebox/schema"
 import { beforeEach, describe, expect, it } from "vitest"
 import { MetadataConfigurationRules } from "../appliedObjects/configuration/rules"
 import { MetadataLanguageRules } from "../appliedObjects/metadataLanguage/rules"
@@ -34,7 +34,7 @@ describe("JSON Schema registry", { timeout: 30_000 }, () => {
 
   it("accepts keyed predefined catalog items without explicit code", () => {
     const schema = exportJSONSchemaForSchemaName({ context, name: "MetadataCatalog", mode: "inline" })
-    const compiled = TypeCompiler.Compile(schema)
+    const compiled = Schema.Compile(schema)
 
     expect(
       compiled.Check({
@@ -57,7 +57,7 @@ describe("JSON Schema registry", { timeout: 30_000 }, () => {
 
     for (const name of schemaNames) {
       const schema = exportJSONSchemaForSchemaName({ context, name })
-      const compiled = TypeCompiler.Compile(schema)
+      const compiled = Schema.Compile(schema)
 
       expect(compiled.Check("Строка")).toBe(false)
       expect(compiled.Check({ Тип: "Строка" })).toBe(true)
@@ -67,7 +67,7 @@ describe("JSON Schema registry", { timeout: 30_000 }, () => {
 
   it("accepts home page work area in configuration schemas", () => {
     const schema = exportMetadataItemToJSONSchema({ context, rule: MetadataConfigurationRules })
-    const compiled = TypeCompiler.Compile(schema)
+    const compiled = Schema.Compile(schema)
 
     expect(
       [
@@ -139,8 +139,8 @@ describe("JSON Schema registry", { timeout: 30_000 }, () => {
     const tableInputFieldSchema = exportJSONSchemaForSchemaName({ context, name: "TableInputField" })
     const opaquePath = "1/0:796f500f-c364-45d1-bce6-9e7e8e15b664"
 
-    expect(TypeCompiler.Compile(inputFieldSchema).Check({ Вид: "ПолеВвода", ПутьКДанным: opaquePath })).toBe(true)
-    expect(TypeCompiler.Compile(tableInputFieldSchema).Check({ Вид: "ПолеВвода", ПутьКДанным: opaquePath })).toBe(false)
+    expect(Schema.Compile(inputFieldSchema).Check({ Вид: "ПолеВвода", ПутьКДанным: opaquePath })).toBe(true)
+    expect(Schema.Compile(tableInputFieldSchema).Check({ Вид: "ПолеВвода", ПутьКДанным: opaquePath })).toBe(false)
   })
 
   it("keeps tree YAML button type alias away from Вид discriminator", () => {
@@ -156,7 +156,7 @@ describe("JSON Schema registry", { timeout: 30_000 }, () => {
 
   it("accepts value-based formatted title in label decoration schemas", () => {
     const schema = exportJSONSchemaForSchemaName({ context, name: "LabelDecoration" })
-    const compiled = TypeCompiler.Compile(schema)
+    const compiled = Schema.Compile(schema)
 
     expect(
       compiled.Check({
@@ -216,12 +216,12 @@ describe("JSON Schema registry", { timeout: 30_000 }, () => {
   it("compiles inline child item schemas with TypeBox compiler", () => {
     const schema = exportJSONSchemaForSchemaName({ context, name: "UsualGroup", mode: "inline" })
 
-    expect(() => TypeCompiler.Compile(schema)).not.toThrow()
+    expect(() => Schema.Compile(schema)).not.toThrow()
   })
 
   it("accepts only value-based UserVisible in form element schemas", () => {
     const schema = exportJSONSchemaForSchemaName({ context, name: "UsualGroup", mode: "inline" })
-    const compiled = TypeCompiler.Compile(schema)
+    const compiled = Schema.Compile(schema)
     const legacyAllow = "Разрешить" + "Использование"
     const legacyDeny = "Запретить" + "Использование"
 
@@ -251,7 +251,7 @@ describe("JSON Schema registry", { timeout: 30_000 }, () => {
 
   it("accepts nested child items in inline form element schemas", () => {
     const schema = exportJSONSchemaForSchemaName({ context, name: "UsualGroup", mode: "inline" })
-    const compiled = TypeCompiler.Compile(schema)
+    const compiled = Schema.Compile(schema)
     const value = {
       Вид: "Группа",
       Элементы: {
@@ -271,7 +271,7 @@ describe("JSON Schema registry", { timeout: 30_000 }, () => {
 
   it("accepts table auto command bar in inline client form schemas", () => {
     const schema = exportJSONSchemaForSchemaName({ context, name: "ClientApplicationForm", mode: "inline" })
-    const compiled = TypeCompiler.Compile(schema)
+    const compiled = Schema.Compile(schema)
     const value = {
       Элементы: {
         Таблица: {
@@ -294,7 +294,7 @@ describe("JSON Schema registry", { timeout: 30_000 }, () => {
 
   it("reports selected branch errors for invalid command bar search string additions", () => {
     const schema = exportJSONSchemaForSchemaName({ context, name: "ClientApplicationForm", mode: "inline" })
-    const compiled = TypeCompiler.Compile(schema)
+    const compiled = Schema.Compile(schema)
     const value = {
       Элементы: {
         Таблица: {
@@ -319,7 +319,7 @@ describe("JSON Schema registry", { timeout: 30_000 }, () => {
 
   it("accepts source in command bar search string additions", () => {
     const schema = exportJSONSchemaForSchemaName({ context, name: "ClientApplicationForm", mode: "inline" })
-    const compiled = TypeCompiler.Compile(schema)
+    const compiled = Schema.Compile(schema)
     const value = {
       Элементы: {
         Таблица: {
@@ -341,7 +341,7 @@ describe("JSON Schema registry", { timeout: 30_000 }, () => {
 
   it("accepts source in command bar search control additions", () => {
     const schema = exportJSONSchemaForSchemaName({ context, name: "ClientApplicationForm", mode: "inline" })
-    const compiled = TypeCompiler.Compile(schema)
+    const compiled = Schema.Compile(schema)
     const value = {
       Элементы: {
         Таблица: {
@@ -363,7 +363,7 @@ describe("JSON Schema registry", { timeout: 30_000 }, () => {
 
   it("accepts command names in command bar button schemas", () => {
     const schema = exportJSONSchemaForSchemaName({ context, name: "CommandBarButton", mode: "inline" })
-    const compiled = TypeCompiler.Compile(schema)
+    const compiled = Schema.Compile(schema)
     const value = {
       Вид: "КнопкаКоманднойПанели",
       ИмяКоманды: "Form.Command.ВыбратьСтроки",
@@ -375,7 +375,7 @@ describe("JSON Schema registry", { timeout: 30_000 }, () => {
 
   it("accepts view status source in inline client form schemas", () => {
     const schema = exportJSONSchemaForSchemaName({ context, name: "ClientApplicationForm", mode: "inline" })
-    const compiled = TypeCompiler.Compile(schema)
+    const compiled = Schema.Compile(schema)
 
     expect(
       compiled.Check({
@@ -397,7 +397,7 @@ describe("JSON Schema registry", { timeout: 30_000 }, () => {
 
   it("accepts dynamic list conditional appearance in inline client form schemas", () => {
     const schema = exportJSONSchemaForSchemaName({ context, name: "ClientApplicationForm", mode: "inline" })
-    const compiled = TypeCompiler.Compile(schema)
+    const compiled = Schema.Compile(schema)
     const value = {
       Реквизиты: {
         Список: {
@@ -427,7 +427,7 @@ describe("JSON Schema registry", { timeout: 30_000 }, () => {
 
   it("accepts appearance SettingsParameterValue fields in inline client form schemas", () => {
     const schema = exportJSONSchemaForSchemaName({ context, name: "ClientApplicationForm", mode: "inline" })
-    const compiled = TypeCompiler.Compile(schema)
+    const compiled = Schema.Compile(schema)
     const value = {
       УсловноеОформлениеРеквизитов: {
         Элементы: [
@@ -452,7 +452,7 @@ describe("JSON Schema registry", { timeout: 30_000 }, () => {
 
   it("accepts dynamic list DCS arrays in inline client form schemas", () => {
     const schema = exportJSONSchemaForSchemaName({ context, name: "ClientApplicationForm", mode: "inline" })
-    const compiled = TypeCompiler.Compile(schema)
+    const compiled = Schema.Compile(schema)
     const value = {
       Реквизиты: {
         Список: {
@@ -490,7 +490,7 @@ describe("JSON Schema registry", { timeout: 30_000 }, () => {
 
   it("accepts DCS conditional appearance values generated from all fixtures", () => {
     const schema = exportJSONSchemaForSchemaName({ context, name: "ClientApplicationForm", mode: "inline" })
-    const compiled = TypeCompiler.Compile(schema)
+    const compiled = Schema.Compile(schema)
     const value = {
       Реквизиты: {
         Список: {
@@ -548,7 +548,7 @@ describe("JSON Schema registry", { timeout: 30_000 }, () => {
 
   it("rejects ManualQuery false in inline client form schemas", () => {
     const schema = exportJSONSchemaForSchemaName({ context, name: "ClientApplicationForm", mode: "inline" })
-    const compiled = TypeCompiler.Compile(schema)
+    const compiled = Schema.Compile(schema)
     const value = {
       Реквизиты: {
         Список: {

@@ -1,4 +1,4 @@
-import { Type } from "@sinclair/typebox"
+import { Type } from "@sinclairtypebox"
 import { StringboolXML, StringboolYAML } from "../boolean/types"
 import { I8nTextXML, I8nTextYAML } from "../i8nText/types"
 import { MetadataPrimitiveValueXML, MetadataValueXML, MetadataValueYAML } from "../metadataValue/types"

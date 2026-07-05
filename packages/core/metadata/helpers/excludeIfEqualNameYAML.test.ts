@@ -1,4 +1,4 @@
-import { TypeCompiler } from "@sinclair/typebox/compiler"
+import Schema from "typebox/schema"
 import { describe, expect, it } from "vitest"
 import { FormattedI8nTextJSONSchema } from "../commonObjects/formattedI8nText/types"
 import { I8nTextJSONSchema } from "../commonObjects/i8nText/types"
@@ -85,7 +85,7 @@ describe("applyExcludedEqualNameYAMLToJSONSchema", () => {
 
     expect((schema as { description?: string }).description).toBe(EXCLUDE_IF_EQUAL_NAME_YAML_DESCRIPTION)
 
-    const compiled = TypeCompiler.Compile(schema)
+    const compiled = Schema.Compile(schema)
     expect(compiled.Check("Какое то поле")).toBe(true)
     expect(compiled.Check({ ru: "Какое то поле", en: "Some field" })).toBe(true)
     expect(compiled.Check({ en: "Some field" })).toBe(true)
@@ -99,7 +99,7 @@ describe("applyExcludedEqualNameYAMLToJSONSchema", () => {
 
     expect((schema as { description?: string }).description).toBe(EXCLUDE_IF_EQUAL_NAME_YAML_DESCRIPTION)
 
-    const compiled = TypeCompiler.Compile(schema)
+    const compiled = Schema.Compile(schema)
     expect(compiled.Check({ Текст: "Какое то поле" })).toBe(true)
     expect(compiled.Check({ Текст: { ru: "Какое то поле", en: "Some field" } })).toBe(true)
     expect(compiled.Check({ Форматированный: "Истина", Текст: { en: "Some field" } })).toBe(true)

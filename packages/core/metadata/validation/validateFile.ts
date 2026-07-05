@@ -1,4 +1,4 @@
-import { TSchema } from "@sinclair/typebox"
+import { TSchema } from "@sinclairtypebox"
 import { TypeCheck } from "@sinclair/typebox/compiler"
 import { parseMetadataYaml, type ParsedYaml } from "../../yaml/parseMetadataYaml"
 import { typeboxErrorsToDiagnostics } from "./typeboxErrorsToDiagnostics"

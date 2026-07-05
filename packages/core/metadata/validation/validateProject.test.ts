@@ -1,7 +1,7 @@
 import fs, { mkdirSync, mkdtempSync, rmSync, writeFileSync } from "fs"
 import { tmpdir } from "os"
 import { join, resolve } from "path"
-import { TypeCompiler } from "@sinclair/typebox/compiler"
+import Schema from "typebox/schema"
 import { afterEach, describe, expect, it, vi } from "vitest"
 import { TopLevelMetadataItemRules } from "../appliedObjects/configuration/topLevelRules"
 import { mockContext } from "../../tests/mockContext"
@@ -982,7 +982,7 @@ describe("validateProject", { timeout: 30_000 }, () => {
       "Реквизиты:",
       "  Объект: Справочник.Контрагенты",
     ])
-    const compile = vi.spyOn(TypeCompiler, "Compile")
+    const compile = vi.spyOn(Schema, "Compile")
 
     await validateProject({ projectDir, context: mockContext, concurrency: 1 })
 

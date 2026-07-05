@@ -1,4 +1,4 @@
-import { Type } from "@sinclair/typebox"
+import { Type } from "@sinclairtypebox"
 import { TypeCompiler, ValueErrorType } from "@sinclair/typebox/compiler"
 import { parseMetadataYaml } from "../../yaml/parseMetadataYaml"
 import { describe, expect, it } from "vitest"
@@ -11,7 +11,7 @@ import { typeboxErrorsToDiagnostics } from "./typeboxErrorsToDiagnostics"
 import { validateFile, validateParsedFile } from "./validateFile"
 
 // Простая схема для юнит-тестов — не зависит от доменных правил каталогов
-const simpleSchema = TypeCompiler.Compile(
+const simpleSchema = Schema.Compile(
   Type.Object(
     {
       Имя: Type.Optional(Type.String()),
@@ -47,7 +47,7 @@ const simpleSchema = TypeCompiler.Compile(
   )
 )
 
-const requiredSchema = TypeCompiler.Compile(
+const requiredSchema = Schema.Compile(
   Type.Object(
     {
       ОбязательноеПоле: Type.String(),
@@ -57,14 +57,14 @@ const requiredSchema = TypeCompiler.Compile(
   )
 )
 
-const plainUnionSchema = TypeCompiler.Compile(
+const plainUnionSchema = Schema.Compile(
   Type.Union([
     Type.Object({ Вид: Type.Literal("Первый"), Поле: Type.String() }, { additionalProperties: false }),
     Type.Object({ Вид: Type.Literal("Второй"), Число: Type.Number() }, { additionalProperties: false }),
   ])
 )
 
-const discriminatedUnionSchema = TypeCompiler.Compile(
+const discriminatedUnionSchema = Schema.Compile(
   Type.Union(
     [
       Type.Object({ Вид: Type.Literal("Первый"), Поле: Type.String() }, { additionalProperties: false }),
@@ -74,7 +74,7 @@ const discriminatedUnionSchema = TypeCompiler.Compile(
   )
 )
 
-const nestedDiscriminatedUnionSchema = TypeCompiler.Compile(
+const nestedDiscriminatedUnionSchema = Schema.Compile(
   Type.Union(
     [
       Type.Object(
@@ -121,7 +121,7 @@ const childItemsModule = Type.Module({
   ),
 })
 
-const referencedNestedDiscriminatedUnionSchema = TypeCompiler.Compile(
+const referencedNestedDiscriminatedUnionSchema = Schema.Compile(
   Type.Object(
     {
       Элементы: childItemsModule.Import("ChildItems"),

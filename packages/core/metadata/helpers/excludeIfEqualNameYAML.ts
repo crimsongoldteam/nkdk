@@ -1,4 +1,4 @@
-import type { TSchema } from "@sinclair/typebox"
+import type { TSchema } from "@sinclairtypebox"
 import type { ConfigurationContext } from "../context/types"
 import type { PropertyRule } from "../orchestration/property/types"
 import { canConvertToPascalCase } from "./canConvertToPascalCase"

@@ -1,4 +1,4 @@
-import { Type } from "@sinclair/typebox"
+import { Type } from "@sinclairtypebox"
 import { registerTypeRule } from "../../orchestration"
 
 export const exportChildSubsystemNamesToJSONSchema = () => Type.Array(Type.String())

@@ -3,8 +3,8 @@ import {
   type ExactRuleParams as WideExactRuleParams,
 } from "../ruleBuilder"
 import type { PropertyRule as WidePropertyRuleBase } from "../../orchestration/property/types"
-import { Type } from "@sinclair/typebox"
-import type { Static } from "@sinclair/typebox"
+import { Type } from "@sinclairtypebox"
+import type { Static } from "@sinclairtypebox"
 import * as SE from "../../systemEnumerations/types"
 import { buildMetadataTargetSchema, type MetadataTargetConstraint } from "../metadataTargets"
 

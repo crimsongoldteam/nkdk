@@ -1,4 +1,4 @@
-import { TProperties, TSchema, Type } from "@sinclair/typebox"
+import { TProperties, TSchema, Type } from "@sinclairtypebox"
 import { ConfigurationContext } from "../../../context/types"
 import { NamedElement } from "../baseElement/types"
 import { exportPropertiesToJSONSchema } from "../../../orchestration/property/toJSONSchema"

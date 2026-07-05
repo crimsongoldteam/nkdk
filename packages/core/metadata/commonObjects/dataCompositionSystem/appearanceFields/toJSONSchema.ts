@@ -1,4 +1,4 @@
-import { TSchema, Type } from "@sinclair/typebox"
+import { TSchema, Type } from "@sinclairtypebox"
 import { BooleanJSONSchema } from "../../boolean/types"
 import { ColorJSONSchema } from "../../color/types"
 import { FormattedI8nTextJSONSchema } from "../../formattedI8nText/types"

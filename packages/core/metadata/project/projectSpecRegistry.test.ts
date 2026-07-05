@@ -1,4 +1,4 @@
-import { Type } from "@sinclair/typebox"
+import { Type } from "@sinclairtypebox"
 import { afterEach, describe, expect, it } from "vitest"
 import type { MetadataItemRule } from "../orchestration/property/types"
 import {

@@ -1,4 +1,4 @@
-import type { TSchema } from "@sinclair/typebox"
+import type { TSchema } from "@sinclairtypebox"
 import type { ConfigurationContext, JSONSchemaExportMode } from "../context/types"
 import {
   attachCollectedSchemaRefs,

@@ -3,8 +3,8 @@ import {
   type ExactRuleParams as WideExactRuleParams,
 } from "../../../commonObjects/ruleBuilder"
 import type { PropertyRule as WidePropertyRuleBase } from "../../../orchestration/property/types"
-import { Type } from "@sinclair/typebox"
-import type { Static } from "@sinclair/typebox"
+import { Type } from "@sinclairtypebox"
+import type { Static } from "@sinclairtypebox"
 import { StringboolXML } from "../../../commonObjects/boolean/types"
 import { DataPath, DataPathXML, DataPathYAML } from "../dataPath/types"
 import { UserVisible, UserVisibleJSONSchema, UserVisibleXML } from "../../../commonObjects/userVisible/types"

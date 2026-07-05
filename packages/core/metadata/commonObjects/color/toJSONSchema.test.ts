@@ -1,8 +1,8 @@
-import { TypeCompiler } from "@sinclair/typebox/compiler"
+import Schema from "typebox/schema"
 import { describe, expect, it } from "vitest"
 import { ColorJSONSchema } from "./types"
 
-const compiled = TypeCompiler.Compile(ColorJSONSchema)
+const compiled = Schema.Compile(ColorJSONSchema)
 
 const errorsFor = (value: unknown): string[] => {
   return [...compiled.Errors(value)].map((error) => `${error.path}: ${error.message}`)

@@ -1,7 +1,7 @@
 import { mkdtempSync, mkdirSync, writeFileSync } from "node:fs"
 import { tmpdir } from "node:os"
 import { join } from "node:path"
-import { TypeCompiler } from "@sinclair/typebox/compiler"
+import Schema from "typebox/schema"
 import { describe, expect, it } from "vitest"
 import {
   fullDynamicListFromCompactYAML,
@@ -162,7 +162,7 @@ describe("import DynamicList from YAML", () => {
   })
 
   it("accepts scalar key fields in JSON Schema", () => {
-    const schema = TypeCompiler.Compile(
+    const schema = Schema.Compile(
       exportMetadataItemToJSONSchema({
         context: mockContext,
         rule: DynamicListRules,
@@ -173,7 +173,7 @@ describe("import DynamicList from YAML", () => {
   })
 
   it("accepts list key fields in JSON Schema", () => {
-    const schema = TypeCompiler.Compile(
+    const schema = Schema.Compile(
       exportMetadataItemToJSONSchema({
         context: mockContext,
         rule: DynamicListRules,
@@ -184,7 +184,7 @@ describe("import DynamicList from YAML", () => {
   })
 
   it("rejects non-string key fields in JSON Schema", () => {
-    const schema = TypeCompiler.Compile(
+    const schema = Schema.Compile(
       exportMetadataItemToJSONSchema({
         context: mockContext,
         rule: DynamicListRules,

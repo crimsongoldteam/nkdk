@@ -1,8 +1,8 @@
-import { TypeCompiler } from "@sinclair/typebox/compiler"
+import Schema from "typebox/schema"
 import { describe, expect, it } from "vitest"
 import { ChoiceParametersJSONSchema } from "./types"
 
-const compiled = TypeCompiler.Compile(ChoiceParametersJSONSchema)
+const compiled = Schema.Compile(ChoiceParametersJSONSchema)
 
 describe("ChoiceParametersJSONSchema", () => {
   it("accepts YAML parser null for an empty choice parameter key", () => {

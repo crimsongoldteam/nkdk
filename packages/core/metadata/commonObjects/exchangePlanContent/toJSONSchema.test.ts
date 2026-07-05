@@ -1,4 +1,4 @@
-import { TypeCompiler } from "@sinclair/typebox/compiler"
+import Schema from "typebox/schema"
 import { describe, expect, it } from "vitest"
 import { mockContext } from "../../../tests/mockContext"
 import { exportMetadataItemToJSONSchema } from "../../orchestration/metadataItem/toJSONSchema"
@@ -8,7 +8,7 @@ import "./register"
 
 describe("ExchangePlanContent JSON Schema", () => {
   it("accepts compact content items without implicit Авторегистрация", () => {
-    const schema = TypeCompiler.Compile(
+    const schema = Schema.Compile(
       exportMetadataItemToJSONSchema({
         context: mockContext,
         rule: ExchangePlanContentRules,

@@ -1,4 +1,4 @@
-import { TSchema, Type } from "@sinclair/typebox"
+import { TSchema, Type } from "@sinclairtypebox"
 import { ConfigurationContext } from "../../../context/types"
 import { exportMetadataItemToJSONSchema } from "../../../orchestration/metadataItem/toJSONSchema"
 import { ExportToJSONSchemaFn } from "../../../orchestration/property/fn"

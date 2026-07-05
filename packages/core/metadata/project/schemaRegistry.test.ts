@@ -1,4 +1,4 @@
-import { Type } from "@sinclair/typebox"
+import { Type } from "@sinclairtypebox"
 import { describe, expect, it } from "vitest"
 import { exportJSONSchemaForSchemaName, listJSONSchemaNames, registerProjectJSONSchema } from "./schemaRegistry"
 

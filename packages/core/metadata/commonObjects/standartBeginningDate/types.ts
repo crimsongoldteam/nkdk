@@ -1,5 +1,5 @@
-import { Type } from "@sinclair/typebox"
-import type { Static } from "@sinclair/typebox"
+import { Type } from "@sinclairtypebox"
+import type { Static } from "@sinclairtypebox"
 import { StandardBeginningDateVariantFromYAML, type StandardBeginningDateVariant } from "../../systemEnumerations/types"
 
 export interface StandartBeginningDate {

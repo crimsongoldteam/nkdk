@@ -5,8 +5,8 @@ import {
 import type { PropertyRule as WidePropertyRuleBase } from "../../orchestration/property/types"
 //#region MetadataObjectRefCollection
 
-import { Type } from "@sinclair/typebox"
-import type { Static } from "@sinclair/typebox"
+import { Type } from "@sinclairtypebox"
+import type { Static } from "@sinclairtypebox"
 import { MetadataPrimitiveValueXML } from "../metadataValue/types"
 
 export type MetadataObjectRefCollectionItem = string

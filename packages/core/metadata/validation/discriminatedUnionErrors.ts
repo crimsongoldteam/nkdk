@@ -1,4 +1,4 @@
-import { TSchema } from "@sinclair/typebox"
+import { TSchema } from "@sinclairtypebox"
 import { TypeCheck, TypeCompiler, ValueError, ValueErrorType } from "@sinclair/typebox/compiler"
 
 interface DiscriminatedUnionSchema extends TSchema {
@@ -84,7 +84,7 @@ function getCompiledBranch(entry: BranchEntry, context: ExpansionContext): TypeC
   if (entry.compiled !== undefined) return entry.compiled
 
   try {
-    entry.compiled = TypeCompiler.Compile(entry.schema, context.references)
+    entry.compiled = Schema.Compile(entry.schema, context.references)
     return entry.compiled
   } catch {
     return undefined

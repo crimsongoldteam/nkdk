@@ -1,4 +1,4 @@
-import { TSchema } from "@sinclair/typebox"
+import { TSchema } from "@sinclairtypebox"
 import { ExportToJSONSchemaFn, registerTypeRule } from "../../../orchestration"
 import { CommandInterfaceJSONSchema } from "./types"
 export const exportCommandInterfaceToJSONSchema: ExportToJSONSchemaFn = (): TSchema => {

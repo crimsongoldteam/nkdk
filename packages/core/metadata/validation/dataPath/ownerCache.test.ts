@@ -1,7 +1,7 @@
 import fs, { mkdirSync, mkdtempSync, rmSync, writeFileSync } from "fs"
 import { tmpdir } from "os"
 import { join } from "path"
-import { TypeCompiler } from "@sinclair/typebox/compiler"
+import Schema from "typebox/schema"
 import { afterEach, describe, expect, it, vi } from "vitest"
 import { mockContext } from "../../../tests/mockContext"
 import { createValidationObjectTable } from "../projectValidationObjectTable"
@@ -276,7 +276,7 @@ describe("OwnerMetadataCache", () => {
   it("does not run schema validation while loading owners for DataPath checks", () => {
     const projectDir = createProject()
     writeProperties(projectDir, "Справочник", "Товары", ["Реквизиты:", "  Артикул:", "    Тип: Строка"].join("\n"))
-    const compile = vi.spyOn(TypeCompiler, "Compile")
+    const compile = vi.spyOn(Schema, "Compile")
     const cache = createOwnerMetadataCache({
       projectDir,
       yamlCache: createProjectYamlCache(),

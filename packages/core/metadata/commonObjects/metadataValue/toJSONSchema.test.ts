@@ -1,4 +1,4 @@
-import { TypeCompiler } from "@sinclair/typebox/compiler"
+import Schema from "typebox/schema"
 import { describe, expect, it } from "vitest"
 import { mockContext } from "../../../tests/mockContext"
 import { exportMetadataValueToJSONSchema } from "./toJSONSchema"
@@ -16,13 +16,13 @@ describe("exportMetadataValueToJSONSchema", () => {
   })
 
   it("accepts compact formChoiceList object in common MetadataValue schema", () => {
-    const compiled = TypeCompiler.Compile(MetadataValueJSONSchema)
+    const compiled = Schema.Compile(MetadataValueJSONSchema)
 
     expect(compiled.Check({ Значение: "Истина" })).toBe(true)
   })
 
   it("rejects empty and unknown objects in common MetadataValue schema", () => {
-    const compiled = TypeCompiler.Compile(MetadataValueJSONSchema)
+    const compiled = Schema.Compile(MetadataValueJSONSchema)
 
     expect(compiled.Check({})).toBe(false)
     expect(compiled.Check({ Лишнее: "x" })).toBe(false)

@@ -1,4 +1,4 @@
-import type { TSchema } from "@sinclair/typebox"
+import type { TSchema } from "@sinclairtypebox"
 import { ConfigDumpInfo } from "../appliedObjects/configDumpInfo/types"
 import { EnterpriseAttributeMapItem } from "../forms/clientApplicationForm/types"
 import { FormChildItemsPartialYAML, FormElementsYAML } from "../forms/commonObjects/childItems/types"

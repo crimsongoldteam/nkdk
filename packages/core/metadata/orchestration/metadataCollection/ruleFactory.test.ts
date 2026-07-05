@@ -1,4 +1,4 @@
-import { TypeCompiler } from "@sinclair/typebox/compiler"
+import Schema from "typebox/schema"
 import { describe, expect, it } from "vitest"
 import { importPropertyFromXML, PropertyRule } from ".."
 import { exportPropertyToJSONSchema } from "../property/toJSONSchema"
@@ -145,7 +145,7 @@ describe("registerMetadataItemCollectionRule default toJSONSchema", () => {
 
   it("exports record schema for record YAML collections", () => {
     const schema = exportPropertyToJSONSchema({ context, rule, value: undefined })
-    const compiled = TypeCompiler.Compile(schema!)
+    const compiled = Schema.Compile(schema!)
 
     expect(compiled.Check({ A: { name: "A" } })).toBe(true)
     expect(compiled.Check([{ name: "A" }])).toBe(false)
@@ -153,7 +153,7 @@ describe("registerMetadataItemCollectionRule default toJSONSchema", () => {
 
   it("exports array schema for yamlAsArray collections", () => {
     const schema = exportPropertyToJSONSchema({ context, rule: arrayRule, value: undefined })
-    const compiled = TypeCompiler.Compile(schema!)
+    const compiled = Schema.Compile(schema!)
 
     expect(compiled.Check([{ name: "A" }])).toBe(true)
     expect(compiled.Check({ A: { name: "A" } })).toBe(false)
@@ -161,7 +161,7 @@ describe("registerMetadataItemCollectionRule default toJSONSchema", () => {
 
   it("exports array schema inside recursive yamlAsArray collections", () => {
     const schema = exportPropertyToJSONSchema({ context, rule: recursiveArrayRule, value: undefined })
-    const compiled = TypeCompiler.Compile(schema!)
+    const compiled = Schema.Compile(schema!)
 
     expect(compiled.Check([{ name: "A", children: [] }])).toBe(true)
     expect(compiled.Check([{ name: "A", children: { B: {} } }])).toBe(false)

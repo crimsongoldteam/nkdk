@@ -1,8 +1,8 @@
-import { TypeCompiler } from "@sinclair/typebox/compiler"
+import Schema from "typebox/schema"
 import { describe, expect, it } from "vitest"
 import { exportWebSocketClientHeadersToJSONSchema } from "./toJSONSchema"
 
-const schema = TypeCompiler.Compile(
+const schema = Schema.Compile(
   exportWebSocketClientHeadersToJSONSchema({
     context: {} as never,
     rule: { type: "WebSocketClientHeaders" },

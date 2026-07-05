@@ -1,4 +1,4 @@
-import { TypeCompiler } from "@sinclair/typebox/compiler"
+import Schema from "typebox/schema"
 import { describe, expect, it } from "vitest"
 import { getTypeRule, type PropertyRule } from "../../orchestration"
 import { registerCoreMetadata } from "../../register"
@@ -18,7 +18,7 @@ describe("ClientApplicationForm exportToJSONSchema type rule", () => {
     expect(schema).toBeDefined()
     if (schema === undefined) throw new Error("ClientApplicationForm JSON schema is not registered")
 
-    const compiled = TypeCompiler.Compile(schema)
+    const compiled = Schema.Compile(schema)
 
     expect(
       compiled.Check({

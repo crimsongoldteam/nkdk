@@ -1,4 +1,4 @@
-import { TSchema } from "@sinclair/typebox"
+import { TSchema } from "@sinclairtypebox"
 import { registerTypeRule } from "../../orchestration/property/typeRuleRegistry"
 import { ExportToJSONSchemaFn } from "../../orchestration/property/fn"
 import { WebSocketClientHeadersJSONSchema } from "./types"

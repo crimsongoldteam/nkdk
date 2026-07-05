@@ -1,4 +1,4 @@
-import { TSchema } from "@sinclair/typebox"
+import { TSchema } from "@sinclairtypebox"
 import {
   ConfigurationContext,
   ConfigurationContextFromXML,

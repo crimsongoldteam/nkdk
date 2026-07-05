@@ -1,4 +1,4 @@
-import { TypeCompiler } from "@sinclair/typebox/compiler"
+import Schema from "typebox/schema"
 import fs from "fs"
 import { performance } from "node:perf_hooks"
 import { dirname, join, resolve } from "path"
@@ -139,7 +139,7 @@ export function createValidationSchemaCache(context: ConfigurationContext): Vali
 
   return {
     form() {
-      formSchema ??= TypeCompiler.Compile(exportFormSchema(context))
+      formSchema ??= Schema.Compile(exportFormSchema(context))
 
       return formSchema
     },
@@ -148,7 +148,7 @@ export function createValidationSchemaCache(context: ConfigurationContext): Vali
       const existing = propertiesSchemas.get(key)
       if (existing) return existing
 
-      const compiled = TypeCompiler.Compile(spec.exportSchema({ context, mode: "inline" }))
+      const compiled = Schema.Compile(spec.exportSchema({ context, mode: "inline" }))
       propertiesSchemas.set(key, compiled)
 
       return compiled

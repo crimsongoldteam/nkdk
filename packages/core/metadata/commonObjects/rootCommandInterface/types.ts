@@ -1,5 +1,5 @@
-import { Type } from "@sinclair/typebox"
-import type { Static } from "@sinclair/typebox"
+import { Type } from "@sinclairtypebox"
+import type { Static } from "@sinclairtypebox"
 import { StringboolYAML, StringboolXML } from "../boolean/types"
 import { MetadataItemLink, MetadataItemLinks, MetadataItemLinksYAML } from "../metadataRef/types"
 import { MetadataItem } from "../../orchestration"

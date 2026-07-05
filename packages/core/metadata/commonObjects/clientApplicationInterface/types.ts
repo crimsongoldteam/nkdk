@@ -1,5 +1,5 @@
-import { Type } from "@sinclair/typebox"
-import type { Static } from "@sinclair/typebox"
+import { Type } from "@sinclairtypebox"
+import type { Static } from "@sinclairtypebox"
 import { MetadataItem } from "../../orchestration"
 import { MetadataTypeByRule } from "../../orchestration/metadataItem/element"
 import { YAMLTypeByRule } from "../../orchestration/metadataItem/yaml"

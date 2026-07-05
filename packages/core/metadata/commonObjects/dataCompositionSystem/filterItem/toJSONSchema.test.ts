@@ -1,4 +1,4 @@
-import { TypeCompiler } from "@sinclair/typebox/compiler"
+import Schema from "typebox/schema"
 import { describe, expect, it } from "vitest"
 import { exportPropertyToJSONSchema } from "../../../orchestration/property/toJSONSchema"
 import "./types"
@@ -16,7 +16,7 @@ describe("FilterItem JSON Schema", () => {
       value: undefined,
     })
 
-    return TypeCompiler.Compile(schema!)
+    return Schema.Compile(schema!)
   }
 
   it("accepts comparison items", () => {

@@ -1,7 +1,7 @@
 import { mkdtempSync, rmSync } from "fs"
 import { tmpdir } from "os"
 import { join, resolve } from "path"
-import { TypeCompiler } from "@sinclair/typebox/compiler"
+import Schema from "typebox/schema"
 import { afterEach, describe, expect, it } from "vitest"
 import { EXCLUDE_IF_EQUAL_NAME_YAML_DESCRIPTION } from "../helpers/excludeIfEqualNameYAML"
 import {
@@ -144,7 +144,7 @@ describe("exportJSONSchemaForProjectFile", () => {
     expect(JSON.stringify(synonymSchema)).not.toContain("Какое то поле")
     expect(JSON.stringify(synonymSchema)).not.toContain('"not"')
 
-    const compiled = TypeCompiler.Compile(schema)
+    const compiled = Schema.Compile(schema)
     expect(
       validateFile({
         filePath: "Справочник/КакоеТоПоле/Свойства.yaml",
@@ -229,7 +229,7 @@ describe("exportJSONSchemaForProjectFile", () => {
   })
 
   it("validates catalog attribute TypeDescription with catalog-specific restrictions", () => {
-    const schema = TypeCompiler.Compile(
+    const schema = Schema.Compile(
       exportJSONSchemaForProjectFile({
         context,
         filePath: "Справочник/Товары/Свойства.yaml",
@@ -341,7 +341,7 @@ describe("exportJSONSchemaForProjectFile", () => {
       ].join("\n"),
     },
   ])("validates allowed TypeDescription values for $label", ({ filePath, validText, invalidText }) => {
-    const schema = TypeCompiler.Compile(
+    const schema = Schema.Compile(
       exportJSONSchemaForProjectFile({
         context,
         filePath,
@@ -403,7 +403,7 @@ describe("exportJSONSchemaForSchemaName", () => {
   })
 
   it("keeps generic schema by type name free from concrete object-name restrictions", () => {
-    const schema = TypeCompiler.Compile(
+    const schema = Schema.Compile(
       exportJSONSchemaForSchemaName({
         context,
         name: "MetadataCatalog",

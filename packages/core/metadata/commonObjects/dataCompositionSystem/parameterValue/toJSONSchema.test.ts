@@ -1,4 +1,4 @@
-import { TypeCompiler } from "@sinclair/typebox/compiler"
+import Schema from "typebox/schema"
 import { describe, expect, it } from "vitest"
 import { exportPropertyToJSONSchema } from "../../../orchestration/property/toJSONSchema"
 import { mockContext } from "../../../../tests/mockContext"
@@ -8,7 +8,7 @@ import "./toJSONSchema"
 const schemaFor = (rule: SettingsParameterValuePropertyRule) => {
   const schema = exportPropertyToJSONSchema({ context: mockContext, rule, value: undefined })
   if (schema === undefined) throw new Error("schema is undefined")
-  return TypeCompiler.Compile(schema)
+  return Schema.Compile(schema)
 }
 
 const errorsFor = (rule: SettingsParameterValuePropertyRule, value: unknown): string[] =>

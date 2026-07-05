@@ -1,9 +1,9 @@
-import { TypeCompiler } from "@sinclair/typebox/compiler"
+import Schema from "typebox/schema"
 import { describe, expect, it } from "vitest"
 import { ChoiceListJSONSchema } from "./types"
 
 describe("ChoiceListJSONSchema", () => {
-  const compiled = TypeCompiler.Compile(ChoiceListJSONSchema)
+  const compiled = Schema.Compile(ChoiceListJSONSchema)
 
   it("accepts form choice list objects with presentation or compact value", () => {
     expect(

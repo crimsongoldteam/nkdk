@@ -1,4 +1,4 @@
-import type { TSchema } from "@sinclair/typebox"
+import type { TSchema } from "@sinclairtypebox"
 import type { ConfigurationContext, JSONSchemaExportMode } from "../context/types"
 import type { MetadataItem, MetadataItemRule } from "../orchestration/property/types"
 import type { ParsedYaml } from "../../yaml/parseMetadataYaml"

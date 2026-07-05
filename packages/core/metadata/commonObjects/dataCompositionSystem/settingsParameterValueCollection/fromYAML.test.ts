@@ -1,4 +1,4 @@
-import { TypeCompiler } from "@sinclair/typebox/compiler"
+import Schema from "typebox/schema"
 import { describe, expect, it } from "vitest"
 import { PropertyRule } from "../../../orchestration"
 import { exportPropertyToJSONSchema } from "../../../orchestration/property/toJSONSchema"
@@ -91,7 +91,7 @@ describe("import SettingsParameterValueCollection from YAML", () => {
   it("accepts arbitrary parameter names with default item rule in JSON Schema", () => {
     const schema = exportPropertyToJSONSchema({ context: mockContext, rule, value: undefined })
     if (schema === undefined) throw new Error("SettingsParameterValueCollection JSON Schema is not registered")
-    const compiled = TypeCompiler.Compile(schema)
+    const compiled = Schema.Compile(schema)
 
     expect(compiled.Check({ ДанныеПолучены: { Использовать: "Ложь" } })).toBe(true)
   })
@@ -99,7 +99,7 @@ describe("import SettingsParameterValueCollection from YAML", () => {
   it("accepts parameter value wrappers in JSON Schema", () => {
     const schema = exportPropertyToJSONSchema({ context: mockContext, rule, value: undefined })
     if (schema === undefined) throw new Error("SettingsParameterValueCollection JSON Schema is not registered")
-    const compiled = TypeCompiler.Compile(schema)
+    const compiled = Schema.Compile(schema)
 
     expect(compiled.Check({ Год: { Использовать: "Ложь", Значение: 0 } })).toBe(true)
   })
@@ -107,7 +107,7 @@ describe("import SettingsParameterValueCollection from YAML", () => {
   it("rejects unsupported parameter value keys in JSON Schema", () => {
     const schema = exportPropertyToJSONSchema({ context: mockContext, rule, value: undefined })
     if (schema === undefined) throw new Error("SettingsParameterValueCollection JSON Schema is not registered")
-    const compiled = TypeCompiler.Compile(schema)
+    const compiled = Schema.Compile(schema)
 
     expect(compiled.Check({ Год: { Использовать: "Ложь", НеизвестноеПоле: 0 } })).toBe(false)
   })
@@ -135,7 +135,7 @@ describe("import SettingsParameterValueCollection from YAML", () => {
       value: undefined,
     })
     if (schema === undefined) throw new Error("SettingsParameterValueCollection JSON Schema is not registered")
-    const compiled = TypeCompiler.Compile(schema)
+    const compiled = Schema.Compile(schema)
 
     expect(
       compiled.Check({
