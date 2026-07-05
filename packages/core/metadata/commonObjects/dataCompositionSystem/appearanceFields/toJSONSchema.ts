@@ -1,4 +1,4 @@
-import { TSchema, Type } from "@sinclairtypebox"
+import { TSchema, Type } from "typebox"
 import { BooleanJSONSchema } from "../../boolean/types"
 import { ColorJSONSchema } from "../../color/types"
 import { FormattedI8nTextJSONSchema } from "../../formattedI8nText/types"
@@ -54,20 +54,23 @@ const StrictStandardPeriodYAMLJSONSchema = Type.Object(
   { additionalProperties: false }
 )
 
-const AppearancePrimitiveSingleValueJSONSchema = Type.Recursive((ThisType) =>
-  Type.Union([
-    MetadataSingleValueJSONSchema,
-    StrictMetadataExplicitAccountTypeYAMLJSONSchema,
-    StrictExplicitDcsSystemEnumerationValueJSONSchema,
-    StrictStandardPeriodYAMLJSONSchema,
-    Type.Object(
-      {
-        Представление: I8nTextJSONSchema,
-        Значение: Type.Optional(ThisType),
-      },
-      { additionalProperties: false }
-    ),
-  ])
+const AppearancePrimitiveSingleValueJSONSchema = Type.Cyclic(
+  {
+    AppearancePrimitiveSingleValue: Type.Union([
+      MetadataSingleValueJSONSchema,
+      StrictMetadataExplicitAccountTypeYAMLJSONSchema,
+      StrictExplicitDcsSystemEnumerationValueJSONSchema,
+      StrictStandardPeriodYAMLJSONSchema,
+      Type.Object(
+        {
+          Представление: I8nTextJSONSchema,
+          Значение: Type.Optional(Type.Ref("AppearancePrimitiveSingleValue")),
+        },
+        { additionalProperties: false }
+      ),
+    ]),
+  },
+  "AppearancePrimitiveSingleValue"
 )
 
 const AppearancePrimitiveValueJSONSchema = Nullable(
@@ -79,10 +82,11 @@ const AppearancePrimitiveValueJSONSchema = Nullable(
 
 const DesignTimeI8nTextJSONSchema = Type.Union([
   Type.String(),
-  Type.Record(Type.RegExp(/^[a-z]{2}(-[A-Z]{2})?$/), Type.String(), {
+  {
+    ...Type.Record(Type.String({ pattern: "^[a-z]{2}(-[A-Z]{2})?$" }), Type.String()),
     additionalProperties: false,
     minProperties: 1,
-  }),
+  } as TSchema,
 ])
 
 const ExplicitTextValueJSONSchema = Type.Union([

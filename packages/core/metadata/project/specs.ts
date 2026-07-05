@@ -1,4 +1,4 @@
-import { Type } from "@sinclairtypebox"
+import { Type } from "typebox"
 import { registerCoreMetadata } from "../register"
 import type { MetadataItemRule } from "../orchestration/property/types"
 import {

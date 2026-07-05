@@ -1,4 +1,4 @@
-import { TSchema } from "@sinclairtypebox"
+import { TSchema } from "typebox"
 import { buildMetadataTargetSchema } from "../metadataTargets"
 import { ExportToJSONSchemaFn, registerTypeRule } from "../../orchestration"
 import { MetadataValueJSONSchema } from "./types"

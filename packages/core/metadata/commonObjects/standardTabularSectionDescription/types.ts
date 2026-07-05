@@ -1,4 +1,4 @@
-import { Type } from "@sinclairtypebox"
+import { Type } from "typebox"
 import type { I8nTextXML } from "../i8nText/types"
 import type {
   StandardAttributeDescriptions,

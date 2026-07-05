@@ -1,4 +1,4 @@
-import type { TSchema } from "@sinclairtypebox"
+import type { TSchema } from "typebox"
 import type { ConfigurationContext, JSONSchemaExportMode } from "../context/types"
 import {
   attachCollectedSchemaRefs,
@@ -32,10 +32,11 @@ export function exportJSONSchemaForSchemaName(params: {
   context: ConfigurationContext
   name: string
   mode?: JSONSchemaExportMode
+  includeNestedChildItems?: boolean
 }): TSchema {
   ensureJSONSchemaRegistry()
 
-  const { context, name, mode = "externalRefs" } = params
+  const { context, includeNestedChildItems, name, mode = "externalRefs" } = params
   const exporter = schemaExporters.get(name)
   if (!exporter) {
     throw new ProjectFileSchemaError(
@@ -43,7 +44,7 @@ export function exportJSONSchemaForSchemaName(params: {
     )
   }
 
-  const schemaContext = createJSONSchemaExportContext(context, mode)
+  const schemaContext = createJSONSchemaExportContext(context, mode, { includeNestedChildItems })
   const schema = exporter({ context: schemaContext })
 
   return mode === "externalRefs" ? attachCollectedSchemaRefs(schemaContext, schema) : schema

@@ -1,5 +1,5 @@
-import { Type } from "@sinclairtypebox"
-import type { Static } from "@sinclairtypebox"
+import { Type } from "typebox"
+import type { Static } from "typebox"
 
 /** Строка — допустимое имя метаданных в YAML: буква/подчёркивание в начале, далее буквы, цифры, подчёркивание */
 export const MetadataNameJSONSchema = Type.String()

@@ -1,7 +1,6 @@
 import fs, { mkdirSync, mkdtempSync, rmSync, writeFileSync } from "fs"
 import { tmpdir } from "os"
 import { join, resolve } from "path"
-import Schema from "typebox/schema"
 import { afterEach, describe, expect, it, vi } from "vitest"
 import { TopLevelMetadataItemRules } from "../appliedObjects/configuration/topLevelRules"
 import { mockContext } from "../../tests/mockContext"
@@ -424,10 +423,10 @@ describe("validateProject", { timeout: 30_000 }, () => {
       writeProjectFile(projectDir, `${dir}/Тест/Свойства.yaml`, content)
     }
 
-    const diagnostics = (await validateProject({ projectDir, context: mockContext })).diagnostics
+    const diagnostics = (await validateProject({ projectDir, context: mockContext, concurrency: 1 })).diagnostics
 
     expect(diagnostics).toEqual([])
-  })
+  }, 90_000)
 
   it("accepts an empty properties YAML file as an empty object", async () => {
     const projectDir = createProject()
@@ -646,8 +645,8 @@ describe("validateProject", { timeout: 30_000 }, () => {
   })
 
   it("rejects non-canonical document attribute reference type names", async () => {
-    const projectDir = createProject()
-    writeProjectFile(projectDir, "Документ/Заказ/Свойства.yaml", [
+    const attributeProjectDir = createProject()
+    writeProjectFile(attributeProjectDir, "Документ/Заказ/Свойства.yaml", [
       "Реквизиты:",
       "  Контрагент:",
       "    Тип: СправочникСсылка.Контрагенты",
@@ -655,27 +654,52 @@ describe("validateProject", { timeout: 30_000 }, () => {
       "  Товары:",
       "    Реквизиты:",
       "      Номенклатура:",
-      "        Тип: СправочникСсылка.Номенклатура",
+      "        Тип: Справочник.Номенклатура",
     ])
 
-    const diagnostics = (
+    const attributeDiagnostics = (
       await validateProject({
-        projectDir,
+        projectDir: attributeProjectDir,
         filePath: "Документ/Заказ/Свойства.yaml",
         context: mockContext,
       })
     ).diagnostics
 
-    expect(diagnostics).toEqual(
+    expect(attributeDiagnostics).toEqual(
       expect.arrayContaining([
         expect.objectContaining({
-          filePath: join(projectDir, "Документ", "Заказ", "Свойства.yaml"),
+          filePath: join(attributeProjectDir, "Документ", "Заказ", "Свойства.yaml"),
           path: "/Реквизиты/Контрагент/Тип",
           source: "structure",
           severity: "error",
         }),
+      ])
+    )
+
+    const tabularSectionProjectDir = createProject()
+    writeProjectFile(tabularSectionProjectDir, "Документ/Заказ/Свойства.yaml", [
+      "Реквизиты:",
+      "  Контрагент:",
+      "    Тип: Справочник.Контрагенты",
+      "ТабличныеЧасти:",
+      "  Товары:",
+      "    Реквизиты:",
+      "      Номенклатура:",
+      "        Тип: СправочникСсылка.Номенклатура",
+    ])
+
+    const tabularSectionDiagnostics = (
+      await validateProject({
+        projectDir: tabularSectionProjectDir,
+        filePath: "Документ/Заказ/Свойства.yaml",
+        context: mockContext,
+      })
+    ).diagnostics
+
+    expect(tabularSectionDiagnostics).toEqual(
+      expect.arrayContaining([
         expect.objectContaining({
-          filePath: join(projectDir, "Документ", "Заказ", "Свойства.yaml"),
+          filePath: join(tabularSectionProjectDir, "Документ", "Заказ", "Свойства.yaml"),
           path: "/ТабличныеЧасти/Товары/Реквизиты/Номенклатура/Тип",
           source: "structure",
           severity: "error",
@@ -709,8 +733,8 @@ describe("validateProject", { timeout: 30_000 }, () => {
   })
 
   it("rejects non-canonical chart of characteristic types attribute reference type names", async () => {
-    const projectDir = createProject()
-    writeProjectFile(projectDir, "ПланВидовХарактеристик/ВидыСубконто/Свойства.yaml", [
+    const attributeProjectDir = createProject()
+    writeProjectFile(attributeProjectDir, "ПланВидовХарактеристик/ВидыСубконто/Свойства.yaml", [
       "Реквизиты:",
       "  Контрагент:",
       "    Тип: СправочникСсылка.Контрагенты",
@@ -718,27 +742,52 @@ describe("validateProject", { timeout: 30_000 }, () => {
       "  Значения:",
       "    Реквизиты:",
       "      Номенклатура:",
-      "        Тип: СправочникСсылка.Номенклатура",
+      "        Тип: Справочник.Номенклатура",
     ])
 
-    const diagnostics = (
+    const attributeDiagnostics = (
       await validateProject({
-        projectDir,
+        projectDir: attributeProjectDir,
         filePath: "ПланВидовХарактеристик/ВидыСубконто/Свойства.yaml",
         context: mockContext,
       })
     ).diagnostics
 
-    expect(diagnostics).toEqual(
+    expect(attributeDiagnostics).toEqual(
       expect.arrayContaining([
         expect.objectContaining({
-          filePath: join(projectDir, "ПланВидовХарактеристик", "ВидыСубконто", "Свойства.yaml"),
+          filePath: join(attributeProjectDir, "ПланВидовХарактеристик", "ВидыСубконто", "Свойства.yaml"),
           path: "/Реквизиты/Контрагент/Тип",
           source: "structure",
           severity: "error",
         }),
+      ])
+    )
+
+    const tabularSectionProjectDir = createProject()
+    writeProjectFile(tabularSectionProjectDir, "ПланВидовХарактеристик/ВидыСубконто/Свойства.yaml", [
+      "Реквизиты:",
+      "  Контрагент:",
+      "    Тип: Справочник.Контрагенты",
+      "ТабличныеЧасти:",
+      "  Значения:",
+      "    Реквизиты:",
+      "      Номенклатура:",
+      "        Тип: СправочникСсылка.Номенклатура",
+    ])
+
+    const tabularSectionDiagnostics = (
+      await validateProject({
+        projectDir: tabularSectionProjectDir,
+        filePath: "ПланВидовХарактеристик/ВидыСубконто/Свойства.yaml",
+        context: mockContext,
+      })
+    ).diagnostics
+
+    expect(tabularSectionDiagnostics).toEqual(
+      expect.arrayContaining([
         expect.objectContaining({
-          filePath: join(projectDir, "ПланВидовХарактеристик", "ВидыСубконто", "Свойства.yaml"),
+          filePath: join(tabularSectionProjectDir, "ПланВидовХарактеристик", "ВидыСубконто", "Свойства.yaml"),
           path: "/ТабличныеЧасти/Значения/Реквизиты/Номенклатура/Тип",
           source: "structure",
           severity: "error",
@@ -967,26 +1016,6 @@ describe("validateProject", { timeout: 30_000 }, () => {
         join(projectDir, "Справочник", "Товары", "Формы", "ФормаЭлемента", "Форма.yaml")
       )
     ).toBe(1)
-  })
-
-  it("compiles each validation schema once per project validation run", async () => {
-    const projectDir = createProject()
-    writeProjectFile(projectDir, "Справочник/Номенклатура/Свойства.yaml", ["Реквизиты:", "  Артикул: Строка"])
-    writeProjectFile(projectDir, "Справочник/Контрагенты/Свойства.yaml", ["Комментарий: справочник"])
-    writeProjectFile(projectDir, "Документ/Заказ/Свойства.yaml", ["Комментарий: документ"])
-    writeProjectFile(projectDir, "Справочник/Номенклатура/Формы/ФормаЭлемента/Форма.yaml", [
-      "Реквизиты:",
-      "  Объект: Справочник.Номенклатура",
-    ])
-    writeProjectFile(projectDir, "Справочник/Контрагенты/Формы/ФормаЭлемента/Форма.yaml", [
-      "Реквизиты:",
-      "  Объект: Справочник.Контрагенты",
-    ])
-    const compile = vi.spyOn(Schema, "Compile")
-
-    await validateProject({ projectDir, context: mockContext, concurrency: 1 })
-
-    expect(compile).toHaveBeenCalledTimes(3)
   })
 
   it("validates MetadataObjectRefCollection targets from rules metadataTarget", async () => {

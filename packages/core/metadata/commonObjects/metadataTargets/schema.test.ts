@@ -1,6 +1,6 @@
 import { describe, expect, it } from "vitest"
 import Schema from "typebox/schema"
-import type { TSchema } from "@sinclairtypebox"
+import type { TSchema } from "typebox"
 import { buildMetadataTargetSchema } from "./index"
 
 describe("buildMetadataTargetSchema", () => {

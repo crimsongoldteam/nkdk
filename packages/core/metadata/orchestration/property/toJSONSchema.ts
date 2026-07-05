@@ -1,10 +1,14 @@
-import { TSchema, Type } from "@sinclairtypebox"
+import { TSchema, Type } from "typebox"
 import { ConfigurationContext } from "../../context/types"
 import { applyExcludedEqualNameYAMLToJSONSchema } from "../../helpers/excludeIfEqualNameYAML"
 import { getTypeRule } from "./typeRuleRegistry"
 import { exportPropertyExternalRefSchema, exportPropertyOverrideSchema } from "../jsonSchemaRefs"
 import { shouldProcessProperty } from "./helpers"
 import type { MetadataItem, MetadataItemRule, PropertyRule } from "./types"
+
+function notSchema(schema: TSchema): TSchema {
+  return { not: schema } as TSchema
+}
 
 /**
  * Возвращает YAML-представление implicitValueYAML.
@@ -35,7 +39,7 @@ function excludeImplicitValueFromSchema(schema: TSchema, implicitYAML: string | 
     }
   }
 
-  return Type.Intersect([schema, Type.Not(Type.Literal(implicitYAML))])
+  return Type.Intersect([schema, notSchema(Type.Literal(implicitYAML))])
 }
 
 export const exportPropertiesToJSONSchema = <T extends MetadataItem>(params: {

@@ -3,8 +3,8 @@ import {
   type ExactRuleParams as WideExactRuleParams,
 } from "../../../commonObjects/ruleBuilder"
 import type { PropertyRule as WidePropertyRuleBase } from "../../../orchestration/property/types"
-import { Type } from "@sinclairtypebox"
-import type { Static } from "@sinclairtypebox"
+import { Type } from "typebox"
+import type { Static } from "typebox"
 
 export interface CommandSetXML {
   ExcludedCommand: string | string[]

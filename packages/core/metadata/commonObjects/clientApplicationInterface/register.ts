@@ -1,4 +1,4 @@
-import { Type } from "@sinclairtypebox"
+import { Type } from "typebox"
 import { getUUID } from "../../helpers/uuid"
 import {
   ExportToXMLFunctionNew,

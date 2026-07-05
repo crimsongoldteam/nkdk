@@ -1,5 +1,5 @@
 import { describe, expect, it } from "vitest"
-import { Value } from "@sinclair/typebox/value"
+import { Value } from "typebox/value"
 import { ChildFormItemsGroupFromYAML, SystemEnumerationPropertyRule } from "./types"
 import { mockContext } from "../../tests/mockContext"
 import { exportSystemEnumerationToJSONSchema } from "./toJSONSchema"

@@ -1,4 +1,4 @@
-import { Type, type TSchema } from "@sinclairtypebox"
+import { Type, type TSchema } from "typebox"
 import { memberKindToYAML, METADATA_NAME_PATTERN, objectPathKindToYAML, rootToYAML } from "./roots"
 import type {
   MetadataMemberKind,

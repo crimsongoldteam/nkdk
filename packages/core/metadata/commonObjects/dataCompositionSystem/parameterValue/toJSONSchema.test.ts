@@ -1,20 +1,46 @@
 import Schema from "typebox/schema"
-import { describe, expect, it } from "vitest"
+import { beforeAll, describe, expect, it } from "vitest"
 import { exportPropertyToJSONSchema } from "../../../orchestration/property/toJSONSchema"
 import { mockContext } from "../../../../tests/mockContext"
 import type { SettingsParameterValuePropertyRule } from "./types"
 import "./toJSONSchema"
 
+const compiledSchemas = new Map<string, ReturnType<typeof Schema.Compile>>()
+
 const schemaFor = (rule: SettingsParameterValuePropertyRule) => {
+  const cacheKey = `${rule.valueType}:${rule.yaml}`
+  const cached = compiledSchemas.get(cacheKey)
+  if (cached !== undefined) return cached
+
   const schema = exportPropertyToJSONSchema({ context: mockContext, rule, value: undefined })
   if (schema === undefined) throw new Error("schema is undefined")
-  return Schema.Compile(schema)
+  const compiled = Schema.Compile(schema)
+  compiledSchemas.set(cacheKey, compiled)
+  return compiled
 }
 
 const errorsFor = (rule: SettingsParameterValuePropertyRule, value: unknown): string[] =>
-  [...schemaFor(rule).Errors(value)].map((error) => `${error.path}: ${error.message}`)
+  schemaFor(rule).Errors(value)[1].map((error) => `${error.instancePath}: ${error.message}`)
 
 describe("SettingsParameterValue exportToJSONSchema", () => {
+  beforeAll(() => {
+    ;(
+      [
+        { type: "SettingsParameterValue", valueType: "Color", yaml: "Цвет" },
+        { type: "SettingsParameterValue", valueType: "Color", yaml: "ЦветФона" },
+        { type: "SettingsParameterValue", valueType: "Primitive", yaml: "Видимость" },
+        { type: "SettingsParameterValue", valueType: "Primitive", yaml: "Значение" },
+        { type: "SettingsParameterValue", valueType: "SystemEnumeration", typeSE: "HorizontalAlign", yaml: "ГоризонтальноеПоложение" },
+        { type: "SettingsParameterValue", valueType: "Parameter", yaml: "ПараметрыВыбора" },
+        { type: "SettingsParameterValue", valueType: "DesignTimeValue", yaml: "Формат" },
+        { type: "SettingsParameterValue", valueType: "Field", yaml: "Поле" },
+        { type: "SettingsParameterValue", valueType: "Field", yaml: "Параметр" },
+        { type: "SettingsParameterValue", valueType: "Font", yaml: "Шрифт" },
+        { type: "SettingsParameterValue", valueType: "ChoiceParameterLinks", yaml: "СвязиПараметровВыбора" },
+      ] as const
+    ).forEach(schemaFor)
+  }, 60_000)
+
   it("accepts compact Color YAML value", () => {
     const rule = { type: "SettingsParameterValue", valueType: "Color", yaml: "Цвет" } as const
 

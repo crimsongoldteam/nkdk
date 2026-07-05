@@ -1,4 +1,4 @@
-import { Type } from "@sinclairtypebox"
+import { Type } from "typebox"
 import { ConfigurationContext, ConfigurationContextFromXML } from "../../../context/types"
 import {
   importMetadataItemFromXML,

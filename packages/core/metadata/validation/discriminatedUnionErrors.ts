@@ -1,5 +1,12 @@
-import { TSchema } from "@sinclairtypebox"
-import { TypeCheck, TypeCompiler, ValueError, ValueErrorType } from "@sinclair/typebox/compiler"
+import type { TSchema } from "typebox"
+import Schema, { type Validator } from "typebox/schema"
+import type { TLocalizedValidationError } from "typebox/error"
+
+export type ValidationError = TLocalizedValidationError & {
+  schema?: TSchema
+  value?: unknown
+  diagnosticLocation?: "key"
+}
 
 interface DiscriminatedUnionSchema extends TSchema {
   anyOf: TSchema[]
@@ -10,13 +17,9 @@ interface BranchSchema extends TSchema {
   properties?: Record<string, { const?: unknown }>
 }
 
-interface DiagnosticLocationSchema extends TSchema {
-  diagnosticLocation?: "key"
-}
-
 interface BranchEntry {
   schema: TSchema
-  compiled?: TypeCheck<TSchema>
+  compiled?: Validator<TSchema>
 }
 
 interface BranchCache {
@@ -25,17 +28,21 @@ interface BranchCache {
 }
 
 interface ExpansionContext {
-  references: TSchema[]
+  root?: TSchema
+  schemaContext: Record<string, TSchema>
   referenceKey: string
 }
 
-const emptyExpansionContext: ExpansionContext = { references: [], referenceKey: "" }
+const emptyExpansionContext: ExpansionContext = { schemaContext: {}, referenceKey: "" }
 const unionSchemaCache = new WeakMap<TSchema, Map<string, BranchCache>>()
-let expansionContextCache = new WeakMap<TypeCheck<TSchema>, ExpansionContext>()
+let expansionContextCache = new WeakMap<Validator<TSchema>, ExpansionContext>()
 let expansionContextBuildCountForTests = 0
 
-function isDiscriminatedUnionSchema(schema: TSchema): schema is DiscriminatedUnionSchema {
-  return typeof schema.discriminantKey === "string" && Array.isArray(schema.anyOf)
+function isDiscriminatedUnionSchema(schema: TSchema | undefined): schema is DiscriminatedUnionSchema {
+  return (
+    typeof (schema as { discriminantKey?: unknown } | undefined)?.discriminantKey === "string" &&
+    Array.isArray((schema as { anyOf?: unknown } | undefined)?.anyOf)
+  )
 }
 
 function escapeJsonPointerSegment(segment: string): string {
@@ -51,6 +58,69 @@ function prefixJsonPointer(parentPath: string, childPath: string): string {
 function getObjectProperty(value: unknown, key: string): unknown {
   if (typeof value !== "object" || value === null || Array.isArray(value)) return undefined
   return (value as Record<string, unknown>)[key]
+}
+
+function getByJsonPointer(root: unknown, pointer: string): unknown {
+  if (pointer === "" || pointer === "#") return root
+  const path = pointer.startsWith("#") ? pointer.slice(1) : pointer
+  if (path === "") return root
+
+  let current = root
+  for (const rawSegment of path.slice(1).split("/")) {
+    const segment = rawSegment.replace(/~1/g, "/").replace(/~0/g, "~")
+    if (Array.isArray(current)) {
+      current = current[Number(segment)]
+    } else if (typeof current === "object" && current !== null) {
+      current = (current as Record<string, unknown>)[segment]
+    } else {
+      return undefined
+    }
+  }
+
+  return current
+}
+
+function findByJsonPointerSuffix(root: unknown, pointer: string): unknown {
+  const suffix = pointer.startsWith("#") ? pointer.slice(1) : pointer
+  if (suffix === "") return root
+
+  const seen = new WeakSet<object>()
+  let result: unknown
+
+  function visit(value: unknown, path: string): void {
+    if (result !== undefined || typeof value !== "object" || value === null || seen.has(value)) return
+    seen.add(value)
+
+    if (path.endsWith(suffix)) {
+      result = value
+      return
+    }
+
+    if (Array.isArray(value)) {
+      value.forEach((item, index) => visit(item, `${path}/${index}`))
+      return
+    }
+
+    for (const [key, item] of Object.entries(value)) {
+      visit(item, `${path}/${escapeJsonPointerSegment(key)}`)
+    }
+  }
+
+  visit(root, "#")
+  return result
+}
+
+function schemaForError(error: ValidationError, context: ExpansionContext): TSchema | undefined {
+  if (error.schema !== undefined) return error.schema
+  if (context.root === undefined) return undefined
+
+  const schemaPath = error.schemaPath.replace(/\/(?:anyOf|oneOf)$/, "")
+  const schema = getByJsonPointer(context.root, schemaPath) ?? findByJsonPointerSuffix(context.root, schemaPath)
+  return isSchema(schema) ? schema : undefined
+}
+
+function isSchema(value: unknown): value is TSchema {
+  return typeof value === "object" && value !== null
 }
 
 function getBranchCache(schema: DiscriminatedUnionSchema, context: ExpansionContext): BranchCache {
@@ -80,11 +150,11 @@ function getBranchCache(schema: DiscriminatedUnionSchema, context: ExpansionCont
   return cache
 }
 
-function getCompiledBranch(entry: BranchEntry, context: ExpansionContext): TypeCheck<TSchema> | undefined {
+function getCompiledBranch(entry: BranchEntry, context: ExpansionContext): Validator<TSchema> | undefined {
   if (entry.compiled !== undefined) return entry.compiled
 
   try {
-    entry.compiled = Schema.Compile(entry.schema, context.references)
+    entry.compiled = Schema.Compile(context.schemaContext, entry.schema)
     return entry.compiled
   } catch {
     return undefined
@@ -96,78 +166,81 @@ function formatDiscriminatorValue(value: unknown): string {
 }
 
 function createUnknownDiscriminatorError(
-  error: ValueError,
+  error: ValidationError,
   discriminantKey: string,
   expectedValues: string[],
   value: unknown
-): ValueError {
+): ValidationError {
   return {
-    type: ValueErrorType.Union,
-    schema: error.schema,
-    path: prefixJsonPointer(error.path, `/${escapeJsonPointerSegment(discriminantKey)}`),
+    ...error,
+    keyword: "anyOf",
+    instancePath: prefixJsonPointer(error.instancePath, `/${escapeJsonPointerSegment(discriminantKey)}`),
     value,
     message: `Неизвестное значение дискриминатора "${discriminantKey}": ${formatDiscriminatorValue(
       value
     )}. Ожидается одно из: ${expectedValues.join(", ")}`,
-    errors: [],
   }
 }
 
-function markAdditionalPropertyAtKey(error: ValueError): ValueError {
-  if (error.type !== ValueErrorType.ObjectAdditionalProperties) return error
-
-  const schema: DiagnosticLocationSchema = {
-    ...error.schema,
-    diagnosticLocation: "key",
-  }
-
-  return { ...error, schema }
+function markAdditionalPropertyAtKey(error: ValidationError): ValidationError {
+  if (error.keyword !== "additionalProperties") return error
+  return { ...error, diagnosticLocation: "key" }
 }
 
-function expandDiscriminatedUnionError(error: ValueError, context: ExpansionContext): ValueError[] {
-  if (error.type !== ValueErrorType.Union || !isDiscriminatedUnionSchema(error.schema)) {
-    return [error]
-  }
+function expandDiscriminatedUnionError(error: ValidationError, context: ExpansionContext): ValidationError[] {
+  if (error.keyword !== "anyOf") return [error]
 
-  const discriminantValue = getObjectProperty(error.value, error.schema.discriminantKey)
-  const cache = getBranchCache(error.schema, context)
+  const schema = schemaForError(error, context)
+  if (!isDiscriminatedUnionSchema(schema)) return [error]
+
+  const unionValue = getByJsonPointer(error.value, error.instancePath) ?? error.value
+  const discriminantValue = getObjectProperty(unionValue, schema.discriminantKey)
+  const cache = getBranchCache(schema, context)
   const branchEntry = typeof discriminantValue === "string" ? cache.branches.get(discriminantValue) : undefined
 
   if (branchEntry === undefined) {
-    return [
-      createUnknownDiscriminatorError(error, error.schema.discriminantKey, cache.expectedValues, discriminantValue),
-    ]
+    return [createUnknownDiscriminatorError(error, schema.discriminantKey, cache.expectedValues, discriminantValue)]
   }
 
   const branch = getCompiledBranch(branchEntry, context)
   if (branch === undefined) return [error]
 
-  return expandDiscriminatedUnionErrorsWithContext([...branch.Errors(error.value)], context).map((branchError) =>
+  const [, branchErrors] = branch.Errors(unionValue)
+  return expandDiscriminatedUnionErrorsWithContext(
+    branchErrors.map((branchError) => ({ ...branchError, value: unionValue })),
+    context
+  ).map((branchError) =>
     markAdditionalPropertyAtKey({
       ...branchError,
-      path: prefixJsonPointer(error.path, branchError.path),
+      instancePath: prefixJsonPointer(error.instancePath, branchError.instancePath),
     })
   )
 }
 
-function collectSchemaReferences(schema: TSchema, references: TSchema[]): TSchema[] {
-  const result = [...references]
+function isDiscriminatedUnionError(error: ValidationError, context: ExpansionContext): boolean {
+  return error.keyword === "anyOf" && isDiscriminatedUnionSchema(schemaForError(error, context))
+}
+
+function isBranchErrorOfDiscriminatedUnion(
+  error: ValidationError,
+  unionError: ValidationError,
+  context: ExpansionContext
+): boolean {
+  if (!isDiscriminatedUnionError(unionError, context)) return false
+  if (!error.schemaPath.startsWith(`${unionError.schemaPath}/anyOf/`)) return false
+  return error.instancePath === unionError.instancePath || error.instancePath.startsWith(`${unionError.instancePath}/`)
+}
+
+function collectSchemaContext(schema: TSchema): Record<string, TSchema> {
+  const context: Record<string, TSchema> = {}
   const seen = new WeakSet<object>()
-  const knownIds = new Set(
-    result.map((reference) => reference.$id).filter((id): id is string => typeof id === "string")
-  )
 
   function visit(value: unknown): void {
     if (typeof value !== "object" || value === null || seen.has(value)) return
     seen.add(value)
 
-    if (isSchema(value)) {
-      const id = value.$id
-      if (typeof id === "string" && !knownIds.has(id)) {
-        result.push(value)
-        knownIds.add(id)
-      }
-    }
+    const id = (value as { $id?: unknown }).$id
+    if (typeof id === "string") context[id] = value as TSchema
 
     if (Array.isArray(value)) {
       value.forEach(visit)
@@ -178,15 +251,10 @@ function collectSchemaReferences(schema: TSchema, references: TSchema[]): TSchem
   }
 
   visit(schema)
-
-  return result
+  return context
 }
 
-function isSchema(value: object): value is TSchema {
-  return "$id" in value || "type" in value || "anyOf" in value || "$ref" in value
-}
-
-function getExpansionContext(schema?: TypeCheck<TSchema>): ExpansionContext {
+function getExpansionContext(schema?: Validator<TSchema>): ExpansionContext {
   if (schema === undefined) return emptyExpansionContext
 
   const cached = expansionContextCache.get(schema)
@@ -198,21 +266,20 @@ function getExpansionContext(schema?: TypeCheck<TSchema>): ExpansionContext {
   return context
 }
 
-function createExpansionContext(schema: TypeCheck<TSchema>): ExpansionContext {
+function createExpansionContext(schema: Validator<TSchema>): ExpansionContext {
   expansionContextBuildCountForTests += 1
-  const references = collectSchemaReferences(schema.Schema(), schema.References())
+  const root = schema.Schema()
+  const schemaContext = collectSchemaContext(root)
 
   return {
-    references,
-    referenceKey: references
-      .map((reference) => reference.$id)
-      .filter((id): id is string => typeof id === "string")
-      .join("\u0000"),
+    root,
+    schemaContext,
+    referenceKey: Object.keys(schemaContext).sort().join("\u0000"),
   }
 }
 
 export function resetDiscriminatedUnionExpansionContextCacheForTests(): void {
-  expansionContextCache = new WeakMap<TypeCheck<TSchema>, ExpansionContext>()
+  expansionContextCache = new WeakMap<Validator<TSchema>, ExpansionContext>()
   expansionContextBuildCountForTests = 0
 }
 
@@ -220,10 +287,27 @@ export function getDiscriminatedUnionExpansionContextBuildCountForTests(): numbe
   return expansionContextBuildCountForTests
 }
 
-export function expandDiscriminatedUnionErrors(errors: ValueError[], schema?: TypeCheck<TSchema>): ValueError[] {
+export function expandDiscriminatedUnionErrors(
+  errors: ValidationError[],
+  schema?: Validator<TSchema>
+): ValidationError[] {
   return expandDiscriminatedUnionErrorsWithContext(errors, getExpansionContext(schema))
 }
 
-function expandDiscriminatedUnionErrorsWithContext(errors: ValueError[], context: ExpansionContext): ValueError[] {
-  return errors.flatMap((error) => expandDiscriminatedUnionError(error, context))
+function expandDiscriminatedUnionErrorsWithContext(
+  errors: ValidationError[],
+  context: ExpansionContext
+): ValidationError[] {
+  const discriminatedUnionErrors = errors.filter((error) => isDiscriminatedUnionError(error, context))
+
+  return errors.flatMap((error) => {
+    if (
+      error.keyword !== "anyOf" &&
+      discriminatedUnionErrors.some((unionError) => isBranchErrorOfDiscriminatedUnion(error, unionError, context))
+    ) {
+      return []
+    }
+
+    return expandDiscriminatedUnionError(error, context)
+  })
 }

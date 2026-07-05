@@ -1,20 +1,40 @@
 import Schema from "typebox/schema"
-import { describe, expect, it } from "vitest"
+import { beforeAll, describe, expect, it } from "vitest"
 import { exportPropertyToJSONSchema } from "../../../orchestration/property/toJSONSchema"
 import { mockContext } from "../../../../tests/mockContext"
 import type { DcsMetadataValuePropertyRule } from "./types"
 import "./toJSONSchema"
 
+const compiledSchemas = new Map<string, ReturnType<typeof Schema.Compile>>()
+
 const schemaFor = (rule: DcsMetadataValuePropertyRule) => {
+  const cacheKey = `${rule.valueType}:${rule.yaml}`
+  const cached = compiledSchemas.get(cacheKey)
+  if (cached !== undefined) return cached
+
   const schema = exportPropertyToJSONSchema({ context: mockContext, rule, value: undefined })
   if (schema === undefined) throw new Error("schema is undefined")
-  return Schema.Compile(schema)
+  const compiled = Schema.Compile(schema)
+  compiledSchemas.set(cacheKey, compiled)
+  return compiled
 }
 
 const errorsFor = (rule: DcsMetadataValuePropertyRule, value: unknown): string[] =>
-  [...schemaFor(rule).Errors(value)].map((error) => `${error.path}: ${error.message}`)
+  schemaFor(rule).Errors(value)[1].map((error) => `${error.instancePath}: ${error.message}`)
 
 describe("MetadataDcsMetadataValue exportToJSONSchema", () => {
+  beforeAll(() => {
+    ;(
+      [
+        { type: "MetadataDcsMetadataValue", valueType: "Color", yaml: "Цвет" },
+        { type: "MetadataDcsMetadataValue", valueType: "Font", yaml: "Шрифт" },
+        { type: "MetadataDcsMetadataValue", valueType: "DesignTimeValue", yaml: "Формат" },
+        { type: "MetadataDcsMetadataValue", valueType: "Primitive", yaml: "Видимость" },
+        { type: "MetadataDcsMetadataValue", valueType: "Field", yaml: "Поле" },
+      ] as const
+    ).forEach(schemaFor)
+  }, 60_000)
+
   it("accepts Color YAML values", () => {
     const rule = { type: "MetadataDcsMetadataValue", valueType: "Color", yaml: "Цвет" } as const
 

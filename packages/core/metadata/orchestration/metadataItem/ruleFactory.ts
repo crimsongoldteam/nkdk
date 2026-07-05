@@ -1,4 +1,4 @@
-import { Type } from "@sinclairtypebox"
+import { Type } from "typebox"
 import { PropertyRuleType } from "../property/registry"
 import type { MetadataItemRule } from "../property/types"
 import { registerTypeRule } from "../property/typeRuleRegistry"
@@ -32,6 +32,7 @@ export const registerMetadataItemRule = <Rule extends MetadataItemRule, Property
         exportToJSONSchema: {
           mode: context.exportToJSONSchema?.mode ?? "inline",
           refs: context.exportToJSONSchema?.refs ?? new Set(),
+          includeNestedChildItems: context.exportToJSONSchema?.includeNestedChildItems,
           propertySchemaOverrides: context.exportToJSONSchema?.propertySchemaOverrides,
           schemaStack: [...schemaStack, propertyType],
         },

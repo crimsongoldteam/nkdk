@@ -1,4 +1,4 @@
-import { Type } from "@sinclairtypebox"
+import { Type } from "typebox"
 import { ConfigurationContext } from "../../../context/types"
 import { registerTypeRule } from "../../../orchestration/property/typeRuleRegistry"
 import type { PropertyRule } from "../../../orchestration/property/types"

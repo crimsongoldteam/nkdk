@@ -1,4 +1,4 @@
-import type { TSchema } from "@sinclairtypebox"
+import type { TSchema } from "typebox"
 import { isAbsolute, relative, resolve, sep } from "path"
 import type { ConfigurationContext, JSONSchemaExportMode } from "../context/types"
 import { classifyMetadataProjectPath } from "../project/resources"
@@ -21,6 +21,7 @@ export interface ExportJSONSchemaForSchemaNameParams {
   context: ConfigurationContext
   name: string
   mode?: JSONSchemaExportMode
+  includeNestedChildItems?: boolean
 }
 
 const expectedPatterns =

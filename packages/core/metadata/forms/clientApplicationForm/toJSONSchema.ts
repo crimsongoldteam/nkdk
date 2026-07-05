@@ -1,4 +1,4 @@
-import { TSchema } from "@sinclairtypebox"
+import { TSchema } from "typebox"
 import type { ExportToJSONSchemaFn } from "../../orchestration"
 import { exportMetadataItemToJSONSchema } from "../../orchestration/metadataItem/toJSONSchema"
 import { ClientApplicationFormRules } from "./rules"

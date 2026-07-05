@@ -12,7 +12,7 @@ import {
   SyncExternalFromXMLFunction,
   SyncExternalToXMLFunction,
 } from "../../orchestration/property/fn"
-import { Type } from "@sinclairtypebox"
+import { Type } from "typebox"
 import type { PropertyRule } from "../../orchestration/property/types"
 import type { XmlWriteManifest } from "../../orchestration/xmlWriteManifest"
 import { RecalculationRules } from "./rules"

@@ -1,4 +1,4 @@
-import { Type } from "@sinclairtypebox"
+import { Type } from "typebox"
 import { exportMetadataItemToJSONSchema } from "../../../orchestration/metadataItem/toJSONSchema"
 import { ExportToJSONSchemaFn } from "../../../orchestration/property/fn"
 import { OrderItemFieldRules } from "./rules"

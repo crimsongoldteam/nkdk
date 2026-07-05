@@ -3,8 +3,8 @@ import {
   type ExactRuleParams as WideExactRuleParams,
 } from "../ruleBuilder"
 import type { PropertyRule as WidePropertyRuleBase } from "../../orchestration/property/types"
-import { Type } from "@sinclairtypebox"
-import type { Static } from "@sinclairtypebox"
+import { Type } from "typebox"
+import type { Static } from "typebox"
 import { BooleanJSONSchema, StringboolXML } from "../boolean/types"
 
 export interface UserVisibleItemXML {
@@ -57,7 +57,6 @@ export const UserVisibleJSONSchema = Type.Union(
       { additionalProperties: false }
     ),
   ],
-  { additionalProperties: false }
 )
 
 export type UserVisibleYAML = Static<typeof UserVisibleJSONSchema>

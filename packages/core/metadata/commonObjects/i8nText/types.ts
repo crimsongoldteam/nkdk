@@ -1,5 +1,5 @@
-import { Type } from "@sinclairtypebox"
-import type { Static } from "@sinclairtypebox"
+import { Type } from "typebox"
+import type { Static } from "typebox"
 import { definePropertyRule, type ExactRuleParams } from "../ruleBuilder"
 import { ConfigurationContext } from "../../context/types"
 import { TypeRulesOperations } from "../../orchestration"

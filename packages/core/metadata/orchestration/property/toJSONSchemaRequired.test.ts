@@ -1,4 +1,4 @@
-import { Type, type TProperties } from "@sinclairtypebox"
+import { Type, type TProperties } from "typebox"
 import { describe, expect, it } from "vitest"
 import { AutoCommandBarRules } from "../../forms/elements/autoCommandBar/rules"
 import { ColumnGroupRules } from "../../forms/elements/columnGroup/rules"

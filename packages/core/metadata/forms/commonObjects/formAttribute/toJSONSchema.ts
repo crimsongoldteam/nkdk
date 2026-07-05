@@ -1,4 +1,4 @@
-import { TObject, TProperties, TSchema, Type } from "@sinclairtypebox"
+import { TObject, TProperties, TSchema, Type } from "typebox"
 import { ConfigurationContext } from "../../../context/types"
 import { ExportToJSONSchemaFn, registerTypeRule } from "../../../orchestration"
 import { exportMetadataItemToJSONSchema } from "../../../orchestration/metadataItem/toJSONSchema"

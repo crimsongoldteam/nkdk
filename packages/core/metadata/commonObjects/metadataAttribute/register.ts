@@ -1,4 +1,4 @@
-import { Type, type TSchema } from "@sinclairtypebox"
+import { Type, type TSchema } from "typebox"
 import type { MetadataAttributeYAML, MetadataAttributes, MetadataAttributesXML, MetadataAttributesYAML } from "./types"
 import { ConfigurationContext, ConfigurationContextFromXML } from "../../context/types"
 import { importMetadataItemFromYAML } from "../../orchestration/metadataItem/fromYAML"

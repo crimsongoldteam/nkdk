@@ -1,4 +1,4 @@
-import { TSchema } from "@sinclairtypebox"
+import { TSchema } from "typebox"
 import { ExportToJSONSchemaFn, registerTypeRule } from "../../orchestration"
 import { BorderJSONSchema } from "./types"
 

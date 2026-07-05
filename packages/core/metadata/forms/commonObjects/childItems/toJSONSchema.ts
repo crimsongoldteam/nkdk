@@ -1,4 +1,4 @@
-import { TSchema, Type } from "@sinclairtypebox"
+import { TProperties, TSchema, Type } from "typebox"
 import { ConfigurationContext } from "../../../context/types"
 import { ExportToJSONSchemaFn, registerTypeRule } from "../../../orchestration"
 import { getElementRule } from "../../../orchestration/formElement/ruleFactory"
@@ -24,7 +24,7 @@ export const exportChildItemsToJSONSchema: ExportToJSONSchemaFn = (params): TSch
     return exportGenericChildItemsToJSONSchema({ context, propertyType: rule.type })
   }
 
-  const result = {} as TSchema
+  const result: TProperties = {}
   for (const item of items) {
     const resultItem = exportElementToJSONSchema({
       context,
@@ -81,7 +81,9 @@ type ChildItemsSchemaModule = {
 function createChildItemsSchemaModule(
   definitions: Record<ChildItemsTreePropertyType, TSchema>
 ): ChildItemsSchemaModule {
-  return Type.Module(definitions) as unknown as ChildItemsSchemaModule
+  return {
+    Import: (key) => Type.Cyclic(definitions, key),
+  }
 }
 
 function createInlineChildItemsDefinitions(context: ConfigurationContext): Record<ChildItemsTreePropertyType, TSchema> {

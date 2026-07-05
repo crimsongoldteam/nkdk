@@ -1,5 +1,5 @@
-import { Type } from "@sinclairtypebox"
-import { TypeCompiler, ValueErrorType } from "@sinclair/typebox/compiler"
+import { Type } from "typebox"
+import Schema from "typebox/schema"
 import { parseMetadataYaml } from "../../yaml/parseMetadataYaml"
 import { describe, expect, it } from "vitest"
 import {
@@ -96,7 +96,7 @@ const nestedDiscriminatedUnionSchema = Schema.Compile(
   )
 )
 
-const childItemsModule = Type.Module({
+const childItemsDefinitions = {
   ChildItems: Type.Record(
     Type.String(),
     Type.Union(
@@ -119,12 +119,12 @@ const childItemsModule = Type.Module({
       { discriminantKey: "Вид" }
     )
   ),
-})
+}
 
 const referencedNestedDiscriminatedUnionSchema = Schema.Compile(
   Type.Object(
     {
-      Элементы: childItemsModule.Import("ChildItems"),
+      Элементы: Type.Cyclic(childItemsDefinitions, "ChildItems"),
     },
     { additionalProperties: false }
   )
@@ -340,12 +340,12 @@ describe("validateFile", () => {
     )
   })
 
-  it("кэширует контекст ссылок для повторного раскрытия одной TypeCheck-схемы", () => {
+  it("кэширует контекст ссылок для повторного раскрытия одной скомпилированной схемы", () => {
     resetDiscriminatedUnionExpansionContextCacheForTests()
     const parsed = parseMetadataYaml(
       `Элементы:\n  Группа1:\n    Вид: Группа\n    Элементы:\n      Надпись1:\n        Вид: Надпись\n        Заголовок: 123\n`
     )
-    const errors = [...referencedNestedDiscriminatedUnionSchema.Errors(parsed.data)]
+    const [, errors] = referencedNestedDiscriminatedUnionSchema.Errors(parsed.data)
 
     const first = expandDiscriminatedUnionErrors(errors, referencedNestedDiscriminatedUnionSchema)
     const second = expandDiscriminatedUnionErrors(errors, referencedNestedDiscriminatedUnionSchema)
@@ -358,7 +358,7 @@ describe("validateFile", () => {
     const parsed = parseMetadataYaml(
       `Элементы:\n  Группа1:\n    Вид: Группа\n    Элементы:\n      Надпись1:\n        Вид: Надпись\n        Заголовок: 123\n`
     )
-    const errors = [...referencedNestedDiscriminatedUnionSchema.Errors(parsed.data)]
+    const [, errors] = referencedNestedDiscriminatedUnionSchema.Errors(parsed.data)
 
     const result = typeboxErrorsToDiagnostics(errors, parsed, "test.yaml")
 
@@ -425,7 +425,8 @@ describe("validateFile", () => {
         }),
       ])
     )
-    expect([...plainUnionSchema.Errors({ Вид: "Второй", Число: "не-число" })][0]?.type).toBe(ValueErrorType.Union)
+    const [, errors] = plainUnionSchema.Errors({ Вид: "Второй", Число: "не-число" })
+    expect(errors.some((error) => error.keyword === "anyOf")).toBe(true)
   })
 })
 

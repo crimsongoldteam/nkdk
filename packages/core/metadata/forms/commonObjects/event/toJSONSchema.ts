@@ -1,4 +1,4 @@
-import { TSchema, Type } from "@sinclairtypebox"
+import { TSchema, Type } from "typebox"
 import { ConfigurationContext } from "../../../context/types"
 import { registerTypeRule } from "../../../orchestration/property/typeRuleRegistry"
 import type { EventsPropertyRule, PropertyRule } from "../../../orchestration/property/types"

@@ -1,5 +1,5 @@
 import { join, resolve } from "path"
-import { Type } from "@sinclairtypebox"
+import { Type } from "typebox"
 import type { ConfigurationContext } from "../../context/types"
 import { importMetadataItemFromYAML } from "../../orchestration/metadataItem/fromYAML"
 import type { MetadataItem, MetadataItemRule } from "../../orchestration/property/types"

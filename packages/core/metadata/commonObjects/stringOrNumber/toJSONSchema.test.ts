@@ -1,4 +1,4 @@
-import { Type } from "@sinclairtypebox"
+import { Type } from "typebox"
 import { describe, expect, it } from "vitest"
 import { PropertyRule } from "../../orchestration"
 import { exportPropertyToJSONSchema } from "../../orchestration/property/toJSONSchema"

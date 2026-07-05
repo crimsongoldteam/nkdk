@@ -1,4 +1,5 @@
-import Schema from "typebox/schema"
+import { Type, type TSchema } from "typebox"
+import Schema, { type Validator } from "typebox/schema"
 import fs from "fs"
 import { performance } from "node:perf_hooks"
 import { dirname, join, resolve } from "path"
@@ -12,6 +13,7 @@ import { type OwnerMetadata, type OwnerMetadataCache } from "./dataPath/ownerCac
 import { buildObjectFieldIndex, type ObjectField, type ObjectFieldKind } from "./dataPath/objectFields"
 import { validateExcludedEqualNameYAML } from "./excludeIfEqualNameYAML"
 import { getRegisteredFormValidationPasses } from "./formValidationRegistry"
+import { JSON_SCHEMA_REF_PREFIX } from "../orchestration/jsonSchemaRefs"
 import { collectMetadataTargetReferencesInModel } from "./metadataTargetTraversal"
 import { getProjectFileValidators, getProjectReferenceMemberIndexContributors } from "./projectReferenceIndexRegistry"
 import {
@@ -33,7 +35,9 @@ import type { Diagnostic } from "./types"
 import { validateParsedFile } from "./validateFile"
 import { validateUniqueNameScopes } from "./uniqueNameScopes"
 
-type CompiledSchema = ReturnType<(typeof TypeCompiler)["Compile"]>
+type CompiledSchema = Validator<TSchema>
+const formSchemaCache = new Map<string, CompiledSchema>()
+const propertiesSchemaCache = new Map<string, CompiledSchema>()
 
 export interface ValidationSchemaCache {
   form: () => CompiledSchema
@@ -139,7 +143,7 @@ export function createValidationSchemaCache(context: ConfigurationContext): Vali
 
   return {
     form() {
-      formSchema ??= Schema.Compile(exportFormSchema(context))
+      formSchema ??= compileRegisteredFormSchema(context)
 
       return formSchema
     },
@@ -148,12 +152,56 @@ export function createValidationSchemaCache(context: ConfigurationContext): Vali
       const existing = propertiesSchemas.get(key)
       if (existing) return existing
 
-      const compiled = Schema.Compile(spec.exportSchema({ context, mode: "inline" }))
+      const globalKey = `${context.version}:${context.defaultLanguage}:${spec.dir}`
+      const compiled = propertiesSchemaCache.get(globalKey) ?? Schema.Compile(spec.exportSchema({ context, mode: "inline" }))
+      propertiesSchemaCache.set(globalKey, compiled)
       propertiesSchemas.set(key, compiled)
 
       return compiled
     },
   }
+}
+
+function compileRegisteredFormSchema(context: ConfigurationContext): CompiledSchema {
+  const cacheKey = `${context.version}:${context.defaultLanguage}`
+  const cached = formSchemaCache.get(cacheKey)
+  if (cached !== undefined) return cached
+
+  const schema = exportJSONSchemaForSchemaName({ context, name: "ClientApplicationForm", mode: "externalRefs" })
+  const compiled = Schema.Compile(stripExternalRefsForValidation(schema))
+  formSchemaCache.set(cacheKey, compiled)
+  return compiled
+}
+
+function stripExternalRefsForValidation(schema: TSchema): TSchema {
+  return stripExternalRefs(schema) as TSchema
+}
+
+function stripExternalRefs(value: unknown): unknown {
+  if (Array.isArray(value)) return value.map(stripExternalRefs)
+  if (value === null || typeof value !== "object") return value
+
+  const record = value as Record<string, unknown>
+  if (typeof record.$ref === "string" && record.$ref.startsWith(JSON_SCHEMA_REF_PREFIX)) {
+    return Type.Any()
+  }
+
+  return Object.fromEntries(
+    Object.entries(record).map(([key, entry]) => [
+      key,
+      key === "additionalProperties" && containsExternalRef(entry) ? true : stripExternalRefs(entry),
+    ])
+  )
+}
+
+function containsExternalRef(value: unknown): boolean {
+  if (Array.isArray(value)) return value.some(containsExternalRef)
+  if (value === null || typeof value !== "object") return false
+
+  const record = value as Record<string, unknown>
+  if (typeof record.$ref === "string" && record.$ref.startsWith(JSON_SCHEMA_REF_PREFIX)) return true
+
+  return Object.values(record).some(containsExternalRef)
 }
 
 export function validateProjectFileFirstPass(params: {

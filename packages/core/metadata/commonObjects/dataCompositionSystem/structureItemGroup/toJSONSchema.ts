@@ -1,4 +1,4 @@
-import { TSchema, Type } from "@sinclairtypebox"
+import { TSchema, Type } from "typebox"
 import { ExportToJSONSchemaFn, PropertyRule, registerTypeRule } from "../../../orchestration"
 import { exportPropertyToJSONSchema } from "../../../orchestration/property/toJSONSchema"
 import { GroupItemFieldRules } from "./items/groupItemField/rules"

@@ -1,5 +1,5 @@
-import { TSchema } from "@sinclairtypebox"
-import { TypeCheck, TypeCompiler } from "@sinclair/typebox/compiler"
+import type { TSchema } from "typebox"
+import Schema, { type Validator } from "typebox/schema"
 import { MetadataAccumulationRegisterRules } from "../appliedObjects/metadataAccumulationRegister/rules"
 import { ConfigurationContext } from "../context/types"
 import { exportMetadataCatalogToJSONSchema } from "../appliedObjects/metadataCatalog/toJSONSchema"
@@ -14,14 +14,14 @@ import { exportMetadataItemToJSONSchema } from "../orchestration/metadataItem/to
 import { MetadataKind } from "./types"
 
 export interface SchemaCache {
-  get(kind: MetadataKind): TypeCheck<TSchema>
+  get(kind: MetadataKind): Validator<TSchema>
 }
 
 export function createSchemaCache(context: ConfigurationContext): SchemaCache {
-  const cache = new Map<MetadataKind, TypeCheck<TSchema>>()
+  const cache = new Map<MetadataKind, Validator<TSchema>>()
 
   return {
-    get(kind: MetadataKind): TypeCheck<TSchema> {
+    get(kind: MetadataKind): Validator<TSchema> {
       const cached = cache.get(kind)
       if (cached) return cached
 

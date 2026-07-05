@@ -1,5 +1,5 @@
-import { Type } from "@sinclairtypebox"
-import type { Static } from "@sinclairtypebox"
+import { Type } from "typebox"
+import type { Static } from "typebox"
 import * as SE from "../../systemEnumerations/types"
 import { BooleanJSONSchema, StringboolYAML } from "../boolean/types"
 

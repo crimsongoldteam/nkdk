@@ -1,5 +1,5 @@
 import Schema from "typebox/schema"
-import { describe, expect, it } from "vitest"
+import { beforeAll, describe, expect, it } from "vitest"
 import { PropertyRule } from "../../../orchestration"
 import { exportPropertyToJSONSchema } from "../../../orchestration/property/toJSONSchema"
 import { mockContext } from "../../../../tests/mockContext"
@@ -19,8 +19,48 @@ const rule: PropertyRule = {
   },
 }
 
+let compiledDefaultSchema: ReturnType<typeof Schema.Compile> | undefined
+let compiledExplicitRulesSchema: ReturnType<typeof Schema.Compile> | undefined
+
+function defaultSchema(): ReturnType<typeof Schema.Compile> {
+  compiledDefaultSchema ??= compileSchema(rule)
+  return compiledDefaultSchema
+}
+
+function explicitRulesSchema(): ReturnType<typeof Schema.Compile> {
+  compiledExplicitRulesSchema ??= compileSchema({
+    type: "SettingsParameterValueCollection",
+    defaultItemRule: {
+      type: "SettingsParameterValue",
+      valueType: "Primitive",
+    },
+    parameterRules: {
+      СвязиПараметровВыбора: {
+        type: "SettingsParameterValue",
+        valueType: "ChoiceParameterLinks",
+      },
+      ПараметрыВыбора: {
+        type: "SettingsParameterValue",
+        valueType: "Parameter",
+      },
+    },
+  })
+  return compiledExplicitRulesSchema
+}
+
+function compileSchema(rule: PropertyRule): ReturnType<typeof Schema.Compile> {
+  const schema = exportPropertyToJSONSchema({ context: mockContext, rule, value: undefined })
+  if (schema === undefined) throw new Error("SettingsParameterValueCollection JSON Schema is not registered")
+  return Schema.Compile(schema)
+}
+
 describe("import SettingsParameterValueCollection from YAML", () => {
   const parseViaYamlText = <T>(value: T): T => importFromYAML<T>(exportToYAML(value))
+
+  beforeAll(() => {
+    defaultSchema()
+    explicitRulesSchema()
+  }, 30_000)
 
   it("imports undefined", () => {
     const result = testImportPropertyFromYAML({ rule, value: undefined })
@@ -89,53 +129,25 @@ describe("import SettingsParameterValueCollection from YAML", () => {
   })
 
   it("accepts arbitrary parameter names with default item rule in JSON Schema", () => {
-    const schema = exportPropertyToJSONSchema({ context: mockContext, rule, value: undefined })
-    if (schema === undefined) throw new Error("SettingsParameterValueCollection JSON Schema is not registered")
-    const compiled = Schema.Compile(schema)
+    const compiled = defaultSchema()
 
     expect(compiled.Check({ ДанныеПолучены: { Использовать: "Ложь" } })).toBe(true)
   })
 
   it("accepts parameter value wrappers in JSON Schema", () => {
-    const schema = exportPropertyToJSONSchema({ context: mockContext, rule, value: undefined })
-    if (schema === undefined) throw new Error("SettingsParameterValueCollection JSON Schema is not registered")
-    const compiled = Schema.Compile(schema)
+    const compiled = defaultSchema()
 
     expect(compiled.Check({ Год: { Использовать: "Ложь", Значение: 0 } })).toBe(true)
   })
 
   it("rejects unsupported parameter value keys in JSON Schema", () => {
-    const schema = exportPropertyToJSONSchema({ context: mockContext, rule, value: undefined })
-    if (schema === undefined) throw new Error("SettingsParameterValueCollection JSON Schema is not registered")
-    const compiled = Schema.Compile(schema)
+    const compiled = defaultSchema()
 
     expect(compiled.Check({ Год: { Использовать: "Ложь", НеизвестноеПоле: 0 } })).toBe(false)
   })
 
   it("uses explicit parameter rules before default item rule in JSON Schema", () => {
-    const schema = exportPropertyToJSONSchema({
-      context: mockContext,
-      rule: {
-        type: "SettingsParameterValueCollection",
-        defaultItemRule: {
-          type: "SettingsParameterValue",
-          valueType: "Primitive",
-        },
-        parameterRules: {
-          СвязиПараметровВыбора: {
-            type: "SettingsParameterValue",
-            valueType: "ChoiceParameterLinks",
-          },
-          ПараметрыВыбора: {
-            type: "SettingsParameterValue",
-            valueType: "Parameter",
-          },
-        },
-      },
-      value: undefined,
-    })
-    if (schema === undefined) throw new Error("SettingsParameterValueCollection JSON Schema is not registered")
-    const compiled = Schema.Compile(schema)
+    const compiled = explicitRulesSchema()
 
     expect(
       compiled.Check({

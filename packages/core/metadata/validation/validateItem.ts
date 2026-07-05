@@ -1,5 +1,5 @@
-import { TSchema } from "@sinclairtypebox"
-import { TypeCheck } from "@sinclair/typebox/compiler"
+import type { TSchema } from "typebox"
+import type { Validator } from "typebox/schema"
 import { existsSync, readdirSync, readFileSync } from "fs"
 import { basename, dirname, join, resolve } from "path"
 import { Diagnostic } from "./types"
@@ -10,7 +10,7 @@ import { createOwnerMetadataCache } from "./dataPath/ownerCache"
 
 export interface ValidateItemParams {
   itemDir: string
-  schema: TypeCheck<TSchema>
+  schema: Validator<TSchema>
 }
 
 export function validateItem({ itemDir, schema }: ValidateItemParams): Diagnostic[] {

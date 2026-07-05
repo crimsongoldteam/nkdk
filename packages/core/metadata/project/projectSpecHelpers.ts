@@ -1,4 +1,4 @@
-import type { TSchema } from "@sinclairtypebox"
+import type { TSchema } from "typebox"
 import type { ConfigurationContext } from "../context/types"
 import { attachCollectedSchemaRefs, createJSONSchemaExportContext } from "../orchestration/jsonSchemaRefs"
 import { importMetadataItemFromYAML } from "../orchestration/metadataItem/fromYAML"

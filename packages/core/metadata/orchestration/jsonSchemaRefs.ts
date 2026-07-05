@@ -1,4 +1,4 @@
-import { type TSchema } from "@sinclairtypebox"
+import { type TSchema } from "typebox"
 import type { ConfigurationContext, JSONSchemaExportMode } from "../context/types"
 import type { PropertyRuleType } from "./property/registry"
 import type { PropertyRule } from "./property/types"
@@ -43,13 +43,17 @@ export function registerJSONSchemaPropertyRef(type: PropertyRuleType, factory: P
 
 export function createJSONSchemaExportContext(
   context: ConfigurationContext,
-  mode: JSONSchemaExportMode
+  mode: JSONSchemaExportMode,
+  options: { includeNestedChildItems?: boolean } = {}
 ): ConfigurationContext {
   return {
     ...context,
     exportToJSONSchema: {
       mode,
       refs: new Set<string>(),
+      ...(options.includeNestedChildItems === undefined
+        ? {}
+        : { includeNestedChildItems: options.includeNestedChildItems }),
     },
   }
 }

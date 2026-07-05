@@ -1,4 +1,4 @@
-import type { TSchema } from "@sinclairtypebox"
+import type { TSchema } from "typebox"
 import { ConfigDumpInfo } from "../appliedObjects/configDumpInfo/types"
 import { EnterpriseAttributeMapItem } from "../forms/clientApplicationForm/types"
 import { FormChildItemsPartialYAML, FormElementsYAML } from "../forms/commonObjects/childItems/types"
@@ -19,6 +19,7 @@ export type JSONSchemaExportMode = "externalRefs" | "inline"
 export interface JSONSchemaExportContext {
   mode: JSONSchemaExportMode
   refs: Set<string>
+  includeNestedChildItems?: boolean
   propertySchemaOverrides?: Partial<Record<PropertyRuleType, TSchema>>
   schemaStack?: PropertyRuleType[]
 }

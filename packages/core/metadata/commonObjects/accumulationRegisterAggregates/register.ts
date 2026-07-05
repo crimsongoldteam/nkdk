@@ -1,4 +1,4 @@
-import { Type } from "@sinclairtypebox"
+import { Type } from "typebox"
 import { getParentFromContext } from "../../context/helpers"
 import {
   ConfigurationContext,

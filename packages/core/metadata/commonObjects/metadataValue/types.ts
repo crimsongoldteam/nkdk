@@ -3,8 +3,8 @@ import {
   type ExactRuleParams as WideExactRuleParams,
 } from "../ruleBuilder"
 import type { PropertyRule as WidePropertyRuleBase } from "../../orchestration/property/types"
-import { Type } from "@sinclairtypebox"
-import type { Static } from "@sinclairtypebox"
+import { Type } from "typebox"
+import type { Static } from "typebox"
 import { definePropertyRule, type ExactRuleParams } from "../ruleBuilder"
 import { BasePropertyRule } from "../../orchestration"
 import type { ExplicitYAMLString } from "../../../yaml/explicitString"
@@ -210,27 +210,30 @@ export const MetadataExplicitAccountTypeYAMLJSONSchema = Type.Object({
 })
 export type MetadataExplicitAccountTypeYAML = Static<typeof MetadataExplicitAccountTypeYAMLJSONSchema>
 
-export const MetadataValueJSONSchema = Type.Recursive((ThisType) =>
-  Type.Union([
-    MetadataSingleValueJSONSchema,
-    MetadataFixedArrayValueJSONSchema,
-    MetadataExplicitDataCompositionComparisonTypeYAMLJSONSchema,
-    MetadataExplicitAccountTypeYAMLJSONSchema,
-    StandardPeriodYAMLJSONSchema,
-    Type.Object(
-      {
-        Представление: I8nTextJSONSchema,
-        Значение: Type.Optional(ThisType),
-      },
-      { additionalProperties: false }
-    ),
-    Type.Object(
-      {
-        Значение: ThisType,
-      },
-      { additionalProperties: false }
-    ),
-  ])
+export const MetadataValueJSONSchema = Type.Cyclic(
+  {
+    MetadataValue: Type.Union([
+      MetadataSingleValueJSONSchema,
+      MetadataFixedArrayValueJSONSchema,
+      MetadataExplicitDataCompositionComparisonTypeYAMLJSONSchema,
+      MetadataExplicitAccountTypeYAMLJSONSchema,
+      StandardPeriodYAMLJSONSchema,
+      Type.Object(
+        {
+          Представление: I8nTextJSONSchema,
+          Значение: Type.Optional(Type.Ref("MetadataValue")),
+        },
+        { additionalProperties: false }
+      ),
+      Type.Object(
+        {
+          Значение: Type.Ref("MetadataValue"),
+        },
+        { additionalProperties: false }
+      ),
+    ]),
+  },
+  "MetadataValue"
 )
 
 const MetadataFormChoiceListValueValueJSONSchema = Type.Union([

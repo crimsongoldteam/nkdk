@@ -1,4 +1,4 @@
-import { Type, TSchema } from "@sinclairtypebox"
+import { Type, TSchema } from "typebox"
 import { ExportToJSONSchemaFn, registerTypeRule } from "../../orchestration"
 
 export const XDTOTypeNameJSONSchema = Type.Object({

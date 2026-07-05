@@ -1,4 +1,4 @@
-import { Type } from "@sinclairtypebox"
+import { Type } from "typebox"
 import { MetadataNameYAML } from "../metadataName/types"
 import { MetadataTypeByRule } from "../../orchestration/metadataItem/element"
 import { YAMLTypeByRule } from "../../orchestration/metadataItem/yaml"

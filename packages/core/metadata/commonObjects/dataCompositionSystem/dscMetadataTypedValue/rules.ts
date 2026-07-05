@@ -1,4 +1,4 @@
-import type { Static } from "@sinclairtypebox"
+import type { Static } from "typebox"
 import {
   ConfigurationContext,
   ConfigurationContextFromXML,

@@ -3,7 +3,7 @@ import {
   type ExactRuleParams as WideExactRuleParams,
 } from "../ruleBuilder"
 import type { PropertyRule as WidePropertyRuleBase } from "../../orchestration/property/types"
-import { Type } from "@sinclairtypebox"
+import { Type } from "typebox"
 import {
   MetadataTypedValue,
   MetadataValueJSONSchema,

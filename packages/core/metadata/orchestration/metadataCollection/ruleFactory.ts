@@ -1,4 +1,4 @@
-import { Type } from "@sinclairtypebox"
+import { Type } from "typebox"
 import {
   ExportToJSONSchemaFn,
   ExportToXMLFunctionNew,
@@ -141,6 +141,7 @@ export const registerMetadataItemCollectionRule = <
         exportToJSONSchema: {
           mode: context.exportToJSONSchema?.mode ?? "inline",
           refs: context.exportToJSONSchema?.refs ?? new Set(),
+          includeNestedChildItems: context.exportToJSONSchema?.includeNestedChildItems,
           propertySchemaOverrides: context.exportToJSONSchema?.propertySchemaOverrides,
           schemaStack: [...schemaStack, propertyType],
         },

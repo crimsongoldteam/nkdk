@@ -136,7 +136,7 @@ describe("exportTypeDescriptionToJSONSchema", () => {
     expect(JSON.stringify(schema)).not.toContain("x-nkdk-graph")
   })
 
-  it("validates external data source references with TypeCompiler", () => {
+  it("validates external data source references with compiled TypeBox schema", () => {
     const jsonSchema = exportTypeDescriptionToJSONSchema({
       context: mockContext,
       rule: externalRefsRule,

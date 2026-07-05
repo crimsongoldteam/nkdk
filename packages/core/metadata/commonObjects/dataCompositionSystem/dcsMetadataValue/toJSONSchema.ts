@@ -1,4 +1,4 @@
-import { TSchema, Type } from "@sinclairtypebox"
+import { TSchema, Type } from "typebox"
 import { ColorJSONSchema } from "../../color/types"
 import { FontJSONSchema } from "../../font/types"
 import { FormattedI8nTextJSONSchema } from "../../formattedI8nText/types"
@@ -93,28 +93,37 @@ const StrictStandardPeriodYAMLJSONSchema = Type.Object(
   { additionalProperties: false }
 )
 
-const DcsMetadataSingleValueJSONSchema = Type.Recursive((ThisType) =>
-  Type.Union([
-    MetadataSingleValueJSONSchema,
-    StrictMetadataExplicitDataCompositionComparisonTypeYAMLJSONSchema,
-    StrictMetadataExplicitAccountTypeYAMLJSONSchema,
-    StrictStandardPeriodYAMLJSONSchema,
-    Type.Object(
-      {
-        Представление: I8nTextJSONSchema,
-        Значение: Type.Optional(
-          Type.Union([ThisType, Type.Array(Type.Union([ThisType, Type.Undefined(), Type.Null()]))])
-        ),
-      },
-      { additionalProperties: false }
-    ),
-    Type.Object(
-      {
-        Значение: Type.Union([ThisType, Type.Array(Type.Union([ThisType, Type.Undefined(), Type.Null()]))]),
-      },
-      { additionalProperties: false }
-    ),
-  ])
+const DcsMetadataSingleValueJSONSchema = Type.Cyclic(
+  {
+    DcsMetadataSingleValue: Type.Union([
+      MetadataSingleValueJSONSchema,
+      StrictMetadataExplicitDataCompositionComparisonTypeYAMLJSONSchema,
+      StrictMetadataExplicitAccountTypeYAMLJSONSchema,
+      StrictStandardPeriodYAMLJSONSchema,
+      Type.Object(
+        {
+          Представление: I8nTextJSONSchema,
+          Значение: Type.Optional(
+            Type.Union([
+              Type.Ref("DcsMetadataSingleValue"),
+              Type.Array(Type.Union([Type.Ref("DcsMetadataSingleValue"), Type.Undefined(), Type.Null()])),
+            ])
+          ),
+        },
+        { additionalProperties: false }
+      ),
+      Type.Object(
+        {
+          Значение: Type.Union([
+            Type.Ref("DcsMetadataSingleValue"),
+            Type.Array(Type.Union([Type.Ref("DcsMetadataSingleValue"), Type.Undefined(), Type.Null()])),
+          ]),
+        },
+        { additionalProperties: false }
+      ),
+    ]),
+  },
+  "DcsMetadataSingleValue"
 )
 
 const DcsMetadataValueJSONSchema = Type.Union([
@@ -124,10 +133,11 @@ const DcsMetadataValueJSONSchema = Type.Union([
 
 const DesignTimeI8nTextJSONSchema = Type.Union([
   Type.String(),
-  Type.Record(Type.RegExp(/^[a-z]{2}(-[A-Z]{2})?$/), Type.String(), {
+  {
+    ...Type.Record(Type.String({ pattern: "^[a-z]{2}(-[A-Z]{2})?$" }), Type.String()),
     additionalProperties: false,
     minProperties: 1,
-  }),
+  } as TSchema,
 ])
 
 const Nullable = (schema: TSchema): TSchema => Type.Union([Type.Null(), schema])

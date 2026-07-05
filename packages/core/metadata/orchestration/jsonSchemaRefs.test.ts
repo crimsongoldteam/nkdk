@@ -1,4 +1,4 @@
-import { Type } from "@sinclairtypebox"
+import { Type } from "typebox"
 import { afterEach, describe, expect, it } from "vitest"
 import {
   attachCollectedSchemaRefs,

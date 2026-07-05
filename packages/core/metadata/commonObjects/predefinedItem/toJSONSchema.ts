@@ -1,4 +1,4 @@
-import { TSchema, Type } from "@sinclairtypebox"
+import { TSchema, Type } from "typebox"
 import { PredefinedCodeJSONSchema } from "../predefinedCode/types"
 import { ConfigurationContext } from "../../context/types"
 import { exportPropertyToJSONSchema } from "../../orchestration/property/toJSONSchema"
@@ -12,17 +12,20 @@ export const exportPredefinedItemCollectionToJSONSchema = (context: Configuratio
     value: undefined,
   })
 
-  const itemSchema = Type.Recursive((self) =>
-    Type.Object(
-      {
-        Код: Type.Optional(PredefinedCodeJSONSchema),
-        Наименование: Type.Optional(Type.String()),
-        ЭтоГруппа: Type.Optional(Type.Literal("Истина")),
-        ...(typeSchema ? { ТипЗначения: Type.Optional(typeSchema) } : {}),
-        Элементы: Type.Optional(Type.Record(Type.String(), self)),
-      },
-      { additionalProperties: false }
-    )
+  const itemSchema = Type.Cyclic(
+    {
+      PredefinedItem: Type.Object(
+        {
+          Код: Type.Optional(PredefinedCodeJSONSchema),
+          Наименование: Type.Optional(Type.String()),
+          ЭтоГруппа: Type.Optional(Type.Literal("Истина")),
+          ...(typeSchema ? { ТипЗначения: Type.Optional(typeSchema) } : {}),
+          Элементы: Type.Optional(Type.Record(Type.String(), Type.Ref("PredefinedItem"))),
+        },
+        { additionalProperties: false }
+      ),
+    },
+    "PredefinedItem"
   )
 
   return Type.Record(Type.String(), itemSchema)

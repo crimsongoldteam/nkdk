@@ -1,5 +1,5 @@
 import { ConfigurationContext } from "../../context/types"
-import { Type, type TSchema } from "@sinclairtypebox"
+import { Type, type TSchema } from "typebox"
 import {
   exportMetadataItemToYAML,
   importMetadataItemFromYAML,
