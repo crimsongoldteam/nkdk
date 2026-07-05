@@ -1,10 +1,11 @@
+import {
+  compileValidationSchema,
+  type ValidationSchemaError,
+  type ValidationSchemaValidator,
+} from "./compileValidationSchema"
 import type { TSchema } from "typebox"
-import Schema, { type Validator } from "typebox/schema"
-import type { TLocalizedValidationError } from "typebox/error"
 
-export type ValidationError = TLocalizedValidationError & {
-  schema?: TSchema
-  value?: unknown
+export type ValidationError = ValidationSchemaError & {
   diagnosticLocation?: "key"
 }
 
@@ -19,7 +20,7 @@ interface BranchSchema extends TSchema {
 
 interface BranchEntry {
   schema: TSchema
-  compiled?: Validator<TSchema>
+  compiled?: ValidationSchemaValidator<TSchema>
 }
 
 interface BranchCache {
@@ -35,7 +36,7 @@ interface ExpansionContext {
 
 const emptyExpansionContext: ExpansionContext = { schemaContext: {}, referenceKey: "" }
 const unionSchemaCache = new WeakMap<TSchema, Map<string, BranchCache>>()
-let expansionContextCache = new WeakMap<Validator<TSchema>, ExpansionContext>()
+let expansionContextCache = new WeakMap<ValidationSchemaValidator<TSchema>, ExpansionContext>()
 let expansionContextBuildCountForTests = 0
 
 function isDiscriminatedUnionSchema(schema: TSchema | undefined): schema is DiscriminatedUnionSchema {
@@ -150,11 +151,11 @@ function getBranchCache(schema: DiscriminatedUnionSchema, context: ExpansionCont
   return cache
 }
 
-function getCompiledBranch(entry: BranchEntry, context: ExpansionContext): Validator<TSchema> | undefined {
+function getCompiledBranch(entry: BranchEntry, context: ExpansionContext): ValidationSchemaValidator<TSchema> | undefined {
   if (entry.compiled !== undefined) return entry.compiled
 
   try {
-    entry.compiled = Schema.Compile(context.schemaContext, entry.schema)
+    entry.compiled = compileValidationSchema(context.schemaContext, entry.schema)
     return entry.compiled
   } catch {
     return undefined
@@ -227,7 +228,8 @@ function isBranchErrorOfDiscriminatedUnion(
   context: ExpansionContext
 ): boolean {
   if (!isDiscriminatedUnionError(unionError, context)) return false
-  if (!error.schemaPath.startsWith(`${unionError.schemaPath}/anyOf/`)) return false
+  const unionSchemaPath = unionError.schemaPath.replace(/\/(?:anyOf|oneOf)$/, "")
+  if (!error.schemaPath.startsWith(`${unionSchemaPath}/anyOf/`)) return false
   return error.instancePath === unionError.instancePath || error.instancePath.startsWith(`${unionError.instancePath}/`)
 }
 
@@ -254,7 +256,7 @@ function collectSchemaContext(schema: TSchema): Record<string, TSchema> {
   return context
 }
 
-function getExpansionContext(schema?: Validator<TSchema>): ExpansionContext {
+function getExpansionContext(schema?: ValidationSchemaValidator<TSchema>): ExpansionContext {
   if (schema === undefined) return emptyExpansionContext
 
   const cached = expansionContextCache.get(schema)
@@ -266,7 +268,7 @@ function getExpansionContext(schema?: Validator<TSchema>): ExpansionContext {
   return context
 }
 
-function createExpansionContext(schema: Validator<TSchema>): ExpansionContext {
+function createExpansionContext(schema: ValidationSchemaValidator<TSchema>): ExpansionContext {
   expansionContextBuildCountForTests += 1
   const root = schema.Schema()
   const schemaContext = collectSchemaContext(root)
@@ -279,7 +281,7 @@ function createExpansionContext(schema: Validator<TSchema>): ExpansionContext {
 }
 
 export function resetDiscriminatedUnionExpansionContextCacheForTests(): void {
-  expansionContextCache = new WeakMap<Validator<TSchema>, ExpansionContext>()
+  expansionContextCache = new WeakMap<ValidationSchemaValidator<TSchema>, ExpansionContext>()
   expansionContextBuildCountForTests = 0
 }
 
@@ -289,7 +291,7 @@ export function getDiscriminatedUnionExpansionContextBuildCountForTests(): numbe
 
 export function expandDiscriminatedUnionErrors(
   errors: ValidationError[],
-  schema?: Validator<TSchema>
+  schema?: ValidationSchemaValidator<TSchema>
 ): ValidationError[] {
   return expandDiscriminatedUnionErrorsWithContext(errors, getExpansionContext(schema))
 }

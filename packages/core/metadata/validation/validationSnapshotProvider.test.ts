@@ -4,6 +4,7 @@ import { createOwnerMetadataCacheFromValidationTable } from "./dataPath/ownerCac
 import { projectObjectIndexKey } from "./projectReferenceIndex"
 import { createValidationObjectTable } from "./projectValidationObjectTable"
 import type { ValidationObjectRecord } from "./projectValidationTypes"
+import { getValidationProjectSpecByDir } from "./projectSpecs"
 import { createValidationSnapshotProvider } from "./validationSnapshotProvider"
 
 describe("ValidationSnapshotProvider", () => {
@@ -43,6 +44,8 @@ describe("ValidationSnapshotProvider", () => {
       pendingReferences: [],
     })
     const provider = createValidationSnapshotProvider(table.snapshot())
+    const catalogSpec = getValidationProjectSpecByDir("Справочник")
+    if (catalogSpec === undefined) throw new Error("catalog spec expected")
     const index = provider.referenceIndex({
       projectDir: "/project",
       mode: "partial",
@@ -53,6 +56,7 @@ describe("ValidationSnapshotProvider", () => {
           absolutePath: "/project/Справочник/Товары/Свойства.yaml",
           projectPath: "Справочник/Товары/Свойства.yaml",
           kind: "properties",
+          owner: { dir: "Справочник", name: "Товары", spec: catalogSpec },
         },
         requestedBy: "/project/Справочник/Товары/Свойства.yaml",
       }),
@@ -86,7 +90,7 @@ function catalogRecord(): ValidationObjectRecord {
             name: "Артикул",
             kind: "attribute",
             sourceCollection: "attributes",
-            typeInfo: { kinds: ["string"], nextTypes: [], sourceText: "String" },
+            typeInfo: { kinds: ["scalar"] as const, nextTypes: [], sourceText: "String" },
           },
         ],
       ]),

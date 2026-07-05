@@ -36,7 +36,7 @@ function extendFormAttributeColumnsSchema(schema: TSchema, context: Configuratio
 }
 
 function isObjectSchema(schema: TSchema): schema is TObject<TProperties> {
-  return schema.type === "object" && "properties" in schema
+  return "type" in schema && schema.type === "object" && "properties" in schema
 }
 
 function requiredFormAttributeSchema(context: ConfigurationContext): TSchema {

@@ -1,4 +1,4 @@
-import Schema from "typebox/schema"
+import { compileValidationSchema } from "./../../validation/compileValidationSchema"
 import { describe, expect, it } from "vitest"
 import { exportMetadataItemToJSONSchema } from "../../orchestration/metadataItem/toJSONSchema"
 import { mockContext } from "../../../tests/mockContext"
@@ -6,7 +6,7 @@ import { MetadataTabularSectionRules } from "./rules"
 
 describe("MetadataTabularSection JSON Schema", () => {
   const compiled = () =>
-    Schema.Compile(
+    compileValidationSchema(
       exportMetadataItemToJSONSchema({
         context: mockContext,
         rule: MetadataTabularSectionRules,

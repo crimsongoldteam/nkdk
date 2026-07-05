@@ -1,4 +1,4 @@
-import Schema from "typebox/schema"
+import { compileValidationSchema } from "./../../../validation/compileValidationSchema"
 import { describe, expect, it } from "vitest"
 import { exportPropertyToJSONSchema } from "../../../orchestration/property/toJSONSchema"
 import { mockContext } from "../../../../tests/mockContext"
@@ -11,7 +11,7 @@ const schemaFor = () => {
     value: undefined,
   })
   if (schema === undefined) throw new Error("schema is undefined")
-  return Schema.Compile(schema)
+  return compileValidationSchema(schema)
 }
 
 describe("AppearanceFields exportToJSONSchema", () => {

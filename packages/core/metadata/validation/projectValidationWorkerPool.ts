@@ -160,6 +160,7 @@ export function createProjectValidationWorkerPool(params: { concurrency: number 
           assignedFilePaths.set(worker, filePaths)
           if (filePaths.length === 0) {
             return {
+              index,
               diagnostics: [],
               objectRecords: [],
               objectIndexEntries: [],

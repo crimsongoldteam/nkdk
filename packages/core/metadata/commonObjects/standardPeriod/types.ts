@@ -32,6 +32,6 @@ export const StandardPeriodYAMLJSONSchema = Type.Object({
   ДатаОкончания: Type.Optional(Type.String({ pattern: russianDateTimeWithSecondsPattern })),
 })
 
-export interface StandardPeriodYAML extends Static<typeof StandardPeriodYAMLJSONSchema> {
+export interface StandardPeriodYAML extends Omit<Static<typeof StandardPeriodYAMLJSONSchema>, "Вариант"> {
   Вариант: StandardPeriodVariantYAML
 }

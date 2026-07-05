@@ -1,8 +1,8 @@
-import Schema from "typebox/schema"
+import { compileValidationSchema } from "./../../validation/compileValidationSchema"
 import { describe, expect, it } from "vitest"
 import { exportWebSocketClientHeadersToJSONSchema } from "./toJSONSchema"
 
-const schema = Schema.Compile(
+const schema = compileValidationSchema(
   exportWebSocketClientHeadersToJSONSchema({
     context: {} as never,
     rule: { type: "WebSocketClientHeaders" },

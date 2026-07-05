@@ -1,5 +1,5 @@
+import { compileValidationSchema, type ValidationSchemaValidator } from "./compileValidationSchema"
 import { Type, type TSchema } from "typebox"
-import Schema, { type Validator } from "typebox/schema"
 import fs from "fs"
 import { performance } from "node:perf_hooks"
 import { dirname, join, resolve } from "path"
@@ -35,7 +35,7 @@ import type { Diagnostic } from "./types"
 import { validateParsedFile } from "./validateFile"
 import { validateUniqueNameScopes } from "./uniqueNameScopes"
 
-type CompiledSchema = Validator<TSchema>
+type CompiledSchema = ValidationSchemaValidator<TSchema>
 const formSchemaCache = new Map<string, CompiledSchema>()
 const propertiesSchemaCache = new Map<string, CompiledSchema>()
 
@@ -153,7 +153,7 @@ export function createValidationSchemaCache(context: ConfigurationContext): Vali
       if (existing) return existing
 
       const globalKey = `${context.version}:${context.defaultLanguage}:${spec.dir}`
-      const compiled = propertiesSchemaCache.get(globalKey) ?? Schema.Compile(spec.exportSchema({ context, mode: "inline" }))
+      const compiled = propertiesSchemaCache.get(globalKey) ?? compileValidationSchema(spec.exportSchema({ context, mode: "inline" }))
       propertiesSchemaCache.set(globalKey, compiled)
       propertiesSchemas.set(key, compiled)
 
@@ -173,7 +173,7 @@ function compileRegisteredFormSchema(context: ConfigurationContext): CompiledSch
     mode: "externalRefs",
     includeNestedChildItems: true,
   })
-  const compiled = Schema.Compile(stripExternalRefsForValidation(schema))
+  const compiled = compileValidationSchema(stripExternalRefsForValidation(schema))
   formSchemaCache.set(cacheKey, compiled)
   return compiled
 }
@@ -936,8 +936,4 @@ function importDiagnostic(filePath: string, message: string): Diagnostic {
     source: "structure",
     message,
   }
-}
-
-function exportFormSchema(context: ConfigurationContext) {
-  return exportJSONSchemaForSchemaName({ context, name: "ClientApplicationForm", mode: "inline" })
 }

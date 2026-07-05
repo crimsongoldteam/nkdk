@@ -3,6 +3,11 @@ import { getTypeRule } from "../../orchestration"
 import { mockContext, mockRule } from "../../../tests/mockContext"
 import { exportMetadataFieldToJSONSchema } from "./toJSONSchema"
 
+type StringSchemaMetadata = {
+  pattern?: string
+  examples?: unknown[]
+}
+
 describe("exportMetadataFieldToJSONSchema", () => {
   it("uses metadataTarget roots for metadata fields", () => {
     const result = exportMetadataFieldToJSONSchema({
@@ -24,8 +29,9 @@ describe("exportMetadataFieldToJSONSchema", () => {
       type: "string",
       examples: ["Справочник.ИмяСправочника.Реквизит.ИмяРеквизита"],
     })
-    const pattern = new RegExp(String(result?.pattern))
-    const examples = Array.isArray(result?.examples) ? result.examples : []
+    const schema = result as StringSchemaMetadata | undefined
+    const pattern = new RegExp(String(schema?.pattern))
+    const examples = Array.isArray(schema?.examples) ? schema.examples : []
 
     expect(pattern.test("Справочник.ИмяСправочника.Реквизит.ИмяРеквизита")).toBe(true)
     for (const example of examples) expect(pattern.test(String(example))).toBe(true)
@@ -77,8 +83,9 @@ describe("exportMetadataFieldToJSONSchema", () => {
       type: "string",
       examples: ["Справочник.ИмяСправочника.Реквизит.ИмяРеквизита"],
     })
-    expect(new RegExp(String(result?.pattern)).test("Справочник.ИмяСправочника.Реквизит.ИмяРеквизита")).toBe(true)
-    expect(new RegExp(String(result?.pattern)).test("Справочник.ИмяСправочника")).toBe(false)
+    const schema = result as StringSchemaMetadata | undefined
+    expect(new RegExp(String(schema?.pattern)).test("Справочник.ИмяСправочника.Реквизит.ИмяРеквизита")).toBe(true)
+    expect(new RegExp(String(schema?.pattern)).test("Справочник.ИмяСправочника")).toBe(false)
   })
 
   it("uses member fallback for registered metadata fields array schemas", () => {

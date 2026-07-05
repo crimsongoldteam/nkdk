@@ -1,5 +1,5 @@
+import type { ValidationSchemaValidator } from "./compileValidationSchema"
 import type { TSchema } from "typebox"
-import type { Validator } from "typebox/schema"
 import { parseMetadataYaml, type ParsedYaml } from "../../yaml/parseMetadataYaml"
 import { typeboxErrorsToDiagnostics } from "./typeboxErrorsToDiagnostics"
 import { Diagnostic } from "./types"
@@ -7,13 +7,13 @@ import { Diagnostic } from "./types"
 export interface ValidateFileParams {
   filePath: string
   text: string
-  schema: Validator<TSchema>
+  schema: ValidationSchemaValidator<TSchema>
 }
 
 export interface ValidateParsedFileParams {
   filePath: string
   parsed: ParsedYaml
-  schema: Validator<TSchema>
+  schema: ValidationSchemaValidator<TSchema>
 }
 
 export function validateFile({ filePath, text, schema }: ValidateFileParams): Diagnostic[] {

@@ -1,4 +1,4 @@
-import Schema from "typebox/schema"
+import { compileValidationSchema } from "./../../validation/compileValidationSchema"
 import { describe, expect, it } from "vitest"
 import { PropertyRule } from "../../orchestration"
 import { testExportPropertyToYAML } from "../../../tests/property/exportPropertyToYAML"
@@ -63,7 +63,7 @@ describe("import PredefinedItemCollection from YAML", () => {
 })
 
 describe("PredefinedItemCollection JSON Schema", () => {
-  const check = Schema.Compile(exportPredefinedItemCollectionToJSONSchema(mockContext))
+  const check = compileValidationSchema(exportPredefinedItemCollectionToJSONSchema(mockContext))
 
   it("принимает keyed-запись без Кода и Наименования", () => {
     expect(check.Check({ ПредопределенноеЗначение: {} })).toBe(true)

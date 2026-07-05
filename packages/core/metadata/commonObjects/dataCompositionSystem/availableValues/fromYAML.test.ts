@@ -1,4 +1,4 @@
-import Schema from "typebox/schema"
+import { compileValidationSchema } from "./../../../validation/compileValidationSchema"
 import { describe, expect, it } from "vitest"
 import { importPropertyFromYAML } from "../../../orchestration"
 import { exportPropertyToJSONSchema } from "../../../orchestration/property/toJSONSchema"
@@ -55,7 +55,7 @@ describe("import DcsAvailableValues from YAML", () => {
   it("accepts string values in JSON Schema", () => {
     const schema = exportPropertyToJSONSchema({ context: mockContext, rule, value: undefined })
     if (schema === undefined) throw new Error("DcsAvailableValues JSON Schema is not registered")
-    const compiled = Schema.Compile(schema)
+    const compiled = compileValidationSchema(schema)
 
     expect(compiled.Check([{ Значение: '"Выставлен"', Представление: { ru: "Выставлен" } }])).toBe(true)
   })
@@ -63,7 +63,7 @@ describe("import DcsAvailableValues from YAML", () => {
   it("accepts absent values in JSON Schema", () => {
     const schema = exportPropertyToJSONSchema({ context: mockContext, rule, value: undefined })
     if (schema === undefined) throw new Error("DcsAvailableValues JSON Schema is not registered")
-    const compiled = Schema.Compile(schema)
+    const compiled = compileValidationSchema(schema)
 
     expect(compiled.Check([{}])).toBe(true)
   })
@@ -71,7 +71,7 @@ describe("import DcsAvailableValues from YAML", () => {
   it("rejects unsupported available value keys in JSON Schema", () => {
     const schema = exportPropertyToJSONSchema({ context: mockContext, rule, value: undefined })
     if (schema === undefined) throw new Error("DcsAvailableValues JSON Schema is not registered")
-    const compiled = Schema.Compile(schema)
+    const compiled = compileValidationSchema(schema)
 
     expect(compiled.Check([{ Значение: '"Выставлен"', НеизвестноеПоле: "x" }])).toBe(false)
   })

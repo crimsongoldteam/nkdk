@@ -1,4 +1,4 @@
-import Schema from "typebox/schema"
+import { compileValidationSchema } from "./../../validation/compileValidationSchema"
 import { describe, expect, it } from "vitest"
 import { getTypeRule } from "../../orchestration/property/typeRuleRegistry"
 import { mockContext } from "../../../tests/mockContext"
@@ -14,7 +14,7 @@ const compileSchema = () => {
   })
   if (schema === undefined) throw new Error("Recalculations JSON schema export returned undefined")
 
-  return Schema.Compile(schema)
+  return compileValidationSchema(schema)
 }
 
 describe("Recalculations exportToJSONSchema", () => {

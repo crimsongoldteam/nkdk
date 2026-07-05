@@ -5,7 +5,7 @@ import type { ObjectField, ObjectFieldIndex, ObjectFieldTableSource } from "./da
 import type { DataPathTableInfo, DataPathTypeInfo, DataPathValueKind, OwnerTypeRef } from "./dataPath/types"
 import type { ValidationObjectRecord, ValidationObjectTableSnapshot } from "./projectValidationTypes"
 import { createSharedStringPool, createSharedStringPoolView, type SharedStringPool } from "./sharedStringPool"
-import type { Diagnostic } from "./types"
+import type { Diagnostic, DiagnosticSource } from "./types"
 
 const MAGIC = 0x4e4b444f
 const VERSION = 1
@@ -298,7 +298,7 @@ function createBinaryOwnersView(snapshot: BinarySharedOwnersSnapshot) {
         line: ints[base + 1] ?? 1,
         col: ints[base + 2] ?? 1,
         severity: "error",
-        source: strings.get(ints[base + 3] ?? 0),
+        source: strings.get(ints[base + 3] ?? 0) as DiagnosticSource,
         message: strings.get(ints[base + 4] ?? 0),
       }
     },

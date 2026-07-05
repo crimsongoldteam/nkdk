@@ -1,4 +1,4 @@
-import Schema from "typebox/schema"
+import { compileValidationSchema } from "./../../../validation/compileValidationSchema"
 import { describe, expect, it } from "vitest"
 import { exportPropertyToJSONSchema } from "../../../orchestration/property/toJSONSchema"
 import "./types"
@@ -15,7 +15,7 @@ describe("OrderItemFields JSON Schema", () => {
       rule: { type: "OrderItemFields", yaml: "Элементы" },
       value: undefined,
     })
-    const compiled = Schema.Compile(schema!)
+    const compiled = compileValidationSchema(schema!)
 
     expect(compiled.Check([{ Поле: "Дата" }, "[Авто]"])).toBe(true)
   })
@@ -26,7 +26,7 @@ describe("OrderItemFields JSON Schema", () => {
       rule: { type: "OrderItemFields", yaml: "Элементы" },
       value: undefined,
     })
-    const compiled = Schema.Compile(schema!)
+    const compiled = compileValidationSchema(schema!)
 
     expect(compiled.Check({ Дата: { Поле: "Дата" } })).toBe(false)
   })

@@ -1,4 +1,4 @@
-import Schema from "typebox/schema"
+import { compileValidationSchema } from "./../../validation/compileValidationSchema"
 import { describe, expect, it } from "vitest"
 import { mockContext } from "../../../tests/mockContext"
 import { exportStringToJSONSchema } from "./toJSONSchema"
@@ -13,7 +13,7 @@ describe("exportStringToJSONSchema", () => {
       },
       value: undefined,
     })
-    const compiled = Schema.Compile(schema!)
+    const compiled = compileValidationSchema(schema!)
 
     expect(compiled.Check("ФормаОбъекта")).toBe(true)
     expect(compiled.Check("Справочник.Товары")).toBe(false)

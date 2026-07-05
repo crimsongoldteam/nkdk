@@ -4,6 +4,7 @@ import type {
   MetadataTargetConstraint,
   MetadataTargetFilter,
   MetadataTypeFilterValue,
+  MetadataObjectSegment,
   ParsedMetadataTarget,
 } from "../commonObjects/metadataTargets"
 import { objectPathKindToYAML, rootToYAML } from "../commonObjects/metadataTargets/roots"
@@ -110,17 +111,22 @@ export function projectMemberIndexKey(target: Extract<ParsedMetadataTarget, { ki
 }
 
 export function projectValueIndexKey(target: Extract<ParsedMetadataTarget, { kind: "value" }>): string {
+  const objectSegments = valueTargetObjectSegments(target)
   const base = [
     target.root,
     target.objectName,
-    ...(target.kind === "value" && "objectSegments" in target ? target.objectSegments ?? [] : []).flatMap((segment) => [
-      segment.kind,
-      segment.objectName,
-    ]),
+    ...objectSegments.flatMap((segment) => [segment.kind, segment.objectName]),
     target.valueKind,
   ]
   if ("valueName" in target) return [...base, target.valueName].join(".")
   return base.join(".")
+}
+
+function valueTargetObjectSegments(
+  target: Extract<ParsedMetadataTarget, { kind: "value" }>
+): MetadataObjectSegment[] {
+  if (!("objectSegments" in target)) return []
+  return Array.isArray(target.objectSegments) ? target.objectSegments : []
 }
 
 export function createProjectReferenceSnapshot(params: {

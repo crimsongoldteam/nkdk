@@ -88,7 +88,6 @@ export const exportToYAML = <T>(data: T): string => {
     noRefs: true,
     skipInvalid: false,
     sortKeys: false,
-    quotingType: '"',
     forceQuotes: false,
   })
   return removeDocumentFinalLineEnding(

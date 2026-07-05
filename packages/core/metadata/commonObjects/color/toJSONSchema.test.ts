@@ -1,8 +1,8 @@
-import Schema from "typebox/schema"
+import { compileValidationSchema } from "./../../validation/compileValidationSchema"
 import { describe, expect, it } from "vitest"
 import { ColorJSONSchema } from "./types"
 
-const compiled = Schema.Compile(ColorJSONSchema)
+const compiled = compileValidationSchema(ColorJSONSchema)
 
 const errorsFor = (value: unknown): string[] => {
   return compiled.Errors(value)[1].map((error) => `${error.instancePath}: ${error.message}`)
