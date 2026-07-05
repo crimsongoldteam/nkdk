@@ -167,7 +167,12 @@ function compileRegisteredFormSchema(context: ConfigurationContext): CompiledSch
   const cached = formSchemaCache.get(cacheKey)
   if (cached !== undefined) return cached
 
-  const schema = exportJSONSchemaForSchemaName({ context, name: "ClientApplicationForm", mode: "externalRefs" })
+  const schema = exportJSONSchemaForSchemaName({
+    context,
+    name: "ClientApplicationForm",
+    mode: "externalRefs",
+    includeNestedChildItems: true,
+  })
   const compiled = Schema.Compile(stripExternalRefsForValidation(schema))
   formSchemaCache.set(cacheKey, compiled)
   return compiled

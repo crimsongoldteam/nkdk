@@ -83,6 +83,36 @@ describe("validateProject", { timeout: 30_000 }, () => {
     )
   }, 30_000)
 
+  it("accepts nested command bar child items during form validation", async () => {
+    const projectDir = createProject()
+    writeProjectFile(projectDir, "Справочник/Товары/Свойства.yaml", "")
+    writeProjectFile(projectDir, "Справочник/Товары/Формы/ФормаЭлемента/Форма.yaml", [
+      "КоманднаяПанель:",
+      "  Элементы:",
+      "    ЗаписатьИЗакрыть:",
+      "      Вид: КнопкаКоманднойПанели",
+      "      ИмяКоманды: Form.Command.ЗаписатьИЗакрыть",
+    ])
+
+    const diagnostics = (
+      await validateProject({
+        projectDir,
+        filePath: "Справочник/Товары/Формы/ФормаЭлемента/Форма.yaml",
+        context: mockContext,
+      })
+    ).diagnostics
+
+    expect(diagnostics).not.toEqual(
+      expect.arrayContaining([
+        expect.objectContaining({
+          source: "structure",
+          severity: "error",
+          path: "/КоманднаяПанель/Элементы",
+        }),
+      ])
+    )
+  }, 30_000)
+
   it("uses reference index to enqueue missing dependency in partial validation", async () => {
     const projectDir = createProject()
     writeProjectFile(projectDir, "Справочник/Товары/Свойства.yaml", "Комментарий: ok")
