@@ -1,4 +1,3 @@
-import type { Static } from "typebox"
 import {
   ConfigurationContext,
   ConfigurationContextFromXML,
@@ -16,7 +15,7 @@ import { exportStandartBeginningDateToXML } from "../../standartBeginningDate/to
 import { exportStandartBeginningDateToYAML } from "../../standartBeginningDate/toYAML"
 import {
   StandartBeginningDate,
-  StandartBeginningDateJSONSchema,
+  type StandartBeginningDateYAML,
   StandartBeginningDateXML,
 } from "../../standartBeginningDate/types"
 import {
@@ -235,7 +234,7 @@ type MetadataValueRule = { type: "MetadataValue"; valueType: [PrimitiveDcsType] 
 const isStringYAML = (yaml: DcsMetadataTypedValueYAML): yaml is string => typeof yaml === "string"
 const isStandardBeginningDateYAML = (
   yaml: DcsMetadataTypedValueYAML
-): yaml is Static<typeof StandartBeginningDateJSONSchema> =>
+): yaml is StandartBeginningDateYAML =>
   typeof yaml === "object" && yaml !== null && !Array.isArray(yaml) && "Вариант" in yaml
 
 const yamlDateTimeToXMLDateTime = (value: string): string => {

@@ -1,8 +1,12 @@
-import Schema from "typebox/schema"
+import { compileValidationSchema } from "./../../validation/compileValidationSchema"
 import { describe, expect, it } from "vitest"
 import { mockContext } from "../../../tests/mockContext"
 import { exportMetadataValueToJSONSchema } from "./toJSONSchema"
 import { MetadataValueJSONSchema } from "./types"
+
+type StringSchemaMetadata = {
+  pattern?: string
+}
 
 describe("exportMetadataValueToJSONSchema", () => {
   it("keeps common MetadataValue schema without metadataTarget", () => {
@@ -16,13 +20,13 @@ describe("exportMetadataValueToJSONSchema", () => {
   })
 
   it("accepts compact formChoiceList object in common MetadataValue schema", () => {
-    const compiled = Schema.Compile(MetadataValueJSONSchema)
+    const compiled = compileValidationSchema(MetadataValueJSONSchema)
 
     expect(compiled.Check({ Значение: "Истина" })).toBe(true)
   })
 
   it("rejects empty and unknown objects in common MetadataValue schema", () => {
-    const compiled = Schema.Compile(MetadataValueJSONSchema)
+    const compiled = compileValidationSchema(MetadataValueJSONSchema)
 
     expect(compiled.Check({})).toBe(false)
     expect(compiled.Check({ Лишнее: "x" })).toBe(false)
@@ -53,9 +57,10 @@ describe("exportMetadataValueToJSONSchema", () => {
         "Справочник.ИмяСправочника.ПустаяСсылка",
       ],
     })
-    expect(String(schema.pattern)).toContain("Справочник")
-    expect(String(schema.pattern)).toContain("Перечисление")
-    expect(new RegExp(String(schema.pattern)).test("Справочник.СтавкиНДС.ПустаяСсылка")).toBe(true)
-    expect(new RegExp(String(schema.pattern)).test("Перечисление.ВидыДоговоров.СПоставщиком")).toBe(true)
+    const stringSchema = schema as StringSchemaMetadata
+    expect(String(stringSchema.pattern)).toContain("Справочник")
+    expect(String(stringSchema.pattern)).toContain("Перечисление")
+    expect(new RegExp(String(stringSchema.pattern)).test("Справочник.СтавкиНДС.ПустаяСсылка")).toBe(true)
+    expect(new RegExp(String(stringSchema.pattern)).test("Перечисление.ВидыДоговоров.СПоставщиком")).toBe(true)
   })
 })

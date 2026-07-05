@@ -1,4 +1,4 @@
-import Schema from "typebox/schema"
+import { compileValidationSchema } from "./../../validation/compileValidationSchema"
 import { describe, expect, it } from "vitest"
 import { mockContext } from "../../../tests/mockContext"
 import { exportMetadataItemToJSONSchema } from "../../orchestration/metadataItem/toJSONSchema"
@@ -8,7 +8,7 @@ import "./register"
 
 describe("ExchangePlanContent JSON Schema", () => {
   it("accepts compact content items without implicit Авторегистрация", () => {
-    const schema = Schema.Compile(
+    const schema = compileValidationSchema(
       exportMetadataItemToJSONSchema({
         context: mockContext,
         rule: ExchangePlanContentRules,

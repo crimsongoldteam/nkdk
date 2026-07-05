@@ -1,4 +1,4 @@
-import Schema from "typebox/schema"
+import { compileValidationSchema } from "./../../validation/compileValidationSchema"
 import { describe, expect, it } from "vitest"
 import { importMetadataItemFromYAML } from "../../orchestration"
 import { exportMetadataItemToJSONSchema } from "../../orchestration/metadataItem/toJSONSchema"
@@ -9,7 +9,7 @@ import { MetadataCommandRules } from "./rules"
 
 describe("MetadataCommand YAML", () => {
   it("rejects scalar command group shorthand in JSON Schema", () => {
-    const schema = Schema.Compile(
+    const schema = compileValidationSchema(
       exportMetadataItemToJSONSchema({ context: mockContext, rule: MetadataCommandRules })
     )
 
@@ -17,7 +17,7 @@ describe("MetadataCommand YAML", () => {
   })
 
   it("accepts command group property in JSON Schema", () => {
-    const schema = Schema.Compile(
+    const schema = compileValidationSchema(
       exportMetadataItemToJSONSchema({ context: mockContext, rule: MetadataCommandRules })
     )
 

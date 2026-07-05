@@ -1,11 +1,11 @@
-import Schema from "typebox/schema"
+import { compileValidationSchema, type ValidationSchemaValidator } from "./../../../validation/compileValidationSchema"
 import { beforeAll, describe, expect, it } from "vitest"
 import { exportPropertyToJSONSchema } from "../../../orchestration/property/toJSONSchema"
 import { mockContext } from "../../../../tests/mockContext"
 import type { DcsMetadataValuePropertyRule } from "./types"
 import "./toJSONSchema"
 
-const compiledSchemas = new Map<string, ReturnType<typeof Schema.Compile>>()
+const compiledSchemas = new Map<string, ValidationSchemaValidator>()
 
 const schemaFor = (rule: DcsMetadataValuePropertyRule) => {
   const cacheKey = `${rule.valueType}:${rule.yaml}`
@@ -14,7 +14,7 @@ const schemaFor = (rule: DcsMetadataValuePropertyRule) => {
 
   const schema = exportPropertyToJSONSchema({ context: mockContext, rule, value: undefined })
   if (schema === undefined) throw new Error("schema is undefined")
-  const compiled = Schema.Compile(schema)
+  const compiled = compileValidationSchema(schema)
   compiledSchemas.set(cacheKey, compiled)
   return compiled
 }

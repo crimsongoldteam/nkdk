@@ -3,6 +3,10 @@ import { getTypeRule } from "../../orchestration"
 import { mockContext, mockRule } from "../../../tests/mockContext"
 import { exportMetadataItemLinkToJSONSchema } from "./toJSONSchema"
 
+type StringSchemaMetadata = {
+  pattern?: string
+}
+
 describe("exportMetadataItemLinkToJSONSchema", () => {
   it("should export metadata item link JSON schema", () => {
     const result = exportMetadataItemLinkToJSONSchema({ context: mockContext, rule: mockRule, value: undefined })
@@ -36,9 +40,10 @@ describe("exportMetadataItemLinkToJSONSchema", () => {
       type: "string",
       examples: ["ИмяСправочника"],
     })
-    expect(new RegExp(String(result?.pattern)).test("ИмяСправочника")).toBe(true)
-    expect(new RegExp(String(result?.pattern)).test("Справочник.ИмяСправочника")).toBe(false)
-    expect(new RegExp(String(result?.pattern)).test("Документ.ИмяДокумента")).toBe(false)
+    const schema = result as StringSchemaMetadata | undefined
+    expect(new RegExp(String(schema?.pattern)).test("ИмяСправочника")).toBe(true)
+    expect(new RegExp(String(schema?.pattern)).test("Справочник.ИмяСправочника")).toBe(false)
+    expect(new RegExp(String(schema?.pattern)).test("Документ.ИмяДокумента")).toBe(false)
   })
 
   it("wraps metadata item link schemas into array items", () => {

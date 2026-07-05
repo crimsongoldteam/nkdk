@@ -1,5 +1,5 @@
+import { compileValidationSchema, type ValidationSchemaValidator } from "./compileValidationSchema"
 import type { TSchema } from "typebox"
-import Schema, { type Validator } from "typebox/schema"
 import { MetadataAccumulationRegisterRules } from "../appliedObjects/metadataAccumulationRegister/rules"
 import { ConfigurationContext } from "../context/types"
 import { exportMetadataCatalogToJSONSchema } from "../appliedObjects/metadataCatalog/toJSONSchema"
@@ -14,14 +14,14 @@ import { exportMetadataItemToJSONSchema } from "../orchestration/metadataItem/to
 import { MetadataKind } from "./types"
 
 export interface SchemaCache {
-  get(kind: MetadataKind): Validator<TSchema>
+  get(kind: MetadataKind): ValidationSchemaValidator<TSchema>
 }
 
 export function createSchemaCache(context: ConfigurationContext): SchemaCache {
-  const cache = new Map<MetadataKind, Validator<TSchema>>()
+  const cache = new Map<MetadataKind, ValidationSchemaValidator<TSchema>>()
 
   return {
-    get(kind: MetadataKind): Validator<TSchema> {
+    get(kind: MetadataKind): ValidationSchemaValidator<TSchema> {
       const cached = cache.get(kind)
       if (cached) return cached
 
@@ -56,7 +56,7 @@ export function createSchemaCache(context: ConfigurationContext): SchemaCache {
           break
       }
 
-      const compiled = Schema.Compile(schema)
+      const compiled = compileValidationSchema(schema)
       cache.set(kind, compiled)
       return compiled
     },

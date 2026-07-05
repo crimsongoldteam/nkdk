@@ -1,4 +1,4 @@
-import Schema from "typebox/schema"
+import { compileValidationSchema } from "./compileValidationSchema"
 import { describe, expect, it } from "vitest"
 import { getTypeRule, PropertyRule } from "../orchestration"
 import { registerCoreMetadata } from "../register"
@@ -28,7 +28,7 @@ const schemaFor = (type: SchemaRuleType) => {
   expect(schema).toBeDefined()
   if (schema === undefined) throw new Error(`${type} JSON schema is not registered`)
 
-  return Schema.Compile(schema)
+  return compileValidationSchema(schema)
 }
 
 describe("YAML type JSON Schema registrations", () => {

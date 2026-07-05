@@ -1,4 +1,4 @@
-import Schema from "typebox/schema"
+import { compileValidationSchema } from "./../../validation/compileValidationSchema"
 import { describe, expect, it } from "vitest"
 import {
   fullMetadataAttributesFromCompactYAML,
@@ -90,7 +90,7 @@ describe("import MetadataAttributes from YAML", () => {
 
   it("should reject scalar values in JSON Schema", () => {
     const schema = exportMetadataAttributesToJSONSchema({ context: mockContext, rule, value: undefined })
-    const compiled = Schema.Compile(schema)
+    const compiled = compileValidationSchema(schema)
 
     expect(compiled.Check({ Организация: "Справочник.Организации" })).toBe(false)
     expect(compiled.Check({ Организация: { Тип: "Справочник.Организации" } })).toBe(true)

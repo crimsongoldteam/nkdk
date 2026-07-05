@@ -12,6 +12,12 @@ import type {
 
 type MetadataPrimitiveType = NonNullable<Extract<MetadataTargetConstraint, { kind: "type" }>["primitives"]>[number]
 
+export type MetadataTargetJSONSchema = TSchema & {
+  pattern?: string
+  examples?: string[]
+  description?: string
+}
+
 const noMatchPattern = "^(?!)$"
 const emptyRefYAML = "ПустаяСсылка"
 
@@ -100,7 +106,7 @@ const primitiveTypeExamples = {
   ValueStorage: "ХранилищеЗначения",
 } as const satisfies Record<MetadataPrimitiveType, string>
 
-export function buildMetadataTargetSchema(constraint: MetadataTargetConstraint): TSchema {
+export function buildMetadataTargetSchema(constraint: MetadataTargetConstraint): MetadataTargetJSONSchema {
   if (constraint.kind === "object") return objectSchema(constraint)
   if (constraint.kind === "member") return memberSchema(constraint)
   if (constraint.kind === "value") return valueSchema(constraint)

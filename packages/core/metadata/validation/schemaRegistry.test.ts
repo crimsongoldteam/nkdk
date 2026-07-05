@@ -1,7 +1,7 @@
+import { compileValidationSchema } from "./compileValidationSchema"
 import "../appliedObjects"
 import "../forms"
 import type { TSchema } from "typebox"
-import Schema from "typebox/schema"
 import { beforeEach, describe, expect, it } from "vitest"
 import { MetadataConfigurationRules } from "../appliedObjects/configuration/rules"
 import { MetadataLanguageRules } from "../appliedObjects/metadataLanguage/rules"
@@ -47,7 +47,7 @@ describe("JSON Schema registry", { timeout: 30_000 }, () => {
 
   it("accepts keyed predefined catalog items without explicit code", () => {
     const schema = exportJSONSchemaForSchemaName({ context, name: "MetadataCatalog", mode: "inline" })
-    const compiled = Schema.Compile(schema)
+    const compiled = compileValidationSchema(schema)
 
     expect(
       compiled.Check({
@@ -70,7 +70,7 @@ describe("JSON Schema registry", { timeout: 30_000 }, () => {
 
     for (const name of schemaNames) {
       const schema = exportJSONSchemaForSchemaName({ context, name })
-      const compiled = Schema.Compile(schema)
+      const compiled = compileValidationSchema(schema)
 
       expect(compiled.Check("Строка")).toBe(false)
       expect(compiled.Check({ Тип: "Строка" })).toBe(true)
@@ -80,7 +80,7 @@ describe("JSON Schema registry", { timeout: 30_000 }, () => {
 
   it("accepts home page work area in configuration schemas", () => {
     const schema = exportMetadataItemToJSONSchema({ context, rule: MetadataConfigurationRules })
-    const compiled = Schema.Compile(schema)
+    const compiled = compileValidationSchema(schema)
 
     expect(
       compiled.Errors({
@@ -150,8 +150,8 @@ describe("JSON Schema registry", { timeout: 30_000 }, () => {
     const tableInputFieldSchema = exportJSONSchemaForSchemaName({ context, name: "TableInputField" })
     const opaquePath = "1/0:796f500f-c364-45d1-bce6-9e7e8e15b664"
 
-    expect(Schema.Compile(inputFieldSchema).Check({ Вид: "ПолеВвода", ПутьКДанным: opaquePath })).toBe(true)
-    expect(Schema.Compile(tableInputFieldSchema).Check({ Вид: "ПолеВвода", ПутьКДанным: opaquePath })).toBe(false)
+    expect(compileValidationSchema(inputFieldSchema).Check({ Вид: "ПолеВвода", ПутьКДанным: opaquePath })).toBe(true)
+    expect(compileValidationSchema(tableInputFieldSchema).Check({ Вид: "ПолеВвода", ПутьКДанным: opaquePath })).toBe(false)
   })
 
   it("keeps tree YAML button type alias away from Вид discriminator", () => {
@@ -167,7 +167,7 @@ describe("JSON Schema registry", { timeout: 30_000 }, () => {
 
   it("accepts value-based formatted title in label decoration schemas", () => {
     const schema = exportJSONSchemaForSchemaName({ context, name: "LabelDecoration" })
-    const compiled = Schema.Compile(schema)
+    const compiled = compileValidationSchema(schema)
 
     expect(
       compiled.Check({
@@ -263,7 +263,7 @@ describe("JSON Schema registry", { timeout: 30_000 }, () => {
 
   it("accepts command names in command bar button schemas", () => {
     const schema = exportJSONSchemaForSchemaName({ context, name: "CommandBarButton", mode: "inline" })
-    const compiled = Schema.Compile(schema)
+    const compiled = compileValidationSchema(schema)
     const value = {
       Вид: "КнопкаКоманднойПанели",
       ИмяКоманды: "Form.Command.ВыбратьСтроки",

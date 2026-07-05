@@ -1,8 +1,8 @@
-import Schema from "typebox/schema"
+import { compileValidationSchema } from "./../../validation/compileValidationSchema"
 import { describe, expect, it } from "vitest"
 import { ChoiceParametersJSONSchema } from "./types"
 
-const compiled = Schema.Compile(ChoiceParametersJSONSchema)
+const compiled = compileValidationSchema(ChoiceParametersJSONSchema)
 
 describe("ChoiceParametersJSONSchema", () => {
   it("accepts YAML parser null for an empty choice parameter key", () => {

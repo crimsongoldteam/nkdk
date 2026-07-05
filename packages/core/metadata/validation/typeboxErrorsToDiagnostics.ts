@@ -1,5 +1,5 @@
+import type { ValidationSchemaValidator } from "./compileValidationSchema"
 import type { TSchema } from "typebox"
-import type { Validator } from "typebox/schema"
 import { ParsedYaml } from "../../yaml/parseMetadataYaml"
 import { expandDiscriminatedUnionErrors, type ValidationError } from "./discriminatedUnionErrors"
 import { Diagnostic } from "./types"
@@ -87,7 +87,7 @@ export function typeboxErrorsToDiagnostics(
   errors: ValidationError[],
   parsed: ParsedYaml,
   filePath: string,
-  schema?: Validator<TSchema>
+  schema?: ValidationSchemaValidator<TSchema>
 ): Diagnostic[] {
   const diagnostics: Diagnostic[] = []
   const expandedErrors = normalizedErrors(expandDiscriminatedUnionErrors(errors, schema))

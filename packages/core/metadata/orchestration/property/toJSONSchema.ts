@@ -1,4 +1,4 @@
-import { TSchema, Type } from "typebox"
+import { TProperties, TSchema, Type } from "typebox"
 import { ConfigurationContext } from "../../context/types"
 import { applyExcludedEqualNameYAMLToJSONSchema } from "../../helpers/excludeIfEqualNameYAML"
 import { getTypeRule } from "./typeRuleRegistry"
@@ -46,10 +46,10 @@ export const exportPropertiesToJSONSchema = <T extends MetadataItem>(params: {
   context: ConfigurationContext
   rule: MetadataItemRule
   metadataItem?: T
-}): TSchema => {
+}): TProperties => {
   const { context, metadataItem, rule } = params
 
-  const result = {} as TSchema
+  const result: TProperties = {}
 
   for (const [key, ruleProp] of Object.entries(rule.properties) as [
     keyof T extends string ? keyof T : never,

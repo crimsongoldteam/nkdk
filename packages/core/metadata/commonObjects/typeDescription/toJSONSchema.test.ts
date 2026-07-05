@@ -1,4 +1,4 @@
-import Schema from "typebox/schema"
+import { compileValidationSchema } from "./../../validation/compileValidationSchema"
 import { describe, expect, it } from "vitest"
 import { mockContext } from "../../../tests/mockContext"
 import { exportTypeDescriptionToJSONSchema } from "./toJSONSchema"
@@ -72,7 +72,7 @@ describe("exportTypeDescriptionToJSONSchema", () => {
     if (schema === undefined) {
       throw new Error("Expected TypeDescription JSON schema")
     }
-    const compiled = Schema.Compile(schema)
+    const compiled = compileValidationSchema(schema)
     expect(compiled.Check({ ИдентификаторТипа: ["8c1e3694-da12-44d5-8b1f-d134b89a1282"] })).toBe(true)
     expect(compiled.Check({ ИдентификаторТипа: [] })).toBe(false)
     expect(compiled.Check({})).toBe(false)
@@ -145,7 +145,7 @@ describe("exportTypeDescriptionToJSONSchema", () => {
     if (jsonSchema === undefined) {
       throw new Error("Expected TypeDescription JSON schema")
     }
-    const schema = Schema.Compile(jsonSchema)
+    const schema = compileValidationSchema(jsonSchema)
 
     expect(schema.Check("ВнешнийИсточникДанныхВсеСвойства.ТаблицаВсеСвойства")).toBe(true)
     expect(schema.Check("ВнешнийИсточникДанныхВсеСвойства.КубВсеСвойства.ТаблицаИзмеренияВсеСвойства")).toBe(true)
@@ -172,7 +172,7 @@ describe("exportTypeDescriptionToJSONSchema", () => {
     if (jsonSchema === undefined) {
       throw new Error("Expected TypeDescription JSON schema")
     }
-    const schema = Schema.Compile(jsonSchema)
+    const schema = compileValidationSchema(jsonSchema)
 
     expect(schema.Check(["Строка", "Справочник.Контрагенты"])).toBe(true)
     expect(schema.Check(["Строка", "ХранилищеЗначения"])).toBe(false)
@@ -188,7 +188,7 @@ describe("exportTypeDescriptionToJSONSchema", () => {
     if (jsonSchema === undefined) {
       throw new Error("Expected TypeDescription JSON schema")
     }
-    const schema = Schema.Compile(jsonSchema)
+    const schema = compileValidationSchema(jsonSchema)
 
     expect(schema.Check({ ИдентификаторТипа: ["8c1e3694-da12-44d5-8b1f-d134b89a1282"] })).toBe(false)
   })

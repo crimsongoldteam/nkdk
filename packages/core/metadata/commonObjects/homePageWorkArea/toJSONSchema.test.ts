@@ -1,4 +1,4 @@
-import Schema from "typebox/schema"
+import { compileValidationSchema } from "./../../validation/compileValidationSchema"
 import { describe, expect, it } from "vitest"
 import { exportMetadataItemToJSONSchema } from "../../orchestration/metadataItem/toJSONSchema"
 import { registerCoreMetadata } from "../../register"
@@ -12,7 +12,7 @@ registerCoreMetadata()
 describe("HomePageWorkArea JSON Schema", () => {
   it("accepts working area columns and item visibility", () => {
     const schema = exportMetadataItemToJSONSchema({ context: mockContext, rule: HomePageWorkAreaRules })
-    const compiled = Schema.Compile(schema)
+    const compiled = compileValidationSchema(schema)
 
     expect(
       compiled.Check({
@@ -44,7 +44,7 @@ describe("HomePageWorkArea JSON Schema", () => {
 
   it("rejects unknown column item properties", () => {
     const schema = exportMetadataItemToJSONSchema({ context: mockContext, rule: HomePageWorkAreaRules })
-    const compiled = Schema.Compile(schema)
+    const compiled = compileValidationSchema(schema)
 
     expect(
       compiled.Check({

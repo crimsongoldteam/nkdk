@@ -1,5 +1,5 @@
+import { compileValidationSchema } from "./compileValidationSchema"
 import { Type } from "typebox"
-import Schema from "typebox/schema"
 import { parseMetadataYaml } from "../../yaml/parseMetadataYaml"
 import { describe, expect, it } from "vitest"
 import {
@@ -11,7 +11,7 @@ import { typeboxErrorsToDiagnostics } from "./typeboxErrorsToDiagnostics"
 import { validateFile, validateParsedFile } from "./validateFile"
 
 // Простая схема для юнит-тестов — не зависит от доменных правил каталогов
-const simpleSchema = Schema.Compile(
+const simpleSchema = compileValidationSchema(
   Type.Object(
     {
       Имя: Type.Optional(Type.String()),
@@ -47,7 +47,7 @@ const simpleSchema = Schema.Compile(
   )
 )
 
-const requiredSchema = Schema.Compile(
+const requiredSchema = compileValidationSchema(
   Type.Object(
     {
       ОбязательноеПоле: Type.String(),
@@ -57,14 +57,14 @@ const requiredSchema = Schema.Compile(
   )
 )
 
-const plainUnionSchema = Schema.Compile(
+const plainUnionSchema = compileValidationSchema(
   Type.Union([
     Type.Object({ Вид: Type.Literal("Первый"), Поле: Type.String() }, { additionalProperties: false }),
     Type.Object({ Вид: Type.Literal("Второй"), Число: Type.Number() }, { additionalProperties: false }),
   ])
 )
 
-const discriminatedUnionSchema = Schema.Compile(
+const discriminatedUnionSchema = compileValidationSchema(
   Type.Union(
     [
       Type.Object({ Вид: Type.Literal("Первый"), Поле: Type.String() }, { additionalProperties: false }),
@@ -74,7 +74,7 @@ const discriminatedUnionSchema = Schema.Compile(
   )
 )
 
-const nestedDiscriminatedUnionSchema = Schema.Compile(
+const nestedDiscriminatedUnionSchema = compileValidationSchema(
   Type.Union(
     [
       Type.Object(
@@ -121,7 +121,7 @@ const childItemsDefinitions = {
   ),
 }
 
-const referencedNestedDiscriminatedUnionSchema = Schema.Compile(
+const referencedNestedDiscriminatedUnionSchema = compileValidationSchema(
   Type.Object(
     {
       Элементы: Type.Cyclic(childItemsDefinitions, "ChildItems"),

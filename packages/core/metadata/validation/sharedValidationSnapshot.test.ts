@@ -56,7 +56,7 @@ function catalogRecord(): ValidationObjectRecord {
             name: "Артикул",
             kind: "attribute",
             sourceCollection: "attributes",
-            typeInfo: { kinds: ["string"], nextTypes: [], sourceText: "String" },
+            typeInfo: { kinds: ["scalar"] as const, nextTypes: [], sourceText: "String" },
           },
         ],
         [
@@ -66,7 +66,7 @@ function catalogRecord(): ValidationObjectRecord {
             kind: "tabularSection",
             sourceCollection: "tabularSections",
             typeInfo: {
-              kinds: ["tableSource"],
+              kinds: ["tableSource"] as const,
               nextTypes: [],
               table: { kind: "TabularSection", owner: { kind: "Справочник", name: "Номенклатура" }, name: "Товары" },
             },
@@ -79,7 +79,7 @@ function catalogRecord(): ValidationObjectRecord {
                     name: "Количество",
                     kind: "attribute",
                     sourceCollection: "attributes",
-                    typeInfo: { kinds: ["decimal"], nextTypes: [], sourceText: "Number" },
+                    typeInfo: { kinds: ["scalar"] as const, nextTypes: [], sourceText: "Number" },
                   },
                 ],
               ]),

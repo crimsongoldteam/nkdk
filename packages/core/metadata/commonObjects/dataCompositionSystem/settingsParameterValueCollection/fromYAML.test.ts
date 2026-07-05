@@ -1,4 +1,4 @@
-import Schema from "typebox/schema"
+import { compileValidationSchema, type ValidationSchemaValidator } from "./../../../validation/compileValidationSchema"
 import { beforeAll, describe, expect, it } from "vitest"
 import { PropertyRule } from "../../../orchestration"
 import { exportPropertyToJSONSchema } from "../../../orchestration/property/toJSONSchema"
@@ -19,15 +19,15 @@ const rule: PropertyRule = {
   },
 }
 
-let compiledDefaultSchema: ReturnType<typeof Schema.Compile> | undefined
-let compiledExplicitRulesSchema: ReturnType<typeof Schema.Compile> | undefined
+let compiledDefaultSchema: ValidationSchemaValidator | undefined
+let compiledExplicitRulesSchema: ValidationSchemaValidator | undefined
 
-function defaultSchema(): ReturnType<typeof Schema.Compile> {
+function defaultSchema(): ValidationSchemaValidator {
   compiledDefaultSchema ??= compileSchema(rule)
   return compiledDefaultSchema
 }
 
-function explicitRulesSchema(): ReturnType<typeof Schema.Compile> {
+function explicitRulesSchema(): ValidationSchemaValidator {
   compiledExplicitRulesSchema ??= compileSchema({
     type: "SettingsParameterValueCollection",
     defaultItemRule: {
@@ -48,10 +48,10 @@ function explicitRulesSchema(): ReturnType<typeof Schema.Compile> {
   return compiledExplicitRulesSchema
 }
 
-function compileSchema(rule: PropertyRule): ReturnType<typeof Schema.Compile> {
+function compileSchema(rule: PropertyRule): ValidationSchemaValidator {
   const schema = exportPropertyToJSONSchema({ context: mockContext, rule, value: undefined })
   if (schema === undefined) throw new Error("SettingsParameterValueCollection JSON Schema is not registered")
-  return Schema.Compile(schema)
+  return compileValidationSchema(schema)
 }
 
 describe("import SettingsParameterValueCollection from YAML", () => {

@@ -1,4 +1,4 @@
-import Schema from "typebox/schema"
+import { compileValidationSchema } from "./../../../validation/compileValidationSchema"
 import { describe, expect, it } from "vitest"
 import { exportPropertyToJSONSchema } from "../../../orchestration/property/toJSONSchema"
 import "./types"
@@ -16,7 +16,7 @@ describe("FilterItem JSON Schema", () => {
       value: undefined,
     })
 
-    return Schema.Compile(schema!)
+    return compileValidationSchema(schema!)
   }
 
   it("accepts comparison items", () => {

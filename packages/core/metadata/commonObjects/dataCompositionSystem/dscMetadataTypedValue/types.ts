@@ -4,12 +4,12 @@ import {
 } from "../../ruleBuilder"
 import type { PropertyRule as WidePropertyRuleBase } from "../../../orchestration/property/types"
 import { Type } from "typebox"
-import type { Static } from "typebox"
 import { BasePropertyRule } from "../../../orchestration"
 import { BooleanJSONSchema } from "../../boolean/types"
 import {
   StandartBeginningDate,
   StandartBeginningDateJSONSchema,
+  StandartBeginningDateYAML,
   StandartBeginningDateXML,
 } from "../../standartBeginningDate/types"
 
@@ -66,7 +66,7 @@ export const DcsMetadataTypedValueJSONSchema = Type.Union([
   StandartBeginningDateJSONSchema,
 ])
 
-export type DcsMetadataTypedValueYAML = Static<typeof DcsMetadataTypedValueJSONSchema>
+export type DcsMetadataTypedValueYAML = "Порядок" | "СписокЗначений" | string | number | StandartBeginningDateYAML
 export type DcsMetadataTypedValueNilArrayItemYAML = Record<string, never>
 export type DcsMetadataTypedValueArrayItemYAML = DcsMetadataTypedValueYAML | DcsMetadataTypedValueNilArrayItemYAML
 
