@@ -42,6 +42,13 @@ export interface SecondPassPoolResult {
   diagnostics: Diagnostic[]
 }
 
+export interface ProjectValidationWorkerPoolStartProfile {
+  workerInitMs: number
+  schemaCompileMs: number
+  formSchemaMs: number
+  propertiesSchemaMs: number
+}
+
 interface WorkerSecondPassTiming {
   contextMs: number
   referenceValidationMs: number
@@ -93,7 +100,7 @@ interface WorkerSecondPassProfile {
 }
 
 export interface ProjectValidationWorkerPool {
-  start(): Promise<void>
+  start(context: ConfigurationContext): Promise<ProjectValidationWorkerPoolStartProfile>
   close(): Promise<void>
   size(): number
   runFirstPass(params: FirstPassPoolParams): Promise<FirstPassPoolResult>
@@ -101,6 +108,10 @@ export interface ProjectValidationWorkerPool {
 }
 
 type WorkerRequest =
+  | {
+      kind: "init"
+      context: ConfigurationContext
+    }
   | {
       kind: "firstPass"
       projectDir: string
@@ -118,6 +129,12 @@ type WorkerRequest =
     }
 
 type WorkerResponse =
+  | {
+      kind: "initResult"
+      formMs: number
+      propertiesMs: number
+      totalMs: number
+    }
   | {
       kind: "firstPassResult"
       diagnostics: Diagnostic[]
@@ -142,8 +159,23 @@ export function createProjectValidationWorkerPool(params: { concurrency: number 
   const assignedFilePaths = new Map<Worker, string[]>()
 
   return {
-    async start() {
+    async start(context) {
       while (workers.length < params.concurrency) workers.push(createWorker())
+      const startedAt = performance.now()
+      const results = await Promise.all(
+        workers.map(async (worker) => {
+          const response = await request(worker, { kind: "init", context })
+          if (response.kind !== "initResult") throw new Error("Worker вернул неожиданный результат init")
+          return response
+        })
+      )
+
+      return {
+        workerInitMs: performance.now() - startedAt,
+        schemaCompileMs: results.reduce((sum, result) => sum + result.totalMs, 0),
+        formSchemaMs: results.reduce((sum, result) => sum + result.formMs, 0),
+        propertiesSchemaMs: results.reduce((sum, result) => sum + result.propertiesMs, 0),
+      }
     },
     async close() {
       await Promise.all(workers.map((worker) => worker.terminate()))

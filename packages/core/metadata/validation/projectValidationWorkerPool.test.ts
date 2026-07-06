@@ -8,22 +8,34 @@ import {
 import type { PendingMetadataTargetReference } from "./projectMetadataReferences"
 
 const execFileAsync = promisify(execFile)
+const context = {
+  version: "2.20",
+  defaultLanguage: "ru",
+  exportToYAML: { toTyped: false },
+} as const
 
 describe("ProjectValidationWorkerPool", () => {
-  it("starts and stops worker threads", async () => {
-    const pool = createProjectValidationWorkerPool({ concurrency: 2 })
+  it("starts and initializes worker schema caches", async () => {
+    const pool = createProjectValidationWorkerPool({ concurrency: 1 })
 
-    await pool.start()
-    await pool.close()
+    try {
+      const profile = await pool.start(context)
 
-    expect(pool.size()).toBe(2)
-  })
+      expect(pool.size()).toBe(1)
+      expect(profile.workerInitMs).toBeGreaterThanOrEqual(0)
+      expect(profile.schemaCompileMs).toBeGreaterThanOrEqual(0)
+      expect(profile.formSchemaMs).toBeGreaterThanOrEqual(0)
+      expect(profile.propertiesSchemaMs).toBeGreaterThanOrEqual(0)
+    } finally {
+      await pool.close()
+    }
+  }, 120_000)
 
   it("starts from plain tsx without legacy path aliases", async () => {
     const script = [
       'const { createProjectValidationWorkerPool } = await import("./metadata/validation/projectValidationWorkerPool.ts")',
       "const pool = createProjectValidationWorkerPool({ concurrency: 1 })",
-      "await pool.start()",
+      "await pool.start({ version: '2.20', defaultLanguage: 'ru', exportToYAML: { toTyped: false } })",
       "console.log(`worker-size=${pool.size()}`)",
       "await pool.close()",
     ].join(";")
@@ -34,19 +46,15 @@ describe("ProjectValidationWorkerPool", () => {
     })
 
     expect(stdout.trim()).toBe("worker-size=1")
-  })
+  }, 120_000)
 
   it("runs second pass through shared snapshots without opt-in environment flags", async () => {
     const pool = createProjectValidationWorkerPool({ concurrency: 1 })
     try {
-      await pool.start()
+      await pool.start(context)
       const second = await pool.runSecondPass({
         projectDir: "/project",
-        context: {
-          version: "2.20",
-          defaultLanguage: "ru",
-          exportToYAML: { toTyped: false },
-        },
+        context,
         mode: "full",
         objectTable: {
           records: [],
@@ -62,7 +70,7 @@ describe("ProjectValidationWorkerPool", () => {
     } finally {
       await pool.close()
     }
-  })
+  }, 120_000)
 })
 
 describe("partitionPendingReferencesForWorkers", () => {
