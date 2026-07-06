@@ -22,8 +22,14 @@ export interface ValidationRulesSpecSnapshot {
   itemType: string
   root?: MetadataRootName
   metadataTargetOwner?: MetadataTargetOwnerDeclaration
+  nesting?: ValidationRulesNestingSnapshot
   uniqueNameScopes: readonly ValidationRulesUniqueNameScopeSnapshot[]
   properties: readonly ValidationRulesPropertySnapshot[]
+}
+
+export interface ValidationRulesNestingSnapshot {
+  kind: "recursiveChildDir"
+  childDir: string
 }
 
 export interface ValidationRulesUniqueNameScopeSnapshot {
@@ -67,6 +73,7 @@ function snapshotSpec(spec: ValidationProjectSpec): ValidationRulesSpecSnapshot 
     itemType: rule.itemType,
     ...(rootFromYAML[spec.dir] === undefined ? {} : { root: rootFromYAML[spec.dir] }),
     ...(rule.metadataTargetOwner === undefined ? {} : { metadataTargetOwner: rule.metadataTargetOwner }),
+    ...(spec.nesting === undefined ? {} : { nesting: { kind: spec.nesting.kind, childDir: spec.nesting.childDir } }),
     uniqueNameScopes: (rule.uniqueNameScopes ?? []).map((scope) => ({ collections: [...scope.collections] })),
     properties: snapshotProperties(rule.properties),
   }

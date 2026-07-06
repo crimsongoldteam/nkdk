@@ -41,6 +41,7 @@ import type { Diagnostic } from "./types"
 import { typeboxErrorsToDiagnostics } from "./typeboxErrorsToDiagnostics"
 import { validateParsedFile } from "./validateFile"
 import { validateUniqueNameScopes } from "./uniqueNameScopes"
+import { extractValidationYamlFacts } from "./yamlFactExtractor"
 
 type CompiledSchema = ValidationSchemaValidator<TSchema>
 const formSchemaCache = new Map<string, CompiledSchema>()
@@ -273,6 +274,7 @@ export function validateProjectFileFirstPass(params: {
   cache: ProjectYamlCache
   context: ConfigurationContext
   schemaCache: ValidationSchemaCache
+  rulesSnapshot?: import("./rulesSnapshot").ValidationRulesSnapshot
 }): ProjectValidationFirstPassResult {
   if (params.file.kind === "form") return validateProjectFormFirstPass(params)
   return validateProjectPropertiesFirstPass(params)
@@ -307,6 +309,7 @@ function validateProjectFormFirstPass(params: {
   cache: ProjectYamlCache
   context: ConfigurationContext
   schemaCache: ValidationSchemaCache
+  rulesSnapshot?: import("./rulesSnapshot").ValidationRulesSnapshot
 }): ProjectValidationFirstPassResult {
   const totalStartedAt = performance.now()
   const schemaStartedAt = performance.now()
@@ -564,6 +567,10 @@ function validateProjectPropertiesFirstPass(params: {
     model: imported.model,
   })
   const memberIndexStartedAt = performance.now()
+  const yamlFacts =
+    params.rulesSnapshot === undefined
+      ? undefined
+      : extractValidationYamlFacts({ file: params.file, data: parsed.data, rulesSnapshot: params.rulesSnapshot })
   const memberIndexEntries = buildMemberIndexEntries({
     projectDir: params.projectDir,
     owner,
@@ -571,8 +578,8 @@ function validateProjectPropertiesFirstPass(params: {
   })
   const memberIndexMs = performance.now() - memberIndexStartedAt
   const objectIndexStartedAt = performance.now()
-  const objectIndexEntry = buildObjectIndexEntry({ owner, file: params.file })
-  const objectIndexEntries = objectIndexEntry ? [objectIndexEntry] : []
+  const modelObjectIndexEntry = buildObjectIndexEntry({ owner, file: params.file })
+  const objectIndexEntries = yamlFacts?.objectIndexEntries ?? (modelObjectIndexEntry ? [modelObjectIndexEntry] : [])
   const objectIndexMs = performance.now() - objectIndexStartedAt
   const valueIndexStartedAt = performance.now()
   const valueIndexEntries = buildValueIndexEntries({ owner })

@@ -152,6 +152,7 @@ function runFirstPass(message: Extract<ValidationWorkerMessage, { kind: "firstPa
       cache,
       context: message.context,
       schemaCache,
+      rulesSnapshot: requireWorkerRulesSnapshot(),
     })
     const firstPassMs = performance.now() - firstPassStartedAt
     timing?.recordFirstPass(firstPassMs)
@@ -182,6 +183,13 @@ function requireWorkerSchemaCache(): ValidationSchemaCache {
     throw new Error("Validation worker не инициализирован")
   }
   return workerSchemaCache
+}
+
+function requireWorkerRulesSnapshot(): ValidationRulesSnapshot {
+  if (workerRulesSnapshot === undefined) {
+    throw new Error("Validation worker rulesSnapshot не инициализирован")
+  }
+  return workerRulesSnapshot
 }
 
 function runSecondPass(message: Extract<ValidationWorkerMessage, { kind: "secondPass" }>): {
