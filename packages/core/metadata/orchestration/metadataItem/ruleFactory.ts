@@ -1,4 +1,5 @@
 import { Type } from "typebox"
+import { registerJSONSchemaIdentity } from "../jsonSchemaRefs"
 import { PropertyRuleType } from "../property/registry"
 import type { MetadataItemRule } from "../property/types"
 import { registerTypeRule } from "../property/typeRuleRegistry"
@@ -11,12 +12,20 @@ import { exportMetadataItemToJSONSchema } from "./toJSONSchema"
 type MetadataItemRuleParams<Rule extends MetadataItemRule, PropertyType extends PropertyRuleType> = {
   propertyType: PropertyType
   itemRule: Rule
+  schemaName?: string
 }
 
 export const registerMetadataItemRule = <Rule extends MetadataItemRule, PropertyType extends PropertyRuleType>(
   params: MetadataItemRuleParams<Rule, PropertyType>
 ): void => {
   const { propertyType, itemRule } = params
+  const schemaName = params.schemaName ?? itemRule.itemType
+
+  registerJSONSchemaIdentity({
+    name: schemaName,
+    source: itemRule,
+    exporter: ({ context }) => exportMetadataItemToJSONSchema({ context, rule: itemRule }),
+  })
 
   registerImportFromXML(propertyType, itemRule)
   registerImportFromYAML(propertyType, itemRule)
