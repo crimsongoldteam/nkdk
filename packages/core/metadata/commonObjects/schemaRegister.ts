@@ -1,10 +1,5 @@
 import { exportMetadataItemToJSONSchema } from "../orchestration/metadataItem/toJSONSchema"
-import { recordOfSchemaRef } from "../orchestration/jsonSchemaRefs"
-import {
-  registerProjectJSONSchema,
-  registerProjectJSONSchemaPropertyRef,
-  registerProjectJSONSchemaPropertyRefFactory,
-} from "../project/schemaRegistry"
+import { registerProjectJSONSchema } from "../project/schemaRegistry"
 import { MetadataCommandRules } from "../appliedObjects/metadataCommand/rules"
 import {
   MetadataAttributeRules,
@@ -40,29 +35,3 @@ registerProjectJSONSchema("MetadataTabularSection", ({ context }) =>
 registerProjectJSONSchema("MetadataCommand", ({ context }) =>
   exportMetadataItemToJSONSchema({ context, rule: MetadataCommandRules })
 )
-
-registerProjectJSONSchemaPropertyRef("MetadataCatalogAttributes", "MetadataCatalogAttribute")
-registerProjectJSONSchemaPropertyRef("MetadataDocumentAttributes", "MetadataDocumentAttribute")
-registerProjectJSONSchemaPropertyRef("MetadataAttributes", "MetadataAttribute")
-registerProjectJSONSchemaPropertyRef("MetadataRegisterAttributes", "MetadataRegisterAttribute")
-registerProjectJSONSchemaPropertyRef("MetadataReportAttributes", "MetadataAttribute")
-registerProjectJSONSchemaPropertyRef("MetadataTaskAddressingAttributes", "MetadataTaskAddressingAttribute")
-registerProjectJSONSchemaPropertyRefFactory("MetadataTabularSectionAttributes", () =>
-  recordOfSchemaRef("MetadataTabularSectionAttribute")
-)
-registerProjectJSONSchemaPropertyRefFactory("MetadataCommands", () => recordOfSchemaRef("MetadataCommand"))
-
-for (const type of [
-  "MetadataTabularSections",
-  "MetadataDocumentTabularSections",
-  "MetadataTaskTabularSections",
-  "MetadataBusinessProcessTabularSections",
-  "MetadataDataProcessorTabularSections",
-  "MetadataReportTabularSections",
-  "MetadataExchangePlanTabularSections",
-  "MetadataChartOfAccountsTabularSections",
-  "MetadataChartOfCalculationTypesTabularSections",
-  "MetadataChartOfCharacteristicTypesTabularSections",
-] as const) {
-  registerProjectJSONSchemaPropertyRefFactory(type, () => recordOfSchemaRef("MetadataTabularSection"))
-}
