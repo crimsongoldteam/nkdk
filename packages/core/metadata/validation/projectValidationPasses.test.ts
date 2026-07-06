@@ -14,6 +14,15 @@ describe("validateProjectFileFirstPass references", () => {
     for (const dir of tempDirs.splice(0)) rmSync(dir, { recursive: true, force: true })
   })
 
+  it("compiles all validation schemas before validating files", () => {
+    const cache = createValidationSchemaCache({ version: "2.20", defaultLanguage: "ru" })
+    const result = cache.compileAll()
+
+    expect(result.formMs).toBeGreaterThanOrEqual(0)
+    expect(result.propertiesMs).toBeGreaterThanOrEqual(0)
+    expect(cache.form().Check({ Элементы: {} })).toBe(true)
+  }, 120_000)
+
   it("builds member index entries from owner fields", () => {
     const projectDir = mkdtempSync(join(tmpdir(), "nkdk-validation-first-pass-"))
     tempDirs.push(projectDir)

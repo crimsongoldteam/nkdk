@@ -1,5 +1,5 @@
 import { compileValidationSchema, type ValidationSchemaValidator } from "./compileValidationSchema"
-import { Type, type TSchema } from "typebox"
+import type { TSchema } from "typebox"
 import fs from "fs"
 import { performance } from "node:perf_hooks"
 import { dirname, join, resolve } from "path"
@@ -13,7 +13,6 @@ import { type OwnerMetadata, type OwnerMetadataCache } from "./dataPath/ownerCac
 import { buildObjectFieldIndex, type ObjectField, type ObjectFieldKind } from "./dataPath/objectFields"
 import { validateExcludedEqualNameYAML } from "./excludeIfEqualNameYAML"
 import { getRegisteredFormValidationPasses } from "./formValidationRegistry"
-import { JSON_SCHEMA_REF_PREFIX } from "../orchestration/jsonSchemaRefs"
 import { collectMetadataTargetReferencesInModel } from "./metadataTargetTraversal"
 import { getProjectFileValidators, getProjectReferenceMemberIndexContributors } from "./projectReferenceIndexRegistry"
 import {
@@ -26,10 +25,14 @@ import {
   type ProjectValueIndexEntry,
   validatePendingReferencesWithIndex,
 } from "./projectReferenceIndex"
-import { exportJSONSchemaForSchemaName } from "./projectFileSchema"
+import { exportJSONSchemaGraph } from "./projectFileSchema"
 import type { ValidationProjectFile } from "./projectFiles"
 import type { ProjectYamlCache, ProjectYamlEntry } from "./projectYamlCache"
-import type { ValidationProjectSpec } from "./projectSpecs"
+import {
+  configurationValidationProjectSpec,
+  validationProjectSpecs,
+  type ValidationProjectSpec,
+} from "./projectSpecs"
 import type { ValidationDependencyRequest, ValidationObjectRecord } from "./projectValidationTypes"
 import type { Diagnostic } from "./types"
 import { validateParsedFile } from "./validateFile"
@@ -42,6 +45,13 @@ const propertiesSchemaCache = new Map<string, CompiledSchema>()
 export interface ValidationSchemaCache {
   form: () => CompiledSchema
   properties: (spec: ValidationProjectSpec) => CompiledSchema
+  compileAll: () => ValidationSchemaCacheCompileProfile
+}
+
+export interface ValidationSchemaCacheCompileProfile {
+  formMs: number
+  propertiesMs: number
+  totalMs: number
 }
 
 export type ProjectValidationFileState =
@@ -159,6 +169,25 @@ export function createValidationSchemaCache(context: ConfigurationContext): Vali
 
       return compiled
     },
+    compileAll() {
+      const startedAt = performance.now()
+      const formStartedAt = performance.now()
+      this.form()
+      const formMs = performance.now() - formStartedAt
+
+      const propertiesStartedAt = performance.now()
+      for (const spec of validationProjectSpecs) {
+        this.properties(spec)
+      }
+      this.properties(configurationValidationProjectSpec)
+      const propertiesMs = performance.now() - propertiesStartedAt
+
+      return {
+        formMs,
+        propertiesMs,
+        totalMs: performance.now() - startedAt,
+      }
+    },
   }
 }
 
@@ -167,46 +196,16 @@ function compileRegisteredFormSchema(context: ConfigurationContext): CompiledSch
   const cached = formSchemaCache.get(cacheKey)
   if (cached !== undefined) return cached
 
-  const schema = exportJSONSchemaForSchemaName({
+  const graph = exportJSONSchemaGraph({
     context,
-    name: "ClientApplicationForm",
-    mode: "externalRefs",
-    includeNestedChildItems: true,
+    roots: [{ key: "form", name: "ClientApplicationForm", includeNestedChildItems: true }],
   })
-  const compiled = compileValidationSchema(stripExternalRefsForValidation(schema))
+  const compiled = compileValidationSchema(graph.schemas, graph.roots["form"]!, {
+    inlineRefs: false,
+    eagerFallback: true,
+  })
   formSchemaCache.set(cacheKey, compiled)
   return compiled
-}
-
-function stripExternalRefsForValidation(schema: TSchema): TSchema {
-  return stripExternalRefs(schema) as TSchema
-}
-
-function stripExternalRefs(value: unknown): unknown {
-  if (Array.isArray(value)) return value.map(stripExternalRefs)
-  if (value === null || typeof value !== "object") return value
-
-  const record = value as Record<string, unknown>
-  if (typeof record.$ref === "string" && record.$ref.startsWith(JSON_SCHEMA_REF_PREFIX)) {
-    return Type.Any()
-  }
-
-  return Object.fromEntries(
-    Object.entries(record).map(([key, entry]) => [
-      key,
-      key === "additionalProperties" && containsExternalRef(entry) ? true : stripExternalRefs(entry),
-    ])
-  )
-}
-
-function containsExternalRef(value: unknown): boolean {
-  if (Array.isArray(value)) return value.some(containsExternalRef)
-  if (value === null || typeof value !== "object") return false
-
-  const record = value as Record<string, unknown>
-  if (typeof record.$ref === "string" && record.$ref.startsWith(JSON_SCHEMA_REF_PREFIX)) return true
-
-  return Object.values(record).some(containsExternalRef)
 }
 
 export function validateProjectFileFirstPass(params: {

@@ -55,7 +55,7 @@ export function compileValidationSchema(
   const options = hasExplicitContext ? maybeOptions : (schemaOrOptions as CompileValidationSchemaOptions | undefined)
   const ajvSchema = prepareSchemaForAjv(schema)
   const check = createAjv(context, { allErrors: false, inlineRefs: options?.inlineRefs }).compile(ajvSchema)
-  const useFallbackCheck = hasLocalDefinitions(schema)
+  const useFallbackCheck = hasLocalDefinitions(schema) && !hasExplicitContext
   let fallback: ValidationSchemaValidator | undefined
   const getFallback = (): ValidationSchemaValidator => {
     fallback ??= createTypeboxFallback(context, schema, hasExplicitContext)
