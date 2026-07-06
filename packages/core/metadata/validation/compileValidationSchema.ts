@@ -8,7 +8,6 @@ export type SchemaContext = Record<string, TSchema>
 export interface CompileValidationSchemaOptions {
   inlineRefs?: Options["inlineRefs"]
   eagerFallback?: boolean
-  engine?: "ajv" | "typebox"
 }
 
 export interface ValidationSchemaError {
@@ -54,10 +53,6 @@ export function compileValidationSchema(
   const context = hasExplicitContext ? (schemaOrContext as SchemaContext) : {}
   const schema = hasExplicitContext ? (schemaOrOptions as TSchema) : (schemaOrContext as TSchema)
   const options = hasExplicitContext ? maybeOptions : (schemaOrOptions as CompileValidationSchemaOptions | undefined)
-  if (options?.engine === "typebox") {
-    return createTypeboxFallback(context, schema, hasExplicitContext)
-  }
-
   const ajvSchema = prepareSchemaForAjv(schema)
   const check = createAjv(context, { allErrors: false, inlineRefs: options?.inlineRefs }).compile(ajvSchema)
   const useFallbackCheck = hasLocalDefinitions(schema) && !hasExplicitContext
@@ -107,7 +102,7 @@ function isCompileValidationSchemaOptions(value: unknown): value is CompileValid
   if (value === null || typeof value !== "object") return false
 
   const record = value as Record<string, unknown>
-  return "inlineRefs" in record || "eagerFallback" in record || "engine" in record
+  return "inlineRefs" in record || "eagerFallback" in record
 }
 
 function createTypeboxFallback(

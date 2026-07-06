@@ -59,22 +59,6 @@ describe("compileValidationSchema", () => {
     expect(compiled.Check({ Ребёнок: { Имя: 10 } })).toBe(false)
   })
 
-  it("can compile external refs with TypeBox engine", () => {
-    const child = Type.Object({ Имя: Type.String() }, { $id: "nkdk://schema/TestChild" })
-    const root = Type.Object({
-      Ребёнок: { $ref: "nkdk://schema/TestChild" } as TSchema,
-    })
-
-    const compiled = compileValidationSchema(
-      { "nkdk://schema/TestChild": child },
-      root,
-      { engine: "typebox" }
-    )
-
-    expect(compiled.Check({ Ребёнок: { Имя: "Тест" } })).toBe(true)
-    expect(compiled.Check({ Ребёнок: { Имя: 10 } })).toBe(false)
-  })
-
   it("can compile TypeBox fallback eagerly for schemas with local defs", () => {
     const schema = Type.Object({
       Значения: Type.Cyclic(

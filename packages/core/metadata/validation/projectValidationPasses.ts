@@ -163,9 +163,7 @@ export function createValidationSchemaCache(context: ConfigurationContext): Vali
       if (existing) return existing
 
       const globalKey = `${context.version}:${context.defaultLanguage}:${spec.dir}`
-      const compiled =
-        propertiesSchemaCache.get(globalKey) ??
-        compileValidationSchema(spec.exportSchema({ context, mode: "inline" }), { engine: "typebox" })
+      const compiled = propertiesSchemaCache.get(globalKey) ?? compileValidationSchema(spec.exportSchema({ context, mode: "inline" }))
       propertiesSchemaCache.set(globalKey, compiled)
       propertiesSchemas.set(key, compiled)
 
@@ -205,7 +203,6 @@ function compileRegisteredFormSchema(context: ConfigurationContext): CompiledSch
   const compiled = compileValidationSchema(graph.schemas, graph.roots["form"]!, {
     inlineRefs: false,
     eagerFallback: true,
-    engine: "typebox",
   })
   formSchemaCache.set(cacheKey, compiled)
   return compiled
