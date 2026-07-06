@@ -7,11 +7,19 @@ export const JSON_SCHEMA_REF_PREFIX = "nkdk://schema/"
 const COLLECTED_SCHEMA_REFS_KEY = "x-nkdk-schemaRefs"
 
 type PropertyRefFactory = (params: { context: ConfigurationContext; rule: PropertyRule }) => TSchema | undefined
+type JSONSchemaExporter = (params: { context: ConfigurationContext }) => TSchema
+
+interface JSONSchemaIdentityRegistration {
+  exporter: JSONSchemaExporter
+  source: object | string
+}
 
 const propertyRefFactories = new Map<PropertyRuleType, PropertyRefFactory>()
+const schemaIdentityExporters = new Map<string, JSONSchemaIdentityRegistration>()
 
 export function clearJSONSchemaRefRegistries(): void {
   propertyRefFactories.clear()
+  schemaIdentityExporters.clear()
 }
 
 export function createSchemaRef(name: string): string {
@@ -50,6 +58,31 @@ export function recordOfDiscriminatedOneOfSchemaRefs(names: readonly string[], p
 
 export function registerJSONSchemaPropertyRef(type: PropertyRuleType, factory: PropertyRefFactory): void {
   propertyRefFactories.set(type, factory)
+}
+
+export function registerJSONSchemaIdentity(params: {
+  name: string
+  exporter: JSONSchemaExporter
+  source: object | string
+}): void {
+  const existing = schemaIdentityExporters.get(params.name)
+  if (existing !== undefined) {
+    if (existing.source === params.source && existing.exporter === params.exporter) return
+    throw new Error(`JSON Schema "${params.name}" already registered`)
+  }
+
+  schemaIdentityExporters.set(params.name, {
+    exporter: params.exporter,
+    source: params.source,
+  })
+}
+
+export function getJSONSchemaIdentityExporter(name: string): JSONSchemaExporter | undefined {
+  return schemaIdentityExporters.get(name)?.exporter
+}
+
+export function listJSONSchemaIdentityNames(): string[] {
+  return [...schemaIdentityExporters.keys()].sort()
 }
 
 export function createJSONSchemaExportContext(

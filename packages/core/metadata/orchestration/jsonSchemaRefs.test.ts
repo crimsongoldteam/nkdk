@@ -7,7 +7,10 @@ import {
   createJSONSchemaExportContext,
   createSchemaRef,
   exportPropertyExternalRefSchema,
+  getJSONSchemaIdentityExporter,
+  listJSONSchemaIdentityNames,
   recordOfSchemaRef,
+  registerJSONSchemaIdentity,
   registerJSONSchemaPropertyRef,
   stripCollectedSchemaRefs,
 } from "./jsonSchemaRefs"
@@ -105,5 +108,46 @@ describe("jsonSchemaRefs", () => {
     expect(attachCollectedSchemaRefs(context, Type.Object({}))).toMatchObject({
       "x-nkdk-schemaRefs": ["nkdk://schema/MetadataAttribute"],
     })
+  })
+
+  it("registers and lists named schema exporters", () => {
+    const source = { itemType: "SampleItem" }
+    registerJSONSchemaIdentity({
+      name: "SampleItem",
+      source,
+      exporter: () => Type.Object({ Имя: Type.String() }),
+    })
+
+    expect(listJSONSchemaIdentityNames()).toEqual(["SampleItem"])
+    expect(getJSONSchemaIdentityExporter("SampleItem")?.({ context: baseContext })).toMatchObject({
+      type: "object",
+      properties: { Имя: { type: "string" } },
+    })
+  })
+
+  it("allows idempotent registration for the same source", () => {
+    const source = { itemType: "SampleItem" }
+    const exporter = () => Type.Object({})
+
+    registerJSONSchemaIdentity({ name: "SampleItem", source, exporter })
+    registerJSONSchemaIdentity({ name: "SampleItem", source, exporter })
+
+    expect(listJSONSchemaIdentityNames()).toEqual(["SampleItem"])
+  })
+
+  it("rejects the same schema name for different sources", () => {
+    registerJSONSchemaIdentity({
+      name: "DuplicateItem",
+      source: { itemType: "Left" },
+      exporter: () => Type.Object({ left: Type.String() }),
+    })
+
+    expect(() =>
+      registerJSONSchemaIdentity({
+        name: "DuplicateItem",
+        source: { itemType: "Right" },
+        exporter: () => Type.Object({ right: Type.String() }),
+      })
+    ).toThrow('JSON Schema "DuplicateItem" already registered')
   })
 })
