@@ -5,6 +5,7 @@ import type {
 } from "../commonObjects/metadataTargets/types"
 import type { ConfigurationContext } from "../context/types"
 import type { MetadataTargetOwnerDeclaration } from "../orchestration/property/types"
+import { getTypeRule } from "../orchestration/property/typeRuleRegistry"
 import {
   configurationValidationProjectSpec,
   validationProjectSpecs,
@@ -41,6 +42,7 @@ export interface ValidationRulesPropertySnapshot {
   yamlPath: readonly string[]
   type?: string
   metadataTarget?: MetadataTargetConstraint
+  children?: readonly ValidationRulesPropertySnapshot[]
 }
 
 interface SnapshotSourceProperty {
@@ -48,6 +50,7 @@ interface SnapshotSourceProperty {
   type?: string
   metadataTarget?: MetadataTargetConstraint
   yamlInline?: true
+  itemRule?: ValidationProjectSpec["rule"]
 }
 
 export function createValidationRulesSnapshot(_context: ConfigurationContext): ValidationRulesSnapshot {
@@ -89,7 +92,26 @@ function snapshotProperties(properties: ValidationProjectSpec["rule"]["propertie
         yamlPath: [property.yaml],
         ...(property.type === undefined ? {} : { type: property.type }),
         ...(property.metadataTarget === undefined ? {} : { metadataTarget: property.metadataTarget }),
+        ...childrenSnapshot(property),
       },
     ]
   })
+}
+
+function childrenSnapshot(property: SnapshotSourceProperty): { children?: readonly ValidationRulesPropertySnapshot[] } {
+  const itemRule = nestedItemRule(property)
+  return itemRule === undefined ? {} : { children: snapshotProperties(itemRule.properties) }
+}
+
+function nestedItemRule(property: SnapshotSourceProperty): ValidationProjectSpec["rule"] | undefined {
+  if (property.type !== undefined) {
+    const collectionItemRule = getTypeRule(property.type, "collectionItemRule")
+    if (collectionItemRule?.itemRule) return collectionItemRule.itemRule
+  }
+
+  if ("itemRule" in property && property.itemRule !== undefined) {
+    return property.itemRule as ValidationProjectSpec["rule"]
+  }
+
+  return undefined
 }

@@ -24,6 +24,7 @@ import {
 } from "./projectValidationPasses"
 import { createValidationYamlQueue } from "./projectValidationQueue"
 import { createValidationSnapshotProvider } from "./validationSnapshotProvider"
+import { createValidationRulesSnapshot, type ValidationRulesSnapshot } from "./rulesSnapshot"
 import type { Diagnostic } from "./types"
 
 export interface ValidateProjectParams {
@@ -53,6 +54,7 @@ function validateProjectInProcess(params: ValidateProjectParams): ValidateProjec
   const projectDir = resolve(params.projectDir)
   const context = params.context ?? defaultValidationContext()
   const schemaCache = createValidationSchemaCache(context)
+  const rulesSnapshot = createValidationRulesSnapshot(context)
   const files =
     params.filePath === undefined
       ? discoverValidationProjectFiles(projectDir)
@@ -66,7 +68,17 @@ function validateProjectInProcess(params: ValidateProjectParams): ValidateProjec
   const states = new Map<string, ProjectValidationFileState>()
 
   const diagnostics: Diagnostic[] = []
-  processPendingFirstPasses({ projectDir, context, schemaCache, queue, entries, states, objectTable, diagnostics })
+  processPendingFirstPasses({
+    projectDir,
+    context,
+    schemaCache,
+    rulesSnapshot,
+    queue,
+    entries,
+    states,
+    objectTable,
+    diagnostics,
+  })
   const skipMetadataTargetValidation = params.filePath === undefined
 
   if (skipMetadataTargetValidation) {
@@ -132,7 +144,17 @@ function validateProjectInProcess(params: ValidateProjectParams): ValidateProjec
     }
 
     if (enqueuedDependency) {
-      processPendingFirstPasses({ projectDir, context, schemaCache, queue, entries, states, objectTable, diagnostics })
+      processPendingFirstPasses({
+        projectDir,
+        context,
+        schemaCache,
+        rulesSnapshot,
+        queue,
+        entries,
+        states,
+        objectTable,
+        diagnostics,
+      })
       for (const stateKey of states.keys()) secondPassPending.add(stateKey)
     }
   }
@@ -264,6 +286,7 @@ function processPendingFirstPasses(params: {
   projectDir: string
   context: ConfigurationContext
   schemaCache: ReturnType<typeof createValidationSchemaCache>
+  rulesSnapshot: ValidationRulesSnapshot
   queue: ReturnType<typeof createValidationYamlQueue>
   entries: Map<string, ProjectYamlEntry>
   states: Map<string, ProjectValidationFileState>
@@ -290,6 +313,7 @@ function processPendingFirstPasses(params: {
         cache,
         context: params.context,
         schemaCache: params.schemaCache,
+        rulesSnapshot: params.rulesSnapshot,
       })
       params.states.set(resolve(file.absolutePath), first.state)
       params.objectTable.mergeRecords(first.objectRecords)

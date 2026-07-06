@@ -17,7 +17,7 @@ describe("extractValidationYamlFacts", () => {
 
     const facts = extractValidationYamlFacts({
       file,
-      data: parsed.data,
+      parsed,
       rulesSnapshot: createValidationRulesSnapshot(mockContext),
     })
 
@@ -37,7 +37,7 @@ describe("extractValidationYamlFacts", () => {
 
     const facts = extractValidationYamlFacts({
       file,
-      data: {},
+      parsed: parseMetadataYaml("{}\n"),
       rulesSnapshot: createValidationRulesSnapshot(mockContext),
     })
 

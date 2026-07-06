@@ -30,7 +30,7 @@ import {
 import { exportJSONSchemaGraph } from "./projectFileSchema"
 import type { ValidationProjectFile } from "./projectFiles"
 import type { ProjectYamlCache, ProjectYamlEntry } from "./projectYamlCache"
-import type { ValidationPendingCheck } from "./projectValidationPendingChecks"
+import { validatePendingChecks, type ValidationPendingCheck } from "./projectValidationPendingChecks"
 import {
   configurationValidationProjectSpec,
   validationProjectSpecs,
@@ -286,7 +286,7 @@ export function validateProjectFileSecondPass(
   if (params.state.kind === "failed") return { status: "ok", diagnostics: [] }
 
   if (params.state.kind === "form") {
-    return { status: "ok", diagnostics: [] }
+    return validatePendingChecks({ ownerCache: params.ownerCache, checks: params.state.pendingChecks })
   }
 
   const collected = params.skipMetadataTargetValidation
@@ -328,6 +328,12 @@ function validateProjectFormFirstPass(params: {
     })
   }
 
+  const entry = params.cache.get(params.file.absolutePath)
+  const yamlFacts =
+    "error" in entry || params.rulesSnapshot === undefined
+      ? undefined
+      : extractValidationYamlFacts({ file: params.file, parsed: entry.parsed, rulesSnapshot: params.rulesSnapshot })
+
   const passes = getRegisteredFormValidationPasses()
   if (passes === undefined) {
     const profile = {
@@ -365,7 +371,7 @@ function validateProjectFormFirstPass(params: {
     suppressFormImportDiagnostics: schemaDiagnostics.length > 0,
   })
   const formImportMs = performance.now() - formImportStartedAt
-  const diagnostics = [...schemaDiagnostics, ...first.diagnostics]
+  const diagnostics = [...schemaDiagnostics, ...first.diagnostics, ...(yamlFacts?.diagnostics ?? [])]
   if (first.status === "failed") {
     return failedFirstPass(params.file, diagnostics, {
       ...emptyFirstPassProfile("form"),
@@ -384,7 +390,7 @@ function validateProjectFormFirstPass(params: {
     state: {
       kind: "form",
       file: params.file,
-      pendingChecks: [],
+      pendingChecks: yamlFacts?.pendingChecks ?? [],
       firstPassDiagnostics: diagnostics,
     },
     diagnostics,
@@ -410,6 +416,7 @@ function validateProjectPropertiesFirstPass(params: {
   cache: ProjectYamlCache
   context: ConfigurationContext
   schemaCache: ValidationSchemaCache
+  rulesSnapshot?: import("./rulesSnapshot").ValidationRulesSnapshot
 }): ProjectValidationFirstPassResult {
   const totalStartedAt = performance.now()
   const cacheStartedAt = performance.now()
@@ -543,7 +550,7 @@ function validateProjectPropertiesFirstPass(params: {
     ...suppressEqualNameSchemaDiagnostics(schemaDiagnostics, equalNameDiagnostics),
     ...equalNameDiagnostics,
     ...uniqueScopeDiagnostics,
-    ...pendingReferences.diagnostics,
+    ...(params.rulesSnapshot === undefined ? pendingReferences.diagnostics : []),
   ]
   const ownerRef = { kind: params.file.owner.dir, name: params.file.owner.name }
   const ownerWithoutIndex = {
@@ -570,7 +577,7 @@ function validateProjectPropertiesFirstPass(params: {
   const yamlFacts =
     params.rulesSnapshot === undefined
       ? undefined
-      : extractValidationYamlFacts({ file: params.file, data: parsed.data, rulesSnapshot: params.rulesSnapshot })
+      : extractValidationYamlFacts({ file: params.file, parsed, rulesSnapshot: params.rulesSnapshot })
   const memberIndexEntries = buildMemberIndexEntries({
     projectDir: params.projectDir,
     owner,
@@ -589,14 +596,14 @@ function validateProjectPropertiesFirstPass(params: {
     state: {
       kind: "properties",
       file: params.file,
-      pendingReferences: pendingReferences.references,
+      pendingReferences: yamlFacts?.pendingReferences ?? pendingReferences.references,
       firstPassDiagnostics: diagnostics,
     },
     diagnostics,
     objectIndexEntries,
     memberIndexEntries,
     valueIndexEntries,
-    pendingReferences: pendingReferences.references,
+    pendingReferences: yamlFacts?.pendingReferences ?? pendingReferences.references,
     objectRecords: [
       {
         filePath: params.file.absolutePath,
@@ -610,7 +617,7 @@ function validateProjectPropertiesFirstPass(params: {
         objectIndexEntries,
         memberIndexEntries,
         valueIndexEntries,
-        pendingReferences: pendingReferences.references,
+        pendingReferences: yamlFacts?.pendingReferences ?? pendingReferences.references,
         importDiagnostics: [],
       },
     ],
