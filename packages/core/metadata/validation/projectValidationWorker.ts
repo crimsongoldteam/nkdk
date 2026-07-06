@@ -19,7 +19,6 @@ import {
   createProjectYamlCache,
   createProjectYamlCacheFromEntries,
   type ProjectYamlCache,
-  type ProjectYamlEntry,
 } from "./projectYamlCache"
 import {
   createValidationSchemaCache,
@@ -62,7 +61,6 @@ type ValidationWorkerMessage =
     }
 
 interface WorkerValidationState {
-  entries: Map<string, ProjectYamlEntry>
   states: Map<string, ProjectValidationFileState>
   objectIndexEntries: ProjectObjectIndexEntry[]
   memberIndexEntries: ProjectMemberIndexEntry[]
@@ -75,7 +73,6 @@ let workerSchemaCache: ValidationSchemaCache | undefined
 
 function createEmptyWorkerValidationState(): WorkerValidationState {
   return {
-    entries: new Map(),
     states: new Map(),
     objectIndexEntries: [],
     memberIndexEntries: [],
@@ -143,7 +140,6 @@ function runFirstPass(message: Extract<ValidationWorkerMessage, { kind: "firstPa
       continue
     }
 
-    workerState.entries.set(resolve(entry.filePath), entry)
     const cache = createProjectYamlCacheFromEntries([entry])
     const firstPassStartedAt = performance.now()
     const first = validateProjectFileFirstPass({
@@ -243,12 +239,15 @@ function runSecondPass(message: Extract<ValidationWorkerMessage, { kind: "second
     diagnostics.push(...second.diagnostics)
   }
 
+  const validationMs = performance.now() - validationStartedAt
+  workerState = createEmptyWorkerValidationState()
+
   return {
     diagnostics,
     timing: {
       contextMs: referenceStartedAt - contextStartedAt,
       referenceValidationMs: validationStartedAt - referenceStartedAt,
-      validationMs: performance.now() - validationStartedAt,
+      validationMs,
       fileCount: message.filePaths.length,
       referenceHits: referenceResult.stats.hits,
       referenceMisses: referenceResult.stats.misses,
@@ -443,22 +442,7 @@ function validationProfileKey(state: ProjectValidationFileState): string {
 }
 
 function createWorkerYamlCache(): ProjectYamlCache {
-  const local = createProjectYamlCacheFromEntries([...workerState.entries.values()])
-  const fallback = createProjectYamlCache()
-
-  return {
-    get(filePath) {
-      const entry = local.get(filePath)
-      if (!("error" in entry) || !entry.error.message.startsWith("YAML-файл отсутствует в validation snapshot")) {
-        return entry
-      }
-      return fallback.get(filePath)
-    },
-    release(filePath) {
-      local.release(filePath)
-      fallback.release(filePath)
-    },
-  }
+  return createProjectYamlCache()
 }
 
 function unrecognizedFileDiagnostic(filePath: string): Diagnostic {
@@ -480,7 +464,7 @@ export function workerStateStatsForTests(): {
 } {
   const states = [...workerState.states.values()]
   return {
-    retainedEntries: workerState.entries.size,
+    retainedEntries: 0,
     retainedStates: workerState.states.size,
     retainedPropertyModels: states.filter((state) => state.kind === "properties" && "model" in state).length,
     retainedFormStates: states.filter((state) => state.kind === "form" && "formState" in state).length,

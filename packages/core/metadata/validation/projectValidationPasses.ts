@@ -29,6 +29,7 @@ import {
 import { exportJSONSchemaGraph } from "./projectFileSchema"
 import type { ValidationProjectFile } from "./projectFiles"
 import type { ProjectYamlCache, ProjectYamlEntry } from "./projectYamlCache"
+import type { ValidationPendingCheck } from "./projectValidationPendingChecks"
 import {
   configurationValidationProjectSpec,
   validationProjectSpecs,
@@ -60,14 +61,13 @@ export type ProjectValidationFileState =
   | {
       kind: "properties"
       file: ValidationProjectFile
-      parsed: ParsedYaml
-      model: MetadataItem
+      pendingReferences: PendingMetadataTargetReference[]
       firstPassDiagnostics: Diagnostic[]
     }
   | {
       kind: "form"
       file: ValidationProjectFile
-      formState: unknown
+      pendingChecks: ValidationPendingCheck[]
       firstPassDiagnostics: Diagnostic[]
     }
   | { kind: "failed"; file: ValidationProjectFile; diagnostics: Diagnostic[] }
@@ -283,26 +283,12 @@ export function validateProjectFileSecondPass(
   if (params.state.kind === "failed") return { status: "ok", diagnostics: [] }
 
   if (params.state.kind === "form") {
-    const passes = getRegisteredFormValidationPasses()
-    if (passes === undefined) return { status: "ok", diagnostics: [] }
-    return {
-      status: "ok",
-      diagnostics: passes.secondPass({ state: params.state.formState, ownerCache: params.ownerCache }),
-    }
+    return { status: "ok", diagnostics: [] }
   }
-
-  const ownerRoot = rootFromYAML[params.state.file.owner.dir]
-  const owner = ownerRoot ? { root: ownerRoot, objectName: params.state.file.owner.name } : undefined
 
   const collected = params.skipMetadataTargetValidation
     ? { references: [], diagnostics: [] }
-    : collectMetadataTargetReferencesInModel({
-        filePath: params.state.file.absolutePath,
-        parsed: params.state.parsed,
-        model: params.state.model,
-        rule: params.state.file.owner.spec.rule,
-        owner,
-      })
+    : { references: params.state.pendingReferences, diagnostics: [] }
   const resolved = validatePendingReferencesWithIndex({
     index: params.referenceIndex,
     references: collected.references,
@@ -394,7 +380,7 @@ function validateProjectFormFirstPass(params: {
     state: {
       kind: "form",
       file: params.file,
-      formState: first.state,
+      pendingChecks: [],
       firstPassDiagnostics: diagnostics,
     },
     diagnostics,
@@ -589,8 +575,7 @@ function validateProjectPropertiesFirstPass(params: {
     state: {
       kind: "properties",
       file: params.file,
-      parsed,
-      model: imported.model,
+      pendingReferences: pendingReferences.references,
       firstPassDiagnostics: diagnostics,
     },
     diagnostics,
