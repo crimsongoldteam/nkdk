@@ -2,7 +2,6 @@ import { performance } from "node:perf_hooks"
 import { parentPort } from "node:worker_threads"
 import { resolve } from "path"
 import type { ConfigurationContext } from "../context/types"
-import { registerCoreMetadata } from "../register"
 import { createOwnerMetadataCacheFromSharedValidationSnapshot } from "./dataPath/sharedOwnerCache"
 import { getProjectReferenceObjectPathContributor } from "./projectReferenceIndexRegistry"
 import type {
@@ -34,8 +33,9 @@ import {
 import type { ValidationMode, ValidationObjectRecord } from "./projectValidationTypes"
 import type { ValidationRulesSnapshot } from "./rulesSnapshot"
 import type { Diagnostic } from "./types"
+import { registerValidationMetadata } from "./registerValidationMetadata"
 
-registerCoreMetadata()
+registerValidationMetadata()
 
 type ValidationWorkerMessage =
   | {
