@@ -32,6 +32,7 @@ import {
   type ProjectValidationFileState,
 } from "./projectValidationPasses"
 import type { ValidationMode, ValidationObjectRecord } from "./projectValidationTypes"
+import type { ValidationRulesSnapshot } from "./rulesSnapshot"
 import type { Diagnostic } from "./types"
 
 registerCoreMetadata()
@@ -41,6 +42,7 @@ type ValidationWorkerMessage =
       id: number
       kind: "init"
       context: ConfigurationContext
+      rulesSnapshot: ValidationRulesSnapshot
     }
   | {
       id: number
@@ -70,6 +72,7 @@ interface WorkerValidationState {
 
 let workerState = createEmptyWorkerValidationState()
 let workerSchemaCache: ValidationSchemaCache | undefined
+let workerRulesSnapshot: ValidationRulesSnapshot | undefined
 
 function createEmptyWorkerValidationState(): WorkerValidationState {
   return {
@@ -105,6 +108,7 @@ parentPort?.on("message", (message: ValidationWorkerMessage) => {
 
 function runInit(message: Extract<ValidationWorkerMessage, { kind: "init" }>): ValidationSchemaCacheCompileProfile {
   workerSchemaCache = createValidationSchemaCache(message.context)
+  workerRulesSnapshot = message.rulesSnapshot
   return workerSchemaCache.compileAll()
 }
 

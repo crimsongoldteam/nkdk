@@ -15,6 +15,7 @@ import type { SharedValidationSnapshot } from "./sharedValidationSnapshot"
 import type { ValidationMode, ValidationObjectRecord, ValidationObjectTableSnapshot } from "./projectValidationTypes"
 import type { Diagnostic } from "./types"
 import { createValidationSnapshotProvider } from "./validationSnapshotProvider"
+import { createValidationRulesSnapshot, type ValidationRulesSnapshot } from "./rulesSnapshot"
 
 export interface FirstPassPoolParams {
   projectDir: string
@@ -47,6 +48,7 @@ export interface ProjectValidationWorkerPoolStartProfile {
   schemaCompileMs: number
   formSchemaMs: number
   propertiesSchemaMs: number
+  rulesSnapshotBytes: number
 }
 
 interface WorkerSecondPassTiming {
@@ -111,6 +113,7 @@ type WorkerRequest =
   | {
       kind: "init"
       context: ConfigurationContext
+      rulesSnapshot: ValidationRulesSnapshot
     }
   | {
       kind: "firstPass"
@@ -161,10 +164,11 @@ export function createProjectValidationWorkerPool(params: { concurrency: number 
   return {
     async start(context) {
       while (workers.length < params.concurrency) workers.push(createWorker())
+      const rulesSnapshot = createValidationRulesSnapshot(context)
       const startedAt = performance.now()
       const results = await Promise.all(
         workers.map(async (worker) => {
-          const response = await request(worker, { kind: "init", context })
+          const response = await request(worker, { kind: "init", context, rulesSnapshot })
           if (response.kind !== "initResult") throw new Error("Worker вернул неожиданный результат init")
           return response
         })
@@ -175,6 +179,7 @@ export function createProjectValidationWorkerPool(params: { concurrency: number 
         schemaCompileMs: results.reduce((sum, result) => sum + result.totalMs, 0),
         formSchemaMs: results.reduce((sum, result) => sum + result.formMs, 0),
         propertiesSchemaMs: results.reduce((sum, result) => sum + result.propertiesMs, 0),
+        rulesSnapshotBytes: JSON.stringify(rulesSnapshot).length,
       }
     },
     async close() {
