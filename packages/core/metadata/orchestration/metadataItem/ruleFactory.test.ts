@@ -1,5 +1,5 @@
-import { describe, expect, it, beforeEach } from "vitest"
-import { clearJSONSchemaRefRegistries, getJSONSchemaIdentityExporter } from "../jsonSchemaRefs"
+import { describe, expect, it } from "vitest"
+import { getJSONSchemaIdentityExporter } from "../jsonSchemaRefs"
 import type { MetadataItemRule } from "../property/types"
 import { registerMetadataItemRule } from "./ruleFactory"
 
@@ -15,11 +15,12 @@ const SampleItemRule = {
   },
 } as const satisfies MetadataItemRule
 
-describe("registerMetadataItemRule JSON Schema identity", () => {
-  beforeEach(() => {
-    clearJSONSchemaRefRegistries()
-  })
+const ExplicitOnlySampleItemRule = {
+  ...SampleItemRule,
+  itemType: "ExplicitOnlySampleItem",
+} as const satisfies MetadataItemRule
 
+describe("registerMetadataItemRule JSON Schema identity", () => {
   it("registers item schema by itemType by default", () => {
     registerMetadataItemRule({ propertyType: "SampleItemProperty", itemRule: SampleItemRule })
 
@@ -33,12 +34,12 @@ describe("registerMetadataItemRule JSON Schema identity", () => {
 
   it("uses explicit schemaName when provided", () => {
     registerMetadataItemRule({
-      propertyType: "SampleItemProperty",
-      itemRule: SampleItemRule,
+      propertyType: "ExplicitOnlySampleItemProperty",
+      itemRule: ExplicitOnlySampleItemRule,
       schemaName: "ExplicitSampleItem",
     })
 
-    expect(getJSONSchemaIdentityExporter("SampleItem")).toBeUndefined()
+    expect(getJSONSchemaIdentityExporter("ExplicitOnlySampleItem")).toBeUndefined()
     expect(getJSONSchemaIdentityExporter("ExplicitSampleItem")?.({ context: baseContext })).toMatchObject({
       type: "object",
     })

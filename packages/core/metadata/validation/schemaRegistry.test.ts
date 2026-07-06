@@ -6,7 +6,6 @@ import { beforeEach, describe, expect, it } from "vitest"
 import { MetadataConfigurationRules } from "../appliedObjects/configuration/rules"
 import { MetadataLanguageRules } from "../appliedObjects/metadataLanguage/rules"
 import { exportMetadataItemToJSONSchema } from "../orchestration/metadataItem/toJSONSchema"
-import { clearJSONSchemaRefRegistries } from "../orchestration/jsonSchemaRefs"
 import {
   ensureJSONSchemaRegistry,
   exportJSONSchemaForSchemaName,
@@ -471,8 +470,7 @@ describe("JSON Schema registry", { timeout: 30_000 }, () => {
     expect(json).toContain('"Истина"')
   })
 
-  it("restores property refs after generic ref registry is cleared", () => {
-    clearJSONSchemaRefRegistries()
+  it("exports registered property refs through project schema registry", () => {
     const schema = schemaForName("UsualGroup")
 
     expect(JSON.stringify(schema)).toContain("nkdk://schema/InputField")

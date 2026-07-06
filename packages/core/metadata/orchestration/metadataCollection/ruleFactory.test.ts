@@ -1,9 +1,8 @@
 import { compileValidationSchema } from "./../../validation/compileValidationSchema"
 import { Type } from "typebox"
-import { beforeEach, describe, expect, it } from "vitest"
+import { describe, expect, it } from "vitest"
 import { importPropertyFromXML, PropertyRule } from ".."
 import {
-  clearJSONSchemaRefRegistries,
   createJSONSchemaExportContext,
   getJSONSchemaIdentityExporter,
 } from "../jsonSchemaRefs"
@@ -179,10 +178,6 @@ describe("registerMetadataItemCollectionRule JSON Schema refs", () => {
     defaultLanguage: "ru",
     version: "2.20",
   } as const
-
-  beforeEach(() => {
-    clearJSONSchemaRefRegistries()
-  })
 
   it("registers record ref schema for metadata collections by default", () => {
     registerMetadataItemCollectionRule({
