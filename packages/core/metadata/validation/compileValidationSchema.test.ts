@@ -1,5 +1,5 @@
 import { describe, expect, it } from "vitest"
-import { Type } from "typebox"
+import { Type, type TSchema } from "typebox"
 import { compileValidationSchema } from "./compileValidationSchema"
 
 describe("compileValidationSchema", () => {
@@ -41,5 +41,36 @@ describe("compileValidationSchema", () => {
     expect(compiled.Check({ Значение: "ok" })).toBe(true)
     expect(compiled.Check({ Значение: 1 })).toBe(false)
     expect(compiled.Context()).toBe(context)
+  })
+
+  it("compiles root schema against external nkdk refs", () => {
+    const child = Type.Object({ Имя: Type.String() }, { $id: "nkdk://schema/TestChild" })
+    const root = Type.Object({
+      Ребёнок: { $ref: "nkdk://schema/TestChild" } as TSchema,
+    })
+
+    const compiled = compileValidationSchema(
+      { "nkdk://schema/TestChild": child },
+      root,
+      { inlineRefs: false }
+    )
+
+    expect(compiled.Check({ Ребёнок: { Имя: "Тест" } })).toBe(true)
+    expect(compiled.Check({ Ребёнок: { Имя: 10 } })).toBe(false)
+  })
+
+  it("can compile TypeBox fallback eagerly for schemas with local defs", () => {
+    const schema = Type.Object({
+      Значения: Type.Cyclic(
+        {
+          Local: Type.Record(Type.String(), Type.Object({ Значение: Type.String() })),
+        },
+        "Local"
+      ),
+    })
+
+    const compiled = compileValidationSchema(schema, { eagerFallback: true })
+
+    expect(compiled.Check({ Значения: { Тест: { Значение: "ok" } } })).toBe(true)
   })
 })
