@@ -35,9 +35,9 @@ export function validateParsedFile({ filePath, parsed, schema }: ValidateParsedF
     }))
   }
 
-  // Структурная валидация через TypeBox
-  if (!schema.Check(parsed.data)) {
-    const [, errors] = schema.Errors(parsed.data)
+  // Структурная валидация
+  const [valid, errors] = schema.Errors(parsed.data)
+  if (!valid) {
     return typeboxErrorsToDiagnostics(
       errors.map((error) => ({ ...error, value: parsed.data })),
       parsed,

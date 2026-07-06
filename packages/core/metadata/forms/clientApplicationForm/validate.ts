@@ -240,7 +240,8 @@ function visitConditionalAppearanceNode(params: {
   if (!isRecord(params.value)) return
 
   const rightValue = params.value["ПравоеЗначение"]
-  if (isMetadataObjectTargetYAML(rightValue)) {
+  const leftValue = params.value["ЛевоеЗначение"]
+  if (isMetadataObjectTargetYAML(rightValue) && !isDynamicListTypeDiscriminatorComparison(leftValue)) {
     params.diagnostics.push(
       diagnosticAtYamlPath({
         filePath: params.filePath,
@@ -261,6 +262,10 @@ function visitConditionalAppearanceNode(params: {
       value,
     })
   }
+}
+
+function isDynamicListTypeDiscriminatorComparison(value: unknown): boolean {
+  return value === ".Тип" || value === "Тип"
 }
 
 function isMetadataObjectTargetYAML(value: unknown): value is string {

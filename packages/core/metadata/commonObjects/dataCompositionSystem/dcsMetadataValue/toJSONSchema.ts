@@ -10,6 +10,8 @@ import { ChoiceParameterLinksJSONSchema } from "../../сhoiceParameterLinks/type
 import { ChoiceParametersJSONSchema } from "../../сhoiceParameters/types"
 import type { ConfigurationContext } from "../../../context/types"
 import { ExportToJSONSchemaFn, registerTypeRule } from "../../../orchestration"
+import { schemaRef } from "../../../orchestration/jsonSchemaRefs"
+import { registerProjectJSONSchema, registerProjectJSONSchemaPropertyRefFactory } from "../../../project/schemaRegistry"
 import { exportSystemEnumerationToJSONSchema } from "../../../systemEnumerations/toJSONSchema"
 import * as SE from "../../../systemEnumerations/types"
 import {
@@ -126,11 +128,6 @@ const DcsMetadataSingleValueJSONSchema = Type.Cyclic(
   "DcsMetadataSingleValue"
 )
 
-const DcsMetadataValueJSONSchema = Type.Union([
-  DcsMetadataSingleValueJSONSchema,
-  Type.Array(Type.Union([DcsMetadataSingleValueJSONSchema, Type.Undefined(), Type.Null()])),
-])
-
 const DesignTimeI8nTextJSONSchema = Type.Union([
   Type.String(),
   {
@@ -141,6 +138,9 @@ const DesignTimeI8nTextJSONSchema = Type.Union([
 ])
 
 const Nullable = (schema: TSchema): TSchema => Type.Union([Type.Null(), schema])
+
+const DCS_METADATA_SINGLE_VALUE_SCHEMA_NAME = "DcsMetadataSingleValue"
+const DCS_EXPLICIT_SYSTEM_ENUMERATION_SCHEMA_NAME = "DcsExplicitSystemEnumerationValue"
 
 const requiredSystemEnumerationJSONSchema = (
   context: ConfigurationContext,
@@ -196,15 +196,25 @@ const explicitDcsSystemEnumerationValueJSONSchema = (context: ConfigurationConte
       })
   )
 
-export const exportDcsMetadataValueToJSONSchema: ExportToJSONSchemaFn = ({ context, rule }): TSchema => {
+function createDcsMetadataValueJSONSchema(context: ConfigurationContext, rule: DcsMetadataValuePropertyRule): TSchema {
   const dcsRule = rule as DcsMetadataValuePropertyRule
+  const useExternalRefs = context.exportToJSONSchema?.mode === "externalRefs"
+  const dcsMetadataSingleValueJSONSchema = useExternalRefs
+    ? schemaRef(DCS_METADATA_SINGLE_VALUE_SCHEMA_NAME)
+    : DcsMetadataSingleValueJSONSchema
+  const dcsMetadataValueJSONSchema = Type.Union([
+    dcsMetadataSingleValueJSONSchema,
+    Type.Array(Type.Union([dcsMetadataSingleValueJSONSchema, Type.Undefined(), Type.Null()])),
+  ])
   let explicitDcsSystemEnumerationSchema: TSchema | undefined
   let primitiveValueSchema: TSchema | undefined
   const explicitDcsSystemEnumerationJSONSchema = (): TSchema =>
-    (explicitDcsSystemEnumerationSchema ??= explicitDcsSystemEnumerationValueJSONSchema(context))
+    (explicitDcsSystemEnumerationSchema ??= useExternalRefs
+      ? schemaRef(DCS_EXPLICIT_SYSTEM_ENUMERATION_SCHEMA_NAME)
+      : explicitDcsSystemEnumerationValueJSONSchema(context))
   const primitiveValueJSONSchema = (): TSchema =>
     (primitiveValueSchema ??= Type.Union([
-      DcsMetadataSingleValueJSONSchema,
+      dcsMetadataSingleValueJSONSchema,
       explicitDcsSystemEnumerationJSONSchema(),
       Type.Null(),
     ]))
@@ -218,7 +228,7 @@ export const exportDcsMetadataValueToJSONSchema: ExportToJSONSchemaFn = ({ conte
       return Nullable(
         Type.Union([
           MetadataFieldJSONSchema,
-          DcsMetadataValueJSONSchema,
+          dcsMetadataValueJSONSchema,
           ExplicitPrimitiveStringValueJSONSchema,
           explicitDcsSystemEnumerationJSONSchema(),
         ])
@@ -240,4 +250,35 @@ export const exportDcsMetadataValueToJSONSchema: ExportToJSONSchemaFn = ({ conte
   }
 }
 
+export const exportDcsMetadataValueToJSONSchema: ExportToJSONSchemaFn = ({ context, rule }): TSchema => {
+  const dcsRule = rule as DcsMetadataValuePropertyRule
+  if (context.exportToJSONSchema?.mode === "externalRefs") {
+    return schemaRef(ensureDcsMetadataValueJSONSchema(dcsRule))
+  }
+
+  return createDcsMetadataValueJSONSchema(context, dcsRule)
+}
+
 registerTypeRule("MetadataDcsMetadataValue", "exportToJSONSchema", exportDcsMetadataValueToJSONSchema)
+
+registerProjectJSONSchema(DCS_METADATA_SINGLE_VALUE_SCHEMA_NAME, () => DcsMetadataSingleValueJSONSchema)
+registerProjectJSONSchema(DCS_EXPLICIT_SYSTEM_ENUMERATION_SCHEMA_NAME, ({ context }) =>
+  explicitDcsSystemEnumerationValueJSONSchema(context)
+)
+
+registerProjectJSONSchemaPropertyRefFactory("MetadataDcsMetadataValue", ({ rule }) => {
+  const dcsRule = rule as DcsMetadataValuePropertyRule
+  return schemaRef(ensureDcsMetadataValueJSONSchema(dcsRule))
+})
+
+export function ensureDcsMetadataValueJSONSchema(rule: DcsMetadataValuePropertyRule): string {
+  const schemaName = dcsMetadataValueSchemaName(rule)
+  registerProjectJSONSchema(schemaName, ({ context }) =>
+    createDcsMetadataValueJSONSchema(context, rule)
+  )
+  return schemaName
+}
+
+export function dcsMetadataValueSchemaName(rule: DcsMetadataValuePropertyRule): string {
+  return ["DcsMetadataValue", rule.valueType, "typeSE" in rule ? rule.typeSE : undefined].filter(Boolean).join("_")
+}

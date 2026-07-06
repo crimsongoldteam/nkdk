@@ -150,6 +150,13 @@ describe("JSON Schema registry", { timeout: 30_000 }, () => {
     })
   })
 
+  it("accepts native YAML boolean in form parameter key flag", () => {
+    const schema = exportJSONSchemaForSchemaName({ context, name: "FormParameter", mode: "inline" })
+    const compiled = compileValidationSchema(schema)
+
+    expect(compiled.Check({ Тип: "Строка", Ключевой: true })).toBe(true)
+  })
+
   it("exports named schema graph with stable ids for referenced schemas", () => {
     const graph = exportJSONSchemaGraph({
       context,
@@ -163,6 +170,10 @@ describe("JSON Schema registry", { timeout: 30_000 }, () => {
     expect(graph.schemas["nkdk://schema/FormAttribute"]).toMatchObject({
       $id: "nkdk://schema/FormAttribute",
       type: "object",
+      properties: expect.objectContaining({
+        Колонки: expect.any(Object),
+        ДополнительныеКолонки: expect.any(Object),
+      }),
     })
     expect(graph.schemas["nkdk://schema/InputField"]).toMatchObject({
       $id: "nkdk://schema/InputField",
@@ -172,9 +183,101 @@ describe("JSON Schema registry", { timeout: 30_000 }, () => {
     })
   })
 
+  it("exports child item refs with AJV discriminator in form graph", () => {
+    const graph = exportJSONSchemaGraph({
+      context,
+      roots: [{ key: "form", name: "ClientApplicationForm", includeNestedChildItems: true }],
+    })
+
+    for (const owner of ["UsualGroup", "Page", "Table", "CommandBar", "ButtonGroup"] as const) {
+      const schema = graph.schemas[`nkdk://schema/${owner}`] as
+        | {
+            properties?: {
+              Элементы?: {
+                additionalProperties?: {
+                  discriminator?: { propertyName?: string }
+                }
+              }
+            }
+          }
+        | undefined
+
+      expect(schema?.properties?.Элементы?.additionalProperties?.discriminator).toEqual({ propertyName: "Вид" })
+    }
+  })
+
+  it("exports appearance settings parameter values as refs in form graph", () => {
+    const graph = exportJSONSchemaGraph({
+      context,
+      roots: [{ key: "form", name: "ClientApplicationForm", includeNestedChildItems: true }],
+    })
+    const formAttributeJson = JSON.stringify(graph.schemas["nkdk://schema/FormAttribute"])
+    const visibilitySchemaName = "AppearanceSettingsParameterValue_Primitive__u0412_u0438_u0434_u0438_u043c_u043e_u0441_u0442_u044c"
+
+    expect(formAttributeJson).toContain(`nkdk://schema/${visibilitySchemaName}`)
+    expect(formAttributeJson).not.toContain("SettingsParameterValue_Primitive_Видимость/$defs")
+    expect(graph.schemas[`nkdk://schema/${visibilitySchemaName}`]).toMatchObject({
+      $id: `nkdk://schema/${visibilitySchemaName}`,
+    })
+  })
+
+  it("exports single form objects as refs in form graph", () => {
+    const graph = exportJSONSchemaGraph({
+      context,
+      roots: [{ key: "form", name: "ClientApplicationForm", includeNestedChildItems: true }],
+    })
+    const tableSchema = graph.schemas["nkdk://schema/Table"] as {
+      properties?: {
+        КонтекстноеМеню?: { $ref?: string }
+      }
+    }
+    const tableJson = JSON.stringify(tableSchema)
+
+    expect(tableJson).toContain("nkdk://schema/ContextMenu")
+    expect(tableJson).toContain("nkdk://schema/ExtendedTooltip")
+    expect(tableJson).toContain("nkdk://schema/SingleSearchControlAddition")
+    expect(tableJson).toContain("nkdk://schema/SingleSearchStringAddition")
+    expect(tableJson).toContain("nkdk://schema/SingleViewStatusAddition")
+    expect(tableSchema.properties?.КонтекстноеМеню).toMatchObject({ $ref: "nkdk://schema/ContextMenu" })
+    expect(graph.schemas["nkdk://schema/ContextMenu"]).toMatchObject({
+      $id: "nkdk://schema/ContextMenu",
+      properties: expect.objectContaining({
+        Элементы: expect.any(Object),
+      }),
+    })
+    expect(graph.schemas["nkdk://schema/AutoCommandBar"]).toMatchObject({
+      $id: "nkdk://schema/AutoCommandBar",
+      properties: expect.objectContaining({
+        Элементы: expect.any(Object),
+      }),
+    })
+    expect(tableJson).not.toContain('"РасширеннаяПодсказка":{"type":"object"')
+    expect(graph.schemas["nkdk://schema/ExtendedTooltip"]).toMatchObject({ $id: "nkdk://schema/ExtendedTooltip" })
+    expect(graph.schemas["nkdk://schema/SingleSearchControlAddition"]).toMatchObject({
+      $id: "nkdk://schema/SingleSearchControlAddition",
+    })
+    expect(graph.schemas["nkdk://schema/SingleSearchStringAddition"]).toMatchObject({
+      $id: "nkdk://schema/SingleSearchStringAddition",
+    })
+    expect(graph.schemas["nkdk://schema/SingleViewStatusAddition"]).toMatchObject({
+      $id: "nkdk://schema/SingleViewStatusAddition",
+    })
+  })
+
+  it("exports common form form body as a ClientApplicationForm ref", () => {
+    const schema = exportJSONSchemaForSchemaName({ context, name: "MetadataCommonForm" }) as {
+      properties?: {
+        Форма?: { $ref?: string }
+      }
+    }
+
+    expect(schema.properties?.Форма).toMatchObject({ $ref: "nkdk://schema/ClientApplicationForm" })
+    expect(JSON.stringify(schema)).toContain('"x-nkdk-schemaRefs":["nkdk://schema/ClientApplicationForm"')
+  })
+
   it("allows opaque multiple-value DataPath only in InputField schema", () => {
-    const inputFieldSchema = exportJSONSchemaForSchemaName({ context, name: "InputField" })
-    const tableInputFieldSchema = exportJSONSchemaForSchemaName({ context, name: "TableInputField" })
+    const inputFieldSchema = exportJSONSchemaForSchemaName({ context, name: "InputField", mode: "inline" })
+    const tableInputFieldSchema = exportJSONSchemaForSchemaName({ context, name: "TableInputField", mode: "inline" })
     const opaquePath = "1/0:796f500f-c364-45d1-bce6-9e7e8e15b664"
 
     expect(compileValidationSchema(inputFieldSchema).Check({ Вид: "ПолеВвода", ПутьКДанным: opaquePath })).toBe(true)
@@ -193,7 +296,7 @@ describe("JSON Schema registry", { timeout: 30_000 }, () => {
   })
 
   it("accepts value-based formatted title in label decoration schemas", () => {
-    const schema = exportJSONSchemaForSchemaName({ context, name: "LabelDecoration" })
+    const schema = exportJSONSchemaForSchemaName({ context, name: "LabelDecoration", mode: "inline" })
     const compiled = compileValidationSchema(schema)
 
     expect(
@@ -224,7 +327,7 @@ describe("JSON Schema registry", { timeout: 30_000 }, () => {
     expect(json).toContain('"ПутьКДанным"')
   })
 
-  it("exports form child item unions with Вид discriminantKey", () => {
+  it("exports form child item unions with AJV Вид discriminator", () => {
     const schema = schemaForName("UsualGroup", "inline") as {
       properties?: {
         Элементы?: {
@@ -232,8 +335,8 @@ describe("JSON Schema registry", { timeout: 30_000 }, () => {
             GroupChildItems?: {
               patternProperties?: {
                 "^.*$"?: {
-                  anyOf?: Array<{ properties?: { Вид?: { const?: string } } }>
-                  discriminantKey?: string
+                  oneOf?: Array<{ properties?: { Вид?: { const?: string } } }>
+                  discriminator?: { propertyName?: string }
                 }
               }
             }
@@ -245,10 +348,10 @@ describe("JSON Schema registry", { timeout: 30_000 }, () => {
     const childItemSchema = schema.properties?.Элементы?.$defs?.GroupChildItems?.patternProperties?.["^.*$"]
 
     expect(childItemSchema).toMatchObject({
-      discriminantKey: "Вид",
+      discriminator: { propertyName: "Вид" },
     })
-    expect(childItemSchema?.anyOf?.some((branch) => branch.properties?.Вид?.const === "Группа")).toBe(true)
-    expect(childItemSchema?.anyOf?.some((branch) => branch.properties?.Вид?.const === "ПолеВвода")).toBe(true)
+    expect(childItemSchema?.oneOf?.some((branch) => branch.properties?.Вид?.const === "Группа")).toBe(true)
+    expect(childItemSchema?.oneOf?.some((branch) => branch.properties?.Вид?.const === "ПолеВвода")).toBe(true)
   })
 
   it("exports value-based UserVisible in form element schemas", () => {

@@ -1,6 +1,6 @@
 import type { TSchema } from "typebox"
 import type { ConfigurationContext, JSONSchemaExportMode } from "../context/types"
-import type { MetadataItem, MetadataItemRule } from "../orchestration/property/types"
+import type { ExternalValidationProperty, MetadataItem, MetadataItemRule } from "../orchestration/property/types"
 import type { ParsedYaml } from "../../yaml/parseMetadataYaml"
 
 export interface RegisteredProjectSpec {
@@ -8,6 +8,8 @@ export interface RegisteredProjectSpec {
   kind: string
   rule: MetadataItemRule
   exportSchema: (params: { context: ConfigurationContext; mode?: JSONSchemaExportMode; name?: string }) => TSchema
+  validationSchemaMode?: JSONSchemaExportMode
+  externalValidationProperties?: readonly ExternalValidationProperty[]
   importModel: (params: { context: ConfigurationContext; parsed: ParsedYaml; name: string }) => MetadataItem | undefined
   nesting?: ProjectSpecNesting
 }

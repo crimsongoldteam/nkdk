@@ -5,9 +5,13 @@ import { exportMetadataItemToJSONSchema } from "../../../orchestration/metadataI
 import { FormAttributeColumnRules, FormAttributeRules } from "./rules"
 
 export const exportFormAttributesToJSONSchema: ExportToJSONSchemaFn = (params): TSchema => {
-  const { context } = params
-  const attributeSchema = extendFormAttributeColumnsSchema(requiredFormAttributeSchema(context), context)
+  const attributeSchema = exportFormAttributeToJSONSchema(params)
   return Type.Record(Type.String(), attributeSchema)
+}
+
+export const exportFormAttributeToJSONSchema = (params: { context: ConfigurationContext }): TSchema => {
+  const { context } = params
+  return extendFormAttributeColumnsSchema(requiredFormAttributeSchema(context), context)
 }
 
 export const exportFormColumnAttributesToJSONSchema: ExportToJSONSchemaFn = (params): TSchema => {

@@ -22,12 +22,16 @@ describe("compileValidationSchema", () => {
       expect.objectContaining({
         keyword: "required",
         instancePath: "",
-        params: { requiredProperties: ["Имя"] },
+        params: { missingProperty: "Имя" },
       }),
+    ])
+
+    const [, additionalErrors] = compiled.Errors({ Имя: "Документ", Лишнее: true })
+    expect(additionalErrors).toEqual([
       expect.objectContaining({
         keyword: "additionalProperties",
         instancePath: "",
-        params: { additionalProperties: ["Лишнее"] },
+        params: { additionalProperty: "Лишнее" },
       }),
     ])
   })
@@ -57,6 +61,14 @@ describe("compileValidationSchema", () => {
 
     expect(compiled.Check({ Ребёнок: { Имя: "Тест" } })).toBe(true)
     expect(compiled.Check({ Ребёнок: { Имя: 10 } })).toBe(false)
+  })
+
+  it("keeps TypeBox undefined semantics for parsed empty YAML values", () => {
+    const compiled = compileValidationSchema(Type.Union([Type.Undefined(), Type.Null()]))
+
+    expect(compiled.Check(undefined)).toBe(true)
+    expect(compiled.Check(null)).toBe(true)
+    expect(compiled.Check("")).toBe(false)
   })
 
   it("can compile TypeBox fallback eagerly for schemas with local defs", () => {

@@ -38,6 +38,16 @@ export function recordOfOneOfSchemaRefs(names: readonly string[]): TSchema {
   })
 }
 
+export function recordOfDiscriminatedOneOfSchemaRefs(names: readonly string[], propertyName: string): TSchema {
+  return rawJSONSchema({
+    type: "object",
+    additionalProperties: {
+      oneOf: names.map((name) => schemaRef(name)),
+      discriminator: { propertyName },
+    },
+  })
+}
+
 export function registerJSONSchemaPropertyRef(type: PropertyRuleType, factory: PropertyRefFactory): void {
   propertyRefFactories.set(type, factory)
 }

@@ -30,9 +30,12 @@ export interface ValidationSchemaValidator<Type extends TSchema = TSchema> {
 const ajvOptions: Options = {
   addUsedSchema: false,
   allowUnionTypes: true,
+  discriminator: true,
   strict: false,
   verbose: true,
 }
+
+const undefinedKeyword = "x-nkdk-undefined"
 
 export function compileValidationSchema<const Type extends TSchema>(
   schema: Type,
@@ -82,6 +85,7 @@ export function compileValidationSchema(
       try {
         const valid = check(value)
         if (valid) return [true, []]
+        return [false, normalizeAjvErrors(check.errors)]
       } catch (caught) {
         if (!(caught instanceof RangeError)) throw caught
       }
@@ -95,6 +99,18 @@ export function compileValidationSchema(
       return context
     },
   }
+}
+
+function normalizeAjvErrors(errors: typeof Ajv2020.prototype.errors): ValidationSchemaError[] {
+  return (errors ?? []).map((error) => ({
+    keyword: error.keyword,
+    schemaPath: error.schemaPath,
+    instancePath: error.instancePath,
+    params: error.params as Record<string, unknown>,
+    message: error.message ?? error.keyword,
+    schema: error.schema as TSchema | undefined,
+    value: error.data,
+  }))
 }
 
 function isCompileValidationSchemaOptions(value: unknown): value is CompileValidationSchemaOptions {
@@ -134,6 +150,11 @@ function createTypeboxFallback(
 function createAjv(context: SchemaContext, options: Pick<Options, "allErrors" | "inlineRefs">): Ajv2020 {
   const ajv = new Ajv2020({ ...ajvOptions, ...options })
   addFormats(ajv)
+  ajv.addKeyword({
+    keyword: undefinedKeyword,
+    metaSchema: { type: "boolean" },
+    validate: (schema: boolean, data: unknown) => schema !== true || data === undefined,
+  })
 
   for (const [key, schema] of Object.entries(context)) {
     ajv.addSchema(prepareSchemaForAjv(schema, { keepRootId: true }), key)
@@ -158,7 +179,7 @@ interface CurrentDefinition {
 
 type SchemaMapKind = "defs" | "properties"
 
-function prepareSchemaForAjv(schema: TSchema, options: PrepareSchemaOptions = {}): TSchema {
+export function prepareSchemaForAjv(schema: TSchema, options: PrepareSchemaOptions = {}): TSchema {
   return prepareSchemaNode(schema, {
     scopes: [],
     pointer: "",
@@ -195,7 +216,7 @@ function prepareSchemaNode(
   for (const [key, entry] of Object.entries(record)) {
     if (key === "$id" && !(state.isRoot && state.keepRootId)) continue
     if (key === "type" && entry === "undefined") {
-      result.not = {}
+      result[undefinedKeyword] = true
       continue
     }
 

@@ -5,12 +5,12 @@ import {
   collectSchemaRefs,
   createJSONSchemaExportContext,
   JSON_SCHEMA_REF_PREFIX,
-  recordOfOneOfSchemaRefs,
   recordOfSchemaRef,
   registerJSONSchemaPropertyRef,
   stripCollectedSchemaRefs,
 } from "../orchestration/jsonSchemaRefs"
 import type { PropertyRuleType } from "../orchestration/property/registry"
+import type { PropertyRule } from "../orchestration/property/types"
 
 export class ProjectFileSchemaError extends Error {
   constructor(message: string) {
@@ -20,7 +20,7 @@ export class ProjectFileSchemaError extends Error {
 }
 
 type SchemaExporter = (params: { context: ConfigurationContext }) => TSchema
-type SchemaRefFactory = () => ReturnType<typeof recordOfSchemaRef> | ReturnType<typeof recordOfOneOfSchemaRefs>
+type SchemaRefFactory = (params: { context: ConfigurationContext; rule: PropertyRule }) => TSchema | undefined
 
 export interface JSONSchemaGraphRoot {
   key: string

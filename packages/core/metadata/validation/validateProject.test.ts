@@ -341,7 +341,7 @@ describe("validateProject", { timeout: 30_000 }, () => {
     })
   })
 
-  it("warns about unimplemented dynamic list type-value checks instead of failing form import", async () => {
+  it("accepts dynamic list type discriminator values in conditional appearance", async () => {
     const projectDir = createProject()
     writeProjectFile(projectDir, "Справочник/Товары/Свойства.yaml", "")
     writeProjectFile(projectDir, "Справочник/Товары/Формы/ФормаСписка/Форма.yaml", [
@@ -374,17 +374,7 @@ describe("validateProject", { timeout: 30_000 }, () => {
       })
     ).diagnostics
 
-    expect(diagnostics).toEqual(
-      expect.arrayContaining([
-        expect.objectContaining({
-          source: "structure",
-          severity: "warning",
-          path: "/Реквизиты/Список/ДинамическийСписок/УсловноеОформление/Элементы/0/Отбор/Элементы/0/ПравоеЗначение",
-          message:
-            'Проверка значения типа "Документ.ПоступлениеБезналичныхДенежныхСредств" в условном оформлении динамического списка пока не реализована и будет добавлена в будущих версиях',
-        }),
-      ])
-    )
+    expect(diagnostics).toEqual([])
     expect(diagnostics.map((diagnostic) => diagnostic.message)).not.toEqual(
       expect.arrayContaining([expect.stringContaining("Не удалось импортировать форму")])
     )

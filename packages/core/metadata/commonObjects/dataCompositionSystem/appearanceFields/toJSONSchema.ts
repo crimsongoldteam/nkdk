@@ -6,6 +6,8 @@ import { I8nTextJSONSchema } from "../../i8nText/types"
 import { MetadataSingleValueJSONSchema } from "../../metadataValue/types"
 import { ConfigurationContext } from "../../../context/types"
 import { ExportToJSONSchemaFn, registerTypeRule } from "../../../orchestration"
+import { schemaRef } from "../../../orchestration/jsonSchemaRefs"
+import { registerProjectJSONSchema } from "../../../project/schemaRegistry"
 import { exportSystemEnumerationToJSONSchema } from "../../../systemEnumerations/toJSONSchema"
 import {
   StandardPeriodVariantFromYAML,
@@ -158,45 +160,71 @@ const requiredSystemEnumerationJSONSchema = (
 const propertySchema = (
   context: ConfigurationContext,
   property: SettingsParameterValuePropertyRule,
-  rawValueSchema: TSchema
-): TSchema =>
-  Type.Optional(
+  rawValueSchema: (context: ConfigurationContext) => TSchema
+): TSchema => {
+  const useExternalRefs = context.exportToJSONSchema?.mode === "externalRefs"
+  const schema = useExternalRefs
+    ? schemaRef(ensureAppearanceSettingsParameterValueJSONSchema(property, rawValueSchema))
+    : createSettingsParameterValueJSONSchema({
+        context,
+        rawValueSchema: rawValueSchema(context),
+        rule: property,
+      })
+
+  return Type.Optional(schema)
+}
+
+function ensureAppearanceSettingsParameterValueJSONSchema(
+  property: SettingsParameterValuePropertyRule,
+  rawValueSchema: (context: ConfigurationContext) => TSchema
+): string {
+  const schemaName = appearanceSettingsParameterValueSchemaName(property)
+  registerProjectJSONSchema(schemaName, ({ context }) =>
     createSettingsParameterValueJSONSchema({
       context,
-      rawValueSchema,
+      rawValueSchema: rawValueSchema(context),
       rule: property,
     })
   )
+  return schemaName
+}
+
+function appearanceSettingsParameterValueSchemaName(property: SettingsParameterValuePropertyRule): string {
+  return ["AppearanceSettingsParameterValue", property.valueType, property.typeSE, property.yaml]
+    .filter(Boolean)
+    .join("_")
+    .replace(/[^\w]/gu, (char) => `_u${char.codePointAt(0)!.toString(16).padStart(4, "0")}`)
+}
 
 export const exportAppearanceFieldsToJSONSchema: ExportToJSONSchemaFn = ({ context }) => {
   const properties = AppearanceFieldsRules.properties
 
   return Type.Object(
     {
-      ЦветФона: propertySchema(context, properties.ЦветФона, Nullable(ColorJSONSchema)),
-      ЦветТекста: propertySchema(context, properties.ЦветТекста, Nullable(ColorJSONSchema)),
-      Шрифт: propertySchema(context, properties.Шрифт, Nullable(StrictFontJSONSchema)),
+      ЦветФона: propertySchema(context, properties.ЦветФона, () => Nullable(ColorJSONSchema)),
+      ЦветТекста: propertySchema(context, properties.ЦветТекста, () => Nullable(ColorJSONSchema)),
+      Шрифт: propertySchema(context, properties.Шрифт, () => Nullable(StrictFontJSONSchema)),
       ГоризонтальноеПоложение: propertySchema(
         context,
         properties.ГоризонтальноеПоложение,
-        Nullable(requiredSystemEnumerationJSONSchema(context, "HorizontalAlign"))
+        (context) => Nullable(requiredSystemEnumerationJSONSchema(context, "HorizontalAlign"))
       ),
-      Формат: propertySchema(context, properties.Формат, AppearanceDesignTimeValueJSONSchema),
+      Формат: propertySchema(context, properties.Формат, () => AppearanceDesignTimeValueJSONSchema),
       ВыделятьОтрицательные: propertySchema(
         context,
         properties.ВыделятьОтрицательные,
-        AppearancePrimitiveValueJSONSchema
+        () => AppearancePrimitiveValueJSONSchema
       ),
       ОтметкаНезаполненного: propertySchema(
         context,
         properties.ОтметкаНезаполненного,
-        AppearancePrimitiveValueJSONSchema
+        () => AppearancePrimitiveValueJSONSchema
       ),
-      Текст: propertySchema(context, properties.Текст, AppearanceDesignTimeValueJSONSchema),
-      Видимость: propertySchema(context, properties.Видимость, AppearancePrimitiveValueJSONSchema),
-      Доступность: propertySchema(context, properties.Доступность, AppearancePrimitiveValueJSONSchema),
-      ТолькоПросмотр: propertySchema(context, properties.ТолькоПросмотр, AppearancePrimitiveValueJSONSchema),
-      Отображать: propertySchema(context, properties.Отображать, AppearancePrimitiveValueJSONSchema),
+      Текст: propertySchema(context, properties.Текст, () => AppearanceDesignTimeValueJSONSchema),
+      Видимость: propertySchema(context, properties.Видимость, () => AppearancePrimitiveValueJSONSchema),
+      Доступность: propertySchema(context, properties.Доступность, () => AppearancePrimitiveValueJSONSchema),
+      ТолькоПросмотр: propertySchema(context, properties.ТолькоПросмотр, () => AppearancePrimitiveValueJSONSchema),
+      Отображать: propertySchema(context, properties.Отображать, () => AppearancePrimitiveValueJSONSchema),
     },
     { additionalProperties: false }
   )
