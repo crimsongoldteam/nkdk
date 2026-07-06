@@ -2,10 +2,12 @@ import { mkdirSync, mkdtempSync, rmSync, writeFileSync } from "fs"
 import { tmpdir } from "os"
 import { join, resolve } from "path"
 import { afterEach, beforeEach, describe, expect, it, vi } from "vitest"
+import { resetValidationHandleForTests } from "./validationHandle"
 import { validateYamlProject } from "./validateProject"
 
 const core = vi.hoisted(() => ({
   ProjectFileSchemaError: class ProjectFileSchemaError extends Error {},
+  createValidationWorkerPoolHandle: vi.fn(),
   validateProject: vi.fn(),
 }))
 
@@ -19,6 +21,13 @@ describe("validateProject service", () => {
   beforeEach(() => {
     core.validateProject.mockReset()
     core.validateProject.mockResolvedValue({ diagnostics: [] })
+    core.createValidationWorkerPoolHandle.mockReset()
+    core.createValidationWorkerPoolHandle.mockReturnValue({
+      validateProject: core.validateProject,
+      close: vi.fn(),
+      size: vi.fn(() => 1),
+    })
+    resetValidationHandleForTests()
   })
 
   afterEach(() => {
@@ -54,6 +63,18 @@ describe("validateProject service", () => {
       }),
     )
     expect(core.validateProject).toHaveBeenCalledWith({ projectDir })
+  })
+
+  it("reuses one validation handle across service calls", async () => {
+    const projectDir = createProject()
+
+    await validateYamlProject({ projectDir })
+    await validateYamlProject({ projectDir })
+
+    expect(core.createValidationWorkerPoolHandle).toHaveBeenCalledTimes(1)
+    expect(core.validateProject).toHaveBeenCalledTimes(2)
+    expect(core.validateProject).toHaveBeenNthCalledWith(1, { projectDir })
+    expect(core.validateProject).toHaveBeenNthCalledWith(2, { projectDir })
   })
 
   it("omits warning diagnostics from JSON output", async () => {

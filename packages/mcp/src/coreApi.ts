@@ -94,6 +94,11 @@ export interface CoreApi {
     directoryPath?: string
     depth?: number
   }): MetadataProjectDirectoryStructure
+  createValidationWorkerPoolHandle(params?: { concurrency?: number }): {
+    validateProject(params: { projectDir: string; filePath?: string }): Promise<{ diagnostics: Diagnostic[] }>
+    close(): Promise<void>
+    size(): number
+  }
   validateProject(params: { projectDir: string; filePath?: string }): Promise<{ diagnostics: Diagnostic[] }>
   renameMetadataItem(params: {
     projectDir: string

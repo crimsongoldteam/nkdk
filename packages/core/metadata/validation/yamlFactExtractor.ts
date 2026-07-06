@@ -196,7 +196,8 @@ function buildObjectFieldIndexFromSyntheticModel(
     ["resources", "resource"],
     ["addressingAttributes", "addressingAttribute"],
   ] as const) {
-    const items = Array.isArray(model[collection[0]]) ? model[collection[0]] : []
+    const collectionValue = model[collection[0]]
+    const items: unknown[] = Array.isArray(collectionValue) ? collectionValue : []
     for (const item of items) {
       const record = asRecord(item)
       if (record === undefined || typeof record["name"] !== "string") continue

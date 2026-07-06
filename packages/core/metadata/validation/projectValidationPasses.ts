@@ -286,7 +286,10 @@ export function validateProjectFileSecondPass(
   if (params.state.kind === "failed") return { status: "ok", diagnostics: [] }
 
   if (params.state.kind === "form") {
-    return validatePendingChecks({ ownerCache: params.ownerCache, checks: params.state.pendingChecks })
+    return {
+      status: "ok",
+      ...validatePendingChecks({ ownerCache: params.ownerCache, checks: params.state.pendingChecks }),
+    }
   }
 
   const collected = params.skipMetadataTargetValidation
@@ -501,14 +504,12 @@ function validateProjectPropertiesFirstPass(params: {
     const ownerModel = (yamlFacts.ownerModelStub ?? {
       itemType: params.file.owner.spec.rule.itemType,
       name: params.file.owner.name,
-    }) as MetadataItem
+    }) as unknown as MetadataItem
     const fieldIndexStartedAt = performance.now()
     const fieldIndex = buildObjectFieldIndex({
       ref: ownerRef,
-      filePath: params.file.absolutePath,
       model: ownerModel,
       rule: params.file.owner.spec.rule,
-      spec: params.file.owner.spec,
     })
     const fieldIndexMs = performance.now() - fieldIndexStartedAt
     const owner: OwnerMetadata = {

@@ -42,6 +42,25 @@ describe("ProjectValidationWorkerPool", () => {
     }
   }, 120_000)
 
+  it("reuses initialized worker schema caches on repeated start", async () => {
+    const pool = createProjectValidationWorkerPool({ concurrency: 1 })
+
+    try {
+      const first = await pool.start(context)
+      const second = await pool.start(context)
+
+      expect(first.reused).toBeUndefined()
+      expect(second).toMatchObject({
+        reused: true,
+        schemaCompileMs: first.schemaCompileMs,
+        formSchemaMs: first.formSchemaMs,
+        propertiesSchemaMs: first.propertiesSchemaMs,
+      })
+    } finally {
+      await pool.close()
+    }
+  }, 120_000)
+
   it("starts from plain tsx without legacy path aliases", async () => {
     const script = [
       'const { createProjectValidationWorkerPool } = await import("./metadata/validation/projectValidationWorkerPool.ts")',

@@ -1,5 +1,4 @@
 import { performance } from "node:perf_hooks"
-import { parentPort } from "node:worker_threads"
 import { resolve } from "path"
 import type { ConfigurationContext } from "../context/types"
 import { createOwnerMetadataCacheFromSharedValidationSnapshot } from "./dataPath/sharedOwnerCache"
@@ -37,22 +36,19 @@ import { registerValidationMetadata } from "./registerValidationMetadata"
 
 registerValidationMetadata()
 
-type ValidationWorkerMessage =
+export type ValidationWorkerTask =
   | {
-      id: number
       kind: "init"
       context: ConfigurationContext
       rulesSnapshot: ValidationRulesSnapshot
     }
   | {
-      id: number
       kind: "firstPass"
       projectDir: string
       context: ConfigurationContext
       filePaths: string[]
     }
   | {
-      id: number
       kind: "secondPass"
       projectDir: string
       context: ConfigurationContext
@@ -60,6 +56,26 @@ type ValidationWorkerMessage =
       sharedValidationSnapshot: SharedValidationSnapshot
       pendingReferences: PendingMetadataTargetReference[]
       filePaths: string[]
+    }
+
+export type ValidationWorkerTaskResult =
+  | ({ kind: "initResult" } & ValidationSchemaCacheCompileProfile)
+  | {
+      kind: "firstPassResult"
+      diagnostics: Diagnostic[]
+      objectRecords: ValidationObjectRecord[]
+      objectIndexEntries: ProjectObjectIndexEntry[]
+      memberIndexEntries: ProjectMemberIndexEntry[]
+      valueIndexEntries: ProjectValueIndexEntry[]
+      pendingReferences: PendingMetadataTargetReference[]
+      timing?: WorkerFirstPassTiming
+      profile?: WorkerFirstPassProfile
+    }
+  | {
+      kind: "secondPassResult"
+      diagnostics: Diagnostic[]
+      timing: WorkerSecondPassTiming
+      profile?: WorkerSecondPassProfile
     }
 
 interface WorkerValidationState {
@@ -84,35 +100,19 @@ function createEmptyWorkerValidationState(): WorkerValidationState {
   }
 }
 
-parentPort?.on("message", (message: ValidationWorkerMessage) => {
-  try {
-    if (message.kind === "init") {
-      parentPort?.postMessage({ id: message.id, kind: "initResult", ...runInit(message) })
-      return
-    }
+export default function runValidationWorkerTask(message: ValidationWorkerTask): ValidationWorkerTaskResult {
+  if (message.kind === "init") return { kind: "initResult", ...runInit(message) }
+  if (message.kind === "firstPass") return { kind: "firstPassResult", ...runFirstPass(message) }
+  return { kind: "secondPassResult", ...runSecondPass(message) }
+}
 
-    if (message.kind === "firstPass") {
-      parentPort?.postMessage({ id: message.id, kind: "firstPassResult", ...runFirstPass(message) })
-      return
-    }
-
-    parentPort?.postMessage({ id: message.id, kind: "secondPassResult", ...runSecondPass(message) })
-  } catch (caught) {
-    parentPort?.postMessage({
-      id: message.id,
-      kind: "error",
-      message: caught instanceof Error ? caught.message : String(caught),
-    })
-  }
-})
-
-function runInit(message: Extract<ValidationWorkerMessage, { kind: "init" }>): ValidationSchemaCacheCompileProfile {
+function runInit(message: Extract<ValidationWorkerTask, { kind: "init" }>): ValidationSchemaCacheCompileProfile {
   workerSchemaCache = createValidationSchemaCache(message.context)
   workerRulesSnapshot = message.rulesSnapshot
   return workerSchemaCache.compileAll()
 }
 
-function runFirstPass(message: Extract<ValidationWorkerMessage, { kind: "firstPass" }>): {
+function runFirstPass(message: Extract<ValidationWorkerTask, { kind: "firstPass" }>): {
   diagnostics: Diagnostic[]
   objectRecords: ValidationObjectRecord[]
   objectIndexEntries: ProjectObjectIndexEntry[]
@@ -192,7 +192,7 @@ function requireWorkerRulesSnapshot(): ValidationRulesSnapshot {
   return workerRulesSnapshot
 }
 
-function runSecondPass(message: Extract<ValidationWorkerMessage, { kind: "secondPass" }>): {
+function runSecondPass(message: Extract<ValidationWorkerTask, { kind: "secondPass" }>): {
   diagnostics: Diagnostic[]
   timing: {
     contextMs: number
@@ -304,6 +304,23 @@ interface WorkerFirstPassTiming {
   readMs: number
   firstPassMs: number
   fileCount: number
+}
+
+interface WorkerSecondPassTiming {
+  contextMs: number
+  referenceValidationMs: number
+  validationMs: number
+  fileCount: number
+  referenceHits: number
+  referenceMisses: number
+  referenceConflicts: number
+  referenceFilterFailures: number
+  referenceDependencies: number
+  referenceUnsupported: number
+  referenceFallbacks: number
+  snapshotBytes: number
+  pendingReferences: number
+  memberIndexEntries: number
 }
 
 interface WorkerFirstPassProfile {

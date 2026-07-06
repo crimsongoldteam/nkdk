@@ -1,7 +1,7 @@
 import { dirname, join } from "node:path"
 import { performance } from "node:perf_hooks"
-import { Worker } from "node:worker_threads"
 import { fileURLToPath, pathToFileURL } from "node:url"
+import Piscina from "piscina"
 import type { ConfigurationContext } from "../context/types"
 import {
   type PendingMetadataTargetReference,
@@ -16,6 +16,7 @@ import type { ValidationMode, ValidationObjectRecord, ValidationObjectTableSnaps
 import type { Diagnostic } from "./types"
 import { createValidationSnapshotProvider } from "./validationSnapshotProvider"
 import { createValidationRulesSnapshot, type ValidationRulesSnapshot } from "./rulesSnapshot"
+import type { ValidationWorkerTask, ValidationWorkerTaskResult } from "./projectValidationWorker"
 
 export interface FirstPassPoolParams {
   projectDir: string
@@ -49,6 +50,7 @@ export interface ProjectValidationWorkerPoolStartProfile {
   formSchemaMs: number
   propertiesSchemaMs: number
   rulesSnapshotBytes: number
+  reused?: boolean
 }
 
 interface WorkerSecondPassTiming {
@@ -131,70 +133,50 @@ type WorkerRequest =
       filePaths: string[]
     }
 
-type WorkerResponse =
-  | {
-      kind: "initResult"
-      formMs: number
-      propertiesMs: number
-      totalMs: number
-    }
-  | {
-      kind: "firstPassResult"
-      diagnostics: Diagnostic[]
-      objectRecords: ValidationObjectRecord[]
-      objectIndexEntries: ProjectObjectIndexEntry[]
-      memberIndexEntries: ProjectMemberIndexEntry[]
-      valueIndexEntries: ProjectValueIndexEntry[]
-      pendingReferences: PendingMetadataTargetReference[]
-      timing?: Omit<WorkerFirstPassTiming, "workerWallMs">
-      profile?: WorkerFirstPassProfile
-    }
-  | {
-      kind: "secondPassResult"
-      diagnostics: Diagnostic[]
-      timing?: WorkerSecondPassTiming
-      profile?: WorkerSecondPassProfile
-    }
-  | { kind: "error"; message: string }
-
 export function createProjectValidationWorkerPool(params: { concurrency: number }): ProjectValidationWorkerPool {
-  const workers: Worker[] = []
-  const assignedFilePaths = new Map<Worker, string[]>()
+  let pools: Piscina[] = []
+  let startProfile: ProjectValidationWorkerPoolStartProfile | undefined
+  const assignedFilePathsByPartition = new Map<number, string[]>()
 
   return {
     async start(context) {
-      while (workers.length < params.concurrency) workers.push(createWorker())
+      if (startProfile !== undefined) return { ...startProfile, reused: true }
+      while (pools.length < params.concurrency) pools.push(createWorkerPool())
       const rulesSnapshot = createValidationRulesSnapshot(context)
       const startedAt = performance.now()
       const results = await Promise.all(
-        workers.map(async (worker) => {
-          const response = await request(worker, { kind: "init", context, rulesSnapshot })
+        pools.map(async (pool) => {
+          const response = await request(pool, { kind: "init", context, rulesSnapshot })
           if (response.kind !== "initResult") throw new Error("Worker вернул неожиданный результат init")
           return response
         })
       )
 
-      return {
+      startProfile = {
         workerInitMs: performance.now() - startedAt,
         schemaCompileMs: results.reduce((sum, result) => sum + result.totalMs, 0),
         formSchemaMs: results.reduce((sum, result) => sum + result.formMs, 0),
         propertiesSchemaMs: results.reduce((sum, result) => sum + result.propertiesMs, 0),
         rulesSnapshotBytes: JSON.stringify(rulesSnapshot).length,
       }
+      return startProfile
     },
     async close() {
-      await Promise.all(workers.map((worker) => worker.terminate()))
+      await Promise.all(pools.map((pool) => pool.destroy()))
+      pools = []
+      startProfile = undefined
+      assignedFilePathsByPartition.clear()
     },
     size() {
-      return workers.length
+      return pools.length
     },
     async runFirstPass(firstPassParams) {
-      const partitions = partitionRoundRobin(firstPassParams.files, workers.length)
+      const partitions = partitionRoundRobin(firstPassParams.files, pools.length)
       const results = await Promise.all(
-        workers.map(async (worker, index) => {
+        pools.map(async (pool, index) => {
           const files = partitions[index] ?? []
           const filePaths = files.map((file) => file.absolutePath)
-          assignedFilePaths.set(worker, filePaths)
+          assignedFilePathsByPartition.set(index, filePaths)
           if (filePaths.length === 0) {
             return {
               index,
@@ -208,7 +190,7 @@ export function createProjectValidationWorkerPool(params: { concurrency: number 
           }
 
           const requestStartedAt = performance.now()
-          const response = await request(worker, {
+          const response = await request(pool, {
             kind: "firstPass",
             projectDir: firstPassParams.projectDir,
             context: firstPassParams.context,
@@ -244,14 +226,14 @@ export function createProjectValidationWorkerPool(params: { concurrency: number 
       const sharedValidationSnapshot = provider.sharedPayload()
       const snapshotMs = performance.now() - snapshotStartedAt
       const pendingReferences = secondPassParams.objectTable.pendingReferences ?? []
-      const referencePartitions = partitionPendingReferencesForWorkers(pendingReferences, workers.length)
+      const referencePartitions = partitionPendingReferencesForWorkers(pendingReferences, pools.length)
       const requestStartedAt = performance.now()
       const results = await Promise.all(
-        workers.map(async (worker, index) => {
-          const filePaths = assignedFilePaths.get(worker) ?? []
+        pools.map(async (pool, index) => {
+          const filePaths = assignedFilePathsByPartition.get(index) ?? []
           if (filePaths.length === 0) return { index, diagnostics: [] }
 
-          const response = await request(worker, {
+          const response = await request(pool, {
             kind: "secondPass",
             projectDir: secondPassParams.projectDir,
             context: secondPassParams.context,
@@ -557,14 +539,19 @@ export function partitionPendingReferencesForWorkers(
   return partitions
 }
 
-function createWorker(): Worker {
+function createWorkerPool(): Piscina {
   const currentFile = fileURLToPath(import.meta.url)
   const workerFile = currentFile.endsWith(".ts")
     ? join(dirname(currentFile), "projectValidationWorker.ts")
     : join(dirname(currentFile), "projectValidationWorker.js")
   const execArgv = workerFile.endsWith(".ts") ? withTypeScriptWorkerLoader(dirname(currentFile)) : process.execArgv
 
-  return new Worker(workerFile, { execArgv })
+  return new Piscina({
+    filename: workerFile,
+    minThreads: 1,
+    maxThreads: 1,
+    execArgv,
+  })
 }
 
 function withTypeScriptWorkerLoader(workerDir: string): string[] {
@@ -572,30 +559,8 @@ function withTypeScriptWorkerLoader(workerDir: string): string[] {
   return ["--import", "tsx", "--import", registerUrl]
 }
 
-let nextRequestId = 1
-
-function request(worker: Worker, message: WorkerRequest): Promise<WorkerResponse> {
-  const id = nextRequestId++
-  return new Promise((resolve, reject) => {
-    const onMessage = (response: WorkerResponse & { id?: number }) => {
-      if (response.id !== id) return
-      cleanup()
-      if (response.kind === "error") reject(new Error(response.message))
-      else resolve(response)
-    }
-    const onError = (error: Error) => {
-      cleanup()
-      reject(error)
-    }
-    const cleanup = () => {
-      worker.off("message", onMessage)
-      worker.off("error", onError)
-    }
-
-    worker.on("message", onMessage)
-    worker.on("error", onError)
-    worker.postMessage({ ...message, id })
-  })
+async function request(pool: Piscina, message: WorkerRequest): Promise<ValidationWorkerTaskResult> {
+  return (await pool.run(message satisfies ValidationWorkerTask)) as ValidationWorkerTaskResult
 }
 
 function partitionRoundRobin<T>(items: readonly T[], count: number): T[][] {

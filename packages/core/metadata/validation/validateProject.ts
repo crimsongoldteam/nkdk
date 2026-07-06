@@ -13,7 +13,7 @@ import {
 } from "./projectFiles"
 import { createProjectYamlCacheFromEntries, type ProjectYamlEntry } from "./projectYamlCache"
 import { createValidationObjectTable } from "./projectValidationObjectTable"
-import { createProjectValidationWorkerPool } from "./projectValidationWorkerPool"
+import { createProjectValidationWorkerPool, type ProjectValidationWorkerPool } from "./projectValidationWorkerPool"
 import {
   createValidationSchemaCache,
   readProjectYamlDiagnostic,
@@ -38,6 +38,12 @@ export interface ValidateProjectResult {
   diagnostics: Diagnostic[]
 }
 
+export interface ValidationWorkerPoolHandle {
+  validateProject(params: Omit<ValidateProjectParams, "concurrency">): Promise<ValidateProjectResult>
+  close(): Promise<void>
+  size(): number
+}
+
 const expectedPatterns =
   "Ожидались Конфигурация.yaml или пути вида <Вид>/<Имя>/Свойства.yaml и <Вид>/<Имя>/Формы/<Форма>/Форма.yaml"
 const MIN_FILES_FOR_WORKER_VALIDATION = 128
@@ -48,6 +54,53 @@ export async function validateProject(params: ValidateProjectParams): Promise<Va
     return validateProjectInProcess({ ...params, concurrency: 1 })
   }
   return validateProjectWithWorkers({ ...params, concurrency })
+}
+
+export function createValidationWorkerPoolHandle(params: { concurrency?: number } = {}): ValidationWorkerPoolHandle {
+  const concurrency = normalizeValidationConcurrency(params.concurrency)
+  const pool = createProjectValidationWorkerPool({ concurrency })
+  let closed = false
+  let currentRun: Promise<void> = Promise.resolve()
+
+  async function runExclusive<T>(task: () => Promise<T>): Promise<T> {
+    const previous = currentRun
+    let release: () => void = () => undefined
+    currentRun = new Promise<void>((resolve) => {
+      release = resolve
+    })
+    await previous
+    try {
+      return await task()
+    } finally {
+      release()
+    }
+  }
+
+  return {
+    validateProject(projectParams) {
+      if (closed) throw new Error("Validation worker pool handle is closed")
+      return runExclusive(async () => {
+        if (projectParams.filePath !== undefined || concurrency === 1) {
+          return validateProjectInProcess({ ...projectParams, concurrency: 1 })
+        }
+        return validateProjectWithWorkers({
+          ...projectParams,
+          concurrency,
+          pool,
+          closePool: false,
+        })
+      })
+    },
+    async close() {
+      if (closed) return
+      closed = true
+      await currentRun
+      await pool.close()
+    },
+    size() {
+      return pool.size()
+    },
+  }
 }
 
 function validateProjectInProcess(params: ValidateProjectParams): ValidateProjectResult {
@@ -163,7 +216,11 @@ function validateProjectInProcess(params: ValidateProjectParams): ValidateProjec
 }
 
 async function validateProjectWithWorkers(
-  params: ValidateProjectParams & { concurrency: number }
+  params: ValidateProjectParams & {
+    concurrency: number
+    pool?: ProjectValidationWorkerPool
+    closePool?: boolean
+  }
 ): Promise<ValidateProjectResult> {
   const totalStartedAt = performance.now()
   const projectDir = resolve(params.projectDir)
@@ -175,7 +232,8 @@ async function validateProjectWithWorkers(
     return validateProjectInProcess({ ...params, concurrency: 1 })
   }
 
-  const pool = createProjectValidationWorkerPool({ concurrency: params.concurrency })
+  const pool = params.pool ?? createProjectValidationWorkerPool({ concurrency: params.concurrency })
+  const closePool = params.closePool ?? true
   let startMs = 0
   let schemaCompileMs = 0
   let formSchemaMs = 0
@@ -233,7 +291,7 @@ async function validateProjectWithWorkers(
 
     return { diagnostics }
   } finally {
-    await pool.close()
+    if (closePool) await pool.close()
   }
 }
 

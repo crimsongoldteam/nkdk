@@ -9,7 +9,7 @@ import {
   getProjectValidationReadCountForTests,
   resetProjectValidationReadCountForTests,
 } from "./projectValidationPasses"
-import { validateProject } from "./validateProject"
+import { createValidationWorkerPoolHandle, validateProject } from "./validateProject"
 
 describe("validateProject", { timeout: 30_000 }, () => {
   const tempDirs: string[] = []
@@ -234,6 +234,25 @@ describe("validateProject", { timeout: 30_000 }, () => {
     const parallel = await validateProject({ projectDir, context: mockContext, concurrency: 2 })
 
     expect(parallel.diagnostics).toEqual(sequential.diagnostics)
+  })
+
+  it("reusable worker pool handle validates projects repeatedly", async () => {
+    const projectDir = createProject()
+    writeProjectFile(projectDir, "Справочник/Товары/Свойства.yaml", "Комментарий: ok")
+
+    const oneShot = await validateProject({ projectDir, context: mockContext, concurrency: 2 })
+    const handle = createValidationWorkerPoolHandle({ concurrency: 2 })
+
+    try {
+      const first = await handle.validateProject({ projectDir, context: mockContext })
+      const second = await handle.validateProject({ projectDir, context: mockContext })
+
+      expect(handle.size()).toBe(0)
+      expect(first).toEqual(oneShot)
+      expect(second).toEqual(oneShot)
+    } finally {
+      await handle.close()
+    }
   })
 
   it("parallel validation keeps subsystem files with duplicate local names", async () => {
