@@ -15,6 +15,7 @@
     "test:isolated": "vitest run",
     "test:ui": "vitest --ui",
     "type-check": "tsc --noEmit",
+    "measure:validation-schemas": "tsx --expose-gc scripts/measure-validation-schemas.mjs",
     "prepare": "ts-patch install"
   },
   "dependencies": {

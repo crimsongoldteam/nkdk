@@ -6,6 +6,7 @@ import { mockContext } from "../../tests/mockContext"
 import { resolveValidationProjectFile } from "./projectFiles"
 import { createProjectYamlCache } from "./projectYamlCache"
 import { createValidationSchemaCache, validateProjectFileFirstPass } from "./projectValidationPasses"
+import { getValidationProjectSpecByDir } from "./projectSpecs"
 
 describe("validateProjectFileFirstPass references", () => {
   const tempDirs: string[] = []
@@ -13,6 +14,55 @@ describe("validateProjectFileFirstPass references", () => {
   afterEach(() => {
     for (const dir of tempDirs.splice(0)) rmSync(dir, { recursive: true, force: true })
   })
+
+  it("compiles all validation schemas before validating files", () => {
+    const cache = createValidationSchemaCache({ version: "2.20", defaultLanguage: "ru" })
+    const result = cache.compileAll()
+
+    expect(result.formMs).toBeGreaterThanOrEqual(0)
+    expect(result.propertiesMs).toBeGreaterThanOrEqual(0)
+    expect(cache.form().Check({ Элементы: {} })).toBe(true)
+  }, 120_000)
+
+  it("compiles common form properties without compiling ClientApplicationForm again", () => {
+    const spec = getValidationProjectSpecByDir("ОбщаяФорма")
+    if (spec === undefined) throw new Error("Common form validation spec is not registered")
+
+    const compiled = createValidationSchemaCache(mockContext).properties(spec)
+
+    expect(compiled.Schema()).toMatchObject({
+      properties: {
+        Форма: expect.objectContaining({}),
+      },
+    })
+    expect(compiled.Context()["nkdk://schema/ClientApplicationForm"]).toBeUndefined()
+    expect(compiled.Check({ Форма: { Элементы: {} } })).toBe(true)
+  }, 20_000)
+
+  it("validates common form body through the shared form schema", () => {
+    const projectDir = mkdtempSync(join(tmpdir(), "nkdk-validation-first-pass-"))
+    tempDirs.push(projectDir)
+    writeProjectFile(projectDir, "ОбщаяФорма/РабочийСтол/Свойства.yaml", ["Форма:", "  Элементы: []"])
+    const file = resolveValidationProjectFile(projectDir, join(projectDir, "ОбщаяФорма/РабочийСтол/Свойства.yaml"))
+    if (!file) throw new Error("file not resolved")
+
+    const first = validateProjectFileFirstPass({
+      projectDir,
+      file,
+      cache: createProjectYamlCache(),
+      context: mockContext,
+      schemaCache: createValidationSchemaCache(mockContext),
+    })
+
+    expect(first.diagnostics).toEqual(
+      expect.arrayContaining([
+        expect.objectContaining({
+          source: "structure",
+          path: "/Форма/Элементы",
+        }),
+      ])
+    )
+  }, 20_000)
 
   it("builds member index entries from owner fields", () => {
     const projectDir = mkdtempSync(join(tmpdir(), "nkdk-validation-first-pass-"))

@@ -5,6 +5,7 @@ import { join, resolve } from "path"
 import { afterEach, describe, expect, it } from "vitest"
 import { EXCLUDE_IF_EQUAL_NAME_YAML_DESCRIPTION } from "../helpers/excludeIfEqualNameYAML"
 import {
+  exportJSONSchemaGraph,
   exportJSONSchemaForProjectFile,
   exportJSONSchemaForSchemaName,
   ProjectFileSchemaError,
@@ -184,6 +185,16 @@ describe("exportJSONSchemaForProjectFile", () => {
         Синоним: expect.any(Object),
       }),
     })
+  })
+
+  it("exports form schema graph without replacing element refs with any", () => {
+    const graph = exportJSONSchemaGraph({
+      context,
+      roots: [{ key: "form", name: "ClientApplicationForm", includeNestedChildItems: true }],
+    })
+
+    expect(JSON.stringify(graph.roots.form)).toContain("nkdk://schema/FormAttribute")
+    expect(JSON.stringify(graph.schemas["nkdk://schema/FormAttribute"])).toContain('"Тип"')
   })
 
   it("rejects non-yaml files", () => {

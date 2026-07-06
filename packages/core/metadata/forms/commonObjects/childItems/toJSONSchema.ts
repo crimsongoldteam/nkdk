@@ -125,8 +125,15 @@ function exportGenericChildItemsDefinitionToJSONSchema(params: {
   const itemSchema =
     childSchemas.length === 1
       ? childSchemas[0]
-      : Type.Union(childSchemas as [TSchema, TSchema, ...TSchema[]], { discriminantKey: "Вид" })
+      : discriminatorUnion("Вид", childSchemas as [TSchema, TSchema, ...TSchema[]])
   return Type.Record(Type.String(), itemSchema)
+}
+
+function discriminatorUnion(discriminator: string, schemas: [TSchema, TSchema, ...TSchema[]]): TSchema {
+  return {
+    oneOf: schemas,
+    discriminator: { propertyName: discriminator },
+  } as TSchema
 }
 
 function omitNestedChildItemsRule(rule: ElementRule): ElementRule {

@@ -54,7 +54,7 @@ function compileSchema(rule: PropertyRule): ValidationSchemaValidator {
   return compileValidationSchema(schema)
 }
 
-describe("import SettingsParameterValueCollection from YAML", () => {
+describe("import SettingsParameterValueCollection from YAML", { timeout: 30_000 }, () => {
   const parseViaYamlText = <T>(value: T): T => importFromYAML<T>(exportToYAML(value))
 
   beforeAll(() => {

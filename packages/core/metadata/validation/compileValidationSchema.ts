@@ -3,7 +3,12 @@ import addFormats from "ajv-formats"
 import type { TSchema } from "typebox"
 import Schema from "typebox/schema"
 
-type SchemaContext = Record<string, TSchema>
+export type SchemaContext = Record<string, TSchema>
+
+export interface CompileValidationSchemaOptions {
+  inlineRefs?: Options["inlineRefs"]
+  eagerFallback?: boolean
+}
 
 export interface ValidationSchemaError {
   keyword: string
@@ -25,28 +30,42 @@ export interface ValidationSchemaValidator<Type extends TSchema = TSchema> {
 const ajvOptions: Options = {
   addUsedSchema: false,
   allowUnionTypes: true,
+  discriminator: true,
   strict: false,
   verbose: true,
 }
 
-export function compileValidationSchema<const Type extends TSchema>(schema: Type): ValidationSchemaValidator<Type>
+const undefinedKeyword = "x-nkdk-undefined"
+
+export function compileValidationSchema<const Type extends TSchema>(
+  schema: Type,
+  options?: CompileValidationSchemaOptions
+): ValidationSchemaValidator<Type>
 export function compileValidationSchema<Context extends SchemaContext, const Type extends TSchema>(
   context: Context,
-  schema: Type
+  schema: Type,
+  options?: CompileValidationSchemaOptions
 ): ValidationSchemaValidator<Type>
 export function compileValidationSchema(
   schemaOrContext: TSchema | SchemaContext,
-  maybeSchema?: TSchema
+  schemaOrOptions?: TSchema | CompileValidationSchemaOptions,
+  maybeOptions?: CompileValidationSchemaOptions
 ): ValidationSchemaValidator {
-  const context = maybeSchema === undefined ? {} : (schemaOrContext as SchemaContext)
-  const schema = maybeSchema ?? (schemaOrContext as TSchema)
+  const hasOptionsAsSecondArgument = isCompileValidationSchemaOptions(schemaOrOptions)
+  const hasExplicitContext = schemaOrOptions !== undefined && !hasOptionsAsSecondArgument
+  const context = hasExplicitContext ? (schemaOrContext as SchemaContext) : {}
+  const schema = hasExplicitContext ? (schemaOrOptions as TSchema) : (schemaOrContext as TSchema)
+  const options = hasExplicitContext ? maybeOptions : (schemaOrOptions as CompileValidationSchemaOptions | undefined)
   const ajvSchema = prepareSchemaForAjv(schema)
-  const check = createAjv(context, { allErrors: false }).compile(ajvSchema)
-  const useFallbackCheck = hasLocalDefinitions(schema)
+  const check = createAjv(context, { allErrors: false, inlineRefs: options?.inlineRefs }).compile(ajvSchema)
+  const useFallbackCheck = hasLocalDefinitions(schema) && !hasExplicitContext
   let fallback: ValidationSchemaValidator | undefined
   const getFallback = (): ValidationSchemaValidator => {
-    fallback ??= createTypeboxFallback(context, schema, maybeSchema !== undefined)
+    fallback ??= createTypeboxFallback(context, schema, hasExplicitContext)
     return fallback
+  }
+  if (options?.eagerFallback === true && useFallbackCheck) {
+    fallback = createTypeboxFallback(context, schema, hasExplicitContext)
   }
 
   return {
@@ -66,6 +85,7 @@ export function compileValidationSchema(
       try {
         const valid = check(value)
         if (valid) return [true, []]
+        return [false, normalizeAjvErrors(check.errors)]
       } catch (caught) {
         if (!(caught instanceof RangeError)) throw caught
       }
@@ -79,6 +99,26 @@ export function compileValidationSchema(
       return context
     },
   }
+}
+
+function normalizeAjvErrors(errors: typeof Ajv2020.prototype.errors): ValidationSchemaError[] {
+  return (errors ?? []).map((error) => ({
+    keyword: error.keyword,
+    schemaPath: error.schemaPath,
+    instancePath: error.instancePath,
+    params: error.params as Record<string, unknown>,
+    message: error.message ?? error.keyword,
+    schema: error.schema as TSchema | undefined,
+    value: error.data,
+  }))
+}
+
+function isCompileValidationSchemaOptions(value: unknown): value is CompileValidationSchemaOptions {
+  if (value === undefined) return false
+  if (value === null || typeof value !== "object") return false
+
+  const record = value as Record<string, unknown>
+  return "inlineRefs" in record || "eagerFallback" in record
 }
 
 function createTypeboxFallback(
@@ -107,12 +147,17 @@ function createTypeboxFallback(
   }
 }
 
-function createAjv(context: SchemaContext, options: Pick<Options, "allErrors">): Ajv2020 {
+function createAjv(context: SchemaContext, options: Pick<Options, "allErrors" | "inlineRefs">): Ajv2020 {
   const ajv = new Ajv2020({ ...ajvOptions, ...options })
   addFormats(ajv)
+  ajv.addKeyword({
+    keyword: undefinedKeyword,
+    metaSchema: { type: "boolean" },
+    validate: (schema: boolean, data: unknown) => schema !== true || data === undefined,
+  })
 
-  for (const schema of Object.values(context)) {
-    ajv.addSchema(prepareSchemaForAjv(schema, { keepRootId: true }))
+  for (const [key, schema] of Object.entries(context)) {
+    ajv.addSchema(prepareSchemaForAjv(schema, { keepRootId: true }), key)
   }
 
   return ajv
@@ -134,7 +179,7 @@ interface CurrentDefinition {
 
 type SchemaMapKind = "defs" | "properties"
 
-function prepareSchemaForAjv(schema: TSchema, options: PrepareSchemaOptions = {}): TSchema {
+export function prepareSchemaForAjv(schema: TSchema, options: PrepareSchemaOptions = {}): TSchema {
   return prepareSchemaNode(schema, {
     scopes: [],
     pointer: "",
@@ -171,7 +216,7 @@ function prepareSchemaNode(
   for (const [key, entry] of Object.entries(record)) {
     if (key === "$id" && !(state.isRoot && state.keepRootId)) continue
     if (key === "type" && entry === "undefined") {
-      result.not = {}
+      result[undefinedKeyword] = true
       continue
     }
 

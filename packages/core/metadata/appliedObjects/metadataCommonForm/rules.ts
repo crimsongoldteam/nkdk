@@ -15,6 +15,8 @@ const properties = ["Properties"]
 export const MetadataCommonFormRules = {
   itemType: "MetadataCommonForm",
   metadataTargetOwner: { kind: "self", root: "CommonForm" },
+  validationSchemaMode: "externalRefs",
+  externalValidationProperties: [{ yaml: "Форма", validator: "form" }],
   itemTypePrefix: "ОбщаяФорма",
   xmlDir: "CommonForms",
   properties: {

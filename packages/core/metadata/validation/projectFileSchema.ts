@@ -9,6 +9,12 @@ import {
 } from "./schemaRegistry"
 
 export { ProjectFileSchemaError } from "./schemaRegistry"
+export {
+  exportJSONSchemaGraph,
+  schemaNameFromRef,
+  type JSONSchemaGraph,
+  type JSONSchemaGraphRoot,
+} from "../project/schemaRegistry"
 
 export interface ExportJSONSchemaForProjectFileParams {
   context: ConfigurationContext

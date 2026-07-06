@@ -39,6 +39,7 @@ export interface ValidateProjectResult {
 
 const expectedPatterns =
   "Ожидались Конфигурация.yaml или пути вида <Вид>/<Имя>/Свойства.yaml и <Вид>/<Имя>/Формы/<Форма>/Форма.yaml"
+const MIN_FILES_FOR_WORKER_VALIDATION = 128
 
 export async function validateProject(params: ValidateProjectParams): Promise<ValidateProjectResult> {
   const concurrency = normalizeValidationConcurrency(params.concurrency)
@@ -148,8 +149,15 @@ async function validateProjectWithWorkers(
   const discoverStartedAt = performance.now()
   const files = discoverValidationProjectFiles(projectDir)
   const discoverMs = performance.now() - discoverStartedAt
+  if (files.length < MIN_FILES_FOR_WORKER_VALIDATION) {
+    return validateProjectInProcess({ ...params, concurrency: 1 })
+  }
+
   const pool = createProjectValidationWorkerPool({ concurrency: params.concurrency })
   let startMs = 0
+  let schemaCompileMs = 0
+  let formSchemaMs = 0
+  let propertiesSchemaMs = 0
   let firstPassMs = 0
   let mergeMs = 0
   let snapshotMs = 0
@@ -158,8 +166,11 @@ async function validateProjectWithWorkers(
 
   try {
     const startStartedAt = performance.now()
-    await pool.start()
+    const startProfile = await pool.start(context)
     startMs = performance.now() - startStartedAt
+    schemaCompileMs = startProfile.schemaCompileMs
+    formSchemaMs = startProfile.formSchemaMs
+    propertiesSchemaMs = startProfile.propertiesSchemaMs
     const firstPassStartedAt = performance.now()
     const first = await pool.runFirstPass({ projectDir, context, files })
     firstPassMs = performance.now() - firstPassStartedAt
@@ -187,6 +198,9 @@ async function validateProjectWithWorkers(
       concurrency: params.concurrency,
       discoverMs,
       startMs,
+      schemaCompileMs,
+      formSchemaMs,
+      propertiesSchemaMs,
       firstPassMs,
       mergeMs,
       snapshotMs,
@@ -206,6 +220,9 @@ function logWorkerValidationProfile(params: {
   concurrency: number
   discoverMs: number
   startMs: number
+  schemaCompileMs: number
+  formSchemaMs: number
+  propertiesSchemaMs: number
   firstPassMs: number
   mergeMs: number
   snapshotMs: number
@@ -221,6 +238,9 @@ function logWorkerValidationProfile(params: {
       `concurrency=${params.concurrency}`,
       `discover=${params.discoverMs.toFixed(2)}ms`,
       `startWorkers=${params.startMs.toFixed(2)}ms`,
+      `schemaCompile=${params.schemaCompileMs.toFixed(2)}ms`,
+      `formSchema=${params.formSchemaMs.toFixed(2)}ms`,
+      `propertiesSchema=${params.propertiesSchemaMs.toFixed(2)}ms`,
       `firstPassWall=${params.firstPassMs.toFixed(2)}ms`,
       `mergeFirstPass=${params.mergeMs.toFixed(2)}ms`,
       `objectTableSnapshot=${params.snapshotMs.toFixed(2)}ms`,

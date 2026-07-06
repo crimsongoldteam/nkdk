@@ -1,9 +1,19 @@
 import type { ValidationSchemaValidator } from "./compileValidationSchema"
 import type { TSchema } from "typebox"
 import { ParsedYaml } from "../../yaml/parseMetadataYaml"
-import { expandDiscriminatedUnionErrors, type ValidationError } from "./discriminatedUnionErrors"
 import { Diagnostic } from "./types"
 import { diagnosticAtYamlPath } from "./yamlLocations"
+
+export type ValidationError = {
+  keyword: string
+  schemaPath: string
+  instancePath: string
+  params: Record<string, unknown>
+  message: string
+  schema?: TSchema
+  value?: unknown
+  diagnosticLocation?: "key"
+}
 
 function parseJsonPointer(pointer: string): (string | number)[] {
   if (!pointer || pointer === "/") return []
@@ -22,12 +32,18 @@ function escapeJsonPointerSegment(segment: string): string {
 
 function requiredPropertyNames(error: ValidationError): string[] {
   const required = (error.params as { requiredProperties?: unknown }).requiredProperties
-  return Array.isArray(required) ? required.filter((item): item is string => typeof item === "string") : []
+  if (Array.isArray(required)) return required.filter((item): item is string => typeof item === "string")
+
+  const missing = (error.params as { missingProperty?: unknown }).missingProperty
+  return typeof missing === "string" ? [missing] : []
 }
 
 function additionalPropertyNames(error: ValidationError): string[] {
   const additional = (error.params as { additionalProperties?: unknown }).additionalProperties
-  return Array.isArray(additional) ? additional.filter((item): item is string => typeof item === "string") : []
+  if (Array.isArray(additional)) return additional.filter((item): item is string => typeof item === "string")
+
+  const property = (error.params as { additionalProperty?: unknown }).additionalProperty
+  return typeof property === "string" ? [property] : []
 }
 
 function diagnosticMessage(error: ValidationError, keys: (string | number)[]): string {
@@ -40,6 +56,7 @@ function diagnosticMessage(error: ValidationError, keys: (string | number)[]): s
     if (type === "string") return "Expected string"
   }
   if (error.keyword === "anyOf") return error.message === "must match a schema in anyOf" ? "Expected union value" : error.message
+  if (error.keyword === "oneOf") return error.message === "must match exactly one schema in oneOf" ? "Expected union value" : error.message
   return error.message
 }
 
@@ -77,6 +94,16 @@ function normalizedErrors(errors: ValidationError[]): ValidationError[] {
       continue
     }
 
+    if (error.keyword === "discriminator") {
+      const tag = (error.params as { tag?: unknown }).tag
+      result.push({
+        ...error,
+        instancePath:
+          typeof tag === "string" ? `${error.instancePath}/${escapeJsonPointerSegment(tag)}` : error.instancePath,
+      })
+      continue
+    }
+
     result.push(error)
   }
 
@@ -87,10 +114,10 @@ export function typeboxErrorsToDiagnostics(
   errors: ValidationError[],
   parsed: ParsedYaml,
   filePath: string,
-  schema?: ValidationSchemaValidator<TSchema>
+  _schema?: ValidationSchemaValidator<TSchema>
 ): Diagnostic[] {
   const diagnostics: Diagnostic[] = []
-  const expandedErrors = normalizedErrors(expandDiscriminatedUnionErrors(errors, schema))
+  const expandedErrors = normalizedErrors(errors)
   const missingRequiredPaths = new Set(
     expandedErrors.filter((error) => error.keyword === "required").map((error) => error.instancePath)
   )

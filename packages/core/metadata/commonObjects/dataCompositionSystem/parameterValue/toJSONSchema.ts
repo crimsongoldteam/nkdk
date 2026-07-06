@@ -2,9 +2,11 @@ import { TSchema, Type } from "typebox"
 import { I8nTextJSONSchema } from "../../i8nText/types"
 import type { ConfigurationContext } from "../../../context/types"
 import { ExportToJSONSchemaFn, registerTypeRule } from "../../../orchestration"
+import { schemaRef } from "../../../orchestration/jsonSchemaRefs"
+import { registerProjectJSONSchema, registerProjectJSONSchemaPropertyRefFactory } from "../../../project/schemaRegistry"
 import { exportSystemEnumerationToJSONSchema } from "../../../systemEnumerations/toJSONSchema"
 import type { SystemEnumerationPropertyRule, SystemEnumerationTypeMap } from "../../../systemEnumerations/types"
-import { exportDcsMetadataValueToJSONSchema } from "../dcsMetadataValue/toJSONSchema"
+import { ensureDcsMetadataValueJSONSchema, exportDcsMetadataValueToJSONSchema } from "../dcsMetadataValue/toJSONSchema"
 import type { DcsMetadataValuePropertyRule } from "../dcsMetadataValue/types"
 import { toDcsMetadataValueRule } from "./dcsValueRule"
 import type { SettingsParameterValuePropertyRule } from "./types"
@@ -200,7 +202,10 @@ const explicitStringFieldWrapperJSONSchema = (
 }
 
 const settingsParameterValueSchemaKey = (rule: SettingsParameterValuePropertyRule): string =>
-  ["SettingsParameterValue", rule.valueType, rule.yaml].join("_").replace(/[^\p{L}\p{N}_]/gu, "_")
+  ["SettingsParameterValue", rule.valueType, rule.typeSE, rule.yaml]
+    .filter(Boolean)
+    .join("_")
+    .replace(/[^\p{L}\p{N}_]/gu, "_")
 
 export const createSettingsParameterValueJSONSchema = (params: {
   context: ConfigurationContext
@@ -241,8 +246,10 @@ export const createSettingsParameterValueJSONSchema = (params: {
   )
 }
 
-export const exportSettingsParameterValueToJSONSchema: ExportToJSONSchemaFn = ({ context, rule }): TSchema => {
-  const settingsRule = rule as SettingsParameterValuePropertyRule
+function createSettingsParameterValueJSONSchemaForRule(
+  context: ConfigurationContext,
+  settingsRule: SettingsParameterValuePropertyRule
+): TSchema {
   const rawValueSchema = requiredDcsMetadataValueJSONSchema(context, toDcsMetadataValueRule(settingsRule))
 
   return createSettingsParameterValueJSONSchema({
@@ -252,4 +259,30 @@ export const exportSettingsParameterValueToJSONSchema: ExportToJSONSchemaFn = ({
   })
 }
 
+export const exportSettingsParameterValueToJSONSchema: ExportToJSONSchemaFn = ({ context, rule }): TSchema => {
+  const settingsRule = rule as SettingsParameterValuePropertyRule
+  if (context.exportToJSONSchema?.mode === "externalRefs") {
+    return schemaRef(ensureSettingsParameterValueJSONSchema(settingsRule))
+  }
+
+  return createSettingsParameterValueJSONSchemaForRule(context, settingsRule)
+}
+
 registerTypeRule("SettingsParameterValue", "exportToJSONSchema", exportSettingsParameterValueToJSONSchema)
+
+registerProjectJSONSchemaPropertyRefFactory("SettingsParameterValue", ({ rule }) => {
+  const settingsRule = rule as SettingsParameterValuePropertyRule
+  return schemaRef(ensureSettingsParameterValueJSONSchema(settingsRule))
+})
+
+function ensureSettingsParameterValueJSONSchema(rule: SettingsParameterValuePropertyRule): string {
+  const schemaName = settingsParameterValueSchemaKey(rule)
+  registerProjectJSONSchema(schemaName, ({ context }) =>
+    createSettingsParameterValueJSONSchema({
+      context,
+      rawValueSchema: schemaRef(ensureDcsMetadataValueJSONSchema(toDcsMetadataValueRule(rule))),
+      rule,
+    })
+  )
+  return schemaName
+}

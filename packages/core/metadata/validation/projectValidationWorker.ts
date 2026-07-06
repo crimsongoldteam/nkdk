@@ -27,6 +27,8 @@ import {
   readProjectYamlEntryForValidation,
   validateProjectFileFirstPass,
   validateProjectFileSecondPass,
+  type ValidationSchemaCache,
+  type ValidationSchemaCacheCompileProfile,
   type ProjectValidationFirstPassProfile,
   type ProjectValidationFileState,
 } from "./projectValidationPasses"
@@ -36,6 +38,11 @@ import type { Diagnostic } from "./types"
 registerCoreMetadata()
 
 type ValidationWorkerMessage =
+  | {
+      id: number
+      kind: "init"
+      context: ConfigurationContext
+    }
   | {
       id: number
       kind: "firstPass"
@@ -64,6 +71,7 @@ interface WorkerValidationState {
 }
 
 let workerState = createEmptyWorkerValidationState()
+let workerSchemaCache: ValidationSchemaCache | undefined
 
 function createEmptyWorkerValidationState(): WorkerValidationState {
   return {
@@ -78,6 +86,11 @@ function createEmptyWorkerValidationState(): WorkerValidationState {
 
 parentPort?.on("message", (message: ValidationWorkerMessage) => {
   try {
+    if (message.kind === "init") {
+      parentPort?.postMessage({ id: message.id, kind: "initResult", ...runInit(message) })
+      return
+    }
+
     if (message.kind === "firstPass") {
       parentPort?.postMessage({ id: message.id, kind: "firstPassResult", ...runFirstPass(message) })
       return
@@ -93,6 +106,11 @@ parentPort?.on("message", (message: ValidationWorkerMessage) => {
   }
 })
 
+function runInit(message: Extract<ValidationWorkerMessage, { kind: "init" }>): ValidationSchemaCacheCompileProfile {
+  workerSchemaCache = createValidationSchemaCache(message.context)
+  return workerSchemaCache.compileAll()
+}
+
 function runFirstPass(message: Extract<ValidationWorkerMessage, { kind: "firstPass" }>): {
   diagnostics: Diagnostic[]
   objectRecords: ValidationObjectRecord[]
@@ -106,7 +124,7 @@ function runFirstPass(message: Extract<ValidationWorkerMessage, { kind: "firstPa
   workerState = createEmptyWorkerValidationState()
   const diagnostics: Diagnostic[] = []
   const objectRecords: ValidationObjectRecord[] = []
-  const schemaCache = createValidationSchemaCache(message.context)
+  const schemaCache = requireWorkerSchemaCache()
   const timing = createWorkerFirstPassTiming()
   const profile = createWorkerFirstPassProfile()
 
@@ -157,6 +175,13 @@ function runFirstPass(message: Extract<ValidationWorkerMessage, { kind: "firstPa
     ...(timing === undefined ? {} : { timing: timing.snapshot(message.filePaths.length) }),
     ...(profile === undefined ? {} : { profile: profile.snapshot() }),
   }
+}
+
+function requireWorkerSchemaCache(): ValidationSchemaCache {
+  if (workerSchemaCache === undefined) {
+    throw new Error("Validation worker не инициализирован")
+  }
+  return workerSchemaCache
 }
 
 function runSecondPass(message: Extract<ValidationWorkerMessage, { kind: "secondPass" }>): {
