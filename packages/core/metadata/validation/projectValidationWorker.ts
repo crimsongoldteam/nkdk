@@ -19,7 +19,6 @@ import {
   type ProjectYamlCache,
 } from "./projectYamlCache"
 import {
-  createValidationSchemaCache,
   readProjectYamlDiagnostic,
   readProjectYamlEntryForValidation,
   validateProjectFileFirstPass,
@@ -29,6 +28,7 @@ import {
   type ProjectValidationFirstPassProfile,
   type ProjectValidationFileState,
 } from "./projectValidationPasses"
+import { createProjectValidationWorkerSchemaCache } from "./projectValidationWorkerSchemaCache"
 import type { ValidationMode, ValidationObjectRecord } from "./projectValidationTypes"
 import type { ValidationRulesSnapshot } from "./rulesSnapshot"
 import type { Diagnostic } from "./types"
@@ -100,14 +100,18 @@ function createEmptyWorkerValidationState(): WorkerValidationState {
   }
 }
 
-export default function runValidationWorkerTask(message: ValidationWorkerTask): ValidationWorkerTaskResult {
-  if (message.kind === "init") return { kind: "initResult", ...runInit(message) }
+export default async function runValidationWorkerTask(
+  message: ValidationWorkerTask
+): Promise<ValidationWorkerTaskResult> {
+  if (message.kind === "init") return { kind: "initResult", ...(await runInit(message)) }
   if (message.kind === "firstPass") return { kind: "firstPassResult", ...runFirstPass(message) }
   return { kind: "secondPassResult", ...runSecondPass(message) }
 }
 
-function runInit(message: Extract<ValidationWorkerTask, { kind: "init" }>): ValidationSchemaCacheCompileProfile {
-  workerSchemaCache = createValidationSchemaCache(message.context)
+async function runInit(
+  message: Extract<ValidationWorkerTask, { kind: "init" }>
+): Promise<ValidationSchemaCacheCompileProfile> {
+  workerSchemaCache = await createProjectValidationWorkerSchemaCache({ context: message.context })
   workerRulesSnapshot = message.rulesSnapshot
   return workerSchemaCache.compileAll()
 }

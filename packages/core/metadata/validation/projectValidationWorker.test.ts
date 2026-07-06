@@ -10,20 +10,20 @@ const context = {
 } as const
 
 describe("projectValidationWorker", () => {
-  it("omits timing results without validation timing or profile flags", () => {
+  it("omits timing results without validation timing or profile flags", async () => {
     const previousTiming = process.env["NKDK_VALIDATION_TIMING"]
     const previousProfile = process.env["NKDK_VALIDATION_PROFILE"]
     delete process.env["NKDK_VALIDATION_TIMING"]
     delete process.env["NKDK_VALIDATION_PROFILE"]
 
     try {
-      runValidationWorkerTask({
+      await runValidationWorkerTask({
         kind: "init",
         context,
         rulesSnapshot: createValidationRulesSnapshot(context),
       })
 
-      const firstPass = runValidationWorkerTask({
+      const firstPass = await runValidationWorkerTask({
         kind: "firstPass",
         projectDir: "/project",
         context,
@@ -32,7 +32,7 @@ describe("projectValidationWorker", () => {
       expect(firstPass).toMatchObject({ kind: "firstPassResult" })
       expect(firstPass).not.toHaveProperty("timing")
 
-      const secondPass = runValidationWorkerTask({
+      const secondPass = await runValidationWorkerTask({
         kind: "secondPass",
         projectDir: "/project",
         context,
@@ -49,18 +49,18 @@ describe("projectValidationWorker", () => {
     }
   }, 120_000)
 
-  it("includes worker memory snapshots in timing results", () => {
+  it("includes worker memory snapshots in timing results", async () => {
     const previousTiming = process.env["NKDK_VALIDATION_TIMING"]
     process.env["NKDK_VALIDATION_TIMING"] = "1"
 
     try {
-      runValidationWorkerTask({
+      await runValidationWorkerTask({
         kind: "init",
         context,
         rulesSnapshot: createValidationRulesSnapshot(context),
       })
 
-      const result = runValidationWorkerTask({
+      const result = await runValidationWorkerTask({
         kind: "firstPass",
         projectDir: "/project",
         context,
