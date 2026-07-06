@@ -43,6 +43,7 @@ const MetadataReportAttributeRules = {
 registerMetadataItemCollectionRule({
   propertyType: "MetadataReportAttributes",
   itemRule: MetadataReportAttributeRules,
+  schemaName: "MetadataReportAttribute",
   xmlElement: "Attribute",
   keyField: "name",
   collectionItemRule: true,

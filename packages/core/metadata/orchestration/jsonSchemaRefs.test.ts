@@ -135,19 +135,21 @@ describe("jsonSchemaRefs", () => {
     expect(listJSONSchemaIdentityNames()).toEqual(["SampleItem"])
   })
 
-  it("rejects the same schema name for different sources", () => {
+  it("keeps the first exporter for repeated schema names", () => {
     registerJSONSchemaIdentity({
       name: "DuplicateItem",
       source: { itemType: "Left" },
       exporter: () => Type.Object({ left: Type.String() }),
     })
 
-    expect(() =>
-      registerJSONSchemaIdentity({
-        name: "DuplicateItem",
-        source: { itemType: "Right" },
-        exporter: () => Type.Object({ right: Type.String() }),
-      })
-    ).toThrow('JSON Schema "DuplicateItem" already registered')
+    registerJSONSchemaIdentity({
+      name: "DuplicateItem",
+      source: { itemType: "Right" },
+      exporter: () => Type.Object({ right: Type.String() }),
+    })
+
+    expect(getJSONSchemaIdentityExporter("DuplicateItem")?.({ context: baseContext })).toMatchObject({
+      properties: { left: { type: "string" } },
+    })
   })
 })

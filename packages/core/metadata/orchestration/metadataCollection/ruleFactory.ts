@@ -1,5 +1,11 @@
 import { Type } from "typebox"
 import {
+  arrayOfSchemaRef,
+  recordOfSchemaRef,
+  registerJSONSchemaIdentity,
+  registerJSONSchemaPropertyRef,
+} from "../jsonSchemaRefs"
+import {
   ExportToJSONSchemaFn,
   ExportToXMLFunctionNew,
   ExportToYAMLFunction,
@@ -16,6 +22,8 @@ import { importMetadataItemCollectionFromXML } from "./fromXML"
 import { importMetadataItemCollectionFromYAMLAsArray, importMetadataItemCollectionFromYAMLAsRecord } from "./fromYAML"
 import { exportMetadataCollectionToXML } from "./toXML"
 import { exportMetadataCollectionToYAMLAsArray, exportMetadataCollectionToYAMLAsRecord } from "./toYAML"
+
+type JSONSchemaCollectionShape = "record" | "array"
 
 type CollectionRule<Rule extends MetadataItemRule, CollectionType extends PropertyRuleType, XMLKey extends string> = {
   propertyType: CollectionType
@@ -34,6 +42,8 @@ type CollectionRule<Rule extends MetadataItemRule, CollectionType extends Proper
   toJSONSchema?: ExportToJSONSchemaFn
   /** Регистрирует item-правило коллекции для обхода вложенных metadata target. */
   collectionItemRule?: true
+  schemaName?: string
+  schemaShape?: JSONSchemaCollectionShape
 }
 
 export const registerMetadataItemCollectionRule = <
@@ -44,6 +54,18 @@ export const registerMetadataItemCollectionRule = <
   params: CollectionRule<Rule, CollectionType, XMLKey>
 ): void => {
   const { propertyType, itemRule, xmlElement } = params
+  const schemaName = params.schemaName ?? itemRule.itemType
+
+  registerJSONSchemaIdentity({
+    name: schemaName,
+    source: itemRule,
+    exporter: ({ context }) => exportMetadataItemToJSONSchema({ context, rule: itemRule }),
+  })
+
+  registerJSONSchemaPropertyRef(propertyType, () => {
+    const shape = params.schemaShape ?? (params.yamlAsArray ? "array" : "record")
+    return shape === "array" ? arrayOfSchemaRef(schemaName) : recordOfSchemaRef(schemaName)
+  })
 
   const fromXMLDefault: ImportFromXMLFunction = (context, rule, xml) => {
     const effectiveElement = xmlElement ?? (rule as any).xml

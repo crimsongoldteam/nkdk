@@ -37,6 +37,13 @@ export function recordOfSchemaRef(name: string): TSchema {
   })
 }
 
+export function arrayOfSchemaRef(name: string): TSchema {
+  return rawJSONSchema({
+    type: "array",
+    items: schemaRef(name),
+  })
+}
+
 export function recordOfOneOfSchemaRefs(names: readonly string[]): TSchema {
   return rawJSONSchema({
     type: "object",
@@ -67,8 +74,7 @@ export function registerJSONSchemaIdentity(params: {
 }): void {
   const existing = schemaIdentityExporters.get(params.name)
   if (existing !== undefined) {
-    if (existing.source === params.source && existing.exporter === params.exporter) return
-    throw new Error(`JSON Schema "${params.name}" already registered`)
+    return
   }
 
   schemaIdentityExporters.set(params.name, {
