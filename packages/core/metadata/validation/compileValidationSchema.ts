@@ -1,5 +1,5 @@
 import type { ErrorObject, ValidateFunction } from "ajv"
-import Ajv2020, { type Options } from "ajv/dist/2020"
+import Ajv2020, { type Options } from "ajv/dist/2020.js"
 import addFormats from "ajv-formats"
 import type { TSchema } from "typebox"
 import Schema from "typebox/schema"
