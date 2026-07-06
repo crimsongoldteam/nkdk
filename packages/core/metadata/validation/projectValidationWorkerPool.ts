@@ -68,6 +68,7 @@ interface WorkerSecondPassTiming {
   snapshotBytes: number
   pendingReferences: number
   memberIndexEntries: number
+  memory: WorkerMemoryTiming
 }
 
 interface WorkerFirstPassTiming {
@@ -75,6 +76,16 @@ interface WorkerFirstPassTiming {
   firstPassMs: number
   workerWallMs: number
   fileCount: number
+  memory: WorkerMemoryTiming
+}
+
+interface WorkerMemoryTiming {
+  startRssMb: number
+  endRssMb: number
+  peakRssMb: number
+  startHeapUsedMb: number
+  endHeapUsedMb: number
+  peakHeapUsedMb: number
 }
 
 interface WorkerFirstPassProfile {
@@ -273,6 +284,7 @@ function logFirstPassTiming(results: Array<{ index: number; timing?: WorkerFirst
         `read=${result.timing.readMs.toFixed(2)}ms`,
         `firstPass=${result.timing.firstPassMs.toFixed(2)}ms`,
         `wall=${result.timing.workerWallMs.toFixed(2)}ms`,
+        ...formatWorkerMemoryTiming(result.timing.memory),
       ].join(" ")
     )
   }
@@ -433,9 +445,21 @@ function logSecondPassTiming(results: Array<{ index: number; timing?: WorkerSeco
         `referenceFallbacks=${result.timing.referenceFallbacks}`,
         `snapshotBytes=${result.timing.snapshotBytes}`,
         `validation=${result.timing.validationMs.toFixed(2)}ms`,
+        ...formatWorkerMemoryTiming(result.timing.memory),
       ].join(" ")
     )
   }
+}
+
+function formatWorkerMemoryTiming(memory: WorkerMemoryTiming): string[] {
+  return [
+    `processRssStart=${memory.startRssMb.toFixed(1)}MiB`,
+    `processRssEnd=${memory.endRssMb.toFixed(1)}MiB`,
+    `processRssPeak=${memory.peakRssMb.toFixed(1)}MiB`,
+    `workerHeapStart=${memory.startHeapUsedMb.toFixed(1)}MiB`,
+    `workerHeapEnd=${memory.endHeapUsedMb.toFixed(1)}MiB`,
+    `workerHeapPeak=${memory.peakHeapUsedMb.toFixed(1)}MiB`,
+  ]
 }
 
 function logSecondPassProfile(

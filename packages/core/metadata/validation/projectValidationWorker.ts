@@ -74,7 +74,7 @@ export type ValidationWorkerTaskResult =
   | {
       kind: "secondPassResult"
       diagnostics: Diagnostic[]
-      timing: WorkerSecondPassTiming
+      timing?: WorkerSecondPassTiming
       profile?: WorkerSecondPassProfile
     }
 
@@ -164,6 +164,7 @@ function runFirstPass(message: Extract<ValidationWorkerTask, { kind: "firstPass"
     workerState.pendingReferences.push(...first.pendingReferences)
     diagnostics.push(...first.diagnostics)
     objectRecords.push(...first.objectRecords)
+    timing?.recordMemory()
   }
 
   return {
@@ -194,33 +195,18 @@ function requireWorkerRulesSnapshot(): ValidationRulesSnapshot {
 
 function runSecondPass(message: Extract<ValidationWorkerTask, { kind: "secondPass" }>): {
   diagnostics: Diagnostic[]
-  timing: {
-    contextMs: number
-    referenceValidationMs: number
-    validationMs: number
-    fileCount: number
-    referenceHits: number
-    referenceMisses: number
-    referenceConflicts: number
-    referenceFilterFailures: number
-    referenceDependencies: number
-    referenceUnsupported: number
-    referenceFallbacks: number
-    snapshotBytes: number
-    pendingReferences: number
-    memberIndexEntries: number
-  }
+  timing?: WorkerSecondPassTiming
   profile?: WorkerSecondPassProfile
 } {
-  const contextStartedAt = performance.now()
   const diagnostics: Diagnostic[] = []
   const profile = createWorkerSecondPassProfile()
+  const timing = createWorkerSecondPassTiming()
   const cache = createWorkerYamlCache()
   const ownerCache = createOwnerMetadataCacheFromSharedValidationSnapshot({
     projectDir: message.projectDir,
     snapshot: message.sharedValidationSnapshot,
   })
-  const referenceStartedAt = performance.now()
+  timing?.markContextEnd()
   const referenceIndex = createSharedProjectReferenceIndex({
     projectDir: message.projectDir,
     mode: message.mode,
@@ -232,12 +218,12 @@ function runSecondPass(message: Extract<ValidationWorkerTask, { kind: "secondPas
     references: message.pendingReferences,
   })
   diagnostics.push(...referenceResult.diagnostics)
-  const validationStartedAt = performance.now()
+  timing?.markReferenceEnd()
 
   for (const filePath of message.filePaths) {
     const state = workerState.states.get(resolve(filePath))
     if (state === undefined) continue
-    const fileStartedAt = performance.now()
+    const fileStartedAt = profile === undefined ? 0 : performance.now()
     const second = validateProjectFileSecondPass({
       projectDir: message.projectDir,
       state,
@@ -247,31 +233,26 @@ function runSecondPass(message: Extract<ValidationWorkerTask, { kind: "secondPas
       referenceIndex,
       skipMetadataTargetValidation: true,
     })
-    profile?.record(state, performance.now() - fileStartedAt, second.diagnostics.length)
+    if (profile !== undefined) profile.record(state, performance.now() - fileStartedAt, second.diagnostics.length)
     diagnostics.push(...second.diagnostics)
+    timing?.recordMemory()
   }
 
-  const validationMs = performance.now() - validationStartedAt
   workerState = createEmptyWorkerValidationState()
 
   return {
     diagnostics,
-    timing: {
-      contextMs: referenceStartedAt - contextStartedAt,
-      referenceValidationMs: validationStartedAt - referenceStartedAt,
-      validationMs,
-      fileCount: message.filePaths.length,
-      referenceHits: referenceResult.stats.hits,
-      referenceMisses: referenceResult.stats.misses,
-      referenceConflicts: referenceResult.stats.conflicts,
-      referenceFilterFailures: referenceResult.stats.filterFailures,
-      referenceDependencies: referenceResult.stats.dependencies,
-      referenceUnsupported: referenceResult.stats.unsupported,
-      referenceFallbacks: referenceResult.stats.fallbacks,
-      snapshotBytes: message.sharedValidationSnapshot.reference.stats.snapshotBytes,
-      pendingReferences: message.pendingReferences.length,
-      memberIndexEntries: message.sharedValidationSnapshot.reference.stats.memberEntries,
-    },
+    ...(timing === undefined
+      ? {}
+      : {
+          timing: timing.snapshot({
+            fileCount: message.filePaths.length,
+            referenceResult,
+            snapshotBytes: message.sharedValidationSnapshot.reference.stats.snapshotBytes,
+            pendingReferences: message.pendingReferences.length,
+            memberIndexEntries: message.sharedValidationSnapshot.reference.stats.memberEntries,
+          }),
+        }),
     ...(profile === undefined ? {} : { profile: profile.snapshot() }),
   }
 }
@@ -304,6 +285,7 @@ interface WorkerFirstPassTiming {
   readMs: number
   firstPassMs: number
   fileCount: number
+  memory: WorkerMemoryTiming
 }
 
 interface WorkerSecondPassTiming {
@@ -321,6 +303,16 @@ interface WorkerSecondPassTiming {
   snapshotBytes: number
   pendingReferences: number
   memberIndexEntries: number
+  memory: WorkerMemoryTiming
+}
+
+interface WorkerMemoryTiming {
+  startRssMb: number
+  endRssMb: number
+  peakRssMb: number
+  startHeapUsedMb: number
+  endHeapUsedMb: number
+  peakHeapUsedMb: number
 }
 
 interface WorkerFirstPassProfile {
@@ -337,6 +329,7 @@ function createWorkerFirstPassTiming():
   | {
       recordRead(ms: number): void
       recordFirstPass(ms: number): void
+      recordMemory(): void
       snapshot(fileCount: number): WorkerFirstPassTiming
     }
   | undefined {
@@ -344,6 +337,7 @@ function createWorkerFirstPassTiming():
 
   let readMs = 0
   let firstPassMs = 0
+  const memory = createWorkerMemoryTiming()
 
   return {
     recordRead(ms) {
@@ -352,9 +346,106 @@ function createWorkerFirstPassTiming():
     recordFirstPass(ms) {
       firstPassMs += ms
     },
-    snapshot(fileCount) {
-      return { readMs, firstPassMs, fileCount }
+    recordMemory() {
+      memory.record()
     },
+    snapshot(fileCount) {
+      return { readMs, firstPassMs, fileCount, memory: memory.snapshot() }
+    },
+  }
+}
+
+function createWorkerSecondPassTiming():
+  | {
+      markContextEnd(): void
+      markReferenceEnd(): void
+      recordMemory(): void
+      snapshot(params: {
+        fileCount: number
+        referenceResult: ReturnType<typeof validatePendingReferencesWithIndex>
+        snapshotBytes: number
+        pendingReferences: number
+        memberIndexEntries: number
+      }): WorkerSecondPassTiming
+    }
+  | undefined {
+  if (process.env["NKDK_VALIDATION_TIMING"] !== "1" && process.env["NKDK_VALIDATION_PROFILE"] !== "1") return undefined
+
+  const contextStartedAt = performance.now()
+  let referenceStartedAt = contextStartedAt
+  let validationStartedAt = contextStartedAt
+  const memory = createWorkerMemoryTiming()
+
+  return {
+    markContextEnd() {
+      referenceStartedAt = performance.now()
+    },
+    markReferenceEnd() {
+      validationStartedAt = performance.now()
+    },
+    recordMemory() {
+      memory.record()
+    },
+    snapshot(params) {
+      const validationEndedAt = performance.now()
+      return {
+        contextMs: referenceStartedAt - contextStartedAt,
+        referenceValidationMs: validationStartedAt - referenceStartedAt,
+        validationMs: validationEndedAt - validationStartedAt,
+        fileCount: params.fileCount,
+        referenceHits: params.referenceResult.stats.hits,
+        referenceMisses: params.referenceResult.stats.misses,
+        referenceConflicts: params.referenceResult.stats.conflicts,
+        referenceFilterFailures: params.referenceResult.stats.filterFailures,
+        referenceDependencies: params.referenceResult.stats.dependencies,
+        referenceUnsupported: params.referenceResult.stats.unsupported,
+        referenceFallbacks: params.referenceResult.stats.fallbacks,
+        snapshotBytes: params.snapshotBytes,
+        pendingReferences: params.pendingReferences,
+        memberIndexEntries: params.memberIndexEntries,
+        memory: memory.snapshot(),
+      }
+    },
+  }
+}
+
+function createWorkerMemoryTiming(): {
+  record(): void
+  snapshot(): WorkerMemoryTiming
+} {
+  const start = readWorkerMemory()
+  let end = start
+  let peakRssMb = start.rssMb
+  let peakHeapUsedMb = start.heapUsedMb
+
+  function record(): void {
+    end = readWorkerMemory()
+    peakRssMb = Math.max(peakRssMb, end.rssMb)
+    peakHeapUsedMb = Math.max(peakHeapUsedMb, end.heapUsedMb)
+  }
+
+  return {
+    record,
+    snapshot() {
+      record()
+      return {
+        startRssMb: start.rssMb,
+        endRssMb: end.rssMb,
+        peakRssMb,
+        startHeapUsedMb: start.heapUsedMb,
+        endHeapUsedMb: end.heapUsedMb,
+        peakHeapUsedMb,
+      }
+    },
+  }
+}
+
+function readWorkerMemory(): { rssMb: number; heapUsedMb: number } {
+  const memory = process.memoryUsage()
+  return {
+    // In worker threads rss is process-wide; heapUsed belongs to the current worker isolate.
+    rssMb: memory.rss / 1024 / 1024,
+    heapUsedMb: memory.heapUsed / 1024 / 1024,
   }
 }
 
