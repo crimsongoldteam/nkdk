@@ -498,10 +498,19 @@ function validateProjectPropertiesFirstPass(params: {
     const equalNameMs = performance.now() - equalNameStartedAt
     const yamlFacts = extractValidationYamlFacts({ file: params.file, parsed, rulesSnapshot: params.rulesSnapshot })
     const ownerRef = { kind: params.file.owner.dir, name: params.file.owner.name }
+    const ownerModel = (yamlFacts.ownerModelStub ?? {
+      itemType: params.file.owner.spec.rule.itemType,
+      name: params.file.owner.name,
+    }) as MetadataItem
     const fieldIndexStartedAt = performance.now()
-    const fieldIndex = yamlFacts.fieldIndex ?? { fields: new Map(), standardAttributeAliases: new Map(), diagnostics: [] }
+    const fieldIndex = buildObjectFieldIndex({
+      ref: ownerRef,
+      filePath: params.file.absolutePath,
+      model: ownerModel,
+      rule: params.file.owner.spec.rule,
+      spec: params.file.owner.spec,
+    })
     const fieldIndexMs = performance.now() - fieldIndexStartedAt
-    const ownerModel = (yamlFacts.ownerModelStub ?? { itemType: params.file.owner.spec.rule.itemType, name: params.file.owner.name }) as MetadataItem
     const owner: OwnerMetadata = {
       ref: ownerRef,
       filePath: params.file.absolutePath,
