@@ -3,11 +3,13 @@ import { afterEach, describe, expect, it } from "vitest"
 import {
   attachCollectedSchemaRefs,
   clearJSONSchemaRefRegistries,
+  collectSchemaRefs,
   createJSONSchemaExportContext,
   createSchemaRef,
   exportPropertyExternalRefSchema,
   recordOfSchemaRef,
   registerJSONSchemaPropertyRef,
+  stripCollectedSchemaRefs,
 } from "./jsonSchemaRefs"
 import { exportPropertyToJSONSchema } from "./property/toJSONSchema"
 
@@ -23,6 +25,39 @@ describe("jsonSchemaRefs", () => {
 
   it("creates stable nkdk schema refs", () => {
     expect(createSchemaRef("InputField")).toBe("nkdk://schema/InputField")
+  })
+
+  it("collects nested nkdk schema refs from arbitrary schema nodes", () => {
+    expect(
+      collectSchemaRefs({
+        type: "object",
+        properties: {
+          Реквизиты: {
+            type: "object",
+            additionalProperties: { $ref: "nkdk://schema/MetadataAttribute" },
+          },
+          Inline: { $ref: "#/$defs/Local" },
+        },
+        "x-nkdk-schemaRefs": ["nkdk://schema/FormAttribute"],
+      })
+    ).toEqual(["nkdk://schema/FormAttribute", "nkdk://schema/MetadataAttribute"])
+  })
+
+  it("removes collected ref metadata without changing schema refs", () => {
+    expect(
+      stripCollectedSchemaRefs({
+        type: "object",
+        "x-nkdk-schemaRefs": ["nkdk://schema/FormAttribute"],
+        properties: {
+          Реквизиты: { $ref: "nkdk://schema/FormAttribute" },
+        },
+      })
+    ).toEqual({
+      type: "object",
+      properties: {
+        Реквизиты: { $ref: "nkdk://schema/FormAttribute" },
+      },
+    })
   })
 
   it("returns a property ref only in externalRefs mode and collects the ref", () => {

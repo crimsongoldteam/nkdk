@@ -7,7 +7,12 @@ import { MetadataConfigurationRules } from "../appliedObjects/configuration/rule
 import { MetadataLanguageRules } from "../appliedObjects/metadataLanguage/rules"
 import { exportMetadataItemToJSONSchema } from "../orchestration/metadataItem/toJSONSchema"
 import { clearJSONSchemaRefRegistries } from "../orchestration/jsonSchemaRefs"
-import { ensureJSONSchemaRegistry, exportJSONSchemaForSchemaName, listJSONSchemaNames } from "./schemaRegistry"
+import {
+  ensureJSONSchemaRegistry,
+  exportJSONSchemaForSchemaName,
+  exportJSONSchemaGraph,
+  listJSONSchemaNames,
+} from "./schemaRegistry"
 
 const context = {
   defaultLanguage: "ru",
@@ -142,6 +147,28 @@ describe("JSON Schema registry", { timeout: 30_000 }, () => {
         Вид: expect.objectContaining({ const: "ПолеВвода" }),
       }),
       required: expect.arrayContaining(["Вид"]),
+    })
+  })
+
+  it("exports named schema graph with stable ids for referenced schemas", () => {
+    const graph = exportJSONSchemaGraph({
+      context,
+      roots: [{ key: "form", name: "ClientApplicationForm", includeNestedChildItems: true }],
+    })
+
+    expect(graph.roots.form).toMatchObject({
+      type: "object",
+      "x-nkdk-schemaRefs": expect.arrayContaining(["nkdk://schema/FormAttribute"]),
+    })
+    expect(graph.schemas["nkdk://schema/FormAttribute"]).toMatchObject({
+      $id: "nkdk://schema/FormAttribute",
+      type: "object",
+    })
+    expect(graph.schemas["nkdk://schema/InputField"]).toMatchObject({
+      $id: "nkdk://schema/InputField",
+      properties: expect.objectContaining({
+        Вид: expect.objectContaining({ const: "ПолеВвода" }),
+      }),
     })
   })
 

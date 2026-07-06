@@ -4,6 +4,7 @@ import type { PropertyRuleType } from "./property/registry"
 import type { PropertyRule } from "./property/types"
 
 export const JSON_SCHEMA_REF_PREFIX = "nkdk://schema/"
+const COLLECTED_SCHEMA_REFS_KEY = "x-nkdk-schemaRefs"
 
 type PropertyRefFactory = (params: { context: ConfigurationContext; rule: PropertyRule }) => TSchema | undefined
 
@@ -95,7 +96,7 @@ export function exportPropertyExternalRefSchema(params: {
   if (!factory) return undefined
 
   const schema = factory(params)
-  if (schema) collectSchemaRefs(context, schema)
+  if (schema) collectSchemaRefsToContext(context, schema)
   return schema
 }
 
@@ -105,17 +106,36 @@ export function attachCollectedSchemaRefs(context: ConfigurationContext, schema:
 
   return {
     ...schema,
-    "x-nkdk-schemaRefs": [...refs].sort(),
+    [COLLECTED_SCHEMA_REFS_KEY]: [...refs].sort(),
   } as TSchema
 }
 
-function collectSchemaRefs(context: ConfigurationContext, schema: unknown): void {
+export function collectSchemaRefs(schema: unknown): string[] {
+  return [...new Set(findSchemaRefs(schema))].sort()
+}
+
+export function stripCollectedSchemaRefs<const Schema>(schema: Schema): Schema {
+  return stripCollectedSchemaRefsNode(schema) as Schema
+}
+
+function collectSchemaRefsToContext(context: ConfigurationContext, schema: unknown): void {
   const refs = context.exportToJSONSchema?.refs
   if (!refs) return
 
-  for (const ref of findSchemaRefs(schema)) {
+  for (const ref of collectSchemaRefs(schema)) {
     refs.add(ref)
   }
+}
+
+function stripCollectedSchemaRefsNode(value: unknown): unknown {
+  if (Array.isArray(value)) return value.map(stripCollectedSchemaRefsNode)
+  if (value === null || typeof value !== "object") return value
+
+  return Object.fromEntries(
+    Object.entries(value as Record<string, unknown>)
+      .filter(([key]) => key !== COLLECTED_SCHEMA_REFS_KEY)
+      .map(([key, entry]) => [key, stripCollectedSchemaRefsNode(entry)])
+  )
 }
 
 function findSchemaRefs(value: unknown): string[] {
@@ -128,8 +148,13 @@ function findSchemaRefs(value: unknown): string[] {
   const record = value as Record<string, unknown>
   const ownRef =
     typeof record["$ref"] === "string" && record["$ref"].startsWith(JSON_SCHEMA_REF_PREFIX) ? [record["$ref"]] : []
+  const collectedRefs = Array.isArray(record[COLLECTED_SCHEMA_REFS_KEY])
+    ? record[COLLECTED_SCHEMA_REFS_KEY].filter(
+        (ref): ref is string => typeof ref === "string" && ref.startsWith(JSON_SCHEMA_REF_PREFIX)
+      )
+    : []
 
-  return [...ownRef, ...Object.values(record).flatMap((item) => findSchemaRefs(item))]
+  return [...ownRef, ...collectedRefs, ...Object.values(record).flatMap((item) => findSchemaRefs(item))]
 }
 
 function rawJSONSchema(schema: object): TSchema {
