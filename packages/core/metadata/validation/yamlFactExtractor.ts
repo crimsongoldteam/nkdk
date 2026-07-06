@@ -9,6 +9,7 @@ import type { ParsedYaml } from "../../yaml/parseMetadataYaml"
 import { typeDescriptionToDataPathTypeInfo } from "./dataPath/typeDescription"
 import type { FormDataPathIndex } from "./dataPath/formIndex"
 import type { FormDataPathSource, FormDataPathColumnSource } from "./dataPath/types"
+import type { ObjectField, ObjectFieldIndex } from "./dataPath/objectFields"
 import {
   projectMemberIndexKey,
   projectObjectIndexKey,
@@ -31,6 +32,8 @@ export interface ValidationYamlFacts {
   pendingReferences: PendingMetadataTargetReference[]
   pendingChecks: ValidationPendingCheck[]
   diagnostics: Diagnostic[]
+  fieldIndex?: ObjectFieldIndex
+  ownerModelStub?: Record<string, unknown>
 }
 
 export function extractValidationYamlFacts(params: {
@@ -55,6 +58,7 @@ export function extractValidationYamlFacts(params: {
           properties: spec.properties,
           yamlPath: [],
         })
+  const ownerFacts = spec === undefined ? undefined : buildOwnerFactsFromYaml(params.file, params.parsed.data, spec)
   return {
     objectIndexEntries:
       objectTarget === undefined
@@ -75,6 +79,7 @@ export function extractValidationYamlFacts(params: {
     pendingReferences,
     pendingChecks: [],
     diagnostics: [],
+    ...(ownerFacts === undefined ? {} : ownerFacts),
   }
 }
 
@@ -131,6 +136,122 @@ function emptyFacts(): ValidationYamlFacts {
     pendingChecks: [],
     diagnostics: [],
   }
+}
+
+function buildOwnerFactsFromYaml(
+  file: ValidationProjectFile,
+  data: unknown,
+  spec: ValidationRulesSpecSnapshot
+): Pick<ValidationYamlFacts, "fieldIndex" | "ownerModelStub"> {
+  const model = syntheticModelFromYaml(file, data, spec)
+  return {
+    ownerModelStub: model,
+    fieldIndex: buildObjectFieldIndexFromSyntheticModel(file, model),
+  }
+}
+
+function syntheticModelFromYaml(
+  file: ValidationProjectFile,
+  data: unknown,
+  spec: ValidationRulesSpecSnapshot
+): Record<string, unknown> {
+  const record = asRecord(data) ?? {}
+  const model: Record<string, unknown> = {
+    itemType: spec.itemType,
+    name: file.owner.name,
+  }
+
+  for (const property of spec.properties) {
+    const value = valueAtPath(record, property.yamlPath)
+    if (value === undefined) continue
+    if (property.modelKey === "attributes" || property.modelKey === "dimensions" || property.modelKey === "resources" || property.modelKey === "addressingAttributes") {
+      model[property.modelKey] = namedTypedItemsFromYaml(value)
+      continue
+    }
+    if (property.modelKey === "tabularSections") {
+      model[property.modelKey] = tabularSectionsFromYaml(value)
+      continue
+    }
+    if (property.modelKey === "owners") {
+      model[property.modelKey] = Array.isArray(value) ? value.filter((item): item is string => typeof item === "string") : []
+      continue
+    }
+    if (property.modelKey === "type") {
+      model[property.modelKey] = typeDescriptionFromYAML(value)
+      continue
+    }
+  }
+
+  return model
+}
+
+function buildObjectFieldIndexFromSyntheticModel(
+  file: ValidationProjectFile,
+  model: Record<string, unknown>
+): ObjectFieldIndex {
+  const fields = new Map<string, ObjectField>()
+  for (const collection of [
+    ["attributes", "attribute"],
+    ["dimensions", "dimension"],
+    ["resources", "resource"],
+    ["addressingAttributes", "addressingAttribute"],
+  ] as const) {
+    const items = Array.isArray(model[collection[0]]) ? model[collection[0]] : []
+    for (const item of items) {
+      const record = asRecord(item)
+      if (record === undefined || typeof record["name"] !== "string") continue
+      fields.set(record["name"], {
+        name: record["name"],
+        kind: collection[1],
+        sourceCollection: collection[0],
+        typeInfo: typeDescriptionToDataPathTypeInfo(record["type"] as TypeDescription | undefined),
+      })
+    }
+  }
+
+  for (const item of Array.isArray(model["tabularSections"]) ? model["tabularSections"] : []) {
+    const record = asRecord(item)
+    if (record === undefined || typeof record["name"] !== "string") continue
+    const columns = new Map<string, ObjectField>()
+    for (const attribute of Array.isArray(record["attributes"]) ? record["attributes"] : []) {
+      const attributeRecord = asRecord(attribute)
+      if (attributeRecord === undefined || typeof attributeRecord["name"] !== "string") continue
+      columns.set(attributeRecord["name"], {
+        name: attributeRecord["name"],
+        kind: "attribute",
+        sourceCollection: "attributes",
+        typeInfo: typeDescriptionToDataPathTypeInfo(attributeRecord["type"] as TypeDescription | undefined),
+      })
+    }
+    const table = { kind: "TabularSection" as const, owner: { kind: file.owner.dir, name: file.owner.name }, name: record["name"] }
+    fields.set(record["name"], {
+      name: record["name"],
+      kind: "tabularSection",
+      sourceCollection: "tabularSections",
+      typeInfo: { kinds: ["tableSource"], nextTypes: [], table },
+      tableSource: { table, columns, hasColumns: columns.size > 0 },
+    })
+  }
+
+  return { fields, standardAttributeAliases: new Map(), diagnostics: [] }
+}
+
+function namedTypedItemsFromYaml(value: unknown): Array<{ name: string; type?: TypeDescription }> {
+  const record = asRecord(value)
+  return Object.entries(record ?? {}).map(([name, item]) => ({
+    name,
+    ...(typeDescriptionFromYAML(asRecord(item)?.["Тип"]) === undefined
+      ? {}
+      : { type: typeDescriptionFromYAML(asRecord(item)?.["Тип"]) }),
+  }))
+}
+
+function tabularSectionsFromYaml(value: unknown): Array<{ name: string; attributes: Array<{ name: string; type?: TypeDescription }> }> {
+  const record = asRecord(value)
+  return Object.entries(record ?? {}).map(([name, item]) => ({
+    name,
+    attributes: namedTypedItemsFromYaml(asRecord(item)?.["Реквизиты"]),
+  }))
 }
 
 function collectPendingReferences(params: {

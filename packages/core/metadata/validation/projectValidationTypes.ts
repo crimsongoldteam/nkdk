@@ -28,7 +28,6 @@ export interface ValidationObjectRecord {
   owner: { dir: string; name: string }
   ownerRef?: OwnerTypeRef
   ownerFacts?: ValidationOwnerFacts
-  model?: unknown
   fieldIndex?: ObjectFieldIndex
   objectIndexEntries?: ProjectObjectIndexEntry[]
   memberIndexEntries?: ProjectMemberIndexEntry[]

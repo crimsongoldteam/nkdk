@@ -313,7 +313,7 @@ function processPendingFirstPasses(params: {
         cache,
         context: params.context,
         schemaCache: params.schemaCache,
-        rulesSnapshot: params.rulesSnapshot,
+        ...(file.kind === "form" ? { rulesSnapshot: params.rulesSnapshot } : {}),
       })
       params.states.set(resolve(file.absolutePath), first.state)
       params.objectTable.mergeRecords(first.objectRecords)

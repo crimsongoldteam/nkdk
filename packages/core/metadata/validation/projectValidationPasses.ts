@@ -485,6 +485,99 @@ function validateProjectPropertiesFirstPass(params: {
     })
   }
 
+  if (params.rulesSnapshot !== undefined) {
+    const equalNameValidationName = params.file.kind === "properties" ? params.file.owner.name : undefined
+    const equalNameStartedAt = performance.now()
+    const equalNameDiagnostics = validateExcludedEqualNameYAML({
+      filePath: params.file.absolutePath,
+      parsed,
+      rule: params.file.owner.spec.rule,
+      context: params.context,
+      name: equalNameValidationName,
+    })
+    const equalNameMs = performance.now() - equalNameStartedAt
+    const yamlFacts = extractValidationYamlFacts({ file: params.file, parsed, rulesSnapshot: params.rulesSnapshot })
+    const ownerRef = { kind: params.file.owner.dir, name: params.file.owner.name }
+    const fieldIndexStartedAt = performance.now()
+    const fieldIndex = yamlFacts.fieldIndex ?? { fields: new Map(), standardAttributeAliases: new Map(), diagnostics: [] }
+    const fieldIndexMs = performance.now() - fieldIndexStartedAt
+    const ownerModel = (yamlFacts.ownerModelStub ?? { itemType: params.file.owner.spec.rule.itemType, name: params.file.owner.name }) as MetadataItem
+    const owner: OwnerMetadata = {
+      ref: ownerRef,
+      filePath: params.file.absolutePath,
+      model: ownerModel,
+      rule: params.file.owner.spec.rule,
+      spec: params.file.owner.spec,
+      fieldIndex,
+    }
+    const ownerFacts = createValidationOwnerFacts({
+      ref: ownerRef,
+      filePath: params.file.absolutePath,
+      fieldIndex,
+      model: ownerModel,
+    })
+    const memberIndexStartedAt = performance.now()
+    const memberIndexEntries = buildMemberIndexEntries({
+      projectDir: params.projectDir,
+      owner,
+      hasFile: fs.existsSync,
+    })
+    const memberIndexMs = performance.now() - memberIndexStartedAt
+    const diagnostics = [
+      ...suppressEqualNameSchemaDiagnostics(schemaDiagnostics, equalNameDiagnostics),
+      ...equalNameDiagnostics,
+      ...yamlFacts.diagnostics,
+      ...fieldIndex.diagnostics,
+    ]
+
+    return {
+      state: {
+        kind: "properties",
+        file: params.file,
+        pendingReferences: yamlFacts.pendingReferences,
+        firstPassDiagnostics: diagnostics,
+      },
+      diagnostics,
+      objectIndexEntries: yamlFacts.objectIndexEntries,
+      memberIndexEntries,
+      valueIndexEntries: yamlFacts.valueIndexEntries,
+      pendingReferences: yamlFacts.pendingReferences,
+      objectRecords: [
+        {
+          filePath: params.file.absolutePath,
+          projectPath: params.file.projectPath,
+          kind: params.file.kind,
+          owner: { dir: params.file.owner.dir, name: params.file.owner.name },
+          ownerRef,
+          ownerFacts,
+          fieldIndex,
+          objectIndexEntries: yamlFacts.objectIndexEntries,
+          memberIndexEntries,
+          valueIndexEntries: yamlFacts.valueIndexEntries,
+          pendingReferences: yamlFacts.pendingReferences,
+          importDiagnostics: [],
+        },
+      ],
+      profile: {
+        key: validationFirstPassProfileKey(params.file),
+        totalMs: performance.now() - totalStartedAt,
+        cacheMs,
+        schemaMs,
+        validatorsMs,
+        importMs: 0,
+        equalNameMs,
+        uniqueScopesMs: 0,
+        referencesMs: 0,
+        fieldIndexMs,
+        objectIndexMs: 0,
+        memberIndexMs,
+        valueIndexMs: 0,
+        formImportMs: 0,
+        diagnostics: diagnostics.length,
+      },
+    }
+  }
+
   const importStartedAt = performance.now()
   const imported = importPropertiesModel({
     spec: params.file.owner.spec,
@@ -612,7 +705,6 @@ function validateProjectPropertiesFirstPass(params: {
         owner: { dir: params.file.owner.dir, name: params.file.owner.name },
         ownerRef,
         ownerFacts,
-        model: imported.model,
         fieldIndex,
         objectIndexEntries,
         memberIndexEntries,

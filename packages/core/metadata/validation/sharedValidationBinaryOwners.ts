@@ -309,7 +309,7 @@ function createBinaryOwnersView(snapshot: BinarySharedOwnersSnapshot) {
 function encodeOwner(record: ValidationObjectRecord): EncodedOwner {
   const facts = record.ownerFacts
   const fieldIndex = facts?.fieldIndex ?? record.fieldIndex
-  const model = record.model ?? (facts === undefined ? undefined : modelStubFromOwnerFacts(facts))
+  const model = facts === undefined ? {} : modelStubFromOwnerFacts(facts)
   return {
     ref: (facts?.ref ?? record.ownerRef) as OwnerTypeRef,
     filePath: facts?.filePath ?? record.filePath,

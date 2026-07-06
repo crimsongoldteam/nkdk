@@ -10,6 +10,7 @@ import type { ProjectYamlCache } from "../projectYamlCache"
 import type { Diagnostic } from "../types"
 import { validateUniqueNameScopes } from "../uniqueNameScopes"
 import { buildObjectFieldIndex, type ObjectFieldIndex } from "./objectFields"
+import { modelStubFromOwnerFacts } from "./ownerFacts"
 import { getDataPathOwnerKind, type DataPathOwnerKindRegistration } from "./registry"
 import type { OwnerTypeRef } from "./types"
 
@@ -118,7 +119,10 @@ function loadOwnerFromValidationTable(params: {
     return { status: "import-error", diagnostics: record.importDiagnostics }
   }
 
-  if (ownerKind === undefined || record.model === undefined || record.fieldIndex === undefined) {
+  const fieldIndex = record.ownerFacts?.fieldIndex ?? record.fieldIndex
+  const model = record.ownerFacts === undefined ? {} : modelStubFromOwnerFacts(record.ownerFacts)
+
+  if (ownerKind === undefined || model === undefined || fieldIndex === undefined) {
     return {
       status: "import-error",
       diagnostics: [
@@ -133,10 +137,10 @@ function loadOwnerFromValidationTable(params: {
     owner: {
       ref: params.ref,
       filePath: record.filePath,
-      model: record.model as MetadataItem,
+      model: model as MetadataItem,
       rule: spec.rule,
       spec,
-      fieldIndex: record.fieldIndex,
+      fieldIndex,
     },
   }
 }

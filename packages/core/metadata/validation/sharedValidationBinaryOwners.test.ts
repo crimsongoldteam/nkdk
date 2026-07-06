@@ -48,9 +48,10 @@ describe("SharedValidationBinaryOwners", () => {
           kind: "properties",
           owner: { dir: "Константа", name: "ИспользоватьСинхронизациюДанных" },
           ownerRef: { kind: "Константа", name: "ИспользоватьСинхронизациюДанных" },
-          model: {
-            itemType: "MetadataConstant",
-            name: "ИспользоватьСинхронизациюДанных",
+          ownerFacts: {
+            ref: { kind: "Константа", name: "ИспользоватьСинхронизациюДанных" },
+            filePath: "/project/Константа/ИспользоватьСинхронизациюДанных/Свойства.yaml",
+            fieldIndex: { fields: new Map(), standardAttributeAliases: new Map(), diagnostics: [] },
             type: { type: ["boolean"] },
           },
           fieldIndex: { fields: new Map(), standardAttributeAliases: new Map(), diagnostics: [] },
@@ -80,7 +81,6 @@ describe("SharedValidationBinaryOwners", () => {
             filePath: record.filePath,
             fieldIndex: record.fieldIndex!,
           },
-          model: undefined,
           fieldIndex: undefined,
         },
       ],
@@ -104,7 +104,6 @@ function catalogRecord(): ValidationObjectRecord {
     kind: "properties",
     owner: { dir: "Справочник", name: "Номенклатура" },
     ownerRef: { kind: "Справочник", name: "Номенклатура" },
-    model: { itemType: "MetadataCatalog", name: "Номенклатура" },
     fieldIndex: {
       fields: new Map([
         [
