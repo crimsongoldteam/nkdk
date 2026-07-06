@@ -104,10 +104,16 @@ function validWhenHasString(key: string): ValidateFunction {
     { errors: null as ValidateFunction["errors"] }
   )
 
-  return validate as ValidateFunction
+  return asValidateFunction(validate)
 }
 
 function validAny(): ValidateFunction {
   const validate = Object.assign(() => true, { errors: null as ValidateFunction["errors"] })
-  return validate as ValidateFunction
+  return asValidateFunction(validate)
+}
+
+function asValidateFunction(
+  validate: ((value: unknown) => boolean) & { errors: ValidateFunction["errors"] }
+): ValidateFunction {
+  return validate as unknown as ValidateFunction
 }
