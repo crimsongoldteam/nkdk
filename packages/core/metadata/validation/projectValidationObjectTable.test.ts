@@ -76,7 +76,6 @@ function record(owner: { kind: string; name: string }, filePath?: string): Valid
     kind: "properties",
     owner: { dir: owner.kind, name: owner.name },
     ownerRef: { kind: owner.kind, name: owner.name },
-    model: { itemType: owner.kind, name: owner.name },
     importDiagnostics: [],
   }
 }

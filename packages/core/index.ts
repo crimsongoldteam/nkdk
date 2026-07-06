@@ -76,9 +76,11 @@ export type { ParsedYaml } from "./yaml/parseMetadataYaml"
 export { importMetadataEnumerationFromYAML } from "./metadata/appliedObjects/metadataEnumeration/fromYAML"
 export type { Diagnostic, DiagnosticSource, DiagnosticSeverity, MetadataKind } from "./metadata/validation/types"
 export {
+  createValidationWorkerPoolHandle,
   validateProject,
   type ValidateProjectParams,
   type ValidateProjectResult,
+  type ValidationWorkerPoolHandle,
 } from "./metadata/validation/validateProject"
 export { validateParsedFile } from "./metadata/validation/validateFile"
 export { validateForm, type ValidateFormParams } from "./metadata/validation/validateForm"

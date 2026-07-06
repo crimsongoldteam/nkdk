@@ -1,4 +1,5 @@
 import type { ObjectFieldIndex } from "./dataPath/objectFields"
+import type { ValidationOwnerFacts } from "./dataPath/ownerFacts"
 import type { OwnerTypeRef } from "./dataPath/types"
 import type {
   PendingMetadataTargetReference,
@@ -26,7 +27,7 @@ export interface ValidationObjectRecord {
   kind: ValidationProjectFile["kind"]
   owner: { dir: string; name: string }
   ownerRef?: OwnerTypeRef
-  model?: unknown
+  ownerFacts?: ValidationOwnerFacts
   fieldIndex?: ObjectFieldIndex
   objectIndexEntries?: ProjectObjectIndexEntry[]
   memberIndexEntries?: ProjectMemberIndexEntry[]

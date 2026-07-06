@@ -1,7 +1,13 @@
-import { describe, expect, it } from "vitest"
+import { describe, expect, it, vi } from "vitest"
 import { Client } from "@modelcontextprotocol/sdk/client/index.js"
 import { InMemoryTransport } from "@modelcontextprotocol/sdk/inMemory.js"
-import { createNkdkMcpServer } from "./server"
+import { createNkdkMcpServer, shutdownNkdkMcpServer } from "./server"
+
+const closeValidationHandle = vi.hoisted(() => vi.fn())
+
+vi.mock("./services/validationHandle", () => ({
+  closeValidationHandle,
+}))
 
 describe("MCP server", () => {
   it("creates the NKDK MCP server", () => {
@@ -38,4 +44,12 @@ describe("MCP server", () => {
       await client.close()
     }
   }, 30_000)
+
+  it("closes validation handle on shutdown", async () => {
+    closeValidationHandle.mockResolvedValueOnce(undefined)
+
+    await shutdownNkdkMcpServer()
+
+    expect(closeValidationHandle).toHaveBeenCalledTimes(1)
+  })
 })

@@ -54,7 +54,6 @@ describe("OwnerMetadataCache", () => {
           kind: "properties",
           owner: { dir: "Справочник", name: "Товары" },
           ownerRef: { kind: "Справочник", name: "Товары" },
-          model: { itemType: "MetadataCatalog", name: "Товары" },
           fieldIndex: { fields: new Map(), standardAttributeAliases: new Map(), diagnostics: [] },
           importDiagnostics: [],
         },

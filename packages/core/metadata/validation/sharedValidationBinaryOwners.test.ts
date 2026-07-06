@@ -48,9 +48,10 @@ describe("SharedValidationBinaryOwners", () => {
           kind: "properties",
           owner: { dir: "Константа", name: "ИспользоватьСинхронизациюДанных" },
           ownerRef: { kind: "Константа", name: "ИспользоватьСинхронизациюДанных" },
-          model: {
-            itemType: "MetadataConstant",
-            name: "ИспользоватьСинхронизациюДанных",
+          ownerFacts: {
+            ref: { kind: "Константа", name: "ИспользоватьСинхронизациюДанных" },
+            filePath: "/project/Константа/ИспользоватьСинхронизациюДанных/Свойства.yaml",
+            fieldIndex: { fields: new Map(), standardAttributeAliases: new Map(), diagnostics: [] },
             type: { type: ["boolean"] },
           },
           fieldIndex: { fields: new Map(), standardAttributeAliases: new Map(), diagnostics: [] },
@@ -68,6 +69,32 @@ describe("SharedValidationBinaryOwners", () => {
     if (owner.status !== "ok") throw new Error("owner expected")
     expect(owner.owner.model).toMatchObject({ type: { type: ["boolean"] } })
   })
+
+  it("restores compact owner facts without model payload", () => {
+    const record = catalogRecord()
+    const table = createValidationObjectTable({
+      records: [
+        {
+          ...record,
+          ownerFacts: {
+            ref: { kind: "Справочник", name: "Номенклатура" },
+            filePath: record.filePath,
+            fieldIndex: record.fieldIndex!,
+          },
+          fieldIndex: undefined,
+        },
+      ],
+      filePaths: [record.filePath],
+    })
+    const snapshot = createBinarySharedOwnersSnapshot(table.snapshot())
+    const binary = createOwnerMetadataCacheFromBinarySharedOwners({ projectDir: "/project", snapshot })
+
+    const owner = binary.get({ kind: "Справочник", name: "Номенклатура" })
+
+    expect(owner.status).toBe("ok")
+    if (owner.status !== "ok") throw new Error("owner expected")
+    expect([...owner.owner.fieldIndex.fields.keys()]).toEqual(["Артикул", "Товары"])
+  })
 })
 
 function catalogRecord(): ValidationObjectRecord {
@@ -77,7 +104,6 @@ function catalogRecord(): ValidationObjectRecord {
     kind: "properties",
     owner: { dir: "Справочник", name: "Номенклатура" },
     ownerRef: { kind: "Справочник", name: "Номенклатура" },
-    model: { itemType: "MetadataCatalog", name: "Номенклатура" },
     fieldIndex: {
       fields: new Map([
         [

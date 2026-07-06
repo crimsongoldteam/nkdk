@@ -13,7 +13,7 @@ import {
 } from "./projectFiles"
 import { createProjectYamlCacheFromEntries, type ProjectYamlEntry } from "./projectYamlCache"
 import { createValidationObjectTable } from "./projectValidationObjectTable"
-import { createProjectValidationWorkerPool } from "./projectValidationWorkerPool"
+import { createProjectValidationWorkerPool, type ProjectValidationWorkerPool } from "./projectValidationWorkerPool"
 import {
   createValidationSchemaCache,
   readProjectYamlDiagnostic,
@@ -24,6 +24,7 @@ import {
 } from "./projectValidationPasses"
 import { createValidationYamlQueue } from "./projectValidationQueue"
 import { createValidationSnapshotProvider } from "./validationSnapshotProvider"
+import { createValidationRulesSnapshot, type ValidationRulesSnapshot } from "./rulesSnapshot"
 import type { Diagnostic } from "./types"
 
 export interface ValidateProjectParams {
@@ -35,6 +36,12 @@ export interface ValidateProjectParams {
 
 export interface ValidateProjectResult {
   diagnostics: Diagnostic[]
+}
+
+export interface ValidationWorkerPoolHandle {
+  validateProject(params: Omit<ValidateProjectParams, "concurrency">): Promise<ValidateProjectResult>
+  close(): Promise<void>
+  size(): number
 }
 
 const expectedPatterns =
@@ -49,10 +56,58 @@ export async function validateProject(params: ValidateProjectParams): Promise<Va
   return validateProjectWithWorkers({ ...params, concurrency })
 }
 
+export function createValidationWorkerPoolHandle(params: { concurrency?: number } = {}): ValidationWorkerPoolHandle {
+  const concurrency = normalizeValidationConcurrency(params.concurrency)
+  const pool = createProjectValidationWorkerPool({ concurrency })
+  let closed = false
+  let currentRun: Promise<void> = Promise.resolve()
+
+  async function runExclusive<T>(task: () => Promise<T>): Promise<T> {
+    const previous = currentRun
+    let release: () => void = () => undefined
+    currentRun = new Promise<void>((resolve) => {
+      release = resolve
+    })
+    await previous
+    try {
+      return await task()
+    } finally {
+      release()
+    }
+  }
+
+  return {
+    validateProject(projectParams) {
+      if (closed) throw new Error("Validation worker pool handle is closed")
+      return runExclusive(async () => {
+        if (projectParams.filePath !== undefined || concurrency === 1) {
+          return validateProjectInProcess({ ...projectParams, concurrency: 1 })
+        }
+        return validateProjectWithWorkers({
+          ...projectParams,
+          concurrency,
+          pool,
+          closePool: false,
+        })
+      })
+    },
+    async close() {
+      if (closed) return
+      closed = true
+      await currentRun
+      await pool.close()
+    },
+    size() {
+      return pool.size()
+    },
+  }
+}
+
 function validateProjectInProcess(params: ValidateProjectParams): ValidateProjectResult {
   const projectDir = resolve(params.projectDir)
   const context = params.context ?? defaultValidationContext()
   const schemaCache = createValidationSchemaCache(context)
+  const rulesSnapshot = createValidationRulesSnapshot(context)
   const files =
     params.filePath === undefined
       ? discoverValidationProjectFiles(projectDir)
@@ -66,7 +121,17 @@ function validateProjectInProcess(params: ValidateProjectParams): ValidateProjec
   const states = new Map<string, ProjectValidationFileState>()
 
   const diagnostics: Diagnostic[] = []
-  processPendingFirstPasses({ projectDir, context, schemaCache, queue, entries, states, objectTable, diagnostics })
+  processPendingFirstPasses({
+    projectDir,
+    context,
+    schemaCache,
+    rulesSnapshot,
+    queue,
+    entries,
+    states,
+    objectTable,
+    diagnostics,
+  })
   const skipMetadataTargetValidation = params.filePath === undefined
 
   if (skipMetadataTargetValidation) {
@@ -132,7 +197,17 @@ function validateProjectInProcess(params: ValidateProjectParams): ValidateProjec
     }
 
     if (enqueuedDependency) {
-      processPendingFirstPasses({ projectDir, context, schemaCache, queue, entries, states, objectTable, diagnostics })
+      processPendingFirstPasses({
+        projectDir,
+        context,
+        schemaCache,
+        rulesSnapshot,
+        queue,
+        entries,
+        states,
+        objectTable,
+        diagnostics,
+      })
       for (const stateKey of states.keys()) secondPassPending.add(stateKey)
     }
   }
@@ -141,7 +216,11 @@ function validateProjectInProcess(params: ValidateProjectParams): ValidateProjec
 }
 
 async function validateProjectWithWorkers(
-  params: ValidateProjectParams & { concurrency: number }
+  params: ValidateProjectParams & {
+    concurrency: number
+    pool?: ProjectValidationWorkerPool
+    closePool?: boolean
+  }
 ): Promise<ValidateProjectResult> {
   const totalStartedAt = performance.now()
   const projectDir = resolve(params.projectDir)
@@ -153,7 +232,8 @@ async function validateProjectWithWorkers(
     return validateProjectInProcess({ ...params, concurrency: 1 })
   }
 
-  const pool = createProjectValidationWorkerPool({ concurrency: params.concurrency })
+  const pool = params.pool ?? createProjectValidationWorkerPool({ concurrency: params.concurrency })
+  const closePool = params.closePool ?? true
   let startMs = 0
   let schemaCompileMs = 0
   let formSchemaMs = 0
@@ -211,7 +291,7 @@ async function validateProjectWithWorkers(
 
     return { diagnostics }
   } finally {
-    await pool.close()
+    if (closePool) await pool.close()
   }
 }
 
@@ -264,6 +344,7 @@ function processPendingFirstPasses(params: {
   projectDir: string
   context: ConfigurationContext
   schemaCache: ReturnType<typeof createValidationSchemaCache>
+  rulesSnapshot: ValidationRulesSnapshot
   queue: ReturnType<typeof createValidationYamlQueue>
   entries: Map<string, ProjectYamlEntry>
   states: Map<string, ProjectValidationFileState>
@@ -290,6 +371,7 @@ function processPendingFirstPasses(params: {
         cache,
         context: params.context,
         schemaCache: params.schemaCache,
+        ...(file.kind === "form" ? { rulesSnapshot: params.rulesSnapshot } : {}),
       })
       params.states.set(resolve(file.absolutePath), first.state)
       params.objectTable.mergeRecords(first.objectRecords)

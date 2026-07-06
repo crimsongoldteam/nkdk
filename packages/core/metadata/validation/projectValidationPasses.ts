@@ -11,6 +11,7 @@ import { metadataTargetOwnerFromRule } from "../orchestration/property/metadataT
 import type { ExternalValidationProperty, MetadataItem } from "../orchestration/property/types"
 import { parseMetadataYaml, type ParsedYaml } from "../../yaml/parseMetadataYaml"
 import { type OwnerMetadata, type OwnerMetadataCache } from "./dataPath/ownerCache"
+import { createValidationOwnerFacts } from "./dataPath/ownerFacts"
 import { buildObjectFieldIndex, type ObjectField, type ObjectFieldKind } from "./dataPath/objectFields"
 import { validateExcludedEqualNameYAML } from "./excludeIfEqualNameYAML"
 import { getRegisteredFormValidationPasses } from "./formValidationRegistry"
@@ -29,6 +30,7 @@ import {
 import { exportJSONSchemaGraph } from "./projectFileSchema"
 import type { ValidationProjectFile } from "./projectFiles"
 import type { ProjectYamlCache, ProjectYamlEntry } from "./projectYamlCache"
+import { validatePendingChecks, type ValidationPendingCheck } from "./projectValidationPendingChecks"
 import {
   configurationValidationProjectSpec,
   validationProjectSpecs,
@@ -39,6 +41,7 @@ import type { Diagnostic } from "./types"
 import { typeboxErrorsToDiagnostics } from "./typeboxErrorsToDiagnostics"
 import { validateParsedFile } from "./validateFile"
 import { validateUniqueNameScopes } from "./uniqueNameScopes"
+import { extractValidationYamlFacts } from "./yamlFactExtractor"
 
 type CompiledSchema = ValidationSchemaValidator<TSchema>
 const formSchemaCache = new Map<string, CompiledSchema>()
@@ -60,14 +63,13 @@ export type ProjectValidationFileState =
   | {
       kind: "properties"
       file: ValidationProjectFile
-      parsed: ParsedYaml
-      model: MetadataItem
+      pendingReferences: PendingMetadataTargetReference[]
       firstPassDiagnostics: Diagnostic[]
     }
   | {
       kind: "form"
       file: ValidationProjectFile
-      formState: unknown
+      pendingChecks: ValidationPendingCheck[]
       firstPassDiagnostics: Diagnostic[]
     }
   | { kind: "failed"; file: ValidationProjectFile; diagnostics: Diagnostic[] }
@@ -272,6 +274,7 @@ export function validateProjectFileFirstPass(params: {
   cache: ProjectYamlCache
   context: ConfigurationContext
   schemaCache: ValidationSchemaCache
+  rulesSnapshot?: import("./rulesSnapshot").ValidationRulesSnapshot
 }): ProjectValidationFirstPassResult {
   if (params.file.kind === "form") return validateProjectFormFirstPass(params)
   return validateProjectPropertiesFirstPass(params)
@@ -283,26 +286,15 @@ export function validateProjectFileSecondPass(
   if (params.state.kind === "failed") return { status: "ok", diagnostics: [] }
 
   if (params.state.kind === "form") {
-    const passes = getRegisteredFormValidationPasses()
-    if (passes === undefined) return { status: "ok", diagnostics: [] }
     return {
       status: "ok",
-      diagnostics: passes.secondPass({ state: params.state.formState, ownerCache: params.ownerCache }),
+      ...validatePendingChecks({ ownerCache: params.ownerCache, checks: params.state.pendingChecks }),
     }
   }
 
-  const ownerRoot = rootFromYAML[params.state.file.owner.dir]
-  const owner = ownerRoot ? { root: ownerRoot, objectName: params.state.file.owner.name } : undefined
-
   const collected = params.skipMetadataTargetValidation
     ? { references: [], diagnostics: [] }
-    : collectMetadataTargetReferencesInModel({
-        filePath: params.state.file.absolutePath,
-        parsed: params.state.parsed,
-        model: params.state.model,
-        rule: params.state.file.owner.spec.rule,
-        owner,
-      })
+    : { references: params.state.pendingReferences, diagnostics: [] }
   const resolved = validatePendingReferencesWithIndex({
     index: params.referenceIndex,
     references: collected.references,
@@ -320,6 +312,7 @@ function validateProjectFormFirstPass(params: {
   cache: ProjectYamlCache
   context: ConfigurationContext
   schemaCache: ValidationSchemaCache
+  rulesSnapshot?: import("./rulesSnapshot").ValidationRulesSnapshot
 }): ProjectValidationFirstPassResult {
   const totalStartedAt = performance.now()
   const schemaStartedAt = performance.now()
@@ -337,6 +330,12 @@ function validateProjectFormFirstPass(params: {
       diagnostics: schemaDiagnostics.length,
     })
   }
+
+  const entry = params.cache.get(params.file.absolutePath)
+  const yamlFacts =
+    "error" in entry || params.rulesSnapshot === undefined
+      ? undefined
+      : extractValidationYamlFacts({ file: params.file, parsed: entry.parsed, rulesSnapshot: params.rulesSnapshot })
 
   const passes = getRegisteredFormValidationPasses()
   if (passes === undefined) {
@@ -375,7 +374,7 @@ function validateProjectFormFirstPass(params: {
     suppressFormImportDiagnostics: schemaDiagnostics.length > 0,
   })
   const formImportMs = performance.now() - formImportStartedAt
-  const diagnostics = [...schemaDiagnostics, ...first.diagnostics]
+  const diagnostics = [...schemaDiagnostics, ...first.diagnostics, ...(yamlFacts?.diagnostics ?? [])]
   if (first.status === "failed") {
     return failedFirstPass(params.file, diagnostics, {
       ...emptyFirstPassProfile("form"),
@@ -394,7 +393,7 @@ function validateProjectFormFirstPass(params: {
     state: {
       kind: "form",
       file: params.file,
-      formState: first.state,
+      pendingChecks: yamlFacts?.pendingChecks ?? [],
       firstPassDiagnostics: diagnostics,
     },
     diagnostics,
@@ -420,6 +419,7 @@ function validateProjectPropertiesFirstPass(params: {
   cache: ProjectYamlCache
   context: ConfigurationContext
   schemaCache: ValidationSchemaCache
+  rulesSnapshot?: import("./rulesSnapshot").ValidationRulesSnapshot
 }): ProjectValidationFirstPassResult {
   const totalStartedAt = performance.now()
   const cacheStartedAt = performance.now()
@@ -488,6 +488,106 @@ function validateProjectPropertiesFirstPass(params: {
     })
   }
 
+  if (params.rulesSnapshot !== undefined) {
+    const equalNameValidationName = params.file.kind === "properties" ? params.file.owner.name : undefined
+    const equalNameStartedAt = performance.now()
+    const equalNameDiagnostics = validateExcludedEqualNameYAML({
+      filePath: params.file.absolutePath,
+      parsed,
+      rule: params.file.owner.spec.rule,
+      context: params.context,
+      name: equalNameValidationName,
+    })
+    const equalNameMs = performance.now() - equalNameStartedAt
+    const yamlFacts = extractValidationYamlFacts({ file: params.file, parsed, rulesSnapshot: params.rulesSnapshot })
+    const ownerRef = { kind: params.file.owner.dir, name: params.file.owner.name }
+    const ownerModel = (yamlFacts.ownerModelStub ?? {
+      itemType: params.file.owner.spec.rule.itemType,
+      name: params.file.owner.name,
+    }) as unknown as MetadataItem
+    const fieldIndexStartedAt = performance.now()
+    const fieldIndex = buildObjectFieldIndex({
+      ref: ownerRef,
+      model: ownerModel,
+      rule: params.file.owner.spec.rule,
+    })
+    const fieldIndexMs = performance.now() - fieldIndexStartedAt
+    const owner: OwnerMetadata = {
+      ref: ownerRef,
+      filePath: params.file.absolutePath,
+      model: ownerModel,
+      rule: params.file.owner.spec.rule,
+      spec: params.file.owner.spec,
+      fieldIndex,
+    }
+    const ownerFacts = createValidationOwnerFacts({
+      ref: ownerRef,
+      filePath: params.file.absolutePath,
+      fieldIndex,
+      model: ownerModel,
+    })
+    const memberIndexStartedAt = performance.now()
+    const memberIndexEntries = buildMemberIndexEntries({
+      projectDir: params.projectDir,
+      owner,
+      hasFile: fs.existsSync,
+    })
+    const memberIndexMs = performance.now() - memberIndexStartedAt
+    const diagnostics = [
+      ...suppressEqualNameSchemaDiagnostics(schemaDiagnostics, equalNameDiagnostics),
+      ...equalNameDiagnostics,
+      ...yamlFacts.diagnostics,
+      ...fieldIndex.diagnostics,
+    ]
+
+    return {
+      state: {
+        kind: "properties",
+        file: params.file,
+        pendingReferences: yamlFacts.pendingReferences,
+        firstPassDiagnostics: diagnostics,
+      },
+      diagnostics,
+      objectIndexEntries: yamlFacts.objectIndexEntries,
+      memberIndexEntries,
+      valueIndexEntries: yamlFacts.valueIndexEntries,
+      pendingReferences: yamlFacts.pendingReferences,
+      objectRecords: [
+        {
+          filePath: params.file.absolutePath,
+          projectPath: params.file.projectPath,
+          kind: params.file.kind,
+          owner: { dir: params.file.owner.dir, name: params.file.owner.name },
+          ownerRef,
+          ownerFacts,
+          fieldIndex,
+          objectIndexEntries: yamlFacts.objectIndexEntries,
+          memberIndexEntries,
+          valueIndexEntries: yamlFacts.valueIndexEntries,
+          pendingReferences: yamlFacts.pendingReferences,
+          importDiagnostics: [],
+        },
+      ],
+      profile: {
+        key: validationFirstPassProfileKey(params.file),
+        totalMs: performance.now() - totalStartedAt,
+        cacheMs,
+        schemaMs,
+        validatorsMs,
+        importMs: 0,
+        equalNameMs,
+        uniqueScopesMs: 0,
+        referencesMs: 0,
+        fieldIndexMs,
+        objectIndexMs: 0,
+        memberIndexMs,
+        valueIndexMs: 0,
+        formImportMs: 0,
+        diagnostics: diagnostics.length,
+      },
+    }
+  }
+
   const importStartedAt = performance.now()
   const imported = importPropertiesModel({
     spec: params.file.owner.spec,
@@ -553,7 +653,7 @@ function validateProjectPropertiesFirstPass(params: {
     ...suppressEqualNameSchemaDiagnostics(schemaDiagnostics, equalNameDiagnostics),
     ...equalNameDiagnostics,
     ...uniqueScopeDiagnostics,
-    ...pendingReferences.diagnostics,
+    ...(params.rulesSnapshot === undefined ? pendingReferences.diagnostics : []),
   ]
   const ownerRef = { kind: params.file.owner.dir, name: params.file.owner.name }
   const ownerWithoutIndex = {
@@ -570,7 +670,17 @@ function validateProjectPropertiesFirstPass(params: {
     ...ownerWithoutIndex,
     fieldIndex,
   }
+  const ownerFacts = createValidationOwnerFacts({
+    ref: ownerRef,
+    filePath: params.file.absolutePath,
+    fieldIndex,
+    model: imported.model,
+  })
   const memberIndexStartedAt = performance.now()
+  const yamlFacts =
+    params.rulesSnapshot === undefined
+      ? undefined
+      : extractValidationYamlFacts({ file: params.file, parsed, rulesSnapshot: params.rulesSnapshot })
   const memberIndexEntries = buildMemberIndexEntries({
     projectDir: params.projectDir,
     owner,
@@ -578,8 +688,8 @@ function validateProjectPropertiesFirstPass(params: {
   })
   const memberIndexMs = performance.now() - memberIndexStartedAt
   const objectIndexStartedAt = performance.now()
-  const objectIndexEntry = buildObjectIndexEntry({ owner, file: params.file })
-  const objectIndexEntries = objectIndexEntry ? [objectIndexEntry] : []
+  const modelObjectIndexEntry = buildObjectIndexEntry({ owner, file: params.file })
+  const objectIndexEntries = yamlFacts?.objectIndexEntries ?? (modelObjectIndexEntry ? [modelObjectIndexEntry] : [])
   const objectIndexMs = performance.now() - objectIndexStartedAt
   const valueIndexStartedAt = performance.now()
   const valueIndexEntries = buildValueIndexEntries({ owner })
@@ -589,15 +699,14 @@ function validateProjectPropertiesFirstPass(params: {
     state: {
       kind: "properties",
       file: params.file,
-      parsed,
-      model: imported.model,
+      pendingReferences: yamlFacts?.pendingReferences ?? pendingReferences.references,
       firstPassDiagnostics: diagnostics,
     },
     diagnostics,
     objectIndexEntries,
     memberIndexEntries,
     valueIndexEntries,
-    pendingReferences: pendingReferences.references,
+    pendingReferences: yamlFacts?.pendingReferences ?? pendingReferences.references,
     objectRecords: [
       {
         filePath: params.file.absolutePath,
@@ -605,12 +714,12 @@ function validateProjectPropertiesFirstPass(params: {
         kind: params.file.kind,
         owner: { dir: params.file.owner.dir, name: params.file.owner.name },
         ownerRef,
-        model: imported.model,
+        ownerFacts,
         fieldIndex,
         objectIndexEntries,
         memberIndexEntries,
         valueIndexEntries,
-        pendingReferences: pendingReferences.references,
+        pendingReferences: yamlFacts?.pendingReferences ?? pendingReferences.references,
         importDiagnostics: [],
       },
     ],

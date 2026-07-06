@@ -1,8 +1,6 @@
 import { performance } from "node:perf_hooks"
-import { parentPort } from "node:worker_threads"
 import { resolve } from "path"
 import type { ConfigurationContext } from "../context/types"
-import { registerCoreMetadata } from "../register"
 import { createOwnerMetadataCacheFromSharedValidationSnapshot } from "./dataPath/sharedOwnerCache"
 import { getProjectReferenceObjectPathContributor } from "./projectReferenceIndexRegistry"
 import type {
@@ -19,7 +17,6 @@ import {
   createProjectYamlCache,
   createProjectYamlCacheFromEntries,
   type ProjectYamlCache,
-  type ProjectYamlEntry,
 } from "./projectYamlCache"
 import {
   createValidationSchemaCache,
@@ -33,25 +30,25 @@ import {
   type ProjectValidationFileState,
 } from "./projectValidationPasses"
 import type { ValidationMode, ValidationObjectRecord } from "./projectValidationTypes"
+import type { ValidationRulesSnapshot } from "./rulesSnapshot"
 import type { Diagnostic } from "./types"
+import { registerValidationMetadata } from "./registerValidationMetadata"
 
-registerCoreMetadata()
+registerValidationMetadata()
 
-type ValidationWorkerMessage =
+export type ValidationWorkerTask =
   | {
-      id: number
       kind: "init"
       context: ConfigurationContext
+      rulesSnapshot: ValidationRulesSnapshot
     }
   | {
-      id: number
       kind: "firstPass"
       projectDir: string
       context: ConfigurationContext
       filePaths: string[]
     }
   | {
-      id: number
       kind: "secondPass"
       projectDir: string
       context: ConfigurationContext
@@ -61,8 +58,27 @@ type ValidationWorkerMessage =
       filePaths: string[]
     }
 
+export type ValidationWorkerTaskResult =
+  | ({ kind: "initResult" } & ValidationSchemaCacheCompileProfile)
+  | {
+      kind: "firstPassResult"
+      diagnostics: Diagnostic[]
+      objectRecords: ValidationObjectRecord[]
+      objectIndexEntries: ProjectObjectIndexEntry[]
+      memberIndexEntries: ProjectMemberIndexEntry[]
+      valueIndexEntries: ProjectValueIndexEntry[]
+      pendingReferences: PendingMetadataTargetReference[]
+      timing?: WorkerFirstPassTiming
+      profile?: WorkerFirstPassProfile
+    }
+  | {
+      kind: "secondPassResult"
+      diagnostics: Diagnostic[]
+      timing: WorkerSecondPassTiming
+      profile?: WorkerSecondPassProfile
+    }
+
 interface WorkerValidationState {
-  entries: Map<string, ProjectYamlEntry>
   states: Map<string, ProjectValidationFileState>
   objectIndexEntries: ProjectObjectIndexEntry[]
   memberIndexEntries: ProjectMemberIndexEntry[]
@@ -72,10 +88,10 @@ interface WorkerValidationState {
 
 let workerState = createEmptyWorkerValidationState()
 let workerSchemaCache: ValidationSchemaCache | undefined
+let workerRulesSnapshot: ValidationRulesSnapshot | undefined
 
 function createEmptyWorkerValidationState(): WorkerValidationState {
   return {
-    entries: new Map(),
     states: new Map(),
     objectIndexEntries: [],
     memberIndexEntries: [],
@@ -84,34 +100,19 @@ function createEmptyWorkerValidationState(): WorkerValidationState {
   }
 }
 
-parentPort?.on("message", (message: ValidationWorkerMessage) => {
-  try {
-    if (message.kind === "init") {
-      parentPort?.postMessage({ id: message.id, kind: "initResult", ...runInit(message) })
-      return
-    }
+export default function runValidationWorkerTask(message: ValidationWorkerTask): ValidationWorkerTaskResult {
+  if (message.kind === "init") return { kind: "initResult", ...runInit(message) }
+  if (message.kind === "firstPass") return { kind: "firstPassResult", ...runFirstPass(message) }
+  return { kind: "secondPassResult", ...runSecondPass(message) }
+}
 
-    if (message.kind === "firstPass") {
-      parentPort?.postMessage({ id: message.id, kind: "firstPassResult", ...runFirstPass(message) })
-      return
-    }
-
-    parentPort?.postMessage({ id: message.id, kind: "secondPassResult", ...runSecondPass(message) })
-  } catch (caught) {
-    parentPort?.postMessage({
-      id: message.id,
-      kind: "error",
-      message: caught instanceof Error ? caught.message : String(caught),
-    })
-  }
-})
-
-function runInit(message: Extract<ValidationWorkerMessage, { kind: "init" }>): ValidationSchemaCacheCompileProfile {
+function runInit(message: Extract<ValidationWorkerTask, { kind: "init" }>): ValidationSchemaCacheCompileProfile {
   workerSchemaCache = createValidationSchemaCache(message.context)
+  workerRulesSnapshot = message.rulesSnapshot
   return workerSchemaCache.compileAll()
 }
 
-function runFirstPass(message: Extract<ValidationWorkerMessage, { kind: "firstPass" }>): {
+function runFirstPass(message: Extract<ValidationWorkerTask, { kind: "firstPass" }>): {
   diagnostics: Diagnostic[]
   objectRecords: ValidationObjectRecord[]
   objectIndexEntries: ProjectObjectIndexEntry[]
@@ -143,7 +144,6 @@ function runFirstPass(message: Extract<ValidationWorkerMessage, { kind: "firstPa
       continue
     }
 
-    workerState.entries.set(resolve(entry.filePath), entry)
     const cache = createProjectYamlCacheFromEntries([entry])
     const firstPassStartedAt = performance.now()
     const first = validateProjectFileFirstPass({
@@ -152,6 +152,7 @@ function runFirstPass(message: Extract<ValidationWorkerMessage, { kind: "firstPa
       cache,
       context: message.context,
       schemaCache,
+      rulesSnapshot: requireWorkerRulesSnapshot(),
     })
     const firstPassMs = performance.now() - firstPassStartedAt
     timing?.recordFirstPass(firstPassMs)
@@ -184,7 +185,14 @@ function requireWorkerSchemaCache(): ValidationSchemaCache {
   return workerSchemaCache
 }
 
-function runSecondPass(message: Extract<ValidationWorkerMessage, { kind: "secondPass" }>): {
+function requireWorkerRulesSnapshot(): ValidationRulesSnapshot {
+  if (workerRulesSnapshot === undefined) {
+    throw new Error("Validation worker rulesSnapshot не инициализирован")
+  }
+  return workerRulesSnapshot
+}
+
+function runSecondPass(message: Extract<ValidationWorkerTask, { kind: "secondPass" }>): {
   diagnostics: Diagnostic[]
   timing: {
     contextMs: number
@@ -243,12 +251,15 @@ function runSecondPass(message: Extract<ValidationWorkerMessage, { kind: "second
     diagnostics.push(...second.diagnostics)
   }
 
+  const validationMs = performance.now() - validationStartedAt
+  workerState = createEmptyWorkerValidationState()
+
   return {
     diagnostics,
     timing: {
       contextMs: referenceStartedAt - contextStartedAt,
       referenceValidationMs: validationStartedAt - referenceStartedAt,
-      validationMs: performance.now() - validationStartedAt,
+      validationMs,
       fileCount: message.filePaths.length,
       referenceHits: referenceResult.stats.hits,
       referenceMisses: referenceResult.stats.misses,
@@ -293,6 +304,23 @@ interface WorkerFirstPassTiming {
   readMs: number
   firstPassMs: number
   fileCount: number
+}
+
+interface WorkerSecondPassTiming {
+  contextMs: number
+  referenceValidationMs: number
+  validationMs: number
+  fileCount: number
+  referenceHits: number
+  referenceMisses: number
+  referenceConflicts: number
+  referenceFilterFailures: number
+  referenceDependencies: number
+  referenceUnsupported: number
+  referenceFallbacks: number
+  snapshotBytes: number
+  pendingReferences: number
+  memberIndexEntries: number
 }
 
 interface WorkerFirstPassProfile {
@@ -443,22 +471,7 @@ function validationProfileKey(state: ProjectValidationFileState): string {
 }
 
 function createWorkerYamlCache(): ProjectYamlCache {
-  const local = createProjectYamlCacheFromEntries([...workerState.entries.values()])
-  const fallback = createProjectYamlCache()
-
-  return {
-    get(filePath) {
-      const entry = local.get(filePath)
-      if (!("error" in entry) || !entry.error.message.startsWith("YAML-файл отсутствует в validation snapshot")) {
-        return entry
-      }
-      return fallback.get(filePath)
-    },
-    release(filePath) {
-      local.release(filePath)
-      fallback.release(filePath)
-    },
-  }
+  return createProjectYamlCache()
 }
 
 function unrecognizedFileDiagnostic(filePath: string): Diagnostic {
@@ -469,5 +482,20 @@ function unrecognizedFileDiagnostic(filePath: string): Diagnostic {
     severity: "error",
     source: "external-file",
     message: "Не удалось распознать YAML-файл для validation",
+  }
+}
+
+export function workerStateStatsForTests(): {
+  retainedEntries: number
+  retainedStates: number
+  retainedPropertyModels: number
+  retainedFormStates: number
+} {
+  const states = [...workerState.states.values()]
+  return {
+    retainedEntries: 0,
+    retainedStates: workerState.states.size,
+    retainedPropertyModels: states.filter((state) => state.kind === "properties" && "model" in state).length,
+    retainedFormStates: states.filter((state) => state.kind === "form" && "formState" in state).length,
   }
 }

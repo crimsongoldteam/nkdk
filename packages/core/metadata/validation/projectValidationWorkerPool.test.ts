@@ -15,6 +15,17 @@ const context = {
 } as const
 
 describe("ProjectValidationWorkerPool", () => {
+  it("does not retain YAML entries or model state after worker validation", async () => {
+    const worker = await import("./projectValidationWorker")
+
+    expect(worker.workerStateStatsForTests()).toEqual({
+      retainedEntries: 0,
+      retainedStates: 0,
+      retainedPropertyModels: 0,
+      retainedFormStates: 0,
+    })
+  })
+
   it("starts and initializes worker schema caches", async () => {
     const pool = createProjectValidationWorkerPool({ concurrency: 1 })
 
@@ -26,6 +37,25 @@ describe("ProjectValidationWorkerPool", () => {
       expect(profile.schemaCompileMs).toBeGreaterThanOrEqual(0)
       expect(profile.formSchemaMs).toBeGreaterThanOrEqual(0)
       expect(profile.propertiesSchemaMs).toBeGreaterThanOrEqual(0)
+    } finally {
+      await pool.close()
+    }
+  }, 120_000)
+
+  it("reuses initialized worker schema caches on repeated start", async () => {
+    const pool = createProjectValidationWorkerPool({ concurrency: 1 })
+
+    try {
+      const first = await pool.start(context)
+      const second = await pool.start(context)
+
+      expect(first.reused).toBeUndefined()
+      expect(second).toMatchObject({
+        reused: true,
+        schemaCompileMs: first.schemaCompileMs,
+        formSchemaMs: first.formSchemaMs,
+        propertiesSchemaMs: first.propertiesSchemaMs,
+      })
     } finally {
       await pool.close()
     }

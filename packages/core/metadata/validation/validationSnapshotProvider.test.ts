@@ -81,7 +81,6 @@ function catalogRecord(): ValidationObjectRecord {
     kind: "properties",
     owner: { dir: "Справочник", name: "Номенклатура" },
     ownerRef: { kind: "Справочник", name: "Номенклатура" },
-    model: { itemType: "MetadataCatalog", name: "Номенклатура" },
     fieldIndex: {
       fields: new Map([
         [
