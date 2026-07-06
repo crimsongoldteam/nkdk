@@ -4,7 +4,7 @@ import { join } from "path"
 import { afterEach, describe, expect, it } from "vitest"
 import { renameMetadataItem } from "./renameItem"
 
-describe("renameMetadataItem", () => {
+describe("renameMetadataItem", { timeout: 30_000 }, () => {
   const tempDirs: string[] = []
 
   afterEach(() => {

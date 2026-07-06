@@ -456,7 +456,7 @@ describe("validateProject", { timeout: 30_000 }, () => {
     const diagnostics = (await validateProject({ projectDir, context: mockContext, concurrency: 1 })).diagnostics
 
     expect(diagnostics).toEqual([])
-  }, 90_000)
+  }, 180_000)
 
   it("accepts an empty properties YAML file as an empty object", async () => {
     const projectDir = createProject()

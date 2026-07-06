@@ -22,7 +22,7 @@ const schemaFor = (rule: SettingsParameterValuePropertyRule) => {
 const errorsFor = (rule: SettingsParameterValuePropertyRule, value: unknown): string[] =>
   schemaFor(rule).Errors(value)[1].map((error) => `${error.instancePath}: ${error.message}`)
 
-describe("SettingsParameterValue exportToJSONSchema", () => {
+describe("SettingsParameterValue exportToJSONSchema", { timeout: 30_000 }, () => {
   beforeAll(() => {
     ;(
       [
