@@ -50,6 +50,23 @@ describe("JSON Schema registry", { timeout: 30_000 }, () => {
     expect(JSON.stringify(schema)).toContain("nkdk://schema/MetadataCatalogAttribute")
   })
 
+  it("resolves MetadataCatalogAttributes through collection registration", () => {
+    const graph = exportJSONSchemaGraph({
+      context,
+      roots: [{ key: "catalog", name: "MetadataCatalog" }],
+    })
+
+    const catalog = graph.roots.catalog as { properties?: Record<string, unknown> }
+    expect(catalog.properties?.Реквизиты).toMatchObject({
+      type: "object",
+      additionalProperties: { $ref: "nkdk://schema/MetadataCatalogAttribute" },
+    })
+    expect(graph.schemas["nkdk://schema/MetadataCatalogAttribute"]).toMatchObject({
+      $id: "nkdk://schema/MetadataCatalogAttribute",
+      type: "object",
+    })
+  })
+
   it("accepts keyed predefined catalog items without explicit code", () => {
     const schema = exportJSONSchemaForSchemaName({ context, name: "MetadataCatalog", mode: "inline" })
     const compiled = compileValidationSchema(schema)
@@ -212,9 +229,10 @@ describe("JSON Schema registry", { timeout: 30_000 }, () => {
       roots: [{ key: "form", name: "ClientApplicationForm", includeNestedChildItems: true }],
     })
     const formAttributeJson = JSON.stringify(graph.schemas["nkdk://schema/FormAttribute"])
+    const graphJson = JSON.stringify(graph)
     const visibilitySchemaName = "AppearanceSettingsParameterValue_Primitive__u0412_u0438_u0434_u0438_u043c_u043e_u0441_u0442_u044c"
 
-    expect(formAttributeJson).toContain(`nkdk://schema/${visibilitySchemaName}`)
+    expect(graphJson).toContain(`nkdk://schema/${visibilitySchemaName}`)
     expect(formAttributeJson).not.toContain("SettingsParameterValue_Primitive_Видимость/$defs")
     expect(graph.schemas[`nkdk://schema/${visibilitySchemaName}`]).toMatchObject({
       $id: `nkdk://schema/${visibilitySchemaName}`,
