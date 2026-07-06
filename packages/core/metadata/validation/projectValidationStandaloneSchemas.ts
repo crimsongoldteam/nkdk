@@ -63,7 +63,8 @@ function createStandalonePropertiesSchema(
   context: ConfigurationContext,
   spec: typeof configurationValidationProjectSpec
 ): TSchema {
-  if (spec.validationSchemaMode !== "externalRefs") {
+  const schemaMode = spec.validationSchemaMode ?? "externalRefs"
+  if (schemaMode !== "externalRefs") {
     return spec.exportSchema({ context, mode: "inline" })
   }
 

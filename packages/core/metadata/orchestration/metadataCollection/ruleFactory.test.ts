@@ -1,7 +1,12 @@
 import { compileValidationSchema } from "./../../validation/compileValidationSchema"
+import { Type } from "typebox"
 import { beforeEach, describe, expect, it } from "vitest"
 import { importPropertyFromXML, PropertyRule } from ".."
-import { clearJSONSchemaRefRegistries, createJSONSchemaExportContext } from "../jsonSchemaRefs"
+import {
+  clearJSONSchemaRefRegistries,
+  createJSONSchemaExportContext,
+  getJSONSchemaIdentityExporter,
+} from "../jsonSchemaRefs"
 import { exportPropertyToJSONSchema } from "../property/toJSONSchema"
 import type { MetadataItemRule } from "../property/types"
 import { mockContextFromXML } from "../../../tests/mockContext"
@@ -235,6 +240,43 @@ describe("registerMetadataItemCollectionRule JSON Schema refs", () => {
     expect(schema).toEqual({
       type: "object",
       additionalProperties: { $ref: "nkdk://schema/ExplicitCollectionItem" },
+    })
+  })
+
+  it("registers direct schema ref for custom collection schemas", () => {
+    registerMetadataItemCollectionRule({
+      propertyType: "TestCustomSchemaCollection" as any,
+      itemRule: TestCollectionItemRules,
+      xmlElement: "Item",
+      schemaName: "CustomCollectionSchema",
+      schemaShape: "schema",
+      toJSONSchema: () =>
+        Type.Array(
+          Type.Object(
+            {
+              custom: Type.Literal("yes"),
+            },
+            { additionalProperties: false }
+          )
+        ),
+    })
+
+    const schema = exportPropertyToJSONSchema({
+      context: createJSONSchemaExportContext(context, "externalRefs"),
+      rule: { type: "TestCustomSchemaCollection" as any },
+      value: undefined,
+    })
+    const identityExporter = getJSONSchemaIdentityExporter("CustomCollectionSchema")
+
+    expect(schema).toEqual({ $ref: "nkdk://schema/CustomCollectionSchema" })
+    expect(identityExporter?.({ context })).toMatchObject({
+      type: "array",
+      items: {
+        type: "object",
+        properties: {
+          custom: { const: "yes" },
+        },
+      },
     })
   })
 })

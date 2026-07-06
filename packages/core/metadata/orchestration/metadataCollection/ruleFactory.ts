@@ -4,6 +4,7 @@ import {
   recordOfSchemaRef,
   registerJSONSchemaIdentity,
   registerJSONSchemaPropertyRef,
+  schemaRef,
 } from "../jsonSchemaRefs"
 import {
   ExportToJSONSchemaFn,
@@ -13,7 +14,7 @@ import {
   importFromYAMLFunction,
 } from "../property/fn"
 import { PropertyRuleType } from "../property/registry"
-import type { MetadataItemRule } from "../property/types"
+import type { MetadataItemRule, PropertyRule } from "../property/types"
 import { ToMetadata } from "../metadataItem/registry"
 import { exportMetadataItemToJSONSchema } from "../metadataItem/toJSONSchema"
 import { registerTypeRule } from "../property/typeRuleRegistry"
@@ -23,7 +24,7 @@ import { importMetadataItemCollectionFromYAMLAsArray, importMetadataItemCollecti
 import { exportMetadataCollectionToXML } from "./toXML"
 import { exportMetadataCollectionToYAMLAsArray, exportMetadataCollectionToYAMLAsRecord } from "./toYAML"
 
-type JSONSchemaCollectionShape = "record" | "array"
+type JSONSchemaCollectionShape = "record" | "array" | "schema"
 
 type CollectionRule<Rule extends MetadataItemRule, CollectionType extends PropertyRuleType, XMLKey extends string> = {
   propertyType: CollectionType
@@ -55,16 +56,29 @@ export const registerMetadataItemCollectionRule = <
 ): void => {
   const { propertyType, itemRule, xmlElement } = params
   const schemaName = params.schemaName ?? itemRule.itemType
+  const schemaShape = params.schemaShape ?? (params.yamlAsArray ? "array" : "record")
 
   registerJSONSchemaIdentity({
     name: schemaName,
     source: itemRule,
-    exporter: ({ context }) => exportMetadataItemToJSONSchema({ context, rule: itemRule }),
+    exporter: ({ context }) => {
+      if (schemaShape === "schema" && params.toJSONSchema !== undefined) {
+        return (
+          params.toJSONSchema({
+            context,
+            rule: { type: propertyType } as PropertyRule,
+            value: undefined,
+          }) ?? Type.Unknown()
+        )
+      }
+
+      return exportMetadataItemToJSONSchema({ context, rule: itemRule })
+    },
   })
 
   registerJSONSchemaPropertyRef(propertyType, () => {
-    const shape = params.schemaShape ?? (params.yamlAsArray ? "array" : "record")
-    return shape === "array" ? arrayOfSchemaRef(schemaName) : recordOfSchemaRef(schemaName)
+    if (schemaShape === "schema") return schemaRef(schemaName)
+    return schemaShape === "array" ? arrayOfSchemaRef(schemaName) : recordOfSchemaRef(schemaName)
   })
 
   const fromXMLDefault: ImportFromXMLFunction = (context, rule, xml) => {

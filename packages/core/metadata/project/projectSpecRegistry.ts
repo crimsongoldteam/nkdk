@@ -1,5 +1,6 @@
 import type { TSchema } from "typebox"
 import type { ConfigurationContext, JSONSchemaExportMode } from "../context/types"
+import { registerJSONSchemaIdentity } from "../orchestration/jsonSchemaRefs"
 import type { ExternalValidationProperty, MetadataItem, MetadataItemRule } from "../orchestration/property/types"
 import type { ParsedYaml } from "../../yaml/parseMetadataYaml"
 
@@ -25,6 +26,15 @@ const specsByDir = new Map<string, RegisteredProjectSpec>()
 
 export function registerProjectSpec(spec: RegisteredProjectSpec): void {
   specsByDir.set(spec.dir, spec)
+  registerJSONSchemaIdentity({
+    name: spec.rule.itemType,
+    source: spec.rule,
+    exporter: ({ context }) =>
+      spec.exportSchema({
+        context,
+        mode: context.exportToJSONSchema?.mode ?? "externalRefs",
+      }),
+  })
 }
 
 export function getRegisteredProjectSpecs(): readonly RegisteredProjectSpec[] {

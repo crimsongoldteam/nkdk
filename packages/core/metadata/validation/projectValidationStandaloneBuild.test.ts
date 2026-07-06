@@ -2,10 +2,20 @@ import { execFile } from "node:child_process"
 import { existsSync } from "node:fs"
 import { promisify } from "node:util"
 import { describe, expect, it } from "vitest"
+import { createProjectValidationStandaloneSchemaSet } from "./projectValidationStandaloneSchemas"
 
 const execFileAsync = promisify(execFile)
 
 describe("project validation standalone build output", () => {
+  it("includes refs produced by metadata collection registrations", () => {
+    const schemaSet = createProjectValidationStandaloneSchemaSet()
+
+    expect(schemaSet.refs["nkdk://schema/MetadataCatalogAttribute"]).toMatchObject({
+      type: "object",
+    })
+    expect(JSON.stringify(schemaSet.byProjectDir["Справочник"])).toContain("nkdk://schema/MetadataCatalogAttribute")
+  })
+
   it("loads generated validators from dist when build has produced them", async () => {
     const modulePath = new URL("../../../dist/projectValidationAjvStandalone.js", import.meta.url).pathname
     if (!existsSync(modulePath)) return
