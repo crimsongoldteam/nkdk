@@ -11,6 +11,7 @@ import { metadataTargetOwnerFromRule } from "../orchestration/property/metadataT
 import type { ExternalValidationProperty, MetadataItem } from "../orchestration/property/types"
 import { parseMetadataYaml, type ParsedYaml } from "../../yaml/parseMetadataYaml"
 import { type OwnerMetadata, type OwnerMetadataCache } from "./dataPath/ownerCache"
+import { createValidationOwnerFacts } from "./dataPath/ownerFacts"
 import { buildObjectFieldIndex, type ObjectField, type ObjectFieldKind } from "./dataPath/objectFields"
 import { validateExcludedEqualNameYAML } from "./excludeIfEqualNameYAML"
 import { getRegisteredFormValidationPasses } from "./formValidationRegistry"
@@ -556,6 +557,12 @@ function validateProjectPropertiesFirstPass(params: {
     ...ownerWithoutIndex,
     fieldIndex,
   }
+  const ownerFacts = createValidationOwnerFacts({
+    ref: ownerRef,
+    filePath: params.file.absolutePath,
+    fieldIndex,
+    model: imported.model,
+  })
   const memberIndexStartedAt = performance.now()
   const memberIndexEntries = buildMemberIndexEntries({
     projectDir: params.projectDir,
@@ -590,6 +597,7 @@ function validateProjectPropertiesFirstPass(params: {
         kind: params.file.kind,
         owner: { dir: params.file.owner.dir, name: params.file.owner.name },
         ownerRef,
+        ownerFacts,
         model: imported.model,
         fieldIndex,
         objectIndexEntries,

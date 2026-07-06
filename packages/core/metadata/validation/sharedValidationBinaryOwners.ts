@@ -1,6 +1,7 @@
 import { resolve } from "path"
 import { getDataPathOwnerKind } from "./dataPath/registry"
 import type { OwnerMetadataCache, OwnerMetadataResult } from "./dataPath/ownerCache"
+import { modelStubFromOwnerFacts } from "./dataPath/ownerFacts"
 import type { ObjectField, ObjectFieldIndex, ObjectFieldTableSource } from "./dataPath/objectFields"
 import type { DataPathTableInfo, DataPathTypeInfo, DataPathValueKind, OwnerTypeRef } from "./dataPath/types"
 import type { ValidationObjectRecord, ValidationObjectTableSnapshot } from "./projectValidationTypes"
@@ -306,11 +307,13 @@ function createBinaryOwnersView(snapshot: BinarySharedOwnersSnapshot) {
 }
 
 function encodeOwner(record: ValidationObjectRecord): EncodedOwner {
-  const fieldIndex = record.fieldIndex
+  const facts = record.ownerFacts
+  const fieldIndex = facts?.fieldIndex ?? record.fieldIndex
+  const model = record.model ?? (facts === undefined ? undefined : modelStubFromOwnerFacts(facts))
   return {
-    ref: record.ownerRef as OwnerTypeRef,
-    filePath: record.filePath,
-    ...(record.model === undefined ? {} : { modelText: JSON.stringify(record.model) }),
+    ref: (facts?.ref ?? record.ownerRef) as OwnerTypeRef,
+    filePath: facts?.filePath ?? record.filePath,
+    ...(model === undefined ? {} : { modelText: JSON.stringify(model) }),
     status: record.importDiagnostics.length > 0 ? STATUS_IMPORT_ERROR : STATUS_OK,
     diagnostics: record.importDiagnostics,
     fields: fieldIndex === undefined ? [] : [...fieldIndex.fields.values()].map(encodeField),

@@ -68,6 +68,33 @@ describe("SharedValidationBinaryOwners", () => {
     if (owner.status !== "ok") throw new Error("owner expected")
     expect(owner.owner.model).toMatchObject({ type: { type: ["boolean"] } })
   })
+
+  it("restores compact owner facts without model payload", () => {
+    const record = catalogRecord()
+    const table = createValidationObjectTable({
+      records: [
+        {
+          ...record,
+          ownerFacts: {
+            ref: { kind: "Справочник", name: "Номенклатура" },
+            filePath: record.filePath,
+            fieldIndex: record.fieldIndex!,
+          },
+          model: undefined,
+          fieldIndex: undefined,
+        },
+      ],
+      filePaths: [record.filePath],
+    })
+    const snapshot = createBinarySharedOwnersSnapshot(table.snapshot())
+    const binary = createOwnerMetadataCacheFromBinarySharedOwners({ projectDir: "/project", snapshot })
+
+    const owner = binary.get({ kind: "Справочник", name: "Номенклатура" })
+
+    expect(owner.status).toBe("ok")
+    if (owner.status !== "ok") throw new Error("owner expected")
+    expect([...owner.owner.fieldIndex.fields.keys()]).toEqual(["Артикул", "Товары"])
+  })
 })
 
 function catalogRecord(): ValidationObjectRecord {
