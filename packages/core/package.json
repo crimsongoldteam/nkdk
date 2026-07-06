@@ -17,7 +17,7 @@
     "test:ui": "vitest --ui",
     "type-check": "tsc --noEmit",
     "measure:validation-schemas": "tsx --expose-gc scripts/measure-validation-schemas.mjs",
-    "measure:validation-workers": "node --expose-gc scripts/measure-validation-workers.mjs",
+    "measure:validation-workers": "node scripts/measure-validation-workers.mjs",
     "prepare": "ts-patch install"
   },
   "dependencies": {
