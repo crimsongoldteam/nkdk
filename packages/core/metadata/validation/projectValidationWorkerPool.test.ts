@@ -15,6 +15,17 @@ const context = {
 } as const
 
 describe("ProjectValidationWorkerPool", () => {
+  it("does not retain YAML entries or model state after worker validation", async () => {
+    const worker = await import("./projectValidationWorker")
+
+    expect(worker.workerStateStatsForTests()).toEqual({
+      retainedEntries: 0,
+      retainedStates: 0,
+      retainedPropertyModels: 0,
+      retainedFormStates: 0,
+    })
+  })
+
   it("starts and initializes worker schema caches", async () => {
     const pool = createProjectValidationWorkerPool({ concurrency: 1 })
 

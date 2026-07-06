@@ -471,3 +471,18 @@ function unrecognizedFileDiagnostic(filePath: string): Diagnostic {
     message: "Не удалось распознать YAML-файл для validation",
   }
 }
+
+export function workerStateStatsForTests(): {
+  retainedEntries: number
+  retainedStates: number
+  retainedPropertyModels: number
+  retainedFormStates: number
+} {
+  const states = [...workerState.states.values()]
+  return {
+    retainedEntries: workerState.entries.size,
+    retainedStates: workerState.states.size,
+    retainedPropertyModels: states.filter((state) => state.kind === "properties" && "model" in state).length,
+    retainedFormStates: states.filter((state) => state.kind === "form" && "formState" in state).length,
+  }
+}
