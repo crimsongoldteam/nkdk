@@ -1,4 +1,5 @@
-import Ajv2020, { type Options } from "ajv/dist/2020"
+import type { ErrorObject, ValidateFunction } from "ajv"
+import Ajv2020, { type Options } from "ajv/dist/2020.js"
 import addFormats from "ajv-formats"
 import type { TSchema } from "typebox"
 import Schema from "typebox/schema"
@@ -102,7 +103,11 @@ export function compileValidationSchema(
 }
 
 function normalizeAjvErrors(errors: typeof Ajv2020.prototype.errors): ValidationSchemaError[] {
-  return (errors ?? []).map((error) => ({
+  return (errors ?? []).map(normalizeAjvError)
+}
+
+function normalizeAjvError(error: ErrorObject): ValidationSchemaError {
+  return {
     keyword: error.keyword,
     schemaPath: error.schemaPath,
     instancePath: error.instancePath,
@@ -110,7 +115,7 @@ function normalizeAjvErrors(errors: typeof Ajv2020.prototype.errors): Validation
     message: error.message ?? error.keyword,
     schema: error.schema as TSchema | undefined,
     value: error.data,
-  }))
+  }
 }
 
 function isCompileValidationSchemaOptions(value: unknown): value is CompileValidationSchemaOptions {
@@ -145,6 +150,46 @@ function createTypeboxFallback(
       return context
     },
   }
+}
+
+class AjvFunctionValidationSchema<Type extends TSchema = TSchema> implements ValidationSchemaValidator<Type> {
+  constructor(
+    private readonly params: {
+      schema: Type
+      context: SchemaContext
+      validate: ValidateFunction
+    }
+  ) {}
+
+  Check(value: unknown): boolean {
+    return this.params.validate(value)
+  }
+
+  Errors(value: unknown): [boolean, ValidationSchemaError[]] {
+    const valid = this.params.validate(value)
+    if (valid) return [true, []]
+    return [false, normalizeAjvErrors(this.params.validate.errors)]
+  }
+
+  Schema(): Type {
+    return this.params.schema
+  }
+
+  Context(): SchemaContext {
+    return this.params.context
+  }
+}
+
+export function createValidationSchemaFromAjvFunction<const Type extends TSchema>(params: {
+  schema: Type
+  context?: SchemaContext
+  validate: ValidateFunction
+}): ValidationSchemaValidator<Type> {
+  return new AjvFunctionValidationSchema({
+    schema: params.schema,
+    context: params.context ?? {},
+    validate: params.validate,
+  })
 }
 
 function createAjv(context: SchemaContext, options: Pick<Options, "allErrors" | "inlineRefs">): Ajv2020 {
