@@ -9,7 +9,7 @@ const baseContext = {
 } as const
 
 const SampleItemRule = {
-  itemType: "SampleItem",
+  itemType: "RuleFactorySampleItem",
   properties: {
     name: { yaml: "Имя", type: "string", required: true },
   },
@@ -17,14 +17,14 @@ const SampleItemRule = {
 
 const ExplicitOnlySampleItemRule = {
   ...SampleItemRule,
-  itemType: "ExplicitOnlySampleItem",
+  itemType: "RuleFactoryExplicitOnlySampleItem",
 } as const satisfies MetadataItemRule
 
 describe("registerMetadataItemRule JSON Schema identity", () => {
   it("registers item schema by itemType by default", () => {
-    registerMetadataItemRule({ propertyType: "SampleItemProperty", itemRule: SampleItemRule })
+    registerMetadataItemRule({ propertyType: "RuleFactorySampleItemProperty", itemRule: SampleItemRule })
 
-    const exporter = getJSONSchemaIdentityExporter("SampleItem")
+    const exporter = getJSONSchemaIdentityExporter("RuleFactorySampleItem")
     expect(exporter?.({ context: baseContext })).toMatchObject({
       type: "object",
       properties: { Имя: { type: "string" } },
@@ -34,13 +34,13 @@ describe("registerMetadataItemRule JSON Schema identity", () => {
 
   it("uses explicit schemaName when provided", () => {
     registerMetadataItemRule({
-      propertyType: "ExplicitOnlySampleItemProperty",
+      propertyType: "RuleFactoryExplicitOnlySampleItemProperty",
       itemRule: ExplicitOnlySampleItemRule,
-      schemaName: "ExplicitSampleItem",
+      schemaName: "RuleFactoryExplicitSampleItem",
     })
 
-    expect(getJSONSchemaIdentityExporter("ExplicitOnlySampleItem")).toBeUndefined()
-    expect(getJSONSchemaIdentityExporter("ExplicitSampleItem")?.({ context: baseContext })).toMatchObject({
+    expect(getJSONSchemaIdentityExporter("RuleFactoryExplicitOnlySampleItem")).toBeUndefined()
+    expect(getJSONSchemaIdentityExporter("RuleFactoryExplicitSampleItem")?.({ context: baseContext })).toMatchObject({
       type: "object",
     })
   })
