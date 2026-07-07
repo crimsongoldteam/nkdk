@@ -20,7 +20,7 @@ import {
   writeConfigurationToXML,
 } from "./rootIO"
 import { diffSyncState, hashProjectFiles, readXmlSyncState, SYNC_STATE_FILE, writeXmlSyncState } from "./syncState"
-import { prepareConfigurationXmlMigrationChain } from "./syncToXML"
+import { prepareConfigurationXmlMigrationChain, syncConfigurationToXML } from "./syncToXML"
 import { TopLevelMetadataItemRules } from "./topLevelRules"
 
 export async function syncConfigurationIncrementallyToXML(params: {
@@ -52,6 +52,9 @@ export async function syncConfigurationIncrementallyToXML(params: {
       failed: [{ kind: "migration", name: "Миграции", error: new Error(JSON.stringify(migrationChain)) }],
       migrationChain,
     }
+  }
+  if (migrationChain.migrationsToApply.length > 0 && !fs.existsSync(join(params.outputDir, "ConfigDumpInfo.xml"))) {
+    return syncConfigurationToXML({ ...params, referenceDir: params.referenceDir ?? params.outputDir })
   }
   if (
     diff.added.length === 0 &&

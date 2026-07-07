@@ -103,10 +103,7 @@ const concreteObjectBranches: Partial<Record<TypeDescriptionAllowedType, BranchF
   "TaskRef.*": () => [concreteRefBranch("Задача")],
   "ExchangePlanRef.*": () => [concreteRefBranch("ПланОбмена")],
   "DefinedType.*": () => [
-    {
-      ...concreteRefBranch("ОпределяемыйТип"),
-      singleOnly: true,
-    },
+    concreteRefBranch("ОпределяемыйТип"),
   ],
   "Characteristic.*": () => [
     {

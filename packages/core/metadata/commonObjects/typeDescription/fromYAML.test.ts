@@ -89,6 +89,20 @@ describe("importTypeDescriptionFromYAML with allowedTypes", () => {
     })
   })
 
+  it("imports allowed defined type values inside composite arrays", () => {
+    expect(
+      importTypeDescriptionFromYAML(mockContext, restrictedCatalogAttributeRule, [
+        "ОпределяемыйТип.ДенежнаяСуммаЛюбогоЗнака",
+        "ОпределяемыйТип.ДенежнаяСуммаНеотрицательная",
+      ])
+    ).toEqual({
+      type: [
+        "DefinedType.ДенежнаяСуммаЛюбогоЗнака",
+        "DefinedType.ДенежнаяСуммаНеотрицательная",
+      ],
+    })
+  })
+
   it("rejects unknown type strings", () => {
     expect(() =>
       importTypeDescriptionFromYAML(mockContext, restrictedCatalogAttributeRule, "НесуществующийТип")

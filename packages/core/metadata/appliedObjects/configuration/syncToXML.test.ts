@@ -62,7 +62,7 @@ describe("sync configuration to XML", () => {
     expect(resultFormMetadataXML).toBe(expectedFormMetadataXML)
   })
 
-  it("без referenceDir не читает reference из outputDir и не создаёт ConfigDumpInfo.xml", async () => {
+  it("без referenceDir не читает reference из outputDir и создаёт новый ConfigDumpInfo.xml", async () => {
     const tmp = fs.mkdtempSync(join(os.tmpdir(), "nkdk-configuration-no-reference-"))
     const yamlDir = join(tmp, "yaml")
     const outDir = join(tmp, "xml")
@@ -89,7 +89,9 @@ describe("sync configuration to XML", () => {
       const catalogXML = fs.readFileSync(join(outDir, "Catalogs", "Контрагенты.xml"), "utf-8")
       expect(catalogXML).toContain("<Catalog")
       expect(catalogXML).not.toContain("ФормаЭлемента")
-      expect(fs.existsSync(join(outDir, "ConfigDumpInfo.xml"))).toBe(false)
+      expect(fs.readFileSync(join(outDir, "ConfigDumpInfo.xml"), "utf-8")).toContain(
+        '<Metadata name="Catalog.Контрагенты"'
+      )
       expect(fs.existsSync(join(outDir, "Ext", "Unsupported.xml"))).toBe(false)
     } finally {
       fs.rmSync(tmp, { recursive: true, force: true })
@@ -852,6 +854,18 @@ describe("sync configuration to XML", () => {
 </MetaDataObject>`,
       "utf-8"
     )
+    fs.writeFileSync(
+      join(xmlDir, "ConfigDumpInfo.xml"),
+      `<?xml version="1.0" encoding="UTF-8"?>
+<ConfigDumpInfo xmlns="http://v8.1c.ru/8.3/xcf/dumpinfo" xmlns:xen="http://v8.1c.ru/8.3/xcf/enums" xmlns:xs="http://www.w3.org/2001/XMLSchema" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" format="Hierarchical" version="2.20">
+	<ConfigVersions>
+		<Metadata name="Catalog.Товары" id="00000000-0000-0000-0000-000000000001" configVersion="catalog-version">
+			<Metadata name="Catalog.Товары.Attribute.Артикул" id="00000000-0000-0000-0000-000000000101"/>
+		</Metadata>
+	</ConfigVersions>
+</ConfigDumpInfo>`,
+      "utf-8"
+    )
 
     try {
       const syncResult = await syncConfigurationToXML({
@@ -878,6 +892,13 @@ describe("sync configuration to XML", () => {
       expect(result).toContain('<Catalog uuid="00000000-0000-0000-0000-000000000001">')
       expect(result).toContain('<Attribute uuid="00000000-0000-0000-0000-000000000101">')
       expect(result).toContain("<Name>НовыйАртикул</Name>")
+      const dumpInfo = fs.readFileSync(join(outDir, "ConfigDumpInfo.xml"), "utf-8")
+      expect(dumpInfo).toContain(
+        '<Metadata name="Catalog.Номенклатура" id="00000000-0000-0000-0000-000000000001" configVersion="catalog-version">'
+      )
+      expect(dumpInfo).toContain(
+        '<Metadata name="Catalog.Номенклатура.Attribute.НовыйАртикул" id="00000000-0000-0000-0000-000000000101"/>'
+      )
     } finally {
       if (fs.existsSync(tmp)) fs.rmSync(tmp, { recursive: true })
     }
