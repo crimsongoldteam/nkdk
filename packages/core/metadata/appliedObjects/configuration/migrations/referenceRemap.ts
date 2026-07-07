@@ -96,8 +96,12 @@ function findReferenceItem(items: unknown[], name: string | undefined): Record<s
   if (!name) return undefined
 
   return items.find((item): item is Record<string, unknown> => {
-    return item !== null && typeof item === "object" && !Array.isArray(item) && item["name"] === name
+    return isRecord(item) && item["name"] === name
   })
+}
+
+function isRecord(value: unknown): value is Record<string, unknown> {
+  return value !== null && typeof value === "object" && !Array.isArray(value)
 }
 
 function cloneWithPropertyDescriptors<T>(value: T, seen = new WeakMap<object, unknown>()): T {
@@ -107,7 +111,7 @@ function cloneWithPropertyDescriptors<T>(value: T, seen = new WeakMap<object, un
   const cached = seen.get(source)
   if (cached !== undefined) return cached as T
 
-  const target: Record<PropertyKey, unknown> = Array.isArray(value) ? [] : {}
+  const target: object = Array.isArray(value) ? [] : {}
   seen.set(source, target)
 
   for (const key of Reflect.ownKeys(source)) {

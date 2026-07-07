@@ -11,9 +11,6 @@ export default defineConfig({
     // при включённой остановке на caught exceptions отладчик всё равно останавливается.
     postcss: { plugins: [] },
   },
-  esbuild: {
-    target: "es2020",
-  },
   test: {
     environment: "node",
     globals: true,

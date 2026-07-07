@@ -38,7 +38,7 @@
     "esbuild": "^0.28.1",
     "ts-patch": "^3.3.0",
     "tsx": "^4.22.4",
-    "typescript": "~5.9.3",
+    "typescript": "~6.0.0",
     "vitest": "^4.1.9"
   }
 }
