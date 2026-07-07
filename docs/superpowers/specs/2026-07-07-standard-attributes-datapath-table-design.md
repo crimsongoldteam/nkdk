@@ -14,33 +14,33 @@
 
 | Объект | Внутреннее имя | YAML | Источник сейчас | Правило типа | Спецификация | Разобрано |
 | --- | --- | --- | --- | --- | --- | --- |
-| Общие объектные | Ref | Ссылка | `dataPathCommon` | текущий объект | `sameOwnerObject` | - [x] |
-| Общие объектные | Parent | Родитель | `dataPathCommon` | текущий объект | `sameOwnerObject` | - [x] |
-| Общие объектные | Owner | Владелец | `dataPathCommon` | ссылки из свойства `owners`, составной тип при нескольких владельцах | `objectRefsFromProperty(owners)` | - [x] |
-| Общие объектные | DeletionMark | ПометкаУдаления | `dataPathCommon` | булево | `scalar(boolean)` | - [x] |
-| Общие объектные | Predefined | Предопределенный | `dataPathCommon` | булево | `scalar(boolean)` | - [x] |
+| Общие объектные | Ref | Ссылка | `dataPathCommon` | текущий объект | `dataPath: { type: "sameOwnerObject" }` | - [x] |
+| Общие объектные | Parent | Родитель | `dataPathCommon` | текущий объект | `dataPath: { type: "sameOwnerObject" }` | - [x] |
+| Общие объектные | Owner | Владелец | `dataPathCommon` | ссылки из свойства `owners`, составной тип при нескольких владельцах | `dataPath: { type: "objectRefsFromProperty", property: "owners" }` | - [x] |
+| Общие объектные | DeletionMark | ПометкаУдаления | `dataPathCommon` | булево | `dataPath: { type: "boolean" }` | - [x] |
+| Общие объектные | Predefined | Предопределенный | `dataPathCommon` | булево | `dataPath: { type: "boolean" }` | - [x] |
 | Общие объектные | PredefinedDataName | ИмяПредопределенныхДанных | имена в rules | резервное поведение |  | - [ ] |
-| Общие объектные | Description | Наименование / Описание | имена в rules | строка или явный `Тип` | `scalar(string)` | - [x] |
-| Общие объектные | Code | Код | имена в rules | зависит от свойства владельца (`codeType` и аналоги) | `typeFromProperty(codeType)` | - [x] |
-| Общие объектные | IsFolder | ЭтоГруппа | имена в rules | булево | `scalar(boolean)` | - [x] |
-| Общие объектные | Date | Дата | имена в rules | дата | `scalar(dateTime)` | - [x] |
+| Общие объектные | Description | Наименование / Описание | имена в rules | строка или явный `Тип` | `dataPath: { type: "string" }` | - [x] |
+| Общие объектные | Code | Код | имена в rules | зависит от свойства владельца (`codeType` и аналоги) | `dataPath: { type: "catalogCode", property: "codeType" }` | - [x] |
+| Общие объектные | IsFolder | ЭтоГруппа | имена в rules | булево | `dataPath: { type: "boolean" }` | - [x] |
+| Общие объектные | Date | Дата | имена в rules | дата | `dataPath: { type: "dateTime" }` | - [x] |
 | Общие объектные | Number | Номер | имена в rules | строка/число по свойствам нумерации владельца |  | - [ ] |
-| Общие объектные | Posted | Проведен | `dataPathCommon` | булево | `scalar(boolean)` | - [x] |
-| Табличная часть | LineNumber | НомерСтроки | `metadataTabularSection`, `dataPathCommon` | число | `scalar(number)` | - [x] |
-| Справочник | Ref | Ссылка | `MetadataCatalogStandardAttributeNames` | текущий объект | `sameOwnerObject` | - [x] |
-| Справочник | Owner | Владелец | `MetadataCatalogStandardAttributeNames` | `owners` | `objectRefsFromProperty(owners)` | - [x] |
-| Справочник | Code | Код | `MetadataCatalogStandardAttributeNames` | `codeType` | `typeFromProperty(codeType)` | - [x] |
-| Справочник | Description | Наименование | `MetadataCatalogStandardAttributeNames` | строка | `scalar(string)` | - [x] |
-| Справочник | Parent | Родитель | `MetadataCatalogStandardAttributeNames` | текущий объект | `sameOwnerObject` | - [x] |
-| Справочник | IsFolder | ЭтоГруппа | `MetadataCatalogStandardAttributeNames` | булево | `scalar(boolean)` | - [x] |
-| Справочник | DeletionMark | ПометкаУдаления | `MetadataCatalogStandardAttributeNames` | булево | `scalar(boolean)` | - [x] |
-| Справочник | Predefined | Предопределенный | `MetadataCatalogStandardAttributeNames` | булево | `scalar(boolean)` | - [x] |
+| Общие объектные | Posted | Проведен | `dataPathCommon` | булево | `dataPath: { type: "boolean" }` | - [x] |
+| Табличная часть | LineNumber | НомерСтроки | `metadataTabularSection`, `dataPathCommon` | число | `dataPath: { type: "number" }` | - [x] |
+| Справочник | Ref | Ссылка | `MetadataCatalogStandardAttributeNames` | текущий объект | `dataPath: { type: "sameOwnerObject" }` | - [x] |
+| Справочник | Owner | Владелец | `MetadataCatalogStandardAttributeNames` | `owners` | `dataPath: { type: "objectRefsFromProperty", property: "owners" }` | - [x] |
+| Справочник | Code | Код | `MetadataCatalogStandardAttributeNames` | `codeType` | `dataPath: { type: "catalogCode", property: "codeType" }` | - [x] |
+| Справочник | Description | Наименование | `MetadataCatalogStandardAttributeNames` | строка | `dataPath: { type: "string" }` | - [x] |
+| Справочник | Parent | Родитель | `MetadataCatalogStandardAttributeNames` | текущий объект | `dataPath: { type: "sameOwnerObject" }` | - [x] |
+| Справочник | IsFolder | ЭтоГруппа | `MetadataCatalogStandardAttributeNames` | булево | `dataPath: { type: "boolean" }` | - [x] |
+| Справочник | DeletionMark | ПометкаУдаления | `MetadataCatalogStandardAttributeNames` | булево | `dataPath: { type: "boolean" }` | - [x] |
+| Справочник | Predefined | Предопределенный | `MetadataCatalogStandardAttributeNames` | булево | `dataPath: { type: "boolean" }` | - [x] |
 | Справочник | PredefinedDataName | ИмяПредопределенныхДанных | `MetadataCatalogStandardAttributeNames` | резервное поведение |  | - [ ] |
-| Документ | Ref | Ссылка | `MetadataDocumentStandardAttributeNames` | текущий объект | `sameOwnerObject` | - [x] |
-| Документ | Date | Дата | `MetadataDocumentStandardAttributeNames` | дата | `scalar(dateTime)` | - [x] |
+| Документ | Ref | Ссылка | `MetadataDocumentStandardAttributeNames` | текущий объект | `dataPath: { type: "sameOwnerObject" }` | - [x] |
+| Документ | Date | Дата | `MetadataDocumentStandardAttributeNames` | дата | `dataPath: { type: "dateTime" }` | - [x] |
 | Документ | Number | Номер | `MetadataDocumentStandardAttributeNames` | по свойствам нумерации документа |  | - [ ] |
-| Документ | Posted | Проведен | `MetadataDocumentStandardAttributeNames` | булево | `scalar(boolean)` | - [x] |
-| Документ | DeletionMark | ПометкаУдаления | `MetadataDocumentStandardAttributeNames` | булево | `scalar(boolean)` | - [x] |
+| Документ | Posted | Проведен | `MetadataDocumentStandardAttributeNames` | булево | `dataPath: { type: "boolean" }` | - [x] |
+| Документ | DeletionMark | ПометкаУдаления | `MetadataDocumentStandardAttributeNames` | булево | `dataPath: { type: "boolean" }` | - [x] |
 | Перечисление | Ref | Ссылка | `MetadataEnumerationStandardAttributeNames` | текущий объект |  | - [ ] |
 | Перечисление | Order | Порядок | `MetadataEnumerationStandardAttributeNames` | число |  | - [ ] |
 | План счетов | Ref | Ссылка | `MetadataChartOfAccountsStandardAttributeNames` | текущий объект |  | - [ ] |
