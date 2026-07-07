@@ -1,4 +1,5 @@
 import { parseMetadataTargetFromYAML } from "../commonObjects/metadataTargets"
+import { rootFromYAML } from "../commonObjects/metadataTargets/roots"
 import type { MetadataTargetOwner, ParsedMetadataTarget } from "../commonObjects/metadataTargets/types"
 import { getTypeFromYAML } from "../commonObjects/typeDescription/helper"
 import type { TypeDescription } from "../commonObjects/typeDescription/types"
@@ -176,6 +177,10 @@ function syntheticModelFromYaml(
       model[property.modelKey] = Array.isArray(value) ? value.filter((item): item is string => typeof item === "string") : []
       continue
     }
+    if (property.modelKey === "registerRecords") {
+      model[property.modelKey] = metadataLinksFromYaml(value)
+      continue
+    }
     if (property.modelKey === "type") {
       model[property.modelKey] = typeDescriptionFromYAML(value)
       continue
@@ -253,6 +258,19 @@ function tabularSectionsFromYaml(value: unknown): Array<{ name: string; attribut
     name,
     attributes: namedTypedItemsFromYaml(asRecord(item)?.["Реквизиты"]),
   }))
+}
+
+function metadataLinksFromYaml(value: unknown): string[] {
+  if (!Array.isArray(value)) return []
+  return value.filter((item): item is string => typeof item === "string").map(metadataLinkFromYaml)
+}
+
+function metadataLinkFromYaml(value: string): string {
+  const dotIndex = value.indexOf(".")
+  if (dotIndex === -1) return value
+
+  const root = value.substring(0, dotIndex)
+  return `${rootFromYAML[root] ?? root}${value.substring(dotIndex)}`
 }
 
 function collectPendingReferences(params: {
@@ -614,8 +632,9 @@ function typeDescriptionFromYAML(value: unknown): TypeDescription | undefined {
 }
 
 function primitiveTypeFromYaml(value: string): string {
-  if (value === "Строка" || value === "ФиксированнаяСтрока") return "string"
-  if (value === "Число" || value === "ПоложительноеЧисло") return "decimal"
+  const base = value.replace(/\(.+\)$/, "")
+  if (base === "Строка" || base === "ФиксированнаяСтрока") return "string"
+  if (base === "Число" || base === "ПоложительноеЧисло") return "decimal"
   if (value === "Булево") return "boolean"
   if (value === "Дата" || value === "Время" || value === "ДатаВремя") return "dateTime"
   return value

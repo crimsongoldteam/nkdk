@@ -82,4 +82,64 @@ describe("extractValidationYamlFacts", () => {
       })
     )
   })
+
+  it("extracts parameterized primitive types for form additional columns", () => {
+    const projectDir = "/project"
+    const filePath = "/project/Документ/Заказ/Формы/ФормаДокумента/Форма.yaml"
+    const file = resolveValidationProjectFile(projectDir, filePath)
+    if (file === undefined) throw new Error("file not resolved")
+
+    const facts = extractValidationYamlFacts({
+      file,
+      parsed: parseMetadataYaml(
+        [
+          "Реквизиты:",
+          "  Объект:",
+          "    Тип: ДокументОбъект.Заказ",
+          "    ДополнительныеКолонки:",
+          "      Объект.Товары:",
+          "        ИндексКартинки:",
+          "          Тип: Число(10, 0)",
+          "Элементы:",
+          "  Картинка:",
+          "    Вид: ПолеРисунка",
+          "    КартинкаЗначений: ОбщаяКартинка.Состояния",
+          "    ПутьКДанным: Объект.Товары.ИндексКартинки",
+        ].join("\n")
+      ),
+      rulesSnapshot: createValidationRulesSnapshot(mockContext),
+    })
+
+    const check = facts.pendingChecks.find((item) => item.value === "Объект.Товары.ИндексКартинки")
+    expect(check?.index.additionalColumnsByTablePath.get("Объект.Товары")?.get("ИндексКартинки")).toEqual(
+      expect.objectContaining({
+        name: "ИндексКартинки",
+        typeInfo: expect.objectContaining({ kinds: ["scalar"], sourceText: "decimal" }),
+      })
+    )
+  })
+
+  it("extracts document register records from YAML movements", () => {
+    const projectDir = "/project"
+    const filePath = "/project/Документ/Операция/Свойства.yaml"
+    const file = resolveValidationProjectFile(projectDir, filePath)
+    if (file === undefined) throw new Error("file not resolved")
+
+    const facts = extractValidationYamlFacts({
+      file,
+      parsed: parseMetadataYaml(
+        [
+          "Движения:",
+          "  - РегистрБухгалтерии.Хозрасчетный",
+          "  - РегистрНакопления.Продажи",
+        ].join("\n")
+      ),
+      rulesSnapshot: createValidationRulesSnapshot(mockContext),
+    })
+
+    expect(facts.ownerModelStub?.registerRecords).toEqual([
+      "AccountingRegister.Хозрасчетный",
+      "AccumulationRegister.Продажи",
+    ])
+  })
 })

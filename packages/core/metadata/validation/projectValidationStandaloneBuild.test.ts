@@ -24,6 +24,15 @@ describe("project validation standalone build output", () => {
     expect(schema.Check({ Значения: { Значение1: {} } })).toBe(true)
   })
 
+  it("accepts predefined item codes from YAML keys", () => {
+    const schemaSet = createProjectValidationStandaloneSchemaSet()
+    const schema = compileValidationSchema(schemaSet.refs, schemaSet.byProjectDir["Справочник"])
+
+    expect(schema.Check({ Предопределенные: { ПредопределенноеЗначение: { Наименование: "Предопределенное значение" } } })).toBe(
+      true
+    )
+  })
+
   it("loads generated validators from dist when build has produced them", async () => {
     const modulePath = new URL("../../../dist/projectValidationAjvStandalone.js", import.meta.url).pathname
     if (!existsSync(modulePath)) return

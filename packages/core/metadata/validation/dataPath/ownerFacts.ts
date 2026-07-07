@@ -9,6 +9,7 @@ export interface ValidationOwnerFacts {
   fieldIndex: ObjectFieldIndex
   type?: TypeDescription
   commonAttributeOwnerLinks?: string[]
+  registerRecords?: string[]
 }
 
 export function createValidationOwnerFacts(params: {
@@ -19,6 +20,7 @@ export function createValidationOwnerFacts(params: {
 }): ValidationOwnerFacts {
   const type = metadataRecord(params.model)["type"]
   const commonAttributeOwnerLinks = commonAttributeOwnerLinksFromModel(params.model)
+  const registerRecords = stringArray(metadataRecord(params.model)["registerRecords"])
 
   return {
     ref: params.ref,
@@ -26,6 +28,7 @@ export function createValidationOwnerFacts(params: {
     fieldIndex: params.fieldIndex,
     ...(isTypeDescription(type) ? { type } : {}),
     ...(commonAttributeOwnerLinks.length === 0 ? {} : { commonAttributeOwnerLinks }),
+    ...(registerRecords.length === 0 ? {} : { registerRecords }),
   }
 }
 
@@ -35,7 +38,12 @@ export function modelStubFromOwnerFacts(facts: ValidationOwnerFacts): unknown {
     ...(facts.commonAttributeOwnerLinks === undefined
       ? {}
       : { content: facts.commonAttributeOwnerLinks.map((metadata) => ({ metadata, use: "Use" })) }),
+    ...(facts.registerRecords === undefined ? {} : { registerRecords: facts.registerRecords }),
   }
+}
+
+function stringArray(value: unknown): string[] {
+  return Array.isArray(value) ? value.filter((item): item is string => typeof item === "string") : []
 }
 
 function commonAttributeOwnerLinksFromModel(model: MetadataItem): string[] {
