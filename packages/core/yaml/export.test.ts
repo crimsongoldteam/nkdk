@@ -54,6 +54,15 @@ describe("exportToYAML", () => {
     expect(yaml).toBe("Имя: Тест")
   })
 
+  it("prints quoted ordinary strings with double quotes", () => {
+    const yaml = exportToYAML({
+      en: "Remote access: Message exchange",
+      escaped: `Quoted 'value'`,
+    })
+
+    expect(yaml).toBe(`en: "Remote access: Message exchange"\nescaped: Quoted 'value'`)
+  })
+
   it("exports without document final line ending", () => {
     expect(exportToYAML({ Имя: "Тест" })).toBe("Имя: Тест")
   })

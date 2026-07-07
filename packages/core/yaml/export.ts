@@ -89,6 +89,7 @@ export const exportToYAML = <T>(data: T): string => {
     skipInvalid: false,
     sortKeys: false,
     forceQuotes: false,
+    quoteStyle: "double",
   })
   return removeDocumentFinalLineEnding(
     normalizeQuotedTypeLinkValues(quoteExplicitStrings(normalizeEmptyNullValues(yaml), explicitStrings))
