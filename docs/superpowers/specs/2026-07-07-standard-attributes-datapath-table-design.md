@@ -50,8 +50,8 @@
 | План счетов | Type | Вид | `MetadataChartOfAccountsStandardAttributeNames` | резервное поведение |  | - [ ] |
 | План счетов | OffBalance | Забалансовый | `MetadataChartOfAccountsStandardAttributeNames` | булево |  | - [ ] |
 | План счетов | Order | Порядок | `MetadataChartOfAccountsStandardAttributeNames` | число |  | - [ ] |
-| План счетов | DeletionMark | ПометкаУдаления | `MetadataChartOfAccountsStandardAttributeNames` | булево |  | - [ ] |
-| План счетов | Predefined | Предопределенный | `MetadataChartOfAccountsStandardAttributeNames` | булево |  | - [ ] |
+| План счетов | DeletionMark | ПометкаУдаления | `MetadataChartOfAccountsStandardAttributeNames` | булево | `dataPath: { type: "boolean" }` | - [x] |
+| План счетов | Predefined | Предопределенный | `MetadataChartOfAccountsStandardAttributeNames` | булево | `dataPath: { type: "boolean" }` | - [x] |
 | План счетов | PredefinedDataName | ИмяПредопределенныхДанных | `MetadataChartOfAccountsStandardAttributeNames` | строка | `dataPath: { type: "string" }` | - [x] |
 | План видов характеристик | Ref | Ссылка | `MetadataChartOfCharacteristicTypesStandardAttributeNames` | ссылка на сам объект | `dataPath: { type: "sameOwnerObject" }` | - [x] |
 | План видов характеристик | ValueType | ТипЗначения | `dataPathCommon` | описание типа |  | - [ ] |
@@ -59,15 +59,15 @@
 | План видов характеристик | Description | Наименование | `MetadataChartOfCharacteristicTypesStandardAttributeNames` | строка |  | - [ ] |
 | План видов характеристик | Parent | Родитель | `MetadataChartOfCharacteristicTypesStandardAttributeNames` | текущий объект |  | - [ ] |
 | План видов характеристик | IsFolder | ЭтоГруппа | `MetadataChartOfCharacteristicTypesStandardAttributeNames` | булево |  | - [ ] |
-| План видов характеристик | DeletionMark | ПометкаУдаления | `MetadataChartOfCharacteristicTypesStandardAttributeNames` | булево |  | - [ ] |
-| План видов характеристик | Predefined | Предопределенный | `MetadataChartOfCharacteristicTypesStandardAttributeNames` | булево |  | - [ ] |
+| План видов характеристик | DeletionMark | ПометкаУдаления | `MetadataChartOfCharacteristicTypesStandardAttributeNames` | булево | `dataPath: { type: "boolean" }` | - [x] |
+| План видов характеристик | Predefined | Предопределенный | `MetadataChartOfCharacteristicTypesStandardAttributeNames` | булево | `dataPath: { type: "boolean" }` | - [x] |
 | План видов характеристик | PredefinedDataName | ИмяПредопределенныхДанных | `MetadataChartOfCharacteristicTypesStandardAttributeNames` | строка | `dataPath: { type: "string" }` | - [x] |
 | План видов расчета | Ref | Ссылка | `MetadataChartOfCalculationTypesStandardAttributeNames` | ссылка на сам объект | `dataPath: { type: "sameOwnerObject" }` | - [x] |
 | План видов расчета | Code | Код | `MetadataChartOfCalculationTypesStandardAttributeNames` | по свойствам кода |  | - [ ] |
 | План видов расчета | Description | Наименование | `MetadataChartOfCalculationTypesStandardAttributeNames` | строка |  | - [ ] |
 | План видов расчета | ActionPeriodIsBasic | ПериодДействияБазовый | `MetadataChartOfCalculationTypesStandardAttributeNames` | булево |  | - [ ] |
-| План видов расчета | DeletionMark | ПометкаУдаления | `MetadataChartOfCalculationTypesStandardAttributeNames` | булево |  | - [ ] |
-| План видов расчета | Predefined | Предопределенный | `MetadataChartOfCalculationTypesStandardAttributeNames` | булево |  | - [ ] |
+| План видов расчета | DeletionMark | ПометкаУдаления | `MetadataChartOfCalculationTypesStandardAttributeNames` | булево | `dataPath: { type: "boolean" }` | - [x] |
+| План видов расчета | Predefined | Предопределенный | `MetadataChartOfCalculationTypesStandardAttributeNames` | булево | `dataPath: { type: "boolean" }` | - [x] |
 | План видов расчета | PredefinedDataName | ИмяПредопределенныхДанных | `MetadataChartOfCalculationTypesStandardAttributeNames` | строка | `dataPath: { type: "string" }` | - [x] |
 | План обмена | Ref | Ссылка | `MetadataExchangePlanStandardAttributeNames` | ссылка на сам объект | `dataPath: { type: "sameOwnerObject" }` | - [x] |
 | План обмена | Code | Код | `MetadataExchangePlanStandardAttributeNames` | по свойствам кода |  | - [ ] |
@@ -76,20 +76,20 @@
 | План обмена | ExchangeDate | ДатаОбмена | `MetadataExchangePlanStandardAttributeNames` | дата |  | - [ ] |
 | План обмена | SentNo | НомерОтправленного | `dataPathCommon` | скаляр |  | - [ ] |
 | План обмена | ReceivedNo | НомерПринятого | `dataPathCommon` | скаляр |  | - [ ] |
-| План обмена | DeletionMark | ПометкаУдаления | `MetadataExchangePlanStandardAttributeNames` | булево |  | - [ ] |
+| План обмена | DeletionMark | ПометкаУдаления | `MetadataExchangePlanStandardAttributeNames` | булево | `dataPath: { type: "boolean" }` | - [x] |
 | Журнал документов | Ref | Ссылка | `MetadataDocumentJournalStandardAttributeNames` | ссылка на сам объект | `dataPath: { type: "sameOwnerObject" }` | - [x] |
 | Журнал документов | Type | Тип | `MetadataDocumentJournalStandardAttributeNames` | резервное поведение |  | - [ ] |
 | Журнал документов | Date | Дата | `MetadataDocumentJournalStandardAttributeNames` | дата |  | - [ ] |
 | Журнал документов | Number | Номер | `MetadataDocumentJournalStandardAttributeNames` | резервное поведение |  | - [ ] |
 | Журнал документов | Posted | Проведен | `MetadataDocumentJournalStandardAttributeNames` | булево |  | - [ ] |
-| Журнал документов | DeletionMark | ПометкаУдаления | `MetadataDocumentJournalStandardAttributeNames` | булево |  | - [ ] |
+| Журнал документов | DeletionMark | ПометкаУдаления | `MetadataDocumentJournalStandardAttributeNames` | булево | `dataPath: { type: "boolean" }` | - [x] |
 | Бизнес-процесс | Ref | Ссылка | `MetadataBusinessProcessStandardAttributeNames` | ссылка на сам объект | `dataPath: { type: "sameOwnerObject" }` | - [x] |
 | Бизнес-процесс | Date | Дата | `MetadataBusinessProcessStandardAttributeNames` | дата |  | - [ ] |
 | Бизнес-процесс | Number | Номер | `MetadataBusinessProcessStandardAttributeNames` | резервное поведение |  | - [ ] |
 | Бизнес-процесс | Started | Стартован | `dataPathCommon` | булево |  | - [ ] |
 | Бизнес-процесс | Completed | Завершен | `dataPathCommon` | булево |  | - [ ] |
 | Бизнес-процесс | HeadTask | ГоловнаяЗадача | `MetadataBusinessProcessStandardAttributeNames` | задача |  | - [ ] |
-| Бизнес-процесс | DeletionMark | ПометкаУдаления | `MetadataBusinessProcessStandardAttributeNames` | булево |  | - [ ] |
+| Бизнес-процесс | DeletionMark | ПометкаУдаления | `MetadataBusinessProcessStandardAttributeNames` | булево | `dataPath: { type: "boolean" }` | - [x] |
 | Задача | Ref | Ссылка | `MetadataTaskStandardAttributeNames` | ссылка на сам объект | `dataPath: { type: "sameOwnerObject" }` | - [x] |
 | Задача | Date | Дата | `MetadataTaskStandardAttributeNames` | дата |  | - [ ] |
 | Задача | Number | Номер | `MetadataTaskStandardAttributeNames` | резервное поведение |  | - [ ] |
@@ -97,7 +97,7 @@
 | Задача | BusinessProcess | БизнесПроцесс | `metadataTask/register.ts` | бизнес-процесс |  | - [ ] |
 | Задача | RoutePoint | ТочкаМаршрута | `metadataTask/register.ts` | точка маршрута бизнес-процесса |  | - [ ] |
 | Задача | Description | Описание | `MetadataTaskStandardAttributeNames` | строка |  | - [ ] |
-| Задача | DeletionMark | ПометкаУдаления | `MetadataTaskStandardAttributeNames` | булево |  | - [ ] |
+| Задача | DeletionMark | ПометкаУдаления | `MetadataTaskStandardAttributeNames` | булево | `dataPath: { type: "boolean" }` | - [x] |
 | Регистр сведений | Active | Активность | `MetadataInformationRegisterStandardAttributeNames` | булево |  | - [ ] |
 | Регистр сведений | LineNumber | НомерСтроки | `MetadataInformationRegisterStandardAttributeNames` | число |  | - [ ] |
 | Регистр сведений | Recorder | Регистратор | `MetadataInformationRegisterStandardAttributeNames` | регистратор |  | - [ ] |
@@ -141,7 +141,8 @@
 - `Number`: для документа через `numberType`.
 - `Description`: строка для справочника.
 - `PredefinedDataName`: строка.
-- `IsFolder`, `DeletionMark`, `Predefined`, `Posted`: булевы.
+- `DeletionMark`, `Predefined`: всегда булевы.
+- `IsFolder`, `Posted`: булевы.
 - `Date`: дата.
 - `Enum.Order`: число.
 - `LineNumber`: число.
