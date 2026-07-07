@@ -71,7 +71,7 @@ export const UsualGroupRules = {
       typeSE: "ChildFormItemsGroup",
       defaultValue: "HorizontalIfPossible",
       // defaultValueXML: "HorizontalIfPossible",
-      implicitValueYAML: "ГоризонтальнаяЕслиВозможно",
+      implicitValueYAML: "HorizontalIfPossible",
     }),
     hiddenRepresentationTitleBackColor: colorRule({
       yaml: "ЦветФонаЗаголовкаСкрытогоОтображения",

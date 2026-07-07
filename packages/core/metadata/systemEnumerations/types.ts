@@ -13680,10 +13680,11 @@ export type SystemEnumerationTypeMap = {
 
 export type SystemEnumerationPropertyRule<T extends keyof SystemEnumerationTypeMap = keyof SystemEnumerationTypeMap> =
   T extends keyof SystemEnumerationTypeMap
-    ? Omit<BasePropertyRule, "implicitValueYAML"> & {
+    ? Omit<BasePropertyRule, "defaultValueXML" | "implicitValueYAML"> & {
         type: "SystemEnumeration"
         typeSE: T
-        implicitValueYAML?: SystemEnumerationTypeMap[T] | string
+        defaultValueXML?: SystemEnumerationTypeMap[T]
+        implicitValueYAML?: SystemEnumerationTypeMap[T]
       }
     : never
 

@@ -459,7 +459,7 @@ export const ClientApplicationFormRules = {
     usePostingMode: systemEnumerationRule({
       yaml: "РежимПроведения",
       xml: "UsePostingMode",
-      typeSE: "DocumentPostingMode",
+      typeSE: "PostingModeUse",
       tag: FormRulesTags.Form,
       implicitValueYAML: "Auto",
     }),

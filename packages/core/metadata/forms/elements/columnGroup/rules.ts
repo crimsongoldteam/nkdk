@@ -36,7 +36,7 @@ export const ColumnGroupRules = {
       yaml: "Группировка",
       typeSE: "ColumnsGroup",
       defaultValue: "Vertical",
-      implicitValueYAML: "Вертикальная",
+      implicitValueYAML: "Vertical",
     }),
     headerDataPath: dataPathRule({ yaml: "ПутьКДаннымШапки", defaultType: "string" }),
     headerFormat: i8nTextRule({ yaml: "ФорматШапки" }),
