@@ -25,7 +25,7 @@ const commonOptions = {
   logLevel: "info",
   platform: "node",
   sourcemap: false,
-  target: "node20",
+  target: "node26",
 }
 
 await esbuild.build({

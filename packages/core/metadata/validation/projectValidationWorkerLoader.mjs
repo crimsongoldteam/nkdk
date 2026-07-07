@@ -3,7 +3,7 @@ import { fileURLToPath, pathToFileURL } from "node:url"
 
 const coreRoot = fileURLToPath(new URL("../../", import.meta.url))
 
-export async function resolve(specifier, context, nextResolve) {
+export function resolve(specifier, context, nextResolve) {
   if (specifier === "~" || specifier.startsWith("~/")) {
     const relativePath = specifier === "~" ? "" : specifier.slice(2)
     return nextResolve(pathToFileURL(resolveSourcePath(coreRoot + relativePath)).href, context)

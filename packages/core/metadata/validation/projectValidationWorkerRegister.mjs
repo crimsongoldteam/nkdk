@@ -1,3 +1,4 @@
-import { register } from "node:module"
+import { registerHooks } from "node:module"
+import { resolve } from "./projectValidationWorkerLoader.mjs"
 
-register(new URL("./projectValidationWorkerLoader.mjs", import.meta.url))
+registerHooks({ resolve })

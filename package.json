@@ -6,6 +6,7 @@
   "type": "module",
   "packageManager": "pnpm@10.33.0",
   "engines": {
+    "node": ">=26.0.0",
     "pnpm": ">=9.0.0"
   },
   "scripts": {
@@ -16,7 +17,7 @@
     "prepare": "ts-patch install"
   },
   "devDependencies": {
-    "@types/node": "^25.9.3",
+    "@types/node": "^26.0.0",
     "prettier": "^3.8.4",
     "ts-patch": "^3.3.0",
     "tsc-alias": "^1.8.17",
