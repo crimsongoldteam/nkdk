@@ -44,7 +44,7 @@
 | Перечисление | Ref | Ссылка | `MetadataEnumerationStandardAttributeNames` | ссылка на сам объект | `dataPath: { type: "sameOwnerObject" }` | - [x] |
 | Перечисление | Order | Порядок | `MetadataEnumerationStandardAttributeNames` | число | `dataPath: { type: "number" }` | - [x] |
 | План счетов | Ref | Ссылка | `MetadataChartOfAccountsStandardAttributeNames` | ссылка на сам объект | `dataPath: { type: "sameOwnerObject" }` | - [x] |
-| План счетов | Code | Код | `MetadataChartOfAccountsStandardAttributeNames` | по свойствам кода |  | - [ ] |
+| План счетов | Code | Код | `MetadataChartOfAccountsStandardAttributeNames` | строка | `dataPath: { type: "string" }` | - [x] |
 | План счетов | Description | Наименование | `MetadataChartOfAccountsStandardAttributeNames` | строка |  | - [ ] |
 | План счетов | Parent | Родитель | `MetadataChartOfAccountsStandardAttributeNames` | ссылка на сам объект | `dataPath: { type: "sameOwnerObject" }` | - [x] |
 | План счетов | Type | Вид | `MetadataChartOfAccountsStandardAttributeNames` | резервное поведение |  | - [ ] |
@@ -55,7 +55,7 @@
 | План счетов | PredefinedDataName | ИмяПредопределенныхДанных | `MetadataChartOfAccountsStandardAttributeNames` | строка | `dataPath: { type: "string" }` | - [x] |
 | План видов характеристик | Ref | Ссылка | `MetadataChartOfCharacteristicTypesStandardAttributeNames` | ссылка на сам объект | `dataPath: { type: "sameOwnerObject" }` | - [x] |
 | План видов характеристик | ValueType | ТипЗначения | `dataPathCommon` | описание типа |  | - [ ] |
-| План видов характеристик | Code | Код | `MetadataChartOfCharacteristicTypesStandardAttributeNames` | по свойствам кода |  | - [ ] |
+| План видов характеристик | Code | Код | `MetadataChartOfCharacteristicTypesStandardAttributeNames` | строка | `dataPath: { type: "string" }` | - [x] |
 | План видов характеристик | Description | Наименование | `MetadataChartOfCharacteristicTypesStandardAttributeNames` | строка |  | - [ ] |
 | План видов характеристик | Parent | Родитель | `MetadataChartOfCharacteristicTypesStandardAttributeNames` | ссылка на сам объект | `dataPath: { type: "sameOwnerObject" }` | - [x] |
 | План видов характеристик | IsFolder | ЭтоГруппа | `MetadataChartOfCharacteristicTypesStandardAttributeNames` | булево |  | - [ ] |
@@ -63,14 +63,14 @@
 | План видов характеристик | Predefined | Предопределенный | `MetadataChartOfCharacteristicTypesStandardAttributeNames` | булево | `dataPath: { type: "boolean" }` | - [x] |
 | План видов характеристик | PredefinedDataName | ИмяПредопределенныхДанных | `MetadataChartOfCharacteristicTypesStandardAttributeNames` | строка | `dataPath: { type: "string" }` | - [x] |
 | План видов расчета | Ref | Ссылка | `MetadataChartOfCalculationTypesStandardAttributeNames` | ссылка на сам объект | `dataPath: { type: "sameOwnerObject" }` | - [x] |
-| План видов расчета | Code | Код | `MetadataChartOfCalculationTypesStandardAttributeNames` | по свойствам кода |  | - [ ] |
+| План видов расчета | Code | Код | `MetadataChartOfCalculationTypesStandardAttributeNames` | зависит от свойства `codeType` (`ChartOfCalculationTypesCodeType`) | `dataPath: { type: "calculationTypeCode", property: "codeType" }` | - [x] |
 | План видов расчета | Description | Наименование | `MetadataChartOfCalculationTypesStandardAttributeNames` | строка |  | - [ ] |
 | План видов расчета | ActionPeriodIsBasic | ПериодДействияБазовый | `MetadataChartOfCalculationTypesStandardAttributeNames` | булево |  | - [ ] |
 | План видов расчета | DeletionMark | ПометкаУдаления | `MetadataChartOfCalculationTypesStandardAttributeNames` | булево | `dataPath: { type: "boolean" }` | - [x] |
 | План видов расчета | Predefined | Предопределенный | `MetadataChartOfCalculationTypesStandardAttributeNames` | булево | `dataPath: { type: "boolean" }` | - [x] |
 | План видов расчета | PredefinedDataName | ИмяПредопределенныхДанных | `MetadataChartOfCalculationTypesStandardAttributeNames` | строка | `dataPath: { type: "string" }` | - [x] |
 | План обмена | Ref | Ссылка | `MetadataExchangePlanStandardAttributeNames` | ссылка на сам объект | `dataPath: { type: "sameOwnerObject" }` | - [x] |
-| План обмена | Code | Код | `MetadataExchangePlanStandardAttributeNames` | по свойствам кода |  | - [ ] |
+| План обмена | Code | Код | `MetadataExchangePlanStandardAttributeNames` | строка | `dataPath: { type: "string" }` | - [x] |
 | План обмена | Description | Наименование | `MetadataExchangePlanStandardAttributeNames` | строка |  | - [ ] |
 | План обмена | ThisNode | ЭтотУзел | `MetadataExchangePlanStandardAttributeNames` | текущий объект / узел плана обмена |  | - [ ] |
 | План обмена | ExchangeDate | ДатаОбмена | `MetadataExchangePlanStandardAttributeNames` | дата |  | - [ ] |
@@ -85,14 +85,14 @@
 | Журнал документов | DeletionMark | ПометкаУдаления | `MetadataDocumentJournalStandardAttributeNames` | булево | `dataPath: { type: "boolean" }` | - [x] |
 | Бизнес-процесс | Ref | Ссылка | `MetadataBusinessProcessStandardAttributeNames` | ссылка на сам объект | `dataPath: { type: "sameOwnerObject" }` | - [x] |
 | Бизнес-процесс | Date | Дата | `MetadataBusinessProcessStandardAttributeNames` | дата |  | - [ ] |
-| Бизнес-процесс | Number | Номер | `MetadataBusinessProcessStandardAttributeNames` | резервное поведение |  | - [ ] |
+| Бизнес-процесс | Number | Номер | `MetadataBusinessProcessStandardAttributeNames` | зависит от свойства `numberType` (`BusinessProcessNumberType`) | `dataPath: { type: "businessProcessNumber", property: "numberType" }` | - [x] |
 | Бизнес-процесс | Started | Стартован | `dataPathCommon` | булево |  | - [ ] |
 | Бизнес-процесс | Completed | Завершен | `dataPathCommon` | булево |  | - [ ] |
 | Бизнес-процесс | HeadTask | ГоловнаяЗадача | `MetadataBusinessProcessStandardAttributeNames` | задача |  | - [ ] |
 | Бизнес-процесс | DeletionMark | ПометкаУдаления | `MetadataBusinessProcessStandardAttributeNames` | булево | `dataPath: { type: "boolean" }` | - [x] |
 | Задача | Ref | Ссылка | `MetadataTaskStandardAttributeNames` | ссылка на сам объект | `dataPath: { type: "sameOwnerObject" }` | - [x] |
 | Задача | Date | Дата | `MetadataTaskStandardAttributeNames` | дата |  | - [ ] |
-| Задача | Number | Номер | `MetadataTaskStandardAttributeNames` | резервное поведение |  | - [ ] |
+| Задача | Number | Номер | `MetadataTaskStandardAttributeNames` | зависит от свойства `numberType` (`TaskNumberType`) | `dataPath: { type: "taskNumber", property: "numberType" }` | - [x] |
 | Задача | Executed | Выполнена | `dataPathCommon` | булево |  | - [ ] |
 | Задача | BusinessProcess | БизнесПроцесс | `metadataTask/register.ts` | бизнес-процесс |  | - [ ] |
 | Задача | RoutePoint | ТочкаМаршрута | `metadataTask/register.ts` | точка маршрута бизнес-процесса |  | - [ ] |
@@ -139,7 +139,11 @@
 - `Parent`: всегда ссылка на сам объект.
 - `Owner`: типы из свойства `owners`, с `isComposite` при нескольких владельцах.
 - `Code`: для справочника через `codeType`.
+- `ChartOfCalculationTypes.Code`: через `codeType`.
+- `ChartOfAccounts.Code`, `ChartOfCharacteristicTypes.Code`, `ExchangePlan.Code`: строка.
 - `Number`: для документа через `numberType`.
+- `BusinessProcess.Number`: через `numberType`.
+- `Task.Number`: через `numberType`.
 - `Description`: строка для справочника.
 - `PredefinedDataName`: строка.
 - `DeletionMark`, `Predefined`: всегда булевы.
