@@ -2,6 +2,7 @@ import { execFile } from "node:child_process"
 import { existsSync } from "node:fs"
 import { promisify } from "node:util"
 import { describe, expect, it } from "vitest"
+import { compileValidationSchema } from "./compileValidationSchema"
 import { createProjectValidationStandaloneSchemaSet } from "./projectValidationStandaloneSchemas"
 
 const execFileAsync = promisify(execFile)
@@ -14,6 +15,13 @@ describe("project validation standalone build output", () => {
       type: "object",
     })
     expect(JSON.stringify(schemaSet.byProjectDir["Справочник"])).toContain("nkdk://schema/MetadataCatalogAttribute")
+  })
+
+  it("accepts enumeration value names from YAML keys", () => {
+    const schemaSet = createProjectValidationStandaloneSchemaSet()
+    const schema = compileValidationSchema(schemaSet.refs, schemaSet.byProjectDir["Перечисление"])
+
+    expect(schema.Check({ Значения: { Значение1: {} } })).toBe(true)
   })
 
   it("loads generated validators from dist when build has produced them", async () => {
