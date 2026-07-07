@@ -38,7 +38,7 @@
 | Справочник | PredefinedDataName | ИмяПредопределенныхДанных | `MetadataCatalogStandardAttributeNames` | строка | `dataPath: { type: "string" }` | - [x] |
 | Документ | Ref | Ссылка | `MetadataDocumentStandardAttributeNames` | текущий объект | `dataPath: { type: "sameOwnerObject" }` | - [x] |
 | Документ | Date | Дата | `MetadataDocumentStandardAttributeNames` | дата | `dataPath: { type: "dateTime" }` | - [x] |
-| Документ | Number | Номер | `MetadataDocumentStandardAttributeNames` | по свойствам нумерации документа |  | - [ ] |
+| Документ | Number | Номер | `MetadataDocumentStandardAttributeNames` | зависит от свойства `numberType` (`DocumentNumberType`) | `dataPath: { type: "documentNumber", property: "numberType" }` | - [x] |
 | Документ | Posted | Проведен | `MetadataDocumentStandardAttributeNames` | булево | `dataPath: { type: "boolean" }` | - [x] |
 | Документ | DeletionMark | ПометкаУдаления | `MetadataDocumentStandardAttributeNames` | булево | `dataPath: { type: "boolean" }` | - [x] |
 | Перечисление | Ref | Ссылка | `MetadataEnumerationStandardAttributeNames` | текущий объект |  | - [ ] |
@@ -138,6 +138,7 @@
 - `Ref`: тип текущего объекта.
 - `Owner`: типы из свойства `owners`, с `isComposite` при нескольких владельцах.
 - `Code`: для справочника через `codeType`.
+- `Number`: для документа через `numberType`.
 - `Description`: строка для справочника.
 - `PredefinedDataName`: строка.
 - `IsFolder`, `DeletionMark`, `Predefined`, `Posted`: булевы.
