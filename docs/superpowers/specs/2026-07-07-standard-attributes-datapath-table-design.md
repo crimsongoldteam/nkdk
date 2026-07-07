@@ -15,7 +15,7 @@
 | Объект | Внутреннее имя | YAML | Источник сейчас | Правило типа | Спецификация | Разобрано |
 | --- | --- | --- | --- | --- | --- | --- |
 | Общие объектные | Ref | Ссылка | `dataPathCommon` | ссылка на сам объект | `dataPath: { type: "sameOwnerObject" }` | - [x] |
-| Общие объектные | Parent | Родитель | `dataPathCommon` | текущий объект | `dataPath: { type: "sameOwnerObject" }` | - [x] |
+| Общие объектные | Parent | Родитель | `dataPathCommon` | ссылка на сам объект | `dataPath: { type: "sameOwnerObject" }` | - [x] |
 | Общие объектные | Owner | Владелец | `dataPathCommon` | ссылки из свойства `owners`, составной тип при нескольких владельцах | `dataPath: { type: "objectRefsFromProperty", property: "owners" }` | - [x] |
 | Общие объектные | DeletionMark | ПометкаУдаления | `dataPathCommon` | булево | `dataPath: { type: "boolean" }` | - [x] |
 | Общие объектные | Predefined | Предопределенный | `dataPathCommon` | булево | `dataPath: { type: "boolean" }` | - [x] |
@@ -31,7 +31,7 @@
 | Справочник | Owner | Владелец | `MetadataCatalogStandardAttributeNames` | `owners` | `dataPath: { type: "objectRefsFromProperty", property: "owners" }` | - [x] |
 | Справочник | Code | Код | `MetadataCatalogStandardAttributeNames` | `codeType` | `dataPath: { type: "catalogCode", property: "codeType" }` | - [x] |
 | Справочник | Description | Наименование | `MetadataCatalogStandardAttributeNames` | строка | `dataPath: { type: "string" }` | - [x] |
-| Справочник | Parent | Родитель | `MetadataCatalogStandardAttributeNames` | текущий объект | `dataPath: { type: "sameOwnerObject" }` | - [x] |
+| Справочник | Parent | Родитель | `MetadataCatalogStandardAttributeNames` | ссылка на сам объект | `dataPath: { type: "sameOwnerObject" }` | - [x] |
 | Справочник | IsFolder | ЭтоГруппа | `MetadataCatalogStandardAttributeNames` | булево | `dataPath: { type: "boolean" }` | - [x] |
 | Справочник | DeletionMark | ПометкаУдаления | `MetadataCatalogStandardAttributeNames` | булево | `dataPath: { type: "boolean" }` | - [x] |
 | Справочник | Predefined | Предопределенный | `MetadataCatalogStandardAttributeNames` | булево | `dataPath: { type: "boolean" }` | - [x] |
@@ -46,7 +46,7 @@
 | План счетов | Ref | Ссылка | `MetadataChartOfAccountsStandardAttributeNames` | ссылка на сам объект | `dataPath: { type: "sameOwnerObject" }` | - [x] |
 | План счетов | Code | Код | `MetadataChartOfAccountsStandardAttributeNames` | по свойствам кода |  | - [ ] |
 | План счетов | Description | Наименование | `MetadataChartOfAccountsStandardAttributeNames` | строка |  | - [ ] |
-| План счетов | Parent | Родитель | `MetadataChartOfAccountsStandardAttributeNames` | текущий объект |  | - [ ] |
+| План счетов | Parent | Родитель | `MetadataChartOfAccountsStandardAttributeNames` | ссылка на сам объект | `dataPath: { type: "sameOwnerObject" }` | - [x] |
 | План счетов | Type | Вид | `MetadataChartOfAccountsStandardAttributeNames` | резервное поведение |  | - [ ] |
 | План счетов | OffBalance | Забалансовый | `MetadataChartOfAccountsStandardAttributeNames` | булево |  | - [ ] |
 | План счетов | Order | Порядок | `MetadataChartOfAccountsStandardAttributeNames` | число |  | - [ ] |
@@ -57,7 +57,7 @@
 | План видов характеристик | ValueType | ТипЗначения | `dataPathCommon` | описание типа |  | - [ ] |
 | План видов характеристик | Code | Код | `MetadataChartOfCharacteristicTypesStandardAttributeNames` | по свойствам кода |  | - [ ] |
 | План видов характеристик | Description | Наименование | `MetadataChartOfCharacteristicTypesStandardAttributeNames` | строка |  | - [ ] |
-| План видов характеристик | Parent | Родитель | `MetadataChartOfCharacteristicTypesStandardAttributeNames` | текущий объект |  | - [ ] |
+| План видов характеристик | Parent | Родитель | `MetadataChartOfCharacteristicTypesStandardAttributeNames` | ссылка на сам объект | `dataPath: { type: "sameOwnerObject" }` | - [x] |
 | План видов характеристик | IsFolder | ЭтоГруппа | `MetadataChartOfCharacteristicTypesStandardAttributeNames` | булево |  | - [ ] |
 | План видов характеристик | DeletionMark | ПометкаУдаления | `MetadataChartOfCharacteristicTypesStandardAttributeNames` | булево | `dataPath: { type: "boolean" }` | - [x] |
 | План видов характеристик | Predefined | Предопределенный | `MetadataChartOfCharacteristicTypesStandardAttributeNames` | булево | `dataPath: { type: "boolean" }` | - [x] |
@@ -136,6 +136,7 @@
 На текущем этапе разобраны правила, достаточные для задачи с `Owner`:
 
 - `Ref`: всегда ссылка на сам объект.
+- `Parent`: всегда ссылка на сам объект.
 - `Owner`: типы из свойства `owners`, с `isComposite` при нескольких владельцах.
 - `Code`: для справочника через `codeType`.
 - `Number`: для документа через `numberType`.
