@@ -391,6 +391,7 @@ function extractFormYamlFacts(file: ValidationProjectFile, parsed: ParsedYaml): 
 
 function buildFormDataPathIndexFromYaml(params: { filePath: string; parsed: ParsedYaml }): FormDataPathIndex {
   const roots = new Map<string, FormDataPathSource>()
+  const additionalColumnsByTablePath = new Map<string, Map<string, FormDataPathColumnSource>>()
   const duplicateDiagnostics: Diagnostic[] = []
   const seenNames = new Map<string, number>()
   const attributes = asRecord(asRecord(params.parsed.data)?.["Реквизиты"])
@@ -413,6 +414,10 @@ function buildFormDataPathIndexFromYaml(params: { filePath: string; parsed: Pars
     }
 
     const attribute = asRecord(value)
+    addAdditionalColumnsFromYaml({
+      additionalColumnsByTablePath,
+      value: attribute?.["ДополнительныеКолонки"],
+    })
     const typeInfo =
       attribute?.["ДинамическийСписок"] !== undefined
         ? { kinds: ["dynamicList", "tableSource"] as const, nextTypes: [], table: { kind: "DynamicList" as const }, sourceText: "DynamicList" }
@@ -436,11 +441,21 @@ function buildFormDataPathIndexFromYaml(params: { filePath: string; parsed: Pars
 
   return {
     roots,
-    additionalColumnsByTablePath: new Map(),
+    additionalColumnsByTablePath,
     duplicateDiagnostics,
     getRoot(name) {
       return roots.get(name)
     },
+  }
+}
+
+function addAdditionalColumnsFromYaml(params: {
+  additionalColumnsByTablePath: Map<string, Map<string, FormDataPathColumnSource>>
+  value: unknown
+}): void {
+  const groups = asRecord(params.value)
+  for (const [tablePath, columns] of Object.entries(groups ?? {})) {
+    params.additionalColumnsByTablePath.set(normalizeIndexedPath(tablePath), columnsFromYaml(columns))
   }
 }
 
@@ -454,6 +469,15 @@ function columnsFromYaml(value: unknown): Map<string, FormDataPathColumnSource> 
     })
   }
   return result
+}
+
+function normalizeIndexedPath(path: string): string {
+  return path.split(".").map(segmentLookupName).join(".")
+}
+
+function segmentLookupName(segment: string): string {
+  const match = /^(?<name>.+)\[(?<index>\d+)\]$/.exec(segment)
+  return match?.groups?.name ?? segment
 }
 
 function collectFormPendingChecks(params: {

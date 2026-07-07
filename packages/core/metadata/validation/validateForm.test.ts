@@ -329,7 +329,7 @@ describe("validateForm", () => {
     expect(messages(runValidateForm(project))).toEqual([expect.stringContaining('ПутьКДанным "Флаг"')])
   })
 
-  it("accepts DynamicList as Table.dataPath and warns for DynamicList fields", () => {
+  it("accepts DynamicList as Table.dataPath and ignores DynamicList fields", () => {
     const project = createProject({
       form: [
         "Реквизиты:",
@@ -346,12 +346,7 @@ describe("validateForm", () => {
       ],
     })
 
-    expect(runValidateForm(project)).toEqual([
-      expect.objectContaining({
-        severity: "warning",
-        message: 'ПутьКДанным "Список.Наименование": колонки динамического списка пока не проверяются',
-      }),
-    ])
+    expect(runValidateForm(project)).toEqual([])
   })
 
   it("does not restrict InputField, LabelField, table fields, ColumnGroup header, or multiple-value DataPath terminals", () => {

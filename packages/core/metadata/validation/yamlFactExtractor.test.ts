@@ -47,4 +47,39 @@ describe("extractValidationYamlFacts", () => {
       }),
     ])
   })
+
+  it("extracts form additional columns for data path checks", () => {
+    const projectDir = "/project"
+    const filePath = "/project/Документ/Заказ/Формы/ФормаДокумента/Форма.yaml"
+    const file = resolveValidationProjectFile(projectDir, filePath)
+    if (file === undefined) throw new Error("file not resolved")
+
+    const facts = extractValidationYamlFacts({
+      file,
+      parsed: parseMetadataYaml(
+        [
+          "Реквизиты:",
+          "  Объект:",
+          "    Тип: ДокументОбъект.Заказ",
+          "    ДополнительныеКолонки:",
+          "      Объект.Товары:",
+          "        Артикул:",
+          "          Тип: Строка",
+          "Элементы:",
+          "  Артикул:",
+          "    Вид: ПолеВвода",
+          "    ПутьКДанным: Объект.Товары.Артикул",
+        ].join("\n")
+      ),
+      rulesSnapshot: createValidationRulesSnapshot(mockContext),
+    })
+
+    const check = facts.pendingChecks.find((item) => item.value === "Объект.Товары.Артикул")
+    expect(check?.index.additionalColumnsByTablePath.get("Объект.Товары")?.get("Артикул")).toEqual(
+      expect.objectContaining({
+        name: "Артикул",
+        typeInfo: expect.objectContaining({ sourceText: "string" }),
+      })
+    )
+  })
 })

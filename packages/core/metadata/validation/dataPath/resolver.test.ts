@@ -2033,7 +2033,7 @@ describe("resolveDataPath", () => {
     })
   })
 
-  it("returns a warning for DynamicList fields", () => {
+  it("ignores DynamicList fields", () => {
     const result = resolve("Список.Наименование", {
       index: indexWithAttributes([
         { ...attribute("Список", { type: ["CatalogRef.Номенклатура"] }), dynamicList: { itemType: "DynamicList" } },
@@ -2041,14 +2041,8 @@ describe("resolveDataPath", () => {
     })
 
     expect(result).toMatchObject({
-      status: "warning",
-      diagnostics: [
-        expect.objectContaining({
-          severity: "warning",
-          source: "structure",
-          message: 'ПутьКДанным "Список.Наименование": колонки динамического списка пока не проверяются',
-        }),
-      ],
+      status: "ok",
+      diagnostics: [],
     })
   })
 

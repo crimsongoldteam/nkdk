@@ -510,7 +510,7 @@ function resolveTableColumn(params: {
   if (tableSource.table.kind === "DynamicList") {
     return {
       status: "done",
-      result: warning(params.params, `ПутьКДанным "${params.value}": колонки динамического списка пока не проверяются`),
+      result: { status: "ok", diagnostics: [] },
     }
   }
 
