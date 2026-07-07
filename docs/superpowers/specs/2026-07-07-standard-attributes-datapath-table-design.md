@@ -41,8 +41,8 @@
 | Документ | Number | Номер | `MetadataDocumentStandardAttributeNames` | зависит от свойства `numberType` (`DocumentNumberType`) | `dataPath: { type: "documentNumber", property: "numberType" }` | - [x] |
 | Документ | Posted | Проведен | `MetadataDocumentStandardAttributeNames` | булево | `dataPath: { type: "boolean" }` | - [x] |
 | Документ | DeletionMark | ПометкаУдаления | `MetadataDocumentStandardAttributeNames` | булево | `dataPath: { type: "boolean" }` | - [x] |
-| Перечисление | Ref | Ссылка | `MetadataEnumerationStandardAttributeNames` | текущий объект |  | - [ ] |
-| Перечисление | Order | Порядок | `MetadataEnumerationStandardAttributeNames` | число |  | - [ ] |
+| Перечисление | Ref | Ссылка | `MetadataEnumerationStandardAttributeNames` | текущий объект | `dataPath: { type: "sameOwnerObject" }` | - [x] |
+| Перечисление | Order | Порядок | `MetadataEnumerationStandardAttributeNames` | число | `dataPath: { type: "number" }` | - [x] |
 | План счетов | Ref | Ссылка | `MetadataChartOfAccountsStandardAttributeNames` | текущий объект |  | - [ ] |
 | План счетов | Code | Код | `MetadataChartOfAccountsStandardAttributeNames` | по свойствам кода |  | - [ ] |
 | План счетов | Description | Наименование | `MetadataChartOfAccountsStandardAttributeNames` | строка |  | - [ ] |
@@ -143,6 +143,8 @@
 - `PredefinedDataName`: строка.
 - `IsFolder`, `DeletionMark`, `Predefined`, `Posted`: булевы.
 - `Date`: дата.
+- `Enum.Order`: число.
+- `Enum.Ref`: ссылка на само перечисление.
 - `LineNumber`: число.
 
 Все строки с неотмеченным флажком `Разобрано` остаются в таблице для последующего уточнения и используют безопасное резервное поведение.
