@@ -1,13 +1,15 @@
 import { Type } from "typebox"
-import { afterEach, describe, expect, it } from "vitest"
+import { describe, expect, it } from "vitest"
 import {
   attachCollectedSchemaRefs,
-  clearJSONSchemaRefRegistries,
   collectSchemaRefs,
   createJSONSchemaExportContext,
   createSchemaRef,
   exportPropertyExternalRefSchema,
+  getJSONSchemaIdentityExporter,
+  listJSONSchemaIdentityNames,
   recordOfSchemaRef,
+  registerJSONSchemaIdentity,
   registerJSONSchemaPropertyRef,
   stripCollectedSchemaRefs,
 } from "./jsonSchemaRefs"
@@ -19,10 +21,6 @@ const baseContext = {
 } as const
 
 describe("jsonSchemaRefs", () => {
-  afterEach(() => {
-    clearJSONSchemaRefRegistries()
-  })
-
   it("creates stable nkdk schema refs", () => {
     expect(createSchemaRef("InputField")).toBe("nkdk://schema/InputField")
   })
@@ -61,13 +59,15 @@ describe("jsonSchemaRefs", () => {
   })
 
   it("returns a property ref only in externalRefs mode and collects the ref", () => {
-    registerJSONSchemaPropertyRef("MetadataAttributes", () => recordOfSchemaRef("MetadataAttribute"))
+    registerJSONSchemaPropertyRef("TestMetadataAttributesRefOnly" as any, () =>
+      recordOfSchemaRef("TestMetadataAttributeRefOnly")
+    )
 
     const inlineContext = createJSONSchemaExportContext(baseContext, "inline")
     expect(
       exportPropertyExternalRefSchema({
         context: inlineContext,
-        rule: { type: "MetadataAttributes" },
+        rule: { type: "TestMetadataAttributesRefOnly" as any },
       })
     ).toBeUndefined()
 
@@ -75,35 +75,80 @@ describe("jsonSchemaRefs", () => {
     expect(
       exportPropertyExternalRefSchema({
         context: refContext,
-        rule: { type: "MetadataAttributes" },
+        rule: { type: "TestMetadataAttributesRefOnly" as any },
       })
     ).toEqual({
       type: "object",
-      additionalProperties: { $ref: "nkdk://schema/MetadataAttribute" },
+      additionalProperties: { $ref: "nkdk://schema/TestMetadataAttributeRefOnly" },
     })
 
     expect(attachCollectedSchemaRefs(refContext, Type.Object({}))).toMatchObject({
-      "x-nkdk-schemaRefs": ["nkdk://schema/MetadataAttribute"],
+      "x-nkdk-schemaRefs": ["nkdk://schema/TestMetadataAttributeRefOnly"],
     })
   })
 
   it("uses registered refs through property JSON Schema export", () => {
-    registerJSONSchemaPropertyRef("MetadataAttributes", () => recordOfSchemaRef("MetadataAttribute"))
+    registerJSONSchemaPropertyRef("TestMetadataAttributesPropertyExport" as any, () =>
+      recordOfSchemaRef("TestMetadataAttributePropertyExport")
+    )
 
     const context = createJSONSchemaExportContext(baseContext, "externalRefs")
     expect(
       exportPropertyToJSONSchema({
         context,
-        rule: { type: "MetadataAttributes" },
+        rule: { type: "TestMetadataAttributesPropertyExport" as any },
         value: undefined,
       })
     ).toEqual({
       type: "object",
-      additionalProperties: { $ref: "nkdk://schema/MetadataAttribute" },
+      additionalProperties: { $ref: "nkdk://schema/TestMetadataAttributePropertyExport" },
     })
 
     expect(attachCollectedSchemaRefs(context, Type.Object({}))).toMatchObject({
-      "x-nkdk-schemaRefs": ["nkdk://schema/MetadataAttribute"],
+      "x-nkdk-schemaRefs": ["nkdk://schema/TestMetadataAttributePropertyExport"],
+    })
+  })
+
+  it("registers and lists named schema exporters", () => {
+    const source = { itemType: "ListedSampleItem" }
+    registerJSONSchemaIdentity({
+      name: "ListedSampleItem",
+      source,
+      exporter: () => Type.Object({ Имя: Type.String() }),
+    })
+
+    expect(listJSONSchemaIdentityNames()).toContain("ListedSampleItem")
+    expect(getJSONSchemaIdentityExporter("ListedSampleItem")?.({ context: baseContext })).toMatchObject({
+      type: "object",
+      properties: { Имя: { type: "string" } },
+    })
+  })
+
+  it("allows idempotent registration for the same source", () => {
+    const source = { itemType: "IdempotentSampleItem" }
+    const exporter = () => Type.Object({})
+
+    registerJSONSchemaIdentity({ name: "IdempotentSampleItem", source, exporter })
+    registerJSONSchemaIdentity({ name: "IdempotentSampleItem", source, exporter })
+
+    expect(listJSONSchemaIdentityNames()).toContain("IdempotentSampleItem")
+  })
+
+  it("keeps the first exporter for repeated schema names", () => {
+    registerJSONSchemaIdentity({
+      name: "DuplicateItem",
+      source: { itemType: "Left" },
+      exporter: () => Type.Object({ left: Type.String() }),
+    })
+
+    registerJSONSchemaIdentity({
+      name: "DuplicateItem",
+      source: { itemType: "Right" },
+      exporter: () => Type.Object({ right: Type.String() }),
+    })
+
+    expect(getJSONSchemaIdentityExporter("DuplicateItem")?.({ context: baseContext })).toMatchObject({
+      properties: { left: { type: "string" } },
     })
   })
 })

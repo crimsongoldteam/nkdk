@@ -4,7 +4,9 @@ import {
   attachCollectedSchemaRefs,
   collectSchemaRefs,
   createJSONSchemaExportContext,
+  getJSONSchemaIdentityExporter,
   JSON_SCHEMA_REF_PREFIX,
+  listJSONSchemaIdentityNames,
   recordOfSchemaRef,
   registerJSONSchemaPropertyRef,
   stripCollectedSchemaRefs,
@@ -39,7 +41,7 @@ let namedSchemasInitialized = false
 
 export function listJSONSchemaNames(): string[] {
   ensureJSONSchemaRegistry()
-  return [...schemaExporters.keys()].sort()
+  return [...new Set([...schemaExporters.keys(), ...listJSONSchemaIdentityNames()])].sort()
 }
 
 export function exportJSONSchemaForSchemaName(params: {
@@ -51,7 +53,7 @@ export function exportJSONSchemaForSchemaName(params: {
   ensureJSONSchemaRegistry()
 
   const { context, includeNestedChildItems, name, mode = "externalRefs" } = params
-  const exporter = schemaExporters.get(name)
+  const exporter = getSchemaExporter(name)
   if (!exporter) {
     throw new ProjectFileSchemaError(
       `Неизвестная JSON Schema "${name}". Доступные имена: ${listJSONSchemaNames().join(", ")}`
@@ -135,6 +137,10 @@ export function registerProjectJSONSchemaPropertyRef(type: PropertyRuleType, sch
 export function registerProjectJSONSchemaPropertyRefFactory(type: PropertyRuleType, factory: SchemaRefFactory): void {
   schemaRefFactories.set(type, factory)
   registerJSONSchemaPropertyRef(type, factory)
+}
+
+function getSchemaExporter(name: string): SchemaExporter | undefined {
+  return schemaExporters.get(name) ?? getJSONSchemaIdentityExporter(name)
 }
 
 function withSchemaId(ref: string, schema: TSchema): TSchema {

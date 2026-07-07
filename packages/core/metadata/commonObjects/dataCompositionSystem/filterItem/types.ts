@@ -27,4 +27,6 @@ registerMetadataItemCollectionRule({
   toXML: exportFilterItemToXML,
   toJSONSchema: exportFilterItemToJSONSchema,
   yamlAsArray: true,
+  schemaName: "FilterItem",
+  schemaShape: "schema",
 })

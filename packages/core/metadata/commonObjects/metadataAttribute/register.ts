@@ -81,6 +81,7 @@ export const exportMetadataAttributesToJSONSchema = createExportMetadataAttribut
 registerMetadataItemCollectionRule({
   propertyType: "MetadataCatalogAttributes",
   itemRule: MetadataCatalogAttributeRules,
+  schemaName: "MetadataCatalogAttribute",
   xmlElement: "Attribute",
   keyField: "name",
   fromYAML: createImportMetadataAttributesFromYAML(MetadataCatalogAttributeRules),
@@ -91,6 +92,7 @@ registerMetadataItemCollectionRule({
 registerMetadataItemCollectionRule({
   propertyType: "MetadataAttributes",
   itemRule: MetadataAttributeRules,
+  schemaName: "MetadataAttribute",
   xmlElement: "Attribute",
   keyField: "name",
   fromYAML: createImportMetadataAttributesFromYAML(MetadataAttributeRules),
@@ -101,6 +103,7 @@ registerMetadataItemCollectionRule({
 registerMetadataItemCollectionRule({
   propertyType: "MetadataAttributesWithAllowedTypes",
   itemRule: MetadataAttributesWithAllowedTypesRules,
+  schemaName: "MetadataAttributesWithAllowedTypes",
   xmlElement: "Attribute",
   keyField: "name",
   fromYAML: createImportMetadataAttributesFromYAML(MetadataAttributesWithAllowedTypesRules),
@@ -111,6 +114,7 @@ registerMetadataItemCollectionRule({
 registerMetadataItemCollectionRule({
   propertyType: "MetadataTabularSectionAttributes",
   itemRule: MetadataTabularSectionAttributeRules,
+  schemaName: "MetadataTabularSectionAttribute",
   xmlElement: "Attribute",
   keyField: "name",
   fromYAML: createImportMetadataAttributesFromYAML(MetadataTabularSectionAttributeRules),
@@ -121,6 +125,7 @@ registerMetadataItemCollectionRule({
 registerMetadataItemCollectionRule({
   propertyType: "MetadataDocumentAttributes",
   itemRule: MetadataDocumentAttributeRules,
+  schemaName: "MetadataDocumentAttribute",
   xmlElement: "Attribute",
   keyField: "name",
   fromYAML: createImportMetadataAttributesFromYAML(MetadataDocumentAttributeRules),

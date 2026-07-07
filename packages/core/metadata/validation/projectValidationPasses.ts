@@ -166,7 +166,7 @@ export function createValidationSchemaCache(context: ConfigurationContext): Vali
       const existing = propertiesSchemas.get(key)
       if (existing) return existing
 
-      const schemaMode = spec.validationSchemaMode ?? "inline"
+      const schemaMode = spec.validationSchemaMode ?? "externalRefs"
       const globalKey = `${context.version}:${context.defaultLanguage}:${spec.dir}:${schemaMode}`
       const compiled = propertiesSchemaCache.get(globalKey) ?? compileProjectPropertiesSchema(context, spec)
       propertiesSchemaCache.set(globalKey, compiled)
@@ -197,7 +197,8 @@ export function createValidationSchemaCache(context: ConfigurationContext): Vali
 }
 
 function compileProjectPropertiesSchema(context: ConfigurationContext, spec: ValidationProjectSpec): CompiledSchema {
-  if (spec.validationSchemaMode !== "externalRefs") {
+  const schemaMode = spec.validationSchemaMode ?? "externalRefs"
+  if (schemaMode !== "externalRefs") {
     return compileValidationSchema(spec.exportSchema({ context, mode: "inline" }))
   }
 
