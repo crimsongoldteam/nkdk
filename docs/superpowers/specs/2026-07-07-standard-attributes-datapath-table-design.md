@@ -19,7 +19,7 @@
 | Общие объектные | Owner | Владелец | `dataPathCommon` | ссылки из свойства `owners`, составной тип при нескольких владельцах | `dataPath: { type: "objectRefsFromProperty", property: "owners" }` | - [x] |
 | Общие объектные | DeletionMark | ПометкаУдаления | `dataPathCommon` | булево | `dataPath: { type: "boolean" }` | - [x] |
 | Общие объектные | Predefined | Предопределенный | `dataPathCommon` | булево | `dataPath: { type: "boolean" }` | - [x] |
-| Общие объектные | PredefinedDataName | ИмяПредопределенныхДанных | имена в rules | резервное поведение |  | - [ ] |
+| Общие объектные | PredefinedDataName | ИмяПредопределенныхДанных | имена в rules | строка | `dataPath: { type: "string" }` | - [x] |
 | Общие объектные | Description | Наименование / Описание | имена в rules | строка или явный `Тип` | `dataPath: { type: "string" }` | - [x] |
 | Общие объектные | Code | Код | имена в rules | зависит от свойства владельца (`codeType` и аналоги) | `dataPath: { type: "catalogCode", property: "codeType" }` | - [x] |
 | Общие объектные | IsFolder | ЭтоГруппа | имена в rules | булево | `dataPath: { type: "boolean" }` | - [x] |
@@ -35,7 +35,7 @@
 | Справочник | IsFolder | ЭтоГруппа | `MetadataCatalogStandardAttributeNames` | булево | `dataPath: { type: "boolean" }` | - [x] |
 | Справочник | DeletionMark | ПометкаУдаления | `MetadataCatalogStandardAttributeNames` | булево | `dataPath: { type: "boolean" }` | - [x] |
 | Справочник | Predefined | Предопределенный | `MetadataCatalogStandardAttributeNames` | булево | `dataPath: { type: "boolean" }` | - [x] |
-| Справочник | PredefinedDataName | ИмяПредопределенныхДанных | `MetadataCatalogStandardAttributeNames` | резервное поведение |  | - [ ] |
+| Справочник | PredefinedDataName | ИмяПредопределенныхДанных | `MetadataCatalogStandardAttributeNames` | строка | `dataPath: { type: "string" }` | - [x] |
 | Документ | Ref | Ссылка | `MetadataDocumentStandardAttributeNames` | текущий объект | `dataPath: { type: "sameOwnerObject" }` | - [x] |
 | Документ | Date | Дата | `MetadataDocumentStandardAttributeNames` | дата | `dataPath: { type: "dateTime" }` | - [x] |
 | Документ | Number | Номер | `MetadataDocumentStandardAttributeNames` | по свойствам нумерации документа |  | - [ ] |
@@ -52,7 +52,7 @@
 | План счетов | Order | Порядок | `MetadataChartOfAccountsStandardAttributeNames` | число |  | - [ ] |
 | План счетов | DeletionMark | ПометкаУдаления | `MetadataChartOfAccountsStandardAttributeNames` | булево |  | - [ ] |
 | План счетов | Predefined | Предопределенный | `MetadataChartOfAccountsStandardAttributeNames` | булево |  | - [ ] |
-| План счетов | PredefinedDataName | ИмяПредопределенныхДанных | `MetadataChartOfAccountsStandardAttributeNames` | резервное поведение |  | - [ ] |
+| План счетов | PredefinedDataName | ИмяПредопределенныхДанных | `MetadataChartOfAccountsStandardAttributeNames` | строка | `dataPath: { type: "string" }` | - [x] |
 | План видов характеристик | Ref | Ссылка | `MetadataChartOfCharacteristicTypesStandardAttributeNames` | текущий объект |  | - [ ] |
 | План видов характеристик | ValueType | ТипЗначения | `dataPathCommon` | описание типа |  | - [ ] |
 | План видов характеристик | Code | Код | `MetadataChartOfCharacteristicTypesStandardAttributeNames` | по свойствам кода |  | - [ ] |
@@ -61,14 +61,14 @@
 | План видов характеристик | IsFolder | ЭтоГруппа | `MetadataChartOfCharacteristicTypesStandardAttributeNames` | булево |  | - [ ] |
 | План видов характеристик | DeletionMark | ПометкаУдаления | `MetadataChartOfCharacteristicTypesStandardAttributeNames` | булево |  | - [ ] |
 | План видов характеристик | Predefined | Предопределенный | `MetadataChartOfCharacteristicTypesStandardAttributeNames` | булево |  | - [ ] |
-| План видов характеристик | PredefinedDataName | ИмяПредопределенныхДанных | `MetadataChartOfCharacteristicTypesStandardAttributeNames` | резервное поведение |  | - [ ] |
+| План видов характеристик | PredefinedDataName | ИмяПредопределенныхДанных | `MetadataChartOfCharacteristicTypesStandardAttributeNames` | строка | `dataPath: { type: "string" }` | - [x] |
 | План видов расчета | Ref | Ссылка | `MetadataChartOfCalculationTypesStandardAttributeNames` | текущий объект |  | - [ ] |
 | План видов расчета | Code | Код | `MetadataChartOfCalculationTypesStandardAttributeNames` | по свойствам кода |  | - [ ] |
 | План видов расчета | Description | Наименование | `MetadataChartOfCalculationTypesStandardAttributeNames` | строка |  | - [ ] |
 | План видов расчета | ActionPeriodIsBasic | ПериодДействияБазовый | `MetadataChartOfCalculationTypesStandardAttributeNames` | булево |  | - [ ] |
 | План видов расчета | DeletionMark | ПометкаУдаления | `MetadataChartOfCalculationTypesStandardAttributeNames` | булево |  | - [ ] |
 | План видов расчета | Predefined | Предопределенный | `MetadataChartOfCalculationTypesStandardAttributeNames` | булево |  | - [ ] |
-| План видов расчета | PredefinedDataName | ИмяПредопределенныхДанных | `MetadataChartOfCalculationTypesStandardAttributeNames` | резервное поведение |  | - [ ] |
+| План видов расчета | PredefinedDataName | ИмяПредопределенныхДанных | `MetadataChartOfCalculationTypesStandardAttributeNames` | строка | `dataPath: { type: "string" }` | - [x] |
 | План обмена | Ref | Ссылка | `MetadataExchangePlanStandardAttributeNames` | текущий объект |  | - [ ] |
 | План обмена | Code | Код | `MetadataExchangePlanStandardAttributeNames` | по свойствам кода |  | - [ ] |
 | План обмена | Description | Наименование | `MetadataExchangePlanStandardAttributeNames` | строка |  | - [ ] |
@@ -139,6 +139,7 @@
 - `Owner`: типы из свойства `owners`, с `isComposite` при нескольких владельцах.
 - `Code`: для справочника через `codeType`.
 - `Description`: строка для справочника.
+- `PredefinedDataName`: строка.
 - `IsFolder`, `DeletionMark`, `Predefined`, `Posted`: булевы.
 - `Date`: дата.
 - `LineNumber`: число.
