@@ -69,6 +69,10 @@ const roleNameRule = {
   type: "MetadataItemLink",
   metadataTarget: { kind: "object", roots: ["Role"] },
 } as const satisfies PropertyRule
+const commandReferenceRule = {
+  type: "MetadataItemLink",
+  metadataTarget: { kind: "member", owner: "explicit", memberKinds: ["Command"] },
+} as const satisfies PropertyRule
 const XML_REFERENCE_RAW = "__xmlReferenceRaw"
 
 const getXMLName = (value: { _name?: string; name?: string }): string | undefined => value._name ?? value.name
@@ -172,6 +176,18 @@ const commandGroupFromYAML = (value: string): string =>
   value in standardCommandGroupFromYAML
     ? standardCommandGroupFromYAML[value as keyof typeof standardCommandGroupFromYAML]
     : value
+
+const isCommandReference = (value: string): boolean => value.includes(".Command.") || value.includes(".Команда.")
+
+const commandReferenceToYAML = (context: ConfigurationContext, value: string): string => {
+  if (!isCommandReference(value)) return value
+  return exportMetadataItemLinkToYAML(context, commandReferenceRule, value) ?? value
+}
+
+const commandReferenceFromYAML = (context: ConfigurationContext, value: string): string => {
+  if (!isCommandReference(value)) return value
+  return importMetadataItemLinkFromYAML(context, commandReferenceRule, value) ?? value
+}
 
 const placementValueToYAML = (value: string): string =>
   value in placementToYAML ? placementToYAML[value as keyof typeof placementToYAML] : value
@@ -298,7 +314,7 @@ const importVisibilityMapFromYAML = (
   const result: CommandInterfaceVisibilityMap = []
   for (const entry of yaml) {
     const item = importVisibilityFromYAMLValue(context, entry)
-    if (item !== undefined) result.push({ command: entry.Команда, visibility: item })
+    if (item !== undefined) result.push({ command: commandReferenceFromYAML(context, entry.Команда), visibility: item })
   }
 
   return result.length > 0 ? result : undefined
@@ -335,7 +351,7 @@ const exportVisibilityMapToYAML = (
   const result: CommandInterfaceVisibilityMapYAML = []
   for (const { command, visibility } of value) {
     const item = exportVisibilityToYAMLValue(context, visibility)
-    if (item !== undefined) result.push({ Команда: command, ...item })
+    if (item !== undefined) result.push({ Команда: commandReferenceToYAML(context, command), ...item })
   }
 
   return result.length > 0 ? result : undefined
@@ -453,14 +469,14 @@ const exportPlacementMapToXML: ExportToXMLFunctionNew = ({ value, referenceMetad
 }
 
 const importPlacementMapFromYAML = (
-  _context: ConfigurationContext,
+  context: ConfigurationContext,
   _rule: PropertyRule,
   yaml: CommandInterfacePlacementMapYAML | undefined
 ): CommandInterfacePlacementMap | undefined => {
   if (yaml === undefined) return undefined
 
   const result: CommandInterfacePlacementMap = yaml.map((entry) => ({
-    command: entry.Команда,
+    command: commandReferenceFromYAML(context, entry.Команда),
     commandGroup: entry.ГруппаКоманд !== undefined ? commandGroupFromYAML(entry.ГруппаКоманд) : undefined,
     placement: entry.Размещение !== undefined ? placementValueFromYAML(entry.Размещение) : undefined,
   }))
@@ -469,14 +485,14 @@ const importPlacementMapFromYAML = (
 }
 
 const exportPlacementMapToYAML = (
-  _context: ConfigurationContext,
+  context: ConfigurationContext,
   _rule: PropertyRule,
   value: CommandInterfacePlacementMap | undefined
 ): CommandInterfacePlacementMapYAML | undefined => {
   if (value === undefined) return undefined
 
   const result: CommandInterfacePlacementMapYAML = value.map((placement) => ({
-    Команда: placement.command,
+    Команда: commandReferenceToYAML(context, placement.command),
     ГруппаКоманд: placement.commandGroup !== undefined ? commandGroupToYAML(placement.commandGroup) : undefined,
     Размещение: placement.placement !== undefined ? placementValueToYAML(placement.placement) : undefined,
   }))
@@ -529,14 +545,14 @@ const exportOrderToXML: ExportToXMLFunctionNew = ({ value, referenceMetadata }) 
 }
 
 const importOrderFromYAML = (
-  _context: ConfigurationContext,
+  context: ConfigurationContext,
   _rule: PropertyRule,
   yaml: Array<{ Команда: string; ГруппаКоманд: string }> | undefined
 ): CommandInterfaceOrder | undefined => {
   if (yaml === undefined) return undefined
 
   const result = yaml.map((item) => ({
-    command: item.Команда,
+    command: commandReferenceFromYAML(context, item.Команда),
     commandGroup: commandGroupFromYAML(item.ГруппаКоманд),
   }))
 
@@ -544,14 +560,14 @@ const importOrderFromYAML = (
 }
 
 const exportOrderToYAML = (
-  _context: ConfigurationContext,
+  context: ConfigurationContext,
   _rule: PropertyRule,
   value: CommandInterfaceOrder | undefined
 ): Array<{ Команда: string; ГруппаКоманд: string }> | undefined => {
   if (value === undefined) return undefined
 
   return value.map((item) => ({
-    Команда: item.command,
+    Команда: commandReferenceToYAML(context, item.command),
     ГруппаКоманд: commandGroupToYAML(item.commandGroup),
   }))
 }

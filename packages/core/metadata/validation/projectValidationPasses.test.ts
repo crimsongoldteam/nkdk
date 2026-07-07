@@ -7,6 +7,7 @@ import { resolveValidationProjectFile } from "./projectFiles"
 import { createProjectYamlCache } from "./projectYamlCache"
 import { createValidationSchemaCache, validateProjectFileFirstPass } from "./projectValidationPasses"
 import { getValidationProjectSpecByDir } from "./projectSpecs"
+import { createValidationRulesSnapshot } from "./rulesSnapshot"
 
 describe("validateProjectFileFirstPass references", () => {
   const tempDirs: string[] = []
@@ -81,6 +82,7 @@ describe("validateProjectFileFirstPass references", () => {
       cache: createProjectYamlCache(),
       context: mockContext,
       schemaCache: createValidationSchemaCache(mockContext),
+      rulesSnapshot: createValidationRulesSnapshot(mockContext),
     })
 
     expect(first.objectIndexEntries).toContainEqual(
@@ -96,6 +98,38 @@ describe("validateProjectFileFirstPass references", () => {
           ok: true,
           filePath: join(projectDir, "Справочник", "Номенклатура", "Свойства.yaml"),
           details: expect.objectContaining({ kind: "attribute", name: "Артикул" }),
+        }),
+      })
+    )
+  })
+
+  it("builds command member index entries from owner commands", () => {
+    const projectDir = mkdtempSync(join(tmpdir(), "nkdk-validation-first-pass-"))
+    tempDirs.push(projectDir)
+    writeProjectFile(projectDir, "Справочник/Номенклатура/Свойства.yaml", [
+      "Команды:",
+      "  Открыть:",
+      "    Синоним: Открыть",
+    ])
+    const file = resolveValidationProjectFile(projectDir, join(projectDir, "Справочник/Номенклатура/Свойства.yaml"))
+    if (!file) throw new Error("file not resolved")
+
+    const first = validateProjectFileFirstPass({
+      projectDir,
+      file,
+      cache: createProjectYamlCache(),
+      context: mockContext,
+      schemaCache: createValidationSchemaCache(mockContext),
+      rulesSnapshot: createValidationRulesSnapshot(mockContext),
+    })
+
+    expect(first.memberIndexEntries).toContainEqual(
+      expect.objectContaining({
+        canonical: "Catalog.Номенклатура.Command.Открыть",
+        result: expect.objectContaining({
+          ok: true,
+          filePath: join(projectDir, "Справочник", "Номенклатура", "Свойства.yaml"),
+          details: expect.objectContaining({ kind: "Command", name: "Открыть" }),
         }),
       })
     )

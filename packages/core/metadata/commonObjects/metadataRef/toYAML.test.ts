@@ -73,6 +73,51 @@ describe("exportMetadataItemLinksToYAML", () => {
     ])
   })
 
+  it("exports command member links through metadataTarget", () => {
+    const rule = {
+      type: "MetadataItemLinks",
+      metadataTarget: {
+        kind: "member",
+        owner: "explicit",
+        allowedMemberPaths: [
+          ["DataProcessor", "Command"],
+          ["Catalog", "Command"],
+          ["Document", "Command"],
+          ["InformationRegister", "Command"],
+        ],
+      },
+    } as const
+
+    expect(
+      exportMetadataItemLinksToYAML(mockContext, rule, [
+        "DataProcessor.ПанельСправочников.Command.ОткрытьПанель",
+        "Catalog.Товары.Command.Печать",
+        "Document.Заказ.Command.СоздатьНаОсновании",
+        "InformationRegister.Настройки.Command.ОткрытьСписок",
+      ])
+    ).toEqual([
+      "Обработка.ПанельСправочников.Команда.ОткрытьПанель",
+      "Справочник.Товары.Команда.Печать",
+      "Документ.Заказ.Команда.СоздатьНаОсновании",
+      "РегистрСведений.Настройки.Команда.ОткрытьСписок",
+    ])
+  })
+
+  it("does not fall back to object formatting when metadataTarget expects members", () => {
+    const rule = {
+      type: "MetadataItemLinks",
+      metadataTarget: {
+        kind: "member",
+        owner: "explicit",
+        allowedMemberPaths: [["DataProcessor", "Command"]],
+      },
+    } as const
+
+    expect(() => exportMetadataItemLinksToYAML(mockContext, rule, ["Catalog.Товары"])).toThrow(
+      "Некорректный формат цели метаданных"
+    )
+  })
+
   it("exports role reference lists through single-root metadataTarget", () => {
     const rule = { type: "MetadataItemLinks", metadataTarget: { kind: "object", roots: ["Role"] } } as const
 

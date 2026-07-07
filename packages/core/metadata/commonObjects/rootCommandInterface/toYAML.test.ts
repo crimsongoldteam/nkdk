@@ -52,7 +52,7 @@ describe("export RootCommandInterface to YAML", () => {
     expect(result?.ВидимостьКоманд).toEqual(
       expect.arrayContaining([
         {
-          Команда: "Catalog.СправочникПолный.Command.ПоУмолчанию",
+          Команда: "Справочник.СправочникПолный.Команда.ПоУмолчанию",
           Общее: "Ложь",
           Роли: {
             Администратор: "Ложь",
@@ -64,7 +64,7 @@ describe("export RootCommandInterface to YAML", () => {
     expect(result?.РазмещениеКоманд).toEqual(
       expect.arrayContaining([
         {
-          Команда: "Catalog.СправочникПолный.Command.ПоУмолчанию",
+          Команда: "Справочник.СправочникПолный.Команда.ПоУмолчанию",
           ГруппаКоманд: "ПанельНавигацииВажное",
           Размещение: "Вручную",
         },
@@ -73,7 +73,7 @@ describe("export RootCommandInterface to YAML", () => {
     expect(result?.ПорядокКоманд).toEqual(
       expect.arrayContaining([
         {
-          Команда: "Catalog.СправочникПолный.Command.ПоУмолчанию",
+          Команда: "Справочник.СправочникПолный.Команда.ПоУмолчанию",
           ГруппаКоманд: "ПанельНавигацииВажное",
         },
         {

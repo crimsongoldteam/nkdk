@@ -165,7 +165,13 @@ function syntheticModelFromYaml(
   for (const property of spec.properties) {
     const value = valueAtPath(record, property.yamlPath)
     if (value === undefined) continue
-    if (property.modelKey === "attributes" || property.modelKey === "dimensions" || property.modelKey === "resources" || property.modelKey === "addressingAttributes") {
+    if (
+      property.modelKey === "attributes" ||
+      property.modelKey === "dimensions" ||
+      property.modelKey === "resources" ||
+      property.modelKey === "addressingAttributes" ||
+      property.modelKey === "commands"
+    ) {
       model[property.modelKey] = namedTypedItemsFromYaml(value)
       continue
     }
