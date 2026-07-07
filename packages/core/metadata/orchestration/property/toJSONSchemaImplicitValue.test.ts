@@ -7,10 +7,19 @@ import "../../systemEnumerations/toJSONSchema"
 import { mockContext } from "../../../tests/mockContext"
 import { exportPropertyToJSONSchema } from "./toJSONSchema"
 
+const validationContext = {
+  ...mockContext,
+  exportToJSONSchema: {
+    mode: "inline" as const,
+    refs: new Set<string>(),
+    excludeImplicitValueYAML: true,
+  },
+}
+
 describe("exportPropertyToJSONSchema implicitValueYAML", () => {
   it("excludes implicit boolean YAML value from an enum-like schema", () => {
     const schema = exportPropertyToJSONSchema({
-      context: mockContext,
+      context: validationContext,
       rule: { type: "boolean", implicitValueYAML: true },
       value: undefined,
     })
@@ -24,7 +33,7 @@ describe("exportPropertyToJSONSchema implicitValueYAML", () => {
 
   it("excludes implicit SystemEnumeration YAML value from an enum-like schema", () => {
     const schema = exportPropertyToJSONSchema({
-      context: mockContext,
+      context: validationContext,
       rule: { type: "SystemEnumeration", typeSE: "ModalityUseMode", implicitValueYAML: "Использовать" },
       value: undefined,
     })
@@ -36,9 +45,24 @@ describe("exportPropertyToJSONSchema implicitValueYAML", () => {
     expect(check.Check("НеИспользовать")).toBe(true)
   })
 
+  it("excludes implicit SystemEnumeration model value by its YAML representation", () => {
+    const schema = exportPropertyToJSONSchema({
+      context: validationContext,
+      rule: { type: "SystemEnumeration", typeSE: "DocumentNumberType", implicitValueYAML: "String" },
+      value: undefined,
+    })
+
+    if (schema === undefined) throw new Error("Expected JSON schema")
+    const check = compileValidationSchema(schema)
+
+    expect(check.Check("Строка")).toBe(false)
+    expect(check.Check("Число")).toBe(true)
+    expect(check.Check("String")).toBe(false)
+  })
+
   it("excludes implicit number YAML value from a free number schema", () => {
     const schema = exportPropertyToJSONSchema({
-      context: mockContext,
+      context: validationContext,
       rule: { type: "number", implicitValueYAML: 9 },
       value: undefined,
     })
@@ -53,7 +77,7 @@ describe("exportPropertyToJSONSchema implicitValueYAML", () => {
 
   it("excludes implicit string YAML value from a free string schema, including empty string", () => {
     const schema = exportPropertyToJSONSchema({
-      context: mockContext,
+      context: validationContext,
       rule: { type: "string", implicitValueYAML: "" },
       value: undefined,
     })
@@ -68,7 +92,7 @@ describe("exportPropertyToJSONSchema implicitValueYAML", () => {
 
   it("does not exclude defaultValue when implicitValueYAML is absent", () => {
     const schema = exportPropertyToJSONSchema({
-      context: mockContext,
+      context: validationContext,
       rule: { type: "boolean", defaultValue: true },
       value: undefined,
     })
@@ -82,7 +106,7 @@ describe("exportPropertyToJSONSchema implicitValueYAML", () => {
 
   it("does not exclude function implicitValueYAML because it needs item context", () => {
     const schema = exportPropertyToJSONSchema({
-      context: mockContext,
+      context: validationContext,
       rule: { type: "string", implicitValueYAML: ({ name }: { name?: string }) => name ?? "" },
       value: undefined,
     })

@@ -14,7 +14,7 @@ export function createProjectSchemaExporter(
   exporter: (params: { context: ConfigurationContext }) => TSchema
 ): RegisteredProjectSpec["exportSchema"] {
   return ({ context, mode = "externalRefs" }) => {
-    const schemaContext = createJSONSchemaExportContext(context, mode)
+    const schemaContext = createJSONSchemaExportContext(context, mode, { excludeImplicitValueYAML: true })
     const schema = exporter({ context: schemaContext })
 
     return mode === "externalRefs" ? attachCollectedSchemaRefs(schemaContext, schema) : schema

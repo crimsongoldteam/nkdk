@@ -1,10 +1,6 @@
 import { Type, type TSchema } from "typebox"
 import type { ConfigurationContext } from "../context/types"
-import {
-  collectSchemaRefs,
-  JSON_SCHEMA_REF_PREFIX,
-  stripCollectedSchemaRefs,
-} from "../orchestration/jsonSchemaRefs"
+import { collectSchemaRefs, JSON_SCHEMA_REF_PREFIX, stripCollectedSchemaRefs } from "../orchestration/jsonSchemaRefs"
 import type { ExternalValidationProperty } from "../orchestration/property/types"
 import { exportJSONSchemaForSchemaName } from "./projectFileSchema"
 import { configurationValidationProjectSpec, validationProjectSpecs } from "./projectSpecs"
@@ -135,6 +131,7 @@ function collectExternalRefSchemas(context: ConfigurationContext, roots: TSchema
         context,
         name: schemaNameFromRef(ref),
         mode: "externalRefs",
+        excludeImplicitValueYAML: true,
       })
     )
     schemas.set(ref, schema)

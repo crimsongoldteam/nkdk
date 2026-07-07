@@ -5,6 +5,9 @@ import { getTypeRule } from "./typeRuleRegistry"
 import { exportPropertyExternalRefSchema, exportPropertyOverrideSchema } from "../jsonSchemaRefs"
 import { shouldProcessProperty } from "./helpers"
 import type { MetadataItem, MetadataItemRule, PropertyRule } from "./types"
+import * as SE from "../../systemEnumerations/types"
+
+const systemEnumerationTables = SE as unknown as Record<string, Record<string, string>>
 
 function notSchema(schema: TSchema): TSchema {
   return { not: schema } as TSchema
@@ -20,7 +23,11 @@ function getImplicitValueYAML(rule: PropertyRule): string | number | undefined {
   if (rule.type === "boolean" && typeof v === "boolean") return v ? "Истина" : "Ложь"
   if (rule.type === "number" && typeof v === "number") return v
   if (rule.type === "string" && typeof v === "string") return v
-  if (rule.type === "SystemEnumeration" && typeof v === "string") return v
+  if (rule.type === "SystemEnumeration" && typeof v === "string") {
+    const typeSE = (rule as { typeSE?: string }).typeSE
+    if (typeSE === undefined) return v
+    return systemEnumerationTables[`${typeSE}ToYAML`]?.[v] ?? v
+  }
   return undefined
 }
 
@@ -109,7 +116,9 @@ export const exportPropertyToJSONSchema = (params: {
 
   const implicitYAML = getImplicitValueYAML(rule)
   const schemaWithDefaults =
-    implicitYAML !== undefined && exportedValue !== undefined
+    context.exportToJSONSchema?.excludeImplicitValueYAML === true &&
+    implicitYAML !== undefined &&
+    exportedValue !== undefined
       ? excludeImplicitValueFromSchema(exportedValue, implicitYAML)
       : exportedValue
 

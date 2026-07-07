@@ -19,6 +19,7 @@ export type JSONSchemaExportMode = "externalRefs" | "inline"
 export interface JSONSchemaExportContext {
   mode: JSONSchemaExportMode
   refs: Set<string>
+  excludeImplicitValueYAML?: boolean
   includeNestedChildItems?: boolean
   propertySchemaOverrides?: Partial<Record<PropertyRuleType, TSchema>>
   schemaStack?: PropertyRuleType[]

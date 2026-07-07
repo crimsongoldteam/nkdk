@@ -31,11 +31,7 @@ import { exportJSONSchemaGraph } from "./projectFileSchema"
 import type { ValidationProjectFile } from "./projectFiles"
 import type { ProjectYamlCache, ProjectYamlEntry } from "./projectYamlCache"
 import { validatePendingChecks, type ValidationPendingCheck } from "./projectValidationPendingChecks"
-import {
-  configurationValidationProjectSpec,
-  validationProjectSpecs,
-  type ValidationProjectSpec,
-} from "./projectSpecs"
+import { configurationValidationProjectSpec, validationProjectSpecs, type ValidationProjectSpec } from "./projectSpecs"
 import type { ValidationDependencyRequest, ValidationObjectRecord } from "./projectValidationTypes"
 import type { Diagnostic } from "./types"
 import { typeboxErrorsToDiagnostics } from "./typeboxErrorsToDiagnostics"
@@ -204,6 +200,7 @@ function compileProjectPropertiesSchema(context: ConfigurationContext, spec: Val
 
   const graph = exportJSONSchemaGraph({
     context,
+    excludeImplicitValueYAML: true,
     roots: [{ key: "properties", name: spec.rule.itemType }],
   })
   const rootSchema = replaceExternalValidationProperties(
@@ -429,10 +426,10 @@ function validateProjectPropertiesFirstPass(params: {
   if ("error" in entry) {
     const schemaStartedAt = performance.now()
     const diagnostics = validateProjectFileSchema({
-        file: params.file,
-        cache: params.cache,
-        schema: params.schemaCache.properties(params.file.owner.spec),
-      })
+      file: params.file,
+      cache: params.cache,
+      schema: params.schemaCache.properties(params.file.owner.spec),
+    })
     const schemaMs = performance.now() - schemaStartedAt
     return failedFirstPass(params.file, diagnostics, {
       ...emptyFirstPassProfile(validationFirstPassProfileKey(params.file)),

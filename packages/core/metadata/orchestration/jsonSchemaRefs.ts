@@ -94,13 +94,16 @@ export function listJSONSchemaIdentityNames(): string[] {
 export function createJSONSchemaExportContext(
   context: ConfigurationContext,
   mode: JSONSchemaExportMode,
-  options: { includeNestedChildItems?: boolean } = {}
+  options: { excludeImplicitValueYAML?: boolean; includeNestedChildItems?: boolean } = {}
 ): ConfigurationContext {
   return {
     ...context,
     exportToJSONSchema: {
       mode,
       refs: new Set<string>(),
+      ...(options.excludeImplicitValueYAML === undefined
+        ? {}
+        : { excludeImplicitValueYAML: options.excludeImplicitValueYAML }),
       ...(options.includeNestedChildItems === undefined
         ? {}
         : { includeNestedChildItems: options.includeNestedChildItems }),

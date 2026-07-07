@@ -48,11 +48,12 @@ export function exportJSONSchemaForSchemaName(params: {
   context: ConfigurationContext
   name: string
   mode?: JSONSchemaExportMode
+  excludeImplicitValueYAML?: boolean
   includeNestedChildItems?: boolean
 }): TSchema {
   ensureJSONSchemaRegistry()
 
-  const { context, includeNestedChildItems, name, mode = "externalRefs" } = params
+  const { context, excludeImplicitValueYAML, includeNestedChildItems, name, mode = "externalRefs" } = params
   const exporter = getSchemaExporter(name)
   if (!exporter) {
     throw new ProjectFileSchemaError(
@@ -60,7 +61,10 @@ export function exportJSONSchemaForSchemaName(params: {
     )
   }
 
-  const schemaContext = createJSONSchemaExportContext(context, mode, { includeNestedChildItems })
+  const schemaContext = createJSONSchemaExportContext(context, mode, {
+    excludeImplicitValueYAML,
+    includeNestedChildItems,
+  })
   const schema = exporter({ context: schemaContext })
 
   return mode === "externalRefs" ? attachCollectedSchemaRefs(schemaContext, schema) : schema
@@ -70,6 +74,7 @@ export function exportJSONSchemaGraph(params: {
   context: ConfigurationContext
   roots: readonly JSONSchemaGraphRoot[]
   mode?: JSONSchemaExportMode
+  excludeImplicitValueYAML?: boolean
 }): JSONSchemaGraph {
   ensureJSONSchemaRegistry()
 
@@ -83,6 +88,7 @@ export function exportJSONSchemaGraph(params: {
       context: params.context,
       name: root.name,
       mode,
+      excludeImplicitValueYAML: params.excludeImplicitValueYAML,
       includeNestedChildItems: root.includeNestedChildItems,
     })
     roots[root.key] = schema
@@ -100,6 +106,7 @@ export function exportJSONSchemaGraph(params: {
         context: params.context,
         name,
         mode,
+        excludeImplicitValueYAML: params.excludeImplicitValueYAML,
       })
     )
 
