@@ -73,8 +73,8 @@ export const MetadataDocumentRules = {
       yaml: "ЗаписьДвиженийПриПроведении",
       typeSE: "RegisterRecordsWritingOnPost",
       xml: "RegisterRecordsWritingOnPost",
-      defaultValueXML: "WriteSelected",
-      implicitValueYAML: "WriteSelected",
+      defaultValueXML: "WriteModified",
+      implicitValueYAML: "WriteModified",
       xmlParents: documentProperties,
     }),
     additionalIndexes: additionalIndexRule({

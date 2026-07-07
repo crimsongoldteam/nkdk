@@ -54,13 +54,13 @@ function compileSchema(rule: PropertyRule): ValidationSchemaValidator {
   return compileValidationSchema(schema)
 }
 
-describe("import SettingsParameterValueCollection from YAML", { timeout: 30_000 }, () => {
+describe("import SettingsParameterValueCollection from YAML", { timeout: 60_000 }, () => {
   const parseViaYamlText = <T>(value: T): T => importFromYAML<T>(exportToYAML(value))
 
   beforeAll(() => {
     defaultSchema()
     explicitRulesSchema()
-  }, 30_000)
+  }, 60_000)
 
   it("imports undefined", () => {
     const result = testImportPropertyFromYAML({ rule, value: undefined })

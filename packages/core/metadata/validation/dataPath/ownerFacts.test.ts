@@ -9,7 +9,6 @@ describe("ValidationOwnerFacts", () => {
       fieldIndex: { fields: new Map(), standardAttributeAliases: new Map(), diagnostics: [] },
       model: {
         itemType: "MetadataDocument",
-        name: "Операция",
         registerRecords: ["AccountingRegister.Хозрасчетный"],
       },
     })

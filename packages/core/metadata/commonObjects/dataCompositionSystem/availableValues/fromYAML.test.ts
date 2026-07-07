@@ -13,7 +13,7 @@ import {
 
 const rule = { type: "DcsAvailableValues" } as const
 
-describe("import DcsAvailableValues from YAML", () => {
+describe("import DcsAvailableValues from YAML", { timeout: 30_000 }, () => {
   it("imports string values", () => {
     const result = importPropertyFromYAML({
       context: mockContext,

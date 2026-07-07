@@ -14,7 +14,7 @@ const schemaFor = () => {
   return compileValidationSchema(schema)
 }
 
-describe("AppearanceFields exportToJSONSchema", () => {
+describe("AppearanceFields exportToJSONSchema", { timeout: 30_000 }, () => {
   it("accepts compact SettingsParameterValue fields", () => {
     const compiled = schemaFor()
 

@@ -12,11 +12,17 @@ export interface ValidationOwnerFacts {
   registerRecords?: string[]
 }
 
+type ValidationOwnerFactsModel = MetadataItem & {
+  type?: unknown
+  content?: unknown
+  registerRecords?: unknown
+}
+
 export function createValidationOwnerFacts(params: {
   ref: OwnerTypeRef
   filePath: string
   fieldIndex: ObjectFieldIndex
-  model: MetadataItem
+  model: ValidationOwnerFactsModel
 }): ValidationOwnerFacts {
   const type = metadataRecord(params.model)["type"]
   const commonAttributeOwnerLinks = commonAttributeOwnerLinksFromModel(params.model)

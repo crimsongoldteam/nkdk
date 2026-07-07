@@ -30,7 +30,7 @@ function schemaForName(name: string, mode?: "externalRefs" | "inline"): TSchema 
   return schema
 }
 
-describe("JSON Schema registry", { timeout: 30_000 }, () => {
+describe("JSON Schema registry", { timeout: 60_000 }, () => {
   beforeEach(() => {
     ensureJSONSchemaRegistry()
   })

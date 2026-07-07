@@ -27,6 +27,7 @@ export interface ExportJSONSchemaForSchemaNameParams {
   context: ConfigurationContext
   name: string
   mode?: JSONSchemaExportMode
+  excludeImplicitValueYAML?: boolean
   includeNestedChildItems?: boolean
 }
 
