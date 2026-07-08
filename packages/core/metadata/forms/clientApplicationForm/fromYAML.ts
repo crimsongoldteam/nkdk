@@ -1,8 +1,15 @@
-import { ConfigurationContext, FormDataPathAttributeContext } from "../../context/types"
-import type { FormAttributeYAML, FormAttributesYAML } from "../commonObjects/formAttribute/types"
+import type { ConfigurationContext, FormDataPathAttributeContext } from "../../context/types"
+import type { FormAttributesYAML } from "../commonObjects/formAttribute/types"
 import { importMetadataItemFromYAML } from "../../orchestration"
 import { ClientApplicationFormRules } from "./rules"
 import { ClientApplicationForm, ClientApplicationFormYAML } from "./types"
+
+const FormAttributesOnlyRules = {
+  ...ClientApplicationFormRules,
+  properties: {
+    attributes: ClientApplicationFormRules.properties.attributes,
+  },
+}
 
 export const importClientApplicationFormFromYAML = (
   context: ConfigurationContext,
@@ -15,7 +22,7 @@ export const importClientApplicationFormFromYAML = (
         ...context,
         importFromYAML: {
           ...context.importFromYAML,
-          formAttributes: formDataPathAttributesFromYAML(data.Реквизиты),
+          formAttributes: importFormAttributesForDataPath(context, data.Реквизиты),
         },
       }
     : context
@@ -33,18 +40,16 @@ export const importClientApplicationFormFromYAML = (
   return properties
 }
 
-function formDataPathAttributesFromYAML(attributes: FormAttributesYAML | undefined): FormDataPathAttributeContext[] {
+function importFormAttributesForDataPath(
+  context: ConfigurationContext,
+  attributes: FormAttributesYAML | undefined
+): FormDataPathAttributeContext[] {
   if (attributes === undefined) return []
 
-  return Object.entries(attributes).map(([name, attribute]) => ({
-    name,
-    type: isDynamicListType(attribute.Тип) ? { type: ["DynamicList"] } : undefined,
-    dynamicList: attribute.ДинамическийСписок,
-  }))
-}
-
-function isDynamicListType(type: FormAttributeYAML["Тип"]): boolean {
-  if (typeof type === "string") return type === "ДинамическийСписок" || type === "DynamicList"
-  if (Array.isArray(type)) return type.includes("ДинамическийСписок") || type.includes("DynamicList")
-  return false
+  const imported = importMetadataItemFromYAML({
+    context,
+    yaml: { Реквизиты: attributes },
+    rule: FormAttributesOnlyRules as typeof ClientApplicationFormRules,
+  }) as { attributes?: FormDataPathAttributeContext[] } | undefined
+  return imported?.attributes ?? []
 }

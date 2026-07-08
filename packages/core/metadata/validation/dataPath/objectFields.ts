@@ -79,10 +79,13 @@ export function resolveObjectFieldSegment(params: {
   index: ObjectFieldIndex
   segment: string
 }): ObjectField | undefined {
+  const direct = params.index.fields.get(params.segment)
+  if (direct !== undefined) return direct
+
   const alias =
     params.index.standardAttributeAliases.get(params.segment) ?? standardAttributeAliasToYAML(params.segment)
-  if (alias !== undefined) return params.index.fields.get(alias) ?? params.index.fields.get(params.segment)
-  return params.index.fields.get(params.segment)
+  if (alias !== undefined) return params.index.fields.get(alias)
+  return undefined
 }
 
 export function standardAttributeAliasToYAML(segment: string): string | undefined {
@@ -130,13 +133,15 @@ function addStandardAttributeFields(params: {
   for (const [internalName, yamlName] of Object.entries(standardAttributeNames)) {
     const explicit = explicitItems.get(internalName)
     standardAttributeAliases.set(internalName, yamlName)
-    fields.set(yamlName, {
+    const field = {
       name: yamlName,
       targetName: internalName,
       kind: "standardAttribute",
       sourceCollection,
       typeInfo: standardAttributeTypeInfo({ owner, internalName, yamlName, explicit }),
-    })
+    } satisfies ObjectField
+    fields.set(internalName, field)
+    if (!fields.has(yamlName)) fields.set(yamlName, field)
   }
 }
 

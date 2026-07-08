@@ -171,6 +171,8 @@ export interface ResolveTraversalTimeStandardMemberParams {
 
 export interface ResolvedTraversalStandardMember {
   name: string
+  internalName: string
+  yamlName: string
   typeInfo: DataPathTypeInfo
   tableSource?: {
     table: DataPathTableInfo
@@ -244,6 +246,8 @@ export function resolveTraversalTimeStandardMember(
       const table = { kind: member.tableKind } satisfies DataPathTableInfo
       return {
         name: member.names.yaml,
+        internalName: member.names.internal,
+        yamlName: member.names.yaml,
         typeInfo: {
           kinds: ["tableSource"],
           nextTypes: [],
@@ -263,7 +267,13 @@ export function resolveTraversalTimeStandardMember(
     if (member.family === "closedReverseLookup") return resolveClosedReverseLookupMember({ ...params, member })
 
     const typeInfo = indexTimeTypeInfo(member, params.owner)
-    if (typeInfo !== undefined) return { name: member.names.yaml, typeInfo }
+    if (typeInfo !== undefined)
+      return {
+        name: member.names.yaml,
+        internalName: member.names.internal,
+        yamlName: member.names.yaml,
+        typeInfo,
+      }
   }
   return undefined
 }
@@ -358,6 +368,8 @@ function resolveReverseLookupMember(params: {
   if (candidates.length === 0) return missingLinkedObjects(params.member)
   return {
     name: params.member.names.yaml,
+    internalName: params.member.names.internal,
+    yamlName: params.member.names.yaml,
     typeInfo: {
       kinds: ["object"],
       nextTypes: candidates,
@@ -384,6 +396,8 @@ function resolveClosedReverseLookupMember(params: {
 
   return {
     name: params.member.names.yaml,
+    internalName: params.member.names.internal,
+    yamlName: params.member.names.yaml,
     typeInfo: {
       kinds: ["unsupportedIntermediate"],
       nextTypes: [],

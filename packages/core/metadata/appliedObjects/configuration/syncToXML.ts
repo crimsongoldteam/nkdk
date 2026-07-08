@@ -185,6 +185,10 @@ export const syncConfigurationToXML = async (params: {
   const configDumpInfo = context.exportToXML.configDumpInfo
   const syncContext: ConfigurationContextWithExportToXML = {
     ...context,
+    importFromYAML: {
+      ...(context.importFromYAML ?? {}),
+      projectDir: inputDir,
+    },
     exportToXML: {
       ...context.exportToXML,
       configDumpInfo,

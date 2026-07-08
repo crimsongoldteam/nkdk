@@ -22,9 +22,106 @@ import { parseMetadataYaml } from "../../../yaml/parseMetadataYaml"
 import { buildFormDataPathIndex, type FormDataPathIndex } from "./formIndex"
 import { buildObjectFieldIndex } from "./objectFields"
 import type { OwnerMetadata, OwnerMetadataCache, OwnerMetadataResult } from "./ownerCache"
+import { resolveDataPathCore } from "./coreResolver"
+import type {
+  DataPathNameMode,
+  ResolveDataPathCoreParams,
+  ResolveDataPathCoreResult,
+} from "./coreResolver"
 import { resolveDataPath } from "./resolver"
 
 describe("resolveDataPath", () => {
+  it("exposes a YAML-position-free core resolver contract", () => {
+    const nameMode: DataPathNameMode = "yaml"
+    const params = {} as ResolveDataPathCoreParams
+    const result = {} as ResolveDataPathCoreResult
+
+    expect(nameMode).toBe("yaml")
+    expect(params).toBeDefined()
+    expect(result).toBeDefined()
+  })
+
+  it("keeps YAML-position diagnostics in the validation wrapper", () => {
+    const result = resolve("НеизвестныйКорень.Код", {
+      index: indexWithAttributes([]),
+      yamlPath: ["ПутьКДанным"],
+    })
+
+    expect(result).toMatchObject({
+      status: "error",
+      diagnostics: [
+        expect.objectContaining({
+          line: 1,
+          col: 1,
+          source: "structure",
+          message: 'ПутьКДанным "НеизвестныйКорень.Код": неизвестный корень "НеизвестныйКорень"',
+        }),
+      ],
+    })
+  })
+
+  it("reports yaml-to-internal replacement for a standard owner member", () => {
+    const result = resolveDataPathCore({
+      value: "Объект.Код",
+      nameMode: "yaml",
+      index: indexWithAttributes([attribute("Объект", { type: ["CatalogRef.Товары"] })]),
+      ownerCache: ownerCache([
+        owner({
+          ref: { kind: "Справочник", name: "Товары" },
+          rule: MetadataCatalogRules,
+          model: { itemType: "MetadataCatalog" },
+        }),
+      ]),
+    })
+
+    expect(result).toMatchObject({
+      status: "ok",
+      replacements: [{ segmentIndex: 1, from: "Код", to: "Code", reason: "standardMember" }],
+      target: { source: { kind: "objectField", name: "Код" } },
+    })
+  })
+
+  it("does not report standard-member replacement for a ValueTable column", () => {
+    const result = resolveDataPathCore({
+      value: "Список.Код",
+      nameMode: "yaml",
+      index: indexWithAttributes([
+        attribute("Список", { type: ["ValueTable"] }, [column("Код", { type: ["string"] })]),
+      ]),
+      ownerCache: ownerCache([]),
+    })
+
+    expect(result).toMatchObject({
+      status: "ok",
+      replacements: [],
+      target: { source: { kind: "tableColumn", table: "Список", name: "Код" } },
+    })
+  })
+
+  it("prefers an exact owner field over a standard-member YAML alias", () => {
+    const result = resolveDataPathCore({
+      value: "Объект.Описание",
+      nameMode: "yaml",
+      index: indexWithAttributes([attribute("Объект", { type: ["TaskObject.ЗадачаИсполнителя"] })]),
+      ownerCache: ownerCache([
+        owner({
+          ref: { kind: "ЗадачаОбъект", name: "ЗадачаИсполнителя" },
+          rule: MetadataTaskRules,
+          model: {
+            itemType: "MetadataTask",
+            attributes: [{ name: "Описание", type: { type: ["string"] } }],
+          },
+        }),
+      ]),
+    })
+
+    expect(result).toMatchObject({
+      status: "ok",
+      replacements: [],
+      target: { source: { kind: "objectField", name: "Описание" } },
+    })
+  })
+
   it("resolves a valid form attribute", () => {
     const result = resolve("ПометкаУдаления", {
       index: indexWithAttributes([attribute("ПометкаУдаления", { type: ["boolean"] })]),

@@ -37,15 +37,22 @@ export const syncConfigurationFromXML = async (params: {
   outputDir: string
 }): Promise<ConfigurationSyncResult> => {
   const { context, inputDir, outputDir } = params
+  const contextWithProjectDir: ConfigurationContextFromXML = {
+    ...context,
+    exportToYAML: {
+      ...(context.exportToYAML ?? { toTyped: false }),
+      projectDir: outputDir,
+    },
+  }
 
   if (!fs.existsSync(inputDir)) {
     return { succeeded: 0, failed: [] }
   }
 
   if (fs.existsSync(join(inputDir, CONFIGURATION_XML_FILE))) {
-    const configuration = readConfigurationFromXML({ context, inputDir })
-    writeConfigurationToYAML({ context, configuration, outputDir })
-    await syncRootConfigurationExternalFilesFromXML({ context, inputDir, outputDir })
+    const configuration = readConfigurationFromXML({ context: contextWithProjectDir, inputDir })
+    writeConfigurationToYAML({ context: contextWithProjectDir, configuration, outputDir })
+    await syncRootConfigurationExternalFilesFromXML({ context: contextWithProjectDir, inputDir, outputDir })
   }
 
   const tasks: BatchTask<void>[] = []
@@ -69,7 +76,7 @@ export const syncConfigurationFromXML = async (params: {
         run: () =>
           convertAppliedObjectFromXML({
             rule,
-            context,
+            context: contextWithProjectDir,
             inputDir: xmlDirAbs,
             name,
             outputDir: yamlDirAbs,

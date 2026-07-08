@@ -208,9 +208,14 @@ describe("syncAppliedObjectToXML — (в) формы из сканировани
 
     fs.mkdirSync(join(inputDir, name, "Формы", formName), { recursive: true })
     fs.writeFileSync(join(inputDir, name, "Свойства.yaml"), "", "utf-8")
+    fs.mkdirSync(join(inputDir, "Справочник", name), { recursive: true })
+    fs.writeFileSync(join(inputDir, "Справочник", name, "Свойства.yaml"), "Имя: ТестСправочник\n", "utf-8")
     fs.writeFileSync(
       join(inputDir, name, "Формы", formName, "Форма.yaml"),
       [
+        "Реквизиты:",
+        "  Объект:",
+        "    Тип: Справочник.ТестСправочник",
         "Элементы:",
         "  Код:",
         "    Вид: ПолеВвода",
@@ -222,7 +227,10 @@ describe("syncAppliedObjectToXML — (в) формы из сканировани
 
     await syncAppliedObjectToXML({
       rule: MetadataCatalogRules,
-      context: mockContextToXML(),
+      context: {
+        ...mockContextToXML(),
+        importFromYAML: { projectDir: inputDir },
+      },
       inputDir,
       name,
       outputDir,

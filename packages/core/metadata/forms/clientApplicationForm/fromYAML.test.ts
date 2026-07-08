@@ -1,4 +1,7 @@
-import { describe, expect, it } from "vitest"
+import { mkdirSync, mkdtempSync, rmSync, writeFileSync } from "node:fs"
+import { tmpdir } from "node:os"
+import { join } from "node:path"
+import { afterEach, describe, expect, it } from "vitest"
 
 import {
   catalogFullClientApplicationForm,
@@ -22,6 +25,12 @@ import type { ConfigurationContext } from "../../context/types"
 type ClientApplicationFormWithCustomSettingsFolder = ClientApplicationForm & {
   customSettingsFolder?: string
 }
+
+const dirs: string[] = []
+
+afterEach(() => {
+  for (const dir of dirs.splice(0)) rmSync(dir, { recursive: true, force: true })
+})
 
 const fullClientApplicationFormFromYAML = {
   parameters: fullClientApplicationForm.parameters,
@@ -243,6 +252,37 @@ describe("importClientApplicationFormFromYAML", () => {
         },
       ],
     })
+  })
+
+  it("keeps ValueTable field data paths in YAML spelling", () => {
+    const result = importClientApplicationFormFromYAML(contextWithProjectDir(), {
+      Реквизиты: {
+        Список: {
+          Тип: "ТаблицаЗначений",
+          Колонки: {
+            Код: { Тип: "Строка" },
+          },
+        },
+      },
+      Элементы: {
+        Код: { Вид: "ПолеВвода", ПутьКДанным: "Список.Код" },
+      },
+    })
+
+    expect(result.childItems?.[0]).toMatchObject({ dataPath: "Список.Код" })
+  })
+
+  it("imports object standard member data paths to internal spelling", () => {
+    const result = importClientApplicationFormFromYAML(contextWithProjectDir(), {
+      Реквизиты: {
+        Объект: { Тип: "Справочник.Товары" },
+      },
+      Элементы: {
+        Код: { Вид: "ПолеВвода", ПутьКДанным: "Объект.Код" },
+      },
+    })
+
+    expect(result.childItems?.[0]).toMatchObject({ dataPath: "Объект.Code" })
   })
 
   it("imports complete form from one YAML source without source", () => {
@@ -556,8 +596,23 @@ describe("importClientApplicationFormFromYAML", () => {
 
     expect((result as ClientApplicationFormWithCustomSettingsFolder).customSettingsFolder).toBe(
       customSettingsFolderClientApplicationForm.customSettingsFolder
-    )
-  })
+  )
+})
+
+function contextWithProjectDir(): ConfigurationContext {
+  const projectDir = mkdtempSync(join(tmpdir(), "nkdk-datapath-form-"))
+  dirs.push(projectDir)
+  mkdirSync(join(projectDir, "Справочник", "Товары"), { recursive: true })
+  writeFileSync(join(projectDir, "Справочник", "Товары", "Свойства.yaml"), "Имя: Товары\n", "utf-8")
+  return {
+    ...mockContext,
+    importFromYAML: {
+      ...(mockContext.importFromYAML ?? {}),
+      projectDir,
+      metadataTargetOwners: [{ itemType: "MetadataCatalog", name: "Товары" }],
+    },
+  }
+}
 
   it("does not apply report form Auto defaults when importing YAML", () => {
     expect(reportFormClientApplicationFormYAML).not.toHaveProperty("АвтоОтображениеСостояния")

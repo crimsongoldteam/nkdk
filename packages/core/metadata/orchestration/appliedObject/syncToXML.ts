@@ -113,7 +113,14 @@ const syncAppliedObjectToXMLInternal = async (params: InternalSyncAppliedObjectT
           yaml: yamlObj,
           filePathReferenceValues,
         })
-  const contextWithFormDir = withImportFormDir(context, nkdkDir)
+  const contextWithProjectDir: ConfigurationContextWithExportToXML = {
+    ...context,
+    importFromYAML: {
+      ...(context.importFromYAML ?? {}),
+      projectDir: context.importFromYAML?.projectDir ?? dirname(inputDir),
+    },
+  }
+  const contextWithFormDir = withImportFormDir(contextWithProjectDir, nkdkDir)
   const rawModel = importMetadataItemFromYAML({
     context: contextWithFormDir,
     yaml: yamlObj,
@@ -147,15 +154,15 @@ const syncAppliedObjectToXMLInternal = async (params: InternalSyncAppliedObjectT
   const fileChildNames = await collectFileChildNames({ rule, inputDir, name })
 
   const contextWithForms: ConfigurationContextWithExportToXML = {
-    ...context,
+    ...contextWithFormDir,
     exportToXML: {
-      ...context.exportToXML,
+      ...contextWithFormDir.exportToXML,
       context: {
-        ...context.exportToXML.context,
+        ...contextWithFormDir.exportToXML.context,
         forms: fileChildNames.forms ?? [],
         templates: fileChildNames.templates ?? [],
         parentName: name,
-        metadataForNumbering: context.exportToXML.context?.metadataForNumbering ?? [],
+        metadataForNumbering: contextWithFormDir.exportToXML.context?.metadataForNumbering ?? [],
       },
     },
   }
