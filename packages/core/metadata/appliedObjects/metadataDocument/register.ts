@@ -13,6 +13,7 @@ import {
 import { registerProjectReferenceObjectPathContributor } from "../../validation/projectReferenceIndexRegistry"
 import { MetadataDocumentRules } from "./rules"
 import { exportMetadataDocumentToJSONSchema } from "./toJSONSchema"
+import "./standardMembers"
 
 registerDataPathOwnerKind({
   kind: "Документ",

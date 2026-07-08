@@ -1,5 +1,6 @@
 import { registerDataPathOwnerKind, registerStandardAttributeTypeResolver } from "../../validation/dataPath/registry"
 import { MetadataTaskRules } from "./rules"
+import "./standardMembers"
 
 registerDataPathOwnerKind({
   kind: "Задача",

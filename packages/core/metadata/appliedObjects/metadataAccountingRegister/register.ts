@@ -3,6 +3,7 @@ import type { FormDataPathColumnSource, OwnerTypeRef } from "../../validation/da
 import { resolveObjectFieldSegment } from "../../validation/dataPath/objectFields"
 import { registerDataPathOwnerKind, registerTableColumnResolver } from "../../validation/dataPath/registry"
 import { MetadataAccountingRegisterRules } from "./rules"
+import "./standardMembers"
 
 registerDataPathOwnerKind({
   kind: "РегистрБухгалтерии",

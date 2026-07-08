@@ -2,6 +2,7 @@ import type { OwnerMetadata } from "../../validation/dataPath/ownerCache"
 import type { FormDataPathColumnSource } from "../../validation/dataPath/types"
 import { registerDataPathOwnerKind, registerVirtualOwnerFieldResolver } from "../../validation/dataPath/registry"
 import { MetadataChartOfCalculationTypesRules } from "./rules"
+import "./standardMembers"
 
 registerDataPathOwnerKind({
   kind: "ПланВидовРасчета",

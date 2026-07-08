@@ -207,6 +207,14 @@ export function createOwnerMetadataCacheFromBinarySharedOwners(params: {
       results.set(key, result)
       return result
     },
+    listRefs(kind) {
+      const ownerKind = getDataPathOwnerKind(kind)
+      const tableKind = ownerKind?.projectDir ?? kind
+      return view.listOwners(tableKind).map((ref) => ({
+        kind,
+        ...(ref.name !== undefined ? { name: ref.name } : {}),
+      }))
+    },
   }
 }
 
@@ -240,6 +248,17 @@ function createBinaryOwnersView(snapshot: BinarySharedOwnersSnapshot) {
         else right = middle - 1
       }
       return undefined
+    },
+    listOwners(kind: OwnerTypeRef["kind"]): readonly OwnerTypeRef[] {
+      const result: OwnerTypeRef[] = []
+      for (let ownerId = 0; ownerId < ownerCount; ownerId += 1) {
+        const base = ownersOffset + ownerId * OWNER_INTS
+        const currentKind = strings.get(ints[base] ?? 0)
+        if (currentKind !== kind) continue
+        const name = strings.get(ints[base + 1] ?? 0)
+        result.push({ kind, ...(name.length > 0 ? { name } : {}) })
+      }
+      return result
     },
     owner(ownerId: number) {
       const base = ownersOffset + ownerId * OWNER_INTS

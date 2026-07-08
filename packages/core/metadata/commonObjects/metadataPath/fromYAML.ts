@@ -2,7 +2,9 @@ import { parseMetadataTargetFromYAML } from "../metadataTargets"
 import { isMetadataRootName, rootFromYAML } from "../metadataTargets/roots"
 import type { MetadataTargetConstraint, MetadataTargetOwner } from "../metadataTargets/types"
 import type { ConfigurationContext } from "../../context/types"
+import { registerTypeRule } from "../../orchestration/property/typeRuleRegistry"
 import type { PropertyRule } from "../../orchestration/property/types"
+import { importDataPathStandardMembersFromYAML } from "./dataPathStandardMembers"
 
 const metadataObjectTargetFallback = { kind: "object" } as const satisfies MetadataTargetConstraint
 const metadataFieldTargetFallback = { kind: "member", owner: "explicit" } as const satisfies MetadataTargetConstraint
@@ -111,3 +113,7 @@ function isMetadataTargetLikeYAML(value: string): boolean {
   const root = value.split(".")[0]
   return rootFromYAML[root] !== undefined || isMetadataRootName(root)
 }
+
+registerTypeRule("DataPath", "importFromYAML", ({ context, value }) => {
+  return importDataPathStandardMembersFromYAML(context, value)
+})

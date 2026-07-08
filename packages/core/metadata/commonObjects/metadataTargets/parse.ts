@@ -8,6 +8,7 @@ import {
   rootFromYAML,
   standardAttributeFromYAML,
 } from "./roots"
+import { standardMemberYamlToInternal } from "../../validation/dataPath/registry"
 import type {
   MetadataMemberKind,
   MetadataMemberSegment,
@@ -667,7 +668,7 @@ function formatCanonicalTarget(target: ParsedMetadataTarget): string {
 
 function normalizeMemberSegmentName(kind: MetadataMemberKind, name: string, source: "yaml" | "model"): string {
   if (kind !== "StandardAttribute" || source !== "yaml") return name
-  return standardAttributeFromYAML[name] ?? name
+  return standardMemberYamlToInternal(name) ?? standardAttributeFromYAML[name] ?? name
 }
 
 function parseYAMLValueTarget(

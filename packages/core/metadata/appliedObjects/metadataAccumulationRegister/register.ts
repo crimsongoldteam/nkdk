@@ -1,5 +1,6 @@
 import { registerDataPathOwnerKind } from "../../validation/dataPath/registry"
 import { MetadataAccumulationRegisterRules } from "./rules"
+import "./standardMembers"
 
 registerDataPathOwnerKind({
   kind: "РегистрНакопления",

@@ -1,5 +1,7 @@
 import { describe, expect, it } from "vitest"
 import { mockContext, mockRule } from "../../../tests/mockContext"
+import type { ConfigurationContext } from "../../context/types"
+import "../../appliedObjects/metadataCatalog/register"
 import { exportChoiceParameterLinksToYAML } from "./toYAML"
 import { ChoiceParameterLinks } from "./types"
 
@@ -93,6 +95,31 @@ describe("exportToYAML", () => {
         Имя: "Отбор.Характеристика",
         ПутьКДанным: "Характеристика",
         РежимИзменения: "НеИзменять",
+      },
+    ])
+  })
+
+  it("exports standard member in dataPath", () => {
+    const context: ConfigurationContext = {
+      ...mockContext,
+      exportToYAML: {
+        toTyped: false,
+        metadataTargetOwners: [{ itemType: "MetadataCatalog", name: "Контрагенты" }],
+      },
+    }
+
+    const result = exportChoiceParameterLinksToYAML(context, mockRule, [
+      {
+        name: "Отбор.Владелец",
+        dataPath: "Объект.Owner",
+        valueChange: "Clear",
+      },
+    ])
+
+    expect(result).toEqual([
+      {
+        Имя: "Отбор.Владелец",
+        ПутьКДанным: "Объект.Владелец",
       },
     ])
   })

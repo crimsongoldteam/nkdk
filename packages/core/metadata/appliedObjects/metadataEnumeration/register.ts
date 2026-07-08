@@ -12,6 +12,7 @@ import { importMetadataEnumerationFromYAML } from "./fromYAML"
 import { MetadataEnumerationRules } from "./rules"
 import { exportMetadataEnumerationToJSONSchema } from "./toJSONSchema"
 import type { MetadataEnumerationYAML } from "./types"
+import "./standardMembers"
 
 registerMetadataItemRule({
   propertyType: "MetadataEnumeration",

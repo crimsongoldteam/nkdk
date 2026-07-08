@@ -8,6 +8,7 @@ import {
   getMetadataLinkPrefixesByOwnerKind,
   resolveRegisteredTableColumn,
   resolveMovementItem as resolveRegisteredMovementItem,
+  resolveTraversalTimeStandardMember,
   resolveTraversalTransition,
   resolveVirtualOwnerField,
 } from "./registry"
@@ -200,6 +201,25 @@ export function resolveDataPath(params: ResolveDataPathParams): ResolveDataPathR
     }
 
     const field = resolveObjectFieldSegment({ index: ownerResult.owner.fieldIndex, segment: lookupSegment })
+    const standardMember = resolveTraversalTimeStandardMember({
+      owner: ownerResult.owner,
+      segment: lookupSegment,
+      ownerCache: params.ownerCache,
+    })
+    if (standardMember?.kind === "error") {
+      return error(params, `ПутьКДанным "${value}": ${standardMember.message}`)
+    }
+    if (standardMember !== undefined) {
+      state = {
+        typeInfo: standardMember.typeInfo,
+        source: { kind: "objectField", owner: ownerResult.owner.ref, name: standardMember.name },
+        ...(standardMember.tableSource !== undefined ? { tableSource: standardMember.tableSource } : {}),
+      }
+
+      if (isLast) return okTarget({ value, segments, state })
+      continue
+    }
+
     const virtualField = resolveVirtualOwnerField({
       owner: ownerResult.owner,
       segment: lookupSegment,

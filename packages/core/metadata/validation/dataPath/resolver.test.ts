@@ -4,6 +4,7 @@ import type { ClientApplicationForm } from "../../forms/clientApplicationForm/ty
 import type { FormAttribute } from "../../forms/commonObjects/formAttribute/types"
 import { MetadataAccountingRegisterRules } from "../../appliedObjects/metadataAccountingRegister/rules"
 import { MetadataAccumulationRegisterRules } from "../../appliedObjects/metadataAccumulationRegister/rules"
+import { MetadataBusinessProcessRules } from "../../appliedObjects/metadataBusinessProcess/rules"
 import { MetadataCatalogRules } from "../../appliedObjects/metadataCatalog/rules"
 import { MetadataChartOfAccountsRules } from "../../appliedObjects/metadataChartOfAccounts/rules"
 import { MetadataChartOfCalculationTypesRules } from "../../appliedObjects/metadataChartOfCalculationTypes/rules"
@@ -1173,7 +1174,7 @@ describe("resolveDataPath", () => {
       target: {
         value: "Объект.ExtDimensionTypes",
         segments: ["Объект", "ExtDimensionTypes"],
-        source: { kind: "objectField", owner: { kind: "ПланСчетов", name: "Хозрасчетный" }, name: "ExtDimensionTypes" },
+        source: { kind: "objectField", owner: { kind: "ПланСчетов", name: "Хозрасчетный" }, name: "ВидыСубконто" },
         typeInfo: { kinds: ["tableSource"], table: { kind: "ValueTable" } },
       },
     })
@@ -1191,7 +1192,7 @@ describe("resolveDataPath", () => {
       status: "ok",
       diagnostics: [],
       target: {
-        source: { kind: "tableColumn", table: "ExtDimensionTypes", name: "ExtDimensionType" },
+        source: { kind: "tableColumn", table: "ВидыСубконто", name: "ExtDimensionType" },
         typeInfo: {
           kinds: ["object"],
           nextTypes: [{ kind: "ПланВидовХарактеристик", name: "ВидыСубконтоХозрасчетные" }],
@@ -1342,11 +1343,11 @@ describe("resolveDataPath", () => {
       status: "ok",
       diagnostics: [],
       target: {
-        source: { kind: "tableColumn", table: "BaseCalculationTypes", name: "CalculationType" },
+        source: { kind: "tableColumn", table: "БазовыеВидыРасчета", name: "CalculationType" },
         typeInfo: {
           kinds: ["object"],
           nextTypes: [{ kind: "ПланВидовРасчета", name: "Начисления" }],
-          sourceText: "ChartOfCalculationTypes.Начисления",
+          sourceText: "ПланВидовРасчета.BaseCalculationTypes.CalculationType",
         },
       },
     })
@@ -1684,6 +1685,14 @@ describe("resolveDataPath", () => {
           ],
         },
       }),
+      owner({
+        ref: { kind: "БизнесПроцесс", name: "Согласование" },
+        rule: MetadataBusinessProcessRules,
+        model: {
+          itemType: "MetadataBusinessProcess",
+          tasks: ["Task.ЗадачаИсполнителя"],
+        },
+      }),
     ])
 
     for (const [path, yamlName] of [
@@ -1854,7 +1863,7 @@ describe("resolveDataPath", () => {
         target: {
           value: path,
           source: { kind: "objectField", owner: { kind: "ПланОбмена", name: "Синхронизация" }, name: yamlName },
-          typeInfo: { kinds: ["scalar"], sourceText: "ПланОбмена.SentReceivedNo" },
+          typeInfo: { kinds: ["scalar"], sourceText: path.endsWith("SentNo") ? "ПланОбмена.SentNo" : "ПланОбмена.ReceivedNo" },
         },
       })
     }
@@ -2524,6 +2533,9 @@ function ownerCache(owners: OwnerMetadata[]): OwnerMetadataCache {
   const byKey = new Map(owners.map((item) => [ownerKey(item.ref), item]))
 
   return {
+    listRefs(kind) {
+      return owners.map((item) => item.ref).filter((ref) => ref.kind === kind)
+    },
     get(ref): OwnerMetadataResult {
       const found = byKey.get(ownerKey(ref))
       if (found !== undefined) return { status: "ok", owner: found }

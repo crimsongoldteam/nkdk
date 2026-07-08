@@ -39,6 +39,25 @@ describe("SharedValidationBinaryOwners", () => {
     expect(binary.get({ kind: "Справочник", name: "НетТакого" })).toMatchObject({ status: "not-found" })
   })
 
+  it("lists owner refs by data path kind", () => {
+    const secondRecord = {
+      ...catalogRecord(),
+      filePath: "/project/Справочник/Контрагенты/Свойства.yaml",
+      projectPath: "Справочник/Контрагенты/Свойства.yaml",
+      owner: { dir: "Справочник", name: "Контрагенты" },
+      ownerRef: { kind: "Справочник", name: "Контрагенты" },
+    } satisfies ValidationObjectRecord
+    const table = createValidationObjectTable({
+      records: [catalogRecord(), secondRecord],
+      filePaths: ["/project/Справочник/Номенклатура/Свойства.yaml", secondRecord.filePath],
+    })
+    const snapshot = createBinarySharedOwnersSnapshot(table.snapshot())
+    const regular = createOwnerMetadataCacheFromValidationTable({ projectDir: "/project", table })
+    const binary = createOwnerMetadataCacheFromBinarySharedOwners({ projectDir: "/project", snapshot })
+
+    expect(sortRefs(binary.listRefs("Справочник"))).toEqual(sortRefs(regular.listRefs("Справочник")))
+  })
+
   it("restores owner model data used by data path resolvers", () => {
     const table = createValidationObjectTable({
       records: [
@@ -96,6 +115,12 @@ describe("SharedValidationBinaryOwners", () => {
     expect([...owner.owner.fieldIndex.fields.keys()]).toEqual(["Артикул", "Товары"])
   })
 })
+
+function sortRefs(refs: readonly { kind: string; name?: string }[]): Array<{ kind: string; name?: string }> {
+  return [...refs].sort((left, right) =>
+    `${left.kind}.${left.name ?? ""}`.localeCompare(`${right.kind}.${right.name ?? ""}`)
+  )
+}
 
 function catalogRecord(): ValidationObjectRecord {
   return {
