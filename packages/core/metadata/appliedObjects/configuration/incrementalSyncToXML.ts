@@ -39,8 +39,15 @@ export async function syncConfigurationIncrementallyToXML(params: {
 
   const currentFiles = await hashProjectFiles(params.inputDir)
   const diff = diffSyncState(previousState.files, currentFiles)
+  const contextWithProjectDir: ConfigurationContextWithExportToXML = {
+    ...params.context,
+    importFromYAML: {
+      ...(params.context.importFromYAML ?? {}),
+      projectDir: params.inputDir,
+    },
+  }
   const migrationChain = await prepareConfigurationXmlMigrationChain({
-    context: params.context,
+    context: contextWithProjectDir,
     inputDir: params.inputDir,
     outputDir: params.outputDir,
     referenceDir: params.referenceDir,
@@ -54,7 +61,11 @@ export async function syncConfigurationIncrementallyToXML(params: {
     }
   }
   if (migrationChain.migrationsToApply.length > 0 && !fs.existsSync(join(params.outputDir, "ConfigDumpInfo.xml"))) {
-    return syncConfigurationToXML({ ...params, referenceDir: params.referenceDir ?? params.outputDir })
+    return syncConfigurationToXML({
+      ...params,
+      context: contextWithProjectDir,
+      referenceDir: params.referenceDir ?? params.outputDir,
+    })
   }
   if (
     diff.added.length === 0 &&
@@ -82,7 +93,7 @@ export async function syncConfigurationIncrementallyToXML(params: {
       if (fs.existsSync(join(params.inputDir, CONFIGURATION_YAML_FILE))) {
         await tracker.markWrite(join(params.outputDir, CONFIGURATION_XML_FILE))
       }
-      await writeConfigurationArea(params)
+      await writeConfigurationArea({ ...params, context: contextWithProjectDir })
     }
 
     for (const planned of plan.areas) {
@@ -102,7 +113,7 @@ export async function syncConfigurationIncrementallyToXML(params: {
           await syncAppliedObjectAreaToXML({
             area: { kind: "externalFile", xmlPath: planned.area.xmlPath },
             rule,
-            context: { ...params.context, exportToXML: { ...params.context.exportToXML } },
+            context: { ...contextWithProjectDir, exportToXML: { ...contextWithProjectDir.exportToXML } },
             inputDir: join(params.inputDir, rule.itemTypePrefix),
             name: planned.area.itemName,
             outputDir: join(params.outputDir, rule.xmlDir),
@@ -126,7 +137,7 @@ export async function syncConfigurationIncrementallyToXML(params: {
           if (!propertyRule || !writer) throw new Error(`Не найден writer для ${planned.key}`)
           await tracker.markWrite(join(params.outputDir, planned.area.xmlPath))
           await writer({
-            context: { ...params.context, exportToXML: { ...params.context.exportToXML } },
+            context: { ...contextWithProjectDir, exportToXML: { ...contextWithProjectDir.exportToXML } },
             rule: propertyRule,
             nkdkDir: join(params.inputDir, rule.itemTypePrefix, planned.area.itemName),
             xmlDir: join(params.outputDir, rule.xmlDir),
@@ -148,7 +159,7 @@ export async function syncConfigurationIncrementallyToXML(params: {
           await tracker.markWrite(join(params.outputDir, rule.xmlDir, `${planned.area.itemName}.xml`))
           const syncParams = {
             rule,
-            context: { ...params.context, exportToXML: { ...params.context.exportToXML } },
+            context: { ...contextWithProjectDir, exportToXML: { ...contextWithProjectDir.exportToXML } },
             inputDir: join(params.inputDir, rule.itemTypePrefix),
             name: planned.area.itemName,
             outputDir: join(params.outputDir, rule.xmlDir),
@@ -179,7 +190,7 @@ export async function syncConfigurationIncrementallyToXML(params: {
       await tracker.markWrite(join(params.outputDir, "ConfigDumpInfo.xml"))
     }
     await updateConfigDumpInfoVersionsToXML({
-      context: params.context,
+      context: contextWithProjectDir,
       outputDir: params.outputDir,
       names: dumpInfoNames,
     })

@@ -1,78 +1,82 @@
-import type { ConfigurationContext, FormDataPathAttributeContext, MetadataTargetOwnerContext } from "../../context/types"
+import type { ConfigurationContext, FormDataPathAttributeContext } from "../../context/types"
+import { parseMetadataYaml } from "../../../yaml/parseMetadataYaml"
+import { buildFormDataPathIndex } from "../../validation/dataPath/formIndex"
 import {
-  getDataPathOwnerKindByItemType,
-  standardMemberInternalToYamlForOwnerKind,
-  standardMemberYamlToInternalForOwnerKind,
-} from "../../validation/dataPath/registry"
+  formatDataPathStandardMembers,
+  type DataPathFormatDirection,
+} from "../../validation/dataPath/formatter"
+import { createOwnerMetadataCache } from "../../validation/dataPath/ownerCache"
+import { createProjectYamlCache } from "../../validation/projectYamlCache"
 
-const DATA_OBJECT_ROOTS = new Set(["Объект", "Запись", "Список"])
+interface DataPathFormattingResources {
+  index: ReturnType<typeof buildFormDataPathIndex>
+  ownerCache: ReturnType<typeof createOwnerMetadataCache>
+}
+
+const resourcesByAttributes = new WeakMap<
+  readonly FormDataPathAttributeContext[],
+  Map<string, DataPathFormattingResources>
+>()
 
 export function exportDataPathStandardMembersToYAML(context: ConfigurationContext, value: unknown): unknown {
   if (typeof value !== "string") return value
-
-  return translateDirectObjectMember({
-    context,
-    value,
-    translate: ({ ownerKind, segment }) => standardMemberInternalToYamlForOwnerKind(ownerKind, segment),
-  })
+  return formatWithResolver({ context, value, direction: "internal-to-yaml" })
 }
 
 export function importDataPathStandardMembersFromYAML(context: ConfigurationContext, value: unknown): unknown {
   if (typeof value !== "string") return value
-
-  return translateDirectObjectMember({
-    context,
-    value,
-    translate: ({ ownerKind, segment }) => standardMemberYamlToInternalForOwnerKind(ownerKind, segment),
-  })
+  return formatWithResolver({ context, value, direction: "yaml-to-internal" })
 }
 
-function translateDirectObjectMember(params: {
+function formatWithResolver(params: {
   context: ConfigurationContext
   value: string
-  translate: (params: { ownerKind: string; segment: string }) => string | undefined
+  direction: DataPathFormatDirection
 }): string {
-  const ownerKind = currentDataPathOwnerKind(params.context)
-  if (ownerKind === undefined) return params.value
+  const formAttributes = currentFormAttributes(params.context)
+  const projectDir = params.context.importFromYAML?.projectDir ?? params.context.exportToYAML?.projectDir
+  if (formAttributes.length === 0 || projectDir === undefined) return params.value
 
-  const { prefix, path } = splitDataPathPrefix(params.value)
-  const segments = path.split(".")
-  if (segments.length < 2 || !DATA_OBJECT_ROOTS.has(segments[0])) return params.value
-  if (isDynamicListDataPathRoot(params.context, segments[0])) return params.value
+  const resources = getFormattingResources({ context: params.context, formAttributes, projectDir })
 
-  const translated = params.translate({ ownerKind, segment: segments[1] })
-  if (translated === undefined) return params.value
-
-  return `${prefix}${[segments[0], translated, ...segments.slice(2)].join(".")}`
-}
-
-function splitDataPathPrefix(value: string): { prefix: string; path: string } {
-  if (value.startsWith("~")) return { prefix: "~", path: value.slice(1) }
-  return { prefix: "", path: value }
-}
-
-function currentDataPathOwnerKind(context: ConfigurationContext): string | undefined {
-  const frames = currentMetadataTargetOwners(context)
-  for (let index = frames.length - 1; index >= 0; index--) {
-    const registration = getDataPathOwnerKindByItemType(frames[index].itemType)
-    if (registration !== undefined) return registration.kind
-  }
-  return undefined
-}
-
-function currentMetadataTargetOwners(context: ConfigurationContext): readonly MetadataTargetOwnerContext[] {
-  return context.importFromYAML?.metadataTargetOwners ?? context.exportToYAML?.metadataTargetOwners ?? []
-}
-
-function isDynamicListDataPathRoot(context: ConfigurationContext, root: string): boolean {
-  const attribute = currentFormAttributes(context).find((item) => item.name === root)
-  return attribute !== undefined && isDynamicListAttribute(attribute)
+  return formatDataPathStandardMembers({
+    value: params.value,
+    direction: params.direction,
+    index: resources.index,
+    ownerCache: resources.ownerCache,
+  })
 }
 
 function currentFormAttributes(context: ConfigurationContext): readonly FormDataPathAttributeContext[] {
   return context.importFromYAML?.formAttributes ?? context.exportToYAML?.formAttributes ?? []
 }
 
-function isDynamicListAttribute(attribute: FormDataPathAttributeContext): boolean {
-  return attribute.type?.type?.includes("DynamicList") === true || attribute.dynamicList !== undefined
+function getFormattingResources(params: {
+  context: ConfigurationContext
+  formAttributes: readonly FormDataPathAttributeContext[]
+  projectDir: string
+}): DataPathFormattingResources {
+  let byProjectDir = resourcesByAttributes.get(params.formAttributes)
+  if (byProjectDir === undefined) {
+    byProjectDir = new Map()
+    resourcesByAttributes.set(params.formAttributes, byProjectDir)
+  }
+
+  const cached = byProjectDir.get(params.projectDir)
+  if (cached !== undefined) return cached
+
+  const resources: DataPathFormattingResources = {
+    index: buildFormDataPathIndex({
+      filePath: "",
+      parsed: parseMetadataYaml(""),
+      form: { itemType: "ClientApplicationForm", attributes: params.formAttributes },
+    }),
+    ownerCache: createOwnerMetadataCache({
+      projectDir: params.projectDir,
+      yamlCache: createProjectYamlCache(),
+      context: params.context,
+    }),
+  }
+  byProjectDir.set(params.projectDir, resources)
+  return resources
 }

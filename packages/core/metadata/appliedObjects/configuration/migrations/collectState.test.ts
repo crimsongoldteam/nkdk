@@ -47,6 +47,29 @@ describe("collectStructuralState", () => {
     )
   })
 
+  it("adds YAML file and object path to import errors while collecting YAML state", async () => {
+    const dir = mkdtempSync(join(tmpdir(), "nkdk-yaml-"))
+    const yamlPath = join(dir, "Справочник", "Товары", "Свойства.yaml")
+    fs.mkdirSync(join(dir, "Справочник", "Товары"), { recursive: true })
+    fs.writeFileSync(
+      yamlPath,
+      ["ТабличныеЧасти:", "  Состав:", "    Реквизиты:", "      Баллы:", "        Тип: НесуществующийТип", ""].join(
+        "\n"
+      )
+    )
+
+    await expect(collectStructuralStateFromYAML({ yamlDir: dir, context: mockContextToXML() })).rejects.toThrow(
+      [
+        "Ошибка YAML-импорта:",
+        `  файл: ${yamlPath}`,
+        "  объект: Справочник.Товары",
+        "  путь: ТабличныеЧасти.Состав.Реквизиты.Баллы.Тип",
+        "  YAML-путь: ТабличныеЧасти.Состав.Реквизиты.Баллы.Тип",
+        "  причина: TypeDescription YAML value is not allowed by rule.allowedTypes",
+      ].join("\n")
+    )
+  })
+
   it("collects register resources, dimensions and attributes from YAML", async () => {
     const dir = mkdtempSync(join(tmpdir(), "nkdk-yaml-"))
     fs.mkdirSync(join(dir, "РегистрНакопления", "Остатки"), { recursive: true })

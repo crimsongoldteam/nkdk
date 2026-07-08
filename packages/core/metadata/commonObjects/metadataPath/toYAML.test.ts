@@ -1,10 +1,19 @@
-import { describe, expect, test } from "vitest"
+import { mkdirSync, mkdtempSync, rmSync, writeFileSync } from "node:fs"
+import { tmpdir } from "node:os"
+import { join } from "node:path"
+import { afterEach, describe, expect, test } from "vitest"
 import { tableMetadataFields, tableMetadataValues } from "./__fixtures__/table"
 import { mockContext, mockRule } from "../../../tests/mockContext"
 import type { ConfigurationContext } from "../../context/types"
 import "../../appliedObjects/metadataCatalog/register"
 import { exportDataPathStandardMembersToYAML } from "./dataPathStandardMembers"
 import { exportMetadataFieldStringToYAML, exportMetadataValueStringToYAML } from "./toYAML"
+
+const dirs: string[] = []
+
+afterEach(() => {
+  for (const dir of dirs.splice(0)) rmSync(dir, { recursive: true, force: true })
+})
 
 describe("exportMetadataFieldToYAML", () => {
   test.each(tableMetadataFields)("export %s to %s", (expected: string, enterpriseValue: string) => {
@@ -43,23 +52,39 @@ describe("exportMetadataValueStringToYAML", () => {
 })
 
 describe("exportDataPathStandardMembersToYAML", () => {
-  const catalogContext: ConfigurationContext = {
-    ...mockContext,
-    exportToYAML: {
-      toTyped: false,
-      metadataTargetOwners: [{ itemType: "MetadataCatalog", name: "Контрагенты" }],
-    },
-  }
-
   test("exports direct standard attribute of current object", () => {
-    expect(exportDataPathStandardMembersToYAML(catalogContext, "Объект.Owner")).toBe("Объект.Владелец")
+    expect(exportDataPathStandardMembersToYAML(catalogContext(), "Объект.Owner")).toBe("Объект.Владелец")
   })
 
   test("keeps tabular section attribute with the same name", () => {
-    expect(exportDataPathStandardMembersToYAML(catalogContext, "Объект.Товары.Owner")).toBe("Объект.Товары.Owner")
+    expect(exportDataPathStandardMembersToYAML(catalogContext(), "Объект.Товары.Owner")).toBe("Объект.Товары.Owner")
   })
 
   test("preserves disabled data path prefix", () => {
-    expect(exportDataPathStandardMembersToYAML(catalogContext, "~Список.Owner")).toBe("~Список.Владелец")
+    expect(exportDataPathStandardMembersToYAML(catalogContext(), "~Список.Owner")).toBe("~Список.Владелец")
   })
 })
+
+function catalogContext(): ConfigurationContext {
+  const projectDir = catalogProjectDir()
+  return {
+    ...mockContext,
+    exportToYAML: {
+      toTyped: false,
+      projectDir,
+      metadataTargetOwners: [{ itemType: "MetadataCatalog", name: "Контрагенты" }],
+      formAttributes: [
+        { itemType: "FormAttribute", name: "Объект", type: { type: ["CatalogRef.Контрагенты"] }, columns: [] },
+        { itemType: "FormAttribute", name: "Список", type: { type: ["CatalogRef.Контрагенты"] }, columns: [] },
+      ],
+    },
+  }
+}
+
+function catalogProjectDir(): string {
+  const projectDir = mkdtempSync(join(tmpdir(), "nkdk-datapath-metadata-"))
+  dirs.push(projectDir)
+  mkdirSync(join(projectDir, "Справочник", "Контрагенты"), { recursive: true })
+  writeFileSync(join(projectDir, "Справочник", "Контрагенты", "Свойства.yaml"), "Имя: Контрагенты\n", "utf-8")
+  return projectDir
+}

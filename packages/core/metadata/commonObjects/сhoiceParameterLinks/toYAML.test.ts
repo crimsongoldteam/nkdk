@@ -1,6 +1,15 @@
-import { describe, expect, it } from "vitest"
+import { mkdirSync, mkdtempSync, rmSync, writeFileSync } from "node:fs"
+import { tmpdir } from "node:os"
+import { join } from "node:path"
+import { afterEach, describe, expect, it } from "vitest"
 import { mockContext, mockRule } from "../../../tests/mockContext"
 import type { ConfigurationContext } from "../../context/types"
+
+const dirs: string[] = []
+
+afterEach(() => {
+  for (const dir of dirs.splice(0)) rmSync(dir, { recursive: true, force: true })
+})
 import "../../appliedObjects/metadataCatalog/register"
 import { exportChoiceParameterLinksToYAML } from "./toYAML"
 import { ChoiceParameterLinks } from "./types"
@@ -100,15 +109,7 @@ describe("exportToYAML", () => {
   })
 
   it("exports standard member in dataPath", () => {
-    const context: ConfigurationContext = {
-      ...mockContext,
-      exportToYAML: {
-        toTyped: false,
-        metadataTargetOwners: [{ itemType: "MetadataCatalog", name: "Контрагенты" }],
-      },
-    }
-
-    const result = exportChoiceParameterLinksToYAML(context, mockRule, [
+    const result = exportChoiceParameterLinksToYAML(catalogContext(), mockRule, [
       {
         name: "Отбор.Владелец",
         dataPath: "Объект.Owner",
@@ -124,3 +125,26 @@ describe("exportToYAML", () => {
     ])
   })
 })
+
+function catalogContext(): ConfigurationContext {
+  const projectDir = catalogProjectDir()
+  return {
+    ...mockContext,
+    exportToYAML: {
+      toTyped: false,
+      projectDir,
+      metadataTargetOwners: [{ itemType: "MetadataCatalog", name: "Контрагенты" }],
+      formAttributes: [
+        { itemType: "FormAttribute", name: "Объект", type: { type: ["CatalogRef.Контрагенты"] }, columns: [] },
+      ],
+    },
+  }
+}
+
+function catalogProjectDir(): string {
+  const projectDir = mkdtempSync(join(tmpdir(), "nkdk-datapath-choice-"))
+  dirs.push(projectDir)
+  mkdirSync(join(projectDir, "Справочник", "Контрагенты"), { recursive: true })
+  writeFileSync(join(projectDir, "Справочник", "Контрагенты", "Свойства.yaml"), "Имя: Контрагенты\n", "utf-8")
+  return projectDir
+}

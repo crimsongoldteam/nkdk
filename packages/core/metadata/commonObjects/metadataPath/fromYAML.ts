@@ -3,6 +3,7 @@ import { isMetadataRootName, rootFromYAML } from "../metadataTargets/roots"
 import type { MetadataTargetConstraint, MetadataTargetOwner } from "../metadataTargets/types"
 import type { ConfigurationContext } from "../../context/types"
 import { registerTypeRule } from "../../orchestration/property/typeRuleRegistry"
+import type { ImportFromYAMLFunctionNew } from "../../orchestration/property/fn"
 import type { PropertyRule } from "../../orchestration/property/types"
 import { importDataPathStandardMembersFromYAML } from "./dataPathStandardMembers"
 
@@ -114,6 +115,8 @@ function isMetadataTargetLikeYAML(value: string): boolean {
   return rootFromYAML[root] !== undefined || isMetadataRootName(root)
 }
 
-registerTypeRule("DataPath", "importFromYAML", ({ context, value }) => {
+const importDataPathFromYAML: ImportFromYAMLFunctionNew = ({ context, value }) => {
   return importDataPathStandardMembersFromYAML(context, value)
-})
+}
+
+registerTypeRule("DataPath", "importFromYAML", importDataPathFromYAML)

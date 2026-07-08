@@ -1,11 +1,13 @@
 import type { TSchema } from "typebox"
 import { ConfigDumpInfo } from "../appliedObjects/configDumpInfo/types"
 import { EnterpriseAttributeMapItem } from "../forms/clientApplicationForm/types"
+import type { FormAttribute } from "../forms/commonObjects/formAttribute/types"
 import { FormChildItemsPartialYAML, FormElementsYAML } from "../forms/commonObjects/childItems/types"
 import { ElementType, ElementXMLWithoutId, MetadataItemType, ToMetadata } from "../orchestration"
 import type { ExternalMetadataCollector, ExternalMetadataItemRule } from "../orchestration/externalMetadata/types"
 import type { MetadataTargetOwner } from "../commonObjects/metadataTargets/types"
 import type { PropertyRuleType } from "../orchestration/property/registry"
+import type { YAMLImportDiagnosticContext } from "../orchestration/yamlImportError"
 
 export type ContextElementToXML = {
   name: string
@@ -94,16 +96,12 @@ export interface MetadataTargetOwnerContext {
   owner?: MetadataTargetOwner
 }
 
-export interface FormDataPathAttributeContext {
-  name?: string
-  type?: {
-    type?: readonly string[]
-  }
-  dynamicList?: unknown
-}
+export type FormDataPathAttributeContext = FormAttribute
 
 export interface FormExportToYAMLContext {
   toTyped: boolean
+  /** Путь к корню YAML-проекта для чтения владельцев DataPath. */
+  projectDir?: string
   /** Имя родительского объекта (например, имя реквизита формы) для externalFile. */
   parent?: { name: string }
   /** Сборник внешних файлов, формируемых при экспорте. */
@@ -116,6 +114,10 @@ export interface FormExportToYAMLContext {
 
 export interface FormimportFromYAMLContext {
   allElements?: FormChildItemsPartialYAML
+  /** Диагностический контекст текущего YAML-импорта для человекочитаемых ошибок. */
+  diagnostics?: YAMLImportDiagnosticContext
+  /** Путь к корню YAML-проекта для чтения владельцев DataPath. */
+  projectDir?: string
   /** Путь к каталогу формы для чтения внешних файлов (externalFile). */
   formDir?: string
   /** Имя родительского объекта для externalFile (например, имя реквизита формы). */

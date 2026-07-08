@@ -1,9 +1,6 @@
 import type { MetadataItem, MetadataItemRule } from "../../orchestration/property/types"
 import type { OwnerMetadata, OwnerMetadataCache } from "./ownerCache"
-import {
-  getMetadataLinkPrefixesByOwnerKind,
-  getOwnerKindByMetadataLinkPrefix,
-} from "./registry"
+import { getMetadataLinkPrefixesByOwnerKind, getOwnerKindByMetadataLinkPrefix } from "./registry"
 import type { DataPathTableInfo, DataPathTypeInfo, FormDataPathColumnSource, OwnerTypeRef } from "./types"
 
 export type StandardMemberKind = "standardAttribute" | "standardTabularSection" | "standardTabularSectionColumn"
@@ -171,6 +168,8 @@ export interface ResolveTraversalTimeStandardMemberParams {
 
 export interface ResolvedTraversalStandardMember {
   name: string
+  internalName: string
+  yamlName: string
   typeInfo: DataPathTypeInfo
   tableSource?: {
     table: DataPathTableInfo
@@ -244,6 +243,8 @@ export function resolveTraversalTimeStandardMember(
       const table = { kind: member.tableKind } satisfies DataPathTableInfo
       return {
         name: member.names.yaml,
+        internalName: member.names.internal,
+        yamlName: member.names.yaml,
         typeInfo: {
           kinds: ["tableSource"],
           nextTypes: [],
@@ -263,7 +264,13 @@ export function resolveTraversalTimeStandardMember(
     if (member.family === "closedReverseLookup") return resolveClosedReverseLookupMember({ ...params, member })
 
     const typeInfo = indexTimeTypeInfo(member, params.owner)
-    if (typeInfo !== undefined) return { name: member.names.yaml, typeInfo }
+    if (typeInfo !== undefined)
+      return {
+        name: member.names.yaml,
+        internalName: member.names.internal,
+        yamlName: member.names.yaml,
+        typeInfo,
+      }
   }
   return undefined
 }
@@ -288,10 +295,7 @@ export function standardMemberInternalToYaml(internalName: string): string | und
   return undefined
 }
 
-export function standardMemberInternalToYamlForOwnerKind(
-  ownerKind: string,
-  internalName: string
-): string | undefined {
+export function standardMemberInternalToYamlForOwnerKind(ownerKind: string, internalName: string): string | undefined {
   const member = getStandardMembers(ownerKind).find((item) => item.names.internal === internalName)
   return member?.names.yaml
 }
@@ -334,7 +338,11 @@ function indexTimeTypeInfo(
     case "typeDescription":
       return { kinds: ["typeDescription"], nextTypes: [], sourceText: `${owner.ref.kind}.${member.names.internal}` }
     case "opaque":
-      return { kinds: ["unsupportedIntermediate"], nextTypes: [], sourceText: `${owner.ref.kind}.${member.names.internal}` }
+      return {
+        kinds: ["unsupportedIntermediate"],
+        nextTypes: [],
+        sourceText: `${owner.ref.kind}.${member.names.internal}`,
+      }
     case "unsupported":
       return { kinds: ["unsupportedIntermediate"], nextTypes: [], sourceText: member.reason }
     case "reverseLookup":
@@ -358,6 +366,8 @@ function resolveReverseLookupMember(params: {
   if (candidates.length === 0) return missingLinkedObjects(params.member)
   return {
     name: params.member.names.yaml,
+    internalName: params.member.names.internal,
+    yamlName: params.member.names.yaml,
     typeInfo: {
       kinds: ["object"],
       nextTypes: candidates,
@@ -384,6 +394,8 @@ function resolveClosedReverseLookupMember(params: {
 
   return {
     name: params.member.names.yaml,
+    internalName: params.member.names.internal,
+    yamlName: params.member.names.yaml,
     typeInfo: {
       kinds: ["unsupportedIntermediate"],
       nextTypes: [],
@@ -431,7 +443,7 @@ function columnsFromStandardTable(params: {
 }): Map<string, FormDataPathColumnSource> {
   const columns = new Map<string, FormDataPathColumnSource>()
   for (const column of params.table.columns) {
-    if (column.discoveredFrom !== undefined) {
+    if ("discoveredFrom" in column && column.discoveredFrom !== undefined) {
       for (const name of discoveredColumnNames(params.owner.model, column.discoveredFrom)) {
         columns.set(name, {
           name,
@@ -443,7 +455,8 @@ function columnsFromStandardTable(params: {
 
     const typeInfo = standardTableColumnTypeInfo({ owner: params.owner, table: params.table, column })
     columns.set(column.names.internal, { name: column.names.internal, typeInfo })
-    if (column.names.yaml !== column.names.internal) columns.set(column.names.yaml, { name: column.names.yaml, typeInfo })
+    if (column.names.yaml !== column.names.internal)
+      columns.set(column.names.yaml, { name: column.names.yaml, typeInfo })
   }
   return columns
 }

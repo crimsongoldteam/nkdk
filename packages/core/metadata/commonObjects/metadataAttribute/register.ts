@@ -7,6 +7,7 @@ import { registerMetadataItemCollectionRule } from "../../orchestration/metadata
 import { exportMetadataCollectionToYAMLAsRecord } from "../../orchestration/metadataCollection/toYAML"
 import { importPropertyFromXML } from "../../orchestration/property/fromXML"
 import type { PropertyRule } from "../../orchestration/property/types"
+import { toYAMLImportError, withYAMLImportDiagnostics } from "../../orchestration/yamlImportError"
 import {
   MetadataAttributeRules,
   MetadataAttributesWithAllowedTypesRules,
@@ -59,7 +60,12 @@ const createImportMetadataAttributesFromYAML =
     if (!data) return undefined
 
     const results = Object.entries(data).map(([name, value]) => {
-      return importMetadataAttributeFromYAML(context, itemRule, value as MetadataAttributeYAML, name)
+      const itemContext = withYAMLImportDiagnostics(context, { propertyPath: [name], yamlPath: [name] })
+      try {
+        return importMetadataAttributeFromYAML(itemContext, itemRule, value as MetadataAttributeYAML, name)
+      } catch (error) {
+        throw toYAMLImportError(error, itemContext)
+      }
     })
 
     return results.length > 0 ? (results as MetadataAttributes) : undefined

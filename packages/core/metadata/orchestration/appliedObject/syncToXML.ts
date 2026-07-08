@@ -13,6 +13,7 @@ import type { XmlWriteManifest } from "../xmlWriteManifest"
 import { xmlExport } from "../../../xml/export/exporter"
 import { importContentFromXML } from "../../../xml/import/importer"
 import { importFromYAML } from "../../../yaml/import"
+import { withYAMLImportDiagnostics } from "../yamlImportError"
 import {
   getFileItemXMLRootContainer,
   listYAMLFileItemNames,
@@ -113,7 +114,18 @@ const syncAppliedObjectToXMLInternal = async (params: InternalSyncAppliedObjectT
           yaml: yamlObj,
           filePathReferenceValues,
         })
-  const contextWithFormDir = withImportFormDir(context, nkdkDir)
+  const contextWithProjectDir: ConfigurationContextWithExportToXML = {
+    ...context,
+    importFromYAML: {
+      ...(context.importFromYAML ?? {}),
+      projectDir: context.importFromYAML?.projectDir ?? dirname(inputDir),
+    },
+  }
+  const contextWithFileDiagnostics = withYAMLImportDiagnostics(contextWithProjectDir, {
+    sourceFile: yamlPath,
+    objectPath: `${rule.itemTypePrefix ?? rule.itemType}.${name}`,
+  }) as ConfigurationContextWithExportToXML
+  const contextWithFormDir = withImportFormDir(contextWithFileDiagnostics, nkdkDir)
   const rawModel = importMetadataItemFromYAML({
     context: contextWithFormDir,
     yaml: yamlObj,
@@ -147,15 +159,15 @@ const syncAppliedObjectToXMLInternal = async (params: InternalSyncAppliedObjectT
   const fileChildNames = await collectFileChildNames({ rule, inputDir, name })
 
   const contextWithForms: ConfigurationContextWithExportToXML = {
-    ...context,
+    ...contextWithFormDir,
     exportToXML: {
-      ...context.exportToXML,
+      ...contextWithFormDir.exportToXML,
       context: {
-        ...context.exportToXML.context,
+        ...contextWithFormDir.exportToXML.context,
         forms: fileChildNames.forms ?? [],
         templates: fileChildNames.templates ?? [],
         parentName: name,
-        metadataForNumbering: context.exportToXML.context?.metadataForNumbering ?? [],
+        metadataForNumbering: contextWithFormDir.exportToXML.context?.metadataForNumbering ?? [],
       },
     },
   }
@@ -569,7 +581,11 @@ async function addFileItemChildCollectionsFromYAML(params: {
       const childYamlContent = await fs.promises.readFile(childYamlPath, "utf-8")
       // eslint-disable-next-line @typescript-eslint/no-explicit-any
       const childYaml = importFromYAML<any>(childYamlContent)
-      const childContextWithFormDir = withImportFormDir(contextWithCurrentOwner, childNkdkDir, params.parentName)
+      const childContextWithDiagnostics = withYAMLImportDiagnostics(contextWithCurrentOwner, {
+        sourceFile: childYamlPath,
+        objectPath: `${params.rule.itemType}.${params.parentName}.${childCollection.propertyKey}.${childName}`,
+      }) as ConfigurationContextWithExportToXML
+      const childContextWithFormDir = withImportFormDir(childContextWithDiagnostics, childNkdkDir, params.parentName)
       const importedChildModel = importMetadataItemFromYAML({
         context: childContextWithFormDir,
         yaml: childYaml,

@@ -3,6 +3,7 @@ import { isMetadataRootName } from "../metadataTargets/roots"
 import type { MetadataTargetConstraint, MetadataTargetOwner } from "../metadataTargets/types"
 import type { ConfigurationContext } from "../../context/types"
 import { registerTypeRule } from "../../orchestration/property/typeRuleRegistry"
+import type { ExportToYAMLFunctionNew } from "../../orchestration/property/fn"
 import type { PropertyRule } from "../../orchestration/property/types"
 import { exportDataPathStandardMembersToYAML } from "./dataPathStandardMembers"
 
@@ -87,6 +88,8 @@ function isMetadataTargetLikeModel(value: string): boolean {
   return isMetadataRootName(root)
 }
 
-registerTypeRule("DataPath", "exportToYAML", ({ context, value }) => {
+const exportDataPathToYAML: ExportToYAMLFunctionNew = ({ context, value }) => {
   return exportDataPathStandardMembersToYAML(context, value)
-})
+}
+
+registerTypeRule("DataPath", "exportToYAML", exportDataPathToYAML)
