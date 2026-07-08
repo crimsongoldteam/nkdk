@@ -74,7 +74,15 @@ describe("importMetadataCatalogFromYAML", () => {
         },
         "Товары"
       )
-    ).toThrow("TypeDescription YAML value is not allowed by rule.allowedTypes")
+    ).toThrow(
+      [
+        "Ошибка YAML-импорта:",
+        "  объект: MetadataCatalog.Товары",
+        "  путь: Реквизиты.Неверный.Тип",
+        "  YAML-путь: Реквизиты.Неверный.Тип",
+        "  причина: TypeDescription YAML value is not allowed by rule.allowedTypes",
+      ].join("\n")
+    )
   })
 
   it("should reject invalid catalog attribute multiple TypeDescription", () => {

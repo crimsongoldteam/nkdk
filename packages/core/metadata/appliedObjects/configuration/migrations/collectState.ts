@@ -7,6 +7,7 @@ import { importContentFromXML } from "../../../../xml/import/importer"
 import { importFromYAML } from "../../../../yaml/import"
 import { TopLevelMetadataItemRules } from "../topLevelRules"
 import type { StructuralNode, StructuralState } from "./types"
+import { withYAMLImportDiagnostics } from "../../../orchestration/yamlImportError"
 
 export async function collectStructuralStateFromYAML(params: {
   yamlDir: string
@@ -24,7 +25,11 @@ export async function collectStructuralStateFromYAML(params: {
       const yamlPath = join(dir, entry.name, "Свойства.yaml")
       if (!fs.existsSync(yamlPath)) continue
       const yaml = importFromYAML<Record<string, unknown>>(await fs.promises.readFile(yamlPath, "utf-8"))
-      const model = importMetadataItemFromYAML({ context: params.context, yaml, rule, name: entry.name })
+      const itemContext = withYAMLImportDiagnostics(params.context, {
+        sourceFile: yamlPath,
+        objectPath: `${rule.itemTypePrefix}.${entry.name}`,
+      })
+      const model = importMetadataItemFromYAML({ context: itemContext, yaml, rule, name: entry.name })
       if (model) addModel(nodes, rule, entry.name, model as Record<string, unknown>)
     }
   }

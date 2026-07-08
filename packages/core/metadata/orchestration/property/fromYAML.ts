@@ -8,6 +8,7 @@ import { getValueOrDefault, shouldProcessProperty } from "./helpers"
 import { importStringMetadataTargetFromYAML, metadataTargetOwnerFromRule } from "./metadataTargetString"
 import type { MetadataItemRule, PropertyRule } from "./types"
 import type { MetadataTargetOwner } from "../../commonObjects/metadataTargets/types"
+import { toYAMLImportError, withYAMLImportDiagnostics } from "../yamlImportError"
 
 export function importPropertiesFromYAML<Rule extends MetadataItemRule>(params: {
   context: ConfigurationContext
@@ -66,18 +67,29 @@ export function importPropertiesFromYAML<Rule extends MetadataItemRule>(params: 
       ? asExplicitYAMLStringIfMarked(yaml, yamlKey as string, yamlValue)
       : yamlValue
 
-    const importedValue = importPropertyFromYAML({
-      context: itemContext,
-      rule: curRule,
-      value: valueForImport,
-      yaml: yaml,
-      sourceValue,
-      name,
-      owner,
+    const propertyPathSegment = typeof yamlKey === "string" ? yamlKey : String(key)
+    const propertyContext = withYAMLImportDiagnostics(itemContext, {
+      propertyPath: [propertyPathSegment],
+      ...(typeof yamlKey === "string" ? { yamlPath: [yamlKey] } : {}),
     })
 
+    let importedValue: unknown
+    try {
+      importedValue = importPropertyFromYAML({
+        context: propertyContext,
+        rule: curRule,
+        value: valueForImport,
+        yaml: yaml,
+        sourceValue,
+        name,
+        owner,
+      })
+    } catch (error) {
+      throw toYAMLImportError(error, propertyContext)
+    }
+
     if (importedValue !== undefined) {
-      result[key] = importedValue
+      result[key] = importedValue as ToMetadata<Rule["itemType"]>[keyof ToMetadata<Rule["itemType"]>]
     }
   }
 

@@ -7,6 +7,7 @@ import { ElementType, ElementXMLWithoutId, MetadataItemType, ToMetadata } from "
 import type { ExternalMetadataCollector, ExternalMetadataItemRule } from "../orchestration/externalMetadata/types"
 import type { MetadataTargetOwner } from "../commonObjects/metadataTargets/types"
 import type { PropertyRuleType } from "../orchestration/property/registry"
+import type { YAMLImportDiagnosticContext } from "../orchestration/yamlImportError"
 
 export type ContextElementToXML = {
   name: string
@@ -113,6 +114,8 @@ export interface FormExportToYAMLContext {
 
 export interface FormimportFromYAMLContext {
   allElements?: FormChildItemsPartialYAML
+  /** Диагностический контекст текущего YAML-импорта для человекочитаемых ошибок. */
+  diagnostics?: YAMLImportDiagnosticContext
   /** Путь к корню YAML-проекта для чтения владельцев DataPath. */
   projectDir?: string
   /** Путь к каталогу формы для чтения внешних файлов (externalFile). */
