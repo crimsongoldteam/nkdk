@@ -1,3 +1,4 @@
+import { readdirSync } from "fs"
 import { join, resolve } from "path"
 import { Type } from "typebox"
 import type { ConfigurationContext } from "../../context/types"
@@ -16,6 +17,7 @@ import type { OwnerTypeRef } from "./types"
 
 export interface OwnerMetadataCache {
   get(ref: OwnerTypeRef): OwnerMetadataResult
+  listRefs(kind: OwnerTypeRef["kind"]): readonly OwnerTypeRef[]
 }
 
 export type OwnerMetadataResult =
@@ -71,6 +73,18 @@ export function createOwnerMetadataCache({
       results.set(key, result)
       return result
     },
+    listRefs(kind) {
+      const ownerKind = getDataPathOwnerKind(kind)
+      if (ownerKind === undefined) return []
+      const dir = join(rootDir, ownerKind.projectDir)
+      try {
+        return readdirSync(dir, { withFileTypes: true })
+          .filter((entry) => entry.isDirectory())
+          .map((entry) => ({ kind, name: entry.name }))
+      } catch {
+        return []
+      }
+    },
   }
 }
 
@@ -90,6 +104,14 @@ export function createOwnerMetadataCacheFromValidationTable(params: {
       const result = loadOwnerFromValidationTable({ projectDir, table: params.table, ref })
       results.set(key, result)
       return result
+    },
+    listRefs(kind) {
+      const ownerKind = getDataPathOwnerKind(kind)
+      const tableKind = ownerKind?.projectDir ?? kind
+      return params.table.listOwners(tableKind).map((ref) => ({
+        kind,
+        ...(ref.name !== undefined ? { name: ref.name } : {}),
+      }))
     },
   }
 }

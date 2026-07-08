@@ -10,6 +10,7 @@ export interface ValidationObjectTable {
   mergeRecords(records: readonly ValidationObjectRecord[]): void
   mergeReferenceIndexEntries(entries: ValidationReferenceIndexEntries): void
   getOwner(ref: OwnerTypeRef): ValidationObjectRecord | undefined
+  listOwners(kind: OwnerTypeRef["kind"]): readonly OwnerTypeRef[]
   hasFile(filePath: string): boolean
   snapshot(): ValidationObjectTableSnapshot
 }
@@ -51,6 +52,11 @@ export function createValidationObjectTable(
     },
     getOwner(ref) {
       return recordsByOwner.get(ownerKey(ref))
+    },
+    listOwners(kind) {
+      return [...recordsByOwner.values()]
+        .map((record) => record.ownerRef)
+        .filter((ref): ref is OwnerTypeRef => ref !== undefined && ref.kind === kind)
     },
     hasFile(filePath) {
       return filePaths.has(resolve(filePath))

@@ -102,6 +102,25 @@ describe("metadataTargets parser", () => {
     })
   })
 
+  it("parses and formats standard member YAML aliases from standardMembers", () => {
+    expect(
+      parseMetadataTargetFromYAML({
+        value: "ПланОбмена.Синхронизация.СтандартныйРеквизит.ДатаОбмена",
+        constraint: { kind: "member", owner: "explicit", roots: ["ExchangePlan"], memberKinds: ["StandardAttribute"] },
+      })
+    ).toMatchObject({
+      ok: true,
+      canonical: "ExchangePlan.Синхронизация.StandardAttribute.ExchangeDate",
+    })
+
+    expect(
+      formatMetadataTargetToYAML({
+        canonical: "ExchangePlan.Синхронизация.StandardAttribute.ExchangeDate",
+        constraint: { kind: "member", owner: "explicit", roots: ["ExchangePlan"], memberKinds: ["StandardAttribute"] },
+      })
+    ).toBe("ПланОбмена.Синхронизация.СтандартныйРеквизит.ExchangeDate")
+  })
+
   it("applies memberKinds to the terminal field-like member segment", () => {
     const result = parseMetadataTargetFromYAML({
       value: "Справочник.Номенклатура.ТабличнаяЧасть.Товары.Реквизит.Количество",

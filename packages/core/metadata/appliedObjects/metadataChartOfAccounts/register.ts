@@ -3,6 +3,7 @@ import type { DataPathTableInfo, DataPathTypeInfo, FormDataPathColumnSource } fr
 import { registerDataPathOwnerKind, registerVirtualOwnerFieldResolver } from "../../validation/dataPath/registry"
 import { booleanColumn, metadataRecord, scalarColumn } from "../dataPathCommon/register"
 import { MetadataChartOfAccountsRules } from "./rules"
+import "./standardMembers"
 
 registerDataPathOwnerKind({
   kind: "ПланСчетов",

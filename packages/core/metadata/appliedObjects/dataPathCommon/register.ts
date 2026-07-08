@@ -100,7 +100,7 @@ registerTableColumnResolver(({ table, segment, field }) => {
 
   const virtualStandardColumn = registerRecordSetStandardColumn(segment, field?.name)
   if (field === undefined) return virtualStandardColumn
-  if (isUnknownTypeInfo(field.typeInfo) && virtualStandardColumn !== undefined) return virtualStandardColumn
+  if (virtualStandardColumn !== undefined) return virtualStandardColumn
 
   return {
     name: field.name,
@@ -202,8 +202,4 @@ function registerRecordSetStandardColumn(
   }
 
   return undefined
-}
-
-function isUnknownTypeInfo(typeInfo: DataPathTypeInfo): boolean {
-  return typeInfo.kinds.length === 1 && typeInfo.kinds[0] === "unknown"
 }

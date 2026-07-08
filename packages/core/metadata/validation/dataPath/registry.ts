@@ -3,6 +3,12 @@ import type { FormDataPathIndex } from "./formIndex"
 import type { ObjectField } from "./objectFields"
 import type { OwnerMetadata, OwnerMetadataCache } from "./ownerCache"
 import type { DataPathTableInfo, DataPathTypeInfo, FormDataPathColumnSource, OwnerTypeRef } from "./types"
+import {
+  clearStandardMembersForTests,
+  restoreStandardMembersForTests,
+  snapshotStandardMembersForTests,
+  type StandardMemberDeclaration as SnapshotStandardMemberDeclaration,
+} from "./standardMembers"
 
 export interface DataPathOwnerKindRegistration {
   kind: OwnerTypeRef["kind"]
@@ -110,6 +116,7 @@ export interface DataPathResolverRegistrySnapshot {
   tableColumnResolvers: TableColumnResolver[]
   traversalTransitionResolvers: TraversalTransitionResolver[]
   registerRecordsItemResolvers: RegisterRecordsItemResolver[]
+  standardMembers: Map<string, SnapshotStandardMemberDeclaration[]>
 }
 
 export function registerDataPathOwnerKind(registration: DataPathOwnerKindRegistration): void {
@@ -125,6 +132,13 @@ export function registerDataPathOwnerKind(registration: DataPathOwnerKindRegistr
 
 export function getDataPathOwnerKind(kind: string): DataPathOwnerKindRegistration | undefined {
   return ownerKinds.get(kind)
+}
+
+export function getDataPathOwnerKindByItemType(itemType: string): DataPathOwnerKindRegistration | undefined {
+  for (const registration of ownerKinds.values()) {
+    if (registration.rule.itemType === itemType) return registration
+  }
+  return undefined
 }
 
 export function getOwnerKindByTypeDescriptionBase(baseType: string): string | undefined {
@@ -254,6 +268,7 @@ export function clearDataPathResolverRegistryForTests(): void {
   tableColumnResolvers.length = 0
   traversalTransitionResolvers.length = 0
   registerRecordsItemResolvers.length = 0
+  clearStandardMembersForTests()
 }
 
 export function snapshotDataPathResolverRegistryForTests(): DataPathResolverRegistrySnapshot {
@@ -269,6 +284,7 @@ export function snapshotDataPathResolverRegistryForTests(): DataPathResolverRegi
     tableColumnResolvers: [...tableColumnResolvers],
     traversalTransitionResolvers: [...traversalTransitionResolvers],
     registerRecordsItemResolvers: [...registerRecordsItemResolvers],
+    standardMembers: snapshotStandardMembersForTests(),
   }
 }
 
@@ -285,4 +301,26 @@ export function restoreDataPathResolverRegistryForTests(snapshot: DataPathResolv
   tableColumnResolvers.push(...snapshot.tableColumnResolvers)
   traversalTransitionResolvers.push(...snapshot.traversalTransitionResolvers)
   registerRecordsItemResolvers.push(...snapshot.registerRecordsItemResolvers)
+  restoreStandardMembersForTests(snapshot.standardMembers)
 }
+
+export {
+  getStandardMembers,
+  registerStandardMembers,
+  resolveIndexTimeStandardMember,
+  resolveStandardTableColumn,
+  resolveTraversalTimeStandardMember,
+  standardMemberInternalToYaml,
+  standardMemberInternalToYamlForOwnerKind,
+  standardMemberYamlToInternal,
+  standardMemberYamlToInternalForOwnerKind,
+} from "./standardMembers"
+export type {
+  PrimitiveKind,
+  StandardMemberDeclaration,
+  StandardMemberError,
+  StandardMemberKind,
+  StandardMemberNames,
+  StandardMemberPhase,
+  StandardMemberSourceScope,
+} from "./standardMembers"

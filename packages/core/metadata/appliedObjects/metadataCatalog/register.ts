@@ -11,6 +11,7 @@ import { importMetadataCatalogFromYAML } from "./fromYAML"
 import { MetadataCatalogRules } from "./rules"
 import { exportMetadataCatalogToJSONSchema } from "./toJSONSchema"
 import type { MetadataCatalogYAML } from "./types"
+import "./standardMembers"
 
 registerDataPathOwnerKind({
   kind: "Справочник",

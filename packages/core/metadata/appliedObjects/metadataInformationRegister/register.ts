@@ -1,5 +1,6 @@
 import { registerDataPathOwnerKind, registerVirtualOwnerFieldResolver } from "../../validation/dataPath/registry"
 import { MetadataInformationRegisterRules } from "./rules"
+import "./standardMembers"
 
 registerDataPathOwnerKind({
   kind: "РегистрСведений",

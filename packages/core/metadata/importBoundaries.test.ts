@@ -190,6 +190,24 @@ describe("metadata import boundaries", () => {
     expect(existsSync(join(METADATA_DIR, "appliedObjects", "dataPathOwnerKinds", "register.ts"))).toBe(false)
   })
 
+  it("standardMembers core не содержит concrete owner kinds", () => {
+    const files = [
+      "metadata/validation/dataPath/standardMembers.ts",
+      "metadata/validation/dataPath/objectFields.ts",
+      "metadata/validation/dataPath/resolver.ts",
+    ]
+
+    for (const file of files) {
+      const source = readFileSync(join(process.cwd(), file), "utf-8")
+      expect(source).not.toMatch(/Справочник|Документ|ПланСчетов|Регистр/)
+    }
+  })
+
+  it("standardMembers declarations live with applied objects", () => {
+    expect(existsSync(join(METADATA_DIR, "appliedObjects", "metadataCatalog", "standardMembers.ts"))).toBe(true)
+    expect(existsSync(join(METADATA_DIR, "appliedObjects", "metadataTask", "standardMembers.ts"))).toBe(true)
+  })
+
   it("I8nText registry entry живёт рядом с владельцем", () => {
     const globalRegistry = readFileSync(join(METADATA_DIR, "orchestration", "property", "registry.ts"), "utf-8")
     const localRegistry = readFileSync(join(METADATA_DIR, "commonObjects", "i8nText", "registry.types.ts"), "utf-8")

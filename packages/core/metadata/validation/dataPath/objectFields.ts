@@ -8,7 +8,11 @@ import type {
 } from "../../orchestration/property/types"
 import type { Diagnostic } from "../types"
 import type { OwnerMetadata } from "./ownerCache"
-import { getObjectFieldCollectionDescriptors, resolveStandardAttributeType } from "./registry"
+import {
+  getObjectFieldCollectionDescriptors,
+  resolveIndexTimeStandardMember,
+  resolveStandardAttributeType,
+} from "./registry"
 import { typeDescriptionToDataPathTypeInfo } from "./typeDescription"
 import { type DataPathTableInfo, type DataPathTypeInfo, unknownDataPathTypeInfo } from "./types"
 
@@ -196,6 +200,14 @@ function standardAttributeTypeInfo(params: {
 }): DataPathTypeInfo {
   const explicitTypeInfo =
     params.explicit?.type === undefined ? undefined : typeDescriptionToDataPathTypeInfo(params.explicit.type)
+  const declarative = resolveIndexTimeStandardMember({
+    owner: params.owner as OwnerMetadata,
+    internalName: params.internalName,
+    yamlName: params.yamlName,
+    ...(explicitTypeInfo !== undefined ? { explicitTypeInfo } : {}),
+  })
+  if (declarative !== undefined) return declarative.typeInfo
+
   return (
     resolveStandardAttributeType({
       owner: params.owner as OwnerMetadata,

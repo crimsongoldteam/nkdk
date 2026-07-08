@@ -1,5 +1,7 @@
 import { describe, expect, it } from "vitest"
 import { mockContext, mockRule } from "../../../tests/mockContext"
+import type { ConfigurationContext } from "../../context/types"
+import "../../appliedObjects/metadataCatalog/register"
 import { importChoiceParameterLinksFromYAML } from "./fromYAML"
 
 describe("importFromYAML", () => {
@@ -109,6 +111,49 @@ describe("importFromYAML", () => {
         name: "Отбор.ПланСчетов",
         dataPath: "ПланСчетов.Ref",
         valueChange: "DontChange",
+      },
+    ])
+  })
+
+  it("imports structured standard member in dataPath", () => {
+    const context: ConfigurationContext = {
+      ...mockContext,
+      importFromYAML: {
+        metadataTargetOwners: [{ itemType: "MetadataCatalog", name: "Контрагенты" }],
+      },
+    }
+
+    const result = importChoiceParameterLinksFromYAML(context, mockRule, [
+      {
+        Имя: "Отбор.Владелец",
+        ПутьКДанным: "Объект.Владелец",
+      },
+    ])
+
+    expect(result).toEqual([
+      {
+        name: "Отбор.Владелец",
+        dataPath: "Объект.Owner",
+        valueChange: "Clear",
+      },
+    ])
+  })
+
+  it("imports string standard member in dataPath", () => {
+    const context: ConfigurationContext = {
+      ...mockContext,
+      importFromYAML: {
+        metadataTargetOwners: [{ itemType: "MetadataCatalog", name: "Контрагенты" }],
+      },
+    }
+
+    const result = importChoiceParameterLinksFromYAML(context, mockRule, "Отбор.Владелец(Объект.Владелец)")
+
+    expect(result).toEqual([
+      {
+        name: "Отбор.Владелец",
+        dataPath: "Объект.Owner",
+        valueChange: "Clear",
       },
     ])
   })

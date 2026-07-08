@@ -1,6 +1,9 @@
 import { describe, expect, test } from "vitest"
 import { tableMetadataFields, tableMetadataValues } from "./__fixtures__/table"
 import { mockContext, mockRule } from "../../../tests/mockContext"
+import type { ConfigurationContext } from "../../context/types"
+import "../../appliedObjects/metadataCatalog/register"
+import { importDataPathStandardMembersFromYAML } from "./dataPathStandardMembers"
 import { importMetadataFieldStringFromYAML, importMetadataValueStringFromYAML } from "./fromYAML"
 
 describe("importMetadataFieldFromYAML", () => {
@@ -48,5 +51,28 @@ describe("importMetadataValueStringFromYAML", () => {
     expect(importMetadataValueStringFromYAML(mockContext, mockRule, "ПланСчетов.Хозрасчетный.ПустаяСсылка")).toBe(
       "ChartOfAccounts.Хозрасчетный.EmptyRef"
     )
+  })
+})
+
+describe("importDataPathStandardMembersFromYAML", () => {
+  const catalogContext: ConfigurationContext = {
+    ...mockContext,
+    importFromYAML: {
+      metadataTargetOwners: [{ itemType: "MetadataCatalog", name: "Контрагенты" }],
+    },
+  }
+
+  test("imports direct standard attribute of current object", () => {
+    expect(importDataPathStandardMembersFromYAML(catalogContext, "Объект.Владелец")).toBe("Объект.Owner")
+  })
+
+  test("keeps tabular section attribute with the same name", () => {
+    expect(importDataPathStandardMembersFromYAML(catalogContext, "Объект.Товары.Владелец")).toBe(
+      "Объект.Товары.Владелец"
+    )
+  })
+
+  test("preserves disabled data path prefix", () => {
+    expect(importDataPathStandardMembersFromYAML(catalogContext, "~Список.Владелец")).toBe("~Список.Owner")
   })
 })

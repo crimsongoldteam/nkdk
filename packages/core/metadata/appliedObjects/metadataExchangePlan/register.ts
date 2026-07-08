@@ -1,5 +1,6 @@
 import { registerDataPathOwnerKind, registerVirtualOwnerFieldResolver } from "../../validation/dataPath/registry"
 import { MetadataExchangePlanRules } from "./rules"
+import "./standardMembers"
 
 registerDataPathOwnerKind({
   kind: "ПланОбмена",
