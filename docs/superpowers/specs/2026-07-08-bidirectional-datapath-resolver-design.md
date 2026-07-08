@@ -135,6 +135,8 @@ Resolver должен понимать стандартные реквизиты
 
 Текущие pending checks в `validation/projectValidationPendingChecks.ts` должны пройти тем же путём: они уже имеют `filePath`, `parsed`, `yamlPath`, `index`, `ownerCache`, `tableContext` и смогут использовать validation-обёртку поверх общего resolver-а.
 
+Общий resolver вычисляет `typeInfo` для движения по пути и возвращает конечный `target.typeInfo`. Policy-слой не вычисляет типы заново: он только читает `target.typeInfo` и проверяет, допустим ли этот конечный тип для конкретного `DataPath`-свойства формы (`allowedKinds`, `allowComposite`, особенности элемента формы).
+
 ### XML -> YAML
 
 Экспорт DataPath вызывает общий resolver в направлении internal -> YAML.
