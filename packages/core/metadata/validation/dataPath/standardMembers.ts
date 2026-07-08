@@ -1,9 +1,6 @@
 import type { MetadataItem, MetadataItemRule } from "../../orchestration/property/types"
 import type { OwnerMetadata, OwnerMetadataCache } from "./ownerCache"
-import {
-  getMetadataLinkPrefixesByOwnerKind,
-  getOwnerKindByMetadataLinkPrefix,
-} from "./registry"
+import { getMetadataLinkPrefixesByOwnerKind, getOwnerKindByMetadataLinkPrefix } from "./registry"
 import type { DataPathTableInfo, DataPathTypeInfo, FormDataPathColumnSource, OwnerTypeRef } from "./types"
 
 export type StandardMemberKind = "standardAttribute" | "standardTabularSection" | "standardTabularSectionColumn"
@@ -298,10 +295,7 @@ export function standardMemberInternalToYaml(internalName: string): string | und
   return undefined
 }
 
-export function standardMemberInternalToYamlForOwnerKind(
-  ownerKind: string,
-  internalName: string
-): string | undefined {
+export function standardMemberInternalToYamlForOwnerKind(ownerKind: string, internalName: string): string | undefined {
   const member = getStandardMembers(ownerKind).find((item) => item.names.internal === internalName)
   return member?.names.yaml
 }
@@ -344,7 +338,11 @@ function indexTimeTypeInfo(
     case "typeDescription":
       return { kinds: ["typeDescription"], nextTypes: [], sourceText: `${owner.ref.kind}.${member.names.internal}` }
     case "opaque":
-      return { kinds: ["unsupportedIntermediate"], nextTypes: [], sourceText: `${owner.ref.kind}.${member.names.internal}` }
+      return {
+        kinds: ["unsupportedIntermediate"],
+        nextTypes: [],
+        sourceText: `${owner.ref.kind}.${member.names.internal}`,
+      }
     case "unsupported":
       return { kinds: ["unsupportedIntermediate"], nextTypes: [], sourceText: member.reason }
     case "reverseLookup":
@@ -445,7 +443,7 @@ function columnsFromStandardTable(params: {
 }): Map<string, FormDataPathColumnSource> {
   const columns = new Map<string, FormDataPathColumnSource>()
   for (const column of params.table.columns) {
-    if (column.discoveredFrom !== undefined) {
+    if ("discoveredFrom" in column && column.discoveredFrom !== undefined) {
       for (const name of discoveredColumnNames(params.owner.model, column.discoveredFrom)) {
         columns.set(name, {
           name,
@@ -457,7 +455,8 @@ function columnsFromStandardTable(params: {
 
     const typeInfo = standardTableColumnTypeInfo({ owner: params.owner, table: params.table, column })
     columns.set(column.names.internal, { name: column.names.internal, typeInfo })
-    if (column.names.yaml !== column.names.internal) columns.set(column.names.yaml, { name: column.names.yaml, typeInfo })
+    if (column.names.yaml !== column.names.internal)
+      columns.set(column.names.yaml, { name: column.names.yaml, typeInfo })
   }
   return columns
 }

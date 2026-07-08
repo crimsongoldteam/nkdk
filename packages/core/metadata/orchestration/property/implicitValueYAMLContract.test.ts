@@ -586,7 +586,7 @@ describe("implicitValueYAML contract", () => {
       .map(([propertyKey]) => `FilterItemGroupRules.${propertyKey}`)
 
     expect([...unexpectedComparisonValues, ...unexpectedGroupValues]).toEqual([])
-    expect(FilterItemGroupRules.properties.groupType.implicitValueYAML).toBeUndefined()
+    expect(getRuleProperty(FilterItemGroupRules.properties, "groupType").implicitValueYAML).toBeUndefined()
   })
 
   it("uses configurator defaults as implicit YAML values for exchange plan content items", () => {

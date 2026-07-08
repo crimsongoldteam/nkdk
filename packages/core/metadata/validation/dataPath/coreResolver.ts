@@ -109,7 +109,12 @@ export function resolveDataPathCore(params: ResolveDataPathCoreParams): ResolveD
   const replacements: ResolvedDataPathSegmentReplacement[] = []
 
   if (isCurrentDataPath(segments)) {
-    return warning(params, segments, `ПутьКДанным "${value}": CurrentData пока не проверяется`, "current_data_unsupported")
+    return warning(
+      params,
+      segments,
+      `ПутьКДанным "${value}": CurrentData пока не проверяется`,
+      "current_data_unsupported"
+    )
   }
 
   if (isTildeVariantPath(value)) {
@@ -118,7 +123,12 @@ export function resolveDataPathCore(params: ResolveDataPathCoreParams): ResolveD
 
   const platformSource = getKnownPlatformFormSource(value)
   if (platformSource !== undefined) {
-    return warning(params, segments, `ПутьКДанным "${value}": платформенный источник пока не проверяется`, "platform_source")
+    return warning(
+      params,
+      segments,
+      `ПутьКДанным "${value}": платформенный источник пока не проверяется`,
+      "platform_source"
+    )
   }
 
   const tableContextError = validateTableContext(params)
@@ -190,7 +200,12 @@ export function resolveDataPathCore(params: ResolveDataPathCoreParams): ResolveD
     }
 
     if (state.typeInfo.kinds.includes("platformSource")) {
-      return warning(params, segments, `ПутьКДанным "${value}": платформенный источник пока не проверяется`, "platform_source")
+      return warning(
+        params,
+        segments,
+        `ПутьКДанным "${value}": платформенный источник пока не проверяется`,
+        "platform_source"
+      )
     }
 
     if (state.typeInfo.kinds.includes("standardPeriod")) {
@@ -230,7 +245,12 @@ export function resolveDataPathCore(params: ResolveDataPathCoreParams): ResolveD
       ownerCache: params.ownerCache,
     })
     if (transition?.kind === "warning") {
-      return warning(params, segments, `ПутьКДанным "${value}": платформенный источник пока не проверяется`, "platform_source")
+      return warning(
+        params,
+        segments,
+        `ПутьКДанным "${value}": платформенный источник пока не проверяется`,
+        "platform_source"
+      )
     }
     if (transition !== undefined) {
       state = {
@@ -255,7 +275,7 @@ export function resolveDataPathCore(params: ResolveDataPathCoreParams): ResolveD
       segment: lookupSegment,
       ownerCache: params.ownerCache,
     })
-    if (standardMember?.kind === "error") {
+    if (isStandardMemberError(standardMember)) {
       return error(params, `ПутьКДанным "${value}": ${standardMember.message}`)
     }
     if (standardMember !== undefined) {
@@ -950,4 +970,16 @@ function diagnostic(
   code: ResolveDataPathCoreIssueCode = "unknown_field"
 ): ResolveDataPathCoreIssue {
   return { code, severity, message }
+}
+
+function isStandardMemberError(value: unknown): value is { kind: "error"; message: string } {
+  return (
+    value !== undefined &&
+    value !== null &&
+    typeof value === "object" &&
+    "kind" in value &&
+    value.kind === "error" &&
+    "message" in value &&
+    typeof value.message === "string"
+  )
 }
