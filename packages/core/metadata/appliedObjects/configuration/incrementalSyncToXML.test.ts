@@ -141,6 +141,44 @@ describe("syncConfigurationIncrementallyToXML", () => {
     expect(existsSync(join(xmlDir, "Catalogs", "Контрагенты.xml"))).toBe(true)
   })
 
+  it("reports rewritten XML file as changed even when contents stay equal", async () => {
+    const yamlDir = tempDir()
+    const xmlDir = tempDir()
+    mkdirSync(join(yamlDir, "Справочник", "Товары"), { recursive: true })
+    writeFileSync(join(yamlDir, "Справочник", "Товары", "Свойства.yaml"), "Имя: Товары\n", "utf-8")
+    const current = await hashProjectFiles(yamlDir)
+    await writeXmlSyncState(xmlDir, {
+      version: 1,
+      files: {
+        ...current,
+        "Справочник/Товары/Свойства.yaml": "xxh3-64:0000000000000000",
+      },
+    })
+
+    await syncConfigurationIncrementallyToXML({
+      context: baseContext(),
+      inputDir: yamlDir,
+      outputDir: xmlDir,
+    })
+    const rewrittenXml = readFileSync(join(xmlDir, "Catalogs", "Товары.xml"), "utf-8")
+    await writeXmlSyncState(xmlDir, {
+      version: 1,
+      files: {
+        ...current,
+        "Справочник/Товары/Свойства.yaml": "xxh3-64:0000000000000000",
+      },
+    })
+
+    const result = await syncConfigurationIncrementallyToXML({
+      context: baseContext(),
+      inputDir: yamlDir,
+      outputDir: xmlDir,
+    })
+
+    expect(readFileSync(join(xmlDir, "Catalogs", "Товары.xml"), "utf-8")).toBe(rewrittenXml)
+    expect(result.changedXmlFiles).toContainEqual({ path: "Catalogs/Товары.xml", change: "changed" })
+  })
+
   it("применяет неприменённые миграции даже без разницы в YAML-состоянии", async () => {
     const yamlDir = tempDir()
     const xmlDir = tempDir()
@@ -155,6 +193,16 @@ describe("syncConfigurationIncrementallyToXML", () => {
     <Properties><Name>Товары</Name><Synonym/><Comment/></Properties>
   </Catalog>
 </MetaDataObject>`,
+      "utf-8"
+    )
+    writeFileSync(
+      join(xmlDir, "ConfigDumpInfo.xml"),
+      `<?xml version="1.0" encoding="UTF-8"?>
+<ConfigDumpInfo xmlns="http://v8.1c.ru/8.3/xcf/dumpinfo">
+  <ConfigVersions>
+    <Metadata name="Catalog.Товары" id="owner" configVersion="old-owner"/>
+  </ConfigVersions>
+</ConfigDumpInfo>`,
       "utf-8"
     )
     const current = await hashProjectFiles(yamlDir)

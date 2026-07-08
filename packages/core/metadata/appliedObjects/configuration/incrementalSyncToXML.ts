@@ -4,8 +4,7 @@ import type { ConfigurationContextWithExportToXML } from "../../context/types"
 import { syncAppliedObjectAreaToXML, syncAppliedObjectToXML } from "../../orchestration/appliedObject/syncToXML"
 import type { ReferenceModelRemapper } from "../../orchestration/appliedObject/syncToXML"
 import { getTypeRule } from "../../orchestration/property/typeRuleRegistry"
-import type { XmlWriteManifest } from "../../orchestration/xmlWriteManifest"
-import { diffXmlTree, snapshotXmlTree, type PreparedMetadataMigrationChain } from "../../operations"
+import type { PreparedMetadataMigrationChain } from "../../operations"
 import { updateConfigDumpInfoVersionsToXML } from "../configDumpInfo/sync"
 import { buildConfigurationChildObjects, readConfigurationChildObjectsFromXML } from "./childObjects"
 import type { ConfigurationSyncResult } from "./convertFromXML"
@@ -22,6 +21,7 @@ import {
 import { diffSyncState, hashProjectFiles, readXmlSyncState, SYNC_STATE_FILE, writeXmlSyncState } from "./syncState"
 import { prepareConfigurationXmlMigrationChain, syncConfigurationToXML } from "./syncToXML"
 import { TopLevelMetadataItemRules } from "./topLevelRules"
+import { createXmlChangeTracker, type XmlChangeTracker } from "./xmlChangeTracker"
 
 export async function syncConfigurationIncrementallyToXML(params: {
   context: ConfigurationContextWithExportToXML
@@ -77,8 +77,11 @@ export async function syncConfigurationIncrementallyToXML(params: {
 
   try {
     const dumpInfoNames = new Set<string>()
-    const xmlBefore = await snapshotXmlTree(params.outputDir)
+    const tracker = createXmlChangeTracker(params.outputDir)
     if (plan.rebuildConfigurationXml) {
+      if (fs.existsSync(join(params.inputDir, CONFIGURATION_YAML_FILE))) {
+        await tracker.markWrite(join(params.outputDir, CONFIGURATION_XML_FILE))
+      }
       await writeConfigurationArea(params)
     }
 
@@ -94,10 +97,7 @@ export async function syncConfigurationIncrementallyToXML(params: {
             itemTypePrefix: planned.area.itemTypePrefix,
             itemName: planned.area.itemName,
           })
-          const tracker = await createXmlChangeTracker(
-            params.outputDir,
-            join(params.outputDir, rule.xmlDir, planned.area.itemName)
-          )
+          await tracker.markWrite(join(params.outputDir, planned.area.xmlPath))
           await fs.promises.rm(join(params.outputDir, planned.area.xmlPath), { force: true })
           await syncAppliedObjectAreaToXML({
             area: { kind: "externalFile", xmlPath: planned.area.xmlPath },
@@ -124,10 +124,7 @@ export async function syncConfigurationIncrementallyToXML(params: {
           const propertyRule = rule.properties[planned.area.propertyName]
           const writer = getTypeRule(planned.area.propertyType, "xmlSyncWriter")
           if (!propertyRule || !writer) throw new Error(`Не найден writer для ${planned.key}`)
-          const tracker = await createXmlChangeTracker(
-            params.outputDir,
-            join(params.outputDir, rule.xmlDir, planned.area.itemName)
-          )
+          await tracker.markWrite(join(params.outputDir, planned.area.xmlPath))
           await writer({
             context: { ...params.context, exportToXML: { ...params.context.exportToXML } },
             rule: propertyRule,
@@ -148,10 +145,7 @@ export async function syncConfigurationIncrementallyToXML(params: {
             itemTypePrefix: planned.area.itemTypePrefix,
             itemName: planned.area.itemName,
           })
-          const tracker = await createXmlChangeTracker(
-            params.outputDir,
-            join(params.outputDir, rule.xmlDir, `${planned.area.itemName}.xml`)
-          )
+          await tracker.markWrite(join(params.outputDir, rule.xmlDir, `${planned.area.itemName}.xml`))
           const syncParams = {
             rule,
             context: { ...params.context, exportToXML: { ...params.context.exportToXML } },
@@ -181,6 +175,9 @@ export async function syncConfigurationIncrementallyToXML(params: {
       }
     }
 
+    if (dumpInfoNames.size > 0 && fs.existsSync(join(params.outputDir, "ConfigDumpInfo.xml"))) {
+      await tracker.markWrite(join(params.outputDir, "ConfigDumpInfo.xml"))
+    }
     await updateConfigDumpInfoVersionsToXML({
       context: params.context,
       outputDir: params.outputDir,
@@ -189,8 +186,9 @@ export async function syncConfigurationIncrementallyToXML(params: {
     await removeRenamedObjectXmlFiles({
       outputDir: params.outputDir,
       migrations: migrationChain.migrationsToApply,
+      tracker,
     })
-    const changedXmlFiles = await diffXmlTree(params.outputDir, xmlBefore)
+    const changedXmlFiles = tracker.changedFiles()
     writeAppliedMigrationsState(params.outputDir, {
       applied: [...migrationChain.appliedState.applied, ...migrationChain.pendingFileNames],
     })
@@ -206,17 +204,6 @@ export async function syncConfigurationIncrementallyToXML(params: {
       succeeded: 0,
       failed: [{ kind: "incrementalSync", name: "XML", error: toError(error) }],
     }
-  }
-}
-
-async function createXmlChangeTracker(
-  _outputDir: string,
-  _targetPath: string
-): Promise<{ manifest: XmlWriteManifest }> {
-  return {
-    manifest: {
-      addFile(): void {},
-    },
   }
 }
 
@@ -247,6 +234,7 @@ function buildMigrationReference(params: {
 async function removeRenamedObjectXmlFiles(params: {
   outputDir: string
   migrations: readonly { from: string; to: string }[]
+  tracker: XmlChangeTracker
 }): Promise<void> {
   for (const migration of params.migrations) {
     const from = parseMigrationPath(migration.from)
@@ -257,8 +245,12 @@ async function removeRenamedObjectXmlFiles(params: {
     const rule = TopLevelMetadataItemRules.find((candidate) => candidate.itemTypePrefix === from.segments[0])
     if (!rule?.xmlDir) continue
 
-    await fs.promises.rm(join(params.outputDir, rule.xmlDir, `${from.localName}.xml`), { force: true })
-    await fs.promises.rm(join(params.outputDir, rule.xmlDir, from.localName), { recursive: true, force: true })
+    const ownerXmlPath = join(params.outputDir, rule.xmlDir, `${from.localName}.xml`)
+    const externalDirPath = join(params.outputDir, rule.xmlDir, from.localName)
+    await params.tracker.markDelete(ownerXmlPath)
+    await fs.promises.rm(ownerXmlPath, { force: true })
+    await params.tracker.markDelete(externalDirPath)
+    await fs.promises.rm(externalDirPath, { recursive: true, force: true })
   }
 }
 

@@ -61,6 +61,17 @@ describe("sync command", () => {
     expect(syncConfigurationIncrementallyToXML).not.toHaveBeenCalled()
   })
 
+  it("не печатает изменённые XML-файлы при полном sync без changedXmlFiles", async () => {
+    const stdout = vi.spyOn(process.stdout, "write").mockImplementation(() => true)
+    vi.spyOn(process.stderr, "write").mockImplementation(() => true)
+    mocks.syncConfigurationToXML.mockResolvedValueOnce({ succeeded: 1, failed: [] })
+
+    await syncConfiguration("yaml", "xml")
+
+    expect(stdout).toHaveBeenCalledWith("Готово: 1 успешно, 0 с ошибкой\n")
+    expect(stdout).not.toHaveBeenCalledWith("Изменённые XML-файлы:\n")
+  })
+
   it("использует инкрементальный sync, если файл состояния есть", async () => {
     vi.spyOn(process.stdout, "write").mockImplementation(() => true)
     vi.spyOn(process.stderr, "write").mockImplementation(() => true)

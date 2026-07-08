@@ -7,9 +7,7 @@ import { syncAppliedObjectToXML } from "../../orchestration/appliedObject/syncTo
 import type { ReferenceModelRemapper } from "../../orchestration/appliedObject/syncToXML"
 import { resolveXmlSyncAreaForProjectPath, type XmlSyncArea } from "../../orchestration/appliedObject/xmlAreas"
 import {
-  diffXmlTree,
   prepareMetadataMigrationChain,
-  snapshotXmlTree,
   type MigrationChainInvalidResult,
   type MigrationPlanItem,
   type PreparedMetadataMigrationChain,
@@ -194,7 +192,6 @@ export const syncConfigurationToXML = async (params: {
         context.exportToXML.externalMetadataCollector ?? createConfigDumpInfoExternalMetadataCollector(configDumpInfo),
     },
   }
-  const xmlBefore = await snapshotXmlTree(outputDir)
   const contextFromXML: ConfigurationContextFromXML = {
     fromXML: { forReference: true },
     defaultLanguage: syncContext.defaultLanguage,
@@ -321,7 +318,6 @@ export const syncConfigurationToXML = async (params: {
     if (!hasRootYAML) {
       await fs.promises.rm(join(outputDir, CONFIGURATION_XML_FILE), { force: true })
     }
-    const changedXmlFiles = await diffXmlTree(outputDir, xmlBefore)
     writeAppliedMigrationsState(outputDir, {
       applied: [...migrationChain.appliedState.applied, ...migrationChain.pendingFileNames],
     })
@@ -329,7 +325,6 @@ export const syncConfigurationToXML = async (params: {
       succeeded: batchResult.succeeded,
       failed: [],
       migrationsApplied: migrationChain.migrationsToApply,
-      changedXmlFiles,
     }
   }
 

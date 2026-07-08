@@ -884,7 +884,7 @@ describe("sync configuration to XML", () => {
           to: "Справочник.Номенклатура.Реквизит.НовыйАртикул",
         },
       ])
-      expect(syncResult.changedXmlFiles).toContainEqual({ path: "Catalogs/Номенклатура.xml", change: "added" })
+      expect(syncResult.changedXmlFiles).toBeUndefined()
       expect(fs.readFileSync(join(outDir, ".nakidka-migrations.yaml"), "utf-8")).toBe(
         ["applied:", "  - 2026-05-05-143000.yaml", "  - 2026-05-05-143001.yaml", ""].join("\n")
       )
