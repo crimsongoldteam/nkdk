@@ -94,6 +94,14 @@ export interface MetadataTargetOwnerContext {
   owner?: MetadataTargetOwner
 }
 
+export interface FormDataPathAttributeContext {
+  name?: string
+  type?: {
+    type?: readonly string[]
+  }
+  dynamicList?: unknown
+}
+
 export interface FormExportToYAMLContext {
   toTyped: boolean
   /** Имя родительского объекта (например, имя реквизита формы) для externalFile. */
@@ -102,6 +110,8 @@ export interface FormExportToYAMLContext {
   externalFilesCollector?: ExternalFileEntry[]
   /** Стек текущих metadata item владельцев для owner: "this" metadataTarget. */
   metadataTargetOwners?: MetadataTargetOwnerContext[]
+  /** Реквизиты текущей формы для разбора ПутьКДанным. */
+  formAttributes?: readonly FormDataPathAttributeContext[]
 }
 
 export interface FormimportFromYAMLContext {
@@ -112,6 +122,8 @@ export interface FormimportFromYAMLContext {
   parent?: { name: string }
   /** Стек текущих metadata item владельцев для owner: "this" metadataTarget. */
   metadataTargetOwners?: MetadataTargetOwnerContext[]
+  /** Реквизиты текущей формы для разбора ПутьКДанным. */
+  formAttributes?: readonly FormDataPathAttributeContext[]
 }
 
 export interface EnterpriseContext {

@@ -211,6 +211,40 @@ describe("importClientApplicationFormFromYAML", () => {
     })
   })
 
+  it("keeps dynamic list field data paths in YAML spelling", () => {
+    const context: ConfigurationContext = {
+      ...mockContext,
+      importFromYAML: {
+        metadataTargetOwners: [{ itemType: "MetadataBusinessProcess", name: "Заявка" }],
+      },
+    }
+
+    expect(
+      importClientApplicationFormFromYAML(context, {
+        Реквизиты: {
+          Список: {
+            Тип: "ДинамическийСписок",
+            ДинамическийСписок: {},
+          },
+        },
+        Элементы: {
+          Номер: {
+            Вид: "ПолеНадписи",
+            ПутьКДанным: "Список.Номер",
+          },
+        },
+      })
+    ).toMatchObject({
+      childItems: [
+        {
+          itemType: "LabelField",
+          name: "Номер",
+          dataPath: "Список.Номер",
+        },
+      ],
+    })
+  })
+
   it("imports complete form from one YAML source without source", () => {
     const data: ClientApplicationFormYAML = {
       КоманднаяПанель: {

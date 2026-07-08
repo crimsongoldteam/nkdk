@@ -109,6 +109,41 @@ describe("exportClientApplicationFormToYAML", () => {
     expect(yaml).toEqual(documentFullClientApplicationFormYAML)
   })
 
+  it("keeps dynamic list field data paths in XML spelling", () => {
+    const context: ConfigurationContext = {
+      ...mockContextToYAML,
+      exportToYAML: {
+        ...mockContextToYAML.exportToYAML!,
+        metadataTargetOwners: [{ itemType: "MetadataBusinessProcess", name: "Заявка" }],
+      },
+    }
+    const form: ClientApplicationForm = {
+      itemType: "ClientApplicationForm",
+      attributes: [
+        {
+          itemType: "FormAttribute",
+          name: "Список",
+          type: { type: ["DynamicList"] },
+          columns: [],
+        },
+      ],
+      childItems: [
+        {
+          itemType: "LabelField",
+          name: "Номер",
+          dataPath: "Список.Number",
+        },
+      ],
+    }
+
+    const { yaml } = exportClientApplicationFormToYAML(context, form)
+
+    expect(yaml?.Элементы?.Номер).toMatchObject({
+      Вид: "ПолеНадписи",
+      ПутьКДанным: "Список.Number",
+    })
+  })
+
   it("exports report form settings storage as a local form reference", () => {
     const context: ConfigurationContext = {
       ...mockContextToYAML,

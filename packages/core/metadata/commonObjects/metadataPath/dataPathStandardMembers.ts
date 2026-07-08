@@ -1,4 +1,4 @@
-import type { ConfigurationContext, MetadataTargetOwnerContext } from "../../context/types"
+import type { ConfigurationContext, FormDataPathAttributeContext, MetadataTargetOwnerContext } from "../../context/types"
 import {
   getDataPathOwnerKindByItemType,
   standardMemberInternalToYamlForOwnerKind,
@@ -38,6 +38,7 @@ function translateDirectObjectMember(params: {
   const { prefix, path } = splitDataPathPrefix(params.value)
   const segments = path.split(".")
   if (segments.length < 2 || !DATA_OBJECT_ROOTS.has(segments[0])) return params.value
+  if (isDynamicListDataPathRoot(params.context, segments[0])) return params.value
 
   const translated = params.translate({ ownerKind, segment: segments[1] })
   if (translated === undefined) return params.value
@@ -61,4 +62,17 @@ function currentDataPathOwnerKind(context: ConfigurationContext): string | undef
 
 function currentMetadataTargetOwners(context: ConfigurationContext): readonly MetadataTargetOwnerContext[] {
   return context.importFromYAML?.metadataTargetOwners ?? context.exportToYAML?.metadataTargetOwners ?? []
+}
+
+function isDynamicListDataPathRoot(context: ConfigurationContext, root: string): boolean {
+  const attribute = currentFormAttributes(context).find((item) => item.name === root)
+  return attribute !== undefined && isDynamicListAttribute(attribute)
+}
+
+function currentFormAttributes(context: ConfigurationContext): readonly FormDataPathAttributeContext[] {
+  return context.importFromYAML?.formAttributes ?? context.exportToYAML?.formAttributes ?? []
+}
+
+function isDynamicListAttribute(attribute: FormDataPathAttributeContext): boolean {
+  return attribute.type?.type?.includes("DynamicList") === true || attribute.dynamicList !== undefined
 }

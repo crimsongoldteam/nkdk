@@ -20,6 +20,7 @@ export const exportClientApplicationFormToYAML = (
         exportToYAML: {
           ...context.exportToYAML,
           externalFilesCollector,
+          formAttributes: data.attributes,
         },
       }
     : context
