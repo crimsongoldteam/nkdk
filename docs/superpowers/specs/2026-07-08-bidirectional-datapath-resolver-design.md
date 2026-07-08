@@ -123,6 +123,18 @@ Resolver должен понимать стандартные реквизиты
 2. получает машинно-читаемый результат;
 3. превращает ошибки/предупреждения в diagnostics с YAML-позициями.
 
+Интеграция с текущей валидацией должна быть узкой:
+
+- `validateClientApplicationFormFirstPass` продолжает импортировать форму, строить `FormDataPathIndex` и собирать `collectFormDataPathOccurrences`;
+- `validateClientApplicationFormSecondPass` продолжает обходить occurrences и передавать `tableContext`;
+- вместо прямой логики разрешения внутри `resolveDataPath` вызывается общий resolver core;
+- validation-обёртка добавляет `filePath`, `parsed`, `yamlPath` только на этапе построения diagnostics;
+- `validateResolvedDataPathPolicy` остаётся отдельным слоем и получает тот же `target`, что раньше.
+
+Это важно: общий resolver не должен знать о YAML-координатах, но должен вернуть достаточно структурированный результат, чтобы validation могла сохранить текущие сообщения и позиции.
+
+Текущие pending checks в `validation/projectValidationPendingChecks.ts` должны пройти тем же путём: они уже имеют `filePath`, `parsed`, `yamlPath`, `index`, `ownerCache`, `tableContext` и смогут использовать validation-обёртку поверх общего resolver-а.
+
 ### XML -> YAML
 
 Экспорт DataPath вызывает общий resolver в направлении internal -> YAML.
