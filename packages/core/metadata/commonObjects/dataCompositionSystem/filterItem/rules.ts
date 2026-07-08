@@ -84,7 +84,6 @@ export const FilterItemGroupRules = {
       typeSE: "DataCompositionFilterItemsGroupType",
       xml: "dcsset:groupType",
       yaml: "ТипГруппы",
-      implicitValueYAML: "AndGroup",
       order: 1,
     }),
     items: filterItemRule({

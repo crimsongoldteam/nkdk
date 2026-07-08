@@ -58,4 +58,20 @@ describe("export FilterItem to YAML", () => {
       ],
     })
   })
+
+  it("exports FilterItemGroup AndGroup with explicit group type", () => {
+    const result = testExportPropertyToYAML({
+      rule,
+      value: [{ itemType: "FilterItemGroup", groupType: "AndGroup", items: [fullFilterItemComparison] }],
+    })
+
+    expect(result).toMatchObject({
+      Элементы: [
+        {
+          ТипГруппы: "ГруппаИ",
+          Элементы: [expect.objectContaining({ ЛевоеЗначение: ".Ссылка" })],
+        },
+      ],
+    })
+  })
 })

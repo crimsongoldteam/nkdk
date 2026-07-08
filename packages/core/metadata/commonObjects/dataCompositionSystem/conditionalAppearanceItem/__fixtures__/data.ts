@@ -38,26 +38,7 @@ export const fullConditionalAppearanceItems: ConditionalAppearanceItem[] = [
   },
 ]
 
-const yamlFilterItemComparison1 = {
-  itemType: "FilterItemComparison",
-  leftValue: { type: "Field", value: "Реквизит1" },
-  rightValue: { type: "boolean", value: true },
-} satisfies FilterItemComparison
-
-const yamlFixtureFilter = {
-  itemType: "Filter",
-  items: [yamlFilterItemComparison1, { itemType: "FilterItemComparison" }],
-} as const satisfies Filter
-
-export const fullConditionalAppearanceItemsFromYAML: ConditionalAppearanceItem[] = [
-  {
-    itemType: "ConditionalAppearanceItem",
-    fields: ["Реквизит2", "Реквизит2РасширеннаяПодсказка"],
-    filter: yamlFixtureFilter,
-    appearance: fixtureAppearanceFields,
-    presentation: { items: { ru: "Выделение цветом состояния" } },
-  },
-]
+export const fullConditionalAppearanceItemsFromYAML: ConditionalAppearanceItem[] = fullConditionalAppearanceItems
 
 /** Минимальный элемент — только выбор полей (`minimal.xml`). */
 export const minimalConditionalAppearanceItems: ConditionalAppearanceItem[] = [
@@ -77,6 +58,7 @@ export const fullConditionalAppearanceItemsYAML = [
           ПравоеЗначение: "Истина",
         },
         {
+          ТипГруппы: "ГруппаИ",
           Элементы: [
             {
               ЛевоеЗначение: ".Реквизит2",

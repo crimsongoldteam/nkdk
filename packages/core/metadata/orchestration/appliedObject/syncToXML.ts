@@ -159,8 +159,9 @@ const syncAppliedObjectToXMLInternal = async (params: InternalSyncAppliedObjectT
       },
     },
   }
+  const contextWithImportOwner = withImportMetadataTargetOwner(contextWithForms, rule, name)
   const contextWithOwner = getChildContextToXML({
-    context: contextWithForms,
+    context: contextWithImportOwner,
     itemType: rule.itemType,
     path: `${rule.itemType}.${name}`,
     name,

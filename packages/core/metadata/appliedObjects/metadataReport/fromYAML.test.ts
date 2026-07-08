@@ -7,13 +7,14 @@ import type { MetadataReport } from "./types"
 
 describe("import MetadataReport from YAML", () => {
   it("applies implicitValueYAML for minimal report", () => {
+    const { synonym: _synonym, ...expected } = minimal
     expect(
       testImportAppliedObjectFromYAML<MetadataReport>({
         rule: MetadataReportRules,
         yaml: minimalYAML,
         name: "ОтчетПоУмолчанию",
       })
-    ).toEqual({ ...minimal, synonym: { items: {} } })
+    ).toEqual(expected)
   })
 
   it("imports full report YAML", () => {

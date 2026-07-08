@@ -87,7 +87,6 @@ export const MetadataReportRules = {
       defaultValueXMLRaw: "",
       excludeIfEqualNameYAML: true,
       defaultValueXMLEmpty: { items: {} },
-      defaultValue: { items: {} },
     }),
     comment: stringRule({
       yaml: "Комментарий",

@@ -3,6 +3,7 @@ import os from "os"
 import { join } from "path"
 import { afterEach, beforeEach, describe, expect, it } from "vitest"
 import { MetadataCatalogRules } from "../../appliedObjects/metadataCatalog/rules"
+import "../../appliedObjects/metadataCatalog/register"
 import { MetadataChartOfCharacteristicTypesRules } from "../../appliedObjects/metadataChartOfCharacteristicTypes/rules"
 import { MetadataDocumentNumeratorRules } from "../../appliedObjects/metadataDocumentNumerator/rules"
 import { registerTypeRule } from "../property/typeRuleRegistry"
@@ -197,6 +198,39 @@ describe("syncAppliedObjectToXML — (в) формы из сканировани
 
     const result = fs.readFileSync(join(outputDir, "ТестСправочник.xml"), "utf-8")
     expect(result).toContain("ФормаСписка")
+  })
+
+  it("передаёт owner-контекст в форму при обратном DataPath standard member", async () => {
+    const inputDir = join(tmpDir, "input")
+    const outputDir = join(tmpDir, "output")
+    const name = "ТестСправочник"
+    const formName = "ФормаЭлемента"
+
+    fs.mkdirSync(join(inputDir, name, "Формы", formName), { recursive: true })
+    fs.writeFileSync(join(inputDir, name, "Свойства.yaml"), "", "utf-8")
+    fs.writeFileSync(
+      join(inputDir, name, "Формы", formName, "Форма.yaml"),
+      [
+        "Элементы:",
+        "  Код:",
+        "    Вид: ПолеВвода",
+        "    ПутьКДанным: Объект.Код",
+        "",
+      ].join("\n"),
+      "utf-8"
+    )
+
+    await syncAppliedObjectToXML({
+      rule: MetadataCatalogRules,
+      context: mockContextToXML(),
+      inputDir,
+      name,
+      outputDir,
+    })
+
+    const result = fs.readFileSync(join(outputDir, name, "Forms", formName, "Ext", "Form.xml"), "utf-8")
+    expect(result).toContain("<DataPath>Объект.Code</DataPath>")
+    expect(result).not.toContain("<DataPath>Объект.Код</DataPath>")
   })
 })
 
