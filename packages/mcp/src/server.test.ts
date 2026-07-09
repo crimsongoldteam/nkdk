@@ -70,6 +70,18 @@ describe("MCP server", () => {
     ])
   })
 
+  it("uses package version for MCP server metadata", async () => {
+    const { createNkdkMcpServer } = await import("./server")
+    const packageJson = await import("../package.json", { with: { type: "json" } })
+    const source = await import("node:fs/promises").then((fs) =>
+      fs.readFile(new URL("./server.ts", import.meta.url), "utf8"),
+    )
+
+    expect(source).not.toContain('version: "1.0.0"')
+    expect(packageJson.default.version).toMatch(/^\d+\.\d+\.\d+/)
+    expect(createNkdkMcpServer()).toBeDefined()
+  })
+
   it("closes validation handle on shutdown", async () => {
     closeValidationHandle.mockResolvedValueOnce(undefined)
 

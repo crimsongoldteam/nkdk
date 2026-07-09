@@ -6,10 +6,15 @@ import { StdioServerTransport } from "@modelcontextprotocol/sdk/server/stdio.js"
 import { registerNkdkCapabilities } from "./tools/registerTools"
 import { closeValidationHandle } from "./services/validationHandle"
 
+declare const __NKDK_MCP_VERSION__: string | undefined
+
+const MCP_SERVER_VERSION =
+  typeof __NKDK_MCP_VERSION__ === "string" && __NKDK_MCP_VERSION__.length > 0 ? __NKDK_MCP_VERSION__ : "0.0.0-dev"
+
 export function createNkdkMcpServer(): McpServer {
   const server = new McpServer({
     name: "nkdk-mcp",
-    version: "1.0.0",
+    version: MCP_SERVER_VERSION,
   })
   registerNkdkCapabilities(server)
   return server

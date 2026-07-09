@@ -1,6 +1,7 @@
 {
   "name": "@nkdk/core",
   "version": "0.0.3",
+  "private": true,
   "description": "Ядро библиотеки NKDK для работы с метаданными и XML",
   "license": "AGPL-3.0-or-later",
   "type": "module",

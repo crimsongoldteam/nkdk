@@ -120,9 +120,6 @@ importers:
       '@modelcontextprotocol/sdk':
         specifier: ^1.29.0
         version: 1.29.0(zod@4.4.3)
-      '@nkdk/core':
-        specifier: workspace:*
-        version: link:../core
       '@node-rs/xxhash':
         specifier: ^1.7.6
         version: 1.7.6

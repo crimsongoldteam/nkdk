@@ -5,8 +5,13 @@
   "license": "AGPL-3.0-or-later",
   "type": "module",
   "bin": {
-    "nkdk-mcp": "./bin/nkdk-mcp"
+    "nkdk-mcp": "./dist/bin/nkdk-mcp.mjs"
   },
+  "files": [
+    "dist",
+    "README.md",
+    "LICENSE"
+  ],
   "scripts": {
     "build": "node scripts/build.mjs",
     "dev": "tsx src/server.ts",
@@ -17,7 +22,6 @@
   "dependencies": {
     "@modelcontextprotocol/sdk": "^1.29.0",
     "@node-rs/xxhash": "^1.7.6",
-    "@nkdk/core": "workspace:*",
     "ajv": "^8.20.0",
     "ajv-formats": "^3.0.1",
     "date-fns": "^4.4.0",

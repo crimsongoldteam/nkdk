@@ -1,6 +1,7 @@
 {
   "name": "nkdk",
   "version": "0.0.3",
+  "private": true,
   "description": "NKDK. Редактор конфигурации 1С на языке YAML. Только для ИИ Агентов.",
   "license": "AGPL-3.0-or-later",
   "type": "module",
