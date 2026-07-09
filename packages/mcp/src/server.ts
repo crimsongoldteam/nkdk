@@ -1,4 +1,4 @@
-#!/usr/bin/env node
+import { realpathSync } from "fs"
 import { resolve } from "path"
 import { pathToFileURL } from "url"
 import { McpServer } from "@modelcontextprotocol/sdk/server/mcp.js"
@@ -32,7 +32,16 @@ export async function shutdownNkdkMcpServer(): Promise<void> {
 
 function isMainEntrypoint(): boolean {
   const entrypoint = process.argv[1]
-  return entrypoint !== undefined && import.meta.url === pathToFileURL(resolve(entrypoint)).href
+  if (entrypoint === undefined) return false
+
+  const entrypointUrl = pathToFileURL(resolve(entrypoint)).href
+  if (import.meta.url === entrypointUrl) return true
+
+  try {
+    return import.meta.url === pathToFileURL(realpathSync(entrypoint)).href
+  } catch {
+    return false
+  }
 }
 
 if (isMainEntrypoint()) {
