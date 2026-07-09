@@ -37,15 +37,7 @@
 
 ## Подключение MCP-сервера
 
-NKDK подключается к агенту как локальный MCP-сервер.
-
-Склонируйте репозиторий и установите зависимости:
-
-```sh
-git clone https://github.com/crimsongoldteam/nkdk.git
-cd nkdk
-pnpm install
-```
+NKDK подключается к агенту как MCP-сервер из npm.
 
 Укажите агенту команду запуска сервера:
 
@@ -53,13 +45,12 @@ pnpm install
 {
   "mcpServers": {
     "nkdk": {
-      "command": "/path/to/nkdk/packages/mcp/bin/nkdk-mcp"
+      "command": "npx",
+      "args": ["-y", "@nkdk/mcp"]
     }
   }
 }
 ```
-
-Замените `/path/to/nkdk` на абсолютный путь к локальному репозиторию.
 
 После подключения агенту доступны MCP tools:
 
@@ -73,6 +64,20 @@ pnpm install
 | `nkdk.init_sync_state`            | Создать `.nkdk-sync.yaml` для инкрементальной XML-синхронизации.            | Только при `allowWrite=true` |
 | `nkdk.rename_item`                | Переименовать объект или реквизит с сохранением внутреннего идентификатора. | Только при `allowWrite=true` |
 | `nkdk.delete_item`                | Проверить возможность удаления объекта или реквизита в YAML.                | Только при `allowWrite=true` |
+
+### Локальная разработка MCP-сервера
+
+Для проверки изменений из локального клона:
+
+```sh
+git clone https://github.com/crimsongoldteam/nkdk.git
+cd nkdk
+pnpm install
+pnpm --filter @nkdk/mcp dev
+```
+
+В конфигурации агента для локальной разработки можно указывать абсолютный путь к `packages/mcp/bin/nkdk-mcp`.
+Для обычного использования предпочтителен npm-вариант через `npx`.
 
 ## Лицензия
 
