@@ -6,8 +6,8 @@ This folder contains temporary migration tooling for converting metadata `rules.
 Commands:
 
 ```bash
-pnpm --filter @nakidka/core exec tsx metadata/rulesBuilderMigration/cli.ts inventory
-pnpm --filter @nakidka/core exec tsx metadata/rulesBuilderMigration/cli.ts apply
+pnpm --filter @nkdk/core exec tsx metadata/rulesBuilderMigration/cli.ts inventory
+pnpm --filter @nkdk/core exec tsx metadata/rulesBuilderMigration/cli.ts apply
 ```
 
 The tooling is intentionally conservative: it rewrites only known rule positions and only property types listed in

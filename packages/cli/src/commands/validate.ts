@@ -1,6 +1,6 @@
 import { existsSync, statSync } from "fs"
 import { isAbsolute, relative, resolve, sep } from "path"
-import { ProjectFileSchemaError, validateProject, type Diagnostic } from "@nakidka/core"
+import { ProjectFileSchemaError, validateProject, type Diagnostic } from "@nkdk/core"
 
 export interface ValidateCommandOptions {
   file?: string

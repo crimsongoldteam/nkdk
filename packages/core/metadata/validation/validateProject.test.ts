@@ -1190,7 +1190,7 @@ describe("validateProject", { timeout: 30_000 }, () => {
   })
 
   function createProject(): string {
-    const projectDir = mkdtempSync(join(tmpdir(), "nakidka-validate-project-"))
+    const projectDir = mkdtempSync(join(tmpdir(), "nkdk-validate-project-"))
     tempDirs.push(projectDir)
     return projectDir
   }

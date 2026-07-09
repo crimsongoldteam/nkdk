@@ -107,7 +107,7 @@ describe("validateProject service", () => {
   })
 
   it("returns not_found for a missing project directory", async () => {
-    const projectDir = join(tmpdir(), "nakidka-missing-mcp-project")
+    const projectDir = join(tmpdir(), "nkdk-missing-mcp-project")
     const result = await validateYamlProject({ projectDir })
 
     expect(result).toEqual({
@@ -136,7 +136,7 @@ describe("validateProject service", () => {
   })
 
   function createProject(): string {
-    const projectDir = mkdtempSync(join(tmpdir(), "nakidka-mcp-validate-"))
+    const projectDir = mkdtempSync(join(tmpdir(), "nkdk-mcp-validate-"))
     tempDirs.push(projectDir)
     return projectDir
   }

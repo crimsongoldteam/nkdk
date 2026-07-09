@@ -15,7 +15,7 @@ import {
   type MigrationConflict,
   type MigrationEntry,
   type StructuralState,
-} from "@nakidka/core"
+} from "@nkdk/core"
 
 export async function renameMigration(yamlDir: string, path: string, newName: string, allowWrite = false): Promise<void> {
   printOperationResult(await renameMetadataItem({

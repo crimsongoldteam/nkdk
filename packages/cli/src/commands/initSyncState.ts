@@ -1,4 +1,4 @@
-import { initializeXmlSyncState } from "@nakidka/core"
+import { initializeXmlSyncState } from "@nkdk/core"
 
 export const initSyncState = async (yamlDir: string, xmlDir: string): Promise<void> => {
   await initializeXmlSyncState({

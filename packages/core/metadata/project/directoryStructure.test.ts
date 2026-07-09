@@ -15,7 +15,7 @@ describe("metadata project directory structure", () => {
   })
 
   const createProject = (): string => {
-    const projectDir = mkdtempSync(join(tmpdir(), "nakidka-project-structure-"))
+    const projectDir = mkdtempSync(join(tmpdir(), "nkdk-project-structure-"))
     tempDirs.push(projectDir)
     return projectDir
   }

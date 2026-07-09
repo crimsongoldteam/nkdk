@@ -21,8 +21,8 @@ export type FixtureWizardParams = {
 }
 
 const usage =
-  "Использование: pnpm --filter @nakidka/core exec tsx scripts/fixture-wizard/index.ts <metadataItem> <dumpRoot>\n" +
-  "Пример: pnpm --filter @nakidka/core exec tsx scripts/fixture-wizard/index.ts metadataCatalog /Users/nikita/git/roundTripElements"
+  "Использование: pnpm --filter @nkdk/core exec tsx scripts/fixture-wizard/index.ts <metadataItem> <dumpRoot>\n" +
+  "Пример: pnpm --filter @nkdk/core exec tsx scripts/fixture-wizard/index.ts metadataCatalog /Users/nikita/git/roundTripElements"
 
 const yesAnswers = new Set(["y", "yes", "д", "да"])
 

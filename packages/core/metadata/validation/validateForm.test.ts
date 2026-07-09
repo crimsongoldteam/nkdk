@@ -1567,7 +1567,7 @@ describe("validateForm", () => {
     ownerName?: string
     extraOwners?: Array<{ dir: string; name: string; yaml: string[] }>
   }): TestProject {
-    const projectDir = mkdtempSync(join(tmpdir(), "nakidka-validate-form-"))
+    const projectDir = mkdtempSync(join(tmpdir(), "nkdk-validate-form-"))
     tempDirs.push(projectDir)
 
     const ownerDirName = params.ownerDir ?? "Справочник"

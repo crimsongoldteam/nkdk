@@ -95,7 +95,7 @@ describe("prepareMetadataMigrationChain", () => {
 
   it("blocks invalid applied migrations state", () => {
     const { yamlDir, xmlDir } = createDirs()
-    writeFileSync(join(xmlDir, ".nakidka-migrations.yaml"), "applied: 42\n")
+    writeFileSync(join(xmlDir, ".nkdk-migrations.yaml"), "applied: 42\n")
 
     const result = prepareMetadataMigrationChain({
       yamlDir,

@@ -5,7 +5,7 @@ import {
   splitSearchTerms,
   summarizeJSONSchema,
   type SchemaSummaryOptions,
-} from "@nakidka/core"
+} from "@nkdk/core"
 import { stringify } from "yaml"
 
 export interface SchemaCommandOptions {

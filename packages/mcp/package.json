@@ -1,7 +1,7 @@
 {
-  "name": "@nakidka/mcp",
-  "version": "1.0.0",
-  "description": "MCP сервер Nakidka для ИИ-агентов",
+  "name": "@nkdk/mcp",
+  "version": "0.0.3",
+  "description": "MCP сервер NKDK для ИИ-агентов",
   "license": "AGPL-3.0-or-later",
   "type": "module",
   "bin": {
@@ -14,7 +14,7 @@
   },
   "dependencies": {
     "@modelcontextprotocol/sdk": "^1.29.0",
-    "@nakidka/core": "workspace:*",
+    "@nkdk/core": "workspace:*",
     "tsx": "^4.22.4",
     "zod": "^4.0.0"
   },

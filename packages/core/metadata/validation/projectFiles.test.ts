@@ -16,7 +16,7 @@ describe("validation project files", () => {
   })
 
   const createProject = (): string => {
-    const projectDir = mkdtempSync(join(tmpdir(), "nakidka-project-files-"))
+    const projectDir = mkdtempSync(join(tmpdir(), "nkdk-project-files-"))
     tempDirs.push(projectDir)
     return projectDir
   }

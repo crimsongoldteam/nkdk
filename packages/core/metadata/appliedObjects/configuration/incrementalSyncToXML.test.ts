@@ -220,7 +220,7 @@ describe("syncConfigurationIncrementallyToXML", () => {
     expect(result.migrationsApplied).toEqual([
       { fileName: "2026-05-05-143000.yaml", from: "Справочник.Товары", to: "Справочник.Номенклатура" },
     ])
-    expect(readFileSync(join(xmlDir, ".nakidka-migrations.yaml"), "utf-8")).toBe(
+    expect(readFileSync(join(xmlDir, ".nkdk-migrations.yaml"), "utf-8")).toBe(
       ["applied:", "  - 2026-05-05-143000.yaml", ""].join("\n")
     )
     expect(existsSync(join(xmlDir, "Catalogs", "Номенклатура.xml"))).toBe(true)

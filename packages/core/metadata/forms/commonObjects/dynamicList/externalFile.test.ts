@@ -42,7 +42,7 @@ describe("buildExternalFileEntry", () => {
 
 describe("readExternalFile", () => {
   it("returns content when file exists", () => {
-    const tmpDir = fs.mkdtempSync(join(os.tmpdir(), "nakidka-test-"))
+    const tmpDir = fs.mkdtempSync(join(os.tmpdir(), "nkdk-test-"))
     try {
       fs.mkdirSync(join(tmpDir, "ДинамическийСписок"))
       fs.writeFileSync(join(tmpDir, "ДинамическийСписок", "МойРеквизит.query"), "ВЫБРАТЬ * ИЗ Справочник1", "utf-8")
@@ -54,7 +54,7 @@ describe("readExternalFile", () => {
   })
 
   it("returns empty string when file is empty", () => {
-    const tmpDir = fs.mkdtempSync(join(os.tmpdir(), "nakidka-test-"))
+    const tmpDir = fs.mkdtempSync(join(os.tmpdir(), "nkdk-test-"))
     try {
       fs.mkdirSync(join(tmpDir, "ДинамическийСписок"))
       fs.writeFileSync(join(tmpDir, "ДинамическийСписок", "МойРеквизит.query"), "", "utf-8")
@@ -66,7 +66,7 @@ describe("readExternalFile", () => {
   })
 
   it("returns undefined when file does not exist", () => {
-    const tmpDir = fs.mkdtempSync(join(os.tmpdir(), "nakidka-test-"))
+    const tmpDir = fs.mkdtempSync(join(os.tmpdir(), "nkdk-test-"))
     try {
       fs.mkdirSync(join(tmpDir, "ДинамическийСписок"))
       const result = readExternalFile(rule, "НесуществующийРеквизит", tmpDir)
@@ -77,7 +77,7 @@ describe("readExternalFile", () => {
   })
 
   it("returns undefined when directory does not exist", () => {
-    const tmpDir = fs.mkdtempSync(join(os.tmpdir(), "nakidka-test-"))
+    const tmpDir = fs.mkdtempSync(join(os.tmpdir(), "nkdk-test-"))
     try {
       // Не создаём ДинамическийСписок/
       const result = readExternalFile(rule, "МойРеквизит", tmpDir)

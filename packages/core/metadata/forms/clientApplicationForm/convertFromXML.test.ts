@@ -16,7 +16,7 @@ describe("import from XML string", () => {
   let outputDir: string
 
   beforeEach(() => {
-    outputDir = fs.mkdtempSync(join(os.tmpdir(), "nakidka-form-convert-"))
+    outputDir = fs.mkdtempSync(join(os.tmpdir(), "nkdk-form-convert-"))
   })
 
   afterEach(() => {
@@ -225,7 +225,7 @@ describe("import from XML string", () => {
   })
 
   it("copies form help _files recursively", async () => {
-    const tmpRoot = fs.mkdtempSync(join(os.tmpdir(), "nakidka-form-help-files-"))
+    const tmpRoot = fs.mkdtempSync(join(os.tmpdir(), "nkdk-form-help-files-"))
     const tmpInputDir = join(tmpRoot, "xml")
 
     try {
@@ -251,7 +251,7 @@ describe("import from XML string", () => {
   })
 
   it("копирует внешние картинки элементов формы в YAML-каталоги по имени элемента", async () => {
-    const tmpRoot = fs.mkdtempSync(join(os.tmpdir(), "nakidka-form-item-pictures-"))
+    const tmpRoot = fs.mkdtempSync(join(os.tmpdir(), "nkdk-form-item-pictures-"))
     const tmpInputDir = join(tmpRoot, "xml")
 
     try {
@@ -462,7 +462,7 @@ describe("import from XML string", () => {
   </Commands>
 </Form>\`
 
-      const projectDir = mkdtempSync(join(tmpdir(), "nakidka-form-yaml-public-"))
+      const projectDir = mkdtempSync(join(tmpdir(), "nkdk-form-yaml-public-"))
       const inputDir = join(projectDir, "input")
       const formExtDir = join(inputDir, "ФормаСписка", "Ext")
       const outputDir = join(projectDir, "output")

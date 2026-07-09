@@ -19,7 +19,7 @@ packages/core/dist/index.js
 
 ## Жёсткие инварианты
 
-- Перед каждым замером выполняй свежую сборку: `pnpm --filter @nakidka/core build`.
+- Перед каждым замером выполняй свежую сборку: `pnpm --filter @nkdk/core build`.
 - Запускай только `node .agents/skills/validation-profile/validation-profile.mjs ...`.
 - Не запускай `pnpm test`.
 - Не исправляй validation diagnostics в рамках этого скилла.
@@ -29,21 +29,21 @@ packages/core/dist/index.js
 ## Быстрый запуск
 
 ```bash
-pnpm --filter @nakidka/core build
+pnpm --filter @nkdk/core build
 node .agents/skills/validation-profile/validation-profile.mjs /path/to/yaml
 ```
 
 С одним прогоном:
 
 ```bash
-pnpm --filter @nakidka/core build
+pnpm --filter @nkdk/core build
 node .agents/skills/validation-profile/validation-profile.mjs /path/to/yaml --runs 1
 ```
 
 С worker timing:
 
 ```bash
-pnpm --filter @nakidka/core build
+pnpm --filter @nkdk/core build
 node .agents/skills/validation-profile/validation-profile.mjs /path/to/yaml --runs 1 --timing
 ```
 

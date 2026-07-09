@@ -27,7 +27,7 @@ describe("exportJSONSchemaForProjectFile", () => {
   })
 
   const createProject = (): string => {
-    const projectDir = mkdtempSync(join(tmpdir(), "nakidka-schema-"))
+    const projectDir = mkdtempSync(join(tmpdir(), "nkdk-schema-"))
     tempDirs.push(projectDir)
     return projectDir
   }

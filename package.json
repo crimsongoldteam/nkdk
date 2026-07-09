@@ -1,7 +1,7 @@
 {
-  "name": "nakidka-web",
-  "version": "1.0.0",
-  "description": "Монорепозиторий Nakidka для работы с конфигурациями 1С",
+  "name": "nkdk",
+  "version": "0.0.3",
+  "description": "NKDK. Редактор конфигурации 1С на языке YAML. Только для ИИ Агентов.",
   "license": "AGPL-3.0-or-later",
   "type": "module",
   "packageManager": "pnpm@10.33.0",

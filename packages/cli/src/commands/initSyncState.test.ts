@@ -1,4 +1,4 @@
-import { initializeXmlSyncState } from "@nakidka/core"
+import { initializeXmlSyncState } from "@nkdk/core"
 import { afterEach, beforeEach, describe, expect, it, vi } from "vitest"
 import { initSyncState } from "./initSyncState"
 
@@ -6,7 +6,7 @@ const mocks = vi.hoisted(() => ({
   initializeXmlSyncState: vi.fn(async () => undefined),
 }))
 
-vi.mock("@nakidka/core", () => ({
+vi.mock("@nkdk/core", () => ({
   initializeXmlSyncState: mocks.initializeXmlSyncState,
 }))
 

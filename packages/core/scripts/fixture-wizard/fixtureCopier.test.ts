@@ -207,10 +207,10 @@ describe("fixtureCopier", () => {
 
   it("formatTestCommands возвращает команды для проверки XML-конвейера", () => {
     expect(formatTestCommands("metadataDocument")).toEqual([
-      "pnpm --filter @nakidka/core exec vitest run packages/core/metadata/appliedObjects/metadataDocument/fromXML.test.ts",
-      "pnpm --filter @nakidka/core exec vitest run packages/core/metadata/appliedObjects/metadataDocument/toXML.test.ts",
-      "pnpm --filter @nakidka/core exec vitest run packages/core/metadata/appliedObjects/metadataDocument/convertFromXML.test.ts",
-      "pnpm --filter @nakidka/core exec vitest run packages/core/metadata/appliedObjects/metadataDocument/syncToXML.test.ts",
+      "pnpm --filter @nkdk/core exec vitest run packages/core/metadata/appliedObjects/metadataDocument/fromXML.test.ts",
+      "pnpm --filter @nkdk/core exec vitest run packages/core/metadata/appliedObjects/metadataDocument/toXML.test.ts",
+      "pnpm --filter @nkdk/core exec vitest run packages/core/metadata/appliedObjects/metadataDocument/convertFromXML.test.ts",
+      "pnpm --filter @nkdk/core exec vitest run packages/core/metadata/appliedObjects/metadataDocument/syncToXML.test.ts",
     ])
   })
 

@@ -79,7 +79,7 @@ async function loadCompiledCore() {
     fail(
       [
         "compiled validation files are missing.",
-        "Перед запуском выполни: pnpm --filter @nakidka/core build",
+        "Перед запуском выполни: pnpm --filter @nkdk/core build",
       ].join(" ")
     )
   }

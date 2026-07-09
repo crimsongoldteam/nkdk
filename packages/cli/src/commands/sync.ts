@@ -1,4 +1,4 @@
-import { readXmlSyncState, syncConfigurationIncrementallyToXML, syncConfigurationToXML } from "@nakidka/core"
+import { readXmlSyncState, syncConfigurationIncrementallyToXML, syncConfigurationToXML } from "@nkdk/core"
 
 export interface SyncConfigurationOptions {
   referenceDir?: string

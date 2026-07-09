@@ -2,7 +2,7 @@ import { mkdirSync, mkdtempSync, rmSync, writeFileSync } from "fs"
 import { tmpdir } from "os"
 import { join, resolve } from "path"
 import { afterEach, describe, expect, it, vi } from "vitest"
-import type { Diagnostic } from "@nakidka/core"
+import type { Diagnostic } from "@nkdk/core"
 import { formatDiagnostics, validateYamlProject } from "./validate"
 
 describe("validate command", () => {
@@ -118,7 +118,7 @@ describe("validate command", () => {
   })
 
   it("rejects missing or invalid project directories as command usage errors", async () => {
-    const missingDir = join(tmpdir(), "nakidka-missing-yaml-dir")
+    const missingDir = join(tmpdir(), "nkdk-missing-yaml-dir")
     const filePath = join(createProject(), "not-a-directory.yaml")
     writeFileSync(filePath, "")
     const stderr = captureStderr()
@@ -188,7 +188,7 @@ describe("validate command", () => {
   })
 
   function createProject(): string {
-    const projectDir = mkdtempSync(join(tmpdir(), "nakidka-validate-cli-"))
+    const projectDir = mkdtempSync(join(tmpdir(), "nkdk-validate-cli-"))
     tempDirs.push(projectDir)
     return projectDir
   }

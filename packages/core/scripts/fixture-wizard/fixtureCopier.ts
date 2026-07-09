@@ -95,10 +95,10 @@ export function formatTestCommands(metadataItem: string): string[] {
   const testDir = `packages/core/metadata/appliedObjects/${metadataItem}`
 
   return [
-    `pnpm --filter @nakidka/core exec vitest run ${testDir}/fromXML.test.ts`,
-    `pnpm --filter @nakidka/core exec vitest run ${testDir}/toXML.test.ts`,
-    `pnpm --filter @nakidka/core exec vitest run ${testDir}/convertFromXML.test.ts`,
-    `pnpm --filter @nakidka/core exec vitest run ${testDir}/syncToXML.test.ts`,
+    `pnpm --filter @nkdk/core exec vitest run ${testDir}/fromXML.test.ts`,
+    `pnpm --filter @nkdk/core exec vitest run ${testDir}/toXML.test.ts`,
+    `pnpm --filter @nkdk/core exec vitest run ${testDir}/convertFromXML.test.ts`,
+    `pnpm --filter @nkdk/core exec vitest run ${testDir}/syncToXML.test.ts`,
   ]
 }
 

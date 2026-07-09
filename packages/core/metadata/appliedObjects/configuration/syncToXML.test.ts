@@ -885,7 +885,7 @@ describe("sync configuration to XML", () => {
         },
       ])
       expect(syncResult.changedXmlFiles).toBeUndefined()
-      expect(fs.readFileSync(join(outDir, ".nakidka-migrations.yaml"), "utf-8")).toBe(
+      expect(fs.readFileSync(join(outDir, ".nkdk-migrations.yaml"), "utf-8")).toBe(
         ["applied:", "  - 2026-05-05-143000.yaml", "  - 2026-05-05-143001.yaml", ""].join("\n")
       )
       const result = fs.readFileSync(join(outDir, "Catalogs", "Номенклатура.xml"), "utf-8")
@@ -973,7 +973,7 @@ describe("sync configuration to XML", () => {
         ],
       })
       expect(fs.existsSync(join(outDir, "Catalogs"))).toBe(false)
-      expect(fs.existsSync(join(outDir, ".nakidka-migrations.yaml"))).toBe(false)
+      expect(fs.existsSync(join(outDir, ".nkdk-migrations.yaml"))).toBe(false)
     } finally {
       if (fs.existsSync(tmp)) fs.rmSync(tmp, { recursive: true })
     }
@@ -1007,13 +1007,13 @@ describe("sync configuration to XML", () => {
       expect(result.migrationsApplied).toBeUndefined()
       expect(result.changedXmlFiles).toBeUndefined()
       expect(fs.readFileSync(join(outDir, "Catalogs", "Old.xml"), "utf-8")).toBe("<Old/>")
-      expect(fs.existsSync(join(outDir, ".nakidka-migrations.yaml"))).toBe(false)
+      expect(fs.existsSync(join(outDir, ".nkdk-migrations.yaml"))).toBe(false)
     } finally {
       if (fs.existsSync(tmp)) fs.rmSync(tmp, { recursive: true })
     }
   })
 
-  it("пишет .nakidka-migrations.yaml после успешного sync", async () => {
+  it("пишет .nkdk-migrations.yaml после успешного sync", async () => {
     const tmp = getXMLFixturePath("sync/syncConfiguration/_tmp_migration_state")
     const yamlDir = join(tmp, "yaml")
     const xmlDir = join(tmp, "xml")
@@ -1031,7 +1031,7 @@ describe("sync configuration to XML", () => {
       })
 
       expect(result.failed).toEqual([])
-      expect(fs.readFileSync(join(outDir, ".nakidka-migrations.yaml"), "utf-8")).toBe("applied: []\n")
+      expect(fs.readFileSync(join(outDir, ".nkdk-migrations.yaml"), "utf-8")).toBe("applied: []\n")
     } finally {
       if (fs.existsSync(tmp)) fs.rmSync(tmp, { recursive: true })
     }

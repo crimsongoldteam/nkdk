@@ -17,7 +17,7 @@ describe("ProjectYamlCache", () => {
   })
 
   const createProject = (): string => {
-    const projectDir = mkdtempSync(join(tmpdir(), "nakidka-yaml-cache-"))
+    const projectDir = mkdtempSync(join(tmpdir(), "nkdk-yaml-cache-"))
     tempDirs.push(projectDir)
     return projectDir
   }

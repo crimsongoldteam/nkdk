@@ -3,7 +3,7 @@ import type {
   MetadataOperationResult,
   MigrationChainInvalidResult,
   MigrationPlanItem,
-} from "@nakidka/core"
+} from "@nkdk/core"
 
 export interface SchemaSummaryOptions {
   requiredOnly?: boolean

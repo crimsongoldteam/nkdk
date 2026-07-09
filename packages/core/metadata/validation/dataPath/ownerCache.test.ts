@@ -314,7 +314,7 @@ describe("OwnerMetadataCache", () => {
   })
 
   function createProject(): string {
-    const projectDir = mkdtempSync(join(tmpdir(), "nakidka-owner-cache-"))
+    const projectDir = mkdtempSync(join(tmpdir(), "nkdk-owner-cache-"))
     tempDirs.push(projectDir)
     return projectDir
   }

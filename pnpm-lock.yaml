@@ -37,7 +37,7 @@ importers:
       '@inquirer/prompts':
         specifier: ^8.5.2
         version: 8.5.2(@types/node@26.1.0)
-      '@nakidka/core':
+      '@nkdk/core':
         specifier: workspace:*
         version: link:../core
       commander:
@@ -120,7 +120,7 @@ importers:
       '@modelcontextprotocol/sdk':
         specifier: ^1.29.0
         version: 1.29.0(zod@4.4.3)
-      '@nakidka/core':
+      '@nkdk/core':
         specifier: workspace:*
         version: link:../core
       tsx:

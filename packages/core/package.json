@@ -1,7 +1,7 @@
 {
-  "name": "@nakidka/core",
-  "version": "1.0.0",
-  "description": "Ядро библиотеки Nakidka для работы с метаданными и XML",
+  "name": "@nkdk/core",
+  "version": "0.0.3",
+  "description": "Ядро библиотеки NKDK для работы с метаданными и XML",
   "license": "AGPL-3.0-or-later",
   "type": "module",
   "main": "./index.ts",

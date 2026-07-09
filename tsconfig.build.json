@@ -19,7 +19,7 @@
     "typeRoots": ["./node_modules/@types"],
     "types": ["node"],
     "paths": {
-      "@nakidka/core": ["./packages/core/index.ts"]
+      "@nkdk/core": ["./packages/core/index.ts"]
     }
   },
   "tsc-alias": {

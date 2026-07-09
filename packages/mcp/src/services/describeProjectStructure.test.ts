@@ -80,7 +80,7 @@ describe("describeProjectStructure service", () => {
   })
 
   it("returns not_found for a missing project directory", async () => {
-    const projectDir = join(tmpdir(), "nakidka-missing-project-structure")
+    const projectDir = join(tmpdir(), "nkdk-missing-project-structure")
 
     const result = await describeProjectStructure({ projectDir })
 
@@ -129,7 +129,7 @@ describe("describeProjectStructure service", () => {
   })
 
   function createProject(): string {
-    const projectDir = mkdtempSync(join(tmpdir(), "nakidka-mcp-project-structure-"))
+    const projectDir = mkdtempSync(join(tmpdir(), "nkdk-mcp-project-structure-"))
     mkdirSync(projectDir, { recursive: true })
     tempDirs.push(projectDir)
     return projectDir
