@@ -16,6 +16,7 @@
     "build": "node scripts/build.mjs",
     "dev": "tsx src/server.ts",
     "prepack": "pnpm run build",
+    "smoke:packed": "node scripts/smoke-packed.mjs",
     "test": "vitest run --passWithNoTests",
     "type-check": "tsc --noEmit"
   },
