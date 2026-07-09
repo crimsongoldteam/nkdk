@@ -1,3 +1,4 @@
+import { existsSync } from "node:fs"
 import { dirname, join } from "node:path"
 import { performance } from "node:perf_hooks"
 import { fileURLToPath, pathToFileURL } from "node:url"
@@ -563,11 +564,24 @@ export function partitionPendingReferencesForWorkers(
   return partitions
 }
 
+export function resolveProjectValidationWorkerFile(
+  currentFile: string,
+  exists: (path: string) => boolean = existsSync,
+): string {
+  if (currentFile.endsWith(".ts")) return join(dirname(currentFile), "projectValidationWorker.ts")
+
+  const sameDirectoryWorker = join(dirname(currentFile), "projectValidationWorker.js")
+  if (exists(sameDirectoryWorker)) return sameDirectoryWorker
+
+  const parentDirectoryWorker = join(dirname(dirname(currentFile)), "projectValidationWorker.js")
+  if (exists(parentDirectoryWorker)) return parentDirectoryWorker
+
+  return sameDirectoryWorker
+}
+
 function createWorkerPool(): Piscina {
   const currentFile = fileURLToPath(import.meta.url)
-  const workerFile = currentFile.endsWith(".ts")
-    ? join(dirname(currentFile), "projectValidationWorker.ts")
-    : join(dirname(currentFile), "projectValidationWorker.js")
+  const workerFile = resolveProjectValidationWorkerFile(currentFile)
   const execArgv = workerFile.endsWith(".ts") ? withTypeScriptWorkerLoader(dirname(currentFile)) : process.execArgv
 
   return new Piscina({

@@ -1,4 +1,5 @@
 import { execFile } from "node:child_process"
+import { join } from "node:path"
 import { promisify } from "node:util"
 import { describe, expect, it } from "vitest"
 import {
@@ -108,6 +109,37 @@ describe("partitionPendingReferencesForWorkers", () => {
     const references = Array.from({ length: 7 }, (_, index) => pendingReference(index))
 
     expect(partitionPendingReferencesForWorkers(references, 3).map((items) => items.length)).toEqual([3, 2, 2])
+  })
+})
+
+describe("resolveProjectValidationWorkerFile", () => {
+  it("uses TypeScript worker next to source file", async () => {
+    const { resolveProjectValidationWorkerFile } = await import("./projectValidationWorkerPool")
+
+    const result = resolveProjectValidationWorkerFile(
+      "/repo/packages/core/metadata/validation/projectValidationWorkerPool.ts",
+    )
+
+    expect(result).toBe("/repo/packages/core/metadata/validation/projectValidationWorker.ts")
+  })
+
+  it("uses JavaScript worker next to built core file", async () => {
+    const { resolveProjectValidationWorkerFile } = await import("./projectValidationWorkerPool")
+
+    const result = resolveProjectValidationWorkerFile("/repo/packages/core/dist/projectValidationWorkerPool.js")
+
+    expect(result).toBe("/repo/packages/core/dist/projectValidationWorker.js")
+  })
+
+  it("uses parent dist worker for bundled MCP bin layout", async () => {
+    const { resolveProjectValidationWorkerFile } = await import("./projectValidationWorkerPool")
+    const existing = new Set([join("/repo/packages/mcp/dist", "projectValidationWorker.js")])
+
+    const result = resolveProjectValidationWorkerFile("/repo/packages/mcp/dist/bin/nkdk-mcp.mjs", (path) =>
+      existing.has(path),
+    )
+
+    expect(result).toBe("/repo/packages/mcp/dist/projectValidationWorker.js")
   })
 })
 
