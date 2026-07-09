@@ -8,6 +8,7 @@ const packageRoot = join(__dirname, "..")
 const repoRoot = join(packageRoot, "../..")
 const distDir = join(packageRoot, "dist")
 const binDir = join(distDir, "bin")
+const binFile = join(binDir, "nkdk-mcp")
 const packageJson = (
   await import(pathToFileURL(join(packageRoot, "package.json")).href, {
     with: { type: "json" },
@@ -49,7 +50,7 @@ await esbuild.build({
   ...commonOptions,
   banner: { js: "#!/usr/bin/env node" },
   entryPoints: [join(packageRoot, "src/server.ts")],
-  outfile: join(binDir, "nkdk-mcp.mjs"),
+  outfile: binFile,
 })
 
 await esbuild.build({
@@ -72,6 +73,6 @@ await generateProjectValidationAjvStandalone({
   outfile: join(distDir, "projectValidationAjvStandalone.js"),
 })
 
-await chmod(join(binDir, "nkdk-mcp.mjs"), 0o755)
+await chmod(binFile, 0o755)
 await cp(join(repoRoot, "README.md"), join(packageRoot, "README.md"))
 await cp(join(repoRoot, "LICENSE"), join(packageRoot, "LICENSE"))

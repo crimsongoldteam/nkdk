@@ -135,7 +135,7 @@ describe("resolveProjectValidationWorkerFile", () => {
     const { resolveProjectValidationWorkerFile } = await import("./projectValidationWorkerPool")
     const existing = new Set([join("/repo/packages/mcp/dist", "projectValidationWorker.js")])
 
-    const result = resolveProjectValidationWorkerFile("/repo/packages/mcp/dist/bin/nkdk-mcp.mjs", (path) =>
+    const result = resolveProjectValidationWorkerFile("/repo/packages/mcp/dist/bin/nkdk-mcp", (path) =>
       existing.has(path),
     )
 
