@@ -65,20 +65,6 @@ NKDK подключается к агенту как MCP-сервер из npm.
 | `nkdk.rename_item`                | Переименовать объект или реквизит с сохранением внутреннего идентификатора. | Только при `allowWrite=true` |
 | `nkdk.delete_item`                | Проверить возможность удаления объекта или реквизита в YAML.                | Только при `allowWrite=true` |
 
-### Локальная разработка MCP-сервера
-
-Для проверки изменений из локального клона:
-
-```sh
-git clone https://github.com/crimsongoldteam/nkdk.git
-cd nkdk
-pnpm install
-pnpm --filter @nkdk/mcp dev
-```
-
-В конфигурации агента для локальной разработки можно указывать абсолютный путь к `packages/mcp/bin/nkdk-mcp`.
-Для обычного использования предпочтителен npm-вариант через `npx`.
-
 ## Лицензия
 
 Проект распространяется на условиях GNU Affero General Public License v3.0 or later. Подробности см. в файле [LICENSE](LICENSE).
