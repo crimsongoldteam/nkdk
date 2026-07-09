@@ -10,8 +10,8 @@ const indexTimeMembers = [
 ] as const
 
 const traversalMembers = [
-  { memberKind: "standardAttribute", names: { internal: "BusinessProcess", yaml: "БизнесПроцесс" }, family: "reverseLookup", phase: "traversal-time", sourceScope: "projectIndex", target: "BusinessProcess", property: "tasks", emptyPolicy: "error", compositePolicy: "errorOnTraversal" },
-  { memberKind: "standardAttribute", names: { internal: "RoutePoint", yaml: "ТочкаМаршрута" }, family: "closedReverseLookup", phase: "traversal-time", sourceScope: "projectIndex", target: "BusinessProcess", result: "BusinessProcessRoutePoint", source: "businessProcessesByTask", property: "tasks", emptyPolicy: "error", allowNestedProperties: false },
+  { memberKind: "standardAttribute", names: { internal: "BusinessProcess", yaml: "БизнесПроцесс" }, family: "reverseLookup", phase: "traversal-time", sourceScope: "projectIndex", target: "BusinessProcess", property: "task", emptyPolicy: "error", compositePolicy: "errorOnTraversal" },
+  { memberKind: "standardAttribute", names: { internal: "RoutePoint", yaml: "ТочкаМаршрута" }, family: "closedReverseLookup", phase: "traversal-time", sourceScope: "projectIndex", target: "BusinessProcess", result: "BusinessProcessRoutePoint", source: "businessProcessesByTask", property: "task", emptyPolicy: "error", allowNestedProperties: false },
 ] as const
 
 const members = [...indexTimeMembers, ...traversalMembers] as const satisfies readonly StandardMemberDeclaration[]

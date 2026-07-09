@@ -1787,7 +1787,7 @@ describe("resolveDataPath", () => {
         rule: MetadataBusinessProcessRules,
         model: {
           itemType: "MetadataBusinessProcess",
-          tasks: ["Task.ЗадачаИсполнителя"],
+          task: "Task.ЗадачаИсполнителя",
         },
       }),
     ])
@@ -2152,42 +2152,29 @@ describe("resolveDataPath", () => {
     })
   })
 
-  it("returns a warning for a known platform source", () => {
+  it("skips known platform source paths without diagnostics", () => {
     const result = resolve("КомпоновщикНастроекКомпоновкиДанных.Settings.Filter.Items", {
       index: indexWithAttributes([]),
     })
 
     expect(result).toMatchObject({
-      status: "warning",
-      diagnostics: [
-        expect.objectContaining({
-          severity: "warning",
-          source: "structure",
-          message:
-            'ПутьКДанным "КомпоновщикНастроекКомпоновкиДанных.Settings.Filter.Items": платформенный источник пока не проверяется',
-        }),
-      ],
+      status: "ok",
+      diagnostics: [],
     })
   })
 
-  it("returns a warning for a SettingsComposer form attribute data path", () => {
+  it("skips SettingsComposer form attribute data paths without diagnostics", () => {
     const result = resolve("КомпоновщикНастроек.Settings.Filter", {
       index: indexWithAttributes([attribute("КомпоновщикНастроек", { type: ["SettingsComposer"] })]),
     })
 
     expect(result).toMatchObject({
-      status: "warning",
-      diagnostics: [
-        expect.objectContaining({
-          severity: "warning",
-          source: "structure",
-          message: 'ПутьКДанным "КомпоновщикНастроек.Settings.Filter": платформенный источник пока не проверяется',
-        }),
-      ],
+      status: "ok",
+      diagnostics: [],
     })
   })
 
-  it("returns a warning for a report SettingsComposer object data path", () => {
+  it("skips report SettingsComposer object data paths without diagnostics", () => {
     const result = resolve("Отчет.SettingsComposer.Settings.Filter.Use", {
       index: indexWithAttributes([attribute("Отчет", { type: ["ReportObject.Анализ"] })]),
       ownerCache: ownerCache([
@@ -2200,33 +2187,19 @@ describe("resolveDataPath", () => {
     })
 
     expect(result).toMatchObject({
-      status: "warning",
-      diagnostics: [
-        expect.objectContaining({
-          severity: "warning",
-          source: "structure",
-          message:
-            'ПутьКДанным "Отчет.SettingsComposer.Settings.Filter.Use": платформенный источник пока не проверяется',
-        }),
-      ],
+      status: "ok",
+      diagnostics: [],
     })
   })
 
-  it("returns a warning for indexed SettingsComposer user settings data paths", () => {
+  it("skips indexed SettingsComposer user settings data paths without diagnostics", () => {
     const result = resolve("КомпоновщикНастроек.UserSettings[0].Filter", {
       index: indexWithAttributes([attribute("КомпоновщикНастроек", { type: ["SettingsComposer"] })]),
     })
 
     expect(result).toMatchObject({
-      status: "warning",
-      diagnostics: [
-        expect.objectContaining({
-          severity: "warning",
-          source: "structure",
-          message:
-            'ПутьКДанным "КомпоновщикНастроек.UserSettings[0].Filter": платформенный источник пока не проверяется',
-        }),
-      ],
+      status: "ok",
+      diagnostics: [],
     })
   })
 
@@ -2310,20 +2283,14 @@ describe("resolveDataPath", () => {
     })
   })
 
-  it("returns a warning for Items.*.CurrentData.* paths", () => {
+  it("skips Items.*.CurrentData.* paths without diagnostics", () => {
     const result = resolve("Items.Таблица.CurrentData.Номенклатура", {
       index: indexWithAttributes([]),
     })
 
     expect(result).toMatchObject({
-      status: "warning",
-      diagnostics: [
-        expect.objectContaining({
-          severity: "warning",
-          source: "structure",
-          message: 'ПутьКДанным "Items.Таблица.CurrentData.Номенклатура": CurrentData пока не проверяется',
-        }),
-      ],
+      status: "ok",
+      diagnostics: [],
     })
   })
 

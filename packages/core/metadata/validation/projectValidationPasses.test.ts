@@ -135,6 +135,67 @@ describe("validateProjectFileFirstPass references", () => {
     )
   })
 
+  it("builds chart of accounts accounting flag member index entries from YAML", () => {
+    const projectDir = mkdtempSync(join(tmpdir(), "nkdk-validation-first-pass-"))
+    tempDirs.push(projectDir)
+    writeProjectFile(projectDir, "ПланСчетов/Хозрасчетный/Свойства.yaml", [
+      "ПризнакиУчета:",
+      "  УчетПоНаправлениямДеятельности:",
+      "    Тип: Булево",
+      "ПризнакиУчетаСубконто:",
+      "  Валютный:",
+      "    Тип: Булево",
+    ])
+    const file = resolveValidationProjectFile(projectDir, join(projectDir, "ПланСчетов/Хозрасчетный/Свойства.yaml"))
+    if (!file) throw new Error("file not resolved")
+
+    const first = validateProjectFileFirstPass({
+      projectDir,
+      file,
+      cache: createProjectYamlCache(),
+      context: mockContext,
+      schemaCache: createValidationSchemaCache(mockContext),
+      rulesSnapshot: createValidationRulesSnapshot(mockContext),
+    })
+
+    expect(first.memberIndexEntries).toEqual(
+      expect.arrayContaining([
+        expect.objectContaining({
+          canonical: "ChartOfAccounts.Хозрасчетный.AccountingFlag.УчетПоНаправлениямДеятельности",
+        }),
+        expect.objectContaining({
+          canonical: "ChartOfAccounts.Хозрасчетный.ExtDimensionAccountingFlag.Валютный",
+        }),
+      ])
+    )
+  })
+
+  it("keeps common attribute content owner links from YAML", () => {
+    const projectDir = mkdtempSync(join(tmpdir(), "nkdk-validation-first-pass-"))
+    tempDirs.push(projectDir)
+    writeProjectFile(projectDir, "ОбщийРеквизит/КлассВНА/Свойства.yaml", [
+      "Тип: Справочник.КлассыВНА",
+      "Состав:",
+      "  - Объект: Справочники.НематериальныеАктивы",
+      "    Использование: Использовать",
+      "  - Объект: Справочники.Контрагенты",
+      "    Использование: НеИспользовать",
+    ])
+    const file = resolveValidationProjectFile(projectDir, join(projectDir, "ОбщийРеквизит/КлассВНА/Свойства.yaml"))
+    if (!file) throw new Error("file not resolved")
+
+    const first = validateProjectFileFirstPass({
+      projectDir,
+      file,
+      cache: createProjectYamlCache(),
+      context: mockContext,
+      schemaCache: createValidationSchemaCache(mockContext),
+      rulesSnapshot: createValidationRulesSnapshot(mockContext),
+    })
+
+    expect(first.objectRecords[0]?.ownerFacts.commonAttributeOwnerLinks).toEqual(["Catalog.НематериальныеАктивы"])
+  })
+
   it("collects pending metadata target references during first pass", () => {
     const projectDir = mkdtempSync(join(tmpdir(), "nkdk-validation-first-pass-"))
     tempDirs.push(projectDir)

@@ -6,7 +6,7 @@ import type { TypeDescription } from "../commonObjects/typeDescription/types"
 import { CollectableElementTypeFromYAML, type ElementType } from "../forms/elements/orchestration/types"
 import type { DataPathPropertyRule, PropertyRule } from "../orchestration/property/types"
 import { getElementRule } from "../orchestration/formElement/ruleFactory"
-import { PictureLibFromYAML } from "../systemEnumerations/types"
+import { CommonAttributeUseFromYAML, PictureLibFromYAML } from "../systemEnumerations/types"
 import type { ParsedYaml } from "../../yaml/parseMetadataYaml"
 import { typeDescriptionToDataPathTypeInfo } from "./dataPath/typeDescription"
 import type { FormDataPathIndex } from "./dataPath/formIndex"
@@ -171,7 +171,9 @@ function syntheticModelFromYaml(
       property.modelKey === "dimensions" ||
       property.modelKey === "resources" ||
       property.modelKey === "addressingAttributes" ||
-      property.modelKey === "commands"
+      property.modelKey === "commands" ||
+      property.modelKey === "accountingFlags" ||
+      property.modelKey === "extDimensionAccountingFlags"
     ) {
       model[property.modelKey] = namedTypedItemsFromYaml(value)
       continue
@@ -181,11 +183,20 @@ function syntheticModelFromYaml(
       continue
     }
     if (property.modelKey === "owners") {
-      model[property.modelKey] = Array.isArray(value) ? value.filter((item): item is string => typeof item === "string") : []
+      model[property.modelKey] = metadataLinksFromYaml(value)
       continue
     }
     if (property.modelKey === "registerRecords") {
       model[property.modelKey] = metadataLinksFromYaml(value)
+      continue
+    }
+    if (property.modelKey === "content") {
+      model[property.modelKey] = commonAttributeContentFromYaml(value)
+      continue
+    }
+    if (property.modelKey === "task") {
+      const link = taskLinkFromYaml(value)
+      if (link !== undefined) model[property.modelKey] = link
       continue
     }
     if (property.modelKey === "type") {
@@ -273,11 +284,45 @@ function metadataLinksFromYaml(value: unknown): string[] {
 }
 
 function metadataLinkFromYaml(value: string): string {
-  const dotIndex = value.indexOf(".")
-  if (dotIndex === -1) return value
+  const normalized = normalizeMetadataLinkFromYaml(value)
+  const dotIndex = normalized.indexOf(".")
+  if (dotIndex === -1) return normalized
 
-  const root = value.substring(0, dotIndex)
-  return `${rootFromYAML[root] ?? root}${value.substring(dotIndex)}`
+  const root = normalized.substring(0, dotIndex)
+  return `${rootFromYAML[root] ?? root}${normalized.substring(dotIndex)}`
+}
+
+function normalizeMetadataLinkFromYaml(value: string): string {
+  for (const [from, to] of [
+    ["Справочники.", "Справочник."],
+    ["ПланыВидовРасчета.", "ПланВидовРасчета."],
+  ] as const) {
+    if (value.startsWith(from)) return `${to}${value.slice(from.length)}`
+  }
+
+  return value
+}
+
+function taskLinkFromYaml(value: unknown): string | undefined {
+  if (typeof value !== "string" || value.length === 0) return undefined
+  if (value.includes(".")) return metadataLinkFromYaml(value)
+  return `Task.${value}`
+}
+
+function commonAttributeContentFromYaml(value: unknown): Array<{ metadata: string; use: string }> {
+  if (!Array.isArray(value)) return []
+
+  return value.flatMap((item) => {
+    const record = asRecord(item)
+    if (record === undefined || typeof record["Объект"] !== "string") return []
+    const use = typeof record["Использование"] === "string" ? CommonAttributeUseFromYAML[record["Использование"]] : undefined
+    return [
+      {
+        metadata: metadataLinkFromYaml(record["Объект"]),
+        use: use ?? "Use",
+      },
+    ]
+  })
 }
 
 function collectPendingReferences(params: {

@@ -430,11 +430,15 @@ function reverseLookupCandidates(params: {
     const ownerResult = params.ownerCache.get(ref)
     if (ownerResult.status !== "ok") continue
 
-    const links = metadataRecord(ownerResult.owner.model)[params.property]
-    if (!Array.isArray(links)) continue
+    const links = metadataLinksFromProperty(metadataRecord(ownerResult.owner.model)[params.property])
     if (links.some((link) => link === currentLink)) result.push(ref)
   }
   return result
+}
+
+function metadataLinksFromProperty(value: unknown): string[] {
+  if (typeof value === "string") return [value]
+  return Array.isArray(value) ? value.filter((item): item is string => typeof item === "string") : []
 }
 
 function columnsFromStandardTable(params: {

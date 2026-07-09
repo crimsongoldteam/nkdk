@@ -1085,7 +1085,7 @@ describe("validateForm", () => {
     expect(runValidateForm(project)).toEqual([])
   })
 
-  it("warns for SettingsComposer data paths without validating platform internals", () => {
+  it("skips SettingsComposer data paths without validating platform internals", () => {
     const project = createProject({
       form: [
         "Реквизиты:",
@@ -1098,12 +1098,7 @@ describe("validateForm", () => {
       ],
     })
 
-    expect(runValidateForm(project)).toEqual([
-      expect.objectContaining({
-        severity: "warning",
-        message: 'ПутьКДанным "КомпоновщикНастроек.Settings.Filter": платформенный источник пока не проверяется',
-      }),
-    ])
+    expect(runValidateForm(project)).toEqual([])
   })
 
   it("accepts StandardPeriod platform fields", () => {
@@ -1326,6 +1321,25 @@ describe("validateForm", () => {
     expect(runValidateForm(project)).toEqual([])
   })
 
+  it("accepts ChartOfAccounts object accounting flags", () => {
+    const project = createProject({
+      ownerDir: "ПланСчетов",
+      ownerName: "Хозрасчетный",
+      owner: ["ПризнакиУчета:", "  Валютный:", "    Тип: Булево"],
+      form: [
+        "Реквизиты:",
+        "  Объект:",
+        "    Тип: ПланСчетовОбъект.Хозрасчетный",
+        "Элементы:",
+        "  Валютный:",
+        "    Вид: ПолеФлажок",
+        "    ПутьКДанным: Объект.Валютный",
+      ],
+    })
+
+    expect(runValidateForm(project)).toEqual([])
+  })
+
   it("accepts ChartOfCalculationTypes virtual owner tables", () => {
     const project = createProject({
       ownerDir: "ПланВидовРасчета",
@@ -1434,17 +1448,12 @@ describe("validateForm", () => {
     expect(runValidateForm(project)).toEqual([])
   })
 
-  it("warns for Items.*.CurrentData.* paths", () => {
+  it("skips Items.*.CurrentData.* paths without diagnostics", () => {
     const project = createProject({
       form: ["Элементы:", "  Кнопка:", "    Вид: Кнопка", "    Данные: Items.Таблица.CurrentData.Номенклатура"],
     })
 
-    expect(runValidateForm(project)).toEqual([
-      expect.objectContaining({
-        severity: "warning",
-        message: 'ПутьКДанным "Items.Таблица.CurrentData.Номенклатура": CurrentData пока не проверяется',
-      }),
-    ])
+    expect(runValidateForm(project)).toEqual([])
   })
 
   it("skips tilde variant paths without diagnostics", () => {
@@ -1516,13 +1525,7 @@ describe("validateForm", () => {
       ],
     })
 
-    expect(runValidateForm(project)).toEqual([
-      expect.objectContaining({
-        severity: "warning",
-        message:
-          'ПутьКДанным "КомпоновщикНастроекКомпоновкиДанных.Settings.Filter.Items": платформенный источник пока не проверяется',
-      }),
-    ])
+    expect(runValidateForm(project)).toEqual([])
   })
 
   it("deduplicates owner diagnostics reused by multiple DataPath values", () => {

@@ -109,12 +109,7 @@ export function resolveDataPathCore(params: ResolveDataPathCoreParams): ResolveD
   const replacements: ResolvedDataPathSegmentReplacement[] = []
 
   if (isCurrentDataPath(segments)) {
-    return warning(
-      params,
-      segments,
-      `ПутьКДанным "${value}": CurrentData пока не проверяется`,
-      "current_data_unsupported"
-    )
+    return okWithoutTarget({ value, segments })
   }
 
   if (isTildeVariantPath(value)) {
@@ -123,12 +118,7 @@ export function resolveDataPathCore(params: ResolveDataPathCoreParams): ResolveD
 
   const platformSource = getKnownPlatformFormSource(value)
   if (platformSource !== undefined) {
-    return warning(
-      params,
-      segments,
-      `ПутьКДанным "${value}": платформенный источник пока не проверяется`,
-      "platform_source"
-    )
+    return okWithoutTarget({ value, segments })
   }
 
   const tableContextError = validateTableContext(params)
@@ -200,12 +190,7 @@ export function resolveDataPathCore(params: ResolveDataPathCoreParams): ResolveD
     }
 
     if (state.typeInfo.kinds.includes("platformSource")) {
-      return warning(
-        params,
-        segments,
-        `ПутьКДанным "${value}": платформенный источник пока не проверяется`,
-        "platform_source"
-      )
+      return okWithoutTarget({ value, segments, replacements })
     }
 
     if (state.typeInfo.kinds.includes("standardPeriod")) {
@@ -245,12 +230,7 @@ export function resolveDataPathCore(params: ResolveDataPathCoreParams): ResolveD
       ownerCache: params.ownerCache,
     })
     if (transition?.kind === "warning") {
-      return warning(
-        params,
-        segments,
-        `ПутьКДанным "${value}": платформенный источник пока не проверяется`,
-        "platform_source"
-      )
+      return okWithoutTarget({ value, segments, replacements })
     }
     if (transition !== undefined) {
       state = {
@@ -892,8 +872,18 @@ function okTarget(params: {
   }
 }
 
-function okWithoutTarget(params: { value: string; segments: readonly string[] }): ResolveDataPathCoreResult {
-  return { status: "ok", value: params.value, segments: params.segments, replacements: [], issues: [] }
+function okWithoutTarget(params: {
+  value: string
+  segments: readonly string[]
+  replacements?: readonly ResolvedDataPathSegmentReplacement[]
+}): ResolveDataPathCoreResult {
+  return {
+    status: "ok",
+    value: params.value,
+    segments: params.segments,
+    replacements: [...(params.replacements ?? [])],
+    issues: [],
+  }
 }
 
 function warning(

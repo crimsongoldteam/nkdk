@@ -9,14 +9,26 @@ export interface ValidationOwnerFacts {
   fieldIndex: ObjectFieldIndex
   type?: TypeDescription
   commonAttributeOwnerLinks?: string[]
+  owners?: string[]
+  task?: string
   registerRecords?: string[]
+  extDimensionTypes?: string
+  accountingFlags?: NamedTypeItems
+  extDimensionAccountingFlags?: NamedTypeItems
 }
 
 type ValidationOwnerFactsModel = MetadataItem & {
   type?: unknown
   content?: unknown
+  owners?: unknown
+  task?: unknown
   registerRecords?: unknown
+  extDimensionTypes?: unknown
+  accountingFlags?: unknown
+  extDimensionAccountingFlags?: unknown
 }
+
+type NamedTypeItems = Array<{ name: string; type?: TypeDescription }>
 
 export function createValidationOwnerFacts(params: {
   ref: OwnerTypeRef
@@ -26,7 +38,12 @@ export function createValidationOwnerFacts(params: {
 }): ValidationOwnerFacts {
   const type = metadataRecord(params.model)["type"]
   const commonAttributeOwnerLinks = commonAttributeOwnerLinksFromModel(params.model)
+  const owners = stringArray(metadataRecord(params.model)["owners"])
+  const task = metadataRecord(params.model)["task"]
   const registerRecords = stringArray(metadataRecord(params.model)["registerRecords"])
+  const extDimensionTypes = metadataRecord(params.model)["extDimensionTypes"]
+  const accountingFlags = namedTypeItems(metadataRecord(params.model)["accountingFlags"])
+  const extDimensionAccountingFlags = namedTypeItems(metadataRecord(params.model)["extDimensionAccountingFlags"])
 
   return {
     ref: params.ref,
@@ -34,7 +51,12 @@ export function createValidationOwnerFacts(params: {
     fieldIndex: params.fieldIndex,
     ...(isTypeDescription(type) ? { type } : {}),
     ...(commonAttributeOwnerLinks.length === 0 ? {} : { commonAttributeOwnerLinks }),
+    ...(owners.length === 0 ? {} : { owners }),
+    ...(typeof task === "string" ? { task } : {}),
     ...(registerRecords.length === 0 ? {} : { registerRecords }),
+    ...(typeof extDimensionTypes === "string" ? { extDimensionTypes } : {}),
+    ...(accountingFlags.length === 0 ? {} : { accountingFlags }),
+    ...(extDimensionAccountingFlags.length === 0 ? {} : { extDimensionAccountingFlags }),
   }
 }
 
@@ -44,12 +66,35 @@ export function modelStubFromOwnerFacts(facts: ValidationOwnerFacts): unknown {
     ...(facts.commonAttributeOwnerLinks === undefined
       ? {}
       : { content: facts.commonAttributeOwnerLinks.map((metadata) => ({ metadata, use: "Use" })) }),
+    ...(facts.owners === undefined ? {} : { owners: facts.owners }),
+    ...(facts.task === undefined ? {} : { task: facts.task }),
     ...(facts.registerRecords === undefined ? {} : { registerRecords: facts.registerRecords }),
+    ...(facts.extDimensionTypes === undefined ? {} : { extDimensionTypes: facts.extDimensionTypes }),
+    ...(facts.accountingFlags === undefined ? {} : { accountingFlags: facts.accountingFlags }),
+    ...(facts.extDimensionAccountingFlags === undefined
+      ? {}
+      : { extDimensionAccountingFlags: facts.extDimensionAccountingFlags }),
   }
 }
 
 function stringArray(value: unknown): string[] {
   return Array.isArray(value) ? value.filter((item): item is string => typeof item === "string") : []
+}
+
+function namedTypeItems(value: unknown): NamedTypeItems {
+  if (!Array.isArray(value)) return []
+
+  return value.flatMap((item) => {
+    const record = metadataRecord(item)
+    if (typeof record["name"] !== "string") return []
+    const type = record["type"]
+    return [
+      {
+        name: record["name"],
+        ...(isTypeDescription(type) ? { type } : {}),
+      },
+    ]
+  })
 }
 
 function commonAttributeOwnerLinksFromModel(model: MetadataItem): string[] {
