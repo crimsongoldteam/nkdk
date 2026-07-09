@@ -63,11 +63,16 @@ pnpm install
 
 После подключения агенту доступны MCP tools:
 
-- `nkdk.get_schema` — получить схему YAML-файла или краткую сводку по ней;
-- `nkdk.describe_project_structure` — узнать допустимые файлы и подкаталоги для каталога YAML-проекта;
-- `nkdk.validate_project` — проверить YAML-проект и получить diagnostics;
-- `nkdk.import_from_xml` — импортировать XML-выгрузку 1С в YAML;
-- `nkdk.sync_to_xml` — синхронизировать YAML-проект обратно в XML.
+| Tool                              | Назначение                                                                  | Запись файлов                |
+| --------------------------------- | --------------------------------------------------------------------------- | ---------------------------- |
+| `nkdk.get_schema`                 | Получить схему YAML-файла                                                   | Нет                          |
+| `nkdk.describe_project_structure` | Узнать структуру YAML-проекта.                                              | Нет                          |
+| `nkdk.validate_project`           | Проверить YAML-проект на ошибки.                                            | Нет                          |
+| `nkdk.import_from_xml`            | Импортировать XML-выгрузку 1С в YAML-проект.                                | Только при `allowWrite=true` |
+| `nkdk.sync_to_xml`                | Синхронизировать YAML-проект обратно в XML-выгрузку.                        | Только при `allowWrite=true` |
+| `nkdk.init_sync_state`            | Создать `.nkdk-sync.yaml` для инкрементальной XML-синхронизации.            | Только при `allowWrite=true` |
+| `nkdk.rename_item`                | Переименовать объект или реквизит с сохранением внутреннего идентификатора. | Только при `allowWrite=true` |
+| `nkdk.delete_item`                | Проверить возможность удаления объекта или реквизита в YAML.                | Только при `allowWrite=true` |
 
 ## Лицензия
 
