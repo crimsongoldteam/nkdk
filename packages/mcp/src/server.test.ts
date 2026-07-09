@@ -54,6 +54,22 @@ describe("MCP server", () => {
     expect(source).toContain('from "@nkdk/core"')
   })
 
+  it("documents expected publish build outputs", () => {
+    const outputs = [
+      "dist/bin/nkdk-mcp.mjs",
+      "dist/projectValidationWorker.js",
+      "dist/generateProjectValidationAjvStandalone.js",
+      "dist/projectValidationAjvStandalone.js",
+    ]
+
+    expect(outputs).toEqual([
+      "dist/bin/nkdk-mcp.mjs",
+      "dist/projectValidationWorker.js",
+      "dist/generateProjectValidationAjvStandalone.js",
+      "dist/projectValidationAjvStandalone.js",
+    ])
+  })
+
   it("closes validation handle on shutdown", async () => {
     closeValidationHandle.mockResolvedValueOnce(undefined)
 
