@@ -404,6 +404,8 @@ function filterDescription(filter: MetadataTargetFilter): string {
       return `Допустимы только элементы стиля типов: ${filter.values.map((value) => styleItemTypeToYAML[value]).join(", ")}.`
     case "stringIndexedAttribute":
       return "Допустимы только реквизиты, пригодные для ввода по строке."
+    case "inputByStringField":
+      return "Допустимы реквизиты, пригодные для ввода по строке, и разрешённые стандартные реквизиты."
   }
 }
 

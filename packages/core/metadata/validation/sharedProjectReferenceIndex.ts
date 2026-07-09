@@ -345,6 +345,14 @@ function matchesMemberFilter(params: {
         params.reference,
         `Член "${displayName}" не подходит: ожидаются реквизиты, пригодные для ввода по строке`
       )
+    case "inputByStringField":
+      if (matchesInputByStringFieldFilter({ canonical: params.reference.canonical, entry: params.entry })) {
+        return { ok: true }
+      }
+      return memberFilterError(
+        params.reference,
+        `Член "${displayName}" не подходит: ожидаются реквизиты, пригодные для ввода по строке`
+      )
     case "styleItemType":
       return { ok: true }
   }
@@ -361,6 +369,24 @@ function matchesStringIndexedAttributeFilter(entry: SharedEntryView): boolean {
   if ((entry.typeFlags & TYPE_BOOLEAN) !== 0) return true
   if ((entry.typeFlags & TYPE_DEFINED) !== 0) return true
   return ["string", "decimal", "dateTime", "UUID"].some((type) => typeInfoSourceContains(entry, type))
+}
+
+function matchesInputByStringFieldFilter(params: { canonical: string; entry: SharedEntryView }): boolean {
+  if ((params.entry.detailKindFlags & DETAIL_KIND_STANDARD_ATTRIBUTE) !== 0) {
+    return isAllowedInputByStringStandardAttribute(params.canonical)
+  }
+  if ((params.entry.detailKindFlags & DETAIL_KIND_ATTRIBUTE) === 0) return false
+  return matchesStringIndexedAttributeFilter(params.entry)
+}
+
+function isAllowedInputByStringStandardAttribute(canonical: string): boolean {
+  return (
+    /^(?:Catalog|ExchangePlan|ChartOfCharacteristicTypes|ChartOfAccounts|ChartOfCalculationTypes)\.[^.]+\.StandardAttribute\.(?:Code|Description)$/.test(
+      canonical
+    ) ||
+    /^(?:Document|BusinessProcess)\.[^.]+\.StandardAttribute\.Number$/.test(canonical) ||
+    /^Task\.[^.]+\.StandardAttribute\.(?:Number|Description)$/.test(canonical)
+  )
 }
 
 function typeInfoSourceContains(entry: SharedEntryView, type: string): boolean {

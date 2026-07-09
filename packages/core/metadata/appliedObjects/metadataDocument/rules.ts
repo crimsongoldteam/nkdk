@@ -286,7 +286,7 @@ export const MetadataDocumentRules = {
         kind: "member",
         owner: "this",
         memberKinds: ["Attribute", "StandardAttribute"],
-        filters: [{ kind: "stringIndexedAttribute" }],
+        filters: [{ kind: "inputByStringField" }],
       },
       xmlParents: documentProperties,
       defaultValueXMLRaw: {},

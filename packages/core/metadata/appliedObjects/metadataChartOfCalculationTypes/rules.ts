@@ -138,7 +138,17 @@ export const MetadataChartOfCalculationTypesRules = {
       implicitValueYAML: "BothWays",
       xmlParents: properties,
     }),
-    inputByString: metadataFieldsRule({ yaml: "ВводПоСтроке", xmlParents: properties, defaultValueXMLRaw: {} }),
+    inputByString: metadataFieldsRule({
+      yaml: "ВводПоСтроке",
+      metadataTarget: {
+        kind: "member",
+        owner: "this",
+        memberKinds: ["Attribute", "StandardAttribute"],
+        filters: [{ kind: "inputByStringField" }],
+      },
+      xmlParents: properties,
+      defaultValueXMLRaw: {},
+    }),
     searchStringModeOnInputByString: systemEnumerationRule({
       yaml: "РежимСтрокиПоискаПриВводеПоСтроке",
       typeSE: "SearchStringModeOnInputByString",

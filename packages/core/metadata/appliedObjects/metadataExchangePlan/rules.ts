@@ -154,7 +154,7 @@ export const MetadataExchangePlanRules = {
         kind: "member",
         owner: "this",
         memberKinds: ["Attribute", "StandardAttribute"],
-        filters: [{ kind: "stringIndexedAttribute" }],
+        filters: [{ kind: "inputByStringField" }],
       },
       xmlParents: properties,
     }),

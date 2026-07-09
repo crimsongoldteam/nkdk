@@ -179,6 +179,12 @@ export const MetadataTaskRules = {
     }),
     inputByString: metadataFieldsRule({
       yaml: "ВводПоСтроке",
+      metadataTarget: {
+        kind: "member",
+        owner: "this",
+        memberKinds: ["Attribute", "StandardAttribute"],
+        filters: [{ kind: "inputByStringField" }],
+      },
       xmlParents: properties,
       defaultValueXMLRaw: {},
     }),

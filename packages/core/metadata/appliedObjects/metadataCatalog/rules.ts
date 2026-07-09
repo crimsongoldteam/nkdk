@@ -310,7 +310,7 @@ export const MetadataCatalogRules = {
         kind: "member",
         owner: "this",
         memberKinds: ["Attribute", "StandardAttribute"],
-        filters: [{ kind: "stringIndexedAttribute" }],
+        filters: [{ kind: "inputByStringField" }],
       },
       defaultValue: [],
       defaultValueXMLRaw: {},

@@ -86,6 +86,7 @@ export type MetadataTargetFilter =
   | { kind: "hasType"; type: MetadataTypeFilterValue }
   | { kind: "styleItemType"; values: readonly StyleItemTargetType[] }
   | { kind: "stringIndexedAttribute" }
+  | { kind: "inputByStringField" }
 
 export interface MetadataTargetOwner {
   root: MetadataRootName

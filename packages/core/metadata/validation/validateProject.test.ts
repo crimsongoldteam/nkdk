@@ -344,6 +344,70 @@ describe("validateProject", { timeout: 30_000 }, () => {
     })
   })
 
+  it("accepts allowed standard attributes for input by string validation", async () => {
+    const projectDir = createProject()
+    writeProjectFile(projectDir, "Справочник/Товары/Свойства.yaml", [
+      "ВводПоСтроке:",
+      "  - СтандартныйРеквизит.Наименование",
+      "  - СтандартныйРеквизит.Код",
+    ])
+    writeProjectFile(projectDir, "ПланОбмена/ОбменДанными/Свойства.yaml", [
+      "ВводПоСтроке:",
+      "  - СтандартныйРеквизит.Наименование",
+      "  - СтандартныйРеквизит.Код",
+    ])
+    writeProjectFile(projectDir, "ПланВидовХарактеристик/ДополнительныеРеквизиты/Свойства.yaml", [
+      "ТипЗначения: Строка",
+      "ВводПоСтроке:",
+      "  - ChartOfCharacteristicTypes.ДополнительныеРеквизиты.StandardAttribute.Description",
+      "  - ChartOfCharacteristicTypes.ДополнительныеРеквизиты.StandardAttribute.Code",
+    ])
+    writeProjectFile(projectDir, "ПланСчетов/Хозрасчетный/Свойства.yaml", [
+      "ВводПоСтроке:",
+      "  - ChartOfAccounts.Хозрасчетный.StandardAttribute.Description",
+      "  - ChartOfAccounts.Хозрасчетный.StandardAttribute.Code",
+    ])
+    writeProjectFile(projectDir, "ПланВидовРасчета/Начисления/Свойства.yaml", [
+      "ВводПоСтроке:",
+      "  - ChartOfCalculationTypes.Начисления.StandardAttribute.Description",
+      "  - ChartOfCalculationTypes.Начисления.StandardAttribute.Code",
+    ])
+    writeProjectFile(projectDir, "Документ/Заказ/Свойства.yaml", [
+      "ВводПоСтроке:",
+      "  - Document.Заказ.StandardAttribute.Number",
+    ])
+    writeProjectFile(projectDir, "БизнесПроцесс/Согласование/Свойства.yaml", [
+      "ВводПоСтроке:",
+      "  - BusinessProcess.Согласование.StandardAttribute.Number",
+    ])
+    writeProjectFile(projectDir, "Задача/Исполнение/Свойства.yaml", [
+      "ВводПоСтроке:",
+      "  - Task.Исполнение.StandardAttribute.Number",
+      "  - Task.Исполнение.StandardAttribute.Description",
+    ])
+
+    await expect(validateProject({ projectDir, context: mockContext, concurrency: 1 })).resolves.toEqual({
+      diagnostics: [],
+    })
+  })
+
+  it("rejects standard attributes that are not allowed for input by string", async () => {
+    const projectDir = createProject()
+    writeProjectFile(projectDir, "Справочник/Товары/Свойства.yaml", [
+      "ВводПоСтроке:",
+      "  - СтандартныйРеквизит.ПометкаУдаления",
+    ])
+
+    const diagnostics = (await validateProject({ projectDir, context: mockContext, concurrency: 1 })).diagnostics
+
+    expect(diagnostics).toEqual([
+      expect.objectContaining({
+        severity: "error",
+        message: expect.stringContaining("ожидаются реквизиты, пригодные для ввода по строке"),
+      }),
+    ])
+  })
+
   it("resolves standard attributes by metadata target names", async () => {
     const projectDir = createProject()
     writeProjectFile(projectDir, "Документ/Заказ/Свойства.yaml", [

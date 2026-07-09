@@ -188,7 +188,17 @@ export const MetadataChartOfCharacteristicTypesRules = {
       implicitValueYAML: "BothWays",
       xmlParents: properties,
     }),
-    inputByString: metadataFieldsRule({ yaml: "ВводПоСтроке", xmlParents: properties, defaultValueXMLRaw: {} }),
+    inputByString: metadataFieldsRule({
+      yaml: "ВводПоСтроке",
+      metadataTarget: {
+        kind: "member",
+        owner: "this",
+        memberKinds: ["Attribute", "StandardAttribute"],
+        filters: [{ kind: "inputByStringField" }],
+      },
+      xmlParents: properties,
+      defaultValueXMLRaw: {},
+    }),
     createOnInput: systemEnumerationRule({
       yaml: "СозданиеПриВводе",
       typeSE: "CreateOnInput",
