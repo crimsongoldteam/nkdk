@@ -45,6 +45,15 @@ describe("MCP server", () => {
     }
   }, 30_000)
 
+  it("loads core API without a monorepo-relative runtime import", async () => {
+    const source = await import("node:fs/promises").then((fs) =>
+      fs.readFile(new URL("./coreApi.ts", import.meta.url), "utf8"),
+    )
+
+    expect(source).not.toContain("../../core/index.ts")
+    expect(source).toContain('from "@nkdk/core"')
+  })
+
   it("closes validation handle on shutdown", async () => {
     closeValidationHandle.mockResolvedValueOnce(undefined)
 

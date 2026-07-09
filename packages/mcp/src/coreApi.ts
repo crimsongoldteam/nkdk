@@ -4,6 +4,7 @@ import type {
   MigrationChainInvalidResult,
   MigrationPlanItem,
 } from "@nkdk/core"
+import * as coreApi from "@nkdk/core"
 
 export interface SchemaSummaryOptions {
   requiredOnly?: boolean
@@ -174,10 +175,6 @@ export interface CoreApi {
   }): Promise<void>
 }
 
-const coreModuleUrl = new URL("../../core/index.ts", import.meta.url).href
-let cachedCoreApi: Promise<CoreApi> | undefined
-
 export function loadCoreApi(): Promise<CoreApi> {
-  cachedCoreApi ??= import(coreModuleUrl) as Promise<CoreApi>
-  return cachedCoreApi
+  return Promise.resolve(coreApi as CoreApi)
 }
