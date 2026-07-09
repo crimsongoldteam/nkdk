@@ -119,6 +119,41 @@ describe("extractValidationYamlFacts", () => {
     )
   })
 
+  it("does not collect standard pictures as common picture references", () => {
+    const projectDir = "/project"
+    const filePath = "/project/ГруппаКоманд/ПечатьДокумента/Свойства.yaml"
+    const file = resolveValidationProjectFile(projectDir, filePath)
+    if (file === undefined) throw new Error("file not resolved")
+
+    const facts = extractValidationYamlFacts({
+      file,
+      parsed: parseMetadataYaml("Картинка: Печать\n"),
+      rulesSnapshot: createValidationRulesSnapshot(mockContext),
+    })
+
+    expect(facts.pendingReferences).toEqual([])
+  })
+
+  it("collects explicitly prefixed common picture references", () => {
+    const projectDir = "/project"
+    const filePath = "/project/ГруппаКоманд/ПечатьДокумента/Свойства.yaml"
+    const file = resolveValidationProjectFile(projectDir, filePath)
+    if (file === undefined) throw new Error("file not resolved")
+
+    const facts = extractValidationYamlFacts({
+      file,
+      parsed: parseMetadataYaml("Картинка: ОбщаяКартинка.Печать\n"),
+      rulesSnapshot: createValidationRulesSnapshot(mockContext),
+    })
+
+    expect(facts.pendingReferences).toEqual([
+      expect.objectContaining({
+        canonical: "CommonPicture.Печать",
+        yamlPath: ["Картинка"],
+      }),
+    ])
+  })
+
   it("extracts document register records from YAML movements", () => {
     const projectDir = "/project"
     const filePath = "/project/Документ/Операция/Свойства.yaml"

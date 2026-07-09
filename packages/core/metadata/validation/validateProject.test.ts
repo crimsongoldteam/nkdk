@@ -113,6 +113,40 @@ describe("validateProject", { timeout: 30_000 }, () => {
     )
   }, 30_000)
 
+  it("accepts standard picture names without resolving them as common pictures", async () => {
+    const projectDir = createProject()
+    writeProjectFile(projectDir, "ГруппаКоманд/ПечатьДокумента/Свойства.yaml", ["Картинка: Печать"])
+
+    const diagnostics = (await validateProject({ projectDir, context: mockContext, concurrency: 1 })).diagnostics
+
+    expect(diagnostics).not.toEqual(
+      expect.arrayContaining([
+        expect.objectContaining({
+          source: "reference",
+          severity: "error",
+          message: 'Не найден объект "ОбщаяКартинка.Печать"',
+        }),
+      ])
+    )
+  })
+
+  it("validates explicitly prefixed common picture names", async () => {
+    const projectDir = createProject()
+    writeProjectFile(projectDir, "ГруппаКоманд/ПечатьДокумента/Свойства.yaml", ["Картинка: ОбщаяКартинка.Печать"])
+
+    const diagnostics = (await validateProject({ projectDir, context: mockContext, concurrency: 1 })).diagnostics
+
+    expect(diagnostics).toEqual(
+      expect.arrayContaining([
+        expect.objectContaining({
+          source: "reference",
+          severity: "error",
+          message: 'Не найден объект "ОбщаяКартинка.Печать"',
+        }),
+      ])
+    )
+  })
+
   it("uses reference index to enqueue missing dependency in partial validation", async () => {
     const projectDir = createProject()
     writeProjectFile(projectDir, "Справочник/Товары/Свойства.yaml", "Комментарий: ok")

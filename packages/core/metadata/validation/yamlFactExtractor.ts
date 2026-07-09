@@ -6,6 +6,7 @@ import type { TypeDescription } from "../commonObjects/typeDescription/types"
 import { CollectableElementTypeFromYAML, type ElementType } from "../forms/elements/orchestration/types"
 import type { DataPathPropertyRule, PropertyRule } from "../orchestration/property/types"
 import { getElementRule } from "../orchestration/formElement/ruleFactory"
+import { PictureLibFromYAML } from "../systemEnumerations/types"
 import type { ParsedYaml } from "../../yaml/parseMetadataYaml"
 import { typeDescriptionToDataPathTypeInfo } from "./dataPath/typeDescription"
 import type { FormDataPathIndex } from "./dataPath/formIndex"
@@ -300,6 +301,7 @@ function collectPendingReferences(params: {
           filePath: params.filePath,
           owner: params.owner,
           value,
+          type: property.type,
           constraint: property.metadataTarget,
           yamlPath: [...params.yamlPath, ...property.yamlPath],
         })
@@ -347,9 +349,14 @@ function collectTargetValues(params: {
   filePath: string
   owner: MetadataTargetOwner | undefined
   value: unknown
+  type?: string
   constraint: PendingMetadataTargetReference["constraint"]
   yamlPath: readonly (string | number)[]
 }): PendingMetadataTargetReference[] {
+  if (params.type === "Picture") {
+    return collectPictureTargetValues(params)
+  }
+
   if (typeof params.value === "string") {
     const reference = pendingReferenceFromYamlValue({ ...params, value: params.value, yamlPath: params.yamlPath })
     return reference === undefined ? [] : [reference]
@@ -362,6 +369,42 @@ function collectTargetValues(params: {
   }
 
   return []
+}
+
+function collectPictureTargetValues(params: {
+  filePath: string
+  owner: MetadataTargetOwner | undefined
+  value: unknown
+  constraint: PendingMetadataTargetReference["constraint"]
+  yamlPath: readonly (string | number)[]
+}): PendingMetadataTargetReference[] {
+  if (typeof params.value === "string") {
+    const reference = pendingPictureReferenceFromYamlValue({ ...params, value: params.value, yamlPath: params.yamlPath })
+    return reference === undefined ? [] : [reference]
+  }
+
+  const record = asRecord(params.value)
+  const ref = record?.["Ссылка"]
+  if (typeof ref !== "string") return []
+
+  const reference = pendingPictureReferenceFromYamlValue({ ...params, value: ref, yamlPath: [...params.yamlPath, "Ссылка"] })
+  return reference === undefined ? [] : [reference]
+}
+
+function pendingPictureReferenceFromYamlValue(params: {
+  filePath: string
+  owner: MetadataTargetOwner | undefined
+  value: string
+  constraint: PendingMetadataTargetReference["constraint"]
+  yamlPath: readonly (string | number)[]
+}): PendingMetadataTargetReference | undefined {
+  if (params.value in PictureLibFromYAML) return undefined
+  if (!params.value.startsWith("ОбщаяКартинка.")) return undefined
+
+  return pendingReferenceFromYamlValue({
+    ...params,
+    constraint: { kind: "object", allowedObjectPaths: [["CommonPicture"]] },
+  })
 }
 
 function pendingReferenceFromYamlValue(params: {
