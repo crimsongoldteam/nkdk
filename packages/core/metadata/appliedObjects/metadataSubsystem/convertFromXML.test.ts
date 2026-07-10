@@ -2,8 +2,8 @@ import fs from "fs"
 import os from "os"
 import { join } from "path"
 import { describe, expect, it } from "vitest"
-import { convertAppliedObjectFromXML } from "~/metadata/orchestration/appliedObject/convertFromXML"
-import { mockContextFromXML } from "~/tests/mockContext"
+import { convertAppliedObjectFromXML } from "../../orchestration/appliedObject/convertFromXML"
+import { mockContextFromXML } from "../../../tests/mockContext"
 import { MetadataSubsystemRules } from "./rules"
 
 const commandInterfaceXML = `<?xml version="1.0" encoding="UTF-8"?>
@@ -80,7 +80,7 @@ describe("convertAppliedObjectFromXML — MetadataSubsystem", () => {
         join(outputDir, "Администрирование", "Подсистемы", "НастройкиПрограммы", "Свойства.yaml"),
         "utf-8"
       )
-    ).toContain("Синоним: Настройки программы")
+    ).not.toContain("Синоним: Настройки программы")
     const yaml = fs.readFileSync(
       join(outputDir, "Администрирование", "Подсистемы", "НастройкиПрограммы", "Свойства.yaml"),
       "utf-8"

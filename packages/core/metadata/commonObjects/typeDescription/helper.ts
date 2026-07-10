@@ -1,4 +1,4 @@
-import * as SE from "~/metadata/systemEnumerations/types"
+import * as SE from "../../systemEnumerations/types"
 import { TypeDescriptionRules } from "./types"
 import type { TypeDescriptionRule } from "./types"
 

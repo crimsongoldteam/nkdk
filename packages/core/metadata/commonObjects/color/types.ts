@@ -1,10 +1,15 @@
-import { TSchema, Type } from "@sinclair/typebox"
+import {
+  definePropertyRule as defineWidePropertyRule,
+  type ExactRuleParams as WideExactRuleParams,
+} from "../ruleBuilder"
+import type { PropertyRule as WidePropertyRuleBase } from "../../orchestration/property/types"
+import { TSchema, Type } from "typebox"
 import {
   ColorType,
   StyleColorsFromYAML,
   WebColorsFromYAML,
   WindowsColorsFromYAML,
-} from "~/metadata/systemEnumerations/types"
+} from "../../systemEnumerations/types"
 import { buildMetadataTargetSchema, type MetadataTargetConstraint } from "../metadataTargets"
 
 export interface TypedColor {
@@ -44,9 +49,12 @@ export const colorStyleItemTarget = {
   filters: [{ kind: "styleItemType", values: ["Color"] }],
 } as const satisfies MetadataTargetConstraint
 export const CustomStyleColorJSONSchema = buildMetadataTargetSchema(colorStyleItemTarget)
-export const ColorJSONSchema = Type.Union(
-  [CustomStyleColorJSONSchema, AbsoluteColorJSONSchema, RawColorRefJSONSchema, ...colorNameSchemas]
-)
+export const ColorJSONSchema = Type.Union([
+  CustomStyleColorJSONSchema,
+  AbsoluteColorJSONSchema,
+  RawColorRefJSONSchema,
+  ...colorNameSchemas,
+])
 
 export type ColorYAML = string
 
@@ -75,3 +83,15 @@ export interface AbsoluteColorEnterprise {
 }
 
 export type ColorEnterprise = PredefiedColorEnterprise | AbsoluteColorEnterprise
+
+export interface ColorWidePropertyRule extends WidePropertyRuleBase {
+  type: "Color"
+}
+
+export type ColorRuleParams = Omit<ColorWidePropertyRule, "type">
+
+export function colorRule<const Params extends ColorRuleParams>(
+  params: WideExactRuleParams<ColorRuleParams, Params>
+): Readonly<{ type: "Color" } & Params> {
+  return defineWidePropertyRule("Color", params)
+}

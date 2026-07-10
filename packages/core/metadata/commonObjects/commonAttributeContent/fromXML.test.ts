@@ -1,5 +1,5 @@
 import { describe, expect, it } from "vitest"
-import { mockContextFromXML, mockRule } from "~/tests/mockContext"
+import { mockContextFromXML, mockRule } from "../../../tests/mockContext"
 import { importCommonAttributeContentFromXML } from "./fromXML"
 import { CommonAttributeContent, CommonAttributeContentItemXML, CommonAttributeContentXML } from "./types"
 

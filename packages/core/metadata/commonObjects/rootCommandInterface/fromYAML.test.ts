@@ -1,6 +1,6 @@
 import { describe, expect, it } from "vitest"
-import { importMetadataItemFromYAML } from "~/metadata/orchestration"
-import { mockContext } from "~/tests/mockContext"
+import { importMetadataItemFromYAML } from "../../orchestration"
+import { mockContext } from "../../../tests/mockContext"
 import { RootCommandInterfaceRules } from "./rules"
 
 import "./register"
@@ -22,20 +22,20 @@ describe("import RootCommandInterface from YAML", () => {
         ПорядокПодсистем: ["Подсистема.ПодсистемаПоУмолчанию"],
         ВидимостьКоманд: [
           {
-            Команда: "Catalog.СправочникПолный.Command.ПоУмолчанию",
+            Команда: "Справочник.СправочникПолный.Команда.ПоУмолчанию",
             Общее: "Истина",
           },
         ],
         РазмещениеКоманд: [
           {
-            Команда: "Catalog.СправочникПолный.Command.ПоУмолчанию",
+            Команда: "Справочник.СправочникПолный.Команда.ПоУмолчанию",
             ГруппаКоманд: "ПанельНавигацииОбычное",
             Размещение: "Вручную",
           },
         ],
         ПорядокКоманд: [
           {
-            Команда: "Catalog.СправочникПолный.Command.ПоУмолчанию",
+            Команда: "Справочник.СправочникПолный.Команда.ПоУмолчанию",
             ГруппаКоманд: "ПанельНавигацииОбычное",
           },
         ],

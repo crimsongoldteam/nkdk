@@ -1,9 +1,9 @@
-import { Pages, PagesEnterprise, PagesPartialYAML, PagesTypedYAML } from "~/metadata/forms/elements/pages/types"
+import { Pages, PagesEnterprise, PagesPartialYAML, PagesTypedYAML } from "../types"
 import {
   fullFormGroupCommonFixture,
   fullFormGroupEnterpriseCommonFixture,
   fullFormGroupPartialYAMLCommonFixture,
-} from "~/metadata/forms/elements/formGroup/__fixtures__/data"
+} from "../../formGroup/__fixtures__/data"
 
 export const fullPages: Pages = {
   itemType: "Pages",

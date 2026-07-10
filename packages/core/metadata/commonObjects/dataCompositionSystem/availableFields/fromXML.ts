@@ -1,6 +1,6 @@
-import { ConfigurationContextFromXML } from "~/metadata/context/types"
-import { importI8nTextFromXML } from "~/metadata/commonObjects/i8nText/fromXML"
-import { PropertyRule, registerTypeRule } from "~/metadata/orchestration"
+import { ConfigurationContextFromXML } from "../../../context/types"
+import { importI8nTextFromXML } from "../../i8nText/fromXML"
+import { PropertyRule, registerTypeRule } from "../../../orchestration"
 import type { AvailableFieldItem, AvailableFieldXML, AvailableFields, AvailableFieldsXML } from "./types"
 
 const getFieldText = (field: AvailableFieldXML["dcsset:field"]): string | undefined => {

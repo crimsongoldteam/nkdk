@@ -1,6 +1,7 @@
 // #region SystemEnumerations
 
-import { BasePropertyRule } from "../orchestration/property/types"
+import { definePropertyRule, type ExactRuleParams } from "../commonObjects/ruleBuilder"
+import type { BasePropertyRule } from "../orchestration/property/types"
 
 export const DynamicListSearchStringViewModeToYAML = {
   Auto: "Авто",
@@ -13679,9 +13680,24 @@ export type SystemEnumerationTypeMap = {
 
 export type SystemEnumerationPropertyRule<T extends keyof SystemEnumerationTypeMap = keyof SystemEnumerationTypeMap> =
   T extends keyof SystemEnumerationTypeMap
-    ? Omit<BasePropertyRule, "implicitValueYAML"> & {
+    ? Omit<BasePropertyRule, "defaultValueXML" | "implicitValueYAML"> & {
         type: "SystemEnumeration"
         typeSE: T
-        implicitValueYAML?: SystemEnumerationTypeMap[T] | string
+        defaultValueXML?: SystemEnumerationTypeMap[T]
+        implicitValueYAML?: SystemEnumerationTypeMap[T]
       }
     : never
+
+export type SystemEnumerationRuleParams<T extends keyof SystemEnumerationTypeMap> = Omit<
+  SystemEnumerationPropertyRule<T>,
+  "type"
+>
+
+export function systemEnumerationRule<
+  const T extends keyof SystemEnumerationTypeMap,
+  const Params extends SystemEnumerationRuleParams<T>,
+>(
+  params: ExactRuleParams<SystemEnumerationRuleParams<T>, Params> & { typeSE: T }
+): Readonly<{ type: "SystemEnumeration" } & Params & { typeSE: T }> {
+  return definePropertyRule("SystemEnumeration", params)
+}

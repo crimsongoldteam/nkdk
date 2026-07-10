@@ -1,6 +1,6 @@
 import { describe, expect, it } from "vitest"
-import { mockContext } from "~/tests/mockContext"
-import { full, fullYAML } from "./__fixtures__/full"
+import { mockContext } from "../../../tests/mockContext"
+import { fullFromCompactYAML, fullYAML } from "./__fixtures__/full"
 import { minimal, minimalYAML } from "./__fixtures__/minimal"
 import { importMetadataCatalogFromYAML } from "./fromYAML"
 import { exportMetadataCatalogToYAML } from "./toYAML"
@@ -14,11 +14,11 @@ describe("importMetadataCatalogFromYAML", () => {
   it("should import full", () => {
     const result = importMetadataCatalogFromYAML(mockContext, fullYAML, "СправочникПолный")
 
-    expect(result).toEqual(full)
+    expect(result).toEqual(fullFromCompactYAML)
   })
 
   it("should import minimal", () => {
-    const result = importMetadataCatalogFromYAML(mockContext, minimalYAML, "ПоУмолчанию")
+    const result = importMetadataCatalogFromYAML(mockContext, minimalYAML, "ПоУмолчанию", minimal)
 
     expect(result).toEqual(minimal)
   })
@@ -74,7 +74,15 @@ describe("importMetadataCatalogFromYAML", () => {
         },
         "Товары"
       )
-    ).toThrow("TypeDescription YAML value is not allowed by rule.allowedTypes")
+    ).toThrow(
+      [
+        "Ошибка YAML-импорта:",
+        "  объект: MetadataCatalog.Товары",
+        "  путь: Реквизиты.Неверный.Тип",
+        "  YAML-путь: Реквизиты.Неверный.Тип",
+        "  причина: TypeDescription YAML value is not allowed by rule.allowedTypes",
+      ].join("\n")
+    )
   })
 
   it("should reject invalid catalog attribute multiple TypeDescription", () => {

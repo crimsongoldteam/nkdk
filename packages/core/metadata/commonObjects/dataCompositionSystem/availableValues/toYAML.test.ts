@@ -1,6 +1,6 @@
 import { describe, expect, it } from "vitest"
-import { exportPropertyToYAML } from "~/metadata/orchestration"
-import { mockContext } from "~/tests/mockContext"
+import { exportPropertyToYAML } from "../../../orchestration"
+import { mockContext } from "../../../../tests/mockContext"
 import {
   nilAndBooleanAvailableValues,
   nilAndBooleanAvailableValuesYAML,

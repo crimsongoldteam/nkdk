@@ -1,10 +1,12 @@
-import { TSchema, Type } from "@sinclair/typebox"
-import { I8nTextJSONSchema } from "~/metadata/commonObjects/i8nText/types"
-import type { ConfigurationContext } from "~/metadata/context/types"
-import { ExportToJSONSchemaFn, registerTypeRule } from "~/metadata/orchestration"
-import { exportSystemEnumerationToJSONSchema } from "~/metadata/systemEnumerations/toJSONSchema"
-import type { SystemEnumerationPropertyRule, SystemEnumerationTypeMap } from "~/metadata/systemEnumerations/types"
-import { exportDcsMetadataValueToJSONSchema } from "../dcsMetadataValue/toJSONSchema"
+import { TSchema, Type } from "typebox"
+import { I8nTextJSONSchema } from "../../i8nText/types"
+import type { ConfigurationContext } from "../../../context/types"
+import { ExportToJSONSchemaFn, registerTypeRule } from "../../../orchestration"
+import { schemaRef } from "../../../orchestration/jsonSchemaRefs"
+import { registerProjectJSONSchema, registerProjectJSONSchemaPropertyRefFactory } from "../../../project/schemaRegistry"
+import { exportSystemEnumerationToJSONSchema } from "../../../systemEnumerations/toJSONSchema"
+import type { SystemEnumerationPropertyRule, SystemEnumerationTypeMap } from "../../../systemEnumerations/types"
+import { ensureDcsMetadataValueJSONSchema, exportDcsMetadataValueToJSONSchema } from "../dcsMetadataValue/toJSONSchema"
 import type { DcsMetadataValuePropertyRule } from "../dcsMetadataValue/types"
 import { toDcsMetadataValueRule } from "./dcsValueRule"
 import type { SettingsParameterValuePropertyRule } from "./types"
@@ -21,6 +23,8 @@ const intersectOf = (schemas: TSchema[]): TSchema => {
   if (schemas.length === 1) return schemas[0]
   return Type.Intersect(schemas as [TSchema, TSchema, ...TSchema[]])
 }
+
+const notSchema = (schema: TSchema): TSchema => ({ not: schema }) as TSchema
 
 const wrapperKeys = [
   "Использовать",
@@ -53,7 +57,7 @@ const ObjectWithTypeKeyJSONSchema = Type.Object({
   Тип: Type.Unknown(),
 })
 
-const rejectEmptyObject = (schema: TSchema): TSchema => Type.Intersect([schema, Type.Not(EmptyObjectJSONSchema)])
+const rejectEmptyObject = (schema: TSchema): TSchema => Type.Intersect([schema, notSchema(EmptyObjectJSONSchema)])
 
 const metadataValueObjectMarkerJSONSchema = (rule: SettingsParameterValuePropertyRule): TSchema | undefined => {
   if (rule.valueType !== "Field" && rule.valueType !== "Primitive") return undefined
@@ -106,18 +110,15 @@ const rejectCompactObjectShapes = (schema: TSchema, settingsRule: SettingsParame
   type ValueObjectMarker = [TSchema | undefined, TSchema[]]
   type DefinedValueObjectMarker = [TSchema, TSchema[]]
   const compactShapeRejects: TSchema[] = [
-    Type.Not(ObjectWithWrapperKeysJSONSchema),
-    ...(settingsRule.valueType === "Parameter" ? [] : [Type.Not(ObjectWithParameterKeyJSONSchema)]),
-    ...(settingsRule.valueType === "Parameter" ? [] : [Type.Not(ObjectWithTypeKeyJSONSchema)]),
+    notSchema(ObjectWithWrapperKeysJSONSchema),
+    ...(settingsRule.valueType === "Parameter" ? [] : [notSchema(ObjectWithParameterKeyJSONSchema)]),
+    ...(settingsRule.valueType === "Parameter" ? [] : [notSchema(ObjectWithTypeKeyJSONSchema)]),
   ]
   const valueObjectShapeRejects: TSchema[] = [
-    Type.Not(ObjectWithWrapperKeysExceptValueJSONSchema),
-    ...(settingsRule.valueType === "Parameter" ? [] : [Type.Not(ObjectWithParameterKeyJSONSchema)]),
+    notSchema(ObjectWithWrapperKeysExceptValueJSONSchema),
+    ...(settingsRule.valueType === "Parameter" ? [] : [notSchema(ObjectWithParameterKeyJSONSchema)]),
   ]
-  const fontObjectShapeRejects: TSchema[] = [
-    ...valueObjectShapeRejects,
-    Type.Not(ObjectWithTypeKeyJSONSchema),
-  ]
+  const fontObjectShapeRejects: TSchema[] = [...valueObjectShapeRejects, notSchema(ObjectWithTypeKeyJSONSchema)]
   const valueObjectMarkerSchemas: DefinedValueObjectMarker[] = []
   const addMarker = (marker: ValueObjectMarker): void => {
     if (marker[0] !== undefined) valueObjectMarkerSchemas.push([marker[0], marker[1]])
@@ -127,7 +128,9 @@ const rejectCompactObjectShapes = (schema: TSchema, settingsRule: SettingsParame
   addMarker([fontObjectMarkerJSONSchema(settingsRule), fontObjectShapeRejects])
   const compactSchemas = [
     intersectOf([rejectEmptyObject(schema), ...compactShapeRejects]),
-    ...valueObjectMarkerSchemas.map(([marker, rejects]) => Type.Intersect([rejectEmptyObject(schema), marker, ...rejects])),
+    ...valueObjectMarkerSchemas.map(([marker, rejects]) =>
+      Type.Intersect([rejectEmptyObject(schema), marker, ...rejects])
+    ),
   ]
 
   return unionOf(compactSchemas)
@@ -169,9 +172,13 @@ const valueOrArrayJSONSchema = (valueSchema: TSchema, settingsRule: SettingsPara
   return Type.Union([valueSchema, Type.Array(valueSchema)])
 }
 
-const optionalValueLessExplicitTypeJSONSchema = (settingsRule: SettingsParameterValuePropertyRule): TSchema | undefined => {
+const optionalValueLessExplicitTypeJSONSchema = (
+  settingsRule: SettingsParameterValuePropertyRule
+): TSchema | undefined => {
   if (settingsRule.valueType !== "DesignTimeValue") return undefined
-  return Type.Optional(Type.Union([Type.Literal("МногоязычнаяСтрока"), Type.Literal("МногоязычнаяФорматированнаяСтрока")]))
+  return Type.Optional(
+    Type.Union([Type.Literal("МногоязычнаяСтрока"), Type.Literal("МногоязычнаяФорматированнаяСтрока")])
+  )
 }
 
 const explicitStringFieldWrapperJSONSchema = (
@@ -194,6 +201,12 @@ const explicitStringFieldWrapperJSONSchema = (
   )
 }
 
+const settingsParameterValueSchemaKey = (rule: SettingsParameterValuePropertyRule): string =>
+  ["SettingsParameterValue", rule.valueType, rule.typeSE, rule.yaml]
+    .filter(Boolean)
+    .join("_")
+    .replace(/[^\p{L}\p{N}_]/gu, "_")
+
 export const createSettingsParameterValueJSONSchema = (params: {
   context: ConfigurationContext
   rawValueSchema: TSchema
@@ -205,31 +218,38 @@ export const createSettingsParameterValueJSONSchema = (params: {
   const valueOrArraySchema = valueOrArrayJSONSchema(wrapperValueSchema, settingsRule)
   const viewModeSchema = requiredSystemEnumerationJSONSchema(context, "DataCompositionSettingsItemViewMode")
   const optionalExplicitTypeSchema = optionalValueLessExplicitTypeJSONSchema(settingsRule)
+  const schemaKey = settingsParameterValueSchemaKey(settingsRule)
+  const self = Type.Ref(schemaKey)
 
-  return Type.Recursive((This) => {
-    const schemas = [
-      compactValueSchema,
-      Type.Object(
-        {
-          Использовать: Type.Optional(Type.Literal("Ложь")),
-          ...(optionalExplicitTypeSchema === undefined ? {} : { Тип: optionalExplicitTypeSchema }),
-          Значение: Type.Optional(valueOrArraySchema),
-          РежимОтображения: Type.Optional(viewModeSchema),
-          ИдентификаторПользовательскойНастройки: Type.Optional(Type.String()),
-          ПредставлениеПользовательскойНастройки: Type.Optional(I8nTextJSONSchema),
-          Элементы: Type.Optional(Type.Array(This)),
-        },
-        { additionalProperties: false, minProperties: 1 }
-      ),
-      explicitStringFieldWrapperJSONSchema(settingsRule, viewModeSchema, This),
-    ].filter((schema): schema is TSchema => schema !== undefined)
+  const schemas = [
+    compactValueSchema,
+    Type.Object(
+      {
+        Использовать: Type.Optional(Type.Literal("Ложь")),
+        ...(optionalExplicitTypeSchema === undefined ? {} : { Тип: optionalExplicitTypeSchema }),
+        Значение: Type.Optional(valueOrArraySchema),
+        РежимОтображения: Type.Optional(viewModeSchema),
+        ИдентификаторПользовательскойНастройки: Type.Optional(Type.String()),
+        ПредставлениеПользовательскойНастройки: Type.Optional(I8nTextJSONSchema),
+        Элементы: Type.Optional(Type.Array(self)),
+      },
+      { additionalProperties: false, minProperties: 1 }
+    ),
+    explicitStringFieldWrapperJSONSchema(settingsRule, viewModeSchema, self),
+  ].filter((schema): schema is TSchema => schema !== undefined)
 
-    return unionOf(schemas)
-  })
+  return Type.Cyclic(
+    {
+      [schemaKey]: unionOf(schemas),
+    },
+    schemaKey
+  )
 }
 
-export const exportSettingsParameterValueToJSONSchema: ExportToJSONSchemaFn = ({ context, rule }): TSchema => {
-  const settingsRule = rule as SettingsParameterValuePropertyRule
+function createSettingsParameterValueJSONSchemaForRule(
+  context: ConfigurationContext,
+  settingsRule: SettingsParameterValuePropertyRule
+): TSchema {
   const rawValueSchema = requiredDcsMetadataValueJSONSchema(context, toDcsMetadataValueRule(settingsRule))
 
   return createSettingsParameterValueJSONSchema({
@@ -239,4 +259,30 @@ export const exportSettingsParameterValueToJSONSchema: ExportToJSONSchemaFn = ({
   })
 }
 
+export const exportSettingsParameterValueToJSONSchema: ExportToJSONSchemaFn = ({ context, rule }): TSchema => {
+  const settingsRule = rule as SettingsParameterValuePropertyRule
+  if (context.exportToJSONSchema?.mode === "externalRefs") {
+    return schemaRef(ensureSettingsParameterValueJSONSchema(settingsRule))
+  }
+
+  return createSettingsParameterValueJSONSchemaForRule(context, settingsRule)
+}
+
 registerTypeRule("SettingsParameterValue", "exportToJSONSchema", exportSettingsParameterValueToJSONSchema)
+
+registerProjectJSONSchemaPropertyRefFactory("SettingsParameterValue", ({ rule }) => {
+  const settingsRule = rule as SettingsParameterValuePropertyRule
+  return schemaRef(ensureSettingsParameterValueJSONSchema(settingsRule))
+})
+
+function ensureSettingsParameterValueJSONSchema(rule: SettingsParameterValuePropertyRule): string {
+  const schemaName = settingsParameterValueSchemaKey(rule)
+  registerProjectJSONSchema(schemaName, ({ context }) =>
+    createSettingsParameterValueJSONSchema({
+      context,
+      rawValueSchema: schemaRef(ensureDcsMetadataValueJSONSchema(toDcsMetadataValueRule(rule))),
+      rule,
+    })
+  )
+  return schemaName
+}

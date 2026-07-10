@@ -1,11 +1,11 @@
-import { ConfigurationContextWithExportToXML } from "~/metadata/context/types"
-import { ExportToXMLFunctionNew } from "~/metadata/orchestration"
-import { exportMetadataItemToXML } from "~/metadata/orchestration/metadataItem/toXML"
-import { PropertyRule } from "~/metadata/orchestration/property/types"
+import { ConfigurationContextWithExportToXML } from "../../../context/types"
+import { ExportToXMLFunctionNew } from "../../../orchestration"
+import { exportMetadataItemToXML } from "../../../orchestration/metadataItem/toXML"
+import type { PropertyRule } from "../../../orchestration/property/types"
 import "./inlineTypes"
 import { FilterItemComparisonRules, FilterItemGroupRules } from "./rules"
 import "./typedValues"
-import { FilterItem, FilterItemComparison, FilterItemGroup } from "./types"
+import type { FilterItem, FilterItemComparison, FilterItemGroup } from "./types"
 
 const normalizeFilterItemMatchValue = (value: unknown): unknown => {
   if (Array.isArray(value)) return value.map(normalizeFilterItemMatchValue)

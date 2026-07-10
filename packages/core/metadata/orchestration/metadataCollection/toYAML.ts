@@ -1,8 +1,8 @@
-import { ConfigurationContext } from "~/metadata/context/types"
-import { MetadataItemRule } from "~/metadata/orchestration/property/types"
+import { ConfigurationContext } from "../../context/types"
+import type { MetadataItemRule } from "../property/types"
 import { ToMetadata, ToYAML } from "../metadataItem/registry"
 import { exportPropertiesToYAML } from "../property/toYAML"
-import { NamedMetadataItem } from "./types"
+import type { NamedMetadataItem } from "./types"
 
 export const exportMetadataCollectionToYAMLAsArray = <Rule extends MetadataItemRule>(params: {
   context: ConfigurationContext

@@ -1,4 +1,4 @@
-import { ConfigurationContext } from "~/metadata/context/types"
+import { ConfigurationContext } from "../../context/types"
 import { isEmptyI8nText } from "../i8nText/helper"
 import { FormattedI8nText } from "./types"
 

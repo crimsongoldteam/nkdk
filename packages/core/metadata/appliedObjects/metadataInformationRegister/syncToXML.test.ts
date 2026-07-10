@@ -3,12 +3,16 @@ import os from "os"
 import { dirname, join } from "path"
 import { fileURLToPath } from "url"
 import { describe, expect, it } from "vitest"
-import { syncAppliedObjectToXML } from "~/metadata/orchestration/appliedObject/syncToXML"
-import { testSyncAppliedObjectToXML } from "~/tests/appliedObject"
-import { mockContextToXML } from "~/tests/mockContext"
+import { syncAppliedObjectToXML } from "../../orchestration/appliedObject/syncToXML"
+import { testSyncAppliedObjectToXML } from "../../../tests/appliedObject"
+import { mockContextToXML } from "../../../tests/mockContext"
 import { MetadataInformationRegisterRules } from "./rules"
 
-const normalizeLineEndings = (value: string) => value.replace(/^\uFEFF/, "").replace(/\r\n/g, "\n").trimEnd()
+const normalizeLineEndings = (value: string) =>
+  value
+    .replace(/^\uFEFF/, "")
+    .replace(/\r\n/g, "\n")
+    .trimEnd()
 
 describe("syncAppliedObjectToXML — MetadataInformationRegister", () => {
   it("читает InformationRegister из YAML и записывает XML в outputDir", async () => {

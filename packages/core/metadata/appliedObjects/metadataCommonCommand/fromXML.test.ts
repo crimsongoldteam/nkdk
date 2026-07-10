@@ -1,5 +1,5 @@
 import { describe, expect, it } from "vitest"
-import { testExportAppliedObjectToXML, testImportAppliedObjectFromXML } from "~/tests/appliedObject"
+import { testExportAppliedObjectToXML, testImportAppliedObjectFromXML } from "../../../tests/appliedObject"
 import { full } from "./__fixtures__/full"
 import { MetadataCommonCommandRules } from "./rules"
 import { MetadataCommonCommand } from "./types"

@@ -1,4 +1,4 @@
-import { registerTypeRule } from "~/metadata/orchestration"
+import { registerTypeRule } from "../../orchestration"
 
 export const exportXMLRootToXML = (): undefined => {
   return undefined

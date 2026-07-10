@@ -1,7 +1,11 @@
 import { describe, expect, it } from "vitest"
-import "~/metadata/commonObjects"
-import "~/metadata/systemEnumerations"
-import { testExportAppliedObjectToYAML, testImportAppliedObjectFromXML, testImportAppliedObjectFromYAML } from "~/tests/appliedObject"
+import "../../commonObjects"
+import "../../systemEnumerations"
+import {
+  testExportAppliedObjectToYAML,
+  testImportAppliedObjectFromXML,
+  testImportAppliedObjectFromYAML,
+} from "../../../tests/appliedObject"
 import { MetadataWebSocketClientRules } from "./rules"
 import type { MetadataWebSocketClient } from "./types"
 

@@ -1,5 +1,5 @@
 import { describe, expect, it } from "vitest"
-import { testExportAppliedObjectToXML } from "~/tests/appliedObject"
+import { testExportAppliedObjectToXML } from "../../../tests/appliedObject"
 import { border } from "./__fixtures__/border"
 import { color } from "./__fixtures__/color"
 import { font } from "./__fixtures__/font"

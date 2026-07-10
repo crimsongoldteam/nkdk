@@ -1,6 +1,6 @@
-import { registerMetadataItemRule } from "~/metadata/orchestration"
-import { MetadataTypeByRule } from "~/metadata/orchestration/metadataItem/element"
-import { YAMLTypeByRule } from "~/metadata/orchestration/metadataItem/yaml"
+import { registerMetadataItemRule } from "../../orchestration"
+import { MetadataTypeByRule } from "../../orchestration/metadataItem/element"
+import { YAMLTypeByRule } from "../../orchestration/metadataItem/yaml"
 import { MetadataAccountingRegisterRules } from "./rules"
 
 export type MetadataAccountingRegister = MetadataTypeByRule<typeof MetadataAccountingRegisterRules>

@@ -1,9 +1,9 @@
-import { TypeCompiler } from "@sinclair/typebox/compiler"
+import { compileValidationSchema } from "./../../validation/compileValidationSchema"
 import { describe, expect, it } from "vitest"
-import { PropertyRule } from "~/metadata/orchestration"
-import { testExportPropertyToYAML } from "~/tests/property/exportPropertyToYAML"
-import { testImportPropertyFromYAML } from "~/tests/property/importPropertyFromYAML"
-import { mockContext } from "~/tests/mockContext"
+import { PropertyRule } from "../../orchestration"
+import { testExportPropertyToYAML } from "../../../tests/property/exportPropertyToYAML"
+import { testImportPropertyFromYAML } from "../../../tests/property/importPropertyFromYAML"
+import { mockContext } from "../../../tests/mockContext"
 import { exportPredefinedItemCollectionToJSONSchema } from "./toJSONSchema"
 import { group, groupYAML } from "./__fixtures__/group"
 import { item, itemYAML } from "./__fixtures__/item"
@@ -63,7 +63,7 @@ describe("import PredefinedItemCollection from YAML", () => {
 })
 
 describe("PredefinedItemCollection JSON Schema", () => {
-  const check = TypeCompiler.Compile(exportPredefinedItemCollectionToJSONSchema(mockContext))
+  const check = compileValidationSchema(exportPredefinedItemCollectionToJSONSchema(mockContext))
 
   it("принимает keyed-запись без Кода и Наименования", () => {
     expect(check.Check({ ПредопределенноеЗначение: {} })).toBe(true)

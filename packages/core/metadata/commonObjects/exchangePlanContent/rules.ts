@@ -1,29 +1,28 @@
-import { MetadataItemRule } from "~/metadata/orchestration/property/types"
-
+import { exchangePlanContentItemsRule } from "./builders"
+import { metadataItemLinkRule } from "../metadataPath/types"
+import { xmlRootRule } from "../xmlRoot/types"
+import { systemEnumerationRule } from "../../systemEnumerations/types"
+import type { MetadataItemRule } from "../../orchestration/property/types"
 export const ExchangePlanContentItemRules = {
   itemType: "ExchangePlanContentItem",
   properties: {
-    metadata: {
+    metadata: metadataItemLinkRule({
       yaml: "Метаданные",
       xml: "Metadata",
-      type: "MetadataItemLink",
       required: true,
-    },
-    autoRecord: {
+    }),
+    autoRecord: systemEnumerationRule({
       yaml: "Авторегистрация",
       xml: "AutoRecord",
-      type: "SystemEnumeration",
       typeSE: "AutoChangeRecord",
-      required: true,
-    },
+      implicitValueYAML: "Allow",
+    }),
   },
 } as const satisfies MetadataItemRule
-
 export const ExchangePlanContentRules = {
   itemType: "ExchangePlanContent",
   properties: {
-    xmlRoot: {
-      type: "XMLRoot",
+    xmlRoot: xmlRootRule({
       container: "ExchangePlanContent",
       rootAttributes: {
         _xmlns: "http://v8.1c.ru/8.3/xcf/extrnprops",
@@ -34,19 +33,13 @@ export const ExchangePlanContentRules = {
       },
       forReferenceOnly: true,
       isFileRoot: true,
-    },
-    items: {
-      type: "ExchangePlanContentItems",
+    }),
+    items: exchangePlanContentItemsRule({
       xml: "Item",
       defaultValueXMLEmpty: [],
       defaultValue: [],
       yamlInline: true,
       yaml: "items",
-    },
-    // extensionProperty: {
-    //   yaml: "СвойствоРасширения",
-    //   xml: "ExtensionProperty",
-    //   type: "string",
-    // },
+    }),
   },
 } as const satisfies MetadataItemRule

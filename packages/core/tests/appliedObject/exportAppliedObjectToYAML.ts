@@ -1,5 +1,5 @@
-import { exportMetadataItemToYAML, MetadataItemRule } from "~/metadata/orchestration"
-import { mockContextToYAML } from "~/tests/mockContext"
+import { exportMetadataItemToYAML, MetadataItemRule } from "../../metadata/orchestration"
+import { mockContextToYAML } from "../mockContext"
 
 type Params<T> = {
   rule: MetadataItemRule

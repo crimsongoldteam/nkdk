@@ -1,11 +1,6 @@
 import { describe, expect, it } from "vitest"
-import {
-  multipleCommandSet,
-  multipleCommandSetYAML,
-  singleCommandSet,
-  singleCommandSetYAML,
-} from "~/metadata/forms/commonObjects/commandSet/__fixtures__/data"
-import { mockContext, mockRule } from "~/tests/mockContext"
+import { multipleCommandSet, multipleCommandSetYAML, singleCommandSet, singleCommandSetYAML } from "./__fixtures__/data"
+import { mockContext, mockRule } from "../../../../tests/mockContext"
 import { importCommandSetFromYAML } from "./fromYAML"
 
 describe("importCommandSetFromYAML", () => {

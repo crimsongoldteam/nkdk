@@ -1,7 +1,7 @@
-import { TSchema, Type } from "@sinclair/typebox"
-import { ConfigurationContext } from "~/metadata/context/types"
-import { registerTypeRule } from "~/metadata/orchestration/property/typeRuleRegistry"
-import { EventsPropertyRule, PropertyRule } from "~/metadata/orchestration/property/types"
+import { TSchema, Type } from "typebox"
+import { ConfigurationContext } from "../../../context/types"
+import { registerTypeRule } from "../../../orchestration/property/typeRuleRegistry"
+import type { EventsPropertyRule, PropertyRule } from "../../../orchestration/property/types"
 
 const isEventsPropertyRule = (rule: PropertyRule): rule is EventsPropertyRule => {
   return rule.type === "Events"

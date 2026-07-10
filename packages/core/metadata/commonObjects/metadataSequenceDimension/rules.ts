@@ -1,52 +1,50 @@
-import { uuidPropertyRule } from "~/metadata/commonObjects/uuid/rule"
-import { MetadataItemRule } from "~/metadata/orchestration/property/types"
-
+import { metadataItemLinksRule } from "../metadataPath/types"
+import { typeDescriptionRule } from "../typeDescription/types"
+import { i8nTextRule } from "../i8nText/types"
+import { stringRule } from "../string/types"
+import { uuidPropertyRule } from "../uuid/rule"
+import type { MetadataItemRule } from "../../orchestration/property/types"
 export const MetadataSequenceDimensionRules = {
   itemType: "MetadataSequenceDimension",
   externalMetadata: { segment: "Dimension", placement: "ownerChild" },
   properties: {
     uuid: uuidPropertyRule,
-    name: {
+    name: stringRule({
       xml: "Name",
-      type: "string",
       required: true,
       xmlParents: ["Properties"],
-    },
-    synonym: {
+    }),
+    synonym: i8nTextRule({
       yaml: "Синоним",
       xml: "Synonym",
-      type: "I8nText",
       xmlParents: ["Properties"],
       defaultValueXMLRaw: "",
-    },
-    comment: {
+      excludeIfEqualNameYAML: true,
+    }),
+    comment: stringRule({
       yaml: "Комментарий",
       xml: "Comment",
-      type: "string",
       xmlParents: ["Properties"],
       defaultValueXMLRaw: "",
-    },
-    type: {
+    }),
+    type: typeDescriptionRule({
       yaml: "Тип",
       xml: "Type",
-      type: "TypeDescription",
       xmlParents: ["Properties"],
-    },
-    documentMap: {
+    }),
+    documentMap: metadataItemLinksRule({
       yaml: "СоответствиеРеквизитамДокументов",
       xml: "DocumentMap",
-      type: "MetadataItemLinks",
       metadataTarget: { kind: "member", owner: "explicit" },
       xmlParents: ["Properties"],
       defaultValueXMLRaw: "",
-    },
-    registerRecordsMap: {
+    }),
+    registerRecordsMap: metadataItemLinksRule({
       yaml: "СоответствиеРеквизитамДвижений",
       xml: "RegisterRecordsMap",
-      type: "MetadataItemLinks",
       metadataTarget: { kind: "member", owner: "explicit" },
       xmlParents: ["Properties"],
       defaultValueXMLRaw: "",
-    },
+    }),
   },
 } as const satisfies MetadataItemRule

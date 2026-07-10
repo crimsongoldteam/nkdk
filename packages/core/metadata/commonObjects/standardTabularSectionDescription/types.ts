@@ -1,13 +1,13 @@
-import { Type } from "@sinclair/typebox"
-import type { I8nTextXML } from "~/metadata/commonObjects/i8nText/types"
+import { Type } from "typebox"
+import type { I8nTextXML } from "../i8nText/types"
 import type {
   StandardAttributeDescriptions,
   StandardAttributeDescriptionsXML,
   StandardAttributeDescriptionsYAML,
-} from "~/metadata/commonObjects/standardAttributeDescription/types"
-import type { MetadataTypeByRule } from "~/metadata/orchestration/metadataItem/element"
-import type { YAMLTypeByRule } from "~/metadata/orchestration/metadataItem/yaml"
-import type * as SE from "~/metadata/systemEnumerations/types"
+} from "../standardAttributeDescription/types"
+import type { MetadataTypeByRule } from "../../orchestration/metadataItem/element"
+import type { YAMLTypeByRule } from "../../orchestration/metadataItem/yaml"
+import type * as SE from "../../systemEnumerations/types"
 import type { StandardTabularSectionDescriptionRules } from "./rules"
 
 export type StandardTabularSectionDescription = MetadataTypeByRule<typeof StandardTabularSectionDescriptionRules>

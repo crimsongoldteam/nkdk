@@ -1,7 +1,7 @@
-import { TypeCompiler } from "@sinclair/typebox/compiler"
+import { compileValidationSchema } from "./../../validation/compileValidationSchema"
 import { describe, expect, it } from "vitest"
 import {
-  fullMetadataAttributes,
+  fullMetadataAttributesFromCompactYAML,
   fullMetadataAttributesYAML,
   minimalMetadataAttributes,
   minimalMetadataAttributesYAML,
@@ -10,17 +10,19 @@ import {
   shortMultilanguageMetadataAttribute,
   shortMultilanguageMetadataAttributeYAML,
 } from "./__fixtures__/data"
-import { testImportPropertyFromYAML } from "~/tests/property/importPropertyFromYAML"
-import { mockContext } from "~/tests/mockContext"
+import { testImportPropertyFromYAML } from "../../../tests/property/importPropertyFromYAML"
+import { mockContext } from "../../../tests/mockContext"
 import { exportMetadataAttributesToJSONSchema } from "./register"
-import { importPropertyFromYAML } from "~/metadata/orchestration/property/fromYAML"
-import type { ConfigurationContext } from "~/metadata/context/types"
+import { importPropertyFromYAML } from "../../orchestration/property/fromYAML"
+import type { ConfigurationContext } from "../../context/types"
 
 const rule = { type: "MetadataAttributes" } as const
 const metadataAttributeOwnerContext: ConfigurationContext = {
   ...mockContext,
   importFromYAML: {
-    metadataTargetOwners: [{ itemType: "MetadataCatalog", name: "Справочник" }],
+    metadataTargetOwners: [
+      { itemType: "MetadataCatalog", name: "Справочник", owner: { root: "Catalog", objectName: "Справочник" } },
+    ],
   },
 }
 
@@ -36,7 +38,7 @@ describe("import MetadataAttributes from YAML", () => {
       rule,
       value: fullMetadataAttributesYAML,
     })
-    expect(result).toEqual(fullMetadataAttributes)
+    expect(result).toEqual(fullMetadataAttributesFromCompactYAML)
   })
 
   it("should import minimal", () => {
@@ -88,7 +90,7 @@ describe("import MetadataAttributes from YAML", () => {
 
   it("should reject scalar values in JSON Schema", () => {
     const schema = exportMetadataAttributesToJSONSchema({ context: mockContext, rule, value: undefined })
-    const compiled = TypeCompiler.Compile(schema)
+    const compiled = compileValidationSchema(schema)
 
     expect(compiled.Check({ Организация: "Справочник.Организации" })).toBe(false)
     expect(compiled.Check({ Организация: { Тип: "Справочник.Организации" } })).toBe(true)

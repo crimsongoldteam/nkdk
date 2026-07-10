@@ -1,5 +1,5 @@
-import { ConfigurationContext } from "~/metadata/context/types"
-import { PropertyRule, registerTypeRule } from "~/metadata/orchestration"
+import { ConfigurationContext } from "../../context/types"
+import { PropertyRule, registerTypeRule } from "../../orchestration"
 import { CommonAttributeContent, CommonAttributeContentXML } from "./types"
 
 export const exportCommonAttributeContentToXML = (

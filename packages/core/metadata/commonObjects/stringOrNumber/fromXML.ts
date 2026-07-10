@@ -1,6 +1,6 @@
-import { ConfigurationContextFromXML } from "~/metadata/context/types"
-import { PropertyRule } from "~/metadata/orchestration"
-import { registerTypeRule } from "~/metadata/orchestration/property/typeRuleRegistry"
+import { ConfigurationContextFromXML } from "../../context/types"
+import { PropertyRule } from "../../orchestration"
+import { registerTypeRule } from "../../orchestration/property/typeRuleRegistry"
 import { StringOrNumber, StringOrNumberReference } from "./types"
 
 const NUMERIC_XSI_TYPES = new Set(["xs:decimal", "xs:integer", "xs:double", "xs:float"])
@@ -19,10 +19,7 @@ export const importStringOrNumberFromXML = (
     const xsiType = value["_xsi:type"]
     if (text === undefined || text === "") return undefined
 
-    const importedValue =
-      typeof xsiType === "string" && NUMERIC_XSI_TYPES.has(xsiType)
-        ? Number(text)
-        : String(text)
+    const importedValue = typeof xsiType === "string" && NUMERIC_XSI_TYPES.has(xsiType) ? Number(text) : String(text)
 
     return context.fromXML.forReference && typeof xsiType === "string"
       ? { value: importedValue, xsiType }

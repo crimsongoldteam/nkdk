@@ -1,8 +1,8 @@
-import { addDefaultLanguageNameToSynonym } from "~/metadata/helpers/synonymHelpers"
-import { ConfigurationContext } from "~/metadata/context/types"
-import { MetadataItemRule, PropertyRule } from "~/metadata/orchestration/property/types"
-import { uuidPropertyRule } from "~/metadata/commonObjects/uuid/rule"
-
+import { systemEnumerationRule } from "../../systemEnumerations/types"
+import { addDefaultLanguageNameToSynonym } from "../../helpers/synonymHelpers"
+import { ConfigurationContext } from "../../context/types"
+import type { MetadataItemRule, PropertyRule } from "../../orchestration/property/types"
+import { uuidPropertyRule } from "../uuid/rule"
 const commonAttributeProperties = {
   uuid: uuidPropertyRule,
   name: {
@@ -56,6 +56,7 @@ const commonAttributeProperties = {
     xml: "PasswordMode",
     type: "boolean",
     defaultValueXML: false,
+    implicitValueYAML: false,
     xmlParents: ["Properties"],
     order: 5,
   },
@@ -88,6 +89,7 @@ const commonAttributeProperties = {
     xml: "MarkNegatives",
     type: "boolean",
     defaultValueXML: false,
+    implicitValueYAML: false,
     xmlParents: ["Properties"],
     order: 9,
   },
@@ -104,6 +106,7 @@ const commonAttributeProperties = {
     xml: "MultiLine",
     type: "boolean",
     defaultValueXML: false,
+    implicitValueYAML: false,
     xmlParents: ["Properties"],
     order: 11,
   },
@@ -112,6 +115,7 @@ const commonAttributeProperties = {
     xml: "ExtendedEdit",
     type: "boolean",
     defaultValueXML: false,
+    implicitValueYAML: false,
     xmlParents: ["Properties"],
     order: 12,
   },
@@ -259,13 +263,13 @@ const commonAttributeProperties = {
     xmlParents: ["Properties"],
   },
 } as const satisfies Record<string, PropertyRule>
-
 const fillProperties = {
   fillFromFillingValue: {
     yaml: "ЗаполнятьИзДанныхЗаполнения",
     xml: "FillFromFillingValue",
     type: "boolean",
     defaultValueXML: false,
+    implicitValueYAML: false,
     preserveFromReferenceXML: true,
     xmlParents: ["Properties"],
     order: 15,
@@ -280,7 +284,6 @@ const fillProperties = {
     defaultValueXMLRaw: { "_xsi:nil": true },
   },
 } as const satisfies Record<string, PropertyRule>
-
 const binaryDataStorageLocationUseFieldProperty = {
   binaryDataStorageLocationUseField: {
     yaml: "ПолеИспользованияХраненияВХранилищеДвоичныхДанных",
@@ -296,8 +299,7 @@ const binaryDataStorageLocationUseFieldProperty = {
     },
   },
 } as const satisfies Record<string, PropertyRule>
-
-export const CATALOG_ATTRIBUTE_ALLOWED_TYPES = [
+export const METADATA_ATTRIBUTE_ALLOWED_TYPES = [
   "string",
   "decimal",
   "date",
@@ -330,86 +332,101 @@ export const CATALOG_ATTRIBUTE_ALLOWED_TYPES = [
   "ExternalDataSourceTableRef.*",
   "ExternalDataSourceCubeDimensionTableRef.*",
 ] as const
-
 const attributeExternalMetadata = { segment: "Attribute", placement: "ownerChild" } as const
-
 export const MetadataAttributeRules = {
   itemType: "MetadataAttribute",
+  metadataTargetOwner: { kind: "inherit" },
   externalMetadata: attributeExternalMetadata,
   properties: {
     ...commonAttributeProperties,
     ...fillProperties,
-    use: {
+    use: systemEnumerationRule({
       yaml: "Использование",
       xml: "Use",
-      type: "SystemEnumeration",
       typeSE: "AttributeUse",
       defaultValueXML: "ForItem",
       implicitValueYAML: "ForItem",
       preserveFromReferenceXML: true,
       xmlParents: ["Properties"],
       order: 26,
-    },
-    binaryDataStorageLocationUse: {
+    }),
+    binaryDataStorageLocationUse: systemEnumerationRule({
       yaml: "ИспользованиеХраненияВХранилищеДвоичныхДанных",
       xml: "BinaryDataStorageLocationUse",
-      type: "SystemEnumeration",
       typeSE: "BinaryDataStorageLocationUse",
+      implicitValueYAML: "Use",
       xmlParents: ["Properties"],
       order: 30,
-    },
+    }),
     ...binaryDataStorageLocationUseFieldProperty,
   },
 } as const satisfies MetadataItemRule
-
+export const MetadataAttributesWithAllowedTypesRules = {
+  ...MetadataAttributeRules,
+  properties: {
+    ...MetadataAttributeRules.properties,
+    type: {
+      ...commonAttributeProperties.type,
+      allowedTypes: METADATA_ATTRIBUTE_ALLOWED_TYPES,
+    },
+  },
+} as const satisfies MetadataItemRule
 export const MetadataCatalogAttributeRules = {
   itemType: "MetadataAttribute",
+  metadataTargetOwner: { kind: "inherit" },
   externalMetadata: attributeExternalMetadata,
   properties: {
     ...commonAttributeProperties,
     type: {
       ...commonAttributeProperties.type,
-      allowedTypes: CATALOG_ATTRIBUTE_ALLOWED_TYPES,
+      allowedTypes: METADATA_ATTRIBUTE_ALLOWED_TYPES,
     },
     ...fillProperties,
-    use: {
+    use: systemEnumerationRule({
       yaml: "Использование",
       xml: "Use",
-      type: "SystemEnumeration",
       typeSE: "AttributeUse",
       defaultValueXML: "ForItem",
       implicitValueYAML: "ForItem",
       preserveFromReferenceXML: true,
       xmlParents: ["Properties"],
       order: 26,
-    },
-    binaryDataStorageLocationUse: {
+    }),
+    binaryDataStorageLocationUse: systemEnumerationRule({
       yaml: "ИспользованиеХраненияВХранилищеДвоичныхДанных",
       xml: "BinaryDataStorageLocationUse",
-      type: "SystemEnumeration",
       typeSE: "BinaryDataStorageLocationUse",
+      implicitValueYAML: "Use",
       xmlParents: ["Properties"],
       order: 30,
-    },
+    }),
     ...binaryDataStorageLocationUseFieldProperty,
   },
 } as const satisfies MetadataItemRule
-
 export const MetadataDocumentAttributeRules = {
   itemType: "MetadataAttribute",
+  metadataTargetOwner: { kind: "inherit" },
   externalMetadata: attributeExternalMetadata,
   properties: {
     ...commonAttributeProperties,
+    type: {
+      ...commonAttributeProperties.type,
+      allowedTypes: METADATA_ATTRIBUTE_ALLOWED_TYPES,
+    },
     ...fillProperties,
     ...binaryDataStorageLocationUseFieldProperty,
   },
 } as const satisfies MetadataItemRule
-
 export const MetadataTabularSectionAttributeRules = {
   itemType: "MetadataAttribute",
+  metadataTargetOwner: { kind: "inherit" },
   externalMetadata: attributeExternalMetadata,
   properties: {
     ...commonAttributeProperties,
+    type: {
+      ...commonAttributeProperties.type,
+      allowedTypes: METADATA_ATTRIBUTE_ALLOWED_TYPES,
+    },
     ...fillProperties,
   },
 } as const satisfies MetadataItemRule

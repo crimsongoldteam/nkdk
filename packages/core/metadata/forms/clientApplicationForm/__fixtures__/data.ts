@@ -1,6 +1,6 @@
-import { ClientApplicationForm, ClientApplicationFormYAML } from "~/metadata/forms/clientApplicationForm/types"
-import { CommandInterface } from "~/metadata/forms/commonObjects/commandInterface/types"
-import { explicitYAMLString } from "~/yaml/explicitString"
+import { ClientApplicationForm, ClientApplicationFormYAML } from "../types"
+import { CommandInterface } from "../../commonObjects/commandInterface/types"
+import { explicitYAMLString } from "../../../../yaml/explicitString"
 
 type ClientApplicationFormWithCustomSettingsFolder = ClientApplicationForm & {
   customSettingsFolder: string
@@ -334,9 +334,7 @@ export const fullClientApplicationFormYAML: ClientApplicationFormYAML = {
   Комментарий: "Комментарий к форме",
   ВключатьСправкуВСодержание: "Истина",
   НазначенияИспользования: "ПлатформаИМобильноеПриложение",
-  АвтоЗаголовок: "Истина",
   АвтоматическоеСохранениеДанныхВНастройках: "Использовать",
-  АвтоНавигационнаяСсылка: "Истина",
   ВертикальнаяПрокрутка: "ИспользоватьПриНеобходимости",
   ВертикальноеПоложениеПодчиненных: "Верх",
   ВертикальныйИнтервал: "Одинарный",
@@ -344,9 +342,9 @@ export const fullClientApplicationFormYAML: ClientApplicationFormYAML = {
   Высота: 600,
   ГоризонтальноеПоложениеПодчиненных: "Лево",
   ГоризонтальныйИнтервал: "Двойной",
+  Группировка: "Горизонтальная",
   СписокГрупп: "Дерево",
   РазрешитьИзменятьФорму: "Ложь",
-  Доступность: "Истина",
   Заголовок: "Полная форма приложения",
   ЗакрыватьПриВыборе: "Истина",
   ЗакрыватьПриЗакрытииВладельца: "Ложь",
@@ -364,21 +362,17 @@ export const fullClientApplicationFormYAML: ClientApplicationFormYAML = {
   КлючСохраненияПоложенияОкна: "WindowOptionsKey",
   КоманднаяПанель: {
     Автозаполнение: "Ложь",
-    ГоризонтальноеПоложение: "Лево",
   },
   Команды: {
     Команда1: {
       Заголовок: "Команда1",
     },
   },
-  Масштаб: 100,
   МодальныйРежим: "Ложь",
   Модифицированность: "Ложь",
-  ОтображатьЗаголовок: "Истина",
-  ОтображатьКнопкуЗакрытия: "Истина",
   ОтображениеОбсуждений: "Отображать",
+  ПоведениеКлавишиEnter: "КнопкаПоУмолчанию",
   ПоложениеКоманднойПанели: "Верх",
-  ПроверятьЗаполнениеАвтоматически: "Истина",
   РежимОткрытияОкнаФормы: "БлокироватьОкноВладельца",
   СворачиваниеЭлементовПоВажности: "Использовать",
   СоставКоманд: ["WriteAndClose"],
@@ -386,7 +380,6 @@ export const fullClientApplicationFormYAML: ClientApplicationFormYAML = {
   СохраняемыеВНастройкахДанныеМодифицированы: "Истина",
   ТолькоПросмотр: "Ложь",
   Ширина: 800,
-  СохранятьНастройкиОкна: "Истина",
   Реквизиты: {
     Объект: {
       Тип: "Справочник.ТестоваяОбработка",
@@ -480,6 +473,7 @@ export const catalogFullClientApplicationFormYAML: ClientApplicationFormYAML = {
   ОтображатьЗаголовок: "Ложь",
   ОтображатьКнопкуЗакрытия: "Ложь",
   ОтображениеОбсуждений: "Отображать",
+  ПоведениеКлавишиEnter: "КнопкаПоУмолчанию",
   ПоложениеКоманднойПанели: "Верх",
   ПроверятьЗаполнениеАвтоматически: "Ложь",
   РежимОткрытияОкнаФормы: "БлокироватьВесьИнтерфейс",

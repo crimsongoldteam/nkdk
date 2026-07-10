@@ -1,4 +1,4 @@
-import { ConfigurationContext } from "~/metadata/context/types"
+import { ConfigurationContext } from "../../context/types"
 import { exportChildItemsToEnterprise } from "../commonObjects/childItems/toEnterprise"
 import {
   ClientApplicationForm,

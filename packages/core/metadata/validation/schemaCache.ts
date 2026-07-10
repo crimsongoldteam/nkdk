@@ -1,7 +1,7 @@
-import { TSchema } from "@sinclair/typebox"
-import { TypeCheck, TypeCompiler } from "@sinclair/typebox/compiler"
-import { MetadataAccumulationRegisterRules } from "~/metadata/appliedObjects/metadataAccumulationRegister/rules"
-import { ConfigurationContext } from "~/metadata/context/types"
+import { compileValidationSchema, type ValidationSchemaValidator } from "./compileValidationSchema"
+import type { TSchema } from "typebox"
+import { MetadataAccumulationRegisterRules } from "../appliedObjects/metadataAccumulationRegister/rules"
+import { ConfigurationContext } from "../context/types"
 import { exportMetadataCatalogToJSONSchema } from "../appliedObjects/metadataCatalog/toJSONSchema"
 import { MetadataDataProcessorRules } from "../appliedObjects/metadataDataProcessor/rules"
 import { exportMetadataDocumentToJSONSchema } from "../appliedObjects/metadataDocument/toJSONSchema"
@@ -14,14 +14,14 @@ import { exportMetadataItemToJSONSchema } from "../orchestration/metadataItem/to
 import { MetadataKind } from "./types"
 
 export interface SchemaCache {
-  get(kind: MetadataKind): TypeCheck<TSchema>
+  get(kind: MetadataKind): ValidationSchemaValidator<TSchema>
 }
 
 export function createSchemaCache(context: ConfigurationContext): SchemaCache {
-  const cache = new Map<MetadataKind, TypeCheck<TSchema>>()
+  const cache = new Map<MetadataKind, ValidationSchemaValidator<TSchema>>()
 
   return {
-    get(kind: MetadataKind): TypeCheck<TSchema> {
+    get(kind: MetadataKind): ValidationSchemaValidator<TSchema> {
       const cached = cache.get(kind)
       if (cached) return cached
 
@@ -56,7 +56,7 @@ export function createSchemaCache(context: ConfigurationContext): SchemaCache {
           break
       }
 
-      const compiled = TypeCompiler.Compile(schema)
+      const compiled = compileValidationSchema(schema)
       cache.set(kind, compiled)
       return compiled
     },

@@ -1,4 +1,10 @@
-import { Static, Type } from "@sinclair/typebox"
+import {
+  definePropertyRule as defineWidePropertyRule,
+  type ExactRuleParams as WideExactRuleParams,
+} from "../ruleBuilder"
+import type { PropertyRule as WidePropertyRuleBase } from "../../orchestration/property/types"
+import { Type } from "typebox"
+import type { Static } from "typebox"
 import { BooleanJSONSchema, StringboolXML } from "../boolean/types"
 
 export interface UserVisibleItemXML {
@@ -51,7 +57,6 @@ export const UserVisibleJSONSchema = Type.Union(
       { additionalProperties: false }
     ),
   ],
-  { additionalProperties: false }
 )
 
 export type UserVisibleYAML = Static<typeof UserVisibleJSONSchema>
@@ -63,3 +68,15 @@ export type UserViewKeysYAML = (typeof UserViewKeysYAML)[keyof typeof UserViewKe
 export type UserEditKeysYAML = (typeof UserEditKeysYAML)[keyof typeof UserEditKeysYAML]
 export type UserViewYAML = UserVisibleYAML
 export type UserEditYAML = UserVisibleYAML
+
+export interface UserVisibleWidePropertyRule extends WidePropertyRuleBase {
+  type: "UserVisible"
+}
+
+export type UserVisibleRuleParams = Omit<UserVisibleWidePropertyRule, "type">
+
+export function userVisibleRule<const Params extends UserVisibleRuleParams>(
+  params: WideExactRuleParams<UserVisibleRuleParams, Params>
+): Readonly<{ type: "UserVisible" } & Params> {
+  return defineWidePropertyRule("UserVisible", params)
+}

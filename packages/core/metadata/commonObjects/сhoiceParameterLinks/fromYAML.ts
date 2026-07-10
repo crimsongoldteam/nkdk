@@ -1,8 +1,9 @@
-import { PropertyRule } from "~/metadata/orchestration/property/types"
-import { registerTypeRule } from "~/metadata/orchestration/property/typeRuleRegistry"
+import type { PropertyRule } from "../../orchestration/property/types"
+import { registerTypeRule } from "../../orchestration/property/typeRuleRegistry"
 import { ConfigurationContext } from "../../context/types"
+import { importDataPathStandardMembersFromYAML } from "../metadataPath/dataPathStandardMembers"
 import { importMetadataFieldFromYAML } from "../metadataField/fromYAML"
-import { ChoiceParameterLinks, ChoiceParameterLinksYAML } from "./types"
+import type { ChoiceParameterLinks, ChoiceParameterLinksYAML } from "./types"
 
 /**
  * Парсит строку вида "Отбор.Владелец(Справочник.Справочник1.Реквизит.Реквизит1), Отбор.Владелец2(Справочник.Справочник2.Реквизит.Реквизит2)"
@@ -67,7 +68,8 @@ const parseChoiceParameterLinksString = (
     }
 
     // Преобразуем dataPath из YAML формата в XML формат
-    const xmlDataPath = importMetadataFieldFromYAML(context, undefined, dataPath)
+    const normalizedDataPath = importDataPathStandardMembersFromYAML(context, dataPath) as string
+    const xmlDataPath = importMetadataFieldFromYAML(context, undefined, normalizedDataPath) ?? normalizedDataPath
     if (!xmlDataPath) {
       throw new Error(`Invalid dataPath: ${dataPath}`)
     }
@@ -94,7 +96,7 @@ export const importChoiceParameterLinksFromYAML = (
 
   return data.map((link) => ({
     name: link.Имя,
-    dataPath: link.ПутьКДанным,
+    dataPath: importDataPathStandardMembersFromYAML(context, link.ПутьКДанным) as string,
     valueChange: link.РежимИзменения === "НеИзменять" ? "DontChange" : "Clear",
   }))
 }

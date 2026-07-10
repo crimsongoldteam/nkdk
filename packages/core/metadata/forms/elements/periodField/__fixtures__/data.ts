@@ -1,16 +1,11 @@
-import {
-  PeriodField,
-  PeriodFieldEnterprise,
-  PeriodFieldPartialYAML,
-  PeriodFieldTypedYAML,
-} from "~/metadata/forms/elements/periodField/types"
+import { PeriodField, PeriodFieldEnterprise, PeriodFieldPartialYAML, PeriodFieldTypedYAML } from "../types"
 
 import {
   fullFormFieldCommonFixture,
   fullFormFieldEnterpriseCommonFixture,
   fullFormFieldPartialYAMLCommonFixture,
-} from "~/metadata/forms/elements/__fixtures__/formField/rules"
-import { RequiredFieldsElement } from "~/tests/types"
+} from "../../__fixtures__/formField/rules"
+import { RequiredFieldsElement } from "../../../../../tests/types"
 
 export const fullPeriodField: RequiredFieldsElement<PeriodField> = {
   itemType: "PeriodField",

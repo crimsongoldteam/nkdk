@@ -1,6 +1,6 @@
 import { describe, expect, it } from "vitest"
-import { PropertyRule } from "~/metadata/orchestration/property/types"
-import { mockContextToXML } from "~/tests/mockContext"
+import type { PropertyRule } from "../../orchestration/property/types"
+import { mockContextToXML } from "../../../tests/mockContext"
 import { exportMetadataItemLinksToXML, exportMetadataItemLinkToXML } from "./toXML"
 
 describe("exportMetadataItemLinkToXML", () => {

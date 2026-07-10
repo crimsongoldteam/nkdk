@@ -1,79 +1,64 @@
-import { MetadataItemRule, PropertyRule } from "~/metadata/orchestration"
-
+import { settingsParameterValueRule } from "../parameterValue/types"
+import { MetadataItemRule, PropertyRule } from "../../../orchestration"
 export type AppearanceFieldsXMLMode = "dataSetField"
-
 export type AppearanceFieldsPropertyRule = PropertyRule & {
   type: "AppearanceFields"
   appearanceXml?: AppearanceFieldsXMLMode
 }
-
 export const AppearanceFieldsRules = {
   itemType: "AppearanceFields",
   properties: {
-    ЦветФона: {
-      type: "SettingsParameterValue",
+    ЦветФона: settingsParameterValueRule({
       valueType: "Color",
       yaml: "ЦветФона",
-    },
-    ЦветТекста: {
-      type: "SettingsParameterValue",
+    }),
+    ЦветТекста: settingsParameterValueRule({
       valueType: "Color",
       yaml: "ЦветТекста",
-    },
-    Шрифт: {
-      type: "SettingsParameterValue",
+    }),
+    Шрифт: settingsParameterValueRule({
       valueType: "Font",
       yaml: "Шрифт",
-    },
-    ГоризонтальноеПоложение: {
-      type: "SettingsParameterValue",
+    }),
+    ГоризонтальноеПоложение: settingsParameterValueRule({
       valueType: "SystemEnumeration",
       typeSE: "HorizontalAlign",
       yaml: "ГоризонтальноеПоложение",
-    },
-    Формат: {
-      type: "SettingsParameterValue",
+    }),
+    Формат: settingsParameterValueRule({
       valueType: "DesignTimeValue",
       yaml: "Формат",
-    },
-    ВыделятьОтрицательные: {
-      type: "SettingsParameterValue",
+    }),
+    ВыделятьОтрицательные: settingsParameterValueRule({
       valueType: "Primitive",
       yaml: "ВыделятьОтрицательные",
-    },
-    ОтметкаНезаполненного: {
-      type: "SettingsParameterValue",
+    }),
+    ОтметкаНезаполненного: settingsParameterValueRule({
       valueType: "Primitive",
       yaml: "ОтметкаНезаполненного",
-    },
-    Текст: {
-      type: "SettingsParameterValue",
+    }),
+    Текст: settingsParameterValueRule({
       valueType: "DesignTimeValue",
       yaml: "Текст",
-    },
-    Видимость: {
-      type: "SettingsParameterValue",
+    }),
+    Видимость: settingsParameterValueRule({
       valueType: "Primitive",
       yaml: "Видимость",
-    },
-    Доступность: {
-      type: "SettingsParameterValue",
+    }),
+    Доступность: settingsParameterValueRule({
       valueType: "Primitive",
       yaml: "Доступность",
-    },
-    ТолькоПросмотр: {
-      type: "SettingsParameterValue",
+    }),
+    ТолькоПросмотр: settingsParameterValueRule({
       valueType: "Primitive",
       yaml: "ТолькоПросмотр",
-    },
-    Отображать: {
-      type: "SettingsParameterValue",
+    }),
+    Отображать: settingsParameterValueRule({
       valueType: "Primitive",
       yaml: "Отображать",
-    },
+    }),
   },
 } as const satisfies MetadataItemRule
-
 export const directAppearanceXmlTags = {
   ЦветФона: "dcsset:backColor",
   ЦветТекста: "dcsset:textColor",
@@ -88,5 +73,4 @@ export const directAppearanceXmlTags = {
   ТолькоПросмотр: "dcsset:readOnly",
   Отображать: "dcsset:show",
 } as const satisfies Record<keyof typeof AppearanceFieldsRules.properties, `dcsset:${string}`>
-
 export type DirectAppearanceXMLTag = (typeof directAppearanceXmlTags)[keyof typeof directAppearanceXmlTags]

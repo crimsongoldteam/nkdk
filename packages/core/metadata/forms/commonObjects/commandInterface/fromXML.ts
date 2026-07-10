@@ -1,8 +1,8 @@
-import { ConfigurationContextFromXML } from "~/metadata/context/types"
-import { importBooleanFromXML } from "~/metadata/commonObjects/boolean/fromXML"
-import { importNumberFromXML } from "~/metadata/commonObjects/number/fromXML"
-import { importUserVisibleFromXML } from "~/metadata/commonObjects/userVisible/fromXML"
-import { registerTypeRule } from "~/metadata/orchestration"
+import { ConfigurationContextFromXML } from "../../../context/types"
+import { importBooleanFromXML } from "../../../commonObjects/boolean/fromXML"
+import { importNumberFromXML } from "../../../commonObjects/number/fromXML"
+import { importUserVisibleFromXML } from "../../../commonObjects/userVisible/fromXML"
+import { registerTypeRule } from "../../../orchestration"
 import { PropertyRule } from "../../elements/calendarField/rules"
 import { CommandInterface, CommandInterfaceItem, CommandInterfaceItemXML, CommandInterfaceXML } from "./types"
 

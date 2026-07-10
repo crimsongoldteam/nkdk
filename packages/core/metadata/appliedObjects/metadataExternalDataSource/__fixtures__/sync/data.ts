@@ -1,7 +1,7 @@
 import fs from "fs"
 import { join } from "path"
-import { exportToYAML } from "~/yaml/export"
-import { importFromYAML } from "~/yaml/import"
+import { exportToYAML } from "../../../../../yaml/export"
+import { importFromYAML } from "../../../../../yaml/import"
 
 const rootExternalDataSourceYAML = fs.readFileSync(
   join(import.meta.dirname, "yaml/ВнешнийИсточникДанныхВсеСвойства/Свойства.yaml"),

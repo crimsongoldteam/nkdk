@@ -3,6 +3,7 @@ import { Command } from "commander"
 import { resolve } from "path"
 import { pathToFileURL } from "url"
 import { importConfiguration } from "./commands/import"
+import { initSyncState } from "./commands/initSyncState"
 import { deleteMigration, generateMigration, renameMigration } from "./commands/migration"
 import { normalizeSchemaCommandInput, printSchema, type SchemaCommandOptions } from "./commands/schema"
 import { shortRoundTrip } from "./commands/shortRoundTrip"
@@ -51,6 +52,15 @@ export function createProgram(options: CreateProgramOptions = {}): Command {
     })
 
   program
+    .command("init-sync-state")
+    .description("Создать файл состояния инкрементальной XML-синхронизации")
+    .argument("<yaml-dir>", "путь к каталогу YAML-проекта")
+    .argument("<xml-dir>", "путь к каталогу XML-выгрузки")
+    .action((yamlDir: string, xmlDir: string) => {
+      run(() => initSyncState(yamlDir, xmlDir), options)
+    })
+
+  program
     .command("short-round-trip-test")
     .description("Проверка round-trip XML → модель → XML (без YAML-слоя)")
     .argument("<xml-dir>", "путь к каталогу XML-выгрузки")
@@ -87,21 +97,23 @@ export function createProgram(options: CreateProgramOptions = {}): Command {
 
   program
     .command("rename")
-    .description("Создать миграцию переименования")
+    .description("Переименовать metadata-объект или дочерний элемент")
     .argument("<yaml-dir>", "путь к каталогу YAML-проекта")
     .argument("<path>", "полный путь элемента")
     .argument("<new-name>", "новое локальное имя")
-    .action((yamlDir: string, path: string, newName: string) => {
-      run(() => Promise.resolve(renameMigration(yamlDir, path, newName)), options)
+    .option("--write", "записать изменения; без флага печатается план")
+    .action((yamlDir: string, path: string, newName: string, opts: { write?: boolean }) => {
+      run(() => Promise.resolve(renameMigration(yamlDir, path, newName, opts.write === true)), options)
     })
 
   program
     .command("delete")
-    .description("Создать миграцию удаления")
+    .description("Удалить metadata-объект или дочерний элемент")
     .argument("<yaml-dir>", "путь к каталогу YAML-проекта")
     .argument("<path>", "полный путь элемента")
-    .action((yamlDir: string, path: string) => {
-      run(() => Promise.resolve(deleteMigration(yamlDir, path)), options)
+    .option("--write", "записать изменения; без флага печатается план")
+    .action((yamlDir: string, path: string, opts: { write?: boolean }) => {
+      run(() => Promise.resolve(deleteMigration(yamlDir, path, opts.write === true)), options)
     })
 
   program

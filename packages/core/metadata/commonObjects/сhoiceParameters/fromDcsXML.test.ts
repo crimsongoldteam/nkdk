@@ -1,7 +1,7 @@
 import { describe, expect, it } from "vitest"
-import { dcsDecimalChoiceParameter } from "~/metadata/commonObjects/сhoiceParameters/__fixtures__/data"
-import { mockContextFromXML, mockRule } from "~/tests/mockContext"
-import { readAndParseXMLFixture } from "~/tests/readFixtureXML"
+import { dcsDecimalChoiceParameter } from "./__fixtures__/data"
+import { mockContextFromXML, mockRule } from "../../../tests/mockContext"
+import { readAndParseXMLFixture } from "../../../tests/readFixtureXML"
 import { importChoiceParameterFromDcsXML } from "./fromDcsXML"
 import { ChoiceParameterDcsValueRootXML } from "./types"
 

@@ -1,4 +1,4 @@
-import { FormAttributes, FormAttributesYAML } from "~/metadata/forms/commonObjects/formAttribute/types"
+import { FormAttributes, FormAttributesYAML } from "../../types"
 
 //#region FullFormAttributes
 

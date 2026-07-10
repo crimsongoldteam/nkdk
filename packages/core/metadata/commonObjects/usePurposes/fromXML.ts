@@ -1,8 +1,8 @@
-import { PropertyRule } from "~/metadata/orchestration/property/types"
-import { registerTypeRule } from "~/metadata/orchestration/property/typeRuleRegistry"
+import type { PropertyRule } from "../../orchestration/property/types"
+import { registerTypeRule } from "../../orchestration/property/typeRuleRegistry"
 import { importMetadataValueFromXML } from "../metadataValue/fromXML"
-import { UsePurposes, UsePurposesXML } from "./types"
-import { ConfigurationContextFromXML } from "~/metadata/context/types"
+import type { UsePurposes, UsePurposesXML } from "./types"
+import { ConfigurationContextFromXML } from "../../context/types"
 
 export const importUsePurposesFromXML = (
   context: ConfigurationContextFromXML,

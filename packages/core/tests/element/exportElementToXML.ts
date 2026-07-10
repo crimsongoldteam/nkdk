@@ -1,8 +1,8 @@
-import { setIdsToElements } from "~/metadata/forms/clientApplicationForm/toXML"
-import { CollectableElement, ElementXML, exportElementToXML, importElementFromXML } from "~/metadata/orchestration"
-import { getElementXMLTagName } from "~/metadata/orchestration/formElement/ruleFactory"
-import { mockContextFromXML, mockContextToXML } from "~/tests/mockContext"
-import { xmlExport } from "~/xml/export/exporter"
+import { setIdsToElements } from "../../metadata/forms/clientApplicationForm/toXML"
+import { CollectableElement, ElementXML, exportElementToXML, importElementFromXML } from "../../metadata/orchestration"
+import { getElementXMLTagName } from "../../metadata/orchestration/formElement/ruleFactory"
+import { mockContextFromXML, mockContextToXML } from "../mockContext"
+import { xmlExport } from "../../xml/export/exporter"
 import { readAndParseXMLFile, readXMLFileAsString } from "../readAndParseXMLFile"
 
 export type TestExportElementToXMLParams<TElement extends CollectableElement = CollectableElement> = {

@@ -1,17 +1,19 @@
-import type { Color, ColorYAML } from "~/metadata/commonObjects/color/types"
-import type { Font, FontYAML } from "~/metadata/commonObjects/font/types"
-import type { FormattedI8nText, FormattedI8nTextValueYAML } from "~/metadata/commonObjects/formattedI8nText/types"
-import type { I8nText, I8nTextYAML } from "~/metadata/commonObjects/i8nText/types"
-import type { MetadataField, MetadataFieldYAML } from "~/metadata/commonObjects/metadataField/types"
-import type { MetadataValue, MetadataValueYAML } from "~/metadata/commonObjects/metadataValue/types"
-import type { TypeLink, TypeLinkYAML } from "~/metadata/commonObjects/typeLink/types"
-import type {
-  ChoiceParameterLinks,
-  ChoiceParameterLinksYAML,
-} from "~/metadata/commonObjects/сhoiceParameterLinks/types"
-import type { ChoiceParameter, ChoiceParametersYAML } from "~/metadata/commonObjects/сhoiceParameters/types"
-import { BasePropertyRule } from "~/metadata/orchestration"
-import type { SystemEnumerationTypeMap } from "~/metadata/systemEnumerations/types"
+import {
+  definePropertyRule as defineWidePropertyRule,
+  type ExactRuleParams as WideExactRuleParams,
+} from "../../ruleBuilder"
+import type { PropertyRule as WidePropertyRuleBase } from "../../../orchestration/property/types"
+import type { Color, ColorYAML } from "../../color/types"
+import type { Font, FontYAML } from "../../font/types"
+import type { FormattedI8nText, FormattedI8nTextValueYAML } from "../../formattedI8nText/types"
+import type { I8nText, I8nTextYAML } from "../../i8nText/types"
+import type { MetadataField, MetadataFieldYAML } from "../../metadataField/types"
+import type { MetadataValue, MetadataValueYAML } from "../../metadataValue/types"
+import type { TypeLink, TypeLinkYAML } from "../../typeLink/types"
+import type { ChoiceParameterLinks, ChoiceParameterLinksYAML } from "../../сhoiceParameterLinks/types"
+import type { ChoiceParameter, ChoiceParametersYAML } from "../../сhoiceParameters/types"
+import { BasePropertyRule } from "../../../orchestration"
+import type { SystemEnumerationTypeMap } from "../../../systemEnumerations/types"
 
 export type DcsMetadataValueValueType =
   | "Color"
@@ -126,4 +128,16 @@ export type MetadataDcsMetadataValueDcsRootXML = {
         "#text"?: string
         [key: string]: unknown
       }
+}
+
+export interface MetadataDcsMetadataValueWidePropertyRule extends WidePropertyRuleBase {
+  type: "MetadataDcsMetadataValue"
+}
+
+export type MetadataDcsMetadataValueRuleParams = Omit<MetadataDcsMetadataValueWidePropertyRule, "type">
+
+export function metadataDcsMetadataValueRule<const Params extends MetadataDcsMetadataValueRuleParams>(
+  params: WideExactRuleParams<MetadataDcsMetadataValueRuleParams, Params>
+): Readonly<{ type: "MetadataDcsMetadataValue" } & Params> {
+  return defineWidePropertyRule("MetadataDcsMetadataValue", params)
 }

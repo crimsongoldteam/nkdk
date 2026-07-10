@@ -1,5 +1,5 @@
-import { registerTypeRule } from "~/metadata/orchestration/property/typeRuleRegistry"
-import type { ExportToYAMLFunction } from "~/metadata/orchestration/property/fn"
+import { registerTypeRule } from "../../orchestration/property/typeRuleRegistry"
+import type { ExportToYAMLFunction } from "../../orchestration/property/fn"
 import type { WebSocketClientHeaders, WebSocketClientHeadersYAML } from "./types"
 
 export const exportWebSocketClientHeadersToYAML: ExportToYAMLFunction = (

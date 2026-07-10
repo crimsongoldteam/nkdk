@@ -1,7 +1,7 @@
-import type { ConfigurationContext, ConfigurationContextFromXML } from "~/metadata/context/types"
-import { importStringFromXML } from "~/metadata/commonObjects/string/fromXML"
-import { registerTypeRule } from "~/metadata/orchestration/property/typeRuleRegistry"
-import type { PropertyRule } from "~/metadata/orchestration/property/types"
+import type { ConfigurationContext, ConfigurationContextFromXML } from "../../../../context/types"
+import { importStringFromXML } from "../../../string/fromXML"
+import { registerTypeRule } from "../../../../orchestration/property/typeRuleRegistry"
+import type { PropertyRule } from "../../../../orchestration/property/types"
 
 const exportDcsFieldToXML = (
   _context: ConfigurationContext,
@@ -12,11 +12,7 @@ const exportDcsFieldToXML = (
   return { "_xsi:type": "dcscor:Field", "#text": String(value) }
 }
 
-const importDcsFieldFromXML = (
-  context: ConfigurationContextFromXML,
-  rule: PropertyRule | undefined,
-  xml: unknown
-) => {
+const importDcsFieldFromXML = (context: ConfigurationContextFromXML, rule: PropertyRule | undefined, xml: unknown) => {
   return importStringFromXML(context, rule as any, xml as any)
 }
 
@@ -30,11 +26,7 @@ const exportDcsFieldToYAML = (
   return `.${value}`
 }
 
-const importDcsFieldFromYAML = (
-  _context: ConfigurationContext,
-  _rule: PropertyRule | undefined,
-  value: unknown
-) => {
+const importDcsFieldFromYAML = (_context: ConfigurationContext, _rule: PropertyRule | undefined, value: unknown) => {
   if (typeof value !== "string") return undefined
   return value.startsWith(".") ? value.slice(1) : value
 }
@@ -43,4 +35,3 @@ registerTypeRule("DcsField", "exportToXML", exportDcsFieldToXML as any)
 registerTypeRule("DcsField", "importFromXML", importDcsFieldFromXML as any)
 registerTypeRule("DcsField", "exportToYAML", exportDcsFieldToYAML as any)
 registerTypeRule("DcsField", "importFromYAML", importDcsFieldFromYAML as any)
-

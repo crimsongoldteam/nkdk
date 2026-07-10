@@ -1,6 +1,6 @@
 import { describe, expect, it } from "vitest"
-import { exportMetadataItemToYAML, importMetadataItemFromYAML } from "~/metadata/orchestration"
-import { mockContext } from "~/tests/mockContext"
+import { exportMetadataItemToYAML, importMetadataItemFromYAML } from "../../orchestration"
+import { mockContext } from "../../../tests/mockContext"
 import { MetadataSubsystemRules } from "./rules"
 
 describe("MetadataSubsystem metadataTarget", () => {

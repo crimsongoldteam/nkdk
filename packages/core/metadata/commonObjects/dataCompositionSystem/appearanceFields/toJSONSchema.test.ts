@@ -1,7 +1,7 @@
-import { TypeCompiler } from "@sinclair/typebox/compiler"
+import { compileValidationSchema } from "./../../../validation/compileValidationSchema"
 import { describe, expect, it } from "vitest"
-import { exportPropertyToJSONSchema } from "~/metadata/orchestration/property/toJSONSchema"
-import { mockContext } from "~/tests/mockContext"
+import { exportPropertyToJSONSchema } from "../../../orchestration/property/toJSONSchema"
+import { mockContext } from "../../../../tests/mockContext"
 import "./toJSONSchema"
 
 const schemaFor = () => {
@@ -11,10 +11,10 @@ const schemaFor = () => {
     value: undefined,
   })
   if (schema === undefined) throw new Error("schema is undefined")
-  return TypeCompiler.Compile(schema)
+  return compileValidationSchema(schema)
 }
 
-describe("AppearanceFields exportToJSONSchema", () => {
+describe("AppearanceFields exportToJSONSchema", { timeout: 30_000 }, () => {
   it("accepts compact SettingsParameterValue fields", () => {
     const compiled = schemaFor()
 

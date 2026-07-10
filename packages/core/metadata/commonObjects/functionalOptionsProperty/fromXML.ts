@@ -1,7 +1,7 @@
-import { ConfigurationContext } from "~/metadata/context/types"
-import { PropertyRule } from "~/metadata/orchestration/property/types"
-import { registerTypeRule } from "~/metadata/orchestration/property/typeRuleRegistry"
-import { FunctionalOptions, FunctionalOptionsXML } from "./types"
+import { ConfigurationContext } from "../../context/types"
+import type { PropertyRule } from "../../orchestration/property/types"
+import { registerTypeRule } from "../../orchestration/property/typeRuleRegistry"
+import type { FunctionalOptions, FunctionalOptionsXML } from "./types"
 
 export const importFunctionalOptionsFromXML = (
   _context: ConfigurationContext,

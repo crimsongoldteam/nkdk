@@ -2,7 +2,7 @@ import { mkdirSync, mkdtempSync, rmSync, writeFileSync } from "fs"
 import { tmpdir } from "os"
 import { join, resolve } from "path"
 import { afterEach, describe, expect, it } from "vitest"
-import { TopLevelMetadataItemRules } from "~/metadata/appliedObjects/configuration/topLevelRules"
+import { TopLevelMetadataItemRules } from "../appliedObjects/configuration/topLevelRules"
 import {
   assertMetadataProjectPathInside,
   classifyMetadataProjectPath,
@@ -20,7 +20,7 @@ describe("metadata project resources", () => {
   })
 
   const createProject = (): string => {
-    const projectDir = mkdtempSync(join(tmpdir(), "nakidka-project-resources-"))
+    const projectDir = mkdtempSync(join(tmpdir(), "nkdk-project-resources-"))
     tempDirs.push(projectDir)
     return projectDir
   }
@@ -57,8 +57,8 @@ describe("metadata project resources", () => {
   it("classifies virtual nested subsystem properties", () => {
     expect(
       classifyMetadataProjectPath(
-        "Подсистема/Администрирование/Подсистемы/Настройки/Подсистемы/Интерфейс/Свойства.yaml",
-      ),
+        "Подсистема/Администрирование/Подсистемы/Настройки/Подсистемы/Интерфейс/Свойства.yaml"
+      )
     ).toMatchObject({
       kind: "yaml",
       role: "properties",
@@ -77,7 +77,7 @@ describe("metadata project resources", () => {
     expect(classifyMetadataProjectPath("Подсистема//Подсистемы/Настройки/Свойства.yaml")).toBeUndefined()
     expect(classifyMetadataProjectPath("Подсистема/Администрирование/Подсистемы//Свойства.yaml")).toBeUndefined()
     expect(
-      classifyMetadataProjectPath("Подсистема/Администрирование/Подсистемы/Настройки/Формы/Форма/Форма.yaml"),
+      classifyMetadataProjectPath("Подсистема/Администрирование/Подсистемы/Настройки/Формы/Форма/Форма.yaml")
     ).toBeUndefined()
   })
 
@@ -111,7 +111,7 @@ describe("metadata project resources", () => {
   it("discovers properties for every top-level metadata item with YAML directory", () => {
     const projectDir = createProject()
     const dirs = TopLevelMetadataItemRules.flatMap((rule) =>
-      typeof rule.itemTypePrefix === "string" ? [rule.itemTypePrefix] : [],
+      typeof rule.itemTypePrefix === "string" ? [rule.itemTypePrefix] : []
     )
 
     for (const dir of dirs) {
@@ -119,9 +119,7 @@ describe("metadata project resources", () => {
     }
 
     expect(discoverMetadataProjectResources(projectDir).map((file) => file.projectPath)).toEqual(
-      dirs
-        .map((dir) => `${dir}/Тест/Свойства.yaml`)
-        .sort((left, right) => left.localeCompare(right, "ru")),
+      dirs.map((dir) => `${dir}/Тест/Свойства.yaml`).sort((left, right) => left.localeCompare(right, "ru"))
     )
   })
 
@@ -146,7 +144,7 @@ describe("metadata project resources", () => {
     const outsidePath = resolve(projectDir, "..", "outside", "Справочник", "Товары", "Свойства.yaml")
 
     expect(() => assertMetadataProjectPathInside(projectDir, outsidePath)).toThrow(
-      "Файл находится вне указанного YAML-проекта",
+      "Файл находится вне указанного YAML-проекта"
     )
   })
 })

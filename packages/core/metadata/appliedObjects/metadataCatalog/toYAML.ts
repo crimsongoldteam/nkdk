@@ -1,5 +1,5 @@
-import { ConfigurationContext } from "~/metadata/context/types"
-import { exportPropertiesToYAML } from "~/metadata/orchestration"
+import { ConfigurationContext } from "../../context/types"
+import { exportPropertiesToYAML } from "../../orchestration"
 import { MetadataCatalogRules } from "./rules"
 import { MetadataCatalog, MetadataCatalogYAML } from "./types"
 

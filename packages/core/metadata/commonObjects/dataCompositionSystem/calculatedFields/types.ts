@@ -1,4 +1,4 @@
-import { registerMetadataItemCollectionRule } from "~/metadata/orchestration"
+import { registerMetadataItemCollectionRule } from "../../../orchestration"
 import type { CalculatedField, CalculatedFieldYAML } from "../calculatedField/types"
 import { CalculatedFieldRules } from "../calculatedField/rules"
 

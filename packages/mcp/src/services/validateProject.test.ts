@@ -2,10 +2,12 @@ import { mkdirSync, mkdtempSync, rmSync, writeFileSync } from "fs"
 import { tmpdir } from "os"
 import { join, resolve } from "path"
 import { afterEach, beforeEach, describe, expect, it, vi } from "vitest"
+import { resetValidationHandleForTests } from "./validationHandle"
 import { validateYamlProject } from "./validateProject"
 
 const core = vi.hoisted(() => ({
   ProjectFileSchemaError: class ProjectFileSchemaError extends Error {},
+  createValidationWorkerPoolHandle: vi.fn(),
   validateProject: vi.fn(),
 }))
 
@@ -18,7 +20,14 @@ describe("validateProject service", () => {
 
   beforeEach(() => {
     core.validateProject.mockReset()
-    core.validateProject.mockReturnValue({ diagnostics: [] })
+    core.validateProject.mockResolvedValue({ diagnostics: [] })
+    core.createValidationWorkerPoolHandle.mockReset()
+    core.createValidationWorkerPoolHandle.mockReturnValue({
+      validateProject: core.validateProject,
+      close: vi.fn(),
+      size: vi.fn(() => 1),
+    })
+    resetValidationHandleForTests()
   })
 
   afterEach(() => {
@@ -28,7 +37,7 @@ describe("validateProject service", () => {
   it("returns diagnostics and summary as JSON", async () => {
     const projectDir = createProject()
     writeProjectFile(projectDir, "Справочник/Товары/Свойства.yaml", ['НесуществующееПоле: "лишнее"'])
-    core.validateProject.mockReturnValue({
+    core.validateProject.mockResolvedValue({
       diagnostics: [
         {
           filePath: join(projectDir, "Справочник", "Товары", "Свойства.yaml"),
@@ -56,6 +65,18 @@ describe("validateProject service", () => {
     expect(core.validateProject).toHaveBeenCalledWith({ projectDir })
   })
 
+  it("reuses one validation handle across service calls", async () => {
+    const projectDir = createProject()
+
+    await validateYamlProject({ projectDir })
+    await validateYamlProject({ projectDir })
+
+    expect(core.createValidationWorkerPoolHandle).toHaveBeenCalledTimes(1)
+    expect(core.validateProject).toHaveBeenCalledTimes(2)
+    expect(core.validateProject).toHaveBeenNthCalledWith(1, { projectDir })
+    expect(core.validateProject).toHaveBeenNthCalledWith(2, { projectDir })
+  })
+
   it("omits warning diagnostics from JSON output", async () => {
     const projectDir = createProject()
     writeProjectFile(projectDir, "Справочник/Товары/Свойства.yaml", "Комментарий: владелец\n")
@@ -65,7 +86,7 @@ describe("validateProject service", () => {
       "    Вид: Кнопка",
       "    Данные: Items.Таблица.CurrentData.Номенклатура",
     ])
-    core.validateProject.mockReturnValue({
+    core.validateProject.mockResolvedValue({
       diagnostics: [
         {
           filePath: join(projectDir, "Справочник", "Товары", "Свойства.yaml"),
@@ -86,7 +107,7 @@ describe("validateProject service", () => {
   })
 
   it("returns not_found for a missing project directory", async () => {
-    const projectDir = join(tmpdir(), "nakidka-missing-mcp-project")
+    const projectDir = join(tmpdir(), "nkdk-missing-mcp-project")
     const result = await validateYamlProject({ projectDir })
 
     expect(result).toEqual({
@@ -115,7 +136,7 @@ describe("validateProject service", () => {
   })
 
   function createProject(): string {
-    const projectDir = mkdtempSync(join(tmpdir(), "nakidka-mcp-validate-"))
+    const projectDir = mkdtempSync(join(tmpdir(), "nkdk-mcp-validate-"))
     tempDirs.push(projectDir)
     return projectDir
   }

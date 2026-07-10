@@ -1,7 +1,7 @@
-import { TSchema, Type } from "@sinclair/typebox"
-import { ConfigurationContext } from "~/metadata/context/types"
-import { exportMetadataItemToJSONSchema } from "~/metadata/orchestration/metadataItem/toJSONSchema"
-import { ExportToJSONSchemaFn } from "~/metadata/orchestration/property/fn"
+import { TSchema, Type } from "typebox"
+import { ConfigurationContext } from "../../../context/types"
+import { exportMetadataItemToJSONSchema } from "../../../orchestration/metadataItem/toJSONSchema"
+import { ExportToJSONSchemaFn } from "../../../orchestration/property/fn"
 import { exportDcsMetadataValueToJSONSchema } from "../dcsMetadataValue/toJSONSchema"
 import { DcsMetadataValuePropertyRule } from "../dcsMetadataValue/types"
 import { DcsMetadataTypedValueJSONSchema } from "../dscMetadataTypedValue/types"
@@ -72,17 +72,20 @@ const createFilterItemComparisonSchema = (context: ConfigurationContext): TSchem
 }
 
 export const exportFilterItemToJSONSchema: ExportToJSONSchemaFn = ({ context }) => {
-  const itemSchema = Type.Recursive((This) =>
-    Type.Union([
-      createFilterItemComparisonSchema(context),
-      exportMetadataItemToJSONSchema({
-        context: createFilterItemSchemaContext(context, {
-          FilterItem: Type.Array(This),
-          FilterItemPresentationValue: createFilterItemPresentationValueJSONSchema(context),
+  const itemSchema = Type.Cyclic(
+    {
+      FilterItem: Type.Union([
+        createFilterItemComparisonSchema(context),
+        exportMetadataItemToJSONSchema({
+          context: createFilterItemSchemaContext(context, {
+            FilterItem: Type.Array(Type.Ref("FilterItem")),
+            FilterItemPresentationValue: createFilterItemPresentationValueJSONSchema(context),
+          }),
+          rule: FilterItemGroupRules,
         }),
-        rule: FilterItemGroupRules,
-      }),
-    ])
+      ]),
+    },
+    "FilterItem"
   )
   return Type.Array(itemSchema)
 }

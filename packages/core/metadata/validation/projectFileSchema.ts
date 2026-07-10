@@ -1,13 +1,20 @@
-import type { TSchema } from "@sinclair/typebox"
+import type { TSchema } from "typebox"
 import { isAbsolute, relative, resolve, sep } from "path"
-import type { ConfigurationContext, JSONSchemaExportMode } from "~/metadata/context/types"
-import { classifyMetadataProjectPath } from "~/metadata/project/resources"
+import type { ConfigurationContext, JSONSchemaExportMode } from "../context/types"
+import { classifyMetadataProjectPath } from "../project/resources"
 import {
+  ensureJSONSchemaRegistry,
   exportJSONSchemaForSchemaName as exportRegisteredJSONSchemaForSchemaName,
   ProjectFileSchemaError,
 } from "./schemaRegistry"
 
 export { ProjectFileSchemaError } from "./schemaRegistry"
+export {
+  exportJSONSchemaGraph,
+  schemaNameFromRef,
+  type JSONSchemaGraph,
+  type JSONSchemaGraphRoot,
+} from "../project/schemaRegistry"
 
 export interface ExportJSONSchemaForProjectFileParams {
   context: ConfigurationContext
@@ -20,12 +27,15 @@ export interface ExportJSONSchemaForSchemaNameParams {
   context: ConfigurationContext
   name: string
   mode?: JSONSchemaExportMode
+  excludeImplicitValueYAML?: boolean
+  includeNestedChildItems?: boolean
 }
 
 const expectedPatterns =
   "Ожидались Конфигурация.yaml или пути вида <Вид>/<Имя>/Свойства.yaml и <Вид>/<Имя>/Формы/<Форма>/Форма.yaml"
 
 export function exportJSONSchemaForProjectFile(params: ExportJSONSchemaForProjectFileParams): TSchema {
+  ensureJSONSchemaRegistry()
   const normalized = normalizeProjectPath(params)
 
   if (!normalized.toLowerCase().endsWith(".yaml")) {
@@ -49,10 +59,18 @@ export function exportJSONSchemaForProjectFile(params: ExportJSONSchemaForProjec
     })
   }
 
-  if (resource.role === "configuration" || resource.role === "properties") {
+  if (resource.role === "configuration") {
     return resource.owner.spec.exportSchema({
       context: params.context,
       mode: params.mode,
+    })
+  }
+
+  if (resource.role === "properties") {
+    return resource.owner.spec.exportSchema({
+      context: params.context,
+      mode: params.mode,
+      name: resource.owner.name,
     })
   }
 

@@ -1,6 +1,7 @@
-import { Type } from "@sinclair/typebox"
-import { PropertyRuleType } from "~/metadata/orchestration/property/registry"
-import { MetadataItemRule } from "~/metadata/orchestration/property/types"
+import { Type } from "typebox"
+import { registerJSONSchemaIdentity } from "../jsonSchemaRefs"
+import { PropertyRuleType } from "../property/registry"
+import type { MetadataItemRule } from "../property/types"
 import { registerTypeRule } from "../property/typeRuleRegistry"
 import { registerExportToXML } from "./registerExportToXML"
 import { registerExportToYAML } from "./registerExportToYAML"
@@ -11,15 +12,20 @@ import { exportMetadataItemToJSONSchema } from "./toJSONSchema"
 type MetadataItemRuleParams<Rule extends MetadataItemRule, PropertyType extends PropertyRuleType> = {
   propertyType: PropertyType
   itemRule: Rule
+  schemaName?: string
 }
 
-export const registerMetadataItemRule = <
-  Rule extends MetadataItemRule,
-  PropertyType extends PropertyRuleType,
->(
+export const registerMetadataItemRule = <Rule extends MetadataItemRule, PropertyType extends PropertyRuleType>(
   params: MetadataItemRuleParams<Rule, PropertyType>
 ): void => {
   const { propertyType, itemRule } = params
+  const schemaName = params.schemaName ?? itemRule.itemType
+
+  registerJSONSchemaIdentity({
+    name: schemaName,
+    source: itemRule,
+    exporter: ({ context }) => exportMetadataItemToJSONSchema({ context, rule: itemRule }),
+  })
 
   registerImportFromXML(propertyType, itemRule)
   registerImportFromYAML(propertyType, itemRule)
@@ -35,6 +41,7 @@ export const registerMetadataItemRule = <
         exportToJSONSchema: {
           mode: context.exportToJSONSchema?.mode ?? "inline",
           refs: context.exportToJSONSchema?.refs ?? new Set(),
+          includeNestedChildItems: context.exportToJSONSchema?.includeNestedChildItems,
           propertySchemaOverrides: context.exportToJSONSchema?.propertySchemaOverrides,
           schemaStack: [...schemaStack, propertyType],
         },

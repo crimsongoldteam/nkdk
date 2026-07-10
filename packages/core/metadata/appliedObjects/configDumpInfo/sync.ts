@@ -1,9 +1,10 @@
 import fs from "fs"
+import { randomBytes } from "crypto"
 import { join } from "path"
 import { XMLValidator } from "fast-xml-parser"
-import type { ConfigurationContext } from "~/metadata/context/types"
-import { xmlExport } from "~/xml/export/exporter"
-import { importContentFromXML } from "~/xml/import/importer"
+import type { ConfigurationContext } from "../../context/types"
+import { xmlExport } from "../../../xml/export/exporter"
+import { importContentFromXML } from "../../../xml/import/importer"
 import type { StructuralState } from "../configuration/migrations/types"
 import type { XmlSyncManifest } from "../configuration/migrations/xmlManifest"
 import { buildConfigDumpInfo } from "./build"
@@ -42,6 +43,38 @@ export async function syncConfigDumpInfoToXML(params: {
   params.xmlManifest?.addFile(outputPath)
 }
 
+export async function updateConfigDumpInfoVersionsToXML(params: {
+  context: ConfigurationContext
+  outputDir: string
+  names: Iterable<string>
+  generateVersion?: () => string
+}): Promise<void> {
+  const names = new Set(params.names)
+  if (names.size === 0) return
+
+  const path = join(params.outputDir, CONFIG_DUMP_INFO_FILE)
+  if (!fs.existsSync(path)) return
+
+  const source = await fs.promises.readFile(path, "utf-8")
+  const validation = XMLValidator.validate(source)
+  if (validation !== true) {
+    throw new Error(`Некорректный ConfigDumpInfo.xml: ${validation.err.msg}`)
+  }
+
+  const parsed = importContentFromXML<{ ConfigDumpInfo: ConfigDumpInfoXML }>(source)
+  const idMap = importConfigDumpInfoFromXML({ context: params.context, xml: parsed.ConfigDumpInfo })
+  const generateVersion = params.generateVersion ?? generateConfigVersion
+
+  for (const name of names) {
+    const entry = idMap.get(name)
+    if (entry) entry.configVersion = generateVersion()
+  }
+
+  const xml = exportConfigDumpInfoToXML({ context: params.context, idMap })
+  const content = preserveReferenceLineEndings(xmlExport({ ConfigDumpInfo: xml }), source)
+  await fs.promises.writeFile(path, content, "utf-8")
+}
+
 async function readReferenceConfigDumpInfo(params: {
   context: ConfigurationContext
   referenceDir?: string
@@ -64,4 +97,8 @@ async function readReferenceConfigDumpInfo(params: {
 function preserveReferenceLineEndings(xml: string, referenceSource: string | undefined): string {
   if (!referenceSource?.includes("\r\n")) return xml
   return xml.replace(/\n/g, "\r\n")
+}
+
+function generateConfigVersion(): string {
+  return `${randomBytes(16).toString("hex")}00000000`
 }

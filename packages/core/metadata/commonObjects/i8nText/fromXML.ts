@@ -1,7 +1,7 @@
-import { PropertyRule } from "~/metadata/orchestration/property/types"
-import { registerTypeRule } from "~/metadata/orchestration/property/typeRuleRegistry"
+import type { PropertyRule } from "../../orchestration/property/types"
+import { registerTypeRule } from "../../orchestration/property/typeRuleRegistry"
 import { ConfigurationContext } from "../../context/types"
-import { I8nText, I8nTextLanguageXML, I8nTextPropertyRule, I8nTextXML } from "./types"
+import type { I8nText, I8nTextLanguageXML, I8nTextPropertyRule, I8nTextXML } from "./types"
 
 export const importI8nTextFromXML = (
   _context: ConfigurationContext,

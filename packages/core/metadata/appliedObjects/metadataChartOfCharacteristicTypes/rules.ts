@@ -1,11 +1,30 @@
-import { V8_MDCLASSES_ROOT } from "~/metadata/orchestration/appliedObject/presets"
-import { MetadataItemRule } from "~/metadata/orchestration/property/types"
-import { commonBasedOnObjectPaths } from "~/metadata/commonObjects/metadataTargets"
+import { additionalIndexRule, metadataCommandsRule } from "../metadataAccountingRegister/builders"
+import { metadataChartOfCharacteristicTypesTabularSectionsRule } from "./builders"
+import { metadataAttributesWithAllowedTypesRule } from "../metadataDataProcessor/builders"
+import { characteristicsDescriptionsRule } from "../../commonObjects/characteristicsDescription/types"
+import { childFormNamesRule } from "../../commonObjects/childFormNames/types"
+import { childTemplateNamesRule } from "../../commonObjects/childTemplateNames/types"
+import { helpRule } from "../../commonObjects/help/types"
+import { internalInfoRule } from "../../commonObjects/internalInfo/types"
+import { metadataFieldsRule } from "../../commonObjects/metadataField/types"
+import { metadataItemLinksRule } from "../../commonObjects/metadataPath/types"
+import { predefinedRule } from "../../commonObjects/predefined/builders"
+import { standardAttributeDescriptionsRule } from "../../commonObjects/standardAttributeDescription/builders"
+import { typeDescriptionRule } from "../../commonObjects/typeDescription/types"
+import { booleanRule } from "../../commonObjects/boolean/types"
+import { i8nTextRule } from "../../commonObjects/i8nText/types"
+import { moduleRule } from "../../commonObjects/module/types"
+import { numberRule } from "../../commonObjects/number/types"
+import { stringRule } from "../../commonObjects/string/types"
+import { uuidRule } from "../../commonObjects/uuid/types"
+import { xmlRootRule } from "../../commonObjects/xmlRoot/types"
+import { systemEnumerationRule } from "../../systemEnumerations/types"
+import { V8_MDCLASSES_ROOT } from "../../orchestration/appliedObject/presets"
+import type { MetadataItemRule } from "../../orchestration/property/types"
+import { commonBasedOnObjectPaths } from "../../commonObjects/metadataTargets"
 import { MetadataCommandRules } from "../metadataCommand/rules"
-
 const properties = ["Properties"]
 const childObjects = ["ChildObjects"]
-
 export const MetadataChartOfCharacteristicTypesStandardAttributeNames: Record<string, string> = {
   PredefinedDataName: "ИмяПредопределенныхДанных",
   ValueType: "ТипЗначения",
@@ -17,7 +36,6 @@ export const MetadataChartOfCharacteristicTypesStandardAttributeNames: Record<st
   DeletionMark: "ПометкаУдаления",
   Ref: "Ссылка",
 }
-
 const MetadataChartOfCharacteristicTypesCommandRules = {
   ...MetadataCommandRules,
   properties: {
@@ -28,16 +46,21 @@ const MetadataChartOfCharacteristicTypesCommandRules = {
     },
   },
 } as const satisfies MetadataItemRule
-
 export const MetadataChartOfCharacteristicTypesRules = {
   itemType: "MetadataChartOfCharacteristicTypes",
+  metadataTargetOwner: { kind: "self", root: "ChartOfCharacteristicTypes" },
   itemTypePrefix: "ПланВидовХарактеристик",
   xmlDir: "ChartsOfCharacteristicTypes",
   uniqueNameScopes: [{ collections: ["attributes", "tabularSections"] }],
   properties: {
-    xmlRoot: { type: "XMLRoot", container: "ChartOfCharacteristicTypes", rootAttributes: V8_MDCLASSES_ROOT, forReferenceOnly: true, toYAML: false, fromYAML: false },
-    internalInfo: {
-      type: "InternalInfo",
+    xmlRoot: xmlRootRule({
+      container: "ChartOfCharacteristicTypes",
+      rootAttributes: V8_MDCLASSES_ROOT,
+      forReferenceOnly: true,
+      toYAML: false,
+      fromYAML: false,
+    }),
+    internalInfo: internalInfoRule({
       xmlParents: [],
       forReferenceOnly: true,
       items: [
@@ -48,70 +71,351 @@ export const MetadataChartOfCharacteristicTypesRules = {
         { name: "Characteristic", category: "Characteristic" },
         { name: "ChartOfCharacteristicTypesManager", category: "Manager" },
       ],
-    },
-    uuid: { type: "uuid", xml: "_uuid", forReferenceOnly: true, xmlParents: [] },
-    name: { type: "string", xmlParents: properties, required: true, defaultValue: ({ name }: { name?: string }) => name },
-    synonym: { yaml: "Синоним", type: "I8nText", xmlParents: properties, defaultValueXMLRaw: "" },
-    comment: { yaml: "Комментарий", type: "string", xmlParents: properties, defaultValueXMLRaw: "" },
-    useStandardCommands: { yaml: "ИспользоватьСтандартныеКоманды", type: "boolean", defaultValueXML: true, implicitValueYAML: true, xmlParents: properties },
-    includeHelpInContents: { yaml: "ВключатьСправкуВСодержание", type: "boolean", defaultValueXML: false, implicitValueYAML: false, xmlParents: properties },
-    characteristicExtValues: { yaml: "ДополнительныеЗначенияХарактеристик", type: "string", xmlParents: properties, defaultValueXMLRaw: "" },
-    type: { yaml: "ТипЗначения", type: "TypeDescription", xml: "Type", xmlParents: properties },
-    hierarchical: { yaml: "Иерархический", type: "boolean", defaultValueXML: false, implicitValueYAML: false, xmlParents: properties },
-    foldersOnTop: { yaml: "ГруппыСверху", type: "boolean", defaultValueXML: true, implicitValueYAML: true, xmlParents: properties },
-    codeLength: { yaml: "ДлинаКода", type: "number", defaultValueXML: 9, implicitValueYAML: 9, xmlParents: properties },
-    codeAllowedLength: { yaml: "ДопустимаяДлинаКода", type: "SystemEnumeration", typeSE: "AllowedLength", defaultValueXML: "Variable", implicitValueYAML: "Variable", xmlParents: properties },
-    descriptionLength: { yaml: "ДлинаНаименования", type: "number", defaultValueXML: 25, implicitValueYAML: 25, xmlParents: properties },
-    codeSeries: { yaml: "СерииКодов", type: "SystemEnumeration", typeSE: "CharacteristicKindCodesSeries", defaultValueXML: "WholeCharacteristicKind", implicitValueYAML: "WholeCharacteristicKind", xmlParents: properties },
-    checkUnique: { yaml: "КонтрольУникальности", type: "boolean", defaultValueXML: true, implicitValueYAML: true, xmlParents: properties },
-    autonumbering: { yaml: "Автонумерация", type: "boolean", defaultValueXML: true, implicitValueYAML: true, xmlParents: properties },
-    defaultPresentation: { yaml: "ОсновноеПредставление", type: "SystemEnumeration", typeSE: "CharacteristicTypeMainPresentation", defaultValueXML: "AsDescription", implicitValueYAML: "AsDescription", xmlParents: properties },
-    standardAttributes: { yaml: "СтандартныеРеквизиты", type: "StandardAttributeDescriptions", standartAttributeNames: MetadataChartOfCharacteristicTypesStandardAttributeNames, xmlParents: properties },
-    characteristics: { yaml: "Характеристики", type: "CharacteristicsDescriptions", xmlParents: properties, defaultValueXMLRaw: {} },
-    predefinedDataUpdate: { yaml: "ОбновлениеПредопределенныхДанных", type: "SystemEnumeration", typeSE: "PredefinedDataUpdate", defaultValueXML: "Auto", implicitValueYAML: "Auto", xmlParents: properties },
-    editType: { yaml: "СпособРедактирования", type: "SystemEnumeration", typeSE: "EditType", defaultValueXML: "InDialog", implicitValueYAML: "InDialog", xmlParents: properties },
-    quickChoice: { yaml: "БыстрыйВыбор", type: "boolean", defaultValueXML: false, implicitValueYAML: false, xmlParents: properties },
-    choiceMode: { yaml: "РежимВыбора", type: "SystemEnumeration", typeSE: "ChoiceMode", defaultValueXML: "BothWays", implicitValueYAML: "BothWays", xmlParents: properties },
-    inputByString: { yaml: "ВводПоСтроке", type: "MetadataFields", xmlParents: properties, defaultValueXMLRaw: {} },
-    createOnInput: { yaml: "СозданиеПриВводе", type: "SystemEnumeration", typeSE: "CreateOnInput", defaultValueXML: "DontUse", implicitValueYAML: "DontUse", xmlParents: properties },
-    searchStringModeOnInputByString: { yaml: "РежимСтрокиПоискаПриВводеПоСтроке", type: "SystemEnumeration", typeSE: "SearchStringModeOnInputByString", defaultValueXML: "Begin", implicitValueYAML: "Begin", xmlParents: properties },
-    choiceDataGetModeOnInputByString: { yaml: "РежимПолученияДанныхВыбораПриВводеПоСтроке", type: "SystemEnumeration", typeSE: "ChoiceDataGetModeOnInputByString", defaultValueXML: "Directly", implicitValueYAML: "Directly", xmlParents: properties },
-    fullTextSearchOnInputByString: { yaml: "ПолнотекстовыйПоискПриВводеПоСтроке", type: "SystemEnumeration", typeSE: "FullTextSearchOnInputByString", defaultValueXML: "DontUse", implicitValueYAML: "DontUse", xmlParents: properties },
-    choiceHistoryOnInput: { yaml: "ИсторияВыбораПриВводе", type: "SystemEnumeration", typeSE: "ChoiceHistoryOnInput", defaultValueXML: "Auto", implicitValueYAML: "Auto", xmlParents: properties },
-    defaultObjectForm: { yaml: "ОсновнаяФормаОбъекта", type: "string", xmlParents: properties, metadataTarget: { kind: "member", owner: "this", memberKinds: ["Form"], objectRoots: ["CommonForm"] }, defaultValueXMLRaw: "" },
-    defaultFolderForm: { yaml: "ОсновнаяФормаГруппы", type: "string", xmlParents: properties, metadataTarget: { kind: "member", owner: "this", memberKinds: ["Form"], objectRoots: ["CommonForm"] }, defaultValueXMLRaw: "" },
-    defaultListForm: { yaml: "ОсновнаяФормаСписка", type: "string", xmlParents: properties, metadataTarget: { kind: "member", owner: "this", memberKinds: ["Form"], objectRoots: ["CommonForm"] }, defaultValueXMLRaw: "" },
-    defaultChoiceForm: { yaml: "ОсновнаяФормаВыбора", type: "string", xmlParents: properties, metadataTarget: { kind: "member", owner: "this", memberKinds: ["Form"], objectRoots: ["CommonForm"] }, defaultValueXMLRaw: "" },
-    defaultFolderChoiceForm: { yaml: "ОсновнаяФормаВыбораГруппы", type: "string", xmlParents: properties, metadataTarget: { kind: "member", owner: "this", memberKinds: ["Form"], objectRoots: ["CommonForm"] }, defaultValueXMLRaw: "" },
-    auxiliaryObjectForm: { yaml: "ДополнительнаяФормаОбъекта", type: "string", xmlParents: properties, metadataTarget: { kind: "member", owner: "this", memberKinds: ["Form"], objectRoots: ["CommonForm"] }, defaultValueXMLRaw: "" },
-    auxiliaryFolderForm: { yaml: "ДополнительнаяФормаГруппы", type: "string", xmlParents: properties, metadataTarget: { kind: "member", owner: "this", memberKinds: ["Form"], objectRoots: ["CommonForm"] }, defaultValueXMLRaw: "" },
-    auxiliaryListForm: { yaml: "ДополнительнаяФормаСписка", type: "string", xmlParents: properties, metadataTarget: { kind: "member", owner: "this", memberKinds: ["Form"], objectRoots: ["CommonForm"] }, defaultValueXMLRaw: "" },
-    auxiliaryChoiceForm: { yaml: "ДополнительнаяФормаВыбора", type: "string", xmlParents: properties, metadataTarget: { kind: "member", owner: "this", memberKinds: ["Form"], objectRoots: ["CommonForm"] }, defaultValueXMLRaw: "" },
-    auxiliaryFolderChoiceForm: { yaml: "ДополнительнаяФормаВыбораГруппы", type: "string", xmlParents: properties, metadataTarget: { kind: "member", owner: "this", memberKinds: ["Form"], objectRoots: ["CommonForm"] }, defaultValueXMLRaw: "" },
-    basedOn: { yaml: "ВводитсяНаОсновании", type: "MetadataItemLinks", metadataTarget: { kind: "object", allowedObjectPaths: commonBasedOnObjectPaths }, xmlParents: properties, defaultValueXMLRaw: {} },
-    dataLockFields: { yaml: "ПоляБлокировкиДанных", type: "MetadataFields", xmlParents: properties, defaultValueXMLRaw: {} },
-    dataLockControlMode: { yaml: "РежимУправленияБлокировкойДанных", type: "SystemEnumeration", typeSE: "DefaultDataLockControlMode", defaultValueXML: "Managed", implicitValueYAML: "Managed", xmlParents: properties },
-    fullTextSearch: { yaml: "ПолнотекстовыйПоиск", type: "SystemEnumeration", typeSE: "UseFullTextSearch", defaultValueXML: "Use", implicitValueYAML: "Use", xmlParents: properties },
-    objectPresentation: { yaml: "ПредставлениеОбъекта", type: "I8nText", xmlParents: properties, defaultValueXMLRaw: "" },
-    extendedObjectPresentation: { yaml: "РасширенноеПредставлениеОбъекта", type: "I8nText", xmlParents: properties, defaultValueXMLRaw: "" },
-    listPresentation: { yaml: "ПредставлениеСписка", type: "I8nText", xmlParents: properties, defaultValueXMLRaw: "" },
-    extendedListPresentation: { yaml: "РасширенноеПредставлениеСписка", type: "I8nText", xmlParents: properties, defaultValueXMLRaw: "" },
-    explanation: { yaml: "Пояснение", type: "I8nText", xmlParents: properties, defaultValueXMLRaw: "" },
-    dataHistory: { yaml: "ИсторияДанных", type: "SystemEnumeration", typeSE: "DataHistoryUse", defaultValueXML: "DontUse", implicitValueYAML: "DontUse", xmlParents: properties },
-    updateDataHistoryImmediatelyAfterWrite: { yaml: "ОбновлятьИсториюДанныхСразуПослеЗаписи", type: "boolean", defaultValueXML: false, implicitValueYAML: false, xmlParents: properties },
-    executeAfterWriteDataHistoryVersionProcessing: { yaml: "ВыполнятьОбработкуПослеЗаписиВерсииИсторииДанных", type: "boolean", defaultValueXML: false, implicitValueYAML: false, xmlParents: properties },
-    objectBelonging: { yaml: "ПринадлежностьОбъекта", type: "SystemEnumeration", typeSE: "ObjectBelonging", xmlParents: properties, toYAML: false, fromYAML: false, implicitValueYAML: "Native" },
-    extendedConfigurationObject: { type: "string", runtimeOnly: true },
-    attributes: { yaml: "Реквизиты", xml: "Attribute", type: "MetadataAttributes", xmlParents: childObjects },
-    tabularSections: { yaml: "ТабличныеЧасти", xml: "TabularSection", type: "MetadataChartOfCharacteristicTypesTabularSections", xmlParents: childObjects },
-    forms: { yaml: "Формы", xml: "Form", type: "ChildFormNames", xmlParents: childObjects, folderName: "Формы", forReferenceOnly: true, toYAML: false, fromYAML: false },
-    templates: { yaml: "Макеты", xml: "Template", type: "ChildTemplateNames", xmlParents: childObjects, folderName: "Макеты", forReferenceOnly: true, toYAML: false, fromYAML: false },
-    commands: { yaml: "Команды", xml: "Command", type: "MetadataCommands", xmlParents: childObjects },
-    objectModule: { type: "Module", externalMetadata: { segment: "ObjectModule", placement: "derivedEntry" }, nkdkPath: "МодульОбъекта.bsl", xmlPath: "Ext/ObjectModule.bsl", toXML: false, fromXML: false },
-    managerModule: { type: "Module", externalMetadata: { segment: "ManagerModule", placement: "derivedEntry" }, nkdkPath: "МодульМенеджера.bsl", xmlPath: "Ext/ManagerModule.bsl", toXML: false, fromXML: false },
-    predefined: { yaml: "Предопределенные", type: "Predefined", filePath: "Ext/Predefined.xml" },
-    additionalIndexes: { yaml: "ДополнительныеИндексы", type: "AdditionalIndex", filePath: "Ext/AdditionalIndexes.xml" },
-    help: { type: "Help", externalMetadata: { segment: "Help", placement: "derivedEntry" }, filePath: "Ext/Help.xml", xmlPath: "Ext/Help.xml", nkdkDir: "Справка", toXML: false, fromXML: false },
+    }),
+    uuid: uuidRule({ xml: "_uuid", forReferenceOnly: true, xmlParents: [] }),
+    name: stringRule({ xmlParents: properties, required: true, defaultValue: ({ name }: { name?: string }) => name }),
+    synonym: i8nTextRule({
+      yaml: "Синоним",
+      xmlParents: properties,
+      defaultValueXMLRaw: "",
+      excludeIfEqualNameYAML: true,
+    }),
+    comment: stringRule({ yaml: "Комментарий", xmlParents: properties, defaultValueXMLRaw: "" }),
+    useStandardCommands: booleanRule({
+      yaml: "ИспользоватьСтандартныеКоманды",
+      defaultValueXML: true,
+      implicitValueYAML: true,
+      xmlParents: properties,
+    }),
+    includeHelpInContents: booleanRule({
+      yaml: "ВключатьСправкуВСодержание",
+      defaultValueXML: false,
+      implicitValueYAML: false,
+      xmlParents: properties,
+    }),
+    characteristicExtValues: stringRule({
+      yaml: "ДополнительныеЗначенияХарактеристик",
+      xmlParents: properties,
+      defaultValueXMLRaw: "",
+    }),
+    type: typeDescriptionRule({ yaml: "ТипЗначения", xml: "Type", xmlParents: properties }),
+    hierarchical: booleanRule({
+      yaml: "Иерархический",
+      defaultValueXML: false,
+      implicitValueYAML: false,
+      xmlParents: properties,
+    }),
+    foldersOnTop: booleanRule({
+      yaml: "ГруппыСверху",
+      defaultValueXML: true,
+      implicitValueYAML: true,
+      xmlParents: properties,
+    }),
+    codeLength: numberRule({ yaml: "ДлинаКода", defaultValueXML: 9, implicitValueYAML: 9, xmlParents: properties }),
+    codeAllowedLength: systemEnumerationRule({
+      yaml: "ДопустимаяДлинаКода",
+      typeSE: "AllowedLength",
+      defaultValueXML: "Variable",
+      implicitValueYAML: "Variable",
+      xmlParents: properties,
+    }),
+    descriptionLength: numberRule({
+      yaml: "ДлинаНаименования",
+      defaultValueXML: 25,
+      implicitValueYAML: 25,
+      xmlParents: properties,
+    }),
+    codeSeries: systemEnumerationRule({
+      yaml: "СерииКодов",
+      typeSE: "CharacteristicKindCodesSeries",
+      defaultValueXML: "WholeCharacteristicKind",
+      implicitValueYAML: "WholeCharacteristicKind",
+      xmlParents: properties,
+    }),
+    checkUnique: booleanRule({
+      yaml: "КонтрольУникальности",
+      defaultValueXML: true,
+      implicitValueYAML: true,
+      xmlParents: properties,
+    }),
+    autonumbering: booleanRule({
+      yaml: "Автонумерация",
+      defaultValueXML: true,
+      implicitValueYAML: true,
+      xmlParents: properties,
+    }),
+    defaultPresentation: systemEnumerationRule({
+      yaml: "ОсновноеПредставление",
+      typeSE: "CharacteristicTypeMainPresentation",
+      defaultValueXML: "AsDescription",
+      implicitValueYAML: "AsDescription",
+      xmlParents: properties,
+    }),
+    standardAttributes: standardAttributeDescriptionsRule({
+      yaml: "СтандартныеРеквизиты",
+      standartAttributeNames: MetadataChartOfCharacteristicTypesStandardAttributeNames,
+      xmlParents: properties,
+    }),
+    characteristics: characteristicsDescriptionsRule({
+      yaml: "Характеристики",
+      xmlParents: properties,
+      defaultValueXMLRaw: {},
+    }),
+    predefinedDataUpdate: systemEnumerationRule({
+      yaml: "ОбновлениеПредопределенныхДанных",
+      typeSE: "PredefinedDataUpdate",
+      defaultValueXML: "Auto",
+      implicitValueYAML: "Auto",
+      xmlParents: properties,
+    }),
+    editType: systemEnumerationRule({
+      yaml: "СпособРедактирования",
+      typeSE: "EditType",
+      defaultValueXML: "InDialog",
+      implicitValueYAML: "InDialog",
+      xmlParents: properties,
+    }),
+    quickChoice: booleanRule({
+      yaml: "БыстрыйВыбор",
+      defaultValueXML: false,
+      implicitValueYAML: false,
+      xmlParents: properties,
+    }),
+    choiceMode: systemEnumerationRule({
+      yaml: "РежимВыбора",
+      typeSE: "ChoiceMode",
+      defaultValueXML: "BothWays",
+      implicitValueYAML: "BothWays",
+      xmlParents: properties,
+    }),
+    inputByString: metadataFieldsRule({
+      yaml: "ВводПоСтроке",
+      metadataTarget: {
+        kind: "member",
+        owner: "this",
+        memberKinds: ["Attribute", "StandardAttribute"],
+        filters: [{ kind: "inputByStringField" }],
+      },
+      xmlParents: properties,
+      defaultValueXMLRaw: {},
+    }),
+    createOnInput: systemEnumerationRule({
+      yaml: "СозданиеПриВводе",
+      typeSE: "CreateOnInput",
+      defaultValueXML: "DontUse",
+      implicitValueYAML: "DontUse",
+      xmlParents: properties,
+    }),
+    searchStringModeOnInputByString: systemEnumerationRule({
+      yaml: "РежимСтрокиПоискаПриВводеПоСтроке",
+      typeSE: "SearchStringModeOnInputByString",
+      defaultValueXML: "Begin",
+      implicitValueYAML: "Begin",
+      xmlParents: properties,
+    }),
+    choiceDataGetModeOnInputByString: systemEnumerationRule({
+      yaml: "РежимПолученияДанныхВыбораПриВводеПоСтроке",
+      typeSE: "ChoiceDataGetModeOnInputByString",
+      defaultValueXML: "Directly",
+      implicitValueYAML: "Directly",
+      xmlParents: properties,
+    }),
+    fullTextSearchOnInputByString: systemEnumerationRule({
+      yaml: "ПолнотекстовыйПоискПриВводеПоСтроке",
+      typeSE: "FullTextSearchOnInputByString",
+      defaultValueXML: "DontUse",
+      implicitValueYAML: "DontUse",
+      xmlParents: properties,
+    }),
+    choiceHistoryOnInput: systemEnumerationRule({
+      yaml: "ИсторияВыбораПриВводе",
+      typeSE: "ChoiceHistoryOnInput",
+      defaultValueXML: "Auto",
+      implicitValueYAML: "Auto",
+      xmlParents: properties,
+    }),
+    defaultObjectForm: stringRule({
+      yaml: "ОсновнаяФормаОбъекта",
+      xmlParents: properties,
+      metadataTarget: { kind: "member", owner: "this", memberKinds: ["Form"], objectRoots: ["CommonForm"] },
+      defaultValueXMLRaw: "",
+    }),
+    defaultFolderForm: stringRule({
+      yaml: "ОсновнаяФормаГруппы",
+      xmlParents: properties,
+      metadataTarget: { kind: "member", owner: "this", memberKinds: ["Form"], objectRoots: ["CommonForm"] },
+      defaultValueXMLRaw: "",
+    }),
+    defaultListForm: stringRule({
+      yaml: "ОсновнаяФормаСписка",
+      xmlParents: properties,
+      metadataTarget: { kind: "member", owner: "this", memberKinds: ["Form"], objectRoots: ["CommonForm"] },
+      defaultValueXMLRaw: "",
+    }),
+    defaultChoiceForm: stringRule({
+      yaml: "ОсновнаяФормаВыбора",
+      xmlParents: properties,
+      metadataTarget: { kind: "member", owner: "this", memberKinds: ["Form"], objectRoots: ["CommonForm"] },
+      defaultValueXMLRaw: "",
+    }),
+    defaultFolderChoiceForm: stringRule({
+      yaml: "ОсновнаяФормаВыбораГруппы",
+      xmlParents: properties,
+      metadataTarget: { kind: "member", owner: "this", memberKinds: ["Form"], objectRoots: ["CommonForm"] },
+      defaultValueXMLRaw: "",
+    }),
+    auxiliaryObjectForm: stringRule({
+      yaml: "ДополнительнаяФормаОбъекта",
+      xmlParents: properties,
+      metadataTarget: { kind: "member", owner: "this", memberKinds: ["Form"], objectRoots: ["CommonForm"] },
+      defaultValueXMLRaw: "",
+    }),
+    auxiliaryFolderForm: stringRule({
+      yaml: "ДополнительнаяФормаГруппы",
+      xmlParents: properties,
+      metadataTarget: { kind: "member", owner: "this", memberKinds: ["Form"], objectRoots: ["CommonForm"] },
+      defaultValueXMLRaw: "",
+    }),
+    auxiliaryListForm: stringRule({
+      yaml: "ДополнительнаяФормаСписка",
+      xmlParents: properties,
+      metadataTarget: { kind: "member", owner: "this", memberKinds: ["Form"], objectRoots: ["CommonForm"] },
+      defaultValueXMLRaw: "",
+    }),
+    auxiliaryChoiceForm: stringRule({
+      yaml: "ДополнительнаяФормаВыбора",
+      xmlParents: properties,
+      metadataTarget: { kind: "member", owner: "this", memberKinds: ["Form"], objectRoots: ["CommonForm"] },
+      defaultValueXMLRaw: "",
+    }),
+    auxiliaryFolderChoiceForm: stringRule({
+      yaml: "ДополнительнаяФормаВыбораГруппы",
+      xmlParents: properties,
+      metadataTarget: { kind: "member", owner: "this", memberKinds: ["Form"], objectRoots: ["CommonForm"] },
+      defaultValueXMLRaw: "",
+    }),
+    basedOn: metadataItemLinksRule({
+      yaml: "ВводитсяНаОсновании",
+      metadataTarget: { kind: "object", allowedObjectPaths: commonBasedOnObjectPaths },
+      xmlParents: properties,
+      defaultValueXMLRaw: {},
+    }),
+    dataLockFields: metadataFieldsRule({
+      yaml: "ПоляБлокировкиДанных",
+      xmlParents: properties,
+      defaultValueXMLRaw: {},
+    }),
+    dataLockControlMode: systemEnumerationRule({
+      yaml: "РежимУправленияБлокировкойДанных",
+      typeSE: "DefaultDataLockControlMode",
+      defaultValueXML: "Managed",
+      implicitValueYAML: "Managed",
+      xmlParents: properties,
+    }),
+    fullTextSearch: systemEnumerationRule({
+      yaml: "ПолнотекстовыйПоиск",
+      typeSE: "UseFullTextSearch",
+      defaultValueXML: "Use",
+      implicitValueYAML: "Use",
+      xmlParents: properties,
+    }),
+    objectPresentation: i8nTextRule({ yaml: "ПредставлениеОбъекта", xmlParents: properties, defaultValueXMLRaw: "" }),
+    extendedObjectPresentation: i8nTextRule({
+      yaml: "РасширенноеПредставлениеОбъекта",
+      xmlParents: properties,
+      defaultValueXMLRaw: "",
+    }),
+    listPresentation: i8nTextRule({ yaml: "ПредставлениеСписка", xmlParents: properties, defaultValueXMLRaw: "" }),
+    extendedListPresentation: i8nTextRule({
+      yaml: "РасширенноеПредставлениеСписка",
+      xmlParents: properties,
+      defaultValueXMLRaw: "",
+    }),
+    explanation: i8nTextRule({ yaml: "Пояснение", xmlParents: properties, defaultValueXMLRaw: "" }),
+    dataHistory: systemEnumerationRule({
+      yaml: "ИсторияДанных",
+      typeSE: "DataHistoryUse",
+      defaultValueXML: "DontUse",
+      implicitValueYAML: "DontUse",
+      xmlParents: properties,
+    }),
+    updateDataHistoryImmediatelyAfterWrite: booleanRule({
+      yaml: "ОбновлятьИсториюДанныхСразуПослеЗаписи",
+      defaultValueXML: false,
+      implicitValueYAML: false,
+      xmlParents: properties,
+    }),
+    executeAfterWriteDataHistoryVersionProcessing: booleanRule({
+      yaml: "ВыполнятьОбработкуПослеЗаписиВерсииИсторииДанных",
+      defaultValueXML: false,
+      implicitValueYAML: false,
+      xmlParents: properties,
+    }),
+    objectBelonging: systemEnumerationRule({
+      yaml: "ПринадлежностьОбъекта",
+      typeSE: "ObjectBelonging",
+      xmlParents: properties,
+      toYAML: false,
+      fromYAML: false,
+      implicitValueYAML: "Native",
+    }),
+    extendedConfigurationObject: stringRule({ runtimeOnly: true }),
+    attributes: metadataAttributesWithAllowedTypesRule({
+      yaml: "Реквизиты",
+      xml: "Attribute",
+      xmlParents: childObjects,
+    }),
+    tabularSections: metadataChartOfCharacteristicTypesTabularSectionsRule({
+      yaml: "ТабличныеЧасти",
+      xml: "TabularSection",
+      xmlParents: childObjects,
+    }),
+    forms: childFormNamesRule({
+      yaml: "Формы",
+      xml: "Form",
+      xmlParents: childObjects,
+      folderName: "Формы",
+      forReferenceOnly: true,
+      toYAML: false,
+      fromYAML: false,
+    }),
+    templates: childTemplateNamesRule({
+      yaml: "Макеты",
+      xml: "Template",
+      xmlParents: childObjects,
+      folderName: "Макеты",
+      forReferenceOnly: true,
+      toYAML: false,
+      fromYAML: false,
+    }),
+    commands: metadataCommandsRule({ yaml: "Команды", xml: "Command", xmlParents: childObjects }),
+    objectModule: moduleRule({
+      externalMetadata: { segment: "ObjectModule", placement: "derivedEntry" },
+      nkdkPath: "МодульОбъекта.bsl",
+      xmlPath: "Ext/ObjectModule.bsl",
+      toXML: false,
+      fromXML: false,
+    }),
+    managerModule: moduleRule({
+      externalMetadata: { segment: "ManagerModule", placement: "derivedEntry" },
+      nkdkPath: "МодульМенеджера.bsl",
+      xmlPath: "Ext/ManagerModule.bsl",
+      toXML: false,
+      fromXML: false,
+    }),
+    predefined: predefinedRule({ yaml: "Предопределенные", filePath: "Ext/Predefined.xml" }),
+    additionalIndexes: additionalIndexRule({
+      yaml: "ДополнительныеИндексы",
+      filePath: "Ext/AdditionalIndexes.xml",
+    }),
+    help: helpRule({
+      externalMetadata: { segment: "Help", placement: "derivedEntry" },
+      filePath: "Ext/Help.xml",
+      xmlPath: "Ext/Help.xml",
+      nkdkDir: "Справка",
+      toXML: false,
+      fromXML: false,
+    }),
   },
   childCollections: [{ propertyKey: "commands", itemRule: MetadataChartOfCharacteristicTypesCommandRules }],
 } as const satisfies MetadataItemRule

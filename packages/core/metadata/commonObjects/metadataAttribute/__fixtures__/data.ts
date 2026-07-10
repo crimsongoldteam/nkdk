@@ -1,5 +1,5 @@
-import { MetadataAttributes, MetadataAttributesYAML } from "~/metadata/commonObjects/metadataAttribute/types"
-import { explicitYAMLString } from "~/yaml/explicitString"
+import { MetadataAttributes, MetadataAttributesYAML } from "../types"
+import { explicitYAMLString } from "../../../../yaml/explicitString"
 
 //#region XML fixtures
 
@@ -201,6 +201,11 @@ export const fullMetadataAttributes: MetadataAttributes = [
   },
 ]
 
+const { binaryDataStorageLocationUse, ...fullMetadataAttributeFromCompactYAML } = fullMetadataAttributes[0]
+void binaryDataStorageLocationUse
+
+export const fullMetadataAttributesFromCompactYAML: MetadataAttributes = [fullMetadataAttributeFromCompactYAML]
+
 export const fullMetadataAttributesYAML: MetadataAttributesYAML = {
   ТестовыйРеквизит: {
     Тип: "Строка",
@@ -212,7 +217,6 @@ export const fullMetadataAttributesYAML: MetadataAttributesYAML = {
     ЗначениеЗаполнения: explicitYAMLString("Значение заполнения"),
     Индексирование: "Индексировать",
     Использование: "ДляГруппыИЭлемента",
-    ИспользованиеХраненияВХранилищеДвоичныхДанных: "Использовать",
     ИсторияВыбораПриВводе: "НеИспользовать",
     ИсторияДанных: "НеИспользовать",
     Комментарий: "Комментарий к реквизиту",

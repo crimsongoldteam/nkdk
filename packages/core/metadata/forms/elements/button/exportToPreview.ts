@@ -1,5 +1,5 @@
-// import { ConfigurationContext } from "~/metadata/context/types"
-// import { exportElementToEnterprise, registerMetadata } from "~/metadata/orchestration"
+// import { ConfigurationContext } from "../../../context/types"
+// import { exportElementToEnterprise, registerMetadata } from "../../../orchestration"
 // import { Button, ButtonEnterprise } from "./types"
 
 // export function exportButtonToEnterprise<From extends Button | undefined>(

@@ -1,36 +1,42 @@
-import { registerElementRule } from "~/metadata/orchestration/formElement/ruleFactory"
-import { PropertyRule } from "~/metadata/orchestration/property/types"
+import { colorRule } from "../../../commonObjects/color/types"
+import { dataPathRule } from "../../../commonObjects/metadataPath/types"
+import { eventsRule } from "../../commonObjects/event/types"
+import { booleanRule } from "../../../commonObjects/boolean/types"
+import { numberRule } from "../../../commonObjects/number/types"
+import { stringRule } from "../../../commonObjects/string/types"
+import { systemEnumerationRule } from "../../../systemEnumerations/types"
+import { registerElementRule } from "../../../orchestration/formElement/ruleFactory"
+import type { PropertyRule } from "../../../orchestration/property/types"
 import { ElementRule } from "../../../orchestration/formElement/types"
 import { formFieldCommonProperties, formFieldDisabledTableRelatedProperties } from "../formField/rules"
 export type { ElementRule, PropertyRule }
-
 export const HTMLDocumentFieldRules = {
   itemType: "HTMLDocumentField",
   enterpriseField: "FormField",
   enterpriseFieldType: "FormFieldType.HTMLDocumentField",
   properties: {
-    autoMaxHeight: { yaml: "АвтоМаксимальнаяВысота", type: "boolean" },
-    autoMaxWidth: { yaml: "АвтоМаксимальнаяШирина", type: "boolean" },
-    borderColor: { yaml: "ЦветРамки", type: "Color", metadataTarget: { kind: "object", roots: ["StyleItem"], filters: [{ kind: "styleItemType", values: ["Color"] }] } },
-    height: { yaml: "Высота", type: "number" },
-    horizontalStretch: { yaml: "РастягиватьПоГоризонтали", type: "boolean" },
-    maxHeight: { yaml: "МаксимальнаяВысота", type: "number" },
-    maxWidth: { yaml: "МаксимальнаяШирина", type: "number" },
-    output: {
+    autoMaxHeight: booleanRule({ yaml: "АвтоМаксимальнаяВысота", implicitValueYAML: true }),
+    autoMaxWidth: booleanRule({ yaml: "АвтоМаксимальнаяШирина", implicitValueYAML: true }),
+    borderColor: colorRule({
+      yaml: "ЦветРамки",
+      metadataTarget: { kind: "object", roots: ["StyleItem"], filters: [{ kind: "styleItemType", values: ["Color"] }] },
+    }),
+    height: numberRule({ yaml: "Высота", implicitValueYAML: 0 }),
+    horizontalStretch: booleanRule({ yaml: "РастягиватьПоГоризонтали", implicitValueYAML: true }),
+    maxHeight: numberRule({ yaml: "МаксимальнаяВысота", implicitValueYAML: 0 }),
+    maxWidth: numberRule({ yaml: "МаксимальнаяШирина", implicitValueYAML: 0 }),
+    output: systemEnumerationRule({
       yaml: "Вывод",
-      type: "SystemEnumeration",
       typeSE: "UseOutput",
       implicitValueYAML: "Auto",
-    },
-    userAgentInformation: {
+    }),
+    userAgentInformation: stringRule({
       yaml: "ИнформацияПрограммыПросмотра",
-      type: "string",
       runtimeOnly: true,
-    },
-    verticalStretch: { yaml: "РастягиватьПоВертикали", type: "boolean" },
-    width: { yaml: "Ширина", type: "number" },
-    events: {
-      type: "Events",
+    }),
+    verticalStretch: booleanRule({ yaml: "РастягиватьПоВертикали", implicitValueYAML: true }),
+    width: numberRule({ yaml: "Ширина", implicitValueYAML: 0 }),
+    events: eventsRule({
       yaml: "События",
       toEnterprise: false,
       items: {
@@ -41,17 +47,16 @@ export const HTMLDocumentFieldRules = {
         afterWrite: "ПослеЗаписи",
         onClick: "ПриНажатии",
       },
-    },
-    dataPath: {
+    }),
+    dataPath: dataPathRule({
       yaml: "ПутьКДанным",
-      type: "DataPath",
       toYAML: false,
       fromYAML: false,
       defaultType: "string",
-    },
+    }),
     ...formFieldCommonProperties,
+    titleHeight: { ...formFieldCommonProperties.titleHeight, implicitValueYAML: 0 },
     ...formFieldDisabledTableRelatedProperties,
   },
 } as const satisfies ElementRule
-
 registerElementRule("HTMLDocumentField", HTMLDocumentFieldRules)

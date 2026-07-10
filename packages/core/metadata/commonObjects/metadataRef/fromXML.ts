@@ -1,7 +1,7 @@
-import { PropertyRule } from "~/metadata/orchestration/property/types"
-import { registerTypeRule } from "~/metadata/orchestration"
+import type { PropertyRule } from "../../orchestration/property/types"
+import { registerTypeRule } from "../../orchestration"
 import { ConfigurationContext } from "../../context/types"
-import { MetadataItemLink, MetadataItemLinks, MetadataItemLinkXML } from "./types"
+import type { MetadataItemLink, MetadataItemLinks, MetadataItemLinkXML } from "./types"
 
 interface MetadataItemLinksXMLInput {
   "xr:Item"?: MetadataItemLinkXML | MetadataItemLinkXML[]

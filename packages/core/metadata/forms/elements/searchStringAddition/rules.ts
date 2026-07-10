@@ -1,21 +1,38 @@
-import { getParentFromContext } from "~/metadata/context/helpers"
-import { ConfigurationContextWithExportToXML } from "~/metadata/context/types"
-import { registerElementAsType, registerElementRule } from "~/metadata/orchestration/formElement/ruleFactory"
-import { MetadataItemRule, PropertyRule } from "~/metadata/orchestration/property/types"
+import { tableAdditionalSourceRule } from "../../commonObjects/tableAdditionalSource/types"
+import { stringRule } from "../../../commonObjects/string/types"
+import { getParentFromContext } from "../../../context/helpers"
+import { ConfigurationContextWithExportToXML } from "../../../context/types"
+import { registerElementAsType, registerElementRule } from "../../../orchestration/formElement/ruleFactory"
+import type { MetadataItemRule, PropertyRule } from "../../../orchestration/property/types"
 import { ElementRule } from "../../../orchestration/formElement/types"
 import { BaseElement } from "../baseElement/types"
 import { getSearchStringAdditionName } from "./helper"
 export type { ElementRule, PropertyRule }
-
 const commonProperties = {
-  autoMaxWidth: { yaml: "АвтоМаксимальнаяШирина", type: "boolean" },
-  backColor: { yaml: "ЦветФона", type: "Color", metadataTarget: { kind: "object", roots: ["StyleItem"], filters: [{ kind: "styleItemType", values: ["Color"] }] } },
-  borderColor: { yaml: "ЦветРамки", type: "Color", metadataTarget: { kind: "object", roots: ["StyleItem"], filters: [{ kind: "styleItemType", values: ["Color"] }] } },
-  font: { yaml: "Шрифт", type: "Font", metadataTarget: { kind: "object", roots: ["StyleItem"], filters: [{ kind: "styleItemType", values: ["Font"] }] } },
-  horizontalStretch: { yaml: "РастягиватьПоГоризонтали", type: "boolean" },
-  maxWidth: { yaml: "МаксимальнаяШирина", type: "number" },
-  textColor: { yaml: "ЦветТекста", type: "Color", metadataTarget: { kind: "object", roots: ["StyleItem"], filters: [{ kind: "styleItemType", values: ["Color"] }] } },
-  width: { yaml: "Ширина", type: "number" },
+  autoMaxWidth: { yaml: "АвтоМаксимальнаяШирина", type: "boolean", implicitValueYAML: true },
+  backColor: {
+    yaml: "ЦветФона",
+    type: "Color",
+    metadataTarget: { kind: "object", roots: ["StyleItem"], filters: [{ kind: "styleItemType", values: ["Color"] }] },
+  },
+  borderColor: {
+    yaml: "ЦветРамки",
+    type: "Color",
+    metadataTarget: { kind: "object", roots: ["StyleItem"], filters: [{ kind: "styleItemType", values: ["Color"] }] },
+  },
+  font: {
+    yaml: "Шрифт",
+    type: "Font",
+    metadataTarget: { kind: "object", roots: ["StyleItem"], filters: [{ kind: "styleItemType", values: ["Font"] }] },
+  },
+  horizontalStretch: { yaml: "РастягиватьПоГоризонтали", type: "boolean", noImplicitValueYAML: true },
+  maxWidth: { yaml: "МаксимальнаяШирина", type: "number", implicitValueYAML: 0 },
+  textColor: {
+    yaml: "ЦветТекста",
+    type: "Color",
+    metadataTarget: { kind: "object", roots: ["StyleItem"], filters: [{ kind: "styleItemType", values: ["Color"] }] },
+  },
+  width: { yaml: "Ширина", type: "number", implicitValueYAML: 0 },
   contextMenu: { yaml: "КонтекстноеМеню", type: "ContextMenu" },
   displayImportance: {
     yaml: "ВажностьПриОтображении",
@@ -24,7 +41,7 @@ const commonProperties = {
     typeSE: "DisplayImportance",
     implicitValueYAML: "Auto",
   },
-  enabled: { yaml: "Доступность", type: "boolean" },
+  enabled: { yaml: "Доступность", type: "boolean", implicitValueYAML: true },
   extendedTooltip: { yaml: "РасширеннаяПодсказка", type: "ExtendedTooltip" },
   horizontalAlignInGroup: {
     yaml: "ГоризонтальноеПоложениеВГруппе",
@@ -55,43 +72,37 @@ const commonProperties = {
     typeSE: "ItemVerticalAlign",
     implicitValueYAML: "Auto",
   },
-  visible: { yaml: "Видимость", type: "boolean" },
+  visible: { yaml: "Видимость", type: "boolean", noImplicitValueYAML: true },
 } as const satisfies MetadataItemRule["properties"]
-
 export const SingleSearchStringAdditionRules = {
   itemType: "SingleSearchStringAddition",
   enterpriseField: "FormField",
   enterpriseFieldType: "None",
   properties: {
-    additionSource: {
-      type: "TableAdditionalSource",
+    additionSource: tableAdditionalSourceRule({
       additionalSourceType: "SearchStringRepresentation",
       fromXML: false,
       forSingleElement: true,
-    },
+    }),
     ...commonProperties,
   },
 } as const satisfies ElementRule
-
 export const SearchStringAdditionRules = {
   itemType: "SearchStringAddition",
   enterpriseField: "FormField",
   enterpriseFieldType: "None",
   properties: {
-    name: {
-      type: "string",
+    name: stringRule({
       xml: "_name",
       required: true,
-    },
-    additionSource: {
+    }),
+    additionSource: tableAdditionalSourceRule({
       yaml: "Источник",
-      type: "TableAdditionalSource",
       additionalSourceType: "SearchStringRepresentation",
-    },
+    }),
     ...commonProperties,
   },
 } as const satisfies ElementRule
-
 registerElementAsType({
   propertyType: "SingleSearchStringAddition",
   elementRule: SingleSearchStringAdditionRules,
@@ -107,6 +118,5 @@ registerElementAsType({
     return { name }
   },
 })
-
 registerElementRule("SearchStringAddition", SearchStringAdditionRules)
 registerElementRule("SingleSearchStringAddition", SingleSearchStringAdditionRules)

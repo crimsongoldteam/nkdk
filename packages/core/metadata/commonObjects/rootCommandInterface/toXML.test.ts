@@ -6,10 +6,10 @@ import {
   exportMetadataItemToYAML,
   importMetadataItemFromXML,
   importMetadataItemFromYAML,
-} from "~/metadata/orchestration"
-import { mockContextFromXML, mockContextToXML } from "~/tests/mockContext"
-import { mockContext } from "~/tests/mockContext"
-import { xmlExport } from "~/xml/export/exporter"
+} from "../../orchestration"
+import { mockContextFromXML, mockContextToXML } from "../../../tests/mockContext"
+import { mockContext } from "../../../tests/mockContext"
+import { xmlExport } from "../../../xml/export/exporter"
 import { RootCommandInterfaceRules } from "./rules"
 import type { RootCommandInterfaceYAML } from "./types"
 
@@ -140,7 +140,7 @@ describe("export RootCommandInterface to XML", () => {
 
     const result = roundTripRootCommandInterfaceThroughYAML(xmlString, (yaml) => {
       const visibility = yaml.ВидимостьКоманд!.find(
-        (item) => item.Команда === "Catalog.Товары.StandardCommand.OpenList"
+        (item: { Команда?: string }) => item.Команда === "Catalog.Товары.StandardCommand.OpenList"
       )
       expect(visibility).toBeDefined()
       visibility!.Роли!.Администратор = "Истина"
@@ -171,7 +171,7 @@ describe("export RootCommandInterface to XML", () => {
 
     const result = roundTripRootCommandInterfaceThroughYAML(xmlString, (yaml) => {
       const placement = yaml.РазмещениеКоманд!.find(
-        (item) => item.Команда === "Catalog.Товары.StandardCommand.OpenList"
+        (item: { Команда?: string }) => item.Команда === "Catalog.Товары.StandardCommand.OpenList"
       )
       expect(placement).toBeDefined()
       placement!.Размещение = "Авто"

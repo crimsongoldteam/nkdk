@@ -1,4 +1,4 @@
-import { ConfigurationContext } from "~/metadata/context/types"
+import { ConfigurationContext } from "../../context/types"
 import { I8nText } from "./types"
 
 export const isEmptyI8nText = (context: ConfigurationContext, data: I8nText): boolean => {

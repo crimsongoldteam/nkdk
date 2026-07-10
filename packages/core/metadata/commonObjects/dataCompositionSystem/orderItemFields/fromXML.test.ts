@@ -1,6 +1,6 @@
 import { describe, expect, it } from "vitest"
-import { PropertyRule } from "~/metadata/orchestration"
-import { testImportPropertyFromXML } from "~/tests/property/importPropertyFromXML"
+import { PropertyRule } from "../../../orchestration"
+import { testImportPropertyFromXML } from "../../../../tests/property/importPropertyFromXML"
 import { dcsOrderItemFieldsFixture } from "./__fixtures__/data"
 import "./index"
 

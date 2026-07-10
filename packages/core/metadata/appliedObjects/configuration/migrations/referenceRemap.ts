@@ -1,4 +1,4 @@
-import type { MetadataItemRule } from "~/metadata/orchestration/property/types"
+import type { MetadataItemRule } from "../../../orchestration/property/types"
 
 export function remapReferenceModel(params: {
   rule: MetadataItemRule
@@ -9,7 +9,7 @@ export function remapReferenceModel(params: {
 }): Record<string, unknown> | undefined {
   const { currentObjectPath, currentModel, referenceModel, referencePathByCurrentPath } = params
   if (!referenceModel) return undefined
-  const cloned = structuredClone(referenceModel)
+  const cloned = cloneWithPropertyDescriptors(referenceModel)
 
   remapCollection({
     ownerPath: currentObjectPath,
@@ -65,11 +65,7 @@ function remapCollection(params: {
   currentItems: unknown
   referenceItems: unknown
   referencePathByCurrentPath: Map<string, string>
-  nested?: (
-    sectionPath: string,
-    currentItem: Record<string, unknown>,
-    referenceItem: Record<string, unknown>,
-  ) => void
+  nested?: (sectionPath: string, currentItem: Record<string, unknown>, referenceItem: Record<string, unknown>) => void
 }): void {
   const { ownerPath, segment, referencePathByCurrentPath, nested } = params
   if (!Array.isArray(params.currentItems) || !Array.isArray(params.referenceItems)) return
@@ -84,15 +80,8 @@ function remapCollection(params: {
 
     const currentPath = `${ownerPath}.${segment}.${currentName}`
     const referencePath = referencePathByCurrentPath.get(currentPath)
-    if (!referencePath) continue
-    const referencePathParts = referencePath.split(".")
-    const referenceName = referencePathParts[referencePathParts.length - 1]
-    const referenceRecord = params.referenceItems.find((item): item is Record<string, unknown> => {
-      return item !== null &&
-        typeof item === "object" &&
-        !Array.isArray(item) &&
-        (item as Record<string, unknown>)["name"] === referenceName
-    })
+    const referenceName = referencePath ? referencePath.split(".").at(-1) : currentName
+    const referenceRecord = findReferenceItem(params.referenceItems, referenceName)
     if (!referenceRecord) continue
 
     referenceRecord["name"] = currentName
@@ -101,4 +90,44 @@ function remapCollection(params: {
   }
 
   params.referenceItems.splice(0, params.referenceItems.length, ...remappedReferenceItems)
+}
+
+function findReferenceItem(items: unknown[], name: string | undefined): Record<string, unknown> | undefined {
+  if (!name) return undefined
+
+  return items.find((item): item is Record<string, unknown> => {
+    return isRecord(item) && item["name"] === name
+  })
+}
+
+function isRecord(value: unknown): value is Record<string, unknown> {
+  return value !== null && typeof value === "object" && !Array.isArray(value)
+}
+
+function cloneWithPropertyDescriptors<T>(value: T, seen = new WeakMap<object, unknown>()): T {
+  if (value === null || typeof value !== "object") return value
+
+  const source = value as object
+  const cached = seen.get(source)
+  if (cached !== undefined) return cached as T
+
+  const target: object = Array.isArray(value) ? [] : {}
+  seen.set(source, target)
+
+  for (const key of Reflect.ownKeys(source)) {
+    const descriptor = Object.getOwnPropertyDescriptor(source, key)
+    if (!descriptor) continue
+
+    if ("value" in descriptor) {
+      Object.defineProperty(target, key, {
+        ...descriptor,
+        value: cloneWithPropertyDescriptors(descriptor.value, seen),
+      })
+      continue
+    }
+
+    Object.defineProperty(target, key, descriptor)
+  }
+
+  return target as T
 }

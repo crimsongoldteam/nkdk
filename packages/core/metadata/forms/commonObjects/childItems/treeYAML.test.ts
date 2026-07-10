@@ -1,5 +1,5 @@
 import { describe, expect, it } from "vitest"
-import { mockContext, mockContextToYAML } from "~/tests/mockContext"
+import { mockContext, mockContextToYAML } from "../../../../tests/mockContext"
 import {
   exportChildItemsToTreeYAML,
   importChildItemsFromTreeYAML,

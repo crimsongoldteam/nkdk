@@ -1,4 +1,4 @@
-import { syncConfigurationToXML } from "@nakidka/core"
+import { readXmlSyncState, syncConfigurationIncrementallyToXML, syncConfigurationToXML } from "@nkdk/core"
 
 export interface SyncConfigurationOptions {
   referenceDir?: string
@@ -25,7 +25,9 @@ export const syncConfiguration = async (
       },
     },
   }
-  const result = await syncConfigurationToXML({
+  const hasState = (await readXmlSyncState(xmlDir)) !== undefined
+  const sync = hasState ? syncConfigurationIncrementallyToXML : syncConfigurationToXML
+  const result = await sync({
     context,
     inputDir: yamlDir,
     outputDir: xmlDir,
@@ -38,8 +40,20 @@ export const syncConfiguration = async (
   }
 
   process.stdout.write(`Готово: ${result.succeeded} успешно, ${result.failed.length} с ошибкой\n`)
+  if (result.changedXmlFiles && result.changedXmlFiles.length > 0) {
+    process.stdout.write("Изменённые XML-файлы:\n")
+    for (const file of result.changedXmlFiles) {
+      process.stdout.write(`  ${changedXmlFileLabel(file.change)} ${file.path}\n`)
+    }
+  }
 
   if (result.failed.length > 0) {
     process.exitCode = 1
   }
+}
+
+function changedXmlFileLabel(change: "added" | "changed" | "deleted"): string {
+  if (change === "added") return "добавлен:"
+  if (change === "deleted") return "удалён:"
+  return "изменён:"
 }

@@ -1,7 +1,7 @@
-import { Type } from "@sinclair/typebox"
-import { MetadataNameYAML } from "~/metadata/commonObjects/metadataName/types"
-import { MetadataRegisterFieldYAML, MetadataRegisterFieldXML } from "~/metadata/commonObjects/metadataRegisterField/types"
-import { MetadataTypeByRule } from "~/metadata/orchestration/metadataItem/element"
+import { Type } from "typebox"
+import { MetadataNameYAML } from "../metadataName/types"
+import { MetadataRegisterFieldYAML, MetadataRegisterFieldXML } from "../metadataRegisterField/types"
+import { MetadataTypeByRule } from "../../orchestration/metadataItem/element"
 import { AccountingFlagRules, ExtDimensionAccountingFlagRules } from "./rules"
 
 export type AccountingFlag = MetadataTypeByRule<typeof AccountingFlagRules>

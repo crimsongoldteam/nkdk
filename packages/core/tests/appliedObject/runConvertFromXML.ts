@@ -2,9 +2,9 @@ import fs from "fs"
 import os from "os"
 import { dirname, join } from "path"
 import { fileURLToPath } from "url"
-import { convertAppliedObjectFromXML } from "~/metadata/orchestration/appliedObject/convertFromXML"
-import { MetadataItemRule } from "~/metadata/orchestration"
-import { mockContextFromXML } from "~/tests/mockContext"
+import { convertAppliedObjectFromXML } from "../../metadata/orchestration/appliedObject/convertFromXML"
+import { MetadataItemRule } from "../../metadata/orchestration"
+import { mockContextFromXML } from "../mockContext"
 
 type Params = {
   rule: MetadataItemRule

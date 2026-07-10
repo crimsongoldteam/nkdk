@@ -1,43 +1,41 @@
-import { MetadataItemRule } from "~/metadata/orchestration/property/types"
-
+import { standardTabularSectionAttributeDescriptionsRule } from "./builders"
+import { i8nTextRule } from "../i8nText/types"
+import { stringRule } from "../string/types"
+import { systemEnumerationRule } from "../../systemEnumerations/types"
+import type { MetadataItemRule } from "../../orchestration/property/types"
 export const StandardTabularSectionDescriptionRules = {
   itemType: "StandardTabularSectionDescription",
   properties: {
-    name: {
+    name: stringRule({
       xml: "_name",
-      type: "string",
       required: true,
-    },
-    synonym: {
+    }),
+    synonym: i8nTextRule({
       yaml: "Синоним",
       xml: "xr:Synonym",
-      type: "I8nText",
       defaultValueXMLRaw: "",
-    },
-    comment: {
+      excludeIfEqualNameYAML: true,
+    }),
+    comment: stringRule({
       yaml: "Комментарий",
       xml: "xr:Comment",
-      type: "string",
       defaultValueXMLRaw: "",
-    },
-    toolTip: {
+    }),
+    toolTip: i8nTextRule({
       yaml: "Подсказка",
       xml: "xr:ToolTip",
-      type: "I8nText",
       defaultValueXMLRaw: "",
-    },
-    fillChecking: {
+    }),
+    fillChecking: systemEnumerationRule({
       yaml: "ПроверкаЗаполнения",
       xml: "xr:FillChecking",
-      type: "SystemEnumeration",
       typeSE: "FillChecking",
       defaultValueXML: "DontCheck",
       implicitValueYAML: "DontCheck",
-    },
-    standardAttributes: {
+    }),
+    standardAttributes: standardTabularSectionAttributeDescriptionsRule({
       yaml: "СтандартныеРеквизиты",
       xml: "xr:StandardAttributes",
-      type: "StandardTabularSectionAttributeDescriptions",
-    },
+    }),
   },
 } as const satisfies MetadataItemRule

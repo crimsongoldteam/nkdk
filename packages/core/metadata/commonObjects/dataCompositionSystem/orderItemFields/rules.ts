@@ -1,38 +1,36 @@
-import { MetadataItemRule } from "~/metadata/orchestration"
-
+import { booleanRule } from "../../boolean/types"
+import { stringRule } from "../../string/types"
+import { systemEnumerationRule } from "../../../systemEnumerations/types"
+import { MetadataItemRule } from "../../../orchestration"
 export const OrderItemFieldRules = {
   itemType: "OrderItemField",
   xsiType: "dcsset:OrderItemField",
   properties: {
-    use: {
-      type: "boolean",
+    use: booleanRule({
       xml: "dcsset:use",
       yaml: "Использование",
       implicitValueYAML: true,
       order: 1,
-    },
-    field: {
-      type: "string",
+    }),
+    field: stringRule({
       xml: "dcsset:field",
       yaml: "Поле",
       order: 2,
-    },
-    orderType: {
-      type: "SystemEnumeration",
+    }),
+    orderType: systemEnumerationRule({
       typeSE: "DataCompositionSortDirection",
       xml: "dcsset:orderType",
       yaml: "ТипУпорядочивания",
       implicitValueYAML: "Asc",
       defaultValueXML: "Asc",
       order: 3,
-    },
-    viewMode: {
-      type: "SystemEnumeration",
+    }),
+    viewMode: systemEnumerationRule({
       typeSE: "DataCompositionSettingsItemViewMode",
       xml: "dcsset:viewMode",
       yaml: "РежимОтображения",
       implicitValueYAML: "Auto",
       order: 4,
-    },
+    }),
   },
 } as const satisfies MetadataItemRule

@@ -1,5 +1,5 @@
-import { ConfigurationContext } from "~/metadata/context/types"
-import { exportPropertiesToYAML, PropertyRule, registerTypeRule } from "~/metadata/orchestration"
+import { ConfigurationContext } from "../../../context/types"
+import { exportPropertiesToYAML, PropertyRule, registerTypeRule } from "../../../orchestration"
 import { AppearanceFieldsRules } from "./rules"
 import type { AppearanceFields, AppearanceFieldsYAML } from "./types"
 

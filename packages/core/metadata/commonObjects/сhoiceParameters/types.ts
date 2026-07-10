@@ -1,4 +1,9 @@
-import { Type } from "@sinclair/typebox"
+import {
+  definePropertyRule as defineWidePropertyRule,
+  type ExactRuleParams as WideExactRuleParams,
+} from "../ruleBuilder"
+import type { PropertyRule as WidePropertyRuleBase } from "../../orchestration/property/types"
+import { Type } from "typebox"
 import {
   MetadataExplicitFormChoiceListValueYAML,
   MetadataExplicitFormChoiceListValueYAMLJSONSchema,
@@ -70,3 +75,15 @@ export type ChoiceParametersYAML = Record<
 >
 
 //#endregion
+
+export interface ChoiceParametersWidePropertyRule extends WidePropertyRuleBase {
+  type: "ChoiceParameters"
+}
+
+export type ChoiceParametersRuleParams = Omit<ChoiceParametersWidePropertyRule, "type">
+
+export function choiceParametersRule<const Params extends ChoiceParametersRuleParams>(
+  params: WideExactRuleParams<ChoiceParametersRuleParams, Params>
+): Readonly<{ type: "ChoiceParameters" } & Params> {
+  return defineWidePropertyRule("ChoiceParameters", params)
+}

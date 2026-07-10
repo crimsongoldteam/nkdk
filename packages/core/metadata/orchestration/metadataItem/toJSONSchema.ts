@@ -1,5 +1,5 @@
-import { TSchema, Type } from "@sinclair/typebox"
-import { ConfigurationContext } from "~/metadata/context/types"
+import { TSchema, Type } from "typebox"
+import { ConfigurationContext } from "../../context/types"
 import { exportPropertiesToJSONSchema, exportPropertyToJSONSchema } from "../property/toJSONSchema"
 import { MetadataItem, MetadataItemRule } from "../property/types"
 import { findInlineProperty } from "./yamlInline"

@@ -1,5 +1,5 @@
 import { MetadataCommonAttribute, MetadataCommonAttributeYAML } from "../types"
-import { explicitYAMLString } from "~/yaml/explicitString"
+import { explicitYAMLString } from "../../../../yaml/explicitString"
 
 export const full: MetadataCommonAttribute = {
   itemType: "MetadataCommonAttribute",

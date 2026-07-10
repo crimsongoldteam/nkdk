@@ -1,7 +1,7 @@
 import { describe, expect, it } from "vitest"
-import { PropertyRule } from "~/metadata/orchestration"
-import { testExportPropertyToXML } from "~/tests/property/exportPropertyToXML"
-import { testImportPropertyFromXML } from "~/tests/property/importPropertyFromXML"
+import { PropertyRule } from "../../../orchestration"
+import { testExportPropertyToXML } from "../../../../tests/property/exportPropertyToXML"
+import { testImportPropertyFromXML } from "../../../../tests/property/importPropertyFromXML"
 import { appearanceCalculatedField, availableValuesCalculatedField, fullCalculatedField } from "./__fixtures__/data"
 import "./types"
 

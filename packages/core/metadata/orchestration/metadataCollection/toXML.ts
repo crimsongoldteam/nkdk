@@ -1,8 +1,8 @@
-import { ConfigurationContextWithExportToXML } from "~/metadata/context/types"
-import { ItemXML, MetadataItemRule, PropertyRule } from "~/metadata/orchestration/property/types"
+import { ConfigurationContextWithExportToXML } from "../../context/types"
+import type { ItemXML, MetadataItemRule, PropertyRule } from "../property/types"
 import { ToMetadata } from "../metadataItem/registry"
 import { exportMetadataItemToXML } from "../metadataItem/toXML"
-import { NamedElementXML } from "./types"
+import type { NamedElementXML } from "./types"
 
 export const exportMetadataCollectionToXML = <Rule extends MetadataItemRule, XMLKey extends string>(params: {
   context: ConfigurationContextWithExportToXML
@@ -12,16 +12,15 @@ export const exportMetadataCollectionToXML = <Rule extends MetadataItemRule, XML
   itemRule: Rule
   xmlElement?: XMLKey
   keyField?: keyof Rule["properties"]
-}): Record<XMLKey, Array<ItemXML | NamedElementXML | string>> | Array<ItemXML | NamedElementXML | string> | undefined => {
+}):
+  | Record<XMLKey, Array<ItemXML | NamedElementXML | string>>
+  | Array<ItemXML | NamedElementXML | string>
+  | undefined => {
   const { context, data, referenceData, xmlElement, keyField, itemRule } = params
   type Item = ToMetadata<Rule["itemType"]>
 
   const inputData =
-    data != null && data.length > 0
-      ? data
-      : referenceData != null && referenceData.length > 0
-        ? referenceData
-        : []
+    data != null && data.length > 0 ? data : referenceData != null && referenceData.length > 0 ? referenceData : []
   if (inputData.length === 0) return undefined
 
   const result = inputData.map((item, index) => {

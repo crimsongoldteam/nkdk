@@ -1,4 +1,4 @@
-import { ConfigurationContextFromXML } from "~/metadata/context/types"
+import { ConfigurationContextFromXML } from "../../../context/types"
 import { importMetadataValueFromXML } from "../fromXML"
 import { MetadataFixedArrayValue, MetadataFixedArrayValueXML } from "../types"
 

@@ -1,12 +1,16 @@
 import fs from "fs"
 import { dirname, join, posix } from "path"
-import type { ConfigurationContextWithExportToXML } from "~/metadata/context/types"
-import { syncFormToXML } from "~/metadata/forms/clientApplicationForm/syncToXML"
-import type { ExternalMetadataContextItem } from "~/metadata/orchestration/externalMetadata/types"
-import { registerTypeRule } from "~/metadata/orchestration/property/typeRuleRegistry"
-import type { SyncExternalToXMLFunction } from "~/metadata/orchestration/property/fn"
-import type { XmlWriteManifest } from "~/metadata/orchestration/xmlWriteManifest"
-import { xmlExport } from "~/xml/export/exporter"
+import type { ConfigurationContextWithExportToXML } from "../../context/types"
+import { DynamicListRules } from "../../forms/commonObjects/dynamicList/rules"
+import { syncFormToXML } from "../../forms/clientApplicationForm/syncToXML"
+import { ClientApplicationFormRules } from "../../forms/clientApplicationForm/rules"
+import type { ExternalMetadataContextItem } from "../../orchestration/externalMetadata/types"
+import { registerTypeRule } from "../../orchestration/property/typeRuleRegistry"
+import { describeMetadataRuleProjectResources } from "../../project/ruleResources"
+import type { SyncExternalToXMLFunction } from "../../orchestration/property/fn"
+import type { MetadataItemRule } from "../../orchestration/property/types"
+import type { XmlWriteManifest } from "../../orchestration/xmlWriteManifest"
+import { xmlExport } from "../../../xml/export/exporter"
 import type { ChildFormNamesPropertyRule } from "./types"
 
 /**
@@ -27,14 +31,16 @@ export const syncChildFormNamesToXML: SyncExternalToXMLFunction = async (params)
     return
   }
 
-  const entries = await fs.promises.readdir(formsDir, { withFileTypes: true })
-  const formNames = entries
-    .filter((e) => e.isDirectory())
-    .filter((e) => {
-      const yamlPath = join(formsDir, e.name, "Форма.yaml")
-      return fs.existsSync(yamlPath)
-    })
-    .map((e) => e.name)
+  const formNames =
+    params.itemName === undefined
+      ? (await fs.promises.readdir(formsDir, { withFileTypes: true }))
+          .filter((e) => e.isDirectory())
+          .filter((e) => {
+            const yamlPath = join(formsDir, e.name, "Форма.yaml")
+            return fs.existsSync(yamlPath)
+          })
+          .map((e) => e.name)
+      : [params.itemName]
   assertNoMissingFormYAML({
     formsDir,
     expectedFormNames,
@@ -54,8 +60,8 @@ export const syncChildFormNamesToXML: SyncExternalToXMLFunction = async (params)
       currentXMLPath: buildChildFormCurrentXMLPath({ xmlDir, currentXMLDir: params.currentXMLDir, name, formName }),
       xmlManifest,
     })
-    await copyFormModuleToXML({ nkdkDir, formOutputDir, formName, xmlManifest })
-    await copyFormHelpToXML({ context, nkdkDir, formOutputDir, formName, xmlManifest })
+    await copyFormModuleToXML({ nkdkDir, formOutputDir, folderName: rule.folderName, formName, xmlManifest })
+    await copyFormHelpToXML({ context, nkdkDir, formOutputDir, folderName: rule.folderName, formName, xmlManifest })
   }
 }
 
@@ -119,11 +125,12 @@ const getLastPathSegments = (value: string, count: number): string => {
 async function copyFormModuleToXML(params: {
   nkdkDir: string
   formOutputDir: string
+  folderName: string
   formName: string
   xmlManifest?: XmlWriteManifest
 }): Promise<void> {
-  const { nkdkDir, formOutputDir, formName, xmlManifest } = params
-  const srcPath = join(nkdkDir, "Формы", formName, "Модуль.bsl")
+  const { nkdkDir, formOutputDir, folderName, formName, xmlManifest } = params
+  const srcPath = join(nkdkDir, folderName, formName, "Модуль.bsl")
   if (!fs.existsSync(srcPath)) return
 
   const dstPath = join(formOutputDir, "Forms", formName, "Ext", "Form", "Module.bsl")
@@ -136,11 +143,12 @@ async function copyFormHelpToXML(params: {
   context: ConfigurationContextWithExportToXML
   nkdkDir: string
   formOutputDir: string
+  folderName: string
   formName: string
   xmlManifest?: XmlWriteManifest
 }): Promise<void> {
-  const { nkdkDir, formOutputDir, formName, xmlManifest } = params
-  const srcDir = join(nkdkDir, "Формы", formName, "Справка")
+  const { nkdkDir, formOutputDir, folderName, formName, xmlManifest } = params
+  const srcDir = join(nkdkDir, folderName, formName, "Справка")
   if (!fs.existsSync(srcDir)) return
 
   const htmlFiles = (await fs.promises.readdir(srcDir)).filter((file) => file.endsWith(".html"))
@@ -178,3 +186,111 @@ async function copyFormHelpToXML(params: {
 }
 
 registerTypeRule("ChildFormNames", "syncExternalToXML", syncChildFormNamesToXML)
+registerTypeRule("ChildFormNames", "xmlSyncWriter", syncChildFormNamesToXML)
+registerTypeRule("ChildFormNames", "projectResources", ({ propertyRule }) => {
+  const folderName = (propertyRule as ChildFormNamesPropertyRule | undefined)?.folderName ?? "Формы"
+  return [
+    {
+      kind: "yaml",
+      role: "fileItem",
+      projectPattern: `${folderName}/{itemName}/Форма.yaml`,
+      required: true,
+      repeatable: true,
+      owner: "currentItem",
+      compositionImpact: "none",
+      source: { kind: "propertyType", type: "ChildFormNames" },
+    },
+    {
+      kind: "yaml",
+      role: "resourceOnly",
+      projectPattern: `${folderName}/{itemName}/Модуль.bsl`,
+      required: false,
+      repeatable: true,
+      owner: "currentItem",
+      compositionImpact: "none",
+      source: { kind: "propertyType", type: "ChildFormNames" },
+    },
+    ...describeFormInnerProjectResources(folderName),
+  ]
+})
+registerTypeRule("ChildFormNames", "xmlSyncRoutes", ({ propertyRule }) => {
+  const folderName = (propertyRule as ChildFormNamesPropertyRule | undefined)?.folderName ?? "Формы"
+  return [
+    {
+      kind: "fileItem",
+      yamlPattern: `${folderName}/{itemName}/Форма.yaml`,
+      xmlPathPattern: "Forms/{itemName}.xml",
+      writerType: "propertyType",
+      source: { kind: "propertyType", type: "ChildFormNames" },
+      dumpInfoNamePatterns: ["{dumpRoot}.{ownerName}.Form.{itemName}", "{dumpRoot}.{ownerName}.Form.{itemName}.Form"],
+    },
+    {
+      kind: "externalFile",
+      yamlPattern: `${folderName}/{itemName}/Модуль.bsl`,
+      xmlPathPattern: "Forms/{itemName}/Ext/Form/Module.bsl",
+      writerType: "propertyType",
+      source: { kind: "propertyType", type: "ChildFormNames" },
+      dumpInfoNamePatterns: ["{dumpRoot}.{ownerName}.Form.{itemName}", "{dumpRoot}.{ownerName}.Form.{itemName}.Form"],
+    },
+  ]
+})
+registerTypeRule("ChildFormNames", "fileChildNamesDescriptor", ({ propertyRule }) => {
+  const rule = propertyRule as ChildFormNamesPropertyRule
+  return {
+    folderName: rule.folderName,
+    xmlFolderName: "Forms",
+    xmlItemName: rule.xml,
+    useOwnerDirectoryForExternalSync: true,
+    preserveReferenceXmlFolder: true,
+    expectedNames: ({ rule: ownerRule, model, propertyValue }) => [
+      ...normalizeFormNames(propertyValue),
+      ...collectMetadataTargetFormNames({ rule: ownerRule, model }),
+    ],
+  }
+})
+
+function collectMetadataTargetFormNames(params: { rule: MetadataItemRule; model: Record<string, unknown> }): string[] {
+  const result = new Set<string>()
+  for (const [propertyName, propertyRule] of Object.entries(params.rule.properties)) {
+    if (propertyRule.type === "ChildFormNames") continue
+
+    const target =
+      propertyRule.metadataTarget ??
+      (propertyRule.referenceScope?.target === "this" && propertyRule.referenceScope.kind === "Form"
+        ? { kind: "member" as const, memberKinds: ["Form" as const] }
+        : undefined)
+    if (target === undefined) continue
+
+    const value = params.model[propertyName]
+    if (typeof value !== "string") continue
+
+    const parts = value.split(".")
+    const formIndex = parts.lastIndexOf("Form")
+    if (formIndex >= 0 && parts[formIndex + 1]) result.add(parts[formIndex + 1])
+  }
+  return [...result]
+}
+
+function describeFormInnerProjectResources(folderName: string) {
+  const formRoot = `${folderName}/{itemName}`
+  return [
+    {
+      kind: "directory" as const,
+      role: "resourceOnly" as const,
+      projectPattern: "Справка",
+      required: false,
+      repeatable: false,
+      owner: "currentItem" as const,
+      compositionImpact: "none" as const,
+      source: { kind: "propertyType" as const, type: "ChildFormNames" as const },
+    },
+    ...describeMetadataRuleProjectResources(ClientApplicationFormRules),
+    ...describeMetadataRuleProjectResources(DynamicListRules),
+  ]
+    .filter((resource) => resource.role === "resourceOnly")
+    .map((resource) => ({
+      ...resource,
+      projectPattern: `${formRoot}/${resource.projectPattern}`,
+      repeatable: true,
+    }))
+}

@@ -1,8 +1,8 @@
 import { format, parse } from "date-fns"
-import { ConfigurationContext } from "~/metadata/context/types"
-import { PropertyRule } from "~/metadata/orchestration/property/types"
-import { StandardPeriodVariantToYAML } from "~/metadata/systemEnumerations/types"
-import { StandardPeriod, StandardPeriodYAML } from "./types"
+import { ConfigurationContext } from "../../context/types"
+import type { PropertyRule } from "../../orchestration/property/types"
+import { StandardPeriodVariantToYAML } from "../../systemEnumerations/types"
+import type { StandardPeriod, StandardPeriodYAML } from "./types"
 
 const formatDateTime = (dateTime: string | undefined): string | undefined => {
   if (dateTime === undefined) return undefined

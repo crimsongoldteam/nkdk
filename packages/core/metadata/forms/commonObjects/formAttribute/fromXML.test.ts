@@ -9,10 +9,10 @@ import {
   withAdditionalColumnFormAttribute,
   withEmptySettingsFormAttribute,
   withoutTypeFormAttribute,
-} from "~/metadata/forms/commonObjects/formAttribute/__fixtures__/legacy/data"
-import { mockContextFromXML, mockRule } from "~/tests/mockContext"
-import { testImportPropertyFromXML } from "~/tests/property/importPropertyFromXML"
-import { readAndParseXMLFile } from "~/tests/readAndParseXMLFile"
+} from "./__fixtures__/legacy/data"
+import { mockContextFromXML, mockRule } from "../../../../tests/mockContext"
+import { testImportPropertyFromXML } from "../../../../tests/property/importPropertyFromXML"
+import { readAndParseXMLFile } from "../../../../tests/readAndParseXMLFile"
 import { attributeAnyType } from "./__fixtures__/attributeAnyType"
 import { chartSettings } from "./__fixtures__/chartSettings"
 import { columnAnyType } from "./__fixtures__/columnAnyType"
@@ -218,21 +218,23 @@ describe("importFormAttributesFromXML", () => {
 
   it("imports FlowchartContextType Settings", () => {
     const result = importFormAttributesFromXML(mockContextFromXML(), mockRule, {
-      Attribute: [{
-        _name: "Схема",
-        _id: "1",
-        Type: {
-          "v8:Type": {
-            "_xmlns:d5p1": "http://v8.1c.ru/8.2/data/graphscheme",
-            "#text": "d5p1:FlowchartContextType",
+      Attribute: [
+        {
+          _name: "Схема",
+          _id: "1",
+          Type: {
+            "v8:Type": {
+              "_xmlns:d5p1": "http://v8.1c.ru/8.2/data/graphscheme",
+              "#text": "d5p1:FlowchartContextType",
+            },
+          },
+          Settings: {
+            "_xmlns:d4p1": "http://v8.1c.ru/8.2/data/graphscheme",
+            "_xsi:type": "d4p1:FlowchartContextType",
+            "d4p1:pointsCurId": "7",
           },
         },
-        Settings: {
-          "_xmlns:d4p1": "http://v8.1c.ru/8.2/data/graphscheme",
-          "_xsi:type": "d4p1:FlowchartContextType",
-          "d4p1:pointsCurId": "7",
-        },
-      }],
+      ],
     })
 
     expect(result).toEqual([
@@ -271,15 +273,17 @@ describe("importFormAttributesFromXML", () => {
 
   it("imports DynamicList Settings with repeated KeyField nodes", () => {
     const result = importFormAttributesFromXML(mockContextFromXML(), mockRule, {
-      Attribute: [{
-        _name: "Список",
-        _id: "1",
-        Settings: {
-          "_xsi:type": "DynamicList",
-          KeyType: "RowKey",
-          KeyField: ["КлючПриглашения", "Контрагент", "ИдентификаторОрганизации"],
+      Attribute: [
+        {
+          _name: "Список",
+          _id: "1",
+          Settings: {
+            "_xsi:type": "DynamicList",
+            KeyType: "RowKey",
+            KeyField: ["КлючПриглашения", "Контрагент", "ИдентификаторОрганизации"],
+          },
         },
-      }],
+      ],
     })
 
     expect(result).toEqual([

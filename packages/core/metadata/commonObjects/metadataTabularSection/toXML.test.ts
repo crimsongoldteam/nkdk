@@ -1,11 +1,11 @@
 import { describe, expect, it } from "vitest"
 import { fullFromXML, minimalFromXML } from "./__fixtures__/data"
-import { exportPropertyToXML, importPropertyFromXML } from "~/metadata/orchestration"
-import { setIdsToElements } from "~/metadata/forms/clientApplicationForm/toXML"
-import type { ConfigurationContextWithExportToXML } from "~/metadata/context/types"
-import { mockContextFromXML, mockContextToXML } from "~/tests/mockContext"
-import { xmlExport } from "~/xml/export/exporter"
-import { importContentFromXML } from "~/xml/import/importer"
+import { exportPropertyToXML, importPropertyFromXML } from "../../orchestration"
+import { setIdsToElements } from "../../forms/clientApplicationForm/toXML"
+import type { ConfigurationContextWithExportToXML } from "../../context/types"
+import { mockContextFromXML, mockContextToXML } from "../../../tests/mockContext"
+import { xmlExport } from "../../../xml/export/exporter"
+import { importContentFromXML } from "../../../xml/import/importer"
 
 const rule = { type: "MetadataTabularSections", xml: "TabularSection" } as const
 
@@ -54,10 +54,7 @@ const exportAndReimport = (value: unknown) => {
   return importPropertyFromXML({ context: mockContextFromXML(), rule, value: parsed["TabularSection"] })
 }
 
-const createExportContextWithParent = (
-  parentType: string,
-  parentName: string
-): ConfigurationContextWithExportToXML => {
+const createExportContextWithParent = (parentType: string, parentName: string): ConfigurationContextWithExportToXML => {
   const context = mockContextToXML()
   context.exportToXML.itemsTree.push({
     itemType: parentType as never,

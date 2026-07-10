@@ -1,5 +1,5 @@
-import { ConfigurationContext } from "~/metadata/context/types"
-import { PropertyRule, registerTypeRule } from "~/metadata/orchestration"
+import { ConfigurationContext } from "../../context/types"
+import { PropertyRule, registerTypeRule } from "../../orchestration"
 import { exportI8nTextDefaultToYAML, exportI8nTextToYAML } from "../i8nText/toYAML"
 import { FormattedI8nText, FormattedI8nTextPropertyRule, FormattedI8nTextValueYAML } from "./types"
 
@@ -9,24 +9,27 @@ export const exportFormattedI8nTextToYAML = <R extends FormattedI8nTextPropertyR
   value: FormattedI8nText | undefined
   name?: string
 }): { [K in NonNullable<R["yaml"]>]?: FormattedI8nTextValueYAML } => {
-  const { context, rule, value: text } = params
+  const { context, rule, value: text, name } = params
   if (!text) return {}
 
   const formattedRule = rule as FormattedI8nTextPropertyRule
 
-  return exportToYAML(context, formattedRule, text) as { [K in NonNullable<R["yaml"]>]?: FormattedI8nTextValueYAML }
+  return exportToYAML(context, formattedRule, text, name) as {
+    [K in NonNullable<R["yaml"]>]?: FormattedI8nTextValueYAML
+  }
 }
 
 const exportToYAML = <R extends FormattedI8nTextPropertyRule>(
   context: ConfigurationContext,
   rule: R,
-  text: FormattedI8nText | undefined
+  text: FormattedI8nText | undefined,
+  name: string | undefined
 ): { [K in NonNullable<R["yaml"]>]?: FormattedI8nTextValueYAML } => {
   if (!text) return {}
 
   if (!rule.yaml) throw Error(`Rule must have yaml property`)
 
-  const exported = exportI8nTextToYAML({ context, rule, value: text })
+  const exported = exportI8nTextToYAML({ context, rule, value: text, name })
   if (exported === undefined) return {}
 
   return {

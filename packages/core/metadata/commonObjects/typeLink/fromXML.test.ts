@@ -1,10 +1,7 @@
 import { describe, expect, it } from "vitest"
-import {
-  accountingRegisterStandardAttributeTypeLink,
-  catalogTabularAttributeTypeLink,
-} from "./__fixtures__/data"
-import { PropertyRule } from "~/metadata/orchestration"
-import { testImportPropertyFromXML } from "~/tests/property/importPropertyFromXML"
+import { accountingRegisterStandardAttributeTypeLink, catalogTabularAttributeTypeLink } from "./__fixtures__/data"
+import { PropertyRule } from "../../orchestration"
+import { testImportPropertyFromXML } from "../../../tests/property/importPropertyFromXML"
 
 const rule: PropertyRule = {
   type: "TypeLink",

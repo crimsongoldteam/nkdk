@@ -1,8 +1,8 @@
-import { TypeCompiler } from "@sinclair/typebox/compiler"
+import { compileValidationSchema } from "./../../validation/compileValidationSchema"
 import { describe, expect, it } from "vitest"
-import { exportMetadataItemToJSONSchema } from "~/metadata/orchestration/metadataItem/toJSONSchema"
-import { registerCoreMetadata } from "~/metadata/register"
-import { mockContext } from "~/tests/mockContext"
+import { exportMetadataItemToJSONSchema } from "../../orchestration/metadataItem/toJSONSchema"
+import { registerCoreMetadata } from "../../register"
+import { mockContext } from "../../../tests/mockContext"
 import { RootCommandInterfaceRules } from "./rules"
 
 registerCoreMetadata()
@@ -10,7 +10,7 @@ registerCoreMetadata()
 describe("RootCommandInterface JSON Schema", () => {
   it("accepts empty subsystem order separators", () => {
     const schema = exportMetadataItemToJSONSchema({ context: mockContext, rule: RootCommandInterfaceRules })
-    const compiled = TypeCompiler.Compile(schema)
+    const compiled = compileValidationSchema(schema)
 
     expect(
       compiled.Check({

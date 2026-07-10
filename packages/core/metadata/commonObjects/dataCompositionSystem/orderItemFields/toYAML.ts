@@ -1,6 +1,6 @@
-import { ConfigurationContext } from "~/metadata/context/types"
-import { ExportToYAMLFunction } from "~/metadata/orchestration"
-import { exportPropertiesToYAML } from "~/metadata/orchestration/property/toYAML"
+import { ConfigurationContext } from "../../../context/types"
+import { ExportToYAMLFunction } from "../../../orchestration"
+import { exportPropertiesToYAML } from "../../../orchestration/property/toYAML"
 import { OrderItemFieldRules } from "./rules"
 import type { OrderItemFields, OrderItemFieldsYAML } from "./types"
 

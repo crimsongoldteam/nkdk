@@ -1,22 +1,24 @@
-import { TSchema, Type } from "@sinclair/typebox"
-import { ColorJSONSchema } from "~/metadata/commonObjects/color/types"
-import { FontJSONSchema } from "~/metadata/commonObjects/font/types"
-import { FormattedI8nTextJSONSchema } from "~/metadata/commonObjects/formattedI8nText/types"
-import { I8nTextJSONSchema } from "~/metadata/commonObjects/i8nText/types"
-import { MetadataFieldJSONSchema } from "~/metadata/commonObjects/metadataField/types"
-import { MetadataSingleValueJSONSchema } from "~/metadata/commonObjects/metadataValue/types"
-import { TypeLinkJSONSchema } from "~/metadata/commonObjects/typeLink/types"
-import { ChoiceParameterLinksJSONSchema } from "~/metadata/commonObjects/сhoiceParameterLinks/types"
-import { ChoiceParametersJSONSchema } from "~/metadata/commonObjects/сhoiceParameters/types"
-import type { ConfigurationContext } from "~/metadata/context/types"
-import { ExportToJSONSchemaFn, registerTypeRule } from "~/metadata/orchestration"
-import { exportSystemEnumerationToJSONSchema } from "~/metadata/systemEnumerations/toJSONSchema"
-import * as SE from "~/metadata/systemEnumerations/types"
+import { TSchema, Type } from "typebox"
+import { ColorJSONSchema } from "../../color/types"
+import { FontJSONSchema } from "../../font/types"
+import { FormattedI8nTextJSONSchema } from "../../formattedI8nText/types"
+import { I8nTextJSONSchema } from "../../i8nText/types"
+import { MetadataFieldJSONSchema } from "../../metadataField/types"
+import { MetadataSingleValueJSONSchema } from "../../metadataValue/types"
+import { TypeLinkJSONSchema } from "../../typeLink/types"
+import { ChoiceParameterLinksJSONSchema } from "../../сhoiceParameterLinks/types"
+import { ChoiceParametersJSONSchema } from "../../сhoiceParameters/types"
+import type { ConfigurationContext } from "../../../context/types"
+import { ExportToJSONSchemaFn, registerTypeRule } from "../../../orchestration"
+import { schemaRef } from "../../../orchestration/jsonSchemaRefs"
+import { registerProjectJSONSchema, registerProjectJSONSchemaPropertyRefFactory } from "../../../project/schemaRegistry"
+import { exportSystemEnumerationToJSONSchema } from "../../../systemEnumerations/toJSONSchema"
+import * as SE from "../../../systemEnumerations/types"
 import {
   StandardPeriodVariantFromYAML,
   type SystemEnumerationPropertyRule,
   type SystemEnumerationTypeMap,
-} from "~/metadata/systemEnumerations/types"
+} from "../../../systemEnumerations/types"
 import type { DcsMetadataValuePropertyRule } from "./types"
 
 const russianDateTimeWithSecondsPattern =
@@ -93,42 +95,52 @@ const StrictStandardPeriodYAMLJSONSchema = Type.Object(
   { additionalProperties: false }
 )
 
-const DcsMetadataSingleValueJSONSchema = Type.Recursive((ThisType) =>
-  Type.Union([
-    MetadataSingleValueJSONSchema,
-    StrictMetadataExplicitDataCompositionComparisonTypeYAMLJSONSchema,
-    StrictMetadataExplicitAccountTypeYAMLJSONSchema,
-    StrictStandardPeriodYAMLJSONSchema,
-    Type.Object(
-      {
-        Представление: I8nTextJSONSchema,
-        Значение: Type.Optional(Type.Union([ThisType, Type.Array(Type.Union([ThisType, Type.Undefined(), Type.Null()]))])),
-      },
-      { additionalProperties: false }
-    ),
-    Type.Object(
-      {
-        Значение: Type.Union([ThisType, Type.Array(Type.Union([ThisType, Type.Undefined(), Type.Null()]))]),
-      },
-      { additionalProperties: false }
-    ),
-  ])
+const DcsMetadataSingleValueJSONSchema = Type.Cyclic(
+  {
+    DcsMetadataSingleValue: Type.Union([
+      MetadataSingleValueJSONSchema,
+      StrictMetadataExplicitDataCompositionComparisonTypeYAMLJSONSchema,
+      StrictMetadataExplicitAccountTypeYAMLJSONSchema,
+      StrictStandardPeriodYAMLJSONSchema,
+      Type.Object(
+        {
+          Представление: I8nTextJSONSchema,
+          Значение: Type.Optional(
+            Type.Union([
+              Type.Ref("DcsMetadataSingleValue"),
+              Type.Array(Type.Union([Type.Ref("DcsMetadataSingleValue"), Type.Undefined(), Type.Null()])),
+            ])
+          ),
+        },
+        { additionalProperties: false }
+      ),
+      Type.Object(
+        {
+          Значение: Type.Union([
+            Type.Ref("DcsMetadataSingleValue"),
+            Type.Array(Type.Union([Type.Ref("DcsMetadataSingleValue"), Type.Undefined(), Type.Null()])),
+          ]),
+        },
+        { additionalProperties: false }
+      ),
+    ]),
+  },
+  "DcsMetadataSingleValue"
 )
-
-const DcsMetadataValueJSONSchema = Type.Union([
-  DcsMetadataSingleValueJSONSchema,
-  Type.Array(Type.Union([DcsMetadataSingleValueJSONSchema, Type.Undefined(), Type.Null()])),
-])
 
 const DesignTimeI8nTextJSONSchema = Type.Union([
   Type.String(),
-  Type.Record(Type.RegExp(/^[a-z]{2}(-[A-Z]{2})?$/), Type.String(), {
+  {
+    ...Type.Record(Type.String({ pattern: "^[a-z]{2}(-[A-Z]{2})?$" }), Type.String()),
     additionalProperties: false,
     minProperties: 1,
-  }),
+  } as TSchema,
 ])
 
 const Nullable = (schema: TSchema): TSchema => Type.Union([Type.Null(), schema])
+
+const DCS_METADATA_SINGLE_VALUE_SCHEMA_NAME = "DcsMetadataSingleValue"
+const DCS_EXPLICIT_SYSTEM_ENUMERATION_SCHEMA_NAME = "DcsExplicitSystemEnumerationValue"
 
 const requiredSystemEnumerationJSONSchema = (
   context: ConfigurationContext,
@@ -184,15 +196,25 @@ const explicitDcsSystemEnumerationValueJSONSchema = (context: ConfigurationConte
       })
   )
 
-export const exportDcsMetadataValueToJSONSchema: ExportToJSONSchemaFn = ({ context, rule }): TSchema => {
+function createDcsMetadataValueJSONSchema(context: ConfigurationContext, rule: DcsMetadataValuePropertyRule): TSchema {
   const dcsRule = rule as DcsMetadataValuePropertyRule
+  const useExternalRefs = context.exportToJSONSchema?.mode === "externalRefs"
+  const dcsMetadataSingleValueJSONSchema = useExternalRefs
+    ? schemaRef(DCS_METADATA_SINGLE_VALUE_SCHEMA_NAME)
+    : DcsMetadataSingleValueJSONSchema
+  const dcsMetadataValueJSONSchema = Type.Union([
+    dcsMetadataSingleValueJSONSchema,
+    Type.Array(Type.Union([dcsMetadataSingleValueJSONSchema, Type.Undefined(), Type.Null()])),
+  ])
   let explicitDcsSystemEnumerationSchema: TSchema | undefined
   let primitiveValueSchema: TSchema | undefined
   const explicitDcsSystemEnumerationJSONSchema = (): TSchema =>
-    (explicitDcsSystemEnumerationSchema ??= explicitDcsSystemEnumerationValueJSONSchema(context))
+    (explicitDcsSystemEnumerationSchema ??= useExternalRefs
+      ? schemaRef(DCS_EXPLICIT_SYSTEM_ENUMERATION_SCHEMA_NAME)
+      : explicitDcsSystemEnumerationValueJSONSchema(context))
   const primitiveValueJSONSchema = (): TSchema =>
     (primitiveValueSchema ??= Type.Union([
-      DcsMetadataSingleValueJSONSchema,
+      dcsMetadataSingleValueJSONSchema,
       explicitDcsSystemEnumerationJSONSchema(),
       Type.Null(),
     ]))
@@ -206,7 +228,7 @@ export const exportDcsMetadataValueToJSONSchema: ExportToJSONSchemaFn = ({ conte
       return Nullable(
         Type.Union([
           MetadataFieldJSONSchema,
-          DcsMetadataValueJSONSchema,
+          dcsMetadataValueJSONSchema,
           ExplicitPrimitiveStringValueJSONSchema,
           explicitDcsSystemEnumerationJSONSchema(),
         ])
@@ -228,4 +250,35 @@ export const exportDcsMetadataValueToJSONSchema: ExportToJSONSchemaFn = ({ conte
   }
 }
 
+export const exportDcsMetadataValueToJSONSchema: ExportToJSONSchemaFn = ({ context, rule }): TSchema => {
+  const dcsRule = rule as DcsMetadataValuePropertyRule
+  if (context.exportToJSONSchema?.mode === "externalRefs") {
+    return schemaRef(ensureDcsMetadataValueJSONSchema(dcsRule))
+  }
+
+  return createDcsMetadataValueJSONSchema(context, dcsRule)
+}
+
 registerTypeRule("MetadataDcsMetadataValue", "exportToJSONSchema", exportDcsMetadataValueToJSONSchema)
+
+registerProjectJSONSchema(DCS_METADATA_SINGLE_VALUE_SCHEMA_NAME, () => DcsMetadataSingleValueJSONSchema)
+registerProjectJSONSchema(DCS_EXPLICIT_SYSTEM_ENUMERATION_SCHEMA_NAME, ({ context }) =>
+  explicitDcsSystemEnumerationValueJSONSchema(context)
+)
+
+registerProjectJSONSchemaPropertyRefFactory("MetadataDcsMetadataValue", ({ rule }) => {
+  const dcsRule = rule as DcsMetadataValuePropertyRule
+  return schemaRef(ensureDcsMetadataValueJSONSchema(dcsRule))
+})
+
+export function ensureDcsMetadataValueJSONSchema(rule: DcsMetadataValuePropertyRule): string {
+  const schemaName = dcsMetadataValueSchemaName(rule)
+  registerProjectJSONSchema(schemaName, ({ context }) =>
+    createDcsMetadataValueJSONSchema(context, rule)
+  )
+  return schemaName
+}
+
+export function dcsMetadataValueSchemaName(rule: DcsMetadataValuePropertyRule): string {
+  return ["DcsMetadataValue", rule.valueType, "typeSE" in rule ? rule.typeSE : undefined].filter(Boolean).join("_")
+}

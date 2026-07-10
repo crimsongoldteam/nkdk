@@ -1,10 +1,10 @@
-import { NamedElement } from "~/metadata/forms/elements/baseElement/types"
+import { NamedElement } from "../../baseElement/types"
 import {
   SearchControlAddition,
   SearchControlAdditionYAML,
   SingleSearchControlAddition,
   SingleSearchControlAdditionYAML,
-} from "~/metadata/forms/elements/searchControlAddition/types"
+} from "../types"
 
 export const parentElement: NamedElement = {
   itemType: "CheckBoxField",
@@ -85,7 +85,6 @@ export const fullSingleSearchControlAddition: SingleSearchControlAddition = {
 }
 
 export const fullSingleSearchControlAdditionYAML: SingleSearchControlAdditionYAML = {
-  АвтоМаксимальнаяШирина: "Истина",
   МаксимальнаяШирина: 400,
   РастягиватьПоГоризонтали: "Истина",
   ЦветРамки: "Черный",
@@ -97,7 +96,6 @@ export const fullSingleSearchControlAdditionYAML: SingleSearchControlAdditionYAM
   ВертикальноеПоложениеВГруппе: "Верх",
   Видимость: "Истина",
   ГоризонтальноеПоложениеВГруппе: "Лево",
-  Доступность: "Истина",
   Заголовок: "Добавление элемента формы",
   КонтекстноеМеню: {
     ВажностьПриОтображении: "Высокая",
@@ -110,8 +108,6 @@ export const fullSingleSearchControlAdditionYAML: SingleSearchControlAdditionYAM
     Заголовок: {
       Текст: "Оформление формы",
     },
-    АвтоМаксимальнаяВысота: "Истина",
-    АвтоМаксимальнаяШирина: "Истина",
     ВажностьПриОтображении: "Высокая",
     ВертикальноеПоложениеВГруппе: "Верх",
     Видимость: "Истина",
@@ -140,6 +136,30 @@ export const fullSearchControlAdditionYAML: SearchControlAdditionYAML = {
 
 export const fullSearchControlAddition: SearchControlAddition = {
   ...fullSingleSearchControlAddition,
+  itemType: "SearchControlAddition",
+  additionSource: "РодительскийЭлемент",
+  name: "ДополнениеУправлениеПоиском",
+}
+
+const {
+  autoMaxWidth: fullSingleSearchControlAdditionAutoMaxWidth,
+  enabled: fullSingleSearchControlAdditionEnabled,
+  extendedTooltip: fullSingleSearchControlAdditionExtendedTooltip,
+  ...fullSingleSearchControlAdditionFromCompactYAML
+} = fullSingleSearchControlAddition
+const {
+  autoMaxHeight: fullSearchControlAdditionExtendedTooltipAutoMaxHeight,
+  autoMaxWidth: fullSearchControlAdditionExtendedTooltipAutoMaxWidth,
+  ...fullSearchControlAdditionExtendedTooltipFromCompactYAML
+} = fullSingleSearchControlAdditionExtendedTooltip!
+void fullSingleSearchControlAdditionAutoMaxWidth
+void fullSingleSearchControlAdditionEnabled
+void fullSearchControlAdditionExtendedTooltipAutoMaxHeight
+void fullSearchControlAdditionExtendedTooltipAutoMaxWidth
+
+export const fullSearchControlAdditionFromCompactYAML: SearchControlAddition = {
+  ...fullSingleSearchControlAdditionFromCompactYAML,
+  extendedTooltip: fullSearchControlAdditionExtendedTooltipFromCompactYAML,
   itemType: "SearchControlAddition",
   additionSource: "РодительскийЭлемент",
   name: "ДополнениеУправлениеПоиском",

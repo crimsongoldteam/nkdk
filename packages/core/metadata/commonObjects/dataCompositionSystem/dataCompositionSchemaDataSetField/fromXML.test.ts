@@ -1,9 +1,9 @@
 import { describe, expect, it } from "vitest"
-import { exportPropertyToXML, PropertyRule } from "~/metadata/orchestration"
-import { mockContextToXML } from "~/tests/mockContext"
-import { testExportPropertyToXML } from "~/tests/property/exportPropertyToXML"
-import { testImportPropertyFromXML } from "~/tests/property/importPropertyFromXML"
-import { xmlExport } from "~/xml/export/exporter"
+import { exportPropertyToXML, PropertyRule } from "../../../orchestration"
+import { mockContextToXML } from "../../../../tests/mockContext"
+import { testExportPropertyToXML } from "../../../../tests/property/exportPropertyToXML"
+import { testImportPropertyFromXML } from "../../../../tests/property/importPropertyFromXML"
+import { xmlExport } from "../../../../xml/export/exporter"
 import {
   appearanceDataCompositionSchemaDataSetField,
   availableValuesDataCompositionSchemaDataSetField,

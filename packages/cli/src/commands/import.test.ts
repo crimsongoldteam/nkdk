@@ -54,7 +54,7 @@ describe("import command", () => {
   })
 
   it("импортирует перечисление с одним значением через публичный вход CLI", async () => {
-    const projectDir = mkdtempSync(join(tmpdir(), "nakidka-cli-import-"))
+    const projectDir = mkdtempSync(join(tmpdir(), "nkdk-cli-import-"))
     const xmlDir = join(projectDir, "xml")
     const yamlDir = join(projectDir, "yaml")
     mkdirSync(join(xmlDir, "Enums"), { recursive: true })

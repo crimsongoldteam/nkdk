@@ -22,10 +22,7 @@ export interface BatchResult<T> {
   results: T[]
 }
 
-export async function runBatch<T>(
-  tasks: BatchTask<T>[],
-  options: { concurrency: number },
-): Promise<BatchResult<T>> {
+export async function runBatch<T>(tasks: BatchTask<T>[], options: { concurrency: number }): Promise<BatchResult<T>> {
   const limit = pLimit(options.concurrency)
 
   const settled = await Promise.allSettled(
@@ -33,8 +30,8 @@ export async function runBatch<T>(
       limit(async () => {
         const value = await task.run()
         return { task, value }
-      }),
-    ),
+      })
+    )
   )
 
   const results: T[] = []

@@ -12,7 +12,7 @@
 #     - либо сообщение «round-trip чистый», если расхождений нет
 #
 # Охраны:
-#   - рабочее дерево nakidka-core должно быть чистым (защита от запуска вручную);
+#   - рабочее дерево nkdk-core должно быть чистым (защита от запуска вручную);
 #   - NKDK_XML_REPO обязан быть git-репо;
 #   - NKDK_XML_DIR обязан существовать.
 #
@@ -196,10 +196,10 @@ fi
 NKDK_XML_DIR="$(cd "${NKDK_XML_DIR}" && pwd)"
 load_known_invalid_diffs
 
-# ── Guard: чистое рабочее дерево nakidka-core ────────────────────────────────
+# ── Guard: чистое рабочее дерево nkdk-core ────────────────────────────────
 
 if [ -n "$(git -C "${REPO_DIR}" status --porcelain)" ]; then
-  echo "Ошибка: рабочее дерево nakidka-core не чистое." >&2
+  echo "Ошибка: рабочее дерево nkdk-core не чистое." >&2
   echo "Сохрани или откати изменения перед запуском reproducer'а." >&2
   git -C "${REPO_DIR}" status --short >&2
   exit 1

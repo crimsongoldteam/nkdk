@@ -1,93 +1,89 @@
-import { MetadataItemRule } from "~/metadata/orchestration/property/types"
-import { V8_MDCLASSES_ROOT } from "~/metadata/orchestration/appliedObject/presets"
-
+import { booleanRule } from "../../commonObjects/boolean/types"
+import { i8nTextRule } from "../../commonObjects/i8nText/types"
+import { numberRule } from "../../commonObjects/number/types"
+import { stringRule } from "../../commonObjects/string/types"
+import { uuidRule } from "../../commonObjects/uuid/types"
+import { xmlRootRule } from "../../commonObjects/xmlRoot/types"
+import { systemEnumerationRule } from "../../systemEnumerations/types"
+import type { MetadataItemRule } from "../../orchestration/property/types"
+import { V8_MDCLASSES_ROOT } from "../../orchestration/appliedObject/presets"
 export const MetadataDocumentNumeratorRules = {
   itemType: "MetadataDocumentNumerator",
+  metadataTargetOwner: { kind: "self", root: "DocumentNumerator" },
   itemTypePrefix: "Нумератор",
   xmlDir: "DocumentNumerators",
   properties: {
-    xmlRoot: {
-      type: "XMLRoot",
+    xmlRoot: xmlRootRule({
       container: "DocumentNumerator",
       rootAttributes: V8_MDCLASSES_ROOT,
       forReferenceOnly: true,
       toYAML: false,
       fromYAML: false,
-    },
-    uuid: {
-      type: "uuid",
+    }),
+    uuid: uuidRule({
       xml: "_uuid",
       forReferenceOnly: true,
       xmlParents: [],
-    },
-    name: {
-      type: "string",
+    }),
+    name: stringRule({
       xmlParents: ["Properties"],
       required: true,
-    },
-    synonym: {
+    }),
+    synonym: i8nTextRule({
       yaml: "Синоним",
-      type: "I8nText",
       xmlParents: ["Properties"],
       defaultValueXMLRaw: "",
-    },
-    comment: {
+      excludeIfEqualNameYAML: true,
+    }),
+    comment: stringRule({
       yaml: "Комментарий",
-      type: "string",
       xmlParents: ["Properties"],
       defaultValueXMLRaw: "",
-    },
-    numberType: {
+    }),
+    numberType: systemEnumerationRule({
       yaml: "ТипНомера",
-      type: "SystemEnumeration",
       typeSE: "DocumentNumberType",
       defaultValueXML: "String",
       xmlParents: ["Properties"],
       implicitValueYAML: "String",
-    },
-    numberLength: {
+    }),
+    numberLength: numberRule({
       yaml: "ДлинаНомера",
-      type: "number",
       defaultValueXML: 9,
       xmlParents: ["Properties"],
       implicitValueYAML: 9,
-    },
-    numberAllowedLength: {
+    }),
+    numberAllowedLength: systemEnumerationRule({
       yaml: "ДопустимаяДлинаНомера",
-      type: "SystemEnumeration",
       typeSE: "AllowedLength",
       defaultValueXML: "Variable",
       xmlParents: ["Properties"],
       implicitValueYAML: "Variable",
-    },
-    numberPeriodicity: {
+    }),
+    numberPeriodicity: systemEnumerationRule({
       yaml: "ПериодичностьНомера",
-      type: "SystemEnumeration",
       typeSE: "DocumentNumberPeriodicity",
       defaultValueXML: "Nonperiodical",
       xmlParents: ["Properties"],
       implicitValueYAML: "Nonperiodical",
-    },
-    checkUnique: {
+    }),
+    checkUnique: booleanRule({
       yaml: "КонтрольУникальности",
-      type: "boolean",
       defaultValueXML: true,
       xmlParents: ["Properties"],
       implicitValueYAML: true,
-    },
-    objectBelonging: {
+    }),
+    objectBelonging: systemEnumerationRule({
       yaml: "ПринадлежностьОбъекта",
-      type: "SystemEnumeration",
       typeSE: "ObjectBelonging",
       implicitValueYAML: "Native",
       toYAML: false,
       fromYAML: false,
       xmlParents: ["Properties"],
-    },
-    extendedConfigurationObject: {
+    }),
+    extendedConfigurationObject: stringRule({
       yaml: "ОбъектРасширяемойКонфигурации",
-      type: "string",
       runtimeOnly: true,
-    },
+    }),
   },
 } as const satisfies MetadataItemRule

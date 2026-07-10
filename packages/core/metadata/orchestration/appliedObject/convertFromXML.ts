@@ -1,12 +1,14 @@
 import fs from "fs"
 import { join } from "path"
-import type { ConfigurationContextFromXML, ExternalFileEntry } from "~/metadata/context/types"
-import { exportMetadataItemToYAML, importMetadataItemFromXML } from "~/metadata/orchestration"
-import { getTypeRule } from "~/metadata/orchestration/property/typeRuleRegistry"
-import { importPropertyFromXML } from "~/metadata/orchestration/property/fromXML"
-import type { MetadataItemRule, PropertyRule } from "~/metadata/orchestration/property/types"
-import { importContentFromXML } from "~/xml/import/importer"
-import { exportToYAML } from "~/yaml/export"
+import type { ConfigurationContextFromXML, ExternalFileEntry } from "../../context/types"
+import { exportMetadataItemToYAML, importMetadataItemFromXML } from ".."
+import { getTypeRule } from "../property/typeRuleRegistry"
+import { importPropertyFromXML } from "../property/fromXML"
+import type { FileChildNamesDescriptor } from "../property/fn"
+import { metadataTargetOwnerFromRule } from "../property/metadataTargetString"
+import type { MetadataItemRule, PropertyRule } from "../property/types"
+import { importContentFromXML } from "../../../xml/import/importer"
+import { exportToYAML } from "../../../yaml/export"
 import {
   getFileItemXMLRootContainer,
   normalizeFileItemCollectionItems,
@@ -65,7 +67,10 @@ export const convertAppliedObjectFromXML = async (params: {
 
   // Обработчики внешних файлов на уровне объекта (Help, Module, Template со статическими путями)
   const nkdkDir = join(outputDir, name)
-  const contextWithCurrentOwner = withExportMetadataTargetOwners(context, [{ itemType: rule.itemType, name, path: "" }])
+  const owner = metadataTargetOwnerFromRule({ itemRule: rule, name, context })
+  const contextWithCurrentOwner = withExportMetadataTargetOwners(context, [
+    { itemType: rule.itemType, name, path: "", ...(owner ? { owner } : {}) },
+  ])
   for (const [, propRule] of Object.entries(rule.properties)) {
     const syncFn = getTypeRule(propRule.type, "syncExternalFromXML")
     if (!syncFn) continue
@@ -109,8 +114,11 @@ async function syncChildCollectionsFromXML(params: {
   ownerStack: readonly MetadataItemOwnerContextEntry[]
 }): Promise<void> {
   const { rule, model, xmlDir, nkdkDir, name } = params
-  const ownerStack = appendMetadataItemOwner(params.ownerStack, rule.itemType, name)
-  const context = withExportMetadataTargetOwners(params.context, [{ itemType: rule.itemType, name, path: "" }])
+  const owner = metadataTargetOwnerFromRule({ itemRule: rule, name, context: params.context })
+  const ownerStack = appendMetadataItemOwner(params.ownerStack, rule.itemType, name, "", owner)
+  const context = withExportMetadataTargetOwners(params.context, [
+    { itemType: rule.itemType, name, path: "", ...(owner ? { owner } : {}) },
+  ])
 
   for (const childCollection of rule.childCollections ?? []) {
     const collectionModel = model[childCollection.propertyKey]
@@ -159,7 +167,8 @@ async function syncChildCollectionsFromXML(params: {
       for (const [, itemPropRule] of Object.entries(childCollection.itemRule.properties)) {
         const syncFn = getTypeRule(itemPropRule.type, "syncExternalFromXML")
         if (!syncFn) continue
-        const externalSyncName = hasOwnDirs && isFileChildNameRule(itemPropRule) ? "" : syncName
+        const descriptor = getFileChildNamesDescriptor(itemPropRule)
+        const externalSyncName = hasOwnDirs && descriptor?.useOwnerDirectoryForExternalSync === true ? "" : syncName
         await syncFn({
           context,
           rule: itemPropRule,
@@ -254,7 +263,6 @@ function addReferenceNamesFromXML(params: {
         root: root as Record<string, unknown>,
       })
     }
-
   }
 }
 
@@ -331,11 +339,8 @@ function omitFileItemChildCollections(model: Record<string, unknown>, rule: Meta
   return result
 }
 
-function isFileChildNameRule(rule: PropertyRule): boolean {
-  return (
-    (rule.type === "ChildFormNames" && rule.xml === "Form") ||
-    (rule.type === "ChildTemplateNames" && rule.xml === "Template")
-  )
+function getFileChildNamesDescriptor(rule: PropertyRule): FileChildNamesDescriptor | undefined {
+  return getTypeRule(rule.type, "fileChildNamesDescriptor")?.({ propertyRule: rule })
 }
 
 function resolveChildCollectionXmlDir(params: {

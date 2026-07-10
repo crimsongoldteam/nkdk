@@ -3,7 +3,7 @@ import {
   SearchStringAdditionYAML,
   SingleSearchStringAddition,
   SingleSearchStringAdditionYAML,
-} from "~/metadata/forms/elements/searchStringAddition/types"
+} from "../types"
 
 export const parentElement = {
   name: "КакойТоЭлемент",
@@ -56,7 +56,6 @@ export const fullSingleSearchStringAdditionYAML: SingleSearchStringAdditionYAML 
   ВертикальноеПоложениеВГруппе: "Верх",
   Видимость: "Истина",
   ГоризонтальноеПоложениеВГруппе: "Лево",
-  Доступность: "Истина",
   Заголовок: "Добавление элемента формы",
   ОтображениеПодсказки: "Нет",
   Подсказка: "Подсказка",
@@ -80,6 +79,17 @@ export const fullSearchStringAdditionYAML: SearchStringAdditionYAML = {
 
 export const fullSearchStringAddition: SearchStringAddition = {
   ...fullSingleSearchStringAddition,
+  itemType: "SearchStringAddition",
+  additionSource: "КакойТоЭлемент",
+  name: "КакойТоЭлементСтрокаПоиска",
+}
+
+const { enabled: fullSingleSearchStringAdditionEnabled, ...fullSingleSearchStringAdditionFromCompactYAML } =
+  fullSingleSearchStringAddition
+void fullSingleSearchStringAdditionEnabled
+
+export const fullSearchStringAdditionFromCompactYAML: SearchStringAddition = {
+  ...fullSingleSearchStringAdditionFromCompactYAML,
   itemType: "SearchStringAddition",
   additionSource: "КакойТоЭлемент",
   name: "КакойТоЭлементСтрокаПоиска",

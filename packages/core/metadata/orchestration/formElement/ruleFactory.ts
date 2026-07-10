@@ -1,1 +1,1 @@
-export * from "~/metadata/forms/elements/orchestration/ruleFactory"
+export * from "../../forms/elements/orchestration/ruleFactory"

@@ -1,5 +1,5 @@
-import { ConfigurationContextWithExportToXML } from "~/metadata/context/types"
-import { ExportToXMLFunctionNew, exportPropertiesToXML } from "~/metadata/orchestration"
+import { ConfigurationContextWithExportToXML } from "../../../context/types"
+import { ExportToXMLFunctionNew, exportPropertiesToXML } from "../../../orchestration"
 import { FormCommandRules } from "./rules"
 import type { FormCommand, FormCommands, FormCommandXML } from "./types"
 
@@ -11,7 +11,9 @@ export const exportFormCommandsToXML: ExportToXMLFunctionNew = (params): { Comma
   if (data === undefined || data === null) return undefined
   if (data.length === 0) return undefined
 
-  const result = data.map((command) => exportFormCommandToXML(context, command, findReferenceCommand(command, referenceData)))
+  const result = data.map((command) =>
+    exportFormCommandToXML(context, command, findReferenceCommand(command, referenceData))
+  )
 
   return { Command: result }
 }

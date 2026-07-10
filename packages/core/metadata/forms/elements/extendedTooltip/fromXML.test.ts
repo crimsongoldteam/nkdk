@@ -1,9 +1,9 @@
 import { dirname, resolve } from "path"
 import { fileURLToPath } from "url"
 import { describe, expect, it } from "vitest"
-import { importPropertyFromXML, type PropertyRule } from "~/metadata/orchestration"
-import { mockContextFromXML } from "~/tests/mockContext"
-import { readAndParseXMLFile } from "~/tests/readAndParseXMLFile"
+import { importPropertyFromXML, type PropertyRule } from "../../../orchestration"
+import { mockContextFromXML } from "../../../../tests/mockContext"
+import { readAndParseXMLFile } from "../../../../tests/readAndParseXMLFile"
 import { formattedEmptyTitleExtendedTooltip, fullExtendedTooltip } from "./__fixtures__/data"
 
 const __dirname = dirname(fileURLToPath(import.meta.url))

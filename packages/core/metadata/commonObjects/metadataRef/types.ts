@@ -1,4 +1,5 @@
-import { Static, Type } from "@sinclair/typebox"
+import { Type } from "typebox"
+import type { Static } from "typebox"
 
 export type MetadataItemLink = string
 

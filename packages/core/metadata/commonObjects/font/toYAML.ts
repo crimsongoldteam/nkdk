@@ -1,11 +1,11 @@
-import { PropertyRule } from "~/metadata/orchestration/property/types"
-import { registerTypeRule } from "~/metadata/orchestration/property/typeRuleRegistry"
-import { exportSystemEnumerationToYAMLDeprecated } from "~/metadata/systemEnumerations/toYAML"
-import * as SE from "~/metadata/systemEnumerations/types"
+import type { PropertyRule } from "../../orchestration/property/types"
+import { registerTypeRule } from "../../orchestration/property/typeRuleRegistry"
+import { exportSystemEnumerationToYAMLDeprecated } from "../../systemEnumerations/toYAML"
+import * as SE from "../../systemEnumerations/types"
 import { ConfigurationContext } from "../../context/types"
 import { exportBooleanToYAML } from "../boolean/toYAML"
 import { formatMetadataTargetToYAML, type MetadataTargetConstraint } from "../metadataTargets"
-import { Font, FontFullYAML, FontRef, FontYAML } from "./types"
+import type { Font, FontFullYAML, FontRef, FontYAML } from "./types"
 
 const fontStyleItemTarget = {
   kind: "object",

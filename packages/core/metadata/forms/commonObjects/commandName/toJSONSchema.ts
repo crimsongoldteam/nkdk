@@ -1,4 +1,4 @@
-import { Type } from "@sinclair/typebox"
-import { registerTypeRule } from "~/metadata/orchestration/property/typeRuleRegistry"
+import { Type } from "typebox"
+import { registerTypeRule } from "../../../orchestration/property/typeRuleRegistry"
 
 registerTypeRule("CommandName", "exportToJSONSchema", () => Type.String())

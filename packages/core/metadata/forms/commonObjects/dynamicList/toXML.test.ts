@@ -6,10 +6,10 @@ import {
   minimalDynamicList,
   multipleCalculatedFieldsDynamicList,
   queryTextWithManualQueryFalseDynamicList,
-} from "~/metadata/forms/commonObjects/dynamicList/__fixtures__/data"
-import { exportPropertyToXML, PropertyRule } from "~/metadata/orchestration"
-import { mockContextToXML } from "~/tests/mockContext"
-import { testExportPropertyToXML } from "~/tests/property/exportPropertyToXML"
+} from "./__fixtures__/data"
+import { exportPropertyToXML, PropertyRule } from "../../../orchestration"
+import { mockContextToXML } from "../../../../tests/mockContext"
+import { testExportPropertyToXML } from "../../../../tests/property/exportPropertyToXML"
 
 const rule: PropertyRule = {
   type: "DynamicList",
@@ -198,9 +198,7 @@ describe("export DynamicList to XML", () => {
       xmlRootTag: "Settings",
     })
 
-    expect(result).toContain(
-      '<orderType xmlns="http://v8.1c.ru/8.1/data-composition-system/common">Asc</orderType>'
-    )
+    expect(result).toContain('<orderType xmlns="http://v8.1c.ru/8.1/data-composition-system/common">Asc</orderType>')
   })
 
   it("does not invent Asc calculated field orderType without reference XML", () => {

@@ -1,13 +1,17 @@
-import { MetadataItemRule } from "~/metadata/orchestration/property/types"
-
+import { predefinedItemCollectionRule } from "../predefinedItem/builders"
+import { xmlRootRule } from "../xmlRoot/types"
+import type { MetadataItemRule } from "../../orchestration/property/types"
 const predefinedRootAttributes = (params: { ownerMetadataItem: unknown }): Record<string, string> => {
   const itemType =
     params.ownerMetadataItem !== null &&
     params.ownerMetadataItem !== undefined &&
     typeof params.ownerMetadataItem === "object"
-      ? (params.ownerMetadataItem as { itemType?: unknown }).itemType
+      ? (
+          params.ownerMetadataItem as {
+            itemType?: unknown
+          }
+        ).itemType
       : undefined
-
   const xsiType =
     itemType === "MetadataChartOfAccounts"
       ? "ChartOfAccountsPredefinedItems"
@@ -16,7 +20,6 @@ const predefinedRootAttributes = (params: { ownerMetadataItem: unknown }): Recor
         : itemType === "MetadataChartOfCalculationTypes"
           ? "CalculationTypePredefinedItems"
           : "CatalogPredefinedItems"
-
   return {
     _xmlns: "http://v8.1c.ru/8.3/xcf/predef",
     "_xmlns:v8": "http://v8.1c.ru/8.1/data/core",
@@ -27,24 +30,21 @@ const predefinedRootAttributes = (params: { ownerMetadataItem: unknown }): Recor
     _version: "2.20",
   }
 }
-
 export const PredefinedRules = {
   itemType: "Predefined",
   properties: {
-    xmlRoot: {
-      type: "XMLRoot",
+    xmlRoot: xmlRootRule({
       container: "PredefinedData",
       rootAttributes: predefinedRootAttributes,
       forReferenceOnly: true,
       isFileRoot: true,
-    },
-    items: {
-      type: "PredefinedItemCollection",
+    }),
+    items: predefinedItemCollectionRule({
       // Дочерние <Item>-теги лежат прямо в корне <PredefinedData>, без обёртки <Items>:
       // указание xml="Item" подменяет имя обёртки коллекции на имя её элемента.
       xml: "Item",
       yamlInline: true,
       yaml: "items",
-    },
+    }),
   },
 } as const satisfies MetadataItemRule

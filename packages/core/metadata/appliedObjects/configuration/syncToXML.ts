@@ -1,30 +1,36 @@
 import fs from "fs"
 import { dirname, join } from "path"
-import { BatchTask, runBatch } from "~/helpers/runBatch"
-import type { ConfigurationContextFromXML } from "~/metadata/context/types"
-import { ConfigurationContextWithExportToXML } from "~/metadata/context/types"
-import { syncAppliedObjectToXML } from "~/metadata/orchestration/appliedObject/syncToXML"
-import type { ReferenceModelRemapper } from "~/metadata/orchestration/appliedObject/syncToXML"
-import { getTypeRule } from "~/metadata/orchestration/property/typeRuleRegistry"
-import { exportPropertyToXML } from "~/metadata/orchestration/property/toXML"
-import type { PropertyRule } from "~/metadata/orchestration/property/types"
-import { discoverMetadataProjectResources, type MetadataProjectPropertiesYamlRef } from "~/metadata/project/resources"
-import { xmlExport } from "~/xml/export/exporter"
-import { createConfigDumpInfoExternalMetadataCollector } from "../configDumpInfo/externalMetadataCollector"
-import type { ExternalMetadataCollector } from "~/metadata/orchestration/externalMetadata/types"
-import { syncConfigDumpInfoToXML } from "../configDumpInfo/sync"
+import { BatchTask, runBatch } from "../../../helpers/runBatch"
+import type { ConfigurationContextFromXML } from "../../context/types"
+import { ConfigurationContextWithExportToXML } from "../../context/types"
+import { syncAppliedObjectToXML } from "../../orchestration/appliedObject/syncToXML"
+import type { ReferenceModelRemapper } from "../../orchestration/appliedObject/syncToXML"
+import { resolveXmlSyncAreaForProjectPath, type XmlSyncArea } from "../../orchestration/appliedObject/xmlAreas"
+import {
+  prepareMetadataMigrationChain,
+  type MigrationChainInvalidResult,
+  type MigrationPlanItem,
+  type PreparedMetadataMigrationChain,
+} from "../../operations"
+import { getTypeRule } from "../../orchestration/property/typeRuleRegistry"
+import { exportPropertyToXML } from "../../orchestration/property/toXML"
+import type { PropertyRule } from "../../orchestration/property/types"
+import { discoverMetadataProjectResources, type MetadataProjectPropertiesYamlRef } from "../../project/resources"
+import { xmlExport } from "../../../xml/export/exporter"
 import {
   applyPendingMigrationFiles,
   collectStructuralStateFromXML,
   collectStructuralStateFromYAML,
-  detectMigrationConflicts,
+  parseMigrationPath,
   readAppliedMigrationsState,
   readPendingMigrationEntries,
-  validateAppliedMigrationTarget,
+  type StructuralState,
   writeAppliedMigrationsState,
 } from "./migrations"
 import { remapReferenceModel } from "./migrations/referenceRemap"
 import { pruneXmlByManifest, XmlSyncManifest } from "./migrations/xmlManifest"
+import { createConfigDumpInfoExternalMetadataCollector } from "../configDumpInfo/externalMetadataCollector"
+import { syncConfigDumpInfoToXML } from "../configDumpInfo/sync"
 import { ConfigurationSyncResult } from "./convertFromXML"
 import { buildConfigurationChildObjects, readConfigurationChildObjectsFromXML } from "./childObjects"
 import {
@@ -54,6 +60,98 @@ function discoverTopLevelPropertiesResources(inputDir: string): MetadataProjectP
   )
 }
 
+export type ConfigurationXmlMigrationPlanResult =
+  | { ok: true; migrationsToApply: MigrationPlanItem[] }
+  | MigrationChainInvalidResult
+
+export type PreparedConfigurationXmlMigrationChain = PreparedMetadataMigrationChain & {
+  yamlState: StructuralState
+  migrationState: StructuralState
+}
+
+export async function planConfigurationToXMLMigrations(params: {
+  context: ConfigurationContextWithExportToXML
+  inputDir: string
+  outputDir: string
+  referenceDir?: string
+}): Promise<ConfigurationXmlMigrationPlanResult> {
+  const migrationChain = await prepareConfigurationXmlMigrationChain(params)
+  if (!migrationChain.ok) return migrationChain
+
+  return {
+    ok: true,
+    migrationsToApply: migrationChain.migrationsToApply,
+  }
+}
+
+export async function planSyncToXml(params: {
+  inputDir: string
+  outputDir: string
+  referenceDir?: string
+}): Promise<{ ok: true; mode: "plan"; migrationsToApply: MigrationPlanItem[] } | MigrationChainInvalidResult> {
+  const result = await planConfigurationToXMLMigrations({
+    context: defaultConfigurationToXmlContext(),
+    inputDir: params.inputDir,
+    outputDir: params.outputDir,
+    referenceDir: params.referenceDir,
+  })
+  if (!result.ok) return result
+  return { ok: true, mode: "plan", migrationsToApply: result.migrationsToApply }
+}
+
+function defaultConfigurationToXmlContext(): ConfigurationContextWithExportToXML {
+  return {
+    defaultLanguage: "ru",
+    version: "2.20",
+    exportToYAML: { toTyped: false },
+    exportToXML: {
+      itemsTree: [],
+      configDumpInfo: new Map(),
+      version: "2.20",
+      context: {
+        forms: [],
+        templates: [],
+        parentName: "",
+        metadataForNumbering: [],
+      },
+    },
+  }
+}
+
+export async function prepareConfigurationXmlMigrationChain(params: {
+  context: ConfigurationContextWithExportToXML
+  inputDir: string
+  outputDir: string
+  referenceDir?: string
+  useOutputAsReference?: boolean
+}): Promise<PreparedConfigurationXmlMigrationChain | MigrationChainInvalidResult> {
+  const referenceDir = params.referenceDir ?? (params.useOutputAsReference ? params.outputDir : undefined)
+  const contextFromXML: ConfigurationContextFromXML = {
+    fromXML: { forReference: true },
+    defaultLanguage: params.context.defaultLanguage,
+    version: params.context.version,
+  }
+  const referenceState = referenceDir
+    ? await collectStructuralStateFromXML({ xmlDir: referenceDir, context: contextFromXML })
+    : { nodes: new Map() }
+  const yamlState = await collectStructuralStateFromYAML({ yamlDir: params.inputDir, context: params.context })
+
+  const prepared = prepareMetadataMigrationChain({
+    yamlDir: params.inputDir,
+    xmlDir: params.outputDir,
+    referencePaths: [...referenceState.nodes.keys()],
+    yamlPaths: [...yamlState.nodes.keys()],
+    xmlAreaByMigrationPath: resolveXmlAreaForMigrationPath,
+  })
+  if (!prepared.ok) return prepared
+
+  const appliedState = readAppliedMigrationsState(params.outputDir)
+  const pending = readPendingMigrationEntries(params.inputDir, appliedState)
+  const migrationState = applyPendingMigrationFiles(referenceState, pending).state
+
+  return { ...prepared, yamlState, migrationState }
+}
+
 export const syncConfigurationToXML = async (params: {
   context: ConfigurationContextWithExportToXML
   inputDir: string
@@ -62,12 +160,6 @@ export const syncConfigurationToXML = async (params: {
 }): Promise<ConfigurationSyncResult> => {
   const { context, inputDir, outputDir } = params
   const referenceDir = params.referenceDir
-  const exportContext = context.exportToXML
-  if (!exportContext.externalMetadataCollector) {
-    ;(
-      exportContext as typeof exportContext & { externalMetadataCollector: ExternalMetadataCollector }
-    ).externalMetadataCollector = createConfigDumpInfoExternalMetadataCollector(exportContext.configDumpInfo)
-  }
 
   if (!fs.existsSync(inputDir)) {
     return {
@@ -76,36 +168,38 @@ export const syncConfigurationToXML = async (params: {
     }
   }
 
-  const appliedState = readAppliedMigrationsState(outputDir)
-  const pendingMigrations = readPendingMigrationEntries(inputDir, appliedState)
-  const contextFromXML: ConfigurationContextFromXML = {
-    fromXML: { forReference: true },
-    defaultLanguage: context.defaultLanguage,
-    version: context.version,
-  }
-  const referenceState = referenceDir
-    ? await collectStructuralStateFromXML({ xmlDir: referenceDir, context: contextFromXML })
-    : { nodes: new Map() }
-  const yamlState = await collectStructuralStateFromYAML({ yamlDir: inputDir, context })
-  const migrationResult = applyPendingMigrationFiles(referenceState, pendingMigrations)
-  validateAppliedMigrationTarget(migrationResult, yamlState)
-  const conflicts = detectMigrationConflicts(migrationResult.state, yamlState)
-  if (conflicts.length > 0) {
-    const details = conflicts
-      .map((c) => `${c.levelPath}: удалено [${c.deleted.join(", ")}], добавлено [${c.added.join(", ")}]`)
-      .join("\n")
+  const migrationChain = await prepareConfigurationXmlMigrationChain({ context, inputDir, outputDir, referenceDir })
+  if (!migrationChain.ok) {
     return {
       succeeded: 0,
       failed: [
         {
           kind: "migration",
           name: "Миграции",
-          error: new Error(
-            `Найдены возможные переименования:\n${details}\nЗапустите: nkdk generate-migration ${inputDir} ${referenceDir ?? outputDir}`
-          ),
+          error: new Error(JSON.stringify(migrationChain)),
         },
       ],
+      migrationChain,
     }
+  }
+  const configDumpInfo = context.exportToXML.configDumpInfo
+  const syncContext: ConfigurationContextWithExportToXML = {
+    ...context,
+    importFromYAML: {
+      ...(context.importFromYAML ?? {}),
+      projectDir: inputDir,
+    },
+    exportToXML: {
+      ...context.exportToXML,
+      configDumpInfo,
+      externalMetadataCollector:
+        context.exportToXML.externalMetadataCollector ?? createConfigDumpInfoExternalMetadataCollector(configDumpInfo),
+    },
+  }
+  const contextFromXML: ConfigurationContextFromXML = {
+    fromXML: { forReference: true },
+    defaultLanguage: syncContext.defaultLanguage,
+    version: syncContext.version,
   }
   const xmlManifest = new XmlSyncManifest(outputDir)
   const tasks: BatchTask<void>[] = []
@@ -122,13 +216,13 @@ export const syncConfigurationToXML = async (params: {
       ? readConfigurationChildObjectsFromXML(referenceDir)
       : undefined
     const configuration = readConfigurationFromYAML({
-      context,
+      context: syncContext,
       inputDir,
       source: referenceConfiguration,
     })
 
     writeConfigurationToXML({
-      context,
+      context: syncContext,
       configuration,
       outputDir,
       referenceConfiguration,
@@ -136,17 +230,18 @@ export const syncConfigurationToXML = async (params: {
     })
     xmlManifest.addFile(join(outputDir, CONFIGURATION_XML_FILE))
     await writeRootConfigurationFilePathPropertiesToXML({
-      context,
+      context: syncContext,
       configuration,
       referenceConfiguration,
       outputDir,
       xmlManifest,
     })
-    await syncRootConfigurationExternalFilesToXML({ context, inputDir, outputDir, xmlManifest })
+    await syncRootConfigurationExternalFilesToXML({ context: syncContext, inputDir, outputDir, xmlManifest })
   }
 
   for (const resource of discoverTopLevelPropertiesResources(inputDir)) {
-    const rule = resource.owner.spec.rule
+    const resourceRule = resource.owner.spec.rule
+    const rule = TopLevelMetadataItemRules.find((candidate) => candidate.itemType === resourceRule.itemType) ?? resourceRule
     const xmlDir = rule.xmlDir
     const itemTypePrefix = rule.itemTypePrefix
     if (xmlDir === undefined || itemTypePrefix === undefined) continue
@@ -156,20 +251,18 @@ export const syncConfigurationToXML = async (params: {
     const xmlOutputDir = join(outputDir, xmlDir)
     const xmlReferenceDir = referenceDir ? join(referenceDir, xmlDir) : undefined
     const currentObjectPath = `${itemTypePrefix}.${name}`
-    const referencePath = migrationResult.referencePathByCurrentPath.get(currentObjectPath) ?? currentObjectPath
+    const referencePath = migrationChain.referencePathByCurrentPath.get(currentObjectPath) ?? currentObjectPath
     const referencePathSegments = referencePath.split(".")
     const referenceName = referencePathSegments[referencePathSegments.length - 1]!
-    const currentNode = migrationResult.state.nodes.get(currentObjectPath)
-    const referenceModel = currentNode && currentNode.referencePath === undefined ? null : undefined
     const referenceModelRemapper: ReferenceModelRemapper | undefined =
-      migrationResult.referencePathByCurrentPath.size > 0
+      migrationChain.referencePathByCurrentPath.size > 0
         ? ({ rule, currentModel, referenceModel }) =>
             remapReferenceModel({
               rule,
               currentObjectPath,
               currentModel,
               referenceModel,
-              referencePathByCurrentPath: migrationResult.referencePathByCurrentPath,
+              referencePathByCurrentPath: migrationChain.referencePathByCurrentPath,
             })
         : undefined
     const xmlExternalOutputDir = join(xmlOutputDir, name)
@@ -180,7 +273,7 @@ export const syncConfigurationToXML = async (params: {
       run: () =>
         syncAppliedObjectToXML({
           rule,
-          context: { ...context, exportToXML: { ...context.exportToXML } },
+          context: { ...syncContext, exportToXML: { ...syncContext.exportToXML } },
           inputDir: yamlDirAbs,
           name,
           outputDir: xmlOutputDir,
@@ -188,7 +281,6 @@ export const syncConfigurationToXML = async (params: {
           referenceDir: xmlReferenceDir,
           externalReferenceDir: xmlExternalReferenceDir,
           referenceName,
-          referenceModel,
           referenceModelRemapper,
           xmlManifest,
         }),
@@ -200,12 +292,12 @@ export const syncConfigurationToXML = async (params: {
   if (batchResult.failed.length === 0) {
     try {
       await syncConfigDumpInfoToXML({
-        context,
+        context: syncContext,
         outputDir,
         referenceDir,
-        yamlState,
-        migrationState: migrationResult.state,
-        referencePathByCurrentPath: migrationResult.referencePathByCurrentPath,
+        yamlState: migrationChain.yamlState,
+        migrationState: migrationChain.migrationState,
+        referencePathByCurrentPath: migrationChain.referencePathByCurrentPath,
         xmlManifest,
       })
       if (referenceDir) {
@@ -214,7 +306,7 @@ export const syncConfigurationToXML = async (params: {
     } catch (error) {
       return {
         succeeded: batchResult.succeeded,
-        failed: [{ kind: "configDumpInfo", name: "ConfigDumpInfo.xml", error: toError(error) }],
+        failed: [{ kind: "rootExternalFiles", name: "Ext", error: toError(error) }],
       }
     }
 
@@ -231,8 +323,13 @@ export const syncConfigurationToXML = async (params: {
       await fs.promises.rm(join(outputDir, CONFIGURATION_XML_FILE), { force: true })
     }
     writeAppliedMigrationsState(outputDir, {
-      applied: [...appliedState.applied, ...migrationResult.appliedFileNames],
+      applied: [...migrationChain.appliedState.applied, ...migrationChain.pendingFileNames],
     })
+    return {
+      succeeded: batchResult.succeeded,
+      failed: [],
+      migrationsApplied: migrationChain.migrationsToApply,
+    }
   }
 
   return {
@@ -243,6 +340,19 @@ export const syncConfigurationToXML = async (params: {
       parent: f.parent,
       error: f.error,
     })),
+  }
+}
+
+export function resolveXmlAreaForMigrationPath(path: string): XmlSyncArea | undefined {
+  try {
+    const parsed = parseMigrationPath(path)
+    const ownerPath = parsed.kind === "object" ? path : parsed.ownerPath
+    const [itemTypePrefix, itemName] = ownerPath.split(".")
+    if (!itemTypePrefix || !itemName) return undefined
+
+    return resolveXmlSyncAreaForProjectPath(`${itemTypePrefix}/${itemName}/Свойства.yaml`, TopLevelMetadataItemRules)
+  } catch {
+    return undefined
   }
 }
 

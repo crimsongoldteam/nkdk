@@ -1,5 +1,1 @@
-export {
-  clearTypeRulesRegistry,
-  getTypeRule,
-  registerTypeRule,
-} from "~/metadata/orchestration/property/typeRuleRegistry"
+export { clearTypeRulesRegistry, getTypeRule, registerTypeRule } from "../property/typeRuleRegistry"

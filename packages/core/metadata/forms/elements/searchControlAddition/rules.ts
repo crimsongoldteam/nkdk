@@ -1,14 +1,15 @@
-import { getParentFromContext } from "~/metadata/context/helpers"
-import { ConfigurationContextWithExportToXML } from "~/metadata/context/types"
-import { registerElementAsType, registerElementRule } from "~/metadata/orchestration/formElement/ruleFactory"
-import { MetadataItemRule, PropertyRule } from "~/metadata/orchestration/property/types"
+import { tableAdditionalSourceRule } from "../../commonObjects/tableAdditionalSource/types"
+import { stringRule } from "../../../commonObjects/string/types"
+import { getParentFromContext } from "../../../context/helpers"
+import { ConfigurationContextWithExportToXML } from "../../../context/types"
+import { registerElementAsType, registerElementRule } from "../../../orchestration/formElement/ruleFactory"
+import type { MetadataItemRule, PropertyRule } from "../../../orchestration/property/types"
 import { ElementRule } from "../../../orchestration/formElement/types"
 import { BaseElement } from "../baseElement/types"
 import { getSearchControlAdditionName } from "./helper"
 export type { ElementRule, PropertyRule }
-
 const commonProperties = {
-  autoMaxWidth: { yaml: "АвтоМаксимальнаяШирина", type: "boolean" },
+  autoMaxWidth: { yaml: "АвтоМаксимальнаяШирина", type: "boolean", implicitValueYAML: true },
   backColor: {
     yaml: "ЦветФона",
     type: "Color",
@@ -30,8 +31,9 @@ const commonProperties = {
     xml: "_DisplayImportance",
     type: "SystemEnumeration",
     typeSE: "DisplayImportance",
+    implicitValueYAML: "Auto",
   },
-  enabled: { yaml: "Доступность", type: "boolean" },
+  enabled: { yaml: "Доступность", type: "boolean", implicitValueYAML: true },
   extendedTooltip: { yaml: "РасширеннаяПодсказка", type: "ExtendedTooltip" },
   font: {
     yaml: "Шрифт",
@@ -43,9 +45,10 @@ const commonProperties = {
     xml: "GroupHorizontalAlign",
     type: "SystemEnumeration",
     typeSE: "ItemHorizontalLocation",
+    implicitValueYAML: "Auto",
   },
-  horizontalStretch: { yaml: "РастягиватьПоГоризонтали", type: "boolean" },
-  maxWidth: { yaml: "МаксимальнаяШирина", type: "number" },
+  horizontalStretch: { yaml: "РастягиватьПоГоризонтали", type: "boolean", noImplicitValueYAML: true },
+  maxWidth: { yaml: "МаксимальнаяШирина", type: "number", implicitValueYAML: 0 },
   textColor: {
     yaml: "ЦветТекста",
     type: "Color",
@@ -60,6 +63,7 @@ const commonProperties = {
     yaml: "ОтображениеПодсказки",
     type: "SystemEnumeration",
     typeSE: "ToolTipRepresentation",
+    implicitValueYAML: "Auto",
   },
   userVisible: {
     yaml: "Использование",
@@ -70,11 +74,11 @@ const commonProperties = {
     xml: "GroupVerticalAlign",
     type: "SystemEnumeration",
     typeSE: "ItemVerticalAlign",
+    implicitValueYAML: "Auto",
   },
-  visible: { yaml: "Видимость", type: "boolean" },
-  width: { yaml: "Ширина", type: "number" },
+  visible: { yaml: "Видимость", type: "boolean", noImplicitValueYAML: true },
+  width: { yaml: "Ширина", type: "number", implicitValueYAML: 0 },
 } as const satisfies MetadataItemRule["properties"]
-
 export const SingleSearchControlAdditionRules = {
   itemType: "SingleSearchControlAddition",
   enterpriseField: "FormField",
@@ -89,26 +93,22 @@ export const SingleSearchControlAdditionRules = {
     ...commonProperties,
   } as const,
 } as const satisfies ElementRule
-
 export const SearchControlAdditionRules = {
   itemType: "SearchControlAddition",
   enterpriseField: "FormField",
   enterpriseFieldType: "None",
   properties: {
-    name: {
-      type: "string",
+    name: stringRule({
       xml: "_name",
       required: true,
-    },
-    additionSource: {
+    }),
+    additionSource: tableAdditionalSourceRule({
       yaml: "Источник",
-      type: "TableAdditionalSource",
       additionalSourceType: "SearchControl",
-    },
+    }),
     ...commonProperties,
   },
 } as const satisfies ElementRule
-
 registerElementAsType({
   propertyType: "SingleSearchControlAddition",
   elementRule: SingleSearchControlAdditionRules,
@@ -124,6 +124,5 @@ registerElementAsType({
     return { name }
   },
 })
-
 registerElementRule("SearchControlAddition", SearchControlAdditionRules)
 registerElementRule("SingleSearchControlAddition", SingleSearchControlAdditionRules)

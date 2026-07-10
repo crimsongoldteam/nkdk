@@ -11,6 +11,5 @@ export const minimal: MetadataSessionParameter = {
 }
 
 export const minimalYAML: MetadataSessionParameterYAML = {
-  Синоним: "Параметр сеанса по умолчанию",
   Тип: "Строка(10)",
 }

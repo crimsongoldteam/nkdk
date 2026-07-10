@@ -1,7 +1,7 @@
 import fs from "fs"
 import { basename, dirname, extname, isAbsolute, join, relative, resolve, sep } from "path"
-import type { XmlWriteManifest } from "~/metadata/orchestration/xmlWriteManifest"
-import type { PropertyRule } from "~/metadata/orchestration"
+import type { XmlWriteManifest } from "../../orchestration/xmlWriteManifest"
+import type { PropertyRule } from "../../orchestration"
 import { ClientApplicationFormRules } from "./rules"
 
 type ExternalFormItemFileSpec = {

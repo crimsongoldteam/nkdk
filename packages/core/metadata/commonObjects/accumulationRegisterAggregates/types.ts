@@ -1,7 +1,7 @@
-import { StringboolYAML, StringboolXML } from "~/metadata/commonObjects/boolean/types"
-import { registerMetadataItemCollectionRule, registerMetadataItemRule } from "~/metadata/orchestration"
-import { MetadataTypeByRule } from "~/metadata/orchestration/metadataItem/element"
-import { YAMLTypeByRule } from "~/metadata/orchestration/metadataItem/yaml"
+import { StringboolYAML, StringboolXML } from "../boolean/types"
+import { registerMetadataItemCollectionRule, registerMetadataItemRule } from "../../orchestration"
+import { MetadataTypeByRule } from "../../orchestration/metadataItem/element"
+import { YAMLTypeByRule } from "../../orchestration/metadataItem/yaml"
 import { AccumulationRegisterAggregateRules, AccumulationRegisterAggregatesRules } from "./rules"
 
 export type AccumulationRegisterAggregateDimensions = Record<string, boolean>

@@ -1,4 +1,4 @@
-import { Font, FontEnterprise, FontYAML } from "~/metadata/commonObjects/font/types"
+import { Font, FontEnterprise, FontYAML } from "../types"
 
 type FontObjectYAML = Exclude<FontYAML, string> & { ВидXML?: string }
 

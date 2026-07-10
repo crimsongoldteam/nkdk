@@ -1,6 +1,6 @@
 import { describe, expect, it } from "vitest"
-import { PropertyRule } from "~/metadata/orchestration"
-import { testExportPropertyToXML } from "~/tests/property/exportPropertyToXML"
+import { PropertyRule } from "../../../orchestration"
+import { testExportPropertyToXML } from "../../../../tests/property/exportPropertyToXML"
 import { filterFixture } from "./__fixtures__/data"
 
 const rule: PropertyRule = {

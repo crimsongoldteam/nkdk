@@ -1,75 +1,74 @@
-import { V8_MDCLASSES_ROOT } from "~/metadata/orchestration/appliedObject/presets"
-import { MetadataItemRule } from "~/metadata/orchestration/property/types"
-
+import { pictureRule } from "../../commonObjects/metadataTargets/types"
+import { booleanRule } from "../../commonObjects/boolean/types"
+import { i8nTextRule } from "../../commonObjects/i8nText/types"
+import { moduleRule } from "../../commonObjects/module/types"
+import { stringRule } from "../../commonObjects/string/types"
+import { uuidRule } from "../../commonObjects/uuid/types"
+import { xmlRootRule } from "../../commonObjects/xmlRoot/types"
+import { systemEnumerationRule } from "../../systemEnumerations/types"
+import { V8_MDCLASSES_ROOT } from "../../orchestration/appliedObject/presets"
+import type { MetadataItemRule } from "../../orchestration/property/types"
 const properties = ["Properties"]
-
 export const MetadataBotRules = {
   itemType: "MetadataBot",
+  metadataTargetOwner: { kind: "self", root: "Bot" },
   itemTypePrefix: "Бот",
   xmlDir: "Bots",
   properties: {
-    xmlRoot: {
-      type: "XMLRoot",
+    xmlRoot: xmlRootRule({
       container: "Bot",
       rootAttributes: V8_MDCLASSES_ROOT,
       forReferenceOnly: true,
       toYAML: false,
       fromYAML: false,
-    },
-    uuid: {
-      type: "uuid",
+    }),
+    uuid: uuidRule({
       xml: "_uuid",
       forReferenceOnly: true,
       xmlParents: [],
-    },
-    name: {
-      type: "string",
+    }),
+    name: stringRule({
       xmlParents: properties,
       required: true,
-    },
-    synonym: {
+    }),
+    synonym: i8nTextRule({
       yaml: "Синоним",
-      type: "I8nText",
       xmlParents: properties,
       defaultValueXMLRaw: "",
-    },
-    comment: {
+      excludeIfEqualNameYAML: true,
+    }),
+    comment: stringRule({
       yaml: "Комментарий",
-      type: "string",
       xmlParents: properties,
       defaultValueXMLRaw: "",
-    },
-    objectBelonging: {
+    }),
+    objectBelonging: systemEnumerationRule({
       yaml: "ПринадлежностьОбъекта",
-      type: "SystemEnumeration",
       typeSE: "ObjectBelonging",
       implicitValueYAML: "Native",
       toYAML: false,
       fromYAML: false,
       xmlParents: properties,
-    },
-    extendedConfigurationObject: {
+    }),
+    extendedConfigurationObject: stringRule({
       yaml: "ОбъектРасширяемойКонфигурации",
-      type: "string",
       runtimeOnly: true,
-    },
-    predefined: {
+    }),
+    predefined: booleanRule({
       yaml: "Предопределенный",
-      type: "boolean",
       defaultValueXML: true,
       implicitValueYAML: true,
       xmlParents: properties,
-    },
-    picture: {
+    }),
+    picture: pictureRule({
       yaml: "Картинка",
-      type: "Picture", metadataTarget: { kind: "object", roots: ["CommonPicture"] },
+      metadataTarget: { kind: "object", roots: ["CommonPicture"] },
       xmlParents: properties,
       defaultValueXMLRaw: "",
-    },
-    module: {
-      type: "Module",
+    }),
+    module: moduleRule({
       nkdkPath: "Модуль.bsl",
       xmlPath: "Ext/Module.bsl",
-    },
+    }),
   },
 } as const satisfies MetadataItemRule

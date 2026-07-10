@@ -1,7 +1,7 @@
-import { uuidPropertyRule } from "~/metadata/commonObjects/uuid/rule"
-import { getParentFromContext } from "~/metadata/context/helpers"
-import { ConfigurationContextWithExportToXML } from "~/metadata/context/types"
-import { MetadataItemRule, PropertyRule } from "~/metadata/orchestration/property/types"
+import { uuidPropertyRule } from "../uuid/rule"
+import { getParentFromContext } from "../../context/helpers"
+import { ConfigurationContextWithExportToXML } from "../../context/types"
+import type { MetadataItemRule, PropertyRule } from "../../orchestration/property/types"
 
 const propertiesParents = ["Properties"]
 
@@ -32,6 +32,7 @@ export const MetadataIntegrationServiceChannelRules = {
       type: "I8nText",
       xmlParents: propertiesParents,
       defaultValueXMLRaw: "",
+      excludeIfEqualNameYAML: true,
     },
     comment: {
       yaml: "Комментарий",
@@ -53,6 +54,7 @@ export const MetadataIntegrationServiceChannelRules = {
       type: "SystemEnumeration",
       typeSE: "IntegrationServiceChannelMessageDirection",
       xmlParents: propertiesParents,
+      implicitValueYAML: "Send",
     },
     receiveMessageProcessing: {
       yaml: "ОбработкаПолученияСообщения",
@@ -66,6 +68,7 @@ export const MetadataIntegrationServiceChannelRules = {
       xml: "Transactioned",
       type: "boolean",
       xmlParents: propertiesParents,
+      implicitValueYAML: true,
     },
     objectBelonging: {
       yaml: "ПринадлежностьОбъекта",

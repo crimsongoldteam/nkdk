@@ -1,16 +1,25 @@
-import { type TSchema } from "@sinclair/typebox"
-import type { ConfigurationContext, JSONSchemaExportMode } from "~/metadata/context/types"
+import { type TSchema } from "typebox"
+import type { ConfigurationContext, JSONSchemaExportMode } from "../context/types"
 import type { PropertyRuleType } from "./property/registry"
 import type { PropertyRule } from "./property/types"
 
 export const JSON_SCHEMA_REF_PREFIX = "nkdk://schema/"
+const COLLECTED_SCHEMA_REFS_KEY = "x-nkdk-schemaRefs"
 
 type PropertyRefFactory = (params: { context: ConfigurationContext; rule: PropertyRule }) => TSchema | undefined
+type JSONSchemaExporter = (params: { context: ConfigurationContext }) => TSchema
+
+interface JSONSchemaIdentityRegistration {
+  exporter: JSONSchemaExporter
+  source: object | string
+}
 
 const propertyRefFactories = new Map<PropertyRuleType, PropertyRefFactory>()
+const schemaIdentityExporters = new Map<string, JSONSchemaIdentityRegistration>()
 
 export function clearJSONSchemaRefRegistries(): void {
   propertyRefFactories.clear()
+  schemaIdentityExporters.clear()
 }
 
 export function createSchemaRef(name: string): string {
@@ -28,6 +37,13 @@ export function recordOfSchemaRef(name: string): TSchema {
   })
 }
 
+export function arrayOfSchemaRef(name: string): TSchema {
+  return rawJSONSchema({
+    type: "array",
+    items: schemaRef(name),
+  })
+}
+
 export function recordOfOneOfSchemaRefs(names: readonly string[]): TSchema {
   return rawJSONSchema({
     type: "object",
@@ -37,19 +53,60 @@ export function recordOfOneOfSchemaRefs(names: readonly string[]): TSchema {
   })
 }
 
+export function recordOfDiscriminatedOneOfSchemaRefs(names: readonly string[], propertyName: string): TSchema {
+  return rawJSONSchema({
+    type: "object",
+    additionalProperties: {
+      oneOf: names.map((name) => schemaRef(name)),
+      discriminator: { propertyName },
+    },
+  })
+}
+
 export function registerJSONSchemaPropertyRef(type: PropertyRuleType, factory: PropertyRefFactory): void {
   propertyRefFactories.set(type, factory)
 }
 
+export function registerJSONSchemaIdentity(params: {
+  name: string
+  exporter: JSONSchemaExporter
+  source: object | string
+}): void {
+  const existing = schemaIdentityExporters.get(params.name)
+  if (existing !== undefined) {
+    return
+  }
+
+  schemaIdentityExporters.set(params.name, {
+    exporter: params.exporter,
+    source: params.source,
+  })
+}
+
+export function getJSONSchemaIdentityExporter(name: string): JSONSchemaExporter | undefined {
+  return schemaIdentityExporters.get(name)?.exporter
+}
+
+export function listJSONSchemaIdentityNames(): string[] {
+  return [...schemaIdentityExporters.keys()].sort()
+}
+
 export function createJSONSchemaExportContext(
   context: ConfigurationContext,
-  mode: JSONSchemaExportMode
+  mode: JSONSchemaExportMode,
+  options: { excludeImplicitValueYAML?: boolean; includeNestedChildItems?: boolean } = {}
 ): ConfigurationContext {
   return {
     ...context,
     exportToJSONSchema: {
       mode,
       refs: new Set<string>(),
+      ...(options.excludeImplicitValueYAML === undefined
+        ? {}
+        : { excludeImplicitValueYAML: options.excludeImplicitValueYAML }),
+      ...(options.includeNestedChildItems === undefined
+        ? {}
+        : { includeNestedChildItems: options.includeNestedChildItems }),
     },
   }
 }
@@ -91,7 +148,7 @@ export function exportPropertyExternalRefSchema(params: {
   if (!factory) return undefined
 
   const schema = factory(params)
-  if (schema) collectSchemaRefs(context, schema)
+  if (schema) collectSchemaRefsToContext(context, schema)
   return schema
 }
 
@@ -101,17 +158,36 @@ export function attachCollectedSchemaRefs(context: ConfigurationContext, schema:
 
   return {
     ...schema,
-    "x-nkdk-schemaRefs": [...refs].sort(),
+    [COLLECTED_SCHEMA_REFS_KEY]: [...refs].sort(),
   } as TSchema
 }
 
-function collectSchemaRefs(context: ConfigurationContext, schema: unknown): void {
+export function collectSchemaRefs(schema: unknown): string[] {
+  return [...new Set(findSchemaRefs(schema))].sort()
+}
+
+export function stripCollectedSchemaRefs<const Schema>(schema: Schema): Schema {
+  return stripCollectedSchemaRefsNode(schema) as Schema
+}
+
+function collectSchemaRefsToContext(context: ConfigurationContext, schema: unknown): void {
   const refs = context.exportToJSONSchema?.refs
   if (!refs) return
 
-  for (const ref of findSchemaRefs(schema)) {
+  for (const ref of collectSchemaRefs(schema)) {
     refs.add(ref)
   }
+}
+
+function stripCollectedSchemaRefsNode(value: unknown): unknown {
+  if (Array.isArray(value)) return value.map(stripCollectedSchemaRefsNode)
+  if (value === null || typeof value !== "object") return value
+
+  return Object.fromEntries(
+    Object.entries(value as Record<string, unknown>)
+      .filter(([key]) => key !== COLLECTED_SCHEMA_REFS_KEY)
+      .map(([key, entry]) => [key, stripCollectedSchemaRefsNode(entry)])
+  )
 }
 
 function findSchemaRefs(value: unknown): string[] {
@@ -124,8 +200,13 @@ function findSchemaRefs(value: unknown): string[] {
   const record = value as Record<string, unknown>
   const ownRef =
     typeof record["$ref"] === "string" && record["$ref"].startsWith(JSON_SCHEMA_REF_PREFIX) ? [record["$ref"]] : []
+  const collectedRefs = Array.isArray(record[COLLECTED_SCHEMA_REFS_KEY])
+    ? record[COLLECTED_SCHEMA_REFS_KEY].filter(
+        (ref): ref is string => typeof ref === "string" && ref.startsWith(JSON_SCHEMA_REF_PREFIX)
+      )
+    : []
 
-  return [...ownRef, ...Object.values(record).flatMap((item) => findSchemaRefs(item))]
+  return [...ownRef, ...collectedRefs, ...Object.values(record).flatMap((item) => findSchemaRefs(item))]
 }
 
 function rawJSONSchema(schema: object): TSchema {

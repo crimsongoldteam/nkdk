@@ -1,13 +1,17 @@
 import { describe, expect, it } from "vitest"
-import { exportMetadataItemToXML, importMetadataItemFromXML } from "~/metadata/orchestration"
-import { mockContextFromXML, mockContextToXML } from "~/tests/mockContext"
-import { readXMLFileAsString } from "~/tests/readAndParseXMLFile"
-import { importContentFromXML } from "~/xml/import/importer"
-import { xmlExport } from "~/xml/export/exporter"
+import { exportMetadataItemToXML, importMetadataItemFromXML } from "../../orchestration"
+import { mockContextFromXML, mockContextToXML } from "../../../tests/mockContext"
+import { readXMLFileAsString } from "../../../tests/readAndParseXMLFile"
+import { importContentFromXML } from "../../../xml/import/importer"
+import { xmlExport } from "../../../xml/export/exporter"
 import { MetadataConfigurationRules } from "./rules"
 import type { MetadataConfiguration } from "./types"
 
-const normalizeXML = (value: string) => value.replace(/^\uFEFF/, "").replace(/\r\n/g, "\n").replace(/\n$/, "")
+const normalizeXML = (value: string) =>
+  value
+    .replace(/^\uFEFF/, "")
+    .replace(/\r\n/g, "\n")
+    .replace(/\n$/, "")
 
 const importConfiguration = (source: string, forReference: boolean): MetadataConfiguration | undefined => {
   const parsed = importContentFromXML<{ MetaDataObject: unknown }>(source)

@@ -1,8 +1,13 @@
-import { V8_MDCLASSES_ROOT } from "~/metadata/orchestration/appliedObject/presets"
-import { MetadataItemRule } from "~/metadata/orchestration/property/types"
-
+import { metadataItemLinksRule } from "../../commonObjects/metadataPath/types"
+import { booleanRule } from "../../commonObjects/boolean/types"
+import { i8nTextRule } from "../../commonObjects/i8nText/types"
+import { stringRule } from "../../commonObjects/string/types"
+import { uuidRule } from "../../commonObjects/uuid/types"
+import { xmlRootRule } from "../../commonObjects/xmlRoot/types"
+import { systemEnumerationRule } from "../../systemEnumerations/types"
+import { V8_MDCLASSES_ROOT } from "../../orchestration/appliedObject/presets"
+import type { MetadataItemRule } from "../../orchestration/property/types"
 const properties = ["Properties"]
-
 const contentObjectPaths = [
   ["Constant"],
   ["Catalog"],
@@ -31,7 +36,6 @@ const contentObjectPaths = [
   ["ExternalDataSource", "Cube", "DimensionTable"],
   ["ExternalDataSource", "Function"],
 ] as const
-
 const contentMemberPaths = [
   ["Catalog", "Attribute"],
   ["Catalog", "TabularSection"],
@@ -100,61 +104,54 @@ const contentMemberPaths = [
   ["ExternalDataSource", "Cube", "Resource"],
   ["ExternalDataSource", "Cube", "Command"],
 ] as const
-
 export const MetadataFunctionalOptionRules = {
   itemType: "MetadataFunctionalOption",
+  metadataTargetOwner: { kind: "self", root: "FunctionalOption" },
   itemTypePrefix: "ФункциональнаяОпция",
   xmlDir: "FunctionalOptions",
   properties: {
-    xmlRoot: {
-      type: "XMLRoot",
+    xmlRoot: xmlRootRule({
       container: "FunctionalOption",
       rootAttributes: V8_MDCLASSES_ROOT,
       forReferenceOnly: true,
       toYAML: false,
       fromYAML: false,
-    },
-    uuid: {
-      type: "uuid",
+    }),
+    uuid: uuidRule({
       xml: "_uuid",
       forReferenceOnly: true,
       xmlParents: [],
-    },
-    name: {
-      type: "string",
+    }),
+    name: stringRule({
       xmlParents: properties,
       required: true,
-    },
-    synonym: {
+    }),
+    synonym: i8nTextRule({
       yaml: "Синоним",
-      type: "I8nText",
       xmlParents: properties,
       defaultValueXMLRaw: "",
-    },
-    comment: {
+      excludeIfEqualNameYAML: true,
+    }),
+    comment: stringRule({
       yaml: "Комментарий",
-      type: "string",
       xmlParents: properties,
       defaultValueXMLRaw: "",
-    },
-    location: {
+    }),
+    location: stringRule({
       yaml: "Размещение",
       xml: "Location",
-      type: "string",
       xmlParents: properties,
-    },
-    privilegedGetMode: {
+    }),
+    privilegedGetMode: booleanRule({
       yaml: "ПривилегированныйРежимПриПолучении",
       xml: "PrivilegedGetMode",
-      type: "boolean",
       xmlParents: properties,
       defaultValueXML: true,
       implicitValueYAML: true,
-    },
-    content: {
+    }),
+    content: metadataItemLinksRule({
       yaml: "СоставФункциональнойОпции",
       xml: "Content",
-      type: "MetadataItemLinks",
       metadataTarget: {
         kind: "member",
         owner: "explicit",
@@ -165,22 +162,20 @@ export const MetadataFunctionalOptionRules = {
       xmlParents: properties,
       metadataItemLinksXMLItem: "xr:Object",
       defaultValueXMLRaw: "",
-    },
-    objectBelonging: {
+    }),
+    objectBelonging: systemEnumerationRule({
       yaml: "ПринадлежностьОбъекта",
       xml: "ObjectBelonging",
-      type: "SystemEnumeration",
       typeSE: "ObjectBelonging",
       xmlParents: properties,
       toYAML: false,
       fromYAML: false,
       implicitValueYAML: "Native",
-    },
-    extendedConfigurationObject: {
+    }),
+    extendedConfigurationObject: stringRule({
       xml: "ExtendedConfigurationObject",
-      type: "string",
       xmlParents: properties,
       runtimeOnly: true,
-    },
+    }),
   },
 } as const satisfies MetadataItemRule

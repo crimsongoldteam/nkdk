@@ -1,4 +1,7 @@
-import { describe, expect, it } from "vitest"
+import { mkdirSync, mkdtempSync, rmSync, writeFileSync } from "node:fs"
+import { tmpdir } from "node:os"
+import { join } from "node:path"
+import { afterEach, describe, expect, it } from "vitest"
 
 import {
   catalogFullClientApplicationForm,
@@ -12,26 +15,34 @@ import {
 } from "./__fixtures__/data"
 import { documentFullClientApplicationFormFromYAML } from "./__fixtures__/documentFull"
 import { documentFullClientApplicationFormYAMLForImport } from "./__fixtures__/documentFull.yaml"
-import { mockContext } from "~/tests/mockContext"
+import { mockContext } from "../../../tests/mockContext"
 import { ButtonGroup } from "../elements/buttonGroup/types"
 import { Table } from "../elements/table/types"
 import { importClientApplicationFormFromYAML } from "./fromYAML"
 import { ClientApplicationForm, ClientApplicationFormYAML } from "./types"
-import type { ConfigurationContext } from "~/metadata/context/types"
+import type { ConfigurationContext } from "../../context/types"
 
 type ClientApplicationFormWithCustomSettingsFolder = ClientApplicationForm & {
   customSettingsFolder?: string
 }
 
+const dirs: string[] = []
+
+afterEach(() => {
+  for (const dir of dirs.splice(0)) rmSync(dir, { recursive: true, force: true })
+})
+
 const fullClientApplicationFormFromYAML = {
   parameters: fullClientApplicationForm.parameters,
   commands: fullClientApplicationForm.commands,
-  autoCommandBar: fullClientApplicationForm.autoCommandBar,
+  autoCommandBar: {
+    itemType: "AutoCommandBar",
+    autofill: false,
+    childItems: [],
+  },
   commandInterface: fullClientApplicationForm.commandInterface,
   attributes: fullClientApplicationForm.attributes,
-  autoTitle: fullClientApplicationForm.autoTitle,
   autoSaveDataInSettings: fullClientApplicationForm.autoSaveDataInSettings,
-  autoURL: fullClientApplicationForm.autoURL,
   customizable: fullClientApplicationForm.customizable,
   verticalScroll: fullClientApplicationForm.verticalScroll,
   childItemsVerticalAlign: fullClientApplicationForm.childItemsVerticalAlign,
@@ -41,28 +52,24 @@ const fullClientApplicationFormFromYAML = {
   childItemsHorizontalAlign: fullClientApplicationForm.childItemsHorizontalAlign,
   horizontalSpacing: fullClientApplicationForm.horizontalSpacing,
   groupList: fullClientApplicationForm.groupList,
-  enabled: fullClientApplicationForm.enabled,
+  enterKeyBehavior: fullClientApplicationForm.enterKeyBehavior,
+  group: fullClientApplicationForm.group,
   title: fullClientApplicationForm.title,
   closeOnChoice: fullClientApplicationForm.closeOnChoice,
   closeOnOwnerClose: fullClientApplicationForm.closeOnOwnerClose,
   purposeUseKey: fullClientApplicationForm.purposeUseKey,
   windowOptionsKey: fullClientApplicationForm.windowOptionsKey,
-  scale: fullClientApplicationForm.scale,
   modalMode: fullClientApplicationForm.modalMode,
   modified: fullClientApplicationForm.modified,
-  showTitle: fullClientApplicationForm.showTitle,
-  showCloseButton: fullClientApplicationForm.showCloseButton,
   conversationsRepresentation: fullClientApplicationForm.conversationsRepresentation,
   commandBarLocation: fullClientApplicationForm.commandBarLocation,
   commandSet: fullClientApplicationForm.commandSet,
-  autoFillCheck: fullClientApplicationForm.autoFillCheck,
   formWindowOpeningMode: fullClientApplicationForm.formWindowOpeningMode,
   collapseItemsByImportance: fullClientApplicationForm.collapseItemsByImportance,
   saveDataInSettings: fullClientApplicationForm.saveDataInSettings,
   savedInSettingsDataModified: fullClientApplicationForm.savedInSettingsDataModified,
   readOnly: fullClientApplicationForm.readOnly,
   width: fullClientApplicationForm.width,
-  saveWindowSettings: fullClientApplicationForm.saveWindowSettings,
   childItems: fullClientApplicationForm.childItems,
   choiceAvailable: fullClientApplicationForm.choiceAvailable,
   useForFoldersAndItems: fullClientApplicationForm.useForFoldersAndItems,
@@ -74,7 +81,7 @@ const fullClientApplicationFormFromYAML = {
   includeHelpInContents: fullClientApplicationForm.includeHelpInContents,
   usePurposes: fullClientApplicationForm.usePurposes,
   itemType: fullClientApplicationForm.itemType,
-} satisfies Omit<ClientApplicationForm, "enterKeyBehavior" | "group" | "slaveItemsWidth" | "usedFormServer">
+} satisfies Omit<ClientApplicationForm, "slaveItemsWidth" | "usedFormServer">
 
 const catalogFullClientApplicationFormFromYAML = {
   itemType: catalogFullClientApplicationForm.itemType,
@@ -102,6 +109,7 @@ const catalogFullClientApplicationFormFromYAML = {
   autoFillCheck: catalogFullClientApplicationForm.autoFillCheck,
   customizable: catalogFullClientApplicationForm.customizable,
   enabled: catalogFullClientApplicationForm.enabled,
+  enterKeyBehavior: catalogFullClientApplicationForm.enterKeyBehavior,
   commandBarLocation: catalogFullClientApplicationForm.commandBarLocation,
   verticalScroll: catalogFullClientApplicationForm.verticalScroll,
   scalingMode: catalogFullClientApplicationForm.scalingMode,
@@ -119,7 +127,7 @@ const catalogFullClientApplicationFormFromYAML = {
   attributesConditionalAppearance: catalogFullClientApplicationForm.attributesConditionalAppearance,
   commands: catalogFullClientApplicationForm.commands,
   events: catalogFullClientApplicationForm.events,
-} satisfies Omit<ClientApplicationForm, "enterKeyBehavior">
+} satisfies ClientApplicationForm
 
 const documentFullClientApplicationFormExpectedFromYAML = {
   itemType: documentFullClientApplicationFormFromYAML.itemType,
@@ -147,6 +155,7 @@ const documentFullClientApplicationFormExpectedFromYAML = {
   autoFillCheck: documentFullClientApplicationFormFromYAML.autoFillCheck,
   customizable: documentFullClientApplicationFormFromYAML.customizable,
   enabled: documentFullClientApplicationFormFromYAML.enabled,
+  enterKeyBehavior: documentFullClientApplicationFormFromYAML.enterKeyBehavior,
   commandBarLocation: documentFullClientApplicationFormFromYAML.commandBarLocation,
   verticalScroll: documentFullClientApplicationFormFromYAML.verticalScroll,
   scalingMode: documentFullClientApplicationFormFromYAML.scalingMode,
@@ -166,7 +175,7 @@ const documentFullClientApplicationFormExpectedFromYAML = {
   attributesConditionalAppearance: documentFullClientApplicationFormFromYAML.attributesConditionalAppearance,
   commands: documentFullClientApplicationFormFromYAML.commands,
   autoCommandBar: documentFullClientApplicationFormFromYAML.autoCommandBar,
-} satisfies Omit<ClientApplicationForm, "enterKeyBehavior">
+} satisfies ClientApplicationForm
 
 const reportFormClientApplicationFormFromYAML = {
   itemType: reportFormClientApplicationForm.itemType,
@@ -190,7 +199,13 @@ const reportFormClientApplicationFormFromYAML = {
 const reportOwnerContext: ConfigurationContext = {
   ...mockContext,
   importFromYAML: {
-    metadataTargetOwners: [{ itemType: "MetadataReport", name: "РасшифровкаСтатистики" }],
+    metadataTargetOwners: [
+      {
+        itemType: "MetadataReport",
+        name: "РасшифровкаСтатистики",
+        owner: { root: "Report", objectName: "РасшифровкаСтатистики" },
+      },
+    ],
   },
 }
 
@@ -203,6 +218,71 @@ describe("importClientApplicationFormFromYAML", () => {
     ).toMatchObject({
       settingsStorage: "Report.РасшифровкаСтатистики.Form.ФормаОтчета",
     })
+  })
+
+  it("keeps dynamic list field data paths in YAML spelling", () => {
+    const context: ConfigurationContext = {
+      ...mockContext,
+      importFromYAML: {
+        metadataTargetOwners: [{ itemType: "MetadataBusinessProcess", name: "Заявка" }],
+      },
+    }
+
+    expect(
+      importClientApplicationFormFromYAML(context, {
+        Реквизиты: {
+          Список: {
+            Тип: "ДинамическийСписок",
+            ДинамическийСписок: {},
+          },
+        },
+        Элементы: {
+          Номер: {
+            Вид: "ПолеНадписи",
+            ПутьКДанным: "Список.Номер",
+          },
+        },
+      })
+    ).toMatchObject({
+      childItems: [
+        {
+          itemType: "LabelField",
+          name: "Номер",
+          dataPath: "Список.Номер",
+        },
+      ],
+    })
+  })
+
+  it("keeps ValueTable field data paths in YAML spelling", () => {
+    const result = importClientApplicationFormFromYAML(contextWithProjectDir(), {
+      Реквизиты: {
+        Список: {
+          Тип: "ТаблицаЗначений",
+          Колонки: {
+            Код: { Тип: "Строка" },
+          },
+        },
+      },
+      Элементы: {
+        Код: { Вид: "ПолеВвода", ПутьКДанным: "Список.Код" },
+      },
+    })
+
+    expect(result.childItems?.[0]).toMatchObject({ dataPath: "Список.Код" })
+  })
+
+  it("imports object standard member data paths to internal spelling", () => {
+    const result = importClientApplicationFormFromYAML(contextWithProjectDir(), {
+      Реквизиты: {
+        Объект: { Тип: "Справочник.Товары" },
+      },
+      Элементы: {
+        Код: { Вид: "ПолеВвода", ПутьКДанным: "Объект.Код" },
+      },
+    })
+
+    expect(result.childItems?.[0]).toMatchObject({ dataPath: "Объект.Code" })
   })
 
   it("imports complete form from one YAML source without source", () => {
@@ -516,8 +596,23 @@ describe("importClientApplicationFormFromYAML", () => {
 
     expect((result as ClientApplicationFormWithCustomSettingsFolder).customSettingsFolder).toBe(
       customSettingsFolderClientApplicationForm.customSettingsFolder
-    )
-  })
+  )
+})
+
+function contextWithProjectDir(): ConfigurationContext {
+  const projectDir = mkdtempSync(join(tmpdir(), "nkdk-datapath-form-"))
+  dirs.push(projectDir)
+  mkdirSync(join(projectDir, "Справочник", "Товары"), { recursive: true })
+  writeFileSync(join(projectDir, "Справочник", "Товары", "Свойства.yaml"), "Имя: Товары\n", "utf-8")
+  return {
+    ...mockContext,
+    importFromYAML: {
+      ...(mockContext.importFromYAML ?? {}),
+      projectDir,
+      metadataTargetOwners: [{ itemType: "MetadataCatalog", name: "Товары" }],
+    },
+  }
+}
 
   it("does not apply report form Auto defaults when importing YAML", () => {
     expect(reportFormClientApplicationFormYAML).not.toHaveProperty("АвтоОтображениеСостояния")

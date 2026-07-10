@@ -1,14 +1,14 @@
-import { TSchema, Type } from "@sinclair/typebox"
-import { ConfigurationContext } from "~/metadata/context/types"
-import { ExportToJSONSchemaFn, registerTypeRule } from "~/metadata/orchestration"
-import { getElementRule } from "~/metadata/orchestration/formElement/ruleFactory"
+import { TProperties, TSchema, Type } from "typebox"
+import { ConfigurationContext } from "../../../context/types"
+import { ExportToJSONSchemaFn, registerTypeRule } from "../../../orchestration"
+import { getElementRule } from "../../../orchestration/formElement/ruleFactory"
 import {
   exportElementRuleToJSONSchema,
   exportElementToJSONSchema,
-} from "~/metadata/orchestration/formElement/toJSONSchema"
-import { ElementRule, CollectableElementTypeToYAML } from "~/metadata/orchestration/formElement/types"
-import { createJSONSchemaPropertyOverrideContext } from "~/metadata/orchestration/jsonSchemaRefs"
-import type { PropertyRuleType } from "~/metadata/orchestration/property/registry"
+} from "../../../orchestration/formElement/toJSONSchema"
+import { ElementRule, CollectableElementTypeToYAML } from "../../../orchestration/formElement/types"
+import { createJSONSchemaPropertyOverrideContext } from "../../../orchestration/jsonSchemaRefs"
+import type { PropertyRuleType } from "../../../orchestration/property/registry"
 import {
   childItemsTreePropertyTypes,
   ChildItemsTreePropertyType,
@@ -24,7 +24,7 @@ export const exportChildItemsToJSONSchema: ExportToJSONSchemaFn = (params): TSch
     return exportGenericChildItemsToJSONSchema({ context, propertyType: rule.type })
   }
 
-  const result = {} as TSchema
+  const result: TProperties = {}
   for (const item of items) {
     const resultItem = exportElementToJSONSchema({
       context,
@@ -78,13 +78,15 @@ type ChildItemsSchemaModule = {
   Import: (key: ChildItemsTreePropertyType) => TSchema
 }
 
-function createChildItemsSchemaModule(definitions: Record<ChildItemsTreePropertyType, TSchema>): ChildItemsSchemaModule {
-  return Type.Module(definitions) as unknown as ChildItemsSchemaModule
+function createChildItemsSchemaModule(
+  definitions: Record<ChildItemsTreePropertyType, TSchema>
+): ChildItemsSchemaModule {
+  return {
+    Import: (key) => Type.Cyclic(definitions, key),
+  }
 }
 
-function createInlineChildItemsDefinitions(
-  context: ConfigurationContext
-): Record<ChildItemsTreePropertyType, TSchema> {
+function createInlineChildItemsDefinitions(context: ConfigurationContext): Record<ChildItemsTreePropertyType, TSchema> {
   const childItemsContext = createJSONSchemaPropertyOverrideContext(context, createChildItemsPropertyRefs())
 
   return Object.fromEntries(
@@ -123,8 +125,15 @@ function exportGenericChildItemsDefinitionToJSONSchema(params: {
   const itemSchema =
     childSchemas.length === 1
       ? childSchemas[0]
-      : Type.Union(childSchemas as [TSchema, TSchema, ...TSchema[]], { discriminantKey: "Вид" })
+      : discriminatorUnion("Вид", childSchemas as [TSchema, TSchema, ...TSchema[]])
   return Type.Record(Type.String(), itemSchema)
+}
+
+function discriminatorUnion(discriminator: string, schemas: [TSchema, TSchema, ...TSchema[]]): TSchema {
+  return {
+    oneOf: schemas,
+    discriminator: { propertyName: discriminator },
+  } as TSchema
 }
 
 function omitNestedChildItemsRule(rule: ElementRule): ElementRule {

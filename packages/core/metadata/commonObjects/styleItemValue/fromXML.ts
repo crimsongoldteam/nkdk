@@ -1,14 +1,14 @@
-import { ConfigurationContextFromXML } from "~/metadata/context/types"
+import { ConfigurationContextFromXML } from "../../context/types"
 import "../border/fromXML"
 import "../color/fromXML"
 import "../font/fromXML"
-import { registerTypeRule } from "~/metadata/orchestration/property/typeRuleRegistry"
-import { importPropertyFromXML } from "~/metadata/orchestration/property/fromXML"
-import { PropertyRule } from "~/metadata/orchestration/property/types"
+import { registerTypeRule } from "../../orchestration/property/typeRuleRegistry"
+import { importPropertyFromXML } from "../../orchestration/property/fromXML"
+import type { PropertyRule } from "../../orchestration/property/types"
 import { Border } from "../border/types"
 import { Color } from "../color/types"
 import { Font } from "../font/types"
-import { StyleItemValue, StyleItemValueXML } from "./types"
+import type { StyleItemValue, StyleItemValueXML } from "./types"
 
 export const importStyleItemValueFromXML = (
   context: ConfigurationContextFromXML,

@@ -1,6 +1,6 @@
 import { describe, expect, it } from "vitest"
-import { mockContextToXML } from "~/tests/mockContext"
-import { exportPropertiesToXML } from "~/metadata/orchestration/property/toXML"
+import { mockContextToXML } from "../../../../tests/mockContext"
+import { exportPropertiesToXML } from "../../../orchestration/property/toXML"
 import { fullTable } from "./__fixtures__/data"
 import { TableRules } from "./rules"
 import type { Table } from "./types"

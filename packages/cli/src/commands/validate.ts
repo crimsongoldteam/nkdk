@@ -1,6 +1,6 @@
 import { existsSync, statSync } from "fs"
 import { isAbsolute, relative, resolve, sep } from "path"
-import { ProjectFileSchemaError, validateProject, type Diagnostic } from "@nakidka/core"
+import { ProjectFileSchemaError, validateProject, type Diagnostic } from "@nkdk/core"
 
 export interface ValidateCommandOptions {
   file?: string
@@ -25,10 +25,10 @@ export async function validateYamlProject(yamlDir: string, options: ValidateComm
 
   let diagnostics: Diagnostic[]
   try {
-    diagnostics = validateProject({
+    diagnostics = (await validateProject({
       projectDir,
       ...(options.file !== undefined ? { filePath: options.file } : {}),
-    }).diagnostics
+    })).diagnostics
   } catch (caught) {
     if (isCommandUsageError(caught)) {
       writeUsageError(caught.message)

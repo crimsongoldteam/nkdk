@@ -8,6 +8,5 @@ export const minimal: MetadataDocumentJournal = {
 }
 
 export const minimalYAML: MetadataDocumentJournalYAML = {
-  Синоним: "Журнал документов по умолчанию",
   РегистрируемыеДокументы: ["ДокументВсеСвойства"],
 }

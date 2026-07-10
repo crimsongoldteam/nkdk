@@ -1,7 +1,7 @@
-import { ConfigurationContext, ContextElementToEnterprise } from "~/metadata/context/types"
-import { exportDataPathToEnterprise } from "~/metadata/forms/commonObjects/dataPath/toEnterprise"
-import { ToEnterprise, ToMetadata } from "~/metadata/orchestration/metadataItem/registry"
-import { exportPropertiesToEnterprise } from "~/metadata/orchestration/property/toEnterprise"
+import { ConfigurationContext, ContextElementToEnterprise } from "../../../context/types"
+import { exportDataPathToEnterprise } from "../../commonObjects/dataPath/toEnterprise"
+import { ToEnterprise, ToMetadata } from "../../../orchestration/metadataItem/registry"
+import { exportPropertiesToEnterprise } from "../../../orchestration/property/toEnterprise"
 import { getElementRule } from "./ruleFactory"
 import { CollectableElementType } from "./types"
 

@@ -13,7 +13,7 @@ function state(paths: string[]): StructuralState {
           name: lastSegment(path),
           referencePath: path,
         },
-      ]),
+      ])
     ),
   }
 }
@@ -32,13 +32,10 @@ function kindByPath(path: string): StructuralKind {
 
 describe("applyMigrationEntries", () => {
   it("renames parent and descendants while preserving original reference paths", () => {
-    const result = applyMigrationEntries(
-      state(["Справочник.Товары", "Справочник.Товары.Реквизит.Артикул"]),
-      [
-        { path: "Справочник.Товары", value: "Номенклатура" },
-        { path: "Справочник.Номенклатура.Реквизит.Артикул", value: "НовыйАртикул" },
-      ],
-    )
+    const result = applyMigrationEntries(state(["Справочник.Товары", "Справочник.Товары.Реквизит.Артикул"]), [
+      { path: "Справочник.Товары", value: "Номенклатура" },
+      { path: "Справочник.Номенклатура.Реквизит.Артикул", value: "НовыйАртикул" },
+    ])
 
     expect([...result.state.nodes.keys()].sort()).toEqual([
       "Справочник.Номенклатура",
@@ -46,21 +43,23 @@ describe("applyMigrationEntries", () => {
     ])
     expect(result.referencePathByCurrentPath.get("Справочник.Номенклатура")).toBe("Справочник.Товары")
     expect(result.referencePathByCurrentPath.get("Справочник.Номенклатура.Реквизит.НовыйАртикул")).toBe(
-      "Справочник.Товары.Реквизит.Артикул",
+      "Справочник.Товары.Реквизит.Артикул"
     )
   })
 
-  it("supports delete then add of the same path as recreation", () => {
+  it("treats delete and add service words as ordinary local names", () => {
     const result = applyMigrationEntries(state(["Справочник.Товары.Реквизит.Артикул"]), [
       { path: "Справочник.Товары.Реквизит.Артикул", value: "Удалить" },
-      { path: "Справочник.Товары.Реквизит.Артикул", value: "Добавить" },
+      { path: "Справочник.Товары.Реквизит.Удалить", value: "Добавить" },
     ])
 
-    expect(result.state.nodes.has("Справочник.Товары.Реквизит.Артикул")).toBe(true)
-    expect(result.referencePathByCurrentPath.has("Справочник.Товары.Реквизит.Артикул")).toBe(false)
+    expect([...result.state.nodes.keys()]).toEqual(["Справочник.Товары.Реквизит.Добавить"])
+    expect(result.referencePathByCurrentPath.get("Справочник.Товары.Реквизит.Добавить")).toBe(
+      "Справочник.Товары.Реквизит.Артикул"
+    )
   })
 
-  it("deletes path with descendants", () => {
+  it("renames path with descendants when new name is a service word", () => {
     const result = applyMigrationEntries(
       state([
         "Справочник.Товары",
@@ -68,10 +67,15 @@ describe("applyMigrationEntries", () => {
         "Справочник.Склады",
         "Справочник.Склады.Реквизит.Код",
       ]),
-      [{ path: "Справочник.Товары", value: "Удалить" }],
+      [{ path: "Справочник.Товары", value: "Удалить" }]
     )
 
-    expect([...result.state.nodes.keys()].sort()).toEqual(["Справочник.Склады", "Справочник.Склады.Реквизит.Код"])
+    expect([...result.state.nodes.keys()].sort()).toEqual([
+      "Справочник.Склады",
+      "Справочник.Склады.Реквизит.Код",
+      "Справочник.Удалить",
+      "Справочник.Удалить.Реквизит.Артикул",
+    ])
   })
 
   it("does not mutate initial state", () => {
@@ -86,71 +90,69 @@ describe("applyMigrationEntries", () => {
 
   it("rejects rename when target exists in intermediate state", () => {
     expect(() =>
-      applyMigrationEntries(
-        state(["Справочник.Товары.Реквизит.Старый", "Справочник.Товары.Реквизит.Новый"]),
-        [{ path: "Справочник.Товары.Реквизит.Старый", value: "Новый" }],
-      ),
+      applyMigrationEntries(state(["Справочник.Товары.Реквизит.Старый", "Справочник.Товары.Реквизит.Новый"]), [
+        { path: "Справочник.Товары.Реквизит.Старый", value: "Новый" },
+      ])
     ).toThrow('Целевой путь уже существует "Справочник.Товары.Реквизит.Новый"')
   })
 
   it("rejects rename when target descendant exists in intermediate state", () => {
     expect(() =>
-      applyMigrationEntries(
-        state(["Справочник.Товары", "Справочник.Номенклатура.Реквизит.Артикул"]),
-        [{ path: "Справочник.Товары", value: "Номенклатура" }],
-      ),
+      applyMigrationEntries(state(["Справочник.Товары", "Справочник.Номенклатура.Реквизит.Артикул"]), [
+        { path: "Справочник.Товары", value: "Номенклатура" },
+      ])
     ).toThrow('Целевой путь уже существует "Справочник.Номенклатура"')
   })
 
   it("rejects rename of missing path", () => {
     expect(() =>
-      applyMigrationEntries(state([]), [{ path: "Справочник.Товары.Реквизит.Артикул", value: "НовыйАртикул" }]),
+      applyMigrationEntries(state([]), [{ path: "Справочник.Товары.Реквизит.Артикул", value: "НовыйАртикул" }])
     ).toThrow('Путь для переименования не найден "Справочник.Товары.Реквизит.Артикул"')
   })
 
-  it("rejects delete of missing path", () => {
+  it("rejects service word rename of missing path", () => {
     expect(() =>
-      applyMigrationEntries(state([]), [{ path: "Справочник.Товары.Реквизит.Артикул", value: "Удалить" }]),
-    ).toThrow('Путь для удаления не найден "Справочник.Товары.Реквизит.Артикул"')
+      applyMigrationEntries(state([]), [{ path: "Справочник.Товары.Реквизит.Артикул", value: "Удалить" }])
+    ).toThrow('Путь для переименования не найден "Справочник.Товары.Реквизит.Артикул"')
   })
 
-  it("rejects add of existing path", () => {
+  it("rejects service word rename when target exists", () => {
     expect(() =>
-      applyMigrationEntries(state(["Справочник.Товары.Реквизит.Артикул"]), [
+      applyMigrationEntries(state(["Справочник.Товары.Реквизит.Артикул", "Справочник.Товары.Реквизит.Добавить"]), [
         { path: "Справочник.Товары.Реквизит.Артикул", value: "Добавить" },
-      ]),
-    ).toThrow('Путь для добавления уже существует "Справочник.Товары.Реквизит.Артикул"')
+      ])
+    ).toThrow('Целевой путь уже существует "Справочник.Товары.Реквизит.Добавить"')
   })
 
   it("rejects invalid migration value", () => {
     expect(() =>
       applyMigrationEntries(state(["Справочник.Товары.Реквизит.Артикул"]), [
         { path: "Справочник.Товары.Реквизит.Артикул", value: null },
-      ] as unknown as MigrationEntry[]),
+      ] as unknown as MigrationEntry[])
     ).toThrow('Некорректное значение миграции для "Справочник.Товары.Реквизит.Артикул"')
   })
 })
 
 describe("applyPendingMigrationFiles", () => {
   it("applies files in order and returns applied file names", () => {
-    const result = applyPendingMigrationFiles(state(["Справочник.Товары"]), [
+    const result = applyPendingMigrationFiles(state(["Справочник.Товары", "Справочник.Товары.Реквизит.Артикул"]), [
       {
         fileName: "2026-05-05-143000.yaml",
         entries: [{ path: "Справочник.Товары", value: "Номенклатура" }],
       },
       {
         fileName: "2026-05-05-143001.yaml",
-        entries: [{ path: "Справочник.Номенклатура.Реквизит.Артикул", value: "Добавить" }],
+        entries: [{ path: "Справочник.Номенклатура.Реквизит.Артикул", value: "Код" }],
       },
     ])
 
     expect([...result.state.nodes.keys()].sort()).toEqual([
       "Справочник.Номенклатура",
-      "Справочник.Номенклатура.Реквизит.Артикул",
+      "Справочник.Номенклатура.Реквизит.Код",
     ])
     expect(result.referencePathByCurrentPath.get("Справочник.Номенклатура")).toBe("Справочник.Товары")
     expect(result.appliedFileNames).toEqual(["2026-05-05-143000.yaml", "2026-05-05-143001.yaml"])
-    validateAppliedMigrationTarget(result, state(["Справочник.Номенклатура", "Справочник.Номенклатура.Реквизит.Артикул"]))
+    validateAppliedMigrationTarget(result, state(["Справочник.Номенклатура", "Справочник.Номенклатура.Реквизит.Код"]))
   })
 
   it("preserves descendant reference paths across sequential file renames", () => {
@@ -170,7 +172,7 @@ describe("applyPendingMigrationFiles", () => {
       "Справочник.Номенклатура.Реквизит.НовыйАртикул",
     ])
     expect(result.referencePathByCurrentPath.get("Справочник.Номенклатура.Реквизит.НовыйАртикул")).toBe(
-      "Справочник.Товары.Реквизит.Артикул",
+      "Справочник.Товары.Реквизит.Артикул"
     )
     expect(result.appliedFileNames).toEqual(["2026-05-05-143000.yaml", "2026-05-05-143001.yaml"])
   })
@@ -184,11 +186,11 @@ describe("applyPendingMigrationFiles", () => {
     ])
 
     expect(() => validateAppliedMigrationTarget(result, state([]))).toThrow(
-      'Миграция ожидает путь в YAML "Справочник.Номенклатура"',
+      'Миграция ожидает путь в YAML "Справочник.Номенклатура"'
     )
   })
 
-  it("rejects delete when target YAML still has the same path", () => {
+  it("rejects service word rename when target YAML still has the old path", () => {
     const result = applyPendingMigrationFiles(state(["Справочник.Товары"]), [
       {
         fileName: "2026-05-05-143000.yaml",
@@ -197,34 +199,21 @@ describe("applyPendingMigrationFiles", () => {
     ])
 
     expect(() => validateAppliedMigrationTarget(result, state(["Справочник.Товары"]))).toThrow(
-      'Миграция ожидает отсутствие пути в YAML "Справочник.Товары"',
+      'Миграция ожидает путь в YAML "Справочник.Удалить"'
     )
   })
 
-  it("allows delete then add of the same final YAML path", () => {
+  it("allows sequential service word renames when final YAML path exists", () => {
     const result = applyPendingMigrationFiles(state(["Справочник.Товары"]), [
       {
         fileName: "2026-05-05-143000.yaml",
         entries: [
           { path: "Справочник.Товары", value: "Удалить" },
-          { path: "Справочник.Товары", value: "Добавить" },
+          { path: "Справочник.Удалить", value: "Добавить" },
         ],
       },
     ])
 
-    expect(() => validateAppliedMigrationTarget(result, state(["Справочник.Товары"]))).not.toThrow()
-  })
-
-  it("rejects add when target YAML path is missing", () => {
-    const result = applyPendingMigrationFiles(state([]), [
-      {
-        fileName: "2026-05-05-143000.yaml",
-        entries: [{ path: "Справочник.Товары", value: "Добавить" }],
-      },
-    ])
-
-    expect(() => validateAppliedMigrationTarget(result, state([]))).toThrow(
-      'Миграция ожидает путь в YAML "Справочник.Товары"',
-    )
+    expect(() => validateAppliedMigrationTarget(result, state(["Справочник.Добавить"]))).not.toThrow()
   })
 })

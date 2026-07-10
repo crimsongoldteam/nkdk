@@ -1,9 +1,5 @@
 import { describe, expect, it } from "vitest"
-import {
-  formatMetadataTargetToYAML,
-  parseMetadataTargetFromModel,
-  parseMetadataTargetFromYAML,
-} from "./index"
+import { formatMetadataTargetToYAML, parseMetadataTargetFromModel, parseMetadataTargetFromYAML } from "./index"
 
 describe("metadataTargets parser", () => {
   it("parses object references from Russian YAML to canonical model strings", () => {
@@ -104,6 +100,25 @@ describe("metadataTargets parser", () => {
         ],
       },
     })
+  })
+
+  it("parses and formats standard member YAML aliases from standardMembers", () => {
+    expect(
+      parseMetadataTargetFromYAML({
+        value: "ПланОбмена.Синхронизация.СтандартныйРеквизит.ДатаОбмена",
+        constraint: { kind: "member", owner: "explicit", roots: ["ExchangePlan"], memberKinds: ["StandardAttribute"] },
+      })
+    ).toMatchObject({
+      ok: true,
+      canonical: "ExchangePlan.Синхронизация.StandardAttribute.ExchangeDate",
+    })
+
+    expect(
+      formatMetadataTargetToYAML({
+        canonical: "ExchangePlan.Синхронизация.StandardAttribute.ExchangeDate",
+        constraint: { kind: "member", owner: "explicit", roots: ["ExchangePlan"], memberKinds: ["StandardAttribute"] },
+      })
+    ).toBe("ПланОбмена.Синхронизация.СтандартныйРеквизит.ExchangeDate")
   })
 
   it("applies memberKinds to the terminal field-like member segment", () => {
@@ -394,7 +409,11 @@ describe("metadataTargets parser", () => {
 
   it("parses and formats additional top-level roots used by subsystem content", () => {
     const cases = [
-      ["ПодпискаНаСобытие.ПодпискаНаСобытиеВсеСвойства", "EventSubscription.ПодпискаНаСобытиеВсеСвойства", "EventSubscription"],
+      [
+        "ПодпискаНаСобытие.ПодпискаНаСобытиеВсеСвойства",
+        "EventSubscription.ПодпискаНаСобытиеВсеСвойства",
+        "EventSubscription",
+      ],
       ["ПакетXDTO.ПакетXDTOВсеСвойства", "XDTOPackage.ПакетXDTOВсеСвойства", "XDTOPackage"],
       ["WSСсылка.WSСсылкаВсеСвойства", "WSReference.WSСсылкаВсеСвойства", "WSReference"],
       [

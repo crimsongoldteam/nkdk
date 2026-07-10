@@ -1,6 +1,6 @@
-import { ConfigurationContext } from "~/metadata/context/types"
-import { ExportToYAMLFunction, PropertyRule, registerTypeRule } from "~/metadata/orchestration"
-import * as SE from "~/metadata/systemEnumerations/types"
+import { ConfigurationContext } from "../../../context/types"
+import { ExportToYAMLFunction, PropertyRule, registerTypeRule } from "../../../orchestration"
+import * as SE from "../../../systemEnumerations/types"
 import { ScrollBarUse } from "./types"
 
 const exportScrollBarUseToYAML: ExportToYAMLFunction = (

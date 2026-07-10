@@ -1,9 +1,15 @@
-import { Static, Type } from "@sinclair/typebox"
-import { StringboolXML } from "~/metadata/commonObjects/boolean/types"
-import { DataPath, DataPathXML, DataPathYAML } from "~/metadata/forms/commonObjects/dataPath/types"
-import { UserVisible, UserVisibleJSONSchema, UserVisibleXML } from "~/metadata/commonObjects/userVisible/types"
-import { MetadataItem } from "~/metadata/orchestration"
-import * as SE from "~/metadata/systemEnumerations/types"
+import {
+  definePropertyRule as defineWidePropertyRule,
+  type ExactRuleParams as WideExactRuleParams,
+} from "../../../commonObjects/ruleBuilder"
+import type { PropertyRule as WidePropertyRuleBase } from "../../../orchestration/property/types"
+import { Type } from "typebox"
+import type { Static } from "typebox"
+import { StringboolXML } from "../../../commonObjects/boolean/types"
+import { DataPath, DataPathXML, DataPathYAML } from "../dataPath/types"
+import { UserVisible, UserVisibleJSONSchema, UserVisibleXML } from "../../../commonObjects/userVisible/types"
+import { MetadataItem } from "../../../orchestration"
+import * as SE from "../../../systemEnumerations/types"
 
 type RawCommandGroup = string
 
@@ -77,3 +83,15 @@ export type CommandInterfaceItemYAML = Static<typeof CommandInterfaceItemJSONSch
 }
 
 //#endregion
+
+export interface CommandInterfaceWidePropertyRule extends WidePropertyRuleBase {
+  type: "CommandInterface"
+}
+
+export type CommandInterfaceRuleParams = Omit<CommandInterfaceWidePropertyRule, "type">
+
+export function commandInterfaceRule<const Params extends CommandInterfaceRuleParams>(
+  params: WideExactRuleParams<CommandInterfaceRuleParams, Params>
+): Readonly<{ type: "CommandInterface" } & Params> {
+  return defineWidePropertyRule("CommandInterface", params)
+}

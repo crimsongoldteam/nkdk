@@ -1,5 +1,5 @@
-import { ConfigurationContextWithExportToXML } from "~/metadata/context/types"
-import { PropertyRule, registerTypeRule } from "~/metadata/orchestration"
+import { ConfigurationContextWithExportToXML } from "../../context/types"
+import { PropertyRule, registerTypeRule } from "../../orchestration"
 import { PredefinedCode } from "./types"
 
 export const exportPredefinedCodeToXML = (

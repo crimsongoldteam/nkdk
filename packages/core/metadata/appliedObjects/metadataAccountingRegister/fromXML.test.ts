@@ -1,8 +1,8 @@
 import { describe, expect, it } from "vitest"
-import { testExportAppliedObjectToXML, testImportAppliedObjectFromXML } from "~/tests/appliedObject"
-import { accountingExtDimensions } from "~/metadata/commonObjects/standardAttributeDescription/__fixtures__/data"
-import { PropertyRule } from "~/metadata/orchestration"
-import { testImportPropertyFromXML } from "~/tests/property/importPropertyFromXML"
+import { testExportAppliedObjectToXML, testImportAppliedObjectFromXML } from "../../../tests/appliedObject"
+import { accountingExtDimensions } from "../../commonObjects/standardAttributeDescription/__fixtures__/data"
+import { PropertyRule } from "../../orchestration"
+import { testImportPropertyFromXML } from "../../../tests/property/importPropertyFromXML"
 import { MetadataAccountingRegisterRules, MetadataAccountingRegisterStandardAttributeNames } from "./rules"
 import { MetadataAccountingRegister } from "./types"
 
@@ -31,13 +31,19 @@ describe("import MetadataAccountingRegister from XML", () => {
     expect(result?.chartOfAccounts).toBe("ChartOfAccounts.ПланСчетовВсеСвойства")
     expect(result?.correspondence).toBe(true)
     expect(result?.periodAdjustmentLength).toBe(3)
-    expect(result?.dimensions?.map(({ name }) => name)).toEqual([
+    expect(result?.dimensions?.map(({ name }: { name: string }) => name)).toEqual([
       "ИзмерениеВсеСвойства",
       "ИспользоватьХранилищеДвоичныхДанных",
     ])
-    expect(result?.resources?.map(({ name }) => name)).toEqual(["РесурсВсеСвойства", "ИзмерениеИндексировать"])
-    expect(result?.attributes?.map(({ name }) => name)).toEqual(["РеквизитВсеСвойства", "РеквизитПоУмолчанию"])
-    expect(result?.commands?.map(({ name }) => name)).toEqual(["Команда1"])
+    expect(result?.resources?.map(({ name }: { name: string }) => name)).toEqual([
+      "РесурсВсеСвойства",
+      "ИзмерениеИндексировать",
+    ])
+    expect(result?.attributes?.map(({ name }: { name: string }) => name)).toEqual([
+      "РеквизитВсеСвойства",
+      "РеквизитПоУмолчанию",
+    ])
+    expect(result?.commands?.map(({ name }: { name: string }) => name)).toEqual(["Команда1"])
   })
 
   it("imports explicitly present empty ExtDimension attributes with accounting standard names", () => {

@@ -1,6 +1,7 @@
-import { PropertyRuleType } from "~/metadata/orchestration/property/registry"
+import { PropertyRuleType } from "./registry"
 import {
   CollectionItemRule,
+  CollectMetadataTargetReferencesFunction,
   createRegistryKey,
   ExportToEnterpriseFunction,
   ExportToJSONSchemaFn,
@@ -8,14 +9,19 @@ import {
   ExportToXMLFunctionNew,
   ExportToYAMLFunction,
   ExportToYAMLFunctionNew,
+  FileChildNamesDescriptorFunction,
   importExportFunction,
   ImportFromXMLFunction,
   importFromYAMLFunction as ImportFromYAMLFunction,
   ImportFromYAMLFunctionNew,
+  ProjectResourcesFunction,
+  StructuralReferencesFunction,
   SyncExternalFromXMLFunction,
   SyncExternalToXMLFunction,
   TypeRulesOperations,
   ValidateMetadataTargetFunction,
+  XmlSyncRoutesFunction,
+  XmlSyncWriterFunction,
 } from "./fn"
 
 const typeRulesRegistry = new Map<
@@ -33,6 +39,12 @@ const typeRulesRegistry = new Map<
   | SyncExternalFromXMLFunction
   | SyncExternalToXMLFunction
   | ValidateMetadataTargetFunction
+  | CollectMetadataTargetReferencesFunction
+  | StructuralReferencesFunction
+  | ProjectResourcesFunction
+  | XmlSyncRoutesFunction
+  | FileChildNamesDescriptorFunction
+  | XmlSyncWriterFunction
 >()
 
 export const registerTypeRule = <O extends TypeRulesOperations>(
@@ -56,18 +68,30 @@ export const getTypeRule = <O extends TypeRulesOperations>(
       : O extends "importFromXML"
         ? ImportFromXMLFunction | undefined
         : O extends "exportToEnterprise"
-      ? ExportToEnterpriseFunction | undefined
-      : O extends "exportToJSONSchema"
-        ? ExportToJSONSchemaFn | undefined
-        : O extends "collectionItemRule"
-          ? CollectionItemRule | undefined
-          : O extends "syncExternalFromXML"
-            ? SyncExternalFromXMLFunction | undefined
-            : O extends "syncExternalToXML"
-              ? SyncExternalToXMLFunction | undefined
-              : O extends "validateMetadataTarget"
-                ? ValidateMetadataTargetFunction | undefined
-                : never => {
+          ? ExportToEnterpriseFunction | undefined
+          : O extends "exportToJSONSchema"
+            ? ExportToJSONSchemaFn | undefined
+            : O extends "collectionItemRule"
+              ? CollectionItemRule | undefined
+              : O extends "syncExternalFromXML"
+                ? SyncExternalFromXMLFunction | undefined
+                : O extends "syncExternalToXML"
+                  ? SyncExternalToXMLFunction | undefined
+                  : O extends "validateMetadataTarget"
+                    ? ValidateMetadataTargetFunction | undefined
+                    : O extends "collectMetadataTargetReferences"
+                      ? CollectMetadataTargetReferencesFunction | undefined
+                      : O extends "structuralReferences"
+                        ? StructuralReferencesFunction | undefined
+                        : O extends "projectResources"
+                          ? ProjectResourcesFunction | undefined
+                          : O extends "xmlSyncRoutes"
+                            ? XmlSyncRoutesFunction | undefined
+                            : O extends "fileChildNamesDescriptor"
+                              ? FileChildNamesDescriptorFunction | undefined
+                              : O extends "xmlSyncWriter"
+                                ? XmlSyncWriterFunction | undefined
+                                : never => {
   const key = createRegistryKey(type, operation)
   const result = typeRulesRegistry.get(key)
   return result as any

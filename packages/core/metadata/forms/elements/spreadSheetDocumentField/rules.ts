@@ -1,82 +1,88 @@
-import { registerElementRule } from "~/metadata/orchestration/formElement/ruleFactory"
-import { PropertyRule } from "~/metadata/orchestration/property/types"
+import { colorRule } from "../../../commonObjects/color/types"
+import { dataPathRule } from "../../../commonObjects/metadataPath/types"
+import { commandSetRule } from "../../commonObjects/commandSet/types"
+import { eventsRule } from "../../commonObjects/event/types"
+import { scrollBarUseBooleanRule } from "../../commonObjects/scrollBarUse/types"
+import { booleanRule } from "../../../commonObjects/boolean/types"
+import { numberRule } from "../../../commonObjects/number/types"
+import { stringRule } from "../../../commonObjects/string/types"
+import { systemEnumerationRule } from "../../../systemEnumerations/types"
+import { registerElementRule } from "../../../orchestration/formElement/ruleFactory"
+import type { PropertyRule } from "../../../orchestration/property/types"
 import { ElementRule } from "../../../orchestration/formElement/types"
 import { formFieldCommonProperties, formFieldDisabledTableRelatedProperties } from "../formField/rules"
 export type { ElementRule, PropertyRule }
-
 export const SpreadSheetDocumentFieldRules = {
   itemType: "SpreadSheetDocumentField",
   enterpriseFieldType: "FormFieldType.SpreadsheetDocumentField",
   enterpriseField: "FormField",
   properties: {
-    autoMaxHeight: { yaml: "АвтоМаксимальнаяВысота", type: "boolean" },
-    autoMaxWidth: { yaml: "АвтоМаксимальнаяШирина", type: "boolean" },
-    blackAndWhiteView: { yaml: "ЧерноБелыйПросмотр", type: "boolean" },
-    borderColor: { yaml: "ЦветРамки", type: "Color", metadataTarget: { kind: "object", roots: ["StyleItem"], filters: [{ kind: "styleItemType", values: ["Color"] }] } },
-    commandSet: { yaml: "Команда", type: "CommandSet", toEnterprise: false },
-    drawingSelectionShowMode: {
+    autoMaxHeight: booleanRule({ yaml: "АвтоМаксимальнаяВысота", implicitValueYAML: true }),
+    autoMaxWidth: booleanRule({ yaml: "АвтоМаксимальнаяШирина", implicitValueYAML: true }),
+    blackAndWhiteView: booleanRule({ yaml: "ЧерноБелыйПросмотр", implicitValueYAML: false }),
+    borderColor: colorRule({
+      yaml: "ЦветРамки",
+      metadataTarget: { kind: "object", roots: ["StyleItem"], filters: [{ kind: "styleItemType", values: ["Color"] }] },
+    }),
+    commandSet: commandSetRule({ yaml: "Команда", toEnterprise: false }),
+    drawingSelectionShowMode: systemEnumerationRule({
       yaml: "РежимОтображенияВыделенияРисунков",
-      type: "SystemEnumeration",
       typeSE: "DrawingSelectionShowMode",
-    },
-    edit: { yaml: "Редактирование", type: "boolean" },
-    enableDrag: { yaml: "РазрешитьПеретаскивание", type: "boolean" },
-    enableStartDrag: { yaml: "РазрешитьНачалоПеретаскивания", type: "boolean" },
-    height: { yaml: "Высота", type: "number" },
-    horizontalScrollBar: {
+      implicitValueYAML: "Auto",
+    }),
+    edit: booleanRule({ yaml: "Редактирование", implicitValueYAML: false }),
+    enableDrag: booleanRule({ yaml: "РазрешитьПеретаскивание", implicitValueYAML: true }),
+    enableStartDrag: booleanRule({ yaml: "РазрешитьНачалоПеретаскивания", implicitValueYAML: true }),
+    height: numberRule({ yaml: "Высота", implicitValueYAML: 10 }),
+    horizontalScrollBar: scrollBarUseBooleanRule({
       yaml: "ГоризонтальнаяПолосаПрокрутки",
-      type: "ScrollBarUseBoolean",
       implicitValueYAML: "AutoUse",
-    },
-    horizontalStretch: { yaml: "РастягиватьПоГоризонтали", type: "boolean" },
-    maxHeight: { yaml: "МаксимальнаяВысота", type: "number" },
-    maxWidth: { yaml: "МаксимальнаяШирина", type: "number" },
-    output: {
+    }),
+    horizontalStretch: booleanRule({ yaml: "РастягиватьПоГоризонтали", implicitValueYAML: true }),
+    maxHeight: numberRule({ yaml: "МаксимальнаяВысота", implicitValueYAML: 0 }),
+    maxWidth: numberRule({ yaml: "МаксимальнаяШирина", implicitValueYAML: 0 }),
+    output: systemEnumerationRule({
       yaml: "Вывод",
-      type: "SystemEnumeration",
       typeSE: "UseOutput",
-    },
-    pointerType: {
+      implicitValueYAML: "Auto",
+    }),
+    pointerType: systemEnumerationRule({
       yaml: "ТипКурсоров",
-      type: "SystemEnumeration",
       typeSE: "SpreadsheetDocumentPointerType",
-    },
-    protection: { yaml: "Защита", type: "boolean" },
-    selectionShowMode: {
+      implicitValueYAML: "Special",
+    }),
+    protection: booleanRule({ yaml: "Защита", implicitValueYAML: false }),
+    selectionShowMode: systemEnumerationRule({
       yaml: "РежимОтображенияВыделения",
-      type: "SystemEnumeration",
       typeSE: "SelectionShowMode",
-    },
-    showCellNames: { yaml: "ОтображатьИменаЯчеек", type: "boolean" },
-    showGrid: { yaml: "ОтображатьСетку", type: "boolean" },
-    showGroups: { yaml: "ОтображатьГруппировки", type: "boolean" },
-    showHeaders: { yaml: "ОтображатьЗаголовки", type: "boolean" },
-    showRowAndColumnNames: { yaml: "ОтображатьИменаСтрокИКолонок", type: "boolean" },
-    statePresentation: {
+      implicitValueYAML: "Always",
+    }),
+    showCellNames: booleanRule({ yaml: "ОтображатьИменаЯчеек", implicitValueYAML: false }),
+    showGrid: booleanRule({ yaml: "ОтображатьСетку", implicitValueYAML: false }),
+    showGroups: booleanRule({ yaml: "ОтображатьГруппировки", implicitValueYAML: true }),
+    showHeaders: booleanRule({ yaml: "ОтображатьЗаголовки", implicitValueYAML: false }),
+    showRowAndColumnNames: booleanRule({ yaml: "ОтображатьИменаСтрокИКолонок", implicitValueYAML: false }),
+    statePresentation: systemEnumerationRule({
       yaml: "ОтображениеСостояния",
-      type: "SystemEnumeration",
       typeSE: "StatePresentation",
       runtimeOnly: true,
-    },
-    usedFileName: {
+    }),
+    usedFileName: stringRule({
       yaml: "ИспользуемоеИмяФайла",
-      type: "string",
       runtimeOnly: true,
-    },
-    verticalScrollBar: {
+    }),
+    verticalScrollBar: scrollBarUseBooleanRule({
       yaml: "ВертикальнаяПолосаПрокрутки",
-      type: "ScrollBarUseBoolean",
       implicitValueYAML: "AutoUse",
-    },
-    verticalStretch: { yaml: "РастягиватьПоВертикали", type: "boolean" },
-    viewScalingMode: {
+    }),
+    verticalStretch: booleanRule({ yaml: "РастягиватьПоВертикали", implicitValueYAML: true }),
+    viewScalingMode: systemEnumerationRule({
       yaml: "РежимМасштабированияПросмотра",
-      type: "SystemEnumeration",
       typeSE: "ViewScalingMode",
-    },
-    width: { yaml: "Ширина", type: "number" },
-    events: {
-      type: "Events",
+      implicitValueYAML: "Auto",
+    }),
+    width: numberRule({ yaml: "Ширина", implicitValueYAML: 50 }),
+    events: eventsRule({
       yaml: "События",
       toEnterprise: false,
       items: {
@@ -95,17 +101,16 @@ export const SpreadSheetDocumentFieldRules = {
         onChangeAreaContent: "ПриИзмененииСодержимогоОбласти",
         dragCheck: "ПроверкаПеретаскивания",
       },
-    },
-    dataPath: {
+    }),
+    dataPath: dataPathRule({
       yaml: "ПутьКДанным",
-      type: "DataPath",
       toYAML: false,
       fromYAML: false,
       defaultType: "SpreadsheetDocument",
-    },
+    }),
     ...formFieldCommonProperties,
     ...formFieldDisabledTableRelatedProperties,
+    titleHeight: numberRule({ yaml: "ВысотаЗаголовка", implicitValueYAML: 0 }),
   },
 } as const satisfies ElementRule
-
 registerElementRule("SpreadSheetDocumentField", SpreadSheetDocumentFieldRules)

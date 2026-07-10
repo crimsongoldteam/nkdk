@@ -1,9 +1,11 @@
+import { compileValidationSchema } from "./compileValidationSchema"
 import { mkdtempSync, rmSync } from "fs"
 import { tmpdir } from "os"
 import { join, resolve } from "path"
-import { TypeCompiler } from "@sinclair/typebox/compiler"
 import { afterEach, describe, expect, it } from "vitest"
+import { EXCLUDE_IF_EQUAL_NAME_YAML_DESCRIPTION } from "../helpers/excludeIfEqualNameYAML"
 import {
+  exportJSONSchemaGraph,
   exportJSONSchemaForProjectFile,
   exportJSONSchemaForSchemaName,
   ProjectFileSchemaError,
@@ -25,7 +27,7 @@ describe("exportJSONSchemaForProjectFile", () => {
   })
 
   const createProject = (): string => {
-    const projectDir = mkdtempSync(join(tmpdir(), "nakidka-schema-"))
+    const projectDir = mkdtempSync(join(tmpdir(), "nkdk-schema-"))
     tempDirs.push(projectDir)
     return projectDir
   }
@@ -131,6 +133,28 @@ describe("exportJSONSchemaForProjectFile", () => {
     })
   })
 
+  it("describes equal-name exclusion without making the schema name-dependent", () => {
+    const schema = exportJSONSchemaForProjectFile({
+      context,
+      filePath: "Справочник/КакоеТоПоле/Свойства.yaml",
+      mode: "inline",
+    })
+    const synonymSchema = propertySchema(schema, "Синоним")
+
+    expect(synonymSchema.description).toBe(EXCLUDE_IF_EQUAL_NAME_YAML_DESCRIPTION)
+    expect(JSON.stringify(synonymSchema)).not.toContain("Какое то поле")
+    expect(JSON.stringify(synonymSchema)).not.toContain('"not"')
+
+    const compiled = compileValidationSchema(schema)
+    expect(
+      validateFile({
+        filePath: "Справочник/КакоеТоПоле/Свойства.yaml",
+        schema: compiled,
+        text: "Синоним: Какое то поле\n",
+      })
+    ).toEqual([])
+  })
+
   it("exports document schema for project-relative properties path", () => {
     const projectDir = createProject()
 
@@ -161,6 +185,16 @@ describe("exportJSONSchemaForProjectFile", () => {
         Синоним: expect.any(Object),
       }),
     })
+  })
+
+  it("exports form schema graph without replacing element refs with any", () => {
+    const graph = exportJSONSchemaGraph({
+      context,
+      roots: [{ key: "form", name: "ClientApplicationForm", includeNestedChildItems: true }],
+    })
+
+    expect(JSON.stringify(graph.roots.form)).toContain("nkdk://schema/FormAttribute")
+    expect(JSON.stringify(graph.schemas["nkdk://schema/FormAttribute"])).toContain('"Тип"')
   })
 
   it("rejects non-yaml files", () => {
@@ -206,7 +240,7 @@ describe("exportJSONSchemaForProjectFile", () => {
   })
 
   it("validates catalog attribute TypeDescription with catalog-specific restrictions", () => {
-    const schema = TypeCompiler.Compile(
+    const schema = compileValidationSchema(
       exportJSONSchemaForProjectFile({
         context,
         filePath: "Справочник/Товары/Свойства.yaml",
@@ -262,34 +296,89 @@ describe("exportJSONSchemaForProjectFile", () => {
     ).not.toEqual([])
   })
 
-  it("keeps document attribute TypeDescription broad in the first version", () => {
-    const schema = TypeCompiler.Compile(
+  it.each([
+    {
+      label: "catalog attribute",
+      filePath: "Справочник/Товары/Свойства.yaml",
+      validText: ["Реквизиты:", "  Контрагент:", "    Тип: Справочник.Контрагенты"].join("\n"),
+      invalidText: ["Реквизиты:", "  Контрагент:", "    Тип: СправочникСсылка.Контрагенты"].join("\n"),
+    },
+    {
+      label: "document attribute",
+      filePath: "Документ/Заказ/Свойства.yaml",
+      validText: ["Реквизиты:", "  Контрагент:", "    Тип: Справочник.Контрагенты"].join("\n"),
+      invalidText: ["Реквизиты:", "  Контрагент:", "    Тип: СправочникСсылка.Контрагенты"].join("\n"),
+    },
+    {
+      label: "document tabular section attribute",
+      filePath: "Документ/Заказ/Свойства.yaml",
+      validText: [
+        "ТабличныеЧасти:",
+        "  Товары:",
+        "    Реквизиты:",
+        "      Номенклатура:",
+        "        Тип: Справочник.Номенклатура",
+      ].join("\n"),
+      invalidText: [
+        "ТабличныеЧасти:",
+        "  Товары:",
+        "    Реквизиты:",
+        "      Номенклатура:",
+        "        Тип: СправочникСсылка.Номенклатура",
+      ].join("\n"),
+    },
+    {
+      label: "chart of characteristic types attribute",
+      filePath: "ПланВидовХарактеристик/ВидыСубконто/Свойства.yaml",
+      validText: ["Реквизиты:", "  Контрагент:", "    Тип: Справочник.Контрагенты"].join("\n"),
+      invalidText: ["Реквизиты:", "  Контрагент:", "    Тип: СправочникСсылка.Контрагенты"].join("\n"),
+    },
+    {
+      label: "chart of characteristic types tabular section attribute",
+      filePath: "ПланВидовХарактеристик/ВидыСубконто/Свойства.yaml",
+      validText: [
+        "ТабличныеЧасти:",
+        "  Значения:",
+        "    Реквизиты:",
+        "      Номенклатура:",
+        "        Тип: Справочник.Номенклатура",
+      ].join("\n"),
+      invalidText: [
+        "ТабличныеЧасти:",
+        "  Значения:",
+        "    Реквизиты:",
+        "      Номенклатура:",
+        "        Тип: СправочникСсылка.Номенклатура",
+      ].join("\n"),
+    },
+  ])("validates allowed TypeDescription values for $label", ({ filePath, validText, invalidText }) => {
+    const schema = compileValidationSchema(
       exportJSONSchemaForProjectFile({
         context,
-        filePath: "Документ/Заказ/Свойства.yaml",
+        filePath,
         mode: "inline",
       })
     )
 
+    expect(validateFile({ filePath, schema, text: validText })).toEqual([])
+    expect(validateFile({ filePath, schema, text: invalidText })).not.toEqual([])
     expect(
       validateFile({
-        filePath: "Документ/Заказ/Свойства.yaml",
+        filePath,
         schema,
-        text: ["Реквизиты:", "  ПокаШирокий:", "    Тип: НесуществующийТип"].join("\n"),
+        text: ["Реквизиты:", "  Неверный:", "    Тип: НесуществующийТип"].join("\n"),
       })
-    ).toEqual([])
-
+    ).not.toEqual([])
     expect(
       validateFile({
-        filePath: "Документ/Заказ/Свойства.yaml",
+        filePath,
         schema,
-        text: ["Реквизиты:", "  ПокаШирокий:", "    Тип: НесуществующийТип"].join("\n"),
+        text: ["Реквизиты:", "  Таблица:", "    Тип:", "      - Строка", "      - ХранилищеЗначения"].join("\n"),
       })
-    ).toEqual([])
-
+    ).not.toEqual([])
     expect(
       validateFile({
-        filePath: "Документ/Заказ/Свойства.yaml",
+        filePath,
         schema,
         text: [
           "Реквизиты:",
@@ -299,25 +388,19 @@ describe("exportJSONSchemaForProjectFile", () => {
           "        - 8c1e3694-da12-44d5-8b1f-d134b89a1282",
         ].join("\n"),
       })
-    ).toEqual([])
-
-    expect(
-      validateFile({
-        filePath: "Документ/Заказ/Свойства.yaml",
-        schema,
-        text: ["Реквизиты:", "  Идентификатор:", "    ИдентификаторТипа: []"].join("\n"),
-      })
-    ).not.toEqual([])
-
-    expect(
-      validateFile({
-        filePath: "Документ/Заказ/Свойства.yaml",
-        schema,
-        text: ["Реквизиты:", "  Идентификатор:", "    Тип: {}"].join("\n"),
-      })
     ).not.toEqual([])
   })
 })
+
+function propertySchema(schema: unknown, key: string): { description?: string } {
+  const properties = (schema as { properties?: Record<string, unknown> }).properties
+  const property = properties?.[key]
+  if (typeof property !== "object" || property === null) {
+    throw new Error(`Expected schema property "${key}"`)
+  }
+
+  return property as { description?: string }
+}
 
 describe("exportJSONSchemaForSchemaName", () => {
   it("exports schema by registered name", () => {
@@ -328,6 +411,24 @@ describe("exportJSONSchemaForSchemaName", () => {
         Вид: expect.objectContaining({ const: "ПолеВвода" }),
       }),
     })
+  })
+
+  it("keeps generic schema by type name free from concrete object-name restrictions", () => {
+    const schema = compileValidationSchema(
+      exportJSONSchemaForSchemaName({
+        context,
+        name: "MetadataCatalog",
+        mode: "inline",
+      })
+    )
+
+    expect(
+      validateFile({
+        filePath: "Свойства.yaml",
+        schema,
+        text: "Синоним: Какое то поле\n",
+      })
+    ).toEqual([])
   })
 
   it("reports unknown schema names", () => {

@@ -1,6 +1,6 @@
 import { describe, expect, it } from "vitest"
-import { mockContext } from "~/tests/mockContext"
-import { importFromYAML } from "~/yaml/import"
+import { mockContext } from "../../../../tests/mockContext"
+import { importFromYAML } from "../../../../yaml/import"
 import {
   formChoiceRefsFixedArray,
   formChoiceRefsFixedArrayYAML,

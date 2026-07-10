@@ -1,6 +1,6 @@
 import { describe, expect, it } from "vitest"
-import { PropertyRule } from "~/metadata/orchestration"
-import { testImportPropertyFromYAML } from "~/tests/property/importPropertyFromYAML"
+import { PropertyRule } from "../../orchestration"
+import { testImportPropertyFromYAML } from "../../../tests/property/importPropertyFromYAML"
 import { full, fullYAML } from "./__fixtures__/full"
 import { minimal, minimalYAML } from "./__fixtures__/minimal"
 
@@ -19,7 +19,7 @@ describe("import MetadataConstant from YAML", () => {
 
   it("imports minimal fixture", () => {
     const result = testImportPropertyFromYAML({ rule, value: minimalYAML, name: minimal.name })
-    expect(result).toEqual({ ...minimal, name: undefined })
+    const { synonym: _synonym, ...expected } = minimal
+    expect(result).toEqual({ ...expected, name: undefined })
   })
-
 })

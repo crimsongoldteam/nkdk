@@ -1,5 +1,15 @@
-import { Type } from "@sinclair/typebox"
-import { MetadataTypedValue, MetadataValueJSONSchema, MetadataValueXML, MetadataValueYAML } from "../metadataValue/types"
+import {
+  definePropertyRule as defineWidePropertyRule,
+  type ExactRuleParams as WideExactRuleParams,
+} from "../ruleBuilder"
+import type { PropertyRule as WidePropertyRuleBase } from "../../orchestration/property/types"
+import { Type } from "typebox"
+import {
+  MetadataTypedValue,
+  MetadataValueJSONSchema,
+  MetadataValueXML,
+  MetadataValueYAML,
+} from "../metadataValue/types"
 
 export type MobileDeviceCommandBarContent = MetadataTypedValue[]
 
@@ -15,3 +25,15 @@ export interface MobileDeviceCommandBarContentXML {
 
 export const MobileDeviceCommandBarContentJSONSchema = Type.Array(MetadataValueJSONSchema)
 export type MobileDeviceCommandBarContentYAML = MetadataValueYAML[]
+
+export interface MobileDeviceCommandBarContentWidePropertyRule extends WidePropertyRuleBase {
+  type: "MobileDeviceCommandBarContent"
+}
+
+export type MobileDeviceCommandBarContentRuleParams = Omit<MobileDeviceCommandBarContentWidePropertyRule, "type">
+
+export function mobileDeviceCommandBarContentRule<const Params extends MobileDeviceCommandBarContentRuleParams>(
+  params: WideExactRuleParams<MobileDeviceCommandBarContentRuleParams, Params>
+): Readonly<{ type: "MobileDeviceCommandBarContent" } & Params> {
+  return defineWidePropertyRule("MobileDeviceCommandBarContent", params)
+}

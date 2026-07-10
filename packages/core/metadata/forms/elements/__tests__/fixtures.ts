@@ -1,7 +1,7 @@
-import type { ConfigurationContext } from "~/metadata/context/types"
-import type { CommandBarChildItem } from "~/metadata/forms/commonObjects/childItems/types"
-import { fullCommandBarChildItemsAllYAML } from "~/metadata/forms/elements/__fixtures__/commandBarChildItems/data"
-import { mockContext } from "~/tests/mockContext"
+import type { ConfigurationContext } from "../../../context/types"
+import type { CommandBarChildItem } from "../../commonObjects/childItems/types"
+import { fullCommandBarChildItemsAllYAML } from "../__fixtures__/commandBarChildItems/data"
+import { mockContext } from "../../../../tests/mockContext"
 
 const Button = undefined
 const CheckBoxField = undefined
@@ -234,12 +234,14 @@ import {
 } from "../radioButtonField/__fixtures__/data"
 import {
   fullSearchControlAddition,
+  fullSearchControlAdditionFromCompactYAML,
   fullSearchControlAdditionYAML,
   minimalSearchControlAddition,
   sourceSearchControlAddition,
 } from "../searchControlAddition/__fixtures__/data"
 import {
   fullSearchStringAddition,
+  fullSearchStringAdditionFromCompactYAML,
   fullSearchStringAdditionYAML,
   minimalSearchStringAddition,
   sourceSearchStringAddition,
@@ -323,7 +325,12 @@ const { enableContentChange: _columnGroupEnableContentChange, ...fullColumnGroup
 const { enableContentChange: _popupEnableContentChange, ...fullPopupFromYAML } = fullPopup
 const { fixingInTable: _tableInputFieldFixingInTable, ...fullTableInputFieldFromYAML } = fullTableInputField
 const { fixingInTable: _tableCheckBoxFieldFixingInTable, ...fullTableCheckBoxFieldFromYAML } = fullTableCheckBoxField
-const { fixingInTable: _tableLabelFieldFixingInTable, ...fullTableLabelFieldFromYAML } = fullTableLabelField
+const {
+  autoMaxHeight: _tableLabelFieldAutoMaxHeight,
+  autoMaxWidth: _tableLabelFieldAutoMaxWidth,
+  fixingInTable: _tableLabelFieldFixingInTable,
+  ...fullTableLabelFieldFromYAML
+} = fullTableLabelField
 const { fixingInTable: _tablePictureFieldFixingInTable, ...fullTablePictureFieldFromYAML } = fullTablePictureField
 const {
   picture: { transparentPixel: _usualButtonTransparentPixel, ...fullUsualButtonPictureFromYAML },
@@ -1224,6 +1231,7 @@ export const ElementFixtures: ElementFixture[] = [
     xml: "full.xml",
     xmlFolder: undefined,
     model: fullSearchStringAddition,
+    yamlModel: fullSearchStringAdditionFromCompactYAML,
     source: sourceSearchStringAddition,
     yaml: fullSearchStringAdditionYAML,
     enterprise: undefined,
@@ -1248,6 +1256,7 @@ export const ElementFixtures: ElementFixture[] = [
     xml: "full.xml",
     xmlFolder: undefined,
     model: fullSearchControlAddition,
+    yamlModel: fullSearchControlAdditionFromCompactYAML,
     source: sourceSearchControlAddition,
     yaml: fullSearchControlAdditionYAML,
     enterprise: undefined,

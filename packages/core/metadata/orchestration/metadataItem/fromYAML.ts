@@ -1,4 +1,5 @@
-import { ConfigurationContext } from "~/metadata/context/types"
+import { ConfigurationContext } from "../../context/types"
+import { getYAMLImportDiagnostics, toYAMLImportError, withYAMLImportDiagnostics } from "../yamlImportError"
 import { importPropertiesFromYAML } from "../property/fromYAML"
 import { MetadataItemRule } from "../property/types"
 import { ToMetadata, ToYAML } from "./registry"
@@ -12,6 +13,11 @@ export const importMetadataItemFromYAML = <Rule extends MetadataItemRule>(params
   name?: string
 }): ToMetadata<Rule["itemType"]> | undefined => {
   const { yaml, rule, source, name, context } = params
+  const objectPath = name ? `${rule.itemType}.${name}` : rule.itemType
+  const itemContext = withYAMLImportDiagnostics(
+    context,
+    getYAMLImportDiagnostics(context).objectPath ? {} : { objectPath }
+  )
 
   const inline = findInlineProperty(rule)
   const effectiveYaml =
@@ -19,13 +25,18 @@ export const importMetadataItemFromYAML = <Rule extends MetadataItemRule>(params
       ? ({ [inline.yamlKey]: yaml } as unknown as ToYAML<Rule["itemType"]>)
       : yaml
 
-  const properties = importPropertiesFromYAML({
-    context,
-    yaml: effectiveYaml,
-    metadataRule: rule,
-    source,
-    name,
-  })
+  let properties: ToMetadata<Rule["itemType"]> | undefined
+  try {
+    properties = importPropertiesFromYAML({
+      context: itemContext,
+      yaml: effectiveYaml,
+      metadataRule: rule,
+      source,
+      name,
+    })
+  } catch (error) {
+    throw toYAMLImportError(error, itemContext)
+  }
 
   if (properties == undefined) {
     return undefined

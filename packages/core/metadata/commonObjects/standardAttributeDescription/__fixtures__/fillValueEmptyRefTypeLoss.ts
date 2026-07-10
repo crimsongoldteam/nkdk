@@ -1,4 +1,4 @@
-import { StandardAttributeDescriptions } from "~/metadata/commonObjects/standardAttributeDescription/types"
+import { StandardAttributeDescriptions } from "../types"
 
 export const fillValueEmptyRefTypeLoss = [
   {

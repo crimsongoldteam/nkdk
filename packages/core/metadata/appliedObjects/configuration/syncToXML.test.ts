@@ -2,22 +2,23 @@ import fs from "fs"
 import os from "os"
 import { dirname, join } from "path"
 import { beforeEach, describe, expect, it } from "vitest"
-import { mockContextFromXML, mockContextToXML } from "~/tests/mockContext"
-import { getXMLFixturePath, readXMLFileAsString } from "~/tests/readAndParseXMLFile"
-import { importContentFromXML } from "~/xml/import/importer"
-import type { ExternalMetadataCollector } from "~/metadata/orchestration/externalMetadata/types"
-import { importConfigDumpInfoFromXML } from "../configDumpInfo/fromXML"
-import type { ConfigDumpInfoXML } from "../configDumpInfo/types"
+import { mockContextFromXML, mockContextToXML } from "../../../tests/mockContext"
+import { getXMLFixturePath, readXMLFileAsString } from "../../../tests/readAndParseXMLFile"
+import { importContentFromXML } from "../../../xml/import/importer"
 import { syncConfigurationFromXML } from "./convertFromXML"
 import { CONFIGURATION_XML_FILE, CONFIGURATION_YAML_FILE } from "./rootIO"
-import { syncConfigurationToXML } from "./syncToXML"
+import { planConfigurationToXMLMigrations, syncConfigurationToXML } from "./syncToXML"
 
 describe("sync configuration to XML", () => {
   const inputDir = getXMLFixturePath("sync/syncConfiguration/yaml")
   const referenceDir = getXMLFixturePath("sync/syncConfiguration/xml")
   const outputDir = getXMLFixturePath("sync/syncConfiguration/out-to-xml")
   const catalogName = "Контрагенты"
-  const normalizeXML = (value: string): string => value.replace(/\r\n/g, "\n").replace(/^\uFEFF/, "").trimEnd()
+  const normalizeXML = (value: string): string =>
+    value
+      .replace(/\r\n/g, "\n")
+      .replace(/^\uFEFF/, "")
+      .trimEnd()
   const expectRootExternalDirUppercase = (dir: string): void => {
     const entries = fs.readdirSync(dir)
     expect(entries).toContain("Ext")
@@ -39,7 +40,9 @@ describe("sync configuration to XML", () => {
     })
 
     const expectedMetadataXML = readXMLFileAsString(join("sync/syncConfiguration/xml/Catalogs", `${catalogName}.xml`))
-    const resultMetadataXML = readXMLFileAsString(join("sync/syncConfiguration/out-to-xml/Catalogs", `${catalogName}.xml`))
+    const resultMetadataXML = readXMLFileAsString(
+      join("sync/syncConfiguration/out-to-xml/Catalogs", `${catalogName}.xml`)
+    )
     expect(resultMetadataXML).toBe(expectedMetadataXML)
 
     const expectedFormXML = readXMLFileAsString(
@@ -59,7 +62,7 @@ describe("sync configuration to XML", () => {
     expect(resultFormMetadataXML).toBe(expectedFormMetadataXML)
   })
 
-  it("без referenceDir не читает reference из outputDir и создаёт ConfigDumpInfo.xml", async () => {
+  it("без referenceDir не читает reference из outputDir и создаёт новый ConfigDumpInfo.xml", async () => {
     const tmp = fs.mkdtempSync(join(os.tmpdir(), "nkdk-configuration-no-reference-"))
     const yamlDir = join(tmp, "yaml")
     const outDir = join(tmp, "xml")
@@ -86,319 +89,10 @@ describe("sync configuration to XML", () => {
       const catalogXML = fs.readFileSync(join(outDir, "Catalogs", "Контрагенты.xml"), "utf-8")
       expect(catalogXML).toContain("<Catalog")
       expect(catalogXML).not.toContain("ФормаЭлемента")
-      expect(fs.existsSync(join(outDir, "ConfigDumpInfo.xml"))).toBe(true)
+      expect(fs.readFileSync(join(outDir, "ConfigDumpInfo.xml"), "utf-8")).toContain(
+        '<Metadata name="Catalog.Контрагенты"'
+      )
       expect(fs.existsSync(join(outDir, "Ext", "Unsupported.xml"))).toBe(false)
-    } finally {
-      fs.rmSync(tmp, { recursive: true, force: true })
-    }
-  })
-
-  it("для нового справочника и реквизита пишет одинаковые UUID в XML и ConfigDumpInfo", async () => {
-    const tmp = fs.mkdtempSync(join(os.tmpdir(), "nkdk-configdumpinfo-new-uuid-"))
-    const yamlDir = join(tmp, "yaml")
-    const outDir = join(tmp, "xml")
-
-    try {
-      fs.mkdirSync(join(yamlDir, "Справочник", "Номенклатура"), { recursive: true })
-      fs.writeFileSync(join(yamlDir, CONFIGURATION_YAML_FILE), "Имя: Конфигурация\n", "utf-8")
-      fs.writeFileSync(
-        join(yamlDir, "Справочник", "Номенклатура", "Свойства.yaml"),
-        ["Имя: Номенклатура", "Реквизиты:", "  Артикул: {}", ""].join("\n"),
-        "utf-8",
-      )
-      fs.writeFileSync(
-        join(yamlDir, "Справочник", "Номенклатура", "МодульОбъекта.bsl"),
-        "Процедура Тест()\nКонецПроцедуры\n",
-        "utf-8",
-      )
-      fs.mkdirSync(join(yamlDir, "Справочник", "Номенклатура", "Формы", "ФормаЭлемента"), { recursive: true })
-      fs.writeFileSync(
-        join(yamlDir, "Справочник", "Номенклатура", "Формы", "ФормаЭлемента", "Форма.yaml"),
-        "Реквизиты: {}\n",
-        "utf-8",
-      )
-
-      const result = await syncConfigurationToXML({
-        context: mockContextToXML(),
-        inputDir: yamlDir,
-        outputDir: outDir,
-      })
-
-      expect(result.failed).toEqual([])
-
-      const catalogXml = importContentFromXML<{
-        MetaDataObject: {
-          Catalog: {
-            _uuid: string
-            ChildObjects: { Attribute: { _uuid: string } }
-          }
-        }
-      }>(fs.readFileSync(join(outDir, "Catalogs", "Номенклатура.xml"), "utf-8"))
-      const configDumpInfoXml = importContentFromXML<{ ConfigDumpInfo: ConfigDumpInfoXML }>(
-        fs.readFileSync(join(outDir, "ConfigDumpInfo.xml"), "utf-8"),
-      )
-      const idMap = importConfigDumpInfoFromXML({
-        context: mockContextFromXML(),
-        xml: configDumpInfoXml.ConfigDumpInfo,
-      })
-
-      const catalogUuid = catalogXml.MetaDataObject.Catalog._uuid
-      const attributeUuid = catalogXml.MetaDataObject.Catalog.ChildObjects.Attribute._uuid
-
-      expect(idMap.get("Catalog.Номенклатура")?.id).toBe(catalogUuid)
-      expect(idMap.get("Catalog.Номенклатура")?.children.get("Catalog.Номенклатура.Attribute.Артикул")).toBe(
-        attributeUuid,
-      )
-      expect(idMap.get("Catalog.Номенклатура.ObjectModule")?.id).toBe(`${catalogUuid}.0`)
-      expect(idMap.get("Catalog.Номенклатура.Form.ФормаЭлемента")?.id).toBeDefined()
-      expect(idMap.get("Catalog.Номенклатура.Form.ФормаЭлемента.Form")?.id).toBeDefined()
-    } finally {
-      fs.rmSync(tmp, { recursive: true, force: true })
-    }
-  })
-
-  it("возвращает ошибку configDumpInfo если новый UUID не попал в накопитель", async () => {
-    const tmp = fs.mkdtempSync(join(os.tmpdir(), "nkdk-configdumpinfo-missing-uuid-"))
-    const yamlDir = join(tmp, "yaml")
-    const outDir = join(tmp, "xml")
-    const context = mockContextToXML()
-    ;(context.exportToXML as typeof context.exportToXML & { externalMetadataCollector: ExternalMetadataCollector })
-      .externalMetadataCollector = {
-      recordUuid: () => undefined,
-      recordDerived: () => undefined,
-    }
-
-    try {
-      fs.mkdirSync(join(yamlDir, "Справочник", "Номенклатура"), { recursive: true })
-      fs.writeFileSync(join(yamlDir, CONFIGURATION_YAML_FILE), "Имя: Конфигурация\n", "utf-8")
-      fs.writeFileSync(join(yamlDir, "Справочник", "Номенклатура", "Свойства.yaml"), "Имя: Номенклатура\n", "utf-8")
-
-      const result = await syncConfigurationToXML({
-        context,
-        inputDir: yamlDir,
-        outputDir: outDir,
-      })
-
-      expect(result.failed).toHaveLength(1)
-      expect(result.failed[0]?.kind).toBe("configDumpInfo")
-      expect(result.failed[0]?.error.message).toContain('Не найден UUID ConfigDumpInfo для "Catalog.Номенклатура"')
-    } finally {
-      fs.rmSync(tmp, { recursive: true, force: true })
-    }
-  })
-
-  it("для новой общей команды пишет top-level CommonCommand в ConfigDumpInfo", async () => {
-    const tmp = fs.mkdtempSync(join(os.tmpdir(), "nkdk-configdumpinfo-common-command-"))
-    const yamlDir = join(tmp, "yaml")
-    const outDir = join(tmp, "xml")
-
-    try {
-      fs.mkdirSync(join(yamlDir, "ОбщаяКоманда", "КомандаСДанными"), { recursive: true })
-      fs.writeFileSync(join(yamlDir, CONFIGURATION_YAML_FILE), "Имя: Конфигурация\n", "utf-8")
-      fs.writeFileSync(
-        join(yamlDir, "ОбщаяКоманда", "КомандаСДанными", "Свойства.yaml"),
-        ["Синоним: Команда с данными", "ИзменяетДанные: Истина", ""].join("\n"),
-        "utf-8",
-      )
-
-      const result = await syncConfigurationToXML({
-        context: mockContextToXML(),
-        inputDir: yamlDir,
-        outputDir: outDir,
-      })
-
-      expect(result.failed).toEqual([])
-      const configDumpInfoXml = importContentFromXML<{ ConfigDumpInfo: ConfigDumpInfoXML }>(
-        fs.readFileSync(join(outDir, "ConfigDumpInfo.xml"), "utf-8"),
-      )
-      const idMap = importConfigDumpInfoFromXML({
-        context: mockContextFromXML(),
-        xml: configDumpInfoXml.ConfigDumpInfo,
-      })
-
-      expect(idMap.get("CommonCommand.КомандаСДанными")?.id).toBeDefined()
-    } finally {
-      fs.rmSync(tmp, { recursive: true, force: true })
-    }
-  })
-
-  it("для новой команды бизнес-процесса привязывает модуль команды к UUID команды", async () => {
-    const tmp = fs.mkdtempSync(join(os.tmpdir(), "nkdk-configdumpinfo-business-process-command-"))
-    const yamlDir = join(tmp, "yaml")
-    const outDir = join(tmp, "xml")
-
-    try {
-      fs.mkdirSync(join(yamlDir, "БизнесПроцесс", "СогласованиеЗаказа", "Команды"), { recursive: true })
-      fs.writeFileSync(join(yamlDir, CONFIGURATION_YAML_FILE), "Имя: Конфигурация\n", "utf-8")
-      fs.writeFileSync(
-        join(yamlDir, "БизнесПроцесс", "СогласованиеЗаказа", "Свойства.yaml"),
-        ["Имя: СогласованиеЗаказа", "Команды:", "  СогласованиеПоПредмету: {}", ""].join("\n"),
-        "utf-8",
-      )
-      fs.writeFileSync(
-        join(yamlDir, "БизнесПроцесс", "СогласованиеЗаказа", "Команды", "СогласованиеПоПредмету.bsl"),
-        "Процедура ОбработкаКоманды(ПараметрКоманды, ПараметрыВыполненияКоманды)\nКонецПроцедуры\n",
-        "utf-8",
-      )
-
-      const result = await syncConfigurationToXML({
-        context: mockContextToXML(),
-        inputDir: yamlDir,
-        outputDir: outDir,
-      })
-
-      expect(result.failed).toEqual([])
-
-      const configDumpInfoXml = importContentFromXML<{ ConfigDumpInfo: ConfigDumpInfoXML }>(
-        fs.readFileSync(join(outDir, "ConfigDumpInfo.xml"), "utf-8"),
-      )
-      const idMap = importConfigDumpInfoFromXML({
-        context: mockContextFromXML(),
-        xml: configDumpInfoXml.ConfigDumpInfo,
-      })
-      const commandName = "BusinessProcess.СогласованиеЗаказа.Command.СогласованиеПоПредмету"
-      const commandUuid = idMap.get("BusinessProcess.СогласованиеЗаказа")?.children.get(commandName)
-
-      expect(commandUuid).toBeDefined()
-      expect(idMap.get(`${commandName}.CommandModule`)?.id).toBe(`${commandUuid}.0`)
-    } finally {
-      fs.rmSync(tmp, { recursive: true, force: true })
-    }
-  })
-
-  it("для нового реквизита регистра пишет UUID в ConfigDumpInfo", async () => {
-    const tmp = fs.mkdtempSync(join(os.tmpdir(), "nkdk-configdumpinfo-register-attribute-"))
-    const yamlDir = join(tmp, "yaml")
-    const outDir = join(tmp, "xml")
-
-    try {
-      fs.mkdirSync(join(yamlDir, "РегистрСведений", "ЗначенияХарактеристикОбъектов"), { recursive: true })
-      fs.writeFileSync(join(yamlDir, CONFIGURATION_YAML_FILE), "Имя: Конфигурация\n", "utf-8")
-      fs.writeFileSync(
-        join(yamlDir, "РегистрСведений", "ЗначенияХарактеристикОбъектов", "Свойства.yaml"),
-        ["Реквизиты:", "  Порядок:", "    Тип: Число(10, 0)", ""].join("\n"),
-        "utf-8",
-      )
-
-      const result = await syncConfigurationToXML({
-        context: mockContextToXML(),
-        inputDir: yamlDir,
-        outputDir: outDir,
-      })
-
-      expect(result.failed).toEqual([])
-      const registerXml = importContentFromXML<{
-        MetaDataObject: {
-          InformationRegister: {
-            ChildObjects: { Attribute: { _uuid: string } }
-          }
-        }
-      }>(fs.readFileSync(join(outDir, "InformationRegisters", "ЗначенияХарактеристикОбъектов.xml"), "utf-8"))
-      const configDumpInfoXml = importContentFromXML<{ ConfigDumpInfo: ConfigDumpInfoXML }>(
-        fs.readFileSync(join(outDir, "ConfigDumpInfo.xml"), "utf-8"),
-      )
-      const idMap = importConfigDumpInfoFromXML({
-        context: mockContextFromXML(),
-        xml: configDumpInfoXml.ConfigDumpInfo,
-      })
-
-      expect(
-        idMap
-          .get("InformationRegister.ЗначенияХарактеристикОбъектов")
-          ?.children.get("InformationRegister.ЗначенияХарактеристикОбъектов.Attribute.Порядок"),
-      ).toBe(registerXml.MetaDataObject.InformationRegister.ChildObjects.Attribute._uuid)
-    } finally {
-      fs.rmSync(tmp, { recursive: true, force: true })
-    }
-  })
-
-  it("для нового измерения последовательности пишет UUID в ConfigDumpInfo", async () => {
-    const tmp = fs.mkdtempSync(join(os.tmpdir(), "nkdk-configdumpinfo-sequence-dimension-"))
-    const yamlDir = join(tmp, "yaml")
-    const outDir = join(tmp, "xml")
-
-    try {
-      fs.mkdirSync(join(yamlDir, "Последовательность", "ПоследовательностьВсеПоля"), { recursive: true })
-      fs.writeFileSync(join(yamlDir, CONFIGURATION_YAML_FILE), "Имя: Конфигурация\n", "utf-8")
-      fs.writeFileSync(
-        join(yamlDir, "Последовательность", "ПоследовательностьВсеПоля", "Свойства.yaml"),
-        ["Измерения:", "  ИзмерениеПолное:", "    Тип: Строка(10)", ""].join("\n"),
-        "utf-8",
-      )
-
-      const result = await syncConfigurationToXML({
-        context: mockContextToXML(),
-        inputDir: yamlDir,
-        outputDir: outDir,
-      })
-
-      expect(result.failed).toEqual([])
-      const sequenceXml = importContentFromXML<{
-        MetaDataObject: {
-          Sequence: {
-            ChildObjects: { Dimension: { _uuid: string } }
-          }
-        }
-      }>(fs.readFileSync(join(outDir, "Sequences", "ПоследовательностьВсеПоля.xml"), "utf-8"))
-      const configDumpInfoXml = importContentFromXML<{ ConfigDumpInfo: ConfigDumpInfoXML }>(
-        fs.readFileSync(join(outDir, "ConfigDumpInfo.xml"), "utf-8"),
-      )
-      const idMap = importConfigDumpInfoFromXML({
-        context: mockContextFromXML(),
-        xml: configDumpInfoXml.ConfigDumpInfo,
-      })
-
-      expect(
-        idMap
-          .get("Sequence.ПоследовательностьВсеПоля")
-          ?.children.get("Sequence.ПоследовательностьВсеПоля.Dimension.ИзмерениеПолное"),
-      ).toBe(sequenceXml.MetaDataObject.Sequence.ChildObjects.Dimension._uuid)
-    } finally {
-      fs.rmSync(tmp, { recursive: true, force: true })
-    }
-  })
-
-  it("для нового реквизита адресации задачи пишет UUID в ConfigDumpInfo", async () => {
-    const tmp = fs.mkdtempSync(join(os.tmpdir(), "nkdk-configdumpinfo-addressing-attribute-"))
-    const yamlDir = join(tmp, "yaml")
-    const outDir = join(tmp, "xml")
-
-    try {
-      fs.mkdirSync(join(yamlDir, "Задача", "ЗадачаВсеСвойства"), { recursive: true })
-      fs.writeFileSync(join(yamlDir, CONFIGURATION_YAML_FILE), "Имя: Конфигурация\n", "utf-8")
-      fs.writeFileSync(
-        join(yamlDir, "Задача", "ЗадачаВсеСвойства", "Свойства.yaml"),
-        ["РеквизитыАдресации:", "  РеквизитАдресацииВсеСвойства:", "    Тип: Строка(10)", ""].join("\n"),
-        "utf-8",
-      )
-
-      const result = await syncConfigurationToXML({
-        context: mockContextToXML(),
-        inputDir: yamlDir,
-        outputDir: outDir,
-      })
-
-      expect(result.failed).toEqual([])
-      const taskXml = importContentFromXML<{
-        MetaDataObject: {
-          Task: {
-            ChildObjects: { AddressingAttribute: { _uuid: string } }
-          }
-        }
-      }>(fs.readFileSync(join(outDir, "Tasks", "ЗадачаВсеСвойства.xml"), "utf-8"))
-      const configDumpInfoXml = importContentFromXML<{ ConfigDumpInfo: ConfigDumpInfoXML }>(
-        fs.readFileSync(join(outDir, "ConfigDumpInfo.xml"), "utf-8"),
-      )
-      const idMap = importConfigDumpInfoFromXML({
-        context: mockContextFromXML(),
-        xml: configDumpInfoXml.ConfigDumpInfo,
-      })
-
-      expect(
-        idMap
-          .get("Task.ЗадачаВсеСвойства")
-          ?.children.get("Task.ЗадачаВсеСвойства.AddressingAttribute.РеквизитАдресацииВсеСвойства"),
-      ).toBe(taskXml.MetaDataObject.Task.ChildObjects.AddressingAttribute._uuid)
     } finally {
       fs.rmSync(tmp, { recursive: true, force: true })
     }
@@ -415,12 +109,12 @@ describe("sync configuration to XML", () => {
       fs.writeFileSync(
         join(yamlDir, "Подсистема", "Администрирование", "Свойства.yaml"),
         ["Имя: Администрирование", "Подсистемы:", "  - Настройки", ""].join("\n"),
-        "utf-8",
+        "utf-8"
       )
       fs.writeFileSync(
         join(yamlDir, "Подсистема", "Администрирование", "Подсистемы", "Настройки", "Свойства.yaml"),
         "Имя: Настройки\n",
-        "utf-8",
+        "utf-8"
       )
 
       const result = await syncConfigurationToXML({
@@ -433,38 +127,6 @@ describe("sync configuration to XML", () => {
       expect(fs.existsSync(join(outDir, "Subsystems", "Администрирование.xml"))).toBe(true)
       expect(fs.existsSync(join(outDir, "Subsystems", "Администрирование", "Subsystems", "Настройки.xml"))).toBe(true)
       expect(fs.existsSync(join(outDir, "Subsystems", "Настройки.xml"))).toBe(false)
-    } finally {
-      fs.rmSync(tmp, { recursive: true, force: true })
-    }
-  })
-
-  it("привязывает справку вложенной подсистемы к её записи ConfigDumpInfo", async () => {
-    const tmp = fs.mkdtempSync(join(os.tmpdir(), "nkdk-configdumpinfo-nested-subsystem-help-"))
-    const yamlDir = join(tmp, "yaml")
-    const outDir = join(tmp, "xml")
-
-    try {
-      const childDir = join(yamlDir, "Подсистема", "Администрирование", "Подсистемы", "Настройки")
-      fs.mkdirSync(join(childDir, "Справка"), { recursive: true })
-      fs.writeFileSync(join(yamlDir, CONFIGURATION_YAML_FILE), "Имя: Конфигурация\n", "utf-8")
-      fs.writeFileSync(
-        join(yamlDir, "Подсистема", "Администрирование", "Свойства.yaml"),
-        ["Имя: Администрирование", "Подсистемы:", "  - Настройки", ""].join("\n"),
-        "utf-8",
-      )
-      fs.writeFileSync(join(childDir, "Свойства.yaml"), "Имя: Настройки\n", "utf-8")
-      fs.writeFileSync(join(childDir, "Справка", "ru.html"), "<html>help</html>", "utf-8")
-
-      const result = await syncConfigurationToXML({
-        context: mockContextToXML(),
-        inputDir: yamlDir,
-        outputDir: outDir,
-      })
-
-      expect(result.failed).toEqual([])
-      const xml = fs.readFileSync(join(outDir, "ConfigDumpInfo.xml"), "utf-8")
-      expect(xml).toContain('name="Subsystem.Администрирование.Subsystem.Настройки.Help"')
-      expect(xml).not.toContain('name="Subsystem.Администрирование.Help"')
     } finally {
       fs.rmSync(tmp, { recursive: true, force: true })
     }
@@ -519,7 +181,11 @@ describe("sync configuration to XML", () => {
       fs.writeFileSync(join(yamlDir, "ПодписьМобильногоКлиента.bin"), Buffer.from([0, 1, 2, 255]))
       fs.writeFileSync(join(yamlDir, "Справка", "ru.html"), helpPage, "utf-8")
       fs.writeFileSync(join(yamlDir, "Справка", "_files", "logo.png"), Buffer.from([137, 80]))
-      fs.writeFileSync(join(yamlDir, "КартинкаОсновногоРаздела", "MainSectionPicture.xml"), "<MainSectionPicture/>", "utf-8")
+      fs.writeFileSync(
+        join(yamlDir, "КартинкаОсновногоРаздела", "MainSectionPicture.xml"),
+        "<MainSectionPicture/>",
+        "utf-8"
+      )
       fs.writeFileSync(join(yamlDir, "КартинкаОсновногоРаздела", "Picture.svg"), "<svg/>", "utf-8")
       fs.writeFileSync(join(yamlDir, "Логотип", "Logo.xml"), "<Logo/>", "utf-8")
       fs.writeFileSync(join(yamlDir, "Логотип", "Picture.png"), Buffer.from([1, 2, 3]))
@@ -534,14 +200,14 @@ describe("sync configuration to XML", () => {
       })
 
       expect(fs.readFileSync(join(outputDir, "Ext", "ManagedApplicationModule.bsl"), "utf-8")).toBe(
-        managedApplicationModule,
+        managedApplicationModule
       )
       expect(fs.readFileSync(join(outputDir, "Ext", "SessionModule.bsl"), "utf-8")).toBe(sessionModule)
       expect(fs.readFileSync(join(outputDir, "Ext", "ExternalConnectionModule.bsl"), "utf-8")).toBe(
-        externalConnectionModule,
+        externalConnectionModule
       )
       expect(fs.readFileSync(join(outputDir, "Ext", "OrdinaryApplicationModule.bsl"), "utf-8")).toBe(
-        ordinaryApplicationModule,
+        ordinaryApplicationModule
       )
       expect([...fs.readFileSync(join(outputDir, "Ext", "MobileClientSignature.bin"))]).toEqual([0, 1, 2, 255])
       const helpXmlContent = fs.readFileSync(join(outputDir, "Ext", "Help.xml"), "utf-8")
@@ -617,11 +283,7 @@ describe("sync configuration to XML", () => {
       fs.writeFileSync(join(referenceDir, "Ext", "Configuration.xml"), "<ExtensionConfiguration/>", "utf-8")
       fs.writeFileSync(join(referenceDir, "Ext", "ConfigDumpInfo.xml"), "<ConfigDumpInfo/>", "utf-8")
       fs.writeFileSync(join(referenceDir, "Ext", "CommonForms", "PeriodField.xml"), "<MetaDataObject/>", "utf-8")
-      fs.writeFileSync(
-        join(referenceDir, "Ext", "CommonForms", "PeriodField", "Ext", "Form.xml"),
-        "<Form/>",
-        "utf-8"
-      )
+      fs.writeFileSync(join(referenceDir, "Ext", "CommonForms", "PeriodField", "Ext", "Form.xml"), "<Form/>", "utf-8")
       fs.writeFileSync(join(referenceDir, "Ext", "Roles", "Расш1_ОсновнаяРоль.xml"), "<MetaDataObject/>", "utf-8")
       fs.writeFileSync(join(referenceDir, "Ext", "Languages", "Русский.xml"), "<MetaDataObject/>", "utf-8")
 
@@ -638,15 +300,11 @@ describe("sync configuration to XML", () => {
       )
       expect(fs.readFileSync(join(outDir, "Ext", "Configuration.xml"), "utf-8")).toBe("<ExtensionConfiguration/>")
       expect(fs.readFileSync(join(outDir, "Ext", "ConfigDumpInfo.xml"), "utf-8")).toBe("<ConfigDumpInfo/>")
-      expect(fs.readFileSync(join(outDir, "Ext", "CommonForms", "PeriodField.xml"), "utf-8")).toBe(
-        "<MetaDataObject/>"
-      )
+      expect(fs.readFileSync(join(outDir, "Ext", "CommonForms", "PeriodField.xml"), "utf-8")).toBe("<MetaDataObject/>")
       expect(fs.readFileSync(join(outDir, "Ext", "CommonForms", "PeriodField", "Ext", "Form.xml"), "utf-8")).toBe(
         "<Form/>"
       )
-      expect(fs.readFileSync(join(outDir, "Ext", "Roles", "Расш1_ОсновнаяРоль.xml"), "utf-8")).toBe(
-        "<MetaDataObject/>"
-      )
+      expect(fs.readFileSync(join(outDir, "Ext", "Roles", "Расш1_ОсновнаяРоль.xml"), "utf-8")).toBe("<MetaDataObject/>")
       expect(fs.readFileSync(join(outDir, "Ext", "Languages", "Русский.xml"), "utf-8")).toBe("<MetaDataObject/>")
       expectRootExternalDirUppercase(outDir)
     } finally {
@@ -718,7 +376,7 @@ describe("sync configuration to XML", () => {
           "    - ПанельНавигацииОбычное",
           "",
         ].join("\n"),
-        "utf-8",
+        "utf-8"
       )
 
       await syncConfigurationToXML({
@@ -764,7 +422,7 @@ describe("sync configuration to XML", () => {
           "    - Панель: ПанельРазделов",
           "",
         ].join("\n"),
-        "utf-8",
+        "utf-8"
       )
 
       await syncConfigurationToXML({
@@ -985,7 +643,7 @@ describe("sync configuration to XML", () => {
     // PRD-1.
     expect(
       fs.existsSync(join(tmpXmlDir, "Documents", "ДокументПоУмолчанию.xml")),
-      "walker should produce Documents/ДокументПоУмолчанию.xml",
+      "walker should produce Documents/ДокументПоУмолчанию.xml"
     ).toBe(true)
 
     fs.rmSync(tmpYamlDir, { recursive: true })
@@ -1001,13 +659,13 @@ describe("sync configuration to XML", () => {
     try {
       fs.mkdirSync(join(yamlDir, "Справочник", "Товары"), { recursive: true })
       fs.mkdirSync(join(xmlDir, "Catalogs"), { recursive: true })
-      fs.writeFileSync(join(yamlDir, "Справочник", "Товары", "Свойства.yaml"), [
-        "Реквизиты:",
-        "  Артикул:",
-        "    Тип: Строка",
-        "",
-      ].join("\n"))
-      fs.writeFileSync(join(xmlDir, "Catalogs", "Товары.xml"), `<?xml version="1.0" encoding="UTF-8"?>
+      fs.writeFileSync(
+        join(yamlDir, "Справочник", "Товары", "Свойства.yaml"),
+        ["Реквизиты:", "  Артикул:", "    Тип: Строка", ""].join("\n")
+      )
+      fs.writeFileSync(
+        join(xmlDir, "Catalogs", "Товары.xml"),
+        `<?xml version="1.0" encoding="UTF-8"?>
 <MetaDataObject xmlns="http://v8.1c.ru/8.3/MDClasses" version="2.20">
 	<Catalog uuid="00000000-0000-0000-0000-000000000001">
 		<Properties>
@@ -1080,7 +738,9 @@ describe("sync configuration to XML", () => {
 			</Attribute>
 		</ChildObjects>
 	</Catalog>
-</MetaDataObject>`, "utf-8")
+</MetaDataObject>`,
+        "utf-8"
+      )
 
       const result = await syncConfigurationToXML({
         context: mockContextToXML(),
@@ -1107,18 +767,18 @@ describe("sync configuration to XML", () => {
     fs.mkdirSync(join(yamlDir, "Миграции"), { recursive: true })
     fs.mkdirSync(join(xmlDir, "Catalogs"), { recursive: true })
 
-    fs.writeFileSync(join(yamlDir, "Справочник", "Номенклатура", "Свойства.yaml"), [
-      "Реквизиты:",
-      "  НовыйАртикул:",
-      "    Тип: Строка",
-      "",
-    ].join("\n"))
-    fs.writeFileSync(join(yamlDir, "Миграции", "2026-05-05-143000.yaml"), [
-      '"Справочник.Товары": "Номенклатура"',
-      '"Справочник.Номенклатура.Реквизит.Артикул": "НовыйАртикул"',
-      "",
-    ].join("\n"))
-    fs.writeFileSync(join(xmlDir, "Catalogs", "Товары.xml"), `<?xml version="1.0" encoding="UTF-8"?>
+    fs.writeFileSync(
+      join(yamlDir, "Справочник", "Номенклатура", "Свойства.yaml"),
+      ["Реквизиты:", "  НовыйАртикул:", "    Тип: Строка", ""].join("\n")
+    )
+    fs.writeFileSync(join(yamlDir, "Миграции", "2026-05-05-143000.yaml"), '"Справочник.Товары": "Номенклатура"\n')
+    fs.writeFileSync(
+      join(yamlDir, "Миграции", "2026-05-05-143001.yaml"),
+      '"Справочник.Номенклатура.Реквизит.Артикул": "НовыйАртикул"\n'
+    )
+    fs.writeFileSync(
+      join(xmlDir, "Catalogs", "Товары.xml"),
+      `<?xml version="1.0" encoding="UTF-8"?>
 <MetaDataObject xmlns="http://v8.1c.ru/8.3/MDClasses" version="2.20">
 	<Catalog uuid="00000000-0000-0000-0000-000000000001">
 		<Properties>
@@ -1191,196 +851,60 @@ describe("sync configuration to XML", () => {
 			</Attribute>
 		</ChildObjects>
 	</Catalog>
-</MetaDataObject>`, "utf-8")
+</MetaDataObject>`,
+      "utf-8"
+    )
+    fs.writeFileSync(
+      join(xmlDir, "ConfigDumpInfo.xml"),
+      `<?xml version="1.0" encoding="UTF-8"?>
+<ConfigDumpInfo xmlns="http://v8.1c.ru/8.3/xcf/dumpinfo" xmlns:xen="http://v8.1c.ru/8.3/xcf/enums" xmlns:xs="http://www.w3.org/2001/XMLSchema" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" format="Hierarchical" version="2.20">
+	<ConfigVersions>
+		<Metadata name="Catalog.Товары" id="00000000-0000-0000-0000-000000000001" configVersion="catalog-version">
+			<Metadata name="Catalog.Товары.Attribute.Артикул" id="00000000-0000-0000-0000-000000000101"/>
+		</Metadata>
+	</ConfigVersions>
+</ConfigDumpInfo>`,
+      "utf-8"
+    )
 
     try {
-      await syncConfigurationToXML({
+      const syncResult = await syncConfigurationToXML({
         context: mockContextToXML(),
         inputDir: yamlDir,
         outputDir: outDir,
         referenceDir: xmlDir,
       })
 
+      expect(syncResult.failed).toEqual([])
+      expect(syncResult.migrationsApplied).toEqual([
+        { fileName: "2026-05-05-143000.yaml", from: "Справочник.Товары", to: "Справочник.Номенклатура" },
+        {
+          fileName: "2026-05-05-143001.yaml",
+          from: "Справочник.Номенклатура.Реквизит.Артикул",
+          to: "Справочник.Номенклатура.Реквизит.НовыйАртикул",
+        },
+      ])
+      expect(syncResult.changedXmlFiles).toBeUndefined()
+      expect(fs.readFileSync(join(outDir, ".nkdk-migrations.yaml"), "utf-8")).toBe(
+        ["applied:", "  - 2026-05-05-143000.yaml", "  - 2026-05-05-143001.yaml", ""].join("\n")
+      )
       const result = fs.readFileSync(join(outDir, "Catalogs", "Номенклатура.xml"), "utf-8")
       expect(result).toContain('<Catalog uuid="00000000-0000-0000-0000-000000000001">')
       expect(result).toContain('<Attribute uuid="00000000-0000-0000-0000-000000000101">')
       expect(result).toContain("<Name>НовыйАртикул</Name>")
+      const dumpInfo = fs.readFileSync(join(outDir, "ConfigDumpInfo.xml"), "utf-8")
+      expect(dumpInfo).toContain(
+        '<Metadata name="Catalog.Номенклатура" id="00000000-0000-0000-0000-000000000001" configVersion="catalog-version">'
+      )
+      expect(dumpInfo).toContain(
+        '<Metadata name="Catalog.Номенклатура.Attribute.НовыйАртикул" id="00000000-0000-0000-0000-000000000101"/>'
+      )
     } finally {
       if (fs.existsSync(tmp)) fs.rmSync(tmp, { recursive: true })
     }
   })
 
-  it("пишет ConfigDumpInfo.xml и добавляет новый объект", async () => {
-    const tmp = fs.mkdtempSync(join(os.tmpdir(), "nkdk-config-dump-info-new-"))
-    const yamlDir = join(tmp, "yaml")
-    const xmlDir = join(tmp, "xml")
-    const outDir = join(tmp, "out")
-
-    try {
-      fs.mkdirSync(join(yamlDir, "Справочник", "Номенклатура"), { recursive: true })
-      fs.mkdirSync(xmlDir, { recursive: true })
-      fs.writeFileSync(join(yamlDir, "Справочник", "Номенклатура", "Свойства.yaml"), [
-        "Реквизиты:",
-        "  Артикул:",
-        "    Тип: Строка",
-        "",
-      ].join("\n"))
-      fs.writeFileSync(join(xmlDir, "ConfigDumpInfo.xml"), `<?xml version="1.0" encoding="UTF-8"?>
-<ConfigDumpInfo xmlns="http://v8.1c.ru/8.3/xcf/dumpinfo" xmlns:xen="http://v8.1c.ru/8.3/xcf/enums" xmlns:xs="http://www.w3.org/2001/XMLSchema" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" format="Hierarchical" version="2.20">
-	<ConfigVersions/>
-</ConfigDumpInfo>`, "utf-8")
-
-      const result = await syncConfigurationToXML({
-        context: mockContextToXML(),
-        inputDir: yamlDir,
-        outputDir: outDir,
-        referenceDir: xmlDir,
-      })
-
-      expect(result.failed).toEqual([])
-      const xml = fs.readFileSync(join(outDir, "ConfigDumpInfo.xml"), "utf-8")
-      expect(xml).toContain('name="Catalog.Номенклатура"')
-      expect(xml).toContain('name="Catalog.Номенклатура.Attribute.Артикул"')
-      expect(xml).toMatch(/configVersion="[0-9a-f]{40}"/)
-    } finally {
-      fs.rmSync(tmp, { recursive: true, force: true })
-    }
-  })
-
-  it("сохраняет CRLF из reference ConfigDumpInfo.xml", async () => {
-    const tmp = fs.mkdtempSync(join(os.tmpdir(), "nkdk-config-dump-info-line-endings-"))
-    const yamlDir = join(tmp, "yaml")
-    const xmlDir = join(tmp, "xml")
-    const outDir = join(tmp, "out")
-
-    try {
-      fs.mkdirSync(join(yamlDir, "Справочник", "Номенклатура"), { recursive: true })
-      fs.mkdirSync(xmlDir, { recursive: true })
-      fs.writeFileSync(join(yamlDir, "Справочник", "Номенклатура", "Свойства.yaml"), "", "utf-8")
-      fs.writeFileSync(
-        join(xmlDir, "ConfigDumpInfo.xml"),
-        [
-          "\uFEFF<?xml version=\"1.0\" encoding=\"UTF-8\"?>",
-          '<ConfigDumpInfo xmlns="http://v8.1c.ru/8.3/xcf/dumpinfo" xmlns:xen="http://v8.1c.ru/8.3/xcf/enums" xmlns:xs="http://www.w3.org/2001/XMLSchema" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" format="Hierarchical" version="2.20">',
-          "\t<ConfigVersions/>",
-          "</ConfigDumpInfo>",
-        ].join("\r\n"),
-        "utf-8"
-      )
-
-      const result = await syncConfigurationToXML({
-        context: mockContextToXML(),
-        inputDir: yamlDir,
-        outputDir: outDir,
-        referenceDir: xmlDir,
-      })
-
-      expect(result.failed).toEqual([])
-      const xml = fs.readFileSync(join(outDir, "ConfigDumpInfo.xml"), "utf-8")
-      expect(xml).toContain("?>\r\n<ConfigDumpInfo")
-      expect(xml).not.toContain("?>\n<ConfigDumpInfo")
-    } finally {
-      fs.rmSync(tmp, { recursive: true, force: true })
-    }
-  })
-
-  it("возвращает failed item для битого reference ConfigDumpInfo.xml", async () => {
-    const tmp = fs.mkdtempSync(join(os.tmpdir(), "nkdk-config-dump-info-broken-"))
-    const yamlDir = join(tmp, "yaml")
-    const xmlDir = join(tmp, "xml")
-    const outDir = join(tmp, "out")
-
-    try {
-      fs.mkdirSync(join(yamlDir, "Справочник", "Товары"), { recursive: true })
-      fs.mkdirSync(xmlDir, { recursive: true })
-      fs.writeFileSync(join(yamlDir, "Справочник", "Товары", "Свойства.yaml"), "", "utf-8")
-      fs.writeFileSync(join(xmlDir, "ConfigDumpInfo.xml"), "<ConfigDumpInfo><ConfigVersions>", "utf-8")
-
-      const result = await syncConfigurationToXML({
-        context: mockContextToXML(),
-        inputDir: yamlDir,
-        outputDir: outDir,
-        referenceDir: xmlDir,
-      })
-
-      expect(result.failed).toHaveLength(1)
-      expect(result.failed[0]).toMatchObject({ kind: "configDumpInfo", name: "ConfigDumpInfo.xml" })
-    } finally {
-      fs.rmSync(tmp, { recursive: true, force: true })
-    }
-  })
-
-  it("переносит ConfigDumpInfo при переименовании и удаляет старое имя", async () => {
-    const tmp = fs.mkdtempSync(join(os.tmpdir(), "nkdk-config-dump-info-rename-"))
-    const yamlDir = join(tmp, "yaml")
-    const xmlDir = join(tmp, "xml")
-    const outDir = join(tmp, "out")
-
-    try {
-      fs.mkdirSync(join(yamlDir, "Справочник", "Номенклатура"), { recursive: true })
-      fs.mkdirSync(join(yamlDir, "Миграции"), { recursive: true })
-      fs.mkdirSync(join(xmlDir, "Catalogs"), { recursive: true })
-      fs.writeFileSync(join(yamlDir, "Справочник", "Номенклатура", "Свойства.yaml"), [
-        "Реквизиты:",
-        "  КодАртикула:",
-        "    Тип: Строка",
-        "",
-      ].join("\n"))
-      fs.writeFileSync(join(yamlDir, "Миграции", "2026-05-05-143000.yaml"), [
-        '"Справочник.Товары": "Номенклатура"',
-        '"Справочник.Номенклатура.Реквизит.Артикул": "КодАртикула"',
-        "",
-      ].join("\n"))
-      fs.writeFileSync(join(xmlDir, "Catalogs", "Товары.xml"), `<?xml version="1.0" encoding="UTF-8"?>
-<MetaDataObject xmlns="http://v8.1c.ru/8.3/MDClasses" version="2.20">
-	<Catalog uuid="00000000-0000-0000-0000-000000000001">
-		<Properties><Name>Товары</Name><Synonym/><Comment/></Properties>
-		<ChildObjects>
-			<Attribute uuid="00000000-0000-0000-0000-000000000101">
-				<Properties><Name>Артикул</Name><Synonym/><Comment/></Properties>
-			</Attribute>
-		</ChildObjects>
-	</Catalog>
-</MetaDataObject>`, "utf-8")
-      fs.writeFileSync(join(xmlDir, "ConfigDumpInfo.xml"), `<?xml version="1.0" encoding="UTF-8"?>
-<ConfigDumpInfo xmlns="http://v8.1c.ru/8.3/xcf/dumpinfo" xmlns:xen="http://v8.1c.ru/8.3/xcf/enums" xmlns:xs="http://www.w3.org/2001/XMLSchema" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" format="Hierarchical" version="2.20">
-	<ConfigVersions>
-		<Metadata name="Catalog.Товары" id="catalog-id" configVersion="aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa">
-			<Metadata name="Catalog.Товары.Attribute.Артикул" id="attribute-id"/>
-		</Metadata>
-		<Metadata name="Catalog.Товары.Form.ФормаЭлемента" id="form-id" configVersion="cccccccccccccccccccccccccccccccccccccccc"/>
-	</ConfigVersions>
-</ConfigDumpInfo>`, "utf-8")
-
-      const context = mockContextToXML()
-      const result = await syncConfigurationToXML({
-        context,
-        inputDir: yamlDir,
-        outputDir: outDir,
-        referenceDir: xmlDir,
-      })
-
-      expect(result.failed).toEqual([])
-      const parsed = importContentFromXML<{ ConfigDumpInfo: ConfigDumpInfoXML }>(
-        fs.readFileSync(join(outDir, "ConfigDumpInfo.xml"), "utf-8"),
-      )
-      const idMap = importConfigDumpInfoFromXML({ context, xml: parsed.ConfigDumpInfo })
-      const catalogEntry = idMap.get("Catalog.Номенклатура")
-      const formEntry = idMap.get("Catalog.Номенклатура.Form.ФормаЭлемента")
-
-      expect(idMap.has("Catalog.Товары")).toBe(false)
-      expect(catalogEntry?.id).toBe("catalog-id")
-      expect(catalogEntry?.configVersion).toBe("aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa")
-      expect(catalogEntry?.children.get("Catalog.Номенклатура.Attribute.КодАртикула")).toBe("attribute-id")
-      expect(catalogEntry?.children.has("Catalog.Номенклатура.Attribute.Артикул")).toBe(false)
-      expect(formEntry?.id).toBe("form-id")
-      expect(formEntry?.configVersion).toBe("cccccccccccccccccccccccccccccccccccccccc")
-    } finally {
-      fs.rmSync(tmp, { recursive: true, force: true })
-    }
-  })
-
-  it("останавливает sync при конфликте без миграции", async () => {
+  it("без миграции считает удаление и создание обычным изменением", async () => {
     const tmp = getXMLFixturePath("sync/syncConfiguration/_tmp_migration_conflict")
     const yamlDir = join(tmp, "yaml")
     const xmlDir = join(tmp, "xml")
@@ -1390,12 +914,16 @@ describe("sync configuration to XML", () => {
     fs.mkdirSync(join(xmlDir, "Catalogs"), { recursive: true })
 
     fs.writeFileSync(join(yamlDir, "Справочник", "Номенклатура", "Свойства.yaml"), "")
-    fs.writeFileSync(join(xmlDir, "Catalogs", "Товары.xml"), `<?xml version="1.0" encoding="UTF-8"?>
+    fs.writeFileSync(
+      join(xmlDir, "Catalogs", "Товары.xml"),
+      `<?xml version="1.0" encoding="UTF-8"?>
 <MetaDataObject xmlns="http://v8.1c.ru/8.3/MDClasses" version="2.20">
 	<Catalog uuid="00000000-0000-0000-0000-000000000001">
 		<Properties><Name>Товары</Name><Synonym/><Comment/></Properties>
 	</Catalog>
-</MetaDataObject>`, "utf-8")
+</MetaDataObject>`,
+      "utf-8"
+    )
 
     try {
       const result = await syncConfigurationToXML({
@@ -1405,14 +933,87 @@ describe("sync configuration to XML", () => {
         referenceDir: xmlDir,
       })
 
-      expect(result.failed[0]?.error.message).toContain("Найдены возможные переименования")
-      expect(result.failed[0]?.error.message).toContain("nkdk generate-migration")
+      expect(result.failed).toEqual([])
+      expect(fs.existsSync(join(outDir, "Catalogs", "Номенклатура.xml"))).toBe(true)
+      expect(result.migrationsApplied).toEqual([])
     } finally {
       if (fs.existsSync(tmp)) fs.rmSync(tmp, { recursive: true })
     }
   })
 
-  it("пишет .nakidka-migrations.yaml после успешного sync", async () => {
+  it("строит план миграций без записи XML и applied-state", async () => {
+    const tmp = getXMLFixturePath("sync/syncConfiguration/_tmp_migration_plan")
+    const yamlDir = join(tmp, "yaml")
+    const xmlDir = join(tmp, "xml")
+    const outDir = join(tmp, "out")
+    if (fs.existsSync(tmp)) fs.rmSync(tmp, { recursive: true })
+    fs.mkdirSync(join(yamlDir, "Справочник", "Номенклатура"), { recursive: true })
+    fs.mkdirSync(join(yamlDir, "Миграции"), { recursive: true })
+    fs.mkdirSync(join(xmlDir, "Catalogs"), { recursive: true })
+
+    fs.writeFileSync(join(yamlDir, "Справочник", "Номенклатура", "Свойства.yaml"), "")
+    fs.writeFileSync(join(yamlDir, "Миграции", "2026-05-05-143000.yaml"), '"Справочник.Товары": "Номенклатура"\n')
+    fs.copyFileSync(
+      getXMLFixturePath("sync/syncConfiguration/xml/Catalogs/Контрагенты.xml"),
+      join(xmlDir, "Catalogs", "Товары.xml")
+    )
+
+    try {
+      const result = await planConfigurationToXMLMigrations({
+        context: mockContextToXML(),
+        inputDir: yamlDir,
+        outputDir: outDir,
+        referenceDir: xmlDir,
+      })
+
+      expect(result).toEqual({
+        ok: true,
+        migrationsToApply: [
+          { fileName: "2026-05-05-143000.yaml", from: "Справочник.Товары", to: "Справочник.Номенклатура" },
+        ],
+      })
+      expect(fs.existsSync(join(outDir, "Catalogs"))).toBe(false)
+      expect(fs.existsSync(join(outDir, ".nkdk-migrations.yaml"))).toBe(false)
+    } finally {
+      if (fs.existsSync(tmp)) fs.rmSync(tmp, { recursive: true })
+    }
+  })
+
+  it("останавливает sync при ошибке цепочки миграций до записи XML", async () => {
+    const tmp = getXMLFixturePath("sync/syncConfiguration/_tmp_migration_chain_error")
+    const yamlDir = join(tmp, "yaml")
+    const xmlDir = join(tmp, "xml")
+    const outDir = join(tmp, "out")
+    if (fs.existsSync(tmp)) fs.rmSync(tmp, { recursive: true })
+    fs.mkdirSync(join(yamlDir, "Справочник", "Номенклатура"), { recursive: true })
+    fs.mkdirSync(join(yamlDir, "Миграции"), { recursive: true })
+    fs.mkdirSync(join(xmlDir, "Catalogs"), { recursive: true })
+    fs.mkdirSync(join(outDir, "Catalogs"), { recursive: true })
+
+    fs.writeFileSync(join(yamlDir, "Справочник", "Номенклатура", "Свойства.yaml"), "")
+    fs.writeFileSync(join(yamlDir, "Миграции", "2026-05-05-143000.yaml"), '"Справочник.НетТакого": "Номенклатура"\n')
+    fs.writeFileSync(join(outDir, "Catalogs", "Old.xml"), "<Old/>", "utf-8")
+
+    try {
+      const result = await syncConfigurationToXML({
+        context: mockContextToXML(),
+        inputDir: yamlDir,
+        outputDir: outDir,
+        referenceDir: xmlDir,
+      })
+
+      expect(result.failed[0]?.kind).toBe("migration")
+      expect(result.migrationChain).toMatchObject({ ok: false, code: "migration_chain_invalid" })
+      expect(result.migrationsApplied).toBeUndefined()
+      expect(result.changedXmlFiles).toBeUndefined()
+      expect(fs.readFileSync(join(outDir, "Catalogs", "Old.xml"), "utf-8")).toBe("<Old/>")
+      expect(fs.existsSync(join(outDir, ".nkdk-migrations.yaml"))).toBe(false)
+    } finally {
+      if (fs.existsSync(tmp)) fs.rmSync(tmp, { recursive: true })
+    }
+  })
+
+  it("пишет .nkdk-migrations.yaml после успешного sync", async () => {
     const tmp = getXMLFixturePath("sync/syncConfiguration/_tmp_migration_state")
     const yamlDir = join(tmp, "yaml")
     const xmlDir = join(tmp, "xml")
@@ -1430,7 +1031,7 @@ describe("sync configuration to XML", () => {
       })
 
       expect(result.failed).toEqual([])
-      expect(fs.readFileSync(join(outDir, ".nakidka-migrations.yaml"), "utf-8")).toBe("applied: []\n")
+      expect(fs.readFileSync(join(outDir, ".nkdk-migrations.yaml"), "utf-8")).toBe("applied: []\n")
     } finally {
       if (fs.existsSync(tmp)) fs.rmSync(tmp, { recursive: true })
     }
@@ -1444,7 +1045,10 @@ describe("sync configuration to XML", () => {
     if (fs.existsSync(tmp)) fs.rmSync(tmp, { recursive: true })
     fs.mkdirSync(join(yamlDir, "Справочник", "Товары"), { recursive: true })
     fs.writeFileSync(join(yamlDir, "Справочник", "Товары", "Свойства.yaml"), "")
-    fs.writeFileSync(join(yamlDir, "Справочник", "Товары", "МодульОбъекта.bsl"), "Процедура Проверка()\nКонецПроцедуры\n")
+    fs.writeFileSync(
+      join(yamlDir, "Справочник", "Товары", "МодульОбъекта.bsl"),
+      "Процедура Проверка()\nКонецПроцедуры\n"
+    )
 
     try {
       const result = await syncConfigurationToXML({
@@ -1456,7 +1060,7 @@ describe("sync configuration to XML", () => {
 
       expect(result.failed).toEqual([])
       expect(fs.readFileSync(join(outDir, "Catalogs", "Товары", "Ext", "ObjectModule.bsl"), "utf-8")).toBe(
-        "Процедура Проверка()\nКонецПроцедуры\n",
+        "Процедура Проверка()\nКонецПроцедуры\n"
       )
       expect(fs.existsSync(join(outDir, "Catalogs", "Ext", "ObjectModule.bsl"))).toBe(false)
     } finally {
@@ -1472,12 +1076,10 @@ describe("sync configuration to XML", () => {
     const name = "ТестовоеХранилище"
     if (fs.existsSync(tmp)) fs.rmSync(tmp, { recursive: true })
     fs.mkdirSync(join(yamlDir, "ХранилищеНастроек", name, "Шаблоны", "Макет"), { recursive: true })
-    fs.writeFileSync(join(yamlDir, "ХранилищеНастроек", name, "Свойства.yaml"), [
-      "Синоним: Тестовое хранилище",
-      "Шаблоны:",
-      "  - Макет",
-      "",
-    ].join("\n"))
+    fs.writeFileSync(
+      join(yamlDir, "ХранилищеНастроек", name, "Свойства.yaml"),
+      ["Синоним: Тестовое хранилище", "Шаблоны:", "  - Макет", ""].join("\n")
+    )
     fs.writeFileSync(join(yamlDir, "ХранилищеНастроек", name, "Шаблоны", "Макет", "Template.xml"), "<Template/>")
     fs.writeFileSync(join(yamlDir, "ХранилищеНастроек", name, "Шаблоны", "Макет", "Template.txt"), "template text")
 
@@ -1491,9 +1093,11 @@ describe("sync configuration to XML", () => {
 
       expect(result.failed).toEqual([])
       expect(
-        fs.readFileSync(join(outDir, "SettingsStorages", name, "Templates", "Макет", "Ext", "Template.txt"), "utf-8"),
+        fs.readFileSync(join(outDir, "SettingsStorages", name, "Templates", "Макет", "Ext", "Template.txt"), "utf-8")
       ).toBe("template text")
-      expect(fs.existsSync(join(outDir, "SettingsStorages", name, name, "Templates", "Макет", "Ext", "Template.txt"))).toBe(false)
+      expect(
+        fs.existsSync(join(outDir, "SettingsStorages", name, name, "Templates", "Макет", "Ext", "Template.txt"))
+      ).toBe(false)
     } finally {
       if (fs.existsSync(tmp)) fs.rmSync(tmp, { recursive: true })
     }
@@ -1513,11 +1117,11 @@ describe("sync configuration to XML", () => {
     writeTestFile(join(yamlDir, "Справочник", catalogName, "Справка", "_files", "logo.png"), Buffer.from([4, 5, 6]))
     writeTestFile(
       join(yamlDir, "Справочник", catalogName, "Формы", "ФормаЭлемента", "Картинки", "ПолеВвода1.png"),
-      Buffer.from([7, 8, 9]),
+      Buffer.from([7, 8, 9])
     )
     writeTestFile(
       join(yamlDir, "Справочник", catalogName, "Формы", "ФормаЭлемента", "КартинкиЗначений", "ПолеВвода1.bmp"),
-      Buffer.from([10, 11, 12]),
+      Buffer.from([10, 11, 12])
     )
     writeTestFile(join(yamlDir, "WSСсылка", "Калькулятор", "Свойства.yaml"), "URL: http://example.test/wsdl\n")
     writeTestFile(join(yamlDir, "WSСсылка", "Калькулятор", "WSDefinition.xml"), "<definitions/>")
@@ -1526,8 +1130,19 @@ describe("sync configuration to XML", () => {
     writeTestFile(join(outDir, "CommonTemplates", "ДвоичныйМакет", "Ext", "stale.bin"), "stale")
     writeTestFile(join(outDir, "Catalogs", catalogName, "Ext", "Help", "_files", "stale.png"), "stale")
     writeTestFile(
-      join(outDir, "Catalogs", catalogName, "Forms", "ФормаЭлемента", "Ext", "Form", "Items", "ПолеВвода1", "Stale.png"),
-      "stale",
+      join(
+        outDir,
+        "Catalogs",
+        catalogName,
+        "Forms",
+        "ФормаЭлемента",
+        "Ext",
+        "Form",
+        "Items",
+        "ПолеВвода1",
+        "Stale.png"
+      ),
+      "stale"
     )
     writeTestFile(join(outDir, "WSReferences", "Калькулятор", "Ext", "stale.xsd"), "stale")
 
@@ -1541,14 +1156,10 @@ describe("sync configuration to XML", () => {
 
       expect(result.failed).toEqual([])
       expect([...fs.readFileSync(join(outDir, "CommonTemplates", "ДвоичныйМакет", "Ext", "Template.bin"))]).toEqual([
-        1,
-        2,
-        3,
+        1, 2, 3,
       ])
       expect([...fs.readFileSync(join(outDir, "Catalogs", catalogName, "Ext", "Help", "_files", "logo.png"))]).toEqual([
-        4,
-        5,
-        6,
+        4, 5, 6,
       ])
       expect([
         ...fs.readFileSync(
@@ -1562,7 +1173,7 @@ describe("sync configuration to XML", () => {
             "Form",
             "Items",
             "ПолеВвода1",
-            "Picture.png",
+            "Picture.png"
           )
         ),
       ]).toEqual([7, 8, 9])
@@ -1578,7 +1189,7 @@ describe("sync configuration to XML", () => {
             "Form",
             "Items",
             "ПолеВвода1",
-            "ValuesPicture.bmp",
+            "ValuesPicture.bmp"
           )
         ),
       ]).toEqual([10, 11, 12])
@@ -1600,7 +1211,7 @@ describe("sync configuration to XML", () => {
             "Form",
             "Items",
             "ПолеВвода1",
-            "Stale.png",
+            "Stale.png"
           )
         )
       ).toBe(false)

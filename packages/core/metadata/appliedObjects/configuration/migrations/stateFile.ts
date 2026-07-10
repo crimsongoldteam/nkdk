@@ -1,6 +1,7 @@
 import fs from "fs"
 import { join } from "path"
-import { parse, stringify } from "yaml"
+import { exportToYAML } from "../../../../yaml/export"
+import { importFromYAML } from "../../../../yaml/import"
 import { APPLIED_MIGRATIONS_FILE, type AppliedMigrationsState } from "./types"
 import { isMigrationFileName } from "./fileNames"
 
@@ -8,7 +9,7 @@ export function readAppliedMigrationsState(xmlDir: string): AppliedMigrationsSta
   const path = join(xmlDir, APPLIED_MIGRATIONS_FILE)
   if (!fs.existsSync(path)) return { applied: [] }
 
-  const parsed = parse(fs.readFileSync(path, "utf-8")) as unknown
+  const parsed = importFromYAML<unknown>(fs.readFileSync(path, "utf-8"))
   if (!parsed || typeof parsed !== "object" || Array.isArray(parsed)) {
     throw new Error(`${APPLIED_MIGRATIONS_FILE}: ожидается YAML-словарь`)
   }
@@ -38,5 +39,5 @@ function validateAppliedMigrationNames(applied: unknown[]): string[] {
 export function writeAppliedMigrationsState(xmlDir: string, state: AppliedMigrationsState): void {
   const applied = validateAppliedMigrationNames(state.applied)
   fs.mkdirSync(xmlDir, { recursive: true })
-  fs.writeFileSync(join(xmlDir, APPLIED_MIGRATIONS_FILE), stringify({ applied }), "utf-8")
+  fs.writeFileSync(join(xmlDir, APPLIED_MIGRATIONS_FILE), `${exportToYAML({ applied })}\n`, "utf-8")
 }

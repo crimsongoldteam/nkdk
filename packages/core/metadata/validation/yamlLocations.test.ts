@@ -1,5 +1,5 @@
 import { describe, expect, it } from "vitest"
-import { parseMetadataYaml } from "~/yaml/parseMetadataYaml"
+import { parseMetadataYaml } from "../../yaml/parseMetadataYaml"
 import { diagnosticAtYamlPath } from "./yamlLocations"
 
 const yaml = [
@@ -56,6 +56,24 @@ describe("diagnosticAtYamlPath", () => {
       line: 1,
       col: 1,
       path: "/Реквизиты/10/Тип",
+    })
+  })
+
+  it("uses the neutral YAML location index when it is present", () => {
+    const parsed = parseMetadataYaml(yaml)
+    const diagnostic = diagnosticAtYamlPath({
+      filePath: "/tmp/item.yaml",
+      parsed,
+      path: ["Настройки", "Группа", "Поле"],
+      severity: "error",
+      source: "structure",
+      message: "Сообщение",
+    })
+
+    expect(diagnostic).toMatchObject({
+      line: 9,
+      col: 5,
+      path: "/Настройки/Группа/Поле",
     })
   })
 })

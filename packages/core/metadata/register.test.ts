@@ -1,6 +1,6 @@
 import { describe, expect, it } from "vitest"
-import { registerCoreMetadata } from "~/metadata/register"
-import { getTypeRule } from "~/metadata/orchestration"
+import { registerCoreMetadata } from "./register"
+import { getTypeRule } from "./orchestration"
 
 describe("registerCoreMetadata", () => {
   it("can be called more than once and keeps registered metadata behavior available", () => {

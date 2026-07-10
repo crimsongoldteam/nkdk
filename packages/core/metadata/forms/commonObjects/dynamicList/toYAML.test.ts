@@ -7,9 +7,9 @@ import {
   queryTextWithManualQueryFalseDynamicList,
   queryTextWithManualQueryFalseDynamicListYAML,
   queryTextWithManualQueryFalseText,
-} from "~/metadata/forms/commonObjects/dynamicList/__fixtures__/data"
-import { exportPropertyToYAML, PropertyRule } from "~/metadata/orchestration"
-import { mockContextToTypedYAML } from "~/tests/mockContext"
+} from "./__fixtures__/data"
+import { exportPropertyToYAML, PropertyRule } from "../../../orchestration"
+import { mockContextToTypedYAML } from "../../../../tests/mockContext"
 
 const rule: PropertyRule = {
   type: "DynamicList",

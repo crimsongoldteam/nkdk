@@ -1,8 +1,9 @@
-import { Static, Type } from "@sinclair/typebox"
+import { Type } from "typebox"
 import {
   StandardBeginningDateVariantFromYAML,
   type StandardBeginningDateVariant,
-} from "~/metadata/systemEnumerations/types"
+  type StandardBeginningDateVariantYAML,
+} from "../../systemEnumerations/types"
 
 export interface StandartBeginningDate {
   variant: StandardBeginningDateVariant
@@ -20,7 +21,10 @@ export const StandartBeginningDateJSONSchema = Type.Object({
   Дата: Type.Optional(Type.String({ pattern: russianDateTimePattern })),
 })
 
-export type StandartBeginningDateYAML = Static<typeof StandartBeginningDateJSONSchema>
+export interface StandartBeginningDateYAML {
+  Вариант: StandardBeginningDateVariantYAML
+  Дата?: string
+}
 
 export interface StandartBeginningDateXML {
   "_xsi:type"?: "v8:StandardBeginningDate"

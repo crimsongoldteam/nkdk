@@ -11,16 +11,11 @@ export default defineConfig({
     // при включённой остановке на caught exceptions отладчик всё равно останавливается.
     postcss: { plugins: [] },
   },
-  esbuild: {
-    target: "es2020",
-  },
   test: {
     environment: "node",
     globals: true,
     watch: false,
+    maxWorkers: 2,
     setupFiles: [resolve(__dirname, "./tests/setupTests")],
-    alias: {
-      "~": resolve(__dirname, "./"),
-    },
   },
 })

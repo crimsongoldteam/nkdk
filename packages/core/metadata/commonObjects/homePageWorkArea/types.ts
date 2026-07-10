@@ -1,15 +1,11 @@
-import { StringboolYAML, StringboolXML } from "~/metadata/commonObjects/boolean/types"
-import { MetadataItemLink } from "~/metadata/commonObjects/metadataRef/types"
-import { MetadataItem } from "~/metadata/orchestration"
-import { MetadataTypeByRule } from "~/metadata/orchestration/metadataItem/element"
-import { YAMLTypeByRule } from "~/metadata/orchestration/metadataItem/yaml"
+import { StringboolYAML, StringboolXML } from "../boolean/types"
+import { MetadataItemLink } from "../metadataRef/types"
+import { MetadataItem } from "../../orchestration"
+import { MetadataTypeByRule } from "../../orchestration/metadataItem/element"
+import { YAMLTypeByRule } from "../../orchestration/metadataItem/yaml"
 import { HomePageWorkAreaRules } from "./rules"
 
-export type HomePageWorkAreaTemplate =
-  | "OneColumn"
-  | "TwoColumnsEqualWidth"
-  | "TwoColumnsVariableWidth"
-  | string
+export type HomePageWorkAreaTemplate = "OneColumn" | "TwoColumnsEqualWidth" | "TwoColumnsVariableWidth" | string
 
 export type HomePageWorkAreaCommandInterfaceDisplay = "Top" | "Bottom" | "None" | string
 

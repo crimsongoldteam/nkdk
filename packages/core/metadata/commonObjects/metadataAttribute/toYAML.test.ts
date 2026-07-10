@@ -9,15 +9,17 @@ import {
   skipSynonymFromMetadataAttribute,
   skipSynonymFromMetadataAttributeYAML,
 } from "./__fixtures__/data"
-import { mockContext } from "~/tests/mockContext"
+import { mockContext } from "../../../tests/mockContext"
 import { exportMetadataAttributesToYAML } from "./register"
-import type { ConfigurationContext } from "~/metadata/context/types"
+import type { ConfigurationContext } from "../../context/types"
 
 const metadataAttributeOwnerContext: ConfigurationContext = {
   ...mockContext,
   exportToYAML: {
     toTyped: false,
-    metadataTargetOwners: [{ itemType: "MetadataCatalog", name: "Справочник" }],
+    metadataTargetOwners: [
+      { itemType: "MetadataCatalog", name: "Справочник", owner: { root: "Catalog", objectName: "Справочник" } },
+    ],
   },
 }
 

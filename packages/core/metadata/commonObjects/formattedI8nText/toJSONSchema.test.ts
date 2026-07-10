@@ -1,9 +1,9 @@
-import { TypeCompiler } from "@sinclair/typebox/compiler"
+import { compileValidationSchema } from "./../../validation/compileValidationSchema"
 import { describe, expect, it } from "vitest"
 import { FormattedI8nTextJSONSchema } from "./types"
 
 describe("FormattedI8nTextJSONSchema", () => {
-  const compiled = TypeCompiler.Compile(FormattedI8nTextJSONSchema)
+  const compiled = compileValidationSchema(FormattedI8nTextJSONSchema)
 
   it("accepts plain default-language text", () => {
     expect(compiled.Check({ Текст: "Заголовок" })).toBe(true)

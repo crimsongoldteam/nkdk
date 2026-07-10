@@ -1,8 +1,8 @@
 import { describe, expect, it } from "vitest"
-import { fullFormCommands, minimalFormCommands } from "~/metadata/forms/commonObjects/formCommand/__fixtures__/data"
-import { exportPropertyToXML, PropertyRule } from "~/metadata/orchestration"
-import { mockContextToXML } from "~/tests/mockContext"
-import { testExportPropertyToXML } from "~/tests/property/exportPropertyToXML"
+import { fullFormCommands, minimalFormCommands } from "./__fixtures__/data"
+import { exportPropertyToXML, PropertyRule } from "../../../orchestration"
+import { mockContextToXML } from "../../../../tests/mockContext"
+import { testExportPropertyToXML } from "../../../../tests/property/exportPropertyToXML"
 
 import "./types"
 

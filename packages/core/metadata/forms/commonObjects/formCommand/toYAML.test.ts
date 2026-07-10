@@ -4,10 +4,10 @@ import {
   fullFormCommandsYAML,
   minimalFormCommandYAML,
   minimalFormCommands,
-} from "~/metadata/forms/commonObjects/formCommand/__fixtures__/data"
-import { exportPropertyToYAML, PropertyRule } from "~/metadata/orchestration"
-import { mockContext } from "~/tests/mockContext"
-import { testExportPropertyToYAML } from "~/tests/property/exportPropertyToYAML"
+} from "./__fixtures__/data"
+import { exportPropertyToYAML, PropertyRule } from "../../../orchestration"
+import { mockContext } from "../../../../tests/mockContext"
+import { testExportPropertyToYAML } from "../../../../tests/property/exportPropertyToYAML"
 
 import "./types"
 

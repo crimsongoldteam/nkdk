@@ -6,6 +6,4 @@ export const minimal: MetadataSettingsStorage = {
   synonym: { items: { ru: "Хранилище настроек по умолчанию" } },
 }
 
-export const minimalYAML: MetadataSettingsStorageYAML = {
-  Синоним: "Хранилище настроек по умолчанию",
-}
+export const minimalYAML: MetadataSettingsStorageYAML = {}

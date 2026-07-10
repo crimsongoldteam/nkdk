@@ -1,15 +1,13 @@
-import { TSchema } from "@sinclair/typebox"
-import { ConfigurationContext } from "~/metadata/context/types"
-import { exportMetadataItemToJSONSchema } from "~/metadata/orchestration/metadataItem/toJSONSchema"
+import { TSchema } from "typebox"
+import { ConfigurationContext } from "../../context/types"
+import { exportMetadataItemToJSONSchema } from "../../orchestration/metadataItem/toJSONSchema"
 import { MetadataDocumentRules } from "./rules"
 
 export const exportMetadataDocumentToJSONSchema = (params: { context: ConfigurationContext }): TSchema => {
   const { context } = params
 
-  const schema = exportMetadataItemToJSONSchema({
+  return exportMetadataItemToJSONSchema({
     context,
     rule: MetadataDocumentRules,
   })
-
-  return schema
 }

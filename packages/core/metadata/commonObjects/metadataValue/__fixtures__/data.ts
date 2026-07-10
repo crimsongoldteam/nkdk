@@ -1,9 +1,5 @@
-import {
-  MetadataValue,
-  MetadataValuePropertyRule,
-  MetadataValueYAML,
-} from "~/metadata/commonObjects/metadataValue/types"
-import { explicitYAMLString } from "~/yaml/explicitString"
+import { MetadataValue, MetadataValuePropertyRule, MetadataValueYAML } from "../types"
+import { explicitYAMLString } from "../../../../yaml/explicitString"
 
 type MetadataValueFixture = {
   name: string

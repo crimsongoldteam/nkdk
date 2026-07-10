@@ -1,12 +1,13 @@
-import { MetadataCatalog, MetadataCatalogYAML } from "~/metadata/appliedObjects/metadataCatalog/types"
-import { ConfigurationContext } from "~/metadata/context/types"
-import { importMetadataItemFromYAML } from "~/metadata/orchestration"
+import { MetadataCatalog, MetadataCatalogYAML } from "./types"
+import { ConfigurationContext } from "../../context/types"
+import { importMetadataItemFromYAML } from "../../orchestration"
 import { MetadataCatalogRules } from "./rules"
 
 export const importMetadataCatalogFromYAML = (
   context: ConfigurationContext,
   data: MetadataCatalogYAML | undefined,
-  name: string
+  name: string,
+  source?: MetadataCatalog
 ): MetadataCatalog | undefined => {
   if (!data) return undefined
 
@@ -15,6 +16,7 @@ export const importMetadataCatalogFromYAML = (
     yaml: data,
     rule: MetadataCatalogRules,
     name,
+    source,
   })
 
   if (result == undefined) return undefined

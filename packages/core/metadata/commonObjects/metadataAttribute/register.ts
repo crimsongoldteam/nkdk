@@ -1,14 +1,16 @@
-import { Type, type TSchema } from "@sinclair/typebox"
-import { MetadataAttributeYAML, MetadataAttributes, MetadataAttributesXML, MetadataAttributesYAML } from "./types"
-import { ConfigurationContext, ConfigurationContextFromXML } from "~/metadata/context/types"
-import { importMetadataItemFromYAML } from "~/metadata/orchestration/metadataItem/fromYAML"
-import { exportMetadataItemToJSONSchema } from "~/metadata/orchestration/metadataItem/toJSONSchema"
-import { registerMetadataItemCollectionRule } from "~/metadata/orchestration/metadataCollection/ruleFactory"
-import { exportMetadataCollectionToYAMLAsRecord } from "~/metadata/orchestration/metadataCollection/toYAML"
-import { importPropertyFromXML } from "~/metadata/orchestration/property/fromXML"
-import { PropertyRule } from "~/metadata/orchestration/property/types"
+import { Type, type TSchema } from "typebox"
+import type { MetadataAttributeYAML, MetadataAttributes, MetadataAttributesXML, MetadataAttributesYAML } from "./types"
+import { ConfigurationContext, ConfigurationContextFromXML } from "../../context/types"
+import { importMetadataItemFromYAML } from "../../orchestration/metadataItem/fromYAML"
+import { exportMetadataItemToJSONSchema } from "../../orchestration/metadataItem/toJSONSchema"
+import { registerMetadataItemCollectionRule } from "../../orchestration/metadataCollection/ruleFactory"
+import { exportMetadataCollectionToYAMLAsRecord } from "../../orchestration/metadataCollection/toYAML"
+import { importPropertyFromXML } from "../../orchestration/property/fromXML"
+import type { PropertyRule } from "../../orchestration/property/types"
+import { toYAMLImportError, withYAMLImportDiagnostics } from "../../orchestration/yamlImportError"
 import {
   MetadataAttributeRules,
+  MetadataAttributesWithAllowedTypesRules,
   MetadataCatalogAttributeRules,
   MetadataDocumentAttributeRules,
   MetadataTabularSectionAttributeRules,
@@ -16,6 +18,7 @@ import {
 
 type MetadataAttributeItemRule =
   | typeof MetadataAttributeRules
+  | typeof MetadataAttributesWithAllowedTypesRules
   | typeof MetadataCatalogAttributeRules
   | typeof MetadataDocumentAttributeRules
   | typeof MetadataTabularSectionAttributeRules
@@ -57,7 +60,12 @@ const createImportMetadataAttributesFromYAML =
     if (!data) return undefined
 
     const results = Object.entries(data).map(([name, value]) => {
-      return importMetadataAttributeFromYAML(context, itemRule, value as MetadataAttributeYAML, name)
+      const itemContext = withYAMLImportDiagnostics(context, { propertyPath: [name], yamlPath: [name] })
+      try {
+        return importMetadataAttributeFromYAML(itemContext, itemRule, value as MetadataAttributeYAML, name)
+      } catch (error) {
+        throw toYAMLImportError(error, itemContext)
+      }
     })
 
     return results.length > 0 ? (results as MetadataAttributes) : undefined
@@ -74,12 +82,12 @@ const createExportMetadataAttributesToJSONSchema =
     return Type.Record(Type.String(), attributeSchema)
   }
 
-export const exportMetadataAttributesToJSONSchema =
-  createExportMetadataAttributesToJSONSchema(MetadataAttributeRules)
+export const exportMetadataAttributesToJSONSchema = createExportMetadataAttributesToJSONSchema(MetadataAttributeRules)
 
 registerMetadataItemCollectionRule({
   propertyType: "MetadataCatalogAttributes",
   itemRule: MetadataCatalogAttributeRules,
+  schemaName: "MetadataCatalogAttribute",
   xmlElement: "Attribute",
   keyField: "name",
   fromYAML: createImportMetadataAttributesFromYAML(MetadataCatalogAttributeRules),
@@ -90,6 +98,7 @@ registerMetadataItemCollectionRule({
 registerMetadataItemCollectionRule({
   propertyType: "MetadataAttributes",
   itemRule: MetadataAttributeRules,
+  schemaName: "MetadataAttribute",
   xmlElement: "Attribute",
   keyField: "name",
   fromYAML: createImportMetadataAttributesFromYAML(MetadataAttributeRules),
@@ -98,8 +107,20 @@ registerMetadataItemCollectionRule({
 })
 
 registerMetadataItemCollectionRule({
+  propertyType: "MetadataAttributesWithAllowedTypes",
+  itemRule: MetadataAttributesWithAllowedTypesRules,
+  schemaName: "MetadataAttributesWithAllowedTypes",
+  xmlElement: "Attribute",
+  keyField: "name",
+  fromYAML: createImportMetadataAttributesFromYAML(MetadataAttributesWithAllowedTypesRules),
+  toJSONSchema: createExportMetadataAttributesToJSONSchema(MetadataAttributesWithAllowedTypesRules),
+  collectionItemRule: true,
+})
+
+registerMetadataItemCollectionRule({
   propertyType: "MetadataTabularSectionAttributes",
   itemRule: MetadataTabularSectionAttributeRules,
+  schemaName: "MetadataTabularSectionAttribute",
   xmlElement: "Attribute",
   keyField: "name",
   fromYAML: createImportMetadataAttributesFromYAML(MetadataTabularSectionAttributeRules),
@@ -110,6 +131,7 @@ registerMetadataItemCollectionRule({
 registerMetadataItemCollectionRule({
   propertyType: "MetadataDocumentAttributes",
   itemRule: MetadataDocumentAttributeRules,
+  schemaName: "MetadataDocumentAttribute",
   xmlElement: "Attribute",
   keyField: "name",
   fromYAML: createImportMetadataAttributesFromYAML(MetadataDocumentAttributeRules),

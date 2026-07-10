@@ -1,17 +1,15 @@
 import { existsSync, readdirSync, statSync } from "fs"
 import { isAbsolute, join, relative, resolve, sep } from "path"
-import { CONFIGURATION_YAML_FILE } from "~/metadata/appliedObjects/configuration/rootIO"
+import { CONFIGURATION_YAML_FILE } from "./constants"
 import {
   configurationMetadataProjectSpec,
   getMetadataProjectSpecByDir,
   metadataProjectSpecs,
   type MetadataProjectSpec,
 } from "./specs"
+import { describeMetadataRuleProjectResources, matchProjectPattern } from "./ruleResources"
 
-const SUBSYSTEM_DIR = "Подсистема"
-const CHILD_SUBSYSTEMS_DIR = "Подсистемы"
 const PROPERTIES_FILE = "Свойства.yaml"
-const FORM_FILE = "Форма.yaml"
 
 export type MetadataProjectResourceKind = "yaml" | "xml" | "asset"
 export type MetadataProjectYamlRole = "configuration" | "properties" | "form"
@@ -63,14 +61,11 @@ export function classifyMetadataProjectPath(projectPath: string): MetadataProjec
   if (normalized === CONFIGURATION_YAML_FILE) return configurationResource(normalized)
 
   const parts = normalized.split("/")
-  const nestedSubsystem = matchNestedSubsystemPropertiesPath(parts, normalized)
+  const nestedSubsystem = matchRecursiveNestedPropertiesPath(parts, normalized)
   if (nestedSubsystem) return nestedSubsystem
 
-  const properties = matchPropertiesPath(parts, normalized)
-  if (properties) return properties
-
-  const form = matchFormPath(parts, normalized)
-  if (form) return form
+  const descriptorResource = matchDescriptorResourcePath(parts, normalized)
+  if (descriptorResource) return descriptorResource
 
   return undefined
 }
@@ -88,19 +83,11 @@ export function discoverMetadataProjectResources(projectDir: string): MetadataPr
     for (const ownerEntry of readdirSync(kindDir, { withFileTypes: true })) {
       if (!ownerEntry.isDirectory()) continue
 
-      collectExistingProjectResource(projectRoot, join(kindDir, ownerEntry.name, PROPERTIES_FILE), resources)
-
-      const formsDir = join(kindDir, ownerEntry.name, "Формы")
-      if (!isExistingDirectory(formsDir)) continue
-
-      for (const formEntry of readdirSync(formsDir, { withFileTypes: true })) {
-        if (!formEntry.isDirectory()) continue
-        collectExistingProjectResource(projectRoot, join(formsDir, formEntry.name, FORM_FILE), resources)
-      }
+      collectExistingDescriptorResources(projectRoot, join(kindDir, ownerEntry.name), spec, resources)
     }
   }
 
-  collectNestedSubsystemPropertyResources(projectRoot, resources)
+  collectNestedRecursivePropertyResources(projectRoot, resources)
 
   return resources.sort((left, right) => left.projectPath.localeCompare(right.projectPath, "ru"))
 }
@@ -119,7 +106,7 @@ export function assertMetadataProjectPathInside(projectDir: string, filePath: st
 
 export function resolveMetadataProjectResource(
   projectDir: string,
-  filePath: string,
+  filePath: string
 ): MetadataProjectResourceRef | undefined {
   const projectRoot = resolve(projectDir)
   const absolutePath = isAbsolute(filePath) ? resolve(filePath) : resolve(projectRoot, filePath)
@@ -132,7 +119,7 @@ export function resolveMetadataProjectResource(
 function collectExistingProjectResource(
   projectRoot: string,
   filePath: string,
-  resources: MetadataProjectResourceRef[],
+  resources: MetadataProjectResourceRef[]
 ): void {
   if (!isExistingFile(filePath)) return
 
@@ -153,40 +140,57 @@ function configurationResource(projectPath: string): MetadataProjectConfiguratio
   }
 }
 
-function matchPropertiesPath(parts: string[], projectPath: string): MetadataProjectPropertiesYamlRef | undefined {
-  if (parts.length !== 3 || parts[2] !== PROPERTIES_FILE) return undefined
-
-  const owner = createOwner(parts[0], parts[1])
-  return owner ? { kind: "yaml", role: "properties", projectPath, owner, nesting: [] } : undefined
-}
-
-function matchNestedSubsystemPropertiesPath(
+function matchRecursiveNestedPropertiesPath(
   parts: string[],
-  projectPath: string,
+  projectPath: string
 ): MetadataProjectPropertiesYamlRef | undefined {
-  const lastPart = parts[parts.length - 1]
-  if (parts.length < 5 || parts[0] !== SUBSYSTEM_DIR || lastPart !== PROPERTIES_FILE) return undefined
-  if ((parts.length - 3) % 2 !== 0) return undefined
-  if (parts.some((part) => part.length === 0)) return undefined
+  for (const spec of metadataProjectSpecs) {
+    const nestingRule = spec.nesting
+    if (nestingRule?.kind !== "recursiveChildDir") continue
+    if (parts[0] !== spec.dir || parts[parts.length - 1] !== PROPERTIES_FILE) continue
+    if (parts.length < 5 || (parts.length - 3) % 2 !== 0) continue
+    if (parts.some((part) => part.length === 0)) continue
 
-  const nesting: MetadataProjectNestingSegment[] = [{ dir: SUBSYSTEM_DIR, name: parts[1] }]
-  for (let index = 2; index < parts.length - 2; index += 2) {
-    if (parts[index] !== CHILD_SUBSYSTEMS_DIR || !parts[index + 1]) return undefined
-    if (index < parts.length - 3) nesting.push({ dir: SUBSYSTEM_DIR, name: parts[index + 1] })
+    const nesting: MetadataProjectNestingSegment[] = [{ dir: spec.dir, name: parts[1] }]
+    let matches = true
+    for (let index = 2; index < parts.length - 2; index += 2) {
+      if (parts[index] !== nestingRule.childDir || !parts[index + 1]) {
+        matches = false
+        break
+      }
+      if (index < parts.length - 3) nesting.push({ dir: spec.dir, name: parts[index + 1] })
+    }
+    if (!matches) continue
+
+    const owner = createOwner(spec.dir, parts[parts.length - 2])
+    if (owner) return { kind: "yaml", role: "properties", projectPath, owner, nesting }
   }
 
-  const owner = createOwner(SUBSYSTEM_DIR, parts[parts.length - 2])
-  return owner ? { kind: "yaml", role: "properties", projectPath, owner, nesting } : undefined
+  return undefined
 }
 
-function matchFormPath(parts: string[], projectPath: string): MetadataProjectFormYamlRef | undefined {
-  if (parts.length !== 5 || parts[2] !== "Формы" || parts[4] !== FORM_FILE) return undefined
-
+function matchDescriptorResourcePath(
+  parts: string[],
+  projectPath: string
+): MetadataProjectPropertiesYamlRef | MetadataProjectFormYamlRef | undefined {
+  if (parts.length < 3) return undefined
   const owner = createOwner(parts[0], parts[1])
-  const formName = parts[3]
-  if (!owner || !formName) return undefined
+  if (!owner) return undefined
 
-  return { kind: "yaml", role: "form", projectPath, owner, formName }
+  const relativePath = parts.slice(2).join("/")
+  for (const resource of describeMetadataRuleProjectResources(owner.spec.rule)) {
+    const match = matchProjectPattern(resource.projectPattern, relativePath)
+    if (!match || resource.kind !== "yaml") continue
+
+    if (resource.role === "properties") {
+      return { kind: "yaml", role: "properties", projectPath, owner, nesting: [] }
+    }
+    if (resource.role === "fileItem" && match.itemName && resource.projectPattern.endsWith("/Форма.yaml")) {
+      return { kind: "yaml", role: "form", projectPath, owner, formName: match.itemName }
+    }
+  }
+
+  return undefined
 }
 
 function createOwner(dir: string | undefined, name: string | undefined): MetadataProjectResourceOwner | undefined {
@@ -198,30 +202,68 @@ function createOwner(dir: string | undefined, name: string | undefined): Metadat
   return { dir, name, spec }
 }
 
-function collectNestedSubsystemPropertyResources(projectRoot: string, resources: MetadataProjectResourceRef[]): void {
-  const subsystemRoot = join(projectRoot, SUBSYSTEM_DIR)
-  if (!isExistingDirectory(subsystemRoot)) return
-
-  for (const subsystemEntry of readdirSync(subsystemRoot, { withFileTypes: true })) {
-    if (!subsystemEntry.isDirectory()) continue
-    collectNestedSubsystemPropertyResourcesFromDir(projectRoot, join(subsystemRoot, subsystemEntry.name), resources)
+function collectExistingDescriptorResources(
+  projectRoot: string,
+  ownerRoot: string,
+  spec: MetadataProjectSpec,
+  resources: MetadataProjectResourceRef[]
+): void {
+  for (const resource of describeMetadataRuleProjectResources(spec.rule)) {
+    if (resource.kind !== "yaml") continue
+    collectExistingResourcePattern(projectRoot, ownerRoot, resource.projectPattern, resources)
   }
 }
 
-function collectNestedSubsystemPropertyResourcesFromDir(
+function collectExistingResourcePattern(
+  projectRoot: string,
+  ownerRoot: string,
+  projectPattern: string,
+  resources: MetadataProjectResourceRef[]
+): void {
+  const placeholderMatch = projectPattern.match(/^(.*)\/\{itemName\}\/([^/]+)$/)
+  if (!placeholderMatch) {
+    collectExistingProjectResource(projectRoot, join(ownerRoot, ...projectPattern.split("/")), resources)
+    return
+  }
+
+  const [, dirPattern, fileName] = placeholderMatch
+  const itemsDir = join(ownerRoot, ...dirPattern.split("/"))
+  if (!isExistingDirectory(itemsDir)) return
+
+  for (const childEntry of readdirSync(itemsDir, { withFileTypes: true })) {
+    if (!childEntry.isDirectory()) continue
+    collectExistingProjectResource(projectRoot, join(itemsDir, childEntry.name, fileName), resources)
+  }
+}
+
+function collectNestedRecursivePropertyResources(projectRoot: string, resources: MetadataProjectResourceRef[]): void {
+  for (const spec of metadataProjectSpecs) {
+    if (spec.nesting?.kind !== "recursiveChildDir") continue
+    const root = join(projectRoot, spec.dir)
+    if (!isExistingDirectory(root)) continue
+
+    for (const entry of readdirSync(root, { withFileTypes: true })) {
+      if (!entry.isDirectory()) continue
+      collectNestedRecursivePropertyResourcesFromDir(projectRoot, join(root, entry.name), spec, resources)
+    }
+  }
+}
+
+function collectNestedRecursivePropertyResourcesFromDir(
   projectRoot: string,
   currentDir: string,
-  resources: MetadataProjectResourceRef[],
+  spec: MetadataProjectSpec,
+  resources: MetadataProjectResourceRef[]
 ): void {
-  const childSubsystemsDir = join(currentDir, CHILD_SUBSYSTEMS_DIR)
-  if (!isExistingDirectory(childSubsystemsDir)) return
+  const childDir = join(currentDir, spec.nesting?.childDir ?? "")
+  if (!isExistingDirectory(childDir)) return
 
-  for (const childEntry of readdirSync(childSubsystemsDir, { withFileTypes: true })) {
+  for (const childEntry of readdirSync(childDir, { withFileTypes: true })) {
     if (!childEntry.isDirectory()) continue
 
-    const childDir = join(childSubsystemsDir, childEntry.name)
-    collectExistingProjectResource(projectRoot, join(childDir, PROPERTIES_FILE), resources)
-    collectNestedSubsystemPropertyResourcesFromDir(projectRoot, childDir, resources)
+    const nestedDir = join(childDir, childEntry.name)
+    collectExistingProjectResource(projectRoot, join(nestedDir, PROPERTIES_FILE), resources)
+    collectNestedRecursivePropertyResourcesFromDir(projectRoot, nestedDir, spec, resources)
   }
 }
 

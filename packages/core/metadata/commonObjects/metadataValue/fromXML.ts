@@ -1,6 +1,6 @@
-import { PropertyRule } from "~/metadata/orchestration/property/types"
-import { registerTypeRule } from "~/metadata/orchestration/property/typeRuleRegistry"
-import { ImportFromXMLFunction } from "~/metadata/orchestration/property/fn"
+import type { PropertyRule } from "../../orchestration/property/types"
+import { registerTypeRule } from "../../orchestration/property/typeRuleRegistry"
+import { ImportFromXMLFunction } from "../../orchestration/property/fn"
 import { ConfigurationContextFromXML } from "../../context/types"
 import { importFixedArrayFromXML } from "./fixedArray/fromXML"
 import { importFormChoiceListFromXML } from "./formChoiceList/fromXML"
@@ -56,7 +56,8 @@ export const importMetadataValueFromXML = (params: {
     return context.fromXML.forReference ? (data as any) : undefined
   }
 
-  const resultedType: MetadataValueType | undefined = type ?? MetadataValueTypeFromXML(data["_xsi:type"] as MetadataValueTypeXML)
+  const resultedType: MetadataValueType | undefined =
+    type ?? MetadataValueTypeFromXML(data["_xsi:type"] as MetadataValueTypeXML)
   if (!resultedType) {
     if (context.fromXML.forReference && typeof data["_xsi:type"] === "string") return data as any
     if (typeof data["_xsi:type"] === "string" && isEmptyMetadataValueXML(data)) return undefined

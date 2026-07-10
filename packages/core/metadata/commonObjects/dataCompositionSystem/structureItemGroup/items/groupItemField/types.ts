@@ -1,8 +1,8 @@
-import { MetadataTypeByRule } from "~/metadata/orchestration/metadataItem/element"
+import { MetadataTypeByRule } from "../../../../../orchestration/metadataItem/element"
 import type {
   DataCompositionGroupTypeYAML,
   DataCompositionPeriodAdditionTypeYAML,
-} from "~/metadata/systemEnumerations/types"
+} from "../../../../../systemEnumerations/types"
 import { GroupItemFieldRules } from "./rules"
 
 export type GroupItemField = MetadataTypeByRule<typeof GroupItemFieldRules>

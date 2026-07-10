@@ -1,6 +1,6 @@
-import { ConfigurationContext } from "~/metadata/context/types"
-import { PropertyRule } from "~/metadata/orchestration"
-import { registerTypeRule } from "~/metadata/orchestration/property/typeRuleRegistry"
+import { ConfigurationContext } from "../../../context/types"
+import { PropertyRule } from "../../../orchestration"
+import { registerTypeRule } from "../../../orchestration/property/typeRuleRegistry"
 
 export const exportCommandNameToEnterprise = (_params: {
   context: ConfigurationContext

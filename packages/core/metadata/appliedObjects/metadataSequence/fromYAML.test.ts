@@ -1,11 +1,12 @@
 import { describe, expect, it } from "vitest"
-import { PropertyRule } from "~/metadata/orchestration"
-import { testExportPropertyToYAML } from "~/tests/property/exportPropertyToYAML"
-import { testImportPropertyFromYAML } from "~/tests/property/importPropertyFromYAML"
+import { PropertyRule } from "../../orchestration"
+import { testExportPropertyToYAML } from "../../../tests/property/exportPropertyToYAML"
+import { testImportPropertyFromYAML } from "../../../tests/property/importPropertyFromYAML"
 import { full, fullYAML } from "./__fixtures__/full"
 import { minimal, minimalYAML } from "./__fixtures__/minimal"
 
 const rule: PropertyRule = { type: "MetadataSequence", yaml: "Последовательность" }
+type MetadataSequenceDimension = NonNullable<typeof full.dimensions>[number]
 
 describe("import MetadataSequence from YAML", () => {
   it("imports undefined", () => {
@@ -15,7 +16,13 @@ describe("import MetadataSequence from YAML", () => {
 
   it("imports full fixture", () => {
     const result = testImportPropertyFromYAML({ rule, value: fullYAML, name: full.name })
-    expect(result).toEqual({ ...full, name: undefined })
+    expect(result).toEqual({
+      ...full,
+      name: undefined,
+      dimensions: full.dimensions?.map((dimension: MetadataSequenceDimension) =>
+        dimension.name === "ИзмерениеПоУмолчанию" ? { ...dimension, synonym: undefined } : dimension
+      ),
+    })
   })
 
   it("imports minimal fixture", () => {

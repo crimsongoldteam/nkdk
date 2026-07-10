@@ -1,5 +1,5 @@
-import { uuidPropertyRule } from "~/metadata/commonObjects/uuid/rule"
-import { MetadataItemRule, PropertyRule } from "~/metadata/orchestration/property/types"
+import { uuidPropertyRule } from "../uuid/rule"
+import type { MetadataItemRule, PropertyRule } from "../../orchestration/property/types"
 
 const propertiesParents = ["Properties"]
 
@@ -19,6 +19,7 @@ export const MetadataHTTPServiceMethodRules = {
       type: "I8nText",
       xmlParents: propertiesParents,
       defaultValueXMLRaw: "",
+      excludeIfEqualNameYAML: true,
     },
     comment: {
       yaml: "Комментарий",
@@ -34,6 +35,7 @@ export const MetadataHTTPServiceMethodRules = {
       typeSE: "HTTPMethod",
       xmlParents: propertiesParents,
       defaultValueXML: "GET",
+      noImplicitValueYAML: true,
       preserveExplicitDefaultXML: true,
     },
     handler: {

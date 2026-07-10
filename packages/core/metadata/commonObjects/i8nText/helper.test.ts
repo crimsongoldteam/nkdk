@@ -1,5 +1,5 @@
 import { describe, expect, it } from "vitest"
-import { mockContext } from "~/tests/mockContext"
+import { mockContext } from "../../../tests/mockContext"
 import { importI8nTextFromString, isEmptyI8nText } from "./helper"
 import { I8nText } from "./types"
 

@@ -6,6 +6,4 @@ export const minimal: MetadataDataProcessor = {
   synonym: { items: { ru: "Обработка по умолчанию" } },
 }
 
-export const minimalYAML: MetadataDataProcessorYAML = {
-  Синоним: "Обработка по умолчанию",
-}
+export const minimalYAML: MetadataDataProcessorYAML = {}

@@ -1,6 +1,6 @@
 import { describe, expect, it } from "vitest"
-import { testExportPropertyToXML } from "~/tests/property/exportPropertyToXML"
-import { testImportPropertyFromXML } from "~/tests/property/importPropertyFromXML"
+import { testExportPropertyToXML } from "../../../tests/property/exportPropertyToXML"
+import { testImportPropertyFromXML } from "../../../tests/property/importPropertyFromXML"
 import { operationsWithXDTOTypeNamespace } from "./__fixtures__/data"
 import "./register"
 
@@ -33,7 +33,7 @@ describe("export MetadataWebServiceOperations to XML", () => {
             namespace: "http://www.w3.org/2001/XMLSchema",
             name: "string",
           },
-          parameters: parameters?.map((parameter) => ({
+          parameters: parameters?.map((parameter: { name: string }) => ({
             ...parameter,
             xdtoValueType: {
               namespace: "http://www.w3.org/2001/XMLSchema",
@@ -63,7 +63,7 @@ describe("export MetadataWebServiceOperations to XML", () => {
             namespace: "http://www.w3.org/2001/XMLSchema",
             name: "string",
           },
-          parameters: parameters?.map((parameter) => ({
+          parameters: parameters?.map((parameter: { name: string }) => ({
             ...parameter,
             xdtoValueType: {
               namespace: "http://www.w3.org/2001/XMLSchema",

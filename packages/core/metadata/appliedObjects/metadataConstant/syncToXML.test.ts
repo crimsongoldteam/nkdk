@@ -1,5 +1,5 @@
 import { describe, expect, it } from "vitest"
-import { testSyncAppliedObjectToXML } from "~/tests/appliedObject"
+import { testSyncAppliedObjectToXML } from "../../../tests/appliedObject"
 import { MetadataConstantRules } from "./rules"
 
 const normalizeXML = (value: string): string => value.replace(/\r\n/g, "\n")
@@ -10,11 +10,7 @@ describe("syncAppliedObjectToXML — MetadataConstant", () => {
       rule: MetadataConstantRules,
       name: "КонстантаВсеСвойства",
       importMetaUrl: import.meta.url,
-      expectedFiles: [
-        "КонстантаВсеСвойства.xml",
-        "Ext/ManagerModule.bsl",
-        "Ext/ValueManagerModule.bsl",
-      ],
+      expectedFiles: ["КонстантаВсеСвойства.xml", "Ext/ManagerModule.bsl", "Ext/ValueManagerModule.bsl"],
     })
 
     for (const { path, result, expected } of comparisons) {

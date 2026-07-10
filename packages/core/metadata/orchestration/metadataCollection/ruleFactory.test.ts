@@ -1,9 +1,14 @@
-import { TypeCompiler } from "@sinclair/typebox/compiler"
+import { compileValidationSchema } from "./../../validation/compileValidationSchema"
+import { Type } from "typebox"
 import { describe, expect, it } from "vitest"
-import { importPropertyFromXML, PropertyRule } from "~/metadata/orchestration"
-import { exportPropertyToJSONSchema } from "~/metadata/orchestration/property/toJSONSchema"
-import { MetadataItemRule } from "~/metadata/orchestration/property/types"
-import { mockContextFromXML } from "~/tests/mockContext"
+import { importPropertyFromXML, PropertyRule } from ".."
+import {
+  createJSONSchemaExportContext,
+  getJSONSchemaIdentityExporter,
+} from "../jsonSchemaRefs"
+import { exportPropertyToJSONSchema } from "../property/toJSONSchema"
+import type { MetadataItemRule } from "../property/types"
+import { mockContextFromXML } from "../../../tests/mockContext"
 import { registerMetadataItemCollectionRule } from "./ruleFactory"
 
 // Минимальное правило одиночного элемента для тестов коллекции.
@@ -145,7 +150,7 @@ describe("registerMetadataItemCollectionRule default toJSONSchema", () => {
 
   it("exports record schema for record YAML collections", () => {
     const schema = exportPropertyToJSONSchema({ context, rule, value: undefined })
-    const compiled = TypeCompiler.Compile(schema!)
+    const compiled = compileValidationSchema(schema!)
 
     expect(compiled.Check({ A: { name: "A" } })).toBe(true)
     expect(compiled.Check([{ name: "A" }])).toBe(false)
@@ -153,7 +158,7 @@ describe("registerMetadataItemCollectionRule default toJSONSchema", () => {
 
   it("exports array schema for yamlAsArray collections", () => {
     const schema = exportPropertyToJSONSchema({ context, rule: arrayRule, value: undefined })
-    const compiled = TypeCompiler.Compile(schema!)
+    const compiled = compileValidationSchema(schema!)
 
     expect(compiled.Check([{ name: "A" }])).toBe(true)
     expect(compiled.Check({ A: { name: "A" } })).toBe(false)
@@ -161,9 +166,112 @@ describe("registerMetadataItemCollectionRule default toJSONSchema", () => {
 
   it("exports array schema inside recursive yamlAsArray collections", () => {
     const schema = exportPropertyToJSONSchema({ context, rule: recursiveArrayRule, value: undefined })
-    const compiled = TypeCompiler.Compile(schema!)
+    const compiled = compileValidationSchema(schema!)
 
     expect(compiled.Check([{ name: "A", children: [] }])).toBe(true)
     expect(compiled.Check([{ name: "A", children: { B: {} } }])).toBe(false)
+  })
+})
+
+describe("registerMetadataItemCollectionRule JSON Schema refs", () => {
+  const context = {
+    defaultLanguage: "ru",
+    version: "2.20",
+  } as const
+
+  it("registers record ref schema for metadata collections by default", () => {
+    registerMetadataItemCollectionRule({
+      propertyType: "TestRefCollection" as any,
+      itemRule: TestCollectionItemRules,
+      xmlElement: "Item",
+    })
+
+    const schema = exportPropertyToJSONSchema({
+      context: createJSONSchemaExportContext(context, "externalRefs"),
+      rule: { type: "TestRefCollection" as any },
+      value: undefined,
+    })
+
+    expect(schema).toEqual({
+      type: "object",
+      additionalProperties: { $ref: "nkdk://schema/TestCollectionItem" },
+    })
+  })
+
+  it("registers array ref schema when yamlAsArray is true", () => {
+    registerMetadataItemCollectionRule({
+      propertyType: "TestRefArrayCollection" as any,
+      itemRule: TestCollectionItemRules,
+      xmlElement: "Item",
+      yamlAsArray: true,
+    })
+
+    const schema = exportPropertyToJSONSchema({
+      context: createJSONSchemaExportContext(context, "externalRefs"),
+      rule: { type: "TestRefArrayCollection" as any },
+      value: undefined,
+    })
+
+    expect(schema).toEqual({
+      type: "array",
+      items: { $ref: "nkdk://schema/TestCollectionItem" },
+    })
+  })
+
+  it("uses explicit schemaName for collection item refs", () => {
+    registerMetadataItemCollectionRule({
+      propertyType: "TestExplicitRefCollection" as any,
+      itemRule: TestCollectionItemRules,
+      xmlElement: "Item",
+      schemaName: "ExplicitCollectionItem",
+    })
+
+    const schema = exportPropertyToJSONSchema({
+      context: createJSONSchemaExportContext(context, "externalRefs"),
+      rule: { type: "TestExplicitRefCollection" as any },
+      value: undefined,
+    })
+
+    expect(schema).toEqual({
+      type: "object",
+      additionalProperties: { $ref: "nkdk://schema/ExplicitCollectionItem" },
+    })
+  })
+
+  it("registers direct schema ref for custom collection schemas", () => {
+    registerMetadataItemCollectionRule({
+      propertyType: "TestCustomSchemaCollection" as any,
+      itemRule: TestCollectionItemRules,
+      xmlElement: "Item",
+      schemaName: "CustomCollectionSchema",
+      schemaShape: "schema",
+      toJSONSchema: () =>
+        Type.Array(
+          Type.Object(
+            {
+              custom: Type.Literal("yes"),
+            },
+            { additionalProperties: false }
+          )
+        ),
+    })
+
+    const schema = exportPropertyToJSONSchema({
+      context: createJSONSchemaExportContext(context, "externalRefs"),
+      rule: { type: "TestCustomSchemaCollection" as any },
+      value: undefined,
+    })
+    const identityExporter = getJSONSchemaIdentityExporter("CustomCollectionSchema")
+
+    expect(schema).toEqual({ $ref: "nkdk://schema/CustomCollectionSchema" })
+    expect(identityExporter?.({ context })).toMatchObject({
+      type: "array",
+      items: {
+        type: "object",
+        properties: {
+          custom: { const: "yes" },
+        },
+      },
+    })
   })
 })

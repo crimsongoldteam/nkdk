@@ -1,14 +1,11 @@
-import { Type } from "@sinclair/typebox"
-import { ConfigurationContext } from "~/metadata/context/types"
-import { registerTypeRule } from "~/metadata/orchestration/property/typeRuleRegistry"
-import { PropertyRule } from "~/metadata/orchestration/property/types"
+import { Type } from "typebox"
+import { ConfigurationContext } from "../../../context/types"
+import { registerTypeRule } from "../../../orchestration/property/typeRuleRegistry"
+import type { PropertyRule } from "../../../orchestration/property/types"
 
-export const DATA_COMPOSITION_SCHEMA_DATA_SET_FIELD_KIND_FIELD =
-  "ПолеНабораДанныхСхемыКомпоновкиДанных"
-export const DATA_COMPOSITION_SCHEMA_DATA_SET_FIELD_KIND_FOLDER =
-  "ПапкаПолейНабораДанныхСхемыКомпоновкиДанных"
-export const DATA_COMPOSITION_SCHEMA_DATA_SET_FIELD_KIND_NESTED_DATA_SET =
-  "ВложенныйНаборДанныхСхемыКомпоновкиДанных"
+export const DATA_COMPOSITION_SCHEMA_DATA_SET_FIELD_KIND_FIELD = "ПолеНабораДанныхСхемыКомпоновкиДанных"
+export const DATA_COMPOSITION_SCHEMA_DATA_SET_FIELD_KIND_FOLDER = "ПапкаПолейНабораДанныхСхемыКомпоновкиДанных"
+export const DATA_COMPOSITION_SCHEMA_DATA_SET_FIELD_KIND_NESTED_DATA_SET = "ВложенныйНаборДанныхСхемыКомпоновкиДанных"
 
 export const DATA_COMPOSITION_SCHEMA_DATA_SET_FIELD_KINDS = [
   DATA_COMPOSITION_SCHEMA_DATA_SET_FIELD_KIND_FIELD,
@@ -16,8 +13,7 @@ export const DATA_COMPOSITION_SCHEMA_DATA_SET_FIELD_KINDS = [
   DATA_COMPOSITION_SCHEMA_DATA_SET_FIELD_KIND_NESTED_DATA_SET,
 ] as const
 
-export type DataCompositionSchemaDataSetFieldKind =
-  (typeof DATA_COMPOSITION_SCHEMA_DATA_SET_FIELD_KINDS)[number]
+export type DataCompositionSchemaDataSetFieldKind = (typeof DATA_COMPOSITION_SCHEMA_DATA_SET_FIELD_KINDS)[number]
 
 const KIND_TO_XSI_TYPE: Record<DataCompositionSchemaDataSetFieldKind, string> = {
   [DATA_COMPOSITION_SCHEMA_DATA_SET_FIELD_KIND_FIELD]: "dcssch:DataSetFieldField",
@@ -91,7 +87,11 @@ export const getDataCompositionSchemaDataSetFieldKind = (
 
 registerTypeRule("DataCompositionSchemaDataSetFieldKind", "importFromXML", dataCompositionSchemaDataSetFieldKindFromXML)
 registerTypeRule("DataCompositionSchemaDataSetFieldKind", "exportToXML", dataCompositionSchemaDataSetFieldKindToXML)
-registerTypeRule("DataCompositionSchemaDataSetFieldKind", "importFromYAML", dataCompositionSchemaDataSetFieldKindFromYAML)
+registerTypeRule(
+  "DataCompositionSchemaDataSetFieldKind",
+  "importFromYAML",
+  dataCompositionSchemaDataSetFieldKindFromYAML
+)
 registerTypeRule("DataCompositionSchemaDataSetFieldKind", "exportToYAML", dataCompositionSchemaDataSetFieldKindToYAML)
 registerTypeRule("DataCompositionSchemaDataSetFieldKind", "exportToJSONSchema", () =>
   Type.Union([

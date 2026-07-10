@@ -1,12 +1,15 @@
-import { TSchema, Type } from "@sinclair/typebox"
-import { exportI8nTextToJSONSchema } from "~/metadata/commonObjects/i8nText/toJSONSchema"
-import type { ConfigurationContext } from "~/metadata/context/types"
-import { ExportToJSONSchemaFn, registerTypeRule } from "~/metadata/orchestration"
-import type { PropertyRule } from "~/metadata/orchestration/property/types"
+import { TSchema, Type } from "typebox"
+import { exportI8nTextToJSONSchema } from "../../i8nText/toJSONSchema"
+import type { ConfigurationContext } from "../../../context/types"
+import { ExportToJSONSchemaFn, registerTypeRule } from "../../../orchestration"
+import type { PropertyRule } from "../../../orchestration/property/types"
 import { exportDcsMetadataValueToJSONSchema } from "../dcsMetadataValue/toJSONSchema"
 import type { DcsMetadataValuePropertyRule } from "../dcsMetadataValue/types"
 
-const valueRule = { type: "MetadataDcsMetadataValue", valueType: "Primitive" } as const satisfies DcsMetadataValuePropertyRule
+const valueRule = {
+  type: "MetadataDcsMetadataValue",
+  valueType: "Primitive",
+} as const satisfies DcsMetadataValuePropertyRule
 const presentationRule = { type: "DcsLocalStringType" } as const satisfies PropertyRule
 
 export const exportDcsAvailableValuesToJSONSchema: ExportToJSONSchemaFn = ({ context }): TSchema =>

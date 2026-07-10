@@ -1,8 +1,8 @@
-import { TypeCompiler } from "@sinclair/typebox/compiler"
+import { compileValidationSchema } from "./../../validation/compileValidationSchema"
 import { describe, expect, it } from "vitest"
 import { ChoiceParametersJSONSchema } from "./types"
 
-const compiled = TypeCompiler.Compile(ChoiceParametersJSONSchema)
+const compiled = compileValidationSchema(ChoiceParametersJSONSchema)
 
 describe("ChoiceParametersJSONSchema", () => {
   it("accepts YAML parser null for an empty choice parameter key", () => {
@@ -21,10 +21,7 @@ describe("ChoiceParametersJSONSchema", () => {
     expect(
       compiled.Check({
         "Отбор.ТипДоговора": {
-          Значение: [
-            "Перечисление.ТипыДоговоров.СПоставщиком",
-            "Перечисление.ТипыДоговоров.СКомитентом",
-          ],
+          Значение: ["Перечисление.ТипыДоговоров.СПоставщиком", "Перечисление.ТипыДоговоров.СКомитентом"],
         },
       })
     ).toBe(true)

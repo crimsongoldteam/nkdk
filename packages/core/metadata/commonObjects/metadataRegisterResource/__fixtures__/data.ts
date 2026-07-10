@@ -1,8 +1,5 @@
-import {
-  MetadataRegisterResources,
-  MetadataRegisterResourcesYAML,
-} from "~/metadata/commonObjects/metadataRegisterResource/types"
-import { explicitYAMLString } from "~/yaml/explicitString"
+import { MetadataRegisterResources, MetadataRegisterResourcesYAML } from "../types"
+import { explicitYAMLString } from "../../../../yaml/explicitString"
 
 export const resourcesFromXML: MetadataRegisterResources = [
   {
@@ -49,8 +46,7 @@ export const resourcesFromXML: MetadataRegisterResources = [
     choiceHistoryOnInput: "DontUse",
     fullTextSearch: "DontUse",
     binaryDataStorageLocationUse: "DontUse",
-    binaryDataStorageLocationUseField:
-      "InformationRegister.Регистр.Attribute.ИспользоватьХранилищеДвоичныхДанных",
+    binaryDataStorageLocationUseField: "InformationRegister.Регистр.Attribute.ИспользоватьХранилищеДвоичныхДанных",
     objectBelonging: "Native",
   },
 ]

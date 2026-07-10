@@ -1,10 +1,10 @@
 import { describe, expect, it } from "vitest"
-import { PropertyRule } from "~/metadata/orchestration"
-import { testExportPropertyToYAML } from "~/tests/property/exportPropertyToYAML"
-import { testImportPropertyFromYAML } from "~/tests/property/importPropertyFromYAML"
+import { PropertyRule } from "../../orchestration"
+import { testExportPropertyToYAML } from "../../../tests/property/exportPropertyToYAML"
+import { testImportPropertyFromYAML } from "../../../tests/property/importPropertyFromYAML"
 import { border, borderYAML } from "./__fixtures__/border"
 import { color, colorYAML } from "./__fixtures__/color"
-import { font, fontYAML } from "./__fixtures__/font"
+import { fontFromCompactYAML, fontYAML } from "./__fixtures__/font"
 
 const rule: PropertyRule = { type: "MetadataStyleItem", yaml: "ЭлементСтиля" }
 
@@ -14,13 +14,18 @@ describe("import MetadataStyleItem from YAML", () => {
     expect(result).toBeUndefined()
   })
 
+  it("imports compact font fixture", () => {
+    const result = testImportPropertyFromYAML({ rule, value: fontYAML })
+    expect(result).toEqual(fontFromCompactYAML)
+  })
+
   it.each([
-    ["font", fontYAML, font],
     ["color", colorYAML, color],
     ["border", borderYAML, border],
   ] as const)("imports %s fixture", (_name, value, expected) => {
     const result = testImportPropertyFromYAML({ rule, value })
-    expect(result).toEqual({ ...expected, name: undefined, uuid: undefined })
+    const { synonym: _synonym, ...expectedWithoutSynonym } = expected
+    expect(result).toEqual({ ...expectedWithoutSynonym, name: undefined, uuid: undefined })
   })
 
   it("round-trip: font — import затем export даёт тот же YAML (parsed)", () => {

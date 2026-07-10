@@ -1,5 +1,5 @@
 import { describe, expect, it } from "vitest"
-import { mockContext } from "~/tests/mockContext"
+import { mockContext } from "../../../tests/mockContext"
 import { importStandardPeriodFromXML } from "./fromXML"
 import { importStandardPeriodFromYAML } from "./fromYAML"
 import { exportStandardPeriodToXML } from "./toXML"

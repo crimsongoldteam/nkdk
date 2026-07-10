@@ -2,10 +2,10 @@ import { describe, expect, it } from "vitest"
 import fs from "fs"
 import os from "os"
 import { join } from "path"
-import { syncAppliedObjectToXML } from "~/metadata/orchestration/appliedObject/syncToXML"
-import { testSyncAppliedObjectToXML } from "~/tests/appliedObject"
-import { mockContextToXML } from "~/tests/mockContext"
-import { buildChildFormCurrentXMLPath } from "~/metadata/commonObjects/childFormNames/syncExternalToXML"
+import { syncAppliedObjectToXML } from "../../orchestration/appliedObject/syncToXML"
+import { testSyncAppliedObjectToXML } from "../../../tests/appliedObject"
+import { mockContextToXML } from "../../../tests/mockContext"
+import { buildChildFormCurrentXMLPath } from "../../commonObjects/childFormNames/syncExternalToXML"
 import { createConfigDumpInfoExternalMetadataCollector } from "../configDumpInfo/externalMetadataCollector"
 import { MetadataExternalDataSourceRules } from "./rules"
 
@@ -200,10 +200,7 @@ describe("syncAppliedObjectToXML — MetadataExternalDataSource", () => {
         ИмяВИсточникеДанных: ИзмерениеSQL
         ОсновнаяФормаСписка: ФормаСписка`
     )
-    await write(
-      join(objectDir, "Кубы/Куб/ТаблицыИзмерений/Измерение/Формы/ФормаСписка/Форма.yaml"),
-      minimalFormYAML
-    )
+    await write(join(objectDir, "Кубы/Куб/ТаблицыИзмерений/Измерение/Формы/ФормаСписка/Форма.yaml"), minimalFormYAML)
 
     await syncAppliedObjectToXML({
       rule: MetadataExternalDataSourceRules,
@@ -251,10 +248,7 @@ describe("syncAppliedObjectToXML — MetadataExternalDataSource", () => {
       `ИмяВИсточникеДанных: АИзмерениеSQL
 ОсновнаяФормаСписка: ФормаСписка`
     )
-    await write(
-      join(objectDir, "Кубы/АКуб/ТаблицыИзмерений/АИзмерение/Формы/ФормаСписка/Форма.yaml"),
-      minimalFormYAML
-    )
+    await write(join(objectDir, "Кубы/АКуб/ТаблицыИзмерений/АИзмерение/Формы/ФормаСписка/Форма.yaml"), minimalFormYAML)
 
     await syncAppliedObjectToXML({
       rule: MetadataExternalDataSourceRules,
@@ -307,9 +301,11 @@ describe("syncAppliedObjectToXML — MetadataExternalDataSource", () => {
       path: "MetadataExternalDataSource.ВнешнийИсточник",
       externalMetadata: { segment: "ExternalDataSource", placement: "rootEntry" },
     })
-    ;(context.exportToXML as typeof context.exportToXML & {
-      externalMetadataCollector: ReturnType<typeof createConfigDumpInfoExternalMetadataCollector>
-    }).externalMetadataCollector = createConfigDumpInfoExternalMetadataCollector(context.exportToXML.configDumpInfo)
+    ;(
+      context.exportToXML as typeof context.exportToXML & {
+        externalMetadataCollector: ReturnType<typeof createConfigDumpInfoExternalMetadataCollector>
+      }
+    ).externalMetadataCollector = createConfigDumpInfoExternalMetadataCollector(context.exportToXML.configDumpInfo)
 
     await write(join(objectDir, "Свойства.yaml"), "Синоним: Синоним")
     await write(

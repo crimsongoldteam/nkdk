@@ -1,5 +1,5 @@
-import { MetadataFormChoiceListValue, MetadataFormChoiceListValueYAML } from "~/metadata/commonObjects/metadataValue/types"
-import { explicitYAMLString } from "~/yaml/explicitString"
+import { MetadataFormChoiceListValue, MetadataFormChoiceListValueYAML } from "../../types"
+import { explicitYAMLString } from "../../../../../yaml/explicitString"
 
 export const withStringValue: MetadataFormChoiceListValue = {
   type: "formChoiceListDesTimeValue",

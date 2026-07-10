@@ -1,6 +1,6 @@
-import { ConfigurationContext } from "~/metadata/context/types"
-import { isMetadataRootName, rootFromYAML } from "~/metadata/commonObjects/metadataTargets"
-import { DataCompositionComparisonTypeFromYAML } from "~/metadata/systemEnumerations/types"
+import { ConfigurationContext } from "../../../context/types"
+import { isMetadataRootName, rootFromYAML } from "../../metadataTargets"
+import { DataCompositionComparisonTypeFromYAML } from "../../../systemEnumerations/types"
 import { I8nText } from "../../i8nText/types"
 import { importI8nTextFromYAML } from "../../i8nText/fromYAML"
 import { restoreExplicitMetadataValueYAMLString } from "../explicitYAMLString"
@@ -15,13 +15,12 @@ const importPresentationFromYAML = (
   return importI8nTextFromYAML({ context, rule: { type: "I8nText" }, value })
 }
 
-const importExplicitChoiceListValueFromYAML = (
-  value: unknown
-): MetadataFormChoiceListValue["value"] | undefined => {
+const importExplicitChoiceListValueFromYAML = (value: unknown): MetadataFormChoiceListValue["value"] | undefined => {
   if (typeof value !== "object" || value === null || Array.isArray(value)) return undefined
   const data = value as Record<string, unknown>
   if (data.Тип !== "ВидСравненияКомпоновкиДанных" || typeof data.Значение !== "string") return undefined
-  const enumValue = DataCompositionComparisonTypeFromYAML[data.Значение as keyof typeof DataCompositionComparisonTypeFromYAML]
+  const enumValue =
+    DataCompositionComparisonTypeFromYAML[data.Значение as keyof typeof DataCompositionComparisonTypeFromYAML]
   if (enumValue === undefined) return undefined
   return {
     type: "DataCompositionComparisonType",

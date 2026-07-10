@@ -1,14 +1,14 @@
-import { I8nTextXML } from "~/metadata/commonObjects/i8nText/types"
-import { InternalInfoItemsXML } from "~/metadata/commonObjects/internalInfo/types"
+import { I8nTextXML } from "../../commonObjects/i8nText/types"
+import { InternalInfoItemsXML } from "../../commonObjects/internalInfo/types"
 import {
   MetadataIntegrationServiceChannels,
   MetadataIntegrationServiceChannelsXML,
   MetadataIntegrationServiceChannelsYAML,
-} from "~/metadata/commonObjects/metadataIntegrationServiceChannel/types"
-import { registerMetadataItemRule } from "~/metadata/orchestration"
-import { MetadataTypeByRule } from "~/metadata/orchestration/metadataItem/element"
-import { YAMLTypeByRule } from "~/metadata/orchestration/metadataItem/yaml"
-import * as SE from "~/metadata/systemEnumerations/types"
+} from "../../commonObjects/metadataIntegrationServiceChannel/types"
+import { registerMetadataItemRule } from "../../orchestration"
+import { MetadataTypeByRule } from "../../orchestration/metadataItem/element"
+import { YAMLTypeByRule } from "../../orchestration/metadataItem/yaml"
+import * as SE from "../../systemEnumerations/types"
 import { MetadataIntegrationServiceRules } from "./rules"
 
 export type MetadataIntegrationService = MetadataTypeByRule<typeof MetadataIntegrationServiceRules>

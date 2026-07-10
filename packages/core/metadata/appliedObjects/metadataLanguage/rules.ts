@@ -1,67 +1,66 @@
-import { V8_MDCLASSES_ROOT } from "~/metadata/orchestration/appliedObject/presets"
-import { MetadataItemRule } from "~/metadata/orchestration/property/types"
+import { i8nTextRule } from "../../commonObjects/i8nText/types"
+import { stringRule } from "../../commonObjects/string/types"
+import { uuidRule } from "../../commonObjects/uuid/types"
+import { xmlRootRule } from "../../commonObjects/xmlRoot/types"
+import { V8_MDCLASSES_ROOT } from "../../orchestration/appliedObject/presets"
+import type { MetadataItemRule } from "../../orchestration/property/types"
+import { systemEnumerationRule } from "../../systemEnumerations/types"
 
 const properties = ["Properties"]
 
 export const MetadataLanguageRules = {
   itemType: "MetadataLanguage",
+  metadataTargetOwner: { kind: "self", root: "Language" },
   itemTypePrefix: "Язык",
   xmlDir: "Languages",
   properties: {
-    xmlRoot: {
-      type: "XMLRoot",
+    xmlRoot: xmlRootRule({
       container: "Language",
       rootAttributes: V8_MDCLASSES_ROOT,
       forReferenceOnly: true,
       toYAML: false,
       fromYAML: false,
-    },
-    uuid: {
-      type: "uuid",
+    }),
+    uuid: uuidRule({
       xml: "_uuid",
       forReferenceOnly: true,
       xmlParents: [],
-    },
-    name: {
-      type: "string",
+    }),
+    name: stringRule({
       xmlParents: properties,
       required: true,
       defaultValue: ({ name }: { name?: string }) => name,
-    },
-    synonym: {
+    }),
+    synonym: i8nTextRule({
       yaml: "Синоним",
-      type: "I8nText",
       xmlParents: properties,
       defaultValueXMLRaw: "",
-    },
-    comment: {
+      excludeIfEqualNameYAML: true,
+    }),
+    comment: stringRule({
       yaml: "Комментарий",
-      type: "string",
       xmlParents: properties,
       defaultValueXMLRaw: "",
-    },
-    languageCode: {
+    }),
+    languageCode: stringRule({
       yaml: "КодЯзыка",
       xml: "LanguageCode",
-      type: "string",
       required: true,
       xmlParents: properties,
-    },
-    objectBelonging: {
+    }),
+    objectBelonging: systemEnumerationRule({
       yaml: "ПринадлежностьОбъекта",
       xml: "ObjectBelonging",
-      type: "SystemEnumeration",
       typeSE: "ObjectBelonging",
       xmlParents: properties,
       toYAML: false,
       fromYAML: false,
       implicitValueYAML: "Native",
-    },
-    extendedConfigurationObject: {
+    }),
+    extendedConfigurationObject: stringRule({
       xml: "ExtendedConfigurationObject",
-      type: "string",
       xmlParents: properties,
       runtimeOnly: true,
-    },
+    }),
   },
 } as const satisfies MetadataItemRule

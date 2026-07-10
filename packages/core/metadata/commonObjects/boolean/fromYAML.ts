@@ -1,7 +1,7 @@
-import { PropertyRule } from "~/metadata/orchestration/property/types"
-import { registerTypeRule } from "~/metadata/orchestration/property/typeRuleRegistry"
+import type { PropertyRule } from "../../orchestration/property/types"
+import { registerTypeRule } from "../../orchestration/property/typeRuleRegistry"
 import { ConfigurationContext } from "../../context/types"
-import { StringboolYAML } from "./types"
+import type { StringboolYAML } from "./types"
 
 export const importBooleanFromYAML = (
   _context: ConfigurationContext,

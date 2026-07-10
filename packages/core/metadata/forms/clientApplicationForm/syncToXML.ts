@@ -1,20 +1,16 @@
 import fs from "fs"
 import { join } from "path"
-import { ConfigurationContextFromXML, ConfigurationContextWithExportToXML } from "~/metadata/context/types"
-import { importClientApplicationFormFromYAML } from "~/metadata/forms/clientApplicationForm/fromYAML"
-import { exportClientApplicationFormToXML, exportFormMetadataToXML } from "~/metadata/forms/clientApplicationForm/toXML"
-import type { ExternalMetadataContextItem } from "~/metadata/orchestration/externalMetadata/types"
-import type {
-  ClientApplicationFormXML,
-  ClientApplicationFormYAML,
-  FormMetadataXML,
-} from "~/metadata/forms/clientApplicationForm/types"
-import { xmlExport } from "~/xml/export/exporter"
-import { importFromYAML } from "~/yaml/import"
+import { ConfigurationContextFromXML, ConfigurationContextWithExportToXML } from "../../context/types"
+import { importClientApplicationFormFromYAML } from "./fromYAML"
+import { exportClientApplicationFormToXML, exportFormMetadataToXML } from "./toXML"
+import type { ExternalMetadataContextItem } from "../../orchestration/externalMetadata/types"
+import type { ClientApplicationFormXML, ClientApplicationFormYAML, FormMetadataXML } from "./types"
+import { xmlExport } from "../../../xml/export/exporter"
+import { importFromYAML } from "../../../yaml/import"
 import { readFormFromXML } from "./convertFromXML"
 import { copyFormItemExternalFilesToXML } from "./externalItemFiles"
 import { copyExistingRawFile, copyRawDirectoryFiles } from "./externalRawFiles"
-import type { XmlWriteManifest } from "~/metadata/orchestration/xmlWriteManifest"
+import type { XmlWriteManifest } from "../../orchestration/xmlWriteManifest"
 
 export const syncFormToXML = async (params: {
   context: ConfigurationContextWithExportToXML
@@ -55,7 +51,7 @@ export const syncFormToXML = async (params: {
       })
     : undefined
 
-  const form = importClientApplicationFormFromYAML(contextWithFormExternalMetadata, yamlObj, referenceForm)
+  const form = importClientApplicationFormFromYAML(contextWithFormExternalMetadata, yamlObj, referenceForm, formName)
   const isOrdinaryForm = form.formType === "Ordinary"
   const referenceHasFormXML = effectiveReferenceDir
     ? hasReferenceFormXML({ referenceDir: effectiveReferenceDir, formName })

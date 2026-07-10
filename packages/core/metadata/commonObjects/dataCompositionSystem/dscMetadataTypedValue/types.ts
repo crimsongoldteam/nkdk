@@ -1,9 +1,15 @@
-import { Static, Type } from "@sinclair/typebox"
-import { BasePropertyRule } from "~/metadata/orchestration"
+import {
+  definePropertyRule as defineWidePropertyRule,
+  type ExactRuleParams as WideExactRuleParams,
+} from "../../ruleBuilder"
+import type { PropertyRule as WidePropertyRuleBase } from "../../../orchestration/property/types"
+import { Type } from "typebox"
+import { BasePropertyRule } from "../../../orchestration"
 import { BooleanJSONSchema } from "../../boolean/types"
 import {
   StandartBeginningDate,
   StandartBeginningDateJSONSchema,
+  StandartBeginningDateYAML,
   StandartBeginningDateXML,
 } from "../../standartBeginningDate/types"
 
@@ -60,7 +66,7 @@ export const DcsMetadataTypedValueJSONSchema = Type.Union([
   StandartBeginningDateJSONSchema,
 ])
 
-export type DcsMetadataTypedValueYAML = Static<typeof DcsMetadataTypedValueJSONSchema>
+export type DcsMetadataTypedValueYAML = "Порядок" | "СписокЗначений" | string | number | StandartBeginningDateYAML
 export type DcsMetadataTypedValueNilArrayItemYAML = Record<string, never>
 export type DcsMetadataTypedValueArrayItemYAML = DcsMetadataTypedValueYAML | DcsMetadataTypedValueNilArrayItemYAML
 
@@ -120,3 +126,15 @@ export type DcsMetadataTypedValueXML =
   | DcsMetadataTypedValueUndefinedTypeXML
   | DcsMetadataTypedValueNilXML
   | StandartBeginningDateXML
+
+export interface DcsMetadataTypedValueWidePropertyRule extends WidePropertyRuleBase {
+  type: "DcsMetadataTypedValue"
+}
+
+export type DcsMetadataTypedValueRuleParams = Omit<DcsMetadataTypedValueWidePropertyRule, "type">
+
+export function dcsMetadataTypedValueRule<const Params extends DcsMetadataTypedValueRuleParams>(
+  params: WideExactRuleParams<DcsMetadataTypedValueRuleParams, Params>
+): Readonly<{ type: "DcsMetadataTypedValue" } & Params> {
+  return defineWidePropertyRule("DcsMetadataTypedValue", params)
+}

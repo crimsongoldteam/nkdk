@@ -1,4 +1,9 @@
-import * as SE from "~/metadata/systemEnumerations/types"
+import {
+  definePropertyRule as defineWidePropertyRule,
+  type ExactRuleParams as WideExactRuleParams,
+} from "../ruleBuilder"
+import type { PropertyRule as WidePropertyRuleBase } from "../../orchestration/property/types"
+import * as SE from "../../systemEnumerations/types"
 
 export interface CommonAttributeContentItem {
   metadata: string
@@ -25,3 +30,15 @@ export interface CommonAttributeContentItemYAML {
 }
 
 export type CommonAttributeContentYAML = CommonAttributeContentItemYAML[]
+
+export interface CommonAttributeContentWidePropertyRule extends WidePropertyRuleBase {
+  type: "CommonAttributeContent"
+}
+
+export type CommonAttributeContentRuleParams = Omit<CommonAttributeContentWidePropertyRule, "type">
+
+export function commonAttributeContentRule<const Params extends CommonAttributeContentRuleParams>(
+  params: WideExactRuleParams<CommonAttributeContentRuleParams, Params>
+): Readonly<{ type: "CommonAttributeContent" } & Params> {
+  return defineWidePropertyRule("CommonAttributeContent", params)
+}

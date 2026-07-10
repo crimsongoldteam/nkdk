@@ -1,5 +1,5 @@
 import { describe, expect, it } from "vitest"
-import { testConvertAppliedObjectFromXML } from "~/tests/appliedObject"
+import { testConvertAppliedObjectFromXML } from "../../../tests/appliedObject"
 import { readSessionParameterYAML } from "./__fixtures__/sync/data"
 import { MetadataSessionParameterRules } from "./rules"
 

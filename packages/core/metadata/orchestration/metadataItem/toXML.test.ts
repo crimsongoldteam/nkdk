@@ -1,8 +1,8 @@
 import { describe, expect, it } from "vitest"
-import "~/metadata/commonObjects/i8nText/toXML"
-import "~/metadata/commonObjects/metadataRegisterDimension/register"
-import { dimensionsFromXML } from "~/metadata/commonObjects/metadataRegisterDimension/__fixtures__/data"
-import { mockContextToXML } from "~/tests/mockContext"
+import "../../commonObjects/i8nText/toXML"
+import "../../commonObjects/metadataRegisterDimension/register"
+import { dimensionsFromXML } from "../../commonObjects/metadataRegisterDimension/__fixtures__/data"
+import { mockContextToXML } from "../../../tests/mockContext"
 import { MetadataItemRule } from "../property/types"
 import { exportMetadataItemToXML } from "./toXML"
 

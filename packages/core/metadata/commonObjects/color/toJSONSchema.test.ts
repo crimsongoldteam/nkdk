@@ -1,11 +1,11 @@
-import { TypeCompiler } from "@sinclair/typebox/compiler"
+import { compileValidationSchema } from "./../../validation/compileValidationSchema"
 import { describe, expect, it } from "vitest"
 import { ColorJSONSchema } from "./types"
 
-const compiled = TypeCompiler.Compile(ColorJSONSchema)
+const compiled = compileValidationSchema(ColorJSONSchema)
 
 const errorsFor = (value: unknown): string[] => {
-  return [...compiled.Errors(value)].map((error) => `${error.path}: ${error.message}`)
+  return compiled.Errors(value)[1].map((error) => `${error.instancePath}: ${error.message}`)
 }
 
 describe("ColorJSONSchema", () => {
@@ -32,6 +32,6 @@ describe("ColorJSONSchema", () => {
   })
 
   it("rejects XML auto color", () => {
-    expect(errorsFor("auto")).toEqual([": Expected union value"])
+    expect(errorsFor("auto")).not.toEqual([])
   })
 })

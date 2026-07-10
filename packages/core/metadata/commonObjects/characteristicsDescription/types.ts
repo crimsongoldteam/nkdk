@@ -1,13 +1,18 @@
-import { Type } from "@sinclair/typebox"
-import { MetadataField, MetadataFieldJSONSchema, MetadataFieldYAML } from "~/metadata/commonObjects/metadataField/types"
-import { MetadataItemLink, MetadataItemLinkYAML } from "~/metadata/commonObjects/metadataRef/types"
+import {
+  definePropertyRule as defineWidePropertyRule,
+  type ExactRuleParams as WideExactRuleParams,
+} from "../ruleBuilder"
+import type { PropertyRule as WidePropertyRuleBase } from "../../orchestration/property/types"
+import { Type } from "typebox"
+import { MetadataField, MetadataFieldJSONSchema, MetadataFieldYAML } from "../metadataField/types"
+import { MetadataItemLink, MetadataItemLinkYAML } from "../metadataRef/types"
 import {
   MetadataValue,
   MetadataValueJSONSchema,
   MetadataValuePropertyRule,
   MetadataValueXML,
   MetadataValueYAML,
-} from "~/metadata/commonObjects/metadataValue/types"
+} from "../metadataValue/types"
 
 export interface CharacteristicsDescription {
   itemType?: "CharacteristicsDescription"
@@ -79,3 +84,15 @@ export const CharacteristicsDescriptionJSONSchema = Type.Object({
 })
 export const CharacteristicsDescriptionsJSONSchema = Type.Array(CharacteristicsDescriptionJSONSchema)
 export type CharacteristicsDescriptionsYAML = CharacteristicsDescriptionYAML[]
+
+export interface CharacteristicsDescriptionsWidePropertyRule extends WidePropertyRuleBase {
+  type: "CharacteristicsDescriptions"
+}
+
+export type CharacteristicsDescriptionsRuleParams = Omit<CharacteristicsDescriptionsWidePropertyRule, "type">
+
+export function characteristicsDescriptionsRule<const Params extends CharacteristicsDescriptionsRuleParams>(
+  params: WideExactRuleParams<CharacteristicsDescriptionsRuleParams, Params>
+): Readonly<{ type: "CharacteristicsDescriptions" } & Params> {
+  return defineWidePropertyRule("CharacteristicsDescriptions", params)
+}

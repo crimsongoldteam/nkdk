@@ -1,12 +1,12 @@
-import { TypeCompiler } from "@sinclair/typebox/compiler"
+import { compileValidationSchema } from "./../../validation/compileValidationSchema"
 import { describe, expect, it } from "vitest"
-import { exportMetadataItemToJSONSchema } from "~/metadata/orchestration/metadataItem/toJSONSchema"
-import { mockContext } from "~/tests/mockContext"
+import { exportMetadataItemToJSONSchema } from "../../orchestration/metadataItem/toJSONSchema"
+import { mockContext } from "../../../tests/mockContext"
 import { MetadataTabularSectionRules } from "./rules"
 
 describe("MetadataTabularSection JSON Schema", () => {
   const compiled = () =>
-    TypeCompiler.Compile(
+    compileValidationSchema(
       exportMetadataItemToJSONSchema({
         context: mockContext,
         rule: MetadataTabularSectionRules,

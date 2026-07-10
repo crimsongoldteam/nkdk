@@ -1,10 +1,10 @@
-import { PropertyRule } from "~/metadata/orchestration/property/types"
-import { registerTypeRule } from "~/metadata/orchestration/property/typeRuleRegistry"
+import type { PropertyRule } from "../../orchestration/property/types"
+import { registerTypeRule } from "../../orchestration/property/typeRuleRegistry"
 import { ConfigurationContext } from "../../context/types"
 import { exportSystemEnumerationToYAMLDeprecated } from "../../systemEnumerations/toYAML"
 import * as SE from "../../systemEnumerations/types"
 import { formatMetadataTargetToYAML } from "../metadataTargets"
-import { Border, BorderYAML, borderStyleItemTarget } from "./types"
+import { borderStyleItemTarget, type Border, type BorderYAML } from "./types"
 
 export const exportBorderToYAML = (
   context: ConfigurationContext,

@@ -1,3 +1,8 @@
+import {
+  definePropertyRule as defineWidePropertyRule,
+  type ExactRuleParams as WideExactRuleParams,
+} from "../ruleBuilder"
+import type { PropertyRule as WidePropertyRuleBase } from "../../orchestration/property/types"
 export type MetadataRootName =
   | "Constant"
   | "Catalog"
@@ -81,6 +86,7 @@ export type MetadataTargetFilter =
   | { kind: "hasType"; type: MetadataTypeFilterValue }
   | { kind: "styleItemType"; values: readonly StyleItemTargetType[] }
   | { kind: "stringIndexedAttribute" }
+  | { kind: "inputByStringField" }
 
 export interface MetadataTargetOwner {
   root: MetadataRootName
@@ -172,3 +178,15 @@ export type MetadataTargetParseErrorCode =
 export type MetadataTargetParseResult =
   | { ok: true; canonical: string; target: ParsedMetadataTarget }
   | { ok: false; code: MetadataTargetParseErrorCode; message: string }
+
+export interface PictureWidePropertyRule extends WidePropertyRuleBase {
+  type: "Picture"
+}
+
+export type PictureRuleParams = Omit<PictureWidePropertyRule, "type">
+
+export function pictureRule<const Params extends PictureRuleParams>(
+  params: WideExactRuleParams<PictureRuleParams, Params>
+): Readonly<{ type: "Picture" } & Params> {
+  return defineWidePropertyRule("Picture", params)
+}

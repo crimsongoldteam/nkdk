@@ -1,12 +1,24 @@
-import { syncConfigurationToXML } from "@nakidka/core"
+import {
+  readXmlSyncState,
+  syncConfigurationIncrementallyToXML,
+  syncConfigurationToXML,
+  type ConfigurationSyncResult,
+  type XmlSyncState,
+} from "@nkdk/core"
 import { afterEach, beforeEach, describe, expect, it, vi } from "vitest"
 import { syncConfiguration } from "./sync"
 
 const mocks = vi.hoisted(() => ({
-  syncConfigurationToXML: vi.fn(async () => ({ succeeded: 0, failed: [] })),
+  readXmlSyncState: vi.fn(async (): Promise<XmlSyncState | undefined> => undefined),
+  syncConfigurationIncrementallyToXML: vi.fn(
+    async (): Promise<ConfigurationSyncResult> => ({ succeeded: 0, changedXmlFiles: [], failed: [] }),
+  ),
+  syncConfigurationToXML: vi.fn(async (): Promise<ConfigurationSyncResult> => ({ succeeded: 0, failed: [] })),
 }))
 
-vi.mock("@nakidka/core", () => ({
+vi.mock("@nkdk/core", () => ({
+  readXmlSyncState: mocks.readXmlSyncState,
+  syncConfigurationIncrementallyToXML: mocks.syncConfigurationIncrementallyToXML,
   syncConfigurationToXML: mocks.syncConfigurationToXML,
 }))
 
@@ -14,6 +26,9 @@ describe("sync command", () => {
   const originalExitCode = process.exitCode
 
   beforeEach(() => {
+    mocks.readXmlSyncState.mockClear()
+    mocks.readXmlSyncState.mockResolvedValue(undefined)
+    mocks.syncConfigurationIncrementallyToXML.mockClear()
     mocks.syncConfigurationToXML.mockClear()
   })
 
@@ -35,4 +50,55 @@ describe("sync command", () => {
     }))
   })
 
+  it("использует полный sync, если файла состояния нет", async () => {
+    vi.spyOn(process.stdout, "write").mockImplementation(() => true)
+    vi.spyOn(process.stderr, "write").mockImplementation(() => true)
+
+    await syncConfiguration("yaml", "xml")
+
+    expect(readXmlSyncState).toHaveBeenCalledWith("xml")
+    expect(syncConfigurationToXML).toHaveBeenCalledOnce()
+    expect(syncConfigurationIncrementallyToXML).not.toHaveBeenCalled()
+  })
+
+  it("не печатает изменённые XML-файлы при полном sync без changedXmlFiles", async () => {
+    const stdout = vi.spyOn(process.stdout, "write").mockImplementation(() => true)
+    vi.spyOn(process.stderr, "write").mockImplementation(() => true)
+    mocks.syncConfigurationToXML.mockResolvedValueOnce({ succeeded: 1, failed: [] })
+
+    await syncConfiguration("yaml", "xml")
+
+    expect(stdout).toHaveBeenCalledWith("Готово: 1 успешно, 0 с ошибкой\n")
+    expect(stdout).not.toHaveBeenCalledWith("Изменённые XML-файлы:\n")
+  })
+
+  it("использует инкрементальный sync, если файл состояния есть", async () => {
+    vi.spyOn(process.stdout, "write").mockImplementation(() => true)
+    vi.spyOn(process.stderr, "write").mockImplementation(() => true)
+    mocks.readXmlSyncState.mockResolvedValue({ version: 1, files: {} })
+
+    await syncConfiguration("yaml", "xml")
+
+    expect(syncConfigurationIncrementallyToXML).toHaveBeenCalledWith(expect.objectContaining({
+      inputDir: "yaml",
+      outputDir: "xml",
+    }))
+    expect(syncConfigurationToXML).not.toHaveBeenCalled()
+  })
+
+  it("печатает изменённые XML-файлы при инкрементальном sync", async () => {
+    const stdout = vi.spyOn(process.stdout, "write").mockImplementation(() => true)
+    vi.spyOn(process.stderr, "write").mockImplementation(() => true)
+    mocks.readXmlSyncState.mockResolvedValue({ version: 1, files: {} })
+    mocks.syncConfigurationIncrementallyToXML.mockResolvedValueOnce({
+      succeeded: 1,
+      changedXmlFiles: [{ path: "Catalogs/Товары/Forms/ФормаЭлемента.xml", change: "changed" }],
+      failed: [],
+    })
+
+    await syncConfiguration("yaml", "xml")
+
+    expect(stdout).toHaveBeenCalledWith("Изменённые XML-файлы:\n")
+    expect(stdout).toHaveBeenCalledWith("  изменён: Catalogs/Товары/Forms/ФормаЭлемента.xml\n")
+  })
 })

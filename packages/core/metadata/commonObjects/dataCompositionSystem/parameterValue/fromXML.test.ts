@@ -1,10 +1,10 @@
 import { describe, expect, it } from "vitest"
-import { PropertyRule } from "~/metadata/orchestration/property/types"
-import { testExportPropertyToYAML } from "~/tests/property/exportPropertyToYAML"
-import { testImportPropertyFromYAML } from "~/tests/property/importPropertyFromYAML"
-import { testImportPropertyFromXML } from "~/tests/property/importPropertyFromXML"
-import { exportToYAML } from "~/yaml/export"
-import { importFromYAML } from "~/yaml/import"
+import type { PropertyRule } from "../../../orchestration/property/types"
+import { testExportPropertyToYAML } from "../../../../tests/property/exportPropertyToYAML"
+import { testImportPropertyFromYAML } from "../../../../tests/property/importPropertyFromYAML"
+import { testImportPropertyFromXML } from "../../../../tests/property/importPropertyFromXML"
+import { exportToYAML } from "../../../../yaml/export"
+import { importFromYAML } from "../../../../yaml/import"
 import {
   nilSettingsParameterValue,
   nilSettingsParameterValueRule,

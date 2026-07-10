@@ -1,8 +1,8 @@
-import { TypeCompiler } from "@sinclair/typebox/compiler"
+import { compileValidationSchema } from "./../../validation/compileValidationSchema"
 import { describe, expect, it } from "vitest"
-import { exportMetadataItemToJSONSchema } from "~/metadata/orchestration/metadataItem/toJSONSchema"
-import { registerCoreMetadata } from "~/metadata/register"
-import { mockContext } from "~/tests/mockContext"
+import { exportMetadataItemToJSONSchema } from "../../orchestration/metadataItem/toJSONSchema"
+import { registerCoreMetadata } from "../../register"
+import { mockContext } from "../../../tests/mockContext"
 import { HomePageWorkAreaRules } from "./rules"
 
 import "./register"
@@ -12,7 +12,7 @@ registerCoreMetadata()
 describe("HomePageWorkArea JSON Schema", () => {
   it("accepts working area columns and item visibility", () => {
     const schema = exportMetadataItemToJSONSchema({ context: mockContext, rule: HomePageWorkAreaRules })
-    const compiled = TypeCompiler.Compile(schema)
+    const compiled = compileValidationSchema(schema)
 
     expect(
       compiled.Check({
@@ -44,7 +44,7 @@ describe("HomePageWorkArea JSON Schema", () => {
 
   it("rejects unknown column item properties", () => {
     const schema = exportMetadataItemToJSONSchema({ context: mockContext, rule: HomePageWorkAreaRules })
-    const compiled = TypeCompiler.Compile(schema)
+    const compiled = compileValidationSchema(schema)
 
     expect(
       compiled.Check({

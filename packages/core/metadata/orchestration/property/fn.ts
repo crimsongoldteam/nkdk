@@ -1,17 +1,21 @@
-import { TSchema } from "@sinclair/typebox"
+import { TSchema } from "typebox"
 import {
   ConfigurationContext,
   ConfigurationContextFromXML,
   ConfigurationContextWithExportToXML,
 } from "../../context/types"
-import type { MetadataTargetOwner } from "~/metadata/commonObjects/metadataTargets"
-import type { ProjectMetadataResolver } from "~/metadata/validation/projectMetadataResolver"
-import type { Diagnostic } from "~/metadata/validation/types"
-import type { YamlPath } from "~/metadata/validation/yamlLocations"
-import type { ParsedYaml } from "~/yaml/parseMetadataYaml"
+import type {
+  MetadataTargetConstraint,
+  MetadataTargetOwner,
+  ParsedMetadataTarget,
+  StyleItemTargetType,
+} from "../../commonObjects/metadataTargets"
+import type { Diagnostic } from "../../validation/types"
+import type { YamlPath } from "../../validation/yamlLocations"
+import type { ParsedYaml } from "../../../yaml/parseMetadataYaml"
 import type { XmlWriteManifest } from "../xmlWriteManifest"
 import { PropertyRuleType } from "./registry"
-import { MetadataItem, MetadataItemRule, PropertyRule } from "./types"
+import type { MetadataItem, MetadataItemRule, PropertyRule } from "./types"
 
 export type ExportToXMLFunction = (
   context: ConfigurationContextWithExportToXML,
@@ -85,9 +89,62 @@ export type ValidateMetadataTargetFunction = (params: {
   propRule: PropertyRule
   propertyName: string
   value: unknown
-  resolver: ProjectMetadataResolver
+  resolver: MetadataTargetValidationResolver
   owner?: MetadataTargetOwner
 }) => Diagnostic[]
+
+export interface MetadataTargetValidationResolver {
+  resolveObject(params: {
+    target: Extract<ParsedMetadataTarget, { kind: "object" }>
+    filters?: Extract<MetadataTargetConstraint, { kind: "object" }>["filters"]
+  }): MetadataTargetValidationResult
+  resolveMember(params: {
+    target: Extract<ParsedMetadataTarget, { kind: "member" }>
+    filters?: Extract<MetadataTargetConstraint, { kind: "member" }>["filters"]
+  }): MetadataTargetValidationResult
+  resolveValue(params: { target: Extract<ParsedMetadataTarget, { kind: "value" }> }): MetadataTargetValidationResult
+  resolveStyleItem(params: { name: string; expectedTypes: readonly StyleItemTargetType[] }): MetadataTargetValidationResult
+  resolveCommonPicture(params: { name: string }): MetadataTargetValidationResult
+}
+
+export type MetadataTargetValidationResult = { ok: true } | { ok: false; diagnostics: Diagnostic[] }
+
+export interface PendingMetadataTargetReferenceCandidate {
+  yamlPath: YamlPath
+  canonical: string
+  target: ParsedMetadataTarget
+  constraint: MetadataTargetConstraint
+}
+
+export type CollectMetadataTargetReferencesFunction = (params: {
+  filePath: string
+  parsed: ParsedYaml
+  yamlPath: YamlPath
+  propRule: PropertyRule
+  propertyName: string
+  value: unknown
+  owner?: MetadataTargetOwner
+}) => {
+  references: PendingMetadataTargetReferenceCandidate[]
+  diagnostics: Diagnostic[]
+}
+
+export interface StructuralReferenceCandidate {
+  yamlPath: YamlPath
+  canonical: string
+  setCanonical(nextCanonical: string): void
+}
+
+export type StructuralReferencesFunction = (params: {
+  filePath: string
+  parsed: ParsedYaml
+  yamlPath: YamlPath
+  propRule: PropertyRule
+  propertyName: string
+  value: unknown
+  setValue(nextValue: unknown): void
+  owner?: MetadataTargetOwner
+}) => StructuralReferenceCandidate[]
 
 /**
  * Хендлер для свойств, хранящих значение во внешних файлах (Help.xml, .bsl, формы).
@@ -126,6 +183,88 @@ export type SyncExternalToXMLFunction = (params: {
   currentXMLDir?: string
 }) => Promise<void>
 
+export type ProjectResourceCompositionImpact = "none" | "configurationComposition"
+
+export type ProjectResourceSource =
+  | { kind: "itemRule"; itemType: string }
+  | { kind: "property"; propertyName: string; propertyType: PropertyRuleType }
+  | { kind: "propertyType"; type: PropertyRuleType }
+
+export type ProjectResourceDescriptor =
+  | {
+      kind: "yaml"
+      role: "configuration" | "properties" | "fileItem" | "resourceOnly"
+      projectPattern: string
+      required: boolean
+      repeatable: boolean
+      owner: "configuration" | "currentItem"
+      compositionImpact: ProjectResourceCompositionImpact
+      source: ProjectResourceSource
+    }
+  | {
+      kind: "directory"
+      role: "resourceOnly"
+      projectPattern: string
+      required: boolean
+      repeatable: boolean
+      owner: "currentItem"
+      compositionImpact: "none"
+      source: ProjectResourceSource
+    }
+
+export type XmlSyncRoute =
+  | {
+      kind: "owner"
+      yamlPattern: string
+      xmlPathPattern: string
+      source: ProjectResourceSource
+    }
+  | {
+      kind: "fileItem" | "externalFile"
+      yamlPattern: string
+      xmlPathPattern: string
+      writerType: "propertyType"
+      source: ProjectResourceSource
+      dumpInfoNamePatterns?: string[]
+      deleteParentAreaBeforeWrite?: boolean
+    }
+  | {
+      kind: "resourceOnly"
+      yamlPattern: string
+      source: ProjectResourceSource
+    }
+
+export type ProjectResourcesFunction = (params: { propertyRule?: PropertyRule }) => ProjectResourceDescriptor[]
+export type XmlSyncRoutesFunction = (params: { propertyRule?: PropertyRule }) => XmlSyncRoute[]
+
+export interface FileChildNamesDescriptor {
+  folderName: string
+  xmlFolderName: string
+  xmlItemName: string
+  useOwnerDirectoryForExternalSync: boolean
+  preserveReferenceXmlFolder: boolean
+  expectedNames: (params: {
+    rule: MetadataItemRule
+    model: Record<string, unknown>
+    propertyValue: unknown
+  }) => string[]
+}
+
+export type FileChildNamesDescriptorFunction = (params: {
+  propertyRule: PropertyRule
+}) => FileChildNamesDescriptor | undefined
+
+export type XmlSyncWriterFunction = (params: {
+  context: ConfigurationContextWithExportToXML
+  rule: PropertyRule
+  nkdkDir: string
+  xmlDir: string
+  name: string
+  itemName?: string
+  referenceDir?: string
+  xmlManifest?: XmlWriteManifest
+}) => Promise<void>
+
 export interface CollectionItemRule {
   itemRule: MetadataItemRule
 }
@@ -141,6 +280,12 @@ export interface TypeRule {
   syncExternalFromXML?: SyncExternalFromXMLFunction
   syncExternalToXML?: SyncExternalToXMLFunction
   validateMetadataTarget?: ValidateMetadataTargetFunction
+  collectMetadataTargetReferences?: CollectMetadataTargetReferencesFunction
+  structuralReferences?: StructuralReferencesFunction
+  projectResources?: ProjectResourcesFunction
+  xmlSyncRoutes?: XmlSyncRoutesFunction
+  fileChildNamesDescriptor?: FileChildNamesDescriptorFunction
+  xmlSyncWriter?: XmlSyncWriterFunction
 }
 
 export type TypeRulesOperations =
@@ -154,6 +299,12 @@ export type TypeRulesOperations =
   | "syncExternalFromXML"
   | "syncExternalToXML"
   | "validateMetadataTarget"
+  | "collectMetadataTargetReferences"
+  | "structuralReferences"
+  | "projectResources"
+  | "xmlSyncRoutes"
+  | "fileChildNamesDescriptor"
+  | "xmlSyncWriter"
 type TypeRuleKey = `${PropertyRuleType}:${TypeRulesOperations}`
 
 export const createRegistryKey = (type: PropertyRuleType, operation: TypeRulesOperations): TypeRuleKey => {
@@ -169,15 +320,27 @@ export type importExportFunction<O extends TypeRulesOperations> = O extends "imp
       : O extends "importFromXML"
         ? ImportFromXMLFunction | undefined
         : O extends "exportToEnterprise"
-      ? ExportToEnterpriseFunction | undefined
-      : O extends "exportToJSONSchema"
-        ? ExportToJSONSchemaFn | undefined
-          : O extends "collectionItemRule"
-            ? CollectionItemRule | undefined
-            : O extends "syncExternalFromXML"
-              ? SyncExternalFromXMLFunction | undefined
-              : O extends "syncExternalToXML"
-                ? SyncExternalToXMLFunction | undefined
-                : O extends "validateMetadataTarget"
-                  ? ValidateMetadataTargetFunction | undefined
-                  : never
+          ? ExportToEnterpriseFunction | undefined
+          : O extends "exportToJSONSchema"
+            ? ExportToJSONSchemaFn | undefined
+            : O extends "collectionItemRule"
+              ? CollectionItemRule | undefined
+              : O extends "syncExternalFromXML"
+                ? SyncExternalFromXMLFunction | undefined
+                : O extends "syncExternalToXML"
+                  ? SyncExternalToXMLFunction | undefined
+                  : O extends "validateMetadataTarget"
+                    ? ValidateMetadataTargetFunction | undefined
+                    : O extends "collectMetadataTargetReferences"
+                      ? CollectMetadataTargetReferencesFunction | undefined
+                      : O extends "structuralReferences"
+                        ? StructuralReferencesFunction | undefined
+                        : O extends "projectResources"
+                          ? ProjectResourcesFunction | undefined
+                          : O extends "xmlSyncRoutes"
+                            ? XmlSyncRoutesFunction | undefined
+                            : O extends "fileChildNamesDescriptor"
+                              ? FileChildNamesDescriptorFunction | undefined
+                              : O extends "xmlSyncWriter"
+                                ? XmlSyncWriterFunction | undefined
+                                : never

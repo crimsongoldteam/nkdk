@@ -1,7 +1,7 @@
 import fs from "fs"
 import { join } from "path"
 import { describe, expect, it } from "vitest"
-import { testConvertAppliedObjectFromXML } from "~/tests/appliedObject"
+import { testConvertAppliedObjectFromXML } from "../../../tests/appliedObject"
 import { readCatalogYAML } from "./__fixtures__/sync/data"
 import { MetadataCatalogRules } from "./rules"
 
@@ -31,8 +31,6 @@ describe("convertAppliedObjectFromXML — MetadataCatalog", () => {
       join(inputDir, "Commands", "КомандаОбъекта", "Ext", "CommandModule.bsl"),
       "utf-8"
     )
-    expect(fs.readFileSync(join(outputDir, name, "Команды", "КомандаОбъекта.bsl"), "utf-8")).toBe(
-      expectedCommandModule
-    )
+    expect(fs.readFileSync(join(outputDir, name, "Команды", "КомандаОбъекта.bsl"), "utf-8")).toBe(expectedCommandModule)
   })
 })

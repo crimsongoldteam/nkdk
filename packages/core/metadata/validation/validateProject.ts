@@ -1,88 +1,384 @@
-import { TypeCompiler } from "@sinclair/typebox/compiler"
-import { join, resolve } from "path"
-import { rootFromYAML } from "~/metadata/commonObjects/metadataTargets/roots"
-import type { ConfigurationContext } from "~/metadata/context/types"
-import type { MetadataItem } from "~/metadata/orchestration/property/types"
-import type { ParsedYaml } from "~/yaml/parseMetadataYaml"
-import { createOwnerMetadataCache } from "./dataPath/ownerCache"
-import { validateMetadataTargetsInModel } from "./metadataTargetTraversal"
-import { createProjectMetadataResolver, type ProjectMetadataResolver } from "./projectMetadataResolver"
-import { exportJSONSchemaForSchemaName, ProjectFileSchemaError } from "./projectFileSchema"
+import { availableParallelism } from "node:os"
+import { performance } from "node:perf_hooks"
+import { existsSync } from "fs"
+import { resolve } from "path"
+import type { ConfigurationContext } from "../context/types"
+import { getProjectReferenceObjectPathContributor } from "./projectReferenceIndexRegistry"
+import { validatePendingReferencesWithIndex } from "./projectReferenceIndex"
+import { ProjectFileSchemaError } from "./projectFileSchema"
 import {
   discoverValidationProjectFiles,
   resolveValidationProjectFile,
   type ValidationProjectFile,
 } from "./projectFiles"
-import { createProjectYamlCache, type ProjectYamlCache } from "./projectYamlCache"
-import type { ValidationProjectSpec } from "./projectSpecs"
+import { createProjectYamlCacheFromEntries, type ProjectYamlEntry } from "./projectYamlCache"
+import { createValidationObjectTable } from "./projectValidationObjectTable"
+import { createProjectValidationWorkerPool, type ProjectValidationWorkerPool } from "./projectValidationWorkerPool"
+import {
+  createValidationSchemaCache,
+  readProjectYamlDiagnostic,
+  readProjectYamlEntryForValidation,
+  validateProjectFileFirstPass,
+  validateProjectFileSecondPass,
+  type ProjectValidationFileState,
+} from "./projectValidationPasses"
+import { createValidationYamlQueue } from "./projectValidationQueue"
+import { createValidationSnapshotProvider } from "./validationSnapshotProvider"
+import { createValidationRulesSnapshot, type ValidationRulesSnapshot } from "./rulesSnapshot"
 import type { Diagnostic } from "./types"
-import { validateParsedFile } from "./validateFile"
-import { validateForm } from "./validateForm"
-import { validateUniqueNameScopes } from "./uniqueNameScopes"
 
 export interface ValidateProjectParams {
   projectDir: string
   filePath?: string
   context?: ConfigurationContext
+  concurrency?: number
 }
 
 export interface ValidateProjectResult {
   diagnostics: Diagnostic[]
 }
 
-const expectedPatterns =
-  "Ожидались Конфигурация.yaml или пути вида <Вид>/<Имя>/Свойства.yaml и <Вид>/<Имя>/Формы/<Форма>/Форма.yaml"
-
-type CompiledSchema = ReturnType<(typeof TypeCompiler)["Compile"]>
-
-interface ValidationSchemaCache {
-  form: () => CompiledSchema
-  properties: (spec: ValidationProjectSpec) => CompiledSchema
+export interface ValidationWorkerPoolHandle {
+  validateProject(params: Omit<ValidateProjectParams, "concurrency">): Promise<ValidateProjectResult>
+  close(): Promise<void>
+  size(): number
 }
 
-export function validateProject(params: ValidateProjectParams): ValidateProjectResult {
+const expectedPatterns =
+  "Ожидались Конфигурация.yaml или пути вида <Вид>/<Имя>/Свойства.yaml и <Вид>/<Имя>/Формы/<Форма>/Форма.yaml"
+const MIN_FILES_FOR_WORKER_VALIDATION = 128
+
+export async function validateProject(params: ValidateProjectParams): Promise<ValidateProjectResult> {
+  const concurrency = normalizeValidationConcurrency(params.concurrency)
+  if (params.filePath !== undefined || concurrency === 1) {
+    return validateProjectInProcess({ ...params, concurrency: 1 })
+  }
+  return validateProjectWithWorkers({ ...params, concurrency })
+}
+
+export function createValidationWorkerPoolHandle(params: { concurrency?: number } = {}): ValidationWorkerPoolHandle {
+  const concurrency = normalizeValidationConcurrency(params.concurrency)
+  const pool = createProjectValidationWorkerPool({ concurrency })
+  let closed = false
+  let currentRun: Promise<void> = Promise.resolve()
+
+  async function runExclusive<T>(task: () => Promise<T>): Promise<T> {
+    const previous = currentRun
+    let release: () => void = () => undefined
+    currentRun = new Promise<void>((resolve) => {
+      release = resolve
+    })
+    await previous
+    try {
+      return await task()
+    } finally {
+      release()
+    }
+  }
+
+  return {
+    validateProject(projectParams) {
+      if (closed) throw new Error("Validation worker pool handle is closed")
+      return runExclusive(async () => {
+        if (projectParams.filePath !== undefined || concurrency === 1) {
+          return validateProjectInProcess({ ...projectParams, concurrency: 1 })
+        }
+        return validateProjectWithWorkers({
+          ...projectParams,
+          concurrency,
+          pool,
+          closePool: false,
+        })
+      })
+    },
+    async close() {
+      if (closed) return
+      closed = true
+      await currentRun
+      await pool.close()
+    },
+    size() {
+      return pool.size()
+    },
+  }
+}
+
+function validateProjectInProcess(params: ValidateProjectParams): ValidateProjectResult {
   const projectDir = resolve(params.projectDir)
   const context = params.context ?? defaultValidationContext()
-  const cache = createProjectYamlCache()
-  const ownerCache = createOwnerMetadataCache({ projectDir, yamlCache: cache, context })
-  const metadataResolver = createProjectMetadataResolver({ projectDir, yamlCache: cache, context, ownerCache })
   const schemaCache = createValidationSchemaCache(context)
+  const rulesSnapshot = createValidationRulesSnapshot(context)
   const files =
     params.filePath === undefined
       ? discoverValidationProjectFiles(projectDir)
       : [resolveSingleProjectFile(projectDir, params.filePath)]
+  const queue = createValidationYamlQueue({
+    mode: params.filePath === undefined ? "full" : "partial",
+    initialFiles: files,
+  })
+  const objectTable = createValidationObjectTable()
+  const entries = new Map<string, ProjectYamlEntry>()
+  const states = new Map<string, ProjectValidationFileState>()
 
   const diagnostics: Diagnostic[] = []
-  for (const file of files) {
-    try {
-      diagnostics.push(...validateProjectFile({ projectDir, file, cache, context, ownerCache, metadataResolver, schemaCache }))
-    } finally {
-      cache.release(file.absolutePath)
+  processPendingFirstPasses({
+    projectDir,
+    context,
+    schemaCache,
+    rulesSnapshot,
+    queue,
+    entries,
+    states,
+    objectTable,
+    diagnostics,
+  })
+  const skipMetadataTargetValidation = params.filePath === undefined
+
+  if (skipMetadataTargetValidation) {
+    const objectTableSnapshot = objectTable.snapshot()
+    const provider = createValidationSnapshotProvider(objectTableSnapshot)
+    const referenceIndex = provider.referenceIndex({
+      projectDir,
+      mode: queue.mode,
+      resolveObjectFilePath: (target) => resolveObjectFilePath({ projectDir, target }),
+      resolveProjectFile: (target) => resolveProjectFileDependency({ projectDir, target }),
+    })
+    const pendingReferences = objectTableSnapshot.pendingReferences ?? []
+    const referenceResult = validatePendingReferencesWithIndex({
+      index: referenceIndex,
+      references: pendingReferences,
+    })
+    logInProcessReferenceProfile({
+      snapshotBytes: provider.sharedPayload().reference.stats.snapshotBytes,
+      pendingReferences: pendingReferences.length,
+      memberIndexEntries: provider.sharedPayload().reference.stats.memberEntries,
+      result: referenceResult,
+    })
+    diagnostics.push(...referenceResult.diagnostics)
+  }
+
+  const secondPassPending = new Set(states.keys())
+  while (secondPassPending.size > 0) {
+    let enqueuedDependency = false
+    for (const stateKey of [...secondPassPending]) {
+      const state = states.get(stateKey)
+      if (state === undefined) {
+        secondPassPending.delete(stateKey)
+        continue
+      }
+
+      const cache = createProjectYamlCacheFromEntries([...entries.values()])
+      const objectTableSnapshot = objectTable.snapshot()
+      const provider = createValidationSnapshotProvider(objectTableSnapshot)
+      const ownerCache = provider.ownerCache(projectDir)
+      const referenceIndex = provider.referenceIndex({
+        projectDir,
+        mode: queue.mode,
+        resolveObjectFilePath: (target) => resolveObjectFilePath({ projectDir, target }),
+        resolveProjectFile: (target) => resolveProjectFileDependency({ projectDir, target }),
+      })
+      const second = validateProjectFileSecondPass({
+        projectDir,
+        state,
+        cache,
+        context,
+        ownerCache,
+        referenceIndex,
+        skipMetadataTargetValidation,
+      })
+
+      if (second.status === "needsDependency" && queue.enqueueDependency(second.dependency.file) === "enqueued") {
+        enqueuedDependency = true
+        break
+      }
+
+      diagnostics.push(...second.diagnostics)
+      secondPassPending.delete(stateKey)
+    }
+
+    if (enqueuedDependency) {
+      processPendingFirstPasses({
+        projectDir,
+        context,
+        schemaCache,
+        rulesSnapshot,
+        queue,
+        entries,
+        states,
+        objectTable,
+        diagnostics,
+      })
+      for (const stateKey of states.keys()) secondPassPending.add(stateKey)
     }
   }
 
   return { diagnostics: sortDiagnostics(dedupeDiagnostics(diagnostics)) }
 }
 
-function createValidationSchemaCache(context: ConfigurationContext): ValidationSchemaCache {
-  const propertiesSchemas = new Map<string, CompiledSchema>()
-  let formSchema: CompiledSchema | undefined
+async function validateProjectWithWorkers(
+  params: ValidateProjectParams & {
+    concurrency: number
+    pool?: ProjectValidationWorkerPool
+    closePool?: boolean
+  }
+): Promise<ValidateProjectResult> {
+  const totalStartedAt = performance.now()
+  const projectDir = resolve(params.projectDir)
+  const context = params.context ?? defaultValidationContext()
+  const discoverStartedAt = performance.now()
+  const files = discoverValidationProjectFiles(projectDir)
+  const discoverMs = performance.now() - discoverStartedAt
+  if (files.length < MIN_FILES_FOR_WORKER_VALIDATION) {
+    return validateProjectInProcess({ ...params, concurrency: 1 })
+  }
 
-  return {
-    form() {
-      formSchema ??= TypeCompiler.Compile(exportFormSchema(context))
+  const pool = params.pool ?? createProjectValidationWorkerPool({ concurrency: params.concurrency })
+  const closePool = params.closePool ?? true
+  let startMs = 0
+  let schemaCompileMs = 0
+  let formSchemaMs = 0
+  let propertiesSchemaMs = 0
+  let firstPassMs = 0
+  let mergeMs = 0
+  let snapshotMs = 0
+  let secondPassMs = 0
+  let sortMs = 0
 
-      return formSchema
-    },
-    properties(spec) {
-      const existing = propertiesSchemas.get(spec.dir)
-      if (existing) return existing
+  try {
+    const startStartedAt = performance.now()
+    const startProfile = await pool.start(context)
+    startMs = performance.now() - startStartedAt
+    schemaCompileMs = startProfile.schemaCompileMs
+    formSchemaMs = startProfile.formSchemaMs
+    propertiesSchemaMs = startProfile.propertiesSchemaMs
+    const firstPassStartedAt = performance.now()
+    const first = await pool.runFirstPass({ projectDir, context, files })
+    firstPassMs = performance.now() - firstPassStartedAt
+    const mergeStartedAt = performance.now()
+    const objectTable = createValidationObjectTable()
+    objectTable.mergeRecords(first.objectRecords)
+    objectTable.mergeReferenceIndexEntries(first)
+    mergeMs = performance.now() - mergeStartedAt
+    const snapshotStartedAt = performance.now()
+    const objectTableSnapshot = objectTable.snapshot()
+    snapshotMs = performance.now() - snapshotStartedAt
+    const secondPassStartedAt = performance.now()
+    const second = await pool.runSecondPass({
+      projectDir,
+      context,
+      mode: "full",
+      objectTable: objectTableSnapshot,
+    })
+    secondPassMs = performance.now() - secondPassStartedAt
+    const sortStartedAt = performance.now()
+    const diagnostics = sortDiagnostics(dedupeDiagnostics([...first.diagnostics, ...second.diagnostics]))
+    sortMs = performance.now() - sortStartedAt
+    logWorkerValidationProfile({
+      files: files.length,
+      concurrency: params.concurrency,
+      discoverMs,
+      startMs,
+      schemaCompileMs,
+      formSchemaMs,
+      propertiesSchemaMs,
+      firstPassMs,
+      mergeMs,
+      snapshotMs,
+      secondPassMs,
+      sortMs,
+      totalMs: performance.now() - totalStartedAt,
+    })
 
-      const compiled = TypeCompiler.Compile(spec.exportSchema({ context, mode: "inline" }))
-      propertiesSchemas.set(spec.dir, compiled)
+    return { diagnostics }
+  } finally {
+    if (closePool) await pool.close()
+  }
+}
 
-      return compiled
-    },
+function logWorkerValidationProfile(params: {
+  files: number
+  concurrency: number
+  discoverMs: number
+  startMs: number
+  schemaCompileMs: number
+  formSchemaMs: number
+  propertiesSchemaMs: number
+  firstPassMs: number
+  mergeMs: number
+  snapshotMs: number
+  secondPassMs: number
+  sortMs: number
+  totalMs: number
+}): void {
+  if (process.env["NKDK_VALIDATION_PROFILE"] !== "1") return
+  console.error(
+    [
+      "[validation-profile] orchestration",
+      `files=${params.files}`,
+      `concurrency=${params.concurrency}`,
+      `discover=${params.discoverMs.toFixed(2)}ms`,
+      `startWorkers=${params.startMs.toFixed(2)}ms`,
+      `schemaCompile=${params.schemaCompileMs.toFixed(2)}ms`,
+      `formSchema=${params.formSchemaMs.toFixed(2)}ms`,
+      `propertiesSchema=${params.propertiesSchemaMs.toFixed(2)}ms`,
+      `firstPassWall=${params.firstPassMs.toFixed(2)}ms`,
+      `mergeFirstPass=${params.mergeMs.toFixed(2)}ms`,
+      `objectTableSnapshot=${params.snapshotMs.toFixed(2)}ms`,
+      `secondPassWall=${params.secondPassMs.toFixed(2)}ms`,
+      `sortDedupe=${params.sortMs.toFixed(2)}ms`,
+      `total=${params.totalMs.toFixed(2)}ms`,
+    ].join(" ")
+  )
+}
+
+function normalizeValidationConcurrency(value: number | undefined): number {
+  if (value !== undefined) {
+    if (!Number.isInteger(value) || value < 1) throw new Error("validation concurrency must be a positive integer")
+    return value
+  }
+
+  return Math.max(1, Math.min(4, availableParallelism() - 1))
+}
+
+function processPendingFirstPasses(params: {
+  projectDir: string
+  context: ConfigurationContext
+  schemaCache: ReturnType<typeof createValidationSchemaCache>
+  rulesSnapshot: ValidationRulesSnapshot
+  queue: ReturnType<typeof createValidationYamlQueue>
+  entries: Map<string, ProjectYamlEntry>
+  states: Map<string, ProjectValidationFileState>
+  objectTable: ReturnType<typeof createValidationObjectTable>
+  diagnostics: Diagnostic[]
+}): void {
+  while (params.queue.hasPending()) {
+    const batch = params.queue.takePending(64)
+    for (const file of batch) {
+      params.queue.markRunning(file.absolutePath)
+      const entry = readProjectYamlEntryForValidation(file.absolutePath)
+      if ("error" in entry) {
+        params.queue.markError(file.absolutePath)
+        params.diagnostics.push(readProjectYamlDiagnostic(entry))
+        continue
+      }
+
+      const entryKey = resolve(entry.filePath)
+      params.entries.set(entryKey, entry)
+      const cache = createProjectYamlCacheFromEntries([...params.entries.values()])
+      const first = validateProjectFileFirstPass({
+        projectDir: params.projectDir,
+        file,
+        cache,
+        context: params.context,
+        schemaCache: params.schemaCache,
+        ...(file.kind === "form" ? { rulesSnapshot: params.rulesSnapshot } : {}),
+      })
+      params.states.set(resolve(file.absolutePath), first.state)
+      params.objectTable.mergeRecords(first.objectRecords)
+      params.objectTable.mergeReferenceIndexEntries(first)
+      params.diagnostics.push(...first.diagnostics)
+      params.queue.markReady(file.absolutePath)
+    }
   }
 }
 
@@ -91,203 +387,6 @@ function resolveSingleProjectFile(projectDir: string, filePath: string): Validat
   if (file) return file
 
   throw new ProjectFileSchemaError(expectedPatterns)
-}
-
-function validateProjectFile(params: {
-  projectDir: string
-  file: ValidationProjectFile
-  cache: ProjectYamlCache
-  context: ConfigurationContext
-  ownerCache: ReturnType<typeof createOwnerMetadataCache>
-  metadataResolver: ProjectMetadataResolver
-  schemaCache: ValidationSchemaCache
-}): Diagnostic[] {
-  if (params.file.kind === "form") {
-    return validateProjectForm(params)
-  }
-
-  return validateProjectProperties(params)
-}
-
-function validateProjectForm(params: {
-  projectDir: string
-  file: ValidationProjectFile
-  cache: ProjectYamlCache
-  context: ConfigurationContext
-  ownerCache: ReturnType<typeof createOwnerMetadataCache>
-  metadataResolver: ProjectMetadataResolver
-  schemaCache: ValidationSchemaCache
-}): Diagnostic[] {
-  const schemaDiagnostics = validateProjectFileSchema({
-    filePath: params.file.absolutePath,
-    cache: params.cache,
-    schema: params.schemaCache.form(),
-  })
-  if (schemaDiagnostics.some((diagnostic) => diagnostic.source === "syntax")) return schemaDiagnostics
-
-  return [
-    ...schemaDiagnostics,
-    ...validateForm({
-      projectDir: params.projectDir,
-      formDir: join(
-        params.projectDir,
-        params.file.owner.dir,
-        params.file.owner.name,
-        "Формы",
-        params.file.formName ?? "",
-      ),
-      formName: params.file.formName ?? "",
-      owner: { dir: params.file.owner.dir, name: params.file.owner.name },
-      cache: params.cache,
-      context: params.context,
-      ownerCache: params.ownerCache,
-      suppressFormImportDiagnostics: schemaDiagnostics.length > 0,
-    }),
-  ]
-}
-
-function validateProjectProperties(params: {
-  file: ValidationProjectFile
-  cache: ProjectYamlCache
-  context: ConfigurationContext
-  metadataResolver: ProjectMetadataResolver
-  schemaCache: ValidationSchemaCache
-}): Diagnostic[] {
-  const diagnostics = validateProjectFileSchema({
-    filePath: params.file.absolutePath,
-    cache: params.cache,
-    schema: params.schemaCache.properties(params.file.owner.spec),
-  })
-  const entry = params.cache.get(params.file.absolutePath)
-  if ("error" in entry || entry.parsed.doc.errors.length > 0) return diagnostics
-
-  const requiredDiagnostics = validateRequiredConfigurationYAMLKeys({
-    file: params.file,
-    parsed: entry.parsed,
-  })
-  if (requiredDiagnostics.length > 0) return [...diagnostics, ...requiredDiagnostics]
-
-  const imported = importPropertiesModel({
-    spec: params.file.owner.spec,
-    context: params.context,
-    parsed: entry.parsed,
-    name: params.file.owner.name,
-    filePath: params.file.absolutePath,
-  })
-  if ("diagnostic" in imported) return [...diagnostics, imported.diagnostic]
-
-  const ownerRoot = rootFromYAML[params.file.owner.dir]
-  const owner = ownerRoot ? { root: ownerRoot, objectName: params.file.owner.name } : undefined
-
-  return [
-    ...diagnostics,
-    ...validateUniqueNameScopes({
-      filePath: params.file.absolutePath,
-      parsed: entry.parsed,
-      model: imported.model,
-      rule: params.file.owner.spec.rule,
-    }),
-    ...validateMetadataTargetsInModel({
-      filePath: params.file.absolutePath,
-      parsed: entry.parsed,
-      model: imported.model,
-      rule: params.file.owner.spec.rule,
-      resolver: params.metadataResolver,
-      owner,
-    }),
-  ]
-}
-
-function validateRequiredConfigurationYAMLKeys(params: {
-  file: ValidationProjectFile
-  parsed: ParsedYaml
-}): Diagnostic[] {
-  if (params.file.owner.spec.rule.itemType !== "MetadataConfiguration") return []
-  if (params.parsed.data === null || typeof params.parsed.data !== "object" || Array.isArray(params.parsed.data)) {
-    return []
-  }
-
-  const data = params.parsed.data as Record<string, unknown>
-  if (Object.prototype.hasOwnProperty.call(data, "ОсновнойЯзык")) return []
-
-  return [
-    {
-      filePath: params.file.absolutePath,
-      line: 1,
-      col: 1,
-      severity: "error",
-      source: "structure",
-      path: "/ОсновнойЯзык",
-      message: 'Отсутствует обязательное свойство "ОсновнойЯзык"',
-    },
-  ]
-}
-
-function validateProjectFileSchema(params: {
-  filePath: string
-  cache: ProjectYamlCache
-  schema: CompiledSchema
-}): Diagnostic[] {
-  const entry = params.cache.get(params.filePath)
-  if ("error" in entry) {
-    return [
-      {
-        filePath: entry.filePath,
-        line: 1,
-        col: 1,
-        severity: "error",
-        source: "external-file",
-        message: `Не удалось прочитать YAML-файл: ${entry.error.message}`,
-      },
-    ]
-  }
-
-  return validateParsedFile({
-    filePath: entry.filePath,
-    parsed: entry.parsed,
-    schema: params.schema,
-  })
-}
-
-function importPropertiesModel(params: {
-  spec: ValidationProjectSpec
-  context: ConfigurationContext
-  parsed: ParsedYaml
-  name: string
-  filePath: string
-}): { model: MetadataItem } | { diagnostic: Diagnostic } {
-  try {
-    const model = params.spec.importModel({
-      context: params.context,
-      parsed: params.parsed,
-      name: params.name,
-    })
-    if (model !== undefined) return { model }
-
-    return {
-      diagnostic: importDiagnostic(params.filePath, "Не удалось импортировать свойства"),
-    }
-  } catch (caught) {
-    const message = caught instanceof Error ? caught.message : String(caught)
-    return {
-      diagnostic: importDiagnostic(params.filePath, `Не удалось импортировать свойства: ${message}`),
-    }
-  }
-}
-
-function importDiagnostic(filePath: string, message: string): Diagnostic {
-  return {
-    filePath,
-    line: 1,
-    col: 1,
-    severity: "error",
-    source: "structure",
-    message,
-  }
-}
-
-function exportFormSchema(context: ConfigurationContext) {
-  return exportJSONSchemaForSchemaName({ context, name: "ClientApplicationForm", mode: "inline" })
 }
 
 function sortDiagnostics(diagnostics: Diagnostic[]): Diagnostic[] {
@@ -324,6 +423,51 @@ function diagnosticKey(diagnostic: Diagnostic): string {
     diagnostic.path ?? "",
     diagnostic.message,
   ].join("\0")
+}
+
+function logInProcessReferenceProfile(params: {
+  snapshotBytes: number
+  pendingReferences: number
+  memberIndexEntries: number
+  result: ReturnType<typeof validatePendingReferencesWithIndex>
+}): void {
+  if (process.env["NKDK_VALIDATION_PROFILE"] !== "1") return
+  const references = params.result.stats
+
+  console.error(
+    [
+      "[validation-profile] references second-pass",
+      `hits=${references.hits}`,
+      `misses=${references.misses}`,
+      `conflicts=${references.conflicts}`,
+      `filters=${references.filterFailures}`,
+      `dependencies=${references.dependencies}`,
+      `unsupported=${references.unsupported}`,
+      `fallbacks=${references.fallbacks}`,
+      `snapshotBytes=${params.snapshotBytes}`,
+      `pending=${params.pendingReferences}`,
+      `entries=${params.memberIndexEntries}`,
+    ].join(" ")
+  )
+}
+
+function resolveProjectFileDependency(params: {
+  projectDir: string
+  target: Parameters<NonNullable<ReturnType<typeof getProjectReferenceObjectPathContributor>>>[0]["target"]
+}) {
+  const filePath = resolveObjectFilePath(params)
+  if (filePath === undefined || !existsSync(filePath)) return undefined
+  const file = resolveValidationProjectFile(params.projectDir, filePath)
+  if (file === undefined) return undefined
+  return { kind: "needsDependency" as const, file, requestedBy: filePath }
+}
+
+function resolveObjectFilePath(params: {
+  projectDir: string
+  target: Parameters<NonNullable<ReturnType<typeof getProjectReferenceObjectPathContributor>>>[0]["target"]
+}): string | undefined {
+  const contributor = getProjectReferenceObjectPathContributor(params.target.root)
+  return contributor?.({ projectDir: params.projectDir, target: params.target })?.filePath
 }
 
 function defaultValidationContext(): ConfigurationContext {

@@ -1,11 +1,14 @@
-import { ConfigurationContext } from "~/metadata/context/types"
-import { PropertyRule, registerTypeRule } from "~/metadata/orchestration"
+import { ConfigurationContext } from "../../../context/types"
+import { PropertyRule, registerTypeRule } from "../../../orchestration"
 import { exportDcsLocalStringTypeToXML } from "../dcsLocalStringType/toXML"
 import { exportDcsMetadataValueToDcsXML } from "../dcsMetadataValue/toXML"
 import type { DcsMetadataValuePropertyRule } from "../dcsMetadataValue/types"
 import type { DcsAvailableValues } from "./types"
 
-const valueRule = { type: "MetadataDcsMetadataValue", valueType: "Primitive" } as const satisfies DcsMetadataValuePropertyRule
+const valueRule = {
+  type: "MetadataDcsMetadataValue",
+  valueType: "Primitive",
+} as const satisfies DcsMetadataValuePropertyRule
 
 export const exportDcsAvailableValuesToXML = (
   context: ConfigurationContext,

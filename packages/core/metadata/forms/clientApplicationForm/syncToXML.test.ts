@@ -2,9 +2,9 @@ import fs from "fs"
 import os from "os"
 import { join } from "path"
 import { afterEach, beforeEach, describe, expect, it } from "vitest"
-import { XmlSyncManifest } from "~/metadata/appliedObjects/configuration/migrations/xmlManifest"
-import { mockContextFromXML, mockContextToXML } from "~/tests/mockContext"
-import { getXMLFixtureDir, readXMLFixtureAsString } from "~/tests/readFixtureXML"
+import { XmlSyncManifest } from "../../appliedObjects/configuration/migrations/xmlManifest"
+import { mockContextFromXML, mockContextToXML } from "../../../tests/mockContext"
+import { getXMLFixtureDir, readXMLFixtureAsString } from "../../../tests/readFixtureXML"
 import { convertFormFromXML } from "./convertFromXML"
 import { syncFormToXML } from "./syncToXML"
 
@@ -15,7 +15,7 @@ describe("sync ClientApplicationForm to XML", () => {
   let outputDir: string
 
   beforeEach(() => {
-    outputDir = fs.mkdtempSync(join(os.tmpdir(), "nakidka-form-sync-"))
+    outputDir = fs.mkdtempSync(join(os.tmpdir(), "nkdk-form-sync-"))
   })
 
   afterEach(() => {
@@ -23,7 +23,7 @@ describe("sync ClientApplicationForm to XML", () => {
   })
 
   it("читает форму из YAML и экспортирует XML", async () => {
-    const tmpRoot = fs.mkdtempSync(join(os.tmpdir(), "nakidka-form-yaml-only-"))
+    const tmpRoot = fs.mkdtempSync(join(os.tmpdir(), "nkdk-form-yaml-only-"))
     const tmpInputDir = join(tmpRoot, "yaml")
 
     try {
@@ -51,7 +51,7 @@ describe("sync ClientApplicationForm to XML", () => {
   })
 
   it("синхронизирует managed form без referenceDir", async () => {
-    const tmpRoot = fs.mkdtempSync(join(os.tmpdir(), "nakidka-form-no-reference-"))
+    const tmpRoot = fs.mkdtempSync(join(os.tmpdir(), "nkdk-form-no-reference-"))
     const tmpInputDir = join(tmpRoot, "yaml")
 
     try {
@@ -72,7 +72,7 @@ describe("sync ClientApplicationForm to XML", () => {
   })
 
   it("синхронизирует managed form с пустым referenceDir как без reference", async () => {
-    const tmpRoot = fs.mkdtempSync(join(os.tmpdir(), "nakidka-form-empty-reference-"))
+    const tmpRoot = fs.mkdtempSync(join(os.tmpdir(), "nkdk-form-empty-reference-"))
     const tmpInputDir = join(tmpRoot, "yaml")
     const tmpReferenceDir = join(tmpRoot, "reference-forms")
 
@@ -96,7 +96,7 @@ describe("sync ClientApplicationForm to XML", () => {
   })
 
   it("передаёт currentXMLPath в экспорт формы и восстанавливает ERP AdditionalColumns", async () => {
-    const tmpRoot = fs.mkdtempSync(join(os.tmpdir(), "nakidka-form-current-xml-path-"))
+    const tmpRoot = fs.mkdtempSync(join(os.tmpdir(), "nkdk-form-current-xml-path-"))
     const tmpInputDir = join(tmpRoot, "yaml")
     const tmpReferenceDir = join(tmpRoot, "reference-forms")
     const erpFormName = "ФормаСписка"
@@ -148,7 +148,7 @@ describe("sync ClientApplicationForm to XML", () => {
   })
 
   it("не накапливает состояние нумерации в родительском контексте между формами", async () => {
-    const tmpRoot = fs.mkdtempSync(join(os.tmpdir(), "nakidka-form-numbering-"))
+    const tmpRoot = fs.mkdtempSync(join(os.tmpdir(), "nkdk-form-numbering-"))
     const tmpInputDir = join(tmpRoot, "yaml")
     const tmpReferenceDir = join(tmpRoot, "reference-forms")
     const tmpOutputDir = join(tmpRoot, "out")
@@ -194,7 +194,7 @@ describe("sync ClientApplicationForm to XML", () => {
   })
 
   it("восстанавливает внешние картинки элементов формы из YAML и добавляет их в manifest", async () => {
-    const tmpRoot = fs.mkdtempSync(join(os.tmpdir(), "nakidka-form-item-pictures-to-xml-"))
+    const tmpRoot = fs.mkdtempSync(join(os.tmpdir(), "nkdk-form-item-pictures-to-xml-"))
     const tmpInputDir = join(tmpRoot, "yaml")
     const tmpReferenceDir = join(tmpRoot, "reference-forms")
     const xmlManifest = new XmlSyncManifest(outputDir)
@@ -276,7 +276,7 @@ describe("sync ClientApplicationForm to XML", () => {
   })
 
   it("восстанавливает Form.bin для managed form с Ext/Form.xml", async () => {
-    const tmpRoot = fs.mkdtempSync(join(os.tmpdir(), "nakidka-managed-form-bin-to-xml-"))
+    const tmpRoot = fs.mkdtempSync(join(os.tmpdir(), "nkdk-managed-form-bin-to-xml-"))
     const tmpInputDir = join(tmpRoot, "yaml")
     const tmpReferenceDir = join(tmpRoot, "reference-forms")
 
@@ -301,7 +301,7 @@ describe("sync ClientApplicationForm to XML", () => {
   })
 
   it("восстанавливает form help _files recursively и добавляет их в manifest", async () => {
-    const tmpRoot = fs.mkdtempSync(join(os.tmpdir(), "nakidka-form-help-files-to-xml-"))
+    const tmpRoot = fs.mkdtempSync(join(os.tmpdir(), "nkdk-form-help-files-to-xml-"))
     const tmpInputDir = join(tmpRoot, "yaml")
     const tmpReferenceDir = join(tmpRoot, "reference-forms")
     const xmlManifest = new XmlSyncManifest(outputDir)
@@ -340,7 +340,7 @@ describe("sync ClientApplicationForm to XML", () => {
 
   it("восстанавливает ordinary form metadata и Form.bin без Ext/Form.xml", async () => {
     const ordinaryFormName = "ОбычнаяФорма"
-    const tmpRoot = fs.mkdtempSync(join(os.tmpdir(), "nakidka-ordinary-form-bin-"))
+    const tmpRoot = fs.mkdtempSync(join(os.tmpdir(), "nkdk-ordinary-form-bin-"))
     const xmlInputDir = join(tmpRoot, "xml", "Forms")
     const yamlInputDir = join(tmpRoot, "yaml")
     const formExtDir = join(xmlInputDir, ordinaryFormName, "Ext")
@@ -379,7 +379,7 @@ describe("sync ClientApplicationForm to XML", () => {
 
   it("восстанавливает metadata-only ordinary form без каталога Ext", async () => {
     const ordinaryFormName = "ОбычнаяБезТела"
-    const tmpRoot = fs.mkdtempSync(join(os.tmpdir(), "nakidka-ordinary-form-metadata-only-"))
+    const tmpRoot = fs.mkdtempSync(join(os.tmpdir(), "nkdk-ordinary-form-metadata-only-"))
     const xmlInputDir = join(tmpRoot, "xml", "Forms")
     const yamlInputDir = join(tmpRoot, "yaml")
 
@@ -413,7 +413,7 @@ describe("sync ClientApplicationForm to XML", () => {
 
   it("сохраняет Ext/Form.xml для ordinary form, если тело есть в reference", async () => {
     const ordinaryFormName = "ОбычнаяФормаСТелом"
-    const tmpRoot = fs.mkdtempSync(join(os.tmpdir(), "nakidka-ordinary-form-xml-body-"))
+    const tmpRoot = fs.mkdtempSync(join(os.tmpdir(), "nkdk-ordinary-form-xml-body-"))
     const xmlInputDir = join(tmpRoot, "xml", "Forms")
     const yamlInputDir = join(tmpRoot, "yaml")
     const formExtDir = join(xmlInputDir, ordinaryFormName, "Ext")
@@ -470,7 +470,7 @@ describe("round-trip: withDynamicList XML → YAML+bsl → XML", () => {
   let tmpDir: string
 
   beforeEach(async () => {
-    tmpDir = fs.mkdtempSync(join(os.tmpdir(), "nakidka-roundtrip-"))
+    tmpDir = fs.mkdtempSync(join(os.tmpdir(), "nkdk-roundtrip-"))
     // Шаг 1: экспортируем XML → YAML+bsl (в tmp)
     await convertFormFromXML({
       context: mockContextFromXML(),

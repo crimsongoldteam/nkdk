@@ -1,5 +1,5 @@
-import { TSchema } from "@sinclair/typebox"
-import { TypeCheck } from "@sinclair/typebox/compiler"
+import type { ValidationSchemaValidator } from "./compileValidationSchema"
+import type { TSchema } from "typebox"
 import { existsSync, readdirSync, readFileSync } from "fs"
 import { basename, dirname, join, resolve } from "path"
 import { Diagnostic } from "./types"
@@ -10,7 +10,7 @@ import { createOwnerMetadataCache } from "./dataPath/ownerCache"
 
 export interface ValidateItemParams {
   itemDir: string
-  schema: TypeCheck<TSchema>
+  schema: ValidationSchemaValidator<TSchema>
 }
 
 export function validateItem({ itemDir, schema }: ValidateItemParams): Diagnostic[] {
@@ -39,7 +39,9 @@ export function validateItem({ itemDir, schema }: ValidateItemParams): Diagnosti
     const entries = readdirSync(formsDir, { withFileTypes: true })
     for (const entry of entries.filter((e) => e.isDirectory())) {
       const formDir = join(formsDir, entry.name)
-      diagnostics.push(...validateForm({ projectDir, formDir, formName: entry.name, owner, cache, context, ownerCache }))
+      diagnostics.push(
+        ...validateForm({ projectDir, formDir, formName: entry.name, owner, cache, context, ownerCache })
+      )
     }
   }
 

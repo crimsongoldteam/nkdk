@@ -1,16 +1,20 @@
-import { MetadataTabularSectionRules } from "~/metadata/commonObjects/metadataTabularSection/rules"
-import { StandartAttributeNameToYAML } from "~/metadata/commonObjects/standardAttributeDescription/standartAttributeNames"
-import type { TypeDescription } from "~/metadata/commonObjects/typeDescription/types"
-import type { MetadataItem, PropertyRule, StandardAttributeDescriptionsPropertyRule } from "~/metadata/orchestration/property/types"
+import { MetadataTabularSectionRules } from "../../commonObjects/metadataTabularSection/rules"
+import { StandartAttributeNameToYAML } from "../../commonObjects/standardAttributeDescription/standartAttributeNames"
+import type { TypeDescription } from "../../commonObjects/typeDescription/types"
+import type {
+  MetadataItem,
+  PropertyRule,
+  StandardAttributeDescriptionsPropertyRule,
+} from "../../orchestration/property/types"
 import type { Diagnostic } from "../types"
 import type { OwnerMetadata } from "./ownerCache"
-import { typeDescriptionToDataPathTypeInfo } from "./typeDescription"
 import {
-  type DataPathTableInfo,
-  type DataPathTypeInfo,
-  type OwnerTypeRef,
-  unknownDataPathTypeInfo,
-} from "./types"
+  getObjectFieldCollectionDescriptors,
+  resolveIndexTimeStandardMember,
+  resolveStandardAttributeType,
+} from "./registry"
+import { typeDescriptionToDataPathTypeInfo } from "./typeDescription"
+import { type DataPathTableInfo, type DataPathTypeInfo, unknownDataPathTypeInfo } from "./types"
 
 export type ObjectFieldKind =
   | "attribute"
@@ -22,6 +26,7 @@ export type ObjectFieldKind =
 
 export interface ObjectField {
   name: string
+  targetName?: string
   kind: ObjectFieldKind
   typeInfo: DataPathTypeInfo
   tableSource?: ObjectFieldTableSource
@@ -49,14 +54,6 @@ interface NamedTypedItem {
   standardAttributes?: NamedTypedItem[]
 }
 
-const dataCollectionKinds = {
-  attributes: "attribute",
-  tabularSections: "tabularSection",
-  dimensions: "dimension",
-  resources: "resource",
-  addressingAttributes: "addressingAttribute",
-} as const satisfies Record<string, ObjectFieldKind>
-
 export function buildObjectFieldIndex(owner: ObjectFieldIndexOwner): ObjectFieldIndex {
   const fields = new Map<string, ObjectField>()
   const standardAttributeAliases = new Map<string, string>()
@@ -78,10 +75,17 @@ export function getObjectField(params: { index: ObjectFieldIndex; name: string }
   return params.index.fields.get(params.name)
 }
 
-export function resolveObjectFieldSegment(params: { index: ObjectFieldIndex; segment: string }): ObjectField | undefined {
-  const alias = params.index.standardAttributeAliases.get(params.segment) ?? standardAttributeAliasToYAML(params.segment)
-  if (alias !== undefined) return params.index.fields.get(alias) ?? params.index.fields.get(params.segment)
-  return params.index.fields.get(params.segment)
+export function resolveObjectFieldSegment(params: {
+  index: ObjectFieldIndex
+  segment: string
+}): ObjectField | undefined {
+  const direct = params.index.fields.get(params.segment)
+  if (direct !== undefined) return direct
+
+  const alias =
+    params.index.standardAttributeAliases.get(params.segment) ?? standardAttributeAliasToYAML(params.segment)
+  if (alias !== undefined) return params.index.fields.get(alias)
+  return undefined
 }
 
 export function standardAttributeAliasToYAML(segment: string): string | undefined {
@@ -92,22 +96,20 @@ function addDataCollectionFields(params: { owner: ObjectFieldIndexOwner; fields:
   const { owner, fields } = params
   const model = metadataRecord(owner.model)
 
-  for (const [collection, kind] of Object.entries(dataCollectionKinds)) {
-    if (owner.rule.properties[collection] === undefined) continue
-
-    const items = getNamedItems(model[collection])
+  for (const descriptor of getObjectFieldCollectionDescriptors(owner as OwnerMetadata)) {
+    const items = getNamedItems(model[descriptor.collection])
     for (const item of items) {
       if (typeof item.name !== "string" || item.name.length === 0) continue
 
-      if (kind === "tabularSection") {
-        fields.set(item.name, buildTabularSectionField(owner, item, collection))
+      if (descriptor.kind === "tabularSection") {
+        fields.set(item.name, buildTabularSectionField(owner, item, descriptor.collection))
         continue
       }
 
       fields.set(item.name, {
         name: item.name,
-        kind,
-        sourceCollection: collection,
+        kind: descriptor.kind,
+        sourceCollection: descriptor.collection,
         typeInfo: typeDescriptionToDataPathTypeInfo(item.type),
       })
     }
@@ -131,19 +133,22 @@ function addStandardAttributeFields(params: {
   for (const [internalName, yamlName] of Object.entries(standardAttributeNames)) {
     const explicit = explicitItems.get(internalName)
     standardAttributeAliases.set(internalName, yamlName)
-    fields.set(yamlName, {
+    const field = {
       name: yamlName,
+      targetName: internalName,
       kind: "standardAttribute",
       sourceCollection,
       typeInfo: standardAttributeTypeInfo({ owner, internalName, yamlName, explicit }),
-    })
+    } satisfies ObjectField
+    fields.set(internalName, field)
+    if (!fields.has(yamlName)) fields.set(yamlName, field)
   }
 }
 
 function buildTabularSectionField(
   owner: ObjectFieldIndexOwner,
   tabularSection: NamedTypedItem,
-  sourceCollection: string,
+  sourceCollection: string
 ): ObjectField {
   const table: DataPathTableInfo = {
     kind: "TabularSection",
@@ -198,143 +203,33 @@ function standardAttributeTypeInfo(params: {
   yamlName: string
   explicit: NamedTypedItem | undefined
 }): DataPathTypeInfo {
-  if (params.explicit?.type !== undefined) return typeDescriptionToDataPathTypeInfo(params.explicit.type)
+  const explicitTypeInfo =
+    params.explicit?.type === undefined ? undefined : typeDescriptionToDataPathTypeInfo(params.explicit.type)
+  const declarative = resolveIndexTimeStandardMember({
+    owner: params.owner as OwnerMetadata,
+    internalName: params.internalName,
+    yamlName: params.yamlName,
+    ...(explicitTypeInfo !== undefined ? { explicitTypeInfo } : {}),
+  })
+  if (declarative !== undefined) return declarative.typeInfo
 
-  if (params.internalName === "Ref" || params.yamlName === "Ссылка") {
-    return {
-      kinds: ["object"],
-      nextTypes: [sameOwnerRef(params.owner.ref)],
-    }
-  }
-
-  if (params.internalName === "Owner" || params.yamlName === "Владелец") {
-    return ownerStandardAttributeTypeInfo(params.owner) ?? unknownDataPathTypeInfo
-  }
-
-  if (params.internalName === "ValueType" || params.yamlName === "ТипЗначения") {
-    return {
-      kinds: ["typeDescription"],
-      nextTypes: [],
-      sourceText: `${params.owner.ref.kind}.ValueType`,
-    }
-  }
-
-  if (params.internalName === "SentNo" || params.internalName === "ReceivedNo") {
-    return {
-      kinds: ["scalar"],
-      nextTypes: [],
-      sourceText: `${params.owner.ref.kind}.SentReceivedNo`,
-    }
-  }
-
-  if (params.internalName === "Parent" || params.yamlName === "Родитель") {
-    return {
-      kinds: ["object"],
-      nextTypes: [sameOwnerRef(params.owner.ref)],
-      sourceText: `${params.owner.ref.kind}.Parent`,
-    }
-  }
-
-  if (["DeletionMark", "Posted", "Executed", "Completed", "Started"].includes(params.internalName)) {
-    return {
-      kinds: ["boolean"],
-      nextTypes: [],
-      sourceText: `${params.owner.ref.kind}.${params.internalName}`,
-    }
-  }
-
-  if (params.internalName === "BusinessProcess") {
-    return {
-      kinds: ["object"],
-      nextTypes: [{ kind: "БизнесПроцесс" }],
-      sourceText: `${params.owner.ref.kind}.BusinessProcess`,
-    }
-  }
-
-  if (params.internalName === "RoutePoint") {
-    return {
-      kinds: ["object"],
-      nextTypes: [{ kind: "БизнесПроцесс" }],
-      sourceText: `${params.owner.ref.kind}.RoutePoint`,
-    }
-  }
-
-  if (params.internalName === "Predefined" || params.yamlName === "Предопределенный") {
-    return {
-      kinds: ["boolean"],
-      nextTypes: [],
-      sourceText: `${params.owner.ref.kind}.Predefined`,
-    }
-  }
-
-  return unknownDataPathTypeInfo
-}
-
-const ownerKindsByMetadataLinkPrefix: Readonly<Record<string, OwnerTypeRef["kind"] | undefined>> = {
-  Catalog: "Справочник",
-  ChartOfCharacteristicTypes: "ПланВидовХарактеристик",
-  ChartOfCalculationTypes: "ПланВидовРасчета",
-  ChartOfAccounts: "ПланСчетов",
-  Document: "Документ",
-  Enum: "Перечисление",
-  ExchangePlan: "ПланОбмена",
-  BusinessProcess: "БизнесПроцесс",
-  Task: "Задача",
-  DataProcessor: "Обработка",
-  Report: "Отчет",
-}
-
-function ownerStandardAttributeTypeInfo(owner: ObjectFieldIndexOwner): DataPathTypeInfo | undefined {
-  const ownerLinks = metadataRecord(owner.model).owners
-  if (!Array.isArray(ownerLinks)) return undefined
-
-  const nextTypes: OwnerTypeRef[] = []
-  const sourceTypes: string[] = []
-  for (const link of ownerLinks) {
-    if (typeof link !== "string") continue
-
-    const nextType = ownerTypeRefFromMetadataLink(link)
-    if (nextType === undefined) continue
-
-    addUniqueOwnerRef(nextTypes, nextType)
-    sourceTypes.push(link)
-  }
-
-  if (nextTypes.length === 0) return undefined
-
-  return {
-    kinds: ["object"],
-    nextTypes,
-    ...(nextTypes.length > 1 ? { isComposite: true } : {}),
-    sourceText: sourceTypes.join(" | "),
-  }
-}
-
-function ownerTypeRefFromMetadataLink(link: string): OwnerTypeRef | undefined {
-  const [prefix, name] = splitMetadataLink(link)
-  const kind = ownerKindsByMetadataLinkPrefix[prefix]
-  if (kind === undefined) return undefined
-
-  return {
-    kind,
-    ...(name !== undefined && name !== "" ? { name } : {}),
-  }
-}
-
-function splitMetadataLink(link: string): [prefix: string, name?: string] {
-  const dotIndex = link.indexOf(".")
-  if (dotIndex === -1) return [link]
-  return [link.substring(0, dotIndex), link.substring(dotIndex + 1)]
-}
-
-function addUniqueOwnerRef(items: OwnerTypeRef[], item: OwnerTypeRef): void {
-  if (items.some((existing) => existing.kind === item.kind && existing.name === item.name)) return
-  items.push(item)
+  return (
+    resolveStandardAttributeType({
+      owner: params.owner as OwnerMetadata,
+      internalName: params.internalName,
+      yamlName: params.yamlName,
+      ...(explicitTypeInfo !== undefined ? { explicitTypeInfo } : {}),
+    }) ?? unknownDataPathTypeInfo
+  )
 }
 
 function standardAttributesByInternalName(value: unknown): Map<string, NamedTypedItem> {
   const items = getNamedItems(value)
-  return new Map(items.filter((item): item is NamedTypedItem & { name: string } => typeof item.name === "string").map((item) => [item.name, item]))
+  return new Map(
+    items
+      .filter((item): item is NamedTypedItem & { name: string } => typeof item.name === "string")
+      .map((item) => [item.name, item])
+  )
 }
 
 function getNamedItems(value: unknown): NamedTypedItem[] {
@@ -347,11 +242,4 @@ function isNamedTypedItem(value: unknown): value is NamedTypedItem {
 
 function metadataRecord(model: MetadataItem): Record<string, unknown> {
   return model as MetadataItem & Record<string, unknown>
-}
-
-function sameOwnerRef(ref: OwnerTypeRef): OwnerTypeRef {
-  return {
-    kind: ref.kind,
-    ...(ref.name !== undefined ? { name: ref.name } : {}),
-  }
 }

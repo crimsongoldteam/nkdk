@@ -1,11 +1,11 @@
-import { PropertyRule } from "~/metadata/orchestration/property/types"
-import { registerTypeRule } from "~/metadata/orchestration/property/typeRuleRegistry"
-import { asExplicitYAMLStringIfMarked } from "~/yaml/explicitString"
+import type { PropertyRule } from "../../orchestration/property/types"
+import { registerTypeRule } from "../../orchestration/property/typeRuleRegistry"
+import { asExplicitYAMLStringIfMarked } from "../../../yaml/explicitString"
 import { ConfigurationContext } from "../../context/types"
 import { importFormChoiceListFromYAML } from "../metadataValue/formChoiceList/fromYAML"
 import { importMetadataValueFromYAML } from "../metadataValue/fromYAML"
 import type { MetadataExplicitFormChoiceListValueYAML, MetadataFormChoiceListValueYAML } from "../metadataValue/types"
-import { ChoiceParameter, ChoiceParameters, ChoiceParametersYAML } from "./types"
+import type { ChoiceParameter, ChoiceParameters, ChoiceParametersYAML } from "./types"
 
 const isExplicitFormChoiceListValueYAML = (value: unknown): value is MetadataExplicitFormChoiceListValueYAML =>
   typeof value === "object" &&
@@ -34,9 +34,7 @@ export const importChoiceParametersFromYAML = (
 
   return Object.entries(data).map(([name, yamlValue]) => {
     const markedValue =
-      yamlValue === null || isEmptyObject(yamlValue)
-        ? undefined
-        : asExplicitYAMLStringIfMarked(data, name, yamlValue)
+      yamlValue === null || isEmptyObject(yamlValue) ? undefined : asExplicitYAMLStringIfMarked(data, name, yamlValue)
     const value =
       markedValue === undefined
         ? undefined

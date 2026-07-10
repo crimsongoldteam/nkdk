@@ -266,7 +266,7 @@ NKDK_XML_DIR="$(cd "${NKDK_XML_DIR}" && pwd)"
 NKDK_XML_REPO="$(cd "${NKDK_XML_REPO}" && pwd)"
 
 if [ -n "$(git -C "${REPO_DIR}" status --porcelain)" ]; then
-  echo "Ошибка: рабочее дерево nakidka-core не чистое." >&2
+  echo "Ошибка: рабочее дерево nkdk-core не чистое." >&2
   echo "Сохрани или откати изменения перед запуском round-trip-yaml." >&2
   git -C "${REPO_DIR}" status --short >&2
   exit 1

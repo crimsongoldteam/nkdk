@@ -1,5 +1,5 @@
 import { describe, expect, it } from "vitest"
-import { testImportPropertyFromXML } from "~/tests/property/importPropertyFromXML"
+import { testImportPropertyFromXML } from "../../../tests/property/importPropertyFromXML"
 import { operationsWithXDTOTypeNamespace } from "./__fixtures__/data"
 import "./register"
 import { MetadataWebServiceOperations } from "./types"

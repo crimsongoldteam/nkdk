@@ -1,8 +1,8 @@
-import { uuidPropertyRule } from "~/metadata/commonObjects/uuid/rule"
-import { getParentFromContext } from "~/metadata/context/helpers"
-import { ConfigurationContext, ConfigurationContextWithExportToXML } from "~/metadata/context/types"
-import { addDefaultLanguageNameToSynonym } from "~/metadata/helpers/synonymHelpers"
-import { PropertyRule } from "~/metadata/orchestration/property/types"
+import { uuidPropertyRule } from "../uuid/rule"
+import { getParentFromContext } from "../../context/helpers"
+import { ConfigurationContext, ConfigurationContextWithExportToXML } from "../../context/types"
+import { addDefaultLanguageNameToSynonym } from "../../helpers/synonymHelpers"
+import type { PropertyRule } from "../../orchestration/property/types"
 
 const propertiesParents = ["Properties"]
 const emptySynonym = { items: {} }
@@ -92,6 +92,7 @@ export const commonRegisterFieldProperties = {
     xml: "PasswordMode",
     type: "boolean",
     defaultValueXML: false,
+    implicitValueYAML: false,
     xmlParents: propertiesParents,
     order: 5,
   },
@@ -124,6 +125,7 @@ export const commonRegisterFieldProperties = {
     xml: "MarkNegatives",
     type: "boolean",
     defaultValueXML: false,
+    implicitValueYAML: false,
     xmlParents: propertiesParents,
     order: 9,
   },
@@ -140,6 +142,7 @@ export const commonRegisterFieldProperties = {
     xml: "MultiLine",
     type: "boolean",
     defaultValueXML: false,
+    implicitValueYAML: false,
     xmlParents: propertiesParents,
     order: 11,
   },
@@ -148,6 +151,7 @@ export const commonRegisterFieldProperties = {
     xml: "ExtendedEdit",
     type: "boolean",
     defaultValueXML: false,
+    implicitValueYAML: false,
     xmlParents: propertiesParents,
     order: 12,
   },
@@ -174,6 +178,7 @@ export const commonRegisterFieldProperties = {
     xml: "FillFromFillingValue",
     type: "boolean",
     defaultValueXML: false,
+    implicitValueYAML: false,
     xmlParents: propertiesParents,
     toXML: exportInformationRegisterOrExplicit("fillFromFillingValue"),
     order: 15,
@@ -318,6 +323,7 @@ export const commonRegisterFieldProperties = {
     type: "SystemEnumeration",
     typeSE: "BinaryDataStorageLocationUse",
     xmlParents: propertiesParents,
+    noImplicitValueYAML: true,
     order: 30,
   },
   binaryDataStorageLocationUseField: {

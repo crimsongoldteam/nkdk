@@ -1,7 +1,7 @@
 import { describe, expect, it } from "vitest"
-import { getTypeRule } from "~/metadata/orchestration"
-import { ExportToYAMLFunctionNew } from "~/metadata/orchestration/property/fn"
-import { mockContext, mockRule } from "~/tests/mockContext"
+import { getTypeRule } from "../../orchestration"
+import { ExportToYAMLFunctionNew } from "../../orchestration/property/fn"
+import { mockContext, mockRule } from "../../../tests/mockContext"
 import { exportMetadataItemLinkToYAML, exportMetadataItemLinksToYAML } from "./toYAML"
 
 describe("exportMetadataItemLinkToYAML", () => {
@@ -71,6 +71,51 @@ describe("exportMetadataItemLinksToYAML", () => {
       "WSСсылка.Калькулятор",
       "Последовательность.ПартииТоваров",
     ])
+  })
+
+  it("exports command member links through metadataTarget", () => {
+    const rule = {
+      type: "MetadataItemLinks",
+      metadataTarget: {
+        kind: "member",
+        owner: "explicit",
+        allowedMemberPaths: [
+          ["DataProcessor", "Command"],
+          ["Catalog", "Command"],
+          ["Document", "Command"],
+          ["InformationRegister", "Command"],
+        ],
+      },
+    } as const
+
+    expect(
+      exportMetadataItemLinksToYAML(mockContext, rule, [
+        "DataProcessor.ПанельСправочников.Command.ОткрытьПанель",
+        "Catalog.Товары.Command.Печать",
+        "Document.Заказ.Command.СоздатьНаОсновании",
+        "InformationRegister.Настройки.Command.ОткрытьСписок",
+      ])
+    ).toEqual([
+      "Обработка.ПанельСправочников.Команда.ОткрытьПанель",
+      "Справочник.Товары.Команда.Печать",
+      "Документ.Заказ.Команда.СоздатьНаОсновании",
+      "РегистрСведений.Настройки.Команда.ОткрытьСписок",
+    ])
+  })
+
+  it("does not fall back to object formatting when metadataTarget expects members", () => {
+    const rule = {
+      type: "MetadataItemLinks",
+      metadataTarget: {
+        kind: "member",
+        owner: "explicit",
+        allowedMemberPaths: [["DataProcessor", "Command"]],
+      },
+    } as const
+
+    expect(() => exportMetadataItemLinksToYAML(mockContext, rule, ["Catalog.Товары"])).toThrow(
+      "Некорректный формат цели метаданных"
+    )
   })
 
   it("exports role reference lists through single-root metadataTarget", () => {

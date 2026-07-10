@@ -1,4 +1,4 @@
-import { ConfigurationContextFromXML } from "~/metadata/context/types"
+import { ConfigurationContextFromXML } from "../../../context/types"
 import { importI8nTextFromXML } from "../../i8nText/fromXML"
 import { importMetadataValueFromXML } from "../fromXML"
 import { MetadataFormChoiceListValue, MetadataFormChoiceListValueXML } from "../types"

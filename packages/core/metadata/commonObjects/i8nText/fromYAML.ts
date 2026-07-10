@@ -1,7 +1,7 @@
-import { ConfigurationContext } from "~/metadata/context/types"
-import { addDefaultLanguageNameToSynonym } from "~/metadata/helpers/synonymHelpers"
-import { ImportFromYAMLFunctionNew, PropertyRule } from "~/metadata/orchestration"
-import { registerTypeRule } from "~/metadata/orchestration/property/typeRuleRegistry"
+import { ConfigurationContext } from "../../context/types"
+import { addDefaultLanguageNameToSynonym } from "../../helpers/synonymHelpers"
+import { ImportFromYAMLFunctionNew, PropertyRule } from "../../orchestration"
+import { registerTypeRule } from "../../orchestration/property/typeRuleRegistry"
 import { I8nText, I8nTextPropertyRule, I8nTextYAML } from "./types"
 
 export const importI8nTextFromYAML: ImportFromYAMLFunctionNew = (params: {
@@ -31,7 +31,7 @@ export const importI8nTextFromYAML: ImportFromYAMLFunctionNew = (params: {
   if (Object.keys(result.items).length === 0) return undefined
 
   if (i8nRule.excludeIfEqualNameYAML) {
-    if (name === undefined) throw new Error("name is required for excludeIfEqualNameYAML")
+    if (name === undefined) return result
     if (source !== undefined && source.items[context.defaultLanguage] === undefined) return result
     return addDefaultLanguageNameToSynonym(context, result, name)
   }

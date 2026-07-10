@@ -1,16 +1,13 @@
-import { ConfigurationContext, ConfigurationContextFromXML } from "~/metadata/context/types"
-import { registerTypeRule } from "~/metadata/orchestration/property/typeRuleRegistry"
-import { importMetadataItemCollectionFromXML } from "~/metadata/orchestration/metadataCollection/fromXML"
-import { exportMetadataCollectionToXML } from "~/metadata/orchestration/metadataCollection/toXML"
-import { importMetadataItemCollectionFromYAMLAsRecord } from "~/metadata/orchestration/metadataCollection/fromYAML"
-import { exportMetadataCollectionToYAMLAsRecord } from "~/metadata/orchestration/metadataCollection/toYAML"
-import { ExportToXMLFunctionNew } from "~/metadata/orchestration/property/fn"
-import { PropertyRule } from "~/metadata/orchestration/property/types"
-import { StandardAttributeDescriptionRules } from "~/metadata/commonObjects/standardAttributeDescription/rules"
-import {
-  StandardAttributeDescriptions,
-  StandardAttributeDescriptionsYAML,
-} from "~/metadata/commonObjects/standardAttributeDescription/types"
+import { ConfigurationContext, ConfigurationContextFromXML } from "../../context/types"
+import { registerTypeRule } from "../../orchestration/property/typeRuleRegistry"
+import { importMetadataItemCollectionFromXML } from "../../orchestration/metadataCollection/fromXML"
+import { exportMetadataCollectionToXML } from "../../orchestration/metadataCollection/toXML"
+import { importMetadataItemCollectionFromYAMLAsRecord } from "../../orchestration/metadataCollection/fromYAML"
+import { exportMetadataCollectionToYAMLAsRecord } from "../../orchestration/metadataCollection/toYAML"
+import { ExportToXMLFunctionNew } from "../../orchestration/property/fn"
+import type { PropertyRule } from "../../orchestration/property/types"
+import { StandardAttributeDescriptionRules } from "../standardAttributeDescription/rules"
+import { StandardAttributeDescriptions, StandardAttributeDescriptionsYAML } from "../standardAttributeDescription/types"
 import { StandardTabularSectionDescriptionRules } from "./rules"
 import {
   StandardTabularSectionDescription,
@@ -22,15 +19,17 @@ import {
 const xmlElement = "xr:StandardTabularSection"
 const standardAttributeXmlElement = "xr:StandardAttribute"
 
-registerTypeRule("StandardTabularSectionDescriptions", "importFromXML", (
-  context: ConfigurationContextFromXML,
-  rule: PropertyRule,
-  xml: unknown
-) => {
-  return importMetadataItemCollectionFromXML(StandardTabularSectionDescriptionRules, xmlElement)(context, rule, xml) as
-    | StandardTabularSectionDescriptions
-    | undefined
-})
+registerTypeRule(
+  "StandardTabularSectionDescriptions",
+  "importFromXML",
+  (context: ConfigurationContextFromXML, rule: PropertyRule, xml: unknown) => {
+    return importMetadataItemCollectionFromXML(StandardTabularSectionDescriptionRules, xmlElement)(
+      context,
+      rule,
+      xml
+    ) as StandardTabularSectionDescriptions | undefined
+  }
+)
 
 const exportStandardTabularSectionDescriptionsToXML: ExportToXMLFunctionNew = ({
   context,
@@ -51,44 +50,48 @@ const exportStandardTabularSectionDescriptionsToXML: ExportToXMLFunctionNew = ({
 
 registerTypeRule("StandardTabularSectionDescriptions", "exportToXML", exportStandardTabularSectionDescriptionsToXML)
 
-registerTypeRule("StandardTabularSectionDescriptions", "importFromYAML", (
-  context: ConfigurationContext,
-  _rule: PropertyRule | undefined,
-  value: unknown
-) => {
-  return importMetadataItemCollectionFromYAMLAsRecord({
-    context,
-    itemRule: StandardTabularSectionDescriptionRules,
-    yaml: value as StandardTabularSectionDescriptionsYAML | undefined,
-  }) as StandardTabularSectionDescriptions | undefined
-})
+registerTypeRule(
+  "StandardTabularSectionDescriptions",
+  "importFromYAML",
+  (context: ConfigurationContext, _rule: PropertyRule | undefined, value: unknown) => {
+    return importMetadataItemCollectionFromYAMLAsRecord({
+      context,
+      itemRule: StandardTabularSectionDescriptionRules,
+      yaml: value as StandardTabularSectionDescriptionsYAML | undefined,
+    }) as StandardTabularSectionDescriptions | undefined
+  }
+)
 
-registerTypeRule("StandardTabularSectionDescriptions", "exportToYAML", (
-  context: ConfigurationContext,
-  _rule: PropertyRule | undefined,
-  value: StandardTabularSectionDescriptions | undefined
-) => {
-  return exportMetadataCollectionToYAMLAsRecord({
-    context,
-    data: value?.filter(
-      (item): item is StandardTabularSectionDescription & { name: string } => item.name !== undefined
-    ),
-    itemRule: StandardTabularSectionDescriptionRules,
-    keyField: "name",
-  }) as Record<string, StandardTabularSectionDescriptionYAML> | undefined
-})
+registerTypeRule(
+  "StandardTabularSectionDescriptions",
+  "exportToYAML",
+  (
+    context: ConfigurationContext,
+    _rule: PropertyRule | undefined,
+    value: StandardTabularSectionDescriptions | undefined
+  ) => {
+    return exportMetadataCollectionToYAMLAsRecord({
+      context,
+      data: value?.filter(
+        (item): item is StandardTabularSectionDescription & { name: string } => item.name !== undefined
+      ),
+      itemRule: StandardTabularSectionDescriptionRules,
+      keyField: "name",
+    }) as Record<string, StandardTabularSectionDescriptionYAML> | undefined
+  }
+)
 
-registerTypeRule("StandardTabularSectionAttributeDescriptions", "importFromXML", (
-  context: ConfigurationContextFromXML,
-  rule: PropertyRule,
-  xml: unknown
-) => {
-  return importMetadataItemCollectionFromXML(StandardAttributeDescriptionRules, standardAttributeXmlElement)(
-    context,
-    rule,
-    xml
-  ) as StandardAttributeDescriptions | undefined
-})
+registerTypeRule(
+  "StandardTabularSectionAttributeDescriptions",
+  "importFromXML",
+  (context: ConfigurationContextFromXML, rule: PropertyRule, xml: unknown) => {
+    return importMetadataItemCollectionFromXML(StandardAttributeDescriptionRules, standardAttributeXmlElement)(
+      context,
+      rule,
+      xml
+    ) as StandardAttributeDescriptions | undefined
+  }
+)
 
 const exportStandardTabularSectionAttributeDescriptionsToXML: ExportToXMLFunctionNew = ({
   context,
@@ -113,29 +116,33 @@ registerTypeRule(
   exportStandardTabularSectionAttributeDescriptionsToXML
 )
 
-registerTypeRule("StandardTabularSectionAttributeDescriptions", "importFromYAML", (
-  context: ConfigurationContext,
-  _rule: PropertyRule | undefined,
-  value: unknown
-) => {
-  return importMetadataItemCollectionFromYAMLAsRecord({
-    context,
-    itemRule: StandardAttributeDescriptionRules,
-    yaml: value as StandardAttributeDescriptionsYAML | undefined,
-  }) as StandardAttributeDescriptions | undefined
-})
+registerTypeRule(
+  "StandardTabularSectionAttributeDescriptions",
+  "importFromYAML",
+  (context: ConfigurationContext, _rule: PropertyRule | undefined, value: unknown) => {
+    return importMetadataItemCollectionFromYAMLAsRecord({
+      context,
+      itemRule: StandardAttributeDescriptionRules,
+      yaml: value as StandardAttributeDescriptionsYAML | undefined,
+    }) as StandardAttributeDescriptions | undefined
+  }
+)
 
-registerTypeRule("StandardTabularSectionAttributeDescriptions", "exportToYAML", (
-  context: ConfigurationContext,
-  _rule: PropertyRule | undefined,
-  value: StandardAttributeDescriptions | undefined
-) => {
-  return exportMetadataCollectionToYAMLAsRecord({
-    context,
-    data: value?.filter(
-      (item): item is StandardAttributeDescriptions[number] & { name: string } => item.name !== undefined
-    ),
-    itemRule: StandardAttributeDescriptionRules,
-    keyField: "name",
-  }) as StandardAttributeDescriptionsYAML | undefined
-})
+registerTypeRule(
+  "StandardTabularSectionAttributeDescriptions",
+  "exportToYAML",
+  (
+    context: ConfigurationContext,
+    _rule: PropertyRule | undefined,
+    value: StandardAttributeDescriptions | undefined
+  ) => {
+    return exportMetadataCollectionToYAMLAsRecord({
+      context,
+      data: value?.filter(
+        (item): item is StandardAttributeDescriptions[number] & { name: string } => item.name !== undefined
+      ),
+      itemRule: StandardAttributeDescriptionRules,
+      keyField: "name",
+    }) as StandardAttributeDescriptionsYAML | undefined
+  }
+)

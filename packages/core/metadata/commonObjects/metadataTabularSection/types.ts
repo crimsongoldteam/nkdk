@@ -1,11 +1,11 @@
-import { I8nTextXML, I8nTextYAML } from "~/metadata/commonObjects/i8nText/types"
-import { MetadataAttributesXML, MetadataAttributesYAML } from "~/metadata/commonObjects/metadataAttribute/types"
+import { I8nTextXML, I8nTextYAML } from "../i8nText/types"
+import { MetadataAttributesXML, MetadataAttributesYAML } from "../metadataAttribute/types"
 import {
   StandardAttributeDescriptionsXML,
   StandardAttributeDescriptionsYAML,
-} from "~/metadata/commonObjects/standardAttributeDescription/types"
-import { MetadataTypeByRule } from "~/metadata/orchestration/metadataItem/element"
-import * as SE from "~/metadata/systemEnumerations/types"
+} from "../standardAttributeDescription/types"
+import { MetadataTypeByRule } from "../../orchestration/metadataItem/element"
+import * as SE from "../../systemEnumerations/types"
 import { InternalInfoItemsXML } from "../internalInfo/types"
 import { MetadataNameYAML } from "../metadataName/types"
 import { MetadataTabularSectionRules } from "./rules"

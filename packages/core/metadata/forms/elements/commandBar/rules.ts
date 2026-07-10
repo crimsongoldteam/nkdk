@@ -1,51 +1,66 @@
-import { registerElementRule } from "~/metadata/orchestration/formElement/ruleFactory"
+import { commandBarChildItemsRule } from "../../commonObjects/childItems/types"
+import { booleanRule } from "../../../commonObjects/boolean/types"
+import { stringRule } from "../../../commonObjects/string/types"
+import { systemEnumerationRule } from "../../../systemEnumerations/types"
+import { registerElementRule } from "../../../orchestration/formElement/ruleFactory"
 import { formGroupCommonProperties } from "../formGroup/rules"
-import { PropertyRule } from "~/metadata/orchestration/property/types"
+import type { PropertyRule } from "../../../orchestration/property/types"
 import { ElementRule } from "../../../orchestration/formElement/types"
 export type { ElementRule, PropertyRule }
-
 export const CommandBarRules = {
   itemType: "CommandBar",
   enterpriseField: "FormGroup",
   enterpriseFieldType: "FormGroupType.CommandBar",
   properties: {
-    name: {
-      type: "string",
+    name: stringRule({
       xml: "_name",
       required: true,
-    },
-    autofill: { yaml: "Автозаполнение", type: "boolean" },
-    childItems: {
+    }),
+    autofill: booleanRule({ yaml: "Автозаполнение", implicitValueYAML: false }),
+    childItems: commandBarChildItemsRule({
       yaml: "Элементы",
-      type: "CommandBarChildItems",
       defaultValue: [],
-    },
-    displayImportance: {
+    }),
+    displayImportance: systemEnumerationRule({
       yaml: "ВажностьПриОтображении",
       xml: "_DisplayImportance",
-      type: "SystemEnumeration",
       typeSE: "DisplayImportance",
-    },
-    horizontalAlign: {
+      implicitValueYAML: "Auto",
+    }),
+    horizontalAlign: systemEnumerationRule({
       yaml: "ГоризонтальноеПоложение",
-      type: "SystemEnumeration",
       typeSE: "ItemHorizontalLocation",
       xml: "HorizontalLocation",
-    },
-    commandSource: { yaml: "ИсточникКоманд", type: "string" },
+      implicitValueYAML: "Left",
+    }),
+    commandSource: stringRule({ yaml: "ИсточникКоманд" }),
     ...formGroupCommonProperties,
+    height: {
+      ...formGroupCommonProperties.height,
+      implicitValueYAML: 0,
+    },
+    horizontalStretch: {
+      ...formGroupCommonProperties.horizontalStretch,
+      implicitValueYAML: false,
+    },
     shortcut: {
       ...formGroupCommonProperties.shortcut,
       toYAML: false,
       fromYAML: false,
     },
-    type: {
+    visible: {
+      ...formGroupCommonProperties.visible,
+      implicitValueYAML: true,
+    },
+    width: {
+      ...formGroupCommonProperties.width,
+      implicitValueYAML: 0,
+    },
+    type: systemEnumerationRule({
       yaml: "Вид",
-      type: "SystemEnumeration",
       typeSE: "FormGroupType",
       runtimeOnly: true,
-    },
+    }),
   },
 } as const satisfies ElementRule
-
 registerElementRule("CommandBar", CommandBarRules)

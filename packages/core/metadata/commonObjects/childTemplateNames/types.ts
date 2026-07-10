@@ -1,4 +1,10 @@
-import type { BasePropertyRule } from "~/metadata/orchestration/property/types"
+import {
+  definePropertyRule as defineWidePropertyRule,
+  type ExactRuleParams as WideExactRuleParams,
+} from "../ruleBuilder"
+import type { PropertyRule as WidePropertyRuleBase } from "../../orchestration/property/types"
+import type { BasePropertyRule } from "../../orchestration/property/types"
+import { fileItemCollectionTarget } from "../../orchestration/property/operationTargets"
 
 /** Правило property-типа ChildTemplateNames — список имён макетов в ChildObjects XML.
  *
@@ -12,4 +18,24 @@ export interface ChildTemplateNamesPropertyRule extends BasePropertyRule {
   /** Имя папки на диске, например "Макеты" */
   folderName: string
   forReferenceOnly: true
+}
+
+export interface ChildTemplateNamesWidePropertyRule extends WidePropertyRuleBase {
+  type: "ChildTemplateNames"
+}
+
+export type ChildTemplateNamesRuleParams = Omit<ChildTemplateNamesWidePropertyRule, "type">
+
+export function childTemplateNamesRule<const Params extends ChildTemplateNamesRuleParams>(
+  params: WideExactRuleParams<ChildTemplateNamesRuleParams, Params>
+): Readonly<{ type: "ChildTemplateNames" } & Params> {
+  return defineWidePropertyRule("ChildTemplateNames", {
+    ...params,
+    operationTarget: fileItemCollectionTarget({
+      role: "template",
+      migrationSegment: "Макет",
+      folderName: params.folderName,
+      yamlFileName: "Шаблон.yaml",
+    }),
+  })
 }

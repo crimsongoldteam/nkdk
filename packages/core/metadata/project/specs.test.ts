@@ -1,12 +1,13 @@
 import { describe, expect, it } from "vitest"
-import { MetadataConfigurationRules } from "~/metadata/appliedObjects/configuration/rules"
-import { TopLevelMetadataItemRules } from "~/metadata/appliedObjects/configuration/topLevelRules"
+import "../register"
+import { MetadataConfigurationRules } from "../appliedObjects/configuration/rules"
+import { TopLevelMetadataItemRules } from "../appliedObjects/configuration/topLevelRules"
 import {
   configurationValidationProjectSpec,
   getValidationProjectSpecByDir,
   validationProjectSpecByDir,
   validationProjectSpecs,
-} from "~/metadata/validation/projectSpecs"
+} from "../validation/projectSpecs"
 import {
   configurationMetadataProjectSpec,
   getMetadataProjectSpecByDir,
@@ -17,7 +18,7 @@ import {
 describe("metadata project specs", () => {
   it("builds specs for every top-level metadata item with YAML directory", () => {
     const topLevelDirs = TopLevelMetadataItemRules.flatMap((rule) =>
-      typeof rule.itemTypePrefix === "string" ? [rule.itemTypePrefix] : [],
+      typeof rule.itemTypePrefix === "string" ? [rule.itemTypePrefix] : []
     ).sort((left, right) => left.localeCompare(right, "ru"))
 
     const projectDirs = metadataProjectSpecs
@@ -50,5 +51,18 @@ describe("metadata project specs", () => {
     expect(validationProjectSpecs).toBe(metadataProjectSpecs)
     expect(configurationValidationProjectSpec).toBe(configurationMetadataProjectSpec)
     expect(getValidationProjectSpecByDir).toBe(getMetadataProjectSpecByDir)
+  })
+
+  it("comes from object registrations, including custom import/export specs", () => {
+    expect(configurationMetadataProjectSpec.kind).toBe("configuration")
+    expect(configurationMetadataProjectSpec.dir).toBe("")
+
+    expect(getMetadataProjectSpecByDir("Справочник")).toMatchObject({ kind: "catalog", dir: "Справочник" })
+    expect(getMetadataProjectSpecByDir("Документ")).toMatchObject({ kind: "document", dir: "Документ" })
+    expect(getMetadataProjectSpecByDir("Перечисление")).toMatchObject({ kind: "enumeration", dir: "Перечисление" })
+
+    expect(metadataProjectSpecs.map((spec) => spec.dir)).toEqual(
+      expect.arrayContaining(["Справочник", "Документ", "Перечисление"])
+    )
   })
 })

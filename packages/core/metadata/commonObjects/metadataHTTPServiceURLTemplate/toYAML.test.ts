@@ -1,8 +1,8 @@
 import { describe, expect, it } from "vitest"
 import { urlTemplatesFromYAML, urlTemplatesYAML } from "./__fixtures__/data"
 import { exportMetadataHTTPServiceURLTemplatesToYAML } from "./register"
-import { MetadataHTTPServiceMethodsYAML } from "~/metadata/commonObjects/metadataHTTPServiceMethod/types"
-import { mockContext } from "~/tests/mockContext"
+import { MetadataHTTPServiceMethodsYAML } from "../metadataHTTPServiceMethod/types"
+import { mockContext } from "../../../tests/mockContext"
 
 describe("export MetadataHTTPServiceURLTemplates to YAML", () => {
   it("exports URL template with nested methods", () => {

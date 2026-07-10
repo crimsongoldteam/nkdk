@@ -1,15 +1,16 @@
-import { TypeCompiler } from "@sinclair/typebox/compiler"
+import { compileValidationSchema } from "./../../validation/compileValidationSchema"
 import { describe, expect, it } from "vitest"
 import { exportWebSocketClientHeadersToJSONSchema } from "./toJSONSchema"
 
-const schema = TypeCompiler.Compile(
+const schema = compileValidationSchema(
   exportWebSocketClientHeadersToJSONSchema({
     context: {} as never,
     rule: { type: "WebSocketClientHeaders" },
     value: undefined,
-  }) ?? (() => {
-    throw new Error("WebSocketClientHeaders JSON schema export returned undefined")
-  })()
+  }) ??
+    (() => {
+      throw new Error("WebSocketClientHeaders JSON schema export returned undefined")
+    })()
 )
 
 describe("exportWebSocketClientHeadersToJSONSchema", () => {

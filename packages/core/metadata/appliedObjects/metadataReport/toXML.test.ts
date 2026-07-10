@@ -1,5 +1,5 @@
 import { describe, expect, it } from "vitest"
-import { testExportAppliedObjectToXML } from "~/tests/appliedObject"
+import { testExportAppliedObjectToXML } from "../../../tests/appliedObject"
 import { minimal } from "./__fixtures__/minimal"
 import { MetadataReportRules } from "./rules"
 

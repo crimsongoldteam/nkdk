@@ -1,6 +1,6 @@
-import { TypeCompiler } from "@sinclair/typebox/compiler"
+import { compileValidationSchema } from "./../../../validation/compileValidationSchema"
 import { describe, expect, it } from "vitest"
-import { exportPropertyToJSONSchema } from "~/metadata/orchestration/property/toJSONSchema"
+import { exportPropertyToJSONSchema } from "../../../orchestration/property/toJSONSchema"
 import "./toJSONSchema"
 
 const context = {
@@ -15,7 +15,7 @@ describe("AvailableFields JSON Schema", () => {
       rule: { type: "AvailableFields", yaml: "ДоступныеПоляОтбора" },
       value: undefined,
     })
-    const compiled = TypeCompiler.Compile(schema!)
+    const compiled = compileValidationSchema(schema!)
 
     expect(compiled.Check(["Документ", { Поле: "Документ", Использование: "Ложь" }])).toBe(true)
   })
@@ -26,7 +26,7 @@ describe("AvailableFields JSON Schema", () => {
       rule: { type: "AvailableFields", yaml: "ДоступныеПоляОтбора" },
       value: undefined,
     })
-    const compiled = TypeCompiler.Compile(schema!)
+    const compiled = compileValidationSchema(schema!)
 
     expect(compiled.Check({ Документ: { Поле: "Документ" } })).toBe(false)
   })

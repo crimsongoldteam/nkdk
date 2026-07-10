@@ -1,8 +1,8 @@
-import type { ConfigurationContext } from "~/metadata/context/types"
-import type { ConfigurationContextFromXML } from "~/metadata/context/types"
-import type { ConfigurationContextWithExportToXML } from "~/metadata/context/types"
-import { registerTypeRule } from "~/metadata/orchestration"
-import type { PropertyRule } from "~/metadata/orchestration/property/types"
+import type { ConfigurationContext } from "../../../context/types"
+import type { ConfigurationContextFromXML } from "../../../context/types"
+import type { ConfigurationContextWithExportToXML } from "../../../context/types"
+import { registerTypeRule } from "../../../orchestration"
+import type { PropertyRule } from "../../../orchestration/property/types"
 import { AppearanceFieldsRules } from "./rules"
 import type { AppearanceFields } from "./types"
 
@@ -57,14 +57,23 @@ registerTypeRule(
 registerTypeRule(
   "AppearanceFields",
   "exportToXML",
-  (_context: ConfigurationContextWithExportToXML, _rule: PropertyRule | undefined, value: unknown, _reference?: unknown) =>
-    exportSelectionToDcsXML(value as AppearanceFields | undefined)
+  (
+    _context: ConfigurationContextWithExportToXML,
+    _rule: PropertyRule | undefined,
+    value: unknown,
+    _reference?: unknown
+  ) => exportSelectionToDcsXML(value as AppearanceFields | undefined)
 )
 
-registerTypeRule("AppearanceFields", "importFromYAML", (_context: ConfigurationContext, _rule: PropertyRule | undefined, yaml: unknown) =>
-  importSelectionFromYAML(yaml)
+registerTypeRule(
+  "AppearanceFields",
+  "importFromYAML",
+  (_context: ConfigurationContext, _rule: PropertyRule | undefined, yaml: unknown) => importSelectionFromYAML(yaml)
 )
 
-registerTypeRule("AppearanceFields", "exportToYAML", (_context: ConfigurationContext, _rule: PropertyRule | undefined, data: unknown) =>
-  exportSelectionToYAML(data as AppearanceFields | undefined)
+registerTypeRule(
+  "AppearanceFields",
+  "exportToYAML",
+  (_context: ConfigurationContext, _rule: PropertyRule | undefined, data: unknown) =>
+    exportSelectionToYAML(data as AppearanceFields | undefined)
 )

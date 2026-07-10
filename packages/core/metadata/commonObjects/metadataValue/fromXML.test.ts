@@ -1,7 +1,7 @@
 import { describe, expect, it } from "vitest"
-import { metadataValueFixtures } from "~/metadata/commonObjects/metadataValue/__fixtures__/data"
-import { mockContextFromXML } from "~/tests/mockContext"
-import { importContentFromXML } from "~/xml/import/importer"
+import { metadataValueFixtures } from "./__fixtures__/data"
+import { mockContextFromXML } from "../../../tests/mockContext"
+import { importContentFromXML } from "../../../xml/import/importer"
 import { importMetadataValueFromXML } from "./fromXML"
 
 describe("importMetadataValueFromXML", () => {

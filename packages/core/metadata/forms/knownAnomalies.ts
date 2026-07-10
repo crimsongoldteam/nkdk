@@ -96,7 +96,9 @@ const isKnownMasterButtonSequence = (items: XMLObject[]): boolean => {
   })
 }
 
-const isKnownMasterButtonDataSequence = <Item extends { itemType?: string; name?: string }>(items: readonly Item[]): boolean => {
+const isKnownMasterButtonDataSequence = <Item extends { itemType?: string; name?: string }>(
+  items: readonly Item[]
+): boolean => {
   if (items.length !== KNOWN_MASTER_BUTTON_IDS.length) return false
 
   return items.every((item, index) => {

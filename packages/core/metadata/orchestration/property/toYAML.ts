@@ -1,29 +1,30 @@
-import { ConfigurationContext } from "~/metadata/context/types"
-import { buildExternalFileEntry } from "~/metadata/forms/commonObjects/dynamicList/externalFile"
+import { ConfigurationContext } from "../../context/types"
+import { buildExternalFileEntry } from "../../forms/commonObjects/dynamicList/externalFile"
 import { ToMetadata, ToYAML } from ".."
 import { getTypeRule } from "./typeRuleRegistry"
 import { ExportToYAMLFunction, ExportToYAMLFunctionNew } from "./fn"
 import { shouldProcessProperty } from "./helpers"
 import { exportStringMetadataTargetToYAML, metadataTargetOwnerFromRule } from "./metadataTargetString"
-import { MetadataItemRule, PropertyRule } from "./types"
-import type { MetadataTargetOwner } from "~/metadata/commonObjects/metadataTargets/types"
+import type { MetadataItemRule, PropertyRule } from "./types"
+import type { MetadataTargetOwner } from "../../commonObjects/metadataTargets/types"
 
 export function exportPropertiesToYAML<Rule extends MetadataItemRule>(params: {
   context: ConfigurationContext
   data: ToMetadata<Rule["itemType"]> | undefined
   rule: Rule
+  name?: string
 }): ToYAML<Rule["itemType"]> | undefined {
   const { context, data, rule: rule } = params
   if (data === undefined) return undefined
 
   const result = {}
-  const name = "name" in data ? (data["name"] as string) : undefined
-  const itemContext = contextWithMetadataTargetOwner(context, rule.itemType, name)
+  const name = params.name ?? ("name" in data ? (data["name"] as string) : undefined)
   const owner = metadataTargetOwnerFromRule({
     itemRule: rule,
     name,
-    context: itemContext,
+    context,
   })
+  const itemContext = contextWithMetadataTargetOwner(context, rule.itemType, name, owner)
 
   for (const [key, propertyRule] of Object.entries(rule.properties)) {
     // Свойство с externalFile: значение идёт во внешний файл, не в YAML
@@ -109,14 +110,18 @@ export const exportPropertyToYAML = (params: {
       owner: params.owner,
     })
     const exportedValue =
-      rule.type === "string" ? exportStringMetadataTargetToYAML({ rule, value: typedValue, owner: params.owner }) : typedValue
+      rule.type === "string"
+        ? exportStringMetadataTargetToYAML({ rule, value: typedValue, owner: params.owner })
+        : typedValue
 
     return getExportToYAMLResult(rule, yamlKey, exportedValue, value)
   }
 
   const typedResult = (typeExportFn as ExportToYAMLFunction)(nestedContext, rule, value)
   const result =
-    rule.type === "string" ? exportStringMetadataTargetToYAML({ rule, value: typedResult, owner: params.owner }) : typedResult
+    rule.type === "string"
+      ? exportStringMetadataTargetToYAML({ rule, value: typedResult, owner: params.owner })
+      : typedResult
   return getExportToYAMLResult(rule, yamlKey, result, value)
 }
 
@@ -137,7 +142,8 @@ function contextWithPropertyParentName(context: ConfigurationContext, name: stri
 function contextWithMetadataTargetOwner(
   context: ConfigurationContext,
   itemType: MetadataItemRule["itemType"],
-  name: string | undefined
+  name: string | undefined,
+  owner: MetadataTargetOwner | undefined
 ): ConfigurationContext {
   if (!name) return context
 
@@ -146,7 +152,10 @@ function contextWithMetadataTargetOwner(
     exportToYAML: context.exportToYAML
       ? {
           ...context.exportToYAML,
-          metadataTargetOwners: [...(context.exportToYAML.metadataTargetOwners ?? []), { itemType, name }],
+          metadataTargetOwners: [
+            ...(context.exportToYAML.metadataTargetOwners ?? []),
+            { itemType, name, ...(owner ? { owner } : {}) },
+          ],
         }
       : context.exportToYAML,
   }

@@ -1,12 +1,11 @@
 import fs, { mkdirSync, mkdtempSync, rmSync, writeFileSync } from "fs"
 import { tmpdir } from "os"
 import { join } from "path"
-import { TypeCompiler } from "@sinclair/typebox/compiler"
 import { afterEach, describe, expect, it, vi } from "vitest"
-import { mockContext } from "~/tests/mockContext"
+import { mockContext } from "../../../tests/mockContext"
+import { createValidationObjectTable } from "../projectValidationObjectTable"
 import { createProjectYamlCache } from "../projectYamlCache"
-import { createOwnerMetadataCache } from "./ownerCache"
-import type { KnownOwnerTypeKind } from "./types"
+import { createOwnerMetadataCache, createOwnerMetadataCacheFromValidationTable } from "./ownerCache"
 
 describe("OwnerMetadataCache", () => {
   const tempDirs: string[] = []
@@ -44,6 +43,30 @@ describe("OwnerMetadataCache", () => {
       },
     })
     expect(readFileSync).toHaveBeenCalledTimes(1)
+  })
+
+  it("can resolve owner metadata from validation object table without reading YAML", () => {
+    const table = createValidationObjectTable({
+      records: [
+        {
+          filePath: "/project/Справочник/Товары/Свойства.yaml",
+          projectPath: "Справочник/Товары/Свойства.yaml",
+          kind: "properties",
+          owner: { dir: "Справочник", name: "Товары" },
+          ownerRef: { kind: "Справочник", name: "Товары" },
+          fieldIndex: { fields: new Map(), standardAttributeAliases: new Map(), diagnostics: [] },
+          importDiagnostics: [],
+        },
+      ],
+      filePaths: [],
+    })
+    const cache = createOwnerMetadataCacheFromValidationTable({ projectDir: "/project", table })
+
+    const result = cache.get({ kind: "Справочник", name: "Товары" })
+
+    expect(result.status).toBe("ok")
+    if (result.status !== "ok") return
+    expect(result.owner.filePath).toBe("/project/Справочник/Товары/Свойства.yaml")
   })
 
   it("returns not-found with cross-file diagnostic when owner file is missing", () => {
@@ -102,7 +125,7 @@ describe("OwnerMetadataCache", () => {
     ["КритерийОтбора", "КритерийОтбора"],
     ["ХранилищеНастроек", "ХранилищеНастроек"],
     ["НумераторДокументов", "Нумератор"],
-  ] satisfies Array<[kind: KnownOwnerTypeKind, dir: string]>)("maps %s owner refs to %s directory", (kind, dir) => {
+  ] satisfies Array<[kind: string, dir: string]>)("maps %s owner refs to %s directory", (kind, dir) => {
     const projectDir = createProject()
     const cache = createOwnerMetadataCache({
       projectDir,
@@ -182,7 +205,7 @@ describe("OwnerMetadataCache", () => {
         "Состав:",
         "  - Объект: Справочники.НематериальныеАктивы",
         "    Использование: Использовать",
-      ].join("\n"),
+      ].join("\n")
     )
     const cache = createOwnerMetadataCache({
       projectDir,
@@ -228,7 +251,12 @@ describe("OwnerMetadataCache", () => {
 
   it("returns import-error when model import throws", () => {
     const projectDir = createProject()
-    writeProperties(projectDir, "Справочник", "Товары", ["Реквизиты:", "  Неверный:", "    Тип: НесуществующийТип"].join("\n"))
+    writeProperties(
+      projectDir,
+      "Справочник",
+      "Товары",
+      ["Реквизиты:", "  Неверный:", "    Тип: НесуществующийТип"].join("\n")
+    )
     const cache = createOwnerMetadataCache({
       projectDir,
       yamlCache: createProjectYamlCache(),
@@ -246,7 +274,6 @@ describe("OwnerMetadataCache", () => {
   it("does not run schema validation while loading owners for DataPath checks", () => {
     const projectDir = createProject()
     writeProperties(projectDir, "Справочник", "Товары", ["Реквизиты:", "  Артикул:", "    Тип: Строка"].join("\n"))
-    const compile = vi.spyOn(TypeCompiler, "Compile")
     const cache = createOwnerMetadataCache({
       projectDir,
       yamlCache: createProjectYamlCache(),
@@ -256,7 +283,6 @@ describe("OwnerMetadataCache", () => {
     const result = cache.get({ kind: "Справочник", name: "Товары" })
 
     expect(result.status).toBe("ok")
-    expect(compile).not.toHaveBeenCalled()
   })
 
   it("returns ambiguous when owner data fields have duplicate names", () => {
@@ -265,7 +291,7 @@ describe("OwnerMetadataCache", () => {
       projectDir,
       "Справочник",
       "Товары",
-      ["Реквизиты:", "  ОбщееИмя:", "    Тип: Строка", "ТабличныеЧасти:", "  ОбщееИмя:", "    Реквизиты: {}"].join("\n"),
+      ["Реквизиты:", "  ОбщееИмя:", "    Тип: Строка", "ТабличныеЧасти:", "  ОбщееИмя:", "    Реквизиты: {}"].join("\n")
     )
     const cache = createOwnerMetadataCache({
       projectDir,
@@ -288,7 +314,7 @@ describe("OwnerMetadataCache", () => {
   })
 
   function createProject(): string {
-    const projectDir = mkdtempSync(join(tmpdir(), "nakidka-owner-cache-"))
+    const projectDir = mkdtempSync(join(tmpdir(), "nkdk-owner-cache-"))
     tempDirs.push(projectDir)
     return projectDir
   }

@@ -1,9 +1,9 @@
 export const MIGRATIONS_DIR = "Миграции" as const
-export const APPLIED_MIGRATIONS_FILE = ".nakidka-migrations.yaml" as const
+export const APPLIED_MIGRATIONS_FILE = ".nkdk-migrations.yaml" as const
 export const DELETE_ACTION = "Удалить" as const
 export const ADD_ACTION = "Добавить" as const
 
-export type MigrationAction = typeof DELETE_ACTION | typeof ADD_ACTION | string
+export type MigrationAction = string
 
 export interface MigrationEntry {
   path: string

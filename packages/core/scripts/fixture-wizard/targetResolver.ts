@@ -46,10 +46,7 @@ export async function readXmlDirFromRules(itemDir: string): Promise<string | und
   return xmlDir
 }
 
-export async function resolveMetadataTarget(
-  projectRoot: string,
-  metadataItem: string,
-): Promise<MetadataTarget> {
+export async function resolveMetadataTarget(projectRoot: string, metadataItem: string): Promise<MetadataTarget> {
   const available = await listMetadataItems(projectRoot)
 
   if (!available.includes(metadataItem)) {
@@ -69,10 +66,7 @@ export async function resolveMetadataTarget(
 }
 
 function isXmlDirProperty(name: ts.PropertyName): boolean {
-  return (
-    (ts.isIdentifier(name) && name.text === "xmlDir") ||
-    (ts.isStringLiteral(name) && name.text === "xmlDir")
-  )
+  return (ts.isIdentifier(name) && name.text === "xmlDir") || (ts.isStringLiteral(name) && name.text === "xmlDir")
 }
 
 function readStringLiteral(node: ts.Expression): string | undefined {

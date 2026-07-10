@@ -1,4 +1,4 @@
-import { ExportToXMLFunctionNew, registerTypeRule } from "~/metadata/orchestration"
+import { ExportToXMLFunctionNew, registerTypeRule } from "../../orchestration"
 
 export const exportChildFileItemNamesToXML: ExportToXMLFunctionNew = (params): string[] | undefined => {
   const { value } = params

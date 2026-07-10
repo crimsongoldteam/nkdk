@@ -1,9 +1,9 @@
 import { readFileSync } from "fs"
 import { join } from "path"
 import { describe, expect, it } from "vitest"
-import { exportMetadataItemToXML, importMetadataItemFromXML } from "~/metadata/orchestration"
-import { mockContextFromXML, mockContextToXML } from "~/tests/mockContext"
-import { xmlExport } from "~/xml/export/exporter"
+import { exportMetadataItemToXML, importMetadataItemFromXML } from "../../orchestration"
+import { mockContextFromXML, mockContextToXML } from "../../../tests/mockContext"
+import { xmlExport } from "../../../xml/export/exporter"
 import { aggregates, currentRegisterName } from "./__fixtures__/data"
 import { AccumulationRegisterAggregatesRules } from "./rules"
 

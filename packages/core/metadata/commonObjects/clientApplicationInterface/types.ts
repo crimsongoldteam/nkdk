@@ -1,8 +1,9 @@
-import { Static, Type } from "@sinclair/typebox"
-import { MetadataItem } from "~/metadata/orchestration"
-import { MetadataTypeByRule } from "~/metadata/orchestration/metadataItem/element"
-import { YAMLTypeByRule } from "~/metadata/orchestration/metadataItem/yaml"
-import type { SectionsPanelRepresentation } from "~/metadata/systemEnumerations/types"
+import { Type } from "typebox"
+import type { Static } from "typebox"
+import { MetadataItem } from "../../orchestration"
+import { MetadataTypeByRule } from "../../orchestration/metadataItem/element"
+import { YAMLTypeByRule } from "../../orchestration/metadataItem/yaml"
+import type { SectionsPanelRepresentation } from "../../systemEnumerations/types"
 import { ClientApplicationInterfaceRules } from "./rules"
 
 export type ClientApplicationInterfaceStandardPanel =
@@ -73,17 +74,20 @@ export const ClientApplicationInterfacePanelYAMLSchema = Type.Object({
   Представление: Type.Optional(Type.String()),
 })
 
-export const ClientApplicationInterfaceItemYAMLSchema = Type.Recursive((This) =>
-  Type.Union([
-    Type.Object({
-      Панель: Type.Union([Type.String(), ClientApplicationInterfacePanelYAMLSchema]),
-    }),
-    Type.Object({
-      Группа: Type.Object({
-        Элементы: Type.Optional(Type.Array(This)),
+export const ClientApplicationInterfaceItemYAMLSchema = Type.Cyclic(
+  {
+    ClientApplicationInterfaceItem: Type.Union([
+      Type.Object({
+        Панель: Type.Union([Type.String(), ClientApplicationInterfacePanelYAMLSchema]),
       }),
-    }),
-  ])
+      Type.Object({
+        Группа: Type.Object({
+          Элементы: Type.Optional(Type.Array(Type.Ref("ClientApplicationInterfaceItem"))),
+        }),
+      }),
+    ]),
+  },
+  "ClientApplicationInterfaceItem"
 )
 
 export const ClientApplicationInterfaceItemsYAMLSchema = Type.Array(ClientApplicationInterfaceItemYAMLSchema)

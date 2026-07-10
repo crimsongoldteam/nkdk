@@ -1,5 +1,5 @@
-import { uuidPropertyRule } from "~/metadata/commonObjects/uuid/rule"
-import { MetadataItemRule, PropertyRule } from "~/metadata/orchestration/property/types"
+import { uuidPropertyRule } from "../uuid/rule"
+import type { MetadataItemRule, PropertyRule } from "../../orchestration/property/types"
 
 const propertiesParents = ["Properties"]
 const childObjectsParents = ["ChildObjects"]
@@ -20,6 +20,7 @@ export const MetadataWebServiceParameterRules = {
       type: "I8nText",
       xmlParents: propertiesParents,
       defaultValueXMLRaw: "",
+      excludeIfEqualNameYAML: true,
     },
     comment: {
       yaml: "Комментарий",
@@ -89,6 +90,7 @@ export const MetadataWebServiceOperationRules = {
       type: "I8nText",
       xmlParents: propertiesParents,
       defaultValueXMLRaw: "",
+      excludeIfEqualNameYAML: true,
     },
     comment: {
       yaml: "Комментарий",

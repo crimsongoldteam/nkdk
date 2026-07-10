@@ -1,8 +1,8 @@
 import { readFileSync } from "fs"
 import { join } from "path"
 import { describe, expect, it } from "vitest"
-import { exportMetadataItemToYAML, importMetadataItemFromXML } from "~/metadata/orchestration"
-import { mockContext, mockContextFromXML } from "~/tests/mockContext"
+import { exportMetadataItemToYAML, importMetadataItemFromXML } from "../../orchestration"
+import { mockContext, mockContextFromXML } from "../../../tests/mockContext"
 import { RootCommandInterfaceRules } from "./rules"
 
 import "./register"
@@ -52,7 +52,7 @@ describe("export RootCommandInterface to YAML", () => {
     expect(result?.ВидимостьКоманд).toEqual(
       expect.arrayContaining([
         {
-          Команда: "Catalog.СправочникПолный.Command.ПоУмолчанию",
+          Команда: "Справочник.СправочникПолный.Команда.ПоУмолчанию",
           Общее: "Ложь",
           Роли: {
             Администратор: "Ложь",
@@ -64,7 +64,7 @@ describe("export RootCommandInterface to YAML", () => {
     expect(result?.РазмещениеКоманд).toEqual(
       expect.arrayContaining([
         {
-          Команда: "Catalog.СправочникПолный.Command.ПоУмолчанию",
+          Команда: "Справочник.СправочникПолный.Команда.ПоУмолчанию",
           ГруппаКоманд: "ПанельНавигацииВажное",
           Размещение: "Вручную",
         },
@@ -73,7 +73,7 @@ describe("export RootCommandInterface to YAML", () => {
     expect(result?.ПорядокКоманд).toEqual(
       expect.arrayContaining([
         {
-          Команда: "Catalog.СправочникПолный.Command.ПоУмолчанию",
+          Команда: "Справочник.СправочникПолный.Команда.ПоУмолчанию",
           ГруппаКоманд: "ПанельНавигацииВажное",
         },
         {

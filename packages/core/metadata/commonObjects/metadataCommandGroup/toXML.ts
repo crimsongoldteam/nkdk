@@ -1,6 +1,6 @@
-import { PropertyRule } from "~/metadata/orchestration/property/types"
+import type { PropertyRule } from "../../orchestration/property/types"
 import { ConfigurationContext } from "../../context/types"
-import { MetadataCommandGroup, MetadataCommandGroupXML } from "./types"
+import type { MetadataCommandGroup, MetadataCommandGroupXML } from "./types"
 
 export const exportMetadataCommandGroupToXML = (
   _context: ConfigurationContext,

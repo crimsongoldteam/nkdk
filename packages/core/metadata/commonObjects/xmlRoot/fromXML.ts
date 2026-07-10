@@ -1,5 +1,5 @@
-import { ConfigurationContextFromXML } from "~/metadata/context/types"
-import { PropertyRule, registerTypeRule } from "~/metadata/orchestration"
+import { ConfigurationContextFromXML } from "../../context/types"
+import { PropertyRule, registerTypeRule } from "../../orchestration"
 
 /** Маркерный обработчик: реальная работа выполняется оркестратором в importMetadataItemFromXML. */
 export const importXMLRootFromXML = (

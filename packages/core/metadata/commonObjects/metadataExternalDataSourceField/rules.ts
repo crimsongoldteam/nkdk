@@ -1,8 +1,8 @@
-import { uuidPropertyRule } from "~/metadata/commonObjects/uuid/rule"
-import { MetadataItemRule, PropertyRule } from "~/metadata/orchestration/property/types"
-
+import { booleanRule } from "../boolean/types"
+import { stringRule } from "../string/types"
+import { uuidPropertyRule } from "../uuid/rule"
+import type { MetadataItemRule, PropertyRule } from "../../orchestration/property/types"
 const propertiesParents = ["Properties"]
-
 export const externalDataSourceFieldBaseProperties = {
   uuid: uuidPropertyRule,
   name: {
@@ -17,6 +17,7 @@ export const externalDataSourceFieldBaseProperties = {
     type: "I8nText",
     xmlParents: propertiesParents,
     defaultValueXMLRaw: "",
+    excludeIfEqualNameYAML: true,
   },
   comment: {
     yaml: "Комментарий",
@@ -181,7 +182,6 @@ export const externalDataSourceFieldBaseProperties = {
     defaultValueXMLRaw: "",
   },
 } as const satisfies Record<string, PropertyRule>
-
 const externalDataSourceServiceProperties = {
   objectBelonging: {
     yaml: "ПринадлежностьОбъекта",
@@ -200,35 +200,30 @@ const externalDataSourceServiceProperties = {
     runtimeOnly: true,
   },
 } as const satisfies Record<string, PropertyRule>
-
 export const externalDataSourceObjectServiceProperties = externalDataSourceServiceProperties
-
 export const MetadataExternalDataSourceFieldRules = {
   itemType: "MetadataExternalDataSourceField",
   properties: {
     ...externalDataSourceFieldBaseProperties,
-    nameInDataSource: {
+    nameInDataSource: stringRule({
       yaml: "ИмяВИсточникеДанных",
       xml: "NameInDataSource",
-      type: "string",
       xmlParents: propertiesParents,
-    },
-    readOnly: {
+    }),
+    readOnly: booleanRule({
       yaml: "ТолькоЧтение",
       xml: "ReadOnly",
-      type: "boolean",
       xmlParents: propertiesParents,
       defaultValueXML: false,
       implicitValueYAML: false,
-    },
-    allowNull: {
+    }),
+    allowNull: booleanRule({
       yaml: "РазрешитьNull",
       xml: "AllowNull",
-      type: "boolean",
       xmlParents: propertiesParents,
       defaultValueXML: true,
       implicitValueYAML: true,
-    },
+    }),
     ...externalDataSourceServiceProperties,
   },
 } as const satisfies MetadataItemRule

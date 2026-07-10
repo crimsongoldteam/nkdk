@@ -1,114 +1,108 @@
-import { V8_MDCLASSES_ROOT } from "~/metadata/orchestration/appliedObject/presets"
-import { MetadataItemRule } from "~/metadata/orchestration/property/types"
-
+import { childFormNamesRule } from "../../commonObjects/childFormNames/types"
+import { childTemplateNamesRule } from "../../commonObjects/childTemplateNames/types"
+import { internalInfoRule } from "../../commonObjects/internalInfo/types"
+import { i8nTextRule } from "../../commonObjects/i8nText/types"
+import { moduleRule } from "../../commonObjects/module/types"
+import { stringRule } from "../../commonObjects/string/types"
+import { uuidRule } from "../../commonObjects/uuid/types"
+import { xmlRootRule } from "../../commonObjects/xmlRoot/types"
+import { systemEnumerationRule } from "../../systemEnumerations/types"
+import { V8_MDCLASSES_ROOT } from "../../orchestration/appliedObject/presets"
+import type { MetadataItemRule } from "../../orchestration/property/types"
 const properties = ["Properties"]
 const childObjects = ["ChildObjects"]
-
 export const MetadataSettingsStorageRules = {
   itemType: "MetadataSettingsStorage",
+  metadataTargetOwner: { kind: "self", root: "SettingsStorage" },
   itemTypePrefix: "ХранилищеНастроек",
   xmlDir: "SettingsStorages",
   properties: {
-    xmlRoot: {
-      type: "XMLRoot",
+    xmlRoot: xmlRootRule({
       container: "SettingsStorage",
       rootAttributes: V8_MDCLASSES_ROOT,
       forReferenceOnly: true,
       toYAML: false,
       fromYAML: false,
-    },
-    internalInfo: {
-      type: "InternalInfo",
+    }),
+    internalInfo: internalInfoRule({
       xmlParents: [],
       forReferenceOnly: true,
       items: [{ name: "SettingsStorageManager", category: "Manager" }],
-    },
-    uuid: {
-      type: "uuid",
+    }),
+    uuid: uuidRule({
       xml: "_uuid",
       forReferenceOnly: true,
       xmlParents: [],
-    },
-    name: {
-      type: "string",
+    }),
+    name: stringRule({
       xmlParents: properties,
       required: true,
-    },
-    synonym: {
+    }),
+    synonym: i8nTextRule({
       yaml: "Синоним",
-      type: "I8nText",
       xmlParents: properties,
       defaultValueXMLRaw: "",
-    },
-    comment: {
+      excludeIfEqualNameYAML: true,
+    }),
+    comment: stringRule({
       yaml: "Комментарий",
-      type: "string",
       xmlParents: properties,
       defaultValueXMLRaw: "",
-    },
-    objectBelonging: {
+    }),
+    objectBelonging: systemEnumerationRule({
       yaml: "ПринадлежностьОбъекта",
-      type: "SystemEnumeration",
       typeSE: "ObjectBelonging",
       implicitValueYAML: "Native",
       toYAML: false,
       fromYAML: false,
       xmlParents: properties,
-    },
-    extendedConfigurationObject: {
+    }),
+    extendedConfigurationObject: stringRule({
       yaml: "ОбъектРасширяемойКонфигурации",
-      type: "string",
       runtimeOnly: true,
-    },
-    defaultSaveForm: {
+    }),
+    defaultSaveForm: stringRule({
       yaml: "ОсновнаяФормаСохранения",
-      type: "string",
       xmlParents: properties,
       metadataTarget: { kind: "member", owner: "this", memberKinds: ["Form"], objectRoots: ["CommonForm"] },
       defaultValueXMLRaw: "",
-    },
-    defaultLoadForm: {
+    }),
+    defaultLoadForm: stringRule({
       yaml: "ОсновнаяФормаЗагрузки",
-      type: "string",
       xmlParents: properties,
       metadataTarget: { kind: "member", owner: "this", memberKinds: ["Form"], objectRoots: ["CommonForm"] },
       defaultValueXMLRaw: "",
-    },
-    auxiliarySaveForm: {
+    }),
+    auxiliarySaveForm: stringRule({
       yaml: "ВспомогательнаяФормаСохранения",
-      type: "string",
       xmlParents: properties,
       metadataTarget: { kind: "member", owner: "this", memberKinds: ["Form"], objectRoots: ["CommonForm"] },
       defaultValueXMLRaw: "",
-    },
-    auxiliaryLoadForm: {
+    }),
+    auxiliaryLoadForm: stringRule({
       yaml: "ВспомогательнаяФормаЗагрузки",
-      type: "string",
       xmlParents: properties,
       metadataTarget: { kind: "member", owner: "this", memberKinds: ["Form"], objectRoots: ["CommonForm"] },
       defaultValueXMLRaw: "",
-    },
-    managerModule: {
-      type: "Module",
+    }),
+    managerModule: moduleRule({
       externalMetadata: { segment: "ManagerModule", placement: "derivedEntry" },
       nkdkPath: "МодульМенеджера.bsl",
       xmlPath: "Ext/ManagerModule.bsl",
-    },
-    forms: {
+    }),
+    forms: childFormNamesRule({
       yaml: "Формы",
-      type: "ChildFormNames",
       xml: "Form",
       folderName: "Формы",
       forReferenceOnly: true,
       xmlParents: childObjects,
-    },
-    templates: {
+    }),
+    templates: childTemplateNamesRule({
       yaml: "Шаблоны",
-      type: "ChildTemplateNames",
       xml: "Template",
       folderName: "Шаблоны",
       forReferenceOnly: true,
       xmlParents: childObjects,
-    },
+    }),
   },
 } as const satisfies MetadataItemRule

@@ -1,14 +1,14 @@
-import { I8nTextXML } from "~/metadata/commonObjects/i8nText/types"
+import { I8nTextXML } from "../../commonObjects/i8nText/types"
 import {
   MetadataWebServiceOperations,
   MetadataWebServiceOperationsXML,
   MetadataWebServiceOperationsYAML,
-} from "~/metadata/commonObjects/metadataWebServiceOperation/types"
-import { XDTOPackages, XDTOPackagesXML, XDTOPackagesYAML } from "~/metadata/commonObjects/xDTOPackages/types"
-import { registerMetadataItemRule } from "~/metadata/orchestration"
-import { MetadataTypeByRule } from "~/metadata/orchestration/metadataItem/element"
-import { YAMLTypeByRule } from "~/metadata/orchestration/metadataItem/yaml"
-import * as SE from "~/metadata/systemEnumerations/types"
+} from "../../commonObjects/metadataWebServiceOperation/types"
+import { XDTOPackages, XDTOPackagesXML, XDTOPackagesYAML } from "../../commonObjects/xDTOPackages/types"
+import { registerMetadataItemRule } from "../../orchestration"
+import { MetadataTypeByRule } from "../../orchestration/metadataItem/element"
+import { YAMLTypeByRule } from "../../orchestration/metadataItem/yaml"
+import * as SE from "../../systemEnumerations/types"
 import { MetadataWebServiceRules } from "./rules"
 
 export type MetadataWebService = MetadataTypeByRule<typeof MetadataWebServiceRules>

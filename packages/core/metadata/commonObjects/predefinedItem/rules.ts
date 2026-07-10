@@ -1,14 +1,17 @@
-import { uuidPropertyRule } from "~/metadata/commonObjects/uuid/rule"
-import { getParentFromContext } from "~/metadata/context/helpers"
-import { ConfigurationContextWithExportToXML } from "~/metadata/context/types"
-import { MetadataItemRule } from "~/metadata/orchestration/property/types"
-
+import { predefinedCodeRule } from "../predefinedCode/types"
+import { predefinedItemCollectionRule } from "./builders"
+import { typeDescriptionRule } from "../typeDescription/types"
+import { booleanRule } from "../boolean/types"
+import { stringRule } from "../string/types"
+import { uuidPropertyRule } from "../uuid/rule"
+import { getParentFromContext } from "../../context/helpers"
+import { ConfigurationContextWithExportToXML } from "../../context/types"
+import type { MetadataItemRule } from "../../orchestration/property/types"
 const isChartOfCharacteristicTypesPredefined = (context?: ConfigurationContextWithExportToXML): boolean =>
   context
     ? getParentFromContext(context, ["MetadataChartOfCharacteristicTypes" as never]).itemType ===
       "MetadataChartOfCharacteristicTypes"
     : false
-
 export const PredefinedItemRules = {
   itemType: "PredefinedItem",
   properties: {
@@ -16,44 +19,38 @@ export const PredefinedItemRules = {
       ...uuidPropertyRule,
       xml: "_id",
     },
-    name: {
-      type: "string",
+    name: stringRule({
       xml: "Name",
       required: true,
-    },
-    code: {
-      type: "PredefinedCode",
+    }),
+    code: predefinedCodeRule({
       xml: "Code",
       yaml: "Код",
       required: true,
-    },
-    description: {
-      type: "string",
+    }),
+    description: stringRule({
       xml: "Description",
       yaml: "Наименование",
       required: true,
-    },
-    isFolder: {
-      type: "boolean",
+    }),
+    isFolder: booleanRule({
       xml: "IsFolder",
       yaml: "ЭтоГруппа",
       defaultValue: false,
       defaultValueXML: false,
       implicitValueYAML: "Ложь",
-    },
-    type: {
+    }),
+    type: typeDescriptionRule({
       yaml: "ТипЗначения",
       xml: "Type",
-      type: "TypeDescription",
       declareTypeNamespaceXML: true,
       toXML: (_metadataItem: unknown, context?: ConfigurationContextWithExportToXML) =>
         isChartOfCharacteristicTypesPredefined(context),
       defaultValueXMLRaw: {},
-    },
-    childItems: {
-      type: "PredefinedItemCollection",
+    }),
+    childItems: predefinedItemCollectionRule({
       xml: "ChildItems",
       yaml: "Элементы",
-    },
+    }),
   },
 } as const satisfies MetadataItemRule

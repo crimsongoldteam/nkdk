@@ -1,7 +1,7 @@
 import { describe, expect, it } from "vitest"
-import { getTypeRule } from "~/metadata/orchestration"
-import type { PropertyRule } from "~/metadata/orchestration/property/types"
-import { mockContext } from "~/tests/mockContext"
+import { getTypeRule } from "../../orchestration"
+import type { PropertyRule } from "../../orchestration/property/types"
+import { mockContext } from "../../../tests/mockContext"
 import {
   exportMobileApplicationURLsToJSONSchema,
   exportMobileApplicationURLsToXML,
@@ -130,9 +130,7 @@ describe("MobileApplicationURLs", () => {
     expect(getTypeRule("MobileApplicationURLs", "exportToXML")).toBe(exportMobileApplicationURLsToXML)
     expect(getTypeRule("MobileApplicationURLs", "importFromYAML")).toBe(importMobileApplicationURLsFromYAML)
     expect(getTypeRule("MobileApplicationURLs", "exportToYAML")).toBe(exportMobileApplicationURLsToYAML)
-    expect(getTypeRule("MobileApplicationURLs", "exportToJSONSchema")).toBe(
-      exportMobileApplicationURLsToJSONSchema
-    )
+    expect(getTypeRule("MobileApplicationURLs", "exportToJSONSchema")).toBe(exportMobileApplicationURLsToJSONSchema)
   })
 
   it("exports JSON schema with mobile application URL keys", () => {

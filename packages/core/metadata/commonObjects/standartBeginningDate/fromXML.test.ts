@@ -1,5 +1,5 @@
 import { describe, expect, it } from "vitest"
-import { readAndParseXMLFixture } from "~/tests/readFixtureXML"
+import { readAndParseXMLFixture } from "../../../tests/readFixtureXML"
 import { fullStandartBeginningDate } from "./__fixtures__/data"
 import { importStandartBeginningDateFromXML } from "./fromXML"
 import type { StandartBeginningDateXML } from "./types"

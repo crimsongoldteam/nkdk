@@ -1,12 +1,13 @@
-import { Type } from "@sinclair/typebox"
-import { TypeCompiler, ValueErrorType } from "@sinclair/typebox/compiler"
-import { parseMetadataYaml } from "~/yaml/parseMetadataYaml"
+import { compileValidationSchema } from "./compileValidationSchema"
+import { Type, type TSchema } from "typebox"
+import { parseMetadataYaml } from "../../yaml/parseMetadataYaml"
 import { describe, expect, it } from "vitest"
 import { typeboxErrorsToDiagnostics } from "./typeboxErrorsToDiagnostics"
 import { validateFile, validateParsedFile } from "./validateFile"
+import type { ValidationSchemaValidator } from "./compileValidationSchema"
 
 // Простая схема для юнит-тестов — не зависит от доменных правил каталогов
-const simpleSchema = TypeCompiler.Compile(
+const simpleSchema = compileValidationSchema(
   Type.Object(
     {
       Имя: Type.Optional(Type.String()),
@@ -42,7 +43,7 @@ const simpleSchema = TypeCompiler.Compile(
   )
 )
 
-const requiredSchema = TypeCompiler.Compile(
+const requiredSchema = compileValidationSchema(
   Type.Object(
     {
       ОбязательноеПоле: Type.String(),
@@ -52,74 +53,72 @@ const requiredSchema = TypeCompiler.Compile(
   )
 )
 
-const plainUnionSchema = TypeCompiler.Compile(
+const plainUnionSchema = compileValidationSchema(
   Type.Union([
     Type.Object({ Вид: Type.Literal("Первый"), Поле: Type.String() }, { additionalProperties: false }),
     Type.Object({ Вид: Type.Literal("Второй"), Число: Type.Number() }, { additionalProperties: false }),
   ])
 )
 
-const discriminatedUnionSchema = TypeCompiler.Compile(
-  Type.Union(
-    [
-      Type.Object({ Вид: Type.Literal("Первый"), Поле: Type.String() }, { additionalProperties: false }),
-      Type.Object({ Вид: Type.Literal("Второй"), Число: Type.Number() }, { additionalProperties: false }),
-    ],
-    { discriminantKey: "Вид" }
-  )
+function discriminatorUnion(discriminator: string, schemas: [TSchema, TSchema, ...TSchema[]]): TSchema {
+  return {
+    oneOf: schemas,
+    discriminator: { propertyName: discriminator },
+  } as TSchema
+}
+
+const discriminatedUnionSchema = compileValidationSchema(
+  discriminatorUnion("Вид", [
+    Type.Object({ Вид: Type.Literal("Первый"), Поле: Type.String() }, { additionalProperties: false }),
+    Type.Object({ Вид: Type.Literal("Второй"), Число: Type.Number() }, { additionalProperties: false }),
+  ])
 )
 
-const nestedDiscriminatedUnionSchema = TypeCompiler.Compile(
-  Type.Union(
-    [
+const nestedDiscriminatedUnionSchema = compileValidationSchema(
+  discriminatorUnion("Вид", [
+    Type.Object(
+      {
+        Вид: Type.Literal("Контейнер"),
+        Child: discriminatorUnion("Вид", [
+          Type.Object({ Вид: Type.Literal("Первый"), Поле: Type.String() }, { additionalProperties: false }),
+          Type.Object({ Вид: Type.Literal("Второй"), Число: Type.Number() }, { additionalProperties: false }),
+        ]),
+      },
+      { additionalProperties: false }
+    ),
+    Type.Object({ Вид: Type.Literal("Пустой"), Поле: Type.String() }, { additionalProperties: false }),
+  ])
+)
+
+const childItemsDefinitions = {
+  ChildItems: Type.Record(
+    Type.String(),
+    discriminatorUnion("Вид", [
       Type.Object(
         {
-          Вид: Type.Literal("Контейнер"),
-          Child: Type.Union(
-            [
-              Type.Object({ Вид: Type.Literal("Первый"), Поле: Type.String() }, { additionalProperties: false }),
-              Type.Object({ Вид: Type.Literal("Второй"), Число: Type.Number() }, { additionalProperties: false }),
-            ],
-            { discriminantKey: "Вид" }
-          ),
+          Вид: Type.Literal("Группа"),
+          Элементы: Type.Optional(Type.Ref("ChildItems")),
         },
         { additionalProperties: false }
       ),
-      Type.Object({ Вид: Type.Literal("Пустой"), Поле: Type.String() }, { additionalProperties: false }),
-    ],
-    { discriminantKey: "Вид" }
-  )
-)
-
-const childItemsModule = Type.Module({
-  ChildItems: Type.Record(
-    Type.String(),
-    Type.Union(
-      [
-        Type.Object(
-          {
-            Вид: Type.Literal("Группа"),
-            Элементы: Type.Optional(Type.Ref("ChildItems")),
-          },
-          { additionalProperties: false }
-        ),
-        Type.Object(
-          {
-            Вид: Type.Literal("Надпись"),
-            Заголовок: Type.String(),
-          },
-          { additionalProperties: false }
-        ),
-      ],
-      { discriminantKey: "Вид" }
-    )
+      Type.Object(
+        {
+          Вид: Type.Literal("Надпись"),
+          Заголовок: Type.String(),
+        },
+        { additionalProperties: false }
+      ),
+    ])
   ),
-})
+}
 
-const referencedNestedDiscriminatedUnionSchema = TypeCompiler.Compile(
+const referencedNestedDiscriminatedUnionSchema = compileValidationSchema(
+  {
+    ChildItems: Type.Cyclic(childItemsDefinitions, "ChildItems"),
+  },
   Type.Object(
     {
-      Элементы: childItemsModule.Import("ChildItems"),
+      Элементы: Type.Ref("ChildItems"),
     },
     { additionalProperties: false }
   )
@@ -153,6 +152,27 @@ describe("validateFile", () => {
     expect(result.every((d) => d.source === "syntax")).toBe(true)
   })
 
+  it("uses js-yaml syntax diagnostics from ParsedYaml", () => {
+    const parsed = parseMetadataYaml("Имя: [")
+
+    expect(parsed.syntaxErrors).toHaveLength(1)
+    expect(
+      validateParsedFile({
+        filePath: "test.yaml",
+        parsed,
+        schema: simpleSchema,
+      })
+    ).toEqual([
+      expect.objectContaining({
+        filePath: "test.yaml",
+        line: 1,
+        col: 6,
+        source: "syntax",
+        severity: "error",
+      }),
+    ])
+  })
+
   it("обнаруживает поле с недопустимым дополнительным ключом", () => {
     const text = `НесуществующееПоле: значение\n`
     const result = validateFile({ filePath: "test.yaml", text, schema: simpleSchema })
@@ -162,6 +182,34 @@ describe("validateFile", () => {
       source: "structure",
       severity: "error",
     })
+  })
+
+  it("получает результат структурной проверки одним вызовом Errors", () => {
+    const parsed = parseMetadataYaml(`НесуществующееПоле: значение\n`)
+    let checkCalls = 0
+    let errorsCalls = 0
+    const countedSchema: ValidationSchemaValidator<TSchema> = {
+      Check(value) {
+        checkCalls += 1
+        return simpleSchema.Check(value)
+      },
+      Errors(value) {
+        errorsCalls += 1
+        return simpleSchema.Errors(value)
+      },
+      Schema() {
+        return simpleSchema.Schema()
+      },
+      Context() {
+        return simpleSchema.Context()
+      },
+    }
+
+    const result = validateParsedFile({ filePath: "test.yaml", parsed, schema: countedSchema })
+
+    expect(result.length).toBeGreaterThan(0)
+    expect(checkCalls).toBe(0)
+    expect(errorsCalls).toBe(1)
   })
 
   it("обнаруживает неверный тип: число там, где ожидается строка", () => {
@@ -226,7 +274,7 @@ describe("validateFile", () => {
     expect(deepError!.line).toBeGreaterThanOrEqual(1)
   })
 
-  it("раскрывает discriminantKey union по Вид и возвращает ошибку выбранной ветки", () => {
+  it("uses AJV discriminator by Вид and returns the selected branch error", () => {
     const text = `Вид: Второй\nЧисло: не-число\nЛишнее: значение\n`
 
     const result = validateFile({ filePath: "test.yaml", text, schema: discriminatedUnionSchema })
@@ -236,16 +284,8 @@ describe("validateFile", () => {
       expect.arrayContaining([
         expect.objectContaining({
           filePath: "test.yaml",
-          line: 2,
-          col: 8,
-          path: "/Число",
-          source: "structure",
-          severity: "error",
-        }),
-        expect.objectContaining({
-          filePath: "test.yaml",
           line: 3,
-          col: 1,
+          col: 9,
           path: "/Лишнее",
           source: "structure",
           severity: "error",
@@ -254,7 +294,7 @@ describe("validateFile", () => {
     )
   })
 
-  it("для неизвестного Вид возвращает targeted discriminator diagnostic", () => {
+  it("uses AJV discriminator diagnostic for unknown Вид", () => {
     const text = `Вид: Третий\n`
 
     const result = validateFile({ filePath: "test.yaml", text, schema: discriminatedUnionSchema })
@@ -267,12 +307,12 @@ describe("validateFile", () => {
         path: "/Вид",
         source: "structure",
         severity: "error",
-        message: 'Неизвестное значение дискриминатора "Вид": "Третий". Ожидается одно из: Первый, Второй',
+        message: expect.stringContaining("value of tag \"Вид\" must be in oneOf"),
       }),
     ])
   })
 
-  it("рекурсивно раскрывает вложенный discriminantKey union и сохраняет полный path", () => {
+  it("uses nested AJV discriminator and keeps full path", () => {
     const text = `Вид: Контейнер\nChild:\n  Вид: Второй\n  Число: не-число\n`
 
     const result = validateFile({ filePath: "test.yaml", text, schema: nestedDiscriminatedUnionSchema })
@@ -293,7 +333,7 @@ describe("validateFile", () => {
     )
   })
 
-  it("раскрывает discriminantKey union с Type.Ref из корневой схемы", () => {
+  it("uses AJV discriminator with Type.Ref from root schema", () => {
     const text = `Элементы:\n  Группа1:\n    Вид: Группа\n    Элементы:\n      Надпись1:\n        Вид: Надпись\n        Заголовок: 123\n`
 
     const result = validateFile({ filePath: "test.yaml", text, schema: referencedNestedDiscriminatedUnionSchema })
@@ -314,11 +354,11 @@ describe("validateFile", () => {
     )
   })
 
-  it("оставляет Type.Ref union без падения при прямом вызове diagnostics без root schema", () => {
+  it("converts Type.Ref discriminator errors without root schema expansion", () => {
     const parsed = parseMetadataYaml(
       `Элементы:\n  Группа1:\n    Вид: Группа\n    Элементы:\n      Надпись1:\n        Вид: Надпись\n        Заголовок: 123\n`
     )
-    const errors = [...referencedNestedDiscriminatedUnionSchema.Errors(parsed.data)]
+    const [, errors] = referencedNestedDiscriminatedUnionSchema.Errors(parsed.data)
 
     const result = typeboxErrorsToDiagnostics(errors, parsed, "test.yaml")
 
@@ -326,8 +366,7 @@ describe("validateFile", () => {
       expect.arrayContaining([
         expect.objectContaining({
           filePath: "test.yaml",
-          message: "Expected union value",
-          path: "/Элементы/Группа1",
+          path: "/Элементы/Группа1/Элементы/Надпись1/Заголовок",
           source: "structure",
           severity: "error",
         }),
@@ -335,7 +374,7 @@ describe("validateFile", () => {
     )
   })
 
-  it("для отсутствующего Вид возвращает targeted discriminator diagnostic с не задано", () => {
+  it("uses AJV discriminator diagnostic for missing Вид", () => {
     const text = `Поле: значение\n`
 
     const result = validateFile({ filePath: "test.yaml", text, schema: discriminatedUnionSchema })
@@ -348,12 +387,12 @@ describe("validateFile", () => {
         path: "/Вид",
         source: "structure",
         severity: "error",
-        message: 'Неизвестное значение дискриминатора "Вид": не задано. Ожидается одно из: Первый, Второй',
+        message: expect.stringContaining("tag \"Вид\" must be string"),
       }),
     ])
   })
 
-  it("для нестрокового Вид возвращает targeted discriminator diagnostic с не задано", () => {
+  it("uses AJV discriminator diagnostic for non-string Вид", () => {
     const text = `Вид: 123\n`
 
     const result = validateFile({ filePath: "test.yaml", text, schema: discriminatedUnionSchema })
@@ -366,12 +405,12 @@ describe("validateFile", () => {
         path: "/Вид",
         source: "structure",
         severity: "error",
-        message: 'Неизвестное значение дискриминатора "Вид": не задано. Ожидается одно из: Первый, Второй',
+        message: expect.stringContaining("tag \"Вид\" must be string"),
       }),
     ])
   })
 
-  it("оставляет обычный union без discriminantKey как TypeBox Union error", () => {
+  it("leaves regular union without discriminator as AJV union branch errors", () => {
     const text = `Вид: Второй\nЧисло: не-число\n`
 
     const result = validateFile({ filePath: "test.yaml", text, schema: plainUnionSchema })
@@ -379,13 +418,15 @@ describe("validateFile", () => {
     expect(result).toEqual(
       expect.arrayContaining([
         expect.objectContaining({
-          message: "Expected union value",
+          path: "/Число",
+          message: "Expected number",
           source: "structure",
           severity: "error",
         }),
       ])
     )
-    expect([...plainUnionSchema.Errors({ Вид: "Второй", Число: "не-число" })][0]?.type).toBe(ValueErrorType.Union)
+    const [, errors] = plainUnionSchema.Errors({ Вид: "Второй", Число: "не-число" })
+    expect(errors.some((error) => error.keyword === "anyOf")).toBe(true)
   })
 })
 

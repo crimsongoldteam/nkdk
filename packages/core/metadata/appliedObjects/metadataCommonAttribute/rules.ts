@@ -1,303 +1,274 @@
-import { V8_MDCLASSES_ROOT } from "~/metadata/orchestration/appliedObject/presets"
-import { MetadataItemRule } from "~/metadata/orchestration/property/types"
-
+import { commonAttributeContentRule } from "../../commonObjects/commonAttributeContent/types"
+import { minMaxValueRule } from "../../commonObjects/minMaxValue/types"
+import { typeDescriptionRule } from "../../commonObjects/typeDescription/types"
+import { typeLinkRule } from "../../commonObjects/typeLink/types"
+import { choiceParameterLinksRule } from "../../commonObjects/\u0441hoiceParameterLinks/types"
+import { choiceParametersRule } from "../../commonObjects/\u0441hoiceParameters/types"
+import { booleanRule } from "../../commonObjects/boolean/types"
+import { i8nTextRule } from "../../commonObjects/i8nText/types"
+import { metadataValueRule } from "../../commonObjects/metadataValue/types"
+import { stringRule } from "../../commonObjects/string/types"
+import { uuidRule } from "../../commonObjects/uuid/types"
+import { xmlRootRule } from "../../commonObjects/xmlRoot/types"
+import { systemEnumerationRule } from "../../systemEnumerations/types"
+import { V8_MDCLASSES_ROOT } from "../../orchestration/appliedObject/presets"
+import type { MetadataItemRule } from "../../orchestration/property/types"
 const properties = ["Properties"]
-
 export const MetadataCommonAttributeRules = {
   itemType: "MetadataCommonAttribute",
+  metadataTargetOwner: { kind: "self", root: "CommonAttribute" },
   itemTypePrefix: "ОбщийРеквизит",
   xmlDir: "CommonAttributes",
   properties: {
-    xmlRoot: {
-      type: "XMLRoot",
+    xmlRoot: xmlRootRule({
       container: "CommonAttribute",
       rootAttributes: V8_MDCLASSES_ROOT,
       forReferenceOnly: true,
       toYAML: false,
       fromYAML: false,
-    },
-    uuid: {
-      type: "uuid",
+    }),
+    uuid: uuidRule({
       xml: "_uuid",
       forReferenceOnly: true,
       xmlParents: [],
-    },
-    name: {
-      type: "string",
+    }),
+    name: stringRule({
       xmlParents: properties,
       required: true,
-    },
-    synonym: {
+    }),
+    synonym: i8nTextRule({
       yaml: "Синоним",
-      type: "I8nText",
       xmlParents: properties,
       defaultValueXMLRaw: "",
-    },
-    comment: {
+      excludeIfEqualNameYAML: true,
+    }),
+    comment: stringRule({
       yaml: "Комментарий",
-      type: "string",
       xmlParents: properties,
       defaultValueXMLRaw: "",
-    },
-    type: {
+    }),
+    type: typeDescriptionRule({
       yaml: "Тип",
-      type: "TypeDescription",
       xmlParents: properties,
-    },
-    passwordMode: {
+    }),
+    passwordMode: booleanRule({
       yaml: "РежимПароля",
-      type: "boolean",
       defaultValueXML: false,
       implicitValueYAML: false,
       xmlParents: properties,
-    },
-    format: {
+    }),
+    format: i8nTextRule({
       yaml: "Формат",
-      type: "I8nText",
       xmlParents: properties,
       defaultValueXMLRaw: "",
-    },
-    editFormat: {
+    }),
+    editFormat: i8nTextRule({
       yaml: "ФорматРедактирования",
-      type: "I8nText",
       xmlParents: properties,
       defaultValueXMLRaw: "",
-    },
-    toolTip: {
+    }),
+    toolTip: i8nTextRule({
       yaml: "Подсказка",
-      type: "I8nText",
       xmlParents: properties,
       defaultValueXMLRaw: "",
-    },
-    markNegatives: {
+    }),
+    markNegatives: booleanRule({
       yaml: "ВыделятьОтрицательные",
-      type: "boolean",
       defaultValueXML: false,
       implicitValueYAML: false,
       xmlParents: properties,
-    },
-    mask: {
+    }),
+    mask: stringRule({
       yaml: "Маска",
-      type: "string",
       xmlParents: properties,
       defaultValueXMLRaw: "",
-    },
-    multiLine: {
+    }),
+    multiLine: booleanRule({
       yaml: "МногострочныйРежим",
-      type: "boolean",
       defaultValueXML: false,
       implicitValueYAML: false,
       xmlParents: properties,
-    },
-    extendedEdit: {
+    }),
+    extendedEdit: booleanRule({
       yaml: "РасширенноеРедактирование",
-      type: "boolean",
       defaultValueXML: false,
       implicitValueYAML: false,
       xmlParents: properties,
-    },
-    minValue: {
+    }),
+    minValue: minMaxValueRule({
       yaml: "МинимальноеЗначение",
-      type: "MinMaxValue",
       typedXML: "xs:string",
       xmlParents: properties,
       defaultValueXMLRaw: { "_xsi:nil": true },
-    },
-    maxValue: {
+    }),
+    maxValue: minMaxValueRule({
       yaml: "МаксимальноеЗначение",
-      type: "MinMaxValue",
       typedXML: "xs:string",
       xmlParents: properties,
       defaultValueXMLRaw: { "_xsi:nil": true },
-    },
-    fillFromFillingValue: {
+    }),
+    fillFromFillingValue: booleanRule({
       yaml: "ЗаполнятьИзДанныхЗаполнения",
-      type: "boolean",
       defaultValueXML: false,
       implicitValueYAML: false,
       xmlParents: properties,
-    },
-    fillValue: {
+    }),
+    fillValue: metadataValueRule({
       yaml: "ЗначениеЗаполнения",
-      type: "MetadataValue",
       xml: "FillValue",
       xmlParents: properties,
       defaultValueXMLRaw: { "_xsi:type": "xs:string" },
-    },
-    fillChecking: {
+    }),
+    fillChecking: systemEnumerationRule({
       yaml: "ПроверкаЗаполнения",
-      type: "SystemEnumeration",
       typeSE: "FillChecking",
       defaultValueXML: "DontCheck",
       implicitValueYAML: "DontCheck",
       xmlParents: properties,
-    },
-    choiceFoldersAndItems: {
+    }),
+    choiceFoldersAndItems: systemEnumerationRule({
       yaml: "ВыборГруппИЭлементов",
-      type: "SystemEnumeration",
       typeSE: "FoldersAndItemsUse",
       defaultValueXML: "Items",
       implicitValueYAML: "Items",
       xmlParents: properties,
-    },
-    choiceParameterLinks: {
+    }),
+    choiceParameterLinks: choiceParameterLinksRule({
       yaml: "СвязиПараметровВыбора",
-      type: "ChoiceParameterLinks",
       xmlParents: properties,
       defaultValueXMLRaw: "",
-    },
-    choiceParameters: {
+    }),
+    choiceParameters: choiceParametersRule({
       yaml: "ПараметрыВыбора",
-      type: "ChoiceParameters",
       xmlParents: properties,
       defaultValueXMLRaw: "",
-    },
-    quickChoice: {
+    }),
+    quickChoice: systemEnumerationRule({
       yaml: "БыстрыйВыбор",
-      type: "SystemEnumeration",
       typeSE: "UseQuickChoice",
       defaultValueXML: "Auto",
       implicitValueYAML: "Auto",
       xmlParents: properties,
-    },
-    createOnInput: {
+    }),
+    createOnInput: systemEnumerationRule({
       yaml: "СозданиеПриВводе",
-      type: "SystemEnumeration",
       typeSE: "CreateOnInput",
       defaultValueXML: "Auto",
       implicitValueYAML: "Auto",
       xmlParents: properties,
-    },
-    choiceForm: {
+    }),
+    choiceForm: stringRule({
       yaml: "ФормаВыбора",
-      type: "string",
       xmlParents: properties,
       defaultValueXMLRaw: "",
-    },
-    linkByType: {
+    }),
+    linkByType: typeLinkRule({
       yaml: "СвязьПоТипу",
-      type: "TypeLink",
       xmlParents: properties,
       defaultValueXMLRaw: "",
-    },
-    choiceHistoryOnInput: {
+    }),
+    choiceHistoryOnInput: systemEnumerationRule({
       yaml: "ИсторияВыбораПриВводе",
-      type: "SystemEnumeration",
       typeSE: "ChoiceHistoryOnInput",
       defaultValueXML: "Auto",
       implicitValueYAML: "Auto",
       xmlParents: properties,
-    },
-    content: {
+    }),
+    content: commonAttributeContentRule({
       yaml: "Состав",
-      type: "CommonAttributeContent",
       xml: "Content",
       xmlParents: properties,
       defaultValueXMLRaw: "",
-    },
-    autoUse: {
+    }),
+    autoUse: systemEnumerationRule({
       yaml: "АвтоИспользование",
-      type: "SystemEnumeration",
       typeSE: "CommonAttributeAutoUse",
       defaultValueXML: "DontUse",
       implicitValueYAML: "DontUse",
       xmlParents: properties,
-    },
-    dataSeparation: {
+    }),
+    dataSeparation: systemEnumerationRule({
       yaml: "РазделениеДанных",
-      type: "SystemEnumeration",
       typeSE: "CommonAttributeDataSeparation",
       defaultValueXML: "DontUse",
       implicitValueYAML: "DontUse",
       xmlParents: properties,
-    },
-    separatedDataUse: {
+    }),
+    separatedDataUse: systemEnumerationRule({
       yaml: "ИспользованиеРазделенныхДанных",
-      type: "SystemEnumeration",
       typeSE: "CommonAttributeSeparatedDataUse",
       defaultValueXML: "Independently",
       implicitValueYAML: "Independently",
       xmlParents: properties,
-    },
-    dataSeparationValue: {
+    }),
+    dataSeparationValue: stringRule({
       yaml: "ЗначениеРазделенияДанных",
-      type: "string",
       xmlParents: properties,
       defaultValueXMLRaw: "",
-    },
-    dataSeparationUse: {
+    }),
+    dataSeparationUse: stringRule({
       yaml: "ИспользованиеРазделенияДанных",
-      type: "string",
       xmlParents: properties,
       defaultValueXMLRaw: "",
-    },
-    conditionalSeparation: {
+    }),
+    conditionalSeparation: stringRule({
       yaml: "УсловноеРазделение",
-      type: "string",
       xmlParents: properties,
       defaultValueXMLRaw: "",
-    },
-    usersSeparation: {
+    }),
+    usersSeparation: systemEnumerationRule({
       yaml: "РазделениеПользователей",
-      type: "SystemEnumeration",
       typeSE: "CommonAttributeUsersSeparation",
       defaultValueXML: "DontUse",
       implicitValueYAML: "DontUse",
       xmlParents: properties,
-    },
-    authenticationSeparation: {
+    }),
+    authenticationSeparation: systemEnumerationRule({
       yaml: "РазделениеАутентификации",
-      type: "SystemEnumeration",
       typeSE: "CommonAttributeAuthenticationSeparation",
       defaultValueXML: "DontUse",
       implicitValueYAML: "DontUse",
       xmlParents: properties,
-    },
-    configurationExtensionsSeparation: {
+    }),
+    configurationExtensionsSeparation: systemEnumerationRule({
       yaml: "РазделениеРасширенийКонфигурации",
-      type: "SystemEnumeration",
       typeSE: "CommonAttributeConfigurationExtensionsSeparation",
       defaultValueXML: "DontUse",
       implicitValueYAML: "DontUse",
       xmlParents: properties,
-    },
-    indexing: {
+    }),
+    indexing: systemEnumerationRule({
       yaml: "Индексирование",
-      type: "SystemEnumeration",
       typeSE: "Indexing",
       defaultValueXML: "DontIndex",
       implicitValueYAML: "DontIndex",
       xmlParents: properties,
-    },
-    fullTextSearch: {
+    }),
+    fullTextSearch: systemEnumerationRule({
       yaml: "ПолнотекстовыйПоиск",
-      type: "SystemEnumeration",
       typeSE: "UseFullTextSearch",
       defaultValueXML: "Use",
       implicitValueYAML: "Use",
       xmlParents: properties,
-    },
-    dataHistory: {
+    }),
+    dataHistory: systemEnumerationRule({
       yaml: "ИсторияДанных",
-      type: "SystemEnumeration",
       typeSE: "DataHistoryUse",
       defaultValueXML: "Use",
       implicitValueYAML: "Use",
       xmlParents: properties,
-    },
-    objectBelonging: {
+    }),
+    objectBelonging: systemEnumerationRule({
       yaml: "ПринадлежностьОбъекта",
-      type: "SystemEnumeration",
       typeSE: "ObjectBelonging",
       implicitValueYAML: "Native",
       toYAML: false,
       fromYAML: false,
       xmlParents: properties,
-    },
-    extendedConfigurationObject: {
+    }),
+    extendedConfigurationObject: stringRule({
       yaml: "ОбъектРасширяемойКонфигурации",
-      type: "string",
       runtimeOnly: true,
-    },
+    }),
   },
 } as const satisfies MetadataItemRule

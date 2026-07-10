@@ -1,10 +1,10 @@
-import { Page, PageEnterprise, PagePartialYAML } from "~/metadata/forms/elements/page/types"
-import { RequiredFieldsElement } from "~/tests/types"
+import { Page, PageEnterprise, PagePartialYAML } from "../types"
+import { RequiredFieldsElement } from "../../../../../tests/types"
 import {
   fullFormGroupCommonFixture,
   fullFormGroupEnterpriseCommonFixture,
   fullFormGroupPartialYAMLCommonFixture,
-} from "~/metadata/forms/elements/formGroup/__fixtures__/data"
+} from "../../formGroup/__fixtures__/data"
 
 export const fullPage: RequiredFieldsElement<
   Omit<Page, "showTitle" | "childItemsVerticalAlign" | "verticalScrollOnReduceSize">
@@ -122,9 +122,7 @@ export const fullPageEnterprise = {
     Value: "FormItemSpacing.Double",
   },
   ...fullFormGroupEnterpriseCommonFixture,
-} satisfies Required<
-  Omit<PageEnterprise, "ChildItemsVerticalAlign" | "ShowTitle" | "VerticalScrollOnReduceSize">
->
+} satisfies Required<Omit<PageEnterprise, "ChildItemsVerticalAlign" | "ShowTitle" | "VerticalScrollOnReduceSize">>
 
 export const minimalPage: Page = {
   itemType: "Page",

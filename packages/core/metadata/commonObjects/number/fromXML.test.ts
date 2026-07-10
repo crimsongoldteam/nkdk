@@ -1,5 +1,5 @@
 import { describe, expect, it } from "vitest"
-import { testImportPropertyFromXML } from "~/tests/property/importPropertyFromXML"
+import { testImportPropertyFromXML } from "../../../tests/property/importPropertyFromXML"
 import { typedNumberRule, typedNumberValue } from "./__fixtures__/data"
 
 describe("importNumberFromXML", () => {

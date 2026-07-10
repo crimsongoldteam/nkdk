@@ -1,9 +1,9 @@
 import { dirname, resolve } from "node:path"
 import { fileURLToPath } from "node:url"
 import { describe, expect, it } from "vitest"
-import { mockContext, mockRule } from "~/tests/mockContext"
-import { readXMLFileAsString } from "~/tests/readAndParseXMLFile"
-import { xmlExport } from "~/xml/export/exporter"
+import { mockContext, mockRule } from "../../../../tests/mockContext"
+import { readXMLFileAsString } from "../../../../tests/readAndParseXMLFile"
+import { xmlExport } from "../../../../xml/export/exporter"
 import { fullFormParameters, withoutTypeFormParameters } from "./__fixtures__/data"
 import { exportFormParametersToXML } from "./toXML"
 

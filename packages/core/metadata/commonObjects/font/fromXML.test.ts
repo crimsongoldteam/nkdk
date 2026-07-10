@@ -1,7 +1,7 @@
 import { describe, expect, it } from "vitest"
-import { fontYAMLFixtures } from "~/metadata/commonObjects/font/__fixtures__/data"
-import { mockContextFromXML, mockRule } from "~/tests/mockContext"
-import { importContentFromXML } from "~/xml/import/importer"
+import { fontYAMLFixtures } from "./__fixtures__/data"
+import { mockContextFromXML, mockRule } from "../../../tests/mockContext"
+import { importContentFromXML } from "../../../xml/import/importer"
 import { importFontFromXML } from "./fromXML"
 import { FontXML } from "./types"
 
@@ -20,9 +20,7 @@ describe("importFontFromXML", () => {
   })
 
   it("imports raw non-prefixed style item ref", () => {
-    const xmlData = importContentFromXML<{ Font: FontXML }>(
-      '<Font ref="0" height="10" kind="StyleItem"/>'
-    )
+    const xmlData = importContentFromXML<{ Font: FontXML }>('<Font ref="0" height="10" kind="StyleItem"/>')
     const result = importFontFromXML(mockContextFromXML(), mockRule, xmlData.Font)
 
     expect(result).toEqual({

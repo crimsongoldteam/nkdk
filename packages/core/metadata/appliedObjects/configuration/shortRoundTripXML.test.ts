@@ -2,11 +2,15 @@ import fs from "fs"
 import { tmpdir } from "os"
 import { join } from "path"
 import { beforeEach, describe, expect, it } from "vitest"
-import { getXMLFixturePath, readXMLFileAsString } from "~/tests/readAndParseXMLFile"
+import { getXMLFixturePath, readXMLFileAsString } from "../../../tests/readAndParseXMLFile"
 import { CONFIGURATION_XML_FILE } from "./rootIO"
 import { shortRoundTripXML } from "./shortRoundTripXML"
 
-const normalizeXML = (value: string) => value.replace(/^\uFEFF/, "").replace(/\r\n/g, "\n").replace(/\n$/, "")
+const normalizeXML = (value: string) =>
+  value
+    .replace(/^\uFEFF/, "")
+    .replace(/\r\n/g, "\n")
+    .replace(/\n$/, "")
 
 describe("shortRoundTripXML", () => {
   const inputDir = getXMLFixturePath("sync/syncConfiguration/xml")

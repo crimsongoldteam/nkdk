@@ -2,5 +2,9 @@ export {
   ProjectFileSchemaError,
   ensureJSONSchemaRegistry,
   exportJSONSchemaForSchemaName,
+  exportJSONSchemaGraph,
   listJSONSchemaNames,
-} from "~/metadata/project/schemaRegistry"
+  schemaNameFromRef,
+  type JSONSchemaGraph,
+  type JSONSchemaGraphRoot,
+} from "../project/schemaRegistry"

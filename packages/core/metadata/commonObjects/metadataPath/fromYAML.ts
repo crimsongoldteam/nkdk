@@ -1,8 +1,11 @@
-import { parseMetadataTargetFromYAML } from "~/metadata/commonObjects/metadataTargets"
-import { isMetadataRootName, rootFromYAML } from "~/metadata/commonObjects/metadataTargets/roots"
-import type { MetadataTargetConstraint, MetadataTargetOwner } from "~/metadata/commonObjects/metadataTargets/types"
-import type { ConfigurationContext } from "~/metadata/context/types"
-import { PropertyRule } from "~/metadata/orchestration/property/types"
+import { parseMetadataTargetFromYAML } from "../metadataTargets"
+import { isMetadataRootName, rootFromYAML } from "../metadataTargets/roots"
+import type { MetadataTargetConstraint, MetadataTargetOwner } from "../metadataTargets/types"
+import type { ConfigurationContext } from "../../context/types"
+import { registerTypeRule } from "../../orchestration/property/typeRuleRegistry"
+import type { ImportFromYAMLFunctionNew } from "../../orchestration/property/fn"
+import type { PropertyRule } from "../../orchestration/property/types"
+import { importDataPathStandardMembersFromYAML } from "./dataPathStandardMembers"
 
 const metadataObjectTargetFallback = { kind: "object" } as const satisfies MetadataTargetConstraint
 const metadataFieldTargetFallback = { kind: "member", owner: "explicit" } as const satisfies MetadataTargetConstraint
@@ -18,7 +21,13 @@ export const importMetadataFieldStringFromYAML = (
   name: string,
   owner?: MetadataTargetOwner
 ): string | undefined => {
-  return parseMetadataTargetStringFromYAML(context, name, metadataTargetForRule(rule, metadataFieldTargetFallback), owner, isStrictObjectTargetRule(rule))
+  return parseMetadataTargetStringFromYAML(
+    context,
+    name,
+    metadataTargetForRule(rule, metadataFieldTargetFallback),
+    owner,
+    isStrictObjectTargetRule(rule)
+  )
 }
 
 export const importMetadataObjectStringFromYAML = (
@@ -27,7 +36,13 @@ export const importMetadataObjectStringFromYAML = (
   name: string,
   owner?: MetadataTargetOwner
 ): string | undefined => {
-  return parseMetadataTargetStringFromYAML(context, name, metadataTargetForRule(rule, metadataObjectTargetFallback), owner, isStrictObjectTargetRule(rule))
+  return parseMetadataTargetStringFromYAML(
+    context,
+    name,
+    metadataTargetForRule(rule, metadataObjectTargetFallback),
+    owner,
+    isStrictObjectTargetRule(rule)
+  )
 }
 
 export const importMetadataValueStringFromYAML = (
@@ -99,3 +114,9 @@ function isMetadataTargetLikeYAML(value: string): boolean {
   const root = value.split(".")[0]
   return rootFromYAML[root] !== undefined || isMetadataRootName(root)
 }
+
+const importDataPathFromYAML: ImportFromYAMLFunctionNew = ({ context, value }) => {
+  return importDataPathStandardMembersFromYAML(context, value)
+}
+
+registerTypeRule("DataPath", "importFromYAML", importDataPathFromYAML)

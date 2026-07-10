@@ -1,11 +1,11 @@
 import { describe, expect, it } from "vitest"
-import { MetadataCommonAttributeRules } from "~/metadata/appliedObjects/metadataCommonAttribute/rules"
-import { metadataValueFixtures } from "~/metadata/commonObjects/metadataValue/__fixtures__/data"
-import { MetadataPrimitiveValueHandler, primitiveValueHandlers } from "~/metadata/commonObjects/metadataValue/handlers"
-import { MetadataPrimitiveValueType } from "~/metadata/commonObjects/metadataValue/types"
-import { mockContext } from "~/tests/mockContext"
-import { testExportPropertyToXML } from "~/tests/property/exportPropertyToXML"
-import { xmlExport } from "~/xml/export/exporter"
+import { MetadataCommonAttributeRules } from "../../appliedObjects/metadataCommonAttribute/rules"
+import { metadataValueFixtures } from "./__fixtures__/data"
+import { MetadataPrimitiveValueHandler, primitiveValueHandlers } from "./handlers"
+import { MetadataPrimitiveValueType } from "./types"
+import { mockContext } from "../../../tests/mockContext"
+import { testExportPropertyToXML } from "../../../tests/property/exportPropertyToXML"
+import { xmlExport } from "../../../xml/export/exporter"
 import { exportMetadataValueToXML } from "./toXML"
 
 describe("exportMetadataValueToXML", () => {
@@ -93,7 +93,9 @@ describe("exportMetadataValueToXML", () => {
   })
 
   it("reports missing primitive toXML handler", () => {
-    const handlers = primitiveValueHandlers as Partial<Record<MetadataPrimitiveValueType, MetadataPrimitiveValueHandler>>
+    const handlers = primitiveValueHandlers as Partial<
+      Record<MetadataPrimitiveValueType, MetadataPrimitiveValueHandler>
+    >
     const originalHandler = handlers.DataCompositionComparisonType
     delete handlers.DataCompositionComparisonType
 

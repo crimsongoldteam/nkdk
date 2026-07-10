@@ -1,23 +1,23 @@
-import { MetadataItemRule } from "~/metadata/orchestration/property/types"
-
+import { typeDescriptionRule } from "../../../commonObjects/typeDescription/types"
+import { booleanRule } from "../../../commonObjects/boolean/types"
+import { stringRule } from "../../../commonObjects/string/types"
+import type { MetadataItemRule } from "../../../orchestration/property/types"
 export const FormParameterRules = {
   itemType: "FormParameter",
   properties: {
-    name: {
-      type: "string",
+    name: stringRule({
       xml: "_name",
       required: true,
-    },
-    type: {
+    }),
+    type: typeDescriptionRule({
       yaml: "Тип",
-      type: "TypeDescription",
       xml: "Type",
       defaultValueXMLRaw: {},
-    },
-    keyParameter: {
+    }),
+    keyParameter: booleanRule({
       yaml: "Ключевой",
-      type: "boolean",
       xml: "KeyParameter",
-    },
+      implicitValueYAML: false,
+    }),
   },
 } as const satisfies MetadataItemRule

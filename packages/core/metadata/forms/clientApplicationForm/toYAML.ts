@@ -1,5 +1,5 @@
-import { ConfigurationContext, ExternalFileEntry } from "~/metadata/context/types"
-import { exportPropertiesToYAML } from "~/metadata/orchestration"
+import { ConfigurationContext, ExternalFileEntry } from "../../context/types"
+import { exportPropertiesToYAML } from "../../orchestration"
 import { ClientApplicationFormRules } from "./rules"
 import { ClientApplicationForm, ClientApplicationFormYAML } from "./types"
 
@@ -20,6 +20,7 @@ export const exportClientApplicationFormToYAML = (
         exportToYAML: {
           ...context.exportToYAML,
           externalFilesCollector,
+          formAttributes: data.attributes,
         },
       }
     : context

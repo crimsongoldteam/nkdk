@@ -1,16 +1,13 @@
-import { ConfigurationContextFromXML } from "~/metadata/context/types"
-import { ImportFromXMLFunction } from "~/metadata/orchestration/property/fn"
-import { PropertyRuleType } from "~/metadata/orchestration/property/registry"
-import { MetadataItemRule, PropertyRule } from "~/metadata/orchestration/property/types"
+import { ConfigurationContextFromXML } from "../../context/types"
+import { ImportFromXMLFunction } from "../property/fn"
+import { PropertyRuleType } from "../property/registry"
+import type { MetadataItemRule, PropertyRule } from "../property/types"
 import { registerTypeRule } from "../property/typeRuleRegistry"
 import { importMetadataItemFromXML } from "../metadataItem/fromXML"
 import { ToMetadata } from "../metadataItem/registry"
-import { NamedElementXML, NamedMetadataItem } from "./types"
+import type { NamedElementXML, NamedMetadataItem } from "./types"
 
-export const importMetadataItemCollectionFromXML = <
-  Rule extends MetadataItemRule,
-  XMLKey extends string,
->(
+export const importMetadataItemCollectionFromXML = <Rule extends MetadataItemRule, XMLKey extends string>(
   itemRule: Rule,
   xmlElement: XMLKey
 ): ImportFromXMLFunction => {

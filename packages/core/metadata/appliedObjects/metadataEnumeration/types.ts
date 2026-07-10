@@ -1,12 +1,11 @@
-import { MetadataCommandsXML } from "~/metadata/appliedObjects/metadataCommand/types"
-import { CharacteristicsDescriptionsXML } from "~/metadata/commonObjects/characteristicsDescription/types"
-import { I8nTextXML } from "~/metadata/commonObjects/i8nText/types"
-import { InternalInfoItemsXML } from "~/metadata/commonObjects/internalInfo/types"
-import { StandardAttributeDescriptionsXML } from "~/metadata/commonObjects/standardAttributeDescription/types"
-import { registerMetadataItemCollectionRule, registerMetadataItemRule } from "~/metadata/orchestration"
-import { MetadataTypeByRule } from "~/metadata/orchestration/metadataItem/element"
-import { YAMLTypeByRule } from "~/metadata/orchestration/metadataItem/yaml"
-import * as SE from "~/metadata/systemEnumerations/types"
+import { MetadataCommandsXML } from "../metadataCommand/types"
+import { CharacteristicsDescriptionsXML } from "../../commonObjects/characteristicsDescription/types"
+import { I8nTextXML } from "../../commonObjects/i8nText/types"
+import { InternalInfoItemsXML } from "../../commonObjects/internalInfo/types"
+import { StandardAttributeDescriptionsXML } from "../../commonObjects/standardAttributeDescription/types"
+import { MetadataTypeByRule } from "../../orchestration/metadataItem/element"
+import { YAMLTypeByRule } from "../../orchestration/metadataItem/yaml"
+import * as SE from "../../systemEnumerations/types"
 import { MetadataEnumerationRules, MetadataEnumerationValueRules } from "./rules"
 
 export type MetadataEnumeration = MetadataTypeByRule<typeof MetadataEnumerationRules>
@@ -87,15 +86,3 @@ export interface MetadataEnumerationXML {
     }
   }
 }
-
-registerMetadataItemRule({
-  propertyType: "MetadataEnumeration",
-  itemRule: MetadataEnumerationRules,
-})
-
-registerMetadataItemCollectionRule({
-  propertyType: "MetadataEnumerationValues",
-  itemRule: MetadataEnumerationValueRules,
-  xmlElement: "EnumValue",
-  keyField: "name",
-})

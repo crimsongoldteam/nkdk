@@ -1,5 +1,5 @@
 import { describe, expect, it } from "vitest"
-import { testExportAppliedObjectToYAML, testImportAppliedObjectFromXML } from "~/tests/appliedObject"
+import { testExportAppliedObjectToYAML, testImportAppliedObjectFromXML } from "../../../tests/appliedObject"
 import { MetadataExchangePlanRules } from "./rules"
 import { MetadataExchangePlan } from "./types"
 

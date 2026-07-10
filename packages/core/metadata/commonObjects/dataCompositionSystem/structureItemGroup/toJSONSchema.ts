@@ -1,6 +1,6 @@
-import { TSchema, Type } from "@sinclair/typebox"
-import { ExportToJSONSchemaFn, PropertyRule, registerTypeRule } from "~/metadata/orchestration"
-import { exportPropertyToJSONSchema } from "~/metadata/orchestration/property/toJSONSchema"
+import { TSchema, Type } from "typebox"
+import { ExportToJSONSchemaFn, PropertyRule, registerTypeRule } from "../../../orchestration"
+import { exportPropertyToJSONSchema } from "../../../orchestration/property/toJSONSchema"
 import { GroupItemFieldRules } from "./items/groupItemField/rules"
 
 const requiredSchema = (schema: TSchema | undefined, name: string): TSchema => {

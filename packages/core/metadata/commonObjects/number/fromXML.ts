@@ -1,14 +1,10 @@
-import { PropertyRule } from "~/metadata/orchestration/property/types"
-import { registerTypeRule } from "~/metadata/orchestration/property/typeRuleRegistry"
+import type { PropertyRule } from "../../orchestration/property/types"
+import { registerTypeRule } from "../../orchestration/property/typeRuleRegistry"
 import { ConfigurationContext } from "../../context/types"
 
 const TYPED_DECIMAL_XSI = new Set(["xs:decimal", "xs:integer", "xs:double", "xs:float"])
 
-type NumberXML =
-  | number
-  | string
-  | { "#text"?: number | string; "_xsi:type"?: string }
-  | undefined
+type NumberXML = number | string | { "#text"?: number | string; "_xsi:type"?: string } | undefined
 
 export const importNumberFromXML = (
   _context: ConfigurationContext,

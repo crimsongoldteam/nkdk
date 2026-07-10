@@ -1,7 +1,8 @@
-import { ConfigurationContext } from "~/metadata/context/types"
-import { MetadataItemRule } from "~/metadata/orchestration/property/types"
+import { ConfigurationContext } from "../../context/types"
+import type { MetadataItemRule } from "../property/types"
 import { importMetadataItemFromYAML } from "../metadataItem/fromYAML"
 import { ToMetadata, ToYAML } from "../metadataItem/registry"
+import { toYAMLImportError, withYAMLImportDiagnostics } from "../yamlImportError"
 
 export type MetadataCollectionImportFromYAMLOptions = {
   /** Преобразование ключа объекта YAML (или индекса в массиве) во внутреннее `name` элемента коллекции */
@@ -30,9 +31,21 @@ export const importMetadataItemCollectionFromYAMLAsArray = <Rule extends Metadat
       keyField,
       index,
     })
-    const itemMetadata = importMetadataItemFromYAML({ context, rule: itemRule, yaml: item, source: itemSource }) as
-      | ToMetadata<Rule["itemType"]>
-      | undefined
+    const itemContext = withYAMLImportDiagnostics(context, {
+      propertyPath: [`[${index}]`],
+      yamlPath: [`[${index}]`],
+    })
+    let itemMetadata: ToMetadata<Rule["itemType"]> | undefined
+    try {
+      itemMetadata = importMetadataItemFromYAML({
+        context: itemContext,
+        rule: itemRule,
+        yaml: item,
+        source: itemSource,
+      }) as ToMetadata<Rule["itemType"]> | undefined
+    } catch (error) {
+      throw toYAMLImportError(error, itemContext)
+    }
     if (itemMetadata == undefined) continue
     result.push(itemMetadata)
   }
@@ -53,12 +66,21 @@ export const importMetadataItemCollectionFromYAMLAsRecord = <Rule extends Metada
   const result: ToMetadata<Rule["itemType"]>[] = []
   for (const [key, value] of Object.entries(yaml)) {
     const name = nameFromYAMLKey !== undefined ? nameFromYAMLKey(key) : key
-    const item = importMetadataItemFromYAML({
-      context,
-      rule: itemRule,
-      yaml: value,
-      name,
+    const itemContext = withYAMLImportDiagnostics(context, {
+      propertyPath: [key],
+      yamlPath: [key],
     })
+    let item: ToMetadata<Rule["itemType"]> | undefined
+    try {
+      item = importMetadataItemFromYAML({
+        context: itemContext,
+        rule: itemRule,
+        yaml: value,
+        name,
+      })
+    } catch (error) {
+      throw toYAMLImportError(error, itemContext)
+    }
     if (item == undefined) continue
     result.push({ ...item, name } as ToMetadata<Rule["itemType"]>)
   }

@@ -3,25 +3,29 @@ import type {
   ConfigurationContextWithExportToXML,
   ContextElementToXML,
   MetadataTargetOwnerContext,
-} from "~/metadata/context/types"
-import type { MetadataItemType } from "~/metadata/orchestration/metadataItem/registry"
+} from "../../context/types"
+import type { MetadataTargetOwner } from "../../commonObjects/metadataTargets/types"
+import type { MetadataItemType } from "../metadataItem/registry"
 
 export interface MetadataItemOwnerContextEntry {
   itemType: MetadataItemType
   name: string
   path: string
+  owner?: MetadataTargetOwner
 }
 
 export const appendMetadataItemOwner = (
   owners: readonly MetadataItemOwnerContextEntry[],
   itemType: MetadataItemType,
   name: string,
-  path = ""
-): MetadataItemOwnerContextEntry[] => [...owners, { itemType, name, path }]
+  path = "",
+  owner?: MetadataTargetOwner
+): MetadataItemOwnerContextEntry[] => [...owners, { itemType, name, path, ...(owner ? { owner } : {}) }]
 
 export const metadataItemOwnersToTargetOwners = (
   owners: readonly MetadataItemOwnerContextEntry[]
-): MetadataTargetOwnerContext[] => owners.map(({ itemType, name }) => ({ itemType, name }))
+): MetadataTargetOwnerContext[] =>
+  owners.map(({ itemType, name, owner }) => ({ itemType, name, ...(owner ? { owner } : {}) }))
 
 export const metadataItemOwnersToItemsTree = (
   owners: readonly MetadataItemOwnerContextEntry[]

@@ -1,7 +1,7 @@
-import { ConfigurationContextWithExportToXML } from "~/metadata/context/types"
-import { getUUID } from "~/metadata/helpers/uuid"
-import { exportPropertiesToXML } from "~/metadata/orchestration"
-import { recordCurrentExternalMetadataUuid } from "~/metadata/orchestration/externalMetadata/record"
+import { ConfigurationContextWithExportToXML } from "../../context/types"
+import { getUUID } from "../../helpers/uuid"
+import { exportPropertiesToXML } from "../../orchestration"
+import { recordCurrentExternalMetadataUuid } from "../../orchestration/externalMetadata/record"
 import { ClientApplicationFormRules } from "./rules"
 import { ClientApplicationForm, ClientApplicationFormXML, FormMetadataXML, FormRulesTags } from "./types"
 

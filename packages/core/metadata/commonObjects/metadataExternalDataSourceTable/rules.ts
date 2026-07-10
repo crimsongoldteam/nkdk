@@ -1,9 +1,9 @@
-import { getParentFromContext } from "~/metadata/context/helpers"
-import { ConfigurationContextWithExportToXML } from "~/metadata/context/types"
-import { MetadataCommandRules } from "~/metadata/appliedObjects/metadataCommand/rules"
-import { V8_MDCLASSES_ROOT } from "~/metadata/orchestration/appliedObject/presets"
-import { MetadataItemRule } from "~/metadata/orchestration/property/types"
-import { commonBasedOnObjectPaths } from "~/metadata/commonObjects/metadataTargets"
+import { getParentFromContext } from "../../context/helpers"
+import { ConfigurationContextWithExportToXML } from "../../context/types"
+import { MetadataCommandRules } from "../../appliedObjects/metadataCommand/rules"
+import { V8_MDCLASSES_ROOT } from "../../orchestration/appliedObject/presets"
+import type { MetadataItemRule } from "../../orchestration/property/types"
+import { commonBasedOnObjectPaths } from "../metadataTargets"
 import { externalDataSourceObjectServiceProperties } from "../metadataExternalDataSourceField/rules"
 
 const properties = ["Properties"]
@@ -70,6 +70,7 @@ const tableProperties = {
     type: "I8nText",
     xmlParents: properties,
     defaultValueXMLRaw: "",
+    excludeIfEqualNameYAML: true,
   },
   comment: {
     yaml: "Комментарий",
@@ -300,6 +301,7 @@ const tableProperties = {
     type: "boolean",
     xmlParents: properties,
     defaultValueXML: false,
+    implicitValueYAML: false,
   },
   transactionsIsolationLevel: {
     yaml: "УровеньИзоляцииТранзакций",
@@ -414,6 +416,7 @@ const { xmlRoot: _xmlRoot, ...tableCollectionProperties } = tableProperties
 
 export const MetadataExternalDataSourceTableRules = {
   itemType: "MetadataExternalDataSourceTable",
+  metadataTargetOwner: { kind: "resolver" },
   externalMetadata: { segment: "Table", placement: "ownedEntry" },
   properties: tableProperties,
   childCollections: [{ propertyKey: "commands", itemRule: MetadataExternalDataSourceTableCommandRules }],

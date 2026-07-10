@@ -1,7 +1,7 @@
-import { ConfigurationContext } from "~/metadata/context/types"
-import { excludeNameFromI8nText } from "~/metadata/helpers/synonymHelpers"
-import { ExportToYAMLFunctionNew, PropertyRule } from "~/metadata/orchestration"
-import { registerTypeRule } from "~/metadata/orchestration/property/typeRuleRegistry"
+import { ConfigurationContext } from "../../context/types"
+import { excludeNameFromI8nText } from "../../helpers/synonymHelpers"
+import { ExportToYAMLFunctionNew, PropertyRule } from "../../orchestration"
+import { registerTypeRule } from "../../orchestration/property/typeRuleRegistry"
 import { I8nText, I8nTextPropertyRule, I8nTextYAML } from "./types"
 
 export const exportI8nTextToYAML: ExportToYAMLFunctionNew = (params: {
@@ -41,7 +41,7 @@ const getTextWithoutName = (params: {
   const { context, rule, text, name } = params
   if (text === undefined) return undefined
   if (!rule.excludeIfEqualNameYAML) return text
-  if (!name) throw new Error("name is required for excludeIfEqualNameYAML")
+  if (!name) return text
 
   return excludeNameFromI8nText(context, text, name)
 }

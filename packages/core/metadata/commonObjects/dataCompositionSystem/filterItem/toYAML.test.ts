@@ -1,6 +1,6 @@
 import { describe, expect, it } from "vitest"
-import { PropertyRule } from "~/metadata/orchestration"
-import { testExportPropertyToYAML } from "~/tests/property/exportPropertyToYAML"
+import { PropertyRule } from "../../../orchestration"
+import { testExportPropertyToYAML } from "../../../../tests/property/exportPropertyToYAML"
 import { fullFilterItemComparison, fullFilterItemGroup } from "./__fixtures__/data"
 import "./types"
 
@@ -54,6 +54,22 @@ describe("export FilterItem to YAML", () => {
           },
           РежимОтображения: "Обычный",
           ИспользоватьПользовательскуюНастройку: "Истина",
+        },
+      ],
+    })
+  })
+
+  it("exports FilterItemGroup AndGroup with explicit group type", () => {
+    const result = testExportPropertyToYAML({
+      rule,
+      value: [{ itemType: "FilterItemGroup", groupType: "AndGroup", items: [fullFilterItemComparison] }],
+    })
+
+    expect(result).toMatchObject({
+      Элементы: [
+        {
+          ТипГруппы: "ГруппаИ",
+          Элементы: [expect.objectContaining({ ЛевоеЗначение: ".Ссылка" })],
         },
       ],
     })

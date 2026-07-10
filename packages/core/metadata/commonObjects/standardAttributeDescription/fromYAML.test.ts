@@ -1,15 +1,13 @@
 import { describe, expect, it } from "vitest"
-import {
-  all,
-  allYAML,
-  minimal,
-  minimalYAML,
-} from "~/metadata/commonObjects/standardAttributeDescription/__fixtures__/data"
+import { all, allYAML, minimal, minimalYAML } from "./__fixtures__/data"
 import { StandartAttributeNameToYAML } from "./types"
-import { PropertyRule } from "~/metadata/orchestration"
-import { testImportPropertyFromYAML } from "~/tests/property/importPropertyFromYAML"
+import { PropertyRule } from "../../orchestration"
+import { testImportPropertyFromYAML } from "../../../tests/property/importPropertyFromYAML"
 
-const rule: PropertyRule = { type: "StandardAttributeDescriptions", standartAttributeNames: StandartAttributeNameToYAML }
+const rule: PropertyRule = {
+  type: "StandardAttributeDescriptions",
+  standartAttributeNames: StandartAttributeNameToYAML,
+}
 
 describe("importStandardAttributeDescriptionsFromYAML", () => {
   it("imports undefined", () => {

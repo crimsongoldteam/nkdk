@@ -1,14 +1,10 @@
-import {
-  TrackBarField,
-  TrackBarFieldEnterprise,
-  TrackBarFieldPartialYAML,
-} from "~/metadata/forms/elements/trackBarField/types"
+import { TrackBarField, TrackBarFieldEnterprise, TrackBarFieldPartialYAML } from "../types"
 import {
   fullFormFieldCommonFixture,
   fullFormFieldEnterpriseCommonFixture,
   fullFormFieldPartialYAMLCommonFixture,
-} from "~/metadata/forms/elements/__fixtures__/formField/rules"
-import { RequiredFieldsElement } from "~/tests/types"
+} from "../../__fixtures__/formField/rules"
+import { RequiredFieldsElement } from "../../../../../tests/types"
 
 export const fullTrackBarField: RequiredFieldsElement<TrackBarField> = {
   itemType: "TrackBarField",
@@ -80,14 +76,13 @@ export const fullTrackBarFieldPartialYAML: TrackBarFieldPartialYAML = {
   Ширина: 200,
   ...fullFormFieldPartialYAMLCommonFixture,
   РастягиватьПоГоризонтали: "Ложь",
-  РастягиватьПоВертикали: "Ложь",
   БольшойШаг: 5,
   ШагРазметки: 6,
   МаксимальноеЗначение: 90,
   МинимальноеЗначение: 10,
   Ориентация: "Вертикально",
   Шаг: 2,
-} satisfies Omit<Required<TrackBarFieldPartialYAML>, "Использование">
+}
 
 export const minimalTrackBarField: TrackBarField = {
   itemType: "TrackBarField",

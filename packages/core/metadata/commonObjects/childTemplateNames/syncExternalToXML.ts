@@ -1,8 +1,8 @@
 import fs from "fs"
 import { dirname, join } from "path"
-import type { XmlWriteManifest } from "~/metadata/orchestration/xmlWriteManifest"
-import { registerTypeRule } from "~/metadata/orchestration/property/typeRuleRegistry"
-import type { SyncExternalToXMLFunction } from "~/metadata/orchestration/property/fn"
+import type { XmlWriteManifest } from "../../orchestration/xmlWriteManifest"
+import { registerTypeRule } from "../../orchestration/property/typeRuleRegistry"
+import type { SyncExternalToXMLFunction } from "../../orchestration/property/fn"
 import type { ChildTemplateNamesPropertyRule } from "./types"
 
 export const syncChildTemplateNamesToXML: SyncExternalToXMLFunction = async (params) => {
@@ -12,8 +12,12 @@ export const syncChildTemplateNamesToXML: SyncExternalToXMLFunction = async (par
   const templatesDir = join(nkdkDir, rule.folderName)
   if (!fs.existsSync(templatesDir)) return
 
-  const entries = await fs.promises.readdir(templatesDir, { withFileTypes: true })
-  const templateNames = entries.filter((e) => e.isDirectory()).map((e) => e.name)
+  const templateNames =
+    params.itemName === undefined
+      ? (await fs.promises.readdir(templatesDir, { withFileTypes: true }))
+          .filter((e) => e.isDirectory())
+          .map((e) => e.name)
+      : [params.itemName]
   const templateOutputDir = join(xmlDir, name, "Templates")
 
   for (const templateName of templateNames) {
@@ -40,11 +44,7 @@ export const syncChildTemplateNamesToXML: SyncExternalToXMLFunction = async (par
   }
 }
 
-async function copyIfExists(params: {
-  src: string
-  dst: string
-  xmlManifest?: XmlWriteManifest
-}): Promise<void> {
+async function copyIfExists(params: { src: string; dst: string; xmlManifest?: XmlWriteManifest }): Promise<void> {
   const { src, dst, xmlManifest } = params
   if (!fs.existsSync(src)) return
   await fs.promises.mkdir(dirname(dst), { recursive: true })
@@ -102,3 +102,47 @@ async function copyTemplateEntryToXML(params: {
 }
 
 registerTypeRule("ChildTemplateNames", "syncExternalToXML", syncChildTemplateNamesToXML)
+registerTypeRule("ChildTemplateNames", "xmlSyncWriter", syncChildTemplateNamesToXML)
+registerTypeRule("ChildTemplateNames", "projectResources", ({ propertyRule }) => {
+  const folderName = (propertyRule as ChildTemplateNamesPropertyRule | undefined)?.folderName ?? "Макеты"
+  return [
+    {
+      kind: "yaml",
+      role: "fileItem",
+      projectPattern: `${folderName}/{itemName}/Template.xml`,
+      required: true,
+      repeatable: true,
+      owner: "currentItem",
+      compositionImpact: "none",
+      source: { kind: "propertyType", type: "ChildTemplateNames" },
+    },
+  ]
+})
+registerTypeRule("ChildTemplateNames", "xmlSyncRoutes", ({ propertyRule }) => {
+  const folderName = (propertyRule as ChildTemplateNamesPropertyRule | undefined)?.folderName ?? "Макеты"
+  return [
+    {
+      kind: "fileItem",
+      yamlPattern: `${folderName}/{itemName}/Template.xml`,
+      xmlPathPattern: "Templates/{itemName}.xml",
+      writerType: "propertyType",
+      source: { kind: "propertyType", type: "ChildTemplateNames" },
+      dumpInfoNamePatterns: [
+        "{dumpRoot}.{ownerName}.Template.{itemName}",
+        "{dumpRoot}.{ownerName}.Template.{itemName}.Template",
+      ],
+    },
+  ]
+})
+registerTypeRule("ChildTemplateNames", "fileChildNamesDescriptor", ({ propertyRule }) => {
+  const rule = propertyRule as ChildTemplateNamesPropertyRule
+  return {
+    folderName: rule.folderName,
+    xmlFolderName: "Templates",
+    xmlItemName: rule.xml,
+    useOwnerDirectoryForExternalSync: true,
+    preserveReferenceXmlFolder: true,
+    expectedNames: ({ propertyValue }) =>
+      Array.isArray(propertyValue) ? propertyValue.filter((item): item is string => typeof item === "string") : [],
+  }
+})

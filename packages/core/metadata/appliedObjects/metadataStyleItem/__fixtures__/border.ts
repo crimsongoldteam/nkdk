@@ -12,7 +12,6 @@ export const border: MetadataStyleItem = {
 }
 
 export const borderYAML: MetadataStyleItemYAML = {
-  Синоним: "Элемент стиля рамка",
   Тип: "Рамка",
   Значение: {
     Вид: "Рамка",

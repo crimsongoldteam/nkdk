@@ -1,7 +1,7 @@
 import { describe, expect, it } from "vitest"
-import { mockContextFromXML, mockContextToXML } from "~/tests/mockContext"
-import { readAndParseXMLFixture, readXMLFixtureAsString } from "~/tests/readFixtureXML"
-import { xmlExport } from "~/xml/export/exporter"
+import { mockContextFromXML, mockContextToXML } from "../../../tests/mockContext"
+import { readAndParseXMLFixture, readXMLFixtureAsString } from "../../../tests/readFixtureXML"
+import { xmlExport } from "../../../xml/export/exporter"
 import {
   catalogFullClientApplicationForm,
   childItemsWidthClientApplicationForm,
@@ -339,7 +339,7 @@ describe("exportToXML", () => {
       })
 
       const childItems: Array<{ Table?: { Period?: unknown; TopLevelParent?: unknown } }> = Array.isArray(
-        xmlData.ChildItems,
+        xmlData.ChildItems
       )
         ? xmlData.ChildItems
         : []

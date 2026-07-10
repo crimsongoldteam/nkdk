@@ -1,5 +1,5 @@
 import { describe, expect, it } from "vitest"
-import { testExportAppliedObjectToXML, testImportAppliedObjectFromXML } from "~/tests/appliedObject"
+import { testExportAppliedObjectToXML, testImportAppliedObjectFromXML } from "../../../tests/appliedObject"
 import { MetadataChartOfCharacteristicTypesRules } from "./rules"
 import { MetadataChartOfCharacteristicTypes } from "./types"
 
@@ -17,8 +17,8 @@ describe("import MetadataChartOfCharacteristicTypes from XML", () => {
     expect(result?.characteristicExtValues).toBe("Catalog.ЗначенияХарактеристик")
     expect(result?.hierarchical).toBe(true)
     expect(result?.foldersOnTop).toBe(false)
-    expect(result?.tabularSections?.map(({ name }) => name)).toEqual(["ТабличнаяЧасть"])
-    expect(result?.commands?.map(({ name }) => name)).toEqual(["ПолнаяКоманда", "ПоУмолчанию"])
+    expect(result?.tabularSections?.map(({ name }: { name: string }) => name)).toEqual(["ТабличнаяЧасть"])
+    expect(result?.commands?.map(({ name }: { name: string }) => name)).toEqual(["ПолнаяКоманда", "ПоУмолчанию"])
   })
 
   it.each(["full.xml", "minimal.xml"])("round-trip: %s", (fixture) => {

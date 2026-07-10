@@ -34,10 +34,7 @@ export const tableMetadataFields = [
     "Catalog.КакойТоСправочник.TabularSection.КакаяТоТаблица.Attribute.КакойТоРеквизит",
     "Справочник.КакойТоСправочник.ТабличнаяЧасть.КакаяТоТаблица.Реквизит.КакойТоРеквизит",
   ],
-  [
-    "Catalog.КакойТоСправочник.StandardAttribute.Owner",
-    "Справочник.КакойТоСправочник.СтандартныйРеквизит.Владелец",
-  ],
+  ["Catalog.КакойТоСправочник.StandardAttribute.Owner", "Справочник.КакойТоСправочник.СтандартныйРеквизит.Владелец"],
 
   [
     "Catalog.КакойТоСправочник.TabularSection.КакаяТоТаблица.StandardAttribute.LineNumber",

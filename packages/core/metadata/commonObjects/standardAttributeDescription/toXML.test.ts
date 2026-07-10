@@ -1,18 +1,13 @@
 import { describe, expect, it } from "vitest"
-import {
-  accountingExtDimensions,
-  all,
-  minimal,
-  multiple,
-} from "~/metadata/commonObjects/standardAttributeDescription/__fixtures__/data"
-import { fillValueEmptyRefTypeLoss } from "~/metadata/commonObjects/standardAttributeDescription/__fixtures__/fillValueEmptyRefTypeLoss"
+import { accountingExtDimensions, all, minimal, multiple } from "./__fixtures__/data"
+import { fillValueEmptyRefTypeLoss } from "./__fixtures__/fillValueEmptyRefTypeLoss"
 import {
   MetadataAccountingRegisterStandardAttributeNames,
   MetadataAccountingRegisterStandardAttributeNamesXML,
-} from "~/metadata/appliedObjects/metadataAccountingRegister/rules"
-import { PropertyRule } from "~/metadata/orchestration"
-import { testExportPropertyToXML } from "~/tests/property/exportPropertyToXML"
-import { testImportPropertyFromXML } from "~/tests/property/importPropertyFromXML"
+} from "../../appliedObjects/metadataAccountingRegister/rules"
+import { PropertyRule } from "../../orchestration"
+import { testExportPropertyToXML } from "../../../tests/property/exportPropertyToXML"
+import { testImportPropertyFromXML } from "../../../tests/property/importPropertyFromXML"
 import { StandardAttributeDescriptionRules } from "./rules"
 
 describe("exportStandardAttributeDescriptionsToXML", () => {

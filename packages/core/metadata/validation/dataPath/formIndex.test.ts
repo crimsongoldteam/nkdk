@@ -1,17 +1,14 @@
 import { describe, expect, it } from "vitest"
-import type { TypeDescription } from "~/metadata/commonObjects/typeDescription/types"
-import type { ClientApplicationForm } from "~/metadata/forms/clientApplicationForm/types"
-import type { FormAttribute } from "~/metadata/forms/commonObjects/formAttribute/types"
-import { parseMetadataYaml } from "~/yaml/parseMetadataYaml"
+import type { TypeDescription } from "../../commonObjects/typeDescription/types"
+import type { ClientApplicationForm } from "../../forms/clientApplicationForm/types"
+import type { FormAttribute } from "../../forms/commonObjects/formAttribute/types"
+import { parseMetadataYaml } from "../../../yaml/parseMetadataYaml"
 import { buildFormDataPathIndex, getKnownPlatformFormSource } from "./formIndex"
 
 describe("buildFormDataPathIndex", () => {
   it("indexes normal form attributes by exact name", () => {
     const index = buildIndex({
-      attributes: [
-        attribute("ПометкаУдаления", { type: ["boolean"] }),
-        attribute("Дата", { type: ["dateTime"] }),
-      ],
+      attributes: [attribute("ПометкаУдаления", { type: ["boolean"] }), attribute("Дата", { type: ["dateTime"] })],
     })
 
     expect([...index.roots.keys()]).toEqual(["ПометкаУдаления", "Дата"])
@@ -109,11 +106,7 @@ describe("buildFormDataPathIndex", () => {
 
   it("indexes ValueTree columns from the attribute columns", () => {
     const index = buildIndex({
-      attributes: [
-        attribute("Дерево", { type: ["ValueTree"] }, [
-          column("Используется", { type: ["boolean"] }),
-        ]),
-      ],
+      attributes: [attribute("Дерево", { type: ["ValueTree"] }, [column("Используется", { type: ["boolean"] })])],
     })
 
     const source = index.getRoot("Дерево")
@@ -155,12 +148,8 @@ describe("buildFormDataPathIndex", () => {
   it("does not index arbitrary columns for ValueList or GanttChart", () => {
     const index = buildIndex({
       attributes: [
-        attribute("Список", { type: ["ValueListType"] }, [
-          column("ПроизвольнаяКолонка", { type: ["string"] }),
-        ]),
-        attribute("Диаграмма", { type: ["GanttChart"] }, [
-          column("ПроизвольнаяКолонка", { type: ["string"] }),
-        ]),
+        attribute("Список", { type: ["ValueListType"] }, [column("ПроизвольнаяКолонка", { type: ["string"] })]),
+        attribute("Диаграмма", { type: ["GanttChart"] }, [column("ПроизвольнаяКолонка", { type: ["string"] })]),
       ],
     })
 
@@ -206,15 +195,9 @@ describe("buildFormDataPathIndex", () => {
 
   it("keeps the first duplicate root and reports the second duplicate in YAML", () => {
     const parsed = parseMetadataYaml(
-      [
-        "Реквизиты:",
-        "  Дубль:",
-        "    Тип: Строка",
-        "  Другой:",
-        "    Тип: Булево",
-        "  Дубль:",
-        "    Тип: Число",
-      ].join("\n"),
+      ["Реквизиты:", "  Дубль:", "    Тип: Строка", "  Другой:", "    Тип: Булево", "  Дубль:", "    Тип: Число"].join(
+        "\n"
+      )
     )
     const index = buildIndex({
       parsed,

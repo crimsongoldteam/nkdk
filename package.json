@@ -1,11 +1,13 @@
 {
-  "name": "nakidka-web",
-  "version": "1.0.0",
-  "description": "Монорепозиторий Nakidka для работы с конфигурациями 1С",
+  "name": "nkdk",
+  "version": "0.0.3",
+  "private": true,
+  "description": "NKDK. Редактор конфигурации 1С на языке YAML. Только для ИИ Агентов.",
   "license": "AGPL-3.0-or-later",
   "type": "module",
   "packageManager": "pnpm@10.33.0",
   "engines": {
+    "node": ">=26.0.0",
     "pnpm": ">=9.0.0"
   },
   "scripts": {
@@ -16,18 +18,11 @@
     "prepare": "ts-patch install"
   },
   "devDependencies": {
-    "@types/node": "^25.9.3",
+    "@types/node": "^26.0.0",
     "prettier": "^3.8.4",
     "ts-patch": "^3.3.0",
     "tsc-alias": "^1.8.17",
-    "typescript": "~5.9.3",
+    "typescript": "~6.0.0",
     "vitest": "^4.1.9"
-  },
-  "pnpm": {
-    "overrides": {
-      "esbuild": "^0.28.1",
-      "picomatch@<2.3.2": "2.3.2",
-      "vite": "^8.0.16"
-    }
   }
 }

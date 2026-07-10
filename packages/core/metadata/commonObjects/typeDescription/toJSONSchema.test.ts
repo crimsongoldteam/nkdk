@@ -1,6 +1,6 @@
-import { TypeCompiler } from "@sinclair/typebox/compiler"
+import { compileValidationSchema } from "./../../validation/compileValidationSchema"
 import { describe, expect, it } from "vitest"
-import { mockContext } from "~/tests/mockContext"
+import { mockContext } from "../../../tests/mockContext"
 import { exportTypeDescriptionToJSONSchema } from "./toJSONSchema"
 
 const unrestrictedRule = { type: "TypeDescription" } as const
@@ -66,17 +66,13 @@ describe("exportTypeDescriptionToJSONSchema", () => {
     })
 
     expect(schema).toMatchObject({
-      anyOf: [
-        { type: "string" },
-        { type: "array", items: { type: "string" } },
-        { type: "object" },
-      ],
+      anyOf: [{ type: "string" }, { type: "array", items: { type: "string" } }, { type: "object" }],
     })
 
     if (schema === undefined) {
       throw new Error("Expected TypeDescription JSON schema")
     }
-    const compiled = TypeCompiler.Compile(schema)
+    const compiled = compileValidationSchema(schema)
     expect(compiled.Check({ ИдентификаторТипа: ["8c1e3694-da12-44d5-8b1f-d134b89a1282"] })).toBe(true)
     expect(compiled.Check({ ИдентификаторТипа: [] })).toBe(false)
     expect(compiled.Check({})).toBe(false)
@@ -102,10 +98,7 @@ describe("exportTypeDescriptionToJSONSchema", () => {
       value: undefined,
     })
 
-    const catalogRef = findSchemaBranchByPattern(
-      schema,
-      "^Справочник\\.[a-zA-Zа-яА-ЯёЁ_][a-zA-Zа-яА-ЯёЁ0-9_]*$"
-    )
+    const catalogRef = findSchemaBranchByPattern(schema, "^Справочник\\.[a-zA-Zа-яА-ЯёЁ_][a-zA-Zа-яА-ЯёЁ0-9_]*$")
 
     expect(catalogRef).toMatchObject({
       type: "string",
@@ -132,7 +125,8 @@ describe("exportTypeDescriptionToJSONSchema", () => {
 
     expect(externalTableRef).toMatchObject({
       type: "string",
-      pattern: "^ВнешнийИсточникДанных[a-zA-Zа-яА-ЯёЁ_][a-zA-Zа-яА-ЯёЁ0-9_]*\\.Таблица[a-zA-Zа-яА-ЯёЁ_][a-zA-Zа-яА-ЯёЁ0-9_]*$",
+      pattern:
+        "^ВнешнийИсточникДанных[a-zA-Zа-яА-ЯёЁ_][a-zA-Zа-яА-ЯёЁ0-9_]*\\.Таблица[a-zA-Zа-яА-ЯёЁ_][a-zA-Zа-яА-ЯёЁ0-9_]*$",
     })
     expect(externalCubeDimensionTableRef).toMatchObject({
       type: "string",
@@ -142,7 +136,7 @@ describe("exportTypeDescriptionToJSONSchema", () => {
     expect(JSON.stringify(schema)).not.toContain("x-nkdk-graph")
   })
 
-  it("validates external data source references with TypeCompiler", () => {
+  it("validates external data source references with compiled TypeBox schema", () => {
     const jsonSchema = exportTypeDescriptionToJSONSchema({
       context: mockContext,
       rule: externalRefsRule,
@@ -151,12 +145,10 @@ describe("exportTypeDescriptionToJSONSchema", () => {
     if (jsonSchema === undefined) {
       throw new Error("Expected TypeDescription JSON schema")
     }
-    const schema = TypeCompiler.Compile(jsonSchema)
+    const schema = compileValidationSchema(jsonSchema)
 
     expect(schema.Check("ВнешнийИсточникДанныхВсеСвойства.ТаблицаВсеСвойства")).toBe(true)
-    expect(
-      schema.Check("ВнешнийИсточникДанныхВсеСвойства.КубВсеСвойства.ТаблицаИзмеренияВсеСвойства")
-    ).toBe(true)
+    expect(schema.Check("ВнешнийИсточникДанныхВсеСвойства.КубВсеСвойства.ТаблицаИзмеренияВсеСвойства")).toBe(true)
     expect(schema.Check(["ВнешнийИсточникДанныхВсеСвойства.ТаблицаВсеСвойства"])).toBe(false)
     expect(schema.Check("ВнешнийИсточникДанныхВсеСвойства.КубВсеСвойства")).toBe(false)
   })
@@ -180,7 +172,7 @@ describe("exportTypeDescriptionToJSONSchema", () => {
     if (jsonSchema === undefined) {
       throw new Error("Expected TypeDescription JSON schema")
     }
-    const schema = TypeCompiler.Compile(jsonSchema)
+    const schema = compileValidationSchema(jsonSchema)
 
     expect(schema.Check(["Строка", "Справочник.Контрагенты"])).toBe(true)
     expect(schema.Check(["Строка", "ХранилищеЗначения"])).toBe(false)
@@ -196,7 +188,7 @@ describe("exportTypeDescriptionToJSONSchema", () => {
     if (jsonSchema === undefined) {
       throw new Error("Expected TypeDescription JSON schema")
     }
-    const schema = TypeCompiler.Compile(jsonSchema)
+    const schema = compileValidationSchema(jsonSchema)
 
     expect(schema.Check({ ИдентификаторТипа: ["8c1e3694-da12-44d5-8b1f-d134b89a1282"] })).toBe(false)
   })

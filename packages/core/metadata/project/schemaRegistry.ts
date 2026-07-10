@@ -1,48 +1,18 @@
-import "~/metadata/appliedObjects"
-import "~/metadata/commonObjects"
-import "~/metadata/forms"
-import type { TSchema } from "@sinclair/typebox"
-import { MetadataAccumulationRegisterRules } from "~/metadata/appliedObjects/metadataAccumulationRegister/rules"
-import { exportMetadataCatalogToJSONSchema } from "~/metadata/appliedObjects/metadataCatalog/toJSONSchema"
-import { MetadataDataProcessorRules } from "~/metadata/appliedObjects/metadataDataProcessor/rules"
-import { exportMetadataDocumentToJSONSchema } from "~/metadata/appliedObjects/metadataDocument/toJSONSchema"
-import { MetadataDocumentJournalRules } from "~/metadata/appliedObjects/metadataDocumentJournal/rules"
-import { exportMetadataEnumerationToJSONSchema } from "~/metadata/appliedObjects/metadataEnumeration/toJSONSchema"
-import { MetadataExchangePlanRules } from "~/metadata/appliedObjects/metadataExchangePlan/rules"
-import { MetadataHTTPServiceRules } from "~/metadata/appliedObjects/metadataHTTPService/rules"
-import { MetadataInformationRegisterRules } from "~/metadata/appliedObjects/metadataInformationRegister/rules"
-import { MetadataCommandRules } from "~/metadata/appliedObjects/metadataCommand/rules"
-import {
-  MetadataAttributeRules,
-  MetadataCatalogAttributeRules,
-  MetadataDocumentAttributeRules,
-  MetadataTabularSectionAttributeRules,
-} from "~/metadata/commonObjects/metadataAttribute/rules"
-import { MetadataRegisterAttributeRules } from "~/metadata/commonObjects/metadataRegisterAttribute/rules"
-import { MetadataTabularSectionRules } from "~/metadata/commonObjects/metadataTabularSection/rules"
-import { MetadataTaskAddressingAttributeRules } from "~/metadata/commonObjects/metadataTaskAddressingAttribute/rules"
-import type { ConfigurationContext, JSONSchemaExportMode } from "~/metadata/context/types"
-import { ClientApplicationFormRules } from "~/metadata/forms/clientApplicationForm/rules"
-import {
-  getChildItemTypesByPropertyType,
-  getTreeNodeJSONSchemaPropertyAliases,
-  type ChildItemsTreePropertyType,
-} from "~/metadata/forms/commonObjects/childItems/treeYAML"
-import { FormAttributeColumnRules, FormAttributeRules } from "~/metadata/forms/commonObjects/formAttribute/rules"
-import { FormCommandRules } from "~/metadata/forms/commonObjects/formCommand/rules"
-import { FormParameterRules } from "~/metadata/forms/commonObjects/formParameter/rules"
-import { getElementRule } from "~/metadata/orchestration/formElement/ruleFactory"
-import { exportElementRuleToJSONSchema } from "~/metadata/orchestration/formElement/toJSONSchema"
-import { CollectableElementTypeToYAML, type CollectableElementType } from "~/metadata/orchestration/formElement/types"
+import type { TSchema } from "typebox"
+import type { ConfigurationContext, JSONSchemaExportMode } from "../context/types"
 import {
   attachCollectedSchemaRefs,
+  collectSchemaRefs,
   createJSONSchemaExportContext,
-  recordOfOneOfSchemaRefs,
+  getJSONSchemaIdentityExporter,
+  JSON_SCHEMA_REF_PREFIX,
+  listJSONSchemaIdentityNames,
   recordOfSchemaRef,
   registerJSONSchemaPropertyRef,
-} from "~/metadata/orchestration/jsonSchemaRefs"
-import { exportMetadataItemToJSONSchema } from "~/metadata/orchestration/metadataItem/toJSONSchema"
-import type { PropertyRuleType } from "~/metadata/orchestration/property/registry"
+  stripCollectedSchemaRefs,
+} from "../orchestration/jsonSchemaRefs"
+import type { PropertyRuleType } from "../orchestration/property/registry"
+import type { PropertyRule } from "../orchestration/property/types"
 
 export class ProjectFileSchemaError extends Error {
   constructor(message: string) {
@@ -52,138 +22,134 @@ export class ProjectFileSchemaError extends Error {
 }
 
 type SchemaExporter = (params: { context: ConfigurationContext }) => TSchema
+type SchemaRefFactory = (params: { context: ConfigurationContext; rule: PropertyRule }) => TSchema | undefined
+
+export interface JSONSchemaGraphRoot {
+  key: string
+  name: string
+  includeNestedChildItems?: boolean
+}
+
+export interface JSONSchemaGraph {
+  roots: Record<string, TSchema>
+  schemas: Record<string, TSchema>
+}
 
 const schemaExporters = new Map<string, SchemaExporter>()
+const schemaRefFactories = new Map<PropertyRuleType, SchemaRefFactory>()
 let namedSchemasInitialized = false
 
 export function listJSONSchemaNames(): string[] {
   ensureJSONSchemaRegistry()
-  return [...schemaExporters.keys()].sort()
+  return [...new Set([...schemaExporters.keys(), ...listJSONSchemaIdentityNames()])].sort()
 }
 
 export function exportJSONSchemaForSchemaName(params: {
   context: ConfigurationContext
   name: string
   mode?: JSONSchemaExportMode
+  excludeImplicitValueYAML?: boolean
+  includeNestedChildItems?: boolean
 }): TSchema {
   ensureJSONSchemaRegistry()
 
-  const { context, name, mode = "externalRefs" } = params
-  const exporter = schemaExporters.get(name)
+  const { context, excludeImplicitValueYAML, includeNestedChildItems, name, mode = "externalRefs" } = params
+  const exporter = getSchemaExporter(name)
   if (!exporter) {
     throw new ProjectFileSchemaError(
       `Неизвестная JSON Schema "${name}". Доступные имена: ${listJSONSchemaNames().join(", ")}`
     )
   }
 
-  const schemaContext = createJSONSchemaExportContext(context, mode)
+  const schemaContext = createJSONSchemaExportContext(context, mode, {
+    excludeImplicitValueYAML,
+    includeNestedChildItems,
+  })
   const schema = exporter({ context: schemaContext })
 
   return mode === "externalRefs" ? attachCollectedSchemaRefs(schemaContext, schema) : schema
 }
 
-export function ensureJSONSchemaRegistry(): void {
-  if (!namedSchemasInitialized) {
-    registerNamedSchemas()
-    namedSchemasInitialized = true
+export function exportJSONSchemaGraph(params: {
+  context: ConfigurationContext
+  roots: readonly JSONSchemaGraphRoot[]
+  mode?: JSONSchemaExportMode
+  excludeImplicitValueYAML?: boolean
+}): JSONSchemaGraph {
+  ensureJSONSchemaRegistry()
+
+  const roots: Record<string, TSchema> = {}
+  const schemas: Record<string, TSchema> = {}
+  const pendingRefs: string[] = []
+  const mode = params.mode ?? "externalRefs"
+
+  for (const root of params.roots) {
+    const schema = exportJSONSchemaForSchemaName({
+      context: params.context,
+      name: root.name,
+      mode,
+      excludeImplicitValueYAML: params.excludeImplicitValueYAML,
+      includeNestedChildItems: root.includeNestedChildItems,
+    })
+    roots[root.key] = schema
+    pendingRefs.push(...collectSchemaRefs(schema))
   }
 
-  registerPropertyRefs()
-}
+  for (let index = 0; index < pendingRefs.length; index += 1) {
+    const ref = pendingRefs[index]
+    if (ref === undefined || schemas[ref] !== undefined) continue
 
-function registerNamedSchemas(): void {
-  registerSchema("MetadataCatalog", ({ context }) => exportMetadataCatalogToJSONSchema({ context }))
-  registerSchema("MetadataDocument", ({ context }) => exportMetadataDocumentToJSONSchema({ context }))
-  registerSchema("MetadataEnumeration", ({ context }) => exportMetadataEnumerationToJSONSchema({ context }))
-  registerMetadataItemSchema("MetadataDataProcessor", MetadataDataProcessorRules)
-  registerMetadataItemSchema("MetadataDocumentJournal", MetadataDocumentJournalRules)
-  registerMetadataItemSchema("MetadataHTTPService", MetadataHTTPServiceRules)
-  registerMetadataItemSchema("MetadataInformationRegister", MetadataInformationRegisterRules)
-  registerMetadataItemSchema("MetadataAccumulationRegister", MetadataAccumulationRegisterRules)
-  registerMetadataItemSchema("MetadataExchangePlan", MetadataExchangePlanRules)
-  registerMetadataItemSchema("ClientApplicationForm", ClientApplicationFormRules)
-
-  registerMetadataItemSchema("MetadataAttribute", MetadataAttributeRules)
-  registerMetadataItemSchema("MetadataCatalogAttribute", MetadataCatalogAttributeRules)
-  registerMetadataItemSchema("MetadataDocumentAttribute", MetadataDocumentAttributeRules)
-  registerMetadataItemSchema("MetadataTabularSectionAttribute", MetadataTabularSectionAttributeRules)
-  registerMetadataItemSchema("MetadataRegisterAttribute", MetadataRegisterAttributeRules)
-  registerMetadataItemSchema("MetadataTaskAddressingAttribute", MetadataTaskAddressingAttributeRules)
-  registerMetadataItemSchema("MetadataTabularSection", MetadataTabularSectionRules)
-  registerMetadataItemSchema("MetadataCommand", MetadataCommandRules)
-  registerMetadataItemSchema("FormAttribute", FormAttributeRules)
-  registerMetadataItemSchema("FormAttributeColumn", FormAttributeColumnRules)
-  registerMetadataItemSchema("FormCommand", FormCommandRules)
-  registerMetadataItemSchema("FormParameter", FormParameterRules)
-
-  for (const [itemType, yamlKind] of Object.entries(CollectableElementTypeToYAML)) {
-    const elementType = itemType as CollectableElementType
-    registerSchema(elementType, ({ context }) =>
-      exportElementRuleToJSONSchema({
-        context,
-        propertyAliases: getTreeNodeJSONSchemaPropertyAliases(elementType),
-        rule: getElementRule(elementType),
-        yamlKind,
+    const name = schemaNameFromRef(ref)
+    const schema = withSchemaId(
+      ref,
+      exportJSONSchemaForSchemaName({
+        context: params.context,
+        name,
+        mode,
+        excludeImplicitValueYAML: params.excludeImplicitValueYAML,
       })
     )
+
+    schemas[ref] = schema
+    pendingRefs.push(...collectSchemaRefs(schema))
   }
+
+  return { roots, schemas }
 }
 
-function registerMetadataItemSchema(name: string, rule: Parameters<typeof exportMetadataItemToJSONSchema>[0]["rule"]) {
-  registerSchema(name, ({ context }) => exportMetadataItemToJSONSchema({ context, rule }))
+export function schemaNameFromRef(ref: string): string {
+  if (!ref.startsWith(JSON_SCHEMA_REF_PREFIX)) {
+    throw new ProjectFileSchemaError(`Некорректная JSON Schema ссылка "${ref}"`)
+  }
+  return ref.slice(JSON_SCHEMA_REF_PREFIX.length)
 }
 
-function registerSchema(name: string, exporter: SchemaExporter): void {
+export function ensureJSONSchemaRegistry(): void {
+  for (const [type, factory] of schemaRefFactories) {
+    registerJSONSchemaPropertyRef(type, factory)
+  }
+  if (namedSchemasInitialized) return
+
+  namedSchemasInitialized = true
+}
+
+export function registerProjectJSONSchema(name: string, exporter: SchemaExporter): void {
   schemaExporters.set(name, exporter)
 }
 
-function registerPropertyRefs(): void {
-  registerSchemaPropertyRef("MetadataCatalogAttributes", "MetadataCatalogAttribute")
-  registerSchemaPropertyRef("MetadataDocumentAttributes", "MetadataDocumentAttribute")
-  registerSchemaPropertyRef("MetadataAttributes", "MetadataAttribute")
-  registerSchemaPropertyRef("MetadataRegisterAttributes", "MetadataRegisterAttribute")
-  registerSchemaPropertyRef("MetadataReportAttributes", "MetadataAttribute")
-  registerSchemaPropertyRef("MetadataTaskAddressingAttributes", "MetadataTaskAddressingAttribute")
-
-  registerJSONSchemaPropertyRef("MetadataTabularSectionAttributes", () =>
-    recordOfSchemaRef("MetadataTabularSectionAttribute")
-  )
-
-  const tabularSectionCollectionTypes = [
-    "MetadataTabularSections",
-    "MetadataDocumentTabularSections",
-    "MetadataTaskTabularSections",
-    "MetadataBusinessProcessTabularSections",
-    "MetadataDataProcessorTabularSections",
-    "MetadataReportTabularSections",
-    "MetadataExchangePlanTabularSections",
-    "MetadataChartOfAccountsTabularSections",
-    "MetadataChartOfCalculationTypesTabularSections",
-    "MetadataChartOfCharacteristicTypesTabularSections",
-  ] as const satisfies readonly PropertyRuleType[]
-
-  for (const type of tabularSectionCollectionTypes) {
-    registerJSONSchemaPropertyRef(type, () => recordOfSchemaRef("MetadataTabularSection"))
-  }
-
-  registerJSONSchemaPropertyRef("MetadataCommands", () => recordOfSchemaRef("MetadataCommand"))
-  registerJSONSchemaPropertyRef("FormAttributes", () => recordOfSchemaRef("FormAttribute"))
-  registerJSONSchemaPropertyRef("FormAttributeColumns", () => recordOfSchemaRef("FormAttributeColumn"))
-  registerJSONSchemaPropertyRef("FormCommands", () => recordOfSchemaRef("FormCommand"))
-  registerJSONSchemaPropertyRef("FormParameters", () => recordOfSchemaRef("FormParameter"))
-
-  const childItemTypes = [
-    "GroupChildItems",
-    "CommandBarChildItems",
-    "TableChildItems",
-    "PagesChildItems",
-  ] as const satisfies readonly ChildItemsTreePropertyType[]
-
-  for (const type of childItemTypes) {
-    registerJSONSchemaPropertyRef(type, () => recordOfOneOfSchemaRefs(getChildItemTypesByPropertyType(type)))
-  }
+export function registerProjectJSONSchemaPropertyRef(type: PropertyRuleType, schemaName: string): void {
+  registerProjectJSONSchemaPropertyRefFactory(type, () => recordOfSchemaRef(schemaName))
 }
 
-function registerSchemaPropertyRef(type: PropertyRuleType, schemaName: string): void {
-  registerJSONSchemaPropertyRef(type, () => recordOfSchemaRef(schemaName))
+export function registerProjectJSONSchemaPropertyRefFactory(type: PropertyRuleType, factory: SchemaRefFactory): void {
+  schemaRefFactories.set(type, factory)
+  registerJSONSchemaPropertyRef(type, factory)
+}
+
+function getSchemaExporter(name: string): SchemaExporter | undefined {
+  return schemaExporters.get(name) ?? getJSONSchemaIdentityExporter(name)
+}
+
+function withSchemaId(ref: string, schema: TSchema): TSchema {
+  return { ...stripCollectedSchemaRefs(schema), $id: ref } as TSchema
 }

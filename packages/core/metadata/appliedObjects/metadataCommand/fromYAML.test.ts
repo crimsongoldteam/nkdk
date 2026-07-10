@@ -1,15 +1,15 @@
-import { TypeCompiler } from "@sinclair/typebox/compiler"
+import { compileValidationSchema } from "./../../validation/compileValidationSchema"
 import { describe, expect, it } from "vitest"
-import { importMetadataItemFromYAML } from "~/metadata/orchestration"
-import { exportMetadataItemToJSONSchema } from "~/metadata/orchestration/metadataItem/toJSONSchema"
-import { mockContext } from "~/tests/mockContext"
-import "~/metadata/commonObjects/metadataCommandGroup/fromYAML"
-import "~/metadata/commonObjects/metadataCommandGroup/toJSONSchema"
+import { importMetadataItemFromYAML } from "../../orchestration"
+import { exportMetadataItemToJSONSchema } from "../../orchestration/metadataItem/toJSONSchema"
+import { mockContext } from "../../../tests/mockContext"
+import "../../commonObjects/metadataCommandGroup/fromYAML"
+import "../../commonObjects/metadataCommandGroup/toJSONSchema"
 import { MetadataCommandRules } from "./rules"
 
 describe("MetadataCommand YAML", () => {
   it("rejects scalar command group shorthand in JSON Schema", () => {
-    const schema = TypeCompiler.Compile(
+    const schema = compileValidationSchema(
       exportMetadataItemToJSONSchema({ context: mockContext, rule: MetadataCommandRules })
     )
 
@@ -17,7 +17,7 @@ describe("MetadataCommand YAML", () => {
   })
 
   it("accepts command group property in JSON Schema", () => {
-    const schema = TypeCompiler.Compile(
+    const schema = compileValidationSchema(
       exportMetadataItemToJSONSchema({ context: mockContext, rule: MetadataCommandRules })
     )
 

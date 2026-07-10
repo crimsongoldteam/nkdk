@@ -1,4 +1,4 @@
-import { MetadataCommands } from "~/metadata/appliedObjects/metadataCommand/types"
+import { MetadataCommands } from "../types"
 
 // Corresponds to __fixtures__/full.xml (non-default values only, after import stripping)
 export const fullMetadataCommandsFromXML: MetadataCommands = [

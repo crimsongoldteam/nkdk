@@ -1,14 +1,10 @@
-import {
-  TextDocumentField,
-  TextDocumentFieldEnterprise,
-  TextDocumentFieldPartialYAML,
-} from "~/metadata/forms/elements/textDocumentField/types"
+import { TextDocumentField, TextDocumentFieldEnterprise, TextDocumentFieldPartialYAML } from "../types"
 import {
   fullFormFieldCommonFixture,
   fullFormFieldEnterpriseCommonFixture,
   fullFormFieldPartialYAMLCommonFixture,
-} from "~/metadata/forms/elements/__fixtures__/formField/rules"
-import { RequiredFieldsElement } from "~/tests/types"
+} from "../../__fixtures__/formField/rules"
+import { RequiredFieldsElement } from "../../../../../tests/types"
 
 export const fullTextDocumentField = {
   itemType: "TextDocumentField",
@@ -81,10 +77,7 @@ export const fullTextDocumentFieldPartialYAML: TextDocumentFieldPartialYAML = {
     ПослеЗаписи: "ПроцедураПослеЗаписи",
   },
   ...fullFormFieldPartialYAMLCommonFixture,
-} satisfies Omit<
-  Required<TextDocumentFieldPartialYAML>,
-  "Использование"
->
+} satisfies Omit<Required<TextDocumentFieldPartialYAML>, "Использование">
 
 export const minimalTextDocumentField: TextDocumentField = {
   itemType: "TextDocumentField",

@@ -1,10 +1,10 @@
-import { PropertyRule } from "~/metadata/orchestration/property/types"
-import { registerTypeRule } from "~/metadata/orchestration/property/typeRuleRegistry"
-import type { ImportFromYAMLFunctionNew } from "~/metadata/orchestration/property/fn"
+import type { PropertyRule } from "../../orchestration/property/types"
+import { registerTypeRule } from "../../orchestration/property/typeRuleRegistry"
+import type { ImportFromYAMLFunctionNew } from "../../orchestration/property/fn"
 import { ConfigurationContext } from "../../context/types"
 import type { MetadataTargetOwner } from "../metadataTargets/types"
 import { importMetadataFieldStringFromYAML as importMetadataFieldFromYAMLPath } from "../metadataPath/fromYAML"
-import { MetadataField, MetadataFieldYAML, MetadataFields, MetadataFieldsYAML } from "./types"
+import type { MetadataField, MetadataFieldYAML, MetadataFields, MetadataFieldsYAML } from "./types"
 
 export const importMetadataFieldsFromYAML = (
   context: ConfigurationContext,

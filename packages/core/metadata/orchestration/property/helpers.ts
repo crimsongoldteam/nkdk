@@ -1,8 +1,8 @@
-import { capitalize } from "~/helpers/capitalize"
-import { ConfigurationContext } from "~/metadata/context/types"
+import { capitalize } from "../../../helpers/capitalize"
+import { ConfigurationContext } from "../../context/types"
 import { ToMetadata } from ".."
 import { TypeRulesOperations } from "./fn"
-import { ItemXML, MetadataItemRule, PropertyRule } from "./types"
+import type { ItemXML, MetadataItemRule, PropertyRule } from "./types"
 
 type Path = string[]
 
@@ -61,7 +61,7 @@ export const shouldProcessProperty = (params: {
   rule: PropertyRule
   operation: PropertyExportImportOperation
   metadataItem?: any
-  context?: import("~/metadata/context/types").ConfigurationContextWithExportToXML
+  context?: import("../../context/types").ConfigurationContextWithExportToXML
   propertyKey?: string
   referenceMetadata?: unknown
 }): boolean => {
@@ -264,11 +264,7 @@ export const getOrderedKeysToXML = <Rule extends MetadataItemRule>(params: {
     const containerOrderA = getKnownXMLContainerOrder(a)
     const containerOrderB = getKnownXMLContainerOrder(b)
 
-    if (
-      containerOrderA !== undefined &&
-      containerOrderB !== undefined &&
-      containerOrderA !== containerOrderB
-    ) {
+    if (containerOrderA !== undefined && containerOrderB !== undefined && containerOrderA !== containerOrderB) {
       return containerOrderA - containerOrderB
     }
 

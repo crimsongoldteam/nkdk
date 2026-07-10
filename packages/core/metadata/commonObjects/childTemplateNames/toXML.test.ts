@@ -1,8 +1,13 @@
 import { describe, expect, it } from "vitest"
-import { mockContextToXML } from "~/tests/mockContext"
+import { mockContextToXML } from "../../../tests/mockContext"
 import { exportChildTemplateNamesToXML } from "./toXML"
 
-const rule = { type: "ChildTemplateNames" as const, xml: "Template", folderName: "Макеты", forReferenceOnly: true as const }
+const rule = {
+  type: "ChildTemplateNames" as const,
+  xml: "Template",
+  folderName: "Макеты",
+  forReferenceOnly: true as const,
+}
 
 const ctxWithTemplates = (templates: string[]) => {
   const ctx = mockContextToXML()
@@ -18,20 +23,16 @@ describe("exportChildTemplateNamesToXML", () => {
   })
 
   it("возвращает макеты из контекста при пустом value (IO-путь)", () => {
-    expect(
-      exportChildTemplateNamesToXML({ context: ctxWithTemplates(["Макет"]), rule, value: [] })
-    ).toEqual(["Макет"])
+    expect(exportChildTemplateNamesToXML({ context: ctxWithTemplates(["Макет"]), rule, value: [] })).toEqual(["Макет"])
   })
 
   it("возвращает макеты из контекста при value = undefined", () => {
-    expect(
-      exportChildTemplateNamesToXML({ context: ctxWithTemplates(["Макет"]), rule, value: undefined })
-    ).toEqual(["Макет"])
+    expect(exportChildTemplateNamesToXML({ context: ctxWithTemplates(["Макет"]), rule, value: undefined })).toEqual([
+      "Макет",
+    ])
   })
 
   it("возвращает undefined при пустом value и пустом контексте макетов", () => {
-    expect(
-      exportChildTemplateNamesToXML({ context: mockContextToXML(), rule, value: [] })
-    ).toBeUndefined()
+    expect(exportChildTemplateNamesToXML({ context: mockContextToXML(), rule, value: [] })).toBeUndefined()
   })
 })

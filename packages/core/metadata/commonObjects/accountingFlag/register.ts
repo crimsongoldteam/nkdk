@@ -1,4 +1,4 @@
-import { registerMetadataItemCollectionRule } from "~/metadata/orchestration/metadataCollection/ruleFactory"
+import { registerMetadataItemCollectionRule } from "../../orchestration/metadataCollection/ruleFactory"
 import { AccountingFlagRules, ExtDimensionAccountingFlagRules } from "./rules"
 
 registerMetadataItemCollectionRule({

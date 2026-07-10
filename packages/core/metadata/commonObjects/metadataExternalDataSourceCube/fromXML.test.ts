@@ -1,15 +1,17 @@
 import { describe, expect, it } from "vitest"
-import { importPropertyFromXML } from "~/metadata/orchestration/property/fromXML"
-import { mockContextFromXML } from "~/tests/mockContext"
-import { testExportPropertyToXML } from "~/tests/property/exportPropertyToXML"
-import { testImportPropertyFromXML } from "~/tests/property/importPropertyFromXML"
-import { readXMLFixtureAsString } from "~/tests/readFixtureXML"
-import { importContentFromXML } from "~/xml/import/importer"
+import { importPropertyFromXML } from "../../orchestration/property/fromXML"
+import { mockContextFromXML } from "../../../tests/mockContext"
+import { testExportPropertyToXML } from "../../../tests/property/exportPropertyToXML"
+import { testImportPropertyFromXML } from "../../../tests/property/importPropertyFromXML"
+import { readXMLFixtureAsString } from "../../../tests/readFixtureXML"
+import { importContentFromXML } from "../../../xml/import/importer"
 import { MetadataExternalDataSourceCubeRules } from "./rules"
 import "./register"
 
 const rule = { type: "MetadataExternalDataSourceCube" } as const
-const itemsTree = [{ itemType: "MetadataExternalDataSource" as const, name: "ВнешнийИсточникДанныхВсеСвойства", path: "" }]
+const itemsTree = [
+  { itemType: "MetadataExternalDataSource" as const, name: "ВнешнийИсточникДанныхВсеСвойства", path: "" },
+]
 const normalizeXML = (value: string) => value.replace(/^\uFEFF?<\?xml[^\n]*\?>\r?\n?/, "").replace(/\r\n/g, "\n")
 const fullDimensionTableNames = ["ТаблицаИзмеренияВсеСвойства", "ТаблицаИзмеренияПоУмолчанию"]
 const importReferenceMetadata = (path: string): unknown => {

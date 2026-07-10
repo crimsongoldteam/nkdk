@@ -1,8 +1,8 @@
 import { describe, expect, it } from "vitest"
-import { multipleCommandSet, singleCommandSet } from "~/metadata/forms/commonObjects/commandSet/__fixtures__/data"
-import { mockContext, mockRule } from "~/tests/mockContext"
-import { readXMLFileAsString } from "~/tests/readAndParseXMLFile"
-import { xmlExport } from "~/xml/export/exporter"
+import { multipleCommandSet, singleCommandSet } from "./__fixtures__/data"
+import { mockContext, mockRule } from "../../../../tests/mockContext"
+import { readXMLFileAsString } from "../../../../tests/readAndParseXMLFile"
+import { xmlExport } from "../../../../xml/export/exporter"
 import { exportCommandSetToXML } from "./toXML"
 
 describe("exportCommandSetToXML", () => {

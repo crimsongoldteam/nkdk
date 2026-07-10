@@ -1,17 +1,12 @@
-import {
-  ButtonGroup,
-  ButtonGroupEnterprise,
-  ButtonGroupPartialYAML,
-  ButtonGroupTypedYAML,
-} from "~/metadata/forms/elements/buttonGroup/types"
+import { ButtonGroup, ButtonGroupEnterprise, ButtonGroupPartialYAML, ButtonGroupTypedYAML } from "../types"
 
 import {
   fullFormGroupCommonFixture,
   fullFormGroupEnterpriseCommonFixture,
   fullFormGroupPartialYAMLCommonFixture,
-} from "~/metadata/forms/elements/formGroup/__fixtures__/data"
+} from "../../formGroup/__fixtures__/data"
 
-import { StructureResult } from "~/tests/types"
+import { StructureResult } from "../../../../../tests/types"
 
 const { extendedTooltip: _eTBG, ...fullFormGroupCommonFixtureForButtonGroup } = fullFormGroupCommonFixture
 

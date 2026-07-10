@@ -1,4 +1,4 @@
-import { ViewStatusAddition, ViewStatusAdditionYAML } from "~/metadata/forms/elements/viewStatusAddition/types"
+import { ViewStatusAddition, ViewStatusAdditionYAML } from "../types"
 
 export const fullViewStatusAddition: ViewStatusAddition = {
   itemType: "ViewStatusAddition",
@@ -57,7 +57,6 @@ export const visibleFalseViewStatusAddition = {
 
 export const fullViewStatusAdditionYAML: ViewStatusAdditionYAML = {
   Источник: "КакойТоЭлемент",
-  АвтоМаксимальнаяШирина: "Истина",
   ГоризонтальноеПоложение: "Лево",
   МаксимальнаяШирина: 500,
   Рамка: { Имя: "ЭлементСтиля.ControlBorder" },
@@ -71,7 +70,6 @@ export const fullViewStatusAdditionYAML: ViewStatusAdditionYAML = {
   Шрифт: { Вид: "ОбычныйШрифтТекста" },
   ШрифтЗаголовка: { Вид: "ОбычныйШрифтТекста" },
   ВажностьПриОтображении: "Высокая",
-  Доступность: "Истина",
   Заголовок: "Добавление элемента формы",
   ОтображениеПодсказки: "Нет",
   Подсказка: "Подсказка",
@@ -81,7 +79,6 @@ export const fullViewStatusAdditionYAML: ViewStatusAdditionYAML = {
 
 export const visibleFalseViewStatusAdditionYAML: ViewStatusAdditionYAML = {
   Источник: "КакойТоЭлемент",
-  Доступность: "Истина",
   Видимость: "Ложь",
 }
 

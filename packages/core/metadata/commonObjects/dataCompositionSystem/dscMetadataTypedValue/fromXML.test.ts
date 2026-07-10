@@ -1,6 +1,6 @@
 import { describe, expect, it } from "vitest"
-import { PropertyRule } from "~/metadata/orchestration"
-import { testImportPropertyFromXML } from "~/tests/property/importPropertyFromXML"
+import { PropertyRule } from "../../../orchestration"
+import { testImportPropertyFromXML } from "../../../../tests/property/importPropertyFromXML"
 import { dcsMetadataTypedValueFixtures, emptyValueListTypedValue } from "./__fixtures__/data"
 
 const rule: PropertyRule = {
@@ -34,8 +34,7 @@ describe("import DcsMetadataTypedValue from XML", () => {
     const result = testImportPropertyFromXML({
       rule,
       xmlRootTag: "value",
-      xmlString:
-        '<value xmlns:d8p1="http://v8.1c.ru/8.2/data/types" xsi:type="v8:Type">d8p1:Undefined</value>',
+      xmlString: '<value xmlns:d8p1="http://v8.1c.ru/8.2/data/types" xsi:type="v8:Type">d8p1:Undefined</value>',
     })
 
     expect(result).toBeUndefined()
@@ -82,8 +81,7 @@ describe("import DcsMetadataTypedValue from XML", () => {
     const result = testImportPropertyFromXML({
       rule,
       xmlRootTag: "value",
-      xmlString:
-        '<value xmlns:d8p1="http://v8.1c.ru/8.2/data/types" xsi:type="v8:Type">d8p1:Undefined</value>',
+      xmlString: '<value xmlns:d8p1="http://v8.1c.ru/8.2/data/types" xsi:type="v8:Type">d8p1:Undefined</value>',
       forReference: true,
     })
 

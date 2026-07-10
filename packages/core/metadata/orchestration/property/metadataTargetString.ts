@@ -1,11 +1,7 @@
-import { formatMetadataTargetToYAML, parseMetadataTargetFromYAML } from "~/metadata/commonObjects/metadataTargets"
-import type { ConfigurationContext } from "~/metadata/context/types"
-import { rootFromYAML } from "~/metadata/commonObjects/metadataTargets/roots"
-import type {
-  MetadataRootName,
-  MetadataTargetConstraint,
-  MetadataTargetOwner,
-} from "~/metadata/commonObjects/metadataTargets/types"
+import { formatMetadataTargetToYAML, parseMetadataTargetFromYAML } from "../../commonObjects/metadataTargets"
+import type { ConfigurationContext } from "../../context/types"
+import type { MetadataTargetConstraint, MetadataTargetOwner } from "../../commonObjects/metadataTargets/types"
+import { getMetadataTargetOwnerResolver, type MetadataTargetOwnerFrame } from "./metadataTargetOwnerRegistry"
 import type { MetadataItemRule, PropertyRule } from "./types"
 
 export function metadataTargetOwnerFromRule(params: {
@@ -13,14 +9,20 @@ export function metadataTargetOwnerFromRule(params: {
   name: string | undefined
   context?: ConfigurationContext
 }): MetadataTargetOwner | undefined {
-  const nestedOwner = metadataTargetNestedOwnerFromRule(params)
-  if (nestedOwner) return nestedOwner
+  const frames = metadataTargetOwnerFrames(params.context)
+  const resolver = getMetadataTargetOwnerResolver(params.itemRule.itemType)
+  if (resolver) {
+    const resolved = resolver({ itemRule: params.itemRule, name: params.name, frames, context: params.context })
+    if (resolved) return resolved
+  }
 
-  const prefix = params.itemRule.itemTypePrefix
-  if (!prefix || !params.name) return undefined
+  const declaration = params.itemRule.metadataTargetOwner
+  if (declaration?.kind === "inherit") return lastResolvedOwner(frames)
+  if (declaration?.kind === "self") {
+    return params.name ? { root: declaration.root, objectName: params.name } : undefined
+  }
 
-  const root = rootFromYAML[prefix] ?? itemTypePrefixRootFallback[prefix]
-  return root ? { root, objectName: params.name } : undefined
+  return undefined
 }
 
 export function exportStringMetadataTargetToYAML(params: {
@@ -57,98 +59,15 @@ export function importStringMetadataTargetFromYAML(params: {
   return result.canonical
 }
 
-const itemTypePrefixRootFallback: Partial<Record<string, MetadataRootName>> = {
-  Нумератор: "DocumentNumerator",
+function metadataTargetOwnerFrames(context: ConfigurationContext | undefined): readonly MetadataTargetOwnerFrame[] {
+  return context?.importFromYAML?.metadataTargetOwners ?? context?.exportToYAML?.metadataTargetOwners ?? []
 }
 
-function metadataTargetNestedOwnerFromRule(params: {
-  itemRule: MetadataItemRule
-  name: string | undefined
-  context?: ConfigurationContext
-}): MetadataTargetOwner | undefined {
-  const owners =
-    params.context?.importFromYAML?.metadataTargetOwners ?? params.context?.exportToYAML?.metadataTargetOwners ?? []
-  if (params.itemRule.itemType === "ClientApplicationForm") {
-    return metadataOwnerFromContext(owners)
+function lastResolvedOwner(frames: readonly MetadataTargetOwnerFrame[]): MetadataTargetOwner | undefined {
+  for (let index = frames.length - 1; index >= 0; index--) {
+    const owner = frames[index].owner
+    if (owner) return owner
   }
-
-  const current = findLastOwner(owners, params.itemRule.itemType)
-  const currentName = current?.name ?? params.name
-  if (!currentName) return undefined
-
-  if (params.itemRule.itemType === "MetadataAttribute") {
-    return metadataOwnerFromContext(owners)
-  }
-
-  const externalDataSource = findLastOwner(owners, "MetadataExternalDataSource")
-  if (!externalDataSource) return undefined
-
-  if (params.itemRule.itemType === "MetadataExternalDataSourceDimensionTable") {
-    const cube = findLastOwner(owners, "MetadataExternalDataSourceCube")
-    if (!cube) return undefined
-
-    return {
-      root: "ExternalDataSource",
-      objectName: `${externalDataSource.name}.Cube.${cube.name}.DimensionTable.${currentName}`,
-    }
-  }
-
-  if (params.itemRule.itemType === "MetadataExternalDataSourceCube") {
-    return {
-      root: "ExternalDataSource",
-      objectName: `${externalDataSource.name}.Cube.${currentName}`,
-    }
-  }
-
-  if (params.itemRule.itemType !== "MetadataExternalDataSourceTable") return undefined
-
-  return {
-    root: "ExternalDataSource",
-    objectName: `${externalDataSource.name}.Table.${currentName}`,
-  }
-}
-
-const rootByOwnerItemType: Partial<Record<string, MetadataRootName>> = {
-  MetadataAccountingRegister: "AccountingRegister",
-  MetadataAccumulationRegister: "AccumulationRegister",
-  MetadataBusinessProcess: "BusinessProcess",
-  MetadataCalculationRegister: "CalculationRegister",
-  MetadataCatalog: "Catalog",
-  MetadataChartOfAccounts: "ChartOfAccounts",
-  MetadataChartOfCalculationTypes: "ChartOfCalculationTypes",
-  MetadataChartOfCharacteristicTypes: "ChartOfCharacteristicTypes",
-  MetadataConstant: "Constant",
-  MetadataDataProcessor: "DataProcessor",
-  MetadataDocument: "Document",
-  MetadataEnumeration: "Enum",
-  MetadataExchangePlan: "ExchangePlan",
-  MetadataExternalDataSource: "ExternalDataSource",
-  MetadataInformationRegister: "InformationRegister",
-  MetadataReport: "Report",
-  MetadataTask: "Task",
-}
-
-function metadataOwnerFromContext(owners: readonly { itemType: string; name: string }[]): MetadataTargetOwner | undefined {
-  for (let index = owners.length - 1; index >= 0; index--) {
-    const owner = owners[index]
-    if (owner.itemType === "MetadataAttribute" || owner.itemType === "ClientApplicationForm") continue
-
-    const root = rootByOwnerItemType[owner.itemType]
-    if (root) return { root, objectName: owner.name }
-  }
-
-  return undefined
-}
-
-function findLastOwner(
-  owners: readonly { itemType: string; name: string }[],
-  itemType: string
-): { itemType: string; name: string } | undefined {
-  for (let index = owners.length - 1; index >= 0; index--) {
-    const owner = owners[index]
-    if (owner.itemType === itemType) return owner
-  }
-
   return undefined
 }
 

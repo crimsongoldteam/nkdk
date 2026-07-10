@@ -1,13 +1,17 @@
-import { importMetadataItemLinkFromXML } from "~/metadata/commonObjects/metadataRef/fromXML"
-import { importMetadataItemLinkFromYAML } from "~/metadata/commonObjects/metadataRef/fromYAML"
-import { exportMetadataItemLinkToYAML } from "~/metadata/commonObjects/metadataRef/toYAML"
-import { MetadataItemLinkJSONSchema, type MetadataItemLinkXML, type MetadataItemLinkYAML } from "~/metadata/commonObjects/metadataRef/types"
-import { importTypeDescriptionFromXML } from "~/metadata/commonObjects/typeDescription/fromXML"
-import { exportTypeDescriptionToXML } from "~/metadata/commonObjects/typeDescription/toXML"
-import type { TypeDescription, TypeDescriptionXMLWithAttribute } from "~/metadata/commonObjects/typeDescription/types"
-import type { ConfigurationContext } from "~/metadata/context/types"
-import { registerTypeRule } from "~/metadata/orchestration/property/typeRuleRegistry"
-import type { PropertyRule } from "~/metadata/orchestration/property/types"
+import { importMetadataItemLinkFromXML } from "../../../commonObjects/metadataRef/fromXML"
+import { importMetadataItemLinkFromYAML } from "../../../commonObjects/metadataRef/fromYAML"
+import { exportMetadataItemLinkToYAML } from "../../../commonObjects/metadataRef/toYAML"
+import {
+  MetadataItemLinkJSONSchema,
+  type MetadataItemLinkXML,
+  type MetadataItemLinkYAML,
+} from "../../../commonObjects/metadataRef/types"
+import { importTypeDescriptionFromXML } from "../../../commonObjects/typeDescription/fromXML"
+import { exportTypeDescriptionToXML } from "../../../commonObjects/typeDescription/toXML"
+import type { TypeDescription, TypeDescriptionXMLWithAttribute } from "../../../commonObjects/typeDescription/types"
+import type { ConfigurationContext } from "../../../context/types"
+import { registerTypeRule } from "../../../orchestration/property/typeRuleRegistry"
+import type { PropertyRule } from "../../../orchestration/property/types"
 
 export type ButtonParameter =
   | string
@@ -21,13 +25,13 @@ type ButtonParameterXML =
       "#text"?: string
     })
 
-const isTypeDescriptionParameterXML = (
-  xml: ButtonParameterXML | undefined
-): xml is TypeDescriptionXMLWithAttribute => typeof xml === "object" && xml?.["_xsi:type"] === "v8:TypeDescription"
+const isTypeDescriptionParameterXML = (xml: ButtonParameterXML | undefined): xml is TypeDescriptionXMLWithAttribute =>
+  typeof xml === "object" && xml?.["_xsi:type"] === "v8:TypeDescription"
 
 const isTypeDescriptionParameter = (
   value: ButtonParameter | undefined
-): value is { typeDescription: TypeDescription } => typeof value === "object" && value !== null && "typeDescription" in value
+): value is { typeDescription: TypeDescription } =>
+  typeof value === "object" && value !== null && "typeDescription" in value
 
 export const importButtonParameterFromXML = (
   context: ConfigurationContext,

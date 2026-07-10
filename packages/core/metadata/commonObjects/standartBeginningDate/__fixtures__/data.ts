@@ -1,8 +1,4 @@
-import type {
-  StandartBeginningDate,
-  StandartBeginningDateXML,
-  StandartBeginningDateYAML,
-} from "../types"
+import type { StandartBeginningDate, StandartBeginningDateXML, StandartBeginningDateYAML } from "../types"
 
 export const fullStandartBeginningDate = {
   variant: "Custom",

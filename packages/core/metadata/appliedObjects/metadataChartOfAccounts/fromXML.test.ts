@@ -1,5 +1,5 @@
 import { describe, expect, it } from "vitest"
-import { testExportAppliedObjectToXML, testImportAppliedObjectFromXML } from "~/tests/appliedObject"
+import { testExportAppliedObjectToXML, testImportAppliedObjectFromXML } from "../../../tests/appliedObject"
 import { MetadataChartOfAccountsRules } from "./rules"
 import { MetadataChartOfAccounts } from "./types"
 
@@ -16,11 +16,11 @@ describe("import MetadataChartOfAccounts from XML", () => {
     expect(result?.itemType).toBe("MetadataChartOfAccounts")
     expect(result?.extDimensionTypes).toBe("ChartOfCharacteristicTypes.ВидыСубконто")
     expect(result?.maxExtDimensionCount).toBe(4)
-    expect(result?.accountingFlags?.map(({ name }) => name)).toEqual([
+    expect(result?.accountingFlags?.map(({ name }: { name: string }) => name)).toEqual([
       "ПризнакУчетаВсеСвойства",
       "ПризнакУчетаПоУмолчанию",
     ])
-    expect(result?.extDimensionAccountingFlags?.map(({ name }) => name)).toEqual([
+    expect(result?.extDimensionAccountingFlags?.map(({ name }: { name: string }) => name)).toEqual([
       "ПризнакУчетаСубконтоВсеСвойства",
       "ПризнакУчетаСубконтоПоУмолчанию",
     ])

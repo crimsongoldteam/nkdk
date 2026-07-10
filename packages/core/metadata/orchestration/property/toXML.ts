@@ -1,6 +1,6 @@
-import { capitalize } from "~/helpers/capitalize"
-import { ConfigurationContextWithExportToXML } from "~/metadata/context/types"
-import { canConvertToPascalCase } from "~/metadata/helpers/canConvertToPascalCase"
+import { capitalize } from "../../../helpers/capitalize"
+import { ConfigurationContextWithExportToXML } from "../../context/types"
+import { canConvertToPascalCase } from "../../helpers/canConvertToPascalCase"
 import { ToMetadata } from ".."
 import { getTypeRule } from "./typeRuleRegistry"
 import { ExportToXMLFunction, ExportToXMLFunctionNew } from "./fn"
@@ -11,7 +11,7 @@ import {
   shouldProcessProperty,
   XML_SOURCE_KEYS,
 } from "./helpers"
-import { ItemXML, MetadataItemRule, PropertyRule } from "./types"
+import type { ItemXML, MetadataItemRule, PropertyRule } from "./types"
 
 export const exportPropertiesToXML = <Rule extends MetadataItemRule>(params: {
   context: ConfigurationContextWithExportToXML
@@ -110,7 +110,8 @@ const shouldRestoreReferenceAutoColor = (params: {
   if (rule.type !== "Color") return false
   if (metadataHasOwnKey) return false
   if (referenceValue !== undefined) return false
-  if (referenceMetadata === undefined || referenceMetadata === null || typeof referenceMetadata !== "object") return false
+  if (referenceMetadata === undefined || referenceMetadata === null || typeof referenceMetadata !== "object")
+    return false
 
   const sourceKeys = (referenceMetadata as Record<PropertyKey, unknown>)[XML_SOURCE_KEYS]
   if (sourceKeys === undefined || sourceKeys === null || typeof sourceKeys !== "object") return false
@@ -194,7 +195,10 @@ export const exportPropertyToXML = (params: {
       metadataItem,
       referenceMetadata,
     })
-    if (isDefaultValue(exportedValue, rule.defaultValue) || (exportedValue === undefined && isDefaultValue(value, rule.defaultValue))) {
+    if (
+      isDefaultValue(exportedValue, rule.defaultValue) ||
+      (exportedValue === undefined && isDefaultValue(value, rule.defaultValue))
+    ) {
       if (shouldLetSetXMLValueCreateRawParent(value, rule)) return value
       if (hasRaw) return (rule as any).defaultValueXMLRaw
       const fallback = (typeExportFn as ExportToXMLFunctionNew)({
@@ -210,7 +214,10 @@ export const exportPropertyToXML = (params: {
   }
 
   const exportedValue = (typeExportFn as ExportToXMLFunction)(context, rule, value, referenceMetadata)
-  if (isDefaultValue(exportedValue, rule.defaultValue) || (exportedValue === undefined && isDefaultValue(value, rule.defaultValue))) {
+  if (
+    isDefaultValue(exportedValue, rule.defaultValue) ||
+    (exportedValue === undefined && isDefaultValue(value, rule.defaultValue))
+  ) {
     if (shouldLetSetXMLValueCreateRawParent(value, rule)) return value
     if (hasRaw) return (rule as any).defaultValueXMLRaw
     const fallback = (typeExportFn as ExportToXMLFunction)(context, rule, defaultValueXML, referenceMetadata)
@@ -244,9 +251,10 @@ const shouldRestoreReferenceEmptyI8nTextRaw = (params: {
   if ((rule as any).emptyAsRawXML !== true || !("defaultValueXMLRaw" in rule)) return false
   if (!isExplicitEmptyI8nText(referenceMetadata)) return false
 
-  const name = typeof (metadataItem as { name?: unknown } | undefined)?.name === "string"
-    ? (metadataItem as { name: string }).name
-    : undefined
+  const name =
+    typeof (metadataItem as { name?: unknown } | undefined)?.name === "string"
+      ? (metadataItem as { name: string }).name
+      : undefined
   if (name === undefined) return false
 
   return isGeneratedDefaultI8nTextForName(context, value, name)

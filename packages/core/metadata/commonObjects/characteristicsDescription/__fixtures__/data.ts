@@ -1,5 +1,5 @@
 import { CharacteristicsDescriptions, CharacteristicsDescriptionsYAML } from "../types"
-import { explicitYAMLString } from "~/yaml/explicitString"
+import { explicitYAMLString } from "../../../../yaml/explicitString"
 
 export const singleCharacteristic: CharacteristicsDescriptions = [
   {
@@ -73,7 +73,8 @@ export const multipleCharacteristicsYAML: CharacteristicsDescriptionsYAML = [
     ПолеОтбораВидов: "ChartOfCharacteristicTypes.ХарактеристикиОбъектов.StandardAttribute.Description",
     ЗначениеОтбораВидов: explicitYAMLString("Текст"),
     ПолеПутиКДанным: "ChartOfCharacteristicTypes.ХарактеристикиОбъектов.StandardAttribute.Ref",
-    ПолеИспользованияМножественныхЗначений: "ChartOfCharacteristicTypes.ХарактеристикиОбъектов.Attribute.МножественнаяХарактеристика",
+    ПолеИспользованияМножественныхЗначений:
+      "ChartOfCharacteristicTypes.ХарактеристикиОбъектов.Attribute.МножественнаяХарактеристика",
     ЗначенияХарактеристик: "InformationRegister.ЗначенияХарактеристикОбъектов",
     ПолеОбъекта: "InformationRegister.ЗначенияХарактеристикОбъектов.Dimension.Справочник",
     ПолеВида: "InformationRegister.ЗначенияХарактеристикОбъектов.Dimension.Характеристика",

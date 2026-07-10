@@ -1,1 +1,1 @@
-export * from "~/metadata/forms/elements/orchestration/toJSONSchema"
+export * from "../../forms/elements/orchestration/toJSONSchema"

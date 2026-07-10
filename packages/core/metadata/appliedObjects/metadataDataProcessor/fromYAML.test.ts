@@ -1,5 +1,5 @@
 import { describe, expect, it } from "vitest"
-import { testImportAppliedObjectFromYAML } from "~/tests/appliedObject"
+import { testImportAppliedObjectFromYAML } from "../../../tests/appliedObject"
 import { full, fullYAML } from "./__fixtures__/full"
 import { minimal, minimalYAML } from "./__fixtures__/minimal"
 import { MetadataDataProcessorRules } from "./rules"
@@ -21,6 +21,7 @@ describe("import MetadataDataProcessor from YAML", () => {
       yaml: minimalYAML,
       name: "ОбработкаПоУмолчанию",
     })
-    expect(result).toEqual(minimal)
+    const { synonym: _synonym, ...expected } = minimal
+    expect(result).toEqual(expected)
   })
 })

@@ -1,9 +1,9 @@
 import fs from "fs"
 import { basename, dirname, join } from "path"
-import { convertFormFromXML } from "~/metadata/forms/clientApplicationForm/convertFromXML"
-import { registerTypeRule } from "~/metadata/orchestration/property/typeRuleRegistry"
-import type { SyncExternalFromXMLFunction } from "~/metadata/orchestration/property/fn"
-import { importContentFromXML } from "~/xml/import/importer"
+import { convertFormFromXML } from "../../forms/clientApplicationForm/convertFromXML"
+import { registerTypeRule } from "../../orchestration/property/typeRuleRegistry"
+import type { SyncExternalFromXMLFunction } from "../../orchestration/property/fn"
+import { importContentFromXML } from "../../../xml/import/importer"
 
 /**
  * Сканирует `<xmlDir>/<name>/Forms/*.xml` и для каждого вызывает `convertFormFromXML`.

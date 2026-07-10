@@ -1,4 +1,4 @@
-import { ChildItem, FormChildItemsPartialYAML } from "~/metadata/forms/commonObjects/childItems/types"
+import { ChildItem, FormChildItemsPartialYAML } from "../types"
 
 export interface ChildItemsFixture {
   name: string

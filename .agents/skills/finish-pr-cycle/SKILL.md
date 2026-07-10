@@ -27,10 +27,10 @@ git merge --no-edit origin/develop
 
 If the merge conflicts, stop and report the conflicted files. Do not resolve conflicts silently. This is required because stale feature branches can rediscover round-trip diffs that were already fixed and merged in another branch.
 
-3. Verify tests if they were not just run in this session. Prefer the project's normal focused or full test command. In `nakidka-core`, use:
+3. Verify tests if they were not just run in this session. Prefer the project's normal focused or full test command. In `nkdk-core`, use:
 
 ```bash
-pnpm --filter '@nakidka/core' test
+pnpm --filter '@nkdk/core' test
 ```
 
 4. Push the current branch:

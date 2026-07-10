@@ -1,12 +1,14 @@
 import { describe, expect, it } from "vitest"
-import { mockContext } from "~/tests/mockContext"
+import { mockContext } from "../../../tests/mockContext"
 import { importPropertiesFromYAML } from "./fromYAML"
+import { metadataTargetOwnerFromRule } from "./metadataTargetString"
 import { exportPropertiesToYAML } from "./toYAML"
 import type { MetadataItemRule } from "./types"
 
 const documentRule = {
   itemType: "MetadataDocument",
   itemTypePrefix: "Документ",
+  metadataTargetOwner: { kind: "self", root: "Document" },
   properties: {
     name: { type: "string", defaultValue: ({ name }: { name?: string }) => name },
     comment: {
@@ -20,6 +22,45 @@ const documentRule = {
     },
   },
 } as const satisfies MetadataItemRule
+
+describe("metadataTargetOwnerFromRule", () => {
+  it("uses self declaration for simple root objects", () => {
+    const rule = {
+      itemType: "MetadataDocument",
+      itemTypePrefix: "Документ",
+      metadataTargetOwner: { kind: "self", root: "Document" },
+      properties: {},
+    } as const satisfies MetadataItemRule
+
+    expect(metadataTargetOwnerFromRule({ itemRule: rule, name: "Заказ" })).toEqual({
+      root: "Document",
+      objectName: "Заказ",
+    })
+  })
+
+  it("inherits owner for forms", () => {
+    const rule = {
+      itemType: "ClientApplicationForm",
+      metadataTargetOwner: { kind: "inherit" },
+      properties: {},
+    } as const satisfies MetadataItemRule
+
+    expect(
+      metadataTargetOwnerFromRule({
+        itemRule: rule,
+        name: "ФормаДокумента",
+        context: {
+          ...mockContext,
+          importFromYAML: {
+            metadataTargetOwners: [
+              { itemType: "MetadataDocument", name: "Заказ", owner: { root: "Document", objectName: "Заказ" } },
+            ],
+          },
+        },
+      })
+    ).toEqual({ root: "Document", objectName: "Заказ" })
+  })
+})
 
 const documentRuleWithCommonForms = {
   ...documentRule,

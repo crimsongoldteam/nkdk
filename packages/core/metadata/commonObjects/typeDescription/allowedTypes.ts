@@ -1,5 +1,5 @@
-import { Type, TSchema } from "@sinclair/typebox"
-import { Value } from "@sinclair/typebox/value"
+import { Type, TSchema } from "typebox"
+import { Value } from "typebox/value"
 import { TypeDescriptionAllowedType, TypeDescriptionAllowedTypes } from "./types"
 
 export const METADATA_NAME_YAML_PATTERN = "[a-zA-Zа-яА-ЯёЁ_][a-zA-Zа-яА-ЯёЁ0-9_]*"

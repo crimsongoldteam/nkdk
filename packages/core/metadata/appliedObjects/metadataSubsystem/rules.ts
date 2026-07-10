@@ -1,10 +1,19 @@
-import { V8_MDCLASSES_ROOT } from "~/metadata/orchestration/appliedObject/presets"
-import "~/metadata/commonObjects/rootCommandInterface/register"
-import { MetadataItemRule } from "~/metadata/orchestration/property/types"
-
+import { rootCommandInterfaceRule } from "../configuration/builders"
+import { childSubsystemNamesRule } from "../../commonObjects/childSubsystemNames/types"
+import { helpRule } from "../../commonObjects/help/types"
+import { metadataItemLinksRule } from "../../commonObjects/metadataPath/types"
+import { pictureRule } from "../../commonObjects/metadataTargets/types"
+import { booleanRule } from "../../commonObjects/boolean/types"
+import { i8nTextRule } from "../../commonObjects/i8nText/types"
+import { stringRule } from "../../commonObjects/string/types"
+import { uuidRule } from "../../commonObjects/uuid/types"
+import { xmlRootRule } from "../../commonObjects/xmlRoot/types"
+import { systemEnumerationRule } from "../../systemEnumerations/types"
+import { V8_MDCLASSES_ROOT } from "../../orchestration/appliedObject/presets"
+import "../../commonObjects/rootCommandInterface/register"
+import type { MetadataItemRule } from "../../orchestration/property/types"
 const properties = ["Properties"]
 const childObjects = ["ChildObjects"]
-
 const contentObjectPaths = [
   ["Document"],
   ["DocumentNumerator"],
@@ -54,127 +63,112 @@ const contentObjectPaths = [
   ["ExternalDataSource", "Cube", "DimensionTable"],
   ["ExternalDataSource", "Cube"],
 ] as const
-
 export const MetadataSubsystemRules = {
   itemType: "MetadataSubsystem",
+  metadataTargetOwner: { kind: "self", root: "Subsystem" },
   itemTypePrefix: "Подсистема",
   xmlDir: "Subsystems",
   properties: {
-    xmlRoot: {
-      type: "XMLRoot",
+    xmlRoot: xmlRootRule({
       container: "Subsystem",
       rootAttributes: V8_MDCLASSES_ROOT,
       forReferenceOnly: true,
       toYAML: false,
       fromYAML: false,
-    },
-    uuid: {
-      type: "uuid",
+    }),
+    uuid: uuidRule({
       xml: "_uuid",
       forReferenceOnly: true,
       xmlParents: [],
-    },
-    name: {
-      type: "string",
+    }),
+    name: stringRule({
       xmlParents: properties,
       required: true,
       defaultValue: ({ name }: { name?: string }) => name,
-    },
-    synonym: {
+    }),
+    synonym: i8nTextRule({
       yaml: "Синоним",
-      type: "I8nText",
       xmlParents: properties,
       defaultValueXMLRaw: "",
-    },
-    comment: {
+      excludeIfEqualNameYAML: true,
+    }),
+    comment: stringRule({
       yaml: "Комментарий",
-      type: "string",
       xmlParents: properties,
       defaultValueXMLRaw: "",
-    },
-    includeHelpInContents: {
+    }),
+    includeHelpInContents: booleanRule({
       yaml: "ВключатьСправкуВСодержание",
       xml: "IncludeHelpInContents",
-      type: "boolean",
       xmlParents: properties,
       defaultValueXML: true,
       implicitValueYAML: true,
-    },
-    includeInCommandInterface: {
+    }),
+    includeInCommandInterface: booleanRule({
       yaml: "ВключатьВКомандныйИнтерфейс",
       xml: "IncludeInCommandInterface",
-      type: "boolean",
       xmlParents: properties,
       defaultValueXML: true,
       implicitValueYAML: true,
-    },
-    useOneCommand: {
+    }),
+    useOneCommand: booleanRule({
       yaml: "ИспользоватьОднуКоманду",
       xml: "UseOneCommand",
-      type: "boolean",
       xmlParents: properties,
       defaultValueXML: false,
       implicitValueYAML: false,
-    },
-    explanation: {
+    }),
+    explanation: i8nTextRule({
       yaml: "Пояснение",
       xml: "Explanation",
-      type: "I8nText",
       xmlParents: properties,
       defaultValueXMLRaw: "",
-    },
-    picture: {
+    }),
+    picture: pictureRule({
       yaml: "Картинка",
       xml: "Picture",
-      type: "Picture",
       metadataTarget: { kind: "object", roots: ["CommonPicture"] },
       xmlParents: properties,
       defaultValueXMLRaw: "",
-    },
-    content: {
+    }),
+    content: metadataItemLinksRule({
       yaml: "Состав",
       xml: "Content",
-      type: "MetadataItemLinks",
       metadataTarget: { kind: "object", allowedObjectPaths: contentObjectPaths, nestedObjectRoots: ["Subsystem"] },
       xmlParents: properties,
       defaultValueXMLRaw: {},
-    },
-    subsystems: {
+    }),
+    subsystems: childSubsystemNamesRule({
       yaml: "Подсистемы",
       xml: "Subsystem",
-      type: "ChildSubsystemNames",
       xmlParents: childObjects,
-    },
-    objectBelonging: {
+    }),
+    objectBelonging: systemEnumerationRule({
       yaml: "ПринадлежностьОбъекта",
       xml: "ObjectBelonging",
-      type: "SystemEnumeration",
       typeSE: "ObjectBelonging",
       xmlParents: properties,
       toYAML: false,
       fromYAML: false,
       implicitValueYAML: "Native",
-    },
-    extendedConfigurationObject: {
+    }),
+    extendedConfigurationObject: stringRule({
       xml: "ExtendedConfigurationObject",
-      type: "string",
       xmlParents: properties,
       runtimeOnly: true,
-    },
-    commandInterface: {
+    }),
+    commandInterface: rootCommandInterfaceRule({
       yaml: "КомандныйИнтерфейс",
-      type: "RootCommandInterface",
       filePath: "Ext/CommandInterface.xml",
       exportReferenceFileOnMissingValue: true,
-    },
-    help: {
-      type: "Help",
+    }),
+    help: helpRule({
       externalMetadata: { segment: "Help", placement: "derivedEntry" },
       filePath: "Ext/Help.xml",
       xmlPath: "Ext/Help.xml",
       nkdkDir: "Справка",
       toXML: false,
       fromXML: false,
-    },
+    }),
   },
 } as const satisfies MetadataItemRule

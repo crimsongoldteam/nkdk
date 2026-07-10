@@ -1,5 +1,11 @@
-import { Static, Type } from "@sinclair/typebox"
-import * as SE from "~/metadata/systemEnumerations/types"
+import {
+  definePropertyRule as defineWidePropertyRule,
+  type ExactRuleParams as WideExactRuleParams,
+} from "../ruleBuilder"
+import type { PropertyRule as WidePropertyRuleBase } from "../../orchestration/property/types"
+import { Type } from "typebox"
+import type { Static } from "typebox"
+import * as SE from "../../systemEnumerations/types"
 import { buildMetadataTargetSchema, type MetadataTargetConstraint } from "../metadataTargets"
 
 export interface Border {
@@ -37,4 +43,16 @@ export interface BorderEnterprise {
   Type: "Border"
   Width?: number
   Value?: `ControlBorderType.${SE.ControlBorderType}`
+}
+
+export interface BorderWidePropertyRule extends WidePropertyRuleBase {
+  type: "Border"
+}
+
+export type BorderRuleParams = Omit<BorderWidePropertyRule, "type">
+
+export function borderRule<const Params extends BorderRuleParams>(
+  params: WideExactRuleParams<BorderRuleParams, Params>
+): Readonly<{ type: "Border" } & Params> {
+  return defineWidePropertyRule("Border", params)
 }

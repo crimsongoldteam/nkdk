@@ -1,18 +1,18 @@
-import { NamedElement } from "~/metadata/forms/elements/baseElement/types"
-import { CommandBar, CommandBarEnterprise, CommandBarPartialYAML } from "~/metadata/forms/elements/commandBar/types"
+import { NamedElement } from "../../baseElement/types"
+import { CommandBar, CommandBarEnterprise, CommandBarPartialYAML } from "../types"
 import {
   fullFormGroupCommonFixture,
   fullFormGroupEnterpriseCommonFixture,
   fullFormGroupPartialYAMLCommonFixture,
-} from "~/metadata/forms/elements/formGroup/__fixtures__/data"
+} from "../../formGroup/__fixtures__/data"
 
-import { StructureResult } from "~/tests/types"
-import { RequiredFieldsElement } from "~/tests/types"
+import { StructureResult } from "../../../../../tests/types"
+import { RequiredFieldsElement } from "../../../../../tests/types"
 import {
   fullCommandBarChildItemsAllYAML,
   fullCommandBarChildItemsStructure,
   fullCommandBarChildItemsTyped,
-} from "~/metadata/forms/elements/__fixtures__/commandBarChildItems/data"
+} from "../../__fixtures__/commandBarChildItems/data"
 
 export const parentElement: NamedElement = {
   name: "КоманднаяПанель",
@@ -30,9 +30,7 @@ export const sourceCommandBar: CommandBar = {
 
 const { extendedTooltip: _eTCB, ...fullFormGroupCommonFixtureForCommandBar } = fullFormGroupCommonFixture
 
-export const fullCommandBar: RequiredFieldsElement<
-  Omit<CommandBar, "extendedTooltip" | "shortcut" | "autofill">
-> = {
+export const fullCommandBar: RequiredFieldsElement<Omit<CommandBar, "extendedTooltip" | "shortcut" | "autofill">> = {
   itemType: "CommandBar",
   name: "КоманднаяПанель",
   ...fullFormGroupCommonFixtureForCommandBar,

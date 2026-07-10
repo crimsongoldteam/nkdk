@@ -1,25 +1,18 @@
-import { StringboolYAML } from "~/metadata/commonObjects/boolean/types"
-import { FieldsListYAML } from "~/metadata/commonObjects/fieldsList/types"
-import { FunctionalOptionsYAML } from "~/metadata/commonObjects/functionalOptionsProperty/types"
-import { I8nTextYAML } from "~/metadata/commonObjects/i8nText/types"
-import { TypeDescriptionXML, TypeDescriptionYAML } from "~/metadata/commonObjects/typeDescription/types"
-import {
-  UserEditKeysYAML,
-  UserVisibleYAML,
-  UserViewKeysYAML,
-} from "~/metadata/commonObjects/userVisible/types"
-import { ChartXML, ChartYAML } from "~/metadata/forms/commonObjects/chart/types"
-import { DynamicListXML, DynamicListYAML } from "~/metadata/forms/commonObjects/dynamicList/types"
-import { FlowchartContextXML, FlowchartContextYAML } from "~/metadata/forms/commonObjects/flowchartContext/types"
-import { GanttChartXML, GanttChartYAML } from "~/metadata/forms/commonObjects/ganttChart/types"
-import { PlannerXML, PlannerYAML } from "~/metadata/forms/commonObjects/planner/types"
-import {
-  SpreadsheetDocumentXML,
-  SpreadsheetDocumentYAML,
-} from "~/metadata/forms/commonObjects/spreadsheetDocument/types"
-import { ElementXML } from "~/metadata/orchestration"
-import { FormTypeByRule } from "~/metadata/orchestration/metadataItem/element"
-import { FillCheckingYAML } from "~/metadata/systemEnumerations/types"
+import { StringboolYAML } from "../../../commonObjects/boolean/types"
+import { FieldsListYAML } from "../../../commonObjects/fieldsList/types"
+import { FunctionalOptionsYAML } from "../../../commonObjects/functionalOptionsProperty/types"
+import { I8nTextYAML } from "../../../commonObjects/i8nText/types"
+import { TypeDescriptionXML, TypeDescriptionYAML } from "../../../commonObjects/typeDescription/types"
+import { UserEditKeysYAML, UserVisibleYAML, UserViewKeysYAML } from "../../../commonObjects/userVisible/types"
+import { ChartXML, ChartYAML } from "../chart/types"
+import { DynamicListXML, DynamicListYAML } from "../dynamicList/types"
+import { FlowchartContextXML, FlowchartContextYAML } from "../flowchartContext/types"
+import { GanttChartXML, GanttChartYAML } from "../ganttChart/types"
+import { PlannerXML, PlannerYAML } from "../planner/types"
+import { SpreadsheetDocumentXML, SpreadsheetDocumentYAML } from "../spreadsheetDocument/types"
+import { ElementXML } from "../../../orchestration"
+import { FormTypeByRule } from "../../../orchestration/metadataItem/element"
+import { FillCheckingYAML } from "../../../systemEnumerations/types"
 import { FormAttributeColumnRules, FormAttributeRules } from "./rules"
 
 export type FormAttribute = FormTypeByRule<typeof FormAttributeRules>

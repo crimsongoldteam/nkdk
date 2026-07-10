@@ -1,9 +1,10 @@
 import fs from "fs"
 import { basename, join } from "path"
-import { BatchTask, runBatch } from "~/helpers/runBatch"
-import { ConfigurationContextFromXML } from "~/metadata/context/types"
-import { convertAppliedObjectFromXML } from "~/metadata/orchestration/appliedObject/convertFromXML"
-import { getTypeRule } from "~/metadata/orchestration/property/typeRuleRegistry"
+import { BatchTask, runBatch } from "../../../helpers/runBatch"
+import { ConfigurationContextFromXML } from "../../context/types"
+import { convertAppliedObjectFromXML } from "../../orchestration/appliedObject/convertFromXML"
+import { getTypeRule } from "../../orchestration/property/typeRuleRegistry"
+import type { MetadataOperationChangedXmlFile, MigrationChainInvalidResult, MigrationPlanItem } from "../../operations"
 import { CONFIGURATION_XML_FILE, readConfigurationFromXML, writeConfigurationToYAML } from "./rootIO"
 import { MetadataConfigurationRules } from "./rules"
 import { TopLevelMetadataItemRules } from "./topLevelRules"
@@ -13,6 +14,9 @@ const IO_CONCURRENCY = 64
 
 export type ConfigurationSyncResult = {
   succeeded: number
+  changedXmlFiles?: MetadataOperationChangedXmlFile[]
+  migrationsApplied?: MigrationPlanItem[]
+  migrationChain?: MigrationChainInvalidResult
   failed: Array<{
     kind: string
     name: string
@@ -33,15 +37,22 @@ export const syncConfigurationFromXML = async (params: {
   outputDir: string
 }): Promise<ConfigurationSyncResult> => {
   const { context, inputDir, outputDir } = params
+  const contextWithProjectDir: ConfigurationContextFromXML = {
+    ...context,
+    exportToYAML: {
+      ...(context.exportToYAML ?? { toTyped: false }),
+      projectDir: outputDir,
+    },
+  }
 
   if (!fs.existsSync(inputDir)) {
     return { succeeded: 0, failed: [] }
   }
 
   if (fs.existsSync(join(inputDir, CONFIGURATION_XML_FILE))) {
-    const configuration = readConfigurationFromXML({ context, inputDir })
-    writeConfigurationToYAML({ context, configuration, outputDir })
-    await syncRootConfigurationExternalFilesFromXML({ context, inputDir, outputDir })
+    const configuration = readConfigurationFromXML({ context: contextWithProjectDir, inputDir })
+    writeConfigurationToYAML({ context: contextWithProjectDir, configuration, outputDir })
+    await syncRootConfigurationExternalFilesFromXML({ context: contextWithProjectDir, inputDir, outputDir })
   }
 
   const tasks: BatchTask<void>[] = []
@@ -65,7 +76,7 @@ export const syncConfigurationFromXML = async (params: {
         run: () =>
           convertAppliedObjectFromXML({
             rule,
-            context,
+            context: contextWithProjectDir,
             inputDir: xmlDirAbs,
             name,
             outputDir: yamlDirAbs,

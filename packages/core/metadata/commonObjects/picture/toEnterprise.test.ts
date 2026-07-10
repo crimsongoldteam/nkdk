@@ -1,5 +1,5 @@
 import { describe, expect, it } from "vitest"
-import { pictureTestCases } from "~/metadata/commonObjects/picture/__fixtures__/data"
+import { pictureTestCases } from "./__fixtures__/data"
 import { exportPictureToEnterprise } from "./toEnterprise"
 
 describe("exportPictureToEnterprise", () => {

@@ -1,5 +1,5 @@
-import { PropertyRule } from "~/metadata/orchestration/property/types"
-import { registerTypeRule } from "~/metadata/orchestration/property/typeRuleRegistry"
+import type { PropertyRule } from "../../../orchestration/property/types"
+import { registerTypeRule } from "../../../orchestration/property/typeRuleRegistry"
 import { ConfigurationContextFromXML } from "../../../context/types"
 import { importDcsMetadataValueFromDcsXML } from "../dcsMetadataValue/fromXML"
 import { toDcsMetadataValueRule } from "./dcsValueRule"
@@ -55,11 +55,7 @@ export const importParameterValueFromDcsXML = (
     .filter((fragment) => !isDcsAutoColorValueFragment(rule, fragment))
     .map((fragment) => importDcsMetadataValueFromDcsXML(context, dcsRule, { "dcscor:value": fragment }))
   const value: ParameterValue["value"] =
-    valueParts.length === 0
-      ? undefined
-      : valueParts.length === 1
-        ? valueParts[0]
-        : valueParts
+    valueParts.length === 0 ? undefined : valueParts.length === 1 ? valueParts[0] : valueParts
 
   const itemsXml = asArray(xml["dcscor:item"])
   const item =

@@ -1,6 +1,6 @@
-import { PropertyRule } from "~/metadata/orchestration/property/types"
-import { registerTypeRule } from "~/metadata/orchestration/property/typeRuleRegistry"
-import { ExplicitYAMLString, isExplicitYAMLString } from "~/yaml/explicitString"
+import type { PropertyRule } from "../../orchestration/property/types"
+import { registerTypeRule } from "../../orchestration/property/typeRuleRegistry"
+import { ExplicitYAMLString, isExplicitYAMLString } from "../../../yaml/explicitString"
 import { ConfigurationContext } from "../../context/types"
 import { importFixedArrayFromYAML } from "./fixedArray/fromYAML"
 import { importFormChoiceListFromYAML } from "./formChoiceList/fromYAML"
@@ -47,10 +47,7 @@ export const importMetadataValueFromYAML = (
   if (data === undefined || data === null) return undefined
   const ruleTyped = rule as MetadataValuePropertyRule | undefined
 
-  if (
-    data === "СписокЗначений" &&
-    (ruleTyped?.valueType === undefined || ruleTyped.valueType.includes("valueList"))
-  ) {
+  if (data === "СписокЗначений" && (ruleTyped?.valueType === undefined || ruleTyped.valueType.includes("valueList"))) {
     return { type: "valueList" }
   }
 
@@ -104,10 +101,7 @@ export const importMetadataValueFromYAML = (
  * Детерминистская диспетчеризация по синтаксису YAML-значения.
  * Порядок: явная YAML-строка → число → boolean → dateTime → ref → string.
  */
-const heuristicFromYAML = (
-  context: ConfigurationContext,
-  data: MetadataSingleYAML
-): MetadataTypedValue | undefined => {
+const heuristicFromYAML = (context: ConfigurationContext, data: MetadataSingleYAML): MetadataTypedValue | undefined => {
   if (isExplicitYAMLString(data)) {
     return { type: "string", value: data.value } satisfies MetadataStringValue
   }

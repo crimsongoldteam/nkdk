@@ -1,6 +1,6 @@
-import { TypeCompiler } from "@sinclair/typebox/compiler"
+import { compileValidationSchema } from "./../../../validation/compileValidationSchema"
 import { describe, expect, it } from "vitest"
-import { exportPropertyToJSONSchema } from "~/metadata/orchestration/property/toJSONSchema"
+import { exportPropertyToJSONSchema } from "../../../orchestration/property/toJSONSchema"
 import "./types"
 
 const context = {
@@ -16,7 +16,7 @@ describe("FilterItem JSON Schema", () => {
       value: undefined,
     })
 
-    return TypeCompiler.Compile(schema!)
+    return compileValidationSchema(schema!)
   }
 
   it("accepts comparison items", () => {

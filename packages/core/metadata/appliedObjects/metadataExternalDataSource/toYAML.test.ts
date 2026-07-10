@@ -1,14 +1,14 @@
 import { describe, expect, it } from "vitest"
-import "~/metadata/commonObjects"
-import "~/metadata/systemEnumerations"
-import { testExportAppliedObjectToYAML, testImportAppliedObjectFromXML } from "~/tests/appliedObject"
+import "../../commonObjects"
+import "../../systemEnumerations"
+import { testExportAppliedObjectToYAML, testImportAppliedObjectFromXML } from "../../../tests/appliedObject"
 import { MetadataExternalDataSourceRules } from "./rules"
 import type { MetadataExternalDataSource } from "./types"
 
 const cases = [
   {
     fixture: "minimal.xml",
-    yaml: { Синоним: "Внешний источник данных по умолчанию" },
+    yaml: {},
   },
   {
     fixture: "full.xml",

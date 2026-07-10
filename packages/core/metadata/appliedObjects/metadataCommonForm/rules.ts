@@ -1,111 +1,109 @@
-import "~/metadata/forms/clientApplicationForm/propertyRules"
-import { V8_MDCLASSES_ROOT } from "~/metadata/orchestration/appliedObject/presets"
-import { MetadataItemRule } from "~/metadata/orchestration/property/types"
-
+import { helpRule } from "../../commonObjects/help/types"
+import { usePurposesRule } from "../../commonObjects/usePurposes/types"
+import { clientApplicationFormRule } from "../../forms/clientApplicationForm/builders"
+import { booleanRule } from "../../commonObjects/boolean/types"
+import { i8nTextRule } from "../../commonObjects/i8nText/types"
+import { moduleRule } from "../../commonObjects/module/types"
+import { stringRule } from "../../commonObjects/string/types"
+import { uuidRule } from "../../commonObjects/uuid/types"
+import { xmlRootRule } from "../../commonObjects/xmlRoot/types"
+import { systemEnumerationRule } from "../../systemEnumerations/types"
+import "../../forms/clientApplicationForm/propertyRules"
+import { V8_MDCLASSES_ROOT } from "../../orchestration/appliedObject/presets"
+import type { MetadataItemRule } from "../../orchestration/property/types"
 const properties = ["Properties"]
-
 export const MetadataCommonFormRules = {
   itemType: "MetadataCommonForm",
+  metadataTargetOwner: { kind: "self", root: "CommonForm" },
+  validationSchemaMode: "externalRefs",
+  externalValidationProperties: [{ yaml: "Форма", validator: "form" }],
   itemTypePrefix: "ОбщаяФорма",
   xmlDir: "CommonForms",
   properties: {
-    xmlRoot: {
-      type: "XMLRoot",
+    xmlRoot: xmlRootRule({
       container: "CommonForm",
       rootAttributes: V8_MDCLASSES_ROOT,
       forReferenceOnly: true,
       toYAML: false,
       fromYAML: false,
-    },
-    uuid: {
-      type: "uuid",
+    }),
+    uuid: uuidRule({
       xml: "_uuid",
       forReferenceOnly: true,
       xmlParents: [],
-    },
-    name: {
-      type: "string",
+    }),
+    name: stringRule({
       xmlParents: properties,
       required: true,
-    },
-    synonym: {
+    }),
+    synonym: i8nTextRule({
       yaml: "Синоним",
-      type: "I8nText",
       xmlParents: properties,
       defaultValueXMLRaw: "",
-    },
-    comment: {
+      excludeIfEqualNameYAML: true,
+    }),
+    comment: stringRule({
       yaml: "Комментарий",
-      type: "string",
       xmlParents: properties,
       defaultValueXMLRaw: "",
-    },
-    form: {
+    }),
+    form: clientApplicationFormRule({
       yaml: "Форма",
-      type: "ClientApplicationForm",
       filePath: "Ext/Form.xml",
       exportReferenceFileOnMissingValue: true,
-    },
-    module: {
-      type: "Module",
+    }),
+    module: moduleRule({
       nkdkPath: "Модуль.bsl",
       xmlPath: "Ext/Form/Module.bsl",
       toXML: false,
       fromXML: false,
-    },
-    formType: {
+    }),
+    formType: systemEnumerationRule({
       yaml: "ТипФормы",
       xml: "FormType",
-      type: "SystemEnumeration",
       typeSE: "FormType",
       xmlParents: properties,
       defaultValueXML: "Managed",
       implicitValueYAML: "Managed",
-    },
-    includeHelpInContents: {
+    }),
+    includeHelpInContents: booleanRule({
       yaml: "ВключатьСправкуВСодержание",
       xml: "IncludeHelpInContents",
-      type: "boolean",
       xmlParents: properties,
       defaultValueXML: false,
       implicitValueYAML: false,
-    },
-    help: {
-      type: "Help",
+    }),
+    help: helpRule({
       externalMetadata: { segment: "Help", placement: "derivedEntry" },
       filePath: "Ext/Help.xml",
       xmlPath: "Ext/Help.xml",
       nkdkDir: "Справка",
       toXML: false,
       fromXML: false,
-    },
-    usePurposes: {
+    }),
+    usePurposes: usePurposesRule({
       yaml: "НазначенияИспользования",
       xml: "UsePurposes",
-      type: "UsePurposes",
       xmlParents: properties,
-    },
-    useStandardCommands: {
+    }),
+    useStandardCommands: booleanRule({
       yaml: "ИспользоватьСтандартныеКоманды",
       xml: "UseStandardCommands",
-      type: "boolean",
       xmlParents: properties,
       defaultValueXML: true,
       implicitValueYAML: true,
-    },
-    extendedPresentation: {
+    }),
+    extendedPresentation: i8nTextRule({
       yaml: "РасширенноеПредставление",
       xml: "ExtendedPresentation",
-      type: "I8nText",
       xmlParents: properties,
       defaultValueXMLRaw: "",
-    },
-    explanation: {
+    }),
+    explanation: i8nTextRule({
       yaml: "Пояснение",
       xml: "Explanation",
-      type: "I8nText",
       xmlParents: properties,
       defaultValueXMLRaw: "",
-    },
+    }),
   },
 } as const satisfies MetadataItemRule

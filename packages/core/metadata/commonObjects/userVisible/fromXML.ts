@@ -1,8 +1,8 @@
-import { PropertyRule } from "~/metadata/orchestration/property/types"
-import { registerTypeRule } from "~/metadata/orchestration/property/typeRuleRegistry"
+import type { PropertyRule } from "../../orchestration/property/types"
+import { registerTypeRule } from "../../orchestration/property/typeRuleRegistry"
 import { ConfigurationContext } from "../../context/types"
 import { importBooleanFromXML } from "../boolean/fromXML"
-import { UserVisible, UserVisibleXML } from "./types"
+import type { UserVisible, UserVisibleXML } from "./types"
 
 export const importUserVisibleFromXML = (
   _context: ConfigurationContext,

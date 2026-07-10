@@ -2,12 +2,13 @@ import fs from "fs"
 import os from "os"
 import { join } from "path"
 import { afterEach, beforeEach, describe, expect, it } from "vitest"
-import { MetadataCatalogRules } from "~/metadata/appliedObjects/metadataCatalog/rules"
-import { MetadataChartOfCharacteristicTypesRules } from "~/metadata/appliedObjects/metadataChartOfCharacteristicTypes/rules"
-import { MetadataDocumentNumeratorRules } from "~/metadata/appliedObjects/metadataDocumentNumerator/rules"
-import { registerTypeRule } from "~/metadata/orchestration/property/typeRuleRegistry"
-import type { MetadataItemRule } from "~/metadata/orchestration/property/types"
-import { mockContextToXML } from "~/tests/mockContext"
+import { MetadataCatalogRules } from "../../appliedObjects/metadataCatalog/rules"
+import "../../appliedObjects/metadataCatalog/register"
+import { MetadataChartOfCharacteristicTypesRules } from "../../appliedObjects/metadataChartOfCharacteristicTypes/rules"
+import { MetadataDocumentNumeratorRules } from "../../appliedObjects/metadataDocumentNumerator/rules"
+import { registerTypeRule } from "../property/typeRuleRegistry"
+import type { MetadataItemRule } from "../property/types"
+import { mockContextToXML } from "../../../tests/mockContext"
 import { syncAppliedObjectToXML } from "./syncToXML"
 
 const XMLNS =
@@ -142,11 +143,7 @@ describe("syncAppliedObjectToXML — (б2) основной reference XML", () =
     } as unknown as MetadataItemRule
 
     fs.mkdirSync(join(inputDir, "ТестСправочник"), { recursive: true })
-    fs.writeFileSync(
-      join(inputDir, "ТестСправочник", "Свойства.yaml"),
-      ["ОбычныйИсточник: {}", ""].join("\n"),
-      "utf-8"
-    )
+    fs.writeFileSync(join(inputDir, "ТестСправочник", "Свойства.yaml"), ["ОбычныйИсточник: {}", ""].join("\n"), "utf-8")
     fs.mkdirSync(referenceDir, { recursive: true })
     fs.writeFileSync(
       join(referenceDir, "ТестСправочник.xml"),
@@ -201,6 +198,47 @@ describe("syncAppliedObjectToXML — (в) формы из сканировани
 
     const result = fs.readFileSync(join(outputDir, "ТестСправочник.xml"), "utf-8")
     expect(result).toContain("ФормаСписка")
+  })
+
+  it("передаёт owner-контекст в форму при обратном DataPath standard member", async () => {
+    const inputDir = join(tmpDir, "input")
+    const outputDir = join(tmpDir, "output")
+    const name = "ТестСправочник"
+    const formName = "ФормаЭлемента"
+
+    fs.mkdirSync(join(inputDir, name, "Формы", formName), { recursive: true })
+    fs.writeFileSync(join(inputDir, name, "Свойства.yaml"), "", "utf-8")
+    fs.mkdirSync(join(inputDir, "Справочник", name), { recursive: true })
+    fs.writeFileSync(join(inputDir, "Справочник", name, "Свойства.yaml"), "Имя: ТестСправочник\n", "utf-8")
+    fs.writeFileSync(
+      join(inputDir, name, "Формы", formName, "Форма.yaml"),
+      [
+        "Реквизиты:",
+        "  Объект:",
+        "    Тип: Справочник.ТестСправочник",
+        "Элементы:",
+        "  Код:",
+        "    Вид: ПолеВвода",
+        "    ПутьКДанным: Объект.Код",
+        "",
+      ].join("\n"),
+      "utf-8"
+    )
+
+    await syncAppliedObjectToXML({
+      rule: MetadataCatalogRules,
+      context: {
+        ...mockContextToXML(),
+        importFromYAML: { projectDir: inputDir },
+      },
+      inputDir,
+      name,
+      outputDir,
+    })
+
+    const result = fs.readFileSync(join(outputDir, name, "Forms", formName, "Ext", "Form.xml"), "utf-8")
+    expect(result).toContain("<DataPath>Объект.Code</DataPath>")
+    expect(result).not.toContain("<DataPath>Объект.Код</DataPath>")
   })
 })
 
@@ -326,11 +364,7 @@ describe("syncAppliedObjectToXML — (ж) source из filePath reference для 
     } as unknown as MetadataItemRule
 
     fs.mkdirSync(join(inputDir, "ТестСправочник"), { recursive: true })
-    fs.writeFileSync(
-      join(inputDir, "ТестСправочник", "Свойства.yaml"),
-      ["ВнешнийИсточник: {}", ""].join("\n"),
-      "utf-8"
-    )
+    fs.writeFileSync(join(inputDir, "ТестСправочник", "Свойства.yaml"), ["ВнешнийИсточник: {}", ""].join("\n"), "utf-8")
     fs.mkdirSync(join(referenceDir, "Ext"), { recursive: true })
     fs.writeFileSync(join(referenceDir, "ТестСправочник.xml"), catalogXml([]), "utf-8")
     fs.writeFileSync(

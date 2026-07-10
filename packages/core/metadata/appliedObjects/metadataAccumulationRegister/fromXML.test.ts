@@ -1,5 +1,5 @@
 import { describe, expect, it } from "vitest"
-import { testExportAppliedObjectToXML, testImportAppliedObjectFromXML } from "~/tests/appliedObject"
+import { testExportAppliedObjectToXML, testImportAppliedObjectFromXML } from "../../../tests/appliedObject"
 import { MetadataAccumulationRegisterRules } from "./rules"
 import { MetadataAccumulationRegister } from "./types"
 
@@ -27,30 +27,33 @@ describe("import MetadataAccumulationRegister from XML", () => {
 
     expect(result?.registerType).toBe("Turnovers")
     expect(result?.enableTotalsSplitting).toBe(false)
-    expect(result?.resources?.map(({ name }) => name)).toEqual(["РесурсВсеСвойства", "ИзмерениеИндексировать"])
-    expect(result?.dimensions?.map(({ name }) => name)).toEqual([
+    expect(result?.resources?.map(({ name }: { name: string }) => name)).toEqual([
+      "РесурсВсеСвойства",
+      "ИзмерениеИндексировать",
+    ])
+    expect(result?.dimensions?.map(({ name }: { name: string }) => name)).toEqual([
       "ИзмерениеВсеСвойства",
       "ИспользоватьХранилищеДвоичныхДанных",
     ])
-    expect(result?.attributes?.map(({ name }) => name)).toEqual(["РеквизитВсеСвойства", "РеквизитПоУмолчанию"])
+    expect(result?.attributes?.map(({ name }: { name: string }) => name)).toEqual([
+      "РеквизитВсеСвойства",
+      "РеквизитПоУмолчанию",
+    ])
     expect(result?.dimensions?.[0]?.useInTotals).toBeUndefined()
   })
 
-  it.each(["full.xml", "minimal.xml"])(
-    "round-trip: %s — import затем export совпадает с исходным XML",
-    (fixture) => {
-      const data = testImportAppliedObjectFromXML<MetadataAccumulationRegister>({
-        rule: MetadataAccumulationRegisterRules,
-        importMetaUrl: import.meta.url,
-        fixture,
-      })
-      const { result, expected } = testExportAppliedObjectToXML({
-        rule: MetadataAccumulationRegisterRules,
-        importMetaUrl: import.meta.url,
-        fixture,
-        data: data!,
-      })
-      expect(result.replace(/\r\n/g, "\n")).toEqual(expected.replace(/\r\n/g, "\n"))
-    }
-  )
+  it.each(["full.xml", "minimal.xml"])("round-trip: %s — import затем export совпадает с исходным XML", (fixture) => {
+    const data = testImportAppliedObjectFromXML<MetadataAccumulationRegister>({
+      rule: MetadataAccumulationRegisterRules,
+      importMetaUrl: import.meta.url,
+      fixture,
+    })
+    const { result, expected } = testExportAppliedObjectToXML({
+      rule: MetadataAccumulationRegisterRules,
+      importMetaUrl: import.meta.url,
+      fixture,
+      data: data!,
+    })
+    expect(result.replace(/\r\n/g, "\n")).toEqual(expected.replace(/\r\n/g, "\n"))
+  })
 })

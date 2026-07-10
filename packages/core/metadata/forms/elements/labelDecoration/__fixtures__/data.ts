@@ -1,16 +1,12 @@
-import {
-  LabelDecoration,
-  LabelDecorationEnterprise,
-  LabelDecorationPartialYAML,
-} from "~/metadata/forms/elements/labelDecoration/types"
+import { LabelDecoration, LabelDecorationEnterprise, LabelDecorationPartialYAML } from "../types"
 
-import { StructureResult } from "~/tests/types"
-import { RequiredFieldsElement } from "~/tests/types"
+import { StructureResult } from "../../../../../tests/types"
+import { RequiredFieldsElement } from "../../../../../tests/types"
 import {
   fullFormDecorationCommonFixture,
   fullFormDecorationEnterpriseCommonFixture,
   fullFormDecorationPartialYAMLCommonFixture,
-} from "~/metadata/forms/elements/formDecoration/__fixtures__/data"
+} from "../../formDecoration/__fixtures__/data"
 
 export const fullLabelDecoration: RequiredFieldsElement<LabelDecoration> = {
   itemType: "LabelDecoration",

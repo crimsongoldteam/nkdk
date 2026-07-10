@@ -80,7 +80,10 @@ function formatMemberTargetToYAML(
   }
 
   const memberKinds = constraint.memberKinds ?? allMemberKinds()
-  const localSegments = target.segments.flatMap((segment) => [memberKindToYAML[segment.kind], formatMemberSegmentName(segment)])
+  const localSegments = target.segments.flatMap((segment) => [
+    memberKindToYAML[segment.kind],
+    formatMemberSegmentName(segment),
+  ])
   if (target.segments.length === 1 && memberKinds.length === 1) return formatMemberSegmentName(target.segments[0])
   return localSegments.join(".")
 }

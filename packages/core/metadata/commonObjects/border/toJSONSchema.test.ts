@@ -1,9 +1,9 @@
-import { TypeCompiler } from "@sinclair/typebox/compiler"
+import { compileValidationSchema } from "./../../validation/compileValidationSchema"
 import { describe, expect, it } from "vitest"
 import { BorderJSONSchema } from "./types"
 
 describe("BorderJSONSchema", () => {
-  const schema = TypeCompiler.Compile(BorderJSONSchema)
+  const schema = compileValidationSchema(BorderJSONSchema)
 
   it("accepts empty style name", () => {
     expect(schema.Check({ Имя: null, Ширина: 1, ТипРамки: "БезРамки" })).toBe(true)

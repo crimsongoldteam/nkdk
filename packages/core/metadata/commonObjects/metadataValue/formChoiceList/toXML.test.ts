@@ -1,7 +1,7 @@
 import { describe, expect, it } from "vitest"
-import { mockContext, mockContextFromXML } from "~/tests/mockContext"
-import { xmlExport } from "~/xml/export/exporter"
-import { importContentFromXML } from "~/xml/import/importer"
+import { mockContext, mockContextFromXML } from "../../../../tests/mockContext"
+import { xmlExport } from "../../../../xml/export/exporter"
+import { importContentFromXML } from "../../../../xml/import/importer"
 import {
   withMultiLangPresentation,
   withNumericPresentation,

@@ -1,10 +1,10 @@
-import { PropertyRule } from "~/metadata/orchestration/property/types"
-import { registerTypeRule } from "~/metadata/orchestration/property/typeRuleRegistry"
-import type { ExportToYAMLFunctionNew } from "~/metadata/orchestration/property/fn"
+import type { PropertyRule } from "../../orchestration/property/types"
+import { registerTypeRule } from "../../orchestration/property/typeRuleRegistry"
+import type { ExportToYAMLFunctionNew } from "../../orchestration/property/fn"
 import { ConfigurationContext } from "../../context/types"
 import type { MetadataTargetOwner } from "../metadataTargets/types"
 import { exportMetadataObjectStringToYAML } from "../metadataPath/toYAML"
-import { MetadataItemLink, MetadataItemLinkYAML, MetadataItemLinks, MetadataItemLinksYAML } from "./types"
+import type { MetadataItemLink, MetadataItemLinkYAML, MetadataItemLinks, MetadataItemLinksYAML } from "./types"
 
 export const exportMetadataItemLinkToYAML = (
   context: ConfigurationContext,

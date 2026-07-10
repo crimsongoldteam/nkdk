@@ -1,9 +1,10 @@
-import { ConfigurationContext, ConfigurationContextFromXML } from "~/metadata/context/types"
-import { importMetadataItemFromYAML } from "~/metadata/orchestration/metadataItem/fromYAML"
-import { registerMetadataItemCollectionRule } from "~/metadata/orchestration/metadataCollection/ruleFactory"
-import { exportMetadataCollectionToYAMLAsRecord } from "~/metadata/orchestration/metadataCollection/toYAML"
-import { importPropertyFromXML } from "~/metadata/orchestration/property/fromXML"
-import { PropertyRule } from "~/metadata/orchestration/property/types"
+import { ConfigurationContext, ConfigurationContextFromXML } from "../../context/types"
+import { importMetadataItemFromYAML } from "../../orchestration/metadataItem/fromYAML"
+import { registerMetadataItemCollectionRule } from "../../orchestration/metadataCollection/ruleFactory"
+import { exportMetadataCollectionToYAMLAsRecord } from "../../orchestration/metadataCollection/toYAML"
+import { importPropertyFromXML } from "../../orchestration/property/fromXML"
+import type { PropertyRule } from "../../orchestration/property/types"
+import { toYAMLImportError, withYAMLImportDiagnostics } from "../../orchestration/yamlImportError"
 import {
   MetadataChartOfAccountsTabularSectionRules,
   MetadataBusinessProcessTabularSectionRules,
@@ -51,11 +52,7 @@ const importMetadataTabularSectionsFromYAML = (
   _rule: PropertyRule | undefined,
   data: MetadataTabularSectionsYAML | undefined
 ): MetadataTabularSections | undefined => {
-  if (!data) return undefined
-
-  return Object.entries(data)
-    .map(([name, value]) => importMetadataTabularSectionFromYAML(context, value, name))
-    .filter((item): item is MetadataTabularSection => item !== undefined)
+  return importNamedTabularSectionsFromYAML(context, data, importMetadataTabularSectionFromYAML)
 }
 
 registerMetadataItemCollectionRule({
@@ -94,11 +91,7 @@ const importMetadataDocumentTabularSectionsFromYAML = (
   _rule: PropertyRule | undefined,
   data: MetadataTabularSectionsYAML | undefined
 ): MetadataTabularSections | undefined => {
-  if (!data) return undefined
-
-  return Object.entries(data)
-    .map(([name, value]) => importMetadataDocumentTabularSectionFromYAML(context, value, name))
-    .filter((item): item is MetadataTabularSection => item !== undefined)
+  return importNamedTabularSectionsFromYAML(context, data, importMetadataDocumentTabularSectionFromYAML)
 }
 
 registerMetadataItemCollectionRule({
@@ -153,11 +146,7 @@ const importMetadataDataProcessorTabularSectionsFromYAML = (
   _rule: PropertyRule | undefined,
   data: MetadataTabularSectionsYAML | undefined
 ): MetadataTabularSections | undefined => {
-  if (!data) return undefined
-
-  return Object.entries(data)
-    .map(([name, value]) => importMetadataDataProcessorTabularSectionFromYAML(context, value, name))
-    .filter((item): item is MetadataTabularSection => item !== undefined)
+  return importNamedTabularSectionsFromYAML(context, data, importMetadataDataProcessorTabularSectionFromYAML)
 }
 
 registerMetadataItemCollectionRule({
@@ -196,11 +185,7 @@ const importMetadataReportTabularSectionsFromYAML = (
   _rule: PropertyRule | undefined,
   data: MetadataTabularSectionsYAML | undefined
 ): MetadataTabularSections | undefined => {
-  if (!data) return undefined
-
-  return Object.entries(data)
-    .map(([name, value]) => importMetadataReportTabularSectionFromYAML(context, value, name))
-    .filter((item): item is MetadataTabularSection => item !== undefined)
+  return importNamedTabularSectionsFromYAML(context, data, importMetadataReportTabularSectionFromYAML)
 }
 
 registerMetadataItemCollectionRule({
@@ -239,11 +224,7 @@ const importMetadataExchangePlanTabularSectionsFromYAML = (
   _rule: PropertyRule | undefined,
   data: MetadataTabularSectionsYAML | undefined
 ): MetadataTabularSections | undefined => {
-  if (!data) return undefined
-
-  return Object.entries(data)
-    .map(([name, value]) => importMetadataExchangePlanTabularSectionFromYAML(context, value, name))
-    .filter((item): item is MetadataTabularSection => item !== undefined)
+  return importNamedTabularSectionsFromYAML(context, data, importMetadataExchangePlanTabularSectionFromYAML)
 }
 
 registerMetadataItemCollectionRule({
@@ -278,6 +259,29 @@ registerMetadataItemCollectionRule({
   keyField: "name",
   collectionItemRule: true,
 })
+
+function importNamedTabularSectionsFromYAML(
+  context: ConfigurationContext,
+  data: MetadataTabularSectionsYAML | undefined,
+  importItem: (
+    context: ConfigurationContext,
+    yaml: MetadataTabularSectionYAML | undefined,
+    name: string
+  ) => MetadataTabularSection | undefined
+): MetadataTabularSections | undefined {
+  if (!data) return undefined
+
+  return Object.entries(data)
+    .map(([name, value]) => {
+      const itemContext = withYAMLImportDiagnostics(context, { propertyPath: [name], yamlPath: [name] })
+      try {
+        return importItem(itemContext, value, name)
+      } catch (error) {
+        throw toYAMLImportError(error, itemContext)
+      }
+    })
+    .filter((item): item is MetadataTabularSection => item !== undefined)
+}
 
 // Compat exports for consumers that call these functions directly
 export const importMetadataTabularSectionsFromXML = (

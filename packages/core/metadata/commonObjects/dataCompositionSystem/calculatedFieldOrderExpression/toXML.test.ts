@@ -1,5 +1,5 @@
 import { describe, expect, it } from "vitest"
-import { testExportPropertyToXML } from "~/tests/property/exportPropertyToXML"
+import { testExportPropertyToXML } from "../../../../tests/property/exportPropertyToXML"
 import { fullOrderExpressions } from "./__fixtures__/data"
 import "./types"
 
@@ -37,9 +37,7 @@ describe("export CalculatedFieldOrderExpression to XML", () => {
       xmlRootTag: "dcssch:orderExpression",
     })
 
-    expect(result).toContain(
-      '<orderType xmlns="http://v8.1c.ru/8.1/data-composition-system/common">Asc</orderType>'
-    )
+    expect(result).toContain('<orderType xmlns="http://v8.1c.ru/8.1/data-composition-system/common">Asc</orderType>')
   })
 
   it("does not invent Asc without reference XML", () => {

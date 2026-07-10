@@ -1,7 +1,4 @@
-import {
-  MetadataHTTPServiceMethods,
-  MetadataHTTPServiceMethodsYAML,
-} from "~/metadata/commonObjects/metadataHTTPServiceMethod/types"
+import { MetadataHTTPServiceMethods, MetadataHTTPServiceMethodsYAML } from "../types"
 
 export const methodsFromXML: MetadataHTTPServiceMethods = [
   {
@@ -26,7 +23,6 @@ export const methodsYAML: MetadataHTTPServiceMethodsYAML = {
     Обработчик: "МетодGET",
   },
   МетодHEAD: {
-    Синоним: "Метод HEAD",
     Комментарий: "Комментарий метода",
     HTTPМетод: "HEAD",
     Обработчик: "МетодHEAD",
@@ -43,7 +39,6 @@ export const methodsFromYAML: MetadataHTTPServiceMethods = [
   {
     itemType: "MetadataHTTPServiceMethod",
     name: "МетодHEAD",
-    synonym: { items: { ru: "Метод HEAD" } },
     comment: "Комментарий метода",
     httpMethod: "HEAD",
     handler: "МетодHEAD",

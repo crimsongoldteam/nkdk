@@ -3,9 +3,9 @@ import { mkdtempSync } from "fs"
 import { tmpdir } from "os"
 import { join } from "path"
 import { describe, expect, it } from "vitest"
-import { convertAppliedObjectFromXML } from "~/metadata/orchestration/appliedObject/convertFromXML"
-import { syncAppliedObjectToXML } from "~/metadata/orchestration/appliedObject/syncToXML"
-import { mockContextFromXML, mockContextToXML } from "~/tests/mockContext"
+import { convertAppliedObjectFromXML } from "../../orchestration/appliedObject/convertFromXML"
+import { syncAppliedObjectToXML } from "../../orchestration/appliedObject/syncToXML"
+import { mockContextFromXML, mockContextToXML } from "../../../tests/mockContext"
 import { MetadataTaskRules } from "./rules"
 
 describe("external sync — MetadataTask", () => {
@@ -13,7 +13,10 @@ describe("external sync — MetadataTask", () => {
 
   it("copies object modules from XML to nkdk", async () => {
     const inputDir = mkdtempSync(join(tmpdir(), "task-xml-"))
-    fs.copyFileSync(new URL("__fixtures__/sync/xml/ЗадачаВсеСвойства.xml", import.meta.url), join(inputDir, `${name}.xml`))
+    fs.copyFileSync(
+      new URL("__fixtures__/sync/xml/ЗадачаВсеСвойства.xml", import.meta.url),
+      join(inputDir, `${name}.xml`)
+    )
     fs.mkdirSync(join(inputDir, name, "Ext"), { recursive: true })
     fs.writeFileSync(join(inputDir, name, "Ext", "ObjectModule.bsl"), "Процедура ПриЗаписи()\nКонецПроцедуры\n")
     fs.writeFileSync(join(inputDir, name, "Ext", "ManagerModule.bsl"), "Функция Версия()\n\tВозврат 1;\nКонецФункции\n")

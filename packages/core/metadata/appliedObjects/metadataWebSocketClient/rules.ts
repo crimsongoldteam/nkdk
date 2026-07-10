@@ -1,133 +1,125 @@
-import { V8_MDCLASSES_ROOT } from "~/metadata/orchestration/appliedObject/presets"
-import { MetadataItemRule } from "~/metadata/orchestration/property/types"
-
+import { webSocketClientHeadersRule } from "../../commonObjects/webSocketClientHeaders/types"
+import { booleanRule } from "../../commonObjects/boolean/types"
+import { i8nTextRule } from "../../commonObjects/i8nText/types"
+import { moduleRule } from "../../commonObjects/module/types"
+import { numberRule } from "../../commonObjects/number/types"
+import { stringRule } from "../../commonObjects/string/types"
+import { uuidRule } from "../../commonObjects/uuid/types"
+import { xmlRootRule } from "../../commonObjects/xmlRoot/types"
+import { systemEnumerationRule } from "../../systemEnumerations/types"
+import { V8_MDCLASSES_ROOT } from "../../orchestration/appliedObject/presets"
+import type { MetadataItemRule } from "../../orchestration/property/types"
 const properties = ["Properties"]
-
 export const MetadataWebSocketClientRules = {
   itemType: "MetadataWebSocketClient",
+  metadataTargetOwner: { kind: "self", root: "WebSocketClient" },
   itemTypePrefix: "WebSocketКлиент",
   xmlDir: "WebSocketClients",
   properties: {
-    xmlRoot: {
-      type: "XMLRoot",
+    xmlRoot: xmlRootRule({
       container: "WebSocketClient",
       rootAttributes: V8_MDCLASSES_ROOT,
       forReferenceOnly: true,
       toYAML: false,
       fromYAML: false,
-    },
-    uuid: {
-      type: "uuid",
+    }),
+    uuid: uuidRule({
       xml: "_uuid",
       forReferenceOnly: true,
       xmlParents: [],
-    },
-    name: {
-      type: "string",
+    }),
+    name: stringRule({
       xmlParents: properties,
       required: true,
-    },
-    synonym: {
+    }),
+    synonym: i8nTextRule({
       yaml: "Синоним",
-      type: "I8nText",
       xmlParents: properties,
       defaultValueXMLRaw: "",
-    },
-    comment: {
+      excludeIfEqualNameYAML: true,
+    }),
+    comment: stringRule({
       yaml: "Комментарий",
-      type: "string",
       xmlParents: properties,
       defaultValueXMLRaw: "",
-    },
-    predefined: {
+    }),
+    predefined: booleanRule({
       yaml: "Предопределенный",
       xml: "Predefined",
-      type: "boolean",
       xmlParents: properties,
       defaultValueXML: false,
       implicitValueYAML: false,
-    },
-    autoConnect: {
+    }),
+    autoConnect: booleanRule({
       yaml: "АвтоПодключение",
       xml: "AutoConnect",
-      type: "boolean",
       xmlParents: properties,
       defaultValueXML: false,
       implicitValueYAML: false,
-    },
-    serverURL: {
+    }),
+    serverURL: stringRule({
       yaml: "АдресСервера",
       xml: "ServerURL",
-      type: "string",
       xmlParents: properties,
       defaultValueXMLRaw: "",
-    },
-    user: {
+    }),
+    user: stringRule({
       yaml: "Пользователь",
       xml: "User",
-      type: "string",
       xmlParents: properties,
       defaultValueXMLRaw: "",
-    },
-    password: {
+    }),
+    password: stringRule({
       yaml: "Пароль",
       xml: "Password",
-      type: "string",
       xmlParents: properties,
       defaultValueXMLRaw: "",
-    },
-    headers: {
+    }),
+    headers: webSocketClientHeadersRule({
       yaml: "Заголовки",
       xml: "Headers",
-      type: "WebSocketClientHeaders",
       xmlParents: properties,
       defaultValueXML: [],
       implicitValueYAML: [],
-    },
-    useOSProxy: {
+    }),
+    useOSProxy: booleanRule({
       yaml: "ИспользоватьПроксиОС",
       xml: "UseOSProxy",
-      type: "boolean",
       xmlParents: properties,
       defaultValueXML: false,
       implicitValueYAML: false,
-    },
-    useOSAuthentication: {
+    }),
+    useOSAuthentication: booleanRule({
       yaml: "ИспользоватьАутентификациюОС",
       xml: "UseOSAuthentication",
-      type: "boolean",
       xmlParents: properties,
       defaultValueXML: false,
       implicitValueYAML: false,
-    },
-    timeout: {
+    }),
+    timeout: numberRule({
       yaml: "Таймаут",
       xml: "Timeout",
-      type: "number",
       xmlParents: properties,
       defaultValueXML: 30,
       implicitValueYAML: 30,
-    },
-    module: {
-      type: "Module",
+    }),
+    module: moduleRule({
       nkdkPath: "Модуль.bsl",
       xmlPath: "Ext/Module.bsl",
-    },
-    objectBelonging: {
+    }),
+    objectBelonging: systemEnumerationRule({
       yaml: "ПринадлежностьОбъекта",
       xml: "ObjectBelonging",
-      type: "SystemEnumeration",
       typeSE: "ObjectBelonging",
       xmlParents: properties,
       implicitValueYAML: "Native",
       toYAML: false,
       fromYAML: false,
-    },
-    extendedConfigurationObject: {
+    }),
+    extendedConfigurationObject: stringRule({
       xml: "ExtendedConfigurationObject",
-      type: "string",
       xmlParents: properties,
       runtimeOnly: true,
-    },
+    }),
   },
 } as const satisfies MetadataItemRule

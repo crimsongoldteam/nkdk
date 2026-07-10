@@ -1,5 +1,5 @@
 import { describe, expect, it } from "vitest"
-import { testExportAppliedObjectToXML, testImportAppliedObjectFromXML } from "~/tests/appliedObject"
+import { testExportAppliedObjectToXML, testImportAppliedObjectFromXML } from "../../../tests/appliedObject"
 import { MetadataTaskRules } from "./rules"
 import { MetadataTask } from "./types"
 
@@ -20,7 +20,7 @@ describe("import MetadataTask from XML", () => {
       currentPerformer: "SessionParameter.ПараметрСеансаТекущийИсполнитель",
       commands: [{ name: "Команда1" }],
     })
-    expect(result?.addressingAttributes?.map((attribute) => attribute.name)).toEqual([
+    expect(result?.addressingAttributes?.map((attribute: { name: string }) => attribute.name)).toEqual([
       "РеквизитАдресацииВсеСвойства",
       "РеквизитАдресацииПоУмолчанию",
     ])

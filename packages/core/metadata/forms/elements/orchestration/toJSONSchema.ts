@@ -1,7 +1,7 @@
-import { TProperties, TSchema, Type } from "@sinclair/typebox"
-import { ConfigurationContext } from "~/metadata/context/types"
-import { NamedElement } from "~/metadata/forms/elements/baseElement/types"
-import { exportPropertiesToJSONSchema } from "~/metadata/orchestration/property/toJSONSchema"
+import { TProperties, TSchema, Type } from "typebox"
+import { ConfigurationContext } from "../../../context/types"
+import { NamedElement } from "../baseElement/types"
+import { exportPropertiesToJSONSchema } from "../../../orchestration/property/toJSONSchema"
 import { getElementRule } from "./ruleFactory"
 import { ElementRule } from "./types"
 
@@ -18,7 +18,7 @@ export const exportElementRuleToJSONSchema = (params: {
   })
   const aliasedProperties = applyPropertyAliases({
     aliases: propertyAliases,
-    properties: properties as TProperties,
+    properties,
   })
 
   return Type.Object(
@@ -44,7 +44,7 @@ export const exportSingleElementRuleToJSONSchema = (params: {
 
   return Type.Object(
     {
-      ...(properties as TProperties),
+      ...properties,
     },
     {
       additionalProperties: false,
@@ -53,7 +53,9 @@ export const exportSingleElementRuleToJSONSchema = (params: {
 }
 
 function shouldOmitNestedChildItems(context: ConfigurationContext): boolean {
-  return context.exportToJSONSchema?.mode !== "inline"
+  const exportContext = context.exportToJSONSchema
+  if (exportContext?.mode === "inline") return false
+  return exportContext?.includeNestedChildItems !== true
 }
 
 function omitNestedChildItemsRule(rule: ElementRule): ElementRule {

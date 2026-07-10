@@ -1,5 +1,5 @@
-import type { ConfigurationContext } from "~/metadata/context/types"
-import { ExportToXMLFunctionNew, InternalInfoPropertyRule, registerTypeRule } from "~/metadata/orchestration"
+import type { ConfigurationContext } from "../../context/types"
+import { ExportToXMLFunctionNew, InternalInfoPropertyRule, registerTypeRule } from "../../orchestration"
 import { getUUID } from "../../helpers/uuid"
 import {
   InternalInfo,
@@ -89,7 +89,8 @@ const getContainedObjectsXML = (params: {
 
   const usedClassIds = new Set<string>()
   const findContainedObject = (classId: string) =>
-    referenceObjects.find((item) => item.classId === classId) ?? metadataObjects.find((item) => item.classId === classId)
+    referenceObjects.find((item) => item.classId === classId) ??
+    metadataObjects.find((item) => item.classId === classId)
 
   const declared = params.classIds.map((classId) => {
     usedClassIds.add(classId)

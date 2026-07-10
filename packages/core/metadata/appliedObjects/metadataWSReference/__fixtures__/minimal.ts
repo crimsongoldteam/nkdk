@@ -8,6 +8,5 @@ export const minimal: MetadataWSReference = {
 }
 
 export const minimalYAML: MetadataWSReferenceYAML = {
-  Синоним: "WSСсылка по умолчанию",
   URL: "http://www.dneonline.com/calculator.asmx?wsdl",
 }

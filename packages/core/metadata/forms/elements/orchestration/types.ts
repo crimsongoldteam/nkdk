@@ -1,7 +1,11 @@
-import { FormButtonType, FormDecorationType, FormFieldType, FormGroupType } from "~/metadata/systemEnumerations/types"
-import { ToYAML } from "~/metadata/orchestration/metadataItem/registry"
-import { MetadataItemType, MetadataItemTypeRegistry, ToMetadata, ToTypedYAML } from "~/metadata/orchestration/metadataItem/registry"
-import { MetadataItemRule } from "~/metadata/orchestration/property/types"
+import type {
+  FormButtonType,
+  FormDecorationType,
+  FormFieldType,
+  FormGroupType,
+} from "../../../systemEnumerations/types"
+import { ToYAML } from "../../../orchestration/metadataItem/registry"
+import type { MetadataItemRule } from "../../../orchestration/property/types"
 
 //#region FormElementType
 
@@ -61,21 +65,23 @@ export type CollectableElementFromYAML<D extends CollectableElementToYAML<Collec
     : never
 }[CollectableElementType]
 
-export type SingleElementType = Extract<
-  MetadataItemType,
+export type SingleElementType =
   | "SingleSearchControlAddition"
   | "SingleSearchStringAddition"
   | "SingleViewStatusAddition"
   | "ContextMenu"
   | "ExtendedTooltip"
   | "AutoCommandBar"
->
 
-export type CollectableElementType = Extract<MetadataItemType, keyof typeof CollectableElementTypeToYAML>
+export type CollectableElementType = keyof typeof CollectableElementTypeToYAML
 
 export type ElementType = CollectableElementType | SingleElementType
 
-export type CollectableElement = ToMetadata<CollectableElementType>
+export type CollectableElement = {
+  itemType: CollectableElementType
+  name: string
+  [key: string]: any
+}
 
 //#endregion
 
@@ -108,16 +114,16 @@ export type ElementXML = ElementXMLWithoutId & { _id: string }
 
 //#region TypedFormElement
 
-export type TypedFormElementType = {
-  [K in MetadataItemType]: MetadataItemTypeRegistry[K] extends { yamlTyped: unknown } ? K : never
-}[MetadataItemType]
+export type TypedFormElementType = CollectableElementType
 
-export type TypedFormElementTypeYAML = {
-  [K in MetadataItemType]: MetadataItemTypeRegistry[K] extends { yamlTyped: unknown } ? ToYAML<K> : never
-}[MetadataItemType]
+export type TypedFormElementTypeYAML = ToYAML<TypedFormElementType>
 
-export type TypedFormElement = ToMetadata<TypedFormElementType>
+export type TypedFormElement = {
+  itemType: TypedFormElementType
+  name: string
+  [key: string]: any
+}
 
-export type TypedFormElementYAML = ToTypedYAML<TypedFormElementType>
+export type TypedFormElementYAML = ToYAML<TypedFormElementType>
 
 //#endregion

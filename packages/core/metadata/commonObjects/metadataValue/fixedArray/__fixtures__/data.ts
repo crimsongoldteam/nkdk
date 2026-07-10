@@ -1,5 +1,5 @@
-import { MetadataFixedArrayValue, MetadataFixedArrayValueYAML } from "~/metadata/commonObjects/metadataValue/types"
-import { explicitYAMLString } from "~/yaml/explicitString"
+import { MetadataFixedArrayValue, MetadataFixedArrayValueYAML } from "../../types"
+import { explicitYAMLString } from "../../../../../yaml/explicitString"
 
 export const twoRefsFixedArray: MetadataFixedArrayValue = {
   type: "fixedArray",

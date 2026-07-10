@@ -3,10 +3,10 @@ import os from "os"
 import { dirname, join } from "path"
 import { fileURLToPath } from "url"
 import { describe, expect, it } from "vitest"
-import { convertAppliedObjectFromXML } from "~/metadata/orchestration/appliedObject/convertFromXML"
-import { testConvertAppliedObjectFromXML } from "~/tests/appliedObject"
-import { mockContextFromXML } from "~/tests/mockContext"
-import { importFromYAML } from "~/yaml/import"
+import { convertAppliedObjectFromXML } from "../../orchestration/appliedObject/convertFromXML"
+import { testConvertAppliedObjectFromXML } from "../../../tests/appliedObject"
+import { mockContextFromXML } from "../../../tests/mockContext"
+import { importFromYAML } from "../../../yaml/import"
 import { readExternalDataSourceYAML } from "./__fixtures__/sync/data"
 import { MetadataExternalDataSourceRules } from "./rules"
 
@@ -27,10 +27,7 @@ describe("convertAppliedObjectFromXML — MetadataExternalDataSource", () => {
     expect(rootModel["Кубы"]).toBeUndefined()
     expect(rootModel["Функции"]).toBeDefined()
 
-    const tableYAML = fs.readFileSync(
-      join(outputDir, name, "Таблицы/ТаблицаВсеСвойства/Свойства.yaml"),
-      "utf-8"
-    )
+    const tableYAML = fs.readFileSync(join(outputDir, name, "Таблицы/ТаблицаВсеСвойства/Свойства.yaml"), "utf-8")
     const tableModel = importFromYAML<Record<string, unknown>>(tableYAML)
     expect(tableModel["ИмяВИсточникеДанных"]).toBe("ИмяВИсточнике")
 
@@ -46,15 +43,16 @@ describe("convertAppliedObjectFromXML — MetadataExternalDataSource", () => {
     const dimensionTableModel = importFromYAML<Record<string, unknown>>(dimensionTableYAML)
     expect(dimensionTableModel["ИмяВИсточникеДанных"]).toBe("Имя в источнике данных")
 
-    expect(
-      fs.existsSync(join(outputDir, name, "Таблицы/ТаблицаВсеСвойства/Формы/ФормаСписка/Форма.yaml"))
-    ).toBe(true)
+    expect(fs.existsSync(join(outputDir, name, "Таблицы/ТаблицаВсеСвойства/Формы/ФормаСписка/Форма.yaml"))).toBe(true)
     expect(fs.existsSync(join(outputDir, name, "Кубы/КубВсеСвойства/Формы/ФормаЗаписи/Форма.yaml"))).toBe(true)
     expect(fs.readFileSync(join(outputDir, name, "Таблицы/ТаблицаВсеСвойства/МодульМенеджера.bsl"), "utf-8")).toBe(
       fs.readFileSync(join(inputDir, name, "Tables/ТаблицаВсеСвойства/Ext/ManagerModule.bsl"), "utf-8")
     )
     expect(fs.readFileSync(join(outputDir, name, "Таблицы/ТаблицаВсеСвойства/Команды/Команда1.bsl"), "utf-8")).toBe(
-      fs.readFileSync(join(inputDir, name, "Tables/ТаблицаВсеСвойства/Commands/Команда1/Ext/CommandModule.bsl"), "utf-8")
+      fs.readFileSync(
+        join(inputDir, name, "Tables/ТаблицаВсеСвойства/Commands/Команда1/Ext/CommandModule.bsl"),
+        "utf-8"
+      )
     )
     expect(fs.readFileSync(join(outputDir, name, "Таблицы/ТаблицаВсеСвойства/Справка/ru.html"), "utf-8")).toBe(
       fs.readFileSync(join(inputDir, name, "Tables/ТаблицаВсеСвойства/Ext/Help/ru.html"), "utf-8")

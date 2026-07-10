@@ -1,7 +1,7 @@
 import { describe, expect, it } from "vitest"
-import { ConfigurationContext, ContextElementToEnterprise } from "~/metadata/context/types"
-import { GetAttributeNameFixture, getAttributeNameFixtures } from "~/metadata/forms/commonObjects/dataPath/__fixtures__/data"
-import { mockContext } from "~/tests/mockContext"
+import { ConfigurationContext, ContextElementToEnterprise } from "../../../context/types"
+import { GetAttributeNameFixture, getAttributeNameFixtures } from "./__fixtures__/data"
+import { mockContext } from "../../../../tests/mockContext"
 import { exportDataPathToEnterprise } from "./toEnterprise"
 
 describe("DataPath to Enterprise", () => {

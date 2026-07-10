@@ -1,9 +1,9 @@
-import { I8nTextXML } from "~/metadata/commonObjects/i8nText/types"
-import { PictureXML } from "~/metadata/commonObjects/picture/types"
-import { registerMetadataItemRule } from "~/metadata/orchestration"
-import { MetadataTypeByRule } from "~/metadata/orchestration/metadataItem/element"
-import { YAMLTypeByRule } from "~/metadata/orchestration/metadataItem/yaml"
-import * as SE from "~/metadata/systemEnumerations/types"
+import { I8nTextXML } from "../../commonObjects/i8nText/types"
+import { PictureXML } from "../../commonObjects/picture/types"
+import { registerMetadataItemRule } from "../../orchestration"
+import { MetadataTypeByRule } from "../../orchestration/metadataItem/element"
+import { YAMLTypeByRule } from "../../orchestration/metadataItem/yaml"
+import * as SE from "../../systemEnumerations/types"
 import { MetadataBotRules } from "./rules"
 
 export type MetadataBot = MetadataTypeByRule<typeof MetadataBotRules>

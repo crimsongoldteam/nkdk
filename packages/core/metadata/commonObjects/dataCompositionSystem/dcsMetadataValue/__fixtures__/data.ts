@@ -1,14 +1,11 @@
-import type { Color, ColorYAML } from "~/metadata/commonObjects/color/types"
-import type { Font, FontYAML } from "~/metadata/commonObjects/font/types"
-import type { I8nText } from "~/metadata/commonObjects/i8nText/types"
-import type { MetadataFieldYAML } from "~/metadata/commonObjects/metadataField/types"
-import type { MetadataTypedPrimitiveValue, MetadataValueYAML } from "~/metadata/commonObjects/metadataValue/types"
-import type { TypeLink, TypeLinkYAML } from "~/metadata/commonObjects/typeLink/types"
-import type {
-  ChoiceParameterLinks,
-  ChoiceParameterLinksYAML,
-} from "~/metadata/commonObjects/сhoiceParameterLinks/types"
-import type { ChoiceParameter, ChoiceParametersYAML } from "~/metadata/commonObjects/сhoiceParameters/types"
+import type { Color, ColorYAML } from "../../../color/types"
+import type { Font, FontYAML } from "../../../font/types"
+import type { I8nText } from "../../../i8nText/types"
+import type { MetadataFieldYAML } from "../../../metadataField/types"
+import type { MetadataTypedPrimitiveValue, MetadataValueYAML } from "../../../metadataValue/types"
+import type { TypeLink, TypeLinkYAML } from "../../../typeLink/types"
+import type { ChoiceParameterLinks, ChoiceParameterLinksYAML } from "../../../сhoiceParameterLinks/types"
+import type { ChoiceParameter, ChoiceParametersYAML } from "../../../сhoiceParameters/types"
 import type { DcsMetadataValuePropertyRule, MetadataDcsMetadataValue, MetadataDcsMetadataValueYAML } from "../types"
 
 export const fixtureColorWebRed: Color = {

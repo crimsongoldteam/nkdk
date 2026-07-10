@@ -1,5 +1,11 @@
-import { Static, Type } from "@sinclair/typebox"
-import * as SE from "~/metadata/systemEnumerations/types"
+import {
+  definePropertyRule as defineWidePropertyRule,
+  type ExactRuleParams as WideExactRuleParams,
+} from "../ruleBuilder"
+import type { PropertyRule as WidePropertyRuleBase } from "../../orchestration/property/types"
+import { Type } from "typebox"
+import type { Static } from "typebox"
+import * as SE from "../../systemEnumerations/types"
 import { BooleanJSONSchema, StringboolYAML } from "../boolean/types"
 
 export const PrefixedFontsFromXML = {
@@ -95,4 +101,16 @@ export interface FontEnterprise {
   Italic?: boolean
   Underline?: boolean
   Strikeout?: boolean
+}
+
+export interface FontWidePropertyRule extends WidePropertyRuleBase {
+  type: "Font"
+}
+
+export type FontRuleParams = Omit<FontWidePropertyRule, "type">
+
+export function fontRule<const Params extends FontRuleParams>(
+  params: WideExactRuleParams<FontRuleParams, Params>
+): Readonly<{ type: "Font" } & Params> {
+  return defineWidePropertyRule("Font", params)
 }

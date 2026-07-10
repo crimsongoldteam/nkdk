@@ -1,7 +1,7 @@
 import { describe, expect, it } from "vitest"
-import { colorTestCases } from "~/metadata/commonObjects/color/__fixtures__/data"
-import { mockContextFromXML, mockRule } from "~/tests/mockContext"
-import { readAndParseXMLFile } from "~/tests/readAndParseXMLFile"
+import { colorTestCases } from "./__fixtures__/data"
+import { mockContextFromXML, mockRule } from "../../../tests/mockContext"
+import { readAndParseXMLFile } from "../../../tests/readAndParseXMLFile"
 import { importColorFromXML } from "./fromXML"
 import { ColorXML } from "./types"
 

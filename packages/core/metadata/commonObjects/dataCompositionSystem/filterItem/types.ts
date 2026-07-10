@@ -1,6 +1,6 @@
-import { registerMetadataItemCollectionRule } from "~/metadata/orchestration"
-import { FormTypeByRule } from "~/metadata/orchestration/metadataItem/element"
-import { YAMLTypeByRule } from "~/metadata/orchestration/metadataItem/yaml"
+import { registerMetadataItemCollectionRule } from "../../../orchestration"
+import { FormTypeByRule } from "../../../orchestration/metadataItem/element"
+import { YAMLTypeByRule } from "../../../orchestration/metadataItem/yaml"
 import { importFilterItemFromXML } from "./fromXML"
 import { importFilterItemFromYAML } from "./fromYAML"
 import { FilterItemComparisonRules, FilterItemGroupRules } from "./rules"
@@ -27,4 +27,6 @@ registerMetadataItemCollectionRule({
   toXML: exportFilterItemToXML,
   toJSONSchema: exportFilterItemToJSONSchema,
   yamlAsArray: true,
+  schemaName: "FilterItem",
+  schemaShape: "schema",
 })

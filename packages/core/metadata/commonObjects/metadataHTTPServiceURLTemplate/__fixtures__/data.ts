@@ -1,7 +1,4 @@
-import {
-  MetadataHTTPServiceURLTemplates,
-  MetadataHTTPServiceURLTemplatesYAML,
-} from "~/metadata/commonObjects/metadataHTTPServiceURLTemplate/types"
+import { MetadataHTTPServiceURLTemplates, MetadataHTTPServiceURLTemplatesYAML } from "../types"
 
 export const urlTemplatesFromXML: MetadataHTTPServiceURLTemplates = [
   {
@@ -33,7 +30,6 @@ export const urlTemplatesYAML: MetadataHTTPServiceURLTemplatesYAML = {
     Шаблон: "/goods/{id}",
     Методы: {
       МетодHEAD: {
-        Синоним: "Метод HEAD",
         Комментарий: "Комментарий метода",
         HTTPМетод: "HEAD",
         Обработчик: "МетодHEAD",
@@ -51,7 +47,6 @@ export const urlTemplatesFromYAML: MetadataHTTPServiceURLTemplates = [
       {
         itemType: "MetadataHTTPServiceMethod",
         name: "МетодHEAD",
-        synonym: { items: { ru: "Метод HEAD" } },
         comment: "Комментарий метода",
         httpMethod: "HEAD",
         handler: "МетодHEAD",

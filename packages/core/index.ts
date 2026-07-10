@@ -5,7 +5,19 @@ registerCoreMetadata()
 export { registerCoreMetadata } from "./metadata/register"
 export { syncConfigurationFromXML } from "./metadata/appliedObjects/configuration/convertFromXML"
 export type { ConfigurationSyncResult } from "./metadata/appliedObjects/configuration/convertFromXML"
-export { syncConfigurationToXML } from "./metadata/appliedObjects/configuration/syncToXML"
+export { syncConfigurationIncrementallyToXML } from "./metadata/appliedObjects/configuration/incrementalSyncToXML"
+export { planSyncToXml, syncConfigurationToXML } from "./metadata/appliedObjects/configuration/syncToXML"
+export {
+  SYNC_STATE_FILE,
+  diffSyncState,
+  hashProjectFiles,
+  initializeXmlSyncState,
+  readXmlSyncState,
+  writeXmlSyncState,
+  type InitializeXmlSyncStateParams,
+  type XmlSyncState,
+  type XmlSyncStateDiff,
+} from "./metadata/appliedObjects/configuration/syncState"
 export { shortRoundTripXML } from "./metadata/appliedObjects/configuration/shortRoundTripXML"
 export {
   ADD_ACTION,
@@ -23,7 +35,11 @@ export {
   writeAppliedMigrationsState,
   writeMigrationFile,
 } from "./metadata/appliedObjects/configuration/migrations"
-export type { MigrationConflict, MigrationEntry, StructuralState } from "./metadata/appliedObjects/configuration/migrations"
+export type {
+  MigrationConflict,
+  MigrationEntry,
+  StructuralState,
+} from "./metadata/appliedObjects/configuration/migrations"
 export {
   exportMetadataCatalogToJSONSchema,
   exportMetadataCatalogToYAML,
@@ -51,14 +67,20 @@ export { xmlExport } from "./xml/export/exporter"
 export { importContentFromXML } from "./xml/import/importer"
 export { exportToYAML } from "./yaml/export"
 export { importFromYAML } from "./yaml/import"
+export { parseWithJsYaml } from "./yaml/jsYamlParser"
+export type { JsParsedYaml, JsYamlSyntaxError } from "./yaml/jsYamlParser"
+export { buildYamlLocationIndex } from "./yaml/locationIndex"
+export type { YamlLocationIndex, YamlPath, YamlPosition } from "./yaml/locationIndex"
 export { parseMetadataYaml } from "./yaml/parseMetadataYaml"
 export type { ParsedYaml } from "./yaml/parseMetadataYaml"
 export { importMetadataEnumerationFromYAML } from "./metadata/appliedObjects/metadataEnumeration/fromYAML"
 export type { Diagnostic, DiagnosticSource, DiagnosticSeverity, MetadataKind } from "./metadata/validation/types"
 export {
+  createValidationWorkerPoolHandle,
   validateProject,
   type ValidateProjectParams,
   type ValidateProjectResult,
+  type ValidationWorkerPoolHandle,
 } from "./metadata/validation/validateProject"
 export { validateParsedFile } from "./metadata/validation/validateFile"
 export { validateForm, type ValidateFormParams } from "./metadata/validation/validateForm"
@@ -69,6 +91,7 @@ export {
   type ExportJSONSchemaForProjectFileParams,
   type ExportJSONSchemaForSchemaNameParams,
 } from "./metadata/validation/projectFileSchema"
+export * from "./metadata/operations"
 export {
   describeMetadataProjectDirectoryStructure,
   type DescribeMetadataProjectDirectoryStructureParams,

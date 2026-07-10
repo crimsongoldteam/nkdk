@@ -1,12 +1,18 @@
-import { ConfigurationContext } from "~/metadata/context/types"
-import { Type, type TSchema } from "@sinclair/typebox"
+import { ConfigurationContext } from "../../context/types"
+import { Type, type TSchema } from "typebox"
 import {
   exportMetadataItemToYAML,
   importMetadataItemFromYAML,
   PropertyRule,
+  registerMetadataItemCollectionRule,
   registerTypeRule,
-} from "~/metadata/orchestration"
-import { exportMetadataItemToJSONSchema } from "~/metadata/orchestration/metadataItem/toJSONSchema"
+} from "../../orchestration"
+import { recordOfSchemaRef } from "../../orchestration/jsonSchemaRefs"
+import { exportMetadataItemToJSONSchema } from "../../orchestration/metadataItem/toJSONSchema"
+import {
+  registerProjectJSONSchema,
+  registerProjectJSONSchemaPropertyRefFactory,
+} from "../../project/schemaRegistry"
 import { MetadataEnumerationValueRules } from "./rules"
 import {
   MetadataEnumerationValue,
@@ -14,6 +20,13 @@ import {
   MetadataEnumerationValueYAML,
   MetadataEnumerationValuesYAML,
 } from "./types"
+
+registerMetadataItemCollectionRule({
+  propertyType: "MetadataEnumerationValues",
+  itemRule: MetadataEnumerationValueRules,
+  xmlElement: "EnumValue",
+  keyField: "name",
+})
 
 export const importMetadataEnumerationValuesFromYAML = (
   context: ConfigurationContext,
@@ -50,6 +63,7 @@ const exportMetadataEnumerationValuesToYAML = (
         context,
         rule: MetadataEnumerationValueRules,
         data: valueForYAML,
+        name,
       }) as MetadataEnumerationValueYAML | undefined
 
       return [name, yaml ?? {}]
@@ -58,6 +72,10 @@ const exportMetadataEnumerationValuesToYAML = (
 }
 
 const exportMetadataEnumerationValuesToJSONSchema = (context: ConfigurationContext): TSchema => {
+  return Type.Record(Type.String(), exportMetadataEnumerationValueYAMLToJSONSchema(context))
+}
+
+const exportMetadataEnumerationValueYAMLToJSONSchema = (context: ConfigurationContext): TSchema => {
   const itemSchema = exportMetadataItemToJSONSchema({
     context,
     rule: MetadataEnumerationValueRules,
@@ -66,11 +84,17 @@ const exportMetadataEnumerationValuesToJSONSchema = (context: ConfigurationConte
   itemSchema.required = itemSchema.required?.filter((key) => key !== "Имя")
   if (itemSchema.required?.length === 0) delete itemSchema.required
 
-  return Type.Record(Type.String(), itemSchema)
+  return itemSchema
 }
 
 registerTypeRule("MetadataEnumerationValues", "importFromYAML", importMetadataEnumerationValuesFromYAML)
 registerTypeRule("MetadataEnumerationValues", "exportToYAML", exportMetadataEnumerationValuesToYAML)
 registerTypeRule("MetadataEnumerationValues", "exportToJSONSchema", ({ context }) =>
   exportMetadataEnumerationValuesToJSONSchema(context)
+)
+registerProjectJSONSchema("MetadataEnumerationValueYAML", ({ context }) =>
+  exportMetadataEnumerationValueYAMLToJSONSchema(context)
+)
+registerProjectJSONSchemaPropertyRefFactory("MetadataEnumerationValues", () =>
+  recordOfSchemaRef("MetadataEnumerationValueYAML")
 )

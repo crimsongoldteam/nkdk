@@ -1,10 +1,10 @@
-import type { ConfigurationContext } from "~/metadata/context/types"
-import { registerTypeRule } from "~/metadata/orchestration/property/typeRuleRegistry"
-import type { PropertyRule } from "~/metadata/orchestration/property/types"
+import type { ConfigurationContext } from "../../../../../context/types"
+import { registerTypeRule } from "../../../../../orchestration/property/typeRuleRegistry"
+import type { PropertyRule } from "../../../../../orchestration/property/types"
 import {
   DataCompositionGroupTypeFromYAML,
   DataCompositionPeriodAdditionTypeFromYAML,
-} from "~/metadata/systemEnumerations/types"
+} from "../../../../../systemEnumerations/types"
 import type { GroupItemField, GroupItemFieldYAML } from "./types"
 
 export const importGroupItemFieldFromYAML = (

@@ -1,11 +1,11 @@
-import { ConfigurationContextWithExportToXML } from "~/metadata/context/types"
+import { ConfigurationContextWithExportToXML } from "../../../context/types"
 import {
   findKnownDuplicateCommandBarButtonReference,
   restoreKnownDuplicateCommandBarButtonIds,
-} from "~/metadata/forms/knownAnomalies"
-import { ElementXML, exportElementToXML, PropertyRule } from "~/metadata/orchestration"
-import { getElementXMLTagName } from "~/metadata/orchestration/formElement/ruleFactory"
-import { registerTypeRule } from "~/metadata/orchestration/property/typeRuleRegistry"
+} from "../../knownAnomalies"
+import { ElementXML, exportElementToXML, PropertyRule } from "../../../orchestration"
+import { getElementXMLTagName } from "../../../orchestration/formElement/ruleFactory"
+import { registerTypeRule } from "../../../orchestration/property/typeRuleRegistry"
 import { ChildItem } from "./types"
 
 export const exportChildItemsToXML = <From extends ChildItem>(

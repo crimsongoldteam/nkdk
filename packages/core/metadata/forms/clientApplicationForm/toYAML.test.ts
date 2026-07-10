@@ -1,4 +1,7 @@
-import { describe, expect, it } from "vitest"
+import { mkdirSync, mkdtempSync, rmSync, writeFileSync } from "node:fs"
+import { tmpdir } from "node:os"
+import { join } from "node:path"
+import { afterEach, describe, expect, it } from "vitest"
 import {
   catalogFullClientApplicationForm,
   catalogFullClientApplicationFormYAML,
@@ -13,10 +16,16 @@ import {
 } from "./__fixtures__/data"
 import { documentFullClientApplicationForm } from "./__fixtures__/documentFull"
 import { documentFullClientApplicationFormYAML } from "./__fixtures__/documentFull.yaml"
-import { mockContextToYAML } from "~/tests/mockContext"
+import { mockContextToYAML } from "../../../tests/mockContext"
 import { exportClientApplicationFormToYAML } from "./toYAML"
 import { ClientApplicationForm } from "./types"
-import type { ConfigurationContext } from "~/metadata/context/types"
+import type { ConfigurationContext } from "../../context/types"
+
+const dirs: string[] = []
+
+afterEach(() => {
+  for (const dir of dirs.splice(0)) rmSync(dir, { recursive: true, force: true })
+})
 
 describe("exportClientApplicationFormToYAML", () => {
   // it("should return undefined when data is undefined", () => {
@@ -109,12 +118,84 @@ describe("exportClientApplicationFormToYAML", () => {
     expect(yaml).toEqual(documentFullClientApplicationFormYAML)
   })
 
+  it("keeps dynamic list field data paths in XML spelling", () => {
+    const context: ConfigurationContext = {
+      ...mockContextToYAML,
+      exportToYAML: {
+        ...mockContextToYAML.exportToYAML!,
+        metadataTargetOwners: [{ itemType: "MetadataBusinessProcess", name: "Заявка" }],
+      },
+    }
+    const form: ClientApplicationForm = {
+      itemType: "ClientApplicationForm",
+      attributes: [
+        {
+          itemType: "FormAttribute",
+          name: "Список",
+          type: { type: ["DynamicList"] },
+          columns: [],
+        },
+      ],
+      childItems: [
+        {
+          itemType: "LabelField",
+          name: "Номер",
+          dataPath: "Список.Number",
+        },
+      ],
+    }
+
+    const { yaml } = exportClientApplicationFormToYAML(context, form)
+
+    expect(yaml?.Элементы?.Номер).toMatchObject({
+      Вид: "ПолеНадписи",
+      ПутьКДанным: "Список.Number",
+    })
+  })
+
+  it("keeps ValueTable field data paths in internal-to-yaml formatting", () => {
+    const form: ClientApplicationForm = {
+      itemType: "ClientApplicationForm",
+      attributes: [
+        {
+          itemType: "FormAttribute",
+          name: "Список",
+          type: { type: ["ValueTable"] },
+          columns: [{ name: "Код", type: { type: ["string"] } }],
+        },
+      ],
+      childItems: [{ itemType: "InputField", name: "Код", dataPath: "Список.Код" }],
+    }
+
+    const { yaml } = exportClientApplicationFormToYAML(contextWithProjectDir(), form)
+
+    expect(yaml?.Элементы?.Код).toMatchObject({ ПутьКДанным: "Список.Код" })
+  })
+
+  it("exports object standard member data paths to YAML spelling", () => {
+    const form: ClientApplicationForm = {
+      itemType: "ClientApplicationForm",
+      attributes: [{ itemType: "FormAttribute", name: "Объект", type: { type: ["CatalogRef.Товары"] }, columns: [] }],
+      childItems: [{ itemType: "InputField", name: "Код", dataPath: "Объект.Code" }],
+    }
+
+    const { yaml } = exportClientApplicationFormToYAML(contextWithProjectDir(), form)
+
+    expect(yaml?.Элементы?.Код).toMatchObject({ ПутьКДанным: "Объект.Код" })
+  })
+
   it("exports report form settings storage as a local form reference", () => {
     const context: ConfigurationContext = {
       ...mockContextToYAML,
       exportToYAML: {
         ...mockContextToYAML.exportToYAML!,
-        metadataTargetOwners: [{ itemType: "MetadataReport", name: "РасшифровкаСтатистики" }],
+        metadataTargetOwners: [
+          {
+            itemType: "MetadataReport",
+            name: "РасшифровкаСтатистики",
+            owner: { root: "Report", objectName: "РасшифровкаСтатистики" },
+          },
+        ],
       },
     }
     const form: ClientApplicationForm = {
@@ -137,7 +218,11 @@ describe("exportClientApplicationFormToYAML", () => {
       exportToYAML: {
         ...mockContextToYAML.exportToYAML!,
         metadataTargetOwners: [
-          { itemType: "MetadataReport", name: "РегистрНалоговогоУчетаФедеральногоИнвестиционногоВычета" },
+          {
+            itemType: "MetadataReport",
+            name: "РегистрНалоговогоУчетаФедеральногоИнвестиционногоВычета",
+            owner: { root: "Report", objectName: "РегистрНалоговогоУчетаФедеральногоИнвестиционногоВычета" },
+          },
         ],
       },
     }
@@ -178,3 +263,18 @@ describe("exportClientApplicationFormToYAML", () => {
     expect(yaml).not.toHaveProperty("ПрименениеРежимаОтображенияПриУстановкеРезультатаОтчета")
   })
 })
+
+function contextWithProjectDir(): ConfigurationContext {
+  const projectDir = mkdtempSync(join(tmpdir(), "nkdk-datapath-form-"))
+  dirs.push(projectDir)
+  mkdirSync(join(projectDir, "Справочник", "Товары"), { recursive: true })
+  writeFileSync(join(projectDir, "Справочник", "Товары", "Свойства.yaml"), "Имя: Товары\n", "utf-8")
+  return {
+    ...mockContextToYAML,
+    exportToYAML: {
+      ...mockContextToYAML.exportToYAML!,
+      projectDir,
+      metadataTargetOwners: [{ itemType: "MetadataCatalog", name: "Товары" }],
+    },
+  }
+}

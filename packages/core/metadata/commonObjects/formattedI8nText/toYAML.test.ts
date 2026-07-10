@@ -1,6 +1,6 @@
 import { describe, expect, it } from "vitest"
-import { formattedI8nTextFixtures } from "~/metadata/commonObjects/formattedI8nText/__fixtures__/data"
-import { mockContextToYAML, mockRule } from "~/tests/mockContext"
+import { formattedI8nTextFixtures } from "./__fixtures__/data"
+import { mockContextToYAML, mockRule } from "../../../tests/mockContext"
 import { exportFormattedI8nTextDefaultToYAML, exportFormattedI8nTextToYAML } from "./toYAML"
 import { FormattedI8nTextPropertyRule } from "./types"
 
@@ -23,6 +23,29 @@ describe("exportFormattedI8nTextToYAML", () => {
     })
   })
 
+  it("keeps non-default languages when default language equals the name", () => {
+    const result = exportFormattedI8nTextToYAML({
+      context: mockContextToYAML,
+      rule: {
+        type: "FormattedI8nText",
+        yaml: "Title",
+        excludeIfEqualNameYAML: true,
+      } as FormattedI8nTextPropertyRule,
+      name: "КакоеТоПоле",
+      value: {
+        formatted: true,
+        items: { ru: "Какое то поле", en: "Some field" },
+      },
+    })
+
+    expect(result).toEqual({
+      Title: {
+        Форматированный: "Истина",
+        Текст: { en: "Some field" },
+      },
+    })
+  })
+
   describe("exportFormattedI8nTextDefaultToYAML", () => {
     formattedI8nTextFixtures.forEach((fixture) => {
       it(`should export default: ${fixture.name}`, () => {
@@ -32,5 +55,4 @@ describe("exportFormattedI8nTextToYAML", () => {
       })
     })
   })
-
 })

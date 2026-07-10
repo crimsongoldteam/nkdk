@@ -1,8 +1,8 @@
 import { describe, expect, it } from "vitest"
-import { exportMetadataItemToXML, importMetadataItemFromXML } from "~/metadata/orchestration"
-import { mockContextFromXML, mockContextToXML } from "~/tests/mockContext"
-import { readXMLFixtureAsString } from "~/tests/readFixtureXML"
-import { xmlExport } from "~/xml/export/exporter"
+import { exportMetadataItemToXML, importMetadataItemFromXML } from "../../orchestration"
+import { mockContextFromXML, mockContextToXML } from "../../../tests/mockContext"
+import { readXMLFixtureAsString } from "../../../tests/readFixtureXML"
+import { xmlExport } from "../../../xml/export/exporter"
 import { AdditionalIndexRules } from "./rules"
 
 import "./types"
@@ -41,8 +41,8 @@ describe("export AdditionalIndex to XML", () => {
             id: "11111111-1111-4111-8111-111111111111",
             name: "ОдинИндекс",
             table: "Catalog.СправочникПолный",
-            indexedFields: ["Code"],
-            additionalFields: ["Ref"],
+            indexedFields: "Code",
+            additionalFields: "Ref",
           },
         ],
       },

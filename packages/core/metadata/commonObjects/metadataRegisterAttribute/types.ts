@@ -1,7 +1,11 @@
-import { Type } from "@sinclair/typebox"
-import { MetadataNameYAML } from "~/metadata/commonObjects/metadataName/types"
-import { MetadataTypeByRule } from "~/metadata/orchestration/metadataItem/element"
-import { MetadataRegisterFieldFullYAML, MetadataRegisterFieldYAML, MetadataRegisterFieldXML } from "../metadataRegisterField/types"
+import { Type } from "typebox"
+import { MetadataNameYAML } from "../metadataName/types"
+import { MetadataTypeByRule } from "../../orchestration/metadataItem/element"
+import {
+  MetadataRegisterFieldFullYAML,
+  MetadataRegisterFieldYAML,
+  MetadataRegisterFieldXML,
+} from "../metadataRegisterField/types"
 import { MetadataRegisterAttributeRules } from "./rules"
 
 export type MetadataRegisterAttribute = MetadataTypeByRule<typeof MetadataRegisterAttributeRules>

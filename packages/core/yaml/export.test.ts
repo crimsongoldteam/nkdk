@@ -38,6 +38,10 @@ describe("exportToYAML", () => {
     expect(yaml).toBe('Отбор.Код: "456"')
   })
 
+  it("exports explicit YAML strings with double quotes", () => {
+    expect(exportToYAML({ Значение: explicitYAMLString("001") })).toBe('Значение: "001"')
+  })
+
   it("escapes explicit YAML string content through double-quoted scalar rules", () => {
     const yaml = exportToYAML({ Значение: explicitYAMLString('a"b') })
 
@@ -48,5 +52,31 @@ describe("exportToYAML", () => {
     const yaml = exportToYAML({ Имя: "Тест" })
 
     expect(yaml).toBe("Имя: Тест")
+  })
+
+  it("prints quoted ordinary strings with double quotes", () => {
+    const yaml = exportToYAML({
+      en: "Remote access: Message exchange",
+      escaped: `Quoted 'value'`,
+    })
+
+    expect(yaml).toBe(`en: "Remote access: Message exchange"\nescaped: Quoted 'value'`)
+  })
+
+  it("exports without document final line ending", () => {
+    expect(exportToYAML({ Имя: "Тест" })).toBe("Имя: Тест")
+  })
+
+  it("exports undefined as empty value", () => {
+    expect(exportToYAML({ Поле: undefined })).toBe("Поле:")
+  })
+
+  it("exports empty and numeric-looking strings as double-quoted scalars", () => {
+    expect(exportToYAML({ Пусто: "", Код: "000000001" })).toBe('Пусто: ""\nКод: "000000001"')
+  })
+
+  it("does not wrap long scalar lines", () => {
+    const longValue = "x".repeat(160)
+    expect(exportToYAML({ Поле: longValue })).toBe(`Поле: ${longValue}`)
   })
 })

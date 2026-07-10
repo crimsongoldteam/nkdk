@@ -1,10 +1,10 @@
 import fs from "fs"
 import { dirname, join } from "path"
 import { beforeEach, describe, expect, it } from "vitest"
-import { mockContextFromXML } from "~/tests/mockContext"
-import { getXMLFixturePath } from "~/tests/readAndParseXMLFile"
-import { MetadataCatalogRules } from "~/metadata/appliedObjects/metadataCatalog/rules"
-import { convertAppliedObjectFromXML } from "~/metadata/orchestration/appliedObject/convertFromXML"
+import { mockContextFromXML } from "../../../tests/mockContext"
+import { getXMLFixturePath } from "../../../tests/readAndParseXMLFile"
+import { MetadataCatalogRules } from "../../appliedObjects/metadataCatalog/rules"
+import { convertAppliedObjectFromXML } from "../../orchestration/appliedObject/convertFromXML"
 
 describe("syncChildFormNamesFromXML (через convertAppliedObjectFromXML)", () => {
   const inputDir = getXMLFixturePath("sync/syncConfiguration/xml/Catalogs")
@@ -79,7 +79,7 @@ describe("syncChildFormNamesFromXML (через convertAppliedObjectFromXML)", (
     fs.writeFileSync(
       helpXmlPath,
       `<?xml version="1.0" encoding="UTF-8"?>\n<Help xmlns="http://v8.1c.ru/8.3/xcf/extrnprops" xmlns:xs="http://www.w3.org/2001/XMLSchema" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" version="2.20">\n\t<Page>ru</Page>\n</Help>`,
-      "utf-8",
+      "utf-8"
     )
     fs.writeFileSync(join(helpDir, "ru.html"), "<html>current</html>", "utf-8")
     fs.writeFileSync(join(helpDir, "stale.html"), "<html>stale</html>", "utf-8")

@@ -3,6 +3,7 @@ import { isAbsolute, relative, resolve, sep } from "path"
 import { loadCoreApi } from "../coreApi"
 import { errorMessage, toolError, toolSuccess, type ToolPayload } from "../contracts/common"
 import { type ValidateProjectInput } from "../contracts/validateProject"
+import { getValidationHandle } from "./validationHandle"
 
 export type ValidateProjectPayload = ToolPayload<{
   diagnostics: Array<{
@@ -30,11 +31,11 @@ export async function validateYamlProject(input: ValidateProjectInput): Promise<
   }
 
   try {
-    const core = await loadCoreApi()
-    const diagnostics = core.validateProject({
+    const handle = await getValidationHandle()
+    const diagnostics = (await handle.validateProject({
       projectDir,
       ...(input.filePath !== undefined ? { filePath: input.filePath } : {}),
-    }).diagnostics
+    })).diagnostics
 
     const mapped = diagnostics.filter(isVisibleDiagnostic).map((diagnostic) => ({
       filePath: toProjectRelativePath(projectDir, diagnostic.filePath),

@@ -1,7 +1,13 @@
-import { describe, expect, it } from "vitest"
+import { describe, expect, it, vi } from "vitest"
 import { Client } from "@modelcontextprotocol/sdk/client/index.js"
 import { InMemoryTransport } from "@modelcontextprotocol/sdk/inMemory.js"
-import { createNkdkMcpServer } from "./server"
+import { createNkdkMcpServer, shutdownNkdkMcpServer } from "./server"
+
+const closeValidationHandle = vi.hoisted(() => vi.fn())
+
+vi.mock("./services/validationHandle", () => ({
+  closeValidationHandle,
+}))
 
 describe("MCP server", () => {
   it("creates the NKDK MCP server", () => {
@@ -37,5 +43,50 @@ describe("MCP server", () => {
     } finally {
       await client.close()
     }
+  }, 30_000)
+
+  it("loads core API without a monorepo-relative runtime import", async () => {
+    const source = await import("node:fs/promises").then((fs) =>
+      fs.readFile(new URL("./coreApi.ts", import.meta.url), "utf8"),
+    )
+
+    expect(source).not.toContain("../../core/index.ts")
+    expect(source).toContain('from "@nkdk/core"')
+  })
+
+  it("documents expected publish build outputs", () => {
+    const outputs = [
+      "dist/bin/nkdk-mcp",
+      "dist/projectValidationWorker.js",
+      "dist/generateProjectValidationAjvStandalone.js",
+      "dist/projectValidationAjvStandalone.js",
+    ]
+
+    expect(outputs).toEqual([
+      "dist/bin/nkdk-mcp",
+      "dist/projectValidationWorker.js",
+      "dist/generateProjectValidationAjvStandalone.js",
+      "dist/projectValidationAjvStandalone.js",
+    ])
+  })
+
+  it("uses package version for MCP server metadata", async () => {
+    const { createNkdkMcpServer } = await import("./server")
+    const packageJson = await import("../package.json", { with: { type: "json" } })
+    const source = await import("node:fs/promises").then((fs) =>
+      fs.readFile(new URL("./server.ts", import.meta.url), "utf8"),
+    )
+
+    expect(source).not.toContain('version: "1.0.0"')
+    expect(packageJson.default.version).toMatch(/^\d+\.\d+\.\d+/)
+    expect(createNkdkMcpServer()).toBeDefined()
+  })
+
+  it("closes validation handle on shutdown", async () => {
+    closeValidationHandle.mockResolvedValueOnce(undefined)
+
+    await shutdownNkdkMcpServer()
+
+    expect(closeValidationHandle).toHaveBeenCalledTimes(1)
   })
 })

@@ -1,7 +1,7 @@
 import { describe, expect, it } from "vitest"
-import { singleChoiceParameterLinks } from "~/metadata/commonObjects/сhoiceParameterLinks/__fixtures__/single"
-import { mockContextFromXML, mockRule } from "~/tests/mockContext"
-import { readAndParseXMLFixture } from "~/tests/readFixtureXML"
+import { singleChoiceParameterLinks } from "./__fixtures__/single"
+import { mockContextFromXML, mockRule } from "../../../tests/mockContext"
+import { readAndParseXMLFixture } from "../../../tests/readFixtureXML"
 import { importChoiceParameterLinkFromDcsXML } from "./fromDcsXML"
 import { ChoiceParameterLinkDcsValueRootXML } from "./types"
 

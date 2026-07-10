@@ -1,8 +1,20 @@
-import { Static, Type } from "@sinclair/typebox"
-import { BasePropertyRule } from "~/metadata/orchestration"
-import type { ExplicitYAMLString } from "~/yaml/explicitString"
+import {
+  definePropertyRule as defineWidePropertyRule,
+  type ExactRuleParams as WideExactRuleParams,
+} from "../ruleBuilder"
+import type { PropertyRule as WidePropertyRuleBase } from "../../orchestration/property/types"
+import { Type } from "typebox"
+import type { Static } from "typebox"
+import { definePropertyRule, type ExactRuleParams } from "../ruleBuilder"
+import { BasePropertyRule } from "../../orchestration"
+import type { ExplicitYAMLString } from "../../../yaml/explicitString"
 import { I8nText, I8nTextJSONSchema, I8nTextXML, I8nTextYAML } from "../i8nText/types"
-import { StandardPeriod, StandardPeriodXML, StandardPeriodYAML, StandardPeriodYAMLJSONSchema } from "../standardPeriod/types"
+import {
+  StandardPeriod,
+  StandardPeriodXML,
+  StandardPeriodYAML,
+  StandardPeriodYAMLJSONSchema,
+} from "../standardPeriod/types"
 
 //#region MetadataValue
 
@@ -198,27 +210,30 @@ export const MetadataExplicitAccountTypeYAMLJSONSchema = Type.Object({
 })
 export type MetadataExplicitAccountTypeYAML = Static<typeof MetadataExplicitAccountTypeYAMLJSONSchema>
 
-export const MetadataValueJSONSchema = Type.Recursive((ThisType) =>
-  Type.Union([
-    MetadataSingleValueJSONSchema,
-    MetadataFixedArrayValueJSONSchema,
-    MetadataExplicitDataCompositionComparisonTypeYAMLJSONSchema,
-    MetadataExplicitAccountTypeYAMLJSONSchema,
-    StandardPeriodYAMLJSONSchema,
-    Type.Object(
-      {
-        Представление: I8nTextJSONSchema,
-        Значение: Type.Optional(ThisType),
-      },
-      { additionalProperties: false }
-    ),
-    Type.Object(
-      {
-        Значение: ThisType,
-      },
-      { additionalProperties: false }
-    ),
-  ])
+export const MetadataValueJSONSchema = Type.Cyclic(
+  {
+    MetadataValue: Type.Union([
+      MetadataSingleValueJSONSchema,
+      MetadataFixedArrayValueJSONSchema,
+      MetadataExplicitDataCompositionComparisonTypeYAMLJSONSchema,
+      MetadataExplicitAccountTypeYAMLJSONSchema,
+      StandardPeriodYAMLJSONSchema,
+      Type.Object(
+        {
+          Представление: I8nTextJSONSchema,
+          Значение: Type.Optional(Type.Ref("MetadataValue")),
+        },
+        { additionalProperties: false }
+      ),
+      Type.Object(
+        {
+          Значение: Type.Ref("MetadataValue"),
+        },
+        { additionalProperties: false }
+      ),
+    ]),
+  },
+  "MetadataValue"
 )
 
 const MetadataFormChoiceListValueValueJSONSchema = Type.Union([
@@ -281,6 +296,14 @@ export interface MetadataValuePropertyRule extends BasePropertyRule {
   exportNilValue?: true
 }
 
+export type MetadataValueRuleParams = Omit<MetadataValuePropertyRule, "type">
+
+export function metadataValueRule<const Params extends MetadataValueRuleParams>(
+  params: ExactRuleParams<MetadataValueRuleParams, Params>
+): Readonly<{ type: "MetadataValue" } & Params> {
+  return definePropertyRule("MetadataValue", params)
+}
+
 /**
  * XML-форма MetadataValue. Объединяет все возможные XML-представления значения.
  * Дженерик-параметры оставлены для обратной совместимости — они игнорируются.
@@ -302,4 +325,16 @@ export const assertValueType = (
   if (allowed !== undefined && !allowed.includes(actual)) {
     throw new Error(`MetadataValue: ожидались [${allowed.join(",")}], получен ${actual} в ${direction}`)
   }
+}
+
+export interface AssociatedTableWidePropertyRule extends WidePropertyRuleBase {
+  type: "AssociatedTable"
+}
+
+export type AssociatedTableRuleParams = Omit<AssociatedTableWidePropertyRule, "type">
+
+export function associatedTableRule<const Params extends AssociatedTableRuleParams>(
+  params: WideExactRuleParams<AssociatedTableRuleParams, Params>
+): Readonly<{ type: "AssociatedTable" } & Params> {
+  return defineWidePropertyRule("AssociatedTable", params)
 }

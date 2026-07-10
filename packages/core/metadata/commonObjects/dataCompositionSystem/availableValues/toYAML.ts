@@ -1,10 +1,13 @@
-import { ConfigurationContext } from "~/metadata/context/types"
-import { exportPropertyToYAML, PropertyRule, registerTypeRule } from "~/metadata/orchestration"
+import { ConfigurationContext } from "../../../context/types"
+import { exportPropertyToYAML, PropertyRule, registerTypeRule } from "../../../orchestration"
 import { exportDcsMetadataValueToYAML } from "../dcsMetadataValue/toYAML"
 import type { DcsMetadataValuePropertyRule } from "../dcsMetadataValue/types"
 import type { DcsAvailableValues, DcsAvailableValuesYAML } from "./types"
 
-const valueRule = { type: "MetadataDcsMetadataValue", valueType: "Primitive" } as const satisfies DcsMetadataValuePropertyRule
+const valueRule = {
+  type: "MetadataDcsMetadataValue",
+  valueType: "Primitive",
+} as const satisfies DcsMetadataValuePropertyRule
 const presentationRule = { type: "DcsLocalStringType", yaml: "Представление" } as const
 
 export const exportDcsAvailableValuesToYAML = (

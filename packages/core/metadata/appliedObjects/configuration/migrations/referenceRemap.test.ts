@@ -1,5 +1,6 @@
 import { describe, expect, it } from "vitest"
-import type { MetadataItemRule } from "~/metadata/orchestration/property/types"
+import type { MetadataItemRule } from "../../../orchestration/property/types"
+import { XML_SOURCE_KEYS } from "../../../orchestration/property/helpers"
 import { remapReferenceModel } from "./referenceRemap"
 
 const rule = {} as MetadataItemRule
@@ -27,7 +28,95 @@ describe("remapReferenceModel", () => {
     expect(referenceModel.attributes).toEqual([{ name: "Артикул", uuid: "attribute-old-uuid" }])
   })
 
-  it("не подставляет reference item для recreated реквизита с тем же именем без entry в map", () => {
+  it("сохраняет неизменённые соседние элементы при переименовании одного реквизита", () => {
+    const currentModel = {
+      attributes: [{ name: "Контрагент" }, { name: "ДоговорКонтрагента" }],
+      tabularSections: [
+        {
+          name: "Товары",
+          attributes: [{ name: "Номенклатура" }, { name: "Количество" }],
+        },
+      ],
+    }
+    const referenceModel = {
+      attributes: [
+        { name: "Контрагент", uuid: "counterparty-uuid" },
+        { name: "Договор", uuid: "contract-uuid" },
+      ],
+      tabularSections: [
+        {
+          name: "Товары",
+          uuid: "goods-section-uuid",
+          attributes: [
+            { name: "Номенклатура", uuid: "item-uuid" },
+            { name: "Количество", uuid: "quantity-uuid" },
+          ],
+        },
+      ],
+    }
+
+    const result = remapReferenceModel({
+      rule,
+      currentObjectPath: "Документ.ПоступлениеТоваровУслуг",
+      currentModel,
+      referenceModel,
+      referencePathByCurrentPath: new Map([
+        [
+          "Документ.ПоступлениеТоваровУслуг.Реквизит.ДоговорКонтрагента",
+          "Документ.ПоступлениеТоваровУслуг.Реквизит.Договор",
+        ],
+      ]),
+    })
+
+    expect(result?.attributes).toEqual([
+      { name: "Контрагент", uuid: "counterparty-uuid" },
+      { name: "ДоговорКонтрагента", uuid: "contract-uuid" },
+    ])
+    expect(result?.tabularSections).toEqual([
+      {
+        name: "Товары",
+        uuid: "goods-section-uuid",
+        attributes: [
+          { name: "Номенклатура", uuid: "item-uuid" },
+          { name: "Количество", uuid: "quantity-uuid" },
+        ],
+      },
+    ])
+    expect(referenceModel.attributes[1]?.name).toBe("Договор")
+  })
+
+  it("сохраняет XML source keys у reference item после remap", () => {
+    const currentModel = {
+      attributes: [{ name: "ДоговорКонтрагента" }],
+    }
+    const referenceAttribute = { name: "Договор", uuid: "contract-uuid", indexing: undefined }
+    Object.defineProperty(referenceAttribute, XML_SOURCE_KEYS, {
+      value: { name: "Name", uuid: "_uuid" },
+      enumerable: false,
+    })
+    const referenceModel = {
+      attributes: [referenceAttribute],
+    }
+
+    const result = remapReferenceModel({
+      rule,
+      currentObjectPath: "Документ.ПоступлениеТоваровУслуг",
+      currentModel,
+      referenceModel,
+      referencePathByCurrentPath: new Map([
+        [
+          "Документ.ПоступлениеТоваровУслуг.Реквизит.ДоговорКонтрагента",
+          "Документ.ПоступлениеТоваровУслуг.Реквизит.Договор",
+        ],
+      ]),
+    })
+
+    const [attribute] = result?.attributes as Record<PropertyKey, unknown>[]
+    expect(attribute?.[XML_SOURCE_KEYS]).toEqual({ name: "Name", uuid: "_uuid" })
+    expect(Object.prototype.propertyIsEnumerable.call(attribute, XML_SOURCE_KEYS)).toBe(false)
+  })
+
+  it("сохраняет одноимённый reference item без entry в map", () => {
     const currentModel = {
       attributes: [{ name: "Артикул" }],
     }
@@ -43,7 +132,7 @@ describe("remapReferenceModel", () => {
       referencePathByCurrentPath: new Map(),
     })
 
-    expect(result?.attributes).toEqual([])
+    expect(result?.attributes).toEqual([{ name: "Артикул", uuid: "attribute-old-uuid" }])
     expect(referenceModel.attributes).toEqual([{ name: "Артикул", uuid: "attribute-old-uuid" }])
   })
 
@@ -128,16 +217,11 @@ describe("remapReferenceModel", () => {
       currentModel,
       referenceModel,
       referencePathByCurrentPath: new Map([
-        [
-          "Задача.Исполнение.РеквизитАдресации.НовыйИсполнитель",
-          "Задача.Исполнение.РеквизитАдресации.Исполнитель",
-        ],
+        ["Задача.Исполнение.РеквизитАдресации.НовыйИсполнитель", "Задача.Исполнение.РеквизитАдресации.Исполнитель"],
       ]),
     })
 
-    expect(result?.addressingAttributes).toEqual([
-      { name: "НовыйИсполнитель", uuid: "addressing-attribute-old-uuid" },
-    ])
+    expect(result?.addressingAttributes).toEqual([{ name: "НовыйИсполнитель", uuid: "addressing-attribute-old-uuid" }])
     expect(referenceModel.addressingAttributes).toEqual([
       { name: "Исполнитель", uuid: "addressing-attribute-old-uuid" },
     ])

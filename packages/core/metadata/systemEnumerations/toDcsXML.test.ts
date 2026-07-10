@@ -1,7 +1,7 @@
 import { describe, expect, it } from "vitest"
-import { mockContext } from "~/tests/mockContext"
-import { readXMLFixtureAsString } from "~/tests/readFixtureXML"
-import { xmlExport } from "~/xml/export/exporter"
+import { mockContext } from "../../tests/mockContext"
+import { readXMLFixtureAsString } from "../../tests/readFixtureXML"
+import { xmlExport } from "../../xml/export/exporter"
 import { SystemEnumerationPropertyRule } from "./types"
 import { exportSystemEnumerationToDcsXML } from "./toDcsXML"
 

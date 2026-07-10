@@ -1,14 +1,14 @@
 import { describe, expect, it } from "vitest"
-import "~/metadata/commonObjects"
-import "~/metadata/systemEnumerations"
-import { testExportAppliedObjectToYAML, testImportAppliedObjectFromXML } from "~/tests/appliedObject"
+import "../../commonObjects"
+import "../../systemEnumerations"
+import { testExportAppliedObjectToYAML, testImportAppliedObjectFromXML } from "../../../tests/appliedObject"
 import { MetadataWebSocketClientRules } from "./rules"
 import type { MetadataWebSocketClient } from "./types"
 
 const cases = [
   {
     fixture: "minimal.xml",
-    yaml: { Синоним: "Web socket клиент по умолчанию" },
+    yaml: {},
   },
   {
     fixture: "full.xml",

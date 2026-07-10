@@ -1,7 +1,7 @@
+import { compileValidationSchema } from "./../../validation/compileValidationSchema"
 import { describe, expect, it } from "vitest"
-import { TypeCompiler } from "@sinclair/typebox/compiler"
-import { testExportAppliedObjectToYAML } from "~/tests/appliedObject"
-import { mockContext } from "~/tests/mockContext"
+import { testExportAppliedObjectToYAML } from "../../../tests/appliedObject"
+import { mockContext } from "../../../tests/mockContext"
 import { full, fullYAML } from "./__fixtures__/full"
 import { minimal, minimalYAML } from "./__fixtures__/minimal"
 import { importMetadataEnumerationFromYAML } from "./fromYAML"
@@ -21,7 +21,8 @@ describe("import MetadataEnumeration from YAML", () => {
 
   it("imports minimal fixture", () => {
     const result = importMetadataEnumerationFromYAML(mockContext, minimalYAML, "ПеречислениеПоУмолчанию")
-    expect(result).toEqual(minimal)
+    const { synonym: _synonym, ...expected } = minimal
+    expect(result).toEqual(expected)
   })
 
   it("round-trip: full — import затем export даёт тот же YAML (parsed)", () => {
@@ -33,8 +34,25 @@ describe("import MetadataEnumeration from YAML", () => {
     expect(exported).toEqual(fullYAML)
   })
 
+  it("omits enum value synonym equal to the value name", () => {
+    const exported = testExportAppliedObjectToYAML({
+      rule: MetadataEnumerationRules,
+      data: {
+        name: "ABCКлассификация",
+        enumValues: [
+          {
+            name: "ЗначениеA",
+            synonym: { items: { ru: "Значение A" } },
+          },
+        ],
+      },
+    })
+
+    expect(exported).toEqual({ Значения: { ЗначениеA: {} } })
+  })
+
   it("accepts enum values whose name is taken from the YAML key in JSON Schema", () => {
-    const schema = TypeCompiler.Compile(exportMetadataEnumerationToJSONSchema({ context: mockContext }))
+    const schema = compileValidationSchema(exportMetadataEnumerationToJSONSchema({ context: mockContext }))
 
     expect(schema.Check({ Значения: { Значение1: {} } })).toBe(true)
     expect(schema.Check({ Значения: { Значение1: { Синоним: "Синоним" } } })).toBe(true)
@@ -42,7 +60,7 @@ describe("import MetadataEnumeration from YAML", () => {
   })
 
   it("rejects invalid enum value properties in JSON Schema", () => {
-    const schema = TypeCompiler.Compile(exportMetadataEnumerationToJSONSchema({ context: mockContext }))
+    const schema = compileValidationSchema(exportMetadataEnumerationToJSONSchema({ context: mockContext }))
 
     expect(schema.Check({ Значения: { Значение1: { Лишнее: "значение" } } })).toBe(false)
     expect(schema.Check({ Значения: { Значение1: { Имя: 1 } } })).toBe(false)

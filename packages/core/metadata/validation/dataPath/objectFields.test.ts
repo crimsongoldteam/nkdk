@@ -1,11 +1,11 @@
 import { describe, expect, it } from "vitest"
-import type { MetadataItemRule } from "~/metadata/orchestration/property/types"
-import { MetadataAccumulationRegisterRules } from "~/metadata/appliedObjects/metadataAccumulationRegister/rules"
-import { MetadataCatalogRules } from "~/metadata/appliedObjects/metadataCatalog/rules"
-import { MetadataDocumentRules } from "~/metadata/appliedObjects/metadataDocument/rules"
-import { MetadataInformationRegisterRules } from "~/metadata/appliedObjects/metadataInformationRegister/rules"
-import { MetadataTaskRules } from "~/metadata/appliedObjects/metadataTask/rules"
-import type { MetadataItem } from "~/metadata/orchestration/property/types"
+import type { MetadataItemRule } from "../../orchestration/property/types"
+import { MetadataAccumulationRegisterRules } from "../../appliedObjects/metadataAccumulationRegister/rules"
+import { MetadataCatalogRules } from "../../appliedObjects/metadataCatalog/rules"
+import { MetadataDocumentRules } from "../../appliedObjects/metadataDocument/rules"
+import { MetadataInformationRegisterRules } from "../../appliedObjects/metadataInformationRegister/rules"
+import { MetadataTaskRules } from "../../appliedObjects/metadataTask/rules"
+import type { MetadataItem } from "../../orchestration/property/types"
 import type { OwnerMetadata } from "./ownerCache"
 import { buildObjectFieldIndex, resolveObjectFieldSegment } from "./objectFields"
 
@@ -19,7 +19,7 @@ describe("buildObjectFieldIndex", () => {
           itemType: "MetadataCatalog",
           attributes: [{ name: "Артикул", type: { type: ["string"] } }],
         },
-      }),
+      })
     )
 
     expect(index.fields.get("Артикул")).toMatchObject({
@@ -48,7 +48,7 @@ describe("buildObjectFieldIndex", () => {
         ref: { kind: "Документ", name: "Заказ" },
         rule: MetadataDocumentRules,
         model: { itemType: "MetadataDocument" },
-      }),
+      })
     )
 
     expect(index.fields.get("Дата")).toMatchObject({ name: "Дата", kind: "standardAttribute" })
@@ -65,7 +65,7 @@ describe("buildObjectFieldIndex", () => {
           itemType: "MetadataAccumulationRegister",
           registerType: "Turnovers",
         },
-      }),
+      })
     )
 
     expect(index.fields.get("ВидДвижения")).toBeUndefined()
@@ -86,7 +86,7 @@ describe("buildObjectFieldIndex", () => {
           dimensions: [{ name: "Склад", type: { type: ["CatalogRef.Склады"] } }],
           resources: [{ name: "Количество", type: { type: ["decimal"] } }],
         },
-      }),
+      })
     )
 
     expect(index.fields.get("Комментарий")).toMatchObject({ kind: "attribute" })
@@ -115,7 +115,7 @@ describe("buildObjectFieldIndex", () => {
             },
           ],
         },
-      }),
+      })
     )
 
     const table = index.fields.get("Товары")
@@ -146,11 +146,13 @@ describe("buildObjectFieldIndex", () => {
         ref: { kind: "Документ", name: "Заказ" },
         rule: MetadataDocumentRules,
         model: { itemType: "MetadataDocument" },
-      }),
+      })
     )
 
     const firstRef = index.fields.get("Ссылка")?.typeInfo.nextTypes[0]
-    const secondRef = firstRef ? buildObjectFieldIndex(owner({ ref: firstRef, rule: MetadataDocumentRules })).fields.get("Ссылка") : undefined
+    const secondRef = firstRef
+      ? buildObjectFieldIndex(owner({ ref: firstRef, rule: MetadataDocumentRules })).fields.get("Ссылка")
+      : undefined
 
     expect(firstRef).toEqual({ kind: "Документ", name: "Заказ" })
     expect(secondRef?.typeInfo.nextTypes).toEqual([{ kind: "Документ", name: "Заказ" }])
@@ -163,18 +165,20 @@ describe("buildObjectFieldIndex", () => {
         ref: { kind: "Документ", name: "Заказ" },
         rule: MetadataDocumentRules,
         model: { itemType: "MetadataDocument" },
-      }),
+      })
     )
     const catalogIndex = buildObjectFieldIndex(
       owner({
         ref: { kind: "Справочник", name: "Номенклатура" },
         rule: MetadataCatalogRules,
         model: { itemType: "MetadataCatalog" },
-      }),
+      })
     )
 
     expect(resolveObjectFieldSegment({ index: documentIndex, segment: "Number" })).toMatchObject({ name: "Номер" })
-    expect(resolveObjectFieldSegment({ index: catalogIndex, segment: "Description" })).toMatchObject({ name: "Наименование" })
+    expect(resolveObjectFieldSegment({ index: catalogIndex, segment: "Description" })).toMatchObject({
+      name: "Наименование",
+    })
     expect(resolveObjectFieldSegment({ index: catalogIndex, segment: "Code" })).toMatchObject({ name: "Код" })
     expect(resolveObjectFieldSegment({ index: catalogIndex, segment: "DeletionMark" })).toMatchObject({
       name: "ПометкаУдаления",
@@ -193,7 +197,7 @@ describe("buildObjectFieldIndex", () => {
         ref: { kind: "Задача", name: "ЗадачаИсполнителя" },
         rule: MetadataTaskRules,
         model: { itemType: "MetadataTask" },
-      }),
+      })
     )
 
     expect(resolveObjectFieldSegment({ index, segment: "Description" })).toMatchObject({
@@ -223,7 +227,7 @@ describe("buildObjectFieldIndex", () => {
             },
           ],
         },
-      }),
+      })
     )
 
     expect(index.fields.get("Исполнитель")).toMatchObject({
@@ -243,7 +247,7 @@ describe("buildObjectFieldIndex", () => {
           itemType: "MetadataCatalog",
           owners: ["Catalog.ВидыПодарочныхСертификатов"],
         },
-      }),
+      })
     )
 
     expect(index.fields.get("Владелец")?.typeInfo).toMatchObject({
@@ -265,7 +269,7 @@ describe("buildObjectFieldIndex", () => {
           itemType: "MetadataCatalog",
           owners: ["Catalog.Номенклатура", "ChartOfCharacteristicTypes.Свойства"],
         },
-      }),
+      })
     )
 
     expect(index.fields.get("Владелец")?.typeInfo).toMatchObject({
@@ -294,7 +298,7 @@ describe("buildObjectFieldIndex", () => {
             },
           ],
         },
-      }),
+      })
     )
 
     expect(index.fields.get("Владелец")?.typeInfo).toMatchObject({

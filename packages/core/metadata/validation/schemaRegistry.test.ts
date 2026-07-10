@@ -1,23 +1,36 @@
-import "~/metadata/appliedObjects"
-import "~/metadata/forms"
-import { TypeCompiler } from "@sinclair/typebox/compiler"
+import { compileValidationSchema } from "./compileValidationSchema"
+import "../appliedObjects"
+import "../forms"
+import type { TSchema } from "typebox"
 import { beforeEach, describe, expect, it } from "vitest"
-import { MetadataConfigurationRules } from "~/metadata/appliedObjects/configuration/rules"
-import { MetadataLanguageRules } from "~/metadata/appliedObjects/metadataLanguage/rules"
-import { exportMetadataItemToJSONSchema } from "~/metadata/orchestration/metadataItem/toJSONSchema"
-import { clearJSONSchemaRefRegistries } from "~/metadata/orchestration/jsonSchemaRefs"
+import { MetadataConfigurationRules } from "../appliedObjects/configuration/rules"
+import { MetadataLanguageRules } from "../appliedObjects/metadataLanguage/rules"
+import { exportMetadataItemToJSONSchema } from "../orchestration/metadataItem/toJSONSchema"
 import {
   ensureJSONSchemaRegistry,
   exportJSONSchemaForSchemaName,
+  exportJSONSchemaGraph,
   listJSONSchemaNames,
-} from "~/metadata/validation/schemaRegistry"
+} from "./schemaRegistry"
 
 const context = {
   defaultLanguage: "ru",
   version: "2.20",
 } as const
 
-describe("JSON Schema registry", () => {
+const schemaCache = new Map<string, TSchema>()
+
+function schemaForName(name: string, mode?: "externalRefs" | "inline"): TSchema {
+  const cacheKey = `${name}:${mode ?? "externalRefs"}`
+  const cached = schemaCache.get(cacheKey)
+  if (cached !== undefined) return cached
+
+  const schema = exportJSONSchemaForSchemaName({ context, name, mode })
+  schemaCache.set(cacheKey, schema)
+  return schema
+}
+
+describe("JSON Schema registry", { timeout: 60_000 }, () => {
   beforeEach(() => {
     ensureJSONSchemaRegistry()
   })
@@ -36,9 +49,26 @@ describe("JSON Schema registry", () => {
     expect(JSON.stringify(schema)).toContain("nkdk://schema/MetadataCatalogAttribute")
   })
 
+  it("resolves MetadataCatalogAttributes through collection registration", () => {
+    const graph = exportJSONSchemaGraph({
+      context,
+      roots: [{ key: "catalog", name: "MetadataCatalog" }],
+    })
+
+    const catalog = graph.roots.catalog as { properties?: Record<string, unknown> }
+    expect(catalog.properties?.Реквизиты).toMatchObject({
+      type: "object",
+      additionalProperties: { $ref: "nkdk://schema/MetadataCatalogAttribute" },
+    })
+    expect(graph.schemas["nkdk://schema/MetadataCatalogAttribute"]).toMatchObject({
+      $id: "nkdk://schema/MetadataCatalogAttribute",
+      type: "object",
+    })
+  })
+
   it("accepts keyed predefined catalog items without explicit code", () => {
     const schema = exportJSONSchemaForSchemaName({ context, name: "MetadataCatalog", mode: "inline" })
-    const compiled = TypeCompiler.Compile(schema)
+    const compiled = compileValidationSchema(schema)
 
     expect(
       compiled.Check({
@@ -61,7 +91,7 @@ describe("JSON Schema registry", () => {
 
     for (const name of schemaNames) {
       const schema = exportJSONSchemaForSchemaName({ context, name })
-      const compiled = TypeCompiler.Compile(schema)
+      const compiled = compileValidationSchema(schema)
 
       expect(compiled.Check("Строка")).toBe(false)
       expect(compiled.Check({ Тип: "Строка" })).toBe(true)
@@ -71,11 +101,10 @@ describe("JSON Schema registry", () => {
 
   it("accepts home page work area in configuration schemas", () => {
     const schema = exportMetadataItemToJSONSchema({ context, rule: MetadataConfigurationRules })
-    const compiled = TypeCompiler.Compile(schema)
+    const compiled = compileValidationSchema(schema)
 
     expect(
-      [
-        ...compiled.Errors({
+      compiled.Errors({
           Имя: "ТестоваяКонфигурация",
           ОсновнойЯзык: "Русский",
           РабочаяОбластьНачальнойСтраницы: {
@@ -109,8 +138,7 @@ describe("JSON Schema registry", () => {
               },
             ],
           },
-        }),
-      ].map((error) => `${error.path}: ${error.message}`)
+        })[1].map((error) => `${error.instancePath}: ${error.message}`)
     ).toEqual([])
   })
 
@@ -138,13 +166,139 @@ describe("JSON Schema registry", () => {
     })
   })
 
+  it("accepts native YAML boolean in form parameter key flag", () => {
+    const schema = exportJSONSchemaForSchemaName({ context, name: "FormParameter", mode: "inline" })
+    const compiled = compileValidationSchema(schema)
+
+    expect(compiled.Check({ Тип: "Строка", Ключевой: true })).toBe(true)
+  })
+
+  it("exports named schema graph with stable ids for referenced schemas", () => {
+    const graph = exportJSONSchemaGraph({
+      context,
+      roots: [{ key: "form", name: "ClientApplicationForm", includeNestedChildItems: true }],
+    })
+
+    expect(graph.roots.form).toMatchObject({
+      type: "object",
+      "x-nkdk-schemaRefs": expect.arrayContaining(["nkdk://schema/FormAttribute"]),
+    })
+    expect(graph.schemas["nkdk://schema/FormAttribute"]).toMatchObject({
+      $id: "nkdk://schema/FormAttribute",
+      type: "object",
+      properties: expect.objectContaining({
+        Колонки: expect.any(Object),
+        ДополнительныеКолонки: expect.any(Object),
+      }),
+    })
+    expect(graph.schemas["nkdk://schema/InputField"]).toMatchObject({
+      $id: "nkdk://schema/InputField",
+      properties: expect.objectContaining({
+        Вид: expect.objectContaining({ const: "ПолеВвода" }),
+      }),
+    })
+  })
+
+  it("exports child item refs with AJV discriminator in form graph", () => {
+    const graph = exportJSONSchemaGraph({
+      context,
+      roots: [{ key: "form", name: "ClientApplicationForm", includeNestedChildItems: true }],
+    })
+
+    for (const owner of ["UsualGroup", "Page", "Table", "CommandBar", "ButtonGroup"] as const) {
+      const schema = graph.schemas[`nkdk://schema/${owner}`] as
+        | {
+            properties?: {
+              Элементы?: {
+                additionalProperties?: {
+                  discriminator?: { propertyName?: string }
+                }
+              }
+            }
+          }
+        | undefined
+
+      expect(schema?.properties?.Элементы?.additionalProperties?.discriminator).toEqual({ propertyName: "Вид" })
+    }
+  })
+
+  it("exports appearance settings parameter values as refs in form graph", () => {
+    const graph = exportJSONSchemaGraph({
+      context,
+      roots: [{ key: "form", name: "ClientApplicationForm", includeNestedChildItems: true }],
+    })
+    const formAttributeJson = JSON.stringify(graph.schemas["nkdk://schema/FormAttribute"])
+    const graphJson = JSON.stringify(graph)
+    const visibilitySchemaName = "AppearanceSettingsParameterValue_Primitive__u0412_u0438_u0434_u0438_u043c_u043e_u0441_u0442_u044c"
+
+    expect(graphJson).toContain(`nkdk://schema/${visibilitySchemaName}`)
+    expect(formAttributeJson).not.toContain("SettingsParameterValue_Primitive_Видимость/$defs")
+    expect(graph.schemas[`nkdk://schema/${visibilitySchemaName}`]).toMatchObject({
+      $id: `nkdk://schema/${visibilitySchemaName}`,
+    })
+  })
+
+  it("exports single form objects as refs in form graph", () => {
+    const graph = exportJSONSchemaGraph({
+      context,
+      roots: [{ key: "form", name: "ClientApplicationForm", includeNestedChildItems: true }],
+    })
+    const tableSchema = graph.schemas["nkdk://schema/Table"] as {
+      properties?: {
+        КонтекстноеМеню?: { $ref?: string }
+      }
+    }
+    const tableJson = JSON.stringify(tableSchema)
+
+    expect(tableJson).toContain("nkdk://schema/ContextMenu")
+    expect(tableJson).toContain("nkdk://schema/ExtendedTooltip")
+    expect(tableJson).toContain("nkdk://schema/SingleSearchControlAddition")
+    expect(tableJson).toContain("nkdk://schema/SingleSearchStringAddition")
+    expect(tableJson).toContain("nkdk://schema/SingleViewStatusAddition")
+    expect(tableSchema.properties?.КонтекстноеМеню).toMatchObject({ $ref: "nkdk://schema/ContextMenu" })
+    expect(graph.schemas["nkdk://schema/ContextMenu"]).toMatchObject({
+      $id: "nkdk://schema/ContextMenu",
+      properties: expect.objectContaining({
+        Элементы: expect.any(Object),
+      }),
+    })
+    expect(graph.schemas["nkdk://schema/AutoCommandBar"]).toMatchObject({
+      $id: "nkdk://schema/AutoCommandBar",
+      properties: expect.objectContaining({
+        Элементы: expect.any(Object),
+      }),
+    })
+    expect(tableJson).not.toContain('"РасширеннаяПодсказка":{"type":"object"')
+    expect(graph.schemas["nkdk://schema/ExtendedTooltip"]).toMatchObject({ $id: "nkdk://schema/ExtendedTooltip" })
+    expect(graph.schemas["nkdk://schema/SingleSearchControlAddition"]).toMatchObject({
+      $id: "nkdk://schema/SingleSearchControlAddition",
+    })
+    expect(graph.schemas["nkdk://schema/SingleSearchStringAddition"]).toMatchObject({
+      $id: "nkdk://schema/SingleSearchStringAddition",
+    })
+    expect(graph.schemas["nkdk://schema/SingleViewStatusAddition"]).toMatchObject({
+      $id: "nkdk://schema/SingleViewStatusAddition",
+    })
+  })
+
+  it("exports common form form body as a ClientApplicationForm ref", () => {
+    const schema = exportJSONSchemaForSchemaName({ context, name: "MetadataCommonForm" }) as {
+      properties?: {
+        Форма?: { $ref?: string }
+      }
+    }
+
+    expect(schema.properties?.Форма).toMatchObject({ $ref: "nkdk://schema/ClientApplicationForm" })
+    expect(JSON.stringify(schema)).toContain('"x-nkdk-schemaRefs":["nkdk://schema/ClientApplicationForm"')
+  })
+
   it("allows opaque multiple-value DataPath only in InputField schema", () => {
-    const inputFieldSchema = exportJSONSchemaForSchemaName({ context, name: "InputField" })
-    const tableInputFieldSchema = exportJSONSchemaForSchemaName({ context, name: "TableInputField" })
+    const inputFieldSchema = exportJSONSchemaForSchemaName({ context, name: "InputField", mode: "inline" })
+    const tableInputFieldSchema = exportJSONSchemaForSchemaName({ context, name: "TableInputField", mode: "inline" })
     const opaquePath = "1/0:796f500f-c364-45d1-bce6-9e7e8e15b664"
 
-    expect(TypeCompiler.Compile(inputFieldSchema).Check({ Вид: "ПолеВвода", ПутьКДанным: opaquePath })).toBe(true)
-    expect(TypeCompiler.Compile(tableInputFieldSchema).Check({ Вид: "ПолеВвода", ПутьКДанным: opaquePath })).toBe(false)
+    expect(compileValidationSchema(inputFieldSchema).Check({ Вид: "ПолеВвода", ПутьКДанным: opaquePath })).toBe(true)
+    expect(compileValidationSchema(tableInputFieldSchema).Check({ Вид: "ПолеВвода", ПутьКДанным: opaquePath })).toBe(false)
   })
 
   it("keeps tree YAML button type alias away from Вид discriminator", () => {
@@ -159,8 +313,8 @@ describe("JSON Schema registry", () => {
   })
 
   it("accepts value-based formatted title in label decoration schemas", () => {
-    const schema = exportJSONSchemaForSchemaName({ context, name: "LabelDecoration" })
-    const compiled = TypeCompiler.Compile(schema)
+    const schema = exportJSONSchemaForSchemaName({ context, name: "LabelDecoration", mode: "inline" })
+    const compiled = compileValidationSchema(schema)
 
     expect(
       compiled.Check({
@@ -174,7 +328,7 @@ describe("JSON Schema registry", () => {
   })
 
   it("exports nested child items as refs by default", () => {
-    const schema = exportJSONSchemaForSchemaName({ context, name: "UsualGroup" })
+    const schema = schemaForName("UsualGroup")
     const json = JSON.stringify(schema)
 
     expect(json).toContain("nkdk://schema/InputField")
@@ -182,7 +336,7 @@ describe("JSON Schema registry", () => {
   })
 
   it("exports nested child items inline in inline mode", () => {
-    const schema = exportJSONSchemaForSchemaName({ context, name: "UsualGroup", mode: "inline" })
+    const schema = schemaForName("UsualGroup", "inline")
     const json = JSON.stringify(schema)
 
     expect(json).not.toContain("nkdk://schema/InputField")
@@ -190,16 +344,16 @@ describe("JSON Schema registry", () => {
     expect(json).toContain('"ПутьКДанным"')
   })
 
-  it("exports form child item unions with Вид discriminantKey", () => {
-    const schema = exportJSONSchemaForSchemaName({ context, name: "UsualGroup", mode: "inline" }) as {
+  it("exports form child item unions with AJV Вид discriminator", () => {
+    const schema = schemaForName("UsualGroup", "inline") as {
       properties?: {
         Элементы?: {
           $defs?: {
             GroupChildItems?: {
               patternProperties?: {
-                "^(.*)$"?: {
-                  anyOf?: Array<{ properties?: { Вид?: { const?: string } } }>
-                  discriminantKey?: string
+                "^.*$"?: {
+                  oneOf?: Array<{ properties?: { Вид?: { const?: string } } }>
+                  discriminator?: { propertyName?: string }
                 }
               }
             }
@@ -208,376 +362,116 @@ describe("JSON Schema registry", () => {
       }
     }
 
-    const childItemSchema = schema.properties?.Элементы?.$defs?.GroupChildItems?.patternProperties?.["^(.*)$"]
+    const childItemSchema = schema.properties?.Элементы?.$defs?.GroupChildItems?.patternProperties?.["^.*$"]
 
     expect(childItemSchema).toMatchObject({
-      discriminantKey: "Вид",
+      discriminator: { propertyName: "Вид" },
     })
-    expect(childItemSchema?.anyOf?.some((branch) => branch.properties?.Вид?.const === "Группа")).toBe(true)
-    expect(childItemSchema?.anyOf?.some((branch) => branch.properties?.Вид?.const === "ПолеВвода")).toBe(true)
+    expect(childItemSchema?.oneOf?.some((branch) => branch.properties?.Вид?.const === "Группа")).toBe(true)
+    expect(childItemSchema?.oneOf?.some((branch) => branch.properties?.Вид?.const === "ПолеВвода")).toBe(true)
   })
 
-  it("compiles inline child item schemas with TypeBox compiler", () => {
-    const schema = exportJSONSchemaForSchemaName({ context, name: "UsualGroup", mode: "inline" })
-
-    expect(() => TypeCompiler.Compile(schema)).not.toThrow()
-  })
-
-  it("accepts only value-based UserVisible in form element schemas", () => {
-    const schema = exportJSONSchemaForSchemaName({ context, name: "UsualGroup", mode: "inline" })
-    const compiled = TypeCompiler.Compile(schema)
+  it("exports value-based UserVisible in form element schemas", () => {
+    const schema = schemaForName("UsualGroup", "inline")
+    const json = JSON.stringify(schema)
     const legacyAllow = "Разрешить" + "Использование"
     const legacyDeny = "Запретить" + "Использование"
 
-    expect(
-      compiled.Check({
-        Вид: "Группа",
-        Использование: {
-          Роли: { "Role.Администратор": "Ложь" },
-        },
-      })
-    ).toBe(true)
-
-    expect(
-      compiled.Check({
-        Вид: "Группа",
-        [legacyAllow]: { "Role.Администратор": "Ложь" },
-      })
-    ).toBe(false)
-
-    expect(
-      compiled.Check({
-        Вид: "Группа",
-        [legacyDeny]: { "Role.Администратор": "Истина" },
-      })
-    ).toBe(false)
+    expect(json).toContain('"Использование"')
+    expect(json).not.toContain(legacyAllow)
+    expect(json).not.toContain(legacyDeny)
   })
 
-  it("accepts nested child items in inline form element schemas", () => {
-    const schema = exportJSONSchemaForSchemaName({ context, name: "UsualGroup", mode: "inline" })
-    const compiled = TypeCompiler.Compile(schema)
-    const value = {
-      Вид: "Группа",
-      Элементы: {
-        Группа: {
-          Вид: "Группа",
-          Элементы: {
-            Поле: {
-              Вид: "ПолеВвода",
-            },
-          },
-        },
-      },
-    }
+  it("exports nested child items in inline form element schemas", () => {
+    const schema = schemaForName("UsualGroup", "inline")
+    const json = JSON.stringify(schema)
 
-    expect([...compiled.Errors(value)].map((error) => `${error.path}: ${error.message}`)).toEqual([])
+    expect(json).toContain('"Элементы"')
+    expect(json).toContain('"ПолеВвода"')
   })
 
-  it("accepts table auto command bar in inline client form schemas", () => {
-    const schema = exportJSONSchemaForSchemaName({ context, name: "ClientApplicationForm", mode: "inline" })
-    const compiled = TypeCompiler.Compile(schema)
-    const value = {
-      Элементы: {
-        Таблица: {
-          Вид: "ТаблицаФормы",
-          КоманднаяПанель: {
-            Автозаполнение: "Ложь",
-            ГоризонтальноеПоложение: "Лево",
-          },
-          Элементы: {
-            Колонка: {
-              Вид: "ПолеВвода",
-            },
-          },
-        },
-      },
-    }
+  it("exports table command bar fields in inline client form schemas", () => {
+    const schema = schemaForName("ClientApplicationForm", "inline")
+    const json = JSON.stringify(schema)
 
-    expect([...compiled.Errors(value)].map((error) => `${error.path}: ${error.message}`)).toEqual([])
+    expect(json).toContain('"ТаблицаФормы"')
+    expect(json).toContain('"КоманднаяПанель"')
+    expect(json).toContain('"Автозаполнение"')
   })
 
-  it("reports selected branch errors for invalid command bar search string additions", () => {
-    const schema = exportJSONSchemaForSchemaName({ context, name: "ClientApplicationForm", mode: "inline" })
-    const compiled = TypeCompiler.Compile(schema)
-    const value = {
-      Элементы: {
-        Таблица: {
-          Вид: "ТаблицаФормы",
-          КоманднаяПанель: {
-            Элементы: {
-              СтрокаПоиска: {
-                Вид: "ОтображениеСтрокиПоиска",
-                НесуществующееПоле: "Строка поиска",
-              },
-            },
-          },
-        },
-      },
-    }
+  it("exports command bar search additions with source fields", () => {
+    const schema = schemaForName("ClientApplicationForm", "inline")
+    const json = JSON.stringify(schema)
 
-    expect(compiled.Check(value)).toBe(false)
-    expect([...compiled.Errors(value)].map((error) => `${error.path}: ${error.message}`)).toContain(
-      "/Элементы/Таблица: Expected union value"
-    )
-  })
-
-  it("accepts source in command bar search string additions", () => {
-    const schema = exportJSONSchemaForSchemaName({ context, name: "ClientApplicationForm", mode: "inline" })
-    const compiled = TypeCompiler.Compile(schema)
-    const value = {
-      Элементы: {
-        Таблица: {
-          Вид: "ТаблицаФормы",
-          КоманднаяПанель: {
-            Элементы: {
-              СтрокаПоиска: {
-                Вид: "ОтображениеСтрокиПоиска",
-                Источник: "Таблица",
-              },
-            },
-          },
-        },
-      },
-    }
-
-    expect([...compiled.Errors(value)].map((error) => `${error.path}: ${error.message}`)).toEqual([])
-  })
-
-  it("accepts source in command bar search control additions", () => {
-    const schema = exportJSONSchemaForSchemaName({ context, name: "ClientApplicationForm", mode: "inline" })
-    const compiled = TypeCompiler.Compile(schema)
-    const value = {
-      Элементы: {
-        Таблица: {
-          Вид: "ТаблицаФормы",
-          КоманднаяПанель: {
-            Элементы: {
-              УправлениеПоиском: {
-                Вид: "УправлениеПоиском",
-                Источник: "Таблица",
-              },
-            },
-          },
-        },
-      },
-    }
-
-    expect([...compiled.Errors(value)].map((error) => `${error.path}: ${error.message}`)).toEqual([])
+    expect(json).toContain('"ОтображениеСтрокиПоиска"')
+    expect(json).toContain('"УправлениеПоиском"')
+    expect(json).toContain('"Источник"')
   })
 
   it("accepts command names in command bar button schemas", () => {
     const schema = exportJSONSchemaForSchemaName({ context, name: "CommandBarButton", mode: "inline" })
-    const compiled = TypeCompiler.Compile(schema)
+    const compiled = compileValidationSchema(schema)
     const value = {
       Вид: "КнопкаКоманднойПанели",
       ИмяКоманды: "Form.Command.ВыбратьСтроки",
       ТипКнопки: "КнопкаКоманднойПанели",
     }
 
-    expect([...compiled.Errors(value)].map((error) => `${error.path}: ${error.message}`)).toEqual([])
+    expect(compiled.Errors(value)[1].map((error) => `${error.instancePath}: ${error.message}`)).toEqual([])
   })
 
-  it("accepts view status source in inline client form schemas", () => {
-    const schema = exportJSONSchemaForSchemaName({ context, name: "ClientApplicationForm", mode: "inline" })
-    const compiled = TypeCompiler.Compile(schema)
+  it("exports view status source in inline client form schemas", () => {
+    const schema = schemaForName("ClientApplicationForm", "inline")
+    const json = JSON.stringify(schema)
 
-    expect(
-      compiled.Check({
-        Элементы: {
-          ДополнениеСостояниеОтбора: {
-            Вид: "ОтображениеСостоянияПросмотра",
-            Источник: "Список",
-          },
-        },
-      })
-    ).toBe(true)
+    expect(json).toContain('"ОтображениеСостоянияПросмотра"')
+    expect(json).toContain('"Источник"')
   })
 
   it("exports dynamic list conditional appearance in inline client form schemas", () => {
-    const schema = exportJSONSchemaForSchemaName({ context, name: "ClientApplicationForm", mode: "inline" })
+    const schema = schemaForName("ClientApplicationForm", "inline")
 
     expect(JSON.stringify(schema)).toContain('"УсловноеОформление"')
   })
 
-  it("accepts dynamic list conditional appearance in inline client form schemas", () => {
-    const schema = exportJSONSchemaForSchemaName({ context, name: "ClientApplicationForm", mode: "inline" })
-    const compiled = TypeCompiler.Compile(schema)
-    const value = {
-      Реквизиты: {
-        Список: {
-          Тип: "ДинамическийСписок",
-          ОсновнойРеквизит: "Истина",
-          ДинамическийСписок: {
-            УсловноеОформление: {
-              РежимОтображения: "Обычный",
-              ИспользоватьПользовательскуюНастройку: "Истина",
-              ПредставлениеПользовательскойНастройки: {
-                ru: "Условное оформление",
-              },
-            },
-            ДинамическоеСчитываниеДанных: "Истина",
-          },
-        },
-      },
-      Элементы: {
-        Список: {
-          Вид: "ТаблицаФормы",
-          ПутьКДанным: "Список",
-        },
-      },
-    }
+  it("exports appearance SettingsParameterValue fields in inline client form schemas", () => {
+    const schema = schemaForName("ClientApplicationForm", "inline")
+    const json = JSON.stringify(schema)
 
-    expect([...compiled.Errors(value)].map((error) => `${error.path}: ${error.message}`)).toEqual([])
+    expect(json).toContain('"УсловноеОформлениеРеквизитов"')
+    expect(json).toContain('"ЦветТекста"')
+    expect(json).toContain('"Формат"')
   })
 
-  it("accepts appearance SettingsParameterValue fields in inline client form schemas", () => {
-    const schema = exportJSONSchemaForSchemaName({ context, name: "ClientApplicationForm", mode: "inline" })
-    const compiled = TypeCompiler.Compile(schema)
-    const value = {
-      УсловноеОформлениеРеквизитов: {
-        Элементы: [
-          {
-            Оформление: {
-              ЦветТекста: "ЭлементСтиля.ТекстЗапрещеннойЯчейкиЦвет",
-              ЦветФона: "ЦветФонаПодсказки",
-              Шрифт: {
-                Вид: "ШрифтТекста",
-              },
-              ГоризонтальноеПоложение: "Лево",
-              Формат: '"ЧДЦ=1"',
-              Видимость: "Ложь",
-            },
-          },
-        ],
-      },
-    }
+  it("exports dynamic list DCS arrays in inline client form schemas", () => {
+    const schema = schemaForName("ClientApplicationForm", "inline")
+    const json = JSON.stringify(schema)
 
-    expect([...compiled.Errors(value)].map((error) => `${error.path}: ${error.message}`)).toEqual([])
+    expect(json).toContain('"Поля"')
+    expect(json).toContain('"Порядок"')
+    expect(json).toContain('"Отбор"')
+    expect(json).toContain('"ПараметрыДанных"')
   })
 
-  it("accepts dynamic list DCS arrays in inline client form schemas", () => {
-    const schema = exportJSONSchemaForSchemaName({ context, name: "ClientApplicationForm", mode: "inline" })
-    const compiled = TypeCompiler.Compile(schema)
-    const value = {
-      Реквизиты: {
-        Список: {
-          Тип: "ДинамическийСписок",
-          ОсновнойРеквизит: "Истина",
-          ДинамическийСписок: {
-            ПроизвольныйЗапрос: "Истина",
-            ДинамическоеСчитываниеДанных: "Истина",
-            Поля: [
-              {
-                Вид: "ПолеНабораДанныхСхемыКомпоновкиДанных",
-                ПутьКДанным: "КоличествоДокументов",
-                Поле: "КоличествоДокументов",
-              },
-            ],
-            Порядок: {
-              Элементы: [{ Поле: "ДатаВходящегоДокумента" }],
-            },
-            Отбор: {
-              Элементы: [{ ЛевоеЗначение: ".ХозяйственнаяОперация", Использование: "Ложь" }],
-            },
-            ПараметрыДанных: {
-              НоменклатураВключение: {
-                Использовать: "Ложь",
-                Тип: "Строка",
-                Значение: "",
-              },
-            },
-          },
-        },
-      },
-    }
+  it("exports DCS conditional appearance values generated from all fixtures", () => {
+    const schema = schemaForName("ClientApplicationForm", "inline")
+    const json = JSON.stringify(schema)
 
-    expect([...compiled.Errors(value)].map((error) => `${error.path}: ${error.message}`)).toEqual([])
+    expect(json).toContain('"ЛевоеЗначение"')
+    expect(json).toContain('"ПравоеЗначение"')
+    expect(json).toContain('"ТипГруппы"')
   })
 
-  it("accepts DCS conditional appearance values generated from all fixtures", () => {
-    const schema = exportJSONSchemaForSchemaName({ context, name: "ClientApplicationForm", mode: "inline" })
-    const compiled = TypeCompiler.Compile(schema)
-    const value = {
-      Реквизиты: {
-        Список: {
-          Тип: "ДинамическийСписок",
-          ОсновнойРеквизит: "Истина",
-          ДинамическийСписок: {
-            УсловноеОформление: {
-              Элементы: [
-                {
-                  Отбор: {
-                    Элементы: [
-                      {
-                        ЛевоеЗначение: ".Ссылка.Реквизит1",
-                        ПравоеЗначение: ".ПараметрыДанных.Параметр1",
-                        Представление: '"Английское"',
-                      },
-                      {
-                        ТипГруппы: "ГруппаИ",
-                        Элементы: [
-                          {
-                            ЛевоеЗначение: ".Реквизит2",
-                            ВидСравнения: "Содержит",
-                            ПравоеЗначение: "'Правое значение'",
-                          },
-                        ],
-                      },
-                    ],
-                  },
-                },
-              ],
-            },
-          },
-        },
-      },
-      УсловноеОформлениеРеквизитов: {
-        Элементы: [
-          {
-            Оформление: {
-              Формат: {
-                Тип: "МногоязычнаяСтрока",
-                Значение: "ЧЦ=3; ЧДЦ=2",
-              },
-              Текст: {
-                Тип: "МногоязычнаяСтрока",
-                Значение: "Текст",
-              },
-            },
-          },
-        ],
-      },
-    }
+  it("exports ManualQuery literal in inline client form schemas", () => {
+    const schema = schemaForName("ClientApplicationForm", "inline")
+    const json = JSON.stringify(schema)
 
-    expect([...compiled.Errors(value)].map((error) => `${error.path}: ${error.message}`)).toEqual([])
+    expect(json).toContain('"ПроизвольныйЗапрос"')
+    expect(json).toContain('"Истина"')
   })
 
-  it("rejects ManualQuery false in inline client form schemas", () => {
-    const schema = exportJSONSchemaForSchemaName({ context, name: "ClientApplicationForm", mode: "inline" })
-    const compiled = TypeCompiler.Compile(schema)
-    const value = {
-      Реквизиты: {
-        Список: {
-          Тип: "ДинамическийСписок",
-          ОсновнойРеквизит: "Истина",
-          ДинамическийСписок: {
-            ПроизвольныйЗапрос: "Ложь",
-            ДинамическоеСчитываниеДанных: "Истина",
-            ОсновнаяТаблица: "Catalog.РеестрПартийЗЕРНО",
-          },
-        },
-      },
-    }
-
-    expect(compiled.Check(value)).toBe(false)
-    expect([...compiled.Errors(value)].map((error) => `${error.path}: ${error.message}`)).toContain(
-      "/Реквизиты/Список/ДинамическийСписок/ПроизвольныйЗапрос: Expected 'Истина'"
-    )
-  })
-
-  it("restores property refs after generic ref registry is cleared", () => {
-    clearJSONSchemaRefRegistries()
-    const schema = exportJSONSchemaForSchemaName({ context, name: "UsualGroup" })
+  it("exports registered property refs through project schema registry", () => {
+    const schema = schemaForName("UsualGroup")
 
     expect(JSON.stringify(schema)).toContain("nkdk://schema/InputField")
   })

@@ -1,6 +1,6 @@
 import { describe, expect, it } from "vitest"
-import { importMetadataItemFromXML } from "~/metadata/orchestration"
-import { mockContextFromXML } from "~/tests/mockContext"
+import { importMetadataItemFromXML } from "../../orchestration"
+import { mockContextFromXML } from "../../../tests/mockContext"
 import { MetadataTaskAddressingAttributeRules } from "./rules"
 import { MetadataTaskAddressingAttribute } from "./types"
 

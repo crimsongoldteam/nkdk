@@ -1,6 +1,6 @@
-import { ConfigurationContextWithExportToXML } from "~/metadata/context/types"
-import { ExportToXMLFunctionNew } from "~/metadata/orchestration/property/fn"
-import { exportMetadataItemToXML } from "~/metadata/orchestration/metadataItem/toXML"
+import { ConfigurationContextWithExportToXML } from "../../../context/types"
+import { ExportToXMLFunctionNew } from "../../../orchestration/property/fn"
+import { exportMetadataItemToXML } from "../../../orchestration/metadataItem/toXML"
 import { CalculatedFieldOrderExpressionItem } from "./types"
 import { CalculatedFieldOrderExpressionRules } from "./rules"
 

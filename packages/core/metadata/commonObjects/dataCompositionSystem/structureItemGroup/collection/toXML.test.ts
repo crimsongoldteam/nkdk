@@ -1,5 +1,5 @@
 import { describe, expect, it } from "vitest"
-import { testExportPropertyToXML } from "~/tests/property/exportPropertyToXML"
+import { testExportPropertyToXML } from "../../../../../tests/property/exportPropertyToXML"
 import { fixtureGroupItemAuto } from "../items/groupItemAuto/__fixtures__/data"
 import { dynamicListGroupItemFieldUseFalse } from "../items/groupItemField/__fixtures__/data"
 import "./index"

@@ -1,4 +1,4 @@
-import { syncConfigurationFromXML } from "@nakidka/core"
+import { syncConfigurationFromXML } from "@nkdk/core"
 
 export const importConfiguration = async (
   xmlDir: string,

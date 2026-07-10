@@ -1,5 +1,5 @@
-import { ConfigurationContextFromXML } from "~/metadata/context/types"
-import { importPropertyFromXML, PropertyRule, registerTypeRule } from "~/metadata/orchestration"
+import { ConfigurationContextFromXML } from "../../../../context/types"
+import { importPropertyFromXML, PropertyRule, registerTypeRule } from "../../../../orchestration"
 import { StructureItemGroupRegistry } from "./registry"
 import { StructureItemGroupCollection } from "./types"
 

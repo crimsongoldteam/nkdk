@@ -1,14 +1,18 @@
 import { describe, expect, it } from "vitest"
-import { exportMetadataItemToXML } from "~/metadata/orchestration"
-import { testExportAppliedObjectToXML, testImportAppliedObjectFromXML } from "~/tests/appliedObject"
-import { mockContextToXML } from "~/tests/mockContext"
-import { xmlExport } from "~/xml/export/exporter"
+import { exportMetadataItemToXML } from "../../orchestration"
+import { testExportAppliedObjectToXML, testImportAppliedObjectFromXML } from "../../../tests/appliedObject"
+import { mockContextToXML } from "../../../tests/mockContext"
+import { xmlExport } from "../../../xml/export/exporter"
 import { full } from "./__fixtures__/full"
 import { minimal } from "./__fixtures__/minimal"
 import { MetadataEventSubscriptionRules } from "./rules"
 import { MetadataEventSubscription } from "./types"
 
-const normalizeLineEndings = (value: string) => value.replace(/^\uFEFF/, "").replace(/\r\n/g, "\n").trimEnd()
+const normalizeLineEndings = (value: string) =>
+  value
+    .replace(/^\uFEFF/, "")
+    .replace(/\r\n/g, "\n")
+    .trimEnd()
 
 describe("import MetadataEventSubscription from XML", () => {
   it("should import full", () => {
@@ -31,23 +35,20 @@ describe("import MetadataEventSubscription from XML", () => {
     ).toEqual(minimal)
   })
 
-  it.each(["full.xml", "minimal.xml"])(
-    "round-trip: %s — import затем export совпадает с исходным XML",
-    (fixture) => {
-      const data = testImportAppliedObjectFromXML<MetadataEventSubscription>({
-        rule: MetadataEventSubscriptionRules,
-        importMetaUrl: import.meta.url,
-        fixture,
-      })
-      const { result, expected } = testExportAppliedObjectToXML({
-        rule: MetadataEventSubscriptionRules,
-        importMetaUrl: import.meta.url,
-        fixture,
-        data: data!,
-      })
-      expect(normalizeLineEndings(result)).toEqual(normalizeLineEndings(expected))
-    }
-  )
+  it.each(["full.xml", "minimal.xml"])("round-trip: %s — import затем export совпадает с исходным XML", (fixture) => {
+    const data = testImportAppliedObjectFromXML<MetadataEventSubscription>({
+      rule: MetadataEventSubscriptionRules,
+      importMetaUrl: import.meta.url,
+      fixture,
+    })
+    const { result, expected } = testExportAppliedObjectToXML({
+      rule: MetadataEventSubscriptionRules,
+      importMetaUrl: import.meta.url,
+      fixture,
+      data: data!,
+    })
+    expect(normalizeLineEndings(result)).toEqual(normalizeLineEndings(expected))
+  })
 
   it.each([
     ["source-typeset.xml", '<Source xsi:type="v8:TypeSet">'],

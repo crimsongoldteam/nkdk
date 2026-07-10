@@ -1,4 +1,4 @@
-import { TypeDescriptionRules } from "~/metadata/commonObjects/typeDescription/types"
+import { TypeDescriptionRules } from "../commonObjects/typeDescription/types"
 import { ConfigurationContext } from "../context/types"
 import { SystemEnumerationDcsValueRootXML } from "./dcsTypes"
 import { SystemEnumerationPropertyRule } from "./types"

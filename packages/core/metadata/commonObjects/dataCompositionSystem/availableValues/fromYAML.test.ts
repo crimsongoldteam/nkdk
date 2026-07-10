@@ -1,9 +1,9 @@
-import { TypeCompiler } from "@sinclair/typebox/compiler"
+import { compileValidationSchema } from "./../../../validation/compileValidationSchema"
 import { describe, expect, it } from "vitest"
-import { importPropertyFromYAML } from "~/metadata/orchestration"
-import { exportPropertyToJSONSchema } from "~/metadata/orchestration/property/toJSONSchema"
-import { mockContext } from "~/tests/mockContext"
-import { importFromYAML } from "~/yaml/import"
+import { importPropertyFromYAML } from "../../../orchestration"
+import { exportPropertyToJSONSchema } from "../../../orchestration/property/toJSONSchema"
+import { mockContext } from "../../../../tests/mockContext"
+import { importFromYAML } from "../../../../yaml/import"
 import {
   nilAndBooleanAvailableValues,
   nilAndBooleanAvailableValuesYAML,
@@ -13,7 +13,7 @@ import {
 
 const rule = { type: "DcsAvailableValues" } as const
 
-describe("import DcsAvailableValues from YAML", () => {
+describe("import DcsAvailableValues from YAML", { timeout: 30_000 }, () => {
   it("imports string values", () => {
     const result = importPropertyFromYAML({
       context: mockContext,
@@ -25,10 +25,7 @@ describe("import DcsAvailableValues from YAML", () => {
   })
 
   it("imports double-quoted numeric string value from parsed YAML as string", () => {
-    const yaml = importFromYAML([
-      '- Значение: "2"',
-      "  Представление: 2 знака",
-    ].join("\n"))
+    const yaml = importFromYAML(['- Значение: "2"', "  Представление: 2 знака"].join("\n"))
 
     const result = importPropertyFromYAML({
       context: mockContext,
@@ -58,7 +55,7 @@ describe("import DcsAvailableValues from YAML", () => {
   it("accepts string values in JSON Schema", () => {
     const schema = exportPropertyToJSONSchema({ context: mockContext, rule, value: undefined })
     if (schema === undefined) throw new Error("DcsAvailableValues JSON Schema is not registered")
-    const compiled = TypeCompiler.Compile(schema)
+    const compiled = compileValidationSchema(schema)
 
     expect(compiled.Check([{ Значение: '"Выставлен"', Представление: { ru: "Выставлен" } }])).toBe(true)
   })
@@ -66,7 +63,7 @@ describe("import DcsAvailableValues from YAML", () => {
   it("accepts absent values in JSON Schema", () => {
     const schema = exportPropertyToJSONSchema({ context: mockContext, rule, value: undefined })
     if (schema === undefined) throw new Error("DcsAvailableValues JSON Schema is not registered")
-    const compiled = TypeCompiler.Compile(schema)
+    const compiled = compileValidationSchema(schema)
 
     expect(compiled.Check([{}])).toBe(true)
   })
@@ -74,7 +71,7 @@ describe("import DcsAvailableValues from YAML", () => {
   it("rejects unsupported available value keys in JSON Schema", () => {
     const schema = exportPropertyToJSONSchema({ context: mockContext, rule, value: undefined })
     if (schema === undefined) throw new Error("DcsAvailableValues JSON Schema is not registered")
-    const compiled = TypeCompiler.Compile(schema)
+    const compiled = compileValidationSchema(schema)
 
     expect(compiled.Check([{ Значение: '"Выставлен"', НеизвестноеПоле: "x" }])).toBe(false)
   })

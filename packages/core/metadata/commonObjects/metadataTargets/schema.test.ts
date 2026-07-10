@@ -1,6 +1,6 @@
+import { compileValidationSchema } from "./../../validation/compileValidationSchema"
 import { describe, expect, it } from "vitest"
-import { TypeCompiler } from "@sinclair/typebox/compiler"
-import type { TSchema } from "@sinclair/typebox"
+import type { TSchema } from "typebox"
 import { buildMetadataTargetSchema } from "./index"
 
 describe("buildMetadataTargetSchema", () => {
@@ -83,9 +83,7 @@ describe("buildMetadataTargetSchema", () => {
 
     expect(schema).toMatchObject({
       type: "string",
-      examples: [
-        "Справочник.ИмяСправочника.Реквизит.ИмяРеквизита",
-      ],
+      examples: ["Справочник.ИмяСправочника.Реквизит.ИмяРеквизита"],
     })
     expect(String(schema.description)).toContain("Полный путь члена объекта")
   })
@@ -110,14 +108,9 @@ describe("buildMetadataTargetSchema", () => {
       memberKinds: ["Attribute", "StandardAttribute"],
     })
 
-    expect(schema.examples).toEqual([
-      "Справочник.ИмяСправочника.Реквизит.ИмяРеквизита",
-    ])
+    expect(schema.examples).toEqual(["Справочник.ИмяСправочника.Реквизит.ИмяРеквизита"])
     expectMatches(schema, "Справочник.ИмяСправочника.Реквизит.ИмяРеквизита")
-    expectMatches(
-      schema,
-      "Справочник.ИмяСправочника.ТабличнаяЧасть.ИмяТабличнойЧасти.Реквизит.ИмяРеквизита"
-    )
+    expectMatches(schema, "Справочник.ИмяСправочника.ТабличнаяЧасть.ИмяТабличнойЧасти.Реквизит.ИмяРеквизита")
     expectNotMatches(schema, "Справочник.ИмяСправочника.ТабличнаяЧасть.ИмяТабличнойЧасти")
   })
 
@@ -131,10 +124,7 @@ describe("buildMetadataTargetSchema", () => {
 
     expect(schema).toMatchObject({
       type: "string",
-      examples: [
-        "Справочник.ИмяСправочника.ИмяПредопределенногоЗначения",
-        "Справочник.ИмяСправочника.ПустаяСсылка",
-      ],
+      examples: ["Справочник.ИмяСправочника.ИмяПредопределенногоЗначения", "Справочник.ИмяСправочника.ПустаяСсылка"],
     })
     expect(String(schema.description)).toContain("<ИмяСправочника>")
   })
@@ -275,7 +265,11 @@ describe("buildMetadataTargetSchema", () => {
 
   it("accepts opaque multiple-value form data paths only when explicitly allowed", () => {
     const strictSchema = buildMetadataTargetSchema({ kind: "dataPath", context: "form" })
-    const opaqueSchema = buildMetadataTargetSchema({ kind: "dataPath", context: "form", allowOpaqueMultipleValue: true })
+    const opaqueSchema = buildMetadataTargetSchema({
+      kind: "dataPath",
+      context: "form",
+      allowOpaqueMultipleValue: true,
+    })
     const opaquePath = "1/0:796f500f-c364-45d1-bce6-9e7e8e15b664"
 
     expectNotMatches(strictSchema, opaquePath)
@@ -284,7 +278,7 @@ describe("buildMetadataTargetSchema", () => {
 
   it("builds local member schema for single current-owner member kind", () => {
     const schema = buildMetadataTargetSchema({ kind: "member", owner: "this", memberKinds: ["Form"] })
-    const compiled = TypeCompiler.Compile(schema)
+    const compiled = compileValidationSchema(schema)
 
     expect(compiled.Check("ФормаДокумента")).toBe(true)
     expect(compiled.Check("Document.АвансовыйОтчет.Form.ФормаДокумента")).toBe(true)
@@ -294,7 +288,7 @@ describe("buildMetadataTargetSchema", () => {
 
   it("keeps member kind in schema when several current-owner member kinds are allowed", () => {
     const schema = buildMetadataTargetSchema({ kind: "member", owner: "this", memberKinds: ["Form", "Template"] })
-    const compiled = TypeCompiler.Compile(schema)
+    const compiled = compileValidationSchema(schema)
 
     expect(compiled.Check("Форма.ФормаДокумента")).toBe(true)
     expect(compiled.Check("Макет.ПечатнаяФорма")).toBe(true)
@@ -303,15 +297,20 @@ describe("buildMetadataTargetSchema", () => {
 
   it("accepts current-owner members through tabular sections", () => {
     const schema = buildMetadataTargetSchema({ kind: "member", owner: "this", memberKinds: ["Attribute"] })
-    const compiled = TypeCompiler.Compile(schema)
+    const compiled = compileValidationSchema(schema)
 
     expect(compiled.Check("ТабличнаяЧасть.Товары.Реквизит.Номенклатура")).toBe(true)
     expect(compiled.Check("Document.АвансовыйОтчет.TabularSection.Товары.Attribute.Номенклатура")).toBe(true)
   })
 
   it("keeps root constraints for current-owner compatible model member paths", () => {
-    const schema = buildMetadataTargetSchema({ kind: "member", owner: "this", roots: ["Document"], memberKinds: ["Form"] })
-    const compiled = TypeCompiler.Compile(schema)
+    const schema = buildMetadataTargetSchema({
+      kind: "member",
+      owner: "this",
+      roots: ["Document"],
+      memberKinds: ["Form"],
+    })
+    const compiled = compileValidationSchema(schema)
 
     expect(compiled.Check("Document.АвансовыйОтчет.Form.ФормаДокумента")).toBe(true)
     expect(compiled.Check("Catalog.АвансовыйОтчет.Form.ФормаДокумента")).toBe(false)
@@ -324,7 +323,7 @@ describe("buildMetadataTargetSchema", () => {
       roots: ["Document"],
       memberKinds: ["Attribute"],
     })
-    const compiled = TypeCompiler.Compile(schema)
+    const compiled = compileValidationSchema(schema)
 
     expect(compiled.Check("Document.АвансовыйОтчет.Attribute.Организация")).toBe(true)
     expect(compiled.Check("Catalog.АвансовыйОтчет.Attribute.Организация")).toBe(false)

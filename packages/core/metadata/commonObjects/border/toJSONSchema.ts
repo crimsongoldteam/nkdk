@@ -1,5 +1,5 @@
-import { TSchema } from "@sinclair/typebox"
-import { ExportToJSONSchemaFn, registerTypeRule } from "~/metadata/orchestration"
+import { TSchema } from "typebox"
+import { ExportToJSONSchemaFn, registerTypeRule } from "../../orchestration"
 import { BorderJSONSchema } from "./types"
 
 export const exportBorderToJSONSchema: ExportToJSONSchemaFn = (): TSchema => {

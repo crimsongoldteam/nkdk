@@ -1,10 +1,10 @@
 import fs from "fs"
 import { join } from "path"
-import "~/metadata/commonObjects"
-import { ConfigurationContext, ConfigurationContextFromXML, ExternalFileEntry } from "~/metadata/context/types"
-import { exportClientApplicationFormToYAML } from "~/metadata/forms/clientApplicationForm/toYAML"
-import importContentFromXML from "~/xml/import/importer"
-import { exportToYAML } from "~/yaml/export"
+import "../../commonObjects"
+import { ConfigurationContext, ConfigurationContextFromXML, ExternalFileEntry } from "../../context/types"
+import { exportClientApplicationFormToYAML } from "./toYAML"
+import importContentFromXML from "../../../xml/import/importer"
+import { exportToYAML } from "../../../yaml/export"
 import { copyFormItemExternalFilesFromXML } from "./externalItemFiles"
 import { copyExistingRawFile, copyRawDirectoryFiles } from "./externalRawFiles"
 import { importClientApplicationFormFromXML } from "./fromXML"
@@ -29,7 +29,7 @@ export const convertFormFromXML = async (params: {
   const { formXML, hasFormBin } = await readFormBodyFromXML({ inputDir, formName, metadataXML })
   const form = parseFormFromXML({ context, formXML, metadataXML })
 
-  const { yaml, externalFiles } = await convertFormToYAML({ context, form })
+  const { yaml, externalFiles } = await convertFormToYAML({ context, form, formName })
 
   await writeFormToYAML({ formYAML: yaml, externalFiles, formName, outputDir })
   if (hasFormBin) {
@@ -170,10 +170,11 @@ function parseFormFromXML(params: {
 const convertFormToYAML = async (params: {
   context: ConfigurationContext
   form: ClientApplicationForm
+  formName: string
 }): Promise<ReadFormFromXMLResult> => {
-  const { context, form } = params
+  const { context, form, formName } = params
 
-  const { yaml: yamlObj, externalFiles } = exportClientApplicationFormToYAML(context, form)
+  const { yaml: yamlObj, externalFiles } = exportClientApplicationFormToYAML(context, { ...form, name: formName })
   const yaml = yamlObj != null ? exportToYAML(yamlObj) : undefined
 
   return { yaml, externalFiles }

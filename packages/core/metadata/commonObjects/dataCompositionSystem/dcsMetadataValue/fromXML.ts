@@ -1,24 +1,24 @@
-import { importColorFromXML } from "~/metadata/commonObjects/color/fromXML"
-import { importFontFromXML } from "~/metadata/commonObjects/font/fromXML"
-import { FontXML } from "~/metadata/commonObjects/font/types"
-import { importFormattedI8nTextFromXML } from "~/metadata/commonObjects/formattedI8nText/fromXML"
-import { FormattedI8nTextXML } from "~/metadata/commonObjects/formattedI8nText/types"
-import { importI8nTextFromXML } from "~/metadata/commonObjects/i8nText/fromXML"
-import { I8nTextXML } from "~/metadata/commonObjects/i8nText/types"
-import { importMetadataValueFromXML } from "~/metadata/commonObjects/metadataValue/fromXML"
-import { MetadataValueTypeFromXML, MetadataValueTypeXML } from "~/metadata/commonObjects/metadataValue/types"
-import { importFromDcsXML as importTypeLinkFromDcsXML } from "~/metadata/commonObjects/typeLink/fromDcsXML"
-import { TypeLinkDcsValueRootXML } from "~/metadata/commonObjects/typeLink/types"
-import { importChoiceParameterLinksFromDcsXML } from "~/metadata/commonObjects/сhoiceParameterLinks/fromDcsXML"
-import { ChoiceParameterLinkDcsValueRootXML } from "~/metadata/commonObjects/сhoiceParameterLinks/types"
-import { importChoiceParameterFromDcsXML } from "~/metadata/commonObjects/сhoiceParameters/fromDcsXML"
-import { ChoiceParameterDcsValueRootXML } from "~/metadata/commonObjects/сhoiceParameters/types"
-import { PropertyRule } from "~/metadata/orchestration/property/types"
-import { registerTypeRule } from "~/metadata/orchestration/property/typeRuleRegistry"
-import { SystemEnumerationDcsValueRootXML } from "~/metadata/systemEnumerations/dcsTypes"
-import { importSystemEnumerationFromDcsXML } from "~/metadata/systemEnumerations/fromDcsXML"
-import * as SystemEnumerations from "~/metadata/systemEnumerations/types"
-import type { SystemEnumerationPropertyRule, SystemEnumerationTypeMap } from "~/metadata/systemEnumerations/types"
+import { importColorFromXML } from "../../color/fromXML"
+import { importFontFromXML } from "../../font/fromXML"
+import { FontXML } from "../../font/types"
+import { importFormattedI8nTextFromXML } from "../../formattedI8nText/fromXML"
+import { FormattedI8nTextXML } from "../../formattedI8nText/types"
+import { importI8nTextFromXML } from "../../i8nText/fromXML"
+import { I8nTextXML } from "../../i8nText/types"
+import { importMetadataValueFromXML } from "../../metadataValue/fromXML"
+import { MetadataValueTypeFromXML, MetadataValueTypeXML } from "../../metadataValue/types"
+import { importFromDcsXML as importTypeLinkFromDcsXML } from "../../typeLink/fromDcsXML"
+import { TypeLinkDcsValueRootXML } from "../../typeLink/types"
+import { importChoiceParameterLinksFromDcsXML } from "../../сhoiceParameterLinks/fromDcsXML"
+import { ChoiceParameterLinkDcsValueRootXML } from "../../сhoiceParameterLinks/types"
+import { importChoiceParameterFromDcsXML } from "../../сhoiceParameters/fromDcsXML"
+import { ChoiceParameterDcsValueRootXML } from "../../сhoiceParameters/types"
+import type { PropertyRule } from "../../../orchestration/property/types"
+import { registerTypeRule } from "../../../orchestration/property/typeRuleRegistry"
+import { SystemEnumerationDcsValueRootXML } from "../../../systemEnumerations/dcsTypes"
+import { importSystemEnumerationFromDcsXML } from "../../../systemEnumerations/fromDcsXML"
+import * as SystemEnumerations from "../../../systemEnumerations/types"
+import type { SystemEnumerationPropertyRule, SystemEnumerationTypeMap } from "../../../systemEnumerations/types"
 import { ConfigurationContextFromXML } from "../../../context/types"
 import {
   DcsMetadataValuePropertyRule,
@@ -194,17 +194,13 @@ const importDcsMetadataValueFromDcsXMLInternal = (
   }
 
   if (xsi === "v8:LocalFormattedStringType") {
-    const formatted = importFormattedI8nTextFromXML(
-      context,
-      { type: "FormattedI8nText" },
-      {
-        _formatted: (root as Record<string, unknown>)["v8:formatted"] as never,
-        "v8:item":
-          (root as Record<string, unknown>)["v8:lws"] !== undefined
-            ? ((root as Record<string, unknown>)["v8:lws"] as Record<string, unknown>)["v8:item"]
-            : undefined,
-      } as FormattedI8nTextXML
-    )
+    const formatted = importFormattedI8nTextFromXML(context, { type: "FormattedI8nText" }, {
+      _formatted: (root as Record<string, unknown>)["v8:formatted"] as never,
+      "v8:item":
+        (root as Record<string, unknown>)["v8:lws"] !== undefined
+          ? ((root as Record<string, unknown>)["v8:lws"] as Record<string, unknown>)["v8:item"]
+          : undefined,
+    } as FormattedI8nTextXML)
 
     if (formatted === undefined) {
       throw new Error("DCS MetadataValue: invalid LocalFormattedStringType")
@@ -234,7 +230,9 @@ const importDcsMetadataValueFromDcsXMLInternal = (
   const undefinedTypePrefix = getUndefinedTypePrefix(root)
   if (undefinedTypePrefix !== undefined && shouldImportUndefinedTypeAsMissing(rule)) {
     if (context.fromXML.forReference) {
-      return asReferenceUndefinedTypeValueXML(root, undefinedTypePrefix) as unknown as MetadataDcsMetadataValue | undefined
+      return asReferenceUndefinedTypeValueXML(root, undefinedTypePrefix) as unknown as
+        | MetadataDcsMetadataValue
+        | undefined
     }
 
     return undefined

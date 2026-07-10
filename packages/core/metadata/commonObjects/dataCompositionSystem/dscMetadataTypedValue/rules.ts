@@ -1,9 +1,8 @@
-import { Static } from "@sinclair/typebox"
 import {
   ConfigurationContext,
   ConfigurationContextFromXML,
   ConfigurationContextWithExportToXML,
-} from "~/metadata/context/types"
+} from "../../../context/types"
 import { importMetadataFieldStringFromYAML, importMetadataValueStringFromYAML } from "../../metadataPath/fromYAML"
 import { exportMetadataFieldStringToYAML, exportMetadataValueStringToYAML } from "../../metadataPath/toYAML"
 import { importMetadataValueFromXML } from "../../metadataValue/fromXML"
@@ -16,7 +15,7 @@ import { exportStandartBeginningDateToXML } from "../../standartBeginningDate/to
 import { exportStandartBeginningDateToYAML } from "../../standartBeginningDate/toYAML"
 import {
   StandartBeginningDate,
-  StandartBeginningDateJSONSchema,
+  type StandartBeginningDateYAML,
   StandartBeginningDateXML,
 } from "../../standartBeginningDate/types"
 import {
@@ -219,9 +218,7 @@ const assertEmptyValueListXML = (xml: DcsMetadataTypedValueXML): void => {
   const lastIdText =
     typeof lastId === "object" && lastId !== null ? String((lastId as Record<string, unknown>)["#text"]) : undefined
   const lastIdType =
-    typeof lastId === "object" && lastId !== null
-      ? String((lastId as Record<string, unknown>)["_xsi:type"])
-      : undefined
+    typeof lastId === "object" && lastId !== null ? String((lastId as Record<string, unknown>)["_xsi:type"]) : undefined
 
   if (!isEmptyValueType(valueType) || lastIdText !== "-1" || lastIdType !== "xs:decimal") {
     throw new Error("DcsMetadataTypedValue XML: unsupported non-empty v8:ValueListType")
@@ -237,7 +234,7 @@ type MetadataValueRule = { type: "MetadataValue"; valueType: [PrimitiveDcsType] 
 const isStringYAML = (yaml: DcsMetadataTypedValueYAML): yaml is string => typeof yaml === "string"
 const isStandardBeginningDateYAML = (
   yaml: DcsMetadataTypedValueYAML
-): yaml is Static<typeof StandartBeginningDateJSONSchema> =>
+): yaml is StandartBeginningDateYAML =>
   typeof yaml === "object" && yaml !== null && !Array.isArray(yaml) && "Вариант" in yaml
 
 const yamlDateTimeToXMLDateTime = (value: string): string => {

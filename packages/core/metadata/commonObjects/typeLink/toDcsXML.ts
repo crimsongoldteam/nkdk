@@ -1,6 +1,6 @@
-import { PropertyRule } from "~/metadata/orchestration/property/types"
+import type { PropertyRule } from "../../orchestration/property/types"
 import { ConfigurationContext } from "../../context/types"
-import { TypeLink, TypeLinkDcsValueRootXML } from "./types"
+import type { TypeLink, TypeLinkDcsValueRootXML } from "./types"
 
 export const exportToDcsXML = (
   _context: ConfigurationContext,

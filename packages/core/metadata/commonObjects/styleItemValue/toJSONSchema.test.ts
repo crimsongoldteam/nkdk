@@ -1,8 +1,8 @@
-import { TypeCompiler } from "@sinclair/typebox/compiler"
+import { compileValidationSchema } from "./../../validation/compileValidationSchema"
 import { describe, expect, it } from "vitest"
-import { getTypeRule, type PropertyRule } from "~/metadata/orchestration"
-import { registerCoreMetadata } from "~/metadata/register"
-import { mockContext } from "~/tests/mockContext"
+import { getTypeRule, type PropertyRule } from "../../orchestration"
+import { registerCoreMetadata } from "../../register"
+import { mockContext } from "../../../tests/mockContext"
 
 registerCoreMetadata()
 
@@ -18,7 +18,7 @@ describe("StyleItemValue exportToJSONSchema", () => {
     expect(schema).toBeDefined()
     if (schema === undefined) throw new Error("StyleItemValue JSON schema is not registered")
 
-    return TypeCompiler.Compile(schema)
+    return compileValidationSchema(schema)
   }
 
   it("accepts supported style item value kinds", () => {

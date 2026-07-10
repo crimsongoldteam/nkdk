@@ -1,6 +1,6 @@
 import { describe, expect, it } from "vitest"
-import { importPropertyFromYAML } from "~/metadata/orchestration"
-import { mockContext, mockRule } from "~/tests/mockContext"
+import { importPropertyFromYAML } from "../../orchestration"
+import { mockContext, mockRule } from "../../../tests/mockContext"
 import { importMetadataItemLinkFromYAML, importMetadataItemLinksFromYAML } from "./fromYAML"
 
 describe("importMetadataItemLinkFromYAML", () => {
@@ -72,10 +72,7 @@ describe("importMetadataItemLinkFromYAML", () => {
 
 describe("importMetadataItemLinksFromYAML", () => {
   it("should keep user-defined item names that match metadata type aliases literal", () => {
-    const result = importMetadataItemLinksFromYAML(mockContext, mockRule, [
-      "Справочник.ПланСчетов",
-      "Документ.Продажа",
-    ])
+    const result = importMetadataItemLinksFromYAML(mockContext, mockRule, ["Справочник.ПланСчетов", "Документ.Продажа"])
 
     expect(result).toEqual(["Catalog.ПланСчетов", "Document.Продажа"])
   })
@@ -101,8 +98,6 @@ describe("importMetadataItemLinksFromYAML", () => {
 
     expect(() =>
       importMetadataItemLinksFromYAML(mockContext, rule, ["Администратор", "ЛокальныйПуть.НачалоРаботы"])
-    ).toThrow(
-      'Неизвестный корень "ЛокальныйПуть"'
-    )
+    ).toThrow('Неизвестный корень "ЛокальныйПуть"')
   })
 })

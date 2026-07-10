@@ -19,6 +19,4 @@ export const minimal: MetadataReport = {
   explanation: { items: {} },
 }
 
-export const minimalYAML: MetadataReportYAML = {
-  Синоним: "Отчет по умолчанию",
-}
+export const minimalYAML: MetadataReportYAML = {}

@@ -1,7 +1,7 @@
 import { describe, expect, it } from "vitest"
-import { metadataValueFixtures } from "~/metadata/commonObjects/metadataValue/__fixtures__/data"
-import { mockContext } from "~/tests/mockContext"
-import { explicitYAMLString } from "~/yaml/explicitString"
+import { metadataValueFixtures } from "./__fixtures__/data"
+import { mockContext } from "../../../tests/mockContext"
+import { explicitYAMLString } from "../../../yaml/explicitString"
 import { importMetadataValueFromYAML } from "./fromYAML"
 import { MetadataFormChoiceListValueYAML, MetadataValueYAML } from "./types"
 
@@ -27,10 +27,14 @@ describe("importMetadataValueFromYAML", () => {
   })
 
   it("imports AccountType from explicit YAML", () => {
-    const result = importMetadataValueFromYAML(mockContext, { type: "MetadataValue" } as any, {
-      Тип: "ВидСчета",
-      Значение: "АктивноПассивный",
-    } as any)
+    const result = importMetadataValueFromYAML(
+      mockContext,
+      { type: "MetadataValue" } as any,
+      {
+        Тип: "ВидСчета",
+        Значение: "АктивноПассивный",
+      } as any
+    )
 
     expect(result).toEqual({ type: "AccountType", value: "ActivePassive" })
   })

@@ -1,3 +1,11 @@
+import type {
+  MetadataOperationChangedXmlFile,
+  MetadataOperationResult,
+  MigrationChainInvalidResult,
+  MigrationPlanItem,
+} from "@nkdk/core"
+import * as coreApi from "@nkdk/core"
+
 export interface SchemaSummaryOptions {
   requiredOnly?: boolean
   search?: string
@@ -22,7 +30,15 @@ export interface ConfigurationSyncFailure {
 
 export interface ConfigurationSyncResult {
   succeeded: number
+  changedXmlFiles?: MetadataOperationChangedXmlFile[]
+  migrationsApplied?: MigrationPlanItem[]
+  migrationChain?: MigrationChainInvalidResult
   failed: ConfigurationSyncFailure[]
+}
+
+export interface XmlSyncState {
+  version: 1
+  files: Record<string, string>
 }
 
 export interface MetadataProjectStructureNode {
@@ -79,7 +95,27 @@ export interface CoreApi {
     directoryPath?: string
     depth?: number
   }): MetadataProjectDirectoryStructure
-  validateProject(params: { projectDir: string; filePath?: string }): { diagnostics: Diagnostic[] }
+  createValidationWorkerPoolHandle(params?: { concurrency?: number }): {
+    validateProject(params: { projectDir: string; filePath?: string }): Promise<{ diagnostics: Diagnostic[] }>
+    close(): Promise<void>
+    size(): number
+  }
+  validateProject(params: { projectDir: string; filePath?: string }): Promise<{ diagnostics: Diagnostic[] }>
+  renameMetadataItem(params: {
+    projectDir: string
+    path: string
+    newName: string
+    allowWrite?: boolean
+  }): Promise<MetadataOperationResult>
+  deleteMetadataItem(params: {
+    projectDir: string
+    path: string
+    allowWrite?: boolean
+  }): Promise<MetadataOperationResult>
+  planSyncToXml(params: { inputDir: string; outputDir: string; referenceDir?: string }): Promise<
+    | { ok: true; mode: "plan"; migrationsToApply: MigrationPlanItem[] }
+    | MigrationChainInvalidResult
+  >
   syncConfigurationFromXML(params: {
     context: {
       defaultLanguage: "ru"
@@ -111,12 +147,34 @@ export interface CoreApi {
     outputDir: string
     referenceDir?: string
   }): Promise<ConfigurationSyncResult>
+  syncConfigurationIncrementallyToXML(params: {
+    context: {
+      defaultLanguage: "ru"
+      version: "2.20"
+      exportToYAML: { toTyped: false }
+      exportToXML: {
+        itemsTree: []
+        configDumpInfo: ConfigDumpInfo
+        version: "2.20"
+        context: {
+          forms: []
+          templates: []
+          parentName: ""
+          metadataForNumbering: []
+        }
+      }
+    }
+    inputDir: string
+    outputDir: string
+    referenceDir?: string
+  }): Promise<ConfigurationSyncResult>
+  readXmlSyncState(xmlDir: string): Promise<XmlSyncState | undefined>
+  initializeXmlSyncState(params: {
+    yamlDir: string
+    xmlDir: string
+  }): Promise<void>
 }
 
-const coreModuleUrl = new URL("../../core/index.ts", import.meta.url).href
-let cachedCoreApi: Promise<CoreApi> | undefined
-
 export function loadCoreApi(): Promise<CoreApi> {
-  cachedCoreApi ??= import(coreModuleUrl) as Promise<CoreApi>
-  return cachedCoreApi
+  return Promise.resolve(coreApi as CoreApi)
 }

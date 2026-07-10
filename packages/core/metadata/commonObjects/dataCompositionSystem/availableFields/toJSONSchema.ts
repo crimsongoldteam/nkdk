@@ -1,9 +1,9 @@
-import { TSchema, Type } from "@sinclair/typebox"
-import { BooleanJSONSchema } from "~/metadata/commonObjects/boolean/types"
-import { exportI8nTextToJSONSchema } from "~/metadata/commonObjects/i8nText/toJSONSchema"
-import { registerTypeRule } from "~/metadata/orchestration"
-import { ExportToJSONSchemaFn } from "~/metadata/orchestration/property/fn"
-import { exportSystemEnumerationToJSONSchema } from "~/metadata/systemEnumerations/toJSONSchema"
+import { TSchema, Type } from "typebox"
+import { BooleanJSONSchema } from "../../boolean/types"
+import { exportI8nTextToJSONSchema } from "../../i8nText/toJSONSchema"
+import { registerTypeRule } from "../../../orchestration"
+import { ExportToJSONSchemaFn } from "../../../orchestration/property/fn"
+import { exportSystemEnumerationToJSONSchema } from "../../../systemEnumerations/toJSONSchema"
 
 const requiredSchema = (schema: TSchema | undefined, name: string): TSchema => {
   if (schema === undefined) throw new Error(`${name} JSON schema is not registered`)

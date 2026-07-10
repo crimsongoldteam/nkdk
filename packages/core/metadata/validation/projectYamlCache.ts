@@ -1,6 +1,6 @@
 import fs from "fs"
 import { resolve } from "path"
-import { parseMetadataYaml, type ParsedYaml } from "~/yaml/parseMetadataYaml"
+import { parseMetadataYaml, type ParsedYaml } from "../../yaml/parseMetadataYaml"
 
 export interface ProjectYamlEntry {
   filePath: string
@@ -35,6 +35,25 @@ export function createProjectYamlCache(): ProjectYamlCache {
       if (cached === undefined || "error" in cached) return
 
       entries.delete(absolutePath)
+    },
+  }
+}
+
+export function createProjectYamlCacheFromEntries(entries: readonly ProjectYamlEntry[]): ProjectYamlCache {
+  const byPath = new Map(entries.map((entry) => [resolve(entry.filePath), entry]))
+
+  return {
+    get(filePath) {
+      const absolutePath = resolve(filePath)
+      const entry = byPath.get(absolutePath)
+      if (entry) return entry
+      return {
+        filePath: absolutePath,
+        error: new Error(`YAML-файл отсутствует в validation snapshot: ${absolutePath}`),
+      }
+    },
+    release() {
+      // Snapshot entries live for the whole validation pass.
     },
   }
 }

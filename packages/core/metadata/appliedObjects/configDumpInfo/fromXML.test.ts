@@ -1,7 +1,7 @@
 import { describe, expect, it } from "vitest"
-import { idMap } from "~/metadata/appliedObjects/configDumpInfo/__fixtures__/data"
-import { mockContext } from "~/tests/mockContext"
-import { readAndParseXMLFile } from "~/tests/readAndParseXMLFile"
+import { idMap } from "./__fixtures__/data"
+import { mockContext } from "../../../tests/mockContext"
+import { readAndParseXMLFile } from "../../../tests/readAndParseXMLFile"
 import { importConfigDumpInfoFromXML } from "./fromXML"
 import type { ConfigDumpInfoXML } from "./types"
 

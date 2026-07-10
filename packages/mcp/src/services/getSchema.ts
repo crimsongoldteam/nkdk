@@ -12,11 +12,11 @@ export type GetSchemaPayload = ToolPayload<{
 }>
 
 export async function getSchema(input: GetSchemaInput): Promise<GetSchemaPayload> {
-  const core = await loadCoreApi()
-  const validationError = validateGetSchemaInput(input, core)
-  if (validationError !== undefined) return toolError("invalid_arguments", validationError)
-
   try {
+    const core = await loadCoreApi()
+    const validationError = validateGetSchemaInput(input, core)
+    if (validationError !== undefined) return toolError("invalid_arguments", validationError)
+
     const format = input.format ?? "summary"
     const mode = input.mode ?? "externalRefs"
     const schema = readSchema(input, mode, core)

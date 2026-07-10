@@ -1,15 +1,11 @@
-import {
-  ProgressBarField,
-  ProgressBarFieldEnterprise,
-  ProgressBarFieldPartialYAML,
-} from "~/metadata/forms/elements/progressBarField/types"
+import { ProgressBarField, ProgressBarFieldEnterprise, ProgressBarFieldPartialYAML } from "../types"
 
 import {
   fullFormFieldCommonFixture,
   fullFormFieldEnterpriseCommonFixture,
   fullFormFieldPartialYAMLCommonFixture,
-} from "~/metadata/forms/elements/__fixtures__/formField/rules"
-import { RequiredFieldsElement } from "~/tests/types"
+} from "../../__fixtures__/formField/rules"
+import { RequiredFieldsElement } from "../../../../../tests/types"
 
 export const fullProgressBarField = {
   itemType: "ProgressBarField",
@@ -76,7 +72,6 @@ export const fullProgressBarFieldPartialYAML: ProgressBarFieldPartialYAML = {
   Ориентация: "Вертикально",
   ОтображатьПроценты: "Истина",
   Отображение: "Прерывистый",
-  РастягиватьПоВертикали: "Ложь",
   РастягиватьПоГоризонтали: "Ложь",
   ЦветРамки: "Черный",
   Заголовок: "Поле индикатора",
@@ -86,10 +81,7 @@ export const fullProgressBarFieldPartialYAML: ProgressBarFieldPartialYAML = {
   },
 
   ...fullFormFieldPartialYAMLCommonFixture,
-} satisfies Omit<
-  Required<ProgressBarFieldPartialYAML>,
-  "Использование"
->
+}
 
 export const minimalProgressBarField: ProgressBarField = {
   itemType: "ProgressBarField",

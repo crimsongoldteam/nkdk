@@ -1,11 +1,11 @@
-import { Type } from "@sinclair/typebox"
-import { importBooleanFromXML } from "~/metadata/commonObjects/boolean/fromXML"
-import { importBooleanFromYAML } from "~/metadata/commonObjects/boolean/fromYAML"
-import { exportBooleanToYAML } from "~/metadata/commonObjects/boolean/toYAML"
-import { BooleanJSONSchema, StringboolYAML, StringboolXML } from "~/metadata/commonObjects/boolean/types"
-import { ExportToJSONSchemaFn, registerTypeRule } from "~/metadata/orchestration"
-import type { ConfigurationContext } from "~/metadata/context/types"
-import type { PropertyRule } from "~/metadata/orchestration/property/types"
+import { Type } from "typebox"
+import { importBooleanFromXML } from "../../commonObjects/boolean/fromXML"
+import { importBooleanFromYAML } from "../../commonObjects/boolean/fromYAML"
+import { exportBooleanToYAML } from "../../commonObjects/boolean/toYAML"
+import { BooleanJSONSchema, StringboolYAML, StringboolXML } from "../../commonObjects/boolean/types"
+import { ExportToJSONSchemaFn, registerTypeRule } from "../../orchestration"
+import type { ConfigurationContext } from "../../context/types"
+import type { PropertyRule } from "../../orchestration/property/types"
 
 export interface AllowedIncomingShareRequestType {
   mime: string
@@ -61,7 +61,7 @@ const normalizeArray = <T>(value: T | T[] | undefined): T[] => {
 
 const text = (value: TextXML | undefined): string => {
   if (value === undefined) return ""
-  return typeof value === "string" ? value : value["#text"] ?? ""
+  return typeof value === "string" ? value : (value["#text"] ?? "")
 }
 
 const decimal = (value: DecimalXML | undefined): number => {
@@ -143,26 +143,10 @@ export const exportAllowedIncomingShareRequestTypesToYAML = (
 export const exportAllowedIncomingShareRequestTypesToJSONSchema: ExportToJSONSchemaFn = () =>
   AllowedIncomingShareRequestTypesJSONSchema
 
-registerTypeRule(
-  "AllowedIncomingShareRequestTypes",
-  "importFromXML",
-  importAllowedIncomingShareRequestTypesFromXML
-)
-registerTypeRule(
-  "AllowedIncomingShareRequestTypes",
-  "exportToXML",
-  exportAllowedIncomingShareRequestTypesToXML
-)
-registerTypeRule(
-  "AllowedIncomingShareRequestTypes",
-  "importFromYAML",
-  importAllowedIncomingShareRequestTypesFromYAML
-)
-registerTypeRule(
-  "AllowedIncomingShareRequestTypes",
-  "exportToYAML",
-  exportAllowedIncomingShareRequestTypesToYAML
-)
+registerTypeRule("AllowedIncomingShareRequestTypes", "importFromXML", importAllowedIncomingShareRequestTypesFromXML)
+registerTypeRule("AllowedIncomingShareRequestTypes", "exportToXML", exportAllowedIncomingShareRequestTypesToXML)
+registerTypeRule("AllowedIncomingShareRequestTypes", "importFromYAML", importAllowedIncomingShareRequestTypesFromYAML)
+registerTypeRule("AllowedIncomingShareRequestTypes", "exportToYAML", exportAllowedIncomingShareRequestTypesToYAML)
 registerTypeRule(
   "AllowedIncomingShareRequestTypes",
   "exportToJSONSchema",

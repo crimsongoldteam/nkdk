@@ -6,11 +6,11 @@ import {
   keyFieldDynamicList,
   multipleCalculatedFieldsDynamicList,
   queryTextWithManualQueryFalseDynamicList,
-} from "~/metadata/forms/commonObjects/dynamicList/__fixtures__/data"
-import { importPropertyFromXML, PropertyRule } from "~/metadata/orchestration"
-import { mockContextFromXML } from "~/tests/mockContext"
-import { testExportPropertyToXML } from "~/tests/property/exportPropertyToXML"
-import { testImportPropertyFromXML } from "~/tests/property/importPropertyFromXML"
+} from "./__fixtures__/data"
+import { importPropertyFromXML, PropertyRule } from "../../../orchestration"
+import { mockContextFromXML } from "../../../../tests/mockContext"
+import { testExportPropertyToXML } from "../../../../tests/property/exportPropertyToXML"
+import { testImportPropertyFromXML } from "../../../../tests/property/importPropertyFromXML"
 
 const rule: PropertyRule = {
   type: "DynamicList",

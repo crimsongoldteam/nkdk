@@ -1,8 +1,8 @@
-import { getParentFromContext } from "~/metadata/context/helpers"
-import { ConfigurationContextWithExportToXML } from "~/metadata/context/types"
-import { MetadataCommandRules } from "~/metadata/appliedObjects/metadataCommand/rules"
-import { V8_MDCLASSES_ROOT } from "~/metadata/orchestration/appliedObject/presets"
-import { MetadataItemRule } from "~/metadata/orchestration/property/types"
+import { getParentFromContext } from "../../context/helpers"
+import { ConfigurationContextWithExportToXML } from "../../context/types"
+import { MetadataCommandRules } from "../../appliedObjects/metadataCommand/rules"
+import { V8_MDCLASSES_ROOT } from "../../orchestration/appliedObject/presets"
+import type { MetadataItemRule } from "../../orchestration/property/types"
 import { externalDataSourceObjectServiceProperties } from "../metadataExternalDataSourceField/rules"
 
 const properties = ["Properties"]
@@ -66,6 +66,7 @@ const dimensionTableProperties = {
     type: "I8nText",
     xmlParents: properties,
     defaultValueXMLRaw: "",
+    excludeIfEqualNameYAML: true,
   },
   comment: {
     yaml: "Комментарий",
@@ -252,6 +253,7 @@ const { xmlRoot: _xmlRoot, ...dimensionTableCollectionProperties } = dimensionTa
 
 export const MetadataExternalDataSourceDimensionTableRules = {
   itemType: "MetadataExternalDataSourceDimensionTable",
+  metadataTargetOwner: { kind: "resolver" },
   externalMetadata: { segment: "DimensionTable", placement: "ownedEntry" },
   properties: dimensionTableProperties,
   childCollections: [{ propertyKey: "commands", itemRule: MetadataExternalDataSourceDimensionTableCommandRules }],

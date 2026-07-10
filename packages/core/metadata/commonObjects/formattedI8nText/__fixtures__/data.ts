@@ -1,8 +1,5 @@
-import {
-  FormattedI8nText,
-  FormattedI8nTextValueYAML,
-} from "~/metadata/commonObjects/formattedI8nText/types"
-import { I8nText, I8nTextYAML } from "~/metadata/commonObjects/i8nText/types"
+import { FormattedI8nText, FormattedI8nTextValueYAML } from "../types"
+import { I8nText, I8nTextYAML } from "../../i8nText/types"
 
 export interface FormattedI8nTextFixture {
   name: string
@@ -187,12 +184,12 @@ export const formattedI8nTextFixtures: FormattedI8nTextFixture[] = [
   },
   {
     name: "with escaped content and formatted true",
-    text: { formatted: true, items: { ru: 'Тест экранирования: & < > " \' ]]>' } },
-    textFromStructure: { items: { ru: 'Тест экранирования: & < > " \' ]]>' } },
-    valueYAML: { Форматированный: "Истина", Текст: 'Тест экранирования: & < > " \' ]]>' },
+    text: { formatted: true, items: { ru: "Тест экранирования: & < > \" ' ]]>" } },
+    textFromStructure: { items: { ru: "Тест экранирования: & < > \" ' ]]>" } },
+    valueYAML: { Форматированный: "Истина", Текст: "Тест экранирования: & < > \" ' ]]>" },
     textYAML: undefined,
-    formattedTextYAML: 'Тест экранирования: & < > " \' ]]>',
-    defaultLanguageYAML: 'Тест экранирования: & < > " \' ]]>',
+    formattedTextYAML: "Тест экранирования: & < > \" ' ]]>",
+    defaultLanguageYAML: "Тест экранирования: & < > \" ' ]]>",
     otherLanguagesTextYAML: undefined,
     otherLanguagesFormattedTextYAML: undefined,
     xml: `<Title formatted="true">

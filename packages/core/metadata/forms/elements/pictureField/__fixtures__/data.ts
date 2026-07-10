@@ -6,7 +6,7 @@ import {
   TablePictureFieldEnterprise,
   TablePictureFieldPartialYAML,
   TablePictureFieldTypedYAML,
-} from "~/metadata/forms/elements/pictureField/types"
+} from "../types"
 
 import {
   fullFormFieldCommonFixture,
@@ -15,8 +15,8 @@ import {
   fullFormFieldPartialYAMLCommonFixture,
   fullFormFieldTableRelatedFixture,
   fullFormFieldTableRelatedPartialYAMLCommonFixture,
-} from "~/metadata/forms/elements/__fixtures__/formField/rules"
-import { RequiredFieldsElement } from "~/tests/types"
+} from "../../__fixtures__/formField/rules"
+import { RequiredFieldsElement } from "../../../../../tests/types"
 
 export const fullPictureField: RequiredFieldsElement<PictureField> = {
   itemType: "PictureField",

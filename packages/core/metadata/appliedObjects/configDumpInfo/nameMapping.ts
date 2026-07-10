@@ -1,4 +1,4 @@
-import type { MetadataItemRule } from "~/metadata/orchestration/property/types"
+import type { MetadataItemRule } from "../../orchestration/property/types"
 import { TopLevelMetadataItemRules } from "../configuration/topLevelRules"
 
 const CHILD_SEGMENT_TO_DUMP = new Map<string, string>([
@@ -11,10 +11,10 @@ const CHILD_SEGMENT_TO_DUMP = new Map<string, string>([
 
 const rootSegmentToDump = new Map(
   TopLevelMetadataItemRules.filter(
-    (rule): rule is MetadataItemRule & { itemTypePrefix: string } => rule.itemTypePrefix !== undefined,
+    (rule): rule is MetadataItemRule & { itemTypePrefix: string } => rule.itemTypePrefix !== undefined
   )
     .map((rule) => [rule.itemTypePrefix, getXMLRootContainer(rule)] as const)
-    .filter((entry): entry is readonly [string, string] => entry[1] !== undefined),
+    .filter((entry): entry is readonly [string, string] => entry[1] !== undefined)
 )
 
 const rootDumpSegments = new Set(rootSegmentToDump.values())
