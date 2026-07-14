@@ -2,6 +2,8 @@ import { dirname, join } from "path"
 import { MIGRATIONS_DIR, nextMigrationFileName } from "../appliedObjects/configuration/migrations"
 import { rootFromYAML } from "../commonObjects/metadataTargets/roots"
 import type { MetadataTargetOwner } from "../commonObjects/metadataTargets"
+import { prepareYamlProject } from "../project/preparedYamlProject"
+import { validateProject } from "../validation/validateProject"
 import {
   collectFormDataPathReferencesForItem,
   createOperationDataPathOwnerCache,
@@ -11,7 +13,7 @@ import { applyMetadataOperationFilePlan, type MetadataOperationFileStep } from "
 import { hasCaseInsensitiveConflict, validateMetadataLocalName } from "./nameRules"
 import { parseMetadataOperationPath } from "./operationPath"
 import {
-  buildMetadataOperationSnapshot,
+  buildMetadataOperationSnapshotFromPreparedProject,
   type MetadataOperationSnapshot,
   type OperationSnapshotItem,
 } from "./projectSnapshot"
@@ -27,8 +29,10 @@ import type {
   MetadataOperationMode,
   MetadataOperationReferenceChange,
   MetadataOperationResult,
+  MetadataOperationValidationFailed,
   RenameMetadataItemParams,
 } from "./types"
+import { defaultMetadataOperationsContext } from "./context"
 import { exportOperationItemToYamlText } from "./yamlModelIO"
 
 interface RenamePlan {
@@ -44,7 +48,19 @@ type StructuralReferenceRewriteResult =
   | { ok: false; code: "rule_contract_violation"; message: string }
 
 export async function renameMetadataItem(params: RenameMetadataItemParams): Promise<MetadataOperationResult> {
-  const snapshot = await buildMetadataOperationSnapshot({ projectDir: params.projectDir, requireValidProject: true })
+  const context = defaultMetadataOperationsContext()
+  const validation = await validateProject({ projectDir: params.projectDir, context, concurrency: 1 })
+  const errors = validation.diagnostics.filter((diagnostic) => diagnostic.severity === "error")
+  if (errors.length > 0) return validationFailure("YAML-проект содержит ошибки validation", errors)
+
+  const prepared = await prepareYamlProject({ projectDir: params.projectDir, context })
+  if (!prepared.ok) return validationFailure(prepared.message, prepared.diagnostics)
+
+  const snapshot = buildMetadataOperationSnapshotFromPreparedProject({
+    project: prepared.project,
+    context,
+    requireValidProject: true,
+  })
   if (!snapshot.ok) return snapshot
 
   const name = validateMetadataLocalName(params.newName)
@@ -95,6 +111,18 @@ export async function renameMetadataItem(params: RenameMetadataItemParams): Prom
   }
 
   return success("applied", plan, applied.changedFiles)
+}
+
+function validationFailure(
+  message: string,
+  diagnostics: MetadataOperationValidationFailed["diagnostics"]
+): MetadataOperationValidationFailed {
+  return {
+    ok: false,
+    code: "validation_failed",
+    message,
+    diagnostics,
+  }
 }
 
 function buildRenamePlan(params: {

@@ -2,7 +2,9 @@ import { mkdirSync, mkdtempSync, rmSync, writeFileSync } from "fs"
 import { tmpdir } from "os"
 import { join } from "path"
 import { afterEach, describe, expect, it } from "vitest"
-import { buildMetadataOperationSnapshot } from "./projectSnapshot"
+import { mockContext } from "../../tests/mockContext"
+import { prepareYamlProject } from "../project/preparedYamlProject"
+import { buildMetadataOperationSnapshot, buildMetadataOperationSnapshotFromPreparedProject } from "./projectSnapshot"
 
 describe("buildMetadataOperationSnapshot", () => {
   const tempDirs: string[] = []
@@ -52,5 +54,31 @@ describe("buildMetadataOperationSnapshot", () => {
       "Справочник/Товары/Свойства.yaml",
       "Справочник/Товары/Формы/ФормаЭлемента/Форма.yaml",
     ])
+  })
+
+  it("imports operation models from prepared YAML data without source text", async () => {
+    const projectDir = mkdtempSync(join(tmpdir(), "nkdk-operation-snapshot-"))
+    tempDirs.push(projectDir)
+    mkdirSync(join(projectDir, "Справочник", "Товары"), { recursive: true })
+    writeFileSync(join(projectDir, "Справочник", "Товары", "Свойства.yaml"), "{}\n")
+
+    const prepared = await prepareYamlProject({ projectDir, context: mockContext, concurrency: 1 })
+    expect(prepared.ok).toBe(true)
+    if (!prepared.ok) throw new Error(prepared.message)
+
+    const result = buildMetadataOperationSnapshotFromPreparedProject({
+      project: prepared.project,
+      context: mockContext,
+      requireValidProject: false,
+    })
+
+    expect(result.ok).toBe(true)
+    if (!result.ok) return
+    expect(result.items).toHaveLength(1)
+    expect(result.items[0]).toMatchObject({
+      projectPath: "Справочник/Товары/Свойства.yaml",
+      kind: "properties",
+    })
+    expect(result.items[0]?.parsed.text).toBe("")
   })
 })
