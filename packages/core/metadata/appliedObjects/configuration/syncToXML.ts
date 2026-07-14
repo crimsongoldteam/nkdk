@@ -212,6 +212,7 @@ export const syncConfigurationToXML = async (params: {
   const preparedYamlByProjectPath = new Map(
     prepared.project.workers.flatMap((worker) => worker.yamlFiles).map((file) => [file.projectPath, file])
   )
+  const preparedRootYaml = preparedYamlByProjectPath.get(CONFIGURATION_YAML_FILE)
   const xmlManifest = new XmlSyncManifest(outputDir)
   const tasks: BatchTask<void>[] = []
   const rootYAMLPath = join(inputDir, CONFIGURATION_YAML_FILE)
@@ -230,6 +231,7 @@ export const syncConfigurationToXML = async (params: {
       context: syncContext,
       inputDir,
       source: referenceConfiguration,
+      preparedYamlFile: preparedRootYaml,
     })
 
     writeConfigurationToXML({

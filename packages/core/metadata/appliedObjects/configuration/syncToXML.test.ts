@@ -158,6 +158,29 @@ describe("sync configuration to XML", () => {
     }
   })
 
+  it("передает подготовленный корневой YAML в sync без изменения результата", async () => {
+    const tmp = fs.mkdtempSync(join(os.tmpdir(), "nkdk-sync-prepared-root-"))
+    const yamlDir = join(tmp, "yaml")
+    const outDir = join(tmp, "out")
+
+    try {
+      fs.mkdirSync(join(yamlDir, "Справочник", "Товары"), { recursive: true })
+      fs.writeFileSync(join(yamlDir, CONFIGURATION_YAML_FILE), "Имя: Конфигурация\n", "utf-8")
+      fs.writeFileSync(join(yamlDir, "Справочник", "Товары", "Свойства.yaml"), "Имя: Товары\n", "utf-8")
+
+      const result = await syncConfigurationToXML({
+        context: mockContextToXML(),
+        inputDir: yamlDir,
+        outputDir: outDir,
+      })
+
+      expect(result.failed).toEqual([])
+      expect(fs.existsSync(join(outDir, CONFIGURATION_XML_FILE))).toBe(true)
+    } finally {
+      fs.rmSync(tmp, { recursive: true, force: true })
+    }
+  })
+
   it("сохраняет простые корневые внешние файлы конфигурации в XML", async () => {
     const tmp = fs.mkdtempSync(join(os.tmpdir(), "nkdk-root-external-to-xml-"))
     const yamlDir = join(tmp, "yaml")
