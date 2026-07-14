@@ -1,6 +1,7 @@
 import { resolve } from "node:path"
 import type { ConfigurationContext } from "../context/types"
 import type { Diagnostic } from "../validation/types"
+import { createPreparedYamlProjectWorkerPool } from "./preparedYamlProjectWorkerPool"
 import { discoverMetadataProjectResources } from "./resources"
 
 export interface PreparedYamlProject {
@@ -72,7 +73,6 @@ export async function prepareYamlProject(params: {
   concurrency?: number
 }): Promise<PreparedYamlProjectResult> {
   void params.context
-  void params.concurrency
 
   const projectDir = resolve(params.projectDir)
   const files = discoverMetadataProjectResources(projectDir)
@@ -85,15 +85,30 @@ export async function prepareYamlProject(params: {
         owner: { dir: resource.owner.dir, name: resource.owner.name },
       })
     )
+  const pool = createPreparedYamlProjectWorkerPool({ concurrency: Math.max(1, params.concurrency ?? 1) })
 
-  return {
-    ok: true,
-    project: {
-      projectDir,
-      files,
-      resourceFiles: [],
-      metadataIndex: { declarations: [] },
-      workers: [{ workerIndex: 0, yamlFiles: [], dependencyIndex: { dependencies: [] } }],
-    },
+  try {
+    const prepared = await pool.run(files)
+    if (prepared.diagnostics.length > 0) {
+      return {
+        ok: false,
+        code: "prepare_failed",
+        message: "Не удалось подготовить YAML-проект",
+        diagnostics: prepared.diagnostics,
+      }
+    }
+
+    return {
+      ok: true,
+      project: {
+        projectDir,
+        files,
+        resourceFiles: [],
+        metadataIndex: { declarations: [] },
+        workers: prepared.workers,
+      },
+    }
+  } finally {
+    await pool.close()
   }
 }

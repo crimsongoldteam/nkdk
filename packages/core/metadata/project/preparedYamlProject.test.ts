@@ -51,4 +51,20 @@ describe("prepareYamlProject", () => {
       },
     })
   })
+
+  it("keeps one partition per worker even when some workers receive no YAML files", async () => {
+    const projectDir = createProject()
+    const result = await prepareYamlProject({
+      projectDir,
+      context: { version: "2.20", defaultLanguage: "ru", exportToYAML: { toTyped: false } },
+      concurrency: 4,
+    })
+
+    expect(result.ok).toBe(true)
+    if (!result.ok) throw new Error(result.message)
+
+    expect(result.project.workers.map((worker) => worker.workerIndex)).toEqual([0, 1, 2, 3])
+    expect(result.project.workers.flatMap((worker) => worker.yamlFiles)).toHaveLength(1)
+    expect(result.project.workers.filter((worker) => worker.yamlFiles.length === 0).length).toBeGreaterThan(0)
+  })
 })
