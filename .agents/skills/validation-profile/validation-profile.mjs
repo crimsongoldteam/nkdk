@@ -73,9 +73,8 @@ function parseArgs(argv) {
 async function loadCompiledCore() {
   const distIndex = resolve(repoRoot, "packages/core/dist/index.js")
   const standalone = resolve(repoRoot, "packages/core/dist/projectValidationAjvStandalone.js")
-  const worker = resolve(repoRoot, "packages/core/dist/projectValidationWorker.js")
 
-  if (!existsSync(distIndex) || !existsSync(worker) || !existsSync(standalone)) {
+  if (!existsSync(distIndex) || !existsSync(standalone)) {
     fail(
       [
         "compiled validation files are missing.",

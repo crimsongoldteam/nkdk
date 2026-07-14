@@ -55,6 +55,7 @@ export function createPreparedYamlProjectWorkerPool(params: {
   const pools = new Map<number, PreparedWorkerPool>()
   const createPool = params.createWorkerPool ?? createWorkerPool
   const activeWorkerIndexes = new Set<number>()
+  const initializedValidationWorkerIndexes = new Set<number>()
   let validationStartProfile: ValidationWorkerPoolStartProfile | undefined
 
   return {
@@ -125,12 +126,15 @@ export function createPreparedYamlProjectWorkerPool(params: {
       }
     },
     async initValidation(context) {
-      if (validationStartProfile !== undefined) return { ...validationStartProfile, reused: true }
+      const indexesToInit = Array.from(activeWorkerIndexes).filter((index) => !initializedValidationWorkerIndexes.has(index))
+      if (indexesToInit.length === 0 && validationStartProfile !== undefined) {
+        return { ...validationStartProfile, reused: true }
+      }
 
       const rulesSnapshot = createValidationRulesSnapshot(context)
       const startedAt = performance.now()
       const results = await Promise.all(
-        Array.from(activeWorkerIndexes).map(async (index) => {
+        indexesToInit.map(async (index) => {
           const task = { kind: "initValidation", context, rulesSnapshot } satisfies PreparedYamlProjectWorkerTask
           const response =
             params.concurrency === 1 && params.createWorkerPool === undefined
@@ -141,13 +145,24 @@ export function createPreparedYamlProjectWorkerPool(params: {
         })
       )
 
-      validationStartProfile = {
+      for (const index of indexesToInit) initializedValidationWorkerIndexes.add(index)
+      const startProfile = {
         workerInitMs: performance.now() - startedAt,
         schemaCompileMs: results.reduce((sum, result) => sum + result.totalMs, 0),
         formSchemaMs: results.reduce((sum, result) => sum + result.formMs, 0),
         propertiesSchemaMs: results.reduce((sum, result) => sum + result.propertiesMs, 0),
         rulesSnapshotBytes: JSON.stringify(rulesSnapshot).length,
       }
+      validationStartProfile =
+        validationStartProfile === undefined
+          ? startProfile
+          : {
+              workerInitMs: validationStartProfile.workerInitMs + startProfile.workerInitMs,
+              schemaCompileMs: validationStartProfile.schemaCompileMs + startProfile.schemaCompileMs,
+              formSchemaMs: validationStartProfile.formSchemaMs + startProfile.formSchemaMs,
+              propertiesSchemaMs: validationStartProfile.propertiesSchemaMs + startProfile.propertiesSchemaMs,
+              rulesSnapshotBytes: startProfile.rulesSnapshotBytes,
+            }
       return validationStartProfile
     },
     async runValidationFirstPass(firstPassParams) {
@@ -212,6 +227,7 @@ export function createPreparedYamlProjectWorkerPool(params: {
       await Promise.all([...pools.values()].map((pool) => pool.destroy()))
       pools.clear()
       activeWorkerIndexes.clear()
+      initializedValidationWorkerIndexes.clear()
       validationStartProfile = undefined
     },
     size() {
