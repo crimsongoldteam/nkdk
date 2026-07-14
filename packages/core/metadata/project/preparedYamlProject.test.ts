@@ -54,6 +54,7 @@ describe("prepareYamlProject", () => {
           },
         },
       })
+      expect(JSON.stringify(result.project)).not.toContain("Реквизиты:")
     },
     testTimeout
   )
