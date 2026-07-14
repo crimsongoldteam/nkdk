@@ -2,6 +2,11 @@ import { mkdirSync, mkdtempSync, rmSync, writeFileSync } from "node:fs"
 import { tmpdir } from "node:os"
 import { join } from "node:path"
 import { afterEach, describe, expect, it } from "vitest"
+import {
+  getProjectValidationReadCountForTests,
+  resetProjectValidationReadCountForTests,
+} from "../validation/projectValidationPasses"
+import { createProjectYamlCacheFromPreparedFiles } from "../validation/projectYamlCache"
 import { prepareYamlProject } from "./preparedYamlProject"
 import {
   createPreparedYamlProjectWorkerPool,
@@ -106,6 +111,26 @@ describe("prepareYamlProject", () => {
     expect(result.project.workers.flatMap((worker) => worker.yamlFiles).map((file) => file.projectPath)).not.toContain(
       "Справочник/Товары/МодульМенеджера.bsl"
     )
+  })
+
+  it("validates prepared YAML without reading the file again", async () => {
+    const projectDir = createProject()
+    const yamlPath = join(projectDir, "Справочник", "Товары", "Свойства.yaml")
+    resetProjectValidationReadCountForTests()
+
+    const prepared = await prepareYamlProject({
+      projectDir,
+      context: { version: "2.20", defaultLanguage: "ru", exportToYAML: { toTyped: false } },
+      concurrency: 1,
+    })
+
+    expect(prepared.ok).toBe(true)
+    if (!prepared.ok) throw new Error(prepared.message)
+
+    const file = prepared.project.workers.flatMap((worker) => worker.yamlFiles)[0]!
+    const cache = createProjectYamlCacheFromPreparedFiles([file])
+    expect(cache.get(yamlPath)).toMatchObject({ filePath: yamlPath })
+    expect(getProjectValidationReadCountForTests(yamlPath)).toBe(0)
   })
 
   it(
