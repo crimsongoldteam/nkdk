@@ -1,4 +1,3 @@
-export * from "./preparedYamlProject"
 export {
   describeMetadataRuleOperationTargets,
   describeMetadataRuleResources,

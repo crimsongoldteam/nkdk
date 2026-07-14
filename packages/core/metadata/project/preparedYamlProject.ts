@@ -17,6 +17,7 @@ export interface PreparedYamlProjectFileDescriptor {
   filePath: string
   role: "configuration" | "properties" | "form"
   owner: { dir: string; name: string }
+  itemType: string
 }
 
 export interface PreparedYamlProjectResourceDescriptor {
@@ -83,6 +84,10 @@ export async function prepareYamlProject(params: {
         filePath: resource.absolutePath!,
         role: resource.role,
         owner: { dir: resource.owner.dir, name: resource.owner.name },
+        itemType:
+          resource.owner.spec.rule.metadataTargetOwner?.kind === "self"
+            ? resource.owner.spec.rule.metadataTargetOwner.root
+            : (resource.owner.spec.rule.itemTypePrefix ?? resource.owner.spec.rule.itemType),
       })
     )
   const pool = createPreparedYamlProjectWorkerPool({ concurrency: Math.max(1, params.concurrency ?? 1) })

@@ -1,6 +1,5 @@
 import { readFileSync } from "node:fs"
 import { parseMetadataYaml } from "../../yaml/parseMetadataYaml"
-import { rootFromYAML } from "../commonObjects/metadataTargets/roots"
 import type { Diagnostic } from "../validation/types"
 import type {
   PreparedMetadataDeclaration,
@@ -12,6 +11,7 @@ import type {
 export type PreparedYamlProjectWorkerTask = {
   kind: "prepare"
   projectDir: string
+  itemTypeByYamlDir: Record<string, string>
   files: PreparedYamlProjectFileDescriptor[]
 }
 
@@ -36,7 +36,9 @@ export default async function runPreparedYamlProjectWorkerTask(
       const text = readFileSync(file.filePath, "utf8")
       const parsed = parseMetadataYaml(text)
       declarations.push(...extractDeclarations(file))
-      dependencies.push(...extractDependencies({ file, data: parsed.data }))
+      dependencies.push(
+        ...extractDependencies({ file, data: parsed.data, itemTypeByYamlDir: message.itemTypeByYamlDir })
+      )
       yamlFiles.push({
         projectPath: file.projectPath,
         filePath: file.filePath,
@@ -75,7 +77,7 @@ function extractDeclarations(file: PreparedYamlProjectFileDescriptor): PreparedM
 }
 
 function objectCanonicalFromProjectFile(file: PreparedYamlProjectFileDescriptor): string | undefined {
-  const root = rootFromYAML[file.owner.dir]
+  const root = file.itemType
   if (root === undefined || file.owner.name.length === 0) return undefined
 
   const parts = file.projectPath.split("/")
@@ -97,11 +99,12 @@ function objectCanonicalFromProjectFile(file: PreparedYamlProjectFileDescriptor)
 function extractDependencies(params: {
   file: PreparedYamlProjectFileDescriptor
   data: unknown
+  itemTypeByYamlDir: Record<string, string>
 }): PreparedMetadataDependency[] {
   const dependencies: PreparedMetadataDependency[] = []
   visitYamlValue(params.data, [], (value, yamlPath) => {
     if (yamlPath[yamlPath.length - 1] !== "Тип") return
-    for (const canonical of typeValueObjectCanonicals(value)) {
+    for (const canonical of typeValueObjectCanonicals({ value, itemTypeByYamlDir: params.itemTypeByYamlDir })) {
       dependencies.push({
         canonical,
         sourceProjectPath: params.file.projectPath,
@@ -128,19 +131,23 @@ function visitYamlValue(
   for (const [key, item] of Object.entries(value)) visitYamlValue(item, [...yamlPath, key], visit)
 }
 
-function typeValueObjectCanonicals(value: unknown): string[] {
-  const values = Array.isArray(value) ? value : [value]
-  return values.flatMap((item) => (typeof item === "string" ? objectCanonicalFromTypeValue(item) : []))
+function typeValueObjectCanonicals(params: { value: unknown; itemTypeByYamlDir: Record<string, string> }): string[] {
+  const values = Array.isArray(params.value) ? params.value : [params.value]
+  return values.flatMap((item) =>
+    typeof item === "string"
+      ? objectCanonicalFromTypeValue({ value: item, itemTypeByYamlDir: params.itemTypeByYamlDir })
+      : []
+  )
 }
 
-function objectCanonicalFromTypeValue(value: string): string[] {
-  const type = value.trim().split("(")[0]?.trim()
+function objectCanonicalFromTypeValue(params: { value: string; itemTypeByYamlDir: Record<string, string> }): string[] {
+  const type = params.value.trim().split("(")[0]?.trim()
   if (type === undefined || type.length === 0) return []
 
   const dotIndex = type.indexOf(".")
   if (dotIndex === -1) return []
 
-  const root = rootFromYAML[type.substring(0, dotIndex)]
+  const root = params.itemTypeByYamlDir[type.substring(0, dotIndex)]
   const objectName = type.substring(dotIndex + 1)
   if (root === undefined || objectName.length === 0) return []
 

@@ -36,6 +36,9 @@ export function createPreparedYamlProjectWorkerPool(params: { concurrency: numbe
   return {
     async run(runParams) {
       const partitions = partitionRoundRobin(runParams.files, pools.length)
+      const itemTypeByYamlDir = Object.fromEntries(
+        runParams.files.map((file) => [file.owner.dir, file.itemType]).filter(([dir]) => dir.length > 0)
+      )
       const results = await Promise.all(
         pools.map(async (pool, index): Promise<PreparedYamlProjectWorkerPoolResult & { workerIndex: number }> => {
           const files = partitions[index] ?? []
@@ -57,6 +60,7 @@ export function createPreparedYamlProjectWorkerPool(params: { concurrency: numbe
           const response = (await pool.run({
             kind: "prepare",
             projectDir: runParams.projectDir,
+            itemTypeByYamlDir,
             files,
           } satisfies PreparedYamlProjectWorkerTask)) as PreparedYamlProjectWorkerTaskResult
           if (response.kind !== "prepareResult") throw new Error("Worker вернул неожиданный результат prepare")
