@@ -21,6 +21,7 @@
     "type-check": "tsc --noEmit"
   },
   "dependencies": {
+    "@nkdk/core": "workspace:*",
     "@modelcontextprotocol/sdk": "^1.29.0",
     "@node-rs/xxhash": "^1.7.6",
     "ajv": "^8.20.0",

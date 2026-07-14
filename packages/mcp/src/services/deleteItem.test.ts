@@ -6,7 +6,7 @@ describe("deleteItem service", () => {
     const coreResult = {
       ok: true,
       mode: "plan",
-      changedFiles: ["Справочник/Товары/Свойства.yaml"],
+      changedFiles: [],
       rewrittenReferences: [],
       blockedReferences: [],
     }
@@ -17,7 +17,7 @@ describe("deleteItem service", () => {
         projectDir: "/project",
         path: "Справочник.Товары",
       },
-      { deleteMetadataItem },
+      { deleteMetadataItem }
     )
 
     expect(deleteMetadataItem).toHaveBeenCalledWith({

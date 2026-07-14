@@ -2,7 +2,6 @@ import { dirname } from "path"
 import { rootFromYAML } from "../commonObjects/metadataTargets/roots"
 import type { MetadataTargetOwner } from "../commonObjects/metadataTargets"
 import { collectFormDataPathReferencesForItem, createOperationDataPathOwnerCache } from "./dataPathReferences"
-import { applyMetadataOperationFilePlan, type MetadataOperationFileStep } from "./filePlan"
 import { parseMetadataOperationPath } from "./operationPath"
 import {
   buildMetadataOperationSnapshot,
@@ -23,11 +22,8 @@ import type {
   MetadataOperationMode,
   MetadataOperationResult,
 } from "./types"
-import { exportOperationItemToYamlText } from "./yamlModelIO"
 
 interface DeletePlan {
-  steps: MetadataOperationFileStep[]
-  plannedChangedFiles: string[]
   blockedReferences: MetadataOperationBlockedReference[]
 }
 
@@ -50,31 +46,15 @@ export async function deleteMetadataItem(params: DeleteMetadataItemParams): Prom
     return {
       ok: false,
       code: "references_found",
-      message: "Удаление заблокировано структурными ссылками",
+      message: "Найдены внешние ссылки",
       changedFiles: [],
       rewrittenReferences: [],
       blockedReferences: plan.blockedReferences,
     }
   }
 
-  if (params.allowWrite !== true) return success("plan", plan.plannedChangedFiles)
-
-  const applied = applyMetadataOperationFilePlan({ steps: plan.steps })
-  if (!applied.ok) {
-    return {
-      ok: false,
-      code: "write_failed",
-      message: applied.message,
-      changedFiles: applied.appliedFiles,
-      rewrittenReferences: [],
-      blockedReferences: [],
-      failedStep: applied.failedStep,
-      appliedFiles: applied.appliedFiles,
-      pendingFiles: applied.pendingFiles,
-    }
-  }
-
-  return success("applied", applied.changedFiles)
+  void params.allowWrite
+  return success("plan", [])
 }
 
 function buildDeletePlan(params: {
@@ -101,39 +81,12 @@ function buildDeletePlan(params: {
     })
   )
 
-  const steps: MetadataOperationFileStep[] = []
-  if (blockedReferences.length === 0) {
-    if (params.resolved.targetKind === "object") {
-      steps.push({ kind: "removePath", path: params.resolved.item.ownerDirPath })
-    } else if (params.resolved.targetKind === "fileItem") {
-      steps.push({ kind: "removePath", path: dirname(params.resolved.absolutePath) })
-    } else {
-      removeNamedNode(params.resolved)
-      steps.push({
-        kind: "writeFile",
-        path: params.resolved.item.filePath,
-        content: exportOperationItemToYamlText(params.resolved.item, params.snapshot.context),
-      })
-    }
-  }
-
   return {
     ok: true,
     plan: {
-      steps,
-      plannedChangedFiles: steps.flatMap(filesForStep),
       blockedReferences,
     },
   }
-}
-
-function removeNamedNode(resolved: ResolvedMetadataOperationPath): void {
-  if (!resolved.collectionProperty) return
-  const collection = resolved.collectionOwnerNode?.[resolved.collectionProperty]
-  if (!Array.isArray(collection)) return
-
-  const index = collection.indexOf(resolved.modelNode)
-  if (index >= 0) collection.splice(index, 1)
 }
 
 function collectBlockedDataPathReferences(params: {
@@ -206,11 +159,4 @@ function failure(code: MetadataOperationFailure["code"], message: string): Metad
     rewrittenReferences: [],
     blockedReferences: [],
   }
-}
-
-function filesForStep(step: MetadataOperationFileStep): string[] {
-  if (step.kind === "writeFile") return [step.path]
-  if (step.kind === "renamePath") return [step.from, step.to]
-  if (step.kind === "removePath") return [step.path]
-  return []
 }

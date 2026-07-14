@@ -73,7 +73,7 @@ describe("deleteMetadataItem", { timeout: 30_000 }, () => {
     expect(result).toMatchObject({ ok: true, mode: "plan", blockedReferences: [] })
   })
 
-  it("applies attribute deletion through model export without migration", async () => {
+  it("returns an empty plan without changing attribute files when external references are absent", async () => {
     const projectDir = createProject()
     const propertiesPath = writeProjectFile(projectDir, "Справочник/Товары/Свойства.yaml", [
       "Реквизиты:",
@@ -89,14 +89,14 @@ describe("deleteMetadataItem", { timeout: 30_000 }, () => {
       allowWrite: true,
     })
 
-    expect(result).toMatchObject({ ok: true, mode: "applied", createdMigration: undefined })
+    expect(result).toMatchObject({ ok: true, mode: "plan", changedFiles: [], blockedReferences: [] })
     const yaml = readFileSync(propertiesPath, "utf-8")
-    expect(yaml).not.toContain("Артикул:")
+    expect(yaml).toContain("Артикул:")
     expect(yaml).toContain("Код:")
     expect(existsSync(join(projectDir, "Миграции"))).toBe(false)
   })
 
-  it("deletes file item resources without migration", async () => {
+  it("returns an empty plan without deleting file item resources when external references are absent", async () => {
     const projectDir = createProject()
     writeProjectFile(projectDir, "Справочник/Товары/Свойства.yaml", ["{}"])
     writeProjectFile(projectDir, "Справочник/Товары/Формы/ФормаЭлемента/Форма.yaml", ["Элементы: {}"])
@@ -107,8 +107,8 @@ describe("deleteMetadataItem", { timeout: 30_000 }, () => {
       allowWrite: true,
     })
 
-    expect(result).toMatchObject({ ok: true, mode: "applied", createdMigration: undefined })
-    expect(existsSync(join(projectDir, "Справочник", "Товары", "Формы", "ФормаЭлемента"))).toBe(false)
+    expect(result).toMatchObject({ ok: true, mode: "plan", changedFiles: [], blockedReferences: [] })
+    expect(existsSync(join(projectDir, "Справочник", "Товары", "Формы", "ФормаЭлемента"))).toBe(true)
     expect(existsSync(join(projectDir, "Миграции"))).toBe(false)
   })
 
