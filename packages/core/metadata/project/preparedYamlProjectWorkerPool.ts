@@ -57,7 +57,6 @@ export function createPreparedYamlProjectWorkerPool(params: { concurrency: numbe
           const response = (await pool.run({
             kind: "prepare",
             projectDir: runParams.projectDir,
-            context: runParams.context,
             files,
           } satisfies PreparedYamlProjectWorkerTask)) as PreparedYamlProjectWorkerTaskResult
           if (response.kind !== "prepareResult") throw new Error("Worker вернул неожиданный результат prepare")

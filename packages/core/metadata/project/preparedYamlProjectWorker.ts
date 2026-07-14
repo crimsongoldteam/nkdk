@@ -1,6 +1,5 @@
 import { readFileSync } from "node:fs"
 import { parseMetadataYaml } from "../../yaml/parseMetadataYaml"
-import type { ConfigurationContext } from "../context/types"
 import { rootFromYAML } from "../commonObjects/metadataTargets/roots"
 import type { Diagnostic } from "../validation/types"
 import type {
@@ -13,7 +12,6 @@ import type {
 export type PreparedYamlProjectWorkerTask = {
   kind: "prepare"
   projectDir: string
-  context: ConfigurationContext
   files: PreparedYamlProjectFileDescriptor[]
 }
 

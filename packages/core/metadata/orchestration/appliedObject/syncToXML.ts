@@ -13,6 +13,7 @@ import type { XmlWriteManifest } from "../xmlWriteManifest"
 import { xmlExport } from "../../../xml/export/exporter"
 import { importContentFromXML } from "../../../xml/import/importer"
 import { importFromYAML } from "../../../yaml/import"
+import type { PreparedYamlFile } from "../../project/preparedYamlProject"
 import { withYAMLImportDiagnostics } from "../yamlImportError"
 import {
   getFileItemXMLRootContainer,
@@ -43,6 +44,7 @@ export interface SyncAppliedObjectToXMLParams {
   referenceModel?: Record<string, unknown> | null
   referenceModelRemapper?: ReferenceModelRemapper
   xmlManifest?: XmlWriteManifest
+  preparedYamlFile?: PreparedYamlFile
 }
 
 export type AppliedObjectXmlAreaRequest =
@@ -80,9 +82,8 @@ const syncAppliedObjectToXMLInternal = async (params: InternalSyncAppliedObjectT
   const nkdkDir = join(inputDir, name)
 
   const yamlPath = join(inputDir, name, PROPERTIES_YAML)
-  const yamlContent = await fs.promises.readFile(yamlPath, "utf-8")
-  // eslint-disable-next-line @typescript-eslint/no-explicit-any
-  const yamlObj = importFromYAML<any>(yamlContent)
+  const yamlObj =
+    params.preparedYamlFile?.data ?? importFromYAML<unknown>(await fs.promises.readFile(yamlPath, "utf-8"))
 
   const contextFromXML: ConfigurationContextFromXML = {
     fromXML: { forReference: true },
