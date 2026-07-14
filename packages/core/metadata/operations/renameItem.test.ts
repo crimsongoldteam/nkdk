@@ -24,9 +24,12 @@ describe("renameMetadataItem", { timeout: 30_000 }, () => {
     return filePath
   }
 
-  it("returns validation_failed before invalid_name when project has validation errors", async () => {
+  it("does not run full validation before checking the requested rename", async () => {
     const projectDir = createProject()
-    writeProjectFile(projectDir, "Справочник/Товары/Свойства.yaml", ["НеизвестноеПоле: true"])
+    writeProjectFile(projectDir, "Справочник/Товары/Свойства.yaml", [
+      "ВводПоСтроке:",
+      "  - СтандартныйРеквизит.ПометкаУдаления",
+    ])
 
     const result = await renameMetadataItem({
       projectDir,
@@ -34,7 +37,7 @@ describe("renameMetadataItem", { timeout: 30_000 }, () => {
       newName: "Некорректное имя",
     })
 
-    expect(result).toMatchObject({ ok: false, code: "validation_failed" })
+    expect(result).toMatchObject({ ok: false, code: "invalid_name" })
     expect(existsSync(join(projectDir, "Миграции"))).toBe(false)
   })
 

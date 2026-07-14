@@ -2,7 +2,6 @@ import { dirname } from "path"
 import { rootFromYAML } from "../commonObjects/metadataTargets/roots"
 import type { MetadataTargetOwner } from "../commonObjects/metadataTargets"
 import { prepareYamlProject } from "../project/preparedYamlProject"
-import { validateProject } from "../validation/validateProject"
 import { collectFormDataPathReferencesForItem, createOperationDataPathOwnerCache } from "./dataPathReferences"
 import { parseMetadataOperationPath } from "./operationPath"
 import {
@@ -35,17 +34,18 @@ type DeletePlanResult = { ok: true; plan: DeletePlan } | { ok: false; failure: M
 
 export async function findMetadataReferences(params: FindMetadataReferencesParams): Promise<MetadataOperationResult> {
   const context = defaultMetadataOperationsContext()
-  const validation = await validateProject({ projectDir: params.projectDir, context, concurrency: 1 })
-  const errors = validation.diagnostics.filter((diagnostic) => diagnostic.severity === "error")
-  if (errors.length > 0) return validationFailure("YAML-проект содержит ошибки validation", errors)
-
   const prepared = await prepareYamlProject({ projectDir: params.projectDir, context })
   if (!prepared.ok) return validationFailure(prepared.message, prepared.diagnostics)
+  const syntaxErrors = prepared.project.workers
+    .flatMap((worker) => worker.yamlFiles)
+    .flatMap((file) => file.syntaxDiagnostics)
+    .filter((diagnostic) => diagnostic.severity === "error")
+  if (syntaxErrors.length > 0) return validationFailure("YAML-проект содержит ошибки подготовки", syntaxErrors)
 
   const snapshot = buildMetadataOperationSnapshotFromPreparedProject({
     project: prepared.project,
     context,
-    requireValidProject: true,
+    requireValidProject: false,
   })
   if (!snapshot.ok) return snapshot
 

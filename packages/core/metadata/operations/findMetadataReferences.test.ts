@@ -24,9 +24,24 @@ describe("findMetadataReferences", { timeout: 30_000 }, () => {
     return filePath
   }
 
-  it("returns validation_failed before looking for references", async () => {
+  it("does not run full validation before looking for references", async () => {
     const projectDir = createProject()
-    writeProjectFile(projectDir, "Справочник/Товары/Свойства.yaml", ["НеизвестноеПоле: true"])
+    writeProjectFile(projectDir, "Справочник/Товары/Свойства.yaml", [
+      "ВводПоСтроке:",
+      "  - СтандартныйРеквизит.ПометкаУдаления",
+    ])
+
+    const result = await findMetadataReferences({
+      projectDir,
+      path: "Справочник.Товары",
+    })
+
+    expect(result).toMatchObject({ ok: true, mode: "plan", blockedReferences: [] })
+  })
+
+  it("returns validation_failed when YAML preparation fails", async () => {
+    const projectDir = createProject()
+    writeProjectFile(projectDir, "Справочник/Товары/Свойства.yaml", ['Имя: "'])
 
     const result = await findMetadataReferences({
       projectDir,
