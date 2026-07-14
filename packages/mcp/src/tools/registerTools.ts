@@ -1,12 +1,10 @@
 import type { McpServer } from "@modelcontextprotocol/sdk/server/mcp.js"
 import { jsonToolResult } from "../contracts/common"
-import {
-  describeProjectStructureInputShape,
-} from "../contracts/describeProjectStructure"
+import { describeProjectStructureInputShape } from "../contracts/describeProjectStructure"
 import { getSchemaInputShape } from "../contracts/getSchema"
 import { importFromXmlInputShape } from "../contracts/importFromXml"
 import { initSyncStateInputShape } from "../contracts/initSyncState"
-import { deleteItemInputShape, renameItemInputShape } from "../contracts/operations"
+import { findReferencesInputShape, renameItemInputShape } from "../contracts/operations"
 import { syncToXmlInputShape } from "../contracts/syncToXml"
 import { validateProjectInputShape } from "../contracts/validateProject"
 import { guideDefinitions } from "../guides"
@@ -15,7 +13,7 @@ import { describeProjectStructure } from "../services/describeProjectStructure"
 import { getSchema } from "../services/getSchema"
 import { importFromXml } from "../services/importFromXml"
 import { initSyncState } from "../services/initSyncState"
-import { deleteItem } from "../services/deleteItem"
+import { findReferences } from "../services/findReferences"
 import { renameItem } from "../services/renameItem"
 import { syncToXml } from "../services/syncToXml"
 import { validateYamlProject } from "../services/validateProject"
@@ -30,7 +28,7 @@ export function registerNkdkCapabilities(server: RegisterableServer): void {
       description: "Возвращает JSON Schema или краткую JSON-сводку схемы YAML-файла NKDK.",
       inputSchema: getSchemaInputShape,
     },
-    async (input) => jsonToolResult(await getSchema(input)),
+    async (input) => jsonToolResult(await getSchema(input))
   )
 
   server.registerTool(
@@ -40,7 +38,7 @@ export function registerNkdkCapabilities(server: RegisterableServer): void {
       description: "Возвращает допустимые файлы и подкаталоги для каталога NKDK YAML-проекта.",
       inputSchema: describeProjectStructureInputShape,
     },
-    async (input) => jsonToolResult(await describeProjectStructure(input)),
+    async (input) => jsonToolResult(await describeProjectStructure(input))
   )
 
   server.registerTool(
@@ -50,7 +48,7 @@ export function registerNkdkCapabilities(server: RegisterableServer): void {
       description: "Проверяет YAML-проект NKDK и возвращает diagnostics в JSON.",
       inputSchema: validateProjectInputShape,
     },
-    async (input) => jsonToolResult(await validateYamlProject(input)),
+    async (input) => jsonToolResult(await validateYamlProject(input))
   )
 
   server.registerTool(
@@ -60,7 +58,7 @@ export function registerNkdkCapabilities(server: RegisterableServer): void {
       description: "Импортирует XML-выгрузку 1С в YAML-проект. Пишет файлы только при allowWrite=true.",
       inputSchema: importFromXmlInputShape,
     },
-    async (input) => jsonToolResult(await importFromXml(input)),
+    async (input) => jsonToolResult(await importFromXml(input))
   )
 
   server.registerTool(
@@ -70,17 +68,18 @@ export function registerNkdkCapabilities(server: RegisterableServer): void {
       description: "Синхронизирует YAML-проект в XML-выгрузку. Пишет файлы только при allowWrite=true.",
       inputSchema: syncToXmlInputShape,
     },
-    async (input) => jsonToolResult(await syncToXml(input)),
+    async (input) => jsonToolResult(await syncToXml(input))
   )
 
   server.registerTool(
     "nkdk.init_sync_state",
     {
       title: "Initialize NKDK XML sync state",
-      description: "Создаёт .nkdk-sync.yaml для инкрементальной XML-синхронизации. Пишет файл только при allowWrite=true.",
+      description:
+        "Создаёт .nkdk-sync.yaml для инкрементальной XML-синхронизации. Пишет файл только при allowWrite=true.",
       inputSchema: initSyncStateInputShape,
     },
-    async (input) => jsonToolResult(await initSyncState(input)),
+    async (input) => jsonToolResult(await initSyncState(input))
   )
 
   server.registerTool(
@@ -91,18 +90,17 @@ export function registerNkdkCapabilities(server: RegisterableServer): void {
         "Единственный MCP-способ сохранить XML/reference identity при переименовании metadata-объекта или дочернего элемента.",
       inputSchema: renameItemInputShape,
     },
-    async (input) => jsonToolResult(await renameItem(input)),
+    async (input) => jsonToolResult(await renameItem(input))
   )
 
   server.registerTool(
-    "nkdk.delete_item",
+    "nkdk.find_references",
     {
-      title: "Delete NKDK metadata item",
-      description:
-        "Удаляет metadata-объект или дочерний элемент в YAML. Миграцию не пишет; отсутствующий YAML-узел будет удален при XML-синхронизации.",
-      inputSchema: deleteItemInputShape,
+      title: "Find NKDK metadata references",
+      description: "Ищет внешние ссылки на metadata-объект или дочерний элемент в YAML-проекте. Файлы не изменяет.",
+      inputSchema: findReferencesInputShape,
     },
-    async (input) => jsonToolResult(await deleteItem(input)),
+    async (input) => jsonToolResult(await findReferences(input))
   )
 
   for (const guide of guideDefinitions) {
@@ -122,7 +120,7 @@ export function registerNkdkCapabilities(server: RegisterableServer): void {
             text: guide.text,
           },
         ],
-      }),
+      })
     )
   }
 
@@ -143,7 +141,7 @@ export function registerNkdkCapabilities(server: RegisterableServer): void {
             },
           },
         ],
-      }),
+      })
     )
   }
 }

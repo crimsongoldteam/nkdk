@@ -18,7 +18,7 @@ import {
 } from "./references"
 import { resolveMetadataOperationPath, type ResolvedMetadataOperationPath } from "./targetResolver"
 import type {
-  DeleteMetadataItemParams,
+  FindMetadataReferencesParams,
   MetadataOperationBlockedReference,
   MetadataOperationFailure,
   MetadataOperationMode,
@@ -33,7 +33,7 @@ interface DeletePlan {
 
 type DeletePlanResult = { ok: true; plan: DeletePlan } | { ok: false; failure: MetadataOperationFailure }
 
-export async function deleteMetadataItem(params: DeleteMetadataItemParams): Promise<MetadataOperationResult> {
+export async function findMetadataReferences(params: FindMetadataReferencesParams): Promise<MetadataOperationResult> {
   const context = defaultMetadataOperationsContext()
   const validation = await validateProject({ projectDir: params.projectDir, context, concurrency: 1 })
   const errors = validation.diagnostics.filter((diagnostic) => diagnostic.severity === "error")

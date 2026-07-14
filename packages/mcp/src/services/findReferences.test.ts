@@ -1,7 +1,7 @@
 import { describe, expect, it, vi } from "vitest"
-import { deleteItem } from "./deleteItem"
+import { findReferences } from "./findReferences"
 
-describe("deleteItem service", () => {
+describe("findReferences service", () => {
   it("passes operation path to core without requiring write mode", async () => {
     const coreResult = {
       ok: true,
@@ -10,20 +10,19 @@ describe("deleteItem service", () => {
       rewrittenReferences: [],
       blockedReferences: [],
     }
-    const deleteMetadataItem = vi.fn().mockResolvedValue(coreResult)
+    const findMetadataReferences = vi.fn().mockResolvedValue(coreResult)
 
-    const result = await deleteItem(
+    const result = await findReferences(
       {
         projectDir: "/project",
         path: "Справочник.Товары",
       },
-      { deleteMetadataItem }
+      { findMetadataReferences }
     )
 
-    expect(deleteMetadataItem).toHaveBeenCalledWith({
+    expect(findMetadataReferences).toHaveBeenCalledWith({
       projectDir: "/project",
       path: "Справочник.Товары",
-      allowWrite: undefined,
     })
     expect(result).toEqual(coreResult)
   })

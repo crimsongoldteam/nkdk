@@ -18,7 +18,8 @@ describe("guide definitions", () => {
 
     expect(editGuide?.text).not.toContain(removedOperationTargetsTool)
     expect(editGuide?.text).toContain("nkdk.rename_item")
-    expect(editGuide?.text).toContain("nkdk.delete_item")
+    expect(editGuide?.text).toContain("nkdk.find_references")
+    expect(editGuide?.text).not.toContain("nkdk.delete_item")
     expect(editGuide?.text).toContain("Справочник.Товары.Реквизит.Артикул")
     expect(editGuide?.text).toContain("Документ.Заказ.ТабличнаяЧасть.Товары.Реквизит.Количество")
   })

@@ -2,9 +2,9 @@ import { existsSync, mkdirSync, mkdtempSync, readFileSync, rmSync, writeFileSync
 import { tmpdir } from "os"
 import { join } from "path"
 import { afterEach, describe, expect, it } from "vitest"
-import { deleteMetadataItem } from "./deleteItem"
+import { findMetadataReferences } from "./findMetadataReferences"
 
-describe("deleteMetadataItem", { timeout: 30_000 }, () => {
+describe("findMetadataReferences", { timeout: 30_000 }, () => {
   const tempDirs: string[] = []
 
   afterEach(() => {
@@ -28,7 +28,7 @@ describe("deleteMetadataItem", { timeout: 30_000 }, () => {
     const projectDir = createProject()
     writeProjectFile(projectDir, "Справочник/Товары/Свойства.yaml", ["НеизвестноеПоле: true"])
 
-    const result = await deleteMetadataItem({
+    const result = await findMetadataReferences({
       projectDir,
       path: "Справочник.Товары",
     })
@@ -41,7 +41,7 @@ describe("deleteMetadataItem", { timeout: 30_000 }, () => {
     writeProjectFile(projectDir, "Справочник/Товары/Свойства.yaml", ["Реквизиты:", "  Артикул:", "    Тип: Строка"])
     writeProjectFile(projectDir, "Справочник/Заказы/Свойства.yaml", ["Владельцы:", "  - Справочник.Товары"])
 
-    const result = await deleteMetadataItem({
+    const result = await findMetadataReferences({
       projectDir,
       path: "Справочник.Товары",
     })
@@ -65,7 +65,7 @@ describe("deleteMetadataItem", { timeout: 30_000 }, () => {
       "    Тип: Строка",
     ])
 
-    const result = await deleteMetadataItem({
+    const result = await findMetadataReferences({
       projectDir,
       path: "Справочник.Товары",
     })
@@ -83,7 +83,7 @@ describe("deleteMetadataItem", { timeout: 30_000 }, () => {
       "    Тип: Строка",
     ])
 
-    const result = await deleteMetadataItem({
+    const result = await findMetadataReferences({
       projectDir,
       path: "Справочник.Товары.Реквизит.Артикул",
       allowWrite: true,
@@ -101,7 +101,7 @@ describe("deleteMetadataItem", { timeout: 30_000 }, () => {
     writeProjectFile(projectDir, "Справочник/Товары/Свойства.yaml", ["{}"])
     writeProjectFile(projectDir, "Справочник/Товары/Формы/ФормаЭлемента/Форма.yaml", ["Элементы: {}"])
 
-    const result = await deleteMetadataItem({
+    const result = await findMetadataReferences({
       projectDir,
       path: "Справочник.Товары.Форма.ФормаЭлемента",
       allowWrite: true,
@@ -127,7 +127,7 @@ describe("deleteMetadataItem", { timeout: 30_000 }, () => {
       "    ПутьКДанным: ИндексКартинки",
     ])
 
-    const result = await deleteMetadataItem({
+    const result = await findMetadataReferences({
       projectDir,
       path: "ОбщаяКартинка.Состояния",
     })
@@ -152,7 +152,7 @@ describe("deleteMetadataItem", { timeout: 30_000 }, () => {
       "    ПутьКДанным: Объект.Артикул",
     ])
 
-    const result = await deleteMetadataItem({
+    const result = await findMetadataReferences({
       projectDir,
       path: "Справочник.Товары.Реквизит.Артикул",
     })

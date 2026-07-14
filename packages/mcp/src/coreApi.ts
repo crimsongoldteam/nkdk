@@ -107,7 +107,7 @@ export interface CoreApi {
     newName: string
     allowWrite?: boolean
   }): Promise<MetadataOperationResult>
-  deleteMetadataItem(params: {
+  findMetadataReferences(params: {
     projectDir: string
     path: string
     allowWrite?: boolean

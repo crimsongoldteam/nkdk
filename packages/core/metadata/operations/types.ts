@@ -60,7 +60,7 @@ export interface RenameMetadataItemParams {
   now?: Date
 }
 
-export interface DeleteMetadataItemParams {
+export interface FindMetadataReferencesParams {
   projectDir: string
   path: string
   allowWrite?: boolean
