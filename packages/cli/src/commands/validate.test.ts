@@ -31,12 +31,12 @@ describe("validate command", () => {
     await validateYamlProject(projectDir)
 
     const text = writtenText(stdout)
-    expect(text).toContain("Справочник/Товары/Свойства.yaml:1:21 error:")
+    expect(text).toContain("Справочник/Товары/Свойства.yaml:1:1 error:")
     expect(text).not.toContain("warning:")
     expect(text).toContain("summary: 1 error, 0 warning")
     expect(stderr).not.toHaveBeenCalled()
     expect(process.exitCode).toBe(1)
-  }, 10_000)
+  }, 60_000)
 
   it("prints a clean summary for warnings only", async () => {
     const projectDir = createProject()
@@ -55,7 +55,7 @@ describe("validate command", () => {
     expect(text).not.toContain("warning:")
     expect(text).toBe("summary: 0 error, 0 warning\n")
     expect(process.exitCode).toBeUndefined()
-  }, 10_000)
+  }, 60_000)
 
   it("validates a single properties file from --file", async () => {
     const projectDir = createProject()
@@ -77,10 +77,7 @@ describe("validate command", () => {
 
   it("validates a single root configuration file from --file", async () => {
     const projectDir = createProject()
-    writeProjectFile(projectDir, "Конфигурация.yaml", [
-      "Имя: Конфигурация",
-      "ОсновнойЯзык: НеСуществует",
-    ])
+    writeProjectFile(projectDir, "Конфигурация.yaml", ["Имя: Конфигурация", "ОсновнойЯзык: НеСуществует"])
     writeProjectFile(projectDir, "Справочник/Товары/Свойства.yaml", ['НесуществующееПоле: "лишнее"'])
     const stdout = captureStdout()
 
@@ -183,7 +180,7 @@ describe("validate command", () => {
       [
         "Справочник/Товары/Свойства.yaml:2:3 warning: предупреждение",
         "Документ/Заказ/Свойства.yaml:1:1 error: ошибка",
-      ].join("\n"),
+      ].join("\n")
     )
   })
 

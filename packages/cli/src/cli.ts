@@ -14,8 +14,8 @@ interface CreateProgramOptions {
   exitOnUnhandledError?: boolean
 }
 
-function run(fn: () => Promise<void>, options: CreateProgramOptions): void {
-  fn().catch((err: unknown) => {
+function run(fn: () => Promise<void>, options: CreateProgramOptions): Promise<void> {
+  return fn().catch((err: unknown) => {
     const msg = err instanceof Error ? err.message : String(err)
     process.stderr.write(msg + "\n")
     if (process.env["DEBUG"] === "1" && err instanceof Error && err.stack) {
@@ -35,7 +35,7 @@ export function createProgram(options: CreateProgramOptions = {}): Command {
     .argument("<xml-dir>", "путь к каталогу XML-выгрузки")
     .argument("<yaml-dir>", "путь к каталогу YAML-проекта")
     .action((xmlDir: string, yamlDir: string) => {
-      run(() => importConfiguration(xmlDir, yamlDir), options)
+      return run(() => importConfiguration(xmlDir, yamlDir), options)
     })
 
   program
@@ -45,10 +45,13 @@ export function createProgram(options: CreateProgramOptions = {}): Command {
     .argument("<xml-dir>", "путь к каталогу XML-выгрузки")
     .option("--reference <xml-dir>", "путь к XML-каталогу для чтения reference-данных")
     .action((yamlDir: string, xmlDir: string, opts: { reference?: string }) => {
-      run(() =>
-        syncConfiguration(yamlDir, xmlDir, {
-          referenceDir: opts.reference,
-        }), options)
+      return run(
+        () =>
+          syncConfiguration(yamlDir, xmlDir, {
+            referenceDir: opts.reference,
+          }),
+        options
+      )
     })
 
   program
@@ -57,7 +60,7 @@ export function createProgram(options: CreateProgramOptions = {}): Command {
     .argument("<yaml-dir>", "путь к каталогу YAML-проекта")
     .argument("<xml-dir>", "путь к каталогу XML-выгрузки")
     .action((yamlDir: string, xmlDir: string) => {
-      run(() => initSyncState(yamlDir, xmlDir), options)
+      return run(() => initSyncState(yamlDir, xmlDir), options)
     })
 
   program
@@ -65,7 +68,7 @@ export function createProgram(options: CreateProgramOptions = {}): Command {
     .description("Проверка round-trip XML → модель → XML (без YAML-слоя)")
     .argument("<xml-dir>", "путь к каталогу XML-выгрузки")
     .action((xmlDir: string) => {
-      run(() => shortRoundTrip(xmlDir), options)
+      return run(() => shortRoundTrip(xmlDir), options)
     })
 
   program
@@ -80,7 +83,7 @@ export function createProgram(options: CreateProgramOptions = {}): Command {
     .option("--search <terms>", "найти поля по частям строки через |")
     .option("--exact", "точный поиск имени поля в режиме --search")
     .action((target: string | undefined, opts: SchemaCommandOptions) => {
-      run(() => {
+      return run(() => {
         const normalized = normalizeSchemaCommandInput(target, opts)
         return printSchema(normalized.target, normalized.options)
       }, options)
@@ -92,7 +95,7 @@ export function createProgram(options: CreateProgramOptions = {}): Command {
     .argument("[yaml-dir]", "путь к каталогу YAML-проекта")
     .option("--file <path>", "проверить один YAML-файл проекта")
     .action((yamlDir: string | undefined, opts: ValidateCommandOptions) => {
-      run(() => validateYamlProject(yamlDir ?? "", opts), options)
+      return run(() => validateYamlProject(yamlDir ?? "", opts), options)
     })
 
   program
@@ -103,7 +106,7 @@ export function createProgram(options: CreateProgramOptions = {}): Command {
     .argument("<new-name>", "новое локальное имя")
     .option("--write", "записать изменения; без флага печатается план")
     .action((yamlDir: string, path: string, newName: string, opts: { write?: boolean }) => {
-      run(() => Promise.resolve(renameMigration(yamlDir, path, newName, opts.write === true)), options)
+      return run(() => Promise.resolve(renameMigration(yamlDir, path, newName, opts.write === true)), options)
     })
 
   program
@@ -113,7 +116,7 @@ export function createProgram(options: CreateProgramOptions = {}): Command {
     .argument("<path>", "полный путь элемента")
     .option("--write", "записать изменения; без флага печатается план")
     .action((yamlDir: string, path: string, opts: { write?: boolean }) => {
-      run(() => Promise.resolve(deleteMigration(yamlDir, path, opts.write === true)), options)
+      return run(() => Promise.resolve(deleteMigration(yamlDir, path, opts.write === true)), options)
     })
 
   program
@@ -123,12 +126,12 @@ export function createProgram(options: CreateProgramOptions = {}): Command {
     .argument("<xml-dir>", "путь к каталогу XML-выгрузки")
     .option("--dry-run", "показать конфликты без записи файла")
     .action((yamlDir: string, xmlDir: string, opts: { dryRun?: boolean }) => {
-      run(async () => {
+      return run(async () => {
         const result = await generateMigration({ yamlDir, xmlDir, dryRun: opts.dryRun === true })
         if (result.conflicts.length > 0) {
           for (const conflict of result.conflicts) {
             process.stdout.write(
-              `${conflict.levelPath}: удалено [${conflict.deleted.join(", ")}], добавлено [${conflict.added.join(", ")}]\n`,
+              `${conflict.levelPath}: удалено [${conflict.deleted.join(", ")}], добавлено [${conflict.added.join(", ")}]\n`
             )
           }
         }

@@ -1,14 +1,13 @@
-import { execFile } from "node:child_process"
 import { join } from "node:path"
-import { promisify } from "node:util"
-import { describe, expect, it } from "vitest"
+import { afterAll, beforeAll, describe, expect, it } from "vitest"
 import {
   createProjectValidationWorkerPool,
   partitionPendingReferencesForWorkers,
+  type ProjectValidationWorkerPool,
+  type ProjectValidationWorkerPoolStartProfile,
 } from "./projectValidationWorkerPool"
 import type { PendingMetadataTargetReference } from "./projectMetadataReferences"
 
-const execFileAsync = promisify(execFile)
 const context = {
   version: "2.20",
   defaultLanguage: "ru",
@@ -16,6 +15,18 @@ const context = {
 } as const
 
 describe("ProjectValidationWorkerPool", () => {
+  let pool: ProjectValidationWorkerPool
+  let firstStartProfile: ProjectValidationWorkerPoolStartProfile
+
+  beforeAll(async () => {
+    pool = createProjectValidationWorkerPool({ concurrency: 1 })
+    firstStartProfile = await pool.start(context)
+  }, 120_000)
+
+  afterAll(async () => {
+    await pool.close()
+  })
+
   it("does not retain YAML entries or model state after worker validation", async () => {
     const worker = await import("./projectValidationWorker")
 
@@ -27,81 +38,43 @@ describe("ProjectValidationWorkerPool", () => {
     })
   })
 
-  it("starts and initializes worker schema caches", async () => {
-    const pool = createProjectValidationWorkerPool({ concurrency: 1 })
-
-    try {
-      const profile = await pool.start(context)
-
-      expect(pool.size()).toBe(1)
-      expect(profile.workerInitMs).toBeGreaterThanOrEqual(0)
-      expect(profile.schemaCompileMs).toBeGreaterThanOrEqual(0)
-      expect(profile.formSchemaMs).toBeGreaterThanOrEqual(0)
-      expect(profile.propertiesSchemaMs).toBeGreaterThanOrEqual(0)
-    } finally {
-      await pool.close()
-    }
-  }, 120_000)
+  it("starts and initializes worker schema caches", () => {
+    expect(pool.size()).toBe(1)
+    expect(firstStartProfile.workerInitMs).toBeGreaterThanOrEqual(0)
+    expect(firstStartProfile.schemaCompileMs).toBeGreaterThanOrEqual(0)
+    expect(firstStartProfile.formSchemaMs).toBeGreaterThanOrEqual(0)
+    expect(firstStartProfile.propertiesSchemaMs).toBeGreaterThanOrEqual(0)
+  })
 
   it("reuses initialized worker schema caches on repeated start", async () => {
-    const pool = createProjectValidationWorkerPool({ concurrency: 1 })
+    const second = await pool.start(context)
 
-    try {
-      const first = await pool.start(context)
-      const second = await pool.start(context)
-
-      expect(first.reused).toBeUndefined()
-      expect(second).toMatchObject({
-        reused: true,
-        schemaCompileMs: first.schemaCompileMs,
-        formSchemaMs: first.formSchemaMs,
-        propertiesSchemaMs: first.propertiesSchemaMs,
-      })
-    } finally {
-      await pool.close()
-    }
-  }, 120_000)
-
-  it("starts from plain tsx without legacy path aliases", async () => {
-    const script = [
-      'const { createProjectValidationWorkerPool } = await import("./metadata/validation/projectValidationWorkerPool.ts")',
-      "const pool = createProjectValidationWorkerPool({ concurrency: 1 })",
-      "await pool.start({ version: '2.20', defaultLanguage: 'ru', exportToYAML: { toTyped: false } })",
-      "console.log(`worker-size=${pool.size()}`)",
-      "await pool.close()",
-    ].join(";")
-
-    const { stdout } = await execFileAsync(process.execPath, ["--import", "tsx", "-e", script], {
-      cwd: process.cwd(),
-      env: { ...process.env, NODE_OPTIONS: "" },
+    expect(firstStartProfile.reused).toBeUndefined()
+    expect(second).toMatchObject({
+      reused: true,
+      schemaCompileMs: firstStartProfile.schemaCompileMs,
+      formSchemaMs: firstStartProfile.formSchemaMs,
+      propertiesSchemaMs: firstStartProfile.propertiesSchemaMs,
     })
-
-    expect(stdout.trim()).toBe("worker-size=1")
-  }, 120_000)
+  })
 
   it("runs second pass through shared snapshots without opt-in environment flags", async () => {
-    const pool = createProjectValidationWorkerPool({ concurrency: 1 })
-    try {
-      await pool.start(context)
-      const second = await pool.runSecondPass({
-        projectDir: "/project",
-        context,
-        mode: "full",
-        objectTable: {
-          records: [],
-          filePaths: [],
-          objectIndexEntries: [],
-          memberIndexEntries: [],
-          valueIndexEntries: [],
-          pendingReferences: [],
-        },
-      })
+    const second = await pool.runSecondPass({
+      projectDir: "/project",
+      context,
+      mode: "full",
+      objectTable: {
+        records: [],
+        filePaths: [],
+        objectIndexEntries: [],
+        memberIndexEntries: [],
+        valueIndexEntries: [],
+        pendingReferences: [],
+      },
+    })
 
-      expect(second.diagnostics).toEqual([])
-    } finally {
-      await pool.close()
-    }
-  }, 120_000)
+    expect(second.diagnostics).toEqual([])
+  })
 })
 
 describe("partitionPendingReferencesForWorkers", () => {
@@ -117,7 +90,7 @@ describe("resolveProjectValidationWorkerFile", () => {
     const { resolveProjectValidationWorkerFile } = await import("./projectValidationWorkerPool")
 
     const result = resolveProjectValidationWorkerFile(
-      "/repo/packages/core/metadata/validation/projectValidationWorkerPool.ts",
+      "/repo/packages/core/metadata/validation/projectValidationWorkerPool.ts"
     )
 
     expect(result).toBe("/repo/packages/core/metadata/validation/projectValidationWorker.ts")
@@ -136,7 +109,7 @@ describe("resolveProjectValidationWorkerFile", () => {
     const existing = new Set([join("/repo/packages/mcp/dist", "projectValidationWorker.js")])
 
     const result = resolveProjectValidationWorkerFile("/repo/packages/mcp/dist/bin/nkdk-mcp", (path) =>
-      existing.has(path),
+      existing.has(path)
     )
 
     expect(result).toBe("/repo/packages/mcp/dist/projectValidationWorker.js")

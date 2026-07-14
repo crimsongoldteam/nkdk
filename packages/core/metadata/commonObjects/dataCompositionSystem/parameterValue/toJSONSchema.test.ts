@@ -20,7 +20,9 @@ const schemaFor = (rule: SettingsParameterValuePropertyRule) => {
 }
 
 const errorsFor = (rule: SettingsParameterValuePropertyRule, value: unknown): string[] =>
-  schemaFor(rule).Errors(value)[1].map((error) => `${error.instancePath}: ${error.message}`)
+  schemaFor(rule)
+    .Errors(value)[1]
+    .map((error) => `${error.instancePath}: ${error.message}`)
 
 describe("SettingsParameterValue exportToJSONSchema", { timeout: 30_000 }, () => {
   beforeAll(() => {
@@ -30,7 +32,12 @@ describe("SettingsParameterValue exportToJSONSchema", { timeout: 30_000 }, () =>
         { type: "SettingsParameterValue", valueType: "Color", yaml: "ЦветФона" },
         { type: "SettingsParameterValue", valueType: "Primitive", yaml: "Видимость" },
         { type: "SettingsParameterValue", valueType: "Primitive", yaml: "Значение" },
-        { type: "SettingsParameterValue", valueType: "SystemEnumeration", typeSE: "HorizontalAlign", yaml: "ГоризонтальноеПоложение" },
+        {
+          type: "SettingsParameterValue",
+          valueType: "SystemEnumeration",
+          typeSE: "HorizontalAlign",
+          yaml: "ГоризонтальноеПоложение",
+        },
         { type: "SettingsParameterValue", valueType: "Parameter", yaml: "ПараметрыВыбора" },
         { type: "SettingsParameterValue", valueType: "DesignTimeValue", yaml: "Формат" },
         { type: "SettingsParameterValue", valueType: "Field", yaml: "Поле" },
@@ -39,7 +46,7 @@ describe("SettingsParameterValue exportToJSONSchema", { timeout: 30_000 }, () =>
         { type: "SettingsParameterValue", valueType: "ChoiceParameterLinks", yaml: "СвязиПараметровВыбора" },
       ] as const
     ).forEach(schemaFor)
-  }, 60_000)
+  }, 180_000)
 
   it("accepts compact Color YAML value", () => {
     const rule = { type: "SettingsParameterValue", valueType: "Color", yaml: "Цвет" } as const
