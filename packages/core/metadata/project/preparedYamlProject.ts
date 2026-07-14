@@ -1,7 +1,10 @@
 import { resolve } from "node:path"
 import type { ConfigurationContext } from "../context/types"
 import type { Diagnostic } from "../validation/types"
-import { createPreparedYamlProjectWorkerPool } from "./preparedYamlProjectWorkerPool"
+import {
+  createPreparedYamlProjectWorkerPool,
+  type PreparedYamlProjectWorkerPool,
+} from "./preparedYamlProjectWorkerPool"
 import { discoverMetadataProjectResources } from "./resources"
 
 export interface PreparedYamlProject {
@@ -74,8 +77,20 @@ export async function prepareYamlProject(params: {
   context: ConfigurationContext
   concurrency?: number
 }): Promise<PreparedYamlProjectResult> {
-  void params.context
+  const pool = createPreparedYamlProjectWorkerPool({ concurrency: Math.max(1, params.concurrency ?? 1) })
 
+  try {
+    return await prepareYamlProjectWithPool({ ...params, pool })
+  } finally {
+    await pool.close()
+  }
+}
+
+export async function prepareYamlProjectWithPool(params: {
+  projectDir: string
+  context: ConfigurationContext
+  pool: PreparedYamlProjectWorkerPool
+}): Promise<PreparedYamlProjectResult> {
   const projectDir = resolve(params.projectDir)
   const resources = discoverMetadataProjectResources(projectDir).filter((resource) => resource.absolutePath !== undefined)
   const files = resources
@@ -103,32 +118,26 @@ export async function prepareYamlProject(params: {
         propertyType: resource.source.kind === "property" ? resource.source.propertyType : undefined,
       })
     )
-  const pool = createPreparedYamlProjectWorkerPool({ concurrency: Math.max(1, params.concurrency ?? 1) })
-
-  try {
-    const prepared = await pool.run({ projectDir, context: params.context, files })
-    if (prepared.diagnostics.length > 0) {
-      return {
-        ok: false,
-        code: prepared.diagnostics.some((diagnostic) => diagnostic.message.startsWith("Повторное объявление metadata:"))
-          ? "declaration_conflict"
-          : "prepare_failed",
-        message: "Не удалось подготовить YAML-проект",
-        diagnostics: prepared.diagnostics,
-      }
-    }
-
+  const prepared = await params.pool.run({ projectDir, context: params.context, files })
+  if (prepared.diagnostics.length > 0) {
     return {
-      ok: true,
-      project: {
-        projectDir,
-        files,
-        resourceFiles,
-        metadataIndex: prepared.metadataIndex,
-        workers: prepared.workers,
-      },
+      ok: false,
+      code: prepared.diagnostics.some((diagnostic) => diagnostic.message.startsWith("Повторное объявление metadata:"))
+        ? "declaration_conflict"
+        : "prepare_failed",
+      message: "Не удалось подготовить YAML-проект",
+      diagnostics: prepared.diagnostics,
     }
-  } finally {
-    await pool.close()
+  }
+
+  return {
+    ok: true,
+    project: {
+      projectDir,
+      files,
+      resourceFiles,
+      metadataIndex: prepared.metadataIndex,
+      workers: prepared.workers,
+    },
   }
 }

@@ -3,6 +3,11 @@ import { performance } from "node:perf_hooks"
 import { existsSync } from "fs"
 import { resolve } from "path"
 import type { ConfigurationContext } from "../context/types"
+import { prepareYamlProjectWithPool } from "../project/preparedYamlProject"
+import {
+  createPreparedYamlProjectWorkerPool,
+  type PreparedYamlProjectWorkerPool,
+} from "../project/preparedYamlProjectWorkerPool"
 import { getProjectReferenceObjectPathContributor } from "./projectReferenceIndexRegistry"
 import { validatePendingReferencesWithIndex } from "./projectReferenceIndex"
 import { ProjectFileSchemaError } from "./projectFileSchema"
@@ -13,7 +18,6 @@ import {
 } from "./projectFiles"
 import { createProjectYamlCacheFromEntries, type ProjectYamlEntry } from "./projectYamlCache"
 import { createValidationObjectTable } from "./projectValidationObjectTable"
-import { createProjectValidationWorkerPool, type ProjectValidationWorkerPool } from "./projectValidationWorkerPool"
 import {
   createValidationSchemaCache,
   readProjectYamlDiagnostic,
@@ -49,15 +53,15 @@ const expectedPatterns =
 
 export async function validateProject(params: ValidateProjectParams): Promise<ValidateProjectResult> {
   const concurrency = normalizeValidationConcurrency(params.concurrency)
-  if (params.filePath !== undefined || concurrency === 1) {
+  if (params.filePath !== undefined) {
     return validateProjectInProcess({ ...params, concurrency: 1 })
   }
-  return validateProjectWithWorkers({ ...params, concurrency })
+  return validateProjectWithPreparedYaml({ ...params, concurrency })
 }
 
 export function createValidationWorkerPoolHandle(params: { concurrency?: number } = {}): ValidationWorkerPoolHandle {
   const concurrency = normalizeValidationConcurrency(params.concurrency)
-  const pool = createProjectValidationWorkerPool({ concurrency })
+  const pool = createPreparedYamlProjectWorkerPool({ concurrency })
   let closed = false
   let currentRun: Promise<void> = Promise.resolve()
 
@@ -79,10 +83,10 @@ export function createValidationWorkerPoolHandle(params: { concurrency?: number 
     validateProject(projectParams) {
       if (closed) throw new Error("Validation worker pool handle is closed")
       return runExclusive(async () => {
-        if (projectParams.filePath !== undefined || concurrency === 1) {
+        if (projectParams.filePath !== undefined) {
           return validateProjectInProcess({ ...projectParams, concurrency: 1 })
         }
-        return validateProjectWithWorkers({
+        return validateProjectWithPreparedYaml({
           ...projectParams,
           concurrency,
           pool,
@@ -214,23 +218,17 @@ function validateProjectInProcess(params: ValidateProjectParams): ValidateProjec
   return { diagnostics: sortDiagnostics(dedupeDiagnostics(diagnostics)) }
 }
 
-async function validateProjectWithWorkers(
+async function validateProjectWithPreparedYaml(
   params: ValidateProjectParams & {
     concurrency: number
-    pool?: ProjectValidationWorkerPool
+    pool?: PreparedYamlProjectWorkerPool
     closePool?: boolean
   }
 ): Promise<ValidateProjectResult> {
   const totalStartedAt = performance.now()
   const projectDir = resolve(params.projectDir)
   const context = params.context ?? defaultValidationContext()
-  const discoverStartedAt = performance.now()
-  const files = discoverValidationProjectFiles(projectDir)
-  const discoverMs = performance.now() - discoverStartedAt
-
-  const pool =
-    params.pool ??
-    createProjectValidationWorkerPool({ concurrency: Math.max(1, Math.min(params.concurrency, files.length)) })
+  const pool = params.pool ?? createPreparedYamlProjectWorkerPool({ concurrency: params.concurrency })
   const closePool = params.closePool ?? true
   let startMs = 0
   let schemaCompileMs = 0
@@ -241,16 +239,23 @@ async function validateProjectWithWorkers(
   let snapshotMs = 0
   let secondPassMs = 0
   let sortMs = 0
+  let fileCount = 0
 
   try {
+    const prepareStartedAt = performance.now()
+    const prepared = await prepareYamlProjectWithPool({ projectDir, context, pool })
+    const prepareMs = performance.now() - prepareStartedAt
+    if (!prepared.ok) return { diagnostics: sortDiagnostics(dedupeDiagnostics(prepared.diagnostics)) }
+
+    fileCount = prepared.project.files.length
     const startStartedAt = performance.now()
-    const startProfile = await pool.start(context)
+    const startProfile = await pool.initValidation(context)
     startMs = performance.now() - startStartedAt
     schemaCompileMs = startProfile.schemaCompileMs
     formSchemaMs = startProfile.formSchemaMs
     propertiesSchemaMs = startProfile.propertiesSchemaMs
     const firstPassStartedAt = performance.now()
-    const first = await pool.runFirstPass({ projectDir, context, files })
+    const first = await pool.runValidationFirstPass({ projectDir, context })
     firstPassMs = performance.now() - firstPassStartedAt
     const mergeStartedAt = performance.now()
     const objectTable = createValidationObjectTable()
@@ -261,7 +266,7 @@ async function validateProjectWithWorkers(
     const objectTableSnapshot = objectTable.snapshot()
     snapshotMs = performance.now() - snapshotStartedAt
     const secondPassStartedAt = performance.now()
-    const second = await pool.runSecondPass({
+    const second = await pool.runValidationSecondPass({
       projectDir,
       context,
       mode: "full",
@@ -272,9 +277,9 @@ async function validateProjectWithWorkers(
     const diagnostics = sortDiagnostics(dedupeDiagnostics([...first.diagnostics, ...second.diagnostics]))
     sortMs = performance.now() - sortStartedAt
     logWorkerValidationProfile({
-      files: files.length,
+      files: fileCount,
       concurrency: params.concurrency,
-      discoverMs,
+      discoverMs: prepareMs,
       startMs,
       schemaCompileMs,
       formSchemaMs,

@@ -6,9 +6,12 @@ import type { ConfigurationContext } from "../context/types"
 import type {
   FirstPassPoolResult,
   ProjectValidationWorkerPoolStartProfile,
+  SecondPassPoolParams,
+  SecondPassPoolResult,
 } from "../validation/projectValidationWorkerPool"
 import { createValidationRulesSnapshot } from "../validation/rulesSnapshot"
 import type { Diagnostic } from "../validation/types"
+import { createValidationSnapshotProvider } from "../validation/validationSnapshotProvider"
 import type {
   PreparedGlobalMetadataIndex,
   PreparedMetadataDeclaration,
@@ -28,7 +31,9 @@ export interface PreparedYamlProjectWorkerPool {
   }): Promise<PreparedYamlProjectWorkerPoolResult>
   initValidation(context: ConfigurationContext): Promise<ProjectValidationWorkerPoolStartProfile>
   runValidationFirstPass(params: { projectDir: string; context: ConfigurationContext }): Promise<FirstPassPoolResult>
+  runValidationSecondPass(params: SecondPassPoolParams): Promise<SecondPassPoolResult>
   close(): Promise<void>
+  size(): number
 }
 
 export interface PreparedYamlProjectWorkerPoolResult {
@@ -173,11 +178,44 @@ export function createPreparedYamlProjectWorkerPool(params: {
         pendingReferences: results.flatMap((result) => result.pendingReferences),
       }
     },
+    async runValidationSecondPass(secondPassParams) {
+      const activeIndexes = Array.from(activeWorkerIndexes)
+      if (activeIndexes.length === 0) return { diagnostics: [] }
+
+      const provider = createValidationSnapshotProvider(secondPassParams.objectTable)
+      const sharedValidationSnapshot = provider.sharedPayload()
+      const referencePartitions = partitionRoundRobin(secondPassParams.objectTable.pendingReferences ?? [], activeIndexes.length)
+      const results = await Promise.all(
+        activeIndexes.map(async (index, partitionIndex) => {
+          const task = {
+            kind: "validateSecondPass",
+            projectDir: secondPassParams.projectDir,
+            context: secondPassParams.context,
+            mode: secondPassParams.mode,
+            sharedValidationSnapshot,
+            pendingReferences: referencePartitions[partitionIndex] ?? [],
+          } satisfies PreparedYamlProjectWorkerTask
+          const response =
+            params.concurrency === 1 && params.createWorkerPool === undefined
+              ? await runPreparedYamlProjectWorkerTask(task)
+              : ((await getOrCreatePool(pools, index, createPool).run(task)) as PreparedYamlProjectWorkerTaskResult)
+          if (response.kind !== "validateSecondPassResult") {
+            throw new Error("Worker вернул неожиданный результат validateSecondPass")
+          }
+          return response
+        })
+      )
+
+      return { diagnostics: results.flatMap((result) => result.diagnostics) }
+    },
     async close() {
       await Promise.all([...pools.values()].map((pool) => pool.destroy()))
       pools.clear()
       activeWorkerIndexes.clear()
       validationStartProfile = undefined
+    },
+    size() {
+      return params.concurrency
     },
   }
 }

@@ -1,4 +1,4 @@
-import fs, { mkdirSync, mkdtempSync, rmSync, writeFileSync } from "fs"
+import { mkdirSync, mkdtempSync, rmSync, writeFileSync } from "fs"
 import { tmpdir } from "os"
 import { join, resolve } from "path"
 import { afterAll, afterEach, describe, expect, it, vi } from "vitest"
@@ -1148,15 +1148,15 @@ describe("validateProject", { timeout: 120_000 }, () => {
       "    Вид: ПолеВвода",
       "    ПутьКДанным: Объект.Артикул",
     ])
-    const readFileSync = vi.spyOn(fs, "readFileSync")
+    resetProjectValidationReadCountForTests()
 
     await validateProject({ projectDir, context: mockContext, concurrency: 1 })
 
     const ownerPath = join(projectDir, "Справочник", "Номенклатура", "Свойства.yaml")
-    expect(readFileSync.mock.calls.filter(([filePath]) => filePath === ownerPath)).toHaveLength(1)
+    expect(getProjectValidationReadCountForTests(ownerPath)).toBe(0)
   })
 
-  it("does not read a YAML file twice during full validation", async () => {
+  it("full validation uses prepared YAML without the legacy validation reader", async () => {
     const projectDir = createProject()
     writeProjectFile(projectDir, "Справочник/Товары/Свойства.yaml", "{}\n")
     writeProjectFile(projectDir, "Справочник/Товары/Формы/ФормаЭлемента/Форма.yaml", "Элементы: {}\n")
@@ -1164,12 +1164,12 @@ describe("validateProject", { timeout: 120_000 }, () => {
     resetProjectValidationReadCountForTests()
     await validateProject({ projectDir, context: mockContext, concurrency: 1 })
 
-    expect(getProjectValidationReadCountForTests(join(projectDir, "Справочник", "Товары", "Свойства.yaml"))).toBe(1)
+    expect(getProjectValidationReadCountForTests(join(projectDir, "Справочник", "Товары", "Свойства.yaml"))).toBe(0)
     expect(
       getProjectValidationReadCountForTests(
         join(projectDir, "Справочник", "Товары", "Формы", "ФормаЭлемента", "Форма.yaml")
       )
-    ).toBe(1)
+    ).toBe(0)
   })
 
   it("validates MetadataObjectRefCollection targets from rules metadataTarget", async () => {

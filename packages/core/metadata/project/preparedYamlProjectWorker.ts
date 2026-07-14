@@ -2,6 +2,8 @@ import { readFileSync } from "node:fs"
 import { resolve } from "node:path"
 import { parseMetadataYaml } from "../../yaml/parseMetadataYaml"
 import type { ConfigurationContext } from "../context/types"
+import { createOwnerMetadataCacheFromSharedValidationSnapshot } from "../validation/dataPath/sharedOwnerCache"
+import { getProjectReferenceObjectPathContributor } from "../validation/projectReferenceIndexRegistry"
 import type {
   ProjectMemberIndexEntry,
   ProjectObjectIndexEntry,
@@ -10,8 +12,10 @@ import type {
 } from "../validation/projectMetadataReferences"
 import { resolveValidationProjectFile } from "../validation/projectFiles"
 import { createProjectYamlCacheFromPreparedFiles } from "../validation/projectYamlCache"
+import { validatePendingReferencesWithIndex } from "../validation/projectReferenceIndex"
 import {
   validateProjectFileFirstPass,
+  validateProjectFileSecondPass,
   type ProjectValidationFileState,
   type ValidationSchemaCache,
   type ValidationSchemaCacheCompileProfile,
@@ -19,8 +23,10 @@ import {
 import { createProjectValidationWorkerSchemaCache } from "../validation/projectValidationWorkerSchemaCache"
 import { registerValidationMetadata } from "../validation/registerValidationMetadata"
 import type { ValidationRulesSnapshot } from "../validation/rulesSnapshot"
+import { createSharedProjectReferenceIndex } from "../validation/sharedProjectReferenceIndex"
+import type { SharedValidationSnapshot } from "../validation/sharedValidationSnapshot"
 import type { Diagnostic } from "../validation/types"
-import type { ValidationObjectRecord } from "../validation/projectValidationTypes"
+import type { ValidationMode, ValidationObjectRecord } from "../validation/projectValidationTypes"
 import type {
   PreparedMetadataDeclaration,
   PreparedMetadataDependency,
@@ -47,6 +53,14 @@ export type PreparedYamlProjectWorkerTask =
       projectDir: string
       context: ConfigurationContext
     }
+  | {
+      kind: "validateSecondPass"
+      projectDir: string
+      context: ConfigurationContext
+      mode: ValidationMode
+      sharedValidationSnapshot: SharedValidationSnapshot
+      pendingReferences: PendingMetadataTargetReference[]
+    }
 
 export type PreparedYamlProjectWorkerTaskResult =
   | {
@@ -66,6 +80,10 @@ export type PreparedYamlProjectWorkerTaskResult =
       valueIndexEntries: ProjectValueIndexEntry[]
       pendingReferences: PendingMetadataTargetReference[]
     }
+  | {
+      kind: "validateSecondPassResult"
+      diagnostics: Diagnostic[]
+    }
 
 interface WorkerValidationState {
   states: Map<string, ProjectValidationFileState>
@@ -84,6 +102,9 @@ export default async function runPreparedYamlProjectWorkerTask(
     return { kind: "initValidationResult", ...validationSchemaCache.compileAll() }
   }
   if (message.kind === "validateFirstPass") return { kind: "validateFirstPassResult", ...runValidationFirstPass(message) }
+  if (message.kind === "validateSecondPass") {
+    return { kind: "validateSecondPassResult", ...runValidationSecondPass(message) }
+  }
 
   const yamlFiles: PreparedYamlFile[] = []
   const declarations: PreparedMetadataDeclaration[] = []
@@ -168,7 +189,7 @@ function runValidationFirstPass(message: Extract<PreparedYamlProjectWorkerTask, 
       cache,
       context: message.context,
       schemaCache,
-      rulesSnapshot: requireValidationRulesSnapshot(),
+      ...(file.kind === "form" ? { rulesSnapshot: requireValidationRulesSnapshot() } : {}),
     })
 
     validationState.states.set(resolve(file.absolutePath), first.state)
@@ -198,6 +219,53 @@ function requireValidationSchemaCache(): ValidationSchemaCache {
 function requireValidationRulesSnapshot(): ValidationRulesSnapshot {
   if (validationRulesSnapshot === undefined) throw new Error("Prepared YAML worker rulesSnapshot не инициализирован")
   return validationRulesSnapshot
+}
+
+function runValidationSecondPass(message: Extract<PreparedYamlProjectWorkerTask, { kind: "validateSecondPass" }>): {
+  diagnostics: Diagnostic[]
+} {
+  const diagnostics: Diagnostic[] = []
+  const cache = createProjectYamlCacheFromPreparedFiles([...preparedYamlFiles.values()])
+  const ownerCache = createOwnerMetadataCacheFromSharedValidationSnapshot({
+    projectDir: message.projectDir,
+    snapshot: message.sharedValidationSnapshot,
+  })
+  const referenceIndex = createSharedProjectReferenceIndex({
+    projectDir: message.projectDir,
+    mode: message.mode,
+    snapshot: message.sharedValidationSnapshot.reference,
+    resolveObjectFilePath: (target) => resolveObjectFilePath({ projectDir: message.projectDir, target }),
+  })
+  const referenceResult = validatePendingReferencesWithIndex({
+    index: referenceIndex,
+    references: message.pendingReferences,
+  })
+  diagnostics.push(...referenceResult.diagnostics)
+
+  for (const state of validationState.states.values()) {
+    const second = validateProjectFileSecondPass({
+      projectDir: message.projectDir,
+      state,
+      cache,
+      context: message.context,
+      ownerCache,
+      referenceIndex,
+      skipMetadataTargetValidation: true,
+    })
+    diagnostics.push(...second.diagnostics)
+  }
+
+  validationState = createEmptyWorkerValidationState()
+
+  return { diagnostics }
+}
+
+function resolveObjectFilePath(params: {
+  projectDir: string
+  target: Parameters<NonNullable<ReturnType<typeof getProjectReferenceObjectPathContributor>>>[0]["target"]
+}): string | undefined {
+  const contributor = getProjectReferenceObjectPathContributor(params.target.root)
+  return contributor?.({ projectDir: params.projectDir, target: params.target })?.filePath
 }
 
 function extractDeclarations(file: PreparedYamlProjectFileDescriptor): PreparedMetadataDeclaration[] {
