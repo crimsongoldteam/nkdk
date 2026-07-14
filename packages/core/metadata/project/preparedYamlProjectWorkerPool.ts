@@ -5,10 +5,10 @@ import Piscina from "piscina"
 import type { ConfigurationContext } from "../context/types"
 import type {
   FirstPassPoolResult,
-  ProjectValidationWorkerPoolStartProfile,
   SecondPassPoolParams,
   SecondPassPoolResult,
-} from "../validation/projectValidationWorkerPool"
+  ValidationWorkerPoolStartProfile,
+} from "../validation/validationWorkerPoolTypes"
 import { createValidationRulesSnapshot } from "../validation/rulesSnapshot"
 import type { Diagnostic } from "../validation/types"
 import { createValidationSnapshotProvider } from "../validation/validationSnapshotProvider"
@@ -29,7 +29,7 @@ export interface PreparedYamlProjectWorkerPool {
     context: ConfigurationContext
     files: PreparedYamlProjectFileDescriptor[]
   }): Promise<PreparedYamlProjectWorkerPoolResult>
-  initValidation(context: ConfigurationContext): Promise<ProjectValidationWorkerPoolStartProfile>
+  initValidation(context: ConfigurationContext): Promise<ValidationWorkerPoolStartProfile>
   runValidationFirstPass(params: { projectDir: string; context: ConfigurationContext }): Promise<FirstPassPoolResult>
   runValidationSecondPass(params: SecondPassPoolParams): Promise<SecondPassPoolResult>
   close(): Promise<void>
@@ -55,7 +55,7 @@ export function createPreparedYamlProjectWorkerPool(params: {
   const pools = new Map<number, PreparedWorkerPool>()
   const createPool = params.createWorkerPool ?? createWorkerPool
   const activeWorkerIndexes = new Set<number>()
-  let validationStartProfile: ProjectValidationWorkerPoolStartProfile | undefined
+  let validationStartProfile: ValidationWorkerPoolStartProfile | undefined
 
   return {
     async run(runParams) {
