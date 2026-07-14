@@ -88,11 +88,13 @@ export async function prepareYamlProject(params: {
   const pool = createPreparedYamlProjectWorkerPool({ concurrency: Math.max(1, params.concurrency ?? 1) })
 
   try {
-    const prepared = await pool.run(files)
+    const prepared = await pool.run({ projectDir, context: params.context, files })
     if (prepared.diagnostics.length > 0) {
       return {
         ok: false,
-        code: "prepare_failed",
+        code: prepared.diagnostics.some((diagnostic) => diagnostic.message.startsWith("Повторное объявление metadata:"))
+          ? "declaration_conflict"
+          : "prepare_failed",
         message: "Не удалось подготовить YAML-проект",
         diagnostics: prepared.diagnostics,
       }
@@ -104,7 +106,7 @@ export async function prepareYamlProject(params: {
         projectDir,
         files,
         resourceFiles: [],
-        metadataIndex: { declarations: [] },
+        metadataIndex: prepared.metadataIndex,
         workers: prepared.workers,
       },
     }

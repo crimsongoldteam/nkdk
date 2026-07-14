@@ -1,4 +1,4 @@
-import { parseMetadataTargetFromYAML } from "../commonObjects/metadataTargets"
+import { parseMetadataTargetFromModel, parseMetadataTargetFromYAML } from "../commonObjects/metadataTargets"
 import { rootFromYAML } from "../commonObjects/metadataTargets/roots"
 import type { MetadataTargetOwner, ParsedMetadataTarget } from "../commonObjects/metadataTargets/types"
 import { getTypeFromYAML } from "../commonObjects/typeDescription/helper"
@@ -23,7 +23,11 @@ import {
 } from "./projectReferenceIndex"
 import type { ValidationProjectFile } from "./projectFiles"
 import type { ValidationPendingCheck } from "./projectValidationPendingChecks"
-import { findValidationRulesSpec, type ValidationRulesSnapshot, type ValidationRulesSpecSnapshot } from "./rulesSnapshot"
+import {
+  findValidationRulesSpec,
+  type ValidationRulesSnapshot,
+  type ValidationRulesSpecSnapshot,
+} from "./rulesSnapshot"
 import { diagnosticAtYamlPath } from "./yamlLocations"
 import type { Diagnostic } from "./types"
 
@@ -49,13 +53,23 @@ export function extractValidationYamlFacts(params: {
 
   const spec = findValidationRulesSpec(params.rulesSnapshot, params.file.owner.dir)
   const objectTarget = spec === undefined ? undefined : objectTargetForProjectFile(params.file, spec)
-  const owner = objectTarget === undefined ? undefined : { root: objectTarget.root, objectName: objectTarget.objectName }
+  const owner =
+    objectTarget === undefined ? undefined : { root: objectTarget.root, objectName: objectTarget.objectName }
   const pendingReferences =
     spec === undefined
       ? []
       : collectPendingReferences({
           filePath: params.file.absolutePath,
           owner,
+          value: params.parsed.data,
+          properties: spec.properties,
+          yamlPath: [],
+        })
+  const typeReferences =
+    spec === undefined
+      ? []
+      : collectTypeDescriptionReferences({
+          filePath: params.file.absolutePath,
           value: params.parsed.data,
           properties: spec.properties,
           yamlPath: [],
@@ -78,7 +92,7 @@ export function extractValidationYamlFacts(params: {
           ],
     memberIndexEntries: [],
     valueIndexEntries: [],
-    pendingReferences,
+    pendingReferences: [...pendingReferences, ...typeReferences],
     pendingChecks: [],
     diagnostics: [],
     ...(ownerFacts === undefined ? {} : ownerFacts),
@@ -247,7 +261,11 @@ function buildObjectFieldIndexFromSyntheticModel(
         typeInfo: typeDescriptionToDataPathTypeInfo(attributeRecord["type"] as TypeDescription | undefined),
       })
     }
-    const table = { kind: "TabularSection" as const, owner: { kind: file.owner.dir, name: file.owner.name }, name: record["name"] }
+    const table = {
+      kind: "TabularSection" as const,
+      owner: { kind: file.owner.dir, name: file.owner.name },
+      name: record["name"],
+    }
     fields.set(record["name"], {
       name: record["name"],
       kind: "tabularSection",
@@ -270,7 +288,9 @@ function namedTypedItemsFromYaml(value: unknown): Array<{ name: string; type?: T
   }))
 }
 
-function tabularSectionsFromYaml(value: unknown): Array<{ name: string; attributes: Array<{ name: string; type?: TypeDescription }> }> {
+function tabularSectionsFromYaml(
+  value: unknown
+): Array<{ name: string; attributes: Array<{ name: string; type?: TypeDescription }> }> {
   const record = asRecord(value)
   return Object.entries(record ?? {}).map(([name, item]) => ({
     name,
@@ -315,7 +335,8 @@ function commonAttributeContentFromYaml(value: unknown): Array<{ metadata: strin
   return value.flatMap((item) => {
     const record = asRecord(item)
     if (record === undefined || typeof record["Объект"] !== "string") return []
-    const use = typeof record["Использование"] === "string" ? CommonAttributeUseFromYAML[record["Использование"]] : undefined
+    const use =
+      typeof record["Использование"] === "string" ? CommonAttributeUseFromYAML[record["Использование"]] : undefined
     return [
       {
         metadata: metadataLinkFromYaml(record["Объект"]),
@@ -367,6 +388,124 @@ function collectPendingReferences(params: {
   }
 
   return references
+}
+
+function collectTypeDescriptionReferences(params: {
+  filePath: string
+  value: unknown
+  properties: readonly ValidationRulesSpecSnapshot["properties"][number][]
+  yamlPath: readonly (string | number)[]
+}): PendingMetadataTargetReference[] {
+  const record = asRecord(params.value)
+  if (record === undefined) return []
+
+  const references: PendingMetadataTargetReference[] = []
+  for (const property of params.properties) {
+    const value = valueAtPath(record, property.yamlPath)
+    if (value === undefined) continue
+
+    if (property.type === "TypeDescription") {
+      references.push(
+        ...collectTypeDescriptionTargetValues({
+          filePath: params.filePath,
+          value,
+          yamlPath: [...params.yamlPath, ...property.yamlPath],
+        })
+      )
+    }
+
+    if (property.children !== undefined) {
+      references.push(
+        ...collectNestedTypeDescriptionReferences({
+          filePath: params.filePath,
+          value,
+          properties: property.children,
+          yamlPath: [...params.yamlPath, ...property.yamlPath],
+        })
+      )
+    }
+  }
+
+  return references
+}
+
+function collectNestedTypeDescriptionReferences(params: {
+  filePath: string
+  value: unknown
+  properties: readonly ValidationRulesSpecSnapshot["properties"][number][]
+  yamlPath: readonly (string | number)[]
+}): PendingMetadataTargetReference[] {
+  if (Array.isArray(params.value)) {
+    return params.value.flatMap((item, index) =>
+      collectTypeDescriptionReferences({ ...params, value: item, yamlPath: [...params.yamlPath, index] })
+    )
+  }
+
+  const record = asRecord(params.value)
+  if (record === undefined) return []
+
+  return Object.entries(record).flatMap(([key, item]) =>
+    collectTypeDescriptionReferences({ ...params, value: item, yamlPath: [...params.yamlPath, key] })
+  )
+}
+
+function collectTypeDescriptionTargetValues(params: {
+  filePath: string
+  value: unknown
+  yamlPath: readonly (string | number)[]
+}): PendingMetadataTargetReference[] {
+  const values = Array.isArray(params.value) ? params.value : [params.value]
+  return values.flatMap((value, index) => {
+    if (typeof value !== "string") return []
+    const typeDescription = typeDescriptionFromYAML(value)
+    if (typeDescription === undefined) return []
+    const valuePath = Array.isArray(params.value) ? [...params.yamlPath, index] : params.yamlPath
+    return typeDescription.type.flatMap((type) =>
+      pendingObjectReferenceFromTypeDescription({ filePath: params.filePath, type, yamlPath: valuePath })
+    )
+  })
+}
+
+function pendingObjectReferenceFromTypeDescription(params: {
+  filePath: string
+  type: string
+  yamlPath: readonly (string | number)[]
+}): PendingMetadataTargetReference[] {
+  const canonical = objectCanonicalFromTypeDescription(params.type)
+  if (canonical === undefined) return []
+
+  const parsed = parseMetadataTargetFromModel({
+    canonical,
+    constraint: { kind: "object" },
+  })
+  if (!parsed.ok) return []
+
+  return [
+    {
+      filePath: params.filePath,
+      yamlPath: [...params.yamlPath],
+      canonical,
+      target: parsed.target,
+      constraint: { kind: "object" },
+    },
+  ]
+}
+
+function objectCanonicalFromTypeDescription(type: string): string | undefined {
+  const dotIndex = type.indexOf(".")
+  if (dotIndex === -1) return undefined
+
+  const root = normalizeTypeDescriptionRoot(type.substring(0, dotIndex))
+  if (root === undefined) return undefined
+
+  return `${root}${type.substring(dotIndex)}`
+}
+
+function normalizeTypeDescriptionRoot(root: string): string | undefined {
+  for (const suffix of ["Ref", "Object", "Manager"] as const) {
+    if (root.endsWith(suffix)) return root.substring(0, root.length - suffix.length)
+  }
+  return undefined
 }
 
 function collectNestedReferences(params: {
@@ -424,7 +563,11 @@ function collectPictureTargetValues(params: {
   yamlPath: readonly (string | number)[]
 }): PendingMetadataTargetReference[] {
   if (typeof params.value === "string") {
-    const reference = pendingPictureReferenceFromYamlValue({ ...params, value: params.value, yamlPath: params.yamlPath })
+    const reference = pendingPictureReferenceFromYamlValue({
+      ...params,
+      value: params.value,
+      yamlPath: params.yamlPath,
+    })
     return reference === undefined ? [] : [reference]
   }
 
@@ -432,7 +575,11 @@ function collectPictureTargetValues(params: {
   const ref = record?.["Ссылка"]
   if (typeof ref !== "string") return []
 
-  const reference = pendingPictureReferenceFromYamlValue({ ...params, value: ref, yamlPath: [...params.yamlPath, "Ссылка"] })
+  const reference = pendingPictureReferenceFromYamlValue({
+    ...params,
+    value: ref,
+    yamlPath: [...params.yamlPath, "Ссылка"],
+  })
   return reference === undefined ? [] : [reference]
 }
 
@@ -532,7 +679,12 @@ function buildFormDataPathIndexFromYaml(params: { filePath: string; parsed: Pars
     })
     const typeInfo =
       attribute?.["ДинамическийСписок"] !== undefined
-        ? { kinds: ["dynamicList", "tableSource"] as const, nextTypes: [], table: { kind: "DynamicList" as const }, sourceText: "DynamicList" }
+        ? {
+            kinds: ["dynamicList", "tableSource"] as const,
+            nextTypes: [],
+            table: { kind: "DynamicList" as const },
+            sourceText: "DynamicList",
+          }
         : typeDescriptionToDataPathTypeInfo(typeDescriptionFromYAML(attribute?.["Тип"]))
     const tableSource =
       typeInfo.table === undefined
@@ -678,7 +830,9 @@ function collectRuleDataPathChecks(params: {
       rule,
       elementType: params.elementType,
       ...(params.owner["КартинкаЗначений"] === undefined ? {} : { hasValuesPicture: true }),
-      ...(params.tableContext !== undefined && rule.yaml === "ПутьКДанным" ? { tableContext: params.tableContext } : {}),
+      ...(params.tableContext !== undefined && rule.yaml === "ПутьКДанным"
+        ? { tableContext: params.tableContext }
+        : {}),
       policy: "formDataPath",
     })
   }
@@ -745,5 +899,7 @@ function valueAtPath(value: Record<string, unknown>, path: readonly string[]): u
 }
 
 function asRecord(value: unknown): Record<string, unknown> | undefined {
-  return typeof value === "object" && value !== null && !Array.isArray(value) ? (value as Record<string, unknown>) : undefined
+  return typeof value === "object" && value !== null && !Array.isArray(value)
+    ? (value as Record<string, unknown>)
+    : undefined
 }
