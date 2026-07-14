@@ -1,5 +1,7 @@
 import { performance } from "node:perf_hooks"
 import { resolve } from "path"
+
+// Переходный validation worker. Полная валидация проекта использует preparedYamlProjectWorker.
 import type { ConfigurationContext } from "../context/types"
 import { createOwnerMetadataCacheFromSharedValidationSnapshot } from "./dataPath/sharedOwnerCache"
 import { getProjectReferenceObjectPathContributor } from "./projectReferenceIndexRegistry"

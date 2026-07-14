@@ -2,6 +2,8 @@ import { existsSync } from "node:fs"
 import { dirname, join } from "node:path"
 import { performance } from "node:perf_hooks"
 import { fileURLToPath, pathToFileURL } from "node:url"
+
+// Переходный validation worker pool. Полная валидация проекта использует preparedYamlProjectWorkerPool.
 import Piscina from "piscina"
 import type { ConfigurationContext } from "../context/types"
 import {

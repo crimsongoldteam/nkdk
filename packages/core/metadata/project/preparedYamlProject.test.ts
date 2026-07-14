@@ -133,39 +133,67 @@ describe("prepareYamlProject", () => {
     expect(getProjectValidationReadCountForTests(yamlPath)).toBe(0)
   })
 
-  it("runs validation first pass on worker-stored YAML data", async () => {
-    const projectDir = createProject()
-    const yamlPath = join(projectDir, "Справочник", "Товары", "Свойства.yaml")
-    const context = { version: "2.20", defaultLanguage: "ru", exportToYAML: { toTyped: false } } as const
-    resetProjectValidationReadCountForTests()
+  it(
+    "runs validation first pass on worker-stored YAML data",
+    async () => {
+      const projectDir = createProject()
+      const yamlPath = join(projectDir, "Справочник", "Товары", "Свойства.yaml")
+      const context = { version: "2.20", defaultLanguage: "ru", exportToYAML: { toTyped: false } } as const
+      resetProjectValidationReadCountForTests()
 
-    const pool = createPreparedYamlProjectWorkerPool({ concurrency: 1 })
-    try {
-      const prepared = await pool.run({
-        projectDir,
-        context,
-        files: [
-          {
-            projectPath: "Справочник/Товары/Свойства.yaml",
-            filePath: yamlPath,
-            role: "properties",
-            owner: { dir: "Справочник", name: "Товары" },
-            itemType: "Catalog",
-          },
-        ],
-      })
-      expect(prepared.diagnostics).toEqual([])
+      const pool = createPreparedYamlProjectWorkerPool({ concurrency: 1 })
+      try {
+        const prepared = await pool.run({
+          projectDir,
+          context,
+          files: [
+            {
+              projectPath: "Справочник/Товары/Свойства.yaml",
+              filePath: yamlPath,
+              role: "properties",
+              owner: { dir: "Справочник", name: "Товары" },
+              itemType: "Catalog",
+            },
+          ],
+        })
+        expect(prepared.diagnostics).toEqual([])
 
-      await pool.initValidation(context)
-      const first = await pool.runValidationFirstPass({ projectDir, context })
+        await pool.initValidation(context)
+        const first = await pool.runValidationFirstPass({ projectDir, context })
 
-      expect(first.diagnostics.filter((diagnostic) => diagnostic.severity === "error")).toEqual([])
-      expect(first.objectRecords).toHaveLength(1)
-      expect(getProjectValidationReadCountForTests(yamlPath)).toBe(0)
-    } finally {
-      await pool.close()
-    }
-  })
+        expect(first.diagnostics.filter((diagnostic) => diagnostic.severity === "error")).toEqual([])
+        expect(first.objectRecords).toHaveLength(1)
+        expect(getProjectValidationReadCountForTests(yamlPath)).toBe(0)
+      } finally {
+        await pool.close()
+      }
+    },
+    testTimeout
+  )
+
+  it(
+    "reuses validation schema cache on repeated initValidation",
+    async () => {
+      const pool = createPreparedYamlProjectWorkerPool({ concurrency: 1 })
+      const context = { version: "2.20", defaultLanguage: "ru", exportToYAML: { toTyped: false } } as const
+
+      try {
+        const first = await pool.initValidation(context)
+        const second = await pool.initValidation(context)
+
+        expect(first.reused).toBeUndefined()
+        expect(second).toMatchObject({
+          reused: true,
+          schemaCompileMs: first.schemaCompileMs,
+          formSchemaMs: first.formSchemaMs,
+          propertiesSchemaMs: first.propertiesSchemaMs,
+        })
+      } finally {
+        await pool.close()
+      }
+    },
+    testTimeout
+  )
 
   it(
     "builds metadata declarations and keeps dependencies on the source worker",
