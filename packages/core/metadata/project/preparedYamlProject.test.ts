@@ -3,7 +3,10 @@ import { tmpdir } from "node:os"
 import { join } from "node:path"
 import { afterEach, describe, expect, it } from "vitest"
 import { prepareYamlProject } from "./preparedYamlProject"
-import { mergePreparedMetadataDeclarationsForTests } from "./preparedYamlProjectWorkerPool"
+import {
+  createPreparedYamlProjectWorkerPool,
+  mergePreparedMetadataDeclarationsForTests,
+} from "./preparedYamlProjectWorkerPool"
 
 describe("prepareYamlProject", () => {
   const testTimeout = 20_000
@@ -79,6 +82,32 @@ describe("prepareYamlProject", () => {
     testTimeout
   )
 
+  it("returns resource file descriptions without reading resource content", async () => {
+    const projectDir = createProject()
+    writeFileSync(join(projectDir, "Справочник", "Товары", "МодульМенеджера.bsl"), "Процедура Тест()\nКонецПроцедуры\n")
+
+    const result = await prepareYamlProject({
+      projectDir,
+      context: { version: "2.20", defaultLanguage: "ru", exportToYAML: { toTyped: false } },
+      concurrency: 1,
+    })
+
+    expect(result.ok).toBe(true)
+    if (!result.ok) throw new Error(result.message)
+
+    expect(result.project.resourceFiles).toEqual(
+      expect.arrayContaining([
+        expect.objectContaining({
+          projectPath: "Справочник/Товары/МодульМенеджера.bsl",
+          owner: { dir: "Справочник", name: "Товары" },
+        }),
+      ])
+    )
+    expect(result.project.workers.flatMap((worker) => worker.yamlFiles).map((file) => file.projectPath)).not.toContain(
+      "Справочник/Товары/МодульМенеджера.bsl"
+    )
+  })
+
   it(
     "builds metadata declarations and keeps dependencies on the source worker",
     async () => {
@@ -117,5 +146,50 @@ describe("prepareYamlProject", () => {
         { canonical: "Catalog.Товары", projectPath: "b.yaml", filePath: "/project/b.yaml" },
       ])
     ).toMatchObject({ ok: false, code: "declaration_conflict" })
+  })
+
+  it("does not start physical workers for empty partitions", async () => {
+    let startedWorkers = 0
+    const pool = createPreparedYamlProjectWorkerPool({
+      concurrency: 4,
+      createWorkerPool: () => {
+        startedWorkers += 1
+        return {
+          async run() {
+            return {
+              kind: "prepareResult" as const,
+              yamlFiles: [],
+              declarations: [],
+              dependencies: [],
+              diagnostics: [],
+            }
+          },
+          async destroy() {
+            return undefined
+          },
+        }
+      },
+    })
+
+    try {
+      const result = await pool.run({
+        projectDir: "/project",
+        context: { version: "2.20", defaultLanguage: "ru", exportToYAML: { toTyped: false } },
+        files: [
+          {
+            projectPath: "Справочник/Товары/Свойства.yaml",
+            filePath: "/project/Справочник/Товары/Свойства.yaml",
+            role: "properties",
+            owner: { dir: "Справочник", name: "Товары" },
+            itemType: "Catalog",
+          },
+        ],
+      })
+
+      expect(startedWorkers).toBe(1)
+      expect(result.workers).toHaveLength(4)
+    } finally {
+      await pool.close()
+    }
   })
 })

@@ -1,5 +1,6 @@
 import { existsSync, readdirSync, statSync } from "fs"
 import { isAbsolute, join, relative, resolve, sep } from "path"
+import type { ProjectResourceDescriptor, ProjectResourceSource } from "../orchestration/property/fn"
 import { CONFIGURATION_YAML_FILE } from "./constants"
 import {
   configurationMetadataProjectSpec,
@@ -11,7 +12,7 @@ import { describeMetadataRuleProjectResources, matchProjectPattern } from "./rul
 
 const PROPERTIES_FILE = "Свойства.yaml"
 
-export type MetadataProjectResourceKind = "yaml" | "xml" | "asset"
+export type MetadataProjectResourceKind = "yaml" | "resource"
 export type MetadataProjectYamlRole = "configuration" | "properties" | "form"
 
 export interface MetadataProjectResourceOwner {
@@ -29,6 +30,7 @@ export type MetadataProjectResourceRef =
   | MetadataProjectConfigurationYamlRef
   | MetadataProjectPropertiesYamlRef
   | MetadataProjectFormYamlRef
+  | MetadataProjectResourceOnlyRef
 
 export interface MetadataProjectConfigurationYamlRef {
   kind: "yaml"
@@ -54,6 +56,16 @@ export interface MetadataProjectFormYamlRef {
   absolutePath?: string
   owner: MetadataProjectResourceOwner
   formName: string
+}
+
+export interface MetadataProjectResourceOnlyRef {
+  kind: "resource"
+  role: string
+  projectPath: string
+  absolutePath?: string
+  owner: MetadataProjectResourceOwner
+  descriptorKind: ProjectResourceDescriptor["kind"]
+  source: ProjectResourceSource
 }
 
 export function classifyMetadataProjectPath(projectPath: string): MetadataProjectResourceRef | undefined {
@@ -169,10 +181,7 @@ function matchRecursiveNestedPropertiesPath(
   return undefined
 }
 
-function matchDescriptorResourcePath(
-  parts: string[],
-  projectPath: string
-): MetadataProjectPropertiesYamlRef | MetadataProjectFormYamlRef | undefined {
+function matchDescriptorResourcePath(parts: string[], projectPath: string): MetadataProjectResourceRef | undefined {
   if (parts.length < 3) return undefined
   const owner = createOwner(parts[0], parts[1])
   if (!owner) return undefined
@@ -180,7 +189,27 @@ function matchDescriptorResourcePath(
   const relativePath = parts.slice(2).join("/")
   for (const resource of describeMetadataRuleProjectResources(owner.spec.rule)) {
     const match = matchProjectPattern(resource.projectPattern, relativePath)
-    if (!match || resource.kind !== "yaml") continue
+    if (!match) continue
+    if (resource.kind !== "yaml") {
+      return {
+        kind: "resource",
+        role: resource.role,
+        projectPath,
+        owner,
+        descriptorKind: resource.kind,
+        source: resource.source,
+      }
+    }
+    if (resource.role === "resourceOnly") {
+      return {
+        kind: "resource",
+        role: resource.role,
+        projectPath,
+        owner,
+        descriptorKind: resource.kind,
+        source: resource.source,
+      }
+    }
 
     if (resource.role === "properties") {
       return { kind: "yaml", role: "properties", projectPath, owner, nesting: [] }
@@ -209,7 +238,6 @@ function collectExistingDescriptorResources(
   resources: MetadataProjectResourceRef[]
 ): void {
   for (const resource of describeMetadataRuleProjectResources(spec.rule)) {
-    if (resource.kind !== "yaml") continue
     collectExistingResourcePattern(projectRoot, ownerRoot, resource.projectPattern, resources)
   }
 }

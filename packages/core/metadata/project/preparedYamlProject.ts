@@ -25,6 +25,7 @@ export interface PreparedYamlProjectResourceDescriptor {
   filePath: string
   owner: { dir: string; name: string }
   role: string
+  propertyType?: string
 }
 
 export interface PreparedYamlWorkerPartition {
@@ -76,8 +77,9 @@ export async function prepareYamlProject(params: {
   void params.context
 
   const projectDir = resolve(params.projectDir)
-  const files = discoverMetadataProjectResources(projectDir)
-    .filter((resource) => resource.absolutePath !== undefined)
+  const resources = discoverMetadataProjectResources(projectDir).filter((resource) => resource.absolutePath !== undefined)
+  const files = resources
+    .filter((resource) => resource.kind === "yaml")
     .map(
       (resource): PreparedYamlProjectFileDescriptor => ({
         projectPath: resource.projectPath,
@@ -88,6 +90,17 @@ export async function prepareYamlProject(params: {
           resource.owner.spec.rule.metadataTargetOwner?.kind === "self"
             ? resource.owner.spec.rule.metadataTargetOwner.root
             : (resource.owner.spec.rule.itemTypePrefix ?? resource.owner.spec.rule.itemType),
+      })
+    )
+  const resourceFiles = resources
+    .filter((resource) => resource.kind !== "yaml")
+    .map(
+      (resource): PreparedYamlProjectResourceDescriptor => ({
+        projectPath: resource.projectPath,
+        filePath: resource.absolutePath!,
+        owner: { dir: resource.owner.dir, name: resource.owner.name },
+        role: resource.role,
+        propertyType: resource.source.kind === "property" ? resource.source.propertyType : undefined,
       })
     )
   const pool = createPreparedYamlProjectWorkerPool({ concurrency: Math.max(1, params.concurrency ?? 1) })
@@ -110,7 +123,7 @@ export async function prepareYamlProject(params: {
       project: {
         projectDir,
         files,
-        resourceFiles: [],
+        resourceFiles,
         metadataIndex: prepared.metadataIndex,
         workers: prepared.workers,
       },
