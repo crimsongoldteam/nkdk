@@ -1,4 +1,4 @@
-import { parseMetadataTargetFromModel, parseMetadataTargetFromYAML } from "../commonObjects/metadataTargets"
+import { parseMetadataTargetFromYAML } from "../commonObjects/metadataTargets"
 import { rootFromYAML } from "../commonObjects/metadataTargets/roots"
 import type { MetadataTargetOwner, ParsedMetadataTarget } from "../commonObjects/metadataTargets/types"
 import { getTypeFromYAML } from "../commonObjects/typeDescription/helper"
@@ -65,15 +65,6 @@ export function extractValidationYamlFacts(params: {
           properties: spec.properties,
           yamlPath: [],
         })
-  const typeReferences =
-    spec === undefined
-      ? []
-      : collectTypeDescriptionReferences({
-          filePath: params.file.absolutePath,
-          value: params.parsed.data,
-          properties: spec.properties,
-          yamlPath: [],
-        })
   const ownerFacts = spec === undefined ? undefined : buildOwnerFactsFromYaml(params.file, params.parsed.data, spec)
   return {
     objectIndexEntries:
@@ -92,7 +83,7 @@ export function extractValidationYamlFacts(params: {
           ],
     memberIndexEntries: [],
     valueIndexEntries: [],
-    pendingReferences: [...pendingReferences, ...typeReferences],
+    pendingReferences,
     pendingChecks: [],
     diagnostics: [],
     ...(ownerFacts === undefined ? {} : ownerFacts),
@@ -388,124 +379,6 @@ function collectPendingReferences(params: {
   }
 
   return references
-}
-
-function collectTypeDescriptionReferences(params: {
-  filePath: string
-  value: unknown
-  properties: readonly ValidationRulesSpecSnapshot["properties"][number][]
-  yamlPath: readonly (string | number)[]
-}): PendingMetadataTargetReference[] {
-  const record = asRecord(params.value)
-  if (record === undefined) return []
-
-  const references: PendingMetadataTargetReference[] = []
-  for (const property of params.properties) {
-    const value = valueAtPath(record, property.yamlPath)
-    if (value === undefined) continue
-
-    if (property.type === "TypeDescription") {
-      references.push(
-        ...collectTypeDescriptionTargetValues({
-          filePath: params.filePath,
-          value,
-          yamlPath: [...params.yamlPath, ...property.yamlPath],
-        })
-      )
-    }
-
-    if (property.children !== undefined) {
-      references.push(
-        ...collectNestedTypeDescriptionReferences({
-          filePath: params.filePath,
-          value,
-          properties: property.children,
-          yamlPath: [...params.yamlPath, ...property.yamlPath],
-        })
-      )
-    }
-  }
-
-  return references
-}
-
-function collectNestedTypeDescriptionReferences(params: {
-  filePath: string
-  value: unknown
-  properties: readonly ValidationRulesSpecSnapshot["properties"][number][]
-  yamlPath: readonly (string | number)[]
-}): PendingMetadataTargetReference[] {
-  if (Array.isArray(params.value)) {
-    return params.value.flatMap((item, index) =>
-      collectTypeDescriptionReferences({ ...params, value: item, yamlPath: [...params.yamlPath, index] })
-    )
-  }
-
-  const record = asRecord(params.value)
-  if (record === undefined) return []
-
-  return Object.entries(record).flatMap(([key, item]) =>
-    collectTypeDescriptionReferences({ ...params, value: item, yamlPath: [...params.yamlPath, key] })
-  )
-}
-
-function collectTypeDescriptionTargetValues(params: {
-  filePath: string
-  value: unknown
-  yamlPath: readonly (string | number)[]
-}): PendingMetadataTargetReference[] {
-  const values = Array.isArray(params.value) ? params.value : [params.value]
-  return values.flatMap((value, index) => {
-    if (typeof value !== "string") return []
-    const typeDescription = typeDescriptionFromYAML(value)
-    if (typeDescription === undefined) return []
-    const valuePath = Array.isArray(params.value) ? [...params.yamlPath, index] : params.yamlPath
-    return typeDescription.type.flatMap((type) =>
-      pendingObjectReferenceFromTypeDescription({ filePath: params.filePath, type, yamlPath: valuePath })
-    )
-  })
-}
-
-function pendingObjectReferenceFromTypeDescription(params: {
-  filePath: string
-  type: string
-  yamlPath: readonly (string | number)[]
-}): PendingMetadataTargetReference[] {
-  const canonical = objectCanonicalFromTypeDescription(params.type)
-  if (canonical === undefined) return []
-
-  const parsed = parseMetadataTargetFromModel({
-    canonical,
-    constraint: { kind: "object" },
-  })
-  if (!parsed.ok) return []
-
-  return [
-    {
-      filePath: params.filePath,
-      yamlPath: [...params.yamlPath],
-      canonical,
-      target: parsed.target,
-      constraint: { kind: "object" },
-    },
-  ]
-}
-
-function objectCanonicalFromTypeDescription(type: string): string | undefined {
-  const dotIndex = type.indexOf(".")
-  if (dotIndex === -1) return undefined
-
-  const root = normalizeTypeDescriptionRoot(type.substring(0, dotIndex))
-  if (root === undefined) return undefined
-
-  return `${root}${type.substring(dotIndex)}`
-}
-
-function normalizeTypeDescriptionRoot(root: string): string | undefined {
-  for (const suffix of ["Ref", "Object", "Manager"] as const) {
-    if (root.endsWith(suffix)) return root.substring(0, root.length - suffix.length)
-  }
-  return undefined
 }
 
 function collectNestedReferences(params: {

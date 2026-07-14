@@ -46,7 +46,6 @@ export interface ValidationWorkerPoolHandle {
 
 const expectedPatterns =
   "Ожидались Конфигурация.yaml или пути вида <Вид>/<Имя>/Свойства.yaml и <Вид>/<Имя>/Формы/<Форма>/Форма.yaml"
-const MIN_FILES_FOR_WORKER_VALIDATION = 128
 
 export async function validateProject(params: ValidateProjectParams): Promise<ValidateProjectResult> {
   const concurrency = normalizeValidationConcurrency(params.concurrency)
@@ -228,11 +227,10 @@ async function validateProjectWithWorkers(
   const discoverStartedAt = performance.now()
   const files = discoverValidationProjectFiles(projectDir)
   const discoverMs = performance.now() - discoverStartedAt
-  if (files.length < MIN_FILES_FOR_WORKER_VALIDATION) {
-    return validateProjectInProcess({ ...params, concurrency: 1 })
-  }
 
-  const pool = params.pool ?? createProjectValidationWorkerPool({ concurrency: params.concurrency })
+  const pool =
+    params.pool ??
+    createProjectValidationWorkerPool({ concurrency: Math.max(1, Math.min(params.concurrency, files.length)) })
   const closePool = params.closePool ?? true
   let startMs = 0
   let schemaCompileMs = 0
