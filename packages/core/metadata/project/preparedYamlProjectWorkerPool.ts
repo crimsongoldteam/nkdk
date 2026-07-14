@@ -1,7 +1,13 @@
 import { dirname, join } from "node:path"
+import { performance } from "node:perf_hooks"
 import { fileURLToPath, pathToFileURL } from "node:url"
 import Piscina from "piscina"
 import type { ConfigurationContext } from "../context/types"
+import type {
+  FirstPassPoolResult,
+  ProjectValidationWorkerPoolStartProfile,
+} from "../validation/projectValidationWorkerPool"
+import { createValidationRulesSnapshot } from "../validation/rulesSnapshot"
 import type { Diagnostic } from "../validation/types"
 import type {
   PreparedGlobalMetadataIndex,
@@ -9,7 +15,10 @@ import type {
   PreparedYamlProjectFileDescriptor,
   PreparedYamlWorkerPartition,
 } from "./preparedYamlProject"
-import type { PreparedYamlProjectWorkerTask, PreparedYamlProjectWorkerTaskResult } from "./preparedYamlProjectWorker"
+import runPreparedYamlProjectWorkerTask, {
+  type PreparedYamlProjectWorkerTask,
+  type PreparedYamlProjectWorkerTaskResult,
+} from "./preparedYamlProjectWorker"
 
 export interface PreparedYamlProjectWorkerPool {
   run(params: {
@@ -17,6 +26,8 @@ export interface PreparedYamlProjectWorkerPool {
     context: ConfigurationContext
     files: PreparedYamlProjectFileDescriptor[]
   }): Promise<PreparedYamlProjectWorkerPoolResult>
+  initValidation(context: ConfigurationContext): Promise<ProjectValidationWorkerPoolStartProfile>
+  runValidationFirstPass(params: { projectDir: string; context: ConfigurationContext }): Promise<FirstPassPoolResult>
   close(): Promise<void>
 }
 
@@ -30,18 +41,26 @@ type PreparedMetadataDeclarationMergeResult =
   | { ok: true; index: PreparedGlobalMetadataIndex }
   | { ok: false; code: "declaration_conflict"; message: string; diagnostics: Diagnostic[] }
 
-export function createPreparedYamlProjectWorkerPool(params: { concurrency: number }): PreparedYamlProjectWorkerPool {
-  const pools = Array.from({ length: params.concurrency }, () => createWorkerPool())
+type PreparedWorkerPool = Pick<Piscina, "run" | "destroy">
+
+export function createPreparedYamlProjectWorkerPool(params: {
+  concurrency: number
+  createWorkerPool?: () => PreparedWorkerPool
+}): PreparedYamlProjectWorkerPool {
+  const pools = new Map<number, PreparedWorkerPool>()
+  const createPool = params.createWorkerPool ?? createWorkerPool
+  const activeWorkerIndexes = new Set<number>()
+  let validationStartProfile: ProjectValidationWorkerPoolStartProfile | undefined
 
   return {
     async run(runParams) {
-      const partitions = partitionRoundRobin(runParams.files, pools.length)
+      const partitions = partitionRoundRobin(runParams.files, params.concurrency)
+      activeWorkerIndexes.clear()
       const itemTypeByYamlDir = Object.fromEntries(
         runParams.files.map((file) => [file.owner.dir, file.itemType]).filter(([dir]) => dir.length > 0)
       )
       const results = await Promise.all(
-        pools.map(async (pool, index): Promise<PreparedYamlProjectWorkerPoolResult & { workerIndex: number }> => {
-          const files = partitions[index] ?? []
+        partitions.map(async (files, index): Promise<PreparedYamlProjectWorkerPoolResult & { workerIndex: number }> => {
           if (files.length === 0) {
             return {
               workerIndex: index,
@@ -56,13 +75,18 @@ export function createPreparedYamlProjectWorkerPool(params: { concurrency: numbe
               ],
             }
           }
+          activeWorkerIndexes.add(index)
 
-          const response = (await pool.run({
+          const task = {
             kind: "prepare",
             projectDir: runParams.projectDir,
             itemTypeByYamlDir,
             files,
-          } satisfies PreparedYamlProjectWorkerTask)) as PreparedYamlProjectWorkerTaskResult
+          } satisfies PreparedYamlProjectWorkerTask
+          const response =
+            params.concurrency === 1 && params.createWorkerPool === undefined
+              ? await runPreparedYamlProjectWorkerTask(task)
+              : ((await getOrCreatePool(pools, index, createPool).run(task)) as PreparedYamlProjectWorkerTaskResult)
           if (response.kind !== "prepareResult") throw new Error("Worker вернул неожиданный результат prepare")
           return {
             workerIndex: index,
@@ -95,10 +119,80 @@ export function createPreparedYamlProjectWorkerPool(params: { concurrency: numbe
         workers,
       }
     },
+    async initValidation(context) {
+      if (validationStartProfile !== undefined) return { ...validationStartProfile, reused: true }
+
+      const rulesSnapshot = createValidationRulesSnapshot(context)
+      const startedAt = performance.now()
+      const results = await Promise.all(
+        Array.from(activeWorkerIndexes).map(async (index) => {
+          const task = { kind: "initValidation", context, rulesSnapshot } satisfies PreparedYamlProjectWorkerTask
+          const response =
+            params.concurrency === 1 && params.createWorkerPool === undefined
+              ? await runPreparedYamlProjectWorkerTask(task)
+              : ((await getOrCreatePool(pools, index, createPool).run(task)) as PreparedYamlProjectWorkerTaskResult)
+          if (response.kind !== "initValidationResult") throw new Error("Worker вернул неожиданный результат initValidation")
+          return response
+        })
+      )
+
+      validationStartProfile = {
+        workerInitMs: performance.now() - startedAt,
+        schemaCompileMs: results.reduce((sum, result) => sum + result.totalMs, 0),
+        formSchemaMs: results.reduce((sum, result) => sum + result.formMs, 0),
+        propertiesSchemaMs: results.reduce((sum, result) => sum + result.propertiesMs, 0),
+        rulesSnapshotBytes: JSON.stringify(rulesSnapshot).length,
+      }
+      return validationStartProfile
+    },
+    async runValidationFirstPass(firstPassParams) {
+      const results = await Promise.all(
+        Array.from(activeWorkerIndexes).map(async (index) => {
+          const task = {
+            kind: "validateFirstPass",
+            projectDir: firstPassParams.projectDir,
+            context: firstPassParams.context,
+          } satisfies PreparedYamlProjectWorkerTask
+          const response =
+            params.concurrency === 1 && params.createWorkerPool === undefined
+              ? await runPreparedYamlProjectWorkerTask(task)
+              : ((await getOrCreatePool(pools, index, createPool).run(task)) as PreparedYamlProjectWorkerTaskResult)
+          if (response.kind !== "validateFirstPassResult") {
+            throw new Error("Worker вернул неожиданный результат validateFirstPass")
+          }
+          return response
+        })
+      )
+
+      return {
+        diagnostics: results.flatMap((result) => result.diagnostics),
+        objectRecords: results.flatMap((result) => result.objectRecords),
+        objectIndexEntries: results.flatMap((result) => result.objectIndexEntries),
+        memberIndexEntries: results.flatMap((result) => result.memberIndexEntries),
+        valueIndexEntries: results.flatMap((result) => result.valueIndexEntries),
+        pendingReferences: results.flatMap((result) => result.pendingReferences),
+      }
+    },
     async close() {
-      await Promise.all(pools.map((pool) => pool.destroy()))
+      await Promise.all([...pools.values()].map((pool) => pool.destroy()))
+      pools.clear()
+      activeWorkerIndexes.clear()
+      validationStartProfile = undefined
     },
   }
+}
+
+function getOrCreatePool(
+  pools: Map<number, PreparedWorkerPool>,
+  index: number,
+  createPool: () => PreparedWorkerPool
+): PreparedWorkerPool {
+  const existing = pools.get(index)
+  if (existing !== undefined) return existing
+
+  const pool = createPool()
+  pools.set(index, pool)
+  return pool
 }
 
 export function mergePreparedMetadataDeclarationsForTests(

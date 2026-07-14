@@ -1,6 +1,26 @@
 import { readFileSync } from "node:fs"
+import { resolve } from "node:path"
 import { parseMetadataYaml } from "../../yaml/parseMetadataYaml"
+import type { ConfigurationContext } from "../context/types"
+import type {
+  ProjectMemberIndexEntry,
+  ProjectObjectIndexEntry,
+  ProjectValueIndexEntry,
+  PendingMetadataTargetReference,
+} from "../validation/projectMetadataReferences"
+import { resolveValidationProjectFile } from "../validation/projectFiles"
+import { createProjectYamlCacheFromPreparedFiles } from "../validation/projectYamlCache"
+import {
+  validateProjectFileFirstPass,
+  type ProjectValidationFileState,
+  type ValidationSchemaCache,
+  type ValidationSchemaCacheCompileProfile,
+} from "../validation/projectValidationPasses"
+import { createProjectValidationWorkerSchemaCache } from "../validation/projectValidationWorkerSchemaCache"
+import { registerValidationMetadata } from "../validation/registerValidationMetadata"
+import type { ValidationRulesSnapshot } from "../validation/rulesSnapshot"
 import type { Diagnostic } from "../validation/types"
+import type { ValidationObjectRecord } from "../validation/projectValidationTypes"
 import type {
   PreparedMetadataDeclaration,
   PreparedMetadataDependency,
@@ -8,24 +28,63 @@ import type {
   PreparedYamlProjectFileDescriptor,
 } from "./preparedYamlProject"
 
-export type PreparedYamlProjectWorkerTask = {
-  kind: "prepare"
-  projectDir: string
-  itemTypeByYamlDir: Record<string, string>
-  files: PreparedYamlProjectFileDescriptor[]
-}
+registerValidationMetadata()
 
-export type PreparedYamlProjectWorkerTaskResult = {
-  kind: "prepareResult"
-  yamlFiles: PreparedYamlFile[]
-  declarations: PreparedMetadataDeclaration[]
-  dependencies: PreparedMetadataDependency[]
-  diagnostics: Diagnostic[]
+export type PreparedYamlProjectWorkerTask =
+  | {
+      kind: "prepare"
+      projectDir: string
+      itemTypeByYamlDir: Record<string, string>
+      files: PreparedYamlProjectFileDescriptor[]
+    }
+  | {
+      kind: "initValidation"
+      context: ConfigurationContext
+      rulesSnapshot: ValidationRulesSnapshot
+    }
+  | {
+      kind: "validateFirstPass"
+      projectDir: string
+      context: ConfigurationContext
+    }
+
+export type PreparedYamlProjectWorkerTaskResult =
+  | {
+      kind: "prepareResult"
+      yamlFiles: PreparedYamlFile[]
+      declarations: PreparedMetadataDeclaration[]
+      dependencies: PreparedMetadataDependency[]
+      diagnostics: Diagnostic[]
+    }
+  | ({ kind: "initValidationResult" } & ValidationSchemaCacheCompileProfile)
+  | {
+      kind: "validateFirstPassResult"
+      diagnostics: Diagnostic[]
+      objectRecords: ValidationObjectRecord[]
+      objectIndexEntries: ProjectObjectIndexEntry[]
+      memberIndexEntries: ProjectMemberIndexEntry[]
+      valueIndexEntries: ProjectValueIndexEntry[]
+      pendingReferences: PendingMetadataTargetReference[]
+    }
+
+interface WorkerValidationState {
+  states: Map<string, ProjectValidationFileState>
+  objectIndexEntries: ProjectObjectIndexEntry[]
+  memberIndexEntries: ProjectMemberIndexEntry[]
+  valueIndexEntries: ProjectValueIndexEntry[]
+  pendingReferences: PendingMetadataTargetReference[]
 }
 
 export default async function runPreparedYamlProjectWorkerTask(
   message: PreparedYamlProjectWorkerTask
 ): Promise<PreparedYamlProjectWorkerTaskResult> {
+  if (message.kind === "initValidation") {
+    validationSchemaCache = await createProjectValidationWorkerSchemaCache({ context: message.context })
+    validationRulesSnapshot = message.rulesSnapshot
+    return { kind: "initValidationResult", ...validationSchemaCache.compileAll() }
+  }
+  if (message.kind === "validateFirstPass") return { kind: "validateFirstPassResult", ...runValidationFirstPass(message) }
+
   const yamlFiles: PreparedYamlFile[] = []
   const declarations: PreparedMetadataDeclaration[] = []
   const dependencies: PreparedMetadataDependency[] = []
@@ -66,7 +125,79 @@ export default async function runPreparedYamlProjectWorkerTask(
     }
   }
 
+  preparedYamlFiles = new Map(yamlFiles.map((file) => [file.filePath, file]))
   return { kind: "prepareResult", yamlFiles, declarations, dependencies, diagnostics }
+}
+
+let preparedYamlFiles = new Map<string, PreparedYamlFile>()
+let validationSchemaCache: ValidationSchemaCache | undefined
+let validationRulesSnapshot: ValidationRulesSnapshot | undefined
+let validationState = createEmptyWorkerValidationState()
+
+function createEmptyWorkerValidationState(): WorkerValidationState {
+  return {
+    states: new Map(),
+    objectIndexEntries: [],
+    memberIndexEntries: [],
+    valueIndexEntries: [],
+    pendingReferences: [],
+  }
+}
+
+function runValidationFirstPass(message: Extract<PreparedYamlProjectWorkerTask, { kind: "validateFirstPass" }>): {
+  diagnostics: Diagnostic[]
+  objectRecords: ValidationObjectRecord[]
+  objectIndexEntries: ProjectObjectIndexEntry[]
+  memberIndexEntries: ProjectMemberIndexEntry[]
+  valueIndexEntries: ProjectValueIndexEntry[]
+  pendingReferences: PendingMetadataTargetReference[]
+} {
+  validationState = createEmptyWorkerValidationState()
+  const diagnostics: Diagnostic[] = []
+  const objectRecords: ValidationObjectRecord[] = []
+  const schemaCache = requireValidationSchemaCache()
+  const cache = createProjectYamlCacheFromPreparedFiles([...preparedYamlFiles.values()])
+
+  for (const yamlFile of preparedYamlFiles.values()) {
+    const file = resolveValidationProjectFile(message.projectDir, yamlFile.filePath)
+    if (file === undefined) continue
+
+    const first = validateProjectFileFirstPass({
+      projectDir: message.projectDir,
+      file,
+      cache,
+      context: message.context,
+      schemaCache,
+      rulesSnapshot: requireValidationRulesSnapshot(),
+    })
+
+    validationState.states.set(resolve(file.absolutePath), first.state)
+    validationState.objectIndexEntries.push(...first.objectIndexEntries)
+    validationState.memberIndexEntries.push(...first.memberIndexEntries)
+    validationState.valueIndexEntries.push(...first.valueIndexEntries)
+    validationState.pendingReferences.push(...first.pendingReferences)
+    diagnostics.push(...first.diagnostics)
+    objectRecords.push(...first.objectRecords)
+  }
+
+  return {
+    diagnostics,
+    objectRecords,
+    objectIndexEntries: validationState.objectIndexEntries,
+    memberIndexEntries: validationState.memberIndexEntries,
+    valueIndexEntries: validationState.valueIndexEntries,
+    pendingReferences: validationState.pendingReferences,
+  }
+}
+
+function requireValidationSchemaCache(): ValidationSchemaCache {
+  if (validationSchemaCache === undefined) throw new Error("Prepared YAML worker не инициализирован для validation")
+  return validationSchemaCache
+}
+
+function requireValidationRulesSnapshot(): ValidationRulesSnapshot {
+  if (validationRulesSnapshot === undefined) throw new Error("Prepared YAML worker rulesSnapshot не инициализирован")
+  return validationRulesSnapshot
 }
 
 function extractDeclarations(file: PreparedYamlProjectFileDescriptor): PreparedMetadataDeclaration[] {
