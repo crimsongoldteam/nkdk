@@ -1,7 +1,7 @@
 import { mkdirSync, mkdtempSync, rmSync, writeFileSync } from "node:fs"
 import { tmpdir } from "node:os"
 import { join } from "node:path"
-import { afterEach, describe, expect, it, vi } from "vitest"
+import { afterAll, afterEach, beforeAll, describe, expect, it, vi } from "vitest"
 import {
   getProjectValidationReadCountForTests,
   resetProjectValidationReadCountForTests,
@@ -15,7 +15,32 @@ import {
 
 describe("prepareYamlProject", () => {
   const testTimeout = 20_000
+  const validationContext = { version: "2.20", defaultLanguage: "ru", exportToYAML: { toTyped: false } } as const
   const tempDirs: string[] = []
+  const validationPool = createPreparedYamlProjectWorkerPool({ concurrency: 1 })
+
+  beforeAll(async () => {
+    const projectDir = createProject()
+    await validationPool.run({
+      projectDir,
+      context: validationContext,
+      includeYamlData: false,
+      files: [
+        {
+          projectPath: "Справочник/Товары/Свойства.yaml",
+          filePath: join(projectDir, "Справочник", "Товары", "Свойства.yaml"),
+          role: "properties",
+          owner: { dir: "Справочник", name: "Товары" },
+          itemType: "Catalog",
+        },
+      ],
+    })
+    await validationPool.initValidation(validationContext)
+  }, 120_000)
+
+  afterAll(async () => {
+    await validationPool.close()
+  })
 
   afterEach(() => {
     for (const dir of tempDirs.splice(0)) rmSync(dir, { recursive: true, force: true })
@@ -222,37 +247,30 @@ describe("prepareYamlProject", () => {
     async () => {
       const projectDir = createProject()
       const yamlPath = join(projectDir, "Справочник", "Товары", "Свойства.yaml")
-      const context = { version: "2.20", defaultLanguage: "ru", exportToYAML: { toTyped: false } } as const
       resetProjectValidationReadCountForTests()
 
-      const pool = createPreparedYamlProjectWorkerPool({ concurrency: 1 })
-      try {
-        const prepared = await pool.run({
-          projectDir,
-          context,
-          includeYamlData: false,
-          files: [
-            {
-              projectPath: "Справочник/Товары/Свойства.yaml",
-              filePath: yamlPath,
-              role: "properties",
-              owner: { dir: "Справочник", name: "Товары" },
-              itemType: "Catalog",
-            },
-          ],
-        })
-        expect(prepared.diagnostics).toEqual([])
-        expect(prepared.workers.flatMap((worker) => worker.yamlFiles)[0]).not.toHaveProperty("data")
+      const prepared = await validationPool.run({
+        projectDir,
+        context: validationContext,
+        includeYamlData: false,
+        files: [
+          {
+            projectPath: "Справочник/Товары/Свойства.yaml",
+            filePath: yamlPath,
+            role: "properties",
+            owner: { dir: "Справочник", name: "Товары" },
+            itemType: "Catalog",
+          },
+        ],
+      })
+      expect(prepared.diagnostics).toEqual([])
+      expect(prepared.workers.flatMap((worker) => worker.yamlFiles)[0]).not.toHaveProperty("data")
 
-        await pool.initValidation(context)
-        const first = await pool.runValidationFirstPass({ projectDir, context })
+      const first = await validationPool.runValidationFirstPass({ projectDir, context: validationContext })
 
-        expect(first.diagnostics.filter((diagnostic) => diagnostic.severity === "error")).toEqual([])
-        expect(first.objectRecords).toHaveLength(1)
-        expect(getProjectValidationReadCountForTests(yamlPath)).toBe(0)
-      } finally {
-        await pool.close()
-      }
+      expect(first.diagnostics.filter((diagnostic) => diagnostic.severity === "error")).toEqual([])
+      expect(first.objectRecords).toHaveLength(1)
+      expect(getProjectValidationReadCountForTests(yamlPath)).toBe(0)
     },
     testTimeout
   )

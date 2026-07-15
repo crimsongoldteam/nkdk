@@ -51,6 +51,10 @@ describe("AppearanceFields exportToJSONSchema", { timeout: 30_000 }, () => {
     const compiled = schemaFor()
 
     expect(compiled.Check({ ЦветТекста: null })).toBe(true)
+    expect(compiled.Check({ ЦветТекста: "" })).toBe(true)
+    expect(compiled.Check({ ЦветТекста: undefined })).toBe(true)
+    expect(compiled.Errors({ ЦветТекста: undefined })).toEqual([true, []])
+    expect(compiled.Check({ ЦветФона: undefined })).toBe(true)
     expect(compiled.Check({ ЦветФона: { Использовать: "Ложь" } })).toBe(true)
   })
 

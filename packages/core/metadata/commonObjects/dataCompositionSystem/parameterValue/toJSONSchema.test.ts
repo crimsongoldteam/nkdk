@@ -54,6 +54,21 @@ describe("SettingsParameterValue exportToJSONSchema", { timeout: 30_000 }, () =>
     expect(errorsFor(rule, "#1C55AE")).toEqual([])
   })
 
+  it("accepts omitted top-level value for Color only", () => {
+    const colorRule = { type: "SettingsParameterValue", valueType: "Color", yaml: "Цвет" } as const
+    const primitiveRule = { type: "SettingsParameterValue", valueType: "Primitive", yaml: "Видимость" } as const
+    const fieldRule = { type: "SettingsParameterValue", valueType: "Field", yaml: "Поле" } as const
+    const fontRule = { type: "SettingsParameterValue", valueType: "Font", yaml: "Шрифт" } as const
+    const designTimeRule = { type: "SettingsParameterValue", valueType: "DesignTimeValue", yaml: "Формат" } as const
+
+    expect(errorsFor(colorRule, undefined)).toEqual([])
+    expect(errorsFor(colorRule, "")).toEqual([])
+    expect(errorsFor(primitiveRule, undefined)).not.toEqual([])
+    expect(errorsFor(fieldRule, undefined)).not.toEqual([])
+    expect(errorsFor(fontRule, undefined)).not.toEqual([])
+    expect(errorsFor(designTimeRule, undefined)).not.toEqual([])
+  })
+
   it("accepts compact Primitive YAML value", () => {
     const rule = { type: "SettingsParameterValue", valueType: "Primitive", yaml: "Видимость" } as const
 

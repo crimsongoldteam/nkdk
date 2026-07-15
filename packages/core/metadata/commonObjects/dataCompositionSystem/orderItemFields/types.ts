@@ -1,6 +1,8 @@
 import { registerMetadataItemCollectionRule } from "../../../orchestration"
 import { MetadataTypeByRule } from "../../../orchestration/metadataItem/element"
 import { YAMLTypeByRule } from "../../../orchestration/metadataItem/yaml"
+import { registerJSONSchemaPropertyRef, schemaRef } from "../../../orchestration/jsonSchemaRefs"
+import { Type } from "typebox"
 import { importOrderItemFieldsFromXML } from "./fromXML"
 import { importOrderItemFieldsFromYAML } from "./fromYAML"
 import { OrderItemFieldRules } from "./rules"
@@ -28,3 +30,5 @@ registerMetadataItemCollectionRule({
   toJSONSchema: exportOrderItemFieldsToJSONSchema,
   yamlAsArray: true,
 })
+
+registerJSONSchemaPropertyRef("OrderItemFields", () => Type.Array(Type.Union([Type.Literal("[Авто]"), schemaRef("OrderItemField")])))

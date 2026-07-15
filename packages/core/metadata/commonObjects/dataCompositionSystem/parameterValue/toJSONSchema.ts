@@ -222,6 +222,7 @@ export const createSettingsParameterValueJSONSchema = (params: {
   const self = Type.Ref(schemaKey)
 
   const schemas = [
+    ...(settingsRule.valueType === "Color" ? [Type.Undefined(), Type.Literal("")] : []),
     compactValueSchema,
     Type.Object(
       {

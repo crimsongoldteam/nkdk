@@ -1,7 +1,7 @@
 import { mkdirSync, mkdtempSync, rmSync, writeFileSync } from "fs"
 import { tmpdir } from "os"
 import { dirname, join } from "path"
-import { afterEach, describe, expect, it } from "vitest"
+import { afterEach, beforeAll, describe, expect, it } from "vitest"
 import { mockContext } from "../../tests/mockContext"
 import { resolveValidationProjectFile } from "./projectFiles"
 import { createProjectYamlCache } from "./projectYamlCache"
@@ -11,6 +11,16 @@ import { createValidationRulesSnapshot } from "./rulesSnapshot"
 
 describe("validateProjectFileFirstPass references", () => {
   const tempDirs: string[] = []
+  let sharedSchemaCache: ReturnType<typeof createValidationSchemaCache>
+
+  beforeAll(() => {
+    sharedSchemaCache = createValidationSchemaCache(mockContext)
+    sharedSchemaCache.form()
+
+    const commonFormSpec = getValidationProjectSpecByDir("ОбщаяФорма")
+    if (commonFormSpec === undefined) throw new Error("Common form validation spec is not registered")
+    sharedSchemaCache.properties(commonFormSpec)
+  }, 120_000)
 
   afterEach(() => {
     for (const dir of tempDirs.splice(0)) rmSync(dir, { recursive: true, force: true })
@@ -29,7 +39,7 @@ describe("validateProjectFileFirstPass references", () => {
     const spec = getValidationProjectSpecByDir("ОбщаяФорма")
     if (spec === undefined) throw new Error("Common form validation spec is not registered")
 
-    const compiled = createValidationSchemaCache(mockContext).properties(spec)
+    const compiled = sharedSchemaCache.properties(spec)
 
     expect(compiled.Schema()).toMatchObject({
       properties: {
@@ -52,7 +62,7 @@ describe("validateProjectFileFirstPass references", () => {
       file,
       cache: createProjectYamlCache(),
       context: mockContext,
-      schemaCache: createValidationSchemaCache(mockContext),
+      schemaCache: sharedSchemaCache,
       rulesSnapshot: createValidationRulesSnapshot(mockContext),
       rulesSnapshot: createValidationRulesSnapshot(mockContext),
       rulesSnapshot: createValidationRulesSnapshot(mockContext),
@@ -84,7 +94,7 @@ describe("validateProjectFileFirstPass references", () => {
       file,
       cache: createProjectYamlCache(),
       context: mockContext,
-      schemaCache: createValidationSchemaCache(mockContext),
+      schemaCache: sharedSchemaCache,
       rulesSnapshot: createValidationRulesSnapshot(mockContext),
       rulesSnapshot: createValidationRulesSnapshot(mockContext),
       rulesSnapshot: createValidationRulesSnapshot(mockContext),
@@ -125,7 +135,7 @@ describe("validateProjectFileFirstPass references", () => {
       file,
       cache: createProjectYamlCache(),
       context: mockContext,
-      schemaCache: createValidationSchemaCache(mockContext),
+      schemaCache: sharedSchemaCache,
       rulesSnapshot: createValidationRulesSnapshot(mockContext),
       rulesSnapshot: createValidationRulesSnapshot(mockContext),
     })
@@ -161,7 +171,7 @@ describe("validateProjectFileFirstPass references", () => {
       file,
       cache: createProjectYamlCache(),
       context: mockContext,
-      schemaCache: createValidationSchemaCache(mockContext),
+      schemaCache: sharedSchemaCache,
       rulesSnapshot: createValidationRulesSnapshot(mockContext),
     })
 
@@ -196,7 +206,7 @@ describe("validateProjectFileFirstPass references", () => {
       file,
       cache: createProjectYamlCache(),
       context: mockContext,
-      schemaCache: createValidationSchemaCache(mockContext),
+      schemaCache: sharedSchemaCache,
       rulesSnapshot: createValidationRulesSnapshot(mockContext),
     })
 
@@ -221,7 +231,7 @@ describe("validateProjectFileFirstPass references", () => {
       file,
       cache: createProjectYamlCache(),
       context: mockContext,
-      schemaCache: createValidationSchemaCache(mockContext),
+      schemaCache: sharedSchemaCache,
       rulesSnapshot: createValidationRulesSnapshot(mockContext),
     })
 
@@ -252,7 +262,7 @@ describe("validateProjectFileFirstPass references", () => {
       file,
       cache: createProjectYamlCache(),
       context: mockContext,
-      schemaCache: createValidationSchemaCache(mockContext),
+      schemaCache: sharedSchemaCache,
       rulesSnapshot: createValidationRulesSnapshot(mockContext),
     })
 

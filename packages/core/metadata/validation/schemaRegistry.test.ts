@@ -238,6 +238,32 @@ describe("JSON Schema registry", { timeout: 60_000 }, () => {
     })
   })
 
+  it("accepts dynamic list auto order marker in form graph", () => {
+    const graph = exportJSONSchemaGraph({
+      context,
+      roots: [{ key: "form", name: "ClientApplicationForm", includeNestedChildItems: true }],
+    })
+    const compiled = compileValidationSchema(graph.schemas, graph.roots.form!, {
+      inlineRefs: false,
+      eagerFallback: true,
+    })
+
+    expect(
+      compiled.Check({
+        Реквизиты: {
+          Список: {
+            Тип: "ДинамическийСписок",
+            ДинамическийСписок: {
+              Порядок: {
+                Элементы: [{ Поле: "НалоговыйПериод" }, "[Авто]"],
+              },
+            },
+          },
+        },
+      })
+    ).toBe(true)
+  })
+
   it("exports single form objects as refs in form graph", () => {
     const graph = exportJSONSchemaGraph({
       context,

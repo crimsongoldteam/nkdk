@@ -34,4 +34,9 @@ describe("ColorJSONSchema", () => {
   it("rejects XML auto color", () => {
     expect(errorsFor("auto")).not.toEqual([])
   })
+
+  it("rejects omitted value", () => {
+    expect(errorsFor(undefined)).not.toEqual([])
+    expect(errorsFor("")).not.toEqual([])
+  })
 })
