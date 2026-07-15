@@ -31,7 +31,7 @@ describe("validate command", () => {
     await validateYamlProject(projectDir)
 
     const text = writtenText(stdout)
-    expect(text).toContain("Справочник/Товары/Свойства.yaml:1:1 error:")
+    expect(text).toContain("Справочник/Товары/Свойства.yaml error:")
     expect(text).not.toContain("warning:")
     expect(text).toContain("summary: 1 error, 0 warning")
     expect(stderr).not.toHaveBeenCalled()
@@ -173,13 +173,14 @@ describe("validate command", () => {
         severity: "error",
         source: "structure",
         message: "ошибка",
+        path: "/Реквизиты/Контрагент/Тип",
       },
     ]
 
     expect(formatDiagnostics(diagnostics, projectDir)).toBe(
       [
-        "Справочник/Товары/Свойства.yaml:2:3 warning: предупреждение",
-        "Документ/Заказ/Свойства.yaml:1:1 error: ошибка",
+        "Справочник/Товары/Свойства.yaml warning: предупреждение",
+        "Документ/Заказ/Свойства.yaml error: ошибка (instancePath: /Реквизиты/Контрагент/Тип)",
       ].join("\n")
     )
   })

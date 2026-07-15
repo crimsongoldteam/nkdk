@@ -54,7 +54,8 @@ export function formatDiagnostics(diagnostics: Diagnostic[], projectDir: string)
   return diagnostics
     .map((diagnostic) => {
       const filePath = toProjectRelativePath(projectDir, diagnostic.filePath)
-      return `${filePath}:${diagnostic.line}:${diagnostic.col} ${diagnostic.severity}: ${diagnostic.message}`
+      const instancePath = diagnostic.path === undefined ? "" : ` (instancePath: ${diagnostic.path})`
+      return `${filePath} ${diagnostic.severity}: ${diagnostic.message}${instancePath}`
     })
     .join("\n")
 }

@@ -45,6 +45,7 @@ describe("validateProject service", () => {
           col: 1,
           severity: "error",
           message: "Неизвестное поле",
+          path: "/НесуществующееПоле",
         },
       ],
     })
@@ -58,10 +59,12 @@ describe("validateProject service", () => {
     expect(result.diagnostics[0]).toEqual(
       expect.objectContaining({
         filePath: "Справочник/Товары/Свойства.yaml",
-        line: 1,
         severity: "error",
+        path: "/НесуществующееПоле",
       }),
     )
+    expect(result.diagnostics[0]).not.toHaveProperty("line")
+    expect(result.diagnostics[0]).not.toHaveProperty("col")
     expect(core.validateProject).toHaveBeenCalledWith({ projectDir })
   })
 

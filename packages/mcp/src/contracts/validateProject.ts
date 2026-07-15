@@ -8,10 +8,9 @@ export const validateProjectInputShape = {
 
 export const diagnosticSchema = z.object({
   filePath: z.string(),
-  line: z.number(),
-  col: z.number(),
   severity: z.enum(["error", "warning"]),
   message: z.string(),
+  path: z.string().optional(),
 })
 
 export const validateProjectSuccessOutputShape = {

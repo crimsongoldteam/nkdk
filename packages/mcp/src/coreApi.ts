@@ -19,6 +19,7 @@ export interface Diagnostic {
   col: number
   severity: "error" | "warning"
   message: string
+  path?: string
 }
 
 export interface ConfigurationSyncFailure {

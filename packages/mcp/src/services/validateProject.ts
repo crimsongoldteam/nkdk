@@ -8,10 +8,9 @@ import { getValidationHandle } from "./validationHandle"
 export type ValidateProjectPayload = ToolPayload<{
   diagnostics: Array<{
     filePath: string
-    line: number
-    col: number
     severity: "error" | "warning"
     message: string
+    path?: string
   }>
   summary: {
     errors: number
@@ -39,10 +38,9 @@ export async function validateYamlProject(input: ValidateProjectInput): Promise<
 
     const mapped = diagnostics.filter(isVisibleDiagnostic).map((diagnostic) => ({
       filePath: toProjectRelativePath(projectDir, diagnostic.filePath),
-      line: diagnostic.line,
-      col: diagnostic.col,
       severity: diagnostic.severity,
       message: diagnostic.message,
+      ...(diagnostic.path !== undefined ? { path: diagnostic.path } : {}),
     }))
 
     return toolSuccess({
