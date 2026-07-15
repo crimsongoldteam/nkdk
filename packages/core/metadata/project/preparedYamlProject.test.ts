@@ -68,6 +68,33 @@ describe("prepareYamlProject", () => {
   )
 
   it(
+    "can prepare project without returning parsed YAML data to the main thread",
+    async () => {
+      const projectDir = createProject()
+      const result = await prepareYamlProject({
+        projectDir,
+        context: { version: "2.20", defaultLanguage: "ru", exportToYAML: { toTyped: false } },
+        concurrency: 2,
+        includeYamlData: false,
+      })
+
+      expect(result.ok).toBe(true)
+      if (!result.ok) throw new Error(result.message)
+
+      const yamlFiles = result.project.workers.flatMap((worker) => worker.yamlFiles)
+      expect(yamlFiles).toHaveLength(1)
+      expect(yamlFiles[0]).toMatchObject({
+        projectPath: "Справочник/Товары/Свойства.yaml",
+        role: "properties",
+        owner: { dir: "Справочник", name: "Товары" },
+      })
+      expect(yamlFiles[0]).not.toHaveProperty("data")
+      expect(JSON.stringify(result.project)).not.toContain("Артикул")
+    },
+    testTimeout
+  )
+
+  it(
     "emits detailed preparation profile records",
     async () => {
       const error = vi.spyOn(console, "error").mockImplementation(() => undefined)
@@ -97,7 +124,7 @@ describe("prepareYamlProject", () => {
         lines.some((line) => line.includes("[validation-step]") && line.includes('substep="Классификация файлов проекта"'))
       ).toBe(true)
       expect(
-        lines.some((line) => line.includes("[validation-step]") && line.includes('substep="Обмен с worker и получение результата"'))
+        lines.some((line) => line.includes("[validation-step]") && line.includes('substep="Ожидание результата подготовки"'))
       ).toBe(true)
       expect(lines.some((line) => line.includes("[validation-step]") && line.includes('substep="Чтение YAML"'))).toBe(true)
       expect(lines.some((line) => line.includes("[validation-step]") && line.includes('substep="Разбор YAML"'))).toBe(true)
@@ -184,6 +211,7 @@ describe("prepareYamlProject", () => {
         const prepared = await pool.run({
           projectDir,
           context,
+          includeYamlData: false,
           files: [
             {
               projectPath: "Справочник/Товары/Свойства.yaml",
@@ -195,6 +223,7 @@ describe("prepareYamlProject", () => {
           ],
         })
         expect(prepared.diagnostics).toEqual([])
+        expect(prepared.workers.flatMap((worker) => worker.yamlFiles)[0]).not.toHaveProperty("data")
 
         await pool.initValidation(context)
         const first = await pool.runValidationFirstPass({ projectDir, context })

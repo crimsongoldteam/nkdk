@@ -15,12 +15,18 @@ export interface ValidationProfileRecord {
   heapStartMiB: number
   heapEndMiB: number
   heapPeakMiB: number
+  bytes?: number
 }
 
 export interface ValidationProfiler {
-  measure<T>(step: string, substep: string, params: { items?: number }, fn: () => T): T
-  measureAsync<T>(step: string, substep: string, params: { items?: number }, fn: () => Promise<T>): Promise<T>
-  record(step: string, substep: string, params: { items?: number; timeMs: number }): void
+  measure<T>(step: string, substep: string, params: { items?: number; bytes?: number }, fn: () => T): T
+  measureAsync<T>(
+    step: string,
+    substep: string,
+    params: { items?: number; bytes?: number },
+    fn: () => Promise<T>
+  ): Promise<T>
+  record(step: string, substep: string, params: { items?: number; timeMs: number; bytes?: number }): void
   records(): ValidationProfileRecord[]
   flush(): void
 }
@@ -35,7 +41,7 @@ export function createValidationProfiler(scope: ValidationProfileScope): Validat
       try {
         return fn()
       } finally {
-        records.push(createRecord({ step, substep, scope, items: params.items, tracker, startedAt }))
+        records.push(createRecord({ step, substep, scope, items: params.items, bytes: params.bytes, tracker, startedAt }))
       }
     },
     async measureAsync(step, substep, params, fn) {
@@ -44,12 +50,12 @@ export function createValidationProfiler(scope: ValidationProfileScope): Validat
       try {
         return await fn()
       } finally {
-        records.push(createRecord({ step, substep, scope, items: params.items, tracker, startedAt }))
+        records.push(createRecord({ step, substep, scope, items: params.items, bytes: params.bytes, tracker, startedAt }))
       }
     },
     record(step, substep, params) {
       const tracker = createMemoryTracker()
-      records.push(createRecord({ step, substep, scope, items: params.items, tracker, timeMs: params.timeMs }))
+      records.push(createRecord({ step, substep, scope, items: params.items, bytes: params.bytes, tracker, timeMs: params.timeMs }))
     },
     records() {
       return [...records]
@@ -66,6 +72,7 @@ function createRecord(params: {
   substep: string
   scope: ValidationProfileScope
   items: number | undefined
+  bytes: number | undefined
   tracker: ReturnType<typeof createMemoryTracker>
   startedAt?: number
   timeMs?: number
@@ -77,6 +84,7 @@ function createRecord(params: {
     scope: params.scope.scope,
     ...(params.scope.scope === "worker" ? { workerIndex: params.scope.workerIndex } : {}),
     ...(params.items === undefined ? {} : { items: params.items }),
+    ...(params.bytes === undefined ? {} : { bytes: params.bytes }),
     timeMs: params.timeMs ?? performance.now() - (params.startedAt ?? performance.now()),
     ...params.tracker.snapshot(),
   }
@@ -117,6 +125,7 @@ function formatValidationProfileRecord(record: ValidationProfileRecord): string 
     `scope=${record.scope}`,
     record.workerIndex === undefined ? undefined : `worker=${record.workerIndex}`,
     record.items === undefined ? undefined : `items=${record.items}`,
+    record.bytes === undefined ? undefined : `bytes=${record.bytes}`,
     `time=${record.timeMs.toFixed(2)}ms`,
     `rssStart=${record.rssStartMiB.toFixed(1)}MiB`,
     `rssEnd=${record.rssEndMiB.toFixed(1)}MiB`,

@@ -45,6 +45,7 @@ export type PreparedYamlProjectWorkerTask =
       projectDir: string
       itemTypeByYamlDir: Record<string, string>
       files: PreparedYamlProjectFileDescriptor[]
+      includeYamlData: boolean
     }
   | {
       kind: "initValidation"
@@ -124,6 +125,7 @@ export default async function runPreparedYamlProjectWorkerTask(
   const dependencies: PreparedMetadataDependency[] = []
   const diagnostics: Diagnostic[] = []
   const profiler = createValidationProfiler({ scope: "worker", workerIndex: message.workerIndex })
+  const prepareStartedAt = performance.now()
   let readMs = 0
   let parseMs = 0
   let indexMs = 0
@@ -173,12 +175,40 @@ export default async function runPreparedYamlProjectWorkerTask(
   }
 
   preparedYamlFiles = new Map(yamlFiles.map((file) => [file.filePath, file]))
+  const responseYamlFiles = message.includeYamlData ? yamlFiles : yamlFiles.map(withoutYamlData)
+  const response = {
+    kind: "prepareResult" as const,
+    yamlFiles: responseYamlFiles,
+    declarations,
+    dependencies,
+    diagnostics,
+  }
+  const prepareMs = performance.now() - prepareStartedAt
+  profiler.record("Подготовка YAML-проекта", "Выполнение подготовки в worker", {
+    items: message.files.length,
+    timeMs: prepareMs,
+  })
   profiler.record("Подготовка YAML-проекта", "Чтение YAML", { items: message.files.length, timeMs: readMs })
   profiler.record("Подготовка YAML-проекта", "Разбор YAML", { items: message.files.length, timeMs: parseMs })
   profiler.record("Подготовка YAML-проекта", "Извлечение локальных индексов", { items: message.files.length, timeMs: indexMs })
   profiler.record("Подготовка YAML-проекта", "Сохранение worker данных YAML", { items: message.files.length, timeMs: saveMs })
+  profiler.record("Подготовка YAML-проекта", "Объём результата worker", {
+    items: responseYamlFiles.length,
+    timeMs: 0,
+    bytes: estimateProfilePayloadBytes(response),
+  })
   profiler.flush()
-  return { kind: "prepareResult", yamlFiles, declarations, dependencies, diagnostics }
+  return response
+}
+
+function withoutYamlData(file: PreparedYamlFile): PreparedYamlFile {
+  const { data: _data, ...rest } = file
+  return rest
+}
+
+function estimateProfilePayloadBytes(value: unknown): number | undefined {
+  if (process.env["NKDK_VALIDATION_TIMING"] !== "1") return undefined
+  return Buffer.byteLength(JSON.stringify(value), "utf8")
 }
 
 let preparedYamlFiles = new Map<string, PreparedYamlFile>()

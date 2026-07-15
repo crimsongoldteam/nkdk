@@ -29,6 +29,7 @@ export interface PreparedYamlProjectWorkerPool {
     projectDir: string
     context: ConfigurationContext
     files: PreparedYamlProjectFileDescriptor[]
+    includeYamlData?: boolean
   }): Promise<PreparedYamlProjectWorkerPoolResult>
   initValidation(context: ConfigurationContext): Promise<ValidationWorkerPoolStartProfile>
   runValidationFirstPass(params: { projectDir: string; context: ConfigurationContext }): Promise<FirstPassPoolResult>
@@ -96,6 +97,7 @@ export function createPreparedYamlProjectWorkerPool(params: {
             projectDir: runParams.projectDir,
             itemTypeByYamlDir,
             files,
+            includeYamlData: runParams.includeYamlData ?? true,
           } satisfies PreparedYamlProjectWorkerTask
           const response =
             params.concurrency === 1 && params.createWorkerPool === undefined

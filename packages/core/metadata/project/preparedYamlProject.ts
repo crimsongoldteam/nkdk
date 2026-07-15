@@ -43,7 +43,7 @@ export interface PreparedYamlFile {
   filePath: string
   role: "configuration" | "properties" | "form"
   owner: { dir: string; name: string }
-  data: unknown
+  data?: unknown
   syntaxDiagnostics: Diagnostic[]
 }
 
@@ -77,6 +77,7 @@ export async function prepareYamlProject(params: {
   projectDir: string
   context: ConfigurationContext
   concurrency?: number
+  includeYamlData?: boolean
 }): Promise<PreparedYamlProjectResult> {
   const pool = createPreparedYamlProjectWorkerPool({ concurrency: Math.max(1, params.concurrency ?? 1) })
 
@@ -91,6 +92,7 @@ export async function prepareYamlProjectWithPool(params: {
   projectDir: string
   context: ConfigurationContext
   pool: PreparedYamlProjectWorkerPool
+  includeYamlData?: boolean
 }): Promise<PreparedYamlProjectResult> {
   const profiler = createValidationProfiler({ scope: "main" })
   const projectDir = resolve(params.projectDir)
@@ -132,9 +134,9 @@ export async function prepareYamlProjectWithPool(params: {
   )
   const prepared = await profiler.measureAsync(
     "Подготовка YAML-проекта",
-    "Обмен с worker и получение результата",
+    "Ожидание результата подготовки",
     { items: files.length },
-    () => params.pool.run({ projectDir, context: params.context, files })
+    () => params.pool.run({ projectDir, context: params.context, files, includeYamlData: params.includeYamlData ?? true })
   )
   profiler.flush()
   if (prepared.diagnostics.length > 0) {

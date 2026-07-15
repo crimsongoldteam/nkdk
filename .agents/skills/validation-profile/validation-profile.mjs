@@ -333,8 +333,8 @@ function aggregateRows(steps) {
   const rows = []
   for (const stepName of orderedStepNames(steps)) {
     rows.push(toTableRow(stepName, byStep.get(stepName) ?? []))
-    for (const substepName of orderedSubstepNames(steps, stepName)) {
-      rows.push(toTableRow(`- ${substepName}`, bySubstep.get(`${stepName}\u0000${substepName}`) ?? []))
+    for (const row of orderedSubstepRows(steps, stepName)) {
+      rows.push(toTableRow(row.label, bySubstep.get(`${stepName}\u0000${row.substep}`) ?? []))
     }
   }
   return rows
@@ -359,7 +359,7 @@ function orderedStepNames(steps) {
   return [...preferred.filter((step) => existing.has(step)), ...[...existing].filter((step) => !preferred.includes(step))]
 }
 
-function orderedSubstepNames(steps, stepName) {
+function orderedSubstepRows(steps, stepName) {
   const preferred = {
     "Подготовка YAML-проекта": [
       "Поиск файлов проекта",
@@ -367,11 +367,13 @@ function orderedSubstepNames(steps, stepName) {
       "Классификация прочих файлов проекта",
       "Разбиение по worker",
       "Сбор правил структуры проекта",
+      "Ожидание результата подготовки",
+      "Выполнение подготовки в worker",
       "Чтение YAML",
       "Разбор YAML",
       "Извлечение локальных индексов",
       "Сохранение worker данных YAML",
-      "Обмен с worker и получение результата",
+      "Объём результата worker",
       "Слияние индекса объявлений",
       "Перераспределение индекса обращений",
     ],
@@ -393,15 +395,31 @@ function orderedSubstepNames(steps, stepName) {
     for (const substep of preferred) {
       if (!existing.has(substep)) continue
       seen.add(substep)
-      result.push(substep)
+      result.push({ substep, label: substepLabel(stepName, substep) })
     }
   }
   for (const step of steps) {
     if (step.step !== stepName || seen.has(step.substep)) continue
     seen.add(step.substep)
-    result.push(step.substep)
+    result.push({ substep: step.substep, label: substepLabel(stepName, step.substep) })
   }
   return result
+}
+
+function substepLabel(stepName, substep) {
+  if (stepName === "Подготовка YAML-проекта") {
+    const labels = {
+      "Ожидание результата подготовки": "- Ожидание результата подготовки",
+      "Выполнение подготовки в worker": "  - Выполнение подготовки в worker",
+      "Чтение YAML": "    - Чтение YAML",
+      "Разбор YAML": "    - Разбор YAML",
+      "Извлечение локальных индексов": "    - Извлечение локальных индексов",
+      "Сохранение worker данных YAML": "    - Сохранение worker данных YAML",
+      "Объём результата worker": "    - Объём результата worker",
+    }
+    return labels[substep] ?? `- ${substep}`
+  }
+  return `- ${substep}`
 }
 
 function toTableRow(name, records) {
@@ -409,6 +427,7 @@ function toTableRow(name, records) {
   const workers = records.filter((record) => record.scope === "worker")
   const workerTimes = aggregateWorkerValues(workers, "time", "sum")
   const workerRss = aggregateWorkerValues(workers, "rssPeak", "max")
+  const workerBytes = aggregateWorkerValues(workers, "bytes", "max")
   return {
     step: name,
     projectMs: main.length > 0 ? sum(main, "time") : max(workerTimes),
@@ -421,6 +440,7 @@ function toTableRow(name, records) {
     workerRssMinMiB: min(workerRss),
     workerRssAvgMiB: avg(workerRss),
     workerRssMaxMiB: max(workerRss),
+    bytesMax: max([maxValue(main, "bytes"), max(workerBytes)].filter((value) => value !== undefined)),
   }
 }
 
@@ -447,6 +467,7 @@ function printMarkdownTable(rows) {
     "RSS worker min",
     "RSS worker avg",
     "RSS worker max",
+    "Данные max",
   ]
   console.log(`| ${headers.join(" | ")} |`)
   console.log(`| ${headers.map(() => "---").join(" | ")} |`)
@@ -464,6 +485,7 @@ function printMarkdownTable(rows) {
         formatMiB(row.workerRssMinMiB),
         formatMiB(row.workerRssAvgMiB),
         formatMiB(row.workerRssMaxMiB),
+        formatBytes(row.bytesMax),
       ].join(" | ").replace(/^/, "| ").replace(/$/, " |")
     )
   }
@@ -505,6 +527,10 @@ function formatMs(value) {
 
 function formatMiB(value) {
   return value === undefined ? "-" : `${value.toFixed(1)}MiB`
+}
+
+function formatBytes(value) {
+  return value === undefined ? "-" : `${(value / 1024 / 1024).toFixed(2)}MiB`
 }
 
 const options = parseArgs(process.argv.slice(2))

@@ -246,7 +246,7 @@ async function validateProjectWithPreparedYaml(
 
   try {
     const prepareStartedAt = performance.now()
-    const prepared = await prepareYamlProjectWithPool({ projectDir, context, pool })
+    const prepared = await prepareYamlProjectWithPool({ projectDir, context, pool, includeYamlData: false })
     const prepareMs = performance.now() - prepareStartedAt
     if (!prepared.ok) return { diagnostics: sortDiagnostics(dedupeDiagnostics(prepared.diagnostics)) }
 

@@ -65,6 +65,9 @@ export function createProjectYamlCacheFromPreparedFiles(files: readonly Prepared
 }
 
 export function projectYamlEntryFromPreparedFile(file: PreparedYamlFile): ProjectYamlEntry {
+  if (!("data" in file)) {
+    throw new Error(`Распарсенные YAML-данные не были переданы в главный поток: ${file.filePath}`)
+  }
   return {
     filePath: file.filePath,
     text: "",
