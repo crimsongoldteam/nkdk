@@ -380,11 +380,7 @@ function orderedSubstepRows(steps, stepName) {
     "Первичная проверка YAML": [
       "Проверка JSON Schema",
       "Дополнительные валидаторы",
-      "Построение модели",
-      "Импорт формы",
       "Проверка equal-name",
-      "Проверка уникальности имен",
-      "Сбор ссылок metadata",
       "Извлечение YAML-фактов",
       "Построение field index",
       "Построение object index",

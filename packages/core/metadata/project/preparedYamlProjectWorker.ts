@@ -253,7 +253,7 @@ function runValidationFirstPass(message: Extract<PreparedYamlProjectWorkerTask, 
       cache,
       context: message.context,
       schemaCache,
-      ...(file.kind === "form" ? { rulesSnapshot: requireValidationRulesSnapshot() } : {}),
+      rulesSnapshot: requireValidationRulesSnapshot(),
     })
 
     if (first.profile !== undefined) addFirstPassProfile(firstPassProfile, first.profile)
@@ -284,16 +284,12 @@ function createEmptyFirstPassProfileSummary(): Omit<ProjectValidationFirstPassPr
     cacheMs: 0,
     schemaMs: 0,
     validatorsMs: 0,
-    importMs: 0,
     equalNameMs: 0,
-    uniqueScopesMs: 0,
-    referencesMs: 0,
     yamlFactsMs: 0,
     fieldIndexMs: 0,
     objectIndexMs: 0,
     memberIndexMs: 0,
     valueIndexMs: 0,
-    formImportMs: 0,
     diagnostics: 0,
   }
 }
@@ -306,16 +302,12 @@ function addFirstPassProfile(
   summary.cacheMs += profile.cacheMs
   summary.schemaMs += profile.schemaMs
   summary.validatorsMs += profile.validatorsMs
-  summary.importMs += profile.importMs
   summary.equalNameMs += profile.equalNameMs
-  summary.uniqueScopesMs += profile.uniqueScopesMs
-  summary.referencesMs += profile.referencesMs
   summary.yamlFactsMs += profile.yamlFactsMs
   summary.fieldIndexMs += profile.fieldIndexMs
   summary.objectIndexMs += profile.objectIndexMs
   summary.memberIndexMs += profile.memberIndexMs
   summary.valueIndexMs += profile.valueIndexMs
-  summary.formImportMs += profile.formImportMs
   summary.diagnostics += profile.diagnostics
 }
 
@@ -326,11 +318,7 @@ function recordFirstPassProfile(
 ): void {
   profiler.record("Первичная проверка YAML", "Проверка JSON Schema", { items, timeMs: profile.schemaMs })
   profiler.record("Первичная проверка YAML", "Дополнительные валидаторы", { items, timeMs: profile.validatorsMs })
-  profiler.record("Первичная проверка YAML", "Построение модели", { items, timeMs: profile.importMs })
-  profiler.record("Первичная проверка YAML", "Импорт формы", { items, timeMs: profile.formImportMs })
   profiler.record("Первичная проверка YAML", "Проверка equal-name", { items, timeMs: profile.equalNameMs })
-  profiler.record("Первичная проверка YAML", "Проверка уникальности имен", { items, timeMs: profile.uniqueScopesMs })
-  profiler.record("Первичная проверка YAML", "Сбор ссылок metadata", { items, timeMs: profile.referencesMs })
   profiler.record("Первичная проверка YAML", "Извлечение YAML-фактов", { items, timeMs: profile.yamlFactsMs })
   profiler.record("Первичная проверка YAML", "Построение field index", { items, timeMs: profile.fieldIndexMs })
   profiler.record("Первичная проверка YAML", "Построение object index", { items, timeMs: profile.objectIndexMs })

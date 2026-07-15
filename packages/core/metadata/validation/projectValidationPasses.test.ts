@@ -53,6 +53,9 @@ describe("validateProjectFileFirstPass references", () => {
       cache: createProjectYamlCache(),
       context: mockContext,
       schemaCache: createValidationSchemaCache(mockContext),
+      rulesSnapshot: createValidationRulesSnapshot(mockContext),
+      rulesSnapshot: createValidationRulesSnapshot(mockContext),
+      rulesSnapshot: createValidationRulesSnapshot(mockContext),
     })
 
     expect(first.diagnostics).toEqual(
@@ -82,6 +85,9 @@ describe("validateProjectFileFirstPass references", () => {
       cache: createProjectYamlCache(),
       context: mockContext,
       schemaCache: createValidationSchemaCache(mockContext),
+      rulesSnapshot: createValidationRulesSnapshot(mockContext),
+      rulesSnapshot: createValidationRulesSnapshot(mockContext),
+      rulesSnapshot: createValidationRulesSnapshot(mockContext),
       rulesSnapshot: createValidationRulesSnapshot(mockContext),
     })
 
@@ -120,6 +126,7 @@ describe("validateProjectFileFirstPass references", () => {
       cache: createProjectYamlCache(),
       context: mockContext,
       schemaCache: createValidationSchemaCache(mockContext),
+      rulesSnapshot: createValidationRulesSnapshot(mockContext),
       rulesSnapshot: createValidationRulesSnapshot(mockContext),
     })
 
@@ -215,6 +222,7 @@ describe("validateProjectFileFirstPass references", () => {
       cache: createProjectYamlCache(),
       context: mockContext,
       schemaCache: createValidationSchemaCache(mockContext),
+      rulesSnapshot: createValidationRulesSnapshot(mockContext),
     })
 
     expect(first.pendingReferences).toEqual([
@@ -245,6 +253,7 @@ describe("validateProjectFileFirstPass references", () => {
       cache: createProjectYamlCache(),
       context: mockContext,
       schemaCache: createValidationSchemaCache(mockContext),
+      rulesSnapshot: createValidationRulesSnapshot(mockContext),
     })
 
     expect(first.objectIndexEntries).toContainEqual(
