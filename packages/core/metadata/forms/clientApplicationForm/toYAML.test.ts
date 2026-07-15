@@ -20,6 +20,8 @@ import { mockContextToYAML } from "../../../tests/mockContext"
 import { exportClientApplicationFormToYAML } from "./toYAML"
 import { ClientApplicationForm } from "./types"
 import type { ConfigurationContext } from "../../context/types"
+import "../../appliedObjects/dataPathCommon/register"
+import "../../appliedObjects/metadataCatalog/register"
 
 const dirs: string[] = []
 
@@ -184,6 +186,18 @@ describe("exportClientApplicationFormToYAML", () => {
     expect(yaml?.Элементы?.Код).toMatchObject({ ПутьКДанным: "Объект.Код" })
   })
 
+  it("exports tabular section row number data paths to YAML spelling", () => {
+    const form: ClientApplicationForm = {
+      itemType: "ClientApplicationForm",
+      attributes: [{ itemType: "FormAttribute", name: "Объект", type: { type: ["CatalogRef.Товары"] }, columns: [] }],
+      childItems: [{ itemType: "LabelField", name: "НомерСтроки", dataPath: "Объект.Состав.LineNumber" }],
+    }
+
+    const { yaml } = exportClientApplicationFormToYAML(contextWithProjectDir(), form)
+
+    expect(yaml?.Элементы?.НомерСтроки).toMatchObject({ ПутьКДанным: "Объект.Состав.НомерСтроки" })
+  })
+
   it("exports report form settings storage as a local form reference", () => {
     const context: ConfigurationContext = {
       ...mockContextToYAML,
@@ -268,7 +282,19 @@ function contextWithProjectDir(): ConfigurationContext {
   const projectDir = mkdtempSync(join(tmpdir(), "nkdk-datapath-form-"))
   dirs.push(projectDir)
   mkdirSync(join(projectDir, "Справочник", "Товары"), { recursive: true })
-  writeFileSync(join(projectDir, "Справочник", "Товары", "Свойства.yaml"), "Имя: Товары\n", "utf-8")
+  writeFileSync(
+    join(projectDir, "Справочник", "Товары", "Свойства.yaml"),
+    [
+      "Имя: Товары",
+      "ТабличныеЧасти:",
+      "  Состав:",
+      "    Реквизиты:",
+      "      Количество:",
+      "        Тип: Число",
+      "",
+    ].join("\n"),
+    "utf-8"
+  )
   return {
     ...mockContextToYAML,
     exportToYAML: {

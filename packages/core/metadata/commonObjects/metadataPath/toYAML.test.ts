@@ -5,6 +5,7 @@ import { afterEach, describe, expect, test } from "vitest"
 import { tableMetadataFields, tableMetadataValues } from "./__fixtures__/table"
 import { mockContext, mockRule } from "../../../tests/mockContext"
 import type { ConfigurationContext } from "../../context/types"
+import "../../appliedObjects/dataPathCommon/register"
 import "../../appliedObjects/metadataCatalog/register"
 import { exportDataPathStandardMembersToYAML } from "./dataPathStandardMembers"
 import { exportMetadataFieldStringToYAML, exportMetadataValueStringToYAML } from "./toYAML"
@@ -56,6 +57,12 @@ describe("exportDataPathStandardMembersToYAML", () => {
     expect(exportDataPathStandardMembersToYAML(catalogContext(), "Объект.Owner")).toBe("Объект.Владелец")
   })
 
+  test("exports tabular section row number standard attribute", () => {
+    expect(exportDataPathStandardMembersToYAML(catalogContext(), "Объект.Товары.LineNumber")).toBe(
+      "Объект.Товары.НомерСтроки"
+    )
+  })
+
   test("keeps tabular section attribute with the same name", () => {
     expect(exportDataPathStandardMembersToYAML(catalogContext(), "Объект.Товары.Owner")).toBe("Объект.Товары.Owner")
   })
@@ -85,6 +92,18 @@ function catalogProjectDir(): string {
   const projectDir = mkdtempSync(join(tmpdir(), "nkdk-datapath-metadata-"))
   dirs.push(projectDir)
   mkdirSync(join(projectDir, "Справочник", "Контрагенты"), { recursive: true })
-  writeFileSync(join(projectDir, "Справочник", "Контрагенты", "Свойства.yaml"), "Имя: Контрагенты\n", "utf-8")
+  writeFileSync(
+    join(projectDir, "Справочник", "Контрагенты", "Свойства.yaml"),
+    [
+      "Имя: Контрагенты",
+      "ТабличныеЧасти:",
+      "  Товары:",
+      "    Реквизиты:",
+      "      Количество:",
+      "        Тип: Число",
+      "",
+    ].join("\n"),
+    "utf-8"
+  )
   return projectDir
 }

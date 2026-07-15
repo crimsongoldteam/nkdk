@@ -49,6 +49,7 @@ export const unknownDataPathTypeInfo: DataPathTypeInfo = {
 
 export interface FormDataPathColumnSource {
   name: string
+  targetName?: string
   typeInfo: DataPathTypeInfo
 }
 

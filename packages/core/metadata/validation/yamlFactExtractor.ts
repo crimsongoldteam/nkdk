@@ -200,6 +200,10 @@ function syntheticModelFromYaml(
       model[property.modelKey] = metadataLinksFromYaml(value)
       continue
     }
+    if (property.modelKey === "chartOfAccounts" && typeof value === "string") {
+      model[property.modelKey] = value
+      continue
+    }
     if (property.modelKey === "content") {
       model[property.modelKey] = commonAttributeContentFromYaml(value)
       continue
@@ -262,6 +266,7 @@ function buildObjectFieldIndexFromSyntheticModel(
         typeInfo: typeDescriptionToDataPathTypeInfo(attributeRecord["type"] as TypeDescription | undefined),
       })
     }
+    addTabularSectionStandardColumns(columns)
     const table = {
       kind: "TabularSection" as const,
       owner: { kind: file.owner.dir, name: file.owner.name },
@@ -277,6 +282,18 @@ function buildObjectFieldIndexFromSyntheticModel(
   }
 
   return { fields, standardAttributeAliases: index.standardAttributeAliases, diagnostics: index.diagnostics }
+}
+
+function addTabularSectionStandardColumns(columns: Map<string, ObjectField>): void {
+  const lineNumber: ObjectField = {
+    name: "НомерСтроки",
+    targetName: "LineNumber",
+    kind: "standardAttribute",
+    sourceCollection: "standardAttributes",
+    typeInfo: { kinds: ["scalar"], nextTypes: [], sourceText: "TabularSection.LineNumber" },
+  }
+  columns.set("LineNumber", lineNumber)
+  columns.set("НомерСтроки", lineNumber)
 }
 
 function collectUniqueNameScopeDiagnostics(

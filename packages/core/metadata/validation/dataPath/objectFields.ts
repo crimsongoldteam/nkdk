@@ -78,9 +78,15 @@ export function getObjectField(params: { index: ObjectFieldIndex; name: string }
 export function resolveObjectFieldSegment(params: {
   index: ObjectFieldIndex
   segment: string
+  nameMode: "internal" | "yaml"
 }): ObjectField | undefined {
   const direct = params.index.fields.get(params.segment)
-  if (direct !== undefined) return direct
+  if (direct !== undefined) {
+    if (params.nameMode === "yaml" && direct.targetName === params.segment && direct.name !== params.segment)
+      return undefined
+    return direct
+  }
+  if (params.nameMode === "yaml") return undefined
 
   const alias =
     params.index.standardAttributeAliases.get(params.segment) ?? standardAttributeAliasToYAML(params.segment)
@@ -94,10 +100,9 @@ export function standardAttributeAliasToYAML(segment: string): string | undefine
 
 function addDataCollectionFields(params: { owner: ObjectFieldIndexOwner; fields: Map<string, ObjectField> }): void {
   const { owner, fields } = params
-  const model = metadataRecord(owner.model)
 
   for (const descriptor of getObjectFieldCollectionDescriptors(owner as OwnerMetadata)) {
-    const items = getNamedItems(model[descriptor.collection])
+    const items = getNamedItems(getCollectionValue(owner, descriptor.collection))
     for (const item of items) {
       if (typeof item.name !== "string" || item.name.length === 0) continue
 
@@ -150,6 +155,11 @@ function buildTabularSectionField(
   tabularSection: NamedTypedItem,
   sourceCollection: string
 ): ObjectField {
+  const tabularSectionOwner = {
+    ...owner,
+    model: tabularSection as MetadataItem,
+    rule: MetadataTabularSectionRules,
+  }
   const table: DataPathTableInfo = {
     kind: "TabularSection",
     owner: owner.ref,
@@ -157,7 +167,7 @@ function buildTabularSectionField(
   }
   const columns = new Map<string, ObjectField>()
 
-  for (const attribute of getNamedItems(tabularSection.attributes)) {
+  for (const attribute of getNamedItems(getCollectionValue(tabularSectionOwner, "attributes"))) {
     if (typeof attribute.name !== "string" || attribute.name.length === 0) continue
 
     columns.set(attribute.name, {
@@ -169,11 +179,7 @@ function buildTabularSectionField(
   }
 
   addStandardAttributeFields({
-    owner: {
-      ...owner,
-      model: tabularSection as MetadataItem,
-      rule: MetadataTabularSectionRules,
-    },
+    owner: tabularSectionOwner,
     fields: columns,
     standardAttributeAliases: new Map(),
     propertyRule: MetadataTabularSectionRules.properties.standardAttributes,
@@ -232,12 +238,38 @@ function standardAttributesByInternalName(value: unknown): Map<string, NamedType
   )
 }
 
+function getCollectionValue(owner: ObjectFieldIndexOwner, collection: string): unknown {
+  const model = metadataRecord(owner.model)
+  const direct = model[collection]
+  if (direct !== undefined) return direct
+
+  const yamlName = yamlPropertyName(owner.rule.properties[collection])
+  return yamlName === undefined ? undefined : model[yamlName]
+}
+
+function yamlPropertyName(propertyRule: PropertyRule | undefined): string | undefined {
+  if (propertyRule === undefined || !("yaml" in propertyRule)) return undefined
+  return typeof propertyRule.yaml === "string" ? propertyRule.yaml : undefined
+}
+
 function getNamedItems(value: unknown): NamedTypedItem[] {
-  return Array.isArray(value) ? value.filter(isNamedTypedItem) : []
+  if (Array.isArray(value)) return value.filter(isNamedTypedItem)
+  if (!isRecord(value)) return []
+
+  return Object.entries(value)
+    .filter(([, item]) => item === undefined || isRecord(item))
+    .map(([name, item]) => ({
+      ...(isRecord(item) ? item : {}),
+      name,
+    }))
 }
 
 function isNamedTypedItem(value: unknown): value is NamedTypedItem {
   return typeof value === "object" && value !== null
+}
+
+function isRecord(value: unknown): value is Record<string, unknown> {
+  return typeof value === "object" && value !== null && !Array.isArray(value)
 }
 
 function metadataRecord(model: MetadataItem): Record<string, unknown> {

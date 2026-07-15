@@ -98,6 +98,7 @@ interface TraversalState {
 
 interface TableColumnSource {
   name: string
+  targetName?: string
   typeInfo: DataPathTypeInfo
 }
 
@@ -249,7 +250,11 @@ export function resolveDataPathCore(params: ResolveDataPathCoreParams): ResolveD
       continue
     }
 
-    const field = resolveObjectFieldSegment({ index: ownerResult.owner.fieldIndex, segment: lookupSegment })
+    const field = resolveObjectFieldSegment({
+      index: ownerResult.owner.fieldIndex,
+      segment: lookupSegment,
+      nameMode: params.nameMode,
+    })
     const standardMember = resolveTraversalTimeStandardMember({
       owner: ownerResult.owner,
       segment: lookupSegment,
@@ -589,7 +594,7 @@ function resolveTableColumn(params: {
   params: ResolveDataPathCoreParams
   value: string
   segments: readonly string[]
-  replacements: readonly ResolvedDataPathSegmentReplacement[]
+  replacements: ResolvedDataPathSegmentReplacement[]
   segmentIndex: number
   state: TraversalState
   segment: string
@@ -598,16 +603,16 @@ function resolveTableColumn(params: {
   const { tableSource } = params.state
   if (tableSource === undefined) return { status: "continue", state: params.state }
 
+  const lookupSegment = segmentLookupName(params.segment)
   if (tableSource.table.kind === "DynamicList") {
     return {
       status: "done",
-      result: okWithoutTarget({ value: params.value, segments: params.segments }),
+      result: okWithoutTarget({ value: params.value, segments: params.segments, replacements: params.replacements }),
     }
   }
 
   const tablePath = params.segments.slice(0, params.segmentIndex).join(".")
   const normalizedTablePath = normalizeIndexedPath(tablePath)
-  const lookupSegment = segmentLookupName(params.segment)
   const registeredColumnResult = resolveRegisteredColumn({
     params: params.params,
     tableSource,
@@ -618,18 +623,30 @@ function resolveTableColumn(params: {
     return { status: "done", result: registeredColumnResult.result }
   }
 
-  const column =
-    resolveTableColumnSource({ columns: tableSource.columns, segment: lookupSegment }) ??
+  const resolvedColumn =
+    resolveTableColumnSource({
+      columns: tableSource.columns,
+      segment: lookupSegment,
+      nameMode: params.params.nameMode,
+    }) ??
     resolveTableColumnSource({
       columns: params.params.index.additionalColumnsByTablePath.get(normalizedTablePath),
       segment: lookupSegment,
+      nameMode: params.params.nameMode,
     }) ??
-    registeredColumnResult.column
+    (registeredColumnResult.column !== undefined
+      ? { column: registeredColumnResult.column, replacement: tableColumnReplacement(registeredColumnResult.column) }
+      : undefined)
+  const column = resolvedColumn?.column
   if (column === undefined) {
     if (tableSource.hasColumns) {
       return {
         status: "done",
-        result: error(params.params, `ПутьКДанным "${params.value}": неизвестная колонка "${params.segment}"`),
+        result: error(
+          params.params,
+          `ПутьКДанным "${params.value}": неизвестная колонка "${params.segment}"`,
+          "unknown_column"
+        ),
       }
     }
 
@@ -642,6 +659,16 @@ function resolveTableColumn(params: {
         "unknown_column"
       ),
     }
+  }
+  if (resolvedColumn?.replacement !== undefined) {
+    recordTableColumnStandardMemberReplacement({
+      replacements: params.replacements,
+      nameMode: params.params.nameMode,
+      segmentIndex: params.segmentIndex,
+      input: lookupSegment,
+      internalName: resolvedColumn.replacement.internalName,
+      yamlName: resolvedColumn.replacement.yamlName,
+    })
   }
 
   const tableName = tableNameForTableSource({ state: params.state, segments: params.segments })
@@ -702,7 +729,11 @@ function resolveRegisteredColumn(params: {
 
   const field =
     ownerResult?.status === "ok"
-      ? resolveObjectFieldSegment({ index: ownerResult.owner.fieldIndex, segment: params.segment })
+      ? resolveObjectFieldSegment({
+          index: ownerResult.owner.fieldIndex,
+          segment: params.segment,
+          nameMode: params.params.nameMode,
+        })
       : undefined
   const column = resolveRegisteredTableColumn({
     table: params.tableSource.table,
@@ -711,6 +742,13 @@ function resolveRegisteredColumn(params: {
     ...(ownerResult?.status === "ok" ? { owner: ownerResult.owner } : {}),
     ...(field !== undefined ? { field } : {}),
   })
+  if (
+    params.params.nameMode === "yaml" &&
+    column?.targetName === params.segment &&
+    column.name !== params.segment
+  ) {
+    return { status: "ok" }
+  }
   return {
     status: "ok",
     ...(column !== undefined ? { column } : {}),
@@ -743,15 +781,39 @@ function segmentLookupName(segment: string): string {
 function resolveTableColumnSource(params: {
   columns: FormDataPathTableSource["columns"] | ObjectFieldTableSource["columns"] | undefined
   segment: string
-}): TableColumnSource | undefined {
+  nameMode: DataPathNameMode
+}): { column: TableColumnSource; replacement?: { internalName: string; yamlName: string } } | undefined {
   if (params.columns === undefined) return undefined
 
   const direct = params.columns.get(params.segment)
-  if (direct !== undefined) return direct
+  if (direct !== undefined) {
+    if (params.nameMode === "yaml" && direct.targetName === params.segment && direct.name !== params.segment)
+      return undefined
+    return { column: direct, replacement: tableColumnReplacement(direct) }
+  }
+  if (params.nameMode === "yaml") return undefined
 
   const alias = standardAttributeAliasToYAML(params.segment)
-  if (alias !== undefined) return params.columns.get(alias)
-  return undefined
+  if (alias === undefined) return undefined
+  const column = params.columns.get(alias)
+  return column === undefined ? undefined : { column, replacement: { internalName: params.segment, yamlName: alias } }
+}
+
+function tableColumnReplacement(column: TableColumnSource): { internalName: string; yamlName: string } | undefined {
+  return column.targetName === undefined ? undefined : { internalName: column.targetName, yamlName: column.name }
+}
+
+function recordTableColumnStandardMemberReplacement(params: {
+  replacements: ResolvedDataPathSegmentReplacement[]
+  nameMode: DataPathNameMode
+  segmentIndex: number
+  input: string
+  internalName: string
+  yamlName: string
+}): void {
+  const expectedInput = params.nameMode === "yaml" ? params.yamlName : params.internalName
+  if (params.input !== expectedInput) return
+  recordStandardMemberReplacement(params)
 }
 
 function stateFromTableColumn(params: {

@@ -5,6 +5,7 @@ import { afterEach, describe, expect, test } from "vitest"
 import { tableMetadataFields, tableMetadataValues } from "./__fixtures__/table"
 import { mockContext, mockRule } from "../../../tests/mockContext"
 import type { ConfigurationContext } from "../../context/types"
+import "../../appliedObjects/dataPathCommon/register"
 import "../../appliedObjects/metadataCatalog/register"
 import { importDataPathStandardMembersFromYAML } from "./dataPathStandardMembers"
 import { importMetadataFieldStringFromYAML, importMetadataValueStringFromYAML } from "./fromYAML"
@@ -68,6 +69,18 @@ describe("importDataPathStandardMembersFromYAML", () => {
     expect(importDataPathStandardMembersFromYAML(catalogContext(), "Объект.Владелец")).toBe("Объект.Owner")
   })
 
+  test("imports tabular section row number standard attribute", () => {
+    expect(importDataPathStandardMembersFromYAML(catalogContext(), "Объект.Товары.НомерСтроки")).toBe(
+      "Объект.Товары.LineNumber"
+    )
+  })
+
+  test("does not accept internal tabular section row number as YAML spelling", () => {
+    expect(importDataPathStandardMembersFromYAML(catalogContext(), "Объект.Товары.LineNumber")).toBe(
+      "Объект.Товары.LineNumber"
+    )
+  })
+
   test("keeps tabular section attribute with the same name", () => {
     expect(importDataPathStandardMembersFromYAML(catalogContext(), "Объект.Товары.Владелец")).toBe(
       "Объект.Товары.Владелец"
@@ -98,6 +111,18 @@ function catalogProjectDir(): string {
   const projectDir = mkdtempSync(join(tmpdir(), "nkdk-datapath-metadata-"))
   dirs.push(projectDir)
   mkdirSync(join(projectDir, "Справочник", "Контрагенты"), { recursive: true })
-  writeFileSync(join(projectDir, "Справочник", "Контрагенты", "Свойства.yaml"), "Имя: Контрагенты\n", "utf-8")
+  writeFileSync(
+    join(projectDir, "Справочник", "Контрагенты", "Свойства.yaml"),
+    [
+      "Имя: Контрагенты",
+      "ТабличныеЧасти:",
+      "  Товары:",
+      "    Реквизиты:",
+      "      Количество:",
+      "        Тип: Число",
+      "",
+    ].join("\n"),
+    "utf-8"
+  )
   return projectDir
 }

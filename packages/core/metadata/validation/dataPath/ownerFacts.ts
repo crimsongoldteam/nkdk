@@ -12,6 +12,7 @@ export interface ValidationOwnerFacts {
   owners?: string[]
   task?: string
   registerRecords?: string[]
+  chartOfAccounts?: string
   extDimensionTypes?: string
   accountingFlags?: NamedTypeItems
   extDimensionAccountingFlags?: NamedTypeItems
@@ -23,6 +24,7 @@ type ValidationOwnerFactsModel = MetadataItem & {
   owners?: unknown
   task?: unknown
   registerRecords?: unknown
+  chartOfAccounts?: unknown
   extDimensionTypes?: unknown
   accountingFlags?: unknown
   extDimensionAccountingFlags?: unknown
@@ -41,6 +43,7 @@ export function createValidationOwnerFacts(params: {
   const owners = stringArray(metadataRecord(params.model)["owners"])
   const task = metadataRecord(params.model)["task"]
   const registerRecords = stringArray(metadataRecord(params.model)["registerRecords"])
+  const chartOfAccounts = metadataRecord(params.model)["chartOfAccounts"]
   const extDimensionTypes = metadataRecord(params.model)["extDimensionTypes"]
   const accountingFlags = namedTypeItems(metadataRecord(params.model)["accountingFlags"])
   const extDimensionAccountingFlags = namedTypeItems(metadataRecord(params.model)["extDimensionAccountingFlags"])
@@ -54,6 +57,7 @@ export function createValidationOwnerFacts(params: {
     ...(owners.length === 0 ? {} : { owners }),
     ...(typeof task === "string" ? { task } : {}),
     ...(registerRecords.length === 0 ? {} : { registerRecords }),
+    ...(typeof chartOfAccounts === "string" ? { chartOfAccounts } : {}),
     ...(typeof extDimensionTypes === "string" ? { extDimensionTypes } : {}),
     ...(accountingFlags.length === 0 ? {} : { accountingFlags }),
     ...(extDimensionAccountingFlags.length === 0 ? {} : { extDimensionAccountingFlags }),
@@ -69,6 +73,7 @@ export function modelStubFromOwnerFacts(facts: ValidationOwnerFacts): unknown {
     ...(facts.owners === undefined ? {} : { owners: facts.owners }),
     ...(facts.task === undefined ? {} : { task: facts.task }),
     ...(facts.registerRecords === undefined ? {} : { registerRecords: facts.registerRecords }),
+    ...(facts.chartOfAccounts === undefined ? {} : { chartOfAccounts: facts.chartOfAccounts }),
     ...(facts.extDimensionTypes === undefined ? {} : { extDimensionTypes: facts.extDimensionTypes }),
     ...(facts.accountingFlags === undefined ? {} : { accountingFlags: facts.accountingFlags }),
     ...(facts.extDimensionAccountingFlags === undefined

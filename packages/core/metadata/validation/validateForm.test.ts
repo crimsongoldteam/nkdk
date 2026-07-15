@@ -707,7 +707,7 @@ describe("validateForm", () => {
     ])
   })
 
-  it("accepts Number as an alias for the document YAML standard attribute name", () => {
+  it("accepts document number by YAML standard attribute name", () => {
     const project = createProject({
       ownerDir: "Документ",
       ownerName: "Заказ",
@@ -719,14 +719,14 @@ describe("validateForm", () => {
         "Элементы:",
         "  Номер:",
         "    Вид: ПолеВвода",
-        "    ПутьКДанным: Объект.Number",
+        "    ПутьКДанным: Объект.Номер",
       ],
     })
 
     expect(runValidateForm(project)).toEqual([])
   })
 
-  it("accepts standard platform aliases after traversing a reference", () => {
+  it("accepts standard YAML names after traversing a reference", () => {
     const project = createProject({
       ownerDir: "Документ",
       ownerName: "Заказ",
@@ -751,14 +751,14 @@ describe("validateForm", () => {
         "Элементы:",
         "  КодНоменклатуры:",
         "    Вид: ПолеВвода",
-        "    ПутьКДанным: Объект.Товары.Номенклатура.Code",
+        "    ПутьКДанным: Объект.Товары.Номенклатура.Код",
       ],
     })
 
     expect(runValidateForm(project)).toEqual([])
   })
 
-  it("accepts Owner as an alias with type inferred from catalog owners", () => {
+  it("accepts owner YAML name with type inferred from catalog owners", () => {
     const project = createProject({
       ownerDir: "Справочник",
       ownerName: "ПодарочныеСертификаты",
@@ -777,14 +777,14 @@ describe("validateForm", () => {
         "Элементы:",
         "  Валюта:",
         "    Вид: ПолеВвода",
-        "    ПутьКДанным: Объект.Owner.Валюта",
+        "    ПутьКДанным: Объект.Владелец.Валюта",
       ],
     })
 
     expect(runValidateForm(project)).toEqual([])
   })
 
-  it("accepts Date as an alias for the document YAML standard attribute name", () => {
+  it("accepts document date by YAML standard attribute name", () => {
     const project = createProject({
       ownerDir: "Документ",
       ownerName: "Заказ",
@@ -796,14 +796,14 @@ describe("validateForm", () => {
         "Элементы:",
         "  Дата:",
         "    Вид: ПолеВвода",
-        "    ПутьКДанным: Объект.Date",
+        "    ПутьКДанным: Объект.Дата",
       ],
     })
 
     expect(runValidateForm(project)).toEqual([])
   })
 
-  it("accepts Predefined as a boolean standard attribute", () => {
+  it("accepts predefined by YAML standard attribute name", () => {
     const project = createProject({
       ownerDir: "Справочник",
       ownerName: "ГруппыАналитик",
@@ -815,14 +815,14 @@ describe("validateForm", () => {
         "Элементы:",
         "  Предопределенный:",
         "    Вид: ПолеФлажок",
-        "    ПутьКДанным: Объект.Predefined",
+        "    ПутьКДанным: Объект.Предопределенный",
       ],
     })
 
     expect(runValidateForm(project)).toEqual([])
   })
 
-  it("accepts LineNumber as an alias for the tabular section YAML row number column", () => {
+  it("rejects internal LineNumber spelling in YAML data paths", () => {
     const project = createProject({
       ownerDir: "Документ",
       ownerName: "Заказ",
@@ -841,6 +841,33 @@ describe("validateForm", () => {
         "  НомерСтроки:",
         "    Вид: ПолеВвода",
         "    ПутьКДанным: Объект.Товары.LineNumber",
+      ],
+    })
+
+    expect(messages(runValidateForm(project))).toEqual([
+      'ПутьКДанным "Объект.Товары.LineNumber": неизвестная колонка "LineNumber"',
+    ])
+  })
+
+  it("accepts YAML row number spelling in data paths", () => {
+    const project = createProject({
+      ownerDir: "Документ",
+      ownerName: "Заказ",
+      owner: [
+        "ТабличныеЧасти:",
+        "  Товары:",
+        "    Реквизиты:",
+        "      Номенклатура:",
+        "        Тип: Справочник.Номенклатура",
+      ],
+      form: [
+        "Реквизиты:",
+        "  Объект:",
+        "    Тип: Документ.Заказ",
+        "Элементы:",
+        "  НомерСтроки:",
+        "    Вид: ПолеВвода",
+        "    ПутьКДанным: Объект.Товары.НомерСтроки",
       ],
     })
 
@@ -1149,16 +1176,16 @@ describe("validateForm", () => {
         "Элементы:",
         "  НомерСтроки:",
         "    Вид: ПолеВвода",
-        "    ПутьКДанным: Объект.RegisterRecords.Продажи.LineNumber",
+        "    ПутьКДанным: Объект.RegisterRecords.Продажи.НомерСтроки",
         "  Период:",
         "    Вид: ПолеВвода",
-        "    ПутьКДанным: Объект.RegisterRecords.Продажи.Period",
+        "    ПутьКДанным: Объект.RegisterRecords.Продажи.Период",
         "  УточнениеПериода:",
         "    Вид: ПолеНадписи",
         "    ПутьКДанным: Объект.RegisterRecords.Продажи.PeriodAdjustment",
         "  Активность:",
         "    Вид: ПолеФлажок",
-        "    ПутьКДанным: Объект.RegisterRecords.Продажи.Active",
+        "    ПутьКДанным: Объект.RegisterRecords.Продажи.Активность",
         "  Количество:",
         "    Вид: ПолеВвода",
         "    ПутьКДанным: Объект.RegisterRecords.Продажи.Количество",
@@ -1366,7 +1393,7 @@ describe("validateForm", () => {
     expect(runValidateForm(project)).toEqual([])
   })
 
-  it("accepts ChartOfCharacteristicTypes ValueType data path", () => {
+  it("accepts ChartOfCharacteristicTypes value type YAML data path", () => {
     const project = createProject({
       ownerDir: "ПланВидовХарактеристик",
       ownerName: "ВидыСубконто",
@@ -1378,14 +1405,14 @@ describe("validateForm", () => {
         "Элементы:",
         "  ТипЗначения:",
         "    Вид: ПолеВвода",
-        "    ПутьКДанным: Объект.ValueType",
+        "    ПутьКДанным: Объект.ТипЗначения",
       ],
     })
 
     expect(runValidateForm(project)).toEqual([])
   })
 
-  it("accepts ExchangePlan sent and received number data paths", () => {
+  it("accepts ExchangePlan sent and received number YAML data paths", () => {
     const project = createProject({
       ownerDir: "ПланОбмена",
       ownerName: "Синхронизация",
@@ -1397,10 +1424,10 @@ describe("validateForm", () => {
         "Элементы:",
         "  НомерОтправленного:",
         "    Вид: ПолеВвода",
-        "    ПутьКДанным: Объект.SentNo",
+        "    ПутьКДанным: Объект.НомерОтправленного",
         "  НомерПринятого:",
         "    Вид: ПолеВвода",
-        "    ПутьКДанным: Объект.ReceivedNo",
+        "    ПутьКДанным: Объект.НомерПринятого",
       ],
     })
 

@@ -21,6 +21,8 @@ import { Table } from "../elements/table/types"
 import { importClientApplicationFormFromYAML } from "./fromYAML"
 import { ClientApplicationForm, ClientApplicationFormYAML } from "./types"
 import type { ConfigurationContext } from "../../context/types"
+import "../../appliedObjects/dataPathCommon/register"
+import "../../appliedObjects/metadataCatalog/register"
 
 type ClientApplicationFormWithCustomSettingsFolder = ClientApplicationForm & {
   customSettingsFolder?: string
@@ -283,6 +285,25 @@ describe("importClientApplicationFormFromYAML", () => {
     })
 
     expect(result.childItems?.[0]).toMatchObject({ dataPath: "Объект.Code" })
+  })
+
+  it("imports tabular section row number data paths from YAML spelling", () => {
+    const result = importClientApplicationFormFromYAML(contextWithProjectDir(), {
+      Реквизиты: {
+        Объект: { Тип: "Справочник.Товары" },
+      },
+      Элементы: {
+        НомерСтроки: { Вид: "ПолеНадписи", ПутьКДанным: "Объект.Состав.НомерСтроки" },
+      },
+    })
+
+    expect(result.childItems).toContainEqual(
+      expect.objectContaining({
+        itemType: "LabelField",
+        name: "НомерСтроки",
+        dataPath: "Объект.Состав.LineNumber",
+      })
+    )
   })
 
   it("imports complete form from one YAML source without source", () => {
@@ -603,7 +624,19 @@ function contextWithProjectDir(): ConfigurationContext {
   const projectDir = mkdtempSync(join(tmpdir(), "nkdk-datapath-form-"))
   dirs.push(projectDir)
   mkdirSync(join(projectDir, "Справочник", "Товары"), { recursive: true })
-  writeFileSync(join(projectDir, "Справочник", "Товары", "Свойства.yaml"), "Имя: Товары\n", "utf-8")
+  writeFileSync(
+    join(projectDir, "Справочник", "Товары", "Свойства.yaml"),
+    [
+      "Имя: Товары",
+      "ТабличныеЧасти:",
+      "  Состав:",
+      "    Реквизиты:",
+      "      Количество:",
+      "        Тип: Число",
+      "",
+    ].join("\n"),
+    "utf-8"
+  )
   return {
     ...mockContext,
     importFromYAML: {

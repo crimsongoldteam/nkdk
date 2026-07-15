@@ -5,6 +5,7 @@ import { MetadataCatalogRules } from "../../appliedObjects/metadataCatalog/rules
 import { MetadataDocumentRules } from "../../appliedObjects/metadataDocument/rules"
 import { MetadataInformationRegisterRules } from "../../appliedObjects/metadataInformationRegister/rules"
 import { MetadataTaskRules } from "../../appliedObjects/metadataTask/rules"
+import "../../appliedObjects/dataPathCommon/register"
 import type { MetadataItem } from "../../orchestration/property/types"
 import type { OwnerMetadata } from "./ownerCache"
 import { buildObjectFieldIndex, resolveObjectFieldSegment } from "./objectFields"
@@ -140,6 +141,41 @@ describe("buildObjectFieldIndex", () => {
     })
   })
 
+  it("builds tabular section table source from YAML-shaped owner collections", () => {
+    const index = buildObjectFieldIndex(
+      owner({
+        ref: { kind: "Документ", name: "Заказ" },
+        rule: MetadataDocumentRules,
+        model: {
+          itemType: "MetadataDocument",
+          ТабличныеЧасти: {
+            Товары: {
+              Реквизиты: {
+                Номенклатура: {
+                  Тип: "Справочник.Номенклатура",
+                },
+              },
+            },
+          },
+        },
+      })
+    )
+
+    const table = index.fields.get("Товары")
+    expect(table).toMatchObject({
+      name: "Товары",
+      kind: "tabularSection",
+      tableSource: {
+        hasColumns: true,
+      },
+    })
+    expect(table?.tableSource?.columns.get("Номенклатура")).toMatchObject({ name: "Номенклатура" })
+    expect(table?.tableSource?.columns.get("НомерСтроки")).toMatchObject({
+      name: "НомерСтроки",
+      kind: "standardAttribute",
+    })
+  })
+
   it("allows object traversal through Ссылка.Ссылка.Номер by keeping the same owner ref", () => {
     const index = buildObjectFieldIndex(
       owner({
@@ -175,20 +211,24 @@ describe("buildObjectFieldIndex", () => {
       })
     )
 
-    expect(resolveObjectFieldSegment({ index: documentIndex, segment: "Number" })).toMatchObject({ name: "Номер" })
-    expect(resolveObjectFieldSegment({ index: catalogIndex, segment: "Description" })).toMatchObject({
+    expect(resolveObjectFieldSegment({ index: documentIndex, segment: "Number", nameMode: "internal" })).toMatchObject({
+      name: "Номер",
+    })
+    expect(resolveObjectFieldSegment({ index: catalogIndex, segment: "Description", nameMode: "internal" })).toMatchObject({
       name: "Наименование",
     })
-    expect(resolveObjectFieldSegment({ index: catalogIndex, segment: "Code" })).toMatchObject({ name: "Код" })
-    expect(resolveObjectFieldSegment({ index: catalogIndex, segment: "DeletionMark" })).toMatchObject({
+    expect(resolveObjectFieldSegment({ index: catalogIndex, segment: "Code", nameMode: "internal" })).toMatchObject({
+      name: "Код",
+    })
+    expect(resolveObjectFieldSegment({ index: catalogIndex, segment: "DeletionMark", nameMode: "internal" })).toMatchObject({
       name: "ПометкаУдаления",
       typeInfo: { kinds: ["boolean"] },
     })
-    expect(resolveObjectFieldSegment({ index: catalogIndex, segment: "Parent" })).toMatchObject({
+    expect(resolveObjectFieldSegment({ index: catalogIndex, segment: "Parent", nameMode: "internal" })).toMatchObject({
       name: "Родитель",
       typeInfo: { kinds: ["object"], nextTypes: [{ kind: "Справочник", name: "Номенклатура" }] },
     })
-    expect(resolveObjectFieldSegment({ index: documentIndex, segment: "Parent" })).toBeUndefined()
+    expect(resolveObjectFieldSegment({ index: documentIndex, segment: "Parent", nameMode: "internal" })).toBeUndefined()
   })
 
   it("resolves task-specific platform standard attribute aliases through task rules", () => {
@@ -200,11 +240,11 @@ describe("buildObjectFieldIndex", () => {
       })
     )
 
-    expect(resolveObjectFieldSegment({ index, segment: "Description" })).toMatchObject({
+    expect(resolveObjectFieldSegment({ index, segment: "Description", nameMode: "internal" })).toMatchObject({
       name: "Описание",
       kind: "standardAttribute",
     })
-    expect(resolveObjectFieldSegment({ index, segment: "Executed" })).toMatchObject({
+    expect(resolveObjectFieldSegment({ index, segment: "Executed", nameMode: "internal" })).toMatchObject({
       name: "Выполнена",
       kind: "standardAttribute",
       typeInfo: { kinds: ["boolean"] },
@@ -255,7 +295,7 @@ describe("buildObjectFieldIndex", () => {
       nextTypes: [{ kind: "Справочник", name: "ВидыПодарочныхСертификатов" }],
       sourceText: "Catalog.ВидыПодарочныхСертификатов",
     })
-    expect(resolveObjectFieldSegment({ index, segment: "Owner" })?.typeInfo.nextTypes).toEqual([
+    expect(resolveObjectFieldSegment({ index, segment: "Owner", nameMode: "internal" })?.typeInfo.nextTypes).toEqual([
       { kind: "Справочник", name: "ВидыПодарочныхСертификатов" },
     ])
   })

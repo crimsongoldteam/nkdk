@@ -38,6 +38,22 @@ describe("ValidationOwnerFacts", () => {
     })
   })
 
+  it("keeps accounting register chart of accounts in model stubs", () => {
+    const facts = createValidationOwnerFacts({
+      ref: { kind: "РегистрБухгалтерии", name: "Хозрасчетный" },
+      filePath: "/project/РегистрБухгалтерии/Хозрасчетный/Свойства.yaml",
+      fieldIndex: { fields: new Map(), standardAttributeAliases: new Map(), diagnostics: [] },
+      model: {
+        itemType: "MetadataAccountingRegister",
+        chartOfAccounts: "ChartOfAccounts.Хозрасчетный",
+      },
+    })
+
+    expect(modelStubFromOwnerFacts(facts)).toMatchObject({
+      chartOfAccounts: "ChartOfAccounts.Хозрасчетный",
+    })
+  })
+
   it("keeps catalog owners in model stubs", () => {
     const facts = createValidationOwnerFacts({
       ref: { kind: "Справочник", name: "ПодарочныеСертификаты" },

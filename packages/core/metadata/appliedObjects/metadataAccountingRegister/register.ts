@@ -33,13 +33,16 @@ function accountingRegisterRecordSetColumn(params: {
 }
 
 function accountingRegisterAccountColumn(owner: OwnerMetadata, segment: string): FormDataPathColumnSource | undefined {
-  if (segment !== "Account" && segment !== "AccountDr" && segment !== "AccountCr") return undefined
+  if (segment !== "Account" && segment !== "Счет" && segment !== "AccountDr" && segment !== "AccountCr")
+    return undefined
 
   const chartOfAccounts = accountingRegisterChartOfAccounts(owner.model)
   if (chartOfAccounts === undefined) return undefined
 
+  const isStandardAccount = segment === "Account" || segment === "Счет"
   return {
-    name: segment,
+    name: isStandardAccount ? "Счет" : segment,
+    ...(isStandardAccount ? { targetName: "Account" } : {}),
     typeInfo: {
       kinds: ["object"],
       nextTypes: [chartOfAccounts],
@@ -84,7 +87,7 @@ function accountingRegisterDebitCreditFieldColumn(
   const name = match?.groups?.name
   if (name === undefined) return undefined
 
-  const field = resolveObjectFieldSegment({ index: owner.fieldIndex, segment: name })
+  const field = resolveObjectFieldSegment({ index: owner.fieldIndex, segment: name, nameMode: "yaml" })
   if (field === undefined) return undefined
 
   return {

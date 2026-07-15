@@ -953,7 +953,7 @@ describe("resolveDataPath", () => {
   })
 
   it("resolves document RegisterRecords fields through document movements", () => {
-    const result = resolve("Объект.RegisterRecords.Продажи.Period", {
+    const result = resolve("Объект.RegisterRecords.Продажи.Период", {
       index: indexWithAttributes([attribute("Объект", { type: ["DocumentRef.Заказ"] })]),
       ownerCache: documentWithRegisterRecords(),
     })
@@ -962,15 +962,15 @@ describe("resolveDataPath", () => {
       status: "ok",
       diagnostics: [],
       target: {
-        value: "Объект.RegisterRecords.Продажи.Period",
-        segments: ["Объект", "RegisterRecords", "Продажи", "Period"],
+        value: "Объект.RegisterRecords.Продажи.Период",
+        segments: ["Объект", "RegisterRecords", "Продажи", "Период"],
         source: { kind: "tableColumn", table: "Продажи", name: "Период" },
       },
     })
   })
 
   it("resolves document НаборЗаписей fields as a RegisterRecords alias", () => {
-    const result = resolve("Объект.НаборЗаписей.Продажи.Active", {
+    const result = resolve("Объект.НаборЗаписей.Продажи.Активность", {
       index: indexWithAttributes([attribute("Объект", { type: ["DocumentRef.Заказ"] })]),
       ownerCache: documentWithRegisterRecords(),
     })
@@ -979,14 +979,14 @@ describe("resolveDataPath", () => {
       status: "ok",
       diagnostics: [],
       target: {
-        value: "Объект.НаборЗаписей.Продажи.Active",
+        value: "Объект.НаборЗаписей.Продажи.Активность",
         source: { kind: "tableColumn", table: "Продажи", name: "Активность" },
       },
     })
   })
 
   it("reports unknown document RegisterRecords names as errors", () => {
-    const result = resolve("Объект.RegisterRecords.НетТакогоРегистра.Period", {
+    const result = resolve("Объект.RegisterRecords.НетТакогоРегистра.Период", {
       index: indexWithAttributes([attribute("Объект", { type: ["DocumentRef.Заказ"] })]),
       ownerCache: documentWithRegisterRecords(),
     })
@@ -996,7 +996,7 @@ describe("resolveDataPath", () => {
       diagnostics: [
         expect.objectContaining({
           message:
-            'ПутьКДанным "Объект.RegisterRecords.НетТакогоРегистра.Period": неизвестный регистр движений "НетТакогоРегистра"',
+            'ПутьКДанным "Объект.RegisterRecords.НетТакогоРегистра.Период": неизвестный регистр движений "НетТакогоРегистра"',
         }),
       ],
     })
@@ -1057,7 +1057,7 @@ describe("resolveDataPath", () => {
   })
 
   it("keeps RegisterRecordSet standard columns available with form-only columns", () => {
-    const result = resolve("НаборЗаписей.Period", {
+    const result = resolve("НаборЗаписей.Период", {
       index: indexWithAttributes([
         attribute("НаборЗаписей", { type: ["InformationRegisterRecordSet.Продажи"] }, [
           column("ПериодГод", { type: ["decimal"] }),
@@ -1116,7 +1116,7 @@ describe("resolveDataPath", () => {
     const owners = documentWithAccountingRegisterRecords()
 
     for (const path of [
-      "Объект.RegisterRecords.Хозрасчетный.Account",
+      "Объект.RegisterRecords.Хозрасчетный.Счет",
       "Объект.RegisterRecords.Хозрасчетный.AccountDr",
       "Объект.RegisterRecords.Хозрасчетный.AccountCr",
     ] as const) {
@@ -1139,6 +1139,22 @@ describe("resolveDataPath", () => {
         },
       })
     }
+  })
+
+  it("rejects internal accounting RegisterRecords Account in YAML mode", () => {
+    const result = resolve("Объект.RegisterRecords.Хозрасчетный.Account", {
+      index: indexWithAttributes([attribute("Объект", { type: ["DocumentRef.Операция"] })]),
+      ownerCache: documentWithAccountingRegisterRecords(),
+    })
+
+    expect(result).toMatchObject({
+      status: "error",
+      diagnostics: [
+        expect.objectContaining({
+          message: 'ПутьКДанным "Объект.RegisterRecords.Хозрасчетный.Account": неизвестная колонка "Account"',
+        }),
+      ],
+    })
   })
 
   it("resolves accounting RegisterRecords ext dimensions as any columns", () => {
@@ -1668,8 +1684,10 @@ describe("resolveDataPath", () => {
     })
   })
 
-  it("resolves LineNumber as an alias for the YAML row number column", () => {
-    const result = resolve("Объект.Товары.LineNumber", {
+  it("resolves LineNumber only in internal mode", () => {
+    const result = resolveDataPathCore({
+      value: "Объект.Товары.LineNumber",
+      nameMode: "internal",
       index: indexWithAttributes([attribute("Объект", { type: ["DocumentRef.Заказ"] })]),
       ownerCache: ownerCache([
         owner({
@@ -1691,7 +1709,7 @@ describe("resolveDataPath", () => {
 
     expect(result).toMatchObject({
       status: "ok",
-      diagnostics: [],
+      replacements: [{ segmentIndex: 2, from: "LineNumber", to: "НомерСтроки", reason: "standardMember" }],
       target: {
         value: "Объект.Товары.LineNumber",
         segments: ["Объект", "Товары", "LineNumber"],
@@ -1700,8 +1718,42 @@ describe("resolveDataPath", () => {
     })
   })
 
-  it("resolves Date as an alias for the YAML standard attribute name", () => {
-    const result = resolve("Объект.Date", {
+  it("rejects LineNumber in YAML mode", () => {
+    const result = resolveDataPathCore({
+      value: "Объект.Товары.LineNumber",
+      nameMode: "yaml",
+      index: indexWithAttributes([attribute("Объект", { type: ["DocumentRef.Заказ"] })]),
+      ownerCache: ownerCache([
+        owner({
+          ref: { kind: "Документ", name: "Заказ" },
+          rule: MetadataDocumentRules,
+          model: {
+            itemType: "MetadataDocument",
+            tabularSections: [
+              {
+                itemType: "MetadataTabularSection",
+                name: "Товары",
+                attributes: [{ name: "Номенклатура", type: { type: ["CatalogRef.Номенклатура"] } }],
+              },
+            ],
+          },
+        }),
+      ]),
+    })
+
+    expect(result).toMatchObject({
+      status: "error",
+      issues: [
+        {
+          code: "unknown_column",
+          message: 'ПутьКДанным "Объект.Товары.LineNumber": неизвестная колонка "LineNumber"',
+        },
+      ],
+    })
+  })
+
+  it("resolves Date by YAML standard attribute name", () => {
+    const result = resolve("Объект.Дата", {
       index: indexWithAttributes([attribute("Объект", { type: ["DocumentRef.Заказ"] })]),
       ownerCache: ownerCache([
         owner({
@@ -1716,15 +1768,15 @@ describe("resolveDataPath", () => {
       status: "ok",
       diagnostics: [],
       target: {
-        value: "Объект.Date",
-        segments: ["Объект", "Date"],
+        value: "Объект.Дата",
+        segments: ["Объект", "Дата"],
         source: { kind: "objectField", owner: { kind: "Документ", name: "Заказ" }, name: "Дата" },
       },
     })
   })
 
-  it("resolves platform standard attribute aliases through owner metadata", () => {
-    const result = resolve("Объект.Number", {
+  it("resolves standard attributes through owner metadata by YAML names", () => {
+    const result = resolve("Объект.Номер", {
       index: indexWithAttributes([attribute("Объект", { type: ["DocumentRef.Заказ"] })]),
       ownerCache: ownerCache([
         owner({
@@ -1739,20 +1791,20 @@ describe("resolveDataPath", () => {
       status: "ok",
       diagnostics: [],
       target: {
-        value: "Объект.Number",
-        segments: ["Объект", "Number"],
+        value: "Объект.Номер",
+        segments: ["Объект", "Номер"],
         source: { kind: "objectField", owner: { kind: "Документ", name: "Заказ" }, name: "Номер" },
       },
     })
   })
 
-  it("resolves catalog platform standard aliases through owner metadata", () => {
+  it("resolves catalog standard attributes through owner metadata by YAML names", () => {
     const owners = ownerCache([owner({ ref: { kind: "Справочник", name: "Номенклатура" } })])
 
     for (const [path, yamlName] of [
-      ["Объект.Description", "Наименование"],
-      ["Объект.Code", "Код"],
-      ["Объект.Ref", "Ссылка"],
+      ["Объект.Наименование", "Наименование"],
+      ["Объект.Код", "Код"],
+      ["Объект.Ссылка", "Ссылка"],
     ] as const) {
       expect(
         resolve(path, {
@@ -1770,7 +1822,7 @@ describe("resolveDataPath", () => {
     }
   })
 
-  it("resolves task platform aliases and addressing attributes through owner metadata", () => {
+  it("resolves task standard attributes and addressing attributes through owner metadata by YAML names", () => {
     const owners = ownerCache([
       owner({
         ref: { kind: "ЗадачаОбъект", name: "ЗадачаИсполнителя" },
@@ -1793,10 +1845,10 @@ describe("resolveDataPath", () => {
     ])
 
     for (const [path, yamlName] of [
-      ["Объект.Description", "Описание"],
-      ["Объект.Executed", "Выполнена"],
-      ["Объект.BusinessProcess", "БизнесПроцесс"],
-      ["Объект.RoutePoint", "ТочкаМаршрута"],
+      ["Объект.Описание", "Описание"],
+      ["Объект.Выполнена", "Выполнена"],
+      ["Объект.БизнесПроцесс", "БизнесПроцесс"],
+      ["Объект.ТочкаМаршрута", "ТочкаМаршрута"],
       ["Объект.Исполнитель", "Исполнитель"],
     ] as const) {
       expect(
@@ -1815,8 +1867,8 @@ describe("resolveDataPath", () => {
     }
   })
 
-  it("resolves boolean document Posted standard attribute", () => {
-    const result = resolve("Объект.Posted", {
+  it("resolves boolean document posted YAML standard attribute", () => {
+    const result = resolve("Объект.Проведен", {
       index: indexWithAttributes([attribute("Объект", { type: ["DocumentObject.Заказ"] })]),
       ownerCache: ownerCache([
         owner({
@@ -1831,15 +1883,15 @@ describe("resolveDataPath", () => {
       status: "ok",
       diagnostics: [],
       target: {
-        value: "Объект.Posted",
+        value: "Объект.Проведен",
         source: { kind: "objectField", owner: { kind: "ДокументОбъект", name: "Заказ" }, name: "Проведен" },
         typeInfo: { kinds: ["boolean"] },
       },
     })
   })
 
-  it("resolves platform aliases after traversing a reference column", () => {
-    const result = resolve("Объект.Товары.Номенклатура.Code", {
+  it("resolves YAML standard names after traversing a reference column", () => {
+    const result = resolve("Объект.Товары.Номенклатура.Код", {
       index: indexWithAttributes([attribute("Объект", { type: ["DocumentRef.Заказ"] })]),
       ownerCache: ownerCache([
         owner({
@@ -1864,14 +1916,14 @@ describe("resolveDataPath", () => {
       status: "ok",
       diagnostics: [],
       target: {
-        value: "Объект.Товары.Номенклатура.Code",
+        value: "Объект.Товары.Номенклатура.Код",
         source: { kind: "objectField", owner: { kind: "Справочник", name: "Номенклатура" }, name: "Код" },
       },
     })
   })
 
-  it("resolves ValueType as a terminal type description standard attribute", () => {
-    const result = resolve("Объект.ValueType", {
+  it("resolves ValueType YAML name as a terminal type description standard attribute", () => {
+    const result = resolve("Объект.ТипЗначения", {
       index: indexWithAttributes([attribute("Объект", { type: ["ChartOfCharacteristicTypesRef.ВидыСубконто"] })]),
       ownerCache: ownerCache([
         owner({
@@ -1886,8 +1938,8 @@ describe("resolveDataPath", () => {
       status: "ok",
       diagnostics: [],
       target: {
-        value: "Объект.ValueType",
-        segments: ["Объект", "ValueType"],
+        value: "Объект.ТипЗначения",
+        segments: ["Объект", "ТипЗначения"],
         source: {
           kind: "objectField",
           owner: { kind: "ПланВидовХарактеристик", name: "ВидыСубконто" },
@@ -1899,7 +1951,7 @@ describe("resolveDataPath", () => {
   })
 
   it("does not allow traversing through ValueType", () => {
-    const result = resolve("Объект.ValueType.Code", {
+    const result = resolve("Объект.ТипЗначения.Код", {
       index: indexWithAttributes([attribute("Объект", { type: ["ChartOfCharacteristicTypesRef.ВидыСубконто"] })]),
       ownerCache: ownerCache([
         owner({
@@ -1914,7 +1966,8 @@ describe("resolveDataPath", () => {
       status: "error",
       diagnostics: [
         expect.objectContaining({
-          message: 'ПутьКДанным "Объект.ValueType.Code": промежуточный реквизит "ValueType" не является объектом',
+          message:
+            'ПутьКДанным "Объект.ТипЗначения.Код": промежуточный реквизит "ТипЗначения" не является объектом',
         }),
       ],
     })
@@ -1936,7 +1989,7 @@ describe("resolveDataPath", () => {
     })
   })
 
-  it("resolves ExchangePlan sent and received numbers as scalar standard attributes", () => {
+  it("resolves ExchangePlan sent and received numbers as scalar YAML standard attributes", () => {
     const owners = ownerCache([
       owner({
         ref: { kind: "ПланОбмена", name: "Синхронизация" },
@@ -1946,8 +1999,8 @@ describe("resolveDataPath", () => {
     ])
 
     for (const [path, yamlName] of [
-      ["Объект.SentNo", "НомерОтправленного"],
-      ["Объект.ReceivedNo", "НомерПринятого"],
+      ["Объект.НомерОтправленного", "НомерОтправленного"],
+      ["Объект.НомерПринятого", "НомерПринятого"],
     ] as const) {
       expect(
         resolve(path, {
@@ -1960,14 +2013,17 @@ describe("resolveDataPath", () => {
         target: {
           value: path,
           source: { kind: "objectField", owner: { kind: "ПланОбмена", name: "Синхронизация" }, name: yamlName },
-          typeInfo: { kinds: ["scalar"], sourceText: path.endsWith("SentNo") ? "ПланОбмена.SentNo" : "ПланОбмена.ReceivedNo" },
+          typeInfo: {
+            kinds: ["scalar"],
+            sourceText: yamlName === "НомерОтправленного" ? "ПланОбмена.SentNo" : "ПланОбмена.ReceivedNo",
+          },
         },
       })
     }
   })
 
-  it("resolves Predefined as a boolean standard attribute", () => {
-    const result = resolve("Объект.Predefined", {
+  it("resolves Predefined YAML name as a boolean standard attribute", () => {
+    const result = resolve("Объект.Предопределенный", {
       index: indexWithAttributes([attribute("Объект", { type: ["CatalogRef.ГруппыАналитик"] })]),
       ownerCache: ownerCache([
         owner({
@@ -2082,7 +2138,7 @@ describe("resolveDataPath", () => {
   })
 
   it("does not allow traversing through ExchangePlan sent number", () => {
-    const result = resolve("Объект.SentNo.Code", {
+    const result = resolve("Объект.НомерОтправленного.Код", {
       index: indexWithAttributes([attribute("Объект", { type: ["ExchangePlanRef.Синхронизация"] })]),
       ownerCache: ownerCache([
         owner({
@@ -2097,7 +2153,8 @@ describe("resolveDataPath", () => {
       status: "error",
       diagnostics: [
         expect.objectContaining({
-          message: 'ПутьКДанным "Объект.SentNo.Code": промежуточный реквизит "SentNo" не является объектом',
+          message:
+            'ПутьКДанным "Объект.НомерОтправленного.Код": промежуточный реквизит "НомерОтправленного" не является объектом',
         }),
       ],
     })
@@ -2341,8 +2398,8 @@ describe("resolveDataPath", () => {
     })
   })
 
-  it("resolves DeletionMark as boolean through standard attributes", () => {
-    const result = resolve("Объект.Обращения.Обращение.DeletionMark", {
+  it("resolves DeletionMark YAML name as boolean through standard attributes", () => {
+    const result = resolve("Объект.Обращения.Обращение.ПометкаУдаления", {
       index: indexWithAttributes([attribute("Объект", { type: ["DocumentRef.ВыгрузкаВССТУ"] })]),
       ownerCache: ownerCache([
         owner({
@@ -2379,8 +2436,8 @@ describe("resolveDataPath", () => {
     })
   })
 
-  it("resolves Parent as the same owner through standard attributes", () => {
-    const result = resolve("Объект.Parent.ТекстСообщения", {
+  it("resolves Parent YAML name as the same owner through standard attributes", () => {
+    const result = resolve("Объект.Родитель.ТекстСообщения", {
       index: indexWithAttributes([attribute("Объект", { type: ["CatalogRef.СообщенияОбсуждений"] })]),
       ownerCache: ownerCache([
         owner({

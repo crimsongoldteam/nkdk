@@ -177,4 +177,19 @@ describe("extractValidationYamlFacts", () => {
       "AccumulationRegister.Продажи",
     ])
   })
+
+  it("extracts accounting register chart of accounts from YAML", () => {
+    const projectDir = "/project"
+    const filePath = "/project/РегистрБухгалтерии/Хозрасчетный/Свойства.yaml"
+    const file = resolveValidationProjectFile(projectDir, filePath)
+    if (file === undefined) throw new Error("file not resolved")
+
+    const facts = extractValidationYamlFacts({
+      file,
+      parsed: parseMetadataYaml("ПланСчетов: ChartOfAccounts.Хозрасчетный\n"),
+      rulesSnapshot: createValidationRulesSnapshot(mockContext),
+    })
+
+    expect(facts.ownerModelStub?.chartOfAccounts).toBe("ChartOfAccounts.Хозрасчетный")
+  })
 })

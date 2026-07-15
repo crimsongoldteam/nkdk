@@ -187,18 +187,21 @@ function registerRecordSetStandardColumn(
   switch (segment) {
     case "Active":
     case "Активность":
-      return booleanColumn(yamlName, "RegisterRecordSet.Active")
+      return { ...booleanColumn(yamlName, "RegisterRecordSet.Active"), targetName: "Active" }
     case "Period":
     case "Период":
-      return dateTimeColumn(yamlName, "RegisterRecordSet.Period")
+      return { ...dateTimeColumn(yamlName, "RegisterRecordSet.Period"), targetName: "Period" }
     case "LineNumber":
     case "НомерСтроки":
-      return scalarColumn(yamlName, "RegisterRecordSet.LineNumber")
+      return { ...scalarColumn(yamlName, "RegisterRecordSet.LineNumber"), targetName: "LineNumber" }
+    case "Recorder":
+    case "Регистратор":
+      return { ...scalarColumn(yamlName, "RegisterRecordSet.Recorder"), targetName: "Recorder" }
     case "PeriodAdjustment":
       return scalarColumn(yamlName, "RegisterRecordSet.PeriodAdjustment")
     case "RecordType":
     case "ВидДвижения":
-      return scalarColumn(yamlName, "RegisterRecordSet.RecordType")
+      return { ...scalarColumn(yamlName, "RegisterRecordSet.RecordType"), targetName: "RecordType" }
   }
 
   return undefined
