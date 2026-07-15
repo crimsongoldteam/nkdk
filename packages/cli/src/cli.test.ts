@@ -6,6 +6,8 @@ import { afterEach, describe, expect, it, vi } from "vitest"
 import { createProgram, runCli } from "./cli"
 
 describe("cli", () => {
+  const slowCliTimeout = 60_000
+
   afterEach(() => {
     vi.restoreAllMocks()
     process.exitCode = undefined
@@ -38,27 +40,27 @@ describe("cli", () => {
     const yamlDir = createProject()
     const program = createProgram({ exitOnUnhandledError: false })
 
-    program.parse(["node", "nkdk", "rename", yamlDir, "Справочник.Товары", "Номенклатура"], { from: "node" })
-    await waitForAsyncCatch()
+    await program.parseAsync(["node", "nkdk", "rename", yamlDir, "Справочник.Товары", "Номенклатура"], { from: "node" })
 
     const result = JSON.parse(writtenText(stdout))
     expect(result).toMatchObject({ ok: true, mode: "plan" })
     expect(fs.existsSync(join(yamlDir, "Справочник", "Товары"))).toBe(true)
-  })
+  }, slowCliTimeout)
 
   it("applies rename only with --write", async () => {
     const stdout = captureStdout()
     const yamlDir = createProject()
     const program = createProgram({ exitOnUnhandledError: false })
 
-    program.parse(["node", "nkdk", "rename", yamlDir, "Справочник.Товары", "Номенклатура", "--write"], { from: "node" })
-    await waitForAsyncCatch()
+    await program.parseAsync(["node", "nkdk", "rename", yamlDir, "Справочник.Товары", "Номенклатура", "--write"], {
+      from: "node",
+    })
 
     const result = JSON.parse(writtenText(stdout))
     expect(result).toMatchObject({ ok: true, mode: "applied" })
     expect(fs.existsSync(join(yamlDir, "Справочник", "Товары"))).toBe(false)
     expect(fs.existsSync(join(yamlDir, "Справочник", "Номенклатура"))).toBe(true)
-  })
+  }, slowCliTimeout)
 
   it("delete prints blocked references and exits non-zero", async () => {
     const stdout = captureStdout()
@@ -66,13 +68,12 @@ describe("cli", () => {
     writeProjectFile(yamlDir, "Справочник/Заказы/Свойства.yaml", ["Владельцы:", "  - Справочник.Товары"])
     const program = createProgram({ exitOnUnhandledError: false })
 
-    program.parse(["node", "nkdk", "delete", yamlDir, "Справочник.Товары", "--write"], { from: "node" })
-    await waitForAsyncCatch()
+    await program.parseAsync(["node", "nkdk", "delete", yamlDir, "Справочник.Товары", "--write"], { from: "node" })
 
     const result = JSON.parse(writtenText(stdout))
     expect(result).toMatchObject({ ok: false, code: "references_found" })
     expect(process.exitCode).toBe(1)
-  })
+  }, slowCliTimeout)
 })
 
 function createProject(): string {

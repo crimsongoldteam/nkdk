@@ -1,6 +1,8 @@
 import fs from "fs"
 import { resolve } from "path"
+import type { YamlLocationIndex } from "../../yaml/locationIndex"
 import { parseMetadataYaml, type ParsedYaml } from "../../yaml/parseMetadataYaml"
+import type { PreparedYamlFile } from "../project/preparedYamlProject"
 
 export interface ProjectYamlEntry {
   filePath: string
@@ -58,12 +60,46 @@ export function createProjectYamlCacheFromEntries(entries: readonly ProjectYamlE
   }
 }
 
+export function createProjectYamlCacheFromPreparedFiles(files: readonly PreparedYamlFile[]): ProjectYamlCache {
+  return createProjectYamlCacheFromEntries(files.map(projectYamlEntryFromPreparedFile))
+}
+
+export function projectYamlEntryFromPreparedFile(file: PreparedYamlFile): ProjectYamlEntry {
+  if (!("data" in file)) {
+    throw new Error(`Распарсенные YAML-данные не были переданы в главный поток: ${file.filePath}`)
+  }
+  return {
+    filePath: file.filePath,
+    text: "",
+    parsed: {
+      text: "",
+      data: file.data,
+      locations: emptyYamlLocationIndex(),
+      syntaxErrors: file.syntaxDiagnostics.map((diagnostic) => ({
+        line: diagnostic.line,
+        col: diagnostic.col,
+        message: diagnostic.message,
+      })),
+    },
+  }
+}
+
 function readProjectYamlEntry(filePath: string): ProjectYamlCacheValue {
   try {
     const text = fs.readFileSync(filePath, "utf8")
     return { filePath, text, parsed: parseMetadataYaml(text) }
   } catch (caught) {
     return { filePath, error: toError(caught) }
+  }
+}
+
+function emptyYamlLocationIndex(): YamlLocationIndex {
+  return {
+    rootPosition: () => ({ line: 1, col: 1 }),
+    keyPosition: () => undefined,
+    keyOccurrences: () => [],
+    valuePosition: () => undefined,
+    nodePosition: () => undefined,
   }
 }
 

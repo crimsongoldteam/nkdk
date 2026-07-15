@@ -11,7 +11,6 @@ description: Use when the user asks to measure YAML project validation speed or 
 
 ```text
 packages/core/dist/index.js
-  -> packages/core/dist/projectValidationWorker.js
   -> packages/core/dist/projectValidationAjvStandalone.js
 ```
 

@@ -4,8 +4,8 @@ import {
   applyPendingMigrationFiles,
   collectStructuralStateFromXML,
   collectStructuralStateFromYAML,
-  deleteMetadataItem,
   detectMigrationConflicts,
+  findMetadataReferences,
   readAppliedMigrationsState,
   readPendingMigrationEntries,
   renameMetadataItem,
@@ -27,7 +27,7 @@ export async function renameMigration(yamlDir: string, path: string, newName: st
 }
 
 export async function deleteMigration(yamlDir: string, path: string, allowWrite = false): Promise<void> {
-  printOperationResult(await deleteMetadataItem({
+  printOperationResult(await findMetadataReferences({
     projectDir: yamlDir,
     path,
     allowWrite,

@@ -24,7 +24,7 @@ describe("registerNkdkCapabilities", () => {
       "nkdk.sync_to_xml",
       "nkdk.init_sync_state",
       "nkdk.rename_item",
-      "nkdk.delete_item",
+      "nkdk.find_references",
     ])
     expect(calls.resources).toEqual([
       "config-edit-yaml",

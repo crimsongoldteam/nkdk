@@ -5,9 +5,12 @@ import { importClientApplicationFormFromYAML } from "../forms/clientApplicationF
 import { ClientApplicationFormRules } from "../forms/clientApplicationForm/rules"
 import { importMetadataItemFromYAML } from "../orchestration"
 import type { MetadataItemRule } from "../orchestration/property/types"
+import type { PreparedYamlFile, PreparedYamlProject } from "../project/preparedYamlProject"
 import { discoverValidationProjectFiles, type ValidationProjectFile } from "../validation/projectFiles"
+import { resolveValidationProjectFile } from "../validation/projectFiles"
 import { validateProject } from "../validation/validateProject"
 import { parseMetadataYaml, type ParsedYaml } from "../../yaml/parseMetadataYaml"
+import type { YamlLocationIndex } from "../../yaml/locationIndex"
 import { defaultMetadataOperationsContext } from "./context"
 import type { MetadataOperationValidationFailed } from "./types"
 
@@ -53,7 +56,7 @@ export async function buildMetadataOperationSnapshot(params: {
   }
 
   const items: OperationSnapshotItem[] = []
-  for (const resource of discoverValidationProjectFiles(projectDir)) {
+  for (const resource of await discoverValidationProjectFiles(projectDir)) {
     const item = importSnapshotItem({ resource, context, requireValidProject: params.requireValidProject })
     if (item.ok) {
       items.push(item.item)
@@ -63,6 +66,34 @@ export async function buildMetadataOperationSnapshot(params: {
   }
 
   return { ok: true, projectDir, context, items }
+}
+
+export function buildMetadataOperationSnapshotFromPreparedProject(params: {
+  project: PreparedYamlProject
+  context: ConfigurationContext
+  requireValidProject: boolean
+}): MetadataOperationSnapshotResult {
+  const items: OperationSnapshotItem[] = []
+  for (const worker of params.project.workers) {
+    for (const yamlFile of worker.yamlFiles) {
+      const resource = resolveValidationProjectFile(params.project.projectDir, yamlFile.filePath)
+      if (resource === undefined) continue
+
+      const item = importPreparedSnapshotItem({
+        resource,
+        yamlFile,
+        context: params.context,
+        requireValidProject: params.requireValidProject,
+      })
+      if (item.ok) {
+        items.push(item.item)
+        continue
+      }
+      if (params.requireValidProject) return item.failure
+    }
+  }
+
+  return { ok: true, projectDir: params.project.projectDir, context: params.context, items }
 }
 
 function importSnapshotItem(params: {
@@ -118,5 +149,81 @@ function importSnapshotItem(params: {
         ],
       },
     }
+  }
+}
+
+function importPreparedSnapshotItem(params: {
+  resource: ValidationProjectFile
+  yamlFile: PreparedYamlFile
+  context: ConfigurationContext
+  requireValidProject: boolean
+}): { ok: true; item: OperationSnapshotItem } | { ok: false; failure: MetadataOperationValidationFailed } {
+  try {
+    const parsed = parsedYamlForOperationTransition(params.yamlFile.data)
+    const rule = params.resource.kind === "form" ? ClientApplicationFormRules : params.resource.owner.spec.rule
+    const model =
+      params.resource.kind === "form"
+        ? (importClientApplicationFormFromYAML(params.context, parsed.data as never) as Record<string, unknown>)
+        : (importMetadataItemFromYAML({
+            context: params.context,
+            yaml: parsed.data,
+            rule,
+            name: params.resource.owner.name,
+          }) as Record<string, unknown> | undefined)
+
+    if (model === undefined) throw new Error("Не удалось импортировать свойства")
+    if (params.resource.kind === "properties") model.name ??= params.resource.owner.name
+
+    return {
+      ok: true,
+      item: {
+        resource: params.resource,
+        filePath: params.resource.absolutePath,
+        projectPath: params.resource.projectPath,
+        ownerDirPath: dirname(params.resource.absolutePath),
+        parsed,
+        model,
+        rule,
+        kind: params.resource.kind,
+      },
+    }
+  } catch (caught) {
+    return {
+      ok: false,
+      failure: {
+        ok: false,
+        code: "validation_failed",
+        message: caught instanceof Error ? caught.message : String(caught),
+        diagnostics: [
+          {
+            filePath: params.resource.absolutePath,
+            line: 1,
+            col: 1,
+            severity: "error",
+            source: "structure",
+            message: caught instanceof Error ? caught.message : String(caught),
+          },
+        ],
+      },
+    }
+  }
+}
+
+function parsedYamlForOperationTransition(data: unknown): ParsedYaml {
+  return {
+    text: "",
+    data,
+    locations: emptyYamlLocationIndex(),
+    syntaxErrors: [],
+  }
+}
+
+function emptyYamlLocationIndex(): YamlLocationIndex {
+  return {
+    rootPosition: () => ({ line: 1, col: 1 }),
+    keyPosition: () => undefined,
+    keyOccurrences: () => [],
+    valuePosition: () => undefined,
+    nodePosition: () => undefined,
   }
 }

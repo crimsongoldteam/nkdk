@@ -57,14 +57,14 @@ describe("MCP server", () => {
   it("documents expected publish build outputs", () => {
     const outputs = [
       "dist/bin/nkdk-mcp",
-      "dist/projectValidationWorker.js",
+      "dist/preparedYamlProjectWorker.js",
       "dist/generateProjectValidationAjvStandalone.js",
       "dist/projectValidationAjvStandalone.js",
     ]
 
     expect(outputs).toEqual([
       "dist/bin/nkdk-mcp",
-      "dist/projectValidationWorker.js",
+      "dist/preparedYamlProjectWorker.js",
       "dist/generateProjectValidationAjvStandalone.js",
       "dist/projectValidationAjvStandalone.js",
     ])

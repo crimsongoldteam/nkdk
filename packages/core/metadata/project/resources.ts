@@ -1,5 +1,6 @@
-import { existsSync, readdirSync, statSync } from "fs"
+import { readdir } from "fs/promises"
 import { isAbsolute, join, relative, resolve, sep } from "path"
+import type { ProjectResourceDescriptor, ProjectResourceSource } from "../orchestration/property/fn"
 import { CONFIGURATION_YAML_FILE } from "./constants"
 import {
   configurationMetadataProjectSpec,
@@ -10,9 +11,15 @@ import {
 import { describeMetadataRuleProjectResources, matchProjectPattern } from "./ruleResources"
 
 const PROPERTIES_FILE = "Свойства.yaml"
+const DISCOVERY_READDIR_CONCURRENCY = 32
 
-export type MetadataProjectResourceKind = "yaml" | "xml" | "asset"
+export type MetadataProjectResourceKind = "yaml" | "resource"
+export type MetadataProjectResourceInclude = "all" | "yaml"
 export type MetadataProjectYamlRole = "configuration" | "properties" | "form"
+
+export interface MetadataProjectResourceDiscoveryOptions {
+  include?: MetadataProjectResourceInclude
+}
 
 export interface MetadataProjectResourceOwner {
   dir: string
@@ -29,6 +36,7 @@ export type MetadataProjectResourceRef =
   | MetadataProjectConfigurationYamlRef
   | MetadataProjectPropertiesYamlRef
   | MetadataProjectFormYamlRef
+  | MetadataProjectResourceOnlyRef
 
 export interface MetadataProjectConfigurationYamlRef {
   kind: "yaml"
@@ -56,6 +64,16 @@ export interface MetadataProjectFormYamlRef {
   formName: string
 }
 
+export interface MetadataProjectResourceOnlyRef {
+  kind: "resource"
+  role: string
+  projectPath: string
+  absolutePath?: string
+  owner: MetadataProjectResourceOwner
+  descriptorKind: ProjectResourceDescriptor["kind"]
+  source: ProjectResourceSource
+}
+
 export function classifyMetadataProjectPath(projectPath: string): MetadataProjectResourceRef | undefined {
   const normalized = toProjectSeparators(projectPath)
   if (normalized === CONFIGURATION_YAML_FILE) return configurationResource(normalized)
@@ -70,24 +88,22 @@ export function classifyMetadataProjectPath(projectPath: string): MetadataProjec
   return undefined
 }
 
-export function discoverMetadataProjectResources(projectDir: string): MetadataProjectResourceRef[] {
+export async function discoverMetadataProjectResources(
+  projectDir: string,
+  options: MetadataProjectResourceDiscoveryOptions = {}
+): Promise<MetadataProjectResourceRef[]> {
   const projectRoot = resolve(projectDir)
+  const include = options.include ?? "all"
   const resources: MetadataProjectResourceRef[] = []
 
-  collectExistingProjectResource(projectRoot, join(projectRoot, CONFIGURATION_YAML_FILE), resources)
+  for (const filePath of await listProjectFiles(projectRoot, include)) {
+    const projectPath = toProjectSeparators(relative(projectRoot, filePath))
+    const resource = classifyMetadataProjectPath(projectPath)
+    if (!resource) continue
+    if (include === "yaml" && resource.kind !== "yaml") continue
 
-  for (const spec of metadataProjectSpecs) {
-    const kindDir = join(projectRoot, spec.dir)
-    if (!isExistingDirectory(kindDir)) continue
-
-    for (const ownerEntry of readdirSync(kindDir, { withFileTypes: true })) {
-      if (!ownerEntry.isDirectory()) continue
-
-      collectExistingDescriptorResources(projectRoot, join(kindDir, ownerEntry.name), spec, resources)
-    }
+    resources.push({ ...resource, absolutePath: filePath })
   }
-
-  collectNestedRecursivePropertyResources(projectRoot, resources)
 
   return resources.sort((left, right) => left.projectPath.localeCompare(right.projectPath, "ru"))
 }
@@ -114,17 +130,6 @@ export function resolveMetadataProjectResource(
   const resource = classifyMetadataProjectPath(projectPath)
 
   return resource ? { ...resource, absolutePath } : undefined
-}
-
-function collectExistingProjectResource(
-  projectRoot: string,
-  filePath: string,
-  resources: MetadataProjectResourceRef[]
-): void {
-  if (!isExistingFile(filePath)) return
-
-  const resource = resolveMetadataProjectResource(projectRoot, filePath)
-  if (resource) resources.push(resource)
 }
 
 function configurationResource(projectPath: string): MetadataProjectConfigurationYamlRef {
@@ -169,10 +174,7 @@ function matchRecursiveNestedPropertiesPath(
   return undefined
 }
 
-function matchDescriptorResourcePath(
-  parts: string[],
-  projectPath: string
-): MetadataProjectPropertiesYamlRef | MetadataProjectFormYamlRef | undefined {
+function matchDescriptorResourcePath(parts: string[], projectPath: string): MetadataProjectResourceRef | undefined {
   if (parts.length < 3) return undefined
   const owner = createOwner(parts[0], parts[1])
   if (!owner) return undefined
@@ -180,7 +182,27 @@ function matchDescriptorResourcePath(
   const relativePath = parts.slice(2).join("/")
   for (const resource of describeMetadataRuleProjectResources(owner.spec.rule)) {
     const match = matchProjectPattern(resource.projectPattern, relativePath)
-    if (!match || resource.kind !== "yaml") continue
+    if (!match) continue
+    if (resource.kind !== "yaml") {
+      return {
+        kind: "resource",
+        role: resource.role,
+        projectPath,
+        owner,
+        descriptorKind: resource.kind,
+        source: resource.source,
+      }
+    }
+    if (resource.role === "resourceOnly") {
+      return {
+        kind: "resource",
+        role: resource.role,
+        projectPath,
+        owner,
+        descriptorKind: resource.kind,
+        source: resource.source,
+      }
+    }
 
     if (resource.role === "properties") {
       return { kind: "yaml", role: "properties", projectPath, owner, nesting: [] }
@@ -202,79 +224,54 @@ function createOwner(dir: string | undefined, name: string | undefined): Metadat
   return { dir, name, spec }
 }
 
-function collectExistingDescriptorResources(
+async function listProjectFiles(
   projectRoot: string,
-  ownerRoot: string,
-  spec: MetadataProjectSpec,
-  resources: MetadataProjectResourceRef[]
-): void {
-  for (const resource of describeMetadataRuleProjectResources(spec.rule)) {
-    if (resource.kind !== "yaml") continue
-    collectExistingResourcePattern(projectRoot, ownerRoot, resource.projectPattern, resources)
-  }
-}
+  include: MetadataProjectResourceInclude
+): Promise<string[]> {
+  const files: string[] = []
+  const dirs = [projectRoot]
+  let active = 0
+  let resolveDone!: () => void
+  let rejectDone!: (error: unknown) => void
+  const done = new Promise<void>((resolve, reject) => {
+    resolveDone = resolve
+    rejectDone = reject
+  })
 
-function collectExistingResourcePattern(
-  projectRoot: string,
-  ownerRoot: string,
-  projectPattern: string,
-  resources: MetadataProjectResourceRef[]
-): void {
-  const placeholderMatch = projectPattern.match(/^(.*)\/\{itemName\}\/([^/]+)$/)
-  if (!placeholderMatch) {
-    collectExistingProjectResource(projectRoot, join(ownerRoot, ...projectPattern.split("/")), resources)
-    return
-  }
-
-  const [, dirPattern, fileName] = placeholderMatch
-  const itemsDir = join(ownerRoot, ...dirPattern.split("/"))
-  if (!isExistingDirectory(itemsDir)) return
-
-  for (const childEntry of readdirSync(itemsDir, { withFileTypes: true })) {
-    if (!childEntry.isDirectory()) continue
-    collectExistingProjectResource(projectRoot, join(itemsDir, childEntry.name, fileName), resources)
-  }
-}
-
-function collectNestedRecursivePropertyResources(projectRoot: string, resources: MetadataProjectResourceRef[]): void {
-  for (const spec of metadataProjectSpecs) {
-    if (spec.nesting?.kind !== "recursiveChildDir") continue
-    const root = join(projectRoot, spec.dir)
-    if (!isExistingDirectory(root)) continue
-
-    for (const entry of readdirSync(root, { withFileTypes: true })) {
-      if (!entry.isDirectory()) continue
-      collectNestedRecursivePropertyResourcesFromDir(projectRoot, join(root, entry.name), spec, resources)
+  const pump = (): void => {
+    while (active < DISCOVERY_READDIR_CONCURRENCY && dirs.length > 0) {
+      const currentDir = dirs.pop()!
+      active++
+      readdir(currentDir, { withFileTypes: true }).then(
+        (entries) => {
+          for (const entry of entries) {
+            const entryPath = join(currentDir, entry.name)
+            if (entry.isDirectory()) {
+              dirs.push(entryPath)
+              continue
+            }
+            if (!entry.isFile()) continue
+            if (include === "yaml" && !entryPath.endsWith(".yaml")) continue
+            files.push(entryPath)
+          }
+        },
+        (error: unknown) => rejectDone(error)
+      ).finally(() => {
+        active--
+        if (dirs.length === 0 && active === 0) {
+          resolveDone()
+          return
+        }
+        pump()
+      })
     }
   }
-}
 
-function collectNestedRecursivePropertyResourcesFromDir(
-  projectRoot: string,
-  currentDir: string,
-  spec: MetadataProjectSpec,
-  resources: MetadataProjectResourceRef[]
-): void {
-  const childDir = join(currentDir, spec.nesting?.childDir ?? "")
-  if (!isExistingDirectory(childDir)) return
-
-  for (const childEntry of readdirSync(childDir, { withFileTypes: true })) {
-    if (!childEntry.isDirectory()) continue
-
-    const nestedDir = join(childDir, childEntry.name)
-    collectExistingProjectResource(projectRoot, join(nestedDir, PROPERTIES_FILE), resources)
-    collectNestedRecursivePropertyResourcesFromDir(projectRoot, nestedDir, spec, resources)
-  }
+  pump()
+  await done
+  return files
 }
 
 function toProjectSeparators(filePath: string): string {
   return filePath.split(sep).join("/")
-}
-
-function isExistingDirectory(path: string): boolean {
-  return existsSync(path) && statSync(path).isDirectory()
-}
-
-function isExistingFile(path: string): boolean {
-  return existsSync(path) && statSync(path).isFile()
 }

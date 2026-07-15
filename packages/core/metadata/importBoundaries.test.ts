@@ -183,6 +183,17 @@ describe("metadata import boundaries", () => {
     expect(source).toContain("getRegisteredFormValidator")
   })
 
+  it("worker validation не строит metadata-модель", () => {
+    const files = ["project/preparedYamlProjectWorker.ts", "validation/projectValidationPasses.ts"]
+
+    for (const file of files) {
+      const source = readFileSync(join(METADATA_DIR, file), "utf-8")
+      expect(source).not.toContain("importPropertiesModel")
+      expect(source).not.toContain("importClientApplicationFormFromYAML")
+      expect(source).not.toContain("getRegisteredFormValidationPasses")
+    }
+  })
+
   it("dataPath owner registrations живут в register.ts конкретных объектов", () => {
     const appliedObjectsIndex = readFileSync(join(METADATA_DIR, "appliedObjects", "index.ts"), "utf-8")
 

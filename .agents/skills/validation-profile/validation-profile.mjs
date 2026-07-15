@@ -73,9 +73,8 @@ function parseArgs(argv) {
 async function loadCompiledCore() {
   const distIndex = resolve(repoRoot, "packages/core/dist/index.js")
   const standalone = resolve(repoRoot, "packages/core/dist/projectValidationAjvStandalone.js")
-  const worker = resolve(repoRoot, "packages/core/dist/projectValidationWorker.js")
 
-  if (!existsSync(distIndex) || !existsSync(worker) || !existsSync(standalone)) {
+  if (!existsSync(distIndex) || !existsSync(standalone)) {
     fail(
       [
         "compiled validation files are missing.",
@@ -199,38 +198,77 @@ function runTimingPass(options) {
     )
   }
 
-  const rawLines = spawned.stderr.split(/\r?\n/).filter((line) => line.startsWith("[validation] worker "))
+  const stepLines = spawned.stderr.split(/\r?\n/).filter((line) => line.startsWith("[validation-step] "))
+  if (stepLines.length === 0) {
+    throw new Error("timing pass did not emit [validation-step] records. Rebuild @nkdk/core before profiling.")
+  }
   return {
-    firstPass: rawLines.filter((line) => line.includes(" first pass ")).map(parseTimingLine),
-    secondPass: rawLines.filter((line) => line.includes(" second pass ")).map(parseTimingLine),
-    rawLines,
+    steps: stepLines.map(parseValidationStepLine),
   }
 }
 
-function parseTimingLine(line) {
-  const result = { raw: line }
-  const worker = /worker (\d+)/.exec(line)
-  if (worker) result.worker = Number(worker[1])
-  result.phase = line.includes(" first pass ") ? "firstPass" : "secondPass"
-
-  for (const token of line.split(" ")) {
+function parseValidationStepLine(line) {
+  const result = {}
+  for (const token of tokenizeProfileLine(line).slice(1)) {
     const eq = token.indexOf("=")
     if (eq === -1) continue
     const key = token.slice(0, eq)
     const rawValue = token.slice(eq + 1)
-    if (rawValue.endsWith("ms")) {
-      result[key] = Number(rawValue.slice(0, -"ms".length))
+    const value = parseProfileValue(rawValue)
+    if (typeof value !== "string") {
+      result[key] = value
       continue
     }
-    if (rawValue.endsWith("MiB")) {
-      result[key] = Number(rawValue.slice(0, -"MiB".length))
+    if (value.endsWith("ms")) {
+      result[key] = Number(value.slice(0, -"ms".length))
       continue
     }
-    const number = Number(rawValue)
-    result[key] = Number.isNaN(number) ? rawValue : number
+    if (value.endsWith("MiB")) {
+      result[key] = Number(value.slice(0, -"MiB".length))
+      continue
+    }
+    const number = Number(value)
+    result[key] = Number.isNaN(number) ? value : number
   }
 
   return result
+}
+
+function tokenizeProfileLine(line) {
+  const tokens = []
+  let current = ""
+  let inString = false
+  let escaped = false
+  for (const char of line) {
+    if (escaped) {
+      current += char
+      escaped = false
+      continue
+    }
+    if (char === "\\") {
+      current += char
+      escaped = true
+      continue
+    }
+    if (char === '"') {
+      current += char
+      inString = !inString
+      continue
+    }
+    if (char === " " && !inString) {
+      if (current.length > 0) tokens.push(current)
+      current = ""
+      continue
+    }
+    current += char
+  }
+  if (current.length > 0) tokens.push(current)
+  return tokens
+}
+
+function parseProfileValue(value) {
+  if (value.startsWith('"') && value.endsWith('"')) return JSON.parse(value)
+  return value
 }
 
 function printResult(result, options) {
@@ -265,26 +303,243 @@ function printResult(result, options) {
 
   if (result.timing !== undefined) {
     console.log("")
-    console.log("Timing memory:")
-    for (const item of [...result.timing.firstPass, ...result.timing.secondPass]) {
-      console.log(
-        [
-          `  worker=${item.worker}`,
-          `phase=${item.phase}`,
-          `files=${item.files}`,
-          `rssPeak=${item.processRssPeak}MiB`,
-          `heapPeak=${item.workerHeapPeak}MiB`,
-        ].join(" ")
-      )
-    }
+    printInitializationTable(result.timing.steps)
+    printValidationStageTable(result.timing.steps)
+  }
+}
+
+function printInitializationTable(steps) {
+  const rows = aggregateRows(steps.filter((step) => step.step === "Инициализация"))
+  if (rows.length === 0) return
+  console.log("Инициализация:")
+  printMarkdownTable(rows)
+  console.log("")
+}
+
+function printValidationStageTable(steps) {
+  const rows = aggregateRows(steps.filter((step) => step.step !== "Инициализация"))
+  console.log("Шаги validation:")
+  printMarkdownTable(rows)
+}
+
+function aggregateRows(steps) {
+  const byStep = new Map()
+  const bySubstep = new Map()
+  for (const step of steps) {
+    pushGroup(byStep, step.step, step)
+    pushGroup(bySubstep, `${step.step}\u0000${step.substep}`, step)
   }
 
-  console.log("")
-  console.log(JSON.stringify(result, null, 2))
+  const rows = []
+  for (const stepName of orderedStepNames(steps)) {
+    rows.push(toTableRow(stepName, byStep.get(stepName) ?? []))
+    for (const row of orderedSubstepRows(steps, stepName)) {
+      rows.push(toTableRow(row.label, bySubstep.get(`${stepName}\u0000${row.substep}`) ?? []))
+    }
+  }
+  return rows
+}
+
+function pushGroup(groups, key, value) {
+  const group = groups.get(key) ?? []
+  group.push(value)
+  groups.set(key, group)
+}
+
+function orderedStepNames(steps) {
+  const preferred = [
+    "Инициализация",
+    "Подготовка YAML-проекта",
+    "Первичная проверка YAML",
+    "Обобщение индексов",
+    "Проверка зависимостей",
+    "Завершение validation",
+  ]
+  const existing = new Set(steps.map((step) => step.step))
+  return [...preferred.filter((step) => existing.has(step)), ...[...existing].filter((step) => !preferred.includes(step))]
+}
+
+function orderedSubstepRows(steps, stepName) {
+  const preferred = {
+    "Подготовка YAML-проекта": [
+      "Поиск файлов проекта",
+      "Классификация файлов проекта",
+      "Классификация прочих файлов проекта",
+      "Разбиение по worker",
+      "Сбор правил структуры проекта",
+      "Ожидание результата подготовки",
+      "Выполнение подготовки в worker",
+      "Чтение YAML",
+      "Разбор YAML",
+      "Извлечение локальных индексов",
+      "Сохранение worker данных YAML",
+      "Объём результата worker",
+      "Слияние индекса объявлений",
+      "Перераспределение индекса обращений",
+    ],
+    "Первичная проверка YAML": [
+      "Проверка JSON Schema",
+      "Дополнительные валидаторы",
+      "Проверка equal-name",
+      "Извлечение YAML-фактов",
+      "Построение field index",
+      "Построение object index",
+      "Построение member index",
+      "Построение value index",
+    ],
+    "Обобщение индексов": ["Слияние first pass", "Снимок object table"],
+    "Проверка зависимостей": [
+      "Ожидание worker second pass",
+      "Построение контекста worker",
+      "Проверка ссылок",
+      "Worker second pass",
+    ],
+    "Завершение validation": ["Сортировка и дедупликация диагностик"],
+    "Инициализация": ["Инициализация validation worker", "Компиляция схем"],
+  }[stepName]
+  const result = []
+  const seen = new Set()
+  if (preferred !== undefined) {
+    const existing = new Set(steps.filter((step) => step.step === stepName).map((step) => step.substep))
+    for (const substep of preferred) {
+      if (!existing.has(substep)) continue
+      seen.add(substep)
+      result.push({ substep, label: substepLabel(stepName, substep) })
+    }
+  }
+  for (const step of steps) {
+    if (step.step !== stepName || seen.has(step.substep)) continue
+    seen.add(step.substep)
+    result.push({ substep: step.substep, label: substepLabel(stepName, step.substep) })
+  }
+  return result
+}
+
+function substepLabel(stepName, substep) {
+  if (stepName === "Подготовка YAML-проекта") {
+    const labels = {
+      "Ожидание результата подготовки": "- Ожидание результата подготовки",
+      "Выполнение подготовки в worker": "  - Выполнение подготовки в worker",
+      "Чтение YAML": "    - Чтение YAML",
+      "Разбор YAML": "    - Разбор YAML",
+      "Извлечение локальных индексов": "    - Извлечение локальных индексов",
+      "Сохранение worker данных YAML": "    - Сохранение worker данных YAML",
+      "Объём результата worker": "    - Объём результата worker",
+    }
+    return labels[substep] ?? `- ${substep}`
+  }
+  return `- ${substep}`
+}
+
+function toTableRow(name, records) {
+  const main = records.filter((record) => record.scope === "main")
+  const workers = records.filter((record) => record.scope === "worker")
+  const workerTimes = aggregateWorkerValues(workers, "time", "sum")
+  const workerRss = aggregateWorkerValues(workers, "rssPeak", "max")
+  const workerBytes = aggregateWorkerValues(workers, "bytes", "max")
+  return {
+    step: name,
+    projectMs: main.length > 0 ? sum(main, "time") : max(workerTimes),
+    mainMs: sumOrUndefined(main, "time"),
+    workerMinMs: min(workerTimes),
+    workerAvgMs: avg(workerTimes),
+    workerMaxMs: max(workerTimes),
+    workerSumMs: sumValues(workerTimes),
+    processRssMaxMiB: maxValue(main, "rssPeak"),
+    workerRssMinMiB: min(workerRss),
+    workerRssAvgMiB: avg(workerRss),
+    workerRssMaxMiB: max(workerRss),
+    bytesMax: max([maxValue(main, "bytes"), max(workerBytes)].filter((value) => value !== undefined)),
+  }
+}
+
+function aggregateWorkerValues(records, field, mode) {
+  const byWorker = new Map()
+  for (const record of records) {
+    if (record.worker === undefined || record[field] === undefined) continue
+    const current = byWorker.get(record.worker)
+    byWorker.set(record.worker, mode === "max" ? Math.max(current ?? record[field], record[field]) : (current ?? 0) + record[field])
+  }
+  return [...byWorker.values()]
+}
+
+function printMarkdownTable(rows) {
+  const headers = [
+    "Шаг",
+    "Общее время",
+    "Главный поток",
+    "Worker min",
+    "Worker avg",
+    "Worker max",
+    "Worker sum",
+    "RSS процесса max",
+    "RSS worker min",
+    "RSS worker avg",
+    "RSS worker max",
+    "Данные max",
+  ]
+  console.log(`| ${headers.join(" | ")} |`)
+  console.log(`| ${headers.map(() => "---").join(" | ")} |`)
+  for (const row of rows) {
+    console.log(
+      [
+        row.step,
+        formatMs(row.projectMs),
+        formatMs(row.mainMs),
+        formatMs(row.workerMinMs),
+        formatMs(row.workerAvgMs),
+        formatMs(row.workerMaxMs),
+        formatMs(row.workerSumMs),
+        formatMiB(row.processRssMaxMiB),
+        formatMiB(row.workerRssMinMiB),
+        formatMiB(row.workerRssAvgMiB),
+        formatMiB(row.workerRssMaxMiB),
+        formatBytes(row.bytesMax),
+      ].join(" | ").replace(/^/, "| ").replace(/$/, " |")
+    )
+  }
+}
+
+function sum(records, field) {
+  return records.reduce((total, record) => total + (record[field] ?? 0), 0)
+}
+
+function sumOrUndefined(records, field) {
+  return records.length === 0 ? undefined : sum(records, field)
+}
+
+function sumValues(values) {
+  return values.length === 0 ? undefined : values.reduce((total, value) => total + value, 0)
+}
+
+function min(values) {
+  return values.length === 0 ? undefined : Math.min(...values)
+}
+
+function max(values) {
+  return values.length === 0 ? undefined : Math.max(...values)
+}
+
+function maxValue(records, field) {
+  const values = records.map((record) => record[field]).filter((value) => value !== undefined)
+  return max(values)
+}
+
+function avg(values) {
+  if (values.length === 0) return undefined
+  return values.reduce((total, value) => total + value, 0) / values.length
 }
 
 function formatMs(value) {
-  return value === undefined ? "n/a" : `${(value / 1000).toFixed(2)}s`
+  return value === undefined ? "-" : `${(value / 1000).toFixed(2)}s`
+}
+
+function formatMiB(value) {
+  return value === undefined ? "-" : `${value.toFixed(1)}MiB`
+}
+
+function formatBytes(value) {
+  return value === undefined ? "-" : `${(value / 1024 / 1024).toFixed(2)}MiB`
 }
 
 const options = parseArgs(process.argv.slice(2))

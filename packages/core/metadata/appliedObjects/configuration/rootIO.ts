@@ -19,6 +19,7 @@ import { xmlExport } from "../../../xml/export/exporter"
 import { exportToYAML } from "../../../yaml/export"
 import { importFromYAML } from "../../../yaml/import"
 import { CONFIGURATION_YAML_FILE } from "../../project/constants"
+import type { PreparedYamlFile } from "../../project/preparedYamlProject"
 import { MetadataConfigurationRules } from "./rules"
 import type { MetadataConfiguration, MetadataConfigurationYAML } from "./types"
 import type { ConfigurationChildObjectsXML } from "./childObjects"
@@ -84,14 +85,16 @@ export const readConfigurationFromYAML = (params: {
   context: ConfigurationContext
   inputDir: string
   source?: MetadataConfiguration
+  preparedYamlFile?: PreparedYamlFile
 }): MetadataConfiguration | undefined => {
-  const yaml = fs.readFileSync(join(params.inputDir, CONFIGURATION_YAML_FILE), "utf-8")
-  const yamlObject = importFromYAML<MetadataConfigurationYAML>(yaml)
+  const yamlObject =
+    params.preparedYamlFile?.data ??
+    importFromYAML<MetadataConfigurationYAML>(fs.readFileSync(join(params.inputDir, CONFIGURATION_YAML_FILE), "utf-8"))
 
   return importMetadataItemFromYAML({
     context: params.context,
-    yaml: yamlObject,
-    source: filterFilePathSourceForYAMLImport({ yaml: yamlObject, source: params.source }),
+    yaml: yamlObject as MetadataConfigurationYAML,
+    source: filterFilePathSourceForYAMLImport({ yaml: yamlObject as MetadataConfigurationYAML, source: params.source }),
     rule: MetadataConfigurationRules,
     name: typeof yamlObject?.Имя === "string" ? yamlObject.Имя : undefined,
   }) as MetadataConfiguration | undefined

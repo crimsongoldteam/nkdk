@@ -55,8 +55,8 @@ await esbuild.build({
 
 await esbuild.build({
   ...commonOptions,
-  entryPoints: [join(repoRoot, "packages/core/metadata/validation/projectValidationWorker.ts")],
-  outfile: join(distDir, "projectValidationWorker.js"),
+  entryPoints: [join(repoRoot, "packages/core/metadata/project/preparedYamlProjectWorker.ts")],
+  outfile: join(distDir, "preparedYamlProjectWorker.js"),
 })
 
 await esbuild.build({

@@ -16,6 +16,7 @@ import { getTypeRule } from "../../orchestration/property/typeRuleRegistry"
 import { exportPropertyToXML } from "../../orchestration/property/toXML"
 import type { PropertyRule } from "../../orchestration/property/types"
 import { discoverMetadataProjectResources, type MetadataProjectPropertiesYamlRef } from "../../project/resources"
+import { prepareYamlProject } from "../../project/preparedYamlProject"
 import { xmlExport } from "../../../xml/export/exporter"
 import {
   applyPendingMigrationFiles,
@@ -49,8 +50,8 @@ const ROOT_EXTERNAL_XML_DIR = "Ext"
 const LEGACY_ROOT_EXTERNAL_XML_DIR = "ext"
 const toError = (error: unknown): Error => (error instanceof Error ? error : new Error(String(error)))
 
-function discoverTopLevelPropertiesResources(inputDir: string): MetadataProjectPropertiesYamlRef[] {
-  return discoverMetadataProjectResources(inputDir).filter(
+async function discoverTopLevelPropertiesResources(inputDir: string): Promise<MetadataProjectPropertiesYamlRef[]> {
+  return (await discoverMetadataProjectResources(inputDir)).filter(
     (resource): resource is MetadataProjectPropertiesYamlRef =>
       resource.kind === "yaml" &&
       resource.role === "properties" &&
@@ -201,6 +202,17 @@ export const syncConfigurationToXML = async (params: {
     defaultLanguage: syncContext.defaultLanguage,
     version: syncContext.version,
   }
+  const prepared = await prepareYamlProject({ projectDir: inputDir, context: syncContext })
+  if (!prepared.ok) {
+    return {
+      succeeded: 0,
+      failed: [{ kind: "configuration", name: inputDir, error: new Error(prepared.message) }],
+    }
+  }
+  const preparedYamlByProjectPath = new Map(
+    prepared.project.workers.flatMap((worker) => worker.yamlFiles).map((file) => [file.projectPath, file])
+  )
+  const preparedRootYaml = preparedYamlByProjectPath.get(CONFIGURATION_YAML_FILE)
   const xmlManifest = new XmlSyncManifest(outputDir)
   const tasks: BatchTask<void>[] = []
   const rootYAMLPath = join(inputDir, CONFIGURATION_YAML_FILE)
@@ -219,6 +231,7 @@ export const syncConfigurationToXML = async (params: {
       context: syncContext,
       inputDir,
       source: referenceConfiguration,
+      preparedYamlFile: preparedRootYaml,
     })
 
     writeConfigurationToXML({
@@ -239,9 +252,10 @@ export const syncConfigurationToXML = async (params: {
     await syncRootConfigurationExternalFilesToXML({ context: syncContext, inputDir, outputDir, xmlManifest })
   }
 
-  for (const resource of discoverTopLevelPropertiesResources(inputDir)) {
+  for (const resource of await discoverTopLevelPropertiesResources(inputDir)) {
     const resourceRule = resource.owner.spec.rule
-    const rule = TopLevelMetadataItemRules.find((candidate) => candidate.itemType === resourceRule.itemType) ?? resourceRule
+    const rule =
+      TopLevelMetadataItemRules.find((candidate) => candidate.itemType === resourceRule.itemType) ?? resourceRule
     const xmlDir = rule.xmlDir
     const itemTypePrefix = rule.itemTypePrefix
     if (xmlDir === undefined || itemTypePrefix === undefined) continue
@@ -283,6 +297,7 @@ export const syncConfigurationToXML = async (params: {
           referenceName,
           referenceModelRemapper,
           xmlManifest,
+          preparedYamlFile: preparedYamlByProjectPath.get(`${itemTypePrefix}/${name}/Свойства.yaml`),
         }),
     })
   }

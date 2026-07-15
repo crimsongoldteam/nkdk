@@ -2,9 +2,9 @@ import { existsSync, mkdirSync, mkdtempSync, readFileSync, rmSync, writeFileSync
 import { tmpdir } from "os"
 import { join } from "path"
 import { afterEach, describe, expect, it } from "vitest"
-import { deleteMetadataItem } from "./deleteItem"
+import { findMetadataReferences } from "./findMetadataReferences"
 
-describe("deleteMetadataItem", { timeout: 30_000 }, () => {
+describe("findMetadataReferences", { timeout: 30_000 }, () => {
   const tempDirs: string[] = []
 
   afterEach(() => {
@@ -24,11 +24,26 @@ describe("deleteMetadataItem", { timeout: 30_000 }, () => {
     return filePath
   }
 
-  it("returns validation_failed before looking for references", async () => {
+  it("does not run full validation before looking for references", async () => {
     const projectDir = createProject()
-    writeProjectFile(projectDir, "Справочник/Товары/Свойства.yaml", ["НеизвестноеПоле: true"])
+    writeProjectFile(projectDir, "Справочник/Товары/Свойства.yaml", [
+      "ВводПоСтроке:",
+      "  - СтандартныйРеквизит.ПометкаУдаления",
+    ])
 
-    const result = await deleteMetadataItem({
+    const result = await findMetadataReferences({
+      projectDir,
+      path: "Справочник.Товары",
+    })
+
+    expect(result).toMatchObject({ ok: true, mode: "plan", blockedReferences: [] })
+  })
+
+  it("returns validation_failed when YAML preparation fails", async () => {
+    const projectDir = createProject()
+    writeProjectFile(projectDir, "Справочник/Товары/Свойства.yaml", ['Имя: "'])
+
+    const result = await findMetadataReferences({
       projectDir,
       path: "Справочник.Товары",
     })
@@ -41,7 +56,7 @@ describe("deleteMetadataItem", { timeout: 30_000 }, () => {
     writeProjectFile(projectDir, "Справочник/Товары/Свойства.yaml", ["Реквизиты:", "  Артикул:", "    Тип: Строка"])
     writeProjectFile(projectDir, "Справочник/Заказы/Свойства.yaml", ["Владельцы:", "  - Справочник.Товары"])
 
-    const result = await deleteMetadataItem({
+    const result = await findMetadataReferences({
       projectDir,
       path: "Справочник.Товары",
     })
@@ -65,7 +80,7 @@ describe("deleteMetadataItem", { timeout: 30_000 }, () => {
       "    Тип: Строка",
     ])
 
-    const result = await deleteMetadataItem({
+    const result = await findMetadataReferences({
       projectDir,
       path: "Справочник.Товары",
     })
@@ -73,7 +88,7 @@ describe("deleteMetadataItem", { timeout: 30_000 }, () => {
     expect(result).toMatchObject({ ok: true, mode: "plan", blockedReferences: [] })
   })
 
-  it("applies attribute deletion through model export without migration", async () => {
+  it("returns an empty plan without changing attribute files when external references are absent", async () => {
     const projectDir = createProject()
     const propertiesPath = writeProjectFile(projectDir, "Справочник/Товары/Свойства.yaml", [
       "Реквизиты:",
@@ -83,32 +98,32 @@ describe("deleteMetadataItem", { timeout: 30_000 }, () => {
       "    Тип: Строка",
     ])
 
-    const result = await deleteMetadataItem({
+    const result = await findMetadataReferences({
       projectDir,
       path: "Справочник.Товары.Реквизит.Артикул",
       allowWrite: true,
     })
 
-    expect(result).toMatchObject({ ok: true, mode: "applied", createdMigration: undefined })
+    expect(result).toMatchObject({ ok: true, mode: "plan", changedFiles: [], blockedReferences: [] })
     const yaml = readFileSync(propertiesPath, "utf-8")
-    expect(yaml).not.toContain("Артикул:")
+    expect(yaml).toContain("Артикул:")
     expect(yaml).toContain("Код:")
     expect(existsSync(join(projectDir, "Миграции"))).toBe(false)
   })
 
-  it("deletes file item resources without migration", async () => {
+  it("returns an empty plan without deleting file item resources when external references are absent", async () => {
     const projectDir = createProject()
     writeProjectFile(projectDir, "Справочник/Товары/Свойства.yaml", ["{}"])
     writeProjectFile(projectDir, "Справочник/Товары/Формы/ФормаЭлемента/Форма.yaml", ["Элементы: {}"])
 
-    const result = await deleteMetadataItem({
+    const result = await findMetadataReferences({
       projectDir,
       path: "Справочник.Товары.Форма.ФормаЭлемента",
       allowWrite: true,
     })
 
-    expect(result).toMatchObject({ ok: true, mode: "applied", createdMigration: undefined })
-    expect(existsSync(join(projectDir, "Справочник", "Товары", "Формы", "ФормаЭлемента"))).toBe(false)
+    expect(result).toMatchObject({ ok: true, mode: "plan", changedFiles: [], blockedReferences: [] })
+    expect(existsSync(join(projectDir, "Справочник", "Товары", "Формы", "ФормаЭлемента"))).toBe(true)
     expect(existsSync(join(projectDir, "Миграции"))).toBe(false)
   })
 
@@ -127,7 +142,7 @@ describe("deleteMetadataItem", { timeout: 30_000 }, () => {
       "    ПутьКДанным: ИндексКартинки",
     ])
 
-    const result = await deleteMetadataItem({
+    const result = await findMetadataReferences({
       projectDir,
       path: "ОбщаяКартинка.Состояния",
     })
@@ -152,7 +167,7 @@ describe("deleteMetadataItem", { timeout: 30_000 }, () => {
       "    ПутьКДанным: Объект.Артикул",
     ])
 
-    const result = await deleteMetadataItem({
+    const result = await findMetadataReferences({
       projectDir,
       path: "Справочник.Товары.Реквизит.Артикул",
     })

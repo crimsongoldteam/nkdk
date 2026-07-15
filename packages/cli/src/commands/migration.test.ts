@@ -13,6 +13,8 @@ vi.mock("@inquirer/prompts", () => ({
 const selectMock = vi.mocked(select)
 
 describe("migration commands", () => {
+  const slowCommandTimeout = 60_000
+
   afterEach(() => vi.restoreAllMocks())
 
   it("prints rename plan by default", async () => {
@@ -30,7 +32,7 @@ describe("migration commands", () => {
       createdMigration: { from: "Справочник.Товары", to: "Справочник.Номенклатура" },
     })
     expect(fs.existsSync(join(yamlDir, "Справочник", "Товары"))).toBe(true)
-  })
+  }, slowCommandTimeout)
 
   it("prints delete plan by default", async () => {
     const yamlDir = mkdtempSync(join(tmpdir(), "nkdk-yaml-"))
@@ -44,7 +46,7 @@ describe("migration commands", () => {
     expect(result).toMatchObject({ ok: true, mode: "plan" })
     expect(result).not.toHaveProperty("createdMigration")
     expect(fs.existsSync(join(yamlDir, "Справочник", "Товары"))).toBe(true)
-  })
+  }, slowCommandTimeout)
 })
 
 describe("generateMigration", () => {

@@ -18,7 +18,8 @@ describe("prompt definitions", () => {
 
     expect(editPrompt?.text).not.toContain(removedOperationTargetsTool)
     expect(editPrompt?.text).toContain("nkdk.rename_item")
-    expect(editPrompt?.text).toContain("nkdk.delete_item")
+    expect(editPrompt?.text).toContain("nkdk.find_references")
+    expect(editPrompt?.text).not.toContain("nkdk.delete_item")
     expect(editPrompt?.text).toContain("Справочник.Товары.Реквизит.Артикул")
     expect(editPrompt?.text).toContain("Документ.Заказ.ТабличнаяЧасть.Товары.Реквизит.Количество")
   })

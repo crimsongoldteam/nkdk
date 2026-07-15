@@ -1,6 +1,6 @@
 export * from "./context"
 export * from "./dataPathReferences"
-export * from "./deleteItem"
+export * from "./findMetadataReferences"
 export * from "./filePlan"
 export * from "./migrationChain"
 export * from "./nameRules"

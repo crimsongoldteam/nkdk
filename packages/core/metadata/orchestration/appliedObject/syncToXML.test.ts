@@ -43,6 +43,59 @@ afterEach(() => {
 })
 
 describe("syncAppliedObjectToXML — (а) объект без форм/шаблонов", () => {
+  it("использует подготовленные YAML-данные вместо повторного чтения Свойства.yaml", async () => {
+    const inputDir = join(tmpDir, "input")
+    const outputDir = join(tmpDir, "output")
+    const propertyType = "PreparedYamlSourceMarker" as never
+    let observedMarker: string | undefined
+
+    registerTypeRule(propertyType, "importFromYAML", (_context: unknown, _rule: unknown, value: string) => {
+      observedMarker = value
+      return value
+    })
+    registerTypeRule(propertyType, "exportToXML", (_context: unknown, _rule: unknown, value: string) => ({
+      Marker: value,
+    }))
+
+    const rule = {
+      itemType: "PreparedYamlSourceObject",
+      properties: {
+        xmlRoot: {
+          type: "XMLRoot",
+          container: "Catalog",
+          forReferenceOnly: true,
+        },
+        marker: {
+          yaml: "Маркер",
+          xml: "Marker",
+          xmlParents: ["Properties"],
+          type: propertyType,
+        },
+      },
+    } as unknown as MetadataItemRule
+
+    fs.mkdirSync(join(inputDir, "ТестСправочник"), { recursive: true })
+    fs.writeFileSync(join(inputDir, "ТестСправочник", "Свойства.yaml"), "Маркер: from-file\n", "utf-8")
+
+    await syncAppliedObjectToXML({
+      rule,
+      context: mockContextToXML(),
+      inputDir,
+      name: "ТестСправочник",
+      outputDir,
+      preparedYamlFile: {
+        projectPath: "Справочник/ТестСправочник/Свойства.yaml",
+        filePath: join(inputDir, "ТестСправочник", "Свойства.yaml"),
+        role: "properties",
+        owner: { dir: "Справочник", name: "ТестСправочник" },
+        data: { Маркер: "from-prepared" },
+        syntaxDiagnostics: [],
+      },
+    })
+
+    expect(observedMarker).toBe("from-prepared")
+  })
+
   it("создаёт XML в outputDir/{name}.xml", async () => {
     const inputDir = join(tmpDir, "input")
     const outputDir = join(tmpDir, "output")

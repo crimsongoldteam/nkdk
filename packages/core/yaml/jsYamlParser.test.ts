@@ -53,4 +53,14 @@ describe("parseMetadataYaml", () => {
     expect("lineCounter" in parsed).toBe(false)
     expect(parsed.data).toEqual({ Имя: "Тест" })
   })
+
+  it("parses data without location index for prepared YAML workers", async () => {
+    const { parseMetadataYamlData } = await import("./parseMetadataYaml")
+    const parsed = parseMetadataYamlData(["Имя: Тест", "Реквизиты:", "  Артикул:", "    Тип: Строка"].join("\n"))
+
+    expect(parsed.data).toEqual({ Имя: "Тест", Реквизиты: { Артикул: { Тип: "Строка" } } })
+    expect(parsed.syntaxErrors).toEqual([])
+    expect("locations" in parsed).toBe(false)
+    expect("text" in parsed).toBe(false)
+  })
 })

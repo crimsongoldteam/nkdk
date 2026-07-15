@@ -4,6 +4,7 @@ import type { MetadataTargetOwner, ParsedMetadataTarget } from "../commonObjects
 import { getTypeFromYAML } from "../commonObjects/typeDescription/helper"
 import type { TypeDescription } from "../commonObjects/typeDescription/types"
 import { CollectableElementTypeFromYAML, type ElementType } from "../forms/elements/orchestration/types"
+import { ClientApplicationFormRules } from "../forms/clientApplicationForm/rules"
 import type { DataPathPropertyRule, PropertyRule } from "../orchestration/property/types"
 import { getElementRule } from "../orchestration/formElement/ruleFactory"
 import { CommonAttributeUseFromYAML, PictureLibFromYAML } from "../systemEnumerations/types"
@@ -11,7 +12,7 @@ import type { ParsedYaml } from "../../yaml/parseMetadataYaml"
 import { typeDescriptionToDataPathTypeInfo } from "./dataPath/typeDescription"
 import type { FormDataPathIndex } from "./dataPath/formIndex"
 import type { FormDataPathSource, FormDataPathColumnSource } from "./dataPath/types"
-import type { ObjectField, ObjectFieldIndex } from "./dataPath/objectFields"
+import { buildObjectFieldIndex, type ObjectField, type ObjectFieldIndex } from "./dataPath/objectFields"
 import {
   projectMemberIndexKey,
   projectObjectIndexKey,
@@ -23,7 +24,12 @@ import {
 } from "./projectReferenceIndex"
 import type { ValidationProjectFile } from "./projectFiles"
 import type { ValidationPendingCheck } from "./projectValidationPendingChecks"
-import { findValidationRulesSpec, type ValidationRulesSnapshot, type ValidationRulesSpecSnapshot } from "./rulesSnapshot"
+import {
+  findValidationRulesSpec,
+  type ValidationRulesSnapshot,
+  type ValidationRulesSpecSnapshot,
+} from "./rulesSnapshot"
+import { validateExcludedEqualNameYAML } from "./excludeIfEqualNameYAML"
 import { diagnosticAtYamlPath } from "./yamlLocations"
 import type { Diagnostic } from "./types"
 
@@ -49,16 +55,20 @@ export function extractValidationYamlFacts(params: {
 
   const spec = findValidationRulesSpec(params.rulesSnapshot, params.file.owner.dir)
   const objectTarget = spec === undefined ? undefined : objectTargetForProjectFile(params.file, spec)
-  const owner = objectTarget === undefined ? undefined : { root: objectTarget.root, objectName: objectTarget.objectName }
+  const owner =
+    objectTarget === undefined ? undefined : { root: objectTarget.root, objectName: objectTarget.objectName }
+  const referenceDiagnostics: Diagnostic[] = []
   const pendingReferences =
     spec === undefined
       ? []
       : collectPendingReferences({
           filePath: params.file.absolutePath,
+          parsed: params.parsed,
           owner,
           value: params.parsed.data,
           properties: spec.properties,
           yamlPath: [],
+          diagnostics: referenceDiagnostics,
         })
   const ownerFacts = spec === undefined ? undefined : buildOwnerFactsFromYaml(params.file, params.parsed.data, spec)
   return {
@@ -80,7 +90,7 @@ export function extractValidationYamlFacts(params: {
     valueIndexEntries: [],
     pendingReferences,
     pendingChecks: [],
-    diagnostics: [],
+    diagnostics: [...referenceDiagnostics, ...(spec === undefined ? [] : collectUniqueNameScopeDiagnostics(params.file, params.parsed, spec))],
     ...(ownerFacts === undefined ? {} : ownerFacts),
   }
 }
@@ -212,7 +222,12 @@ function buildObjectFieldIndexFromSyntheticModel(
   file: ValidationProjectFile,
   model: Record<string, unknown>
 ): ObjectFieldIndex {
-  const fields = new Map<string, ObjectField>()
+  const index = buildObjectFieldIndex({
+    ref: { kind: file.owner.dir, name: file.owner.name },
+    model: model as never,
+    rule: file.owner.spec.rule,
+  })
+  const fields = new Map<string, ObjectField>(index.fields)
   for (const collection of [
     ["attributes", "attribute"],
     ["dimensions", "dimension"],
@@ -247,7 +262,11 @@ function buildObjectFieldIndexFromSyntheticModel(
         typeInfo: typeDescriptionToDataPathTypeInfo(attributeRecord["type"] as TypeDescription | undefined),
       })
     }
-    const table = { kind: "TabularSection" as const, owner: { kind: file.owner.dir, name: file.owner.name }, name: record["name"] }
+    const table = {
+      kind: "TabularSection" as const,
+      owner: { kind: file.owner.dir, name: file.owner.name },
+      name: record["name"],
+    }
     fields.set(record["name"], {
       name: record["name"],
       kind: "tabularSection",
@@ -257,7 +276,60 @@ function buildObjectFieldIndexFromSyntheticModel(
     })
   }
 
-  return { fields, standardAttributeAliases: new Map(), diagnostics: [] }
+  return { fields, standardAttributeAliases: index.standardAttributeAliases, diagnostics: index.diagnostics }
+}
+
+function collectUniqueNameScopeDiagnostics(
+  file: ValidationProjectFile,
+  parsed: ParsedYaml,
+  spec: ValidationRulesSpecSnapshot
+): Diagnostic[] {
+  if (spec.uniqueNameScopes.length === 0) return []
+
+  const diagnostics: Diagnostic[] = []
+  const data = asRecord(parsed.data)
+  if (data === undefined) return []
+
+  for (const scope of spec.uniqueNameScopes) {
+    const seen = new Map<string, string>()
+
+    for (const collection of scope.collections) {
+      const collectionYamlPath = yamlPathByModelKey(spec, collection)
+      if (collectionYamlPath === undefined) continue
+      const collectionValue = valueAtPath(data, collectionYamlPath)
+      const collectionRecord = asRecord(collectionValue)
+      if (collectionRecord === undefined) continue
+
+      for (const name of Object.keys(collectionRecord)) {
+        const previousCollectionYaml = seen.get(name)
+        const collectionYaml = collectionYamlPath.join("/")
+        if (previousCollectionYaml === undefined) {
+          seen.set(name, collectionYaml)
+          continue
+        }
+
+        diagnostics.push(
+          diagnosticAtYamlPath({
+            filePath: file.absolutePath,
+            parsed,
+            path: [...collectionYamlPath, name],
+            severity: "error",
+            source: "structure",
+            message: `Имя "${name}" должно быть уникальным в коллекциях ${previousCollectionYaml}, ${collectionYaml}`,
+          })
+        )
+      }
+    }
+  }
+
+  return diagnostics
+}
+
+function yamlPathByModelKey(
+  spec: ValidationRulesSpecSnapshot,
+  modelKey: string
+): readonly string[] | undefined {
+  return spec.properties.find((property) => property.modelKey === modelKey)?.yamlPath
 }
 
 function namedTypedItemsFromYaml(value: unknown): Array<{ name: string; type?: TypeDescription }> {
@@ -270,7 +342,9 @@ function namedTypedItemsFromYaml(value: unknown): Array<{ name: string; type?: T
   }))
 }
 
-function tabularSectionsFromYaml(value: unknown): Array<{ name: string; attributes: Array<{ name: string; type?: TypeDescription }> }> {
+function tabularSectionsFromYaml(
+  value: unknown
+): Array<{ name: string; attributes: Array<{ name: string; type?: TypeDescription }> }> {
   const record = asRecord(value)
   return Object.entries(record ?? {}).map(([name, item]) => ({
     name,
@@ -315,7 +389,8 @@ function commonAttributeContentFromYaml(value: unknown): Array<{ metadata: strin
   return value.flatMap((item) => {
     const record = asRecord(item)
     if (record === undefined || typeof record["Объект"] !== "string") return []
-    const use = typeof record["Использование"] === "string" ? CommonAttributeUseFromYAML[record["Использование"]] : undefined
+    const use =
+      typeof record["Использование"] === "string" ? CommonAttributeUseFromYAML[record["Использование"]] : undefined
     return [
       {
         metadata: metadataLinkFromYaml(record["Объект"]),
@@ -327,10 +402,12 @@ function commonAttributeContentFromYaml(value: unknown): Array<{ metadata: strin
 
 function collectPendingReferences(params: {
   filePath: string
+  parsed: ParsedYaml
   owner: MetadataTargetOwner | undefined
   value: unknown
   properties: readonly ValidationRulesSpecSnapshot["properties"][number][]
   yamlPath: readonly (string | number)[]
+  diagnostics: Diagnostic[]
 }): PendingMetadataTargetReference[] {
   const record = asRecord(params.value)
   if (record === undefined) return []
@@ -344,11 +421,13 @@ function collectPendingReferences(params: {
       references.push(
         ...collectTargetValues({
           filePath: params.filePath,
+          parsed: params.parsed,
           owner: params.owner,
           value,
           type: property.type,
           constraint: property.metadataTarget,
           yamlPath: [...params.yamlPath, ...property.yamlPath],
+          diagnostics: params.diagnostics,
         })
       )
     }
@@ -357,10 +436,12 @@ function collectPendingReferences(params: {
       references.push(
         ...collectNestedReferences({
           filePath: params.filePath,
+          parsed: params.parsed,
           owner: params.owner,
           value,
           properties: property.children,
           yamlPath: [...params.yamlPath, ...property.yamlPath],
+          diagnostics: params.diagnostics,
         })
       )
     }
@@ -371,10 +452,12 @@ function collectPendingReferences(params: {
 
 function collectNestedReferences(params: {
   filePath: string
+  parsed: ParsedYaml
   owner: MetadataTargetOwner | undefined
   value: unknown
   properties: readonly ValidationRulesSpecSnapshot["properties"][number][]
   yamlPath: readonly (string | number)[]
+  diagnostics: Diagnostic[]
 }): PendingMetadataTargetReference[] {
   if (Array.isArray(params.value)) {
     return params.value.flatMap((item, index) =>
@@ -392,11 +475,13 @@ function collectNestedReferences(params: {
 
 function collectTargetValues(params: {
   filePath: string
+  parsed: ParsedYaml
   owner: MetadataTargetOwner | undefined
   value: unknown
   type?: string
   constraint: PendingMetadataTargetReference["constraint"]
   yamlPath: readonly (string | number)[]
+  diagnostics: Diagnostic[]
 }): PendingMetadataTargetReference[] {
   if (params.type === "Picture") {
     return collectPictureTargetValues(params)
@@ -418,13 +503,19 @@ function collectTargetValues(params: {
 
 function collectPictureTargetValues(params: {
   filePath: string
+  parsed: ParsedYaml
   owner: MetadataTargetOwner | undefined
   value: unknown
   constraint: PendingMetadataTargetReference["constraint"]
   yamlPath: readonly (string | number)[]
+  diagnostics: Diagnostic[]
 }): PendingMetadataTargetReference[] {
   if (typeof params.value === "string") {
-    const reference = pendingPictureReferenceFromYamlValue({ ...params, value: params.value, yamlPath: params.yamlPath })
+    const reference = pendingPictureReferenceFromYamlValue({
+      ...params,
+      value: params.value,
+      yamlPath: params.yamlPath,
+    })
     return reference === undefined ? [] : [reference]
   }
 
@@ -432,7 +523,11 @@ function collectPictureTargetValues(params: {
   const ref = record?.["Ссылка"]
   if (typeof ref !== "string") return []
 
-  const reference = pendingPictureReferenceFromYamlValue({ ...params, value: ref, yamlPath: [...params.yamlPath, "Ссылка"] })
+  const reference = pendingPictureReferenceFromYamlValue({
+    ...params,
+    value: ref,
+    yamlPath: [...params.yamlPath, "Ссылка"],
+  })
   return reference === undefined ? [] : [reference]
 }
 
@@ -454,17 +549,31 @@ function pendingPictureReferenceFromYamlValue(params: {
 
 function pendingReferenceFromYamlValue(params: {
   filePath: string
+  parsed: ParsedYaml
   owner: MetadataTargetOwner | undefined
   value: string
   constraint: PendingMetadataTargetReference["constraint"]
   yamlPath: readonly (string | number)[]
+  diagnostics: Diagnostic[]
 }): PendingMetadataTargetReference | undefined {
   const parsed = parseMetadataTargetFromYAML({
     value: params.value,
     constraint: params.constraint,
     owner: params.owner,
   })
-  if (!parsed.ok) return undefined
+  if (!parsed.ok) {
+    params.diagnostics.push(
+      diagnosticAtYamlPath({
+        filePath: params.filePath,
+        parsed: params.parsed,
+        path: params.yamlPath,
+        severity: "error",
+        source: "structure",
+        message: parsed.message,
+      })
+    )
+    return undefined
+  }
 
   return {
     filePath: params.filePath,
@@ -497,7 +606,16 @@ function extractFormYamlFacts(file: ValidationProjectFile, parsed: ParsedYaml): 
   return {
     ...emptyFacts(),
     pendingChecks,
-    diagnostics: index.duplicateDiagnostics,
+    diagnostics: [
+      ...validateExcludedEqualNameYAML({
+        filePath: file.absolutePath,
+        parsed,
+        rule: ClientApplicationFormRules,
+        context: { version: "2.20", defaultLanguage: "ru" },
+        name: file.formName,
+      }),
+      ...index.duplicateDiagnostics,
+    ],
   }
 }
 
@@ -532,7 +650,12 @@ function buildFormDataPathIndexFromYaml(params: { filePath: string; parsed: Pars
     })
     const typeInfo =
       attribute?.["ДинамическийСписок"] !== undefined
-        ? { kinds: ["dynamicList", "tableSource"] as const, nextTypes: [], table: { kind: "DynamicList" as const }, sourceText: "DynamicList" }
+        ? {
+            kinds: ["dynamicList", "tableSource"] as const,
+            nextTypes: [],
+            table: { kind: "DynamicList" as const },
+            sourceText: "DynamicList",
+          }
         : typeDescriptionToDataPathTypeInfo(typeDescriptionFromYAML(attribute?.["Тип"]))
     const tableSource =
       typeInfo.table === undefined
@@ -678,7 +801,9 @@ function collectRuleDataPathChecks(params: {
       rule,
       elementType: params.elementType,
       ...(params.owner["КартинкаЗначений"] === undefined ? {} : { hasValuesPicture: true }),
-      ...(params.tableContext !== undefined && rule.yaml === "ПутьКДанным" ? { tableContext: params.tableContext } : {}),
+      ...(params.tableContext !== undefined && rule.yaml === "ПутьКДанным"
+        ? { tableContext: params.tableContext }
+        : {}),
       policy: "formDataPath",
     })
   }
@@ -745,5 +870,7 @@ function valueAtPath(value: Record<string, unknown>, path: readonly string[]): u
 }
 
 function asRecord(value: unknown): Record<string, unknown> | undefined {
-  return typeof value === "object" && value !== null && !Array.isArray(value) ? (value as Record<string, unknown>) : undefined
+  return typeof value === "object" && value !== null && !Array.isArray(value)
+    ? (value as Record<string, unknown>)
+    : undefined
 }
