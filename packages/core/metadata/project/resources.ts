@@ -1,4 +1,4 @@
-import { readdirSync } from "fs"
+import { readdir } from "fs/promises"
 import { isAbsolute, join, relative, resolve, sep } from "path"
 import type { ProjectResourceDescriptor, ProjectResourceSource } from "../orchestration/property/fn"
 import { CONFIGURATION_YAML_FILE } from "./constants"
@@ -11,6 +11,7 @@ import {
 import { describeMetadataRuleProjectResources, matchProjectPattern } from "./ruleResources"
 
 const PROPERTIES_FILE = "Свойства.yaml"
+const DISCOVERY_READDIR_CONCURRENCY = 32
 
 export type MetadataProjectResourceKind = "yaml" | "resource"
 export type MetadataProjectResourceInclude = "all" | "yaml"
@@ -87,17 +88,15 @@ export function classifyMetadataProjectPath(projectPath: string): MetadataProjec
   return undefined
 }
 
-export function discoverMetadataProjectResources(
+export async function discoverMetadataProjectResources(
   projectDir: string,
   options: MetadataProjectResourceDiscoveryOptions = {}
-): MetadataProjectResourceRef[] {
+): Promise<MetadataProjectResourceRef[]> {
   const projectRoot = resolve(projectDir)
   const include = options.include ?? "all"
   const resources: MetadataProjectResourceRef[] = []
 
-  for (const filePath of listProjectFiles(projectRoot)) {
-    if (include === "yaml" && !filePath.endsWith(".yaml")) continue
-
+  for (const filePath of await listProjectFiles(projectRoot, include)) {
     const projectPath = toProjectSeparators(relative(projectRoot, filePath))
     const resource = classifyMetadataProjectPath(projectPath)
     if (!resource) continue
@@ -225,21 +224,52 @@ function createOwner(dir: string | undefined, name: string | undefined): Metadat
   return { dir, name, spec }
 }
 
-function listProjectFiles(projectRoot: string): string[] {
+async function listProjectFiles(
+  projectRoot: string,
+  include: MetadataProjectResourceInclude
+): Promise<string[]> {
   const files: string[] = []
-  collectProjectFiles(projectRoot, files)
-  return files
-}
+  const dirs = [projectRoot]
+  let active = 0
+  let resolveDone!: () => void
+  let rejectDone!: (error: unknown) => void
+  const done = new Promise<void>((resolve, reject) => {
+    resolveDone = resolve
+    rejectDone = reject
+  })
 
-function collectProjectFiles(currentDir: string, files: string[]): void {
-  for (const entry of readdirSync(currentDir, { withFileTypes: true })) {
-    const entryPath = join(currentDir, entry.name)
-    if (entry.isDirectory()) {
-      collectProjectFiles(entryPath, files)
-      continue
+  const pump = (): void => {
+    while (active < DISCOVERY_READDIR_CONCURRENCY && dirs.length > 0) {
+      const currentDir = dirs.pop()!
+      active++
+      readdir(currentDir, { withFileTypes: true }).then(
+        (entries) => {
+          for (const entry of entries) {
+            const entryPath = join(currentDir, entry.name)
+            if (entry.isDirectory()) {
+              dirs.push(entryPath)
+              continue
+            }
+            if (!entry.isFile()) continue
+            if (include === "yaml" && !entryPath.endsWith(".yaml")) continue
+            files.push(entryPath)
+          }
+        },
+        (error: unknown) => rejectDone(error)
+      ).finally(() => {
+        active--
+        if (dirs.length === 0 && active === 0) {
+          resolveDone()
+          return
+        }
+        pump()
+      })
     }
-    if (entry.isFile()) files.push(entryPath)
   }
+
+  pump()
+  await done
+  return files
 }
 
 function toProjectSeparators(filePath: string): string {

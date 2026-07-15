@@ -81,7 +81,7 @@ describe("metadata project resources", () => {
     ).toBeUndefined()
   })
 
-  it("discovers existing metadata YAML resources", () => {
+  it("discovers existing metadata YAML resources", async () => {
     const projectDir = createProject()
     touchProjectFile(projectDir, "Конфигурация.yaml")
     touchProjectFile(projectDir, "Справочник/Товары/Свойства.yaml")
@@ -90,7 +90,7 @@ describe("metadata project resources", () => {
     touchProjectFile(projectDir, "Справочник/Товары/Команды/Команда.yaml")
     touchProjectFile(projectDir, "Подсистема/Администрирование/Подсистемы/Настройки/Свойства.yaml")
 
-    const resources = discoverMetadataProjectResources(projectDir)
+    const resources = await discoverMetadataProjectResources(projectDir)
 
     expect(resources.map((file) => file.projectPath)).toEqual([
       "Документ/Заказ/Свойства.yaml",
@@ -108,13 +108,13 @@ describe("metadata project resources", () => {
     ])
   })
 
-  it("discovers YAML and resource files by default", () => {
+  it("discovers YAML and resource files by default", async () => {
     const projectDir = createProject()
     touchProjectFile(projectDir, "Справочник/Товары/Свойства.yaml")
     touchProjectFile(projectDir, "Справочник/Товары/МодульМенеджера.bsl")
     touchProjectFile(projectDir, "Справочник/Товары/ignored.txt")
 
-    const resources = discoverMetadataProjectResources(projectDir)
+    const resources = await discoverMetadataProjectResources(projectDir)
 
     expect(resources.map((file) => file.projectPath)).toEqual([
       "Справочник/Товары/МодульМенеджера.bsl",
@@ -123,14 +123,14 @@ describe("metadata project resources", () => {
     expect(resources.map((file) => file.kind)).toEqual(["resource", "yaml"])
   })
 
-  it("discovers only YAML project files when include is yaml", () => {
+  it("discovers only YAML project files when include is yaml", async () => {
     const projectDir = createProject()
     touchProjectFile(projectDir, "Конфигурация.yaml")
     touchProjectFile(projectDir, "Справочник/Товары/Свойства.yaml")
     touchProjectFile(projectDir, "Справочник/Товары/МодульМенеджера.bsl")
     touchProjectFile(projectDir, "Подсистема/Администрирование/Подсистемы/Настройки/Свойства.yaml")
 
-    const resources = discoverMetadataProjectResources(projectDir, { include: "yaml" })
+    const resources = await discoverMetadataProjectResources(projectDir, { include: "yaml" })
 
     expect(resources.map((file) => file.projectPath)).toEqual([
       "Конфигурация.yaml",
@@ -140,7 +140,7 @@ describe("metadata project resources", () => {
     expect(resources.every((file) => file.kind === "yaml")).toBe(true)
   })
 
-  it("discovers properties for every top-level metadata item with YAML directory", () => {
+  it("discovers properties for every top-level metadata item with YAML directory", async () => {
     const projectDir = createProject()
     const dirs = TopLevelMetadataItemRules.flatMap((rule) =>
       typeof rule.itemTypePrefix === "string" ? [rule.itemTypePrefix] : []
@@ -150,7 +150,7 @@ describe("metadata project resources", () => {
       touchProjectFile(projectDir, `${dir}/Тест/Свойства.yaml`)
     }
 
-    expect(discoverMetadataProjectResources(projectDir).map((file) => file.projectPath)).toEqual(
+    expect((await discoverMetadataProjectResources(projectDir)).map((file) => file.projectPath)).toEqual(
       dirs.map((dir) => `${dir}/Тест/Свойства.yaml`).sort((left, right) => left.localeCompare(right, "ru"))
     )
   })
