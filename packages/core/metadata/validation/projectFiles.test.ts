@@ -39,7 +39,7 @@ describe("validation project files", () => {
     expect(validationDirs).toEqual(topLevelDirs)
   })
 
-  it("discovers supported properties and form YAML files", () => {
+  it("discovers supported properties and form YAML files", async () => {
     const projectDir = createProject()
     touchProjectFile(projectDir, "Справочник/Товары/Свойства.yaml")
     touchProjectFile(projectDir, "Справочник/Товары/Формы/ФормаСписка/Форма.yaml")
@@ -48,7 +48,7 @@ describe("validation project files", () => {
     touchProjectFile(projectDir, "Справочник/Товары/Команды/Команда.yaml")
     touchProjectFile(projectDir, "Подсистема/Продажи/Свойства.yaml")
 
-    const files = discoverValidationProjectFiles(projectDir)
+    const files = await discoverValidationProjectFiles(projectDir)
 
     expect(files.map((file) => file.projectPath).sort()).toEqual([
       "Документ/Заказ/Свойства.yaml",
@@ -60,7 +60,7 @@ describe("validation project files", () => {
     expect(files.find((file) => file.projectPath.includes("Команды"))).toBeUndefined()
   })
 
-  it("discovers properties for every top-level metadata object with YAML directory", () => {
+  it("discovers properties for every top-level metadata object with YAML directory", async () => {
     const projectDir = createProject()
     const dirs = TopLevelMetadataItemRules.flatMap((rule) =>
       typeof rule.itemTypePrefix === "string" ? [rule.itemTypePrefix] : []
@@ -70,7 +70,7 @@ describe("validation project files", () => {
       touchProjectFile(projectDir, `${dir}/Тест/Свойства.yaml`)
     }
 
-    expect(discoverValidationProjectFiles(projectDir).map((file) => file.projectPath)).toEqual(
+    expect((await discoverValidationProjectFiles(projectDir)).map((file) => file.projectPath)).toEqual(
       dirs.map((dir) => `${dir}/Тест/Свойства.yaml`).sort((left, right) => left.localeCompare(right, "ru"))
     )
   })
@@ -114,13 +114,13 @@ describe("validation project files", () => {
     })
   })
 
-  it("discovers and resolves nested subsystem properties", () => {
+  it("discovers and resolves nested subsystem properties", async () => {
     const projectDir = createProject()
     touchProjectFile(projectDir, "Подсистема/Администрирование/Свойства.yaml")
     touchProjectFile(projectDir, "Подсистема/Администрирование/Подсистемы/Настройки/Свойства.yaml")
     touchProjectFile(projectDir, "Подсистема/Администрирование/Подсистемы/Настройки/Подсистемы/Интерфейс/Свойства.yaml")
 
-    const files = discoverValidationProjectFiles(projectDir)
+    const files = await discoverValidationProjectFiles(projectDir)
 
     expect(files.map((file) => file.projectPath).sort()).toEqual([
       "Подсистема/Администрирование/Подсистемы/Настройки/Подсистемы/Интерфейс/Свойства.yaml",
@@ -144,7 +144,7 @@ describe("validation project files", () => {
     })
   })
 
-  it("does not resolve malformed nested subsystem paths or nested subsystem forms", () => {
+  it("does not resolve malformed nested subsystem paths or nested subsystem forms", async () => {
     const projectDir = createProject()
     touchProjectFile(projectDir, "Подсистема/Администрирование/Подсистемы/Свойства.yaml")
     touchProjectFile(projectDir, "Подсистема/Администрирование/Подсистемы/Настройки/Формы/Форма/Форма.yaml")
@@ -158,7 +158,7 @@ describe("validation project files", () => {
         "Подсистема/Администрирование/Подсистемы/Настройки/Формы/Форма/Форма.yaml"
       )
     ).toBeUndefined()
-    expect(discoverValidationProjectFiles(projectDir)).toEqual([])
+    expect(await discoverValidationProjectFiles(projectDir)).toEqual([])
   })
 
   it("rejects files outside the project", () => {
@@ -168,19 +168,19 @@ describe("validation project files", () => {
     expect(() => assertProjectFileInside(projectDir, outsidePath)).toThrow("Файл находится вне указанного YAML-проекта")
   })
 
-  it("returns undefined for unsupported YAML files inside the project", () => {
+  it("returns undefined for unsupported YAML files inside the project", async () => {
     const projectDir = createProject()
     touchProjectFile(projectDir, "Справочник/Товары/Команды/Команда.yaml")
 
     expect(resolveValidationProjectFile(projectDir, "Справочник/Товары/Команды/Команда.yaml")).toBeUndefined()
-    expect(discoverValidationProjectFiles(projectDir)).toEqual([])
+    expect(await discoverValidationProjectFiles(projectDir)).toEqual([])
   })
 
-  it("discovers and resolves the root configuration YAML file", () => {
+  it("discovers and resolves the root configuration YAML file", async () => {
     const projectDir = createProject()
     touchProjectFile(projectDir, "Конфигурация.yaml")
 
-    expect(discoverValidationProjectFiles(projectDir)).toEqual([
+    expect(await discoverValidationProjectFiles(projectDir)).toEqual([
       expect.objectContaining({
         projectPath: "Конфигурация.yaml",
         kind: "configuration",

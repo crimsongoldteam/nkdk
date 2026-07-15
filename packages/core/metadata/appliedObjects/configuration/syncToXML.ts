@@ -50,8 +50,8 @@ const ROOT_EXTERNAL_XML_DIR = "Ext"
 const LEGACY_ROOT_EXTERNAL_XML_DIR = "ext"
 const toError = (error: unknown): Error => (error instanceof Error ? error : new Error(String(error)))
 
-function discoverTopLevelPropertiesResources(inputDir: string): MetadataProjectPropertiesYamlRef[] {
-  return discoverMetadataProjectResources(inputDir).filter(
+async function discoverTopLevelPropertiesResources(inputDir: string): Promise<MetadataProjectPropertiesYamlRef[]> {
+  return (await discoverMetadataProjectResources(inputDir)).filter(
     (resource): resource is MetadataProjectPropertiesYamlRef =>
       resource.kind === "yaml" &&
       resource.role === "properties" &&
@@ -252,7 +252,7 @@ export const syncConfigurationToXML = async (params: {
     await syncRootConfigurationExternalFilesToXML({ context: syncContext, inputDir, outputDir, xmlManifest })
   }
 
-  for (const resource of discoverTopLevelPropertiesResources(inputDir)) {
+  for (const resource of await discoverTopLevelPropertiesResources(inputDir)) {
     const resourceRule = resource.owner.spec.rule
     const rule =
       TopLevelMetadataItemRules.find((candidate) => candidate.itemType === resourceRule.itemType) ?? resourceRule

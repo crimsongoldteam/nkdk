@@ -98,8 +98,8 @@ export async function prepareYamlProjectWithPool(params: {
 }): Promise<PreparedYamlProjectResult> {
   const profiler = createValidationProfiler({ scope: "main" })
   const projectDir = resolve(params.projectDir)
-  const resources = profiler.measure("Подготовка YAML-проекта", "Поиск файлов проекта", {}, () =>
-    discoverMetadataProjectResources(projectDir, { include: params.resourceInclude ?? "all" }).filter(
+  const resources = await profiler.measureAsync("Подготовка YAML-проекта", "Поиск файлов проекта", {}, async () =>
+    (await discoverMetadataProjectResources(projectDir, { include: params.resourceInclude ?? "all" })).filter(
       (resource) => resource.absolutePath !== undefined
     )
   )

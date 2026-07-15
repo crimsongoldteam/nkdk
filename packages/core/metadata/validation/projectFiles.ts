@@ -15,8 +15,8 @@ export interface ValidationProjectFile {
   formName?: string
 }
 
-export function discoverValidationProjectFiles(projectDir: string): ValidationProjectFile[] {
-  return discoverMetadataProjectResources(projectDir, { include: "yaml" }).flatMap((resource) => {
+export async function discoverValidationProjectFiles(projectDir: string): Promise<ValidationProjectFile[]> {
+  return (await discoverMetadataProjectResources(projectDir, { include: "yaml" })).flatMap((resource) => {
     const file = toValidationProjectFile(resource)
     return file ? [file] : []
   })

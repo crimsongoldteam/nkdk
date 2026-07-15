@@ -107,14 +107,14 @@ export function createValidationWorkerPoolHandle(params: { concurrency?: number 
   }
 }
 
-function validateProjectInProcess(params: ValidateProjectParams): ValidateProjectResult {
+async function validateProjectInProcess(params: ValidateProjectParams): Promise<ValidateProjectResult> {
   const projectDir = resolve(params.projectDir)
   const context = params.context ?? defaultValidationContext()
   const schemaCache = createValidationSchemaCache(context)
   const rulesSnapshot = createValidationRulesSnapshot(context)
   const files =
     params.filePath === undefined
-      ? discoverValidationProjectFiles(projectDir)
+      ? await discoverValidationProjectFiles(projectDir)
       : [resolveSingleProjectFile(projectDir, params.filePath)]
   const queue = createValidationYamlQueue({
     mode: params.filePath === undefined ? "full" : "partial",

@@ -56,7 +56,7 @@ export async function buildMetadataOperationSnapshot(params: {
   }
 
   const items: OperationSnapshotItem[] = []
-  for (const resource of discoverValidationProjectFiles(projectDir)) {
+  for (const resource of await discoverValidationProjectFiles(projectDir)) {
     const item = importSnapshotItem({ resource, context, requireValidProject: params.requireValidProject })
     if (item.ok) {
       items.push(item.item)
