@@ -11,6 +11,7 @@ import {
 import { getProjectReferenceObjectPathContributor } from "./projectReferenceIndexRegistry"
 import { validatePendingReferencesWithIndex } from "./projectReferenceIndex"
 import { ProjectFileSchemaError } from "./projectFileSchema"
+import { createValidationProfiler } from "./profile"
 import {
   discoverValidationProjectFiles,
   resolveValidationProjectFile,
@@ -226,6 +227,8 @@ async function validateProjectWithPreparedYaml(
   }
 ): Promise<ValidateProjectResult> {
   const totalStartedAt = performance.now()
+  const initializationProfiler = createValidationProfiler({ scope: "main" })
+  const profiler = createValidationProfiler({ scope: "main" })
   const projectDir = resolve(params.projectDir)
   const context = params.context ?? defaultValidationContext()
   const pool = params.pool ?? createPreparedYamlProjectWorkerPool({ concurrency: params.concurrency })
@@ -248,34 +251,56 @@ async function validateProjectWithPreparedYaml(
     if (!prepared.ok) return { diagnostics: sortDiagnostics(dedupeDiagnostics(prepared.diagnostics)) }
 
     fileCount = prepared.project.files.length
-    const startStartedAt = performance.now()
-    const startProfile = await pool.initValidation(context)
-    startMs = performance.now() - startStartedAt
+    const startProfile = await initializationProfiler.measureAsync(
+      "Инициализация",
+      "Инициализация validation worker",
+      { items: params.concurrency },
+      () => pool.initValidation(context)
+    )
+    startMs = startProfile.workerInitMs
     schemaCompileMs = startProfile.schemaCompileMs
     formSchemaMs = startProfile.formSchemaMs
     propertiesSchemaMs = startProfile.propertiesSchemaMs
-    const firstPassStartedAt = performance.now()
-    const first = await pool.runValidationFirstPass({ projectDir, context })
-    firstPassMs = performance.now() - firstPassStartedAt
-    const mergeStartedAt = performance.now()
-    const objectTable = createValidationObjectTable()
-    objectTable.mergeRecords(first.objectRecords)
-    objectTable.mergeReferenceIndexEntries(first)
-    mergeMs = performance.now() - mergeStartedAt
-    const snapshotStartedAt = performance.now()
-    const objectTableSnapshot = objectTable.snapshot()
-    snapshotMs = performance.now() - snapshotStartedAt
-    const secondPassStartedAt = performance.now()
-    const second = await pool.runValidationSecondPass({
-      projectDir,
-      context,
-      mode: "full",
-      objectTable: objectTableSnapshot,
+    initializationProfiler.record("Инициализация", "Компиляция схем", {
+      items: params.concurrency,
+      timeMs: schemaCompileMs,
     })
-    secondPassMs = performance.now() - secondPassStartedAt
-    const sortStartedAt = performance.now()
-    const diagnostics = sortDiagnostics(dedupeDiagnostics([...first.diagnostics, ...second.diagnostics]))
-    sortMs = performance.now() - sortStartedAt
+    initializationProfiler.flush()
+    const first = await profiler.measureAsync("Проверка по схеме", "Ожидание worker first pass", { items: fileCount }, () =>
+      pool.runValidationFirstPass({ projectDir, context })
+    )
+    firstPassMs = profiler.records().find((record) => record.substep === "Ожидание worker first pass")?.timeMs ?? 0
+    const objectTable = profiler.measure("Обобщение индексов", "Слияние first pass", { items: first.objectRecords.length }, () => {
+      const table = createValidationObjectTable()
+      table.mergeRecords(first.objectRecords)
+      table.mergeReferenceIndexEntries(first)
+      return table
+    })
+    mergeMs = profiler.records().find((record) => record.substep === "Слияние first pass")?.timeMs ?? 0
+    const objectTableSnapshot = profiler.measure(
+      "Обобщение индексов",
+      "Снимок object table",
+      { items: first.pendingReferences.length },
+      () => objectTable.snapshot()
+    )
+    snapshotMs = profiler.records().find((record) => record.substep === "Снимок object table")?.timeMs ?? 0
+    const second = await profiler.measureAsync("Проверка зависимостей", "Ожидание worker second pass", { items: fileCount }, () =>
+      pool.runValidationSecondPass({
+        projectDir,
+        context,
+        mode: "full",
+        objectTable: objectTableSnapshot,
+      })
+    )
+    secondPassMs = profiler.records().find((record) => record.substep === "Ожидание worker second pass")?.timeMs ?? 0
+    const diagnostics = profiler.measure(
+      "Завершение validation",
+      "Сортировка и дедупликация диагностик",
+      { items: first.diagnostics.length + second.diagnostics.length },
+      () => sortDiagnostics(dedupeDiagnostics([...first.diagnostics, ...second.diagnostics]))
+    )
+    sortMs = profiler.records().find((record) => record.substep === "Сортировка и дедупликация диагностик")?.timeMs ?? 0
+    profiler.flush()
     logWorkerValidationProfile({
       files: fileCount,
       concurrency: params.concurrency,

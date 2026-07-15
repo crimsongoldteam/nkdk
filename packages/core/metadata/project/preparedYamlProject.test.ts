@@ -1,7 +1,7 @@
 import { mkdirSync, mkdtempSync, rmSync, writeFileSync } from "node:fs"
 import { tmpdir } from "node:os"
 import { join } from "node:path"
-import { afterEach, describe, expect, it } from "vitest"
+import { afterEach, describe, expect, it, vi } from "vitest"
 import {
   getProjectValidationReadCountForTests,
   resetProjectValidationReadCountForTests,
@@ -63,6 +63,44 @@ describe("prepareYamlProject", () => {
         },
       })
       expect(JSON.stringify(result.project)).not.toContain("Реквизиты:")
+    },
+    testTimeout
+  )
+
+  it(
+    "emits detailed preparation profile records",
+    async () => {
+      const error = vi.spyOn(console, "error").mockImplementation(() => undefined)
+      const previous = process.env["NKDK_VALIDATION_TIMING"]
+      let lines: string[] = []
+      process.env["NKDK_VALIDATION_TIMING"] = "1"
+      try {
+        const projectDir = createProject()
+        const result = await prepareYamlProject({
+          projectDir,
+          context: { version: "2.20", defaultLanguage: "ru", exportToYAML: { toTyped: false } },
+          concurrency: 1,
+        })
+
+        expect(result.ok).toBe(true)
+        lines = error.mock.calls.map(([line]) => String(line))
+      } finally {
+        if (previous === undefined) delete process.env["NKDK_VALIDATION_TIMING"]
+        else process.env["NKDK_VALIDATION_TIMING"] = previous
+        error.mockRestore()
+      }
+
+      expect(lines.some((line) => line.includes("[validation-step]") && line.includes('substep="Поиск файлов проекта"'))).toBe(
+        true
+      )
+      expect(
+        lines.some((line) => line.includes("[validation-step]") && line.includes('substep="Классификация файлов проекта"'))
+      ).toBe(true)
+      expect(
+        lines.some((line) => line.includes("[validation-step]") && line.includes('substep="Обмен с worker и получение результата"'))
+      ).toBe(true)
+      expect(lines.some((line) => line.includes("[validation-step]") && line.includes('substep="Чтение YAML"'))).toBe(true)
+      expect(lines.some((line) => line.includes("[validation-step]") && line.includes('substep="Разбор YAML"'))).toBe(true)
     },
     testTimeout
   )

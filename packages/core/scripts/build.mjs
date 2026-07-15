@@ -36,6 +36,12 @@ await esbuild.build({
 
 await esbuild.build({
   ...commonOptions,
+  entryPoints: ["metadata/project/preparedYamlProjectWorker.ts"],
+  outfile: new URL("preparedYamlProjectWorker.js", outdir).pathname,
+})
+
+await esbuild.build({
+  ...commonOptions,
   entryPoints: ["metadata/validation/generateProjectValidationAjvStandalone.ts"],
   outfile: new URL("generateProjectValidationAjvStandalone.js", outdir).pathname,
 })

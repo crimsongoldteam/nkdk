@@ -13,20 +13,24 @@ describe("buildMetadataOperationSnapshot", () => {
     for (const dir of tempDirs.splice(0)) rmSync(dir, { recursive: true, force: true })
   })
 
-  it("returns validation_failed before operation planning when project is invalid", async () => {
-    const projectDir = mkdtempSync(join(tmpdir(), "nkdk-operation-snapshot-"))
-    tempDirs.push(projectDir)
-    mkdirSync(join(projectDir, "Справочник", "Товары"), { recursive: true })
-    writeFileSync(join(projectDir, "Справочник", "Товары", "Свойства.yaml"), "НеизвестноеПоле: true\n")
+  it(
+    "returns validation_failed before operation planning when project is invalid",
+    async () => {
+      const projectDir = mkdtempSync(join(tmpdir(), "nkdk-operation-snapshot-"))
+      tempDirs.push(projectDir)
+      mkdirSync(join(projectDir, "Справочник", "Товары"), { recursive: true })
+      writeFileSync(join(projectDir, "Справочник", "Товары", "Свойства.yaml"), "НеизвестноеПоле: true\n")
 
-    const result = await buildMetadataOperationSnapshot({ projectDir, requireValidProject: true })
+      const result = await buildMetadataOperationSnapshot({ projectDir, requireValidProject: true })
 
-    expect(result).toMatchObject({
-      ok: false,
-      code: "validation_failed",
-      diagnostics: [expect.objectContaining({ severity: "error" })],
-    })
-  })
+      expect(result).toMatchObject({
+        ok: false,
+        code: "validation_failed",
+        diagnostics: [expect.objectContaining({ severity: "error" })],
+      })
+    },
+    30_000
+  )
 
   it("allows best-effort snapshot for listing targets", async () => {
     const projectDir = mkdtempSync(join(tmpdir(), "nkdk-operation-snapshot-"))

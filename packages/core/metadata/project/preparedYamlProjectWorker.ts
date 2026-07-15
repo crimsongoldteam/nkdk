@@ -1,8 +1,10 @@
 import { readFileSync } from "node:fs"
 import { resolve } from "node:path"
-import { parseMetadataYaml } from "../../yaml/parseMetadataYaml"
+import { performance } from "node:perf_hooks"
+import { parseMetadataYamlData } from "../../yaml/parseMetadataYaml"
 import type { ConfigurationContext } from "../context/types"
 import { createOwnerMetadataCacheFromSharedValidationSnapshot } from "../validation/dataPath/sharedOwnerCache"
+import { createValidationProfiler } from "../validation/profile"
 import { getProjectReferenceObjectPathContributor } from "../validation/projectReferenceIndexRegistry"
 import type {
   ProjectMemberIndexEntry,
@@ -39,22 +41,26 @@ registerValidationMetadata()
 export type PreparedYamlProjectWorkerTask =
   | {
       kind: "prepare"
+      workerIndex: number
       projectDir: string
       itemTypeByYamlDir: Record<string, string>
       files: PreparedYamlProjectFileDescriptor[]
     }
   | {
       kind: "initValidation"
+      workerIndex: number
       context: ConfigurationContext
       rulesSnapshot: ValidationRulesSnapshot
     }
   | {
       kind: "validateFirstPass"
+      workerIndex: number
       projectDir: string
       context: ConfigurationContext
     }
   | {
       kind: "validateSecondPass"
+      workerIndex: number
       projectDir: string
       context: ConfigurationContext
       mode: ValidationMode
@@ -97,9 +103,16 @@ export default async function runPreparedYamlProjectWorkerTask(
   message: PreparedYamlProjectWorkerTask
 ): Promise<PreparedYamlProjectWorkerTaskResult> {
   if (message.kind === "initValidation") {
-    validationSchemaCache = await createProjectValidationWorkerSchemaCache({ context: message.context })
+    const profiler = createValidationProfiler({ scope: "worker", workerIndex: message.workerIndex })
+    validationSchemaCache = await profiler.measureAsync("Инициализация", "Инициализация validation worker", { items: 1 }, () =>
+      createProjectValidationWorkerSchemaCache({ context: message.context })
+    )
     validationRulesSnapshot = message.rulesSnapshot
-    return { kind: "initValidationResult", ...validationSchemaCache.compileAll() }
+    const compileProfile = profiler.measure("Инициализация", "Компиляция схем", { items: 1 }, () =>
+      validationSchemaCache!.compileAll()
+    )
+    profiler.flush()
+    return { kind: "initValidationResult", ...compileProfile }
   }
   if (message.kind === "validateFirstPass") return { kind: "validateFirstPassResult", ...runValidationFirstPass(message) }
   if (message.kind === "validateSecondPass") {
@@ -110,30 +123,43 @@ export default async function runPreparedYamlProjectWorkerTask(
   const declarations: PreparedMetadataDeclaration[] = []
   const dependencies: PreparedMetadataDependency[] = []
   const diagnostics: Diagnostic[] = []
+  const profiler = createValidationProfiler({ scope: "worker", workerIndex: message.workerIndex })
+  let readMs = 0
+  let parseMs = 0
+  let indexMs = 0
+  let saveMs = 0
 
   for (const file of message.files) {
     try {
-      const text = readFileSync(file.filePath, "utf8")
-      const parsed = parseMetadataYaml(text)
-      declarations.push(...extractDeclarations(file))
-      dependencies.push(
-        ...extractDependencies({ file, data: parsed.data, itemTypeByYamlDir: message.itemTypeByYamlDir })
-      )
-      yamlFiles.push({
-        projectPath: file.projectPath,
-        filePath: file.filePath,
-        role: file.role,
-        owner: file.owner,
-        data: parsed.data,
-        syntaxDiagnostics: parsed.syntaxErrors.map((error) => ({
-          filePath: file.filePath,
-          line: error.line,
-          col: error.col,
-          severity: "error",
-          source: "syntax",
-          message: error.message,
-        })),
+      const [text, measuredReadMs] = measureDuration(() => readFileSync(file.filePath, "utf8"))
+      readMs += measuredReadMs
+      const [parsed, measuredParseMs] = measureDuration(() => parseMetadataYamlData(text))
+      parseMs += measuredParseMs
+      const [, measuredIndexMs] = measureDuration(() => {
+        declarations.push(...extractDeclarations(file))
+        dependencies.push(
+          ...extractDependencies({ file, data: parsed.data, itemTypeByYamlDir: message.itemTypeByYamlDir })
+        )
       })
+      indexMs += measuredIndexMs
+      const [, measuredSaveMs] = measureDuration(() => {
+        yamlFiles.push({
+          projectPath: file.projectPath,
+          filePath: file.filePath,
+          role: file.role,
+          owner: file.owner,
+          data: parsed.data,
+          syntaxDiagnostics: parsed.syntaxErrors.map((error) => ({
+            filePath: file.filePath,
+            line: error.line,
+            col: error.col,
+            severity: "error",
+            source: "syntax",
+            message: error.message,
+          })),
+        })
+      })
+      saveMs += measuredSaveMs
     } catch (caught) {
       diagnostics.push({
         filePath: file.filePath,
@@ -147,6 +173,11 @@ export default async function runPreparedYamlProjectWorkerTask(
   }
 
   preparedYamlFiles = new Map(yamlFiles.map((file) => [file.filePath, file]))
+  profiler.record("Подготовка YAML-проекта", "Чтение YAML", { items: message.files.length, timeMs: readMs })
+  profiler.record("Подготовка YAML-проекта", "Разбор YAML", { items: message.files.length, timeMs: parseMs })
+  profiler.record("Подготовка YAML-проекта", "Извлечение локальных индексов", { items: message.files.length, timeMs: indexMs })
+  profiler.record("Подготовка YAML-проекта", "Сохранение worker данных YAML", { items: message.files.length, timeMs: saveMs })
+  profiler.flush()
   return { kind: "prepareResult", yamlFiles, declarations, dependencies, diagnostics }
 }
 
@@ -173,33 +204,37 @@ function runValidationFirstPass(message: Extract<PreparedYamlProjectWorkerTask, 
   valueIndexEntries: ProjectValueIndexEntry[]
   pendingReferences: PendingMetadataTargetReference[]
 } {
+  const profiler = createValidationProfiler({ scope: "worker", workerIndex: message.workerIndex })
   validationState = createEmptyWorkerValidationState()
   const diagnostics: Diagnostic[] = []
   const objectRecords: ValidationObjectRecord[] = []
   const schemaCache = requireValidationSchemaCache()
   const cache = createProjectYamlCacheFromPreparedFiles([...preparedYamlFiles.values()])
 
-  for (const yamlFile of preparedYamlFiles.values()) {
-    const file = resolveValidationProjectFile(message.projectDir, yamlFile.filePath)
-    if (file === undefined) continue
+  profiler.measure("Проверка по схеме", "Worker first pass", { items: preparedYamlFiles.size }, () => {
+    for (const yamlFile of preparedYamlFiles.values()) {
+      const file = resolveValidationProjectFile(message.projectDir, yamlFile.filePath)
+      if (file === undefined) continue
 
-    const first = validateProjectFileFirstPass({
-      projectDir: message.projectDir,
-      file,
-      cache,
-      context: message.context,
-      schemaCache,
-      ...(file.kind === "form" ? { rulesSnapshot: requireValidationRulesSnapshot() } : {}),
-    })
+      const first = validateProjectFileFirstPass({
+        projectDir: message.projectDir,
+        file,
+        cache,
+        context: message.context,
+        schemaCache,
+        ...(file.kind === "form" ? { rulesSnapshot: requireValidationRulesSnapshot() } : {}),
+      })
 
-    validationState.states.set(resolve(file.absolutePath), first.state)
-    validationState.objectIndexEntries.push(...first.objectIndexEntries)
-    validationState.memberIndexEntries.push(...first.memberIndexEntries)
-    validationState.valueIndexEntries.push(...first.valueIndexEntries)
-    validationState.pendingReferences.push(...first.pendingReferences)
-    diagnostics.push(...first.diagnostics)
-    objectRecords.push(...first.objectRecords)
-  }
+      validationState.states.set(resolve(file.absolutePath), first.state)
+      validationState.objectIndexEntries.push(...first.objectIndexEntries)
+      validationState.memberIndexEntries.push(...first.memberIndexEntries)
+      validationState.valueIndexEntries.push(...first.valueIndexEntries)
+      validationState.pendingReferences.push(...first.pendingReferences)
+      diagnostics.push(...first.diagnostics)
+      objectRecords.push(...first.objectRecords)
+    }
+  })
+  profiler.flush()
 
   return {
     diagnostics,
@@ -224,36 +259,50 @@ function requireValidationRulesSnapshot(): ValidationRulesSnapshot {
 function runValidationSecondPass(message: Extract<PreparedYamlProjectWorkerTask, { kind: "validateSecondPass" }>): {
   diagnostics: Diagnostic[]
 } {
+  const profiler = createValidationProfiler({ scope: "worker", workerIndex: message.workerIndex })
   const diagnostics: Diagnostic[] = []
-  const cache = createProjectYamlCacheFromPreparedFiles([...preparedYamlFiles.values()])
-  const ownerCache = createOwnerMetadataCacheFromSharedValidationSnapshot({
-    projectDir: message.projectDir,
-    snapshot: message.sharedValidationSnapshot,
-  })
-  const referenceIndex = createSharedProjectReferenceIndex({
-    projectDir: message.projectDir,
-    mode: message.mode,
-    snapshot: message.sharedValidationSnapshot.reference,
-    resolveObjectFilePath: (target) => resolveObjectFilePath({ projectDir: message.projectDir, target }),
-  })
-  const referenceResult = validatePendingReferencesWithIndex({
-    index: referenceIndex,
-    references: message.pendingReferences,
-  })
+  const { cache, ownerCache, referenceIndex } = profiler.measure(
+    "Проверка зависимостей",
+    "Построение контекста worker",
+    { items: preparedYamlFiles.size },
+    () => {
+      const cache = createProjectYamlCacheFromPreparedFiles([...preparedYamlFiles.values()])
+      const ownerCache = createOwnerMetadataCacheFromSharedValidationSnapshot({
+        projectDir: message.projectDir,
+        snapshot: message.sharedValidationSnapshot,
+      })
+      const referenceIndex = createSharedProjectReferenceIndex({
+        projectDir: message.projectDir,
+        mode: message.mode,
+        snapshot: message.sharedValidationSnapshot.reference,
+        resolveObjectFilePath: (target) => resolveObjectFilePath({ projectDir: message.projectDir, target }),
+      })
+      return { cache, ownerCache, referenceIndex }
+    }
+  )
+  const referenceResult = profiler.measure("Проверка зависимостей", "Проверка ссылок", { items: message.pendingReferences.length }, () =>
+    validatePendingReferencesWithIndex({
+      index: referenceIndex,
+      references: message.pendingReferences,
+    })
+  )
   diagnostics.push(...referenceResult.diagnostics)
 
-  for (const state of validationState.states.values()) {
-    const second = validateProjectFileSecondPass({
-      projectDir: message.projectDir,
-      state,
-      cache,
-      context: message.context,
-      ownerCache,
-      referenceIndex,
-      skipMetadataTargetValidation: true,
-    })
-    diagnostics.push(...second.diagnostics)
-  }
+  profiler.measure("Проверка зависимостей", "Worker second pass", { items: validationState.states.size }, () => {
+    for (const state of validationState.states.values()) {
+      const second = validateProjectFileSecondPass({
+        projectDir: message.projectDir,
+        state,
+        cache,
+        context: message.context,
+        ownerCache,
+        referenceIndex,
+        skipMetadataTargetValidation: true,
+      })
+      diagnostics.push(...second.diagnostics)
+    }
+  })
+  profiler.flush()
 
   validationState = createEmptyWorkerValidationState()
 
@@ -273,6 +322,12 @@ function extractDeclarations(file: PreparedYamlProjectFileDescriptor): PreparedM
   const canonical = objectCanonicalFromProjectFile(file)
   if (canonical === undefined) return []
   return [{ canonical, projectPath: file.projectPath, filePath: file.filePath }]
+}
+
+function measureDuration<T>(fn: () => T): [T, number] {
+  const startedAt = performance.now()
+  const result = fn()
+  return [result, performance.now() - startedAt]
 }
 
 function objectCanonicalFromProjectFile(file: PreparedYamlProjectFileDescriptor): string | undefined {

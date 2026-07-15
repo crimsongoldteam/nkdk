@@ -15,6 +15,11 @@ export interface JsParsedYaml {
   syntaxErrors: JsYamlSyntaxError[]
 }
 
+export interface JsParsedYamlData {
+  data: unknown
+  syntaxErrors: JsYamlSyntaxError[]
+}
+
 export function parseWithJsYaml(text: string): JsParsedYaml {
   const locations = buildYamlLocationIndex(text)
   if (text.trim() === "") {
@@ -44,9 +49,48 @@ export function parseWithJsYaml(text: string): JsParsedYaml {
   }
 }
 
+export function parseDataWithJsYaml(text: string): JsParsedYamlData {
+  if (text.trim() === "") {
+    return {
+      data: undefined,
+      syntaxErrors: [],
+    }
+  }
+
+  try {
+    const data = load(text, { schema: JSON_SCHEMA })
+    return {
+      data: normalizeYamlDataWithoutLocations(data),
+      syntaxErrors: [],
+    }
+  } catch (error) {
+    return {
+      data: undefined,
+      syntaxErrors: [toSyntaxError(error, text)],
+    }
+  }
+}
+
 function prepareJsYamlData(data: unknown, text: string, locations: YamlLocationIndex): unknown {
   const lines = text.split(/\r?\n/)
   return visitYamlData(data, [], lines, locations)
+}
+
+function normalizeYamlDataWithoutLocations(value: unknown): unknown {
+  if (value === null) return undefined
+
+  if (Array.isArray(value)) {
+    value.forEach((item, index) => {
+      value[index] = normalizeYamlDataWithoutLocations(item)
+    })
+    return value
+  }
+
+  if (!isRecord(value)) return value
+  for (const [entryKey, entryValue] of Object.entries(value)) {
+    value[entryKey] = normalizeYamlDataWithoutLocations(entryValue)
+  }
+  return value
 }
 
 function visitYamlData(

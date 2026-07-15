@@ -9,6 +9,7 @@ import type {
   SecondPassPoolResult,
   ValidationWorkerPoolStartProfile,
 } from "../validation/validationWorkerPoolTypes"
+import { createValidationProfiler } from "../validation/profile"
 import { createValidationRulesSnapshot } from "../validation/rulesSnapshot"
 import type { Diagnostic } from "../validation/types"
 import { createValidationSnapshotProvider } from "../validation/validationSnapshotProvider"
@@ -60,10 +61,16 @@ export function createPreparedYamlProjectWorkerPool(params: {
 
   return {
     async run(runParams) {
-      const partitions = partitionRoundRobin(runParams.files, params.concurrency)
+      const profiler = createValidationProfiler({ scope: "main" })
+      const partitions = profiler.measure("Подготовка YAML-проекта", "Разбиение по worker", { items: runParams.files.length }, () =>
+        partitionRoundRobin(runParams.files, params.concurrency)
+      )
       activeWorkerIndexes.clear()
-      const itemTypeByYamlDir = Object.fromEntries(
-        runParams.files.map((file) => [file.owner.dir, file.itemType]).filter(([dir]) => dir.length > 0)
+      const itemTypeByYamlDir = profiler.measure(
+        "Подготовка YAML-проекта",
+        "Сбор правил структуры проекта",
+        { items: runParams.files.length },
+        () => Object.fromEntries(runParams.files.map((file) => [file.owner.dir, file.itemType]).filter(([dir]) => dir.length > 0))
       )
       const results = await Promise.all(
         partitions.map(async (files, index): Promise<PreparedYamlProjectWorkerPoolResult & { workerIndex: number }> => {
@@ -85,6 +92,7 @@ export function createPreparedYamlProjectWorkerPool(params: {
 
           const task = {
             kind: "prepare",
+            workerIndex: index,
             projectDir: runParams.projectDir,
             itemTypeByYamlDir,
             files,
@@ -108,17 +116,27 @@ export function createPreparedYamlProjectWorkerPool(params: {
           }
         })
       )
-      const mergedDeclarations = mergePreparedMetadataDeclarationsForTests(
-        results.flatMap((result) => result.metadataIndex.declarations)
+      const mergedDeclarations = profiler.measure(
+        "Подготовка YAML-проекта",
+        "Слияние индекса объявлений",
+        { items: results.length },
+        () => mergePreparedMetadataDeclarationsForTests(results.flatMap((result) => result.metadataIndex.declarations))
       )
       if (!mergedDeclarations.ok) {
+        profiler.flush()
         return {
           diagnostics: mergedDeclarations.diagnostics,
           metadataIndex: { declarations: [] },
           workers: results.flatMap((result) => result.workers),
         }
       }
-      const workers = redistributeDependenciesBySourceFile(results.flatMap((result) => result.workers))
+      const workers = profiler.measure(
+        "Подготовка YAML-проекта",
+        "Перераспределение индекса обращений",
+        { items: results.length },
+        () => redistributeDependenciesBySourceFile(results.flatMap((result) => result.workers))
+      )
+      profiler.flush()
       return {
         diagnostics: results.flatMap((result) => result.diagnostics),
         metadataIndex: mergedDeclarations.index,
@@ -135,7 +153,7 @@ export function createPreparedYamlProjectWorkerPool(params: {
       const startedAt = performance.now()
       const results = await Promise.all(
         indexesToInit.map(async (index) => {
-          const task = { kind: "initValidation", context, rulesSnapshot } satisfies PreparedYamlProjectWorkerTask
+          const task = { kind: "initValidation", workerIndex: index, context, rulesSnapshot } satisfies PreparedYamlProjectWorkerTask
           const response =
             params.concurrency === 1 && params.createWorkerPool === undefined
               ? await runPreparedYamlProjectWorkerTask(task)
@@ -170,6 +188,7 @@ export function createPreparedYamlProjectWorkerPool(params: {
         Array.from(activeWorkerIndexes).map(async (index) => {
           const task = {
             kind: "validateFirstPass",
+            workerIndex: index,
             projectDir: firstPassParams.projectDir,
             context: firstPassParams.context,
           } satisfies PreparedYamlProjectWorkerTask
@@ -204,6 +223,7 @@ export function createPreparedYamlProjectWorkerPool(params: {
         activeIndexes.map(async (index, partitionIndex) => {
           const task = {
             kind: "validateSecondPass",
+            workerIndex: index,
             projectDir: secondPassParams.projectDir,
             context: secondPassParams.context,
             mode: secondPassParams.mode,
@@ -299,17 +319,17 @@ function redistributeDependenciesBySourceFile(
 
 function createWorkerPool(): Piscina {
   const currentFile = fileURLToPath(import.meta.url)
-  const workerFile = join(dirname(currentFile), "preparedYamlProjectWorker.ts")
+  const workerFile = currentFile.endsWith(".ts")
+    ? join(dirname(currentFile), "preparedYamlProjectWorker.ts")
+    : join(dirname(currentFile), "preparedYamlProjectWorker.js")
+  const execArgv = currentFile.endsWith(".ts")
+    ? ["--import", "tsx", "--import", pathToFileURL(join(dirname(currentFile), "../validation/projectValidationWorkerRegister.mjs")).href]
+    : []
   return new Piscina({
     filename: workerFile,
     minThreads: 1,
     maxThreads: 1,
-    execArgv: [
-      "--import",
-      "tsx",
-      "--import",
-      pathToFileURL(join(dirname(currentFile), "../validation/projectValidationWorkerRegister.mjs")).href,
-    ],
+    execArgv,
   })
 }
 
