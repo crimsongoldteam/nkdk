@@ -1,4 +1,4 @@
-import { existsSync, readdirSync, statSync } from "fs"
+import { readdirSync } from "fs"
 import { isAbsolute, join, relative, resolve, sep } from "path"
 import type { ProjectResourceDescriptor, ProjectResourceSource } from "../orchestration/property/fn"
 import { CONFIGURATION_YAML_FILE } from "./constants"
@@ -13,7 +13,12 @@ import { describeMetadataRuleProjectResources, matchProjectPattern } from "./rul
 const PROPERTIES_FILE = "Свойства.yaml"
 
 export type MetadataProjectResourceKind = "yaml" | "resource"
+export type MetadataProjectResourceInclude = "all" | "yaml"
 export type MetadataProjectYamlRole = "configuration" | "properties" | "form"
+
+export interface MetadataProjectResourceDiscoveryOptions {
+  include?: MetadataProjectResourceInclude
+}
 
 export interface MetadataProjectResourceOwner {
   dir: string
@@ -82,24 +87,24 @@ export function classifyMetadataProjectPath(projectPath: string): MetadataProjec
   return undefined
 }
 
-export function discoverMetadataProjectResources(projectDir: string): MetadataProjectResourceRef[] {
+export function discoverMetadataProjectResources(
+  projectDir: string,
+  options: MetadataProjectResourceDiscoveryOptions = {}
+): MetadataProjectResourceRef[] {
   const projectRoot = resolve(projectDir)
+  const include = options.include ?? "all"
   const resources: MetadataProjectResourceRef[] = []
 
-  collectExistingProjectResource(projectRoot, join(projectRoot, CONFIGURATION_YAML_FILE), resources)
+  for (const filePath of listProjectFiles(projectRoot)) {
+    if (include === "yaml" && !filePath.endsWith(".yaml")) continue
 
-  for (const spec of metadataProjectSpecs) {
-    const kindDir = join(projectRoot, spec.dir)
-    if (!isExistingDirectory(kindDir)) continue
+    const projectPath = toProjectSeparators(relative(projectRoot, filePath))
+    const resource = classifyMetadataProjectPath(projectPath)
+    if (!resource) continue
+    if (include === "yaml" && resource.kind !== "yaml") continue
 
-    for (const ownerEntry of readdirSync(kindDir, { withFileTypes: true })) {
-      if (!ownerEntry.isDirectory()) continue
-
-      collectExistingDescriptorResources(projectRoot, join(kindDir, ownerEntry.name), spec, resources)
-    }
+    resources.push({ ...resource, absolutePath: filePath })
   }
-
-  collectNestedRecursivePropertyResources(projectRoot, resources)
 
   return resources.sort((left, right) => left.projectPath.localeCompare(right.projectPath, "ru"))
 }
@@ -126,17 +131,6 @@ export function resolveMetadataProjectResource(
   const resource = classifyMetadataProjectPath(projectPath)
 
   return resource ? { ...resource, absolutePath } : undefined
-}
-
-function collectExistingProjectResource(
-  projectRoot: string,
-  filePath: string,
-  resources: MetadataProjectResourceRef[]
-): void {
-  if (!isExistingFile(filePath)) return
-
-  const resource = resolveMetadataProjectResource(projectRoot, filePath)
-  if (resource) resources.push(resource)
 }
 
 function configurationResource(projectPath: string): MetadataProjectConfigurationYamlRef {
@@ -231,78 +225,23 @@ function createOwner(dir: string | undefined, name: string | undefined): Metadat
   return { dir, name, spec }
 }
 
-function collectExistingDescriptorResources(
-  projectRoot: string,
-  ownerRoot: string,
-  spec: MetadataProjectSpec,
-  resources: MetadataProjectResourceRef[]
-): void {
-  for (const resource of describeMetadataRuleProjectResources(spec.rule)) {
-    collectExistingResourcePattern(projectRoot, ownerRoot, resource.projectPattern, resources)
-  }
+function listProjectFiles(projectRoot: string): string[] {
+  const files: string[] = []
+  collectProjectFiles(projectRoot, files)
+  return files
 }
 
-function collectExistingResourcePattern(
-  projectRoot: string,
-  ownerRoot: string,
-  projectPattern: string,
-  resources: MetadataProjectResourceRef[]
-): void {
-  const placeholderMatch = projectPattern.match(/^(.*)\/\{itemName\}\/([^/]+)$/)
-  if (!placeholderMatch) {
-    collectExistingProjectResource(projectRoot, join(ownerRoot, ...projectPattern.split("/")), resources)
-    return
-  }
-
-  const [, dirPattern, fileName] = placeholderMatch
-  const itemsDir = join(ownerRoot, ...dirPattern.split("/"))
-  if (!isExistingDirectory(itemsDir)) return
-
-  for (const childEntry of readdirSync(itemsDir, { withFileTypes: true })) {
-    if (!childEntry.isDirectory()) continue
-    collectExistingProjectResource(projectRoot, join(itemsDir, childEntry.name, fileName), resources)
-  }
-}
-
-function collectNestedRecursivePropertyResources(projectRoot: string, resources: MetadataProjectResourceRef[]): void {
-  for (const spec of metadataProjectSpecs) {
-    if (spec.nesting?.kind !== "recursiveChildDir") continue
-    const root = join(projectRoot, spec.dir)
-    if (!isExistingDirectory(root)) continue
-
-    for (const entry of readdirSync(root, { withFileTypes: true })) {
-      if (!entry.isDirectory()) continue
-      collectNestedRecursivePropertyResourcesFromDir(projectRoot, join(root, entry.name), spec, resources)
+function collectProjectFiles(currentDir: string, files: string[]): void {
+  for (const entry of readdirSync(currentDir, { withFileTypes: true })) {
+    const entryPath = join(currentDir, entry.name)
+    if (entry.isDirectory()) {
+      collectProjectFiles(entryPath, files)
+      continue
     }
-  }
-}
-
-function collectNestedRecursivePropertyResourcesFromDir(
-  projectRoot: string,
-  currentDir: string,
-  spec: MetadataProjectSpec,
-  resources: MetadataProjectResourceRef[]
-): void {
-  const childDir = join(currentDir, spec.nesting?.childDir ?? "")
-  if (!isExistingDirectory(childDir)) return
-
-  for (const childEntry of readdirSync(childDir, { withFileTypes: true })) {
-    if (!childEntry.isDirectory()) continue
-
-    const nestedDir = join(childDir, childEntry.name)
-    collectExistingProjectResource(projectRoot, join(nestedDir, PROPERTIES_FILE), resources)
-    collectNestedRecursivePropertyResourcesFromDir(projectRoot, nestedDir, spec, resources)
+    if (entry.isFile()) files.push(entryPath)
   }
 }
 
 function toProjectSeparators(filePath: string): string {
   return filePath.split(sep).join("/")
-}
-
-function isExistingDirectory(path: string): boolean {
-  return existsSync(path) && statSync(path).isDirectory()
-}
-
-function isExistingFile(path: string): boolean {
-  return existsSync(path) && statSync(path).isFile()
 }

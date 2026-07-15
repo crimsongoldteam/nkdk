@@ -108,6 +108,38 @@ describe("metadata project resources", () => {
     ])
   })
 
+  it("discovers YAML and resource files by default", () => {
+    const projectDir = createProject()
+    touchProjectFile(projectDir, "Справочник/Товары/Свойства.yaml")
+    touchProjectFile(projectDir, "Справочник/Товары/МодульМенеджера.bsl")
+    touchProjectFile(projectDir, "Справочник/Товары/ignored.txt")
+
+    const resources = discoverMetadataProjectResources(projectDir)
+
+    expect(resources.map((file) => file.projectPath)).toEqual([
+      "Справочник/Товары/МодульМенеджера.bsl",
+      "Справочник/Товары/Свойства.yaml",
+    ])
+    expect(resources.map((file) => file.kind)).toEqual(["resource", "yaml"])
+  })
+
+  it("discovers only YAML project files when include is yaml", () => {
+    const projectDir = createProject()
+    touchProjectFile(projectDir, "Конфигурация.yaml")
+    touchProjectFile(projectDir, "Справочник/Товары/Свойства.yaml")
+    touchProjectFile(projectDir, "Справочник/Товары/МодульМенеджера.bsl")
+    touchProjectFile(projectDir, "Подсистема/Администрирование/Подсистемы/Настройки/Свойства.yaml")
+
+    const resources = discoverMetadataProjectResources(projectDir, { include: "yaml" })
+
+    expect(resources.map((file) => file.projectPath)).toEqual([
+      "Конфигурация.yaml",
+      "Подсистема/Администрирование/Подсистемы/Настройки/Свойства.yaml",
+      "Справочник/Товары/Свойства.yaml",
+    ])
+    expect(resources.every((file) => file.kind === "yaml")).toBe(true)
+  })
+
   it("discovers properties for every top-level metadata item with YAML directory", () => {
     const projectDir = createProject()
     const dirs = TopLevelMetadataItemRules.flatMap((rule) =>
