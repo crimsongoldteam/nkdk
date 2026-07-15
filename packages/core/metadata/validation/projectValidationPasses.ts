@@ -91,6 +91,7 @@ export interface ProjectValidationFirstPassProfile {
   equalNameMs: number
   uniqueScopesMs: number
   referencesMs: number
+  yamlFactsMs: number
   fieldIndexMs: number
   objectIndexMs: number
   memberIndexMs: number
@@ -330,10 +331,14 @@ function validateProjectFormFirstPass(params: {
   }
 
   const entry = params.cache.get(params.file.absolutePath)
-  const yamlFacts =
+  const measuredYamlFacts =
     "error" in entry || params.rulesSnapshot === undefined
       ? undefined
-      : extractValidationYamlFacts({ file: params.file, parsed: entry.parsed, rulesSnapshot: params.rulesSnapshot })
+      : measureValidationPhase(() =>
+          extractValidationYamlFacts({ file: params.file, parsed: entry.parsed, rulesSnapshot: params.rulesSnapshot })
+        )
+  const yamlFacts = measuredYamlFacts?.value
+  const yamlFactsMs = measuredYamlFacts?.timeMs ?? 0
 
   const passes = getRegisteredFormValidationPasses()
   if (passes === undefined) {
@@ -341,6 +346,7 @@ function validateProjectFormFirstPass(params: {
       ...emptyFirstPassProfile("form"),
       totalMs: performance.now() - totalStartedAt,
       schemaMs,
+      yamlFactsMs,
       diagnostics: schemaDiagnostics.length,
     }
     return {
@@ -379,6 +385,7 @@ function validateProjectFormFirstPass(params: {
       totalMs: performance.now() - totalStartedAt,
       schemaMs,
       formImportMs,
+      yamlFactsMs,
       diagnostics: diagnostics.length,
     })
   }
@@ -406,6 +413,7 @@ function validateProjectFormFirstPass(params: {
       schemaMs,
       memberIndexMs,
       formImportMs,
+      yamlFactsMs,
       diagnostics: diagnostics.length,
     },
   }
@@ -497,7 +505,11 @@ function validateProjectPropertiesFirstPass(params: {
       name: equalNameValidationName,
     })
     const equalNameMs = performance.now() - equalNameStartedAt
-    const yamlFacts = extractValidationYamlFacts({ file: params.file, parsed, rulesSnapshot: params.rulesSnapshot })
+    const measuredYamlFacts = measureValidationPhase(() =>
+      extractValidationYamlFacts({ file: params.file, parsed, rulesSnapshot: params.rulesSnapshot })
+    )
+    const yamlFacts = measuredYamlFacts.value
+    const yamlFactsMs = measuredYamlFacts.timeMs
     const ownerRef = { kind: params.file.owner.dir, name: params.file.owner.name }
     const ownerModel = (yamlFacts.ownerModelStub ?? {
       itemType: params.file.owner.spec.rule.itemType,
@@ -576,6 +588,7 @@ function validateProjectPropertiesFirstPass(params: {
         equalNameMs,
         uniqueScopesMs: 0,
         referencesMs: 0,
+        yamlFactsMs,
         fieldIndexMs,
         objectIndexMs: 0,
         memberIndexMs,
@@ -674,11 +687,13 @@ function validateProjectPropertiesFirstPass(params: {
     fieldIndex,
     model: imported.model,
   })
-  const memberIndexStartedAt = performance.now()
-  const yamlFacts =
+  const measuredYamlFacts =
     params.rulesSnapshot === undefined
       ? undefined
-      : extractValidationYamlFacts({ file: params.file, parsed, rulesSnapshot: params.rulesSnapshot })
+      : measureValidationPhase(() => extractValidationYamlFacts({ file: params.file, parsed, rulesSnapshot: params.rulesSnapshot }))
+  const yamlFacts = measuredYamlFacts?.value
+  const yamlFactsMs = measuredYamlFacts?.timeMs ?? 0
+  const memberIndexStartedAt = performance.now()
   const memberIndexEntries = buildMemberIndexEntries({
     projectDir: params.projectDir,
     owner,
@@ -731,6 +746,7 @@ function validateProjectPropertiesFirstPass(params: {
       equalNameMs,
       uniqueScopesMs,
       referencesMs,
+      yamlFactsMs,
       fieldIndexMs,
       objectIndexMs,
       memberIndexMs,
@@ -769,6 +785,7 @@ function emptyFirstPassProfile(key: string): ProjectValidationFirstPassProfile {
     equalNameMs: 0,
     uniqueScopesMs: 0,
     referencesMs: 0,
+    yamlFactsMs: 0,
     fieldIndexMs: 0,
     objectIndexMs: 0,
     memberIndexMs: 0,
@@ -776,6 +793,12 @@ function emptyFirstPassProfile(key: string): ProjectValidationFirstPassProfile {
     formImportMs: 0,
     diagnostics: 0,
   }
+}
+
+function measureValidationPhase<T>(fn: () => T): { value: T; timeMs: number } {
+  const startedAt = performance.now()
+  const value = fn()
+  return { value, timeMs: performance.now() - startedAt }
 }
 
 function validationFirstPassProfileKey(file: ValidationProjectFile): string {

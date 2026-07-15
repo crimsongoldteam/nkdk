@@ -18,6 +18,7 @@ import { validatePendingReferencesWithIndex } from "../validation/projectReferen
 import {
   validateProjectFileFirstPass,
   validateProjectFileSecondPass,
+  type ProjectValidationFirstPassProfile,
   type ProjectValidationFileState,
   type ValidationSchemaCache,
   type ValidationSchemaCacheCompileProfile,
@@ -240,30 +241,31 @@ function runValidationFirstPass(message: Extract<PreparedYamlProjectWorkerTask, 
   const objectRecords: ValidationObjectRecord[] = []
   const schemaCache = requireValidationSchemaCache()
   const cache = createProjectYamlCacheFromPreparedFiles([...preparedYamlFiles.values()])
+  const firstPassProfile = createEmptyFirstPassProfileSummary()
 
-  profiler.measure("Проверка по схеме", "Worker first pass", { items: preparedYamlFiles.size }, () => {
-    for (const yamlFile of preparedYamlFiles.values()) {
-      const file = resolveValidationProjectFile(message.projectDir, yamlFile.filePath)
-      if (file === undefined) continue
+  for (const yamlFile of preparedYamlFiles.values()) {
+    const file = resolveValidationProjectFile(message.projectDir, yamlFile.filePath)
+    if (file === undefined) continue
 
-      const first = validateProjectFileFirstPass({
-        projectDir: message.projectDir,
-        file,
-        cache,
-        context: message.context,
-        schemaCache,
-        ...(file.kind === "form" ? { rulesSnapshot: requireValidationRulesSnapshot() } : {}),
-      })
+    const first = validateProjectFileFirstPass({
+      projectDir: message.projectDir,
+      file,
+      cache,
+      context: message.context,
+      schemaCache,
+      ...(file.kind === "form" ? { rulesSnapshot: requireValidationRulesSnapshot() } : {}),
+    })
 
-      validationState.states.set(resolve(file.absolutePath), first.state)
-      validationState.objectIndexEntries.push(...first.objectIndexEntries)
-      validationState.memberIndexEntries.push(...first.memberIndexEntries)
-      validationState.valueIndexEntries.push(...first.valueIndexEntries)
-      validationState.pendingReferences.push(...first.pendingReferences)
-      diagnostics.push(...first.diagnostics)
-      objectRecords.push(...first.objectRecords)
-    }
-  })
+    if (first.profile !== undefined) addFirstPassProfile(firstPassProfile, first.profile)
+    validationState.states.set(resolve(file.absolutePath), first.state)
+    validationState.objectIndexEntries.push(...first.objectIndexEntries)
+    validationState.memberIndexEntries.push(...first.memberIndexEntries)
+    validationState.valueIndexEntries.push(...first.valueIndexEntries)
+    validationState.pendingReferences.push(...first.pendingReferences)
+    diagnostics.push(...first.diagnostics)
+    objectRecords.push(...first.objectRecords)
+  }
+  recordFirstPassProfile(profiler, preparedYamlFiles.size, firstPassProfile)
   profiler.flush()
 
   return {
@@ -274,6 +276,66 @@ function runValidationFirstPass(message: Extract<PreparedYamlProjectWorkerTask, 
     valueIndexEntries: validationState.valueIndexEntries,
     pendingReferences: validationState.pendingReferences,
   }
+}
+
+function createEmptyFirstPassProfileSummary(): Omit<ProjectValidationFirstPassProfile, "key"> {
+  return {
+    totalMs: 0,
+    cacheMs: 0,
+    schemaMs: 0,
+    validatorsMs: 0,
+    importMs: 0,
+    equalNameMs: 0,
+    uniqueScopesMs: 0,
+    referencesMs: 0,
+    yamlFactsMs: 0,
+    fieldIndexMs: 0,
+    objectIndexMs: 0,
+    memberIndexMs: 0,
+    valueIndexMs: 0,
+    formImportMs: 0,
+    diagnostics: 0,
+  }
+}
+
+function addFirstPassProfile(
+  summary: Omit<ProjectValidationFirstPassProfile, "key">,
+  profile: ProjectValidationFirstPassProfile
+): void {
+  summary.totalMs += profile.totalMs
+  summary.cacheMs += profile.cacheMs
+  summary.schemaMs += profile.schemaMs
+  summary.validatorsMs += profile.validatorsMs
+  summary.importMs += profile.importMs
+  summary.equalNameMs += profile.equalNameMs
+  summary.uniqueScopesMs += profile.uniqueScopesMs
+  summary.referencesMs += profile.referencesMs
+  summary.yamlFactsMs += profile.yamlFactsMs
+  summary.fieldIndexMs += profile.fieldIndexMs
+  summary.objectIndexMs += profile.objectIndexMs
+  summary.memberIndexMs += profile.memberIndexMs
+  summary.valueIndexMs += profile.valueIndexMs
+  summary.formImportMs += profile.formImportMs
+  summary.diagnostics += profile.diagnostics
+}
+
+function recordFirstPassProfile(
+  profiler: ReturnType<typeof createValidationProfiler>,
+  items: number,
+  profile: Omit<ProjectValidationFirstPassProfile, "key">
+): void {
+  profiler.record("Первичная проверка YAML", "Проверка JSON Schema", { items, timeMs: profile.schemaMs })
+  profiler.record("Первичная проверка YAML", "Дополнительные валидаторы", { items, timeMs: profile.validatorsMs })
+  profiler.record("Первичная проверка YAML", "Построение модели", { items, timeMs: profile.importMs })
+  profiler.record("Первичная проверка YAML", "Импорт формы", { items, timeMs: profile.formImportMs })
+  profiler.record("Первичная проверка YAML", "Проверка equal-name", { items, timeMs: profile.equalNameMs })
+  profiler.record("Первичная проверка YAML", "Проверка уникальности имен", { items, timeMs: profile.uniqueScopesMs })
+  profiler.record("Первичная проверка YAML", "Сбор ссылок metadata", { items, timeMs: profile.referencesMs })
+  profiler.record("Первичная проверка YAML", "Извлечение YAML-фактов", { items, timeMs: profile.yamlFactsMs })
+  profiler.record("Первичная проверка YAML", "Построение field index", { items, timeMs: profile.fieldIndexMs })
+  profiler.record("Первичная проверка YAML", "Построение object index", { items, timeMs: profile.objectIndexMs })
+  profiler.record("Первичная проверка YAML", "Построение member index", { items, timeMs: profile.memberIndexMs })
+  profiler.record("Первичная проверка YAML", "Построение value index", { items, timeMs: profile.valueIndexMs })
 }
 
 function requireValidationSchemaCache(): ValidationSchemaCache {

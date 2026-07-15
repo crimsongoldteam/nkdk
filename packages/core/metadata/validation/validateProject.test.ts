@@ -53,7 +53,7 @@ describe("validateProject", { timeout: 120_000 }, () => {
       error.mockRestore()
     }
 
-    expect(lines.some((line) => line.includes("[validation-step]") && line.includes('step="Проверка по схеме"'))).toBe(
+    expect(lines.some((line) => line.includes("[validation-step]") && line.includes('step="Первичная проверка YAML"'))).toBe(
       true
     )
     expect(lines.some((line) => line.includes("[validation-step]") && line.includes('step="Обобщение индексов"'))).toBe(

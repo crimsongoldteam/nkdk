@@ -266,10 +266,9 @@ async function validateProjectWithPreparedYaml(
       timeMs: schemaCompileMs,
     })
     initializationProfiler.flush()
-    const first = await profiler.measureAsync("Проверка по схеме", "Ожидание worker first pass", { items: fileCount }, () =>
-      pool.runValidationFirstPass({ projectDir, context })
-    )
-    firstPassMs = profiler.records().find((record) => record.substep === "Ожидание worker first pass")?.timeMs ?? 0
+    const firstPassStartedAt = performance.now()
+    const first = await pool.runValidationFirstPass({ projectDir, context })
+    firstPassMs = performance.now() - firstPassStartedAt
     const objectTable = profiler.measure("Обобщение индексов", "Слияние first pass", { items: first.objectRecords.length }, () => {
       const table = createValidationObjectTable()
       table.mergeRecords(first.objectRecords)
