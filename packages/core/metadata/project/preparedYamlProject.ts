@@ -6,7 +6,7 @@ import {
   createPreparedYamlProjectWorkerPool,
   type PreparedYamlProjectWorkerPool,
 } from "./preparedYamlProjectWorkerPool"
-import { discoverMetadataProjectResources } from "./resources"
+import { discoverMetadataProjectResources, type MetadataProjectResourceInclude } from "./resources"
 
 export interface PreparedYamlProject {
   projectDir: string
@@ -78,6 +78,7 @@ export async function prepareYamlProject(params: {
   context: ConfigurationContext
   concurrency?: number
   includeYamlData?: boolean
+  resourceInclude?: MetadataProjectResourceInclude
 }): Promise<PreparedYamlProjectResult> {
   const pool = createPreparedYamlProjectWorkerPool({ concurrency: Math.max(1, params.concurrency ?? 1) })
 
@@ -93,11 +94,14 @@ export async function prepareYamlProjectWithPool(params: {
   context: ConfigurationContext
   pool: PreparedYamlProjectWorkerPool
   includeYamlData?: boolean
+  resourceInclude?: MetadataProjectResourceInclude
 }): Promise<PreparedYamlProjectResult> {
   const profiler = createValidationProfiler({ scope: "main" })
   const projectDir = resolve(params.projectDir)
   const resources = profiler.measure("Подготовка YAML-проекта", "Поиск файлов проекта", {}, () =>
-    discoverMetadataProjectResources(projectDir).filter((resource) => resource.absolutePath !== undefined)
+    discoverMetadataProjectResources(projectDir, { include: params.resourceInclude ?? "all" }).filter(
+      (resource) => resource.absolutePath !== undefined
+    )
   )
   const files = profiler.measure("Подготовка YAML-проекта", "Классификация файлов проекта", { items: resources.length }, () =>
     resources

@@ -178,6 +178,25 @@ describe("prepareYamlProject", () => {
     )
   })
 
+  it("can prepare only YAML project files for validation", async () => {
+    const projectDir = createProject()
+    writeFileSync(join(projectDir, "Справочник", "Товары", "МодульМенеджера.bsl"), "Процедура Тест()\nКонецПроцедуры\n")
+
+    const result = await prepareYamlProject({
+      projectDir,
+      context: { version: "2.20", defaultLanguage: "ru", exportToYAML: { toTyped: false } },
+      concurrency: 1,
+      includeYamlData: false,
+      resourceInclude: "yaml",
+    })
+
+    expect(result.ok).toBe(true)
+    if (!result.ok) throw new Error(result.message)
+
+    expect(result.project.files.map((file) => file.projectPath)).toEqual(["Справочник/Товары/Свойства.yaml"])
+    expect(result.project.resourceFiles).toEqual([])
+  })
+
   it("validates prepared YAML without reading the file again", async () => {
     const projectDir = createProject()
     const yamlPath = join(projectDir, "Справочник", "Товары", "Свойства.yaml")
