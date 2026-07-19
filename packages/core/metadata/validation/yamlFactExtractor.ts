@@ -7,7 +7,7 @@ import { CollectableElementTypeFromYAML, type ElementType } from "../forms/eleme
 import { ClientApplicationFormRules } from "../forms/clientApplicationForm/rules"
 import type { DataPathPropertyRule, PropertyRule } from "../orchestration/property/types"
 import { getElementRule } from "../orchestration/formElement/ruleFactory"
-import { CommonAttributeUseFromYAML, PictureLibFromYAML } from "../systemEnumerations/types"
+import { CommonAttributeUseFromYAML, PictureLibFromYAML, type CommonAttributeUseYAML } from "../systemEnumerations/types"
 import type { ParsedYaml } from "../../yaml/parseMetadataYaml"
 import { typeDescriptionToDataPathTypeInfo } from "./dataPath/typeDescription"
 import type { FormDataPathIndex } from "./dataPath/formIndex"
@@ -407,7 +407,9 @@ function commonAttributeContentFromYaml(value: unknown): Array<{ metadata: strin
     const record = asRecord(item)
     if (record === undefined || typeof record["Объект"] !== "string") return []
     const use =
-      typeof record["Использование"] === "string" ? CommonAttributeUseFromYAML[record["Использование"]] : undefined
+      typeof record["Использование"] === "string" && isCommonAttributeUseYAML(record["Использование"])
+        ? CommonAttributeUseFromYAML[record["Использование"]]
+        : undefined
     return [
       {
         metadata: metadataLinkFromYaml(record["Объект"]),
@@ -550,10 +552,12 @@ function collectPictureTargetValues(params: {
 
 function pendingPictureReferenceFromYamlValue(params: {
   filePath: string
+  parsed: ParsedYaml
   owner: MetadataTargetOwner | undefined
   value: string
   constraint: PendingMetadataTargetReference["constraint"]
   yamlPath: readonly (string | number)[]
+  diagnostics: Diagnostic[]
 }): PendingMetadataTargetReference | undefined {
   if (params.value in PictureLibFromYAML) return undefined
   if (!params.value.startsWith("ОбщаяКартинка.")) return undefined
@@ -890,4 +894,8 @@ function asRecord(value: unknown): Record<string, unknown> | undefined {
   return typeof value === "object" && value !== null && !Array.isArray(value)
     ? (value as Record<string, unknown>)
     : undefined
+}
+
+function isCommonAttributeUseYAML(value: string): value is CommonAttributeUseYAML {
+  return Object.prototype.hasOwnProperty.call(CommonAttributeUseFromYAML, value)
 }

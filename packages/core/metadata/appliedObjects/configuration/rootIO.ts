@@ -99,8 +99,8 @@ export const readConfigurationFromYAML = (params: {
   source?: MetadataConfiguration
   preparedYamlFile?: PreparedYamlFile
 }): MetadataConfiguration | undefined => {
-  const yamlObject =
-    params.preparedYamlFile?.data ??
+  const yamlObject: MetadataConfigurationYAML | undefined =
+    (params.preparedYamlFile?.data as MetadataConfigurationYAML | undefined) ??
     importFromYAML<MetadataConfigurationYAML>(fs.readFileSync(join(params.inputDir, CONFIGURATION_YAML_FILE), "utf-8"))
 
   return importMetadataItemFromYAML({

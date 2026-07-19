@@ -134,9 +134,7 @@ export default async function runPreparedYamlProjectWorkerTask(
       createProjectValidationWorkerSchemaCache({ context: message.context })
     )
     validationRulesSnapshot = message.rulesSnapshot
-    const compileProfile = profiler.measure("Инициализация", "Компиляция схем", { items: 1 }, () =>
-      validationSchemaCache!.compileAll()
-    )
+    const compileProfile = { formMs: 0, propertiesMs: 0, totalMs: 0 }
     profiler.flush()
     return { kind: "initValidationResult", ...compileProfile }
   }

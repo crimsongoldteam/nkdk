@@ -2,13 +2,30 @@ import { mkdirSync, mkdtempSync, rmSync, writeFileSync } from "fs"
 import { tmpdir } from "os"
 import { join, resolve } from "path"
 import { afterEach, describe, expect, it, vi } from "vitest"
-import type { Diagnostic } from "@nkdk/core"
+import { ProjectFileSchemaError, validateProject, type Diagnostic } from "@nkdk/core"
 import { formatDiagnostics, validateYamlProject } from "./validate"
+
+const coreMockState = vi.hoisted(() => ({
+  actualValidateProject: undefined as undefined | typeof validateProject,
+}))
+
+vi.mock("@nkdk/core", async (importOriginal) => {
+  const actual = await importOriginal<typeof import("@nkdk/core")>()
+  coreMockState.actualValidateProject = actual.validateProject
+
+  return {
+    ...actual,
+    validateProject: vi.fn((params: Parameters<typeof actual.validateProject>[0]) => actual.validateProject(params)),
+  }
+})
 
 describe("validate command", () => {
   const tempDirs: string[] = []
 
   afterEach(() => {
+    if (coreMockState.actualValidateProject !== undefined) {
+      vi.mocked(validateProject).mockImplementation(coreMockState.actualValidateProject)
+    }
     vi.restoreAllMocks()
     process.exitCode = undefined
     for (const dir of tempDirs.splice(0)) {
@@ -18,13 +35,26 @@ describe("validate command", () => {
 
   it("prints errors without warnings with a summary to stdout", async () => {
     const projectDir = createProject()
-    writeProjectFile(projectDir, "Справочник/Товары/Свойства.yaml", ['НесуществующееПоле: "лишнее"'])
-    writeProjectFile(projectDir, "Справочник/Товары/Формы/ФормаЭлемента/Форма.yaml", [
-      "Элементы:",
-      "  Кнопка:",
-      "    Вид: Кнопка",
-      "    Данные: Items.Таблица.CurrentData.Номенклатура",
-    ])
+    vi.mocked(validateProject).mockResolvedValue({
+      diagnostics: [
+        {
+          filePath: join(projectDir, "Справочник", "Товары", "Свойства.yaml"),
+          line: 1,
+          col: 1,
+          severity: "error",
+          source: "structure",
+          message: "лишнее поле",
+        },
+        {
+          filePath: join(projectDir, "Справочник", "Товары", "Формы", "ФормаЭлемента", "Форма.yaml"),
+          line: 1,
+          col: 1,
+          severity: "warning",
+          source: "reference",
+          message: "скрытое предупреждение",
+        },
+      ],
+    })
     const stdout = captureStdout()
     const stderr = captureStderr()
 
@@ -36,17 +66,22 @@ describe("validate command", () => {
     expect(text).toContain("summary: 1 error, 0 warning")
     expect(stderr).not.toHaveBeenCalled()
     expect(process.exitCode).toBe(1)
-  }, 60_000)
+  })
 
   it("prints a clean summary for warnings only", async () => {
     const projectDir = createProject()
-    writeProjectFile(projectDir, "Справочник/Товары/Свойства.yaml", "Комментарий: владелец\n")
-    writeProjectFile(projectDir, "Справочник/Товары/Формы/ФормаЭлемента/Форма.yaml", [
-      "Элементы:",
-      "  Кнопка:",
-      "    Вид: Кнопка",
-      "    Данные: Items.Таблица.CurrentData.Номенклатура",
-    ])
+    vi.mocked(validateProject).mockResolvedValue({
+      diagnostics: [
+        {
+          filePath: join(projectDir, "Справочник", "Товары", "Свойства.yaml"),
+          line: 1,
+          col: 1,
+          severity: "warning",
+          source: "reference",
+          message: "скрытое предупреждение",
+        },
+      ],
+    })
     const stdout = captureStdout()
 
     await validateYamlProject(projectDir)
@@ -55,35 +90,58 @@ describe("validate command", () => {
     expect(text).not.toContain("warning:")
     expect(text).toBe("summary: 0 error, 0 warning\n")
     expect(process.exitCode).toBeUndefined()
-  }, 60_000)
+  })
 
   it("validates a single properties file from --file", async () => {
     const projectDir = createProject()
-    writeProjectFile(projectDir, "Справочник/Товары/Свойства.yaml", ['НесуществующееПоле: "лишнее"'])
-    writeProjectFile(projectDir, "Справочник/Товары/Формы/ФормаЭлемента/Форма.yaml", [
-      "Элементы:",
-      "  Поле:",
-      "    Вид: ПолеВвода",
-      "    ПутьКДанным: Неизвестный",
-    ])
+    vi.mocked(validateProject).mockResolvedValue({
+      diagnostics: [
+        {
+          filePath: join(projectDir, "Справочник", "Товары", "Свойства.yaml"),
+          line: 1,
+          col: 1,
+          severity: "error",
+          source: "structure",
+          message: "лишнее поле",
+        },
+      ],
+    })
     const stdout = captureStdout()
 
     await validateYamlProject(projectDir, { file: "Справочник/Товары/Свойства.yaml" })
 
     const text = writtenText(stdout)
+    expect(validateProject).toHaveBeenCalledWith({
+      projectDir,
+      filePath: "Справочник/Товары/Свойства.yaml",
+    })
     expect(text).toContain("Справочник/Товары/Свойства.yaml")
     expect(text).not.toContain("Форма.yaml")
   })
 
   it("validates a single root configuration file from --file", async () => {
     const projectDir = createProject()
-    writeProjectFile(projectDir, "Конфигурация.yaml", ["Имя: Конфигурация", "ОсновнойЯзык: НеСуществует"])
-    writeProjectFile(projectDir, "Справочник/Товары/Свойства.yaml", ['НесуществующееПоле: "лишнее"'])
+    vi.mocked(validateProject).mockResolvedValue({
+      diagnostics: [
+        {
+          filePath: join(projectDir, "Язык", "НеСуществует", "Свойства.yaml"),
+          line: 1,
+          col: 1,
+          severity: "error",
+          source: "reference",
+          message: 'Не найден объект "Язык.НеСуществует"',
+        },
+      ],
+    })
     const stdout = captureStdout()
 
     await validateYamlProject(projectDir, { file: "Конфигурация.yaml" })
 
     const text = writtenText(stdout)
+    expect(validateProject).toHaveBeenCalledWith({
+      projectDir,
+      filePath: "Конфигурация.yaml",
+    })
     expect(text).toContain("Язык/НеСуществует/Свойства.yaml")
     expect(text).toContain('Не найден объект "Язык.НеСуществует"')
     expect(text).not.toContain("Справочник/Товары/Свойства.yaml")
@@ -150,8 +208,13 @@ describe("validate command", () => {
 
     process.exitCode = undefined
     stderr.mockClear()
+    vi.mocked(validateProject).mockRejectedValue(new ProjectFileSchemaError("Ожидались Конфигурация.yaml"))
     await validateYamlProject(projectDir, { file: "Справочник/Товары/Команды/Команда.yaml" })
     expect(process.exitCode).toBe(2)
+    expect(validateProject).toHaveBeenCalledWith({
+      projectDir,
+      filePath: "Справочник/Товары/Команды/Команда.yaml",
+    })
     expect(writtenText(stderr)).toContain("Ожидались Конфигурация.yaml")
   })
 

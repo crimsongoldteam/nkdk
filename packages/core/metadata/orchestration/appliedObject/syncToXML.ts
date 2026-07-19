@@ -112,7 +112,7 @@ const syncAppliedObjectToXMLInternal = async (params: InternalSyncAppliedObjectT
       ? undefined
       : filterFilePathReferenceValuesForYAMLImport({
           rule,
-          yaml: yamlObj,
+          yaml: asRecord(yamlObj),
           filePathReferenceValues,
         })
   const contextWithProjectDir: ConfigurationContextWithExportToXML = {
@@ -825,6 +825,10 @@ function filterFilePathReferenceValuesForYAMLImport(params: {
   }
 
   return result
+}
+
+function asRecord(value: unknown): Record<string, unknown> | undefined {
+  return typeof value === "object" && value !== null && !Array.isArray(value) ? (value as Record<string, unknown>) : undefined
 }
 
 function readFilePathReferenceValues(params: {

@@ -64,8 +64,6 @@ describe("validateProjectFileFirstPass references", () => {
       context: mockContext,
       schemaCache: sharedSchemaCache,
       rulesSnapshot: createValidationRulesSnapshot(mockContext),
-      rulesSnapshot: createValidationRulesSnapshot(mockContext),
-      rulesSnapshot: createValidationRulesSnapshot(mockContext),
     })
 
     expect(first.diagnostics).toEqual(
@@ -95,9 +93,6 @@ describe("validateProjectFileFirstPass references", () => {
       cache: createProjectYamlCache(),
       context: mockContext,
       schemaCache: sharedSchemaCache,
-      rulesSnapshot: createValidationRulesSnapshot(mockContext),
-      rulesSnapshot: createValidationRulesSnapshot(mockContext),
-      rulesSnapshot: createValidationRulesSnapshot(mockContext),
       rulesSnapshot: createValidationRulesSnapshot(mockContext),
     })
 
@@ -136,7 +131,6 @@ describe("validateProjectFileFirstPass references", () => {
       cache: createProjectYamlCache(),
       context: mockContext,
       schemaCache: sharedSchemaCache,
-      rulesSnapshot: createValidationRulesSnapshot(mockContext),
       rulesSnapshot: createValidationRulesSnapshot(mockContext),
     })
 
@@ -210,7 +204,10 @@ describe("validateProjectFileFirstPass references", () => {
       rulesSnapshot: createValidationRulesSnapshot(mockContext),
     })
 
-    expect(first.objectRecords[0]?.ownerFacts.commonAttributeOwnerLinks).toEqual(["Catalog.НематериальныеАктивы"])
+    const objectRecord = first.objectRecords[0]
+    if (objectRecord === undefined) throw new Error("object record was not collected")
+    if (objectRecord.ownerFacts === undefined) throw new Error("owner facts were not collected")
+    expect(objectRecord.ownerFacts.commonAttributeOwnerLinks).toEqual(["Catalog.НематериальныеАктивы"])
   })
 
   it("collects pending metadata target references during first pass", () => {

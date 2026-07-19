@@ -54,7 +54,7 @@ function toValidationProjectFile(resource: MetadataProjectResourceRef): Validati
     }
   }
 
-  if (resource.role === "form") {
+  if (resource.kind === "yaml" && resource.role === "form") {
     return {
       absolutePath: resource.absolutePath,
       projectPath: resource.projectPath,

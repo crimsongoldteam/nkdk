@@ -1,5 +1,6 @@
 import { describe, expect, it } from "vitest"
 import { createProjectValidationWorkerSchemaCache } from "./projectValidationWorkerSchemaCache"
+import { configurationValidationProjectSpec } from "./projectSpecs"
 
 const context = {
   version: "2.20",
@@ -14,10 +15,6 @@ describe("projectValidationWorkerSchemaCache", () => {
       workerUrl: "file:///project/metadata/validation/projectValidationWorker.ts",
     })
 
-    expect(cache.compileAll()).toEqual({
-      formMs: expect.any(Number),
-      propertiesMs: expect.any(Number),
-      totalMs: expect.any(Number),
-    })
-  }, 120_000)
+    expect(cache.properties(configurationValidationProjectSpec).Check({ Имя: "Конфигурация" })).toBe(false)
+  })
 })

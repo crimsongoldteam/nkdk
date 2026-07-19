@@ -4,7 +4,9 @@ import { loadCoreApi, type MetadataProjectDirectoryStructure } from "../coreApi"
 import { errorMessage, toolError, toolSuccess, type ToolPayload } from "../contracts/common"
 import type { DescribeProjectStructureInput } from "../contracts/describeProjectStructure"
 
-export type DescribeProjectStructurePayload = ToolPayload<MetadataProjectDirectoryStructure>
+type DescribeProjectStructureSuccess = MetadataProjectDirectoryStructure & Record<string, unknown>
+
+export type DescribeProjectStructurePayload = ToolPayload<DescribeProjectStructureSuccess>
 
 const invalidArgumentMessages = new Set([
   "Каталог находится вне указанного YAML-проекта",
@@ -27,13 +29,12 @@ export async function describeProjectStructure(
 
   try {
     const core = await loadCoreApi()
-    return toolSuccess(
-      core.describeMetadataProjectDirectoryStructure({
+    const structure = core.describeMetadataProjectDirectoryStructure({
         projectDir,
         ...(input.directoryPath !== undefined ? { directoryPath: input.directoryPath } : {}),
         ...(input.depth !== undefined ? { depth: input.depth } : {}),
-      }),
-    )
+      })
+    return toolSuccess({ ...structure } as DescribeProjectStructureSuccess)
   } catch (caught) {
     if (caught instanceof Error && invalidArgumentMessages.has(caught.message)) {
       return toolError("invalid_arguments", caught.message)
