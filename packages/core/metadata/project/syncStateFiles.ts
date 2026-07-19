@@ -44,7 +44,7 @@ async function collectProjectFiles(
 
 function shouldSkipProjectEntry(relativeDir: string, name: string): boolean {
   if (name === ".DS_Store") return true
-  if (relativeDir === "" && (name === ".git" || name === ".nkdk-sync.yaml")) return true
+  if (relativeDir === "" && (name === ".git" || name === ".nkdk" || name === ".nkdk-sync.yaml")) return true
   if (relativeDir === "" && name === "Миграции") return true
   return false
 }

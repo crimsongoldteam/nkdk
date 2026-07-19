@@ -1,13 +1,14 @@
-import { mkdirSync, mkdtempSync, readFileSync, rmSync, writeFileSync } from "fs"
+import { mkdirSync, mkdtempSync, promises as fsPromises, readFileSync, rmSync, writeFileSync } from "fs"
 import { tmpdir } from "os"
 import { dirname, join } from "path"
-import { afterEach, describe, expect, it } from "vitest"
+import { afterEach, describe, expect, it, vi } from "vitest"
 import { collectSyncStateFilePaths } from "./syncStateFiles"
 
 describe("collectSyncStateFilePaths", () => {
   const dirs: string[] = []
 
   afterEach(() => {
+    vi.restoreAllMocks()
     for (const dir of dirs.splice(0)) rmSync(dir, { recursive: true, force: true })
   })
 
@@ -112,6 +113,17 @@ describe("collectSyncStateFilePaths", () => {
       "Справочник/Товары/Команды/Печать.bsl",
       "Справочник/Товары/Свойства.yaml",
     ])
+  })
+
+  it("does not descend into the .nkdk tree", async () => {
+    const projectDir = tempDir()
+
+    writeProjectFile(projectDir, "Конфигурация.yaml", "Имя: Тест\n")
+    writeProjectFile(projectDir, ".nkdk/tmp/Конфигурация.yaml", "Имя: Временная\n")
+    const readdir = vi.spyOn(fsPromises, "readdir")
+
+    await expect(collectSyncStateFilePaths(projectDir)).resolves.toEqual(["Конфигурация.yaml"])
+    expect(readdir.mock.calls.some(([path]) => path === join(projectDir, ".nkdk"))).toBe(false)
   })
 
   it("does not hard-code child form/template or ws schema property types", () => {
