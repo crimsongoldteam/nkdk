@@ -1,9 +1,12 @@
+import { existsSync, mkdirSync, mkdtempSync, readFileSync, rmSync, writeFileSync } from "node:fs"
+import { tmpdir } from "node:os"
 import { join } from "node:path"
 import { afterEach, beforeEach, describe, expect, it } from "vitest"
 import { transferableSymbol, valueSymbol } from "piscina"
 import { mockContextFromXML } from "../../tests/mockContext"
 import { decodeConfigurationIndexFragments } from "../configurationIndex/fragment"
 import type { ImportFirstPassResult } from "./types"
+import { createImportSharedMetadata } from "./metadataSnapshot"
 import {
   createFirstPassTransferable,
   resetImportWorkerStateForTests,
@@ -13,6 +16,13 @@ import {
 import type { ImportAssignment } from "./types"
 
 const syncXmlDir = join(import.meta.dirname, "../appliedObjects/configuration/__fixtures__/syncConfiguration/xml")
+const catalogFullXmlPath = join(import.meta.dirname, "../appliedObjects/metadataCatalog/__fixtures__/full.xml")
+const minimalFormXmlPath = join(import.meta.dirname, "../forms/clientApplicationForm/__fixtures__/minimal.xml")
+const minimalFormMetadataXmlPath = join(
+  import.meta.dirname,
+  "../forms/clientApplicationForm/__fixtures__/minimalMetadata.xml"
+)
+const tempDirs: string[] = []
 
 beforeEach(async () => {
   resetImportWorkerStateForTests()
@@ -27,6 +37,7 @@ beforeEach(async () => {
 
 afterEach(() => {
   resetImportWorkerStateForTests()
+  for (const dir of tempDirs.splice(0)) rmSync(dir, { recursive: true, force: true })
 })
 
 describe("XML import worker first pass", () => {
@@ -123,6 +134,96 @@ describe("XML import worker first pass", () => {
   })
 })
 
+describe("XML import worker second pass", () => {
+  it("writes a cross-object DataPath through the shared snapshot without reading a YAML project", async () => {
+    const tempDir = createTempDir("worker")
+    const projectDir = createTempDir("empty-project")
+    const assignments = createCatalogAndFormAssignments("Объект.Товары.LineNumber")
+    await initializeWorker(tempDir)
+    const first = expectFirstPass(
+      await runImportWorkerCommand({ kind: "firstPass", assignments: [assignments.catalog, assignments.form] })
+    )
+
+    const second = await runImportWorkerCommand({
+      kind: "secondPass",
+      sharedMetadata: createImportSharedMetadata(first.ownerFacts),
+    })
+
+    expect(second).toMatchObject({ kind: "secondPassResult", diagnostics: [], warnings: [] })
+    if (second?.kind !== "secondPassResult") throw new Error("Ожидался secondPassResult")
+    const formFile = second.files.find((file) => file.targetProjectPath === assignments.form.targetProjectPath)
+    expect(formFile).toMatchObject({ sourceKind: "worker" })
+    if (formFile === undefined) throw new Error("Ожидался файл формы")
+    expect(readFileSync(formFile.sourcePath, "utf-8")).toContain("ПутьКДанным: Объект.Товары.НомерСтроки")
+    expect(existsSync(join(projectDir, "Справочник", "Товары", "Свойства.yaml"))).toBe(false)
+    expect(workerStateForTests().preparedIds).toEqual([])
+  })
+
+  it("preserves an unresolved DataPath, returns one warning and releases the model", async () => {
+    const tempDir = createTempDir("worker")
+    const assignments = createCatalogAndFormAssignments("Объект.НеизвестныйПереход.LineNumber")
+    await initializeWorker(tempDir)
+    const first = expectFirstPass(
+      await runImportWorkerCommand({ kind: "firstPass", assignments: [assignments.catalog, assignments.form] })
+    )
+
+    const second = await runImportWorkerCommand({
+      kind: "secondPass",
+      sharedMetadata: createImportSharedMetadata(first.ownerFacts),
+    })
+
+    expect(second).toMatchObject({
+      kind: "secondPassResult",
+      diagnostics: [],
+      warnings: [
+        {
+          severity: "warning",
+          code: "unresolved_data_path",
+          targetProjectPath: assignments.form.targetProjectPath,
+          value: "Объект.НеизвестныйПереход.LineNumber",
+        },
+      ],
+    })
+    if (second?.kind !== "secondPassResult") throw new Error("Ожидался secondPassResult")
+    const formFile = second.files.find((file) => file.targetProjectPath === assignments.form.targetProjectPath)
+    if (formFile === undefined) throw new Error("Ожидался файл формы")
+    expect(readFileSync(formFile.sourcePath, "utf-8")).toContain("ПутьКДанным: Объект.НеизвестныйПереход.LineNumber")
+    expect(workerStateForTests().preparedIds).toEqual([])
+  })
+
+  it("continues after a YAML write error and releases every prepared model", async () => {
+    const tempDir = createTempDir("worker")
+    const assignments = createCatalogAndFormAssignments("Объект.Товары.LineNumber")
+    await initializeWorker(tempDir)
+    const first = expectFirstPass(
+      await runImportWorkerCommand({ kind: "firstPass", assignments: [assignments.catalog, assignments.form] })
+    )
+    const blockedCatalogPath = join(tempDir, assignments.catalog.targetProjectPath)
+    mkdirSync(blockedCatalogPath, { recursive: true })
+
+    const second = await runImportWorkerCommand({
+      kind: "secondPass",
+      sharedMetadata: createImportSharedMetadata(first.ownerFacts),
+    })
+
+    expect(second).toMatchObject({
+      kind: "secondPassResult",
+      diagnostics: [
+        {
+          severity: "error",
+          code: "xml_import_yaml_failed",
+          targetProjectPath: assignments.catalog.targetProjectPath,
+        },
+      ],
+    })
+    if (second?.kind !== "secondPassResult") throw new Error("Ожидался secondPassResult")
+    expect(second.files).toContainEqual(
+      expect.objectContaining({ sourceKind: "worker", targetProjectPath: assignments.form.targetProjectPath })
+    )
+    expect(workerStateForTests().preparedIds).toEqual([])
+  })
+})
+
 function catalogAssignment(overrides: Partial<ImportAssignment> = {}): ImportAssignment {
   return {
     id: "catalog",
@@ -141,4 +242,83 @@ function catalogAssignment(overrides: Partial<ImportAssignment> = {}): ImportAss
 function expectFirstPass(result: Awaited<ReturnType<typeof runImportWorkerCommand>>): ImportFirstPassResult {
   if (result?.kind !== "firstPassResult") throw new Error("Ожидался firstPassResult")
   return result
+}
+
+async function initializeWorker(tempDir: string): Promise<void> {
+  await runImportWorkerCommand({
+    kind: "initialize",
+    operationId: "second-pass-test",
+    workerIndex: 0,
+    context: mockContextFromXML(),
+    tempDir,
+  })
+}
+
+function createCatalogAndFormAssignments(dataPath: string): { catalog: ImportAssignment; form: ImportAssignment } {
+  const sourceDir = createTempDir("sources")
+  const catalogXmlPath = join(sourceDir, "Товары.xml")
+  const formMetadataPath = join(sourceDir, "Форма.xml")
+  const formBodyPath = join(sourceDir, "Form.xml")
+  writeFileSync(
+    catalogXmlPath,
+    readFileSync(catalogFullXmlPath, "utf-8")
+      .replaceAll("СправочникПолный", "Товары")
+      .replaceAll("ТабличнаяЧасть", "Товары"),
+    "utf-8"
+  )
+  writeFileSync(formMetadataPath, readFileSync(minimalFormMetadataXmlPath, "utf-8"), "utf-8")
+  writeFileSync(
+    formBodyPath,
+    readFileSync(minimalFormXmlPath, "utf-8")
+      .replace(
+        '<AutoCommandBar name="ФормаКоманднаяПанель" id="-1"/>',
+        `<AutoCommandBar name="ФормаКоманднаяПанель" id="-1"/>
+\t<ChildItems>
+\t\t<LabelField name="Путь" id="2">
+\t\t\t<DataPath>${dataPath}</DataPath>
+\t\t\t<ContextMenu name="ПутьКонтекстноеМеню" id="3"/>
+\t\t\t<ExtendedTooltip name="ПутьРасширеннаяПодсказка" id="4"/>
+\t\t</LabelField>
+\t</ChildItems>`
+      )
+      .replace(
+        "<Attributes/>",
+        `<Attributes>
+\t\t<Attribute name="Объект" id="1">
+\t\t\t<Type><v8:Type>cfg:CatalogObject.Товары</v8:Type></Type>
+\t\t\t<MainAttribute>true</MainAttribute>
+\t\t</Attribute>
+\t</Attributes>`
+      ),
+    "utf-8"
+  )
+
+  const catalog = catalogAssignment({
+    id: "catalog-products",
+    itemName: "Товары",
+    targetProjectPath: "Справочник/Товары/Свойства.yaml",
+    logicalAddress: "Справочник.Товары",
+    xmlFiles: [{ role: "metadata", sourcePath: catalogXmlPath }],
+  })
+  const form: ImportAssignment = {
+    id: "catalog-products-form",
+    role: "fileItem",
+    targetProjectPath: "Справочник/Товары/Формы/ФормаЭлемента/Форма.yaml",
+    itemType: "ClientApplicationForm",
+    itemName: "ФормаЭлемента",
+    logicalAddress: "Справочник.Товары.Форма.ФормаЭлемента",
+    owner: { itemType: "MetadataCatalog", name: "Товары", logicalAddress: "Справочник.Товары" },
+    xmlFiles: [
+      { role: "metadata", sourcePath: formMetadataPath },
+      { role: "body", sourcePath: formBodyPath },
+    ],
+    externalFiles: [],
+  }
+  return { catalog, form }
+}
+
+function createTempDir(name: string): string {
+  const dir = mkdtempSync(join(tmpdir(), `nkdk-import-${name}-`))
+  tempDirs.push(dir)
+  return dir
 }

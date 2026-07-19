@@ -4,12 +4,26 @@ import type { OwnerMetadataCache } from "./ownerCache"
 
 export type DataPathFormatDirection = "internal-to-yaml" | "yaml-to-internal"
 
+export interface DataPathFormatDiagnostic {
+  severity: "warning"
+  code: "unresolved_data_path"
+  targetProjectPath: string
+  value: string
+  message: string
+}
+
+export interface DataPathFormatDiagnosticSink {
+  readonly targetProjectPath: string
+  append(diagnostic: DataPathFormatDiagnostic): void
+}
+
 export interface FormatDataPathStandardMembersParams {
   value: string
   direction: DataPathFormatDirection
   index: FormDataPathIndex
   ownerCache: OwnerMetadataCache
   tableContext?: TableContext
+  diagnosticSink?: DataPathFormatDiagnosticSink
 }
 
 export function formatDataPathStandardMembers(params: FormatDataPathStandardMembersParams): string {
@@ -22,7 +36,17 @@ export function formatDataPathStandardMembers(params: FormatDataPathStandardMemb
     ...(params.tableContext !== undefined ? { tableContext: params.tableContext } : {}),
   })
 
-  if (result.status === "error" || result.replacements.length === 0) return params.value
+  if (result.status === "error") {
+    params.diagnosticSink?.append({
+      severity: "warning",
+      code: "unresolved_data_path",
+      targetProjectPath: params.diagnosticSink.targetProjectPath,
+      value: params.value,
+      message: `Не удалось преобразовать ПутьКДанным: ${params.value}`,
+    })
+    return params.value
+  }
+  if (result.replacements.length === 0) return params.value
 
   const segments = value.split(".")
   for (const replacement of result.replacements) {

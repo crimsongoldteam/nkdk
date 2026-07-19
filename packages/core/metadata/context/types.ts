@@ -9,6 +9,8 @@ import type { MetadataTargetOwner } from "../commonObjects/metadataTargets/types
 import type { PropertyRuleType } from "../orchestration/property/registry"
 import type { YAMLImportDiagnosticContext } from "../orchestration/yamlImportError"
 import type { ConfigurationIndexCollectionContext } from "../configurationIndex/collector/context"
+import type { DataPathFormatDiagnosticSink } from "../validation/dataPath/formatter"
+import type { OwnerMetadataCache } from "../validation/dataPath/ownerCache"
 
 export type ContextElementToXML = {
   name: string
@@ -104,6 +106,10 @@ export interface FormExportToYAMLContext {
   toTyped: boolean
   /** Путь к корню YAML-проекта для чтения владельцев DataPath. */
   projectDir?: string
+  /** Готовый неизменяемый индекс владельцев DataPath, не требующий чтения YAML-проекта. */
+  readonly ownerMetadataCache?: OwnerMetadataCache
+  /** Приёмник предупреждений о путях к данным, которые нельзя преобразовать. */
+  readonly dataPathDiagnosticSink?: DataPathFormatDiagnosticSink
   /** Имя родительского объекта (например, имя реквизита формы) для externalFile. */
   parent?: { name: string }
   /** Сборник внешних файлов, формируемых при экспорте. */

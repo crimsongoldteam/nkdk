@@ -1,10 +1,7 @@
 import type { ConfigurationContext, FormDataPathAttributeContext } from "../../context/types"
 import { parseMetadataYaml } from "../../../yaml/parseMetadataYaml"
 import { buildFormDataPathIndex } from "../../validation/dataPath/formIndex"
-import {
-  formatDataPathStandardMembers,
-  type DataPathFormatDirection,
-} from "../../validation/dataPath/formatter"
+import { formatDataPathStandardMembers, type DataPathFormatDirection } from "../../validation/dataPath/formatter"
 import { createOwnerMetadataCache } from "../../validation/dataPath/ownerCache"
 import { createProjectYamlCache } from "../../validation/projectYamlCache"
 
@@ -34,16 +31,26 @@ function formatWithResolver(params: {
   direction: DataPathFormatDirection
 }): string {
   const formAttributes = currentFormAttributes(params.context)
+  const suppliedOwnerCache = params.context.exportToYAML?.ownerMetadataCache
   const projectDir = params.context.importFromYAML?.projectDir ?? params.context.exportToYAML?.projectDir
-  if (formAttributes.length === 0 || projectDir === undefined) return params.value
+  if (formAttributes.length === 0) return params.value
 
-  const resources = getFormattingResources({ context: params.context, formAttributes, projectDir })
+  const resources =
+    suppliedOwnerCache !== undefined
+      ? { index: formattingIndex(formAttributes), ownerCache: suppliedOwnerCache }
+      : projectDir !== undefined
+        ? getFormattingResources({ context: params.context, formAttributes, projectDir })
+        : undefined
+  if (resources === undefined) return params.value
 
   return formatDataPathStandardMembers({
     value: params.value,
     direction: params.direction,
     index: resources.index,
     ownerCache: resources.ownerCache,
+    ...(params.context.exportToYAML?.dataPathDiagnosticSink === undefined
+      ? {}
+      : { diagnosticSink: params.context.exportToYAML.dataPathDiagnosticSink }),
   })
 }
 
@@ -66,11 +73,7 @@ function getFormattingResources(params: {
   if (cached !== undefined) return cached
 
   const resources: DataPathFormattingResources = {
-    index: buildFormDataPathIndex({
-      filePath: "",
-      parsed: parseMetadataYaml(""),
-      form: { itemType: "ClientApplicationForm", attributes: params.formAttributes },
-    }),
+    index: formattingIndex(params.formAttributes),
     ownerCache: createOwnerMetadataCache({
       projectDir: params.projectDir,
       yamlCache: createProjectYamlCache(),
@@ -79,4 +82,24 @@ function getFormattingResources(params: {
   }
   byProjectDir.set(params.projectDir, resources)
   return resources
+}
+
+const formattingIndices = new WeakMap<
+  readonly FormDataPathAttributeContext[],
+  ReturnType<typeof buildFormDataPathIndex>
+>()
+
+function formattingIndex(
+  formAttributes: readonly FormDataPathAttributeContext[]
+): ReturnType<typeof buildFormDataPathIndex> {
+  const cached = formattingIndices.get(formAttributes)
+  if (cached !== undefined) return cached
+
+  const index = buildFormDataPathIndex({
+    filePath: "",
+    parsed: parseMetadataYaml(""),
+    form: { itemType: "ClientApplicationForm", attributes: formAttributes },
+  })
+  formattingIndices.set(formAttributes, index)
+  return index
 }

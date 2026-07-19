@@ -1,15 +1,26 @@
+import fs from "node:fs"
+import { dirname, join, posix } from "node:path"
 import { move, transferableSymbol, valueSymbol } from "piscina"
+import { exportToYAML } from "../../yaml/export"
 import { encodeConfigurationIndexFragments } from "../configurationIndex/fragment"
 import { createConfigurationIndexCollector } from "../configurationIndex/collector/writer"
-import type { ConfigurationContextFromXML } from "../context/types"
+import type { ConfigurationContext, ConfigurationContextFromXML, ExternalFileEntry } from "../context/types"
 import type { ConfigurationIndexFragment } from "../configurationIndex/types"
+import { exportClientApplicationFormToYAML } from "../forms/clientApplicationForm/toYAML"
+import type { ClientApplicationForm } from "../forms/clientApplicationForm/types"
+import { exportMetadataItemToYAML } from "../orchestration"
+import { createOwnerMetadataCacheFromSharedValidationSnapshot } from "../validation/dataPath/sharedOwnerCache"
+import type { OwnerMetadataCache } from "../validation/dataPath/ownerCache"
 import type { ValidationOwnerFacts } from "../validation/dataPath/ownerFacts"
+import type { SharedValidationSnapshot } from "../validation/sharedValidationSnapshot"
 import { extractImportOwnerFacts } from "./ownerFacts"
 import { ImportXmlInputError, prepareImportModel, type PreparedImportModel } from "./prepareModel"
 import type {
   ImportAssignment,
   ImportDiagnostic,
   ImportFirstPassResult,
+  ImportResultFile,
+  ImportSecondPassResult,
   ImportWorkerCommand,
   ImportWorkerCommandResult,
 } from "./types"
@@ -42,11 +53,124 @@ export async function runImportWorkerCommand(command: ImportWorkerCommand): Prom
   }
 
   if (command.kind === "secondPass") {
-    requireInitializedState()
-    throw new Error("Второй проход XML-import будет реализован в Task 5")
+    return runSecondPass(command.sharedMetadata, requireInitializedState())
   }
 
   return runFirstPass(command.assignments, requireInitializedState())
+}
+
+async function runSecondPass(
+  sharedMetadata: SharedValidationSnapshot,
+  state: InitializedImportWorkerState
+): Promise<ImportSecondPassResult> {
+  const diagnostics: ImportDiagnostic[] = []
+  const warnings: ImportDiagnostic[] = []
+  const files: ImportResultFile[] = []
+  const ownerMetadataCache = createOwnerMetadataCacheFromSharedValidationSnapshot({
+    projectDir: state.tempDir,
+    snapshot: sharedMetadata,
+  })
+
+  for (const [id, prepared] of preparedModels) {
+    try {
+      files.push(...(await writePreparedYamlToTemp(prepared, ownerMetadataCache, state, warnings)))
+      files.push(
+        ...prepared.assignment.externalFiles.map((file) => ({
+          sourceKind: "xml" as const,
+          sourcePath: file.sourcePath,
+          targetProjectPath: file.targetProjectPath,
+        }))
+      )
+    } catch (caught) {
+      diagnostics.push(importAssignmentDiagnostic(prepared.assignment, caught, "xml_import_yaml_failed"))
+    } finally {
+      preparedModels.delete(id)
+    }
+  }
+
+  return { kind: "secondPassResult", diagnostics, warnings, files }
+}
+
+async function writePreparedYamlToTemp(
+  prepared: PreparedImportModel,
+  ownerMetadataCache: OwnerMetadataCache,
+  state: InitializedImportWorkerState,
+  warnings: ImportDiagnostic[]
+): Promise<ImportResultFile[]> {
+  const externalFilesCollector: ExternalFileEntry[] = []
+  const context = secondPassExportContext({
+    context: state.context,
+    ownerMetadataCache,
+    targetProjectPath: prepared.targetProjectPath,
+    externalFilesCollector,
+    warnings,
+  })
+  const exported = exportPreparedYaml(prepared, context)
+  const yamlSourcePath = join(state.tempDir, prepared.targetProjectPath)
+  await fs.promises.mkdir(dirname(yamlSourcePath), { recursive: true })
+  await fs.promises.writeFile(yamlSourcePath, exported.yaml, "utf-8")
+
+  const files: ImportResultFile[] = [
+    {
+      sourceKind: "worker",
+      sourcePath: yamlSourcePath,
+      targetProjectPath: prepared.targetProjectPath,
+    },
+  ]
+  for (const externalFile of [...prepared.generatedFiles, ...exported.externalFiles]) {
+    const targetProjectPath = posix.join(posix.dirname(prepared.targetProjectPath), externalFile.relativePath)
+    const sourcePath = join(state.tempDir, targetProjectPath)
+    await fs.promises.mkdir(dirname(sourcePath), { recursive: true })
+    await fs.promises.writeFile(sourcePath, externalFile.content, "utf-8")
+    files.push({ sourceKind: "worker", sourcePath, targetProjectPath })
+  }
+  return files
+}
+
+function exportPreparedYaml(
+  prepared: PreparedImportModel,
+  context: ConfigurationContext
+): { yaml: string; externalFiles: ExternalFileEntry[] } {
+  if (prepared.localDataPathIndex !== undefined) {
+    const result = exportClientApplicationFormToYAML(context, prepared.model as ClientApplicationForm)
+    return { yaml: result.yaml === undefined ? "" : exportToYAML(result.yaml), externalFiles: result.externalFiles }
+  }
+
+  const yaml = exportMetadataItemToYAML({ context, data: prepared.model, rule: prepared.rule })
+  return {
+    yaml: yaml === undefined ? "" : exportToYAML(yaml),
+    externalFiles: context.exportToYAML?.externalFilesCollector ?? [],
+  }
+}
+
+function secondPassExportContext(params: {
+  context: ConfigurationContextFromXML
+  ownerMetadataCache: OwnerMetadataCache
+  targetProjectPath: string
+  externalFilesCollector: ExternalFileEntry[]
+  warnings: ImportDiagnostic[]
+}): ConfigurationContext {
+  const { projectDir: _projectDir, ...baseExportContext } = params.context.exportToYAML ?? { toTyped: false }
+  return {
+    ...params.context,
+    exportToYAML: {
+      ...baseExportContext,
+      ownerMetadataCache: params.ownerMetadataCache,
+      externalFilesCollector: params.externalFilesCollector,
+      dataPathDiagnosticSink: {
+        targetProjectPath: params.targetProjectPath,
+        append(diagnostic) {
+          const duplicate = params.warnings.some(
+            (warning) =>
+              warning.code === diagnostic.code &&
+              warning.targetProjectPath === diagnostic.targetProjectPath &&
+              warning.value === diagnostic.value
+          )
+          if (!duplicate) params.warnings.push(diagnostic)
+        },
+      },
+    },
+  }
 }
 
 export default async function importWorkerEntryPoint(command: ImportWorkerCommand): Promise<ImportWorkerCommandResult> {
@@ -103,14 +227,18 @@ function movableFirstPassResult(result: ImportFirstPassResult): ImportFirstPassR
   return move(createFirstPassTransferable(result)) as unknown as ImportFirstPassResult
 }
 
-function importAssignmentDiagnostic(assignment: ImportAssignment, caught: unknown): ImportDiagnostic {
+function importAssignmentDiagnostic(
+  assignment: ImportAssignment,
+  caught: unknown,
+  code = "xml_import_assignment_failed"
+): ImportDiagnostic {
   const sourcePath =
     caught instanceof ImportXmlInputError
       ? caught.sourcePath
       : (assignment.xmlFiles.find((input) => input.role === "metadata") ?? assignment.xmlFiles[0])?.sourcePath
   return {
     severity: "error",
-    code: "xml_import_assignment_failed",
+    code,
     message: errorMessage(caught),
     targetProjectPath: assignment.targetProjectPath,
     ...(sourcePath === undefined ? {} : { sourcePath }),
