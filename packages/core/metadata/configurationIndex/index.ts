@@ -5,6 +5,11 @@ export {
   type DecodeConfigurationIndexOptions,
 } from "./decode"
 export { encodeConfigurationIndex } from "./encode"
+export {
+  decodeConfigurationIndexFragments,
+  encodeConfigurationIndexFragments,
+  mergeConfigurationIndexFragments,
+} from "./fragment"
 export type {
   ConfigurationIdentity,
   ConfigurationIndexBinding,
