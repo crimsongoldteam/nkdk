@@ -1,26 +1,19 @@
 import { describe, expect, it } from "vitest"
 import { encodeConfigurationIndex } from "./encode"
 import { hashSection } from "./hash"
+import { sampleIndex } from "./testData"
 import type { ConfigurationIndexData } from "./types"
 
+const baseline = sampleIndex()
 const sample: ConfigurationIndexData = {
+  ...baseline,
   binding: {
-    indexGeneration: 1n,
+    ...baseline.binding,
     producerVersion: "0.0.3",
-    baseId: "default",
-    baseFingerprint: new Uint8Array(),
-    configurationVersion: new Uint8Array(),
   },
-  projectFiles: [
-    { projectPath: "Конфигурация.yaml", contentHash: 1n },
-    { projectPath: "A.yaml", contentHash: 2n },
-  ],
+  projectFiles: [...baseline.projectFiles, { projectPath: "A.yaml", contentHash: 2n }],
   identities: [
-    {
-      logicalAddress: "Справочник.Товары",
-      kind: "uuid",
-      value: "00000000-0000-4000-8000-000000000001",
-    },
+    ...baseline.identities,
     {
       logicalAddress: "Документ.Заказ",
       kind: "xmlId",
@@ -28,12 +21,7 @@ const sample: ConfigurationIndexData = {
     },
   ],
   xmlNodes: [
-    {
-      logicalAddress: "Справочник.Товары",
-      order: ["name", "synonym"],
-      aliases: { synonym: "Synonym" },
-      present: ["name"],
-    },
+    ...baseline.xmlNodes,
     {
       logicalAddress: "Документ.Заказ",
       order: ["name"],
@@ -41,11 +29,7 @@ const sample: ConfigurationIndexData = {
     },
   ],
   xmlValues: [
-    {
-      logicalAddress: "Справочник.Товары.synonym",
-      explicitEmpty: true,
-      xmlText: "",
-    },
+    ...baseline.xmlValues,
     {
       logicalAddress: "Документ.Заказ.name",
       xsiNil: true,
