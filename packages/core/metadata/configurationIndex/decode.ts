@@ -46,6 +46,7 @@ interface DecodedStrings {
 }
 
 type SectionType = 1 | 2 | 3 | 4 | 5 | 6 | 7
+type LogicalValidationStage = 7 | 8 | 9
 
 const HEADER_LENGTH = 64
 const DIRECTORY_ENTRY_LENGTH = 64
@@ -66,6 +67,8 @@ export function decodeConfigurationIndex(
     validateSectionChecksums(buffer, directory)
     const stringsEntry = directoryEntry(directory, 2)
     const strings = decodeStrings(sectionBytes(buffer, stringsEntry), stringsEntry.recordCount)
+    validateLogicalSectionRecords(buffer, directory, strings)
+    validateLogicalSectionOrdering(buffer, directory, strings)
     const data = decodeLogicalSections(buffer, directory, strings)
     validateCrossReferences(data, strings)
     validateExpectations(data.binding, options)
@@ -215,40 +218,73 @@ function decodeLogicalSections(
   directory: ConfigurationIndexDirectory,
   strings: DecodedStrings
 ): ConfigurationIndexData {
-  const binding = decodeBinding(sectionFor(buffer, directory, 1), directoryEntry(directory, 1).recordCount, strings)
+  const binding = decodeBinding(sectionFor(buffer, directory, 1), directoryEntry(directory, 1).recordCount, strings, 9)
+  if (binding === undefined) throw new Error("BINDING не разобран")
   const projectFiles = decodeProjectFiles(
     sectionFor(buffer, directory, 3),
     directoryEntry(directory, 3).recordCount,
-    strings
+    strings,
+    9
   )
   const identities = decodeIdentities(
     sectionFor(buffer, directory, 4),
     directoryEntry(directory, 4).recordCount,
-    strings
+    strings,
+    9
   )
-  const orders = decodeXmlOrders(sectionFor(buffer, directory, 5), directoryEntry(directory, 5).recordCount, strings)
+  const orders = decodeXmlOrders(sectionFor(buffer, directory, 5), directoryEntry(directory, 5).recordCount, strings, 9)
   const xmlNodes = decodeXmlNodes(
     sectionFor(buffer, directory, 6),
     directoryEntry(directory, 6).recordCount,
     strings,
-    orders
+    orders,
+    9
   )
-  const xmlValues = decodeXmlValues(sectionFor(buffer, directory, 7), directoryEntry(directory, 7).recordCount, strings)
+  const xmlValues = decodeXmlValues(
+    sectionFor(buffer, directory, 7),
+    directoryEntry(directory, 7).recordCount,
+    strings,
+    9
+  )
   return { binding, projectFiles, identities, xmlNodes, xmlValues }
 }
 
-function decodeBinding(section: Buffer, recordCount: bigint, strings: DecodedStrings): ConfigurationIndexBinding {
+function validateLogicalSectionRecords(
+  buffer: Buffer,
+  directory: ConfigurationIndexDirectory,
+  strings: DecodedStrings
+): void {
+  decodeBinding(sectionFor(buffer, directory, 1), directoryEntry(directory, 1).recordCount, strings, 7)
+  decodeProjectFiles(sectionFor(buffer, directory, 3), directoryEntry(directory, 3).recordCount, strings, 7)
+  decodeIdentities(sectionFor(buffer, directory, 4), directoryEntry(directory, 4).recordCount, strings, 7)
+  decodeXmlOrders(sectionFor(buffer, directory, 5), directoryEntry(directory, 5).recordCount, strings, 7)
+  decodeXmlNodes(sectionFor(buffer, directory, 6), directoryEntry(directory, 6).recordCount, strings, [], 7)
+  decodeXmlValues(sectionFor(buffer, directory, 7), directoryEntry(directory, 7).recordCount, strings, 7)
+}
+
+function validateLogicalSectionOrdering(
+  buffer: Buffer,
+  directory: ConfigurationIndexDirectory,
+  strings: DecodedStrings
+): void {
+  decodeProjectFiles(sectionFor(buffer, directory, 3), directoryEntry(directory, 3).recordCount, strings, 8)
+  decodeIdentities(sectionFor(buffer, directory, 4), directoryEntry(directory, 4).recordCount, strings, 8)
+  decodeXmlOrders(sectionFor(buffer, directory, 5), directoryEntry(directory, 5).recordCount, strings, 8)
+  decodeXmlNodes(sectionFor(buffer, directory, 6), directoryEntry(directory, 6).recordCount, strings, [], 8)
+  decodeXmlValues(sectionFor(buffer, directory, 7), directoryEntry(directory, 7).recordCount, strings, 8)
+}
+
+function decodeBinding(
+  section: Buffer,
+  recordCount: bigint,
+  strings: DecodedStrings,
+  stage: LogicalValidationStage
+): ConfigurationIndexBinding | undefined {
   if (recordCount !== 1n) throw new Error("BINDING должен содержать одну запись")
   checkedEnd(section, 0, HEADER_LENGTH, "заголовок BINDING")
   const indexGeneration = section.readBigUInt64LE(0)
-  if (indexGeneration === 0n) throw new Error("indexGeneration BINDING должен начинаться с 1")
   const producerVersion = requiredString(strings, section.readUInt32LE(8), "producerVersion BINDING")
-  if (producerVersion.length === 0) throw new Error("producerVersion BINDING не должен быть пустым")
   const baseId = requiredString(strings, section.readUInt32LE(12), "baseId BINDING")
-  const baseIdLength = Buffer.byteLength(baseId)
-  if (baseIdLength < 1 || baseIdLength > 128 || !/^[A-Za-z0-9._-]+$/.test(baseId)) {
-    throw new Error("недопустимый baseId BINDING")
-  }
   const baseFingerprintLength = section.readUInt32LE(16)
   const configurationVersionLength = section.readUInt32LE(20)
   assertZero(section.subarray(24, HEADER_LENGTH), "reserved BINDING")
@@ -263,6 +299,14 @@ function decodeBinding(section: Buffer, recordCount: bigint, strings: DecodedStr
   const recordEnd = alignedEnd(section, configurationVersionEnd, "BINDING")
   if (recordEnd !== section.length) throw new Error("длина BINDING не совпадает с данными")
   assertZero(section.subarray(configurationVersionEnd, recordEnd), "padding BINDING")
+  if (stage !== 9) return undefined
+
+  if (indexGeneration === 0n) throw new Error("indexGeneration BINDING должен начинаться с 1")
+  if (producerVersion.length === 0) throw new Error("producerVersion BINDING не должен быть пустым")
+  const baseIdLength = Buffer.byteLength(baseId)
+  if (baseIdLength < 1 || baseIdLength > 128 || !/^[A-Za-z0-9._-]+$/.test(baseId)) {
+    throw new Error("недопустимый baseId BINDING")
+  }
   if ((baseFingerprintLength === 0) !== (configurationVersionLength === 0)) {
     throw new Error("baseFingerprint и configurationVersion BINDING должны быть заполнены вместе")
   }
@@ -279,7 +323,8 @@ function decodeBinding(section: Buffer, recordCount: bigint, strings: DecodedStr
 function decodeProjectFiles(
   section: Buffer,
   recordCountValue: bigint,
-  strings: DecodedStrings
+  strings: DecodedStrings,
+  stage: LogicalValidationStage
 ): ConfigurationProjectFile[] {
   const recordCount = fixedRecordCount(section, recordCountValue, 16, "PROJECT_FILES")
   const result: ConfigurationProjectFile[] = []
@@ -288,16 +333,25 @@ function decodeProjectFiles(
     const offset = index * 16
     const projectPathId = section.readUInt32LE(offset)
     const projectPath = requiredString(strings, projectPathId, "projectPath PROJECT_FILES")
-    if (projectPathId <= previousPathId) throw new Error("PROJECT_FILES не отсортированы или повторяются")
+    if (stage === 8 && projectPathId <= previousPathId) {
+      throw new Error("PROJECT_FILES не отсортированы или повторяются")
+    }
     previousPathId = projectPathId
     if (section.readUInt32LE(offset + 4) !== 0) throw new Error("ненулевые флаги PROJECT_FILES")
-    validateProjectPath(projectPath)
-    result.push({ projectPath, contentHash: section.readBigUInt64LE(offset + 8) })
+    if (stage === 9) {
+      validateProjectPath(projectPath)
+      result.push({ projectPath, contentHash: section.readBigUInt64LE(offset + 8) })
+    }
   }
   return result
 }
 
-function decodeIdentities(section: Buffer, recordCountValue: bigint, strings: DecodedStrings): ConfigurationIdentity[] {
+function decodeIdentities(
+  section: Buffer,
+  recordCountValue: bigint,
+  strings: DecodedStrings,
+  stage: LogicalValidationStage
+): ConfigurationIdentity[] {
   const recordCount = fixedRecordCount(section, recordCountValue, 32, "IDENTITIES")
   const result: ConfigurationIdentity[] = []
   let previousAddressId = 0
@@ -305,40 +359,51 @@ function decodeIdentities(section: Buffer, recordCountValue: bigint, strings: De
   for (let index = 0; index < recordCount; index += 1) {
     const offset = index * 32
     const logicalAddressId = section.readUInt32LE(offset)
-    const logicalAddress = requiredNonEmptyString(strings, logicalAddressId, "logicalAddress IDENTITIES")
+    const logicalAddress = requiredString(strings, logicalAddressId, "logicalAddress IDENTITIES")
     const kind = section.readUInt16LE(offset + 4)
-    if (kind < 1 || kind > 3) throw new Error(`неизвестный identityKind ${kind}`)
     if (section.readUInt16LE(offset + 6) !== 0) throw new Error("ненулевые флаги IDENTITIES")
     if (section.readUInt32LE(offset + 12) !== 0) throw new Error("ненулевое reserved IDENTITIES")
-    if (logicalAddressId < previousAddressId || (logicalAddressId === previousAddressId && kind <= previousKind)) {
+    if (
+      stage === 8 &&
+      (logicalAddressId < previousAddressId || (logicalAddressId === previousAddressId && kind <= previousKind))
+    ) {
       throw new Error("IDENTITIES не отсортированы или повторяются")
     }
     previousAddressId = logicalAddressId
     previousKind = kind
 
     const valueStringId = section.readUInt32LE(offset + 8)
+    if (valueStringId !== 0) requiredString(strings, valueStringId, "value IDENTITIES")
     const uuidBytes = section.subarray(offset + 16, offset + 32)
+    if (stage !== 9) continue
+
+    validateLogicalAddress(logicalAddress, "IDENTITIES")
+    if (kind < 1 || kind > 3) throw new Error(`неизвестный identityKind ${kind}`)
     if (kind === 1) {
       if (valueStringId !== 0) throw new Error("UUID IDENTITIES содержит valueStringId")
       result.push({ logicalAddress, kind: "uuid", value: formatUuid(uuidBytes) })
     } else {
       if (!uuidBytes.every((byte) => byte === 0)) throw new Error("строковый IDENTITIES содержит UUID")
-      const value = requiredNonEmptyString(strings, valueStringId, "value IDENTITIES")
+      const value = requiredString(strings, valueStringId, "value IDENTITIES")
       result.push({ logicalAddress, kind: kind === 2 ? "xmlId" : "xmlName", value })
     }
   }
   return result
 }
 
-function decodeXmlOrders(section: Buffer, recordCountValue: bigint, strings: DecodedStrings): string[][] {
-  const recordCount = variableRecordCount(section, recordCountValue, 16, "XML_ORDERS")
+function decodeXmlOrders(
+  section: Buffer,
+  recordCountValue: bigint,
+  strings: DecodedStrings,
+  stage: LogicalValidationStage
+): string[][] {
+  const recordCount = variableRecordCount(section, recordCountValue, 8, "XML_ORDERS")
   const result: string[][] = []
   let previousIds: number[] | undefined
   let offset = 0
   for (let index = 0; index < recordCount; index += 1) {
     const headerEnd = checkedEnd(section, offset, 8, "заголовок XML_ORDERS")
     const propertyCount = section.readUInt32LE(offset)
-    if (propertyCount === 0) throw new Error("пустой порядок XML_ORDERS")
     if (section.readUInt32LE(offset + 4) !== 0) throw new Error("ненулевое reserved XML_ORDERS")
     const propertiesEnd = checkedEnd(section, headerEnd, BigInt(propertyCount) * 4n, "свойства XML_ORDERS")
     const recordEnd = alignedEnd(section, propertiesEnd, "запись XML_ORDERS")
@@ -348,14 +413,17 @@ function decodeXmlOrders(section: Buffer, recordCountValue: bigint, strings: Dec
     for (let propertyIndex = 0; propertyIndex < propertyCount; propertyIndex += 1) {
       const id = section.readUInt32LE(headerEnd + propertyIndex * 4)
       requiredString(strings, id, "propertyKey XML_ORDERS")
-      if (seen.has(id)) throw new Error("повторный ключ в XML_ORDERS")
+      if (stage === 8 && seen.has(id)) throw new Error("повторный ключ в XML_ORDERS")
       seen.add(id)
       ids.push(id)
     }
-    if (previousIds !== undefined && compareNumberArrays(previousIds, ids) >= 0) {
+    if (stage === 8 && previousIds !== undefined && compareNumberArrays(previousIds, ids) >= 0) {
       throw new Error("XML_ORDERS не отсортированы или повторяются")
     }
-    result.push(ids.map((id) => strings.values[id - 1]))
+    if (stage === 9) {
+      if (propertyCount === 0) throw new Error("пустой порядок XML_ORDERS")
+      result.push(ids.map((id) => strings.values[id - 1]))
+    }
     previousIds = ids
     offset = recordEnd
   }
@@ -367,7 +435,8 @@ function decodeXmlNodes(
   section: Buffer,
   recordCountValue: bigint,
   strings: DecodedStrings,
-  orders: readonly (readonly string[])[]
+  orders: readonly (readonly string[])[],
+  stage: LogicalValidationStage
 ): ConfigurationXmlNode[] {
   const recordCount = variableRecordCount(section, recordCountValue, 16, "XML_NODES")
   const result: ConfigurationXmlNode[] = []
@@ -376,15 +445,15 @@ function decodeXmlNodes(
   for (let index = 0; index < recordCount; index += 1) {
     const headerEnd = checkedEnd(section, offset, 16, "заголовок XML_NODES")
     const logicalAddressId = section.readUInt32LE(offset)
-    const logicalAddress = requiredNonEmptyString(strings, logicalAddressId, "logicalAddress XML_NODES")
-    if (logicalAddressId <= previousAddressId) throw new Error("XML_NODES не отсортированы или повторяются")
+    const logicalAddress = requiredString(strings, logicalAddressId, "logicalAddress XML_NODES")
+    if (stage === 8 && logicalAddressId <= previousAddressId) {
+      throw new Error("XML_NODES не отсортированы или повторяются")
+    }
     previousAddressId = logicalAddressId
 
     const orderId = section.readUInt32LE(offset + 4)
-    if (orderId > orders.length) throw new Error("orderId XML_NODES не существует")
     const aliasCount = section.readUInt32LE(offset + 8)
     const presentCount = section.readUInt32LE(offset + 12)
-    if (orderId === 0 && aliasCount === 0 && presentCount === 0) throw new Error("пустая запись XML_NODES")
     const dataLength = BigInt(aliasCount) * 8n + BigInt(presentCount) * 4n
     const dataEnd = checkedEnd(section, headerEnd, dataLength, "данные XML_NODES")
     const recordEnd = alignedEnd(section, dataEnd, "запись XML_NODES")
@@ -398,8 +467,12 @@ function decodeXmlNodes(
       const sourceXmlKeyId = section.readUInt32LE(cursor + 4)
       const propertyKey = requiredString(strings, propertyKeyId, "propertyKey XML_NODES")
       const sourceXmlKey = requiredString(strings, sourceXmlKeyId, "sourceXmlKey XML_NODES")
-      if (propertyKeyId <= previousPropertyKeyId) throw new Error("псевдонимы XML_NODES не отсортированы")
-      if (propertyKeyId === sourceXmlKeyId) throw new Error("псевдоним XML_NODES совпадает с каноническим именем")
+      if (stage === 8 && propertyKeyId <= previousPropertyKeyId) {
+        throw new Error("псевдонимы XML_NODES не отсортированы")
+      }
+      if (stage === 9 && propertyKeyId === sourceXmlKeyId) {
+        throw new Error("псевдоним XML_NODES совпадает с каноническим именем")
+      }
       previousPropertyKeyId = propertyKeyId
       aliasEntries.push([propertyKey, sourceXmlKey])
       cursor += 8
@@ -410,42 +483,67 @@ function decodeXmlNodes(
     for (let presentIndex = 0; presentIndex < presentCount; presentIndex += 1) {
       const propertyKeyId = section.readUInt32LE(cursor)
       const propertyKey = requiredString(strings, propertyKeyId, "present XML_NODES")
-      if (propertyKeyId <= previousPropertyKeyId) throw new Error("present XML_NODES не отсортирован")
+      if (stage === 8 && propertyKeyId <= previousPropertyKeyId) {
+        throw new Error("present XML_NODES не отсортирован")
+      }
       previousPropertyKeyId = propertyKeyId
       present.push(propertyKey)
       cursor += 4
     }
 
-    result.push({
-      logicalAddress,
-      ...(orderId === 0 ? {} : { order: orders[orderId - 1] }),
-      ...(aliasCount === 0 ? {} : { aliases: Object.fromEntries(aliasEntries) }),
-      ...(presentCount === 0 ? {} : { present }),
-    })
+    if (stage === 9) {
+      validateLogicalAddress(logicalAddress, "XML_NODES")
+      if (orderId > orders.length) throw new Error("orderId XML_NODES не существует")
+      if (orderId === 0 && aliasCount === 0 && presentCount === 0) throw new Error("пустая запись XML_NODES")
+      result.push({
+        logicalAddress,
+        ...(orderId === 0 ? {} : { order: orders[orderId - 1] }),
+        ...(aliasCount === 0 ? {} : { aliases: Object.fromEntries(aliasEntries) }),
+        ...(presentCount === 0 ? {} : { present }),
+      })
+    }
     offset = recordEnd
   }
   if (offset !== section.length) throw new Error("recordCount XML_NODES не совпадает с длиной секции")
   return result
 }
 
-function decodeXmlValues(section: Buffer, recordCountValue: bigint, strings: DecodedStrings): ConfigurationXmlValue[] {
+function decodeXmlValues(
+  section: Buffer,
+  recordCountValue: bigint,
+  strings: DecodedStrings,
+  stage: LogicalValidationStage
+): ConfigurationXmlValue[] {
   const recordCount = fixedRecordCount(section, recordCountValue, 32, "XML_VALUES")
   const result: ConfigurationXmlValue[] = []
   let previousAddressId = 0
   for (let index = 0; index < recordCount; index += 1) {
     const offset = index * 32
     const logicalAddressId = section.readUInt32LE(offset)
-    const logicalAddress = requiredNonEmptyString(strings, logicalAddressId, "logicalAddress XML_VALUES")
-    if (logicalAddressId <= previousAddressId) throw new Error("XML_VALUES не отсортированы или повторяются")
+    const logicalAddress = requiredString(strings, logicalAddressId, "logicalAddress XML_VALUES")
+    if (stage === 8 && logicalAddressId <= previousAddressId) {
+      throw new Error("XML_VALUES не отсортированы или повторяются")
+    }
     previousAddressId = logicalAddressId
     const flags = section.readUInt32LE(offset + 4)
-    if (flags === 0 || (flags & ~XML_VALUE_FLAGS) !== 0) throw new Error("недопустимые флаги XML_VALUES")
     if (section.readBigUInt64LE(offset + 24) !== 0n) throw new Error("ненулевое reserved XML_VALUES")
 
-    const xsiType = optionalFlaggedString(strings, section.readUInt32LE(offset + 8), flags, 2, "xsiType")
-    const xmlText = optionalFlaggedString(strings, section.readUInt32LE(offset + 12), flags, 3, "xmlText")
-    const xmlPrefix = optionalFlaggedString(strings, section.readUInt32LE(offset + 16), flags, 4, "xmlPrefix")
-    const userSettingsId = optionalFlaggedString(strings, section.readUInt32LE(offset + 20), flags, 5, "userSettingsId")
+    const xsiTypeId = section.readUInt32LE(offset + 8)
+    const xmlTextId = section.readUInt32LE(offset + 12)
+    const xmlPrefixId = section.readUInt32LE(offset + 16)
+    const userSettingsIdId = section.readUInt32LE(offset + 20)
+    referenceStringIfPresent(strings, xsiTypeId, "xsiType XML_VALUES")
+    referenceStringIfPresent(strings, xmlTextId, "xmlText XML_VALUES")
+    referenceStringIfPresent(strings, xmlPrefixId, "xmlPrefix XML_VALUES")
+    referenceStringIfPresent(strings, userSettingsIdId, "userSettingsId XML_VALUES")
+    if (stage !== 9) continue
+
+    validateLogicalAddress(logicalAddress, "XML_VALUES")
+    if (flags === 0 || (flags & ~XML_VALUE_FLAGS) !== 0) throw new Error("недопустимые флаги XML_VALUES")
+    const xsiType = optionalFlaggedString(strings, xsiTypeId, flags, 2, "xsiType")
+    const xmlText = optionalFlaggedString(strings, xmlTextId, flags, 3, "xmlText")
+    const xmlPrefix = optionalFlaggedString(strings, xmlPrefixId, flags, 4, "xmlPrefix")
+    const userSettingsId = optionalFlaggedString(strings, userSettingsIdId, flags, 5, "userSettingsId")
     result.push({
       logicalAddress,
       ...((flags & (1 << 0)) === 0 ? {} : { xsiNil: true as const }),
@@ -494,16 +592,14 @@ function sectionBytes(buffer: Buffer, entry: ConfigurationIndexDirectoryEntry): 
   return buffer.subarray(offset, end)
 }
 
-function requiredNonEmptyString(strings: DecodedStrings, id: number, label: string): string {
-  const value = requiredString(strings, id, label)
-  if (value.length === 0) throw new Error(`пустая строка ${label}`)
-  return value
-}
-
 function requiredString(strings: DecodedStrings, id: number, label: string): string {
   if (id === 0 || id > strings.values.length) throw new Error(`неверный stringId ${label}`)
   strings.referencedIds.add(id)
   return strings.values[id - 1]
+}
+
+function referenceStringIfPresent(strings: DecodedStrings, id: number, label: string): void {
+  if (id !== 0) requiredString(strings, id, label)
 }
 
 function optionalFlaggedString(
@@ -531,6 +627,52 @@ function validateProjectPath(projectPath: string): void {
   ) {
     throw new Error(`недопустимый путь PROJECT_FILES: ${projectPath}`)
   }
+}
+
+function validateLogicalAddress(value: string, section: "IDENTITIES" | "XML_NODES" | "XML_VALUES"): void {
+  const segments = value.split(".")
+  let offset: number
+  if (segments[0] === "Конфигурация") {
+    offset = 1
+  } else {
+    if (
+      segments.length < 2 ||
+      !isPlainLogicalAddressSegment(segments[0]) ||
+      !isPlainLogicalAddressSegment(segments[1])
+    ) {
+      throw new Error(`некорректный logicalAddress ${section}: ${value}`)
+    }
+    offset = 2
+  }
+
+  while (offset < segments.length) {
+    if (isIndexedLogicalAddressSegment(segments[offset])) {
+      offset += 1
+      continue
+    }
+    if (section === "XML_VALUES" && offset === segments.length - 1 && isPlainLogicalAddressSegment(segments[offset])) {
+      offset += 1
+      continue
+    }
+    if (
+      offset + 1 >= segments.length ||
+      !isPlainLogicalAddressSegment(segments[offset]) ||
+      !isPlainLogicalAddressSegment(segments[offset + 1])
+    ) {
+      throw new Error(`некорректный logicalAddress ${section}: ${value}`)
+    }
+    offset += 2
+  }
+}
+
+function isPlainLogicalAddressSegment(value: string | undefined): value is string {
+  return value !== undefined && value.length > 0 && !value.includes("[") && !value.includes("]")
+}
+
+function isIndexedLogicalAddressSegment(value: string | undefined): boolean {
+  if (value === undefined) return false
+  const match = /^([^\[\]]+)\[(0|[1-9][0-9]*)\]$/.exec(value)
+  return match !== null && BigInt(match[2]) <= BigInt(Number.MAX_SAFE_INTEGER)
 }
 
 function fixedRecordCount(section: Buffer, count: bigint, recordLength: number, label: string): number {

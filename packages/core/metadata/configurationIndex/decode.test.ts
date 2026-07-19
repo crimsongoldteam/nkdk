@@ -37,11 +37,17 @@ describe("decodeConfigurationIndex", () => {
     ["magic", (buffer: Buffer) => writeAscii(buffer, "BROKEN!!", 0)],
     ["directory checksum", (buffer: Buffer) => flipByte(buffer, 64)],
     ["section checksum", (buffer: Buffer) => flipByte(buffer, 512)],
-    ["trailing bytes", (buffer: Buffer) => Buffer.concat([buffer, Buffer.from([0])])],
   ] as const)("rejects invalid %s", (_name, mutate) => {
     const corrupted = mutate(Buffer.from(encodeConfigurationIndex(sampleIndex())))
 
     expectCorruption(corrupted)
+  })
+
+  it("rejects trailing bytes after accepting the matching fileLength", () => {
+    const corrupted = Buffer.concat([encodeConfigurationIndex(sampleIndex()), Buffer.from([0])])
+    corrupted.writeBigUInt64LE(BigInt(corrupted.length), 40)
+
+    expectCorruptionMessage(corrupted, "байты после последней секции")
   })
 
   it.each([
@@ -158,6 +164,86 @@ describe("decodeConfigurationIndex", () => {
     expectCorruption(corrupted)
   })
 
+  it("finishes stage 7 for all sections before checking section ordering", () => {
+    const data = sampleIndex()
+    const encoded = encodeConfigurationIndex({
+      ...data,
+      projectFiles: [...data.projectFiles, { projectPath: "A.yaml", contentHash: 2n }],
+    })
+    const unsorted = mutateSection(encoded, 3, swapFirstRecordIds)
+    const corrupted = mutateSection(unsorted, 7, (section) => flipByte(section, 24))
+
+    expectCorruptionMessage(corrupted, "ненулевое reserved XML_VALUES")
+  })
+
+  it("finishes stage 8 before checking internal record constraints", () => {
+    const data = sampleIndex()
+    const encoded = encodeConfigurationIndex({
+      ...data,
+      xmlValues: [...data.xmlValues, { logicalAddress: "Документ.Заказ.name", xsiNil: true }],
+    })
+    const invalidBinding = mutateSection(encoded, 1, (section) => writeU64(section, 0, 0n))
+    const corrupted = mutateSection(invalidBinding, 7, swapFirstRecordIds)
+
+    expectCorruptionMessage(corrupted, "XML_VALUES не отсортированы или повторяются")
+  })
+
+  it.each(["Справочник", "Справочник.Товары.Элемент[01]"])("rejects malformed logicalAddress %s", (logicalAddress) => {
+    const data = sampleIndex()
+    const corrupted = encodeConfigurationIndex({
+      ...data,
+      identities: [{ ...data.identities[0], logicalAddress }],
+    })
+
+    expectCorruptionMessage(corrupted, "некорректный logicalAddress IDENTITIES")
+  })
+
+  it.each([
+    [
+      "IDENTITIES",
+      (data: ReturnType<typeof sampleIndex>) => ({
+        ...data,
+        identities: [{ ...data.identities[0], logicalAddress: "Справочник..Товары" }],
+      }),
+    ],
+    [
+      "XML_NODES",
+      (data: ReturnType<typeof sampleIndex>) => ({
+        ...data,
+        xmlNodes: [{ ...data.xmlNodes[0], logicalAddress: "Справочник..Товары" }],
+      }),
+    ],
+    [
+      "XML_VALUES",
+      (data: ReturnType<typeof sampleIndex>) => ({
+        ...data,
+        xmlValues: [{ ...data.xmlValues[0], logicalAddress: "Справочник..Товары.synonym" }],
+      }),
+    ],
+  ] as const)("rejects a double dot in %s logicalAddress", (section, corrupt) => {
+    const corrupted = encodeConfigurationIndex(corrupt(sampleIndex()))
+
+    expectCorruptionMessage(corrupted, `некорректный logicalAddress ${section}`)
+  })
+
+  it.each([
+    ["XML_ID", 2, "xmlId"],
+    ["XML_NAME", 3, "xmlName"],
+  ] as const)("accepts an empty %s value through a non-zero stringId", (_name, kind, expectedKind) => {
+    const encoded = encodeConfigurationIndex(sampleIndex())
+    const emptyStringId = findStringId(encoded, "")
+    const valid = mutateSection(encoded, 4, (section) => {
+      section.writeUInt16LE(kind, 4)
+      section.writeUInt32LE(emptyStringId, 8)
+      section.fill(0, 16, 32)
+      return section
+    })
+
+    expect(decodeConfigurationIndex(valid).identities).toEqual([
+      { logicalAddress: "Справочник.Товары", kind: expectedKind, value: "" },
+    ])
+  })
+
   it("rejects unreferenced strings", () => {
     const encoded = encodeConfigurationIndex(sampleIndex())
     const producerVersionStringId = sectionBytes(encoded, 1).readUInt32LE(8)
@@ -238,8 +324,35 @@ function duplicateAliasName(section: Buffer): Buffer {
   return writeU32(section, 20, section.readUInt32LE(16))
 }
 
+function swapFirstRecordIds(section: Buffer): Buffer {
+  const first = section.readUInt32LE(0)
+  const second = section.readUInt32LE(section.length / 2)
+  section.writeUInt32LE(second, 0)
+  section.writeUInt32LE(first, section.length / 2)
+  return section
+}
+
+function findStringId(source: Uint8Array, value: string): number {
+  const strings = sectionBytes(source, 2)
+  let offset = 0
+  let id = 1
+  while (offset < strings.length) {
+    const byteLength = strings.readUInt32LE(offset)
+    const valueStart = offset + 4
+    const valueEnd = valueStart + byteLength
+    if (strings.subarray(valueStart, valueEnd).toString("utf8") === value) return id
+    offset = Math.ceil(valueEnd / 8) * 8
+    id += 1
+  }
+  throw new Error(`Строка отсутствует в тестовой секции: ${value}`)
+}
+
 function expectCorruption(buffer: Uint8Array): void {
   expect(() => decodeConfigurationIndex(buffer)).toThrow("Некорректный файл индекса конфигурации")
+}
+
+function expectCorruptionMessage(buffer: Uint8Array, message: string): void {
+  expect(() => decodeConfigurationIndex(buffer)).toThrow(message)
 }
 
 function flipByte(buffer: Buffer, offset: number): Buffer {
