@@ -9,6 +9,16 @@ describe("configuration index string pool", () => {
     expect(pool.id("A")).toBe(expected.indexOf("A") + 1)
   })
 
+  it("deduplicates malformed UTF-16 strings with the same UTF-8 bytes", () => {
+    const highSurrogate = "\ud800"
+    const lowSurrogate = "\udc00"
+    const pool = createStringPool([highSurrogate, lowSurrogate])
+
+    expect(pool.strings).toEqual([highSurrogate])
+    expect(pool.id(highSurrogate)).toBe(1)
+    expect(pool.id(lowSurrogate)).toBe(1)
+  })
+
   it("rejects missing and NUL-containing strings", () => {
     const pool = createStringPool(["known"])
     expect(() => pool.id("missing")).toThrow("Строка отсутствует в STRINGS")
