@@ -12,6 +12,7 @@ import {
 const extendedTooltipStyle = {
   canonicalSuffix: "РасширеннаяПодсказка",
   referenceSuffixes: ["РасширеннаяПодсказка", "ExtendedTooltip"],
+  canonicalNameMode: "ownerSuffix",
 } as const satisfies SingletonNameStyle
 
 describe("singletonName", () => {
@@ -95,6 +96,7 @@ describe("singletonName", () => {
     const overlappingStyle = {
       canonicalSuffix: "Tooltip",
       referenceSuffixes: ["Tooltip", "ExtendedTooltip"],
+      canonicalNameMode: "ownerSuffix",
     } as const satisfies SingletonNameStyle
 
     const reference = attachReferenceNameSuffix({

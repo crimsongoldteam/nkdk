@@ -3,7 +3,7 @@ import { ToMetadata } from "../../../orchestration/metadataItem/registry"
 import { importPropertiesFromXML } from "../../../orchestration/property/fromXML"
 import { isEmptyMetadataItem } from "./helper"
 import { getElementRule } from "./ruleFactory"
-import { attachReferenceNameMode, type SingletonNameStyle } from "./singletonName"
+import { attachReferenceNameMode, getCanonicalSingletonName, type SingletonNameStyle } from "./singletonName"
 import { CollectableElementType, ElementRule, ElementXML } from "./types"
 import { childUid, indexedUid } from "../../../configurationIndex/logicalAddress"
 import {
@@ -26,17 +26,26 @@ export function importSingleElementFromXML<Rule extends ElementRule>(params: {
   if (xml === undefined) return undefined
 
   const collection = getConfigurationIndexCollectionContext(context)
+  const canonicalName =
+    collection === undefined
+      ? undefined
+      : getCanonicalSingletonName({ ownerLogicalAddress: collection.logicalAddress, nameStyle })
   const elementContext =
     collection === undefined
       ? context
       : withConfigurationIndexLogicalAddress(
           context,
-          typeof xml._name === "string" && xml._name.length > 0
-            ? childUid(collection.logicalAddress, "Элемент", xml._name)
+          canonicalName !== undefined
+            ? childUid(collection.logicalAddress, "Элемент", canonicalName)
             : indexedUid(collection.logicalAddress, "Элемент", 0)
         )
   collectConfigurationIndexIdentityFromXML({ context: elementContext, sourceXmlKey: "_id", xmlValue: xml._id })
-  collectConfigurationIndexIdentityFromXML({ context: elementContext, sourceXmlKey: "_name", xmlValue: xml._name })
+  collectConfigurationIndexIdentityFromXML({
+    context: elementContext,
+    sourceXmlKey: "_name",
+    xmlValue: xml._name,
+    reconstructibleXmlName: canonicalName,
+  })
   const props = importFromXML(elementContext, xml, elementRule)
 
   if (props === undefined && !forReference) return undefined

@@ -55,6 +55,31 @@ describe("importPropertiesFromXML configuration index collection", () => {
     ])
   })
 
+  it("сохраняет присутствие Color auto, которое теряется при импорте в модель", () => {
+    const collector = createConfigurationIndexCollector()
+    const context = withConfigurationIndexCollector(createContext(), collector, "Форма.Основная")
+
+    const result = importPropertiesFromXML({
+      context,
+      rule: {
+        itemType: "ClientApplicationForm",
+        properties: {
+          backgroundColor: { type: "Color", xml: "BackgroundColor" },
+        },
+      } as any,
+      xml: { BackgroundColor: "auto" },
+    })
+
+    expect(result).toEqual({})
+    expect(collector.fragment("Форма.yaml").xmlNodes).toEqual([
+      {
+        logicalAddress: "Форма.Основная",
+        order: ["backgroundColor"],
+        present: ["backgroundColor"],
+      },
+    ])
+  })
+
   it("collects XML identity attributes on the current logical address", () => {
     const collector = createConfigurationIndexCollector()
     const context = withConfigurationIndexCollector(createContext(), collector, "Справочник.Товары")

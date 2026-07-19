@@ -24,6 +24,7 @@ import {
   XmlSyncRoutesFunction,
   XmlImportRoutesFunction,
   XmlSyncWriterFunction,
+  XMLImportPropertyBehavior,
 } from "./fn"
 
 const typeRulesRegistry = new Map<
@@ -49,6 +50,7 @@ const typeRulesRegistry = new Map<
   | FileChildNamesDescriptorFunction
   | XmlSyncWriterFunction
   | ConfigurationIndexValueFromXMLDescriptor
+  | XMLImportPropertyBehavior
 >()
 
 export const registerTypeRule = <O extends TypeRulesOperations>(
@@ -99,7 +101,9 @@ export const getTypeRule = <O extends TypeRulesOperations>(
                                   ? XmlSyncWriterFunction | undefined
                                   : O extends "configurationIndexValueFromXML"
                                     ? ConfigurationIndexValueFromXMLDescriptor | undefined
-                                    : never => {
+                                    : O extends "xmlImportPropertyBehavior"
+                                      ? XMLImportPropertyBehavior | undefined
+                                      : never => {
   const key = createRegistryKey(type, operation)
   const result = typeRulesRegistry.get(key)
   return result as any

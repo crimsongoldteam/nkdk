@@ -58,7 +58,13 @@ export function importPropertiesFromXML<Rule extends MetadataItemRule>(
       if (sourceXmlKey !== canonicalXmlKey) {
         indexCollection.collector.setAlias(xmlNodeLogicalAddress!, key, sourceXmlKey)
       }
-      if (presenceAffectsExport(currentRule)) {
+      if (
+        presenceAffectsExport({
+          rule: currentRule,
+          sourceXmlValue,
+          typeBehavior: getTypeRule(currentRule.type, "xmlImportPropertyBehavior"),
+        })
+      ) {
         indexCollection.collector.setPresent(xmlNodeLogicalAddress!, key)
       }
     }

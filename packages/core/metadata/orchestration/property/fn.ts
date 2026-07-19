@@ -283,6 +283,11 @@ export interface ConfigurationIndexValueFromXMLDescriptor {
   xsiNilWhenNotRepresentable?: true
 }
 
+/** Декларативное поведение XML-import, одинаковое для всех свойств зарегистрированного типа. */
+export interface XMLImportPropertyBehavior {
+  presenceAffectsExportForSourceValues?: readonly (string | number | boolean | null)[]
+}
+
 export interface TypeRule {
   importFromXML?: ImportFromXMLFunction
   exportToXML?: ExportToXMLFunction | ExportToXMLFunctionNew
@@ -302,6 +307,7 @@ export interface TypeRule {
   fileChildNamesDescriptor?: FileChildNamesDescriptorFunction
   xmlSyncWriter?: XmlSyncWriterFunction
   configurationIndexValueFromXML?: ConfigurationIndexValueFromXMLDescriptor
+  xmlImportPropertyBehavior?: XMLImportPropertyBehavior
 }
 
 export type TypeRulesOperations =
@@ -323,6 +329,7 @@ export type TypeRulesOperations =
   | "fileChildNamesDescriptor"
   | "xmlSyncWriter"
   | "configurationIndexValueFromXML"
+  | "xmlImportPropertyBehavior"
 type TypeRuleKey = `${PropertyRuleType}:${TypeRulesOperations}`
 
 export const createRegistryKey = (type: PropertyRuleType, operation: TypeRulesOperations): TypeRuleKey => {
@@ -365,4 +372,6 @@ export type importExportFunction<O extends TypeRulesOperations> = O extends "imp
                                   ? XmlSyncWriterFunction | undefined
                                   : O extends "configurationIndexValueFromXML"
                                     ? ConfigurationIndexValueFromXMLDescriptor | undefined
-                                    : never
+                                    : O extends "xmlImportPropertyBehavior"
+                                      ? XMLImportPropertyBehavior | undefined
+                                      : never

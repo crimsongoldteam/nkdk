@@ -38,6 +38,7 @@ export type GanttChartFieldTableYAML = TablePartialYAML
 const nameStyle: SingletonNameStyle = {
   canonicalSuffix: "Таблица",
   referenceSuffixes: ["Таблица", "Table"],
+  canonicalNameMode: "ownerSuffix",
 }
 
 const getGeneratedName = (

@@ -29,3 +29,6 @@ export const importColorFromXML = (
 }
 
 registerTypeRule("Color", "importFromXML", importColorFromXML)
+registerTypeRule("Color", "xmlImportPropertyBehavior", {
+  presenceAffectsExportForSourceValues: ["auto"],
+})

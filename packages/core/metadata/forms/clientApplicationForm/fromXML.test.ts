@@ -211,6 +211,41 @@ describe("importClientApplicationFormFromXML", () => {
     )
   })
 
+  it("адресует singleton по каноническому имени и сохраняет нестандартное XML-имя", () => {
+    const collector = createConfigurationIndexCollector()
+    const logicalAddress = "Справочник.Контрагенты.Форма.ФормаЭлемента"
+    const context = withConfigurationIndexCollector(mockContextFromXML(), collector, logicalAddress)
+    const xmlData = readAndParseXMLFixture<{ Form: ClientApplicationFormXML }>(import.meta.url, "full.xml")
+    const xmlMetadata = readAndParseXMLFixture<{ MetaDataObject: FormMetadataXML }>(import.meta.url, "fullMetadata.xml")
+    const inputField = (xmlData.Form.ChildItems as Array<{ InputField: { ContextMenu: { _name: string } } }>)[0]
+      .InputField
+    inputField.ContextMenu._name = "НестандартноеКонтекстноеМеню"
+
+    importClientApplicationFormFromXML({
+      context,
+      xml: xmlData.Form,
+      xmlMetadata: xmlMetadata.MetaDataObject,
+    })
+
+    const singletonAddress = `${logicalAddress}.Элемент.ПолеВвода1.Элемент.ПолеВвода1КонтекстноеМеню`
+    const identities = collector.fragment("Справочник/Контрагенты/Формы/ФормаЭлемента/Форма.yaml").identities
+    expect(identities).toEqual(
+      expect.arrayContaining([
+        { logicalAddress: singletonAddress, kind: "xmlId", value: "3" },
+        {
+          logicalAddress: singletonAddress,
+          kind: "xmlName",
+          value: "НестандартноеКонтекстноеМеню",
+        },
+      ])
+    )
+    expect(identities).not.toEqual(
+      expect.arrayContaining([
+        expect.objectContaining({ logicalAddress: `${logicalAddress}.Элемент.НестандартноеКонтекстноеМеню` }),
+      ])
+    )
+  })
+
   it("собирает порядок Form.xml отдельно от metadata XML", () => {
     const collector = createConfigurationIndexCollector()
     const logicalAddress = "Справочник.Контрагенты.Форма.ФормаЭлемента"

@@ -7,6 +7,7 @@ export function collectConfigurationIndexIdentityFromXML(params: {
   context: ConfigurationContextFromXML
   sourceXmlKey: string | undefined
   xmlValue: unknown
+  reconstructibleXmlName?: string
 }): void {
   const collection = getConfigurationIndexCollectionContext(params.context)
   if (collection === undefined || typeof params.xmlValue !== "string") return
@@ -19,7 +20,10 @@ export function collectConfigurationIndexIdentityFromXML(params: {
     collection.collector.setXmlId(collection.logicalAddress, params.xmlValue)
     return
   }
-  if (params.sourceXmlKey === "_name" && !isNameReconstructible(collection.logicalAddress, params.xmlValue)) {
+  if (
+    params.sourceXmlKey === "_name" &&
+    !isNameReconstructible(collection.logicalAddress, params.xmlValue, params.reconstructibleXmlName)
+  ) {
     collection.collector.setXmlName(collection.logicalAddress, params.xmlValue)
   }
 }
@@ -61,9 +65,9 @@ export function collectConfigurationIndexImportedValue(params: {
   }
 }
 
-function isNameReconstructible(logicalAddress: string, xmlName: string): boolean {
+function isNameReconstructible(logicalAddress: string, xmlName: string, reconstructibleXmlName?: string): boolean {
   const lastSegment = logicalAddress.slice(logicalAddress.lastIndexOf(".") + 1)
-  return !/^.+\[\d+\]$/.test(lastSegment) || lastSegment === xmlName
+  return (reconstructibleXmlName ?? lastSegment) === xmlName
 }
 
 function isRecord(value: unknown): value is Record<string, unknown> {

@@ -1,7 +1,7 @@
 import { capitalize } from "../../../helpers/capitalize"
 import { ConfigurationContext } from "../../context/types"
 import { ToMetadata } from ".."
-import { TypeRulesOperations } from "./fn"
+import { TypeRulesOperations, type XMLImportPropertyBehavior } from "./fn"
 import type { ItemXML, MetadataItemRule, PropertyRule } from "./types"
 
 type Path = string[]
@@ -118,8 +118,16 @@ export const shouldProcessProperty = (params: {
 }
 
 /** Присутствие XML-тега меняет последующий экспорт, даже если модельное значение совпадает. */
-export const presenceAffectsExport = (rule: PropertyRule): boolean =>
-  rule.preserveFromReferenceXML === true || rule.preserveExplicitDefaultXML === true
+export const presenceAffectsExport = (params: {
+  rule: PropertyRule
+  sourceXmlValue: unknown
+  typeBehavior?: XMLImportPropertyBehavior
+}): boolean =>
+  params.rule.preserveFromReferenceXML === true ||
+  params.rule.preserveExplicitDefaultXML === true ||
+  params.typeBehavior?.presenceAffectsExportForSourceValues?.some((value) =>
+    Object.is(value, params.sourceXmlValue)
+  ) === true
 
 const buildPathStructure = <Rule extends MetadataItemRule>(
   rule: Rule,
