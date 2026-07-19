@@ -1,35 +1,15 @@
 import { availableParallelism } from "node:os"
 import { performance } from "node:perf_hooks"
-import { existsSync } from "fs"
 import { resolve } from "path"
 import type { ConfigurationContext } from "../context/types"
 import { prepareYamlProjectWithPool } from "../project/preparedYamlProject"
 import {
   createPreparedYamlProjectWorkerPool,
+  type PreparedWorkerPool,
   type PreparedYamlProjectWorkerPool,
 } from "../project/preparedYamlProjectWorkerPool"
-import { getProjectReferenceObjectPathContributor } from "./projectReferenceIndexRegistry"
-import { validatePendingReferencesWithIndex } from "./projectReferenceIndex"
-import { ProjectFileSchemaError } from "./projectFileSchema"
 import { createValidationProfiler } from "./profile"
-import {
-  discoverValidationProjectFiles,
-  resolveValidationProjectFile,
-  type ValidationProjectFile,
-} from "./projectFiles"
-import { createProjectYamlCacheFromEntries, type ProjectYamlEntry } from "./projectYamlCache"
 import { createValidationObjectTable } from "./projectValidationObjectTable"
-import {
-  createValidationSchemaCache,
-  readProjectYamlDiagnostic,
-  readProjectYamlEntryForValidation,
-  validateProjectFileFirstPass,
-  validateProjectFileSecondPass,
-  type ProjectValidationFileState,
-} from "./projectValidationPasses"
-import { createValidationYamlQueue } from "./projectValidationQueue"
-import { createValidationSnapshotProvider } from "./validationSnapshotProvider"
-import { createValidationRulesSnapshot, type ValidationRulesSnapshot } from "./rulesSnapshot"
 import type { Diagnostic } from "./types"
 
 export interface ValidateProjectParams {
@@ -49,20 +29,28 @@ export interface ValidationWorkerPoolHandle {
   size(): number
 }
 
-const expectedPatterns =
-  "Ожидались Конфигурация.yaml или пути вида <Вид>/<Имя>/Свойства.yaml и <Вид>/<Имя>/Формы/<Форма>/Форма.yaml"
-
 export async function validateProject(params: ValidateProjectParams): Promise<ValidateProjectResult> {
   const concurrency = normalizeValidationConcurrency(params.concurrency)
   if (params.filePath !== undefined) {
-    return validateProjectInProcess({ ...params, concurrency: 1 })
+    const pool = createPreparedYamlProjectWorkerPool({ concurrency })
+    try {
+      return await pool.runPartialValidation({
+        projectDir: params.projectDir,
+        filePath: params.filePath,
+        context: params.context ?? defaultValidationContext(),
+      })
+    } finally {
+      await pool.close()
+    }
   }
   return validateProjectWithPreparedYaml({ ...params, concurrency })
 }
 
-export function createValidationWorkerPoolHandle(params: { concurrency?: number } = {}): ValidationWorkerPoolHandle {
+export function createValidationWorkerPoolHandle(
+  params: { concurrency?: number; createWorkerPool?: () => PreparedWorkerPool } = {}
+): ValidationWorkerPoolHandle {
   const concurrency = normalizeValidationConcurrency(params.concurrency)
-  const pool = createPreparedYamlProjectWorkerPool({ concurrency })
+  const pool = createPreparedYamlProjectWorkerPool({ concurrency, createWorkerPool: params.createWorkerPool })
   let closed = false
   let currentRun: Promise<void> = Promise.resolve()
 
@@ -85,7 +73,11 @@ export function createValidationWorkerPoolHandle(params: { concurrency?: number 
       if (closed) throw new Error("Validation worker pool handle is closed")
       return runExclusive(async () => {
         if (projectParams.filePath !== undefined) {
-          return validateProjectInProcess({ ...projectParams, concurrency: 1 })
+          return pool.runPartialValidation({
+            projectDir: projectParams.projectDir,
+            filePath: projectParams.filePath,
+            context: projectParams.context ?? defaultValidationContext(),
+          })
         }
         return validateProjectWithPreparedYaml({
           ...projectParams,
@@ -105,118 +97,6 @@ export function createValidationWorkerPoolHandle(params: { concurrency?: number 
       return pool.size()
     },
   }
-}
-
-async function validateProjectInProcess(params: ValidateProjectParams): Promise<ValidateProjectResult> {
-  const projectDir = resolve(params.projectDir)
-  const context = params.context ?? defaultValidationContext()
-  const schemaCache = createValidationSchemaCache(context)
-  const rulesSnapshot = createValidationRulesSnapshot(context)
-  const files =
-    params.filePath === undefined
-      ? await discoverValidationProjectFiles(projectDir)
-      : [resolveSingleProjectFile(projectDir, params.filePath)]
-  const queue = createValidationYamlQueue({
-    mode: params.filePath === undefined ? "full" : "partial",
-    initialFiles: files,
-  })
-  const objectTable = createValidationObjectTable()
-  const entries = new Map<string, ProjectYamlEntry>()
-  const states = new Map<string, ProjectValidationFileState>()
-
-  const diagnostics: Diagnostic[] = []
-  processPendingFirstPasses({
-    projectDir,
-    context,
-    schemaCache,
-    rulesSnapshot,
-    queue,
-    entries,
-    states,
-    objectTable,
-    diagnostics,
-  })
-  const skipMetadataTargetValidation = params.filePath === undefined
-
-  if (skipMetadataTargetValidation) {
-    const objectTableSnapshot = objectTable.snapshot()
-    const provider = createValidationSnapshotProvider(objectTableSnapshot)
-    const referenceIndex = provider.referenceIndex({
-      projectDir,
-      mode: queue.mode,
-      resolveObjectFilePath: (target) => resolveObjectFilePath({ projectDir, target }),
-      resolveProjectFile: (target) => resolveProjectFileDependency({ projectDir, target }),
-    })
-    const pendingReferences = objectTableSnapshot.pendingReferences ?? []
-    const referenceResult = validatePendingReferencesWithIndex({
-      index: referenceIndex,
-      references: pendingReferences,
-    })
-    logInProcessReferenceProfile({
-      snapshotBytes: provider.sharedPayload().reference.stats.snapshotBytes,
-      pendingReferences: pendingReferences.length,
-      memberIndexEntries: provider.sharedPayload().reference.stats.memberEntries,
-      result: referenceResult,
-    })
-    diagnostics.push(...referenceResult.diagnostics)
-  }
-
-  const secondPassPending = new Set(states.keys())
-  while (secondPassPending.size > 0) {
-    let enqueuedDependency = false
-    for (const stateKey of [...secondPassPending]) {
-      const state = states.get(stateKey)
-      if (state === undefined) {
-        secondPassPending.delete(stateKey)
-        continue
-      }
-
-      const cache = createProjectYamlCacheFromEntries([...entries.values()])
-      const objectTableSnapshot = objectTable.snapshot()
-      const provider = createValidationSnapshotProvider(objectTableSnapshot)
-      const ownerCache = provider.ownerCache(projectDir)
-      const referenceIndex = provider.referenceIndex({
-        projectDir,
-        mode: queue.mode,
-        resolveObjectFilePath: (target) => resolveObjectFilePath({ projectDir, target }),
-        resolveProjectFile: (target) => resolveProjectFileDependency({ projectDir, target }),
-      })
-      const second = validateProjectFileSecondPass({
-        projectDir,
-        state,
-        cache,
-        context,
-        ownerCache,
-        referenceIndex,
-        skipMetadataTargetValidation,
-      })
-
-      if (second.status === "needsDependency" && queue.enqueueDependency(second.dependency.file) === "enqueued") {
-        enqueuedDependency = true
-        break
-      }
-
-      diagnostics.push(...second.diagnostics)
-      secondPassPending.delete(stateKey)
-    }
-
-    if (enqueuedDependency) {
-      processPendingFirstPasses({
-        projectDir,
-        context,
-        schemaCache,
-        rulesSnapshot,
-        queue,
-        entries,
-        states,
-        objectTable,
-        diagnostics,
-      })
-      for (const stateKey of states.keys()) secondPassPending.add(stateKey)
-    }
-  }
-
-  return { diagnostics: sortDiagnostics(dedupeDiagnostics(diagnostics)) }
 }
 
 async function validateProjectWithPreparedYaml(
@@ -373,55 +253,6 @@ function normalizeValidationConcurrency(value: number | undefined): number {
   return Math.max(1, Math.min(4, availableParallelism() - 1))
 }
 
-function processPendingFirstPasses(params: {
-  projectDir: string
-  context: ConfigurationContext
-  schemaCache: ReturnType<typeof createValidationSchemaCache>
-  rulesSnapshot: ValidationRulesSnapshot
-  queue: ReturnType<typeof createValidationYamlQueue>
-  entries: Map<string, ProjectYamlEntry>
-  states: Map<string, ProjectValidationFileState>
-  objectTable: ReturnType<typeof createValidationObjectTable>
-  diagnostics: Diagnostic[]
-}): void {
-  while (params.queue.hasPending()) {
-    const batch = params.queue.takePending(64)
-    for (const file of batch) {
-      params.queue.markRunning(file.absolutePath)
-      const entry = readProjectYamlEntryForValidation(file.absolutePath)
-      if ("error" in entry) {
-        params.queue.markError(file.absolutePath)
-        params.diagnostics.push(readProjectYamlDiagnostic(entry))
-        continue
-      }
-
-      const entryKey = resolve(entry.filePath)
-      params.entries.set(entryKey, entry)
-      const cache = createProjectYamlCacheFromEntries([...params.entries.values()])
-      const first = validateProjectFileFirstPass({
-        projectDir: params.projectDir,
-        file,
-        cache,
-        context: params.context,
-        schemaCache: params.schemaCache,
-        rulesSnapshot: params.rulesSnapshot,
-      })
-      params.states.set(resolve(file.absolutePath), first.state)
-      params.objectTable.mergeRecords(first.objectRecords)
-      params.objectTable.mergeReferenceIndexEntries(first)
-      params.diagnostics.push(...first.diagnostics)
-      params.queue.markReady(file.absolutePath)
-    }
-  }
-}
-
-function resolveSingleProjectFile(projectDir: string, filePath: string): ValidationProjectFile {
-  const file = resolveValidationProjectFile(projectDir, filePath)
-  if (file) return file
-
-  throw new ProjectFileSchemaError(expectedPatterns)
-}
-
 function sortDiagnostics(diagnostics: Diagnostic[]): Diagnostic[] {
   return [...diagnostics].sort((left, right) => {
     return (
@@ -456,51 +287,6 @@ function diagnosticKey(diagnostic: Diagnostic): string {
     diagnostic.path ?? "",
     diagnostic.message,
   ].join("\0")
-}
-
-function logInProcessReferenceProfile(params: {
-  snapshotBytes: number
-  pendingReferences: number
-  memberIndexEntries: number
-  result: ReturnType<typeof validatePendingReferencesWithIndex>
-}): void {
-  if (process.env["NKDK_VALIDATION_PROFILE"] !== "1") return
-  const references = params.result.stats
-
-  console.error(
-    [
-      "[validation-profile] references second-pass",
-      `hits=${references.hits}`,
-      `misses=${references.misses}`,
-      `conflicts=${references.conflicts}`,
-      `filters=${references.filterFailures}`,
-      `dependencies=${references.dependencies}`,
-      `unsupported=${references.unsupported}`,
-      `fallbacks=${references.fallbacks}`,
-      `snapshotBytes=${params.snapshotBytes}`,
-      `pending=${params.pendingReferences}`,
-      `entries=${params.memberIndexEntries}`,
-    ].join(" ")
-  )
-}
-
-function resolveProjectFileDependency(params: {
-  projectDir: string
-  target: Parameters<NonNullable<ReturnType<typeof getProjectReferenceObjectPathContributor>>>[0]["target"]
-}) {
-  const filePath = resolveObjectFilePath(params)
-  if (filePath === undefined || !existsSync(filePath)) return undefined
-  const file = resolveValidationProjectFile(params.projectDir, filePath)
-  if (file === undefined) return undefined
-  return { kind: "needsDependency" as const, file, requestedBy: filePath }
-}
-
-function resolveObjectFilePath(params: {
-  projectDir: string
-  target: Parameters<NonNullable<ReturnType<typeof getProjectReferenceObjectPathContributor>>>[0]["target"]
-}): string | undefined {
-  const contributor = getProjectReferenceObjectPathContributor(params.target.root)
-  return contributor?.({ projectDir: params.projectDir, target: params.target })?.filePath
 }
 
 function defaultValidationContext(): ConfigurationContext {

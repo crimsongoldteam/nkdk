@@ -10,6 +10,7 @@ import type {
   ValidationWorkerPoolStartProfile,
 } from "../validation/validationWorkerPoolTypes"
 import { createValidationProfiler } from "../validation/profile"
+import { ProjectFileSchemaError } from "../validation/projectFileSchema"
 import { createValidationRulesSnapshot } from "../validation/rulesSnapshot"
 import type { Diagnostic } from "../validation/types"
 import { createValidationSnapshotProvider } from "../validation/validationSnapshotProvider"
@@ -19,10 +20,7 @@ import type {
   PreparedYamlProjectFileDescriptor,
   PreparedYamlWorkerPartition,
 } from "./preparedYamlProject"
-import runPreparedYamlProjectWorkerTask, {
-  type PreparedYamlProjectWorkerTask,
-  type PreparedYamlProjectWorkerTaskResult,
-} from "./preparedYamlProjectWorker"
+import type { PreparedYamlProjectWorkerTask, PreparedYamlProjectWorkerTaskResult } from "./preparedYamlProjectWorker"
 
 export interface PreparedYamlProjectWorkerPool {
   run(params: {
@@ -34,6 +32,11 @@ export interface PreparedYamlProjectWorkerPool {
   initValidation(context: ConfigurationContext): Promise<ValidationWorkerPoolStartProfile>
   runValidationFirstPass(params: { projectDir: string; context: ConfigurationContext }): Promise<FirstPassPoolResult>
   runValidationSecondPass(params: SecondPassPoolParams): Promise<SecondPassPoolResult>
+  runPartialValidation(params: {
+    projectDir: string
+    filePath: string
+    context: ConfigurationContext
+  }): Promise<{ diagnostics: Diagnostic[] }>
   close(): Promise<void>
   size(): number
 }
@@ -48,7 +51,7 @@ type PreparedMetadataDeclarationMergeResult =
   | { ok: true; index: PreparedGlobalMetadataIndex }
   | { ok: false; code: "declaration_conflict"; message: string; diagnostics: Diagnostic[] }
 
-type PreparedWorkerPool = Pick<Piscina, "run" | "destroy">
+export type PreparedWorkerPool = Pick<Piscina, "run" | "destroy">
 
 export function createPreparedYamlProjectWorkerPool(params: {
   concurrency: number
@@ -99,10 +102,9 @@ export function createPreparedYamlProjectWorkerPool(params: {
             files,
             includeYamlData: runParams.includeYamlData ?? true,
           } satisfies PreparedYamlProjectWorkerTask
-          const response =
-            params.concurrency === 1 && params.createWorkerPool === undefined
-              ? await runPreparedYamlProjectWorkerTask(task)
-              : ((await getOrCreatePool(pools, index, createPool).run(task)) as PreparedYamlProjectWorkerTaskResult)
+          const response = (await getOrCreatePool(pools, index, createPool).run(
+            task
+          )) as PreparedYamlProjectWorkerTaskResult
           if (response.kind !== "prepareResult") throw new Error("Worker вернул неожиданный результат prepare")
           return {
             workerIndex: index,
@@ -156,10 +158,9 @@ export function createPreparedYamlProjectWorkerPool(params: {
       const results = await Promise.all(
         indexesToInit.map(async (index) => {
           const task = { kind: "initValidation", workerIndex: index, context, rulesSnapshot } satisfies PreparedYamlProjectWorkerTask
-          const response =
-            params.concurrency === 1 && params.createWorkerPool === undefined
-              ? await runPreparedYamlProjectWorkerTask(task)
-              : ((await getOrCreatePool(pools, index, createPool).run(task)) as PreparedYamlProjectWorkerTaskResult)
+          const response = (await getOrCreatePool(pools, index, createPool).run(
+            task
+          )) as PreparedYamlProjectWorkerTaskResult
           if (response.kind !== "initValidationResult") throw new Error("Worker вернул неожиданный результат initValidation")
           return response
         })
@@ -194,10 +195,9 @@ export function createPreparedYamlProjectWorkerPool(params: {
             projectDir: firstPassParams.projectDir,
             context: firstPassParams.context,
           } satisfies PreparedYamlProjectWorkerTask
-          const response =
-            params.concurrency === 1 && params.createWorkerPool === undefined
-              ? await runPreparedYamlProjectWorkerTask(task)
-              : ((await getOrCreatePool(pools, index, createPool).run(task)) as PreparedYamlProjectWorkerTaskResult)
+          const response = (await getOrCreatePool(pools, index, createPool).run(
+            task
+          )) as PreparedYamlProjectWorkerTaskResult
           if (response.kind !== "validateFirstPassResult") {
             throw new Error("Worker вернул неожиданный результат validateFirstPass")
           }
@@ -232,10 +232,9 @@ export function createPreparedYamlProjectWorkerPool(params: {
             sharedValidationSnapshot,
             pendingReferences: referencePartitions[partitionIndex] ?? [],
           } satisfies PreparedYamlProjectWorkerTask
-          const response =
-            params.concurrency === 1 && params.createWorkerPool === undefined
-              ? await runPreparedYamlProjectWorkerTask(task)
-              : ((await getOrCreatePool(pools, index, createPool).run(task)) as PreparedYamlProjectWorkerTaskResult)
+          const response = (await getOrCreatePool(pools, index, createPool).run(
+            task
+          )) as PreparedYamlProjectWorkerTaskResult
           if (response.kind !== "validateSecondPassResult") {
             throw new Error("Worker вернул неожиданный результат validateSecondPass")
           }
@@ -244,6 +243,26 @@ export function createPreparedYamlProjectWorkerPool(params: {
       )
 
       return { diagnostics: results.flatMap((result) => result.diagnostics) }
+    },
+    async runPartialValidation(partialParams) {
+      const task = {
+        kind: "validatePartial",
+        workerIndex: 0,
+        projectDir: partialParams.projectDir,
+        filePath: partialParams.filePath,
+        context: partialParams.context,
+      } satisfies PreparedYamlProjectWorkerTask
+      let response: PreparedYamlProjectWorkerTaskResult
+      try {
+        response = (await getOrCreatePool(pools, 0, createPool).run(task)) as PreparedYamlProjectWorkerTaskResult
+      } catch (caught) {
+        if (isProjectFileSchemaWorkerError(caught)) throw new ProjectFileSchemaError(caught.message)
+        throw caught
+      }
+      if (response.kind !== "validatePartialResult") {
+        throw new Error("Worker вернул неожиданный результат validatePartial")
+      }
+      return { diagnostics: response.diagnostics }
     },
     async close() {
       await Promise.all([...pools.values()].map((pool) => pool.destroy()))
@@ -256,6 +275,11 @@ export function createPreparedYamlProjectWorkerPool(params: {
       return params.concurrency
     },
   }
+}
+
+function isProjectFileSchemaWorkerError(caught: unknown): caught is Error {
+  if (!(caught instanceof Error) || typeof caught.cause !== "object" || caught.cause === null) return false
+  return "code" in caught.cause && caught.cause.code === "project_file_schema"
 }
 
 function getOrCreatePool(

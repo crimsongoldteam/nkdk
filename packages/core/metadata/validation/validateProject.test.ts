@@ -4,6 +4,7 @@ import { join, resolve } from "path"
 import { afterAll, afterEach, describe, expect, it, vi } from "vitest"
 import { TopLevelMetadataItemRules } from "../appliedObjects/configuration/topLevelRules"
 import { mockContext } from "../../tests/mockContext"
+import type { PreparedYamlProjectWorkerTask } from "../project/preparedYamlProjectWorker"
 import { ProjectFileSchemaError } from "./projectFileSchema"
 import {
   getProjectValidationReadCountForTests,
@@ -36,7 +37,29 @@ describe("validateProject", { timeout: 120_000 }, () => {
     await expect(result).resolves.toEqual({ diagnostics: [] })
   })
 
-  it("emits detailed validation profile records", async () => {
+  it("validates one file through the persistent worker", async () => {
+    const run = vi.fn(async (task: PreparedYamlProjectWorkerTask) => {
+      expect(task).toMatchObject({
+        kind: "validatePartial",
+        filePath: "Справочник/Товары/Свойства.yaml",
+      })
+      return { kind: "validatePartialResult" as const, diagnostics: [] }
+    })
+    const destroy = vi.fn(async () => undefined)
+    const handle = createValidationWorkerPoolHandle({
+      concurrency: 1,
+      createWorkerPool: () => ({ run, destroy }),
+    })
+
+    await expect(
+      handle.validateProject({ projectDir: "/project", filePath: "Справочник/Товары/Свойства.yaml" })
+    ).resolves.toEqual({ diagnostics: [] })
+    expect(run).toHaveBeenCalledOnce()
+    await handle.close()
+    expect(destroy).toHaveBeenCalledOnce()
+  })
+
+  it("emits detailed main-process validation profile records", async () => {
     const error = vi.spyOn(console, "error").mockImplementation(() => undefined)
     const previous = process.env["NKDK_VALIDATION_TIMING"]
     let lines: string[] = []
@@ -53,9 +76,7 @@ describe("validateProject", { timeout: 120_000 }, () => {
       error.mockRestore()
     }
 
-    expect(lines.some((line) => line.includes("[validation-step]") && line.includes('step="Первичная проверка YAML"'))).toBe(
-      true
-    )
+    expect(lines.some((line) => line.includes("[validation-step]") && line.includes('step="Инициализация"'))).toBe(true)
     expect(lines.some((line) => line.includes("[validation-step]") && line.includes('step="Обобщение индексов"'))).toBe(
       true
     )
@@ -65,6 +86,7 @@ describe("validateProject", { timeout: 120_000 }, () => {
     expect(lines.some((line) => line.includes("[validation-step]") && line.includes('step="Завершение validation"'))).toBe(
       true
     )
+    expect(lines.every((line) => !line.includes("scope=worker"))).toBe(true)
   })
 
   it("uses worker validation for a full project below the old file threshold", async () => {

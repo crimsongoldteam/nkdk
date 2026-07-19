@@ -5,6 +5,7 @@ import { parseMetadataYamlData } from "../../yaml/parseMetadataYaml"
 import type { ConfigurationContext } from "../context/types"
 import { createOwnerMetadataCacheFromSharedValidationSnapshot } from "../validation/dataPath/sharedOwnerCache"
 import { createValidationProfiler } from "../validation/profile"
+import { ProjectFileSchemaError } from "../validation/projectFileSchema"
 import { getProjectReferenceObjectPathContributor } from "../validation/projectReferenceIndexRegistry"
 import type {
   ProjectMemberIndexEntry,
@@ -29,6 +30,7 @@ import type { ValidationRulesSnapshot } from "../validation/rulesSnapshot"
 import { createSharedProjectReferenceIndex } from "../validation/sharedProjectReferenceIndex"
 import type { SharedValidationSnapshot } from "../validation/sharedValidationSnapshot"
 import type { Diagnostic } from "../validation/types"
+import { validateProjectPartial } from "../validation/validateProjectPartial"
 import type { ValidationMode, ValidationObjectRecord } from "../validation/projectValidationTypes"
 import type {
   PreparedMetadataDeclaration,
@@ -69,6 +71,13 @@ export type PreparedYamlProjectWorkerTask =
       sharedValidationSnapshot: SharedValidationSnapshot
       pendingReferences: PendingMetadataTargetReference[]
     }
+  | {
+      kind: "validatePartial"
+      workerIndex: number
+      projectDir: string
+      filePath: string
+      context: ConfigurationContext
+    }
 
 export type PreparedYamlProjectWorkerTaskResult =
   | {
@@ -92,6 +101,10 @@ export type PreparedYamlProjectWorkerTaskResult =
       kind: "validateSecondPassResult"
       diagnostics: Diagnostic[]
     }
+  | {
+      kind: "validatePartialResult"
+      diagnostics: Diagnostic[]
+    }
 
 interface WorkerValidationState {
   states: Map<string, ProjectValidationFileState>
@@ -104,6 +117,17 @@ interface WorkerValidationState {
 export default async function runPreparedYamlProjectWorkerTask(
   message: PreparedYamlProjectWorkerTask
 ): Promise<PreparedYamlProjectWorkerTaskResult> {
+  if (message.kind === "validatePartial") {
+    try {
+      const result = await validateProjectPartial(message)
+      return { kind: "validatePartialResult", diagnostics: result.diagnostics }
+    } catch (caught) {
+      if (caught instanceof ProjectFileSchemaError) {
+        throw new Error(caught.message, { cause: { code: "project_file_schema" } })
+      }
+      throw caught
+    }
+  }
   if (message.kind === "initValidation") {
     const profiler = createValidationProfiler({ scope: "worker", workerIndex: message.workerIndex })
     validationSchemaCache = await profiler.measureAsync("Инициализация", "Инициализация validation worker", { items: 1 }, () =>
