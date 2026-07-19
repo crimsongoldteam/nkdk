@@ -196,6 +196,7 @@ export const MetadataEnumerationRules = {
       yaml: "Значения",
       xmlParents: enumChildObjects,
       xml: "EnumValue",
+      configurationIndexUidSegment: "Значение",
     }),
     commands: metadataCommandsRule({
       yaml: "Команды",

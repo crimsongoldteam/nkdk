@@ -1,7 +1,7 @@
 import { mkdirSync, mkdtempSync, readFileSync, rmSync, writeFileSync } from "fs"
 import { tmpdir } from "os"
 import { join } from "path"
-import { afterEach, describe, expect, it, vi } from "vitest"
+import { afterEach, beforeEach, describe, expect, it, vi } from "vitest"
 import { importConfiguration } from "./import"
 
 const singleValueEnumerationXML = `<?xml version="1.0" encoding="UTF-8"?>
@@ -46,10 +46,12 @@ const singleValueEnumerationXML = `<?xml version="1.0" encoding="UTF-8"?>
 </MetaDataObject>`
 
 describe("import command", () => {
-  const originalExitCode = process.exitCode
+  beforeEach(() => {
+    process.exitCode = undefined
+  })
 
   afterEach(() => {
-    process.exitCode = originalExitCode
+    process.exitCode = undefined
     vi.restoreAllMocks()
   })
 
@@ -61,12 +63,12 @@ describe("import command", () => {
     writeFileSync(join(xmlDir, "Enums", "ВидыСервисовЭДО.xml"), singleValueEnumerationXML, "utf-8")
 
     vi.spyOn(process.stdout, "write").mockImplementation(() => true)
-    vi.spyOn(process.stderr, "write").mockImplementation(() => true)
+    const stderrWrite = vi.spyOn(process.stderr, "write").mockImplementation(() => true)
 
     try {
       await importConfiguration(xmlDir, yamlDir)
 
-      expect(process.exitCode).not.toBe(1)
+      expect(process.exitCode, JSON.stringify(stderrWrite.mock.calls)).not.toBe(1)
       const yaml = readFileSync(join(yamlDir, "Перечисление", "ВидыСервисовЭДО", "Свойства.yaml"), "utf-8")
       expect(yaml).toContain("Значения:")
       expect(yaml).toContain("  ЭПД:")
