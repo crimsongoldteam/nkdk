@@ -40,7 +40,7 @@ export const convertAppliedObjectFromXML = async (params: {
 
   const inputPath = join(inputDir, `${name}.xml`)
   const xmlContent = await fs.promises.readFile(inputPath, "utf-8")
-  const parsed = importContentFromXML<{ MetaDataObject: unknown }>(xmlContent)
+  const parsed = importContentFromXML<{ MetaDataObject: unknown }>(xmlContent, { preserveXsiNil: true })
   const model = importMetadataItemFromXML({ context, xml: parsed.MetaDataObject, rule })
 
   if (!model) return
@@ -65,7 +65,7 @@ export const convertAppliedObjectFromXML = async (params: {
     const extFilePath = fs.existsSync(rootExtFilePath) ? rootExtFilePath : objectExtFilePath
     if (!fs.existsSync(extFilePath)) continue
     const extContent = await fs.promises.readFile(extFilePath, "utf-8")
-    const extParsed = importContentFromXML<Record<string, unknown>>(extContent)
+    const extParsed = importContentFromXML<Record<string, unknown>>(extContent, { preserveXsiNil: true })
     const value = importPropertyFromXML({ context, rule: propRule as PropertyRule, value: extParsed, name: key })
     if (value !== undefined) mutableModel[key] = value
   }
@@ -153,14 +153,20 @@ async function syncChildCollectionsFromXML(params: {
           ? context
           : withConfigurationIndexLogicalAddress(
               context,
-              childUid(collection.logicalAddress, childCollection.propertyKey, item.name)
+              childUid(
+                collection.logicalAddress,
+                childCollection.configurationIndexUidSegment ?? childCollection.propertyKey,
+                item.name
+              )
             )
 
       if (childCollection.fileItemRule && childCollection.xmlDir) {
         const childXmlPath = `${childXmlDir}.xml`
         if (fs.existsSync(childXmlPath)) {
           const childXmlContent = await fs.promises.readFile(childXmlPath, "utf-8")
-          const childParsed = importContentFromXML<{ MetaDataObject: unknown }>(childXmlContent)
+          const childParsed = importContentFromXML<{ MetaDataObject: unknown }>(childXmlContent, {
+            preserveXsiNil: true,
+          })
           const childModel = importMetadataItemFromXML({
             context: childContext,
             xml: childParsed.MetaDataObject,

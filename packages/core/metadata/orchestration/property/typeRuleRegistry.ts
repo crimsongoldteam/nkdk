@@ -2,6 +2,7 @@ import { PropertyRuleType } from "./registry"
 import {
   CollectionItemRule,
   CollectMetadataTargetReferencesFunction,
+  ConfigurationIndexValueFromXMLDescriptor,
   createRegistryKey,
   ExportToEnterpriseFunction,
   ExportToJSONSchemaFn,
@@ -47,6 +48,7 @@ const typeRulesRegistry = new Map<
   | XmlImportRoutesFunction
   | FileChildNamesDescriptorFunction
   | XmlSyncWriterFunction
+  | ConfigurationIndexValueFromXMLDescriptor
 >()
 
 export const registerTypeRule = <O extends TypeRulesOperations>(
@@ -95,7 +97,9 @@ export const getTypeRule = <O extends TypeRulesOperations>(
                                 ? FileChildNamesDescriptorFunction | undefined
                                 : O extends "xmlSyncWriter"
                                   ? XmlSyncWriterFunction | undefined
-                                  : never => {
+                                  : O extends "configurationIndexValueFromXML"
+                                    ? ConfigurationIndexValueFromXMLDescriptor | undefined
+                                    : never => {
   const key = createRegistryKey(type, operation)
   const result = typeRulesRegistry.get(key)
   return result as any

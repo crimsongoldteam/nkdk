@@ -274,6 +274,15 @@ export interface CollectionItemRule {
   itemRule: MetadataItemRule
 }
 
+/**
+ * Компактное декларативное описание исходного XML-представления, которое тип
+ * теряет при импорте в модель и которое поэтому требуется индексу конфигурации.
+ */
+export interface ConfigurationIndexValueFromXMLDescriptor {
+  userSettingsIdFromSource?: true
+  xsiNilWhenNotRepresentable?: true
+}
+
 export interface TypeRule {
   importFromXML?: ImportFromXMLFunction
   exportToXML?: ExportToXMLFunction | ExportToXMLFunctionNew
@@ -292,6 +301,7 @@ export interface TypeRule {
   xmlImportRoutes?: XmlImportRoutesFunction
   fileChildNamesDescriptor?: FileChildNamesDescriptorFunction
   xmlSyncWriter?: XmlSyncWriterFunction
+  configurationIndexValueFromXML?: ConfigurationIndexValueFromXMLDescriptor
 }
 
 export type TypeRulesOperations =
@@ -312,6 +322,7 @@ export type TypeRulesOperations =
   | "xmlImportRoutes"
   | "fileChildNamesDescriptor"
   | "xmlSyncWriter"
+  | "configurationIndexValueFromXML"
 type TypeRuleKey = `${PropertyRuleType}:${TypeRulesOperations}`
 
 export const createRegistryKey = (type: PropertyRuleType, operation: TypeRulesOperations): TypeRuleKey => {
@@ -352,4 +363,6 @@ export type importExportFunction<O extends TypeRulesOperations> = O extends "imp
                                 ? FileChildNamesDescriptorFunction | undefined
                                 : O extends "xmlSyncWriter"
                                   ? XmlSyncWriterFunction | undefined
-                                  : never
+                                  : O extends "configurationIndexValueFromXML"
+                                    ? ConfigurationIndexValueFromXMLDescriptor | undefined
+                                    : never

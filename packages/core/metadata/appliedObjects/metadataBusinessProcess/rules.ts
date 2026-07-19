@@ -385,5 +385,7 @@ export const MetadataBusinessProcessRules = {
       fromXML: false,
     }),
   },
-  childCollections: [{ propertyKey: "commands", itemRule: MetadataCommandRules }],
+  childCollections: [
+    { propertyKey: "commands", configurationIndexUidSegment: "Команда", itemRule: MetadataCommandRules },
+  ],
 } as const satisfies MetadataItemRule

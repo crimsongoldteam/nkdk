@@ -256,11 +256,23 @@ export const MetadataExternalDataSourceDimensionTableRules = {
   metadataTargetOwner: { kind: "resolver" },
   externalMetadata: { segment: "DimensionTable", placement: "ownedEntry" },
   properties: dimensionTableProperties,
-  childCollections: [{ propertyKey: "commands", itemRule: MetadataExternalDataSourceDimensionTableCommandRules }],
+  childCollections: [
+    {
+      propertyKey: "commands",
+      configurationIndexUidSegment: "Команда",
+      itemRule: MetadataExternalDataSourceDimensionTableCommandRules,
+    },
+  ],
 } as const satisfies MetadataItemRule
 
 export const MetadataExternalDataSourceDimensionTableCollectionRules = {
   itemType: "MetadataExternalDataSourceDimensionTable",
   properties: dimensionTableCollectionProperties,
-  childCollections: [{ propertyKey: "commands", itemRule: MetadataExternalDataSourceDimensionTableCommandRules }],
+  childCollections: [
+    {
+      propertyKey: "commands",
+      configurationIndexUidSegment: "Команда",
+      itemRule: MetadataExternalDataSourceDimensionTableCommandRules,
+    },
+  ],
 } as const satisfies MetadataItemRule

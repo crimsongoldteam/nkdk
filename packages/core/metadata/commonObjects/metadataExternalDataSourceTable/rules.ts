@@ -419,11 +419,23 @@ export const MetadataExternalDataSourceTableRules = {
   metadataTargetOwner: { kind: "resolver" },
   externalMetadata: { segment: "Table", placement: "ownedEntry" },
   properties: tableProperties,
-  childCollections: [{ propertyKey: "commands", itemRule: MetadataExternalDataSourceTableCommandRules }],
+  childCollections: [
+    {
+      propertyKey: "commands",
+      configurationIndexUidSegment: "Команда",
+      itemRule: MetadataExternalDataSourceTableCommandRules,
+    },
+  ],
 } as const satisfies MetadataItemRule
 
 export const MetadataExternalDataSourceTableCollectionRules = {
   itemType: "MetadataExternalDataSourceTable",
   properties: tableCollectionProperties,
-  childCollections: [{ propertyKey: "commands", itemRule: MetadataExternalDataSourceTableCommandRules }],
+  childCollections: [
+    {
+      propertyKey: "commands",
+      configurationIndexUidSegment: "Команда",
+      itemRule: MetadataExternalDataSourceTableCommandRules,
+    },
+  ],
 } as const satisfies MetadataItemRule

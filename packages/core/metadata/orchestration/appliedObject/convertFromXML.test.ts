@@ -10,6 +10,14 @@ import { mockContextFromXML } from "../../../tests/mockContext"
 import { convertAppliedObjectFromXML } from "./convertFromXML"
 import { createConfigurationIndexCollector } from "../../configurationIndex/collector/writer"
 import { withConfigurationIndexCollector } from "../../configurationIndex/collector/context"
+import { registerTypeRule } from "../property/typeRuleRegistry"
+
+const APPLIED_NIL_PROBE_TYPE = "AppliedNilProbe" as never
+registerTypeRule(APPLIED_NIL_PROBE_TYPE, "importFromXML", (_context, _rule, value) =>
+  value !== null && typeof value === "object" && (value["_xsi:nil"] === true || value["_xsi:nil"] === "true")
+    ? "preserved"
+    : "lost"
+)
 
 // Minimal catalog XML with a form in ChildObjects
 const CATALOG_XML_WITH_FORM = `<?xml version="1.0" encoding="UTF-8"?>
@@ -23,6 +31,23 @@ const CATALOG_XML_WITH_FORM = `<?xml version="1.0" encoding="UTF-8"?>
 \t\t\t<Form>ФормаСписка</Form>
 \t\t</ChildObjects>
 \t</Catalog>
+</MetaDataObject>`
+
+const CATALOG_XML_WITH_COMMAND = `<?xml version="1.0" encoding="UTF-8"?>
+<MetaDataObject xmlns="http://v8.1c.ru/8.3/MDClasses" version="2.20">
+  <Catalog uuid="00000000-0000-0000-0000-000000000001">
+    <Properties><Name>ТестСправочник</Name></Properties>
+    <ChildObjects>
+      <Command uuid="00000000-0000-0000-0000-000000000002">
+        <Properties><Name>Обновить</Name></Properties>
+      </Command>
+    </ChildObjects>
+  </Catalog>
+</MetaDataObject>`
+
+const APPLIED_XML_WITH_NIL = `<?xml version="1.0" encoding="UTF-8"?>
+<MetaDataObject xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance">
+  <Catalog><Properties><Value xsi:nil="true"/></Properties></Catalog>
 </MetaDataObject>`
 
 let tmpDir: string
@@ -165,5 +190,60 @@ describe("convertAppliedObjectFromXML — объект с формами/шаб�
       kind: "uuid",
       value: "00000000-0000-0000-0000-000000000001",
     })
+  })
+
+  it("создаёт контекст дочернего объекта до импорта его свойств", async () => {
+    const inputDir = join(tmpDir, "input")
+    const outputDir = join(tmpDir, "output")
+    const collector = createConfigurationIndexCollector()
+    fs.mkdirSync(inputDir, { recursive: true })
+    fs.writeFileSync(join(inputDir, "ТестСправочник.xml"), CATALOG_XML_WITH_COMMAND, "utf-8")
+
+    await convertAppliedObjectFromXML({
+      rule: MetadataCatalogRules,
+      context: withConfigurationIndexCollector(mockContextFromXML(), collector, "Справочник.ТестСправочник"),
+      inputDir,
+      name: "ТестСправочник",
+      outputDir,
+    })
+
+    expect(collector.fragment("Справочник/ТестСправочник/Свойства.yaml").identities).toContainEqual({
+      logicalAddress: "Справочник.ТестСправочник.Команда.Обновить",
+      kind: "uuid",
+      value: "00000000-0000-0000-0000-000000000002",
+    })
+  })
+
+  it("сохраняет xsi:nil при чтении applied XML", async () => {
+    const inputDir = join(tmpDir, "input")
+    const outputDir = join(tmpDir, "output")
+    fs.mkdirSync(inputDir, { recursive: true })
+    fs.writeFileSync(join(inputDir, "Тест.xml"), APPLIED_XML_WITH_NIL, "utf-8")
+
+    await convertAppliedObjectFromXML({
+      rule: {
+        itemType: "Catalog",
+        properties: {
+          xmlRoot: {
+            type: "XMLRoot",
+            container: "Catalog",
+            rootAttributes: {},
+            forReferenceOnly: true,
+          },
+          value: {
+            type: APPLIED_NIL_PROBE_TYPE,
+            xml: "Value",
+            yaml: "Значение",
+            xmlParents: ["Properties"],
+          },
+        },
+      } as any,
+      context: mockContextFromXML(),
+      inputDir,
+      name: "Тест",
+      outputDir,
+    })
+
+    expect(fs.readFileSync(join(outputDir, "Тест", "Свойства.yaml"), "utf-8")).toContain("Значение: preserved")
   })
 })

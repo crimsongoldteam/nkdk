@@ -400,5 +400,7 @@ export const MetadataExchangePlanRules = {
       nkdkDir: "Справка",
     }),
   },
-  childCollections: [{ propertyKey: "commands", itemRule: MetadataExchangePlanCommandRules }],
+  childCollections: [
+    { propertyKey: "commands", configurationIndexUidSegment: "Команда", itemRule: MetadataExchangePlanCommandRules },
+  ],
 } as const satisfies MetadataItemRule

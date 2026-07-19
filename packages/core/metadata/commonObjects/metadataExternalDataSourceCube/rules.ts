@@ -231,12 +231,17 @@ export const MetadataExternalDataSourceCubeRules = {
   childCollections: [
     {
       propertyKey: "dimensionTables",
+      configurationIndexUidSegment: "ТаблицаИзмерений",
       itemRule: MetadataExternalDataSourceDimensionTableCollectionRules,
       fileItemRule: MetadataExternalDataSourceDimensionTableRules,
       nkdkDir: ({ name }: { name: string }) => `ТаблицыИзмерений/${name}`,
       xmlDir: ({ name }: { name: string }) => `DimensionTables/${name}`,
     },
-    { propertyKey: "commands", itemRule: MetadataExternalDataSourceCubeCommandRules },
+    {
+      propertyKey: "commands",
+      configurationIndexUidSegment: "Команда",
+      itemRule: MetadataExternalDataSourceCubeCommandRules,
+    },
   ],
 } as const satisfies MetadataItemRule
 
@@ -246,11 +251,16 @@ export const MetadataExternalDataSourceCubeCollectionRules = {
   childCollections: [
     {
       propertyKey: "dimensionTables",
+      configurationIndexUidSegment: "ТаблицаИзмерений",
       itemRule: MetadataExternalDataSourceDimensionTableCollectionRules,
       fileItemRule: MetadataExternalDataSourceDimensionTableRules,
       nkdkDir: ({ name }: { name: string }) => `ТаблицыИзмерений/${name}`,
       xmlDir: ({ name }: { name: string }) => `DimensionTables/${name}`,
     },
-    { propertyKey: "commands", itemRule: MetadataExternalDataSourceCubeCommandRules },
+    {
+      propertyKey: "commands",
+      configurationIndexUidSegment: "Команда",
+      itemRule: MetadataExternalDataSourceCubeCommandRules,
+    },
   ],
 } as const satisfies MetadataItemRule

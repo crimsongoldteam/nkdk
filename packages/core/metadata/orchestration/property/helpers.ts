@@ -117,6 +117,10 @@ export const shouldProcessProperty = (params: {
   }
 }
 
+/** Присутствие XML-тега меняет последующий экспорт, даже если модельное значение совпадает. */
+export const presenceAffectsExport = (rule: PropertyRule): boolean =>
+  rule.preserveFromReferenceXML === true || rule.preserveExplicitDefaultXML === true
+
 const buildPathStructure = <Rule extends MetadataItemRule>(
   rule: Rule,
   tagFilter: string[] | undefined,

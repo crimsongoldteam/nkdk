@@ -189,6 +189,16 @@ describe("importClientApplicationFormFromXML", () => {
       expect.arrayContaining([
         expect.objectContaining({ logicalAddress, kind: "uuid" }),
         expect.objectContaining({ logicalAddress: `${logicalAddress}.Элемент.ПолеВвода1`, kind: "xmlId" }),
+        expect.objectContaining({
+          logicalAddress: `${logicalAddress}.Элемент.ПолеВвода1.Элемент.ПолеВвода1КонтекстноеМеню`,
+          kind: "xmlId",
+          value: "3",
+        }),
+        expect.objectContaining({
+          logicalAddress: `${logicalAddress}.Элемент.ПолеВвода1.Элемент.ПолеВвода1РасширеннаяПодсказка`,
+          kind: "xmlId",
+          value: "4",
+        }),
         expect.objectContaining({ logicalAddress: `${logicalAddress}.Атрибут.Объект`, kind: "xmlId" }),
         expect.objectContaining({ logicalAddress: `${logicalAddress}.Команда.Команда1`, kind: "xmlId" }),
       ])
@@ -197,6 +207,34 @@ describe("importClientApplicationFormFromXML", () => {
     expect(fragment.xmlNodes).not.toEqual(
       expect.arrayContaining([
         expect.objectContaining({ logicalAddress: expect.stringMatching(/\.(Элементы|Атрибуты|Команды)$/) }),
+      ])
+    )
+  })
+
+  it("собирает порядок Form.xml отдельно от metadata XML", () => {
+    const collector = createConfigurationIndexCollector()
+    const logicalAddress = "Справочник.Контрагенты.Форма.ФормаЭлемента"
+    const context = withConfigurationIndexCollector(mockContextFromXML(), collector, logicalAddress)
+
+    importClientApplicationFormFromXML({
+      context,
+      xml: { Title: "Форма", Width: 80 },
+      xmlMetadata: {
+        Form: {
+          _uuid: "00000000-0000-4000-8000-000000000001",
+          Properties: { Name: "ФормаЭлемента", Comment: "Комментарий" },
+        },
+      } as FormMetadataXML,
+    })
+
+    const nodes = collector.fragment("Справочник/Контрагенты/Формы/ФормаЭлемента/Форма.yaml").xmlNodes
+    expect(nodes).toEqual(
+      expect.arrayContaining([
+        expect.objectContaining({ logicalAddress, order: ["name", "comment"] }),
+        expect.objectContaining({
+          logicalAddress: `${logicalAddress}.ЧастьФормы.Содержимое`,
+          order: ["title", "width"],
+        }),
       ])
     )
   })

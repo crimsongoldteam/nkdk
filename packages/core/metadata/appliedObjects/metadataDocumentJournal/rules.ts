@@ -184,5 +184,7 @@ export const MetadataDocumentJournalRules = {
       nkdkDir: "Справка",
     }),
   },
-  childCollections: [{ propertyKey: "commands", itemRule: MetadataDocumentJournalCommandRules }],
+  childCollections: [
+    { propertyKey: "commands", configurationIndexUidSegment: "Команда", itemRule: MetadataDocumentJournalCommandRules },
+  ],
 } as const satisfies MetadataItemRule

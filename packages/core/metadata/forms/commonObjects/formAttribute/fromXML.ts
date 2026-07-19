@@ -16,7 +16,7 @@ import {
   FormAttributeWithAdditionalColumns,
   FormAttributeXML,
 } from "./types"
-import { childUid } from "../../../configurationIndex/logicalAddress"
+import { childUid, indexedUid } from "../../../configurationIndex/logicalAddress"
 import {
   getConfigurationIndexCollectionContext,
   withConfigurationIndexLogicalAddress,
@@ -161,10 +161,20 @@ const importColumnsFromXML = (
   if (!xml) return []
 
   const items = Array.isArray(xml) ? xml : [xml]
+  const collection = getConfigurationIndexCollectionContext(context)
 
-  return items.map((item) => {
+  return items.map((item, index) => {
+    const columnContext =
+      collection === undefined
+        ? context
+        : withConfigurationIndexLogicalAddress(
+            context,
+            typeof item._name === "string" && item._name.length > 0
+              ? childUid(collection.logicalAddress, "Колонка", item._name)
+              : indexedUid(collection.logicalAddress, "Колонка", index)
+          )
     const properties = importMetadataItemFromXML({
-      context: context,
+      context: columnContext,
       xml: item,
       rule: FormAttributeColumnRules,
     })
@@ -193,10 +203,22 @@ const importAdditionalColumnsFromXML = (
 
   const items = Array.isArray(xml) ? xml : [xml]
 
-  return items.map((item) => ({
-    table: item._table,
-    columns: importColumnsFromXML(context, item.Column ?? [])!,
-  }))
+  const collection = getConfigurationIndexCollectionContext(context)
+  return items.map((item, index) => {
+    const additionalColumnsContext =
+      collection === undefined
+        ? context
+        : withConfigurationIndexLogicalAddress(
+            context,
+            typeof item._table === "string" && item._table.length > 0
+              ? childUid(collection.logicalAddress, "ДополнительныеКолонки", item._table)
+              : indexedUid(collection.logicalAddress, "ДополнительныеКолонки", index)
+          )
+    return {
+      table: item._table,
+      columns: importColumnsFromXML(additionalColumnsContext, item.Column ?? [])!,
+    }
+  })
 }
 
 const importFormAttributeAdditionalColumnsFromXML = (

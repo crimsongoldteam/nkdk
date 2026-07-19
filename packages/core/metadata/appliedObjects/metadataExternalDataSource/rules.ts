@@ -105,6 +105,7 @@ export const MetadataExternalDataSourceRules = {
   childCollections: [
     {
       propertyKey: "tables",
+      configurationIndexUidSegment: "Таблица",
       itemRule: MetadataExternalDataSourceTableCollectionRules,
       fileItemRule: MetadataExternalDataSourceTableRules,
       nkdkDir: ({ name }: { name: string }) => `Таблицы/${name}`,
@@ -112,6 +113,7 @@ export const MetadataExternalDataSourceRules = {
     },
     {
       propertyKey: "cubes",
+      configurationIndexUidSegment: "Куб",
       itemRule: MetadataExternalDataSourceCubeCollectionRules,
       fileItemRule: MetadataExternalDataSourceCubeRules,
       nkdkDir: ({ name }: { name: string }) => `Кубы/${name}`,

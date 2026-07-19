@@ -1,4 +1,6 @@
 import type { ConfigurationContextFromXML } from "../../context/types"
+import type { ConfigurationIndexValueFromXMLDescriptor } from "../../orchestration/property/fn"
+import type { PropertyRule } from "../../orchestration/property/types"
 import { getConfigurationIndexCollectionContext } from "./context"
 
 export function collectConfigurationIndexIdentityFromXML(params: {
@@ -26,26 +28,22 @@ export function collectConfigurationIndexPropertyFromXML(params: {
   context: ConfigurationContextFromXML
   propertyKey: string
   xmlValue: unknown
+  rule: PropertyRule
+  descriptor?: ConfigurationIndexValueFromXMLDescriptor
 }): void {
   const collection = getConfigurationIndexCollectionContext(params.context)
   if (collection === undefined) return
 
   const address = `${collection.logicalAddress}.${params.propertyKey}`
-  if (params.xmlValue === undefined || params.xmlValue === "") {
-    collection.collector.setExplicitEmpty(address)
-    if (params.xmlValue === "") collection.collector.setXmlText(address, "")
+  if (params.descriptor?.userSettingsIdFromSource === true && typeof params.xmlValue === "string") {
+    collection.collector.setUserSettingsId(address, params.xmlValue)
   }
-
-  if (!isRecord(params.xmlValue)) return
-  const xsiNil = params.xmlValue["_xsi:nil"]
-  if (xsiNil === true || xsiNil === "true") collection.collector.setXsiNil(address)
-
-  const xsiType = params.xmlValue["_xsi:type"]
-  if (typeof xsiType === "string") collection.collector.setXsiType(address, xsiType)
-
-  const xmlText = params.xmlValue["#text"]
-  if (typeof xmlText === "string" || typeof xmlText === "number" || typeof xmlText === "boolean") {
-    collection.collector.setXmlText(address, String(xmlText))
+  if (
+    params.descriptor?.xsiNilWhenNotRepresentable === true &&
+    hasXsiNil(params.xmlValue) &&
+    !ruleRepresentsXsiNil(params.rule)
+  ) {
+    collection.collector.setXsiNil(address)
   }
 }
 
@@ -70,4 +68,14 @@ function isNameReconstructible(logicalAddress: string, xmlName: string): boolean
 
 function isRecord(value: unknown): value is Record<string, unknown> {
   return value !== null && typeof value === "object" && !Array.isArray(value)
+}
+
+function hasXsiNil(value: unknown): boolean {
+  if (!isRecord(value)) return false
+  return value["_xsi:nil"] === true || value["_xsi:nil"] === "true"
+}
+
+function ruleRepresentsXsiNil(rule: PropertyRule): boolean {
+  if ("exportNilValue" in rule && rule.exportNilValue === true) return true
+  return hasXsiNil(rule.defaultValueXMLRaw)
 }

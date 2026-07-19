@@ -385,5 +385,11 @@ export const MetadataChartOfCalculationTypesRules = {
       fromXML: false,
     }),
   },
-  childCollections: [{ propertyKey: "commands", itemRule: MetadataChartOfCalculationTypesCommandRules }],
+  childCollections: [
+    {
+      propertyKey: "commands",
+      configurationIndexUidSegment: "Команда",
+      itemRule: MetadataChartOfCalculationTypesCommandRules,
+    },
+  ],
 } as const satisfies MetadataItemRule

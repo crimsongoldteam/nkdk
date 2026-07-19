@@ -204,5 +204,7 @@ export const MetadataDataProcessorRules = {
       nkdkDir: "Справка",
     }),
   },
-  childCollections: [{ propertyKey: "commands", itemRule: MetadataDataProcessorCommandRules }],
+  childCollections: [
+    { propertyKey: "commands", configurationIndexUidSegment: "Команда", itemRule: MetadataDataProcessorCommandRules },
+  ],
 } as const satisfies MetadataItemRule

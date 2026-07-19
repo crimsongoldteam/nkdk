@@ -215,5 +215,7 @@ export const MetadataEnumerationRules = {
       xmlParents: enumChildObjects,
     }),
   },
-  childCollections: [{ propertyKey: "commands", itemRule: MetadataCommandRules }],
+  childCollections: [
+    { propertyKey: "commands", configurationIndexUidSegment: "Команда", itemRule: MetadataCommandRules },
+  ],
 } as const satisfies MetadataItemRule

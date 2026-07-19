@@ -13,3 +13,6 @@ export const importUserSettingsIDFromXML = (
 }
 
 registerTypeRule("UserSettingsID", "importFromXML", importUserSettingsIDFromXML)
+registerTypeRule("UserSettingsID", "configurationIndexValueFromXML", {
+  userSettingsIdFromSource: true,
+})

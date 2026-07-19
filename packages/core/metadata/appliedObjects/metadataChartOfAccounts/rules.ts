@@ -394,5 +394,7 @@ export const MetadataChartOfAccountsRules = {
       fromXML: false,
     }),
   },
-  childCollections: [{ propertyKey: "commands", itemRule: MetadataChartOfAccountsCommandRules }],
+  childCollections: [
+    { propertyKey: "commands", configurationIndexUidSegment: "Команда", itemRule: MetadataChartOfAccountsCommandRules },
+  ],
 } as const satisfies MetadataItemRule

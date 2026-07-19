@@ -459,6 +459,8 @@ export interface MetadataItemRule extends MetadataItem {
    */
   childCollections?: ReadonlyArray<{
     propertyKey: string
+    /** Канонический русскоязычный сегмент logicalAddress элемента коллекции. */
+    configurationIndexUidSegment?: string
     itemRule: MetadataItemRule
     fileItemRule?: MetadataItemRule
     nkdkDir?: string | ((params: { name: string; parentName?: string }) => string)

@@ -30,20 +30,27 @@ describe("importPropertiesFromXML configuration index collection", () => {
             xml: "Title",
             xmlAliases: ["Caption"],
           },
+          explicitDefault: {
+            type: "string",
+            xml: "ExplicitDefault",
+            defaultValueXML: "Авто",
+            preserveExplicitDefaultXML: true,
+          },
         },
       } as any,
       xml: {
         Caption: "Заголовок",
         RowFilter: {},
+        ExplicitDefault: "Авто",
       },
     })
 
     expect(collector.fragment("Справочник/Товары/Свойства.yaml").xmlNodes).toEqual([
       {
         logicalAddress: "Справочник.Товары",
-        order: ["title", "rowFilter"],
+        order: ["title", "rowFilter", "explicitDefault"],
         aliases: { title: "Caption" },
-        present: ["rowFilter"],
+        present: ["rowFilter", "explicitDefault"],
       },
     ])
   })
@@ -92,7 +99,7 @@ describe("importPropertiesFromXML configuration index collection", () => {
     ])
   })
 
-  it("collects compact XML value representation without retaining the source object", () => {
+  it("не сохраняет XML-представление, полностью восстанавливаемое из Project и rules", () => {
     const collector = createConfigurationIndexCollector()
     const context = withConfigurationIndexCollector(createContext(), collector, "Отчёт.Продажи")
 
@@ -111,9 +118,34 @@ describe("importPropertiesFromXML configuration index collection", () => {
       },
     })
 
-    expect(collector.fragment("Отчёт/Продажи/Свойства.yaml").xmlValues).toEqual([
-      { logicalAddress: "Отчёт.Продажи.comment", explicitEmpty: true, xmlText: "" },
-      { logicalAddress: "Отчёт.Продажи.result", xsiType: "xs:decimal", xmlText: "3" },
+    expect(collector.fragment("Отчёт/Продажи/Свойства.yaml").xmlValues).toEqual([])
+  })
+
+  it("сохраняет xsi:nil, потерянный моделью и не заданный rules", () => {
+    const collector = createConfigurationIndexCollector()
+    const context = withConfigurationIndexCollector(createContext(), collector, "РегистрСведений.Остатки")
+
+    importPropertiesFromXML({
+      context,
+      rule: {
+        itemType: "InformationRegister",
+        properties: {
+          sourceValue: { type: "MetadataValue", xml: "SourceValue" },
+          canonicalNil: {
+            type: "MetadataValue",
+            xml: "CanonicalNil",
+            defaultValueXMLRaw: { "_xsi:nil": true },
+          },
+        },
+      } as any,
+      xml: {
+        SourceValue: { "_xsi:nil": true },
+        CanonicalNil: { "_xsi:nil": true },
+      },
+    })
+
+    expect(collector.fragment("РегистрСведений/Остатки/Свойства.yaml").xmlValues).toEqual([
+      { logicalAddress: "РегистрСведений.Остатки.sourceValue", xsiNil: true },
     ])
   })
 })

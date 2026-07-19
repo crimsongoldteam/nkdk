@@ -3,13 +3,23 @@ import { ConfigurationContextFromXML } from "../../context/types"
 import { MetadataItemRule, PropertyRule, ToMetadata } from ".."
 import { getTypeRule } from "./typeRuleRegistry"
 import { importContentFromXML } from "../../../xml/import/importer"
-import { getOrderedKeysFromXML, getValueOrDefault, shouldProcessProperty, XML_SOURCE_KEYS } from "./helpers"
+import {
+  getOrderedKeysFromXML,
+  getValueOrDefault,
+  presenceAffectsExport,
+  shouldProcessProperty,
+  XML_SOURCE_KEYS,
+} from "./helpers"
 import {
   collectConfigurationIndexIdentityFromXML,
   collectConfigurationIndexImportedValue,
   collectConfigurationIndexPropertyFromXML,
 } from "../../configurationIndex/collector/collectProperty"
-import { getConfigurationIndexCollectionContext } from "../../configurationIndex/collector/context"
+import {
+  getConfigurationIndexCollectionContext,
+  getConfigurationIndexXmlNodeLogicalAddress,
+  withConfigurationIndexChildCollection,
+} from "../../configurationIndex/collector/context"
 
 export function importPropertiesFromXML<Rule extends MetadataItemRule>(
   params: {
@@ -30,6 +40,8 @@ export function importPropertiesFromXML<Rule extends MetadataItemRule>(
   const orderedKeys = getOrderedKeysFromXML({ rule, xml, tags })
   const ownerXmlName = getOwnerXmlName(xml)
   const indexCollection = getConfigurationIndexCollectionContext(context)
+  const xmlNodeLogicalAddress =
+    indexCollection === undefined ? undefined : getConfigurationIndexXmlNodeLogicalAddress(indexCollection)
   const importedKeysInSourceOrder: string[] = []
 
   for (const key of orderedKeys) {
@@ -44,10 +56,10 @@ export function importPropertiesFromXML<Rule extends MetadataItemRule>(
       importedKeysInSourceOrder.push(key)
       const canonicalXmlKey = currentRule.xml ?? capitalize(key)
       if (sourceXmlKey !== canonicalXmlKey) {
-        indexCollection.collector.setAlias(indexCollection.logicalAddress, key, sourceXmlKey)
+        indexCollection.collector.setAlias(xmlNodeLogicalAddress!, key, sourceXmlKey)
       }
-      if (currentRule.preserveFromReferenceXML === true) {
-        indexCollection.collector.setPresent(indexCollection.logicalAddress, key)
+      if (presenceAffectsExport(currentRule)) {
+        indexCollection.collector.setPresent(xmlNodeLogicalAddress!, key)
       }
     }
     let xmlValue = sourceXmlValue
@@ -62,7 +74,13 @@ export function importPropertiesFromXML<Rule extends MetadataItemRule>(
       xmlValue = { "_xsi:nil": true }
     }
     if (sourceXmlKey !== undefined) {
-      collectConfigurationIndexPropertyFromXML({ context, propertyKey: key, xmlValue })
+      collectConfigurationIndexPropertyFromXML({
+        context,
+        propertyKey: key,
+        xmlValue,
+        rule: currentRule,
+        descriptor: getTypeRule(currentRule.type, "configurationIndexValueFromXML"),
+      })
     }
     const shouldImportForReference =
       forReference &&
@@ -76,13 +94,18 @@ export function importPropertiesFromXML<Rule extends MetadataItemRule>(
     const hasRawEmptyXML = hasExplicitXMLKeyWithEmptyDefault && (xmlValue === undefined || xmlValue === "")
 
     let value
+    const childCollection = rule.childCollections?.find((candidate) => candidate.propertyKey === key)
+    const propertyContext =
+      childCollection?.configurationIndexUidSegment === undefined
+        ? context
+        : withConfigurationIndexChildCollection(context, childCollection.configurationIndexUidSegment)
     if (hasRawEmptyXML && (currentRule as any).emptyAsRawXML === true) {
       value = (currentRule as any).defaultValueXMLEmpty
     } else {
       value =
         shouldImportForReference || currentRule.fromXML !== false
           ? importPropertyFromXML({
-              context,
+              context: propertyContext,
               rule: currentRule,
               value: xmlValue,
               name: key,
@@ -122,7 +145,7 @@ export function importPropertiesFromXML<Rule extends MetadataItemRule>(
   }
 
   if (indexCollection !== undefined && importedKeysInSourceOrder.length > 0) {
-    indexCollection.collector.setOrder(indexCollection.logicalAddress, importedKeysInSourceOrder)
+    indexCollection.collector.setOrder(xmlNodeLogicalAddress!, importedKeysInSourceOrder)
   }
 
   return result

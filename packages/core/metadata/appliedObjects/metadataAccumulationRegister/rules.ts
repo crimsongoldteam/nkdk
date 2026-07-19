@@ -248,5 +248,11 @@ export const MetadataAccumulationRegisterRules = {
       nkdkDir: "Справка",
     }),
   },
-  childCollections: [{ propertyKey: "commands", itemRule: MetadataAccumulationRegisterCommandRules }],
+  childCollections: [
+    {
+      propertyKey: "commands",
+      configurationIndexUidSegment: "Команда",
+      itemRule: MetadataAccumulationRegisterCommandRules,
+    },
+  ],
 } as const satisfies MetadataItemRule
