@@ -27,6 +27,8 @@ describe("importFromXml service", () => {
           sourcePath: "/xml/Enums/Виды.xml",
         },
       ],
+      warnings: [],
+      preservedTempRoot: "/yaml/.nkdk/tmp/import/operation-1",
     })
 
     const result = await importFromXml({ xmlDir: "/xml", yamlDir: "/yaml", allowWrite: true }, { syncConfigurationFromXML })
@@ -51,6 +53,43 @@ describe("importFromXml service", () => {
           message: "broken xml",
         },
       ],
+      warnings: [],
+      preservedTempRoot: "/yaml/.nkdk/tmp/import/operation-1",
+    })
+  })
+
+  it("returns warnings and configuration index path", async () => {
+    const syncConfigurationFromXML = vi.fn().mockResolvedValue({
+      succeeded: 1,
+      failed: [],
+      warnings: [
+        {
+          severity: "warning",
+          code: "unresolved_data_path",
+          message: "path",
+          targetProjectPath: "Форма.yaml",
+        },
+      ],
+      configurationIndexPath: "/yaml/.nkdk/configuration-index/default.bin",
+    })
+
+    const result = await importFromXml(
+      { xmlDir: "/xml", yamlDir: "/yaml", allowWrite: true },
+      { syncConfigurationFromXML }
+    )
+
+    expect(result).toEqual({
+      ok: true,
+      succeeded: 1,
+      failed: [],
+      warnings: [
+        {
+          code: "unresolved_data_path",
+          message: "path",
+          targetProjectPath: "Форма.yaml",
+        },
+      ],
+      configurationIndexPath: "/yaml/.nkdk/configuration-index/default.bin",
     })
   })
 })

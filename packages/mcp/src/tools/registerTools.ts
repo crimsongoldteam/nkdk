@@ -56,7 +56,7 @@ export function registerNkdkCapabilities(server: RegisterableServer): void {
     {
       title: "Import 1C XML to NKDK YAML",
       description:
-        "Импортирует XML-выгрузку 1С в YAML-проект. Не удаляет существующие файлы, отсутствующие в выгрузке. Пишет файлы только при allowWrite=true.",
+        "Импортирует готовую XML-выгрузку 1С в YAML-проект, не очищает Проект и не подключается к 1С. При неуспехе сохраняет временные файлы в .nkdk/tmp/import/<operation-id>. Пишет файлы только при allowWrite=true.",
       inputSchema: importFromXmlInputShape,
     },
     async (input) => jsonToolResult(await importFromXml(input))

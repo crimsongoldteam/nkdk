@@ -90,8 +90,40 @@ describe("import command", () => {
 
       expect(process.exitCode).toBe(1)
       expect(stderrWrite).toHaveBeenCalledWith(expect.stringContaining("xml_import_assignment_failed"))
+      expect(stderrWrite).toHaveBeenCalledWith(expect.stringContaining("Временные файлы:"))
     } finally {
       rmSync(projectDir, { recursive: true, force: true })
     }
+  })
+
+  it("печатает предупреждения отдельно от ошибок и путь временных файлов", async () => {
+    const stderrWrite = vi.spyOn(process.stderr, "write").mockImplementation(() => true)
+    vi.spyOn(process.stdout, "write").mockImplementation(() => true)
+    const syncConfigurationFromXML = vi.fn().mockResolvedValue({
+      succeeded: 0,
+      failed: [
+        {
+          severity: "error" as const,
+          code: "xml_import_assignment_failed",
+          message: "broken xml",
+          targetProjectPath: "Перечисление/Виды/Свойства.yaml",
+        },
+      ],
+      warnings: [
+        {
+          severity: "warning" as const,
+          code: "unresolved_data_path",
+          message: "ПутьКДанным не разрешён",
+          targetProjectPath: "Форма.yaml",
+        },
+      ],
+      preservedTempRoot: "/yaml/.nkdk/tmp/import/operation-1",
+    })
+
+    await importConfiguration("/xml", "/yaml", { syncConfigurationFromXML })
+
+    expect(stderrWrite).toHaveBeenCalledWith("⚠ ПутьКДанным не разрешён\n")
+    expect(stderrWrite).toHaveBeenCalledWith("Временные файлы: /yaml/.nkdk/tmp/import/operation-1\n")
+    expect(process.exitCode).toBe(1)
   })
 })
