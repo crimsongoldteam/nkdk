@@ -8,6 +8,7 @@ import type { ExternalMetadataCollector, ExternalMetadataItemRule } from "../orc
 import type { MetadataTargetOwner } from "../commonObjects/metadataTargets/types"
 import type { PropertyRuleType } from "../orchestration/property/registry"
 import type { YAMLImportDiagnosticContext } from "../orchestration/yamlImportError"
+import type { ConfigurationIndexCollectionContext } from "../configurationIndex/collector/context"
 
 export type ContextElementToXML = {
   name: string
@@ -78,6 +79,7 @@ export type ToXMLConfigurationContext = {
 
 export type FromXMLConfigurationContext = {
   forReference: boolean
+  configurationIndex?: ConfigurationIndexCollectionContext
 }
 
 /** Контекст с обязательным exportToXML для функций экспорта в XML */

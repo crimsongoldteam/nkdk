@@ -16,6 +16,11 @@ import {
   FormAttributeWithAdditionalColumns,
   FormAttributeXML,
 } from "./types"
+import { childUid } from "../../../configurationIndex/logicalAddress"
+import {
+  getConfigurationIndexCollectionContext,
+  withConfigurationIndexLogicalAddress,
+} from "../../../configurationIndex/collector/context"
 
 const isAttributesContainerWithoutAttributes = (xml: unknown): boolean => {
   if (xml === null || xml === undefined || Array.isArray(xml) || typeof xml !== "object") return false
@@ -35,7 +40,18 @@ export const importFormAttributesFromXML = (
 
   const xmlAttributes = "Attribute" in xml ? xml.Attribute : xml
   const items = Array.isArray(xmlAttributes) ? xmlAttributes : [xmlAttributes]
-  const attributes = items.map((item) => importFormAttributeFromXML(context, item as FormAttributeXML))
+  const collection = getConfigurationIndexCollectionContext(context)
+  const attributes = items.map((item) => {
+    const attributeXml = item as FormAttributeXML
+    const attributeContext =
+      collection !== undefined && typeof attributeXml._name === "string"
+        ? withConfigurationIndexLogicalAddress(
+            context,
+            childUid(collection.logicalAddress, "Атрибут", attributeXml._name)
+          )
+        : context
+    return importFormAttributeFromXML(attributeContext, attributeXml)
+  })
 
   return attributes
 }

@@ -8,6 +8,8 @@ import { MetadataDocumentNumeratorRules } from "../../appliedObjects/metadataDoc
 import { MetadataSequenceRules } from "../../appliedObjects/metadataSequence/rules"
 import { mockContextFromXML } from "../../../tests/mockContext"
 import { convertAppliedObjectFromXML } from "./convertFromXML"
+import { createConfigurationIndexCollector } from "../../configurationIndex/collector/writer"
+import { withConfigurationIndexCollector } from "../../configurationIndex/collector/context"
 
 // Minimal catalog XML with a form in ChildObjects
 const CATALOG_XML_WITH_FORM = `<?xml version="1.0" encoding="UTF-8"?>
@@ -141,5 +143,27 @@ describe("convertAppliedObjectFromXML — объект с формами/шаб�
     // Формы не экспортируются в YAML (toYAML: false)
     const yaml = fs.readFileSync(outputPath, "utf-8")
     expect(yaml).not.toContain("ФормаСписка")
+  })
+
+  it("собирает uuid прикладного объекта под его logicalAddress", async () => {
+    const inputDir = join(tmpDir, "input")
+    const outputDir = join(tmpDir, "output")
+    const collector = createConfigurationIndexCollector()
+    fs.mkdirSync(inputDir, { recursive: true })
+    fs.writeFileSync(join(inputDir, "ТестСправочник.xml"), CATALOG_XML_WITH_FORM, "utf-8")
+
+    await convertAppliedObjectFromXML({
+      rule: MetadataCatalogRules,
+      context: withConfigurationIndexCollector(mockContextFromXML(), collector, "Справочник.ТестСправочник"),
+      inputDir,
+      name: "ТестСправочник",
+      outputDir,
+    })
+
+    expect(collector.fragment("Справочник/ТестСправочник/Свойства.yaml").identities).toContainEqual({
+      logicalAddress: "Справочник.ТестСправочник",
+      kind: "uuid",
+      value: "00000000-0000-0000-0000-000000000001",
+    })
   })
 })

@@ -7,6 +7,8 @@ import { afterEach, beforeEach, describe, expect, it } from "vitest"
 import { mockContextFromXML } from "../../../tests/mockContext"
 import { getXMLFixtureDir, readXMLFixtureAsString } from "../../../tests/readFixtureXML"
 import { convertFormFromXML, readFormFromXML } from "./convertFromXML"
+import { createConfigurationIndexCollector } from "../../configurationIndex/collector/writer"
+import { withConfigurationIndexCollector } from "../../configurationIndex/collector/context"
 
 const execFileAsync = promisify(execFile)
 
@@ -36,6 +38,24 @@ describe("import from XML string", () => {
     const resultYaml = fs.readFileSync(join(outputDir, "Формы", formName, "Форма.yaml"), "utf-8")
 
     expect(resultYaml).toBe(expectedYaml)
+  })
+
+  it("collects the form uuid under the owner-derived logical address", async () => {
+    const collector = createConfigurationIndexCollector()
+
+    await convertFormFromXML({
+      context: withConfigurationIndexCollector(mockContextFromXML(), collector, "Справочник.Контрагенты"),
+      inputDir,
+      formName,
+      outputDir,
+    })
+
+    expect(collector.fragment(`Справочник/Контрагенты/Формы/${formName}/Форма.yaml`).identities).toContainEqual(
+      expect.objectContaining({
+        logicalAddress: `Справочник.Контрагенты.Форма.${formName}`,
+        kind: "uuid",
+      })
+    )
   })
 
   it("должен экспортировать текст запроса DynamicList во внешний .query файл", async () => {

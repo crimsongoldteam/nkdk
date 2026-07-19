@@ -9,6 +9,11 @@ import { copyFormItemExternalFilesFromXML } from "./externalItemFiles"
 import { copyExistingRawFile, copyRawDirectoryFiles } from "./externalRawFiles"
 import { importClientApplicationFormFromXML } from "./fromXML"
 import { ClientApplicationForm, ClientApplicationFormXML, FormMetadataXML } from "./types"
+import { childUid } from "../../configurationIndex/logicalAddress"
+import {
+  getConfigurationIndexCollectionContext,
+  withConfigurationIndexLogicalAddress,
+} from "../../configurationIndex/collector/context"
 
 export type ReadFormFromXMLResult = {
   yaml: string | undefined
@@ -27,9 +32,14 @@ export const convertFormFromXML = async (params: {
   const metadataXML = await fs.promises.readFile(metadataPath, "utf-8")
 
   const { formXML, hasFormBin } = await readFormBodyFromXML({ inputDir, formName, metadataXML })
-  const form = parseFormFromXML({ context, formXML, metadataXML })
+  const collection = getConfigurationIndexCollectionContext(context)
+  const formContext =
+    collection === undefined
+      ? context
+      : withConfigurationIndexLogicalAddress(context, childUid(collection.logicalAddress, "Форма", formName))
+  const form = parseFormFromXML({ context: formContext, formXML, metadataXML })
 
-  const { yaml, externalFiles } = await convertFormToYAML({ context, form, formName })
+  const { yaml, externalFiles } = await convertFormToYAML({ context: formContext, form, formName })
 
   await writeFormToYAML({ formYAML: yaml, externalFiles, formName, outputDir })
   if (hasFormBin) {

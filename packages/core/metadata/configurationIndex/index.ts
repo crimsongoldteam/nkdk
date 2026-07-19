@@ -1,5 +1,12 @@
 export { childUid, configurationUid, indexedUid, metadataItemUid } from "./logicalAddress"
 export {
+  getConfigurationIndexCollectionContext,
+  withConfigurationIndexCollector,
+  withConfigurationIndexLogicalAddress,
+  type ConfigurationIndexCollectionContext,
+} from "./collector/context"
+export { createConfigurationIndexCollector, type ConfigurationIndexCollector } from "./collector/writer"
+export {
   ConfigurationIndexCompatibilityError,
   decodeConfigurationIndex,
   type DecodeConfigurationIndexOptions,
@@ -16,10 +23,7 @@ export {
   encodeConfigurationIndexFragments,
   mergeConfigurationIndexFragments,
 } from "./fragment"
-export {
-  hashConfigurationProjectFiles,
-  type HashConfigurationProjectFilesOptions,
-} from "./projectFiles"
+export { hashConfigurationProjectFiles, type HashConfigurationProjectFilesOptions } from "./projectFiles"
 export type {
   ConfigurationIdentity,
   ConfigurationIndexBinding,

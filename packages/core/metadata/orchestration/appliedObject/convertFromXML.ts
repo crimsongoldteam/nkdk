@@ -19,6 +19,11 @@ import {
   withExportMetadataTargetOwners,
   type MetadataItemOwnerContextEntry,
 } from "./metadataItemOwnerContext"
+import { childUid } from "../../configurationIndex/logicalAddress"
+import {
+  getConfigurationIndexCollectionContext,
+  withConfigurationIndexLogicalAddress,
+} from "../../configurationIndex/collector/context"
 
 const PROPERTIES_YAML = "Свойства.yaml"
 
@@ -142,6 +147,14 @@ async function syncChildCollectionsFromXML(params: {
           })
         : xmlDir
       const syncName = hasOwnDirs ? item.name : params.xmlDirContainsCurrentItem ? "" : name
+      const collection = getConfigurationIndexCollectionContext(context)
+      const childContext =
+        collection === undefined
+          ? context
+          : withConfigurationIndexLogicalAddress(
+              context,
+              childUid(collection.logicalAddress, childCollection.propertyKey, item.name)
+            )
 
       if (childCollection.fileItemRule && childCollection.xmlDir) {
         const childXmlPath = `${childXmlDir}.xml`
@@ -149,7 +162,7 @@ async function syncChildCollectionsFromXML(params: {
           const childXmlContent = await fs.promises.readFile(childXmlPath, "utf-8")
           const childParsed = importContentFromXML<{ MetaDataObject: unknown }>(childXmlContent)
           const childModel = importMetadataItemFromXML({
-            context,
+            context: childContext,
             xml: childParsed.MetaDataObject,
             rule: childCollection.fileItemRule,
           }) as Record<string, unknown> | undefined
@@ -170,7 +183,7 @@ async function syncChildCollectionsFromXML(params: {
         const descriptor = getFileChildNamesDescriptor(itemPropRule)
         const externalSyncName = hasOwnDirs && descriptor?.useOwnerDirectoryForExternalSync === true ? "" : syncName
         await syncFn({
-          context,
+          context: childContext,
           rule: itemPropRule,
           xmlDir: childXmlDir,
           nkdkDir: childNkdkDir,
@@ -180,7 +193,7 @@ async function syncChildCollectionsFromXML(params: {
       }
 
       await syncChildCollectionsFromXML({
-        context,
+        context: childContext,
         rule: childCollection.itemRule,
         model: item.model,
         xmlDir: childXmlDir,
