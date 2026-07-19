@@ -122,6 +122,52 @@ describe("XML import discovery", () => {
     ])
   })
 
+  it("classifies a real child-form Ext/Help.xml as a property XML input", async () => {
+    const formRoot = "DataProcessors/ОбработкаВсеСвойства/Forms/Форма"
+    const helpXml = `${formRoot}/Ext/Help.xml`
+    const result = await discoverXmlImport({
+      xmlDir,
+      routes: describeRegisteredXmlImportRoutes(),
+      fs: fakeFs(["DataProcessors/ОбработкаВсеСвойства.xml", `${formRoot}.xml`, helpXml]),
+    })
+
+    const form = result.assignments.find((assignment) => assignment.targetProjectPath.endsWith("/Форма/Форма.yaml"))
+    expect(form?.xmlFiles).toContainEqual({ role: "property", sourcePath: join(xmlDir, helpXml) })
+    expect(form?.externalFiles).not.toContainEqual(expect.objectContaining({ sourcePath: join(xmlDir, helpXml) }))
+  })
+
+  it("maps a real child-form Ext/Help/ru.html to Справка/ru.html", async () => {
+    const formRoot = "DataProcessors/ОбработкаВсеСвойства/Forms/Форма"
+    const helpHtml = `${formRoot}/Ext/Help/ru.html`
+    const result = await discoverXmlImport({
+      xmlDir,
+      routes: describeRegisteredXmlImportRoutes(),
+      fs: fakeFs(["DataProcessors/ОбработкаВсеСвойства.xml", `${formRoot}.xml`, `${formRoot}/Ext/Help.xml`, helpHtml]),
+    })
+
+    const form = result.assignments.find((assignment) => assignment.targetProjectPath.endsWith("/Форма/Форма.yaml"))
+    expect(form?.externalFiles).toContainEqual({
+      sourcePath: join(xmlDir, helpHtml),
+      targetProjectPath: "Обработка/ОбработкаВсеСвойства/Формы/Форма/Справка/ru.html",
+    })
+  })
+
+  it("maps a real form item Picture.png to its ExternalFormItemFile target", async () => {
+    const formRoot = "DataProcessors/ОбработкаВсеСвойства/Forms/Форма"
+    const picture = `${formRoot}/Ext/Form/Items/Декорация2/Picture.png`
+    const result = await discoverXmlImport({
+      xmlDir,
+      routes: describeRegisteredXmlImportRoutes(),
+      fs: fakeFs(["DataProcessors/ОбработкаВсеСвойства.xml", `${formRoot}.xml`, picture]),
+    })
+
+    const form = result.assignments.find((assignment) => assignment.targetProjectPath.endsWith("/Форма/Форма.yaml"))
+    expect(form?.externalFiles).toContainEqual({
+      sourcePath: join(xmlDir, picture),
+      targetProjectPath: "Обработка/ОбработкаВсеСвойства/Формы/Форма/Картинки/Декорация2.png",
+    })
+  })
+
   it("discovers child subsystems recursively at arbitrary dump depth", async () => {
     const result = await discoverXmlImport({
       xmlDir,
@@ -224,6 +270,21 @@ describe("XML import discovery", () => {
     const conflictingRoutes = [
       testRoutes[1],
       { ...testRoutes[1], targetPattern: "Другой/{ownerName}/Свойства.yaml" },
+    ] satisfies readonly XmlImportRoute[]
+
+    await expect(
+      discoverXmlImport({
+        xmlDir,
+        routes: conflictingRoutes,
+        fs: fakeFs(["Catalogs/Контрагенты.xml"]),
+      })
+    ).rejects.toMatchObject({ code: "xml_import_route_conflict", paths: ["Catalogs/Контрагенты.xml"] })
+  })
+
+  it("rejects assignment matches with conflicting input roles", async () => {
+    const conflictingRoutes = [
+      { ...testRoutes[1], inputRole: "body" },
+      { ...testRoutes[1], inputRole: "property" },
     ] satisfies readonly XmlImportRoute[]
 
     await expect(

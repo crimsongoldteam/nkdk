@@ -1,6 +1,7 @@
 import fs from "fs"
 import { basename, dirname, join } from "path"
 import { convertFormFromXML } from "../../forms/clientApplicationForm/convertFromXML"
+import { describeFormItemXmlImportRoutes } from "../../forms/clientApplicationForm/externalItemFiles"
 import { registerTypeRule } from "../../orchestration/property/typeRuleRegistry"
 import type { SyncExternalFromXMLFunction } from "../../orchestration/property/fn"
 import type { ChildFormNamesPropertyRule } from "./types"
@@ -96,6 +97,27 @@ registerTypeRule("ChildFormNames", "xmlImportRoutes", ({ propertyRule }) => {
       assignmentTargetPattern,
       source: { kind: "propertyType", type: "ChildFormNames" },
     },
+    {
+      kind: "assignment",
+      xmlPattern: "Forms/{itemName}/Ext/Help.xml",
+      targetPattern: assignmentTargetPattern,
+      role: "fileItem",
+      inputRole: "property",
+      itemType: "ClientApplicationForm",
+      source: { kind: "propertyType", type: "ChildFormNames" },
+    },
+    {
+      kind: "externalFile",
+      xmlPattern: "Forms/{itemName}/Ext/Help/{relativePath...}",
+      targetPattern: `${folderName}/{itemName}/Справка/{relativePath...}`,
+      assignmentTargetPattern,
+      source: { kind: "propertyType", type: "ChildFormNames" },
+    },
+    ...describeFormItemXmlImportRoutes({
+      xmlFormDirPattern: "Forms/{itemName}/Ext",
+      targetFormDirPattern: `${folderName}/{itemName}`,
+      assignmentTargetPattern,
+    }),
     {
       kind: "externalFile",
       xmlPattern: "Forms/{itemName}/Ext/{relativePath...}",

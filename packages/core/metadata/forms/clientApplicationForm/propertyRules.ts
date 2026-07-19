@@ -12,7 +12,11 @@ import type {
   SyncExternalToXMLFunction,
 } from "../../orchestration/property/fn"
 import { createEmptyClientApplicationForm } from "./createEmpty"
-import { copyFormItemExternalFilesFromXML, copyFormItemExternalFilesToXML } from "./externalItemFiles"
+import {
+  copyFormItemExternalFilesFromXML,
+  copyFormItemExternalFilesToXML,
+  describeFormItemXmlImportRoutes,
+} from "./externalItemFiles"
 import { copyExistingRawFile } from "./externalRawFiles"
 import { importClientApplicationFormFromXML } from "./fromXML"
 import { importClientApplicationFormFromYAML } from "./fromYAML"
@@ -155,6 +159,11 @@ registerTypeRule("ClientApplicationForm", "xmlImportRoutes", ({ propertyRule }) 
       assignmentTargetPattern: "",
       source: { kind: "propertyType", type: "ClientApplicationForm" },
     },
+    ...describeFormItemXmlImportRoutes({
+      xmlFormDirPattern: dirname(filePath).replace(/\\/g, "/"),
+      targetFormDirPattern: "",
+      assignmentTargetPattern: "",
+    }),
   ]
 })
 

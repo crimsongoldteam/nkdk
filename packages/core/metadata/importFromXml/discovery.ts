@@ -89,9 +89,7 @@ export async function discoverXmlImport(params: DiscoverXmlImportParams): Promis
         externalFiles: [],
       } satisfies AssignmentGroup)
     group.xmlFiles.push({
-      role:
-        compatible.route.inputRole ??
-        (compatible.route.role === "fileItem" || compatible.route.source.kind === "itemRule" ? "metadata" : "property"),
+      role: assignmentInputRole(compatible.route),
       sourcePath: resolve(params.xmlDir, ...path.split("/")),
     })
     assignmentsByTarget.set(compatible.targetProjectPath, group)
@@ -194,16 +192,8 @@ function recursiveRoutePatterns(route: XmlImportRoute, path: string): XmlImportR
 
   const maxDepth = path.split("/").length
   for (let depth = 1; depth <= maxDepth; depth += 1) {
-    const xmlRootPattern = nestedRootPattern(
-      recursion.xmlRootPattern,
-      recursion.xmlChildDir,
-      depth
-    )
-    const targetRootPattern = nestedRootPattern(
-      recursion.targetRootPattern,
-      recursion.targetChildDir,
-      depth
-    )
+    const xmlRootPattern = nestedRootPattern(recursion.xmlRootPattern, recursion.xmlChildDir, depth)
+    const targetRootPattern = nestedRootPattern(recursion.targetRootPattern, recursion.targetChildDir, depth)
     const xmlPattern = replacePatternRoot(route.xmlPattern, recursion.xmlRootPattern, xmlRootPattern)
     if (route.kind === "ignore") {
       result.push({ ...route, xmlPattern })
@@ -266,11 +256,7 @@ function resolveCompatibleMatches(matches: readonly ResolvedMatch[]): ResolvedMa
   if (values.length === 1) return values
   if (
     values.every((match) => match.kind === "externalFile") &&
-    new Set(
-      values.map((match) =>
-        match.kind === "externalFile" ? match.assignmentTargetProjectPath : ""
-      )
-    ).size === 1
+    new Set(values.map((match) => (match.kind === "externalFile" ? match.assignmentTargetProjectPath : ""))).size === 1
   ) {
     return values
   }
@@ -280,9 +266,13 @@ function resolveCompatibleMatches(matches: readonly ResolvedMatch[]): ResolvedMa
 function resolvedMatchKey(match: ResolvedMatch): string {
   if (match.kind === "ignore") return "ignore"
   if (match.kind === "assignment") {
-    return `${match.kind}\0${match.targetProjectPath}\0${match.route.role}\0${match.route.itemType}`
+    return `${match.kind}\0${match.targetProjectPath}\0${match.route.role}\0${match.route.itemType}\0${assignmentInputRole(match.route)}`
   }
   return `${match.kind}\0${match.targetProjectPath}\0${match.assignmentTargetProjectPath}`
+}
+
+function assignmentInputRole(route: Extract<XmlImportRoute, { kind: "assignment" }>): ImportXmlInput["role"] {
+  return route.inputRole ?? (route.role === "fileItem" || route.source.kind === "itemRule" ? "metadata" : "property")
 }
 
 function createAssignment(group: AssignmentGroup, groups: readonly AssignmentGroup[]): ImportAssignment {
