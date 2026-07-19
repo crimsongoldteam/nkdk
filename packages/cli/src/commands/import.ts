@@ -13,8 +13,8 @@ export const importConfiguration = async (
   const result = await syncConfigurationFromXML({ context, inputDir: xmlDir, outputDir: yamlDir })
 
   for (const f of result.failed) {
-    const label = f.parent ? `${f.parent}/${f.name}` : f.name
-    process.stderr.write(`✖ ${f.kind} "${label}": ${f.error.message}\n`)
+    const label = f.targetProjectPath || f.sourcePath || "Конфигурация"
+    process.stderr.write(`✖ ${f.code} "${label}": ${f.message}\n`)
   }
 
   process.stdout.write(`Готово: ${result.succeeded} успешно, ${result.failed.length} с ошибкой\n`)

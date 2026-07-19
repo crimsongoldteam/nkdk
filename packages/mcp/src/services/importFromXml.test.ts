@@ -15,15 +15,16 @@ describe("importFromXml service", () => {
     expect(syncConfigurationFromXML).not.toHaveBeenCalled()
   })
 
-  it("maps core partial failures to stable JSON", async () => {
+  it("maps XML-import diagnostics to stable JSON", async () => {
     const syncConfigurationFromXML = vi.fn().mockResolvedValue({
       succeeded: 1,
       failed: [
         {
-          kind: "Enum",
-          name: "Виды",
-          parent: undefined,
-          error: new Error("broken xml"),
+          severity: "error",
+          code: "xml_import_assignment_failed",
+          message: "broken xml",
+          targetProjectPath: "Перечисление/Виды/Свойства.yaml",
+          sourcePath: "/xml/Enums/Виды.xml",
         },
       ],
     })
@@ -43,7 +44,13 @@ describe("importFromXml service", () => {
     expect(result).toEqual({
       ok: true,
       succeeded: 1,
-      failed: [{ kind: "Enum", name: "Виды", message: "broken xml" }],
+      failed: [
+        {
+          kind: "xml_import_assignment_failed",
+          name: "Перечисление/Виды/Свойства.yaml",
+          message: "broken xml",
+        },
+      ],
     })
   })
 })

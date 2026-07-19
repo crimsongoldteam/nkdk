@@ -74,4 +74,24 @@ describe("import command", () => {
       rmSync(projectDir, { recursive: true, force: true })
     }
   })
+
+  it("печатает диагностическую ошибку нового XML-import без падения", async () => {
+    const projectDir = mkdtempSync(join(tmpdir(), "nkdk-cli-import-failure-"))
+    const xmlDir = join(projectDir, "xml")
+    const yamlDir = join(projectDir, "yaml")
+    mkdirSync(join(xmlDir, "Enums"), { recursive: true })
+    writeFileSync(join(xmlDir, "Enums", "Сломано.xml"), "<broken>", "utf-8")
+
+    vi.spyOn(process.stdout, "write").mockImplementation(() => true)
+    const stderrWrite = vi.spyOn(process.stderr, "write").mockImplementation(() => true)
+
+    try {
+      await expect(importConfiguration(xmlDir, yamlDir)).resolves.toBeUndefined()
+
+      expect(process.exitCode).toBe(1)
+      expect(stderrWrite).toHaveBeenCalledWith(expect.stringContaining("xml_import_assignment_failed"))
+    } finally {
+      rmSync(projectDir, { recursive: true, force: true })
+    }
+  })
 })

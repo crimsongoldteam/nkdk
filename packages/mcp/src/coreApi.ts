@@ -1,4 +1,5 @@
 import type {
+  ConfigurationImportResult,
   MetadataOperationChangedXmlFile,
   MetadataOperationResult,
   MigrationChainInvalidResult,
@@ -126,7 +127,7 @@ export interface CoreApi {
     }
     inputDir: string
     outputDir: string
-  }): Promise<ConfigurationSyncResult>
+  }): Promise<ConfigurationImportResult>
   syncConfigurationToXML(params: {
     context: {
       defaultLanguage: "ru"

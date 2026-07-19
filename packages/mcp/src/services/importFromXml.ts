@@ -2,16 +2,18 @@ import { loadCoreApi } from "../coreApi"
 import { errorMessage, toolError, toolSuccess, type ToolPayload } from "../contracts/common"
 import { type ImportFromXmlInput } from "../contracts/importFromXml"
 
-interface CoreFailure {
-  kind: string
-  name: string
-  parent?: string
-  error: unknown
+interface CoreImportDiagnostic {
+  severity: "error" | "warning"
+  code: string
+  message: string
+  targetProjectPath: string
+  sourcePath?: string
+  value?: string
 }
 
-interface CoreSyncResult {
+interface CoreImportResult {
   succeeded: number
-  failed: CoreFailure[]
+  failed: CoreImportDiagnostic[]
 }
 
 interface ImportFromXmlDeps {
@@ -24,7 +26,7 @@ interface ImportFromXmlDeps {
     }
     inputDir: string
     outputDir: string
-  }) => Promise<CoreSyncResult>
+  }) => Promise<CoreImportResult>
 }
 
 export type ImportFromXmlPayload = ToolPayload<{
@@ -65,11 +67,10 @@ export async function importFromXml(
   }
 }
 
-function mapFailure(failure: CoreFailure): { kind: string; name: string; parent?: string; message: string } {
+function mapFailure(failure: CoreImportDiagnostic): { kind: string; name: string; message: string } {
   return {
-    kind: failure.kind,
-    name: failure.name,
-    ...(failure.parent !== undefined ? { parent: failure.parent } : {}),
-    message: errorMessage(failure.error),
+    kind: failure.code,
+    name: failure.targetProjectPath,
+    message: failure.message,
   }
 }
