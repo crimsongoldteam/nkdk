@@ -28,12 +28,21 @@ export interface ImportIgnoredFile {
   sourcePath: string
 }
 
-export type XmlImportRoute =
+export interface XmlImportRouteRecursion {
+  xmlRootPattern: string
+  targetRootPattern: string
+  xmlChildDir: string
+  targetChildDir: string
+  assignmentRole: ImportAssignmentRole
+}
+
+export type XmlImportRoute = (
   | {
       kind: "assignment"
       xmlPattern: string
       targetPattern: string
       role: ImportAssignmentRole
+      inputRole?: ImportXmlInput["role"]
       itemType: string
       source: ProjectResourceSource
     }
@@ -42,6 +51,8 @@ export type XmlImportRoute =
       xmlPattern: string
       targetPattern: string
       assignmentTargetPattern: string
+      /** Используется только когда тот же путь не описан более точным маршрутом. */
+      fallback?: true
       source: ProjectResourceSource
     }
   | {
@@ -49,3 +60,7 @@ export type XmlImportRoute =
       xmlPattern: string
       source: ProjectResourceSource
     }
+  ) & {
+    /** Нейтральное описание повторяемой вложенности одного project spec. */
+    recursion?: XmlImportRouteRecursion
+  }

@@ -33,6 +33,13 @@ registerProjectSpec({
   rule: MetadataConfigurationRules,
   exportSchema: createMetadataItemProjectSchemaExporter(MetadataConfigurationRules),
   importModel: createGenericProjectImportModel(MetadataConfigurationRules),
+  xmlImportRoutes: [
+    {
+      kind: "ignore",
+      xmlPattern: "ConfigDumpInfo.xml",
+      source: { kind: "itemRule", itemType: MetadataConfigurationRules.itemType },
+    },
+  ],
 })
 
 registerProjectFileValidator("configuration", ({ filePath, parsed }) => {

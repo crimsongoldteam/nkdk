@@ -63,6 +63,13 @@ registerTypeRule("ChildTemplateNames", "xmlImportRoutes", ({ propertyRule }) => 
       itemType: "Template",
       source: { kind: "propertyType", type: "ChildTemplateNames" },
     },
+    ...(["txt", "bin"] as const).map((extension) => ({
+      kind: "externalFile" as const,
+      xmlPattern: `Templates/{itemName}/Ext/Template.${extension}`,
+      targetPattern: `${folderName}/{itemName}/Template.${extension}`,
+      assignmentTargetPattern,
+      source: { kind: "propertyType" as const, type: "ChildTemplateNames" as const },
+    })),
     {
       kind: "externalFile",
       xmlPattern: "Templates/{itemName}/{relativePath...}",

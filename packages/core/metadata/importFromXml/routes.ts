@@ -1,4 +1,4 @@
-import type { ImportAssignmentRole, XmlImportRoute } from "./types"
+import type { ImportAssignmentRole, XmlImportRoute, XmlImportRouteRecursion } from "./types"
 import type { ProjectResourceSource } from "../orchestration/property/fn"
 import { getTypeRule } from "../orchestration/property/typeRuleRegistry"
 import type { MetadataItemRule, PropertyRule } from "../orchestration/property/types"
@@ -13,6 +13,7 @@ interface CompileContext {
   currentNameParameter: string
   parentNameParameter: string | undefined
   nextNameIndex: number
+  recursion: XmlImportRouteRecursion | undefined
 }
 
 export function describeRegisteredXmlImportRoutes(): readonly XmlImportRoute[] {
@@ -71,6 +72,7 @@ export function expandImportPattern(pattern: string, values: Readonly<Record<str
 }
 
 function collectSpecRoutes(routes: XmlImportRoute[], spec: MetadataProjectSpec): void {
+  routes.push(...(spec.xmlImportRoutes ?? []))
   if (spec.dir === "") {
     const assignmentTargetPattern = "Конфигурация.yaml"
     routes.push({
@@ -90,6 +92,7 @@ function collectSpecRoutes(routes: XmlImportRoute[], spec: MetadataProjectSpec):
       currentNameParameter: "ownerName",
       parentNameParameter: undefined,
       nextNameIndex: 1,
+      recursion: undefined,
     })
     return
   }
@@ -98,6 +101,16 @@ function collectSpecRoutes(routes: XmlImportRoute[], spec: MetadataProjectSpec):
   const xmlBase = `${spec.rule.xmlDir}/{ownerName}`
   const targetBase = `${spec.dir}/{ownerName}`
   const assignmentTargetPattern = `${targetBase}/Свойства.yaml`
+  const recursion =
+    spec.nesting?.kind === "recursiveChildDir"
+      ? {
+          xmlRootPattern: xmlBase,
+          targetRootPattern: targetBase,
+          xmlChildDir: spec.rule.xmlDir,
+          targetChildDir: spec.nesting.childDir,
+          assignmentRole: "fileItem" as const,
+        }
+      : undefined
   routes.push({
     kind: "assignment",
     xmlPattern: `${xmlBase}.xml`,
@@ -105,6 +118,7 @@ function collectSpecRoutes(routes: XmlImportRoute[], spec: MetadataProjectSpec):
     role: "properties",
     itemType: spec.rule.itemType,
     source: itemRuleSource(spec.rule),
+    ...(recursion === undefined ? {} : { recursion }),
   })
   collectRuleRoutes(routes, spec.rule, {
     xmlBase,
@@ -115,6 +129,7 @@ function collectSpecRoutes(routes: XmlImportRoute[], spec: MetadataProjectSpec):
     currentNameParameter: "ownerName",
     parentNameParameter: undefined,
     nextNameIndex: 1,
+    recursion,
   })
 }
 
@@ -155,6 +170,7 @@ function collectRuleRoutes(routes: XmlImportRoute[], rule: MetadataItemRule, con
         currentNameParameter: childNameParameter,
         parentNameParameter: context.currentNameParameter,
         nextNameIndex: context.nextNameIndex + 1,
+        recursion: context.recursion,
       })
       continue
     }
@@ -176,7 +192,10 @@ function compilePropertyRoute(
 ): XmlImportRoute {
   const xmlPattern = joinPatternWithOverlap(context.xmlBase, substituteLocalParameters(declaration.xmlPattern, context))
   const source = propertySource(declaration.source, propertyName, propertyRule)
-  if (declaration.kind === "ignore") return { ...declaration, xmlPattern, source }
+  const recursion = declaration.recursion ?? context.recursion
+  if (declaration.kind === "ignore") {
+    return { ...declaration, xmlPattern, source, ...(recursion === undefined ? {} : { recursion }) }
+  }
 
   const targetPattern =
     declaration.targetPattern === ""
@@ -189,6 +208,7 @@ function compilePropertyRoute(
       targetPattern,
       role: declaration.targetPattern === "" ? context.assignmentRole : declaration.role,
       itemType: declaration.itemType === "" ? context.itemType : declaration.itemType,
+      ...(recursion === undefined ? {} : { recursion }),
       source,
     }
   }
@@ -197,7 +217,14 @@ function compilePropertyRoute(
     declaration.assignmentTargetPattern === ""
       ? context.assignmentTargetPattern
       : joinPattern(context.targetBase, substituteLocalParameters(declaration.assignmentTargetPattern, context))
-  return { ...declaration, xmlPattern, targetPattern, assignmentTargetPattern, source }
+  return {
+    ...declaration,
+    xmlPattern,
+    targetPattern,
+    assignmentTargetPattern,
+    source,
+    ...(recursion === undefined ? {} : { recursion }),
+  }
 }
 
 function substituteLocalParameters(pattern: string, context: CompileContext): string {

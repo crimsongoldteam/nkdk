@@ -144,6 +144,7 @@ registerTypeRule("ClientApplicationForm", "xmlImportRoutes", ({ propertyRule }) 
       xmlPattern: filePath,
       targetPattern: "",
       role: "properties",
+      inputRole: "body",
       itemType: "",
       source: { kind: "propertyType", type: "ClientApplicationForm" },
     },

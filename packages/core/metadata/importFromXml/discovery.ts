@@ -48,19 +48,26 @@ export async function discoverXmlImport(params: DiscoverXmlImportParams): Promis
   const externalMatches: Array<Extract<ResolvedMatch, { kind: "externalFile" }> & { path: string }> = []
 
   for (const path of paths) {
-    const matches = params.routes.flatMap((route) => resolveRoute(route, path))
+    const allMatches = params.routes.flatMap((route) => resolveRoute(route, path))
+    const matches = allMatches.some((match) => match.kind !== "externalFile" || match.route.fallback !== true)
+      ? allMatches.filter((match) => match.kind !== "externalFile" || match.route.fallback !== true)
+      : allMatches
     if (matches.length === 0) {
       unknownPaths.push(path)
       continue
     }
-    const compatible = compatibleMatch(matches)
-    if (compatible === undefined) {
+    const compatibleMatches = resolveCompatibleMatches(matches)
+    if (compatibleMatches === undefined) {
       conflictPaths.push(path)
       continue
     }
+    const compatible = compatibleMatches[0]
     if (compatible.kind === "ignore") continue
     if (compatible.kind === "externalFile") {
-      externalMatches.push({ ...compatible, path })
+      for (const match of compatibleMatches) {
+        if (match.kind !== "externalFile") throw new Error("Несовместимые виды XML-import маршрутов")
+        externalMatches.push({ ...match, path })
+      }
       continue
     }
 
@@ -83,7 +90,8 @@ export async function discoverXmlImport(params: DiscoverXmlImportParams): Promis
       } satisfies AssignmentGroup)
     group.xmlFiles.push({
       role:
-        compatible.route.role === "fileItem" || compatible.route.source.kind === "itemRule" ? "metadata" : "property",
+        compatible.route.inputRole ??
+        (compatible.route.role === "fileItem" || compatible.route.source.kind === "itemRule" ? "metadata" : "property"),
       sourcePath: resolve(params.xmlDir, ...path.split("/")),
     })
     assignmentsByTarget.set(compatible.targetProjectPath, group)
@@ -155,20 +163,91 @@ function normalizeListedPath(xmlDir: string, path: string): string {
 }
 
 function resolveRoute(route: XmlImportRoute, path: string): ResolvedMatch[] {
-  const values = matchImportPattern(route.xmlPattern, path)
-  if (values === undefined) return []
-  if (route.kind === "ignore") return [{ kind: "ignore", route, values }]
-  const targetProjectPath = expandedTarget(route.targetPattern, values)
-  if (route.kind === "assignment") return [{ kind: "assignment", route, targetProjectPath, values }]
-  return [
-    {
+  const matches: ResolvedMatch[] = []
+  for (const candidate of recursiveRoutePatterns(route, path)) {
+    const values = matchImportPattern(candidate.xmlPattern, path)
+    if (values === undefined) continue
+    if (candidate.kind === "ignore") {
+      matches.push({ kind: "ignore", route: candidate, values })
+      continue
+    }
+    const targetProjectPath = expandedTarget(candidate.targetPattern, values)
+    if (candidate.kind === "assignment") {
+      matches.push({ kind: "assignment", route: candidate, targetProjectPath, values })
+      continue
+    }
+    matches.push({
       kind: "externalFile",
-      route,
+      route: candidate,
       targetProjectPath,
-      assignmentTargetProjectPath: expandedTarget(route.assignmentTargetPattern, values),
+      assignmentTargetProjectPath: expandedTarget(candidate.assignmentTargetPattern, values),
       values,
-    },
-  ]
+    })
+  }
+  return matches
+}
+
+function recursiveRoutePatterns(route: XmlImportRoute, path: string): XmlImportRoute[] {
+  const result = [route]
+  const recursion = route.recursion
+  if (recursion === undefined || !startsWithPatternRoot(route.xmlPattern, recursion.xmlRootPattern)) return result
+
+  const maxDepth = path.split("/").length
+  for (let depth = 1; depth <= maxDepth; depth += 1) {
+    const xmlRootPattern = nestedRootPattern(
+      recursion.xmlRootPattern,
+      recursion.xmlChildDir,
+      depth
+    )
+    const targetRootPattern = nestedRootPattern(
+      recursion.targetRootPattern,
+      recursion.targetChildDir,
+      depth
+    )
+    const xmlPattern = replacePatternRoot(route.xmlPattern, recursion.xmlRootPattern, xmlRootPattern)
+    if (route.kind === "ignore") {
+      result.push({ ...route, xmlPattern })
+      continue
+    }
+    const targetPattern = replacePatternRoot(route.targetPattern, recursion.targetRootPattern, targetRootPattern)
+    if (route.kind === "assignment") {
+      result.push({
+        ...route,
+        xmlPattern,
+        targetPattern,
+        role: recursion.assignmentRole,
+        inputRole:
+          route.inputRole ?? (route.role === "fileItem" || route.source.kind === "itemRule" ? "metadata" : "property"),
+      })
+      continue
+    }
+    result.push({
+      ...route,
+      xmlPattern,
+      targetPattern,
+      assignmentTargetPattern: replacePatternRoot(
+        route.assignmentTargetPattern,
+        recursion.targetRootPattern,
+        targetRootPattern
+      ),
+    })
+  }
+  return result
+}
+
+function nestedRootPattern(rootPattern: string, childDir: string, depth: number): string {
+  const steps = Array.from({ length: depth }, (_, index) => `${childDir}/{recursiveItemName${index + 1}}`)
+  return [rootPattern, ...steps].join("/")
+}
+
+function startsWithPatternRoot(pattern: string, rootPattern: string): boolean {
+  if (!pattern.startsWith(rootPattern)) return false
+  const boundary = pattern[rootPattern.length]
+  return boundary === undefined || boundary === "/" || boundary === "."
+}
+
+function replacePatternRoot(pattern: string, rootPattern: string, replacement: string): string {
+  return startsWithPatternRoot(pattern, rootPattern) ? `${replacement}${pattern.slice(rootPattern.length)}` : pattern
 }
 
 function expandedTarget(pattern: string, values: Record<string, string>): string {
@@ -181,9 +260,21 @@ function expandedTarget(pattern: string, values: Record<string, string>): string
   return normalized
 }
 
-function compatibleMatch(matches: readonly ResolvedMatch[]): ResolvedMatch | undefined {
+function resolveCompatibleMatches(matches: readonly ResolvedMatch[]): ResolvedMatch[] | undefined {
   const unique = new Map(matches.map((match) => [resolvedMatchKey(match), match]))
-  return unique.size === 1 ? unique.values().next().value : undefined
+  const values = [...unique.values()]
+  if (values.length === 1) return values
+  if (
+    values.every((match) => match.kind === "externalFile") &&
+    new Set(
+      values.map((match) =>
+        match.kind === "externalFile" ? match.assignmentTargetProjectPath : ""
+      )
+    ).size === 1
+  ) {
+    return values
+  }
+  return undefined
 }
 
 function resolvedMatchKey(match: ResolvedMatch): string {
@@ -282,11 +373,16 @@ function assertEveryMetadataXmlBelongsToOneAssignment(assignments: readonly Impo
 }
 
 function assertEveryExternalFileBelongsToOneAssignment(assignments: readonly ImportAssignment[]): void {
-  assertUnique(
-    assignments.flatMap((assignment) => assignment.externalFiles),
-    (file) => file.sourcePath,
-    "Внешний файл принадлежит нескольким заданиям"
-  )
+  const assignmentBySource = new Map<string, string>()
+  for (const assignment of assignments) {
+    for (const sourcePath of new Set(assignment.externalFiles.map((file) => file.sourcePath))) {
+      const previousAssignment = assignmentBySource.get(sourcePath)
+      if (previousAssignment !== undefined && previousAssignment !== assignment.id) {
+        throw new Error(`Внешний файл принадлежит нескольким заданиям: ${sourcePath}`)
+      }
+      assignmentBySource.set(sourcePath, assignment.id)
+    }
+  }
 }
 
 function importDiscoveryError(code: string, paths: readonly string[]): Error & { code: string; paths: string[] } {

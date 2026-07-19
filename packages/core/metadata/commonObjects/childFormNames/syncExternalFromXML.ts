@@ -81,10 +81,27 @@ registerTypeRule("ChildFormNames", "xmlImportRoutes", ({ propertyRule }) => {
       source: { kind: "propertyType", type: "ChildFormNames" },
     },
     {
+      kind: "assignment",
+      xmlPattern: "Forms/{itemName}/Ext/Form.xml",
+      targetPattern: assignmentTargetPattern,
+      role: "fileItem",
+      inputRole: "body",
+      itemType: "ClientApplicationForm",
+      source: { kind: "propertyType", type: "ChildFormNames" },
+    },
+    {
+      kind: "externalFile",
+      xmlPattern: "Forms/{itemName}/Ext/Form/Module.bsl",
+      targetPattern: `${folderName}/{itemName}/Модуль.bsl`,
+      assignmentTargetPattern,
+      source: { kind: "propertyType", type: "ChildFormNames" },
+    },
+    {
       kind: "externalFile",
       xmlPattern: "Forms/{itemName}/Ext/{relativePath...}",
       targetPattern: `${folderName}/{itemName}/{relativePath...}`,
       assignmentTargetPattern,
+      fallback: true,
       source: { kind: "propertyType", type: "ChildFormNames" },
     },
   ]

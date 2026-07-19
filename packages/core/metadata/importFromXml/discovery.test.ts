@@ -1,6 +1,7 @@
 import { join } from "path"
 import { describe, expect, it, vi } from "vitest"
 import { discoverXmlImport } from "./discovery"
+import { describeRegisteredXmlImportRoutes } from "./routes"
 import type { XmlImportRoute } from "./types"
 
 const xmlDir = "/xml-dump"
@@ -77,6 +78,113 @@ describe("XML import discovery", () => {
       name: "Контрагенты",
       logicalAddress: "Справочник.Контрагенты",
     })
+  })
+
+  it("classifies the real managed-form body and maps its module to the project root", async () => {
+    const formRoot = "Catalogs/Контрагенты/Forms/ФормаЭлемента"
+    const result = await discoverXmlImport({
+      xmlDir,
+      routes: describeRegisteredXmlImportRoutes(),
+      fs: fakeFs([
+        "Catalogs/Контрагенты.xml",
+        `${formRoot}.xml`,
+        `${formRoot}/Ext/Form.xml`,
+        `${formRoot}/Ext/Form/Module.bsl`,
+      ]),
+    })
+
+    const form = result.assignments.find(
+      (assignment) => assignment.targetProjectPath === "Справочник/Контрагенты/Формы/ФормаЭлемента/Форма.yaml"
+    )
+    expect(form?.xmlFiles).toEqual(
+      expect.arrayContaining([
+        { role: "metadata", sourcePath: join(xmlDir, `${formRoot}.xml`) },
+        { role: "body", sourcePath: join(xmlDir, `${formRoot}/Ext/Form.xml`) },
+      ])
+    )
+    expect(form?.externalFiles).toContainEqual({
+      sourcePath: join(xmlDir, `${formRoot}/Ext/Form/Module.bsl`),
+      targetProjectPath: "Справочник/Контрагенты/Формы/ФормаЭлемента/Модуль.bsl",
+    })
+  })
+
+  it("uses the body role for a real CommonForm Ext/Form.xml", async () => {
+    const commonFormRoot = "CommonForms/КонстантаВсеСвойства"
+    const result = await discoverXmlImport({
+      xmlDir,
+      routes: describeRegisteredXmlImportRoutes(),
+      fs: fakeFs([`${commonFormRoot}.xml`, `${commonFormRoot}/Ext/Form.xml`]),
+    })
+
+    expect(result.assignments[0].xmlFiles).toEqual([
+      { role: "metadata", sourcePath: join(xmlDir, `${commonFormRoot}.xml`) },
+      { role: "body", sourcePath: join(xmlDir, `${commonFormRoot}/Ext/Form.xml`) },
+    ])
+  })
+
+  it("discovers child subsystems recursively at arbitrary dump depth", async () => {
+    const result = await discoverXmlImport({
+      xmlDir,
+      routes: describeRegisteredXmlImportRoutes(),
+      fs: fakeFs([
+        "Subsystems/Продажи.xml",
+        "Subsystems/Продажи/Subsystems/Опт.xml",
+        "Subsystems/Продажи/Subsystems/Опт/Subsystems/Регион.xml",
+        "Subsystems/Продажи/Subsystems/Опт/Subsystems/Регион/Ext/Help.xml",
+        "Subsystems/Продажи/Subsystems/Опт/Subsystems/Регион/Subsystems/Склад.xml",
+      ]),
+    })
+
+    expect(result.assignments.map((assignment) => assignment.targetProjectPath)).toEqual([
+      "Подсистема/Продажи/Подсистемы/Опт/Подсистемы/Регион/Подсистемы/Склад/Свойства.yaml",
+      "Подсистема/Продажи/Подсистемы/Опт/Подсистемы/Регион/Свойства.yaml",
+      "Подсистема/Продажи/Подсистемы/Опт/Свойства.yaml",
+      "Подсистема/Продажи/Свойства.yaml",
+    ])
+    expect(result.assignments[1].xmlFiles).toEqual(
+      expect.arrayContaining([
+        expect.objectContaining({ role: "metadata" }),
+        expect.objectContaining({ role: "property" }),
+      ])
+    )
+  })
+
+  it("preserves root and Ext copies of real child-template text and binary payloads", async () => {
+    const templateRoot = "BusinessProcesses/БизнесПроцессВсеСвойства/Templates/Макет"
+    const result = await discoverXmlImport({
+      xmlDir,
+      routes: describeRegisteredXmlImportRoutes(),
+      fs: fakeFs([
+        "BusinessProcesses/БизнесПроцессВсеСвойства.xml",
+        `${templateRoot}.xml`,
+        `${templateRoot}/Ext/Template.txt`,
+        `${templateRoot}/Ext/Template.bin`,
+      ]),
+    })
+
+    const template = result.assignments.find((assignment) =>
+      assignment.targetProjectPath.endsWith("/Макеты/Макет/Template.xml")
+    )
+    expect(template?.externalFiles).toEqual(
+      expect.arrayContaining([
+        expect.objectContaining({
+          sourcePath: join(xmlDir, `${templateRoot}/Ext/Template.txt`),
+          targetProjectPath: "БизнесПроцесс/БизнесПроцессВсеСвойства/Макеты/Макет/Template.txt",
+        }),
+        expect.objectContaining({
+          sourcePath: join(xmlDir, `${templateRoot}/Ext/Template.txt`),
+          targetProjectPath: "БизнесПроцесс/БизнесПроцессВсеСвойства/Макеты/Макет/Ext/Template.txt",
+        }),
+        expect.objectContaining({
+          sourcePath: join(xmlDir, `${templateRoot}/Ext/Template.bin`),
+          targetProjectPath: "БизнесПроцесс/БизнесПроцессВсеСвойства/Макеты/Макет/Template.bin",
+        }),
+        expect.objectContaining({
+          sourcePath: join(xmlDir, `${templateRoot}/Ext/Template.bin`),
+          targetProjectPath: "БизнесПроцесс/БизнесПроцессВсеСвойства/Макеты/Макет/Ext/Template.bin",
+        }),
+      ])
+    )
   })
 
   it("groups several XML inputs into the same assignment", async () => {

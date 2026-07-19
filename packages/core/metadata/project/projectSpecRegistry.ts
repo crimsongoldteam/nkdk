@@ -3,6 +3,7 @@ import type { ConfigurationContext, JSONSchemaExportMode } from "../context/type
 import { registerJSONSchemaIdentity } from "../orchestration/jsonSchemaRefs"
 import type { ExternalValidationProperty, MetadataItem, MetadataItemRule } from "../orchestration/property/types"
 import type { ParsedYaml } from "../../yaml/parseMetadataYaml"
+import type { XmlImportRoute } from "../importFromXml/types"
 
 export interface RegisteredProjectSpec {
   dir: string
@@ -13,6 +14,8 @@ export interface RegisteredProjectSpec {
   externalValidationProperties?: readonly ExternalValidationProperty[]
   importModel: (params: { context: ConfigurationContext; parsed: ParsedYaml; name: string }) => MetadataItem | undefined
   nesting?: ProjectSpecNesting
+  /** Дополнительные абсолютные маршруты XML-выгрузки, принадлежащие этому project spec. */
+  xmlImportRoutes?: readonly XmlImportRoute[]
 }
 
 export type ProjectSpecNesting = {

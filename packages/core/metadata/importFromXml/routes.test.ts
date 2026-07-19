@@ -31,6 +31,17 @@ describe("XML import routes", () => {
     )
   })
 
+  it("ignores ConfigDumpInfo.xml from a real configuration dump", () => {
+    expect(describeRegisteredXmlImportRoutes()).toEqual(
+      expect.arrayContaining([
+        expect.objectContaining({
+          kind: "ignore",
+          xmlPattern: "ConfigDumpInfo.xml",
+        }),
+      ])
+    )
+  })
+
   it("recurses through file-item child collections", () => {
     expect(describeRegisteredXmlImportRoutes()).toEqual(
       expect.arrayContaining([
