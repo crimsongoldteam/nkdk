@@ -23,6 +23,7 @@ import type { PreparedYamlFile } from "../../project/preparedYamlProject"
 import { MetadataConfigurationRules } from "./rules"
 import type { MetadataConfiguration, MetadataConfigurationYAML } from "./types"
 import type { ConfigurationChildObjectsXML } from "./childObjects"
+import { runWithConfigurationIndexPropertyContext } from "../../configurationIndex/collector/context"
 
 export const CONFIGURATION_XML_FILE = "Configuration.xml"
 export { CONFIGURATION_YAML_FILE }
@@ -158,12 +159,12 @@ function importConfigurationFilePathPropertiesFromXML(params: {
   for (const [key, propRule] of Object.entries(MetadataConfigurationRules.properties) as [string, PropertyRule][]) {
     const extParsed = params.propertyXML.get(key)
     if (extParsed === undefined || !getTypeRule(propRule.type, "importFromXML")) continue
-    const value = importPropertyFromXML({
-      context: params.context,
-      rule: propRule,
-      value: extParsed,
-      name: key,
-    })
+    const value = runWithConfigurationIndexPropertyContext(
+      params.context,
+      propRule.yaml ?? key,
+      propRule.configurationIndexUidSegment ?? propRule.operationTarget?.migrationSegment,
+      (context) => importPropertyFromXML({ context, rule: propRule, value: extParsed, name: key })
+    )
     if (value !== undefined) (params.configuration as Record<string, unknown>)[key] = value
   }
 }

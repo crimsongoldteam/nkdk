@@ -1,4 +1,5 @@
 import type { ConfigurationContextFromXML } from "../../context/types"
+import { childUid } from "../logicalAddress"
 import type { ConfigurationIndexCollector } from "./writer"
 
 export interface ConfigurationIndexCollectionContext {
@@ -51,6 +52,28 @@ export function withConfigurationIndexXmlNodeLogicalAddress(
       ...context.fromXML,
       configurationIndex: { ...collection, xmlNodeLogicalAddress },
     },
+  }
+}
+
+export function runWithConfigurationIndexPropertyContext<T>(
+  context: ConfigurationContextFromXML,
+  propertyName: string,
+  childCollectionUidSegment: string | undefined,
+  run: (context: ConfigurationContextFromXML) => T
+): T {
+  const collection = getConfigurationIndexCollectionContext(context)
+  if (collection === undefined) return run(context)
+
+  const previous = context.fromXML.configurationIndex
+  context.fromXML.configurationIndex = {
+    ...collection,
+    xmlNodeLogicalAddress: childUid(collection.logicalAddress, "Свойство", propertyName),
+    ...(childCollectionUidSegment === undefined ? {} : { childCollectionUidSegment }),
+  }
+  try {
+    return run(context)
+  } finally {
+    context.fromXML.configurationIndex = previous
   }
 }
 

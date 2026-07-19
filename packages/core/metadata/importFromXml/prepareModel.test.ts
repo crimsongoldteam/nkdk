@@ -4,11 +4,14 @@ import { join } from "node:path"
 import { afterEach, describe, expect, it, vi } from "vitest"
 import { mockContextFromXML } from "../../tests/mockContext"
 import { createConfigurationIndexCollector } from "../configurationIndex/collector/writer"
+import { discoverXmlImport } from "./discovery"
 import { prepareImportModel } from "./prepareModel"
+import { describeRegisteredXmlImportRoutes } from "./routes"
 import type { ImportAssignment } from "./types"
 
 const configurationFixturesDir = join(import.meta.dirname, "../appliedObjects/configuration/__fixtures__")
 const syncXmlDir = join(configurationFixturesDir, "syncConfiguration/xml")
+const catalogSyncFixtureDir = join(import.meta.dirname, "../appliedObjects/metadataCatalog/__fixtures__/sync/xml")
 
 afterEach(() => {
   vi.restoreAllMocks()
@@ -30,6 +33,48 @@ describe("prepareImportModel", () => {
     expect(prepared.model).toMatchObject({ itemType: "MetadataCatalog", name: "Контрагенты" })
     expect(prepared.generatedFiles).toEqual([])
     expect(writeFile).not.toHaveBeenCalled()
+  })
+
+  it("discovers a fixture child template as an owner external file and prepares only the owner model", async () => {
+    const inputDir = fs.mkdtempSync(join(os.tmpdir(), "nkdk-import-child-template-"))
+    const ownerName = "СправочникCоВсемиОбъектами"
+    const ownerRoot = join(inputDir, "Catalogs", ownerName)
+    try {
+      fs.mkdirSync(join(ownerRoot, "Templates", "Макет", "Ext"), { recursive: true })
+      fs.copyFileSync(join(catalogSyncFixtureDir, `${ownerName}.xml`), `${ownerRoot}.xml`)
+      fs.copyFileSync(join(catalogSyncFixtureDir, "Templates", "Макет.xml"), join(ownerRoot, "Templates", "Макет.xml"))
+      fs.copyFileSync(
+        join(catalogSyncFixtureDir, "Templates", "Макет", "Ext", "Template.txt"),
+        join(ownerRoot, "Templates", "Макет", "Ext", "Template.txt")
+      )
+
+      const discovered = await discoverXmlImport({
+        xmlDir: inputDir,
+        routes: describeRegisteredXmlImportRoutes(),
+      })
+      const prepared = await Promise.all(
+        discovered.assignments.map((assignment) =>
+          prepareImportModel({
+            assignment,
+            context: mockContextFromXML(),
+            collector: createConfigurationIndexCollector(),
+          })
+        )
+      )
+
+      expect(prepared).toHaveLength(1)
+      expect(prepared[0]?.model).toMatchObject({ itemType: "MetadataCatalog", name: ownerName })
+      expect(prepared[0]?.assignment.externalFiles).toEqual(
+        expect.arrayContaining([
+          expect.objectContaining({
+            sourcePath: join(ownerRoot, "Templates", "Макет.xml"),
+            targetProjectPath: `Справочник/${ownerName}/Шаблоны/Макет/Template.xml`,
+          }),
+        ])
+      )
+    } finally {
+      fs.rmSync(inputDir, { recursive: true, force: true })
+    }
   })
 
   it("prepares Конфигурация.yaml without writing files", async () => {

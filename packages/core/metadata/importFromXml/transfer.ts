@@ -13,6 +13,7 @@ interface ImportTransferFileHandle {
 }
 
 interface ImportTransferFileOperations {
+  realpath(path: string): Promise<string>
   mkdir(path: string): Promise<void>
   rename(source: string, target: string): Promise<void>
   copyFile(source: string, target: string): Promise<void>
@@ -26,6 +27,7 @@ interface TransferImportResultParams {
 }
 
 const defaultFileOperations: ImportTransferFileOperations = {
+  realpath: fs.promises.realpath,
   async mkdir(path) {
     await fs.promises.mkdir(path, { recursive: true })
   },
@@ -53,10 +55,14 @@ export async function transferImportResult(
   const files = mergeImportResultFiles(params.files)
   const projectRoot = resolve(params.projectDir)
   const concurrency = normalizeConcurrency(params.concurrency)
-  const preparedFiles = files.map((file) => ({
-    file,
-    targetPath: targetPathInsideProject(projectRoot, file.targetProjectPath),
-  }))
+  const realProjectRoot = await fileOperations.realpath(projectRoot)
+  const preparedFiles = await Promise.all(
+    files.map(async (file) => {
+      const targetPath = targetPathInsideProject(projectRoot, file.targetProjectPath)
+      await assertRealTargetInsideProject(realProjectRoot, dirname(targetPath), file.targetProjectPath, fileOperations)
+      return { file, targetPath }
+    })
+  )
   const limit = pLimit(concurrency)
   let aborted = false
   let failed = false
@@ -81,6 +87,36 @@ export async function transferImportResult(
   if (failed) throw firstError
 }
 
+async function assertRealTargetInsideProject(
+  realProjectRoot: string,
+  targetDirectory: string,
+  targetProjectPath: string,
+  fileOperations: ImportTransferFileOperations
+): Promise<void> {
+  const realExistingDirectory = await realpathClosestExistingAncestor(targetDirectory, fileOperations)
+  const projectRelative = relative(realProjectRoot, realExistingDirectory)
+  if (projectRelative === ".." || projectRelative.startsWith(`..${sep}`) || isAbsolute(projectRelative)) {
+    throw targetOutsideProjectError(targetProjectPath)
+  }
+}
+
+async function realpathClosestExistingAncestor(
+  path: string,
+  fileOperations: ImportTransferFileOperations
+): Promise<string> {
+  let candidate = path
+  for (;;) {
+    try {
+      return await fileOperations.realpath(candidate)
+    } catch (caught) {
+      if (!isFileSystemError(caught, "ENOENT")) throw caught
+      const parent = dirname(candidate)
+      if (parent === candidate) throw caught
+      candidate = parent
+    }
+  }
+}
+
 async function transferFile(
   file: ImportResultFile,
   targetPath: string,
@@ -102,7 +138,21 @@ async function transferFile(
     }
   }
 
-  await fileOperations.rename(temporaryPath, targetPath)
+  try {
+    await fileOperations.rename(temporaryPath, targetPath)
+  } catch (caught) {
+    if (file.sourceKind === "worker") {
+      try {
+        await fileOperations.rename(temporaryPath, file.sourcePath)
+      } catch (restoreError) {
+        throw new AggregateError(
+          [caught, restoreError],
+          `Не удалось опубликовать и вернуть worker-файл ${file.sourcePath}: ${errorMessage(caught)}`
+        )
+      }
+    }
+    throw caught
+  }
 }
 
 function normalizedTargetProjectPath(targetProjectPath: string): string {
@@ -149,4 +199,12 @@ function normalizeConcurrency(concurrency: number | undefined): number {
     throw new Error("Степень параллелизма публикации XML-import должна быть положительным целым числом")
   }
   return concurrency
+}
+
+function isFileSystemError(error: unknown, code: string): error is NodeJS.ErrnoException {
+  return error instanceof Error && "code" in error && error.code === code
+}
+
+function errorMessage(error: unknown): string {
+  return error instanceof Error ? error.message : String(error)
 }

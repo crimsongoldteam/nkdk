@@ -195,7 +195,7 @@ describe("XML import discovery", () => {
     )
   })
 
-  it("preserves root and Ext copies of real child-template text and binary payloads", async () => {
+  it("attaches a real child template XML and its payloads to the owner assignment", async () => {
     const templateRoot = "BusinessProcesses/БизнесПроцессВсеСвойства/Templates/Макет"
     const result = await discoverXmlImport({
       xmlDir,
@@ -208,11 +208,18 @@ describe("XML import discovery", () => {
       ]),
     })
 
-    const template = result.assignments.find((assignment) =>
-      assignment.targetProjectPath.endsWith("/Макеты/Макет/Template.xml")
+    const owner = result.assignments.find(
+      (assignment) => assignment.targetProjectPath === "БизнесПроцесс/БизнесПроцессВсеСвойства/Свойства.yaml"
     )
-    expect(template?.externalFiles).toEqual(
+    expect(result.assignments).not.toContainEqual(
+      expect.objectContaining({ targetProjectPath: expect.stringMatching(/\/Макеты\/Макет\/Template\.xml$/) })
+    )
+    expect(owner?.externalFiles).toEqual(
       expect.arrayContaining([
+        expect.objectContaining({
+          sourcePath: join(xmlDir, `${templateRoot}.xml`),
+          targetProjectPath: "БизнесПроцесс/БизнесПроцессВсеСвойства/Макеты/Макет/Template.xml",
+        }),
         expect.objectContaining({
           sourcePath: join(xmlDir, `${templateRoot}/Ext/Template.txt`),
           targetProjectPath: "БизнесПроцесс/БизнесПроцессВсеСвойства/Макеты/Макет/Template.txt",

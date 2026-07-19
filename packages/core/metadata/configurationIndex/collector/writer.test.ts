@@ -66,4 +66,45 @@ describe("configuration index collector", () => {
       ],
     })
   })
+
+  it("deduplicates equal logical-address values and rejects conflicting identities", () => {
+    const collector = createConfigurationIndexCollector()
+    collector.setUuid("Справочник.Товары", "00000000-0000-4000-8000-000000000001")
+    collector.setUuid("Справочник.Товары", "00000000-0000-4000-8000-000000000001")
+
+    expect(() => collector.setUuid("Справочник.Товары", "00000000-0000-4000-8000-000000000002")).toThrow(
+      "Конфликт logicalAddress"
+    )
+
+    for (const [setIdentity, address] of [
+      [(value: string) => collector.setXmlId("Форма[0]", value), "Форма[0]"],
+      [(value: string) => collector.setXmlName("Форма[1]", value), "Форма[1]"],
+    ] as const) {
+      setIdentity("same")
+      setIdentity("same")
+      expect(() => setIdentity("other")).toThrow(`Конфликт logicalAddress ${address}`)
+    }
+  })
+
+  it("deduplicates equal node and XML values and rejects conflicting replacements", () => {
+    const collector = createConfigurationIndexCollector()
+    collector.setOrder("Справочник.Товары", ["name", "synonym"])
+    collector.setOrder("Справочник.Товары", ["name", "synonym"])
+    expect(() => collector.setOrder("Справочник.Товары", ["synonym", "name"])).toThrow("Конфликт logicalAddress")
+
+    collector.setAlias("Справочник.Товары", "synonym", "Synonym")
+    collector.setAlias("Справочник.Товары", "synonym", "Synonym")
+    expect(() => collector.setAlias("Справочник.Товары", "synonym", "Alias")).toThrow("Конфликт logicalAddress")
+
+    for (const setValue of [
+      (value: string) => collector.setXsiType("Справочник.Товары.value", value),
+      (value: string) => collector.setXmlText("Справочник.Товары.value", value),
+      (value: string) => collector.setXmlPrefix("Справочник.Товары.value", value),
+      (value: string) => collector.setUserSettingsId("Справочник.Товары.value", value),
+    ]) {
+      setValue("same")
+      setValue("same")
+      expect(() => setValue("other")).toThrow("Конфликт logicalAddress")
+    }
+  })
 })

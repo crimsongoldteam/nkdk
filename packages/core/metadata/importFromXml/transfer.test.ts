@@ -14,9 +14,9 @@ afterEach(async () => {
 
 describe("XML import result transfer", () => {
   it("rejects duplicate and escaping target paths before transfer", async () => {
-    expect(() =>
-      mergeImportResultFiles([workerFile("Конфигурация.yaml"), externalFile("Конфигурация.yaml")])
-    ).toThrow("Повторный целевой путь")
+    expect(() => mergeImportResultFiles([workerFile("Конфигурация.yaml"), externalFile("Конфигурация.yaml")])).toThrow(
+      "Повторный целевой путь"
+    )
     expect(() => mergeImportResultFiles([workerFile("../outside.yaml")])).toThrow("вне Проекта")
 
     const calls: string[] = []
@@ -35,7 +35,7 @@ describe("XML import result transfer", () => {
     const workerYaml = join(root, "worker", "Конфигурация.yaml")
     const xmlModule = join(root, "xml", "МодульПриложения.bsl")
     const yamlText = "name: Конфигурация\n"
-    const moduleText = "Сообщить(\"Импорт\");\n"
+    const moduleText = 'Сообщить("Импорт");\n'
     await fs.promises.mkdir(join(root, "worker"), { recursive: true })
     await fs.promises.mkdir(join(root, "xml"), { recursive: true })
     await fs.promises.mkdir(projectDir, { recursive: true })
@@ -54,6 +54,29 @@ describe("XML import result transfer", () => {
     expect(await fs.promises.readFile(join(projectDir, "Конфигурация.yaml"), "utf8")).toBe(yamlText)
     expect(await fs.promises.readFile(xmlModule, "utf8")).toBe(moduleText)
     expect(await fs.promises.readFile(join(projectDir, "МодульПриложения.bsl"), "utf8")).toBe(moduleText)
+  })
+
+  it("rejects an existing symlink directory that resolves outside the Project before transfer", async () => {
+    const root = await createTempDir("symlink")
+    const projectDir = join(root, "project")
+    const outsideDir = join(root, "outside")
+    const workerYaml = join(root, "worker", "escaped.yaml")
+    await fs.promises.mkdir(join(root, "worker"), { recursive: true })
+    await fs.promises.mkdir(projectDir, { recursive: true })
+    await fs.promises.mkdir(outsideDir, { recursive: true })
+    await fs.promises.writeFile(workerYaml, "new escaped")
+    await fs.promises.symlink(outsideDir, join(projectDir, "linked"), process.platform === "win32" ? "junction" : "dir")
+
+    await expect(
+      transferImportResult({
+        projectDir,
+        files: [{ sourceKind: "worker", sourcePath: workerYaml, targetProjectPath: "linked/escaped.yaml" }],
+        concurrency: 1,
+      })
+    ).rejects.toThrow("вне Проекта")
+
+    expect(await fs.promises.readFile(workerYaml, "utf8")).toBe("new escaped")
+    await expect(fs.promises.stat(join(outsideDir, "escaped.yaml"))).rejects.toMatchObject({ code: "ENOENT" })
   })
 
   it("stops scheduling files after the first replacement failure without rollback", async () => {
@@ -75,24 +98,28 @@ describe("XML import result transfer", () => {
     let replacementCount = 0
 
     await expect(
-      transferImportResult({ projectDir, files, concurrency: 1 }, {
-        async mkdir(path) {
-          await fs.promises.mkdir(path, { recursive: true })
-        },
-        async rename(source, target) {
-          if (source.startsWith(workerDir)) firstRenameSources.push(basename(source))
-          if (!basename(target).startsWith(".")) {
-            replacementCount += 1
-            replacementTargets.push(relative(projectDir, target))
-            if (replacementCount === 2) throw new Error("second replacement failed")
-          }
-          await fs.promises.rename(source, target)
-        },
-        copyFile: fs.promises.copyFile,
-        async open(path) {
-          return fs.promises.open(path, "r+")
-        },
-      })
+      transferImportResult(
+        { projectDir, files, concurrency: 1 },
+        {
+          realpath: fs.promises.realpath,
+          async mkdir(path) {
+            await fs.promises.mkdir(path, { recursive: true })
+          },
+          async rename(source, target) {
+            if (source.startsWith(workerDir)) firstRenameSources.push(basename(source))
+            if (target.startsWith(projectDir) && !basename(target).startsWith(".")) {
+              replacementCount += 1
+              replacementTargets.push(relative(projectDir, target))
+              if (replacementCount === 2) throw new Error("second replacement failed")
+            }
+            await fs.promises.rename(source, target)
+          },
+          copyFile: fs.promises.copyFile,
+          async open(path) {
+            return fs.promises.open(path, "r+")
+          },
+        }
+      )
     ).rejects.toThrow("second replacement failed")
 
     expect(replacementTargets).toEqual(["first.yaml", "second.yaml"])
@@ -100,7 +127,9 @@ describe("XML import result transfer", () => {
     expect(await fs.promises.readFile(join(projectDir, "first.yaml"), "utf8")).toBe("new first")
     expect(await fs.promises.readFile(join(projectDir, "second.yaml"), "utf8")).toBe("old second")
     expect(await fs.promises.readFile(join(projectDir, "third.yaml"), "utf8")).toBe("old third")
+    expect(await fs.promises.readFile(files[1]!.sourcePath, "utf8")).toBe("new second")
     expect(await fs.promises.readFile(files[2]!.sourcePath, "utf8")).toBe("new third")
+    expect((await fs.promises.readdir(projectDir)).filter((name) => name.startsWith("."))).toEqual([])
   })
 })
 
@@ -114,6 +143,9 @@ function externalFile(targetProjectPath: string): ImportResultFile {
 
 function recordingFileOperations(calls: string[]) {
   return {
+    async realpath(path: string): Promise<string> {
+      return path
+    },
     async mkdir(): Promise<void> {
       calls.push("mkdir")
     },

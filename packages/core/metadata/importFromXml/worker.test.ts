@@ -143,6 +143,7 @@ describe("XML import worker second pass", () => {
     const first = expectFirstPass(
       await runImportWorkerCommand({ kind: "firstPass", assignments: [assignments.catalog, assignments.form] })
     )
+    expect(first.diagnostics).toEqual([])
 
     const second = await runImportWorkerCommand({
       kind: "secondPass",

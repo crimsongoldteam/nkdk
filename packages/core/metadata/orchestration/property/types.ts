@@ -69,6 +69,9 @@ export interface BasePropertyRule {
   /** Порядок свойства при выгрузке в XML (используй только при необходимости) */
   order?: number
 
+  /** Канонический сегмент logicalAddress для элементов коллекции свойства. */
+  configurationIndexUidSegment?: string
+
   /** Название ключа в YAML */
   yaml?: string
 

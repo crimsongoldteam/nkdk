@@ -23,7 +23,7 @@ export interface ConfigurationIndexCollector {
 
 class InMemoryConfigurationIndexCollector implements ConfigurationIndexCollector {
   private readonly identities: ConfigurationIdentity[] = []
-  private readonly identityKeys = new Set<string>()
+  private readonly identityValues = new Map<string, string>()
   private readonly xmlNodes = new Map<string, MutableXmlNode>()
   private readonly xmlValues = new Map<string, ConfigurationXmlValue>()
 
@@ -40,11 +40,21 @@ class InMemoryConfigurationIndexCollector implements ConfigurationIndexCollector
   }
 
   setOrder(address: string, keys: readonly string[]): void {
-    this.node(address).order = [...keys]
+    const node = this.node(address)
+    if (node.order !== undefined) {
+      assertEqualValues(address, "order", node.order, keys, equalStringArrays)
+      return
+    }
+    node.order = [...keys]
   }
 
   setAlias(address: string, propertyKey: string, sourceXmlKey: string): void {
     const node = this.node(address)
+    const previous = node.aliases?.[propertyKey]
+    if (previous !== undefined) {
+      assertEqualValues(address, `alias ${propertyKey}`, previous, sourceXmlKey)
+      return
+    }
     node.aliases = { ...node.aliases, [propertyKey]: sourceXmlKey }
   }
 
@@ -62,19 +72,19 @@ class InMemoryConfigurationIndexCollector implements ConfigurationIndexCollector
   }
 
   setXsiType(address: string, value: string): void {
-    this.value(address).xsiType = value
+    this.setXmlValue(address, "xsiType", value)
   }
 
   setXmlText(address: string, value: string): void {
-    this.value(address).xmlText = value
+    this.setXmlValue(address, "xmlText", value)
   }
 
   setXmlPrefix(address: string, value: string): void {
-    this.value(address).xmlPrefix = value
+    this.setXmlValue(address, "xmlPrefix", value)
   }
 
   setUserSettingsId(address: string, value: string): void {
-    this.value(address).userSettingsId = value
+    this.setXmlValue(address, "userSettingsId", value)
   }
 
   fragment(targetProjectPath: string): ConfigurationIndexFragment {
@@ -88,9 +98,27 @@ class InMemoryConfigurationIndexCollector implements ConfigurationIndexCollector
 
   private setIdentity(address: string, kind: ConfigurationIdentity["kind"], value: string): void {
     const key = `${address}\0${kind}`
-    if (this.identityKeys.has(key)) return
-    this.identityKeys.add(key)
+    const previous = this.identityValues.get(key)
+    if (previous !== undefined) {
+      assertEqualValues(address, kind, previous, value)
+      return
+    }
+    this.identityValues.set(key, value)
     this.identities.push({ logicalAddress: address, kind, value })
+  }
+
+  private setXmlValue(
+    address: string,
+    field: "xsiType" | "xmlText" | "xmlPrefix" | "userSettingsId",
+    value: string
+  ): void {
+    const xmlValue = this.value(address)
+    const previous = xmlValue[field]
+    if (previous !== undefined) {
+      assertEqualValues(address, field, previous, value)
+      return
+    }
+    xmlValue[field] = value
   }
 
   private node(address: string): MutableXmlNode {
@@ -144,4 +172,22 @@ function compareUtf8(left: string, right: string): number {
 
 function identityKind(kind: ConfigurationIdentity["kind"]): number {
   return kind === "uuid" ? 1 : kind === "xmlId" ? 2 : 3
+}
+
+function assertEqualValues<T>(
+  address: string,
+  field: string,
+  previous: T,
+  next: T,
+  equals: (left: T, right: T) => boolean = Object.is
+): void {
+  if (!equals(previous, next)) {
+    throw new Error(
+      `Конфликт logicalAddress ${address}: несовпадающие значения ${field} ${JSON.stringify(previous)} и ${JSON.stringify(next)}`
+    )
+  }
+}
+
+function equalStringArrays(left: readonly string[], right: readonly string[]): boolean {
+  return left.length === right.length && left.every((value, index) => value === right[index])
 }

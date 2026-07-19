@@ -22,6 +22,7 @@ import {
 import { childUid } from "../../configurationIndex/logicalAddress"
 import {
   getConfigurationIndexCollectionContext,
+  runWithConfigurationIndexPropertyContext,
   withConfigurationIndexLogicalAddress,
 } from "../../configurationIndex/collector/context"
 
@@ -120,12 +121,12 @@ export function prepareAppliedObjectModelFromXML(params: {
   for (const [key, propRule] of Object.entries(params.rule.properties)) {
     const extParsed = params.propertyXML?.get(key)
     if (extParsed === undefined || !getTypeRule(propRule.type, "importFromXML")) continue
-    const value = importPropertyFromXML({
-      context: params.context,
-      rule: propRule as PropertyRule,
-      value: extParsed,
-      name: key,
-    })
+    const value = runWithConfigurationIndexPropertyContext(
+      params.context,
+      propRule.yaml ?? key,
+      propRule.configurationIndexUidSegment ?? propRule.operationTarget?.migrationSegment,
+      (context) => importPropertyFromXML({ context, rule: propRule as PropertyRule, value: extParsed, name: key })
+    )
     if (value !== undefined) mutableModel[key] = value
   }
 

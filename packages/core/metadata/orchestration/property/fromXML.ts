@@ -18,7 +18,7 @@ import {
 import {
   getConfigurationIndexCollectionContext,
   getConfigurationIndexXmlNodeLogicalAddress,
-  withConfigurationIndexChildCollection,
+  runWithConfigurationIndexPropertyContext,
 } from "../../configurationIndex/collector/context"
 
 export function importPropertiesFromXML<Rule extends MetadataItemRule>(
@@ -101,22 +101,28 @@ export function importPropertiesFromXML<Rule extends MetadataItemRule>(
 
     let value
     const childCollection = rule.childCollections?.find((candidate) => candidate.propertyKey === key)
-    const propertyContext =
-      childCollection?.configurationIndexUidSegment === undefined
-        ? context
-        : withConfigurationIndexChildCollection(context, childCollection.configurationIndexUidSegment)
+    const configurationIndexUidSegment =
+      childCollection?.configurationIndexUidSegment ??
+      currentRule.configurationIndexUidSegment ??
+      currentRule.operationTarget?.migrationSegment
     if (hasRawEmptyXML && (currentRule as any).emptyAsRawXML === true) {
       value = (currentRule as any).defaultValueXMLEmpty
     } else {
       value =
         shouldImportForReference || currentRule.fromXML !== false
-          ? importPropertyFromXML({
-              context: propertyContext,
-              rule: currentRule,
-              value: xmlValue,
-              name: key,
-              ownerXmlName,
-            })
+          ? runWithConfigurationIndexPropertyContext(
+              context,
+              currentRule.yaml ?? key,
+              configurationIndexUidSegment,
+              (propertyContext) =>
+                importPropertyFromXML({
+                  context: propertyContext,
+                  rule: currentRule,
+                  value: xmlValue,
+                  name: key,
+                  ownerXmlName,
+                })
+            )
           : undefined
     }
 
