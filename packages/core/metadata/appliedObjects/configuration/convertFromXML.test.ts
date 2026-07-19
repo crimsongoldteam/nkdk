@@ -4,6 +4,7 @@ import { join } from "path"
 import { beforeEach, describe, expect, it } from "vitest"
 import { mockContextFromXML } from "../../../tests/mockContext"
 import { readXMLFileAsString } from "../../../tests/readAndParseXMLFile"
+import { readConfigurationIndex } from "../../configurationIndex"
 import { syncConfigurationFromXML } from "./convertFromXML"
 import { CONFIGURATION_XML_FILE, CONFIGURATION_YAML_FILE } from "./rootIO"
 
@@ -48,11 +49,13 @@ describe("sync configuration from xml", () => {
 
   it("should produce catalog and form YAML in output dir", async () => {
     fs.mkdirSync(outputDir, { recursive: true })
+    const operationId = "fixture-import"
 
-    await syncConfigurationFromXML({
+    const result = await syncConfigurationFromXML({
       context: mockContextFromXML(),
       inputDir,
       outputDir,
+      operationId,
     })
 
     const expectedFormYaml = readXMLFileAsString(
@@ -71,6 +74,30 @@ describe("sync configuration from xml", () => {
 
     expect(resultCatalogYaml).toBe(expectedCatalogYaml)
     expect(resultFormYaml).toBe(expectedFormYaml)
+    expect(result.failed).toEqual([])
+    expect(result.warnings).toEqual([])
+    expect((await readConfigurationIndex({ projectDir: outputDir, baseId: "default" })).binding).toMatchObject({
+      baseId: "default",
+      baseFingerprint: new Uint8Array(),
+      configurationVersion: new Uint8Array(),
+    })
+    expect(fs.existsSync(join(outputDir, ".nkdk", "tmp", "import", operationId))).toBe(false)
+  })
+
+  it("сохраняет старые файлы в непустом каталоге проекта", async () => {
+    const stalePath = join(outputDir, "Справочник", "УдаленныйОбъект", "Свойства.yaml")
+    fs.mkdirSync(join(outputDir, "Справочник", "УдаленныйОбъект"), { recursive: true })
+    fs.writeFileSync(stalePath, "Имя: УдаленныйОбъект\n")
+
+    const result = await syncConfigurationFromXML({
+      context: mockContextFromXML(),
+      inputDir,
+      outputDir,
+      operationId: "nonempty-target",
+    })
+
+    expect(result.failed).toEqual([])
+    expect(fs.readFileSync(stalePath, "utf8")).toBe("Имя: УдаленныйОбъект\n")
   })
 
   it("импортирует Document, DocumentNumerator и Sequence в соответствующие YAML-папки", async () => {
@@ -114,12 +141,13 @@ describe("sync configuration from xml", () => {
       fs.mkdirSync(rootInput, { recursive: true })
       fs.copyFileSync(join(__dirname, "__fixtures__/full.xml"), join(rootInput, CONFIGURATION_XML_FILE))
 
-      await syncConfigurationFromXML({
+      const result = await syncConfigurationFromXML({
         context: mockContextFromXML(),
         inputDir: rootInput,
         outputDir: rootOutput,
       })
 
+      expect(result.failed).toEqual([])
       const yaml = fs.readFileSync(join(rootOutput, CONFIGURATION_YAML_FILE), "utf-8")
       expect(yaml).toContain("Имя: Конфигурация")
       expect(yaml).not.toContain("ChildObjects")
@@ -144,12 +172,13 @@ describe("sync configuration from xml", () => {
         join(rootInput, "Ext", "MainSectionCommandInterface.xml")
       )
 
-      await syncConfigurationFromXML({
+      const result = await syncConfigurationFromXML({
         context: mockContextFromXML(),
         inputDir: rootInput,
         outputDir: rootOutput,
       })
 
+      expect(result.failed).toEqual([])
       const yaml = fs.readFileSync(join(rootOutput, CONFIGURATION_YAML_FILE), "utf-8")
       expect(yaml).toContain("КомандныйИнтерфейс:")
       expect(yaml).toContain("ВидимостьПодсистем:")
