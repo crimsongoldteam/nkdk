@@ -1,9 +1,5 @@
-export {
-  childUid,
-  configurationUid,
-  indexedUid,
-  metadataItemUid,
-} from "./logicalAddress"
+export { childUid, configurationUid, indexedUid, metadataItemUid } from "./logicalAddress"
+export { encodeConfigurationIndex } from "./encode"
 export type {
   ConfigurationIdentity,
   ConfigurationIndexBinding,
