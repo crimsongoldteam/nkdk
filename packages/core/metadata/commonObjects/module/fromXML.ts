@@ -53,6 +53,58 @@ export const syncModuleFromXML = async (params: {
 
 registerTypeRule("Module", "syncExternalFromXML", syncModuleFromXML)
 registerTypeRule("Template", "syncExternalFromXML", syncModuleFromXML)
+registerTypeRule("Module", "xmlImportRoutes", describeModuleXmlImportRoutes)
+registerTypeRule("Template", "xmlImportRoutes", describeModuleXmlImportRoutes)
+
+function describeModuleXmlImportRoutes({ propertyRule }: { propertyRule?: PropertyRule }) {
+  const rule = propertyRule as ModulePropertyRule | TemplatePropertyRule
+  const xmlPath = importPathPattern(rule.xmlPath)
+  const targetPath = importPathPattern(rule.nkdkPath)
+  const source = { kind: "propertyType" as const, type: rule.type }
+  const routes = [
+    {
+      kind: "externalFile" as const,
+      xmlPattern: xmlPath,
+      targetPattern: targetPath,
+      assignmentTargetPattern: "",
+      source,
+    },
+  ]
+  if (xmlPath.toLowerCase().endsWith(".bsl") && targetPath.toLowerCase().endsWith(".bsl")) {
+    routes.push({
+      kind: "externalFile",
+      xmlPattern: xmlPath.replace(/\.bsl$/i, ".bin"),
+      targetPattern: targetPath.replace(/\.bsl$/i, ".bin"),
+      assignmentTargetPattern: "",
+      source,
+    })
+  }
+  if (rule.type === "Template" && xmlPath.toLowerCase().endsWith(".xml") && targetPath.toLowerCase().endsWith(".xml")) {
+    const xmlBase = xmlPath.replace(/\.xml$/i, "")
+    const targetBase = targetPath.replace(/\.xml$/i, "")
+    for (const extension of [".bin", ".txt"]) {
+      routes.push({
+        kind: "externalFile",
+        xmlPattern: `${xmlBase}${extension}`,
+        targetPattern: `${targetBase}${extension}`,
+        assignmentTargetPattern: "",
+        source,
+      })
+    }
+    routes.push({
+      kind: "externalFile",
+      xmlPattern: `${xmlBase}/{relativePath...}`,
+      targetPattern: `${targetBase}/{relativePath...}`,
+      assignmentTargetPattern: "",
+      source,
+    })
+  }
+  return routes
+}
+
+function importPathPattern(value: string | ((params: { name: string; parentName?: string }) => string)): string {
+  return typeof value === "string" ? value : value({ name: "{currentName}", parentName: "{parentName}" })
+}
 
 const resolveSourcePath = (params: { xmlDir: string; xmlPath: string; objectName?: string }): string => {
   const directPath = join(params.xmlDir, params.xmlPath)

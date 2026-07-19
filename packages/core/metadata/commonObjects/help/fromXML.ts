@@ -40,6 +40,29 @@ export const syncHelpFromXML = async (params: {
 }
 
 registerTypeRule("Help", "syncExternalFromXML", syncHelpFromXML)
+registerTypeRule("Help", "xmlImportRoutes", ({ propertyRule }) => {
+  const rule = propertyRule as HelpPropertyRule
+  const xmlPath =
+    typeof rule.xmlPath === "function" ? rule.xmlPath({ name: "{currentName}" }) : (rule.xmlPath ?? rule.filePath)
+  const helpFilesPattern = xmlPath.replace(/\.xml$/i, "")
+  return [
+    {
+      kind: "assignment",
+      xmlPattern: xmlPath,
+      targetPattern: "",
+      role: "properties",
+      itemType: "",
+      source: { kind: "propertyType", type: "Help" },
+    },
+    {
+      kind: "externalFile",
+      xmlPattern: `${helpFilesPattern}/{relativePath...}`,
+      targetPattern: `${rule.nkdkDir}/{relativePath...}`,
+      assignmentTargetPattern: "",
+      source: { kind: "propertyType", type: "Help" },
+    },
+  ]
+})
 
 const copyDirectoryFilesOnly = async (srcDir: string, dstDir: string): Promise<void> => {
   if (!fs.existsSync(srcDir)) return

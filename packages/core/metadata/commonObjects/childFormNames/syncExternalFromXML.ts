@@ -3,6 +3,7 @@ import { basename, dirname, join } from "path"
 import { convertFormFromXML } from "../../forms/clientApplicationForm/convertFromXML"
 import { registerTypeRule } from "../../orchestration/property/typeRuleRegistry"
 import type { SyncExternalFromXMLFunction } from "../../orchestration/property/fn"
+import type { ChildFormNamesPropertyRule } from "./types"
 import { importContentFromXML } from "../../../xml/import/importer"
 
 /**
@@ -67,3 +68,24 @@ async function copyFormHelpFromXML(params: { formsDir: string; nkdkDir: string; 
 }
 
 registerTypeRule("ChildFormNames", "syncExternalFromXML", syncChildFormNamesFromXML)
+registerTypeRule("ChildFormNames", "xmlImportRoutes", ({ propertyRule }) => {
+  const folderName = (propertyRule as ChildFormNamesPropertyRule | undefined)?.folderName ?? "Формы"
+  const assignmentTargetPattern = `${folderName}/{itemName}/Форма.yaml`
+  return [
+    {
+      kind: "assignment",
+      xmlPattern: "Forms/{itemName}.xml",
+      targetPattern: assignmentTargetPattern,
+      role: "fileItem",
+      itemType: "ClientApplicationForm",
+      source: { kind: "propertyType", type: "ChildFormNames" },
+    },
+    {
+      kind: "externalFile",
+      xmlPattern: "Forms/{itemName}/Ext/{relativePath...}",
+      targetPattern: `${folderName}/{itemName}/{relativePath...}`,
+      assignmentTargetPattern,
+      source: { kind: "propertyType", type: "ChildFormNames" },
+    },
+  ]
+})

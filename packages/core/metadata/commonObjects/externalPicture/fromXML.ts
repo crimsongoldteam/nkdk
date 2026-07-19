@@ -29,6 +29,25 @@ export const syncExternalPictureFromXML = async (params: {
 }
 
 registerTypeRule("ExternalPicture", "syncExternalFromXML", syncExternalPictureFromXML)
+registerTypeRule("ExternalPicture", "xmlImportRoutes", ({ propertyRule }) => {
+  const rule = propertyRule as ExternalPicturePropertyRule
+  return [
+    {
+      kind: "externalFile",
+      xmlPattern: rule.xmlPath,
+      targetPattern: `${rule.nkdkDir}/${basename(rule.xmlPath)}`,
+      assignmentTargetPattern: "",
+      source: { kind: "propertyType", type: "ExternalPicture" },
+    },
+    {
+      kind: "externalFile",
+      xmlPattern: `${rule.payloadXmlDir}/{relativePath...}`,
+      targetPattern: `${rule.nkdkDir}/{relativePath...}`,
+      assignmentTargetPattern: "",
+      source: { kind: "propertyType", type: "ExternalPicture" },
+    },
+  ]
+})
 
 const resolveSourceRoot = (params: { xmlDir: string; xmlPath: string; objectName?: string }): string => {
   const directPath = join(params.xmlDir, params.xmlPath)

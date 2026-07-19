@@ -135,6 +135,27 @@ registerTypeRule("ClientApplicationForm", "exportToJSONSchema", exportClientAppl
 registerTypeRule("ClientApplicationForm", "syncExternalFromXML", syncClientApplicationFormExternalFromXML)
 registerTypeRule("ClientApplicationForm", "syncExternalToXML", syncClientApplicationFormExternalToXML)
 registerTypeRule("ClientApplicationForm", "projectResources", describeClientApplicationFormProjectResources)
+registerTypeRule("ClientApplicationForm", "xmlImportRoutes", ({ propertyRule }) => {
+  const filePath = propertyRule?.filePath
+  if (filePath === undefined) return []
+  return [
+    {
+      kind: "assignment",
+      xmlPattern: filePath,
+      targetPattern: "",
+      role: "properties",
+      itemType: "",
+      source: { kind: "propertyType", type: "ClientApplicationForm" },
+    },
+    {
+      kind: "externalFile",
+      xmlPattern: join(dirname(filePath), "Form.bin").replace(/\\/g, "/"),
+      targetPattern: "Form.bin",
+      assignmentTargetPattern: "",
+      source: { kind: "propertyType", type: "ClientApplicationForm" },
+    },
+  ]
+})
 
 function asClientApplicationForm(value: unknown): ClientApplicationForm | undefined {
   if (!isRecord(value)) return undefined

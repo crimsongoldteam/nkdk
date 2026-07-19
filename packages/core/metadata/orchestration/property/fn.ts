@@ -14,6 +14,7 @@ import type { Diagnostic } from "../../validation/types"
 import type { YamlPath } from "../../validation/yamlLocations"
 import type { ParsedYaml } from "../../../yaml/parseMetadataYaml"
 import type { XmlWriteManifest } from "../xmlWriteManifest"
+import type { XmlImportRoute } from "../../importFromXml/types"
 import { PropertyRuleType } from "./registry"
 import type { MetadataItem, MetadataItemRule, PropertyRule } from "./types"
 
@@ -103,7 +104,10 @@ export interface MetadataTargetValidationResolver {
     filters?: Extract<MetadataTargetConstraint, { kind: "member" }>["filters"]
   }): MetadataTargetValidationResult
   resolveValue(params: { target: Extract<ParsedMetadataTarget, { kind: "value" }> }): MetadataTargetValidationResult
-  resolveStyleItem(params: { name: string; expectedTypes: readonly StyleItemTargetType[] }): MetadataTargetValidationResult
+  resolveStyleItem(params: {
+    name: string
+    expectedTypes: readonly StyleItemTargetType[]
+  }): MetadataTargetValidationResult
   resolveCommonPicture(params: { name: string }): MetadataTargetValidationResult
 }
 
@@ -236,6 +240,7 @@ export type XmlSyncRoute =
 
 export type ProjectResourcesFunction = (params: { propertyRule?: PropertyRule }) => ProjectResourceDescriptor[]
 export type XmlSyncRoutesFunction = (params: { propertyRule?: PropertyRule }) => XmlSyncRoute[]
+export type XmlImportRoutesFunction = (params: { propertyRule?: PropertyRule }) => readonly XmlImportRoute[]
 
 export interface FileChildNamesDescriptor {
   folderName: string
@@ -284,6 +289,7 @@ export interface TypeRule {
   structuralReferences?: StructuralReferencesFunction
   projectResources?: ProjectResourcesFunction
   xmlSyncRoutes?: XmlSyncRoutesFunction
+  xmlImportRoutes?: XmlImportRoutesFunction
   fileChildNamesDescriptor?: FileChildNamesDescriptorFunction
   xmlSyncWriter?: XmlSyncWriterFunction
 }
@@ -303,6 +309,7 @@ export type TypeRulesOperations =
   | "structuralReferences"
   | "projectResources"
   | "xmlSyncRoutes"
+  | "xmlImportRoutes"
   | "fileChildNamesDescriptor"
   | "xmlSyncWriter"
 type TypeRuleKey = `${PropertyRuleType}:${TypeRulesOperations}`
@@ -339,8 +346,10 @@ export type importExportFunction<O extends TypeRulesOperations> = O extends "imp
                           ? ProjectResourcesFunction | undefined
                           : O extends "xmlSyncRoutes"
                             ? XmlSyncRoutesFunction | undefined
-                            : O extends "fileChildNamesDescriptor"
-                              ? FileChildNamesDescriptorFunction | undefined
-                              : O extends "xmlSyncWriter"
-                                ? XmlSyncWriterFunction | undefined
-                                : never
+                            : O extends "xmlImportRoutes"
+                              ? XmlImportRoutesFunction | undefined
+                              : O extends "fileChildNamesDescriptor"
+                                ? FileChildNamesDescriptorFunction | undefined
+                                : O extends "xmlSyncWriter"
+                                  ? XmlSyncWriterFunction | undefined
+                                  : never

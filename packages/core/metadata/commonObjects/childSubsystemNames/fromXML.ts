@@ -44,6 +44,19 @@ export const syncChildSubsystemNamesFromXML = async (params: {
 }
 
 registerTypeRule("ChildSubsystemNames", "syncExternalFromXML", syncChildSubsystemNamesFromXML)
+registerTypeRule("ChildSubsystemNames", "xmlImportRoutes", ({ propertyRule }) => {
+  const folderName = getFolderName(propertyRule!)
+  return [
+    {
+      kind: "assignment",
+      xmlPattern: "Subsystems/{itemName}.xml",
+      targetPattern: `${folderName}/{itemName}/Свойства.yaml`,
+      role: "fileItem",
+      itemType: "MetadataSubsystem",
+      source: { kind: "propertyType", type: "ChildSubsystemNames" },
+    },
+  ]
+})
 
 const getFolderName = (rule: import("../../orchestration/property/types").PropertyRule): string =>
   (rule as ChildSubsystemNamesPropertyRule).folderName ?? rule.yaml ?? "Подсистемы"
