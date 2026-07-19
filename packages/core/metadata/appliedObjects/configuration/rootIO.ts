@@ -48,20 +48,31 @@ export const readConfigurationFromXML = (params: {
   inputDir: string
 }): MetadataConfiguration | undefined => {
   const source = fs.readFileSync(join(params.inputDir, CONFIGURATION_XML_FILE), "utf-8")
-  const parsed = importContentFromXML<{ MetaDataObject: unknown }>(source)
+  const parsed = importContentFromXML<{ MetaDataObject: unknown }>(source, { preserveXsiNil: true })
+  return prepareConfigurationModelFromXML({
+    context: params.context,
+    metadataXML: parsed.MetaDataObject,
+    propertyXML: readConfigurationFilePathPropertiesFromXML(params),
+  })
+}
 
+export function prepareConfigurationModelFromXML(params: {
+  context: ConfigurationContextFromXML
+  metadataXML: unknown
+  propertyXML?: ReadonlyMap<string, unknown>
+}): MetadataConfiguration | undefined {
   const configuration = importMetadataItemFromXML({
     context: params.context,
     rule: MetadataConfigurationRules,
-    xml: parsed.MetaDataObject,
+    xml: params.metadataXML,
   }) as MetadataConfiguration | undefined
+  if (configuration === undefined) return undefined
 
-  readConfigurationFilePathPropertiesFromXML({
+  importConfigurationFilePathPropertiesFromXML({
     context: params.context,
-    inputDir: params.inputDir,
     configuration,
+    propertyXML: params.propertyXML ?? new Map(),
   })
-
   return configuration
 }
 
@@ -125,17 +136,28 @@ export const writeConfigurationToXML = (params: {
 const readConfigurationFilePathPropertiesFromXML = (params: {
   context: ConfigurationContextFromXML
   inputDir: string
-  configuration: MetadataConfiguration | undefined
-}): void => {
-  if (params.configuration === undefined) return
-
+}): ReadonlyMap<string, unknown> => {
+  const propertyXML = new Map<string, unknown>()
   for (const [key, propRule] of Object.entries(MetadataConfigurationRules.properties) as [string, PropertyRule][]) {
     if (propRule.filePath === undefined) continue
     if (!getTypeRule(propRule.type, "importFromXML")) continue
     const extFilePath = join(params.inputDir, propRule.filePath)
     if (!fs.existsSync(extFilePath)) continue
     const extContent = fs.readFileSync(extFilePath, "utf-8")
-    const extParsed = importContentFromXML<Record<string, unknown>>(extContent)
+    const extParsed = importContentFromXML<Record<string, unknown>>(extContent, { preserveXsiNil: true })
+    propertyXML.set(key, extParsed)
+  }
+  return propertyXML
+}
+
+function importConfigurationFilePathPropertiesFromXML(params: {
+  context: ConfigurationContextFromXML
+  configuration: MetadataConfiguration
+  propertyXML: ReadonlyMap<string, unknown>
+}): void {
+  for (const [key, propRule] of Object.entries(MetadataConfigurationRules.properties) as [string, PropertyRule][]) {
+    const extParsed = params.propertyXML.get(key)
+    if (extParsed === undefined || !getTypeRule(propRule.type, "importFromXML")) continue
     const value = importPropertyFromXML({
       context: params.context,
       rule: propRule,

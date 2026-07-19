@@ -170,11 +170,30 @@ function parseFormFromXML(params: {
       : {}
   const parsedMetadata = importContentFromXML<{ MetaDataObject: FormMetadataXML }>(metadataXML)
 
-  return importClientApplicationFormFromXML({
+  return prepareClientApplicationFormModelFromXML({
     context,
-    xml: parsedForm,
-    xmlMetadata: parsedMetadata.MetaDataObject,
+    formName: "",
+    formXML: parsedForm,
+    metadataXML: parsedMetadata.MetaDataObject,
   })
+}
+
+export function prepareClientApplicationFormModelFromXML(params: {
+  context: ConfigurationContextFromXML
+  formName: string
+  formXML: ClientApplicationFormXML | undefined
+  metadataXML: FormMetadataXML
+}): ClientApplicationForm {
+  if (params.formXML === undefined && params.metadataXML.Form.Properties.FormType !== "Ordinary") {
+    throw new Error(`Не найден Form.xml для управляемой формы ${params.formName}`)
+  }
+  const model = importClientApplicationFormFromXML({
+    context: params.context,
+    xml: params.formXML ?? {},
+    xmlMetadata: params.metadataXML,
+  })
+  if (params.formName) model.name = params.formName
+  return model
 }
 
 const convertFormToYAML = async (params: {
