@@ -1,4 +1,9 @@
 import { capitalize } from "../../../helpers/capitalize"
+import {
+  getConfigurationIndexPropertyXmlValue,
+  getConfigurationIndexPropertyOrder,
+  isConfigurationIndexPropertyPresent,
+} from "../../configurationIndex/referenceView"
 import { ConfigurationContext } from "../../context/types"
 import { ToMetadata } from ".."
 import { TypeRulesOperations, type XMLImportPropertyBehavior } from "./fn"
@@ -84,6 +89,8 @@ export const shouldProcessProperty = (params: {
           Object.prototype.hasOwnProperty.call(metadataItem, propertyKey)
 
         if (metadataHasOwnKey) return true
+        if (isConfigurationIndexPropertyPresent(context, propertyKey)) return true
+        if (getConfigurationIndexPropertyXmlValue(context, propertyKey) !== undefined) return true
 
         if (referenceMetadata === null || referenceMetadata === undefined || typeof referenceMetadata !== "object") {
           return rule.exportWithoutReferenceXML === true
@@ -225,11 +232,12 @@ const buildPathStructure = <Rule extends MetadataItemRule>(
 }
 
 export const getOrderedKeysToXML = <Rule extends MetadataItemRule>(params: {
+  context?: import("../../context/types").ConfigurationContextWithExportToXML
   rule: Rule
   referenceMetadata: ToMetadata<Rule["itemType"]> | undefined
   tag?: string[]
 }): string[] => {
-  const { rule, referenceMetadata, tag } = params
+  const { context, rule, referenceMetadata, tag } = params
   const { pathOrder, pathToInfo } = buildPathStructure(rule, tag, referenceMetadata)
 
   // Если есть референс (например, метаданные, полученные из импорта XML), порядок ключей
@@ -243,6 +251,9 @@ export const getOrderedKeysToXML = <Rule extends MetadataItemRule>(params: {
       if (k === "itemType") continue
       if (!refKeyOrder.has(k)) refKeyOrder.set(k, i++)
     }
+  }
+  for (const key of getConfigurationIndexPropertyOrder(context as any)) {
+    if (key !== "itemType" && !refKeyOrder.has(key)) refKeyOrder.set(key, refKeyOrder.size)
   }
 
   type FlatEntry = {
