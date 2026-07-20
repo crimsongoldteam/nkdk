@@ -10,6 +10,7 @@ export const exportUserSettingsIDToXML = (
   referenceMetadata?: unknown
 ): UserSettingsIDXML | undefined => {
   if (value === undefined || value === false) return undefined
+  if (typeof value === "string") return value
   if (value === true) {
     if (typeof referenceMetadata === "string" && referenceMetadata.length > 0) {
       return referenceMetadata

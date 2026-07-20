@@ -1,7 +1,7 @@
 import { describe, expect, it } from "vitest"
 import { PropertyRule } from "../../orchestration"
 import { testImportPropertyFromXML } from "../../../tests/property/importPropertyFromXML"
-import { fixtureUserSettingsIDFull, fixtureUserSettingsIDRefFull } from "./__fixtures__/data"
+import { fixtureUserSettingsIDRefFull } from "./__fixtures__/data"
 import { withConfigurationIndexCollector } from "../../configurationIndex/collector/context"
 import { createConfigurationIndexCollector } from "../../configurationIndex/collector/writer"
 import { importPropertiesFromXML } from "../../orchestration/property/fromXML"
@@ -21,7 +21,7 @@ describe("importUserSettingsIDFromXML", () => {
       importMetaUrl: import.meta.url,
     })
 
-    expect(result).toEqual(fixtureUserSettingsIDFull)
+    expect(result).toEqual(fixtureUserSettingsIDRefFull)
   })
 
   it("imports empty.xml when not for reference", () => {
@@ -59,7 +59,7 @@ describe("importUserSettingsIDFromXML", () => {
     expect(result).toBeUndefined()
   })
 
-  it("сохраняет исходный идентификатор настройки до преобразования в boolean", () => {
+  it("хранит исходный идентификатор настройки в модели и не дублирует его в индексе", () => {
     const collector = createConfigurationIndexCollector()
     const context = withConfigurationIndexCollector(
       {
@@ -82,12 +82,7 @@ describe("importUserSettingsIDFromXML", () => {
       xml: { UserSettingsID: "Настройка-1" },
     })
 
-    expect(model).toEqual({ userSettingsId: true })
-    expect(collector.fragment("Отчёт/Продажи/Свойства.yaml").xmlValues).toEqual([
-      {
-        logicalAddress: "Отчёт.Продажи.userSettingsId",
-        userSettingsId: "Настройка-1",
-      },
-    ])
+    expect(model).toEqual({ userSettingsId: "Настройка-1" })
+    expect(collector.fragment("Отчёт/Продажи/Свойства.yaml").xmlValues).toEqual([])
   })
 })

@@ -5,11 +5,11 @@ import {
 import type { PropertyRule as WidePropertyRuleBase } from "../../orchestration/property/types"
 import type { StringboolYAML } from "../boolean/types"
 
-export type UserSettingsID = boolean
-
 export type UserSettingIDRef = string
 
-export type UserSettingsIDYAML = StringboolYAML
+export type UserSettingsID = boolean | UserSettingIDRef
+
+export type UserSettingsIDYAML = StringboolYAML | UserSettingIDRef
 
 export type UserSettingsIDXML = string
 

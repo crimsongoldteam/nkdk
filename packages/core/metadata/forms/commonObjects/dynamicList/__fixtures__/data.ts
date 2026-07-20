@@ -68,7 +68,7 @@ export const fullDynamicList = {
   ],
   conditionalAppearance: {
     itemType: "ConditionalAppearance",
-    userSettingID: true,
+    userSettingID: "b75fecce-942b-4aed-abc9-e6a02e460fb3",
     userSettingPresentation: {
       items: {
         ru: "Представление условного оформления",
@@ -132,7 +132,7 @@ export const fullDynamicList = {
           type: "string",
           value: "Правое значение",
         },
-        userSettingID: true,
+        userSettingID: "5ddf70ce-9583-4b18-9219-d9b0366bb7a7",
         userSettingPresentation: {
           items: {
             ru: "Пользовательское представление",
@@ -141,7 +141,7 @@ export const fullDynamicList = {
         viewMode: "Normal",
       },
     ],
-    userSettingID: true,
+    userSettingID: "72519cf3-0e66-4ad8-9758-aba06d2bb00c",
     userSettingPresentation: {
       items: {
         ru: "Представление отбора",
@@ -159,7 +159,7 @@ export const fullDynamicList = {
     itemType: "StructureItemGroup",
   },
   itemType: "DynamicList",
-  itemsUserSettingID: true,
+  itemsUserSettingID: "911b6018-f537-43e8-a417-da56b22f9aec",
   itemsUserSettingPresentation: {
     items: {
       ru: "Представление группировки",
@@ -312,7 +312,7 @@ export const fullDynamicListYAML = {
       },
     ],
     РежимОтображения: "БыстрыйДоступ",
-    ИспользоватьПользовательскуюНастройку: "Истина",
+    ИспользоватьПользовательскуюНастройку: "b75fecce-942b-4aed-abc9-e6a02e460fb3",
     ПредставлениеПользовательскойНастройки: "Представление условного оформления",
   },
   ПараметрыДанных: {
@@ -329,11 +329,11 @@ export const fullDynamicListYAML = {
         ПравоеЗначение: "'Правое значение'",
         Представление: explicitYAMLString("Русское"),
         РежимОтображения: "Обычный",
-        ИспользоватьПользовательскуюНастройку: "Истина",
+        ИспользоватьПользовательскуюНастройку: "5ddf70ce-9583-4b18-9219-d9b0366bb7a7",
         ПредставлениеПользовательскойНастройки: "Пользовательское представление",
       },
     ],
-    ИспользоватьПользовательскуюНастройку: "Истина",
+    ИспользоватьПользовательскуюНастройку: "72519cf3-0e66-4ad8-9758-aba06d2bb00c",
     ПредставлениеПользовательскойНастройки: "Представление отбора",
   },
   ПолучениеПредставленийДляНевидимыхПолей: "Ложь",
@@ -382,7 +382,7 @@ export const fullDynamicListYAML = {
       Использование: "Всегда",
     },
   },
-  ИдентификаторПользовательскойНастройкиСтруктуры: "Истина",
+  ИдентификаторПользовательскойНастройкиСтруктуры: "911b6018-f537-43e8-a417-da56b22f9aec",
   ПредставлениеПользовательскойНастройкиСтруктуры: "Представление группировки",
 } as unknown as DynamicListYAML
 

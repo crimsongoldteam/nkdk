@@ -3,16 +3,11 @@ import { PropertyRule, registerTypeRule } from "../../orchestration"
 import { UserSettingsID, UserSettingsIDXML } from "./types"
 
 export const importUserSettingsIDFromXML = (
-  context: ConfigurationContextFromXML,
+  _context: ConfigurationContextFromXML,
   _rule: PropertyRule | undefined,
   xml: UserSettingsIDXML | undefined
 ): UserSettingsID | UserSettingsIDXML | undefined => {
-  if (context.fromXML.forReference) return xml
-
-  return xml !== undefined ? true : undefined
+  return xml
 }
 
 registerTypeRule("UserSettingsID", "importFromXML", importUserSettingsIDFromXML)
-registerTypeRule("UserSettingsID", "configurationIndexValueFromXML", {
-  userSettingsIdFromSource: true,
-})

@@ -69,6 +69,16 @@ describe("exportUserSettingsIDToXML", () => {
     expect(result).not.toContain(fixtureUserSettingsIDRefFull)
   })
 
+  it("выгружает GUID из модели без referenceMetadata", () => {
+    const { result } = testExportPropertyToXML({
+      rule,
+      value: fixtureUserSettingsIDRefFull,
+      xmlRootTag,
+    })
+
+    expect(result).toContain(fixtureUserSettingsIDRefFull)
+  })
+
   it("с референсом из empty.xml при undefined не сериализует элемент", () => {
     const { expectedResult, result } = testExportPropertyToXML({
       rule,

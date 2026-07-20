@@ -47,6 +47,7 @@ registerMetadataItemCollectionRule({
   itemRule: MetadataWebServiceParameterRules,
   xmlElement: "Parameter",
   keyField: "name",
+  configurationIndexUidSegment: "Параметр",
   fromYAML: importMetadataWebServiceParametersFromYAML,
 })
 
@@ -81,6 +82,7 @@ registerMetadataItemCollectionRule({
   itemRule: MetadataWebServiceOperationRules,
   xmlElement: "Operation",
   keyField: "name",
+  configurationIndexUidSegment: "Операция",
   fromYAML: importMetadataWebServiceOperationsFromYAML,
 })
 

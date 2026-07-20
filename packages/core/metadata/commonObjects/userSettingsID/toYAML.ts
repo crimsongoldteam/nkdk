@@ -9,6 +9,8 @@ export const exportUserSettingsIDToYAML = (
   rule: PropertyRule | undefined,
   value: UserSettingsID | undefined
 ): UserSettingsIDYAML | undefined => {
+  if (typeof value === "string") return value
+
   return exportBooleanToYAML(context, rule, value)
 }
 

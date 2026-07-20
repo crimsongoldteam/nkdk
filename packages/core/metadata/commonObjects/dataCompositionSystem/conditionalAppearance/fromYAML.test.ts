@@ -30,7 +30,7 @@ describe("import ConditionalAppearance from YAML", () => {
     const result = testImportPropertyFromYAML({ rule, value: minimalUserSettingsConditionalAppearanceYAML })
     expect(result).toEqual({
       itemType: "ConditionalAppearance",
-      userSettingID: true,
+      userSettingID: "b75fecce-942b-4aed-abc9-e6a02e460fb3",
     })
   })
 })

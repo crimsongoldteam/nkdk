@@ -28,11 +28,6 @@ describe("validateProject", { timeout: 120_000 }, () => {
     writeProjectFile(projectDir, "Справочник/Прогрев/Формы/ФормаЭлемента/Форма.yaml", ["Элементы: {}"])
 
     await workerHandle.validateProject({ projectDir, context: mockContext })
-    await workerHandle.validateProject({
-      projectDir,
-      filePath: "Справочник/Прогрев/Формы/ФормаЭлемента/Форма.yaml",
-      context: mockContext,
-    })
     await singleWorkerHandle.validateProject({ projectDir, context: mockContext })
   }, 30_000)
 

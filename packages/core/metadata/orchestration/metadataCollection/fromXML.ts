@@ -78,7 +78,7 @@ function configurationIndexItemContext(params: {
   const registeredUidSegment = options?.configurationIndexUidSegment
   if (registeredUidSegment !== undefined && itemName === undefined) {
     throw new Error(
-      `Адресуемая metadata-item коллекция ${options.propertyType ?? itemRule.itemType} содержит элемент без имени`
+      `Адресуемая metadata-item коллекция ${options?.propertyType ?? itemRule.itemType} содержит элемент без имени`
     )
   }
 

@@ -9,6 +9,8 @@ export const importUserSettingsIDFromYAML = (
   rule: PropertyRule | undefined,
   value: UserSettingsIDYAML | undefined
 ): UserSettingsID | undefined => {
+  if (typeof value === "string" && value !== "Истина" && value !== "Ложь") return value
+
   return importBooleanFromYAML(context, rule, value)
 }
 

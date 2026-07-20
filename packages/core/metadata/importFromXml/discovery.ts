@@ -42,7 +42,6 @@ export async function discoverXmlImport(params: DiscoverXmlImportParams): Promis
   const fileSystem = params.fs ?? defaultFileSystem
   const listedPaths = await fileSystem.listFiles(params.xmlDir)
   const paths = [...new Set(listedPaths.map((path) => normalizeListedPath(params.xmlDir, path)))].sort(compareUtf8)
-  const unknownPaths: string[] = []
   const conflictPaths: string[] = []
   const assignmentsByTarget = new Map<string, AssignmentGroup>()
   const externalMatches: Array<Extract<ResolvedMatch, { kind: "externalFile" }> & { path: string }> = []
@@ -52,10 +51,7 @@ export async function discoverXmlImport(params: DiscoverXmlImportParams): Promis
     const matches = allMatches.some((match) => match.kind !== "externalFile" || match.route.fallback !== true)
       ? allMatches.filter((match) => match.kind !== "externalFile" || match.route.fallback !== true)
       : allMatches
-    if (matches.length === 0) {
-      unknownPaths.push(path)
-      continue
-    }
+    if (matches.length === 0) continue
     const compatibleMatches = resolveCompatibleMatches(matches)
     if (compatibleMatches === undefined) {
       conflictPaths.push(path)
@@ -95,7 +91,6 @@ export async function discoverXmlImport(params: DiscoverXmlImportParams): Promis
     assignmentsByTarget.set(compatible.targetProjectPath, group)
   }
 
-  if (unknownPaths.length > 0) throw importDiscoveryError("unknown_xml_dump_file", unknownPaths)
   if (conflictPaths.length > 0) throw importDiscoveryError("xml_import_route_conflict", conflictPaths)
 
   for (const match of externalMatches) {

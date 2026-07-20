@@ -263,13 +263,10 @@ describe("XML import discovery", () => {
     ])
   })
 
-  it("fails before workers and reports every unknown file", async () => {
+  it("ignores files that are not described by import routes", async () => {
     const fs = fakeFs(["z.bin", "Unknown.bin"])
 
-    await expect(discoverXmlImport({ xmlDir, routes: testRoutes, fs })).rejects.toMatchObject({
-      code: "unknown_xml_dump_file",
-      paths: ["Unknown.bin", "z.bin"],
-    })
+    await expect(discoverXmlImport({ xmlDir, routes: testRoutes, fs })).resolves.toEqual({ assignments: [] })
     expect(fs.readFile).not.toHaveBeenCalled()
   })
 
