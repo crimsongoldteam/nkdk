@@ -56,6 +56,29 @@ describe("XML import result transfer", () => {
     expect(await fs.promises.readFile(join(projectDir, "МодульПриложения.bsl"), "utf8")).toBe(moduleText)
   })
 
+  it("publishes worker and XML files directly without temporary files or fsync", async () => {
+    const calls: string[] = []
+
+    await transferImportResult(
+      {
+        projectDir: "/project",
+        files: [workerFile("Конфигурация.yaml"), externalFile("МодульПриложения.bsl")],
+        concurrency: 1,
+      },
+      recordingFileOperations(calls)
+    )
+
+    expect(calls).toEqual([
+      "realpath /project",
+      "realpath /project",
+      "realpath /project",
+      "mkdir /project",
+      "rename /worker/Конфигурация.yaml -> /project/Конфигурация.yaml",
+      "mkdir /project",
+      "copyFile /xml/МодульПриложения.bsl -> /project/МодульПриложения.bsl",
+    ])
+  })
+
   it("rejects an existing symlink directory that resolves outside the Project before transfer", async () => {
     const root = await createTempDir("symlink")
     const projectDir = join(root, "project")
@@ -115,9 +138,6 @@ describe("XML import result transfer", () => {
             await fs.promises.rename(source, target)
           },
           copyFile: fs.promises.copyFile,
-          async open(path) {
-            return fs.promises.open(path, "r+")
-          },
         }
       )
     ).rejects.toThrow("second replacement failed")
@@ -144,27 +164,17 @@ function externalFile(targetProjectPath: string): ImportResultFile {
 function recordingFileOperations(calls: string[]) {
   return {
     async realpath(path: string): Promise<string> {
+      calls.push(`realpath ${path}`)
       return path
     },
-    async mkdir(): Promise<void> {
-      calls.push("mkdir")
+    async mkdir(path: string): Promise<void> {
+      calls.push(`mkdir ${path}`)
     },
-    async rename(): Promise<void> {
-      calls.push("rename")
+    async rename(source: string, target: string): Promise<void> {
+      calls.push(`rename ${source} -> ${target}`)
     },
-    async copyFile(): Promise<void> {
-      calls.push("copyFile")
-    },
-    async open() {
-      calls.push("open")
-      return {
-        async sync(): Promise<void> {
-          calls.push("sync")
-        },
-        async close(): Promise<void> {
-          calls.push("close")
-        },
-      }
+    async copyFile(source: string, target: string): Promise<void> {
+      calls.push(`copyFile ${source} -> ${target}`)
     },
   }
 }

@@ -1,23 +1,16 @@
-import { randomUUID } from "node:crypto"
 import fs from "node:fs"
-import { basename, dirname, isAbsolute, join, posix, relative, resolve, sep, win32 } from "node:path"
+import { dirname, isAbsolute, posix, relative, resolve, sep, win32 } from "node:path"
 import pLimit from "p-limit"
 import type { ImportResultFile } from "./types"
 
 const DEFAULT_TRANSFER_CONCURRENCY = 16
 const VIRTUAL_PROJECT_ROOT = "/__nkdk_project__"
 
-interface ImportTransferFileHandle {
-  sync(): Promise<void>
-  close(): Promise<void>
-}
-
 interface ImportTransferFileOperations {
   realpath(path: string): Promise<string>
   mkdir(path: string): Promise<void>
   rename(source: string, target: string): Promise<void>
   copyFile(source: string, target: string): Promise<void>
-  open(path: string): Promise<ImportTransferFileHandle>
 }
 
 interface TransferImportResultParams {
@@ -33,9 +26,6 @@ const defaultFileOperations: ImportTransferFileOperations = {
   },
   rename: fs.promises.rename,
   copyFile: fs.promises.copyFile,
-  async open(path) {
-    return fs.promises.open(path, "r+")
-  },
 }
 
 export function mergeImportResultFiles(files: readonly ImportResultFile[]): ImportResultFile[] {
@@ -123,36 +113,14 @@ async function transferFile(
   fileOperations: ImportTransferFileOperations
 ): Promise<void> {
   const targetDirectory = dirname(targetPath)
-  const temporaryPath = join(targetDirectory, `.${basename(targetPath)}.${randomUUID()}.tmp`)
   await fileOperations.mkdir(targetDirectory)
 
   if (file.sourceKind === "worker") {
-    await fileOperations.rename(file.sourcePath, temporaryPath)
-  } else {
-    await fileOperations.copyFile(file.sourcePath, temporaryPath)
-    const handle = await fileOperations.open(temporaryPath)
-    try {
-      await handle.sync()
-    } finally {
-      await handle.close()
-    }
+    await fileOperations.rename(file.sourcePath, targetPath)
+    return
   }
 
-  try {
-    await fileOperations.rename(temporaryPath, targetPath)
-  } catch (caught) {
-    if (file.sourceKind === "worker") {
-      try {
-        await fileOperations.rename(temporaryPath, file.sourcePath)
-      } catch (restoreError) {
-        throw new AggregateError(
-          [caught, restoreError],
-          `Не удалось опубликовать и вернуть worker-файл ${file.sourcePath}: ${errorMessage(caught)}`
-        )
-      }
-    }
-    throw caught
-  }
+  await fileOperations.copyFile(file.sourcePath, targetPath)
 }
 
 function normalizedTargetProjectPath(targetProjectPath: string): string {
@@ -203,8 +171,4 @@ function normalizeConcurrency(concurrency: number | undefined): number {
 
 function isFileSystemError(error: unknown, code: string): error is NodeJS.ErrnoException {
   return error instanceof Error && "code" in error && error.code === code
-}
-
-function errorMessage(error: unknown): string {
-  return error instanceof Error ? error.message : String(error)
 }
