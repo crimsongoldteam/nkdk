@@ -68,6 +68,8 @@ export const syncModuleToXML = async (params: {
 
 registerTypeRule("Module", "syncExternalToXML", syncModuleToXML)
 registerTypeRule("Template", "syncExternalToXML", syncModuleToXML)
+registerTypeRule("Module", "xmlSyncRoutes", describeModuleXmlSyncRoutes)
+registerTypeRule("Template", "xmlSyncRoutes", describeModuleXmlSyncRoutes)
 
 const describeTemplateProjectResources: ProjectResourcesFunction = () => [
   {
@@ -83,6 +85,56 @@ const describeTemplateProjectResources: ProjectResourcesFunction = () => [
 ]
 
 registerTypeRule("Template", "projectResources", describeTemplateProjectResources)
+
+function describeModuleXmlSyncRoutes({ propertyRule }: { propertyRule?: PropertyRule }) {
+  const rule = propertyRule as ModulePropertyRule | TemplatePropertyRule
+  const yamlPattern = exportPathPattern(rule.nkdkPath)
+  const xmlPathPattern = exportPathPattern(rule.xmlPath)
+  const source = { kind: "propertyType" as const, type: rule.type }
+  const routes = [
+    {
+      kind: "externalFile" as const,
+      yamlPattern,
+      xmlPathPattern,
+      writerType: "propertyType" as const,
+      source,
+    },
+  ]
+  if (yamlPattern.toLowerCase().endsWith(".bsl") && xmlPathPattern.toLowerCase().endsWith(".bsl")) {
+    routes.push({
+      kind: "externalFile",
+      yamlPattern: yamlPattern.replace(/\.bsl$/i, ".bin"),
+      xmlPathPattern: xmlPathPattern.replace(/\.bsl$/i, ".bin"),
+      writerType: "propertyType",
+      source,
+    })
+  }
+  if (rule.type === "Template" && yamlPattern.toLowerCase().endsWith(".xml") && xmlPathPattern.toLowerCase().endsWith(".xml")) {
+    const yamlBase = yamlPattern.replace(/\.xml$/i, "")
+    const xmlBase = xmlPathPattern.replace(/\.xml$/i, "")
+    for (const extension of [".bin", ".txt"]) {
+      routes.push({
+        kind: "externalFile",
+        yamlPattern: `${yamlBase}${extension}`,
+        xmlPathPattern: `${xmlBase}${extension}`,
+        writerType: "propertyType",
+        source,
+      })
+    }
+    routes.push({
+      kind: "externalFile",
+      yamlPattern: `${yamlBase}/{relativePath...}`,
+      xmlPathPattern: `${xmlBase}/{relativePath...}`,
+      writerType: "propertyType",
+      source,
+    })
+  }
+  return routes
+}
+
+function exportPathPattern(value: string | ((params: { name: string; parentName?: string }) => string)): string {
+  return typeof value === "string" ? value : value({ name: "{currentName}", parentName: "{parentName}" })
+}
 
 const stripObjectPrefix = (params: { xmlDir: string; xmlPath: string; objectName?: string }): string => {
   const { xmlDir, xmlPath, objectName } = params
