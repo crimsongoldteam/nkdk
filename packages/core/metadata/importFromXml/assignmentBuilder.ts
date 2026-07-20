@@ -1,4 +1,5 @@
 import type { ImportAssignment, ImportExternalFile, ImportXmlInput, XmlImportRoute } from "./types"
+import { childUid, configurationUid, metadataItemUid } from "../configurationIndex/logicalAddress"
 
 export interface ImportAssignmentGroup {
   route: Extract<XmlImportRoute, { kind: "assignment" }>
@@ -38,12 +39,13 @@ function createAssignment(group: ImportAssignmentGroup, context: AssignmentBuild
   const itemName = assignmentItemName(group.targetProjectPath)
   const ownerGroup = findOwnerGroup(group, context)
   const owner = ownerGroup === undefined ? undefined : assignmentIdentity(ownerGroup, context)
+  const logicalAddressSegment = group.route.logicalAddressSegment ?? group.route.itemType
   const logicalAddress =
     group.route.role === "configuration"
-      ? "Конфигурация"
+      ? configurationUid()
       : group.route.role === "properties"
-        ? `${group.targetProjectPath.split("/")[0]}.${itemName}`
-        : `${owner?.logicalAddress ?? group.route.itemType}.${group.route.itemType}.${itemName}`
+        ? metadataItemUid(group.targetProjectPath.split("/")[0]!, itemName)
+        : childUid(owner?.logicalAddress ?? group.route.itemType, logicalAddressSegment, itemName)
   const assignment = {
     id: group.targetProjectPath,
     role: group.route.role,

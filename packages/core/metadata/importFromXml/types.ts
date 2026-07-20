@@ -90,6 +90,7 @@ export type XmlImportRoute = (
       role: ImportAssignmentRole
       inputRole?: ImportXmlInput["role"]
       itemType: string
+      logicalAddressSegment?: string
       source: ProjectResourceSource
     }
   | {

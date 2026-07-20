@@ -35,5 +35,5 @@ function address(value: string): string {
 
 function segment(value: string): string {
   if (value.length === 0) throw new Error("Пустой сегмент logicalAddress")
-  return value
+  return value.replace(/%/g, "%25").replace(/\./g, "%2E").replace(/\[/g, "%5B").replace(/\]/g, "%5D")
 }

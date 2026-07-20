@@ -33,6 +33,20 @@ describe("decodeConfigurationIndex", () => {
     expect(decodeConfigurationIndex(encoded).xmlNodes[0].aliases).toEqual(aliases)
   })
 
+  it("accepts YAML-path logicalAddress in XML_NODES", () => {
+    const data = sampleIndex()
+    const xmlNode = {
+      logicalAddress: "БизнесПроцесс.Задание.Форма.ФормаСписка.Атрибут.Список.Порядок.Элементы[0]",
+      present: ["Items"],
+    }
+    const encoded = encodeConfigurationIndex({
+      ...data,
+      xmlNodes: [xmlNode],
+    })
+
+    expect(decodeConfigurationIndex(encoded).xmlNodes).toEqual([xmlNode])
+  })
+
   it.each([
     ["magic", (buffer: Buffer) => writeAscii(buffer, "BROKEN!!", 0)],
     ["directory checksum", (buffer: Buffer) => flipByte(buffer, 64)],

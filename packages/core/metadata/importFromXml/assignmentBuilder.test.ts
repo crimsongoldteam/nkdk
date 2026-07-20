@@ -7,7 +7,8 @@ const source = { kind: "itemRule", itemType: "test" } as const
 function group(
   targetProjectPath: string,
   role: ImportAssignmentGroup["route"]["role"],
-  itemType: string
+  itemType: string,
+  logicalAddressSegment?: string
 ): ImportAssignmentGroup {
   return {
     route: {
@@ -16,6 +17,7 @@ function group(
       targetPattern: targetProjectPath,
       role,
       itemType,
+      ...(logicalAddressSegment === undefined ? {} : { logicalAddressSegment }),
       source,
     },
     values: {},
@@ -29,7 +31,7 @@ describe("XML import assignment builder", () => {
   it("finds the nearest owner through project directories and reuses its identity", () => {
     const assignments = createImportAssignments([
       group("Справочник/Контрагенты/Формы/Форма/Команды/Записать/Команда.yaml", "fileItem", "FormCommand"),
-      group("Справочник/Контрагенты/Формы/Форма/Форма.yaml", "fileItem", "ClientApplicationForm"),
+      group("Справочник/Контрагенты/Формы/Форма/Форма.yaml", "fileItem", "ClientApplicationForm", "Форма"),
       group("Справочник/Контрагенты/Свойства.yaml", "properties", "MetadataCatalog"),
     ])
 
@@ -38,19 +40,19 @@ describe("XML import assignment builder", () => {
       "Справочник/Контрагенты/Формы/Форма/Команды/Записать/Команда.yaml",
       "Справочник/Контрагенты/Формы/Форма/Форма.yaml",
     ])
-    expect(
-      assignments.find((assignment) => assignment.targetProjectPath.endsWith("/Форма.yaml"))?.owner
-    ).toMatchObject({
-      itemType: "MetadataCatalog",
-      name: "Контрагенты",
-      logicalAddress: "Справочник.Контрагенты",
-    })
+    expect(assignments.find((assignment) => assignment.targetProjectPath.endsWith("/Форма.yaml"))?.owner).toMatchObject(
+      {
+        itemType: "MetadataCatalog",
+        name: "Контрагенты",
+        logicalAddress: "Справочник.Контрагенты",
+      }
+    )
     expect(
       assignments.find((assignment) => assignment.targetProjectPath.endsWith("/Команда.yaml"))?.owner
     ).toMatchObject({
       itemType: "ClientApplicationForm",
       name: "Форма",
-      logicalAddress: "Справочник.Контрагенты.ClientApplicationForm.Форма",
+      logicalAddress: "Справочник.Контрагенты.Форма.Форма",
     })
   })
 })

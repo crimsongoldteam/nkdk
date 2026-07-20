@@ -159,6 +159,9 @@ function collectRuleRoutes(routes: XmlImportRoute[], rule: MetadataItemRule, con
         targetPattern: childAssignmentTarget,
         role: "fileItem",
         itemType: childCollection.fileItemRule.itemType,
+        ...(childCollection.configurationIndexUidSegment === undefined
+          ? {}
+          : { logicalAddressSegment: childCollection.configurationIndexUidSegment }),
         source: itemRuleSource(childCollection.fileItemRule),
       })
       collectRuleRoutes(routes, childCollection.itemRule, {
@@ -208,6 +211,10 @@ function compilePropertyRoute(
       targetPattern,
       role: declaration.targetPattern === "" ? context.assignmentRole : declaration.role,
       itemType: declaration.itemType === "" ? context.itemType : declaration.itemType,
+      logicalAddressSegment:
+        declaration.logicalAddressSegment ??
+        propertyRule.configurationIndexUidSegment ??
+        propertyRule.operationTarget?.migrationSegment,
       ...(recursion === undefined ? {} : { recursion }),
       source,
     }

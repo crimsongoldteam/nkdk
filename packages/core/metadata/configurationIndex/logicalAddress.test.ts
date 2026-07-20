@@ -1,5 +1,13 @@
 import { describe, expect, it } from "vitest"
-import { childUid, configurationUid, indexedUid, metadataItemUid, yamlIndexUid, yamlKeyUid, yamlPropertyUid } from "./logicalAddress"
+import {
+  childUid,
+  configurationUid,
+  indexedUid,
+  metadataItemUid,
+  yamlIndexUid,
+  yamlKeyUid,
+  yamlPropertyUid,
+} from "./logicalAddress"
 
 describe("configuration index logical address", () => {
   it("builds semantic addresses used by reference-order-spec", () => {
@@ -17,6 +25,16 @@ describe("configuration index logical address", () => {
     expect(() => metadataItemUid("", "Товары")).toThrow("Пустой сегмент logicalAddress")
     expect(() => childUid("Справочник.Товары", "Реквизит", "")).toThrow("Пустой сегмент logicalAddress")
     expect(() => indexedUid("Справочник.Товары", "Элемент", -1)).toThrow("Некорректный индекс logicalAddress")
+  })
+
+  it("escapes dots inside semantic segments", () => {
+    expect(
+      childUid(
+        "БизнесПроцесс.ЗаявкаСотрудникаОтпуск.Форма.ДействиеВыполнить",
+        "ДополнительныеКолонки",
+        "Задание.Отпуска"
+      )
+    ).toBe("БизнесПроцесс.ЗаявкаСотрудникаОтпуск.Форма.ДействиеВыполнить.ДополнительныеКолонки.Задание%2EОтпуска")
   })
 
   it("builds DCS YAML-path property and collection addresses", () => {

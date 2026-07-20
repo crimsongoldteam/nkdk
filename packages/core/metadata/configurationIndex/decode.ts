@@ -645,12 +645,18 @@ function validateLogicalAddress(value: string, section: "IDENTITIES" | "XML_NODE
     offset = 2
   }
 
+  if (section !== "IDENTITIES") {
+    while (offset < segments.length) {
+      if (!isPlainLogicalAddressSegment(segments[offset]) && !isIndexedLogicalAddressSegment(segments[offset])) {
+        throw new Error(`некорректный logicalAddress ${section}: ${value}`)
+      }
+      offset += 1
+    }
+    return
+  }
+
   while (offset < segments.length) {
     if (isIndexedLogicalAddressSegment(segments[offset])) {
-      offset += 1
-      continue
-    }
-    if (section === "XML_VALUES" && offset === segments.length - 1 && isPlainLogicalAddressSegment(segments[offset])) {
       offset += 1
       continue
     }
