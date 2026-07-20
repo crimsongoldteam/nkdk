@@ -1,3 +1,6 @@
+import { move, transferableSymbol, valueSymbol } from "piscina"
+import { encodeConfigurationIndexFragments } from "../configurationIndex/fragment"
+import { createConfigurationIndexReader } from "../configurationIndex/sharedSnapshot"
 import { hashFileBytes } from "../configurationIndex/hash"
 import { registerValidationMetadata } from "../validation/registerValidationMetadata"
 import { createValidationRulesSnapshot } from "../validation/rulesSnapshot"
@@ -5,15 +8,18 @@ import { resolveValidationProjectFile } from "../validation/projectFiles"
 import { extractValidationOwnerYamlFacts } from "../validation/yamlFactExtractor"
 import { prepareYamlFiles } from "../project/prepareYamlFiles"
 import type { PreparedYamlFile, PreparedYamlProjectFileDescriptor } from "../project/preparedYamlProject"
-import type { ConfigurationContext } from "../context/types"
+import type { ConfigurationContext, ConfigurationContextWithExportToXML } from "../context/types"
 import type {
   FullXmlSyncAssignment,
   FullXmlSyncDiagnostic,
   FullXmlSyncFirstPassResult,
   FullXmlSyncOwnerFacts,
+  FullXmlSyncSecondPassResult,
   FullXmlSyncWorkerCommand,
   FullXmlSyncWorkerCommandResult,
+  FullXmlSyncWrittenFile,
 } from "./types"
+import { writeFullXmlSyncAssignment } from "./writeAssignment"
 
 registerValidationMetadata()
 
@@ -31,6 +37,7 @@ interface PreparedSyncAssignment {
 
 let initializedState: InitializedFullXmlSyncWorkerState | undefined
 const preparedAssignments = new Map<string, PreparedSyncAssignment>()
+let firstPassAssignments: FullXmlSyncAssignment[] = []
 
 export async function runFullXmlSyncWorkerCommand(
   command: FullXmlSyncWorkerCommand
@@ -52,9 +59,7 @@ export async function runFullXmlSyncWorkerCommand(
   }
 
   if (command.kind === "secondPass") {
-    requireInitializedState()
-    preparedAssignments.clear()
-    return { kind: "secondPassResult", diagnostics: [], warnings: [], writtenFiles: [] }
+    return runSecondPass(command, requireInitializedState())
   }
 
   return runFirstPass(command.assignments, requireInitializedState())
@@ -63,7 +68,8 @@ export async function runFullXmlSyncWorkerCommand(
 export default async function fullXmlSyncWorkerEntryPoint(
   command: FullXmlSyncWorkerCommand
 ): Promise<FullXmlSyncWorkerCommandResult> {
-  return runFullXmlSyncWorkerCommand(command)
+  const result = await runFullXmlSyncWorkerCommand(command)
+  return result?.kind === "secondPassResult" ? movableSecondPassResult(result) : result
 }
 
 function runFirstPass(
@@ -71,6 +77,7 @@ function runFirstPass(
   state: InitializedFullXmlSyncWorkerState
 ): FullXmlSyncFirstPassResult {
   preparedAssignments.clear()
+  firstPassAssignments = [...assignments]
   const descriptors = assignments.map(assignmentDescriptor)
   const prepared = prepareYamlFiles({
     files: descriptors,
@@ -115,6 +122,45 @@ function runFirstPass(
   }
 
   return { kind: "firstPassResult", diagnostics, projectFiles: prepared.projectFiles, ownerFacts }
+}
+
+async function runSecondPass(
+  command: Extract<FullXmlSyncWorkerCommand, { kind: "secondPass" }>,
+  state: InitializedFullXmlSyncWorkerState
+): Promise<FullXmlSyncSecondPassResult> {
+  const index = createConfigurationIndexReader(command.index)
+  const diagnostics: FullXmlSyncDiagnostic[] = []
+  const warnings: FullXmlSyncDiagnostic[] = []
+  const writtenFiles: FullXmlSyncWrittenFile[] = []
+  const fragments: NonNullable<Awaited<ReturnType<typeof writeFullXmlSyncAssignment>>["fragment"]>[] = []
+
+  for (const [id, prepared] of preparedAssignments) {
+    try {
+      const result = await writeFullXmlSyncAssignment({
+        assignment: prepared.assignment,
+        assignments: firstPassAssignments,
+        preparedYamlFile: prepared.yamlFile,
+        context: exportContextForSecondPass(state),
+        outputDir: state.outputDir,
+        index,
+      })
+      diagnostics.push(...result.diagnostics)
+      writtenFiles.push(...result.writtenFiles)
+      if (result.fragment !== undefined) fragments.push(result.fragment)
+    } catch (caught) {
+      diagnostics.push(assignmentDiagnostic(prepared.assignment, "full_xml_sync_second_pass_failed", errorMessage(caught)))
+    } finally {
+      preparedAssignments.delete(id)
+    }
+  }
+
+  return {
+    kind: "secondPassResult",
+    diagnostics,
+    warnings,
+    writtenFiles,
+    fragmentBuffer: encodeConfigurationIndexFragments(fragments),
+  }
 }
 
 function assignmentDescriptor(assignment: FullXmlSyncAssignment): PreparedYamlProjectFileDescriptor {
@@ -177,6 +223,7 @@ function requireInitializedState(): InitializedFullXmlSyncWorkerState {
 
 function disposeWorkerState(): void {
   preparedAssignments.clear()
+  firstPassAssignments = []
   initializedState = undefined
 }
 
@@ -202,4 +249,57 @@ export function fullXmlSyncWorkerStateForTests(): {
 
 export function resetFullXmlSyncWorkerStateForTests(): void {
   disposeWorkerState()
+}
+
+export function createSecondPassTransferable(result: FullXmlSyncSecondPassResult) {
+  return {
+    get [transferableSymbol]() {
+      return [result.fragmentBuffer]
+    },
+    get [valueSymbol]() {
+      return result
+    },
+  }
+}
+
+function movableSecondPassResult(result: FullXmlSyncSecondPassResult): FullXmlSyncSecondPassResult {
+  return move(createSecondPassTransferable(result)) as unknown as FullXmlSyncSecondPassResult
+}
+
+function exportContextForSecondPass(state: InitializedFullXmlSyncWorkerState): ConfigurationContextWithExportToXML {
+  return {
+    ...state.context,
+    exportToXML: {
+      itemsTree: [],
+      configDumpInfo: new Map(),
+      version: state.context.version,
+      context: {
+        metadataForNumbering: [],
+        forms: [],
+        templates: [],
+        parentName: "",
+      },
+      ...(state.context.exportToXML ?? {}),
+    },
+  }
+}
+
+function assignmentDiagnostic(
+  assignment: FullXmlSyncAssignment,
+  code: string,
+  message: string
+): FullXmlSyncDiagnostic {
+  return {
+    severity: "error",
+    code,
+    message,
+    assignmentId: assignment.id,
+    sourceProjectPath: assignment.sourceProjectPath,
+    sourcePath: assignment.sourcePath,
+    targetXmlPath: assignment.outputs[0]?.targetXmlPath,
+  }
+}
+
+function errorMessage(error: unknown): string {
+  return error instanceof Error ? error.message : String(error)
 }

@@ -2,6 +2,7 @@ import os from "node:os"
 import { dirname, join } from "node:path"
 import { fileURLToPath } from "node:url"
 import Piscina from "piscina"
+import { mergeConfigurationIndexFragments } from "../configurationIndex/fragment"
 import type { ConfigurationContext } from "../context/types"
 import type {
   FullXmlSyncAssignment,
@@ -14,6 +15,7 @@ import type {
   FullXmlSyncWrittenFile,
 } from "./types"
 import type { ConfigurationProjectFile } from "../configurationIndex/types"
+import type { ConfigurationIndexData } from "../configurationIndex/types"
 import type { SharedConfigurationIndexSnapshot } from "../configurationIndex/sharedSnapshot"
 import type { FullXmlSyncSharedMetadata } from "./sharedMetadata"
 
@@ -38,6 +40,7 @@ export interface FullXmlSyncSecondPassPoolResult {
   diagnostics: FullXmlSyncDiagnostic[]
   warnings: FullXmlSyncDiagnostic[]
   writtenFiles: FullXmlSyncWrittenFile[]
+  fragmentData: Pick<ConfigurationIndexData, "identities" | "xmlNodes" | "xmlValues">
 }
 
 export interface FullXmlSyncWorkerThreadPool {
@@ -96,7 +99,7 @@ export function createFullXmlSyncWorkerPool(params: {
             kind: "initialize",
             workerIndex,
             projectDir: initialized.projectDir,
-            outputDir: join(initialized.outputDir, `worker-${workerIndex}`),
+            outputDir: initialized.outputDir,
             context: initialized.context,
           })
           if (initializeResponse !== undefined) {
@@ -140,6 +143,7 @@ export function createFullXmlSyncWorkerPool(params: {
         diagnostics: results.flatMap((result) => result.diagnostics),
         warnings: results.flatMap((result) => result.warnings),
         writtenFiles: results.flatMap((result) => result.writtenFiles),
+        fragmentData: mergeConfigurationIndexFragments(results.map((result) => result.fragmentBuffer)),
       }
     },
 

@@ -2,6 +2,9 @@ import fs from "node:fs"
 import os from "node:os"
 import { join } from "node:path"
 import { afterEach, describe, expect, it } from "vitest"
+import { encodeConfigurationIndex } from "../configurationIndex/encode"
+import { snapshotConfigurationIndex } from "../configurationIndex/sharedSnapshot"
+import { sampleIndex } from "../configurationIndex/testData"
 import { hashFileBytes } from "../configurationIndex/hash"
 import {
   fullXmlSyncWorkerStateForTests,
@@ -96,11 +99,11 @@ describe("full XML sync worker", () => {
     const second = await runFullXmlSyncWorkerCommand({
       kind: "secondPass",
       sharedMetadata: { owners: {} as never, composition: {} as never },
-      index: {} as never,
+      index: snapshotConfigurationIndex(encodeConfigurationIndex(sampleIndex())),
       generationSeed: new Uint8Array(),
     })
 
-    expect(second).toEqual({ kind: "secondPassResult", diagnostics: [], warnings: [], writtenFiles: [] })
+    expect(second).toMatchObject({ kind: "secondPassResult", warnings: [] })
     expect(fullXmlSyncWorkerStateForTests().preparedIds).toEqual([])
 
     await runFullXmlSyncWorkerCommand({ kind: "dispose" })

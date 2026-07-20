@@ -1,4 +1,5 @@
 import { describe, expect, it } from "vitest"
+import { encodeConfigurationIndexFragments } from "../configurationIndex/fragment"
 import type {
   FullXmlSyncAssignment,
   FullXmlSyncDiagnostic,
@@ -143,7 +144,13 @@ function createFakePools() {
             }
           }
           if (task.kind === "secondPass") {
-            return { kind: "secondPassResult" as const, diagnostics: [], warnings: [], writtenFiles: [] }
+            return {
+              kind: "secondPassResult" as const,
+              diagnostics: [],
+              warnings: [],
+              writtenFiles: [],
+              fragmentBuffer: encodeConfigurationIndexFragments([]),
+            }
           }
           return undefined
         },

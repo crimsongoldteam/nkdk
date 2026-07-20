@@ -89,6 +89,7 @@ export interface FullXmlSyncSecondPassResult {
   readonly diagnostics: readonly FullXmlSyncDiagnostic[]
   readonly warnings: readonly FullXmlSyncDiagnostic[]
   readonly writtenFiles: readonly FullXmlSyncWrittenFile[]
+  readonly fragmentBuffer: ArrayBuffer
 }
 
 export type FullXmlSyncWorkerCommandResult = FullXmlSyncFirstPassResult | FullXmlSyncSecondPassResult | undefined
