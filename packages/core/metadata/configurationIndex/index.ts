@@ -24,6 +24,13 @@ export {
   mergeConfigurationIndexFragments,
 } from "./fragment"
 export { hashConfigurationProjectFiles, type HashConfigurationProjectFilesOptions } from "./projectFiles"
+export {
+  createConfigurationIndexReader,
+  readConfigurationIndexSnapshot,
+  snapshotConfigurationIndex,
+  type ConfigurationIndexReader,
+  type SharedConfigurationIndexSnapshot,
+} from "./sharedSnapshot"
 export type {
   ConfigurationIdentity,
   ConfigurationIndexBinding,
