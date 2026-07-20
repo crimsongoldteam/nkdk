@@ -15,6 +15,19 @@ export function indexedUid(parent: string, kind: string, index: number): string 
   return `${address(parent)}.${segment(kind)}[${index}]`
 }
 
+export function yamlPropertyUid(parent: string, propertyName: string): string {
+  return `${address(parent)}.${segment(propertyName)}`
+}
+
+export function yamlKeyUid(parent: string, key: string): string {
+  return `${address(parent)}.${segment(key)}`
+}
+
+export function yamlIndexUid(parent: string, index: number): string {
+  if (!Number.isSafeInteger(index) || index < 0) throw new Error("Некорректный индекс logicalAddress")
+  return `${address(parent)}[${index}]`
+}
+
 function address(value: string): string {
   if (value.length === 0) throw new Error("Пустой logicalAddress")
   return value
