@@ -140,6 +140,72 @@ describe("jsonSchemaRefs", () => {
     expect(check.Check("Ложь")).toBe(true)
   })
 
+  it("exports default validation refs for reusable property types without opt-in registration", () => {
+    registerTypeRule("TestReusableProperty" as any, "exportToJSONSchema", () =>
+      Type.Object({
+        Значение: Type.String(),
+      })
+    )
+
+    const context = createJSONSchemaExportContext(baseContext, "inline", {
+      validationPropertyRefs: true,
+    })
+    const schema = exportPropertyToJSONSchema({
+      context,
+      rule: { type: "TestReusableProperty" as any },
+      value: undefined,
+    })
+
+    expect(schema).toEqual({ $ref: "nkdk://schema/validation/2.20/ru/TestReusableProperty/base" })
+    expect(attachCollectedSchemaRefs(context, Type.Object({}))).toMatchObject({
+      "x-nkdk-schemaRefs": ["nkdk://schema/validation/2.20/ru/TestReusableProperty/base"],
+    })
+    expect(getValidationSchemaRef("nkdk://schema/validation/2.20/ru/TestReusableProperty/base")).toEqual({
+      type: "object",
+      properties: {
+        Значение: { type: "string" },
+      },
+      required: ["Значение"],
+    })
+  })
+
+  it("keeps explicit validation inline exceptions inline", () => {
+    registerTypeRule("DataPath", "exportToJSONSchema", () => Type.String({ pattern: "^.*$" }))
+    registerTypeRule("Events", "exportToJSONSchema", () =>
+      Type.Object(
+        {
+          ПриОткрытии: Type.Optional(Type.String()),
+        },
+        { additionalProperties: false }
+      )
+    )
+
+    const context = createJSONSchemaExportContext(baseContext, "inline", {
+      validationPropertyRefs: true,
+    })
+
+    expect(
+      exportPropertyToJSONSchema({
+        context,
+        rule: { type: "DataPath", yaml: "ПутьКДанным" },
+        value: undefined,
+      })
+    ).toEqual({ type: "string", pattern: "^.*$" })
+    expect(
+      exportPropertyToJSONSchema({
+        context,
+        rule: { type: "Events", yaml: "События" },
+        value: undefined,
+      })
+    ).toEqual({
+      type: "object",
+      properties: {
+        ПриОткрытии: { type: "string" },
+      },
+      additionalProperties: false,
+    })
+  })
+
   it("keeps validation property schemas inline outside validation export", () => {
     const context = createJSONSchemaExportContext(baseContext, "inline", { excludeImplicitValueYAML: true })
 

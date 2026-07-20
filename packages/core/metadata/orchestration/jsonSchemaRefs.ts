@@ -165,15 +165,42 @@ export function exportValidationPropertyRefSchema(params: {
 }): TSchema | undefined {
   const { context, rule, schema } = params
   if (context.exportToJSONSchema?.validationPropertyRefs !== true) return undefined
+  if (isValidationInlinePropertyRule(rule)) return undefined
 
   const validationSchemaRef = getTypeRule(rule.type, "validationSchemaRef")
-  const key = validationSchemaRef?.(params)
+  const key = validationSchemaRef?.(params) ?? defaultValidationSchemaRefKey({ rule })
   if (key === undefined) return undefined
 
   const name = validationSchemaRefName(context, key)
   validationSchemas.set(name, schema)
   collectSchemaRefsToContext(context, rawJSONSchema({ $ref: name }))
   return rawJSONSchema({ $ref: name })
+}
+
+export function isValidationInlinePropertyRule(rule: PropertyRule): boolean {
+  if (rule.type === "DataPath" || rule.type === "Events") return true
+
+  if (
+    rule.type === "MetadataItemLink" ||
+    rule.type === "MetadataItemLinks" ||
+    rule.type === "MetadataField" ||
+    rule.type === "MetadataFields" ||
+    rule.type === "MetadataObjectRefCollection" ||
+    rule.type === "MetadataValue"
+  ) {
+    return true
+  }
+
+  if (rule.type === "string" && rule.metadataTarget !== undefined) return true
+  if (rule.type === "TypeDescription" && rule.allowedTypes !== undefined) return true
+
+  return false
+}
+
+export function defaultValidationSchemaRefKey(params: { rule: PropertyRule }): string | undefined {
+  const { rule } = params
+  if (typeof rule.type !== "string" || rule.type.length === 0) return undefined
+  return `${rule.type}/base`
 }
 
 export function getValidationSchemaRef(name: string): TSchema | undefined {
