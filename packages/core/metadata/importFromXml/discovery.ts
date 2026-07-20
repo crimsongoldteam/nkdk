@@ -1,5 +1,6 @@
 import { promises as nodeFs } from "fs"
 import { isAbsolute, join, relative, resolve } from "path"
+import { createImportAssignments, type ImportAssignmentGroup } from "./assignmentBuilder"
 import { compileXmlImportRouteStructure, matchXmlImportRouteStructure, type XmlImportRouteMatch } from "./routeStructure"
 import type { ImportAssignment, ImportExternalFile, ImportXmlInput, XmlImportRoute } from "./types"
 
@@ -16,21 +17,13 @@ export interface DiscoverXmlImportParams {
 
 type ResolvedMatch = XmlImportRouteMatch
 
-interface AssignmentGroup {
-  route: Extract<XmlImportRoute, { kind: "assignment" }>
-  values: Record<string, string>
-  targetProjectPath: string
-  xmlFiles: ImportXmlInput[]
-  externalFiles: ImportExternalFile[]
-}
-
 export async function discoverXmlImport(params: DiscoverXmlImportParams): Promise<{ assignments: ImportAssignment[] }> {
   const fileSystem = params.fs ?? defaultFileSystem
   const routeStructure = compileXmlImportRouteStructure(params.routes)
   const listedPaths = await fileSystem.listFiles(params.xmlDir)
   const paths = [...new Set(listedPaths.map((path) => normalizeListedPath(params.xmlDir, path)))].sort(compareUtf8)
   const conflictPaths: string[] = []
-  const assignmentsByTarget = new Map<string, AssignmentGroup>()
+  const assignmentsByTarget = new Map<string, ImportAssignmentGroup>()
   const externalMatches: Array<Extract<ResolvedMatch, { kind: "externalFile" }> & { path: string }> = []
 
   for (const path of paths) {
@@ -70,7 +63,7 @@ export async function discoverXmlImport(params: DiscoverXmlImportParams): Promis
         targetProjectPath: compatible.targetProjectPath,
         xmlFiles: [],
         externalFiles: [],
-      } satisfies AssignmentGroup)
+      } satisfies ImportAssignmentGroup)
     group.xmlFiles.push({
       role: assignmentInputRole(compatible.route),
       sourcePath: resolve(params.xmlDir, ...path.split("/")),
@@ -91,10 +84,7 @@ export async function discoverXmlImport(params: DiscoverXmlImportParams): Promis
     })
   }
 
-  const groups = [...assignmentsByTarget.values()].sort((left, right) =>
-    compareUtf8(left.targetProjectPath, right.targetProjectPath)
-  )
-  const assignments = groups.map((group) => createAssignment(group, groups))
+  const assignments = createImportAssignments([...assignmentsByTarget.values()])
 
   assertUnique(assignments, (assignment) => assignment.targetProjectPath, "Повторный целевой YAML")
   const externalFiles = assignments.flatMap((assignment) => assignment.externalFiles)
@@ -191,67 +181,6 @@ function resolvedMatchKey(match: ResolvedMatch): string {
 
 function assignmentInputRole(route: Extract<XmlImportRoute, { kind: "assignment" }>): ImportXmlInput["role"] {
   return route.inputRole ?? (route.role === "fileItem" || route.source.kind === "itemRule" ? "metadata" : "property")
-}
-
-function createAssignment(group: AssignmentGroup, groups: readonly AssignmentGroup[]): ImportAssignment {
-  const itemName = assignmentItemName(group.targetProjectPath)
-  const ownerGroup = findOwnerGroup(group, groups)
-  const owner = ownerGroup === undefined ? undefined : assignmentIdentity(ownerGroup, groups)
-  const logicalAddress =
-    group.route.role === "configuration"
-      ? "Конфигурация"
-      : group.route.role === "properties"
-        ? `${group.targetProjectPath.split("/")[0]}.${itemName}`
-        : `${owner?.logicalAddress ?? group.route.itemType}.${group.route.itemType}.${itemName}`
-  return {
-    id: group.targetProjectPath,
-    role: group.route.role,
-    targetProjectPath: group.targetProjectPath,
-    itemType: group.route.itemType,
-    itemName,
-    logicalAddress,
-    owner,
-    xmlFiles: [...group.xmlFiles].sort((left, right) => compareUtf8(left.sourcePath, right.sourcePath)),
-    externalFiles: [...group.externalFiles].sort((left, right) =>
-      compareUtf8(left.targetProjectPath, right.targetProjectPath)
-    ),
-  }
-}
-
-function assignmentIdentity(
-  group: AssignmentGroup,
-  groups: readonly AssignmentGroup[]
-): { itemType: string; name: string; logicalAddress: string } {
-  const assignment = createAssignment(
-    group,
-    groups.filter((candidate) => candidate !== group)
-  )
-  return { itemType: assignment.itemType, name: assignment.itemName, logicalAddress: assignment.logicalAddress }
-}
-
-function findOwnerGroup(group: AssignmentGroup, groups: readonly AssignmentGroup[]): AssignmentGroup | undefined {
-  if (group.route.role !== "fileItem") return undefined
-  const itemDirectory = projectDirectory(group.targetProjectPath)
-  return groups
-    .filter((candidate) => candidate !== group && candidate.route.role !== "configuration")
-    .filter((candidate) => {
-      const directory = projectDirectory(candidate.targetProjectPath)
-      return directory !== itemDirectory && itemDirectory.startsWith(`${directory}/`)
-    })
-    .sort(
-      (left, right) =>
-        projectDirectory(right.targetProjectPath).length - projectDirectory(left.targetProjectPath).length
-    )[0]
-}
-
-function assignmentItemName(targetProjectPath: string): string {
-  const parts = targetProjectPath.split("/")
-  return parts.length === 1 ? parts[0].replace(/\.[^.]+$/, "") : parts[parts.length - 2]
-}
-
-function projectDirectory(projectPath: string): string {
-  const separator = projectPath.lastIndexOf("/")
-  return separator < 0 ? "" : projectPath.slice(0, separator)
 }
 
 function assertUnique<T>(items: readonly T[], key: (item: T) => string, message: string): void {
