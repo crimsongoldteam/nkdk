@@ -91,6 +91,7 @@ function describeModuleXmlSyncRoutes({ propertyRule }: { propertyRule?: Property
   const yamlPattern = exportPathPattern(rule.nkdkPath)
   const xmlPathPattern = exportPathPattern(rule.xmlPath)
   const source = { kind: "propertyType" as const, type: rule.type }
+  const dumpInfoNamePatterns = derivedDumpInfoNamePatterns(rule)
   const routes = [
     {
       kind: "externalFile" as const,
@@ -98,6 +99,7 @@ function describeModuleXmlSyncRoutes({ propertyRule }: { propertyRule?: Property
       xmlPathPattern,
       writerType: "propertyType" as const,
       source,
+      dumpInfoNamePatterns,
     },
   ]
   if (yamlPattern.toLowerCase().endsWith(".bsl") && xmlPathPattern.toLowerCase().endsWith(".bsl")) {
@@ -107,6 +109,7 @@ function describeModuleXmlSyncRoutes({ propertyRule }: { propertyRule?: Property
       xmlPathPattern: xmlPathPattern.replace(/\.bsl$/i, ".bin"),
       writerType: "propertyType",
       source,
+      dumpInfoNamePatterns,
     })
   }
   if (rule.type === "Template" && yamlPattern.toLowerCase().endsWith(".xml") && xmlPathPattern.toLowerCase().endsWith(".xml")) {
@@ -119,6 +122,7 @@ function describeModuleXmlSyncRoutes({ propertyRule }: { propertyRule?: Property
         xmlPathPattern: `${xmlBase}${extension}`,
         writerType: "propertyType",
         source,
+        dumpInfoNamePatterns,
       })
     }
     routes.push({
@@ -127,9 +131,16 @@ function describeModuleXmlSyncRoutes({ propertyRule }: { propertyRule?: Property
       xmlPathPattern: `${xmlBase}/{relativePath...}`,
       writerType: "propertyType",
       source,
+      dumpInfoNamePatterns,
     })
   }
   return routes
+}
+
+function derivedDumpInfoNamePatterns(rule: ModulePropertyRule | TemplatePropertyRule): string[] | undefined {
+  const segment = rule.externalMetadata?.segment
+  if (!segment) return undefined
+  return ["{dumpRoot}.{ownerName}", `{dumpRoot}.{ownerName}.${segment}`]
 }
 
 function exportPathPattern(value: string | ((params: { name: string; parentName?: string }) => string)): string {
