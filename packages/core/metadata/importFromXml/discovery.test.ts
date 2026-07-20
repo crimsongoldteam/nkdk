@@ -108,6 +108,37 @@ describe("XML import discovery", () => {
     })
   })
 
+  it("discovers representative registered routes through the fast XML structure", async () => {
+    const paths = [
+      "Configuration.xml",
+      "Catalogs/Контрагенты.xml",
+      "Catalogs/Контрагенты/Forms/ФормаЭлемента.xml",
+      "Catalogs/Контрагенты/Forms/ФормаЭлемента/Ext/Form.xml",
+      "Catalogs/Контрагенты/Forms/ФормаЭлемента/Ext/Form/Module.bsl",
+      "Subsystems/Продажи.xml",
+      "Subsystems/Продажи/Subsystems/Опт.xml",
+      "ConfigDumpInfo.xml",
+    ]
+
+    const result = await discoverXmlImport({
+      xmlDir,
+      routes: describeRegisteredXmlImportRoutes(),
+      fs: fakeFs(paths),
+    })
+
+    expect(result.assignments.map((assignment) => assignment.targetProjectPath)).toEqual([
+      "Конфигурация.yaml",
+      "Подсистема/Продажи/Подсистемы/Опт/Свойства.yaml",
+      "Подсистема/Продажи/Свойства.yaml",
+      "Справочник/Контрагенты/Свойства.yaml",
+      "Справочник/Контрагенты/Формы/ФормаЭлемента/Форма.yaml",
+    ])
+    expect(result.assignments.find((assignment) => assignment.targetProjectPath.endsWith("/Форма.yaml"))?.externalFiles).toContainEqual({
+      sourcePath: join(xmlDir, "Catalogs/Контрагенты/Forms/ФормаЭлемента/Ext/Form/Module.bsl"),
+      targetProjectPath: "Справочник/Контрагенты/Формы/ФормаЭлемента/Модуль.bsl",
+    })
+  })
+
   it("uses the body role for a real CommonForm Ext/Form.xml", async () => {
     const commonFormRoot = "CommonForms/КонстантаВсеСвойства"
     const result = await discoverXmlImport({
