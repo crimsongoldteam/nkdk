@@ -39,6 +39,18 @@ interface ParsedImportXmlInput {
   parsed: Record<string, unknown>
 }
 
+let registeredImportRuleLookupCountValueForTests = 0
+const registeredImportRulesByItemType = new Map<string, MetadataItemRule | undefined>()
+
+export function registeredImportRuleLookupCountForTests(): number {
+  return registeredImportRuleLookupCountValueForTests
+}
+
+export function resetRegisteredImportRuleLookupCountForTests(): void {
+  registeredImportRuleLookupCountValueForTests = 0
+  registeredImportRulesByItemType.clear()
+}
+
 export async function prepareImportModel(params: {
   assignment: ImportAssignment
   context: ConfigurationContextFromXML
@@ -160,10 +172,16 @@ function normalizedPath(path: string): string {
 }
 
 function findRegisteredImportRule(itemType: string): MetadataItemRule | undefined {
+  if (registeredImportRulesByItemType.has(itemType)) return registeredImportRulesByItemType.get(itemType)
+  registeredImportRuleLookupCountValueForTests += 1
   for (const spec of [configurationMetadataProjectSpec, ...metadataProjectSpecs]) {
     const result = findRule(spec.rule, itemType, new Set())
-    if (result !== undefined) return result
+    if (result !== undefined) {
+      registeredImportRulesByItemType.set(itemType, result)
+      return result
+    }
   }
+  registeredImportRulesByItemType.set(itemType, undefined)
   return undefined
 }
 

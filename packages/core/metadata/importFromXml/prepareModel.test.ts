@@ -5,7 +5,11 @@ import { afterEach, describe, expect, it, vi } from "vitest"
 import { mockContextFromXML } from "../../tests/mockContext"
 import { createConfigurationIndexCollector } from "../configurationIndex/collector/writer"
 import { discoverXmlImport } from "./discovery"
-import { prepareImportModel } from "./prepareModel"
+import {
+  prepareImportModel,
+  registeredImportRuleLookupCountForTests,
+  resetRegisteredImportRuleLookupCountForTests,
+} from "./prepareModel"
 import { describeRegisteredXmlImportRoutes } from "./routes"
 import type { ImportAssignment } from "./types"
 
@@ -33,6 +37,24 @@ describe("prepareImportModel", () => {
     expect(prepared.model).toMatchObject({ itemType: "MetadataCatalog", name: "Контрагенты" })
     expect(prepared.generatedFiles).toEqual([])
     expect(writeFile).not.toHaveBeenCalled()
+  })
+
+  it("reuses registered import rules between assignments of the same item type", async () => {
+    resetRegisteredImportRuleLookupCountForTests()
+    const assignment = catalogAssignment()
+
+    await prepareImportModel({
+      assignment,
+      context: mockContextFromXML(),
+      collector: createConfigurationIndexCollector(),
+    })
+    await prepareImportModel({
+      assignment: { ...assignment, id: "catalog-copy" },
+      context: mockContextFromXML(),
+      collector: createConfigurationIndexCollector(),
+    })
+
+    expect(registeredImportRuleLookupCountForTests()).toBe(1)
   })
 
   it("discovers a fixture child template as an owner external file and prepares only the owner model", async () => {
