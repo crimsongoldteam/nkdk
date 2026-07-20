@@ -13,6 +13,7 @@ export interface ConfigurationIndexExportRuntime {
   xmlNode(address?: string): ConfigurationXmlNode | undefined
   xmlValue(address?: string): ConfigurationXmlValue | undefined
   configVersion(address: string): string
+  withLogicalAddress(logicalAddress: string): ConfigurationIndexExportRuntime
 }
 
 export interface CreateConfigurationIndexExportRuntimeOptions {
@@ -34,6 +35,7 @@ class DefaultConfigurationIndexExportRuntime implements ConfigurationIndexExport
   readonly collector: ConfigurationIndexCollector
   readonly targetProjectPath: string
   readonly logicalAddress: string
+  private readonly targetGeneration: bigint
   private readonly seed: Buffer
   private readonly generated = new Map<string, string>()
 
@@ -42,8 +44,8 @@ class DefaultConfigurationIndexExportRuntime implements ConfigurationIndexExport
     this.collector = options.collector
     this.targetProjectPath = options.targetProjectPath
     this.logicalAddress = options.logicalAddress
-    const targetGeneration = options.targetGeneration ?? this.source.binding().indexGeneration + 1n
-    this.seed = deriveOperationSeed(this.source.snapshot.bytes, this.source.snapshot.byteLength, targetGeneration)
+    this.targetGeneration = options.targetGeneration ?? this.source.binding().indexGeneration + 1n
+    this.seed = deriveOperationSeed(this.source.snapshot.bytes, this.source.snapshot.byteLength, this.targetGeneration)
   }
 
   identity(kind: ConfigurationIdentity["kind"], address = this.logicalAddress): string | undefined {
@@ -68,6 +70,16 @@ class DefaultConfigurationIndexExportRuntime implements ConfigurationIndexExport
 
   configVersion(address: string): string {
     return this.generatedValue("configVersion", address).subarray(0, 20).toString("hex")
+  }
+
+  withLogicalAddress(logicalAddress: string): ConfigurationIndexExportRuntime {
+    return new DefaultConfigurationIndexExportRuntime({
+      source: this.source,
+      collector: this.collector,
+      targetProjectPath: this.targetProjectPath,
+      logicalAddress,
+      targetGeneration: this.targetGeneration,
+    })
   }
 
   private generatedIdentity(kind: "uuid" | "xmlId", address: string): string {

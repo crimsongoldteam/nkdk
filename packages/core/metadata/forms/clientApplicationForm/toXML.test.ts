@@ -2,6 +2,12 @@ import { describe, expect, it } from "vitest"
 import { mockContextFromXML, mockContextToXML } from "../../../tests/mockContext"
 import { readAndParseXMLFixture, readXMLFixtureAsString } from "../../../tests/readFixtureXML"
 import { xmlExport } from "../../../xml/export/exporter"
+import { childUid } from "../../configurationIndex/logicalAddress"
+import { createConfigurationIndexCollector } from "../../configurationIndex/collector/writer"
+import { encodeConfigurationIndex } from "../../configurationIndex/encode"
+import { createConfigurationIndexExportRuntime } from "../../configurationIndex/exportRuntime"
+import { createConfigurationIndexReader, snapshotConfigurationIndex } from "../../configurationIndex/sharedSnapshot"
+import { sampleIndex } from "../../configurationIndex/testData"
 import {
   catalogFullClientApplicationForm,
   childItemsWidthClientApplicationForm,
@@ -18,6 +24,34 @@ import { ClientApplicationFormXML, FormMetadataXML } from "./types"
 
 describe("exportToXML", () => {
   describe("exportClientApplicationFormToXML", () => {
+    it("uses configuration index logical address for form body", () => {
+      const collector = createConfigurationIndexCollector()
+      const formAddress = "Справочник.Товары.Форма.ФормаЭлемента"
+      const baseContext = mockContextToXML()
+      const context = {
+        ...baseContext,
+        exportToXML: {
+          ...baseContext.exportToXML,
+          configurationIndex: createConfigurationIndexExportRuntime({
+        source: createConfigurationIndexReader(snapshotConfigurationIndex(encodeConfigurationIndex(sampleIndex()))),
+        collector,
+        targetProjectPath: "Справочник/Товары/Формы/ФормаЭлемента/Форма.yaml",
+        logicalAddress: formAddress,
+          }),
+        },
+      }
+
+      exportClientApplicationFormToXML({
+        context,
+        form: minimalClientApplicationForm,
+        referenceForm: undefined,
+      })
+
+      expect(collector.fragment("Форма.yaml").xmlNodes.map((node) => node.logicalAddress)).toContain(
+        childUid(formAddress, "ЧастьФормы", "Содержимое")
+      )
+    })
+
     it("should export all fields to XML", () => {
       const expectedResult = readXMLFixtureAsString(import.meta.url, "full.xml")
 

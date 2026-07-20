@@ -38,7 +38,12 @@ export const exportPropertiesToXML = <Rule extends MetadataItemRule>(params: {
   }
 
   const orderedKeys = getOrderedKeysToXML({ context, rule, tag, referenceMetadata })
-  context.exportToXML.configurationIndex?.collector.setOrder(context.exportToXML.configurationIndex.logicalAddress, orderedKeys)
+  if (context.exportToXML.configurationIndex?.xmlNode()?.order !== undefined) {
+    context.exportToXML.configurationIndex.collector.setOrder(
+      context.exportToXML.configurationIndex.logicalAddress,
+      orderedKeys
+    )
+  }
   const autoRequiredXMLParentRoots = new Set<string>()
 
   try {

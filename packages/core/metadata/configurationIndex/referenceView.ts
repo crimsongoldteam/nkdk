@@ -28,3 +28,18 @@ export function getConfigurationIndexPropertyXmlValue(
   if (runtime === undefined) return undefined
   return runtime.xmlValue(`${runtime.logicalAddress}.${propertyKey}`)
 }
+
+export function withConfigurationIndexExportLogicalAddress(
+  context: ConfigurationContextWithExportToXML,
+  logicalAddress: string
+): ConfigurationContextWithExportToXML {
+  const runtime = context.exportToXML.configurationIndex
+  if (runtime === undefined) return context
+  return {
+    ...context,
+    exportToXML: {
+      ...context.exportToXML,
+      configurationIndex: runtime.withLogicalAddress(logicalAddress),
+    },
+  }
+}

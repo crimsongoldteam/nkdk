@@ -1,4 +1,6 @@
 import { capitalize } from "../../../../helpers/capitalize"
+import { childUid, indexedUid } from "../../../configurationIndex/logicalAddress"
+import { withConfigurationIndexExportLogicalAddress } from "../../../configurationIndex/referenceView"
 import { ConfigurationContextWithExportToXML } from "../../../context/types"
 import { PropertyRule } from "../../elements/calendarField/rules"
 import { restoreKnownDuplicateErpAdditionalColumns } from "../../knownAnomalies"
@@ -29,7 +31,17 @@ export const exportFormAttributesToXML = (
 
   const result = data.map((value: FormAttribute) => {
     const referenceAttribute = findReferenceAttribute(value, referenceData)
-    return exportFormAttributeToXML(context, undefined, value, referenceAttribute)
+    return exportFormAttributeToXML(
+      context.exportToXML.configurationIndex === undefined
+        ? context
+        : withConfigurationIndexExportLogicalAddress(
+            context,
+            childUid(context.exportToXML.configurationIndex.logicalAddress, "Атрибут", value.name)
+          ),
+      undefined,
+      value,
+      referenceAttribute
+    )
   })
 
   return { Attribute: result }
@@ -246,8 +258,18 @@ const exportColumnsToXML = (
   referenceColumns?: FormAttributeColumn[] | undefined,
   numberingScope?: unknown
 ): { Column: FormAttributeColumnXML[] } | undefined => {
-  const result = columns.map((column) => {
+  const duplicatedNames = duplicatedColumnNames(columns)
+  const result = columns.map((column, index) => {
     const referenceColumn = findReferenceColumn(column, referenceColumns)
+    const columnContext =
+      context.exportToXML.configurationIndex === undefined
+        ? context
+        : withConfigurationIndexExportLogicalAddress(
+            context,
+            column.name.length > 0 && !duplicatedNames.has(column.name)
+              ? childUid(context.exportToXML.configurationIndex.logicalAddress, "Колонка", column.name)
+              : indexedUid(context.exportToXML.configurationIndex.logicalAddress, "Колонка", index)
+          )
     const result: FormAttributeColumnXML = {
       _name: column.name,
       _id: "",
@@ -261,7 +283,7 @@ const exportColumnsToXML = (
     })
 
     const properties = exportPropertiesToXML({
-      context,
+      context: columnContext,
       metadata: column,
       referenceMetadata: referenceColumn,
       rule: FormAttributeColumnRules,
@@ -326,3 +348,14 @@ registerTypeRule("FormAttributes", "exportToXML", exportFormAttributesToXML)
 registerTypeRule("FormAttributeColumns", "exportToXML", exportFormAttributeColumnsToXML)
 registerTypeRule("FormAttributeAdditionalColumns", "exportToXML", exportFormAttributeAdditionalColumnsToXML)
 // registerTypeRule("FormAttributeSettings", "exportToXML", exportFormAttributeSettingsToXML)
+
+function duplicatedColumnNames(items: readonly FormAttributeColumn[]): ReadonlySet<string> {
+  const seen = new Set<string>()
+  const duplicated = new Set<string>()
+  for (const item of items) {
+    if (item.name.length === 0) continue
+    if (seen.has(item.name)) duplicated.add(item.name)
+    seen.add(item.name)
+  }
+  return duplicated
+}
