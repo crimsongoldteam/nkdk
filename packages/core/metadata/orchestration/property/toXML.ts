@@ -2,6 +2,8 @@ import { capitalize } from "../../../helpers/capitalize"
 import {
   getConfigurationIndexPropertyXmlValue,
   getConfigurationIndexSourceXmlKey,
+  getConfigurationIndexXmlNodeLogicalAddress,
+  withConfigurationIndexExportPropertyContext,
 } from "../../configurationIndex/referenceView"
 import { ConfigurationContextWithExportToXML } from "../../context/types"
 import { canConvertToPascalCase } from "../../helpers/canConvertToPascalCase"
@@ -38,11 +40,9 @@ export const exportPropertiesToXML = <Rule extends MetadataItemRule>(params: {
   }
 
   const orderedKeys = getOrderedKeysToXML({ context, rule, tag, referenceMetadata })
-  if (context.exportToXML.configurationIndex?.xmlNode()?.order !== undefined) {
-    context.exportToXML.configurationIndex.collector.setOrder(
-      context.exportToXML.configurationIndex.logicalAddress,
-      orderedKeys
-    )
+  const xmlNodeLogicalAddress = getConfigurationIndexXmlNodeLogicalAddress(context)
+  if (context.exportToXML.configurationIndex?.xmlNode()?.order !== undefined && xmlNodeLogicalAddress !== undefined) {
+    context.exportToXML.configurationIndex.collector.setOrder(xmlNodeLogicalAddress, orderedKeys)
   }
   const autoRequiredXMLParentRoots = new Set<string>()
 
@@ -65,10 +65,21 @@ export const exportPropertiesToXML = <Rule extends MetadataItemRule>(params: {
 
       collectAutoRequiredXMLParentRoot(ruleProp, autoRequiredXMLParentRoots)
 
-      const currentContext: ConfigurationContextWithExportToXML = {
+      let currentContext: ConfigurationContextWithExportToXML = {
         ...context,
         exportToXML: { ...context.exportToXML },
       }
+      const childCollection = rule.childCollections?.find((candidate) => candidate.propertyKey === key)
+      const configurationIndexUidSegment =
+        childCollection?.configurationIndexUidSegment ??
+        ruleProp.configurationIndexUidSegment ??
+        ruleProp.operationTarget?.migrationSegment
+      currentContext = withConfigurationIndexExportPropertyContext(
+        currentContext,
+        ruleProp.yaml ?? key,
+        configurationIndexUidSegment,
+        { configurationIndexAddressing: ruleProp.configurationIndexAddressing }
+      )
 
       const metadataHasOwnKey =
         metadata !== null &&
@@ -78,7 +89,7 @@ export const exportPropertiesToXML = <Rule extends MetadataItemRule>(params: {
       const value = metadataHasOwnKey ? (metadata as any)[key] : undefined
       const referenceValue =
         referenceMetadata === undefined || (referenceMetadata as any)[key] === undefined
-          ? configurationIndexXmlValueToReference(getConfigurationIndexPropertyXmlValue(currentContext, key))
+          ? configurationIndexXmlValueToReference(getConfigurationIndexPropertyXmlValue(context, key))
           : (referenceMetadata as any)[key]
 
       const shouldUseReferenceForUndefined =
@@ -101,7 +112,7 @@ export const exportPropertiesToXML = <Rule extends MetadataItemRule>(params: {
             metadataItem: metadata,
           })
 
-      setXMLValue(key, result, ruleProp, exportedValue, referenceMetadata, currentContext)
+      setXMLValue(key, result, ruleProp, exportedValue, referenceMetadata, context)
     }
   } finally {
     xmlContext?.propertiesItemXmlStack?.pop()
@@ -202,9 +213,10 @@ export const setXMLValue = (
     : canonicalXmlKey
   const configurationIndex = context?.exportToXML.configurationIndex
   if (configurationIndex !== undefined) {
-    configurationIndex.collector.setPresent(configurationIndex.logicalAddress, key)
+    const xmlNodeLogicalAddress = configurationIndex.xmlNodeLogicalAddress ?? configurationIndex.logicalAddress
+    configurationIndex.collector.setPresent(xmlNodeLogicalAddress, key)
     if (sourceXmlKey !== undefined) {
-      configurationIndex.collector.setAlias(configurationIndex.logicalAddress, key, sourceXmlKey)
+      configurationIndex.collector.setAlias(xmlNodeLogicalAddress, key, sourceXmlKey)
     }
   }
 

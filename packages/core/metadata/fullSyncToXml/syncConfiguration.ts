@@ -14,6 +14,7 @@ import type {
   ConfigurationProjectFile,
 } from "../configurationIndex/types"
 import type { ConfigurationContext } from "../context/types"
+import { createValidationProfiler } from "../validation/profile"
 import { buildFullXmlSyncPlan } from "./discovery"
 import { createFullXmlSyncSharedMetadata, type FullXmlSyncSharedMetadata } from "./sharedMetadata"
 import { transferFullXmlSyncExternalFiles } from "./transferExternalFiles"
@@ -100,47 +101,70 @@ export async function syncConfigurationToXml(
   const baseId = params.baseId ?? DEFAULT_CONFIGURATION_INDEX_BASE_ID
   let pool: FullXmlSyncWorkerPool | undefined
   let warnings: FullXmlSyncDiagnostic[] = []
+  const profiler = createValidationProfiler({ scope: "main" })
 
   try {
-    const preflight = await preflightFullXmlSync({ yamlDir, xmlDir, deps })
+    const preflight = await profiler.measureAsync("Полная XML-синхронизация", "Проверка входов", {}, () =>
+      preflightFullXmlSync({ yamlDir, xmlDir, deps })
+    )
     if ("failed" in preflight) return failedResult(preflight.failed)
     if (!preflight.targetExists) {
-      await deps.mkdir(xmlDir)
+      await profiler.measureAsync("Полная XML-синхронизация", "Создание XML-каталога", {}, () => deps.mkdir(xmlDir))
     }
 
-    const indexSnapshot = await deps.readIndexSnapshot({ projectDir: yamlDir, baseId })
+    const indexSnapshot = await profiler.measureAsync("Полная XML-синхронизация", "Чтение индекса конфигурации", {}, () =>
+      deps.readIndexSnapshot({ projectDir: yamlDir, baseId })
+    )
     const indexReader = createConfigurationIndexReader(indexSnapshot)
     const previousBinding = indexReader.binding()
-    const plan = await deps.discover({ projectDir: yamlDir })
+    const plan = await profiler.measureAsync("Полная XML-синхронизация", "Построение плана XML", {}, () =>
+      deps.discover({ projectDir: yamlDir })
+    )
 
     pool = deps.createWorkerPool({ concurrency: normalizeConcurrency(params.concurrency) })
-    await pool.initialize({ projectDir: yamlDir, outputDir: xmlDir, context: params.context })
-    const first = await pool.runFirstPass(plan.assignments)
+    await profiler.measureAsync("Полная XML-синхронизация", "Инициализация worker", { items: plan.assignments.length }, () =>
+      pool!.initialize({ projectDir: yamlDir, outputDir: xmlDir, context: params.context })
+    )
+    const first = await profiler.measureAsync("Полная XML-синхронизация", "Первый проход worker", { items: plan.assignments.length }, () =>
+      pool!.runFirstPass(plan.assignments)
+    )
     if (hasErrors(first.diagnostics)) return failedResult(first.diagnostics)
 
-    const sharedMetadata: FullXmlSyncSharedMetadata = deps.createSharedMetadata({
-      assignments: plan.assignments,
-      owners: first.ownerFacts,
-    })
-    const second = await pool.runSecondPass({
-      sharedMetadata,
-      index: indexSnapshot,
-      generationSeed: new Uint8Array(),
-    })
+    const sharedMetadata: FullXmlSyncSharedMetadata = profiler.measure(
+      "Полная XML-синхронизация",
+      "Снимок данных Проекта",
+      { items: first.ownerFacts.length },
+      () =>
+        deps.createSharedMetadata({
+          assignments: plan.assignments,
+          owners: first.ownerFacts,
+        })
+    )
+    const second = await profiler.measureAsync("Полная XML-синхронизация", "Второй проход worker", { items: plan.assignments.length }, () =>
+      pool!.runSecondPass({
+        sharedMetadata,
+        index: indexSnapshot,
+        generationSeed: new Uint8Array(),
+      })
+    )
     warnings = second.warnings
     if (hasErrors(second.diagnostics)) return failedResult(second.diagnostics, warnings)
 
-    const external = await deps.transferExternalFiles({
-      outputDir: xmlDir,
-      files: plan.externalFiles,
-      ...(params.transferConcurrency === undefined ? {} : { concurrency: params.transferConcurrency }),
-    })
-    const configDumpInfo = await deps.writeConfigDumpInfo({
-      context: params.context,
-      outputDir: xmlDir,
-      assignments: plan.assignments,
-      index: indexReader,
-    })
+    const external = await profiler.measureAsync("Полная XML-синхронизация", "Перенос внешних файлов", { items: plan.externalFiles.length }, () =>
+      deps.transferExternalFiles({
+        outputDir: xmlDir,
+        files: plan.externalFiles,
+        ...(params.transferConcurrency === undefined ? {} : { concurrency: params.transferConcurrency }),
+      })
+    )
+    const configDumpInfo = await profiler.measureAsync("Полная XML-синхронизация", "Запись ConfigDumpInfo.xml", { items: plan.assignments.length }, () =>
+      deps.writeConfigDumpInfo({
+        context: params.context,
+        outputDir: xmlDir,
+        assignments: plan.assignments,
+        index: indexReader,
+      })
+    )
     const configDumpFragmentData = mergeConfigurationIndexFragments([
       encodeConfigurationIndexFragments([configDumpInfo.fragment]),
     ])
@@ -149,7 +173,9 @@ export async function syncConfigurationToXml(
       projectFiles: [...first.projectFiles, ...external.projectFiles],
       fragmentData: mergeFragmentData(second.fragmentData, configDumpFragmentData),
     })
-    await deps.writeIndex({ projectDir: yamlDir, data: indexData })
+    await profiler.measureAsync("Полная XML-синхронизация", "Запись индекса конфигурации", { items: indexData.projectFiles.length }, () =>
+      deps.writeIndex({ projectDir: yamlDir, data: indexData })
+    )
 
     return {
       succeeded: plan.assignments.length + plan.externalFiles.length + 1,
@@ -160,6 +186,7 @@ export async function syncConfigurationToXml(
   } catch (caught) {
     return failedResult([operationDiagnostic("full_xml_sync_operation_failed", errorMessage(caught))], warnings)
   } finally {
+    profiler.flush()
     await pool?.close()
   }
 }

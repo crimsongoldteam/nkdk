@@ -1,4 +1,5 @@
 import fs from "node:fs"
+import { performance } from "node:perf_hooks"
 import { dirname, join, posix } from "node:path"
 import { createConfigurationIndexCollector } from "../configurationIndex/collector/writer"
 import { createConfigurationIndexExportRuntime } from "../configurationIndex/exportRuntime"
@@ -31,13 +32,15 @@ export interface WriteFullXmlSyncAssignmentResult {
 export async function writeFullXmlSyncAssignment(
   params: WriteFullXmlSyncAssignmentParams
 ): Promise<WriteFullXmlSyncAssignmentResult> {
-  const collector = createConfigurationIndexCollector()
-  const runtime = createConfigurationIndexExportRuntime({
-    source: params.index,
-    collector,
-    targetProjectPath: params.assignment.sourceProjectPath,
-    logicalAddress: params.assignment.logicalAddress,
-  })
+  const collector = profileAssignmentStep(params.assignment, "Создание сборщика индекса", () => createConfigurationIndexCollector())
+  const runtime = profileAssignmentStep(params.assignment, "Создание runtime индекса", () =>
+    createConfigurationIndexExportRuntime({
+      source: params.index,
+      collector,
+      targetProjectPath: params.assignment.sourceProjectPath,
+      logicalAddress: params.assignment.logicalAddress,
+    })
+  )
   const context: ConfigurationContextWithExportToXML = {
     ...params.context,
     exportToXML: {
@@ -50,12 +53,12 @@ export async function writeFullXmlSyncAssignment(
     const outputDiagnostic = missingOutputDiagnostic(params.assignment)
     if (outputDiagnostic !== undefined) return { diagnostics: [outputDiagnostic], writtenFiles: [] }
 
-    const writtenFiles = await writeAssignmentXML({ ...params, context })
+    const writtenFiles = await profileAssignmentStepAsync(params.assignment, "Запись XML", () => writeAssignmentXML({ ...params, context }))
 
     return {
       diagnostics: [],
       writtenFiles,
-      fragment: collector.fragment(params.assignment.sourceProjectPath),
+      fragment: profileAssignmentStep(params.assignment, "Сбор фрагмента индекса", () => collector.fragment(params.assignment.sourceProjectPath)),
     }
   } catch (caught) {
     return {
@@ -63,6 +66,59 @@ export async function writeFullXmlSyncAssignment(
       writtenFiles: [],
     }
   }
+}
+
+function profileAssignmentStep<T>(assignment: FullXmlSyncAssignment, step: string, fn: () => T): T {
+  if (process.env["NKDK_FULL_SYNC_PROFILE"] !== "1") return fn()
+  const startedAt = performance.now()
+  const selected = isAssignmentProfileSelected(assignment)
+  if (selected) console.error(formatAssignmentProfile("start", assignment, step))
+  try {
+    return fn()
+  } finally {
+    const timeMs = performance.now() - startedAt
+    if (selected || timeMs >= 1_000) console.error(formatAssignmentProfile("end", assignment, step, timeMs))
+  }
+}
+
+async function profileAssignmentStepAsync<T>(assignment: FullXmlSyncAssignment, step: string, fn: () => Promise<T>): Promise<T> {
+  if (process.env["NKDK_FULL_SYNC_PROFILE"] !== "1") return fn()
+  const startedAt = performance.now()
+  const selected = isAssignmentProfileSelected(assignment)
+  if (selected) console.error(formatAssignmentProfile("start", assignment, step))
+  try {
+    return await fn()
+  } finally {
+    const timeMs = performance.now() - startedAt
+    if (selected || timeMs >= 1_000) console.error(formatAssignmentProfile("end", assignment, step, timeMs))
+  }
+}
+
+function isAssignmentProfileSelected(assignment: FullXmlSyncAssignment): boolean {
+  const selector = process.env["NKDK_FULL_SYNC_PROFILE_ASSIGNMENT"]
+  return selector !== undefined && selector.length > 0 && assignment.sourceProjectPath.includes(selector)
+}
+
+function formatAssignmentProfile(
+  event: "start" | "end",
+  assignment: FullXmlSyncAssignment,
+  step: string,
+  timeMs?: number
+): string {
+  const memory = process.memoryUsage()
+  return [
+    "[full-sync-assignment-profile]",
+    `event=${event}`,
+    `step=${JSON.stringify(step)}`,
+    `role=${JSON.stringify(assignment.role)}`,
+    `itemType=${JSON.stringify(assignment.itemType)}`,
+    `source=${JSON.stringify(assignment.sourceProjectPath)}`,
+    timeMs === undefined ? undefined : `time=${timeMs.toFixed(2)}ms`,
+    `rss=${bytesToMiB(memory.rss).toFixed(1)}MiB`,
+    `heap=${bytesToMiB(memory.heapUsed).toFixed(1)}MiB`,
+  ]
+    .filter((part): part is string => part !== undefined)
+    .join(" ")
 }
 
 async function writeAssignmentXML(
@@ -201,4 +257,8 @@ function assignmentDiagnostic(
 
 function errorMessage(error: unknown): string {
   return error instanceof Error ? error.message : String(error)
+}
+
+function bytesToMiB(value: number): number {
+  return value / 1024 / 1024
 }

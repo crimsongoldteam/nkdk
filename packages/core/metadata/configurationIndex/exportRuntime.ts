@@ -1,19 +1,30 @@
 import { createHash } from "crypto"
 import type { ConfigurationIndexCollector } from "./collector/writer"
+import type { SharedConfigurationIndexSnapshot } from "./sharedSnapshot"
 import type { ConfigurationIndexReader } from "./sharedSnapshot"
 import type { ConfigurationIdentity, ConfigurationXmlNode, ConfigurationXmlValue } from "./types"
+import type { ConfigurationIndexAddressingMode } from "../orchestration/property/types"
+import { childUid, yamlPropertyUid } from "./logicalAddress"
 
 export interface ConfigurationIndexExportRuntime {
   readonly source: ConfigurationIndexReader
   readonly collector: ConfigurationIndexCollector
   readonly targetProjectPath: string
   readonly logicalAddress: string
+  readonly xmlNodeLogicalAddress?: string
+  readonly childCollectionUidSegment?: string
+  readonly yamlPathAddressing?: true
   identity(kind: ConfigurationIdentity["kind"], address?: string): string | undefined
   identityOrCreate(kind: "uuid" | "xmlId", address?: string): string
   xmlNode(address?: string): ConfigurationXmlNode | undefined
   xmlValue(address?: string): ConfigurationXmlValue | undefined
   configVersion(address: string): string
   withLogicalAddress(logicalAddress: string): ConfigurationIndexExportRuntime
+  withPropertyContext(
+    propertyName: string,
+    childCollectionUidSegment?: string,
+    options?: { configurationIndexAddressing?: ConfigurationIndexAddressingMode }
+  ): ConfigurationIndexExportRuntime
 }
 
 export interface CreateConfigurationIndexExportRuntimeOptions {
@@ -22,6 +33,9 @@ export interface CreateConfigurationIndexExportRuntimeOptions {
   readonly targetProjectPath: string
   readonly logicalAddress: string
   readonly targetGeneration?: bigint
+  readonly xmlNodeLogicalAddress?: string
+  readonly childCollectionUidSegment?: string
+  readonly yamlPathAddressing?: true
 }
 
 export function createConfigurationIndexExportRuntime(
@@ -35,6 +49,9 @@ class DefaultConfigurationIndexExportRuntime implements ConfigurationIndexExport
   readonly collector: ConfigurationIndexCollector
   readonly targetProjectPath: string
   readonly logicalAddress: string
+  readonly xmlNodeLogicalAddress?: string
+  readonly childCollectionUidSegment?: string
+  readonly yamlPathAddressing?: true
   private readonly targetGeneration: bigint
   private readonly seed: Buffer
   private readonly generated = new Map<string, string>()
@@ -44,8 +61,11 @@ class DefaultConfigurationIndexExportRuntime implements ConfigurationIndexExport
     this.collector = options.collector
     this.targetProjectPath = options.targetProjectPath
     this.logicalAddress = options.logicalAddress
+    this.xmlNodeLogicalAddress = options.xmlNodeLogicalAddress
+    this.childCollectionUidSegment = options.childCollectionUidSegment
+    this.yamlPathAddressing = options.yamlPathAddressing
     this.targetGeneration = options.targetGeneration ?? this.source.binding().indexGeneration + 1n
-    this.seed = deriveOperationSeed(this.source.snapshot.bytes, this.source.snapshot.byteLength, this.targetGeneration)
+    this.seed = operationSeed(this.source.snapshot, this.targetGeneration)
   }
 
   identity(kind: ConfigurationIdentity["kind"], address = this.logicalAddress): string | undefined {
@@ -60,7 +80,7 @@ class DefaultConfigurationIndexExportRuntime implements ConfigurationIndexExport
     return value
   }
 
-  xmlNode(address = this.logicalAddress): ConfigurationXmlNode | undefined {
+  xmlNode(address = this.xmlNodeLogicalAddress ?? this.logicalAddress): ConfigurationXmlNode | undefined {
     return this.source.xmlNode(address)
   }
 
@@ -79,6 +99,29 @@ class DefaultConfigurationIndexExportRuntime implements ConfigurationIndexExport
       targetProjectPath: this.targetProjectPath,
       logicalAddress,
       targetGeneration: this.targetGeneration,
+      ...(this.childCollectionUidSegment === undefined ? {} : { childCollectionUidSegment: this.childCollectionUidSegment }),
+      ...(this.yamlPathAddressing === undefined ? {} : { yamlPathAddressing: this.yamlPathAddressing }),
+    })
+  }
+
+  withPropertyContext(
+    propertyName: string,
+    childCollectionUidSegment: string | undefined,
+    options: { configurationIndexAddressing?: ConfigurationIndexAddressingMode } = {}
+  ): ConfigurationIndexExportRuntime {
+    const useYamlPath = this.yamlPathAddressing === true || options.configurationIndexAddressing === "yamlPath"
+    const propertyAddress = useYamlPath
+      ? yamlPropertyUid(this.logicalAddress, propertyName)
+      : childUid(this.logicalAddress, "Свойство", propertyName)
+    return new DefaultConfigurationIndexExportRuntime({
+      source: this.source,
+      collector: this.collector,
+      targetProjectPath: this.targetProjectPath,
+      logicalAddress: useYamlPath ? propertyAddress : this.logicalAddress,
+      xmlNodeLogicalAddress: propertyAddress,
+      targetGeneration: this.targetGeneration,
+      ...(useYamlPath ? { yamlPathAddressing: true as const } : {}),
+      ...(childCollectionUidSegment === undefined ? {} : { childCollectionUidSegment }),
     })
   }
 
@@ -101,6 +144,21 @@ class DefaultConfigurationIndexExportRuntime implements ConfigurationIndexExport
       .update(address, "utf8")
       .digest()
   }
+}
+
+const operationSeedCache = new WeakMap<SharedConfigurationIndexSnapshot, Map<bigint, Buffer>>()
+
+function operationSeed(snapshot: SharedConfigurationIndexSnapshot, targetGeneration: bigint): Buffer {
+  let seeds = operationSeedCache.get(snapshot)
+  if (seeds === undefined) {
+    seeds = new Map()
+    operationSeedCache.set(snapshot, seeds)
+  }
+  const cached = seeds.get(targetGeneration)
+  if (cached !== undefined) return cached
+  const seed = deriveOperationSeed(snapshot.bytes, snapshot.byteLength, targetGeneration)
+  seeds.set(targetGeneration, seed)
+  return seed
 }
 
 function deriveOperationSeed(bytes: SharedArrayBuffer, byteLength: number, targetGeneration: bigint): Buffer {

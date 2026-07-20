@@ -14,6 +14,11 @@ const metadataValueTargetFallback = {
   valueKinds: ["predefinedValue", "enumValue", "emptyRef"],
   allowEmptyRef: true,
 } as const satisfies MetadataTargetConstraint
+const metadataValueTemplateTargetFallback = {
+  kind: "member",
+  owner: "explicit",
+  memberKinds: ["Template"],
+} as const satisfies MetadataTargetConstraint
 
 export const exportMetadataFieldStringToYAML = (
   _context: ConfigurationContext,
@@ -50,7 +55,11 @@ export const exportMetadataValueStringToYAML = (
 ): string | undefined => {
   if (!name) return undefined
 
-  return formatMetadataTargetStringToYAML(name, metadataTargetForRule(rule, metadataValueTargetFallback))
+  const constraint = metadataTargetForRule(rule, metadataValueTargetFallback)
+  return (
+    formatMetadataTargetStringToYAML(name, constraint) ??
+    (constraint.kind === "value" ? formatMetadataTargetStringToYAML(name, metadataValueTemplateTargetFallback) : undefined)
+  )
 }
 
 function metadataTargetForRule(

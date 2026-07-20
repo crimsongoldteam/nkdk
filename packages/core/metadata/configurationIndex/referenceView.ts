@@ -1,9 +1,16 @@
 import type { ConfigurationContextWithExportToXML } from "../context/types"
+import type { ConfigurationIndexAddressingMode } from "../orchestration/property/types"
 
 export function getConfigurationIndexPropertyOrder(
   context: ConfigurationContextWithExportToXML | undefined
 ): readonly string[] {
   return context?.exportToXML.configurationIndex?.xmlNode()?.order ?? []
+}
+
+export function getConfigurationIndexXmlNodeLogicalAddress(context: ConfigurationContextWithExportToXML): string | undefined {
+  const runtime = context.exportToXML.configurationIndex
+  if (runtime === undefined) return undefined
+  return runtime.xmlNodeLogicalAddress ?? runtime.logicalAddress
 }
 
 export function getConfigurationIndexSourceXmlKey(
@@ -40,6 +47,23 @@ export function withConfigurationIndexExportLogicalAddress(
     exportToXML: {
       ...context.exportToXML,
       configurationIndex: runtime.withLogicalAddress(logicalAddress),
+    },
+  }
+}
+
+export function withConfigurationIndexExportPropertyContext(
+  context: ConfigurationContextWithExportToXML,
+  propertyName: string,
+  childCollectionUidSegment: string | undefined,
+  options: { configurationIndexAddressing?: ConfigurationIndexAddressingMode } = {}
+): ConfigurationContextWithExportToXML {
+  const runtime = context.exportToXML.configurationIndex
+  if (runtime === undefined) return context
+  return {
+    ...context,
+    exportToXML: {
+      ...context.exportToXML,
+      configurationIndex: runtime.withPropertyContext(propertyName, childCollectionUidSegment, options),
     },
   }
 }
