@@ -324,6 +324,28 @@ describe("JSON Schema registry", { timeout: 60_000 }, () => {
     expect(JSON.stringify(schema)).toContain('"x-nkdk-schemaRefs":["nkdk://schema/ClientApplicationForm"')
   })
 
+  it("uses validation refs only for reusable schemas", () => {
+    const graph = exportJSONSchemaGraph({
+      context,
+      validationPropertyRefs: true,
+      roots: [{ key: "commonForm", name: "MetadataCommonForm" }],
+    })
+    const prefix = "nkdk://schema/validation/2.20/ru/"
+    const commonForm = graph.roots.commonForm as { properties?: { Форма?: { $ref?: string } } }
+    const clientForm = graph.schemas[`${prefix}ClientApplicationForm`] as {
+      properties?: { События?: { $ref?: string } }
+    }
+    const inputField = graph.schemas[`${prefix}InputField`] as {
+      properties?: { ПутьКДанным?: { $ref?: string } }
+    }
+    const visibilitySchemaName = "AppearanceSettingsParameterValue_Primitive__u0412_u0438_u0434_u0438_u043c_u043e_u0441_u0442_u044c"
+
+    expect(commonForm.properties?.Форма).toMatchObject({ $ref: `${prefix}ClientApplicationForm` })
+    expect(graph.schemas[`${prefix}${visibilitySchemaName}`]).toMatchObject({ $id: `${prefix}${visibilitySchemaName}` })
+    expect(clientForm.properties?.События?.$ref).toBeUndefined()
+    expect(inputField.properties?.ПутьКДанным?.$ref).toBeUndefined()
+  })
+
   it("allows opaque multiple-value DataPath in InputField schema", () => {
     const opaquePath = "1/0:796f500f-c364-45d1-bce6-9e7e8e15b664"
 

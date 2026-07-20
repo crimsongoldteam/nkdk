@@ -15,7 +15,6 @@ describe("validateProjectFileFirstPass references", () => {
 
   beforeAll(() => {
     sharedSchemaCache = createValidationSchemaCache(mockContext)
-    sharedSchemaCache.form()
 
     const commonFormSpec = getValidationProjectSpecByDir("ОбщаяФорма")
     if (commonFormSpec === undefined) throw new Error("Common form validation spec is not registered")
@@ -30,12 +29,10 @@ describe("validateProjectFileFirstPass references", () => {
     const cache = createValidationSchemaCache({ version: "2.20", defaultLanguage: "ru" })
     const result = cache.compileAll()
 
-    expect(result.formMs).toBeGreaterThanOrEqual(0)
     expect(result.propertiesMs).toBeGreaterThanOrEqual(0)
-    expect(cache.form().Check({ Элементы: {} })).toBe(true)
   }, 120_000)
 
-  it("compiles common form properties without compiling ClientApplicationForm again", () => {
+  it("compiles common form properties in the same validation graph", () => {
     const spec = getValidationProjectSpecByDir("ОбщаяФорма")
     if (spec === undefined) throw new Error("Common form validation spec is not registered")
 
@@ -46,7 +43,7 @@ describe("validateProjectFileFirstPass references", () => {
         Форма: expect.objectContaining({}),
       },
     })
-    expect(compiled.Context()["nkdk://schema/ClientApplicationForm"]).toBeUndefined()
+    expect(compiled.Context()["nkdk://schema/validation/2.20/ru/ClientApplicationForm"]).toBeDefined()
     expect(compiled.Check({ Форма: { Элементы: {} } })).toBe(true)
   }, 20_000)
 

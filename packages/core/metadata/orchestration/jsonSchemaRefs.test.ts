@@ -116,7 +116,7 @@ describe("jsonSchemaRefs", () => {
     registerTypeRule("boolean", "exportToJSONSchema", () =>
       Type.Union([Type.Literal("Истина"), Type.Literal("Ложь")])
     )
-    registerTypeRule("boolean", "validationSchemaRef", () => "boolean/without-Истина")
+    registerTypeRule("boolean", "validationSchemaRef", () => "boolean/without-true")
 
     const context = createJSONSchemaExportContext(baseContext, "inline", {
       excludeImplicitValueYAML: true,
@@ -128,12 +128,12 @@ describe("jsonSchemaRefs", () => {
       value: undefined,
     })
 
-    expect(schema).toEqual({ $ref: "nkdk://schema/validation/2.20/ru/boolean/without-Истина" })
+    expect(schema).toEqual({ $ref: "nkdk://schema/validation/2.20/ru/boolean/without-true" })
     expect(attachCollectedSchemaRefs(context, Type.Object({}))).toMatchObject({
-      "x-nkdk-schemaRefs": ["nkdk://schema/validation/2.20/ru/boolean/without-Истина"],
+      "x-nkdk-schemaRefs": ["nkdk://schema/validation/2.20/ru/boolean/without-true"],
     })
 
-    const registeredSchema = getValidationSchemaRef("nkdk://schema/validation/2.20/ru/boolean/without-Истина")
+    const registeredSchema = getValidationSchemaRef("nkdk://schema/validation/2.20/ru/boolean/without-true")
     if (registeredSchema === undefined) throw new Error("Expected registered validation schema")
     const check = compileValidationSchema(registeredSchema)
     expect(check.Check("Истина")).toBe(false)

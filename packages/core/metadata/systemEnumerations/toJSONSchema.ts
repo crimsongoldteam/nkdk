@@ -26,8 +26,7 @@ export const systemEnumerationValidationSchemaRef: ValidationSchemaRefFn = ({ ru
     return `SystemEnumeration/${systemEnumerationRule.typeSE}`
   }
 
-  const implicitYAML = systemEnumerationTables[`${systemEnumerationRule.typeSE}ToYAML`]?.[implicitValueYAML] ?? implicitValueYAML
-  return `SystemEnumeration/${systemEnumerationRule.typeSE}/without-${implicitYAML}`
+  return `SystemEnumeration/${systemEnumerationRule.typeSE}/without-${implicitValueYAML}`
 }
 
 registerTypeRule("SystemEnumeration", "exportToJSONSchema", exportSystemEnumerationToJSONSchema)

@@ -5,7 +5,7 @@ import type { SyncAreaDeclaration } from "../appliedObject/xmlAreas"
 import type { TypeRulesOperations } from "./fn"
 import type { PropertyOperationTargetDeclaration } from "./operationTargets"
 
-import { ConfigurationContext, ConfigurationContextWithExportToXML, JSONSchemaExportMode } from "../../context/types"
+import { ConfigurationContext, ConfigurationContextWithExportToXML } from "../../context/types"
 import { TableAdditionalSourceTypes } from "../../forms/commonObjects/tableAdditionalSource/types"
 import type { ExternalMetadataItemRule, ExternalMetadataPropertyRule } from "../externalMetadata/types"
 import { MetadataItemType } from "../metadataItem/registry"
@@ -391,11 +391,6 @@ export interface UniqueNameScope {
   message?: string
 }
 
-export interface ExternalValidationProperty {
-  yaml: string
-  validator: "form"
-}
-
 export interface MetadataItemRule extends MetadataItem {
   /**
    * Тип объекта метаданных
@@ -407,20 +402,6 @@ export interface MetadataItemRule extends MetadataItem {
    * какой внешний реестр использует это описание.
    */
   externalMetadata?: ExternalMetadataItemRule
-
-  /**
-   * Режим компиляции JSON Schema для validation cache.
-   * По умолчанию properties-схемы компилируются inline; тяжёлые правила могут
-   * запросить externalRefs, чтобы переиспользовать зарегистрированные схемы.
-   */
-  validationSchemaMode?: JSONSchemaExportMode
-
-  /**
-   * YAML-свойства, которые проверяются отдельным уже скомпилированным валидатором.
-   * Используется для тяжёлых внешних частей объекта, чтобы не компилировать их
-   * повторно внутри properties-схемы.
-   */
-  externalValidationProperties?: readonly ExternalValidationProperty[]
 
   /**
    * Описывает, как объект участвует в owner/root metadata-target.

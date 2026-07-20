@@ -83,10 +83,6 @@ for (const rule of TopLevelMetadataItemRules) {
     dir,
     rule,
     exportSchema: createMetadataItemProjectSchemaExporter(rule),
-    ...(rule.validationSchemaMode !== undefined ? { validationSchemaMode: rule.validationSchemaMode } : {}),
-    ...(rule.externalValidationProperties !== undefined
-      ? { externalValidationProperties: rule.externalValidationProperties }
-      : {}),
     importModel: createGenericProjectImportModel(rule),
     ...(rule.itemType === MetadataSubsystemRules.itemType
       ? {

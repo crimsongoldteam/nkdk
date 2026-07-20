@@ -33,8 +33,8 @@ describe("exportPropertyToJSONSchema implicitValueYAML", () => {
 
     expect(refs).toEqual([
       "nkdk://schema/validation/2.20/ru/boolean/base",
-      "nkdk://schema/validation/2.20/ru/boolean/without-Истина",
-      "nkdk://schema/validation/2.20/ru/boolean/without-Ложь",
+      "nkdk://schema/validation/2.20/ru/boolean/without-true",
+      "nkdk://schema/validation/2.20/ru/boolean/without-false",
     ])
 
     const withoutTruth = getValidationSchemaRef(refs[1]!)
@@ -45,7 +45,7 @@ describe("exportPropertyToJSONSchema implicitValueYAML", () => {
   })
 
   it("creates distinct validation refs for SystemEnumeration implicit values", () => {
-    const refs = ["Использовать", "НеИспользовать"].map((implicitValueYAML) => {
+    const refs = ["Use", "DontUse"].map((implicitValueYAML) => {
       const schema = exportPropertyToJSONSchema({
         context: {
           ...validationContext,
@@ -58,8 +58,8 @@ describe("exportPropertyToJSONSchema implicitValueYAML", () => {
     })
 
     expect(refs).toEqual([
-      "nkdk://schema/validation/2.20/ru/SystemEnumeration/ModalityUseMode/without-Использовать",
-      "nkdk://schema/validation/2.20/ru/SystemEnumeration/ModalityUseMode/without-НеИспользовать",
+      "nkdk://schema/validation/2.20/ru/SystemEnumeration/ModalityUseMode/without-Use",
+      "nkdk://schema/validation/2.20/ru/SystemEnumeration/ModalityUseMode/without-DontUse",
     ])
 
     const withoutUse = getValidationSchemaRef(refs[0]!)

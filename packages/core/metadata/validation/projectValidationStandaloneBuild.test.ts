@@ -10,11 +10,22 @@ const execFileAsync = promisify(execFile)
 describe("project validation standalone build output", () => {
   it("includes refs produced by metadata collection registrations", () => {
     const schemaSet = createProjectValidationStandaloneSchemaSet()
+    const ref = "nkdk://schema/validation/2.20/ru/MetadataCatalogAttribute"
 
-    expect(schemaSet.refs["nkdk://schema/MetadataCatalogAttribute"]).toMatchObject({
+    expect(schemaSet.refs[ref]).toMatchObject({
       type: "object",
     })
-    expect(JSON.stringify(schemaSet.byProjectDir["Справочник"])).toContain("nkdk://schema/MetadataCatalogAttribute")
+    expect(JSON.stringify(schemaSet.byProjectDir["Справочник"])).toContain(ref)
+  })
+
+  it("includes common form body schema in the validation graph", () => {
+    const schemaSet = createProjectValidationStandaloneSchemaSet()
+    const ref = "nkdk://schema/validation/2.20/ru/ClientApplicationForm"
+
+    expect(schemaSet.refs[ref]).toMatchObject({
+      type: "object",
+    })
+    expect(JSON.stringify(schemaSet.byProjectDir["ОбщаяФорма"])).toContain(ref)
   })
 
   it("accepts enumeration value names from YAML keys", () => {

@@ -4,6 +4,9 @@ import {
   attachCollectedSchemaRefs,
   collectSchemaRefs,
   createJSONSchemaExportContext,
+  decodeValidationSchemaKey,
+  encodeValidationSchemaKey,
+  getValidationSchemaRef,
   getJSONSchemaIdentityExporter,
   JSON_SCHEMA_REF_PREFIX,
   listJSONSchemaIdentityNames,
@@ -50,10 +53,11 @@ export function exportJSONSchemaForSchemaName(params: {
   mode?: JSONSchemaExportMode
   excludeImplicitValueYAML?: boolean
   includeNestedChildItems?: boolean
+  validationPropertyRefs?: true
 }): TSchema {
   ensureJSONSchemaRegistry()
 
-  const { context, excludeImplicitValueYAML, includeNestedChildItems, name, mode = "externalRefs" } = params
+  const { context, excludeImplicitValueYAML, includeNestedChildItems, name, mode = "externalRefs", validationPropertyRefs } = params
   const exporter = getSchemaExporter(name)
   if (!exporter) {
     throw new ProjectFileSchemaError(
@@ -64,6 +68,7 @@ export function exportJSONSchemaForSchemaName(params: {
   const schemaContext = createJSONSchemaExportContext(context, mode, {
     excludeImplicitValueYAML,
     includeNestedChildItems,
+    validationPropertyRefs,
   })
   const schema = exporter({ context: schemaContext })
 
@@ -75,13 +80,14 @@ export function exportJSONSchemaGraph(params: {
   roots: readonly JSONSchemaGraphRoot[]
   mode?: JSONSchemaExportMode
   excludeImplicitValueYAML?: boolean
+  validationPropertyRefs?: true
 }): JSONSchemaGraph {
   ensureJSONSchemaRegistry()
 
   const roots: Record<string, TSchema> = {}
   const schemas: Record<string, TSchema> = {}
   const pendingRefs: string[] = []
-  const mode = params.mode ?? "externalRefs"
+  const mode = params.validationPropertyRefs === true ? "externalRefs" : (params.mode ?? "externalRefs")
 
   for (const root of params.roots) {
     const schema = exportJSONSchemaForSchemaName({
@@ -90,31 +96,54 @@ export function exportJSONSchemaGraph(params: {
       mode,
       excludeImplicitValueYAML: params.excludeImplicitValueYAML,
       includeNestedChildItems: root.includeNestedChildItems,
+      validationPropertyRefs: params.validationPropertyRefs,
     })
-    roots[root.key] = schema
-    pendingRefs.push(...collectSchemaRefs(schema))
+    const rewritten = params.validationPropertyRefs === true ? rewriteValidationRefs(params.context, schema) : schema
+    roots[root.key] = rewritten
+    pendingRefs.push(...collectSchemaRefs(rewritten))
   }
 
   for (let index = 0; index < pendingRefs.length; index += 1) {
     const ref = pendingRefs[index]
     if (ref === undefined || schemas[ref] !== undefined) continue
 
-    const name = schemaNameFromRef(ref)
-    const schema = withSchemaId(
-      ref,
-      exportJSONSchemaForSchemaName({
-        context: params.context,
-        name,
-        mode,
-        excludeImplicitValueYAML: params.excludeImplicitValueYAML,
-      })
-    )
+    const validationSchema = params.validationPropertyRefs === true ? getValidationSchemaRef(ref) : undefined
+    const name = params.validationPropertyRefs === true ? validationSchemaName(params.context, ref) : schemaNameFromRef(ref)
+    const exported = validationSchema ?? exportJSONSchemaForSchemaName({
+      context: params.context,
+      name,
+      mode,
+      excludeImplicitValueYAML: params.excludeImplicitValueYAML,
+      validationPropertyRefs: params.validationPropertyRefs,
+    })
+    const schema = withSchemaId(ref, params.validationPropertyRefs === true ? rewriteValidationRefs(params.context, exported) : exported)
 
     schemas[ref] = schema
     pendingRefs.push(...collectSchemaRefs(schema))
   }
 
   return { roots, schemas }
+}
+
+function validationSchemaName(context: ConfigurationContext, ref: string): string {
+  const prefix = `${JSON_SCHEMA_REF_PREFIX}validation/${context.version}/${context.defaultLanguage}/`
+  if (!ref.startsWith(prefix)) throw new ProjectFileSchemaError(`Некорректная validation JSON Schema ссылка "${ref}"`)
+  return decodeValidationSchemaKey(ref.slice(prefix.length))
+}
+
+function rewriteValidationRefs(context: ConfigurationContext, schema: TSchema): TSchema {
+  const prefix = `${JSON_SCHEMA_REF_PREFIX}validation/${context.version}/${context.defaultLanguage}/`
+  const rewrite = (value: unknown): unknown => {
+    if (typeof value === "string" && value.startsWith(JSON_SCHEMA_REF_PREFIX) && !value.startsWith(prefix)) {
+      return `${prefix}${encodeValidationSchemaKey(value.slice(JSON_SCHEMA_REF_PREFIX.length))}`
+    }
+    if (Array.isArray(value)) return value.map(rewrite)
+    if (value === null || typeof value !== "object") return value
+    return Object.fromEntries(Object.entries(value as Record<string, unknown>).map(([key, entry]) => {
+      return [key, rewrite(entry)]
+    }))
+  }
+  return rewrite(schema) as TSchema
 }
 
 export function schemaNameFromRef(ref: string): string {

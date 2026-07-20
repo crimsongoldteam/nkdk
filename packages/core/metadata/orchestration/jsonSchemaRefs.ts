@@ -180,8 +180,16 @@ export function getValidationSchemaRef(name: string): TSchema | undefined {
   return validationSchemas.get(name)
 }
 
+export function encodeValidationSchemaKey(key: string): string {
+  return key.split("/").map(encodeURIComponent).join("/")
+}
+
+export function decodeValidationSchemaKey(key: string): string {
+  return key.split("/").map(decodeURIComponent).join("/")
+}
+
 function validationSchemaRefName(context: ConfigurationContext, key: string): string {
-  return createSchemaRef(`validation/${context.version}/${context.defaultLanguage}/${key}`)
+  return createSchemaRef(`validation/${context.version}/${context.defaultLanguage}/${encodeValidationSchemaKey(key)}`)
 }
 
 export function attachCollectedSchemaRefs(context: ConfigurationContext, schema: TSchema): TSchema {

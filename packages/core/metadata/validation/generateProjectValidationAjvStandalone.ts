@@ -17,14 +17,9 @@ export async function generateProjectValidationAjvStandalone(params: { outfile: 
     Object.entries(schemaSet.refs).map(([id, sourceSchema]) => [id, withSchemaId(prepareSchemaForAjv(sourceSchema), id)])
   )
   const formSchema = withSchemaId(prepareSchemaForAjv(schemaSet.form), "nkdk://validation/form")
-  const chunks: StandaloneValidatorCode[] = [
-    createStandaloneValidatorCode({
-      exportName: "validateForm",
-      refs: refsForSchema(formSchema, refs),
-      schema: formSchema,
-      schemaId: formSchema.$id,
-    }),
-  ]
+  const validators: Record<string, { schema: object; schemaId: string }> = {
+    validateForm: { schema: formSchema, schemaId: formSchema.$id },
+  }
 
   const entries: Array<{ dir: string; exportName: string; schema: unknown }> = []
   let index = 0
@@ -34,22 +29,14 @@ export async function generateProjectValidationAjvStandalone(params: { outfile: 
       prepareSchemaForAjv(sourceSchema),
       `nkdk://validation/properties/${encodeURIComponent(dir)}`
     )
-    chunks.push(
-      createStandaloneValidatorCode({
-        exportName,
-        refs: refsForSchema(schema, refs),
-        schema,
-        schemaId: schema.$id,
-      })
-    )
+    validators[exportName] = { schema, schemaId: schema.$id }
     entries.push({ dir, exportName, schema })
     index += 1
   }
 
-  const imports = [...new Set(chunks.flatMap((chunk) => chunk.imports))]
+  const validatorsCode = createStandaloneValidatorsCode({ refs, validators })
   const moduleCode = [
-    ...imports,
-    ...chunks.map((chunk) => chunk.code),
+    validatorsCode,
     "",
     "const module = {",
     '  format: "project-validation-ajv-standalone-v1",',
@@ -77,62 +64,17 @@ function withSchemaId<T extends object>(schema: T, id: string): T & { $id: strin
   return { ...schema, $id: id }
 }
 
-function refsForSchema(root: object, allRefs: Record<string, object>): Record<string, object> {
-  const result = new Map<string, object>()
-  const queue = schemaRefs(root)
-
-  for (let index = 0; index < queue.length; index += 1) {
-    const id = queue[index]!
-    if (result.has(id)) continue
-
-    const schema = allRefs[id]
-    if (schema === undefined) continue
-
-    result.set(id, schema)
-    queue.push(...schemaRefs(schema))
-  }
-
-  return Object.fromEntries(result)
-}
-
-function schemaRefs(schema: unknown): string[] {
-  const refs = new Set<string>()
-
-  function visit(value: unknown): void {
-    if (Array.isArray(value)) {
-      value.forEach(visit)
-      return
-    }
-    if (value === null || typeof value !== "object") return
-
-    const record = value as Record<string, unknown>
-    const ref = record.$ref
-    if (typeof ref === "string" && ref.startsWith("nkdk://schema/")) refs.add(ref)
-
-    Object.values(record).forEach(visit)
-  }
-
-  visit(schema)
-  return [...refs]
-}
-
-interface StandaloneValidatorCode {
-  imports: string[]
-  code: string
-}
-
-function createStandaloneValidatorCode(params: {
-  exportName: string
+function createStandaloneValidatorsCode(params: {
   refs: Record<string, object>
-  schema: object
-  schemaId: string
-}): StandaloneValidatorCode {
+  validators: Record<string, { schema: object; schemaId: string }>
+}): string {
   const ajv = new Ajv2020({
     addUsedSchema: false,
     allowUnionTypes: true,
     allErrors: false,
     code: { esm: true, source: true },
     discriminator: true,
+    inlineRefs: false,
     strict: false,
     verbose: true,
   })
@@ -148,30 +90,14 @@ function createStandaloneValidatorCode(params: {
   for (const [id, schema] of Object.entries(params.refs)) {
     ajv.addSchema(schema, id)
   }
-  ajv.addSchema(params.schema, params.schemaId)
+  for (const { schema, schemaId } of Object.values(params.validators)) {
+    ajv.addSchema(schema, schemaId)
+  }
 
-  return scopeStandaloneCode(
-    normalizeStandaloneCodeForEsm(standaloneCode(ajv, { [params.exportName]: params.schemaId })),
-    params.exportName
+  const exports = Object.fromEntries(
+    Object.entries(params.validators).map(([exportName, validator]) => [exportName, validator.schemaId])
   )
-}
-
-function scopeStandaloneCode(code: string, exportName: string): StandaloneValidatorCode {
-  const imports = code.match(/^import .*$/gm) ?? []
-  const withoutImports = code.replace(/^import .*$/gm, "").replace('"use strict";', "").trim()
-  const exportPattern = new RegExp(`export const ${exportName} = (validate\\d+);`)
-  const match = withoutImports.match(exportPattern)
-  if (match === null) {
-    throw new Error(`AJV standalone code did not export ${exportName}`)
-  }
-
-  const internalName = match[1]!
-  const body = withoutImports.replace(match[0], "").trim()
-
-  return {
-    imports,
-    code: [`const ${exportName} = (() => {`, body, `return ${internalName}`, "})()"].join("\n"),
-  }
+  return normalizeStandaloneCodeForEsm(standaloneCode(ajv, exports)).replace('"use strict";', "").trim()
 }
 
 function normalizeStandaloneCodeForEsm(code: string): string {

@@ -7,8 +7,8 @@ export const exportBooleanToJSONSchema: ExportToJSONSchemaFn = (): TSchema => {
 }
 
 export const booleanValidationSchemaRef: ValidationSchemaRefFn = ({ rule }) => {
-  if (rule.implicitValueYAML === true) return "boolean/without-Истина"
-  if (rule.implicitValueYAML === false) return "boolean/without-Ложь"
+  if (rule.implicitValueYAML === true) return "boolean/without-true"
+  if (rule.implicitValueYAML === false) return "boolean/without-false"
   return "boolean/base"
 }
 
