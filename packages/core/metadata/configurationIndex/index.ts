@@ -13,6 +13,11 @@ export {
 } from "./decode"
 export { encodeConfigurationIndex } from "./encode"
 export {
+  createConfigurationIndexExportRuntime,
+  type ConfigurationIndexExportRuntime,
+  type CreateConfigurationIndexExportRuntimeOptions,
+} from "./exportRuntime"
+export {
   DEFAULT_CONFIGURATION_INDEX_BASE_ID,
   configurationIndexPath,
   readConfigurationIndex,
