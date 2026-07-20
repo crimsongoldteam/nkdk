@@ -23,7 +23,12 @@ export interface CompiledXmlImportRoute {
 }
 
 export interface XmlImportRouteStructure {
-  readonly routes: readonly CompiledXmlImportRoute[]
+  readonly routesByFirstSegment: ReadonlyMap<string, readonly CompiledXmlImportRoute[]>
+  readonly fallbackRoutes: readonly CompiledXmlImportRoute[]
+}
+
+export interface XmlImportRouteMatchOptions {
+  onPatternVisited?: () => void
 }
 
 interface CompiledXmlPattern {
@@ -40,15 +45,30 @@ type CompiledTemplatePart = { kind: "literal"; value: string } | { kind: "parame
 const MAX_XML_ROUTE_RECURSION_DEPTH = 16
 
 export function compileXmlImportRouteStructure(routes: readonly XmlImportRoute[]): XmlImportRouteStructure {
-  return {
-    routes: routes.flatMap(expandRouteRecursion).map((route) => ({ route, pattern: compilePattern(route.xmlPattern) })),
+  const routesByFirstSegment = new Map<string, CompiledXmlImportRoute[]>()
+  const fallbackRoutes: CompiledXmlImportRoute[] = []
+  for (const route of routes.flatMap(expandRouteRecursion)) {
+    const compiled = { route, pattern: compilePattern(route.xmlPattern) }
+    const first = compiled.pattern.segments[0]
+    if (first?.kind === "static") {
+      routesByFirstSegment.set(first.value, [...(routesByFirstSegment.get(first.value) ?? []), compiled])
+    } else {
+      fallbackRoutes.push(compiled)
+    }
   }
+  return { routesByFirstSegment, fallbackRoutes }
 }
 
-export function matchXmlImportRouteStructure(structure: XmlImportRouteStructure, path: string): XmlImportRouteMatch[] {
+export function matchXmlImportRouteStructure(
+  structure: XmlImportRouteStructure,
+  path: string,
+  options: XmlImportRouteMatchOptions = {}
+): XmlImportRouteMatch[] {
   const pathSegments = path.split("/")
   const matches: XmlImportRouteMatch[] = []
-  for (const compiled of structure.routes) {
+  const candidates = [...(structure.routesByFirstSegment.get(pathSegments[0] ?? "") ?? []), ...structure.fallbackRoutes]
+  for (const compiled of candidates) {
+    options.onPatternVisited?.()
     const values = matchCompiledPattern(compiled.pattern, pathSegments)
     if (values === undefined) continue
     matches.push(createMatch(compiled.route, values))

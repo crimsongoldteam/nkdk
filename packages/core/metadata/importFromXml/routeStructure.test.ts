@@ -81,4 +81,36 @@ describe("XML import route structure", () => {
       }),
     ])
   })
+
+  it("does not visit unrelated top-level route buckets", () => {
+    const routes = [
+      {
+        kind: "assignment",
+        xmlPattern: "Catalogs/{ownerName}.xml",
+        targetPattern: "Справочник/{ownerName}/Свойства.yaml",
+        role: "properties",
+        itemType: "MetadataCatalog",
+        source,
+      },
+      {
+        kind: "assignment",
+        xmlPattern: "Documents/{ownerName}.xml",
+        targetPattern: "Документ/{ownerName}/Свойства.yaml",
+        role: "properties",
+        itemType: "MetadataDocument",
+        source,
+      },
+    ] satisfies readonly XmlImportRoute[]
+    const structure = compileXmlImportRouteStructure(routes)
+    let visited = 0
+
+    const matches = matchXmlImportRouteStructure(structure, "Catalogs/Контрагенты.xml", {
+      onPatternVisited: () => {
+        visited += 1
+      },
+    })
+
+    expect(matches).toHaveLength(1)
+    expect(visited).toBe(1)
+  })
 })
