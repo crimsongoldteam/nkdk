@@ -407,6 +407,24 @@ describe("JSON Schema registry", { timeout: 60_000 }, () => {
     expect(JSON.stringify(clientForm.properties?.События)).toContain("properties")
   })
 
+  it("does not leave large reusable property schemas inline in InputField validation schema", () => {
+    const graph = exportJSONSchemaGraph({
+      context,
+      validationPropertyRefs: true,
+      roots: [{ key: "commonForm", name: "MetadataCommonForm" }],
+    })
+    const prefix = "nkdk://schema/validation/2.20/ru/"
+    const inputField = graph.schemas[`${prefix}InputField`] as {
+      properties?: Record<string, unknown>
+    }
+    const inputFieldJson = JSON.stringify(inputField)
+
+    expect(inputFieldJson).not.toContain("ЦветФонаПодсказки")
+    expect(inputFieldJson).not.toContain("ШрифтТекста")
+    expect(inputField.properties?.ЦветФона).toMatchObject({ $ref: `${prefix}Color/base` })
+    expect(inputField.properties?.Шрифт).toMatchObject({ $ref: `${prefix}Font/base` })
+  })
+
   it("allows opaque multiple-value DataPath in InputField schema", () => {
     const opaquePath = "1/0:796f500f-c364-45d1-bce6-9e7e8e15b664"
 

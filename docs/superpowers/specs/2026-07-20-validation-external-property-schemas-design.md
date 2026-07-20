@@ -116,3 +116,5 @@ node .agents/skills/validation-profile/validation-profile.mjs \
 | `source: true`, `optimize: 3` | 83 MiB | 1187 MiB | 1.09 s | Не даёт устойчивого выигрыша. |
 
 Дополнительные `code`-настройки менять не нужно: `source: true` обязателен для standalone, а оптимизация по умолчанию уже даёт нужный размер generated JS.
+
+Итоговый замер после перевода всех reusable validation-свойств на `$ref` по умолчанию, URI-safe ключей `SettingsParameterValue` и временного `Any` для `DcsExplicitSystemEnumerationValue`: 4 worker, cold 0.73 s, peak RSS 650 MiB, RSS прогонов 649, 650, 650, 650 и 650 MiB; 0 diagnostics, 0 errors, 0 warnings. Generated standalone JS: 18,930,824 байта, `ls -lh` показывает 18M. Относительно предыдущего worktree-замера 1208 MiB peak RSS уменьшился на 558 MiB (-46.2%), generated JS уменьшился на 68,223,053 байта (-78.3%) относительно 87,153,877 байт. Относительно свежего develop peak RSS 746 MiB итоговый peak RSS ниже на 96 MiB (-12.9%). Timing-профиль показал максимальный RSS процесса 670.6 MiB и worker RSS во время проверки JSON Schema 670.5 MiB.
