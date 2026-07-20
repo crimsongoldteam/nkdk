@@ -1,5 +1,9 @@
 import { describe, expect, it } from "vitest"
-import { withConfigurationIndexCollector } from "../../configurationIndex/collector/context"
+import {
+  runWithConfigurationIndexPropertyContext,
+  withConfigurationIndexCollector,
+  withConfigurationIndexLogicalAddress,
+} from "../../configurationIndex/collector/context"
 import { createConfigurationIndexCollector } from "../../configurationIndex/collector/writer"
 import { importPropertiesFromXML } from "./fromXML"
 
@@ -196,6 +200,34 @@ describe("importPropertiesFromXML configuration index collection", () => {
 
     expect(collector.fragment("Форма.yaml").xmlValues).toEqual([
       { logicalAddress: "Справочник.Товары.Свойство.Отбор.Значение", xsiNil: true },
+    ])
+  })
+
+  it("clears property XML node address when entering child item logical address", () => {
+    const collector = createConfigurationIndexCollector()
+    const context = withConfigurationIndexCollector(createContext(), collector, "Форма.Основная")
+
+    runWithConfigurationIndexPropertyContext(context, "Элементы", undefined, (propertyContext) => {
+      const itemContext = withConfigurationIndexLogicalAddress(propertyContext, "Форма.Основная.Элемент.Кнопка1")
+
+      importPropertiesFromXML({
+        context: itemContext,
+        rule: {
+          itemType: "Button",
+          properties: {
+            title: { type: "string", xml: "Title" },
+            commandName: { type: "string", xml: "CommandName" },
+          },
+        } as any,
+        xml: { Title: "Кнопка", CommandName: "Команда" },
+      })
+    })
+
+    expect(collector.fragment("Форма.yaml").xmlNodes).toEqual([
+      {
+        logicalAddress: "Форма.Основная.Элемент.Кнопка1",
+        order: ["title", "commandName"],
+      },
     ])
   })
 })

@@ -12,6 +12,11 @@ import type {
   FormMetadataXML,
 } from "../forms/clientApplicationForm/types"
 import { prepareAppliedObjectModelFromXML } from "../orchestration/appliedObject/convertFromXML"
+import {
+  type MetadataItemOwnerContextEntry,
+  appendMetadataItemOwner,
+} from "../orchestration/appliedObject/metadataItemOwnerContext"
+import { metadataTargetOwnerFromRule } from "../orchestration/property/metadataTargetString"
 import { getTypeRule } from "../orchestration/property/typeRuleRegistry"
 import type { MetadataItem, MetadataItemRule, PropertyRule } from "../orchestration/property/types"
 import { configurationMetadataProjectSpec, metadataProjectSpecs } from "../project/specs"
@@ -24,6 +29,7 @@ export interface PreparedImportModel {
   targetProjectPath: string
   model: MetadataItem
   rule: MetadataItemRule
+  ownerContext: readonly MetadataItemOwnerContextEntry[]
   localDataPathIndex?: FormDataPathIndex
   generatedFiles: ExternalFileEntry[]
 }
@@ -97,9 +103,23 @@ function preparedResult(
     targetProjectPath: assignment.targetProjectPath,
     model,
     rule,
+    ownerContext: buildOwnerContext(assignment, rule),
     ...extra,
     generatedFiles: [],
   }
+}
+
+function buildOwnerContext(assignment: ImportAssignment, rule: MetadataItemRule): readonly MetadataItemOwnerContextEntry[] {
+  const owner = assignment.owner
+  if (owner !== undefined) {
+    const ownerRule = findRegisteredImportRule(owner.itemType)
+    const targetOwner =
+      ownerRule === undefined ? undefined : metadataTargetOwnerFromRule({ itemRule: ownerRule, name: owner.name })
+    return appendMetadataItemOwner([], owner.itemType as never, owner.name, "", targetOwner)
+  }
+
+  const targetOwner = metadataTargetOwnerFromRule({ itemRule: rule, name: assignment.itemName })
+  return appendMetadataItemOwner([], rule.itemType, assignment.itemName, "", targetOwner)
 }
 
 async function readAndParseAssignmentXml(xmlFiles: readonly ImportXmlInput[]): Promise<ParsedImportXmlInput[]> {

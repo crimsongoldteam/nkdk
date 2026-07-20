@@ -19,4 +19,5 @@ registerMetadataItemCollectionRule({
   itemRule: PredefinedItemRules,
   xmlElement: "Item",
   keyField: "name",
+  configurationIndexUidSegment: "Предопределенный",
 })

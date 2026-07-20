@@ -246,6 +246,54 @@ describe("importClientApplicationFormFromXML", () => {
     )
   })
 
+  it("адресует таблицу диаграммы Ганта как отдельный вложенный элемент индекса", () => {
+    const collector = createConfigurationIndexCollector()
+    const logicalAddress = "Обработка.Планирование.Форма.Основная"
+    const context = withConfigurationIndexCollector(mockContextFromXML(), collector, logicalAddress)
+
+    importClientApplicationFormFromXML({
+      context,
+      xml: {
+        ChildItems: [
+          {
+            GanttChartField: {
+              _name: "ДиаграммаГанта",
+              _id: "1",
+              Table: {
+                _name: "Table",
+                _id: "98",
+                ContextMenu: { _name: "TableКонтекстноеМеню", _id: "100" },
+              },
+              ContextMenu: { _name: "ДиаграммаГантаКонтекстноеМеню", _id: "2" },
+            },
+          },
+        ],
+      } as unknown as ClientApplicationFormXML,
+      xmlMetadata: { Form: { Properties: {} } },
+    })
+
+    const identities = collector.fragment("Обработка/Планирование/Формы/Основная/Форма.yaml").identities
+    expect(identities).toEqual(
+      expect.arrayContaining([
+        {
+          logicalAddress: `${logicalAddress}.Элемент.ДиаграммаГанта.Элемент.ДиаграммаГантаКонтекстноеМеню`,
+          kind: "xmlId",
+          value: "2",
+        },
+        {
+          logicalAddress: `${logicalAddress}.Элемент.ДиаграммаГанта.Элемент.ДиаграммаГантаТаблица`,
+          kind: "xmlId",
+          value: "98",
+        },
+        {
+          logicalAddress: `${logicalAddress}.Элемент.ДиаграммаГанта.Элемент.ДиаграммаГантаТаблица.Элемент.ДиаграммаГантаТаблицаКонтекстноеМеню`,
+          kind: "xmlId",
+          value: "100",
+        },
+      ])
+    )
+  })
+
   it("собирает порядок Form.xml отдельно от metadata XML", () => {
     const collector = createConfigurationIndexCollector()
     const logicalAddress = "Справочник.Контрагенты.Форма.ФормаЭлемента"

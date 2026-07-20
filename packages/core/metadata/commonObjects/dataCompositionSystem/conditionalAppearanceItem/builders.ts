@@ -13,5 +13,5 @@ export type FilterRuleParams = Omit<FilterWidePropertyRule, "type">
 export function filterRule<const Params extends FilterRuleParams>(
   params: WideExactRuleParams<FilterRuleParams, Params>
 ): Readonly<{ type: "Filter" } & Params> {
-  return defineWidePropertyRule("Filter", params)
+  return defineWidePropertyRule("Filter", { configurationIndexAddressing: "yamlPath" as const, ...params })
 }

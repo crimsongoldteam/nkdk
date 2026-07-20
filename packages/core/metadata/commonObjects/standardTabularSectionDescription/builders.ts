@@ -18,7 +18,10 @@ export function standardTabularSectionDescriptionsRule<
 >(
   params: WideExactRuleParams<StandardTabularSectionDescriptionsRuleParams, Params>
 ): Readonly<{ type: "StandardTabularSectionDescriptions" } & Params> {
-  return defineWidePropertyRule("StandardTabularSectionDescriptions", params)
+  return defineWidePropertyRule("StandardTabularSectionDescriptions", {
+    configurationIndexUidSegment: "СтандартнаяТабличнаяЧасть",
+    ...params,
+  })
 }
 export interface StandardTabularSectionAttributeDescriptionsWidePropertyRule extends WidePropertyRuleBase {
   type: "StandardTabularSectionAttributeDescriptions"
@@ -34,5 +37,8 @@ export function standardTabularSectionAttributeDescriptionsRule<
 >(
   params: WideExactRuleParams<StandardTabularSectionAttributeDescriptionsRuleParams, Params>
 ): Readonly<{ type: "StandardTabularSectionAttributeDescriptions" } & Params> {
-  return defineWidePropertyRule("StandardTabularSectionAttributeDescriptions", params)
+  return defineWidePropertyRule("StandardTabularSectionAttributeDescriptions", {
+    configurationIndexUidSegment: "СтандартныйРеквизит",
+    ...params,
+  })
 }

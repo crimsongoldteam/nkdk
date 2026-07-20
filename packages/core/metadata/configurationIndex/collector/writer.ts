@@ -97,6 +97,8 @@ class InMemoryConfigurationIndexCollector implements ConfigurationIndexCollector
   }
 
   private setIdentity(address: string, kind: ConfigurationIdentity["kind"], value: string): void {
+    if (value.length === 0) return
+
     const key = `${address}\0${kind}`
     const previous = this.identityValues.get(key)
     if (previous !== undefined) {

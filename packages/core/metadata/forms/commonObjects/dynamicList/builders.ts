@@ -57,5 +57,5 @@ export type OrderRuleParams = Omit<OrderWidePropertyRule, "type">
 export function orderRule<const Params extends OrderRuleParams>(
   params: WideExactRuleParams<OrderRuleParams, Params>
 ): Readonly<{ type: "Order" } & Params> {
-  return defineWidePropertyRule("Order", params)
+  return defineWidePropertyRule("Order", { configurationIndexAddressing: "yamlPath" as const, ...params })
 }

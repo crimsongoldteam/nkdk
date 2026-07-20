@@ -9,6 +9,7 @@ import type { ConfigurationIndexFragment } from "../configurationIndex/types"
 import { exportClientApplicationFormToYAML } from "../forms/clientApplicationForm/toYAML"
 import type { ClientApplicationForm } from "../forms/clientApplicationForm/types"
 import { exportMetadataItemToYAML } from "../orchestration"
+import { withExportMetadataTargetOwners } from "../orchestration/appliedObject/metadataItemOwnerContext"
 import { createOwnerMetadataCacheFromSharedValidationSnapshot } from "../validation/dataPath/sharedOwnerCache"
 import type { OwnerMetadataCache } from "../validation/dataPath/ownerCache"
 import type { ValidationOwnerFacts } from "../validation/dataPath/ownerFacts"
@@ -105,7 +106,8 @@ async function writePreparedYamlToTemp(
     externalFilesCollector,
     warnings,
   })
-  const exported = exportPreparedYaml(prepared, context)
+  const contextWithOwners = withExportMetadataTargetOwners(context, prepared.ownerContext)
+  const exported = exportPreparedYaml(prepared, contextWithOwners)
   const yamlSourcePath = join(state.tempDir, prepared.targetProjectPath)
   await fs.promises.mkdir(dirname(yamlSourcePath), { recursive: true })
   await fs.promises.writeFile(yamlSourcePath, exported.yaml, "utf-8")

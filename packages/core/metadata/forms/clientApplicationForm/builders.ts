@@ -24,7 +24,7 @@ export type ConditionalAppearanceRuleParams = Omit<ConditionalAppearanceWideProp
 export function conditionalAppearanceRule<const Params extends ConditionalAppearanceRuleParams>(
   params: WideExactRuleParams<ConditionalAppearanceRuleParams, Params>
 ): Readonly<{ type: "ConditionalAppearance" } & Params> {
-  return defineWidePropertyRule("ConditionalAppearance", params)
+  return defineWidePropertyRule("ConditionalAppearance", { configurationIndexAddressing: "yamlPath" as const, ...params })
 }
 export interface AutoCommandBarWidePropertyRule extends WidePropertyRuleBase {
   type: "AutoCommandBar"

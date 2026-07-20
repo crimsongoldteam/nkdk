@@ -14,12 +14,11 @@ import { TableRules } from "../../elements/table/rules"
 import type { Table, TablePartialYAML } from "../../elements/table/types"
 import { exportElementToJSONSchema } from "../../../orchestration/formElement/toJSONSchema"
 import { importElementFromPartialYAML } from "../../../orchestration/formElement/fromYAML"
-import { importElementFromXML } from "../../../orchestration/formElement/fromXML"
+import { importSingleElementFromXML } from "../../../orchestration/formElement/fromXML"
 import { exportSingleElementToXML } from "../../../orchestration/formElement/toXML"
 import { exportElementToPartialYAML } from "../../../orchestration/formElement/toYAML"
 import {
   applyReferenceNameMode,
-  attachReferenceNameMode,
   type SingletonNameStyle,
 } from "../../../orchestration/formElement/singletonName"
 import { registerTypeRule } from "../../../orchestration/property/typeRuleRegistry"
@@ -56,19 +55,14 @@ export const importGanttChartFieldTableFromXML: ImportFromXMLFunction = (
   xml: ElementXML | undefined,
   ownerXmlName?: string
 ): GanttChartFieldTable | undefined => {
-  const table = importElementFromXML({
-    context,
-    itemType: "Table",
-    xml,
-  })
-  if (table === undefined) return undefined
-  if (!context.fromXML.forReference) return table
+  if (xml === undefined) return undefined
 
-  return attachReferenceNameMode({
-    model: table,
-    xmlName: xml?._name,
-    ownerXmlName,
+  return importSingleElementFromXML({
+    context,
+    elementRule: TableRules,
+    xml,
     nameStyle,
+    ownerXmlName,
   })
 }
 

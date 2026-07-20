@@ -23,11 +23,9 @@ registerTypeRule(
   "StandardTabularSectionDescriptions",
   "importFromXML",
   (context: ConfigurationContextFromXML, rule: PropertyRule, xml: unknown) => {
-    return importMetadataItemCollectionFromXML(StandardTabularSectionDescriptionRules, xmlElement)(
-      context,
-      rule,
-      xml
-    ) as StandardTabularSectionDescriptions | undefined
+    return importMetadataItemCollectionFromXML(StandardTabularSectionDescriptionRules, xmlElement, {
+      configurationIndexUidSegment: rule.configurationIndexUidSegment,
+    })(context, rule, xml) as StandardTabularSectionDescriptions | undefined
   }
 )
 
@@ -85,11 +83,9 @@ registerTypeRule(
   "StandardTabularSectionAttributeDescriptions",
   "importFromXML",
   (context: ConfigurationContextFromXML, rule: PropertyRule, xml: unknown) => {
-    return importMetadataItemCollectionFromXML(StandardAttributeDescriptionRules, standardAttributeXmlElement)(
-      context,
-      rule,
-      xml
-    ) as StandardAttributeDescriptions | undefined
+    return importMetadataItemCollectionFromXML(StandardAttributeDescriptionRules, standardAttributeXmlElement, {
+      configurationIndexUidSegment: rule.configurationIndexUidSegment,
+    })(context, rule, xml) as StandardAttributeDescriptions | undefined
   }
 )
 

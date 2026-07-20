@@ -145,6 +145,7 @@ export const MetadataDocumentJournalRules = {
       yaml: "Графы",
       xmlParents: childObjects,
       xml: "Column",
+      configurationIndexUidSegment: "Графа",
     }),
     forms: childFormNamesRule({
       xml: "Form",

@@ -162,6 +162,7 @@ const importColumnsFromXML = (
 
   const items = Array.isArray(xml) ? xml : [xml]
   const collection = getConfigurationIndexCollectionContext(context)
+  const duplicatedNames = duplicatedColumnNames(items)
 
   return items.map((item, index) => {
     const columnContext =
@@ -169,7 +170,7 @@ const importColumnsFromXML = (
         ? context
         : withConfigurationIndexLogicalAddress(
             context,
-            typeof item._name === "string" && item._name.length > 0
+            typeof item._name === "string" && item._name.length > 0 && !duplicatedNames.has(item._name)
               ? childUid(collection.logicalAddress, "Колонка", item._name)
               : indexedUid(collection.logicalAddress, "Колонка", index)
           )
@@ -193,6 +194,17 @@ const importColumnsFromXML = (
 
     return column
   })
+}
+
+function duplicatedColumnNames(items: readonly FormAttributeColumnXML[]): ReadonlySet<string> {
+  const seen = new Set<string>()
+  const duplicated = new Set<string>()
+  for (const item of items) {
+    if (typeof item._name !== "string" || item._name.length === 0) continue
+    if (seen.has(item._name)) duplicated.add(item._name)
+    seen.add(item._name)
+  }
+  return duplicated
 }
 
 const importAdditionalColumnsFromXML = (

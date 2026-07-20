@@ -37,12 +37,13 @@ export function withConfigurationIndexLogicalAddress(
 ): ConfigurationContextFromXML {
   const collection = getConfigurationIndexCollectionContext(context)
   if (collection === undefined) return context
+  const { xmlNodeLogicalAddress: _xmlNodeLogicalAddress, ...nextCollection } = collection
 
   return {
     ...context,
     fromXML: {
       ...context.fromXML,
-      configurationIndex: { ...collection, logicalAddress },
+      configurationIndex: { ...nextCollection, logicalAddress },
     },
   }
 }

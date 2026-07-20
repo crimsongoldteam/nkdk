@@ -8,6 +8,8 @@ import {
   queryTextWithManualQueryFalseDynamicList,
 } from "./__fixtures__/data"
 import { importPropertyFromXML, PropertyRule } from "../../../orchestration"
+import { withConfigurationIndexCollector } from "../../../configurationIndex/collector/context"
+import { createConfigurationIndexCollector } from "../../../configurationIndex/collector/writer"
 import { mockContextFromXML } from "../../../../tests/mockContext"
 import { testExportPropertyToXML } from "../../../../tests/property/exportPropertyToXML"
 import { testImportPropertyFromXML } from "../../../../tests/property/importPropertyFromXML"
@@ -203,6 +205,55 @@ describe("import DynamicList from XML", () => {
       keyType: "RowKey",
       keyFields: ["КлючПриглашения", "Контрагент", "ИдентификаторОрганизации"],
     })
+  })
+
+  it("addresses DCS filter and order items under distinct YAML paths in configuration index", () => {
+    const collector = createConfigurationIndexCollector()
+    const context = withConfigurationIndexCollector(
+      mockContextFromXML(),
+      collector,
+      "Документ.ДоступностьРабочихЦентров.Атрибут.Список"
+    )
+
+    importPropertyFromXML({
+      context,
+      rule,
+      value: {
+        "_xsi:type": "DynamicList",
+        ManualQuery: false,
+        DynamicDataRead: true,
+        ListSettings: {
+          "dcsset:filter": {
+            "dcsset:item": {
+              "_xsi:type": "dcsset:FilterItemComparison",
+              "dcsset:left": { "_xsi:type": "dcscor:Field", "#text": "Ссылка" },
+              "dcsset:comparisonType": "Equal",
+              "dcsset:right": { "_xsi:type": "dcscor:DesignTimeValue", "#text": "Справочник.Товары.ПустаяСсылка" },
+            },
+          },
+          "dcsset:order": {
+            "dcsset:item": {
+              "_xsi:type": "dcsset:OrderItemField",
+              "dcsset:field": "Наименование",
+              "dcsset:orderType": "Asc",
+            },
+          },
+        },
+      },
+    })
+
+    expect(collector.fragment("Документ/ДоступностьРабочихЦентров/Свойства.yaml").xmlNodes).toEqual(
+      expect.arrayContaining([
+        expect.objectContaining({
+          logicalAddress: "Документ.ДоступностьРабочихЦентров.Атрибут.Список.Отбор.Элементы[0]",
+          order: ["leftValue", "comparisonType", "rightValue"],
+        }),
+        expect.objectContaining({
+          logicalAddress: "Документ.ДоступностьРабочихЦентров.Атрибут.Список.Порядок.Элементы[0]",
+          order: ["field", "orderType"],
+        }),
+      ])
+    )
   })
 
   it("round-trip: queryTextWithManualQueryFalse.xml import -> export", () => {

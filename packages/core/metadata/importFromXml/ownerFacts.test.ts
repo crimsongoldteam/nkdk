@@ -66,6 +66,7 @@ function preparedModel(params: Pick<PreparedImportModel, "assignment" | "model" 
   return {
     ...params,
     targetProjectPath: params.assignment.targetProjectPath,
+    ownerContext: [],
     generatedFiles: [],
   }
 }

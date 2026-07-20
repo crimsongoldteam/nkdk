@@ -94,5 +94,8 @@ export type CharacteristicsDescriptionsRuleParams = Omit<CharacteristicsDescript
 export function characteristicsDescriptionsRule<const Params extends CharacteristicsDescriptionsRuleParams>(
   params: WideExactRuleParams<CharacteristicsDescriptionsRuleParams, Params>
 ): Readonly<{ type: "CharacteristicsDescriptions" } & Params> {
-  return defineWidePropertyRule("CharacteristicsDescriptions", params)
+  return defineWidePropertyRule("CharacteristicsDescriptions", {
+    configurationIndexAddressing: "yamlPath",
+    ...params,
+  })
 }

@@ -67,6 +67,15 @@ describe("configuration index collector", () => {
     })
   })
 
+  it("does not collect empty identity values", () => {
+    const collector = createConfigurationIndexCollector()
+    collector.setXmlName("Форма.Основная.КоманднаяПанель", "")
+    collector.setXmlId("Форма.Основная.КоманднаяПанель", "")
+    collector.setUuid("Форма.Основная.КоманднаяПанель", "")
+
+    expect(collector.fragment("Форма.yaml").identities).toEqual([])
+  })
+
   it("deduplicates equal logical-address values and rejects conflicting identities", () => {
     const collector = createConfigurationIndexCollector()
     collector.setUuid("Справочник.Товары", "00000000-0000-4000-8000-000000000001")
