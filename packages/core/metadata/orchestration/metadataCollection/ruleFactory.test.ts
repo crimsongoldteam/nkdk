@@ -86,10 +86,19 @@ registerMetadataItemCollectionRule({
   configurationIndexUidSegment: "Элемент",
 })
 
+registerMetadataItemCollectionRule({
+  propertyType: "TestYamlPathArrayCollection" as any,
+  itemRule: TestCollectionItemRules,
+  xmlElement: "Item",
+  yamlAsArray: true,
+  configurationIndexAddressing: "yamlPath",
+})
+
 const rule: PropertyRule = { type: "TestCollection" as any }
 const arrayRule: PropertyRule = { type: "TestArrayCollection" as any }
 const recursiveArrayRule: PropertyRule = { type: "TestRecursiveArrayCollection" as any }
 const addressableRule: PropertyRule = { type: "TestAddressableCollection" as any }
+const yamlPathArrayRule: PropertyRule = { type: "TestYamlPathArrayCollection" as any, yaml: "Элементы" }
 
 describe("registerMetadataItemCollectionRule default fromXML", () => {
   it("импортирует обычный объект-контейнер {Item: body}", () => {
@@ -205,6 +214,31 @@ describe("registerMetadataItemCollectionRule default fromXML", () => {
         value: { Item: { _uuid: "11111111-1111-1111-1111-111111111111" } },
       })
     ).toThrow("Адресуемая metadata-item коллекция TestAddressableCollection содержит элемент без имени")
+  })
+
+  it("addresses YAML-path array collection items by position", () => {
+    const collector = createConfigurationIndexCollector()
+    const context = withConfigurationIndexCollector(
+      mockContextFromXML({ forReference: true }),
+      collector,
+      "Справочник.Товары.Свойство.Отбор.Элементы"
+    )
+
+    const imported = importPropertyFromXML({
+      context,
+      rule: yamlPathArrayRule,
+      value: {
+        Item: [{ Name: "Первый", Value: "one" }, { Name: "Второй", Value: "two" }],
+      },
+    })
+
+    expect(imported).toHaveLength(2)
+    expect(collector.fragment("Форма.yaml").xmlNodes.map((node) => node.logicalAddress)).toEqual(
+      expect.arrayContaining([
+        "Справочник.Товары.Свойство.Отбор.Элементы[0]",
+        "Справочник.Товары.Свойство.Отбор.Элементы[1]",
+      ])
+    )
   })
 })
 

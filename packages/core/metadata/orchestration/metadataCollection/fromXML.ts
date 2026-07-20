@@ -1,12 +1,12 @@
 import { ConfigurationContextFromXML } from "../../context/types"
 import { ImportFromXMLFunction } from "../property/fn"
 import { PropertyRuleType } from "../property/registry"
-import type { MetadataItemRule, PropertyRule } from "../property/types"
+import type { ConfigurationIndexAddressingMode, MetadataItemRule, PropertyRule } from "../property/types"
 import { registerTypeRule } from "../property/typeRuleRegistry"
 import { importMetadataItemFromXML } from "../metadataItem/fromXML"
 import { ToMetadata } from "../metadataItem/registry"
 import type { NamedElementXML, NamedMetadataItem } from "./types"
-import { childUid, indexedUid } from "../../configurationIndex/logicalAddress"
+import { childUid, indexedUid, yamlIndexUid, yamlKeyUid } from "../../configurationIndex/logicalAddress"
 import {
   getConfigurationIndexCollectionContext,
   withConfigurationIndexLogicalAddress,
@@ -18,6 +18,8 @@ export const importMetadataItemCollectionFromXML = <Rule extends MetadataItemRul
   options?: {
     propertyType?: PropertyRuleType
     configurationIndexUidSegment?: string
+    configurationIndexAddressing?: ConfigurationIndexAddressingMode
+    yamlAsArray?: true
   }
 ): ImportFromXMLFunction => {
   return (
@@ -68,6 +70,8 @@ function configurationIndexItemContext(params: {
   options?: {
     propertyType?: PropertyRuleType
     configurationIndexUidSegment?: string
+    configurationIndexAddressing?: ConfigurationIndexAddressingMode
+    yamlAsArray?: true
   }
 }): ConfigurationContextFromXML {
   const { context, item, itemRule, index, options } = params
@@ -76,6 +80,17 @@ function configurationIndexItemContext(params: {
 
   const itemName = configurationIndexItemName(item, itemRule)
   const registeredUidSegment = options?.configurationIndexUidSegment
+  const useYamlPath = collection.yamlPathAddressing === true || options?.configurationIndexAddressing === "yamlPath"
+
+  if (useYamlPath) {
+    return withConfigurationIndexLogicalAddress(
+      context,
+      options?.yamlAsArray === true || itemName === undefined
+        ? yamlIndexUid(collection.logicalAddress, index)
+        : yamlKeyUid(collection.logicalAddress, itemName)
+    )
+  }
+
   if (registeredUidSegment !== undefined && itemName === undefined) {
     throw new Error(
       `Адресуемая metadata-item коллекция ${options?.propertyType ?? itemRule.itemType} содержит элемент без имени`

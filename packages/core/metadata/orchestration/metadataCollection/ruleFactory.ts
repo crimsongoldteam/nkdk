@@ -14,7 +14,7 @@ import {
   importFromYAMLFunction,
 } from "../property/fn"
 import { PropertyRuleType } from "../property/registry"
-import type { MetadataItemRule, PropertyRule } from "../property/types"
+import type { ConfigurationIndexAddressingMode, MetadataItemRule, PropertyRule } from "../property/types"
 import { ToMetadata } from "../metadataItem/registry"
 import { exportMetadataItemToJSONSchema } from "../metadataItem/toJSONSchema"
 import { registerTypeRule } from "../property/typeRuleRegistry"
@@ -34,6 +34,8 @@ type CollectionRule<Rule extends MetadataItemRule, CollectionType extends Proper
   keyField?: keyof Rule["properties"]
   /** Канонический сегмент logicalAddress для элементов этой metadata-item коллекции. */
   configurationIndexUidSegment?: string
+  /** Режим построения logicalAddress для данных файла индекса конфигурации. */
+  configurationIndexAddressing?: ConfigurationIndexAddressingMode
   /** Для YAML-объекта коллекции: ключ записи → внутреннее имя элемента (например стандартный реквизит) */
   nameFromYAMLKey?: (yamlKey: string) => string
   /** Для YAML-объекта коллекции: элемент → ключ записи (если не совпадает со String(item[keyField])) */
@@ -88,6 +90,8 @@ export const registerMetadataItemCollectionRule = <
     const options = {
       propertyType,
       configurationIndexUidSegment: params.configurationIndexUidSegment,
+      configurationIndexAddressing: params.configurationIndexAddressing,
+      ...(params.yamlAsArray === true ? { yamlAsArray: true as const } : {}),
     }
     if (Array.isArray(xml)) {
       // Если каждый элемент массива — обёртка вида `{[effectiveElement]: body | [bodies]}`,
