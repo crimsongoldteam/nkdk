@@ -2,6 +2,8 @@ import { compileValidationSchema } from "./../../validation/compileValidationSch
 import { Type } from "typebox"
 import { describe, expect, it } from "vitest"
 import { importPropertyFromXML, PropertyRule } from ".."
+import { createConfigurationIndexCollector } from "../../configurationIndex/collector/writer"
+import { withConfigurationIndexCollector } from "../../configurationIndex/collector/context"
 import {
   createJSONSchemaExportContext,
   getJSONSchemaIdentityExporter,
@@ -19,6 +21,11 @@ import { registerMetadataItemCollectionRule } from "./ruleFactory"
 const TestCollectionItemRules = {
   itemType: "TestCollectionItem",
   properties: {
+    uuid: {
+      type: "string",
+      xml: "_uuid",
+      forReferenceOnly: true,
+    },
     name: {
       type: "string",
       xml: "Name",
@@ -71,9 +78,18 @@ registerMetadataItemCollectionRule({
   yamlAsArray: true,
 })
 
+registerMetadataItemCollectionRule({
+  propertyType: "TestAddressableCollection" as any,
+  itemRule: TestCollectionItemRules,
+  xmlElement: "Item",
+  keyField: "name",
+  configurationIndexUidSegment: "Элемент",
+})
+
 const rule: PropertyRule = { type: "TestCollection" as any }
 const arrayRule: PropertyRule = { type: "TestArrayCollection" as any }
 const recursiveArrayRule: PropertyRule = { type: "TestRecursiveArrayCollection" as any }
+const addressableRule: PropertyRule = { type: "TestAddressableCollection" as any }
 
 describe("registerMetadataItemCollectionRule default fromXML", () => {
   it("импортирует обычный объект-контейнер {Item: body}", () => {
@@ -139,6 +155,56 @@ describe("registerMetadataItemCollectionRule default fromXML", () => {
   it("возвращает undefined для undefined", () => {
     const result = importPropertyFromXML({ context: mockContextFromXML(), rule, value: undefined })
     expect(result).toBeUndefined()
+  })
+
+  it("пишет идентификаторы элементов адресуемой коллекции в дочерние logicalAddress", () => {
+    const collector = createConfigurationIndexCollector()
+    const context = withConfigurationIndexCollector(mockContextFromXML({ forReference: true }), collector, "Владелец.A")
+
+    const result = importPropertyFromXML({
+      context,
+      rule: addressableRule,
+      value: {
+        Item: [
+          { _uuid: "11111111-1111-1111-1111-111111111111", Name: "Первый" },
+          { _uuid: "22222222-2222-2222-2222-222222222222", Name: "Второй" },
+        ],
+      },
+    })
+
+    expect(result).toMatchObject([
+      { itemType: "TestCollectionItem", uuid: "11111111-1111-1111-1111-111111111111", name: "Первый" },
+      { itemType: "TestCollectionItem", uuid: "22222222-2222-2222-2222-222222222222", name: "Второй" },
+    ])
+    const identities = collector.fragment("owner.yaml").identities
+    expect(identities).toHaveLength(2)
+    expect(identities).toEqual(
+      expect.arrayContaining([
+        {
+          logicalAddress: "Владелец.A.Элемент.Первый",
+          kind: "uuid",
+          value: "11111111-1111-1111-1111-111111111111",
+        },
+        {
+          logicalAddress: "Владелец.A.Элемент.Второй",
+          kind: "uuid",
+          value: "22222222-2222-2222-2222-222222222222",
+        },
+      ])
+    )
+  })
+
+  it("завершает импорт ошибкой, если адресуемый элемент коллекции не имеет имени", () => {
+    const collector = createConfigurationIndexCollector()
+    const context = withConfigurationIndexCollector(mockContextFromXML({ forReference: true }), collector, "Владелец.A")
+
+    expect(() =>
+      importPropertyFromXML({
+        context,
+        rule: addressableRule,
+        value: { Item: { _uuid: "11111111-1111-1111-1111-111111111111" } },
+      })
+    ).toThrow("Адресуемая metadata-item коллекция TestAddressableCollection содержит элемент без имени")
   })
 })
 

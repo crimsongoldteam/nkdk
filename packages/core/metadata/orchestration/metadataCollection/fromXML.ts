@@ -14,7 +14,11 @@ import {
 
 export const importMetadataItemCollectionFromXML = <Rule extends MetadataItemRule, XMLKey extends string>(
   itemRule: Rule,
-  xmlElement: XMLKey
+  xmlElement: XMLKey,
+  options?: {
+    propertyType?: PropertyRuleType
+    configurationIndexUidSegment?: string
+  }
 ): ImportFromXMLFunction => {
   return (
     context: ConfigurationContextFromXML,
@@ -27,17 +31,13 @@ export const importMetadataItemCollectionFromXML = <Rule extends MetadataItemRul
 
     const imported = xmlArray
       .map((item, index) => {
-        const collection = getConfigurationIndexCollectionContext(context)
-        const itemName = configurationIndexItemName(item, itemRule)
-        const itemContext =
-          collection?.childCollectionUidSegment === undefined
-            ? context
-            : withConfigurationIndexLogicalAddress(
-                context,
-                itemName === undefined
-                  ? indexedUid(collection.logicalAddress, collection.childCollectionUidSegment, index)
-                  : childUid(collection.logicalAddress, collection.childCollectionUidSegment, itemName)
-              )
+        const itemContext = configurationIndexItemContext({
+          context,
+          item,
+          itemRule,
+          index,
+          options,
+        })
         const properties = importMetadataItemFromXML({
           context: itemContext,
           xml: item,
@@ -58,6 +58,39 @@ export const importMetadataItemCollectionFromXML = <Rule extends MetadataItemRul
 
     return imported.length > 0 ? imported : undefined
   }
+}
+
+function configurationIndexItemContext(params: {
+  context: ConfigurationContextFromXML
+  item: NamedElementXML
+  itemRule: MetadataItemRule
+  index: number
+  options?: {
+    propertyType?: PropertyRuleType
+    configurationIndexUidSegment?: string
+  }
+}): ConfigurationContextFromXML {
+  const { context, item, itemRule, index, options } = params
+  const collection = getConfigurationIndexCollectionContext(context)
+  if (collection === undefined) return context
+
+  const itemName = configurationIndexItemName(item, itemRule)
+  const registeredUidSegment = options?.configurationIndexUidSegment
+  if (registeredUidSegment !== undefined && itemName === undefined) {
+    throw new Error(
+      `Адресуемая metadata-item коллекция ${options.propertyType ?? itemRule.itemType} содержит элемент без имени`
+    )
+  }
+
+  const uidSegment = registeredUidSegment ?? collection.childCollectionUidSegment
+  if (uidSegment === undefined) return context
+
+  return withConfigurationIndexLogicalAddress(
+    context,
+    itemName === undefined
+      ? indexedUid(collection.logicalAddress, uidSegment, index)
+      : childUid(collection.logicalAddress, uidSegment, itemName)
+  )
 }
 
 function configurationIndexItemName(item: NamedElementXML, itemRule: MetadataItemRule): string | undefined {
