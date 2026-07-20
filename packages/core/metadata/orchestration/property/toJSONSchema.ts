@@ -2,7 +2,11 @@ import { TProperties, TSchema, Type } from "typebox"
 import { ConfigurationContext } from "../../context/types"
 import { applyExcludedEqualNameYAMLToJSONSchema } from "../../helpers/excludeIfEqualNameYAML"
 import { getTypeRule } from "./typeRuleRegistry"
-import { exportPropertyExternalRefSchema, exportPropertyOverrideSchema } from "../jsonSchemaRefs"
+import {
+  exportPropertyExternalRefSchema,
+  exportPropertyOverrideSchema,
+  exportValidationPropertyRefSchema,
+} from "../jsonSchemaRefs"
 import { shouldProcessProperty } from "./helpers"
 import type { MetadataItem, MetadataItemRule, PropertyRule } from "./types"
 import * as SE from "../../systemEnumerations/types"
@@ -124,8 +128,16 @@ export const exportPropertyToJSONSchema = (params: {
 
   if (schemaWithDefaults === undefined) return undefined
 
-  return applyExcludedEqualNameYAMLToJSONSchema({
+  const completedSchema = applyExcludedEqualNameYAMLToJSONSchema({
     rule,
     schema: schemaWithDefaults,
   })
+
+  return (
+    exportValidationPropertyRefSchema({
+      context,
+      rule,
+      schema: completedSchema,
+    }) ?? completedSchema
+  )
 }

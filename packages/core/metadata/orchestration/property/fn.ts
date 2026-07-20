@@ -83,6 +83,12 @@ export type ExportToJSONSchemaFn = (params: {
   value: any | undefined
 }) => TSchema | undefined
 
+export type ValidationSchemaRefFn = (params: {
+  context: ConfigurationContext
+  rule: PropertyRule
+  schema: TSchema
+}) => string | undefined
+
 export type ValidateMetadataTargetFunction = (params: {
   filePath: string
   parsed: ParsedYaml
@@ -296,6 +302,7 @@ export interface TypeRule {
   exportToYAML?: ExportToYAMLFunction | ExportToYAMLFunctionNew
   exportToEnterprise?: ExportToEnterpriseFunction
   exportToJSONSchema?: ExportToJSONSchemaFn
+  validationSchemaRef?: ValidationSchemaRefFn
   collectionItemRule?: CollectionItemRule
   syncExternalFromXML?: SyncExternalFromXMLFunction
   syncExternalToXML?: SyncExternalToXMLFunction
@@ -318,6 +325,7 @@ export type TypeRulesOperations =
   | "exportToYAML"
   | "exportToEnterprise"
   | "exportToJSONSchema"
+  | "validationSchemaRef"
   | "collectionItemRule"
   | "syncExternalFromXML"
   | "syncExternalToXML"
@@ -349,6 +357,8 @@ export type importExportFunction<O extends TypeRulesOperations> = O extends "imp
           ? ExportToEnterpriseFunction | undefined
           : O extends "exportToJSONSchema"
             ? ExportToJSONSchemaFn | undefined
+            : O extends "validationSchemaRef"
+              ? ValidationSchemaRefFn | undefined
             : O extends "collectionItemRule"
               ? CollectionItemRule | undefined
               : O extends "syncExternalFromXML"

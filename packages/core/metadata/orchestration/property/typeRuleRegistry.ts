@@ -6,6 +6,7 @@ import {
   createRegistryKey,
   ExportToEnterpriseFunction,
   ExportToJSONSchemaFn,
+  ValidationSchemaRefFn,
   ExportToXMLFunction,
   ExportToXMLFunctionNew,
   ExportToYAMLFunction,
@@ -35,6 +36,7 @@ const typeRulesRegistry = new Map<
   | ExportToXMLFunction
   | ExportToEnterpriseFunction
   | ExportToJSONSchemaFn
+  | ValidationSchemaRefFn
   | ExportToXMLFunctionNew
   | ImportFromYAMLFunctionNew
   | ExportToYAMLFunctionNew
@@ -77,6 +79,8 @@ export const getTypeRule = <O extends TypeRulesOperations>(
           ? ExportToEnterpriseFunction | undefined
           : O extends "exportToJSONSchema"
             ? ExportToJSONSchemaFn | undefined
+            : O extends "validationSchemaRef"
+              ? ValidationSchemaRefFn | undefined
             : O extends "collectionItemRule"
               ? CollectionItemRule | undefined
               : O extends "syncExternalFromXML"

@@ -6,6 +6,7 @@ import {
   createJSONSchemaExportContext,
   createSchemaRef,
   exportPropertyExternalRefSchema,
+  getValidationSchemaRef,
   getJSONSchemaIdentityExporter,
   listJSONSchemaIdentityNames,
   recordOfSchemaRef,
@@ -14,6 +15,8 @@ import {
   stripCollectedSchemaRefs,
 } from "./jsonSchemaRefs"
 import { exportPropertyToJSONSchema } from "./property/toJSONSchema"
+import { registerTypeRule } from "./property/typeRuleRegistry"
+import { compileValidationSchema } from "../validation/compileValidationSchema"
 
 const baseContext = {
   defaultLanguage: "ru",
@@ -107,6 +110,47 @@ describe("jsonSchemaRefs", () => {
     expect(attachCollectedSchemaRefs(context, Type.Object({}))).toMatchObject({
       "x-nkdk-schemaRefs": ["nkdk://schema/TestMetadataAttributePropertyExport"],
     })
+  })
+
+  it("exports an opt-in validation property ref after implicit values are excluded", () => {
+    registerTypeRule("boolean", "exportToJSONSchema", () =>
+      Type.Union([Type.Literal("Истина"), Type.Literal("Ложь")])
+    )
+    registerTypeRule("boolean", "validationSchemaRef", () => "boolean/without-Истина")
+
+    const context = createJSONSchemaExportContext(baseContext, "inline", {
+      excludeImplicitValueYAML: true,
+      validationPropertyRefs: true,
+    })
+    const schema = exportPropertyToJSONSchema({
+      context,
+      rule: { type: "boolean", implicitValueYAML: true },
+      value: undefined,
+    })
+
+    expect(schema).toEqual({ $ref: "nkdk://schema/validation/2.20/ru/boolean/without-Истина" })
+    expect(attachCollectedSchemaRefs(context, Type.Object({}))).toMatchObject({
+      "x-nkdk-schemaRefs": ["nkdk://schema/validation/2.20/ru/boolean/without-Истина"],
+    })
+
+    const registeredSchema = getValidationSchemaRef("nkdk://schema/validation/2.20/ru/boolean/without-Истина")
+    if (registeredSchema === undefined) throw new Error("Expected registered validation schema")
+    const check = compileValidationSchema(registeredSchema)
+    expect(check.Check("Истина")).toBe(false)
+    expect(check.Check("Ложь")).toBe(true)
+  })
+
+  it("keeps validation property schemas inline outside validation export", () => {
+    const context = createJSONSchemaExportContext(baseContext, "inline", { excludeImplicitValueYAML: true })
+
+    expect(
+      exportPropertyToJSONSchema({
+        context,
+        rule: { type: "boolean", implicitValueYAML: true },
+        value: undefined,
+      })
+    ).not.toMatchObject({ $ref: expect.any(String) })
+    expect(attachCollectedSchemaRefs(context, Type.Object({}))).not.toHaveProperty("x-nkdk-schemaRefs")
   })
 
   it("registers and lists named schema exporters", () => {

@@ -2,6 +2,7 @@ import { type TSchema } from "typebox"
 import type { ConfigurationContext, JSONSchemaExportMode } from "../context/types"
 import type { PropertyRuleType } from "./property/registry"
 import type { PropertyRule } from "./property/types"
+import { getTypeRule } from "./property/typeRuleRegistry"
 
 export const JSON_SCHEMA_REF_PREFIX = "nkdk://schema/"
 const COLLECTED_SCHEMA_REFS_KEY = "x-nkdk-schemaRefs"
@@ -16,10 +17,12 @@ interface JSONSchemaIdentityRegistration {
 
 const propertyRefFactories = new Map<PropertyRuleType, PropertyRefFactory>()
 const schemaIdentityExporters = new Map<string, JSONSchemaIdentityRegistration>()
+const validationSchemas = new Map<string, TSchema>()
 
 export function clearJSONSchemaRefRegistries(): void {
   propertyRefFactories.clear()
   schemaIdentityExporters.clear()
+  validationSchemas.clear()
 }
 
 export function createSchemaRef(name: string): string {
@@ -94,7 +97,7 @@ export function listJSONSchemaIdentityNames(): string[] {
 export function createJSONSchemaExportContext(
   context: ConfigurationContext,
   mode: JSONSchemaExportMode,
-  options: { excludeImplicitValueYAML?: boolean; includeNestedChildItems?: boolean } = {}
+  options: { excludeImplicitValueYAML?: boolean; includeNestedChildItems?: boolean; validationPropertyRefs?: true } = {}
 ): ConfigurationContext {
   return {
     ...context,
@@ -107,6 +110,9 @@ export function createJSONSchemaExportContext(
       ...(options.includeNestedChildItems === undefined
         ? {}
         : { includeNestedChildItems: options.includeNestedChildItems }),
+      ...(options.validationPropertyRefs === undefined
+        ? {}
+        : { validationPropertyRefs: options.validationPropertyRefs }),
     },
   }
 }
@@ -150,6 +156,32 @@ export function exportPropertyExternalRefSchema(params: {
   const schema = factory(params)
   if (schema) collectSchemaRefsToContext(context, schema)
   return schema
+}
+
+export function exportValidationPropertyRefSchema(params: {
+  context: ConfigurationContext
+  rule: PropertyRule
+  schema: TSchema
+}): TSchema | undefined {
+  const { context, rule, schema } = params
+  if (context.exportToJSONSchema?.validationPropertyRefs !== true) return undefined
+
+  const validationSchemaRef = getTypeRule(rule.type, "validationSchemaRef")
+  const key = validationSchemaRef?.(params)
+  if (key === undefined) return undefined
+
+  const name = validationSchemaRefName(context, key)
+  validationSchemas.set(name, schema)
+  collectSchemaRefsToContext(context, rawJSONSchema({ $ref: name }))
+  return rawJSONSchema({ $ref: name })
+}
+
+export function getValidationSchemaRef(name: string): TSchema | undefined {
+  return validationSchemas.get(name)
+}
+
+function validationSchemaRefName(context: ConfigurationContext, key: string): string {
+  return createSchemaRef(`validation/${context.version}/${context.defaultLanguage}/${key}`)
 }
 
 export function attachCollectedSchemaRefs(context: ConfigurationContext, schema: TSchema): TSchema {

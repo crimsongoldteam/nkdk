@@ -27,6 +27,7 @@ export interface JSONSchemaExportContext {
   refs: Set<string>
   excludeImplicitValueYAML?: boolean
   includeNestedChildItems?: boolean
+  validationPropertyRefs?: true
   propertySchemaOverrides?: Partial<Record<PropertyRuleType, TSchema>>
   schemaStack?: PropertyRuleType[]
 }
