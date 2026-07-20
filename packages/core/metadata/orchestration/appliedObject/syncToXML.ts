@@ -72,6 +72,68 @@ export const syncAppliedObjectToXML = async (params: SyncAppliedObjectToXMLParam
   return syncAppliedObjectToXMLInternal(params)
 }
 
+export const writePreparedAppliedObjectOwnerToXML = async (params: {
+  rule: MetadataItemRule
+  context: ConfigurationContextWithExportToXML
+  name: string
+  outputPath: string
+  preparedYamlFile: PreparedYamlFile
+  referenceModel?: Record<string, unknown>
+  fileChildNames?: { forms?: readonly string[]; templates?: readonly string[] }
+}): Promise<void> => {
+  const yamlObj = params.preparedYamlFile.data
+  if (yamlObj === undefined) throw new Error(`Подготовленные YAML-данные отсутствуют: ${params.preparedYamlFile.projectPath}`)
+
+  const contextWithProjectDir: ConfigurationContextWithExportToXML = {
+    ...params.context,
+    importFromYAML: {
+      ...(params.context.importFromYAML ?? {}),
+      projectDir: params.context.importFromYAML?.projectDir ?? dirname(dirname(params.preparedYamlFile.filePath)),
+    },
+  }
+  const contextWithFileDiagnostics = withYAMLImportDiagnostics(contextWithProjectDir, {
+    sourceFile: params.preparedYamlFile.filePath,
+    objectPath: `${params.rule.itemTypePrefix ?? params.rule.itemType}.${params.name}`,
+  }) as ConfigurationContextWithExportToXML
+  const contextWithFormDir = withImportFormDir(contextWithFileDiagnostics, dirname(params.preparedYamlFile.filePath))
+  const rawModel = importMetadataItemFromYAML({
+    context: contextWithFormDir,
+    yaml: yamlObj as never,
+    rule: params.rule,
+    name: params.name,
+  })
+  if (!rawModel) return
+
+  const model = { ...rawModel, name: params.name } as typeof rawModel
+  const contextWithForms: ConfigurationContextWithExportToXML = {
+    ...contextWithFormDir,
+    exportToXML: {
+      ...contextWithFormDir.exportToXML,
+      context: {
+        ...contextWithFormDir.exportToXML.context,
+        forms: [...(params.fileChildNames?.forms ?? [])],
+        templates: [...(params.fileChildNames?.templates ?? [])],
+        parentName: params.name,
+        metadataForNumbering: contextWithFormDir.exportToXML.context?.metadataForNumbering ?? [],
+      },
+    },
+  }
+
+  const xmlObj = exportMetadataItemToXML({
+    context: contextWithForms,
+    data: addFileChildCollectionReferenceNames({
+      model: model as Record<string, unknown>,
+      rule: params.rule,
+    }) as typeof model,
+    referenceData: params.referenceModel,
+    rule: withFileItemCollectionReferenceExportRules(params.rule),
+  })
+  if (!xmlObj) return
+
+  await fs.promises.mkdir(dirname(params.outputPath), { recursive: true })
+  await fs.promises.writeFile(params.outputPath, xmlExport(xmlObj), "utf-8")
+}
+
 const syncAppliedObjectToXMLInternal = async (params: InternalSyncAppliedObjectToXMLParams): Promise<void> => {
   const { rule, context, inputDir, name, outputDir } = params
   const referenceDir = params.referenceDir
