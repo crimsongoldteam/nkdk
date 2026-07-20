@@ -204,6 +204,7 @@ export type ProjectResourceDescriptor =
       owner: "configuration" | "currentItem"
       compositionImpact: ProjectResourceCompositionImpact
       source: ProjectResourceSource
+      itemType?: string
     }
   | {
       kind: "directory"

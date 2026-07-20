@@ -74,7 +74,7 @@ function assignmentForYaml(resource: Extract<MetadataProjectResourceRef, { kind:
     sourceProjectPath: resource.projectPath,
     sourcePath: resource.absolutePath ?? resource.projectPath,
     role: "form",
-    itemType: "ClientApplicationForm",
+    itemType: resource.itemType,
     itemName: resource.formName,
     logicalAddress: childUid(ownerAddress, "Форма", resource.formName),
     owner: {

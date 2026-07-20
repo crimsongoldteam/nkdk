@@ -62,6 +62,7 @@ export interface MetadataProjectFormYamlRef {
   absolutePath?: string
   owner: MetadataProjectResourceOwner
   formName: string
+  itemType: string
 }
 
 export interface MetadataProjectResourceOnlyRef {
@@ -208,7 +209,14 @@ function matchDescriptorResourcePath(parts: string[], projectPath: string): Meta
       return { kind: "yaml", role: "properties", projectPath, owner, nesting: [] }
     }
     if (resource.role === "fileItem" && match.itemName && resource.projectPattern.endsWith("/Форма.yaml")) {
-      return { kind: "yaml", role: "form", projectPath, owner, formName: match.itemName }
+      return {
+        kind: "yaml",
+        role: "form",
+        projectPath,
+        owner,
+        formName: match.itemName,
+        itemType: resource.itemType ?? resource.role,
+      }
     }
   }
 
