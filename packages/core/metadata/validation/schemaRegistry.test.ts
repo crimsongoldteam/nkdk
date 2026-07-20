@@ -336,12 +336,20 @@ describe("JSON Schema registry", { timeout: 60_000 }, () => {
       properties?: { События?: { $ref?: string } }
     }
     const inputField = graph.schemas[`${prefix}InputField`] as {
-      properties?: { ПутьКДанным?: { $ref?: string } }
+      properties?: {
+        Высота?: { $ref?: string }
+        Маска?: { $ref?: string }
+        ПутьКДанным?: { $ref?: string }
+      }
     }
     const visibilitySchemaName = "AppearanceSettingsParameterValue_Primitive__u0412_u0438_u0434_u0438_u043c_u043e_u0441_u0442_u044c"
 
     expect(commonForm.properties?.Форма).toMatchObject({ $ref: `${prefix}ClientApplicationForm` })
     expect(graph.schemas[`${prefix}${visibilitySchemaName}`]).toMatchObject({ $id: `${prefix}${visibilitySchemaName}` })
+    expect(inputField.properties?.Высота).toMatchObject({ $ref: `${prefix}number/without-0` })
+    expect(inputField.properties?.Маска).toMatchObject({ $ref: `${prefix}string/base` })
+    expect(graph.schemas[`${prefix}number/without-0`]).toMatchObject({ $id: `${prefix}number/without-0` })
+    expect(graph.schemas[`${prefix}string/base`]).toMatchObject({ $id: `${prefix}string/base` })
     expect(clientForm.properties?.События?.$ref).toBeUndefined()
     expect(inputField.properties?.ПутьКДанным?.$ref).toBeUndefined()
   })

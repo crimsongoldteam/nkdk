@@ -9,3 +9,7 @@ export const exportStringToJSONSchema: ExportToJSONSchemaFn = ({ rule }): TSchem
 }
 
 registerTypeRule("string", "exportToJSONSchema", exportStringToJSONSchema)
+registerTypeRule("string", "validationSchemaRef", ({ rule }) => {
+  if (rule.metadataTarget !== undefined) return undefined
+  return rule.implicitValueYAML === "" ? "string/without-empty" : "string/base"
+})

@@ -17,6 +17,8 @@ import {
 import { exportPropertyToJSONSchema } from "./property/toJSONSchema"
 import { registerTypeRule } from "./property/typeRuleRegistry"
 import { compileValidationSchema } from "../validation/compileValidationSchema"
+import "../commonObjects/number/toJSONSchema"
+import "../commonObjects/string/toJSONSchema"
 
 const baseContext = {
   defaultLanguage: "ru",
@@ -203,6 +205,33 @@ describe("jsonSchemaRefs", () => {
         ПриОткрытии: { type: "string" },
       },
       additionalProperties: false,
+    })
+  })
+
+  it("uses stable scalar validation keys for implicit values", () => {
+    const context = createJSONSchemaExportContext(baseContext, "inline", {
+      excludeImplicitValueYAML: true,
+      validationPropertyRefs: true,
+    })
+
+    const numberSchema = exportPropertyToJSONSchema({
+      context,
+      rule: { type: "number", implicitValueYAML: 0 },
+      value: undefined,
+    })
+    const stringSchema = exportPropertyToJSONSchema({
+      context,
+      rule: { type: "string", implicitValueYAML: "" },
+      value: undefined,
+    })
+
+    expect(numberSchema).toEqual({ $ref: "nkdk://schema/validation/2.20/ru/number/without-0" })
+    expect(stringSchema).toEqual({ $ref: "nkdk://schema/validation/2.20/ru/string/without-empty" })
+    expect(getValidationSchemaRef("nkdk://schema/validation/2.20/ru/number/without-0")).toMatchObject({
+      allOf: [{ type: "number" }, { not: { type: "number", const: 0 } }],
+    })
+    expect(getValidationSchemaRef("nkdk://schema/validation/2.20/ru/string/without-empty")).toMatchObject({
+      allOf: [{ type: "string" }, { not: { type: "string", const: "" } }],
     })
   })
 

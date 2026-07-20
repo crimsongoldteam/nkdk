@@ -7,3 +7,7 @@ export const exportNumberToJSONSchema: ExportToJSONSchemaFn = (): TSchema => {
 }
 
 registerTypeRule("number", "exportToJSONSchema", exportNumberToJSONSchema)
+registerTypeRule("number", "validationSchemaRef", ({ rule }) => {
+  const implicit = rule.implicitValueYAML
+  return typeof implicit === "number" ? `number/without-${implicit}` : "number/base"
+})
