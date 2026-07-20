@@ -208,7 +208,7 @@ export function getValidationSchemaRef(name: string): TSchema | undefined {
 }
 
 export function encodeValidationSchemaKey(key: string): string {
-  return key.split("/").map(encodeURIComponent).join("/")
+  return key.split("/").map(encodeValidationSchemaKeySegment).join("/")
 }
 
 export function decodeValidationSchemaKey(key: string): string {
@@ -217,6 +217,14 @@ export function decodeValidationSchemaKey(key: string): string {
 
 function validationSchemaRefName(context: ConfigurationContext, key: string): string {
   return createSchemaRef(`validation/${context.version}/${context.defaultLanguage}/${encodeValidationSchemaKey(key)}`)
+}
+
+function encodeValidationSchemaKeySegment(segment: string): string {
+  try {
+    return encodeURIComponent(decodeURIComponent(segment))
+  } catch {
+    return encodeURIComponent(segment)
+  }
 }
 
 export function attachCollectedSchemaRefs(context: ConfigurationContext, schema: TSchema): TSchema {

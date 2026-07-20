@@ -263,7 +263,9 @@ registerTypeRule("MetadataDcsMetadataValue", "exportToJSONSchema", exportDcsMeta
 
 registerProjectJSONSchema(DCS_METADATA_SINGLE_VALUE_SCHEMA_NAME, () => DcsMetadataSingleValueJSONSchema)
 registerProjectJSONSchema(DCS_EXPLICIT_SYSTEM_ENUMERATION_SCHEMA_NAME, ({ context }) =>
-  explicitDcsSystemEnumerationValueJSONSchema(context)
+  context.exportToJSONSchema?.validationPropertyRefs === true
+    ? Type.Any()
+    : explicitDcsSystemEnumerationValueJSONSchema(context)
 )
 
 registerProjectJSONSchemaPropertyRefFactory("MetadataDcsMetadataValue", ({ rule }) => {
@@ -280,5 +282,5 @@ export function ensureDcsMetadataValueJSONSchema(rule: DcsMetadataValuePropertyR
 }
 
 export function dcsMetadataValueSchemaName(rule: DcsMetadataValuePropertyRule): string {
-  return ["DcsMetadataValue", rule.valueType, "typeSE" in rule ? rule.typeSE : undefined].filter(Boolean).join("_")
+  return ["DcsMetadataValue", rule.valueType, "typeSE" in rule ? rule.typeSE : undefined].filter(Boolean).join("/")
 }

@@ -202,10 +202,18 @@ const explicitStringFieldWrapperJSONSchema = (
 }
 
 const settingsParameterValueSchemaKey = (rule: SettingsParameterValuePropertyRule): string =>
+  ["SettingsParameterValue", rule.valueType, rule.typeSE, "yaml", encodeSettingsSchemaKeySegment(rule.yaml)]
+    .filter(Boolean)
+    .join("/")
+
+const settingsParameterValueLocalSchemaKey = (rule: SettingsParameterValuePropertyRule): string =>
   ["SettingsParameterValue", rule.valueType, rule.typeSE, rule.yaml]
     .filter(Boolean)
     .join("_")
     .replace(/[^\p{L}\p{N}_]/gu, "_")
+
+const encodeSettingsSchemaKeySegment = (value: string | undefined): string | undefined =>
+  value === undefined ? undefined : encodeURIComponent(value)
 
 export const createSettingsParameterValueJSONSchema = (params: {
   context: ConfigurationContext
@@ -218,7 +226,7 @@ export const createSettingsParameterValueJSONSchema = (params: {
   const valueOrArraySchema = valueOrArrayJSONSchema(wrapperValueSchema, settingsRule)
   const viewModeSchema = requiredSystemEnumerationJSONSchema(context, "DataCompositionSettingsItemViewMode")
   const optionalExplicitTypeSchema = optionalValueLessExplicitTypeJSONSchema(settingsRule)
-  const schemaKey = settingsParameterValueSchemaKey(settingsRule)
+  const schemaKey = settingsParameterValueLocalSchemaKey(settingsRule)
   const self = Type.Ref(schemaKey)
 
   const schemas = [

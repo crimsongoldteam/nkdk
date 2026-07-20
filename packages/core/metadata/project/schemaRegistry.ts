@@ -58,7 +58,7 @@ export function exportJSONSchemaForSchemaName(params: {
   ensureJSONSchemaRegistry()
 
   const { context, excludeImplicitValueYAML, includeNestedChildItems, name, mode = "externalRefs", validationPropertyRefs } = params
-  const exporter = getSchemaExporter(name)
+  const exporter = getSchemaExporter(name) ?? getSchemaExporter(encodeValidationSchemaKey(name))
   if (!exporter) {
     throw new ProjectFileSchemaError(
       `Неизвестная JSON Schema "${name}". Доступные имена: ${listJSONSchemaNames().join(", ")}`

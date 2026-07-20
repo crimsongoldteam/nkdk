@@ -190,11 +190,13 @@ function ensureAppearanceSettingsParameterValueJSONSchema(
 }
 
 function appearanceSettingsParameterValueSchemaName(property: SettingsParameterValuePropertyRule): string {
-  return ["AppearanceSettingsParameterValue", property.valueType, property.typeSE, property.yaml]
+  return ["SettingsParameterValue", property.valueType, property.typeSE, "yaml", encodeAppearanceSchemaKeySegment(property.yaml)]
     .filter(Boolean)
-    .join("_")
-    .replace(/[^\w]/gu, (char) => `_u${char.codePointAt(0)!.toString(16).padStart(4, "0")}`)
+    .join("/")
 }
+
+const encodeAppearanceSchemaKeySegment = (value: string | undefined): string | undefined =>
+  value === undefined ? undefined : encodeURIComponent(value)
 
 export const exportAppearanceFieldsToJSONSchema: ExportToJSONSchemaFn = ({ context }) => {
   const properties = AppearanceFieldsRules.properties

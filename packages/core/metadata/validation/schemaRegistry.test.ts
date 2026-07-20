@@ -235,10 +235,11 @@ describe("JSON Schema registry", { timeout: 60_000 }, () => {
     })
     const formAttributeJson = JSON.stringify(graph.schemas["nkdk://schema/FormAttribute"])
     const graphJson = JSON.stringify(graph)
-    const visibilitySchemaName = "AppearanceSettingsParameterValue_Primitive__u0412_u0438_u0434_u0438_u043c_u043e_u0441_u0442_u044c"
+    const visibilitySchemaName =
+      "SettingsParameterValue/Primitive/yaml/%D0%92%D0%B8%D0%B4%D0%B8%D0%BC%D0%BE%D1%81%D1%82%D1%8C"
 
     expect(graphJson).toContain(`nkdk://schema/${visibilitySchemaName}`)
-    expect(formAttributeJson).not.toContain("SettingsParameterValue_Primitive_Видимость/$defs")
+    expect(formAttributeJson).not.toContain(`${visibilitySchemaName}/$defs`)
     expect(graph.schemas[`nkdk://schema/${visibilitySchemaName}`]).toMatchObject({
       $id: `nkdk://schema/${visibilitySchemaName}`,
     })
@@ -342,10 +343,17 @@ describe("JSON Schema registry", { timeout: 60_000 }, () => {
         ПутьКДанным?: { $ref?: string }
       }
     }
-    const visibilitySchemaName = "AppearanceSettingsParameterValue_Primitive__u0412_u0438_u0434_u0438_u043c_u043e_u0441_u0442_u044c"
+    const visibilitySchemaName =
+      "SettingsParameterValue/Primitive/yaml/%D0%92%D0%B8%D0%B4%D0%B8%D0%BC%D0%BE%D1%81%D1%82%D1%8C"
 
     expect(commonForm.properties?.Форма).toMatchObject({ $ref: `${prefix}ClientApplicationForm` })
     expect(graph.schemas[`${prefix}${visibilitySchemaName}`]).toMatchObject({ $id: `${prefix}${visibilitySchemaName}` })
+    expect(graph.schemas[`${prefix}DcsMetadataValue/Primitive`]).toMatchObject({
+      $id: `${prefix}DcsMetadataValue/Primitive`,
+    })
+    expect(graph.schemas[`${prefix}DcsExplicitSystemEnumerationValue`]).toEqual({
+      $id: `${prefix}DcsExplicitSystemEnumerationValue`,
+    })
     expect(inputField.properties?.Высота).toMatchObject({ $ref: `${prefix}number/without-0` })
     expect(inputField.properties?.Маска).toMatchObject({ $ref: `${prefix}string/base` })
     expect(graph.schemas[`${prefix}number/without-0`]).toMatchObject({ $id: `${prefix}number/without-0` })
