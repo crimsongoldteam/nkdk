@@ -354,6 +354,51 @@ describe("JSON Schema registry", { timeout: 60_000 }, () => {
     expect(inputField.properties?.ПутьКДанным?.$ref).toBeUndefined()
   })
 
+  it("exports reusable form property types as validation refs by default", () => {
+    const graph = exportJSONSchemaGraph({
+      context,
+      validationPropertyRefs: true,
+      roots: [{ key: "commonForm", name: "MetadataCommonForm" }],
+    })
+    const prefix = "nkdk://schema/validation/2.20/ru/"
+    const inputField = graph.schemas[`${prefix}InputField`] as {
+      properties?: Record<string, { $ref?: string }>
+    }
+
+    expect(inputField.properties?.ЦветФона).toMatchObject({ $ref: `${prefix}Color/base` })
+    expect(inputField.properties?.ЦветТекста).toMatchObject({ $ref: `${prefix}Color/base` })
+    expect(inputField.properties?.Шрифт).toMatchObject({ $ref: `${prefix}Font/base` })
+    expect(inputField.properties?.КартинкаКнопкиВыбора).toMatchObject({ $ref: `${prefix}Picture/base` })
+    expect(inputField.properties?.Заголовок).toMatchObject({ $ref: `${prefix}I8nText/base` })
+    expect(inputField.properties?.Использование).toMatchObject({ $ref: `${prefix}UserVisible/base` })
+    expect(inputField.properties?.СписокВыбора).toMatchObject({ $ref: `${prefix}ChoiceList/base` })
+
+    expect(graph.schemas[`${prefix}Color/base`]).toMatchObject({ $id: `${prefix}Color/base` })
+    expect(graph.schemas[`${prefix}Font/base`]).toMatchObject({ $id: `${prefix}Font/base` })
+    expect(graph.schemas[`${prefix}Picture/base`]).toMatchObject({ $id: `${prefix}Picture/base` })
+    expect(graph.schemas[`${prefix}I8nText/base`]).toMatchObject({ $id: `${prefix}I8nText/base` })
+  })
+
+  it("keeps DataPath and Events inline in validation schemas", () => {
+    const graph = exportJSONSchemaGraph({
+      context,
+      validationPropertyRefs: true,
+      roots: [{ key: "commonForm", name: "MetadataCommonForm" }],
+    })
+    const prefix = "nkdk://schema/validation/2.20/ru/"
+    const clientForm = graph.schemas[`${prefix}ClientApplicationForm`] as {
+      properties?: { События?: { $ref?: string } }
+    }
+    const inputField = graph.schemas[`${prefix}InputField`] as {
+      properties?: { ПутьКДанным?: { $ref?: string } }
+    }
+
+    expect(clientForm.properties?.События?.$ref).toBeUndefined()
+    expect(inputField.properties?.ПутьКДанным?.$ref).toBeUndefined()
+    expect(JSON.stringify(inputField.properties?.ПутьКДанным)).toContain("type")
+    expect(JSON.stringify(clientForm.properties?.События)).toContain("properties")
+  })
+
   it("allows opaque multiple-value DataPath in InputField schema", () => {
     const opaquePath = "1/0:796f500f-c364-45d1-bce6-9e7e8e15b664"
 
