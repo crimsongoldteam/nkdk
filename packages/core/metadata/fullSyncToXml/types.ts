@@ -1,4 +1,8 @@
 import type { ObjectFieldIndex } from "../validation/dataPath/objectFields"
+import type { ConfigurationProjectFile } from "../configurationIndex/types"
+import type { ConfigurationContext } from "../context/types"
+import type { SharedConfigurationIndexSnapshot } from "../configurationIndex/sharedSnapshot"
+import type { FullXmlSyncSharedMetadata } from "./sharedMetadata"
 
 export interface FullXmlSyncOutput {
   readonly targetXmlPath: string
@@ -38,3 +42,53 @@ export interface FullXmlSyncOwnerFacts {
   readonly ownerModelStub?: Record<string, unknown>
   readonly fieldIndex?: ObjectFieldIndex
 }
+
+export interface FullXmlSyncDiagnostic {
+  readonly severity: "error" | "warning"
+  readonly code: string
+  readonly message: string
+  readonly assignmentId?: string
+  readonly sourceProjectPath?: string
+  readonly sourcePath?: string
+  readonly targetXmlPath?: string
+  readonly line?: number
+  readonly col?: number
+}
+
+export interface FullXmlSyncWrittenFile {
+  readonly assignmentId: string
+  readonly targetXmlPath: string
+}
+
+export type FullXmlSyncWorkerCommand =
+  | {
+      readonly kind: "initialize"
+      readonly workerIndex: number
+      readonly projectDir: string
+      readonly outputDir: string
+      readonly context: ConfigurationContext
+    }
+  | { readonly kind: "firstPass"; readonly assignments: readonly FullXmlSyncAssignment[] }
+  | {
+      readonly kind: "secondPass"
+      readonly sharedMetadata: FullXmlSyncSharedMetadata
+      readonly index: SharedConfigurationIndexSnapshot
+      readonly generationSeed: Uint8Array
+    }
+  | { readonly kind: "dispose" }
+
+export interface FullXmlSyncFirstPassResult {
+  readonly kind: "firstPassResult"
+  readonly diagnostics: readonly FullXmlSyncDiagnostic[]
+  readonly projectFiles: readonly ConfigurationProjectFile[]
+  readonly ownerFacts: readonly FullXmlSyncOwnerFacts[]
+}
+
+export interface FullXmlSyncSecondPassResult {
+  readonly kind: "secondPassResult"
+  readonly diagnostics: readonly FullXmlSyncDiagnostic[]
+  readonly warnings: readonly FullXmlSyncDiagnostic[]
+  readonly writtenFiles: readonly FullXmlSyncWrittenFile[]
+}
+
+export type FullXmlSyncWorkerCommandResult = FullXmlSyncFirstPassResult | FullXmlSyncSecondPassResult | undefined
