@@ -20,19 +20,25 @@ Inline остаются не как историческое исключени�
 
 В validation-режиме `validationPropertyRefs: true` отсутствие специальной регистрации больше не означает inline. Общий слой сначала проверяет специальный `validationSchemaRef`, затем явное inline-исключение, а для остальных типов строит общий ref по типу свойства. Например, `Color/base`, `Font/base`, `Picture/base`, `I8nText/base`, `ChoiceList/base`.
 
+Ключ `$ref` включает только параметры, которые меняют принятие значения JSON Schema. Исключение — `SettingsParameterValue`: его ключ сохраняет YAML-имя параметра, потому что одинаковый `valueType` в разных настройках DCS может иметь разный смысл. Не-ASCII сегменты ключа URI-кодируются, а не заменяются хэшем, чтобы ref оставался обратимым и отлаживаемым.
+
 ## Таблица решения по типам свойств
 
 | Группа или тип | Решение | Основание и идентификатор |
 | --- | --- | --- |
 | `boolean` | внешний `$ref` | Два варианта неявного значения: `boolean/base`, `boolean/without-true`, `boolean/without-false`. |
 | `SystemEnumeration` | внешний `$ref` | Тип перечисления и исключённое внутреннее значение `implicitValueYAML` меняют JSON Schema: `SystemEnumeration/<typeSE>/[without-Auto]`. |
+| `number` | внешний `$ref` | `number/base` или `number/without-<число>`, если `implicitValueYAML` исключается из YAML-схемы. Имя свойства в ключ не входит. |
+| `string` без `metadataTarget` | внешний `$ref` | `string/base` или `string/without-empty`, если `implicitValueYAML` равен пустой строке. Имя свойства в ключ не входит. |
 | Простые и фиксированные типы без влияющих параметров (`dateTime`, `Color`, `Picture`, `Font`, `I8nText`, `FormattedI8nText`, `Border`, `ChoiceList`, `UserVisible` и т. п.) | внешний `$ref` | Один устойчивый вариант на тип: `<type>/base`. Новые такие типы по умолчанию также получают внешний ref. |
+| `I8nText` и `FormattedI8nText` с `excludeIfEqualNameYAML` | внешний `$ref` | Тот же ключ, что у базовой схемы: `I8nText/base` или `FormattedI8nText/base`. Equal-name добавляет только описание JSON Schema; реальная проверка выполняется отдельной validation-диагностикой. |
 | Уже именованные составные схемы (`ClientApplicationForm`, metadata collections, form elements, `GroupChildItems`, `CommandBarChildItems`, `TableChildItems`, `PagesChildItems`) | внешний `$ref` | Реестр уже задаёт их стабильную identity; для деревьев дочерних элементов это discriminated union ссылок на типы элементов. |
 | `DataPath` | inline | `allowedKinds` и `allowComposite` проверяются вторым проходом; свойство индивидуально для владельца. В JSON Schema влияет только редкий флаг opaque-значений, ради которого отдельная общая схема не нужна. |
 | `Events` | inline | Состав разрешённых YAML-ключей задаётся конкретным набором событий правила. |
 | `string` с `metadataTarget`, `MetadataItemLink`, `MetadataItemLinks`, `MetadataField`, `MetadataFields`, `MetadataObjectRefCollection`, `MetadataValue` | inline | Ограничения metadata-target часто уникальны для конкретного свойства; часть проверяется вторым проходом. |
 | `TypeDescription` с `allowedTypes` | inline | Допустимый набор типов индивидуален для свойства. |
-| `MetadataDcsMetadataValue`, `SettingsParameterValue` | внешний `$ref` | В коде уже есть семантические ключи из `valueType`, `typeSE` и для второго типа YAML-имени; их нужно проверить и при необходимости упростить. |
+| `MetadataDcsMetadataValue` | внешний `$ref` | Ключ: `DcsMetadataValue/<valueType>` или `DcsMetadataValue/<valueType>/<typeSE>`. |
+| `SettingsParameterValue` | внешний `$ref` | Ключ: `SettingsParameterValue/<valueType>/yaml/<encoded-yaml>` или `SettingsParameterValue/<valueType>/<typeSE>/yaml/<encoded-yaml>`. YAML-имя сохраняется и URI-кодируется. |
 | `DcsExplicitSystemEnumerationValue` | временно `Any` | Полная схема слишком тяжёлая и требует отдельного дизайна ключей для системных перечислений DCS. До отдельной реализации validation принимает значение без JSON Schema-ограничения; ограничение зафиксировано в `.agents/restrictions.md`. |
 
 Таблица покрывает все механизмы регистрации. Оставшиеся зарегистрированные типы попадают в следующие группы:
