@@ -14,6 +14,11 @@ const metadataValueTargetFallback = {
   valueKinds: ["predefinedValue", "enumValue", "emptyRef"],
   allowEmptyRef: true,
 } as const satisfies MetadataTargetConstraint
+const metadataValueTemplateTargetFallback = {
+  kind: "member",
+  owner: "explicit",
+  memberKinds: ["Template"],
+} as const satisfies MetadataTargetConstraint
 
 export const importMetadataFieldStringFromYAML = (
   context: ConfigurationContext,
@@ -62,6 +67,15 @@ export const importMetadataValueStringFromYAML = (
         })
       : undefined
   if (objectResult?.ok) return objectResult.canonical
+
+  const templateResult =
+    constraint.kind === "value"
+      ? parseMetadataTargetFromYAML({
+          value: name,
+          constraint: metadataValueTemplateTargetFallback,
+        })
+      : undefined
+  if (templateResult?.ok) return templateResult.canonical
 
   return parseMetadataTargetStringResultFromYAML({
     name,

@@ -1,5 +1,5 @@
 import fs from "fs"
-import { join } from "path"
+import { dirname, join } from "path"
 import { ConfigurationContextFromXML, ConfigurationContextWithExportToXML } from "../../context/types"
 import { importClientApplicationFormFromYAML } from "./fromYAML"
 import { exportClientApplicationFormToXML, exportFormMetadataToXML } from "./toXML"
@@ -11,6 +11,7 @@ import { readFormFromXML } from "./convertFromXML"
 import { copyFormItemExternalFilesToXML } from "./externalItemFiles"
 import { copyExistingRawFile, copyRawDirectoryFiles } from "./externalRawFiles"
 import type { XmlWriteManifest } from "../../orchestration/xmlWriteManifest"
+import type { PreparedYamlFile } from "../../project/preparedYamlProject"
 
 export const syncFormToXML = async (params: {
   context: ConfigurationContextWithExportToXML
@@ -91,6 +92,56 @@ export const syncFormToXML = async (params: {
   }
   await copyFormHelpFilesToXML({ formDir, formName, outputDir, xmlManifest: params.xmlManifest })
   await copyFormBinToXML({ formDir, formName, outputDir, xmlManifest: params.xmlManifest })
+}
+
+export const writePreparedFormToXML = async (params: {
+  context: ConfigurationContextWithExportToXML
+  preparedYamlFile: PreparedYamlFile
+  formName: string
+  outputDir: string
+  currentXMLPath?: string
+  referenceForm?: ReturnType<typeof readFormFromXML>
+  xmlManifest?: XmlWriteManifest
+}): Promise<void> => {
+  const yamlObj = params.preparedYamlFile.data as ClientApplicationFormYAML | undefined
+  if (yamlObj === undefined) throw new Error(`Подготовленные YAML-данные формы отсутствуют: ${params.preparedYamlFile.projectPath}`)
+
+  const formDir = dirname(params.preparedYamlFile.filePath)
+  const contextWithFormDir = createFormScopedContext({
+    context: params.context,
+    formDir,
+    currentXMLPath: params.currentXMLPath,
+  })
+  const contextWithFormExternalMetadata = createFormExternalMetadataContext({
+    context: contextWithFormDir,
+    formName: params.formName,
+  })
+  const form = importClientApplicationFormFromYAML(
+    contextWithFormExternalMetadata,
+    yamlObj,
+    params.referenceForm,
+    params.formName
+  )
+  const formXML = exportClientApplicationFormToXML({
+    context: contextWithFormExternalMetadata,
+    form,
+    referenceForm: params.referenceForm,
+  })
+  const metadataXML = exportFormMetadataToXML({
+    context: contextWithFormExternalMetadata,
+    form,
+    referenceForm: params.referenceForm,
+    name: params.formName,
+  })
+
+  await writeFormToXML({
+    context: contextWithFormExternalMetadata,
+    formXML,
+    metadataXML,
+    formName: params.formName,
+    outputDir: params.outputDir,
+    xmlManifest: params.xmlManifest,
+  })
 }
 
 function createFormExternalMetadataContext(params: {

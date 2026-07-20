@@ -275,6 +275,16 @@ export function describeMetadataRuleXmlSyncRoutes(rule: MetadataItemRule): XmlSy
     )
   }
 
+  for (const resource of describeMetadataRuleProjectResources(rule)) {
+    if (resource.role !== "resourceOnly") continue
+    if (routes.some((route) => patternsCompatible(route.yamlPattern, resource.projectPattern))) continue
+    routes.push({
+      kind: "resourceOnly",
+      yamlPattern: resource.projectPattern,
+      source: resource.source,
+    })
+  }
+
   return routes
 }
 
@@ -300,6 +310,14 @@ export function matchProjectPattern(pattern: string, projectPath: string): Recor
 
 export function expandProjectPattern(pattern: string, params: Record<string, string>): string {
   return pattern.replace(/\{([^}]+)\}/g, (_source, key: string) => params[key] ?? "")
+}
+
+function patternsCompatible(left: string, right: string): boolean {
+  return left === right || matchProjectPattern(left, samplePatternPath(right)) !== undefined
+}
+
+function samplePatternPath(pattern: string): string {
+  return pattern.replace(/\{([^}]+)\}/g, (_match, key: string) => `__${key}__`)
 }
 
 function collectPropertyResources(

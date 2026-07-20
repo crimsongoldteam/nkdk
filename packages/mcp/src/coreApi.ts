@@ -1,5 +1,7 @@
 import type {
   ConfigurationImportResult,
+  FullXmlSyncPlanResult,
+  FullXmlSyncResult,
   MetadataOperationChangedXmlFile,
   MetadataOperationResult,
   MetadataProjectDirectoryStructure,
@@ -103,10 +105,7 @@ export interface CoreApi {
     path: string
     allowWrite?: boolean
   }): Promise<MetadataOperationResult>
-  planSyncToXml(params: { inputDir: string; outputDir: string; referenceDir?: string }): Promise<
-    | { ok: true; mode: "plan"; migrationsToApply: MigrationPlanItem[] }
-    | MigrationChainInvalidResult
-  >
+  planSyncToXml(params: { yamlDir: string; xmlDir: string; baseId?: string }): Promise<FullXmlSyncPlanResult>
   syncConfigurationFromXML(params: {
     context: {
       defaultLanguage: "ru"
@@ -134,10 +133,11 @@ export interface CoreApi {
         }
       }
     }
-    inputDir: string
-    outputDir: string
-    referenceDir?: string
-  }): Promise<ConfigurationSyncResult>
+    yamlDir: string
+    xmlDir: string
+    baseId?: string
+    concurrency?: number
+  }): Promise<FullXmlSyncResult>
   syncConfigurationIncrementallyToXML(params: {
     context: {
       defaultLanguage: "ru"

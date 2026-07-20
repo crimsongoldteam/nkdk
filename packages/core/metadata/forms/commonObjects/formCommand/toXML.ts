@@ -1,4 +1,6 @@
 import { ConfigurationContextWithExportToXML } from "../../../context/types"
+import { childUid } from "../../../configurationIndex/logicalAddress"
+import { withConfigurationIndexExportLogicalAddress } from "../../../configurationIndex/referenceView"
 import { ExportToXMLFunctionNew, exportPropertiesToXML } from "../../../orchestration"
 import { FormCommandRules } from "./rules"
 import type { FormCommand, FormCommands, FormCommandXML } from "./types"
@@ -12,7 +14,16 @@ export const exportFormCommandsToXML: ExportToXMLFunctionNew = (params): { Comma
   if (data.length === 0) return undefined
 
   const result = data.map((command) =>
-    exportFormCommandToXML(context, command, findReferenceCommand(command, referenceData))
+    exportFormCommandToXML(
+      context.exportToXML.configurationIndex === undefined
+        ? context
+        : withConfigurationIndexExportLogicalAddress(
+            context,
+            childUid(context.exportToXML.configurationIndex.logicalAddress, "Команда", command.name)
+          ),
+      command,
+      findReferenceCommand(command, referenceData)
+    )
   )
 
   return { Command: result }

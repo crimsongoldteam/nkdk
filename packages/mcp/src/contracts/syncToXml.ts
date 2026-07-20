@@ -1,29 +1,29 @@
 import { z } from "zod/v4"
 import { toolErrorOutputShape } from "./common"
-import { failedObjectSchema } from "./importFromXml"
 
 export const syncToXmlInputShape = {
   yamlDir: z.string().min(1),
   xmlDir: z.string().min(1),
-  referenceDir: z.string().min(1).optional(),
+  baseId: z.string().min(1).optional(),
+  concurrency: z.number().int().positive().optional(),
   allowWrite: z.boolean().optional(),
-  fullSync: z.boolean().optional(),
 }
 
 export const syncToXmlSuccessOutputShape = {
   ok: z.literal(true),
   result: z.unknown().optional(),
   succeeded: z.number().optional(),
-  changedXmlFiles: z.array(z.object({
-    path: z.string(),
-    change: z.union([z.literal("added"), z.literal("changed"), z.literal("deleted")]),
+  configurationIndexPath: z.string().optional(),
+  warnings: z.array(z.object({
+    severity: z.literal("warning"),
+    code: z.string(),
+    message: z.string(),
   })).optional(),
-  migrationsApplied: z.array(z.object({
-    fileName: z.string(),
-    from: z.string(),
-    to: z.string(),
+  failed: z.array(z.object({
+    severity: z.literal("error"),
+    code: z.string(),
+    message: z.string(),
   })).optional(),
-  failed: z.array(failedObjectSchema).optional(),
 }
 
 export const syncToXmlOutputShape = z.union([z.object(syncToXmlSuccessOutputShape), z.object(toolErrorOutputShape)])

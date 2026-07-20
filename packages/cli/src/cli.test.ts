@@ -35,6 +35,14 @@ describe("cli", () => {
     expect(exit).toHaveBeenCalledWith(1)
   })
 
+  it("exposes workers option for sync and does not expose reference option", () => {
+    const program = createProgram()
+    const sync = program.commands.find((command) => command.name() === "sync")
+
+    expect(sync?.options.map((option) => option.long)).toContain("--workers")
+    expect(sync?.options.map((option) => option.long)).not.toContain("--reference")
+  })
+
   it("prints no-write rename plan by default", async () => {
     const stdout = captureStdout()
     const yamlDir = createProject()

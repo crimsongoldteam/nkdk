@@ -23,4 +23,12 @@ describe("prompt definitions", () => {
     expect(editPrompt?.text).toContain("Справочник.Товары.Реквизит.Артикул")
     expect(editPrompt?.text).toContain("Документ.Заказ.ТабличнаяЧасть.Товары.Реквизит.Количество")
   })
+
+  it("describes sync through configuration index without reference catalog", () => {
+    const syncPrompt = promptDefinitions.find((prompt) => prompt.name === "nkdk_config_sync_to_xml")
+
+    expect(syncPrompt?.text).toContain("файл индекса конфигурации")
+    expect(syncPrompt?.text).toContain("отсутствовать или быть пустым")
+    expect(syncPrompt?.text).not.toContain("reference")
+  })
 })

@@ -34,7 +34,7 @@ export const promptDefinitions: PromptDefinition[] = [
     description: "Синхронизировать YAML-проект в XML-выгрузку.",
     text: [
       "Прочитай resource `nkdk://guides/config-sync-to-xml`.",
-      "Проверь YAML-проект, XML-каталог записи и reference-каталог.",
+      "Проверь YAML-проект, файл индекса конфигурации и XML-каталог записи: он должен отсутствовать или быть пустым.",
       "Вызови `nkdk.sync_to_xml` только после явного решения писать файлы с `allowWrite: true`.",
     ].join("\n"),
   },

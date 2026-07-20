@@ -66,7 +66,8 @@ export function registerNkdkCapabilities(server: RegisterableServer): void {
     "nkdk.sync_to_xml",
     {
       title: "Sync NKDK YAML to 1C XML",
-      description: "Синхронизирует YAML-проект в XML-выгрузку. Пишет файлы только при allowWrite=true.",
+      description:
+        "Формирует полный XML-проект из YAML-проекта через файл индекса конфигурации. XML-каталог должен отсутствовать или быть пустым; файлы пишутся только при allowWrite=true.",
       inputSchema: syncToXmlInputShape,
     },
     async (input) => jsonToolResult(await syncToXml(input))

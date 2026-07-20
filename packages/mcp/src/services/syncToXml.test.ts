@@ -2,133 +2,80 @@ import { describe, expect, it, vi } from "vitest"
 import { syncToXml } from "./syncToXml"
 
 describe("syncToXml service", () => {
-  it("returns migration plan without writing when allowWrite is not true", async () => {
+  it("returns a full XML sync plan without writing when allowWrite is not true", async () => {
     const planSyncToXml = vi.fn().mockResolvedValue({
       ok: true,
       mode: "plan",
-      migrationsToApply: [],
+      assignments: 2,
+      externalFiles: 1,
+      configurationIndexPath: "/yaml/.nkdk/configuration-index/default.bin",
     })
     const syncConfigurationToXML = vi.fn()
-    const result = await syncToXml({ yamlDir: "/yaml", xmlDir: "/xml" }, { planSyncToXml, syncConfigurationToXML })
+    const result = await syncToXml({ yamlDir: "/yaml", xmlDir: "/xml", baseId: "default" }, { planSyncToXml, syncConfigurationToXML })
 
     expect(result).toMatchObject({
       ok: true,
       result: {
         mode: "plan",
-        migrationsToApply: [],
+        assignments: 2,
+        externalFiles: 1,
       },
     })
     expect(planSyncToXml).toHaveBeenCalledWith({
-      inputDir: "/yaml",
-      outputDir: "/xml",
-      referenceDir: "/xml",
+      yamlDir: "/yaml",
+      xmlDir: "/xml",
+      baseId: "default",
     })
     expect(syncConfigurationToXML).not.toHaveBeenCalled()
   })
 
-  it("asks to initialize state before incremental sync", async () => {
-    const readXmlSyncState = vi.fn().mockResolvedValue(undefined)
-    const syncConfigurationToXML = vi.fn()
-    const syncConfigurationIncrementallyToXML = vi.fn()
-
-    const result = await syncToXml(
-      { yamlDir: "/yaml", xmlDir: "/xml", allowWrite: true },
-      { readXmlSyncState, syncConfigurationToXML, syncConfigurationIncrementallyToXML },
-    )
-
-    expect(result).toEqual({
-      ok: false,
-      code: "sync_state_required",
-      message:
-        "Файл .nkdk-sync.yaml не найден; вызовите nkdk.init_sync_state перед инкрементальной синхронизацией или явно запросите fullSync=true",
-      details: { yamlDir: "/yaml", xmlDir: "/xml", tool: "nkdk.init_sync_state" },
-    })
-    expect(syncConfigurationIncrementallyToXML).not.toHaveBeenCalled()
-    expect(syncConfigurationToXML).not.toHaveBeenCalled()
-  })
-
-  it("uses incremental sync when state exists", async () => {
-    const readXmlSyncState = vi.fn().mockResolvedValue({ version: 1, files: {} })
-    const syncConfigurationToXML = vi.fn()
-    const syncConfigurationIncrementallyToXML = vi.fn().mockResolvedValue({
-      succeeded: 1,
-      failed: [],
-    })
-
-    const result = await syncToXml(
-      { yamlDir: "/yaml", xmlDir: "/xml", allowWrite: true },
-      { readXmlSyncState, syncConfigurationToXML, syncConfigurationIncrementallyToXML },
-    )
-
-    expect(syncConfigurationIncrementallyToXML).toHaveBeenCalledWith(
-      expect.objectContaining({
-        inputDir: "/yaml",
-        outputDir: "/xml",
-        referenceDir: "/xml",
-      }),
-    )
-    expect(syncConfigurationToXML).not.toHaveBeenCalled()
-    expect(result).toEqual({
-      ok: true,
-      succeeded: 1,
-      failed: [],
-    })
-  })
-
-  it("uses full sync only when fullSync is explicit", async () => {
+  it("uses full sync through the configuration index when writing is allowed", async () => {
     const syncConfigurationToXML = vi.fn().mockResolvedValue({
       succeeded: 1,
       failed: [],
+      warnings: [],
+      configurationIndexPath: "/yaml/.nkdk/configuration-index/default.bin",
     })
 
     const result = await syncToXml(
-      { yamlDir: "/yaml", xmlDir: "/xml", allowWrite: true, fullSync: true },
+      { yamlDir: "/yaml", xmlDir: "/xml", allowWrite: true, baseId: "default", concurrency: 4 },
       { syncConfigurationToXML },
     )
 
     expect(syncConfigurationToXML).toHaveBeenCalledWith(
       expect.objectContaining({
-        inputDir: "/yaml",
-        outputDir: "/xml",
-        referenceDir: "/xml",
+        yamlDir: "/yaml",
+        xmlDir: "/xml",
+        baseId: "default",
+        concurrency: 4,
       }),
     )
     expect(result).toEqual({
       ok: true,
       succeeded: 1,
+      configurationIndexPath: "/yaml/.nkdk/configuration-index/default.bin",
+      warnings: [],
       failed: [],
     })
   })
 
-  it("passes referenceDir and maps failures", async () => {
+  it("maps diagnostics from the new full sync result", async () => {
     const syncConfigurationToXML = vi.fn().mockResolvedValue({
       succeeded: 2,
-      failed: [
-        {
-          kind: "Catalog",
-          name: "Товары",
-          parent: "Справочники",
-          error: new Error("bad yaml"),
-        },
-      ],
+      failed: [{ severity: "error", code: "bad_yaml", message: "bad yaml" }],
+      warnings: [{ severity: "warning", code: "data_path", message: "ПутьКДанным не преобразован" }],
     })
 
     const result = await syncToXml(
-      { yamlDir: "/yaml", xmlDir: "/xml", referenceDir: "/reference", allowWrite: true, fullSync: true },
+      { yamlDir: "/yaml", xmlDir: "/xml", allowWrite: true },
       { syncConfigurationToXML },
     )
 
-    expect(syncConfigurationToXML).toHaveBeenCalledWith(
-      expect.objectContaining({
-        inputDir: "/yaml",
-        outputDir: "/xml",
-        referenceDir: "/reference",
-      }),
-    )
     expect(result).toEqual({
       ok: true,
       succeeded: 2,
-      failed: [{ kind: "Catalog", name: "Товары", parent: "Справочники", message: "bad yaml" }],
+      warnings: [{ severity: "warning", code: "data_path", message: "ПутьКДанным не преобразован" }],
+      failed: [{ severity: "error", code: "bad_yaml", message: "bad yaml" }],
     })
   })
 })

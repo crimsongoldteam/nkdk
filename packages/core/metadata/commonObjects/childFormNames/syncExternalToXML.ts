@@ -199,6 +199,7 @@ registerTypeRule("ChildFormNames", "projectResources", ({ propertyRule }) => {
       owner: "currentItem",
       compositionImpact: "none",
       source: { kind: "propertyType", type: "ChildFormNames" },
+      itemType: ClientApplicationFormRules.itemType,
     },
     {
       kind: "yaml",

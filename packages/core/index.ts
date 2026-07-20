@@ -13,7 +13,14 @@ export {
 export { syncConfigurationFromXML } from "./metadata/appliedObjects/configuration/convertFromXML"
 export type { ConfigurationSyncResult } from "./metadata/appliedObjects/configuration/convertFromXML"
 export { syncConfigurationIncrementallyToXML } from "./metadata/appliedObjects/configuration/incrementalSyncToXML"
-export { planSyncToXml, syncConfigurationToXML } from "./metadata/appliedObjects/configuration/syncToXML"
+export {
+  planSyncConfigurationToXml as planSyncToXml,
+  syncConfigurationToXml as syncConfigurationToXML,
+  type FullXmlSyncPlanResult,
+  type FullXmlSyncResult,
+  type PlanSyncConfigurationToXmlParams,
+  type SyncConfigurationToXmlParams,
+} from "./metadata/fullSyncToXml"
 export {
   SYNC_STATE_FILE,
   diffSyncState,

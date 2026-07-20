@@ -1,4 +1,6 @@
 import { ConfigurationContextWithExportToXML } from "../../../context/types"
+import { childUid } from "../../../configurationIndex/logicalAddress"
+import { withConfigurationIndexExportLogicalAddress } from "../../../configurationIndex/referenceView"
 import {
   findKnownDuplicateCommandBarButtonReference,
   restoreKnownDuplicateCommandBarButtonIds,
@@ -24,8 +26,15 @@ export const exportChildItemsToXML = <From extends ChildItem>(
         referenceItems: referenceData,
         index,
       }) ?? findReferenceElement(item, referenceData)
+    const itemContext =
+      context.exportToXML.configurationIndex === undefined || !("name" in item)
+        ? context
+        : withConfigurationIndexExportLogicalAddress(
+            context,
+            childUid(context.exportToXML.configurationIndex.logicalAddress, "Элемент", item.name)
+          )
     const value = exportElementToXML({
-      context: context,
+      context: itemContext,
       element: item,
       referenceElement: referenceElement,
     })!

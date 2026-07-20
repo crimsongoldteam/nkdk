@@ -9,6 +9,7 @@ import type { MetadataTargetOwner } from "../commonObjects/metadataTargets/types
 import type { PropertyRuleType } from "../orchestration/property/registry"
 import type { YAMLImportDiagnosticContext } from "../orchestration/yamlImportError"
 import type { ConfigurationIndexCollectionContext } from "../configurationIndex/collector/context"
+import type { ConfigurationIndexExportRuntime } from "../configurationIndex/exportRuntime"
 import type { DataPathFormatDiagnosticSink } from "../validation/dataPath/formatter"
 import type { OwnerMetadataCache } from "../validation/dataPath/ownerCache"
 
@@ -65,6 +66,7 @@ type ToXMLContextElement<Type extends MetadataItemType> = {
 
 export type ToXMLConfigurationContext = {
   readonly configDumpInfo: ConfigDumpInfo
+  readonly configurationIndex?: ConfigurationIndexExportRuntime
   readonly externalMetadataCollector?: ExternalMetadataCollector
   readonly version: string
   readonly itemsTree: ContextElementToXML[]

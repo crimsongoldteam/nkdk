@@ -1,7 +1,8 @@
-import { readXmlSyncState, syncConfigurationIncrementallyToXML, syncConfigurationToXML } from "@nkdk/core"
+import { syncConfigurationToXML } from "@nkdk/core"
 
 export interface SyncConfigurationOptions {
-  referenceDir?: string
+  baseId?: string
+  concurrency?: number
 }
 
 export const syncConfiguration = async (
@@ -25,35 +26,27 @@ export const syncConfiguration = async (
       },
     },
   }
-  const hasState = (await readXmlSyncState(xmlDir)) !== undefined
-  const sync = hasState ? syncConfigurationIncrementallyToXML : syncConfigurationToXML
-  const result = await sync({
+  const result = await syncConfigurationToXML({
     context,
-    inputDir: yamlDir,
-    outputDir: xmlDir,
-    ...(options.referenceDir ? { referenceDir: options.referenceDir } : {}),
+    yamlDir,
+    xmlDir,
+    ...(options.baseId === undefined ? {} : { baseId: options.baseId }),
+    ...(options.concurrency === undefined ? {} : { concurrency: options.concurrency }),
   })
 
   for (const f of result.failed) {
-    const label = f.parent ? `${f.parent}/${f.name}` : f.name
-    process.stderr.write(`✖ ${f.kind} "${label}": ${f.error.message}\n`)
+    process.stderr.write(`✖ ${f.code}: ${f.message}\n`)
+  }
+  for (const warning of result.warnings) {
+    process.stderr.write(`⚠ ${warning.code}: ${warning.message}\n`)
   }
 
   process.stdout.write(`Готово: ${result.succeeded} успешно, ${result.failed.length} с ошибкой\n`)
-  if (result.changedXmlFiles && result.changedXmlFiles.length > 0) {
-    process.stdout.write("Изменённые XML-файлы:\n")
-    for (const file of result.changedXmlFiles) {
-      process.stdout.write(`  ${changedXmlFileLabel(file.change)} ${file.path}\n`)
-    }
+  if (result.configurationIndexPath !== undefined) {
+    process.stdout.write(`Индекс конфигурации: ${result.configurationIndexPath}\n`)
   }
 
   if (result.failed.length > 0) {
     process.exitCode = 1
   }
-}
-
-function changedXmlFileLabel(change: "added" | "changed" | "deleted"): string {
-  if (change === "added") return "добавлен:"
-  if (change === "deleted") return "удалён:"
-  return "изменён:"
 }

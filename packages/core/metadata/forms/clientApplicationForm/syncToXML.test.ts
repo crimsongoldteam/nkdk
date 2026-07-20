@@ -6,7 +6,8 @@ import { XmlSyncManifest } from "../../appliedObjects/configuration/migrations/x
 import { mockContextFromXML, mockContextToXML } from "../../../tests/mockContext"
 import { getXMLFixtureDir, readXMLFixtureAsString } from "../../../tests/readFixtureXML"
 import { convertFormFromXML } from "./convertFromXML"
-import { syncFormToXML } from "./syncToXML"
+import { prepareYamlFiles } from "../../project/prepareYamlFiles"
+import { syncFormToXML, writePreparedFormToXML } from "./syncToXML"
 
 describe("sync ClientApplicationForm to XML", () => {
   const inputDir = getXMLFixtureDir(import.meta.url, "sync/yaml")
@@ -60,6 +61,42 @@ describe("sync ClientApplicationForm to XML", () => {
       await syncFormToXML({
         context: mockContextToXML(),
         inputDir: tmpInputDir,
+        outputDir,
+        formName,
+      })
+
+      expect(fs.existsSync(join(outputDir, "Forms", `${formName}.xml`))).toBe(true)
+      expect(fs.existsSync(join(outputDir, "Forms", formName, "Ext", "Form.xml"))).toBe(true)
+    } finally {
+      fs.rmSync(tmpRoot, { recursive: true, force: true })
+    }
+  })
+
+  it("пишет managed form из подготовленного YAML без повторного чтения файла", async () => {
+    const tmpRoot = fs.mkdtempSync(join(os.tmpdir(), "nkdk-form-prepared-"))
+    const tmpInputDir = join(tmpRoot, "yaml")
+
+    try {
+      fs.cpSync(inputDir, tmpInputDir, { recursive: true })
+      const projectPath = `Справочник/Товары/Формы/${formName}/Форма.yaml`
+      const filePath = join(tmpInputDir, "Формы", formName, "Форма.yaml")
+      const prepared = prepareYamlFiles({
+        files: [
+          {
+            projectPath,
+            filePath,
+            role: "form",
+            owner: { dir: "Справочник", name: "Товары" },
+            itemType: "ClientApplicationForm",
+          },
+        ],
+        itemTypeByYamlDir: { Справочник: "MetadataCatalog" },
+      })
+      fs.rmSync(filePath)
+
+      await writePreparedFormToXML({
+        context: mockContextToXML(),
+        preparedYamlFile: prepared.yamlFiles[0]!,
         outputDir,
         formName,
       })

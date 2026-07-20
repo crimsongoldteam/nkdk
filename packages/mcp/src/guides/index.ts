@@ -50,8 +50,8 @@ export const guideDefinitions: GuideDefinition[] = [
     text: [
       "# Синхронизация YAML в XML",
       "",
-      "Перед вызовом `nkdk.sync_to_xml` проверь YAML-проект, XML-каталог записи и optional reference-каталог.",
-      "Не используй исходную XML-выгрузку как проверочный каталог без явного согласия пользователя.",
+      "Перед вызовом `nkdk.sync_to_xml` проверь YAML-проект и наличие файла индекса конфигурации `.nkdk/configuration-index/default.bin`.",
+      "XML-каталог результата должен отсутствовать или быть пустым: операция не очищает существующие файлы.",
       "Tool пишет файлы только при `allowWrite: true`.",
     ].join("\n"),
   },

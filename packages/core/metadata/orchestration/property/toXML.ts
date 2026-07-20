@@ -1,4 +1,10 @@
 import { capitalize } from "../../../helpers/capitalize"
+import {
+  getConfigurationIndexPropertyXmlValue,
+  getConfigurationIndexSourceXmlKey,
+  getConfigurationIndexXmlNodeLogicalAddress,
+  withConfigurationIndexExportPropertyContext,
+} from "../../configurationIndex/referenceView"
 import { ConfigurationContextWithExportToXML } from "../../context/types"
 import { canConvertToPascalCase } from "../../helpers/canConvertToPascalCase"
 import { ToMetadata } from ".."
@@ -20,7 +26,8 @@ export const exportPropertiesToXML = <Rule extends MetadataItemRule>(params: {
   rule: Rule
   tag?: string[]
 }): ItemXML => {
-  const { context, metadata: metadata, referenceMetadata, rule, tag: tag } = params
+  const { context, metadata: metadata, rule, tag: tag } = params
+  const referenceMetadata = params.referenceMetadata ?? createConfigurationIndexReferenceView(context)
 
   const result: ItemXML = {}
 
@@ -32,7 +39,11 @@ export const exportPropertiesToXML = <Rule extends MetadataItemRule>(params: {
     xmlContext.propertiesItemXmlStack.push(result)
   }
 
-  const orderedKeys = getOrderedKeysToXML({ rule, tag, referenceMetadata })
+  const orderedKeys = getOrderedKeysToXML({ context, rule, tag, referenceMetadata })
+  const xmlNodeLogicalAddress = getConfigurationIndexXmlNodeLogicalAddress(context)
+  if (context.exportToXML.configurationIndex?.xmlNode()?.order !== undefined && xmlNodeLogicalAddress !== undefined) {
+    context.exportToXML.configurationIndex.collector.setOrder(xmlNodeLogicalAddress, orderedKeys)
+  }
   const autoRequiredXMLParentRoots = new Set<string>()
 
   try {
@@ -54,10 +65,21 @@ export const exportPropertiesToXML = <Rule extends MetadataItemRule>(params: {
 
       collectAutoRequiredXMLParentRoot(ruleProp, autoRequiredXMLParentRoots)
 
-      const currentContext: ConfigurationContextWithExportToXML = {
+      let currentContext: ConfigurationContextWithExportToXML = {
         ...context,
         exportToXML: { ...context.exportToXML },
       }
+      const childCollection = rule.childCollections?.find((candidate) => candidate.propertyKey === key)
+      const configurationIndexUidSegment =
+        childCollection?.configurationIndexUidSegment ??
+        ruleProp.configurationIndexUidSegment ??
+        ruleProp.operationTarget?.migrationSegment
+      currentContext = withConfigurationIndexExportPropertyContext(
+        currentContext,
+        ruleProp.yaml ?? key,
+        configurationIndexUidSegment,
+        { configurationIndexAddressing: ruleProp.configurationIndexAddressing }
+      )
 
       const metadataHasOwnKey =
         metadata !== null &&
@@ -65,7 +87,10 @@ export const exportPropertiesToXML = <Rule extends MetadataItemRule>(params: {
         typeof metadata === "object" &&
         Object.prototype.hasOwnProperty.call(metadata, key)
       const value = metadataHasOwnKey ? (metadata as any)[key] : undefined
-      const referenceValue = referenceMetadata === undefined ? undefined : (referenceMetadata as any)[key]
+      const referenceValue =
+        referenceMetadata === undefined || (referenceMetadata as any)[key] === undefined
+          ? configurationIndexXmlValueToReference(getConfigurationIndexPropertyXmlValue(context, key))
+          : (referenceMetadata as any)[key]
 
       const shouldUseReferenceForUndefined =
         ruleProp.preserveFromReferenceXML === true && value === undefined && (ruleProp as any).exportNilValue !== true
@@ -87,7 +112,7 @@ export const exportPropertiesToXML = <Rule extends MetadataItemRule>(params: {
             metadataItem: metadata,
           })
 
-      setXMLValue(key, result, ruleProp, exportedValue, referenceMetadata)
+      setXMLValue(key, result, ruleProp, exportedValue, referenceMetadata, context)
     }
   } finally {
     xmlContext?.propertiesItemXmlStack?.pop()
@@ -119,7 +144,49 @@ const shouldRestoreReferenceAutoColor = (params: {
   return Object.prototype.hasOwnProperty.call(sourceKeys, propertyKey)
 }
 
-export const setXMLValue = (key: string, xml: any, rule: PropertyRule, value: any, referenceMetadata?: any): void => {
+const createConfigurationIndexReferenceView = (
+  context: ConfigurationContextWithExportToXML
+): Record<PropertyKey, unknown> | undefined => {
+  const node = context.exportToXML.configurationIndex?.xmlNode()
+  if (node === undefined) return undefined
+
+  const view: Record<PropertyKey, unknown> = {}
+  for (const key of node.order ?? []) view[key] = undefined
+  for (const key of node.present ?? []) view[key] = undefined
+  Object.defineProperty(view, XML_SOURCE_KEYS, {
+    value: node.aliases ?? {},
+    enumerable: false,
+  })
+  return view
+}
+
+const configurationIndexXmlValueToReference = (value: ReturnType<typeof getConfigurationIndexPropertyXmlValue>): any => {
+  if (value === undefined) return undefined
+  if (value.userSettingsId !== undefined) return value.userSettingsId
+  if (value.xsiNil === true) return { "_xsi:nil": true }
+  if (
+    value.xsiType !== undefined ||
+    value.xmlText !== undefined ||
+    value.xmlPrefix !== undefined ||
+    value.explicitEmpty === true
+  ) {
+    return {
+      ...(value.xsiType === undefined ? {} : { "_xsi:type": value.xsiType }),
+      ...(value.xmlPrefix === undefined ? {} : { "_xmlns": value.xmlPrefix }),
+      ...(value.xmlText === undefined ? {} : { "#text": value.xmlText }),
+    }
+  }
+  return undefined
+}
+
+export const setXMLValue = (
+  key: string,
+  xml: any,
+  rule: PropertyRule,
+  value: any,
+  referenceMetadata?: any,
+  context?: ConfigurationContextWithExportToXML
+): void => {
   if (value === undefined) return
 
   if (Array.isArray(value) && value.length === 0) {
@@ -140,10 +207,18 @@ export const setXMLValue = (key: string, xml: any, rule: PropertyRule, value: an
   }
 
   const canonicalXmlKey = rule.xml ?? capitalize(key)
-  const sourceXmlKey = referenceMetadata?.[XML_SOURCE_KEYS]?.[key]
+  const sourceXmlKey = referenceMetadata?.[XML_SOURCE_KEYS]?.[key] ?? (context === undefined ? undefined : getConfigurationIndexSourceXmlKey(context, key))
   const xmlKey = [canonicalXmlKey, ...((rule as any).xmlAliases ?? [])].includes(sourceXmlKey)
     ? sourceXmlKey
     : canonicalXmlKey
+  const configurationIndex = context?.exportToXML.configurationIndex
+  if (configurationIndex !== undefined) {
+    const xmlNodeLogicalAddress = configurationIndex.xmlNodeLogicalAddress ?? configurationIndex.logicalAddress
+    configurationIndex.collector.setPresent(xmlNodeLogicalAddress, key)
+    if (sourceXmlKey !== undefined) {
+      configurationIndex.collector.setAlias(xmlNodeLogicalAddress, key, sourceXmlKey)
+    }
+  }
 
   if (rule.xmlParents === undefined) {
     xml[xmlKey] = value

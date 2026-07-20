@@ -21,7 +21,7 @@ import { registerTypeRule } from "../property/typeRuleRegistry"
 import type { NamedMetadataItem } from "./types"
 import { importMetadataItemCollectionFromXML } from "./fromXML"
 import { importMetadataItemCollectionFromYAMLAsArray, importMetadataItemCollectionFromYAMLAsRecord } from "./fromYAML"
-import { exportMetadataCollectionToXML } from "./toXML"
+import { exportMetadataCollectionToXML, registerMetadataCollectionConfigurationIndexOptions } from "./toXML"
 import { exportMetadataCollectionToYAMLAsArray, exportMetadataCollectionToYAMLAsRecord } from "./toYAML"
 
 type JSONSchemaCollectionShape = "record" | "array" | "schema"
@@ -61,6 +61,12 @@ export const registerMetadataItemCollectionRule = <
   const { propertyType, itemRule, xmlElement } = params
   const schemaName = params.schemaName ?? itemRule.itemType
   const schemaShape = params.schemaShape ?? (params.yamlAsArray ? "array" : "record")
+  registerMetadataCollectionConfigurationIndexOptions({
+    propertyType,
+    ...(params.configurationIndexUidSegment === undefined ? {} : { configurationIndexUidSegment: params.configurationIndexUidSegment }),
+    ...(params.configurationIndexAddressing === undefined ? {} : { configurationIndexAddressing: params.configurationIndexAddressing }),
+    ...(params.yamlAsArray === true ? { yamlAsArray: true as const } : {}),
+  })
 
   registerJSONSchemaIdentity({
     name: schemaName,
@@ -169,6 +175,10 @@ export const registerMetadataItemCollectionRule = <
       itemRule,
       xmlElement: effectiveXmlElement,
       keyField: params.keyField,
+      propertyType,
+      configurationIndexUidSegment: params.configurationIndexUidSegment,
+      configurationIndexAddressing: params.configurationIndexAddressing,
+      ...(params.yamlAsArray === true ? { yamlAsArray: true as const } : {}),
     })
   }
 
