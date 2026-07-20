@@ -6,6 +6,7 @@ import "../../commonObjects/string/toJSONSchema"
 import "../../systemEnumerations/toJSONSchema"
 import { mockContext } from "../../../tests/mockContext"
 import { exportPropertyToJSONSchema } from "./toJSONSchema"
+import { getValidationSchemaRef } from "../jsonSchemaRefs"
 
 const validationContext = {
   ...mockContext,
@@ -17,6 +18,57 @@ const validationContext = {
 }
 
 describe("exportPropertyToJSONSchema implicitValueYAML", () => {
+  it("creates distinct validation refs for boolean implicit values", () => {
+    const refs = [undefined, true, false].map((implicitValueYAML) => {
+      const schema = exportPropertyToJSONSchema({
+        context: {
+          ...validationContext,
+          exportToJSONSchema: { ...validationContext.exportToJSONSchema, validationPropertyRefs: true },
+        },
+        rule: { type: "boolean", implicitValueYAML },
+        value: undefined,
+      })
+      return (schema as { $ref?: string } | undefined)?.$ref
+    })
+
+    expect(refs).toEqual([
+      "nkdk://schema/validation/2.20/ru/boolean/base",
+      "nkdk://schema/validation/2.20/ru/boolean/without-Истина",
+      "nkdk://schema/validation/2.20/ru/boolean/without-Ложь",
+    ])
+
+    const withoutTruth = getValidationSchemaRef(refs[1]!)
+    if (withoutTruth === undefined) throw new Error("Expected boolean validation schema")
+    const check = compileValidationSchema(withoutTruth)
+    expect(check.Check("Истина")).toBe(false)
+    expect(check.Check("Ложь")).toBe(true)
+  })
+
+  it("creates distinct validation refs for SystemEnumeration implicit values", () => {
+    const refs = ["Использовать", "НеИспользовать"].map((implicitValueYAML) => {
+      const schema = exportPropertyToJSONSchema({
+        context: {
+          ...validationContext,
+          exportToJSONSchema: { ...validationContext.exportToJSONSchema, validationPropertyRefs: true },
+        },
+        rule: { type: "SystemEnumeration", typeSE: "ModalityUseMode", implicitValueYAML },
+        value: undefined,
+      })
+      return (schema as { $ref?: string } | undefined)?.$ref
+    })
+
+    expect(refs).toEqual([
+      "nkdk://schema/validation/2.20/ru/SystemEnumeration/ModalityUseMode/without-Использовать",
+      "nkdk://schema/validation/2.20/ru/SystemEnumeration/ModalityUseMode/without-НеИспользовать",
+    ])
+
+    const withoutUse = getValidationSchemaRef(refs[0]!)
+    if (withoutUse === undefined) throw new Error("Expected SystemEnumeration validation schema")
+    const check = compileValidationSchema(withoutUse)
+    expect(check.Check("Использовать")).toBe(false)
+    expect(check.Check("НеИспользовать")).toBe(true)
+  })
+
   it("excludes implicit boolean YAML value from an enum-like schema", () => {
     const schema = exportPropertyToJSONSchema({
       context: validationContext,

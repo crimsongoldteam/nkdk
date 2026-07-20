@@ -1,5 +1,5 @@
 import { TSchema, Type } from "typebox"
-import { ExportToJSONSchemaFn, registerTypeRule } from "../orchestration"
+import { ExportToJSONSchemaFn, registerTypeRule, ValidationSchemaRefFn } from "../orchestration"
 import * as SE from "./types"
 import { SystemEnumerationPropertyRule } from "./types"
 
@@ -19,4 +19,16 @@ export const exportSystemEnumerationToJSONSchema: ExportToJSONSchemaFn = (params
   return Type.Union(literals as [TSchema, TSchema, ...TSchema[]])
 }
 
+export const systemEnumerationValidationSchemaRef: ValidationSchemaRefFn = ({ rule }) => {
+  const systemEnumerationRule = rule as SystemEnumerationPropertyRule
+  const implicitValueYAML = systemEnumerationRule.implicitValueYAML
+  if (typeof implicitValueYAML !== "string") {
+    return `SystemEnumeration/${systemEnumerationRule.typeSE}`
+  }
+
+  const implicitYAML = systemEnumerationTables[`${systemEnumerationRule.typeSE}ToYAML`]?.[implicitValueYAML] ?? implicitValueYAML
+  return `SystemEnumeration/${systemEnumerationRule.typeSE}/without-${implicitYAML}`
+}
+
 registerTypeRule("SystemEnumeration", "exportToJSONSchema", exportSystemEnumerationToJSONSchema)
+registerTypeRule("SystemEnumeration", "validationSchemaRef", systemEnumerationValidationSchemaRef)
