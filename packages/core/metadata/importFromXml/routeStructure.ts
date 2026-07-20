@@ -37,8 +37,12 @@ type CompiledXmlPatternSegment =
 
 type CompiledTemplatePart = { kind: "literal"; value: string } | { kind: "parameter"; key: string }
 
+const MAX_XML_ROUTE_RECURSION_DEPTH = 16
+
 export function compileXmlImportRouteStructure(routes: readonly XmlImportRoute[]): XmlImportRouteStructure {
-  return { routes: routes.map((route) => ({ route, pattern: compilePattern(route.xmlPattern) })) }
+  return {
+    routes: routes.flatMap(expandRouteRecursion).map((route) => ({ route, pattern: compilePattern(route.xmlPattern) })),
+  }
 }
 
 export function matchXmlImportRouteStructure(structure: XmlImportRouteStructure, path: string): XmlImportRouteMatch[] {
@@ -54,6 +58,58 @@ export function matchXmlImportRouteStructure(structure: XmlImportRouteStructure,
 
 function compilePattern(pattern: string): CompiledXmlPattern {
   return { segments: pattern.split("/").map(compileSegment) }
+}
+
+function expandRouteRecursion(route: XmlImportRoute): XmlImportRoute[] {
+  const recursion = route.recursion
+  if (recursion === undefined || !startsWithPatternRoot(route.xmlPattern, recursion.xmlRootPattern)) return [route]
+  const result: XmlImportRoute[] = [route]
+  for (let depth = 1; depth <= MAX_XML_ROUTE_RECURSION_DEPTH; depth += 1) {
+    const xmlRootPattern = nestedRootPattern(recursion.xmlRootPattern, recursion.xmlChildDir, depth)
+    const targetRootPattern = nestedRootPattern(recursion.targetRootPattern, recursion.targetChildDir, depth)
+    const xmlPattern = replacePatternRoot(route.xmlPattern, recursion.xmlRootPattern, xmlRootPattern)
+    if (route.kind === "ignore") {
+      result.push({ ...route, xmlPattern })
+      continue
+    }
+    const targetPattern = replacePatternRoot(route.targetPattern, recursion.targetRootPattern, targetRootPattern)
+    if (route.kind === "assignment") {
+      result.push({
+        ...route,
+        xmlPattern,
+        targetPattern,
+        role: recursion.assignmentRole,
+        inputRole: route.inputRole ?? (route.role === "fileItem" || route.source.kind === "itemRule" ? "metadata" : "property"),
+      })
+      continue
+    }
+    result.push({
+      ...route,
+      xmlPattern,
+      targetPattern,
+      assignmentTargetPattern: replacePatternRoot(
+        route.assignmentTargetPattern,
+        recursion.targetRootPattern,
+        targetRootPattern
+      ),
+    })
+  }
+  return result
+}
+
+function nestedRootPattern(rootPattern: string, childDir: string, depth: number): string {
+  const steps = Array.from({ length: depth }, (_, index) => `${childDir}/{recursiveItemName${index + 1}}`)
+  return [rootPattern, ...steps].join("/")
+}
+
+function startsWithPatternRoot(pattern: string, rootPattern: string): boolean {
+  if (!pattern.startsWith(rootPattern)) return false
+  const boundary = pattern[rootPattern.length]
+  return boundary === undefined || boundary === "/" || boundary === "."
+}
+
+function replacePatternRoot(pattern: string, rootPattern: string, replacement: string): string {
+  return startsWithPatternRoot(pattern, rootPattern) ? `${replacement}${pattern.slice(rootPattern.length)}` : pattern
 }
 
 function compileSegment(segment: string): CompiledXmlPatternSegment {

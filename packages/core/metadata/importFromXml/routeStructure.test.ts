@@ -51,4 +51,34 @@ describe("XML import route structure", () => {
     ])
     expect(matchXmlImportRouteStructure(structure, "Reports/Продажи.xml")).toEqual([])
   })
+
+  it("matches recursive routes by XML path depth", () => {
+    const routes = [
+      {
+        kind: "assignment",
+        xmlPattern: "Subsystems/{ownerName}.xml",
+        targetPattern: "Подсистема/{ownerName}/Свойства.yaml",
+        role: "properties",
+        itemType: "MetadataSubsystem",
+        source,
+        recursion: {
+          xmlRootPattern: "Subsystems/{ownerName}",
+          targetRootPattern: "Подсистема/{ownerName}",
+          xmlChildDir: "Subsystems",
+          targetChildDir: "Подсистемы",
+          assignmentRole: "fileItem",
+        },
+      },
+    ] satisfies readonly XmlImportRoute[]
+
+    const structure = compileXmlImportRouteStructure(routes)
+
+    expect(matchXmlImportRouteStructure(structure, "Subsystems/Продажи/Subsystems/Опт.xml")).toEqual([
+      expect.objectContaining({
+        kind: "assignment",
+        targetProjectPath: "Подсистема/Продажи/Подсистемы/Опт/Свойства.yaml",
+        values: { ownerName: "Продажи", recursiveItemName1: "Опт" },
+      }),
+    ])
+  })
 })
