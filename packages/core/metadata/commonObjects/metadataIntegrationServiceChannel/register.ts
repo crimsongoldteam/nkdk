@@ -43,6 +43,7 @@ registerMetadataItemCollectionRule({
   itemRule: MetadataIntegrationServiceChannelRules,
   xmlElement: "IntegrationServiceChannel",
   keyField: "name",
+  configurationIndexUidSegment: "Канал",
   fromYAML: importMetadataIntegrationServiceChannelsFromYAML,
 })
 

@@ -145,6 +145,7 @@ export const MetadataDocumentJournalRules = {
       yaml: "Графы",
       xmlParents: childObjects,
       xml: "Column",
+      configurationIndexUidSegment: "Графа",
     }),
     forms: childFormNamesRule({
       xml: "Form",
@@ -184,5 +185,7 @@ export const MetadataDocumentJournalRules = {
       nkdkDir: "Справка",
     }),
   },
-  childCollections: [{ propertyKey: "commands", itemRule: MetadataDocumentJournalCommandRules }],
+  childCollections: [
+    { propertyKey: "commands", configurationIndexUidSegment: "Команда", itemRule: MetadataDocumentJournalCommandRules },
+  ],
 } as const satisfies MetadataItemRule

@@ -37,5 +37,8 @@ export type SettingsParameterValueCollectionRuleParams = Omit<SettingsParameterV
 export function settingsParameterValueCollectionRule<const Params extends SettingsParameterValueCollectionRuleParams>(
   params: WideExactRuleParams<SettingsParameterValueCollectionRuleParams, Params>
 ): Readonly<{ type: "SettingsParameterValueCollection" } & Params> {
-  return defineWidePropertyRule("SettingsParameterValueCollection", params)
+  return defineWidePropertyRule("SettingsParameterValueCollection", {
+    configurationIndexAddressing: "yamlPath" as const,
+    ...params,
+  })
 }

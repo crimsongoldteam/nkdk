@@ -7,7 +7,7 @@ export const orderFixture = {
     { itemType: "OrderItemField", field: "Ссылка.Код", orderType: "Desc" },
     { itemType: "OrderItemField", field: "Артикул", use: false },
   ],
-  userSettingID: true,
+  userSettingID: "86a851e8-fef1-4353-9e75-59d215155503",
   userSettingPresentation: { items: { ru: "Представление порядка" } },
 } as const satisfies Order
 
@@ -17,7 +17,7 @@ export const fullOrderFixtureYAML = {
     { Поле: "Ссылка.Код", ТипУпорядочивания: "Убыв" },
     { Поле: "Артикул", Использование: "Ложь" },
   ],
-  ИспользоватьПользовательскуюНастройку: "Истина",
+  ИспользоватьПользовательскуюНастройку: "86a851e8-fef1-4353-9e75-59d215155503",
   ПредставлениеПользовательскойНастройки: "Представление порядка",
 } as const
 

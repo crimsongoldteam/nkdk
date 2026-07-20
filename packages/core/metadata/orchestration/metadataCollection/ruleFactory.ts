@@ -14,7 +14,7 @@ import {
   importFromYAMLFunction,
 } from "../property/fn"
 import { PropertyRuleType } from "../property/registry"
-import type { MetadataItemRule, PropertyRule } from "../property/types"
+import type { ConfigurationIndexAddressingMode, MetadataItemRule, PropertyRule } from "../property/types"
 import { ToMetadata } from "../metadataItem/registry"
 import { exportMetadataItemToJSONSchema } from "../metadataItem/toJSONSchema"
 import { registerTypeRule } from "../property/typeRuleRegistry"
@@ -32,6 +32,10 @@ type CollectionRule<Rule extends MetadataItemRule, CollectionType extends Proper
   xmlElement?: XMLKey
   yamlAsArray?: true
   keyField?: keyof Rule["properties"]
+  /** Канонический сегмент logicalAddress для элементов этой metadata-item коллекции. */
+  configurationIndexUidSegment?: string
+  /** Режим построения logicalAddress для данных файла индекса конфигурации. */
+  configurationIndexAddressing?: ConfigurationIndexAddressingMode
   /** Для YAML-объекта коллекции: ключ записи → внутреннее имя элемента (например стандартный реквизит) */
   nameFromYAMLKey?: (yamlKey: string) => string
   /** Для YAML-объекта коллекции: элемент → ключ записи (если не совпадает со String(item[keyField])) */
@@ -83,6 +87,12 @@ export const registerMetadataItemCollectionRule = <
 
   const fromXMLDefault: ImportFromXMLFunction = (context, rule, xml) => {
     const effectiveElement = xmlElement ?? (rule as any).xml
+    const options = {
+      propertyType,
+      configurationIndexUidSegment: params.configurationIndexUidSegment,
+      configurationIndexAddressing: params.configurationIndexAddressing,
+      ...(params.yamlAsArray === true ? { yamlAsArray: true as const } : {}),
+    }
     if (Array.isArray(xml)) {
       // Если каждый элемент массива — обёртка вида `{[effectiveElement]: body | [bodies]}`,
       // расплющиваем в массив тел. Такую форму даёт XML-парсер для тегов, помеченных
@@ -98,18 +108,18 @@ export const registerMetadataItemCollectionRule = <
             return Array.isArray(inner) ? inner : [inner]
           })
         : xml
-      return importMetadataItemCollectionFromXML(itemRule, effectiveElement)(context, rule, {
+      return importMetadataItemCollectionFromXML(itemRule, effectiveElement, options)(context, rule, {
         [effectiveElement]: bodies,
       })
     }
     // Если parent уже вытащил содержимое по rule.xml и вернул одиночный элемент (а не контейнер),
     // оборачиваем его, чтобы коллекционная процедура могла прочитать `xml[effectiveElement]`.
     if (xml !== undefined && xml !== null && typeof xml === "object" && !(effectiveElement in (xml as object))) {
-      return importMetadataItemCollectionFromXML(itemRule, effectiveElement)(context, rule, {
+      return importMetadataItemCollectionFromXML(itemRule, effectiveElement, options)(context, rule, {
         [effectiveElement]: [xml],
       })
     }
-    return importMetadataItemCollectionFromXML(itemRule, effectiveElement)(context, rule, xml)
+    return importMetadataItemCollectionFromXML(itemRule, effectiveElement, options)(context, rule, xml)
   }
   const fromXML = params.fromXML ?? fromXMLDefault
   registerTypeRule(propertyType, "importFromXML", fromXML)

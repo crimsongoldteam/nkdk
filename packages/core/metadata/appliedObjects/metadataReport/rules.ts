@@ -262,5 +262,7 @@ export const MetadataReportRules = {
       nkdkDir: "Справка",
     }),
   },
-  childCollections: [{ propertyKey: "commands", itemRule: MetadataReportCommandRules }],
+  childCollections: [
+    { propertyKey: "commands", configurationIndexUidSegment: "Команда", itemRule: MetadataReportCommandRules },
+  ],
 } as const satisfies MetadataItemRule

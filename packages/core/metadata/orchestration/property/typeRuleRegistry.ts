@@ -2,6 +2,7 @@ import { PropertyRuleType } from "./registry"
 import {
   CollectionItemRule,
   CollectMetadataTargetReferencesFunction,
+  ConfigurationIndexValueFromXMLDescriptor,
   createRegistryKey,
   ExportToEnterpriseFunction,
   ExportToJSONSchemaFn,
@@ -21,7 +22,9 @@ import {
   TypeRulesOperations,
   ValidateMetadataTargetFunction,
   XmlSyncRoutesFunction,
+  XmlImportRoutesFunction,
   XmlSyncWriterFunction,
+  XMLImportPropertyBehavior,
 } from "./fn"
 
 const typeRulesRegistry = new Map<
@@ -43,8 +46,11 @@ const typeRulesRegistry = new Map<
   | StructuralReferencesFunction
   | ProjectResourcesFunction
   | XmlSyncRoutesFunction
+  | XmlImportRoutesFunction
   | FileChildNamesDescriptorFunction
   | XmlSyncWriterFunction
+  | ConfigurationIndexValueFromXMLDescriptor
+  | XMLImportPropertyBehavior
 >()
 
 export const registerTypeRule = <O extends TypeRulesOperations>(
@@ -87,11 +93,17 @@ export const getTypeRule = <O extends TypeRulesOperations>(
                           ? ProjectResourcesFunction | undefined
                           : O extends "xmlSyncRoutes"
                             ? XmlSyncRoutesFunction | undefined
-                            : O extends "fileChildNamesDescriptor"
-                              ? FileChildNamesDescriptorFunction | undefined
-                              : O extends "xmlSyncWriter"
-                                ? XmlSyncWriterFunction | undefined
-                                : never => {
+                            : O extends "xmlImportRoutes"
+                              ? XmlImportRoutesFunction | undefined
+                              : O extends "fileChildNamesDescriptor"
+                                ? FileChildNamesDescriptorFunction | undefined
+                                : O extends "xmlSyncWriter"
+                                  ? XmlSyncWriterFunction | undefined
+                                  : O extends "configurationIndexValueFromXML"
+                                    ? ConfigurationIndexValueFromXMLDescriptor | undefined
+                                    : O extends "xmlImportPropertyBehavior"
+                                      ? XMLImportPropertyBehavior | undefined
+                                      : never => {
   const key = createRegistryKey(type, operation)
   const result = typeRulesRegistry.get(key)
   return result as any

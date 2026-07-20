@@ -245,5 +245,11 @@ export const MetadataAccountingRegisterRules = {
       fromXML: false,
     }),
   },
-  childCollections: [{ propertyKey: "commands", itemRule: MetadataAccountingRegisterCommandRules }],
+  childCollections: [
+    {
+      propertyKey: "commands",
+      configurationIndexUidSegment: "Команда",
+      itemRule: MetadataAccountingRegisterCommandRules,
+    },
+  ],
 } as const satisfies MetadataItemRule

@@ -24,6 +24,18 @@ export const syncExternalFileFromXML = async (params: {
 }
 
 registerTypeRule("ExternalFile", "syncExternalFromXML", syncExternalFileFromXML)
+registerTypeRule("ExternalFile", "xmlImportRoutes", ({ propertyRule }) => {
+  const rule = propertyRule as ExternalFilePropertyRule
+  return [
+    {
+      kind: "externalFile",
+      xmlPattern: rule.xmlPath,
+      targetPattern: rule.nkdkPath,
+      assignmentTargetPattern: "",
+      source: { kind: "propertyType", type: "ExternalFile" },
+    },
+  ]
+})
 
 const resolveSourcePath = (params: { xmlDir: string; xmlPath: string; objectName?: string }): string => {
   const directPath = join(params.xmlDir, params.xmlPath)

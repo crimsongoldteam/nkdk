@@ -115,6 +115,7 @@ registerElementAsType({
   nameStyle: {
     canonicalSuffix: "УправлениеПоиском",
     referenceSuffixes: ["УправлениеПоиском", "SearchControl"],
+    canonicalNameMode: "ownerSuffix",
   },
   toXML: (params: { context: ConfigurationContextWithExportToXML; element: BaseElement | undefined }) => {
     const { context } = params

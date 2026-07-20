@@ -3,12 +3,26 @@ const REFERENCE_NAME_MODE = Symbol("referenceNameMode")
 export type SingletonNameStyle = {
   canonicalSuffix: string
   referenceSuffixes: readonly string[]
+  canonicalNameMode: "fixed" | "ownerSuffix"
 }
 
 export type ReferenceNameMode = { kind: "suffix"; suffix: string } | { kind: "exact"; name: string }
 
 type ReferenceNameModeCarrier = {
   [REFERENCE_NAME_MODE]?: ReferenceNameMode
+}
+
+export const getCanonicalSingletonName = (params: {
+  ownerLogicalAddress: string
+  nameStyle: SingletonNameStyle | undefined
+}): string | undefined => {
+  const { ownerLogicalAddress, nameStyle } = params
+  if (nameStyle === undefined) return undefined
+  if (nameStyle.canonicalNameMode === "fixed") return nameStyle.canonicalSuffix
+
+  const ownerName = ownerLogicalAddress.slice(ownerLogicalAddress.lastIndexOf(".") + 1)
+  if (ownerName.length === 0 || /^.+\[\d+\]$/.test(ownerName)) return undefined
+  return `${ownerName}${nameStyle.canonicalSuffix}`
 }
 
 export const attachReferenceNameMode = <T extends object>(params: {

@@ -1,5 +1,10 @@
 import { describe, expect, it } from "vitest"
 import { testExportAppliedObjectToXML, testImportAppliedObjectFromXML } from "../../../tests/appliedObject"
+import { mockContextFromXML } from "../../../tests/mockContext"
+import { readAndParseXMLFixture } from "../../../tests/readFixtureXML"
+import { withConfigurationIndexCollector } from "../../configurationIndex/collector/context"
+import { createConfigurationIndexCollector } from "../../configurationIndex/collector/writer"
+import { importMetadataItemFromXML } from "../../orchestration"
 import { MetadataIntegrationServiceRules } from "./rules"
 import { MetadataIntegrationService } from "./types"
 
@@ -37,5 +42,32 @@ describe("import MetadataIntegrationService from XML", () => {
     })
 
     expect(normalizeXml(result)).toEqual(normalizeXml(expected))
+  })
+
+  it("пишет uuid каналов в адреса конкретных элементов индекса", () => {
+    const collector = createConfigurationIndexCollector()
+    const context = withConfigurationIndexCollector(
+      mockContextFromXML({ forReference: true }),
+      collector,
+      "СервисИнтеграции.СервисИнтеграцииВсеСвойства"
+    )
+    const parsed = readAndParseXMLFixture<{ MetaDataObject: unknown }>(import.meta.url, "full.xml")
+
+    importMetadataItemFromXML({
+      context,
+      rule: MetadataIntegrationServiceRules,
+      xml: parsed.MetaDataObject,
+    })
+
+    const identities = collector.fragment("IntegrationServices/СервисИнтеграцииВсеСвойства/Свойства.yaml").identities
+    expect(identities).toEqual(
+      expect.arrayContaining([
+        {
+          logicalAddress: "СервисИнтеграции.СервисИнтеграцииВсеСвойства.Канал.КаналСервисаИнтеграцииВсеСвойства",
+          kind: "uuid",
+          value: "25d297b9-3b88-43a8-a579-cf026f9f914f",
+        },
+      ])
+    )
   })
 })

@@ -1,6 +1,6 @@
 import { describe, expect, it } from "vitest"
 import { mockContext, mockRule } from "../../../tests/mockContext"
-import { fixtureUserSettingsIDFull, fixtureUserSettingsIDYAML } from "./__fixtures__/data"
+import { fixtureUserSettingsIDFull, fixtureUserSettingsIDRefFull, fixtureUserSettingsIDYAML } from "./__fixtures__/data"
 import { exportUserSettingsIDToYAML } from "./toYAML"
 
 describe("exportUserSettingsIDToYAML", () => {
@@ -14,6 +14,12 @@ describe("exportUserSettingsIDToYAML", () => {
     const result = exportUserSettingsIDToYAML(mockContext, mockRule, false)
 
     expect(result).toEqual("Ложь")
+  })
+
+  it("exports UID string", () => {
+    const result = exportUserSettingsIDToYAML(mockContext, mockRule, fixtureUserSettingsIDRefFull)
+
+    expect(result).toEqual(fixtureUserSettingsIDRefFull)
   })
 
   it("returns undefined when value is undefined", () => {

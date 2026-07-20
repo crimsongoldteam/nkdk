@@ -1,4 +1,5 @@
 import { ConfigurationContextFromXML } from "../../../context/types"
+import { withConfigurationIndexYamlCollectionItemContext } from "../../../configurationIndex/collector/context"
 import { importPropertyFromXML, PropertyRule, registerTypeRule } from "../../../orchestration"
 import type {
   ParameterValueXML,
@@ -31,8 +32,13 @@ const importDataSetFieldAppearanceFromXML = (
     const parameterRule = appearanceParameterRules[parameterName]
     if (parameterRule === undefined) continue
 
+    const itemContext = withConfigurationIndexYamlCollectionItemContext(context, {
+      index: Object.keys(parameters).length,
+      yamlKey: parameterName,
+    })
+
     const value = importPropertyFromXML({
-      context,
+      context: itemContext,
       rule: parameterRule,
       value: {
         "dcscor:parameter": parameterName,

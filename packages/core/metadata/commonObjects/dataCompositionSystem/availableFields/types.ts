@@ -52,5 +52,5 @@ export type AvailableFieldsRuleParams = Omit<AvailableFieldsWidePropertyRule, "t
 export function availableFieldsRule<const Params extends AvailableFieldsRuleParams>(
   params: WideExactRuleParams<AvailableFieldsRuleParams, Params>
 ): Readonly<{ type: "AvailableFields" } & Params> {
-  return defineWidePropertyRule("AvailableFields", params)
+  return defineWidePropertyRule("AvailableFields", { configurationIndexAddressing: "yamlPath" as const, ...params })
 }

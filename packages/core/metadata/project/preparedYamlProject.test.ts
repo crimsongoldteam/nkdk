@@ -8,6 +8,7 @@ import {
 } from "../validation/projectValidationPasses"
 import { createProjectYamlCacheFromPreparedFiles } from "../validation/projectYamlCache"
 import { prepareYamlProject } from "./preparedYamlProject"
+import type { PreparedYamlProjectWorkerTask } from "./preparedYamlProjectWorker"
 import {
   createPreparedYamlProjectWorkerPool,
   mergePreparedMetadataDeclarationsForTests,
@@ -120,7 +121,7 @@ describe("prepareYamlProject", () => {
   )
 
   it(
-    "emits detailed preparation profile records",
+    "emits detailed main-process preparation profile records",
     async () => {
       const error = vi.spyOn(console, "error").mockImplementation(() => undefined)
       const previous = process.env["NKDK_VALIDATION_TIMING"]
@@ -151,8 +152,7 @@ describe("prepareYamlProject", () => {
       expect(
         lines.some((line) => line.includes("[validation-step]") && line.includes('substep="Ожидание результата подготовки"'))
       ).toBe(true)
-      expect(lines.some((line) => line.includes("[validation-step]") && line.includes('substep="Чтение YAML"'))).toBe(true)
-      expect(lines.some((line) => line.includes("[validation-step]") && line.includes('substep="Разбор YAML"'))).toBe(true)
+      expect(lines.every((line) => !line.includes("scope=worker"))).toBe(true)
     },
     testTimeout
   )
@@ -337,6 +337,39 @@ describe("prepareYamlProject", () => {
         { canonical: "Catalog.Товары", projectPath: "b.yaml", filePath: "/project/b.yaml" },
       ])
     ).toMatchObject({ ok: false, code: "declaration_conflict" })
+  })
+
+  it("uses the worker pool when concurrency is one", async () => {
+    const descriptor = {
+      projectPath: "Справочник/Товары/Свойства.yaml",
+      filePath: "/project/Справочник/Товары/Свойства.yaml",
+      role: "properties" as const,
+      owner: { dir: "Справочник", name: "Товары" },
+      itemType: "Catalog",
+    }
+    const run = vi.fn(async (task: PreparedYamlProjectWorkerTask) => {
+      if (task.kind === "prepare") {
+        return {
+          kind: "prepareResult" as const,
+          yamlFiles: [],
+          declarations: [],
+          dependencies: [],
+          diagnostics: [],
+        }
+      }
+      throw new Error(`unexpected task: ${task.kind}`)
+    })
+    const destroy = vi.fn(async () => undefined)
+    const pool = createPreparedYamlProjectWorkerPool({
+      concurrency: 1,
+      createWorkerPool: () => ({ run, destroy }),
+    })
+
+    await pool.run({ projectDir: "/project", context: validationContext, files: [descriptor] })
+
+    expect(run).toHaveBeenCalledOnce()
+    await pool.close()
+    expect(destroy).toHaveBeenCalledOnce()
   })
 
   it("does not start physical workers for empty partitions", async () => {

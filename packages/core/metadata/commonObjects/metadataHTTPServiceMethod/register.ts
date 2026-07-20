@@ -44,6 +44,7 @@ registerMetadataItemCollectionRule({
   itemRule: MetadataHTTPServiceMethodRules,
   xmlElement: "Method",
   keyField: "name",
+  configurationIndexUidSegment: "Метод",
   fromYAML: importMetadataHTTPServiceMethodsFromYAML,
   toXML: (params) => {
     if (Array.isArray(params.value) && params.value.length === 0 && "defaultValueXMLRaw" in params.rule) {

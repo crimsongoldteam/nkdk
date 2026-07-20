@@ -13,6 +13,8 @@ import { PropertyRuleType } from "./registry"
 
 export type ReferenceScopeFilterName = "stringIndexedAttribute"
 
+export type ConfigurationIndexAddressingMode = "default" | "yamlPath"
+
 /** Ссылка на объект текущего объекта-владельца (target: "this"). */
 export type ReferenceScopeThis =
   | { target: "this"; kind: "Form" }
@@ -68,6 +70,12 @@ export interface BasePropertyRule {
 
   /** Порядок свойства при выгрузке в XML (используй только при необходимости) */
   order?: number
+
+  /** Канонический сегмент logicalAddress для элементов коллекции свойства. */
+  configurationIndexUidSegment?: string
+
+  /** Режим построения logicalAddress для данных файла индекса конфигурации. */
+  configurationIndexAddressing?: ConfigurationIndexAddressingMode
 
   /** Название ключа в YAML */
   yaml?: string
@@ -459,6 +467,8 @@ export interface MetadataItemRule extends MetadataItem {
    */
   childCollections?: ReadonlyArray<{
     propertyKey: string
+    /** Канонический русскоязычный сегмент logicalAddress элемента коллекции. */
+    configurationIndexUidSegment?: string
     itemRule: MetadataItemRule
     fileItemRule?: MetadataItemRule
     nkdkDir?: string | ((params: { name: string; parentName?: string }) => string)

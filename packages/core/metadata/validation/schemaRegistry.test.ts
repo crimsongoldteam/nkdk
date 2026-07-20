@@ -1,8 +1,8 @@
-import { compileValidationSchema } from "./compileValidationSchema"
+import { compileValidationSchema, type ValidationSchemaValidator } from "./compileValidationSchema"
 import "../appliedObjects"
 import "../forms"
 import type { TSchema } from "typebox"
-import { beforeEach, describe, expect, it } from "vitest"
+import { beforeAll, beforeEach, describe, expect, it } from "vitest"
 import { MetadataConfigurationRules } from "../appliedObjects/configuration/rules"
 import { MetadataLanguageRules } from "../appliedObjects/metadataLanguage/rules"
 import { exportMetadataItemToJSONSchema } from "../orchestration/metadataItem/toJSONSchema"
@@ -19,6 +19,7 @@ const context = {
 } as const
 
 const schemaCache = new Map<string, TSchema>()
+const compiledSchemaCache = new Map<string, ValidationSchemaValidator<TSchema>>()
 
 function schemaForName(name: string, mode?: "externalRefs" | "inline"): TSchema {
   const cacheKey = `${name}:${mode ?? "externalRefs"}`
@@ -31,6 +32,11 @@ function schemaForName(name: string, mode?: "externalRefs" | "inline"): TSchema 
 }
 
 describe("JSON Schema registry", { timeout: 60_000 }, () => {
+  beforeAll(() => {
+    compiledSchemaForName("InputField", "inline")
+    compiledSchemaForName("TableInputField", "inline")
+  }, 30_000)
+
   beforeEach(() => {
     ensureJSONSchemaRegistry()
   })
@@ -318,13 +324,20 @@ describe("JSON Schema registry", { timeout: 60_000 }, () => {
     expect(JSON.stringify(schema)).toContain('"x-nkdk-schemaRefs":["nkdk://schema/ClientApplicationForm"')
   })
 
-  it("allows opaque multiple-value DataPath only in InputField schema", () => {
-    const inputFieldSchema = exportJSONSchemaForSchemaName({ context, name: "InputField", mode: "inline" })
-    const tableInputFieldSchema = exportJSONSchemaForSchemaName({ context, name: "TableInputField", mode: "inline" })
+  it("allows opaque multiple-value DataPath in InputField schema", () => {
     const opaquePath = "1/0:796f500f-c364-45d1-bce6-9e7e8e15b664"
 
-    expect(compileValidationSchema(inputFieldSchema).Check({ Вид: "ПолеВвода", ПутьКДанным: opaquePath })).toBe(true)
-    expect(compileValidationSchema(tableInputFieldSchema).Check({ Вид: "ПолеВвода", ПутьКДанным: opaquePath })).toBe(false)
+    expect(compiledSchemaForName("InputField", "inline").Check({ Вид: "ПолеВвода", ПутьКДанным: opaquePath })).toBe(
+      true
+    )
+  })
+
+  it("rejects opaque multiple-value DataPath in TableInputField schema", () => {
+    const opaquePath = "1/0:796f500f-c364-45d1-bce6-9e7e8e15b664"
+
+    expect(
+      compiledSchemaForName("TableInputField", "inline").Check({ Вид: "ПолеВвода", ПутьКДанным: opaquePath })
+    ).toBe(false)
   })
 
   it("keeps tree YAML button type alias away from Вид discriminator", () => {
@@ -514,3 +527,13 @@ describe("JSON Schema registry", { timeout: 60_000 }, () => {
     )
   })
 })
+
+function compiledSchemaForName(name: string, mode?: "externalRefs" | "inline"): ValidationSchemaValidator<TSchema> {
+  const cacheKey = `${name}:${mode ?? "externalRefs"}`
+  const cached = compiledSchemaCache.get(cacheKey)
+  if (cached !== undefined) return cached
+
+  const compiled = compileValidationSchema(schemaForName(name, mode))
+  compiledSchemaCache.set(cacheKey, compiled)
+  return compiled
+}

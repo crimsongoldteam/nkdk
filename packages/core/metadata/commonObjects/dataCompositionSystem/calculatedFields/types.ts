@@ -11,4 +11,5 @@ registerMetadataItemCollectionRule({
   xmlElement: "CalculatedField",
   yamlAsArray: true,
   keyField: "dataPath",
+  configurationIndexAddressing: "yamlPath",
 })

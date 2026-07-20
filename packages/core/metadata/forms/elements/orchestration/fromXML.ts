@@ -3,8 +3,14 @@ import { ToMetadata } from "../../../orchestration/metadataItem/registry"
 import { importPropertiesFromXML } from "../../../orchestration/property/fromXML"
 import { isEmptyMetadataItem } from "./helper"
 import { getElementRule } from "./ruleFactory"
-import { attachReferenceNameMode, type SingletonNameStyle } from "./singletonName"
+import { attachReferenceNameMode, getCanonicalSingletonName, type SingletonNameStyle } from "./singletonName"
 import { CollectableElementType, ElementRule, ElementXML } from "./types"
+import { childUid, indexedUid } from "../../../configurationIndex/logicalAddress"
+import {
+  getConfigurationIndexCollectionContext,
+  withConfigurationIndexLogicalAddress,
+} from "../../../configurationIndex/collector/context"
+import { collectConfigurationIndexIdentityFromXML } from "../../../configurationIndex/collector/collectProperty"
 
 export function importSingleElementFromXML<Rule extends ElementRule>(params: {
   context: ConfigurationContextFromXML
@@ -19,7 +25,28 @@ export function importSingleElementFromXML<Rule extends ElementRule>(params: {
 
   if (xml === undefined) return undefined
 
-  const props = importFromXML(context, xml, elementRule)
+  const collection = getConfigurationIndexCollectionContext(context)
+  const canonicalName =
+    collection === undefined
+      ? undefined
+      : getCanonicalSingletonName({ ownerLogicalAddress: collection.logicalAddress, nameStyle })
+  const elementContext =
+    collection === undefined
+      ? context
+      : withConfigurationIndexLogicalAddress(
+          context,
+          canonicalName !== undefined
+            ? childUid(collection.logicalAddress, "Элемент", canonicalName)
+            : indexedUid(collection.logicalAddress, "Элемент", 0)
+        )
+  collectConfigurationIndexIdentityFromXML({ context: elementContext, sourceXmlKey: "_id", xmlValue: xml._id })
+  collectConfigurationIndexIdentityFromXML({
+    context: elementContext,
+    sourceXmlKey: "_name",
+    xmlValue: xml._name,
+    reconstructibleXmlName: canonicalName,
+  })
+  const props = importFromXML(elementContext, xml, elementRule)
 
   if (props === undefined && !forReference) return undefined
 
@@ -29,7 +56,8 @@ export function importSingleElementFromXML<Rule extends ElementRule>(params: {
     ...(props ?? {}),
   } as ToMetadata<Rule["itemType"]>
 
-  if (!forReference && isEmptyMetadataItem({ context, rule: elementRule, element: result })) return undefined
+  if (!forReference && isEmptyMetadataItem({ context: elementContext, rule: elementRule, element: result }))
+    return undefined
 
   if (forReference) {
     return attachReferenceNameMode({

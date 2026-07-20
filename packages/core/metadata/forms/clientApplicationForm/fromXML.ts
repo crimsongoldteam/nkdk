@@ -3,6 +3,11 @@ import { importPropertiesFromXML } from "../../orchestration"
 import { XML_SOURCE_KEYS } from "../../orchestration/property/helpers"
 import { ClientApplicationFormRules } from "./rules"
 import { ClientApplicationForm, ClientApplicationFormXML, FormMetadataXML, FormRulesTags } from "./types"
+import { childUid } from "../../configurationIndex/logicalAddress"
+import {
+  getConfigurationIndexCollectionContext,
+  withConfigurationIndexXmlNodeLogicalAddress,
+} from "../../configurationIndex/collector/context"
 
 export function importClientApplicationFormFromXML(params: {
   context: ConfigurationContextFromXML
@@ -10,9 +15,17 @@ export function importClientApplicationFormFromXML(params: {
   xmlMetadata: FormMetadataXML
 }): ClientApplicationForm {
   const { context, xml, xmlMetadata } = params
+  const collection = getConfigurationIndexCollectionContext(context)
+  const formBodyContext =
+    collection === undefined
+      ? context
+      : withConfigurationIndexXmlNodeLogicalAddress(
+          context,
+          childUid(collection.logicalAddress, "ЧастьФормы", "Содержимое")
+        )
 
   const formProperties = importPropertiesFromXML({
-    context,
+    context: formBodyContext,
     xml: xml,
     rule: ClientApplicationFormRules,
     tags: [FormRulesTags.Form],

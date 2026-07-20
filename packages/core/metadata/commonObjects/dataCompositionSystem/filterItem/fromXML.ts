@@ -1,4 +1,5 @@
 import { ConfigurationContextFromXML } from "../../../context/types"
+import { withConfigurationIndexYamlCollectionItemContext } from "../../../configurationIndex/collector/context"
 import { importMetadataItemFromXML } from "../../../orchestration/metadataItem/fromXML"
 import type { PropertyRule } from "../../../orchestration/property/types"
 import type { FilterItem } from "./types"
@@ -30,8 +31,9 @@ export const importFilterItemFromXML = (
 ): FilterItem | undefined => {
   if (!xml) return undefined
   const items = Array.isArray(xml) ? xml : [xml]
-  const imported = items.flatMap((item) => {
-    const importedItem = importFilterItemElementFromXML(context, rule, item)
+  const imported = items.flatMap((item, index) => {
+    const itemContext = withConfigurationIndexYamlCollectionItemContext(context, { index, yamlAsArray: true })
+    const importedItem = importFilterItemElementFromXML(itemContext, rule, item)
     return importedItem ? [importedItem] : []
   })
   return imported.length > 0 ? imported : undefined

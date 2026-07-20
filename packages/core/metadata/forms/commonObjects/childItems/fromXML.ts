@@ -5,6 +5,11 @@ import { ElementXML } from "../../../orchestration/formElement/types"
 import { NamedElement } from "../../elements/baseElement/types"
 import { PropertyRule } from "../../elements/calendarField/rules"
 import { CommandBarChildItem, GroupChildItem, PagesChildItem, TableChildItem } from "./types"
+import { childUid } from "../../../configurationIndex/logicalAddress"
+import {
+  getConfigurationIndexCollectionContext,
+  withConfigurationIndexLogicalAddress,
+} from "../../../configurationIndex/collector/context"
 
 export type XMLItem<From extends NamedElement> = Record<From["itemType"], ElementXML>
 
@@ -18,14 +23,24 @@ export const importChildItemsFromXML = <
   if (!xml) return []
 
   const items = Array.isArray(xml) ? xml : [xml]
+  const collection = getConfigurationIndexCollectionContext(context)
 
   return items.map((item) => {
     const xmlTag = Object.keys(item)[0]
     const xmlRawValue = (item as Record<string, any>)[xmlTag]
     const itemType = resolveItemTypeFromXMLTag(rule, xmlTag, xmlRawValue) as From["itemType"]
     const xmlValue = (item as Record<string, any>)[itemType] ?? xmlRawValue
+    const itemName = typeof xmlValue?._name === "string" ? xmlValue._name : undefined
+    const itemAddress =
+      collection !== undefined && itemName !== undefined
+        ? childUid(collection.logicalAddress, "Элемент", itemName)
+        : undefined
+    const itemContext = itemAddress === undefined ? context : withConfigurationIndexLogicalAddress(context, itemAddress)
+    if (itemAddress !== undefined && typeof xmlValue?._id === "string") {
+      collection?.collector.setXmlId(itemAddress, xmlValue._id)
+    }
     return importElementFromXML({
-      context: context,
+      context: itemContext,
       itemType: itemType,
       xml: xmlValue,
       forReference: false,

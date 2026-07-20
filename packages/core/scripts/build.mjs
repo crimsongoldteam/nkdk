@@ -3,6 +3,11 @@ import { rm } from "node:fs/promises"
 
 const outdir = new URL("../dist/", import.meta.url)
 const rootDir = new URL("../", import.meta.url)
+const corePackageJson = (
+  await import(new URL("../package.json", import.meta.url), {
+    with: { type: "json" },
+  })
+).default
 
 await rm(outdir, { force: true, recursive: true })
 
@@ -26,6 +31,9 @@ const commonOptions = {
   platform: "node",
   sourcemap: false,
   target: "node26",
+  define: {
+    __NKDK_CORE_VERSION__: JSON.stringify(corePackageJson.version),
+  },
 }
 
 await esbuild.build({
@@ -38,6 +46,12 @@ await esbuild.build({
   ...commonOptions,
   entryPoints: ["metadata/project/preparedYamlProjectWorker.ts"],
   outfile: new URL("preparedYamlProjectWorker.js", outdir).pathname,
+})
+
+await esbuild.build({
+  ...commonOptions,
+  entryPoints: ["metadata/importFromXml/worker.ts"],
+  outfile: new URL("importFromXmlWorker.js", outdir).pathname,
 })
 
 await esbuild.build({

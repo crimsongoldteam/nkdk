@@ -31,6 +31,20 @@ export const registerMetadataItemRule = <Rule extends MetadataItemRule, Property
   registerImportFromYAML(propertyType, itemRule)
   registerExportToYAML(propertyType, itemRule)
   registerExportToXML(propertyType, itemRule)
+  registerTypeRule(propertyType, "xmlImportRoutes", ({ propertyRule }) => {
+    if (propertyRule?.filePath === undefined) return []
+    return [
+      {
+        kind: "assignment",
+        xmlPattern: propertyRule.filePath,
+        targetPattern: "",
+        role: "properties",
+        inputRole: "property",
+        itemType: "",
+        source: { kind: "propertyType", type: propertyType },
+      },
+    ]
+  })
   registerTypeRule(propertyType, "exportToJSONSchema", ({ context }) => {
     const schemaStack = context.exportToJSONSchema?.schemaStack ?? []
     if (schemaStack.includes(propertyType)) return Type.Unknown()

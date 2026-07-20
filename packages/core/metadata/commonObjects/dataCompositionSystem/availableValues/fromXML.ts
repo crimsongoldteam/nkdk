@@ -1,4 +1,5 @@
 import { ConfigurationContextFromXML } from "../../../context/types"
+import { withConfigurationIndexYamlCollectionItemContext } from "../../../configurationIndex/collector/context"
 import { PropertyRule, registerTypeRule } from "../../../orchestration"
 import { importDcsLocalStringTypeFromXML } from "../dcsLocalStringType/fromXML"
 import { importDcsMetadataValueFromDcsXML } from "../dcsMetadataValue/fromXML"
@@ -29,16 +30,17 @@ export const importDcsAvailableValuesFromXML = (
   const items = toArray(xml as Record<string, unknown> | Record<string, unknown>[] | undefined)
   if (items.length === 0) return undefined
 
-  return items.map((item): DcsAvailableValue => {
+  return items.map((item, index): DcsAvailableValue => {
+    const itemContext = withConfigurationIndexYamlCollectionItemContext(context, { index, yamlAsArray: true })
     const valueXML = item["dcssch:value"]
     const value =
       valueXML !== undefined && !isNilValueXML(valueXML)
-        ? importDcsMetadataValueFromDcsXML(context, valueRule, {
+        ? importDcsMetadataValueFromDcsXML(itemContext, valueRule, {
             "dcscor:value": valueXML as MetadataDcsMetadataValueDcsRootXML["dcscor:value"],
           })
         : undefined
     const presentation = importDcsLocalStringTypeFromXML(
-      context,
+      itemContext,
       { type: "DcsLocalStringType" },
       item["dcssch:presentation"] as never
     )

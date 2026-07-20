@@ -8,7 +8,7 @@ export const fullFilterItemComparison = {
   rightValue: { type: "DesignTimeValue", value: "Справочник.Справочник1.ПустаяСсылка" },
   presentation: { items: { ru: "Представление" } },
   viewMode: "Normal",
-  userSettingID: true,
+  userSettingID: "7b8eb4d9-8661-46f5-9da8-dbe4d77a2292",
   userSettingPresentation: { items: { ru: "Пользовательское представление" } },
 } as const satisfies FilterItemComparison
 
@@ -20,7 +20,7 @@ export const fullFilterItemComparisonYAML = {
   Представление: "Представление",
   ПредставлениеПользовательскойНастройки: "Пользовательское представление",
   РежимОтображения: "Обычный",
-  ИспользоватьПользовательскуюНастройку: "Истина",
+  ИспользоватьПользовательскуюНастройку: "7b8eb4d9-8661-46f5-9da8-dbe4d77a2292",
 } as const satisfies Required<Omit<FilterItemComparisonYAML, "ВидСравнения" | "Применение">> & {
   ВидСравнения: "Равно"
 }
@@ -64,7 +64,7 @@ export const fullFilterItemGroup = {
   groupType: "OrGroup",
   presentation: { items: { ru: "Представление" } },
   viewMode: "Normal",
-  userSettingID: true,
+  userSettingID: "020f583f-ed48-47c1-b824-30b02c09aff9",
   userSettingPresentation: { items: { ru: "Пользовательское представление" } },
 } as const satisfies Omit<FilterItemGroup, "id" | "items">
 
@@ -73,5 +73,5 @@ export const fullFilterItemGroupYAML = {
   Представление: "Представление",
   ПредставлениеПользовательскойНастройки: "Пользовательское представление",
   РежимОтображения: "Обычный",
-  ИспользоватьПользовательскуюНастройку: "Истина",
+  ИспользоватьПользовательскуюНастройку: "020f583f-ed48-47c1-b824-30b02c09aff9",
 } as const satisfies Required<Omit<FilterItemGroupYAML, "Элементы" | "Использование" | "Применение">>

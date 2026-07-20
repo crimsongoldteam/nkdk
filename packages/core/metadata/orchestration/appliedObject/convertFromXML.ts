@@ -19,6 +19,12 @@ import {
   withExportMetadataTargetOwners,
   type MetadataItemOwnerContextEntry,
 } from "./metadataItemOwnerContext"
+import { childUid } from "../../configurationIndex/logicalAddress"
+import {
+  getConfigurationIndexCollectionContext,
+  runWithConfigurationIndexPropertyContext,
+  withConfigurationIndexLogicalAddress,
+} from "../../configurationIndex/collector/context"
 
 const PROPERTIES_YAML = "Свойства.yaml"
 
@@ -35,23 +41,9 @@ export const convertAppliedObjectFromXML = async (params: {
 
   const inputPath = join(inputDir, `${name}.xml`)
   const xmlContent = await fs.promises.readFile(inputPath, "utf-8")
-  const parsed = importContentFromXML<{ MetaDataObject: unknown }>(xmlContent)
-  const model = importMetadataItemFromXML({ context, xml: parsed.MetaDataObject, rule })
+  const parsed = importContentFromXML<{ MetaDataObject: unknown }>(xmlContent, { preserveXsiNil: true })
+  const propertyXML = new Map<string, unknown>()
 
-  if (!model) return
-  const mutableModel = toMutableMetadataRecord(model)
-  mutableModel.name = name
-  addReferenceNamesFromXML({
-    model: mutableModel,
-    rule,
-    xml: parsed.MetaDataObject,
-  })
-
-  // Читаем внешние файлы для свойств с filePath. Под капотом importPropertyFromXML
-  // диспатчит по rule.type — для типов, зарегистрированных через registerMetadataItemRule
-  // с маркером XMLRoot+isFileRoot, оркестратор сам снимает обёртку контейнера.
-  // Свойства типа Help/Module/Template с filePath обрабатываются отдельно ниже,
-  // через syncExternalFromXML (у них нет importFromXML-обработчика).
   for (const [key, propRule] of Object.entries(rule.properties)) {
     if (propRule.filePath === undefined) continue
     if (!getTypeRule(propRule.type, "importFromXML")) continue
@@ -60,10 +52,19 @@ export const convertAppliedObjectFromXML = async (params: {
     const extFilePath = fs.existsSync(rootExtFilePath) ? rootExtFilePath : objectExtFilePath
     if (!fs.existsSync(extFilePath)) continue
     const extContent = await fs.promises.readFile(extFilePath, "utf-8")
-    const extParsed = importContentFromXML<Record<string, unknown>>(extContent)
-    const value = importPropertyFromXML({ context, rule: propRule as PropertyRule, value: extParsed, name: key })
-    if (value !== undefined) mutableModel[key] = value
+    propertyXML.set(key, importContentFromXML<Record<string, unknown>>(extContent, { preserveXsiNil: true }))
   }
+
+  const model = prepareAppliedObjectModelFromXML({
+    context,
+    rule,
+    name,
+    metadataXML: parsed.MetaDataObject,
+    propertyXML,
+  })
+
+  if (!model) return
+  const mutableModel = toMutableMetadataRecord(model)
 
   // Обработчики внешних файлов на уровне объекта (Help, Module, Template со статическими путями)
   const nkdkDir = join(outputDir, name)
@@ -101,6 +102,35 @@ export const convertAppliedObjectFromXML = async (params: {
   await fs.promises.mkdir(outputPath, { recursive: true })
   await fs.promises.writeFile(join(outputPath, PROPERTIES_YAML), yaml, "utf-8")
   await writeExternalFiles(outputPath, externalFilesCollector)
+}
+
+export function prepareAppliedObjectModelFromXML(params: {
+  rule: MetadataItemRule
+  context: ConfigurationContextFromXML
+  name: string
+  metadataXML: unknown
+  propertyXML?: ReadonlyMap<string, unknown>
+}): ReturnType<typeof importMetadataItemFromXML> {
+  const model = importMetadataItemFromXML({ context: params.context, xml: params.metadataXML, rule: params.rule })
+  if (model === undefined) return undefined
+
+  const mutableModel = toMutableMetadataRecord(model)
+  mutableModel.name = params.name
+  addReferenceNamesFromXML({ model: mutableModel, rule: params.rule, xml: params.metadataXML })
+
+  for (const [key, propRule] of Object.entries(params.rule.properties)) {
+    const extParsed = params.propertyXML?.get(key)
+    if (extParsed === undefined || !getTypeRule(propRule.type, "importFromXML")) continue
+    const value = runWithConfigurationIndexPropertyContext(
+      params.context,
+      propRule.yaml ?? key,
+      propRule.configurationIndexUidSegment ?? propRule.operationTarget?.migrationSegment,
+      (context) => importPropertyFromXML({ context, rule: propRule as PropertyRule, value: extParsed, name: key })
+    )
+    if (value !== undefined) mutableModel[key] = value
+  }
+
+  return model
 }
 
 async function syncChildCollectionsFromXML(params: {
@@ -142,14 +172,28 @@ async function syncChildCollectionsFromXML(params: {
           })
         : xmlDir
       const syncName = hasOwnDirs ? item.name : params.xmlDirContainsCurrentItem ? "" : name
+      const collection = getConfigurationIndexCollectionContext(context)
+      const childContext =
+        collection === undefined
+          ? context
+          : withConfigurationIndexLogicalAddress(
+              context,
+              childUid(
+                collection.logicalAddress,
+                childCollection.configurationIndexUidSegment ?? childCollection.propertyKey,
+                item.name
+              )
+            )
 
       if (childCollection.fileItemRule && childCollection.xmlDir) {
         const childXmlPath = `${childXmlDir}.xml`
         if (fs.existsSync(childXmlPath)) {
           const childXmlContent = await fs.promises.readFile(childXmlPath, "utf-8")
-          const childParsed = importContentFromXML<{ MetaDataObject: unknown }>(childXmlContent)
+          const childParsed = importContentFromXML<{ MetaDataObject: unknown }>(childXmlContent, {
+            preserveXsiNil: true,
+          })
           const childModel = importMetadataItemFromXML({
-            context,
+            context: childContext,
             xml: childParsed.MetaDataObject,
             rule: childCollection.fileItemRule,
           }) as Record<string, unknown> | undefined
@@ -170,7 +214,7 @@ async function syncChildCollectionsFromXML(params: {
         const descriptor = getFileChildNamesDescriptor(itemPropRule)
         const externalSyncName = hasOwnDirs && descriptor?.useOwnerDirectoryForExternalSync === true ? "" : syncName
         await syncFn({
-          context,
+          context: childContext,
           rule: itemPropRule,
           xmlDir: childXmlDir,
           nkdkDir: childNkdkDir,
@@ -180,7 +224,7 @@ async function syncChildCollectionsFromXML(params: {
       }
 
       await syncChildCollectionsFromXML({
-        context,
+        context: childContext,
         rule: childCollection.itemRule,
         model: item.model,
         xmlDir: childXmlDir,

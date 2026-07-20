@@ -131,5 +131,7 @@ export const MetadataFilterCriterionRules = {
       xmlParents: childObjects,
     }),
   },
-  childCollections: [{ propertyKey: "commands", itemRule: MetadataCommandRules }],
+  childCollections: [
+    { propertyKey: "commands", configurationIndexUidSegment: "Команда", itemRule: MetadataCommandRules },
+  ],
 } as const satisfies MetadataItemRule

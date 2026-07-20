@@ -434,5 +434,7 @@ export const MetadataDocumentRules = {
       xmlParents: documentProperties,
     }),
   },
-  childCollections: [{ propertyKey: "commands", itemRule: MetadataDocumentCommandRules }],
+  childCollections: [
+    { propertyKey: "commands", configurationIndexUidSegment: "Команда", itemRule: MetadataDocumentCommandRules },
+  ],
 } as const satisfies MetadataItemRule

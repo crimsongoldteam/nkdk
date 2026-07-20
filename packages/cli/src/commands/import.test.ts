@@ -1,7 +1,7 @@
 import { mkdirSync, mkdtempSync, readFileSync, rmSync, writeFileSync } from "fs"
 import { tmpdir } from "os"
 import { join } from "path"
-import { afterEach, describe, expect, it, vi } from "vitest"
+import { afterEach, beforeEach, describe, expect, it, vi } from "vitest"
 import { importConfiguration } from "./import"
 
 const singleValueEnumerationXML = `<?xml version="1.0" encoding="UTF-8"?>
@@ -46,10 +46,12 @@ const singleValueEnumerationXML = `<?xml version="1.0" encoding="UTF-8"?>
 </MetaDataObject>`
 
 describe("import command", () => {
-  const originalExitCode = process.exitCode
+  beforeEach(() => {
+    process.exitCode = undefined
+  })
 
   afterEach(() => {
-    process.exitCode = originalExitCode
+    process.exitCode = undefined
     vi.restoreAllMocks()
   })
 
@@ -61,17 +63,69 @@ describe("import command", () => {
     writeFileSync(join(xmlDir, "Enums", "ВидыСервисовЭДО.xml"), singleValueEnumerationXML, "utf-8")
 
     vi.spyOn(process.stdout, "write").mockImplementation(() => true)
-    vi.spyOn(process.stderr, "write").mockImplementation(() => true)
+    const stderrWrite = vi.spyOn(process.stderr, "write").mockImplementation(() => true)
 
     try {
       await importConfiguration(xmlDir, yamlDir)
 
-      expect(process.exitCode).not.toBe(1)
+      expect(process.exitCode, JSON.stringify(stderrWrite.mock.calls)).not.toBe(1)
       const yaml = readFileSync(join(yamlDir, "Перечисление", "ВидыСервисовЭДО", "Свойства.yaml"), "utf-8")
       expect(yaml).toContain("Значения:")
       expect(yaml).toContain("  ЭПД:")
     } finally {
       rmSync(projectDir, { recursive: true, force: true })
     }
+  })
+
+  it("печатает диагностическую ошибку нового XML-import без падения", async () => {
+    const projectDir = mkdtempSync(join(tmpdir(), "nkdk-cli-import-failure-"))
+    const xmlDir = join(projectDir, "xml")
+    const yamlDir = join(projectDir, "yaml")
+    mkdirSync(join(xmlDir, "Enums"), { recursive: true })
+    writeFileSync(join(xmlDir, "Enums", "Сломано.xml"), "<broken>", "utf-8")
+
+    vi.spyOn(process.stdout, "write").mockImplementation(() => true)
+    const stderrWrite = vi.spyOn(process.stderr, "write").mockImplementation(() => true)
+
+    try {
+      await expect(importConfiguration(xmlDir, yamlDir)).resolves.toBeUndefined()
+
+      expect(process.exitCode).toBe(1)
+      expect(stderrWrite).toHaveBeenCalledWith(expect.stringContaining("xml_import_assignment_failed"))
+      expect(stderrWrite).toHaveBeenCalledWith(expect.stringContaining("Временные файлы:"))
+    } finally {
+      rmSync(projectDir, { recursive: true, force: true })
+    }
+  })
+
+  it("печатает предупреждения отдельно от ошибок и путь временных файлов", async () => {
+    const stderrWrite = vi.spyOn(process.stderr, "write").mockImplementation(() => true)
+    vi.spyOn(process.stdout, "write").mockImplementation(() => true)
+    const syncConfigurationFromXML = vi.fn().mockResolvedValue({
+      succeeded: 0,
+      failed: [
+        {
+          severity: "error" as const,
+          code: "xml_import_assignment_failed",
+          message: "broken xml",
+          targetProjectPath: "Перечисление/Виды/Свойства.yaml",
+        },
+      ],
+      warnings: [
+        {
+          severity: "warning" as const,
+          code: "unresolved_data_path",
+          message: "ПутьКДанным не разрешён",
+          targetProjectPath: "Форма.yaml",
+        },
+      ],
+      preservedTempRoot: "/yaml/.nkdk/tmp/import/operation-1",
+    })
+
+    await importConfiguration("/xml", "/yaml", { syncConfigurationFromXML })
+
+    expect(stderrWrite).toHaveBeenCalledWith("⚠ ПутьКДанным не разрешён\n")
+    expect(stderrWrite).toHaveBeenCalledWith("Временные файлы: /yaml/.nkdk/tmp/import/operation-1\n")
+    expect(process.exitCode).toBe(1)
   })
 })

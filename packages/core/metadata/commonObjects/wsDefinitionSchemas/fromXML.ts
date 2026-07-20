@@ -24,6 +24,15 @@ export const syncWSDefinitionSchemasFromXML = async (params: {
 }
 
 registerTypeRule("WSDefinitionSchemas", "syncExternalFromXML", syncWSDefinitionSchemasFromXML)
+registerTypeRule("WSDefinitionSchemas", "xmlImportRoutes", () => [
+  {
+    kind: "externalFile",
+    xmlPattern: "Ext/{itemName}.xsd",
+    targetPattern: "XSD/{itemName}.xsd",
+    assignmentTargetPattern: "",
+    source: { kind: "propertyType", type: "WSDefinitionSchemas" },
+  },
+])
 
 const resolveExtDir = (params: { xmlDir: string; objectName?: string }): string => {
   const rootExtDir = join(params.xmlDir, "Ext")

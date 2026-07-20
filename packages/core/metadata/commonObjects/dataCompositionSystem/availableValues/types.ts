@@ -30,5 +30,5 @@ export type DcsAvailableValuesRuleParams = Omit<DcsAvailableValuesWidePropertyRu
 export function dcsAvailableValuesRule<const Params extends DcsAvailableValuesRuleParams>(
   params: WideExactRuleParams<DcsAvailableValuesRuleParams, Params>
 ): Readonly<{ type: "DcsAvailableValues" } & Params> {
-  return defineWidePropertyRule("DcsAvailableValues", params)
+  return defineWidePropertyRule("DcsAvailableValues", { configurationIndexAddressing: "yamlPath" as const, ...params })
 }

@@ -20,6 +20,8 @@ import { mockContextToYAML } from "../../../tests/mockContext"
 import { exportClientApplicationFormToYAML } from "./toYAML"
 import { ClientApplicationForm } from "./types"
 import type { ConfigurationContext } from "../../context/types"
+import { createImportSharedMetadata } from "../../importFromXml/metadataSnapshot"
+import { createOwnerMetadataCacheFromSharedValidationSnapshot } from "../../validation/dataPath/sharedOwnerCache"
 import "../../appliedObjects/dataPathCommon/register"
 import "../../appliedObjects/metadataCatalog/register"
 
@@ -182,6 +184,55 @@ describe("exportClientApplicationFormToYAML", () => {
     }
 
     const { yaml } = exportClientApplicationFormToYAML(contextWithProjectDir(), form)
+
+    expect(yaml?.Элементы?.Код).toMatchObject({ ПутьКДанным: "Объект.Код" })
+  })
+
+  it("exports data paths through an injected owner cache without a YAML project", () => {
+    const codeField = {
+      name: "Код",
+      targetName: "Code",
+      kind: "standardAttribute" as const,
+      sourceCollection: "standardAttributes",
+      typeInfo: { kinds: ["scalar" as const], nextTypes: [], sourceText: "Catalog.Code" },
+    }
+    const snapshot = createImportSharedMetadata([
+      {
+        ref: { kind: "Справочник", name: "Товары" },
+        filePath: "Справочник/Товары/Свойства.yaml",
+        fieldIndex: {
+          fields: new Map([
+            ["Code", codeField],
+            ["Код", codeField],
+          ]),
+          standardAttributeAliases: new Map([["Code", "Код"]]),
+          diagnostics: [],
+        },
+      },
+    ])
+    const ownerMetadataCache = createOwnerMetadataCacheFromSharedValidationSnapshot({
+      projectDir: "/project-must-not-be-read",
+      snapshot,
+    })
+    const ownerResult = ownerMetadataCache.get({ kind: "Справочник", name: "Товары" })
+    expect(ownerResult.status).toBe("ok")
+    if (ownerResult.status !== "ok") throw new Error("Ожидался владелец")
+    expect([...ownerResult.owner.fieldIndex.standardAttributeAliases]).toEqual([["Code", "Код"]])
+    const context: ConfigurationContext = {
+      ...mockContextToYAML,
+      exportToYAML: {
+        ...mockContextToYAML.exportToYAML!,
+        ownerMetadataCache,
+        metadataTargetOwners: [{ itemType: "MetadataCatalog", name: "Товары" }],
+      },
+    }
+    const form: ClientApplicationForm = {
+      itemType: "ClientApplicationForm",
+      attributes: [{ itemType: "FormAttribute", name: "Объект", type: { type: ["CatalogRef.Товары"] }, columns: [] }],
+      childItems: [{ itemType: "InputField", name: "Код", dataPath: "Объект.Code" }],
+    }
+
+    const { yaml } = exportClientApplicationFormToYAML(context, form)
 
     expect(yaml?.Элементы?.Код).toMatchObject({ ПутьКДанным: "Объект.Код" })
   })

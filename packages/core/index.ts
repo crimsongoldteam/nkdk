@@ -3,6 +3,13 @@ import { registerCoreMetadata } from "./metadata/register"
 registerCoreMetadata()
 
 export { registerCoreMetadata } from "./metadata/register"
+export * from "./metadata/configurationIndex"
+export { NKDK_CORE_VERSION } from "./version"
+export {
+  importConfigurationFromXml,
+  type ConfigurationImportResult,
+  type ImportConfigurationFromXmlParams,
+} from "./metadata/importFromXml"
 export { syncConfigurationFromXML } from "./metadata/appliedObjects/configuration/convertFromXML"
 export type { ConfigurationSyncResult } from "./metadata/appliedObjects/configuration/convertFromXML"
 export { syncConfigurationIncrementallyToXML } from "./metadata/appliedObjects/configuration/incrementalSyncToXML"

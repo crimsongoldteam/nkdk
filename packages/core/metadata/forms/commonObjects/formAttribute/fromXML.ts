@@ -16,6 +16,11 @@ import {
   FormAttributeWithAdditionalColumns,
   FormAttributeXML,
 } from "./types"
+import { childUid, indexedUid } from "../../../configurationIndex/logicalAddress"
+import {
+  getConfigurationIndexCollectionContext,
+  withConfigurationIndexLogicalAddress,
+} from "../../../configurationIndex/collector/context"
 
 const isAttributesContainerWithoutAttributes = (xml: unknown): boolean => {
   if (xml === null || xml === undefined || Array.isArray(xml) || typeof xml !== "object") return false
@@ -35,7 +40,18 @@ export const importFormAttributesFromXML = (
 
   const xmlAttributes = "Attribute" in xml ? xml.Attribute : xml
   const items = Array.isArray(xmlAttributes) ? xmlAttributes : [xmlAttributes]
-  const attributes = items.map((item) => importFormAttributeFromXML(context, item as FormAttributeXML))
+  const collection = getConfigurationIndexCollectionContext(context)
+  const attributes = items.map((item) => {
+    const attributeXml = item as FormAttributeXML
+    const attributeContext =
+      collection !== undefined && typeof attributeXml._name === "string"
+        ? withConfigurationIndexLogicalAddress(
+            context,
+            childUid(collection.logicalAddress, "Атрибут", attributeXml._name)
+          )
+        : context
+    return importFormAttributeFromXML(attributeContext, attributeXml)
+  })
 
   return attributes
 }
@@ -145,10 +161,21 @@ const importColumnsFromXML = (
   if (!xml) return []
 
   const items = Array.isArray(xml) ? xml : [xml]
+  const collection = getConfigurationIndexCollectionContext(context)
+  const duplicatedNames = duplicatedColumnNames(items)
 
-  return items.map((item) => {
+  return items.map((item, index) => {
+    const columnContext =
+      collection === undefined
+        ? context
+        : withConfigurationIndexLogicalAddress(
+            context,
+            typeof item._name === "string" && item._name.length > 0 && !duplicatedNames.has(item._name)
+              ? childUid(collection.logicalAddress, "Колонка", item._name)
+              : indexedUid(collection.logicalAddress, "Колонка", index)
+          )
     const properties = importMetadataItemFromXML({
-      context: context,
+      context: columnContext,
       xml: item,
       rule: FormAttributeColumnRules,
     })
@@ -169,6 +196,17 @@ const importColumnsFromXML = (
   })
 }
 
+function duplicatedColumnNames(items: readonly FormAttributeColumnXML[]): ReadonlySet<string> {
+  const seen = new Set<string>()
+  const duplicated = new Set<string>()
+  for (const item of items) {
+    if (typeof item._name !== "string" || item._name.length === 0) continue
+    if (seen.has(item._name)) duplicated.add(item._name)
+    seen.add(item._name)
+  }
+  return duplicated
+}
+
 const importAdditionalColumnsFromXML = (
   context: ConfigurationContextFromXML,
   xml: FormAttributeAdditionalColumnXML | FormAttributeAdditionalColumnXML[] | undefined
@@ -177,10 +215,22 @@ const importAdditionalColumnsFromXML = (
 
   const items = Array.isArray(xml) ? xml : [xml]
 
-  return items.map((item) => ({
-    table: item._table,
-    columns: importColumnsFromXML(context, item.Column ?? [])!,
-  }))
+  const collection = getConfigurationIndexCollectionContext(context)
+  return items.map((item, index) => {
+    const additionalColumnsContext =
+      collection === undefined
+        ? context
+        : withConfigurationIndexLogicalAddress(
+            context,
+            typeof item._table === "string" && item._table.length > 0
+              ? childUid(collection.logicalAddress, "ДополнительныеКолонки", item._table)
+              : indexedUid(collection.logicalAddress, "ДополнительныеКолонки", index)
+          )
+    return {
+      table: item._table,
+      columns: importColumnsFromXML(additionalColumnsContext, item.Column ?? [])!,
+    }
+  })
 }
 
 const importFormAttributeAdditionalColumnsFromXML = (

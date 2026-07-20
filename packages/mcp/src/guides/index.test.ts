@@ -23,4 +23,12 @@ describe("guide definitions", () => {
     expect(editGuide?.text).toContain("Справочник.Товары.Реквизит.Артикул")
     expect(editGuide?.text).toContain("Документ.Заказ.ТабличнаяЧасть.Товары.Реквизит.Количество")
   })
+
+  it("describes XML-import preservation and version boundaries", () => {
+    const importGuide = guideDefinitions.find((guide) => guide.uri === "nkdk://guides/config-import-from-xml")
+
+    expect(importGuide?.text).toContain("не очищает Проект")
+    expect(importGuide?.text).toContain(".nkdk/tmp/import/<operation-id>")
+    expect(importGuide?.text).toContain("не подключается к 1С")
+  })
 })

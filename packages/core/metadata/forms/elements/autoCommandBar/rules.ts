@@ -47,6 +47,7 @@ registerElementAsType({
   nameStyle: {
     canonicalSuffix: "ФормаКоманднаяПанель",
     referenceSuffixes: ["ФормаКоманднаяПанель", "FormCommandBar"],
+    canonicalNameMode: "fixed",
   },
   toXML: () => ({
     id: "-1",
@@ -59,6 +60,7 @@ registerElementAsType({
   nameStyle: {
     canonicalSuffix: "КоманднаяПанель",
     referenceSuffixes: ["КоманднаяПанель", "CommandBar"],
+    canonicalNameMode: "ownerSuffix",
   },
   toXML: (params: { context: ConfigurationContextWithExportToXML; element: BaseElement | undefined }) => {
     const { context } = params

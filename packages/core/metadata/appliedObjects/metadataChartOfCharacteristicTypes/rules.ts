@@ -417,5 +417,11 @@ export const MetadataChartOfCharacteristicTypesRules = {
       fromXML: false,
     }),
   },
-  childCollections: [{ propertyKey: "commands", itemRule: MetadataChartOfCharacteristicTypesCommandRules }],
+  childCollections: [
+    {
+      propertyKey: "commands",
+      configurationIndexUidSegment: "Команда",
+      itemRule: MetadataChartOfCharacteristicTypesCommandRules,
+    },
+  ],
 } as const satisfies MetadataItemRule

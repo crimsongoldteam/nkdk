@@ -24,4 +24,5 @@ registerMetadataItemCollectionRule({
   itemRule: DataCompositionSchemaDataSetFieldRules,
   xmlElement: "Field",
   yamlAsArray: true,
+  configurationIndexAddressing: "yamlPath",
 })

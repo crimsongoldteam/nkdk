@@ -1,10 +1,15 @@
 import type {
+  ConfigurationImportResult,
   MetadataOperationChangedXmlFile,
   MetadataOperationResult,
+  MetadataProjectDirectoryStructure,
+  MetadataProjectStructureNode,
   MigrationChainInvalidResult,
   MigrationPlanItem,
 } from "@nkdk/core"
 import * as coreApi from "@nkdk/core"
+
+export type { MetadataProjectDirectoryStructure, MetadataProjectStructureNode } from "@nkdk/core"
 
 export interface SchemaSummaryOptions {
   requiredOnly?: boolean
@@ -42,24 +47,6 @@ export interface XmlSyncState {
   files: Record<string, string>
 }
 
-export interface MetadataProjectStructureNode {
-  name: string
-  kind: "directory" | "file"
-  pathTemplate: string
-  role: string
-  required: boolean
-  repeatable: boolean
-  description: string
-  children?: MetadataProjectStructureNode[]
-}
-
-export interface MetadataProjectDirectoryStructure extends Record<string, unknown> {
-  projectDir: string
-  directoryPath: string
-  depth: number | null
-  node: MetadataProjectStructureNode
-}
-
 type ConfigDumpInfo = Map<
   string,
   {
@@ -70,7 +57,10 @@ type ConfigDumpInfo = Map<
 >
 
 export interface CoreApi {
-  ProjectFileSchemaError: typeof Error
+  ProjectFileSchemaError: {
+    new (message: string): Error
+    prototype: Error
+  }
   splitSearchTerms(query: string): string[]
   listSchemaSummaryKeys(schema: unknown, options?: SchemaSummaryOptions): string[]
   summarizeJSONSchema(schema: unknown, options?: SchemaSummaryOptions): unknown | undefined
@@ -126,7 +116,7 @@ export interface CoreApi {
     }
     inputDir: string
     outputDir: string
-  }): Promise<ConfigurationSyncResult>
+  }): Promise<ConfigurationImportResult>
   syncConfigurationToXML(params: {
     context: {
       defaultLanguage: "ru"
@@ -173,7 +163,7 @@ export interface CoreApi {
   initializeXmlSyncState(params: {
     yamlDir: string
     xmlDir: string
-  }): Promise<void>
+  }): Promise<XmlSyncState>
 }
 
 export function loadCoreApi(): Promise<CoreApi> {

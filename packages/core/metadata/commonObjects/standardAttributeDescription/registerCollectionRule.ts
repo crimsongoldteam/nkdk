@@ -78,7 +78,9 @@ function importStandardAttributeDescriptionsFromXML(
   rule: PropertyRule,
   xml: any
 ) {
-  const importer = importMetadataItemCollectionFromXML(StandardAttributeDescriptionRules, "xr:StandardAttribute")
+  const importer = importMetadataItemCollectionFromXML(StandardAttributeDescriptionRules, "xr:StandardAttribute", {
+    configurationIndexUidSegment: rule.configurationIndexUidSegment,
+  })
   const xmlForImporter =
     xml && typeof xml === "object" && "xr:StandardAttribute" in xml ? xml : { "xr:StandardAttribute": xml }
   const raw = importer(context, rule, xmlForImporter) as StandardAttributeDescription[] | undefined

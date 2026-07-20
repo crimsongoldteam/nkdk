@@ -1,7 +1,7 @@
 import fs from "fs"
 import os from "os"
 import { dirname, join } from "path"
-import { beforeEach, describe, expect, it } from "vitest"
+import { afterAll, beforeAll, beforeEach, describe, expect, it } from "vitest"
 import { mockContextFromXML, mockContextToXML } from "../../../tests/mockContext"
 import { getXMLFixturePath, readXMLFileAsString } from "../../../tests/readAndParseXMLFile"
 import { importContentFromXML } from "../../../xml/import/importer"
@@ -615,62 +615,72 @@ describe("sync configuration to XML", () => {
     }
   })
 
-  it("round-trip Document/DocumentNumerator/Sequence: XML → YAML → XML возвращает исходный XML", async () => {
-    const tmpYamlDir = getXMLFixturePath("sync/syncConfiguration/_tmp_yaml")
-    const tmpXmlDir = getXMLFixturePath("sync/syncConfiguration/_tmp_xml")
-    if (fs.existsSync(tmpYamlDir)) fs.rmSync(tmpYamlDir, { recursive: true })
-    if (fs.existsSync(tmpXmlDir)) fs.rmSync(tmpXmlDir, { recursive: true })
-    fs.mkdirSync(tmpYamlDir, { recursive: true })
-    fs.mkdirSync(tmpXmlDir, { recursive: true })
+  describe("round-trip Document/DocumentNumerator/Sequence", () => {
+    const tmp = fs.mkdtempSync(join(os.tmpdir(), "nkdk-round-trip-document-family-"))
+    const tmpInputXmlDir = join(tmp, "input-xml")
+    const tmpYamlDir = join(tmp, "yaml")
+    const tmpXmlDir = join(tmp, "xml")
 
-    // 1. XML → YAML
-    await syncConfigurationFromXML({
-      context: mockContextFromXML(),
-      inputDir: referenceDir,
-      outputDir: tmpYamlDir,
+    beforeAll(async () => {
+      fs.mkdirSync(tmpYamlDir, { recursive: true })
+      fs.mkdirSync(tmpXmlDir, { recursive: true })
+      copySyncConfigurationXmlSubset(tmpInputXmlDir, [
+        ["DocumentNumerators", "НумераторПоУмолчанию.xml"],
+        ["Documents", "ДокументПоУмолчанию.xml"],
+        ["Sequences", "ПоследовательностьПоУмолчанию.xml"],
+      ])
+
+      await syncConfigurationFromXML({
+        context: mockContextFromXML(),
+        inputDir: tmpInputXmlDir,
+        outputDir: tmpYamlDir,
+      })
+
+      await syncConfigurationToXML({
+        context: mockContextToXML(),
+        inputDir: tmpYamlDir,
+        outputDir: tmpXmlDir,
+        referenceDir: tmpInputXmlDir,
+      })
+    }, 30_000)
+
+    afterAll(() => {
+      fs.rmSync(tmp, { recursive: true, force: true })
     })
 
-    // 2. YAML → XML
-    await syncConfigurationToXML({
-      context: mockContextToXML(),
-      inputDir: tmpYamlDir,
-      outputDir: tmpXmlDir,
-      referenceDir,
+    it("возвращает исходный XML для DocumentNumerator/Sequence", () => {
+      for (const [xmlSubdir, fileName] of [
+        ["DocumentNumerators", "НумераторПоУмолчанию.xml"],
+        ["Sequences", "ПоследовательностьПоУмолчанию.xml"],
+      ] as const) {
+        const expected = readXMLFileAsString(join("sync/syncConfiguration/xml", xmlSubdir, fileName))
+        const actual = fs.readFileSync(join(tmpXmlDir, xmlSubdir, fileName), "utf-8")
+        expect(actual, `mismatch in ${xmlSubdir}/${fileName}`).toBe(expected)
+      }
     })
 
-    // DocumentNumerator и Sequence — полный round-trip (правила покрывают все поля фикстуры)
-    for (const [xmlSubdir, fileName] of [
-      ["DocumentNumerators", "НумераторПоУмолчанию.xml"],
-      ["Sequences", "ПоследовательностьПоУмолчанию.xml"],
-    ] as const) {
-      const expected = readXMLFileAsString(join("sync/syncConfiguration/xml", xmlSubdir, fileName))
-      const actual = readXMLFileAsString(join("sync/syncConfiguration/_tmp_xml", xmlSubdir, fileName))
-      expect(actual, `mismatch in ${xmlSubdir}/${fileName}`).toBe(expected)
-    }
-
-    // Document — только проверка, что walker дошёл до Documents/ и создал XML.
-    // Полный round-trip XML→YAML→XML для Document остаётся ослабленным и в этой
-    // версии — не из-за `MetadataDocumentRules` (пробелы закрыты в PRD-1
-    // `2026-04-26-metadata-document-round-trip-gaps`), а из-за общих
-    // инфраструктурных ограничений, не входящих в границы того PRD:
-    //   1. mockContextToXML не подкладывает фиксированный `uuid` в <Document>.
-    //   2. StandardAttributeDescriptions сериализует атрибуты алфавитно,
-    //      а реальная фикстура имеет порядок Posted/Ref/DeletionMark/Date/Number.
-    //   3. InternalInfo-механизм для TabularSection зашит на CatalogTabularSection,
-    //      а Document требует DocumentTabularSection.
-    //   4. <Form>/<Template>: PRD-2 (Document — Forms/Templates/Modules/Help).
-    //   5. У атрибутов сериализуется лишний <Use>ForItem</Use>
-    //      (поведение общей сериализации атрибутов).
-    // Поднять assertions до уровня Sequence/DocumentNumerator можно после
-    // устранения каждого из пунктов выше — это отдельные тикеты вне границ
-    // PRD-1.
-    expect(
-      fs.existsSync(join(tmpXmlDir, "Documents", "ДокументПоУмолчанию.xml")),
-      "walker should produce Documents/ДокументПоУмолчанию.xml"
-    ).toBe(true)
-
-    fs.rmSync(tmpYamlDir, { recursive: true })
-    fs.rmSync(tmpXmlDir, { recursive: true })
+    it("создаёт XML документа", () => {
+      // Document — только проверка, что walker дошёл до Documents/ и создал XML.
+      // Полный round-trip XML→YAML→XML для Document остаётся ослабленным и в этой
+      // версии — не из-за `MetadataDocumentRules` (пробелы закрыты в PRD-1
+      // `2026-04-26-metadata-document-round-trip-gaps`), а из-за общих
+      // инфраструктурных ограничений, не входящих в границы того PRD:
+      //   1. mockContextToXML не подкладывает фиксированный `uuid` в <Document>.
+      //   2. StandardAttributeDescriptions сериализует атрибуты алфавитно,
+      //      а реальная фикстура имеет порядок Posted/Ref/DeletionMark/Date/Number.
+      //   3. InternalInfo-механизм для TabularSection зашит на CatalogTabularSection,
+      //      а Document требует DocumentTabularSection.
+      //   4. <Form>/<Template>: PRD-2 (Document — Forms/Templates/Modules/Help).
+      //   5. У атрибутов сериализуется лишний <Use>ForItem</Use>
+      //      (поведение общей сериализации атрибутов).
+      // Поднять assertions до уровня Sequence/DocumentNumerator можно после
+      // устранения каждого из пунктов выше — это отдельные тикеты вне границ
+      // PRD-1.
+      expect(
+        fs.existsSync(join(tmpXmlDir, "Documents", "ДокументПоУмолчанию.xml")),
+        "walker should produce Documents/ДокументПоУмолчанию.xml"
+      ).toBe(true)
+    })
   })
 
   it("без миграций сохраняет reference-данные коллекций по обычному имени", async () => {
@@ -1248,4 +1258,13 @@ describe("sync configuration to XML", () => {
 const writeTestFile = (path: string, content: string | Buffer): void => {
   fs.mkdirSync(dirname(path), { recursive: true })
   fs.writeFileSync(path, content)
+}
+
+const copySyncConfigurationXmlSubset = (targetDir: string, files: readonly (readonly [string, string])[]): void => {
+  for (const [xmlSubdir, fileName] of files) {
+    const sourcePath = getXMLFixturePath(join("sync/syncConfiguration/xml", xmlSubdir, fileName))
+    const targetPath = join(targetDir, xmlSubdir, fileName)
+    fs.mkdirSync(dirname(targetPath), { recursive: true })
+    fs.copyFileSync(sourcePath, targetPath)
+  }
 }

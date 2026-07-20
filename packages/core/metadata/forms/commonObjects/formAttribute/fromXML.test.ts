@@ -27,6 +27,8 @@ import { valueListWithReferenceEmptySettings } from "./__fixtures__/valueListWit
 import { valueListWithoutSettings } from "./__fixtures__/valueListWithoutSettings"
 import { importFormAttributesFromXML } from "./fromXML"
 import { FormAttributesXML } from "./types"
+import { createConfigurationIndexCollector } from "../../../configurationIndex/collector/writer"
+import { withConfigurationIndexCollector } from "../../../configurationIndex/collector/context"
 
 const formAttributesRule = { type: "FormAttributes", xml: "Attribute" } as const
 
@@ -98,6 +100,33 @@ describe("importFormAttributesFromXML", () => {
     const result = importFormAttributesFromXML(mockContextFromXML(), mockRule, xmlData)
 
     expect(result).toEqual(tableWithColumnsFormAttribute)
+  })
+
+  it("собирает id колонок по отдельным logicalAddress", () => {
+    const collector = createConfigurationIndexCollector()
+    const context = withConfigurationIndexCollector(
+      mockContextFromXML(),
+      collector,
+      "Справочник.Контрагенты.Форма.ФормаЭлемента"
+    )
+    const xmlData = readAndParseXMLFile<{ Attribute: FormAttributesXML }>("formAttributes/tableWithColumns.xml")
+
+    importFormAttributesFromXML(context, mockRule, xmlData)
+
+    expect(collector.fragment("Форма.yaml").identities).toEqual(
+      expect.arrayContaining([
+        {
+          logicalAddress: "Справочник.Контрагенты.Форма.ФормаЭлемента.Атрибут.Таблица.Колонка.Колонка1",
+          kind: "xmlId",
+          value: "1",
+        },
+        {
+          logicalAddress: "Справочник.Контрагенты.Форма.ФормаЭлемента.Атрибут.Таблица.Колонка.Колонка2",
+          kind: "xmlId",
+          value: "2",
+        },
+      ])
+    )
   })
 
   it("should import tree with column", () => {

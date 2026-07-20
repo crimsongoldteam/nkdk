@@ -3,7 +3,24 @@ import { ConfigurationContextFromXML } from "../../context/types"
 import { MetadataItemRule, PropertyRule, ToMetadata } from ".."
 import { getTypeRule } from "./typeRuleRegistry"
 import { importContentFromXML } from "../../../xml/import/importer"
-import { getOrderedKeysFromXML, getValueOrDefault, shouldProcessProperty, XML_SOURCE_KEYS } from "./helpers"
+import {
+  getOrderedKeysFromXML,
+  getValueOrDefault,
+  presenceAffectsExport,
+  shouldProcessProperty,
+  XML_SOURCE_KEYS,
+} from "./helpers"
+import {
+  collectConfigurationIndexIdentityFromXML,
+  collectConfigurationIndexImportedValue,
+  collectConfigurationIndexPropertyFromXML,
+} from "../../configurationIndex/collector/collectProperty"
+import {
+  getConfigurationIndexCollectionContext,
+  getConfigurationIndexPropertyLogicalAddress,
+  getConfigurationIndexXmlNodeLogicalAddress,
+  runWithConfigurationIndexPropertyContext,
+} from "../../configurationIndex/collector/context"
 
 export function importPropertiesFromXML<Rule extends MetadataItemRule>(
   params: {
@@ -23,13 +40,36 @@ export function importPropertiesFromXML<Rule extends MetadataItemRule>(
 
   const orderedKeys = getOrderedKeysFromXML({ rule, xml, tags })
   const ownerXmlName = getOwnerXmlName(xml)
+  const indexCollection = getConfigurationIndexCollectionContext(context)
+  const xmlNodeLogicalAddress =
+    indexCollection === undefined ? undefined : getConfigurationIndexXmlNodeLogicalAddress(indexCollection)
+  const importedKeysInSourceOrder: string[] = []
 
   for (const key of orderedKeys) {
     const currentRule = rule.properties[key]
+    const sourceXmlKey = getXMLKey(key, xml, currentRule)
+    const sourceXmlValue = sourceXmlKey === undefined ? undefined : getXMLValueByKey(sourceXmlKey, xml, currentRule)
+    collectConfigurationIndexIdentityFromXML({ context, sourceXmlKey, xmlValue: sourceXmlValue })
+
     if (!forReference && currentRule.forReferenceOnly === true) continue
 
-    const sourceXmlKey = getXMLKey(key, xml, currentRule)
-    let xmlValue = sourceXmlKey === undefined ? undefined : getXMLValueByKey(sourceXmlKey, xml, currentRule)
+    if (indexCollection !== undefined && sourceXmlKey !== undefined) {
+      importedKeysInSourceOrder.push(key)
+      const canonicalXmlKey = currentRule.xml ?? capitalize(key)
+      if (sourceXmlKey !== canonicalXmlKey) {
+        indexCollection.collector.setAlias(xmlNodeLogicalAddress!, key, sourceXmlKey)
+      }
+      if (
+        presenceAffectsExport({
+          rule: currentRule,
+          sourceXmlValue,
+          typeBehavior: getTypeRule(currentRule.type, "xmlImportPropertyBehavior"),
+        })
+      ) {
+        indexCollection.collector.setPresent(xmlNodeLogicalAddress!, key)
+      }
+    }
+    let xmlValue = sourceXmlValue
     if (
       xmlValue === undefined &&
       currentRule.type === "MetadataDcsMetadataValue" &&
@@ -39,6 +79,25 @@ export function importPropertiesFromXML<Rule extends MetadataItemRule>(
     }
     if (xmlValue === undefined && currentRule.type === "MetadataValue" && isXMLKeyPresent(key, xml, currentRule)) {
       xmlValue = { "_xsi:nil": true }
+    }
+    const propertyLogicalAddress =
+      indexCollection === undefined ||
+      (indexCollection.yamlPathAddressing !== true && currentRule.configurationIndexAddressing !== "yamlPath")
+        ? undefined
+        : getConfigurationIndexPropertyLogicalAddress(
+            indexCollection,
+            currentRule.yaml ?? key,
+            currentRule.configurationIndexAddressing
+          )
+    if (sourceXmlKey !== undefined) {
+      collectConfigurationIndexPropertyFromXML({
+        context,
+        logicalAddress: propertyLogicalAddress,
+        propertyKey: key,
+        xmlValue,
+        rule: currentRule,
+        descriptor: getTypeRule(currentRule.type, "configurationIndexValueFromXML"),
+      })
     }
     const shouldImportForReference =
       forReference &&
@@ -52,18 +111,30 @@ export function importPropertiesFromXML<Rule extends MetadataItemRule>(
     const hasRawEmptyXML = hasExplicitXMLKeyWithEmptyDefault && (xmlValue === undefined || xmlValue === "")
 
     let value
+    const childCollection = rule.childCollections?.find((candidate) => candidate.propertyKey === key)
+    const configurationIndexUidSegment =
+      childCollection?.configurationIndexUidSegment ??
+      currentRule.configurationIndexUidSegment ??
+      currentRule.operationTarget?.migrationSegment
     if (hasRawEmptyXML && (currentRule as any).emptyAsRawXML === true) {
       value = (currentRule as any).defaultValueXMLEmpty
     } else {
       value =
         shouldImportForReference || currentRule.fromXML !== false
-          ? importPropertyFromXML({
+          ? runWithConfigurationIndexPropertyContext(
               context,
-              rule: currentRule,
-              value: xmlValue,
-              name: key,
-              ownerXmlName,
-            })
+              currentRule.yaml ?? key,
+              configurationIndexUidSegment,
+              (propertyContext) =>
+                importPropertyFromXML({
+                  context: propertyContext,
+                  rule: currentRule,
+                  value: xmlValue,
+                  name: key,
+                  ownerXmlName,
+                }),
+              { configurationIndexAddressing: currentRule.configurationIndexAddressing }
+            )
           : undefined
     }
 
@@ -94,6 +165,16 @@ export function importPropertiesFromXML<Rule extends MetadataItemRule>(
     if (valueOrDefault === undefined) continue
     ;(result as any)[key] = valueOrDefault
     if (sourceXmlKey !== undefined) setXMLSourceKey(result, key, sourceXmlKey, false)
+    collectConfigurationIndexImportedValue({
+      context,
+      logicalAddress: propertyLogicalAddress,
+      propertyKey: key,
+      importedValue: valueOrDefault,
+    })
+  }
+
+  if (indexCollection !== undefined && importedKeysInSourceOrder.length > 0) {
+    indexCollection.collector.setOrder(xmlNodeLogicalAddress!, importedKeysInSourceOrder)
   }
 
   return result

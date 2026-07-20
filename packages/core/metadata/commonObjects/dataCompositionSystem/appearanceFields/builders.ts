@@ -13,5 +13,5 @@ export type AppearanceFieldsRuleParams = Omit<AppearanceFieldsWidePropertyRule, 
 export function appearanceFieldsRule<const Params extends AppearanceFieldsRuleParams>(
   params: WideExactRuleParams<AppearanceFieldsRuleParams, Params>
 ): Readonly<{ type: "AppearanceFields" } & Params> {
-  return defineWidePropertyRule("AppearanceFields", params)
+  return defineWidePropertyRule("AppearanceFields", { configurationIndexAddressing: "yamlPath" as const, ...params })
 }

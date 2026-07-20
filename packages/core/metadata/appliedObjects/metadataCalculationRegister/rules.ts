@@ -223,7 +223,11 @@ export const MetadataCalculationRegisterRules = {
     }),
   },
   childCollections: [
-    { propertyKey: "commands", itemRule: MetadataCalculationRegisterCommandRules },
-    { propertyKey: "recalculations", itemRule: RecalculationRules },
+    {
+      propertyKey: "commands",
+      configurationIndexUidSegment: "Команда",
+      itemRule: MetadataCalculationRegisterCommandRules,
+    },
+    { propertyKey: "recalculations", configurationIndexUidSegment: "Перерасчёт", itemRule: RecalculationRules },
   ],
 } as const satisfies MetadataItemRule

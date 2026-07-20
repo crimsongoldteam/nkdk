@@ -60,6 +60,32 @@ describe("formatDataPathStandardMembers", () => {
       })
     ).toBe("Объект.Код")
   })
+
+  it("preserves an unresolved data path and reports one import warning", () => {
+    const diagnostics: unknown[] = []
+
+    const formatted = formatDataPathStandardMembers({
+      value: "Неизвестный.Переход",
+      direction: "internal-to-yaml",
+      index: indexWithAttributes([]),
+      ownerCache: ownerCache([]),
+      diagnosticSink: {
+        targetProjectPath: "Справочник/Товары/Формы/Форма/Форма.yaml",
+        append: (diagnostic) => diagnostics.push(diagnostic),
+      },
+    })
+
+    expect(formatted).toBe("Неизвестный.Переход")
+    expect(diagnostics).toEqual([
+      {
+        severity: "warning",
+        code: "unresolved_data_path",
+        targetProjectPath: "Справочник/Товары/Формы/Форма/Форма.yaml",
+        value: "Неизвестный.Переход",
+        message: "Не удалось преобразовать ПутьКДанным: Неизвестный.Переход",
+      },
+    ])
+  })
 })
 
 function indexWithAttributes(attributes: FormAttribute[]): FormDataPathIndex {

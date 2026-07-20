@@ -1,4 +1,5 @@
 import { ConfigurationContextFromXML } from "../../../context/types"
+import { withConfigurationIndexYamlCollectionItemContext } from "../../../configurationIndex/collector/context"
 import { importMetadataItemFromXML } from "../../../orchestration/metadataItem/fromXML"
 import type { PropertyRule } from "../../../orchestration/property/types"
 import { OrderItemFieldRules } from "./rules"
@@ -33,8 +34,9 @@ export const importOrderItemFieldsFromXML = (
       ? (xml as Record<string, unknown>)["dcsset:item"]
       : xml
   const items = Array.isArray(source) ? source : [source]
-  const result = items.flatMap((item) => {
-    const imported = importOrderItemFromXML(context, item)
+  const result = items.flatMap((item, index) => {
+    const itemContext = withConfigurationIndexYamlCollectionItemContext(context, { index, yamlAsArray: true })
+    const imported = importOrderItemFromXML(itemContext, item)
     return imported ? [imported] : []
   })
 

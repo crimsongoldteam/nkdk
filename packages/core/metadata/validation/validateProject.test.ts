@@ -1,22 +1,39 @@
 import { mkdirSync, mkdtempSync, rmSync, writeFileSync } from "fs"
 import { tmpdir } from "os"
 import { join, resolve } from "path"
-import { afterAll, afterEach, describe, expect, it, vi } from "vitest"
+import { afterAll, afterEach, beforeAll, describe, expect, it, vi } from "vitest"
 import { TopLevelMetadataItemRules } from "../appliedObjects/configuration/topLevelRules"
 import { mockContext } from "../../tests/mockContext"
+import type { PreparedYamlProjectWorkerTask } from "../project/preparedYamlProjectWorker"
 import { ProjectFileSchemaError } from "./projectFileSchema"
 import {
   getProjectValidationReadCountForTests,
   resetProjectValidationReadCountForTests,
 } from "./projectValidationPasses"
-import { createValidationWorkerPoolHandle, validateProject } from "./validateProject"
+import {
+  createValidationWorkerPoolHandle,
+  validateProject as validateProjectOnce,
+  type ValidateProjectParams,
+  type ValidateProjectResult,
+} from "./validateProject"
 
 describe("validateProject", { timeout: 120_000 }, () => {
   const tempDirs: string[] = []
   const workerHandle = createValidationWorkerPoolHandle({ concurrency: 2 })
+  const singleWorkerHandle = createValidationWorkerPoolHandle({ concurrency: 1 })
+
+  beforeAll(async () => {
+    const projectDir = createProject()
+    writeProjectFile(projectDir, "Справочник/Прогрев/Свойства.yaml", "{}\n")
+    writeProjectFile(projectDir, "Справочник/Прогрев/Формы/ФормаЭлемента/Форма.yaml", ["Элементы: {}"])
+
+    await workerHandle.validateProject({ projectDir, context: mockContext })
+    await singleWorkerHandle.validateProject({ projectDir, context: mockContext })
+  }, 30_000)
 
   afterAll(async () => {
     await workerHandle.close()
+    await singleWorkerHandle.close()
   })
 
   afterEach(() => {
@@ -26,17 +43,46 @@ describe("validateProject", { timeout: 120_000 }, () => {
     }
   })
 
+  async function validateProject(params: ValidateProjectParams): Promise<ValidateProjectResult> {
+    const { concurrency, ...workerParams } = params
+    const handle = concurrency === 1 ? singleWorkerHandle : workerHandle
+
+    return handle.validateProject(workerParams)
+  }
+
   it("returns a Promise from the public validateProject API", async () => {
     const projectDir = createProject()
     writeProjectFile(projectDir, "Справочник/Товары/Свойства.yaml", "{}\n")
 
-    const result = validateProject({ projectDir, context: mockContext, concurrency: 1 })
+    const result = validateProjectOnce({ projectDir, context: mockContext, concurrency: 1 })
 
     expect(result).toBeInstanceOf(Promise)
     await expect(result).resolves.toEqual({ diagnostics: [] })
   })
 
-  it("emits detailed validation profile records", async () => {
+  it("validates one file through the persistent worker", async () => {
+    const run = vi.fn(async (task: PreparedYamlProjectWorkerTask) => {
+      expect(task).toMatchObject({
+        kind: "validatePartial",
+        filePath: "Справочник/Товары/Свойства.yaml",
+      })
+      return { kind: "validatePartialResult" as const, diagnostics: [] }
+    })
+    const destroy = vi.fn(async () => undefined)
+    const handle = createValidationWorkerPoolHandle({
+      concurrency: 1,
+      createWorkerPool: () => ({ run, destroy }),
+    })
+
+    await expect(
+      handle.validateProject({ projectDir: "/project", filePath: "Справочник/Товары/Свойства.yaml" })
+    ).resolves.toEqual({ diagnostics: [] })
+    expect(run).toHaveBeenCalledOnce()
+    await handle.close()
+    expect(destroy).toHaveBeenCalledOnce()
+  })
+
+  it("emits detailed main-process validation profile records", async () => {
     const error = vi.spyOn(console, "error").mockImplementation(() => undefined)
     const previous = process.env["NKDK_VALIDATION_TIMING"]
     let lines: string[] = []
@@ -53,9 +99,7 @@ describe("validateProject", { timeout: 120_000 }, () => {
       error.mockRestore()
     }
 
-    expect(lines.some((line) => line.includes("[validation-step]") && line.includes('step="Первичная проверка YAML"'))).toBe(
-      true
-    )
+    expect(lines.some((line) => line.includes("[validation-step]") && line.includes('step="Инициализация"'))).toBe(true)
     expect(lines.some((line) => line.includes("[validation-step]") && line.includes('step="Обобщение индексов"'))).toBe(
       true
     )
@@ -65,6 +109,7 @@ describe("validateProject", { timeout: 120_000 }, () => {
     expect(lines.some((line) => line.includes("[validation-step]") && line.includes('step="Завершение validation"'))).toBe(
       true
     )
+    expect(lines.every((line) => !line.includes("scope=worker"))).toBe(true)
   })
 
   it("uses worker validation for a full project below the old file threshold", async () => {
@@ -322,19 +367,11 @@ describe("validateProject", { timeout: 120_000 }, () => {
     const projectDir = createProject()
     writeProjectFile(projectDir, "Справочник/Товары/Свойства.yaml", "Комментарий: ok")
 
-    const oneShot = await workerHandle.validateProject({ projectDir, context: mockContext })
-    const handle = createValidationWorkerPoolHandle({ concurrency: 2 })
+    const first = await workerHandle.validateProject({ projectDir, context: mockContext })
+    const second = await workerHandle.validateProject({ projectDir, context: mockContext })
 
-    try {
-      const first = await handle.validateProject({ projectDir, context: mockContext })
-      const second = await handle.validateProject({ projectDir, context: mockContext })
-
-      expect(handle.size()).toBe(2)
-      expect(first).toEqual(oneShot)
-      expect(second).toEqual(oneShot)
-    } finally {
-      await handle.close()
-    }
+    expect(workerHandle.size()).toBe(2)
+    expect(second).toEqual(first)
   })
 
   it("parallel validation keeps subsystem files with duplicate local names", async () => {

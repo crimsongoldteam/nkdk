@@ -125,6 +125,7 @@ registerElementAsType({
   nameStyle: {
     canonicalSuffix: "СостояниеПросмотра",
     referenceSuffixes: ["СостояниеПросмотра", "ViewStatus"],
+    canonicalNameMode: "ownerSuffix",
   },
   toXML: (params: { context: ConfigurationContextWithExportToXML; element: BaseElement | undefined }) => {
     const { context } = params

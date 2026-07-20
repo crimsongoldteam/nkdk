@@ -2,9 +2,11 @@ import fs from "fs"
 import { basename, dirname, extname, isAbsolute, join, relative, resolve, sep } from "path"
 import type { XmlWriteManifest } from "../../orchestration/xmlWriteManifest"
 import type { PropertyRule } from "../../orchestration"
+import type { XmlImportRoute } from "../../importFromXml/types"
 import { ClientApplicationFormRules } from "./rules"
 
 type ExternalFormItemFileSpec = {
+  propertyName: string
   xmlName: string
   nkdkDir: string
 }
@@ -15,11 +17,40 @@ const isExternalFormItemFileRule = (
   rule.type === "ExternalFormItemFile"
 
 const getExternalItemFileSpecs = (): ExternalFormItemFileSpec[] =>
-  (Object.values(ClientApplicationFormRules.properties) as PropertyRule[])
-    .filter(isExternalFormItemFileRule)
-    .map((rule) => ({ xmlName: rule.xml, nkdkDir: rule.yaml }))
+  (Object.entries(ClientApplicationFormRules.properties) as Array<[string, PropertyRule]>)
+    .filter((entry): entry is [string, PropertyRule & { type: "ExternalFormItemFile"; xml: string; yaml: string }] =>
+      isExternalFormItemFileRule(entry[1])
+    )
+    .map(([propertyName, rule]) => ({ propertyName, xmlName: rule.xml, nkdkDir: rule.yaml }))
 
 const externalItemFileSpecs = getExternalItemFileSpecs()
+
+export function describeFormItemXmlImportRoutes(params: {
+  xmlFormDirPattern: string
+  targetFormDirPattern: string
+  assignmentTargetPattern: string
+}): XmlImportRoute[] {
+  return externalItemFileSpecs.map((spec) => ({
+    kind: "externalFile",
+    xmlPattern: joinImportPattern(
+      params.xmlFormDirPattern,
+      "Form",
+      "Items",
+      "{formItemName}",
+      `${spec.xmlName}.{extension}`
+    ),
+    targetPattern: joinImportPattern(params.targetFormDirPattern, spec.nkdkDir, "{formItemName}.{extension}"),
+    assignmentTargetPattern: params.assignmentTargetPattern,
+    source: { kind: "property", propertyName: spec.propertyName, propertyType: "ExternalFormItemFile" },
+  }))
+}
+
+function joinImportPattern(...parts: string[]): string {
+  return parts
+    .filter((part) => part.length > 0)
+    .join("/")
+    .replace(/\\/g, "/")
+}
 
 export async function copyFormItemExternalFilesFromXML(params: {
   formXmlDir: string

@@ -1,5 +1,10 @@
 import { describe, expect, it } from "vitest"
 import { testExportAppliedObjectToXML, testImportAppliedObjectFromXML } from "../../../tests/appliedObject"
+import { mockContextFromXML } from "../../../tests/mockContext"
+import { readAndParseXMLFixture } from "../../../tests/readFixtureXML"
+import { createConfigurationIndexCollector } from "../../configurationIndex/collector/writer"
+import { withConfigurationIndexCollector } from "../../configurationIndex/collector/context"
+import { importMetadataItemFromXML } from "../../orchestration"
 import { MetadataWebServiceRules } from "./rules"
 import { MetadataWebService } from "./types"
 
@@ -55,5 +60,37 @@ describe("import MetadataWebService from XML", () => {
     })
 
     expect(normalizeXml(result)).toEqual(normalizeXml(expected))
+  })
+
+  it("пишет uuid Operation и Parameter в адреса конкретных элементов индекса", () => {
+    const collector = createConfigurationIndexCollector()
+    const context = withConfigurationIndexCollector(
+      mockContextFromXML({ forReference: true }),
+      collector,
+      "WebСервис.WebСервисВсеСвойства"
+    )
+    const parsed = readAndParseXMLFixture<{ MetaDataObject: unknown }>(import.meta.url, "full.xml")
+
+    importMetadataItemFromXML({
+      context,
+      xml: parsed.MetaDataObject,
+      rule: MetadataWebServiceRules,
+    })
+
+    const identities = collector.fragment("WebServices/WebСервисВсеСвойства/Свойства.yaml").identities
+    expect(identities).toEqual(
+      expect.arrayContaining([
+        {
+          logicalAddress: "WebСервис.WebСервисВсеСвойства.Операция.ОперацияВсеСвойства",
+          kind: "uuid",
+          value: "9fc06009-121a-4fe7-af4b-a5640d213cb1",
+        },
+        {
+          logicalAddress: "WebСервис.WebСервисВсеСвойства.Операция.ОперацияВсеСвойства.Параметр.ПараметрВсеСвойства",
+          kind: "uuid",
+          value: "58088704-401d-4567-a6de-f4ad9266d2b0",
+        },
+      ])
+    )
   })
 })

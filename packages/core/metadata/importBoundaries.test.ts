@@ -116,6 +116,17 @@ describe("metadata import boundaries", () => {
     expect(offenders).toEqual([])
   })
 
+  it("XML import discovery не знает конкретные объекты и папки", () => {
+    const files = ["importFromXml/discovery.ts", "importFromXml/routes.ts"]
+
+    for (const file of files) {
+      const source = readFileSync(join(METADATA_DIR, file), "utf-8")
+      for (const forbidden of ["MetadataCatalog", "ClientApplicationForm", "Catalogs", "Forms", "Templates"]) {
+        expect(source).not.toContain(forbidden)
+      }
+    }
+  })
+
   it("metadataTargetString не знает concrete metadata itemType/root", () => {
     const source = readFileSync(join(METADATA_DIR, "orchestration", "property", "metadataTargetString.ts"), "utf-8")
 

@@ -1,4 +1,5 @@
 import { ConfigurationContextFromXML } from "../../../context/types"
+import { withConfigurationIndexYamlCollectionItemContext } from "../../../configurationIndex/collector/context"
 import { importI8nTextFromXML } from "../../i8nText/fromXML"
 import { PropertyRule, registerTypeRule } from "../../../orchestration"
 import type { AvailableFieldItem, AvailableFieldXML, AvailableFields, AvailableFieldsXML } from "./types"
@@ -36,7 +37,8 @@ const importAvailableFieldsFromXML = (
 
   const fieldItems = Array.isArray(items) ? items : [items]
   const fields = fieldItems
-    .map((item): AvailableFieldItem | undefined => {
+    .map((item, index): AvailableFieldItem | undefined => {
+      const itemContext = withConfigurationIndexYamlCollectionItemContext(context, { index, yamlAsArray: true })
       const field = getFieldText(item["dcsset:field"])
       if (!field) return undefined
       if (!hasMetadata(item)) return field
@@ -45,10 +47,10 @@ const importAvailableFieldsFromXML = (
         field,
         ...(item["dcsset:use"] !== undefined ? { use: importBoolean(item["dcsset:use"]) } : {}),
         ...(item["dcsset:title"] !== undefined
-          ? { title: importI8nTextFromXML(context, { type: "I8nText" }, item["dcsset:title"]) }
+          ? { title: importI8nTextFromXML(itemContext, { type: "I8nText" }, item["dcsset:title"]) }
           : {}),
         ...(item["dcsset:lwsTitle"] !== undefined
-          ? { lwsTitle: importI8nTextFromXML(context, { type: "I8nText" }, item["dcsset:lwsTitle"]) }
+          ? { lwsTitle: importI8nTextFromXML(itemContext, { type: "I8nText" }, item["dcsset:lwsTitle"]) }
           : {}),
         ...(item["dcsset:viewMode"] !== undefined ? { viewMode: item["dcsset:viewMode"] } : {}),
       }

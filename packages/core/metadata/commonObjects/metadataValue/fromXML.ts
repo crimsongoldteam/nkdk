@@ -113,6 +113,10 @@ export const importMetadataSimpleValueFromXML = (
   return (result as any).value as string | boolean | number
 }
 
+registerTypeRule("MetadataValue", "configurationIndexValueFromXML", {
+  xsiNilWhenNotRepresentable: true,
+})
+
 /** @deprecated Используй importFormChoiceListFromXML из submodule formChoiceList/fromXML */
 export const importFormChoiceListValueFromXML = (
   context: ConfigurationContextFromXML,

@@ -15,7 +15,7 @@ export default defineConfig({
     environment: "node",
     globals: true,
     watch: false,
-    maxWorkers: 2,
+    maxWorkers: 1,
     setupFiles: [resolve(__dirname, "./tests/setupTests")],
   },
 })

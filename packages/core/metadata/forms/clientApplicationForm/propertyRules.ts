@@ -12,7 +12,11 @@ import type {
   SyncExternalToXMLFunction,
 } from "../../orchestration/property/fn"
 import { createEmptyClientApplicationForm } from "./createEmpty"
-import { copyFormItemExternalFilesFromXML, copyFormItemExternalFilesToXML } from "./externalItemFiles"
+import {
+  copyFormItemExternalFilesFromXML,
+  copyFormItemExternalFilesToXML,
+  describeFormItemXmlImportRoutes,
+} from "./externalItemFiles"
 import { copyExistingRawFile } from "./externalRawFiles"
 import { importClientApplicationFormFromXML } from "./fromXML"
 import { importClientApplicationFormFromYAML } from "./fromYAML"
@@ -135,6 +139,33 @@ registerTypeRule("ClientApplicationForm", "exportToJSONSchema", exportClientAppl
 registerTypeRule("ClientApplicationForm", "syncExternalFromXML", syncClientApplicationFormExternalFromXML)
 registerTypeRule("ClientApplicationForm", "syncExternalToXML", syncClientApplicationFormExternalToXML)
 registerTypeRule("ClientApplicationForm", "projectResources", describeClientApplicationFormProjectResources)
+registerTypeRule("ClientApplicationForm", "xmlImportRoutes", ({ propertyRule }) => {
+  const filePath = propertyRule?.filePath
+  if (filePath === undefined) return []
+  return [
+    {
+      kind: "assignment",
+      xmlPattern: filePath,
+      targetPattern: "",
+      role: "properties",
+      inputRole: "body",
+      itemType: "",
+      source: { kind: "propertyType", type: "ClientApplicationForm" },
+    },
+    {
+      kind: "externalFile",
+      xmlPattern: join(dirname(filePath), "Form.bin").replace(/\\/g, "/"),
+      targetPattern: "Form.bin",
+      assignmentTargetPattern: "",
+      source: { kind: "propertyType", type: "ClientApplicationForm" },
+    },
+    ...describeFormItemXmlImportRoutes({
+      xmlFormDirPattern: dirname(filePath).replace(/\\/g, "/"),
+      targetFormDirPattern: "",
+      assignmentTargetPattern: "",
+    }),
+  ]
+})
 
 function asClientApplicationForm(value: unknown): ClientApplicationForm | undefined {
   if (!isRecord(value)) return undefined

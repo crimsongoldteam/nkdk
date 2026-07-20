@@ -4,6 +4,7 @@ import { testImportPropertyFromYAML } from "../../../tests/property/importProper
 import {
   fixtureUserSettingsIDFalseYAML,
   fixtureUserSettingsIDFull,
+  fixtureUserSettingsIDRefFull,
   fixtureUserSettingsIDYAML,
 } from "./__fixtures__/data"
 
@@ -28,6 +29,15 @@ describe("importUserSettingsIDFromYAML", () => {
     })
 
     expect(result).toEqual(false)
+  })
+
+  it("imports UID string", () => {
+    const result = testImportPropertyFromYAML({
+      rule,
+      value: fixtureUserSettingsIDRefFull,
+    })
+
+    expect(result).toEqual(fixtureUserSettingsIDRefFull)
   })
 
   it("returns undefined when value is undefined", () => {

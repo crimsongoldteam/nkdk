@@ -1,15 +1,26 @@
 import { ConfigurationContextFromXML } from "../../context/types"
 import { ImportFromXMLFunction } from "../property/fn"
 import { PropertyRuleType } from "../property/registry"
-import type { MetadataItemRule, PropertyRule } from "../property/types"
+import type { ConfigurationIndexAddressingMode, MetadataItemRule, PropertyRule } from "../property/types"
 import { registerTypeRule } from "../property/typeRuleRegistry"
 import { importMetadataItemFromXML } from "../metadataItem/fromXML"
 import { ToMetadata } from "../metadataItem/registry"
 import type { NamedElementXML, NamedMetadataItem } from "./types"
+import { childUid, indexedUid, yamlIndexUid, yamlKeyUid } from "../../configurationIndex/logicalAddress"
+import {
+  getConfigurationIndexCollectionContext,
+  withConfigurationIndexLogicalAddress,
+} from "../../configurationIndex/collector/context"
 
 export const importMetadataItemCollectionFromXML = <Rule extends MetadataItemRule, XMLKey extends string>(
   itemRule: Rule,
-  xmlElement: XMLKey
+  xmlElement: XMLKey,
+  options?: {
+    propertyType?: PropertyRuleType
+    configurationIndexUidSegment?: string
+    configurationIndexAddressing?: ConfigurationIndexAddressingMode
+    yamlAsArray?: true
+  }
 ): ImportFromXMLFunction => {
   return (
     context: ConfigurationContextFromXML,
@@ -21,9 +32,16 @@ export const importMetadataItemCollectionFromXML = <Rule extends MetadataItemRul
     const xmlArray = Array.isArray(xml[xmlElement]) ? xml[xmlElement] : [xml[xmlElement]]
 
     const imported = xmlArray
-      .map((item) => {
-        const properties = importMetadataItemFromXML({
+      .map((item, index) => {
+        const itemContext = configurationIndexItemContext({
           context,
+          item,
+          itemRule,
+          index,
+          options,
+        })
+        const properties = importMetadataItemFromXML({
+          context: itemContext,
           xml: item,
           rule: itemRule,
         })
@@ -42,6 +60,70 @@ export const importMetadataItemCollectionFromXML = <Rule extends MetadataItemRul
 
     return imported.length > 0 ? imported : undefined
   }
+}
+
+function configurationIndexItemContext(params: {
+  context: ConfigurationContextFromXML
+  item: NamedElementXML
+  itemRule: MetadataItemRule
+  index: number
+  options?: {
+    propertyType?: PropertyRuleType
+    configurationIndexUidSegment?: string
+    configurationIndexAddressing?: ConfigurationIndexAddressingMode
+    yamlAsArray?: true
+  }
+}): ConfigurationContextFromXML {
+  const { context, item, itemRule, index, options } = params
+  const collection = getConfigurationIndexCollectionContext(context)
+  if (collection === undefined) return context
+
+  const itemName = configurationIndexItemName(item, itemRule)
+  const registeredUidSegment = options?.configurationIndexUidSegment
+  const useYamlPath = collection.yamlPathAddressing === true || options?.configurationIndexAddressing === "yamlPath"
+
+  if (useYamlPath) {
+    return withConfigurationIndexLogicalAddress(
+      context,
+      options?.yamlAsArray === true || itemName === undefined
+        ? yamlIndexUid(collection.logicalAddress, index)
+        : yamlKeyUid(collection.logicalAddress, itemName)
+    )
+  }
+
+  if (registeredUidSegment !== undefined && itemName === undefined) {
+    throw new Error(
+      `Адресуемая metadata-item коллекция ${options?.propertyType ?? itemRule.itemType} содержит элемент без имени`
+    )
+  }
+
+  const uidSegment = registeredUidSegment ?? collection.childCollectionUidSegment
+  if (uidSegment === undefined) return context
+
+  return withConfigurationIndexLogicalAddress(
+    context,
+    itemName === undefined
+      ? indexedUid(collection.logicalAddress, uidSegment, index)
+      : childUid(collection.logicalAddress, uidSegment, itemName)
+  )
+}
+
+function configurationIndexItemName(item: NamedElementXML, itemRule: MetadataItemRule): string | undefined {
+  if (typeof item._name === "string" && item._name.length > 0) return item._name
+
+  const nameRule = itemRule.properties.name
+  if (nameRule === undefined) return undefined
+  let source: unknown = item
+  for (const parent of nameRule.xmlParents ?? []) {
+    if (source === null || typeof source !== "object") return undefined
+    source = (source as Record<string, unknown>)[parent]
+  }
+  if (source === null || typeof source !== "object") return undefined
+  for (const key of [nameRule.xml ?? "Name", ...(nameRule.xmlAliases ?? [])]) {
+    const value = (source as Record<string, unknown>)[key]
+    if (typeof value === "string" && value.length > 0) return value
+  }
+  return undefined
 }
 
 export const registerImportFromXML = <

@@ -13,6 +13,8 @@ import { reportFormClientApplicationForm } from "./__fixtures__/reportForm"
 import { importClientApplicationFormFromXML } from "./fromXML"
 import { ClientApplicationFormXML, FormMetadataXML } from "./types"
 import { mockContextFromXML } from "../../../tests/mockContext"
+import { createConfigurationIndexCollector } from "../../configurationIndex/collector/writer"
+import { withConfigurationIndexCollector } from "../../configurationIndex/collector/context"
 
 describe("importClientApplicationFormFromXML", () => {
   it("should import all fields from XML", () => {
@@ -167,5 +169,156 @@ describe("importClientApplicationFormFromXML", () => {
     })
 
     expect(result).toEqual(reportFormClientApplicationForm)
+  })
+
+  it("collects form and nested item identities without collection order", () => {
+    const collector = createConfigurationIndexCollector()
+    const logicalAddress = "Справочник.Контрагенты.Форма.ФормаЭлемента"
+    const context = withConfigurationIndexCollector(mockContextFromXML(), collector, logicalAddress)
+    const xmlData = readAndParseXMLFixture<{ Form: ClientApplicationFormXML }>(import.meta.url, "full.xml")
+    const xmlMetadata = readAndParseXMLFixture<{ MetaDataObject: FormMetadataXML }>(import.meta.url, "fullMetadata.xml")
+
+    importClientApplicationFormFromXML({
+      context,
+      xml: xmlData.Form,
+      xmlMetadata: xmlMetadata.MetaDataObject,
+    })
+
+    const fragment = collector.fragment("Справочник/Контрагенты/Формы/ФормаЭлемента/Форма.yaml")
+    expect(fragment.identities).toEqual(
+      expect.arrayContaining([
+        expect.objectContaining({ logicalAddress, kind: "uuid" }),
+        expect.objectContaining({ logicalAddress: `${logicalAddress}.Элемент.ПолеВвода1`, kind: "xmlId" }),
+        expect.objectContaining({
+          logicalAddress: `${logicalAddress}.Элемент.ПолеВвода1.Элемент.ПолеВвода1КонтекстноеМеню`,
+          kind: "xmlId",
+          value: "3",
+        }),
+        expect.objectContaining({
+          logicalAddress: `${logicalAddress}.Элемент.ПолеВвода1.Элемент.ПолеВвода1РасширеннаяПодсказка`,
+          kind: "xmlId",
+          value: "4",
+        }),
+        expect.objectContaining({ logicalAddress: `${logicalAddress}.Атрибут.Объект`, kind: "xmlId" }),
+        expect.objectContaining({ logicalAddress: `${logicalAddress}.Команда.Команда1`, kind: "xmlId" }),
+      ])
+    )
+    expect(fragment.xmlNodes.every((node) => !("itemOrder" in node))).toBe(true)
+    expect(fragment.xmlNodes).not.toEqual(
+      expect.arrayContaining([
+        expect.objectContaining({ logicalAddress: expect.stringMatching(/\.(Элементы|Атрибуты|Команды)$/) }),
+      ])
+    )
+  })
+
+  it("адресует singleton по каноническому имени и сохраняет нестандартное XML-имя", () => {
+    const collector = createConfigurationIndexCollector()
+    const logicalAddress = "Справочник.Контрагенты.Форма.ФормаЭлемента"
+    const context = withConfigurationIndexCollector(mockContextFromXML(), collector, logicalAddress)
+    const xmlData = readAndParseXMLFixture<{ Form: ClientApplicationFormXML }>(import.meta.url, "full.xml")
+    const xmlMetadata = readAndParseXMLFixture<{ MetaDataObject: FormMetadataXML }>(import.meta.url, "fullMetadata.xml")
+    const inputField = (xmlData.Form.ChildItems as Array<{ InputField: { ContextMenu: { _name: string } } }>)[0]
+      .InputField
+    inputField.ContextMenu._name = "НестандартноеКонтекстноеМеню"
+
+    importClientApplicationFormFromXML({
+      context,
+      xml: xmlData.Form,
+      xmlMetadata: xmlMetadata.MetaDataObject,
+    })
+
+    const singletonAddress = `${logicalAddress}.Элемент.ПолеВвода1.Элемент.ПолеВвода1КонтекстноеМеню`
+    const identities = collector.fragment("Справочник/Контрагенты/Формы/ФормаЭлемента/Форма.yaml").identities
+    expect(identities).toEqual(
+      expect.arrayContaining([
+        { logicalAddress: singletonAddress, kind: "xmlId", value: "3" },
+        {
+          logicalAddress: singletonAddress,
+          kind: "xmlName",
+          value: "НестандартноеКонтекстноеМеню",
+        },
+      ])
+    )
+    expect(identities).not.toEqual(
+      expect.arrayContaining([
+        expect.objectContaining({ logicalAddress: `${logicalAddress}.Элемент.НестандартноеКонтекстноеМеню` }),
+      ])
+    )
+  })
+
+  it("адресует таблицу диаграммы Ганта как отдельный вложенный элемент индекса", () => {
+    const collector = createConfigurationIndexCollector()
+    const logicalAddress = "Обработка.Планирование.Форма.Основная"
+    const context = withConfigurationIndexCollector(mockContextFromXML(), collector, logicalAddress)
+
+    importClientApplicationFormFromXML({
+      context,
+      xml: {
+        ChildItems: [
+          {
+            GanttChartField: {
+              _name: "ДиаграммаГанта",
+              _id: "1",
+              Table: {
+                _name: "Table",
+                _id: "98",
+                ContextMenu: { _name: "TableКонтекстноеМеню", _id: "100" },
+              },
+              ContextMenu: { _name: "ДиаграммаГантаКонтекстноеМеню", _id: "2" },
+            },
+          },
+        ],
+      } as unknown as ClientApplicationFormXML,
+      xmlMetadata: { Form: { Properties: {} } },
+    })
+
+    const identities = collector.fragment("Обработка/Планирование/Формы/Основная/Форма.yaml").identities
+    expect(identities).toEqual(
+      expect.arrayContaining([
+        {
+          logicalAddress: `${logicalAddress}.Элемент.ДиаграммаГанта.Элемент.ДиаграммаГантаКонтекстноеМеню`,
+          kind: "xmlId",
+          value: "2",
+        },
+        {
+          logicalAddress: `${logicalAddress}.Элемент.ДиаграммаГанта.Элемент.ДиаграммаГантаТаблица`,
+          kind: "xmlId",
+          value: "98",
+        },
+        {
+          logicalAddress: `${logicalAddress}.Элемент.ДиаграммаГанта.Элемент.ДиаграммаГантаТаблица.Элемент.ДиаграммаГантаТаблицаКонтекстноеМеню`,
+          kind: "xmlId",
+          value: "100",
+        },
+      ])
+    )
+  })
+
+  it("собирает порядок Form.xml отдельно от metadata XML", () => {
+    const collector = createConfigurationIndexCollector()
+    const logicalAddress = "Справочник.Контрагенты.Форма.ФормаЭлемента"
+    const context = withConfigurationIndexCollector(mockContextFromXML(), collector, logicalAddress)
+
+    importClientApplicationFormFromXML({
+      context,
+      xml: { Title: "Форма", Width: 80 },
+      xmlMetadata: {
+        Form: {
+          _uuid: "00000000-0000-4000-8000-000000000001",
+          Properties: { Name: "ФормаЭлемента", Comment: "Комментарий" },
+        },
+      } as FormMetadataXML,
+    })
+
+    const nodes = collector.fragment("Справочник/Контрагенты/Формы/ФормаЭлемента/Форма.yaml").xmlNodes
+    expect(nodes).toEqual(
+      expect.arrayContaining([
+        expect.objectContaining({ logicalAddress, order: ["name", "comment"] }),
+        expect.objectContaining({
+          logicalAddress: `${logicalAddress}.ЧастьФормы.Содержимое`,
+          order: ["title", "width"],
+        }),
+      ])
+    )
   })
 })

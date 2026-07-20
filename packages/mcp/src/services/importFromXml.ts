@@ -2,16 +2,21 @@ import { loadCoreApi } from "../coreApi"
 import { errorMessage, toolError, toolSuccess, type ToolPayload } from "../contracts/common"
 import { type ImportFromXmlInput } from "../contracts/importFromXml"
 
-interface CoreFailure {
-  kind: string
-  name: string
-  parent?: string
-  error: unknown
+interface CoreImportDiagnostic {
+  severity: "error" | "warning"
+  code: string
+  message: string
+  targetProjectPath: string
+  sourcePath?: string
+  value?: string
 }
 
-interface CoreSyncResult {
+interface CoreImportResult {
   succeeded: number
-  failed: CoreFailure[]
+  failed: CoreImportDiagnostic[]
+  warnings: CoreImportDiagnostic[]
+  configurationIndexPath?: string
+  preservedTempRoot?: string
 }
 
 interface ImportFromXmlDeps {
@@ -24,12 +29,15 @@ interface ImportFromXmlDeps {
     }
     inputDir: string
     outputDir: string
-  }) => Promise<CoreSyncResult>
+  }) => Promise<CoreImportResult>
 }
 
 export type ImportFromXmlPayload = ToolPayload<{
   succeeded: number
   failed: Array<{ kind: string; name: string; parent?: string; message: string }>
+  warnings: Array<{ code: string; message: string; targetProjectPath?: string }>
+  configurationIndexPath?: string
+  preservedTempRoot?: string
 }>
 
 export async function importFromXml(
@@ -59,17 +67,33 @@ export async function importFromXml(
     return toolSuccess({
       succeeded: result.succeeded,
       failed: result.failed.map(mapFailure),
+      warnings: result.warnings.map(mapWarning),
+      ...(result.configurationIndexPath === undefined
+        ? {}
+        : { configurationIndexPath: result.configurationIndexPath }),
+      ...(result.preservedTempRoot === undefined ? {} : { preservedTempRoot: result.preservedTempRoot }),
     })
   } catch (caught) {
     return toolError("core_error", errorMessage(caught))
   }
 }
 
-function mapFailure(failure: CoreFailure): { kind: string; name: string; parent?: string; message: string } {
+function mapFailure(failure: CoreImportDiagnostic): { kind: string; name: string; message: string } {
   return {
-    kind: failure.kind,
-    name: failure.name,
-    ...(failure.parent !== undefined ? { parent: failure.parent } : {}),
-    message: errorMessage(failure.error),
+    kind: failure.code,
+    name: failure.targetProjectPath,
+    message: failure.message,
+  }
+}
+
+function mapWarning(warning: CoreImportDiagnostic): {
+  code: string
+  message: string
+  targetProjectPath?: string
+} {
+  return {
+    code: warning.code,
+    message: warning.message,
+    ...(warning.targetProjectPath.length === 0 ? {} : { targetProjectPath: warning.targetProjectPath }),
   }
 }

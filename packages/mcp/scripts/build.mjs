@@ -14,6 +14,11 @@ const packageJson = (
     with: { type: "json" },
   })
 ).default
+const corePackageJson = (
+  await import(pathToFileURL(join(repoRoot, "packages/core/package.json")).href, {
+    with: { type: "json" },
+  })
+).default
 
 await rm(distDir, { force: true, recursive: true })
 await mkdir(binDir, { recursive: true })
@@ -42,6 +47,7 @@ const commonOptions = {
   target: "node26",
   tsconfig: join(repoRoot, "tsconfig.build.json"),
   define: {
+    __NKDK_CORE_VERSION__: JSON.stringify(corePackageJson.version),
     __NKDK_MCP_VERSION__: JSON.stringify(packageJson.version),
   },
 }
@@ -57,6 +63,12 @@ await esbuild.build({
   ...commonOptions,
   entryPoints: [join(repoRoot, "packages/core/metadata/project/preparedYamlProjectWorker.ts")],
   outfile: join(distDir, "preparedYamlProjectWorker.js"),
+})
+
+await esbuild.build({
+  ...commonOptions,
+  entryPoints: [join(repoRoot, "packages/core/metadata/importFromXml/worker.ts")],
+  outfile: join(distDir, "importFromXmlWorker.js"),
 })
 
 await esbuild.build({

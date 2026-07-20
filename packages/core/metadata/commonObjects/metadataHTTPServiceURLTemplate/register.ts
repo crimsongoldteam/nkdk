@@ -44,6 +44,7 @@ registerMetadataItemCollectionRule({
   itemRule: MetadataHTTPServiceURLTemplateRules,
   xmlElement: "URLTemplate",
   keyField: "name",
+  configurationIndexUidSegment: "ШаблонURL",
   fromYAML: importMetadataHTTPServiceURLTemplatesFromYAML,
 })
 

@@ -38,6 +38,7 @@ registerElementAsType({
   nameStyle: {
     canonicalSuffix: "КонтекстноеМеню",
     referenceSuffixes: ["КонтекстноеМеню", "ContextMenu"],
+    canonicalNameMode: "ownerSuffix",
   },
   toXML: (params: { context: ConfigurationContextWithExportToXML; element: BaseElement | undefined }) => {
     const { context } = params

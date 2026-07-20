@@ -6,6 +6,7 @@ registerMetadataItemCollectionRule({
   itemRule: AccountingFlagRules,
   xmlElement: "AccountingFlag",
   keyField: "name",
+  configurationIndexUidSegment: "ПризнакУчета",
 })
 
 registerMetadataItemCollectionRule({
@@ -13,4 +14,5 @@ registerMetadataItemCollectionRule({
   itemRule: ExtDimensionAccountingFlagRules,
   xmlElement: "ExtDimensionAccountingFlag",
   keyField: "name",
+  configurationIndexUidSegment: "ПризнакУчетаСубконто",
 })

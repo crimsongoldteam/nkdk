@@ -9,7 +9,7 @@ describe("registerNkdkCapabilities", () => {
       prompts: [] as string[],
     }
     const server = {
-      registerTool: vi.fn((name: string) => calls.tools.push(name)),
+      registerTool: vi.fn((name: string, _options?: unknown, _handler?: unknown) => calls.tools.push(name)),
       registerResource: vi.fn((name: string) => calls.resources.push(name)),
       registerPrompt: vi.fn((name: string) => calls.prompts.push(name)),
     }
@@ -38,5 +38,12 @@ describe("registerNkdkCapabilities", () => {
       "nkdk_config_sync_to_xml",
       "nkdk_config_validate_yaml",
     ])
+
+    const importTool = server.registerTool.mock.calls.find(([name]) => name === "nkdk.import_from_xml")?.[1] as
+      | { description: string }
+      | undefined
+    expect(importTool?.description).toContain("не очищает Проект")
+    expect(importTool?.description).toContain(".nkdk/tmp/import/<operation-id>")
+    expect(importTool?.description).toContain("не подключается к 1С")
   })
 })

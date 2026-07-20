@@ -1,5 +1,6 @@
 import { describe, expect, it } from "vitest"
 import { getJSONSchemaIdentityExporter } from "../jsonSchemaRefs"
+import { getTypeRule } from "../property/typeRuleRegistry"
 import type { MetadataItemRule } from "../property/types"
 import { registerMetadataItemRule } from "./ruleFactory"
 
@@ -43,5 +44,25 @@ describe("registerMetadataItemRule JSON Schema identity", () => {
     expect(getJSONSchemaIdentityExporter("RuleFactoryExplicitSampleItem")?.({ context: baseContext })).toMatchObject({
       type: "object",
     })
+  })
+
+  it("describes filePath XML as an input of the owning import assignment", () => {
+    registerMetadataItemRule({ propertyType: "RuleFactorySampleItemProperty", itemRule: SampleItemRule })
+
+    expect(
+      getTypeRule("RuleFactorySampleItemProperty", "xmlImportRoutes")?.({
+        propertyRule: { type: "RuleFactorySampleItemProperty", filePath: "Ext/Sample.xml" },
+      })
+    ).toEqual([
+      {
+        kind: "assignment",
+        xmlPattern: "Ext/Sample.xml",
+        targetPattern: "",
+        role: "properties",
+        inputRole: "property",
+        itemType: "",
+        source: { kind: "propertyType", type: "RuleFactorySampleItemProperty" },
+      },
+    ])
   })
 })
