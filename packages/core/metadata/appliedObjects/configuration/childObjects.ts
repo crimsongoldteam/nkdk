@@ -134,3 +134,37 @@ export const buildConfigurationChildObjects = (params: {
 
   return result
 }
+
+export const buildConfigurationChildObjectsFromProjectEntries = (params: {
+  entries: readonly { dir: string; name: string }[]
+  referenceChildObjects?: ConfigurationChildObjectsXML
+}): ConfigurationChildObjectsXML => {
+  const result: ConfigurationChildObjectsXML = {}
+  const specsByXMLName = new Map(getSupportedChildObjectSpecs().map((spec) => [spec.xmlName, spec]))
+  const namesByDir = new Map<string, Set<string>>()
+  for (const entry of params.entries) {
+    if (entry.dir.length === 0 || entry.name.length === 0) continue
+    const names = namesByDir.get(entry.dir) ?? new Set<string>()
+    names.add(entry.name)
+    namesByDir.set(entry.dir, names)
+  }
+
+  for (const xmlName of STANDARD_CHILD_OBJECT_TYPE_ORDER) {
+    const spec = specsByXMLName.get(xmlName)
+    if (!spec) continue
+
+    const yamlNames = new Set(namesByDir.get(spec.yamlDir) ?? [])
+    if (yamlNames.size === 0) continue
+
+    const referenceNames = normalizeReferenceNames(params.referenceChildObjects, xmlName)
+    const orderedExisting = referenceNames.filter((name) => yamlNames.delete(name))
+    const newNames = [...yamlNames].sort((a, b) => a.localeCompare(b, "ru"))
+    const value = toXMLValue([...orderedExisting, ...newNames])
+
+    if (value !== undefined) {
+      result[xmlName] = value
+    }
+  }
+
+  return result
+}

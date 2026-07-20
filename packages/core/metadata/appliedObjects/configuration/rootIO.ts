@@ -134,6 +134,28 @@ export const writeConfigurationToXML = (params: {
   fs.writeFileSync(join(params.outputDir, CONFIGURATION_XML_FILE), xmlExport(xmlObject), "utf-8")
 }
 
+export const writePreparedConfigurationToXML = (params: {
+  context: ConfigurationContextWithExportToXML
+  outputDir: string
+  preparedYamlFile: PreparedYamlFile
+  childObjects?: ConfigurationChildObjectsXML
+  referenceConfiguration?: MetadataConfiguration
+}): void => {
+  const configuration = readConfigurationFromYAML({
+    context: params.context,
+    inputDir: params.outputDir,
+    source: params.referenceConfiguration,
+    preparedYamlFile: params.preparedYamlFile,
+  })
+  writeConfigurationToXML({
+    context: params.context,
+    configuration,
+    outputDir: params.outputDir,
+    referenceConfiguration: params.referenceConfiguration,
+    childObjects: params.childObjects,
+  })
+}
+
 const readConfigurationFilePathPropertiesFromXML = (params: {
   context: ConfigurationContextFromXML
   inputDir: string

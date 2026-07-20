@@ -93,6 +93,61 @@ describe("writeFullXmlSyncAssignment", () => {
     })
     expect(result.fragment).toBeUndefined()
   })
+
+  it("writes form metadata and body XML from prepared YAML", async () => {
+    const projectDir = tempDir()
+    const sourceProjectPath = "Справочник/Товары/Формы/ФормаЭлемента/Форма.yaml"
+    const sourcePath = join(projectDir, ...sourceProjectPath.split("/"))
+    fs.mkdirSync(join(projectDir, "Справочник", "Товары", "Формы", "ФормаЭлемента"), { recursive: true })
+    fs.writeFileSync(
+      sourcePath,
+      ["Реквизиты:", "  Объект:", "    Тип: Строка", "Элементы:", "  Поле:", "    Вид: ПолеВвода", "    ПутьКДанным: Объект"].join(
+        "\n"
+      )
+    )
+    const prepared = prepareYamlFiles({
+      files: [
+        {
+          projectPath: sourceProjectPath,
+          filePath: sourcePath,
+          role: "form",
+          owner: { dir: "Справочник", name: "Товары" },
+          itemType: "ClientApplicationForm",
+        },
+      ],
+      itemTypeByYamlDir: { Справочник: "MetadataCatalog" },
+    })
+    fs.rmSync(sourcePath)
+    const outputDir = join(projectDir, "xml")
+    const assignment: FullXmlSyncAssignment = {
+      id: sourceProjectPath,
+      sourceProjectPath,
+      sourcePath,
+      role: "form",
+      itemType: "ClientApplicationForm",
+      itemName: "ФормаЭлемента",
+      logicalAddress: "Справочник.Товары.Форма.ФормаЭлемента",
+      owner: { itemType: "MetadataCatalog", name: "Товары", logicalAddress: "Справочник.Товары" },
+      outputs: [{ routeKind: "fileItem", targetXmlPath: "Catalogs/Товары/Forms/ФормаЭлемента.xml" }],
+    }
+
+    const result = await writeFullXmlSyncAssignment({
+      assignment,
+      preparedYamlFile: prepared.yamlFiles[0]!,
+      context: mockContextToXML(),
+      outputDir,
+      index: createConfigurationIndexReader(snapshotConfigurationIndex(encodeConfigurationIndex(sampleIndex()))),
+    })
+
+    expect(result.diagnostics).toEqual([])
+    expect(result.writtenFiles.map((file) => file.targetXmlPath)).toEqual([
+      "Catalogs/Товары/Forms/ФормаЭлемента.xml",
+      "Catalogs/Товары/Forms/ФормаЭлемента/Ext/Form.xml",
+    ])
+    expect(fs.existsSync(join(outputDir, "Catalogs", "Товары", "Forms", "ФормаЭлемента.xml"))).toBe(true)
+    expect(fs.existsSync(join(outputDir, "Catalogs", "Товары", "Forms", "ФормаЭлемента", "Ext", "Form.xml"))).toBe(true)
+    expect(fs.existsSync(join(outputDir, "Catalogs", "Товары", "Forms", "ФормаЭлемента", "Ext", "Module.bsl"))).toBe(false)
+  })
 })
 
 function dataProcessorAssignment(projectDir: string): FullXmlSyncAssignment {
