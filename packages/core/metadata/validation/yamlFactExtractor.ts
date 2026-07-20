@@ -44,6 +44,8 @@ export interface ValidationYamlFacts {
   ownerModelStub?: Record<string, unknown>
 }
 
+export type ValidationOwnerYamlFacts = Pick<ValidationYamlFacts, "fieldIndex" | "ownerModelStub">
+
 export function extractValidationYamlFacts(params: {
   file: ValidationProjectFile
   parsed: ParsedYaml
@@ -70,7 +72,11 @@ export function extractValidationYamlFacts(params: {
           yamlPath: [],
           diagnostics: referenceDiagnostics,
         })
-  const ownerFacts = spec === undefined ? undefined : buildOwnerFactsFromYaml(params.file, params.parsed.data, spec)
+  const ownerFacts = extractValidationOwnerYamlFacts({
+    file: params.file,
+    data: params.parsed.data,
+    rulesSnapshot: params.rulesSnapshot,
+  })
   return {
     objectIndexEntries:
       objectTarget === undefined
@@ -93,6 +99,15 @@ export function extractValidationYamlFacts(params: {
     diagnostics: [...referenceDiagnostics, ...(spec === undefined ? [] : collectUniqueNameScopeDiagnostics(params.file, params.parsed, spec))],
     ...(ownerFacts === undefined ? {} : ownerFacts),
   }
+}
+
+export function extractValidationOwnerYamlFacts(params: {
+  file: ValidationProjectFile
+  data: unknown
+  rulesSnapshot: ValidationRulesSnapshot
+}): ValidationOwnerYamlFacts | undefined {
+  const spec = findValidationRulesSpec(params.rulesSnapshot, params.file.owner.dir)
+  return spec === undefined ? undefined : buildOwnerFactsFromYaml(params.file, params.data, spec)
 }
 
 function objectTargetForProjectFile(

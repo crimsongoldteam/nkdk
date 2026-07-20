@@ -1,7 +1,5 @@
-import { readFileSync } from "node:fs"
 import { resolve } from "node:path"
 import { performance } from "node:perf_hooks"
-import { parseMetadataYamlData } from "../../yaml/parseMetadataYaml"
 import type { ConfigurationContext } from "../context/types"
 import { createOwnerMetadataCacheFromSharedValidationSnapshot } from "../validation/dataPath/sharedOwnerCache"
 import { createValidationProfiler } from "../validation/profile"
@@ -32,6 +30,7 @@ import type { SharedValidationSnapshot } from "../validation/sharedValidationSna
 import type { Diagnostic } from "../validation/types"
 import { validateProjectPartial } from "../validation/validateProjectPartial"
 import type { ValidationMode, ValidationObjectRecord } from "../validation/projectValidationTypes"
+import { prepareYamlFiles } from "./prepareYamlFiles"
 import type {
   PreparedMetadataDeclaration,
   PreparedMetadataDependency,
@@ -143,59 +142,12 @@ export default async function runPreparedYamlProjectWorkerTask(
     return { kind: "validateSecondPassResult", ...runValidationSecondPass(message) }
   }
 
-  const yamlFiles: PreparedYamlFile[] = []
-  const declarations: PreparedMetadataDeclaration[] = []
-  const dependencies: PreparedMetadataDependency[] = []
-  const diagnostics: Diagnostic[] = []
   const profiler = createValidationProfiler({ scope: "worker", workerIndex: message.workerIndex })
   const prepareStartedAt = performance.now()
-  let readMs = 0
-  let parseMs = 0
-  let indexMs = 0
-  let saveMs = 0
-
-  for (const file of message.files) {
-    try {
-      const [text, measuredReadMs] = measureDuration(() => readFileSync(file.filePath, "utf8"))
-      readMs += measuredReadMs
-      const [parsed, measuredParseMs] = measureDuration(() => parseMetadataYamlData(text))
-      parseMs += measuredParseMs
-      const [, measuredIndexMs] = measureDuration(() => {
-        declarations.push(...extractDeclarations(file))
-        dependencies.push(
-          ...extractDependencies({ file, data: parsed.data, itemTypeByYamlDir: message.itemTypeByYamlDir })
-        )
-      })
-      indexMs += measuredIndexMs
-      const [, measuredSaveMs] = measureDuration(() => {
-        yamlFiles.push({
-          projectPath: file.projectPath,
-          filePath: file.filePath,
-          role: file.role,
-          owner: file.owner,
-          data: parsed.data,
-          syntaxDiagnostics: parsed.syntaxErrors.map((error) => ({
-            filePath: file.filePath,
-            line: error.line,
-            col: error.col,
-            severity: "error",
-            source: "syntax",
-            message: error.message,
-          })),
-        })
-      })
-      saveMs += measuredSaveMs
-    } catch (caught) {
-      diagnostics.push({
-        filePath: file.filePath,
-        line: 1,
-        col: 1,
-        severity: "error",
-        source: "external-file",
-        message: `Не удалось прочитать YAML-файл: ${caught instanceof Error ? caught.message : String(caught)}`,
-      })
-    }
-  }
+  const { yamlFiles, declarations, dependencies, diagnostics, profile } = prepareYamlFiles({
+    files: message.files,
+    itemTypeByYamlDir: message.itemTypeByYamlDir,
+  })
 
   preparedYamlFiles = new Map(yamlFiles.map((file) => [file.filePath, file]))
   const responseYamlFiles = message.includeYamlData ? yamlFiles : yamlFiles.map(withoutYamlData)
@@ -211,10 +163,10 @@ export default async function runPreparedYamlProjectWorkerTask(
     items: message.files.length,
     timeMs: prepareMs,
   })
-  profiler.record("Подготовка YAML-проекта", "Чтение YAML", { items: message.files.length, timeMs: readMs })
-  profiler.record("Подготовка YAML-проекта", "Разбор YAML", { items: message.files.length, timeMs: parseMs })
-  profiler.record("Подготовка YAML-проекта", "Извлечение локальных индексов", { items: message.files.length, timeMs: indexMs })
-  profiler.record("Подготовка YAML-проекта", "Сохранение worker данных YAML", { items: message.files.length, timeMs: saveMs })
+  profiler.record("Подготовка YAML-проекта", "Чтение YAML", { items: message.files.length, timeMs: profile.readMs })
+  profiler.record("Подготовка YAML-проекта", "Разбор YAML", { items: message.files.length, timeMs: profile.parseMs })
+  profiler.record("Подготовка YAML-проекта", "Извлечение локальных индексов", { items: message.files.length, timeMs: profile.indexMs })
+  profiler.record("Подготовка YAML-проекта", "Сохранение worker данных YAML", { items: message.files.length, timeMs: profile.saveMs })
   profiler.record("Подготовка YAML-проекта", "Объём результата worker", {
     items: responseYamlFiles.length,
     timeMs: 0,
@@ -231,7 +183,7 @@ function withoutYamlData(file: PreparedYamlFile): PreparedYamlFile {
 
 function estimateProfilePayloadBytes(value: unknown): number | undefined {
   if (process.env["NKDK_VALIDATION_TIMING"] !== "1") return undefined
-  return Buffer.byteLength(JSON.stringify(value), "utf8")
+  return Buffer.byteLength(JSON.stringify(value, (_key, item) => (typeof item === "bigint" ? item.toString() : item)), "utf8")
 }
 
 let preparedYamlFiles = new Map<string, PreparedYamlFile>()
@@ -417,95 +369,4 @@ function resolveObjectFilePath(params: {
 }): string | undefined {
   const contributor = getProjectReferenceObjectPathContributor(params.target.root)
   return contributor?.({ projectDir: params.projectDir, target: params.target })?.filePath
-}
-
-function extractDeclarations(file: PreparedYamlProjectFileDescriptor): PreparedMetadataDeclaration[] {
-  if (file.role !== "properties") return []
-  const canonical = objectCanonicalFromProjectFile(file)
-  if (canonical === undefined) return []
-  return [{ canonical, projectPath: file.projectPath, filePath: file.filePath }]
-}
-
-function measureDuration<T>(fn: () => T): [T, number] {
-  const startedAt = performance.now()
-  const result = fn()
-  return [result, performance.now() - startedAt]
-}
-
-function objectCanonicalFromProjectFile(file: PreparedYamlProjectFileDescriptor): string | undefined {
-  const root = file.itemType
-  if (root === undefined || file.owner.name.length === 0) return undefined
-
-  const parts = file.projectPath.split("/")
-  if (parts.length > 3 && parts[0] === file.owner.dir && parts[parts.length - 1] === "Свойства.yaml") {
-    const rootObjectName = parts[1]
-    if (rootObjectName === undefined || rootObjectName.length === 0) return undefined
-    const nestedNames: string[] = []
-    for (let index = 2; index < parts.length - 2; index += 2) {
-      const objectName = parts[index + 1]
-      if (objectName === undefined || objectName.length === 0) return undefined
-      nestedNames.push(objectName)
-    }
-    return [root, rootObjectName, ...nestedNames.flatMap((name) => [root, name])].join(".")
-  }
-
-  return `${root}.${file.owner.name}`
-}
-
-function extractDependencies(params: {
-  file: PreparedYamlProjectFileDescriptor
-  data: unknown
-  itemTypeByYamlDir: Record<string, string>
-}): PreparedMetadataDependency[] {
-  const dependencies: PreparedMetadataDependency[] = []
-  visitYamlValue(params.data, [], (value, yamlPath) => {
-    if (yamlPath[yamlPath.length - 1] !== "Тип") return
-    for (const canonical of typeValueObjectCanonicals({ value, itemTypeByYamlDir: params.itemTypeByYamlDir })) {
-      dependencies.push({
-        canonical,
-        sourceProjectPath: params.file.projectPath,
-        sourceFilePath: params.file.filePath,
-        yamlPath,
-        kind: "metadata",
-      })
-    }
-  })
-  return dependencies
-}
-
-function visitYamlValue(
-  value: unknown,
-  yamlPath: readonly (string | number)[],
-  visit: (value: unknown, yamlPath: readonly (string | number)[]) => void
-): void {
-  visit(value, yamlPath)
-  if (Array.isArray(value)) {
-    value.forEach((item, index) => visitYamlValue(item, [...yamlPath, index], visit))
-    return
-  }
-  if (typeof value !== "object" || value === null) return
-  for (const [key, item] of Object.entries(value)) visitYamlValue(item, [...yamlPath, key], visit)
-}
-
-function typeValueObjectCanonicals(params: { value: unknown; itemTypeByYamlDir: Record<string, string> }): string[] {
-  const values = Array.isArray(params.value) ? params.value : [params.value]
-  return values.flatMap((item) =>
-    typeof item === "string"
-      ? objectCanonicalFromTypeValue({ value: item, itemTypeByYamlDir: params.itemTypeByYamlDir })
-      : []
-  )
-}
-
-function objectCanonicalFromTypeValue(params: { value: string; itemTypeByYamlDir: Record<string, string> }): string[] {
-  const type = params.value.trim().split("(")[0]?.trim()
-  if (type === undefined || type.length === 0) return []
-
-  const dotIndex = type.indexOf(".")
-  if (dotIndex === -1) return []
-
-  const root = params.itemTypeByYamlDir[type.substring(0, dotIndex)]
-  const objectName = type.substring(dotIndex + 1)
-  if (root === undefined || objectName.length === 0) return []
-
-  return [`${root}.${objectName}`]
 }

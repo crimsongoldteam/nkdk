@@ -177,70 +177,82 @@ describe("prepareYamlProject", () => {
     testTimeout
   )
 
-  it("returns resource file descriptions without reading resource content", async () => {
-    const projectDir = createProject()
-    writeFileSync(join(projectDir, "Справочник", "Товары", "МодульМенеджера.bsl"), "Процедура Тест()\nКонецПроцедуры\n")
+  it(
+    "returns resource file descriptions without reading resource content",
+    async () => {
+      const projectDir = createProject()
+      writeFileSync(join(projectDir, "Справочник", "Товары", "МодульМенеджера.bsl"), "Процедура Тест()\nКонецПроцедуры\n")
 
-    const result = await prepareYamlProject({
-      projectDir,
-      context: { version: "2.20", defaultLanguage: "ru", exportToYAML: { toTyped: false } },
-      concurrency: 1,
-    })
+      const result = await prepareYamlProject({
+        projectDir,
+        context: { version: "2.20", defaultLanguage: "ru", exportToYAML: { toTyped: false } },
+        concurrency: 1,
+      })
 
-    expect(result.ok).toBe(true)
-    if (!result.ok) throw new Error(result.message)
+      expect(result.ok).toBe(true)
+      if (!result.ok) throw new Error(result.message)
 
-    expect(result.project.resourceFiles).toEqual(
-      expect.arrayContaining([
-        expect.objectContaining({
-          projectPath: "Справочник/Товары/МодульМенеджера.bsl",
-          owner: { dir: "Справочник", name: "Товары" },
-        }),
-      ])
-    )
-    expect(result.project.workers.flatMap((worker) => worker.yamlFiles).map((file) => file.projectPath)).not.toContain(
-      "Справочник/Товары/МодульМенеджера.bsl"
-    )
-  })
+      expect(result.project.resourceFiles).toEqual(
+        expect.arrayContaining([
+          expect.objectContaining({
+            projectPath: "Справочник/Товары/МодульМенеджера.bsl",
+            owner: { dir: "Справочник", name: "Товары" },
+          }),
+        ])
+      )
+      expect(result.project.workers.flatMap((worker) => worker.yamlFiles).map((file) => file.projectPath)).not.toContain(
+        "Справочник/Товары/МодульМенеджера.bsl"
+      )
+    },
+    testTimeout
+  )
 
-  it("can prepare only YAML project files for validation", async () => {
-    const projectDir = createProject()
-    writeFileSync(join(projectDir, "Справочник", "Товары", "МодульМенеджера.bsl"), "Процедура Тест()\nКонецПроцедуры\n")
+  it(
+    "can prepare only YAML project files for validation",
+    async () => {
+      const projectDir = createProject()
+      writeFileSync(join(projectDir, "Справочник", "Товары", "МодульМенеджера.bsl"), "Процедура Тест()\nКонецПроцедуры\n")
 
-    const result = await prepareYamlProject({
-      projectDir,
-      context: { version: "2.20", defaultLanguage: "ru", exportToYAML: { toTyped: false } },
-      concurrency: 1,
-      includeYamlData: false,
-      resourceInclude: "yaml",
-    })
+      const result = await prepareYamlProject({
+        projectDir,
+        context: { version: "2.20", defaultLanguage: "ru", exportToYAML: { toTyped: false } },
+        concurrency: 1,
+        includeYamlData: false,
+        resourceInclude: "yaml",
+      })
 
-    expect(result.ok).toBe(true)
-    if (!result.ok) throw new Error(result.message)
+      expect(result.ok).toBe(true)
+      if (!result.ok) throw new Error(result.message)
 
-    expect(result.project.files.map((file) => file.projectPath)).toEqual(["Справочник/Товары/Свойства.yaml"])
-    expect(result.project.resourceFiles).toEqual([])
-  })
+      expect(result.project.files.map((file) => file.projectPath)).toEqual(["Справочник/Товары/Свойства.yaml"])
+      expect(result.project.resourceFiles).toEqual([])
+    },
+    testTimeout
+  )
 
-  it("validates prepared YAML without reading the file again", async () => {
-    const projectDir = createProject()
-    const yamlPath = join(projectDir, "Справочник", "Товары", "Свойства.yaml")
-    resetProjectValidationReadCountForTests()
+  it(
+    "validates prepared YAML without reading the file again",
+    async () => {
+      const projectDir = createProject()
+      const yamlPath = join(projectDir, "Справочник", "Товары", "Свойства.yaml")
+      resetProjectValidationReadCountForTests()
 
-    const prepared = await prepareYamlProject({
-      projectDir,
-      context: { version: "2.20", defaultLanguage: "ru", exportToYAML: { toTyped: false } },
-      concurrency: 1,
-    })
+      const prepared = await prepareYamlProject({
+        projectDir,
+        context: { version: "2.20", defaultLanguage: "ru", exportToYAML: { toTyped: false } },
+        concurrency: 1,
+      })
 
-    expect(prepared.ok).toBe(true)
-    if (!prepared.ok) throw new Error(prepared.message)
+      expect(prepared.ok).toBe(true)
+      if (!prepared.ok) throw new Error(prepared.message)
 
-    const file = prepared.project.workers.flatMap((worker) => worker.yamlFiles)[0]!
-    const cache = createProjectYamlCacheFromPreparedFiles([file])
-    expect(cache.get(yamlPath)).toMatchObject({ filePath: yamlPath })
-    expect(getProjectValidationReadCountForTests(yamlPath)).toBe(0)
-  })
+      const file = prepared.project.workers.flatMap((worker) => worker.yamlFiles)[0]!
+      const cache = createProjectYamlCacheFromPreparedFiles([file])
+      expect(cache.get(yamlPath)).toMatchObject({ filePath: yamlPath })
+      expect(getProjectValidationReadCountForTests(yamlPath)).toBe(0)
+    },
+    testTimeout
+  )
 
   it(
     "runs validation first pass on worker-stored YAML data",

@@ -1,3 +1,5 @@
+import type { ObjectFieldIndex } from "../validation/dataPath/objectFields"
+
 export interface FullXmlSyncOutput {
   readonly targetXmlPath: string
   readonly routeKind: "owner" | "fileItem"
@@ -24,4 +26,15 @@ export interface FullXmlSyncExternalFile {
 export interface FullXmlSyncPlan {
   readonly assignments: readonly FullXmlSyncAssignment[]
   readonly externalFiles: readonly FullXmlSyncExternalFile[]
+}
+
+export interface FullXmlSyncOwnerFacts {
+  readonly assignmentId: string
+  readonly sourceProjectPath: string
+  readonly sourcePath: string
+  readonly role: FullXmlSyncAssignment["role"]
+  readonly owner: { readonly dir: string; readonly name: string }
+  readonly itemType: string
+  readonly ownerModelStub?: Record<string, unknown>
+  readonly fieldIndex?: ObjectFieldIndex
 }
