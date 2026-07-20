@@ -17,6 +17,7 @@ import {
 } from "../../configurationIndex/collector/collectProperty"
 import {
   getConfigurationIndexCollectionContext,
+  getConfigurationIndexPropertyLogicalAddress,
   getConfigurationIndexXmlNodeLogicalAddress,
   runWithConfigurationIndexPropertyContext,
 } from "../../configurationIndex/collector/context"
@@ -79,9 +80,19 @@ export function importPropertiesFromXML<Rule extends MetadataItemRule>(
     if (xmlValue === undefined && currentRule.type === "MetadataValue" && isXMLKeyPresent(key, xml, currentRule)) {
       xmlValue = { "_xsi:nil": true }
     }
+    const propertyLogicalAddress =
+      indexCollection === undefined ||
+      (indexCollection.yamlPathAddressing !== true && currentRule.configurationIndexAddressing !== "yamlPath")
+        ? undefined
+        : getConfigurationIndexPropertyLogicalAddress(
+            indexCollection,
+            currentRule.yaml ?? key,
+            currentRule.configurationIndexAddressing
+          )
     if (sourceXmlKey !== undefined) {
       collectConfigurationIndexPropertyFromXML({
         context,
+        logicalAddress: propertyLogicalAddress,
         propertyKey: key,
         xmlValue,
         rule: currentRule,
@@ -121,7 +132,8 @@ export function importPropertiesFromXML<Rule extends MetadataItemRule>(
                   value: xmlValue,
                   name: key,
                   ownerXmlName,
-                })
+                }),
+              { configurationIndexAddressing: currentRule.configurationIndexAddressing }
             )
           : undefined
     }
@@ -153,7 +165,12 @@ export function importPropertiesFromXML<Rule extends MetadataItemRule>(
     if (valueOrDefault === undefined) continue
     ;(result as any)[key] = valueOrDefault
     if (sourceXmlKey !== undefined) setXMLSourceKey(result, key, sourceXmlKey, false)
-    collectConfigurationIndexImportedValue({ context, propertyKey: key, importedValue: valueOrDefault })
+    collectConfigurationIndexImportedValue({
+      context,
+      logicalAddress: propertyLogicalAddress,
+      propertyKey: key,
+      importedValue: valueOrDefault,
+    })
   }
 
   if (indexCollection !== undefined && importedKeysInSourceOrder.length > 0) {

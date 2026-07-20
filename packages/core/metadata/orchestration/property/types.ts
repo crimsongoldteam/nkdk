@@ -13,6 +13,8 @@ import { PropertyRuleType } from "./registry"
 
 export type ReferenceScopeFilterName = "stringIndexedAttribute"
 
+export type ConfigurationIndexAddressingMode = "default" | "yamlPath"
+
 /** Ссылка на объект текущего объекта-владельца (target: "this"). */
 export type ReferenceScopeThis =
   | { target: "this"; kind: "Form" }
@@ -71,6 +73,9 @@ export interface BasePropertyRule {
 
   /** Канонический сегмент logicalAddress для элементов коллекции свойства. */
   configurationIndexUidSegment?: string
+
+  /** Режим построения logicalAddress для данных файла индекса конфигурации. */
+  configurationIndexAddressing?: ConfigurationIndexAddressingMode
 
   /** Название ключа в YAML */
   yaml?: string

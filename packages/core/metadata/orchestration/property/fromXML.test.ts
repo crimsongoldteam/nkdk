@@ -173,4 +173,29 @@ describe("importPropertiesFromXML configuration index collection", () => {
       { logicalAddress: "РегистрСведений.Остатки.sourceValue", xsiNil: true },
     ])
   })
+
+  it("uses direct YAML-path address for XML service data while YAML-path index addressing is active", () => {
+    const collector = createConfigurationIndexCollector()
+    const context = withConfigurationIndexCollector(createContext(), collector, "Справочник.Товары.Свойство.Отбор")
+
+    importPropertiesFromXML({
+      context,
+      rule: {
+        itemType: "FilterLike",
+        properties: {
+          sourceValue: {
+            type: "MetadataValue",
+            xml: "SourceValue",
+            yaml: "Значение",
+            configurationIndexAddressing: "yamlPath",
+          },
+        },
+      } as any,
+      xml: { SourceValue: { "_xsi:nil": true } },
+    })
+
+    expect(collector.fragment("Форма.yaml").xmlValues).toEqual([
+      { logicalAddress: "Справочник.Товары.Свойство.Отбор.Значение", xsiNil: true },
+    ])
+  })
 })

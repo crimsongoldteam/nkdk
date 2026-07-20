@@ -30,6 +30,7 @@ export function collectConfigurationIndexIdentityFromXML(params: {
 
 export function collectConfigurationIndexPropertyFromXML(params: {
   context: ConfigurationContextFromXML
+  logicalAddress?: string
   propertyKey: string
   xmlValue: unknown
   rule: PropertyRule
@@ -38,7 +39,7 @@ export function collectConfigurationIndexPropertyFromXML(params: {
   const collection = getConfigurationIndexCollectionContext(params.context)
   if (collection === undefined) return
 
-  const address = `${collection.logicalAddress}.${params.propertyKey}`
+  const address = params.logicalAddress ?? `${collection.logicalAddress}.${params.propertyKey}`
   if (params.descriptor?.userSettingsIdFromSource === true && typeof params.xmlValue === "string") {
     collection.collector.setUserSettingsId(address, params.xmlValue)
   }
@@ -53,6 +54,7 @@ export function collectConfigurationIndexPropertyFromXML(params: {
 
 export function collectConfigurationIndexImportedValue(params: {
   context: ConfigurationContextFromXML
+  logicalAddress?: string
   propertyKey: string
   importedValue: unknown
 }): void {
@@ -60,8 +62,9 @@ export function collectConfigurationIndexImportedValue(params: {
   if (collection === undefined || !isRecord(params.importedValue)) return
 
   const xmlPrefix = params.importedValue.xmlPrefix
+  const address = params.logicalAddress ?? `${collection.logicalAddress}.${params.propertyKey}`
   if (typeof xmlPrefix === "string") {
-    collection.collector.setXmlPrefix(`${collection.logicalAddress}.${params.propertyKey}`, xmlPrefix)
+    collection.collector.setXmlPrefix(address, xmlPrefix)
   }
 }
 

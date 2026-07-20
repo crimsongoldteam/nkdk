@@ -1,5 +1,6 @@
 import type { ConfigurationContextFromXML } from "../../context/types"
-import { childUid } from "../logicalAddress"
+import type { ConfigurationIndexAddressingMode } from "../../orchestration/property/types"
+import { childUid, yamlPropertyUid } from "../logicalAddress"
 import type { ConfigurationIndexCollector } from "./writer"
 
 export interface ConfigurationIndexCollectionContext {
@@ -7,6 +8,7 @@ export interface ConfigurationIndexCollectionContext {
   readonly logicalAddress: string
   readonly xmlNodeLogicalAddress?: string
   readonly childCollectionUidSegment?: string
+  readonly yamlPathAddressing?: true
 }
 
 export function withConfigurationIndexCollector(
@@ -34,9 +36,15 @@ export function withConfigurationIndexLogicalAddress(
   logicalAddress: string
 ): ConfigurationContextFromXML {
   const collection = getConfigurationIndexCollectionContext(context)
-  return collection === undefined
-    ? context
-    : withConfigurationIndexCollector(context, collection.collector, logicalAddress)
+  if (collection === undefined) return context
+
+  return {
+    ...context,
+    fromXML: {
+      ...context.fromXML,
+      configurationIndex: { ...collection, logicalAddress },
+    },
+  }
 }
 
 export function withConfigurationIndexXmlNodeLogicalAddress(
@@ -59,15 +67,24 @@ export function runWithConfigurationIndexPropertyContext<T>(
   context: ConfigurationContextFromXML,
   propertyName: string,
   childCollectionUidSegment: string | undefined,
-  run: (context: ConfigurationContextFromXML) => T
+  run: (context: ConfigurationContextFromXML) => T,
+  options: { configurationIndexAddressing?: ConfigurationIndexAddressingMode } = {}
 ): T {
   const collection = getConfigurationIndexCollectionContext(context)
   if (collection === undefined) return run(context)
 
   const previous = context.fromXML.configurationIndex
+  const useYamlPath = collection.yamlPathAddressing === true || options.configurationIndexAddressing === "yamlPath"
+  const propertyAddress = getConfigurationIndexPropertyLogicalAddress(
+    collection,
+    propertyName,
+    options.configurationIndexAddressing
+  )
   context.fromXML.configurationIndex = {
     ...collection,
-    xmlNodeLogicalAddress: childUid(collection.logicalAddress, "Свойство", propertyName),
+    ...(useYamlPath ? { logicalAddress: propertyAddress } : {}),
+    xmlNodeLogicalAddress: propertyAddress,
+    ...(useYamlPath ? { yamlPathAddressing: true as const } : {}),
     ...(childCollectionUidSegment === undefined ? {} : { childCollectionUidSegment }),
   }
   try {
@@ -75,6 +92,15 @@ export function runWithConfigurationIndexPropertyContext<T>(
   } finally {
     context.fromXML.configurationIndex = previous
   }
+}
+
+export function getConfigurationIndexPropertyLogicalAddress(
+  collection: ConfigurationIndexCollectionContext,
+  propertyName: string,
+  mode: ConfigurationIndexAddressingMode | undefined
+): string {
+  const useYamlPath = collection.yamlPathAddressing === true || mode === "yamlPath"
+  return useYamlPath ? yamlPropertyUid(collection.logicalAddress, propertyName) : childUid(collection.logicalAddress, "Свойство", propertyName)
 }
 
 export function getConfigurationIndexXmlNodeLogicalAddress(collection: ConfigurationIndexCollectionContext): string {
