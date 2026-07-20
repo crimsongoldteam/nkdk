@@ -29,6 +29,7 @@ registerMetadataItemCollectionRule({
   toYAML: exportOrderItemFieldsToYAML,
   toJSONSchema: exportOrderItemFieldsToJSONSchema,
   yamlAsArray: true,
+  configurationIndexAddressing: "yamlPath",
 })
 
 registerJSONSchemaPropertyRef("OrderItemFields", () => Type.Array(Type.Union([Type.Literal("[Авто]"), schemaRef("OrderItemField")])))

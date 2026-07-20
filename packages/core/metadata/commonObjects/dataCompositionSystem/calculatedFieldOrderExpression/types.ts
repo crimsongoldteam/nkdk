@@ -19,6 +19,7 @@ registerMetadataItemCollectionRule({
   itemRule: CalculatedFieldOrderExpressionRules,
   xmlElement: "dcssch:orderExpression",
   yamlAsArray: true,
+  configurationIndexAddressing: "yamlPath",
   fromXML: importCalculatedFieldOrderExpressionFromXML,
   toXML: exportCalculatedFieldOrderExpressionToXML,
 })

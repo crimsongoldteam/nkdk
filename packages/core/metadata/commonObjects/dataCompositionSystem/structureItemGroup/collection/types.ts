@@ -22,5 +22,8 @@ export type StructureItemGroupCollectionRuleParams = Omit<StructureItemGroupColl
 export function structureItemGroupCollectionRule<const Params extends StructureItemGroupCollectionRuleParams>(
   params: WideExactRuleParams<StructureItemGroupCollectionRuleParams, Params>
 ): Readonly<{ type: "StructureItemGroupCollection" } & Params> {
-  return defineWidePropertyRule("StructureItemGroupCollection", params)
+  return defineWidePropertyRule("StructureItemGroupCollection", {
+    configurationIndexAddressing: "yamlPath" as const,
+    ...params,
+  })
 }

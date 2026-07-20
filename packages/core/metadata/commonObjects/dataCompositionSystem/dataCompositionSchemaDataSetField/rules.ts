@@ -32,6 +32,7 @@ const appearanceRule = {
   toXML: isField,
   order: 13,
   appearanceXml: "dataSetField",
+  configurationIndexAddressing: "yamlPath",
 } as const satisfies AppearanceFieldsPropertyRule
 export const DataCompositionSchemaDataSetFieldRules = {
   itemType: "DataCompositionSchemaDataSetField",

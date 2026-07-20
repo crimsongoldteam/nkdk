@@ -1,5 +1,6 @@
 import { ConfigurationContextFromXML } from "../../../context/types"
 import { ConfigurationContextWithExportToXML } from "../../../context/types"
+import { withConfigurationIndexYamlCollectionItemContext } from "../../../configurationIndex/collector/context"
 import { importPropertyFromXML, exportPropertyToXML } from "../../../orchestration"
 import type { ParameterValueXML, SettingsParameterValue } from "../parameterValue/types"
 import { getSettingsParameterValueRuleForParameter } from "./ruleSet"
@@ -45,8 +46,13 @@ export const importSettingsParameterValueDcscorItemsFromXML = (params: {
       continue
     }
 
+    const itemContext = withConfigurationIndexYamlCollectionItemContext(context, {
+      index: Object.keys(parameters).length,
+      yamlKey: parameterName,
+    })
+
     const value = importPropertyFromXML({
-      context,
+      context: itemContext,
       rule: itemRule,
       value: itemXml,
     }) as SettingsParameterValue | undefined

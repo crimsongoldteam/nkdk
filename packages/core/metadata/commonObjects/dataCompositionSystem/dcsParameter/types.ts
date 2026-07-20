@@ -16,5 +16,6 @@ registerMetadataItemCollectionRule({
   itemRule: DCSParameterRules,
   xmlElement: "Parameter",
   keyField: "name",
+  configurationIndexAddressing: "yamlPath",
   toXML: exportDCSParametersToXML,
 })

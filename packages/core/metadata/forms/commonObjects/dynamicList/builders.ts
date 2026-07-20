@@ -13,7 +13,7 @@ export type CalculatedFieldsRuleParams = Omit<CalculatedFieldsWidePropertyRule, 
 export function calculatedFieldsRule<const Params extends CalculatedFieldsRuleParams>(
   params: WideExactRuleParams<CalculatedFieldsRuleParams, Params>
 ): Readonly<{ type: "CalculatedFields" } & Params> {
-  return defineWidePropertyRule("CalculatedFields", params)
+  return defineWidePropertyRule("CalculatedFields", { configurationIndexAddressing: "yamlPath" as const, ...params })
 }
 export interface DataSetFieldFieldsWidePropertyRule extends WidePropertyRuleBase {
   type: "DataSetFieldFields"
@@ -24,7 +24,7 @@ export type DataSetFieldFieldsRuleParams = Omit<DataSetFieldFieldsWidePropertyRu
 export function dataSetFieldFieldsRule<const Params extends DataSetFieldFieldsRuleParams>(
   params: WideExactRuleParams<DataSetFieldFieldsRuleParams, Params>
 ): Readonly<{ type: "DataSetFieldFields" } & Params> {
-  return defineWidePropertyRule("DataSetFieldFields", params)
+  return defineWidePropertyRule("DataSetFieldFields", { configurationIndexAddressing: "yamlPath" as const, ...params })
 }
 export interface DCSParametersWidePropertyRule extends WidePropertyRuleBase {
   type: "DCSParameters"
@@ -35,7 +35,7 @@ export type DCSParametersRuleParams = Omit<DCSParametersWidePropertyRule, "type"
 export function dCSParametersRule<const Params extends DCSParametersRuleParams>(
   params: WideExactRuleParams<DCSParametersRuleParams, Params>
 ): Readonly<{ type: "DCSParameters" } & Params> {
-  return defineWidePropertyRule("DCSParameters", params)
+  return defineWidePropertyRule("DCSParameters", { configurationIndexAddressing: "yamlPath" as const, ...params })
 }
 export interface DynamicListKeyFieldsWidePropertyRule extends WidePropertyRuleBase {
   type: "DynamicListKeyFields"
