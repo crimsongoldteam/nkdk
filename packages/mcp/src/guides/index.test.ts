@@ -31,4 +31,12 @@ describe("guide definitions", () => {
     expect(importGuide?.text).toContain(".nkdk/tmp/import/<operation-id>")
     expect(importGuide?.text).toContain("не подключается к 1С")
   })
+
+  it("describes sync through configuration index without reference catalog", () => {
+    const syncGuide = guideDefinitions.find((guide) => guide.uri === "nkdk://guides/config-sync-to-xml")
+
+    expect(syncGuide?.text).toContain("файла индекса конфигурации")
+    expect(syncGuide?.text).toContain("отсутствовать или быть пустым")
+    expect(syncGuide?.text).not.toContain("reference")
+  })
 })

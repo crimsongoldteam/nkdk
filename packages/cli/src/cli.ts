@@ -43,12 +43,12 @@ export function createProgram(options: CreateProgramOptions = {}): Command {
     .description("Синхронизация конфигурации из YAML в XML (YAML → XML)")
     .argument("<yaml-dir>", "путь к каталогу YAML-проекта")
     .argument("<xml-dir>", "путь к каталогу XML-выгрузки")
-    .option("--reference <xml-dir>", "путь к XML-каталогу для чтения reference-данных")
-    .action((yamlDir: string, xmlDir: string, opts: { reference?: string }) => {
+    .option("--workers <count>", "количество worker для полной синхронизации", parsePositiveInteger)
+    .action((yamlDir: string, xmlDir: string, opts: { workers?: number }) => {
       return run(
         () =>
           syncConfiguration(yamlDir, xmlDir, {
-            referenceDir: opts.reference,
+            concurrency: opts.workers,
           }),
         options
       )
@@ -140,6 +140,14 @@ export function createProgram(options: CreateProgramOptions = {}): Command {
     })
 
   return program
+}
+
+function parsePositiveInteger(value: string): number {
+  const parsed = Number(value)
+  if (!Number.isSafeInteger(parsed) || parsed < 1) {
+    throw new Error("Ожидалось положительное целое число")
+  }
+  return parsed
 }
 
 export function runCli(argv: readonly string[] = process.argv): void {

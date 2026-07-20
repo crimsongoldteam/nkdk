@@ -30,12 +30,31 @@ export interface SyncConfigurationToXmlParams {
   readonly transferConcurrency?: number
 }
 
+export interface PlanSyncConfigurationToXmlParams {
+  readonly yamlDir: string
+  readonly xmlDir: string
+  readonly baseId?: string
+}
+
 export interface FullXmlSyncResult {
   readonly succeeded: number
   readonly failed: readonly FullXmlSyncDiagnostic[]
   readonly warnings: readonly FullXmlSyncDiagnostic[]
   readonly configurationIndexPath?: string
 }
+
+export type FullXmlSyncPlanResult =
+  | {
+      readonly ok: true
+      readonly mode: "plan"
+      readonly assignments: number
+      readonly externalFiles: number
+      readonly configurationIndexPath: string
+    }
+  | {
+      readonly ok: false
+      readonly failed: readonly FullXmlSyncDiagnostic[]
+    }
 
 export interface FullXmlSyncCoordinatorDependencies {
   readonly exists: (path: string) => Promise<boolean>
@@ -83,12 +102,9 @@ export async function syncConfigurationToXml(
   let warnings: FullXmlSyncDiagnostic[] = []
 
   try {
-    if (!(await deps.exists(yamlDir))) return failedResult([operationDiagnostic("full_xml_sync_project_not_found", `Проект не найден: ${yamlDir}`)])
-    if (await deps.exists(xmlDir)) {
-      if (!(await deps.isDirectoryEmpty(xmlDir))) {
-        return failedResult([operationDiagnostic("full_xml_sync_target_not_empty", `XML-каталог должен отсутствовать или быть пустым: ${xmlDir}`)])
-      }
-    } else {
+    const preflight = await preflightFullXmlSync({ yamlDir, xmlDir, deps })
+    if ("failed" in preflight) return failedResult(preflight.failed)
+    if (!preflight.targetExists) {
       await deps.mkdir(xmlDir)
     }
 
@@ -146,6 +162,55 @@ export async function syncConfigurationToXml(
   } finally {
     await pool?.close()
   }
+}
+
+export async function planSyncConfigurationToXml(
+  params: PlanSyncConfigurationToXmlParams,
+  deps: Pick<FullXmlSyncCoordinatorDependencies, "exists" | "isDirectoryEmpty" | "discover" | "readIndexSnapshot"> = defaultDependencies
+): Promise<FullXmlSyncPlanResult> {
+  const yamlDir = resolve(params.yamlDir)
+  const xmlDir = resolve(params.xmlDir)
+  const baseId = params.baseId ?? DEFAULT_CONFIGURATION_INDEX_BASE_ID
+
+  try {
+    const preflight = await preflightFullXmlSync({ yamlDir, xmlDir, deps })
+    if ("failed" in preflight) return { ok: false, failed: preflight.failed }
+    await deps.readIndexSnapshot({ projectDir: yamlDir, baseId })
+    const plan = await deps.discover({ projectDir: yamlDir })
+    return {
+      ok: true,
+      mode: "plan",
+      assignments: plan.assignments.length,
+      externalFiles: plan.externalFiles.length,
+      configurationIndexPath: configurationIndexPath(yamlDir, baseId),
+    }
+  } catch (caught) {
+    return { ok: false, failed: [operationDiagnostic("full_xml_sync_operation_failed", errorMessage(caught))] }
+  }
+}
+
+async function preflightFullXmlSync(params: {
+  readonly yamlDir: string
+  readonly xmlDir: string
+  readonly deps: Pick<FullXmlSyncCoordinatorDependencies, "exists" | "isDirectoryEmpty">
+}): Promise<{ readonly targetExists: boolean } | { readonly failed: readonly FullXmlSyncDiagnostic[] }> {
+  if (!(await params.deps.exists(params.yamlDir))) {
+    return { failed: [operationDiagnostic("full_xml_sync_project_not_found", `Проект не найден: ${params.yamlDir}`)] }
+  }
+  if (await params.deps.exists(params.xmlDir)) {
+    if (!(await params.deps.isDirectoryEmpty(params.xmlDir))) {
+      return {
+        failed: [
+          operationDiagnostic(
+            "full_xml_sync_target_not_empty",
+            `XML-каталог должен отсутствовать или быть пустым: ${params.xmlDir}`
+          ),
+        ],
+      }
+    }
+    return { targetExists: true }
+  }
+  return { targetExists: false }
 }
 
 function buildFullXmlSyncConfigurationIndex(params: {

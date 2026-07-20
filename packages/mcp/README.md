@@ -60,7 +60,7 @@ NKDK подключается к агенту как MCP-сервер из npm.
 | `nkdk.describe_project_structure` | Узнать структуру YAML-проекта.                                              | Нет                          |
 | `nkdk.validate_project`           | Проверить YAML-проект на ошибки.                                            | Нет                          |
 | `nkdk.import_from_xml`            | Импортировать XML-выгрузку 1С в YAML-проект.                                | Только при `allowWrite=true` |
-| `nkdk.sync_to_xml`                | Синхронизировать YAML-проект обратно в XML-выгрузку.                        | Только при `allowWrite=true` |
+| `nkdk.sync_to_xml`                | Сформировать полный XML-проект из YAML через файл индекса конфигурации.     | Только при `allowWrite=true` |
 | `nkdk.init_sync_state`            | Создать `.nkdk-sync.yaml` для инкрементальной XML-синхронизации.            | Только при `allowWrite=true` |
 | `nkdk.rename_item`                | Переименовать объект или реквизит с сохранением внутреннего идентификатора. | Только при `allowWrite=true` |
 | `nkdk.find_references`            | Найти внешние ссылки на объект или реквизит в YAML-проекте.                 | Нет                          |
