@@ -9,6 +9,7 @@ import {
   getJSONSchemaIdentityExporter,
 } from "../jsonSchemaRefs"
 import { exportPropertyToJSONSchema } from "../property/toJSONSchema"
+import { getTypeRule } from "../property/typeRuleRegistry"
 import type { MetadataItemRule } from "../property/types"
 import { mockContextFromXML } from "../../../tests/mockContext"
 import { registerMetadataItemCollectionRule } from "./ruleFactory"
@@ -101,6 +102,30 @@ const addressableRule: PropertyRule = { type: "TestAddressableCollection" as any
 const yamlPathArrayRule: PropertyRule = { type: "TestYamlPathArrayCollection" as any, yaml: "Элементы" }
 
 describe("registerMetadataItemCollectionRule default fromXML", () => {
+  it("does not register a standard direct importer for a custom legacy importer", () => {
+    registerMetadataItemCollectionRule({
+      propertyType: "TestCustomLegacyCollection" as any,
+      itemRule: TestCollectionItemRules,
+      xmlElement: "Item",
+      fromXML: () => [],
+    })
+
+    expect(getTypeRule("TestCustomLegacyCollection", "importFromXMLToYAML")).toBeUndefined()
+  })
+
+  it("registers an explicitly opted-in direct importer for a custom legacy importer", () => {
+    const fromXMLToYAML = () => ({ Значение: "direct" })
+    registerMetadataItemCollectionRule({
+      propertyType: "TestCustomDirectCollection" as any,
+      itemRule: TestCollectionItemRules,
+      xmlElement: "Item",
+      fromXML: () => [],
+      fromXMLToYAML,
+    })
+
+    expect(getTypeRule("TestCustomDirectCollection", "importFromXMLToYAML")).toBe(fromXMLToYAML)
+  })
+
   it("импортирует обычный объект-контейнер {Item: body}", () => {
     const xml = { Item: { Name: "A" } }
     const result = importPropertyFromXML({ context: mockContextFromXML(), rule, value: xml })

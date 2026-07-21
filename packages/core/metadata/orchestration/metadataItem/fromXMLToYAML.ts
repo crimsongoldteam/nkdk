@@ -14,7 +14,8 @@ export function importMetadataItemFromXMLToYAML(params: {
   const xmlRoot = Object.values(params.rule.properties).find(
     (propertyRule) => propertyRule.type === "XMLRoot" && typeof propertyRule.container === "string"
   )
-  const source = xmlRoot === undefined ? asRecord(params.xml) : asRecord(params.xml)?.[xmlRoot.container]
+  const root = asRecord(params.xml)
+  const source = xmlRoot === undefined ? root : asRecord(root?.[xmlRoot.container])
   if (source === undefined) return undefined
 
   return importPropertiesFromXMLToYAML({

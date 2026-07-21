@@ -1,7 +1,9 @@
 import type { ConfigurationContextFromXML } from "../../context/types"
 import { importMetadataItemFromXMLToYAML } from "../metadataItem/fromXMLToYAML"
+import { configurationIndexItemContext } from "./fromXML"
 import type { DirectImportTraversal } from "../property/importYamlTypes"
-import type { MetadataItemRule, PropertyRule } from "../property/types"
+import type { PropertyRuleType } from "../property/registry"
+import type { ConfigurationIndexAddressingMode, MetadataItemRule, PropertyRule } from "../property/types"
 import { enterNestedYamlRule } from "../property/yamlRuleCursor"
 
 export function importMetadataItemCollectionFromXMLToYAML(params: {
@@ -12,6 +14,9 @@ export function importMetadataItemCollectionFromXMLToYAML(params: {
   xmlElement: string
   keyField?: string
   yamlAsArray?: true
+  propertyType?: PropertyRuleType
+  configurationIndexUidSegment?: string
+  configurationIndexAddressing?: ConfigurationIndexAddressingMode
   recordYamlKeyFromYAML?: (params: { yaml: Record<string, unknown>; name: string }) => string
   traversal: DirectImportTraversal
 }): Record<string, unknown> | Array<Record<string, unknown>> | undefined {
@@ -20,12 +25,24 @@ export function importMetadataItemCollectionFromXMLToYAML(params: {
 
   const yamlItems = items.flatMap((itemXml, index) => {
     const itemName = itemNameFromXML(itemXml, params.itemRule, params.keyField)
+    const itemContext = configurationIndexItemContext({
+      context: params.context,
+      item: itemXml,
+      itemRule: params.itemRule,
+      index,
+      options: {
+        propertyType: params.propertyType,
+        configurationIndexUidSegment: params.configurationIndexUidSegment,
+        configurationIndexAddressing: params.configurationIndexAddressing,
+        ...(params.yamlAsArray === true ? { yamlAsArray: true as const } : {}),
+      },
+    })
     const yamlPath =
       params.yamlAsArray === true
         ? [...params.traversal.yamlPath, index]
         : [...params.traversal.yamlPath, itemName ?? String(index)]
     const itemYaml = importMetadataItemFromXMLToYAML({
-      context: params.context,
+      context: itemContext,
       rule: params.itemRule,
       xml: itemXml,
       name: itemName,

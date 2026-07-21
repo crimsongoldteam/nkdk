@@ -1,7 +1,7 @@
 import { ConfigurationContextFromXML } from "../../context/types"
 import { ImportFromXMLFunction } from "../property/fn"
 import { PropertyRuleType } from "../property/registry"
-import type { ConfigurationIndexAddressingMode, MetadataItemRule, PropertyRule } from "../property/types"
+import type { ConfigurationIndexAddressingMode, ItemXML, MetadataItemRule, PropertyRule } from "../property/types"
 import { registerTypeRule } from "../property/typeRuleRegistry"
 import { importMetadataItemFromXML } from "../metadataItem/fromXML"
 import { ToMetadata } from "../metadataItem/registry"
@@ -15,12 +15,7 @@ import {
 export const importMetadataItemCollectionFromXML = <Rule extends MetadataItemRule, XMLKey extends string>(
   itemRule: Rule,
   xmlElement: XMLKey,
-  options?: {
-    propertyType?: PropertyRuleType
-    configurationIndexUidSegment?: string
-    configurationIndexAddressing?: ConfigurationIndexAddressingMode
-    yamlAsArray?: true
-  }
+  options?: MetadataItemCollectionImportOptions
 ): ImportFromXMLFunction => {
   return (
     context: ConfigurationContextFromXML,
@@ -62,17 +57,19 @@ export const importMetadataItemCollectionFromXML = <Rule extends MetadataItemRul
   }
 }
 
-function configurationIndexItemContext(params: {
+export type MetadataItemCollectionImportOptions = {
+  propertyType?: PropertyRuleType
+  configurationIndexUidSegment?: string
+  configurationIndexAddressing?: ConfigurationIndexAddressingMode
+  yamlAsArray?: true
+}
+
+export function configurationIndexItemContext(params: {
   context: ConfigurationContextFromXML
-  item: NamedElementXML
+  item: ItemXML
   itemRule: MetadataItemRule
   index: number
-  options?: {
-    propertyType?: PropertyRuleType
-    configurationIndexUidSegment?: string
-    configurationIndexAddressing?: ConfigurationIndexAddressingMode
-    yamlAsArray?: true
-  }
+  options?: MetadataItemCollectionImportOptions
 }): ConfigurationContextFromXML {
   const { context, item, itemRule, index, options } = params
   const collection = getConfigurationIndexCollectionContext(context)
@@ -108,7 +105,7 @@ function configurationIndexItemContext(params: {
   )
 }
 
-function configurationIndexItemName(item: NamedElementXML, itemRule: MetadataItemRule): string | undefined {
+function configurationIndexItemName(item: ItemXML, itemRule: MetadataItemRule): string | undefined {
   if (typeof item._name === "string" && item._name.length > 0) return item._name
 
   const nameRule = itemRule.properties.name

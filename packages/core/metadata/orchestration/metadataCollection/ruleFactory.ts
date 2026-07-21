@@ -135,9 +135,10 @@ export const registerMetadataItemCollectionRule = <
   const fromXML = params.fromXML ?? fromXMLDefault
   registerTypeRule(propertyType, "importFromXML", fromXML)
 
-  const fromXMLToYAML =
-    params.fromXMLToYAML ??
-    (({ context, rule, xml, traversal }) =>
+  if (params.fromXMLToYAML !== undefined) {
+    registerTypeRule(propertyType, "importFromXMLToYAML", params.fromXMLToYAML)
+  } else if (params.fromXML === undefined) {
+    registerTypeRule(propertyType, "importFromXMLToYAML", ({ context, rule, xml, traversal }) =>
       importMetadataItemCollectionFromXMLToYAML({
         context,
         rule,
@@ -145,13 +146,17 @@ export const registerMetadataItemCollectionRule = <
         itemRule,
         xmlElement: xmlElement ?? rule.xml ?? "Item",
         keyField: typeof params.keyField === "string" ? params.keyField : undefined,
+        propertyType,
+        configurationIndexUidSegment: params.configurationIndexUidSegment,
+        configurationIndexAddressing: params.configurationIndexAddressing,
         ...(params.yamlAsArray === true ? { yamlAsArray: true as const } : {}),
         ...(params.recordYamlKeyFromYAML === undefined
           ? {}
           : { recordYamlKeyFromYAML: params.recordYamlKeyFromYAML }),
         traversal,
-      }))
-  registerTypeRule(propertyType, "importFromXMLToYAML", fromXMLToYAML)
+      })
+    )
+  }
   registerTypeRule(propertyType, "nestedItemRule", { itemRule })
 
   const fromYAMLDefault: importFromYAMLFunction = (context, _rule, value, source) =>
