@@ -80,7 +80,7 @@ describe("formatDataPathStandardMembers", () => {
     ).toBe("Объект.Код")
   })
 
-  it("preserves an unresolved data path and reports one import warning", () => {
+  it("preserves an unresolved user data path without an import warning", () => {
     const diagnostics: unknown[] = []
 
     const formatted = formatDataPathStandardMembers({
@@ -95,13 +95,31 @@ describe("formatDataPathStandardMembers", () => {
     })
 
     expect(formatted).toBe("Неизвестный.Переход")
+    expect(diagnostics).toEqual([])
+  })
+
+  it("reports an unresolved data path when a standard member needs formatting", () => {
+    const diagnostics: unknown[] = []
+
+    const formatted = formatDataPathStandardMembers({
+      value: "Неизвестный.LineNumber",
+      direction: "internal-to-yaml",
+      index: indexWithAttributes([]),
+      ownerCache: ownerCache([]),
+      diagnosticSink: {
+        targetProjectPath: "Справочник/Товары/Формы/Форма/Форма.yaml",
+        append: (diagnostic) => diagnostics.push(diagnostic),
+      },
+    })
+
+    expect(formatted).toBe("Неизвестный.LineNumber")
     expect(diagnostics).toEqual([
       {
         severity: "warning",
         code: "unresolved_data_path",
         targetProjectPath: "Справочник/Товары/Формы/Форма/Форма.yaml",
-        value: "Неизвестный.Переход",
-        message: "Не удалось преобразовать ПутьКДанным: Неизвестный.Переход",
+        value: "Неизвестный.LineNumber",
+        message: "Не удалось преобразовать ПутьКДанным: Неизвестный.LineNumber",
       },
     ])
   })

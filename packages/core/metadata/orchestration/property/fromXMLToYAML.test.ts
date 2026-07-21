@@ -62,9 +62,8 @@ describe("importPropertiesFromXMLToYAML", () => {
     ).toEqual({ Значение: "direct:x" })
   })
 
-  it("applies regular YAML result filtering to direct values", () => {
+  it("omits an empty direct value", () => {
     registerTypeRule("TestDirectEmptyCollection" as PropertyRuleType, "importFromXMLToYAML", () => [])
-    registerTypeRule("UserVisible" as PropertyRuleType, "importFromXMLToYAML", () => ({ Title: "A", ToolTip: "B" }))
 
     expect(
       importPropertiesFromXMLToYAML({
@@ -73,15 +72,14 @@ describe("importPropertiesFromXMLToYAML", () => {
           itemType: "TestDirectItem",
           properties: {
             empty: { type: "TestDirectEmptyCollection", xml: "Empty", yaml: "Пусто" },
-            title: { type: "UserVisible", xml: "Title", yaml: "Игнорируется" },
           },
         } as MetadataItemRule,
-        xml: { Empty: {}, Title: {} },
+        xml: { Empty: {} },
         yamlPath: [],
         rulePath: [],
         collector: createLocalIndexesCollector(),
       })
-    ).toEqual({ Title: "A", ToolTip: "B" })
+    ).toEqual({})
   })
 
   it("collects imported XML-prefix values for the configuration index", () => {

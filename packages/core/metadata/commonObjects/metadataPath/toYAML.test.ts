@@ -101,10 +101,10 @@ describe("exportDataPathStandardMembersToYAML", () => {
       finalize({
         context,
         rule: { type: "DataPath", yaml: "ПутьКДанным" },
-        value: "Объект.НеизвестноеПоле",
+        value: "Объект.НеизвестноеПоле.LineNumber",
         formDataPathIndex: index,
       })
-    ).toBe("Объект.НеизвестноеПоле")
+    ).toBe("Объект.НеизвестноеПоле.LineNumber")
     expect(diagnostics).toHaveLength(1)
   })
 })
