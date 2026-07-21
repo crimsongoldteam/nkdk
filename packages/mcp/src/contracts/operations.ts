@@ -8,14 +8,16 @@ const operationPath = z.string().min(1)
 
 export const renameItemInputShape = {
   projectDir: z.string().min(1),
-  path: operationPath,
+  componentPath: z.string().min(1).optional(),
+  metadataRef: operationPath,
   newName: localName,
   allowWrite: z.boolean().optional(),
 }
 
 export const findReferencesInputShape = {
   projectDir: z.string().min(1),
-  path: operationPath,
+  componentPath: z.string().min(1).optional(),
+  metadataRef: operationPath,
 }
 
 export type RenameItemInput = z.infer<z.ZodObject<typeof renameItemInputShape>>

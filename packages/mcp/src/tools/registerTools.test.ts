@@ -42,15 +42,18 @@ describe("registerNkdkCapabilities", () => {
     const importTool = server.registerTool.mock.calls.find(([name]) => name === "nkdk.import_from_xml")?.[1] as
       | { description: string }
       | undefined
-    expect(importTool?.description).toContain("не очищает Проект")
+    expect(importTool?.description).toContain("одного компонента")
+    expect(importTool?.description).toContain("цель должна отсутствовать или быть пустой")
     expect(importTool?.description).toContain(".nkdk/tmp/import/<operation-id>")
     expect(importTool?.description).toContain("не подключается к 1С")
+    expect(importTool?.description).toContain("не импортирует все компоненты")
 
     const syncTool = server.registerTool.mock.calls.find(([name]) => name === "nkdk.sync_to_xml")?.[1] as
       | { description: string }
       | undefined
     expect(syncTool?.description).toContain("файл индекса конфигурации")
-    expect(syncTool?.description).toContain("отсутствовать или быть пустым")
+    expect(syncTool?.description).toContain("projectDir/componentPath")
+    expect(syncTool?.description).toContain("xmlRootDir/componentPath")
     expect(syncTool?.description).not.toContain("reference")
   })
 })

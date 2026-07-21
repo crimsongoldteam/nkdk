@@ -2,7 +2,8 @@ import { z } from "zod/v4"
 import { toolErrorOutputShape } from "./common"
 
 export const syncToXmlInputShape = {
-  yamlDir: z.string().min(1),
+  projectDir: z.string().min(1),
+  componentPath: z.string().min(1).optional(),
   xmlDir: z.string().min(1),
   baseId: z.string().min(1).optional(),
   concurrency: z.number().int().positive().optional(),

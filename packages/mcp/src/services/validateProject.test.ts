@@ -36,11 +36,12 @@ describe("validateProject service", () => {
 
   it("returns diagnostics and summary as JSON", async () => {
     const projectDir = createProject()
-    writeProjectFile(projectDir, "Справочник/Товары/Свойства.yaml", ['НесуществующееПоле: "лишнее"'])
+    const componentDir = join(projectDir, "cf")
+    writeProjectFile(componentDir, "Справочник/Товары/Свойства.yaml", ['НесуществующееПоле: "лишнее"'])
     core.validateProject.mockResolvedValue({
       diagnostics: [
         {
-          filePath: join(projectDir, "Справочник", "Товары", "Свойства.yaml"),
+          filePath: join(componentDir, "Справочник", "Товары", "Свойства.yaml"),
           line: 1,
           col: 1,
           severity: "error",
@@ -65,25 +66,27 @@ describe("validateProject service", () => {
     )
     expect(result.diagnostics[0]).not.toHaveProperty("line")
     expect(result.diagnostics[0]).not.toHaveProperty("col")
-    expect(core.validateProject).toHaveBeenCalledWith({ projectDir })
+    expect(core.validateProject).toHaveBeenCalledWith({ projectDir: componentDir })
   })
 
   it("reuses one validation handle across service calls", async () => {
     const projectDir = createProject()
+    const componentDir = join(projectDir, "cf")
 
     await validateYamlProject({ projectDir })
     await validateYamlProject({ projectDir })
 
     expect(core.createValidationWorkerPoolHandle).toHaveBeenCalledTimes(1)
     expect(core.validateProject).toHaveBeenCalledTimes(2)
-    expect(core.validateProject).toHaveBeenNthCalledWith(1, { projectDir })
-    expect(core.validateProject).toHaveBeenNthCalledWith(2, { projectDir })
+    expect(core.validateProject).toHaveBeenNthCalledWith(1, { projectDir: componentDir })
+    expect(core.validateProject).toHaveBeenNthCalledWith(2, { projectDir: componentDir })
   })
 
   it("omits warning diagnostics from JSON output", async () => {
     const projectDir = createProject()
-    writeProjectFile(projectDir, "Справочник/Товары/Свойства.yaml", "Комментарий: владелец\n")
-    writeProjectFile(projectDir, "Справочник/Товары/Формы/ФормаЭлемента/Форма.yaml", [
+    const componentDir = join(projectDir, "cf")
+    writeProjectFile(componentDir, "Справочник/Товары/Свойства.yaml", "Комментарий: владелец\n")
+    writeProjectFile(componentDir, "Справочник/Товары/Формы/ФормаЭлемента/Форма.yaml", [
       "Элементы:",
       "  Кнопка:",
       "    Вид: Кнопка",
@@ -92,7 +95,7 @@ describe("validateProject service", () => {
     core.validateProject.mockResolvedValue({
       diagnostics: [
         {
-          filePath: join(projectDir, "Справочник", "Товары", "Свойства.yaml"),
+          filePath: join(componentDir, "Справочник", "Товары", "Свойства.yaml"),
           line: 1,
           col: 1,
           severity: "warning",
@@ -116,30 +119,26 @@ describe("validateProject service", () => {
     expect(result).toEqual({
       ok: false,
       code: "not_found",
-      message: "YAML-проект не найден",
+      message: "Проект не найден",
       details: { projectDir },
     })
   })
 
-  it("returns invalid_arguments for filePath outside project", async () => {
-    const projectDir = createProject()
-    const outsideDir = createProject()
-    const outsideFile = join(outsideDir, "Свойства.yaml")
-    writeFileSync(outsideFile, "")
-    core.validateProject.mockImplementation(() => {
-      throw new Error("Файл находится вне указанного YAML-проекта")
-    })
+  it("requires cf component in project root", async () => {
+    const projectDir = mkdtempSync(join(tmpdir(), "nkdk-mcp-validate-no-cf-"))
+    tempDirs.push(projectDir)
 
-    const result = await validateYamlProject({ projectDir, filePath: outsideFile })
+    const result = await validateYamlProject({ projectDir })
 
     expect(result.ok).toBe(false)
     if (result.ok) throw new Error("expected failure")
-    expect(result.code).toBe("invalid_arguments")
-    expect(result.message).toBe("Файл находится вне указанного YAML-проекта")
+    expect(result.code).toBe("not_found")
+    expect(result.message).toBe("Компонент cf не найден")
   })
 
   function createProject(): string {
     const projectDir = mkdtempSync(join(tmpdir(), "nkdk-mcp-validate-"))
+    mkdirSync(join(projectDir, "cf"), { recursive: true })
     tempDirs.push(projectDir)
     return projectDir
   }

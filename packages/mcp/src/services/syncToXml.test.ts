@@ -1,8 +1,18 @@
-import { describe, expect, it, vi } from "vitest"
+import { mkdirSync, mkdtempSync, rmSync } from "fs"
+import { tmpdir } from "os"
+import { join } from "path"
+import { afterEach, describe, expect, it, vi } from "vitest"
 import { syncToXml } from "./syncToXml"
 
 describe("syncToXml service", () => {
+  const tempDirs: string[] = []
+
+  afterEach(() => {
+    for (const dir of tempDirs.splice(0)) rmSync(dir, { recursive: true, force: true })
+  })
+
   it("returns a full XML sync plan without writing when allowWrite is not true", async () => {
+    const projectDir = createProject()
     const planSyncToXml = vi.fn().mockResolvedValue({
       ok: true,
       mode: "plan",
@@ -11,7 +21,10 @@ describe("syncToXml service", () => {
       configurationIndexPath: "/yaml/.nkdk/configuration-index/default.bin",
     })
     const syncConfigurationToXML = vi.fn()
-    const result = await syncToXml({ yamlDir: "/yaml", xmlDir: "/xml", baseId: "default" }, { planSyncToXml, syncConfigurationToXML })
+    const result = await syncToXml(
+      { projectDir, componentPath: "cfe/Расширение", xmlDir: "/xml", baseId: "default" },
+      { planSyncToXml, syncConfigurationToXML },
+    )
 
     expect(result).toMatchObject({
       ok: true,
@@ -22,7 +35,7 @@ describe("syncToXml service", () => {
       },
     })
     expect(planSyncToXml).toHaveBeenCalledWith({
-      yamlDir: "/yaml",
+      yamlDir: join(projectDir, "cfe", "Расширение"),
       xmlDir: "/xml",
       baseId: "default",
     })
@@ -30,6 +43,7 @@ describe("syncToXml service", () => {
   })
 
   it("uses full sync through the configuration index when writing is allowed", async () => {
+    const projectDir = createProject()
     const syncConfigurationToXML = vi.fn().mockResolvedValue({
       succeeded: 1,
       failed: [],
@@ -38,13 +52,13 @@ describe("syncToXml service", () => {
     })
 
     const result = await syncToXml(
-      { yamlDir: "/yaml", xmlDir: "/xml", allowWrite: true, baseId: "default", concurrency: 4 },
+      { projectDir, componentPath: "cfe/Расширение", xmlDir: "/xml", allowWrite: true, baseId: "default", concurrency: 4 },
       { syncConfigurationToXML },
     )
 
     expect(syncConfigurationToXML).toHaveBeenCalledWith(
       expect.objectContaining({
-        yamlDir: "/yaml",
+        yamlDir: join(projectDir, "cfe", "Расширение"),
         xmlDir: "/xml",
         baseId: "default",
         concurrency: 4,
@@ -60,6 +74,7 @@ describe("syncToXml service", () => {
   })
 
   it("maps diagnostics from the new full sync result", async () => {
+    const projectDir = createProject()
     const syncConfigurationToXML = vi.fn().mockResolvedValue({
       succeeded: 2,
       failed: [{ severity: "error", code: "bad_yaml", message: "bad yaml" }],
@@ -67,7 +82,7 @@ describe("syncToXml service", () => {
     })
 
     const result = await syncToXml(
-      { yamlDir: "/yaml", xmlDir: "/xml", allowWrite: true },
+      { projectDir, xmlDir: "/xml", allowWrite: true },
       { syncConfigurationToXML },
     )
 
@@ -78,4 +93,12 @@ describe("syncToXml service", () => {
       failed: [{ severity: "error", code: "bad_yaml", message: "bad yaml" }],
     })
   })
+
+  function createProject(): string {
+    const projectDir = mkdtempSync(join(tmpdir(), "nkdk-mcp-sync-"))
+    tempDirs.push(projectDir)
+    mkdirSync(join(projectDir, "cf"), { recursive: true })
+    mkdirSync(join(projectDir, "cfe", "Расширение"), { recursive: true })
+    return projectDir
+  }
 })

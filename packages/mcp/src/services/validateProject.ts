@@ -1,8 +1,8 @@
-import { existsSync, statSync } from "fs"
 import { isAbsolute, relative, resolve, sep } from "path"
 import { loadCoreApi } from "../coreApi"
 import { errorMessage, toolError, toolSuccess, type ToolPayload } from "../contracts/common"
 import { type ValidateProjectInput } from "../contracts/validateProject"
+import { resolveComponent } from "./componentResolver"
 import { getValidationHandle } from "./validationHandle"
 
 export type ValidateProjectPayload = ToolPayload<{
@@ -19,25 +19,17 @@ export type ValidateProjectPayload = ToolPayload<{
 }>
 
 export async function validateYamlProject(input: ValidateProjectInput): Promise<ValidateProjectPayload> {
-  const projectDir = resolve(input.projectDir)
-
-  if (!existsSync(projectDir)) {
-    return toolError("not_found", "YAML-проект не найден", { projectDir: input.projectDir })
-  }
-
-  if (!statSync(projectDir).isDirectory()) {
-    return toolError("invalid_arguments", "Путь не является каталогом YAML-проекта", { projectDir: input.projectDir })
-  }
+  const component = resolveComponent({ projectDir: input.projectDir, componentPath: "cf" })
+  if (!component.ok) return component.error
 
   try {
     const handle = await getValidationHandle()
     const diagnostics = (await handle.validateProject({
-      projectDir,
-      ...(input.filePath !== undefined ? { filePath: input.filePath } : {}),
+      projectDir: component.componentDir,
     })).diagnostics
 
     const mapped = diagnostics.filter(isVisibleDiagnostic).map((diagnostic) => ({
-      filePath: toProjectRelativePath(projectDir, diagnostic.filePath),
+      filePath: toProjectRelativePath(component.componentDir, diagnostic.filePath),
       severity: diagnostic.severity,
       message: diagnostic.message,
       ...(diagnostic.path !== undefined ? { path: diagnostic.path } : {}),

@@ -12,8 +12,8 @@ export const promptDefinitions: PromptDefinition[] = [
     description: "Создать или изменить YAML-файл конфигурации по схеме NKDK.",
     text: [
       "Прочитай resource `nkdk://guides/config-edit-yaml`.",
-      "Если пользователь просит переименовать metadata-цель, не правь YAML руками: вызови `nkdk.rename_item`. Если пользователь хочет проверить удаление или найти ссылки на metadata-цель, вызови `nkdk.find_references` и передай `path` строкой через точку, например `Справочник.Товары.Реквизит.Артикул` или `Документ.Заказ.ТабличнаяЧасть.Товары.Реквизит.Количество`.",
-      "Используй `nkdk.get_schema`, чтобы получить схему целевого YAML-файла.",
+      "Если пользователь просит переименовать metadata-цель, не правь YAML руками: вызови `nkdk.rename_item`. Если пользователь хочет проверить удаление или найти ссылки на metadata-цель, вызови `nkdk.find_references` и передай `metadataRef` строкой через точку, например `Справочник.Товары.Реквизит.Артикул` или `Документ.Заказ.ТабличнаяЧасть.Товары.Реквизит.Количество`.",
+      "Используй `nkdk.get_schema` с `structurePath` или `metadataRef`, чтобы получить схему целевого YAML-файла.",
       "Измени YAML файловыми инструментами агента.",
       "Проверь результат через `nkdk.validate_project`.",
     ].join("\n"),
@@ -24,7 +24,7 @@ export const promptDefinitions: PromptDefinition[] = [
     description: "Импортировать XML-выгрузку 1С в YAML-проект.",
     text: [
       "Прочитай resource `nkdk://guides/config-import-from-xml`.",
-      "Проверь XML-каталог и целевой YAML-каталог.",
+      "Проверь XML-каталог одного компонента и пустоту целевого `projectDir/componentPath`.",
       "Вызови `nkdk.import_from_xml` только после явного решения писать файлы с `allowWrite: true`.",
     ].join("\n"),
   },
@@ -34,7 +34,7 @@ export const promptDefinitions: PromptDefinition[] = [
     description: "Синхронизировать YAML-проект в XML-выгрузку.",
     text: [
       "Прочитай resource `nkdk://guides/config-sync-to-xml`.",
-      "Проверь YAML-проект, файл индекса конфигурации и XML-каталог записи: он должен отсутствовать или быть пустым.",
+      "Проверь корень NKDK-проекта, выбранный компонент, файл индекса конфигурации и заданный XML-каталог записи.",
       "Вызови `nkdk.sync_to_xml` только после явного решения писать файлы с `allowWrite: true`.",
     ].join("\n"),
   },
@@ -44,7 +44,7 @@ export const promptDefinitions: PromptDefinition[] = [
     description: "Проверить YAML-проект NKDK.",
     text: [
       "Прочитай resource `nkdk://guides/config-validate-yaml`.",
-      "Вызови `nkdk.validate_project` для проекта или выбранного файла.",
+      "Вызови `nkdk.validate_project` для корня NKDK-проекта; сейчас инструмент валидирует компонент `cf`.",
       "Сообщи diagnostics по путям, строкам, severity и сообщениям.",
     ].join("\n"),
   },

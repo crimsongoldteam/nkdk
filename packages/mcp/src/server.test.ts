@@ -27,7 +27,7 @@ describe("MCP server", () => {
     try {
       const result = await client.callTool({
         name: "nkdk.get_schema",
-        arguments: { target: "InputField", keys: true },
+        arguments: { projectDir: process.cwd(), metadataRef: "InputField", keys: true },
       })
 
       expect(result.isError).not.toBe(true)

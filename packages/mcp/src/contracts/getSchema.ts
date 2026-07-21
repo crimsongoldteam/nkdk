@@ -2,8 +2,10 @@ import { z } from "zod/v4"
 import { toolErrorOutputShape } from "./common"
 
 export const getSchemaInputShape = {
-  target: z.string().min(1),
-  projectDir: z.string().min(1).optional(),
+  projectDir: z.string().min(1),
+  componentPath: z.string().min(1).optional(),
+  metadataRef: z.string().min(1).optional(),
+  structurePath: z.string().min(1).optional(),
   format: z.enum(["summary", "jsonSchema"]).optional(),
   mode: z.enum(["externalRefs", "inline"]).optional(),
   keys: z.union([z.literal(true), z.string().min(1)]).optional(),

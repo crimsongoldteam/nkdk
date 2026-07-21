@@ -16,7 +16,8 @@ export const importWarningSchema = z.object({
 
 export const importFromXmlInputShape = {
   xmlDir: z.string().min(1),
-  yamlDir: z.string().min(1),
+  projectDir: z.string().min(1),
+  componentPath: z.string().min(1).optional(),
   allowWrite: z.boolean().optional(),
 }
 

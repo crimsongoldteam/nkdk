@@ -20,6 +20,8 @@ describe("guide definitions", () => {
     expect(editGuide?.text).toContain("nkdk.rename_item")
     expect(editGuide?.text).toContain("nkdk.find_references")
     expect(editGuide?.text).not.toContain("nkdk.delete_item")
+    expect(editGuide?.text).toContain("metadataRef")
+    expect(editGuide?.text).toContain("componentPath")
     expect(editGuide?.text).toContain("Справочник.Товары.Реквизит.Артикул")
     expect(editGuide?.text).toContain("Документ.Заказ.ТабличнаяЧасть.Товары.Реквизит.Количество")
   })
@@ -27,16 +29,19 @@ describe("guide definitions", () => {
   it("describes XML-import preservation and version boundaries", () => {
     const importGuide = guideDefinitions.find((guide) => guide.uri === "nkdk://guides/config-import-from-xml")
 
-    expect(importGuide?.text).toContain("не очищает Проект")
+    expect(importGuide?.text).toContain("одного компонента")
+    expect(importGuide?.text).toContain("должен отсутствовать или быть пустым")
     expect(importGuide?.text).toContain(".nkdk/tmp/import/<operation-id>")
     expect(importGuide?.text).toContain("не подключается к 1С")
+    expect(importGuide?.text).toContain("не импортирует все компоненты")
   })
 
   it("describes sync through configuration index without reference catalog", () => {
     const syncGuide = guideDefinitions.find((guide) => guide.uri === "nkdk://guides/config-sync-to-xml")
 
     expect(syncGuide?.text).toContain("файла индекса конфигурации")
-    expect(syncGuide?.text).toContain("отсутствовать или быть пустым")
+    expect(syncGuide?.text).toContain("projectDir/componentPath")
+    expect(syncGuide?.text).toContain("xmlRootDir/componentPath")
     expect(syncGuide?.text).not.toContain("reference")
   })
 })
