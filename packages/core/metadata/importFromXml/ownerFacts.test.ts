@@ -1,21 +1,16 @@
 import { describe, expect, it } from "vitest"
 import { MetadataCatalogRules } from "../appliedObjects/metadataCatalog/rules"
 import { ClientApplicationFormRules } from "../forms/clientApplicationForm/rules"
-import type { MetadataItem } from "../orchestration/property/types"
-import type { PreparedImportModel } from "./prepareModel"
+import type { PreparedImportYaml } from "./prepareYaml"
 import { extractImportOwnerFacts } from "./ownerFacts"
 import type { ImportAssignment } from "./types"
 
 describe("extractImportOwnerFacts", () => {
   it("reuses ValidationOwnerFacts and ObjectFieldIndex for an imported owner", () => {
-    const prepared = preparedModel({
+    const prepared = preparedYaml({
       assignment: catalogAssignment(),
-      model: metadataItem({
-        itemType: "MetadataCatalog",
-        name: "Контрагенты",
-        attributes: [{ itemType: "MetadataAttribute", name: "ИНН", type: { type: "String" } }],
-      }),
       rule: MetadataCatalogRules,
+      ownerFacts: { attributes: [{ name: "ИНН", type: { type: "String" } }] },
     })
 
     const facts = extractImportOwnerFacts(prepared)
@@ -52,27 +47,30 @@ describe("extractImportOwnerFacts", () => {
 
     expect(
       extractImportOwnerFacts(
-        preparedModel({
+        preparedYaml({
           assignment,
-          model: metadataItem({ itemType: "ClientApplicationForm", name: "ФормаЭлемента" }),
           rule: ClientApplicationFormRules,
+          ownerFacts: {},
         })
       )
     ).toEqual([])
   })
 })
 
-function preparedModel(params: Pick<PreparedImportModel, "assignment" | "model" | "rule">): PreparedImportModel {
+function preparedYaml(params: {
+  assignment: ImportAssignment
+  rule: PreparedImportYaml["rule"]
+  ownerFacts: Record<string, unknown>
+}): PreparedImportYaml {
   return {
-    ...params,
+    assignment: params.assignment,
+    rule: params.rule,
     targetProjectPath: params.assignment.targetProjectPath,
+    yaml: {},
     ownerContext: [],
+    localIndexes: { metadata: { events: [], ownerFacts: params.ownerFacts }, dependencies: [] },
     generatedFiles: [],
   }
-}
-
-function metadataItem(value: Record<string, unknown> & { itemType: string }): MetadataItem {
-  return value as MetadataItem
 }
 
 function catalogAssignment(): ImportAssignment {

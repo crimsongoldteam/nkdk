@@ -10,6 +10,7 @@ export function importMetadataItemFromXMLToYAML(params: {
   xml: unknown
   name?: string
   traversal: DirectImportTraversal
+  propertyXML?: ReadonlyMap<string, unknown>
 }): Record<string, unknown> | undefined {
   const xmlRoot = Object.values(params.rule.properties).find(
     (propertyRule) => propertyRule.type === "XMLRoot" && typeof propertyRule.container === "string"
@@ -26,6 +27,7 @@ export function importMetadataItemFromXMLToYAML(params: {
     yamlPath: params.traversal.yamlPath,
     rulePath: enterNestedYamlRule(params.traversal, params.rule.itemType).rulePath,
     collector: params.traversal.collector,
+    propertyXML: params.propertyXML,
   })
 }
 

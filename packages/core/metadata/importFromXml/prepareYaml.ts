@@ -1,37 +1,35 @@
 import fs from "node:fs"
-import { parseMetadataYaml } from "../../yaml/parseMetadataYaml"
-import { prepareConfigurationModelFromXML } from "../appliedObjects/configuration/rootIO"
+import importContentFromXML from "../../xml/import/importer"
 import { withConfigurationIndexCollector } from "../configurationIndex/collector/context"
 import type { ConfigurationIndexCollector } from "../configurationIndex/collector/writer"
 import type { ConfigurationContextFromXML, ExternalFileEntry } from "../context/types"
-import { prepareClientApplicationFormModelFromXML } from "../forms/clientApplicationForm/convertFromXML"
+import { importClientApplicationFormFromXMLToYAML } from "../forms/clientApplicationForm/fromXMLToYAML"
 import { ClientApplicationFormRules } from "../forms/clientApplicationForm/rules"
-import type {
-  ClientApplicationForm,
-  ClientApplicationFormXML,
-  FormMetadataXML,
-} from "../forms/clientApplicationForm/types"
-import { prepareAppliedObjectModelFromXML } from "../orchestration/appliedObject/convertFromXML"
+import type { ClientApplicationFormXML, FormMetadataXML } from "../forms/clientApplicationForm/types"
+import { importMetadataItemFromXMLToYAML } from "../orchestration/metadataItem/fromXMLToYAML"
 import {
-  type MetadataItemOwnerContextEntry,
   appendMetadataItemOwner,
+  type MetadataItemOwnerContextEntry,
+  withExportMetadataTargetOwners,
 } from "../orchestration/appliedObject/metadataItemOwnerContext"
 import { metadataTargetOwnerFromRule } from "../orchestration/property/metadataTargetString"
 import { getTypeRule } from "../orchestration/property/typeRuleRegistry"
-import type { MetadataItem, MetadataItemRule, PropertyRule } from "../orchestration/property/types"
+import type { MetadataItemRule, PropertyRule } from "../orchestration/property/types"
+import { createLocalIndexesCollector, type LocalIndexes } from "../project/localIndexes"
 import { configurationMetadataProjectSpec, metadataProjectSpecs } from "../project/specs"
-import { buildFormDataPathIndex, type FormDataPathIndex } from "../validation/dataPath/formIndex"
 import type { ValidationProfiler } from "../validation/profile"
-import importContentFromXML from "../../xml/import/importer"
+import { registerValidationMetadata } from "../validation/registerValidationMetadata"
 import type { ImportAssignment, ImportXmlInput } from "./types"
 
-export interface PreparedImportModel {
+registerValidationMetadata()
+
+export interface PreparedImportYaml {
   assignment: ImportAssignment
   targetProjectPath: string
-  model: MetadataItem
+  yaml: unknown
   rule: MetadataItemRule
   ownerContext: readonly MetadataItemOwnerContextEntry[]
-  localDataPathIndex?: FormDataPathIndex
+  localIndexes: LocalIndexes
   generatedFiles: ExternalFileEntry[]
 }
 
@@ -52,92 +50,94 @@ export function resetRegisteredImportRuleLookupCountForTests(): void {
   registeredImportRulesByItemType.clear()
 }
 
-export async function prepareImportModel(params: {
+export async function prepareImportYaml(params: {
   assignment: ImportAssignment
   context: ConfigurationContextFromXML
   collector: ConfigurationIndexCollector
   profiler?: ValidationProfiler
-}): Promise<PreparedImportModel> {
+}): Promise<PreparedImportYaml> {
   let xmlInputs: ParsedImportXmlInput[] | undefined
   try {
     xmlInputs = await readAndParseAssignmentXml(params.assignment.xmlFiles, params.profiler)
-    const context = withConfigurationIndexCollector(params.context, params.collector, params.assignment.logicalAddress)
-    const registeredRule = findRegisteredImportRule(params.assignment.itemType)
+    const generatedFiles: ExternalFileEntry[] = []
+    const rule = resolveAssignmentRule(params.assignment)
+    const ownerContext = buildOwnerContext(params.assignment, rule)
+    const collectedContext = withConfigurationIndexCollector(
+      params.context,
+      params.collector,
+      params.assignment.logicalAddress
+    )
+    const importContext = withExportMetadataTargetOwners(
+      {
+        ...collectedContext,
+        exportToYAML: {
+          ...(collectedContext.exportToYAML ?? { toTyped: false }),
+          externalFilesCollector: generatedFiles,
+          parent: { name: params.assignment.itemName },
+        },
+      },
+      ownerContext
+    ) as ConfigurationContextFromXML
 
-    if (params.assignment.role === "configuration") {
-      const metadataXML = requireMetadataXml(xmlInputs)
-      const model = measureModel(params.profiler, () =>
-        prepareConfigurationModelFromXML({
-          context,
-          metadataXML: metadataXML["MetaDataObject"],
-          propertyXML: mapPropertyXml(configurationMetadataProjectSpec.rule, xmlInputs ?? []),
-        })
-      )
-      return preparedResult(params.assignment, requireModel(model), configurationMetadataProjectSpec.rule)
-    }
-
-    if (registeredRule !== undefined) {
-      const metadataXML = requireMetadataXml(xmlInputs)
-      const model = measureModel(params.profiler, () =>
-        prepareAppliedObjectModelFromXML({
-          context,
-          rule: registeredRule,
-          name: params.assignment.itemName,
-          metadataXML: metadataXML["MetaDataObject"],
-          propertyXML: mapPropertyXml(registeredRule, xmlInputs ?? []),
-        })
-      )
-      return preparedResult(params.assignment, requireModel(model), registeredRule)
-    }
-
-    const bodyXML = xmlInputs.find(({ input }) => input.role === "body")?.parsed
-    if (params.assignment.role === "fileItem" && params.assignment.targetProjectPath.endsWith(".yaml")) {
-      const metadataXML = requireMetadataXml(xmlInputs)
-      const model = measureModel(params.profiler, () =>
-        prepareClientApplicationFormModelFromXML({
-          context,
+    const result = measureYaml(params.profiler, () => {
+      if (params.assignment.role === "fileItem" && params.assignment.targetProjectPath.endsWith(".yaml")) {
+        const metadataXML = requireMetadataXml(xmlInputs ?? [])
+        const bodyXML = xmlInputs?.find(({ input }) => input.role === "body")?.parsed
+        return importClientApplicationFormFromXMLToYAML({
+          context: importContext,
           formName: params.assignment.itemName,
           formXML: bodyXML?.["Form"] as ClientApplicationFormXML | undefined,
           metadataXML: metadataXML["MetaDataObject"] as FormMetadataXML,
         })
-      )
-      return preparedResult(params.assignment, model, ClientApplicationFormRules, {
-        localDataPathIndex: buildLocalFormDataPathIndex(params.assignment.targetProjectPath, model),
-      })
-    }
+      }
 
-    throw new Error(`Не найдено правило подготовки XML-import для ${params.assignment.itemType}`)
+      const collector = createLocalIndexesCollector()
+      const metadataXML = requireMetadataXml(xmlInputs ?? [])
+      const yaml = importMetadataItemFromXMLToYAML({
+        context: importContext,
+        rule,
+        name: params.assignment.itemName,
+        xml: metadataXML["MetaDataObject"],
+        traversal: { yamlPath: [], rulePath: [], collector },
+        propertyXML: mapPropertyXml(rule, xmlInputs ?? []),
+      })
+      if (yaml === undefined) throw new Error("XML-import не сформировал YAML")
+      return { yaml, localIndexes: collector.finish(), generatedFiles }
+    })
+
+    params.profiler?.record("Подготовка импорта конфигурации", "Сбор локальных индексов", {
+      items: result.localIndexes.metadata.events.length,
+      timeMs: 0,
+    })
+    return {
+      assignment: params.assignment,
+      targetProjectPath: params.assignment.targetProjectPath,
+      yaml: result.yaml,
+      rule,
+      ownerContext,
+      localIndexes: result.localIndexes,
+      generatedFiles: [...generatedFiles, ...result.generatedFiles.filter((file) => !generatedFiles.includes(file))],
+    }
   } finally {
     xmlInputs = undefined
   }
 }
 
-function preparedResult(
-  assignment: ImportAssignment,
-  model: MetadataItem,
-  rule: MetadataItemRule,
-  extra: Pick<PreparedImportModel, "localDataPathIndex"> = {}
-): PreparedImportModel {
-  return {
-    assignment,
-    targetProjectPath: assignment.targetProjectPath,
-    model,
-    rule,
-    ownerContext: buildOwnerContext(assignment, rule),
-    ...extra,
-    generatedFiles: [],
-  }
+function resolveAssignmentRule(assignment: ImportAssignment): MetadataItemRule {
+  if (assignment.role === "configuration") return configurationMetadataProjectSpec.rule
+  if (assignment.role === "fileItem" && assignment.targetProjectPath.endsWith(".yaml")) return ClientApplicationFormRules
+  const rule = findRegisteredImportRule(assignment.itemType)
+  if (rule === undefined) throw new Error(`Не найдено правило подготовки XML-import для ${assignment.itemType}`)
+  return rule
 }
 
 function buildOwnerContext(assignment: ImportAssignment, rule: MetadataItemRule): readonly MetadataItemOwnerContextEntry[] {
   const owner = assignment.owner
   if (owner !== undefined) {
     const ownerRule = findRegisteredImportRule(owner.itemType)
-    const targetOwner =
-      ownerRule === undefined ? undefined : metadataTargetOwnerFromRule({ itemRule: ownerRule, name: owner.name })
+    const targetOwner = ownerRule === undefined ? undefined : metadataTargetOwnerFromRule({ itemRule: ownerRule, name: owner.name })
     return appendMetadataItemOwner([], owner.itemType as never, owner.name, "", targetOwner)
   }
-
   const targetOwner = metadataTargetOwnerFromRule({ itemRule: rule, name: assignment.itemName })
   return appendMetadataItemOwner([], rule.itemType, assignment.itemName, "", targetOwner)
 }
@@ -167,9 +167,9 @@ async function readAndParseAssignmentXml(
   return result
 }
 
-function measureModel<T>(profiler: ValidationProfiler | undefined, fn: () => T): T {
+function measureYaml<T>(profiler: ValidationProfiler | undefined, fn: () => T): T {
   if (profiler === undefined) return fn()
-  return profiler.measure("Подготовка импорта конфигурации", "Построение модели", { items: 1 }, fn)
+  return profiler.measure("Подготовка импорта конфигурации", "Преобразование XML в YAML", { items: 1 }, fn)
 }
 
 function requireMetadataXml(inputs: readonly ParsedImportXmlInput[]): Record<string, unknown> {
@@ -211,7 +211,6 @@ function findRule(rule: MetadataItemRule, itemType: string, seen: Set<MetadataIt
   if (seen.has(rule)) return undefined
   seen.add(rule)
   if (rule.itemType === itemType) return rule
-
   for (const child of rule.childCollections ?? []) {
     for (const candidate of [child.fileItemRule, child.itemRule]) {
       if (candidate === undefined) continue
@@ -226,15 +225,6 @@ function findRule(rule: MetadataItemRule, itemType: string, seen: Set<MetadataIt
     if (result !== undefined) return result
   }
   return undefined
-}
-
-function buildLocalFormDataPathIndex(filePath: string, form: ClientApplicationForm): FormDataPathIndex {
-  return buildFormDataPathIndex({ filePath, parsed: parseMetadataYaml(""), form })
-}
-
-function requireModel(model: MetadataItem | undefined): MetadataItem {
-  if (model === undefined) throw new Error("XML-import не сформировал metadata-модель")
-  return model
 }
 
 export class ImportXmlInputError extends Error {

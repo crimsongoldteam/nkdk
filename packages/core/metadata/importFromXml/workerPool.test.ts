@@ -6,7 +6,7 @@ import { mockContextFromXML } from "../../tests/mockContext"
 import { encodeConfigurationIndexFragments } from "../configurationIndex/fragment"
 import { createConfigurationIndexCollector } from "../configurationIndex/collector/writer"
 import { createImportSharedMetadata } from "./metadataSnapshot"
-import { prepareImportModel } from "./prepareModel"
+import { prepareImportYaml } from "./prepareYaml"
 import type { ImportAssignment, ImportDiagnostic, ImportWorkerCommand } from "./types"
 import {
   createXmlImportWorkerPool,
@@ -101,7 +101,7 @@ describe("XML import worker pool", () => {
     })
     const context = mockContextFromXML()
     const collector = createConfigurationIndexCollector()
-    await prepareImportModel({ assignment: source, context, collector })
+    await prepareImportYaml({ assignment: source, context, collector })
     const expected = collector.fragment(source.targetProjectPath)
     const pool = createXmlImportWorkerPool({ concurrency: 1 })
 

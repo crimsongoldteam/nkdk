@@ -9,7 +9,6 @@ import { importPropertiesFromXMLToYAML } from "../../orchestration/property/from
 import type { DirectImportResult } from "../../orchestration/property/importYamlTypes"
 import { createLocalIndexesCollector } from "../../project/localIndexes"
 import { createFormDataPathIndexCollector } from "../../validation/dataPath/formYamlIndex"
-import { finalizeImportedYamlValues } from "../../orchestration/property/finalizeImportedYAML"
 import { ClientApplicationFormRules } from "./rules"
 import type { ClientApplicationFormXML, FormMetadataXML } from "./types"
 import { FormRulesTags } from "./types"
@@ -84,14 +83,6 @@ export function importClientApplicationFormFromXMLToYAML(params: {
   const localIndexes = localIndexesCollector.finish()
   const formDataPathIndex = formDataPathIndexCollector.finish()
   localIndexes.metadata.formDataPathIndex = formDataPathIndex
-  finalizeImportedYamlValues({
-    yaml,
-    rootRule: ClientApplicationFormRules,
-    deferred: localIndexes.dependencies,
-    context,
-    formDataPathIndex,
-  })
-
   return {
     yaml,
     localIndexes,

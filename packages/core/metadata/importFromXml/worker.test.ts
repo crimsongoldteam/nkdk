@@ -41,7 +41,7 @@ afterEach(() => {
 })
 
 describe("XML import worker first pass", () => {
-  it("retains models locally and returns only owner facts and an index fragment buffer", async () => {
+  it("retains YAML locally and returns only owner facts and an index fragment buffer", async () => {
     const assignment = catalogAssignment()
 
     const result = expectFirstPass(await runImportWorkerCommand({ kind: "firstPass", assignments: [assignment] }))
@@ -60,9 +60,10 @@ describe("XML import worker first pass", () => {
     expect(workerStateForTests()).toMatchObject({
       operationId: "test-operation",
       workerIndex: 2,
-      preparedIds: [assignment.id],
+      preparedYamlIds: [assignment.id],
     })
     expect(workerStateForTests()).not.toHaveProperty("preparedModels")
+    expect(workerStateForTests()).not.toHaveProperty("preparedXml")
   })
 
   it("continues first pass after a task error and blocks no other parsing", async () => {
@@ -84,7 +85,7 @@ describe("XML import worker first pass", () => {
       sourcePath: expect.stringContaining("broken.xml"),
       targetProjectPath: broken.targetProjectPath,
     })
-    expect(workerStateForTests().preparedIds).toEqual([valid.id])
+    expect(workerStateForTests().preparedYamlIds).toEqual([valid.id])
     expect(decodeConfigurationIndexFragments(result.fragmentBuffer)).toHaveLength(1)
   })
 
@@ -149,9 +150,10 @@ describe("XML import worker first pass", () => {
       )
     ).toBe(true)
     expect(lines.some((line) => line.includes("[nkdk-profile-step]") && line.includes('substep="Парсинг XML"'))).toBe(true)
-    expect(lines.some((line) => line.includes("[nkdk-profile-step]") && line.includes('substep="Построение модели"'))).toBe(
-      true
-    )
+    expect(lines.some((line) => line.includes('substep="Преобразование XML в YAML"'))).toBe(true)
+    expect(lines.some((line) => line.includes('substep="Сбор локальных индексов"'))).toBe(true)
+    expect(lines.some((line) => line.includes('substep="Построение модели"'))).toBe(false)
+    expect(lines.some((line) => line.includes('substep="Экспорт модели в YAML-объект"'))).toBe(false)
   })
 
   it("releases retained models on dispose", async () => {
@@ -159,7 +161,7 @@ describe("XML import worker first pass", () => {
 
     await runImportWorkerCommand({ kind: "dispose" })
 
-    expect(workerStateForTests().preparedIds).toEqual([])
+    expect(workerStateForTests().preparedYamlIds).toEqual([])
     expect(workerStateForTests().initialized).toBe(false)
   })
 })
@@ -187,7 +189,7 @@ describe("XML import worker second pass", () => {
     if (formFile === undefined) throw new Error("Ожидался файл формы")
     expect(readFileSync(formFile.sourcePath, "utf-8")).toContain("ПутьКДанным: Объект.Товары.НомерСтроки")
     expect(existsSync(join(projectDir, "Справочник", "Товары", "Свойства.yaml"))).toBe(false)
-    expect(workerStateForTests().preparedIds).toEqual([])
+    expect(workerStateForTests().preparedYamlIds).toEqual([])
   })
 
   it("preserves an unresolved DataPath, returns one warning and releases the model", async () => {
@@ -219,7 +221,7 @@ describe("XML import worker second pass", () => {
     const formFile = second.files.find((file) => file.targetProjectPath === assignments.form.targetProjectPath)
     if (formFile === undefined) throw new Error("Ожидался файл формы")
     expect(readFileSync(formFile.sourcePath, "utf-8")).toContain("ПутьКДанным: Объект.НеизвестныйПереход.LineNumber")
-    expect(workerStateForTests().preparedIds).toEqual([])
+    expect(workerStateForTests().preparedYamlIds).toEqual([])
   })
 
   it("continues after a YAML write error and releases every prepared model", async () => {
@@ -251,7 +253,7 @@ describe("XML import worker second pass", () => {
     expect(second.files).toContainEqual(
       expect.objectContaining({ sourceKind: "worker", targetProjectPath: assignments.form.targetProjectPath })
     )
-    expect(workerStateForTests().preparedIds).toEqual([])
+    expect(workerStateForTests().preparedYamlIds).toEqual([])
   })
 })
 

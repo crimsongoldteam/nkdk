@@ -4,19 +4,17 @@ import { move, transferableSymbol, valueSymbol } from "piscina"
 import { exportToYAML } from "../../yaml/export"
 import { encodeConfigurationIndexFragments } from "../configurationIndex/fragment"
 import { createConfigurationIndexCollector } from "../configurationIndex/collector/writer"
-import type { ConfigurationContext, ConfigurationContextFromXML, ExternalFileEntry } from "../context/types"
+import type { ConfigurationContext, ConfigurationContextFromXML } from "../context/types"
 import type { ConfigurationIndexFragment } from "../configurationIndex/types"
-import { exportClientApplicationFormToYAML } from "../forms/clientApplicationForm/toYAML"
-import type { ClientApplicationForm } from "../forms/clientApplicationForm/types"
-import { exportMetadataItemToYAML } from "../orchestration"
 import { withExportMetadataTargetOwners } from "../orchestration/appliedObject/metadataItemOwnerContext"
+import { finalizeImportedYamlValues } from "../orchestration/property/finalizeImportedYAML"
 import { createOwnerMetadataCacheFromSharedValidationSnapshot } from "../validation/dataPath/sharedOwnerCache"
 import type { OwnerMetadataCache } from "../validation/dataPath/ownerCache"
 import type { ValidationOwnerFacts } from "../validation/dataPath/ownerFacts"
 import type { SharedValidationSnapshot } from "../validation/sharedValidationSnapshot"
 import { createOperationProfiler, type ValidationProfiler } from "../validation/profile"
 import { extractImportOwnerFacts } from "./ownerFacts"
-import { ImportXmlInputError, prepareImportModel, type PreparedImportModel } from "./prepareModel"
+import { ImportXmlInputError, prepareImportYaml, type PreparedImportYaml } from "./prepareYaml"
 import type {
   ImportAssignment,
   ImportDiagnostic,
@@ -35,11 +33,11 @@ interface InitializedImportWorkerState {
 }
 
 let initializedState: InitializedImportWorkerState | undefined
-const preparedModels = new Map<string, PreparedImportModel>()
+const preparedYaml = new Map<string, PreparedImportYaml>()
 
 export async function runImportWorkerCommand(command: ImportWorkerCommand): Promise<ImportWorkerCommandResult> {
   if (command.kind === "initialize") {
-    preparedModels.clear()
+    preparedYaml.clear()
     initializedState = {
       operationId: command.operationId,
       workerIndex: command.workerIndex,
@@ -74,7 +72,7 @@ async function runSecondPass(
     snapshot: sharedMetadata,
   })
 
-  for (const [id, prepared] of preparedModels) {
+  for (const [id, prepared] of preparedYaml) {
     try {
       files.push(
         ...(await writePreparedYamlToOutput(prepared, ownerMetadataCache, state, warnings, profiler))
@@ -89,7 +87,7 @@ async function runSecondPass(
     } catch (caught) {
       diagnostics.push(importAssignmentDiagnostic(prepared.assignment, caught, "xml_import_yaml_failed"))
     } finally {
-      preparedModels.delete(id)
+      preparedYaml.delete(id)
     }
   }
 
@@ -102,13 +100,12 @@ async function runSecondPass(
 }
 
 async function writePreparedYamlToOutput(
-  prepared: PreparedImportModel,
+  prepared: PreparedImportYaml,
   ownerMetadataCache: OwnerMetadataCache,
   state: InitializedImportWorkerState,
   warnings: ImportDiagnostic[],
   profiler: ValidationProfiler
 ): Promise<ImportResultFile[]> {
-  const externalFilesCollector: ExternalFileEntry[] = []
   const contextWithOwners = profiler.measure(
     "Подготовка импорта конфигурации",
     "Подготовка контекста YAML",
@@ -118,17 +115,31 @@ async function writePreparedYamlToOutput(
         context: state.context,
         ownerMetadataCache,
         targetProjectPath: prepared.targetProjectPath,
-        externalFilesCollector,
         warnings,
       })
       return withExportMetadataTargetOwners(context, prepared.ownerContext)
     }
   )
-  const exported = exportPreparedYaml(prepared, contextWithOwners, profiler)
+  profiler.measure(
+    "Подготовка импорта конфигурации",
+    "Уточнение отложенных значений YAML",
+    { items: prepared.localIndexes.dependencies.length },
+    () =>
+      finalizeImportedYamlValues({
+        yaml: prepared.yaml,
+        rootRule: prepared.rule,
+        deferred: prepared.localIndexes.dependencies,
+        context: contextWithOwners,
+        formDataPathIndex: prepared.localIndexes.metadata.formDataPathIndex,
+      })
+  )
+  const exported = profiler.measure("Подготовка импорта конфигурации", "Сериализация YAML", { items: 1 }, () =>
+    prepared.yaml === undefined ? "" : exportToYAML(prepared.yaml)
+  )
   const yamlSourcePath = join(state.outputDir, prepared.targetProjectPath)
   await profiler.measureAsync("Подготовка импорта конфигурации", "Запись основного YAML-файла", { items: 1 }, async () => {
     await fs.promises.mkdir(dirname(yamlSourcePath), { recursive: true })
-    await fs.promises.writeFile(yamlSourcePath, exported.yaml, "utf-8")
+    await fs.promises.writeFile(yamlSourcePath, exported, "utf-8")
   })
 
   const files: ImportResultFile[] = [
@@ -138,7 +149,7 @@ async function writePreparedYamlToOutput(
       targetProjectPath: prepared.targetProjectPath,
     },
   ]
-  for (const externalFile of [...prepared.generatedFiles, ...exported.externalFiles]) {
+  for (const externalFile of prepared.generatedFiles) {
     const targetProjectPath = posix.join(posix.dirname(prepared.targetProjectPath), externalFile.relativePath)
     const sourcePath = join(state.outputDir, targetProjectPath)
     await profiler.measureAsync(
@@ -155,45 +166,10 @@ async function writePreparedYamlToOutput(
   return files
 }
 
-function exportPreparedYaml(
-  prepared: PreparedImportModel,
-  context: ConfigurationContext,
-  profiler: ValidationProfiler
-): { yaml: string; externalFiles: ExternalFileEntry[] } {
-  if (prepared.localDataPathIndex !== undefined) {
-    const result = profiler.measure("Подготовка импорта конфигурации", "Экспорт модели в YAML-объект", { items: 1 }, () =>
-      exportClientApplicationFormToYAML(context, prepared.model as ClientApplicationForm)
-    )
-    return {
-      yaml:
-        result.yaml === undefined
-          ? ""
-          : profiler.measure("Подготовка импорта конфигурации", "Сериализация YAML", { items: 1 }, () =>
-              exportToYAML(result.yaml)
-            ),
-      externalFiles: result.externalFiles,
-    }
-  }
-
-  const yaml = profiler.measure("Подготовка импорта конфигурации", "Экспорт модели в YAML-объект", { items: 1 }, () =>
-    exportMetadataItemToYAML({ context, data: prepared.model, rule: prepared.rule })
-  )
-  return {
-    yaml:
-      yaml === undefined
-        ? ""
-        : profiler.measure("Подготовка импорта конфигурации", "Сериализация YAML", { items: 1 }, () =>
-            exportToYAML(yaml)
-          ),
-    externalFiles: context.exportToYAML?.externalFilesCollector ?? [],
-  }
-}
-
 function secondPassExportContext(params: {
   context: ConfigurationContextFromXML
   ownerMetadataCache: OwnerMetadataCache
   targetProjectPath: string
-  externalFilesCollector: ExternalFileEntry[]
   warnings: ImportDiagnostic[]
 }): ConfigurationContext {
   const { projectDir: _projectDir, ...baseExportContext } = params.context.exportToYAML ?? { toTyped: false }
@@ -202,7 +178,6 @@ function secondPassExportContext(params: {
     exportToYAML: {
       ...baseExportContext,
       ownerMetadataCache: params.ownerMetadataCache,
-      externalFilesCollector: params.externalFilesCollector,
       dataPathDiagnosticSink: {
         targetProjectPath: params.targetProjectPath,
         append(diagnostic) {
@@ -228,7 +203,7 @@ async function runFirstPass(
   assignments: readonly ImportAssignment[],
   state: InitializedImportWorkerState
 ): Promise<ImportFirstPassResult> {
-  preparedModels.clear()
+  preparedYaml.clear()
   const profiler = createOperationProfiler({ operation: "import-from-xml", scope: { scope: "worker", workerIndex: state.workerIndex } })
   const diagnostics: ImportDiagnostic[] = []
   const ownerFacts: ValidationOwnerFacts[] = []
@@ -237,7 +212,7 @@ async function runFirstPass(
   for (const assignment of assignments) {
     const collector = createConfigurationIndexCollector()
     try {
-      const prepared = await prepareImportModel({ assignment, context: state.context, collector, profiler })
+      const prepared = await prepareImportYaml({ assignment, context: state.context, collector, profiler })
       const preparedOwnerFacts = profiler.measure(
         "Подготовка импорта конфигурации",
         "Извлечение локального индекса метаданных",
@@ -250,14 +225,14 @@ async function runFirstPass(
         { items: 1 },
         () => collector.fragment(assignment.targetProjectPath)
       )
-      preparedModels.set(assignment.id, prepared)
+      preparedYaml.set(assignment.id, prepared)
       ownerFacts.push(...preparedOwnerFacts)
       fragments.push(fragment)
     } catch (caught) {
-      preparedModels.delete(assignment.id)
+      preparedYaml.delete(assignment.id)
       diagnostics.push(importAssignmentDiagnostic(assignment, caught))
     } finally {
-      // Полные XML-данные принадлежат prepareImportModel и к этому моменту уже вышли из области видимости.
+      // Полные XML-данные принадлежат prepareImportYaml и к этому моменту уже вышли из области видимости.
     }
   }
 
@@ -309,7 +284,7 @@ function requireInitializedState(): InitializedImportWorkerState {
 }
 
 function disposeWorkerState(): void {
-  preparedModels.clear()
+  preparedYaml.clear()
   initializedState = undefined
 }
 
@@ -318,7 +293,7 @@ export function workerStateForTests(): {
   operationId?: string
   workerIndex?: number
   outputDir?: string
-  preparedIds: string[]
+  preparedYamlIds: string[]
 } {
   return {
     initialized: initializedState !== undefined,
@@ -329,7 +304,7 @@ export function workerStateForTests(): {
           workerIndex: initializedState.workerIndex,
           outputDir: initializedState.outputDir,
         }),
-    preparedIds: [...preparedModels.keys()],
+    preparedYamlIds: [...preparedYaml.keys()],
   }
 }
 

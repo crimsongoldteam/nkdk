@@ -64,7 +64,10 @@ export function importMetadataItemCollectionFromXMLToYAML(params: {
     if (itemYaml === undefined) return []
     const name = itemName ?? String(index)
     const yamlKey =
-      keyYaml === undefined ? undefined : params.recordYamlKeyFromYAML?.({ yaml: itemYaml, name }) ?? String(itemYaml[keyYaml])
+      keyYaml === undefined
+        ? undefined
+        : params.recordYamlKeyFromYAML?.({ yaml: itemYaml, name }) ??
+          (itemYaml[keyYaml] === undefined ? name : String(itemYaml[keyYaml]))
     if (yamlKey !== undefined) bufferedCollector?.flush([...params.traversal.yamlPath, yamlKey])
     return [{ yaml: itemYaml, name, yamlKey }]
   })

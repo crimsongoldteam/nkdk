@@ -6,10 +6,10 @@ import { mockContextFromXML } from "../../tests/mockContext"
 import { createConfigurationIndexCollector } from "../configurationIndex/collector/writer"
 import { discoverXmlImport } from "./discovery"
 import {
-  prepareImportModel,
+  prepareImportYaml,
   registeredImportRuleLookupCountForTests,
   resetRegisteredImportRuleLookupCountForTests,
-} from "./prepareModel"
+} from "./prepareYaml"
 import { describeRegisteredXmlImportRoutes } from "./routes"
 import type { ImportAssignment } from "./types"
 
@@ -21,12 +21,12 @@ afterEach(() => {
   vi.restoreAllMocks()
 })
 
-describe("prepareImportModel", () => {
+describe("prepareImportYaml", () => {
   it("prepares an applied object without writing YAML or external files", async () => {
     const writeFile = vi.spyOn(fs.promises, "writeFile")
     const assignment = catalogAssignment()
 
-    const prepared = await prepareImportModel({
+    const prepared = await prepareImportYaml({
       assignment,
       context: mockContextFromXML(),
       collector: createConfigurationIndexCollector(),
@@ -34,7 +34,10 @@ describe("prepareImportModel", () => {
 
     expect(prepared.assignment).toBe(assignment)
     expect(prepared.targetProjectPath).toBe("Справочник/Контрагенты/Свойства.yaml")
-    expect(prepared.model).toMatchObject({ itemType: "MetadataCatalog", name: "Контрагенты" })
+    expect(prepared.yaml).toMatchObject({ ДлинаКода: 9, ДлинаНаименования: 25 })
+    expect(prepared.localIndexes).toEqual(expect.any(Object))
+    expect(prepared).not.toHaveProperty("model")
+    expect(prepared).not.toHaveProperty("xml")
     expect(prepared.generatedFiles).toEqual([])
     expect(writeFile).not.toHaveBeenCalled()
   })
@@ -43,12 +46,12 @@ describe("prepareImportModel", () => {
     resetRegisteredImportRuleLookupCountForTests()
     const assignment = catalogAssignment()
 
-    await prepareImportModel({
+    await prepareImportYaml({
       assignment,
       context: mockContextFromXML(),
       collector: createConfigurationIndexCollector(),
     })
-    await prepareImportModel({
+    await prepareImportYaml({
       assignment: { ...assignment, id: "catalog-copy" },
       context: mockContextFromXML(),
       collector: createConfigurationIndexCollector(),
@@ -76,7 +79,7 @@ describe("prepareImportModel", () => {
       })
       const prepared = await Promise.all(
         discovered.assignments.map((assignment) =>
-          prepareImportModel({
+          prepareImportYaml({
             assignment,
             context: mockContextFromXML(),
             collector: createConfigurationIndexCollector(),
@@ -85,7 +88,7 @@ describe("prepareImportModel", () => {
       )
 
       expect(prepared).toHaveLength(1)
-      expect(prepared[0]?.model).toMatchObject({ itemType: "MetadataCatalog", name: ownerName })
+      expect(prepared[0]?.yaml).toEqual(expect.any(Object))
       expect(prepared[0]?.assignment.externalFiles).toEqual(
         expect.arrayContaining([
           expect.objectContaining({
@@ -113,14 +116,15 @@ describe("prepareImportModel", () => {
       externalFiles: [],
     }
 
-    const prepared = await prepareImportModel({
+    const prepared = await prepareImportYaml({
       assignment,
       context: mockContextFromXML(),
       collector: createConfigurationIndexCollector(),
     })
 
     expect(prepared.targetProjectPath).toBe("Конфигурация.yaml")
-    expect(prepared.model).toMatchObject({ itemType: "MetadataConfiguration" })
+    expect(prepared.yaml).toEqual(expect.any(Object))
+    expect(prepared).not.toHaveProperty("model")
     expect(prepared.generatedFiles).toEqual([])
     expect(writeFile).not.toHaveBeenCalled()
   })
@@ -151,14 +155,16 @@ describe("prepareImportModel", () => {
       externalFiles: [],
     }
 
-    const prepared = await prepareImportModel({
+    const prepared = await prepareImportYaml({
       assignment,
       context: mockContextFromXML(),
       collector: createConfigurationIndexCollector(),
     })
 
-    expect(prepared.model).toMatchObject({ itemType: "ClientApplicationForm" })
-    expect(prepared.localDataPathIndex).toBeDefined()
+    expect(prepared.yaml).toEqual(expect.any(Object))
+    expect(prepared.localIndexes.metadata.formDataPathIndex).toBeDefined()
+    expect(prepared).not.toHaveProperty("model")
+    expect(prepared).not.toHaveProperty("xml")
     expect(readFile).toHaveBeenCalledTimes(2)
     expect(readFile).toHaveBeenCalledWith(metadataPath, "utf-8")
     expect(readFile).toHaveBeenCalledWith(bodyPath, "utf-8")
@@ -195,17 +201,14 @@ describe("prepareImportModel", () => {
         externalFiles: [],
       }
 
-      const prepared = await prepareImportModel({
+      const prepared = await prepareImportYaml({
         assignment,
         context: mockContextFromXML(),
         collector: createConfigurationIndexCollector(),
       })
 
-      expect(prepared.model).toMatchObject({
-        itemType: "ClientApplicationForm",
-        name: "ОбычнаяФорма",
-        formType: "Ordinary",
-      })
+      expect(prepared.yaml).toEqual({})
+      expect(prepared).not.toHaveProperty("model")
     } finally {
       fs.rmSync(inputDir, { recursive: true, force: true })
     }
@@ -241,7 +244,7 @@ describe("prepareImportModel", () => {
       }
 
       await expect(
-        prepareImportModel({
+        prepareImportYaml({
           assignment,
           context: mockContextFromXML(),
           collector: createConfigurationIndexCollector(),

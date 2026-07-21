@@ -44,8 +44,9 @@ export function importPropertiesFromXMLToYAML(params: {
   rulePath: readonly DeferredRulePathSegment[]
   collector: LocalIndexesCollector
   tags?: string[]
+  propertyXML?: ReadonlyMap<string, unknown>
 }): Record<string, unknown> | undefined {
-  const { context, rule, xml, itemName, yamlPath, rulePath, collector, tags } = params
+  const { context, rule, xml, itemName, yamlPath, rulePath, collector, tags, propertyXML } = params
   if (!xml) return undefined
 
   const result: Record<string, unknown> = {}
@@ -60,9 +61,10 @@ export function importPropertiesFromXMLToYAML(params: {
 
   for (const key of getOrderedKeysFromXML({ rule, xml, tags })) {
     const propertyRule = rule.properties[key]
-    const sourceXmlKey = getXMLKey(key, xml, propertyRule)
+    const externalXmlValue = propertyXML?.get(key)
+    const sourceXmlKey = externalXmlValue === undefined ? getXMLKey(key, xml, propertyRule) : propertyRule.xml ?? capitalize(key)
     const sourceXmlValue =
-      sourceXmlKey === undefined ? undefined : getXMLValueByKey(sourceXmlKey, xml, propertyRule)
+      externalXmlValue ?? (sourceXmlKey === undefined ? undefined : getXMLValueByKey(sourceXmlKey, xml, propertyRule))
     collectConfigurationIndexIdentityFromXML({ context, sourceXmlKey, xmlValue: sourceXmlValue })
 
     if (!forReference && propertyRule.forReferenceOnly === true) continue

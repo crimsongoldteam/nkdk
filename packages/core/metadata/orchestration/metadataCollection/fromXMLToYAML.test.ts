@@ -53,6 +53,18 @@ registerMetadataItemCollectionRule({
   keyField: "name",
   recordYamlKeyFromYAML: ({ name }) => `Ключ-${name}`,
 })
+registerMetadataItemCollectionRule({
+  propertyType: "TestImplicitKeyCollection" as PropertyRuleType,
+  itemRule: {
+    itemType: "TestImplicitKeyItem",
+    properties: {
+      name: { type: "string", xml: "Name", xmlParents: ["Properties"] },
+      value: { type: "string", xml: "Value", yaml: "Значение" },
+    },
+  },
+  xmlElement: "Item",
+  keyField: "name",
+})
 
 describe("importMetadataItemCollectionFromXMLToYAML", () => {
   it("builds record YAML and preserves deferred item paths", () => {
@@ -68,6 +80,14 @@ describe("importMetadataItemCollectionFromXMLToYAML", () => {
         ],
       },
     ])
+  })
+
+  it("uses the XML item name when the key field is omitted from YAML", () => {
+    const result = runDirectRule("TestImplicitKeyCollection", {
+      Items: { Item: { Properties: { Name: "Первый" }, Value: "a" } },
+    })
+
+    expect(result.yaml).toEqual({ Элементы: { Первый: { Значение: "a" } } })
   })
 
   it("builds array YAML and preserves deferred item paths", () => {
