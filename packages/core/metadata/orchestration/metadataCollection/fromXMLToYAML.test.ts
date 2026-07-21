@@ -135,9 +135,21 @@ describe("importMetadataItemCollectionFromXMLToYAML", () => {
   })
 
   it("uses recordYamlKeyFromYAML for record YAML keys", () => {
-    const result = runDirectRule("TestCustomKeyCollection", { Items: { Item: { Name: "Первый", Value: "a" } } })
+    const result = runDirectRule(
+      "TestCustomKeyCollection",
+      { Items: { Item: { Name: "Первый", Value: "a", Path: "x" } } }
+    )
 
-    expect(result.yaml).toEqual({ Элементы: { "Ключ-Первый": { Значение: "a" } } })
+    expect(result.yaml).toEqual({ Элементы: { "Ключ-Первый": { Значение: "a", Путь: "x" } } })
+    expect(result.localIndexes.dependencies).toEqual([
+      {
+        yamlPath: ["Элементы", "Ключ-Первый", "Путь"],
+        rulePath: [
+          { propertyKey: "items", nestedItemType: "TestItem" },
+          { propertyKey: "path" },
+        ],
+      },
+    ])
   })
 })
 

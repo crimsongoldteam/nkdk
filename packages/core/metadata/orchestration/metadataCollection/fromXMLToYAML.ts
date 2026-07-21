@@ -1,7 +1,7 @@
 import type { ConfigurationContextFromXML } from "../../context/types"
 import { importMetadataItemFromXMLToYAML } from "../metadataItem/fromXMLToYAML"
 import { configurationIndexItemContext } from "./fromXML"
-import type { DirectImportTraversal } from "../property/importYamlTypes"
+import type { DirectImportTraversal, LocalIndexesCollector, LocalYamlFact } from "../property/importYamlTypes"
 import type { PropertyRuleType } from "../property/registry"
 import type { ConfigurationIndexAddressingMode, MetadataItemRule, PropertyRule } from "../property/types"
 import { enterNestedYamlRule } from "../property/yamlRuleCursor"
@@ -22,6 +22,8 @@ export function importMetadataItemCollectionFromXMLToYAML(params: {
 }): Record<string, unknown> | Array<Record<string, unknown>> | undefined {
   const items = normalizeCollectionItems(params.xml, params.xmlElement)
   if (items.length === 0) return undefined
+  const keyField = params.keyField
+  const keyYaml = keyField === undefined ? undefined : params.itemRule.properties[keyField]?.yaml ?? keyField
 
   const yamlItems = items.flatMap((itemXml, index) => {
     const itemName = itemNameFromXML(itemXml, params.itemRule, params.keyField)
@@ -41,6 +43,10 @@ export function importMetadataItemCollectionFromXMLToYAML(params: {
       params.yamlAsArray === true
         ? [...params.traversal.yamlPath, index]
         : [...params.traversal.yamlPath, itemName ?? String(index)]
+    const bufferedCollector =
+      params.yamlAsArray === true || keyYaml === undefined || params.recordYamlKeyFromYAML === undefined
+        ? undefined
+        : createBufferedItemCollector(params.traversal.collector, yamlPath)
     const itemYaml = importMetadataItemFromXMLToYAML({
       context: itemContext,
       rule: params.itemRule,
@@ -50,29 +56,52 @@ export function importMetadataItemCollectionFromXMLToYAML(params: {
         {
           yamlPath,
           rulePath: params.traversal.rulePath,
-          collector: params.traversal.collector,
+          collector: bufferedCollector?.collector ?? params.traversal.collector,
         },
         params.itemRule.itemType
       ),
     })
     if (itemYaml === undefined) return []
-    return [{ yaml: itemYaml, name: itemName ?? String(index) }]
+    const name = itemName ?? String(index)
+    const yamlKey =
+      keyYaml === undefined ? undefined : params.recordYamlKeyFromYAML?.({ yaml: itemYaml, name }) ?? String(itemYaml[keyYaml])
+    if (yamlKey !== undefined) bufferedCollector?.flush([...params.traversal.yamlPath, yamlKey])
+    return [{ yaml: itemYaml, name, yamlKey }]
   })
   if (yamlItems.length === 0) return undefined
 
   if (params.yamlAsArray === true) return yamlItems.map(({ yaml }) => yaml)
 
-  const keyField = params.keyField
-  if (keyField === undefined) return undefined
-  const keyRule = params.itemRule.properties[keyField]
-  const keyYaml = keyRule?.yaml ?? keyField
+  if (keyYaml === undefined) return undefined
   return Object.fromEntries(
-    yamlItems.map(({ yaml, name }) => {
-      const yamlKey = params.recordYamlKeyFromYAML?.({ yaml, name }) ?? String(yaml[keyYaml])
+    yamlItems.map(({ yaml, yamlKey }) => {
       delete yaml[keyYaml]
-      return [yamlKey, yaml]
+      return [yamlKey!, yaml]
     })
   )
+}
+
+function createBufferedItemCollector(parent: LocalIndexesCollector, sourceYamlPath: readonly (string | number)[]) {
+  const facts: Array<{ kind: "property" | "complete"; fact: LocalYamlFact }> = []
+  const collector: LocalIndexesCollector = {
+    acceptProperty: (fact) => facts.push({ kind: "property", fact }),
+    completeValue: (fact) => facts.push({ kind: "complete", fact }),
+    finish: () => parent.finish(),
+  }
+
+  return {
+    collector,
+    flush(yamlPath: readonly (string | number)[]) {
+      for (const { kind, fact } of facts) {
+        const nextFact = {
+          ...fact,
+          yamlPath: [...yamlPath, ...fact.yamlPath.slice(sourceYamlPath.length)],
+        }
+        if (kind === "property") parent.acceptProperty(nextFact)
+        else parent.completeValue(nextFact)
+      }
+    },
+  }
 }
 
 function normalizeCollectionItems(xml: unknown, xmlElement: string): Record<string, unknown>[] {
