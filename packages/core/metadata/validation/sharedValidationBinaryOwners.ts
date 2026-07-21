@@ -1,7 +1,7 @@
 import { resolve } from "path"
 import { getDataPathOwnerKind } from "./dataPath/registry"
 import type { OwnerMetadataCache, OwnerMetadataResult } from "./dataPath/ownerCache"
-import { modelStubFromOwnerFacts } from "./dataPath/ownerFacts"
+import type { ValidationOwnerFacts } from "./dataPath/ownerFacts"
 import type { ObjectField, ObjectFieldIndex, ObjectFieldTableSource } from "./dataPath/objectFields"
 import type { DataPathTableInfo, DataPathTypeInfo, DataPathValueKind, OwnerTypeRef } from "./dataPath/types"
 import type { ValidationObjectRecord, ValidationObjectTableSnapshot } from "./projectValidationTypes"
@@ -43,7 +43,7 @@ export interface BinarySharedOwnersSnapshot {
 interface EncodedOwner {
   ref: OwnerTypeRef
   filePath: string
-  modelText?: string
+  factsText?: string
   status: number
   diagnostics: Diagnostic[]
   fields: EncodedField[]
@@ -88,7 +88,7 @@ export function createBinarySharedOwnersSnapshot(snapshot: ValidationObjectTable
 
   const stringValues = [EMPTY, ...snapshot.filePaths]
   for (const owner of owners) {
-    stringValues.push(owner.ref.kind, owner.ref.name ?? EMPTY, owner.filePath, owner.modelText ?? EMPTY)
+    stringValues.push(owner.ref.kind, owner.ref.name ?? EMPTY, owner.filePath, owner.factsText ?? EMPTY)
     for (const diagnostic of owner.diagnostics) {
       stringValues.push(diagnostic.filePath, diagnostic.source, diagnostic.message)
     }
@@ -132,7 +132,7 @@ export function createBinarySharedOwnersSnapshot(snapshot: ValidationObjectTable
     ints[base + 7] = diagnosticStart
     ints[base + 8] = owner.diagnostics.length
     ints[base + 9] = owner.status
-    ints[base + 10] = stringId(owner.modelText ?? EMPTY)
+    ints[base + 10] = stringId(owner.factsText ?? EMPTY)
   })
 
   flatFields.forEach(({ field, columnStart, columnCount }, index) => {
@@ -271,7 +271,7 @@ function createBinaryOwnersView(snapshot: BinarySharedOwnersSnapshot) {
         diagnosticStart: ints[base + 7] ?? 0,
         diagnosticCount: ints[base + 8] ?? 0,
         status: ints[base + 9] ?? 0,
-        modelText: strings.get(ints[base + 10] ?? 0),
+        factsText: strings.get(ints[base + 10] ?? 0),
       }
     },
     field(index: number): ObjectField {
@@ -328,11 +328,11 @@ function createBinaryOwnersView(snapshot: BinarySharedOwnersSnapshot) {
 function encodeOwner(record: ValidationObjectRecord): EncodedOwner {
   const facts = record.ownerFacts
   const fieldIndex = facts?.fieldIndex ?? record.fieldIndex
-  const model = facts === undefined ? {} : modelStubFromOwnerFacts(facts)
+  const compactFacts = facts === undefined ? undefined : ownerFactsWithoutIndex(facts)
   return {
     ref: (facts?.ref ?? record.ownerRef) as OwnerTypeRef,
     filePath: facts?.filePath ?? record.filePath,
-    ...(model === undefined ? {} : { modelText: JSON.stringify(model) }),
+    ...(compactFacts === undefined ? {} : { factsText: JSON.stringify(compactFacts) }),
     status: record.importDiagnostics.length > 0 ? STATUS_IMPORT_ERROR : STATUS_OK,
     diagnostics: record.importDiagnostics,
     fields: fieldIndex === undefined ? [] : [...fieldIndex.fields.values()].map(encodeField),
@@ -404,16 +404,18 @@ function ownerResult(ref: OwnerTypeRef, view: ReturnType<typeof createBinaryOwne
     exportSchema: () => ({}) as never,
     importModel: () => undefined,
   }
+  const fieldIndex = readFieldIndex(view, owner)
+  const facts = decodeOwnerFacts(owner.factsText, ref, owner.filePath, fieldIndex)
 
   return {
     status: "ok",
     owner: {
       ref,
       filePath: owner.filePath,
-      model: decodeOwnerModel(owner.modelText) as never,
+      facts,
       rule: spec.rule,
       spec,
-      fieldIndex: readFieldIndex(view, owner),
+      fieldIndex,
     },
   }
 }
@@ -437,9 +439,19 @@ function readFieldIndex(
   return { fields, standardAttributeAliases, diagnostics: readDiagnostics(view, owner) }
 }
 
-function decodeOwnerModel(modelText: string): unknown {
-  if (modelText === EMPTY) return {}
-  return JSON.parse(modelText) as unknown
+function ownerFactsWithoutIndex(facts: ValidationOwnerFacts): Omit<ValidationOwnerFacts, "ref" | "filePath" | "fieldIndex"> {
+  const { ref: _ref, filePath: _filePath, fieldIndex: _fieldIndex, ...compact } = facts
+  return compact
+}
+
+function decodeOwnerFacts(
+  factsText: string,
+  ref: OwnerTypeRef,
+  filePath: string,
+  fieldIndex: ObjectFieldIndex
+): ValidationOwnerFacts {
+  const compact = factsText === EMPTY ? {} : (JSON.parse(factsText) as Omit<ValidationOwnerFacts, "ref" | "filePath" | "fieldIndex">)
+  return { ref, filePath, fieldIndex, ...compact }
 }
 
 function readDiagnostics(

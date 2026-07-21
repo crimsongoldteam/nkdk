@@ -17,6 +17,7 @@ import type { XmlWriteManifest } from "../xmlWriteManifest"
 import type { XmlImportRoute } from "../../importFromXml/types"
 import { PropertyRuleType } from "./registry"
 import type {
+  CollectLocalFactsFromYAMLFunction,
   FinalizeImportedYAMLFunction,
   ImportFromXMLToYAMLFunction,
   NestedItemRule,
@@ -324,6 +325,7 @@ export interface TypeRule {
   xmlImportPropertyBehavior?: XMLImportPropertyBehavior
   nestedItemRule?: NestedItemRule
   finalizeImportedYAML?: FinalizeImportedYAMLFunction
+  collectLocalFactsFromYAML?: CollectLocalFactsFromYAMLFunction
 }
 
 export type TypeRulesOperations =
@@ -350,6 +352,7 @@ export type TypeRulesOperations =
   | "xmlImportPropertyBehavior"
   | "nestedItemRule"
   | "finalizeImportedYAML"
+  | "collectLocalFactsFromYAML"
 type TypeRuleKey = `${PropertyRuleType}:${TypeRulesOperations}`
 
 export const createRegistryKey = (type: PropertyRuleType, operation: TypeRulesOperations): TypeRuleKey => {
@@ -402,4 +405,6 @@ export type importExportFunction<O extends TypeRulesOperations> = O extends "imp
                                         ? NestedItemRule | undefined
                                         : O extends "finalizeImportedYAML"
                                           ? FinalizeImportedYAMLFunction | undefined
+                                          : O extends "collectLocalFactsFromYAML"
+                                            ? CollectLocalFactsFromYAMLFunction | undefined
                                       : never

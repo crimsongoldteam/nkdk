@@ -1,6 +1,11 @@
 import type { ParsedYaml } from "../../../yaml/parseMetadataYaml"
 import type { Diagnostic } from "../types"
-import { diagnosticAtYamlPath, type YamlPath } from "../yamlLocations"
+import {
+  diagnosticAtYamlLocation,
+  yamlDiagnosticLocationAtPath,
+  type YamlDiagnosticLocation,
+  type YamlPath,
+} from "../yamlLocations"
 import {
   resolveDataPathCore,
   type ResolvedDataPathTarget,
@@ -12,15 +17,12 @@ import type { OwnerMetadataCache } from "./ownerCache"
 
 export type { ResolvedDataPathTarget, TableContext } from "./coreResolver"
 
-export interface ResolveDataPathParams {
-  filePath: string
-  parsed: ParsedYaml
-  yamlPath: YamlPath
+export type ResolveDataPathParams = {
   value: string
   index: FormDataPathIndex
   ownerCache: OwnerMetadataCache
   tableContext?: TableContext
-}
+} & ({ location: YamlDiagnosticLocation } | { filePath: string; parsed: ParsedYaml; yamlPath: YamlPath })
 
 export type ResolveDataPathResult =
   | { status: "ok"; target?: ResolvedDataPathTarget; diagnostics: Diagnostic[] }
@@ -52,14 +54,18 @@ function diagnosticsFromCore(params: {
   return params.core.issues.flatMap((issue) =>
     issue.ownerDiagnostics ??
     [
-      diagnosticAtYamlPath({
-        filePath: params.params.filePath,
-        parsed: params.params.parsed,
-        path: params.params.yamlPath,
+      diagnosticAtYamlLocation({
+        location: diagnosticLocation(params.params),
         severity: issue.severity,
         source: "structure",
         message: issue.message,
       }),
     ]
   )
+}
+
+function diagnosticLocation(params: ResolveDataPathParams): YamlDiagnosticLocation {
+  return "location" in params
+    ? params.location
+    : yamlDiagnosticLocationAtPath({ filePath: params.filePath, parsed: params.parsed, path: params.yamlPath })
 }

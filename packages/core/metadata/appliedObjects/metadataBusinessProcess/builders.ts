@@ -18,8 +18,9 @@ export function metadataBusinessProcessTabularSectionsRule<
   const Params extends MetadataBusinessProcessTabularSectionsRuleParams,
 >(
   params: WideExactRuleParams<MetadataBusinessProcessTabularSectionsRuleParams, Params>
-): Readonly<{ type: "MetadataBusinessProcessTabularSections" } & Params> {
+): Readonly<{ type: "MetadataBusinessProcessTabularSections"; ownerFactRole: "tabularSections" } & Params> {
   return defineWidePropertyRule("MetadataBusinessProcessTabularSections", {
+    ownerFactRole: "tabularSections",
     ...params,
     operationTarget: namedCollectionTarget({
       kind: "tabularSection",

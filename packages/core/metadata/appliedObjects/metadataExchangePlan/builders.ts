@@ -29,8 +29,9 @@ export function metadataExchangePlanTabularSectionsRule<
   const Params extends MetadataExchangePlanTabularSectionsRuleParams,
 >(
   params: WideExactRuleParams<MetadataExchangePlanTabularSectionsRuleParams, Params>
-): Readonly<{ type: "MetadataExchangePlanTabularSections" } & Params> {
+): Readonly<{ type: "MetadataExchangePlanTabularSections"; ownerFactRole: "tabularSections" } & Params> {
   return defineWidePropertyRule("MetadataExchangePlanTabularSections", {
+    ownerFactRole: "tabularSections",
     ...params,
     operationTarget: namedCollectionTarget({
       kind: "tabularSection",

@@ -48,6 +48,7 @@ export const MetadataCommonAttributeRules = {
       defaultValueXMLRaw: "",
     }),
     type: typeDescriptionRule({
+      ownerFactRole: "type",
       yaml: "Тип",
       xmlParents: properties,
     }),

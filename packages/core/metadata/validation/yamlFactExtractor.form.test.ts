@@ -33,7 +33,7 @@ describe("extractValidationYamlFacts form", () => {
       expect.objectContaining({
         kind: "dataPath",
         value: "КакоеТоПоле",
-        yamlPath: ["Элементы", "КакоеТоПоле", "ПутьКДанным"],
+        location: expect.objectContaining({ path: "/Элементы/КакоеТоПоле/ПутьКДанным" }),
       }),
     ])
     expect(facts.diagnostics).toEqual([
@@ -74,7 +74,9 @@ describe("extractValidationYamlFacts form", () => {
         expect.objectContaining({
           kind: "dataPath",
           value: "Объект.Товары.LineNumber",
-          yamlPath: ["Элементы", "Таблица", "КонтекстноеМеню", "Элементы", "Открыть", "Данные"],
+          location: expect.objectContaining({
+            path: "/Элементы/Таблица/КонтекстноеМеню/Элементы/Открыть/Данные",
+          }),
           policy: "formDataPath",
         }),
       ])

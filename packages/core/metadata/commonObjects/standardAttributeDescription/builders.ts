@@ -12,8 +12,9 @@ export type StandardAttributeDescriptionsRuleParams = Omit<StandardAttributeDesc
 
 export function standardAttributeDescriptionsRule<const Params extends StandardAttributeDescriptionsRuleParams>(
   params: WideExactRuleParams<StandardAttributeDescriptionsRuleParams, Params>
-): Readonly<{ type: "StandardAttributeDescriptions" } & Params> {
+): Readonly<{ type: "StandardAttributeDescriptions"; ownerFactRole: "standardAttributes" } & Params> {
   return defineWidePropertyRule("StandardAttributeDescriptions", {
+    ownerFactRole: "standardAttributes",
     configurationIndexUidSegment: "СтандартныйРеквизит",
     ...params,
   })

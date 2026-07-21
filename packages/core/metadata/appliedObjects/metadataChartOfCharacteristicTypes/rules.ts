@@ -98,7 +98,12 @@ export const MetadataChartOfCharacteristicTypesRules = {
       xmlParents: properties,
       defaultValueXMLRaw: "",
     }),
-    type: typeDescriptionRule({ yaml: "ТипЗначения", xml: "Type", xmlParents: properties }),
+    type: typeDescriptionRule({
+      yaml: "ТипЗначения",
+      xml: "Type",
+      xmlParents: properties,
+      ownerFactRole: "type",
+    }),
     hierarchical: booleanRule({
       yaml: "Иерархический",
       defaultValueXML: false,

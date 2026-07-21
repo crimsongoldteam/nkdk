@@ -165,3 +165,22 @@ export async function prepareYamlProjectWithPool(params: {
     },
   }
 }
+
+export async function discoverPreparedYamlProjectFiles(projectDir: string): Promise<PreparedYamlProjectFileDescriptor[]> {
+  const root = resolve(projectDir)
+  const resources = (await discoverMetadataProjectResources(root, { include: "yaml" })).filter(
+    (resource) => resource.absolutePath !== undefined && resource.kind === "yaml"
+  )
+  return resources.map(
+    (resource): PreparedYamlProjectFileDescriptor => ({
+      projectPath: resource.projectPath,
+      filePath: resource.absolutePath!,
+      role: resource.role as PreparedYamlProjectFileDescriptor["role"],
+      owner: { dir: resource.owner.dir, name: resource.owner.name },
+      itemType:
+        resource.owner.spec.rule.metadataTargetOwner?.kind === "self"
+          ? resource.owner.spec.rule.metadataTargetOwner.root
+          : (resource.owner.spec.rule.itemTypePrefix ?? resource.owner.spec.rule.itemType),
+    })
+  )
+}

@@ -12,7 +12,13 @@ export function extractImportOwnerFacts(prepared: PreparedImportModel): Validati
     kind: ownerKind.kind,
     ...(prepared.assignment.itemName.length === 0 ? {} : { name: prepared.assignment.itemName }),
   }
-  const fieldIndex = buildObjectFieldIndex({ ref, model: prepared.model, rule: prepared.rule })
+  const preliminaryFacts = createValidationOwnerFacts({
+    ref,
+    filePath: prepared.targetProjectPath,
+    fieldIndex: { fields: new Map(), standardAttributeAliases: new Map(), diagnostics: [] },
+    model: prepared.model,
+  })
+  const fieldIndex = buildObjectFieldIndex({ ref, facts: preliminaryFacts, rule: prepared.rule })
 
   return [
     createValidationOwnerFacts({

@@ -8,6 +8,7 @@ import { buildFormDataPathIndex, type FormDataPathIndex } from "./formIndex"
 import { formatDataPathStandardMembers } from "./formatter"
 import { buildObjectFieldIndex } from "./objectFields"
 import type { OwnerMetadata, OwnerMetadataCache, OwnerMetadataResult } from "./ownerCache"
+import { createValidationOwnerFacts } from "./ownerFacts"
 
 describe("formatDataPathStandardMembers", () => {
   it("keeps ValueTable columns unchanged in both directions", () => {
@@ -153,10 +154,19 @@ function owner(params: {
   model?: MetadataItem & Record<string, unknown>
 }): OwnerMetadata {
   const rule = params.rule ?? MetadataCatalogRules
+  const ref = params.ref ?? { kind: "Справочник", name: "Номенклатура" }
+  const filePath = "/tmp/Свойства.yaml"
+  const emptyFieldIndex = { fields: new Map(), standardAttributeAliases: new Map(), diagnostics: [] }
+  const facts = createValidationOwnerFacts({
+    ref,
+    filePath,
+    fieldIndex: emptyFieldIndex,
+    model: (params.model ?? { itemType: rule.itemType }) as never,
+  })
   const ownerWithoutIndex = {
-    ref: params.ref ?? { kind: "Справочник", name: "Номенклатура" },
-    filePath: "/tmp/Свойства.yaml",
-    model: params.model ?? { itemType: rule.itemType },
+    ref,
+    filePath,
+    facts,
     rule,
     spec: {
       kind: "catalog",
@@ -167,10 +177,8 @@ function owner(params: {
     },
   }
 
-  return {
-    ...ownerWithoutIndex,
-    fieldIndex: buildObjectFieldIndex(ownerWithoutIndex),
-  }
+  const fieldIndex = buildObjectFieldIndex(ownerWithoutIndex)
+  return { ...ownerWithoutIndex, facts: { ...ownerWithoutIndex.facts, fieldIndex }, fieldIndex }
 }
 
 function ownerKey(ref: OwnerMetadata["ref"]): string {

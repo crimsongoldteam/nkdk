@@ -105,7 +105,12 @@ export const MetadataChartOfAccountsRules = {
       xmlParents: properties,
       defaultValueXMLRaw: {},
     }),
-    extDimensionTypes: stringRule({ yaml: "ВидыСубконто", xmlParents: properties, defaultValueXMLRaw: "" }),
+    extDimensionTypes: stringRule({
+      yaml: "ВидыСубконто",
+      xmlParents: properties,
+      defaultValueXMLRaw: "",
+      ownerFactRole: "extDimensionTypes",
+    }),
     maxExtDimensionCount: numberRule({
       yaml: "МаксКоличествоСубконто",
       defaultValueXML: 0,
@@ -338,11 +343,13 @@ export const MetadataChartOfAccountsRules = {
       xmlParents: childObjects,
     }),
     accountingFlags: accountingFlagsRule({
+      ownerFactRole: "accountingFlags",
       yaml: "ПризнакиУчета",
       xml: "AccountingFlag",
       xmlParents: childObjects,
     }),
     extDimensionAccountingFlags: extDimensionAccountingFlagsRule({
+      ownerFactRole: "extDimensionAccountingFlags",
       yaml: "ПризнакиУчетаСубконто",
       xml: "ExtDimensionAccountingFlag",
       xmlParents: childObjects,

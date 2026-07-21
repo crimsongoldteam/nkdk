@@ -130,7 +130,12 @@ export const MetadataAccountingRegisterRules = {
       implicitValueYAML: false,
       xmlParents: properties,
     }),
-    chartOfAccounts: stringRule({ yaml: "ПланСчетов", xmlParents: properties, defaultValueXMLRaw: "" }),
+    chartOfAccounts: stringRule({
+      yaml: "ПланСчетов",
+      xmlParents: properties,
+      defaultValueXMLRaw: "",
+      ownerFactRole: "chartOfAccounts",
+    }),
     correspondence: booleanRule({
       yaml: "Корреспонденция",
       defaultValueXML: false,

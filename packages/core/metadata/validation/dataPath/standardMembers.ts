@@ -1,4 +1,4 @@
-import type { MetadataItem, MetadataItemRule } from "../../orchestration/property/types"
+import type { MetadataItemRule } from "../../orchestration/property/types"
 import type { OwnerMetadata, OwnerMetadataCache } from "./ownerCache"
 import { getMetadataLinkPrefixesByOwnerKind, getOwnerKindByMetadataLinkPrefix } from "./registry"
 import type { DataPathTableInfo, DataPathTypeInfo, FormDataPathColumnSource, OwnerTypeRef } from "./types"
@@ -148,7 +148,7 @@ export type StandardMemberDeclaration =
   | StandardTableDeclaration
 
 export interface ResolveIndexTimeStandardMemberParams {
-  owner: Pick<OwnerMetadata, "ref" | "model" | "rule">
+  owner: Pick<OwnerMetadata, "ref" | "facts" | "rule">
   internalName: string
   yamlName: string
   explicitTypeInfo?: DataPathTypeInfo
@@ -315,7 +315,7 @@ export function standardMemberYamlToInternalForOwnerKind(ownerKind: string, yaml
 
 function indexTimeTypeInfo(
   member: Exclude<StandardMemberDeclaration, StandardTableDeclaration>,
-  owner: Pick<OwnerMetadata, "ref" | "model" | "rule">
+  owner: Pick<OwnerMetadata, "ref" | "facts" | "rule">
 ): DataPathTypeInfo | undefined {
   switch (member.family) {
     case "primitive":
@@ -430,7 +430,7 @@ function reverseLookupCandidates(params: {
     const ownerResult = params.ownerCache.get(ref)
     if (ownerResult.status !== "ok") continue
 
-    const links = metadataLinksFromProperty(metadataRecord(ownerResult.owner.model)[params.property])
+    const links = metadataLinksFromProperty(metadataRecord(ownerResult.owner.facts)[params.property])
     if (links.some((link) => link === currentLink)) result.push(ref)
   }
   return result
@@ -448,7 +448,7 @@ function columnsFromStandardTable(params: {
   const columns = new Map<string, FormDataPathColumnSource>()
   for (const column of params.table.columns) {
     if ("discoveredFrom" in column && column.discoveredFrom !== undefined) {
-      for (const name of discoveredColumnNames(params.owner.model, column.discoveredFrom)) {
+      for (const name of discoveredColumnNames(params.owner.facts, column.discoveredFrom)) {
         columns.set(name, {
           name,
           typeInfo: primitiveTypeInfo(column.kind, `${params.owner.ref.kind}.${params.table.names.internal}.${name}`),
@@ -493,8 +493,8 @@ function standardTableColumnTypeInfo(params: {
   }
 }
 
-function discoveredColumnNames(model: MetadataItem, property: string): string[] {
-  const values = metadataRecord(model)[property]
+function discoveredColumnNames(facts: unknown, property: string): string[] {
+  const values = metadataRecord(facts)[property]
   if (!Array.isArray(values)) return []
   return values
     .map((value) => metadataRecord(value).name)
@@ -522,8 +522,8 @@ function primitiveTypeInfo(kind: PrimitiveKind, sourceText: string): DataPathTyp
   return { kinds: [dataPathKind], nextTypes: [], sourceText }
 }
 
-function objectRefsFromProperty(owner: Pick<OwnerMetadata, "model">, property: string): DataPathTypeInfo | undefined {
-  const links = metadataRecord(owner.model)[property]
+function objectRefsFromProperty(owner: Pick<OwnerMetadata, "facts">, property: string): DataPathTypeInfo | undefined {
+  const links = metadataRecord(owner.facts)[property]
   if (!Array.isArray(links)) return undefined
   const nextTypes = links
     .flatMap((link) => (typeof link === "string" ? [ownerTypeRefFromMetadataLink(link)] : []))
@@ -537,8 +537,8 @@ function objectRefsFromProperty(owner: Pick<OwnerMetadata, "model">, property: s
   }
 }
 
-function objectRefFromProperty(owner: Pick<OwnerMetadata, "model">, property: string): DataPathTypeInfo | undefined {
-  const value = metadataRecord(owner.model)[property]
+function objectRefFromProperty(owner: Pick<OwnerMetadata, "facts">, property: string): DataPathTypeInfo | undefined {
+  const value = metadataRecord(owner.facts)[property]
   if (typeof value !== "string") return undefined
   const ref = ownerTypeRefFromMetadataLink(value)
   if (ref === undefined) return undefined
@@ -546,11 +546,11 @@ function objectRefFromProperty(owner: Pick<OwnerMetadata, "model">, property: st
 }
 
 function scalarFromMetadataProperty(
-  owner: Pick<OwnerMetadata, "model">,
+  owner: Pick<OwnerMetadata, "facts">,
   property: string,
   sourceText: string
 ): DataPathTypeInfo | undefined {
-  return metadataRecord(owner.model)[property] === undefined
+  return metadataRecord(owner.facts)[property] === undefined
     ? undefined
     : { kinds: ["scalar"], nextTypes: [], sourceText }
 }

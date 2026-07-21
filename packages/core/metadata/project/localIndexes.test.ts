@@ -67,4 +67,60 @@ describe("createLocalIndexesCollector", () => {
     })
     expect(JSON.stringify(metadata)).not.toContain("retainedOnlyByCaller")
   })
+
+  it("собирает одинаковые факты import и validation из одного потока свойств", () => {
+    const propertyType = "TestLocalOwnerFact" as PropertyRuleType
+    let acceptedProperties = 0
+    registerTypeRule(propertyType, "collectLocalFactsFromYAML", ({ fact, writer }) => {
+      acceptedProperties += 1
+      if (fact.rule.ownerFactRole !== undefined) writer.setOwnerFact(fact.rule.ownerFactRole, fact.value)
+    })
+    registerTypeRule(propertyType, "finalizeImportedYAML", ({ value }) => value)
+    const roles = [
+      "type",
+      "attributes",
+      "tabularSections",
+      "standardAttributes",
+      "owners",
+      "task",
+      "registerRecords",
+      "chartOfAccounts",
+      "extDimensionTypes",
+      "accountingFlags",
+      "commonAttributeOwnerLinks",
+    ] as const
+    const facts = roles.map((ownerFactRole, index) => ({
+      yamlPath: ["Свойство", index],
+      rulePath: [{ propertyKey: ownerFactRole }],
+      rule: { type: propertyType, ownerFactRole },
+      value: index,
+    }))
+    const importCollector = createLocalIndexesCollector()
+    const validationCollector = createLocalIndexesCollector()
+
+    for (const fact of facts) {
+      importCollector.acceptProperty(fact)
+      validationCollector.acceptProperty(fact)
+    }
+
+    const imported = importCollector.finish()
+    const validated = validationCollector.finish()
+    expect(imported).toEqual(validated)
+    expect(imported.metadata.ownerFacts).toMatchObject({
+      type: 0,
+      attributes: 1,
+      tabularSections: 2,
+      standardAttributes: 3,
+      owners: 4,
+      task: 5,
+      registerRecords: 6,
+      chartOfAccounts: 7,
+      extDimensionTypes: 8,
+      accountingFlags: 9,
+      commonAttributeOwnerLinks: 10,
+    })
+    expect(imported.dependencies).toHaveLength(facts.length)
+    expect(acceptedProperties).toBe(facts.length * 2)
+    expect(JSON.stringify(imported)).not.toContain("rootYaml")
+  })
 })

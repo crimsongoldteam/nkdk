@@ -41,6 +41,7 @@ export const MetadataSessionParameterRules = {
       defaultValueXMLRaw: "",
     }),
     type: typeDescriptionRule({
+      ownerFactRole: "type",
       yaml: "Тип",
       xmlParents: properties,
       defaultValueXMLRaw: "",

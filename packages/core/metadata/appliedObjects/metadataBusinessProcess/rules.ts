@@ -231,6 +231,7 @@ export const MetadataBusinessProcessRules = {
       xmlParents: properties,
     }),
     task: stringRule({
+      ownerFactRole: "task",
       yaml: "Задача",
       xml: "Task",
       xmlParents: properties,

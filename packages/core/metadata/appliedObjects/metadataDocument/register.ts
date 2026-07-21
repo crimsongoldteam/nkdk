@@ -78,7 +78,7 @@ registerProjectSpec({
 })
 
 function documentRegisterRecordRefs(owner: OwnerMetadata): OwnerTypeRef[] {
-  const value = metadataRecord(owner.model).registerRecords
+  const value = metadataRecord(owner.facts).registerRecords
   if (!Array.isArray(value)) return []
 
   return value.map(registerRecordRefFromLink).filter((ref): ref is OwnerTypeRef => ref !== undefined)

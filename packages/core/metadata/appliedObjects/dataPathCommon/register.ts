@@ -62,7 +62,7 @@ registerStandardAttributeTypeResolver(({ owner, internalName, yamlName, explicit
 
 registerStandardAttributeTypeResolver(({ owner, internalName, yamlName }) => {
   if (internalName !== "Owner" && yamlName !== "Владелец") return undefined
-  const ownerLinks = metadataRecord(owner.model).owners
+  const ownerLinks = metadataRecord(owner.facts).owners
   if (!Array.isArray(ownerLinks)) return undefined
 
   const nextTypes: OwnerTypeRef[] = []

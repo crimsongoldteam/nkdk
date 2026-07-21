@@ -35,7 +35,7 @@ registerProjectReferenceObjectPathContributor("Catalog", ({ projectDir, target }
 }))
 registerProjectReferenceValueContributor("Catalog", ({ owner, target }) => {
   if (target.valueKind === "emptyRef") return undefined
-  const values = metadataRecord(owner.model).predefined
+  const values = metadataRecord(owner.facts).predefined
   return hasNamedItem(values, target.valueName) ? { ok: true, filePath: owner.filePath } : undefined
 })
 

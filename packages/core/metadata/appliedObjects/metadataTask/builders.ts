@@ -13,8 +13,9 @@ export type MetadataTaskAddressingAttributesRuleParams = Omit<MetadataTaskAddres
 
 export function metadataTaskAddressingAttributesRule<const Params extends MetadataTaskAddressingAttributesRuleParams>(
   params: WideExactRuleParams<MetadataTaskAddressingAttributesRuleParams, Params>
-): Readonly<{ type: "MetadataTaskAddressingAttributes" } & Params> {
+): Readonly<{ type: "MetadataTaskAddressingAttributes"; ownerFactRole: "addressingAttributes" } & Params> {
   return defineWidePropertyRule("MetadataTaskAddressingAttributes", {
+    ownerFactRole: "addressingAttributes",
     ...params,
     operationTarget: namedCollectionTarget({
       kind: "addressingAttribute",
@@ -31,8 +32,9 @@ export type MetadataTaskTabularSectionsRuleParams = Omit<MetadataTaskTabularSect
 
 export function metadataTaskTabularSectionsRule<const Params extends MetadataTaskTabularSectionsRuleParams>(
   params: WideExactRuleParams<MetadataTaskTabularSectionsRuleParams, Params>
-): Readonly<{ type: "MetadataTaskTabularSections" } & Params> {
+): Readonly<{ type: "MetadataTaskTabularSections"; ownerFactRole: "tabularSections" } & Params> {
   return defineWidePropertyRule("MetadataTaskTabularSections", {
+    ownerFactRole: "tabularSections",
     ...params,
     operationTarget: namedCollectionTarget({
       kind: "tabularSection",

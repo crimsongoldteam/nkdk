@@ -39,6 +39,6 @@ export type CommonAttributeContentRuleParams = Omit<CommonAttributeContentWidePr
 
 export function commonAttributeContentRule<const Params extends CommonAttributeContentRuleParams>(
   params: WideExactRuleParams<CommonAttributeContentRuleParams, Params>
-): Readonly<{ type: "CommonAttributeContent" } & Params> {
-  return defineWidePropertyRule("CommonAttributeContent", params)
+): Readonly<{ type: "CommonAttributeContent"; ownerFactRole: "commonAttributeOwnerLinks" } & Params> {
+  return defineWidePropertyRule("CommonAttributeContent", { ownerFactRole: "commonAttributeOwnerLinks", ...params })
 }

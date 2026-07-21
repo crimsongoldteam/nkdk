@@ -267,12 +267,13 @@ describe("prepareYamlProject", () => {
   )
 
   it(
-    "runs validation first pass on worker-stored YAML data",
+    "releases each parsed YAML before reading the next file",
     async () => {
       const projectDir = createProject()
       const yamlPath = join(projectDir, "Справочник", "Товары", "Свойства.yaml")
-      resetProjectValidationReadCountForTests()
-
+      const secondYamlPath = join(projectDir, "Справочник", "Услуги", "Свойства.yaml")
+      mkdirSync(join(projectDir, "Справочник", "Услуги"), { recursive: true })
+      writeFileSync(secondYamlPath, ["Реквизиты:", "  КодУслуги:", "    Тип: Строка"].join("\n"))
       const prepared = await validationPool.run({
         projectDir,
         context: validationContext,
@@ -290,11 +291,31 @@ describe("prepareYamlProject", () => {
       expect(prepared.diagnostics).toEqual([])
       expect(prepared.workers.flatMap((worker) => worker.yamlFiles)[0]).not.toHaveProperty("data")
 
-      const first = await validationPool.runValidationFirstPass({ projectDir, context: validationContext })
+      const first = await validationPool.runValidationFirstPass({
+        projectDir,
+        context: validationContext,
+        files: [
+          {
+            projectPath: "Справочник/Товары/Свойства.yaml",
+            filePath: yamlPath,
+            role: "properties",
+            owner: { dir: "Справочник", name: "Товары" },
+            itemType: "Catalog",
+          },
+          {
+            projectPath: "Справочник/Услуги/Свойства.yaml",
+            filePath: secondYamlPath,
+            role: "properties",
+            owner: { dir: "Справочник", name: "Услуги" },
+            itemType: "Catalog",
+          },
+        ],
+      })
 
       expect(first.diagnostics.filter((diagnostic) => diagnostic.severity === "error")).toEqual([])
-      expect(first.objectRecords).toHaveLength(1)
-      expect(getProjectValidationReadCountForTests(yamlPath)).toBe(0)
+      expect(first.objectRecords).toHaveLength(2)
+      expect(first.yamlLifetime).toMatchObject({ current: 0, max: 1, parsed: 2 })
+      expect(first.yamlLifetime.propertyEvents).toBeGreaterThan(0)
     },
     testTimeout
   )

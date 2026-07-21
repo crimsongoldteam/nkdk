@@ -72,7 +72,7 @@ for (const rule of TopLevelMetadataItemRules) {
     if (predefinedValueRoots.has(owner.root)) {
       registerProjectReferenceValueContributor(owner.root, ({ owner, target }) => {
         if (target.valueKind === "emptyRef") return undefined
-        const values = metadataRecord(owner.model).predefined
+        const values = metadataRecord(owner.facts).predefined
         return hasNamedItem(values, target.valueName) ? { ok: true, filePath: owner.filePath } : undefined
       })
     }

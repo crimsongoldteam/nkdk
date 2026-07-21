@@ -2,7 +2,7 @@ import { availableParallelism } from "node:os"
 import { performance } from "node:perf_hooks"
 import { resolve } from "path"
 import type { ConfigurationContext } from "../context/types"
-import { prepareYamlProjectWithPool } from "../project/preparedYamlProject"
+import { discoverPreparedYamlProjectFiles } from "../project/preparedYamlProject"
 import {
   createPreparedYamlProjectWorkerPool,
   type PreparedWorkerPool,
@@ -126,17 +126,10 @@ async function validateProjectWithPreparedYaml(
 
   try {
     const prepareStartedAt = performance.now()
-    const prepared = await prepareYamlProjectWithPool({
-      projectDir,
-      context,
-      pool,
-      includeYamlData: false,
-      resourceInclude: "yaml",
-    })
+    const files = await discoverPreparedYamlProjectFiles(projectDir)
     const prepareMs = performance.now() - prepareStartedAt
-    if (!prepared.ok) return { diagnostics: sortDiagnostics(dedupeDiagnostics(prepared.diagnostics)) }
 
-    fileCount = prepared.project.files.length
+    fileCount = files.length
     const startProfile = await initializationProfiler.measureAsync(
       "Инициализация",
       "Инициализация validation worker",
@@ -153,7 +146,7 @@ async function validateProjectWithPreparedYaml(
     })
     initializationProfiler.flush()
     const firstPassStartedAt = performance.now()
-    const first = await pool.runValidationFirstPass({ projectDir, context })
+    const first = await pool.runValidationFirstPass({ projectDir, context, files })
     firstPassMs = performance.now() - firstPassStartedAt
     const objectTable = profiler.measure("Обобщение индексов", "Слияние first pass", { items: first.objectRecords.length }, () => {
       const table = createValidationObjectTable()

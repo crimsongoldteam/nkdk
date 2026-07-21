@@ -51,6 +51,13 @@ describe("validatePendingChecks", () => {
       rulesSnapshot: createValidationRulesSnapshot(mockContext),
     })
 
+    expect(JSON.stringify(facts.pendingChecks)).not.toContain("syntaxErrors")
+    expect(facts.pendingChecks[0]).not.toHaveProperty("parsed")
+    expect(facts.pendingChecks[0]).toHaveProperty(
+      "location.path",
+      "/Элементы/Поле/КонтекстноеМеню/Элементы/Открыть/Данные"
+    )
+
     expect(validatePendingChecks({ ownerCache, checks: facts.pendingChecks }).diagnostics).toEqual(
       expectedDiagnostics
     )

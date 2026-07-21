@@ -1,6 +1,6 @@
 import type { ConfigurationContext, ConfigurationContextFromXML, ExternalFileEntry } from "../../context/types"
 import type { FormDataPathIndex } from "../../validation/dataPath/formIndex"
-import type { YamlPath } from "../../validation/yamlLocations"
+import type { YamlDiagnosticLocation, YamlPath } from "../../validation/yamlLocations"
 import type { LocalIndexes, LocalIndexesCollector, LocalMetadataIndex } from "../../project/localIndexes"
 import type { MetadataItemRule, PropertyRule } from "./types"
 
@@ -26,12 +26,6 @@ export interface DirectImportResult {
   generatedFiles: ExternalFileEntry[]
 }
 
-export interface YamlDiagnosticLocation {
-  filePath: string
-  line: number
-  col: number
-}
-
 export interface LocalYamlFact {
   yamlPath: YamlPath
   rulePath: readonly DeferredRulePathSegment[]
@@ -39,6 +33,15 @@ export interface LocalYamlFact {
   value: unknown
   source?: YamlDiagnosticLocation
 }
+
+export interface LocalMetadataFactsWriter {
+  setOwnerFact(role: string, value: unknown): void
+}
+
+export type CollectLocalFactsFromYAMLFunction = (params: {
+  fact: LocalYamlFact
+  writer: LocalMetadataFactsWriter
+}) => void
 
 export { type LocalIndexes, type LocalIndexesCollector, type LocalMetadataIndex }
 

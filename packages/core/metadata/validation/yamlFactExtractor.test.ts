@@ -6,6 +6,9 @@ import { parseMetadataYaml } from "../../yaml/parseMetadataYaml"
 import { resolveValidationProjectFile } from "./projectFiles"
 import { createValidationRulesSnapshot } from "./rulesSnapshot"
 import { extractValidationYamlFacts } from "./yamlFactExtractor"
+import { registerValidationMetadata } from "./registerValidationMetadata"
+
+registerValidationMetadata()
 
 describe("extractValidationYamlFacts", () => {
   it("extracts object index entries from properties YAML without model import", () => {
@@ -172,7 +175,7 @@ describe("extractValidationYamlFacts", () => {
       rulesSnapshot: createValidationRulesSnapshot(mockContext),
     })
 
-    expect(facts.ownerModelStub?.registerRecords).toEqual([
+    expect(facts.localIndexes?.metadata.ownerFacts?.["registerRecords"]).toEqual([
       "AccountingRegister.Хозрасчетный",
       "AccumulationRegister.Продажи",
     ])
@@ -190,6 +193,6 @@ describe("extractValidationYamlFacts", () => {
       rulesSnapshot: createValidationRulesSnapshot(mockContext),
     })
 
-    expect(facts.ownerModelStub?.chartOfAccounts).toBe("ChartOfAccounts.Хозрасчетный")
+    expect(facts.localIndexes?.metadata.ownerFacts?.["chartOfAccounts"]).toBe("ChartOfAccounts.Хозрасчетный")
   })
 })

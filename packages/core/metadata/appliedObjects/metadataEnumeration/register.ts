@@ -33,7 +33,7 @@ registerProjectReferenceObjectPathContributor("Enum", ({ projectDir, target }) =
 }))
 registerProjectReferenceValueContributor("Enum", ({ owner, target }) => {
   if (target.valueKind === "emptyRef") return undefined
-  const values = metadataRecord(owner.model).enumValues
+  const values = metadataRecord(owner.facts).enumValues
   return hasNamedItem(values, target.valueName) ? { ok: true, filePath: owner.filePath } : undefined
 })
 

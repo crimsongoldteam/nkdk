@@ -32,8 +32,10 @@ import {
   type ValidationRulesSpecSnapshot,
 } from "./rulesSnapshot"
 import { validateExcludedEqualNameYAML } from "./excludeIfEqualNameYAML"
-import { diagnosticAtYamlPath } from "./yamlLocations"
+import { diagnosticAtYamlPath, yamlDiagnosticLocationAtPath } from "./yamlLocations"
 import type { Diagnostic } from "./types"
+import { createLocalIndexesCollector } from "../project/localIndexes"
+import type { LocalIndexesCollector } from "../project/localIndexes"
 
 export interface ValidationYamlFacts {
   objectIndexEntries: ProjectObjectIndexEntry[]
@@ -44,6 +46,7 @@ export interface ValidationYamlFacts {
   diagnostics: Diagnostic[]
   fieldIndex?: ObjectFieldIndex
   ownerModelStub?: Record<string, unknown>
+  localIndexes?: ReturnType<LocalIndexesCollector["finish"]>
 }
 
 export type ValidationOwnerYamlFacts = Pick<ValidationYamlFacts, "fieldIndex" | "ownerModelStub">
@@ -62,6 +65,7 @@ export function extractValidationYamlFacts(params: {
   const owner =
     objectTarget === undefined ? undefined : { root: objectTarget.root, objectName: objectTarget.objectName }
   const referenceDiagnostics: Diagnostic[] = []
+  const localIndexesCollector = createLocalIndexesCollector()
   const pendingReferences =
     spec === undefined
       ? []
@@ -73,12 +77,10 @@ export function extractValidationYamlFacts(params: {
           properties: spec.properties,
           yamlPath: [],
           diagnostics: referenceDiagnostics,
+          collector: localIndexesCollector,
+          rulePath: [],
         })
-  const ownerFacts = extractValidationOwnerYamlFacts({
-    file: params.file,
-    data: params.parsed.data,
-    rulesSnapshot: params.rulesSnapshot,
-  })
+  const localIndexes = localIndexesCollector.finish()
   return {
     objectIndexEntries:
       objectTarget === undefined
@@ -99,7 +101,7 @@ export function extractValidationYamlFacts(params: {
     pendingReferences,
     pendingChecks: [],
     diagnostics: [...referenceDiagnostics, ...(spec === undefined ? [] : collectUniqueNameScopeDiagnostics(params.file, params.parsed, spec))],
-    ...(ownerFacts === undefined ? {} : ownerFacts),
+    localIndexes,
   }
 }
 
@@ -245,7 +247,7 @@ function buildObjectFieldIndexFromSyntheticModel(
 ): ObjectFieldIndex {
   const index = buildObjectFieldIndex({
     ref: { kind: file.owner.dir, name: file.owner.name },
-    model: model as never,
+    facts: model as never,
     rule: file.owner.spec.rule,
   })
   const fields = new Map<string, ObjectField>(index.fields)
@@ -444,6 +446,8 @@ function collectPendingReferences(params: {
   properties: readonly ValidationRulesSpecSnapshot["properties"][number][]
   yamlPath: readonly (string | number)[]
   diagnostics: Diagnostic[]
+  collector: LocalIndexesCollector
+  rulePath: readonly { propertyKey: string }[]
 }): PendingMetadataTargetReference[] {
   const record = asRecord(params.value)
   if (record === undefined) return []
@@ -452,6 +456,21 @@ function collectPendingReferences(params: {
   for (const property of params.properties) {
     const value = valueAtPath(record, property.yamlPath)
     if (value === undefined) continue
+    const yamlPath = [...params.yamlPath, ...property.yamlPath]
+    const rulePath = [...params.rulePath, { propertyKey: property.modelKey }]
+    if (property.type !== undefined) {
+      params.collector.acceptProperty({
+        yamlPath,
+        rulePath,
+        rule: {
+          type: property.type as PropertyRule["type"],
+          yaml: property.yamlPath.at(-1),
+          ...(property.ownerFactRole === undefined ? {} : { ownerFactRole: property.ownerFactRole }),
+        },
+        value,
+        source: yamlDiagnosticLocationAtPath({ filePath: params.filePath, parsed: params.parsed, path: yamlPath }),
+      })
+    }
 
     if (property.metadataTarget !== undefined) {
       references.push(
@@ -462,7 +481,7 @@ function collectPendingReferences(params: {
           value,
           type: property.type,
           constraint: property.metadataTarget,
-          yamlPath: [...params.yamlPath, ...property.yamlPath],
+          yamlPath,
           diagnostics: params.diagnostics,
         })
       )
@@ -476,8 +495,10 @@ function collectPendingReferences(params: {
           owner: params.owner,
           value,
           properties: property.children,
-          yamlPath: [...params.yamlPath, ...property.yamlPath],
+          yamlPath,
           diagnostics: params.diagnostics,
+          collector: params.collector,
+          rulePath,
         })
       )
     }
@@ -494,6 +515,8 @@ function collectNestedReferences(params: {
   properties: readonly ValidationRulesSpecSnapshot["properties"][number][]
   yamlPath: readonly (string | number)[]
   diagnostics: Diagnostic[]
+  collector: LocalIndexesCollector
+  rulePath: readonly { propertyKey: string }[]
 }): PendingMetadataTargetReference[] {
   if (Array.isArray(params.value)) {
     return params.value.flatMap((item, index) =>
@@ -827,11 +850,14 @@ function collectRuleDataPathChecks(params: {
 
     const value = params.owner[rule.yaml]
     if (typeof value !== "string" || value.trim().length === 0) continue
+    const yamlPath = enterYamlProperty({ cursor: params.cursor, propertyKey, yamlKey: rule.yaml }).yamlPath
     checks.push({
       kind: "dataPath",
-      filePath: params.file.absolutePath,
-      parsed: params.parsed,
-      yamlPath: enterYamlProperty({ cursor: params.cursor, propertyKey, yamlKey: rule.yaml }).yamlPath,
+      location: yamlDiagnosticLocationAtPath({
+        filePath: params.file.absolutePath,
+        parsed: params.parsed,
+        path: yamlPath,
+      }),
       owner: { kind: params.file.owner.dir, name: params.file.owner.name },
       value,
       index: params.index,
