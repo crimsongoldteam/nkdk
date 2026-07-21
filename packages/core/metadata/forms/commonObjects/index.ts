@@ -36,6 +36,7 @@ import "./formAttribute/toXML"
 import "./formAttribute/toYAML"
 
 import "./childItems/fromXML"
+import "./childItems/fromXMLToYAML"
 import "./childItems/fromYAML"
 import "./childItems/toEnterprise"
 import "./childItems/toJSONSchema"

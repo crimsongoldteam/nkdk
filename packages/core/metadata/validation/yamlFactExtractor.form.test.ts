@@ -44,4 +44,40 @@ describe("extractValidationYamlFacts form", () => {
       }),
     ])
   })
+
+  it("строит DataPath check внутри single-элемента формы", () => {
+    const projectDir = "/project"
+    const filePath = "/project/Справочник/Товары/Формы/ФормаЭлемента/Форма.yaml"
+    const file = resolveValidationProjectFile(projectDir, filePath)
+    if (file === undefined) throw new Error("file not resolved")
+
+    const facts = extractValidationYamlFacts({
+      file,
+      parsed: parseMetadataYaml(
+        [
+          "Элементы:",
+          "  Таблица:",
+          "    Вид: ТаблицаФормы",
+          "    ПутьКДанным: Объект.Товары",
+          "    КонтекстноеМеню:",
+          "      Элементы:",
+          "        Открыть:",
+          "          Вид: КнопкаКоманднойПанели",
+          "          Данные: Объект.Товары.LineNumber",
+        ].join("\n")
+      ),
+      rulesSnapshot: createValidationRulesSnapshot(mockContext),
+    })
+
+    expect(facts.pendingChecks).toEqual(
+      expect.arrayContaining([
+        expect.objectContaining({
+          kind: "dataPath",
+          value: "Объект.Товары.LineNumber",
+          yamlPath: ["Элементы", "Таблица", "КонтекстноеМеню", "Элементы", "Открыть", "Данные"],
+          policy: "formDataPath",
+        }),
+      ])
+    )
+  })
 })

@@ -48,7 +48,7 @@ export const importChildItemsFromXML = <
   }) as From[]
 }
 
-const resolveItemTypeFromXMLTag = (rule: PropertyRule, xmlTag: string, xmlValue?: any): string => {
+export const resolveItemTypeFromXMLTag = (rule: PropertyRule, xmlTag: string, xmlValue?: any): string => {
   if (rule.type === "CommandBarChildItems" && xmlTag === "Button") {
     const type = xmlValue?.Type
     if (type === "CommandBarButton" || type === "CommandBarHyperlink") {

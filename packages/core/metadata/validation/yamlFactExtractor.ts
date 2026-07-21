@@ -7,6 +7,9 @@ import { CollectableElementTypeFromYAML, type ElementType } from "../forms/eleme
 import { ClientApplicationFormRules } from "../forms/clientApplicationForm/rules"
 import type { DataPathPropertyRule, PropertyRule } from "../orchestration/property/types"
 import { getElementRule } from "../orchestration/formElement/ruleFactory"
+import { getTypeRule } from "../orchestration/property/typeRuleRegistry"
+import { enterNestedYamlRule, enterYamlProperty } from "../orchestration/property/yamlRuleCursor"
+import type { YamlRuleCursor } from "../orchestration/property/importYamlTypes"
 import { CommonAttributeUseFromYAML, PictureLibFromYAML, type CommonAttributeUseYAML } from "../systemEnumerations/types"
 import type { ParsedYaml } from "../../yaml/parseMetadataYaml"
 import { typeDescriptionToDataPathTypeInfo } from "./dataPath/typeDescription"
@@ -759,55 +762,107 @@ function collectFormPendingChecks(params: {
   yamlPath: readonly (string | number)[]
   tableContext?: { dataPath: string }
 }): ValidationPendingCheck[] {
-  const checks: ValidationPendingCheck[] = []
-  checks.push(
-    ...collectElementTreeChecks({
-      ...params,
-      value: asRecord(params.value["Элементы"]),
-      yamlPath: [...params.yamlPath, "Элементы"],
-    })
-  )
-  return checks
+  return collectNestedFormElementChecks({
+    file: params.file,
+    parsed: params.parsed,
+    owner: params.value,
+    properties: ClientApplicationFormRules.properties,
+    index: params.index,
+    cursor: { yamlPath: params.yamlPath, rulePath: [] },
+    tableContext: params.tableContext,
+  })
 }
 
-function collectElementTreeChecks(params: {
+function collectNestedFormElementChecks(params: {
   file: ValidationProjectFile
   parsed: ParsedYaml
-  value: Record<string, unknown> | undefined
+  owner: Record<string, unknown>
+  properties: Record<string, PropertyRule>
   index: FormDataPathIndex
-  yamlPath: readonly (string | number)[]
+  cursor: YamlRuleCursor
   tableContext?: { dataPath: string }
 }): ValidationPendingCheck[] {
   const checks: ValidationPendingCheck[] = []
-  for (const [name, rawElement] of Object.entries(params.value ?? {})) {
-    const element = asRecord(rawElement)
-    if (element === undefined) continue
-    const elementType = elementTypeFromYaml(element["Вид"], params.tableContext)
-    if (elementType === undefined) continue
-    const rule = getElementRule(elementType)
-    const elementPath = [...params.yamlPath, name]
-    const itemChecks = collectRuleDataPathChecks({
-      file: params.file,
-      parsed: params.parsed,
-      owner: element,
-      properties: rule.properties,
-      index: params.index,
-      yamlPath: elementPath,
-      elementType,
-      tableContext: params.tableContext,
+  for (const [propertyKey, propertyRule] of Object.entries(params.properties)) {
+    if (typeof propertyRule.yaml !== "string") continue
+    const nested = getTypeRule(propertyRule.type, "nestedItemRule")
+    if (nested === undefined) continue
+    const value = asRecord(params.owner[propertyRule.yaml])
+    if (value === undefined) continue
+    const propertyCursor = enterYamlProperty({
+      cursor: params.cursor,
+      propertyKey,
+      yamlKey: propertyRule.yaml,
     })
-    const childTableContext = tableContextForChildren(elementType, itemChecks, params.tableContext)
-    checks.push(
-      ...itemChecks,
-      ...collectElementTreeChecks({
-        ...params,
-        value: asRecord(element["Элементы"]),
-        yamlPath: [...elementPath, "Элементы"],
-        tableContext: childTableContext,
-      })
-    )
+
+    if ("itemRule" in nested) {
+      if (!("enterpriseField" in nested.itemRule)) continue
+      checks.push(
+        ...collectFormElementChecks({
+          ...params,
+          owner: value,
+          rule: nested.itemRule as ReturnType<typeof getElementRule>,
+          cursor: enterNestedYamlRule(propertyCursor, nested.itemRule.itemType),
+        })
+      )
+      continue
+    }
+
+    for (const [name, rawElement] of Object.entries(value)) {
+      const element = asRecord(rawElement)
+      if (element === undefined) continue
+      const elementType = elementTypeFromYaml(element["Вид"], params.tableContext)
+      if (elementType === undefined) continue
+      const itemRule = nested.resolveItemRule(elementType)
+      if (!("enterpriseField" in itemRule)) continue
+      checks.push(
+        ...collectFormElementChecks({
+          ...params,
+          owner: element,
+          rule: itemRule as ReturnType<typeof getElementRule>,
+          cursor: enterNestedYamlRule(
+            { ...propertyCursor, yamlPath: [...propertyCursor.yamlPath, name] },
+            elementType
+          ),
+        })
+      )
+    }
   }
   return checks
+}
+
+function collectFormElementChecks(params: {
+  file: ValidationProjectFile
+  parsed: ParsedYaml
+  owner: Record<string, unknown>
+  rule: ReturnType<typeof getElementRule>
+  index: FormDataPathIndex
+  cursor: YamlRuleCursor
+  tableContext?: { dataPath: string }
+}): ValidationPendingCheck[] {
+  const itemChecks = collectRuleDataPathChecks({
+    file: params.file,
+    parsed: params.parsed,
+    owner: params.owner,
+    properties: params.rule.properties,
+    index: params.index,
+    cursor: params.cursor,
+    elementType: params.rule.itemType,
+    tableContext: params.tableContext,
+  })
+  const childTableContext = tableContextForChildren(params.rule.itemType, itemChecks, params.tableContext)
+  return [
+    ...itemChecks,
+    ...collectNestedFormElementChecks({
+      file: params.file,
+      parsed: params.parsed,
+      owner: params.owner,
+      properties: params.rule.properties,
+      index: params.index,
+      cursor: params.cursor,
+      tableContext: childTableContext,
+    }),
+  ]
 }
 
 function collectRuleDataPathChecks(params: {
@@ -816,12 +871,12 @@ function collectRuleDataPathChecks(params: {
   owner: Record<string, unknown>
   properties: Record<string, PropertyRule>
   index: FormDataPathIndex
-  yamlPath: readonly (string | number)[]
+  cursor: YamlRuleCursor
   elementType: ElementType
   tableContext?: { dataPath: string }
 }): ValidationPendingCheck[] {
   const checks: ValidationPendingCheck[] = []
-  for (const rule of Object.values(params.properties)) {
+  for (const [propertyKey, rule] of Object.entries(params.properties)) {
     if (!isDataPathRule(rule) || typeof rule.yaml !== "string") continue
 
     const value = params.owner[rule.yaml]
@@ -830,7 +885,7 @@ function collectRuleDataPathChecks(params: {
       kind: "dataPath",
       filePath: params.file.absolutePath,
       parsed: params.parsed,
-      yamlPath: [...params.yamlPath, rule.yaml],
+      yamlPath: enterYamlProperty({ cursor: params.cursor, propertyKey, yamlKey: rule.yaml }).yamlPath,
       owner: { kind: params.file.owner.dir, name: params.file.owner.name },
       value,
       index: params.index,
