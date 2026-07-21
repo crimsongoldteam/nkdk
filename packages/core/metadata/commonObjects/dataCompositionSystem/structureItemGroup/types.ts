@@ -5,6 +5,7 @@ import { YAMLTypeByRule } from "../../../orchestration/metadataItem/yaml"
 import "./collection/index"
 import { StructureItemGroupRules } from "./rules"
 import { exportStructureItemGroupToXML } from "./toXML"
+import { importStructureItemGroupFromXMLToYAML } from "./fromXMLToYAML"
 
 export type StructureItemGroup = MetadataTypeByRule<typeof StructureItemGroupRules>
 export type StructureItemGroupYAML = YAMLTypeByRule<typeof StructureItemGroupRules>
@@ -14,4 +15,5 @@ registerMetadataItemRule({
   itemRule: StructureItemGroupRules,
 })
 
+registerTypeRule("StructureItemGroup", "importFromXMLToYAML", importStructureItemGroupFromXMLToYAML)
 registerTypeRule("StructureItemGroup", "exportToXML", exportStructureItemGroupToXML)

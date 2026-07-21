@@ -154,7 +154,7 @@ async function writePreparedYamlToOutput(
     const sourcePath = join(state.outputDir, targetProjectPath)
     await profiler.measureAsync(
       "Подготовка импорта конфигурации",
-      "Запись сгенерированного файла YAML",
+      "Запись связанного файла",
       { items: 1, bytes: Buffer.byteLength(externalFile.content, "utf-8") },
       async () => {
         await fs.promises.mkdir(dirname(sourcePath), { recursive: true })

@@ -12,7 +12,7 @@ import {
 } from "../../configurationIndex/collector/context"
 import type { ConfigurationContextFromXML } from "../../context/types"
 import { buildExternalFileEntry } from "../../forms/commonObjects/dynamicList/externalFile"
-import { getOrderedKeysFromXML, presenceAffectsExport, shouldProcessProperty } from "./helpers"
+import { getOrderedKeysFromXML, getValueOrDefault, presenceAffectsExport, shouldProcessProperty } from "./helpers"
 import type { DeferredRulePathSegment } from "./importYamlTypes"
 import { metadataTargetOwnerFromRule } from "./metadataTargetString"
 import { importPropertyFromXML } from "./fromXML"
@@ -59,7 +59,13 @@ export function importPropertiesFromXMLToYAML(params: {
   const importedKeysInSourceOrder: string[] = []
   const importedExternalProperties = new Set<string>()
 
-  for (const key of getOrderedKeysFromXML({ rule, xml, tags })) {
+  const orderedKeys = getOrderedKeysFromXML({ rule, xml, tags })
+  const selectedKeys = new Set([
+    ...orderedKeys,
+    ...Object.keys(rule.properties).filter((key) => propertyXML?.has(key) === true),
+  ])
+  const propertyKeys = Object.keys(rule.properties).filter((key) => selectedKeys.has(key))
+  for (const key of propertyKeys) {
     const propertyRule = rule.properties[key]
     const externalXmlValue = propertyXML?.get(key)
     const sourceXmlKey = externalXmlValue === undefined ? getXMLKey(key, xml, propertyRule) : propertyRule.xml ?? capitalize(key)
@@ -95,8 +101,6 @@ export function importPropertiesFromXMLToYAML(params: {
     if (xmlValue === undefined && propertyRule.type === "MetadataValue" && isXMLKeyPresent(key, xml, propertyRule)) {
       xmlValue = { "_xsi:nil": true }
     }
-    if (xmlValue === undefined && "defaultValueXML" in propertyRule) xmlValue = propertyRule.defaultValueXML
-
     const propertyLogicalAddress =
       indexCollection === undefined ||
       (indexCollection.yamlPathAddressing !== true && propertyRule.configurationIndexAddressing !== "yamlPath")
@@ -121,7 +125,12 @@ export function importPropertiesFromXMLToYAML(params: {
       forReference &&
       propertyRule.fromXML === false &&
       (xmlValue !== undefined || isXMLKeyPresent(key, xml, propertyRule))
-    if (!shouldProcessProperty({ rule: propertyRule, operation: "importFromXML" }) && !shouldImportForReference) continue
+    if (
+      !shouldProcessProperty({ rule: propertyRule, operation: "importFromXML" }) &&
+      !shouldImportForReference &&
+      externalXmlValue === undefined
+    )
+      continue
 
     const propertyYamlPath = [...yamlPath, propertyRule.yaml ?? key]
     const propertyRulePath = [...rulePath, { propertyKey: key }]
@@ -168,10 +177,28 @@ export function importPropertiesFromXMLToYAML(params: {
                 }),
               { configurationIndexAddressing: propertyRule.configurationIndexAddressing }
             )
-      const value =
+      const rawValue =
         importedValue === undefined && hasExplicitXMLKeyWithEmptyDefault && direct === undefined
           ? propertyRule.defaultValueXMLEmpty
           : importedValue
+      const preserveExplicitDefault =
+        propertyRule.preserveExplicitDefaultXML === true &&
+        sourceXmlKey !== undefined &&
+        rawValue === propertyRule.defaultValueXML
+      const cleanValue =
+        direct === undefined && !forReference && rawValue === propertyRule.defaultValueXML && !preserveExplicitDefault
+          ? undefined
+          : rawValue
+      const value =
+        direct === undefined && !forReference
+          ? getValueOrDefault({
+              context,
+              rule: propertyRule,
+              value: cleanValue,
+              name: key,
+              operation: "importFromXML",
+            })
+          : cleanValue
 
       if (value !== undefined) {
         collectConfigurationIndexImportedValue({
@@ -227,7 +254,9 @@ export function importPropertiesFromXMLToYAML(params: {
   }
 
   if (indexCollection !== undefined && importedKeysInSourceOrder.length > 0) {
-    indexCollection.collector.setOrder(xmlNodeLogicalAddress!, importedKeysInSourceOrder)
+    const sourceOrder = orderedKeys.filter((key) => importedKeysInSourceOrder.includes(key))
+    const externalOrder = importedKeysInSourceOrder.filter((key) => !sourceOrder.includes(key))
+    indexCollection.collector.setOrder(xmlNodeLogicalAddress!, [...sourceOrder, ...externalOrder])
   }
 
   return result

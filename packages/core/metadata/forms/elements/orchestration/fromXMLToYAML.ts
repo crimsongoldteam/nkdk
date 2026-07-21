@@ -26,16 +26,26 @@ export function importFormElementFromXMLToYAML(params: {
 }): Record<string, unknown> {
   return {
     Вид: CollectableElementTypeToYAML[params.rule.itemType],
-    ...importPropertiesFromXMLToYAML({
-      context: params.context,
-      rule: params.rule,
-      xml: params.xml,
-      itemName: params.name,
-      yamlPath: params.traversal.yamlPath,
-      rulePath: enterNestedYamlRule(params.traversal, params.rule.itemType).rulePath,
-      collector: params.traversal.collector,
-    }),
+    ...importFormElementPropertiesFromXMLToYAML(params),
   }
+}
+
+export function importFormElementPropertiesFromXMLToYAML(params: {
+  context: ConfigurationContextFromXML
+  rule: ElementRule & { itemType: CollectableElementType }
+  xml: ElementXML
+  name: string
+  traversal: DirectImportTraversal
+}): Record<string, unknown> | undefined {
+  return importPropertiesFromXMLToYAML({
+    context: params.context,
+    rule: params.rule,
+    xml: params.xml,
+    itemName: params.name,
+    yamlPath: params.traversal.yamlPath,
+    rulePath: enterNestedYamlRule(params.traversal, params.rule.itemType).rulePath,
+    collector: params.traversal.collector,
+  })
 }
 
 export function importSingleFormElementFromXMLToYAML(params: {

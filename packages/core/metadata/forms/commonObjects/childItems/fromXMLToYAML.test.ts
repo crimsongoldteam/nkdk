@@ -63,4 +63,44 @@ describe("importChildItemsFromXMLToYAML", () => {
       ])
     )
   })
+
+  it("не смешивает вид кнопки с видом элемента", () => {
+    const yaml = importChildItemsFromXMLToYAML({
+      context: mockContextFromXML(),
+      rule: { type: "GroupChildItems", yaml: "Элементы" },
+      xml: {
+        Button: {
+          _name: "Изменить",
+          Type: "Hyperlink",
+        },
+      },
+      traversal: {
+        yamlPath: ["Элементы"],
+        rulePath: [{ propertyKey: "childItems" }],
+        collector: createLocalIndexesCollector(),
+      },
+    })
+
+    expect(yaml).toEqual({
+      Изменить: {
+        Вид: "Кнопка",
+        ТипКнопки: "Гиперссылка",
+      },
+    })
+  })
+
+  it("не записывает тип обычной кнопки как вид элемента", () => {
+    const yaml = importChildItemsFromXMLToYAML({
+      context: mockContextFromXML(),
+      rule: { type: "GroupChildItems", yaml: "Элементы" },
+      xml: { Button: { _name: "ОК", Type: "UsualButton" } },
+      traversal: {
+        yamlPath: ["Элементы"],
+        rulePath: [{ propertyKey: "childItems" }],
+        collector: createLocalIndexesCollector(),
+      },
+    })
+
+    expect(yaml).toEqual({ ОК: { Вид: "Кнопка" } })
+  })
 })

@@ -18,10 +18,10 @@ import type { MetadataItemRule, PropertyRule } from "../orchestration/property/t
 import { createLocalIndexesCollector, type LocalIndexes } from "../project/localIndexes"
 import { configurationMetadataProjectSpec, metadataProjectSpecs } from "../project/specs"
 import type { ValidationProfiler } from "../validation/profile"
-import { registerValidationMetadata } from "../validation/registerValidationMetadata"
+import { registerOwnerFactCollectors } from "../validation/registerValidationMetadata"
 import type { ImportAssignment, ImportXmlInput } from "./types"
 
-registerValidationMetadata()
+registerOwnerFactCollectors()
 
 export interface PreparedImportYaml {
   assignment: ImportAssignment
@@ -80,7 +80,7 @@ export async function prepareImportYaml(params: {
     ) as ConfigurationContextFromXML
 
     const result = measureYaml(params.profiler, () => {
-      if (params.assignment.role === "fileItem" && params.assignment.targetProjectPath.endsWith(".yaml")) {
+      if (rule === ClientApplicationFormRules) {
         const metadataXML = requireMetadataXml(xmlInputs ?? [])
         const bodyXML = xmlInputs?.find(({ input }) => input.role === "body")?.parsed
         return importClientApplicationFormFromXMLToYAML({
@@ -125,10 +125,10 @@ export async function prepareImportYaml(params: {
 
 function resolveAssignmentRule(assignment: ImportAssignment): MetadataItemRule {
   if (assignment.role === "configuration") return configurationMetadataProjectSpec.rule
-  if (assignment.role === "fileItem" && assignment.targetProjectPath.endsWith(".yaml")) return ClientApplicationFormRules
   const rule = findRegisteredImportRule(assignment.itemType)
-  if (rule === undefined) throw new Error(`Не найдено правило подготовки XML-import для ${assignment.itemType}`)
-  return rule
+  if (rule !== undefined) return rule
+  if (assignment.role === "fileItem" && assignment.targetProjectPath.endsWith(".yaml")) return ClientApplicationFormRules
+  throw new Error(`Не найдено правило подготовки XML-import для ${assignment.itemType}`)
 }
 
 function buildOwnerContext(assignment: ImportAssignment, rule: MetadataItemRule): readonly MetadataItemOwnerContextEntry[] {

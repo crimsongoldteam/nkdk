@@ -131,7 +131,14 @@ describe("XML import worker first pass", () => {
     let lines: string[] = []
     process.env["NKDK_PROFILE"] = "1"
     try {
-      await runImportWorkerCommand({ kind: "firstPass", assignments: [catalogAssignment()] })
+      await initializeWorker(createTempDir("profile"))
+      const first = expectFirstPass(
+        await runImportWorkerCommand({ kind: "firstPass", assignments: [catalogAssignment()] })
+      )
+      await runImportWorkerCommand({
+        kind: "secondPass",
+        sharedMetadata: createImportSharedMetadata(first.ownerFacts),
+      })
       lines = error.mock.calls.map(([line]) => String(line))
     } finally {
       if (previous === undefined) delete process.env["NKDK_PROFILE"]
@@ -145,18 +152,22 @@ describe("XML import worker first pass", () => {
           line.includes("[nkdk-profile-step]") &&
           line.includes('operation="import-from-xml"') &&
           line.includes("scope=worker") &&
-          line.includes("worker=2") &&
+          line.includes("worker=0") &&
           line.includes('substep="Чтение XML"')
       )
     ).toBe(true)
     expect(lines.some((line) => line.includes("[nkdk-profile-step]") && line.includes('substep="Парсинг XML"'))).toBe(true)
     expect(lines.some((line) => line.includes('substep="Преобразование XML в YAML"'))).toBe(true)
     expect(lines.some((line) => line.includes('substep="Сбор локальных индексов"'))).toBe(true)
+    expect(lines.some((line) => line.includes('substep="Извлечение данных для индекса конфигурации"'))).toBe(true)
+    expect(lines.some((line) => line.includes('substep="Уточнение отложенных значений YAML"'))).toBe(true)
+    expect(lines.some((line) => line.includes('substep="Сериализация YAML"'))).toBe(true)
+    expect(lines.some((line) => line.includes('substep="Запись основного YAML-файла"'))).toBe(true)
     expect(lines.some((line) => line.includes('substep="Построение модели"'))).toBe(false)
     expect(lines.some((line) => line.includes('substep="Экспорт модели в YAML-объект"'))).toBe(false)
   })
 
-  it("releases retained models on dispose", async () => {
+  it("releases retained YAML on dispose", async () => {
     await runImportWorkerCommand({ kind: "firstPass", assignments: [catalogAssignment()] })
 
     await runImportWorkerCommand({ kind: "dispose" })
@@ -192,7 +203,7 @@ describe("XML import worker second pass", () => {
     expect(workerStateForTests().preparedYamlIds).toEqual([])
   })
 
-  it("preserves an unresolved DataPath, returns one warning and releases the model", async () => {
+  it("preserves an unresolved DataPath, returns one warning and releases the YAML", async () => {
     const tempDir = createTempDir("worker")
     const assignments = createCatalogAndFormAssignments("Объект.НеизвестныйПереход.LineNumber")
     await initializeWorker(tempDir)
@@ -224,7 +235,7 @@ describe("XML import worker second pass", () => {
     expect(workerStateForTests().preparedYamlIds).toEqual([])
   })
 
-  it("continues after a YAML write error and releases every prepared model", async () => {
+  it("continues after a YAML write error and releases every prepared YAML", async () => {
     const tempDir = createTempDir("worker")
     const assignments = createCatalogAndFormAssignments("Объект.Товары.LineNumber")
     await initializeWorker(tempDir)

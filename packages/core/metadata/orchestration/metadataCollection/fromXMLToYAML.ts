@@ -47,7 +47,7 @@ export function importMetadataItemCollectionFromXMLToYAML(params: {
       params.yamlAsArray === true || keyYaml === undefined || params.recordYamlKeyFromYAML === undefined
         ? undefined
         : createBufferedItemCollector(params.traversal.collector, yamlPath)
-    const itemYaml = importMetadataItemFromXMLToYAML({
+    const itemYamlValue = importMetadataItemFromXMLToYAML({
       context: itemContext,
       rule: params.itemRule,
       xml: itemXml,
@@ -61,7 +61,11 @@ export function importMetadataItemCollectionFromXMLToYAML(params: {
         params.itemRule.itemType
       ),
     })
-    if (itemYaml === undefined) return []
+    if (itemYamlValue === undefined) return []
+    const itemYaml = asRecord(itemYamlValue)
+    if (itemYaml === undefined) {
+      throw new Error(`Элемент коллекции ${params.itemRule.itemType} должен преобразовываться в YAML-объект`)
+    }
     const name = itemName ?? String(index)
     const yamlKey =
       keyYaml === undefined

@@ -176,7 +176,7 @@ describe("importPropertiesFromXMLToYAML", () => {
   it.each([
     ["alias", { Alias: "x" }, { xml: "Value", xmlAliases: ["Alias"], yaml: "Значение" }, "x"],
     ["parent", { Properties: { Value: "x" } }, { xml: "Value", xmlParents: ["Properties"], yaml: "Значение" }, "x"],
-    ["default", {}, { xml: "Value", yaml: "Значение", defaultValueXML: "x" }, "x"],
+    ["model default", {}, { xml: "Value", yaml: "Значение", defaultValue: "x" }, "x"],
     ["empty default", { Value: "" }, { xml: "Value", yaml: "Значение", defaultValueXMLEmpty: "x" }, ""],
   ])("preserves %s XML selection", (_name, xml, property, expected) => {
     expect(runSingleProperty(property, xml)).toEqual({ Значение: expected })

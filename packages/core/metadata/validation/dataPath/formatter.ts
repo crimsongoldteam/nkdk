@@ -28,6 +28,7 @@ export interface FormatDataPathStandardMembersParams {
 
 export function formatDataPathStandardMembers(params: FormatDataPathStandardMembersParams): string {
   const { prefix, value } = splitDisabledPrefix(params.value)
+  if (!value.includes(".")) return params.value
   const result = resolveDataPathCore({
     value,
     nameMode: params.direction === "yaml-to-internal" ? "yaml" : "internal",

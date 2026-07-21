@@ -10,11 +10,12 @@ import type {
   ElementType,
   ElementXML,
 } from "../../../orchestration/formElement/types"
+import { CollectableElementTypeToYAML } from "../../elements/orchestration/types"
 import type { ImportFromXMLToYAMLFunction } from "../../../orchestration/property/importYamlTypes"
 import { registerTypeRule } from "../../../orchestration/property/typeRuleRegistry"
-import { importFormElementFromXMLToYAML } from "../../elements/orchestration/fromXMLToYAML"
+import { importFormElementPropertiesFromXMLToYAML } from "../../elements/orchestration/fromXMLToYAML"
 import { resolveItemTypeFromXMLTag } from "./fromXML"
-import { childItemsTreePropertyTypes } from "./treeYAML"
+import { childItemsTreePropertyTypes, moveButtonTypeToTreeYAML } from "./treeYAML"
 
 export const importChildItemsFromXMLToYAML: ImportFromXMLToYAMLFunction = ({
   context,
@@ -47,7 +48,7 @@ export const importChildItemsFromXMLToYAML: ImportFromXMLToYAMLFunction = ({
       collection?.collector.setXmlId(logicalAddress, xmlValue._id)
     }
 
-    result[itemName] = importFormElementFromXMLToYAML({
+    const properties = importFormElementPropertiesFromXMLToYAML({
       context: itemContext,
       rule: getElementRule(itemType) as ElementRule & { itemType: CollectableElementType },
       xml: xmlValue,
@@ -57,6 +58,10 @@ export const importChildItemsFromXMLToYAML: ImportFromXMLToYAMLFunction = ({
         yamlPath: [...traversal.yamlPath, itemName],
       },
     })
+    result[itemName] = {
+      Вид: CollectableElementTypeToYAML[itemType],
+      ...moveButtonTypeToTreeYAML({ itemType, yaml: properties }),
+    }
   }
 
   return Object.keys(result).length === 0 ? undefined : result

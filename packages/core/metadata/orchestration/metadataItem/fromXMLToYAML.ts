@@ -3,6 +3,11 @@ import { importPropertiesFromXMLToYAML } from "../property/fromXMLToYAML"
 import type { DirectImportTraversal } from "../property/importYamlTypes"
 import { enterNestedYamlRule } from "../property/yamlRuleCursor"
 import type { MetadataItemRule } from "../property/types"
+import { findInlineProperty } from "./yamlInline"
+
+type InlineProperty = ReturnType<typeof findInlineProperty>
+
+const inlineProperties = new WeakMap<MetadataItemRule, InlineProperty | null>()
 
 export function importMetadataItemFromXMLToYAML(params: {
   context: ConfigurationContextFromXML
@@ -11,7 +16,7 @@ export function importMetadataItemFromXMLToYAML(params: {
   name?: string
   traversal: DirectImportTraversal
   propertyXML?: ReadonlyMap<string, unknown>
-}): Record<string, unknown> | undefined {
+}): unknown {
   const xmlRoot = Object.values(params.rule.properties).find(
     (propertyRule) => propertyRule.type === "XMLRoot" && typeof propertyRule.container === "string"
   )
@@ -19,8 +24,8 @@ export function importMetadataItemFromXMLToYAML(params: {
   const source = xmlRoot === undefined ? root : asRecord(root?.[xmlRoot.container])
   if (source === undefined) return undefined
 
-  return importPropertiesFromXMLToYAML({
-    context: params.context,
+  const yaml = importPropertiesFromXMLToYAML({
+    context: contextWithItemParent(params.context, params.name),
     rule: params.rule,
     xml: source,
     itemName: params.name,
@@ -29,6 +34,27 @@ export function importMetadataItemFromXMLToYAML(params: {
     collector: params.traversal.collector,
     propertyXML: params.propertyXML,
   })
+  const inline = findInlinePropertyCached(params.rule)
+  return inline === undefined ? yaml : yaml?.[inline.yamlKey]
+}
+
+function findInlinePropertyCached(rule: MetadataItemRule): InlineProperty {
+  const cached = inlineProperties.get(rule)
+  if (cached !== undefined) return cached ?? undefined
+  const inline = findInlineProperty(rule)
+  inlineProperties.set(rule, inline ?? null)
+  return inline
+}
+
+function contextWithItemParent(
+  context: ConfigurationContextFromXML,
+  name: string | undefined
+): ConfigurationContextFromXML {
+  if (name === undefined || context.exportToYAML === undefined) return context
+  return {
+    ...context,
+    exportToYAML: { ...context.exportToYAML, parent: { name } },
+  }
 }
 
 function asRecord(value: unknown): Record<string, unknown> | undefined {

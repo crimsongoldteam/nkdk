@@ -27,14 +27,16 @@ export const importFormAttributesFromXMLToYAML: ImportFromXMLToYAMLFunction = ({
       { ...traversal, yamlPath: [...traversal.yamlPath, name] },
       FormAttributeRules.itemType
     )
-    const yaml = importMetadataItemFromXMLToYAML({
+    const yamlValue = importMetadataItemFromXMLToYAML({
       context: itemContext,
       rule: FormAttributeRules,
       xml: item,
       name,
       traversal: itemTraversal,
     })
-    if (yaml === undefined) continue
+    if (yamlValue === undefined) continue
+    const yaml = asRecord(yamlValue)
+    if (yaml === undefined) throw new Error(`Реквизит формы ${name} должен преобразовываться в YAML-объект`)
 
     const columns = importColumnsFromXMLToYAML({
       context: itemContext,

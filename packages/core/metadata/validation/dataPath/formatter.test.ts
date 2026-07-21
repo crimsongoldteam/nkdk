@@ -11,6 +11,24 @@ import type { OwnerMetadata, OwnerMetadataCache, OwnerMetadataResult } from "./o
 import { createValidationOwnerFacts } from "./ownerFacts"
 
 describe("formatDataPathStandardMembers", () => {
+  it("keeps a single local segment without resolving it", () => {
+    const diagnostics: unknown[] = []
+
+    expect(
+      formatDataPathStandardMembers({
+        value: "Реквизит",
+        direction: "internal-to-yaml",
+        index: indexWithAttributes([]),
+        ownerCache: ownerCache([]),
+        diagnosticSink: {
+          targetProjectPath: "Форма.yaml",
+          append: (diagnostic) => diagnostics.push(diagnostic),
+        },
+      })
+    ).toBe("Реквизит")
+    expect(diagnostics).toEqual([])
+  })
+
   it("keeps ValueTable columns unchanged in both directions", () => {
     const index = indexWithAttributes([
       attribute("Список", { type: ["ValueTable"] }, [column("Код", { type: ["string"] })]),

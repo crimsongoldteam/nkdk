@@ -29,6 +29,23 @@ describe("importMetadataItemFromXMLToYAML", () => {
     expect(result.yaml).toEqual({ Дочерний: { Имя: "A", Включено: "Истина" } })
     expect(result.yaml).not.toHaveProperty("child")
   })
+
+  it("returns the inline YAML property without its service wrapper", () => {
+    const inlineRule = {
+      itemType: "TestInline",
+      properties: {
+        items: { type: "string", xml: "Value", yaml: "items", yamlInline: true },
+      },
+    } as MetadataItemRule
+    registerMetadataItemRule({ propertyType: "TestInline" as PropertyRuleType, itemRule: inlineRule })
+
+    const result = runDirectRule(
+      { itemType: "TestOwner", properties: { inline: { type: "TestInline", xml: "Inline", yaml: "Значение" } } },
+      { Inline: { Value: "payload" } }
+    )
+
+    expect(result.yaml).toEqual({ Значение: "payload" })
+  })
 })
 
 function runDirectRule(rule: MetadataItemRule, xml: Record<string, unknown>) {

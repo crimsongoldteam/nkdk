@@ -16,6 +16,7 @@ import type { ImportAssignment } from "./types"
 const configurationFixturesDir = join(import.meta.dirname, "../appliedObjects/configuration/__fixtures__")
 const syncXmlDir = join(configurationFixturesDir, "syncConfiguration/xml")
 const catalogSyncFixtureDir = join(import.meta.dirname, "../appliedObjects/metadataCatalog/__fixtures__/sync/xml")
+const subsystemFixturePath = join(import.meta.dirname, "../appliedObjects/metadataSubsystem/__fixtures__/full.xml")
 
 afterEach(() => {
   vi.restoreAllMocks()
@@ -34,12 +35,40 @@ describe("prepareImportYaml", () => {
 
     expect(prepared.assignment).toBe(assignment)
     expect(prepared.targetProjectPath).toBe("Справочник/Контрагенты/Свойства.yaml")
-    expect(prepared.yaml).toMatchObject({ ДлинаКода: 9, ДлинаНаименования: 25 })
+    expect(prepared.yaml).toMatchObject({ Синоним: "Контрагенты справочник" })
     expect(prepared.localIndexes).toEqual(expect.any(Object))
     expect(prepared).not.toHaveProperty("model")
     expect(prepared).not.toHaveProperty("xml")
     expect(prepared.generatedFiles).toEqual([])
     expect(writeFile).not.toHaveBeenCalled()
+  })
+
+  it("prepares a nested file item through its registered metadata rule", async () => {
+    const assignment: ImportAssignment = {
+      id: "nested-subsystem",
+      role: "fileItem",
+      targetProjectPath: "Подсистема/Родитель/Подсистемы/Дочерняя/Свойства.yaml",
+      itemType: "MetadataSubsystem",
+      itemName: "ПодсистемаПолная",
+      logicalAddress: "Подсистема.Родитель.MetadataSubsystem.ПодсистемаПолная",
+      owner: {
+        itemType: "MetadataSubsystem",
+        name: "Родитель",
+        logicalAddress: "Подсистема.Родитель",
+      },
+      xmlFiles: [{ role: "metadata", sourcePath: subsystemFixturePath }],
+      externalFiles: [],
+    }
+
+    const prepared = await prepareImportYaml({
+      assignment,
+      context: mockContextFromXML(),
+      collector: createConfigurationIndexCollector(),
+    })
+
+    expect(prepared.rule.itemType).toBe("MetadataSubsystem")
+    expect(prepared.yaml).toEqual(expect.any(Object))
+    expect(prepared.localIndexes.metadata.formDataPathIndex).toBeUndefined()
   })
 
   it("reuses registered import rules between assignments of the same item type", async () => {
