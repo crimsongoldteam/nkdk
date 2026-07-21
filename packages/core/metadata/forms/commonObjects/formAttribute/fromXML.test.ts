@@ -5,8 +5,10 @@ import {
   minimalFormAttributes,
   multipleFormAttributes,
   tableWithColumnsFormAttribute,
+  tableWithColumnsFormAttributeYAML,
   treeWithColumnFormAttribute,
   withAdditionalColumnFormAttribute,
+  withAdditionalColumnFormAttributeYAML,
   withEmptySettingsFormAttribute,
   withoutTypeFormAttribute,
 } from "./__fixtures__/legacy/data"
@@ -29,10 +31,50 @@ import { importFormAttributesFromXML } from "./fromXML"
 import { FormAttributesXML } from "./types"
 import { createConfigurationIndexCollector } from "../../../configurationIndex/collector/writer"
 import { withConfigurationIndexCollector } from "../../../configurationIndex/collector/context"
+import { createLocalIndexesCollector } from "../../../project/localIndexes"
+import { getTypeRule } from "../../../orchestration/property/typeRuleRegistry"
 
 const formAttributesRule = { type: "FormAttributes", xml: "Attribute" } as const
 
 describe("importFormAttributesFromXML", () => {
+  it("импортирует таблицу с колонками напрямую в YAML", () => {
+    const direct = getTypeRule("FormAttributes", "importFromXMLToYAML")
+    if (direct === undefined) throw new Error("FormAttributes direct converter is not registered")
+    const xml = readAndParseXMLFile<{ Attribute: FormAttributesXML }>("formAttributes/tableWithColumns.xml")
+
+    expect(
+      direct({
+        context: { ...mockContextFromXML(), exportToYAML: { toTyped: true } },
+        rule: { type: "FormAttributes", yaml: "Реквизиты", xml: "Attribute" },
+        xml,
+        traversal: {
+          yamlPath: ["Реквизиты"],
+          rulePath: [{ propertyKey: "attributes" }],
+          collector: createLocalIndexesCollector(),
+        },
+      })
+    ).toEqual(tableWithColumnsFormAttributeYAML)
+  })
+
+  it("импортирует дополнительные колонки напрямую в YAML", () => {
+    const direct = getTypeRule("FormAttributes", "importFromXMLToYAML")
+    if (direct === undefined) throw new Error("FormAttributes direct converter is not registered")
+    const xml = readAndParseXMLFile<{ Attribute: FormAttributesXML }>("formAttributes/additionalColumn.xml")
+
+    expect(
+      direct({
+        context: { ...mockContextFromXML(), exportToYAML: { toTyped: true } },
+        rule: { type: "FormAttributes", yaml: "Реквизиты", xml: "Attribute" },
+        xml,
+        traversal: {
+          yamlPath: ["Реквизиты"],
+          rulePath: [{ propertyKey: "attributes" }],
+          collector: createLocalIndexesCollector(),
+        },
+      })
+    ).toEqual(withAdditionalColumnFormAttributeYAML)
+  })
+
   it("should return undefined when data is undefined", () => {
     const result = importFormAttributesFromXML(mockContextFromXML(), mockRule, undefined)
     expect(result).toBeUndefined()

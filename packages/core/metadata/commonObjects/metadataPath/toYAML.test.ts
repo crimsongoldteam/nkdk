@@ -9,6 +9,11 @@ import "../../appliedObjects/dataPathCommon/register"
 import "../../appliedObjects/metadataCatalog/register"
 import { exportDataPathStandardMembersToYAML } from "./dataPathStandardMembers"
 import { exportMetadataFieldStringToYAML, exportMetadataValueStringToYAML } from "./toYAML"
+import { getTypeRule } from "../../orchestration/property/typeRuleRegistry"
+import { createFormDataPathIndexCollector } from "../../validation/dataPath/formYamlIndex"
+import { createOwnerMetadataCache } from "../../validation/dataPath/ownerCache"
+import { createProjectYamlCache } from "../../validation/projectYamlCache"
+import type { DataPathFormatDiagnostic } from "../../validation/dataPath/formatter"
 
 const dirs: string[] = []
 
@@ -70,7 +75,76 @@ describe("exportDataPathStandardMembersToYAML", () => {
   test("preserves disabled data path prefix", () => {
     expect(exportDataPathStandardMembersToYAML(catalogContext(), "~Список.Owner")).toBe("~Список.Владелец")
   })
+
+  test("уточняет импортированный DataPath по готовому индексу формы", () => {
+    const { context, index } = directImportDataPathContext()
+    const finalize = getTypeRule("DataPath", "finalizeImportedYAML")
+    if (finalize === undefined) throw new Error("DataPath finalizer is not registered")
+
+    expect(
+      finalize({
+        context,
+        rule: { type: "DataPath", yaml: "ПутьКДанным" },
+        value: "Объект.Товары.LineNumber",
+        formDataPathIndex: index,
+      })
+    ).toBe("Объект.Товары.НомерСтроки")
+  })
+
+  test("сохраняет неразрешимый DataPath и сообщает о нём один раз", () => {
+    const diagnostics: DataPathFormatDiagnostic[] = []
+    const { context, index } = directImportDataPathContext(diagnostics)
+    const finalize = getTypeRule("DataPath", "finalizeImportedYAML")
+    if (finalize === undefined) throw new Error("DataPath finalizer is not registered")
+
+    expect(
+      finalize({
+        context,
+        rule: { type: "DataPath", yaml: "ПутьКДанным" },
+        value: "Объект.НеизвестноеПоле",
+        formDataPathIndex: index,
+      })
+    ).toBe("Объект.НеизвестноеПоле")
+    expect(diagnostics).toHaveLength(1)
+  })
 })
+
+function directImportDataPathContext(diagnostics?: DataPathFormatDiagnostic[]): {
+  context: ConfigurationContext
+  index: ReturnType<ReturnType<typeof createFormDataPathIndexCollector>["finish"]>
+} {
+  const projectDir = catalogProjectDir()
+  const collector = createFormDataPathIndexCollector({ filePath: "Формы/Форма.yaml" })
+  collector.acceptProperty({
+    yamlPath: ["Реквизиты", "Объект", "Тип"],
+    rulePath: [],
+    rule: { type: "TypeDescription", yaml: "Тип" },
+    value: "СправочникОбъект.Контрагенты",
+  })
+  const context: ConfigurationContext = {
+    ...mockContext,
+    exportToYAML: {
+      toTyped: false,
+      projectDir,
+      ownerMetadataCache: createOwnerMetadataCache({
+        projectDir,
+        yamlCache: createProjectYamlCache(),
+        context: mockContext,
+      }),
+      ...(diagnostics === undefined
+        ? {}
+        : {
+            dataPathDiagnosticSink: {
+              targetProjectPath: "Формы/Форма.yaml",
+              append(diagnostic: DataPathFormatDiagnostic) {
+                diagnostics.push(diagnostic)
+              },
+            },
+          }),
+    },
+  }
+  return { context, index: collector.finish() }
+}
 
 function catalogContext(): ConfigurationContext {
   const projectDir = catalogProjectDir()

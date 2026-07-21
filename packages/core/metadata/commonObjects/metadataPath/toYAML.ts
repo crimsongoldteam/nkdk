@@ -5,7 +5,10 @@ import type { ConfigurationContext } from "../../context/types"
 import { registerTypeRule } from "../../orchestration/property/typeRuleRegistry"
 import type { ExportToYAMLFunctionNew } from "../../orchestration/property/fn"
 import type { PropertyRule } from "../../orchestration/property/types"
-import { exportDataPathStandardMembersToYAML } from "./dataPathStandardMembers"
+import {
+  exportDataPathStandardMembersToYAML,
+  formatDataPathStandardMembersWithIndex,
+} from "./dataPathStandardMembers"
 
 const metadataObjectTargetFallback = { kind: "object" } as const satisfies MetadataTargetConstraint
 const metadataFieldTargetFallback = { kind: "member", owner: "explicit" } as const satisfies MetadataTargetConstraint
@@ -102,3 +105,17 @@ const exportDataPathToYAML: ExportToYAMLFunctionNew = ({ context, value }) => {
 }
 
 registerTypeRule("DataPath", "exportToYAML", exportDataPathToYAML)
+registerTypeRule("DataPath", "finalizeImportedYAML", ({ context, value, formDataPathIndex }) => {
+  if (typeof value !== "string" || formDataPathIndex === undefined) return value
+  const ownerCache = context.exportToYAML?.ownerMetadataCache
+  if (ownerCache === undefined) return value
+  return formatDataPathStandardMembersWithIndex({
+    value,
+    direction: "internal-to-yaml",
+    index: formDataPathIndex,
+    ownerCache,
+    ...(context.exportToYAML?.dataPathDiagnosticSink === undefined
+      ? {}
+      : { diagnosticSink: context.exportToYAML.dataPathDiagnosticSink }),
+  })
+})

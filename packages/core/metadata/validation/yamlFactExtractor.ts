@@ -1,7 +1,6 @@
 import { parseMetadataTargetFromYAML } from "../commonObjects/metadataTargets"
 import { rootFromYAML } from "../commonObjects/metadataTargets/roots"
 import type { MetadataTargetOwner, ParsedMetadataTarget } from "../commonObjects/metadataTargets/types"
-import { getTypeFromYAML } from "../commonObjects/typeDescription/helper"
 import type { TypeDescription } from "../commonObjects/typeDescription/types"
 import { CollectableElementTypeFromYAML, type ElementType } from "../forms/elements/orchestration/types"
 import { ClientApplicationFormRules } from "../forms/clientApplicationForm/rules"
@@ -13,8 +12,8 @@ import type { YamlRuleCursor } from "../orchestration/property/importYamlTypes"
 import { CommonAttributeUseFromYAML, PictureLibFromYAML, type CommonAttributeUseYAML } from "../systemEnumerations/types"
 import type { ParsedYaml } from "../../yaml/parseMetadataYaml"
 import { typeDescriptionToDataPathTypeInfo } from "./dataPath/typeDescription"
+import { createFormDataPathIndexCollector, typeDescriptionFromYAML } from "./dataPath/formYamlIndex"
 import type { FormDataPathIndex } from "./dataPath/formIndex"
-import type { FormDataPathSource, FormDataPathColumnSource } from "./dataPath/types"
 import { buildObjectFieldIndex, type ObjectField, type ObjectFieldIndex } from "./dataPath/objectFields"
 import {
   projectMemberIndexKey,
@@ -659,99 +658,46 @@ function extractFormYamlFacts(file: ValidationProjectFile, parsed: ParsedYaml): 
 }
 
 function buildFormDataPathIndexFromYaml(params: { filePath: string; parsed: ParsedYaml }): FormDataPathIndex {
-  const roots = new Map<string, FormDataPathSource>()
-  const additionalColumnsByTablePath = new Map<string, Map<string, FormDataPathColumnSource>>()
-  const duplicateDiagnostics: Diagnostic[] = []
-  const seenNames = new Map<string, number>()
+  const collector = createFormDataPathIndexCollector({ filePath: params.filePath })
   const attributes = asRecord(asRecord(params.parsed.data)?.["Реквизиты"])
 
   for (const [name, value] of Object.entries(attributes ?? {})) {
-    const occurrence = (seenNames.get(name) ?? 0) + 1
-    seenNames.set(name, occurrence)
-    if (roots.has(name)) {
-      duplicateDiagnostics.push(
-        diagnosticAtYamlPath({
-          filePath: params.filePath,
-          parsed: params.parsed,
-          path: ["Реквизиты", name],
-          severity: "error",
-          source: "structure",
-          message: `Дублируется реквизит формы "${name}"`,
-        })
-      )
-      continue
-    }
-
     const attribute = asRecord(value)
-    addAdditionalColumnsFromYaml({
-      additionalColumnsByTablePath,
-      value: attribute?.["ДополнительныеКолонки"],
-    })
-    const typeInfo =
-      attribute?.["ДинамическийСписок"] !== undefined
-        ? {
-            kinds: ["dynamicList", "tableSource"] as const,
-            nextTypes: [],
-            table: { kind: "DynamicList" as const },
-            sourceText: "DynamicList",
-          }
-        : typeDescriptionToDataPathTypeInfo(typeDescriptionFromYAML(attribute?.["Тип"]))
-    const tableSource =
-      typeInfo.table === undefined
-        ? undefined
-        : {
-            table: typeInfo.table,
-            columns: columnsFromYaml(attribute?.["Колонки"]),
-            hasColumns: typeInfo.table.kind !== "ValueTable" || columnsFromYaml(attribute?.["Колонки"]).size > 0,
-          }
-
-    roots.set(name, {
-      kind: "formAttribute",
-      name,
-      typeInfo,
-      ...(tableSource === undefined ? {} : { tableSource }),
-    })
+    acceptFormIndexValue(collector, ["Реквизиты", name, "Тип"], attribute?.["Тип"])
+    if (attribute?.["ДинамическийСписок"] !== undefined) {
+      acceptFormIndexValue(collector, ["Реквизиты", name, "ДинамическийСписок"], true)
+    }
+    for (const [columnName, column] of Object.entries(asRecord(attribute?.["Колонки"]) ?? {})) {
+      acceptFormIndexValue(
+        collector,
+        ["Реквизиты", name, "Колонки", columnName, "Тип"],
+        asRecord(column)?.["Тип"]
+      )
+    }
+    if (attribute?.["ДополнительныеКолонки"] !== undefined) {
+      acceptFormIndexValue(
+        collector,
+        ["Реквизиты", name, "ДополнительныеКолонки"],
+        attribute["ДополнительныеКолонки"]
+      )
+    }
   }
 
-  return {
-    roots,
-    additionalColumnsByTablePath,
-    duplicateDiagnostics,
-    getRoot(name) {
-      return roots.get(name)
-    },
-  }
+  return collector.finish()
 }
 
-function addAdditionalColumnsFromYaml(params: {
-  additionalColumnsByTablePath: Map<string, Map<string, FormDataPathColumnSource>>
+function acceptFormIndexValue(
+  collector: ReturnType<typeof createFormDataPathIndexCollector>,
+  yamlPath: readonly (string | number)[],
   value: unknown
-}): void {
-  const groups = asRecord(params.value)
-  for (const [tablePath, columns] of Object.entries(groups ?? {})) {
-    params.additionalColumnsByTablePath.set(normalizeIndexedPath(tablePath), columnsFromYaml(columns))
-  }
-}
-
-function columnsFromYaml(value: unknown): Map<string, FormDataPathColumnSource> {
-  const result = new Map<string, FormDataPathColumnSource>()
-  const columns = asRecord(value)
-  for (const [name, column] of Object.entries(columns ?? {})) {
-    result.set(name, {
-      name,
-      typeInfo: typeDescriptionToDataPathTypeInfo(typeDescriptionFromYAML(asRecord(column)?.["Тип"])),
-    })
-  }
-  return result
-}
-
-function normalizeIndexedPath(path: string): string {
-  return path.split(".").map(segmentLookupName).join(".")
-}
-
-function segmentLookupName(segment: string): string {
-  const match = /^(?<name>.+)\[(?<index>\d+)\]$/.exec(segment)
-  return match?.groups?.name ?? segment
+): void {
+  if (value === undefined) return
+  collector.acceptProperty({
+    yamlPath,
+    rulePath: [],
+    rule: { type: "ValidationFormIndex" as never, yaml: String(yamlPath.at(-1)) },
+    value,
+  })
 }
 
 function collectFormPendingChecks(params: {
@@ -925,29 +871,6 @@ function elementTypeFromYaml(value: unknown, tableContext: { dataPath: string } 
 
 function isDataPathRule(rule: PropertyRule): rule is DataPathPropertyRule {
   return rule.type === "DataPath"
-}
-
-function typeDescriptionFromYAML(value: unknown): TypeDescription | undefined {
-  const values = Array.isArray(value) ? value : [value]
-  const types = values
-    .filter((item): item is string => typeof item === "string" && item.trim().length > 0)
-    .map((item) => {
-      const dotIndex = item.indexOf(".")
-      const base = dotIndex === -1 ? item : item.slice(0, dotIndex)
-      const detail = dotIndex === -1 ? undefined : item.slice(dotIndex + 1)
-      const type = getTypeFromYAML(base)
-      return type === undefined ? primitiveTypeFromYaml(item) : detail === undefined ? type : `${type}.${detail}`
-    })
-  return types.length === 0 ? undefined : { type: types }
-}
-
-function primitiveTypeFromYaml(value: string): string {
-  const base = value.replace(/\(.+\)$/, "")
-  if (base === "Строка" || base === "ФиксированнаяСтрока") return "string"
-  if (base === "Число" || base === "ПоложительноеЧисло") return "decimal"
-  if (value === "Булево") return "boolean"
-  if (value === "Дата" || value === "Время" || value === "ДатаВремя") return "dateTime"
-  return value
 }
 
 function valueAtPath(value: Record<string, unknown>, path: readonly string[]): unknown {

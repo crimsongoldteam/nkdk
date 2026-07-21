@@ -1,5 +1,6 @@
 import type { DeferredImportedYamlValue, LocalYamlFact } from "../orchestration/property/importYamlTypes"
 import { getTypeRule } from "../orchestration/property/typeRuleRegistry"
+import type { FormDataPathIndex } from "../validation/dataPath/formIndex"
 
 export interface LocalMetadataEvent {
   kind: "property" | "complete"
@@ -11,6 +12,7 @@ export interface LocalMetadataEvent {
 
 export interface LocalMetadataIndex {
   events: LocalMetadataEvent[]
+  formDataPathIndex?: FormDataPathIndex
 }
 export type LocalDependencyIndex = DeferredImportedYamlValue[]
 
