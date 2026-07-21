@@ -6,6 +6,11 @@ export {
   type ImportCoordinatorDependencies,
 } from "./importConfiguration"
 export { describeRegisteredXmlImportRoutes, expandImportPattern, matchImportPattern } from "./routes"
+export {
+  createXmlImportWorkerPoolHandle,
+  type XmlImportWorkerPool,
+  type XmlImportWorkerPoolHandle,
+} from "./workerPool"
 export type {
   ImportAssignment,
   ImportAssignmentRole,

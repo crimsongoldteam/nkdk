@@ -1,4 +1,5 @@
 import type { Diagnostic } from "../validation/types"
+import type { PreparedYamlProjectWorkerPool } from "../project/preparedYamlProjectWorkerPool"
 
 export type MetadataNamedChildKind =
   | "attribute"
@@ -58,12 +59,14 @@ export interface RenameMetadataItemParams {
   newName: string
   allowWrite?: boolean
   now?: Date
+  preparedYamlProjectPool?: PreparedYamlProjectWorkerPool
 }
 
 export interface FindMetadataReferencesParams {
   projectDir: string
   path: string
   allowWrite?: boolean
+  preparedYamlProjectPool?: PreparedYamlProjectWorkerPool
 }
 
 export interface MetadataOperationFailure {

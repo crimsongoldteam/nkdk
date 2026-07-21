@@ -7,7 +7,7 @@ import {
   resetProjectValidationReadCountForTests,
 } from "../validation/projectValidationPasses"
 import { createProjectYamlCacheFromPreparedFiles } from "../validation/projectYamlCache"
-import { prepareYamlProject } from "./preparedYamlProject"
+import { prepareYamlProjectWithPool } from "./preparedYamlProject"
 import type { PreparedYamlProjectWorkerTask } from "./preparedYamlProjectWorker"
 import {
   createPreparedYamlProjectWorkerPool,
@@ -19,6 +19,9 @@ describe("prepareYamlProject", () => {
   const validationContext = { version: "2.20", defaultLanguage: "ru", exportToYAML: { toTyped: false } } as const
   const tempDirs: string[] = []
   const validationPool = createPreparedYamlProjectWorkerPool({ concurrency: 1 })
+  const preparePool1 = createPreparedYamlProjectWorkerPool({ concurrency: 1 })
+  const preparePool2 = createPreparedYamlProjectWorkerPool({ concurrency: 2 })
+  const preparePool4 = createPreparedYamlProjectWorkerPool({ concurrency: 4 })
 
   beforeAll(async () => {
     const projectDir = createProject()
@@ -40,7 +43,7 @@ describe("prepareYamlProject", () => {
   }, 120_000)
 
   afterAll(async () => {
-    await validationPool.close()
+    await Promise.all([validationPool.close(), preparePool1.close(), preparePool2.close(), preparePool4.close()])
   })
 
   afterEach(() => {
@@ -58,13 +61,28 @@ describe("prepareYamlProject", () => {
     return projectDir
   }
 
+  function prepareProject(params: {
+    projectDir: string
+    concurrency?: 1 | 2 | 4
+    includeYamlData?: boolean
+    resourceInclude?: "all" | "yaml"
+  }) {
+    const pool = params.concurrency === 4 ? preparePool4 : params.concurrency === 2 ? preparePool2 : preparePool1
+    return prepareYamlProjectWithPool({
+      projectDir: params.projectDir,
+      context: validationContext,
+      pool,
+      includeYamlData: params.includeYamlData,
+      resourceInclude: params.resourceInclude,
+    })
+  }
+
   it(
     "prepares whole project and uses projectPath as YAML key without source text",
     async () => {
       const projectDir = createProject()
-      const result = await prepareYamlProject({
+      const result = await prepareProject({
         projectDir,
-        context: { version: "2.20", defaultLanguage: "ru", exportToYAML: { toTyped: false } },
         concurrency: 2,
       })
 
@@ -97,9 +115,8 @@ describe("prepareYamlProject", () => {
     "can prepare project without returning parsed YAML data to the main thread",
     async () => {
       const projectDir = createProject()
-      const result = await prepareYamlProject({
+      const result = await prepareProject({
         projectDir,
-        context: { version: "2.20", defaultLanguage: "ru", exportToYAML: { toTyped: false } },
         concurrency: 2,
         includeYamlData: false,
       })
@@ -129,9 +146,8 @@ describe("prepareYamlProject", () => {
       process.env["NKDK_VALIDATION_TIMING"] = "1"
       try {
         const projectDir = createProject()
-        const result = await prepareYamlProject({
+        const result = await prepareProject({
           projectDir,
-          context: { version: "2.20", defaultLanguage: "ru", exportToYAML: { toTyped: false } },
           concurrency: 1,
         })
 
@@ -161,9 +177,8 @@ describe("prepareYamlProject", () => {
     "keeps one partition per worker even when some workers receive no YAML files",
     async () => {
       const projectDir = createProject()
-      const result = await prepareYamlProject({
+      const result = await prepareProject({
         projectDir,
-        context: { version: "2.20", defaultLanguage: "ru", exportToYAML: { toTyped: false } },
         concurrency: 4,
       })
 
@@ -183,9 +198,8 @@ describe("prepareYamlProject", () => {
       const projectDir = createProject()
       writeFileSync(join(projectDir, "Справочник", "Товары", "МодульМенеджера.bsl"), "Процедура Тест()\nКонецПроцедуры\n")
 
-      const result = await prepareYamlProject({
+      const result = await prepareProject({
         projectDir,
-        context: { version: "2.20", defaultLanguage: "ru", exportToYAML: { toTyped: false } },
         concurrency: 1,
       })
 
@@ -213,9 +227,8 @@ describe("prepareYamlProject", () => {
       const projectDir = createProject()
       writeFileSync(join(projectDir, "Справочник", "Товары", "МодульМенеджера.bsl"), "Процедура Тест()\nКонецПроцедуры\n")
 
-      const result = await prepareYamlProject({
+      const result = await prepareProject({
         projectDir,
-        context: { version: "2.20", defaultLanguage: "ru", exportToYAML: { toTyped: false } },
         concurrency: 1,
         includeYamlData: false,
         resourceInclude: "yaml",
@@ -237,9 +250,8 @@ describe("prepareYamlProject", () => {
       const yamlPath = join(projectDir, "Справочник", "Товары", "Свойства.yaml")
       resetProjectValidationReadCountForTests()
 
-      const prepared = await prepareYamlProject({
+      const prepared = await prepareProject({
         projectDir,
-        context: { version: "2.20", defaultLanguage: "ru", exportToYAML: { toTyped: false } },
         concurrency: 1,
       })
 
@@ -321,9 +333,8 @@ describe("prepareYamlProject", () => {
         ["Реквизиты:", "  Товар:", "    Тип: Справочник.Товары"].join("\n")
       )
 
-      const result = await prepareYamlProject({
+      const result = await prepareProject({
         projectDir,
-        context: { version: "2.20", defaultLanguage: "ru", exportToYAML: { toTyped: false } },
         concurrency: 2,
       })
 

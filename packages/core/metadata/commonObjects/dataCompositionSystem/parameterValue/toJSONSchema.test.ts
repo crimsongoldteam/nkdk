@@ -14,7 +14,7 @@ const schemaFor = (rule: SettingsParameterValuePropertyRule) => {
 
   const schema = exportPropertyToJSONSchema({ context: mockContext, rule, value: undefined })
   if (schema === undefined) throw new Error("schema is undefined")
-  const compiled = compileValidationSchema(schema)
+  const compiled = compileValidationSchema(schema, { eagerFallback: true })
   compiledSchemas.set(cacheKey, compiled)
   return compiled
 }

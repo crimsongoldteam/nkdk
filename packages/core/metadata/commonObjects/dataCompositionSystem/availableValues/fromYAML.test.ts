@@ -1,5 +1,5 @@
 import { compileValidationSchema } from "./../../../validation/compileValidationSchema"
-import { describe, expect, it } from "vitest"
+import { beforeAll, describe, expect, it } from "vitest"
 import { importPropertyFromYAML } from "../../../orchestration"
 import { exportPropertyToJSONSchema } from "../../../orchestration/property/toJSONSchema"
 import { mockContext } from "../../../../tests/mockContext"
@@ -12,8 +12,19 @@ import {
 } from "./__fixtures__/data"
 
 const rule = { type: "DcsAvailableValues" } as const
+let compiledAvailableValuesSchema: ReturnType<typeof compileValidationSchema>
+
+function schemaFor() {
+  const schema = exportPropertyToJSONSchema({ context: mockContext, rule, value: undefined })
+  if (schema === undefined) throw new Error("DcsAvailableValues JSON Schema is not registered")
+  return compileValidationSchema(schema, { eagerFallback: true })
+}
 
 describe("import DcsAvailableValues from YAML", { timeout: 30_000 }, () => {
+  beforeAll(() => {
+    compiledAvailableValuesSchema = schemaFor()
+  })
+
   it("imports string values", () => {
     const result = importPropertyFromYAML({
       context: mockContext,
@@ -53,25 +64,19 @@ describe("import DcsAvailableValues from YAML", { timeout: 30_000 }, () => {
   })
 
   it("accepts string values in JSON Schema", () => {
-    const schema = exportPropertyToJSONSchema({ context: mockContext, rule, value: undefined })
-    if (schema === undefined) throw new Error("DcsAvailableValues JSON Schema is not registered")
-    const compiled = compileValidationSchema(schema)
+    const compiled = compiledAvailableValuesSchema
 
     expect(compiled.Check([{ Значение: '"Выставлен"', Представление: { ru: "Выставлен" } }])).toBe(true)
   })
 
   it("accepts absent values in JSON Schema", () => {
-    const schema = exportPropertyToJSONSchema({ context: mockContext, rule, value: undefined })
-    if (schema === undefined) throw new Error("DcsAvailableValues JSON Schema is not registered")
-    const compiled = compileValidationSchema(schema)
+    const compiled = compiledAvailableValuesSchema
 
     expect(compiled.Check([{}])).toBe(true)
   })
 
   it("rejects unsupported available value keys in JSON Schema", () => {
-    const schema = exportPropertyToJSONSchema({ context: mockContext, rule, value: undefined })
-    if (schema === undefined) throw new Error("DcsAvailableValues JSON Schema is not registered")
-    const compiled = compileValidationSchema(schema)
+    const compiled = compiledAvailableValuesSchema
 
     expect(compiled.Check([{ Значение: '"Выставлен"', НеизвестноеПоле: "x" }])).toBe(false)
   })

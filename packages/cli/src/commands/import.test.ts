@@ -1,7 +1,8 @@
 import { mkdirSync, mkdtempSync, readFileSync, rmSync, writeFileSync } from "fs"
 import { tmpdir } from "os"
 import { join } from "path"
-import { afterEach, beforeEach, describe, expect, it, vi } from "vitest"
+import { afterAll, afterEach, beforeEach, describe, expect, it, vi } from "vitest"
+import { createXmlImportWorkerPoolHandle, syncConfigurationFromXML } from "@nkdk/core"
 import { importConfiguration } from "./import"
 
 const singleValueEnumerationXML = `<?xml version="1.0" encoding="UTF-8"?>
@@ -46,8 +47,20 @@ const singleValueEnumerationXML = `<?xml version="1.0" encoding="UTF-8"?>
 </MetaDataObject>`
 
 describe("import command", () => {
+  const xmlImportWorkerPoolHandle = createXmlImportWorkerPoolHandle({ concurrency: 1 })
+  const importConfigurationForTest = (xmlDir: string, yamlDir: string) =>
+    importConfiguration(xmlDir, yamlDir, {
+      syncConfigurationFromXML(params) {
+        return syncConfigurationFromXML({ ...params, xmlImportWorkerPoolHandle })
+      },
+    })
+
   beforeEach(() => {
     process.exitCode = undefined
+  })
+
+  afterAll(async () => {
+    await xmlImportWorkerPoolHandle.close()
   })
 
   afterEach(() => {
@@ -66,7 +79,7 @@ describe("import command", () => {
     const stderrWrite = vi.spyOn(process.stderr, "write").mockImplementation(() => true)
 
     try {
-      await importConfiguration(xmlDir, yamlDir)
+      await importConfigurationForTest(xmlDir, yamlDir)
 
       expect(process.exitCode, JSON.stringify(stderrWrite.mock.calls)).not.toBe(1)
       const yaml = readFileSync(join(yamlDir, "Перечисление", "ВидыСервисовЭДО", "Свойства.yaml"), "utf-8")
@@ -75,7 +88,7 @@ describe("import command", () => {
     } finally {
       rmSync(projectDir, { recursive: true, force: true })
     }
-  })
+  }, 15_000)
 
   it("печатает диагностическую ошибку нового XML-import без падения", async () => {
     const projectDir = mkdtempSync(join(tmpdir(), "nkdk-cli-import-failure-"))
@@ -88,7 +101,7 @@ describe("import command", () => {
     const stderrWrite = vi.spyOn(process.stderr, "write").mockImplementation(() => true)
 
     try {
-      await expect(importConfiguration(xmlDir, yamlDir)).resolves.toBeUndefined()
+      await expect(importConfigurationForTest(xmlDir, yamlDir)).resolves.toBeUndefined()
 
       expect(process.exitCode).toBe(1)
       expect(stderrWrite).toHaveBeenCalledWith(expect.stringContaining("xml_import_assignment_failed"))

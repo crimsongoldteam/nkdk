@@ -22,6 +22,7 @@ import type { ImportAssignment, ImportDiagnostic, ImportResultFile } from "./typ
 import {
   createXmlImportWorkerPool,
   type XmlImportWorkerPool,
+  type XmlImportWorkerPoolHandle,
 } from "./workerPool"
 
 export interface ConfigurationImportResult {
@@ -40,6 +41,7 @@ export interface ImportConfigurationFromXmlParams {
   transferConcurrency?: number
   hashConcurrency?: number
   operationId?: string
+  xmlImportWorkerPoolHandle?: XmlImportWorkerPoolHandle
 }
 
 export interface ImportCoordinatorDependencies {
@@ -80,7 +82,9 @@ export async function importConfigurationFromXml(
 ): Promise<ConfigurationImportResult> {
   const operationId = params.operationId ?? randomUUID()
   const tempRoot = createImportTempRoot(params.outputDir, operationId)
-  const pool = deps.createWorkerPool({ concurrency: normalizeConcurrency(params.concurrency) })
+  const pool =
+    params.xmlImportWorkerPoolHandle?.createOperationPool() ??
+    deps.createWorkerPool({ concurrency: normalizeConcurrency(params.concurrency) })
   let warnings: ImportDiagnostic[] = []
 
   try {

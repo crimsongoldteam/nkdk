@@ -8,7 +8,7 @@ import type { MetadataItemRule } from "../orchestration/property/types"
 import type { PreparedYamlFile, PreparedYamlProject } from "../project/preparedYamlProject"
 import { discoverValidationProjectFiles, type ValidationProjectFile } from "../validation/projectFiles"
 import { resolveValidationProjectFile } from "../validation/projectFiles"
-import { validateProject } from "../validation/validateProject"
+import { validateProject, type ValidationWorkerPoolHandle } from "../validation/validateProject"
 import { parseMetadataYaml, type ParsedYaml } from "../../yaml/parseMetadataYaml"
 import type { YamlLocationIndex } from "../../yaml/locationIndex"
 import { defaultMetadataOperationsContext } from "./context"
@@ -38,12 +38,14 @@ export async function buildMetadataOperationSnapshot(params: {
   projectDir: string
   context?: ConfigurationContext
   requireValidProject: boolean
+  validationWorkerPoolHandle?: ValidationWorkerPoolHandle
 }): Promise<MetadataOperationSnapshotResult> {
   const projectDir = resolve(params.projectDir)
   const context = params.context ?? defaultMetadataOperationsContext()
 
   if (params.requireValidProject) {
-    const validation = await validateProject({ projectDir, context, concurrency: 1 })
+    const validation = await (params.validationWorkerPoolHandle?.validateProject({ projectDir, context }) ??
+      validateProject({ projectDir, context, concurrency: 1 }))
     const errors = validation.diagnostics.filter((diagnostic) => diagnostic.severity === "error")
     if (errors.length > 0) {
       return {

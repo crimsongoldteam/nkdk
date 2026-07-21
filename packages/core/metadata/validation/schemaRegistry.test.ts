@@ -20,6 +20,8 @@ const context = {
 
 const schemaCache = new Map<string, TSchema>()
 const compiledSchemaCache = new Map<string, ValidationSchemaValidator<TSchema>>()
+const graphCache = new Map<string, ReturnType<typeof exportJSONSchemaGraph>>()
+const compiledGraphCache = new Map<string, ValidationSchemaValidator<TSchema>>()
 
 function schemaForName(name: string, mode?: "externalRefs" | "inline"): TSchema {
   const cacheKey = `${name}:${mode ?? "externalRefs"}`
@@ -31,10 +33,65 @@ function schemaForName(name: string, mode?: "externalRefs" | "inline"): TSchema 
   return schema
 }
 
+function clientApplicationFormGraph(): ReturnType<typeof exportJSONSchemaGraph> {
+  const cacheKey = "ClientApplicationForm:withNestedChildItems"
+  const cached = graphCache.get(cacheKey)
+  if (cached !== undefined) return cached
+
+  const graph = exportJSONSchemaGraph({
+    context,
+    roots: [{ key: "form", name: "ClientApplicationForm", includeNestedChildItems: true }],
+  })
+  graphCache.set(cacheKey, graph)
+  return graph
+}
+
+function commonFormValidationGraph(): ReturnType<typeof exportJSONSchemaGraph> {
+  const cacheKey = "MetadataCommonForm:validationPropertyRefs"
+  const cached = graphCache.get(cacheKey)
+  if (cached !== undefined) return cached
+
+  const graph = exportJSONSchemaGraph({
+    context,
+    validationPropertyRefs: true,
+    roots: [{ key: "commonForm", name: "MetadataCommonForm" }],
+  })
+  graphCache.set(cacheKey, graph)
+  return graph
+}
+
+function compiledClientApplicationFormGraph(): ValidationSchemaValidator<TSchema> {
+  const cacheKey = "ClientApplicationForm:withNestedChildItems"
+  const cached = compiledGraphCache.get(cacheKey)
+  if (cached !== undefined) return cached
+
+  const graph = clientApplicationFormGraph()
+  const compiled = compileValidationSchema(graph.schemas, graph.roots.form!, {
+    inlineRefs: false,
+    eagerFallback: true,
+  })
+  compiledGraphCache.set(cacheKey, compiled)
+  return compiled
+}
+
+function eagerCompiledSchemaForName(name: string, mode?: "externalRefs" | "inline"): ValidationSchemaValidator<TSchema> {
+  const cacheKey = `eager:${name}:${mode ?? "externalRefs"}`
+  const cached = compiledSchemaCache.get(cacheKey)
+  if (cached !== undefined) return cached
+
+  const compiled = compileValidationSchema(schemaForName(name, mode), { eagerFallback: true })
+  compiledSchemaCache.set(cacheKey, compiled)
+  return compiled
+}
+
 describe("JSON Schema registry", { timeout: 60_000 }, () => {
   beforeAll(() => {
     compiledSchemaForName("InputField", "inline")
     compiledSchemaForName("TableInputField", "inline")
+    eagerCompiledSchemaForName("LabelDecoration", "inline")
+    compiledClientApplicationFormGraph()
+    schemaForName("ClientApplicationForm", "inline")
+    schemaForName("UsualGroup", "inline")
   }, 30_000)
 
   beforeEach(() => {
@@ -180,10 +237,7 @@ describe("JSON Schema registry", { timeout: 60_000 }, () => {
   })
 
   it("exports named schema graph with stable ids for referenced schemas", () => {
-    const graph = exportJSONSchemaGraph({
-      context,
-      roots: [{ key: "form", name: "ClientApplicationForm", includeNestedChildItems: true }],
-    })
+    const graph = clientApplicationFormGraph()
 
     expect(graph.roots.form).toMatchObject({
       type: "object",
@@ -206,10 +260,7 @@ describe("JSON Schema registry", { timeout: 60_000 }, () => {
   })
 
   it("exports child item refs with AJV discriminator in form graph", () => {
-    const graph = exportJSONSchemaGraph({
-      context,
-      roots: [{ key: "form", name: "ClientApplicationForm", includeNestedChildItems: true }],
-    })
+    const graph = clientApplicationFormGraph()
 
     for (const owner of ["UsualGroup", "Page", "Table", "CommandBar", "ButtonGroup"] as const) {
       const schema = graph.schemas[`nkdk://schema/${owner}`] as
@@ -229,10 +280,7 @@ describe("JSON Schema registry", { timeout: 60_000 }, () => {
   })
 
   it("exports appearance settings parameter values as refs in form graph", () => {
-    const graph = exportJSONSchemaGraph({
-      context,
-      roots: [{ key: "form", name: "ClientApplicationForm", includeNestedChildItems: true }],
-    })
+    const graph = clientApplicationFormGraph()
     const formAttributeJson = JSON.stringify(graph.schemas["nkdk://schema/FormAttribute"])
     const graphJson = JSON.stringify(graph)
     const visibilitySchemaName =
@@ -246,17 +294,8 @@ describe("JSON Schema registry", { timeout: 60_000 }, () => {
   })
 
   it("accepts dynamic list auto order marker in form graph", () => {
-    const graph = exportJSONSchemaGraph({
-      context,
-      roots: [{ key: "form", name: "ClientApplicationForm", includeNestedChildItems: true }],
-    })
-    const compiled = compileValidationSchema(graph.schemas, graph.roots.form!, {
-      inlineRefs: false,
-      eagerFallback: true,
-    })
-
     expect(
-      compiled.Check({
+      compiledClientApplicationFormGraph().Check({
         Реквизиты: {
           Список: {
             Тип: "ДинамическийСписок",
@@ -272,10 +311,7 @@ describe("JSON Schema registry", { timeout: 60_000 }, () => {
   })
 
   it("exports single form objects as refs in form graph", () => {
-    const graph = exportJSONSchemaGraph({
-      context,
-      roots: [{ key: "form", name: "ClientApplicationForm", includeNestedChildItems: true }],
-    })
+    const graph = clientApplicationFormGraph()
     const tableSchema = graph.schemas["nkdk://schema/Table"] as {
       properties?: {
         КонтекстноеМеню?: { $ref?: string }
@@ -326,11 +362,7 @@ describe("JSON Schema registry", { timeout: 60_000 }, () => {
   })
 
   it("uses validation refs only for reusable schemas", () => {
-    const graph = exportJSONSchemaGraph({
-      context,
-      validationPropertyRefs: true,
-      roots: [{ key: "commonForm", name: "MetadataCommonForm" }],
-    })
+    const graph = commonFormValidationGraph()
     const prefix = "nkdk://schema/validation/2.20/ru/"
     const commonForm = graph.roots.commonForm as { properties?: { Форма?: { $ref?: string } } }
     const clientForm = graph.schemas[`${prefix}ClientApplicationForm`] as {
@@ -363,11 +395,7 @@ describe("JSON Schema registry", { timeout: 60_000 }, () => {
   })
 
   it("exports reusable form property types as validation refs by default", () => {
-    const graph = exportJSONSchemaGraph({
-      context,
-      validationPropertyRefs: true,
-      roots: [{ key: "commonForm", name: "MetadataCommonForm" }],
-    })
+    const graph = commonFormValidationGraph()
     const prefix = "nkdk://schema/validation/2.20/ru/"
     const inputField = graph.schemas[`${prefix}InputField`] as {
       properties?: Record<string, { $ref?: string }>
@@ -388,11 +416,7 @@ describe("JSON Schema registry", { timeout: 60_000 }, () => {
   })
 
   it("keeps DataPath and Events inline in validation schemas", () => {
-    const graph = exportJSONSchemaGraph({
-      context,
-      validationPropertyRefs: true,
-      roots: [{ key: "commonForm", name: "MetadataCommonForm" }],
-    })
+    const graph = commonFormValidationGraph()
     const prefix = "nkdk://schema/validation/2.20/ru/"
     const clientForm = graph.schemas[`${prefix}ClientApplicationForm`] as {
       properties?: { События?: { $ref?: string } }
@@ -408,11 +432,7 @@ describe("JSON Schema registry", { timeout: 60_000 }, () => {
   })
 
   it("does not leave large reusable property schemas inline in InputField validation schema", () => {
-    const graph = exportJSONSchemaGraph({
-      context,
-      validationPropertyRefs: true,
-      roots: [{ key: "commonForm", name: "MetadataCommonForm" }],
-    })
+    const graph = commonFormValidationGraph()
     const prefix = "nkdk://schema/validation/2.20/ru/"
     const inputField = graph.schemas[`${prefix}InputField`] as {
       properties?: Record<string, unknown>
@@ -453,11 +473,8 @@ describe("JSON Schema registry", { timeout: 60_000 }, () => {
   })
 
   it("accepts value-based formatted title in label decoration schemas", () => {
-    const schema = exportJSONSchemaForSchemaName({ context, name: "LabelDecoration", mode: "inline" })
-    const compiled = compileValidationSchema(schema)
-
     expect(
-      compiled.Check({
+      eagerCompiledSchemaForName("LabelDecoration", "inline").Check({
         Вид: "Надпись",
         Заголовок: {
           Форматированный: "Истина",
@@ -634,7 +651,7 @@ function compiledSchemaForName(name: string, mode?: "externalRefs" | "inline"): 
   const cached = compiledSchemaCache.get(cacheKey)
   if (cached !== undefined) return cached
 
-  const compiled = compileValidationSchema(schemaForName(name, mode))
+  const compiled = compileValidationSchema(schemaForName(name, mode), { eagerFallback: true })
   compiledSchemaCache.set(cacheKey, compiled)
   return compiled
 }

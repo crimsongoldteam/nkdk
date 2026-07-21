@@ -1,11 +1,17 @@
 import { existsSync, mkdirSync, mkdtempSync, readFileSync, rmSync, writeFileSync } from "fs"
 import { tmpdir } from "os"
 import { join } from "path"
-import { afterEach, describe, expect, it } from "vitest"
+import { afterAll, afterEach, describe, expect, it } from "vitest"
+import { createPreparedYamlProjectWorkerPool } from "../project/preparedYamlProjectWorkerPool"
 import { renameMetadataItem } from "./renameItem"
 
 describe("renameMetadataItem", { timeout: 30_000 }, () => {
   const tempDirs: string[] = []
+  const preparedYamlProjectPool = createPreparedYamlProjectWorkerPool({ concurrency: 1 })
+
+  afterAll(async () => {
+    await preparedYamlProjectPool.close()
+  })
 
   afterEach(() => {
     for (const dir of tempDirs.splice(0)) rmSync(dir, { recursive: true, force: true })
@@ -35,6 +41,7 @@ describe("renameMetadataItem", { timeout: 30_000 }, () => {
       projectDir,
       path: "Справочник.Товары",
       newName: "Некорректное имя",
+      preparedYamlProjectPool,
     })
 
     expect(result).toMatchObject({ ok: false, code: "invalid_name" })
@@ -55,6 +62,7 @@ describe("renameMetadataItem", { timeout: 30_000 }, () => {
       projectDir,
       path: "Справочник.Товары",
       newName: "Номенклатура",
+      preparedYamlProjectPool,
     })
 
     expect(result).toMatchObject({
@@ -84,6 +92,7 @@ describe("renameMetadataItem", { timeout: 30_000 }, () => {
       newName: "КодПоставщика",
       allowWrite: true,
       now: new Date("2026-06-30T12:00:00.000Z"),
+      preparedYamlProjectPool,
     })
 
     expect(result).toMatchObject({
@@ -119,6 +128,7 @@ describe("renameMetadataItem", { timeout: 30_000 }, () => {
       newName: "Цена",
       allowWrite: true,
       now: new Date("2026-07-01T08:00:00.000Z"),
+      preparedYamlProjectPool,
     })
 
     expect(result).toMatchObject({
@@ -145,6 +155,7 @@ describe("renameMetadataItem", { timeout: 30_000 }, () => {
       projectDir,
       path: "Справочник.Товары.Реквизит.Артикул",
       newName: "артикул",
+      preparedYamlProjectPool,
     })
     expect(caseOnly).toMatchObject({ ok: true, mode: "plan" })
 
@@ -152,6 +163,7 @@ describe("renameMetadataItem", { timeout: 30_000 }, () => {
       projectDir,
       path: "Справочник.Товары.Реквизит.Артикул",
       newName: "код",
+      preparedYamlProjectPool,
     })
     expect(conflict).toMatchObject({ ok: false, code: "name_conflict" })
   })
@@ -168,6 +180,7 @@ describe("renameMetadataItem", { timeout: 30_000 }, () => {
       path: "Справочник.Товары.Форма.ФормаЭлемента",
       newName: "ФормаКарточки",
       allowWrite: true,
+      preparedYamlProjectPool,
     })
 
     expect(result).toMatchObject({ ok: true, mode: "applied", createdMigration: undefined })
@@ -196,6 +209,7 @@ describe("renameMetadataItem", { timeout: 30_000 }, () => {
       path: "ОбщаяКартинка.Состояния",
       newName: "Статусы",
       allowWrite: true,
+      preparedYamlProjectPool,
     })
 
     expect(result.ok).toBe(true)
@@ -220,6 +234,7 @@ describe("renameMetadataItem", { timeout: 30_000 }, () => {
       path: "Справочник.Товары.Реквизит.Артикул",
       newName: "Код",
       allowWrite: true,
+      preparedYamlProjectPool,
     })
 
     expect(result.ok).toBe(true)

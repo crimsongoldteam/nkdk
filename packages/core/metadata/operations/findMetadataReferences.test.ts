@@ -1,11 +1,17 @@
 import { existsSync, mkdirSync, mkdtempSync, readFileSync, rmSync, writeFileSync } from "fs"
 import { tmpdir } from "os"
 import { join } from "path"
-import { afterEach, describe, expect, it } from "vitest"
+import { afterAll, afterEach, describe, expect, it } from "vitest"
+import { createPreparedYamlProjectWorkerPool } from "../project/preparedYamlProjectWorkerPool"
 import { findMetadataReferences } from "./findMetadataReferences"
 
 describe("findMetadataReferences", { timeout: 30_000 }, () => {
   const tempDirs: string[] = []
+  const preparedYamlProjectPool = createPreparedYamlProjectWorkerPool({ concurrency: 1 })
+
+  afterAll(async () => {
+    await preparedYamlProjectPool.close()
+  })
 
   afterEach(() => {
     for (const dir of tempDirs.splice(0)) rmSync(dir, { recursive: true, force: true })
@@ -34,6 +40,7 @@ describe("findMetadataReferences", { timeout: 30_000 }, () => {
     const result = await findMetadataReferences({
       projectDir,
       path: "Справочник.Товары",
+      preparedYamlProjectPool,
     })
 
     expect(result).toMatchObject({ ok: true, mode: "plan", blockedReferences: [] })
@@ -46,6 +53,7 @@ describe("findMetadataReferences", { timeout: 30_000 }, () => {
     const result = await findMetadataReferences({
       projectDir,
       path: "Справочник.Товары",
+      preparedYamlProjectPool,
     })
 
     expect(result).toMatchObject({ ok: false, code: "validation_failed" })
@@ -59,6 +67,7 @@ describe("findMetadataReferences", { timeout: 30_000 }, () => {
     const result = await findMetadataReferences({
       projectDir,
       path: "Справочник.Товары",
+      preparedYamlProjectPool,
     })
 
     expect(result).toMatchObject({
@@ -83,6 +92,7 @@ describe("findMetadataReferences", { timeout: 30_000 }, () => {
     const result = await findMetadataReferences({
       projectDir,
       path: "Справочник.Товары",
+      preparedYamlProjectPool,
     })
 
     expect(result).toMatchObject({ ok: true, mode: "plan", blockedReferences: [] })
@@ -102,6 +112,7 @@ describe("findMetadataReferences", { timeout: 30_000 }, () => {
       projectDir,
       path: "Справочник.Товары.Реквизит.Артикул",
       allowWrite: true,
+      preparedYamlProjectPool,
     })
 
     expect(result).toMatchObject({ ok: true, mode: "plan", changedFiles: [], blockedReferences: [] })
@@ -120,6 +131,7 @@ describe("findMetadataReferences", { timeout: 30_000 }, () => {
       projectDir,
       path: "Справочник.Товары.Форма.ФормаЭлемента",
       allowWrite: true,
+      preparedYamlProjectPool,
     })
 
     expect(result).toMatchObject({ ok: true, mode: "plan", changedFiles: [], blockedReferences: [] })
@@ -145,6 +157,7 @@ describe("findMetadataReferences", { timeout: 30_000 }, () => {
     const result = await findMetadataReferences({
       projectDir,
       path: "ОбщаяКартинка.Состояния",
+      preparedYamlProjectPool,
     })
 
     expect(result).toMatchObject({
@@ -170,6 +183,7 @@ describe("findMetadataReferences", { timeout: 30_000 }, () => {
     const result = await findMetadataReferences({
       projectDir,
       path: "Справочник.Товары.Реквизит.Артикул",
+      preparedYamlProjectPool,
     })
 
     expect(result).toMatchObject({ ok: false, code: "references_found" })

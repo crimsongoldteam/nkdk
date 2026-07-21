@@ -5,11 +5,13 @@ import { afterAll, beforeAll, beforeEach, describe, expect, it } from "vitest"
 import { mockContextFromXML, mockContextToXML } from "../../../tests/mockContext"
 import { getXMLFixturePath, readXMLFileAsString } from "../../../tests/readAndParseXMLFile"
 import { importContentFromXML } from "../../../xml/import/importer"
+import { createPreparedYamlProjectWorkerPool } from "../../project/preparedYamlProjectWorkerPool"
 import { syncConfigurationFromXML } from "./convertFromXML"
 import { CONFIGURATION_XML_FILE, CONFIGURATION_YAML_FILE } from "./rootIO"
 import { planConfigurationToXMLMigrations, syncConfigurationToXML } from "./syncToXML"
 
 describe("sync configuration to XML", () => {
+  const preparedYamlProjectPool = createPreparedYamlProjectWorkerPool({ concurrency: 1 })
   const inputDir = getXMLFixturePath("sync/syncConfiguration/yaml")
   const referenceDir = getXMLFixturePath("sync/syncConfiguration/xml")
   const outputDir = getXMLFixturePath("sync/syncConfiguration/out-to-xml")
@@ -24,6 +26,13 @@ describe("sync configuration to XML", () => {
     expect(entries).toContain("Ext")
     expect(entries).not.toContain("ext")
   }
+  const syncConfigurationToXMLForTest = (
+    params: Omit<Parameters<typeof syncConfigurationToXML>[0], "preparedYamlProjectPool">
+  ) => syncConfigurationToXML({ ...params, preparedYamlProjectPool })
+
+  afterAll(async () => {
+    await preparedYamlProjectPool.close()
+  })
 
   beforeEach(() => {
     if (fs.existsSync(outputDir)) {
@@ -32,7 +41,7 @@ describe("sync configuration to XML", () => {
   })
 
   it("should read configuration from YAML and export to XML file in output dir", async () => {
-    await syncConfigurationToXML({
+    await syncConfigurationToXMLForTest({
       context: mockContextToXML(),
       inputDir,
       outputDir,
@@ -79,7 +88,7 @@ describe("sync configuration to XML", () => {
       )
       fs.writeFileSync(join(outDir, "Ext", "Unsupported.xml"), "<Unsupported/>", "utf-8")
 
-      const result = await syncConfigurationToXML({
+      const result = await syncConfigurationToXMLForTest({
         context: mockContextToXML(),
         inputDir: yamlDir,
         outputDir: outDir,
@@ -117,7 +126,7 @@ describe("sync configuration to XML", () => {
         "utf-8"
       )
 
-      const result = await syncConfigurationToXML({
+      const result = await syncConfigurationToXMLForTest({
         context: mockContextToXML(),
         inputDir: yamlDir,
         outputDir: outDir,
@@ -143,7 +152,7 @@ describe("sync configuration to XML", () => {
       fs.copyFileSync(getXMLFixturePath("configuration/full.xml"), join(xmlDir, CONFIGURATION_XML_FILE))
       fs.writeFileSync(join(yamlDir, CONFIGURATION_YAML_FILE), "Имя: Конфигурация\n", "utf-8")
 
-      await syncConfigurationToXML({
+      await syncConfigurationToXMLForTest({
         context: mockContextToXML(),
         inputDir: yamlDir,
         outputDir: outDir,
@@ -168,7 +177,7 @@ describe("sync configuration to XML", () => {
       fs.writeFileSync(join(yamlDir, CONFIGURATION_YAML_FILE), "Имя: Конфигурация\n", "utf-8")
       fs.writeFileSync(join(yamlDir, "Справочник", "Товары", "Свойства.yaml"), "Имя: Товары\n", "utf-8")
 
-      const result = await syncConfigurationToXML({
+      const result = await syncConfigurationToXMLForTest({
         context: mockContextToXML(),
         inputDir: yamlDir,
         outputDir: outDir,
@@ -216,7 +225,7 @@ describe("sync configuration to XML", () => {
       fs.writeFileSync(join(yamlDir, "Заставка", "Picture.png"), Buffer.from([137, 80, 78, 71]))
       fs.writeFileSync(join(yamlDir, "СодержимоеАвтономнойКонфигурации.bin"), Buffer.from([4, 5, 6]))
 
-      await syncConfigurationToXML({
+      await syncConfigurationToXMLForTest({
         context: mockContextToXML(),
         inputDir: yamlDir,
         outputDir,
@@ -273,7 +282,7 @@ describe("sync configuration to XML", () => {
         "utf-8"
       )
 
-      await syncConfigurationToXML({
+      await syncConfigurationToXMLForTest({
         context: mockContextToXML(),
         inputDir,
         outputDir: outDir,
@@ -310,7 +319,7 @@ describe("sync configuration to XML", () => {
       fs.writeFileSync(join(referenceDir, "Ext", "Roles", "Расш1_ОсновнаяРоль.xml"), "<MetaDataObject/>", "utf-8")
       fs.writeFileSync(join(referenceDir, "Ext", "Languages", "Русский.xml"), "<MetaDataObject/>", "utf-8")
 
-      const result = await syncConfigurationToXML({
+      const result = await syncConfigurationToXMLForTest({
         context: mockContextToXML(),
         inputDir: yamlDir,
         outputDir: outDir,
@@ -354,7 +363,7 @@ describe("sync configuration to XML", () => {
       fs.writeFileSync(join(outDir, "ext", "ManagedApplicationModule.bsl"), "old", "utf-8")
       fs.writeFileSync(join(outDir, "ext", "CommandInterface.xml"), "<Old/>", "utf-8")
 
-      const result = await syncConfigurationToXML({
+      const result = await syncConfigurationToXMLForTest({
         context: mockContextToXML(),
         inputDir: yamlDir,
         outputDir: outDir,
@@ -402,7 +411,7 @@ describe("sync configuration to XML", () => {
         "utf-8"
       )
 
-      await syncConfigurationToXML({
+      await syncConfigurationToXMLForTest({
         context: mockContextToXML(),
         inputDir: yamlDir,
         outputDir: outDir,
@@ -448,7 +457,7 @@ describe("sync configuration to XML", () => {
         "utf-8"
       )
 
-      await syncConfigurationToXML({
+      await syncConfigurationToXMLForTest({
         context: mockContextToXML(),
         inputDir: yamlDir,
         outputDir: outDir,
@@ -473,7 +482,7 @@ describe("sync configuration to XML", () => {
       fs.mkdirSync(yamlDir, { recursive: true })
       fs.writeFileSync(join(yamlDir, CONFIGURATION_YAML_FILE), "Имя: Конфигурация\n", "utf-8")
 
-      await syncConfigurationToXML({
+      await syncConfigurationToXMLForTest({
         context: mockContextToXML(),
         inputDir: yamlDir,
         outputDir: outDir,
@@ -515,7 +524,7 @@ describe("sync configuration to XML", () => {
         "utf-8"
       )
 
-      await syncConfigurationToXML({
+      await syncConfigurationToXMLForTest({
         context: mockContextToXML(),
         inputDir: yamlDir,
         outputDir: outDir,
@@ -540,7 +549,7 @@ describe("sync configuration to XML", () => {
       fs.mkdirSync(yamlDir, { recursive: true })
       fs.writeFileSync(join(yamlDir, CONFIGURATION_YAML_FILE), "Имя: Конфигурация\n", "utf-8")
 
-      await syncConfigurationToXML({
+      await syncConfigurationToXMLForTest({
         context: mockContextToXML(),
         inputDir: yamlDir,
         outputDir: outDir,
@@ -569,7 +578,7 @@ describe("sync configuration to XML", () => {
       fs.writeFileSync(join(outDir, "Ext", "Splash.xml"), "<OldSplash/>", "utf-8")
       fs.writeFileSync(join(outDir, "Ext", "Splash", "Picture.png"), Buffer.from([137, 80, 78, 71]))
 
-      await syncConfigurationToXML({
+      await syncConfigurationToXMLForTest({
         context: mockContextToXML(),
         inputDir: yamlDir,
         outputDir: outDir,
@@ -598,7 +607,7 @@ describe("sync configuration to XML", () => {
       fs.writeFileSync(join(outDir, "Ext", "Splash.xml"), "<OldSplash/>", "utf-8")
       fs.writeFileSync(join(outDir, "Ext", "Splash", "Picture.png"), Buffer.from([137, 80, 78, 71]))
 
-      await syncConfigurationToXML({
+      await syncConfigurationToXMLForTest({
         context: mockContextToXML(),
         inputDir: yamlDir,
         outputDir: outDir,
@@ -636,7 +645,7 @@ describe("sync configuration to XML", () => {
         outputDir: tmpYamlDir,
       })
 
-      await syncConfigurationToXML({
+      await syncConfigurationToXMLForTest({
         context: mockContextToXML(),
         inputDir: tmpYamlDir,
         outputDir: tmpXmlDir,
@@ -775,7 +784,7 @@ describe("sync configuration to XML", () => {
         "utf-8"
       )
 
-      const result = await syncConfigurationToXML({
+      const result = await syncConfigurationToXMLForTest({
         context: mockContextToXML(),
         inputDir: yamlDir,
         outputDir: outDir,
@@ -901,7 +910,7 @@ describe("sync configuration to XML", () => {
     )
 
     try {
-      const syncResult = await syncConfigurationToXML({
+      const syncResult = await syncConfigurationToXMLForTest({
         context: mockContextToXML(),
         inputDir: yamlDir,
         outputDir: outDir,
@@ -959,7 +968,7 @@ describe("sync configuration to XML", () => {
     )
 
     try {
-      const result = await syncConfigurationToXML({
+      const result = await syncConfigurationToXMLForTest({
         context: mockContextToXML(),
         inputDir: yamlDir,
         outputDir: outDir,
@@ -1028,7 +1037,7 @@ describe("sync configuration to XML", () => {
     fs.writeFileSync(join(outDir, "Catalogs", "Old.xml"), "<Old/>", "utf-8")
 
     try {
-      const result = await syncConfigurationToXML({
+      const result = await syncConfigurationToXMLForTest({
         context: mockContextToXML(),
         inputDir: yamlDir,
         outputDir: outDir,
@@ -1056,7 +1065,7 @@ describe("sync configuration to XML", () => {
     fs.writeFileSync(join(yamlDir, "Справочник", "Товары", "Свойства.yaml"), "")
 
     try {
-      const result = await syncConfigurationToXML({
+      const result = await syncConfigurationToXMLForTest({
         context: mockContextToXML(),
         inputDir: yamlDir,
         outputDir: outDir,
@@ -1084,7 +1093,7 @@ describe("sync configuration to XML", () => {
     )
 
     try {
-      const result = await syncConfigurationToXML({
+      const result = await syncConfigurationToXMLForTest({
         context: mockContextToXML(),
         inputDir: yamlDir,
         outputDir: outDir,
@@ -1117,7 +1126,7 @@ describe("sync configuration to XML", () => {
     fs.writeFileSync(join(yamlDir, "ХранилищеНастроек", name, "Шаблоны", "Макет", "Template.txt"), "template text")
 
     try {
-      const result = await syncConfigurationToXML({
+      const result = await syncConfigurationToXMLForTest({
         context: mockContextToXML(),
         inputDir: yamlDir,
         outputDir: outDir,
@@ -1180,7 +1189,7 @@ describe("sync configuration to XML", () => {
     writeTestFile(join(outDir, "WSReferences", "Калькулятор", "Ext", "stale.xsd"), "stale")
 
     try {
-      const result = await syncConfigurationToXML({
+      const result = await syncConfigurationToXMLForTest({
         context: mockContextToXML(),
         inputDir: yamlDir,
         outputDir: outDir,

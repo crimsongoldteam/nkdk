@@ -1,13 +1,21 @@
 import { mkdirSync, mkdtempSync, rmSync, writeFileSync } from "fs"
 import { tmpdir } from "os"
 import { join } from "path"
-import { afterEach, describe, expect, it } from "vitest"
+import { afterAll, afterEach, describe, expect, it } from "vitest"
 import { mockContext } from "../../tests/mockContext"
-import { prepareYamlProject } from "../project/preparedYamlProject"
+import { prepareYamlProjectWithPool } from "../project/preparedYamlProject"
+import { createPreparedYamlProjectWorkerPool } from "../project/preparedYamlProjectWorkerPool"
+import { createValidationWorkerPoolHandle } from "../validation/validateProject"
 import { buildMetadataOperationSnapshot, buildMetadataOperationSnapshotFromPreparedProject } from "./projectSnapshot"
 
 describe("buildMetadataOperationSnapshot", () => {
   const tempDirs: string[] = []
+  const preparePool = createPreparedYamlProjectWorkerPool({ concurrency: 1 })
+  const validationWorkerPoolHandle = createValidationWorkerPoolHandle({ concurrency: 1 })
+
+  afterAll(async () => {
+    await Promise.all([preparePool.close(), validationWorkerPoolHandle.close()])
+  })
 
   afterEach(() => {
     for (const dir of tempDirs.splice(0)) rmSync(dir, { recursive: true, force: true })
@@ -21,7 +29,11 @@ describe("buildMetadataOperationSnapshot", () => {
       mkdirSync(join(projectDir, "Справочник", "Товары"), { recursive: true })
       writeFileSync(join(projectDir, "Справочник", "Товары", "Свойства.yaml"), "НеизвестноеПоле: true\n")
 
-      const result = await buildMetadataOperationSnapshot({ projectDir, requireValidProject: true })
+      const result = await buildMetadataOperationSnapshot({
+        projectDir,
+        requireValidProject: true,
+        validationWorkerPoolHandle,
+      })
 
       expect(result).toMatchObject({
         ok: false,
@@ -66,7 +78,7 @@ describe("buildMetadataOperationSnapshot", () => {
     mkdirSync(join(projectDir, "Справочник", "Товары"), { recursive: true })
     writeFileSync(join(projectDir, "Справочник", "Товары", "Свойства.yaml"), "{}\n")
 
-    const prepared = await prepareYamlProject({ projectDir, context: mockContext, concurrency: 1 })
+    const prepared = await prepareYamlProjectWithPool({ projectDir, context: mockContext, pool: preparePool })
     expect(prepared.ok).toBe(true)
     if (!prepared.ok) throw new Error(prepared.message)
 

@@ -16,7 +16,12 @@ import { getTypeRule } from "../../orchestration/property/typeRuleRegistry"
 import { exportPropertyToXML } from "../../orchestration/property/toXML"
 import type { PropertyRule } from "../../orchestration/property/types"
 import { discoverMetadataProjectResources, type MetadataProjectPropertiesYamlRef } from "../../project/resources"
-import { prepareYamlProject } from "../../project/preparedYamlProject"
+import {
+  prepareYamlProject,
+  prepareYamlProjectWithPool,
+  type PreparedYamlProjectResult,
+} from "../../project/preparedYamlProject"
+import type { PreparedYamlProjectWorkerPool } from "../../project/preparedYamlProjectWorkerPool"
 import { xmlExport } from "../../../xml/export/exporter"
 import {
   applyPendingMigrationFiles,
@@ -158,6 +163,7 @@ export const syncConfigurationToXML = async (params: {
   inputDir: string
   outputDir: string
   referenceDir?: string
+  preparedYamlProjectPool?: PreparedYamlProjectWorkerPool
 }): Promise<ConfigurationSyncResult> => {
   const { context, inputDir, outputDir } = params
   const referenceDir = params.referenceDir
@@ -202,7 +208,11 @@ export const syncConfigurationToXML = async (params: {
     defaultLanguage: syncContext.defaultLanguage,
     version: syncContext.version,
   }
-  const prepared = await prepareYamlProject({ projectDir: inputDir, context: syncContext })
+  const prepared = await prepareConfigurationYamlProject({
+    projectDir: inputDir,
+    context: syncContext,
+    pool: params.preparedYamlProjectPool,
+  })
   if (!prepared.ok) {
     return {
       succeeded: 0,
@@ -356,6 +366,22 @@ export const syncConfigurationToXML = async (params: {
       error: f.error,
     })),
   }
+}
+
+function prepareConfigurationYamlProject(params: {
+  projectDir: string
+  context: ConfigurationContextWithExportToXML
+  pool?: PreparedYamlProjectWorkerPool
+}): Promise<PreparedYamlProjectResult> {
+  if (params.pool !== undefined) {
+    return prepareYamlProjectWithPool({
+      projectDir: params.projectDir,
+      context: params.context,
+      pool: params.pool,
+    })
+  }
+
+  return prepareYamlProject({ projectDir: params.projectDir, context: params.context })
 }
 
 export function resolveXmlAreaForMigrationPath(path: string): XmlSyncArea | undefined {

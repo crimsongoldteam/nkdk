@@ -8,7 +8,11 @@ import { createConfigurationIndexCollector } from "../configurationIndex/collect
 import { createImportSharedMetadata } from "./metadataSnapshot"
 import { prepareImportModel } from "./prepareModel"
 import type { ImportAssignment, ImportDiagnostic, ImportWorkerCommand } from "./types"
-import { createXmlImportWorkerPool, type XmlImportWorkerThreadPool } from "./workerPool"
+import {
+  createXmlImportWorkerPool,
+  createXmlImportWorkerPoolHandle,
+  type XmlImportWorkerThreadPool,
+} from "./workerPool"
 
 const syncXmlDir = join(import.meta.dirname, "../appliedObjects/configuration/__fixtures__/syncConfiguration/xml")
 const tempDirs: string[] = []
@@ -115,6 +119,44 @@ describe("XML import worker pool", () => {
       await pool.close()
     }
   }, 30_000)
+
+  it("reuses physical workers across operation pools created by a handle", async () => {
+    const pools = createFakePools()
+    const handle = createXmlImportWorkerPoolHandle({ concurrency: 2, createWorkerPool: pools.factory })
+
+    try {
+      const firstOperation = handle.createOperationPool()
+      await firstOperation.initialize({ operationId: "one", context: mockContextFromXML(), tempRoot: createTempDir("one") })
+      await firstOperation.runFirstPass([assignment("one-a"), assignment("one-b")])
+      await firstOperation.runSecondPass(createImportSharedMetadata([]))
+      await firstOperation.close()
+
+      const secondOperation = handle.createOperationPool()
+      await secondOperation.initialize({ operationId: "two", context: mockContextFromXML(), tempRoot: createTempDir("two") })
+      await secondOperation.runFirstPass([assignment("two-a"), assignment("two-b")])
+      await secondOperation.runSecondPass(createImportSharedMetadata([]))
+      await secondOperation.close()
+
+      expect(pools.created()).toBe(2)
+      expect(handle.size()).toBe(2)
+      expect(pools.runs(0).map((task) => task.kind)).toEqual([
+        "initialize",
+        "firstPass",
+        "secondPass",
+        "dispose",
+        "initialize",
+        "firstPass",
+        "secondPass",
+        "dispose",
+      ])
+      expect(pools.firstPassIds(0)).toEqual(["one-a", "two-a"])
+      expect(pools.destroyCalls()).toEqual([0, 0])
+    } finally {
+      await handle.close()
+    }
+
+    expect(pools.destroyCalls()).toEqual([1, 1])
+  })
 })
 
 function assignment(id: string, overrides: Partial<ImportAssignment> = {}): ImportAssignment {

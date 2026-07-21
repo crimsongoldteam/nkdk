@@ -2,7 +2,7 @@ import { dirname, join } from "path"
 import { MIGRATIONS_DIR, nextMigrationFileName } from "../appliedObjects/configuration/migrations"
 import { rootFromYAML } from "../commonObjects/metadataTargets/roots"
 import type { MetadataTargetOwner } from "../commonObjects/metadataTargets"
-import { prepareYamlProject } from "../project/preparedYamlProject"
+import { prepareYamlProject, prepareYamlProjectWithPool } from "../project/preparedYamlProject"
 import {
   collectFormDataPathReferencesForItem,
   createOperationDataPathOwnerCache,
@@ -48,7 +48,14 @@ type StructuralReferenceRewriteResult =
 
 export async function renameMetadataItem(params: RenameMetadataItemParams): Promise<MetadataOperationResult> {
   const context = defaultMetadataOperationsContext()
-  const prepared = await prepareYamlProject({ projectDir: params.projectDir, context })
+  const prepared =
+    params.preparedYamlProjectPool !== undefined
+      ? await prepareYamlProjectWithPool({
+          projectDir: params.projectDir,
+          context,
+          pool: params.preparedYamlProjectPool,
+        })
+      : await prepareYamlProject({ projectDir: params.projectDir, context })
   if (!prepared.ok) return validationFailure(prepared.message, prepared.diagnostics)
   const syntaxErrors = prepared.project.workers
     .flatMap((worker) => worker.yamlFiles)

@@ -17,8 +17,10 @@ import {
 import { exportPropertyToJSONSchema } from "./property/toJSONSchema"
 import { registerTypeRule } from "./property/typeRuleRegistry"
 import { compileValidationSchema } from "../validation/compileValidationSchema"
+import "../commonObjects/metadataPath/toJSONSchema"
 import "../commonObjects/number/toJSONSchema"
 import "../commonObjects/string/toJSONSchema"
+import "../forms/commonObjects/event/toJSONSchema"
 
 const baseContext = {
   defaultLanguage: "ru",
@@ -115,31 +117,26 @@ describe("jsonSchemaRefs", () => {
   })
 
   it("exports an opt-in validation property ref after implicit values are excluded", () => {
-    registerTypeRule("boolean", "exportToJSONSchema", () =>
-      Type.Union([Type.Literal("Истина"), Type.Literal("Ложь")])
-    )
-    registerTypeRule("boolean", "validationSchemaRef", () => "boolean/without-true")
-
     const context = createJSONSchemaExportContext(baseContext, "inline", {
       excludeImplicitValueYAML: true,
       validationPropertyRefs: true,
     })
     const schema = exportPropertyToJSONSchema({
       context,
-      rule: { type: "boolean", implicitValueYAML: true },
+      rule: { type: "number", implicitValueYAML: 1 },
       value: undefined,
     })
 
-    expect(schema).toEqual({ $ref: "nkdk://schema/validation/2.20/ru/boolean/without-true" })
+    expect(schema).toEqual({ $ref: "nkdk://schema/validation/2.20/ru/number/without-1" })
     expect(attachCollectedSchemaRefs(context, Type.Object({}))).toMatchObject({
-      "x-nkdk-schemaRefs": ["nkdk://schema/validation/2.20/ru/boolean/without-true"],
+      "x-nkdk-schemaRefs": ["nkdk://schema/validation/2.20/ru/number/without-1"],
     })
 
-    const registeredSchema = getValidationSchemaRef("nkdk://schema/validation/2.20/ru/boolean/without-true")
+    const registeredSchema = getValidationSchemaRef("nkdk://schema/validation/2.20/ru/number/without-1")
     if (registeredSchema === undefined) throw new Error("Expected registered validation schema")
     const check = compileValidationSchema(registeredSchema)
-    expect(check.Check("Истина")).toBe(false)
-    expect(check.Check("Ложь")).toBe(true)
+    expect(check.Check(1)).toBe(false)
+    expect(check.Check(2)).toBe(true)
   })
 
   it("exports default validation refs for reusable property types without opt-in registration", () => {
@@ -172,16 +169,6 @@ describe("jsonSchemaRefs", () => {
   })
 
   it("keeps explicit validation inline exceptions inline", () => {
-    registerTypeRule("DataPath", "exportToJSONSchema", () => Type.String({ pattern: "^.*$" }))
-    registerTypeRule("Events", "exportToJSONSchema", () =>
-      Type.Object(
-        {
-          ПриОткрытии: Type.Optional(Type.String()),
-        },
-        { additionalProperties: false }
-      )
-    )
-
     const context = createJSONSchemaExportContext(baseContext, "inline", {
       validationPropertyRefs: true,
     })
@@ -192,11 +179,11 @@ describe("jsonSchemaRefs", () => {
         rule: { type: "DataPath", yaml: "ПутьКДанным" },
         value: undefined,
       })
-    ).toEqual({ type: "string", pattern: "^.*$" })
+    ).not.toMatchObject({ $ref: expect.any(String) })
     expect(
       exportPropertyToJSONSchema({
         context,
-        rule: { type: "Events", yaml: "События" },
+        rule: { type: "Events", yaml: "События", items: { open: "ПриОткрытии" } },
         value: undefined,
       })
     ).toEqual({

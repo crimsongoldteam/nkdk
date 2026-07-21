@@ -23,6 +23,12 @@ export interface XmlImportWorkerPool {
   close(): Promise<void>
 }
 
+export interface XmlImportWorkerPoolHandle {
+  createOperationPool(): XmlImportWorkerPool
+  close(): Promise<void>
+  size(): number
+}
+
 export interface XmlImportFirstPassPoolResult {
   diagnostics: ImportDiagnostic[]
   ownerFacts: ValidationOwnerFacts[]
@@ -55,14 +61,95 @@ export function createXmlImportWorkerPool(params: {
   concurrency: number
   createWorkerPool?: () => XmlImportWorkerThreadPool
 }): XmlImportWorkerPool {
-  if (!Number.isSafeInteger(params.concurrency) || params.concurrency < 1) {
-    throw new Error("Степень параллелизма XML-import должна быть положительным целым числом")
-  }
-
+  const concurrency = normalizeConcurrency(params.concurrency)
   const pools = new Map<number, XmlImportWorkerThreadPool>()
   const createPool = params.createWorkerPool ?? createPiscinaWorkerPool
+
+  return createXmlImportOperationPool({
+    concurrency,
+    getOrCreatePool(workerIndex) {
+      const existing = pools.get(workerIndex)
+      if (existing !== undefined) return existing
+      const created = createPool()
+      pools.set(workerIndex, created)
+      return created
+    },
+    listPools() {
+      return [...pools.values()]
+    },
+    closeMode: "destroy",
+  })
+}
+
+export function createXmlImportWorkerPoolHandle(params: {
+  concurrency: number
+  createWorkerPool?: () => XmlImportWorkerThreadPool
+}): XmlImportWorkerPoolHandle {
+  const concurrency = normalizeConcurrency(params.concurrency)
+  const pools = new Map<number, XmlImportWorkerThreadPool>()
+  const createPool = params.createWorkerPool ?? createPiscinaWorkerPool
+  let activeOperation = false
+  let closed = false
+  let destroyPromise: Promise<void> | undefined
+
+  function getOrCreatePool(workerIndex: number): XmlImportWorkerThreadPool {
+    const existing = pools.get(workerIndex)
+    if (existing !== undefined) return existing
+    const created = createPool()
+    pools.set(workerIndex, created)
+    return created
+  }
+
+  function destroyAllWorkers(): Promise<void> {
+    destroyPromise ??= Promise.all([...pools.values()].map((pool) => pool.destroy())).then(() => undefined)
+    return destroyPromise
+  }
+
+  return {
+    createOperationPool() {
+      if (closed) throw new Error("XML-import worker pool handle закрыт")
+      if (activeOperation) throw new Error("XML-import worker pool handle уже выполняет операцию")
+      activeOperation = true
+
+      return createXmlImportOperationPool({
+        concurrency,
+        getOrCreatePool,
+        listPools() {
+          return [...pools.values()]
+        },
+        closeMode: "dispose",
+        async releaseOperation() {
+          activeOperation = false
+        },
+        async destroyOnCrash() {
+          closed = true
+          await destroyAllWorkers()
+        },
+      })
+    },
+    async close() {
+      if (closed && destroyPromise !== undefined) {
+        await destroyPromise
+        return
+      }
+      closed = true
+      await destroyAllWorkers()
+    },
+    size() {
+      return pools.size
+    },
+  }
+}
+
+function createXmlImportOperationPool(params: {
+  concurrency: number
+  getOrCreatePool(workerIndex: number): XmlImportWorkerThreadPool
+  listPools(): XmlImportWorkerThreadPool[]
+  closeMode: "destroy" | "dispose"
+  releaseOperation?: () => Promise<void>
+  destroyOnCrash?: () => Promise<void>
+}): XmlImportWorkerPool {
   const activeWorkerIndexes: number[] = []
-  let phase: PoolPhase = "new"
   let initialization:
     | {
         operationId: string
@@ -70,8 +157,10 @@ export function createXmlImportWorkerPool(params: {
         tempRoot: string
       }
     | undefined
+  let phase: PoolPhase = "new"
   let fatalError: unknown
   let destroyPromise: Promise<void> | undefined
+  let closePromise: Promise<void> | undefined
 
   return {
     async initialize(initializeParams) {
@@ -151,28 +240,37 @@ export function createXmlImportWorkerPool(params: {
     },
 
     async close() {
+      closePromise ??= closeOperation()
+      return closePromise
+    },
+  }
+
+  async function closeOperation(): Promise<void> {
       if (phase === "closed") return
       if (phase === "crashed") {
         try {
-          await destroyAllWorkers()
+          await destroyAfterCrash()
         } catch {
           // Исходная ошибка worker важнее ошибки остановки уже аварийного пула.
+        } finally {
+          phase = "closed"
+          await params.releaseOperation?.()
         }
-        phase = "closed"
         return
       }
 
       try {
-        await destroyAllWorkers()
+        if (params.closeMode === "destroy") await destroyAllWorkers()
+        else await disposeActiveWorkers()
       } finally {
         phase = "closed"
+        await params.releaseOperation?.()
       }
-    },
   }
 
   async function runCommand(workerIndex: number, command: ImportWorkerCommand): Promise<ImportWorkerCommandResult> {
     try {
-      return (await getOrCreatePool(workerIndex).run(command)) as ImportWorkerCommandResult
+      return (await params.getOrCreatePool(workerIndex).run(command)) as ImportWorkerCommandResult
     } catch (caught) {
       return failWorker(caught)
     }
@@ -182,25 +280,37 @@ export function createXmlImportWorkerPool(params: {
     fatalError ??= caught
     phase = "crashed"
     try {
-      await destroyAllWorkers()
+      await destroyAfterCrash()
     } catch {
       // При аварии сохраняем исходную причину, остановка остальных worker — best effort.
     }
     throw fatalError
   }
 
-  function getOrCreatePool(workerIndex: number): XmlImportWorkerThreadPool {
-    const existing = pools.get(workerIndex)
-    if (existing !== undefined) return existing
-    const created = createPool()
-    pools.set(workerIndex, created)
-    return created
-  }
-
   function destroyAllWorkers(): Promise<void> {
-    destroyPromise ??= Promise.all([...pools.values()].map((pool) => pool.destroy())).then(() => undefined)
+    destroyPromise ??= Promise.all(params.listPools().map((pool) => pool.destroy())).then(() => undefined)
     return destroyPromise
   }
+
+  function destroyAfterCrash(): Promise<void> {
+    return params.destroyOnCrash?.() ?? destroyAllWorkers()
+  }
+
+  async function disposeActiveWorkers(): Promise<void> {
+    await Promise.all(
+      activeWorkerIndexes.map(async (workerIndex) => {
+        const response = await runCommand(workerIndex, { kind: "dispose" })
+        if (response !== undefined) throw new Error("Worker вернул неожиданный результат dispose")
+      })
+    )
+  }
+}
+
+function normalizeConcurrency(concurrency: number): number {
+  if (!Number.isSafeInteger(concurrency) || concurrency < 1) {
+    throw new Error("Степень параллелизма XML-import должна быть положительным целым числом")
+  }
+  return concurrency
 }
 
 function createPiscinaWorkerPool(): Piscina {

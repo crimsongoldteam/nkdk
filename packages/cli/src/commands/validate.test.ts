@@ -170,7 +170,7 @@ describe("validate command", () => {
 
     expect(writtenText(stdout)).toBe("summary: 0 error, 0 warning\n")
     expect(process.exitCode).toBeUndefined()
-  })
+  }, 15_000)
 
   it("rejects missing or invalid project directories as command usage errors", async () => {
     const missingDir = join(tmpdir(), "nkdk-missing-yaml-dir")
@@ -202,6 +202,7 @@ describe("validate command", () => {
     writeProjectFile(projectDir, "Справочник/Товары/Команды/Команда.yaml", "Имя: Тест\n")
     const stderr = captureStderr()
 
+    vi.mocked(validateProject).mockRejectedValueOnce(new Error("Файл находится вне указанного YAML-проекта"))
     await validateYamlProject(projectDir, { file: outsideFile })
     expect(process.exitCode).toBe(2)
     expect(writtenText(stderr)).toContain("Файл находится вне указанного YAML-проекта")

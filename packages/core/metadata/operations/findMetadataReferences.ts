@@ -1,7 +1,7 @@
 import { dirname } from "path"
 import { rootFromYAML } from "../commonObjects/metadataTargets/roots"
 import type { MetadataTargetOwner } from "../commonObjects/metadataTargets"
-import { prepareYamlProject } from "../project/preparedYamlProject"
+import { prepareYamlProject, prepareYamlProjectWithPool } from "../project/preparedYamlProject"
 import { collectFormDataPathReferencesForItem, createOperationDataPathOwnerCache } from "./dataPathReferences"
 import { parseMetadataOperationPath } from "./operationPath"
 import {
@@ -34,7 +34,14 @@ type DeletePlanResult = { ok: true; plan: DeletePlan } | { ok: false; failure: M
 
 export async function findMetadataReferences(params: FindMetadataReferencesParams): Promise<MetadataOperationResult> {
   const context = defaultMetadataOperationsContext()
-  const prepared = await prepareYamlProject({ projectDir: params.projectDir, context })
+  const prepared =
+    params.preparedYamlProjectPool !== undefined
+      ? await prepareYamlProjectWithPool({
+          projectDir: params.projectDir,
+          context,
+          pool: params.preparedYamlProjectPool,
+        })
+      : await prepareYamlProject({ projectDir: params.projectDir, context })
   if (!prepared.ok) return validationFailure(prepared.message, prepared.diagnostics)
   const syntaxErrors = prepared.project.workers
     .flatMap((worker) => worker.yamlFiles)

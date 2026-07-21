@@ -1,10 +1,11 @@
 import fs from "fs"
 import os from "os"
 import { join } from "path"
-import { beforeEach, describe, expect, it } from "vitest"
+import { afterAll, beforeEach, describe, expect, it } from "vitest"
 import { mockContextFromXML } from "../../../tests/mockContext"
 import { readXMLFileAsString } from "../../../tests/readAndParseXMLFile"
 import { readConfigurationIndex } from "../../configurationIndex"
+import { createXmlImportWorkerPoolHandle } from "../../importFromXml"
 import { syncConfigurationFromXML } from "./convertFromXML"
 import { CONFIGURATION_XML_FILE, CONFIGURATION_YAML_FILE } from "./rootIO"
 
@@ -16,6 +17,10 @@ describe("sync configuration from xml", () => {
     __dirname,
     "../../commonObjects/clientApplicationInterface/__fixtures__"
   )
+  const xmlImportWorkerPoolHandle = createXmlImportWorkerPoolHandle({ concurrency: 1 })
+  const syncConfigurationFromXMLForTest = (
+    params: Omit<Parameters<typeof syncConfigurationFromXML>[0], "xmlImportWorkerPoolHandle">
+  ) => syncConfigurationFromXML({ ...params, xmlImportWorkerPoolHandle })
   const homePageWorkAreaXML = `<?xml version="1.0" encoding="UTF-8"?>
 <HomePageWorkArea xmlns="http://v8.1c.ru/8.3/xcf/extrnprops" xmlns:xr="http://v8.1c.ru/8.3/xcf/readable" xmlns:xs="http://www.w3.org/2001/XMLSchema" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" version="2.20">
 \t<WorkingAreaTemplate>TwoColumnsVariableWidth</WorkingAreaTemplate>
@@ -41,6 +46,10 @@ describe("sync configuration from xml", () => {
 \t<MACommandInterfaceDisplays>Top</MACommandInterfaceDisplays>
 </HomePageWorkArea>`
 
+  afterAll(async () => {
+    await xmlImportWorkerPoolHandle.close()
+  })
+
   beforeEach(() => {
     if (fs.existsSync(outputDir)) {
       fs.rmSync(outputDir, { recursive: true })
@@ -50,8 +59,11 @@ describe("sync configuration from xml", () => {
   it("should produce catalog and form YAML in output dir", async () => {
     fs.mkdirSync(outputDir, { recursive: true })
     const operationId = "fixture-import"
+    const stalePath = join(outputDir, "Справочник", "УдаленныйОбъект", "Свойства.yaml")
+    fs.mkdirSync(join(outputDir, "Справочник", "УдаленныйОбъект"), { recursive: true })
+    fs.writeFileSync(stalePath, "Имя: УдаленныйОбъект\n")
 
-    const result = await syncConfigurationFromXML({
+    const result = await syncConfigurationFromXMLForTest({
       context: mockContextFromXML(),
       inputDir,
       outputDir,
@@ -74,6 +86,12 @@ describe("sync configuration from xml", () => {
 
     expect(resultCatalogYaml).toBe(expectedCatalogYaml)
     expect(resultFormYaml).toBe(expectedFormYaml)
+    expect(fs.readFileSync(stalePath, "utf8")).toBe("Имя: УдаленныйОбъект\n")
+    expect(fs.existsSync(join(outputDir, "Документ", "ДокументПоУмолчанию", "Свойства.yaml"))).toBe(true)
+    expect(fs.existsSync(join(outputDir, "Нумератор", "НумераторПоУмолчанию", "Свойства.yaml"))).toBe(true)
+    expect(fs.existsSync(join(outputDir, "Последовательность", "ПоследовательностьПоУмолчанию", "Свойства.yaml"))).toBe(
+      true
+    )
     expect(result.failed).toEqual([])
     expect(result.warnings).toEqual([])
     expect((await readConfigurationIndex({ projectDir: outputDir, baseId: "default" })).binding).toMatchObject({
@@ -84,45 +102,13 @@ describe("sync configuration from xml", () => {
     expect(fs.existsSync(join(outputDir, ".nkdk", "tmp", "import", operationId))).toBe(false)
   })
 
-  it("сохраняет старые файлы в непустом каталоге проекта", async () => {
-    const stalePath = join(outputDir, "Справочник", "УдаленныйОбъект", "Свойства.yaml")
-    fs.mkdirSync(join(outputDir, "Справочник", "УдаленныйОбъект"), { recursive: true })
-    fs.writeFileSync(stalePath, "Имя: УдаленныйОбъект\n")
-
-    const result = await syncConfigurationFromXML({
-      context: mockContextFromXML(),
-      inputDir,
-      outputDir,
-      operationId: "nonempty-target",
-    })
-
-    expect(result.failed).toEqual([])
-    expect(fs.readFileSync(stalePath, "utf8")).toBe("Имя: УдаленныйОбъект\n")
-  })
-
-  it("импортирует Document, DocumentNumerator и Sequence в соответствующие YAML-папки", async () => {
-    fs.mkdirSync(outputDir, { recursive: true })
-
-    await syncConfigurationFromXML({
-      context: mockContextFromXML(),
-      inputDir,
-      outputDir,
-    })
-
-    expect(fs.existsSync(join(outputDir, "Документ", "ДокументПоУмолчанию", "Свойства.yaml"))).toBe(true)
-    expect(fs.existsSync(join(outputDir, "Нумератор", "НумераторПоУмолчанию", "Свойства.yaml"))).toBe(true)
-    expect(fs.existsSync(join(outputDir, "Последовательность", "ПоследовательностьПоУмолчанию", "Свойства.yaml"))).toBe(
-      true
-    )
-  })
-
   it("не падает на дампе без некоторых корневых разделов", async () => {
     const partialInput = join(__dirname, "__fixtures__/_partial_xml_tmp")
     if (fs.existsSync(partialInput)) fs.rmSync(partialInput, { recursive: true })
     fs.mkdirSync(join(partialInput, "Catalogs"), { recursive: true })
     fs.mkdirSync(outputDir, { recursive: true })
 
-    const result = await syncConfigurationFromXML({
+    const result = await syncConfigurationFromXMLForTest({
       context: mockContextFromXML(),
       inputDir: partialInput,
       outputDir,
@@ -141,7 +127,7 @@ describe("sync configuration from xml", () => {
       fs.mkdirSync(rootInput, { recursive: true })
       fs.copyFileSync(join(__dirname, "__fixtures__/full.xml"), join(rootInput, CONFIGURATION_XML_FILE))
 
-      const result = await syncConfigurationFromXML({
+      const result = await syncConfigurationFromXMLForTest({
         context: mockContextFromXML(),
         inputDir: rootInput,
         outputDir: rootOutput,
@@ -156,8 +142,8 @@ describe("sync configuration from xml", () => {
     }
   })
 
-  it("импортирует корневые command interface XML в Конфигурация.yaml", async () => {
-    const tmp = fs.mkdtempSync(join(os.tmpdir(), "nkdk-root-command-interface-from-xml-"))
+  it("импортирует корневые XML из Ext в Конфигурация.yaml", async () => {
+    const tmp = fs.mkdtempSync(join(os.tmpdir(), "nkdk-root-ext-from-xml-"))
     const rootInput = join(tmp, "xml")
     const rootOutput = join(tmp, "yaml")
     try {
@@ -171,8 +157,13 @@ describe("sync configuration from xml", () => {
         join(rootCommandInterfaceFixturesDir, "MainSectionCommandInterface.xml"),
         join(rootInput, "Ext", "MainSectionCommandInterface.xml")
       )
+      fs.copyFileSync(
+        join(clientApplicationInterfaceFixturesDir, "ClientApplicationInterface.xml"),
+        join(rootInput, "Ext", "ClientApplicationInterface.xml")
+      )
+      fs.writeFileSync(join(rootInput, "Ext", "HomePageWorkArea.xml"), homePageWorkAreaXML, "utf-8")
 
-      const result = await syncConfigurationFromXML({
+      const result = await syncConfigurationFromXMLForTest({
         context: mockContextFromXML(),
         inputDir: rootInput,
         outputDir: rootOutput,
@@ -186,56 +177,11 @@ describe("sync configuration from xml", () => {
       expect(yaml).toContain("КомандныйИнтерфейсОсновногоРаздела:")
       expect(yaml).toContain("ПорядокГрупп:")
       expect(yaml).toContain("ПанельНавигацииВажное")
-    } finally {
-      fs.rmSync(tmp, { recursive: true, force: true })
-    }
-  })
-
-  it("импортирует корневой ClientApplicationInterface.xml в Конфигурация.yaml", async () => {
-    const tmp = fs.mkdtempSync(join(os.tmpdir(), "nkdk-client-interface-from-xml-"))
-    const rootInput = join(tmp, "xml")
-    const rootOutput = join(tmp, "yaml")
-    try {
-      fs.mkdirSync(join(rootInput, "Ext"), { recursive: true })
-      fs.copyFileSync(join(__dirname, "__fixtures__/minimal.xml"), join(rootInput, CONFIGURATION_XML_FILE))
-      fs.copyFileSync(
-        join(clientApplicationInterfaceFixturesDir, "ClientApplicationInterface.xml"),
-        join(rootInput, "Ext", "ClientApplicationInterface.xml")
-      )
-
-      await syncConfigurationFromXML({
-        context: mockContextFromXML(),
-        inputDir: rootInput,
-        outputDir: rootOutput,
-      })
-
-      const yaml = fs.readFileSync(join(rootOutput, CONFIGURATION_YAML_FILE), "utf-8")
       expect(yaml).toContain("ИнтерфейсКлиентскогоПриложения:")
       expect(yaml).toContain("Верх:")
       expect(yaml).toContain("ПанельФункцийТекущегоРаздела")
       expect(yaml).toContain("Представление: КартинкаСлеваИТекст")
       expect(yaml).not.toContain("left-history")
-    } finally {
-      fs.rmSync(tmp, { recursive: true, force: true })
-    }
-  })
-
-  it("импортирует корневой HomePageWorkArea.xml в Конфигурация.yaml", async () => {
-    const tmp = fs.mkdtempSync(join(os.tmpdir(), "nkdk-home-page-work-area-from-xml-"))
-    const rootInput = join(tmp, "xml")
-    const rootOutput = join(tmp, "yaml")
-    try {
-      fs.mkdirSync(join(rootInput, "Ext"), { recursive: true })
-      fs.copyFileSync(join(__dirname, "__fixtures__/minimal.xml"), join(rootInput, CONFIGURATION_XML_FILE))
-      fs.writeFileSync(join(rootInput, "Ext", "HomePageWorkArea.xml"), homePageWorkAreaXML, "utf-8")
-
-      await syncConfigurationFromXML({
-        context: mockContextFromXML(),
-        inputDir: rootInput,
-        outputDir: rootOutput,
-      })
-
-      const yaml = fs.readFileSync(join(rootOutput, CONFIGURATION_YAML_FILE), "utf-8")
       expect(yaml).toContain("РабочаяОбластьНачальнойСтраницы:")
       expect(yaml).toContain("ШаблонРабочейОбласти: ДвеКолонкиПеременнойШирины")
       expect(yaml).toContain("Форма: CommonForm.НачалоРаботы")
@@ -282,7 +228,7 @@ describe("sync configuration from xml", () => {
       fs.writeFileSync(join(rootInput, "Ext", "Splash", "Picture.png"), Buffer.from([137, 80, 78, 71]))
       fs.writeFileSync(join(rootInput, "Ext", "StandaloneConfigurationContent.bin"), Buffer.from([4, 5, 6]))
 
-      await syncConfigurationFromXML({
+      await syncConfigurationFromXMLForTest({
         context: mockContextFromXML(),
         inputDir: rootInput,
         outputDir: rootOutput,
@@ -310,35 +256,4 @@ describe("sync configuration from xml", () => {
     }
   })
 
-  it("импортирует корневые внешние файлы конфигурации из Ext", async () => {
-    const rootInput = fs.mkdtempSync(join(os.tmpdir(), "configuration-xml-"))
-    const outputDir = fs.mkdtempSync(join(os.tmpdir(), "configuration-yaml-"))
-    try {
-      fs.copyFileSync(new URL("__fixtures__/minimal.xml", import.meta.url), join(rootInput, "Configuration.xml"))
-      fs.mkdirSync(join(rootInput, "Ext"), { recursive: true })
-      fs.writeFileSync(
-        join(rootInput, "Ext", "ManagedApplicationModule.bsl"),
-        "Процедура ПриЗапускеСистемы()\nКонецПроцедуры\n",
-        "utf-8"
-      )
-      fs.copyFileSync(
-        join(rootCommandInterfaceFixturesDir, "CommandInterface.xml"),
-        join(rootInput, "Ext", "CommandInterface.xml")
-      )
-
-      await syncConfigurationFromXML({
-        context: mockContextFromXML(),
-        inputDir: rootInput,
-        outputDir,
-      })
-
-      expect(fs.readFileSync(join(outputDir, "МодульПриложения.bsl"), "utf-8")).toBe(
-        "Процедура ПриЗапускеСистемы()\nКонецПроцедуры\n"
-      )
-      expect(fs.readFileSync(join(outputDir, CONFIGURATION_YAML_FILE), "utf-8")).toContain("КомандныйИнтерфейс:")
-    } finally {
-      fs.rmSync(rootInput, { recursive: true, force: true })
-      fs.rmSync(outputDir, { recursive: true, force: true })
-    }
-  })
 })

@@ -1,8 +1,10 @@
 import { compileValidationSchema } from "./../../../validation/compileValidationSchema"
-import { describe, expect, it } from "vitest"
+import { beforeAll, describe, expect, it } from "vitest"
 import { exportPropertyToJSONSchema } from "../../../orchestration/property/toJSONSchema"
 import { mockContext } from "../../../../tests/mockContext"
 import "./toJSONSchema"
+
+let compiledAppearanceFieldsSchema: ReturnType<typeof compileValidationSchema>
 
 const schemaFor = () => {
   const schema = exportPropertyToJSONSchema({
@@ -11,12 +13,16 @@ const schemaFor = () => {
     value: undefined,
   })
   if (schema === undefined) throw new Error("schema is undefined")
-  return compileValidationSchema(schema)
+  return compileValidationSchema(schema, { eagerFallback: true })
 }
 
 describe("AppearanceFields exportToJSONSchema", { timeout: 30_000 }, () => {
+  beforeAll(() => {
+    compiledAppearanceFieldsSchema = schemaFor()
+  })
+
   it("accepts compact SettingsParameterValue fields", () => {
-    const compiled = schemaFor()
+    const compiled = compiledAppearanceFieldsSchema
 
     expect(
       compiled.Check({
@@ -41,14 +47,14 @@ describe("AppearanceFields exportToJSONSchema", { timeout: 30_000 }, () => {
   })
 
   it("rejects YAML shapes that appearance import would ignore", () => {
-    const compiled = schemaFor()
+    const compiled = compiledAppearanceFieldsSchema
 
     expect(compiled.Check({ Видимость: { Тип: "ВидСравненияКомпоновкиДанных", Значение: "Равно" } })).toBe(false)
     expect(compiled.Check({ Шрифт: { Вид: "ШрифтТекста", Лишнее: "x" } })).toBe(false)
   })
 
   it("accepts omitted value for color SettingsParameterValue", () => {
-    const compiled = schemaFor()
+    const compiled = compiledAppearanceFieldsSchema
 
     expect(compiled.Check({ ЦветТекста: null })).toBe(true)
     expect(compiled.Check({ ЦветТекста: "" })).toBe(true)
@@ -59,7 +65,7 @@ describe("AppearanceFields exportToJSONSchema", { timeout: 30_000 }, () => {
   })
 
   it("accepts explicit text type marker without value", () => {
-    const compiled = schemaFor()
+    const compiled = compiledAppearanceFieldsSchema
 
     expect(compiled.Check({ Текст: { Тип: "МногоязычнаяСтрока" } })).toBe(true)
     expect(compiled.Check({ Формат: { Использовать: "Ложь", Тип: "МногоязычнаяСтрока" } })).toBe(true)
@@ -67,14 +73,14 @@ describe("AppearanceFields exportToJSONSchema", { timeout: 30_000 }, () => {
   })
 
   it("keeps explicit text value validation strict when value is present", () => {
-    const compiled = schemaFor()
+    const compiled = compiledAppearanceFieldsSchema
 
     expect(compiled.Check({ Текст: { Тип: "МногоязычнаяСтрока", Значение: 42 } })).toBe(false)
     expect(compiled.Check({ Текст: { Тип: "МногоязычнаяСтрока", Лишнее: "x" } })).toBe(false)
   })
 
   it("does not accept auto as a normal color value", () => {
-    const compiled = schemaFor()
+    const compiled = compiledAppearanceFieldsSchema
 
     expect(compiled.Check({ ЦветТекста: "auto" })).toBe(false)
   })
