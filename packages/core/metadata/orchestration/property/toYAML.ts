@@ -73,6 +73,17 @@ export const exportPropertyToYAML = (params: {
   name?: string
   owner?: MetadataTargetOwner
 }): Record<string, any> | undefined => {
+  const exportedValue = exportPropertyValueToYAML(params)
+  return getExportToYAMLResult(params.rule, params.rule.yaml!, exportedValue, params.value)
+}
+
+export function exportPropertyValueToYAML(params: {
+  context: ConfigurationContext
+  rule: PropertyRule
+  value: unknown
+  name?: string
+  owner?: MetadataTargetOwner
+}): unknown {
   const { context, rule, value, name } = params
 
   if (!context.exportToYAML) throw new Error("context.exportToYAML is required")
@@ -83,11 +94,7 @@ export const exportPropertyToYAML = (params: {
 
   if (!context.exportToYAML.toTyped && rule.toPartialYAML === false) return undefined
 
-  const yamlKey = rule.yaml
-
-  if (!yamlKey) {
-    return undefined
-  }
+  if (!rule.yaml) return undefined
 
   if ("implicitValueYAML" in rule && value === (rule as any).implicitValueYAML) return undefined
 
@@ -96,7 +103,7 @@ export const exportPropertyToYAML = (params: {
   if (!typeExportFn) {
     const exportedValue =
       rule.type === "string" ? exportStringMetadataTargetToYAML({ rule, value, owner: params.owner }) : value
-    return getExportToYAMLResult(rule, yamlKey, exportedValue, value)
+    return exportedValue
   }
 
   const nestedContext = contextWithPropertyParentName(context, name)
@@ -114,7 +121,7 @@ export const exportPropertyToYAML = (params: {
         ? exportStringMetadataTargetToYAML({ rule, value: typedValue, owner: params.owner })
         : typedValue
 
-    return getExportToYAMLResult(rule, yamlKey, exportedValue, value)
+    return exportedValue
   }
 
   const typedResult = (typeExportFn as ExportToYAMLFunction)(nestedContext, rule, value)
@@ -122,7 +129,7 @@ export const exportPropertyToYAML = (params: {
     rule.type === "string"
       ? exportStringMetadataTargetToYAML({ rule, value: typedResult, owner: params.owner })
       : typedResult
-  return getExportToYAMLResult(rule, yamlKey, result, value)
+  return result
 }
 
 function contextWithPropertyParentName(context: ConfigurationContext, name: string | undefined): ConfigurationContext {

@@ -16,6 +16,11 @@ import type { ParsedYaml } from "../../../yaml/parseMetadataYaml"
 import type { XmlWriteManifest } from "../xmlWriteManifest"
 import type { XmlImportRoute } from "../../importFromXml/types"
 import { PropertyRuleType } from "./registry"
+import type {
+  FinalizeImportedYAMLFunction,
+  ImportFromXMLToYAMLFunction,
+  NestedItemRule,
+} from "./importYamlTypes"
 import type { MetadataItem, MetadataItemRule, PropertyRule } from "./types"
 
 export type ExportToXMLFunction = (
@@ -297,6 +302,7 @@ export interface XMLImportPropertyBehavior {
 
 export interface TypeRule {
   importFromXML?: ImportFromXMLFunction
+  importFromXMLToYAML?: ImportFromXMLToYAMLFunction
   exportToXML?: ExportToXMLFunction | ExportToXMLFunctionNew
   importFromYAML?: importFromYAMLFunction | ImportFromYAMLFunctionNew
   exportToYAML?: ExportToYAMLFunction | ExportToYAMLFunctionNew
@@ -316,10 +322,13 @@ export interface TypeRule {
   xmlSyncWriter?: XmlSyncWriterFunction
   configurationIndexValueFromXML?: ConfigurationIndexValueFromXMLDescriptor
   xmlImportPropertyBehavior?: XMLImportPropertyBehavior
+  nestedItemRule?: NestedItemRule
+  finalizeImportedYAML?: FinalizeImportedYAMLFunction
 }
 
 export type TypeRulesOperations =
   | "importFromXML"
+  | "importFromXMLToYAML"
   | "exportToXML"
   | "importFromYAML"
   | "exportToYAML"
@@ -339,6 +348,8 @@ export type TypeRulesOperations =
   | "xmlSyncWriter"
   | "configurationIndexValueFromXML"
   | "xmlImportPropertyBehavior"
+  | "nestedItemRule"
+  | "finalizeImportedYAML"
 type TypeRuleKey = `${PropertyRuleType}:${TypeRulesOperations}`
 
 export const createRegistryKey = (type: PropertyRuleType, operation: TypeRulesOperations): TypeRuleKey => {
@@ -353,6 +364,8 @@ export type importExportFunction<O extends TypeRulesOperations> = O extends "imp
       ? ExportToXMLFunction | ExportToXMLFunctionNew | undefined
       : O extends "importFromXML"
         ? ImportFromXMLFunction | undefined
+        : O extends "importFromXMLToYAML"
+          ? ImportFromXMLToYAMLFunction | undefined
         : O extends "exportToEnterprise"
           ? ExportToEnterpriseFunction | undefined
           : O extends "exportToJSONSchema"
@@ -385,4 +398,8 @@ export type importExportFunction<O extends TypeRulesOperations> = O extends "imp
                                     ? ConfigurationIndexValueFromXMLDescriptor | undefined
                                     : O extends "xmlImportPropertyBehavior"
                                       ? XMLImportPropertyBehavior | undefined
+                                      : O extends "nestedItemRule"
+                                        ? NestedItemRule | undefined
+                                        : O extends "finalizeImportedYAML"
+                                          ? FinalizeImportedYAMLFunction | undefined
                                       : never
