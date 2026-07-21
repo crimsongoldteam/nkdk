@@ -110,6 +110,36 @@ describe("importPropertiesFromXMLToYAML", () => {
     ])
   })
 
+  it("keeps direct conversion inside the property index context and collects its XML prefix", () => {
+    const indexContexts: string[] = []
+    registerTypeRule("TestDirectIndexed" as PropertyRuleType, "importFromXMLToYAML", ({ context }) => {
+      indexContexts.push(context.fromXML.configurationIndex?.xmlNodeLogicalAddress ?? "")
+      return { xmlPrefix: "v8" }
+    })
+    const indexCollector = createConfigurationIndexCollector()
+
+    importPropertiesFromXMLToYAML({
+      context: withConfigurationIndexCollector(
+        { ...mockContextFromXML(), exportToYAML: { toTyped: true } },
+        indexCollector,
+        "Сервис.Тип"
+      ),
+      rule: {
+        itemType: "TestDirectItem",
+        properties: { type: { type: "TestDirectIndexed", xml: "Type", yaml: "Тип" } },
+      } as MetadataItemRule,
+      xml: { Type: "v8:Type" },
+      yamlPath: [],
+      rulePath: [],
+      collector: createLocalIndexesCollector(),
+    })
+
+    expect(indexContexts).toEqual(["Сервис.Тип.Свойство.Тип"])
+    expect(indexCollector.fragment("test.yaml").xmlValues).toEqual([
+      { logicalAddress: "Сервис.Тип.type", xmlPrefix: "v8" },
+    ])
+  })
+
   it("matches reference-mode import selection", () => {
     registerTypeRule("TestReferenceDirect" as PropertyRuleType, "importFromXMLToYAML", ({ xml }) => String(xml))
     const rule = {
@@ -189,6 +219,34 @@ describe("importPropertiesFromXMLToYAML", () => {
     expect(externalFilesCollector).toEqual([
       { relativePath: "Модули/Владелец.bsl", content: "Сообщить(\"ok\")" },
     ])
+  })
+
+  it("writes an external file when the property has no YAML key", () => {
+    const externalFilesCollector: Array<{ relativePath: string; content: string }> = []
+
+    expect(
+      importPropertiesFromXMLToYAML({
+        context: {
+          ...mockContextFromXML(),
+          exportToYAML: { toTyped: true, parent: { name: "Владелец" }, externalFilesCollector },
+        },
+        rule: {
+          itemType: "TestDirectItem",
+          properties: {
+            queryText: {
+              type: "string",
+              xml: "QueryText",
+              externalFile: { dir: "Запросы", extension: "txt", nameFrom: "parent" },
+            },
+          },
+        } as MetadataItemRule,
+        xml: { QueryText: "ВЫБРАТЬ 1" },
+        yamlPath: [],
+        rulePath: [],
+        collector: createLocalIndexesCollector(),
+      })
+    ).toEqual({})
+    expect(externalFilesCollector).toEqual([{ relativePath: "Запросы/Владелец.txt", content: "ВЫБРАТЬ 1" }])
   })
 
   it("preserves configuration-index aliases, order and significant presence", () => {
