@@ -41,6 +41,108 @@ describe("importPropertiesFromXMLToYAML", () => {
     expect(collector.finish()).toEqual({ metadata: expect.anything(), dependencies: [] })
   })
 
+  it("uses a direct handler instead of rebuilding a legacy value", () => {
+    registerTypeRule("TestDirectOnly" as PropertyRuleType, "importFromXML", () => {
+      throw new Error("legacy import must not run")
+    })
+    registerTypeRule("TestDirectOnly" as PropertyRuleType, "importFromXMLToYAML", ({ xml }) => `direct:${xml}`)
+
+    expect(
+      importPropertiesFromXMLToYAML({
+        context: { ...mockContextFromXML(), exportToYAML: { toTyped: true } },
+        rule: {
+          itemType: "TestDirectItem",
+          properties: { value: { type: "TestDirectOnly", xml: "Value", yaml: "Значение" } },
+        } as MetadataItemRule,
+        xml: { Value: "x" },
+        yamlPath: [],
+        rulePath: [],
+        collector: createLocalIndexesCollector(),
+      })
+    ).toEqual({ Значение: "direct:x" })
+  })
+
+  it("applies regular YAML result filtering to direct values", () => {
+    registerTypeRule("TestDirectEmptyCollection" as PropertyRuleType, "importFromXMLToYAML", () => [])
+    registerTypeRule("UserVisible" as PropertyRuleType, "importFromXMLToYAML", () => ({ Title: "A", ToolTip: "B" }))
+
+    expect(
+      importPropertiesFromXMLToYAML({
+        context: { ...mockContextFromXML(), exportToYAML: { toTyped: true } },
+        rule: {
+          itemType: "TestDirectItem",
+          properties: {
+            empty: { type: "TestDirectEmptyCollection", xml: "Empty", yaml: "Пусто" },
+            title: { type: "UserVisible", xml: "Title", yaml: "Игнорируется" },
+          },
+        } as MetadataItemRule,
+        xml: { Empty: {}, Title: {} },
+        yamlPath: [],
+        rulePath: [],
+        collector: createLocalIndexesCollector(),
+      })
+    ).toEqual({ Title: "A", ToolTip: "B" })
+  })
+
+  it("collects imported XML-prefix values for the configuration index", () => {
+    registerTypeRule("TestIndexedImport" as PropertyRuleType, "importFromXML", () => ({ xmlPrefix: "v8" }))
+    registerTypeRule("TestIndexedImport" as PropertyRuleType, "exportToYAML", () => "Type")
+    const indexCollector = createConfigurationIndexCollector()
+
+    importPropertiesFromXMLToYAML({
+      context: withConfigurationIndexCollector(
+        { ...mockContextFromXML(), exportToYAML: { toTyped: true } },
+        indexCollector,
+        "Сервис.Тип"
+      ),
+      rule: {
+        itemType: "TestDirectItem",
+        properties: { type: { type: "TestIndexedImport", xml: "Type", yaml: "Тип" } },
+      } as MetadataItemRule,
+      xml: { Type: "v8:Type" },
+      yamlPath: [],
+      rulePath: [],
+      collector: createLocalIndexesCollector(),
+    })
+
+    expect(indexCollector.fragment("test.yaml").xmlValues).toEqual([
+      { logicalAddress: "Сервис.Тип.type", xmlPrefix: "v8" },
+    ])
+  })
+
+  it("matches reference-mode import selection", () => {
+    registerTypeRule("TestReferenceDirect" as PropertyRuleType, "importFromXMLToYAML", ({ xml }) => String(xml))
+    const rule = {
+      itemType: "TestDirectItem",
+      properties: {
+        referenceOnly: { type: "TestReferenceDirect", xml: "ReferenceOnly", yaml: "ТолькоСсылка", forReferenceOnly: true },
+        disabled: { type: "TestReferenceDirect", xml: "Disabled", yaml: "Выключено", fromXML: false },
+      },
+    } as MetadataItemRule
+    const xml = { ReferenceOnly: "one", Disabled: "two" }
+
+    expect(
+      importPropertiesFromXMLToYAML({
+        context: { ...mockContextFromXML(), exportToYAML: { toTyped: true } },
+        rule,
+        xml,
+        yamlPath: [],
+        rulePath: [],
+        collector: createLocalIndexesCollector(),
+      })
+    ).toEqual({})
+    expect(
+      importPropertiesFromXMLToYAML({
+        context: { ...mockContextFromXML({ forReference: true }), exportToYAML: { toTyped: true } },
+        rule,
+        xml,
+        yamlPath: [],
+        rulePath: [],
+        collector: createLocalIndexesCollector(),
+      })
+    ).toEqual({ ТолькоСсылка: "one", Выключено: "two" })
+  })
+
   it.each([
     ["alias", { Alias: "x" }, { xml: "Value", xmlAliases: ["Alias"], yaml: "Значение" }, "x"],
     ["parent", { Properties: { Value: "x" } }, { xml: "Value", xmlParents: ["Properties"], yaml: "Значение" }, "x"],

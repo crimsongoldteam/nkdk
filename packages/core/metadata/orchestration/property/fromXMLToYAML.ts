@@ -1,6 +1,7 @@
 import { capitalize } from "../../../helpers/capitalize"
 import {
   collectConfigurationIndexIdentityFromXML,
+  collectConfigurationIndexImportedValue,
   collectConfigurationIndexPropertyFromXML,
 } from "../../configurationIndex/collector/collectProperty"
 import {
@@ -15,7 +16,7 @@ import { getOrderedKeysFromXML, presenceAffectsExport, shouldProcessProperty } f
 import type { DeferredRulePathSegment } from "./importYamlTypes"
 import { metadataTargetOwnerFromRule } from "./metadataTargetString"
 import { importPropertyFromXML } from "./fromXML"
-import { exportPropertyValueToYAML } from "./toYAML"
+import { canExportPropertyToYAML, exportPropertyValueToYAML, getExportToYAMLResult } from "./toYAML"
 import { getTypeRule } from "./typeRuleRegistry"
 import type { MetadataItemRule, PropertyRule } from "./types"
 import type { LocalIndexesCollector } from "../../project/localIndexes"
@@ -53,6 +54,7 @@ export function importPropertiesFromXMLToYAML(params: {
     indexCollection === undefined ? undefined : getConfigurationIndexXmlNodeLogicalAddress(indexCollection)
   const ownerXmlName = getOwnerXmlName(xml)
   const owner = metadataTargetOwnerFromRule({ itemRule: rule, name: itemName, context })
+  const forReference = context.fromXML.forReference
   const importedKeysInSourceOrder: string[] = []
   const importedExternalProperties = new Set<string>()
 
@@ -62,6 +64,8 @@ export function importPropertiesFromXMLToYAML(params: {
     const sourceXmlValue =
       sourceXmlKey === undefined ? undefined : getXMLValueByKey(sourceXmlKey, xml, propertyRule)
     collectConfigurationIndexIdentityFromXML({ context, sourceXmlKey, xmlValue: sourceXmlValue })
+
+    if (!forReference && propertyRule.forReferenceOnly === true) continue
 
     if (indexCollection !== undefined && sourceXmlKey !== undefined) {
       importedKeysInSourceOrder.push(key)
@@ -111,7 +115,13 @@ export function importPropertiesFromXMLToYAML(params: {
       })
     }
 
-    if (!shouldProcessProperty({ rule: propertyRule, operation: "importFromXML" })) continue
+    const shouldImportForReference =
+      forReference &&
+      propertyRule.fromXML === false &&
+      (xmlValue !== undefined || isXMLKeyPresent(key, xml, propertyRule))
+    if (!shouldProcessProperty({ rule: propertyRule, operation: "importFromXML" }) && !shouldImportForReference) continue
+
+    if (!canExportPropertyToYAML({ context, rule: propertyRule })) continue
 
     const propertyYamlPath = [...yamlPath, propertyRule.yaml ?? key]
     const propertyRulePath = [...rulePath, { propertyKey: key }]
@@ -124,47 +134,40 @@ export function importPropertiesFromXMLToYAML(params: {
       propertyRule.operationTarget?.migrationSegment
 
     try {
+      const direct = getTypeRule(propertyRule.type, "importFromXMLToYAML")
       const importedValue =
-        hasRawEmptyXML && propertyRule.emptyAsRawXML === true
-          ? propertyRule.defaultValueXMLEmpty
-          : runWithConfigurationIndexPropertyContext(
-              context,
-              propertyRule.yaml ?? key,
-              configurationIndexUidSegment,
-              (propertyContext) =>
-                importPropertyFromXML({
-                  context: propertyContext,
-                  rule: propertyRule,
-                  value: xmlValue,
-                  name: key,
-                  ownerXmlName,
-                }),
-              { configurationIndexAddressing: propertyRule.configurationIndexAddressing }
-            )
+        direct === undefined
+          ? hasRawEmptyXML && propertyRule.emptyAsRawXML === true
+            ? propertyRule.defaultValueXMLEmpty
+            : runWithConfigurationIndexPropertyContext(
+                context,
+                propertyRule.yaml ?? key,
+                configurationIndexUidSegment,
+                (propertyContext) =>
+                  importPropertyFromXML({
+                    context: propertyContext,
+                    rule: propertyRule,
+                    value: xmlValue,
+                    name: key,
+                    ownerXmlName,
+                  }),
+                { configurationIndexAddressing: propertyRule.configurationIndexAddressing }
+              )
+          : undefined
       const value =
-        importedValue === undefined && hasExplicitXMLKeyWithEmptyDefault
+        importedValue === undefined && hasExplicitXMLKeyWithEmptyDefault && direct === undefined
           ? propertyRule.defaultValueXMLEmpty
           : importedValue
 
-      if (propertyRule.externalFile && propertyRule.toYAML !== false) {
-        const parentName = context.exportToYAML?.parent?.name
-        const externalFiles = context.exportToYAML?.externalFilesCollector
-        if (parentName !== undefined && externalFiles !== undefined && value !== undefined) {
-          const entry = buildExternalFileEntry(propertyRule.externalFile, parentName, value as string)
-          if (entry !== null) externalFiles.push(entry)
-        }
-        importedExternalProperties.add(key)
-        continue
+      if (value !== undefined) {
+        collectConfigurationIndexImportedValue({
+          context,
+          logicalAddress: propertyLogicalAddress,
+          propertyKey: key,
+          importedValue: value,
+        })
       }
 
-      if (propertyRule.derivedFrom?.externalFile) {
-        const referencedKey = propertyRule.derivedFrom.externalFile
-        if (value === true || (value === propertyRule.implicitValueYAML && !importedExternalProperties.has(referencedKey))) {
-          continue
-        }
-      }
-
-      const direct = getTypeRule(propertyRule.type, "importFromXMLToYAML")
       const yamlValue =
         direct === undefined
           ? exportPropertyValueToYAML({
@@ -183,8 +186,33 @@ export function importPropertiesFromXMLToYAML(params: {
               traversal: { yamlPath: propertyYamlPath, rulePath: propertyRulePath, collector },
             })
 
-      if (yamlValue === undefined) continue
-      result[propertyRule.yaml ?? key] = yamlValue
+      const exportedValues = getExportToYAMLResult(propertyRule, propertyRule.yaml!, yamlValue, value)
+
+      if (propertyRule.externalFile && propertyRule.toYAML !== false) {
+        const parentName = context.exportToYAML?.parent?.name
+        const externalFiles = context.exportToYAML?.externalFilesCollector
+        const externalValue = direct === undefined ? value : yamlValue
+        if (parentName !== undefined && externalFiles !== undefined && externalValue !== undefined) {
+          const entry = buildExternalFileEntry(propertyRule.externalFile, parentName, externalValue as string)
+          if (entry !== null) externalFiles.push(entry)
+        }
+        importedExternalProperties.add(key)
+        continue
+      }
+
+      if (propertyRule.derivedFrom?.externalFile) {
+        const referencedKey = propertyRule.derivedFrom.externalFile
+        const derivedValue = direct === undefined ? value : yamlValue
+        if (
+          derivedValue === true ||
+          (derivedValue === propertyRule.implicitValueYAML && !importedExternalProperties.has(referencedKey))
+        ) {
+          continue
+        }
+      }
+
+      if (exportedValues === undefined) continue
+      Object.assign(result, exportedValues)
       collector.acceptProperty({ yamlPath: propertyYamlPath, rulePath: propertyRulePath, rule: propertyRule, value: yamlValue })
     } catch (cause) {
       throw new DirectImportConversionError(propertyYamlPath, propertyRulePath, cause)
