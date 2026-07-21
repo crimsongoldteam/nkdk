@@ -36,8 +36,29 @@ export function createValidationProfiler(scope: ValidationProfileScope): Validat
   return createOperationProfiler({ operation: "validation", scope })
 }
 
-export function createOperationProfiler(options: { operation: string; scope: ValidationProfileScope }): ValidationProfiler {
+export function createOperationProfiler(options: {
+  operation: string
+  scope: ValidationProfileScope
+  aggregate?: boolean
+}): ValidationProfiler {
   const records: ValidationProfileRecord[] = []
+  const aggregatedByKey = new Map<string, ValidationProfileRecord>()
+
+  function append(record: ValidationProfileRecord): void {
+    if (options.aggregate !== true) {
+      records.push(record)
+      return
+    }
+
+    const key = [record.operation, record.step, record.substep, record.scope, record.workerIndex ?? ""].join("\u0000")
+    const current = aggregatedByKey.get(key)
+    if (current === undefined) {
+      records.push(record)
+      aggregatedByKey.set(key, record)
+      return
+    }
+    mergeProfileRecord(current, record)
+  }
 
   return {
     measure(step, substep, params, fn) {
@@ -64,7 +85,7 @@ export function createOperationProfiler(options: { operation: string; scope: Val
           tracker,
           startedAt,
         })
-        records.push(record)
+        append(record)
         printProfileStageBoundary("end", record)
       }
     },
@@ -92,13 +113,13 @@ export function createOperationProfiler(options: { operation: string; scope: Val
           tracker,
           startedAt,
         })
-        records.push(record)
+        append(record)
         printProfileStageBoundary("end", record)
       }
     },
     record(step, substep, params) {
       const tracker = createMemoryTracker()
-      records.push(
+      append(
         createRecord({
           operation: options.operation,
           step,
@@ -119,6 +140,16 @@ export function createOperationProfiler(options: { operation: string; scope: Val
       for (const record of records) console.error(formatValidationProfileRecord(record))
     },
   }
+}
+
+function mergeProfileRecord(current: ValidationProfileRecord, next: ValidationProfileRecord): void {
+  current.timeMs += next.timeMs
+  if (current.items !== undefined || next.items !== undefined) current.items = (current.items ?? 0) + (next.items ?? 0)
+  if (current.bytes !== undefined || next.bytes !== undefined) current.bytes = (current.bytes ?? 0) + (next.bytes ?? 0)
+  current.rssEndMiB = next.rssEndMiB
+  current.heapEndMiB = next.heapEndMiB
+  current.rssPeakMiB = Math.max(current.rssPeakMiB, next.rssPeakMiB)
+  current.heapPeakMiB = Math.max(current.heapPeakMiB, next.heapPeakMiB)
 }
 
 function createRecord(params: {

@@ -52,4 +52,21 @@ describe("validation profile", () => {
     expect(line).toMatch(/time=\d+\.\d+ms/)
     expect(line).toMatch(/rssPeak=\d+\.\d+MiB/)
   })
+
+  it("aggregates repeated records by substep when requested", () => {
+    const profiler = createOperationProfiler({
+      operation: "import-from-xml",
+      scope: { scope: "worker", workerIndex: 2 },
+      aggregate: true,
+    })
+
+    profiler.record("Подготовка импорта конфигурации", "Чтение XML", { items: 2, bytes: 10, timeMs: 4 })
+    profiler.record("Подготовка импорта конфигурации", "Парсинг XML", { items: 1, bytes: 10, timeMs: 3 })
+    profiler.record("Подготовка импорта конфигурации", "Чтение XML", { items: 3, bytes: 20, timeMs: 6 })
+
+    expect(profiler.records()).toEqual([
+      expect.objectContaining({ substep: "Чтение XML", items: 5, bytes: 30, timeMs: 10 }),
+      expect.objectContaining({ substep: "Парсинг XML", items: 1, bytes: 10, timeMs: 3 }),
+    ])
+  })
 })
