@@ -17,7 +17,6 @@ interface CoreImportResult {
   failed: CoreImportDiagnostic[]
   warnings: CoreImportDiagnostic[]
   configurationIndexPath?: string
-  preservedTempRoot?: string
 }
 
 interface ImportFromXmlDeps {
@@ -38,7 +37,6 @@ export type ImportFromXmlPayload = ToolPayload<{
   failed: Array<{ kind: string; name: string; parent?: string; message: string }>
   warnings: Array<{ code: string; message: string; targetProjectPath?: string }>
   configurationIndexPath?: string
-  preservedTempRoot?: string
 }>
 
 export async function importFromXml(
@@ -83,7 +81,6 @@ export async function importFromXml(
       ...(result.configurationIndexPath === undefined
         ? {}
         : { configurationIndexPath: result.configurationIndexPath }),
-      ...(result.preservedTempRoot === undefined ? {} : { preservedTempRoot: result.preservedTempRoot }),
     })
   } catch (caught) {
     return toolError("core_error", errorMessage(caught))

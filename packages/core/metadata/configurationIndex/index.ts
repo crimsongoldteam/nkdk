@@ -1,4 +1,4 @@
-export { childUid, configurationUid, indexedUid, metadataItemUid } from "./logicalAddress"
+export { childSegmentUid, childUid, configurationUid, indexedUid, metadataItemUid } from "./logicalAddress"
 export {
   getConfigurationIndexCollectionContext,
   withConfigurationIndexCollector,
@@ -28,7 +28,7 @@ export {
   encodeConfigurationIndexFragments,
   mergeConfigurationIndexFragments,
 } from "./fragment"
-export { hashConfigurationProjectFiles, type HashConfigurationProjectFilesOptions } from "./projectFiles"
+export { hashConfigurationProjectFiles, hashConfigurationProjectFileList, type HashConfigurationProjectFilesOptions } from "./projectFiles"
 export {
   createConfigurationIndexReader,
   readConfigurationIndexSnapshot,

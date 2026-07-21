@@ -27,7 +27,6 @@ export const importFromXmlSuccessOutputShape = {
   failed: z.array(failedObjectSchema),
   warnings: z.array(importWarningSchema),
   configurationIndexPath: z.string().optional(),
-  preservedTempRoot: z.string().optional(),
 }
 
 export const importFromXmlOutputShape = z.union([

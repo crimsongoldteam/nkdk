@@ -180,7 +180,7 @@ function runTimingPass(options) {
     encoding: "utf8",
     env: {
       ...process.env,
-      NKDK_VALIDATION_TIMING: "1",
+      NKDK_PROFILE: "1",
     },
     maxBuffer: 1024 * 1024 * 64,
   })
@@ -198,9 +198,9 @@ function runTimingPass(options) {
     )
   }
 
-  const stepLines = spawned.stderr.split(/\r?\n/).filter((line) => line.startsWith("[validation-step] "))
+  const stepLines = spawned.stderr.split(/\r?\n/).filter((line) => line.startsWith("[nkdk-profile-step] "))
   if (stepLines.length === 0) {
-    throw new Error("timing pass did not emit [validation-step] records. Rebuild @nkdk/core before profiling.")
+    throw new Error("timing pass did not emit [nkdk-profile-step] records. Rebuild @nkdk/core before profiling.")
   }
   return {
     steps: stepLines.map(parseValidationStepLine),

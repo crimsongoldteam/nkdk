@@ -15,11 +15,15 @@ describe("configuration index worker fragments", () => {
     expect(decodeConfigurationIndexFragments(buffer)).toEqual(fragments)
   })
 
-  it("merges buffers deterministically and rejects address conflicts", () => {
+  it("merges buffers in worker result order and rejects address conflicts", () => {
     const left = encodeConfigurationIndexFragments([sampleFragments()[0]!])
     const right = encodeConfigurationIndexFragments([sampleFragments()[1]!])
 
-    expect(mergeConfigurationIndexFragments([right, left])).toEqual(mergeConfigurationIndexFragments([left, right]))
+    expect(mergeConfigurationIndexFragments([right, left])).toEqual({
+      identities: sampleFragments()[0]!.identities,
+      xmlNodes: [...sampleFragments()[1]!.xmlNodes, ...sampleFragments()[0]!.xmlNodes],
+      xmlValues: sampleFragments()[0]!.xmlValues,
+    })
     expect(() => mergeConfigurationIndexFragments([left, left])).toThrow("Конфликт logicalAddress")
   })
 

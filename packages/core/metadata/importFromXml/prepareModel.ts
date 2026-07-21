@@ -21,6 +21,7 @@ import { getTypeRule } from "../orchestration/property/typeRuleRegistry"
 import type { MetadataItem, MetadataItemRule, PropertyRule } from "../orchestration/property/types"
 import { configurationMetadataProjectSpec, metadataProjectSpecs } from "../project/specs"
 import { buildFormDataPathIndex, type FormDataPathIndex } from "../validation/dataPath/formIndex"
+import type { ValidationProfiler } from "../validation/profile"
 import importContentFromXML from "../../xml/import/importer"
 import type { ImportAssignment, ImportXmlInput } from "./types"
 
@@ -55,44 +56,51 @@ export async function prepareImportModel(params: {
   assignment: ImportAssignment
   context: ConfigurationContextFromXML
   collector: ConfigurationIndexCollector
+  profiler?: ValidationProfiler
 }): Promise<PreparedImportModel> {
   let xmlInputs: ParsedImportXmlInput[] | undefined
   try {
-    xmlInputs = await readAndParseAssignmentXml(params.assignment.xmlFiles)
+    xmlInputs = await readAndParseAssignmentXml(params.assignment.xmlFiles, params.profiler)
     const context = withConfigurationIndexCollector(params.context, params.collector, params.assignment.logicalAddress)
     const registeredRule = findRegisteredImportRule(params.assignment.itemType)
 
     if (params.assignment.role === "configuration") {
       const metadataXML = requireMetadataXml(xmlInputs)
-      const model = prepareConfigurationModelFromXML({
-        context,
-        metadataXML: metadataXML["MetaDataObject"],
-        propertyXML: mapPropertyXml(configurationMetadataProjectSpec.rule, xmlInputs),
-      })
+      const model = measureModel(params.profiler, () =>
+        prepareConfigurationModelFromXML({
+          context,
+          metadataXML: metadataXML["MetaDataObject"],
+          propertyXML: mapPropertyXml(configurationMetadataProjectSpec.rule, xmlInputs ?? []),
+        })
+      )
       return preparedResult(params.assignment, requireModel(model), configurationMetadataProjectSpec.rule)
     }
 
     if (registeredRule !== undefined) {
       const metadataXML = requireMetadataXml(xmlInputs)
-      const model = prepareAppliedObjectModelFromXML({
-        context,
-        rule: registeredRule,
-        name: params.assignment.itemName,
-        metadataXML: metadataXML["MetaDataObject"],
-        propertyXML: mapPropertyXml(registeredRule, xmlInputs),
-      })
+      const model = measureModel(params.profiler, () =>
+        prepareAppliedObjectModelFromXML({
+          context,
+          rule: registeredRule,
+          name: params.assignment.itemName,
+          metadataXML: metadataXML["MetaDataObject"],
+          propertyXML: mapPropertyXml(registeredRule, xmlInputs ?? []),
+        })
+      )
       return preparedResult(params.assignment, requireModel(model), registeredRule)
     }
 
     const bodyXML = xmlInputs.find(({ input }) => input.role === "body")?.parsed
     if (params.assignment.role === "fileItem" && params.assignment.targetProjectPath.endsWith(".yaml")) {
       const metadataXML = requireMetadataXml(xmlInputs)
-      const model = prepareClientApplicationFormModelFromXML({
-        context,
-        formName: params.assignment.itemName,
-        formXML: bodyXML?.["Form"] as ClientApplicationFormXML | undefined,
-        metadataXML: metadataXML["MetaDataObject"] as FormMetadataXML,
-      })
+      const model = measureModel(params.profiler, () =>
+        prepareClientApplicationFormModelFromXML({
+          context,
+          formName: params.assignment.itemName,
+          formXML: bodyXML?.["Form"] as ClientApplicationFormXML | undefined,
+          metadataXML: metadataXML["MetaDataObject"] as FormMetadataXML,
+        })
+      )
       return preparedResult(params.assignment, model, ClientApplicationFormRules, {
         localDataPathIndex: buildLocalFormDataPathIndex(params.assignment.targetProjectPath, model),
       })
@@ -134,20 +142,34 @@ function buildOwnerContext(assignment: ImportAssignment, rule: MetadataItemRule)
   return appendMetadataItemOwner([], rule.itemType, assignment.itemName, "", targetOwner)
 }
 
-async function readAndParseAssignmentXml(xmlFiles: readonly ImportXmlInput[]): Promise<ParsedImportXmlInput[]> {
+async function readAndParseAssignmentXml(
+  xmlFiles: readonly ImportXmlInput[],
+  profiler: ValidationProfiler | undefined
+): Promise<ParsedImportXmlInput[]> {
   const result: ParsedImportXmlInput[] = []
   for (const input of xmlFiles) {
     try {
-      const content = await fs.promises.readFile(input.sourcePath, "utf-8")
+      const content =
+        (await profiler?.measureAsync("Подготовка импорта конфигурации", "Чтение XML", { items: 1 }, () =>
+          fs.promises.readFile(input.sourcePath, "utf-8")
+        )) ?? (await fs.promises.readFile(input.sourcePath, "utf-8"))
       result.push({
         input,
-        parsed: importContentFromXML<Record<string, unknown>>(content, { preserveXsiNil: true }),
+        parsed:
+          profiler?.measure("Подготовка импорта конфигурации", "Парсинг XML", { items: 1, bytes: Buffer.byteLength(content) }, () =>
+            importContentFromXML<Record<string, unknown>>(content, { preserveXsiNil: true })
+          ) ?? importContentFromXML<Record<string, unknown>>(content, { preserveXsiNil: true }),
       })
     } catch (caught) {
       throw new ImportXmlInputError(input.sourcePath, caught)
     }
   }
   return result
+}
+
+function measureModel<T>(profiler: ValidationProfiler | undefined, fn: () => T): T {
+  if (profiler === undefined) return fn()
+  return profiler.measure("Подготовка импорта конфигурации", "Построение модели", { items: 1 }, fn)
 }
 
 function requireMetadataXml(inputs: readonly ParsedImportXmlInput[]): Record<string, unknown> {

@@ -2,21 +2,11 @@ import { describe, expect, it } from "vitest"
 import { createStringPool } from "./stringPool"
 
 describe("configuration index string pool", () => {
-  it("deduplicates and sorts by raw UTF-8 bytes", () => {
+  it("deduplicates and keeps first-seen order", () => {
     const pool = createStringPool(["Я", "A", "Б", "A"])
-    const expected = ["Я", "A", "Б"].sort((left, right) => Buffer.compare(Buffer.from(left), Buffer.from(right)))
+    const expected = ["Я", "A", "Б"]
     expect(pool.strings).toEqual(expected)
     expect(pool.id("A")).toBe(expected.indexOf("A") + 1)
-  })
-
-  it("deduplicates malformed UTF-16 strings with the same UTF-8 bytes", () => {
-    const highSurrogate = "\ud800"
-    const lowSurrogate = "\udc00"
-    const pool = createStringPool([highSurrogate, lowSurrogate])
-
-    expect(pool.strings).toEqual([highSurrogate])
-    expect(pool.id(highSurrogate)).toBe(1)
-    expect(pool.id(lowSurrogate)).toBe(1)
   })
 
   it("rejects missing and NUL-containing strings", () => {

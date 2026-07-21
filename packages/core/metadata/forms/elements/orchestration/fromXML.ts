@@ -5,8 +5,10 @@ import { isEmptyMetadataItem } from "./helper"
 import { getElementRule } from "./ruleFactory"
 import { attachReferenceNameMode, getCanonicalSingletonName, type SingletonNameStyle } from "./singletonName"
 import { CollectableElementType, ElementRule, ElementXML } from "./types"
-import { childUid, indexedUid } from "../../../configurationIndex/logicalAddress"
+import { indexedUid } from "../../../configurationIndex/logicalAddress"
 import {
+  getConfigurationIndexFormElementLogicalAddress,
+  getConfigurationIndexFormSingletonLogicalAddress,
   getConfigurationIndexCollectionContext,
   withConfigurationIndexLogicalAddress,
 } from "../../../configurationIndex/collector/context"
@@ -29,14 +31,19 @@ export function importSingleElementFromXML<Rule extends ElementRule>(params: {
   const canonicalName =
     collection === undefined
       ? undefined
-      : getCanonicalSingletonName({ ownerLogicalAddress: collection.logicalAddress, nameStyle })
+      : getCanonicalSingletonName({ ownerLogicalAddress: ownerXmlName ?? collection.logicalAddress, nameStyle })
+  if (collection?.formElementRootLogicalAddress !== undefined && nameStyle !== undefined && canonicalName === undefined) {
+    throw new Error("Не удалось построить имя single-элемента формы для индекса конфигурации")
+  }
   const elementContext =
     collection === undefined
       ? context
       : withConfigurationIndexLogicalAddress(
           context,
           canonicalName !== undefined
-            ? childUid(collection.logicalAddress, "Элемент", canonicalName)
+            ? nameStyle?.canonicalNameMode === "ownerSuffix"
+              ? getConfigurationIndexFormSingletonLogicalAddress(collection, nameStyle.canonicalSuffix)
+              : getConfigurationIndexFormElementLogicalAddress(collection, canonicalName)
             : indexedUid(collection.logicalAddress, "Элемент", 0)
         )
   collectConfigurationIndexIdentityFromXML({ context: elementContext, sourceXmlKey: "_id", xmlValue: xml._id })

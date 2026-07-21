@@ -40,7 +40,6 @@ describe("importFromXml service", () => {
         },
       ],
       warnings: [],
-      preservedTempRoot: "/yaml/.nkdk/tmp/import/operation-1",
     })
 
     const result = await importFromXml(
@@ -69,7 +68,6 @@ describe("importFromXml service", () => {
         },
       ],
       warnings: [],
-      preservedTempRoot: "/yaml/.nkdk/tmp/import/operation-1",
     })
   })
 

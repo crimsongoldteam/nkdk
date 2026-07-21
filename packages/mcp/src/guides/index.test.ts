@@ -31,7 +31,8 @@ describe("guide definitions", () => {
 
     expect(importGuide?.text).toContain("одного компонента")
     expect(importGuide?.text).toContain("должен отсутствовать или быть пустым")
-    expect(importGuide?.text).toContain(".nkdk/tmp/import/<operation-id>")
+    expect(importGuide?.text).toContain("пишет результат напрямую")
+    expect(importGuide?.text).not.toContain(".nkdk/tmp/import/<operation-id>")
     expect(importGuide?.text).toContain("не подключается к 1С")
     expect(importGuide?.text).toContain("не импортирует все компоненты")
   })

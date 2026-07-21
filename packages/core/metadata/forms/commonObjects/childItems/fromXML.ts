@@ -5,8 +5,8 @@ import { ElementXML } from "../../../orchestration/formElement/types"
 import { NamedElement } from "../../elements/baseElement/types"
 import { PropertyRule } from "../../elements/calendarField/rules"
 import { CommandBarChildItem, GroupChildItem, PagesChildItem, TableChildItem } from "./types"
-import { childUid } from "../../../configurationIndex/logicalAddress"
 import {
+  getConfigurationIndexFormElementLogicalAddress,
   getConfigurationIndexCollectionContext,
   withConfigurationIndexLogicalAddress,
 } from "../../../configurationIndex/collector/context"
@@ -33,7 +33,7 @@ export const importChildItemsFromXML = <
     const itemName = typeof xmlValue?._name === "string" ? xmlValue._name : undefined
     const itemAddress =
       collection !== undefined && itemName !== undefined
-        ? childUid(collection.logicalAddress, "Элемент", itemName)
+        ? getConfigurationIndexFormElementLogicalAddress(collection, itemName)
         : undefined
     const itemContext = itemAddress === undefined ? context : withConfigurationIndexLogicalAddress(context, itemAddress)
     if (itemAddress !== undefined && typeof xmlValue?._id === "string") {

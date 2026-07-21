@@ -12,6 +12,7 @@ export interface ConfigurationIndexExportRuntime {
   readonly targetProjectPath: string
   readonly logicalAddress: string
   readonly xmlNodeLogicalAddress?: string
+  readonly formElementRootLogicalAddress?: string
   readonly childCollectionUidSegment?: string
   readonly yamlPathAddressing?: true
   identity(kind: ConfigurationIdentity["kind"], address?: string): string | undefined
@@ -20,6 +21,7 @@ export interface ConfigurationIndexExportRuntime {
   xmlValue(address?: string): ConfigurationXmlValue | undefined
   configVersion(address: string): string
   withLogicalAddress(logicalAddress: string): ConfigurationIndexExportRuntime
+  withFormElementRootLogicalAddress(logicalAddress: string): ConfigurationIndexExportRuntime
   withPropertyContext(
     propertyName: string,
     childCollectionUidSegment?: string,
@@ -34,6 +36,7 @@ export interface CreateConfigurationIndexExportRuntimeOptions {
   readonly logicalAddress: string
   readonly targetGeneration?: bigint
   readonly xmlNodeLogicalAddress?: string
+  readonly formElementRootLogicalAddress?: string
   readonly childCollectionUidSegment?: string
   readonly yamlPathAddressing?: true
 }
@@ -50,6 +53,7 @@ class DefaultConfigurationIndexExportRuntime implements ConfigurationIndexExport
   readonly targetProjectPath: string
   readonly logicalAddress: string
   readonly xmlNodeLogicalAddress?: string
+  readonly formElementRootLogicalAddress?: string
   readonly childCollectionUidSegment?: string
   readonly yamlPathAddressing?: true
   private readonly targetGeneration: bigint
@@ -62,6 +66,7 @@ class DefaultConfigurationIndexExportRuntime implements ConfigurationIndexExport
     this.targetProjectPath = options.targetProjectPath
     this.logicalAddress = options.logicalAddress
     this.xmlNodeLogicalAddress = options.xmlNodeLogicalAddress
+    this.formElementRootLogicalAddress = options.formElementRootLogicalAddress
     this.childCollectionUidSegment = options.childCollectionUidSegment
     this.yamlPathAddressing = options.yamlPathAddressing
     this.targetGeneration = options.targetGeneration ?? this.source.binding().indexGeneration + 1n
@@ -99,6 +104,23 @@ class DefaultConfigurationIndexExportRuntime implements ConfigurationIndexExport
       targetProjectPath: this.targetProjectPath,
       logicalAddress,
       targetGeneration: this.targetGeneration,
+      ...(this.formElementRootLogicalAddress === undefined
+        ? {}
+        : { formElementRootLogicalAddress: this.formElementRootLogicalAddress }),
+      ...(this.childCollectionUidSegment === undefined ? {} : { childCollectionUidSegment: this.childCollectionUidSegment }),
+      ...(this.yamlPathAddressing === undefined ? {} : { yamlPathAddressing: this.yamlPathAddressing }),
+    })
+  }
+
+  withFormElementRootLogicalAddress(logicalAddress: string): ConfigurationIndexExportRuntime {
+    return new DefaultConfigurationIndexExportRuntime({
+      source: this.source,
+      collector: this.collector,
+      targetProjectPath: this.targetProjectPath,
+      logicalAddress: this.logicalAddress,
+      targetGeneration: this.targetGeneration,
+      formElementRootLogicalAddress: logicalAddress,
+      ...(this.xmlNodeLogicalAddress === undefined ? {} : { xmlNodeLogicalAddress: this.xmlNodeLogicalAddress }),
       ...(this.childCollectionUidSegment === undefined ? {} : { childCollectionUidSegment: this.childCollectionUidSegment }),
       ...(this.yamlPathAddressing === undefined ? {} : { yamlPathAddressing: this.yamlPathAddressing }),
     })
@@ -120,6 +142,9 @@ class DefaultConfigurationIndexExportRuntime implements ConfigurationIndexExport
       logicalAddress: useYamlPath ? propertyAddress : this.logicalAddress,
       xmlNodeLogicalAddress: propertyAddress,
       targetGeneration: this.targetGeneration,
+      ...(this.formElementRootLogicalAddress === undefined
+        ? {}
+        : { formElementRootLogicalAddress: this.formElementRootLogicalAddress }),
       ...(useYamlPath ? { yamlPathAddressing: true as const } : {}),
       ...(childCollectionUidSegment === undefined ? {} : { childCollectionUidSegment }),
     })

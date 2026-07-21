@@ -158,6 +158,9 @@ const registerExportToXML = <Rule extends ElementRule>(params: {
       additionalParams: {
         ...extraParams,
         name,
+        ...(nameStyle?.canonicalNameMode === "ownerSuffix"
+          ? { configurationIndexSegment: nameStyle.canonicalSuffix }
+          : {}),
       },
     })
   }

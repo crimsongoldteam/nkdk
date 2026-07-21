@@ -1,12 +1,13 @@
 import type { ConfigurationContextFromXML } from "../../context/types"
 import type { ConfigurationIndexAddressingMode } from "../../orchestration/property/types"
-import { childUid, yamlIndexUid, yamlKeyUid, yamlPropertyUid } from "../logicalAddress"
+import { childSegmentUid, childUid, yamlIndexUid, yamlKeyUid, yamlPropertyUid } from "../logicalAddress"
 import type { ConfigurationIndexCollector } from "./writer"
 
 export interface ConfigurationIndexCollectionContext {
   readonly collector: ConfigurationIndexCollector
   readonly logicalAddress: string
   readonly xmlNodeLogicalAddress?: string
+  readonly formElementRootLogicalAddress?: string
   readonly childCollectionUidSegment?: string
   readonly yamlPathAddressing?: true
 }
@@ -62,6 +63,36 @@ export function withConfigurationIndexXmlNodeLogicalAddress(
       configurationIndex: { ...collection, xmlNodeLogicalAddress },
     },
   }
+}
+
+export function withConfigurationIndexFormElementRootLogicalAddress(
+  context: ConfigurationContextFromXML,
+  formElementRootLogicalAddress: string
+): ConfigurationContextFromXML {
+  const collection = getConfigurationIndexCollectionContext(context)
+  if (collection === undefined) return context
+
+  return {
+    ...context,
+    fromXML: {
+      ...context.fromXML,
+      configurationIndex: { ...collection, formElementRootLogicalAddress },
+    },
+  }
+}
+
+export function getConfigurationIndexFormElementLogicalAddress(
+  collection: ConfigurationIndexCollectionContext,
+  elementName: string
+): string {
+  return childUid(collection.formElementRootLogicalAddress ?? collection.logicalAddress, "Элемент", elementName)
+}
+
+export function getConfigurationIndexFormSingletonLogicalAddress(
+  collection: ConfigurationIndexCollectionContext,
+  singletonSegment: string
+): string {
+  return childSegmentUid(collection.logicalAddress, singletonSegment)
 }
 
 export function runWithConfigurationIndexPropertyContext<T>(

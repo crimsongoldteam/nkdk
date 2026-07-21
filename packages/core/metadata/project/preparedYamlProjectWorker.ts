@@ -182,7 +182,7 @@ function withoutYamlData(file: PreparedYamlFile): PreparedYamlFile {
 }
 
 function estimateProfilePayloadBytes(value: unknown): number | undefined {
-  if (process.env["NKDK_VALIDATION_TIMING"] !== "1") return undefined
+  if (process.env["NKDK_PROFILE"] !== "1") return undefined
   return Buffer.byteLength(JSON.stringify(value, (_key, item) => (typeof item === "bigint" ? item.toString() : item)), "utf8")
 }
 

@@ -1,7 +1,7 @@
 import { existsSync, mkdirSync, mkdtempSync, readFileSync, rmSync, writeFileSync } from "node:fs"
 import { tmpdir } from "node:os"
 import { join } from "node:path"
-import { afterEach, beforeEach, describe, expect, it } from "vitest"
+import { afterEach, beforeEach, describe, expect, it, vi } from "vitest"
 import { transferableSymbol, valueSymbol } from "piscina"
 import { mockContextFromXML } from "../../tests/mockContext"
 import { decodeConfigurationIndexFragments } from "../configurationIndex/fragment"
@@ -31,7 +31,7 @@ beforeEach(async () => {
     operationId: "test-operation",
     workerIndex: 2,
     context: mockContextFromXML(),
-    tempDir: "/tmp/nkdk-import-worker-2",
+    outputDir: "/tmp/nkdk-import-worker-2",
   })
 })
 
@@ -122,6 +122,36 @@ describe("XML import worker first pass", () => {
 
     expect(transferable[transferableSymbol]).toEqual([fragmentBuffer])
     expect(transferable[valueSymbol]).toBe(result)
+  })
+
+  it("emits import profile records for worker first pass steps", async () => {
+    const error = vi.spyOn(console, "error").mockImplementation(() => undefined)
+    const previous = process.env["NKDK_PROFILE"]
+    let lines: string[] = []
+    process.env["NKDK_PROFILE"] = "1"
+    try {
+      await runImportWorkerCommand({ kind: "firstPass", assignments: [catalogAssignment()] })
+      lines = error.mock.calls.map(([line]) => String(line))
+    } finally {
+      if (previous === undefined) delete process.env["NKDK_PROFILE"]
+      else process.env["NKDK_PROFILE"] = previous
+      error.mockRestore()
+    }
+
+    expect(
+      lines.some(
+        (line) =>
+          line.includes("[nkdk-profile-step]") &&
+          line.includes('operation="import-from-xml"') &&
+          line.includes("scope=worker") &&
+          line.includes("worker=2") &&
+          line.includes('substep="Чтение XML"')
+      )
+    ).toBe(true)
+    expect(lines.some((line) => line.includes("[nkdk-profile-step]") && line.includes('substep="Парсинг XML"'))).toBe(true)
+    expect(lines.some((line) => line.includes("[nkdk-profile-step]") && line.includes('substep="Построение модели"'))).toBe(
+      true
+    )
   })
 
   it("releases retained models on dispose", async () => {
@@ -245,13 +275,13 @@ function expectFirstPass(result: Awaited<ReturnType<typeof runImportWorkerComman
   return result
 }
 
-async function initializeWorker(tempDir: string): Promise<void> {
+async function initializeWorker(outputDir: string): Promise<void> {
   await runImportWorkerCommand({
     kind: "initialize",
     operationId: "second-pass-test",
     workerIndex: 0,
     context: mockContextFromXML(),
-    tempDir,
+    outputDir,
   })
 }
 

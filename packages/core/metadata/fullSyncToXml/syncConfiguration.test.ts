@@ -63,8 +63,8 @@ describe("syncConfigurationToXml", () => {
       { projectPath: "Справочник/Товары/Свойства.yaml", contentHash: 10n },
     ])
     expect(harness.writtenIndex?.identities).toEqual([
-      { logicalAddress: "Конфигурация.ConfigDumpInfo.Catalog%2EТовары", kind: "xmlId", value: "dump" },
       { logicalAddress: "Справочник.Товары", kind: "uuid", value: "00000000-0000-4000-8000-000000000002" },
+      { logicalAddress: "Конфигурация.ConfigDumpInfo.Catalog%2EТовары", kind: "xmlId", value: "dump" },
     ])
   })
 

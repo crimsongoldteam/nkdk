@@ -115,7 +115,7 @@ export function mergeConfigurationIndexFragments(
   assertUniqueIdentityKeys(identities)
   assertUniqueAddresses("XML_NODES", xmlNodes)
   assertUniqueAddresses("XML_VALUES", xmlValues)
-  return normalizeFragmentData({ identities, xmlNodes, xmlValues })
+  return { identities, xmlNodes, xmlValues }
 }
 
 function decodeEnvelope(buffer: ArrayBuffer): FragmentEnvelope {
@@ -305,32 +305,6 @@ function assertUniqueAddresses(
     }
     addresses.add(record.logicalAddress)
   }
-}
-
-function normalizeFragmentData({
-  identities,
-  xmlNodes,
-  xmlValues,
-}: Pick<ConfigurationIndexData, "identities" | "xmlNodes" | "xmlValues">): Pick<
-  ConfigurationIndexData,
-  "identities" | "xmlNodes" | "xmlValues"
-> {
-  return {
-    identities: [...identities].sort(
-      (left, right) =>
-        compareUtf8(left.logicalAddress, right.logicalAddress) || identityKind(left) - identityKind(right)
-    ),
-    xmlNodes: [...xmlNodes].sort((left, right) => compareUtf8(left.logicalAddress, right.logicalAddress)),
-    xmlValues: [...xmlValues].sort((left, right) => compareUtf8(left.logicalAddress, right.logicalAddress)),
-  }
-}
-
-function identityKind(identity: ConfigurationIdentity): number {
-  return identity.kind === "uuid" ? 1 : identity.kind === "xmlId" ? 2 : 3
-}
-
-function compareUtf8(left: string, right: string): number {
-  return Buffer.compare(Buffer.from(left), Buffer.from(right))
 }
 
 function isRecord(value: unknown): value is Record<string, unknown> {

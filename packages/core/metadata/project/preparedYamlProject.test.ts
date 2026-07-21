@@ -141,9 +141,9 @@ describe("prepareYamlProject", () => {
     "emits detailed main-process preparation profile records",
     async () => {
       const error = vi.spyOn(console, "error").mockImplementation(() => undefined)
-      const previous = process.env["NKDK_VALIDATION_TIMING"]
+      const previous = process.env["NKDK_PROFILE"]
       let lines: string[] = []
-      process.env["NKDK_VALIDATION_TIMING"] = "1"
+      process.env["NKDK_PROFILE"] = "1"
       try {
         const projectDir = createProject()
         const result = await prepareProject({
@@ -154,19 +154,19 @@ describe("prepareYamlProject", () => {
         expect(result.ok).toBe(true)
         lines = error.mock.calls.map(([line]) => String(line))
       } finally {
-        if (previous === undefined) delete process.env["NKDK_VALIDATION_TIMING"]
-        else process.env["NKDK_VALIDATION_TIMING"] = previous
+        if (previous === undefined) delete process.env["NKDK_PROFILE"]
+        else process.env["NKDK_PROFILE"] = previous
         error.mockRestore()
       }
 
-      expect(lines.some((line) => line.includes("[validation-step]") && line.includes('substep="Поиск файлов проекта"'))).toBe(
+      expect(lines.some((line) => line.includes("[nkdk-profile-step]") && line.includes('substep="Поиск файлов проекта"'))).toBe(
         true
       )
       expect(
-        lines.some((line) => line.includes("[validation-step]") && line.includes('substep="Классификация файлов проекта"'))
+        lines.some((line) => line.includes("[nkdk-profile-step]") && line.includes('substep="Классификация файлов проекта"'))
       ).toBe(true)
       expect(
-        lines.some((line) => line.includes("[validation-step]") && line.includes('substep="Ожидание результата подготовки"'))
+        lines.some((line) => line.includes("[nkdk-profile-step]") && line.includes('substep="Ожидание результата подготовки"'))
       ).toBe(true)
       expect(lines.every((line) => !line.includes("scope=worker"))).toBe(true)
     },

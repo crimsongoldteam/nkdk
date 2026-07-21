@@ -84,9 +84,9 @@ describe("validateProject", { timeout: 120_000 }, () => {
 
   it("emits detailed main-process validation profile records", async () => {
     const error = vi.spyOn(console, "error").mockImplementation(() => undefined)
-    const previous = process.env["NKDK_VALIDATION_TIMING"]
+    const previous = process.env["NKDK_PROFILE"]
     let lines: string[] = []
-    process.env["NKDK_VALIDATION_TIMING"] = "1"
+    process.env["NKDK_PROFILE"] = "1"
     try {
       const projectDir = createProject()
       writeProjectFile(projectDir, "Справочник/Товары/Свойства.yaml", "{}\n")
@@ -94,19 +94,26 @@ describe("validateProject", { timeout: 120_000 }, () => {
       await validateProject({ projectDir, context: mockContext, concurrency: 1 })
       lines = error.mock.calls.map(([line]) => String(line))
     } finally {
-      if (previous === undefined) delete process.env["NKDK_VALIDATION_TIMING"]
-      else process.env["NKDK_VALIDATION_TIMING"] = previous
+      if (previous === undefined) delete process.env["NKDK_PROFILE"]
+      else process.env["NKDK_PROFILE"] = previous
       error.mockRestore()
     }
 
-    expect(lines.some((line) => line.includes("[validation-step]") && line.includes('step="Инициализация"'))).toBe(true)
-    expect(lines.some((line) => line.includes("[validation-step]") && line.includes('step="Обобщение индексов"'))).toBe(
+    expect(
+      lines.some(
+        (line) =>
+          line.includes("[nkdk-profile-step]") &&
+          line.includes('operation="validation"') &&
+          line.includes('step="Инициализация"')
+      )
+    ).toBe(true)
+    expect(lines.some((line) => line.includes("[nkdk-profile-step]") && line.includes('step="Обобщение индексов"'))).toBe(
       true
     )
-    expect(lines.some((line) => line.includes("[validation-step]") && line.includes('step="Проверка зависимостей"'))).toBe(
+    expect(lines.some((line) => line.includes("[nkdk-profile-step]") && line.includes('step="Проверка зависимостей"'))).toBe(
       true
     )
-    expect(lines.some((line) => line.includes("[validation-step]") && line.includes('step="Завершение validation"'))).toBe(
+    expect(lines.some((line) => line.includes("[nkdk-profile-step]") && line.includes('step="Завершение validation"'))).toBe(
       true
     )
     expect(lines.every((line) => !line.includes("scope=worker"))).toBe(true)

@@ -14,6 +14,7 @@ import { createOwnerMetadataCacheFromSharedValidationSnapshot } from "../validat
 import type { OwnerMetadataCache } from "../validation/dataPath/ownerCache"
 import type { ValidationOwnerFacts } from "../validation/dataPath/ownerFacts"
 import type { SharedValidationSnapshot } from "../validation/sharedValidationSnapshot"
+import { createOperationProfiler, type ValidationProfiler } from "../validation/profile"
 import { extractImportOwnerFacts } from "./ownerFacts"
 import { ImportXmlInputError, prepareImportModel, type PreparedImportModel } from "./prepareModel"
 import type {
@@ -30,7 +31,7 @@ interface InitializedImportWorkerState {
   operationId: string
   workerIndex: number
   context: ConfigurationContextFromXML
-  tempDir: string
+  outputDir: string
 }
 
 let initializedState: InitializedImportWorkerState | undefined
@@ -43,7 +44,7 @@ export async function runImportWorkerCommand(command: ImportWorkerCommand): Prom
       operationId: command.operationId,
       workerIndex: command.workerIndex,
       context: command.context,
-      tempDir: command.tempDir,
+      outputDir: command.outputDir,
     }
     return undefined
   }
@@ -64,17 +65,20 @@ async function runSecondPass(
   sharedMetadata: SharedValidationSnapshot,
   state: InitializedImportWorkerState
 ): Promise<ImportSecondPassResult> {
+  const profiler = createOperationProfiler({ operation: "import-from-xml", scope: { scope: "worker", workerIndex: state.workerIndex } })
   const diagnostics: ImportDiagnostic[] = []
   const warnings: ImportDiagnostic[] = []
   const files: ImportResultFile[] = []
   const ownerMetadataCache = createOwnerMetadataCacheFromSharedValidationSnapshot({
-    projectDir: state.tempDir,
+    projectDir: state.outputDir,
     snapshot: sharedMetadata,
   })
 
   for (const [id, prepared] of preparedModels) {
     try {
-      files.push(...(await writePreparedYamlToTemp(prepared, ownerMetadataCache, state, warnings)))
+      files.push(
+        ...(await writePreparedYamlToOutput(prepared, ownerMetadataCache, state, warnings, profiler))
+      )
       files.push(
         ...prepared.assignment.externalFiles.map((file) => ({
           sourceKind: "xml" as const,
@@ -89,28 +93,43 @@ async function runSecondPass(
     }
   }
 
+  profiler.record("Подготовка импорта конфигурации", "Формирование worker списка файлов результата импорта", {
+    items: files.length,
+    timeMs: 0,
+  })
+  profiler.flush()
   return { kind: "secondPassResult", diagnostics, warnings, files }
 }
 
-async function writePreparedYamlToTemp(
+async function writePreparedYamlToOutput(
   prepared: PreparedImportModel,
   ownerMetadataCache: OwnerMetadataCache,
   state: InitializedImportWorkerState,
-  warnings: ImportDiagnostic[]
+  warnings: ImportDiagnostic[],
+  profiler: ValidationProfiler
 ): Promise<ImportResultFile[]> {
   const externalFilesCollector: ExternalFileEntry[] = []
-  const context = secondPassExportContext({
-    context: state.context,
-    ownerMetadataCache,
-    targetProjectPath: prepared.targetProjectPath,
-    externalFilesCollector,
-    warnings,
+  const contextWithOwners = profiler.measure(
+    "Подготовка импорта конфигурации",
+    "Подготовка контекста YAML",
+    { items: 1 },
+    () => {
+      const context = secondPassExportContext({
+        context: state.context,
+        ownerMetadataCache,
+        targetProjectPath: prepared.targetProjectPath,
+        externalFilesCollector,
+        warnings,
+      })
+      return withExportMetadataTargetOwners(context, prepared.ownerContext)
+    }
+  )
+  const exported = exportPreparedYaml(prepared, contextWithOwners, profiler)
+  const yamlSourcePath = join(state.outputDir, prepared.targetProjectPath)
+  await profiler.measureAsync("Подготовка импорта конфигурации", "Запись основного YAML-файла", { items: 1 }, async () => {
+    await fs.promises.mkdir(dirname(yamlSourcePath), { recursive: true })
+    await fs.promises.writeFile(yamlSourcePath, exported.yaml, "utf-8")
   })
-  const contextWithOwners = withExportMetadataTargetOwners(context, prepared.ownerContext)
-  const exported = exportPreparedYaml(prepared, contextWithOwners)
-  const yamlSourcePath = join(state.tempDir, prepared.targetProjectPath)
-  await fs.promises.mkdir(dirname(yamlSourcePath), { recursive: true })
-  await fs.promises.writeFile(yamlSourcePath, exported.yaml, "utf-8")
 
   const files: ImportResultFile[] = [
     {
@@ -121,9 +140,16 @@ async function writePreparedYamlToTemp(
   ]
   for (const externalFile of [...prepared.generatedFiles, ...exported.externalFiles]) {
     const targetProjectPath = posix.join(posix.dirname(prepared.targetProjectPath), externalFile.relativePath)
-    const sourcePath = join(state.tempDir, targetProjectPath)
-    await fs.promises.mkdir(dirname(sourcePath), { recursive: true })
-    await fs.promises.writeFile(sourcePath, externalFile.content, "utf-8")
+    const sourcePath = join(state.outputDir, targetProjectPath)
+    await profiler.measureAsync(
+      "Подготовка импорта конфигурации",
+      "Запись сгенерированного файла YAML",
+      { items: 1, bytes: Buffer.byteLength(externalFile.content, "utf-8") },
+      async () => {
+        await fs.promises.mkdir(dirname(sourcePath), { recursive: true })
+        await fs.promises.writeFile(sourcePath, externalFile.content, "utf-8")
+      }
+    )
     files.push({ sourceKind: "worker", sourcePath, targetProjectPath })
   }
   return files
@@ -131,16 +157,34 @@ async function writePreparedYamlToTemp(
 
 function exportPreparedYaml(
   prepared: PreparedImportModel,
-  context: ConfigurationContext
+  context: ConfigurationContext,
+  profiler: ValidationProfiler
 ): { yaml: string; externalFiles: ExternalFileEntry[] } {
   if (prepared.localDataPathIndex !== undefined) {
-    const result = exportClientApplicationFormToYAML(context, prepared.model as ClientApplicationForm)
-    return { yaml: result.yaml === undefined ? "" : exportToYAML(result.yaml), externalFiles: result.externalFiles }
+    const result = profiler.measure("Подготовка импорта конфигурации", "Экспорт модели в YAML-объект", { items: 1 }, () =>
+      exportClientApplicationFormToYAML(context, prepared.model as ClientApplicationForm)
+    )
+    return {
+      yaml:
+        result.yaml === undefined
+          ? ""
+          : profiler.measure("Подготовка импорта конфигурации", "Сериализация YAML", { items: 1 }, () =>
+              exportToYAML(result.yaml)
+            ),
+      externalFiles: result.externalFiles,
+    }
   }
 
-  const yaml = exportMetadataItemToYAML({ context, data: prepared.model, rule: prepared.rule })
+  const yaml = profiler.measure("Подготовка импорта конфигурации", "Экспорт модели в YAML-объект", { items: 1 }, () =>
+    exportMetadataItemToYAML({ context, data: prepared.model, rule: prepared.rule })
+  )
   return {
-    yaml: yaml === undefined ? "" : exportToYAML(yaml),
+    yaml:
+      yaml === undefined
+        ? ""
+        : profiler.measure("Подготовка импорта конфигурации", "Сериализация YAML", { items: 1 }, () =>
+            exportToYAML(yaml)
+          ),
     externalFiles: context.exportToYAML?.externalFilesCollector ?? [],
   }
 }
@@ -185,6 +229,7 @@ async function runFirstPass(
   state: InitializedImportWorkerState
 ): Promise<ImportFirstPassResult> {
   preparedModels.clear()
+  const profiler = createOperationProfiler({ operation: "import-from-xml", scope: { scope: "worker", workerIndex: state.workerIndex } })
   const diagnostics: ImportDiagnostic[] = []
   const ownerFacts: ValidationOwnerFacts[] = []
   const fragments: ConfigurationIndexFragment[] = []
@@ -192,9 +237,19 @@ async function runFirstPass(
   for (const assignment of assignments) {
     const collector = createConfigurationIndexCollector()
     try {
-      const prepared = await prepareImportModel({ assignment, context: state.context, collector })
-      const preparedOwnerFacts = extractImportOwnerFacts(prepared)
-      const fragment = collector.fragment(assignment.targetProjectPath)
+      const prepared = await prepareImportModel({ assignment, context: state.context, collector, profiler })
+      const preparedOwnerFacts = profiler.measure(
+        "Подготовка импорта конфигурации",
+        "Извлечение локального индекса метаданных",
+        { items: 1 },
+        () => extractImportOwnerFacts(prepared)
+      )
+      const fragment = profiler.measure(
+        "Подготовка импорта конфигурации",
+        "Извлечение данных для индекса конфигурации",
+        { items: 1 },
+        () => collector.fragment(assignment.targetProjectPath)
+      )
       preparedModels.set(assignment.id, prepared)
       ownerFacts.push(...preparedOwnerFacts)
       fragments.push(fragment)
@@ -206,6 +261,7 @@ async function runFirstPass(
     }
   }
 
+  profiler.flush()
   return {
     kind: "firstPassResult",
     ownerFacts,
@@ -261,7 +317,7 @@ export function workerStateForTests(): {
   initialized: boolean
   operationId?: string
   workerIndex?: number
-  tempDir?: string
+  outputDir?: string
   preparedIds: string[]
 } {
   return {
@@ -271,7 +327,7 @@ export function workerStateForTests(): {
       : {
           operationId: initializedState.operationId,
           workerIndex: initializedState.workerIndex,
-          tempDir: initializedState.tempDir,
+          outputDir: initializedState.outputDir,
         }),
     preparedIds: [...preparedModels.keys()],
   }

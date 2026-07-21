@@ -190,12 +190,12 @@ describe("importClientApplicationFormFromXML", () => {
         expect.objectContaining({ logicalAddress, kind: "uuid" }),
         expect.objectContaining({ logicalAddress: `${logicalAddress}.Элемент.ПолеВвода1`, kind: "xmlId" }),
         expect.objectContaining({
-          logicalAddress: `${logicalAddress}.Элемент.ПолеВвода1.Элемент.ПолеВвода1КонтекстноеМеню`,
+          logicalAddress: `${logicalAddress}.Элемент.ПолеВвода1.КонтекстноеМеню`,
           kind: "xmlId",
           value: "3",
         }),
         expect.objectContaining({
-          logicalAddress: `${logicalAddress}.Элемент.ПолеВвода1.Элемент.ПолеВвода1РасширеннаяПодсказка`,
+          logicalAddress: `${logicalAddress}.Элемент.ПолеВвода1.РасширеннаяПодсказка`,
           kind: "xmlId",
           value: "4",
         }),
@@ -227,7 +227,7 @@ describe("importClientApplicationFormFromXML", () => {
       xmlMetadata: xmlMetadata.MetaDataObject,
     })
 
-    const singletonAddress = `${logicalAddress}.Элемент.ПолеВвода1.Элемент.ПолеВвода1КонтекстноеМеню`
+    const singletonAddress = `${logicalAddress}.Элемент.ПолеВвода1.КонтекстноеМеню`
     const identities = collector.fragment("Справочник/Контрагенты/Формы/ФормаЭлемента/Форма.yaml").identities
     expect(identities).toEqual(
       expect.arrayContaining([
@@ -276,17 +276,17 @@ describe("importClientApplicationFormFromXML", () => {
     expect(identities).toEqual(
       expect.arrayContaining([
         {
-          logicalAddress: `${logicalAddress}.Элемент.ДиаграммаГанта.Элемент.ДиаграммаГантаКонтекстноеМеню`,
+          logicalAddress: `${logicalAddress}.Элемент.ДиаграммаГанта.КонтекстноеМеню`,
           kind: "xmlId",
           value: "2",
         },
         {
-          logicalAddress: `${logicalAddress}.Элемент.ДиаграммаГанта.Элемент.ДиаграммаГантаТаблица`,
+          logicalAddress: `${logicalAddress}.Элемент.ДиаграммаГанта.Таблица`,
           kind: "xmlId",
           value: "98",
         },
         {
-          logicalAddress: `${logicalAddress}.Элемент.ДиаграммаГанта.Элемент.ДиаграммаГантаТаблица.Элемент.ДиаграммаГантаТаблицаКонтекстноеМеню`,
+          logicalAddress: `${logicalAddress}.Элемент.ДиаграммаГанта.Таблица.КонтекстноеМеню`,
           kind: "xmlId",
           value: "100",
         },

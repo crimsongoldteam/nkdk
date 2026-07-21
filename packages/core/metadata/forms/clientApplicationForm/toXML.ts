@@ -1,6 +1,9 @@
 import { ConfigurationContextWithExportToXML } from "../../context/types"
 import { childUid } from "../../configurationIndex/logicalAddress"
-import { withConfigurationIndexExportLogicalAddress } from "../../configurationIndex/referenceView"
+import {
+  withConfigurationIndexExportFormElementRootLogicalAddress,
+  withConfigurationIndexExportLogicalAddress,
+} from "../../configurationIndex/referenceView"
 import { getUUID } from "../../helpers/uuid"
 import { exportPropertiesToXML } from "../../orchestration"
 import { recordCurrentExternalMetadataUuid } from "../../orchestration/externalMetadata/record"
@@ -17,7 +20,10 @@ export const exportClientApplicationFormToXML = (params: {
     context.exportToXML.configurationIndex === undefined
       ? context
       : withConfigurationIndexExportLogicalAddress(
-          context,
+          withConfigurationIndexExportFormElementRootLogicalAddress(
+            context,
+            context.exportToXML.configurationIndex.logicalAddress
+          ),
           childUid(context.exportToXML.configurationIndex.logicalAddress, "ЧастьФормы", "Содержимое")
         )
 
