@@ -2,6 +2,7 @@ import { registerMetadataItemCollectionRule } from "../../../orchestration"
 import { FormTypeByRule } from "../../../orchestration/metadataItem/element"
 import { YAMLTypeByRule } from "../../../orchestration/metadataItem/yaml"
 import { importFilterItemFromXML } from "./fromXML"
+import { importFilterItemFromXMLToYAML } from "./fromXMLToYAML"
 import { importFilterItemFromYAML } from "./fromYAML"
 import { FilterItemComparisonRules, FilterItemGroupRules } from "./rules"
 import { exportFilterItemToJSONSchema } from "./toJSONSchema"
@@ -22,6 +23,7 @@ registerMetadataItemCollectionRule({
   itemRule: FilterItemComparisonRules,
   xmlElement: "dcsset:item",
   fromXML: importFilterItemFromXML,
+  fromXMLToYAML: importFilterItemFromXMLToYAML,
   fromYAML: importFilterItemFromYAML,
   toYAML: exportFilterItemToYAML,
   toXML: exportFilterItemToXML,

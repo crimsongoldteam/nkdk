@@ -15,6 +15,7 @@ import type {
   StandardAttributeDescriptionsPropertyRule,
 } from "../../orchestration/property/types"
 import { StandardAttributeDescriptionRules } from "./rules"
+import { importStandardAttributeDescriptionsFromXMLToYAML } from "./fromXMLToYAML"
 import {
   StandartAttributeNameFromYAML,
   StandartAttributeNameToYAML,
@@ -290,8 +291,10 @@ registerMetadataItemCollectionRule({
   keyField: "name",
   nameFromYAMLKey: StandartAttributeNameFromYAML,
   recordYamlKeyFromItem: (item) => StandartAttributeNameToYAML[item.name as StandartAttributeName],
+  recordYamlKeyFromYAML: ({ name }) => StandartAttributeNameToYAML[name as StandartAttributeName],
   fromYAML: importStandardAttributeDescriptionsFromYAML,
   fromXML: importStandardAttributeDescriptionsFromXML,
+  fromXMLToYAML: importStandardAttributeDescriptionsFromXMLToYAML,
   toYAML: exportStandardAttributeDescriptionsToYAML,
   toXML: exportStandardAttributeDescriptionsToXML,
 })

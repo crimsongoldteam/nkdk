@@ -4,6 +4,7 @@ import { YAMLTypeByRule } from "../../../orchestration/metadataItem/yaml"
 import { registerJSONSchemaPropertyRef, schemaRef } from "../../../orchestration/jsonSchemaRefs"
 import { Type } from "typebox"
 import { importOrderItemFieldsFromXML } from "./fromXML"
+import { importOrderItemFieldsFromXMLToYAML } from "./fromXMLToYAML"
 import { importOrderItemFieldsFromYAML } from "./fromYAML"
 import { OrderItemFieldRules } from "./rules"
 import { exportOrderItemFieldsToJSONSchema } from "./toJSONSchema"
@@ -24,6 +25,7 @@ registerMetadataItemCollectionRule({
   itemRule: OrderItemFieldRules,
   // xmlElement: "dcsset:item",
   fromXML: importOrderItemFieldsFromXML,
+  fromXMLToYAML: importOrderItemFieldsFromXMLToYAML,
   fromYAML: importOrderItemFieldsFromYAML,
   toXML: exportOrderItemFieldsToXML,
   toYAML: exportOrderItemFieldsToYAML,
