@@ -133,7 +133,18 @@ describe("XML import worker first pass", () => {
     try {
       await initializeWorker(createTempDir("profile"))
       const first = expectFirstPass(
-        await runImportWorkerCommand({ kind: "firstPass", assignments: [catalogAssignment()] })
+        await runImportWorkerCommand({
+          kind: "firstPass",
+          assignments: [
+            catalogAssignment({ id: "catalog-1" }),
+            catalogAssignment({
+              id: "catalog-2",
+              targetProjectPath: "Справочник/КонтрагентыКопия/Свойства.yaml",
+              itemName: "КонтрагентыКопия",
+              logicalAddress: "Справочник.КонтрагентыКопия",
+            }),
+          ],
+        })
       )
       await runImportWorkerCommand({
         kind: "secondPass",
@@ -163,6 +174,12 @@ describe("XML import worker first pass", () => {
     expect(lines.some((line) => line.includes('substep="Уточнение отложенных значений YAML"'))).toBe(true)
     expect(lines.some((line) => line.includes('substep="Сериализация YAML"'))).toBe(true)
     expect(lines.some((line) => line.includes('substep="Запись основного YAML-файла"'))).toBe(true)
+    const readLines = lines.filter((line) => line.includes('substep="Чтение XML"'))
+    expect(readLines).toHaveLength(1)
+    expect(readLines[0]).toContain("items=2")
+    const serializationLines = lines.filter((line) => line.includes('substep="Сериализация YAML"'))
+    expect(serializationLines).toHaveLength(1)
+    expect(serializationLines[0]).toContain("items=2")
     expect(lines.some((line) => line.includes('substep="Построение модели"'))).toBe(false)
     expect(lines.some((line) => line.includes('substep="Экспорт модели в YAML-объект"'))).toBe(false)
   })

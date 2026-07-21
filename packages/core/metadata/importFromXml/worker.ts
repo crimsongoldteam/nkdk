@@ -63,7 +63,11 @@ async function runSecondPass(
   sharedMetadata: SharedValidationSnapshot,
   state: InitializedImportWorkerState
 ): Promise<ImportSecondPassResult> {
-  const profiler = createOperationProfiler({ operation: "import-from-xml", scope: { scope: "worker", workerIndex: state.workerIndex } })
+  const profiler = createOperationProfiler({
+    operation: "import-from-xml",
+    scope: { scope: "worker", workerIndex: state.workerIndex },
+    aggregate: true,
+  })
   const diagnostics: ImportDiagnostic[] = []
   const warnings: ImportDiagnostic[] = []
   const files: ImportResultFile[] = []
@@ -204,7 +208,11 @@ async function runFirstPass(
   state: InitializedImportWorkerState
 ): Promise<ImportFirstPassResult> {
   preparedYaml.clear()
-  const profiler = createOperationProfiler({ operation: "import-from-xml", scope: { scope: "worker", workerIndex: state.workerIndex } })
+  const profiler = createOperationProfiler({
+    operation: "import-from-xml",
+    scope: { scope: "worker", workerIndex: state.workerIndex },
+    aggregate: true,
+  })
   const diagnostics: ImportDiagnostic[] = []
   const ownerFacts: ValidationOwnerFacts[] = []
   const fragments: ConfigurationIndexFragment[] = []
