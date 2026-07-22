@@ -163,4 +163,31 @@ describe("convertPropertiesFromYAMLToXML", () => {
       Value: { "#text": "основное", _sibling: "сырое" },
     })
   })
+
+  it("предпочитает вложенный описатель старым обработчикам коллекции", () => {
+    const nestedItemRule = testRule({
+      name: { type: "string", xml: "Name" },
+      value: { type: "string", yaml: "Значение", xml: "Value" },
+    })
+    registerTypeRule("NestedCollection" as never, "yamlToXMLNestedRule", {
+      kind: "collection",
+      itemRule: nestedItemRule,
+      yamlShape: "record",
+      xmlElement: "Item",
+    })
+    registerTypeRule("NestedCollection" as never, "importFromYAML", () => {
+      throw new Error("старый модельный обработчик вызван")
+    })
+
+    const result = convertPropertiesFromYAMLToXML({
+      context: context(),
+      yaml: { Элементы: { Первый: { Значение: "A" } } },
+      rule: testRule({
+        items: { type: "NestedCollection" as never, yaml: "Элементы", xml: "Item" },
+      }),
+      outputs: [{ key: "owner" }],
+    })
+
+    expect(result.outputs.get("owner")).toEqual({ Item: [{ Name: "Первый", Value: "A" }] })
+  })
 })

@@ -68,8 +68,12 @@ export const registerMetadataItemCollectionRule = <
   const schemaShape = params.schemaShape ?? (params.yamlAsArray ? "array" : "record")
   registerMetadataCollectionConfigurationIndexOptions({
     propertyType,
-    ...(params.configurationIndexUidSegment === undefined ? {} : { configurationIndexUidSegment: params.configurationIndexUidSegment }),
-    ...(params.configurationIndexAddressing === undefined ? {} : { configurationIndexAddressing: params.configurationIndexAddressing }),
+    ...(params.configurationIndexUidSegment === undefined
+      ? {}
+      : { configurationIndexUidSegment: params.configurationIndexUidSegment }),
+    ...(params.configurationIndexAddressing === undefined
+      ? {}
+      : { configurationIndexAddressing: params.configurationIndexAddressing }),
     ...(params.yamlAsArray === true ? { yamlAsArray: true as const } : {}),
   })
 
@@ -150,14 +154,22 @@ export const registerMetadataItemCollectionRule = <
         configurationIndexUidSegment: params.configurationIndexUidSegment,
         configurationIndexAddressing: params.configurationIndexAddressing,
         ...(params.yamlAsArray === true ? { yamlAsArray: true as const } : {}),
-        ...(params.recordYamlKeyFromYAML === undefined
-          ? {}
-          : { recordYamlKeyFromYAML: params.recordYamlKeyFromYAML }),
+        ...(params.recordYamlKeyFromYAML === undefined ? {} : { recordYamlKeyFromYAML: params.recordYamlKeyFromYAML }),
         traversal,
       })
     )
   }
   registerTypeRule(propertyType, "nestedItemRule", { itemRule })
+  registerTypeRule(propertyType, "yamlToXMLNestedRule", {
+    kind: "collection",
+    itemRule,
+    yamlShape: params.yamlAsArray === true ? "array" : "record",
+    xmlElement,
+    keyField: typeof params.keyField === "string" ? params.keyField : undefined,
+    nameFromYAMLKey: params.nameFromYAMLKey,
+    configurationIndexUidSegment: params.configurationIndexUidSegment,
+    configurationIndexAddressing: params.configurationIndexAddressing,
+  })
 
   const fromYAMLDefault: importFromYAMLFunction = (context, _rule, value, source) =>
     params.yamlAsArray

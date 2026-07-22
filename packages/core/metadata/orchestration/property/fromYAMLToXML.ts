@@ -10,6 +10,8 @@ import {
 import type { MetadataTargetOwner } from "../../commonObjects/metadataTargets"
 import type { ConfigurationContext, ConfigurationContextWithExportToXML } from "../../context/types"
 import { metadataTargetOwnerFromRule, importStringMetadataTargetFromYAML } from "./metadataTargetString"
+import { convertMetadataItemFromYAMLToXML } from "../metadataItem/fromYAMLToXML"
+import { convertMetadataCollectionFromYAMLToXML } from "../metadataCollection/fromYAMLToXML"
 import { toYAMLImportError, withYAMLImportDiagnostics } from "../yamlImportError"
 import type {
   ExportToXMLFunction,
@@ -135,8 +137,57 @@ export function convertPropertiesFromYAMLToXML(params: ConvertPropertiesFromYAML
       continue
     }
 
+    const nestedRule = getTypeRule(planned.propertyRule.type, "yamlToXMLNestedRule")
+    if (nestedRule !== undefined) {
+      const nestedYAML =
+        planned.propertyKey === "name" && params.name !== undefined && !source.has(propertyKey)
+          ? params.name
+          : source.raw(propertyKey)
+      const nestedOutputs = matchingOutputs.map((output, index) => ({
+        key: output.request.key,
+        referenceXML: isRecord(references[index]?.value)
+          ? (references[index]?.value as Record<string, unknown>)
+          : undefined,
+      }))
+      const nested =
+        nestedRule.kind === "collection"
+          ? convertMetadataCollectionFromYAMLToXML({
+              context: params.context,
+              yaml: nestedYAML,
+              descriptor: nestedRule,
+              outputs: nestedOutputs,
+            })
+          : convertMetadataItemFromYAMLToXML({
+              context: params.context,
+              yaml: nestedYAML,
+              rule:
+                nestedRule.kind === "item"
+                  ? nestedRule.itemRule
+                  : nestedRule.resolveItemRule({ yaml: asRecord(nestedYAML) ?? {}, name: params.name ?? "" }),
+              name: params.name,
+              outputs: nestedOutputs,
+            })
+      matchingOutputs.forEach((output, index) => {
+        const reference = references[index]!
+        let value: unknown = nested.outputs.get(output.request.key)
+        if (
+          nestedRule.kind === "collection" &&
+          nestedRule.xmlElement !== undefined &&
+          planned.propertyRule.xml === nestedRule.xmlElement &&
+          isRecord(value)
+        ) {
+          value = value[nestedRule.xmlElement]
+        }
+        writeXMLValue({ context: params.context, output, planned, value, reference })
+      })
+      continue
+    }
+
     const yamlKey = planned.yamlKey
-    const rawValue = restoreExplicitYAMLString({ yaml, yamlKey, rule: planned.propertyRule })
+    const rawValue =
+      planned.propertyKey === "name" && params.name !== undefined && !source.has(propertyKey)
+        ? params.name
+        : restoreExplicitYAMLString({ yaml, yamlKey, rule: planned.propertyRule })
     const propertyContext = withYAMLImportDiagnostics(params.context, {
       propertyPath: [yamlKey ?? propertyKey],
       ...(yamlKey === undefined ? {} : { yamlPath: [yamlKey] }),

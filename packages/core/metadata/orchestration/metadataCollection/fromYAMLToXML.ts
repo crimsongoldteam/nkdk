@@ -1,0 +1,167 @@
+import { childUid, indexedUid, yamlIndexUid, yamlKeyUid } from "../../configurationIndex/logicalAddress"
+import { withConfigurationIndexExportLogicalAddress } from "../../configurationIndex/referenceView"
+import type { ConfigurationContextWithExportToXML } from "../../context/types"
+import { convertMetadataItemFromYAMLToXML } from "../metadataItem/fromYAMLToXML"
+import type {
+  YAMLToXMLNestedRule,
+  YAMLToXMLExternalWrite,
+  YAMLToXMLOutputRequest,
+  YAMLToXMLResult,
+} from "../property/fromYAMLToXMLTypes"
+
+type CollectionDescriptor = Extract<YAMLToXMLNestedRule, { kind: "collection" }>
+
+export interface ConvertMetadataCollectionFromYAMLToXMLParams {
+  readonly context: ConfigurationContextWithExportToXML
+  readonly yaml: unknown
+  readonly descriptor: CollectionDescriptor
+  readonly outputs: readonly YAMLToXMLOutputRequest[]
+}
+
+export function convertMetadataCollectionFromYAMLToXML(
+  params: ConvertMetadataCollectionFromYAMLToXMLParams
+): YAMLToXMLResult {
+  const entries = collectionEntries(params.yaml, params.descriptor)
+  const outputItems = new Map(params.outputs.map(({ key }) => [key, [] as unknown[]]))
+  const externalWrites: YAMLToXMLExternalWrite[] = []
+
+  entries.forEach(({ yaml, name }, index) => {
+    const itemContext = configurationIndexItemContext({
+      context: params.context,
+      descriptor: params.descriptor,
+      yaml,
+      name,
+      index,
+    })
+    const itemOutputs = params.outputs.map((output) => ({
+      key: output.key,
+      referenceXML: findReferenceItem({ output, descriptor: params.descriptor, yaml, name, index }),
+    }))
+    const converted = convertMetadataItemFromYAMLToXML({
+      context: itemContext,
+      yaml,
+      rule: params.descriptor.itemRule,
+      name,
+      outputs: itemOutputs,
+    })
+    for (const output of itemOutputs) outputItems.get(output.key)!.push(converted.outputs.get(output.key) ?? {})
+    externalWrites.push(...converted.externalWrites)
+  })
+
+  return {
+    outputs: new Map(
+      params.outputs.map(({ key }) => {
+        const items = outputItems.get(key)!
+        const value = params.descriptor.xmlElement === undefined ? items : { [params.descriptor.xmlElement]: items }
+        return [key, value as Record<string, unknown>]
+      })
+    ),
+    externalWrites,
+  }
+}
+
+function collectionEntries(yaml: unknown, descriptor: CollectionDescriptor): { yaml: unknown; name?: string }[] {
+  if (descriptor.yamlShape === "array") {
+    return Array.isArray(yaml) ? yaml.map((item) => ({ yaml: item })) : []
+  }
+  if (!isRecord(yaml)) return []
+  return Object.entries(yaml).map(([key, value]) => ({
+    yaml: value,
+    name: descriptor.nameFromYAMLKey?.(key) ?? key,
+  }))
+}
+
+function findReferenceItem(params: {
+  output: YAMLToXMLOutputRequest
+  descriptor: CollectionDescriptor
+  yaml: unknown
+  name?: string
+  index: number
+}): Record<string, unknown> | undefined {
+  const collection =
+    params.descriptor.xmlElement === undefined
+      ? params.output.referenceXML
+      : params.output.referenceXML?.[params.descriptor.xmlElement]
+  const items = Array.isArray(collection) ? collection.filter(isRecord) : []
+  if (params.descriptor.keyField !== undefined && isRecord(params.yaml)) {
+    const keyRule = params.descriptor.itemRule.properties[params.descriptor.keyField]
+    const yamlKey = keyRule?.yaml
+    const yamlValue = yamlKey === undefined ? undefined : params.yaml[yamlKey]
+    if (keyRule !== undefined) {
+      const found = items.find((item) => readXMLProperty(item, keyRule, params.descriptor.keyField) === yamlValue)
+      if (found !== undefined) return found
+    }
+  }
+  if (params.name !== undefined) {
+    const nameRule = params.descriptor.itemRule.properties.name
+    if (nameRule !== undefined) {
+      const found = items.find((item) => readXMLProperty(item, nameRule, "name") === params.name)
+      if (found !== undefined) return found
+    }
+  }
+  return items[params.index]
+}
+
+function readXMLProperty(
+  item: Record<string, unknown>,
+  rule: { xml?: string; xmlParents?: string[]; xmlAliases?: string[] },
+  propertyKey: string
+): unknown {
+  let current: unknown = item
+  for (const parent of rule.xmlParents ?? []) {
+    if (!isRecord(current)) return undefined
+    current = current[parent]
+  }
+  if (!isRecord(current)) return undefined
+  const canonical = rule.xml ?? `${propertyKey.charAt(0).toUpperCase()}${propertyKey.slice(1)}`
+  for (const key of [canonical, ...(rule.xmlAliases ?? [])]) {
+    if (Object.prototype.hasOwnProperty.call(current, key)) return current[key]
+  }
+  return undefined
+}
+
+function configurationIndexItemContext(params: {
+  context: ConfigurationContextWithExportToXML
+  descriptor: CollectionDescriptor
+  yaml: unknown
+  name?: string
+  index: number
+}): ConfigurationContextWithExportToXML {
+  const runtime = params.context.exportToXML.configurationIndex
+  if (runtime === undefined) return params.context
+  const keyName = collectionKeyName(params.descriptor, params.yaml, params.name)
+  const useYamlPath =
+    runtime.yamlPathAddressing === true || params.descriptor.configurationIndexAddressing === "yamlPath"
+  if (useYamlPath) {
+    return withConfigurationIndexExportLogicalAddress(
+      params.context,
+      params.descriptor.yamlShape === "array" || keyName === undefined
+        ? yamlIndexUid(runtime.logicalAddress, params.index)
+        : yamlKeyUid(runtime.logicalAddress, keyName)
+    )
+  }
+  const segment = params.descriptor.configurationIndexUidSegment ?? runtime.childCollectionUidSegment
+  if (segment === undefined) return params.context
+  return withConfigurationIndexExportLogicalAddress(
+    params.context,
+    keyName === undefined
+      ? indexedUid(runtime.logicalAddress, segment, params.index)
+      : childUid(runtime.logicalAddress, segment, keyName)
+  )
+}
+
+function collectionKeyName(
+  descriptor: CollectionDescriptor,
+  yaml: unknown,
+  name: string | undefined
+): string | undefined {
+  if (name !== undefined) return name
+  if (descriptor.keyField === undefined || !isRecord(yaml)) return undefined
+  const keyRule = descriptor.itemRule.properties[descriptor.keyField]
+  const value = keyRule?.yaml === undefined ? undefined : yaml[keyRule.yaml]
+  return typeof value === "string" && value.length > 0 ? value : undefined
+}
+
+function isRecord(value: unknown): value is Record<string, unknown> {
+  return value !== null && typeof value === "object" && !Array.isArray(value)
+}

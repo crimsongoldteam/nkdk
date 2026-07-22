@@ -36,6 +36,7 @@ export const registerMetadataItemRule = <Rule extends MetadataItemRule, Property
     importMetadataItemFromXMLToYAML({ context, rule: itemRule, xml, name, traversal })
   )
   registerTypeRule(propertyType, "nestedItemRule", { itemRule })
+  registerTypeRule(propertyType, "yamlToXMLNestedRule", { kind: "item", itemRule })
   registerTypeRule(propertyType, "xmlImportRoutes", ({ propertyRule }) => {
     if (propertyRule?.filePath === undefined) return []
     return [
