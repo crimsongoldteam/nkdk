@@ -47,6 +47,22 @@ describe("importTypeDescriptionFromXML", () => {
     expect(result).toEqual({ type: ["Chart"] })
   })
 
+  it("reads the XML type collection once", () => {
+    let reads = 0
+    const xml = Object.defineProperty({} as TypeDescriptionXML, "v8:Type", {
+      enumerable: true,
+      get: () => {
+        reads++
+        return "xs:string"
+      },
+    })
+
+    const result = importTypeDescriptionFromXML(mockContextFromXML(), mockRule, xml)
+
+    expect(result).toEqual({ type: ["string"] })
+    expect(reads).toBe(1)
+  })
+
   it("should keep source markers hidden from object keys, JSON and YAML export", () => {
     const xmlData = importContentFromXML<{ Type?: TypeDescriptionXML }>(
       '<Type _xsi:type="v8:TypeSet">\n\t<v8:Type xmlns:d7p1="http://v8.1c.ru/8.2/data/chart">d7p1:Chart</v8:Type>\n</Type>'

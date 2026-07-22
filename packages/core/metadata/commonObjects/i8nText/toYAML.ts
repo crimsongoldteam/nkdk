@@ -51,13 +51,14 @@ const exportFullI8nTextToYAML = (
   title: I8nText | undefined
 ): I8nTextYAML | undefined => {
   if (!title) return undefined
-  if (!title.items || Object.keys(title.items).length === 0) return undefined
+  if (!title.items) return undefined
 
   const defaultLanguage = context.defaultLanguage
-
   const items = title.items
+  const languages = Object.keys(items)
 
-  if (Object.keys(items).length === 1 && items[defaultLanguage] !== undefined) return items[defaultLanguage]
+  if (languages.length === 0) return undefined
+  if (languages.length === 1 && items[defaultLanguage] !== undefined) return items[defaultLanguage]
 
   return items
 }
