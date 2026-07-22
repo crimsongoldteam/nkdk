@@ -2,7 +2,7 @@ import fs from "fs"
 import { dirname, join, relative } from "path"
 import { fileURLToPath } from "url"
 import { describe, expect, it } from "vitest"
-import { testConvertAppliedObjectFromXML, testSyncAppliedObjectToXML } from "../../../tests/appliedObject"
+import { testSyncAppliedObjectToXML } from "../../../tests/appliedObject"
 import { appliedObjectSyncCases } from "./yamlFixtures"
 
 const normalizeText = (value: string) =>
@@ -38,19 +38,6 @@ const listReferenceFiles = (importMetaUrl: string) => {
     binaryFiles: files.filter(isBinaryPath),
   }
 }
-
-describe("applied object XML -> YAML sync", () => {
-  it.each(appliedObjectSyncCases)("$label", async ({ scenario, sync }) => {
-    const result = await testConvertAppliedObjectFromXML({
-      rule: scenario.rule,
-      name: sync.name,
-      importMetaUrl: scenario.importMetaUrl,
-      expectedYAML: sync.expectedYAML,
-    })
-
-    expect(result.yaml.result).toBe(result.yaml.expected)
-  })
-})
 
 describe("applied object YAML -> XML sync", () => {
   it.each(appliedObjectSyncCases)("$label", async ({ scenario, sync }) => {

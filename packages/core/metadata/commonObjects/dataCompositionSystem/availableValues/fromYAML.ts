@@ -28,7 +28,7 @@ export const importDcsAvailableValuesFromYAML = (
       context,
       rule: presentationRule,
       value: item.Представление,
-    })
+    }) as DcsAvailableValue["presentation"]
 
     return {
       itemType: "DcsAvailableValue",

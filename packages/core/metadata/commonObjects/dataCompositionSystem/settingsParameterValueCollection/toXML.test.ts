@@ -1,6 +1,6 @@
 import { describe, expect, it } from "vitest"
 import { PropertyRule } from "../../../orchestration"
-import { testExportPropertyToXML } from "../../../../tests/property/exportPropertyToXML"
+import { testAtomicToXML } from "../../../../tests/property/atomicToXML"
 import { settingsParameterValueCollectionFixture } from "./__fixtures__/data"
 
 const rule: PropertyRule = {
@@ -13,7 +13,7 @@ const rule: PropertyRule = {
 
 describe("export SettingsParameterValueCollection to XML", () => {
   it("exports full fixture", () => {
-    const { result, expectedResult } = testExportPropertyToXML({
+    const { result, expectedResult } = testAtomicToXML({
       rule,
       value: settingsParameterValueCollectionFixture,
       xmlRootTag: "dcsset:dataParameters",
@@ -25,7 +25,7 @@ describe("export SettingsParameterValueCollection to XML", () => {
   })
 
   it("exports ent system enumeration values under generic Field rule", () => {
-    const { result } = testExportPropertyToXML({
+    const { result } = testAtomicToXML({
       rule,
       value: {
         itemType: "SettingsParameterValueCollection",

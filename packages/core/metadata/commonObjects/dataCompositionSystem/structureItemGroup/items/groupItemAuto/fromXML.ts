@@ -1,5 +1,5 @@
 import { ConfigurationContextFromXML } from "../../../../../context/types"
-import { importMetadataItemFromXML } from "../../../../../orchestration/metadataItem/fromXML"
+import { importPropertyFromXML } from "../../../../../orchestration/property/fromXML"
 import type { PropertyRule } from "../../../../../orchestration/property/types"
 import { GroupItemAutoRules } from "./rules"
 import type { GroupItemAuto } from "./types"
@@ -10,5 +10,9 @@ export const importGroupItemAutoFromXML = (
   xml: unknown
 ): GroupItemAuto | undefined => {
   if (!xml || typeof xml !== "object") return undefined
-  return importMetadataItemFromXML({ context, rule: GroupItemAutoRules, xml })
+  const source = xml as Record<string, unknown>
+  return {
+    itemType: "GroupItemAuto",
+    use: importPropertyFromXML({ context, rule: GroupItemAutoRules.properties.use, value: source["dcsset:use"] }),
+  } as GroupItemAuto
 }

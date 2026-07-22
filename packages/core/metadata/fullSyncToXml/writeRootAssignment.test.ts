@@ -58,6 +58,8 @@ describe("writeFullXmlSyncAssignment for root Configuration", () => {
     expect(xml).toContain("<ChildObjects>")
     expect(xml).toContain("<Catalog>Контрагенты</Catalog>")
     expect(xml).toContain("<Catalog>Товары</Catalog>")
+    expect(result.profile?.rulesPassCount).toBe(1)
+    expect(new Set(result.profile?.propertyPaths).size).toBe(result.profile?.propertyPaths.length)
   })
 })
 

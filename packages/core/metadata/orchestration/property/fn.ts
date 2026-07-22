@@ -268,11 +268,7 @@ export interface FileChildNamesDescriptor {
   xmlItemName: string
   useOwnerDirectoryForExternalSync: boolean
   preserveReferenceXmlFolder: boolean
-  expectedNames: (params: {
-    rule: MetadataItemRule
-    model: Record<string, unknown>
-    propertyValue: unknown
-  }) => string[]
+  expectedNames: (params: { rule: MetadataItemRule; yaml: Record<string, unknown>; propertyValue: unknown }) => string[]
 }
 
 export type FileChildNamesDescriptorFunction = (params: {

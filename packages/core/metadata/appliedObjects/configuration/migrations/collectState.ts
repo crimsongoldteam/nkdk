@@ -1,11 +1,12 @@
 import fs from "fs"
 import { basename, join } from "path"
 import type { ConfigurationContext, ConfigurationContextFromXML } from "../../../context/types"
-import { importMetadataItemFromXML } from "../../../orchestration"
+import { importMetadataItemFromXMLToYAML } from "../../../orchestration/metadataItem/fromXMLToYAML"
 import type { MetadataItemRule, PropertyRule } from "../../../orchestration/property/types"
 import { getTypeRule } from "../../../orchestration/property/typeRuleRegistry"
 import { importContentFromXML } from "../../../../xml/import/importer"
 import { importFromYAML } from "../../../../yaml/import"
+import { createLocalIndexesCollector } from "../../../project/localIndexes"
 import { TopLevelMetadataItemRules } from "../topLevelRules"
 import type { StructuralNode, StructuralState } from "./types"
 
@@ -32,16 +33,11 @@ export async function collectStructuralStateFromYAML(params: {
   return { nodes }
 }
 
-function addYaml(
-  nodes: Map<string, StructuralNode>,
-  rule: MetadataItemRule,
-  name: string,
-  yaml: Record<string, unknown>
-): void {
+function addYaml(nodes: Map<string, StructuralNode>, rule: MetadataItemRule, name: string, yaml: unknown): void {
   const prefix = rule.itemTypePrefix!
   const objectPath = `${prefix}.${name}`
   nodes.set(objectPath, { path: objectPath, kind: "object", name, referencePath: objectPath })
-  addYamlCollections(nodes, rule, yaml, objectPath)
+  addYamlCollections(nodes, rule, asRecord(yaml) ?? {}, objectPath)
 }
 
 function addYamlCollections(
@@ -99,6 +95,10 @@ export async function collectStructuralStateFromXML(params: {
 }): Promise<StructuralState> {
   const nodes = new Map<string, StructuralNode>()
   if (!fs.existsSync(params.xmlDir)) return { nodes }
+  const context =
+    params.context.exportToYAML === undefined
+      ? { ...params.context, exportToYAML: { toTyped: false as const } }
+      : params.context
 
   for (const rule of TopLevelMetadataItemRules) {
     if (!rule.xmlDir || !rule.itemTypePrefix) continue
@@ -109,68 +109,20 @@ export async function collectStructuralStateFromXML(params: {
       const name = basename(entry.name, ".xml")
       const content = await fs.promises.readFile(join(dir, entry.name), "utf-8")
       const parsed = importContentFromXML<{ MetaDataObject: unknown }>(content)
-      const model = importMetadataItemFromXML({ context: params.context, xml: parsed.MetaDataObject, rule })
-      if (model) addModel(nodes, rule, name, model as Record<string, unknown>)
+      const yaml = importMetadataItemFromXMLToYAML({
+        context,
+        xml: parsed.MetaDataObject,
+        rule,
+        name,
+        traversal: {
+          yamlPath: [],
+          rulePath: [],
+          collector: createLocalIndexesCollector(),
+        },
+      })
+      if (yaml !== undefined) addYaml(nodes, rule, name, yaml)
     }
   }
 
   return { nodes }
-}
-
-function addModel(
-  nodes: Map<string, StructuralNode>,
-  rule: MetadataItemRule,
-  name: string,
-  model: Record<string, unknown>
-): void {
-  const prefix = rule.itemTypePrefix!
-  const objectPath = `${prefix}.${name}`
-  nodes.set(objectPath, { path: objectPath, kind: "object", name, referencePath: objectPath })
-
-  for (const attr of asItems(model["attributes"])) {
-    const attrName = requireNodeName(attr, objectPath, "Реквизит")
-    const path = `${objectPath}.Реквизит.${attrName}`
-    nodes.set(path, { path, kind: "attribute", name: attrName, referencePath: path })
-  }
-
-  for (const attr of asItems(model["addressingAttributes"])) {
-    const attrName = requireNodeName(attr, objectPath, "РеквизитАдресации")
-    const path = `${objectPath}.РеквизитАдресации.${attrName}`
-    nodes.set(path, { path, kind: "attribute", name: attrName, referencePath: path })
-  }
-
-  for (const section of asItems(model["tabularSections"])) {
-    const sectionName = requireNodeName(section, objectPath, "ТабличнаяЧасть")
-    const sectionPath = `${objectPath}.ТабличнаяЧасть.${sectionName}`
-    nodes.set(sectionPath, { path: sectionPath, kind: "tabularSection", name: sectionName, referencePath: sectionPath })
-    for (const attr of asItems(section["attributes"])) {
-      const attrName = requireNodeName(attr, sectionPath, "Реквизит")
-      const attrPath = `${sectionPath}.Реквизит.${attrName}`
-      nodes.set(attrPath, { path: attrPath, kind: "attribute", name: attrName, referencePath: attrPath })
-    }
-  }
-
-  for (const dim of asItems(model["dimensions"])) {
-    const dimName = requireNodeName(dim, objectPath, "Измерение")
-    const path = `${objectPath}.Измерение.${dimName}`
-    nodes.set(path, { path, kind: "dimension", name: dimName, referencePath: path })
-  }
-
-  for (const resource of asItems(model["resources"])) {
-    const resourceName = requireNodeName(resource, objectPath, "Ресурс")
-    const path = `${objectPath}.Ресурс.${resourceName}`
-    nodes.set(path, { path, kind: "attribute", name: resourceName, referencePath: path })
-  }
-}
-
-function requireNodeName(item: Record<string, unknown>, ownerPath: string, nodeType: string): string {
-  const name = item["name"]
-  if (typeof name === "string" && name.length > 0) return name
-  throw new Error(`Некорректное имя узла: владелец ${ownerPath}, тип ${nodeType}`)
-}
-
-function asItems(value: unknown): Array<Record<string, unknown>> {
-  if (Array.isArray(value))
-    return value.filter((item): item is Record<string, unknown> => item !== null && typeof item === "object")
-  return []
 }

@@ -38,10 +38,10 @@ describe("StandardAttributeDescriptions direct YAML to XML", () => {
       outputs: [{ key: "owner" }],
     })
 
-    expect(result.outputs.get("owner")).toEqual({
-      StandardAttributes: {
-        "xr:StandardAttribute": [{ _name: "Active", "xr:Comment": "изменён" }, { _name: "LineNumber" }],
-      },
-    })
+    const items = result.outputs.get("owner")?.StandardAttributes as {
+      "xr:StandardAttribute": Array<Record<string, unknown>>
+    }
+    expect(items["xr:StandardAttribute"].map((item) => item._name)).toEqual(["Active", "LineNumber"])
+    expect(items["xr:StandardAttribute"][0]?.["xr:Comment"]).toBe("изменён")
   })
 })

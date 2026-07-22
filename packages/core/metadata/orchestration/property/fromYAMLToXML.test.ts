@@ -3,6 +3,7 @@ import { describe, expect, it } from "vitest"
 import { importFromYAML } from "../../../yaml/import"
 import type { ConfigurationContextWithExportToXML } from "../../context/types"
 import type { MetadataItemRule, PropertyRule } from "./types"
+import type { ExportToXMLFunctionNew, ImportFromYAMLFunctionNew } from "./fn"
 import { registerTypeRule } from "./typeRuleRegistry"
 import { convertPropertiesFromYAMLToXML } from "./fromYAMLToXML"
 
@@ -22,14 +23,14 @@ const testRule = (properties: Record<string, PropertyRule>): MetadataItemRule =>
 describe("convertPropertiesFromYAMLToXML", () => {
   it("сразу передаёт атомарный результат fromYAML в toXML", () => {
     const calls: string[] = []
-    registerTypeRule("TestAtomic" as never, "importFromYAML", ({ value }) => {
+    registerTypeRule("TestAtomic" as never, "importFromYAML", (({ value }) => {
       calls.push(`from:${String(value)}`)
       return Number(value)
-    })
-    registerTypeRule("TestAtomic" as never, "exportToXML", ({ value }) => {
+    }) as ImportFromYAMLFunctionNew)
+    registerTypeRule("TestAtomic" as never, "exportToXML", (({ value }) => {
       calls.push(`to:${String(value)}`)
       return `xml:${String(value)}`
-    })
+    }) as ExportToXMLFunctionNew)
 
     const result = convertPropertiesFromYAMLToXML({
       context: context(),
@@ -296,10 +297,10 @@ describe("convertPropertiesFromYAMLToXML", () => {
   })
 
   it("передаёт toXML-обработчику источник сырого YAML", () => {
-    registerTypeRule("SourceAwareAtomic" as never, "exportToXML", ({ source, value }) => ({
+    registerTypeRule("SourceAwareAtomic" as never, "exportToXML", (({ source, value }) => ({
       "#text": value,
       _sibling: source?.raw("sibling"),
-    }))
+    })) as ExportToXMLFunctionNew)
 
     const result = convertPropertiesFromYAMLToXML({
       context: context(),

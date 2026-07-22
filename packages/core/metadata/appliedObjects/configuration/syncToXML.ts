@@ -4,7 +4,6 @@ import { BatchTask, runBatch } from "../../../helpers/runBatch"
 import type { ConfigurationContextFromXML } from "../../context/types"
 import { ConfigurationContextWithExportToXML } from "../../context/types"
 import { syncAppliedObjectToXML } from "../../orchestration/appliedObject/syncToXML"
-import type { ReferenceModelRemapper } from "../../orchestration/appliedObject/syncToXML"
 import { resolveXmlSyncAreaForProjectPath, type XmlSyncArea } from "../../orchestration/appliedObject/xmlAreas"
 import {
   prepareMetadataMigrationChain,
@@ -36,7 +35,6 @@ import {
   type StructuralState,
   writeAppliedMigrationsState,
 } from "./migrations"
-import { remapReferenceModel } from "./migrations/referenceRemap"
 import { pruneXmlByManifest, XmlSyncManifest } from "./migrations/xmlManifest"
 import { createConfigDumpInfoExternalMetadataCollector } from "../configDumpInfo/externalMetadataCollector"
 import { syncConfigDumpInfoToXML } from "../configDumpInfo/sync"
@@ -138,6 +136,7 @@ export async function prepareConfigurationXmlMigrationChain(params: {
     fromXML: { forReference: true },
     defaultLanguage: params.context.defaultLanguage,
     version: params.context.version,
+    exportToYAML: { toTyped: false },
   }
   const referenceState = referenceDir
     ? await collectStructuralStateFromXML({ xmlDir: referenceDir, context: contextFromXML })
@@ -166,6 +165,7 @@ export const syncConfigurationToXML = async (params: {
   outputDir: string
   referenceDir?: string
   preparedYamlProjectPool?: PreparedYamlProjectWorkerPool
+  preserveReferenceChildObjects?: boolean
 }): Promise<ConfigurationSyncResult> => {
   const { context, inputDir, outputDir } = params
   const referenceDir = params.referenceDir
@@ -205,11 +205,6 @@ export const syncConfigurationToXML = async (params: {
         context.exportToXML.externalMetadataCollector ?? createConfigDumpInfoExternalMetadataCollector(configDumpInfo),
     },
   }
-  const contextFromXML: ConfigurationContextFromXML = {
-    fromXML: { forReference: true },
-    defaultLanguage: syncContext.defaultLanguage,
-    version: syncContext.version,
-  }
   const prepared = await prepareConfigurationYamlProject({
     projectDir: inputDir,
     context: syncContext,
@@ -243,7 +238,11 @@ export const syncConfigurationToXML = async (params: {
       outputDir,
       preparedYamlFile: preparedRootYaml,
       referenceXML,
-      childObjects: buildConfigurationChildObjects({ yamlDir: inputDir, referenceChildObjects }),
+      childObjects: buildConfigurationChildObjects({
+        yamlDir: inputDir,
+        referenceChildObjects,
+        preserveReferenceNames: params.preserveReferenceChildObjects,
+      }),
       externalWriteFactory: createConfigurationExternalWriteFactory({
         context: syncContext,
         outputDir,
@@ -271,17 +270,6 @@ export const syncConfigurationToXML = async (params: {
     const referencePath = migrationChain.referencePathByCurrentPath.get(currentObjectPath) ?? currentObjectPath
     const referencePathSegments = referencePath.split(".")
     const referenceName = referencePathSegments[referencePathSegments.length - 1]!
-    const referenceModelRemapper: ReferenceModelRemapper | undefined =
-      migrationChain.referencePathByCurrentPath.size > 0
-        ? ({ rule, currentModel, referenceModel }) =>
-            remapReferenceModel({
-              rule,
-              currentObjectPath,
-              currentModel,
-              referenceModel,
-              referencePathByCurrentPath: migrationChain.referencePathByCurrentPath,
-            })
-        : undefined
     const xmlExternalOutputDir = join(xmlOutputDir, name)
     const xmlExternalReferenceDir = xmlReferenceDir ? join(xmlReferenceDir, referenceName) : undefined
     tasks.push({
@@ -298,7 +286,6 @@ export const syncConfigurationToXML = async (params: {
           referenceDir: xmlReferenceDir,
           externalReferenceDir: xmlExternalReferenceDir,
           referenceName,
-          referenceModelRemapper,
           xmlManifest,
           preparedYamlFile: preparedYamlByProjectPath.get(`${itemTypePrefix}/${name}/Свойства.yaml`),
         }),

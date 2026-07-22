@@ -1,5 +1,5 @@
 import { describe, expect, it } from "vitest"
-import { importPropertyFromYAML } from "../../orchestration"
+import { callAtomicFromYAML } from "../../orchestration"
 import { mockContext, mockRule } from "../../../tests/mockContext"
 import { importMetadataFieldFromYAML, importMetadataFieldsFromYAML } from "./fromYAML"
 
@@ -35,7 +35,7 @@ describe("importMetadataFieldFromYAML", () => {
 
   it("rejects short field paths in registered metadata field importer", () => {
     expect(() =>
-      importPropertyFromYAML({
+      callAtomicFromYAML({
         context: mockContext,
         rule: { ...mockRule, type: "MetadataField" },
         value: "Справочник.Номенклатура.Количество",
@@ -44,7 +44,7 @@ describe("importMetadataFieldFromYAML", () => {
   })
 
   it("imports full field paths in registered metadata field importer", () => {
-    const result = importPropertyFromYAML({
+    const result = callAtomicFromYAML({
       context: mockContext,
       rule: { ...mockRule, type: "MetadataField" },
       value: "Справочник.Номенклатура.ТабличнаяЧасть.Товары.Реквизит.Количество",

@@ -4,7 +4,7 @@ import { exportTypeLinkWithXSITypeToXML } from "./toXML"
 import { PropertyRule } from "../../orchestration"
 import { mockContext, mockRule } from "../../../tests/mockContext"
 import { readXMLFixtureAsString } from "../../../tests/readFixtureXML"
-import { testExportPropertyToXML } from "../../../tests/property/exportPropertyToXML"
+import { testAtomicToXML } from "../../../tests/property/atomicToXML"
 import { xmlExport } from "../../../xml/export/exporter"
 
 const rule: PropertyRule = {
@@ -13,7 +13,7 @@ const rule: PropertyRule = {
 
 describe("export TypeLink to XML", () => {
   it("exports simple.xml", () => {
-    const { expectedResult, result } = testExportPropertyToXML({
+    const { expectedResult, result } = testAtomicToXML({
       rule,
       value: catalogTabularAttributeTypeLink,
       xmlRootTag: "TypeLink",

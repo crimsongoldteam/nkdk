@@ -7,7 +7,6 @@ import "./appearanceFields/fromXML"
 import "./appearanceFields/fromYAML"
 import "./appearanceFields/toJSONSchema"
 import "./appearanceFields/toXML"
-import "./appearanceFields/toYAML"
 import "./appearanceFields/types"
 
 import "./availableFields/fromXML"

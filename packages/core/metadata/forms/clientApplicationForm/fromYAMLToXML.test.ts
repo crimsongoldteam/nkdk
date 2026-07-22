@@ -28,8 +28,12 @@ describe("convertClientApplicationFormFromYAMLToXML", () => {
 
     expect(result.metadataXML.Form.Properties).toBeDefined()
     expect(result.formXML.ChildItems).toBeDefined()
-    expect(result.formXML.ChildItems?.[0]?.InputField?.ContextMenu).toBeDefined()
-    expect(result.formXML.ChildItems?.[0]?.InputField?.ExtendedTooltip).toBeDefined()
+    const childItems = Array.isArray(result.formXML.ChildItems)
+      ? result.formXML.ChildItems
+      : result.formXML.ChildItems?.ChildItem
+    const firstChild = Array.isArray(childItems) ? childItems[0] : childItems
+    expect(firstChild?.InputField?.ContextMenu).toBeDefined()
+    expect(firstChild?.InputField?.ExtendedTooltip).toBeDefined()
   })
 
   it("формирует дополнительные колонки реквизита без модели", () => {

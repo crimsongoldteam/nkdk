@@ -8,6 +8,7 @@ import type {
   YAMLToXMLExternalWrite,
   YAMLToXMLOutputRequest,
   YAMLToXMLResult,
+  YAMLToXMLProfile,
 } from "../property/fromYAMLToXMLTypes"
 import type { MetadataItemRule, PropertyRule } from "../property/types"
 import type { YAMLPropertySource } from "../property/fromYAMLToXMLTypes"
@@ -23,6 +24,8 @@ export interface ConvertMetadataCollectionFromYAMLToXMLParams {
   readonly source?: YAMLPropertySource
   readonly outputs: readonly YAMLToXMLOutputRequest[]
   readonly externalWriteFactory?: YAMLToXMLExternalWriteFactory
+  readonly profile?: YAMLToXMLProfile
+  readonly rulePath?: readonly (string | number)[]
 }
 
 export function convertMetadataCollectionFromYAMLToXML(
@@ -40,6 +43,7 @@ export function convertMetadataCollectionFromYAMLToXML(
   const externalWrites: YAMLToXMLExternalWrite[] = []
 
   entries.forEach(({ yaml, name }, index) => {
+    if (params.profile !== undefined) params.profile.nestedItemCount++
     const defaultItemRule =
       (params.propertyRule === undefined ? undefined : params.descriptor.itemRuleFromProperty?.(params.propertyRule)) ??
       params.descriptor.itemRule
@@ -84,6 +88,8 @@ export function convertMetadataCollectionFromYAMLToXML(
       outputs: itemOutputs,
       sparseYAML: params.descriptor.sparseItems,
       externalWriteFactory: params.externalWriteFactory,
+      profile: params.profile,
+      rulePath: [...(params.rulePath ?? [params.descriptor.itemRule.itemType]), name ?? index],
     })
     for (const output of itemOutputs) {
       const xml = converted.outputs.get(output.key) ?? {}
@@ -202,12 +208,13 @@ function findReferenceItem(params: {
     const unwrapped = params.descriptor.unwrapReferenceItem?.({ xml: item, itemRule: params.itemRule })
     return unwrapped === undefined && params.descriptor.unwrapReferenceItem !== undefined ? [] : [unwrapped ?? item]
   })
-  if (params.descriptor.keyField !== undefined && isRecord(params.yaml)) {
-    const keyRule = params.itemRule.properties[params.descriptor.keyField]
+  const keyField = params.descriptor.keyField
+  if (keyField !== undefined && isRecord(params.yaml)) {
+    const keyRule = params.itemRule.properties[keyField]
     const yamlKey = keyRule?.yaml
     const yamlValue = yamlKey === undefined ? undefined : params.yaml[yamlKey]
     if (keyRule !== undefined) {
-      const found = items.find((item) => readXMLProperty(item, keyRule, params.descriptor.keyField) === yamlValue)
+      const found = items.find((item) => readXMLProperty(item, keyRule, keyField) === yamlValue)
       if (found !== undefined) return found
     }
   }

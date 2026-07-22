@@ -53,40 +53,6 @@ const REGISTRATION_ENTRYPOINT_ALLOWLIST = new Set([
 ])
 const BROAD_METADATA_REGISTRATION_IMPORTS = ["../appliedObjects", "../commonObjects", "../forms"] as const
 const SKIPPED_SCAN_DIRS = new Set(["node_modules", ".git", ".worktrees", "dist", "coverage"])
-const DEFERRED_GENERIC_COLLECTION_FILES = new Set([
-  "metadata/appliedObjects/metadataDataProcessor/rules.ts",
-  "metadata/commonObjects/characteristicsDescription/registerCollectionRule.ts",
-  "metadata/commonObjects/dataCompositionSystem/filterItem/types.ts",
-  "metadata/commonObjects/dataCompositionSystem/orderItemFields/types.ts",
-  "metadata/orchestration/metadataCollection/ruleFactory.ts",
-])
-const DEFERRED_LEGACY_YAML_XML_FILES = new Set([
-  "metadata/appliedObjects/configuration/migrations/collectState.ts",
-  "metadata/appliedObjects/configuration/rootIO.ts",
-  "metadata/appliedObjects/configuration/shortRoundTripXML.ts",
-  "metadata/appliedObjects/configuration/syncToXML.ts",
-  "metadata/appliedObjects/metadataCatalog/fromYAML.ts",
-  "metadata/appliedObjects/metadataEnumeration/fromYAML.ts",
-  "metadata/context/types.ts",
-  "metadata/forms/clientApplicationForm/fromYAML.ts",
-  "metadata/forms/clientApplicationForm/toXML.ts",
-  "metadata/forms/commonObjects/dynamicList/types.ts",
-  "metadata/forms/elements/orchestration/fromYAML.ts",
-  "metadata/forms/elements/orchestration/toXML.ts",
-  "metadata/operations/projectSnapshot.ts",
-  "metadata/orchestration/appliedObject/syncToXML.ts",
-  "metadata/orchestration/metadataCollection/fromYAML.ts",
-  "metadata/orchestration/metadataCollection/ruleFactory.ts",
-  "metadata/orchestration/metadataCollection/toXML.ts",
-  "metadata/orchestration/metadataItem/fromYAML.ts",
-  "metadata/orchestration/metadataItem/registerExportToXML.ts",
-  "metadata/orchestration/metadataItem/registerImportFromYAML.ts",
-  "metadata/orchestration/metadataItem/toXML.ts",
-  "metadata/orchestration/property/fromYAML.ts",
-  "metadata/orchestration/property/toXML.ts",
-  "metadata/project/projectSpecHelpers.ts",
-  "metadata/validation/dataPath/ownerCache.ts",
-])
 
 describe("metadata import boundaries", () => {
   it("workspace TypeScript and test configs do not use legacy ~ alias", () => {
@@ -369,8 +335,7 @@ describe("metadata import boundaries", () => {
         filePath: relative(process.cwd(), filePath),
         source: readFileSync(filePath, "utf-8"),
       }))
-      .filter(({ filePath, source }) => {
-        if (DEFERRED_GENERIC_COLLECTION_FILES.has(filePath)) return false
+      .filter(({ source }) => {
         if (!source.includes("registerMetadataItemCollectionRule")) return false
         return /fromYAML:\s*(?:import|createImport)/.test(source) || source.includes("exportMetadataCollectionToXML")
       })
@@ -387,7 +352,16 @@ describe("metadata import boundaries", () => {
       "exportPropertyToXML",
       "importMetadataItemFromYAML",
       "exportMetadataItemToXML",
+      "importMetadataItemCollectionFromYAMLAsArray",
+      "importMetadataItemCollectionFromYAMLAsRecord",
       "exportMetadataCollectionToXML",
+      "importPropertiesFromXML",
+      "exportPropertiesToYAML",
+      "importMetadataItemFromXML",
+      "exportMetadataItemToYAML",
+      "importMetadataItemCollectionFromXML",
+      "exportMetadataCollectionToYAMLAsArray",
+      "exportMetadataCollectionToYAMLAsRecord",
     ]
     const offenders = listTypeScriptFiles(METADATA_DIR)
       .filter((filePath) => !filePath.endsWith(".test.ts"))
@@ -395,11 +369,23 @@ describe("metadata import boundaries", () => {
         filePath: relative(process.cwd(), filePath),
         source: readFileSync(filePath, "utf-8"),
       }))
-      .filter(({ filePath }) => !DEFERRED_LEGACY_YAML_XML_FILES.has(filePath))
-      .filter(({ source }) => forbiddenSymbols.some((symbol) => source.includes(symbol)))
+      .filter(({ source }) => forbiddenSymbols.some((symbol) => new RegExp(`\\b${symbol}\\b`).test(source)))
       .map(({ filePath }) => filePath)
 
     expect(offenders).toEqual([])
+  })
+
+  it("синхронизация и операции не хранят metadata-модель", () => {
+    const files = [
+      ...listTypeScriptFiles(join(METADATA_DIR, "fullSyncToXml")),
+      ...listTypeScriptFiles(join(METADATA_DIR, "operations")),
+      join(METADATA_DIR, "orchestration", "appliedObject", "syncToXML.ts"),
+    ].filter((filePath) => !filePath.endsWith(".test.ts"))
+    const source = files.map((filePath) => readFileSync(filePath, "utf-8")).join("\n")
+
+    expect(source).not.toContain("ownerModelStub")
+    expect(source).not.toContain("modelStub")
+    expect(source).not.toMatch(/\bmodel\s*:/)
   })
 })
 

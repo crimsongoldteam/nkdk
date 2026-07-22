@@ -1,8 +1,7 @@
 import fs from "fs"
 import { basename, dirname, join } from "path"
-import { ConfigurationContext, ConfigurationContextFromXML } from "../../context/types"
+import type { ConfigurationContextFromXML } from "../../context/types"
 import { registerTypeRule } from "../../orchestration/property/typeRuleRegistry"
-import { exportMetadataCollectionToYAMLAsRecord } from "../../orchestration/metadataCollection/toYAML"
 import { exportMetadataItemToJSONSchema } from "../../orchestration/metadataItem/toJSONSchema"
 import {
   ExportToJSONSchemaFn,
@@ -10,10 +9,9 @@ import {
   SyncExternalToXMLFunction,
 } from "../../orchestration/property/fn"
 import { Type } from "typebox"
-import type { PropertyRule } from "../../orchestration/property/types"
 import type { XmlWriteManifest } from "../../orchestration/xmlWriteManifest"
 import { RecalculationRules } from "./rules"
-import type { Recalculation, RecalculationYAML, Recalculations, RecalculationsYAML } from "./types"
+import type { Recalculation } from "./types"
 
 const RECALCULATIONS_XML_DIR = "Recalculations"
 const RECALCULATIONS_NKDK_DIR = "Перерасчеты"
@@ -29,6 +27,14 @@ registerTypeRule("Recalculations", "importFromXML", (_context: ConfigurationCont
   return result.length > 0 ? result : undefined
 })
 
+registerTypeRule("Recalculations", "importFromXMLToYAML", ({ xml }) => {
+  if (xml === undefined || xml === null) return undefined
+  const names = (Array.isArray(xml) ? xml : [xml]).filter(
+    (name): name is string => typeof name === "string" && name.length > 0
+  )
+  return names.length === 0 ? undefined : Object.fromEntries(names.map((name) => [name, {}]))
+})
+
 registerTypeRule("Recalculations", "yamlToXMLNestedRule", {
   kind: "collection",
   itemRule: RecalculationRules,
@@ -36,18 +42,6 @@ registerTypeRule("Recalculations", "yamlToXMLNestedRule", {
   keyField: "name",
   mapItemOutput: ({ name }) => name,
 })
-
-registerTypeRule(
-  "Recalculations",
-  "exportToYAML",
-  (context: ConfigurationContext, _rule: PropertyRule | undefined, data: Recalculations | undefined) =>
-    exportMetadataCollectionToYAMLAsRecord({
-      context,
-      data,
-      itemRule: RecalculationRules,
-      keyField: "name",
-    }) as RecalculationsYAML | undefined
-)
 
 const exportRecalculationsToJSONSchema: ExportToJSONSchemaFn = ({ context }) =>
   Type.Record(
@@ -126,6 +120,9 @@ async function copyIfExists(params: {
 }
 
 const getRecalculationNames = (value: unknown): string[] => {
+  if (value !== null && typeof value === "object" && !Array.isArray(value)) {
+    return Object.keys(value)
+  }
   if (!Array.isArray(value)) return []
   return value
     .map((item) => {

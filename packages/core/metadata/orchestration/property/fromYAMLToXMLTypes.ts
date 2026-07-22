@@ -34,6 +34,24 @@ export interface YAMLToXMLResult {
   readonly externalWrites: readonly YAMLToXMLExternalWrite[]
 }
 
+export interface YAMLToXMLProfile {
+  propertyCount: number
+  nestedItemCount: number
+  atomicFromYAMLCount: number
+  atomicToXMLCount: number
+  rulesPassCount: 1
+  propertyPaths: string[]
+}
+
+export const createYAMLToXMLProfile = (): YAMLToXMLProfile => ({
+  propertyCount: 0,
+  nestedItemCount: 0,
+  atomicFromYAMLCount: 0,
+  atomicToXMLCount: 0,
+  rulesPassCount: 1,
+  propertyPaths: [],
+})
+
 export type YAMLToXMLNestedRule =
   | {
       readonly kind: "externalFile"
@@ -50,7 +68,10 @@ export type YAMLToXMLNestedRule =
       readonly sparseYAML?: true
       readonly injectOwnerName?: true
       readonly transformOutput?: (params: {
+        context: import("../../context/types").ConfigurationContextWithExportToXML
         xml: Record<string, unknown>
+        yaml: unknown
+        referenceXML: Record<string, unknown> | undefined
         propertyRule: PropertyRule
         source: YAMLPropertySource
       }) => unknown

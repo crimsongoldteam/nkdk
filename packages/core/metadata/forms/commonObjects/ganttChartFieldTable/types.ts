@@ -5,31 +5,15 @@ import {
 import type { PropertyRule as WidePropertyRuleBase } from "../../../orchestration/property/types"
 import type { TSchema } from "typebox"
 import { getParentFromContext } from "../../../context/helpers"
-import type {
-  ConfigurationContext,
-  ConfigurationContextFromXML,
-  ConfigurationContextWithExportToXML,
-} from "../../../context/types"
+import type { ConfigurationContextWithExportToXML } from "../../../context/types"
 import { TableRules } from "../../elements/table/rules"
 import type { Table, TablePartialYAML } from "../../elements/table/types"
 import { exportElementToJSONSchema } from "../../../orchestration/formElement/toJSONSchema"
-import { importElementFromPartialYAML } from "../../../orchestration/formElement/fromYAML"
-import { importSingleElementFromXML } from "../../../orchestration/formElement/fromXML"
-import { exportSingleElementToXML } from "../../../orchestration/formElement/toXML"
-import { exportElementToPartialYAML } from "../../../orchestration/formElement/toYAML"
-import {
-  applyReferenceNameMode,
-  type SingletonNameStyle,
-} from "../../../orchestration/formElement/singletonName"
+import { importSingleFormElementFromXMLToYAML } from "../../elements/orchestration/fromXMLToYAML"
+import type { SingletonNameStyle } from "../../../orchestration/formElement/singletonName"
 import { registerTypeRule } from "../../../orchestration/property/typeRuleRegistry"
-import type { ElementXML, ElementXMLWithoutId } from "../../../orchestration/formElement/types"
-import { XML_SOURCE_KEYS } from "../../../orchestration/property/helpers"
-import type {
-  ExportToJSONSchemaFn,
-  ExportToXMLFunctionNew,
-  ImportFromXMLFunction,
-  PropertyRule,
-} from "../../../orchestration"
+import type { ElementXML } from "../../../orchestration/formElement/types"
+import type { ExportToJSONSchemaFn } from "../../../orchestration"
 
 export type GanttChartFieldTable = Table
 export type GanttChartFieldTableYAML = TablePartialYAML
@@ -49,113 +33,6 @@ const getGeneratedName = (
   return `${parentName}Таблица`
 }
 
-export const importGanttChartFieldTableFromXML: ImportFromXMLFunction = (
-  context: ConfigurationContextFromXML,
-  _rule: PropertyRule,
-  xml: ElementXML | undefined,
-  ownerXmlName?: string
-): GanttChartFieldTable | undefined => {
-  if (xml === undefined) return undefined
-
-  return importSingleElementFromXML({
-    context,
-    elementRule: TableRules,
-    xml,
-    nameStyle,
-    ownerXmlName,
-  })
-}
-
-export const exportGanttChartFieldTableToXML: ExportToXMLFunctionNew = (params): ElementXMLWithoutId | undefined => {
-  const value = params.value as GanttChartFieldTable | undefined
-  if (value === undefined) return undefined
-
-  const referenceMetadata = params.referenceMetadata as GanttChartFieldTable | undefined
-  const generatedName = getGeneratedName(params.context, value)
-  const name = applyReferenceNameMode({
-    generatedName,
-    referenceElement: referenceMetadata,
-    nameStyle,
-  })
-  const table = { ...value, name }
-  const referenceTable = referenceMetadata === undefined ? undefined : { ...referenceMetadata, name }
-
-  const xml = exportSingleElementToXML({
-    context: params.context,
-    element: table,
-    referenceElement: referenceTable,
-    rule: TableRules,
-    additionalParams: { name, configurationIndexSegment: nameStyle.canonicalSuffix },
-  })
-  removeGeneratedSingletonXML(xml, table, referenceTable, "searchControl", "SearchControlAddition")
-  removeGeneratedSingletonXML(xml, table, referenceTable, "searchStringRepresentation", "SearchStringAddition")
-  removeGeneratedSingletonXML(xml, table, referenceTable, "viewStatusRepresentation", "ViewStatusAddition")
-
-  return xml
-}
-
-const hasOwnDefinedValue = (value: unknown, key: string): boolean => {
-  return (
-    value !== null &&
-    value !== undefined &&
-    typeof value === "object" &&
-    Object.prototype.hasOwnProperty.call(value, key) &&
-    (value as Record<string, unknown>)[key] !== undefined
-  )
-}
-
-const hasReferenceXMLSource = (reference: unknown, key: string): boolean => {
-  if (reference === null || reference === undefined || typeof reference !== "object") return false
-  const sourceKeys = (reference as Record<PropertyKey, unknown>)[XML_SOURCE_KEYS]
-  return (
-    sourceKeys !== null &&
-    sourceKeys !== undefined &&
-    typeof sourceKeys === "object" &&
-    Object.prototype.hasOwnProperty.call(sourceKeys, key)
-  )
-}
-
-const removeGeneratedSingletonXML = (
-  xml: ElementXMLWithoutId,
-  value: GanttChartFieldTable,
-  reference: GanttChartFieldTable | undefined,
-  propertyKey: string,
-  xmlKey: string
-): void => {
-  if (hasOwnDefinedValue(value, propertyKey)) return
-  if (hasReferenceXMLSource(reference, propertyKey)) return
-  delete (xml as Record<string, unknown>)[xmlKey]
-}
-
-export const exportGanttChartFieldTableToYAML = (
-  context: ConfigurationContext,
-  _rule: PropertyRule,
-  data: GanttChartFieldTable | undefined
-): GanttChartFieldTableYAML | undefined => {
-  return exportElementToPartialYAML({ context, element: data })
-}
-
-export const importGanttChartFieldTableFromYAML = (
-  context: ConfigurationContext,
-  _rule: PropertyRule,
-  yaml: GanttChartFieldTableYAML | undefined,
-  source?: GanttChartFieldTable
-): GanttChartFieldTable | undefined => {
-  if (yaml === undefined && source === undefined) return undefined
-  const table = importElementFromPartialYAML({
-    context,
-    itemType: "Table",
-    yaml,
-    source,
-  })
-  if (table === undefined) return undefined
-
-  return {
-    ...table,
-    name: table.name ?? source?.name ?? "Таблица",
-  }
-}
-
 export const exportGanttChartFieldTableToJSONSchema: ExportToJSONSchemaFn = (params): TSchema => {
   const value = (params.value as GanttChartFieldTable | undefined) ?? {
     itemType: "Table",
@@ -169,14 +46,43 @@ export const exportGanttChartFieldTableToJSONSchema: ExportToJSONSchemaFn = (par
   })
 }
 
-registerTypeRule("GanttChartFieldTable", "importFromXML", importGanttChartFieldTableFromXML)
-registerTypeRule("GanttChartFieldTable", "exportToXML", exportGanttChartFieldTableToXML)
-registerTypeRule("GanttChartFieldTable", "exportToYAML", exportGanttChartFieldTableToYAML)
-registerTypeRule("GanttChartFieldTable", "importFromYAML", importGanttChartFieldTableFromYAML)
+registerTypeRule("GanttChartFieldTable", "importFromXMLToYAML", ({ context, xml, ownerXmlName, traversal }) =>
+  importSingleFormElementFromXMLToYAML({
+    context,
+    rule: TableRules,
+    xml: xml as ElementXML | undefined,
+    ownerXmlName,
+    nameStyle,
+    traversal,
+  })
+)
+registerTypeRule("GanttChartFieldTable", "nestedItemRule", { itemRule: TableRules })
+registerTypeRule("GanttChartFieldTable", "yamlToXMLNestedRule", {
+  kind: "item",
+  itemRule: TableRules,
+  transformOutput: ({ context, xml, yaml, referenceXML }) => {
+    const result: Record<string, unknown> = { _name: getGeneratedName(context, undefined), ...xml }
+    const yamlRecord = asRecord(yaml)
+    for (const propertyKey of ["searchControl", "searchStringRepresentation", "viewStatusRepresentation"] as const) {
+      const rule = TableRules.properties[propertyKey]
+      if (rule?.yaml === undefined || rule.xml === undefined) continue
+      if (Object.prototype.hasOwnProperty.call(yamlRecord ?? {}, rule.yaml)) continue
+      if (Object.prototype.hasOwnProperty.call(referenceXML ?? {}, rule.xml)) continue
+      delete result[rule.xml]
+    }
+    return result
+  },
+})
 registerTypeRule("GanttChartFieldTable", "exportToJSONSchema", exportGanttChartFieldTableToJSONSchema)
 
 export interface GanttChartFieldTableWidePropertyRule extends WidePropertyRuleBase {
   type: "GanttChartFieldTable"
+}
+
+function asRecord(value: unknown): Record<string, unknown> | undefined {
+  return value !== null && typeof value === "object" && !Array.isArray(value)
+    ? (value as Record<string, unknown>)
+    : undefined
 }
 
 export type GanttChartFieldTableRuleParams = Omit<GanttChartFieldTableWidePropertyRule, "type">

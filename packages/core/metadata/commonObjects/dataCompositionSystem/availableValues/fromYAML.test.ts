@@ -1,6 +1,6 @@
 import { compileValidationSchema } from "./../../../validation/compileValidationSchema"
 import { beforeAll, describe, expect, it } from "vitest"
-import { importPropertyFromYAML } from "../../../orchestration"
+import { callAtomicFromYAML } from "../../../orchestration"
 import { exportPropertyToJSONSchema } from "../../../orchestration/property/toJSONSchema"
 import { mockContext } from "../../../../tests/mockContext"
 import { importFromYAML } from "../../../../yaml/import"
@@ -26,7 +26,7 @@ describe("import DcsAvailableValues from YAML", { timeout: 30_000 }, () => {
   })
 
   it("imports string values", () => {
-    const result = importPropertyFromYAML({
+    const result = callAtomicFromYAML({
       context: mockContext,
       rule,
       value: stringAvailableValuesYAML,
@@ -38,7 +38,7 @@ describe("import DcsAvailableValues from YAML", { timeout: 30_000 }, () => {
   it("imports double-quoted numeric string value from parsed YAML as string", () => {
     const yaml = importFromYAML(['- Значение: "2"', "  Представление: 2 знака"].join("\n"))
 
-    const result = importPropertyFromYAML({
+    const result = callAtomicFromYAML({
       context: mockContext,
       rule,
       value: yaml,
@@ -54,7 +54,7 @@ describe("import DcsAvailableValues from YAML", { timeout: 30_000 }, () => {
   })
 
   it("imports absent value as undefined", () => {
-    const result = importPropertyFromYAML({
+    const result = callAtomicFromYAML({
       context: mockContext,
       rule,
       value: nilAndBooleanAvailableValuesYAML,

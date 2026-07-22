@@ -55,7 +55,9 @@ describe("writeFullXmlSyncAssignment", () => {
     })
 
     expect(result.diagnostics).toEqual([])
-    expect(result.writtenFiles).toEqual([{ assignmentId: assignment.id, targetXmlPath: "DataProcessors/ОбработкаВсеСвойства.xml" }])
+    expect(result.writtenFiles).toEqual([
+      { assignmentId: assignment.id, targetXmlPath: "DataProcessors/ОбработкаВсеСвойства.xml" },
+    ])
     expect(result.fragment).toMatchObject({ targetProjectPath: sourceProjectPath })
     expect(result.fragment?.identities).toEqual(
       expect.arrayContaining([
@@ -65,6 +67,8 @@ describe("writeFullXmlSyncAssignment", () => {
         }),
       ])
     )
+    expect(result.profile?.rulesPassCount).toBe(1)
+    expect(new Set(result.profile?.propertyPaths).size).toBe(result.profile?.propertyPaths.length)
     expect(fs.readFileSync(join(outputDir, "DataProcessors", "ОбработкаВсеСвойства.xml"), "utf-8")).toContain(
       "<Name>ОбработкаВсеСвойства</Name>"
     )
@@ -73,7 +77,10 @@ describe("writeFullXmlSyncAssignment", () => {
   it("reports a contract diagnostic when assignment has no owner output", async () => {
     const projectDir = tempDir()
     const result = await writeFullXmlSyncAssignment({
-      assignment: { ...dataProcessorAssignment(projectDir), outputs: [{ routeKind: "fileItem", targetXmlPath: "child.xml" }] },
+      assignment: {
+        ...dataProcessorAssignment(projectDir),
+        outputs: [{ routeKind: "fileItem", targetXmlPath: "child.xml" }],
+      },
       preparedYamlFile: {
         projectPath: "Обработка/ОбработкаВсеСвойства/Свойства.yaml",
         filePath: join(projectDir, "missing.yaml"),
@@ -101,9 +108,15 @@ describe("writeFullXmlSyncAssignment", () => {
     fs.mkdirSync(join(projectDir, "Справочник", "Товары", "Формы", "ФормаЭлемента"), { recursive: true })
     fs.writeFileSync(
       sourcePath,
-      ["Реквизиты:", "  Объект:", "    Тип: Строка", "Элементы:", "  Поле:", "    Вид: ПолеВвода", "    ПутьКДанным: Объект"].join(
-        "\n"
-      )
+      [
+        "Реквизиты:",
+        "  Объект:",
+        "    Тип: Строка",
+        "Элементы:",
+        "  Поле:",
+        "    Вид: ПолеВвода",
+        "    ПутьКДанным: Объект",
+      ].join("\n")
     )
     const prepared = prepareYamlFiles({
       files: [
@@ -146,7 +159,11 @@ describe("writeFullXmlSyncAssignment", () => {
     ])
     expect(fs.existsSync(join(outputDir, "Catalogs", "Товары", "Forms", "ФормаЭлемента.xml"))).toBe(true)
     expect(fs.existsSync(join(outputDir, "Catalogs", "Товары", "Forms", "ФормаЭлемента", "Ext", "Form.xml"))).toBe(true)
-    expect(fs.existsSync(join(outputDir, "Catalogs", "Товары", "Forms", "ФормаЭлемента", "Ext", "Module.bsl"))).toBe(false)
+    expect(fs.existsSync(join(outputDir, "Catalogs", "Товары", "Forms", "ФормаЭлемента", "Ext", "Module.bsl"))).toBe(
+      false
+    )
+    expect(result.profile?.rulesPassCount).toBe(1)
+    expect(new Set(result.profile?.propertyPaths).size).toBe(result.profile?.propertyPaths.length)
   })
 })
 

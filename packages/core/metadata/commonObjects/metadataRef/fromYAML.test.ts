@@ -1,5 +1,5 @@
 import { describe, expect, it } from "vitest"
-import { importPropertyFromYAML } from "../../orchestration"
+import { callAtomicFromYAML } from "../../orchestration"
 import { mockContext, mockRule } from "../../../tests/mockContext"
 import { importMetadataItemLinkFromYAML, importMetadataItemLinksFromYAML } from "./fromYAML"
 
@@ -17,7 +17,7 @@ describe("importMetadataItemLinkFromYAML", () => {
   })
 
   it("should register metadata item link YAML importer", () => {
-    const result = importPropertyFromYAML({
+    const result = callAtomicFromYAML({
       context: mockContext,
       rule: { ...mockRule, type: "MetadataItemLink" },
       value: "Справочник.ПланСчетов",
@@ -28,7 +28,7 @@ describe("importMetadataItemLinkFromYAML", () => {
 
   it("rejects english roots in registered metadata item link importer", () => {
     expect(() =>
-      importPropertyFromYAML({
+      callAtomicFromYAML({
         context: mockContext,
         rule: { ...mockRule, type: "MetadataItemLink" },
         value: "Catalog.Контрагенты",
@@ -37,7 +37,7 @@ describe("importMetadataItemLinkFromYAML", () => {
   })
 
   it("imports russian roots in registered metadata item link importer", () => {
-    const result = importPropertyFromYAML({
+    const result = callAtomicFromYAML({
       context: mockContext,
       rule: { ...mockRule, type: "MetadataItemLink" },
       value: "Справочник.Контрагенты",
@@ -79,7 +79,7 @@ describe("importMetadataItemLinksFromYAML", () => {
 
   it("rejects english roots in registered metadata item links importer", () => {
     expect(() =>
-      importPropertyFromYAML({
+      callAtomicFromYAML({
         context: mockContext,
         rule: { ...mockRule, type: "MetadataItemLinks" },
         value: ["Catalog.Контрагенты"],

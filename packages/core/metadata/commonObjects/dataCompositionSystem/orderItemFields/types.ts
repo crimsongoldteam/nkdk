@@ -3,11 +3,9 @@ import { MetadataTypeByRule } from "../../../orchestration/metadataItem/element"
 import { YAMLTypeByRule } from "../../../orchestration/metadataItem/yaml"
 import { registerJSONSchemaPropertyRef, schemaRef } from "../../../orchestration/jsonSchemaRefs"
 import { Type } from "typebox"
-import { importOrderItemFieldsFromXML } from "./fromXML"
 import { importOrderItemFieldsFromXMLToYAML } from "./fromXMLToYAML"
 import { OrderItemFieldRules } from "./rules"
 import { exportOrderItemFieldsToJSONSchema } from "./toJSONSchema"
-import { exportOrderItemFieldsToYAML } from "./toYAML"
 
 export type OrderItemField = MetadataTypeByRule<typeof OrderItemFieldRules>
 export type OrderItemAuto = { itemType: "OrderItemAuto" }
@@ -28,9 +26,7 @@ registerMetadataItemCollectionRule({
   propertyType: "OrderItemFields",
   itemRule: OrderItemFieldRules,
   // xmlElement: "dcsset:item",
-  fromXML: importOrderItemFieldsFromXML,
   fromXMLToYAML: importOrderItemFieldsFromXMLToYAML,
-  toYAML: exportOrderItemFieldsToYAML,
   toJSONSchema: exportOrderItemFieldsToJSONSchema,
   yamlAsArray: true,
   configurationIndexAddressing: "yamlPath",
@@ -45,4 +41,6 @@ registerTypeRule("OrderItemFields", "yamlToXMLNestedRule", {
   configurationIndexAddressing: "yamlPath",
 })
 
-registerJSONSchemaPropertyRef("OrderItemFields", () => Type.Array(Type.Union([Type.Literal("[Авто]"), schemaRef("OrderItemField")])))
+registerJSONSchemaPropertyRef("OrderItemFields", () =>
+  Type.Array(Type.Union([Type.Literal("[Авто]"), schemaRef("OrderItemField")]))
+)

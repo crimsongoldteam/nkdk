@@ -1,11 +1,9 @@
 import { registerMetadataItemCollectionRule, registerTypeRule } from "../../../orchestration"
 import { FormTypeByRule } from "../../../orchestration/metadataItem/element"
 import { YAMLTypeByRule } from "../../../orchestration/metadataItem/yaml"
-import { importFilterItemFromXML } from "./fromXML"
 import { importFilterItemFromXMLToYAML } from "./fromXMLToYAML"
 import { FilterItemComparisonRules, FilterItemGroupRules } from "./rules"
 import { exportFilterItemToJSONSchema } from "./toJSONSchema"
-import { exportFilterItemToYAML } from "./toYAML"
 
 export type FilterItemComparison = FormTypeByRule<typeof FilterItemComparisonRules>
 export type FilterItemComparisonYAML = YAMLTypeByRule<typeof FilterItemComparisonRules>
@@ -20,9 +18,7 @@ registerMetadataItemCollectionRule({
   propertyType: "FilterItem",
   itemRule: FilterItemComparisonRules,
   xmlElement: "dcsset:item",
-  fromXML: importFilterItemFromXML,
   fromXMLToYAML: importFilterItemFromXMLToYAML,
-  toYAML: exportFilterItemToYAML,
   toJSONSchema: exportFilterItemToJSONSchema,
   yamlAsArray: true,
   configurationIndexAddressing: "yamlPath",

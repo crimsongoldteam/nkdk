@@ -1,6 +1,6 @@
 import { describe, expect, it } from "vitest"
 import { PropertyRule } from "../../orchestration"
-import { testExportPropertyToXML } from "../../../tests/property/exportPropertyToXML"
+import { testAtomicToXML } from "../../../tests/property/atomicToXML"
 import "./fromXML"
 import "./toXML"
 
@@ -11,7 +11,7 @@ const rule: PropertyRule = {
 
 describe("exportFunctionalOptionsToXML", () => {
   it("exports empty item as explicit empty XML item", () => {
-    const { result } = testExportPropertyToXML({
+    const { result } = testAtomicToXML({
       rule,
       value: [""],
       xmlRootTag: "FunctionalOptions",

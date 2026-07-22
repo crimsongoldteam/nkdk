@@ -129,6 +129,20 @@ describe("collectStructuralState", () => {
     ])
   })
 
+  it("collects XML state when YAML export settings are omitted", async () => {
+    const dir = mkdtempSync(join(tmpdir(), "nkdk-xml-"))
+    fs.mkdirSync(join(dir, "Catalogs"), { recursive: true })
+    fs.copyFileSync(
+      new URL("../../metadataCatalog/__fixtures__/full.xml", import.meta.url),
+      join(dir, "Catalogs", "СправочникПолный.xml")
+    )
+    const { exportToYAML: _exportToYAML, ...context } = mockContextFromXML()
+
+    const state = await collectStructuralStateFromXML({ xmlDir: dir, context })
+
+    expect(state.nodes.has("Справочник.СправочникПолный.Реквизит.РеквизитСправочника")).toBe(true)
+  })
+
   it("collects task addressing attributes from XML", async () => {
     const dir = mkdtempSync(join(tmpdir(), "nkdk-xml-"))
     fs.mkdirSync(join(dir, "Tasks"), { recursive: true })

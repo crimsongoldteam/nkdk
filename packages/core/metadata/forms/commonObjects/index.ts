@@ -29,18 +29,12 @@ import "./formParameter/toJSONSchema"
 import "./formParameter/toXML"
 import "./formParameter/toYAML"
 
-import "./formAttribute/fromXML"
 import "./formAttribute/fromXMLToYAML"
 import "./formAttribute/toJSONSchema"
-import "./formAttribute/toYAML"
 
-import "./childItems/fromXML"
 import "./childItems/fromXMLToYAML"
-import "./childItems/fromYAML"
 import "./childItems/toEnterprise"
 import "./childItems/toJSONSchema"
-import "./childItems/toXML"
-import "./childItems/toYAML"
 import { registerDirectFormElementCollections } from "../elements/orchestration/fromYAMLToXML"
 
 registerDirectFormElementCollections()

@@ -1,6 +1,6 @@
 import { describe, expect, it } from "vitest"
 import { PropertyRule } from "../../orchestration"
-import { testImportPropertyFromYAML } from "../../../tests/property/importPropertyFromYAML"
+import { testAtomicFromYAML } from "../../../tests/property/atomicFromYAML"
 import {
   fixtureUserSettingsIDFalseYAML,
   fixtureUserSettingsIDFull,
@@ -14,7 +14,7 @@ const rule: PropertyRule = {
 
 describe("importUserSettingsIDFromYAML", () => {
   it("imports Истина", () => {
-    const result = testImportPropertyFromYAML({
+    const result = testAtomicFromYAML({
       rule,
       value: fixtureUserSettingsIDYAML,
     })
@@ -23,7 +23,7 @@ describe("importUserSettingsIDFromYAML", () => {
   })
 
   it("imports Ложь", () => {
-    const result = testImportPropertyFromYAML({
+    const result = testAtomicFromYAML({
       rule,
       value: fixtureUserSettingsIDFalseYAML,
     })
@@ -32,7 +32,7 @@ describe("importUserSettingsIDFromYAML", () => {
   })
 
   it("imports UID string", () => {
-    const result = testImportPropertyFromYAML({
+    const result = testAtomicFromYAML({
       rule,
       value: fixtureUserSettingsIDRefFull,
     })
@@ -41,7 +41,7 @@ describe("importUserSettingsIDFromYAML", () => {
   })
 
   it("returns undefined when value is undefined", () => {
-    const result = testImportPropertyFromYAML({
+    const result = testAtomicFromYAML({
       rule,
       value: undefined,
     })

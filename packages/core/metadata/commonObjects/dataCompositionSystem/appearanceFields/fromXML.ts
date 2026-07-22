@@ -1,6 +1,7 @@
 import { ConfigurationContextFromXML } from "../../../context/types"
 import { withConfigurationIndexYamlCollectionItemContext } from "../../../configurationIndex/collector/context"
 import { importPropertyFromXML, PropertyRule, registerTypeRule } from "../../../orchestration"
+import { exportPropertyValueToYAML } from "../../../orchestration/property/toYAML"
 import type {
   ParameterValueXML,
   SettingsParameterValue,
@@ -84,3 +85,16 @@ const importAppearanceFromXML = (
 }
 
 registerTypeRule("AppearanceFields", "importFromXML", importAppearanceFromXML)
+registerTypeRule("AppearanceFields", "importFromXMLToYAML", ({ context, rule, xml }) => {
+  const imported = importAppearanceFromXML(context, rule, xml as AppearanceFieldsXML | undefined)
+  if (imported === undefined) return undefined
+  const yaml: Record<string, unknown> = {}
+  for (const [key, value] of Object.entries(imported)) {
+    if (key === "itemType") continue
+    const propertyRule = appearanceParameterRules[key]
+    if (propertyRule === undefined) continue
+    const exported = exportPropertyValueToYAML({ context, rule: propertyRule, value })
+    if (exported !== undefined) yaml[propertyRule.yaml ?? key] = exported
+  }
+  return Object.keys(yaml).length === 0 ? undefined : yaml
+})

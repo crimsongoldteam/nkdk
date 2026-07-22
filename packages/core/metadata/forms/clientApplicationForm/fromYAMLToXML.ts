@@ -8,7 +8,7 @@ import type { ConfigurationContextWithExportToXML } from "../../context/types"
 import { getUUID } from "../../helpers/uuid"
 import { recordCurrentExternalMetadataUuid } from "../../orchestration/externalMetadata/record"
 import { convertPropertiesFromYAMLToXML } from "../../orchestration/property/fromYAMLToXML"
-import type { YAMLToXMLExternalWrite } from "../../orchestration/property/fromYAMLToXMLTypes"
+import type { YAMLToXMLExternalWrite, YAMLToXMLProfile } from "../../orchestration/property/fromYAMLToXMLTypes"
 import { ClientApplicationFormRules } from "./rules"
 import type { ClientApplicationFormXML, ClientApplicationFormYAML, FormMetadataXML } from "./types"
 import { FormRulesTags } from "./types"
@@ -21,6 +21,7 @@ export interface ConvertClientApplicationFormFromYAMLToXMLParams {
   readonly name: string
   readonly referenceFormXML?: ClientApplicationFormXML
   readonly referenceMetadataXML?: FormMetadataXML
+  readonly profile?: YAMLToXMLProfile
 }
 
 export interface DirectClientApplicationFormXMLResult {
@@ -48,6 +49,8 @@ export function convertClientApplicationFormFromYAMLToXML(
       { key: "metadata", tags: [FormRulesTags.Metadata], referenceXML: params.referenceMetadataXML },
       { key: "form", tags: [FormRulesTags.Form], referenceXML: params.referenceFormXML },
     ],
+    profile: params.profile,
+    rulePath: [ClientApplicationFormRules.itemType],
   })
 
   const formProperties = converted.outputs.get("form") ?? {}

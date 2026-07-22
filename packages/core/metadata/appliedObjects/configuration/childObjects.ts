@@ -111,6 +111,7 @@ export const readConfigurationChildObjectsFromXML = (inputDir: string): Configur
 export const buildConfigurationChildObjects = (params: {
   yamlDir: string
   referenceChildObjects?: ConfigurationChildObjectsXML
+  preserveReferenceNames?: boolean
 }): ConfigurationChildObjectsXML => {
   const result: ConfigurationChildObjectsXML = {}
   const specsByXMLName = new Map(getSupportedChildObjectSpecs().map((spec) => [spec.xmlName, spec]))
@@ -119,7 +120,14 @@ export const buildConfigurationChildObjects = (params: {
     const spec = specsByXMLName.get(xmlName)
     if (!spec) continue
 
-    const yamlNames = new Set(readYAMLObjectNames(params.yamlDir, spec.yamlDir))
+    const yamlNames = new Set(
+      params.preserveReferenceNames
+        ? [
+            ...normalizeReferenceNames(params.referenceChildObjects, xmlName),
+            ...readYAMLObjectNames(params.yamlDir, spec.yamlDir),
+          ]
+        : readYAMLObjectNames(params.yamlDir, spec.yamlDir)
+    )
     if (yamlNames.size === 0) continue
 
     const referenceNames = normalizeReferenceNames(params.referenceChildObjects, xmlName)

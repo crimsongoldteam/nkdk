@@ -6,7 +6,6 @@ import { registerMetadataItemCollectionRule } from "../../../orchestration/metad
 import { FormTypeByRule } from "../../../orchestration/metadataItem/element"
 import { YAMLTypeByRule } from "../../../orchestration/metadataItem/yaml"
 import { ButtonRepresentation, CurrentRowUse } from "../../../systemEnumerations/types"
-import { importFormCommandsFromXML } from "./fromXML"
 import { importFormCommandsFromXMLToYAML } from "./fromXMLToYAML"
 import { FormCommandRules } from "./rules"
 
@@ -40,11 +39,10 @@ registerMetadataItemCollectionRule({
   itemRule: FormCommandRules,
   xmlElement: "Command",
   keyField: "name",
-  fromXML: importFormCommandsFromXML,
   fromXMLToYAML: importFormCommandsFromXMLToYAML,
   mapItemOutput: ({ xml }) => {
     const { _name, _id, ...properties } = xml
-    const result = { _name, _id: typeof _id === "string" ? _id : "", ...properties }
+    const result: Record<string, unknown> = { _name, _id: typeof _id === "string" ? _id : "", ...properties }
     if (result.Representation === "PictureAndText") result.Representation = "TextPicture"
     return result
   },

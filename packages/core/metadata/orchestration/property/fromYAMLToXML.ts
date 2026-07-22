@@ -26,6 +26,7 @@ import type {
   YAMLToXMLExternalWriteFactory,
   YAMLToXMLOutputRequest,
   YAMLToXMLResult,
+  YAMLToXMLProfile,
 } from "./fromYAMLToXMLTypes"
 import { getTypeRule } from "./typeRuleRegistry"
 import type { MetadataItemRule, PropertyRule } from "./types"
@@ -42,6 +43,8 @@ export interface ConvertPropertiesFromYAMLToXMLParams {
   readonly propertyValues?: ReadonlyMap<string, unknown>
   readonly sparseYAML?: true
   readonly externalWriteFactory?: YAMLToXMLExternalWriteFactory
+  readonly profile?: YAMLToXMLProfile
+  readonly rulePath?: readonly (string | number)[]
 }
 
 export interface AtomicFromYAMLParams {
@@ -161,6 +164,10 @@ export function convertPropertiesFromYAMLToXML(params: ConvertPropertiesFromYAML
   for (const propertyKey of orderedKeys) {
     const planned = planByKey.get(propertyKey)
     if (planned === undefined) continue
+    if (params.profile !== undefined) {
+      params.profile.propertyCount++
+      params.profile.propertyPaths.push(formatRulePath([...(params.rulePath ?? [params.rule.itemType]), propertyKey]))
+    }
     const matchingOutputs = outputs.filter(({ request }) => matchesOutputTag(planned.propertyRule, request))
     const references = matchingOutputs.map(({ request }) =>
       readReferenceProperty({
@@ -286,6 +293,8 @@ export function convertPropertiesFromYAMLToXML(params: ConvertPropertiesFromYAML
               source,
               outputs: nestedOutputs,
               externalWriteFactory: params.externalWriteFactory,
+              profile: params.profile,
+              rulePath: [...(params.rulePath ?? [params.rule.itemType]), propertyKey],
             })
           : convertMetadataItemFromYAMLToXML({
               context: params.context,
@@ -303,7 +312,10 @@ export function convertPropertiesFromYAMLToXML(params: ConvertPropertiesFromYAML
               sparseYAML: effectiveNestedRule.kind === "item" ? effectiveNestedRule.sparseYAML : undefined,
               externalWriteFactory: params.externalWriteFactory,
               ownerYAML: { itemType: params.rule.itemType },
+              profile: params.profile,
+              rulePath: [...(params.rulePath ?? [params.rule.itemType]), propertyKey],
             })
+      if (effectiveNestedRule.kind !== "collection" && params.profile !== undefined) params.profile.nestedItemCount++
       externalWrites.push(...nested.externalWrites)
       matchingOutputs.forEach((output, index) => {
         const reference = references[index]!
@@ -313,7 +325,14 @@ export function convertPropertiesFromYAMLToXML(params: ConvertPropertiesFromYAML
           effectiveNestedRule.transformOutput !== undefined &&
           isRecord(value)
         ) {
-          value = effectiveNestedRule.transformOutput({ xml: value, propertyRule: planned.propertyRule, source })
+          value = effectiveNestedRule.transformOutput({
+            context: params.context,
+            xml: value,
+            yaml: nestedYAML,
+            referenceXML: isRecord(references[index]?.value) ? references[index]?.value : undefined,
+            propertyRule: planned.propertyRule,
+            source,
+          })
         }
         if (
           effectiveNestedRule.kind === "collection" &&
@@ -366,6 +385,7 @@ export function convertPropertiesFromYAMLToXML(params: ConvertPropertiesFromYAML
         name: params.name,
         owner,
       })
+      if (params.profile !== undefined) params.profile.atomicFromYAMLCount++
 
       matchingOutputs.forEach((output, index) => {
         const reference = references[index]!
@@ -383,6 +403,7 @@ export function convertPropertiesFromYAMLToXML(params: ConvertPropertiesFromYAML
           referenceValue: atomicReferences[index],
           source,
         })
+        if (params.profile !== undefined) params.profile.atomicToXMLCount++
         writeXMLValue({ context: outputContext, output, planned, value: exported, reference })
       })
     } catch (error) {
@@ -395,6 +416,10 @@ export function convertPropertiesFromYAMLToXML(params: ConvertPropertiesFromYAML
     outputs: new Map(outputs.map(({ request, xml }) => [request.key, xml])),
     externalWrites,
   }
+}
+
+function formatRulePath(path: readonly (string | number)[]): string {
+  return path.map(String).join("/")
 }
 
 function isEmptyCollectionReference(value: unknown, xmlElement: string | undefined): boolean {
@@ -462,8 +487,24 @@ export function callAtomicFromYAML(params: AtomicFromYAMLParams): unknown {
           owner,
         })
       : (handler as importFromYAMLFunction)(context, rule, value, referenceValue)
-  const resolved = imported ?? referenceValue
+  if (rule.type === "MetadataDcsMetadataValue" && imported === null) return null
+  const resolved = shouldUseOnlyImportedValue({ rule, value })
+    ? imported
+    : (imported ?? normalizeReferenceFallback(rule, referenceValue))
   return resolved === undefined ? defaultValue({ context, rule, yaml, name, operation: "importFromYAML" }) : resolved
+}
+
+function shouldUseOnlyImportedValue(params: { rule: PropertyRule; value: unknown }): boolean {
+  return (
+    params.rule.type === "MetadataDcsMetadataValue" &&
+    (params.rule as { valueType?: unknown }).valueType === "DesignTimeValue" &&
+    params.value === undefined
+  )
+}
+
+function normalizeReferenceFallback(rule: PropertyRule, value: unknown): unknown {
+  if (rule.type !== "SystemEnumeration" || !isRecord(value)) return value
+  return typeof value["#text"] === "string" ? value["#text"] : value
 }
 
 export function callAtomicToXML(params: AtomicToXMLParams): unknown {

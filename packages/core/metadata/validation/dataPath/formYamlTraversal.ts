@@ -34,7 +34,7 @@ function collectItem(params: {
         yamlPath: [...params.yamlPath, propertyRule.yaml],
         ...(isElementType(params.rule.itemType) ? { elementType: params.rule.itemType } : {}),
         ...(hasYamlProperty(record, params.rule, "valuesPicture") ? { hasValuesPicture: true } : {}),
-        ...(readYamlProperty(record, params.rule, "multipleValuesExtendedEdit") === true
+        ...(isYamlTrue(readYamlProperty(record, params.rule, "multipleValuesExtendedEdit"))
           ? { hasMultipleValuesExtendedEdit: true }
           : {}),
         ...(params.tableContext !== undefined && propertyRule.yaml === "ПутьКДанным"
@@ -65,6 +65,10 @@ function collectItem(params: {
   }
 
   return occurrences
+}
+
+function isYamlTrue(value: unknown): boolean {
+  return value === true || value === "Истина"
 }
 
 function collectNested(params: {

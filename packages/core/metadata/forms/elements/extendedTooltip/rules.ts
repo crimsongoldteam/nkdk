@@ -10,7 +10,6 @@ import { ConfigurationContextWithExportToXML } from "../../../context/types"
 import { registerElementAsType, registerElementRule } from "../../../orchestration/formElement/ruleFactory"
 import type { PropertyRule } from "../../../orchestration/property/types"
 import { ElementRule } from "../../../orchestration/formElement/types"
-import { BaseElement } from "../baseElement/types"
 import { formDecorationCommonProperties } from "../formDecoration/rules"
 import { getExtendedTooltipName } from "./helper"
 export type { ElementRule, PropertyRule }
@@ -109,7 +108,7 @@ registerElementAsType({
     referenceSuffixes: ["РасширеннаяПодсказка", "ExtendedTooltip"],
     canonicalNameMode: "ownerSuffix",
   },
-  toXML: (params: { context: ConfigurationContextWithExportToXML; element: BaseElement | undefined }) => {
+  toXML: (params: { context: ConfigurationContextWithExportToXML }) => {
     const { context } = params
     const parent = getParentFromContext(context)
     const name = getExtendedTooltipName(parent)

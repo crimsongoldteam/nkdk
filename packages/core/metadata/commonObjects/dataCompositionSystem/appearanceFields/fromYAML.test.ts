@@ -1,6 +1,6 @@
 import { describe, expect, it } from "vitest"
 import { PropertyRule } from "../../../orchestration"
-import { testImportPropertyFromYAML } from "../../../../tests/property/importPropertyFromYAML"
+import { testAtomicFromYAML } from "../../../../tests/property/atomicFromYAML"
 import { exportToYAML } from "../../../../yaml/export"
 import { importFromYAML } from "../../../../yaml/import"
 import { fixtureAppearanceFields, fixtureAppearanceFieldsYAML } from "./__fixtures__/data"
@@ -14,7 +14,7 @@ describe("import Appearance from YAML", () => {
   const parseViaYamlText = <T>(value: T): T => importFromYAML<T>(exportToYAML(value))
 
   it("should import YAML to metadata", () => {
-    const result = testImportPropertyFromYAML({
+    const result = testAtomicFromYAML({
       rule,
       value: fixtureAppearanceFieldsYAML,
     })
@@ -23,7 +23,7 @@ describe("import Appearance from YAML", () => {
   })
 
   it("imports explicit field value for text appearance", () => {
-    const result = testImportPropertyFromYAML({
+    const result = testAtomicFromYAML({
       rule,
       value: {
         Текст: {
@@ -46,7 +46,7 @@ describe("import Appearance from YAML", () => {
   })
 
   it("imports explicit LocalStringType value for text appearance", () => {
-    const result = testImportPropertyFromYAML({
+    const result = testAtomicFromYAML({
       rule,
       value: {
         Текст: {
@@ -68,7 +68,7 @@ describe("import Appearance from YAML", () => {
   })
 
   it("imports quoted LocalStringType text appearance as default language", () => {
-    const result = testImportPropertyFromYAML({
+    const result = testAtomicFromYAML({
       rule,
       value: importFromYAML(`
 Текст:
@@ -91,7 +91,7 @@ describe("import Appearance from YAML", () => {
   })
 
   it("imports explicit LocalFormattedStringType value for text appearance", () => {
-    const result = testImportPropertyFromYAML({
+    const result = testAtomicFromYAML({
       rule,
       value: {
         Текст: {
@@ -120,7 +120,7 @@ describe("import Appearance from YAML", () => {
   })
 
   it("imports double-quoted numeric-looking text appearance as string value", () => {
-    const result = testImportPropertyFromYAML({
+    const result = testAtomicFromYAML({
       rule,
       value: parseViaYamlText({
         Текст: "6678",
@@ -140,7 +140,7 @@ describe("import Appearance from YAML", () => {
   })
 
   it("imports double-quoted absolute color as color value", () => {
-    const result = testImportPropertyFromYAML({
+    const result = testAtomicFromYAML({
       rule,
       value: importFromYAML<{ ЦветФона: string }>('ЦветФона: "#000000"'),
     })
@@ -158,7 +158,7 @@ describe("import Appearance from YAML", () => {
   })
 
   it("imports full color appearance value form", () => {
-    const result = testImportPropertyFromYAML({
+    const result = testAtomicFromYAML({
       rule,
       value: {
         ЦветТекста: {
@@ -180,7 +180,7 @@ describe("import Appearance from YAML", () => {
   })
 
   it("imports double-quoted full color appearance value as color value", () => {
-    const result = testImportPropertyFromYAML({
+    const result = testAtomicFromYAML({
       rule,
       value: importFromYAML<{ ЦветТекста: { Значение: string } }>('ЦветТекста:\n  Значение: "#C0C0C0"'),
     })
@@ -198,7 +198,7 @@ describe("import Appearance from YAML", () => {
   })
 
   it("keeps legacy compact color appearance readable", () => {
-    const result = testImportPropertyFromYAML({
+    const result = testAtomicFromYAML({
       rule,
       value: {
         ЦветТекста: "#FF0000",
@@ -218,7 +218,7 @@ describe("import Appearance from YAML", () => {
   })
 
   it("preserves source empty LocalStringType for text appearance when YAML omits value", () => {
-    const result = testImportPropertyFromYAML({
+    const result = testAtomicFromYAML({
       rule,
       value: {
         Текст: {
@@ -246,7 +246,7 @@ describe("import Appearance from YAML", () => {
   })
 
   it("imports empty color parameter as enabled DCS auto color", () => {
-    const result = testImportPropertyFromYAML({
+    const result = testAtomicFromYAML({
       rule,
       value: {
         ЦветТекста: null,
@@ -262,7 +262,7 @@ describe("import Appearance from YAML", () => {
   })
 
   it("keeps non-color empty SettingsParameterValue unchanged", () => {
-    const result = testImportPropertyFromYAML({
+    const result = testAtomicFromYAML({
       rule,
       value: {
         Текст: null,

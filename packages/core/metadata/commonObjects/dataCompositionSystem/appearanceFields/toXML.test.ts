@@ -1,10 +1,10 @@
 import { describe, expect, it } from "vitest"
-import { testExportPropertyToXML } from "../../../../tests/property/exportPropertyToXML"
+import { testAtomicToXML } from "../../../../tests/property/atomicToXML"
 import { fixtureAppearanceFields, fixtureAppearanceRule } from "./__fixtures__/data"
 
 describe("export Appearance to XML", () => {
   it("should export appearance.xml", () => {
-    const { expectedResult, result } = testExportPropertyToXML({
+    const { expectedResult, result } = testAtomicToXML({
       rule: fixtureAppearanceRule,
       value: fixtureAppearanceFields,
       xmlRootTag: "dcsset:appearance",
@@ -16,7 +16,7 @@ describe("export Appearance to XML", () => {
   })
 
   it("restores XML auto value for enabled DCS color without YAML value", () => {
-    const { result } = testExportPropertyToXML({
+    const { result } = testAtomicToXML({
       rule: fixtureAppearanceRule,
       value: {
         itemType: "AppearanceFields",
@@ -32,7 +32,7 @@ describe("export Appearance to XML", () => {
   })
 
   it("restores XML auto value for disabled DCS color without YAML value", () => {
-    const { result } = testExportPropertyToXML({
+    const { result } = testAtomicToXML({
       rule: fixtureAppearanceRule,
       value: {
         itemType: "AppearanceFields",
@@ -50,7 +50,7 @@ describe("export Appearance to XML", () => {
   })
 
   it("exports quoted LocalStringType text appearance with default language", () => {
-    const { result } = testExportPropertyToXML({
+    const { result } = testAtomicToXML({
       rule: fixtureAppearanceRule,
       value: {
         itemType: "AppearanceFields",

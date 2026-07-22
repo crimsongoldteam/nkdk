@@ -1,6 +1,6 @@
 import { describe, expect, it } from "vitest"
 import { mockContext } from "../../../../tests/mockContext"
-import { testImportPropertyFromYAML } from "../../../../tests/property/importPropertyFromYAML"
+import { testAtomicFromYAML } from "../../../../tests/property/atomicFromYAML"
 import { importFromYAML } from "../../../../yaml/import"
 import { importDcsMetadataValueFromYAML } from "./fromYAML"
 import { dcsMetadataValueYAMLFixtures } from "./__fixtures__/data"
@@ -8,7 +8,7 @@ import { dcsMetadataValueYAMLFixtures } from "./__fixtures__/data"
 describe("import MetadataDcsMetadataValue from YAML", () => {
   it.each(dcsMetadataValueYAMLFixtures)("imports $title", (fixture) => {
     expect(
-      testImportPropertyFromYAML({
+      testAtomicFromYAML({
         rule: fixture.rule,
         value: fixture.yaml,
       })
@@ -17,7 +17,7 @@ describe("import MetadataDcsMetadataValue from YAML", () => {
 
   it("imports explicit DesignTimeValue field", () => {
     expect(
-      testImportPropertyFromYAML({
+      testAtomicFromYAML({
         rule: { type: "MetadataDcsMetadataValue", valueType: "DesignTimeValue", yaml: "value" },
         value: {
           Тип: "Поле",
@@ -32,7 +32,7 @@ describe("import MetadataDcsMetadataValue from YAML", () => {
 
   it("imports explicit DesignTimeValue LocalStringType", () => {
     expect(
-      testImportPropertyFromYAML({
+      testAtomicFromYAML({
         rule: { type: "MetadataDcsMetadataValue", valueType: "DesignTimeValue", yaml: "value" },
         value: {
           Тип: "МногоязычнаяСтрока",
@@ -46,7 +46,7 @@ describe("import MetadataDcsMetadataValue from YAML", () => {
 
   it("imports quoted explicit DesignTimeValue LocalStringType as default language", () => {
     expect(
-      testImportPropertyFromYAML({
+      testAtomicFromYAML({
         rule: { type: "MetadataDcsMetadataValue", valueType: "DesignTimeValue", yaml: "value" },
         value: importFromYAML('Тип: МногоязычнаяСтрока\nЗначение: "1"'),
       })
@@ -57,7 +57,7 @@ describe("import MetadataDcsMetadataValue from YAML", () => {
 
   it("imports explicit DesignTimeValue LocalFormattedStringType", () => {
     expect(
-      testImportPropertyFromYAML({
+      testAtomicFromYAML({
         rule: { type: "MetadataDcsMetadataValue", valueType: "DesignTimeValue", yaml: "value" },
         value: {
           Тип: "МногоязычнаяФорматированнаяСтрока",
@@ -78,7 +78,7 @@ describe("import MetadataDcsMetadataValue from YAML", () => {
 
   it("imports DesignTimeValue without explicit type as xs:string", () => {
     expect(
-      testImportPropertyFromYAML({
+      testAtomicFromYAML({
         rule: { type: "MetadataDcsMetadataValue", valueType: "DesignTimeValue", yaml: "value" },
         value: "Все полномочия",
       })
@@ -90,7 +90,7 @@ describe("import MetadataDcsMetadataValue from YAML", () => {
 
   it("imports beginning date string as Field value dateTime", () => {
     expect(
-      testImportPropertyFromYAML({
+      testAtomicFromYAML({
         rule: { type: "MetadataDcsMetadataValue", valueType: "Field", yaml: "value" },
         value: "01.01.0001 00:00:00",
       })
@@ -99,7 +99,7 @@ describe("import MetadataDcsMetadataValue from YAML", () => {
 
   it("keeps local DCS field paths as strings", () => {
     expect(
-      testImportPropertyFromYAML({
+      testAtomicFromYAML({
         rule: { type: "MetadataDcsMetadataValue", valueType: "Field", yaml: "value" },
         value: "Реквизит1",
       })
@@ -110,7 +110,7 @@ describe("import MetadataDcsMetadataValue from YAML", () => {
     const sourceValue = { items: {} }
 
     expect(
-      testImportPropertyFromYAML({
+      testAtomicFromYAML({
         rule: { type: "MetadataDcsMetadataValue", valueType: "DesignTimeValue", yaml: "value" },
         value: undefined,
         sourceValue,
@@ -120,7 +120,7 @@ describe("import MetadataDcsMetadataValue from YAML", () => {
 
   it("uses explicit YAML field over source empty LocalStringType", () => {
     expect(
-      testImportPropertyFromYAML({
+      testAtomicFromYAML({
         rule: { type: "MetadataDcsMetadataValue", valueType: "DesignTimeValue", yaml: "value" },
         value: {
           Тип: "Поле",
@@ -147,7 +147,7 @@ describe("import MetadataDcsMetadataValue from YAML", () => {
     ).toBeUndefined()
 
     expect(
-      testImportPropertyFromYAML({
+      testAtomicFromYAML({
         rule: { type: "MetadataDcsMetadataValue", valueType: "DesignTimeValue", yaml: "value" },
         value: undefined,
         sourceValue,
@@ -157,7 +157,7 @@ describe("import MetadataDcsMetadataValue from YAML", () => {
 
   it("does not preserve source explicit field when YAML value is undefined", () => {
     expect(
-      testImportPropertyFromYAML({
+      testAtomicFromYAML({
         rule: { type: "MetadataDcsMetadataValue", valueType: "DesignTimeValue", yaml: "value" },
         value: undefined,
         sourceValue: { type: "Field", value: "X" },
@@ -167,7 +167,7 @@ describe("import MetadataDcsMetadataValue from YAML", () => {
 
   it("imports Russian metadata path as enterprise DesignTimeValue for primitive DCS values", () => {
     expect(
-      testImportPropertyFromYAML({
+      testAtomicFromYAML({
         rule: { type: "MetadataDcsMetadataValue", valueType: "Primitive", yaml: "value" },
         value: "ПланСчетов.Хозрасчетный.ПФР_ОПС_ИП",
       })
@@ -179,7 +179,7 @@ describe("import MetadataDcsMetadataValue from YAML", () => {
 
   it("rejects invalid explicit text value", () => {
     expect(() =>
-      testImportPropertyFromYAML({
+      testAtomicFromYAML({
         rule: { type: "MetadataDcsMetadataValue", valueType: "DesignTimeValue", yaml: "value" },
         value: {
           Тип: "Поле",

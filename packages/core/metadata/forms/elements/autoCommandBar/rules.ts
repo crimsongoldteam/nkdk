@@ -3,7 +3,6 @@ import { booleanRule } from "../../../commonObjects/boolean/types"
 import { stringRule } from "../../../commonObjects/string/types"
 import { systemEnumerationRule } from "../../../systemEnumerations/types"
 import { getParentFromContext } from "../../../context/helpers"
-import { BaseElement } from "../baseElement/types"
 import { registerElementAsType, registerElementRule } from "../../../orchestration/formElement/ruleFactory"
 import type { PropertyRule } from "../../../orchestration/property/types"
 import { ConfigurationContextWithExportToXML } from "../../../context/types"
@@ -63,7 +62,7 @@ registerElementAsType({
     referenceSuffixes: ["КоманднаяПанель", "CommandBar"],
     canonicalNameMode: "ownerSuffix",
   },
-  toXML: (params: { context: ConfigurationContextWithExportToXML; element: BaseElement | undefined }) => {
+  toXML: (params: { context: ConfigurationContextWithExportToXML }) => {
     const { context } = params
     const parentTable = getParentFromContext(context, ["Table"])
     const elementName = getAutoCommandBarName(parentTable)

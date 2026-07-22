@@ -14,15 +14,27 @@ import { CollectableElementTypeToYAML } from "../../elements/orchestration/types
 import type { ImportFromXMLToYAMLFunction } from "../../../orchestration/property/importYamlTypes"
 import { registerTypeRule } from "../../../orchestration/property/typeRuleRegistry"
 import { importFormElementPropertiesFromXMLToYAML } from "../../elements/orchestration/fromXMLToYAML"
-import { resolveItemTypeFromXMLTag } from "./fromXML"
 import { childItemsTreePropertyTypes, moveButtonTypeToTreeYAML } from "./treeYAML"
+import type { PropertyRule } from "../../../orchestration/property/types"
+import type { TableChildItem } from "./types"
 
-export const importChildItemsFromXMLToYAML: ImportFromXMLToYAMLFunction = ({
-  context,
-  rule,
-  xml,
-  traversal,
-}) => {
+const resolveItemTypeFromXMLTag = (rule: PropertyRule, xmlTag: string, xmlValue?: Record<string, unknown>): string => {
+  if (rule.type === "CommandBarChildItems" && xmlTag === "Button") {
+    const type = xmlValue?.Type
+    return type === "CommandBarButton" || type === "CommandBarHyperlink" ? "CommandBarButton" : "Button"
+  }
+  if (rule.type !== "TableChildItems") return xmlTag
+  const tableXMLTagToItemType: Record<string, TableChildItem["itemType"]> = {
+    CheckBoxField: "TableCheckBoxField",
+    ColumnGroup: "ColumnGroup",
+    InputField: "TableInputField",
+    LabelField: "TableLabelField",
+    PictureField: "TablePictureField",
+  }
+  return tableXMLTagToItemType[xmlTag] ?? xmlTag
+}
+
+export const importChildItemsFromXMLToYAML: ImportFromXMLToYAMLFunction = ({ context, rule, xml, traversal }) => {
   if (xml === undefined) return undefined
   const items = Array.isArray(xml) ? xml : [xml]
   const result: Record<string, unknown> = {}

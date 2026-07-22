@@ -4,6 +4,7 @@ import type {
   YAMLToXMLExternalWriteFactory,
   YAMLToXMLOutputRequest,
   YAMLToXMLResult,
+  YAMLToXMLProfile,
 } from "../property/fromYAMLToXMLTypes"
 import type { MetadataItemRule, PropertyRule } from "../property/types"
 import { findInlineProperty } from "./yamlInline"
@@ -21,6 +22,8 @@ export interface ConvertMetadataItemFromYAMLToXMLParams {
   readonly ownerYAML?: unknown
   readonly sparseYAML?: true
   readonly externalWriteFactory?: YAMLToXMLExternalWriteFactory
+  readonly profile?: YAMLToXMLProfile
+  readonly rulePath?: readonly (string | number)[]
 }
 
 interface XMLRootInfo {
@@ -62,6 +65,8 @@ export function convertMetadataItemFromYAMLToXML(params: ConvertMetadataItemFrom
     propertyValues: params.propertyValues,
     sparseYAML: params.sparseYAML,
     externalWriteFactory: params.externalWriteFactory,
+    profile: params.profile,
+    rulePath: params.rulePath,
   })
   const outputs = new Map<string, Record<string, unknown>>()
 

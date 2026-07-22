@@ -88,6 +88,7 @@ export const writePreparedFormToXML = async (params: {
   referenceFormXML?: ClientApplicationFormXML
   referenceMetadataXML?: FormMetadataXML
   xmlManifest?: XmlWriteManifest
+  profile?: import("../../orchestration/property/fromYAMLToXMLTypes").YAMLToXMLProfile
 }): Promise<void> => {
   const yamlObj = params.preparedYamlFile.data as ClientApplicationFormYAML | undefined
   if (yamlObj === undefined)
@@ -109,6 +110,7 @@ export const writePreparedFormToXML = async (params: {
     name: params.formName,
     referenceFormXML: params.referenceFormXML,
     referenceMetadataXML: params.referenceMetadataXML,
+    profile: params.profile,
   })
 
   await writeFormToXML({

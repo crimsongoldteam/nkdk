@@ -1,6 +1,6 @@
 import { describe, expect, it } from "vitest"
 import { PropertyRule } from "../../../orchestration"
-import { testExportPropertyToXML } from "../../../../tests/property/exportPropertyToXML"
+import { testAtomicToXML } from "../../../../tests/property/atomicToXML"
 import {
   fixtureDcsLocalStringSingleLang,
   fixtureDcsLocalStringTwoLangs,
@@ -12,7 +12,7 @@ const xmlRootTag = "dcsset:userSettingPresentation"
 
 describe("exportDcsLocalStringTypeToXML", () => {
   it("один язык + string reference -> xs:string", () => {
-    const { expectedResult, result } = testExportPropertyToXML({
+    const { expectedResult, result } = testAtomicToXML({
       rule,
       value: fixtureDcsStringSingleLang,
       xmlRootTag,
@@ -24,7 +24,7 @@ describe("exportDcsLocalStringTypeToXML", () => {
   })
 
   it("один язык + LocalString reference -> v8:LocalStringType", () => {
-    const { expectedResult, result } = testExportPropertyToXML({
+    const { expectedResult, result } = testAtomicToXML({
       rule,
       value: fixtureDcsLocalStringSingleLang,
       xmlRootTag,
@@ -36,7 +36,7 @@ describe("exportDcsLocalStringTypeToXML", () => {
   })
 
   it("один язык без референса -> v8:LocalStringType", () => {
-    const { expectedResult, result } = testExportPropertyToXML({
+    const { expectedResult, result } = testAtomicToXML({
       rule,
       value: fixtureDcsLocalStringSingleLang,
       xmlRootTag,
@@ -49,7 +49,7 @@ describe("exportDcsLocalStringTypeToXML", () => {
   })
 
   it("два языка -> v8:LocalStringType", () => {
-    const { expectedResult, result } = testExportPropertyToXML({
+    const { expectedResult, result } = testAtomicToXML({
       rule,
       value: fixtureDcsLocalStringTwoLangs,
       xmlRootTag,
@@ -61,7 +61,7 @@ describe("exportDcsLocalStringTypeToXML", () => {
   })
 
   it("undefined -> пустой элемент", () => {
-    const { result } = testExportPropertyToXML({
+    const { result } = testAtomicToXML({
       rule,
       value: undefined,
       xmlRootTag,
@@ -72,7 +72,7 @@ describe("exportDcsLocalStringTypeToXML", () => {
   })
 
   it("пустой items -> пустой элемент", () => {
-    const { result } = testExportPropertyToXML({
+    const { result } = testAtomicToXML({
       rule,
       value: { items: {} },
       xmlRootTag,

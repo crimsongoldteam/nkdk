@@ -1,6 +1,6 @@
 import { describe, expect, it } from "vitest"
 import { PropertyRule } from "../../../orchestration"
-import { testImportPropertyFromYAML } from "../../../../tests/property/importPropertyFromYAML"
+import { testAtomicFromYAML } from "../../../../tests/property/atomicFromYAML"
 import { dcsMetadataTypedValueFixtures } from "./__fixtures__/data"
 
 const rule: PropertyRule = {
@@ -11,7 +11,7 @@ const rule: PropertyRule = {
 describe("import DcsMetadataTypedValue from YAML", () => {
   it.each(dcsMetadataTypedValueFixtures)("imports $name", (fixture) => {
     expect(
-      testImportPropertyFromYAML({
+      testAtomicFromYAML({
         rule,
         value: fixture.YAML,
       })
@@ -20,7 +20,7 @@ describe("import DcsMetadataTypedValue from YAML", () => {
 
   it("imports quoted СписокЗначений as string", () => {
     expect(
-      testImportPropertyFromYAML({
+      testAtomicFromYAML({
         rule,
         value: "'СписокЗначений'",
       })
@@ -29,7 +29,7 @@ describe("import DcsMetadataTypedValue from YAML", () => {
 
   it("imports quoted .PDF as string before design-time detection", () => {
     expect(
-      testImportPropertyFromYAML({
+      testAtomicFromYAML({
         rule,
         value: "'.PDF'",
       })
@@ -38,7 +38,7 @@ describe("import DcsMetadataTypedValue from YAML", () => {
 
   it("imports quoted .PDF as string when source value was ref", () => {
     expect(
-      testImportPropertyFromYAML({
+      testAtomicFromYAML({
         rule,
         value: "'.PDF'",
         sourceValue: { type: "ref", value: "Catalog.Организации.EmptyRef" },
@@ -48,7 +48,7 @@ describe("import DcsMetadataTypedValue from YAML", () => {
 
   it("imports YAML metadata reference as ref when source value was ref", () => {
     expect(
-      testImportPropertyFromYAML({
+      testAtomicFromYAML({
         rule,
         value: "Справочник.Организации.ПустаяСсылка",
         sourceValue: { type: "ref", value: "Catalog.Организации.EmptyRef" },
@@ -58,7 +58,7 @@ describe("import DcsMetadataTypedValue from YAML", () => {
 
   it("keeps YAML metadata reference as DesignTimeValue without ref source", () => {
     expect(
-      testImportPropertyFromYAML({
+      testAtomicFromYAML({
         rule,
         value: "Справочник.Организации.ПустаяСсылка",
       })
@@ -67,7 +67,7 @@ describe("import DcsMetadataTypedValue from YAML", () => {
 
   it("imports empty object array item as xsi:nil position", () => {
     expect(
-      testImportPropertyFromYAML({
+      testAtomicFromYAML({
         rule,
         value: ["'x'", {}],
       })
@@ -76,7 +76,7 @@ describe("import DcsMetadataTypedValue from YAML", () => {
 
   it("imports beginning date string as dateTime, not Field", () => {
     expect(
-      testImportPropertyFromYAML({
+      testAtomicFromYAML({
         rule,
         value: "01.01.0001 00:00:00",
       })

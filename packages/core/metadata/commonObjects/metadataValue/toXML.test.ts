@@ -4,7 +4,7 @@ import { metadataValueFixtures } from "./__fixtures__/data"
 import { MetadataPrimitiveValueHandler, primitiveValueHandlers } from "./handlers"
 import { MetadataPrimitiveValueType } from "./types"
 import { mockContext } from "../../../tests/mockContext"
-import { testExportPropertyToXML } from "../../../tests/property/exportPropertyToXML"
+import { testAtomicToXML } from "../../../tests/property/atomicToXML"
 import { xmlExport } from "../../../xml/export/exporter"
 import { exportMetadataValueToXML } from "./toXML"
 
@@ -49,7 +49,7 @@ describe("exportMetadataValueToXML", () => {
   })
 
   it("preserves reference xsi:nil for missing value", () => {
-    const { result } = testExportPropertyToXML({
+    const { result } = testAtomicToXML({
       rule: MetadataCommonAttributeRules.properties.fillValue,
       value: undefined,
       referenceMetadata: { "_xsi:nil": true },
@@ -60,7 +60,7 @@ describe("exportMetadataValueToXML", () => {
   })
 
   it("preserves reference xsi:type for missing value", () => {
-    const { result } = testExportPropertyToXML({
+    const { result } = testAtomicToXML({
       rule: { type: "MetadataValue" },
       value: undefined,
       referenceMetadata: { "_xsi:type": "v8:TypeDescription" },
@@ -71,7 +71,7 @@ describe("exportMetadataValueToXML", () => {
   })
 
   it("prefers reference xsi:type over rule valueType for missing value", () => {
-    const { result } = testExportPropertyToXML({
+    const { result } = testAtomicToXML({
       rule: { type: "MetadataValue", valueType: ["string"] },
       value: undefined,
       referenceMetadata: { "_xsi:type": "v8:TypeDescription" },
@@ -82,7 +82,7 @@ describe("exportMetadataValueToXML", () => {
   })
 
   it("exports reference-only xsi:nil when passed as value", () => {
-    const { result } = testExportPropertyToXML({
+    const { result } = testAtomicToXML({
       rule: MetadataCommonAttributeRules.properties.fillValue,
       value: { "_xsi:nil": true },
       referenceMetadata: { "_xsi:nil": true },

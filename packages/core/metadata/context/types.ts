@@ -78,7 +78,7 @@ export type ToXMLConfigurationContext = {
     parentName: string
     metadataForNumbering: ToXMLContextElement<ElementType | "FormAttributeColumn" | "FormAttribute" | "FormCommand">[]
     currentXMLPath?: string
-    /** Стек объекта ItemXML, собираемого exportPropertiesToXML (для ElementId и нумерации _id) */
+    /** Стек текущего ItemXML для ElementId и нумерации _id. */
     propertiesItemXmlStack?: Record<string, unknown>[]
   }
 }

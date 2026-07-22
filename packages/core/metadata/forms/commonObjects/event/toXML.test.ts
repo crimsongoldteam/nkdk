@@ -1,10 +1,10 @@
 import { describe, expect, it } from "vitest"
 import { ClientApplicationFormRules } from "../../clientApplicationForm/rules"
-import { testExportPropertyToXML } from "../../../../tests/property/exportPropertyToXML"
+import { testAtomicToXML } from "../../../../tests/property/atomicToXML"
 
 describe("export Events to XML", () => {
   it("exports form user settings update event with canonical XML case", () => {
-    const { result } = testExportPropertyToXML({
+    const { result } = testAtomicToXML({
       rule: ClientApplicationFormRules.properties.events,
       value: {
         onUpdateUserSettingSetAtServer: "ПриОбновленииСоставаПользовательскихНастроекНаСервере",
@@ -23,7 +23,7 @@ describe("export Events to XML", () => {
   })
 
   it("exports form user settings load and save events with canonical XML case", () => {
-    const { result } = testExportPropertyToXML({
+    const { result } = testAtomicToXML({
       rule: ClientApplicationFormRules.properties.events,
       value: {
         onLoadUserSettingsAtServer: "ПриЗагрузкеПользовательскихНастроекНаСервере",
@@ -45,7 +45,7 @@ describe("export Events to XML", () => {
   })
 
   it("keeps unknown reference event names unchanged", () => {
-    const { result } = testExportPropertyToXML({
+    const { result } = testAtomicToXML({
       rule: ClientApplicationFormRules.properties.events,
       value: {
         vendorSpecificFormEvent: "ВендорскоеСобытие",

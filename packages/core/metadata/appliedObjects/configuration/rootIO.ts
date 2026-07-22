@@ -1,33 +1,18 @@
 import fs from "fs"
 import { join } from "path"
-import {
-  exportMetadataItemToXML,
-  exportMetadataItemToYAML,
-  importMetadataItemFromXML,
-  importMetadataItemFromYAML,
-} from "../../orchestration"
-import {
-  ConfigurationContext,
-  ConfigurationContextFromXML,
-  ConfigurationContextWithExportToXML,
-} from "../../context/types"
-import { getTypeRule } from "../../orchestration/property/typeRuleRegistry"
-import { importPropertyFromXML } from "../../orchestration/property/fromXML"
-import type { PropertyRule } from "../../orchestration/property/types"
+import { ConfigurationContextWithExportToXML } from "../../context/types"
 import { importContentFromXML } from "../../../xml/import/importer"
 import { xmlExport } from "../../../xml/export/exporter"
-import { exportToYAML } from "../../../yaml/export"
-import { importFromYAML } from "../../../yaml/import"
 import { CONFIGURATION_YAML_FILE } from "../../project/constants"
 import type { PreparedYamlFile } from "../../project/preparedYamlProject"
 import { MetadataConfigurationRules } from "./rules"
-import type { MetadataConfiguration, MetadataConfigurationYAML } from "./types"
+import type { MetadataConfigurationYAML } from "./types"
 import type { ConfigurationChildObjectsXML } from "./childObjects"
-import { runWithConfigurationIndexPropertyContext } from "../../configurationIndex/collector/context"
 import { convertMetadataItemFromYAMLToXML } from "../../orchestration/metadataItem/fromYAMLToXML"
 import type {
   YAMLToXMLExternalWrite,
   YAMLToXMLExternalWriteFactory,
+  YAMLToXMLProfile,
 } from "../../orchestration/property/fromYAMLToXMLTypes"
 
 export const CONFIGURATION_XML_FILE = "Configuration.xml"
@@ -49,96 +34,6 @@ const setConfigurationChildObjectsXML = (
   }
 }
 
-export const readConfigurationFromXML = (params: {
-  context: ConfigurationContextFromXML
-  inputDir: string
-}): MetadataConfiguration | undefined => {
-  const source = fs.readFileSync(join(params.inputDir, CONFIGURATION_XML_FILE), "utf-8")
-  const parsed = importContentFromXML<{ MetaDataObject: unknown }>(source, { preserveXsiNil: true })
-  return prepareConfigurationModelFromXML({
-    context: params.context,
-    metadataXML: parsed.MetaDataObject,
-    propertyXML: readConfigurationFilePathPropertiesFromXML(params),
-  })
-}
-
-export function prepareConfigurationModelFromXML(params: {
-  context: ConfigurationContextFromXML
-  metadataXML: unknown
-  propertyXML?: ReadonlyMap<string, unknown>
-}): MetadataConfiguration | undefined {
-  const configuration = importMetadataItemFromXML({
-    context: params.context,
-    rule: MetadataConfigurationRules,
-    xml: params.metadataXML,
-  }) as MetadataConfiguration | undefined
-  if (configuration === undefined) return undefined
-
-  importConfigurationFilePathPropertiesFromXML({
-    context: params.context,
-    configuration,
-    propertyXML: params.propertyXML ?? new Map(),
-  })
-  return configuration
-}
-
-export const writeConfigurationToYAML = (params: {
-  context: ConfigurationContext
-  configuration: MetadataConfiguration | undefined
-  outputDir: string
-}): readonly YAMLToXMLExternalWrite[] => {
-  const yamlObject = exportMetadataItemToYAML({
-    context: params.context,
-    data: params.configuration,
-    rule: MetadataConfigurationRules,
-  })
-  const yaml = yamlObject === undefined ? "" : exportToYAML(yamlObject)
-
-  fs.mkdirSync(params.outputDir, { recursive: true })
-  fs.writeFileSync(join(params.outputDir, CONFIGURATION_YAML_FILE), yaml, "utf-8")
-}
-
-export const readConfigurationFromYAML = (params: {
-  context: ConfigurationContext
-  inputDir: string
-  source?: MetadataConfiguration
-  preparedYamlFile?: PreparedYamlFile
-}): MetadataConfiguration | undefined => {
-  const yamlObject: MetadataConfigurationYAML | undefined =
-    (params.preparedYamlFile?.data as MetadataConfigurationYAML | undefined) ??
-    importFromYAML<MetadataConfigurationYAML>(fs.readFileSync(join(params.inputDir, CONFIGURATION_YAML_FILE), "utf-8"))
-
-  return importMetadataItemFromYAML({
-    context: params.context,
-    yaml: yamlObject as MetadataConfigurationYAML,
-    source: filterFilePathSourceForYAMLImport({ yaml: yamlObject as MetadataConfigurationYAML, source: params.source }),
-    rule: MetadataConfigurationRules,
-    name: typeof yamlObject?.Имя === "string" ? yamlObject.Имя : undefined,
-  }) as MetadataConfiguration | undefined
-}
-
-export const writeConfigurationToXML = (params: {
-  context: ConfigurationContextWithExportToXML
-  configuration: MetadataConfiguration | undefined
-  outputDir: string
-  referenceConfiguration?: MetadataConfiguration
-  childObjects?: ConfigurationChildObjectsXML
-}): void => {
-  const xmlObject = exportMetadataItemToXML({
-    context: params.context,
-    data: params.configuration,
-    referenceData: params.referenceConfiguration,
-    rule: MetadataConfigurationRules,
-  })
-  if (xmlObject === undefined) return
-  if (params.childObjects !== undefined) {
-    setConfigurationChildObjectsXML(xmlObject, params.childObjects)
-  }
-
-  fs.mkdirSync(params.outputDir, { recursive: true })
-  fs.writeFileSync(join(params.outputDir, CONFIGURATION_XML_FILE), xmlExport(xmlObject), "utf-8")
-}
-
 export const writePreparedConfigurationToXML = (params: {
   context: ConfigurationContextWithExportToXML
   outputDir: string
@@ -146,6 +41,7 @@ export const writePreparedConfigurationToXML = (params: {
   childObjects?: ConfigurationChildObjectsXML
   referenceXML?: Record<string, unknown>
   externalWriteFactory?: YAMLToXMLExternalWriteFactory
+  profile?: YAMLToXMLProfile
 }): readonly YAMLToXMLExternalWrite[] => {
   const yaml = params.preparedYamlFile.data as MetadataConfigurationYAML | undefined
   if (yaml === undefined) {
@@ -158,6 +54,8 @@ export const writePreparedConfigurationToXML = (params: {
     name: typeof yaml.Имя === "string" ? yaml.Имя : undefined,
     outputs: [{ key: "configuration", referenceXML: params.referenceXML }],
     externalWriteFactory: params.externalWriteFactory,
+    profile: params.profile,
+    rulePath: [MetadataConfigurationRules.itemType],
   })
   const xmlObject = converted.outputs.get("configuration")
   if (xmlObject === undefined) return converted.externalWrites
@@ -173,58 +71,3 @@ export const readRawConfigurationXML = (inputDir: string): Record<string, unknow
     preserveXsiNil: true,
     preserveEmptyElements: true,
   })
-
-const readConfigurationFilePathPropertiesFromXML = (params: {
-  context: ConfigurationContextFromXML
-  inputDir: string
-}): ReadonlyMap<string, unknown> => {
-  const propertyXML = new Map<string, unknown>()
-  for (const [key, propRule] of Object.entries(MetadataConfigurationRules.properties) as [string, PropertyRule][]) {
-    if (propRule.filePath === undefined) continue
-    if (!getTypeRule(propRule.type, "importFromXML")) continue
-    const extFilePath = join(params.inputDir, propRule.filePath)
-    if (!fs.existsSync(extFilePath)) continue
-    const extContent = fs.readFileSync(extFilePath, "utf-8")
-    const extParsed = importContentFromXML<Record<string, unknown>>(extContent, { preserveXsiNil: true })
-    propertyXML.set(key, extParsed)
-  }
-  return propertyXML
-}
-
-function importConfigurationFilePathPropertiesFromXML(params: {
-  context: ConfigurationContextFromXML
-  configuration: MetadataConfiguration
-  propertyXML: ReadonlyMap<string, unknown>
-}): void {
-  for (const [key, propRule] of Object.entries(MetadataConfigurationRules.properties) as [string, PropertyRule][]) {
-    const extParsed = params.propertyXML.get(key)
-    if (extParsed === undefined || !getTypeRule(propRule.type, "importFromXML")) continue
-    const value = runWithConfigurationIndexPropertyContext(
-      params.context,
-      propRule.yaml ?? key,
-      propRule.configurationIndexUidSegment ?? propRule.operationTarget?.migrationSegment,
-      (context) => importPropertyFromXML({ context, rule: propRule, value: extParsed, name: key })
-    )
-    if (value !== undefined) (params.configuration as Record<string, unknown>)[key] = value
-  }
-}
-
-const filterFilePathSourceForYAMLImport = (params: {
-  yaml: MetadataConfigurationYAML | undefined
-  source: MetadataConfiguration | undefined
-}): MetadataConfiguration | undefined => {
-  if (params.source === undefined) return undefined
-
-  const result = { ...params.source } as Record<string, unknown>
-  for (const [key, propRule] of Object.entries(MetadataConfigurationRules.properties) as [string, PropertyRule][]) {
-    if (propRule.filePath === undefined) continue
-    const yamlKey = propRule.yaml as keyof MetadataConfigurationYAML | undefined
-    const hasYAMLValue =
-      params.yaml !== undefined && yamlKey !== undefined && Object.prototype.hasOwnProperty.call(params.yaml, yamlKey)
-    if (!hasYAMLValue && propRule.exportReferenceFileOnMissingValue !== true) {
-      delete result[key]
-    }
-  }
-
-  return result as MetadataConfiguration
-}

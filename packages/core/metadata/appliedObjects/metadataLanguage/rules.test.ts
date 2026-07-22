@@ -76,9 +76,11 @@ describe("MetadataLanguageRules", () => {
 
   it("registers MetadataLanguage through register.ts", () => {
     expect(getTypeRule("MetadataLanguage", "exportToJSONSchema")).toBeTypeOf("function")
-    expect(getTypeRule("MetadataLanguage", "importFromYAML")).toBeTypeOf("function")
-    expect(getTypeRule("MetadataLanguage", "exportToYAML")).toBeTypeOf("function")
-    expect(getTypeRule("MetadataLanguage", "importFromXML")).toBeTypeOf("function")
-    expect(getTypeRule("MetadataLanguage", "exportToXML")).toBeTypeOf("function")
+    expect(getTypeRule("MetadataLanguage", "importFromXMLToYAML")).toBeTypeOf("function")
+    expect(getTypeRule("MetadataLanguage", "yamlToXMLNestedRule")).toMatchObject({ kind: "item" })
+    expect(getTypeRule("MetadataLanguage", "importFromYAML")).toBeUndefined()
+    expect(getTypeRule("MetadataLanguage", "exportToYAML")).toBeUndefined()
+    expect(getTypeRule("MetadataLanguage", "importFromXML")).toBeUndefined()
+    expect(getTypeRule("MetadataLanguage", "exportToXML")).toBeUndefined()
   })
 })

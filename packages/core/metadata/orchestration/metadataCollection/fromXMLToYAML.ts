@@ -1,10 +1,73 @@
 import type { ConfigurationContextFromXML } from "../../context/types"
 import { importMetadataItemFromXMLToYAML } from "../metadataItem/fromXMLToYAML"
-import { configurationIndexItemContext } from "./fromXML"
 import type { DirectImportTraversal, LocalIndexesCollector, LocalYamlFact } from "../property/importYamlTypes"
 import type { PropertyRuleType } from "../property/registry"
-import type { ConfigurationIndexAddressingMode, MetadataItemRule, PropertyRule } from "../property/types"
+import type { ConfigurationIndexAddressingMode, ItemXML, MetadataItemRule, PropertyRule } from "../property/types"
 import { enterNestedYamlRule } from "../property/yamlRuleCursor"
+import { childUid, indexedUid, yamlIndexUid, yamlKeyUid } from "../../configurationIndex/logicalAddress"
+import {
+  getConfigurationIndexCollectionContext,
+  withConfigurationIndexLogicalAddress,
+} from "../../configurationIndex/collector/context"
+
+type MetadataItemCollectionImportOptions = {
+  propertyType?: PropertyRuleType
+  configurationIndexUidSegment?: string
+  configurationIndexAddressing?: ConfigurationIndexAddressingMode
+  yamlAsArray?: true
+}
+
+function configurationIndexItemContext(params: {
+  context: ConfigurationContextFromXML
+  item: ItemXML
+  itemRule: MetadataItemRule
+  index: number
+  options?: MetadataItemCollectionImportOptions
+}): ConfigurationContextFromXML {
+  const { context, item, itemRule, index, options } = params
+  const collection = getConfigurationIndexCollectionContext(context)
+  if (collection === undefined) return context
+  const itemName = configurationIndexItemName(item, itemRule)
+  const useYamlPath = collection.yamlPathAddressing === true || options?.configurationIndexAddressing === "yamlPath"
+  if (useYamlPath) {
+    return withConfigurationIndexLogicalAddress(
+      context,
+      options?.yamlAsArray === true || itemName === undefined
+        ? yamlIndexUid(collection.logicalAddress, index)
+        : yamlKeyUid(collection.logicalAddress, itemName)
+    )
+  }
+  if (options?.configurationIndexUidSegment !== undefined && itemName === undefined) {
+    throw new Error(
+      `Адресуемая metadata-item коллекция ${options.propertyType ?? itemRule.itemType} содержит элемент без имени`
+    )
+  }
+  const uidSegment = options?.configurationIndexUidSegment ?? collection.childCollectionUidSegment
+  if (uidSegment === undefined) return context
+  return withConfigurationIndexLogicalAddress(
+    context,
+    itemName === undefined
+      ? indexedUid(collection.logicalAddress, uidSegment, index)
+      : childUid(collection.logicalAddress, uidSegment, itemName)
+  )
+}
+
+function configurationIndexItemName(item: ItemXML, itemRule: MetadataItemRule): string | undefined {
+  if (typeof item._name === "string" && item._name.length > 0) return item._name
+  const nameRule = itemRule.properties.name
+  if (nameRule === undefined) return undefined
+  let source: unknown = item
+  for (const parent of nameRule.xmlParents ?? []) {
+    if (source === null || typeof source !== "object") return undefined
+    source = (source as Record<string, unknown>)[parent]
+  }
+  if (source === null || typeof source !== "object") return undefined
+  for (const key of [nameRule.xml ?? "Name", ...(nameRule.xmlAliases ?? [])]) {
+    const value = (source as Record<string, unknown>)[key]
+    if (typeof value === "string" && value.length > 0) return value
+  }
+  return undefined
+}
 
 export function importMetadataItemCollectionFromXMLToYAML(params: {
   context: ConfigurationContextFromXML
@@ -23,7 +86,7 @@ export function importMetadataItemCollectionFromXMLToYAML(params: {
   const items = normalizeCollectionItems(params.xml, params.xmlElement)
   if (items.length === 0) return undefined
   const keyField = params.keyField
-  const keyYaml = keyField === undefined ? undefined : params.itemRule.properties[keyField]?.yaml ?? keyField
+  const keyYaml = keyField === undefined ? undefined : (params.itemRule.properties[keyField]?.yaml ?? keyField)
 
   const yamlItems = items.flatMap((itemXml, index) => {
     const itemName = itemNameFromXML(itemXml, params.itemRule, params.keyField)
@@ -70,8 +133,8 @@ export function importMetadataItemCollectionFromXMLToYAML(params: {
     const yamlKey =
       keyYaml === undefined
         ? undefined
-        : params.recordYamlKeyFromYAML?.({ yaml: itemYaml, name }) ??
-          (itemYaml[keyYaml] === undefined ? name : String(itemYaml[keyYaml]))
+        : (params.recordYamlKeyFromYAML?.({ yaml: itemYaml, name }) ??
+          (itemYaml[keyYaml] === undefined ? name : String(itemYaml[keyYaml])))
     if (yamlKey !== undefined) bufferedCollector?.flush([...params.traversal.yamlPath, yamlKey])
     return [{ yaml: itemYaml, name, yamlKey }]
   })
@@ -124,10 +187,12 @@ function normalizeCollectionItems(xml: unknown, xmlElement: string): Record<stri
   const record = asRecord(xml)
   if (record === undefined) return []
   const nested = record[xmlElement]
-  return nested === undefined ? [record] : toArray(nested).flatMap((item) => {
-    const itemRecord = asRecord(item)
-    return itemRecord === undefined ? [] : [itemRecord]
-  })
+  return nested === undefined
+    ? [record]
+    : toArray(nested).flatMap((item) => {
+        const itemRecord = asRecord(item)
+        return itemRecord === undefined ? [] : [itemRecord]
+      })
 }
 
 function itemNameFromXML(xml: Record<string, unknown>, rule: MetadataItemRule, keyField?: string): string | undefined {

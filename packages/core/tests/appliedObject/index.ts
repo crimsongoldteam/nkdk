@@ -1,6 +1,1 @@
-export { testImportAppliedObjectFromXML } from "./importAppliedObjectFromXML"
-export { testExportAppliedObjectToXML } from "./exportAppliedObjectToXML"
-export { testImportAppliedObjectFromYAML } from "./importAppliedObjectFromYAML"
-export { testExportAppliedObjectToYAML } from "./exportAppliedObjectToYAML"
 export { testSyncAppliedObjectToXML } from "./runSyncToXML"
-export { testConvertAppliedObjectFromXML } from "./runConvertFromXML"
