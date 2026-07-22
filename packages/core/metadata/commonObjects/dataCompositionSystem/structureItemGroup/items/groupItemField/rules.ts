@@ -5,6 +5,7 @@ import { systemEnumerationRule } from "../../../../../systemEnumerations/types"
 import { MetadataItemRule } from "../../../../../orchestration"
 export const GroupItemFieldRules = {
   itemType: "GroupItemField",
+  xsiType: "dcsset:GroupItemField",
   properties: {
     use: booleanRule({
       xml: "dcsset:use",

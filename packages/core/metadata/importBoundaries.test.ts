@@ -60,6 +60,33 @@ const DEFERRED_GENERIC_COLLECTION_FILES = new Set([
   "metadata/commonObjects/dataCompositionSystem/orderItemFields/types.ts",
   "metadata/orchestration/metadataCollection/ruleFactory.ts",
 ])
+const DEFERRED_LEGACY_YAML_XML_FILES = new Set([
+  "metadata/appliedObjects/configuration/migrations/collectState.ts",
+  "metadata/appliedObjects/configuration/rootIO.ts",
+  "metadata/appliedObjects/configuration/shortRoundTripXML.ts",
+  "metadata/appliedObjects/configuration/syncToXML.ts",
+  "metadata/appliedObjects/metadataCatalog/fromYAML.ts",
+  "metadata/appliedObjects/metadataEnumeration/fromYAML.ts",
+  "metadata/context/types.ts",
+  "metadata/forms/clientApplicationForm/fromYAML.ts",
+  "metadata/forms/clientApplicationForm/toXML.ts",
+  "metadata/forms/commonObjects/dynamicList/types.ts",
+  "metadata/forms/elements/orchestration/fromYAML.ts",
+  "metadata/forms/elements/orchestration/toXML.ts",
+  "metadata/operations/projectSnapshot.ts",
+  "metadata/orchestration/appliedObject/syncToXML.ts",
+  "metadata/orchestration/metadataCollection/fromYAML.ts",
+  "metadata/orchestration/metadataCollection/ruleFactory.ts",
+  "metadata/orchestration/metadataCollection/toXML.ts",
+  "metadata/orchestration/metadataItem/fromYAML.ts",
+  "metadata/orchestration/metadataItem/registerExportToXML.ts",
+  "metadata/orchestration/metadataItem/registerImportFromYAML.ts",
+  "metadata/orchestration/metadataItem/toXML.ts",
+  "metadata/orchestration/property/fromYAML.ts",
+  "metadata/orchestration/property/toXML.ts",
+  "metadata/project/projectSpecHelpers.ts",
+  "metadata/validation/dataPath/ownerCache.ts",
+])
 
 describe("metadata import boundaries", () => {
   it("workspace TypeScript and test configs do not use legacy ~ alias", () => {
@@ -347,6 +374,29 @@ describe("metadata import boundaries", () => {
         if (!source.includes("registerMetadataItemCollectionRule")) return false
         return /fromYAML:\s*(?:import|createImport)/.test(source) || source.includes("exportMetadataCollectionToXML")
       })
+      .map(({ filePath }) => filePath)
+
+    expect(offenders).toEqual([])
+  })
+
+  it("составные production-типы не вызывают общую YAML/XML-оркестрацию", () => {
+    const forbiddenSymbols = [
+      "importPropertiesFromYAML",
+      "exportPropertiesToXML",
+      "importPropertyFromYAML",
+      "exportPropertyToXML",
+      "importMetadataItemFromYAML",
+      "exportMetadataItemToXML",
+      "exportMetadataCollectionToXML",
+    ]
+    const offenders = listTypeScriptFiles(METADATA_DIR)
+      .filter((filePath) => !filePath.endsWith(".test.ts"))
+      .map((filePath) => ({
+        filePath: relative(process.cwd(), filePath),
+        source: readFileSync(filePath, "utf-8"),
+      }))
+      .filter(({ filePath }) => !DEFERRED_LEGACY_YAML_XML_FILES.has(filePath))
+      .filter(({ source }) => forbiddenSymbols.some((symbol) => source.includes(symbol)))
       .map(({ filePath }) => filePath)
 
     expect(offenders).toEqual([])

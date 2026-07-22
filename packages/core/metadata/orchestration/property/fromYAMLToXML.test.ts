@@ -101,6 +101,96 @@ describe("convertPropertiesFromYAMLToXML", () => {
     expect(result.outputs.get("owner")).toEqual({ LegacyValue: referenceValue })
   })
 
+  it("сохраняет reference XML для свойства без YAML-представления", () => {
+    const result = convertPropertiesFromYAMLToXML({
+      context: context(),
+      yaml: {},
+      rule: testRule({
+        formType: { type: "string", xml: "FormType", defaultValueXML: "Managed" },
+      }),
+      outputs: [{ key: "owner", referenceXML: { FormType: "Ordinary" } }],
+    })
+
+    expect(result.outputs.get("owner")).toEqual({ FormType: "Ordinary" })
+  })
+
+  it("сохраняет reference XML, когда YAML-свойство не задано", () => {
+    const result = convertPropertiesFromYAMLToXML({
+      context: context(),
+      yaml: {},
+      rule: testRule({
+        value: { type: "string", yaml: "Значение", xml: "Value" },
+      }),
+      outputs: [{ key: "owner", referenceXML: { Value: "исходное" } }],
+    })
+
+    expect(result.outputs.get("owner")).toEqual({ Value: "исходное" })
+  })
+
+  it("передаёт массив reference XML во вложенную коллекцию", () => {
+    registerTypeRule("NestedReferenceCollection" as never, "yamlToXMLNestedRule", {
+      kind: "collection",
+      itemRule: testRule({
+        name: { type: "string", xml: "Name" },
+        retained: { type: "string", xml: "Retained" },
+      }),
+      yamlShape: "record",
+    })
+
+    const result = convertPropertiesFromYAMLToXML({
+      context: context(),
+      yaml: { Элементы: { Первый: {} } },
+      rule: testRule({
+        items: { type: "NestedReferenceCollection" as never, yaml: "Элементы", xml: "Items" },
+      }),
+      outputs: [{ key: "owner", referenceXML: { Items: [{ Name: "Первый", Retained: "да" }] } }],
+    })
+
+    expect(result.outputs.get("owner")).toEqual({ Items: [{ Name: "Первый", Retained: "да" }] })
+  })
+
+  it("сохраняет пустой XML-контейнер коллекции из reference", () => {
+    registerTypeRule("EmptyReferenceCollection" as never, "yamlToXMLNestedRule", {
+      kind: "collection",
+      itemRule: testRule({ name: { type: "string", xml: "Name" } }),
+      yamlShape: "record",
+    })
+
+    const result = convertPropertiesFromYAMLToXML({
+      context: context(),
+      yaml: { Элементы: {} },
+      rule: testRule({
+        items: {
+          type: "EmptyReferenceCollection" as never,
+          yaml: "Элементы",
+          xml: "Items",
+          defaultValueXMLEmpty: [],
+        },
+      }),
+      outputs: [{ key: "owner", referenceXML: { Items: undefined } }],
+    })
+
+    expect(result.outputs.get("owner")).toEqual({ Items: {} })
+  })
+
+  it("не добавляет отсутствующее YAML-свойство в существующий reference XML", () => {
+    const result = convertPropertiesFromYAMLToXML({
+      context: context(),
+      yaml: {},
+      rule: testRule({
+        items: {
+          type: "NestedCollection" as never,
+          yaml: "Элементы",
+          xml: "Items",
+          defaultValueXMLEmpty: [],
+        },
+      }),
+      outputs: [{ key: "owner", referenceXML: { Existing: true } }],
+    })
+
+    expect(result.outputs.get("owner")).toEqual({})
+  })
+
   it("пишет значение по полному пути xmlParents", () => {
     const result = convertPropertiesFromYAMLToXML({
       context: context(),
@@ -189,5 +279,26 @@ describe("convertPropertiesFromYAMLToXML", () => {
     })
 
     expect(result.outputs.get("owner")).toEqual({ Item: [{ Name: "Первый", Value: "A" }] })
+  })
+
+  it("не обходит отсутствующий необязательный вложенный объект", () => {
+    const nestedItemRule = testRule({
+      child: { type: "OptionalNested" as never, yaml: "Дочерний", xml: "Child" },
+    })
+    registerTypeRule("OptionalNested" as never, "yamlToXMLNestedRule", {
+      kind: "item",
+      itemRule: nestedItemRule,
+    })
+
+    const result = convertPropertiesFromYAMLToXML({
+      context: context(),
+      yaml: {},
+      rule: testRule({
+        child: { type: "OptionalNested" as never, yaml: "Дочерний", xml: "Child" },
+      }),
+      outputs: [{ key: "owner" }],
+    })
+
+    expect(result.outputs.get("owner")).toEqual({})
   })
 })

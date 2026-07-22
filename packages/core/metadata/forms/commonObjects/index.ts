@@ -31,9 +31,7 @@ import "./formParameter/toYAML"
 
 import "./formAttribute/fromXML"
 import "./formAttribute/fromXMLToYAML"
-import "./formAttribute/fromYAML"
 import "./formAttribute/toJSONSchema"
-import "./formAttribute/toXML"
 import "./formAttribute/toYAML"
 
 import "./childItems/fromXML"
@@ -43,6 +41,9 @@ import "./childItems/toEnterprise"
 import "./childItems/toJSONSchema"
 import "./childItems/toXML"
 import "./childItems/toYAML"
+import { registerDirectFormElementCollections } from "../elements/orchestration/fromYAMLToXML"
+
+registerDirectFormElementCollections()
 
 import "./dataPath/toEnterprise"
 

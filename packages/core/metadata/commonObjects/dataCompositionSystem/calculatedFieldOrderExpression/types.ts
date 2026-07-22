@@ -7,7 +7,6 @@ import "../../../systemEnumerations/toYAML"
 import { importCalculatedFieldOrderExpressionFromXML } from "./fromXML"
 import { importCalculatedFieldOrderExpressionFromXMLToYAML } from "./fromXMLToYAML"
 import { CalculatedFieldOrderExpressionRules } from "./rules"
-import { exportCalculatedFieldOrderExpressionToXML } from "./toXML"
 
 export type CalculatedFieldOrderExpressionItem = MetadataTypeByRule<typeof CalculatedFieldOrderExpressionRules>
 export type CalculatedFieldOrderExpressionItemYAML = YAMLTypeByRule<typeof CalculatedFieldOrderExpressionRules>
@@ -23,5 +22,4 @@ registerMetadataItemCollectionRule({
   configurationIndexAddressing: "yamlPath",
   fromXML: importCalculatedFieldOrderExpressionFromXML,
   fromXMLToYAML: importCalculatedFieldOrderExpressionFromXMLToYAML,
-  toXML: exportCalculatedFieldOrderExpressionToXML,
 })

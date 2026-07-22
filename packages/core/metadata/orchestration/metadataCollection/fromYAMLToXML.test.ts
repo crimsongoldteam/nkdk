@@ -87,6 +87,35 @@ describe("convertMetadataCollectionFromYAMLToXML", () => {
     })
   })
 
+  it("выбирает правила каждого элемента полиморфной коллекции", () => {
+    const alternateRule = {
+      itemType: "AlternateAttribute",
+      xsiType: "test:Alternate",
+      properties: {
+        alternate: { type: "string", yaml: "Другое", xml: "Alternate" },
+      },
+    } as const satisfies MetadataItemRule
+    const descriptor = {
+      kind: "collection",
+      itemRule: nestedRule,
+      resolveItemRule: ({ yaml }) =>
+        typeof yaml === "object" && yaml !== null && "Другое" in yaml ? alternateRule : nestedRule,
+      yamlShape: "array",
+      xmlElement: "Item",
+    } as const satisfies YAMLToXMLNestedRule
+
+    const result = convertMetadataCollectionFromYAMLToXML({
+      context: context(),
+      yaml: [{ Значение: "обычное" }, { Другое: "особое" }],
+      descriptor,
+      outputs: [{ key: "owner" }],
+    })
+
+    expect(result.outputs.get("owner")).toEqual({
+      Item: [{ Value: "обычное" }, { "_xsi:type": "test:Alternate", Alternate: "особое" }],
+    })
+  })
+
   it("адресует элементы массива по keyField в индексе конфигурации", () => {
     const collector = createConfigurationIndexCollector()
     const configurationIndex = createConfigurationIndexExportRuntime({

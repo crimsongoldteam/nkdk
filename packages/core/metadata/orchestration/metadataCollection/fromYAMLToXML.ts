@@ -8,7 +8,7 @@ import type {
   YAMLToXMLOutputRequest,
   YAMLToXMLResult,
 } from "../property/fromYAMLToXMLTypes"
-import type { PropertyRule } from "../property/types"
+import type { MetadataItemRule, PropertyRule } from "../property/types"
 import type { YAMLPropertySource } from "../property/fromYAMLToXMLTypes"
 
 type CollectionDescriptor = Extract<YAMLToXMLNestedRule, { kind: "collection" }>
@@ -36,26 +36,54 @@ export function convertMetadataCollectionFromYAMLToXML(
   const externalWrites: YAMLToXMLExternalWrite[] = []
 
   entries.forEach(({ yaml, name }, index) => {
+    const defaultItemRule =
+      (params.propertyRule === undefined ? undefined : params.descriptor.itemRuleFromProperty?.(params.propertyRule)) ??
+      params.descriptor.itemRule
+    const itemRule =
+      params.descriptor.resolveItemRule?.({ yaml, name, index, propertyRule: params.propertyRule }) ?? defaultItemRule
+    const normalizedYAML =
+      params.descriptor.normalizeItemYAML?.({ yaml, name, index, propertyRule: params.propertyRule }) ?? yaml
     const itemContext = configurationIndexItemContext({
       context: params.context,
       descriptor: params.descriptor,
-      yaml,
+      yaml: normalizedYAML,
       name,
       index,
     })
     const itemOutputs = params.outputs.map((output) => ({
       key: output.key,
-      referenceXML: findReferenceItem({ output, descriptor: params.descriptor, yaml, name, index }),
+      referenceXML: findReferenceItem({
+        output,
+        descriptor: params.descriptor,
+        itemRule,
+        yaml: normalizedYAML,
+        name,
+        index,
+      }),
     }))
     const converted = convertMetadataItemFromYAMLToXML({
       context: itemContext,
-      yaml,
-      rule: params.descriptor.itemRule,
+      yaml: normalizedYAML,
+      rule: itemRule,
       name,
+      namePropertyKey: params.descriptor.keyField,
       outputs: itemOutputs,
       sparseYAML: params.descriptor.sparseItems,
     })
-    for (const output of itemOutputs) outputItems.get(output.key)!.push(converted.outputs.get(output.key) ?? {})
+    for (const output of itemOutputs) {
+      const xml = converted.outputs.get(output.key) ?? {}
+      outputItems.get(output.key)!.push(
+        params.descriptor.mapItemOutput?.({
+          xml,
+          yaml: normalizedYAML,
+          name,
+          index,
+          itemRule,
+          propertyRule: params.propertyRule,
+          context: itemContext,
+        }) ?? xml
+      )
+    }
     externalWrites.push(...converted.externalWrites)
   })
 
@@ -74,6 +102,7 @@ export function convertMetadataCollectionFromYAMLToXML(
 function completeCollectionEntries(params: {
   entries: { yaml: unknown; name?: string }[]
   descriptor: CollectionDescriptor
+  itemRule: MetadataItemRule
   propertyRule: PropertyRule | undefined
   source: YAMLPropertySource | undefined
   outputs: readonly YAMLToXMLOutputRequest[]
@@ -108,9 +137,11 @@ function collectReferenceNames(params: {
     const collection =
       params.descriptor.xmlElement === undefined
         ? output.referenceXML
-        : output.referenceXML?.[params.descriptor.xmlElement]
-    if (!Array.isArray(collection)) continue
-    for (const item of collection) {
+        : isRecord(output.referenceXML)
+          ? output.referenceXML[params.descriptor.xmlElement]
+          : undefined
+    const items = Array.isArray(collection) ? collection : collection === undefined ? [] : [collection]
+    for (const item of items) {
       if (!isRecord(item)) continue
       const name = readXMLProperty(item, keyRule, keyField)
       if (typeof name === "string" && !result.includes(name)) result.push(name)
@@ -149,10 +180,16 @@ function findReferenceItem(params: {
   const collection =
     params.descriptor.xmlElement === undefined
       ? params.output.referenceXML
-      : params.output.referenceXML?.[params.descriptor.xmlElement]
-  const items = Array.isArray(collection) ? collection.filter(isRecord) : []
+      : isRecord(params.output.referenceXML)
+        ? params.output.referenceXML[params.descriptor.xmlElement]
+        : undefined
+  const rawItems = Array.isArray(collection) ? collection.filter(isRecord) : isRecord(collection) ? [collection] : []
+  const items = rawItems.flatMap((item) => {
+    const unwrapped = params.descriptor.unwrapReferenceItem?.({ xml: item, itemRule: params.itemRule })
+    return unwrapped === undefined && params.descriptor.unwrapReferenceItem !== undefined ? [] : [unwrapped ?? item]
+  })
   if (params.descriptor.keyField !== undefined && isRecord(params.yaml)) {
-    const keyRule = params.descriptor.itemRule.properties[params.descriptor.keyField]
+    const keyRule = params.itemRule.properties[params.descriptor.keyField]
     const yamlKey = keyRule?.yaml
     const yamlValue = yamlKey === undefined ? undefined : params.yaml[yamlKey]
     if (keyRule !== undefined) {
@@ -161,7 +198,7 @@ function findReferenceItem(params: {
     }
   }
   if (params.name !== undefined) {
-    const nameRule = params.descriptor.itemRule.properties.name
+    const nameRule = params.itemRule.properties.name
     if (nameRule !== undefined) {
       const found = items.find((item) => readXMLProperty(item, nameRule, "name") === params.name)
       if (found !== undefined) return found

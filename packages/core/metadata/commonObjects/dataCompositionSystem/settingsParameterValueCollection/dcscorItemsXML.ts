@@ -1,7 +1,7 @@
 import { ConfigurationContextFromXML } from "../../../context/types"
 import { ConfigurationContextWithExportToXML } from "../../../context/types"
 import { withConfigurationIndexYamlCollectionItemContext } from "../../../configurationIndex/collector/context"
-import { importPropertyFromXML, exportPropertyToXML } from "../../../orchestration"
+import { callAtomicToXML, importPropertyFromXML } from "../../../orchestration"
 import type { ParameterValueXML, SettingsParameterValue } from "../parameterValue/types"
 import { getSettingsParameterValueRuleForParameter } from "./ruleSet"
 import type { SettingsParameterValueCollectionXML, SettingsParameterValueRuleSet } from "./types"
@@ -90,11 +90,11 @@ export const exportSettingsParameterValueDcscorItemsToXML = (params: {
     if (itemRule === undefined) continue
 
     const referenceField = referenceParameters?.[parameterName]
-    const itemXml = exportPropertyToXML({
+    const itemXml = callAtomicToXML({
       context,
       rule: itemRule,
       value: fieldValue,
-      referenceMetadata: referenceField,
+      referenceValue: referenceField,
     })
     if (itemXml !== undefined) {
       items.push(itemXml as ParameterValueXML)

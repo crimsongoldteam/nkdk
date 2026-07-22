@@ -11,7 +11,7 @@ export interface YAMLPropertySource {
 export interface YAMLToXMLOutputRequest {
   readonly key: string
   readonly tags?: readonly string[]
-  readonly referenceXML?: Record<string, unknown>
+  readonly referenceXML?: unknown
 }
 
 export type YAMLToXMLExternalWrite =
@@ -25,10 +25,46 @@ export interface YAMLToXMLResult {
 }
 
 export type YAMLToXMLNestedRule =
-  | { readonly kind: "item"; readonly itemRule: MetadataItemRule }
+  | {
+      readonly kind: "item"
+      readonly itemRule: MetadataItemRule
+      readonly sparseYAML?: true
+      readonly injectOwnerName?: true
+      readonly transformOutput?: (params: {
+        xml: Record<string, unknown>
+        propertyRule: PropertyRule
+        source: YAMLPropertySource
+      }) => unknown
+    }
   | {
       readonly kind: "collection"
       readonly itemRule: MetadataItemRule
+      readonly itemRuleFromProperty?: (propertyRule: PropertyRule) => MetadataItemRule | undefined
+      readonly resolveItemRule?: (params: {
+        yaml: unknown
+        name: string | undefined
+        index: number
+        propertyRule: PropertyRule | undefined
+      }) => MetadataItemRule
+      readonly normalizeItemYAML?: (params: {
+        yaml: unknown
+        name: string | undefined
+        index: number
+        propertyRule: PropertyRule | undefined
+      }) => unknown
+      readonly mapItemOutput?: (params: {
+        xml: Record<string, unknown>
+        yaml: unknown
+        name: string | undefined
+        index: number
+        itemRule: MetadataItemRule
+        propertyRule: PropertyRule | undefined
+        context: import("../../context/types").ConfigurationContextWithExportToXML
+      }) => unknown
+      readonly unwrapReferenceItem?: (params: {
+        xml: Record<string, unknown>
+        itemRule: MetadataItemRule
+      }) => Record<string, unknown> | undefined
       readonly yamlShape: "array" | "record"
       readonly xmlElement?: string
       readonly keyField?: string

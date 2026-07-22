@@ -49,6 +49,7 @@ registerElementAsType({
     referenceSuffixes: ["ФормаКоманднаяПанель", "FormCommandBar"],
     canonicalNameMode: "fixed",
   },
+  directId: "-1",
   toXML: () => ({
     id: "-1",
     name: "ФормаКоманднаяПанель",

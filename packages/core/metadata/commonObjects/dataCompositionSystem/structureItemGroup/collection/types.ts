@@ -3,6 +3,10 @@ import {
   type ExactRuleParams as WideExactRuleParams,
 } from "../../../ruleBuilder"
 import type { PropertyRule as WidePropertyRuleBase } from "../../../../orchestration/property/types"
+import { registerTypeRule } from "../../../../orchestration/property/typeRuleRegistry"
+import { GroupItemAutoRules } from "../items/groupItemAuto/rules"
+import { detectGroupItemAutoYAML } from "../items/groupItemAuto/detectYAML"
+import { GroupItemFieldRules } from "../items/groupItemField/rules"
 import { GroupItemAuto, GroupItemAutoYAML } from "../items/groupItemAuto/types"
 import { GroupItemField, GroupItemFieldYAML } from "../items/groupItemField/types"
 
@@ -27,3 +31,18 @@ export function structureItemGroupCollectionRule<const Params extends StructureI
     ...params,
   })
 }
+
+registerTypeRule("StructureItemGroupCollection", "yamlToXMLNestedRule", {
+  kind: "collection",
+  itemRule: GroupItemFieldRules,
+  resolveItemRule: ({ yaml }) => (detectGroupItemAutoYAML(yaml) ? GroupItemAutoRules : GroupItemFieldRules),
+  normalizeItemYAML: ({ yaml }) => {
+    if (yaml === "[Авто]") return {}
+    if (yaml === "([Авто])") return { Использование: false }
+    if (typeof yaml !== "string") return yaml
+    const disabled = yaml.startsWith("(") && yaml.endsWith(")")
+    return { Поле: disabled ? yaml.slice(1, -1) : yaml, ...(disabled ? { Использование: false } : {}) }
+  },
+  yamlShape: "array",
+  configurationIndexAddressing: "yamlPath",
+})

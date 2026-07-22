@@ -1,13 +1,12 @@
 import fs from "fs"
 import { dirname, join } from "path"
-import { ConfigurationContextFromXML, ConfigurationContextWithExportToXML } from "../../context/types"
-import { importClientApplicationFormFromYAML } from "./fromYAML"
-import { exportClientApplicationFormToXML, exportFormMetadataToXML } from "./toXML"
+import { ConfigurationContextWithExportToXML } from "../../context/types"
+import { convertClientApplicationFormFromYAMLToXML } from "./fromYAMLToXML"
 import type { ExternalMetadataContextItem } from "../../orchestration/externalMetadata/types"
 import type { ClientApplicationFormXML, ClientApplicationFormYAML, FormMetadataXML } from "./types"
 import { xmlExport } from "../../../xml/export/exporter"
 import { importFromYAML } from "../../../yaml/import"
-import { readFormFromXML } from "./convertFromXML"
+import importContentFromXML from "../../../xml/import/importer"
 import { copyFormItemExternalFilesToXML } from "./externalItemFiles"
 import { copyExistingRawFile, copyRawDirectoryFiles } from "./externalRawFiles"
 import type { XmlWriteManifest } from "../../orchestration/xmlWriteManifest"
@@ -35,39 +34,25 @@ export const syncFormToXML = async (params: {
     formName,
   })
 
-  const contextFromXML: ConfigurationContextFromXML = {
-    fromXML: {
-      forReference: true,
-    },
-    defaultLanguage: context.defaultLanguage,
-    version: "2.20",
-  }
   const effectiveReferenceDir =
     referenceDir && hasReferenceFormMetadata({ referenceDir, formName }) ? referenceDir : undefined
-  const referenceForm = effectiveReferenceDir
-    ? readFormFromXML({
-        context: contextFromXML,
-        inputDir: effectiveReferenceDir,
-        formName,
-      })
+  const reference = effectiveReferenceDir
+    ? readRawReferenceForm({ referenceDir: effectiveReferenceDir, formName })
     : undefined
-
-  const form = importClientApplicationFormFromYAML(contextWithFormExternalMetadata, yamlObj, referenceForm, formName)
-  const isOrdinaryForm = form.formType === "Ordinary"
+  const converted = convertClientApplicationFormFromYAMLToXML({
+    context: contextWithFormExternalMetadata,
+    yaml: yamlObj,
+    name: formName,
+    referenceFormXML: reference?.formXML,
+    referenceMetadataXML: reference?.metadataXML,
+  })
+  const isOrdinaryForm = converted.metadataXML.Form?.Properties?.FormType === "Ordinary"
   const referenceHasFormXML = effectiveReferenceDir
     ? hasReferenceFormXML({ referenceDir: effectiveReferenceDir, formName })
     : true
 
-  const formXML =
-    isOrdinaryForm && !referenceHasFormXML
-      ? undefined
-      : exportClientApplicationFormToXML({ context: contextWithFormExternalMetadata, form, referenceForm })
-  const metadataXML = exportFormMetadataToXML({
-    context: contextWithFormExternalMetadata,
-    form,
-    referenceForm: referenceForm,
-    name: formName,
-  })
+  const formXML = isOrdinaryForm && !referenceHasFormXML ? undefined : converted.formXML
+  const metadataXML = converted.metadataXML
 
   await writeFormToXML({
     context: contextWithFormExternalMetadata,
@@ -100,7 +85,8 @@ export const writePreparedFormToXML = async (params: {
   formName: string
   outputDir: string
   currentXMLPath?: string
-  referenceForm?: ReturnType<typeof readFormFromXML>
+  referenceFormXML?: ClientApplicationFormXML
+  referenceMetadataXML?: FormMetadataXML
   xmlManifest?: XmlWriteManifest
 }): Promise<void> => {
   const yamlObj = params.preparedYamlFile.data as ClientApplicationFormYAML | undefined
@@ -116,28 +102,18 @@ export const writePreparedFormToXML = async (params: {
     context: contextWithFormDir,
     formName: params.formName,
   })
-  const form = importClientApplicationFormFromYAML(
-    contextWithFormExternalMetadata,
-    yamlObj,
-    params.referenceForm,
-    params.formName
-  )
-  const formXML = exportClientApplicationFormToXML({
+  const converted = convertClientApplicationFormFromYAMLToXML({
     context: contextWithFormExternalMetadata,
-    form,
-    referenceForm: params.referenceForm,
-  })
-  const metadataXML = exportFormMetadataToXML({
-    context: contextWithFormExternalMetadata,
-    form,
-    referenceForm: params.referenceForm,
+    yaml: yamlObj,
     name: params.formName,
+    referenceFormXML: params.referenceFormXML,
+    referenceMetadataXML: params.referenceMetadataXML,
   })
 
   await writeFormToXML({
     context: contextWithFormExternalMetadata,
-    formXML,
-    metadataXML,
+    formXML: converted.formXML,
+    metadataXML: converted.metadataXML,
     formName: params.formName,
     outputDir: params.outputDir,
     xmlManifest: params.xmlManifest,
@@ -213,6 +189,19 @@ const hasReferenceFormXML = (params: { referenceDir: string; formName: string })
 
 const hasReferenceFormMetadata = (params: { referenceDir: string; formName: string }): boolean =>
   fs.existsSync(join(params.referenceDir, `${params.formName}.xml`))
+
+function readRawReferenceForm(params: { referenceDir: string; formName: string }): {
+  formXML?: ClientApplicationFormXML
+  metadataXML: FormMetadataXML
+} {
+  const metadataText = fs.readFileSync(join(params.referenceDir, `${params.formName}.xml`), "utf8")
+  const metadataXML = importContentFromXML<{ MetaDataObject: FormMetadataXML }>(metadataText).MetaDataObject
+  const formPath = join(params.referenceDir, params.formName, "Ext", "Form.xml")
+  const formXML = fs.existsSync(formPath)
+    ? importContentFromXML<{ Form: ClientApplicationFormXML }>(fs.readFileSync(formPath, "utf8")).Form
+    : undefined
+  return { metadataXML, formXML }
+}
 
 const writeFormToXML = async (params: {
   context: ConfigurationContextWithExportToXML

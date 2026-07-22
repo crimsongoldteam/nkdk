@@ -51,6 +51,14 @@ type CollectionRule<Rule extends MetadataItemRule, CollectionType extends Proper
   preserveReferenceItems?: true
   /** Не выводить XML-свойства элемента, отсутствующие в его YAML-записи. */
   sparseItems?: true
+  mapItemOutput?: Extract<
+    import("../property/fromYAMLToXMLTypes").YAMLToXMLNestedRule,
+    { kind: "collection" }
+  >["mapItemOutput"]
+  normalizeItemYAML?: Extract<
+    import("../property/fromYAMLToXMLTypes").YAMLToXMLNestedRule,
+    { kind: "collection" }
+  >["normalizeItemYAML"]
   /** Для YAML-объекта коллекции: элемент → ключ записи (если не совпадает со String(item[keyField])) */
   recordYamlKeyFromItem?: (item: ToMetadata<Rule["itemType"]> & NamedMetadataItem) => string
   /** Для YAML-объекта коллекции: YAML-элемент → ключ записи при прямом XML → YAML обходе. */
@@ -174,6 +182,10 @@ export const registerMetadataItemCollectionRule = <
   registerTypeRule(propertyType, "yamlToXMLNestedRule", {
     kind: "collection",
     itemRule,
+    itemRuleFromProperty: (propertyRule) =>
+      "itemRule" in propertyRule && propertyRule.itemRule !== undefined
+        ? (propertyRule.itemRule as MetadataItemRule)
+        : undefined,
     yamlShape: params.yamlAsArray === true ? "array" : "record",
     xmlElement,
     keyField: typeof params.keyField === "string" ? params.keyField : undefined,
@@ -182,6 +194,8 @@ export const registerMetadataItemCollectionRule = <
     completeItemNames: params.completeItemNames,
     preserveReferenceItems: params.preserveReferenceItems,
     sparseItems: params.sparseItems,
+    mapItemOutput: params.mapItemOutput,
+    normalizeItemYAML: params.normalizeItemYAML,
     configurationIndexUidSegment: params.configurationIndexUidSegment,
     configurationIndexAddressing: params.configurationIndexAddressing,
   })

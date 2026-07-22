@@ -3,7 +3,7 @@ import "../border/fromYAML"
 import "../color/fromYAML"
 import "../font/fromYAML"
 import { registerTypeRule } from "../../orchestration/property/typeRuleRegistry"
-import { importPropertyFromYAML } from "../../orchestration/property/fromYAML"
+import { callAtomicFromYAML } from "../../orchestration/property/fromYAMLToXML"
 import type { PropertyRule } from "../../orchestration/property/types"
 import { Border } from "../border/types"
 import { Color } from "../color/types"
@@ -31,20 +31,20 @@ export const importStyleItemValueFromYAML = (
   if (type === "Font") {
     return {
       type,
-      value: importPropertyFromYAML({ context, rule: { type }, value: value.Значение }) as Font,
+      value: callAtomicFromYAML({ context, rule: { type }, value: value.Значение }) as Font,
     }
   }
 
   if (type === "Color") {
     return {
       type,
-      value: importPropertyFromYAML({ context, rule: { type }, value: value.Значение }) as Color,
+      value: callAtomicFromYAML({ context, rule: { type }, value: value.Значение }) as Color,
     }
   }
 
   return {
     type,
-    value: importPropertyFromYAML({ context, rule: { type }, value: value.Значение }) as Border,
+    value: callAtomicFromYAML({ context, rule: { type }, value: value.Значение }) as Border,
   }
 }
 

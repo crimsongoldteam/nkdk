@@ -1,5 +1,5 @@
 import { ConfigurationContext } from "../../../../context/types"
-import { PropertyRule, importPropertyFromYAML, registerTypeRule } from "../../../../orchestration"
+import { callAtomicFromYAML, PropertyRule, registerTypeRule } from "../../../../orchestration"
 import { StructureItemGroupRegistry } from "./registry"
 import {
   StructureItemGroupCollection,
@@ -20,7 +20,7 @@ export const importStructureItemGroupCollectionFromYAML = (
     const registryItem = findStructureItemGroupRegistryItemByYAML(item)
     if (!registryItem) continue
 
-    const converted = importPropertyFromYAML({
+    const converted = callAtomicFromYAML({
       context,
       rule: { type: registryItem.itemType } as PropertyRule,
       value: item,

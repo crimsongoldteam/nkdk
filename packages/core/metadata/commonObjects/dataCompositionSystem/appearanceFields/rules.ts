@@ -1,5 +1,5 @@
 import { settingsParameterValueRule } from "../parameterValue/types"
-import { MetadataItemRule, PropertyRule } from "../../../orchestration"
+import { MetadataItemRule, PropertyRule, registerTypeRule } from "../../../orchestration"
 export type AppearanceFieldsXMLMode = "dataSetField"
 export type AppearanceFieldsPropertyRule = PropertyRule & {
   type: "AppearanceFields"
@@ -74,3 +74,32 @@ export const directAppearanceXmlTags = {
   Отображать: "dcsset:show",
 } as const satisfies Record<keyof typeof AppearanceFieldsRules.properties, `dcsset:${string}`>
 export type DirectAppearanceXMLTag = (typeof directAppearanceXmlTags)[keyof typeof directAppearanceXmlTags]
+
+registerTypeRule("AppearanceFields", "yamlToXMLNestedRule", {
+  kind: "item",
+  itemRule: AppearanceFieldsRules,
+  sparseYAML: true,
+  transformOutput: ({ xml, propertyRule }) => {
+    if ((propertyRule as AppearanceFieldsPropertyRule).appearanceXml === "dataSetField") {
+      return Object.fromEntries(
+        Object.entries(xml).flatMap(([name, value]) => {
+          const tag = directAppearanceXmlTags[name as keyof typeof directAppearanceXmlTags]
+          if (tag === undefined || value === null || typeof value !== "object" || Array.isArray(value)) return []
+          const parameter = value as Record<string, unknown>
+          return parameter["dcscor:value"] === undefined
+            ? []
+            : [[tag, { "dcsset:value": parameter["dcscor:value"] }]]
+        })
+      )
+    }
+
+    return {
+      "dcscor:item": Object.entries(xml).map(([name, value]) => ({
+        _name: name,
+        ...(value !== null && typeof value === "object" && !Array.isArray(value)
+          ? (value as Record<string, unknown>)
+          : {}),
+      })),
+    }
+  },
+})

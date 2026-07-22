@@ -1,14 +1,11 @@
 import fs from "fs"
 import { basename, dirname, join } from "path"
 import { ConfigurationContext, ConfigurationContextFromXML } from "../../context/types"
-import { importMetadataItemFromYAML } from "../../orchestration"
 import { registerTypeRule } from "../../orchestration/property/typeRuleRegistry"
 import { exportMetadataCollectionToYAMLAsRecord } from "../../orchestration/metadataCollection/toYAML"
 import { exportMetadataItemToJSONSchema } from "../../orchestration/metadataItem/toJSONSchema"
-import { exportMetadataItemToXML } from "../../orchestration/metadataItem/toXML"
 import {
   ExportToJSONSchemaFn,
-  ExportToXMLFunctionNew,
   SyncExternalFromXMLFunction,
   SyncExternalToXMLFunction,
 } from "../../orchestration/property/fn"
@@ -32,35 +29,13 @@ registerTypeRule("Recalculations", "importFromXML", (_context: ConfigurationCont
   return result.length > 0 ? result : undefined
 })
 
-const exportRecalculationsToXML: ExportToXMLFunctionNew = ({ context, value, referenceMetadata }) => {
-  const items = (value as Recalculations | undefined) ?? (referenceMetadata as Recalculations | undefined)
-  if (!items || items.length === 0) return undefined
-
-  return items.map((item) => {
-    const exported = exportMetadataItemToXML({
-      context,
-      data: item,
-      referenceData: item,
-      rule: RecalculationRules,
-    })
-    return (exported?.Properties as { Name?: string } | undefined)?.Name ?? item.name
-  })
-}
-
-registerTypeRule("Recalculations", "exportToXML", exportRecalculationsToXML)
-
-registerTypeRule(
-  "Recalculations",
-  "importFromYAML",
-  (context: ConfigurationContext, _rule: PropertyRule | undefined, data: RecalculationsYAML | undefined) => {
-    if (!data) return undefined
-    const result = Object.entries(data).map(([name, value]) => ({
-      ...importMetadataItemFromYAML({ context, yaml: value as RecalculationYAML, rule: RecalculationRules, name }),
-      name,
-    })) as Recalculations
-    return result.length > 0 ? result : undefined
-  }
-)
+registerTypeRule("Recalculations", "yamlToXMLNestedRule", {
+  kind: "collection",
+  itemRule: RecalculationRules,
+  yamlShape: "record",
+  keyField: "name",
+  mapItemOutput: ({ name }) => name,
+})
 
 registerTypeRule(
   "Recalculations",

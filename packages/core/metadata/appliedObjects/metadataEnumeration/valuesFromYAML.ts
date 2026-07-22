@@ -2,7 +2,6 @@ import { ConfigurationContext } from "../../context/types"
 import { Type, type TSchema } from "typebox"
 import {
   exportMetadataItemToYAML,
-  importMetadataItemFromYAML,
   PropertyRule,
   registerMetadataItemCollectionRule,
   registerTypeRule,
@@ -27,26 +26,6 @@ registerMetadataItemCollectionRule({
   xmlElement: "EnumValue",
   keyField: "name",
 })
-
-export const importMetadataEnumerationValuesFromYAML = (
-  context: ConfigurationContext,
-  _rule: PropertyRule | undefined,
-  data: MetadataEnumerationValuesYAML | undefined
-): MetadataEnumerationValues | undefined => {
-  if (!data) return undefined
-
-  const results = Object.entries(data).map(([name, value]): MetadataEnumerationValue => {
-    const imported = importMetadataItemFromYAML({
-      context,
-      yaml: value,
-      rule: MetadataEnumerationValueRules,
-      name,
-    }) as MetadataEnumerationValue
-    return { ...imported, name }
-  })
-
-  return results.length > 0 ? results : undefined
-}
 
 const exportMetadataEnumerationValuesToYAML = (
   context: ConfigurationContext,
@@ -87,7 +66,6 @@ const exportMetadataEnumerationValueYAMLToJSONSchema = (context: ConfigurationCo
   return itemSchema
 }
 
-registerTypeRule("MetadataEnumerationValues", "importFromYAML", importMetadataEnumerationValuesFromYAML)
 registerTypeRule("MetadataEnumerationValues", "exportToYAML", exportMetadataEnumerationValuesToYAML)
 registerTypeRule("MetadataEnumerationValues", "exportToJSONSchema", ({ context }) =>
   exportMetadataEnumerationValuesToJSONSchema(context)

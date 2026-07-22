@@ -9,7 +9,6 @@ import { ButtonRepresentation, CurrentRowUse } from "../../../systemEnumerations
 import { importFormCommandsFromXML } from "./fromXML"
 import { importFormCommandsFromXMLToYAML } from "./fromXMLToYAML"
 import { FormCommandRules } from "./rules"
-import { exportFormCommandsToXML } from "./toXML"
 
 export type FormCommand = FormTypeByRule<typeof FormCommandRules>
 
@@ -43,5 +42,10 @@ registerMetadataItemCollectionRule({
   keyField: "name",
   fromXML: importFormCommandsFromXML,
   fromXMLToYAML: importFormCommandsFromXMLToYAML,
-  toXML: exportFormCommandsToXML,
+  mapItemOutput: ({ xml }) => {
+    const { _name, _id, ...properties } = xml
+    const result = { _name, _id: typeof _id === "string" ? _id : "", ...properties }
+    if (result.Representation === "PictureAndText") result.Representation = "TextPicture"
+    return result
+  },
 })

@@ -9,6 +9,7 @@ import { systemEnumerationRule } from "../../../systemEnumerations/types"
 import { MetadataItemRule } from "../../../orchestration"
 export const FilterItemComparisonRules = {
   itemType: "FilterItemComparison",
+  xsiType: "dcsset:FilterItemComparison",
   properties: {
     use: booleanRule({
       xml: "dcsset:use",
@@ -73,6 +74,7 @@ export const FilterItemComparisonRules = {
 } as const satisfies MetadataItemRule
 export const FilterItemGroupRules = {
   itemType: "FilterItemGroup",
+  xsiType: "dcsset:FilterItemGroup",
   properties: {
     use: booleanRule({
       xml: "dcsset:use",

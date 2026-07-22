@@ -3,7 +3,7 @@ import "../border/toXML"
 import "../color/toXML"
 import "../font/toXML"
 import { registerTypeRule } from "../../orchestration/property/typeRuleRegistry"
-import { exportPropertyToXML } from "../../orchestration/property/toXML"
+import { callAtomicToXML } from "../../orchestration/property/fromYAMLToXML"
 import type { PropertyRule } from "../../orchestration/property/types"
 import { BorderXML } from "../border/types"
 import { ColorXML } from "../color/types"
@@ -18,16 +18,16 @@ export const exportStyleItemValueToXML = (
   if (!value) return undefined
 
   if (value.type === "Font") {
-    const xml = exportPropertyToXML({ context, rule: { type: "Font" }, value: value.value }) as FontXML
+    const xml = callAtomicToXML({ context, rule: { type: "Font" }, value: value.value }) as FontXML
     return { "_xsi:type": "v8ui:Font", ...xml }
   }
 
   if (value.type === "Color") {
-    const xml = exportPropertyToXML({ context, rule: { type: "Color" }, value: value.value }) as ColorXML
+    const xml = callAtomicToXML({ context, rule: { type: "Color" }, value: value.value }) as ColorXML
     return { "_xsi:type": "v8ui:Color", "#text": xml }
   }
 
-  const xml = exportPropertyToXML({ context, rule: { type: "Border" }, value: value.value }) as BorderXML
+  const xml = callAtomicToXML({ context, rule: { type: "Border" }, value: value.value }) as BorderXML
   return { "_xsi:type": "v8ui:Border", ...xml }
 }
 

@@ -9,6 +9,8 @@ export interface ConvertMetadataItemFromYAMLToXMLParams {
   readonly yaml: unknown
   readonly rule: MetadataItemRule
   readonly name?: string
+  readonly namePropertyKey?: string
+  readonly sourceItemName?: string
   readonly outputs: readonly YAMLToXMLOutputRequest[]
   readonly ownerYAML?: unknown
   readonly sparseYAML?: true
@@ -29,13 +31,15 @@ export function convertMetadataItemFromYAMLToXML(params: ConvertMetadataItemFrom
   const root = findXMLRoot(params.rule)
   const normalizedOutputs = params.outputs.map((output) => ({
     ...output,
-    referenceXML: unwrapReferenceBody(output.referenceXML, root),
+    referenceXML: sanitizeReferenceXML(unwrapReferenceBody(output.referenceXML, root)),
   }))
   const converted = convertPropertiesFromYAMLToXML({
     context: params.context,
     yaml,
     rule: params.rule,
     name: params.name,
+    namePropertyKey: params.namePropertyKey,
+    sourceItemName: params.sourceItemName,
     outputs: normalizedOutputs,
     sparseYAML: params.sparseYAML,
   })
@@ -45,7 +49,7 @@ export function convertMetadataItemFromYAMLToXML(params: ConvertMetadataItemFrom
     const generated = converted.outputs.get(request.key) ?? {}
     const generatedWithType =
       params.rule.xsiType === undefined ? generated : { "_xsi:type": params.rule.xsiType, ...generated }
-    const referenceBody = unwrapReferenceBody(request.referenceXML, root)
+    const referenceBody = sanitizeReferenceXML(unwrapReferenceBody(request.referenceXML, root))
     const merged = mergeReferenceXML({
       generated: generatedWithType,
       reference: referenceBody,
@@ -72,10 +76,11 @@ function findXMLRoot(rule: MetadataItemRule): XMLRootInfo | undefined {
 }
 
 function unwrapReferenceBody(
-  referenceXML: Record<string, unknown> | undefined,
+  referenceXML: unknown,
   root: XMLRootInfo | undefined
 ): Record<string, unknown> | undefined {
-  if (referenceXML === undefined || root === undefined) return referenceXML
+  if (!isRecord(referenceXML)) return undefined
+  if (root === undefined) return referenceXML
   if (root.isFileRoot) {
     const container = referenceXML[root.container]
     return isRecord(container) ? omitRootAttributes(container) : undefined
@@ -101,13 +106,14 @@ function wrapXMLRoot(params: {
 
 function getRootAttributes(
   params: ConvertMetadataItemFromYAMLToXMLParams,
-  referenceXML: Record<string, unknown> | undefined,
+  referenceXML: unknown,
   root: XMLRootInfo
 ): Record<string, string> {
+  const reference = isRecord(referenceXML) ? referenceXML : undefined
   const referenceRoot = root.isFileRoot
-    ? referenceXML?.[root.container]
-    : isRecord(referenceXML?.MetaDataObject)
-      ? referenceXML.MetaDataObject
+    ? reference?.[root.container]
+    : isRecord(reference?.MetaDataObject)
+      ? reference.MetaDataObject
       : undefined
   if (isRecord(referenceRoot)) {
     const attributes = Object.fromEntries(
@@ -143,7 +149,7 @@ function mergeReferenceXML(params: {
           rule,
           path: [...path, key],
         })
-      } else if (generatedValue !== undefined) {
+      } else if (generatedValue !== undefined || referenceValue === undefined) {
         result[key] = generatedValue
       }
       continue
@@ -168,6 +174,22 @@ function mergeReferenceXML(params: {
     result[key] = generatedValue
   }
   return result
+}
+
+function sanitizeReferenceXML(value: Record<string, unknown> | undefined): Record<string, unknown> | undefined {
+  if (value === undefined) return undefined
+  const result: Record<string, unknown> = {}
+  for (const [key, entry] of Object.entries(value)) {
+    if (key === "#text" && typeof entry === "string" && entry.trim() === "") continue
+    result[key] = sanitizeReferenceValue(entry)
+  }
+  return result
+}
+
+function sanitizeReferenceValue(value: unknown): unknown {
+  if (Array.isArray(value)) return value.map(sanitizeReferenceValue)
+  if (!isRecord(value)) return value
+  return sanitizeReferenceXML(value)
 }
 
 function findPropertyRule(rule: MetadataItemRule, path: readonly string[], xmlKey: string): PropertyRule | undefined {

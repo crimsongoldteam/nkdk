@@ -51,6 +51,7 @@ export const registerElementAsType = <Rule extends ElementRule & { itemType: Sin
   elementRule: Rule
   toXML: ToXMLFn<ToMetadata<Rule["itemType"]>>
   nameStyle?: SingletonNameStyle
+  directId?: string
 }): void => {
   const { propertyType, elementRule, toXML, nameStyle } = params
   const itemType = elementRule.itemType
@@ -67,6 +68,21 @@ export const registerElementAsType = <Rule extends ElementRule & { itemType: Sin
     })
   )
   registerTypeRule(propertyType, "nestedItemRule", { itemRule: elementRule })
+  registerTypeRule(propertyType, "yamlToXMLNestedRule", {
+    kind: "item",
+    itemRule: elementRule,
+    transformOutput: ({ xml, source }) => {
+      const generatedName =
+        nameStyle?.canonicalNameMode === "fixed"
+          ? nameStyle.canonicalSuffix
+          : `${source.itemName ?? ""}${nameStyle?.canonicalSuffix ?? ""}`
+      return {
+        _name: typeof xml._name === "string" ? xml._name : generatedName,
+        _id: typeof xml._id === "string" ? xml._id : params.directId ?? "",
+        ...xml,
+      }
+    },
+  })
   registerExportToYAML(propertyType)
   registerimportFromYAML(propertyType, itemType)
   registerExportToXML({ propertyType, toXML, elementRule, nameStyle })
