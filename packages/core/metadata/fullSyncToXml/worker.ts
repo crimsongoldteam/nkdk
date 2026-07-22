@@ -97,7 +97,9 @@ function runFirstPass(
     const yamlFile = yamlFileByPath.get(assignment.sourceProjectPath)
     if (yamlFile === undefined) continue
 
-    const syntaxDiagnostics = yamlFile.syntaxDiagnostics.map((diagnostic) => syncDiagnosticFromProjectDiagnostic(diagnostic, assignment))
+    const syntaxDiagnostics = yamlFile.syntaxDiagnostics.map((diagnostic) =>
+      syncDiagnosticFromProjectDiagnostic(diagnostic, assignment)
+    )
     diagnostics.push(...syntaxDiagnostics)
     if (syntaxDiagnostics.some((diagnostic) => diagnostic.severity === "error")) continue
 
@@ -117,7 +119,7 @@ function runFirstPass(
       role: assignment.role,
       owner: { dir: validationFile.owner.dir, name: validationFile.owner.name },
       itemType: assignment.itemType,
-      ...(facts?.ownerModelStub === undefined ? {} : { ownerModelStub: facts.ownerModelStub }),
+      ...(facts?.ownerFacts === undefined ? {} : { ownerFacts: facts.ownerFacts }),
       ...(facts?.fieldIndex === undefined ? {} : { fieldIndex: facts.fieldIndex }),
     })
   }
@@ -156,7 +158,9 @@ async function runSecondPass(
       writtenFiles.push(...result.writtenFiles)
       if (result.fragment !== undefined) fragments.push(result.fragment)
     } catch (caught) {
-      diagnostics.push(assignmentDiagnostic(prepared.assignment, "full_xml_sync_second_pass_failed", errorMessage(caught)))
+      diagnostics.push(
+        assignmentDiagnostic(prepared.assignment, "full_xml_sync_second_pass_failed", errorMessage(caught))
+      )
     } finally {
       progress.assignmentEnd({
         index: assignmentIndex,
@@ -178,7 +182,10 @@ async function runSecondPass(
   }
 }
 
-function createSecondPassProgressReporter(workerIndex: number, total: number): {
+function createSecondPassProgressReporter(
+  workerIndex: number,
+  total: number
+): {
   assignmentStart(index: number, assignment: FullXmlSyncAssignment): void
   assignmentEnd(params: {
     index: number
@@ -359,11 +366,7 @@ function exportContextForSecondPass(state: InitializedFullXmlSyncWorkerState): C
   }
 }
 
-function assignmentDiagnostic(
-  assignment: FullXmlSyncAssignment,
-  code: string,
-  message: string
-): FullXmlSyncDiagnostic {
+function assignmentDiagnostic(assignment: FullXmlSyncAssignment, code: string, message: string): FullXmlSyncDiagnostic {
   return {
     severity: "error",
     code,

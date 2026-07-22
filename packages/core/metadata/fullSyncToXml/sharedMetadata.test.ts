@@ -29,7 +29,10 @@ describe("full sync shared metadata", () => {
       join(projectDir, "Справочник", "Товары", "Свойства.yaml"),
       ["Реквизиты:", "  Артикул:", "    Тип: Строка"].join("\n")
     )
-    writeFileSync(join(projectDir, "Справочник", "Товары", "Формы", "ФормаЭлемента", "Форма.yaml"), "Имя: ФормаЭлемента\n")
+    writeFileSync(
+      join(projectDir, "Справочник", "Товары", "Формы", "ФормаЭлемента", "Форма.yaml"),
+      "Имя: ФормаЭлемента\n"
+    )
     return projectDir
   }
 
@@ -82,12 +85,14 @@ describe("full sync shared metadata", () => {
         role: "properties",
         owner: { dir: "Справочник", name: "Товары" },
         itemType: "Catalog",
-        ...(ownerFacts?.ownerModelStub === undefined ? {} : { ownerModelStub: ownerFacts.ownerModelStub }),
+        ...(ownerFacts?.ownerFacts === undefined ? {} : { ownerFacts: ownerFacts.ownerFacts }),
         ...(ownerFacts?.fieldIndex === undefined ? {} : { fieldIndex: ownerFacts.fieldIndex }),
       },
     ]
     const plan = await buildFullXmlSyncPlan({ projectDir })
-    const reader = createFullXmlSyncSharedMetadataReader(createFullXmlSyncSharedMetadata({ assignments: plan.assignments, owners }))
+    const reader = createFullXmlSyncSharedMetadataReader(
+      createFullXmlSyncSharedMetadata({ assignments: plan.assignments, owners })
+    )
     const owner = reader.ownerCache(projectDir).get({ kind: "Справочник", name: "Товары" })
 
     expect(owner.status).toBe("ok")

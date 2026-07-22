@@ -1,7 +1,6 @@
 import { parseMetadataTargetFromYAML } from "../commonObjects/metadataTargets"
 import { rootFromYAML } from "../commonObjects/metadataTargets/roots"
 import type { MetadataTargetOwner, ParsedMetadataTarget } from "../commonObjects/metadataTargets/types"
-import type { TypeDescription } from "../commonObjects/typeDescription/types"
 import { CollectableElementTypeFromYAML, type ElementType } from "../forms/elements/orchestration/types"
 import { ClientApplicationFormRules } from "../forms/clientApplicationForm/rules"
 import type { DataPathPropertyRule, PropertyRule } from "../orchestration/property/types"
@@ -9,12 +8,12 @@ import { getElementRule } from "../orchestration/formElement/ruleFactory"
 import { getTypeRule } from "../orchestration/property/typeRuleRegistry"
 import { enterNestedYamlRule, enterYamlProperty } from "../orchestration/property/yamlRuleCursor"
 import type { YamlRuleCursor } from "../orchestration/property/importYamlTypes"
-import { CommonAttributeUseFromYAML, PictureLibFromYAML, type CommonAttributeUseYAML } from "../systemEnumerations/types"
+import { PictureLibFromYAML } from "../systemEnumerations/types"
 import type { ParsedYaml } from "../../yaml/parseMetadataYaml"
-import { typeDescriptionToDataPathTypeInfo } from "./dataPath/typeDescription"
 import { createFormDataPathIndexCollector, typeDescriptionFromYAML } from "./dataPath/formYamlIndex"
 import type { FormDataPathIndex } from "./dataPath/formIndex"
-import { buildObjectFieldIndex, type ObjectField, type ObjectFieldIndex } from "./dataPath/objectFields"
+import { buildObjectFieldIndex, type ObjectFieldIndex } from "./dataPath/objectFields"
+import { ownerFactFromYAML, type ValidationOwnerFacts } from "./dataPath/ownerFacts"
 import {
   projectMemberIndexKey,
   projectObjectIndexKey,
@@ -45,11 +44,13 @@ export interface ValidationYamlFacts {
   pendingChecks: ValidationPendingCheck[]
   diagnostics: Diagnostic[]
   fieldIndex?: ObjectFieldIndex
-  ownerModelStub?: Record<string, unknown>
   localIndexes?: ReturnType<LocalIndexesCollector["finish"]>
 }
 
-export type ValidationOwnerYamlFacts = Pick<ValidationYamlFacts, "fieldIndex" | "ownerModelStub">
+export interface ValidationOwnerYamlFacts {
+  fieldIndex: ObjectFieldIndex
+  ownerFacts: ValidationOwnerFacts
+}
 
 export function extractValidationYamlFacts(params: {
   file: ValidationProjectFile
@@ -100,7 +101,10 @@ export function extractValidationYamlFacts(params: {
     valueIndexEntries: [],
     pendingReferences,
     pendingChecks: [],
-    diagnostics: [...referenceDiagnostics, ...(spec === undefined ? [] : collectUniqueNameScopeDiagnostics(params.file, params.parsed, spec))],
+    diagnostics: [
+      ...referenceDiagnostics,
+      ...(spec === undefined ? [] : collectUniqueNameScopeDiagnostics(params.file, params.parsed, spec)),
+    ],
     localIndexes,
   }
 }
@@ -173,146 +177,37 @@ function buildOwnerFactsFromYaml(
   file: ValidationProjectFile,
   data: unknown,
   spec: ValidationRulesSpecSnapshot
-): Pick<ValidationYamlFacts, "fieldIndex" | "ownerModelStub"> {
-  const model = syntheticModelFromYaml(file, data, spec)
-  return {
-    ownerModelStub: model,
-    fieldIndex: buildObjectFieldIndexFromSyntheticModel(file, model),
-  }
-}
-
-function syntheticModelFromYaml(
-  file: ValidationProjectFile,
-  data: unknown,
-  spec: ValidationRulesSpecSnapshot
-): Record<string, unknown> {
+): ValidationOwnerYamlFacts {
   const record = asRecord(data) ?? {}
-  const model: Record<string, unknown> = {
-    itemType: spec.itemType,
-    name: file.owner.name,
-  }
+  const compactFacts: Record<string, unknown> = {}
 
   for (const property of spec.properties) {
+    if (property.ownerFactRole === undefined) continue
     const value = valueAtPath(record, property.yamlPath)
-    if (value === undefined) continue
-    if (
-      property.modelKey === "attributes" ||
-      property.modelKey === "dimensions" ||
-      property.modelKey === "resources" ||
-      property.modelKey === "addressingAttributes" ||
-      property.modelKey === "commands" ||
-      property.modelKey === "accountingFlags" ||
-      property.modelKey === "extDimensionAccountingFlags"
-    ) {
-      model[property.modelKey] = namedTypedItemsFromYaml(value)
-      continue
-    }
-    if (property.modelKey === "tabularSections") {
-      model[property.modelKey] = tabularSectionsFromYaml(value)
-      continue
-    }
-    if (property.modelKey === "owners") {
-      model[property.modelKey] = metadataLinksFromYaml(value)
-      continue
-    }
-    if (property.modelKey === "registerRecords") {
-      model[property.modelKey] = metadataLinksFromYaml(value)
-      continue
-    }
-    if (property.modelKey === "chartOfAccounts" && typeof value === "string") {
-      model[property.modelKey] = value
-      continue
-    }
-    if (property.modelKey === "content") {
-      model[property.modelKey] = commonAttributeContentFromYaml(value)
-      continue
-    }
-    if (property.modelKey === "task") {
-      const link = taskLinkFromYaml(value)
-      if (link !== undefined) model[property.modelKey] = link
-      continue
-    }
-    if (property.modelKey === "type") {
-      model[property.modelKey] = typeDescriptionFromYAML(value)
-      continue
-    }
+    const fact = ownerFactFromYAML(property.ownerFactRole, value)
+    if (fact !== undefined) compactFacts[property.ownerFactRole] = fact
   }
 
-  return model
-}
-
-function buildObjectFieldIndexFromSyntheticModel(
-  file: ValidationProjectFile,
-  model: Record<string, unknown>
-): ObjectFieldIndex {
-  const index = buildObjectFieldIndex({
-    ref: { kind: file.owner.dir, name: file.owner.name },
-    facts: model as never,
+  const ref = { kind: file.owner.dir, name: file.owner.name }
+  const ownerFactsWithoutIndex = {
+    ref,
+    filePath: file.absolutePath,
+    fieldIndex: emptyObjectFieldIndex(),
+    ...compactFacts,
+  } as ValidationOwnerFacts
+  const fieldIndex = buildObjectFieldIndex({
+    ref,
+    facts: ownerFactsWithoutIndex,
     rule: file.owner.spec.rule,
   })
-  const fields = new Map<string, ObjectField>(index.fields)
-  for (const collection of [
-    ["attributes", "attribute"],
-    ["dimensions", "dimension"],
-    ["resources", "resource"],
-    ["addressingAttributes", "addressingAttribute"],
-  ] as const) {
-    const collectionValue = model[collection[0]]
-    const items: unknown[] = Array.isArray(collectionValue) ? collectionValue : []
-    for (const item of items) {
-      const record = asRecord(item)
-      if (record === undefined || typeof record["name"] !== "string") continue
-      fields.set(record["name"], {
-        name: record["name"],
-        kind: collection[1],
-        sourceCollection: collection[0],
-        typeInfo: typeDescriptionToDataPathTypeInfo(record["type"] as TypeDescription | undefined),
-      })
-    }
+  return {
+    fieldIndex,
+    ownerFacts: { ...ownerFactsWithoutIndex, fieldIndex },
   }
-
-  for (const item of Array.isArray(model["tabularSections"]) ? model["tabularSections"] : []) {
-    const record = asRecord(item)
-    if (record === undefined || typeof record["name"] !== "string") continue
-    const columns = new Map<string, ObjectField>()
-    for (const attribute of Array.isArray(record["attributes"]) ? record["attributes"] : []) {
-      const attributeRecord = asRecord(attribute)
-      if (attributeRecord === undefined || typeof attributeRecord["name"] !== "string") continue
-      columns.set(attributeRecord["name"], {
-        name: attributeRecord["name"],
-        kind: "attribute",
-        sourceCollection: "attributes",
-        typeInfo: typeDescriptionToDataPathTypeInfo(attributeRecord["type"] as TypeDescription | undefined),
-      })
-    }
-    addTabularSectionStandardColumns(columns)
-    const table = {
-      kind: "TabularSection" as const,
-      owner: { kind: file.owner.dir, name: file.owner.name },
-      name: record["name"],
-    }
-    fields.set(record["name"], {
-      name: record["name"],
-      kind: "tabularSection",
-      sourceCollection: "tabularSections",
-      typeInfo: { kinds: ["tableSource"], nextTypes: [], table },
-      tableSource: { table, columns, hasColumns: columns.size > 0 },
-    })
-  }
-
-  return { fields, standardAttributeAliases: index.standardAttributeAliases, diagnostics: index.diagnostics }
 }
 
-function addTabularSectionStandardColumns(columns: Map<string, ObjectField>): void {
-  const lineNumber: ObjectField = {
-    name: "НомерСтроки",
-    targetName: "LineNumber",
-    kind: "standardAttribute",
-    sourceCollection: "standardAttributes",
-    typeInfo: { kinds: ["scalar"], nextTypes: [], sourceText: "TabularSection.LineNumber" },
-  }
-  columns.set("LineNumber", lineNumber)
-  columns.set("НомерСтроки", lineNumber)
+function emptyObjectFieldIndex(): ObjectFieldIndex {
+  return { fields: new Map(), standardAttributeAliases: new Map(), diagnostics: [] }
 }
 
 function collectUniqueNameScopeDiagnostics(
@@ -361,81 +256,8 @@ function collectUniqueNameScopeDiagnostics(
   return diagnostics
 }
 
-function yamlPathByModelKey(
-  spec: ValidationRulesSpecSnapshot,
-  modelKey: string
-): readonly string[] | undefined {
+function yamlPathByModelKey(spec: ValidationRulesSpecSnapshot, modelKey: string): readonly string[] | undefined {
   return spec.properties.find((property) => property.modelKey === modelKey)?.yamlPath
-}
-
-function namedTypedItemsFromYaml(value: unknown): Array<{ name: string; type?: TypeDescription }> {
-  const record = asRecord(value)
-  return Object.entries(record ?? {}).map(([name, item]) => ({
-    name,
-    ...(typeDescriptionFromYAML(asRecord(item)?.["Тип"]) === undefined
-      ? {}
-      : { type: typeDescriptionFromYAML(asRecord(item)?.["Тип"]) }),
-  }))
-}
-
-function tabularSectionsFromYaml(
-  value: unknown
-): Array<{ name: string; attributes: Array<{ name: string; type?: TypeDescription }> }> {
-  const record = asRecord(value)
-  return Object.entries(record ?? {}).map(([name, item]) => ({
-    name,
-    attributes: namedTypedItemsFromYaml(asRecord(item)?.["Реквизиты"]),
-  }))
-}
-
-function metadataLinksFromYaml(value: unknown): string[] {
-  if (!Array.isArray(value)) return []
-  return value.filter((item): item is string => typeof item === "string").map(metadataLinkFromYaml)
-}
-
-function metadataLinkFromYaml(value: string): string {
-  const normalized = normalizeMetadataLinkFromYaml(value)
-  const dotIndex = normalized.indexOf(".")
-  if (dotIndex === -1) return normalized
-
-  const root = normalized.substring(0, dotIndex)
-  return `${rootFromYAML[root] ?? root}${normalized.substring(dotIndex)}`
-}
-
-function normalizeMetadataLinkFromYaml(value: string): string {
-  for (const [from, to] of [
-    ["Справочники.", "Справочник."],
-    ["ПланыВидовРасчета.", "ПланВидовРасчета."],
-  ] as const) {
-    if (value.startsWith(from)) return `${to}${value.slice(from.length)}`
-  }
-
-  return value
-}
-
-function taskLinkFromYaml(value: unknown): string | undefined {
-  if (typeof value !== "string" || value.length === 0) return undefined
-  if (value.includes(".")) return metadataLinkFromYaml(value)
-  return `Task.${value}`
-}
-
-function commonAttributeContentFromYaml(value: unknown): Array<{ metadata: string; use: string }> {
-  if (!Array.isArray(value)) return []
-
-  return value.flatMap((item) => {
-    const record = asRecord(item)
-    if (record === undefined || typeof record["Объект"] !== "string") return []
-    const use =
-      typeof record["Использование"] === "string" && isCommonAttributeUseYAML(record["Использование"])
-        ? CommonAttributeUseFromYAML[record["Использование"]]
-        : undefined
-    return [
-      {
-        metadata: metadataLinkFromYaml(record["Объект"]),
-        use: use ?? "Use",
-      },
-    ]
-  })
 }
 
 function collectPendingReferences(params: {
@@ -691,18 +513,10 @@ function buildFormDataPathIndexFromYaml(params: { filePath: string; parsed: Pars
       acceptFormIndexValue(collector, ["Реквизиты", name, "ДинамическийСписок"], true)
     }
     for (const [columnName, column] of Object.entries(asRecord(attribute?.["Колонки"]) ?? {})) {
-      acceptFormIndexValue(
-        collector,
-        ["Реквизиты", name, "Колонки", columnName, "Тип"],
-        asRecord(column)?.["Тип"]
-      )
+      acceptFormIndexValue(collector, ["Реквизиты", name, "Колонки", columnName, "Тип"], asRecord(column)?.["Тип"])
     }
     if (attribute?.["ДополнительныеКолонки"] !== undefined) {
-      acceptFormIndexValue(
-        collector,
-        ["Реквизиты", name, "ДополнительныеКолонки"],
-        attribute["ДополнительныеКолонки"]
-      )
+      acceptFormIndexValue(collector, ["Реквизиты", name, "ДополнительныеКолонки"], attribute["ДополнительныеКолонки"])
     }
   }
 
@@ -789,10 +603,7 @@ function collectNestedFormElementChecks(params: {
           ...params,
           owner: element,
           rule: itemRule as ReturnType<typeof getElementRule>,
-          cursor: enterNestedYamlRule(
-            { ...propertyCursor, yamlPath: [...propertyCursor.yamlPath, name] },
-            elementType
-          ),
+          cursor: enterNestedYamlRule({ ...propertyCursor, yamlPath: [...propertyCursor.yamlPath, name] }, elementType),
         })
       )
     }
@@ -913,8 +724,4 @@ function asRecord(value: unknown): Record<string, unknown> | undefined {
   return typeof value === "object" && value !== null && !Array.isArray(value)
     ? (value as Record<string, unknown>)
     : undefined
-}
-
-function isCommonAttributeUseYAML(value: string): value is CommonAttributeUseYAML {
-  return Object.prototype.hasOwnProperty.call(CommonAttributeUseFromYAML, value)
 }

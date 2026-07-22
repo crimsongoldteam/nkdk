@@ -1,13 +1,13 @@
 import fs from "fs"
 import { basename, join } from "path"
 import type { ConfigurationContext, ConfigurationContextFromXML } from "../../../context/types"
-import { importMetadataItemFromXML, importMetadataItemFromYAML } from "../../../orchestration"
-import type { MetadataItemRule } from "../../../orchestration/property/types"
+import { importMetadataItemFromXML } from "../../../orchestration"
+import type { MetadataItemRule, PropertyRule } from "../../../orchestration/property/types"
+import { getTypeRule } from "../../../orchestration/property/typeRuleRegistry"
 import { importContentFromXML } from "../../../../xml/import/importer"
 import { importFromYAML } from "../../../../yaml/import"
 import { TopLevelMetadataItemRules } from "../topLevelRules"
 import type { StructuralNode, StructuralState } from "./types"
-import { withYAMLImportDiagnostics } from "../../../orchestration/yamlImportError"
 
 export async function collectStructuralStateFromYAML(params: {
   yamlDir: string
@@ -25,16 +25,72 @@ export async function collectStructuralStateFromYAML(params: {
       const yamlPath = join(dir, entry.name, "Свойства.yaml")
       if (!fs.existsSync(yamlPath)) continue
       const yaml = importFromYAML<Record<string, unknown>>(await fs.promises.readFile(yamlPath, "utf-8"))
-      const itemContext = withYAMLImportDiagnostics(params.context, {
-        sourceFile: yamlPath,
-        objectPath: `${rule.itemTypePrefix}.${entry.name}`,
-      })
-      const model = importMetadataItemFromYAML({ context: itemContext, yaml, rule, name: entry.name })
-      if (model) addModel(nodes, rule, entry.name, model as Record<string, unknown>)
+      addYaml(nodes, rule, entry.name, yaml)
     }
   }
 
   return { nodes }
+}
+
+function addYaml(
+  nodes: Map<string, StructuralNode>,
+  rule: MetadataItemRule,
+  name: string,
+  yaml: Record<string, unknown>
+): void {
+  const prefix = rule.itemTypePrefix!
+  const objectPath = `${prefix}.${name}`
+  nodes.set(objectPath, { path: objectPath, kind: "object", name, referencePath: objectPath })
+  addYamlCollections(nodes, rule, yaml, objectPath)
+}
+
+function addYamlCollections(
+  nodes: Map<string, StructuralNode>,
+  rule: MetadataItemRule,
+  yaml: Record<string, unknown>,
+  ownerPath: string
+): void {
+  for (const property of Object.values(rule.properties) as PropertyRule[]) {
+    const target = property.operationTarget
+    if (target?.kind !== "namedCollectionTarget" || !target.requiresMigration || property.yaml === undefined) continue
+
+    const collection = asRecord(yaml[property.yaml])
+    if (collection === undefined) continue
+    const itemRule = nestedItemRule(property)
+
+    for (const [name, value] of Object.entries(collection)) {
+      if (name.length === 0) {
+        throw new Error(`Некорректное имя узла: владелец ${ownerPath}, тип ${target.migrationSegment}`)
+      }
+      const path = `${ownerPath}.${target.migrationSegment}.${name}`
+      nodes.set(path, {
+        path,
+        kind: structuralKind(target.targetKind),
+        name,
+        referencePath: path,
+      })
+      const item = asRecord(value)
+      if (itemRule !== undefined && item !== undefined) addYamlCollections(nodes, itemRule, item, path)
+    }
+  }
+}
+
+function nestedItemRule(property: PropertyRule): MetadataItemRule | undefined {
+  const collectionRule = getTypeRule(property.type, "collectionItemRule")
+  if (collectionRule?.itemRule !== undefined) return collectionRule.itemRule
+  return "itemRule" in property ? (property.itemRule as MetadataItemRule | undefined) : undefined
+}
+
+function structuralKind(kind: string): StructuralNode["kind"] {
+  if (kind === "resource" || kind === "addressingAttribute") return "attribute"
+  if (kind === "attribute" || kind === "tabularSection" || kind === "dimension") return kind
+  throw new Error(`Неподдерживаемый структурный тип: ${kind}`)
+}
+
+function asRecord(value: unknown): Record<string, unknown> | undefined {
+  return typeof value === "object" && value !== null && !Array.isArray(value)
+    ? (value as Record<string, unknown>)
+    : undefined
 }
 
 export async function collectStructuralStateFromXML(params: {
