@@ -20,6 +20,7 @@ import { xmlRootRule } from "../../commonObjects/xmlRoot/types"
 import { systemEnumerationRule } from "../../systemEnumerations/types"
 import { V8_MDCLASSES_ROOT } from "../../orchestration/appliedObject/presets"
 import type { MetadataItemRule } from "../../orchestration/property/types"
+import type { YAMLPropertySource } from "../../orchestration/property/fromYAMLToXMLTypes"
 import { MetadataCommandRules } from "../metadataCommand/rules"
 const properties = ["Properties"]
 const childObjects = ["ChildObjects"]
@@ -41,10 +42,24 @@ export const MetadataAccountingRegisterStandardAttributeNames: Record<string, st
   ),
 }
 const extDimensionStandardAttributeName = /^ExtDimension(Type)?\d+$/
-export const MetadataAccountingRegisterStandardAttributeNamesXML = (metadataItem: unknown): Record<string, string> => {
+export const MetadataAccountingRegisterStandardAttributeNamesXML = (
+  source: YAMLPropertySource | unknown
+): Record<string, string> => {
+  if (typeof source === "object" && source !== null && "raw" in source && typeof source.raw === "function") {
+    const standardAttributes = source.raw("standardAttributes")
+    const yamlNames =
+      standardAttributes !== null && typeof standardAttributes === "object" && !Array.isArray(standardAttributes)
+        ? new Set(Object.keys(standardAttributes))
+        : new Set<string>()
+    return Object.fromEntries(
+      Object.entries(MetadataAccountingRegisterStandardAttributeNames).filter(
+        ([name, yamlName]) => !extDimensionStandardAttributeName.test(name) || yamlNames.has(yamlName)
+      )
+    )
+  }
   const item =
-    metadataItem && typeof metadataItem === "object"
-      ? (metadataItem as {
+    source && typeof source === "object"
+      ? (source as {
           standardAttributes?: unknown
         })
       : {}

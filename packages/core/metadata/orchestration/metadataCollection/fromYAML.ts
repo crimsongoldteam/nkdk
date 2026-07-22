@@ -57,15 +57,21 @@ export const importMetadataItemCollectionFromYAMLAsRecord = <Rule extends Metada
   context: ConfigurationContext
   itemRule: Rule
   yaml: Record<string, ToYAML<Rule["itemType"]>> | undefined
+  source?: ToMetadata<Rule["itemType"]>[]
+  keyField?: keyof Rule["properties"]
   nameFromYAMLKey?: (yamlKey: string) => string
 }): ToMetadata<Rule["itemType"]>[] | undefined => {
-  const { context, itemRule, yaml, nameFromYAMLKey } = params
+  const { context, itemRule, yaml, source, keyField, nameFromYAMLKey } = params
 
   if (yaml == undefined) return undefined
 
   const result: ToMetadata<Rule["itemType"]>[] = []
   for (const [key, value] of Object.entries(yaml)) {
     const name = nameFromYAMLKey !== undefined ? nameFromYAMLKey(key) : key
+    const itemSource = source?.find((item) => {
+      const sourceKey = keyField === undefined ? "name" : keyField
+      return item[sourceKey as keyof typeof item] === name
+    })
     const itemContext = withYAMLImportDiagnostics(context, {
       propertyPath: [key],
       yamlPath: [key],
@@ -77,6 +83,7 @@ export const importMetadataItemCollectionFromYAMLAsRecord = <Rule extends Metada
         rule: itemRule,
         yaml: value,
         name,
+        source: itemSource,
       })
     } catch (error) {
       throw toYAMLImportError(error, itemContext)

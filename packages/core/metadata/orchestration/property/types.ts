@@ -259,7 +259,9 @@ export interface StandardAttributeDescriptionPropertyRule extends BasePropertyRu
 export interface StandardAttributeDescriptionsPropertyRule extends BasePropertyRule {
   type: "StandardAttributeDescriptions"
   standartAttributeNames: Record<string, string>
-  standartAttributeNamesXML?: (metadataItem: unknown) => Record<string, string>
+  standartAttributeNamesXML?: (
+    source: import("./fromYAMLToXMLTypes").YAMLPropertySource | unknown
+  ) => Record<string, string>
 }
 
 export interface EventsPropertyRule extends BasePropertyRule {

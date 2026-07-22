@@ -1,49 +1,16 @@
 import { ConfigurationContext, ConfigurationContextFromXML } from "../../context/types"
-import { importMetadataItemFromYAML } from "../../orchestration"
 import { registerMetadataItemCollectionRule } from "../../orchestration/metadataCollection/ruleFactory"
 import { exportMetadataCollectionToYAMLAsRecord } from "../../orchestration/metadataCollection/toYAML"
 import { importPropertyFromXML } from "../../orchestration/property/fromXML"
 import type { PropertyRule } from "../../orchestration/property/types"
 import { MetadataSequenceDimensionRules } from "./rules"
-import {
-  MetadataSequenceDimensions,
-  MetadataSequenceDimensionsXML,
-  MetadataSequenceDimensionsYAML,
-  MetadataSequenceDimensionYAML,
-} from "./types"
-
-const importMetadataSequenceDimensionsFromYAML = (
-  context: ConfigurationContext,
-  _rule: PropertyRule | undefined,
-  data: MetadataSequenceDimensionsYAML | undefined
-): MetadataSequenceDimensions | undefined => {
-  if (!data) return undefined
-
-  const results = Object.entries(data).map(([name, value]) => {
-    const properties = importMetadataItemFromYAML({
-      context,
-      yaml: value as MetadataSequenceDimensionYAML,
-      rule: MetadataSequenceDimensionRules,
-      name,
-    })
-
-    if (properties == undefined) throw new Error("Properties are required")
-
-    return {
-      ...properties,
-      name,
-    }
-  })
-
-  return results.length > 0 ? (results as MetadataSequenceDimensions) : undefined
-}
+import { MetadataSequenceDimensions, MetadataSequenceDimensionsXML, MetadataSequenceDimensionsYAML } from "./types"
 
 registerMetadataItemCollectionRule({
   propertyType: "MetadataSequenceDimensions",
   itemRule: MetadataSequenceDimensionRules,
   xmlElement: "Dimension",
   keyField: "name",
-  fromYAML: importMetadataSequenceDimensionsFromYAML,
   collectionItemRule: true,
 })
 

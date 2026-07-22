@@ -4,7 +4,6 @@ import {
   ConfigurationContextWithExportToXML,
 } from "../../context/types"
 import { importMetadataItemCollectionFromXML } from "../../orchestration/metadataCollection/fromXML"
-import { importMetadataItemCollectionFromYAMLAsRecord } from "../../orchestration/metadataCollection/fromYAML"
 import { exportMetadataCollectionToYAMLAsRecord } from "../../orchestration/metadataCollection/toYAML"
 import { exportMetadataItemToXML } from "../../orchestration/metadataItem/toXML"
 import { registerMetadataItemCollectionRule } from "../../orchestration/metadataCollection/ruleFactory"
@@ -46,19 +45,6 @@ function filterNonEmpty(
     })
   })
   return filtered.length > 0 ? filtered : undefined
-}
-
-function importStandardAttributeDescriptionsFromYAML(
-  context: ConfigurationContext,
-  rule: PropertyRule | undefined,
-  value: any
-) {
-  return importMetadataItemCollectionFromYAMLAsRecord({
-    context,
-    itemRule: StandardAttributeDescriptionRules,
-    yaml: value,
-    nameFromYAMLKey: buildNameFromYAML(rule),
-  }) as StandardAttributeDescription[] | undefined
 }
 
 function buildNameFromYAML(rule: PropertyRule | undefined): (yamlKey: string) => string {
@@ -122,13 +108,14 @@ function exportStandardAttributeDescriptionsToXML(p: {
   value: any
   referenceMetadata?: any
   metadataItem?: any
+  source?: import("../../orchestration/property/fromYAMLToXMLTypes").YAMLPropertySource
 }) {
   const items: StandardAttributeDescription[] = p.value ?? []
   const referenceItems: StandardAttributeDescription[] = Array.isArray(p.referenceMetadata) ? p.referenceMetadata : []
 
   const stdAttrRule = p.rule as StandardAttributeDescriptionsPropertyRule
   const standartAttributeNames: Record<string, string> =
-    stdAttrRule.standartAttributeNamesXML?.(p.metadataItem) ?? stdAttrRule.standartAttributeNames ?? {}
+    stdAttrRule.standartAttributeNamesXML?.(p.source ?? p.metadataItem) ?? stdAttrRule.standartAttributeNames ?? {}
   const canonicalNames = Object.keys(standartAttributeNames)
   const referenceNames = referenceItems.map((item) => item.name).filter((name): name is string => name !== undefined)
   const modelNames = items.map((item) => item.name).filter((name): name is string => name !== undefined)
@@ -290,9 +277,17 @@ registerMetadataItemCollectionRule({
   xmlElement: "xr:StandardAttribute",
   keyField: "name",
   nameFromYAMLKey: StandartAttributeNameFromYAML,
+  nameFromYAMLKeyForProperty: ({ yamlKey, propertyRule }) => buildNameFromYAML(propertyRule)(yamlKey),
+  completeItemNames: ({ source, propertyRule }) =>
+    Object.keys(
+      (propertyRule as StandardAttributeDescriptionsPropertyRule).standartAttributeNamesXML?.(source) ??
+        (propertyRule as StandardAttributeDescriptionsPropertyRule).standartAttributeNames ??
+        {}
+    ),
+  preserveReferenceItems: true,
+  sparseItems: true,
   recordYamlKeyFromItem: (item) => StandartAttributeNameToYAML[item.name as StandartAttributeName],
   recordYamlKeyFromYAML: ({ name }) => StandartAttributeNameToYAML[name as StandartAttributeName],
-  fromYAML: importStandardAttributeDescriptionsFromYAML,
   fromXML: importStandardAttributeDescriptionsFromXML,
   fromXMLToYAML: importStandardAttributeDescriptionsFromXMLToYAML,
   toYAML: exportStandardAttributeDescriptionsToYAML,

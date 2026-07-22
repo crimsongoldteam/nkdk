@@ -40,6 +40,17 @@ type CollectionRule<Rule extends MetadataItemRule, CollectionType extends Proper
   configurationIndexAddressing?: ConfigurationIndexAddressingMode
   /** Для YAML-объекта коллекции: ключ записи → внутреннее имя элемента (например стандартный реквизит) */
   nameFromYAMLKey?: (yamlKey: string) => string
+  /** Для YAML-объекта коллекции: ключ записи → имя с учётом правила свойства владельца. */
+  nameFromYAMLKeyForProperty?: (params: { yamlKey: string; propertyRule: PropertyRule }) => string
+  /** Имена пустых элементов, которыми дополняется непустая YAML-коллекция без reference XML. */
+  completeItemNames?: (params: {
+    source: import("../property/fromYAMLToXMLTypes").YAMLPropertySource
+    propertyRule: PropertyRule
+  }) => readonly string[]
+  /** Сохранять элементы reference XML, отсутствующие в YAML. */
+  preserveReferenceItems?: true
+  /** Не выводить XML-свойства элемента, отсутствующие в его YAML-записи. */
+  sparseItems?: true
   /** Для YAML-объекта коллекции: элемент → ключ записи (если не совпадает со String(item[keyField])) */
   recordYamlKeyFromItem?: (item: ToMetadata<Rule["itemType"]> & NamedMetadataItem) => string
   /** Для YAML-объекта коллекции: YAML-элемент → ключ записи при прямом XML → YAML обходе. */
@@ -167,11 +178,15 @@ export const registerMetadataItemCollectionRule = <
     xmlElement,
     keyField: typeof params.keyField === "string" ? params.keyField : undefined,
     nameFromYAMLKey: params.nameFromYAMLKey,
+    nameFromYAMLKeyForProperty: params.nameFromYAMLKeyForProperty,
+    completeItemNames: params.completeItemNames,
+    preserveReferenceItems: params.preserveReferenceItems,
+    sparseItems: params.sparseItems,
     configurationIndexUidSegment: params.configurationIndexUidSegment,
     configurationIndexAddressing: params.configurationIndexAddressing,
   })
 
-  const fromYAMLDefault: importFromYAMLFunction = (context, _rule, value, source) =>
+  const fromYAMLDefault: importFromYAMLFunction = (context, propertyRule, value, source) =>
     params.yamlAsArray
       ? importMetadataItemCollectionFromYAMLAsArray({
           context,
@@ -184,7 +199,12 @@ export const registerMetadataItemCollectionRule = <
           context,
           itemRule,
           yaml: value,
-          nameFromYAMLKey: params.nameFromYAMLKey,
+          source,
+          keyField: params.keyField,
+          nameFromYAMLKey:
+            params.nameFromYAMLKeyForProperty === undefined
+              ? params.nameFromYAMLKey
+              : (yamlKey) => params.nameFromYAMLKeyForProperty!({ yamlKey, propertyRule }),
         })
 
   const fromYAML = params.fromYAML ?? fromYAMLDefault

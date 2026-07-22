@@ -11,6 +11,7 @@ export interface ConvertMetadataItemFromYAMLToXMLParams {
   readonly name?: string
   readonly outputs: readonly YAMLToXMLOutputRequest[]
   readonly ownerYAML?: unknown
+  readonly sparseYAML?: true
 }
 
 interface XMLRootInfo {
@@ -36,6 +37,7 @@ export function convertMetadataItemFromYAMLToXML(params: ConvertMetadataItemFrom
     rule: params.rule,
     name: params.name,
     outputs: normalizedOutputs,
+    sparseYAML: params.sparseYAML,
   })
   const outputs = new Map<string, Record<string, unknown>>()
 

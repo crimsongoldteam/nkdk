@@ -1,4 +1,4 @@
-import type { ConfigurationIndexAddressingMode, MetadataItemRule } from "./types"
+import type { ConfigurationIndexAddressingMode, MetadataItemRule, PropertyRule } from "./types"
 import type { YamlRuleCursor } from "./importYamlTypes"
 
 export interface YAMLPropertySource {
@@ -33,6 +33,13 @@ export type YAMLToXMLNestedRule =
       readonly xmlElement?: string
       readonly keyField?: string
       readonly nameFromYAMLKey?: (yamlKey: string) => string
+      readonly nameFromYAMLKeyForProperty?: (params: { yamlKey: string; propertyRule: PropertyRule }) => string
+      readonly completeItemNames?: (params: {
+        source: YAMLPropertySource
+        propertyRule: PropertyRule
+      }) => readonly string[]
+      readonly preserveReferenceItems?: true
+      readonly sparseItems?: true
       readonly configurationIndexUidSegment?: string
       readonly configurationIndexAddressing?: ConfigurationIndexAddressingMode
     }

@@ -649,6 +649,27 @@ const collectAllPanels = (metadataItem: Record<string, unknown> | undefined): Cl
     collectPanels(metadataItem?.[key] as ClientApplicationInterfaceItems | undefined)
   )
 
+const collectAllPanelsFromYAMLSource = (
+  source: import("../../orchestration/property/fromYAMLToXMLTypes").YAMLPropertySource
+): ClientApplicationInterfacePanel[] =>
+  ["top", "left", "right", "bottom"].flatMap((propertyKey) => collectPanelsFromYAML(source.raw(propertyKey)))
+
+const collectPanelsFromYAML = (value: unknown): ClientApplicationInterfacePanel[] => {
+  if (!Array.isArray(value)) return []
+  return value.flatMap((entry) => {
+    if (!isRecord(entry)) return []
+    if ("Панель" in entry) {
+      const panel = importPanelFromYAML(
+        entry.Панель as string | ClientApplicationInterfacePanelYAML | undefined,
+        undefined
+      )
+      return panel === undefined ? [] : [panel]
+    }
+    if (isRecord(entry.Группа)) return collectPanelsFromYAML(entry.Группа.Элементы)
+    return []
+  })
+}
+
 const isStandardPanelUuid = (uuid: string): boolean => uuid in standardPanelsByUuid
 
 const needsDefaultPanelDef = (uuid: string): boolean =>
@@ -668,8 +689,11 @@ const mergePanelDefWithReference = (params: {
   return xml
 }
 
-const exportPanelDefsToXML: ExportToXMLFunctionNew = ({ value, metadataItem, referenceMetadata }) => {
-  const panels = collectAllPanels(metadataItem as Record<string, unknown> | undefined)
+const exportPanelDefsToXML: ExportToXMLFunctionNew = ({ value, source, metadataItem, referenceMetadata }) => {
+  const panels =
+    source === undefined
+      ? collectAllPanels(metadataItem as Record<string, unknown> | undefined)
+      : collectAllPanelsFromYAMLSource(source)
   const panelDefs = (value as ClientApplicationInterfacePanelDefs | undefined) ?? []
   const referencePanelDefs = (referenceMetadata as ClientApplicationInterfacePanelDefs | undefined) ?? panelDefs
   const byId = new Map(panelDefs.map((panelDef) => [panelDef.id, panelDef]))

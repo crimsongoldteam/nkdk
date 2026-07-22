@@ -3,6 +3,7 @@ import { getParentFromContext } from "../../context/helpers"
 import { ConfigurationContext, ConfigurationContextWithExportToXML } from "../../context/types"
 import { addDefaultLanguageNameToSynonym } from "../../helpers/synonymHelpers"
 import type { PropertyRule } from "../../orchestration/property/types"
+import type { YAMLPropertySource } from "../../orchestration/property/fromYAMLToXMLTypes"
 
 const propertiesParents = ["Properties"]
 const emptySynonym = { items: {} }
@@ -26,17 +27,20 @@ const isMetadataRegisterResource = (context?: ConfigurationContextWithExportToXM
 
 const exportInformationRegisterOrExplicit =
   (propertyKey: string) =>
-  (metadataItem: unknown, context?: ConfigurationContextWithExportToXML): boolean => {
+  (source: YAMLPropertySource | unknown, context?: ConfigurationContextWithExportToXML): boolean => {
     const parentItemType = getRegisterParentItemType(context)
     if (parentItemType === undefined) return true
     if (parentItemType === "MetadataInformationRegister") return true
-    return (
-      metadataItem !== null &&
-      metadataItem !== undefined &&
-      typeof metadataItem === "object" &&
-      Object.prototype.hasOwnProperty.call(metadataItem, propertyKey)
-    )
+    return hasProperty(source, propertyKey)
   }
+
+const hasProperty = (source: YAMLPropertySource | unknown, propertyKey: string): boolean =>
+  source !== null &&
+  source !== undefined &&
+  typeof source === "object" &&
+  ("has" in source && typeof source.has === "function"
+    ? source.has(propertyKey)
+    : Object.prototype.hasOwnProperty.call(source, propertyKey))
 
 export const commonRegisterFieldProperties = {
   uuid: uuidPropertyRule,
@@ -282,17 +286,12 @@ export const commonRegisterFieldProperties = {
     defaultValueXML: "DontIndex",
     implicitValueYAML: "DontIndex",
     xmlParents: propertiesParents,
-    toXML: (metadataItem: unknown, context?: ConfigurationContextWithExportToXML): boolean => {
+    toXML: (source: YAMLPropertySource | unknown, context?: ConfigurationContextWithExportToXML): boolean => {
       const parentItemType = getRegisterParentItemType(context)
       if (parentItemType === undefined) return true
       if (parentItemType === "MetadataInformationRegister") return true
       if (!isMetadataRegisterResource(context)) return true
-      return (
-        metadataItem !== null &&
-        metadataItem !== undefined &&
-        typeof metadataItem === "object" &&
-        Object.prototype.hasOwnProperty.call(metadataItem, "indexing")
-      )
+      return hasProperty(source, "indexing")
     },
     order: 27,
   },

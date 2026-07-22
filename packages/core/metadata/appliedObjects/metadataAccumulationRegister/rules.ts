@@ -20,6 +20,7 @@ import { xmlRootRule } from "../../commonObjects/xmlRoot/types"
 import { systemEnumerationRule } from "../../systemEnumerations/types"
 import { V8_MDCLASSES_ROOT } from "../../orchestration/appliedObject/presets"
 import type { MetadataItemRule } from "../../orchestration/property/types"
+import type { YAMLPropertySource } from "../../orchestration/property/fromYAMLToXMLTypes"
 import { MetadataCommandRules } from "../metadataCommand/rules"
 const properties = ["Properties"]
 const childObjects = ["ChildObjects"]
@@ -36,11 +37,12 @@ const MetadataAccumulationRegisterTurnoverStandardAttributeNames: Record<string,
   Recorder: "Регистратор",
   Period: "Период",
 }
-const isTurnoverAccumulationRegister = (metadataItem: unknown): boolean =>
-  typeof metadataItem === "object" &&
-  metadataItem !== null &&
-  "registerType" in metadataItem &&
-  metadataItem.registerType === "Turnovers"
+const isTurnoverAccumulationRegister = (source: YAMLPropertySource | unknown): boolean =>
+  typeof source === "object" &&
+  source !== null &&
+  ("raw" in source && typeof source.raw === "function"
+    ? source.raw("registerType") === "Обороты"
+    : "registerType" in source && source.registerType === "Turnovers")
 const MetadataAccumulationRegisterCommandRules = {
   ...MetadataCommandRules,
   properties: {
@@ -133,8 +135,8 @@ export const MetadataAccumulationRegisterRules = {
     standardAttributes: standardAttributeDescriptionsRule({
       yaml: "СтандартныеРеквизиты",
       standartAttributeNames: MetadataAccumulationRegisterStandardAttributeNames,
-      standartAttributeNamesXML: (metadataItem: unknown) =>
-        isTurnoverAccumulationRegister(metadataItem)
+      standartAttributeNamesXML: (source: YAMLPropertySource | unknown) =>
+        isTurnoverAccumulationRegister(source)
           ? MetadataAccumulationRegisterTurnoverStandardAttributeNames
           : MetadataAccumulationRegisterStandardAttributeNames,
       xmlParents: properties,

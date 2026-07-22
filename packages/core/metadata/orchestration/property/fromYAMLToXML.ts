@@ -31,6 +31,7 @@ export interface ConvertPropertiesFromYAMLToXMLParams {
   readonly rule: MetadataItemRule
   readonly name?: string
   readonly outputs: readonly YAMLToXMLOutputRequest[]
+  readonly sparseYAML?: true
 }
 
 export interface AtomicFromYAMLParams {
@@ -113,6 +114,14 @@ export function convertPropertiesFromYAMLToXML(params: ConvertPropertiesFromYAML
     if (planned === undefined) continue
     const matchingOutputs = outputs.filter(({ request }) => matchesOutputTag(planned.propertyRule, request))
     if (
+      params.sparseYAML === true &&
+      propertyKey !== "name" &&
+      !source.has(propertyKey) &&
+      planned.propertyRule.preserveFromReferenceXML !== true
+    ) {
+      continue
+    }
+    if (
       matchingOutputs.length === 0 ||
       !shouldConvertYAMLProperty({ source, planned, outputs: matchingOutputs, context: params.context })
     ) {
@@ -149,12 +158,25 @@ export function convertPropertiesFromYAMLToXML(params: ConvertPropertiesFromYAML
           ? (references[index]?.value as Record<string, unknown>)
           : undefined,
       }))
+      if (
+        nestedRule.kind === "collection" &&
+        Array.isArray(nestedYAML) &&
+        nestedYAML.length === 0 &&
+        Object.prototype.hasOwnProperty.call(planned.propertyRule, "defaultValueXMLRaw")
+      ) {
+        matchingOutputs.forEach((output, index) =>
+          writeXMLValue({ context: params.context, output, planned, value: [], reference: references[index]! })
+        )
+        continue
+      }
       const nested =
         nestedRule.kind === "collection"
           ? convertMetadataCollectionFromYAMLToXML({
               context: params.context,
               yaml: nestedYAML,
               descriptor: nestedRule,
+              propertyRule: planned.propertyRule,
+              source,
               outputs: nestedOutputs,
             })
           : convertMetadataItemFromYAMLToXML({

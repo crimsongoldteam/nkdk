@@ -53,6 +53,13 @@ const REGISTRATION_ENTRYPOINT_ALLOWLIST = new Set([
 ])
 const BROAD_METADATA_REGISTRATION_IMPORTS = ["../appliedObjects", "../commonObjects", "../forms"] as const
 const SKIPPED_SCAN_DIRS = new Set(["node_modules", ".git", ".worktrees", "dist", "coverage"])
+const DEFERRED_GENERIC_COLLECTION_FILES = new Set([
+  "metadata/appliedObjects/metadataDataProcessor/rules.ts",
+  "metadata/commonObjects/characteristicsDescription/registerCollectionRule.ts",
+  "metadata/commonObjects/dataCompositionSystem/filterItem/types.ts",
+  "metadata/commonObjects/dataCompositionSystem/orderItemFields/types.ts",
+  "metadata/orchestration/metadataCollection/ruleFactory.ts",
+])
 
 describe("metadata import boundaries", () => {
   it("workspace TypeScript and test configs do not use legacy ~ alias", () => {
@@ -327,6 +334,22 @@ describe("metadata import boundaries", () => {
     expect(typesSource).toContain("import type { MetadataLanguageRules }")
     expect(registerSource).toContain("registerMetadataItemRule")
     expect(registerSource).toContain('propertyType: "MetadataLanguage"')
+  })
+
+  it("регистрации коллекций не обходят YAML и XML через модельные callbacks", () => {
+    const offenders = listTypeScriptFiles(METADATA_DIR)
+      .map((filePath) => ({
+        filePath: relative(process.cwd(), filePath),
+        source: readFileSync(filePath, "utf-8"),
+      }))
+      .filter(({ filePath, source }) => {
+        if (DEFERRED_GENERIC_COLLECTION_FILES.has(filePath)) return false
+        if (!source.includes("registerMetadataItemCollectionRule")) return false
+        return /fromYAML:\s*(?:import|createImport)/.test(source) || source.includes("exportMetadataCollectionToXML")
+      })
+      .map(({ filePath }) => filePath)
+
+    expect(offenders).toEqual([])
   })
 })
 

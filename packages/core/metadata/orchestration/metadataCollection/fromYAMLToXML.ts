@@ -8,6 +8,8 @@ import type {
   YAMLToXMLOutputRequest,
   YAMLToXMLResult,
 } from "../property/fromYAMLToXMLTypes"
+import type { PropertyRule } from "../property/types"
+import type { YAMLPropertySource } from "../property/fromYAMLToXMLTypes"
 
 type CollectionDescriptor = Extract<YAMLToXMLNestedRule, { kind: "collection" }>
 
@@ -15,13 +17,21 @@ export interface ConvertMetadataCollectionFromYAMLToXMLParams {
   readonly context: ConfigurationContextWithExportToXML
   readonly yaml: unknown
   readonly descriptor: CollectionDescriptor
+  readonly propertyRule?: PropertyRule
+  readonly source?: YAMLPropertySource
   readonly outputs: readonly YAMLToXMLOutputRequest[]
 }
 
 export function convertMetadataCollectionFromYAMLToXML(
   params: ConvertMetadataCollectionFromYAMLToXMLParams
 ): YAMLToXMLResult {
-  const entries = collectionEntries(params.yaml, params.descriptor)
+  const entries = completeCollectionEntries({
+    entries: collectionEntries(params.yaml, params.descriptor, params.propertyRule),
+    descriptor: params.descriptor,
+    propertyRule: params.propertyRule,
+    source: params.source,
+    outputs: params.outputs,
+  })
   const outputItems = new Map(params.outputs.map(({ key }) => [key, [] as unknown[]]))
   const externalWrites: YAMLToXMLExternalWrite[] = []
 
@@ -43,6 +53,7 @@ export function convertMetadataCollectionFromYAMLToXML(
       rule: params.descriptor.itemRule,
       name,
       outputs: itemOutputs,
+      sparseYAML: params.descriptor.sparseItems,
     })
     for (const output of itemOutputs) outputItems.get(output.key)!.push(converted.outputs.get(output.key) ?? {})
     externalWrites.push(...converted.externalWrites)
@@ -60,14 +71,71 @@ export function convertMetadataCollectionFromYAMLToXML(
   }
 }
 
-function collectionEntries(yaml: unknown, descriptor: CollectionDescriptor): { yaml: unknown; name?: string }[] {
+function completeCollectionEntries(params: {
+  entries: { yaml: unknown; name?: string }[]
+  descriptor: CollectionDescriptor
+  propertyRule: PropertyRule | undefined
+  source: YAMLPropertySource | undefined
+  outputs: readonly YAMLToXMLOutputRequest[]
+}): { yaml: unknown; name?: string }[] {
+  if (params.descriptor.yamlShape !== "record") return params.entries
+  const referenceNames = params.descriptor.preserveReferenceItems === true ? collectReferenceNames(params) : []
+  const requestedNames =
+    referenceNames.length > 0
+      ? referenceNames
+      : params.entries.length > 0 && params.propertyRule !== undefined && params.source !== undefined
+        ? (params.descriptor.completeItemNames?.({ source: params.source, propertyRule: params.propertyRule }) ?? [])
+        : []
+  if (requestedNames.length === 0) return params.entries
+
+  const byName = new Map(params.entries.map((entry) => [entry.name, entry]))
+  const result = requestedNames.map((name) => byName.get(name) ?? { name, yaml: {} })
+  for (const entry of params.entries) {
+    if (entry.name === undefined || !requestedNames.includes(entry.name)) result.push(entry)
+  }
+  return result
+}
+
+function collectReferenceNames(params: {
+  descriptor: CollectionDescriptor
+  outputs: readonly YAMLToXMLOutputRequest[]
+}): string[] {
+  const result: string[] = []
+  const keyField = params.descriptor.keyField ?? "name"
+  const keyRule = params.descriptor.itemRule.properties[keyField]
+  if (keyRule === undefined) return result
+  for (const output of params.outputs) {
+    const collection =
+      params.descriptor.xmlElement === undefined
+        ? output.referenceXML
+        : output.referenceXML?.[params.descriptor.xmlElement]
+    if (!Array.isArray(collection)) continue
+    for (const item of collection) {
+      if (!isRecord(item)) continue
+      const name = readXMLProperty(item, keyRule, keyField)
+      if (typeof name === "string" && !result.includes(name)) result.push(name)
+    }
+  }
+  return result
+}
+
+function collectionEntries(
+  yaml: unknown,
+  descriptor: CollectionDescriptor,
+  propertyRule: PropertyRule | undefined
+): { yaml: unknown; name?: string }[] {
   if (descriptor.yamlShape === "array") {
     return Array.isArray(yaml) ? yaml.map((item) => ({ yaml: item })) : []
   }
   if (!isRecord(yaml)) return []
   return Object.entries(yaml).map(([key, value]) => ({
     yaml: value,
-    name: descriptor.nameFromYAMLKey?.(key) ?? key,
+    name:
+      (propertyRule === undefined
+        ? undefined
+        : descriptor.nameFromYAMLKeyForProperty?.({ yamlKey: key, propertyRule })) ??
+      descriptor.nameFromYAMLKey?.(key) ??
+      key,
   }))
 }
 
