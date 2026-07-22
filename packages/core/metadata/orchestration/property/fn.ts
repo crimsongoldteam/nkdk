@@ -25,6 +25,7 @@ import type {
 } from "./importYamlTypes"
 import type { MetadataItem, MetadataItemRule, PropertyRule } from "./types"
 import type { YAMLToXMLNestedRule } from "./fromYAMLToXMLTypes"
+import type { YAMLPropertySource } from "./fromYAMLToXMLTypes"
 
 export type ExportToXMLFunction = (
   context: ConfigurationContextWithExportToXML,
@@ -36,10 +37,14 @@ export type ExportToXMLFunction = (
 export type ExportToXMLFunctionNew = <T extends MetadataItem>(params: {
   context: ConfigurationContextWithExportToXML
   rule: PropertyRule
+  source?: YAMLPropertySource
+  /** @deprecated Удаляется вместе со старой общей XML-оркестрацией. */
   metadataItem?: T
   referenceMetadata?: any
   value: any
 }) => any | undefined
+
+export type YAMLToXMLCondition = (source: YAMLPropertySource, context?: ConfigurationContextWithExportToXML) => boolean
 
 export type ImportFromXMLFunction = (
   context: ConfigurationContextFromXML,

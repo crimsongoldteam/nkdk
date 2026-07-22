@@ -2,7 +2,7 @@ import { SettingsParameterValuePropertyRule } from "../../commonObjects/dataComp
 import type { MetadataRootName, MetadataTargetConstraint } from "../../commonObjects/metadataTargets/types"
 import type { TypeDescriptionAllowedTypes } from "../../commonObjects/typeDescription/types"
 import type { SyncAreaDeclaration } from "../appliedObject/xmlAreas"
-import type { TypeRulesOperations } from "./fn"
+import type { TypeRulesOperations, YAMLToXMLCondition } from "./fn"
 import type { PropertyOperationTargetDeclaration } from "./operationTargets"
 
 import { ConfigurationContext, ConfigurationContextWithExportToXML } from "../../context/types"
@@ -165,7 +165,7 @@ export interface BasePropertyRule {
   exportWithoutReferenceXML?: true
 
   /** Не экспортировать в XML. Функция получает родительский metadataItem и опциональный context, возвращает `true` если экспортировать, `false` если пропустить */
-  toXML?: false | ((metadataItem: any, context?: ConfigurationContextWithExportToXML) => boolean)
+  toXML?: false | YAMLToXMLCondition
 
   /** Родительские элементы в XML */
   xmlParents?: string[]

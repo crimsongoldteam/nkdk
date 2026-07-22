@@ -1,0 +1,166 @@
+import { describe, expect, it } from "vitest"
+
+import { importFromYAML } from "../../../yaml/import"
+import type { ConfigurationContextWithExportToXML } from "../../context/types"
+import type { MetadataItemRule, PropertyRule } from "./types"
+import { registerTypeRule } from "./typeRuleRegistry"
+import { convertPropertiesFromYAMLToXML } from "./fromYAMLToXML"
+
+const context = (): ConfigurationContextWithExportToXML => ({
+  defaultLanguage: "ru",
+  version: "2.20",
+  exportToXML: {
+    configDumpInfo: new Map(),
+    version: "2.20",
+    itemsTree: [],
+  },
+})
+
+const testRule = (properties: Record<string, PropertyRule>): MetadataItemRule =>
+  ({ itemType: "Catalog", properties }) as MetadataItemRule
+
+describe("convertPropertiesFromYAMLToXML", () => {
+  it("сразу передаёт атомарный результат fromYAML в toXML", () => {
+    const calls: string[] = []
+    registerTypeRule("TestAtomic" as never, "importFromYAML", ({ value }) => {
+      calls.push(`from:${String(value)}`)
+      return Number(value)
+    })
+    registerTypeRule("TestAtomic" as never, "exportToXML", ({ value }) => {
+      calls.push(`to:${String(value)}`)
+      return `xml:${String(value)}`
+    })
+
+    const result = convertPropertiesFromYAMLToXML({
+      context: context(),
+      yaml: { Значение: "42" },
+      rule: testRule({ value: { type: "TestAtomic" as never, yaml: "Значение", xml: "Value" } }),
+      outputs: [{ key: "owner" }],
+    })
+
+    expect(calls).toEqual(["from:42", "to:42"])
+    expect(result.outputs.get("owner")).toEqual({ Value: "xml:42" })
+  })
+
+  it("применяет defaultValue и defaultValueXML к отсутствующему YAML-свойству", () => {
+    const result = convertPropertiesFromYAMLToXML({
+      context: context(),
+      yaml: {},
+      rule: testRule({
+        value: {
+          type: "string",
+          yaml: "Значение",
+          xml: "Value",
+          defaultValue: "значение-по-умолчанию",
+          defaultValueXML: "xml-по-умолчанию",
+        },
+      }),
+      outputs: [{ key: "owner" }],
+    })
+
+    expect(result.outputs.get("owner")).toEqual({ Value: "xml-по-умолчанию" })
+  })
+
+  it("создаёт сырой пустой XML-контейнер для defaultValueXMLRaw", () => {
+    const result = convertPropertiesFromYAMLToXML({
+      context: context(),
+      yaml: { Элементы: [] },
+      rule: testRule({
+        items: {
+          type: "string",
+          yaml: "Элементы",
+          xml: "Item",
+          xmlParents: ["ChildObjects"],
+          defaultValue: [],
+          defaultValueXMLRaw: {},
+        },
+      }),
+      outputs: [{ key: "owner" }],
+    })
+
+    expect(result.outputs.get("owner")).toEqual({ ChildObjects: {} })
+  })
+
+  it("сохраняет XML-алиас и исходное значение для preserveFromReferenceXML", () => {
+    const referenceValue = { "_xsi:nil": true }
+    const result = convertPropertiesFromYAMLToXML({
+      context: context(),
+      yaml: {},
+      rule: testRule({
+        value: {
+          type: "string",
+          yaml: "Значение",
+          xml: "CanonicalValue",
+          xmlAliases: ["LegacyValue"],
+          preserveFromReferenceXML: true,
+        },
+      }),
+      outputs: [{ key: "owner", referenceXML: { LegacyValue: referenceValue } }],
+    })
+
+    expect(result.outputs.get("owner")).toEqual({ LegacyValue: referenceValue })
+  })
+
+  it("пишет значение по полному пути xmlParents", () => {
+    const result = convertPropertiesFromYAMLToXML({
+      context: context(),
+      yaml: { Значение: "текст" },
+      rule: testRule({
+        value: { type: "string", yaml: "Значение", xml: "Value", xmlParents: ["Properties"] },
+      }),
+      outputs: [{ key: "owner" }],
+    })
+
+    expect(result.outputs.get("owner")).toEqual({ Properties: { Value: "текст" } })
+  })
+
+  it("указывает YAML-ключ в ошибке атомарного обработчика", () => {
+    registerTypeRule("ThrowingAtomic" as never, "importFromYAML", () => {
+      throw new Error("неверное значение")
+    })
+
+    expect(() =>
+      convertPropertiesFromYAMLToXML({
+        context: context(),
+        yaml: { Значение: "ошибка" },
+        rule: testRule({ value: { type: "ThrowingAtomic" as never, yaml: "Значение", xml: "Value" } }),
+        outputs: [{ key: "owner" }],
+      })
+    ).toThrow(/YAML-путь: Значение[\s\S]*неверное значение/)
+  })
+
+  it("сохраняет явно заданную строку MetadataValue строкой", () => {
+    const yaml = importFromYAML<Record<string, unknown>>('Значение: "001"')
+    const result = convertPropertiesFromYAMLToXML({
+      context: context(),
+      yaml,
+      rule: testRule({ value: { type: "MetadataValue", yaml: "Значение", xml: "Value" } }),
+      outputs: [{ key: "owner" }],
+    })
+
+    expect(result.outputs.get("owner")).toEqual({
+      Value: { "_xsi:type": "xs:string", "#text": "001" },
+    })
+  })
+
+  it("передаёт toXML-обработчику источник сырого YAML", () => {
+    registerTypeRule("SourceAwareAtomic" as never, "exportToXML", ({ source, value }) => ({
+      "#text": value,
+      _sibling: source?.raw("sibling"),
+    }))
+
+    const result = convertPropertiesFromYAMLToXML({
+      context: context(),
+      yaml: { Значение: "основное", Соседнее: "сырое" },
+      rule: testRule({
+        value: { type: "SourceAwareAtomic" as never, yaml: "Значение", xml: "Value" },
+        sibling: { type: "string", yaml: "Соседнее", toXML: false },
+      }),
+      outputs: [{ key: "owner" }],
+    })
+
+    expect(result.outputs.get("owner")).toEqual({
+      Value: { "#text": "основное", _sibling: "сырое" },
+    })
+  })
+})
