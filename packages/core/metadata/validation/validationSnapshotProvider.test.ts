@@ -23,7 +23,7 @@ describe("ValidationSnapshotProvider", () => {
     expect(provider.sharedPayload().owners.format).toBe("binary")
     expect(sharedOwner).toMatchObject({ status: regularOwner.status })
     if (sharedOwner.status !== "ok" || regularOwner.status !== "ok") throw new Error("owner expected")
-    expect(sharedOwner.owner.model).toEqual(regularOwner.owner.model)
+    expect(sharedOwner.owner.facts).toEqual(regularOwner.owner.facts)
     expect([...sharedOwner.owner.fieldIndex.fields.entries()]).toEqual([...regularOwner.owner.fieldIndex.fields.entries()])
   })
 

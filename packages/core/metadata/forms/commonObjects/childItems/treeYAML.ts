@@ -296,7 +296,7 @@ const getItemTypeFromYAMLKind = (params: {
   return itemType
 }
 
-const moveButtonTypeToTreeYAML = (params: {
+export const moveButtonTypeToTreeYAML = (params: {
   itemType: CollectableElementType
   yaml: Record<string, unknown> | undefined
 }): Record<string, unknown> => {

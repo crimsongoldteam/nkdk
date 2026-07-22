@@ -28,7 +28,7 @@ describe("SharedValidationBinaryOwners", () => {
     const binaryTable = binaryOwner.owner.fieldIndex.fields.get("Товары")
     const regularTable = regularOwner.owner.fieldIndex.fields.get("Товары")
     expect(binaryTable).toEqual(regularTable)
-    expect(binaryOwner.owner.model).toEqual(regularOwner.owner.model)
+    expect(binaryOwner.owner.facts).toEqual(regularOwner.owner.facts)
   })
 
   it("returns not-found diagnostics for missing owners", () => {
@@ -86,7 +86,7 @@ describe("SharedValidationBinaryOwners", () => {
 
     expect(owner.status).toBe("ok")
     if (owner.status !== "ok") throw new Error("owner expected")
-    expect(owner.owner.model).toMatchObject({ type: { type: ["boolean"] } })
+    expect(owner.owner.facts).toMatchObject({ type: { type: ["boolean"] } })
   })
 
   it("restores compact owner facts without model payload", () => {

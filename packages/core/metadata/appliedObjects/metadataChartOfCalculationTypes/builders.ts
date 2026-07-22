@@ -18,8 +18,9 @@ export function metadataChartOfCalculationTypesTabularSectionsRule<
   const Params extends MetadataChartOfCalculationTypesTabularSectionsRuleParams,
 >(
   params: WideExactRuleParams<MetadataChartOfCalculationTypesTabularSectionsRuleParams, Params>
-): Readonly<{ type: "MetadataChartOfCalculationTypesTabularSections" } & Params> {
+): Readonly<{ type: "MetadataChartOfCalculationTypesTabularSections"; ownerFactRole: "tabularSections" } & Params> {
   return defineWidePropertyRule("MetadataChartOfCalculationTypesTabularSections", {
+    ownerFactRole: "tabularSections",
     ...params,
     operationTarget: namedCollectionTarget({
       kind: "tabularSection",

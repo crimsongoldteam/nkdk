@@ -15,6 +15,14 @@ export interface FirstPassPoolResult {
   memberIndexEntries: ProjectMemberIndexEntry[]
   valueIndexEntries: ProjectValueIndexEntry[]
   pendingReferences: PendingMetadataTargetReference[]
+  yamlLifetime: ValidationYamlLifetime
+}
+
+export interface ValidationYamlLifetime {
+  current: number
+  max: number
+  parsed: number
+  propertyEvents: number
 }
 
 export interface SecondPassPoolParams {

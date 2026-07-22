@@ -73,21 +73,20 @@ export const exportPropertyToYAML = (params: {
   name?: string
   owner?: MetadataTargetOwner
 }): Record<string, any> | undefined => {
+  const exportedValue = exportPropertyValueToYAML(params)
+  return getExportToYAMLResult(params.rule, params.rule.yaml!, exportedValue, params.value)
+}
+
+export function exportPropertyValueToYAML(params: {
+  context: ConfigurationContext
+  rule: PropertyRule
+  value: unknown
+  name?: string
+  owner?: MetadataTargetOwner
+}): unknown {
   const { context, rule, value, name } = params
 
-  if (!context.exportToYAML) throw new Error("context.exportToYAML is required")
-
-  if (rule.yaml === undefined) return undefined
-
-  if (rule.toYAML === false) return undefined
-
-  if (!context.exportToYAML.toTyped && rule.toPartialYAML === false) return undefined
-
-  const yamlKey = rule.yaml
-
-  if (!yamlKey) {
-    return undefined
-  }
+  if (!canExportPropertyToYAML({ context, rule })) return undefined
 
   if ("implicitValueYAML" in rule && value === (rule as any).implicitValueYAML) return undefined
 
@@ -96,7 +95,7 @@ export const exportPropertyToYAML = (params: {
   if (!typeExportFn) {
     const exportedValue =
       rule.type === "string" ? exportStringMetadataTargetToYAML({ rule, value, owner: params.owner }) : value
-    return getExportToYAMLResult(rule, yamlKey, exportedValue, value)
+    return exportedValue
   }
 
   const nestedContext = contextWithPropertyParentName(context, name)
@@ -114,15 +113,31 @@ export const exportPropertyToYAML = (params: {
         ? exportStringMetadataTargetToYAML({ rule, value: typedValue, owner: params.owner })
         : typedValue
 
-    return getExportToYAMLResult(rule, yamlKey, exportedValue, value)
+    return exportedValue
   }
 
   const typedResult = (typeExportFn as ExportToYAMLFunction)(nestedContext, rule, value)
-  const result =
-    rule.type === "string"
-      ? exportStringMetadataTargetToYAML({ rule, value: typedResult, owner: params.owner })
-      : typedResult
-  return getExportToYAMLResult(rule, yamlKey, result, value)
+  return rule.type === "string"
+    ? exportStringMetadataTargetToYAML({ rule, value: typedResult, owner: params.owner })
+    : typedResult
+}
+
+export function canExportPropertyToYAML(params: {
+  context: ConfigurationContext
+  rule: PropertyRule
+}): boolean {
+  const { context, rule } = params
+
+  if (!context.exportToYAML) throw new Error("context.exportToYAML is required")
+
+  if (rule.yaml === undefined) return false
+
+  if (rule.toYAML === false) return false
+
+  if (!context.exportToYAML.toTyped && rule.toPartialYAML === false) return false
+
+  if (!rule.yaml) return false
+  return true
 }
 
 function contextWithPropertyParentName(context: ConfigurationContext, name: string | undefined): ConfigurationContext {
@@ -161,7 +176,7 @@ function contextWithMetadataTargetOwner(
   }
 }
 
-const getExportToYAMLResult = (
+export const getExportToYAMLResult = (
   rule: PropertyRule,
   yamlKey: string,
   value: any,

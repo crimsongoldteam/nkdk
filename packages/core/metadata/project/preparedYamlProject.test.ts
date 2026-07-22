@@ -141,9 +141,9 @@ describe("prepareYamlProject", () => {
     "emits detailed main-process preparation profile records",
     async () => {
       const error = vi.spyOn(console, "error").mockImplementation(() => undefined)
-      const previous = process.env["NKDK_VALIDATION_TIMING"]
+      const previous = process.env["NKDK_PROFILE"]
       let lines: string[] = []
-      process.env["NKDK_VALIDATION_TIMING"] = "1"
+      process.env["NKDK_PROFILE"] = "1"
       try {
         const projectDir = createProject()
         const result = await prepareProject({
@@ -154,19 +154,19 @@ describe("prepareYamlProject", () => {
         expect(result.ok).toBe(true)
         lines = error.mock.calls.map(([line]) => String(line))
       } finally {
-        if (previous === undefined) delete process.env["NKDK_VALIDATION_TIMING"]
-        else process.env["NKDK_VALIDATION_TIMING"] = previous
+        if (previous === undefined) delete process.env["NKDK_PROFILE"]
+        else process.env["NKDK_PROFILE"] = previous
         error.mockRestore()
       }
 
-      expect(lines.some((line) => line.includes("[validation-step]") && line.includes('substep="Поиск файлов проекта"'))).toBe(
+      expect(lines.some((line) => line.includes("[nkdk-profile-step]") && line.includes('substep="Поиск файлов проекта"'))).toBe(
         true
       )
       expect(
-        lines.some((line) => line.includes("[validation-step]") && line.includes('substep="Классификация файлов проекта"'))
+        lines.some((line) => line.includes("[nkdk-profile-step]") && line.includes('substep="Классификация файлов проекта"'))
       ).toBe(true)
       expect(
-        lines.some((line) => line.includes("[validation-step]") && line.includes('substep="Ожидание результата подготовки"'))
+        lines.some((line) => line.includes("[nkdk-profile-step]") && line.includes('substep="Ожидание результата подготовки"'))
       ).toBe(true)
       expect(lines.every((line) => !line.includes("scope=worker"))).toBe(true)
     },
@@ -267,12 +267,13 @@ describe("prepareYamlProject", () => {
   )
 
   it(
-    "runs validation first pass on worker-stored YAML data",
+    "releases each parsed YAML before reading the next file",
     async () => {
       const projectDir = createProject()
       const yamlPath = join(projectDir, "Справочник", "Товары", "Свойства.yaml")
-      resetProjectValidationReadCountForTests()
-
+      const secondYamlPath = join(projectDir, "Справочник", "Услуги", "Свойства.yaml")
+      mkdirSync(join(projectDir, "Справочник", "Услуги"), { recursive: true })
+      writeFileSync(secondYamlPath, ["Реквизиты:", "  КодУслуги:", "    Тип: Строка"].join("\n"))
       const prepared = await validationPool.run({
         projectDir,
         context: validationContext,
@@ -290,11 +291,31 @@ describe("prepareYamlProject", () => {
       expect(prepared.diagnostics).toEqual([])
       expect(prepared.workers.flatMap((worker) => worker.yamlFiles)[0]).not.toHaveProperty("data")
 
-      const first = await validationPool.runValidationFirstPass({ projectDir, context: validationContext })
+      const first = await validationPool.runValidationFirstPass({
+        projectDir,
+        context: validationContext,
+        files: [
+          {
+            projectPath: "Справочник/Товары/Свойства.yaml",
+            filePath: yamlPath,
+            role: "properties",
+            owner: { dir: "Справочник", name: "Товары" },
+            itemType: "Catalog",
+          },
+          {
+            projectPath: "Справочник/Услуги/Свойства.yaml",
+            filePath: secondYamlPath,
+            role: "properties",
+            owner: { dir: "Справочник", name: "Услуги" },
+            itemType: "Catalog",
+          },
+        ],
+      })
 
       expect(first.diagnostics.filter((diagnostic) => diagnostic.severity === "error")).toEqual([])
-      expect(first.objectRecords).toHaveLength(1)
-      expect(getProjectValidationReadCountForTests(yamlPath)).toBe(0)
+      expect(first.objectRecords).toHaveLength(2)
+      expect(first.yamlLifetime).toMatchObject({ current: 0, max: 1, parsed: 2 })
+      expect(first.yamlLifetime.propertyEvents).toBeGreaterThan(0)
     },
     testTimeout
   )

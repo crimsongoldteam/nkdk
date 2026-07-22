@@ -90,9 +90,9 @@ class InMemoryConfigurationIndexCollector implements ConfigurationIndexCollector
   fragment(targetProjectPath: string): ConfigurationIndexFragment {
     return {
       targetProjectPath,
-      identities: [...this.identities].sort(compareIdentities),
-      xmlNodes: [...this.xmlNodes.values()].map(copyNode).sort(compareByAddress),
-      xmlValues: [...this.xmlValues.values()].map((value) => ({ ...value })).sort(compareByAddress),
+      identities: [...this.identities],
+      xmlNodes: [...this.xmlNodes.values()].map(copyNode),
+      xmlValues: [...this.xmlValues.values()].map((value) => ({ ...value })),
     }
   }
 
@@ -158,22 +158,6 @@ function copyNode(node: MutableXmlNode): ConfigurationXmlNode {
     ...(node.aliases === undefined ? {} : { aliases: { ...node.aliases } }),
     ...(node.present === undefined ? {} : { present: [...node.present] }),
   }
-}
-
-function compareIdentities(left: ConfigurationIdentity, right: ConfigurationIdentity): number {
-  return compareUtf8(left.logicalAddress, right.logicalAddress) || identityKind(left.kind) - identityKind(right.kind)
-}
-
-function compareByAddress(left: { logicalAddress: string }, right: { logicalAddress: string }): number {
-  return compareUtf8(left.logicalAddress, right.logicalAddress)
-}
-
-function compareUtf8(left: string, right: string): number {
-  return Buffer.compare(Buffer.from(left), Buffer.from(right))
-}
-
-function identityKind(kind: ConfigurationIdentity["kind"]): number {
-  return kind === "uuid" ? 1 : kind === "xmlId" ? 2 : 3
 }
 
 function assertEqualValues<T>(

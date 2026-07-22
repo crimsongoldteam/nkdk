@@ -82,6 +82,7 @@ export const MetadataDocumentRules = {
       filePath: "Ext/AdditionalIndexes.xml",
     }),
     attributes: metadataDocumentAttributesRule({
+      ownerFactRole: "attributes",
       yaml: "Реквизиты",
       xmlParents: documentChildObjects,
       xml: "Attribute",
@@ -376,6 +377,7 @@ export const MetadataDocumentRules = {
       xmlParents: documentProperties,
     }),
     registerRecords: metadataItemLinksRule({
+      ownerFactRole: "registerRecords",
       yaml: "Движения",
       metadataTarget: {
         kind: "object",
@@ -417,6 +419,7 @@ export const MetadataDocumentRules = {
       excludeIfEqualNameYAML: true,
     }),
     tabularSections: metadataDocumentTabularSectionsRule({
+      ownerFactRole: "tabularSections",
       yaml: "ТабличныеЧасти",
       xmlParents: documentChildObjects,
       xml: "TabularSection",

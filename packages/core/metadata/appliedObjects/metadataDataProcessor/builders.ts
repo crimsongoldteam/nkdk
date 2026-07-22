@@ -13,8 +13,9 @@ export type MetadataAttributesRuleParams = Omit<MetadataAttributesWidePropertyRu
 
 export function metadataAttributesRule<const Params extends MetadataAttributesRuleParams>(
   params: WideExactRuleParams<MetadataAttributesRuleParams, Params>
-): Readonly<{ type: "MetadataAttributes" } & Params> {
+): Readonly<{ type: "MetadataAttributes"; ownerFactRole: "attributes" } & Params> {
   return defineWidePropertyRule("MetadataAttributes", {
+    ownerFactRole: "attributes",
     ...params,
     operationTarget: namedCollectionTarget({
       kind: "attribute",
@@ -37,8 +38,9 @@ export function metadataAttributesWithAllowedTypesRule<
   const Params extends MetadataAttributesWithAllowedTypesRuleParams,
 >(
   params: WideExactRuleParams<MetadataAttributesWithAllowedTypesRuleParams, Params>
-): Readonly<{ type: "MetadataAttributesWithAllowedTypes" } & Params> {
+): Readonly<{ type: "MetadataAttributesWithAllowedTypes"; ownerFactRole: "attributes" } & Params> {
   return defineWidePropertyRule("MetadataAttributesWithAllowedTypes", {
+    ownerFactRole: "attributes",
     ...params,
     operationTarget: namedCollectionTarget({
       kind: "attribute",
@@ -60,8 +62,9 @@ export function metadataDataProcessorTabularSectionsRule<
   const Params extends MetadataDataProcessorTabularSectionsRuleParams,
 >(
   params: WideExactRuleParams<MetadataDataProcessorTabularSectionsRuleParams, Params>
-): Readonly<{ type: "MetadataDataProcessorTabularSections" } & Params> {
+): Readonly<{ type: "MetadataDataProcessorTabularSections"; ownerFactRole: "tabularSections" } & Params> {
   return defineWidePropertyRule("MetadataDataProcessorTabularSections", {
+    ownerFactRole: "tabularSections",
     ...params,
     operationTarget: namedCollectionTarget({
       kind: "tabularSection",

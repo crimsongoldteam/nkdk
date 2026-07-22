@@ -15,6 +15,25 @@ export type ReferenceScopeFilterName = "stringIndexedAttribute"
 
 export type ConfigurationIndexAddressingMode = "default" | "yamlPath"
 
+export type OwnerFactRole =
+  | "type"
+  | "attributes"
+  | "dimensions"
+  | "resources"
+  | "addressingAttributes"
+  | "tabularSections"
+  | "standardAttributes"
+  | "owners"
+  | "task"
+  | "registerRecords"
+  | "chartOfAccounts"
+  | "extDimensionTypes"
+  | "accountingFlags"
+  | "extDimensionAccountingFlags"
+  | "commonAttributeOwnerLinks"
+  | "registerType"
+  | "commands"
+
 /** Ссылка на объект текущего объекта-владельца (target: "this"). */
 export type ReferenceScopeThis =
   | { target: "this"; kind: "Form" }
@@ -49,6 +68,9 @@ type DefaultValueFunction = (params: {
 export interface BasePropertyRule {
   /** Тип свойства */
   type: PropertyRuleType
+
+  /** Роль окончательного YAML-значения в компактных фактах владельца. */
+  ownerFactRole?: OwnerFactRole
 
   /** Обязательное свойство */
   required?: true

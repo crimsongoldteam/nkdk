@@ -1,9 +1,7 @@
-import { randomUUID } from "node:crypto"
-import fs from "node:fs"
 import { availableParallelism } from "node:os"
 import {
   configurationIndexPath,
-  hashConfigurationProjectFiles,
+  hashConfigurationProjectFileList,
   readConfigurationIndex,
   writeConfigurationIndexAtomically,
   type ConfigurationIndexData,
@@ -13,11 +11,11 @@ import type { ConfigurationContextFromXML } from "../context/types"
 import type { ValidationOwnerFacts } from "../validation/dataPath/ownerFacts"
 import type { SharedValidationSnapshot } from "../validation/sharedValidationSnapshot"
 import { NKDK_CORE_VERSION } from "../../version"
+import { createOperationProfiler } from "../validation/profile"
 import { discoverXmlImport } from "./discovery"
 import { createImportSharedMetadata } from "./metadataSnapshot"
 import { describeRegisteredXmlImportRoutes } from "./routes"
-import { createImportTempRoot } from "./tempDirectory"
-import { mergeImportResultFiles, transferImportResult } from "./transfer"
+import { copyXmlImportExternalFiles, mergeImportResultFiles } from "./transfer"
 import type { ImportAssignment, ImportDiagnostic, ImportResultFile } from "./types"
 import {
   createXmlImportWorkerPool,
@@ -30,7 +28,6 @@ export interface ConfigurationImportResult {
   failed: ImportDiagnostic[]
   warnings: ImportDiagnostic[]
   configurationIndexPath?: string
-  preservedTempRoot?: string
 }
 
 export interface ImportConfigurationFromXmlParams {
@@ -38,7 +35,7 @@ export interface ImportConfigurationFromXmlParams {
   inputDir: string
   outputDir: string
   concurrency?: number
-  transferConcurrency?: number
+  copyExternalConcurrency?: number
   hashConcurrency?: number
   operationId?: string
   xmlImportWorkerPoolHandle?: XmlImportWorkerPoolHandle
@@ -49,15 +46,14 @@ export interface ImportCoordinatorDependencies {
   discover(params: { xmlDir: string }): Promise<{ assignments: ImportAssignment[] }>
   createSharedMetadata(facts: readonly ValidationOwnerFacts[]): SharedValidationSnapshot
   mergeFiles(files: readonly ImportResultFile[]): ImportResultFile[]
-  transfer(params: {
+  copyExternalFiles(params: {
     projectDir: string
     files: readonly ImportResultFile[]
     concurrency?: number
   }): Promise<void>
-  hashProject(projectDir: string, options: { concurrency?: number }): Promise<ConfigurationProjectFile[]>
+  hashProject(projectDir: string, projectPaths: readonly string[], options: { concurrency?: number }): Promise<ConfigurationProjectFile[]>
   readIndex(params: { projectDir: string; baseId: string }): Promise<ConfigurationIndexData | undefined>
   writeIndex(params: { projectDir: string; data: ConfigurationIndexData }): Promise<void>
-  removeTemp(tempRoot: string): Promise<void>
 }
 
 const defaultImportDependencies: ImportCoordinatorDependencies = {
@@ -67,62 +63,112 @@ const defaultImportDependencies: ImportCoordinatorDependencies = {
   },
   createSharedMetadata: createImportSharedMetadata,
   mergeFiles: mergeImportResultFiles,
-  transfer: transferImportResult,
-  hashProject: hashConfigurationProjectFiles,
+  copyExternalFiles: copyXmlImportExternalFiles,
+  hashProject: hashConfigurationProjectFileList,
   readIndex: readConfigurationIndex,
   writeIndex: writeConfigurationIndexAtomically,
-  async removeTemp(tempRoot) {
-    await fs.promises.rm(tempRoot, { recursive: true, force: true })
-  },
 }
 
 export async function importConfigurationFromXml(
   params: ImportConfigurationFromXmlParams,
   deps: ImportCoordinatorDependencies = defaultImportDependencies
 ): Promise<ConfigurationImportResult> {
-  const operationId = params.operationId ?? randomUUID()
-  const tempRoot = createImportTempRoot(params.outputDir, operationId)
+  const operationId = params.operationId ?? "direct-write"
+  const profiler = createOperationProfiler({ operation: "import-from-xml", scope: { scope: "main" } })
   const pool =
     params.xmlImportWorkerPoolHandle?.createOperationPool() ??
     deps.createWorkerPool({ concurrency: normalizeConcurrency(params.concurrency) })
   let warnings: ImportDiagnostic[] = []
 
   try {
-    await fs.promises.mkdir(tempRoot, { recursive: true })
-    const discovered = await deps.discover({ xmlDir: params.inputDir })
-    await pool.initialize({ operationId, context: params.context, tempRoot })
-    const first = await pool.runFirstPass(discovered.assignments)
-    if (hasErrors(first.diagnostics)) return failedResult(first.diagnostics, [], tempRoot)
+    const discovered = await profiler.measureAsync(
+      "Подготовка импорта конфигурации",
+      "Поиск XML-файлов выгрузки",
+      {},
+      () => deps.discover({ xmlDir: params.inputDir })
+    )
+    profiler.record("Подготовка импорта конфигурации", "Формирование и распределение заданий импорта", {
+      items: discovered.assignments.length,
+      timeMs: 0,
+    })
+    await profiler.measureAsync("Подготовка импорта конфигурации", "Инициализация worker", { items: discovered.assignments.length }, () =>
+      pool.initialize({ operationId, context: params.context, outputDir: params.outputDir })
+    )
+    const first = await profiler.measureAsync(
+      "Подготовка импорта конфигурации",
+      "Первый проход worker",
+      { items: discovered.assignments.length },
+      () => pool.runFirstPass(discovered.assignments)
+    )
+    if (hasErrors(first.diagnostics)) return failedResult(first.diagnostics, [])
 
-    const sharedMetadata = deps.createSharedMetadata(first.ownerFacts)
-    const second = await pool.runSecondPass(sharedMetadata)
+    profiler.record("Подготовка импорта конфигурации", "Обобщение фрагментов данных файла индекса конфигурации", {
+      items: discovered.assignments.length,
+      timeMs: 0,
+    })
+    const sharedMetadata = profiler.measure(
+      "Подготовка импорта конфигурации",
+      "Обобщение индекса метаданных",
+      { items: first.ownerFacts.length },
+      () => deps.createSharedMetadata(first.ownerFacts)
+    )
+    profiler.record("Подготовка импорта конфигурации", "Распределение индекса метаданных", {
+      items: discovered.assignments.length,
+      timeMs: 0,
+    })
+    const second = await profiler.measureAsync(
+      "Подготовка импорта конфигурации",
+      "Второй проход worker",
+      { items: discovered.assignments.length },
+      () => pool.runSecondPass(sharedMetadata)
+    )
     warnings = second.warnings
-    if (hasErrors(second.diagnostics)) return failedResult(second.diagnostics, warnings, tempRoot)
+    if (hasErrors(second.diagnostics)) return failedResult(second.diagnostics, warnings)
 
-    const files = deps.mergeFiles(second.files)
-    await deps.transfer({
-      projectDir: params.outputDir,
-      files,
-      ...(params.transferConcurrency === undefined ? {} : { concurrency: params.transferConcurrency }),
-    })
-    const projectFiles = await deps.hashProject(params.outputDir, {
-      ...(params.hashConcurrency === undefined ? {} : { concurrency: params.hashConcurrency }),
-    })
+    const files = profiler.measure(
+      "Подготовка импорта конфигурации",
+      "Обобщение списка файлов результата импорта",
+      { items: second.files.length },
+      () => deps.mergeFiles(second.files)
+    )
+    await profiler.measureAsync("Подготовка импорта конфигурации", "Копирование внешних файлов XML-выгрузки", { items: files.length }, () =>
+      deps.copyExternalFiles({
+        projectDir: params.outputDir,
+        files,
+        ...(params.copyExternalConcurrency === undefined ? {} : { concurrency: params.copyExternalConcurrency }),
+      })
+    )
+    const projectFiles = await profiler.measureAsync(
+      "Подготовка импорта конфигурации",
+      "Вычисление хэшей файлов проекта",
+      {},
+      () =>
+        deps.hashProject(params.outputDir, files.map((file) => file.targetProjectPath), {
+          ...(params.hashConcurrency === undefined ? {} : { concurrency: params.hashConcurrency }),
+        })
+    )
     const previousIndex = await readablePreviousIndex(deps, params.outputDir)
-    const indexData = buildImportedConfigurationIndex({
-      producerVersion: NKDK_CORE_VERSION,
-      baseId: "default",
-      indexGeneration: (previousIndex?.binding.indexGeneration ?? 0n) + 1n,
-      projectFiles,
-      fragmentData: first.fragmentData,
-    })
-    await deps.writeIndex({ projectDir: params.outputDir, data: indexData })
-    await deps.removeTemp(tempRoot)
-
+    const indexData = profiler.measure(
+      "Подготовка импорта конфигурации",
+      "Формирование данных файла индекса конфигурации",
+      { items: projectFiles.length },
+      () =>
+        buildImportedConfigurationIndex({
+          producerVersion: NKDK_CORE_VERSION,
+          baseId: "default",
+          indexGeneration: (previousIndex?.binding.indexGeneration ?? 0n) + 1n,
+          projectFiles,
+          fragmentData: first.fragmentData,
+        })
+    )
+    await profiler.measureAsync("Подготовка импорта конфигурации", "Запись файла индекса конфигурации", { items: projectFiles.length }, () =>
+      deps.writeIndex({ projectDir: params.outputDir, data: indexData })
+    )
     return successResult(discovered.assignments.length, warnings, params.outputDir)
   } catch (caught) {
-    return failedResult([operationDiagnostic(caught)], warnings, tempRoot)
+    return failedResult([operationDiagnostic(caught)], warnings)
   } finally {
+    profiler.flush()
     await pool.close()
   }
 }
@@ -175,10 +221,9 @@ function successResult(
 
 function failedResult(
   failed: ImportDiagnostic[],
-  warnings: ImportDiagnostic[],
-  preservedTempRoot: string
+  warnings: ImportDiagnostic[]
 ): ConfigurationImportResult {
-  return { succeeded: 0, failed, warnings, preservedTempRoot }
+  return { succeeded: 0, failed, warnings }
 }
 
 function hasErrors(diagnostics: readonly ImportDiagnostic[]): boolean {

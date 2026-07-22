@@ -20,6 +20,7 @@ describe("prompt definitions", () => {
     expect(editPrompt?.text).toContain("nkdk.rename_item")
     expect(editPrompt?.text).toContain("nkdk.find_references")
     expect(editPrompt?.text).not.toContain("nkdk.delete_item")
+    expect(editPrompt?.text).toContain("metadataRef")
     expect(editPrompt?.text).toContain("Справочник.Товары.Реквизит.Артикул")
     expect(editPrompt?.text).toContain("Документ.Заказ.ТабличнаяЧасть.Товары.Реквизит.Количество")
   })
@@ -28,7 +29,7 @@ describe("prompt definitions", () => {
     const syncPrompt = promptDefinitions.find((prompt) => prompt.name === "nkdk_config_sync_to_xml")
 
     expect(syncPrompt?.text).toContain("файл индекса конфигурации")
-    expect(syncPrompt?.text).toContain("отсутствовать или быть пустым")
+    expect(syncPrompt?.text).toContain("выбранный компонент")
     expect(syncPrompt?.text).not.toContain("reference")
   })
 })

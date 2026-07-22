@@ -1,6 +1,7 @@
 import type { FormDataPathIndex } from "./formIndex"
 import { resolveDataPathCore, type TableContext } from "./coreResolver"
 import type { OwnerMetadataCache } from "./ownerCache"
+import { standardMemberInternalToYaml, standardMemberYamlToInternal } from "./registry"
 
 export type DataPathFormatDirection = "internal-to-yaml" | "yaml-to-internal"
 
@@ -28,6 +29,7 @@ export interface FormatDataPathStandardMembersParams {
 
 export function formatDataPathStandardMembers(params: FormatDataPathStandardMembersParams): string {
   const { prefix, value } = splitDisabledPrefix(params.value)
+  if (!value.includes(".")) return params.value
   const result = resolveDataPathCore({
     value,
     nameMode: params.direction === "yaml-to-internal" ? "yaml" : "internal",
@@ -36,7 +38,7 @@ export function formatDataPathStandardMembers(params: FormatDataPathStandardMemb
     ...(params.tableContext !== undefined ? { tableContext: params.tableContext } : {}),
   })
 
-  if (result.status === "error") {
+  if (result.status === "error" && containsStandardMemberToFormat(value, params.direction)) {
     params.diagnosticSink?.append({
       severity: "warning",
       code: "unresolved_data_path",
@@ -56,6 +58,14 @@ export function formatDataPathStandardMembers(params: FormatDataPathStandardMemb
     segments[replacement.segmentIndex] = `${replacement.to}${suffix}`
   }
   return `${prefix}${segments.join(".")}`
+}
+
+function containsStandardMemberToFormat(value: string, direction: DataPathFormatDirection): boolean {
+  const convert = direction === "internal-to-yaml" ? standardMemberInternalToYaml : standardMemberYamlToInternal
+  return value.split(".").some((segment) => {
+    const converted = convert(segment)
+    return converted !== undefined && converted !== segment
+  })
 }
 
 function splitDisabledPrefix(value: string): { prefix: string; value: string } {

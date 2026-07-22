@@ -6,6 +6,11 @@ import { exportPropertiesToXML } from "../../../orchestration/property/toXML"
 import { XML_SOURCE_KEYS } from "../../../orchestration/property/helpers"
 import { getElementRule } from "./ruleFactory"
 import { ElementRule, ElementXMLWithoutId } from "./types"
+import {
+  configurationIndexExportFormElementLogicalAddress,
+  configurationIndexExportFormSingletonLogicalAddress,
+  withConfigurationIndexExportLogicalAddress,
+} from "../../../configurationIndex/referenceView"
 
 export function exportElementToXML<T extends NamedElement>(params: {
   context: ConfigurationContextWithExportToXML
@@ -33,7 +38,7 @@ export function exportSingleElementToXML<Rule extends ElementRule>(params: {
   element: ToMetadata<Rule["itemType"]> | undefined
   referenceElement?: ToMetadata<Rule["itemType"]> | undefined
   rule: Rule
-  additionalParams: { name: string; id?: string }
+  additionalParams: { name: string; id?: string; configurationIndexSegment?: string }
 }): ElementXMLWithoutId {
   return exportToXML(params)
 }
@@ -43,14 +48,20 @@ function exportToXML<Rule extends ElementRule>(params: {
   element: ToMetadata<Rule["itemType"]> | undefined
   referenceElement?: ToMetadata<Rule["itemType"]> | undefined
   rule: Rule
-  additionalParams: { name: string; id?: string }
+  additionalParams: { name: string; id?: string; configurationIndexSegment?: string }
 }): ElementXMLWithoutId {
   const { context, element, referenceElement, rule, additionalParams } = params
   const { name } = additionalParams
   const itemType = rule.itemType
+  const elementAddress =
+    additionalParams.configurationIndexSegment === undefined
+      ? configurationIndexExportFormElementLogicalAddress(context, name)
+      : configurationIndexExportFormSingletonLogicalAddress(context, additionalParams.configurationIndexSegment)
+  const contextWithElementAddress =
+    elementAddress === undefined ? context : withConfigurationIndexExportLogicalAddress(context, elementAddress)
 
   const currentContext: ConfigurationContextWithExportToXML = getChildContextToXML({
-    context,
+    context: contextWithElementAddress,
     itemType,
     path: "",
     name,

@@ -105,15 +105,17 @@ describe("import command", () => {
 
       expect(process.exitCode).toBe(1)
       expect(stderrWrite).toHaveBeenCalledWith(expect.stringContaining("xml_import_assignment_failed"))
-      expect(stderrWrite).toHaveBeenCalledWith(expect.stringContaining("Временные файлы:"))
+      expect(stderrWrite).not.toHaveBeenCalledWith(expect.stringContaining("Временные файлы:"))
     } finally {
       rmSync(projectDir, { recursive: true, force: true })
     }
   })
 
-  it("печатает предупреждения отдельно от ошибок и путь временных файлов", async () => {
+  it("печатает предупреждения отдельно от ошибок", async () => {
     const stderrWrite = vi.spyOn(process.stderr, "write").mockImplementation(() => true)
     vi.spyOn(process.stdout, "write").mockImplementation(() => true)
+    const projectDir = mkdtempSync(join(tmpdir(), "nkdk-cli-import-warning-"))
+    const yamlDir = join(projectDir, "yaml")
     const syncConfigurationFromXML = vi.fn().mockResolvedValue({
       succeeded: 0,
       failed: [
@@ -132,13 +134,33 @@ describe("import command", () => {
           targetProjectPath: "Форма.yaml",
         },
       ],
-      preservedTempRoot: "/yaml/.nkdk/tmp/import/operation-1",
     })
 
-    await importConfiguration("/xml", "/yaml", { syncConfigurationFromXML })
+    try {
+      await importConfiguration("/xml", yamlDir, { syncConfigurationFromXML })
+    } finally {
+      rmSync(projectDir, { recursive: true, force: true })
+    }
 
     expect(stderrWrite).toHaveBeenCalledWith("⚠ ПутьКДанным не разрешён\n")
-    expect(stderrWrite).toHaveBeenCalledWith("Временные файлы: /yaml/.nkdk/tmp/import/operation-1\n")
+    expect(stderrWrite).not.toHaveBeenCalledWith(expect.stringContaining("Временные файлы:"))
     expect(process.exitCode).toBe(1)
+  })
+
+  it("не импортирует в непустой YAML-каталог", async () => {
+    const projectDir = mkdtempSync(join(tmpdir(), "nkdk-cli-import-non-empty-"))
+    const yamlDir = join(projectDir, "yaml")
+    mkdirSync(yamlDir, { recursive: true })
+    writeFileSync(join(yamlDir, "Конфигурация.yaml"), "Имя: Тест\n")
+    const syncConfigurationFromXML = vi.fn()
+
+    try {
+      await expect(importConfiguration("/xml", yamlDir, { syncConfigurationFromXML })).rejects.toThrow(
+        "YAML-каталог импорта должен быть пустым"
+      )
+    } finally {
+      rmSync(projectDir, { recursive: true, force: true })
+    }
+    expect(syncConfigurationFromXML).not.toHaveBeenCalled()
   })
 })

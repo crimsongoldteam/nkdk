@@ -36,7 +36,7 @@ function accountingRegisterAccountColumn(owner: OwnerMetadata, segment: string):
   if (segment !== "Account" && segment !== "Счет" && segment !== "AccountDr" && segment !== "AccountCr")
     return undefined
 
-  const chartOfAccounts = accountingRegisterChartOfAccounts(owner.model)
+  const chartOfAccounts = accountingRegisterChartOfAccounts(owner.facts)
   if (chartOfAccounts === undefined) return undefined
 
   const isStandardAccount = segment === "Account" || segment === "Счет"

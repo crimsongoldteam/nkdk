@@ -16,11 +16,21 @@ export async function hashConfigurationProjectFiles(
   options: HashConfigurationProjectFilesOptions = {}
 ): Promise<ConfigurationProjectFile[]> {
   const root = resolve(projectDir)
+  const paths = await collectSyncStateFilePaths(root)
+
+  return hashConfigurationProjectFileList(root, paths, options)
+}
+
+export async function hashConfigurationProjectFileList(
+  projectDir: string,
+  projectPaths: readonly string[],
+  options: HashConfigurationProjectFilesOptions = {}
+): Promise<ConfigurationProjectFile[]> {
+  const root = resolve(projectDir)
   const concurrency = normalizePositiveInteger(options.concurrency ?? DEFAULT_HASH_CONCURRENCY)
   const limit = pLimit(concurrency)
-  const paths = await collectSyncStateFilePaths(root)
   const entries = await Promise.all(
-    paths.map((projectPath) =>
+    projectPaths.map((projectPath) =>
       limit(async () => ({
         projectPath,
         contentHash: hashFileBytes(await fs.promises.readFile(join(root, ...projectPath.split("/")))),

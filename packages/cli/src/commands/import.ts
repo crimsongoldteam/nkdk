@@ -1,4 +1,5 @@
 import { syncConfigurationFromXML } from "@nkdk/core"
+import fs from "fs"
 
 interface ImportConfigurationDeps {
   syncConfigurationFromXML: typeof syncConfigurationFromXML
@@ -13,6 +14,7 @@ export const importConfiguration = async (
   yamlDir: string,
   deps: ImportConfigurationDeps = defaultImportConfigurationDeps,
 ): Promise<void> => {
+  await assertImportTargetEmpty(yamlDir)
   const context = {
     defaultLanguage: "ru",
     version: "2.20",
@@ -30,13 +32,17 @@ export const importConfiguration = async (
     process.stderr.write(`✖ ${f.code} "${label}": ${f.message}\n`)
   }
 
-  if (result.preservedTempRoot !== undefined) {
-    process.stderr.write(`Временные файлы: ${result.preservedTempRoot}\n`)
-  }
-
   process.stdout.write(`Готово: ${result.succeeded} успешно, ${result.failed.length} с ошибкой\n`)
 
   if (result.failed.length > 0) {
     process.exitCode = 1
+  }
+}
+
+async function assertImportTargetEmpty(yamlDir: string): Promise<void> {
+  await fs.promises.mkdir(yamlDir, { recursive: true })
+  const entries = await fs.promises.readdir(yamlDir)
+  if (entries.length > 0) {
+    throw new Error(`YAML-каталог импорта должен быть пустым: ${yamlDir}`)
   }
 }

@@ -351,6 +351,7 @@ export const MetadataCatalogRules = {
       defaultValueXMLRaw: {},
     }),
     owners: metadataObjectRefCollectionRule({
+      ownerFactRole: "owners",
       yaml: "Владельцы",
       xmlParents: ["Properties"],
       metadataTarget: { kind: "object", roots: ["Catalog", "Document", "ChartOfCharacteristicTypes", "ExchangePlan"] },

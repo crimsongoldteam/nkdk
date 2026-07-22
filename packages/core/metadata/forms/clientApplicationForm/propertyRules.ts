@@ -21,6 +21,7 @@ import { copyExistingRawFile } from "./externalRawFiles"
 import { importClientApplicationFormFromXML } from "./fromXML"
 import { importClientApplicationFormFromYAML } from "./fromYAML"
 import { ClientApplicationFormRules } from "./rules"
+import { createClientApplicationFormBodyImportSource } from "./xmlImportSources"
 import { exportClientApplicationFormToJSONSchema } from "./toJSONSchema"
 import { exportClientApplicationFormToXML } from "./toXML"
 import { exportClientApplicationFormToYAML } from "./toYAML"
@@ -134,6 +135,10 @@ const describeClientApplicationFormProjectResources: ProjectResourcesFunction = 
 registerTypeRule("ClientApplicationForm", "importFromYAML", importClientApplicationFormPropertyFromYAML)
 registerTypeRule("ClientApplicationForm", "exportToYAML", exportClientApplicationFormPropertyToYAML)
 registerTypeRule("ClientApplicationForm", "importFromXML", importClientApplicationFormPropertyFromXML)
+registerTypeRule("ClientApplicationForm", "nestedItemRule", { itemRule: ClientApplicationFormRules })
+registerTypeRule("ClientApplicationForm", "resolveNestedImportXMLSources", ({ context, xml }) => [
+  createClientApplicationFormBodyImportSource({ context, xml }),
+])
 registerTypeRule("ClientApplicationForm", "exportToXML", exportClientApplicationFormPropertyToXML)
 registerTypeRule("ClientApplicationForm", "exportToJSONSchema", exportClientApplicationFormToJSONSchema)
 registerTypeRule("ClientApplicationForm", "syncExternalFromXML", syncClientApplicationFormExternalFromXML)

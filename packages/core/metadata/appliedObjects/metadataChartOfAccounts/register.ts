@@ -63,7 +63,7 @@ function chartOfAccountsTerminalVirtualField(
   }
 
   if (segment === "OffBalance") return booleanColumn(segment, "ChartOfAccounts.OffBalance")
-  if (chartOfAccountsAccountingFlagNames(owner.model).includes(segment)) {
+  if (chartOfAccountsAccountingFlagNames(owner.facts).includes(segment)) {
     return booleanColumn(segment, "ChartOfAccounts.AccountingFlag")
   }
 
@@ -74,14 +74,14 @@ function chartOfAccountsExtDimensionTypesColumns(owner: OwnerMetadata): Map<stri
   const columns = new Map<string, FormDataPathColumnSource>()
   columns.set("ExtDimensionType", {
     name: "ExtDimensionType",
-    typeInfo: chartOfAccountsExtDimensionTypeInfo(owner.model),
+    typeInfo: chartOfAccountsExtDimensionTypeInfo(owner.facts),
   })
 
   for (const name of ["TurnoversOnly", "ТолькоСальдо"]) {
     columns.set(name, booleanColumn(name, `ChartOfAccounts.ExtDimensionTypes.${name}`))
   }
 
-  for (const name of chartOfAccountsExtDimensionAccountingFlagNames(owner.model)) {
+  for (const name of chartOfAccountsExtDimensionAccountingFlagNames(owner.facts)) {
     columns.set(name, booleanColumn(name, "ChartOfAccounts.ExtDimensionAccountingFlag"))
   }
 

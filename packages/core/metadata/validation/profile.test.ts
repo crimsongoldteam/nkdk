@@ -1,15 +1,16 @@
 import { describe, expect, it, vi } from "vitest"
-import { createValidationProfiler } from "./profile"
+import { createOperationProfiler } from "./profile"
 
 describe("validation profile", () => {
   it("records main-thread measurements with time and memory", () => {
-    const profiler = createValidationProfiler({ scope: "main" })
+    const profiler = createOperationProfiler({ operation: "validation", scope: { scope: "main" } })
 
     const result = profiler.measure("Подготовка YAML-проекта", "Поиск файлов проекта", { items: 2 }, () => 42)
 
     expect(result).toBe(42)
     expect(profiler.records()).toEqual([
       expect.objectContaining({
+        operation: "validation",
         step: "Подготовка YAML-проекта",
         substep: "Поиск файлов проекта",
         scope: "main",
@@ -25,23 +26,24 @@ describe("validation profile", () => {
     ])
   })
 
-  it("prints strict worker records only when timing is enabled", () => {
+  it("prints strict worker records only when operation profiling is enabled", () => {
     const error = vi.spyOn(console, "error").mockImplementation(() => undefined)
-    const previous = process.env["NKDK_VALIDATION_TIMING"]
+    const previous = process.env["NKDK_PROFILE"]
     let line = ""
-    process.env["NKDK_VALIDATION_TIMING"] = "1"
+    process.env["NKDK_PROFILE"] = "1"
     try {
-      const profiler = createValidationProfiler({ scope: "worker", workerIndex: 3 })
+      const profiler = createOperationProfiler({ operation: "import-from-xml", scope: { scope: "worker", workerIndex: 3 } })
       profiler.measure("Подготовка YAML-проекта", "Разбор YAML", { items: 5 }, () => undefined)
       profiler.flush()
-      line = String(error.mock.calls[0]?.[0] ?? "")
+      line = error.mock.calls.map(([message]) => String(message)).find((message) => message.startsWith("[nkdk-profile-step]")) ?? ""
     } finally {
-      if (previous === undefined) delete process.env["NKDK_VALIDATION_TIMING"]
-      else process.env["NKDK_VALIDATION_TIMING"] = previous
+      if (previous === undefined) delete process.env["NKDK_PROFILE"]
+      else process.env["NKDK_PROFILE"] = previous
       error.mockRestore()
     }
 
-    expect(line).toContain("[validation-step]")
+    expect(line).toContain("[nkdk-profile-step]")
+    expect(line).toContain('operation="import-from-xml"')
     expect(line).toContain('step="Подготовка YAML-проекта"')
     expect(line).toContain('substep="Разбор YAML"')
     expect(line).toContain("scope=worker")
@@ -49,5 +51,22 @@ describe("validation profile", () => {
     expect(line).toContain("items=5")
     expect(line).toMatch(/time=\d+\.\d+ms/)
     expect(line).toMatch(/rssPeak=\d+\.\d+MiB/)
+  })
+
+  it("aggregates repeated records by substep when requested", () => {
+    const profiler = createOperationProfiler({
+      operation: "import-from-xml",
+      scope: { scope: "worker", workerIndex: 2 },
+      aggregate: true,
+    })
+
+    profiler.record("Подготовка импорта конфигурации", "Чтение XML", { items: 2, bytes: 10, timeMs: 4 })
+    profiler.record("Подготовка импорта конфигурации", "Парсинг XML", { items: 1, bytes: 10, timeMs: 3 })
+    profiler.record("Подготовка импорта конфигурации", "Чтение XML", { items: 3, bytes: 20, timeMs: 6 })
+
+    expect(profiler.records()).toEqual([
+      expect.objectContaining({ substep: "Чтение XML", items: 5, bytes: 30, timeMs: 10 }),
+      expect.objectContaining({ substep: "Парсинг XML", items: 1, bytes: 10, timeMs: 3 }),
+    ])
   })
 })

@@ -66,6 +66,7 @@ export const MetadataSequenceRules = {
       defaultValueXMLEmpty: [],
     }),
     registerRecords: metadataItemLinksRule({
+      ownerFactRole: "registerRecords",
       yaml: "Движения",
       xmlParents: ["Properties"],
       defaultValue: [],
@@ -101,6 +102,7 @@ export const MetadataSequenceRules = {
       runtimeOnly: true,
     }),
     dimensions: metadataSequenceDimensionsRule({
+      ownerFactRole: "dimensions",
       yaml: "Измерения",
       xml: "Dimension",
       xmlParents: ["ChildObjects"],

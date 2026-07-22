@@ -5,7 +5,9 @@ import type {
 } from "../commonObjects/metadataTargets/types"
 import type { ConfigurationContext } from "../context/types"
 import type { MetadataTargetOwnerDeclaration } from "../orchestration/property/types"
-import { getTypeRule } from "../orchestration/property/typeRuleRegistry"
+import type { OwnerFactRole } from "../orchestration/property/types"
+import { getTypeRule, registerTypeRule } from "../orchestration/property/typeRuleRegistry"
+import { collectOwnerFactFromYAML } from "./dataPath/ownerFacts"
 import {
   configurationValidationProjectSpec,
   validationProjectSpecs,
@@ -42,6 +44,7 @@ export interface ValidationRulesPropertySnapshot {
   yamlPath: readonly string[]
   type?: string
   metadataTarget?: MetadataTargetConstraint
+  ownerFactRole?: OwnerFactRole
   children?: readonly ValidationRulesPropertySnapshot[]
 }
 
@@ -49,6 +52,7 @@ interface SnapshotSourceProperty {
   yaml?: string | false
   type?: string
   metadataTarget?: MetadataTargetConstraint
+  ownerFactRole?: OwnerFactRole
   yamlInline?: true
   itemRule?: ValidationProjectSpec["rule"]
 }
@@ -85,6 +89,9 @@ function snapshotSpec(spec: ValidationProjectSpec): ValidationRulesSpecSnapshot 
 function snapshotProperties(properties: ValidationProjectSpec["rule"]["properties"]): ValidationRulesPropertySnapshot[] {
   return Object.entries(properties as Readonly<Record<string, SnapshotSourceProperty>>).flatMap(([modelKey, property]) => {
     if (property.yaml === false || property.yaml === undefined) return []
+    if (property.ownerFactRole !== undefined && property.type !== undefined) {
+      registerTypeRule(property.type as never, "collectLocalFactsFromYAML", collectOwnerFactFromYAML)
+    }
 
     return [
       {
@@ -92,6 +99,7 @@ function snapshotProperties(properties: ValidationProjectSpec["rule"]["propertie
         yamlPath: [property.yaml],
         ...(property.type === undefined ? {} : { type: property.type }),
         ...(property.metadataTarget === undefined ? {} : { metadataTarget: property.metadataTarget }),
+        ...(property.ownerFactRole === undefined ? {} : { ownerFactRole: property.ownerFactRole }),
         ...childrenSnapshot(property),
       },
     ]

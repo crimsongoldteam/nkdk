@@ -37,7 +37,7 @@ describe("configuration index collector", () => {
     )
   })
 
-  it("collects all compact identity and XML value kinds deterministically", () => {
+  it("collects all compact identity and XML value kinds in insertion order", () => {
     const collector = createConfigurationIndexCollector()
     collector.setXmlName("Форма[0]", "ФормаЭлемента")
     collector.setXmlId("Форма[0]", "2")
@@ -50,8 +50,8 @@ describe("configuration index collector", () => {
     expect(collector.fragment("Формы/ФормаЭлемента/Форма.yaml")).toEqual({
       targetProjectPath: "Формы/ФормаЭлемента/Форма.yaml",
       identities: [
-        { logicalAddress: "Форма[0]", kind: "xmlId", value: "2" },
         { logicalAddress: "Форма[0]", kind: "xmlName", value: "ФормаЭлемента" },
+        { logicalAddress: "Форма[0]", kind: "xmlId", value: "2" },
       ],
       xmlNodes: [],
       xmlValues: [

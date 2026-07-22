@@ -30,7 +30,11 @@ export interface PreparedYamlProjectWorkerPool {
     includeYamlData?: boolean
   }): Promise<PreparedYamlProjectWorkerPoolResult>
   initValidation(context: ConfigurationContext): Promise<ValidationWorkerPoolStartProfile>
-  runValidationFirstPass(params: { projectDir: string; context: ConfigurationContext }): Promise<FirstPassPoolResult>
+  runValidationFirstPass(params: {
+    projectDir: string
+    context: ConfigurationContext
+    files: PreparedYamlProjectFileDescriptor[]
+  }): Promise<FirstPassPoolResult>
   runValidationSecondPass(params: SecondPassPoolParams): Promise<SecondPassPoolResult>
   runPartialValidation(params: {
     projectDir: string
@@ -148,7 +152,9 @@ export function createPreparedYamlProjectWorkerPool(params: {
       }
     },
     async initValidation(context) {
-      const indexesToInit = Array.from(activeWorkerIndexes).filter((index) => !initializedValidationWorkerIndexes.has(index))
+      const indexesToInit = Array.from({ length: params.concurrency }, (_, index) => index).filter(
+        (index) => !initializedValidationWorkerIndexes.has(index)
+      )
       if (indexesToInit.length === 0 && validationStartProfile !== undefined) {
         return { ...validationStartProfile, reused: true }
       }
@@ -187,13 +193,29 @@ export function createPreparedYamlProjectWorkerPool(params: {
       return validationStartProfile
     },
     async runValidationFirstPass(firstPassParams) {
+      const partitions = partitionRoundRobin(firstPassParams.files, params.concurrency)
+      activeWorkerIndexes.clear()
       const results = await Promise.all(
-        Array.from(activeWorkerIndexes).map(async (index) => {
+        partitions.map(async (files, index) => {
+          if (files.length === 0) {
+            return {
+              kind: "validateFirstPassResult" as const,
+              diagnostics: [],
+              objectRecords: [],
+              objectIndexEntries: [],
+              memberIndexEntries: [],
+              valueIndexEntries: [],
+              pendingReferences: [],
+              yamlLifetime: { current: 0, max: 0, parsed: 0, propertyEvents: 0 },
+            }
+          }
+          activeWorkerIndexes.add(index)
           const task = {
             kind: "validateFirstPass",
             workerIndex: index,
             projectDir: firstPassParams.projectDir,
             context: firstPassParams.context,
+            files,
           } satisfies PreparedYamlProjectWorkerTask
           const response = (await getOrCreatePool(pools, index, createPool).run(
             task
@@ -212,6 +234,12 @@ export function createPreparedYamlProjectWorkerPool(params: {
         memberIndexEntries: results.flatMap((result) => result.memberIndexEntries),
         valueIndexEntries: results.flatMap((result) => result.valueIndexEntries),
         pendingReferences: results.flatMap((result) => result.pendingReferences),
+        yamlLifetime: {
+          current: results.reduce((sum, result) => sum + result.yamlLifetime.current, 0),
+          max: Math.max(0, ...results.map((result) => result.yamlLifetime.max)),
+          parsed: results.reduce((sum, result) => sum + result.yamlLifetime.parsed, 0),
+          propertyEvents: results.reduce((sum, result) => sum + result.yamlLifetime.propertyEvents, 0),
+        },
       }
     },
     async runValidationSecondPass(secondPassParams) {

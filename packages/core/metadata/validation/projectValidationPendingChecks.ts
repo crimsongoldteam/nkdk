@@ -5,15 +5,12 @@ import type { FormDataPathIndex } from "./dataPath/formIndex"
 import type { OwnerMetadataCache } from "./dataPath/ownerCache"
 import type { DataPathPropertyRule } from "../orchestration/property/types"
 import type { ElementType } from "../orchestration/formElement/types"
-import type { ParsedYaml } from "../../yaml/parseMetadataYaml"
 import type { Diagnostic } from "./types"
-import type { YamlPath } from "./yamlLocations"
+import type { YamlDiagnosticLocation } from "./yamlLocations"
 
 export type ValidationPendingCheck = {
   kind: "dataPath"
-  filePath: string
-  parsed: ParsedYaml
-  yamlPath: YamlPath
+  location: YamlDiagnosticLocation
   owner: OwnerTypeRef
   value: string
   index: FormDataPathIndex
@@ -37,9 +34,7 @@ export function validatePendingChecks(params: {
   for (const check of params.checks) {
     if (check.kind !== "dataPath") continue
     const result = resolveDataPath({
-      filePath: check.filePath,
-      parsed: check.parsed,
-      yamlPath: check.yamlPath,
+      location: check.location,
       value: check.value,
       index: check.index,
       ownerCache: params.ownerCache,
@@ -51,9 +46,7 @@ export function validatePendingChecks(params: {
 
     diagnostics.push(
       ...validateResolvedDataPathPolicy({
-        filePath: check.filePath,
-        parsed: check.parsed,
-        yamlPath: check.yamlPath,
+        location: check.location,
         value: check.value,
         rule: check.rule,
         target: result.target,

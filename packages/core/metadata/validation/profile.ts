@@ -3,6 +3,7 @@ import { performance } from "node:perf_hooks"
 export type ValidationProfileScope = { scope: "main" } | { scope: "worker"; workerIndex: number }
 
 export interface ValidationProfileRecord {
+  operation: string
   step: string
   substep: string
   scope: "main" | "worker"
@@ -32,36 +33,104 @@ export interface ValidationProfiler {
 }
 
 export function createValidationProfiler(scope: ValidationProfileScope): ValidationProfiler {
+  return createOperationProfiler({ operation: "validation", scope })
+}
+
+export function createOperationProfiler(options: {
+  operation: string
+  scope: ValidationProfileScope
+  aggregate?: boolean
+}): ValidationProfiler {
   const records: ValidationProfileRecord[] = []
+  const aggregatedByKey = new Map<string, ValidationProfileRecord>()
+
+  function append(record: ValidationProfileRecord): void {
+    if (options.aggregate !== true) {
+      records.push(record)
+      return
+    }
+
+    const key = [record.operation, record.step, record.substep, record.scope, record.workerIndex ?? ""].join("\u0000")
+    const current = aggregatedByKey.get(key)
+    if (current === undefined) {
+      records.push(record)
+      aggregatedByKey.set(key, record)
+      return
+    }
+    mergeProfileRecord(current, record)
+  }
 
   return {
     measure(step, substep, params, fn) {
       const tracker = createMemoryTracker()
       const startedAt = performance.now()
-      printProfileStageBoundary("start", { step, substep, scope, items: params.items, bytes: params.bytes })
+      printProfileStageBoundary("start", {
+        operation: options.operation,
+        step,
+        substep,
+        scope: options.scope,
+        items: params.items,
+        bytes: params.bytes,
+      })
       try {
         return fn()
       } finally {
-        const record = createRecord({ step, substep, scope, items: params.items, bytes: params.bytes, tracker, startedAt })
-        records.push(record)
+        const record = createRecord({
+          operation: options.operation,
+          step,
+          substep,
+          scope: options.scope,
+          items: params.items,
+          bytes: params.bytes,
+          tracker,
+          startedAt,
+        })
+        append(record)
         printProfileStageBoundary("end", record)
       }
     },
     async measureAsync(step, substep, params, fn) {
       const tracker = createMemoryTracker()
       const startedAt = performance.now()
-      printProfileStageBoundary("start", { step, substep, scope, items: params.items, bytes: params.bytes })
+      printProfileStageBoundary("start", {
+        operation: options.operation,
+        step,
+        substep,
+        scope: options.scope,
+        items: params.items,
+        bytes: params.bytes,
+      })
       try {
         return await fn()
       } finally {
-        const record = createRecord({ step, substep, scope, items: params.items, bytes: params.bytes, tracker, startedAt })
-        records.push(record)
+        const record = createRecord({
+          operation: options.operation,
+          step,
+          substep,
+          scope: options.scope,
+          items: params.items,
+          bytes: params.bytes,
+          tracker,
+          startedAt,
+        })
+        append(record)
         printProfileStageBoundary("end", record)
       }
     },
     record(step, substep, params) {
       const tracker = createMemoryTracker()
-      records.push(createRecord({ step, substep, scope, items: params.items, bytes: params.bytes, tracker, timeMs: params.timeMs }))
+      append(
+        createRecord({
+          operation: options.operation,
+          step,
+          substep,
+          scope: options.scope,
+          items: params.items,
+          bytes: params.bytes,
+          tracker,
+          timeMs: params.timeMs,
+        })
+      )
     },
     records() {
       return [...records]
@@ -73,7 +142,18 @@ export function createValidationProfiler(scope: ValidationProfileScope): Validat
   }
 }
 
+function mergeProfileRecord(current: ValidationProfileRecord, next: ValidationProfileRecord): void {
+  current.timeMs += next.timeMs
+  if (current.items !== undefined || next.items !== undefined) current.items = (current.items ?? 0) + (next.items ?? 0)
+  if (current.bytes !== undefined || next.bytes !== undefined) current.bytes = (current.bytes ?? 0) + (next.bytes ?? 0)
+  current.rssEndMiB = next.rssEndMiB
+  current.heapEndMiB = next.heapEndMiB
+  current.rssPeakMiB = Math.max(current.rssPeakMiB, next.rssPeakMiB)
+  current.heapPeakMiB = Math.max(current.heapPeakMiB, next.heapPeakMiB)
+}
+
 function createRecord(params: {
+  operation: string
   step: string
   substep: string
   scope: ValidationProfileScope
@@ -85,6 +165,7 @@ function createRecord(params: {
 }): ValidationProfileRecord {
   params.tracker.sample()
   return {
+    operation: params.operation,
     step: params.step,
     substep: params.substep,
     scope: params.scope.scope,
@@ -125,7 +206,8 @@ function createMemoryTracker() {
 
 function formatValidationProfileRecord(record: ValidationProfileRecord): string {
   return [
-    "[validation-step]",
+    "[nkdk-profile-step]",
+    `operation=${encodeProfileValue(record.operation)}`,
     `step=${encodeProfileValue(record.step)}`,
     `substep=${encodeProfileValue(record.substep)}`,
     `scope=${record.scope}`,
@@ -149,6 +231,7 @@ function printProfileStageBoundary(
   params:
     | ValidationProfileRecord
     | {
+        operation: string
         step: string
         substep: string
         scope: ValidationProfileScope
@@ -156,41 +239,12 @@ function printProfileStageBoundary(
         bytes: number | undefined
       }
 ): void {
-  if (!isFullSyncProfilingEnabled()) return
-  const scopeName = typeof params.scope === "object" ? params.scope.scope : params.scope
-  const workerIndex =
-    typeof params.scope === "object"
-      ? params.scope.scope === "worker"
-        ? params.scope.workerIndex
-        : undefined
-      : "workerIndex" in params
-        ? params.workerIndex
-        : undefined
-  console.error(
-    [
-      "[validation-step-boundary]",
-      `event=${boundary}`,
-      `step=${encodeProfileValue(params.step)}`,
-      `substep=${encodeProfileValue(params.substep)}`,
-      `scope=${scopeName}`,
-      workerIndex === undefined ? undefined : `worker=${workerIndex}`,
-      params.items === undefined ? undefined : `items=${params.items}`,
-      params.bytes === undefined ? undefined : `bytes=${params.bytes}`,
-      "timeMs" in params ? `time=${params.timeMs.toFixed(2)}ms` : undefined,
-      "rssEndMiB" in params ? `rss=${params.rssEndMiB.toFixed(1)}MiB` : undefined,
-      "heapEndMiB" in params ? `heap=${params.heapEndMiB.toFixed(1)}MiB` : undefined,
-    ]
-      .filter((part): part is string => part !== undefined)
-      .join(" ")
-  )
+  void boundary
+  void params
 }
 
 function isProfilingEnabled(): boolean {
-  return process.env["NKDK_VALIDATION_TIMING"] === "1" || process.env["NKDK_FULL_SYNC_PROFILE"] === "1"
-}
-
-function isFullSyncProfilingEnabled(): boolean {
-  return process.env["NKDK_FULL_SYNC_PROFILE"] === "1"
+  return process.env["NKDK_PROFILE"] === "1"
 }
 
 function encodeProfileValue(value: string): string {

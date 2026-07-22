@@ -69,6 +69,7 @@ export const MetadataFilterCriterionRules = {
       runtimeOnly: true,
     }),
     type: typeDescriptionRule({
+      ownerFactRole: "type",
       yaml: "Тип",
       xmlParents: properties,
       defaultValueXMLRaw: "",

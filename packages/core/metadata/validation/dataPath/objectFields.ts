@@ -2,7 +2,6 @@ import { MetadataTabularSectionRules } from "../../commonObjects/metadataTabular
 import { StandartAttributeNameToYAML } from "../../commonObjects/standardAttributeDescription/standartAttributeNames"
 import type { TypeDescription } from "../../commonObjects/typeDescription/types"
 import type {
-  MetadataItem,
   PropertyRule,
   StandardAttributeDescriptionsPropertyRule,
 } from "../../orchestration/property/types"
@@ -45,7 +44,7 @@ export interface ObjectFieldIndex {
   diagnostics: Diagnostic[]
 }
 
-type ObjectFieldIndexOwner = Pick<OwnerMetadata, "ref" | "model" | "rule">
+type ObjectFieldIndexOwner = Pick<OwnerMetadata, "ref" | "facts" | "rule">
 
 interface NamedTypedItem {
   name?: unknown
@@ -132,8 +131,8 @@ function addStandardAttributeFields(params: {
   if (propertyRule?.type !== "StandardAttributeDescriptions") return
 
   const rule = propertyRule as StandardAttributeDescriptionsPropertyRule
-  const explicitItems = standardAttributesByInternalName(metadataRecord(owner.model)[sourceCollection])
-  const standardAttributeNames = rule.standartAttributeNamesXML?.(owner.model) ?? rule.standartAttributeNames
+  const explicitItems = standardAttributesByInternalName(metadataRecord(owner.facts)[sourceCollection])
+  const standardAttributeNames = rule.standartAttributeNamesXML?.(owner.facts) ?? rule.standartAttributeNames
 
   for (const [internalName, yamlName] of Object.entries(standardAttributeNames)) {
     const explicit = explicitItems.get(internalName)
@@ -157,7 +156,11 @@ function buildTabularSectionField(
 ): ObjectField {
   const tabularSectionOwner = {
     ...owner,
-    model: tabularSection as MetadataItem,
+    facts: {
+      ...owner.facts,
+      attributes: compactNamedItems(tabularSection.attributes),
+      standardAttributes: compactNamedItems(tabularSection.standardAttributes),
+    },
     rule: MetadataTabularSectionRules,
   }
   const table: DataPathTableInfo = {
@@ -203,6 +206,12 @@ function buildTabularSectionField(
   }
 }
 
+function compactNamedItems(items: NamedTypedItem[] | undefined): Array<{ name: string; type?: TypeDescription }> {
+  return (items ?? []).flatMap((item) =>
+    typeof item.name === "string" ? [{ name: item.name, ...(item.type === undefined ? {} : { type: item.type }) }] : []
+  )
+}
+
 function standardAttributeTypeInfo(params: {
   owner: ObjectFieldIndexOwner
   internalName: string
@@ -239,12 +248,12 @@ function standardAttributesByInternalName(value: unknown): Map<string, NamedType
 }
 
 function getCollectionValue(owner: ObjectFieldIndexOwner, collection: string): unknown {
-  const model = metadataRecord(owner.model)
-  const direct = model[collection]
+  const facts = metadataRecord(owner.facts)
+  const direct = facts[collection]
   if (direct !== undefined) return direct
 
   const yamlName = yamlPropertyName(owner.rule.properties[collection])
-  return yamlName === undefined ? undefined : model[yamlName]
+  return yamlName === undefined ? undefined : facts[yamlName]
 }
 
 function yamlPropertyName(propertyRule: PropertyRule | undefined): string | undefined {
@@ -272,6 +281,6 @@ function isRecord(value: unknown): value is Record<string, unknown> {
   return typeof value === "object" && value !== null && !Array.isArray(value)
 }
 
-function metadataRecord(model: MetadataItem): Record<string, unknown> {
-  return model as MetadataItem & Record<string, unknown>
+function metadataRecord(value: unknown): Record<string, unknown> {
+  return typeof value === "object" && value !== null ? (value as Record<string, unknown>) : {}
 }

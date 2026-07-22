@@ -1,5 +1,6 @@
 import type { ConfigurationContextWithExportToXML } from "../context/types"
 import type { ConfigurationIndexAddressingMode } from "../orchestration/property/types"
+import { childSegmentUid, childUid } from "./logicalAddress"
 
 export function getConfigurationIndexPropertyOrder(
   context: ConfigurationContextWithExportToXML | undefined
@@ -49,6 +50,39 @@ export function withConfigurationIndexExportLogicalAddress(
       configurationIndex: runtime.withLogicalAddress(logicalAddress),
     },
   }
+}
+
+export function withConfigurationIndexExportFormElementRootLogicalAddress(
+  context: ConfigurationContextWithExportToXML,
+  logicalAddress: string
+): ConfigurationContextWithExportToXML {
+  const runtime = context.exportToXML.configurationIndex
+  if (runtime === undefined) return context
+  return {
+    ...context,
+    exportToXML: {
+      ...context.exportToXML,
+      configurationIndex: runtime.withFormElementRootLogicalAddress(logicalAddress),
+    },
+  }
+}
+
+export function configurationIndexExportFormElementLogicalAddress(
+  context: ConfigurationContextWithExportToXML,
+  elementName: string
+): string | undefined {
+  const runtime = context.exportToXML.configurationIndex
+  if (runtime === undefined) return undefined
+  return childUid(runtime.formElementRootLogicalAddress ?? runtime.logicalAddress, "Элемент", elementName)
+}
+
+export function configurationIndexExportFormSingletonLogicalAddress(
+  context: ConfigurationContextWithExportToXML,
+  singletonSegment: string
+): string | undefined {
+  const runtime = context.exportToXML.configurationIndex
+  if (runtime === undefined) return undefined
+  return childSegmentUid(runtime.logicalAddress, singletonSegment)
 }
 
 export function withConfigurationIndexExportPropertyContext(

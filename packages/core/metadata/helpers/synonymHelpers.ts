@@ -7,28 +7,19 @@ export const excludeNameFromI8nText = (
   synonym: I8nText,
   name: string
 ): I8nText | undefined => {
-  const differentItems: Record<string, string> = {}
   const defaultLanguage = context.defaultLanguage
+  const defaultLanguageValue = synonym.items[defaultLanguage]
+  if (defaultLanguageValue === undefined || !canConvertToPascalCase(defaultLanguageValue, name)) return synonym
 
-  // Проверяем каждое значение в items
-  for (const [lang, value] of Object.entries(synonym.items)) {
-    // Исключаем только язык по умолчанию, если он равен имени
-    // Остальные языки оставляем, даже если они тоже равны имени
-    if (lang === defaultLanguage && canConvertToPascalCase(value, name)) {
-      continue
-    }
-    differentItems[lang] = value
+  const languages = Object.keys(synonym.items)
+  if (languages.length === 1) return undefined
+
+  const differentItems: Record<string, string> = {}
+  for (const language of languages) {
+    if (language !== defaultLanguage) differentItems[language] = synonym.items[language]
   }
 
-  // Если все языки равны имени, возвращаем undefined
-  if (Object.keys(differentItems).length === 0) {
-    return undefined
-  }
-
-  // Возвращаем новый I8nText с оставшимися языками
-  return {
-    items: differentItems,
-  }
+  return { items: differentItems }
 }
 
 export const addDefaultLanguageNameToSynonym = (

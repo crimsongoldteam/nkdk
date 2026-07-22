@@ -1,8 +1,8 @@
 import { describe, expect, it } from "vitest"
-import { createValidationOwnerFacts, modelStubFromOwnerFacts } from "./ownerFacts"
+import { createValidationOwnerFacts } from "./ownerFacts"
 
 describe("ValidationOwnerFacts", () => {
-  it("keeps document register records in model stubs", () => {
+  it("сохраняет движения документа в типизированных фактах", () => {
     const facts = createValidationOwnerFacts({
       ref: { kind: "Документ", name: "Операция" },
       filePath: "/project/Документ/Операция/Свойства.yaml",
@@ -13,12 +13,12 @@ describe("ValidationOwnerFacts", () => {
       },
     })
 
-    expect(modelStubFromOwnerFacts(facts)).toMatchObject({
+    expect(facts).toMatchObject({
       registerRecords: ["AccountingRegister.Хозрасчетный"],
     })
   })
 
-  it("keeps chart of accounts accounting flags in model stubs", () => {
+  it("сохраняет признаки учета плана счетов в типизированных фактах", () => {
     const facts = createValidationOwnerFacts({
       ref: { kind: "ПланСчетов", name: "Хозрасчетный" },
       filePath: "/project/ПланСчетов/Хозрасчетный/Свойства.yaml",
@@ -31,14 +31,14 @@ describe("ValidationOwnerFacts", () => {
       },
     })
 
-    expect(modelStubFromOwnerFacts(facts)).toMatchObject({
+    expect(facts).toMatchObject({
       extDimensionTypes: "ChartOfCharacteristicTypes.ВидыСубконто",
       accountingFlags: [{ name: "Валютный", type: { type: ["boolean"] } }],
       extDimensionAccountingFlags: [{ name: "Суммовой", type: { type: ["boolean"] } }],
     })
   })
 
-  it("keeps accounting register chart of accounts in model stubs", () => {
+  it("сохраняет план счетов регистра в типизированных фактах", () => {
     const facts = createValidationOwnerFacts({
       ref: { kind: "РегистрБухгалтерии", name: "Хозрасчетный" },
       filePath: "/project/РегистрБухгалтерии/Хозрасчетный/Свойства.yaml",
@@ -49,12 +49,12 @@ describe("ValidationOwnerFacts", () => {
       },
     })
 
-    expect(modelStubFromOwnerFacts(facts)).toMatchObject({
+    expect(facts).toMatchObject({
       chartOfAccounts: "ChartOfAccounts.Хозрасчетный",
     })
   })
 
-  it("keeps catalog owners in model stubs", () => {
+  it("сохраняет владельцев справочника в типизированных фактах", () => {
     const facts = createValidationOwnerFacts({
       ref: { kind: "Справочник", name: "ПодарочныеСертификаты" },
       filePath: "/project/Справочник/ПодарочныеСертификаты/Свойства.yaml",
@@ -65,12 +65,12 @@ describe("ValidationOwnerFacts", () => {
       },
     })
 
-    expect(modelStubFromOwnerFacts(facts)).toMatchObject({
+    expect(facts).toMatchObject({
       owners: ["Catalog.ВидыПодарочныхСертификатов"],
     })
   })
 
-  it("keeps business process task links in model stubs", () => {
+  it("сохраняет задачу бизнес-процесса в типизированных фактах", () => {
     const facts = createValidationOwnerFacts({
       ref: { kind: "БизнесПроцесс", name: "Согласование" },
       filePath: "/project/БизнесПроцесс/Согласование/Свойства.yaml",
@@ -81,7 +81,7 @@ describe("ValidationOwnerFacts", () => {
       },
     })
 
-    expect(modelStubFromOwnerFacts(facts)).toMatchObject({
+    expect(facts).toMatchObject({
       task: "Task.ЗадачаИсполнителя",
     })
   })

@@ -4,7 +4,6 @@ import { join } from "path"
 import { afterEach, describe, expect, it } from "vitest"
 import { NKDK_CORE_VERSION } from "../../version"
 import { ConfigurationIndexCompatibilityError } from "./decode"
-import { encodeConfigurationIndex } from "./encode"
 import {
   configurationIndexPath,
   readConfigurationIndex,
@@ -25,11 +24,10 @@ describe("configuration index file IO", () => {
     return projectDir
   }
 
-  it("replaces default.bin only after encoding and verification", async () => {
+  it("writes default.bin directly after successful encoding", async () => {
     const projectDir = await createProjectDir()
     const first = sampleIndex()
     await writeConfigurationIndexAtomically({ projectDir, data: first })
-    const indexPath = configurationIndexPath(projectDir, "default")
     expect(await readConfigurationIndex({ projectDir, baseId: "default" })).toEqual(first)
 
     await expect(
@@ -38,7 +36,8 @@ describe("configuration index file IO", () => {
         data: { ...first, binding: { ...first.binding, baseId: "wrong" } },
       })
     ).rejects.toThrow("baseId")
-    expect(await fs.promises.readFile(indexPath)).toEqual(encodeConfigurationIndex(first))
+    expect(await readConfigurationIndex({ projectDir, baseId: "default" })).toEqual(first)
+    expect((await fs.promises.readdir(join(projectDir, ".nkdk", "configuration-index"))).sort()).toEqual(["default.bin"])
   })
 
   it("accepts only the default base ID in format 1.0", async () => {

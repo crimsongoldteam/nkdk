@@ -61,7 +61,6 @@ export async function validateProjectPartial(params: {
         continue
       }
 
-      const cache = createProjectYamlCacheFromEntries([...entries.values()])
       const objectTableSnapshot = objectTable.snapshot()
       const provider = createValidationSnapshotProvider(objectTableSnapshot)
       const ownerCache = provider.ownerCache(projectDir)
@@ -74,7 +73,6 @@ export async function validateProjectPartial(params: {
       const second = validateProjectFileSecondPass({
         projectDir,
         state,
-        cache,
         context: params.context,
         ownerCache,
         referenceIndex,

@@ -13,8 +13,9 @@ export type MetadataReportAttributesRuleParams = Omit<MetadataReportAttributesWi
 
 export function metadataReportAttributesRule<const Params extends MetadataReportAttributesRuleParams>(
   params: WideExactRuleParams<MetadataReportAttributesRuleParams, Params>
-): Readonly<{ type: "MetadataReportAttributes" } & Params> {
+): Readonly<{ type: "MetadataReportAttributes"; ownerFactRole: "attributes" } & Params> {
   return defineWidePropertyRule("MetadataReportAttributes", {
+    ownerFactRole: "attributes",
     ...params,
     operationTarget: namedCollectionTarget({
       kind: "attribute",
@@ -31,8 +32,9 @@ export type MetadataReportTabularSectionsRuleParams = Omit<MetadataReportTabular
 
 export function metadataReportTabularSectionsRule<const Params extends MetadataReportTabularSectionsRuleParams>(
   params: WideExactRuleParams<MetadataReportTabularSectionsRuleParams, Params>
-): Readonly<{ type: "MetadataReportTabularSections" } & Params> {
+): Readonly<{ type: "MetadataReportTabularSections"; ownerFactRole: "tabularSections" } & Params> {
   return defineWidePropertyRule("MetadataReportTabularSections", {
+    ownerFactRole: "tabularSections",
     ...params,
     operationTarget: namedCollectionTarget({
       kind: "tabularSection",

@@ -1,7 +1,7 @@
 import fs from "node:fs"
 import os from "node:os"
 import { join } from "node:path"
-import { afterEach, describe, expect, it } from "vitest"
+import { afterEach, describe, expect, it, vi } from "vitest"
 import { mockContextFromXML } from "../../tests/mockContext"
 import type { ConfigurationIndexData } from "../configurationIndex"
 import { createImportSharedMetadata } from "./metadataSnapshot"
@@ -18,7 +18,7 @@ const failurePhases = [
   "mergeMetadata",
   "secondPass",
   "mergeFiles",
-  "transfer",
+  "copyExternalFiles",
   "hashProject",
   "writeIndex",
 ] as const
@@ -48,7 +48,7 @@ afterEach(async () => {
 })
 
 describe("configuration XML import coordinator", () => {
-  it("writes the index after transfer and hashing and removes temp last", async () => {
+  it("writes the index after direct worker output and result-file hashing", async () => {
     const calls: string[] = []
     const params = createParams()
     const writtenIndexes: ConfigurationIndexData[] = []
@@ -64,10 +64,9 @@ describe("configuration XML import coordinator", () => {
       "mergeMetadata",
       "secondPass",
       "mergeFiles",
-      "transfer",
+      "copyExternalFiles",
       "hashProject",
       "writeIndex",
-      "removeTemp",
       "closeWorkers",
     ])
     expect(result).toEqual({
@@ -79,7 +78,7 @@ describe("configuration XML import coordinator", () => {
     expect(writtenIndexes).toHaveLength(1)
   })
 
-  it.each(failurePhases)("preserves temp and does not cross the %s failure barrier", async (failurePhase) => {
+  it.each(failurePhases)("does not cross the %s failure barrier", async (failurePhase) => {
     const calls: string[] = []
     const params = createParams()
     const result = await importConfigurationFromXml(params, fakeDependencies({ calls, failurePhase }))
@@ -88,30 +87,9 @@ describe("configuration XML import coordinator", () => {
       succeeded: 0,
       failed: [expect.objectContaining({ severity: "error", message: `${failurePhase} failed` })],
       warnings: [],
-      preservedTempRoot: join(params.outputDir, ".nkdk", "tmp", "import", params.operationId!),
     })
     expect(calls.includes("writeIndex")).toBe(failurePhase === "writeIndex")
-    expect(calls).not.toContain("removeTemp")
     expect(calls.at(-1)).toBe("closeWorkers")
-  })
-
-  it("does not roll back files already published before a transfer failure", async () => {
-    const calls: string[] = []
-    const params = createParams()
-    const publishedPath = join(params.outputDir, "already-published.yaml")
-    const dependencies = fakeDependencies({ calls })
-    dependencies.transfer = async () => {
-      calls.push("transfer")
-      await fs.promises.writeFile(publishedPath, "published")
-      throw new Error("transfer failed")
-    }
-
-    const result = await importConfigurationFromXml(params, dependencies)
-
-    expect(result.failed).toHaveLength(1)
-    expect(await fs.promises.readFile(publishedPath, "utf8")).toBe("published")
-    expect(calls).not.toContain("writeIndex")
-    expect(calls).not.toContain("removeTemp")
   })
 
   it("stops after first-pass diagnostics with errors and closes workers", async () => {
@@ -131,7 +109,6 @@ describe("configuration XML import coordinator", () => {
     const result = await importConfigurationFromXml(params, dependencies)
 
     expect(result.failed).toEqual([diagnostic])
-    expect(result.preservedTempRoot).toBe(join(params.outputDir, ".nkdk", "tmp", "import", params.operationId!))
     expect(calls).toEqual(["discover", "firstPass", "closeWorkers"])
   })
 
@@ -198,6 +175,48 @@ describe("configuration XML import coordinator", () => {
 
     expect(writtenIndexes[0]?.binding.indexGeneration).toBe(1n)
   })
+
+  it("emits import profile records for main coordinator steps", async () => {
+    const error = vi.spyOn(console, "error").mockImplementation(() => undefined)
+    const previous = process.env["NKDK_PROFILE"]
+    let lines: string[] = []
+    process.env["NKDK_PROFILE"] = "1"
+    try {
+      await importConfigurationFromXml(createParams(), fakeDependencies({ calls: [] }))
+      lines = error.mock.calls.map(([line]) => String(line))
+    } finally {
+      if (previous === undefined) delete process.env["NKDK_PROFILE"]
+      else process.env["NKDK_PROFILE"] = previous
+      error.mockRestore()
+    }
+
+    expect(
+      lines.some(
+        (line) =>
+          line.includes("[nkdk-profile-step]") &&
+          line.includes('operation="import-from-xml"') &&
+          line.includes('substep="Поиск XML-файлов выгрузки"')
+      )
+    ).toBe(true)
+    expect(lines.some((line) => line.includes("[nkdk-profile-step]") && line.includes('substep="Первый проход worker"'))).toBe(
+      true
+    )
+    expect(
+      lines.some(
+        (line) =>
+          line.includes("[nkdk-profile-step]") &&
+          line.includes('substep="Обобщение фрагментов данных файла индекса конфигурации"')
+      )
+    ).toBe(true)
+    expect(
+      lines.some(
+        (line) =>
+          line.includes("[nkdk-profile-step]") &&
+          line.includes('substep="Копирование внешних файлов XML-выгрузки"')
+      )
+    ).toBe(true)
+    expect(lines.some((line) => line.includes('substep="Перенос результата импорта в проект"'))).toBe(false)
+  })
 })
 
 function createParams(): ImportConfigurationFromXmlParams {
@@ -252,11 +271,12 @@ function fakeDependencies(params: {
       call("mergeFiles")
       return [...files]
     },
-    async transfer() {
-      call("transfer")
+    async copyExternalFiles() {
+      call("copyExternalFiles")
     },
-    async hashProject() {
+    async hashProject(_projectDir, projectPaths) {
       call("hashProject")
+      expect(projectPaths).toEqual(resultFiles.map((file) => file.targetProjectPath))
       return [{ projectPath: "Конфигурация.yaml", contentHash: 42n }]
     },
     async readIndex() {
@@ -265,9 +285,6 @@ function fakeDependencies(params: {
     async writeIndex({ data }) {
       call("writeIndex")
       params.writtenIndexes?.push(data)
-    },
-    async removeTemp() {
-      params.calls.push("removeTemp")
     },
   }
 }

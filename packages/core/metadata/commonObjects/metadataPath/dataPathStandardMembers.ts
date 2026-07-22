@@ -4,6 +4,9 @@ import { buildFormDataPathIndex } from "../../validation/dataPath/formIndex"
 import { formatDataPathStandardMembers, type DataPathFormatDirection } from "../../validation/dataPath/formatter"
 import { createOwnerMetadataCache } from "../../validation/dataPath/ownerCache"
 import { createProjectYamlCache } from "../../validation/projectYamlCache"
+import type { FormDataPathIndex } from "../../validation/dataPath/formIndex"
+import type { OwnerMetadataCache } from "../../validation/dataPath/ownerCache"
+import type { DataPathFormatDiagnosticSink } from "../../validation/dataPath/formatter"
 
 interface DataPathFormattingResources {
   index: ReturnType<typeof buildFormDataPathIndex>
@@ -25,6 +28,22 @@ export function importDataPathStandardMembersFromYAML(context: ConfigurationCont
   return formatWithResolver({ context, value, direction: "yaml-to-internal" })
 }
 
+export function formatDataPathStandardMembersWithIndex(params: {
+  value: string
+  direction: DataPathFormatDirection
+  index: FormDataPathIndex
+  ownerCache: OwnerMetadataCache
+  diagnosticSink?: DataPathFormatDiagnosticSink
+}): string {
+  return formatDataPathStandardMembers({
+    value: params.value,
+    direction: params.direction,
+    index: params.index,
+    ownerCache: params.ownerCache,
+    ...(params.diagnosticSink === undefined ? {} : { diagnosticSink: params.diagnosticSink }),
+  })
+}
+
 function formatWithResolver(params: {
   context: ConfigurationContext
   value: string
@@ -43,7 +62,7 @@ function formatWithResolver(params: {
         : undefined
   if (resources === undefined) return params.value
 
-  return formatDataPathStandardMembers({
+  return formatDataPathStandardMembersWithIndex({
     value: params.value,
     direction: params.direction,
     index: resources.index,

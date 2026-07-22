@@ -9,8 +9,8 @@ import type { ConfigurationContext } from "../context/types"
 import { stripCollectedSchemaRefs } from "../orchestration/jsonSchemaRefs"
 import { parseMetadataYaml, type ParsedYaml } from "../../yaml/parseMetadataYaml"
 import { type OwnerMetadata, type OwnerMetadataCache } from "./dataPath/ownerCache"
-import { createValidationOwnerFacts } from "./dataPath/ownerFacts"
-import { type ObjectField, type ObjectFieldIndex, type ObjectFieldKind } from "./dataPath/objectFields"
+import type { ValidationOwnerFacts } from "./dataPath/ownerFacts"
+import { buildObjectFieldIndex, type ObjectField, type ObjectFieldIndex, type ObjectFieldKind } from "./dataPath/objectFields"
 import { validateExcludedEqualNameYAML } from "./excludeIfEqualNameYAML"
 import { getProjectFileValidators, getProjectReferenceMemberIndexContributors } from "./projectReferenceIndexRegistry"
 import {
@@ -88,13 +88,13 @@ export interface ProjectValidationFirstPassProfile {
   memberIndexMs: number
   valueIndexMs: number
   diagnostics: number
+  propertyEvents: number
 }
 
 export interface ProjectValidationSecondPassParams {
   state: ProjectValidationFileState
   projectDir: string
   context: ConfigurationContext
-  cache: ProjectYamlCache
   ownerCache: OwnerMetadataCache
   referenceIndex: ProjectReferenceIndex
   skipMetadataTargetValidation?: boolean
@@ -316,6 +316,7 @@ function validateProjectFormFirstPass(params: {
       memberIndexMs,
       yamlFactsMs,
       diagnostics: diagnostics.length,
+      propertyEvents: yamlFacts.localIndexes?.metadata.events.filter(({ kind }) => kind === "property").length ?? 0,
     },
   }
 }
@@ -404,26 +405,24 @@ function validateProjectPropertiesFirstPass(params: {
   const yamlFactsMs = measuredYamlFacts.timeMs
   const ownerRef = { kind: params.file.owner.dir, name: params.file.owner.name }
   const fieldIndexStartedAt = performance.now()
-  const fieldIndex = yamlFacts.fieldIndex ?? emptyObjectFieldIndex()
-  const fieldIndexMs = performance.now() - fieldIndexStartedAt
-  const ownerModelStub = (yamlFacts.ownerModelStub ?? {
-    itemType: params.file.owner.spec.rule.itemType,
-    name: params.file.owner.name,
-  }) as never
-  const owner: OwnerMetadata = {
+  const compactOwnerFacts = yamlFacts.localIndexes?.metadata.ownerFacts ?? {}
+  const ownerFactsWithoutIndex = {
     ref: ownerRef,
     filePath: params.file.absolutePath,
-    model: ownerModelStub,
+    fieldIndex: emptyObjectFieldIndex(),
+    ...compactOwnerFacts,
+  } as ValidationOwnerFacts
+  const ownerWithoutIndex = {
+    ref: ownerRef,
+    filePath: params.file.absolutePath,
+    facts: ownerFactsWithoutIndex,
     rule: params.file.owner.spec.rule,
     spec: params.file.owner.spec,
-    fieldIndex,
   }
-  const ownerFacts = createValidationOwnerFacts({
-    ref: ownerRef,
-    filePath: params.file.absolutePath,
-    fieldIndex,
-    model: ownerModelStub,
-  })
+  const fieldIndex = buildObjectFieldIndex(ownerWithoutIndex)
+  const fieldIndexMs = performance.now() - fieldIndexStartedAt
+  const ownerFacts: ValidationOwnerFacts = { ...ownerFactsWithoutIndex, fieldIndex }
+  const owner: OwnerMetadata = { ...ownerWithoutIndex, facts: ownerFacts, fieldIndex }
   const memberIndexStartedAt = performance.now()
   const memberIndexEntries = buildMemberIndexEntries({
     projectDir: params.projectDir,
@@ -479,6 +478,7 @@ function validateProjectPropertiesFirstPass(params: {
       memberIndexMs,
       valueIndexMs: 0,
       diagnostics: diagnostics.length,
+      propertyEvents: yamlFacts.localIndexes?.metadata.events.filter(({ kind }) => kind === "property").length ?? 0,
     },
   }
 }
@@ -514,6 +514,7 @@ function emptyFirstPassProfile(key: string): ProjectValidationFirstPassProfile {
     memberIndexMs: 0,
     valueIndexMs: 0,
     diagnostics: 0,
+    propertyEvents: 0,
   }
 }
 

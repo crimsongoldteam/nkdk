@@ -2,19 +2,23 @@ import type { DataPathPropertyRule } from "../../orchestration/property/types"
 import type { ElementType } from "../../orchestration"
 import type { ParsedYaml } from "../../../yaml/parseMetadataYaml"
 import type { Diagnostic } from "../types"
-import { diagnosticAtYamlPath, type YamlPath } from "../yamlLocations"
+import {
+  diagnosticAtYamlLocation,
+  yamlDiagnosticLocationAtPath,
+  type YamlDiagnosticLocation,
+  type YamlPath,
+} from "../yamlLocations"
 import type { ResolvedDataPathTarget } from "./resolver"
 
-export function validateResolvedDataPathPolicy(params: {
-  filePath: string
-  parsed: ParsedYaml
-  yamlPath: YamlPath
+type DataPathPolicyParams = {
   value: string
   rule: DataPathPropertyRule
   target: ResolvedDataPathTarget | undefined
   elementType?: ElementType
   hasValuesPicture?: boolean
-}): Diagnostic[] {
+} & ({ location: YamlDiagnosticLocation } | { filePath: string; parsed: ParsedYaml; yamlPath: YamlPath })
+
+export function validateResolvedDataPathPolicy(params: DataPathPolicyParams): Diagnostic[] {
   const allowedKinds = params.rule.allowedKinds
   if (allowedKinds === undefined) return []
 
@@ -70,17 +74,14 @@ function hasUnknownTerminalType(target: ResolvedDataPathTarget): boolean {
 }
 
 function policyDiagnostic(
-  params: {
-    filePath: string
-    parsed: ParsedYaml
-    yamlPath: YamlPath
-  },
+  params: DataPathPolicyParams,
   message: string
 ): Diagnostic {
-  return diagnosticAtYamlPath({
-    filePath: params.filePath,
-    parsed: params.parsed,
-    path: params.yamlPath,
+  return diagnosticAtYamlLocation({
+    location:
+      "location" in params
+        ? params.location
+        : yamlDiagnosticLocationAtPath({ filePath: params.filePath, parsed: params.parsed, path: params.yamlPath }),
     severity: "error",
     source: "structure",
     message,

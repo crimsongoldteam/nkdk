@@ -420,7 +420,7 @@ function resolveConstantSetItem(params: {
   const ownerResult = params.params.ownerCache.get({ kind: "Константа", name: params.segment })
   if (ownerResult.status !== "ok") return ownerResult
 
-  const type = constantType(ownerResult.owner.model)
+  const type = constantType(ownerResult.owner.facts)
   return {
     status: "ok",
     typeInfo: typeDescriptionToDataPathTypeInfo(type),
@@ -439,7 +439,7 @@ function resolveDefinedTypeInfo(params: {
     const ownerResult = params.params.ownerCache.get({ kind: "ОпределяемыйТип", name: definedType })
     if (ownerResult.status !== "ok") return ownerResult
 
-    typeInfos.push(typeDescriptionToDataPathTypeInfo(definedTypeType(ownerResult.owner.model)))
+    typeInfos.push(typeDescriptionToDataPathTypeInfo(definedTypeType(ownerResult.owner.facts)))
   }
 
   return { status: "ok", typeInfo: mergeResolvedDefinedTypeInfo(params.typeInfo, typeInfos) }
@@ -476,9 +476,9 @@ function mergeResolvedDefinedTypeInfo(
   }
 }
 
-function definedTypeType(model: unknown): Parameters<typeof typeDescriptionToDataPathTypeInfo>[0] {
-  if (typeof model !== "object" || model === null || !("type" in model)) return undefined
-  return model.type as Parameters<typeof typeDescriptionToDataPathTypeInfo>[0]
+function definedTypeType(facts: unknown): Parameters<typeof typeDescriptionToDataPathTypeInfo>[0] {
+  if (typeof facts !== "object" || facts === null || !("type" in facts)) return undefined
+  return facts.type as Parameters<typeof typeDescriptionToDataPathTypeInfo>[0]
 }
 
 function resolveCommonAttributeField(params: {
@@ -488,35 +488,31 @@ function resolveCommonAttributeField(params: {
 }): TableColumnSource | undefined {
   const ownerResult = params.params.ownerCache.get({ kind: "ОбщийРеквизит", name: params.segment })
   if (ownerResult.status !== "ok") return undefined
-  if (!commonAttributeAppliesToOwner(ownerResult.owner.model, params.owner.ref)) return undefined
+  if (!commonAttributeAppliesToOwner(ownerResult.owner.facts, params.owner.ref)) return undefined
 
   return {
     name: params.segment,
-    typeInfo: typeDescriptionToDataPathTypeInfo(commonAttributeType(ownerResult.owner.model)),
+    typeInfo: typeDescriptionToDataPathTypeInfo(commonAttributeType(ownerResult.owner.facts)),
   }
 }
 
-function commonAttributeType(model: unknown): Parameters<typeof typeDescriptionToDataPathTypeInfo>[0] {
-  return modelObjectValue(model, "type") as Parameters<typeof typeDescriptionToDataPathTypeInfo>[0]
+function commonAttributeType(facts: unknown): Parameters<typeof typeDescriptionToDataPathTypeInfo>[0] {
+  return objectValue(facts, "type") as Parameters<typeof typeDescriptionToDataPathTypeInfo>[0]
 }
 
-function commonAttributeAppliesToOwner(model: unknown, ownerRef: OwnerTypeRef): boolean {
-  const content = modelObjectValue(model, "content")
-  if (!Array.isArray(content)) return false
+function commonAttributeAppliesToOwner(facts: unknown, ownerRef: OwnerTypeRef): boolean {
+  const ownerFacts = objectValue(facts, "commonAttributeOwnerLinks")
+  if (!Array.isArray(ownerFacts)) return false
 
   const ownerLinks = ownerMetadataLinks(ownerRef)
   if (ownerLinks.length === 0) return false
 
-  return content.some((item) => {
-    const metadata = modelObjectValue(item, "metadata")
-    const use = modelObjectValue(item, "use")
-    return typeof metadata === "string" && use === "Use" && ownerLinks.includes(metadata)
-  })
+  return ownerFacts.some((metadata) => typeof metadata === "string" && ownerLinks.includes(metadata))
 }
 
-function modelObjectValue(model: unknown, key: string): unknown {
-  if (typeof model !== "object" || model === null) return undefined
-  return (model as Record<string, unknown>)[key]
+function objectValue(value: unknown, key: string): unknown {
+  if (typeof value !== "object" || value === null) return undefined
+  return (value as Record<string, unknown>)[key]
 }
 
 function ownerMetadataLinks(ref: OwnerTypeRef): string[] {
@@ -553,9 +549,9 @@ function resolveMovementItemSegment(params: {
   }
 }
 
-function constantType(model: unknown): Parameters<typeof typeDescriptionToDataPathTypeInfo>[0] {
-  if (typeof model !== "object" || model === null || !("type" in model)) return undefined
-  return model.type as Parameters<typeof typeDescriptionToDataPathTypeInfo>[0]
+function constantType(facts: unknown): Parameters<typeof typeDescriptionToDataPathTypeInfo>[0] {
+  if (typeof facts !== "object" || facts === null || !("type" in facts)) return undefined
+  return facts.type as Parameters<typeof typeDescriptionToDataPathTypeInfo>[0]
 }
 
 function validateTableContext(params: ResolveDataPathCoreParams): ResolveDataPathCoreIssue | undefined {

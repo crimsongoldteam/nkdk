@@ -7,6 +7,7 @@ import { FormTypeByRule } from "../../../orchestration/metadataItem/element"
 import { YAMLTypeByRule } from "../../../orchestration/metadataItem/yaml"
 import { ButtonRepresentation, CurrentRowUse } from "../../../systemEnumerations/types"
 import { importFormCommandsFromXML } from "./fromXML"
+import { importFormCommandsFromXMLToYAML } from "./fromXMLToYAML"
 import { FormCommandRules } from "./rules"
 import { exportFormCommandsToXML } from "./toXML"
 
@@ -41,5 +42,6 @@ registerMetadataItemCollectionRule({
   xmlElement: "Command",
   keyField: "name",
   fromXML: importFormCommandsFromXML,
+  fromXMLToYAML: importFormCommandsFromXMLToYAML,
   toXML: exportFormCommandsToXML,
 })

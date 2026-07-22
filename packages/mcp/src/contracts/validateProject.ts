@@ -3,7 +3,6 @@ import { toolErrorOutputShape } from "./common"
 
 export const validateProjectInputShape = {
   projectDir: z.string().min(1),
-  filePath: z.string().min(1).optional(),
 }
 
 export const diagnosticSchema = z.object({

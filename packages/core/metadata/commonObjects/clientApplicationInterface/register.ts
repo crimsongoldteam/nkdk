@@ -5,6 +5,7 @@ import {
   ImportFromYAMLFunctionNew,
   registerMetadataItemRule,
   registerTypeRule,
+  type ImportFromXMLToYAMLFunction,
   type PropertyRule,
 } from "../../orchestration"
 import type { ConfigurationContext, ConfigurationContextFromXML } from "../../context/types"
@@ -426,6 +427,27 @@ const exportItemsPropertyToYAML = (
   value: ClientApplicationInterfaceItems | undefined
 ): ClientApplicationInterfaceItemsYAML | undefined => exportItemsToYAML(undefined, undefined, value)
 
+const importClientApplicationInterfaceFromXMLToYAML: ImportFromXMLToYAMLFunction = ({ context, xml }) => {
+  const root = isRecord(xml) ? xml : undefined
+  const source = isRecord(root?.["ClientApplicationInterface"]) ? root["ClientApplicationInterface"] : root
+  if (!isRecord(source)) return undefined
+
+  const panelDefs = importPanelDefsFromXML(
+    context,
+    ClientApplicationInterfaceRules.properties.panelDefs,
+    source["panelDef"] as ClientApplicationInterfacePanelDefXML | ClientApplicationInterfacePanelDefXML[] | undefined
+  )
+  const panelDefsById = new Map((panelDefs ?? []).map((panelDef) => [panelDef.id, panelDef]))
+  const result: Record<string, unknown> = {}
+  for (const key of ["top", "left", "right", "bottom"] as const) {
+    const rule = ClientApplicationInterfaceRules.properties[key]
+    const items = importItemsFromXML(context, rule, source[rule.xml ?? key])
+    const yaml = exportItemsToYAML(undefined, undefined, items, panelDefsById)
+    if (yaml !== undefined) result[rule.yaml] = yaml
+  }
+  return result
+}
+
 const importPanelFromYAML = (
   yaml: string | ClientApplicationInterfacePanelYAML | undefined,
   source: ClientApplicationInterfaceItem | undefined
@@ -688,6 +710,7 @@ registerMetadataItemRule({
   propertyType: "ClientApplicationInterface",
   itemRule: ClientApplicationInterfaceRules,
 })
+registerTypeRule("ClientApplicationInterface", "importFromXMLToYAML", importClientApplicationInterfaceFromXMLToYAML)
 
 registerTypeRule("ClientApplicationInterfaceItems", "importFromXML", importItemsFromXML)
 registerTypeRule("ClientApplicationInterfaceItems", "exportToXML", exportItemsToXML)

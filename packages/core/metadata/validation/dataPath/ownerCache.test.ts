@@ -36,8 +36,7 @@ describe("OwnerMetadataCache", () => {
       status: "ok",
       owner: {
         ref: { kind: "Справочник", name: "Товары" },
-        model: {
-          itemType: "MetadataCatalog",
+        facts: {
           attributes: [expect.objectContaining({ name: "Артикул" })],
         },
       },
@@ -159,15 +158,15 @@ describe("OwnerMetadataCache", () => {
 
     expect(cache.get({ kind: "КритерийОтбора", name: "ДокументыВНАПоОснованию" })).toMatchObject({
       status: "ok",
-      owner: { model: { itemType: "MetadataFilterCriterion" } },
+      owner: { ref: { kind: "КритерийОтбора", name: "ДокументыВНАПоОснованию" } },
     })
     expect(cache.get({ kind: "ХранилищеНастроек", name: "Общие" })).toMatchObject({
       status: "ok",
-      owner: { model: { itemType: "MetadataSettingsStorage" } },
+      owner: { ref: { kind: "ХранилищеНастроек", name: "Общие" } },
     })
     expect(cache.get({ kind: "НумераторДокументов", name: "ДенежныеДокументы" })).toMatchObject({
       status: "ok",
-      owner: { model: { itemType: "MetadataDocumentNumerator" } },
+      owner: { ref: { kind: "НумераторДокументов", name: "ДенежныеДокументы" } },
     })
   })
 
@@ -186,8 +185,7 @@ describe("OwnerMetadataCache", () => {
       status: "ok",
       owner: {
         ref: { kind: "ОпределяемыйТип", name: "ДоговорКонтрагента" },
-        model: {
-          itemType: "MetadataDefinedType",
+        facts: {
           type: { type: ["CatalogRef.ДоговорыКонтрагентов"] },
         },
       },
@@ -219,10 +217,9 @@ describe("OwnerMetadataCache", () => {
       status: "ok",
       owner: {
         ref: { kind: "ОбщийРеквизит", name: "КлассВНА" },
-        model: {
-          itemType: "MetadataCommonAttribute",
+        facts: {
           type: { type: ["CatalogRef.КлассыВНА"] },
-          content: [{ metadata: "Catalog.НематериальныеАктивы", use: "Use" }],
+          commonAttributeOwnerLinks: ["Catalog.НематериальныеАктивы"],
         },
       },
     })

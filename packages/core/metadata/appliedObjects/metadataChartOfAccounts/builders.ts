@@ -40,8 +40,9 @@ export function metadataChartOfAccountsTabularSectionsRule<
   const Params extends MetadataChartOfAccountsTabularSectionsRuleParams,
 >(
   params: WideExactRuleParams<MetadataChartOfAccountsTabularSectionsRuleParams, Params>
-): Readonly<{ type: "MetadataChartOfAccountsTabularSections" } & Params> {
+): Readonly<{ type: "MetadataChartOfAccountsTabularSections"; ownerFactRole: "tabularSections" } & Params> {
   return defineWidePropertyRule("MetadataChartOfAccountsTabularSections", {
+    ownerFactRole: "tabularSections",
     ...params,
     operationTarget: namedCollectionTarget({
       kind: "tabularSection",

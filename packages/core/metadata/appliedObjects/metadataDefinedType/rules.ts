@@ -47,6 +47,7 @@ export const MetadataDefinedTypeRules = {
       defaultValueXMLRaw: "",
     }),
     type: typeDescriptionRule({
+      ownerFactRole: "type",
       yaml: "Тип",
       xmlParents: properties,
       defaultValueXMLRaw: "",

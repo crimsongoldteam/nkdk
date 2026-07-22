@@ -1,12 +1,18 @@
 import { describe, expect, it } from "vitest"
 import { PropertyRule } from "../../orchestration"
-import { accountingExtDimensions, all, multiple } from "./__fixtures__/data"
+import { accountingExtDimensions, all, allYAML, multiple } from "./__fixtures__/data"
 import { fillValueEmptyRefTypeLoss } from "./__fixtures__/fillValueEmptyRefTypeLoss"
 import { testImportPropertyFromXML } from "../../../tests/property/importPropertyFromXML"
+import { mockContextFromXML } from "../../../tests/mockContext"
+import { readAndParseXMLFile } from "../../../tests/readAndParseXMLFile"
+import { testFixturesDir } from "../../../tests/testFixturesDir"
+import { createLocalIndexesCollector } from "../../project/localIndexes"
+import { getTypeRule } from "../../orchestration/property/typeRuleRegistry"
 import { StandartAttributeNameToYAML } from "./types"
 
 const rule: PropertyRule = {
   type: "StandardAttributeDescriptions",
+  yaml: "СтандартныеРеквизиты",
   standartAttributeNames: StandartAttributeNameToYAML,
 }
 
@@ -74,5 +80,25 @@ describe("import StandardAttributeDescriptions from XML", () => {
       importMetaUrl: import.meta.url,
     })
     expect(result).toEqual(accountingExtDimensions)
+  })
+
+  it("imports all.xml directly to YAML", () => {
+    const direct = getTypeRule("StandardAttributeDescriptions", "importFromXMLToYAML")
+    if (direct === undefined) throw new Error("StandardAttributeDescriptions direct converter is not registered")
+    const fixtureXML = readAndParseXMLFile<Record<string, unknown>>("all.xml", testFixturesDir(import.meta.url))
+      .StandardAttributes
+
+    expect(
+      direct({
+        context: { ...mockContextFromXML(), exportToYAML: { toTyped: true } },
+        rule,
+        xml: fixtureXML,
+        traversal: {
+          yamlPath: ["СтандартныеРеквизиты"],
+          rulePath: [{ propertyKey: "standardAttributes" }],
+          collector: createLocalIndexesCollector(),
+        },
+      })
+    ).toEqual(allYAML)
   })
 })

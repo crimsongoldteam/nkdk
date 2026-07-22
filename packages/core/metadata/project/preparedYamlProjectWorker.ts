@@ -12,11 +12,13 @@ import type {
   PendingMetadataTargetReference,
 } from "../validation/projectMetadataReferences"
 import { resolveValidationProjectFile } from "../validation/projectFiles"
-import { createProjectYamlCacheFromPreparedFiles } from "../validation/projectYamlCache"
+import { createProjectYamlCacheFromEntries } from "../validation/projectYamlCache"
 import { validatePendingReferencesWithIndex } from "../validation/projectReferenceIndex"
 import {
   validateProjectFileFirstPass,
   validateProjectFileSecondPass,
+  readProjectYamlDiagnostic,
+  readProjectYamlEntryForValidation,
   type ProjectValidationFirstPassProfile,
   type ProjectValidationFileState,
   type ValidationSchemaCache,
@@ -28,6 +30,7 @@ import type { ValidationRulesSnapshot } from "../validation/rulesSnapshot"
 import { createSharedProjectReferenceIndex } from "../validation/sharedProjectReferenceIndex"
 import type { SharedValidationSnapshot } from "../validation/sharedValidationSnapshot"
 import type { Diagnostic } from "../validation/types"
+import type { ValidationYamlLifetime } from "../validation/validationWorkerPoolTypes"
 import { validateProjectPartial } from "../validation/validateProjectPartial"
 import type { ValidationMode, ValidationObjectRecord } from "../validation/projectValidationTypes"
 import { prepareYamlFiles } from "./prepareYamlFiles"
@@ -60,6 +63,7 @@ export type PreparedYamlProjectWorkerTask =
       workerIndex: number
       projectDir: string
       context: ConfigurationContext
+      files: PreparedYamlProjectFileDescriptor[]
     }
   | {
       kind: "validateSecondPass"
@@ -95,6 +99,7 @@ export type PreparedYamlProjectWorkerTaskResult =
       memberIndexEntries: ProjectMemberIndexEntry[]
       valueIndexEntries: ProjectValueIndexEntry[]
       pendingReferences: PendingMetadataTargetReference[]
+      yamlLifetime: ValidationYamlLifetime
     }
   | {
       kind: "validateSecondPassResult"
@@ -149,7 +154,6 @@ export default async function runPreparedYamlProjectWorkerTask(
     itemTypeByYamlDir: message.itemTypeByYamlDir,
   })
 
-  preparedYamlFiles = new Map(yamlFiles.map((file) => [file.filePath, file]))
   const responseYamlFiles = message.includeYamlData ? yamlFiles : yamlFiles.map(withoutYamlData)
   const response = {
     kind: "prepareResult" as const,
@@ -182,14 +186,25 @@ function withoutYamlData(file: PreparedYamlFile): PreparedYamlFile {
 }
 
 function estimateProfilePayloadBytes(value: unknown): number | undefined {
-  if (process.env["NKDK_VALIDATION_TIMING"] !== "1") return undefined
+  if (process.env["NKDK_PROFILE"] !== "1") return undefined
   return Buffer.byteLength(JSON.stringify(value, (_key, item) => (typeof item === "bigint" ? item.toString() : item)), "utf8")
 }
 
-let preparedYamlFiles = new Map<string, PreparedYamlFile>()
 let validationSchemaCache: ValidationSchemaCache | undefined
 let validationRulesSnapshot: ValidationRulesSnapshot | undefined
 let validationState = createEmptyWorkerValidationState()
+const validationYamlLifetimeForTests = { current: 0, max: 0, parsed: 0, propertyEvents: 0 }
+
+export function resetValidationYamlLifetimeForTests(): void {
+  validationYamlLifetimeForTests.current = 0
+  validationYamlLifetimeForTests.max = 0
+  validationYamlLifetimeForTests.parsed = 0
+  validationYamlLifetimeForTests.propertyEvents = 0
+}
+
+export function getValidationYamlLifetimeForTests(): Readonly<typeof validationYamlLifetimeForTests> {
+  return { ...validationYamlLifetimeForTests }
+}
 
 function createEmptyWorkerValidationState(): WorkerValidationState {
   return {
@@ -208,29 +223,47 @@ function runValidationFirstPass(message: Extract<PreparedYamlProjectWorkerTask, 
   memberIndexEntries: ProjectMemberIndexEntry[]
   valueIndexEntries: ProjectValueIndexEntry[]
   pendingReferences: PendingMetadataTargetReference[]
+  yamlLifetime: ValidationYamlLifetime
 } {
   const profiler = createValidationProfiler({ scope: "worker", workerIndex: message.workerIndex })
   validationState = createEmptyWorkerValidationState()
+  resetValidationYamlLifetimeForTests()
   const diagnostics: Diagnostic[] = []
   const objectRecords: ValidationObjectRecord[] = []
   const schemaCache = requireValidationSchemaCache()
-  const cache = createProjectYamlCacheFromPreparedFiles([...preparedYamlFiles.values()])
   const firstPassProfile = createEmptyFirstPassProfileSummary()
 
-  for (const yamlFile of preparedYamlFiles.values()) {
-    const file = resolveValidationProjectFile(message.projectDir, yamlFile.filePath)
+  for (const descriptor of message.files) {
+    const file = resolveValidationProjectFile(message.projectDir, descriptor.filePath)
     if (file === undefined) continue
+    const entry = readProjectYamlEntryForValidation(file.absolutePath)
+    if ("error" in entry) {
+      diagnostics.push(readProjectYamlDiagnostic(entry))
+      continue
+    }
 
-    const first = validateProjectFileFirstPass({
-      projectDir: message.projectDir,
-      file,
-      cache,
-      context: message.context,
-      schemaCache,
-      rulesSnapshot: requireValidationRulesSnapshot(),
-    })
+    validationYamlLifetimeForTests.current += 1
+    validationYamlLifetimeForTests.parsed += 1
+    validationYamlLifetimeForTests.max = Math.max(
+      validationYamlLifetimeForTests.max,
+      validationYamlLifetimeForTests.current
+    )
+    let first
+    try {
+      first = validateProjectFileFirstPass({
+        projectDir: message.projectDir,
+        file,
+        cache: createProjectYamlCacheFromEntries([entry]),
+        context: message.context,
+        schemaCache,
+        rulesSnapshot: requireValidationRulesSnapshot(),
+      })
+    } finally {
+      validationYamlLifetimeForTests.current -= 1
+    }
 
     if (first.profile !== undefined) addFirstPassProfile(firstPassProfile, first.profile)
+    validationYamlLifetimeForTests.propertyEvents += first.profile?.propertyEvents ?? 0
     validationState.states.set(resolve(file.absolutePath), first.state)
     validationState.objectIndexEntries.push(...first.objectIndexEntries)
     validationState.memberIndexEntries.push(...first.memberIndexEntries)
@@ -239,7 +272,7 @@ function runValidationFirstPass(message: Extract<PreparedYamlProjectWorkerTask, 
     diagnostics.push(...first.diagnostics)
     objectRecords.push(...first.objectRecords)
   }
-  recordFirstPassProfile(profiler, preparedYamlFiles.size, firstPassProfile)
+  recordFirstPassProfile(profiler, message.files.length, firstPassProfile)
   profiler.flush()
 
   return {
@@ -249,6 +282,7 @@ function runValidationFirstPass(message: Extract<PreparedYamlProjectWorkerTask, 
     memberIndexEntries: validationState.memberIndexEntries,
     valueIndexEntries: validationState.valueIndexEntries,
     pendingReferences: validationState.pendingReferences,
+    yamlLifetime: getValidationYamlLifetimeForTests(),
   }
 }
 
@@ -265,6 +299,7 @@ function createEmptyFirstPassProfileSummary(): Omit<ProjectValidationFirstPassPr
     memberIndexMs: 0,
     valueIndexMs: 0,
     diagnostics: 0,
+    propertyEvents: 0,
   }
 }
 
@@ -283,6 +318,7 @@ function addFirstPassProfile(
   summary.memberIndexMs += profile.memberIndexMs
   summary.valueIndexMs += profile.valueIndexMs
   summary.diagnostics += profile.diagnostics
+  summary.propertyEvents += profile.propertyEvents
 }
 
 function recordFirstPassProfile(
@@ -315,12 +351,11 @@ function runValidationSecondPass(message: Extract<PreparedYamlProjectWorkerTask,
 } {
   const profiler = createValidationProfiler({ scope: "worker", workerIndex: message.workerIndex })
   const diagnostics: Diagnostic[] = []
-  const { cache, ownerCache, referenceIndex } = profiler.measure(
+  const { ownerCache, referenceIndex } = profiler.measure(
     "Проверка зависимостей",
     "Построение контекста worker",
-    { items: preparedYamlFiles.size },
+    { items: validationState.states.size },
     () => {
-      const cache = createProjectYamlCacheFromPreparedFiles([...preparedYamlFiles.values()])
       const ownerCache = createOwnerMetadataCacheFromSharedValidationSnapshot({
         projectDir: message.projectDir,
         snapshot: message.sharedValidationSnapshot,
@@ -331,7 +366,7 @@ function runValidationSecondPass(message: Extract<PreparedYamlProjectWorkerTask,
         snapshot: message.sharedValidationSnapshot.reference,
         resolveObjectFilePath: (target) => resolveObjectFilePath({ projectDir: message.projectDir, target }),
       })
-      return { cache, ownerCache, referenceIndex }
+      return { ownerCache, referenceIndex }
     }
   )
   const referenceResult = profiler.measure("Проверка зависимостей", "Проверка ссылок", { items: message.pendingReferences.length }, () =>
@@ -347,7 +382,6 @@ function runValidationSecondPass(message: Extract<PreparedYamlProjectWorkerTask,
       const second = validateProjectFileSecondPass({
         projectDir: message.projectDir,
         state,
-        cache,
         context: message.context,
         ownerCache,
         referenceIndex,

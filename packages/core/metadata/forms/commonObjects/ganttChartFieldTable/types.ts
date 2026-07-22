@@ -85,7 +85,7 @@ export const exportGanttChartFieldTableToXML: ExportToXMLFunctionNew = (params):
     element: table,
     referenceElement: referenceTable,
     rule: TableRules,
-    additionalParams: { name },
+    additionalParams: { name, configurationIndexSegment: nameStyle.canonicalSuffix },
   })
   removeGeneratedSingletonXML(xml, table, referenceTable, "searchControl", "SearchControlAddition")
   removeGeneratedSingletonXML(xml, table, referenceTable, "searchStringRepresentation", "SearchStringAddition")

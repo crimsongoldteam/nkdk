@@ -4,7 +4,8 @@ import { toolErrorOutputShape } from "./common"
 
 export const describeProjectStructureInputShape = {
   projectDir: z.string().min(1),
-  directoryPath: z.string().optional(),
+  componentPath: z.string().min(1).optional(),
+  structurePath: z.string().optional(),
   depth: z.number().int().positive().optional(),
 }
 
@@ -24,7 +25,8 @@ export const metadataProjectStructureNodeSchema: z.ZodType<MetadataProjectStruct
 export const describeProjectStructureSuccessOutputShape = {
   ok: z.literal(true),
   projectDir: z.string(),
-  directoryPath: z.string(),
+  componentPath: z.string(),
+  structurePath: z.string(),
   depth: z.number().nullable(),
   node: metadataProjectStructureNodeSchema,
 }

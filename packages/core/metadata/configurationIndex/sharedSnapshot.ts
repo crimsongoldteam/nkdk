@@ -79,6 +79,11 @@ class SharedConfigurationIndexReader implements ConfigurationIndexReader {
   private readonly orderOffsets: Uint32Array
   private readonly xmlNodeOffsets: Uint32Array
   private readonly stringCache = new Map<number, string>()
+  private stringIds: Map<string, number> | undefined
+  private projectFileOffsets: Map<number, number> | undefined
+  private identityOffsets: Map<string, number> | undefined
+  private xmlNodeOffsetsByAddress: Map<number, number> | undefined
+  private xmlValueOffsets: Map<number, number> | undefined
 
   constructor(snapshot: SharedConfigurationIndexSnapshot) {
     this.snapshot = snapshot
@@ -112,12 +117,8 @@ class SharedConfigurationIndexReader implements ConfigurationIndexReader {
     const projectPathId = this.findStringId(projectPath)
     if (projectPathId === undefined) return undefined
     const projectFiles = section(this.buffer, this.directory, 3)
-    const index = binarySearch(this.directory[2]!.recordCount, (recordIndex) => {
-      const offset = recordIndex * 16
-      return projectFiles.readUInt32LE(offset) - projectPathId
-    })
-    if (index === undefined) return undefined
-    const offset = index * 16
+    const offset = this.projectFileOffset(projectPathId)
+    if (offset === undefined) return undefined
     return {
       projectPath,
       contentHash: projectFiles.readBigUInt64LE(offset + 8),
@@ -129,12 +130,8 @@ class SharedConfigurationIndexReader implements ConfigurationIndexReader {
     if (logicalAddressId === undefined) return undefined
     const kindId = identityKindId(kind)
     const identities = section(this.buffer, this.directory, 4)
-    const index = binarySearch(this.directory[3]!.recordCount, (recordIndex) => {
-      const offset = recordIndex * 32
-      return identities.readUInt32LE(offset) - logicalAddressId || identities.readUInt16LE(offset + 4) - kindId
-    })
-    if (index === undefined) return undefined
-    const offset = index * 32
+    const offset = this.identityOffset(logicalAddressId, kindId)
+    if (offset === undefined) return undefined
     return kind === "uuid" ? formatUuid(identities.subarray(offset + 16, offset + 32)) : this.stringById(identities.readUInt32LE(offset + 8))
   }
 
@@ -142,13 +139,8 @@ class SharedConfigurationIndexReader implements ConfigurationIndexReader {
     const logicalAddressId = this.findStringId(logicalAddress)
     if (logicalAddressId === undefined) return undefined
     const nodes = section(this.buffer, this.directory, 6)
-    const index = binarySearch(this.xmlNodeOffsets.length, (recordIndex) => {
-      const offset = this.xmlNodeOffsets[recordIndex]!
-      return nodes.readUInt32LE(offset) - logicalAddressId
-    })
-    if (index === undefined) return undefined
-
-    const offset = this.xmlNodeOffsets[index]!
+    const offset = this.xmlNodeOffset(logicalAddressId)
+    if (offset === undefined) return undefined
     const orderId = nodes.readUInt32LE(offset + 4)
     const aliasCount = nodes.readUInt32LE(offset + 8)
     const presentCount = nodes.readUInt32LE(offset + 12)
@@ -175,12 +167,8 @@ class SharedConfigurationIndexReader implements ConfigurationIndexReader {
     const logicalAddressId = this.findStringId(logicalAddress)
     if (logicalAddressId === undefined) return undefined
     const values = section(this.buffer, this.directory, 7)
-    const index = binarySearch(this.directory[6]!.recordCount, (recordIndex) => {
-      const offset = recordIndex * 32
-      return values.readUInt32LE(offset) - logicalAddressId
-    })
-    if (index === undefined) return undefined
-    const offset = index * 32
+    const offset = this.xmlValueOffset(logicalAddressId)
+    if (offset === undefined) return undefined
     const flags = values.readUInt32LE(offset + 4)
     return {
       logicalAddress,
@@ -213,14 +201,19 @@ class SharedConfigurationIndexReader implements ConfigurationIndexReader {
   }
 
   private findStringId(value: string): number | undefined {
-    const target = Buffer.from(value, "utf8")
+    if (this.stringIds !== undefined) return this.stringIds.get(value)
     const strings = section(this.buffer, this.directory, 2)
-    const index = binarySearch(this.stringOffsets.length, (recordIndex) => {
-      const offset = this.stringOffsets[recordIndex]!
+    const ids = new Map<string, number>()
+    for (let index = 0; index < this.stringOffsets.length; index += 1) {
+      const offset = this.stringOffsets[index]!
       const length = strings.readUInt32LE(offset)
-      return Buffer.compare(strings.subarray(offset + 4, offset + 4 + length), target)
-    })
-    return index === undefined ? undefined : index + 1
+      const id = index + 1
+      const string = fatalUtf8Decoder.decode(strings.subarray(offset + 4, offset + 4 + length))
+      ids.set(string, id)
+      this.stringCache.set(id, string)
+    }
+    this.stringIds = ids
+    return ids.get(value)
   }
 
   private stringById(id: number): string {
@@ -233,6 +226,55 @@ class SharedConfigurationIndexReader implements ConfigurationIndexReader {
     const value = fatalUtf8Decoder.decode(strings.subarray(offset + 4, offset + 4 + length))
     this.stringCache.set(id, value)
     return value
+  }
+
+  private projectFileOffset(projectPathId: number): number | undefined {
+    if (this.projectFileOffsets === undefined) {
+      const projectFiles = section(this.buffer, this.directory, 3)
+      const offsets = new Map<number, number>()
+      for (let index = 0; index < this.directory[2]!.recordCount; index += 1) {
+        const offset = index * 16
+        offsets.set(projectFiles.readUInt32LE(offset), offset)
+      }
+      this.projectFileOffsets = offsets
+    }
+    return this.projectFileOffsets.get(projectPathId)
+  }
+
+  private identityOffset(logicalAddressId: number, kindId: number): number | undefined {
+    if (this.identityOffsets === undefined) {
+      const identities = section(this.buffer, this.directory, 4)
+      const offsets = new Map<string, number>()
+      for (let index = 0; index < this.directory[3]!.recordCount; index += 1) {
+        const offset = index * 32
+        offsets.set(identityKey(identities.readUInt32LE(offset), identities.readUInt16LE(offset + 4)), offset)
+      }
+      this.identityOffsets = offsets
+    }
+    return this.identityOffsets.get(identityKey(logicalAddressId, kindId))
+  }
+
+  private xmlNodeOffset(logicalAddressId: number): number | undefined {
+    if (this.xmlNodeOffsetsByAddress === undefined) {
+      const nodes = section(this.buffer, this.directory, 6)
+      const offsets = new Map<number, number>()
+      for (const offset of this.xmlNodeOffsets) offsets.set(nodes.readUInt32LE(offset), offset)
+      this.xmlNodeOffsetsByAddress = offsets
+    }
+    return this.xmlNodeOffsetsByAddress.get(logicalAddressId)
+  }
+
+  private xmlValueOffset(logicalAddressId: number): number | undefined {
+    if (this.xmlValueOffsets === undefined) {
+      const values = section(this.buffer, this.directory, 7)
+      const offsets = new Map<number, number>()
+      for (let index = 0; index < this.directory[6]!.recordCount; index += 1) {
+        const offset = index * 32
+        offsets.set(values.readUInt32LE(offset), offset)
+      }
+      this.xmlValueOffsets = offsets
+    }
+    return this.xmlValueOffsets.get(logicalAddressId)
   }
 }
 
@@ -283,19 +325,6 @@ function variableRecordDataLength(sectionBytes: Buffer, offset: number, headerLe
   }
 }
 
-function binarySearch(length: number, compareAt: (index: number) => number): number | undefined {
-  let low = 0
-  let high = length - 1
-  while (low <= high) {
-    const middle = Math.floor((low + high) / 2)
-    const comparison = compareAt(middle)
-    if (comparison === 0) return middle
-    if (comparison < 0) low = middle + 1
-    else high = middle - 1
-  }
-  return undefined
-}
-
 function identityKindId(kind: ConfigurationIdentity["kind"]): 1 | 2 | 3 {
   switch (kind) {
     case "uuid":
@@ -305,6 +334,10 @@ function identityKindId(kind: ConfigurationIdentity["kind"]): 1 | 2 | 3 {
     case "xmlName":
       return 3
   }
+}
+
+function identityKey(logicalAddressId: number, kindId: number): string {
+  return `${logicalAddressId}\0${kindId}`
 }
 
 function formatUuid(bytes: Buffer): string {

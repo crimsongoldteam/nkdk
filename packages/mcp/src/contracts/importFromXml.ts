@@ -16,7 +16,8 @@ export const importWarningSchema = z.object({
 
 export const importFromXmlInputShape = {
   xmlDir: z.string().min(1),
-  yamlDir: z.string().min(1),
+  projectDir: z.string().min(1),
+  componentPath: z.string().min(1).optional(),
   allowWrite: z.boolean().optional(),
 }
 
@@ -26,7 +27,6 @@ export const importFromXmlSuccessOutputShape = {
   failed: z.array(failedObjectSchema),
   warnings: z.array(importWarningSchema),
   configurationIndexPath: z.string().optional(),
-  preservedTempRoot: z.string().optional(),
 }
 
 export const importFromXmlOutputShape = z.union([

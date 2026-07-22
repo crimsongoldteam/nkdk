@@ -11,7 +11,7 @@ import type { ProjectYamlCache } from "../projectYamlCache"
 import type { Diagnostic } from "../types"
 import { validateUniqueNameScopes } from "../uniqueNameScopes"
 import { buildObjectFieldIndex, type ObjectFieldIndex } from "./objectFields"
-import { modelStubFromOwnerFacts } from "./ownerFacts"
+import { createValidationOwnerFacts, type ValidationOwnerFacts } from "./ownerFacts"
 import { getDataPathOwnerKind, type DataPathOwnerKindRegistration } from "./registry"
 import type { OwnerTypeRef } from "./types"
 
@@ -29,7 +29,7 @@ export type OwnerMetadataResult =
 export interface OwnerMetadata {
   ref: OwnerTypeRef
   filePath: string
-  model: MetadataItem
+  facts: ValidationOwnerFacts
   rule: MetadataItemRule
   spec: ValidationProjectSpec
   fieldIndex: ObjectFieldIndex
@@ -142,9 +142,13 @@ function loadOwnerFromValidationTable(params: {
   }
 
   const fieldIndex = record.ownerFacts?.fieldIndex ?? record.fieldIndex
-  const model = record.ownerFacts === undefined ? {} : modelStubFromOwnerFacts(record.ownerFacts)
+  const facts =
+    record.ownerFacts ??
+    (fieldIndex === undefined
+      ? undefined
+      : { ref: params.ref, filePath: record.filePath, fieldIndex } satisfies ValidationOwnerFacts)
 
-  if (ownerKind === undefined || model === undefined || fieldIndex === undefined) {
+  if (ownerKind === undefined || facts === undefined || fieldIndex === undefined) {
     return {
       status: "import-error",
       diagnostics: [
@@ -159,7 +163,7 @@ function loadOwnerFromValidationTable(params: {
     owner: {
       ref: params.ref,
       filePath: record.filePath,
-      model: model as MetadataItem,
+      facts,
       rule: spec.rule,
       spec,
       fieldIndex,
@@ -212,22 +216,34 @@ function loadOwner(params: {
       return { status: "ambiguous", diagnostics: uniqueNameDiagnostics }
     }
 
+    const ownerFactsWithoutIndex = createValidationOwnerFacts({
+      ref,
+      filePath,
+      fieldIndex: emptyObjectFieldIndex(),
+      model: imported.model,
+    })
     const ownerWithoutIndex = {
       ref,
       filePath,
-      model: imported.model,
+      facts: ownerFactsWithoutIndex,
       rule: spec.rule,
       spec,
     }
+    const fieldIndex = buildObjectFieldIndex(ownerWithoutIndex)
     const owner: OwnerMetadata = {
       ...ownerWithoutIndex,
-      fieldIndex: buildObjectFieldIndex(ownerWithoutIndex),
+      facts: { ...ownerFactsWithoutIndex, fieldIndex },
+      fieldIndex,
     }
 
     return { status: "ok", owner }
   } finally {
     yamlCache.release(filePath)
   }
+}
+
+function emptyObjectFieldIndex(): ObjectFieldIndex {
+  return { fields: new Map(), standardAttributeAliases: new Map(), diagnostics: [] }
 }
 
 function importOwnerModel(params: {

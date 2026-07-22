@@ -205,6 +205,18 @@ describe("metadata import boundaries", () => {
     }
   })
 
+  it("XML import worker не возвращается к metadata-модели", () => {
+    const source = ["importFromXml/prepareYaml.ts", "importFromXml/worker.ts"]
+      .map((file) => readFileSync(join(METADATA_DIR, file), "utf-8"))
+      .join("\n")
+
+    expect(source).not.toMatch(/prepare(?:AppliedObject|Configuration|ClientApplicationForm)ModelFromXML/)
+    expect(source).not.toContain("exportMetadataItemToYAML")
+    expect(source).not.toContain("exportClientApplicationFormToYAML")
+    expect(source).not.toMatch(/PreparedImportModel|preparedModels/)
+    expect(source).not.toContain('type === "DataPath"')
+  })
+
   it("dataPath owner registrations живут в register.ts конкретных объектов", () => {
     const appliedObjectsIndex = readFileSync(join(METADATA_DIR, "appliedObjects", "index.ts"), "utf-8")
 

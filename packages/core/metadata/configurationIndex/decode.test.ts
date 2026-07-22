@@ -47,6 +47,40 @@ describe("decodeConfigurationIndex", () => {
     expect(decodeConfigurationIndex(encoded).xmlNodes).toEqual([xmlNode])
   })
 
+  it("accepts form singleton identity logicalAddress after a named form element", () => {
+    const contextMenuAddress = "Справочник.Товары.Форма.ФормаЭлемента.Элемент.ПолеВвода.КонтекстноеМеню"
+    const nestedContextMenuAddress =
+      "Справочник.Товары.Форма.ФормаЭлемента.Элемент.ДиаграммаГанта.Таблица.КонтекстноеМеню"
+    const encoded = encodeConfigurationIndex({
+      ...sampleIndex(),
+      identities: [
+        {
+          logicalAddress: contextMenuAddress,
+          kind: "xmlId",
+          value: "42",
+        },
+        {
+          logicalAddress: nestedContextMenuAddress,
+          kind: "xmlId",
+          value: "43",
+        },
+      ],
+    })
+
+    expect(decodeConfigurationIndex(encoded).identities).toEqual([
+      {
+        logicalAddress: contextMenuAddress,
+        kind: "xmlId",
+        value: "42",
+      },
+      {
+        logicalAddress: nestedContextMenuAddress,
+        kind: "xmlId",
+        value: "43",
+      },
+    ])
+  })
+
   it.each([
     ["magic", (buffer: Buffer) => writeAscii(buffer, "BROKEN!!", 0)],
     ["directory checksum", (buffer: Buffer) => flipByte(buffer, 64)],
@@ -178,14 +212,14 @@ describe("decodeConfigurationIndex", () => {
     expectCorruption(corrupted)
   })
 
-  it("finishes stage 7 for all sections before checking section ordering", () => {
+  it("finishes stage 7 for all sections before checking section uniqueness", () => {
     const data = sampleIndex()
     const encoded = encodeConfigurationIndex({
       ...data,
       projectFiles: [...data.projectFiles, { projectPath: "A.yaml", contentHash: 2n }],
     })
-    const unsorted = mutateSection(encoded, 3, swapFirstRecordIds)
-    const corrupted = mutateSection(unsorted, 7, (section) => flipByte(section, 24))
+    const reordered = mutateSection(encoded, 3, swapFirstRecordIds)
+    const corrupted = mutateSection(reordered, 7, (section) => flipByte(section, 24))
 
     expectCorruptionMessage(corrupted, "ненулевое reserved XML_VALUES")
   })
@@ -197,9 +231,9 @@ describe("decodeConfigurationIndex", () => {
       xmlValues: [...data.xmlValues, { logicalAddress: "Документ.Заказ.name", xsiNil: true }],
     })
     const invalidBinding = mutateSection(encoded, 1, (section) => writeU64(section, 0, 0n))
-    const corrupted = mutateSection(invalidBinding, 7, swapFirstRecordIds)
+    const corrupted = mutateSection(invalidBinding, 7, duplicateFirstRecordId)
 
-    expectCorruptionMessage(corrupted, "XML_VALUES не отсортированы или повторяются")
+    expectCorruptionMessage(corrupted, "XML_VALUES повторяются")
   })
 
   it.each(["Справочник", "Справочник.Товары.Элемент[01]"])("rejects malformed logicalAddress %s", (logicalAddress) => {
@@ -344,6 +378,10 @@ function swapFirstRecordIds(section: Buffer): Buffer {
   section.writeUInt32LE(second, 0)
   section.writeUInt32LE(first, section.length / 2)
   return section
+}
+
+function duplicateFirstRecordId(section: Buffer): Buffer {
+  return writeU32(section, 0, section.readUInt32LE(section.length / 2))
 }
 
 function findStringId(source: Uint8Array, value: string): number {

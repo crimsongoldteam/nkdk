@@ -22,7 +22,7 @@ export const importTypeDescriptionFromXML = (
 ): TypeDescription | undefined => {
   if (!xml) return undefined
 
-  const types = extractTypes(xml)
+  const { types, xmlContainerByType } = extractTypesAndXMLContainers(xml)
   const typeId = getTypeIds(xml["v8:TypeId"])
   const stringQualifiers = getStringQualifiers(_context, xml["v8:StringQualifiers"])
   const numberQualifiers = getNumberQualifiers(_context, xml["v8:NumberQualifiers"])
@@ -37,7 +37,6 @@ export const importTypeDescriptionFromXML = (
   }
 
   if (result.type.length === 0 && result.typeId === undefined) return undefined
-  const xmlContainerByType = extractXMLContainerByType(xml)
   if (Object.keys(xmlContainerByType).length > 0) {
     Object.defineProperty(result, TYPE_DESCRIPTION_XML_CONTAINER_BY_TYPE, {
       value: xmlContainerByType,
@@ -74,16 +73,21 @@ export const getTypes = (type: TypeDescriptionXMLType | TypeDescriptionXMLType[]
   return typeArray.map((typeItem) => getType(typeItem))
 }
 
-const extractXMLContainerByType = (item: TypeDescriptionXML): TypeDescriptionXMLContainerByType => {
+const extractTypesAndXMLContainers = (
+  item: TypeDescriptionXML
+): { types: string[]; xmlContainerByType: TypeDescriptionXMLContainerByType } => {
+  const type = getTypes(item["v8:Type"]) ?? []
+  const typeSet = getTypes(item["v8:TypeSet"]) ?? []
+  const types = [...type, ...typeSet]
   const result: TypeDescriptionXMLContainerByType = {}
-  for (const type of getTypes(item["v8:Type"]) ?? []) result[type] = "Type"
-  for (const type of getTypes(item["v8:TypeSet"]) ?? []) result[type] = "TypeSet"
+  for (const currentType of type) result[currentType] = "Type"
+  for (const currentType of typeSet) result[currentType] = "TypeSet"
 
   if ((item as TypeDescriptionXMLWithTypeSetAttribute)["_xsi:type"] === "v8:TypeSet") {
-    for (const type of getTypes(item["v8:Type"]) ?? []) result[type] = "TypeSetAttribute"
+    for (const currentType of type) result[currentType] = "TypeSetAttribute"
   }
 
-  return result
+  return { types, xmlContainerByType: result }
 }
 
 const shouldImportReferenceSourceTypes = (context: ConfigurationContext): boolean =>

@@ -1,8 +1,12 @@
 import { describe, expect, it } from "vitest"
-import { fullFormCommands, minimalFormCommandsFromXML } from "./__fixtures__/data"
+import { fullFormCommands, fullFormCommandsYAML, minimalFormCommandsFromXML } from "./__fixtures__/data"
 import { importPropertyFromXML, PropertyRule } from "../../../orchestration"
 import { mockContextFromXML } from "../../../../tests/mockContext"
 import { testImportPropertyFromXML } from "../../../../tests/property/importPropertyFromXML"
+import { createLocalIndexesCollector } from "../../../project/localIndexes"
+import { getTypeRule } from "../../../orchestration/property/typeRuleRegistry"
+import { readAndParseXMLFile } from "../../../../tests/readAndParseXMLFile"
+import { testFixturesDir } from "../../../../tests/testFixturesDir"
 
 import "./types"
 
@@ -43,5 +47,24 @@ describe("import FormCommands from XML", () => {
     })
 
     expect(result).toEqual(minimalFormCommandsFromXML)
+  })
+
+  it("imports full.xml directly to YAML", () => {
+    const direct = getTypeRule("FormCommands", "importFromXMLToYAML")
+    if (direct === undefined) throw new Error("FormCommands direct converter is not registered")
+    const fixtureXML = readAndParseXMLFile<Record<string, unknown>>("full.xml", testFixturesDir(import.meta.url)).Commands
+
+    expect(
+      direct({
+        context: { ...mockContextFromXML(), exportToYAML: { toTyped: true } },
+        rule,
+        xml: fixtureXML,
+        traversal: {
+          yamlPath: ["Команды"],
+          rulePath: [{ propertyKey: "commands" }],
+          collector: createLocalIndexesCollector(),
+        },
+      })
+    ).toEqual(fullFormCommandsYAML)
   })
 })

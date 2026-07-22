@@ -117,6 +117,7 @@ export const MetadataAccumulationRegisterRules = {
       defaultValueXMLRaw: "",
     }),
     registerType: systemEnumerationRule({
+      ownerFactRole: "registerType",
       yaml: "ВидРегистра",
       typeSE: "AccumulationRegisterType",
       defaultValueXML: "Balance",

@@ -3,13 +3,12 @@ import { dirname, isAbsolute, posix, relative, resolve, sep, win32 } from "node:
 import pLimit from "p-limit"
 import type { ImportResultFile } from "./types"
 
-const DEFAULT_TRANSFER_CONCURRENCY = 16
+const DEFAULT_COPY_CONCURRENCY = 16
 const VIRTUAL_PROJECT_ROOT = "/__nkdk_project__"
 
 interface ImportTransferFileOperations {
   realpath(path: string): Promise<string>
   mkdir(path: string): Promise<void>
-  rename(source: string, target: string): Promise<void>
   copyFile(source: string, target: string): Promise<void>
 }
 
@@ -24,7 +23,6 @@ const defaultFileOperations: ImportTransferFileOperations = {
   async mkdir(path) {
     await fs.promises.mkdir(path, { recursive: true })
   },
-  rename: fs.promises.rename,
   copyFile: fs.promises.copyFile,
 }
 
@@ -38,43 +36,32 @@ export function mergeImportResultFiles(files: readonly ImportResultFile[]): Impo
   return [...files]
 }
 
-export async function transferImportResult(
+export async function copyXmlImportExternalFiles(
   params: TransferImportResultParams,
   fileOperations: ImportTransferFileOperations = defaultFileOperations
 ): Promise<void> {
-  const files = mergeImportResultFiles(params.files)
+  const xmlFiles = mergeImportResultFiles(params.files).filter((file) => file.sourceKind === "xml")
+  if (xmlFiles.length === 0) return
+
   const projectRoot = resolve(params.projectDir)
   const concurrency = normalizeConcurrency(params.concurrency)
   const realProjectRoot = await fileOperations.realpath(projectRoot)
   const preparedFiles = await Promise.all(
-    files.map(async (file) => {
+    xmlFiles.map(async (file) => {
       const targetPath = targetPathInsideProject(projectRoot, file.targetProjectPath)
       await assertRealTargetInsideProject(realProjectRoot, dirname(targetPath), file.targetProjectPath, fileOperations)
       return { file, targetPath }
     })
   )
   const limit = pLimit(concurrency)
-  let aborted = false
-  let failed = false
-  let firstError: unknown
-
-  const transfers = preparedFiles.map((prepared) =>
-    limit(async () => {
-      if (aborted) return
-      try {
-        await transferFile(prepared.file, prepared.targetPath, fileOperations)
-      } catch (caught) {
-        if (!failed) {
-          failed = true
-          firstError = caught
-        }
-        aborted = true
-        throw caught
-      }
-    })
+  await Promise.all(
+    preparedFiles.map((prepared) =>
+      limit(async () => {
+        await fileOperations.mkdir(dirname(prepared.targetPath))
+        await fileOperations.copyFile(prepared.file.sourcePath, prepared.targetPath)
+      })
+    )
   )
-  await Promise.allSettled(transfers)
-  if (failed) throw firstError
 }
 
 async function assertRealTargetInsideProject(
@@ -105,22 +92,6 @@ async function realpathClosestExistingAncestor(
       candidate = parent
     }
   }
-}
-
-async function transferFile(
-  file: ImportResultFile,
-  targetPath: string,
-  fileOperations: ImportTransferFileOperations
-): Promise<void> {
-  const targetDirectory = dirname(targetPath)
-  await fileOperations.mkdir(targetDirectory)
-
-  if (file.sourceKind === "worker") {
-    await fileOperations.rename(file.sourcePath, targetPath)
-    return
-  }
-
-  await fileOperations.copyFile(file.sourcePath, targetPath)
 }
 
 function normalizedTargetProjectPath(targetProjectPath: string): string {
@@ -162,9 +133,9 @@ function targetOutsideProjectError(targetProjectPath: string): Error {
 }
 
 function normalizeConcurrency(concurrency: number | undefined): number {
-  if (concurrency === undefined) return DEFAULT_TRANSFER_CONCURRENCY
+  if (concurrency === undefined) return DEFAULT_COPY_CONCURRENCY
   if (!Number.isSafeInteger(concurrency) || concurrency < 1) {
-    throw new Error("Степень параллелизма публикации XML-import должна быть положительным целым числом")
+    throw new Error("Степень параллелизма копирования XML-import должна быть положительным целым числом")
   }
   return concurrency
 }

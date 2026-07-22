@@ -52,7 +52,7 @@ export type ImportWorkerCommand =
       operationId: string
       workerIndex: number
       context: ConfigurationContextFromXML
-      tempDir: string
+      outputDir: string
     }
   | { kind: "firstPass"; assignments: ImportAssignment[] }
   | { kind: "secondPass"; sharedMetadata: SharedValidationSnapshot }

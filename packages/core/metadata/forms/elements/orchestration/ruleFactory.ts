@@ -13,6 +13,7 @@ import { PropertyRuleType } from "../../../orchestration/property/registry"
 import { registerTypeRule } from "../../../orchestration/property/typeRuleRegistry"
 import type { MetadataItem, PropertyRule } from "../../../orchestration/property/types"
 import { importSingleElementFromXML } from "./fromXML"
+import { importSingleFormElementFromXMLToYAML } from "./fromXMLToYAML"
 import { importSingleElementFromYAML } from "./fromYAML"
 import { applyReferenceNameMode, type SingletonNameStyle } from "./singletonName"
 import type { ElementRule, ElementType, ElementXML, ElementXMLWithoutId, SingleElementType } from "./types"
@@ -55,6 +56,17 @@ export const registerElementAsType = <Rule extends ElementRule & { itemType: Sin
   const itemType = elementRule.itemType
 
   registerImportFromXML({ propertyType, elementRule, nameStyle })
+  registerTypeRule(propertyType, "importFromXMLToYAML", ({ context, xml, ownerXmlName, traversal }) =>
+    importSingleFormElementFromXMLToYAML({
+      context,
+      rule: elementRule,
+      xml: xml as ElementXML | undefined,
+      ownerXmlName,
+      nameStyle,
+      traversal,
+    })
+  )
+  registerTypeRule(propertyType, "nestedItemRule", { itemRule: elementRule })
   registerExportToYAML(propertyType)
   registerimportFromYAML(propertyType, itemType)
   registerExportToXML({ propertyType, toXML, elementRule, nameStyle })
@@ -158,6 +170,9 @@ const registerExportToXML = <Rule extends ElementRule>(params: {
       additionalParams: {
         ...extraParams,
         name,
+        ...(nameStyle?.canonicalNameMode === "ownerSuffix"
+          ? { configurationIndexSegment: nameStyle.canonicalSuffix }
+          : {}),
       },
     })
   }

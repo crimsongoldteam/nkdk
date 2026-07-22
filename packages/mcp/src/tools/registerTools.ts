@@ -25,7 +25,8 @@ export function registerNkdkCapabilities(server: RegisterableServer): void {
     "nkdk.get_schema",
     {
       title: "Get NKDK YAML schema",
-      description: "Возвращает JSON Schema или краткую JSON-сводку схемы YAML-файла NKDK.",
+      description:
+        "Возвращает JSON Schema или краткую JSON-сводку: по metadataRef или по structurePath внутри компонента NKDK-проекта. projectDir - корень проекта, componentPath по умолчанию cf.",
       inputSchema: getSchemaInputShape,
     },
     async (input) => jsonToolResult(await getSchema(input))
@@ -35,7 +36,8 @@ export function registerNkdkCapabilities(server: RegisterableServer): void {
     "nkdk.describe_project_structure",
     {
       title: "Describe NKDK project structure",
-      description: "Возвращает допустимые файлы и подкаталоги для каталога NKDK YAML-проекта.",
+      description:
+        "Возвращает допустимые файлы и подкаталоги для structurePath внутри компонента NKDK-проекта. projectDir - корень проекта, componentPath по умолчанию cf.",
       inputSchema: describeProjectStructureInputShape,
     },
     async (input) => jsonToolResult(await describeProjectStructure(input))
@@ -45,7 +47,7 @@ export function registerNkdkCapabilities(server: RegisterableServer): void {
     "nkdk.validate_project",
     {
       title: "Validate NKDK YAML project",
-      description: "Проверяет YAML-проект NKDK и возвращает diagnostics в JSON.",
+      description: "Проверяет компонент cf в корне NKDK-проекта и возвращает diagnostics в JSON.",
       inputSchema: validateProjectInputShape,
     },
     async (input) => jsonToolResult(await validateYamlProject(input))
@@ -56,7 +58,7 @@ export function registerNkdkCapabilities(server: RegisterableServer): void {
     {
       title: "Import 1C XML to NKDK YAML",
       description:
-        "Импортирует готовую XML-выгрузку 1С в YAML-проект, не очищает Проект и не подключается к 1С. При неуспехе сохраняет временные файлы в .nkdk/tmp/import/<operation-id>. Пишет файлы только при allowWrite=true.",
+        "Импортирует готовую XML-выгрузку одного компонента из xmlDir в projectDir/componentPath. componentPath по умолчанию cf; цель должна отсутствовать или быть пустой. Операция не подключается к 1С и не импортирует все компоненты за один вызов. Пишет файлы только при allowWrite=true.",
       inputSchema: importFromXmlInputShape,
     },
     async (input) => jsonToolResult(await importFromXml(input))
@@ -67,7 +69,7 @@ export function registerNkdkCapabilities(server: RegisterableServer): void {
     {
       title: "Sync NKDK YAML to 1C XML",
       description:
-        "Формирует полный XML-проект из YAML-проекта через файл индекса конфигурации. XML-каталог должен отсутствовать или быть пустым; файлы пишутся только при allowWrite=true.",
+        "Выгружает один YAML-компонент projectDir/componentPath в заданный xmlDir через файл индекса конфигурации. componentPath по умолчанию cf; xmlDir не вычисляется как xmlRootDir/componentPath. Файлы пишутся только при allowWrite=true.",
       inputSchema: syncToXmlInputShape,
     },
     async (input) => jsonToolResult(await syncToXml(input))
@@ -78,7 +80,7 @@ export function registerNkdkCapabilities(server: RegisterableServer): void {
     {
       title: "Initialize NKDK XML sync state",
       description:
-        "Создаёт .nkdk-sync.yaml для инкрементальной XML-синхронизации. Пишет файл только при allowWrite=true.",
+        "Создаёт .nkdk-sync.yaml для выбранного YAML-компонента projectDir/componentPath. componentPath по умолчанию cf. Пишет файл только при allowWrite=true.",
       inputSchema: initSyncStateInputShape,
     },
     async (input) => jsonToolResult(await initSyncState(input))
@@ -89,7 +91,7 @@ export function registerNkdkCapabilities(server: RegisterableServer): void {
     {
       title: "Rename NKDK metadata item",
       description:
-        "Единственный MCP-способ сохранить XML/reference identity при переименовании metadata-объекта или дочернего элемента.",
+        "Единственный MCP-способ сохранить XML/reference identity при переименовании metadataRef в выбранном компоненте projectDir/componentPath.",
       inputSchema: renameItemInputShape,
     },
     async (input) => jsonToolResult(await renameItem(input))
@@ -99,7 +101,8 @@ export function registerNkdkCapabilities(server: RegisterableServer): void {
     "nkdk.find_references",
     {
       title: "Find NKDK metadata references",
-      description: "Ищет внешние ссылки на metadata-объект или дочерний элемент в YAML-проекте. Файлы не изменяет.",
+      description:
+        "Ищет внешние ссылки на metadataRef в выбранном компоненте projectDir/componentPath. componentPath по умолчанию cf. Файлы не изменяет.",
       inputSchema: findReferencesInputShape,
     },
     async (input) => jsonToolResult(await findReferences(input))

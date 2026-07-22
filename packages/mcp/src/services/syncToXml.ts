@@ -1,6 +1,7 @@
 import { loadCoreApi } from "../coreApi"
 import { errorMessage, toolError, toolSuccess, type ToolPayload } from "../contracts/common"
 import { type SyncToXmlInput } from "../contracts/syncToXml"
+import { resolveComponent } from "./componentResolver"
 
 interface CoreDiagnostic {
   severity: "error" | "warning"
@@ -60,11 +61,17 @@ export type SyncToXmlPayload = ToolPayload<{
 
 export async function syncToXml(input: SyncToXmlInput, deps?: SyncToXmlDeps): Promise<SyncToXmlPayload> {
   try {
+    const component = resolveComponent({
+      projectDir: input.projectDir,
+      componentPath: input.componentPath,
+    })
+    if (!component.ok) return component.error
+
     const core = deps ?? (await loadCoreApi())
     if (input.allowWrite !== true) {
       if (!core.planSyncToXml) return toolError("core_error", "План XML-синхронизации недоступен")
       const result = await core.planSyncToXml({
-        yamlDir: input.yamlDir,
+        yamlDir: component.componentDir,
         xmlDir: input.xmlDir,
         ...(input.baseId === undefined ? {} : { baseId: input.baseId }),
       })
@@ -88,7 +95,7 @@ export async function syncToXml(input: SyncToXmlInput, deps?: SyncToXmlDeps): Pr
           },
         },
       },
-      yamlDir: input.yamlDir,
+      yamlDir: component.componentDir,
       xmlDir: input.xmlDir,
       ...(input.baseId === undefined ? {} : { baseId: input.baseId }),
       ...(input.concurrency === undefined ? {} : { concurrency: input.concurrency }),

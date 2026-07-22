@@ -7,6 +7,7 @@ import { registerExportToXML } from "./registerExportToXML"
 import { registerExportToYAML } from "./registerExportToYAML"
 import { registerImportFromXML } from "./registerImportFromXML"
 import { registerImportFromYAML } from "./registerImportFromYAML"
+import { importMetadataItemFromXMLToYAML } from "./fromXMLToYAML"
 import { exportMetadataItemToJSONSchema } from "./toJSONSchema"
 
 type MetadataItemRuleParams<Rule extends MetadataItemRule, PropertyType extends PropertyRuleType> = {
@@ -31,6 +32,10 @@ export const registerMetadataItemRule = <Rule extends MetadataItemRule, Property
   registerImportFromYAML(propertyType, itemRule)
   registerExportToYAML(propertyType, itemRule)
   registerExportToXML(propertyType, itemRule)
+  registerTypeRule(propertyType, "importFromXMLToYAML", ({ context, xml, name, traversal }) =>
+    importMetadataItemFromXMLToYAML({ context, rule: itemRule, xml, name, traversal })
+  )
+  registerTypeRule(propertyType, "nestedItemRule", { itemRule })
   registerTypeRule(propertyType, "xmlImportRoutes", ({ propertyRule }) => {
     if (propertyRule?.filePath === undefined) return []
     return [

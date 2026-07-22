@@ -74,7 +74,7 @@ function createCollectionMemberResolver(params: { modelName: string; yamlName: s
     if (target.segments.length !== 1) return undefined
 
     const item = memberCollectionItem(
-      (owner ? metadataRecord(owner.model)[params.modelName] : undefined) ?? metadataRecord(rawYaml)[params.yamlName],
+      (owner ? metadataRecord(owner.facts)[params.modelName] : undefined) ?? metadataRecord(rawYaml)[params.yamlName],
       segment.name
     )
     return item === undefined
@@ -90,7 +90,7 @@ function collectionMemberIndexContributor(params: {
   return ({ owner }) => {
     const root = rootFromYAML[owner.ref.kind]
     if (!root || !owner.ref.name) return []
-    const collection = metadataRecord(owner.model)[params.modelName]
+    const collection = metadataRecord(owner.facts)[params.modelName]
     const entries: ProjectMemberIndexEntry[] = []
 
     for (const item of collectionItems(collection)) {

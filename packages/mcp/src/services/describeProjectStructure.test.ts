@@ -57,17 +57,25 @@ describe("describeProjectStructure service", () => {
     for (const dir of tempDirs.splice(0)) rmSync(dir, { recursive: true, force: true })
   })
 
-  it("returns project structure as JSON payload", async () => {
+  it("returns selected component structure as JSON payload", async () => {
     const projectDir = createProject()
+    const componentDir = join(projectDir, "cfe", "Расширение")
 
-    const result = await describeProjectStructure({ projectDir, directoryPath: "Справочник/Товары", depth: 1 })
+    const result = await describeProjectStructure({
+      projectDir,
+      componentPath: "cfe/Расширение",
+      structurePath: "Справочник/Товары",
+      depth: 1,
+    })
 
     expect(result.ok).toBe(true)
     if (!result.ok) throw new Error(result.message)
-    expect(result.directoryPath).toBe("Справочник/Товары")
+    expect(result.projectDir).toBe(projectDir)
+    expect(result.componentPath).toBe("cfe/Расширение")
+    expect(result.structurePath).toBe("Справочник/Товары")
     expect(result.depth).toBe(1)
     expect(core.describeMetadataProjectDirectoryStructure).toHaveBeenCalledWith({
-      projectDir,
+      projectDir: componentDir,
       directoryPath: "Справочник/Товары",
       depth: 1,
     })
@@ -87,7 +95,7 @@ describe("describeProjectStructure service", () => {
     expect(result).toEqual({
       ok: false,
       code: "not_found",
-      message: "YAML-проект не найден",
+      message: "Проект не найден",
       details: { projectDir },
     })
   })
@@ -102,7 +110,7 @@ describe("describeProjectStructure service", () => {
     expect(result).toEqual({
       ok: false,
       code: "invalid_arguments",
-      message: "Путь не является каталогом YAML-проекта",
+      message: "Путь не является каталогом проекта",
       details: { projectDir: filePath },
     })
   })
@@ -115,13 +123,13 @@ describe("describeProjectStructure service", () => {
       throw new Error("Каталог не соответствует структуре metadata-проекта")
     })
 
-    const outside = await describeProjectStructure({ projectDir, directoryPath: outsideDir })
+    const outside = await describeProjectStructure({ projectDir, structurePath: outsideDir })
     expect(outside.ok).toBe(false)
     if (outside.ok) throw new Error("expected failure")
     expect(outside.code).toBe("invalid_arguments")
-    expect(outside.message).toBe("Каталог находится вне указанного YAML-проекта")
+    expect(outside.message).toBe("structurePath должен быть относительным путем")
 
-    const unsupported = await describeProjectStructure({ projectDir, directoryPath: "Справочник/Товары/Команды" })
+    const unsupported = await describeProjectStructure({ projectDir, structurePath: "Справочник/Товары/Команды" })
     expect(unsupported.ok).toBe(false)
     if (unsupported.ok) throw new Error("expected failure")
     expect(unsupported.code).toBe("invalid_arguments")
@@ -130,7 +138,8 @@ describe("describeProjectStructure service", () => {
 
   function createProject(): string {
     const projectDir = mkdtempSync(join(tmpdir(), "nkdk-mcp-project-structure-"))
-    mkdirSync(projectDir, { recursive: true })
+    mkdirSync(join(projectDir, "cf"), { recursive: true })
+    mkdirSync(join(projectDir, "cfe", "Расширение"), { recursive: true })
     tempDirs.push(projectDir)
     return projectDir
   }

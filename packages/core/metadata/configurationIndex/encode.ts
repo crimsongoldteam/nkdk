@@ -25,8 +25,6 @@ const DIRECTORY_ENTRY_LENGTH = 64
 const SECTION_COUNT = 7
 const MAX_U64 = (1n << 64n) - 1n
 
-const compareUtf8 = (left: string, right: string): number => Buffer.compare(Buffer.from(left), Buffer.from(right))
-
 export function encodeConfigurationIndex(data: ConfigurationIndexData): Buffer {
   const normalized = normalizeIndex(data)
   const sections: EncodedSection[] = [
@@ -44,43 +42,27 @@ export function encodeConfigurationIndex(data: ConfigurationIndexData): Buffer {
 function normalizeIndex(data: ConfigurationIndexData): NormalizedIndex {
   validateBinding(data)
 
-  const projectFiles = [...data.projectFiles].sort((left, right) => compareUtf8(left.projectPath, right.projectPath))
+  const projectFiles = [...data.projectFiles]
   for (const file of projectFiles) {
     validateProjectPath(file.projectPath)
     assertU64(file.contentHash, "contentHash PROJECT_FILES")
   }
-  rejectAdjacentDuplicates(
-    projectFiles,
-    (left, right) => compareUtf8(left.projectPath, right.projectPath) === 0,
-    "Повторный путь PROJECT_FILES"
-  )
+  rejectDuplicateStrings(projectFiles.map((file) => file.projectPath), "Повторный путь PROJECT_FILES")
 
-  const identities = [...data.identities].sort(
-    (left, right) => compareUtf8(left.logicalAddress, right.logicalAddress) || identityKind(left) - identityKind(right)
-  )
+  const identities = [...data.identities]
   for (const identity of identities) validateIdentity(identity)
-  rejectAdjacentDuplicates(
-    identities,
-    (left, right) =>
-      compareUtf8(left.logicalAddress, right.logicalAddress) === 0 && identityKind(left) === identityKind(right),
+  rejectDuplicateStrings(
+    identities.map((identity) => `${identity.logicalAddress}\0${identity.kind}`),
     "Повторная пара logicalAddress + identityKind в IDENTITIES"
   )
 
-  const xmlNodes = [...data.xmlNodes].sort((left, right) => compareUtf8(left.logicalAddress, right.logicalAddress))
+  const xmlNodes = [...data.xmlNodes]
   for (const node of xmlNodes) validateXmlNode(node)
-  rejectAdjacentDuplicates(
-    xmlNodes,
-    (left, right) => compareUtf8(left.logicalAddress, right.logicalAddress) === 0,
-    "Повторный logicalAddress в XML_NODES"
-  )
+  rejectDuplicateStrings(xmlNodes.map((node) => node.logicalAddress), "Повторный logicalAddress в XML_NODES")
 
-  const xmlValues = [...data.xmlValues].sort((left, right) => compareUtf8(left.logicalAddress, right.logicalAddress))
+  const xmlValues = [...data.xmlValues]
   for (const value of xmlValues) validateXmlValue(value)
-  rejectAdjacentDuplicates(
-    xmlValues,
-    (left, right) => compareUtf8(left.logicalAddress, right.logicalAddress) === 0,
-    "Повторный logicalAddress в XML_VALUES"
-  )
+  rejectDuplicateStrings(xmlValues.map((value) => value.logicalAddress), "Повторный logicalAddress в XML_VALUES")
 
   const normalizedData: ConfigurationIndexData = {
     binding: data.binding,
@@ -98,9 +80,7 @@ function normalizeIndex(data: ConfigurationIndexData): NormalizedIndex {
     const key = numberArrayKey(ids)
     if (!ordersByKey.has(key)) ordersByKey.set(key, node.order)
   }
-  const orders = [...ordersByKey.values()].sort((left, right) =>
-    compareNumberArrays(left.map(strings.id), right.map(strings.id))
-  )
+  const orders = [...ordersByKey.values()]
   const orderIds = new Map(orders.map((order, index) => [numberArrayKey(order.map(strings.id)), index + 1]))
 
   return {
@@ -228,17 +208,20 @@ function encodeBinding(normalized: NormalizedIndex): EncodedSection {
 }
 
 function encodeStrings(normalized: NormalizedIndex): EncodedSection {
-  const records = normalized.strings.strings.map((value) => {
-    const valueBytes = Buffer.from(value, "utf8")
-    const record = Buffer.alloc(align8(4 + valueBytes.length))
-    record.writeUInt32LE(valueBytes.length, 0)
-    valueBytes.copy(record, 4)
-    return record
-  })
+  const byteLengths = normalized.strings.strings.map((value) => Buffer.byteLength(value, "utf8"))
+  const bytes = Buffer.alloc(byteLengths.reduce((total, byteLength) => total + align8(4 + byteLength), 0))
+  let offset = 0
+  for (let index = 0; index < normalized.strings.strings.length; index += 1) {
+    const value = normalized.strings.strings[index]!
+    const byteLength = byteLengths[index]!
+    bytes.writeUInt32LE(byteLength, offset)
+    bytes.write(value, offset + 4, byteLength, "utf8")
+    offset += align8(4 + byteLength)
+  }
   return {
     type: 2,
-    recordCount: BigInt(records.length),
-    bytes: Buffer.concat(records),
+    recordCount: BigInt(normalized.strings.strings.length),
+    bytes,
   }
 }
 
@@ -277,18 +260,21 @@ function encodeIdentities(normalized: NormalizedIndex): EncodedSection {
 }
 
 function encodeXmlOrders(normalized: NormalizedIndex): EncodedSection {
-  const records = normalized.orders.map((order) => {
-    const record = Buffer.alloc(align8(8 + order.length * 4))
-    record.writeUInt32LE(order.length, 0)
-    order.forEach((propertyKey, index) => {
-      record.writeUInt32LE(normalized.strings.id(propertyKey), 8 + index * 4)
+  const recordLengths = normalized.orders.map((order) => align8(8 + order.length * 4))
+  const bytes = Buffer.alloc(recordLengths.reduce((total, length) => total + length, 0))
+  let offset = 0
+  for (let orderIndex = 0; orderIndex < normalized.orders.length; orderIndex += 1) {
+    const order = normalized.orders[orderIndex]!
+    bytes.writeUInt32LE(order.length, offset)
+    order.forEach((propertyKey, propertyIndex) => {
+      bytes.writeUInt32LE(normalized.strings.id(propertyKey), offset + 8 + propertyIndex * 4)
     })
-    return record
-  })
+    offset += recordLengths[orderIndex]!
+  }
   return {
     type: 5,
-    recordCount: BigInt(records.length),
-    bytes: Buffer.concat(records),
+    recordCount: BigInt(normalized.orders.length),
+    bytes,
   }
 }
 
@@ -296,27 +282,31 @@ function encodeXmlNodes(normalized: NormalizedIndex): EncodedSection {
   const records = normalized.data.xmlNodes.map((node) => {
     const aliases = normalizeAliases(node, normalized)
     const present = normalizePresent(node, normalized)
-    const record = Buffer.alloc(align8(16 + aliases.length * 8 + present.length * 4))
-    record.writeUInt32LE(normalized.strings.id(node.logicalAddress), 0)
-    record.writeUInt32LE(normalized.orderId(node.order), 4)
-    record.writeUInt32LE(aliases.length, 8)
-    record.writeUInt32LE(present.length, 12)
-    let offset = 16
+    return { node, aliases, present, byteLength: align8(16 + aliases.length * 8 + present.length * 4) }
+  })
+  const bytes = Buffer.alloc(records.reduce((total, record) => total + record.byteLength, 0))
+  let recordOffset = 0
+  for (const { node, aliases, present, byteLength } of records) {
+    bytes.writeUInt32LE(normalized.strings.id(node.logicalAddress), recordOffset)
+    bytes.writeUInt32LE(normalized.orderId(node.order), recordOffset + 4)
+    bytes.writeUInt32LE(aliases.length, recordOffset + 8)
+    bytes.writeUInt32LE(present.length, recordOffset + 12)
+    let offset = recordOffset + 16
     for (const alias of aliases) {
-      record.writeUInt32LE(alias.propertyKeyId, offset)
-      record.writeUInt32LE(alias.sourceXmlKeyId, offset + 4)
+      bytes.writeUInt32LE(alias.propertyKeyId, offset)
+      bytes.writeUInt32LE(alias.sourceXmlKeyId, offset + 4)
       offset += 8
     }
     for (const propertyKeyId of present) {
-      record.writeUInt32LE(propertyKeyId, offset)
+      bytes.writeUInt32LE(propertyKeyId, offset)
       offset += 4
     }
-    return record
-  })
+    recordOffset += byteLength
+  }
   return {
     type: 6,
     recordCount: BigInt(records.length),
-    bytes: Buffer.concat(records),
+    bytes,
   }
 }
 
@@ -328,22 +318,19 @@ function normalizeAliases(
     propertyKeyId: normalized.strings.id(propertyKey),
     sourceXmlKeyId: normalized.strings.id(sourceXmlKey),
   }))
-  aliases.sort((left, right) => left.propertyKeyId - right.propertyKeyId)
-  for (let index = 0; index < aliases.length; index += 1) {
-    const alias = aliases[index]
+  const propertyKeys = new Set<number>()
+  for (const alias of aliases) {
     if (alias.propertyKeyId === alias.sourceXmlKeyId) {
       throw new Error("Псевдоним XML_NODES совпадает с каноническим именем")
     }
-    if (index > 0 && aliases[index - 1].propertyKeyId === alias.propertyKeyId) {
-      throw new Error("Повторный ключ псевдонима в XML_NODES")
-    }
+    if (propertyKeys.has(alias.propertyKeyId)) throw new Error("Повторный ключ псевдонима в XML_NODES")
+    propertyKeys.add(alias.propertyKeyId)
   }
   return aliases
 }
 
 function normalizePresent(node: ConfigurationXmlNode, normalized: NormalizedIndex): number[] {
   const present = (node.present ?? []).map((propertyKey) => normalized.strings.id(propertyKey))
-  present.sort((left, right) => left - right)
   rejectDuplicateNumbers(present, "Повторный ключ присутствия в XML_NODES")
   return present
 }
@@ -460,33 +447,24 @@ function identityKind(identity: ConfigurationIdentity): 1 | 2 | 3 {
   }
 }
 
-function rejectAdjacentDuplicates<T>(
-  values: readonly T[],
-  isDuplicate: (left: T, right: T) => boolean,
-  message: string
-): void {
-  for (let index = 1; index < values.length; index += 1) {
-    if (isDuplicate(values[index - 1], values[index])) throw new Error(message)
-  }
-}
-
 function rejectDuplicateNumbers(values: readonly number[], message: string): void {
-  const sorted = [...values].sort((left, right) => left - right)
-  for (let index = 1; index < sorted.length; index += 1) {
-    if (sorted[index - 1] === sorted[index]) throw new Error(message)
+  const seen = new Set<number>()
+  for (const value of values) {
+    if (seen.has(value)) throw new Error(message)
+    seen.add(value)
   }
-}
-
-function compareNumberArrays(left: readonly number[], right: readonly number[]): number {
-  const commonLength = Math.min(left.length, right.length)
-  for (let index = 0; index < commonLength; index += 1) {
-    if (left[index] !== right[index]) return left[index] - right[index]
-  }
-  return left.length - right.length
 }
 
 function numberArrayKey(values: readonly number[]): string {
   return values.join(",")
+}
+
+function rejectDuplicateStrings(values: readonly string[], message: string): void {
+  const seen = new Set<string>()
+  for (const value of values) {
+    if (seen.has(value)) throw new Error(message)
+    seen.add(value)
+  }
 }
 
 function align8(value: number): number {

@@ -1,6 +1,11 @@
 import { describe, expect, it } from "vitest"
 import { PropertyRule } from "../../../orchestration"
 import { testImportPropertyFromXML } from "../../../../tests/property/importPropertyFromXML"
+import { mockContextFromXML } from "../../../../tests/mockContext"
+import { readAndParseXMLFile } from "../../../../tests/readAndParseXMLFile"
+import { testFixturesDir } from "../../../../tests/testFixturesDir"
+import { createLocalIndexesCollector } from "../../../project/localIndexes"
+import { getTypeRule } from "../../../orchestration/property/typeRuleRegistry"
 import {
   fullFilterItemComparison,
   fullFilterItemGroup,
@@ -11,6 +16,7 @@ import "./types"
 
 const rule: PropertyRule = {
   type: "FilterItem",
+  yaml: "Элементы",
 }
 
 describe("import FilterItem from XML", () => {
@@ -83,5 +89,37 @@ describe("import FilterItem from XML", () => {
     })
 
     expect(result).toEqual([fullFilterItemGroup])
+  })
+
+  it("imports FilterItemComparison directly to YAML", () => {
+    const direct = getTypeRule("FilterItem", "importFromXMLToYAML")
+    if (direct === undefined) throw new Error("FilterItem direct converter is not registered")
+    const fixtureXML = readAndParseXMLFile<Record<string, unknown>>("full.xml", testFixturesDir(import.meta.url))["dcsset:item"]
+
+    expect(
+      direct({
+        context: { ...mockContextFromXML(), exportToYAML: { toTyped: true } },
+        rule,
+        xml: fixtureXML,
+        traversal: {
+          yamlPath: ["Элементы"],
+          rulePath: [{ propertyKey: "items" }],
+          collector: createLocalIndexesCollector(),
+        },
+      })
+    ).toEqual([
+      {
+        Использование: "Ложь",
+        ЛевоеЗначение: ".Ссылка",
+        ПравоеЗначение: "Справочник.Справочник1.ПустаяСсылка",
+        Представление: {
+          Тип: "МногоязычнаяСтрока",
+          Значение: "Представление",
+        },
+        ПредставлениеПользовательскойНастройки: "Пользовательское представление",
+        РежимОтображения: "Обычный",
+        ИспользоватьПользовательскуюНастройку: "7b8eb4d9-8661-46f5-9da8-dbe4d77a2292",
+      },
+    ])
   })
 })

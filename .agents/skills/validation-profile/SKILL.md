@@ -15,6 +15,7 @@ packages/core/dist/index.js
 ```
 
 Он не использует MCP service и не импортирует `packages/core/index.ts`, потому что это source/tsx path.
+Core выводит профиль при `NKDK_PROFILE=1`.
 
 ## Жёсткие инварианты
 
@@ -50,7 +51,7 @@ node .agents/skills/validation-profile/validation-profile.mjs /path/to/yaml --ru
 
 - `--runs N` — число прогонов, по умолчанию `5`.
 - `--concurrency N` — явно задать число worker'ов. Если не задано, core использует свой default.
-- `--timing` — добавить один прогон с `NKDK_VALIDATION_TIMING=1` и распарсить first/second pass worker memory.
+- `--timing` — добавить один прогон с `NKDK_PROFILE=1` и распарсить first/second pass worker memory.
 - `--json` — вывести только JSON.
 
 ## Как отвечать пользователю
@@ -76,6 +77,6 @@ worker | phase | files | processRssPeak | workerHeapPeak
 
 ## Ограничения
 
-`--timing` использует существующий `NKDK_VALIDATION_TIMING=1`, поэтому показывает first pass и second pass целиком. Он не показывает `afterRead`, `afterReferenceValidation` или другие внутренние точки, если core не был специально инструментирован.
+`--timing` использует общий `NKDK_PROFILE=1`, поэтому показывает first pass и second pass целиком. Он не показывает `afterRead`, `afterReferenceValidation` или другие внутренние точки, если core не был специально инструментирован.
 
 Если diagnostics выглядят неожиданно, явно укажи, что это результат compiled standalone, и предложи отдельную проверку parity.

@@ -8,8 +8,27 @@ import { buildFormDataPathIndex, type FormDataPathIndex } from "./formIndex"
 import { formatDataPathStandardMembers } from "./formatter"
 import { buildObjectFieldIndex } from "./objectFields"
 import type { OwnerMetadata, OwnerMetadataCache, OwnerMetadataResult } from "./ownerCache"
+import { createValidationOwnerFacts } from "./ownerFacts"
 
 describe("formatDataPathStandardMembers", () => {
+  it("keeps a single local segment without resolving it", () => {
+    const diagnostics: unknown[] = []
+
+    expect(
+      formatDataPathStandardMembers({
+        value: "Реквизит",
+        direction: "internal-to-yaml",
+        index: indexWithAttributes([]),
+        ownerCache: ownerCache([]),
+        diagnosticSink: {
+          targetProjectPath: "Форма.yaml",
+          append: (diagnostic) => diagnostics.push(diagnostic),
+        },
+      })
+    ).toBe("Реквизит")
+    expect(diagnostics).toEqual([])
+  })
+
   it("keeps ValueTable columns unchanged in both directions", () => {
     const index = indexWithAttributes([
       attribute("Список", { type: ["ValueTable"] }, [column("Код", { type: ["string"] })]),
@@ -61,7 +80,7 @@ describe("formatDataPathStandardMembers", () => {
     ).toBe("Объект.Код")
   })
 
-  it("preserves an unresolved data path and reports one import warning", () => {
+  it("preserves an unresolved user data path without an import warning", () => {
     const diagnostics: unknown[] = []
 
     const formatted = formatDataPathStandardMembers({
@@ -76,13 +95,31 @@ describe("formatDataPathStandardMembers", () => {
     })
 
     expect(formatted).toBe("Неизвестный.Переход")
+    expect(diagnostics).toEqual([])
+  })
+
+  it("reports an unresolved data path when a standard member needs formatting", () => {
+    const diagnostics: unknown[] = []
+
+    const formatted = formatDataPathStandardMembers({
+      value: "Неизвестный.LineNumber",
+      direction: "internal-to-yaml",
+      index: indexWithAttributes([]),
+      ownerCache: ownerCache([]),
+      diagnosticSink: {
+        targetProjectPath: "Справочник/Товары/Формы/Форма/Форма.yaml",
+        append: (diagnostic) => diagnostics.push(diagnostic),
+      },
+    })
+
+    expect(formatted).toBe("Неизвестный.LineNumber")
     expect(diagnostics).toEqual([
       {
         severity: "warning",
         code: "unresolved_data_path",
         targetProjectPath: "Справочник/Товары/Формы/Форма/Форма.yaml",
-        value: "Неизвестный.Переход",
-        message: "Не удалось преобразовать ПутьКДанным: Неизвестный.Переход",
+        value: "Неизвестный.LineNumber",
+        message: "Не удалось преобразовать ПутьКДанным: Неизвестный.LineNumber",
       },
     ])
   })
@@ -153,10 +190,19 @@ function owner(params: {
   model?: MetadataItem & Record<string, unknown>
 }): OwnerMetadata {
   const rule = params.rule ?? MetadataCatalogRules
+  const ref = params.ref ?? { kind: "Справочник", name: "Номенклатура" }
+  const filePath = "/tmp/Свойства.yaml"
+  const emptyFieldIndex = { fields: new Map(), standardAttributeAliases: new Map(), diagnostics: [] }
+  const facts = createValidationOwnerFacts({
+    ref,
+    filePath,
+    fieldIndex: emptyFieldIndex,
+    model: (params.model ?? { itemType: rule.itemType }) as never,
+  })
   const ownerWithoutIndex = {
-    ref: params.ref ?? { kind: "Справочник", name: "Номенклатура" },
-    filePath: "/tmp/Свойства.yaml",
-    model: params.model ?? { itemType: rule.itemType },
+    ref,
+    filePath,
+    facts,
     rule,
     spec: {
       kind: "catalog",
@@ -167,10 +213,8 @@ function owner(params: {
     },
   }
 
-  return {
-    ...ownerWithoutIndex,
-    fieldIndex: buildObjectFieldIndex(ownerWithoutIndex),
-  }
+  const fieldIndex = buildObjectFieldIndex(ownerWithoutIndex)
+  return { ...ownerWithoutIndex, facts: { ...ownerWithoutIndex.facts, fieldIndex }, fieldIndex }
 }
 
 function ownerKey(ref: OwnerMetadata["ref"]): string {

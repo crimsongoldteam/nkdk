@@ -6,6 +6,7 @@ import { ClientApplicationForm, ClientApplicationFormXML, FormMetadataXML, FormR
 import { childUid } from "../../configurationIndex/logicalAddress"
 import {
   getConfigurationIndexCollectionContext,
+  withConfigurationIndexFormElementRootLogicalAddress,
   withConfigurationIndexXmlNodeLogicalAddress,
 } from "../../configurationIndex/collector/context"
 
@@ -20,7 +21,7 @@ export function importClientApplicationFormFromXML(params: {
     collection === undefined
       ? context
       : withConfigurationIndexXmlNodeLogicalAddress(
-          context,
+          withConfigurationIndexFormElementRootLogicalAddress(context, collection.logicalAddress),
           childUid(collection.logicalAddress, "ЧастьФормы", "Содержимое")
         )
 

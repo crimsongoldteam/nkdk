@@ -6,6 +6,7 @@ import type { ConfigurationIndexData } from "../configurationIndex/types"
 import type { ConfigurationContextFromXML } from "../context/types"
 import type { ValidationOwnerFacts } from "../validation/dataPath/ownerFacts"
 import type { SharedValidationSnapshot } from "../validation/sharedValidationSnapshot"
+import { createOperationProfiler } from "../validation/profile"
 import type {
   ImportAssignment,
   ImportDiagnostic,
@@ -17,7 +18,7 @@ import type {
 } from "./types"
 
 export interface XmlImportWorkerPool {
-  initialize(params: { operationId: string; context: ConfigurationContextFromXML; tempRoot: string }): Promise<void>
+  initialize(params: { operationId: string; context: ConfigurationContextFromXML; outputDir: string }): Promise<void>
   runFirstPass(assignments: readonly ImportAssignment[]): Promise<XmlImportFirstPassPoolResult>
   runSecondPass(sharedMetadata: SharedValidationSnapshot): Promise<XmlImportSecondPassPoolResult>
   close(): Promise<void>
@@ -154,7 +155,7 @@ function createXmlImportOperationPool(params: {
     | {
         operationId: string
         context: ConfigurationContextFromXML
-        tempRoot: string
+        outputDir: string
       }
     | undefined
   let phase: PoolPhase = "new"
@@ -189,7 +190,7 @@ function createXmlImportOperationPool(params: {
             operationId: initialized.operationId,
             workerIndex,
             context: initialized.context,
-            tempDir: join(initialized.tempRoot, `worker-${workerIndex}`),
+            outputDir: initialized.outputDir,
           })
           if (initializeResponse !== undefined) {
             return failWorker(new Error("Worker вернул неожиданный результат initialize"))
@@ -207,7 +208,14 @@ function createXmlImportOperationPool(params: {
       )
 
       const diagnostics = results.flatMap((result) => result.diagnostics)
-      const fragmentData = mergeConfigurationIndexFragments(results.map((result) => result.fragmentBuffer))
+      const profiler = createOperationProfiler({ operation: "import-from-xml", scope: { scope: "main" } })
+      const fragmentData = profiler.measure(
+        "Подготовка импорта конфигурации",
+        "Обобщение фрагментов данных файла индекса конфигурации",
+        { items: results.length },
+        () => mergeConfigurationIndexFragments(results.map((result) => result.fragmentBuffer))
+      )
+      profiler.flush()
       phase = diagnostics.some((diagnostic) => diagnostic.severity === "error") ? "firstPassErrors" : "firstPassReady"
       return {
         diagnostics,
