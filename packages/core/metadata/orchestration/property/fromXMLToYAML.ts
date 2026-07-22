@@ -24,6 +24,7 @@ import {
   visitXMLImportPlan,
   type XMLImportPlanEntry,
 } from "./xmlImportPlan"
+import { sortYamlRuleProperties } from "./yamlPropertyOrder"
 import { enterNestedYamlRule } from "./yamlRuleCursor"
 import type { LocalIndexesCollector } from "../../project/localIndexes"
 import type { YamlPath } from "../../validation/yamlLocations"
@@ -442,7 +443,7 @@ export function importPropertiesFromXMLToYAML(params: {
     addProfileTime(params.profile, "configurationIndexMs", indexStartedAt)
   }
 
-  return result
+  return sortYamlRuleProperties(result)
 }
 
 function getOwnerXmlName(xml: Record<string, unknown>): string | undefined {

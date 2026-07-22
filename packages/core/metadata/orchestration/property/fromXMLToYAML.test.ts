@@ -9,6 +9,47 @@ import { registerTypeRule } from "./typeRuleRegistry"
 import type { MetadataItemRule } from "./types"
 
 describe("importPropertiesFromXMLToYAML", () => {
+  it("sorts only properties produced by the current rules", () => {
+    registerTypeRule("TestUnsortedArray" as PropertyRuleType, "importFromXMLToYAML", ({ xml }) => xml)
+    const nested = [{ Бета: 1, Альфа: 2 }]
+
+    const yaml = importPropertiesWithSources({
+      context: { ...mockContextFromXML(), exportToYAML: { toTyped: true } },
+      rule: {
+        itemType: "TestOrderedYamlItem",
+        properties: {
+          beta: { type: "string", xml: "Beta", yaml: "Бета" },
+          valueType: { type: "string", xml: "ValueType", yaml: "Тип" },
+          synonym: { type: "string", xml: "Synonym", yaml: "Синоним" },
+          kind: { type: "string", xml: "Kind", yaml: "Вид" },
+          title: { type: "string", xml: "Title", yaml: "Заголовок" },
+          alpha: { type: "string", xml: "Alpha", yaml: "Альфа" },
+          items: { type: "TestUnsortedArray", xml: "Items", yaml: "Элементы" },
+        },
+      } as MetadataItemRule,
+      sources: [
+        {
+          context: { ...mockContextFromXML(), exportToYAML: { toTyped: true } },
+          xml: {
+            Beta: "beta",
+            ValueType: "type",
+            Synonym: "synonym",
+            Kind: "kind",
+            Title: "title",
+            Alpha: "alpha",
+            Items: nested,
+          },
+        },
+      ],
+      yamlPath: [],
+      rulePath: [],
+      collector: createLocalIndexesCollector(),
+    })!
+
+    expect(Object.keys(yaml)).toEqual(["Заголовок", "Синоним", "Вид", "Тип", "Альфа", "Бета", "Элементы"])
+    expect(Object.keys((yaml.Элементы as object[])[0]!)).toEqual(["Бета", "Альфа"])
+  })
+
   it("does not process an absent property without defaultValue", () => {
     const calls: string[] = []
     registerTypeRule("TestPresentOnly" as PropertyRuleType, "importFromXML", (_context, _rule, xml) => {
