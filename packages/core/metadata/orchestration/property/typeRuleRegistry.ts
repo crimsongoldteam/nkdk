@@ -27,6 +27,7 @@ import {
   XmlSyncWriterFunction,
   XMLImportPropertyBehavior,
 } from "./fn"
+import type { YAMLToXMLNestedRule } from "./fromYAMLToXMLTypes"
 import type {
   CollectLocalFactsFromYAMLFunction,
   FinalizeImportedYAMLFunction,
@@ -65,6 +66,7 @@ const typeRulesRegistry = new Map<
   | ResolveNestedImportXMLSourcesFunction
   | FinalizeImportedYAMLFunction
   | CollectLocalFactsFromYAMLFunction
+  | YAMLToXMLNestedRule
 >()
 
 export const registerTypeRule = <O extends TypeRulesOperations>(
@@ -129,7 +131,9 @@ export const getTypeRule = <O extends TypeRulesOperations>(
                                                 ? FinalizeImportedYAMLFunction | undefined
                                                 : O extends "collectLocalFactsFromYAML"
                                                   ? CollectLocalFactsFromYAMLFunction | undefined
-                                                  : never => {
+                                                  : O extends "yamlToXMLNestedRule"
+                                                    ? YAMLToXMLNestedRule | undefined
+                                                    : never => {
   const key = createRegistryKey(type, operation)
   const result = typeRulesRegistry.get(key)
   return result as any

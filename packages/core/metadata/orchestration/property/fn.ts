@@ -24,6 +24,7 @@ import type {
   ResolveNestedImportXMLSourcesFunction,
 } from "./importYamlTypes"
 import type { MetadataItem, MetadataItemRule, PropertyRule } from "./types"
+import type { YAMLToXMLNestedRule } from "./fromYAMLToXMLTypes"
 
 export type ExportToXMLFunction = (
   context: ConfigurationContextWithExportToXML,
@@ -328,6 +329,7 @@ export interface TypeRule {
   resolveNestedImportXMLSources?: ResolveNestedImportXMLSourcesFunction
   finalizeImportedYAML?: FinalizeImportedYAMLFunction
   collectLocalFactsFromYAML?: CollectLocalFactsFromYAMLFunction
+  yamlToXMLNestedRule?: YAMLToXMLNestedRule
 }
 
 export type TypeRulesOperations =
@@ -356,6 +358,7 @@ export type TypeRulesOperations =
   | "resolveNestedImportXMLSources"
   | "finalizeImportedYAML"
   | "collectLocalFactsFromYAML"
+  | "yamlToXMLNestedRule"
 type TypeRuleKey = `${PropertyRuleType}:${TypeRulesOperations}`
 
 export const createRegistryKey = (type: PropertyRuleType, operation: TypeRulesOperations): TypeRuleKey => {
@@ -412,4 +415,6 @@ export type importExportFunction<O extends TypeRulesOperations> = O extends "imp
                                                 ? FinalizeImportedYAMLFunction | undefined
                                                 : O extends "collectLocalFactsFromYAML"
                                                   ? CollectLocalFactsFromYAMLFunction | undefined
-                                                  : never
+                                                  : O extends "yamlToXMLNestedRule"
+                                                    ? YAMLToXMLNestedRule | undefined
+                                                    : never
