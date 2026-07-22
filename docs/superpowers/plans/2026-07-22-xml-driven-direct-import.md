@@ -17,7 +17,8 @@
 - Для найденного атомарного свойства сохранять последовательность `fromXML` → `toYAML`; для составного свойства использовать зарегистрированный прямой преобразователь.
 - Для отсутствующего свойства вызывать `defaultValue` с `operation: "importFromXML"` только при наличии `defaultValue` и только если свойство разрешено для `fromXML`.
 - `defaultValueXMLEmpty` применять только к присутствующему пустому XML-свойству.
-- Неизвестные XML-свойства игнорировать; неоднозначное соответствие правилам считать ошибкой.
+- Неизвестные XML-свойства игнорировать; один XML-путь может передавать значение нескольким свойствам в порядке объявления в `rules.ts`.
+- Одно свойство обрабатывать не более одного раза на XML-источник, если в нём одновременно присутствуют основное XML-имя и одно из `xmlAliases`.
 - Сортировать только свойства объекта, созданного текущим `rules.ts`: `Заголовок`/`Синоним`, `Вид`, `Тип`, остальные по русскому алфавиту.
 - Не сортировать атомарные значения, массивы, элементы массивов и ключи коллекций.
 - Сохранять исходный XML-порядок в файле индекса конфигурации независимо от порядка YAML.
@@ -29,7 +30,7 @@
 ## File Structure
 
 - Create: `packages/core/metadata/orchestration/property/xmlImportPlan.ts` — компиляция, кэширование и обход дерева XML-путей.
-- Create: `packages/core/metadata/orchestration/property/xmlImportPlan.test.ts` — договор XML-плана, конфликтов, тегов, псевдонимов и контейнеров.
+- Create: `packages/core/metadata/orchestration/property/xmlImportPlan.test.ts` — договор XML-плана, общих XML-путей, тегов, псевдонимов и контейнеров.
 - Create: `packages/core/metadata/orchestration/property/yamlPropertyOrder.ts` — сортировка только свойств одного YAML-объекта правил.
 - Create: `packages/core/metadata/orchestration/property/yamlPropertyOrder.test.ts` — приоритеты YAML-ключей и границы сортировки.
 - Modify: `packages/core/metadata/orchestration/property/fromXMLToYAML.ts` — использование XML-плана вместо полного перебора `rule.properties`.
@@ -157,18 +158,35 @@ describe("XML import plan", () => {
     expect(visit.mock.calls.map(([match]) => match.propertyKey)).toEqual(["body"])
   })
 
-  it("rejects two properties with the same XML path", () => {
-    const conflictingRule = {
-      itemType: "TestConflict",
+  it("visits every property registered for the same XML path", () => {
+    const sharedRule = {
+      itemType: "TestSharedXMLPath",
       properties: {
         first: { type: "string", xml: "Value" },
-        second: { type: "string", xmlAliases: ["Value"] },
+        second: { type: "string", xml: "Value" },
       },
     } as MetadataItemRule
+    const visit = vi.fn()
 
-    expect(() => getXMLImportPlan({ rule: conflictingRule, includeAllTags: true })).toThrow(
-      "XML-путь /Value соответствует свойствам first и second"
-    )
+    visitXMLImportPlan({
+      plan: getXMLImportPlan({ rule: sharedRule, includeAllTags: true }),
+      xml: { Value: "value" },
+      visit,
+    })
+
+    expect(visit.mock.calls.map(([match]) => match.propertyKey)).toEqual(["first", "second"])
+  })
+
+  it("visits a property only once when canonical name and alias are both present", () => {
+    const visit = vi.fn()
+
+    visitXMLImportPlan({
+      plan: getXMLImportPlan({ rule, includeAllTags: true }),
+      xml: { LegacyName: "legacy", Name: "canonical" },
+      visit,
+    })
+
+    expect(visit.mock.calls.filter(([match]) => match.propertyKey === "name")).toHaveLength(1)
   })
 })
 ```
@@ -181,7 +199,7 @@ Run:
 pnpm --filter @nkdk/core exec vitest run metadata/orchestration/property/xmlImportPlan.test.ts
 ```
 
-Expected: FAIL because `./xmlImportPlan` does not exist.
+Expected: FAIL until the plan supports multiple properties per XML path and suppresses a repeated canonical-name/alias match.
 
 - [ ] **Step 3: Implement plan compilation and traversal**
 
@@ -189,7 +207,7 @@ Create `xmlImportPlan.ts` with these internal structures:
 
 ```ts
 interface XMLImportPlanNode {
-  readonly entriesByXMLKey: ReadonlyMap<string, XMLImportPlanEntry>
+  readonly entriesByXMLKey: ReadonlyMap<string, readonly XMLImportPlanEntry[]>
   readonly childrenByXMLKey: ReadonlyMap<string, XMLImportPlanNode>
 }
 
@@ -218,7 +236,7 @@ For every entry:
 3. If the rule owns `defaultValue`, add it to `defaults` only when `shouldProcessProperty({ rule, operation: "importFromXML" })` is true.
 4. Walk/create nodes for `xmlParents`.
 5. Register the canonical XML key and every alias in the final node.
-6. If an XML key already belongs to another property, throw the exact conflict error used by the test.
+6. Add every property for an XML key to its ordered list; deduplicate repeated registration of the same property through its canonical name and aliases.
 
 Implement traversal without descending into arbitrary property values. Descend only when `childrenByXMLKey` contains the current XML key:
 
@@ -227,20 +245,26 @@ function visitNode(
   node: XMLImportPlanNode,
   xml: unknown,
   xmlPath: readonly string[],
+  visitedPropertyKeys: Set<string>,
   visit: (match: XMLImportMatch) => void
 ): void {
   if (!isRecord(xml)) return
   for (const [xmlKey, xmlValue] of Object.entries(xml)) {
-    const entry = node.entriesByXMLKey.get(xmlKey)
+    const entries = node.entriesByXMLKey.get(xmlKey) ?? []
     const propertyXMLPath = [...xmlPath, xmlKey]
-    if (entry !== undefined) visit({ ...entry, sourceXMLKey: xmlKey, xmlPath: propertyXMLPath, xmlValue })
+    for (const entry of entries) {
+      if (!visitedPropertyKeys.has(entry.propertyKey)) {
+        visitedPropertyKeys.add(entry.propertyKey)
+        visit({ ...entry, sourceXMLKey: xmlKey, xmlPath: propertyXMLPath, xmlValue })
+      }
+    }
     const child = node.childrenByXMLKey.get(xmlKey)
-    if (child !== undefined) visitNode(child, xmlValue, propertyXMLPath, visit)
+    if (child !== undefined) visitNode(child, xmlValue, propertyXMLPath, visitedPropertyKeys, visit)
   }
 }
 ```
 
-The public `visitXMLImportPlan` calls `visitNode(compiled.root, params.xml, [], params.visit)`.
+The public `visitXMLImportPlan` calls `visitNode(compiled.root, params.xml, [], new Set(), params.visit)`.
 
 - [ ] **Step 4: Run tests and type checking**
 
