@@ -42,6 +42,23 @@ describe("convertPropertiesFromYAMLToXML", () => {
     expect(result.outputs.get("owner")).toEqual({ Value: "xml:42" })
   })
 
+  it("собирает внешнее действие при посещении свойства в том же обходе", () => {
+    const visits: string[] = []
+    const result = convertPropertiesFromYAMLToXML({
+      context: context(),
+      yaml: { Модуль: "текст" },
+      rule: testRule({ module: { type: "string", yaml: "Модуль", toXML: false } }),
+      outputs: [{ key: "owner" }],
+      externalWriteFactory: ({ propertyKey, source }) => {
+        visits.push(propertyKey)
+        return source.has(propertyKey) ? [{ kind: "handler", run: async () => undefined }] : []
+      },
+    })
+
+    expect(visits).toEqual(["module"])
+    expect(result.externalWrites).toHaveLength(1)
+  })
+
   it("применяет defaultValue и defaultValueXML к отсутствующему YAML-свойству", () => {
     const result = convertPropertiesFromYAMLToXML({
       context: context(),
@@ -125,6 +142,51 @@ describe("convertPropertiesFromYAMLToXML", () => {
     })
 
     expect(result.outputs.get("owner")).toEqual({ Value: "исходное" })
+  })
+
+  it("сохраняет reference XML для отключённого общего экспорта", () => {
+    const result = convertPropertiesFromYAMLToXML({
+      context: context(),
+      yaml: {},
+      rule: testRule({
+        value: { type: "string", yaml: "Значение", xml: "Value", toXML: false },
+      }),
+      outputs: [{ key: "owner", referenceXML: { Value: {} } }],
+    })
+
+    expect(result.outputs.get("owner")).toEqual({ Value: {} })
+  })
+
+  it("сохраняет порядок свойств отдельно для каждого XML-файла", () => {
+    const result = convertPropertiesFromYAMLToXML({
+      context: context(),
+      yaml: { Заголовок: "форма", Значение: "объект", Ширина: 20 },
+      rule: testRule({
+        value: { type: "string", yaml: "Значение", xml: "Value", tag: "metadata" },
+        width: { type: "string", yaml: "Ширина", xml: "Width", tag: "form" },
+        title: { type: "string", yaml: "Заголовок", xml: "Title", tag: "form" },
+      }),
+      outputs: [
+        { key: "metadata", tags: ["metadata"], referenceXML: { Value: "старое" } },
+        { key: "form", tags: ["form"], referenceXML: { Title: "старая", Width: 10 } },
+      ],
+    })
+
+    expect(Object.keys(result.outputs.get("form")!)).toEqual(["Title", "Width"])
+  })
+
+  it("создаёт пустое значение по умолчанию внутри разреженной коллекции", () => {
+    const result = convertPropertiesFromYAMLToXML({
+      context: context(),
+      yaml: {},
+      rule: testRule({
+        value: { type: "string", yaml: "Значение", xml: "Value", defaultValueXMLRaw: "" },
+      }),
+      outputs: [{ key: "owner" }],
+      sparseYAML: true,
+    })
+
+    expect(result.outputs.get("owner")).toEqual({ Value: "" })
   })
 
   it("передаёт массив reference XML во вложенную коллекцию", () => {

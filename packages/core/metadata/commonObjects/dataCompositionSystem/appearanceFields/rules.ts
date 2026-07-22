@@ -86,20 +86,20 @@ registerTypeRule("AppearanceFields", "yamlToXMLNestedRule", {
           const tag = directAppearanceXmlTags[name as keyof typeof directAppearanceXmlTags]
           if (tag === undefined || value === null || typeof value !== "object" || Array.isArray(value)) return []
           const parameter = value as Record<string, unknown>
-          return parameter["dcscor:value"] === undefined
-            ? []
-            : [[tag, { "dcsset:value": parameter["dcscor:value"] }]]
+          return parameter["dcscor:value"] === undefined ? [] : [[tag, { "dcsset:value": parameter["dcscor:value"] }]]
         })
       )
     }
 
     return {
-      "dcscor:item": Object.entries(xml).map(([name, value]) => ({
-        _name: name,
-        ...(value !== null && typeof value === "object" && !Array.isArray(value)
-          ? (value as Record<string, unknown>)
-          : {}),
-      })),
+      "dcscor:item": Object.entries(xml).flatMap(([name, value]) =>
+        Object.prototype.hasOwnProperty.call(AppearanceFieldsRules.properties, name) &&
+        value !== null &&
+        typeof value === "object" &&
+        !Array.isArray(value)
+          ? [value as Record<string, unknown>]
+          : []
+      ),
     }
   },
 })

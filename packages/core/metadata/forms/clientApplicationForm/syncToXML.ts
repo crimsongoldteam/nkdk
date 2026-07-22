@@ -90,7 +90,8 @@ export const writePreparedFormToXML = async (params: {
   xmlManifest?: XmlWriteManifest
 }): Promise<void> => {
   const yamlObj = params.preparedYamlFile.data as ClientApplicationFormYAML | undefined
-  if (yamlObj === undefined) throw new Error(`Подготовленные YAML-данные формы отсутствуют: ${params.preparedYamlFile.projectPath}`)
+  if (yamlObj === undefined)
+    throw new Error(`Подготовленные YAML-данные формы отсутствуют: ${params.preparedYamlFile.projectPath}`)
 
   const formDir = dirname(params.preparedYamlFile.filePath)
   const contextWithFormDir = createFormScopedContext({
@@ -195,10 +196,16 @@ function readRawReferenceForm(params: { referenceDir: string; formName: string }
   metadataXML: FormMetadataXML
 } {
   const metadataText = fs.readFileSync(join(params.referenceDir, `${params.formName}.xml`), "utf8")
-  const metadataXML = importContentFromXML<{ MetaDataObject: FormMetadataXML }>(metadataText).MetaDataObject
+  const metadataXML = importContentFromXML<{ MetaDataObject: FormMetadataXML }>(metadataText, {
+    preserveXsiNil: true,
+    preserveEmptyElements: true,
+  }).MetaDataObject
   const formPath = join(params.referenceDir, params.formName, "Ext", "Form.xml")
   const formXML = fs.existsSync(formPath)
-    ? importContentFromXML<{ Form: ClientApplicationFormXML }>(fs.readFileSync(formPath, "utf8")).Form
+    ? importContentFromXML<{ Form: ClientApplicationFormXML }>(fs.readFileSync(formPath, "utf8"), {
+        preserveXsiNil: true,
+        preserveEmptyElements: true,
+      }).Form
     : undefined
   return { metadataXML, formXML }
 }

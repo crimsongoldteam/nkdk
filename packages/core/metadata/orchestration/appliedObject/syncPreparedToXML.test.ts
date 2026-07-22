@@ -2,11 +2,17 @@ import fs from "node:fs"
 import { mkdtempSync } from "node:fs"
 import { tmpdir } from "node:os"
 import { join } from "node:path"
-import { afterEach, describe, expect, it } from "vitest"
+import { afterEach, describe, expect, it, vi } from "vitest"
 import { MetadataDataProcessorRules } from "../../appliedObjects/metadataDataProcessor/rules"
 import { mockContextToXML } from "../../../tests/mockContext"
 import { prepareYamlFiles } from "../../project/prepareYamlFiles"
 import { writePreparedAppliedObjectOwnerToXML } from "./syncToXML"
+
+vi.mock("../metadataItem/fromYAML", () => ({
+  importMetadataItemFromYAML: () => {
+    throw new Error("legacy model path called")
+  },
+}))
 
 describe("writePreparedAppliedObjectOwnerToXML", () => {
   const tempDirs: string[] = []

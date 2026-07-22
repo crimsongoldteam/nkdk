@@ -60,6 +60,27 @@ describe("metadataTargetOwnerFromRule", () => {
       })
     ).toEqual({ root: "Document", objectName: "Заказ" })
   })
+
+  it("reuses the owner of the current frame without resolving it twice", () => {
+    const owner = { root: "ExternalDataSource", objectName: "Источник.Table.Таблица" }
+    const rule = {
+      itemType: "MetadataExternalDataSourceTable",
+      properties: {},
+    } as const satisfies MetadataItemRule
+
+    expect(
+      metadataTargetOwnerFromRule({
+        itemRule: rule,
+        name: "Таблица",
+        context: {
+          ...mockContext,
+          importFromYAML: {
+            metadataTargetOwners: [{ itemType: rule.itemType, name: "Таблица", owner }],
+          },
+        },
+      })
+    ).toEqual(owner)
+  })
 })
 
 const documentRuleWithCommonForms = {

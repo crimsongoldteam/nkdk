@@ -12,6 +12,7 @@ import type { ConfigurationIndexCollectionContext } from "../configurationIndex/
 import type { ConfigurationIndexExportRuntime } from "../configurationIndex/exportRuntime"
 import type { DataPathFormatDiagnosticSink } from "../validation/dataPath/formatter"
 import type { OwnerMetadataCache } from "../validation/dataPath/ownerCache"
+import type { FormDataPathIndex } from "../validation/dataPath/formIndex"
 
 export type ContextElementToXML = {
   name: string
@@ -137,6 +138,8 @@ export interface FormimportFromYAMLContext {
   metadataTargetOwners?: MetadataTargetOwnerContext[]
   /** Реквизиты текущей формы для разбора ПутьКДанным. */
   formAttributes?: readonly FormDataPathAttributeContext[]
+  /** Компактный индекс реквизитов формы, построенный прямо из YAML без metadata-модели. */
+  formDataPathIndex?: FormDataPathIndex
 }
 
 export interface EnterpriseContext {

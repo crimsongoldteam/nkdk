@@ -12,6 +12,8 @@ import type { YAMLToXMLExternalWrite } from "../../orchestration/property/fromYA
 import { ClientApplicationFormRules } from "./rules"
 import type { ClientApplicationFormXML, ClientApplicationFormYAML, FormMetadataXML } from "./types"
 import { FormRulesTags } from "./types"
+import { createFormDataPathIndexFromYAML } from "../../validation/dataPath/formYamlIndex"
+import { registerTypeRule } from "../../orchestration/property/typeRuleRegistry"
 
 export interface ConvertClientApplicationFormFromYAMLToXMLParams {
   readonly context: ConfigurationContextWithExportToXML
@@ -30,7 +32,13 @@ export interface DirectClientApplicationFormXMLResult {
 export function convertClientApplicationFormFromYAMLToXML(
   params: ConvertClientApplicationFormFromYAMLToXMLParams
 ): DirectClientApplicationFormXMLResult {
-  const formContext = createFormBodyContext(params.context)
+  const formContext = createFormBodyContext({
+    ...params.context,
+    importFromYAML: {
+      ...params.context.importFromYAML,
+      formDataPathIndex: createFormDataPathIndexFromYAML(params.yaml),
+    },
+  })
   const converted = convertPropertiesFromYAMLToXML({
     context: formContext,
     yaml: params.yaml,
@@ -44,7 +52,8 @@ export function convertClientApplicationFormFromYAMLToXML(
 
   const formProperties = converted.outputs.get("form") ?? {}
   const metadataProperties = converted.outputs.get("metadata") ?? {}
-  const uuid = readMetadataUUID(metadataProperties) ?? params.referenceMetadataXML?.Form?._uuid ?? getUUID(params.context)
+  const uuid =
+    readMetadataUUID(metadataProperties) ?? params.referenceMetadataXML?.Form?._uuid ?? getUUID(params.context)
   recordCurrentExternalMetadataUuid({ context: params.context, uuid })
 
   const formXML = {
@@ -166,3 +175,15 @@ const METADATA_NAMESPACES = {
   "_xmlns:xs": "http://www.w3.org/2001/XMLSchema",
   "_xmlns:xsi": "http://www.w3.org/2001/XMLSchema-instance",
 } as const
+
+registerTypeRule("ClientApplicationForm", "yamlToXMLNestedRule", {
+  kind: "externalFile",
+  convert: ({ context, yaml, name, referenceXML }) => ({
+    Form: convertClientApplicationFormFromYAMLToXML({
+      context,
+      yaml: yaml as ClientApplicationFormYAML,
+      name,
+      referenceFormXML: referenceXML?.Form as ClientApplicationFormXML | undefined,
+    }).formXML,
+  }),
+})

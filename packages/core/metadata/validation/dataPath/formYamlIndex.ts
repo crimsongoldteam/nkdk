@@ -100,10 +100,37 @@ export function createFormDataPathIndexCollector(_params: { filePath: string }):
   }
 }
 
-function copyAdditionalColumns(
-  target: Map<string, Map<string, FormDataPathColumnSource>>,
-  value: unknown
-): void {
+export function createFormDataPathIndexFromYAML(yaml: unknown): FormDataPathIndex {
+  const collector = createFormDataPathIndexCollector({ filePath: "" })
+  const attributes = asRecord(asRecord(yaml)?.["Реквизиты"])
+  const rule = { type: "string" } as const
+  for (const [attributeName, rawAttribute] of Object.entries(attributes ?? {})) {
+    const attribute = asRecord(rawAttribute)
+    for (const property of ["Тип", "ДинамическийСписок", "ДополнительныеКолонки"] as const) {
+      if (!Object.prototype.hasOwnProperty.call(attribute ?? {}, property)) continue
+      collector.acceptProperty({
+        yamlPath: ["Реквизиты", attributeName, property],
+        rulePath: [],
+        rule,
+        value: attribute?.[property],
+      })
+    }
+    const columns = asRecord(attribute?.["Колонки"])
+    for (const [columnName, rawColumn] of Object.entries(columns ?? {})) {
+      const column = asRecord(rawColumn)
+      if (!Object.prototype.hasOwnProperty.call(column ?? {}, "Тип")) continue
+      collector.acceptProperty({
+        yamlPath: ["Реквизиты", attributeName, "Колонки", columnName, "Тип"],
+        rulePath: [],
+        rule,
+        value: column?.["Тип"],
+      })
+    }
+  }
+  return collector.finish()
+}
+
+function copyAdditionalColumns(target: Map<string, Map<string, FormDataPathColumnSource>>, value: unknown): void {
   const groups = asRecord(value)
   for (const [tablePath, rawColumns] of Object.entries(groups ?? {})) {
     const columns = new Map<string, FormDataPathColumnSource>()

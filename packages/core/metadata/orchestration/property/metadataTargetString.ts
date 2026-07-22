@@ -10,6 +10,10 @@ export function metadataTargetOwnerFromRule(params: {
   context?: ConfigurationContext
 }): MetadataTargetOwner | undefined {
   const frames = metadataTargetOwnerFrames(params.context)
+  const currentFrame = frames.at(-1)
+  if (currentFrame?.itemType === params.itemRule.itemType && currentFrame.name === params.name) {
+    return currentFrame.owner
+  }
   const resolver = getMetadataTargetOwnerResolver(params.itemRule.itemType)
   if (resolver) {
     const resolved = resolver({ itemRule: params.itemRule, name: params.name, frames, context: params.context })

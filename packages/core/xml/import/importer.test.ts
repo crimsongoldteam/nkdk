@@ -43,4 +43,12 @@ describe("importContentFromXML", () => {
     expect(preserved.Root.Settings.Value).toEqual({ "_xsi:nil": "true" })
     expect(preserved.Root.Outside.Value).toEqual({ "_xsi:nil": "true" })
   })
+
+  it("сохраняет пустые элементы по запросу", () => {
+    const xml = "<Root><Empty/><Parent><Child/></Parent></Root>"
+
+    expect(importContentFromXML(xml, { preserveEmptyElements: true })).toEqual({
+      Root: { Empty: {}, Parent: { Child: {} } },
+    })
+  })
 })

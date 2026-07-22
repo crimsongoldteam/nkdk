@@ -4,6 +4,7 @@ import type { ConfigurationContextWithExportToXML } from "../../context/types"
 import { convertMetadataItemFromYAMLToXML } from "../metadataItem/fromYAMLToXML"
 import type {
   YAMLToXMLNestedRule,
+  YAMLToXMLExternalWriteFactory,
   YAMLToXMLExternalWrite,
   YAMLToXMLOutputRequest,
   YAMLToXMLResult,
@@ -20,6 +21,7 @@ export interface ConvertMetadataCollectionFromYAMLToXMLParams {
   readonly propertyRule?: PropertyRule
   readonly source?: YAMLPropertySource
   readonly outputs: readonly YAMLToXMLOutputRequest[]
+  readonly externalWriteFactory?: YAMLToXMLExternalWriteFactory
 }
 
 export function convertMetadataCollectionFromYAMLToXML(
@@ -28,6 +30,7 @@ export function convertMetadataCollectionFromYAMLToXML(
   const entries = completeCollectionEntries({
     entries: collectionEntries(params.yaml, params.descriptor, params.propertyRule),
     descriptor: params.descriptor,
+    itemRule: params.descriptor.itemRule,
     propertyRule: params.propertyRule,
     source: params.source,
     outputs: params.outputs,
@@ -69,6 +72,7 @@ export function convertMetadataCollectionFromYAMLToXML(
       namePropertyKey: params.descriptor.keyField,
       outputs: itemOutputs,
       sparseYAML: params.descriptor.sparseItems,
+      externalWriteFactory: params.externalWriteFactory,
     })
     for (const output of itemOutputs) {
       const xml = converted.outputs.get(output.key) ?? {}
@@ -108,7 +112,15 @@ function completeCollectionEntries(params: {
   outputs: readonly YAMLToXMLOutputRequest[]
 }): { yaml: unknown; name?: string }[] {
   if (params.descriptor.yamlShape !== "record") return params.entries
-  const referenceNames = params.descriptor.preserveReferenceItems === true ? collectReferenceNames(params) : []
+  const referenceNames = collectReferenceNames(params)
+  if (params.descriptor.preserveReferenceItems !== true && referenceNames.length > 0) {
+    const referenceOrder = new Map(referenceNames.map((name, index) => [name, index]))
+    return params.entries.toSorted(
+      (left, right) =>
+        (referenceOrder.get(left.name ?? "") ?? Number.MAX_SAFE_INTEGER) -
+        (referenceOrder.get(right.name ?? "") ?? Number.MAX_SAFE_INTEGER)
+    )
+  }
   const requestedNames =
     referenceNames.length > 0
       ? referenceNames
@@ -134,12 +146,7 @@ function collectReferenceNames(params: {
   const keyRule = params.descriptor.itemRule.properties[keyField]
   if (keyRule === undefined) return result
   for (const output of params.outputs) {
-    const collection =
-      params.descriptor.xmlElement === undefined
-        ? output.referenceXML
-        : isRecord(output.referenceXML)
-          ? output.referenceXML[params.descriptor.xmlElement]
-          : undefined
+    const collection = collectionReferenceValue(output.referenceXML, params.descriptor.xmlElement)
     const items = Array.isArray(collection) ? collection : collection === undefined ? [] : [collection]
     for (const item of items) {
       if (!isRecord(item)) continue
@@ -173,16 +180,12 @@ function collectionEntries(
 function findReferenceItem(params: {
   output: YAMLToXMLOutputRequest
   descriptor: CollectionDescriptor
+  itemRule: MetadataItemRule
   yaml: unknown
   name?: string
   index: number
 }): Record<string, unknown> | undefined {
-  const collection =
-    params.descriptor.xmlElement === undefined
-      ? params.output.referenceXML
-      : isRecord(params.output.referenceXML)
-        ? params.output.referenceXML[params.descriptor.xmlElement]
-        : undefined
+  const collection = collectionReferenceValue(params.output.referenceXML, params.descriptor.xmlElement)
   const rawItems = Array.isArray(collection) ? collection.filter(isRecord) : isRecord(collection) ? [collection] : []
   const items = rawItems.flatMap((item) => {
     const unwrapped = params.descriptor.unwrapReferenceItem?.({ xml: item, itemRule: params.itemRule })
@@ -205,6 +208,17 @@ function findReferenceItem(params: {
     }
   }
   return items[params.index]
+}
+
+function collectionReferenceValue(referenceXML: unknown, xmlElement: string | undefined): unknown {
+  if (
+    xmlElement !== undefined &&
+    isRecord(referenceXML) &&
+    Object.prototype.hasOwnProperty.call(referenceXML, xmlElement)
+  ) {
+    return referenceXML[xmlElement]
+  }
+  return referenceXML
 }
 
 function readXMLProperty(

@@ -19,12 +19,31 @@ export type YAMLToXMLExternalWrite =
   | { readonly kind: "xml"; readonly targetPath: string; readonly value: Record<string, unknown> }
   | { readonly kind: "handler"; run(): Promise<void> }
 
+export type YAMLToXMLExternalWriteFactory = (params: {
+  readonly context: import("../../context/types").ConfigurationContextWithExportToXML
+  readonly yaml: unknown
+  readonly source: YAMLPropertySource
+  readonly name: string | undefined
+  readonly propertyKey: string
+  readonly propertyRule: PropertyRule
+  readonly referenceValue: unknown
+}) => readonly YAMLToXMLExternalWrite[]
+
 export interface YAMLToXMLResult {
   readonly outputs: ReadonlyMap<string, Record<string, unknown>>
   readonly externalWrites: readonly YAMLToXMLExternalWrite[]
 }
 
 export type YAMLToXMLNestedRule =
+  | {
+      readonly kind: "externalFile"
+      readonly convert: (params: {
+        context: import("../../context/types").ConfigurationContextWithExportToXML
+        yaml: unknown
+        name: string
+        referenceXML: Record<string, unknown> | undefined
+      }) => Record<string, unknown>
+    }
   | {
       readonly kind: "item"
       readonly itemRule: MetadataItemRule

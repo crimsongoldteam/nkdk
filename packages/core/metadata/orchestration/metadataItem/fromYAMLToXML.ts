@@ -1,6 +1,10 @@
 import type { ConfigurationContextWithExportToXML } from "../../context/types"
 import { convertPropertiesFromYAMLToXML } from "../property/fromYAMLToXML"
-import type { YAMLToXMLOutputRequest, YAMLToXMLResult } from "../property/fromYAMLToXMLTypes"
+import type {
+  YAMLToXMLExternalWriteFactory,
+  YAMLToXMLOutputRequest,
+  YAMLToXMLResult,
+} from "../property/fromYAMLToXMLTypes"
 import type { MetadataItemRule, PropertyRule } from "../property/types"
 import { findInlineProperty } from "./yamlInline"
 
@@ -12,8 +16,10 @@ export interface ConvertMetadataItemFromYAMLToXMLParams {
   readonly namePropertyKey?: string
   readonly sourceItemName?: string
   readonly outputs: readonly YAMLToXMLOutputRequest[]
+  readonly propertyValues?: ReadonlyMap<string, unknown>
   readonly ownerYAML?: unknown
   readonly sparseYAML?: true
+  readonly externalWriteFactory?: YAMLToXMLExternalWriteFactory
 }
 
 interface XMLRootInfo {
@@ -33,15 +39,28 @@ export function convertMetadataItemFromYAMLToXML(params: ConvertMetadataItemFrom
     ...output,
     referenceXML: sanitizeReferenceXML(unwrapReferenceBody(output.referenceXML, root)),
   }))
+  const itemName = params.name ?? params.sourceItemName
+  const itemContext: ConfigurationContextWithExportToXML =
+    itemName === undefined
+      ? params.context
+      : {
+          ...params.context,
+          importFromYAML: {
+            ...(params.context.importFromYAML ?? {}),
+            parent: { name: itemName },
+          },
+        }
   const converted = convertPropertiesFromYAMLToXML({
-    context: params.context,
+    context: itemContext,
     yaml,
     rule: params.rule,
     name: params.name,
     namePropertyKey: params.namePropertyKey,
     sourceItemName: params.sourceItemName,
     outputs: normalizedOutputs,
+    propertyValues: params.propertyValues,
     sparseYAML: params.sparseYAML,
+    externalWriteFactory: params.externalWriteFactory,
   })
   const outputs = new Map<string, Record<string, unknown>>()
 
