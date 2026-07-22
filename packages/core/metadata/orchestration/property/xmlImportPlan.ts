@@ -21,7 +21,7 @@ export interface XMLImportPlan {
 }
 
 interface XMLImportPlanNode {
-  readonly entriesByXMLKey: Map<string, XMLImportPlanEntry>
+  readonly entriesByXMLKey: Map<string, XMLImportPlanEntry[]>
   readonly childrenByXMLKey: Map<string, XMLImportPlanNode>
 }
 
@@ -52,16 +52,14 @@ const matchesSource = (params: {
 const registerXMLKey = (params: {
   node: XMLImportPlanNode
   xmlKey: string
-  xmlPath: readonly string[]
   entry: XMLImportPlanEntry
 }): void => {
-  const existing = params.node.entriesByXMLKey.get(params.xmlKey)
-  if (existing !== undefined && existing.propertyKey !== params.entry.propertyKey) {
-    throw new Error(
-      `XML-путь /${[...params.xmlPath, params.xmlKey].join("/")} соответствует свойствам ${existing.propertyKey} и ${params.entry.propertyKey}`
-    )
+  const entries = params.node.entriesByXMLKey.get(params.xmlKey)
+  if (entries === undefined) {
+    params.node.entriesByXMLKey.set(params.xmlKey, [params.entry])
+    return
   }
-  params.node.entriesByXMLKey.set(params.xmlKey, params.entry)
+  if (!entries.some(({ propertyKey }) => propertyKey === params.entry.propertyKey)) entries.push(params.entry)
 }
 
 const compileXMLImportPlan = (params: {
@@ -85,9 +83,11 @@ const compileXMLImportPlan = (params: {
     entriesByPropertyKey.set(propertyKey, entry)
 
     if (propertyRule.filePath !== undefined) continue
-    if (!shouldProcessProperty({ rule: propertyRule, operation: "importFromXML" })) continue
 
-    if (Object.prototype.hasOwnProperty.call(propertyRule, "defaultValue")) {
+    if (
+      Object.prototype.hasOwnProperty.call(propertyRule, "defaultValue") &&
+      shouldProcessProperty({ rule: propertyRule, operation: "importFromXML" })
+    ) {
       defaults.push(entry)
     }
 
@@ -103,7 +103,7 @@ const compileXMLImportPlan = (params: {
     }
 
     for (const xmlKey of [entry.canonicalXMLKey, ...(propertyRule.xmlAliases ?? [])]) {
-      registerXMLKey({ node, xmlKey, xmlPath: xmlParents, entry })
+      registerXMLKey({ node, xmlKey, entry })
     }
   }
 
@@ -137,19 +137,22 @@ const visitNode = (
   node: XMLImportPlanNode,
   xml: unknown,
   xmlPath: readonly string[],
+  visitedPropertyKeys: Set<string>,
   visit: (match: XMLImportMatch) => void
 ): void => {
   if (!isRecord(xml)) return
 
   for (const [xmlKey, xmlValue] of Object.entries(xml)) {
     const propertyXMLPath = [...xmlPath, xmlKey]
-    const entry = node.entriesByXMLKey.get(xmlKey)
-    if (entry !== undefined) {
+    const entries = node.entriesByXMLKey.get(xmlKey) ?? []
+    for (const entry of entries) {
+      if (visitedPropertyKeys.has(entry.propertyKey)) continue
+      visitedPropertyKeys.add(entry.propertyKey)
       visit({ ...entry, sourceXMLKey: xmlKey, xmlPath: propertyXMLPath, xmlValue })
     }
 
     const child = node.childrenByXMLKey.get(xmlKey)
-    if (child !== undefined) visitNode(child, xmlValue, propertyXMLPath, visit)
+    if (child !== undefined) visitNode(child, xmlValue, propertyXMLPath, visitedPropertyKeys, visit)
   }
 }
 
@@ -159,5 +162,5 @@ export const visitXMLImportPlan = (params: {
   visit(match: XMLImportMatch): void
 }): void => {
   const compiled = params.plan as CompiledXMLImportPlan
-  visitNode(compiled.root, params.xml, [], params.visit)
+  visitNode(compiled.root, params.xml, [], new Set(), params.visit)
 }

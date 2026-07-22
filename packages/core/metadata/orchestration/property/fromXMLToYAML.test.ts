@@ -9,6 +9,61 @@ import { registerTypeRule } from "./typeRuleRegistry"
 import type { MetadataItemRule } from "./types"
 
 describe("importPropertiesFromXMLToYAML", () => {
+  it("does not process an absent property without defaultValue", () => {
+    const calls: string[] = []
+    registerTypeRule("TestPresentOnly" as PropertyRuleType, "importFromXML", (_context, _rule, xml) => {
+      calls.push(String(xml))
+      return xml
+    })
+    registerTypeRule("TestPresentOnly" as PropertyRuleType, "exportToYAML", (_context, _rule, value) => value)
+    const context = { ...mockContextFromXML(), exportToYAML: { toTyped: true } }
+
+    const yaml = importPropertiesWithSources({
+      context,
+      rule: {
+        itemType: "TestPresentOnlyItem",
+        properties: {
+          present: { type: "TestPresentOnly", xml: "Present", yaml: "Присутствует" },
+          absent: { type: "TestPresentOnly", xml: "Absent", yaml: "Отсутствует" },
+        },
+      } as MetadataItemRule,
+      sources: [{ context, xml: { Present: "value" } }],
+      yamlPath: [],
+      rulePath: [],
+      collector: createLocalIndexesCollector(),
+    })
+
+    expect(yaml).toEqual({ Присутствует: "value" })
+    expect(calls).toEqual(["value"])
+  })
+
+  it("processes only an absent property with defaultValue", () => {
+    const calls: unknown[] = []
+    registerTypeRule("TestMissingDefault" as PropertyRuleType, "importFromXML", (_context, _rule, xml) => {
+      calls.push(xml)
+      return xml
+    })
+    registerTypeRule("TestMissingDefault" as PropertyRuleType, "exportToYAML", (_context, _rule, value) => value)
+    const context = { ...mockContextFromXML(), exportToYAML: { toTyped: true } }
+
+    const yaml = importPropertiesWithSources({
+      context,
+      rule: {
+        itemType: "TestMissingDefaultItem",
+        properties: {
+          absent: { type: "TestMissingDefault", xml: "Absent", yaml: "Значение", defaultValue: "default" },
+        },
+      } as MetadataItemRule,
+      sources: [{ context, xml: {} }],
+      yamlPath: [],
+      rulePath: [],
+      collector: createLocalIndexesCollector(),
+    })
+
+    expect(yaml).toEqual({ Значение: "default" })
+    expect(calls).toEqual([undefined])
+  })
+
   it("imports tagged properties from two XML sources in one rule traversal", () => {
     const calls: string[] = []
     registerTypeRule("TestTaggedAtomic" as PropertyRuleType, "importFromXML", (_context, rule, xml) => {
@@ -334,7 +389,7 @@ describe("importPropertiesFromXMLToYAML", () => {
           },
         },
       } as MetadataItemRule,
-      xml: { Caption: "Заголовок", ExplicitDefault: "Авто" },
+      xml: { ExplicitDefault: "Авто", Caption: "Заголовок" },
       yamlPath: [],
       rulePath: [],
       collector: createLocalIndexesCollector(),
@@ -343,7 +398,7 @@ describe("importPropertiesFromXMLToYAML", () => {
     expect(indexCollector.fragment("test.yaml").xmlNodes).toEqual([
       {
         logicalAddress: "Справочник.Товары",
-        order: ["title", "explicitDefault"],
+        order: ["explicitDefault", "title"],
         aliases: { title: "Caption" },
         present: ["explicitDefault"],
       },
@@ -360,9 +415,16 @@ describe("importPropertiesFromXMLToYAML", () => {
         context: { ...mockContextFromXML(), exportToYAML: { toTyped: true } },
         rule: {
           itemType: "TestDirectItem",
-          properties: { value: { type: "TestBrokenDirect", xml: "Value", yaml: "Значение" } },
+          properties: {
+            value: {
+              type: "TestBrokenDirect",
+              xml: "Value",
+              xmlParents: ["Attributes"],
+              yaml: "Значение",
+            },
+          },
         } as MetadataItemRule,
-        xml: { Value: "x" },
+        xml: { Attributes: { Value: "x" } },
         yamlPath: ["Вложенный"],
         rulePath: [{ propertyKey: "child", nestedItemType: "TestChild" }],
         collector: createLocalIndexesCollector(),
@@ -373,7 +435,9 @@ describe("importPropertiesFromXMLToYAML", () => {
         name: "DirectImportConversionError",
         yamlPath: ["Вложенный", "Значение"],
         rulePath: [{ propertyKey: "child", nestedItemType: "TestChild" }, { propertyKey: "value" }],
+        xmlPath: ["Attributes", "Value"],
       })
+      expect((error as Error).message).toContain("xmlPath=/Attributes/Value")
       expect((error as Error).cause).toMatchObject({ message: "broken" })
     }
   })

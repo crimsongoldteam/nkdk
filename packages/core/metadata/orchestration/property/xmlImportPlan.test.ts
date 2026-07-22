@@ -67,17 +67,34 @@ describe("XML import plan", () => {
     expect(visit.mock.calls.map(([match]) => match.propertyKey)).toEqual(["body"])
   })
 
-  it("rejects two properties with the same XML path", () => {
-    const conflictingRule = {
-      itemType: "TestConflict",
+  it("visits every property registered for the same XML path", () => {
+    const sharedRule = {
+      itemType: "TestSharedXMLPath",
       properties: {
         first: { type: "string", xml: "Value" },
-        second: { type: "string", xmlAliases: ["Value"] },
+        second: { type: "string", xml: "Value" },
       },
     } as MetadataItemRule
+    const visit = vi.fn()
 
-    expect(() => getXMLImportPlan({ rule: conflictingRule, includeAllTags: true })).toThrow(
-      "XML-путь /Value соответствует свойствам first и second"
-    )
+    visitXMLImportPlan({
+      plan: getXMLImportPlan({ rule: sharedRule, includeAllTags: true }),
+      xml: { Value: "value" },
+      visit,
+    })
+
+    expect(visit.mock.calls.map(([match]) => match.propertyKey)).toEqual(["first", "second"])
+  })
+
+  it("visits a property only once when canonical name and alias are both present", () => {
+    const visit = vi.fn()
+
+    visitXMLImportPlan({
+      plan: getXMLImportPlan({ rule, includeAllTags: true }),
+      xml: { LegacyName: "legacy", Name: "canonical" },
+      visit,
+    })
+
+    expect(visit.mock.calls.filter(([match]) => match.propertyKey === "name")).toHaveLength(1)
   })
 })
