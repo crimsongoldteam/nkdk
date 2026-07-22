@@ -32,6 +32,7 @@ import type {
   FinalizeImportedYAMLFunction,
   ImportFromXMLToYAMLFunction,
   NestedItemRule,
+  ResolveNestedImportXMLSourcesFunction,
 } from "./importYamlTypes"
 
 const typeRulesRegistry = new Map<
@@ -61,6 +62,7 @@ const typeRulesRegistry = new Map<
   | XMLImportPropertyBehavior
   | ImportFromXMLToYAMLFunction
   | NestedItemRule
+  | ResolveNestedImportXMLSourcesFunction
   | FinalizeImportedYAMLFunction
   | CollectLocalFactsFromYAMLFunction
 >()
@@ -87,45 +89,47 @@ export const getTypeRule = <O extends TypeRulesOperations>(
         ? ImportFromXMLFunction | undefined
         : O extends "importFromXMLToYAML"
           ? ImportFromXMLToYAMLFunction | undefined
-        : O extends "exportToEnterprise"
-          ? ExportToEnterpriseFunction | undefined
-          : O extends "exportToJSONSchema"
-            ? ExportToJSONSchemaFn | undefined
-            : O extends "validationSchemaRef"
-              ? ValidationSchemaRefFn | undefined
-            : O extends "collectionItemRule"
-              ? CollectionItemRule | undefined
-              : O extends "syncExternalFromXML"
-                ? SyncExternalFromXMLFunction | undefined
-                : O extends "syncExternalToXML"
-                  ? SyncExternalToXMLFunction | undefined
-                  : O extends "validateMetadataTarget"
-                    ? ValidateMetadataTargetFunction | undefined
-                    : O extends "collectMetadataTargetReferences"
-                      ? CollectMetadataTargetReferencesFunction | undefined
-                      : O extends "structuralReferences"
-                        ? StructuralReferencesFunction | undefined
-                        : O extends "projectResources"
-                          ? ProjectResourcesFunction | undefined
-                          : O extends "xmlSyncRoutes"
-                            ? XmlSyncRoutesFunction | undefined
-                            : O extends "xmlImportRoutes"
-                              ? XmlImportRoutesFunction | undefined
-                              : O extends "fileChildNamesDescriptor"
-                                ? FileChildNamesDescriptorFunction | undefined
-                                : O extends "xmlSyncWriter"
-                                  ? XmlSyncWriterFunction | undefined
-                                  : O extends "configurationIndexValueFromXML"
-                                    ? ConfigurationIndexValueFromXMLDescriptor | undefined
-                                    : O extends "xmlImportPropertyBehavior"
-                                      ? XMLImportPropertyBehavior | undefined
-                                      : O extends "nestedItemRule"
-                                        ? NestedItemRule | undefined
-                                        : O extends "finalizeImportedYAML"
-                                          ? FinalizeImportedYAMLFunction | undefined
-                                          : O extends "collectLocalFactsFromYAML"
-                                            ? CollectLocalFactsFromYAMLFunction | undefined
-                                      : never => {
+          : O extends "exportToEnterprise"
+            ? ExportToEnterpriseFunction | undefined
+            : O extends "exportToJSONSchema"
+              ? ExportToJSONSchemaFn | undefined
+              : O extends "validationSchemaRef"
+                ? ValidationSchemaRefFn | undefined
+                : O extends "collectionItemRule"
+                  ? CollectionItemRule | undefined
+                  : O extends "syncExternalFromXML"
+                    ? SyncExternalFromXMLFunction | undefined
+                    : O extends "syncExternalToXML"
+                      ? SyncExternalToXMLFunction | undefined
+                      : O extends "validateMetadataTarget"
+                        ? ValidateMetadataTargetFunction | undefined
+                        : O extends "collectMetadataTargetReferences"
+                          ? CollectMetadataTargetReferencesFunction | undefined
+                          : O extends "structuralReferences"
+                            ? StructuralReferencesFunction | undefined
+                            : O extends "projectResources"
+                              ? ProjectResourcesFunction | undefined
+                              : O extends "xmlSyncRoutes"
+                                ? XmlSyncRoutesFunction | undefined
+                                : O extends "xmlImportRoutes"
+                                  ? XmlImportRoutesFunction | undefined
+                                  : O extends "fileChildNamesDescriptor"
+                                    ? FileChildNamesDescriptorFunction | undefined
+                                    : O extends "xmlSyncWriter"
+                                      ? XmlSyncWriterFunction | undefined
+                                      : O extends "configurationIndexValueFromXML"
+                                        ? ConfigurationIndexValueFromXMLDescriptor | undefined
+                                        : O extends "xmlImportPropertyBehavior"
+                                          ? XMLImportPropertyBehavior | undefined
+                                          : O extends "nestedItemRule"
+                                            ? NestedItemRule | undefined
+                                            : O extends "resolveNestedImportXMLSources"
+                                              ? ResolveNestedImportXMLSourcesFunction | undefined
+                                              : O extends "finalizeImportedYAML"
+                                                ? FinalizeImportedYAMLFunction | undefined
+                                                : O extends "collectLocalFactsFromYAML"
+                                                  ? CollectLocalFactsFromYAMLFunction | undefined
+                                                  : never => {
   const key = createRegistryKey(type, operation)
   const result = typeRulesRegistry.get(key)
   return result as any

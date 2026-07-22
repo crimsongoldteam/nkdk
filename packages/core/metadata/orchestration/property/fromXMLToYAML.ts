@@ -20,6 +20,7 @@ import { importPropertyFromXML } from "./fromXML"
 import { canExportPropertyToYAML, exportPropertyValueToYAML, getExportToYAMLResult } from "./toYAML"
 import { getTypeRule } from "./typeRuleRegistry"
 import type { MetadataItemRule, PropertyRule } from "./types"
+import { enterNestedYamlRule } from "./yamlRuleCursor"
 import type { LocalIndexesCollector } from "../../project/localIndexes"
 import type { YamlPath } from "../../validation/yamlLocations"
 
@@ -175,8 +176,55 @@ export function importPropertiesFromXMLToYAML(params: {
 
     try {
       const direct = getTypeRule(propertyRule.type, "importFromXMLToYAML")
+      const resolveNestedSources = getTypeRule(propertyRule.type, "resolveNestedImportXMLSources")
       let importedValue: unknown
-      if (direct === undefined) {
+      if (resolveNestedSources !== undefined) {
+        const nested = getTypeRule(propertyRule.type, "nestedItemRule")
+        if (nested === undefined || !("itemRule" in nested)) {
+          throw new Error(`Для ${propertyRule.type} не зарегистрировано фиксированное вложенное правило`)
+        }
+        const startedAt = performance.now()
+        const nestedTraversal = enterNestedYamlRule(
+          {
+            yamlPath: propertyYamlPath,
+            rulePath: propertyRulePath,
+            collector,
+            profile: params.profile,
+          },
+          nested.itemRule.itemType
+        )
+        importedValue = runWithConfigurationIndexPropertyContext(
+          sourceContext,
+          propertyRule.yaml ?? key,
+          configurationIndexUidSegment,
+          (propertyContext) =>
+            importPropertiesFromXMLToYAML({
+              context: propertyContext,
+              rule: nested.itemRule,
+              sources: resolveNestedSources({
+                context: propertyContext,
+                rule: propertyRule,
+                xml: xmlValue,
+                name: itemName,
+                ownerXmlName,
+                traversal: nestedTraversal,
+              }),
+              itemName,
+              yamlPath: nestedTraversal.yamlPath,
+              rulePath: nestedTraversal.rulePath,
+              collector,
+              profile: params.profile,
+            }),
+          { configurationIndexAddressing: propertyRule.configurationIndexAddressing }
+        )
+        const elapsedMs = performance.now() - startedAt
+        const profile = params.profile
+        if (profile !== undefined) {
+          profile.directCount++
+          profile.directInclusiveMs += elapsedMs
+          addProfileBucket(profile.directByType, propertyRule.type, elapsedMs)
+        }
+      } else if (direct === undefined) {
         const startedAt = performance.now()
         importedValue =
           hasRawEmptyXML && propertyRule.emptyAsRawXML === true

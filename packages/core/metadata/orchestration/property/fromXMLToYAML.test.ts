@@ -40,6 +40,37 @@ describe("importPropertiesFromXMLToYAML", () => {
     expect(calls).toEqual(["Body:body", "Metadata:metadata"])
   })
 
+  it("imports a nested item from registered XML sources", () => {
+    const propertyType = "TestNestedSources" as PropertyRuleType
+    const nestedRule = {
+      itemType: "TestNestedSourceItem",
+      properties: {
+        value: { type: "string", xml: "Value", yaml: "Значение" },
+      },
+    } as MetadataItemRule
+    registerTypeRule(propertyType, "nestedItemRule", { itemRule: nestedRule })
+    registerTypeRule(propertyType, "resolveNestedImportXMLSources", ({ context, xml }) => [
+      { context, xml: (xml as { Root: Record<string, unknown> }).Root },
+    ])
+    const context = { ...mockContextFromXML(), exportToYAML: { toTyped: true } }
+
+    const yaml = importPropertiesWithSources({
+      context,
+      rule: {
+        itemType: "TestDirectItem",
+        properties: {
+          nested: { type: propertyType, xml: "Nested", yaml: "Вложенный" },
+        },
+      } as MetadataItemRule,
+      sources: [{ context, xml: { Nested: { Root: { Value: "value" } } } }],
+      yamlPath: [],
+      rulePath: [],
+      collector: createLocalIndexesCollector(),
+    })
+
+    expect(yaml).toEqual({ Вложенный: { Значение: "value" } })
+  })
+
   it("immediately converts one atomic XML value to YAML", () => {
     const calls: string[] = []
     registerTypeRule("TestDirectAtomic" as PropertyRuleType, "importFromXML", (_context, _rule, xml) => {

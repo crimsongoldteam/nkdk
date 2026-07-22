@@ -84,6 +84,15 @@ export type ImportFromXMLToYAMLFunction = (params: {
   traversal: DirectImportTraversal
 }) => unknown
 
+export type ResolveNestedImportXMLSourcesFunction = (params: {
+  context: ConfigurationContextFromXML
+  rule: PropertyRule
+  xml: unknown
+  name?: string
+  ownerXmlName?: string
+  traversal: DirectImportTraversal
+}) => readonly DirectImportXMLSource[]
+
 export type NestedItemRule = { itemRule: MetadataItemRule } | { resolveItemRule(itemType: string): MetadataItemRule }
 
 export type FinalizeImportedYAMLFunction = (params: {

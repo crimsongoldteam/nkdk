@@ -21,6 +21,7 @@ import type {
   FinalizeImportedYAMLFunction,
   ImportFromXMLToYAMLFunction,
   NestedItemRule,
+  ResolveNestedImportXMLSourcesFunction,
 } from "./importYamlTypes"
 import type { MetadataItem, MetadataItemRule, PropertyRule } from "./types"
 
@@ -324,6 +325,7 @@ export interface TypeRule {
   configurationIndexValueFromXML?: ConfigurationIndexValueFromXMLDescriptor
   xmlImportPropertyBehavior?: XMLImportPropertyBehavior
   nestedItemRule?: NestedItemRule
+  resolveNestedImportXMLSources?: ResolveNestedImportXMLSourcesFunction
   finalizeImportedYAML?: FinalizeImportedYAMLFunction
   collectLocalFactsFromYAML?: CollectLocalFactsFromYAMLFunction
 }
@@ -351,6 +353,7 @@ export type TypeRulesOperations =
   | "configurationIndexValueFromXML"
   | "xmlImportPropertyBehavior"
   | "nestedItemRule"
+  | "resolveNestedImportXMLSources"
   | "finalizeImportedYAML"
   | "collectLocalFactsFromYAML"
 type TypeRuleKey = `${PropertyRuleType}:${TypeRulesOperations}`
@@ -369,42 +372,44 @@ export type importExportFunction<O extends TypeRulesOperations> = O extends "imp
         ? ImportFromXMLFunction | undefined
         : O extends "importFromXMLToYAML"
           ? ImportFromXMLToYAMLFunction | undefined
-        : O extends "exportToEnterprise"
-          ? ExportToEnterpriseFunction | undefined
-          : O extends "exportToJSONSchema"
-            ? ExportToJSONSchemaFn | undefined
-            : O extends "validationSchemaRef"
-              ? ValidationSchemaRefFn | undefined
-            : O extends "collectionItemRule"
-              ? CollectionItemRule | undefined
-              : O extends "syncExternalFromXML"
-                ? SyncExternalFromXMLFunction | undefined
-                : O extends "syncExternalToXML"
-                  ? SyncExternalToXMLFunction | undefined
-                  : O extends "validateMetadataTarget"
-                    ? ValidateMetadataTargetFunction | undefined
-                    : O extends "collectMetadataTargetReferences"
-                      ? CollectMetadataTargetReferencesFunction | undefined
-                      : O extends "structuralReferences"
-                        ? StructuralReferencesFunction | undefined
-                        : O extends "projectResources"
-                          ? ProjectResourcesFunction | undefined
-                          : O extends "xmlSyncRoutes"
-                            ? XmlSyncRoutesFunction | undefined
-                            : O extends "xmlImportRoutes"
-                              ? XmlImportRoutesFunction | undefined
-                              : O extends "fileChildNamesDescriptor"
-                                ? FileChildNamesDescriptorFunction | undefined
-                                : O extends "xmlSyncWriter"
-                                  ? XmlSyncWriterFunction | undefined
-                                  : O extends "configurationIndexValueFromXML"
-                                    ? ConfigurationIndexValueFromXMLDescriptor | undefined
-                                    : O extends "xmlImportPropertyBehavior"
-                                      ? XMLImportPropertyBehavior | undefined
-                                      : O extends "nestedItemRule"
-                                        ? NestedItemRule | undefined
-                                        : O extends "finalizeImportedYAML"
-                                          ? FinalizeImportedYAMLFunction | undefined
-                                          : O extends "collectLocalFactsFromYAML"
-                                            ? CollectLocalFactsFromYAMLFunction | undefined
-                                      : never
+          : O extends "exportToEnterprise"
+            ? ExportToEnterpriseFunction | undefined
+            : O extends "exportToJSONSchema"
+              ? ExportToJSONSchemaFn | undefined
+              : O extends "validationSchemaRef"
+                ? ValidationSchemaRefFn | undefined
+                : O extends "collectionItemRule"
+                  ? CollectionItemRule | undefined
+                  : O extends "syncExternalFromXML"
+                    ? SyncExternalFromXMLFunction | undefined
+                    : O extends "syncExternalToXML"
+                      ? SyncExternalToXMLFunction | undefined
+                      : O extends "validateMetadataTarget"
+                        ? ValidateMetadataTargetFunction | undefined
+                        : O extends "collectMetadataTargetReferences"
+                          ? CollectMetadataTargetReferencesFunction | undefined
+                          : O extends "structuralReferences"
+                            ? StructuralReferencesFunction | undefined
+                            : O extends "projectResources"
+                              ? ProjectResourcesFunction | undefined
+                              : O extends "xmlSyncRoutes"
+                                ? XmlSyncRoutesFunction | undefined
+                                : O extends "xmlImportRoutes"
+                                  ? XmlImportRoutesFunction | undefined
+                                  : O extends "fileChildNamesDescriptor"
+                                    ? FileChildNamesDescriptorFunction | undefined
+                                    : O extends "xmlSyncWriter"
+                                      ? XmlSyncWriterFunction | undefined
+                                      : O extends "configurationIndexValueFromXML"
+                                        ? ConfigurationIndexValueFromXMLDescriptor | undefined
+                                        : O extends "xmlImportPropertyBehavior"
+                                          ? XMLImportPropertyBehavior | undefined
+                                          : O extends "nestedItemRule"
+                                            ? NestedItemRule | undefined
+                                            : O extends "resolveNestedImportXMLSources"
+                                              ? ResolveNestedImportXMLSourcesFunction | undefined
+                                              : O extends "finalizeImportedYAML"
+                                                ? FinalizeImportedYAMLFunction | undefined
+                                                : O extends "collectLocalFactsFromYAML"
+                                                  ? CollectLocalFactsFromYAMLFunction | undefined
+                                                  : never
