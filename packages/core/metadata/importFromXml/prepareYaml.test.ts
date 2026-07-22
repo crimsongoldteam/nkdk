@@ -60,6 +60,11 @@ describe("prepareImportYaml", () => {
     expect(profiler.records().map(({ substep }) => substep)).not.toContain(
       "XML в YAML: атомарный тип ClientApplicationForm"
     )
+    const substeps = profiler.records().map(({ substep }) => substep)
+    expect(substeps).toContain("XML в YAML: подготовка плана импорта")
+    expect(substeps).toContain("XML в YAML: обход XML")
+    expect(substeps).not.toContain("XML в YAML: определение порядка свойств")
+    expect(substeps).not.toContain("XML в YAML: выбор свойств")
   })
 
   it("prepares an applied object without writing YAML or external files", async () => {

@@ -63,13 +63,15 @@ export function importPropertiesFromXMLToYAML(params: {
   const forReference = context.fromXML.forReference
   const importedExternalProperties = new Set<string>()
 
-  const orderingStartedAt = performance.now()
   const includeAllTags = sources.length === 1 && sources[0]?.tags === undefined
   const sourceStates = sources.map((source) => {
+    const planningStartedAt = performance.now()
+    const plan = getXMLImportPlan({ rule, tags: source.tags, includeAllTags })
+    addProfileTime(params.profile, "planningMs", planningStartedAt)
     const indexCollection = getConfigurationIndexCollectionContext(source.context)
     return {
       source,
-      plan: getXMLImportPlan({ rule, tags: source.tags, includeAllTags }),
+      plan,
       indexCollection,
       xmlNodeLogicalAddress:
         indexCollection === undefined ? undefined : getConfigurationIndexXmlNodeLogicalAddress(indexCollection),
@@ -78,18 +80,20 @@ export function importPropertiesFromXMLToYAML(params: {
       foundPropertyKeys: new Set<string>(),
     }
   })
-  addProfileTime(params.profile, "orderingMs", orderingStartedAt)
-  const selectionStartedAt = performance.now()
-  const sourceByProperty = new Map<string, (typeof sourceStates)[number]>()
-  for (const sourceState of sourceStates) {
-    for (const propertyKey of sourceState.plan.entriesByPropertyKey.keys()) {
-      if (sourceByProperty.has(propertyKey)) {
-        throw new Error(`Для свойства ${propertyKey} найдено несколько XML-источников`)
+  const planningStartedAt = performance.now()
+  const sourceByProperty =
+    sourceStates.length === 1 ? undefined : new Map<string, (typeof sourceStates)[number]>()
+  if (sourceByProperty !== undefined) {
+    for (const sourceState of sourceStates) {
+      for (const propertyKey of sourceState.plan.entriesByPropertyKey.keys()) {
+        if (sourceByProperty.has(propertyKey)) {
+          throw new Error(`Для свойства ${propertyKey} найдено несколько XML-источников`)
+        }
+        sourceByProperty.set(propertyKey, sourceState)
       }
-      sourceByProperty.set(propertyKey, sourceState)
     }
   }
-  addProfileTime(params.profile, "selectionMs", selectionStartedAt)
+  addProfileTime(params.profile, "planningMs", planningStartedAt)
 
   const importMatch = (match: {
     sourceState: (typeof sourceStates)[number]
@@ -388,11 +392,14 @@ export function importPropertiesFromXMLToYAML(params: {
   }
 
   for (const sourceState of sourceStates) {
+    const traversalStartedAt = performance.now()
+    let conversionMs = 0
     visitXMLImportPlan({
       plan: sourceState.plan,
       xml: sourceState.source.xml,
       visit(match) {
         sourceState.foundPropertyKeys.add(match.propertyKey)
+        const conversionStartedAt = performance.now()
         importMatch({
           sourceState,
           entry: match,
@@ -401,16 +408,21 @@ export function importPropertiesFromXMLToYAML(params: {
           sourceXMLValue: match.xmlValue,
           presentInXML: true,
         })
+        conversionMs += performance.now() - conversionStartedAt
       },
     })
+    addProfileDuration(params.profile, "xmlTraversalMs", performance.now() - traversalStartedAt - conversionMs)
   }
 
   if (propertyXML !== undefined) {
+    const traversalStartedAt = performance.now()
+    let conversionMs = 0
     for (const [propertyKey, sourceXMLValue] of propertyXML) {
-      const sourceState = sourceByProperty.get(propertyKey)
+      const sourceState = sourceByProperty === undefined ? sourceStates[0] : sourceByProperty.get(propertyKey)
       const entry = sourceState?.plan.entriesByPropertyKey.get(propertyKey)
       if (sourceState === undefined || entry === undefined) continue
       sourceState.foundPropertyKeys.add(propertyKey)
+      const conversionStartedAt = performance.now()
       importMatch({
         sourceState,
         entry,
@@ -419,12 +431,17 @@ export function importPropertiesFromXMLToYAML(params: {
         sourceXMLValue,
         presentInXML: true,
       })
+      conversionMs += performance.now() - conversionStartedAt
     }
+    addProfileDuration(params.profile, "xmlTraversalMs", performance.now() - traversalStartedAt - conversionMs)
   }
 
   for (const sourceState of sourceStates) {
+    const traversalStartedAt = performance.now()
+    let conversionMs = 0
     for (const entry of sourceState.plan.defaults) {
       if (sourceState.foundPropertyKeys.has(entry.propertyKey)) continue
+      const conversionStartedAt = performance.now()
       importMatch({
         sourceState,
         entry,
@@ -433,7 +450,9 @@ export function importPropertiesFromXMLToYAML(params: {
         sourceXMLValue: undefined,
         presentInXML: false,
       })
+      conversionMs += performance.now() - conversionStartedAt
     }
+    addProfileDuration(params.profile, "xmlTraversalMs", performance.now() - traversalStartedAt - conversionMs)
   }
 
   for (const { indexCollection, xmlNodeLogicalAddress, importedKeysInSourceOrder } of sourceStates) {
@@ -452,11 +471,20 @@ function getOwnerXmlName(xml: Record<string, unknown>): string | undefined {
 
 function addProfileTime(
   profile: DirectImportProfile | undefined,
-  field: "orderingMs" | "selectionMs" | "configurationIndexMs" | "defaultMs" | "outputMs" | "collectorMs",
+  field: "planningMs" | "configurationIndexMs" | "defaultMs" | "outputMs" | "collectorMs",
   startedAt: number
 ): void {
   if (profile === undefined) return
   profile[field] += performance.now() - startedAt
+}
+
+function addProfileDuration(
+  profile: DirectImportProfile | undefined,
+  field: "xmlTraversalMs",
+  durationMs: number
+): void {
+  if (profile === undefined) return
+  profile[field] += Math.max(0, durationMs)
 }
 
 function addProfileBucket(

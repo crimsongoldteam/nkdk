@@ -32,8 +32,8 @@ export interface DirectImportProfile {
   directCount: number
   legacyCount: number
   exportedCount: number
-  orderingMs: number
-  selectionMs: number
+  planningMs: number
+  xmlTraversalMs: number
   configurationIndexMs: number
   directInclusiveMs: number
   legacyFromXmlMs: number

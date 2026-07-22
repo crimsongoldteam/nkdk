@@ -190,8 +190,8 @@ function createDirectImportProfile(): DirectImportProfile {
     directCount: 0,
     legacyCount: 0,
     exportedCount: 0,
-    orderingMs: 0,
-    selectionMs: 0,
+    planningMs: 0,
+    xmlTraversalMs: 0,
     configurationIndexMs: 0,
     directInclusiveMs: 0,
     legacyFromXmlMs: 0,
@@ -207,11 +207,11 @@ function createDirectImportProfile(): DirectImportProfile {
 function recordDirectImportProfile(profiler: ValidationProfiler | undefined, profile: DirectImportProfile): void {
   if (profiler === undefined) return
   const step = "Подготовка импорта конфигурации"
-  profiler.record(step, "XML в YAML: определение порядка свойств", {
+  profiler.record(step, "XML в YAML: подготовка плана импорта", {
     items: profile.propertyCount,
-    timeMs: profile.orderingMs,
+    timeMs: profile.planningMs,
   })
-  profiler.record(step, "XML в YAML: выбор свойств", { items: profile.propertyCount, timeMs: profile.selectionMs })
+  profiler.record(step, "XML в YAML: обход XML", { items: profile.propertyCount, timeMs: profile.xmlTraversalMs })
   profiler.record(step, "XML в YAML: сбор данных индекса конфигурации", {
     items: profile.propertyCount,
     timeMs: profile.configurationIndexMs,
