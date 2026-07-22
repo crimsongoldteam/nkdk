@@ -4,6 +4,8 @@ import { join } from "node:path"
 import { afterEach, describe, expect, it, vi } from "vitest"
 import { mockContextFromXML } from "../../tests/mockContext"
 import { createConfigurationIndexCollector } from "../configurationIndex/collector/writer"
+import { createOperationProfiler } from "../validation/profile"
+import { parseMetadataYamlData } from "../../yaml/parseMetadataYaml"
 import { discoverXmlImport } from "./discovery"
 import {
   prepareImportYaml,
@@ -23,6 +25,43 @@ afterEach(() => {
 })
 
 describe("prepareImportYaml", () => {
+  it("imports a common form through the standard nested rules converter", async () => {
+    const fixtureDir = join(import.meta.dirname, "../appliedObjects/metadataCommonForm/__fixtures__/sync")
+    const profiler = createOperationProfiler({
+      operation: "import-from-xml",
+      scope: { scope: "worker", workerIndex: 0 },
+      aggregate: true,
+    })
+    const prepared = await prepareImportYaml({
+      assignment: {
+        id: "common-form",
+        role: "properties",
+        targetProjectPath: "ОбщаяФорма/КонстантаВсеСвойства/Свойства.yaml",
+        itemType: "MetadataCommonForm",
+        itemName: "КонстантаВсеСвойства",
+        logicalAddress: "ОбщаяФорма.КонстантаВсеСвойства",
+        owner: undefined,
+        xmlFiles: [
+          { role: "metadata", sourcePath: join(fixtureDir, "xml/КонстантаВсеСвойства.xml") },
+          { role: "property", sourcePath: join(fixtureDir, "xml/КонстантаВсеСвойства/Ext/Form.xml") },
+        ],
+        externalFiles: [],
+      },
+      context: mockContextFromXML(),
+      collector: createConfigurationIndexCollector(),
+      profiler,
+    })
+    const expected = parseMetadataYamlData(
+      fs.readFileSync(join(fixtureDir, "yaml/КонстантаВсеСвойства/Свойства.yaml"), "utf8")
+    )
+
+    expect(expected.syntaxErrors).toEqual([])
+    expect(prepared.yaml).toEqual(expected.data)
+    expect(profiler.records().map(({ substep }) => substep)).not.toContain(
+      "XML в YAML: атомарный тип ClientApplicationForm"
+    )
+  })
+
   it("prepares an applied object without writing YAML or external files", async () => {
     const writeFile = vi.spyOn(fs.promises, "writeFile")
     const assignment = catalogAssignment()

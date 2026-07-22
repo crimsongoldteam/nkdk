@@ -1,9 +1,3 @@
-import { childUid } from "../../configurationIndex/logicalAddress"
-import {
-  getConfigurationIndexCollectionContext,
-  withConfigurationIndexFormElementRootLogicalAddress,
-  withConfigurationIndexXmlNodeLogicalAddress,
-} from "../../configurationIndex/collector/context"
 import type { ExternalFileEntry } from "../../context/types"
 import { importPropertiesFromXMLToYAML } from "../../orchestration/property/fromXMLToYAML"
 import type { DirectImportProfile, DirectImportResult } from "../../orchestration/property/importYamlTypes"
@@ -11,7 +5,7 @@ import { createLocalIndexesCollector } from "../../project/localIndexes"
 import { createFormDataPathIndexCollector } from "../../validation/dataPath/formYamlIndex"
 import { ClientApplicationFormRules } from "./rules"
 import type { ClientApplicationFormXML, FormMetadataXML } from "./types"
-import { FormRulesTags } from "./types"
+import { createClientApplicationFormImportSources } from "./xmlImportSources"
 
 export function importClientApplicationFormFromXMLToYAML(params: {
   context: Parameters<typeof importPropertiesFromXMLToYAML>[0]["context"]
@@ -51,32 +45,14 @@ export function importClientApplicationFormFromXMLToYAML(params: {
             parent: { name: params.formName },
           },
         }
-  const collection = getConfigurationIndexCollectionContext(context)
-  const formBodyContext =
-    collection === undefined
-      ? context
-      : withConfigurationIndexXmlNodeLogicalAddress(
-          withConfigurationIndexFormElementRootLogicalAddress(context, collection.logicalAddress),
-          childUid(collection.logicalAddress, "ЧастьФормы", "Содержимое")
-        )
-  const formYaml = importPropertiesFromXMLToYAML({
-    context: formBodyContext,
-    rule: ClientApplicationFormRules,
-    sources: [
-      { context: formBodyContext, xml: (params.formXML ?? {}) as Record<string, unknown>, tags: [FormRulesTags.Form] },
-    ],
-    itemName: params.formName,
-    yamlPath: [],
-    rulePath: [],
-    collector,
-    profile: params.profile,
-  })
-  const metadataYaml = importPropertiesFromXMLToYAML({
+  const yaml = importPropertiesFromXMLToYAML({
     context,
     rule: ClientApplicationFormRules,
-    sources: [
-      { context, xml: params.metadataXML as unknown as Record<string, unknown>, tags: [FormRulesTags.Metadata] },
-    ],
+    sources: createClientApplicationFormImportSources({
+      context,
+      formXML: params.formXML,
+      metadataXML: params.metadataXML,
+    }),
     itemName: params.formName,
     yamlPath: [],
     rulePath: [],
@@ -84,7 +60,6 @@ export function importClientApplicationFormFromXMLToYAML(params: {
     profile: params.profile,
   })
 
-  const yaml = { ...formYaml, ...metadataYaml }
   const localIndexes = localIndexesCollector.finish()
   const formDataPathIndex = formDataPathIndexCollector.finish()
   localIndexes.metadata.formDataPathIndex = formDataPathIndex

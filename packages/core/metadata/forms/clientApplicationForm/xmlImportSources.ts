@@ -28,6 +28,21 @@ export function createClientApplicationFormBodyImportSource(params: {
   }
 }
 
+export function createClientApplicationFormImportSources(params: {
+  context: ConfigurationContextFromXML
+  formXML: unknown
+  metadataXML: unknown
+}): DirectImportXMLSource[] {
+  return [
+    createClientApplicationFormBodyImportSource({ context: params.context, xml: params.formXML }),
+    {
+      context: params.context,
+      xml: asRecord(params.metadataXML) ?? {},
+      tags: [FormRulesTags.Metadata],
+    },
+  ]
+}
+
 function extractFormBody(xml: unknown): Record<string, unknown> | undefined {
   const root = asRecord(xml)
   return asRecord(root?.Form) ?? root

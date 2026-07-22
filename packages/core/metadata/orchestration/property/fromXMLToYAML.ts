@@ -177,6 +177,7 @@ export function importPropertiesFromXMLToYAML(params: {
     try {
       const direct = getTypeRule(propertyRule.type, "importFromXMLToYAML")
       const resolveNestedSources = getTypeRule(propertyRule.type, "resolveNestedImportXMLSources")
+      const convertedDirectly = resolveNestedSources !== undefined || direct !== undefined
       let importedValue: unknown
       if (resolveNestedSources !== undefined) {
         const nested = getTypeRule(propertyRule.type, "nestedItemRule")
@@ -276,7 +277,7 @@ export function importPropertiesFromXMLToYAML(params: {
         }
       }
       const rawValue =
-        importedValue === undefined && hasExplicitXMLKeyWithEmptyDefault && direct === undefined
+        importedValue === undefined && hasExplicitXMLKeyWithEmptyDefault && !convertedDirectly
           ? propertyRule.defaultValueXMLEmpty
           : importedValue
       const preserveExplicitDefault =
@@ -284,12 +285,12 @@ export function importPropertiesFromXMLToYAML(params: {
         sourceXmlKey !== undefined &&
         rawValue === propertyRule.defaultValueXML
       const cleanValue =
-        direct === undefined && !forReference && rawValue === propertyRule.defaultValueXML && !preserveExplicitDefault
+        !convertedDirectly && !forReference && rawValue === propertyRule.defaultValueXML && !preserveExplicitDefault
           ? undefined
           : rawValue
       const defaultStartedAt = performance.now()
       const value =
-        direct === undefined && !forReference
+        !convertedDirectly && !forReference
           ? getValueOrDefault({
               context: sourceContext,
               rule: propertyRule,
@@ -312,17 +313,16 @@ export function importPropertiesFromXMLToYAML(params: {
       }
 
       const exportStartedAt = performance.now()
-      const yamlValue =
-        direct === undefined
-          ? exportPropertyValueToYAML({
-              context: sourceContext,
-              rule: propertyRule,
-              value,
-              name: itemName,
-              owner,
-            })
-          : value
-      if (direct === undefined) {
+      const yamlValue = !convertedDirectly
+        ? exportPropertyValueToYAML({
+            context: sourceContext,
+            rule: propertyRule,
+            value,
+            name: itemName,
+            owner,
+          })
+        : value
+      if (!convertedDirectly) {
         const profile = params.profile
         if (profile !== undefined) profile.yamlExportMs += performance.now() - exportStartedAt
       }
@@ -331,7 +331,7 @@ export function importPropertiesFromXMLToYAML(params: {
         const outputStartedAt = performance.now()
         const parentName = sourceContext.exportToYAML?.parent?.name
         const externalFiles = sourceContext.exportToYAML?.externalFilesCollector
-        const externalValue = direct === undefined ? value : yamlValue
+        const externalValue = convertedDirectly ? yamlValue : value
         if (parentName !== undefined && externalFiles !== undefined && externalValue !== undefined) {
           const entry = buildExternalFileEntry(propertyRule.externalFile, parentName, externalValue as string)
           if (entry !== null) externalFiles.push(entry)
@@ -344,7 +344,7 @@ export function importPropertiesFromXMLToYAML(params: {
       if (propertyRule.derivedFrom?.externalFile) {
         const outputStartedAt = performance.now()
         const referencedKey = propertyRule.derivedFrom.externalFile
-        const derivedValue = direct === undefined ? value : yamlValue
+        const derivedValue = convertedDirectly ? yamlValue : value
         if (
           derivedValue === true ||
           (derivedValue === propertyRule.implicitValueYAML && !importedExternalProperties.has(referencedKey))

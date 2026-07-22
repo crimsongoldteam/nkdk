@@ -15,6 +15,7 @@ import {
 import { metadataTargetOwnerFromRule } from "../orchestration/property/metadataTargetString"
 import { getTypeRule } from "../orchestration/property/typeRuleRegistry"
 import type { MetadataItemRule, PropertyRule } from "../orchestration/property/types"
+import type { DirectImportProfile } from "../orchestration/property/importYamlTypes"
 import { createLocalIndexesCollector, type LocalIndexes } from "../project/localIndexes"
 import { configurationMetadataProjectSpec, metadataProjectSpecs } from "../project/specs"
 import type { ValidationProfiler } from "../validation/profile"
@@ -79,6 +80,7 @@ export async function prepareImportYaml(params: {
       ownerContext
     ) as ConfigurationContextFromXML
 
+    const importProfile = createDirectImportProfile()
     const result = measureYaml(params.profiler, () => {
       if (rule === ClientApplicationFormRules) {
         const metadataXML = requireMetadataXml(xmlInputs ?? [])
@@ -88,6 +90,7 @@ export async function prepareImportYaml(params: {
           formName: params.assignment.itemName,
           formXML: bodyXML?.["Form"] as ClientApplicationFormXML | undefined,
           metadataXML: metadataXML["MetaDataObject"] as FormMetadataXML,
+          profile: importProfile,
         })
       }
 
@@ -98,12 +101,13 @@ export async function prepareImportYaml(params: {
         rule,
         name: params.assignment.itemName,
         xml: metadataXML["MetaDataObject"],
-        traversal: { yamlPath: [], rulePath: [], collector },
+        traversal: { yamlPath: [], rulePath: [], collector, profile: importProfile },
         propertyXML: mapPropertyXml(rule, xmlInputs ?? []),
       })
       if (yaml === undefined) throw new Error("XML-import не сформировал YAML")
       return { yaml, localIndexes: collector.finish(), generatedFiles }
     })
+    recordDirectImportProfile(params.profiler, importProfile)
 
     params.profiler?.record("Подготовка импорта конфигурации", "Сбор локальных индексов", {
       items: result.localIndexes.metadata.events.length,
@@ -127,15 +131,20 @@ function resolveAssignmentRule(assignment: ImportAssignment): MetadataItemRule {
   if (assignment.role === "configuration") return configurationMetadataProjectSpec.rule
   const rule = findRegisteredImportRule(assignment.itemType)
   if (rule !== undefined) return rule
-  if (assignment.role === "fileItem" && assignment.targetProjectPath.endsWith(".yaml")) return ClientApplicationFormRules
+  if (assignment.role === "fileItem" && assignment.targetProjectPath.endsWith(".yaml"))
+    return ClientApplicationFormRules
   throw new Error(`Не найдено правило подготовки XML-import для ${assignment.itemType}`)
 }
 
-function buildOwnerContext(assignment: ImportAssignment, rule: MetadataItemRule): readonly MetadataItemOwnerContextEntry[] {
+function buildOwnerContext(
+  assignment: ImportAssignment,
+  rule: MetadataItemRule
+): readonly MetadataItemOwnerContextEntry[] {
   const owner = assignment.owner
   if (owner !== undefined) {
     const ownerRule = findRegisteredImportRule(owner.itemType)
-    const targetOwner = ownerRule === undefined ? undefined : metadataTargetOwnerFromRule({ itemRule: ownerRule, name: owner.name })
+    const targetOwner =
+      ownerRule === undefined ? undefined : metadataTargetOwnerFromRule({ itemRule: ownerRule, name: owner.name })
     return appendMetadataItemOwner([], owner.itemType as never, owner.name, "", targetOwner)
   }
   const targetOwner = metadataTargetOwnerFromRule({ itemRule: rule, name: assignment.itemName })
@@ -156,8 +165,11 @@ async function readAndParseAssignmentXml(
       result.push({
         input,
         parsed:
-          profiler?.measure("Подготовка импорта конфигурации", "Парсинг XML", { items: 1, bytes: Buffer.byteLength(content) }, () =>
-            importContentFromXML<Record<string, unknown>>(content, { preserveXsiNil: true })
+          profiler?.measure(
+            "Подготовка импорта конфигурации",
+            "Парсинг XML",
+            { items: 1, bytes: Buffer.byteLength(content) },
+            () => importContentFromXML<Record<string, unknown>>(content, { preserveXsiNil: true })
           ) ?? importContentFromXML<Record<string, unknown>>(content, { preserveXsiNil: true }),
       })
     } catch (caught) {
@@ -170,6 +182,79 @@ async function readAndParseAssignmentXml(
 function measureYaml<T>(profiler: ValidationProfiler | undefined, fn: () => T): T {
   if (profiler === undefined) return fn()
   return profiler.measure("Подготовка импорта конфигурации", "Преобразование XML в YAML", { items: 1 }, fn)
+}
+
+function createDirectImportProfile(): DirectImportProfile {
+  return {
+    propertyCount: 0,
+    directCount: 0,
+    legacyCount: 0,
+    exportedCount: 0,
+    orderingMs: 0,
+    selectionMs: 0,
+    configurationIndexMs: 0,
+    directInclusiveMs: 0,
+    legacyFromXmlMs: 0,
+    yamlExportMs: 0,
+    defaultMs: 0,
+    outputMs: 0,
+    collectorMs: 0,
+    directByType: new Map(),
+    legacyByType: new Map(),
+  }
+}
+
+function recordDirectImportProfile(profiler: ValidationProfiler | undefined, profile: DirectImportProfile): void {
+  if (profiler === undefined) return
+  const step = "Подготовка импорта конфигурации"
+  profiler.record(step, "XML в YAML: определение порядка свойств", {
+    items: profile.propertyCount,
+    timeMs: profile.orderingMs,
+  })
+  profiler.record(step, "XML в YAML: выбор свойств", { items: profile.propertyCount, timeMs: profile.selectionMs })
+  profiler.record(step, "XML в YAML: сбор данных индекса конфигурации", {
+    items: profile.propertyCount,
+    timeMs: profile.configurationIndexMs,
+  })
+  profiler.record(step, "XML в YAML: прямые преобразователи", {
+    items: profile.directCount,
+    timeMs: profile.directInclusiveMs,
+  })
+  profiler.record(step, "XML в YAML: fromXML атомарных свойств", {
+    items: profile.legacyCount,
+    timeMs: profile.legacyFromXmlMs,
+  })
+  profiler.record(step, "XML в YAML: toYAML атомарных свойств", {
+    items: profile.legacyCount,
+    timeMs: profile.yamlExportMs,
+  })
+  profiler.record(step, "XML в YAML: значения по умолчанию", {
+    items: profile.propertyCount,
+    timeMs: profile.defaultMs,
+  })
+  profiler.record(step, "XML в YAML: запись значений в YAML", {
+    items: profile.exportedCount,
+    timeMs: profile.outputMs,
+  })
+  profiler.record(step, "XML в YAML: сбор локальных фактов", {
+    items: profile.exportedCount,
+    timeMs: profile.collectorMs,
+  })
+  recordProfileBuckets(profiler, "XML в YAML: прямой тип", profile.directByType)
+  recordProfileBuckets(profiler, "XML в YAML: атомарный тип", profile.legacyByType)
+}
+
+function recordProfileBuckets(
+  profiler: ValidationProfiler,
+  prefix: string,
+  buckets: ReadonlyMap<string, { count: number; timeMs: number }>
+): void {
+  for (const [type, bucket] of buckets) {
+    profiler.record("Подготовка импорта конфигурации", `${prefix} ${type}`, {
+      items: bucket.count,
+      timeMs: bucket.timeMs,
+    })
+  }
 }
 
 function requireMetadataXml(inputs: readonly ParsedImportXmlInput[]): Record<string, unknown> {
