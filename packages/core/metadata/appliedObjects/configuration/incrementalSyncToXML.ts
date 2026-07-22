@@ -14,10 +14,10 @@ import { remapReferenceModel } from "./migrations/referenceRemap"
 import {
   CONFIGURATION_XML_FILE,
   CONFIGURATION_YAML_FILE,
-  readConfigurationFromXML,
-  readConfigurationFromYAML,
-  writeConfigurationToXML,
+  readRawConfigurationXML,
+  writePreparedConfigurationToXML,
 } from "./rootIO"
+import { importFromYAML } from "../../../yaml/import"
 import { diffSyncState, hashProjectFiles, readXmlSyncState, SYNC_STATE_FILE, writeXmlSyncState } from "./syncState"
 import { prepareConfigurationXmlMigrationChain, syncConfigurationToXML } from "./syncToXML"
 import { TopLevelMetadataItemRules } from "./topLevelRules"
@@ -279,23 +279,23 @@ async function writeConfigurationArea(params: {
 
   const referenceDir = params.referenceDir ?? params.outputDir
   const hasReferenceConfiguration = fs.existsSync(join(referenceDir, CONFIGURATION_XML_FILE))
-  const referenceContext = { ...params.context, fromXML: { forReference: true } }
-  const referenceConfiguration = hasReferenceConfiguration
-    ? readConfigurationFromXML({ context: referenceContext, inputDir: referenceDir })
-    : undefined
+  const referenceXML = hasReferenceConfiguration ? readRawConfigurationXML(referenceDir) : undefined
   const referenceChildObjects = hasReferenceConfiguration
     ? readConfigurationChildObjectsFromXML(referenceDir)
     : undefined
-  const configuration = readConfigurationFromYAML({
+  const yamlPath = join(params.inputDir, CONFIGURATION_YAML_FILE)
+  writePreparedConfigurationToXML({
     context: params.context,
-    inputDir: params.inputDir,
-    source: referenceConfiguration,
-  })
-  writeConfigurationToXML({
-    context: params.context,
-    configuration,
     outputDir: params.outputDir,
-    referenceConfiguration,
+    preparedYamlFile: {
+      projectPath: CONFIGURATION_YAML_FILE,
+      filePath: yamlPath,
+      role: "configuration",
+      owner: { dir: "", name: "Конфигурация" },
+      data: importFromYAML<unknown>(fs.readFileSync(yamlPath, "utf-8")),
+      syntaxDiagnostics: [],
+    },
+    referenceXML,
     childObjects: buildConfigurationChildObjects({ yamlDir: params.inputDir, referenceChildObjects }),
   })
 }

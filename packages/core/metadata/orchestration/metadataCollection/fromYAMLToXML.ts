@@ -11,6 +11,7 @@ import type {
 } from "../property/fromYAMLToXMLTypes"
 import type { MetadataItemRule, PropertyRule } from "../property/types"
 import type { YAMLPropertySource } from "../property/fromYAMLToXMLTypes"
+import { getChildContextToXML } from "../../context/helpers"
 
 type CollectionDescriptor = Extract<YAMLToXMLNestedRule, { kind: "collection" }>
 
@@ -46,13 +47,23 @@ export function convertMetadataCollectionFromYAMLToXML(
       params.descriptor.resolveItemRule?.({ yaml, name, index, propertyRule: params.propertyRule }) ?? defaultItemRule
     const normalizedYAML =
       params.descriptor.normalizeItemYAML?.({ yaml, name, index, propertyRule: params.propertyRule }) ?? yaml
-    const itemContext = configurationIndexItemContext({
+    const indexedItemContext = configurationIndexItemContext({
       context: params.context,
       descriptor: params.descriptor,
       yaml: normalizedYAML,
       name,
       index,
     })
+    const itemContext =
+      name === undefined || itemRule.externalMetadata === undefined
+        ? indexedItemContext
+        : getChildContextToXML({
+            context: indexedItemContext,
+            itemType: itemRule.itemType,
+            path: `${itemRule.itemType}.${name}`,
+            name,
+            externalMetadata: itemRule.externalMetadata,
+          })
     const itemOutputs = params.outputs.map((output) => ({
       key: output.key,
       referenceXML: findReferenceItem({

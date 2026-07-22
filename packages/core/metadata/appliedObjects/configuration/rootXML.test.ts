@@ -6,6 +6,11 @@ import { importContentFromXML } from "../../../xml/import/importer"
 import { xmlExport } from "../../../xml/export/exporter"
 import { MetadataConfigurationRules } from "./rules"
 import type { MetadataConfiguration } from "./types"
+import fs from "node:fs"
+import { mkdtempSync } from "node:fs"
+import { tmpdir } from "node:os"
+import { join } from "node:path"
+import { writePreparedConfigurationToXML } from "./rootIO"
 
 const normalizeXML = (value: string) =>
   value
@@ -37,6 +42,31 @@ const roundTripConfigurationXML = (source: string): string => {
 }
 
 describe("root Configuration XML", () => {
+  it("пишет Configuration.xml прямо из подготовленного YAML", () => {
+    const outputDir = mkdtempSync(join(tmpdir(), "nkdk-direct-configuration-"))
+    try {
+      writePreparedConfigurationToXML({
+        context: mockContextToXML(),
+        outputDir,
+        preparedYamlFile: {
+          projectPath: "Конфигурация.yaml",
+          filePath: join(outputDir, "удалённый.yaml"),
+          role: "configuration",
+          owner: { dir: "", name: "Конфигурация" },
+          data: { Имя: "Конфигурация" },
+          syntaxDiagnostics: [],
+        },
+        childObjects: { Catalog: ["Контрагенты"] },
+      })
+
+      const xml = fs.readFileSync(join(outputDir, "Configuration.xml"), "utf8")
+      expect(xml).toContain("<Name>Конфигурация</Name>")
+      expect(xml).toContain("<Catalog>Контрагенты</Catalog>")
+    } finally {
+      fs.rmSync(outputDir, { recursive: true, force: true })
+    }
+  })
+
   it("генерирует ContainedObject без reference XML", () => {
     const exported = exportMetadataItemToXML({
       context: mockContextToXML(),

@@ -24,6 +24,11 @@ import { MetadataConfigurationRules } from "./rules"
 import type { MetadataConfiguration, MetadataConfigurationYAML } from "./types"
 import type { ConfigurationChildObjectsXML } from "./childObjects"
 import { runWithConfigurationIndexPropertyContext } from "../../configurationIndex/collector/context"
+import { convertMetadataItemFromYAMLToXML } from "../../orchestration/metadataItem/fromYAMLToXML"
+import type {
+  YAMLToXMLExternalWrite,
+  YAMLToXMLExternalWriteFactory,
+} from "../../orchestration/property/fromYAMLToXMLTypes"
 
 export const CONFIGURATION_XML_FILE = "Configuration.xml"
 export { CONFIGURATION_YAML_FILE }
@@ -81,7 +86,7 @@ export const writeConfigurationToYAML = (params: {
   context: ConfigurationContext
   configuration: MetadataConfiguration | undefined
   outputDir: string
-}): void => {
+}): readonly YAMLToXMLExternalWrite[] => {
   const yamlObject = exportMetadataItemToYAML({
     context: params.context,
     data: params.configuration,
@@ -139,22 +144,35 @@ export const writePreparedConfigurationToXML = (params: {
   outputDir: string
   preparedYamlFile: PreparedYamlFile
   childObjects?: ConfigurationChildObjectsXML
-  referenceConfiguration?: MetadataConfiguration
-}): void => {
-  const configuration = readConfigurationFromYAML({
+  referenceXML?: Record<string, unknown>
+  externalWriteFactory?: YAMLToXMLExternalWriteFactory
+}): readonly YAMLToXMLExternalWrite[] => {
+  const yaml = params.preparedYamlFile.data as MetadataConfigurationYAML | undefined
+  if (yaml === undefined) {
+    throw new Error(`Подготовленные YAML-данные конфигурации отсутствуют: ${params.preparedYamlFile.projectPath}`)
+  }
+  const converted = convertMetadataItemFromYAMLToXML({
     context: params.context,
-    inputDir: params.outputDir,
-    source: params.referenceConfiguration,
-    preparedYamlFile: params.preparedYamlFile,
+    yaml,
+    rule: MetadataConfigurationRules,
+    name: typeof yaml.Имя === "string" ? yaml.Имя : undefined,
+    outputs: [{ key: "configuration", referenceXML: params.referenceXML }],
+    externalWriteFactory: params.externalWriteFactory,
   })
-  writeConfigurationToXML({
-    context: params.context,
-    configuration,
-    outputDir: params.outputDir,
-    referenceConfiguration: params.referenceConfiguration,
-    childObjects: params.childObjects,
-  })
+  const xmlObject = converted.outputs.get("configuration")
+  if (xmlObject === undefined) return converted.externalWrites
+  if (params.childObjects !== undefined) setConfigurationChildObjectsXML(xmlObject, params.childObjects)
+
+  fs.mkdirSync(params.outputDir, { recursive: true })
+  fs.writeFileSync(join(params.outputDir, CONFIGURATION_XML_FILE), xmlExport(xmlObject), "utf-8")
+  return converted.externalWrites
 }
+
+export const readRawConfigurationXML = (inputDir: string): Record<string, unknown> =>
+  importContentFromXML<Record<string, unknown>>(fs.readFileSync(join(inputDir, CONFIGURATION_XML_FILE), "utf-8"), {
+    preserveXsiNil: true,
+    preserveEmptyElements: true,
+  })
 
 const readConfigurationFilePathPropertiesFromXML = (params: {
   context: ConfigurationContextFromXML

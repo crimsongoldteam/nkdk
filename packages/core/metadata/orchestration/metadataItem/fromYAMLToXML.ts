@@ -7,6 +7,7 @@ import type {
 } from "../property/fromYAMLToXMLTypes"
 import type { MetadataItemRule, PropertyRule } from "../property/types"
 import { findInlineProperty } from "./yamlInline"
+import { recordCurrentExternalMetadataUuid } from "../externalMetadata/record"
 
 export interface ConvertMetadataItemFromYAMLToXMLParams {
   readonly context: ConfigurationContextWithExportToXML
@@ -78,7 +79,27 @@ export function convertMetadataItemFromYAMLToXML(params: ConvertMetadataItemFrom
     outputs.set(request.key, wrapXMLRoot({ params, request, root, value: merged }))
   }
 
+  if (params.rule.externalMetadata !== undefined) {
+    const uuid = readMetadataItemUuid(outputs.values().next().value, params.rule, root)
+    if (uuid !== undefined) recordCurrentExternalMetadataUuid({ context: itemContext, uuid })
+  }
+
   return { outputs, externalWrites: converted.externalWrites }
+}
+
+function readMetadataItemUuid(
+  xml: Record<string, unknown> | undefined,
+  rule: MetadataItemRule,
+  root: XMLRootInfo | undefined
+): string | undefined {
+  if (xml === undefined) return undefined
+  const uuidRule = Object.values(rule.properties).find((property) => property.type === "uuid")
+  if (uuidRule === undefined) return undefined
+  let current: unknown = unwrapReferenceBody(xml, root)
+  for (const parent of uuidRule.xmlParents ?? []) current = isRecord(current) ? current[parent] : undefined
+  if (!isRecord(current)) return undefined
+  const value = current[uuidRule.xml ?? "Uuid"]
+  return typeof value === "string" && value.length > 0 ? value : undefined
 }
 
 function findXMLRoot(rule: MetadataItemRule): XMLRootInfo | undefined {

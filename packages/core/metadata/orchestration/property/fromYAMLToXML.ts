@@ -253,6 +253,14 @@ export function convertPropertiesFromYAMLToXML(params: ConvertPropertiesFromYAML
       if (nestedYAML === undefined && !hasNestedDefault && !references.some((reference) => reference.exists)) {
         continue
       }
+      if (
+        nestedYAML === undefined &&
+        effectiveNestedRule.kind === "collection" &&
+        planned.propertyRule.preserveFromReferenceXML !== true &&
+        references.every((reference) => isEmptyCollectionReference(reference.value, effectiveNestedRule.xmlElement))
+      ) {
+        continue
+      }
       const nestedOutputs = matchingOutputs.map((output, index) => ({
         key: output.request.key,
         referenceXML: references[index]?.value,
@@ -387,6 +395,16 @@ export function convertPropertiesFromYAMLToXML(params: ConvertPropertiesFromYAML
     outputs: new Map(outputs.map(({ request, xml }) => [request.key, xml])),
     externalWrites,
   }
+}
+
+function isEmptyCollectionReference(value: unknown, xmlElement: string | undefined): boolean {
+  if (value === undefined) return true
+  if (Array.isArray(value)) return value.length === 0
+  if (!isRecord(value)) return false
+  if (Object.keys(value).length === 0) return true
+  if (xmlElement === undefined || !Object.prototype.hasOwnProperty.call(value, xmlElement)) return false
+  const items = value[xmlElement]
+  return items === undefined || (Array.isArray(items) && items.length === 0)
 }
 
 function orderStringArrayByReference(value: unknown, reference: unknown): unknown {
