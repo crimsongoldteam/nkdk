@@ -50,10 +50,11 @@ describe("importMetadataItemFromXMLToYAML", () => {
 
 function runDirectRule(rule: MetadataItemRule, xml: Record<string, unknown>) {
   const collector = createLocalIndexesCollector()
+  const context = { ...mockContextFromXML(), exportToYAML: { toTyped: true } }
   const yaml = importPropertiesFromXMLToYAML({
-    context: { ...mockContextFromXML(), exportToYAML: { toTyped: true } },
+    context,
     rule,
-    xml,
+    sources: [{ context, xml }],
     yamlPath: [],
     rulePath: [],
     collector,

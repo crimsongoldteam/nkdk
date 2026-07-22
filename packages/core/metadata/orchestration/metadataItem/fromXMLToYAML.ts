@@ -24,14 +24,16 @@ export function importMetadataItemFromXMLToYAML(params: {
   const source = xmlRoot === undefined ? root : asRecord(root?.[xmlRoot.container])
   if (source === undefined) return undefined
 
+  const context = contextWithItemParent(params.context, params.name)
   const yaml = importPropertiesFromXMLToYAML({
-    context: contextWithItemParent(params.context, params.name),
+    context,
     rule: params.rule,
-    xml: source,
+    sources: [{ context, xml: source }],
     itemName: params.name,
     yamlPath: params.traversal.yamlPath,
     rulePath: enterNestedYamlRule(params.traversal, params.rule.itemType).rulePath,
     collector: params.traversal.collector,
+    profile: params.traversal.profile,
     propertyXML: params.propertyXML,
   })
   const inline = findInlinePropertyCached(params.rule)

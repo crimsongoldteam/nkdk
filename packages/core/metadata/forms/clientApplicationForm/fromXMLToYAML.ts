@@ -6,7 +6,7 @@ import {
 } from "../../configurationIndex/collector/context"
 import type { ExternalFileEntry } from "../../context/types"
 import { importPropertiesFromXMLToYAML } from "../../orchestration/property/fromXMLToYAML"
-import type { DirectImportResult } from "../../orchestration/property/importYamlTypes"
+import type { DirectImportProfile, DirectImportResult } from "../../orchestration/property/importYamlTypes"
 import { createLocalIndexesCollector } from "../../project/localIndexes"
 import { createFormDataPathIndexCollector } from "../../validation/dataPath/formYamlIndex"
 import { ClientApplicationFormRules } from "./rules"
@@ -18,6 +18,7 @@ export function importClientApplicationFormFromXMLToYAML(params: {
   formName: string
   formXML?: ClientApplicationFormXML
   metadataXML: FormMetadataXML
+  profile?: DirectImportProfile
 }): DirectImportResult {
   if (params.formXML === undefined && params.metadataXML.Form.Properties.FormType !== "Ordinary") {
     throw new Error(`Не найден Form.xml для управляемой формы ${params.formName}`)
@@ -61,22 +62,26 @@ export function importClientApplicationFormFromXMLToYAML(params: {
   const formYaml = importPropertiesFromXMLToYAML({
     context: formBodyContext,
     rule: ClientApplicationFormRules,
-    xml: (params.formXML ?? {}) as Record<string, unknown>,
+    sources: [
+      { context: formBodyContext, xml: (params.formXML ?? {}) as Record<string, unknown>, tags: [FormRulesTags.Form] },
+    ],
     itemName: params.formName,
     yamlPath: [],
     rulePath: [],
     collector,
-    tags: [FormRulesTags.Form],
+    profile: params.profile,
   })
   const metadataYaml = importPropertiesFromXMLToYAML({
     context,
     rule: ClientApplicationFormRules,
-    xml: params.metadataXML as unknown as Record<string, unknown>,
+    sources: [
+      { context, xml: params.metadataXML as unknown as Record<string, unknown>, tags: [FormRulesTags.Metadata] },
+    ],
     itemName: params.formName,
     yamlPath: [],
     rulePath: [],
     collector,
-    tags: [FormRulesTags.Metadata],
+    profile: params.profile,
   })
 
   const yaml = { ...formYaml, ...metadataYaml }

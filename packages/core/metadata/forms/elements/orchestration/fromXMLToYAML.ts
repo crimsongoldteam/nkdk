@@ -10,12 +10,7 @@ import { importPropertiesFromXMLToYAML } from "../../../orchestration/property/f
 import type { DirectImportTraversal } from "../../../orchestration/property/importYamlTypes"
 import { enterNestedYamlRule } from "../../../orchestration/property/yamlRuleCursor"
 import { getCanonicalSingletonName, type SingletonNameStyle } from "./singletonName"
-import {
-  CollectableElementTypeToYAML,
-  type CollectableElementType,
-  type ElementRule,
-  type ElementXML,
-} from "./types"
+import { CollectableElementTypeToYAML, type CollectableElementType, type ElementRule, type ElementXML } from "./types"
 
 export function importFormElementFromXMLToYAML(params: {
   context: ConfigurationContextFromXML
@@ -40,11 +35,12 @@ export function importFormElementPropertiesFromXMLToYAML(params: {
   return importPropertiesFromXMLToYAML({
     context: params.context,
     rule: params.rule,
-    xml: params.xml,
+    sources: [{ context: params.context, xml: params.xml }],
     itemName: params.name,
     yamlPath: params.traversal.yamlPath,
     rulePath: enterNestedYamlRule(params.traversal, params.rule.itemType).rulePath,
     collector: params.traversal.collector,
+    profile: params.traversal.profile,
   })
 }
 
@@ -72,9 +68,7 @@ export function importSingleFormElementFromXMLToYAML(params: {
           ? collection.logicalAddress
           : getConfigurationIndexFormElementLogicalAddress(collection, canonicalName)
   const context =
-    logicalAddress === undefined
-      ? params.context
-      : withConfigurationIndexLogicalAddress(params.context, logicalAddress)
+    logicalAddress === undefined ? params.context : withConfigurationIndexLogicalAddress(params.context, logicalAddress)
 
   collectConfigurationIndexIdentityFromXML({ context, sourceXmlKey: "_id", xmlValue: params.xml._id })
   collectConfigurationIndexIdentityFromXML({
@@ -88,11 +82,12 @@ export function importSingleFormElementFromXMLToYAML(params: {
     importPropertiesFromXMLToYAML({
       context,
       rule: params.rule,
-      xml: params.xml,
+      sources: [{ context, xml: params.xml }],
       itemName: canonicalName,
       yamlPath: params.traversal.yamlPath,
       rulePath: enterNestedYamlRule(params.traversal, params.rule.itemType).rulePath,
       collector: params.traversal.collector,
+      profile: params.traversal.profile,
     }) ?? {}
   )
 }

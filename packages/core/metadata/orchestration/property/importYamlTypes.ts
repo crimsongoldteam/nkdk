@@ -18,6 +18,36 @@ export interface DirectImportTraversal {
   yamlPath: YamlPath
   rulePath: readonly DeferredRulePathSegment[]
   collector: LocalIndexesCollector
+  profile?: DirectImportProfile
+}
+
+export interface DirectImportXMLSource {
+  context: ConfigurationContextFromXML
+  xml: Record<string, unknown>
+  tags?: string[]
+}
+
+export interface DirectImportProfile {
+  propertyCount: number
+  directCount: number
+  legacyCount: number
+  exportedCount: number
+  orderingMs: number
+  selectionMs: number
+  configurationIndexMs: number
+  directInclusiveMs: number
+  legacyFromXmlMs: number
+  yamlExportMs: number
+  defaultMs: number
+  outputMs: number
+  collectorMs: number
+  directByType: Map<string, DirectImportProfileBucket>
+  legacyByType: Map<string, DirectImportProfileBucket>
+}
+
+export interface DirectImportProfileBucket {
+  count: number
+  timeMs: number
 }
 
 export interface DirectImportResult {
@@ -54,9 +84,7 @@ export type ImportFromXMLToYAMLFunction = (params: {
   traversal: DirectImportTraversal
 }) => unknown
 
-export type NestedItemRule =
-  | { itemRule: MetadataItemRule }
-  | { resolveItemRule(itemType: string): MetadataItemRule }
+export type NestedItemRule = { itemRule: MetadataItemRule } | { resolveItemRule(itemType: string): MetadataItemRule }
 
 export type FinalizeImportedYAMLFunction = (params: {
   context: ConfigurationContext

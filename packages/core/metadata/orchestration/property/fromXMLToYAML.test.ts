@@ -3,12 +3,43 @@ import { mockContextFromXML } from "../../../tests/mockContext"
 import { withConfigurationIndexCollector } from "../../configurationIndex/collector/context"
 import { createConfigurationIndexCollector } from "../../configurationIndex/collector/writer"
 import { createLocalIndexesCollector } from "../../project/localIndexes"
-import { importPropertiesFromXMLToYAML } from "./fromXMLToYAML"
+import { importPropertiesFromXMLToYAML as importPropertiesWithSources } from "./fromXMLToYAML"
 import { PropertyRuleType } from "./registry"
 import { registerTypeRule } from "./typeRuleRegistry"
 import type { MetadataItemRule } from "./types"
 
 describe("importPropertiesFromXMLToYAML", () => {
+  it("imports tagged properties from two XML sources in one rule traversal", () => {
+    const calls: string[] = []
+    registerTypeRule("TestTaggedAtomic" as PropertyRuleType, "importFromXML", (_context, rule, xml) => {
+      calls.push(`${rule.tag}:${xml}`)
+      return xml
+    })
+    registerTypeRule("TestTaggedAtomic" as PropertyRuleType, "exportToYAML", (_context, _rule, value) => value)
+    const context = { ...mockContextFromXML(), exportToYAML: { toTyped: true } }
+
+    const yaml = importPropertiesFromXMLToYAML({
+      context,
+      rule: {
+        itemType: "TestDirectItem",
+        properties: {
+          body: { type: "TestTaggedAtomic", xml: "Body", yaml: "Тело", tag: "Body" },
+          metadata: { type: "TestTaggedAtomic", xml: "Metadata", yaml: "Метаданные", tag: "Metadata" },
+        },
+      } as MetadataItemRule,
+      sources: [
+        { context, xml: { Body: "body" }, tags: ["Body"] },
+        { context, xml: { Metadata: "metadata" }, tags: ["Metadata"] },
+      ],
+      yamlPath: [],
+      rulePath: [],
+      collector: createLocalIndexesCollector(),
+    })
+
+    expect(yaml).toEqual({ Тело: "body", Метаданные: "metadata" })
+    expect(calls).toEqual(["Body:body", "Metadata:metadata"])
+  })
+
   it("immediately converts one atomic XML value to YAML", () => {
     const calls: string[] = []
     registerTypeRule("TestDirectAtomic" as PropertyRuleType, "importFromXML", (_context, _rule, xml) => {
@@ -143,7 +174,12 @@ describe("importPropertiesFromXMLToYAML", () => {
     const rule = {
       itemType: "TestDirectItem",
       properties: {
-        referenceOnly: { type: "TestReferenceDirect", xml: "ReferenceOnly", yaml: "ТолькоСсылка", forReferenceOnly: true },
+        referenceOnly: {
+          type: "TestReferenceDirect",
+          xml: "ReferenceOnly",
+          yaml: "ТолькоСсылка",
+          forReferenceOnly: true,
+        },
         disabled: { type: "TestReferenceDirect", xml: "Disabled", yaml: "Выключено", fromXML: false },
       },
     } as MetadataItemRule
@@ -208,15 +244,13 @@ describe("importPropertiesFromXMLToYAML", () => {
             },
           },
         } as MetadataItemRule,
-        xml: { Text: "Сообщить(\"ok\")" },
+        xml: { Text: 'Сообщить("ok")' },
         yamlPath: [],
         rulePath: [],
         collector: createLocalIndexesCollector(),
       })
     ).toEqual({})
-    expect(externalFilesCollector).toEqual([
-      { relativePath: "Модули/Владелец.bsl", content: "Сообщить(\"ok\")" },
-    ])
+    expect(externalFilesCollector).toEqual([{ relativePath: "Модули/Владелец.bsl", content: 'Сообщить("ok")' }])
   })
 
   it("writes an external file when the property has no YAML key", () => {
@@ -314,7 +348,10 @@ describe("importPropertiesFromXMLToYAML", () => {
   })
 })
 
-function runSingleProperty(property: Record<string, unknown>, xml: Record<string, unknown>): Record<string, unknown> | undefined {
+function runSingleProperty(
+  property: Record<string, unknown>,
+  xml: Record<string, unknown>
+): Record<string, unknown> | undefined {
   return importPropertiesFromXMLToYAML({
     context: { ...mockContextFromXML(), exportToYAML: { toTyped: true } },
     rule: {
@@ -326,4 +363,13 @@ function runSingleProperty(property: Record<string, unknown>, xml: Record<string
     rulePath: [],
     collector: createLocalIndexesCollector(),
   })
+}
+
+type DirectImportParams = Parameters<typeof importPropertiesWithSources>[0]
+type SingleSourceImportParams = Omit<DirectImportParams, "sources"> & { xml: Record<string, unknown> }
+
+function importPropertiesFromXMLToYAML(params: DirectImportParams | SingleSourceImportParams) {
+  if ("sources" in params) return importPropertiesWithSources(params)
+  const { xml, ...rest } = params
+  return importPropertiesWithSources({ ...rest, sources: [{ context: params.context, xml }] })
 }
