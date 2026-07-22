@@ -1,5 +1,5 @@
 import { registerProjectSpec } from "../../project/projectSpecRegistry"
-import { createGenericProjectImportModel, createProjectSchemaExporter } from "../../project/projectSpecHelpers"
+import { createProjectSchemaExporter } from "../../project/projectSpecHelpers"
 import { registerProjectJSONSchema } from "../../project/schemaRegistry"
 import { join } from "path"
 import type { OwnerMetadata } from "../../validation/dataPath/ownerCache"
@@ -74,7 +74,6 @@ registerProjectSpec({
   dir: "Документ",
   rule: MetadataDocumentRules,
   exportSchema: createProjectSchemaExporter(({ context }) => exportMetadataDocumentToJSONSchema({ context })),
-  importModel: createGenericProjectImportModel(MetadataDocumentRules),
 })
 
 function documentRegisterRecordRefs(owner: OwnerMetadata): OwnerTypeRef[] {

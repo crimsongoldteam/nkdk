@@ -1,10 +1,7 @@
 import { registerProjectSpec } from "../../project/projectSpecRegistry"
 import { registerProjectJSONSchema } from "../../project/schemaRegistry"
 import { join } from "path"
-import {
-  createGenericProjectImportModel,
-  createMetadataItemProjectSchemaExporter,
-} from "../../project/projectSpecHelpers"
+import { createMetadataItemProjectSchemaExporter } from "../../project/projectSpecHelpers"
 import { exportMetadataItemToJSONSchema } from "../../orchestration/metadataItem/toJSONSchema"
 import {
   registerProjectFileValidator,
@@ -32,7 +29,6 @@ registerProjectSpec({
   dir: "",
   rule: MetadataConfigurationRules,
   exportSchema: createMetadataItemProjectSchemaExporter(MetadataConfigurationRules),
-  importModel: createGenericProjectImportModel(MetadataConfigurationRules),
   xmlImportRoutes: [
     {
       kind: "ignore",
@@ -83,7 +79,6 @@ for (const rule of TopLevelMetadataItemRules) {
     dir,
     rule,
     exportSchema: createMetadataItemProjectSchemaExporter(rule),
-    importModel: createGenericProjectImportModel(rule),
     ...(rule.itemType === MetadataSubsystemRules.itemType
       ? {
           nesting: {

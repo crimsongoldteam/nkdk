@@ -40,7 +40,6 @@ function validationFile(absolutePath: string, projectPath: string): ValidationPr
         dir: "Справочник",
         rule: { itemType: "Catalog", properties: {} } as MetadataItemRule,
         exportSchema: () => ({ type: "object" }) as never,
-        importModel: () => ({ itemType: "Catalog", name: "Товары" }),
       } satisfies ValidationProjectSpec,
     },
   }

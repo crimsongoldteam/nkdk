@@ -2703,7 +2703,6 @@ function owner(params: {
       dir: "Справочник",
       rule,
       exportSchema: () => ({ type: "object" }) as never,
-      importModel: () => undefined,
     },
   }
 

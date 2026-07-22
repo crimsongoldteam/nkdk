@@ -2,18 +2,16 @@ import { readdirSync } from "fs"
 import { join, resolve } from "path"
 import { Type } from "typebox"
 import type { ConfigurationContext } from "../../context/types"
-import { importMetadataItemFromYAML } from "../../orchestration/metadataItem/fromYAML"
-import type { MetadataItem, MetadataItemRule } from "../../orchestration/property/types"
-import type { ParsedYaml } from "../../../yaml/parseMetadataYaml"
+import type { MetadataItemRule } from "../../orchestration/property/types"
 import type { ValidationObjectTable } from "../projectValidationObjectTable"
 import type { ValidationProjectSpec } from "../projectSpecs"
 import type { ProjectYamlCache } from "../projectYamlCache"
 import type { Diagnostic } from "../types"
-import { validateUniqueNameScopes } from "../uniqueNameScopes"
 import { buildObjectFieldIndex, type ObjectFieldIndex } from "./objectFields"
-import { createValidationOwnerFacts, type ValidationOwnerFacts } from "./ownerFacts"
+import type { ValidationOwnerFacts } from "./ownerFacts"
 import { getDataPathOwnerKind, type DataPathOwnerKindRegistration } from "./registry"
 import type { OwnerTypeRef } from "./types"
+import { ownerFactFromYAML } from "./ownerFacts"
 
 export interface OwnerMetadataCache {
   get(ref: OwnerTypeRef): OwnerMetadataResult
@@ -47,11 +45,6 @@ function createValidationSpecFromOwnerKind(ownerKind: DataPathOwnerKindRegistrat
     dir: ownerKind.projectDir,
     rule: ownerKind.rule,
     exportSchema: () => Type.Object({}),
-    importModel: ({ context, parsed, name }) => {
-      const model: unknown = importMetadataItemFromYAML({ context, yaml: parsed.data, rule: ownerKind.rule, name })
-
-      return isMetadataItem(model) ? model : undefined
-    },
   }
 }
 
@@ -146,7 +139,7 @@ function loadOwnerFromValidationTable(params: {
     record.ownerFacts ??
     (fieldIndex === undefined
       ? undefined
-      : { ref: params.ref, filePath: record.filePath, fieldIndex } satisfies ValidationOwnerFacts)
+      : ({ ref: params.ref, filePath: record.filePath, fieldIndex } satisfies ValidationOwnerFacts))
 
   if (ownerKind === undefined || facts === undefined || fieldIndex === undefined) {
     return {
@@ -177,7 +170,7 @@ function loadOwner(params: {
   context: ConfigurationContext
   ref: OwnerTypeRef
 }): OwnerMetadataResult {
-  const { projectDir, yamlCache, context, ref } = params
+  const { projectDir, yamlCache, ref } = params
   const ownerKind = getDataPathOwnerKind(ref.kind)
   const dir = ownerKind?.projectDir
   if (!dir || !ref.name) {
@@ -203,25 +196,15 @@ function loadOwner(params: {
   }
 
   try {
-    const imported = importOwnerModel({ spec, context, parsed: entry.parsed, name: ref.name, filePath, ref })
-    if (imported.status === "import-error") return imported
+    const uniqueNameDiagnostics = validateYamlUniqueNameScopes({ filePath, data: entry.parsed.data, rule: spec.rule })
+    if (uniqueNameDiagnostics.length > 0) return { status: "ambiguous", diagnostics: uniqueNameDiagnostics }
 
-    const uniqueNameDiagnostics = validateUniqueNameScopes({
-      filePath,
-      parsed: entry.parsed,
-      model: imported.model,
-      rule: spec.rule,
-    })
-    if (uniqueNameDiagnostics.length > 0) {
-      return { status: "ambiguous", diagnostics: uniqueNameDiagnostics }
-    }
-
-    const ownerFactsWithoutIndex = createValidationOwnerFacts({
+    const ownerFactsWithoutIndex = {
       ref,
       filePath,
       fieldIndex: emptyObjectFieldIndex(),
-      model: imported.model,
-    })
+      ...ownerFactsFromYAML(entry.parsed.data, spec.rule),
+    } as ValidationOwnerFacts
     const ownerWithoutIndex = {
       ref,
       filePath,
@@ -242,44 +225,56 @@ function loadOwner(params: {
   }
 }
 
-function emptyObjectFieldIndex(): ObjectFieldIndex {
-  return { fields: new Map(), standardAttributeAliases: new Map(), diagnostics: [] }
+function ownerFactsFromYAML(data: unknown, rule: MetadataItemRule): Record<string, unknown> {
+  const record = isRecord(data) ? data : {}
+  const facts: Record<string, unknown> = {}
+  for (const propertyRule of Object.values(rule.properties)) {
+    if (propertyRule.ownerFactRole === undefined || typeof propertyRule.yaml !== "string") continue
+    const value = ownerFactFromYAML(propertyRule.ownerFactRole, record[propertyRule.yaml])
+    if (value !== undefined) facts[propertyRule.ownerFactRole] = value
+  }
+  return facts
 }
 
-function importOwnerModel(params: {
-  spec: ValidationProjectSpec
-  context: ConfigurationContext
-  parsed: ParsedYaml
-  name: string
+function validateYamlUniqueNameScopes(params: {
   filePath: string
-  ref: OwnerTypeRef
-}): { status: "ok"; model: MetadataItem } | { status: "import-error"; diagnostics: Diagnostic[] } {
-  try {
-    const model = params.spec.importModel({
-      context: params.context,
-      parsed: params.parsed,
-      name: params.name,
-    })
-    if (model !== undefined) return { status: "ok", model }
-
-    return {
-      status: "import-error",
-      diagnostics: [
-        crossFileDiagnostic(params.filePath, `Не удалось импортировать владельца ${formatOwnerRef(params.ref)}`),
-      ],
-    }
-  } catch (caught) {
-    const message = caught instanceof Error ? caught.message : String(caught)
-    return {
-      status: "import-error",
-      diagnostics: [
-        crossFileDiagnostic(
-          params.filePath,
-          `Не удалось импортировать владельца ${formatOwnerRef(params.ref)}: ${message}`
-        ),
-      ],
+  data: unknown
+  rule: MetadataItemRule
+}): Diagnostic[] {
+  const record = isRecord(params.data) ? params.data : {}
+  const diagnostics: Diagnostic[] = []
+  for (const scope of params.rule.uniqueNameScopes ?? []) {
+    const seen = new Set<string>()
+    for (const propertyKey of scope.collections) {
+      const yamlKey = params.rule.properties[propertyKey]?.yaml
+      if (typeof yamlKey !== "string") continue
+      const collection = isRecord(record[yamlKey]) ? record[yamlKey] : {}
+      for (const name of Object.keys(collection)) {
+        const normalized = name.toLocaleLowerCase("ru")
+        if (seen.has(normalized)) {
+          diagnostics.push({
+            filePath: params.filePath,
+            line: 1,
+            col: 1,
+            severity: "error",
+            source: "structure",
+            path: `/${yamlKey}/${name}`,
+            message: `Имя "${name}" уже используется в этой области`,
+          })
+        }
+        seen.add(normalized)
+      }
     }
   }
+  return diagnostics
+}
+
+function isRecord(value: unknown): value is Record<string, unknown> {
+  return value !== null && typeof value === "object" && !Array.isArray(value)
+}
+
+function emptyObjectFieldIndex(): ObjectFieldIndex {
+  return { fields: new Map(), standardAttributeAliases: new Map(), diagnostics: [] }
 }
 
 function canonicalOwnerKey(ref: OwnerTypeRef): string {
@@ -307,8 +302,4 @@ function crossFileDiagnostic(filePath: string, message: string): Diagnostic {
     severity: "error",
     source: "cross-file",
   }
-}
-
-function isMetadataItem(value: unknown): value is MetadataItem {
-  return typeof value === "object" && value !== null && "itemType" in value
 }

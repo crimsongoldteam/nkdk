@@ -33,14 +33,12 @@ describe("projectSpecRegistry", () => {
       kind: "sample",
       rule: SampleRule,
       exportSchema: () => Type.Object({ first: Type.String() }),
-      importModel: ({ name }) => ({ itemType: "SampleItem", name }) as never,
     })
     registerProjectSpec({
       dir: SAMPLE_DIR,
       kind: "sample2",
       rule: SampleRule,
       exportSchema: () => Type.Object({ second: Type.String() }),
-      importModel: ({ name }) => ({ itemType: "SampleItem", name }) as never,
     })
 
     expect(getRegisteredProjectSpecByDir(SAMPLE_DIR)).toMatchObject({

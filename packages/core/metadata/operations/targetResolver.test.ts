@@ -84,4 +84,14 @@ describe("resolveMetadataOperationPath", () => {
       code: "unsupported_target",
     })
   })
+
+  it("returns and renames the exact YAML collection node", async () => {
+    const result = await resolve(createProject(), "Справочник.Товары.Реквизит.Артикул")
+    expect(result.ok).toBe(true)
+    if (!result.ok) return
+
+    expect(result.yamlNode).toEqual({ Тип: "Строка" })
+    result.renameYaml("Код")
+    expect(result.item.yaml).toMatchObject({ Реквизиты: { Код: { Тип: "Строка" } } })
+  })
 })
