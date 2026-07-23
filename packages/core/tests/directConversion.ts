@@ -221,6 +221,8 @@ export function testPropertyFixtureThroughYAML(params: {
   const output =
     params.xmlRootTag === "MetaDataObject" && isRecord(value) && isRecord(value.MetaDataObject)
       ? value
+      : isRecord(value) && Object.prototype.hasOwnProperty.call(value, params.xmlRootTag)
+        ? value
       : { [params.xmlRootTag]: value }
   return {
     ...imported,

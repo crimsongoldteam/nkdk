@@ -191,12 +191,16 @@ function mergeReferenceXML(params: {
     if (Object.prototype.hasOwnProperty.call(generated, key)) {
       const generatedValue = generated[key]
       if (isRecord(generatedValue) && isRecord(referenceValue)) {
-        result[key] = mergeReferenceXML({
-          generated: generatedValue,
-          reference: referenceValue,
-          rule,
-          path: [...path, key],
-        })
+        const propertyRule = findPropertyRule(rule, path, key)
+        result[key] =
+          propertyRule?.preserveUnknownReferenceXML !== false
+            ? mergeReferenceXML({
+                generated: generatedValue,
+                reference: referenceValue,
+                rule,
+                path: [...path, key],
+              })
+            : generatedValue
       } else if (generatedValue !== undefined || referenceValue === undefined) {
         result[key] = generatedValue
       }

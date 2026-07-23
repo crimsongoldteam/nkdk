@@ -12927,10 +12927,10 @@
     "declarationText": "it(\"imports working area template, columns, items and visibility\", () => {\n    const result = importMetadataItemFromXML({\n      context: mockContextFromXML(),\n      rule: HomePageWorkAreaRules,\n      xmlString: HOME_PAGE_WORK_AREA_XML,\n    })\n\n    expect(result).toMatchObject({\n      itemType: \"HomePageWorkArea\",\n      workingAreaTemplate: \"TwoColumnsVariableWidth\",\n      leftColumn: [\n        {\n          form: \"CommonForm.НачалоРаботы\",\n          height: 100,\n          visibility: {\n            common: true,\n            roles: {\n              \"Role.Администратор\": false,\n            },\n          },\n        },\n      ],\n      rightColumn: [\n        {\n          form: \"DataProcessor.ИнформационныйЦентр.Form.ИнформационныйЦентр\",\n          height: 10,\n          visibility: {\n            common: false,\n          },\n        },\n      ],\n      maCommandInterfaceDisplays: \"Top\",\n    })\n  })",
     "fixtures": [],
     "line": 34,
-    "behavior": "",
+    "behavior": "HomePageWorkArea преобразует шаблон, колонки, элементы и видимость из XML в YAML",
     "targetPath": "packages/core/metadata/commonObjects/homePageWorkArea/fromXMLToYAML.test.ts",
-    "targetTitle": "",
-    "status": "pending"
+    "targetTitle": "imports working area template, columns, items and visibility",
+    "status": "migrated"
   },
   {
     "id": "04f50e62065bb2e7f3cd7e8646dde08c82c0f7a2:packages/core/metadata/commonObjects/homePageWorkArea/fromYAML.test.ts:9:294",
@@ -12942,10 +12942,10 @@
     "declarationText": "it(\"accepts short role names in item visibility\", () => {\n    const result = importMetadataItemFromYAML({\n      context: mockContext,\n      rule: HomePageWorkAreaRules,\n      yaml: {\n        ШаблонРабочейОбласти: \"ДвеКолонкиПеременнойШирины\",\n        ЛеваяКолонка: [\n          {\n            Форма: \"CommonForm.НачалоРаботы\",\n            Высота: 100,\n            Видимость: {\n              Общее: \"Истина\",\n              Роли: {\n                Администратор: \"Ложь\",\n                ПолныеПрава: \"Истина\",\n              },\n            },\n          },\n        ],\n        ПраваяКолонка: [\n          {\n            Форма: \"DataProcessor.ИнформационныйЦентр.Form.ИнформационныйЦентр\",\n            Высота: 10,\n            Видимость: {\n              Общее: \"Ложь\",\n            },\n          },\n        ],\n        ОтображениеКомандногоИнтерфейса: \"Верх\",\n      },\n    })\n\n    expect(result).toMatchObject({\n      itemType: \"HomePageWorkArea\",\n      workingAreaTemplate: \"TwoColumnsVariableWidth\",\n      leftColumn: [\n        {\n          visibility: {\n            common: true,\n            roles: {\n              \"Role.Администратор\": false,\n              \"Role.ПолныеПрава\": true,\n            },\n          },\n        },\n      ],\n      maCommandInterfaceDisplays: \"Top\",\n    })\n  })",
     "fixtures": [],
     "line": 9,
-    "behavior": "",
+    "behavior": "Короткие имена ролей преобразуются в полные XML-ссылки",
     "targetPath": "packages/core/metadata/commonObjects/homePageWorkArea/fromYAMLToXML.test.ts",
-    "targetTitle": "",
-    "status": "pending"
+    "targetTitle": "accepts short role names in item visibility",
+    "status": "migrated"
   },
   {
     "id": "04f50e62065bb2e7f3cd7e8646dde08c82c0f7a2:packages/core/metadata/commonObjects/homePageWorkArea/fromYAML.test.ts:59:1570",
@@ -12957,10 +12957,10 @@
     "declarationText": "it(\"rejects prefixed role names in item visibility\", () => {\n    expect(() =>\n      importMetadataItemFromYAML({\n        context: mockContext,\n        rule: HomePageWorkAreaRules,\n        yaml: {\n          ШаблонРабочейОбласти: \"ДвеКолонкиПеременнойШирины\",\n          ЛеваяКолонка: [\n            {\n              Форма: \"CommonForm.НачалоРаботы\",\n              Видимость: {\n                Роли: {\n                  \"Role.Администратор\": \"Ложь\",\n                },\n              },\n            },\n          ],\n        },\n      })\n    ).toThrow('Неизвестный корень \"Role\"')\n  })",
     "fixtures": [],
     "line": 59,
-    "behavior": "",
+    "behavior": "Полные имена ролей отклоняются во входном YAML",
     "targetPath": "packages/core/metadata/commonObjects/homePageWorkArea/fromYAMLToXML.test.ts",
-    "targetTitle": "",
-    "status": "pending"
+    "targetTitle": "rejects prefixed role names in item visibility",
+    "status": "migrated"
   },
   {
     "id": "04f50e62065bb2e7f3cd7e8646dde08c82c0f7a2:packages/core/metadata/commonObjects/homePageWorkArea/fromYAML.test.ts:81:2150",
@@ -12972,10 +12972,10 @@
     "declarationText": "it(\"passes unknown enum values through unchanged\", () => {\n    const result = importMetadataItemFromYAML({\n      context: mockContext,\n      rule: HomePageWorkAreaRules,\n      yaml: {\n        ШаблонРабочейОбласти: \"FutureTemplate\",\n        ОтображениеКомандногоИнтерфейса: \"FutureDisplay\",\n      },\n    })\n\n    expect(result).toMatchObject({\n      workingAreaTemplate: \"FutureTemplate\",\n      maCommandInterfaceDisplays: \"FutureDisplay\",\n    })\n  })",
     "fixtures": [],
     "line": 81,
-    "behavior": "",
+    "behavior": "Неизвестные значения перечислений сохраняются при экспорте в XML",
     "targetPath": "packages/core/metadata/commonObjects/homePageWorkArea/fromYAMLToXML.test.ts",
-    "targetTitle": "",
-    "status": "pending"
+    "targetTitle": "passes unknown enum values through unchanged",
+    "status": "migrated"
   },
   {
     "id": "04f50e62065bb2e7f3cd7e8646dde08c82c0f7a2:packages/core/metadata/commonObjects/homePageWorkArea/toXML.test.ts:107:3171",
@@ -12987,10 +12987,10 @@
     "declarationText": "it(\"round-trips compact XML\", () => {\n    expect(roundTripHomePageWorkArea(HOME_PAGE_WORK_AREA_XML)).toBe(normalizeXML(HOME_PAGE_WORK_AREA_XML))\n  })",
     "fixtures": [],
     "line": 107,
-    "behavior": "",
+    "behavior": "Компактный HomePageWorkArea сохраняется через YAML",
     "targetPath": "packages/core/metadata/commonObjects/homePageWorkArea/fromYAMLToXML.test.ts",
-    "targetTitle": "",
-    "status": "pending"
+    "targetTitle": "round-trips compact XML",
+    "status": "migrated"
   },
   {
     "id": "04f50e62065bb2e7f3cd7e8646dde08c82c0f7a2:packages/core/metadata/commonObjects/homePageWorkArea/toXML.test.ts:111:3324",
@@ -13002,10 +13002,10 @@
     "declarationText": "it(\"writes full role names after YAML import\", () => {\n    const data = importMetadataItemFromYAML({\n      context: mockContext,\n      rule: HomePageWorkAreaRules,\n      yaml: {\n        ШаблонРабочейОбласти: \"ДвеКолонкиПеременнойШирины\",\n        ЛеваяКолонка: [\n          {\n            Форма: \"CommonForm.НачалоРаботы\",\n            Высота: 100,\n            Видимость: {\n              Общее: \"Истина\",\n              Роли: {\n                Администратор: \"Ложь\",\n              },\n            },\n          },\n        ],\n        ОтображениеКомандногоИнтерфейса: \"Верх\",\n      },\n    })\n    const xml = exportMetadataItemToXML({\n      context: mockContextToXML(),\n      data,\n      rule: HomePageWorkAreaRules,\n    })\n\n    expect(xmlExport(xml!)).toContain('<xr:Value name=\"Role.Администратор\">false</xr:Value>')\n  })",
     "fixtures": [],
     "line": 111,
-    "behavior": "",
+    "behavior": "XML содержит полные имена ролей после импорта YAML",
     "targetPath": "packages/core/metadata/commonObjects/homePageWorkArea/fromYAMLToXML.test.ts",
-    "targetTitle": "",
-    "status": "pending"
+    "targetTitle": "writes full role names after YAML import",
+    "status": "migrated"
   },
   {
     "id": "04f50e62065bb2e7f3cd7e8646dde08c82c0f7a2:packages/core/metadata/commonObjects/homePageWorkArea/toXML.test.ts:141:4141",
@@ -13017,10 +13017,10 @@
     "declarationText": "it(\"exports working area template before columns without reference XML\", () => {\n    const data = importMetadataItemFromYAML({\n      context: mockContext,\n      rule: HomePageWorkAreaRules,\n      yaml: {\n        ШаблонРабочейОбласти: \"ДвеКолонкиПеременнойШирины\",\n        ЛеваяКолонка: [\n          {\n            Форма: \"CommonForm.НачалоРаботы\",\n            Высота: 100,\n          },\n        ],\n      },\n    })\n    const xml = exportMetadataItemToXML({\n      context: mockContextToXML(),\n      data,\n      rule: HomePageWorkAreaRules,\n    })\n\n    const result = xmlExport(xml!)\n    expect(result.indexOf(\"<WorkingAreaTemplate>\")).toBeLessThan(result.indexOf(\"<LeftColumn>\"))\n  })",
     "fixtures": [],
     "line": 141,
-    "behavior": "",
+    "behavior": "Свежий XML сохраняет порядок шаблона и колонок",
     "targetPath": "packages/core/metadata/commonObjects/homePageWorkArea/fromYAMLToXML.test.ts",
-    "targetTitle": "",
-    "status": "pending"
+    "targetTitle": "exports working area template before columns without reference XML",
+    "status": "migrated"
   },
   {
     "id": "04f50e62065bb2e7f3cd7e8646dde08c82c0f7a2:packages/core/metadata/commonObjects/homePageWorkArea/toXML.test.ts:165:4824",
@@ -13032,10 +13032,10 @@
     "declarationText": "it(\"preserves unknown item and visibility XML details through YAML round-trip\", () => {\n    const xmlString = `<?xml version=\"1.0\" encoding=\"UTF-8\"?>\n<HomePageWorkArea xmlns=\"http://v8.1c.ru/8.3/xcf/extrnprops\" xmlns:xr=\"http://v8.1c.ru/8.3/xcf/readable\" xmlns:xs=\"http://www.w3.org/2001/XMLSchema\" xmlns:xsi=\"http://www.w3.org/2001/XMLSchema-instance\" version=\"2.20\">\n\\t<WorkingAreaTemplate>TwoColumnsVariableWidth</WorkingAreaTemplate>\n\\t<LeftColumn>\n\\t\\t<Item customAttribute=\"keep\">\n\\t\\t\\t<Form>CommonForm.НачалоРаботы</Form>\n\\t\\t\\t<Height>100</Height>\n\\t\\t\\t<Visibility customVisibility=\"keep\">\n\\t\\t\\t\\t<xr:Common>true</xr:Common>\n\\t\\t\\t\\t<xr:Value name=\"Role.Администратор\" customRole=\"keep\"><Extra>role</Extra>false</xr:Value>\n\\t\\t\\t\\t<UnknownVisibility>keep visibility</UnknownVisibility>\n\\t\\t\\t</Visibility>\n\\t\\t\\t<UnknownItemChild>keep item</UnknownItemChild>\n\\t\\t</Item>\n\\t</LeftColumn>\n</HomePageWorkArea>`\n\n    const result = roundTripHomePageWorkAreaThroughYAML(xmlString, (yaml) => {\n      yaml.ЛеваяКолонка![0].Высота = 10\n      yaml.ЛеваяКолонка![0].Видимость!.Роли!.Администратор = \"Истина\"\n    })\n\n    expect(result).toContain('customAttribute=\"keep\"')\n    expect(result).toContain(\"<UnknownItemChild>keep item</UnknownItemChild>\")\n    expect(result).toContain('customVisibility=\"keep\"')\n    expect(result).toContain(\"<UnknownVisibility>keep visibility</UnknownVisibility>\")\n    expect(result).toContain('<xr:Value customRole=\"keep\" name=\"Role.Администратор\">')\n    expect(result).toContain(\"<Extra>role</Extra>\")\n    expect(result).toContain(\"<Height>10</Height>\")\n    expect(result).toContain(\"true\")\n  })",
     "fixtures": [],
     "line": 165,
-    "behavior": "",
+    "behavior": "Неизвестные XML-данные элементов и видимости сохраняются через YAML",
     "targetPath": "packages/core/metadata/commonObjects/homePageWorkArea/fromYAMLToXML.test.ts",
-    "targetTitle": "",
-    "status": "pending"
+    "targetTitle": "preserves unknown item and visibility XML details through YAML round-trip",
+    "status": "migrated"
   },
   {
     "id": "04f50e62065bb2e7f3cd7e8646dde08c82c0f7a2:packages/core/metadata/commonObjects/homePageWorkArea/toXML.test.ts:198:6454",
@@ -13047,10 +13047,10 @@
     "declarationText": "it(\"preserves reference Column kind when YAML does not force another kind\", () => {\n    const xmlString = `<?xml version=\"1.0\" encoding=\"UTF-8\"?>\n<HomePageWorkArea xmlns=\"http://v8.1c.ru/8.3/xcf/extrnprops\" xmlns:xr=\"http://v8.1c.ru/8.3/xcf/readable\" xmlns:xs=\"http://www.w3.org/2001/XMLSchema\" xmlns:xsi=\"http://www.w3.org/2001/XMLSchema-instance\" version=\"2.20\">\n\\t<WorkingAreaTemplate>OneColumn</WorkingAreaTemplate>\n\\t<Column>\n\\t\\t<Item>\n\\t\\t\\t<Form>CommonForm.НачалоРаботы</Form>\n\\t\\t\\t<Height>100</Height>\n\\t\\t</Item>\n\\t</Column>\n</HomePageWorkArea>`\n\n    const result = roundTripHomePageWorkAreaThroughYAML(xmlString, (yaml) => {\n      yaml.Колонка![0].Высота = 10\n    })\n\n    expect(result).toContain(\"<Column>\")\n    expect(result).not.toContain(\"<LeftColumn>\")\n    expect(result).toContain(\"<Height>10</Height>\")\n  })",
     "fixtures": [],
     "line": 198,
-    "behavior": "",
+    "behavior": "Вид Column сохраняется из исходного XML",
     "targetPath": "packages/core/metadata/commonObjects/homePageWorkArea/fromYAMLToXML.test.ts",
-    "targetTitle": "",
-    "status": "pending"
+    "targetTitle": "preserves reference Column kind when YAML does not force another kind",
+    "status": "migrated"
   },
   {
     "id": "04f50e62065bb2e7f3cd7e8646dde08c82c0f7a2:packages/core/metadata/commonObjects/homePageWorkArea/toYAML.test.ts:48:1585",
@@ -13062,10 +13062,10 @@
     "declarationText": "it(\"exports columns, item visibility and enum values\", () => {\n    expect(exportHomePageWorkAreaToYAML(HOME_PAGE_WORK_AREA_XML)).toEqual({\n      ШаблонРабочейОбласти: \"ДвеКолонкиПеременнойШирины\",\n      ЛеваяКолонка: [\n        {\n          Форма: \"CommonForm.НачалоРаботы\",\n          Высота: 100,\n          Видимость: {\n            Общее: \"Истина\",\n            Роли: {\n              Администратор: \"Ложь\",\n            },\n          },\n        },\n      ],\n      ПраваяКолонка: [\n        {\n          Форма: \"DataProcessor.ИнформационныйЦентр.Form.ИнформационныйЦентр\",\n          Высота: 10,\n          Видимость: {\n            Общее: \"Ложь\",\n          },\n        },\n      ],\n      ОтображениеКомандногоИнтерфейса: \"Верх\",\n    })\n  })",
     "fixtures": [],
     "line": 48,
-    "behavior": "",
+    "behavior": "HomePageWorkArea преобразует колонки, видимость и перечисления в YAML",
     "targetPath": "packages/core/metadata/commonObjects/homePageWorkArea/fromXMLToYAML.test.ts",
-    "targetTitle": "",
-    "status": "pending"
+    "targetTitle": "exports columns, item visibility and enum values",
+    "status": "migrated"
   },
   {
     "id": "04f50e62065bb2e7f3cd7e8646dde08c82c0f7a2:packages/core/metadata/commonObjects/homePageWorkArea/toYAML.test.ts:76:2317",
@@ -13077,10 +13077,10 @@
     "declarationText": "it(\"passes unknown enum values through unchanged\", () => {\n    const xmlString = HOME_PAGE_WORK_AREA_XML.replace(\"TwoColumnsVariableWidth\", \"FutureTemplate\").replace(\n      \"Top\",\n      \"FutureDisplay\"\n    )\n\n    expect(exportHomePageWorkAreaToYAML(xmlString)).toMatchObject({\n      ШаблонРабочейОбласти: \"FutureTemplate\",\n      ОтображениеКомандногоИнтерфейса: \"FutureDisplay\",\n    })\n  })",
     "fixtures": [],
     "line": 76,
-    "behavior": "",
+    "behavior": "Неизвестные значения перечислений сохраняются при импорте XML",
     "targetPath": "packages/core/metadata/commonObjects/homePageWorkArea/fromXMLToYAML.test.ts",
-    "targetTitle": "",
-    "status": "pending"
+    "targetTitle": "passes unknown enum values through unchanged",
+    "status": "migrated"
   },
   {
     "id": "04f50e62065bb2e7f3cd7e8646dde08c82c0f7a2:packages/core/metadata/commonObjects/metadataAttribute/fromXML.test.ts:14:401",
@@ -13925,10 +13925,10 @@
       "methods.xml"
     ],
     "line": 10,
-    "behavior": "",
+    "behavior": "GET и HEAD преобразуются из XML в YAML",
     "targetPath": "packages/core/metadata/commonObjects/metadataHTTPServiceMethod/fromXMLToYAML.test.ts",
-    "targetTitle": "",
-    "status": "pending"
+    "targetTitle": "imports GET and HEAD methods",
+    "status": "migrated"
   },
   {
     "id": "04f50e62065bb2e7f3cd7e8646dde08c82c0f7a2:packages/core/metadata/commonObjects/metadataHTTPServiceMethod/fromYAML.test.ts:9:354",
@@ -13942,10 +13942,10 @@
       "./__fixtures__/data"
     ],
     "line": 9,
-    "behavior": "",
+    "behavior": "Именованная YAML-коллекция HTTP-методов преобразуется в XML",
     "targetPath": "packages/core/metadata/commonObjects/metadataHTTPServiceMethod/fromYAMLToXML.test.ts",
-    "targetTitle": "",
-    "status": "pending"
+    "targetTitle": "imports collection from YAML map keyed by name",
+    "status": "migrated"
   },
   {
     "id": "04f50e62065bb2e7f3cd7e8646dde08c82c0f7a2:packages/core/metadata/commonObjects/metadataHTTPServiceMethod/toXML.test.ts:9:346",
@@ -13960,10 +13960,10 @@
       "methods.xml"
     ],
     "line": 9,
-    "behavior": "",
+    "behavior": "GET и HEAD сохраняются через YAML",
     "targetPath": "packages/core/metadata/commonObjects/metadataHTTPServiceMethod/fromYAMLToXML.test.ts",
-    "targetTitle": "",
-    "status": "pending"
+    "targetTitle": "round-trips GET and HEAD methods",
+    "status": "migrated"
   },
   {
     "id": "04f50e62065bb2e7f3cd7e8646dde08c82c0f7a2:packages/core/metadata/commonObjects/metadataHTTPServiceMethod/toXML.test.ts:21:651",
@@ -13977,10 +13977,10 @@
       "./__fixtures__/data"
     ],
     "line": 21,
-    "behavior": "",
+    "behavior": "Отсутствующий HTTPMethod восстанавливается как GET",
     "targetPath": "packages/core/metadata/commonObjects/metadataHTTPServiceMethod/fromYAMLToXML.test.ts",
-    "targetTitle": "",
-    "status": "pending"
+    "targetTitle": "restores GET when httpMethod is absent",
+    "status": "migrated"
   },
   {
     "id": "04f50e62065bb2e7f3cd7e8646dde08c82c0f7a2:packages/core/metadata/commonObjects/metadataHTTPServiceMethod/toYAML.test.ts:7:303",
@@ -13994,10 +13994,10 @@
       "./__fixtures__/data"
     ],
     "line": 7,
-    "behavior": "",
+    "behavior": "YAML явно сохраняет GET и HEAD",
     "targetPath": "packages/core/metadata/commonObjects/metadataHTTPServiceMethod/fromXMLToYAML.test.ts",
-    "targetTitle": "",
-    "status": "pending"
+    "targetTitle": "keeps GET explicit and exports HEAD",
+    "status": "migrated"
   },
   {
     "id": "04f50e62065bb2e7f3cd7e8646dde08c82c0f7a2:packages/core/metadata/commonObjects/metadataHTTPServiceURLTemplate/fromXML.test.ts:9:372",
@@ -14012,10 +14012,10 @@
       "urlTemplates.xml"
     ],
     "line": 9,
-    "behavior": "",
+    "behavior": "URL-шаблон и вложенные методы преобразуются из XML в YAML",
     "targetPath": "packages/core/metadata/commonObjects/metadataHTTPServiceURLTemplate/fromXMLToYAML.test.ts",
-    "targetTitle": "",
-    "status": "pending"
+    "targetTitle": "imports URL template with nested methods",
+    "status": "migrated"
   },
   {
     "id": "04f50e62065bb2e7f3cd7e8646dde08c82c0f7a2:packages/core/metadata/commonObjects/metadataHTTPServiceURLTemplate/fromYAML.test.ts:9:374",
@@ -14029,10 +14029,10 @@
       "./__fixtures__/data"
     ],
     "line": 9,
-    "behavior": "",
+    "behavior": "Именованная YAML-коллекция URL-шаблонов преобразуется в XML",
     "targetPath": "packages/core/metadata/commonObjects/metadataHTTPServiceURLTemplate/fromYAMLToXML.test.ts",
-    "targetTitle": "",
-    "status": "pending"
+    "targetTitle": "imports collection with nested methods from YAML map keyed by name",
+    "status": "migrated"
   },
   {
     "id": "04f50e62065bb2e7f3cd7e8646dde08c82c0f7a2:packages/core/metadata/commonObjects/metadataHTTPServiceURLTemplate/toXML.test.ts:9:366",
@@ -14047,10 +14047,10 @@
       "urlTemplates.xml"
     ],
     "line": 9,
-    "behavior": "",
+    "behavior": "URL-шаблон с вложенными методами сохраняется через YAML",
     "targetPath": "packages/core/metadata/commonObjects/metadataHTTPServiceURLTemplate/fromYAMLToXML.test.ts",
-    "targetTitle": "",
-    "status": "pending"
+    "targetTitle": "round-trips URL template with nested methods",
+    "status": "migrated"
   },
   {
     "id": "04f50e62065bb2e7f3cd7e8646dde08c82c0f7a2:packages/core/metadata/commonObjects/metadataHTTPServiceURLTemplate/toYAML.test.ts:8:407",
@@ -14064,10 +14064,10 @@
       "./__fixtures__/data"
     ],
     "line": 8,
-    "behavior": "",
+    "behavior": "Вложенные HTTP-методы экспортируются в YAML URL-шаблона",
     "targetPath": "packages/core/metadata/commonObjects/metadataHTTPServiceURLTemplate/fromXMLToYAML.test.ts",
-    "targetTitle": "",
-    "status": "pending"
+    "targetTitle": "exports URL template with nested methods",
+    "status": "migrated"
   },
   {
     "id": "04f50e62065bb2e7f3cd7e8646dde08c82c0f7a2:packages/core/metadata/commonObjects/metadataRegisterAttribute/fromXML.test.ts:9:358",
@@ -14082,10 +14082,10 @@
       "attributes.xml"
     ],
     "line": 9,
-    "behavior": "",
+    "behavior": "Реквизиты регистра преобразуются из XML в YAML с общими полями",
     "targetPath": "packages/core/metadata/commonObjects/metadataRegisterAttribute/fromXMLToYAML.test.ts",
-    "targetTitle": "",
-    "status": "pending"
+    "targetTitle": "imports register attributes with shared field properties",
+    "status": "migrated"
   },
   {
     "id": "04f50e62065bb2e7f3cd7e8646dde08c82c0f7a2:packages/core/metadata/commonObjects/metadataRegisterAttribute/toXML.test.ts:9:352",
@@ -14100,10 +14100,10 @@
       "attributes.xml"
     ],
     "line": 9,
-    "behavior": "",
+    "behavior": "Реквизиты регистра сохраняются через YAML",
     "targetPath": "packages/core/metadata/commonObjects/metadataRegisterAttribute/fromYAMLToXML.test.ts",
-    "targetTitle": "",
-    "status": "pending"
+    "targetTitle": "round-trips register attributes",
+    "status": "migrated"
   },
   {
     "id": "04f50e62065bb2e7f3cd7e8646dde08c82c0f7a2:packages/core/metadata/commonObjects/metadataRegisterAttribute/toYAML.test.ts:7:308",
@@ -14117,10 +14117,10 @@
       "./__fixtures__/data"
     ],
     "line": 7,
-    "behavior": "",
+    "behavior": "Реквизиты регистра экспортируются в именованную YAML-коллекцию",
     "targetPath": "packages/core/metadata/commonObjects/metadataRegisterAttribute/fromXMLToYAML.test.ts",
-    "targetTitle": "",
-    "status": "pending"
+    "targetTitle": "exports collection as YAML map keyed by name",
+    "status": "migrated"
   },
   {
     "id": "04f50e62065bb2e7f3cd7e8646dde08c82c0f7a2:packages/core/metadata/commonObjects/metadataRegisterDimension/fromXML.test.ts:9:358",
@@ -14135,10 +14135,10 @@
       "dimensions.xml"
     ],
     "line": 9,
-    "behavior": "",
+    "behavior": "Измерения регистра и UseInTotals преобразуются из XML в YAML",
     "targetPath": "packages/core/metadata/commonObjects/metadataRegisterDimension/fromXMLToYAML.test.ts",
-    "targetTitle": "",
-    "status": "pending"
+    "targetTitle": "imports register dimensions with UseInTotals",
+    "status": "migrated"
   },
   {
     "id": "04f50e62065bb2e7f3cd7e8646dde08c82c0f7a2:packages/core/metadata/commonObjects/metadataRegisterDimension/toXML.test.ts:9:352",
@@ -14153,10 +14153,10 @@
       "dimensions.xml"
     ],
     "line": 9,
-    "behavior": "",
+    "behavior": "Измерения регистра сохраняются через YAML",
     "targetPath": "packages/core/metadata/commonObjects/metadataRegisterDimension/fromYAMLToXML.test.ts",
-    "targetTitle": "",
-    "status": "pending"
+    "targetTitle": "round-trips register dimensions",
+    "status": "migrated"
   },
   {
     "id": "04f50e62065bb2e7f3cd7e8646dde08c82c0f7a2:packages/core/metadata/commonObjects/metadataRegisterDimension/toXML.test.ts:21:665",
@@ -14170,10 +14170,10 @@
       "./__fixtures__/data"
     ],
     "line": 21,
-    "behavior": "",
+    "behavior": "Пустой Synonym измерения сохраняется из исходного XML",
     "targetPath": "packages/core/metadata/commonObjects/metadataRegisterDimension/fromYAMLToXML.test.ts",
-    "targetTitle": "",
-    "status": "pending"
+    "targetTitle": "preserves reference empty Synonym when current synonym is generated from name",
+    "status": "migrated"
   },
   {
     "id": "04f50e62065bb2e7f3cd7e8646dde08c82c0f7a2:packages/core/metadata/commonObjects/metadataRegisterDimension/toXML.test.ts:47:1381",
@@ -14187,10 +14187,10 @@
       "./__fixtures__/data"
     ],
     "line": 47,
-    "behavior": "",
+    "behavior": "Поля бухгалтерского измерения экспортируются в правильном порядке",
     "targetPath": "packages/core/metadata/commonObjects/metadataRegisterDimension/fromYAMLToXML.test.ts",
-    "targetTitle": "",
-    "status": "pending"
+    "targetTitle": "exports accounting fields before common tail without reference",
+    "status": "migrated"
   },
   {
     "id": "04f50e62065bb2e7f3cd7e8646dde08c82c0f7a2:packages/core/metadata/commonObjects/metadataRegisterDimension/toYAML.test.ts:7:308",
@@ -14204,10 +14204,10 @@
       "./__fixtures__/data"
     ],
     "line": 7,
-    "behavior": "",
+    "behavior": "YAML скрывает UseInTotals по умолчанию и сохраняет false",
     "targetPath": "packages/core/metadata/commonObjects/metadataRegisterDimension/fromXMLToYAML.test.ts",
-    "targetTitle": "",
-    "status": "pending"
+    "targetTitle": "omits default UseInTotals and preserves false",
+    "status": "migrated"
   },
   {
     "id": "04f50e62065bb2e7f3cd7e8646dde08c82c0f7a2:packages/core/metadata/commonObjects/metadataRegisterField/fromYAML.test.ts:12:660",
@@ -14219,10 +14219,10 @@
     "declarationText": "it.each([\n    [\"AccountingFlag\", AccountingFlagRules],\n    [\"ExtDimensionAccountingFlag\", ExtDimensionAccountingFlagRules],\n  ] as const)(\"restores omitted synonym from name for %s\", (_label, rule) => {\n    const result = importMetadataItemFromYAML({\n      context: mockContext,\n      rule,\n      name: \"УчетПоПодразделениям\",\n      yaml: {\n        Тип: \"Булево\",\n      },\n    })\n\n    expect(result).toMatchObject({\n      itemType: rule.itemType,\n      synonym: { items: { ru: \"Учет по подразделениям\" } },\n      type: { type: [\"boolean\"] },\n    })\n  })",
     "fixtures": [],
     "line": 12,
-    "behavior": "",
+    "behavior": "Для AccountingFlag и ExtDimensionAccountingFlag синоним восстанавливается из имени",
     "targetPath": "packages/core/metadata/commonObjects/metadataRegisterField/fromYAMLToXML.test.ts",
-    "targetTitle": "",
-    "status": "pending"
+    "targetTitle": "restores omitted synonym from name for %s",
+    "status": "migrated"
   },
   {
     "id": "04f50e62065bb2e7f3cd7e8646dde08c82c0f7a2:packages/core/metadata/commonObjects/metadataRegisterField/fromYAML.test.ts:32:1217",
@@ -14234,10 +14234,10 @@
     "declarationText": "it(\"keeps empty source synonym for object YAML register field\", () => {\n    const result = importMetadataItemFromYAML({\n      context: mockContext,\n      rule: AccountingFlagRules,\n      name: \"УдалитьОКТМО_КПП\",\n      yaml: {\n        Тип: \"Строка(21)\",\n      },\n      source: {\n        itemType: AccountingFlagRules.itemType,\n        name: \"УдалитьОКТМО_КПП\",\n        synonym: { items: {} },\n      },\n    })\n\n    expect(result).toMatchObject({\n      itemType: AccountingFlagRules.itemType,\n      synonym: { items: {} },\n      type: { type: [\"string\"], stringQualifiers: { length: 21 } },\n    })\n  })",
     "fixtures": [],
     "line": 32,
-    "behavior": "",
+    "behavior": "Пустой исходный синоним поля регистра сохраняется в XML",
     "targetPath": "packages/core/metadata/commonObjects/metadataRegisterField/fromYAMLToXML.test.ts",
-    "targetTitle": "",
-    "status": "pending"
+    "targetTitle": "keeps empty source synonym for object YAML register field",
+    "status": "migrated"
   },
   {
     "id": "04f50e62065bb2e7f3cd7e8646dde08c82c0f7a2:packages/core/metadata/commonObjects/metadataRegisterField/fromYAML.test.ts:54:1821",
@@ -14249,10 +14249,10 @@
     "declarationText": "it.each([\n    [\"AccountingFlag\", AccountingFlagRules],\n    [\"ExtDimensionAccountingFlag\", ExtDimensionAccountingFlagRules],\n  ] as const)(\"restores omitted synonym from name for object %s\", (_label, rule) => {\n    const result = importMetadataItemFromYAML({\n      context: mockContext,\n      rule,\n      name: \"ПризнакУчетаПоУмолчанию\",\n      yaml: {\n        Тип: \"Булево\",\n      },\n    })\n\n    expect(result).toMatchObject({\n      itemType: rule.itemType,\n      synonym: { items: { ru: \"Признак учета по умолчанию\" } },\n      type: { type: [\"boolean\"] },\n    })\n  })",
     "fixtures": [],
     "line": 54,
-    "behavior": "",
+    "behavior": "Для объектного YAML синоним поля восстанавливается из имени",
     "targetPath": "packages/core/metadata/commonObjects/metadataRegisterField/fromYAMLToXML.test.ts",
-    "targetTitle": "",
-    "status": "pending"
+    "targetTitle": "restores omitted synonym from name for object %s",
+    "status": "migrated"
   },
   {
     "id": "04f50e62065bb2e7f3cd7e8646dde08c82c0f7a2:packages/core/metadata/commonObjects/metadataRegisterField/fromYAML.test.ts:74:2392",
@@ -14264,10 +14264,10 @@
     "declarationText": "it(\"rejects scalar YAML register field\", () => {\n    expect(() =>\n      importMetadataItemFromYAML({\n        context: mockContext,\n        rule: AccountingFlagRules,\n        name: \"ПризнакУчетаПоУмолчанию\",\n        yaml: \"Булево\" as never,\n      })\n    ).toThrow(\"AccountingFlag: ожидался YAML-объект\")\n  })",
     "fixtures": [],
     "line": 74,
-    "behavior": "",
+    "behavior": "Скалярный YAML поля регистра отклоняется",
     "targetPath": "packages/core/metadata/commonObjects/metadataRegisterField/fromYAMLToXML.test.ts",
-    "targetTitle": "",
-    "status": "pending"
+    "targetTitle": "rejects scalar YAML register field",
+    "status": "migrated"
   },
   {
     "id": "04f50e62065bb2e7f3cd7e8646dde08c82c0f7a2:packages/core/metadata/commonObjects/metadataRegisterField/fromYAML.test.ts:85:2703",
@@ -14279,10 +14279,10 @@
     "declarationText": "it(\"keeps empty source synonym for object YAML register dimension collection\", () => {\n    const result = importPropertyFromYAML({\n      context: mockContext,\n      rule: { type: \"MetadataRegisterDimensions\" },\n      value: {\n        УдалитьОКТМО_КПП: {\n          Тип: \"Строка(21)\",\n        },\n      },\n      sourceValue: [\n        {\n          itemType: MetadataRegisterDimensionRules.itemType,\n          name: \"УдалитьОКТМО_КПП\",\n          synonym: { items: {} },\n        },\n      ],\n    })\n\n    expect(result).toEqual([\n      expect.objectContaining({\n        itemType: MetadataRegisterDimensionRules.itemType,\n        name: \"УдалитьОКТМО_КПП\",\n        type: expect.objectContaining({\n          type: [\"string\"],\n          stringQualifiers: expect.objectContaining({ length: 21 }),\n        }),\n      }),\n    ])\n    expect(result[0]).toHaveProperty(\"synonym\", { items: {} })\n  })",
     "fixtures": [],
     "line": 85,
-    "behavior": "",
+    "behavior": "Пустой синоним измерения сохраняется для объектного YAML",
     "targetPath": "packages/core/metadata/commonObjects/metadataRegisterField/fromYAMLToXML.test.ts",
-    "targetTitle": "",
-    "status": "pending"
+    "targetTitle": "keeps empty source synonym for object YAML register dimension collection",
+    "status": "migrated"
   },
   {
     "id": "04f50e62065bb2e7f3cd7e8646dde08c82c0f7a2:packages/core/metadata/commonObjects/metadataRegisterField/fromYAML.test.ts:116:3587",
@@ -14294,10 +14294,10 @@
     "declarationText": "it(\"keeps empty source synonym for full YAML register resource collection\", () => {\n    const result = importPropertyFromYAML({\n      context: mockContext,\n      rule: { type: \"MetadataRegisterResources\" },\n      value: {\n        Содержание: {\n          Тип: \"Строка(100)\",\n        },\n      },\n      sourceValue: [\n        {\n          itemType: MetadataRegisterResourceRules.itemType,\n          name: \"Содержание\",\n          synonym: { items: {} },\n        },\n      ],\n    })\n\n    expect(result).toEqual([\n      expect.objectContaining({\n        itemType: MetadataRegisterResourceRules.itemType,\n        name: \"Содержание\",\n        synonym: { items: {} },\n        type: expect.objectContaining({\n          type: [\"string\"],\n          stringQualifiers: expect.objectContaining({ length: 100 }),\n        }),\n      }),\n    ])\n  })",
     "fixtures": [],
     "line": 116,
-    "behavior": "",
+    "behavior": "Пустой синоним ресурса сохраняется для полного YAML",
     "targetPath": "packages/core/metadata/commonObjects/metadataRegisterField/fromYAMLToXML.test.ts",
-    "targetTitle": "",
-    "status": "pending"
+    "targetTitle": "keeps empty source synonym for full YAML register resource collection",
+    "status": "migrated"
   },
   {
     "id": "04f50e62065bb2e7f3cd7e8646dde08c82c0f7a2:packages/core/metadata/commonObjects/metadataRegisterField/fromYAML.test.ts:147:4418",
@@ -14309,10 +14309,10 @@
     "declarationText": "it(\"keeps empty source synonym for full YAML register dimension collection\", () => {\n    const result = importPropertyFromYAML({\n      context: mockContext,\n      rule: { type: \"MetadataRegisterDimensions\" },\n      value: {\n        Организация: {\n          Тип: \"СправочникСсылка.Организации\",\n        },\n      },\n      sourceValue: [\n        {\n          itemType: MetadataRegisterDimensionRules.itemType,\n          name: \"Организация\",\n          synonym: { items: {} },\n        },\n      ],\n    })\n\n    expect(result).toEqual([\n      expect.objectContaining({\n        itemType: MetadataRegisterDimensionRules.itemType,\n        name: \"Организация\",\n        synonym: { items: {} },\n      }),\n    ])\n  })",
     "fixtures": [],
     "line": 147,
-    "behavior": "",
+    "behavior": "Пустой синоним измерения сохраняется для полного YAML",
     "targetPath": "packages/core/metadata/commonObjects/metadataRegisterField/fromYAMLToXML.test.ts",
-    "targetTitle": "",
-    "status": "pending"
+    "targetTitle": "keeps empty source synonym for full YAML register dimension collection",
+    "status": "migrated"
   },
   {
     "id": "04f50e62065bb2e7f3cd7e8646dde08c82c0f7a2:packages/core/metadata/commonObjects/metadataRegisterField/fromYAML.test.ts:174:5123",
@@ -14324,10 +14324,10 @@
     "declarationText": "it(\"restores omitted synonym from name for object YAML register resource collection without source\", () => {\n    const result = importPropertyFromYAML({\n      context: mockContext,\n      rule: { type: \"MetadataRegisterResources\" },\n      value: {\n        Содержание: {\n          Тип: \"Строка(100)\",\n        },\n      },\n    })\n\n    expect(result).toEqual([\n      expect.objectContaining({\n        itemType: MetadataRegisterResourceRules.itemType,\n        name: \"Содержание\",\n        synonym: { items: { ru: \"Содержание\" } },\n        type: expect.objectContaining({\n          type: [\"string\"],\n          stringQualifiers: expect.objectContaining({ length: 100 }),\n        }),\n      }),\n    ])\n  })",
     "fixtures": [],
     "line": 174,
-    "behavior": "",
+    "behavior": "Синоним ресурса восстанавливается без исходного XML для объектного YAML",
     "targetPath": "packages/core/metadata/commonObjects/metadataRegisterField/fromYAMLToXML.test.ts",
-    "targetTitle": "",
-    "status": "pending"
+    "targetTitle": "restores omitted synonym from name for object YAML register resource collection without source",
+    "status": "migrated"
   },
   {
     "id": "04f50e62065bb2e7f3cd7e8646dde08c82c0f7a2:packages/core/metadata/commonObjects/metadataRegisterField/fromYAML.test.ts:198:5822",
@@ -14339,10 +14339,10 @@
     "declarationText": "it(\"restores omitted synonym from name for full YAML register resource collection without source\", () => {\n    const result = importPropertyFromYAML({\n      context: mockContext,\n      rule: { type: \"MetadataRegisterResources\" },\n      value: {\n        Содержание: {\n          Тип: \"Строка(100)\",\n        },\n      },\n    })\n\n    expect(result).toEqual([\n      expect.objectContaining({\n        itemType: MetadataRegisterResourceRules.itemType,\n        name: \"Содержание\",\n        synonym: { items: { ru: \"Содержание\" } },\n        type: expect.objectContaining({\n          type: [\"string\"],\n          stringQualifiers: expect.objectContaining({ length: 100 }),\n        }),\n      }),\n    ])\n  })",
     "fixtures": [],
     "line": 198,
-    "behavior": "",
+    "behavior": "Синоним ресурса восстанавливается без исходного XML для полного YAML",
     "targetPath": "packages/core/metadata/commonObjects/metadataRegisterField/fromYAMLToXML.test.ts",
-    "targetTitle": "",
-    "status": "pending"
+    "targetTitle": "restores omitted synonym from name for full YAML register resource collection without source",
+    "status": "migrated"
   },
   {
     "id": "04f50e62065bb2e7f3cd7e8646dde08c82c0f7a2:packages/core/metadata/commonObjects/metadataRegisterField/fromYAML.test.ts:222:6519",
@@ -14354,10 +14354,10 @@
     "declarationText": "it(\"restores omitted synonym from name for object YAML register dimension collection without source\", () => {\n    const result = importPropertyFromYAML({\n      context: mockContext,\n      rule: { type: \"MetadataRegisterDimensions\" },\n      value: {\n        Организация: {\n          Тип: \"СправочникСсылка.Организации\",\n        },\n      },\n    })\n\n    expect(result).toEqual([\n      expect.objectContaining({\n        itemType: MetadataRegisterDimensionRules.itemType,\n        name: \"Организация\",\n        synonym: { items: { ru: \"Организация\" } },\n      }),\n    ])\n  })",
     "fixtures": [],
     "line": 222,
-    "behavior": "",
+    "behavior": "Синоним измерения восстанавливается без исходного XML для объектного YAML",
     "targetPath": "packages/core/metadata/commonObjects/metadataRegisterField/fromYAMLToXML.test.ts",
-    "targetTitle": "",
-    "status": "pending"
+    "targetTitle": "restores omitted synonym from name for object YAML register dimension collection without source",
+    "status": "migrated"
   },
   {
     "id": "04f50e62065bb2e7f3cd7e8646dde08c82c0f7a2:packages/core/metadata/commonObjects/metadataRegisterField/fromYAML.test.ts:242:7091",
@@ -14369,10 +14369,10 @@
     "declarationText": "it(\"restores omitted synonym from name for full YAML register dimension collection without source\", () => {\n    const result = importPropertyFromYAML({\n      context: mockContext,\n      rule: { type: \"MetadataRegisterDimensions\" },\n      value: {\n        Организация: {\n          Тип: \"СправочникСсылка.Организации\",\n        },\n      },\n    })\n\n    expect(result).toEqual([\n      expect.objectContaining({\n        itemType: MetadataRegisterDimensionRules.itemType,\n        name: \"Организация\",\n        synonym: { items: { ru: \"Организация\" } },\n      }),\n    ])\n  })",
     "fixtures": [],
     "line": 242,
-    "behavior": "",
+    "behavior": "Синоним измерения восстанавливается без исходного XML для полного YAML",
     "targetPath": "packages/core/metadata/commonObjects/metadataRegisterField/fromYAMLToXML.test.ts",
-    "targetTitle": "",
-    "status": "pending"
+    "targetTitle": "restores omitted synonym from name for full YAML register dimension collection without source",
+    "status": "migrated"
   },
   {
     "id": "04f50e62065bb2e7f3cd7e8646dde08c82c0f7a2:packages/core/metadata/commonObjects/metadataRegisterResource/fromXML.test.ts:9:354",
@@ -14387,10 +14387,10 @@
       "resources.xml"
     ],
     "line": 9,
-    "behavior": "",
+    "behavior": "Ресурсы регистра преобразуются из XML в YAML с общими полями",
     "targetPath": "packages/core/metadata/commonObjects/metadataRegisterResource/fromXMLToYAML.test.ts",
-    "targetTitle": "",
-    "status": "pending"
+    "targetTitle": "imports register resources with shared field properties",
+    "status": "migrated"
   },
   {
     "id": "04f50e62065bb2e7f3cd7e8646dde08c82c0f7a2:packages/core/metadata/commonObjects/metadataRegisterResource/toXML.test.ts:9:348",
@@ -14405,10 +14405,10 @@
       "resources.xml"
     ],
     "line": 9,
-    "behavior": "",
+    "behavior": "Ресурсы регистра сохраняются через YAML",
     "targetPath": "packages/core/metadata/commonObjects/metadataRegisterResource/fromYAMLToXML.test.ts",
-    "targetTitle": "",
-    "status": "pending"
+    "targetTitle": "round-trips register resources",
+    "status": "migrated"
   },
   {
     "id": "04f50e62065bb2e7f3cd7e8646dde08c82c0f7a2:packages/core/metadata/commonObjects/metadataRegisterResource/toXML.test.ts:21:657",
@@ -14422,10 +14422,10 @@
       "./__fixtures__/data"
     ],
     "line": 21,
-    "behavior": "",
+    "behavior": "Пустой Synonym ресурса сохраняется из исходного XML",
     "targetPath": "packages/core/metadata/commonObjects/metadataRegisterResource/fromYAMLToXML.test.ts",
-    "targetTitle": "",
-    "status": "pending"
+    "targetTitle": "preserves reference empty Synonym when current synonym is generated from name",
+    "status": "migrated"
   },
   {
     "id": "04f50e62065bb2e7f3cd7e8646dde08c82c0f7a2:packages/core/metadata/commonObjects/metadataRegisterResource/toXML.test.ts:47:1489",
@@ -14439,10 +14439,10 @@
       "./__fixtures__/data"
     ],
     "line": 47,
-    "behavior": "",
+    "behavior": "Поля бухгалтерского ресурса экспортируются до FullTextSearch",
     "targetPath": "packages/core/metadata/commonObjects/metadataRegisterResource/fromYAMLToXML.test.ts",
-    "targetTitle": "",
-    "status": "pending"
+    "targetTitle": "exports accounting fields before full text search without reference",
+    "status": "migrated"
   },
   {
     "id": "04f50e62065bb2e7f3cd7e8646dde08c82c0f7a2:packages/core/metadata/commonObjects/metadataRegisterResource/toYAML.test.ts:7:304",
@@ -14456,10 +14456,10 @@
       "./__fixtures__/data"
     ],
     "line": 7,
-    "behavior": "",
+    "behavior": "Ресурсы регистра экспортируются в именованную YAML-коллекцию",
     "targetPath": "packages/core/metadata/commonObjects/metadataRegisterResource/fromXMLToYAML.test.ts",
-    "targetTitle": "",
-    "status": "pending"
+    "targetTitle": "exports collection as YAML map keyed by name",
+    "status": "migrated"
   },
   {
     "id": "04f50e62065bb2e7f3cd7e8646dde08c82c0f7a2:packages/core/metadata/commonObjects/metadataTabularSection/fromXML.test.ts:8:347",
@@ -14727,10 +14727,10 @@
       "xdto-type-namespace.xml"
     ],
     "line": 10,
-    "behavior": "",
+    "behavior": "XDTO-типы с namespace преобразуются из XML в YAML-объекты",
     "targetPath": "packages/core/metadata/commonObjects/metadataWebServiceOperation/fromXMLToYAML.test.ts",
-    "targetTitle": "",
-    "status": "pending"
+    "targetTitle": "imports XDTO type names with namespace declarations as strings",
+    "status": "migrated"
   },
   {
     "id": "04f50e62065bb2e7f3cd7e8646dde08c82c0f7a2:packages/core/metadata/commonObjects/metadataWebServiceOperation/fromYAML.test.ts:9:382",
@@ -14742,10 +14742,10 @@
     "declarationText": "it(\"imports XDTO type name objects\", () => {\n    const result = testImportPropertyFromYAML({\n      rule,\n      value: {\n        ОперацияXDTO: {\n          ТипВозвращаемогоЗначенияXDTO: {\n            ПространствоИмен: \"http://example.org/schema\",\n            Имя: \"CustomerResponse\",\n          },\n          Параметры: {\n            ПараметрXDTO: {\n              ТипЗначенияXDTO: {\n                ПространствоИмен: \"http://example.org/schema\",\n                Имя: \"Customer\",\n              },\n            },\n          },\n        },\n      },\n    }) as MetadataWebServiceOperations\n\n    expect(result[0].xdtoReturningValueType).toEqual({\n      namespace: \"http://example.org/schema\",\n      name: \"CustomerResponse\",\n    })\n    expect(result[0].parameters?.[0].xdtoValueType).toEqual({\n      namespace: \"http://example.org/schema\",\n      name: \"Customer\",\n    })\n  })",
     "fixtures": [],
     "line": 9,
-    "behavior": "",
+    "behavior": "YAML-объекты XDTO-типов преобразуются в XML QName",
     "targetPath": "packages/core/metadata/commonObjects/metadataWebServiceOperation/fromYAMLToXML.test.ts",
-    "targetTitle": "",
-    "status": "pending"
+    "targetTitle": "imports XDTO type name objects",
+    "status": "migrated"
   },
   {
     "id": "04f50e62065bb2e7f3cd7e8646dde08c82c0f7a2:packages/core/metadata/commonObjects/metadataWebServiceOperation/toXML.test.ts:10:460",
@@ -14760,10 +14760,10 @@
       "xdto-type-namespace.xml"
     ],
     "line": 10,
-    "behavior": "",
+    "behavior": "Расширенные XDTO-имена экспортируются с namespace",
     "targetPath": "packages/core/metadata/commonObjects/metadataWebServiceOperation/fromYAMLToXML.test.ts",
-    "targetTitle": "",
-    "status": "pending"
+    "targetTitle": "exports XDTO type namespace declarations from expanded names",
+    "status": "migrated"
   },
   {
     "id": "04f50e62065bb2e7f3cd7e8646dde08c82c0f7a2:packages/core/metadata/commonObjects/metadataWebServiceOperation/toXML.test.ts:25:1036",
@@ -14778,10 +14778,10 @@
       "xdto-type-namespace.xml"
     ],
     "line": 25,
-    "behavior": "",
+    "behavior": "Изменённые встроенные XDTO-типы не наследуют reference namespace",
     "targetPath": "packages/core/metadata/commonObjects/metadataWebServiceOperation/fromYAMLToXML.test.ts",
-    "targetTitle": "",
-    "status": "pending"
+    "targetTitle": "exports changed XDTO type names without reference namespace declarations",
+    "status": "migrated"
   },
   {
     "id": "04f50e62065bb2e7f3cd7e8646dde08c82c0f7a2:packages/core/metadata/commonObjects/metadataWebServiceOperation/toXML.test.ts:55:2047",
@@ -14795,10 +14795,10 @@
       "./__fixtures__/data"
     ],
     "line": 55,
-    "behavior": "",
+    "behavior": "Встроенные XDTO-типы экспортируются как QName без xmlns",
     "targetPath": "packages/core/metadata/commonObjects/metadataWebServiceOperation/fromYAMLToXML.test.ts",
-    "targetTitle": "",
-    "status": "pending"
+    "targetTitle": "exports built-in XDTO type names as plain strings without reference XML",
+    "status": "migrated"
   },
   {
     "id": "04f50e62065bb2e7f3cd7e8646dde08c82c0f7a2:packages/core/metadata/commonObjects/metadataWebServiceOperation/toXML.test.ts:84:3011",
@@ -14812,10 +14812,10 @@
       "./__fixtures__/data"
     ],
     "line": 84,
-    "behavior": "",
+    "behavior": "Пользовательские XDTO-типы получают новый namespace без reference XML",
     "targetPath": "packages/core/metadata/commonObjects/metadataWebServiceOperation/fromYAMLToXML.test.ts",
-    "targetTitle": "",
-    "status": "pending"
+    "targetTitle": "exports custom XDTO type names without reference namespace declarations",
+    "status": "migrated"
   },
   {
     "id": "04f50e62065bb2e7f3cd7e8646dde08c82c0f7a2:packages/core/metadata/commonObjects/metadataWebServiceOperation/toXML.test.ts:104:3677",
@@ -14829,10 +14829,10 @@
       "./__fixtures__/data"
     ],
     "line": 104,
-    "behavior": "",
+    "behavior": "Посторонние атрибуты reference XDTO-тега не переносятся",
     "targetPath": "packages/core/metadata/commonObjects/metadataWebServiceOperation/fromYAMLToXML.test.ts",
-    "targetTitle": "",
-    "status": "pending"
+    "targetTitle": "does not preserve non-xmlns reference attributes on matching XDTO type names",
+    "status": "migrated"
   },
   {
     "id": "04f50e62065bb2e7f3cd7e8646dde08c82c0f7a2:packages/core/metadata/commonObjects/metadataWebServiceOperation/toXML.test.ts:146:5238",
@@ -14846,10 +14846,10 @@
       "./__fixtures__/data"
     ],
     "line": 146,
-    "behavior": "",
+    "behavior": "Совпадающий XDTO-тип сохраняет namespace-префикс reference XML",
     "targetPath": "packages/core/metadata/commonObjects/metadataWebServiceOperation/fromYAMLToXML.test.ts",
-    "targetTitle": "",
-    "status": "pending"
+    "targetTitle": "preserves reference namespace prefix on matching XDTO type names",
+    "status": "migrated"
   },
   {
     "id": "04f50e62065bb2e7f3cd7e8646dde08c82c0f7a2:packages/core/metadata/commonObjects/metadataWebServiceOperation/toYAML.test.ts:9:391",
@@ -14863,10 +14863,10 @@
       "./__fixtures__/data"
     ],
     "line": 9,
-    "behavior": "",
+    "behavior": "XDTO-типы экспортируются в YAML как объекты пространства имён и имени",
     "targetPath": "packages/core/metadata/commonObjects/metadataWebServiceOperation/fromXMLToYAML.test.ts",
-    "targetTitle": "",
-    "status": "pending"
+    "targetTitle": "exports XDTO type names as strings",
+    "status": "migrated"
   },
   {
     "id": "04f50e62065bb2e7f3cd7e8646dde08c82c0f7a2:packages/core/metadata/commonObjects/minMaxValue/toXML.test.ts:16:576",

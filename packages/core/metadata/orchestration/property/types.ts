@@ -157,6 +157,8 @@ export interface BasePropertyRule {
    * but never inferred for newly-created XML.
    */
   preserveFromReferenceXML?: true
+  /** Не переносить неизвестные вложенные XML-данные из reference внутрь результата атомарного exportToXML. */
+  preserveUnknownReferenceXML?: false
 
   /**
    * Для preserveFromReferenceXML: разрешить экспорт, когда reference-модель отсутствует.
