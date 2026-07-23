@@ -1,7 +1,7 @@
 import { describe, expect, it } from "vitest"
 import { PropertyRule } from "../../../orchestration"
 import { testExportPropertyModelThroughYAMLToXML } from "../../../../tests/property/exportPropertyModelThroughYAMLToXML"
-import { autoOrderFixture, orderFixture } from "./__fixtures__/data"
+import { autoOrderFixture, orderFixture, autoOrderFixtureYAML } from "./__fixtures__/data"
 
 const rule: PropertyRule = {
   type: "Order",
@@ -24,6 +24,7 @@ describe("export Order to XML", () => {
     const { result, expectedResult } = testExportPropertyModelThroughYAMLToXML({
       rule,
       value: autoOrderFixture,
+      yaml: autoOrderFixtureYAML,
       xmlRootTag: "dcsset:order",
       path: "auto.xml",
       importMetaUrl: import.meta.url,

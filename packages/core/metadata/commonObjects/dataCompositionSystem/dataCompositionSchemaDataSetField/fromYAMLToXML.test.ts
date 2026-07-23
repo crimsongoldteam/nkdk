@@ -6,6 +6,10 @@ import {
   folderDataCompositionSchemaDataSetField,
   fullDataCompositionSchemaDataSetField,
   nestedDataCompositionSchemaDataSetField,
+  fullDataCompositionSchemaDataSetFieldYAML,
+  availableValuesDataCompositionSchemaDataSetFieldYAML,
+  nestedDataCompositionSchemaDataSetFieldYAML,
+  folderDataCompositionSchemaDataSetFieldYAML,
 } from "./__fixtures__/data"
 import "./types"
 
@@ -14,6 +18,7 @@ describe("export DataCompositionSchemaDataSetField to XML", () => {
     const { result, expectedResult } = testExportPropertyModelThroughYAMLToXML({
       rule: { type: "DataCompositionSchemaDataSetField" },
       value: fullDataCompositionSchemaDataSetField,
+      yaml: fullDataCompositionSchemaDataSetFieldYAML,
       xmlRootTag: "Field",
       path: "full.xml",
       importMetaUrl: import.meta.url,
@@ -26,6 +31,7 @@ describe("export DataCompositionSchemaDataSetField to XML", () => {
     const { result, expectedResult } = testExportPropertyModelThroughYAMLToXML({
       rule: { type: "DataCompositionSchemaDataSetField" },
       value: availableValuesDataCompositionSchemaDataSetField,
+      yaml: availableValuesDataCompositionSchemaDataSetFieldYAML,
       xmlRootTag: "Field",
       path: "availableValues.xml",
       importMetaUrl: import.meta.url,
@@ -50,6 +56,7 @@ describe("export DataCompositionSchemaDataSetField to XML", () => {
     const { result, expectedResult } = testExportPropertyModelThroughYAMLToXML({
       rule: { type: "DataCompositionSchemaDataSetField" },
       value: nestedDataCompositionSchemaDataSetField,
+      yaml: nestedDataCompositionSchemaDataSetFieldYAML,
       xmlRootTag: "Field",
       path: "nested-data-set.xml",
       importMetaUrl: import.meta.url,
@@ -62,6 +69,7 @@ describe("export DataCompositionSchemaDataSetField to XML", () => {
     const { result, expectedResult } = testExportPropertyModelThroughYAMLToXML({
       rule: { type: "DataCompositionSchemaDataSetField" },
       value: folderDataCompositionSchemaDataSetField,
+      yaml: folderDataCompositionSchemaDataSetFieldYAML,
       xmlRootTag: "Field",
       path: "folder.xml",
       importMetaUrl: import.meta.url,
