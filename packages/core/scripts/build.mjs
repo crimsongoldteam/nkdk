@@ -56,6 +56,12 @@ await esbuild.build({
 
 await esbuild.build({
   ...commonOptions,
+  entryPoints: ["metadata/fullSyncToXml/worker.ts"],
+  outfile: new URL("fullSyncToXmlWorker.js", outdir).pathname,
+})
+
+await esbuild.build({
+  ...commonOptions,
   entryPoints: ["metadata/validation/generateProjectValidationAjvStandalone.ts"],
   outfile: new URL("generateProjectValidationAjvStandalone.js", outdir).pathname,
 })
