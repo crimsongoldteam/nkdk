@@ -4,6 +4,7 @@ import { YAMLTypeByRule } from "../../../orchestration/metadataItem/yaml"
 import { importFilterItemFromXMLToYAML } from "./fromXMLToYAML"
 import { FilterItemComparisonRules, FilterItemGroupRules } from "./rules"
 import { exportFilterItemToJSONSchema } from "./toJSONSchema"
+import { DataCompositionComparisonTypeFromYAML } from "../../../systemEnumerations/types"
 import "./typedValues"
 
 export type FilterItemComparison = FormTypeByRule<typeof FilterItemComparisonRules>
@@ -26,7 +27,11 @@ const referenceIdentity = {
     const left = typeof yaml.ЛевоеЗначение === "string" ? yaml.ЛевоеЗначение.replace(/^\./, "") : undefined
     if (left === undefined) return undefined
     const comparison =
-      yaml.ВидСравнения === undefined ? "Equal" : yaml.ВидСравнения === "Равно" ? "Equal" : String(yaml.ВидСравнения)
+      yaml.ВидСравнения === undefined
+        ? "Equal"
+        : (DataCompositionComparisonTypeFromYAML[
+            yaml.ВидСравнения as keyof typeof DataCompositionComparisonTypeFromYAML
+          ] ?? String(yaml.ВидСравнения))
     return `comparison:${left}:${comparison}`
   },
   fromXML: ({ xml }: { xml: Record<string, unknown> }): string | undefined => {

@@ -43,7 +43,7 @@ const importSettingsParameterValueCollectionFromYAML = (
 
     const valueFragment = asExplicitYAMLStringIfMarked(value, paramName, yamlFragment)
     const wrapped = wrapYamlFragment(paramName, valueFragment)
-    const imported = importParameterValueFromYAML(context, itemRule, wrapped)
+    const imported = importParameterValueFromYAML(context, itemRule, wrapped, source?.parameters[paramName])
     if (imported !== undefined) {
       parameters[paramName] = { ...imported, parameter: paramName }
     }
