@@ -15,3 +15,17 @@ registerMetadataItemRule({
 })
 
 registerTypeRule("StructureItemGroup", "importFromXMLToYAML", importStructureItemGroupFromXMLToYAML)
+registerTypeRule("StructureItemGroup", "yamlToXMLNestedRule", {
+  kind: "item",
+  itemRule: StructureItemGroupRules,
+  normalizeYAML: ({ yaml }) => normalizeStructureItemGroupYAML(yaml),
+})
+
+function normalizeStructureItemGroupYAML(yaml: unknown): unknown {
+  if (!Array.isArray(yaml) || yaml.length === 0) return undefined
+  const [head, ...tail] = yaml
+  return {
+    ПоляГруппировки: [head],
+    ...(tail.length === 0 ? {} : { Структура: normalizeStructureItemGroupYAML(tail) }),
+  }
+}

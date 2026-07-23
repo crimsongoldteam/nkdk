@@ -287,6 +287,14 @@ export function convertPropertiesFromYAMLToXML(params: ConvertPropertiesFromYAML
         key: output.request.key,
         referenceXML: references[index]?.value,
       }))
+      const normalizedNestedYAML =
+        effectiveNestedRule.kind === "item" && effectiveNestedRule.normalizeYAML !== undefined
+          ? effectiveNestedRule.normalizeYAML({
+              yaml: nestedYAML,
+              name: params.name,
+              propertyRule: planned.propertyRule,
+            })
+          : nestedYAML
       if (
         effectiveNestedRule.kind === "collection" &&
         Array.isArray(nestedYAML) &&
@@ -321,7 +329,7 @@ export function convertPropertiesFromYAMLToXML(params: ConvertPropertiesFromYAML
             })
           : convertMetadataItemFromYAMLToXML({
               context: params.context,
-              yaml: nestedYAML,
+              yaml: normalizedNestedYAML,
               rule:
                 effectiveNestedRule.kind === "item"
                   ? effectiveNestedRule.itemRule

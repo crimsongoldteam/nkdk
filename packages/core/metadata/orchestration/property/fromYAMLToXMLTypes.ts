@@ -67,6 +67,11 @@ export type YAMLToXMLNestedRule =
       readonly itemRule: MetadataItemRule
       readonly sparseYAML?: true
       readonly injectOwnerName?: true
+      readonly normalizeYAML?: (params: {
+        yaml: unknown
+        name: string | undefined
+        propertyRule: PropertyRule
+      }) => unknown
       readonly transformOutput?: (params: {
         context: import("../../context/types").ConfigurationContextWithExportToXML
         xml: Record<string, unknown>

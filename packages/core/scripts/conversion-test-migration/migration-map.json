@@ -12480,10 +12480,10 @@
       "dynamicList.xml"
     ],
     "line": 16,
-    "behavior": "",
+    "behavior": "Единый обход преобразует XML автоматической группировки в элемент YAML-коллекции.",
     "targetPath": "packages/core/metadata/commonObjects/dataCompositionSystem/structureItemGroup/collection/fromXMLToYAML.test.ts",
-    "targetTitle": "",
-    "status": "pending"
+    "targetTitle": "imports GroupItemAuto",
+    "status": "migrated"
   },
   {
     "id": "04f50e62065bb2e7f3cd7e8646dde08c82c0f7a2:packages/core/metadata/commonObjects/dataCompositionSystem/structureItemGroup/collection/fromXML.test.ts:28:1124",
@@ -12499,10 +12499,10 @@
       "dynamicList.xml"
     ],
     "line": 28,
-    "behavior": "",
+    "behavior": "Единый обход преобразует XML поля группировки в элемент YAML-коллекции.",
     "targetPath": "packages/core/metadata/commonObjects/dataCompositionSystem/structureItemGroup/collection/fromXMLToYAML.test.ts",
-    "targetTitle": "",
-    "status": "pending"
+    "targetTitle": "imports GroupItemField",
+    "status": "migrated"
   },
   {
     "id": "04f50e62065bb2e7f3cd7e8646dde08c82c0f7a2:packages/core/metadata/commonObjects/dataCompositionSystem/structureItemGroup/collection/fromYAML.test.ts:15:606",
@@ -12517,10 +12517,10 @@
       "../items/groupItemField/__fixtures__/data"
     ],
     "line": 15,
-    "behavior": "",
+    "behavior": "Единый обход определяет автоматическую группировку по YAML и восстанавливает XML.",
     "targetPath": "packages/core/metadata/commonObjects/dataCompositionSystem/structureItemGroup/collection/fromYAMLToXML.test.ts",
-    "targetTitle": "",
-    "status": "pending"
+    "targetTitle": "imports GroupItemAuto by detectYAML and exports GroupItemAuto",
+    "status": "migrated"
   },
   {
     "id": "04f50e62065bb2e7f3cd7e8646dde08c82c0f7a2:packages/core/metadata/commonObjects/dataCompositionSystem/structureItemGroup/collection/fromYAML.test.ts:24:824",
@@ -12535,10 +12535,10 @@
       "../items/groupItemField/__fixtures__/data"
     ],
     "line": 24,
-    "behavior": "",
+    "behavior": "Единый обход определяет поле группировки по краткому YAML и восстанавливает XML.",
     "targetPath": "packages/core/metadata/commonObjects/dataCompositionSystem/structureItemGroup/collection/fromYAMLToXML.test.ts",
-    "targetTitle": "",
-    "status": "pending"
+    "targetTitle": "imports GroupItemField by detectYAML",
+    "status": "migrated"
   },
   {
     "id": "04f50e62065bb2e7f3cd7e8646dde08c82c0f7a2:packages/core/metadata/commonObjects/dataCompositionSystem/structureItemGroup/collection/fromYAML.test.ts:33:1067",
@@ -12553,10 +12553,10 @@
       "../items/groupItemField/__fixtures__/data"
     ],
     "line": 33,
-    "behavior": "",
+    "behavior": "Единый обход определяет поле группировки по объектному YAML и восстанавливает XML.",
     "targetPath": "packages/core/metadata/commonObjects/dataCompositionSystem/structureItemGroup/collection/fromYAMLToXML.test.ts",
-    "targetTitle": "",
-    "status": "pending"
+    "targetTitle": "imports object GroupItemField by detectYAML and exports GroupItemField",
+    "status": "migrated"
   },
   {
     "id": "04f50e62065bb2e7f3cd7e8646dde08c82c0f7a2:packages/core/metadata/commonObjects/dataCompositionSystem/structureItemGroup/collection/toXML.test.ts:10:451",
@@ -12572,10 +12572,10 @@
       "../../items/groupItemAuto/__fixtures__/dynamicList.xml"
     ],
     "line": 10,
-    "behavior": "",
+    "behavior": "Единый обход экспортирует автоматическую группировку из YAML в исходный XML.",
     "targetPath": "packages/core/metadata/commonObjects/dataCompositionSystem/structureItemGroup/collection/fromYAMLToXML.test.ts",
-    "targetTitle": "",
-    "status": "pending"
+    "targetTitle": "imports GroupItemAuto by detectYAML and exports GroupItemAuto",
+    "status": "migrated"
   },
   {
     "id": "04f50e62065bb2e7f3cd7e8646dde08c82c0f7a2:packages/core/metadata/commonObjects/dataCompositionSystem/structureItemGroup/collection/toXML.test.ts:22:801",
@@ -12591,10 +12591,10 @@
       "../../items/groupItemField/__fixtures__/dynamicList.xml"
     ],
     "line": 22,
-    "behavior": "",
+    "behavior": "Единый обход экспортирует поле группировки из YAML в исходный XML.",
     "targetPath": "packages/core/metadata/commonObjects/dataCompositionSystem/structureItemGroup/collection/fromYAMLToXML.test.ts",
-    "targetTitle": "",
-    "status": "pending"
+    "targetTitle": "imports object GroupItemField by detectYAML and exports GroupItemField",
+    "status": "migrated"
   },
   {
     "id": "04f50e62065bb2e7f3cd7e8646dde08c82c0f7a2:packages/core/metadata/commonObjects/dataCompositionSystem/structureItemGroup/fromXML.test.ts:20:818",
@@ -12610,10 +12610,10 @@
       "imports full.xml"
     ],
     "line": 20,
-    "behavior": "",
+    "behavior": "Единый обход импортирует вложенную структуру группировки из XML.",
     "targetPath": "packages/core/metadata/commonObjects/dataCompositionSystem/structureItemGroup/fromXMLToYAML.test.ts",
-    "targetTitle": "",
-    "status": "pending"
+    "targetTitle": "imports dynamicList.xml as flat YAML",
+    "status": "migrated"
   },
   {
     "id": "04f50e62065bb2e7f3cd7e8646dde08c82c0f7a2:packages/core/metadata/commonObjects/dataCompositionSystem/structureItemGroup/fromXML.test.ts:31:1091",
@@ -12628,10 +12628,10 @@
       "dynamicList.xml"
     ],
     "line": 31,
-    "behavior": "",
+    "behavior": "Единый обход строит плоский YAML-массив из вложенной структуры XML.",
     "targetPath": "packages/core/metadata/commonObjects/dataCompositionSystem/structureItemGroup/fromXMLToYAML.test.ts",
-    "targetTitle": "",
-    "status": "pending"
+    "targetTitle": "imports dynamicList.xml as flat YAML",
+    "status": "migrated"
   },
   {
     "id": "04f50e62065bb2e7f3cd7e8646dde08c82c0f7a2:packages/core/metadata/commonObjects/dataCompositionSystem/structureItemGroup/fromYAML.test.ts:12:450",
@@ -12645,10 +12645,10 @@
       "./__fixtures__/data"
     ],
     "line": 12,
-    "behavior": "",
+    "behavior": "Единый обход разворачивает плоский YAML в рекурсивную структуру XML.",
     "targetPath": "packages/core/metadata/commonObjects/dataCompositionSystem/structureItemGroup/fromYAMLToXML.test.ts",
-    "targetTitle": "",
-    "status": "pending"
+    "targetTitle": "imports full fixture and exports dynamicList.xml",
+    "status": "migrated"
   },
   {
     "id": "04f50e62065bb2e7f3cd7e8646dde08c82c0f7a2:packages/core/metadata/commonObjects/dataCompositionSystem/structureItemGroup/items/groupItemAuto/toXML.test.ts:6:281",
@@ -12774,10 +12774,10 @@
       "exports dynamicList.xml"
     ],
     "line": 12,
-    "behavior": "",
+    "behavior": "Единый обход экспортирует рекурсивную структуру группировки в исходный XML.",
     "targetPath": "packages/core/metadata/commonObjects/dataCompositionSystem/structureItemGroup/fromYAMLToXML.test.ts",
-    "targetTitle": "",
-    "status": "pending"
+    "targetTitle": "imports full fixture and exports dynamicList.xml",
+    "status": "migrated"
   },
   {
     "id": "04f50e62065bb2e7f3cd7e8646dde08c82c0f7a2:packages/core/metadata/commonObjects/exchangePlanContent/fromXML.test.ts:20:810",
