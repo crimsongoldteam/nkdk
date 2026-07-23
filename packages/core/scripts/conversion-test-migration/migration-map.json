@@ -16430,10 +16430,10 @@
       "full.xml"
     ],
     "line": 16,
-    "behavior": "",
+    "behavior": "Импортирует непустой XML и сразу выдаёт строковый идентификатор в YAML.",
     "targetPath": "packages/core/metadata/commonObjects/userSettingsID/fromXMLToYAML.test.ts",
-    "targetTitle": "",
-    "status": "pending"
+    "targetTitle": "imports full.xml when not for reference",
+    "status": "migrated"
   },
   {
     "id": "04f50e62065bb2e7f3cd7e8646dde08c82c0f7a2:packages/core/metadata/commonObjects/userSettingsID/fromXML.test.ts:27:938",
@@ -16448,10 +16448,10 @@
       "empty.xml"
     ],
     "line": 27,
-    "behavior": "",
+    "behavior": "Импортирует пустой XML и не создаёт поле YAML.",
     "targetPath": "packages/core/metadata/commonObjects/userSettingsID/fromXMLToYAML.test.ts",
-    "targetTitle": "",
-    "status": "pending"
+    "targetTitle": "imports empty.xml when not for reference",
+    "status": "migrated"
   },
   {
     "id": "04f50e62065bb2e7f3cd7e8646dde08c82c0f7a2:packages/core/metadata/commonObjects/userSettingsID/fromXML.test.ts:38:1184",
@@ -16466,10 +16466,10 @@
       "full.xml"
     ],
     "line": 38,
-    "behavior": "",
+    "behavior": "Импортирует непустой reference XML и сразу выдаёт строковый идентификатор в YAML.",
     "targetPath": "packages/core/metadata/commonObjects/userSettingsID/fromXMLToYAML.test.ts",
-    "targetTitle": "",
-    "status": "pending"
+    "targetTitle": "imports full.xml for reference",
+    "status": "migrated"
   },
   {
     "id": "04f50e62065bb2e7f3cd7e8646dde08c82c0f7a2:packages/core/metadata/commonObjects/userSettingsID/fromXML.test.ts:50:1467",
@@ -16484,10 +16484,10 @@
       "empty.xml"
     ],
     "line": 50,
-    "behavior": "",
+    "behavior": "Импортирует пустой reference XML и не создаёт поле YAML.",
     "targetPath": "packages/core/metadata/commonObjects/userSettingsID/fromXMLToYAML.test.ts",
-    "targetTitle": "",
-    "status": "pending"
+    "targetTitle": "imports empty.xml for reference",
+    "status": "migrated"
   },
   {
     "id": "04f50e62065bb2e7f3cd7e8646dde08c82c0f7a2:packages/core/metadata/commonObjects/userSettingsID/fromXML.test.ts:62:1730",
@@ -16502,10 +16502,10 @@
       "Отчёт/Продажи/Свойства.yaml"
     ],
     "line": 62,
-    "behavior": "",
+    "behavior": "Сохраняет исходный идентификатор в YAML, не записывая восстановимое значение в индекс конфигурации.",
     "targetPath": "packages/core/metadata/commonObjects/userSettingsID/fromXMLToYAML.test.ts",
-    "targetTitle": "",
-    "status": "pending"
+    "targetTitle": "хранит исходный идентификатор настройки в YAML и не дублирует его в индексе",
+    "status": "migrated"
   },
   {
     "id": "04f50e62065bb2e7f3cd7e8646dde08c82c0f7a2:packages/core/metadata/configurationIndex/referenceView.test.ts:14:747",
