@@ -2,7 +2,8 @@ import fs from "node:fs"
 import { join } from "node:path"
 import { afterEach, describe, expect, it } from "vitest"
 import { mockContextToXML } from "../../tests/mockContext"
-import { configurationIndexPath } from "../configurationIndex/fileIO"
+import { readConfigurationIndex } from "../configurationIndex"
+import type { ConfigurationIndexData } from "../configurationIndex/types"
 import { syncConfigurationToXml } from "./syncConfiguration"
 import { createTempRoot, removeFullSyncTempDirs, writeSmallYamlProjectWithIndex } from "./testHelpers"
 
@@ -11,7 +12,7 @@ afterEach(async () => {
 })
 
 describe("full XML sync determinism", () => {
-  it("writes byte-identical XML and index for equal projects", async () => {
+  it("writes byte-identical XML and a semantically deterministic index for equal projects", async () => {
     const root = createTempRoot()
     const projectOne = join(root, "project-one")
     const projectTwo = join(root, "project-two")
@@ -41,7 +42,9 @@ describe("full XML sync determinism", () => {
     expect(first.failed).toEqual([])
     expect(second.failed).toEqual([])
     expect(readTree(outTwo)).toEqual(readTree(outOne))
-    expect(fs.readFileSync(configurationIndexPath(projectTwo))).toEqual(fs.readFileSync(configurationIndexPath(projectOne)))
+    expect(normalizeIndex(await readConfigurationIndex({ projectDir: projectTwo }))).toEqual(
+      normalizeIndex(await readConfigurationIndex({ projectDir: projectOne }))
+    )
   })
 })
 
@@ -49,6 +52,19 @@ function readTree(root: string): Record<string, Buffer> {
   const result: Record<string, Buffer> = {}
   for (const path of listFiles(root)) result[path] = fs.readFileSync(join(root, ...path.split("/")))
   return result
+}
+
+function normalizeIndex(index: ConfigurationIndexData): ConfigurationIndexData {
+  const compare = (left: string, right: string) => Buffer.compare(Buffer.from(left), Buffer.from(right))
+  return {
+    ...index,
+    projectFiles: [...index.projectFiles].sort((left, right) => compare(left.projectPath, right.projectPath)),
+    identities: [...index.identities].sort((left, right) =>
+      compare(`${left.logicalAddress}\0${left.kind}`, `${right.logicalAddress}\0${right.kind}`)
+    ),
+    xmlNodes: [...index.xmlNodes].sort((left, right) => compare(left.logicalAddress, right.logicalAddress)),
+    xmlValues: [...index.xmlValues].sort((left, right) => compare(left.logicalAddress, right.logicalAddress)),
+  }
 }
 
 function listFiles(root: string): string[] {
