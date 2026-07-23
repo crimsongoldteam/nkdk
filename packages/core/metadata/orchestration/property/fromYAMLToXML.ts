@@ -397,12 +397,11 @@ export function convertPropertiesFromYAMLToXML(params: ConvertPropertiesFromYAML
             })
           : undefined
       )
-      const rawValue = orderStringArrayByReference(sourceValue, atomicReferences[0])
       imported = callAtomicFromYAML({
         handler: getTypeRule(planned.propertyRule.type, "importFromYAML"),
         context: propertyContext,
         rule: planned.propertyRule,
-        value: rawValue,
+        value: sourceValue,
         referenceValue: atomicReferences[0],
         yaml,
         name: params.name,
@@ -453,27 +452,6 @@ function isEmptyCollectionReference(value: unknown, xmlElement: string | undefin
   if (xmlElement === undefined || !Object.prototype.hasOwnProperty.call(value, xmlElement)) return false
   const items = value[xmlElement]
   return items === undefined || (Array.isArray(items) && items.length === 0)
-}
-
-function orderStringArrayByReference(value: unknown, reference: unknown): unknown {
-  if (!Array.isArray(value) || !value.every((item): item is string => typeof item === "string")) return value
-  if (!Array.isArray(reference) || !reference.every((item): item is string => typeof item === "string")) return value
-  const remaining = new Map<string, number>()
-  for (const item of value) remaining.set(item, (remaining.get(item) ?? 0) + 1)
-  const ordered: string[] = []
-  for (const item of reference) {
-    const count = remaining.get(item) ?? 0
-    if (count === 0) continue
-    ordered.push(item)
-    remaining.set(item, count - 1)
-  }
-  for (const item of value) {
-    const count = remaining.get(item) ?? 0
-    if (count === 0) continue
-    ordered.push(item)
-    remaining.set(item, count - 1)
-  }
-  return ordered
 }
 
 function callAtomicFromXML(params: {

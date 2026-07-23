@@ -15556,10 +15556,10 @@
     "declarationText": "it(\"imports root subsystem visibility and order\", () => {\n    const result = importRootCommandInterface(commandInterfaceXmlPath)\n\n    expect(result).toMatchObject({\n      itemType: \"RootCommandInterface\",\n      subsystemsVisibility: {\n        \"Subsystem.ПодсистемаПоУмолчанию\": {\n          common: false,\n          roles: {\n            \"Role.Администратор\": false,\n          },\n        },\n      },\n      subsystemsOrder: [\"Subsystem.ПодсистемаПоУмолчанию\"],\n    })\n  })",
     "fixtures": [],
     "line": 23,
-    "behavior": "",
+    "behavior": "Видимость и порядок корневых подсистем преобразуются из XML в YAML",
     "targetPath": "packages/core/metadata/commonObjects/rootCommandInterface/fromXMLToYAML.test.ts",
-    "targetTitle": "",
-    "status": "pending"
+    "targetTitle": "imports root subsystem visibility and order",
+    "status": "migrated"
   },
   {
     "id": "04f50e62065bb2e7f3cd7e8646dde08c82c0f7a2:packages/core/metadata/commonObjects/rootCommandInterface/fromXML.test.ts:40:1362",
@@ -15571,10 +15571,10 @@
     "declarationText": "it(\"imports command visibility, placement, order and group order\", () => {\n    const result = importRootCommandInterface(mainSectionCommandInterfaceXmlPath)\n\n    expect(result).toMatchObject({\n      groupsOrder: [\"NavigationPanelImportant\", \"CommandGroup.ГруппаКомандПоУмолчанию\", \"ActionsPanelCreate\"],\n    })\n    expect(result?.commandsVisibility).toEqual(\n      expect.arrayContaining([\n        {\n          command: \"Catalog.СправочникПолный.Command.ПоУмолчанию\",\n          visibility: {\n            common: false,\n            roles: {\n              \"Role.Администратор\": false,\n              \"Role.РольВсеСвойства\": true,\n            },\n          },\n        },\n      ])\n    )\n    expect(result?.commandsPlacement).toEqual(\n      expect.arrayContaining([\n        {\n          command: \"Catalog.СправочникПолный.Command.ПоУмолчанию\",\n          commandGroup: \"NavigationPanelImportant\",\n          placement: \"Manual\",\n        },\n      ])\n    )\n    expect(result?.commandsOrder).toEqual(\n      expect.arrayContaining([\n        {\n          command: \"Catalog.СправочникПолный.Command.ПоУмолчанию\",\n          commandGroup: \"NavigationPanelImportant\",\n        },\n        {\n          command: \"DocumentJournal.ЖурналДокументов1.StandardCommand.OpenList\",\n          commandGroup: \"CommandGroup.ГруппаКомандПоУмолчанию\",\n        },\n      ])\n    )\n  })",
     "fixtures": [],
     "line": 40,
-    "behavior": "",
+    "behavior": "Настройки видимости, размещения и порядка команд преобразуются из XML в YAML",
     "targetPath": "packages/core/metadata/commonObjects/rootCommandInterface/fromXMLToYAML.test.ts",
-    "targetTitle": "",
-    "status": "pending"
+    "targetTitle": "imports command visibility, placement, order and group order",
+    "status": "migrated"
   },
   {
     "id": "04f50e62065bb2e7f3cd7e8646dde08c82c0f7a2:packages/core/metadata/commonObjects/rootCommandInterface/fromXML.test.ts:83:2709",
@@ -15586,10 +15586,10 @@
     "declarationText": "it(\"imports duplicate command names as separate command visibility entries\", () => {\n    const result = importMetadataItemFromXML({\n      context: mockContextFromXML(),\n      rule: RootCommandInterfaceRules,\n      xmlString: `<?xml version=\"1.0\" encoding=\"UTF-8\"?>\n<CommandInterface xmlns=\"http://v8.1c.ru/8.3/xcf/extrnprops\" xmlns:xr=\"http://v8.1c.ru/8.3/xcf/readable\" xmlns:xs=\"http://www.w3.org/2001/XMLSchema\" xmlns:xsi=\"http://www.w3.org/2001/XMLSchema-instance\" version=\"2.20\">\n  <CommandsVisibility>\n    <Command name=\"0\"><Visibility><xr:Common>false</xr:Common></Visibility></Command>\n    <Command name=\"0\"><Visibility><xr:Common>true</xr:Common></Visibility></Command>\n  </CommandsVisibility>\n  <CommandsPlacement>\n    <Command name=\"0\"><CommandGroup>NavigationPanelImportant</CommandGroup><Placement>Manual</Placement></Command>\n    <Command name=\"0\"><CommandGroup>ActionsPanelTools</CommandGroup><Placement>Auto</Placement></Command>\n  </CommandsPlacement>\n</CommandInterface>`,\n    })\n\n    expect(result?.commandsVisibility).toEqual([\n      { command: \"0\", visibility: { common: false } },\n      { command: \"0\", visibility: { common: true } },\n    ])\n    expect(result?.commandsPlacement).toEqual([\n      { command: \"0\", commandGroup: \"NavigationPanelImportant\", placement: \"Manual\" },\n      { command: \"0\", commandGroup: \"ActionsPanelTools\", placement: \"Auto\" },\n    ])\n  })",
     "fixtures": [],
     "line": 83,
-    "behavior": "",
+    "behavior": "Команды с одинаковым именем сохраняются отдельными элементами YAML",
     "targetPath": "packages/core/metadata/commonObjects/rootCommandInterface/fromXMLToYAML.test.ts",
-    "targetTitle": "",
-    "status": "pending"
+    "targetTitle": "imports duplicate command names as separate command visibility entries",
+    "status": "migrated"
   },
   {
     "id": "04f50e62065bb2e7f3cd7e8646dde08c82c0f7a2:packages/core/metadata/commonObjects/rootCommandInterface/fromXML.test.ts:110:4100",
@@ -15601,10 +15601,10 @@
     "declarationText": "it(\"keeps uuid-like command names as strings\", () => {\n    const result = importRootCommandInterface(subsystemCommandInterfaceXmlPath)\n    const uuidCommand = \"0:2f109eaa-d341-4592-a04f-3f199e75d879\"\n\n    expect(result?.commandsVisibility).toEqual(\n      expect.arrayContaining([\n        {\n          command: uuidCommand,\n          visibility: {\n            common: true,\n            roles: {\n              \"Role.Администратор\": false,\n            },\n          },\n        },\n      ])\n    )\n    expect(result?.commandsOrder?.[0]).toEqual({\n      command: uuidCommand,\n      commandGroup: \"NavigationPanelOrdinary\",\n    })\n  })",
     "fixtures": [],
     "line": 110,
-    "behavior": "",
+    "behavior": "UUID-подобные имена команд остаются строками при импорте XML",
     "targetPath": "packages/core/metadata/commonObjects/rootCommandInterface/fromXMLToYAML.test.ts",
-    "targetTitle": "",
-    "status": "pending"
+    "targetTitle": "keeps uuid-like command names as strings",
+    "status": "migrated"
   },
   {
     "id": "04f50e62065bb2e7f3cd7e8646dde08c82c0f7a2:packages/core/metadata/commonObjects/rootCommandInterface/fromYAML.test.ts:9:302",
@@ -15616,10 +15616,10 @@
     "declarationText": "it(\"imports subsystem visibility and command settings\", () => {\n    const result = importMetadataItemFromYAML({\n      context: mockContext,\n      rule: RootCommandInterfaceRules,\n      yaml: {\n        ВидимостьПодсистем: {\n          \"Subsystem.ПодсистемаПоУмолчанию\": {\n            Общее: \"Ложь\",\n            Роли: {\n              Администратор: \"Ложь\",\n            },\n          },\n        },\n        ПорядокПодсистем: [\"Подсистема.ПодсистемаПоУмолчанию\"],\n        ВидимостьКоманд: [\n          {\n            Команда: \"Справочник.СправочникПолный.Команда.ПоУмолчанию\",\n            Общее: \"Истина\",\n          },\n        ],\n        РазмещениеКоманд: [\n          {\n            Команда: \"Справочник.СправочникПолный.Команда.ПоУмолчанию\",\n            ГруппаКоманд: \"ПанельНавигацииОбычное\",\n            Размещение: \"Вручную\",\n          },\n        ],\n        ПорядокКоманд: [\n          {\n            Команда: \"Справочник.СправочникПолный.Команда.ПоУмолчанию\",\n            ГруппаКоманд: \"ПанельНавигацииОбычное\",\n          },\n        ],\n        ПорядокГрупп: [\"ПанельНавигацииОбычное\"],\n      },\n    })\n\n    expect(result).toEqual({\n      itemType: \"RootCommandInterface\",\n      subsystemsVisibility: {\n        \"Subsystem.ПодсистемаПоУмолчанию\": {\n          common: false,\n          roles: {\n            \"Role.Администратор\": false,\n          },\n        },\n      },\n      subsystemsOrder: [\"Subsystem.ПодсистемаПоУмолчанию\"],\n      commandsVisibility: [\n        {\n          command: \"Catalog.СправочникПолный.Command.ПоУмолчанию\",\n          visibility: {\n            common: true,\n          },\n        },\n      ],\n      commandsPlacement: [\n        {\n          command: \"Catalog.СправочникПолный.Command.ПоУмолчанию\",\n          commandGroup: \"NavigationPanelOrdinary\",\n          placement: \"Manual\",\n        },\n      ],\n      commandsOrder: [\n        {\n          command: \"Catalog.СправочникПолный.Command.ПоУмолчанию\",\n          commandGroup: \"NavigationPanelOrdinary\",\n        },\n      ],\n      groupsOrder: [\"NavigationPanelOrdinary\"],\n    })\n  })",
     "fixtures": [],
     "line": 9,
-    "behavior": "",
+    "behavior": "Настройки подсистем и команд преобразуются из YAML в XML",
     "targetPath": "packages/core/metadata/commonObjects/rootCommandInterface/fromYAMLToXML.test.ts",
-    "targetTitle": "",
-    "status": "pending"
+    "targetTitle": "imports subsystem visibility and command settings",
+    "status": "migrated"
   },
   {
     "id": "04f50e62065bb2e7f3cd7e8646dde08c82c0f7a2:packages/core/metadata/commonObjects/rootCommandInterface/fromYAML.test.ts:82:2348",
@@ -15631,10 +15631,10 @@
     "declarationText": "it(\"rejects prefixed and opaque role visibility keys\", () => {\n    expect(() =>\n      importMetadataItemFromYAML({\n        context: mockContext,\n        rule: RootCommandInterfaceRules,\n        yaml: {\n          ВидимостьПодсистем: {\n            \"Subsystem.ПодсистемаПоУмолчанию\": {\n              Роли: {\n                \"Роль.Администратор\": \"Ложь\",\n              },\n            },\n          },\n        },\n      })\n    ).toThrow(\"Ожидалось имя объекта без корня, потому что корень задан правилом\")\n\n    expect(() =>\n      importMetadataItemFromYAML({\n        context: mockContext,\n        rule: RootCommandInterfaceRules,\n        yaml: {\n          ВидимостьПодсистем: {\n            \"Subsystem.ПодсистемаПоУмолчанию\": {\n              Роли: {\n                \"ЛокальныйПуть.НачалоРаботы\": \"Ложь\",\n              },\n            },\n          },\n        },\n      })\n    ).toThrow('Неизвестный корень \"ЛокальныйПуть\"')\n  })",
     "fixtures": [],
     "line": 82,
-    "behavior": "",
+    "behavior": "Префиксные и непрозрачные ключи видимости ролей отклоняются",
     "targetPath": "packages/core/metadata/commonObjects/rootCommandInterface/fromYAMLToXML.test.ts",
-    "targetTitle": "",
-    "status": "pending"
+    "targetTitle": "rejects prefixed and opaque role visibility keys",
+    "status": "migrated"
   },
   {
     "id": "04f50e62065bb2e7f3cd7e8646dde08c82c0f7a2:packages/core/metadata/commonObjects/rootCommandInterface/fromYAML.test.ts:116:3269",
@@ -15646,10 +15646,10 @@
     "declarationText": "it(\"keeps unknown command groups and uuid-like command names unchanged\", () => {\n    const uuidCommand = \"0:2f109eaa-d341-4592-a04f-3f199e75d879\"\n\n    const result = importMetadataItemFromYAML({\n      context: mockContext,\n      rule: RootCommandInterfaceRules,\n      yaml: {\n        ВидимостьКоманд: [\n          {\n            Команда: uuidCommand,\n            Общее: \"Истина\",\n          },\n        ],\n        ПорядокКоманд: [\n          {\n            Команда: uuidCommand,\n            ГруппаКоманд: \"CommandGroup.ГруппаКомандПоУмолчанию\",\n          },\n        ],\n        ПорядокГрупп: [\"CommandGroup.ГруппаКомандПоУмолчанию\"],\n      },\n    })\n\n    expect(result?.commandsVisibility).toEqual([{ command: uuidCommand, visibility: { common: true } }])\n    expect(result?.commandsOrder?.[0]).toEqual({\n      command: uuidCommand,\n      commandGroup: \"CommandGroup.ГруппаКомандПоУмолчанию\",\n    })\n    expect(result?.groupsOrder).toEqual([\"CommandGroup.ГруппаКомандПоУмолчанию\"])\n  })",
     "fixtures": [],
     "line": 116,
-    "behavior": "",
+    "behavior": "Неизвестные группы и UUID-подобные имена команд сохраняются без изменения",
     "targetPath": "packages/core/metadata/commonObjects/rootCommandInterface/fromYAMLToXML.test.ts",
-    "targetTitle": "",
-    "status": "pending"
+    "targetTitle": "keeps unknown command groups and uuid-like command names unchanged",
+    "status": "migrated"
   },
   {
     "id": "04f50e62065bb2e7f3cd7e8646dde08c82c0f7a2:packages/core/metadata/commonObjects/rootCommandInterface/toXML.test.ts:87:2715",
@@ -15663,10 +15663,10 @@
       "round-trips root CommandInterface.xml"
     ],
     "line": 87,
-    "behavior": "",
+    "behavior": "Корневой интерфейс команд сохраняется через YAML",
     "targetPath": "packages/core/metadata/commonObjects/rootCommandInterface/fromYAMLToXML.test.ts",
-    "targetTitle": "",
-    "status": "pending"
+    "targetTitle": "round-trips root CommandInterface.xml",
+    "status": "migrated"
   },
   {
     "id": "04f50e62065bb2e7f3cd7e8646dde08c82c0f7a2:packages/core/metadata/commonObjects/rootCommandInterface/toXML.test.ts:93:2931",
@@ -15680,10 +15680,10 @@
       "round-trips MainSectionCommandInterface.xml"
     ],
     "line": 93,
-    "behavior": "",
+    "behavior": "Интерфейс команд главного раздела сохраняется через YAML",
     "targetPath": "packages/core/metadata/commonObjects/rootCommandInterface/fromYAMLToXML.test.ts",
-    "targetTitle": "",
-    "status": "pending"
+    "targetTitle": "round-trips MainSectionCommandInterface.xml",
+    "status": "migrated"
   },
   {
     "id": "04f50e62065bb2e7f3cd7e8646dde08c82c0f7a2:packages/core/metadata/commonObjects/rootCommandInterface/toXML.test.ts:99:3175",
@@ -15695,10 +15695,10 @@
     "declarationText": "it(\"round-trips subsystem CommandInterface.xml and keeps uuid-like command names\", () => {\n    const result = roundTripRootCommandInterface(subsystemCommandInterfaceXmlPath)\n    const expected = normalizeXML(readFileSync(subsystemCommandInterfaceXmlPath, \"utf-8\").trimEnd())\n\n    expect(result).toBe(expected)\n    expect(result).toContain('name=\"0:2f109eaa-d341-4592-a04f-3f199e75d879\"')\n  })",
     "fixtures": [],
     "line": 99,
-    "behavior": "",
+    "behavior": "Интерфейс команд подсистемы и UUID-подобное имя сохраняются через YAML",
     "targetPath": "packages/core/metadata/commonObjects/rootCommandInterface/fromYAMLToXML.test.ts",
-    "targetTitle": "",
-    "status": "pending"
+    "targetTitle": "round-trips subsystem CommandInterface.xml and keeps uuid-like command names",
+    "status": "migrated"
   },
   {
     "id": "04f50e62065bb2e7f3cd7e8646dde08c82c0f7a2:packages/core/metadata/commonObjects/rootCommandInterface/toXML.test.ts:107:3571",
@@ -15710,10 +15710,10 @@
     "declarationText": "it(\"preserves unknown visibility element XML details through YAML round-trip\", () => {\n    const xmlString = `<?xml version=\"1.0\" encoding=\"UTF-8\"?>\n<CommandInterface xmlns=\"http://v8.1c.ru/8.3/xcf/extrnprops\" xmlns:xr=\"http://v8.1c.ru/8.3/xcf/readable\" xmlns:xs=\"http://www.w3.org/2001/XMLSchema\" xmlns:xsi=\"http://www.w3.org/2001/XMLSchema-instance\" version=\"2.20\">\n\\t<CommandsVisibility>\n\\t\\t<Command name=\"Catalog.Товары.StandardCommand.OpenList\" customAttribute=\"keep\">\n\\t\\t\\t<Visibility>\n\\t\\t\\t\\t<xr:Common>true</xr:Common>\n\\t\\t\\t\\t<UnknownVisibility>keep nested</UnknownVisibility>\n\\t\\t\\t</Visibility>\n\\t\\t\\t<UnknownCommandChild>keep command</UnknownCommandChild>\n\\t\\t</Command>\n\\t</CommandsVisibility>\n</CommandInterface>`\n\n    const result = roundTripRootCommandInterfaceThroughYAML(xmlString)\n\n    expect(result).toContain('customAttribute=\"keep\"')\n    expect(result).toContain(\"<UnknownVisibility>keep nested</UnknownVisibility>\")\n    expect(result).toContain(\"<UnknownCommandChild>keep command</UnknownCommandChild>\")\n    expect(result).toContain(\"<xr:Common>true</xr:Common>\")\n  })",
     "fixtures": [],
     "line": 107,
-    "behavior": "",
+    "behavior": "Неизвестные детали XML видимости сохраняются через YAML",
     "targetPath": "packages/core/metadata/commonObjects/rootCommandInterface/fromYAMLToXML.test.ts",
-    "targetTitle": "",
-    "status": "pending"
+    "targetTitle": "preserves unknown visibility element XML details through YAML round-trip",
+    "status": "migrated"
   },
   {
     "id": "04f50e62065bb2e7f3cd7e8646dde08c82c0f7a2:packages/core/metadata/commonObjects/rootCommandInterface/toXML.test.ts:129:4669",
@@ -15725,10 +15725,10 @@
     "declarationText": "it(\"preserves unknown role visibility XML details while updating known fields\", () => {\n    const xmlString = `<?xml version=\"1.0\" encoding=\"UTF-8\"?>\n<CommandInterface xmlns=\"http://v8.1c.ru/8.3/xcf/extrnprops\" xmlns:xr=\"http://v8.1c.ru/8.3/xcf/readable\" xmlns:xs=\"http://www.w3.org/2001/XMLSchema\" xmlns:xsi=\"http://www.w3.org/2001/XMLSchema-instance\" version=\"2.20\">\n\\t<CommandsVisibility>\n\\t\\t<Command name=\"Catalog.Товары.StandardCommand.OpenList\">\n\\t\\t\\t<Visibility>\n\\t\\t\\t\\t<xr:Value name=\"Role.Администратор\" custom=\"keep\"><Extra>role</Extra>false</xr:Value>\n\\t\\t\\t</Visibility>\n\\t\\t</Command>\n\\t</CommandsVisibility>\n</CommandInterface>`\n\n    const result = roundTripRootCommandInterfaceThroughYAML(xmlString, (yaml) => {\n      const visibility = yaml.ВидимостьКоманд!.find(\n        (item: { Команда?: string }) => item.Команда === \"Catalog.Товары.StandardCommand.OpenList\"\n      )\n      expect(visibility).toBeDefined()\n      visibility!.Роли!.Администратор = \"Истина\"\n    })\n\n    expect(result).toContain('<xr:Value custom=\"keep\" name=\"Role.Администратор\">')\n    expect(result).toContain(\"<Extra>role</Extra>\")\n    expect(result).toContain(\"true\")\n  })",
     "fixtures": [],
     "line": 129,
-    "behavior": "",
+    "behavior": "Неизвестные детали роли сохраняются при изменении известного значения",
     "targetPath": "packages/core/metadata/commonObjects/rootCommandInterface/fromYAMLToXML.test.ts",
-    "targetTitle": "",
-    "status": "pending"
+    "targetTitle": "preserves unknown role visibility XML details while updating known fields",
+    "status": "migrated"
   },
   {
     "id": "04f50e62065bb2e7f3cd7e8646dde08c82c0f7a2:packages/core/metadata/commonObjects/rootCommandInterface/toXML.test.ts:154:5835",
@@ -15740,10 +15740,10 @@
     "declarationText": "it(\"preserves unknown placement and order XML details while updating known fields\", () => {\n    const xmlString = `<?xml version=\"1.0\" encoding=\"UTF-8\"?>\n<CommandInterface xmlns=\"http://v8.1c.ru/8.3/xcf/extrnprops\" xmlns:xr=\"http://v8.1c.ru/8.3/xcf/readable\" xmlns:xs=\"http://www.w3.org/2001/XMLSchema\" xmlns:xsi=\"http://www.w3.org/2001/XMLSchema-instance\" version=\"2.20\">\n\\t<CommandsPlacement>\n\\t\\t<Command name=\"Catalog.Товары.StandardCommand.OpenList\" placementAttribute=\"keep\">\n\\t\\t\\t<CommandGroup>NavigationPanelOrdinary</CommandGroup>\n\\t\\t\\t<Placement>Manual</Placement>\n\\t\\t\\t<UnknownPlacementChild>keep placement</UnknownPlacementChild>\n\\t\\t</Command>\n\\t</CommandsPlacement>\n\\t<CommandsOrder>\n\\t\\t<Command name=\"Catalog.Товары.StandardCommand.OpenList\" orderAttribute=\"keep\">\n\\t\\t\\t<CommandGroup>NavigationPanelOrdinary</CommandGroup>\n\\t\\t\\t<UnknownOrderChild>keep order</UnknownOrderChild>\n\\t\\t</Command>\n\\t</CommandsOrder>\n</CommandInterface>`\n\n    const result = roundTripRootCommandInterfaceThroughYAML(xmlString, (yaml) => {\n      const placement = yaml.РазмещениеКоманд!.find(\n        (item: { Команда?: string }) => item.Команда === \"Catalog.Товары.StandardCommand.OpenList\"\n      )\n      expect(placement).toBeDefined()\n      placement!.Размещение = \"Авто\"\n      yaml.ПорядокКоманд![0].ГруппаКоманд = \"ПанельДействийСоздать\"\n    })\n\n    expect(result).toContain('placementAttribute=\"keep\"')\n    expect(result).toContain(\"<UnknownPlacementChild>keep placement</UnknownPlacementChild>\")\n    expect(result).toContain(\"<Placement>Auto</Placement>\")\n    expect(result).toContain('orderAttribute=\"keep\"')\n    expect(result).toContain(\"<UnknownOrderChild>keep order</UnknownOrderChild>\")\n    expect(result).toContain(\"<CommandGroup>ActionsPanelCreate</CommandGroup>\")\n  })",
     "fixtures": [],
     "line": 154,
-    "behavior": "",
+    "behavior": "Неизвестные детали размещения и порядка сохраняются при изменении полей",
     "targetPath": "packages/core/metadata/commonObjects/rootCommandInterface/fromYAMLToXML.test.ts",
-    "targetTitle": "",
-    "status": "pending"
+    "targetTitle": "preserves unknown placement and order XML details while updating known fields",
+    "status": "migrated"
   },
   {
     "id": "04f50e62065bb2e7f3cd7e8646dde08c82c0f7a2:packages/core/metadata/commonObjects/rootCommandInterface/toXML.test.ts:189:7620",
@@ -15755,10 +15755,10 @@
     "declarationText": "it(\"preserves reference order details for duplicate command names\", () => {\n    const xmlString = `<?xml version=\"1.0\" encoding=\"UTF-8\"?>\n<CommandInterface xmlns=\"http://v8.1c.ru/8.3/xcf/extrnprops\" xmlns:xr=\"http://v8.1c.ru/8.3/xcf/readable\" xmlns:xs=\"http://www.w3.org/2001/XMLSchema\" xmlns:xsi=\"http://www.w3.org/2001/XMLSchema-instance\" version=\"2.20\">\n\\t<CommandsOrder>\n\\t\\t<Command name=\"0\" orderAttribute=\"first\">\n\\t\\t\\t<CommandGroup>NavigationPanelImportant</CommandGroup>\n\\t\\t</Command>\n\\t\\t<Command name=\"Other\" orderAttribute=\"other\">\n\\t\\t\\t<CommandGroup>ActionsPanelTools</CommandGroup>\n\\t\\t</Command>\n\\t\\t<Command name=\"0\" orderAttribute=\"second\">\n\\t\\t\\t<CommandGroup>ActionsPanelCreate</CommandGroup>\n\\t\\t</Command>\n\\t</CommandsOrder>\n</CommandInterface>`\n\n    const result = roundTripRootCommandInterfaceThroughYAML(xmlString)\n\n    expect(result).toContain('<Command orderAttribute=\"first\" name=\"0\">')\n    expect(result).toContain('<Command orderAttribute=\"other\" name=\"Other\">')\n    expect(result).toContain('<Command orderAttribute=\"second\" name=\"0\">')\n  })",
     "fixtures": [],
     "line": 189,
-    "behavior": "",
+    "behavior": "Порядок и XML-детали команд с повторяющимися именами сохраняются",
     "targetPath": "packages/core/metadata/commonObjects/rootCommandInterface/fromYAMLToXML.test.ts",
-    "targetTitle": "",
-    "status": "pending"
+    "targetTitle": "preserves reference order details for duplicate command names",
+    "status": "migrated"
   },
   {
     "id": "04f50e62065bb2e7f3cd7e8646dde08c82c0f7a2:packages/core/metadata/commonObjects/rootCommandInterface/toXML.test.ts:212:8698",
@@ -15770,10 +15770,10 @@
     "declarationText": "it(\"preserves empty subsystem order items through YAML round-trip\", () => {\n    const xmlString = `<?xml version=\"1.0\" encoding=\"UTF-8\"?>\n<CommandInterface xmlns=\"http://v8.1c.ru/8.3/xcf/extrnprops\" xmlns:xr=\"http://v8.1c.ru/8.3/xcf/readable\" xmlns:xs=\"http://www.w3.org/2001/XMLSchema\" xmlns:xsi=\"http://www.w3.org/2001/XMLSchema-instance\" version=\"2.20\">\n\\t<SubsystemsOrder>\n\\t\\t<Subsystem/>\n\\t\\t<Subsystem>Subsystem.Продажи</Subsystem>\n\\t</SubsystemsOrder>\n</CommandInterface>`\n\n    const result = roundTripRootCommandInterfaceThroughYAML(xmlString)\n\n    expect(result).toContain(\"<Subsystem/>\")\n    expect(result).toContain(\"<Subsystem>Subsystem.Продажи</Subsystem>\")\n  })",
     "fixtures": [],
     "line": 212,
-    "behavior": "",
+    "behavior": "Пустой элемент порядка подсистем сохраняется через YAML",
     "targetPath": "packages/core/metadata/commonObjects/rootCommandInterface/fromYAMLToXML.test.ts",
-    "targetTitle": "",
-    "status": "pending"
+    "targetTitle": "preserves empty subsystem order items through YAML round-trip",
+    "status": "migrated"
   },
   {
     "id": "04f50e62065bb2e7f3cd7e8646dde08c82c0f7a2:packages/core/metadata/commonObjects/rootCommandInterface/toYAML.test.ts:30:1065",
@@ -15785,10 +15785,10 @@
     "declarationText": "it(\"exports root subsystem visibility and order\", () => {\n    const result = exportRootCommandInterfaceToYAML(commandInterfaceXmlPath)\n\n    expect(result).toMatchObject({\n      ВидимостьПодсистем: {\n        \"Subsystem.ПодсистемаПоУмолчанию\": {\n          Общее: \"Ложь\",\n          Роли: {\n            Администратор: \"Ложь\",\n          },\n        },\n      },\n      ПорядокПодсистем: [\"Подсистема.ПодсистемаПоУмолчанию\"],\n    })\n  })",
     "fixtures": [],
     "line": 30,
-    "behavior": "",
+    "behavior": "Видимость и порядок корневых подсистем экспортируются в YAML",
     "targetPath": "packages/core/metadata/commonObjects/rootCommandInterface/fromXMLToYAML.test.ts",
-    "targetTitle": "",
-    "status": "pending"
+    "targetTitle": "exports root subsystem visibility and order",
+    "status": "migrated"
   },
   {
     "id": "04f50e62065bb2e7f3cd7e8646dde08c82c0f7a2:packages/core/metadata/commonObjects/rootCommandInterface/toYAML.test.ts:46:1497",
@@ -15800,10 +15800,10 @@
     "declarationText": "it(\"exports command visibility, placement, order and group order\", () => {\n    const result = exportRootCommandInterfaceToYAML(mainSectionCommandInterfaceXmlPath)\n\n    expect(result).toMatchObject({\n      ПорядокГрупп: [\"ПанельНавигацииВажное\", \"CommandGroup.ГруппаКомандПоУмолчанию\", \"ПанельДействийСоздать\"],\n    })\n    expect(result?.ВидимостьКоманд).toEqual(\n      expect.arrayContaining([\n        {\n          Команда: \"Справочник.СправочникПолный.Команда.ПоУмолчанию\",\n          Общее: \"Ложь\",\n          Роли: {\n            Администратор: \"Ложь\",\n            РольВсеСвойства: \"Истина\",\n          },\n        },\n      ])\n    )\n    expect(result?.РазмещениеКоманд).toEqual(\n      expect.arrayContaining([\n        {\n          Команда: \"Справочник.СправочникПолный.Команда.ПоУмолчанию\",\n          ГруппаКоманд: \"ПанельНавигацииВажное\",\n          Размещение: \"Вручную\",\n        },\n      ])\n    )\n    expect(result?.ПорядокКоманд).toEqual(\n      expect.arrayContaining([\n        {\n          Команда: \"Справочник.СправочникПолный.Команда.ПоУмолчанию\",\n          ГруппаКоманд: \"ПанельНавигацииВажное\",\n        },\n        {\n          Команда: \"DocumentJournal.ЖурналДокументов1.StandardCommand.OpenList\",\n          ГруппаКоманд: \"CommandGroup.ГруппаКомандПоУмолчанию\",\n        },\n      ])\n    )\n  })",
     "fixtures": [],
     "line": 46,
-    "behavior": "",
+    "behavior": "Настройки команд экспортируются в YAML",
     "targetPath": "packages/core/metadata/commonObjects/rootCommandInterface/fromXMLToYAML.test.ts",
-    "targetTitle": "",
-    "status": "pending"
+    "targetTitle": "exports command visibility, placement, order and group order",
+    "status": "migrated"
   },
   {
     "id": "04f50e62065bb2e7f3cd7e8646dde08c82c0f7a2:packages/core/metadata/commonObjects/rootCommandInterface/toYAML.test.ts:87:2795",
@@ -15815,10 +15815,10 @@
     "declarationText": "it(\"exports duplicate command names as YAML lists\", () => {\n    const result = exportMetadataItemToYAML({\n      context: mockContext,\n      rule: RootCommandInterfaceRules,\n      data: {\n        itemType: \"RootCommandInterface\",\n        commandsVisibility: [\n          { command: \"0\", visibility: { common: false } },\n          { command: \"0\", visibility: { common: true } },\n        ],\n        commandsPlacement: [\n          { command: \"0\", commandGroup: \"NavigationPanelImportant\", placement: \"Manual\" },\n          { command: \"0\", commandGroup: \"ActionsPanelTools\", placement: \"Auto\" },\n        ],\n      },\n    })\n\n    expect(result?.ВидимостьКоманд).toEqual([\n      { Команда: \"0\", Общее: \"Ложь\" },\n      { Команда: \"0\", Общее: \"Истина\" },\n    ])\n    expect(result?.РазмещениеКоманд).toEqual([\n      { Команда: \"0\", ГруппаКоманд: \"ПанельНавигацииВажное\", Размещение: \"Вручную\" },\n      { Команда: \"0\", ГруппаКоманд: \"ПанельДействийСервис\", Размещение: \"Авто\" },\n    ])\n  })",
     "fixtures": [],
     "line": 87,
-    "behavior": "",
+    "behavior": "Повторяющиеся имена команд экспортируются списками YAML",
     "targetPath": "packages/core/metadata/commonObjects/rootCommandInterface/fromXMLToYAML.test.ts",
-    "targetTitle": "",
-    "status": "pending"
+    "targetTitle": "exports duplicate command names as YAML lists",
+    "status": "migrated"
   },
   {
     "id": "04f50e62065bb2e7f3cd7e8646dde08c82c0f7a2:packages/core/metadata/commonObjects/rootCommandInterface/toYAML.test.ts:114:3775",
@@ -15830,10 +15830,10 @@
     "declarationText": "it(\"keeps uuid-like command names as strings\", () => {\n    const result = exportRootCommandInterfaceToYAML(subsystemCommandInterfaceXmlPath)\n    const uuidCommand = \"0:2f109eaa-d341-4592-a04f-3f199e75d879\"\n\n    expect(result?.ВидимостьКоманд).toEqual(\n      expect.arrayContaining([\n        {\n          Команда: uuidCommand,\n          Общее: \"Истина\",\n          Роли: {\n            Администратор: \"Ложь\",\n          },\n        },\n      ])\n    )\n    expect(result?.ПорядокКоманд?.[0]).toEqual({\n      Команда: uuidCommand,\n      ГруппаКоманд: \"ПанельНавигацииОбычное\",\n    })\n  })",
     "fixtures": [],
     "line": 114,
-    "behavior": "",
+    "behavior": "UUID-подобные имена команд остаются строками в YAML",
     "targetPath": "packages/core/metadata/commonObjects/rootCommandInterface/fromXMLToYAML.test.ts",
-    "targetTitle": "",
-    "status": "pending"
+    "targetTitle": "keeps uuid-like command names as strings",
+    "status": "migrated"
   },
   {
     "id": "04f50e62065bb2e7f3cd7e8646dde08c82c0f7a2:packages/core/metadata/commonObjects/standardAttributeDescription/fromXML.test.ts:25:1114",
