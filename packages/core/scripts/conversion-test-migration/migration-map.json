@@ -12664,10 +12664,10 @@
       "exports full.xml"
     ],
     "line": 6,
-    "behavior": "",
+    "behavior": "Преобразует YAML `[Авто]` через коллекцию структуры и восстанавливает GroupItemAuto XML.",
     "targetPath": "packages/core/metadata/commonObjects/dataCompositionSystem/structureItemGroup/items/groupItemAuto/fromYAMLToXML.test.ts",
-    "targetTitle": "",
-    "status": "pending"
+    "targetTitle": "exports full.xml",
+    "status": "migrated"
   },
   {
     "id": "04f50e62065bb2e7f3cd7e8646dde08c82c0f7a2:packages/core/metadata/commonObjects/dataCompositionSystem/structureItemGroup/items/groupItemAuto/toXML.test.ts:18:612",
@@ -12683,10 +12683,10 @@
       "exports fullUseFalse.xml"
     ],
     "line": 18,
-    "behavior": "",
+    "behavior": "Преобразует YAML `([Авто])` через коллекцию структуры и восстанавливает отключённый GroupItemAuto XML.",
     "targetPath": "packages/core/metadata/commonObjects/dataCompositionSystem/structureItemGroup/items/groupItemAuto/fromYAMLToXML.test.ts",
-    "targetTitle": "",
-    "status": "pending"
+    "targetTitle": "exports fullUseFalse.xml",
+    "status": "migrated"
   },
   {
     "id": "04f50e62065bb2e7f3cd7e8646dde08c82c0f7a2:packages/core/metadata/commonObjects/dataCompositionSystem/structureItemGroup/items/groupItemField/fromXML.test.ts:9:372",
