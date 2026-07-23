@@ -222,6 +222,7 @@ export function convertPropertiesFromYAMLToXML(params: ConvertPropertiesFromYAML
     if (
       !source.has(propertyKey) &&
       !(planned.propertyKey === namePropertyKey && params.name !== undefined) &&
+      planned.propertyRule.omitNonImplicitReferenceXMLWhenYAMLMissing === true &&
       Object.prototype.hasOwnProperty.call(planned.propertyRule, "implicitValueYAML") &&
       typeof planned.propertyRule.implicitValueYAML !== "function" &&
       references.every((reference) => reference.exists)
@@ -333,7 +334,15 @@ export function convertPropertiesFromYAMLToXML(params: ConvertPropertiesFromYAML
         Object.prototype.hasOwnProperty.call(planned.propertyRule, "defaultValueXML") ||
         Object.prototype.hasOwnProperty.call(planned.propertyRule, "defaultValueXMLRaw") ||
         Object.prototype.hasOwnProperty.call(planned.propertyRule, "defaultValueXMLEmpty")
-      if (nestedYAML === undefined && !hasNestedDefault && !references.some((reference) => reference.exists)) {
+      if (nestedYAML === undefined && !references.some((reference) => reference.exists)) {
+        continue
+      }
+      if (nestedYAML === undefined) {
+        matchingOutputs.forEach((output, index) => {
+          const reference = references[index]!
+          if (reference.exists)
+            writeXMLValue({ context: params.context, output, planned, value: reference.value, reference })
+        })
         continue
       }
       if (

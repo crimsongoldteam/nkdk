@@ -60,16 +60,29 @@ export function testExportPropertyModelThroughYAMLToXML(params: Params): {
     "referenceMetadata" in params ? params.referenceMetadata : referenceRoot?.[effectiveRootTag as string]
   const yamlKey = params.rule.yaml ?? "Значение"
   const propertyRule = { ...params.rule, xml: "Value", yaml: yamlKey }
+  const importedFromXML =
+    referenceValue === undefined
+      ? undefined
+      : testPropertyFromXMLToYAML({
+          context: createDirectRoundTripContexts({ logicalAddress: "Test.Item.Value" }).importContext,
+          rule: {
+            itemType: "DirectPropertyModelProbe",
+            properties: { value: { ...params.rule, xml: "Value", yaml: params.rule.yaml ?? "Значение" } },
+          } as MetadataItemRule,
+          xml: { Value: referenceValue },
+        }).yaml
   const yaml =
     "yaml" in params
       ? params.yaml === undefined
         ? undefined
         : { [yamlKey]: params.yaml }
-      : exportPropertyToYAML({
-          context: mockContext,
-          rule: propertyRule,
-          value: params.value,
-        })
+      : importedFromXML !== undefined
+        ? importedFromXML
+        : exportPropertyToYAML({
+            context: mockContext,
+            rule: propertyRule,
+            value: params.value,
+          })
   const rule = {
     itemType: "DirectPropertyModelProbe",
     properties: { value: propertyRule },

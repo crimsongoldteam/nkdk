@@ -140,6 +140,11 @@ export interface FormimportFromYAMLContext {
   formAttributes?: readonly FormDataPathAttributeContext[]
   /** Компактный индекс реквизитов формы, построенный прямо из YAML без metadata-модели. */
   formDataPathIndex?: FormDataPathIndex
+  /** Сопоставление текущих и reference-путей для вложенных metadata-коллекций. */
+  referenceRemap?: {
+    readonly currentPath: string
+    readonly referencePathByCurrentPath: ReadonlyMap<string, string>
+  }
 }
 
 export interface EnterpriseContext {

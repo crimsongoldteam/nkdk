@@ -92,6 +92,17 @@ describe("exportMetadataValueToXML", () => {
     expect(result).toBe('<FillValue xsi:nil="true"/>')
   })
 
+  it("preserves parsed reference xsi:nil when passed as value", () => {
+    const { result } = testAtomicToXML({
+      rule: MetadataCommonAttributeRules.properties.fillValue,
+      value: { "_xsi:nil": "true" },
+      referenceMetadata: { "_xsi:nil": "true" },
+      xmlRootTag: "FillValue",
+    })
+
+    expect(result).toBe('<FillValue xsi:nil="true"/>')
+  })
+
   it("reports missing primitive toXML handler", () => {
     const handlers = primitiveValueHandlers as Partial<
       Record<MetadataPrimitiveValueType, MetadataPrimitiveValueHandler>

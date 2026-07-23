@@ -68,19 +68,40 @@ export function convertMetadataCollectionFromYAMLToXML(
             name,
             externalMetadata: itemRule.externalMetadata,
           })
+    const currentItemPath = collectionItemCurrentPath({
+      context: params.context,
+      propertyRule: params.propertyRule,
+      name,
+    })
+    const referenceRemap = itemContext.importFromYAML?.referenceRemap
+    const itemContextWithReferenceRemap =
+      currentItemPath === undefined || referenceRemap === undefined
+        ? itemContext
+        : {
+            ...itemContext,
+            importFromYAML: {
+              ...itemContext.importFromYAML,
+              referenceRemap: {
+                ...referenceRemap,
+                currentPath: currentItemPath,
+              },
+            },
+          }
     const itemOutputs = params.outputs.map((output) => ({
       key: output.key,
       referenceXML: findReferenceItem({
+        context: params.context,
         output,
         descriptor: params.descriptor,
         itemRule,
+        propertyRule: params.propertyRule,
         yaml: normalizedYAML,
         name,
         index,
       }),
     }))
     const converted = convertMetadataItemFromYAMLToXML({
-      context: itemContext,
+      context: itemContextWithReferenceRemap,
       yaml: normalizedYAML,
       rule: itemRule,
       name,
@@ -114,7 +135,7 @@ export function convertMetadataCollectionFromYAMLToXML(
               index,
               itemRule,
               propertyRule: params.propertyRule,
-              context: itemContext,
+              context: itemContextWithReferenceRemap,
               collectionYAML: params.yaml,
               referenceXML: output.referenceXML,
             })
@@ -211,9 +232,11 @@ function collectionEntries(
 }
 
 function findReferenceItem(params: {
+  context: ConfigurationContextWithExportToXML
   output: YAMLToXMLOutputRequest
   descriptor: CollectionDescriptor
   itemRule: MetadataItemRule
+  propertyRule: PropertyRule | undefined
   yaml: unknown
   name?: string
   index: number
@@ -254,12 +277,43 @@ function findReferenceItem(params: {
   if (params.name !== undefined) {
     const nameRule = params.itemRule.properties.name
     if (nameRule !== undefined) {
-      const found = items.find((item) => readXMLProperty(item, nameRule, "name") === params.name)
+      const referenceName =
+        referenceItemName({
+          context: params.context,
+          propertyRule: params.propertyRule,
+          currentName: params.name,
+        }) ?? params.name
+      const found = items.find((item) => readXMLProperty(item, nameRule, "name") === referenceName)
       if (found !== undefined) return found
       return undefined
     }
   }
   return items[params.index]
+}
+
+function collectionItemCurrentPath(params: {
+  context: ConfigurationContextWithExportToXML
+  propertyRule: PropertyRule | undefined
+  name: string | undefined
+}): string | undefined {
+  const referenceRemap = params.context.importFromYAML?.referenceRemap
+  const segment = params.propertyRule?.operationTarget?.migrationSegment
+  if (referenceRemap === undefined || segment === undefined || params.name === undefined) return undefined
+  return `${referenceRemap.currentPath}.${segment}.${params.name}`
+}
+
+function referenceItemName(params: {
+  context: ConfigurationContextWithExportToXML
+  propertyRule: PropertyRule | undefined
+  currentName: string
+}): string | undefined {
+  const currentPath = collectionItemCurrentPath({
+    context: params.context,
+    propertyRule: params.propertyRule,
+    name: params.currentName,
+  })
+  if (currentPath === undefined) return undefined
+  return params.context.importFromYAML?.referenceRemap?.referencePathByCurrentPath.get(currentPath)?.split(".").at(-1)
 }
 
 function collectionReferenceValue(referenceXML: unknown, xmlElement: string | undefined): unknown {

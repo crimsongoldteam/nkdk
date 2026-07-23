@@ -4,7 +4,10 @@ import { withConfigurationIndexCollector } from "../metadata/configurationIndex/
 import { createConfigurationIndexCollector } from "../metadata/configurationIndex/collector/writer"
 import { encodeConfigurationIndex } from "../metadata/configurationIndex/encode"
 import { createConfigurationIndexExportRuntime } from "../metadata/configurationIndex/exportRuntime"
-import { createConfigurationIndexReader, snapshotConfigurationIndex } from "../metadata/configurationIndex/sharedSnapshot"
+import {
+  createConfigurationIndexReader,
+  snapshotConfigurationIndex,
+} from "../metadata/configurationIndex/sharedSnapshot"
 import { NKDK_CORE_VERSION } from "../version"
 import { importMetadataItemFromXMLToYAML } from "../metadata/orchestration/metadataItem/fromXMLToYAML"
 import { convertMetadataItemFromYAMLToXML } from "../metadata/orchestration/metadataItem/fromYAMLToXML"
@@ -37,10 +40,12 @@ export interface DirectRoundTripContexts {
   exportContext(base?: ConfigurationContextWithExportToXML): ConfigurationContextWithExportToXML
 }
 
-export function createDirectRoundTripContexts(params: {
-  logicalAddress?: string
-  targetProjectPath?: string
-} = {}): DirectRoundTripContexts {
+export function createDirectRoundTripContexts(
+  params: {
+    logicalAddress?: string
+    targetProjectPath?: string
+  } = {}
+): DirectRoundTripContexts {
   const logicalAddress = params.logicalAddress ?? "Test.Item"
   const targetProjectPath = params.targetProjectPath ?? "Тест.yaml"
   const imported = createConfigurationIndexCollector()
@@ -227,7 +232,7 @@ export function testPropertyFixtureThroughYAML(params: {
           !Object.prototype.hasOwnProperty.call(value, "_xsi:type") &&
           Object.prototype.hasOwnProperty.call(value, params.xmlRootTag)
         ? value
-      : { [params.xmlRootTag]: value }
+        : { [params.xmlRootTag]: value }
   return {
     ...imported,
     ...exported,
@@ -258,11 +263,12 @@ export function testAppliedObjectFromXMLToYAML(
 ): FromXMLResult {
   const fixture = readAppliedObjectFixture(params.importMetaUrl, params.fixture)
   const xml = isFileRoot(params.rule) ? fixture : (fixture.MetaDataObject ?? fixture)
+  const name = params.name ?? readItemName(fixture, params.rule)
   return testMetadataItemFromXMLToYAML({
     rule: params.rule,
     xml,
-    context: params.context,
-    name: params.name ?? readItemName(fixture, params.rule),
+    context: withMetadataTargetOwnerForImport(params.context ?? mockContextFromXML(), params.rule, name),
+    name,
   })
 }
 
@@ -273,11 +279,39 @@ export function testAppliedObjectFromYAMLToXML(
   }
 ): ToXMLResult & { result: string; expected: string } {
   const referenceXML = readAppliedObjectFixture(params.importMetaUrl, params.fixture)
+  const name = params.name ?? readItemName(referenceXML, params.rule)
+  const contexts = createDirectRoundTripContexts()
+  const importedXML = isFileRoot(params.rule) ? referenceXML : (referenceXML.MetaDataObject ?? referenceXML)
+  testMetadataItemFromXMLToYAML({
+    rule: params.rule,
+    xml: importedXML,
+    context: withMetadataTargetOwnerForImport(contexts.importContext, params.rule, name),
+    name,
+  })
+  const baseContext = withMetadataTargetOwnerForExport(params.context ?? mockContextToXML(), params.rule, name)
+  const contextBase =
+    name === undefined
+      ? baseContext
+      : {
+          ...baseContext,
+          exportToXML: {
+            ...baseContext.exportToXML,
+            itemsTree: [
+              ...baseContext.exportToXML.itemsTree,
+              {
+                itemType: params.rule.itemType,
+                name,
+                path: `${params.rule.itemType}.${name}`,
+              },
+            ],
+          },
+        }
+  const context = contexts.exportContext(contextBase)
   const converted = testMetadataItemFromYAMLToXML({
     rule: params.rule,
     yaml: params.yaml,
-    context: params.context,
-    name: params.name ?? readItemName(referenceXML, params.rule),
+    context,
+    name,
     referenceXML,
   })
   return {
@@ -313,6 +347,51 @@ function readItemName(fixture: Record<string, unknown>, rule: MetadataItemRule):
   for (const parent of nameRule?.xmlParents ?? []) current = asRecord(current)?.[parent]
   const value = asRecord(current)?.[nameRule?.xml ?? "Name"]
   return typeof value === "string" ? value : undefined
+}
+
+function withMetadataTargetOwnerForImport(
+  context: ConfigurationContextFromXML,
+  rule: MetadataItemRule,
+  name: string | undefined
+): ConfigurationContextFromXML {
+  const frame = metadataTargetOwnerFrame(rule, name)
+  if (frame === undefined) return context
+  return {
+    ...context,
+    exportToYAML: {
+      ...(context.exportToYAML ?? { toTyped: false }),
+      metadataTargetOwners: [...(context.exportToYAML?.metadataTargetOwners ?? []), frame],
+    },
+  }
+}
+
+function withMetadataTargetOwnerForExport(
+  context: ConfigurationContextWithExportToXML,
+  rule: MetadataItemRule,
+  name: string | undefined
+): ConfigurationContextWithExportToXML {
+  const frame = metadataTargetOwnerFrame(rule, name)
+  if (frame === undefined) return context
+  return {
+    ...context,
+    importFromYAML: {
+      ...(context.importFromYAML ?? {}),
+      metadataTargetOwners: [...(context.importFromYAML?.metadataTargetOwners ?? []), frame],
+    },
+  }
+}
+
+function metadataTargetOwnerFrame(
+  rule: MetadataItemRule,
+  name: string | undefined
+): MetadataTargetOwnerContext | undefined {
+  const declaration = rule.metadataTargetOwner
+  if (name === undefined || declaration?.kind !== "self") return undefined
+  return {
+    itemType: rule.itemType as MetadataTargetOwnerContext["itemType"],
+    name,
+    owner: { root: declaration.root, objectName: name },
+  }
 }
 
 function asRecord(value: unknown): Record<string, unknown> | undefined {

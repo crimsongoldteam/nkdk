@@ -270,6 +270,17 @@ export const syncConfigurationToXML = async (params: {
     const referencePath = migrationChain.referencePathByCurrentPath.get(currentObjectPath) ?? currentObjectPath
     const referencePathSegments = referencePath.split(".")
     const referenceName = referencePathSegments[referencePathSegments.length - 1]!
+    const objectContext: ConfigurationContextWithExportToXML = {
+      ...syncContext,
+      importFromYAML: {
+        ...syncContext.importFromYAML,
+        referenceRemap: {
+          currentPath: currentObjectPath,
+          referencePathByCurrentPath: migrationChain.referencePathByCurrentPath,
+        },
+      },
+      exportToXML: { ...syncContext.exportToXML },
+    }
     const xmlExternalOutputDir = join(xmlOutputDir, name)
     const xmlExternalReferenceDir = xmlReferenceDir ? join(xmlReferenceDir, referenceName) : undefined
     tasks.push({
@@ -278,7 +289,7 @@ export const syncConfigurationToXML = async (params: {
       run: () =>
         syncAppliedObjectToXML({
           rule,
-          context: { ...syncContext, exportToXML: { ...syncContext.exportToXML } },
+          context: objectContext,
           inputDir: yamlDirAbs,
           name,
           outputDir: xmlOutputDir,

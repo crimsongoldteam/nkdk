@@ -40,6 +40,56 @@ import { MetadataSubsystemRules } from "../metadataSubsystem/rules"
 import { MetadataTaskRules } from "../metadataTask/rules"
 import { MetadataWebServiceRules } from "../metadataWebService/rules"
 import { readWebServiceYAML } from "../metadataWebService/__fixtures__/sync/data"
+import { MetadataCommonModuleRules } from "../metadataCommonModule/rules"
+import { readCommonModuleYAML } from "../metadataCommonModule/__fixtures__/sync/data"
+import { MetadataWebSocketClientRules } from "../metadataWebSocketClient/rules"
+import { readWebSocketClientYAML } from "../metadataWebSocketClient/__fixtures__/sync/data"
+import { MetadataXDTOPackageRules } from "../metadataXDTOPackage/rules"
+import { readXDTOPackageYAML } from "../metadataXDTOPackage/__fixtures__/sync/data"
+import { MetadataExternalDataSourceRules } from "../metadataExternalDataSource/rules"
+import { readExternalDataSourceYAML } from "../metadataExternalDataSource/__fixtures__/sync/data"
+import { MetadataExchangePlanRules } from "../metadataExchangePlan/rules"
+import { readExchangePlanYAML } from "../metadataExchangePlan/__fixtures__/sync/data"
+import { MetadataStyleItemRules } from "../metadataStyleItem/rules"
+import { readStyleItemYAML } from "../metadataStyleItem/__fixtures__/sync/data"
+import { MetadataBotRules } from "../metadataBot/rules"
+import { readBotYAML } from "../metadataBot/__fixtures__/sync/data"
+import { MetadataCatalogRules } from "../metadataCatalog/rules"
+import { readCatalogYAML } from "../metadataCatalog/__fixtures__/sync/data"
+import { MetadataCommonAttributeRules } from "../metadataCommonAttribute/rules"
+import { readCommonAttributeYAML } from "../metadataCommonAttribute/__fixtures__/sync/data"
+import { MetadataConstantRules } from "../metadataConstant/rules"
+import { readConstantYAML } from "../metadataConstant/__fixtures__/sync/data"
+import { MetadataDataProcessorRules } from "../metadataDataProcessor/rules"
+import { readDataProcessorYAML } from "../metadataDataProcessor/__fixtures__/sync/data"
+import { MetadataDefinedTypeRules } from "../metadataDefinedType/rules"
+import { readDefinedTypeYAML } from "../metadataDefinedType/__fixtures__/sync/data"
+import { MetadataDocumentRules } from "../metadataDocument/rules"
+import { readDocumentYAML } from "../metadataDocument/__fixtures__/sync/data"
+import { MetadataDocumentJournalRules } from "../metadataDocumentJournal/rules"
+import { readDocumentJournalYAML } from "../metadataDocumentJournal/__fixtures__/sync/data"
+import { MetadataDocumentNumeratorRules } from "../metadataDocumentNumerator/rules"
+import { readNumeratorYAML } from "../metadataDocumentNumerator/__fixtures__/sync/data"
+import { MetadataEnumerationRules } from "../metadataEnumeration/rules"
+import { readEnumerationYAML } from "../metadataEnumeration/__fixtures__/sync/data"
+import { MetadataEventSubscriptionRules } from "../metadataEventSubscription/rules"
+import { readEventSubscriptionYAML } from "../metadataEventSubscription/__fixtures__/sync/data"
+import { MetadataFilterCriterionRules } from "../metadataFilterCriterion/rules"
+import { readFilterCriterionYAML } from "../metadataFilterCriterion/__fixtures__/sync/data"
+import { MetadataFunctionalOptionsParameterRules } from "../metadataFunctionalOptionsParameter/rules"
+import { readFunctionalOptionsParameterYAML } from "../metadataFunctionalOptionsParameter/__fixtures__/sync/data"
+import { MetadataHTTPServiceRules } from "../metadataHTTPService/rules"
+import { readHTTPServiceYAML } from "../metadataHTTPService/__fixtures__/sync/data"
+import { MetadataReportRules } from "../metadataReport/rules"
+import { readReportYAML } from "../metadataReport/__fixtures__/sync/data"
+import { MetadataSequenceRules } from "../metadataSequence/rules"
+import { readSequenceYAML } from "../metadataSequence/__fixtures__/sync/data"
+import { MetadataSessionParameterRules } from "../metadataSessionParameter/rules"
+import { readSessionParameterYAML } from "../metadataSessionParameter/__fixtures__/sync/data"
+import { MetadataSettingsStorageRules } from "../metadataSettingsStorage/rules"
+import { readSettingsStorageYAML } from "../metadataSettingsStorage/__fixtures__/sync/data"
+import { MetadataWSReferenceRules } from "../metadataWSReference/rules"
+import { readWSReferenceYAML } from "../metadataWSReference/__fixtures__/sync/data"
 
 export type AppliedObjectModelFixture = {
   fixture: string
@@ -60,7 +110,241 @@ export type AppliedObjectYAMLFixture = {
   sync?: AppliedObjectSyncFixture
 }
 
+function syncOnlyFixture(
+  group: string,
+  rule: MetadataItemRule,
+  rulePath: string,
+  name: string,
+  expectedYAML: string,
+  externalObjectDir = false
+): AppliedObjectYAMLFixture {
+  return {
+    group,
+    rule,
+    importMetaUrl: import.meta.resolve(rulePath),
+    modelFixtures: [],
+    sync: { name, expectedYAML, ...(externalObjectDir ? { externalObjectDir: true } : {}) },
+  }
+}
+
 export const appliedObjectYAMLFixtures: AppliedObjectYAMLFixture[] = [
+  syncOnlyFixture("metadataBot", MetadataBotRules, "../metadataBot/rules.ts", "БотВсеСвойства", readBotYAML),
+  syncOnlyFixture(
+    "metadataCatalog",
+    MetadataCatalogRules,
+    "../metadataCatalog/rules.ts",
+    "СправочникCоВсемиОбъектами",
+    readCatalogYAML,
+    true
+  ),
+  syncOnlyFixture(
+    "metadataCommonAttribute",
+    MetadataCommonAttributeRules,
+    "../metadataCommonAttribute/rules.ts",
+    "ОбщийРеквизитВсеСвойства",
+    readCommonAttributeYAML
+  ),
+  syncOnlyFixture(
+    "metadataConstant",
+    MetadataConstantRules,
+    "../metadataConstant/rules.ts",
+    "КонстантаВсеСвойства",
+    readConstantYAML,
+    true
+  ),
+  syncOnlyFixture(
+    "metadataDataProcessor",
+    MetadataDataProcessorRules,
+    "../metadataDataProcessor/rules.ts",
+    "ОбработкаВсеСвойства",
+    readDataProcessorYAML,
+    true
+  ),
+  syncOnlyFixture(
+    "metadataDefinedType",
+    MetadataDefinedTypeRules,
+    "../metadataDefinedType/rules.ts",
+    "ОпределяемыйТипВсеСвойства",
+    readDefinedTypeYAML
+  ),
+  syncOnlyFixture(
+    "metadataDocument",
+    MetadataDocumentRules,
+    "../metadataDocument/rules.ts",
+    "ДокументВсеСвойства",
+    readDocumentYAML,
+    true
+  ),
+  syncOnlyFixture(
+    "metadataDocumentJournal",
+    MetadataDocumentJournalRules,
+    "../metadataDocumentJournal/rules.ts",
+    "ЖурналДокументовВсеСвойства",
+    readDocumentJournalYAML,
+    true
+  ),
+  syncOnlyFixture(
+    "metadataDocumentNumerator",
+    MetadataDocumentNumeratorRules,
+    "../metadataDocumentNumerator/rules.ts",
+    "НумераторПоУмолчанию",
+    readNumeratorYAML
+  ),
+  syncOnlyFixture(
+    "metadataEnumeration",
+    MetadataEnumerationRules,
+    "../metadataEnumeration/rules.ts",
+    "ПеречислениеВсеСвойства",
+    readEnumerationYAML
+  ),
+  syncOnlyFixture(
+    "metadataEventSubscription",
+    MetadataEventSubscriptionRules,
+    "../metadataEventSubscription/rules.ts",
+    "ПодпискаНаСобытиеВсеСвойства",
+    readEventSubscriptionYAML
+  ),
+  syncOnlyFixture(
+    "metadataFilterCriterion",
+    MetadataFilterCriterionRules,
+    "../metadataFilterCriterion/rules.ts",
+    "КритерийОтбораВсеСвойства",
+    readFilterCriterionYAML,
+    true
+  ),
+  syncOnlyFixture(
+    "metadataFunctionalOptionsParameter",
+    MetadataFunctionalOptionsParameterRules,
+    "../metadataFunctionalOptionsParameter/rules.ts",
+    "ПараметрФункциональныхОпцийВсеСвойства",
+    readFunctionalOptionsParameterYAML
+  ),
+  syncOnlyFixture(
+    "metadataHTTPService",
+    MetadataHTTPServiceRules,
+    "../metadataHTTPService/rules.ts",
+    "HTTPСервисВсеСвойства",
+    readHTTPServiceYAML,
+    true
+  ),
+  syncOnlyFixture(
+    "metadataReport",
+    MetadataReportRules,
+    "../metadataReport/rules.ts",
+    "ОтчетВсеСвойства",
+    readReportYAML,
+    true
+  ),
+  syncOnlyFixture(
+    "metadataSequence",
+    MetadataSequenceRules,
+    "../metadataSequence/rules.ts",
+    "ПоследовательностьВсеПоля",
+    readSequenceYAML,
+    true
+  ),
+  syncOnlyFixture(
+    "metadataSessionParameter",
+    MetadataSessionParameterRules,
+    "../metadataSessionParameter/rules.ts",
+    "ПараметрСеансаВсеСвойства",
+    readSessionParameterYAML
+  ),
+  syncOnlyFixture(
+    "metadataSettingsStorage",
+    MetadataSettingsStorageRules,
+    "../metadataSettingsStorage/rules.ts",
+    "ХранилищеНастроекВсеСвойства",
+    readSettingsStorageYAML,
+    true
+  ),
+  syncOnlyFixture(
+    "metadataWSReference",
+    MetadataWSReferenceRules,
+    "../metadataWSReference/rules.ts",
+    "WSСсылкаВсеСвойства",
+    readWSReferenceYAML,
+    true
+  ),
+  {
+    group: "metadataCommonModule",
+    rule: MetadataCommonModuleRules,
+    importMetaUrl: import.meta.resolve("../metadataCommonModule/rules.ts"),
+    modelFixtures: [
+      { fixture: "full.xml", name: "ОбщийМодульГлобальный" },
+      { fixture: "minimal.xml", name: "ОбщийМодульПоУмолчанию" },
+      { fixture: "client.xml", name: "ОбщийМодульКлиент" },
+      { fixture: "reusable.xml", name: "ОбщийМодульПовторный" },
+    ],
+    sync: {
+      name: "ОбщийМодульГлобальный",
+      expectedYAML: readCommonModuleYAML,
+      externalObjectDir: true,
+    },
+  },
+  {
+    group: "metadataWebSocketClient",
+    rule: MetadataWebSocketClientRules,
+    importMetaUrl: import.meta.resolve("../metadataWebSocketClient/rules.ts"),
+    modelFixtures: [
+      { fixture: "full.xml", name: "WebSocketКлиентВсеСвойства" },
+      { fixture: "minimal.xml", name: "WebSocketКлиентПоУмолчанию" },
+    ],
+    sync: {
+      name: "WebSocketКлиентВсеСвойства",
+      expectedYAML: readWebSocketClientYAML,
+      externalObjectDir: true,
+    },
+  },
+  {
+    group: "metadataXDTOPackage",
+    rule: MetadataXDTOPackageRules,
+    importMetaUrl: import.meta.resolve("../metadataXDTOPackage/rules.ts"),
+    modelFixtures: [
+      { fixture: "full.xml", name: "ПакетXDTOВсеСвойства" },
+      { fixture: "minimal.xml", name: "ПакетXDTOПоУмолчанию" },
+    ],
+    sync: { name: "ПакетXDTOВсеСвойства", expectedYAML: readXDTOPackageYAML },
+  },
+  {
+    group: "metadataExternalDataSource",
+    rule: MetadataExternalDataSourceRules,
+    importMetaUrl: import.meta.resolve("../metadataExternalDataSource/rules.ts"),
+    modelFixtures: [
+      { fixture: "full.xml", name: "ВнешнийИсточникДанныхВсеСвойства" },
+      { fixture: "minimal.xml", name: "ВнешнийИсточникДанныхПоУмолчанию" },
+    ],
+    sync: {
+      name: "ВнешнийИсточникДанныхВсеСвойства",
+      expectedYAML: readExternalDataSourceYAML,
+      externalObjectDir: true,
+    },
+  },
+  {
+    group: "metadataExchangePlan",
+    rule: MetadataExchangePlanRules,
+    importMetaUrl: import.meta.resolve("../metadataExchangePlan/rules.ts"),
+    modelFixtures: [
+      { fixture: "full.xml", name: "ПланОбменаВсеСвойства" },
+      { fixture: "minimal.xml", name: "ПланОбменаПоУмолчанию" },
+    ],
+    sync: {
+      name: "ПланОбменаВсеСвойства",
+      expectedYAML: readExchangePlanYAML,
+      externalObjectDir: true,
+    },
+  },
+  {
+    group: "metadataStyleItem",
+    rule: MetadataStyleItemRules,
+    importMetaUrl: import.meta.resolve("../metadataStyleItem/rules.ts"),
+    modelFixtures: [
+      { fixture: "font.xml", name: "ЭлементСтиляШрифтВсеСвойства" },
+      { fixture: "color.xml", name: "ЭлементСтиляЦвет" },
+      { fixture: "border.xml", name: "ЭлементСтиляРамка" },
+    ],
+    sync: { name: "ЭлементСтиляШрифтВсеСвойства", expectedYAML: readStyleItemYAML },
+  },
   {
     group: "metadataAccumulationRegister",
     rule: MetadataAccumulationRegisterRules,
@@ -138,7 +422,7 @@ export const appliedObjectYAMLFixtures: AppliedObjectYAMLFixture[] = [
     importMetaUrl: import.meta.resolve("../metadataChartOfCalculationTypes/rules.ts"),
     modelFixtures: [
       { fixture: "full.xml", name: "ПланРасчетаВсеСвойства" },
-      { fixture: "minimal.xml", name: "ПланРасчетаПоУмолчанию" },
+      { fixture: "minimal.xml", name: "ПланВидовРасчетаПоУмолчанию" },
     ],
     sync: {
       name: "ПланРасчетаВсеСвойства",
