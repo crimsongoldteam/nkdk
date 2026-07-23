@@ -4,6 +4,10 @@ import type { ConfigurationProjectFile } from "../configurationIndex/types"
 import type { ConfigurationContext } from "../context/types"
 import type { SharedConfigurationIndexSnapshot } from "../configurationIndex/sharedSnapshot"
 import type { FullXmlSyncSharedMetadata } from "./sharedMetadata"
+import type { DeferredObjectValue } from "../orchestration/property/deferredObjectValues"
+import type { MetadataItemRule } from "../orchestration/property/types"
+import type { ConfigurationIndexCollector } from "../configurationIndex/collector/writer"
+import type { YAMLToXMLProfile } from "../orchestration/property/fromYAMLToXMLTypes"
 
 export interface FullXmlSyncOutput {
   readonly targetXmlPath: string
@@ -59,6 +63,20 @@ export interface FullXmlSyncDiagnostic {
 export interface FullXmlSyncWrittenFile {
   readonly assignmentId: string
   readonly targetXmlPath: string
+}
+
+export interface PreparedXMLDocument {
+  readonly targetXmlPath: string
+  readonly xml: Record<string, unknown>
+  readonly deferred: readonly DeferredObjectValue[]
+  readonly rootRule: MetadataItemRule
+}
+
+export interface PreparedXMLAssignment {
+  readonly assignment: FullXmlSyncAssignment
+  readonly documents: readonly PreparedXMLDocument[]
+  readonly indexCollector: ConfigurationIndexCollector
+  readonly profile: YAMLToXMLProfile
 }
 
 export type FullXmlSyncWorkerCommand =

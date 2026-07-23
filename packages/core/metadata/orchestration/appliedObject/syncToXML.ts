@@ -14,6 +14,7 @@ import { xmlExport } from "../../../xml/export/exporter"
 import { importContentFromXML } from "../../../xml/import/importer"
 import { importFromYAML } from "../../../yaml/import"
 import type { PreparedYamlFile } from "../../project/preparedYamlProject"
+import { bindDeferredObjectValues, type DeferredObjectValue } from "../property/deferredObjectValues"
 import { withYAMLImportDiagnostics } from "../yamlImportError"
 import {
   getFileItemXMLRootContainer,
@@ -67,16 +68,19 @@ export const syncAppliedObjectToXML = async (params: SyncAppliedObjectToXMLParam
   return syncAppliedObjectToXMLInternal(params)
 }
 
-export const writePreparedAppliedObjectOwnerToXML = async (params: {
+export const prepareAppliedObjectOwnerXML = (params: {
   rule: MetadataItemRule
   context: ConfigurationContextWithExportToXML
   name: string
-  outputPath: string
   preparedYamlFile: PreparedYamlFile
   referenceXML?: Record<string, unknown>
   fileChildNames?: { forms?: readonly string[]; templates?: readonly string[] }
   profile?: import("../property/fromYAMLToXMLTypes").YAMLToXMLProfile
-}): Promise<void> => {
+}): {
+  xml: Record<string, unknown>
+  deferred: readonly DeferredObjectValue[]
+  rootRule: MetadataItemRule
+} => {
   const yamlObj = params.preparedYamlFile.data
   if (yamlObj === undefined)
     throw new Error(`Подготовленные YAML-данные отсутствуют: ${params.preparedYamlFile.projectPath}`)
@@ -117,10 +121,27 @@ export const writePreparedAppliedObjectOwnerToXML = async (params: {
     rulePath: [params.rule.itemType],
   })
   const xmlObj = converted.outputs.get("owner")
-  if (xmlObj === undefined) return
+  if (xmlObj === undefined) throw new Error("Преобразование объекта не сформировало owner XML")
+  return {
+    xml: xmlObj,
+    deferred: bindDeferredObjectValues(xmlObj, converted.deferredByOutput.get("owner") ?? []),
+    rootRule: params.rule,
+  }
+}
 
+export const writePreparedAppliedObjectOwnerToXML = async (params: {
+  rule: MetadataItemRule
+  context: ConfigurationContextWithExportToXML
+  name: string
+  outputPath: string
+  preparedYamlFile: PreparedYamlFile
+  referenceXML?: Record<string, unknown>
+  fileChildNames?: { forms?: readonly string[]; templates?: readonly string[] }
+  profile?: import("../property/fromYAMLToXMLTypes").YAMLToXMLProfile
+}): Promise<void> => {
+  const prepared = prepareAppliedObjectOwnerXML(params)
   await fs.promises.mkdir(dirname(params.outputPath), { recursive: true })
-  await fs.promises.writeFile(params.outputPath, xmlExport(xmlObj), "utf-8")
+  await fs.promises.writeFile(params.outputPath, xmlExport(prepared.xml), "utf-8")
 }
 
 const syncAppliedObjectToXMLInternal = async (params: InternalSyncAppliedObjectToXMLParams): Promise<void> => {
