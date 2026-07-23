@@ -9,6 +9,7 @@ import type { MetadataItemRule, PropertyRule } from "./types"
 import type { ExportToXMLFunctionNew, ImportFromYAMLFunctionNew } from "./fn"
 import { registerTypeRule } from "./typeRuleRegistry"
 import { convertPropertiesFromYAMLToXML } from "./fromYAMLToXML"
+import type { PropertyRuleType } from "./registry"
 
 const context = (): ConfigurationContextWithExportToXML => ({
   defaultLanguage: "ru",
@@ -100,6 +101,25 @@ describe("convertPropertiesFromYAMLToXML", () => {
 
     expect(calls).toEqual(["from:42", "to:42"])
     expect(result.outputs.get("owner")).toEqual({ Value: "xml:42" })
+  })
+
+  it("сохраняет временный путь значения с направленным уточнением XML", () => {
+    const deferredType = "TestDeferredExport" as PropertyRuleType
+    registerTypeRule(deferredType, "exportToXML", (({ value }) => value) as ExportToXMLFunctionNew)
+    registerTypeRule(deferredType, "finalizeExportedXML", ({ value }) => `${String(value)}:final`)
+
+    const converted = convertPropertiesFromYAMLToXML({
+      context: context(),
+      yaml: { Значение: "draft" },
+      rule: testRule({
+        value: { type: deferredType, yaml: "Значение", xml: "Value" },
+      }),
+      outputs: [{ key: "owner" }],
+    })
+
+    expect(converted.deferredByOutput.get("owner")).toEqual([
+      { valuePath: ["Value"], rulePath: [{ propertyKey: "value" }] },
+    ])
   })
 
   it("собирает внешнее действие при посещении свойства в том же обходе", () => {

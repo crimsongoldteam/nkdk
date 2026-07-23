@@ -31,6 +31,8 @@ import type {
 import { getTypeRule } from "./typeRuleRegistry"
 import type { MetadataItemRule, PropertyRule } from "./types"
 import { readExternalFile } from "../../forms/commonObjects/dynamicList/externalFile"
+import type { DeferredValuePath } from "./deferredObjectValues"
+import type { DeferredRulePathSegment } from "./importYamlTypes"
 
 export interface ConvertPropertiesFromYAMLToXMLParams {
   readonly context: ConfigurationContextWithExportToXML
@@ -46,6 +48,7 @@ export interface ConvertPropertiesFromYAMLToXMLParams {
   readonly externalWriteFactory?: YAMLToXMLExternalWriteFactory
   readonly profile?: YAMLToXMLProfile
   readonly rulePath?: readonly (string | number)[]
+  readonly deferredRulePath?: readonly DeferredRulePathSegment[]
 }
 
 export interface AtomicFromYAMLParams {
@@ -72,6 +75,7 @@ export interface AtomicToXMLParams {
 interface MutableOutput {
   readonly request: YAMLToXMLOutputRequest
   readonly xml: Record<string, unknown>
+  readonly deferred: DeferredValuePath[]
 }
 
 interface ReferenceProperty {
@@ -134,7 +138,7 @@ export function convertPropertiesFromYAMLToXML(params: ConvertPropertiesFromYAML
     propertyValues: params.propertyValues,
     context: params.context,
   })
-  const outputs: MutableOutput[] = params.outputs.map((request) => ({ request, xml: {} }))
+  const outputs: MutableOutput[] = params.outputs.map((request) => ({ request, xml: {}, deferred: [] }))
   const autoRequiredXMLParentRoots = new Set<string>()
   const externalWrites = [] as import("./fromYAMLToXMLTypes").YAMLToXMLExternalWrite[]
   const owner = metadataTargetOwnerFromRule({
@@ -411,6 +415,7 @@ export function convertPropertiesFromYAMLToXML(params: ConvertPropertiesFromYAML
               externalWriteFactory: params.externalWriteFactory,
               profile: params.profile,
               rulePath: [...(params.rulePath ?? [params.rule.itemType]), propertyKey],
+              deferredRulePath: [...(params.deferredRulePath ?? []), { propertyKey }],
             })
           : convertMetadataItemFromYAMLToXML({
               context: nestedContext,
@@ -430,6 +435,7 @@ export function convertPropertiesFromYAMLToXML(params: ConvertPropertiesFromYAML
               ownerYAML: { itemType: params.rule.itemType },
               profile: params.profile,
               rulePath: [...(params.rulePath ?? [params.rule.itemType]), propertyKey],
+              deferredRulePath: [...(params.deferredRulePath ?? []), { propertyKey }],
             })
       if (effectiveNestedRule.kind !== "collection" && params.profile !== undefined) params.profile.nestedItemCount++
       externalWrites.push(...nested.externalWrites)
@@ -459,7 +465,12 @@ export function convertPropertiesFromYAMLToXML(params: ConvertPropertiesFromYAML
         ) {
           value = value[effectiveNestedRule.xmlElement]
         }
-        writeXMLValue({ context: params.context, output, planned, value, reference })
+        const valuePath = writeXMLValue({ context: params.context, output, planned, value, reference })
+        if (valuePath !== undefined) {
+          for (const deferred of nested.deferredByOutput.get(output.request.key) ?? []) {
+            output.deferred.push({ ...deferred, valuePath: [...valuePath, ...deferred.valuePath] })
+          }
+        }
       })
       continue
     }
@@ -521,7 +532,16 @@ export function convertPropertiesFromYAMLToXML(params: ConvertPropertiesFromYAML
           propertyKey,
         })
         if (params.profile !== undefined) params.profile.atomicToXMLCount++
-        writeXMLValue({ context: outputContext, output, planned, value: exported, reference })
+        const valuePath = writeXMLValue({ context: outputContext, output, planned, value: exported, reference })
+        if (
+          valuePath !== undefined &&
+          getTypeRule(planned.propertyRule.type, "finalizeExportedXML") !== undefined
+        ) {
+          output.deferred.push({
+            valuePath,
+            rulePath: [...(params.deferredRulePath ?? []), { propertyKey }],
+          })
+        }
       })
     } catch (error) {
       throw toYAMLImportError(error, propertyContext)
@@ -531,6 +551,7 @@ export function convertPropertiesFromYAMLToXML(params: ConvertPropertiesFromYAML
   for (const output of outputs) applyAutoRequiredXMLParents(output.xml, autoRequiredXMLParentRoots)
   return {
     outputs: new Map(outputs.map(({ request, xml }) => [request.key, xml])),
+    deferredByOutput: new Map(outputs.map(({ request, deferred }) => [request.key, deferred])),
     externalWrites,
   }
 }
@@ -717,10 +738,10 @@ function writeXMLValue(params: {
   planned: YAMLToXMLPlannedProperty
   value: unknown
   reference: ReferenceProperty
-}): void {
+}): readonly string[] | undefined {
   const { context, output, planned, reference } = params
   const value = params.value === undefined && reference.exists ? {} : params.value
-  if (value === undefined && !reference.exists) return
+  if (value === undefined && !reference.exists) return undefined
   const rule = planned.propertyRule
   if (Array.isArray(value) && value.length === 0) {
     if (rule.xmlParents !== undefined && Object.prototype.hasOwnProperty.call(rule, "defaultValueXMLRaw")) {
@@ -729,7 +750,7 @@ function writeXMLValue(params: {
       const canonical = rule.xml ?? planned.xmlPath.at(-1)!
       setAtPath(output.xml, [...(rule.xmlParents ?? []), reference.key ?? canonical], {})
     }
-    return
+    return undefined
   }
 
   const canonical = rule.xml ?? planned.xmlPath.at(-1)!
@@ -744,7 +765,9 @@ function writeXMLValue(params: {
     if (reference.key !== undefined)
       configurationIndex.collector.setAlias(logicalAddress, planned.propertyKey, reference.key)
   }
-  setAtPath(output.xml, [...(rule.xmlParents ?? []), xmlKey], value)
+  const valuePath = [...(rule.xmlParents ?? []), xmlKey]
+  setAtPath(output.xml, valuePath, value)
+  return valuePath
 }
 
 function setAtPath(target: Record<string, unknown>, path: readonly string[], value: unknown): void {

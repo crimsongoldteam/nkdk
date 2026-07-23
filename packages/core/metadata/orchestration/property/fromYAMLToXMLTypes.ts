@@ -1,5 +1,6 @@
 import type { ConfigurationIndexAddressingMode, MetadataItemRule, PropertyRule } from "./types"
 import type { YamlRuleCursor } from "./importYamlTypes"
+import type { DeferredValuePath } from "./deferredObjectValues"
 
 export interface YAMLPropertySource {
   readonly itemName?: string
@@ -31,6 +32,7 @@ export type YAMLToXMLExternalWriteFactory = (params: {
 
 export interface YAMLToXMLResult {
   readonly outputs: ReadonlyMap<string, Record<string, unknown>>
+  readonly deferredByOutput: ReadonlyMap<string, readonly DeferredValuePath[]>
   readonly externalWrites: readonly YAMLToXMLExternalWrite[]
 }
 
