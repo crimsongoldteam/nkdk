@@ -15105,10 +15105,10 @@
       "imports group.xml"
     ],
     "line": 17,
-    "behavior": "",
+    "behavior": "Группа предопределённых элементов преобразуется из XML в YAML",
     "targetPath": "packages/core/metadata/commonObjects/predefinedItem/fromXMLToYAML.test.ts",
-    "targetTitle": "",
-    "status": "pending"
+    "targetTitle": "imports group.xml",
+    "status": "migrated"
   },
   {
     "id": "04f50e62065bb2e7f3cd7e8646dde08c82c0f7a2:packages/core/metadata/commonObjects/predefinedItem/fromXML.test.ts:27:913",
@@ -15126,10 +15126,10 @@
       "item.xml"
     ],
     "line": 27,
-    "behavior": "",
+    "behavior": "Обычный предопределённый элемент преобразуется из XML в YAML",
     "targetPath": "packages/core/metadata/commonObjects/predefinedItem/fromXMLToYAML.test.ts",
-    "targetTitle": "",
-    "status": "pending"
+    "targetTitle": "imports item.xml",
+    "status": "migrated"
   },
   {
     "id": "04f50e62065bb2e7f3cd7e8646dde08c82c0f7a2:packages/core/metadata/commonObjects/predefinedItem/fromXML.test.ts:37:1139",
@@ -15147,10 +15147,10 @@
       "typed-code.xml"
     ],
     "line": 37,
-    "behavior": "",
+    "behavior": "Типизированный код предопределённого элемента сохраняется в YAML",
     "targetPath": "packages/core/metadata/commonObjects/predefinedItem/fromXMLToYAML.test.ts",
-    "targetTitle": "",
-    "status": "pending"
+    "targetTitle": "imports typed-code.xml",
+    "status": "migrated"
   },
   {
     "id": "04f50e62065bb2e7f3cd7e8646dde08c82c0f7a2:packages/core/metadata/commonObjects/predefinedItem/fromXML.test.ts:47:1382",
@@ -15166,10 +15166,10 @@
       "./__fixtures__/typed-code"
     ],
     "line": 47,
-    "behavior": "",
+    "behavior": "Тип значения плана видов характеристик преобразуется из XML в YAML",
     "targetPath": "packages/core/metadata/commonObjects/predefinedItem/fromXMLToYAML.test.ts",
-    "targetTitle": "",
-    "status": "pending"
+    "targetTitle": "imports Type for chart of characteristic types predefined item",
+    "status": "migrated"
   },
   {
     "id": "04f50e62065bb2e7f3cd7e8646dde08c82c0f7a2:packages/core/metadata/commonObjects/predefinedItem/fromXML.test.ts:82:2341",
@@ -15185,10 +15185,10 @@
       "./__fixtures__/typed-code"
     ],
     "line": 82,
-    "behavior": "",
+    "behavior": "XML-фикстуры отдельных элементов сохраняются через YAML",
     "targetPath": "packages/core/metadata/commonObjects/predefinedItem/fromXMLToYAML.test.ts",
-    "targetTitle": "",
-    "status": "pending"
+    "targetTitle": "round-trip: %s",
+    "status": "migrated"
   },
   {
     "id": "04f50e62065bb2e7f3cd7e8646dde08c82c0f7a2:packages/core/metadata/commonObjects/predefinedItem/fromYAML.test.ts:21:978",
@@ -15203,10 +15203,10 @@
       "./__fixtures__/item"
     ],
     "line": 21,
-    "behavior": "",
+    "behavior": "Отсутствующая YAML-коллекция элементов не создаёт XML",
     "targetPath": "packages/core/metadata/commonObjects/predefinedItem/fromYAMLToXML.test.ts",
-    "targetTitle": "",
-    "status": "pending"
+    "targetTitle": "imports undefined",
+    "status": "migrated"
   },
   {
     "id": "04f50e62065bb2e7f3cd7e8646dde08c82c0f7a2:packages/core/metadata/commonObjects/predefinedItem/fromYAML.test.ts:26:1139",
@@ -15221,10 +15221,10 @@
       "./__fixtures__/item"
     ],
     "line": 26,
-    "behavior": "",
+    "behavior": "Группа и элемент преобразуются из YAML в XML",
     "targetPath": "packages/core/metadata/commonObjects/predefinedItem/fromYAMLToXML.test.ts",
-    "targetTitle": "",
-    "status": "pending"
+    "targetTitle": "imports $name fixture",
+    "status": "migrated"
   },
   {
     "id": "04f50e62065bb2e7f3cd7e8646dde08c82c0f7a2:packages/core/metadata/commonObjects/predefinedItem/fromYAML.test.ts:31:1325",
@@ -15239,10 +15239,10 @@
       "./__fixtures__/item"
     ],
     "line": 31,
-    "behavior": "",
+    "behavior": "Тип значения преобразуется из YAML в XML",
     "targetPath": "packages/core/metadata/commonObjects/predefinedItem/fromYAMLToXML.test.ts",
-    "targetTitle": "",
-    "status": "pending"
+    "targetTitle": "imports ТипЗначения from YAML",
+    "status": "migrated"
   },
   {
     "id": "04f50e62065bb2e7f3cd7e8646dde08c82c0f7a2:packages/core/metadata/commonObjects/predefinedItem/fromYAML.test.ts:58:1954",
@@ -15257,10 +15257,10 @@
       "./__fixtures__/item"
     ],
     "line": 58,
-    "behavior": "",
+    "behavior": "YAML группы и элемента сохраняет структуру при преобразовании",
     "targetPath": "packages/core/metadata/commonObjects/predefinedItem/fromYAMLToXML.test.ts",
-    "targetTitle": "",
-    "status": "pending"
+    "targetTitle": "round-trip $name: import → export совпадает с исходным YAML",
+    "status": "migrated"
   },
   {
     "id": "04f50e62065bb2e7f3cd7e8646dde08c82c0f7a2:packages/core/metadata/commonObjects/predefinedItem/fromYAML.test.ts:68:2431",
@@ -15275,10 +15275,10 @@
       "./__fixtures__/item"
     ],
     "line": 68,
-    "behavior": "",
+    "behavior": "JSON Schema принимает именованную запись без кода и наименования",
     "targetPath": "packages/core/metadata/commonObjects/predefinedItem/fromYAMLToXML.test.ts",
-    "targetTitle": "",
-    "status": "pending"
+    "targetTitle": "принимает keyed-запись без Кода и Наименования",
+    "status": "migrated"
   },
   {
     "id": "04f50e62065bb2e7f3cd7e8646dde08c82c0f7a2:packages/core/metadata/commonObjects/predefinedItem/fromYAML.test.ts:72:2569",
@@ -15293,10 +15293,10 @@
       "./__fixtures__/item"
     ],
     "line": 72,
-    "behavior": "",
+    "behavior": "JSON Schema принимает именованную запись только с наименованием",
     "targetPath": "packages/core/metadata/commonObjects/predefinedItem/fromYAMLToXML.test.ts",
-    "targetTitle": "",
-    "status": "pending"
+    "targetTitle": "принимает keyed-запись только с Наименованием",
+    "status": "migrated"
   },
   {
     "id": "04f50e62065bb2e7f3cd7e8646dde08c82c0f7a2:packages/core/metadata/commonObjects/predefinedItem/fromYAML.test.ts:76:2728",
@@ -15311,10 +15311,10 @@
       "./__fixtures__/item"
     ],
     "line": 76,
-    "behavior": "",
+    "behavior": "JSON Schema проверяет тип явного кода",
     "targetPath": "packages/core/metadata/commonObjects/predefinedItem/fromYAMLToXML.test.ts",
-    "targetTitle": "",
-    "status": "pending"
+    "targetTitle": "проверяет тип явного Кода",
+    "status": "migrated"
   },
   {
     "id": "04f50e62065bb2e7f3cd7e8646dde08c82c0f7a2:packages/core/metadata/commonObjects/predefinedItem/fromYAML.test.ts:80:2855",
@@ -15329,10 +15329,10 @@
       "./__fixtures__/item"
     ],
     "line": 80,
-    "behavior": "",
+    "behavior": "JSON Schema отклоняет неизвестные свойства элемента",
     "targetPath": "packages/core/metadata/commonObjects/predefinedItem/fromYAMLToXML.test.ts",
-    "targetTitle": "",
-    "status": "pending"
+    "targetTitle": "отклоняет неизвестные свойства",
+    "status": "migrated"
   },
   {
     "id": "04f50e62065bb2e7f3cd7e8646dde08c82c0f7a2:packages/core/metadata/commonObjects/predefinedItem/toXML.test.ts:20:673",
@@ -15348,10 +15348,10 @@
       "./__fixtures__/typed-code"
     ],
     "line": 20,
-    "behavior": "",
+    "behavior": "Фикстуры элементов сохраняются через YAML в XML",
     "targetPath": "packages/core/metadata/commonObjects/predefinedItem/fromYAMLToXML.test.ts",
-    "targetTitle": "",
-    "status": "pending"
+    "targetTitle": "exports $name",
+    "status": "migrated"
   },
   {
     "id": "04f50e62065bb2e7f3cd7e8646dde08c82c0f7a2:packages/core/metadata/commonObjects/predefinedItem/toXML.test.ts:34:1056",
@@ -15367,10 +15367,10 @@
       "./__fixtures__/typed-code"
     ],
     "line": 34,
-    "behavior": "",
+    "behavior": "Тип значения элемента плана видов характеристик экспортируется в XML",
     "targetPath": "packages/core/metadata/commonObjects/predefinedItem/fromYAMLToXML.test.ts",
-    "targetTitle": "",
-    "status": "pending"
+    "targetTitle": "exports Type for chart of characteristic types predefined item",
+    "status": "migrated"
   },
   {
     "id": "04f50e62065bb2e7f3cd7e8646dde08c82c0f7a2:packages/core/metadata/commonObjects/predefinedItem/toXML.test.ts:66:1972",
@@ -15386,10 +15386,10 @@
       "./__fixtures__/typed-code"
     ],
     "line": 66,
-    "behavior": "",
+    "behavior": "Ссылочный тип элемента получает локальное пространство имён cfg",
     "targetPath": "packages/core/metadata/commonObjects/predefinedItem/fromYAMLToXML.test.ts",
-    "targetTitle": "",
-    "status": "pending"
+    "targetTitle": "exports local cfg namespace for chart of characteristic types predefined item reference type",
+    "status": "migrated"
   },
   {
     "id": "04f50e62065bb2e7f3cd7e8646dde08c82c0f7a2:packages/core/metadata/commonObjects/predefinedItem/toXML.test.ts:94:2843",
@@ -15405,10 +15405,10 @@
       "./__fixtures__/typed-code"
     ],
     "line": 94,
-    "behavior": "",
+    "behavior": "Для группы плана видов характеристик экспортируется пустой Type",
     "targetPath": "packages/core/metadata/commonObjects/predefinedItem/fromYAMLToXML.test.ts",
-    "targetTitle": "",
-    "status": "pending"
+    "targetTitle": "exports empty Type for chart of characteristic types predefined folder",
+    "status": "migrated"
   },
   {
     "id": "04f50e62065bb2e7f3cd7e8646dde08c82c0f7a2:packages/core/metadata/commonObjects/predefinedItem/toYAML.test.ts:16:590",
@@ -15423,10 +15423,10 @@
       "./__fixtures__/item"
     ],
     "line": 16,
-    "behavior": "",
+    "behavior": "Отсутствующая коллекция элементов не экспортируется в YAML",
     "targetPath": "packages/core/metadata/commonObjects/predefinedItem/fromXMLToYAML.test.ts",
-    "targetTitle": "",
-    "status": "pending"
+    "targetTitle": "exports undefined",
+    "status": "migrated"
   },
   {
     "id": "04f50e62065bb2e7f3cd7e8646dde08c82c0f7a2:packages/core/metadata/commonObjects/predefinedItem/toYAML.test.ts:21:737",
@@ -15441,10 +15441,10 @@
       "./__fixtures__/item"
     ],
     "line": 21,
-    "behavior": "",
+    "behavior": "Группа и элемент экспортируются в именованную YAML-запись",
     "targetPath": "packages/core/metadata/commonObjects/predefinedItem/fromXMLToYAML.test.ts",
-    "targetTitle": "",
-    "status": "pending"
+    "targetTitle": "exports $name fixture",
+    "status": "migrated"
   },
   {
     "id": "04f50e62065bb2e7f3cd7e8646dde08c82c0f7a2:packages/core/metadata/commonObjects/predefinedItem/toYAML.test.ts:26:923",
@@ -15459,10 +15459,10 @@
       "./__fixtures__/item"
     ],
     "line": 26,
-    "behavior": "",
+    "behavior": "Тип значения экспортируется для элемента и скрывается для группы",
     "targetPath": "packages/core/metadata/commonObjects/predefinedItem/fromXMLToYAML.test.ts",
-    "targetTitle": "",
-    "status": "pending"
+    "targetTitle": "exports ТипЗначения for non-folder items and hides it for folders",
+    "status": "migrated"
   },
   {
     "id": "04f50e62065bb2e7f3cd7e8646dde08c82c0f7a2:packages/core/metadata/commonObjects/recalculation/fromXML.test.ts:8:312",
