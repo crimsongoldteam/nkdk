@@ -35,6 +35,7 @@ describe("syncToXml service", () => {
       },
     })
     expect(planSyncToXml).toHaveBeenCalledWith({
+      projectDir,
       yamlDir: join(projectDir, "cfe", "Расширение"),
       xmlDir: "/xml",
       baseId: "default",
@@ -58,6 +59,7 @@ describe("syncToXml service", () => {
 
     expect(syncConfigurationToXML).toHaveBeenCalledWith(
       expect.objectContaining({
+        projectDir,
         yamlDir: join(projectDir, "cfe", "Расширение"),
         xmlDir: "/xml",
         baseId: "default",

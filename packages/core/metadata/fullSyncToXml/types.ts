@@ -74,7 +74,6 @@ export type FullXmlSyncWorkerCommand =
       readonly kind: "secondPass"
       readonly sharedMetadata: FullXmlSyncSharedMetadata
       readonly index: SharedConfigurationIndexSnapshot
-      readonly generationSeed: Uint8Array
     }
   | { readonly kind: "dispose" }
 

@@ -21,7 +21,7 @@ describe("full XML sync worker pool", () => {
 
     await pool.initialize({ projectDir: "/project", outputDir: "/out", context })
     await pool.runFirstPass(assignments)
-    await pool.runSecondPass({ sharedMetadata: {} as never, index: {} as never, generationSeed: new Uint8Array() })
+    await pool.runSecondPass({ sharedMetadata: {} as never, index: {} as never })
 
     expect(pools.runs(0).map((task) => task.kind)).toEqual(["initialize", "firstPass", "secondPass"])
     expect(pools.runs(1).map((task) => task.kind)).toEqual(["initialize", "firstPass", "secondPass"])
@@ -69,7 +69,7 @@ describe("full XML sync worker pool", () => {
     expect(first.projectFiles.map((file) => file.projectPath)).toEqual(["one.yaml", "two.yaml"])
     expect(first.ownerFacts).toEqual([expect.objectContaining({ assignmentId: "one" })])
     await expect(
-      pool.runSecondPass({ sharedMetadata: {} as never, index: {} as never, generationSeed: new Uint8Array() })
+      pool.runSecondPass({ sharedMetadata: {} as never, index: {} as never })
     ).rejects.toThrow("Первый проход full XML sync завершён с ошибками")
     await pool.close()
   })

@@ -31,7 +31,6 @@
     "packages/core/helpers/**/*.ts",
     "packages/core/metadata/**/*.ts",
     "packages/core/yaml/**/*.ts",
-    "packages/cli/src/**/*.ts",
     "packages/mcp/src/**/*.ts"
   ],
   "exclude": [

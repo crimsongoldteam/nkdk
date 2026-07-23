@@ -12,6 +12,7 @@ import {
   runFullXmlSyncWorkerCommand,
 } from "./worker"
 import type { FullXmlSyncAssignment } from "./types"
+import { createFullXmlSyncSharedMetadata } from "./sharedMetadata"
 
 describe("full XML sync worker", () => {
   const tempDirs: string[] = []
@@ -93,14 +94,14 @@ describe("full XML sync worker", () => {
       outputDir: join(projectDir, ".out"),
       context,
     })
-    await runFullXmlSyncWorkerCommand({ kind: "firstPass", assignments: [assignment(projectDir, "Товары")] })
+    const assigned = assignment(projectDir, "Товары")
+    await runFullXmlSyncWorkerCommand({ kind: "firstPass", assignments: [assigned] })
     expect(fullXmlSyncWorkerStateForTests().preparedIds).toHaveLength(1)
 
     const second = await runFullXmlSyncWorkerCommand({
       kind: "secondPass",
-      sharedMetadata: { owners: {} as never, composition: {} as never },
+      sharedMetadata: createFullXmlSyncSharedMetadata({ assignments: [assigned], owners: [] }),
       index: snapshotConfigurationIndex(encodeConfigurationIndex(sampleIndex())),
-      generationSeed: new Uint8Array(),
     })
 
     expect(second).toMatchObject({ kind: "secondPassResult", warnings: [] })

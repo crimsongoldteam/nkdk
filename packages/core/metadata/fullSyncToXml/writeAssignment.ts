@@ -13,6 +13,7 @@ import { writePreparedConfigurationToXML } from "../appliedObjects/configuration
 import { writePreparedFormToXML } from "../forms/clientApplicationForm/syncToXML"
 import { writePreparedAppliedObjectOwnerToXML } from "../orchestration/appliedObject/syncToXML"
 import type { FullXmlSyncAssignment, FullXmlSyncDiagnostic, FullXmlSyncWrittenFile } from "./types"
+import type { FullXmlSyncCompositionEntry } from "./sharedMetadata"
 import { createYAMLToXMLProfile, type YAMLToXMLProfile } from "../orchestration/property/fromYAMLToXMLTypes"
 
 export interface WriteFullXmlSyncAssignmentParams {
@@ -21,7 +22,7 @@ export interface WriteFullXmlSyncAssignmentParams {
   readonly context: ConfigurationContextWithExportToXML
   readonly outputDir: string
   readonly index: ConfigurationIndexReader
-  readonly assignments?: readonly FullXmlSyncAssignment[]
+  readonly assignments?: readonly FullXmlSyncCompositionEntry[]
 }
 
 export interface WriteFullXmlSyncAssignmentResult {
@@ -227,18 +228,19 @@ function metadataRuleForAssignment(assignment: FullXmlSyncAssignment) {
   return getMetadataProjectSpecByDir(ownerDir)?.rule
 }
 
-function ownerEntryFromAssignment(assignment: FullXmlSyncAssignment): { dir: string; name: string } {
+function ownerEntryFromAssignment(assignment: FullXmlSyncCompositionEntry): { dir: string; name: string } {
   const parts = assignment.sourceProjectPath.split("/")
   return { dir: parts[0] ?? "", name: parts[1] ?? assignment.itemName }
 }
 
 function fileChildNamesForOwner(
   ownerAssignment: FullXmlSyncAssignment,
-  assignments: readonly FullXmlSyncAssignment[]
+  assignments: readonly FullXmlSyncCompositionEntry[]
 ): { forms?: string[]; templates?: string[] } {
   const forms = assignments
     .filter(
-      (assignment) => assignment.role === "form" && assignment.owner?.logicalAddress === ownerAssignment.logicalAddress
+      (assignment) =>
+        assignment.role === "form" && assignment.ownerLogicalAddress === ownerAssignment.logicalAddress
     )
     .map((assignment) => assignment.itemName)
   return forms.length === 0 ? {} : { forms }

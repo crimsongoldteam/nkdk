@@ -4,12 +4,7 @@ import { afterEach, describe, expect, it } from "vitest"
 import { mockContextToXML } from "../../tests/mockContext"
 import { configurationIndexPath } from "../configurationIndex/fileIO"
 import { syncConfigurationToXml } from "./syncConfiguration"
-import {
-  createDirectFullSyncDependencies,
-  createTempRoot,
-  removeFullSyncTempDirs,
-  writeSmallYamlProjectWithIndex,
-} from "./testHelpers"
+import { createTempRoot, removeFullSyncTempDirs, writeSmallYamlProjectWithIndex } from "./testHelpers"
 
 afterEach(async () => {
   await removeFullSyncTempDirs()
@@ -23,16 +18,25 @@ describe("full XML sync determinism", () => {
     const outOne = join(root, "out-one")
     const outTwo = join(root, "out-two")
     await writeSmallYamlProjectWithIndex(projectOne)
+    fs.cpSync(
+      join(projectOne, "Бот", "БотВсеСвойства"),
+      join(projectOne, "Бот", "ВторойБот"),
+      { recursive: true }
+    )
     fs.cpSync(projectOne, projectTwo, { recursive: true })
 
-    const first = await syncConfigurationToXml(
-      { context: mockContextToXML(), yamlDir: projectOne, xmlDir: outOne, concurrency: 1 },
-      createDirectFullSyncDependencies()
-    )
-    const second = await syncConfigurationToXml(
-      { context: mockContextToXML(), yamlDir: projectTwo, xmlDir: outTwo, concurrency: 1 },
-      createDirectFullSyncDependencies()
-    )
+    const first = await syncConfigurationToXml({
+      context: mockContextToXML(),
+      yamlDir: projectOne,
+      xmlDir: outOne,
+      concurrency: 1,
+    })
+    const second = await syncConfigurationToXml({
+      context: mockContextToXML(),
+      yamlDir: projectTwo,
+      xmlDir: outTwo,
+      concurrency: 2,
+    })
 
     expect(first.failed).toEqual([])
     expect(second.failed).toEqual([])

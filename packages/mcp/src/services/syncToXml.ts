@@ -26,7 +26,7 @@ type ConfigDumpInfo = Map<
 >
 
 interface SyncToXmlDeps {
-  planSyncToXml?: (params: { yamlDir: string; xmlDir: string; baseId?: string }) => Promise<unknown>
+  planSyncToXml?: (params: { projectDir: string; yamlDir: string; xmlDir: string; baseId?: string }) => Promise<unknown>
   syncConfigurationToXML: (params: {
     context: {
       defaultLanguage: "ru"
@@ -44,6 +44,7 @@ interface SyncToXmlDeps {
         }
       }
     }
+    projectDir: string
     yamlDir: string
     xmlDir: string
     baseId?: string
@@ -71,6 +72,7 @@ export async function syncToXml(input: SyncToXmlInput, deps?: SyncToXmlDeps): Pr
     if (input.allowWrite !== true) {
       if (!core.planSyncToXml) return toolError("core_error", "План XML-синхронизации недоступен")
       const result = await core.planSyncToXml({
+        projectDir: component.projectDir,
         yamlDir: component.componentDir,
         xmlDir: input.xmlDir,
         ...(input.baseId === undefined ? {} : { baseId: input.baseId }),
@@ -95,6 +97,7 @@ export async function syncToXml(input: SyncToXmlInput, deps?: SyncToXmlDeps): Pr
           },
         },
       },
+      projectDir: component.projectDir,
       yamlDir: component.componentDir,
       xmlDir: input.xmlDir,
       ...(input.baseId === undefined ? {} : { baseId: input.baseId }),

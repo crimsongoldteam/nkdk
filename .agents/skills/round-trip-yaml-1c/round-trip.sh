@@ -2,7 +2,7 @@
 set -euo pipefail
 
 SCRIPT_DIR="$(cd "$(dirname "${BASH_SOURCE[0]}")" && pwd)"
-REPO_DIR="$(cd "${SCRIPT_DIR}/../.." && pwd)"
+REPO_DIR="$(cd "${SCRIPT_DIR}/../../.." && pwd)"
 
 usage() {
   cat <<'USAGE'
@@ -10,8 +10,8 @@ usage() {
   ./skills/round-trip-yaml-1c/round-trip.sh
 
 Что делает:
-  1. nkdk import <xml-dir> <yaml-dir>
-  2. nkdk sync <yaml-dir> <tmp-xml-dir> без --reference
+  1. nkdk.import_from_xml через настоящий MCP stdio server
+  2. nkdk.sync_to_xml через настоящий MCP stdio server
   3. ibcmd infobase create --data <data> --db-path <db-path> --import <tmp-xml-dir> --apply --force
 
 Обязательные .env:
@@ -107,6 +107,13 @@ xml_tmp_dir_for() {
   printf '%s/round-trip-yaml-1c-xml/%s' "${TMPDIR:-/tmp}" "$(sanitize_path_segment "${rel}")"
 }
 
+mcp_project_dir_for() {
+  local active_dir="$1"
+  local rel
+  rel="$(config_rel_path "${active_dir}")"
+  printf '%s/round-trip-yaml-1c-mcp-project/%s' "${TMPDIR:-/tmp}" "$(sanitize_path_segment "${rel}")"
+}
+
 ensure_safe_dir() {
   local dir="$1"
 
@@ -121,6 +128,30 @@ clear_dir_contents() {
   ensure_safe_dir "${dir}"
   mkdir -p "${dir}"
   find "${dir}" -mindepth 1 -maxdepth 1 ! -name .git -exec rm -rf {} +
+}
+
+prepare_mcp_project() {
+  local project_dir="$1"
+  local yaml_dir="$2"
+  ensure_safe_dir "${project_dir}"
+  rm -rf "${project_dir}"
+  mkdir -p "${project_dir}"
+  ln -s "${yaml_dir}" "${project_dir}/cf"
+}
+
+write_mcp_input() {
+  local path="$1"
+  local xml_dir="$2"
+  local project_dir="$3"
+  node -e 'const fs=require("fs"); fs.writeFileSync(process.argv[1], JSON.stringify({xmlDir:process.argv[2],projectDir:process.argv[3],componentPath:"cf",allowWrite:true})+"\n")' \
+    "${path}" "${xml_dir}" "${project_dir}"
+}
+
+run_mcp_tool() {
+  local tool="$1"
+  local input="$2"
+  local output="$3"
+  node "${MCP_CALL}" "${tool}" --input "${input}" --output "${output}"
 }
 
 emit_error() {
@@ -215,13 +246,8 @@ if [ -n "$(git -C "${REPO_DIR}" status --porcelain)" ]; then
   exit 1
 fi
 
-if command -v nkdk &>/dev/null; then
-  NKDK=(nkdk)
-elif [ -f "${REPO_DIR}/packages/cli/src/cli.ts" ]; then
-  NKDK=(pnpm -s --dir "${REPO_DIR}/packages/cli" exec tsx src/cli.ts)
-else
-  die "команда nkdk не найдена"
-fi
+MCP_CALL="${REPO_DIR}/.agents/tools/mcp/call.mjs"
+[ -x "${MCP_CALL}" ] || die "локальный MCP-клиент не найден: ${MCP_CALL}"
 
 IBCMD_BIN="${NKDK_1C_IBCMD:-ibcmd}"
 if ! command -v "${IBCMD_BIN}" &>/dev/null; then
@@ -240,31 +266,40 @@ fi
 ACTIVE_XML_DIR="${RUN_DIRS[0]}"
 YAML_DIR="$(yaml_dir_for "${ACTIVE_XML_DIR}")"
 TMP_XML_DIR="$(xml_tmp_dir_for "${ACTIVE_XML_DIR}")"
+MCP_PROJECT_DIR="$(mcp_project_dir_for "${ACTIVE_XML_DIR}")"
 IMPORT_LOG="${TMPDIR:-/tmp}/round-trip-yaml-1c-import.log"
 SYNC_LOG="${TMPDIR:-/tmp}/round-trip-yaml-1c-sync.log"
 IBCMD_LOG="${TMPDIR:-/tmp}/round-trip-yaml-1c-ibcmd.log"
+IMPORT_INPUT="${TMPDIR:-/tmp}/round-trip-yaml-1c-import.json"
+IMPORT_OUTPUT="${TMPDIR:-/tmp}/round-trip-yaml-1c-import-output.json"
+SYNC_INPUT="${TMPDIR:-/tmp}/round-trip-yaml-1c-sync.json"
+SYNC_OUTPUT="${TMPDIR:-/tmp}/round-trip-yaml-1c-sync-output.json"
 
 echo "=== round-trip-yaml-1c.sh ==="
 echo "ACTIVE_XML_DIR: ${ACTIVE_XML_DIR}"
 echo "YAML_DIR: ${YAML_DIR}"
 echo "TMP_XML_DIR: ${TMP_XML_DIR}"
+echo "MCP_PROJECT_DIR: ${MCP_PROJECT_DIR}"
 echo "IBCMD_COMMAND: $(ibcmd_command_text)"
 echo ""
 
 echo "[yaml] Очистка временного YAML-каталога: ${YAML_DIR}"
 rm -rf "${YAML_DIR}"
 mkdir -p "${YAML_DIR}"
+prepare_mcp_project "${MCP_PROJECT_DIR}" "${YAML_DIR}"
 
 echo "[xml] Очистка временного XML-каталога без reference: ${TMP_XML_DIR}"
 clear_dir_contents "${TMP_XML_DIR}"
 
-IMPORT_COMMAND="${NKDK[*]} import ${ACTIVE_XML_DIR} ${YAML_DIR}"
-if ! run_logged "import" "${IMPORT_COMMAND}" "${IMPORT_LOG}" "${NKDK[@]}" import "${ACTIVE_XML_DIR}" "${YAML_DIR}"; then
+write_mcp_input "${IMPORT_INPUT}" "${ACTIVE_XML_DIR}" "${MCP_PROJECT_DIR}"
+IMPORT_COMMAND="node ${MCP_CALL} nkdk.import_from_xml --input ${IMPORT_INPUT}"
+if ! run_logged "import" "${IMPORT_COMMAND}" "${IMPORT_LOG}" run_mcp_tool nkdk.import_from_xml "${IMPORT_INPUT}" "${IMPORT_OUTPUT}"; then
   exit 1
 fi
 
-SYNC_COMMAND="${NKDK[*]} sync ${YAML_DIR} ${TMP_XML_DIR}"
-if ! run_logged "sync" "${SYNC_COMMAND}" "${SYNC_LOG}" "${NKDK[@]}" sync "${YAML_DIR}" "${TMP_XML_DIR}"; then
+write_mcp_input "${SYNC_INPUT}" "${TMP_XML_DIR}" "${MCP_PROJECT_DIR}"
+SYNC_COMMAND="node ${MCP_CALL} nkdk.sync_to_xml --input ${SYNC_INPUT}"
+if ! run_logged "sync" "${SYNC_COMMAND}" "${SYNC_LOG}" run_mcp_tool nkdk.sync_to_xml "${SYNC_INPUT}" "${SYNC_OUTPUT}"; then
   exit 1
 fi
 

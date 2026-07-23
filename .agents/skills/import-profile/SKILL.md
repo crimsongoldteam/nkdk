@@ -7,10 +7,10 @@ description: Use when the user asks to measure XML import speed by NKDK architec
 
 ## Что делает скилл
 
-Скилл выполняет benchmark XML-import через CLI source path:
+Скилл выполняет benchmark XML-import через настоящий MCP stdio server:
 
 ```text
-pnpm --filter @nkdk/cli dev import <xml-dir> <yaml-dir>
+node .agents/tools/mcp/call.mjs nkdk.import_from_xml --input <args.json>
 ```
 
 Core должен выводить профиль при `NKDK_PROFILE=1`.
@@ -31,7 +31,7 @@ node .agents/skills/import-profile/import-profile.mjs /path/to/xml /path/to/yaml
 В финальном ответе покажи:
 
 ```text
-Режим: source tsx
+Режим: mcp stdio source tsx
 XML-каталог: <path>
 YAML-каталог: <path>
 Воркеры: <N>

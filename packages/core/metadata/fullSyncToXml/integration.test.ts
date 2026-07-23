@@ -59,4 +59,28 @@ describe("full XML sync integration", () => {
       value: "1f777cc7-ac1c-46e8-8e35-82485cee6798",
     })
   })
+
+  it("reads and updates the index at the project root when YAML belongs to a component", async () => {
+    const projectDir = createTempRoot()
+    const yamlDir = join(projectDir, "cf")
+    const outDir = join(projectDir, "out")
+    await writeSmallYamlProjectWithIndex(yamlDir)
+    fs.renameSync(join(yamlDir, ".nkdk"), join(projectDir, ".nkdk"))
+
+    const synced = await syncConfigurationToXml(
+      {
+        context: mockContextToXML(),
+        projectDir,
+        yamlDir,
+        xmlDir: outDir,
+        concurrency: 1,
+      },
+      createDirectFullSyncDependencies()
+    )
+
+    expect(synced.failed).toEqual([])
+    expect(synced.configurationIndexPath).toContain(join(projectDir, ".nkdk"))
+    expect(fs.existsSync(join(yamlDir, ".nkdk"))).toBe(false)
+    expect((await readConfigurationIndex({ projectDir })).projectFiles.length).toBeGreaterThan(0)
+  })
 })

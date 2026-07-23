@@ -70,7 +70,7 @@ function transferFailureDeps(previous: ConfigurationIndexData): FullXmlSyncCoord
             itemType: "MetadataConfiguration",
             itemName: "Конфигурация",
             logicalAddress: "Конфигурация",
-            outputs: [{ routeKind: "owner", targetXmlPath: "Configuration.xml" }],
+            outputs: [{ routeKind: "owner", targetXmlPath: "partial.xml" }],
           },
         ],
         externalFiles: [],

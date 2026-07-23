@@ -1,10 +1,12 @@
 #!/usr/bin/env node
 import { spawnSync } from "node:child_process"
-import { existsSync, statSync } from "node:fs"
-import { dirname, resolve } from "node:path"
+import { existsSync, mkdirSync, mkdtempSync, readFileSync, rmSync, statSync, symlinkSync, writeFileSync } from "node:fs"
+import { tmpdir } from "node:os"
+import { dirname, join, resolve } from "node:path"
 import { fileURLToPath } from "node:url"
 
 const repoRoot = resolve(dirname(fileURLToPath(import.meta.url)), "../../..")
+const mcpCall = join(repoRoot, ".agents/tools/mcp/call.mjs")
 
 function usage() {
   return [
@@ -77,10 +79,32 @@ function runProfile(options) {
   const allSteps = []
 
   for (let run = 1; run <= options.runs; run += 1) {
+    clearDirectory(options.yamlDir)
+    const runDir = mkdtempSync(join(tmpdir(), "nkdk-import-profile-"))
+    const projectDir = join(runDir, "project")
+    const inputJson = join(runDir, "import-arguments.json")
+    const outputJson = join(runDir, "import-output.json")
+    const stderrLog = join(runDir, "server.stderr.log")
+    mkdirProjectSymlink(projectDir, options.yamlDir)
+    writeFileSync(
+      inputJson,
+      `${JSON.stringify({ xmlDir: options.xmlDir, projectDir, componentPath: "cf", allowWrite: true })}\n`,
+      "utf8"
+    )
+
     const started = performance.now()
     const spawned = spawnSync(
-      "pnpm",
-      ["--filter", "@nkdk/cli", "dev", "import", options.xmlDir, options.yamlDir],
+      process.execPath,
+      [
+        mcpCall,
+        "nkdk.import_from_xml",
+        "--input",
+        inputJson,
+        "--output",
+        outputJson,
+        "--server-stderr-log",
+        stderrLog,
+      ],
       {
         cwd: repoRoot,
         encoding: "utf8",
@@ -90,11 +114,10 @@ function runProfile(options) {
     )
     const elapsedMs = Math.round(performance.now() - started)
     const stdout = spawned.stdout ?? ""
-    const stderr = spawned.stderr ?? ""
+    const stderr = `${spawned.stderr ?? ""}\n${readTextIfExists(stderrLog)}`
     const steps = stderr.split(/\r?\n/).filter((line) => line.startsWith("[nkdk-profile-step] ")).map(parseProfileLine)
     for (const step of steps) allSteps.push(step)
-    const summary = parseImportSummary(stdout)
-    const warnings = stderr.split(/\r?\n/).filter((line) => line.startsWith("⚠ ")).length
+    const summary = parseImportSummary(readJsonIfExists(outputJson))
 
     runs.push({
       run,
@@ -102,7 +125,7 @@ function runProfile(options) {
       exitCode: spawned.status ?? 1,
       succeeded: summary.succeeded,
       errors: summary.errors,
-      warnings,
+      warnings: summary.warnings,
       workerPoolSize: workerPoolSize(steps),
     })
 
@@ -114,7 +137,7 @@ function runProfile(options) {
 
   const warm = runs.slice(1).map((run) => run.elapsedMs)
   return {
-    mode: "source-tsx",
+    mode: "mcp-stdio-source-tsx",
     xmlDir: options.xmlDir,
     yamlDir: options.yamlDir,
     runs,
@@ -127,11 +150,32 @@ function runProfile(options) {
   }
 }
 
-function parseImportSummary(stdout) {
-  const match = stdout.match(/Готово: (\d+) успешно, (\d+) с ошибкой/)
+function clearDirectory(dir) {
+  if (dir === "" || resolve(dir) === "/") fail(`небезопасный YAML-каталог для очистки: ${dir}`)
+  rmSync(dir, { recursive: true, force: true })
+  mkdirSync(dir, { recursive: true })
+}
+
+function mkdirProjectSymlink(projectDir, yamlDir) {
+  mkdirSync(projectDir, { recursive: true })
+  symlinkSync(yamlDir, join(projectDir, "cf"), "dir")
+}
+
+function readJsonIfExists(path) {
+  if (!existsSync(path)) return undefined
+  return JSON.parse(readFileSync(path, "utf8"))
+}
+
+function readTextIfExists(path) {
+  if (!existsSync(path)) return ""
+  return readFileSync(path, "utf8")
+}
+
+function parseImportSummary(payload) {
   return {
-    succeeded: match === null ? undefined : Number(match[1]),
-    errors: match === null ? undefined : Number(match[2]),
+    succeeded: payload?.succeeded,
+    errors: Array.isArray(payload?.failed) ? payload.failed.length : undefined,
+    warnings: Array.isArray(payload?.warnings) ? payload.warnings.length : undefined,
   }
 }
 

@@ -21,6 +21,7 @@ import type {
   FullXmlSyncWrittenFile,
 } from "./types"
 import { writeFullXmlSyncAssignment } from "./writeAssignment"
+import { createFullXmlSyncSharedMetadataReader } from "./sharedMetadata"
 
 registerValidationMetadata()
 
@@ -31,14 +32,14 @@ interface InitializedFullXmlSyncWorkerState {
   context: ConfigurationContext
 }
 
+let initializedState: InitializedFullXmlSyncWorkerState | undefined
+
 interface PreparedSyncAssignment {
   assignment: FullXmlSyncAssignment
   yamlFile: PreparedYamlFile
 }
 
-let initializedState: InitializedFullXmlSyncWorkerState | undefined
 const preparedAssignments = new Map<string, PreparedSyncAssignment>()
-let firstPassAssignments: FullXmlSyncAssignment[] = []
 
 export async function runFullXmlSyncWorkerCommand(
   command: FullXmlSyncWorkerCommand
@@ -78,10 +79,8 @@ function runFirstPass(
   state: InitializedFullXmlSyncWorkerState
 ): FullXmlSyncFirstPassResult {
   preparedAssignments.clear()
-  firstPassAssignments = [...assignments]
-  const descriptors = assignments.map(assignmentDescriptor)
   const prepared = prepareYamlFiles({
-    files: descriptors,
+    files: assignments.map(assignmentDescriptor),
     itemTypeByYamlDir: itemTypeByYamlDir(assignments),
     includeProjectFiles: true,
     hashFileBytes,
@@ -132,6 +131,8 @@ async function runSecondPass(
   state: InitializedFullXmlSyncWorkerState
 ): Promise<FullXmlSyncSecondPassResult> {
   const index = createConfigurationIndexReader(command.index)
+  const sharedMetadata = createFullXmlSyncSharedMetadataReader(command.sharedMetadata)
+  const assignments = sharedMetadata.assignments()
   const diagnostics: FullXmlSyncDiagnostic[] = []
   const warnings: FullXmlSyncDiagnostic[] = []
   const writtenFiles: FullXmlSyncWrittenFile[] = []
@@ -148,7 +149,7 @@ async function runSecondPass(
     try {
       const result = await writeFullXmlSyncAssignment({
         assignment: prepared.assignment,
-        assignments: firstPassAssignments,
+        assignments,
         preparedYamlFile: prepared.yamlFile,
         context: exportContextForSecondPass(state),
         outputDir: state.outputDir,
@@ -305,7 +306,6 @@ function requireInitializedState(): InitializedFullXmlSyncWorkerState {
 
 function disposeWorkerState(): void {
   preparedAssignments.clear()
-  firstPassAssignments = []
   initializedState = undefined
 }
 

@@ -81,6 +81,13 @@ xml_tmp_dir_for() {
   printf '%s/round-trip-yaml-xml/%s' "${TMPDIR:-/tmp}" "$(sanitize_path_segment "${rel}")"
 }
 
+mcp_project_dir_for() {
+  local active_dir="$1"
+  local rel
+  rel="$(config_rel_path "${active_dir}")"
+  printf '%s/round-trip-yaml-mcp-project/%s' "${TMPDIR:-/tmp}" "$(sanitize_path_segment "${rel}")"
+}
+
 ensure_safe_dir() {
   local dir="$1"
 
@@ -193,6 +200,30 @@ run_nkdk() {
   "$@"
 }
 
+prepare_mcp_project() {
+  local project_dir="$1"
+  local yaml_dir="$2"
+  ensure_safe_dir "${project_dir}"
+  rm -rf "${project_dir}"
+  mkdir -p "${project_dir}"
+  ln -s "${yaml_dir}" "${project_dir}/cf"
+}
+
+write_mcp_input() {
+  local path="$1"
+  local xml_dir="$2"
+  local project_dir="$3"
+  node -e 'const fs=require("fs"); fs.writeFileSync(process.argv[1], JSON.stringify({xmlDir:process.argv[2],projectDir:process.argv[3],componentPath:"cf",allowWrite:true})+"\n")' \
+    "${path}" "${xml_dir}" "${project_dir}"
+}
+
+run_mcp_tool() {
+  local tool="$1"
+  local input="$2"
+  local output="$3"
+  run_nkdk node "${MCP_CALL}" "${tool}" --input "${input}" --output "${output}"
+}
+
 while [ "$#" -gt 0 ]; do
   case "$1" in
     --diff-index)
@@ -272,18 +303,13 @@ if [ -n "$(git -C "${REPO_DIR}" status --porcelain)" ]; then
   exit 1
 fi
 
-if command -v nkdk &>/dev/null; then
-  NKDK=(nkdk)
-elif [ -f "${REPO_DIR}/packages/cli/src/cli.ts" ]; then
-  NKDK=(pnpm -s --dir "${REPO_DIR}/packages/cli" exec tsx src/cli.ts)
-else
-  die "команда nkdk не найдена"
-fi
+MCP_CALL="${REPO_DIR}/.agents/tools/mcp/call.mjs"
+[ -x "${MCP_CALL}" ] || die "локальный MCP-клиент не найден: ${MCP_CALL}"
 
 echo "=== round-trip-yaml.sh ==="
 echo "XML репо:    ${NKDK_XML_REPO}"
 echo "XML каталог: ${NKDK_XML_DIR}"
-echo "nkdk:        ${NKDK[*]}"
+echo "runner:      MCP stdio"
 echo "mode:        ${MODE}"
 echo "all configs: ${ALL_CONFIGS}"
 if [ "${MODE}" = "single" ]; then
@@ -313,6 +339,11 @@ ACTIVE_YAML_DIR=""
 for RUN_XML_DIR in "${RUN_DIRS[@]}"; do
   RUN_YAML_DIR="$(yaml_dir_for "${RUN_XML_DIR}")"
   RUN_XML_TMP_DIR="$(xml_tmp_dir_for "${RUN_XML_DIR}")"
+  RUN_PROJECT_DIR="$(mcp_project_dir_for "${RUN_XML_DIR}")"
+  IMPORT_INPUT="${RUN_PROJECT_DIR}.import.json"
+  IMPORT_OUTPUT="${RUN_PROJECT_DIR}.import-output.json"
+  SYNC_INPUT="${RUN_PROJECT_DIR}.sync.json"
+  SYNC_OUTPUT="${RUN_PROJECT_DIR}.sync-output.json"
 
   echo "[restore] Откат XML-репо к HEAD..."
   git -C "${NKDK_XML_REPO}" restore .
@@ -320,12 +351,14 @@ for RUN_XML_DIR in "${RUN_DIRS[@]}"; do
   echo "[yaml] Очистка временного YAML-каталога: ${RUN_YAML_DIR}"
   rm -rf "${RUN_YAML_DIR}"
   mkdir -p "${RUN_YAML_DIR}"
+  prepare_mcp_project "${RUN_PROJECT_DIR}" "${RUN_YAML_DIR}"
 
   echo "[xml] Очистка временного XML-каталога: ${RUN_XML_TMP_DIR}"
   clear_dir_contents "${RUN_XML_TMP_DIR}"
 
   echo "[round-trip] XML -> YAML: ${RUN_XML_DIR}"
-  if ! run_nkdk "${NKDK[@]}" import "${RUN_XML_DIR}" "${RUN_YAML_DIR}"; then
+  write_mcp_input "${IMPORT_INPUT}" "${RUN_XML_DIR}" "${RUN_PROJECT_DIR}"
+  if ! run_mcp_tool nkdk.import_from_xml "${IMPORT_INPUT}" "${IMPORT_OUTPUT}"; then
     echo "=== ROUND_TRIP_ERROR ==="
     echo "STAGE: import"
     echo "ACTIVE_XML_DIR: ${RUN_XML_DIR}"
@@ -335,7 +368,8 @@ for RUN_XML_DIR in "${RUN_DIRS[@]}"; do
   fi
 
   echo "[round-trip] YAML -> временный XML: ${RUN_YAML_DIR}"
-  if ! run_nkdk "${NKDK[@]}" sync "${RUN_YAML_DIR}" "${RUN_XML_TMP_DIR}" --reference "${RUN_XML_DIR}"; then
+  write_mcp_input "${SYNC_INPUT}" "${RUN_XML_TMP_DIR}" "${RUN_PROJECT_DIR}"
+  if ! run_mcp_tool nkdk.sync_to_xml "${SYNC_INPUT}" "${SYNC_OUTPUT}"; then
     echo "=== ROUND_TRIP_ERROR ==="
     echo "STAGE: sync"
     echo "ACTIVE_XML_DIR: ${RUN_XML_DIR}"

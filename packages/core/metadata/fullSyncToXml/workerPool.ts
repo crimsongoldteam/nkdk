@@ -25,7 +25,6 @@ export interface FullXmlSyncWorkerPool {
   runSecondPass(params: {
     sharedMetadata: FullXmlSyncSharedMetadata
     index: SharedConfigurationIndexSnapshot
-    generationSeed: Uint8Array
   }): Promise<FullXmlSyncSecondPassPoolResult>
   close(): Promise<void>
 }

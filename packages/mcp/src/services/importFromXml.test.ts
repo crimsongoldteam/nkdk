@@ -55,6 +55,7 @@ describe("importFromXml service", () => {
         fromXML: { forReference: false },
       },
       inputDir: "/xml",
+      projectDir,
       outputDir: componentDir,
     })
     expect(result).toEqual({
