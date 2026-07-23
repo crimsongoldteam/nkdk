@@ -133,7 +133,7 @@ function unwrapReferenceBody(
     const container = referenceXML[root.container]
     return isRecord(container) ? omitRootAttributes(container) : undefined
   }
-  const metadataObject = referenceXML.MetaDataObject
+  const metadataObject = isRecord(referenceXML.MetaDataObject) ? referenceXML.MetaDataObject : referenceXML
   if (!isRecord(metadataObject)) return undefined
   const container = metadataObject[root.container]
   return isRecord(container) ? container : undefined

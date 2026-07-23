@@ -277,8 +277,8 @@ function configurationIndexItemContext(params: {
         : yamlKeyUid(runtime.logicalAddress, keyName)
     )
   }
-  const segment = params.descriptor.configurationIndexUidSegment ?? runtime.childCollectionUidSegment
-  if (segment === undefined) return params.context
+  const segment =
+    params.descriptor.configurationIndexUidSegment ?? runtime.childCollectionUidSegment ?? params.descriptor.itemRule.itemType
   return withConfigurationIndexExportLogicalAddress(
     params.context,
     keyName === undefined

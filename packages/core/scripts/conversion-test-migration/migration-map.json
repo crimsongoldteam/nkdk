@@ -8860,10 +8860,10 @@
       "./__fixtures__/data"
     ],
     "line": 17,
-    "behavior": "",
+    "behavior": "YAML агрегатов не содержит reference-only идентификаторы",
     "targetPath": "packages/core/metadata/commonObjects/accumulationRegisterAggregates/fromXMLToYAML.test.ts",
-    "targetTitle": "",
-    "status": "pending"
+    "targetTitle": "imports aggregate YAML model without reference-only ids",
+    "status": "migrated"
   },
   {
     "id": "04f50e62065bb2e7f3cd7e8646dde08c82c0f7a2:packages/core/metadata/commonObjects/accumulationRegisterAggregates/fromXML.test.ts:29:977",
@@ -8877,10 +8877,10 @@
       "./__fixtures__/data"
     ],
     "line": 29,
-    "behavior": "",
+    "behavior": "Ссылки измерений преобразуются в имена",
     "targetPath": "packages/core/metadata/commonObjects/accumulationRegisterAggregates/fromXMLToYAML.test.ts",
-    "targetTitle": "",
-    "status": "pending"
+    "targetTitle": "imports aggregate items and dimension refs as names",
+    "status": "migrated"
   },
   {
     "id": "04f50e62065bb2e7f3cd7e8646dde08c82c0f7a2:packages/core/metadata/commonObjects/accumulationRegisterAggregates/fromYAML.test.ts:10:387",
@@ -8894,10 +8894,10 @@
       "./__fixtures__/data"
     ],
     "line": 10,
-    "behavior": "",
+    "behavior": "YAML-карта измерений преобразуется в XML Dimensions",
     "targetPath": "packages/core/metadata/commonObjects/accumulationRegisterAggregates/fromYAMLToXML.test.ts",
-    "targetTitle": "",
-    "status": "pending"
+    "targetTitle": "imports aggregate dimensions from a YAML map keyed by dimension name",
+    "status": "migrated"
   },
   {
     "id": "04f50e62065bb2e7f3cd7e8646dde08c82c0f7a2:packages/core/metadata/commonObjects/accumulationRegisterAggregates/toXML.test.ts:18:736",
@@ -8911,10 +8911,10 @@
       "./__fixtures__/data"
     ],
     "line": 18,
-    "behavior": "",
+    "behavior": "Aggregates.xml восстанавливается с ref текущего регистра",
     "targetPath": "packages/core/metadata/commonObjects/accumulationRegisterAggregates/fromYAMLToXML.test.ts",
-    "targetTitle": "",
-    "status": "pending"
+    "targetTitle": "round-trips real Aggregates.xml and restores dimension refs from current register context",
+    "status": "migrated"
   },
   {
     "id": "04f50e62065bb2e7f3cd7e8646dde08c82c0f7a2:packages/core/metadata/commonObjects/accumulationRegisterAggregates/toYAML.test.ts:10:383",
@@ -8928,10 +8928,10 @@
       "./__fixtures__/data"
     ],
     "line": 10,
-    "behavior": "",
+    "behavior": "Измерения экспортируются в YAML-карту по имени",
     "targetPath": "packages/core/metadata/commonObjects/accumulationRegisterAggregates/fromXMLToYAML.test.ts",
-    "targetTitle": "",
-    "status": "pending"
+    "targetTitle": "exports aggregate dimensions as a YAML map keyed by dimension name",
+    "status": "migrated"
   },
   {
     "id": "04f50e62065bb2e7f3cd7e8646dde08c82c0f7a2:packages/core/metadata/commonObjects/additionalIndex/fromXML.test.ts:11:399",
@@ -8946,10 +8946,10 @@
       "imports full.xml"
     ],
     "line": 11,
-    "behavior": "",
+    "behavior": "full.xml преобразуется в корневой YAML-массив индексов",
     "targetPath": "packages/core/metadata/commonObjects/additionalIndex/fromXMLToYAML.test.ts",
-    "targetTitle": "",
-    "status": "pending"
+    "targetTitle": "imports full.xml",
+    "status": "migrated"
   },
   {
     "id": "04f50e62065bb2e7f3cd7e8646dde08c82c0f7a2:packages/core/metadata/commonObjects/additionalIndex/fromYAML.test.ts:9:289",
@@ -8961,10 +8961,10 @@
     "declarationText": "it(\"inline-array парсится в items без обёртки\", () => {\n    const yaml = [\n      {\n        Имя: \"Индекс1\",\n        Таблица: \"Catalog.СправочникCоВсемиОбъектами\",\n        ИндексируемыеПоля: [\"Ref\"],\n        ДополнительныеПоля: [\"Description\"],\n      },\n    ]\n    const result = importMetadataItemFromYAML({\n      context: mockContext,\n      yaml: yaml as any,\n      rule: AdditionalIndexRules,\n      name: \"additionalIndex\",\n    })\n    expect(result).toMatchObject({ itemType: \"AdditionalIndex\" })\n    expect(result?.items?.[0]).toMatchObject({\n      name: \"Индекс1\",\n      table: \"Catalog.СправочникCоВсемиОбъектами\",\n      indexedFields: [\"Ref\"],\n      additionalFields: [\"Description\"],\n    })\n  })",
     "fixtures": [],
     "line": 9,
-    "behavior": "",
+    "behavior": "Корневой YAML-массив читается без обёртки items",
     "targetPath": "packages/core/metadata/commonObjects/additionalIndex/fromYAMLToXML.test.ts",
-    "targetTitle": "",
-    "status": "pending"
+    "targetTitle": "inline-array парсится в items без обёртки",
+    "status": "migrated"
   },
   {
     "id": "04f50e62065bb2e7f3cd7e8646dde08c82c0f7a2:packages/core/metadata/commonObjects/additionalIndex/toXML.test.ts:11:463",
@@ -8979,10 +8979,10 @@
       "round-trip from full.xml"
     ],
     "line": 11,
-    "behavior": "",
+    "behavior": "full.xml восстанавливается единым обратным обходом",
     "targetPath": "packages/core/metadata/commonObjects/additionalIndex/fromYAMLToXML.test.ts",
-    "targetTitle": "",
-    "status": "pending"
+    "targetTitle": "round-trip from full.xml",
+    "status": "migrated"
   },
   {
     "id": "04f50e62065bb2e7f3cd7e8646dde08c82c0f7a2:packages/core/metadata/commonObjects/additionalIndex/toXML.test.ts:33:1170",
@@ -8994,10 +8994,10 @@
     "declarationText": "it(\"exports fields in 1C-loadable order without reference\", () => {\n    const xmlObj = exportMetadataItemToXML({\n      context: mockContextToXML(),\n      data: {\n        itemType: \"AdditionalIndex\",\n        items: [\n          {\n            itemType: \"AdditionalIndexItem\",\n            id: \"11111111-1111-4111-8111-111111111111\",\n            name: \"ОдинИндекс\",\n            table: \"Catalog.СправочникПолный\",\n            indexedFields: \"Code\",\n            additionalFields: \"Ref\",\n          },\n        ],\n      },\n      rule: AdditionalIndexRules,\n    })\n    const exported = xmlExport(xmlObj!)\n    expect(exported).toContain(\n      [\n        '\\t<AdditionalIndex id=\"11111111-1111-4111-8111-111111111111\">',\n        \"\\t\\t<Name>ОдинИндекс</Name>\",\n        \"\\t\\t<Table>Catalog.СправочникПолный</Table>\",\n        \"\\t\\t<IndexedFields>\",\n        \"\\t\\t\\t<Field>Code</Field>\",\n        \"\\t\\t</IndexedFields>\",\n        \"\\t\\t<AdditionalFields>\",\n        \"\\t\\t\\t<Field>Ref</Field>\",\n        \"\\t\\t</AdditionalFields>\",\n        \"\\t</AdditionalIndex>\",\n      ].join(\"\\n\")\n    )\n  })",
     "fixtures": [],
     "line": 33,
-    "behavior": "",
+    "behavior": "Поля индекса записываются в порядке, загружаемом 1С",
     "targetPath": "packages/core/metadata/commonObjects/additionalIndex/fromYAMLToXML.test.ts",
-    "targetTitle": "",
-    "status": "pending"
+    "targetTitle": "exports fields in 1C-loadable order without reference",
+    "status": "migrated"
   },
   {
     "id": "04f50e62065bb2e7f3cd7e8646dde08c82c0f7a2:packages/core/metadata/commonObjects/additionalIndex/toYAML.test.ts:9:285",
@@ -9009,10 +9009,10 @@
     "declarationText": "it(\"экспортирует items как корневой массив (без обёртки items:)\", () => {\n    const data = {\n      itemType: \"AdditionalIndex\",\n      items: [\n        {\n          itemType: \"AdditionalIndexItem\",\n          name: \"Индекс1\",\n          table: \"Catalog.СправочникCоВсемиОбъектами\",\n          indexedFields: [\"Ref\"],\n          additionalFields: [\"Description\"],\n        },\n      ],\n    } as any\n    const result = exportMetadataItemToYAML({\n      context: mockContext,\n      data,\n      rule: AdditionalIndexRules,\n    })\n    expect(result).toEqual([\n      {\n        Имя: \"Индекс1\",\n        Таблица: \"Catalog.СправочникCоВсемиОбъектами\",\n        ИндексируемыеПоля: [\"Ref\"],\n        ДополнительныеПоля: [\"Description\"],\n      },\n    ])\n  })",
     "fixtures": [],
     "line": 9,
-    "behavior": "",
+    "behavior": "items выводятся корневым YAML-массивом",
     "targetPath": "packages/core/metadata/commonObjects/additionalIndex/fromXMLToYAML.test.ts",
-    "targetTitle": "",
-    "status": "pending"
+    "targetTitle": "экспортирует items как корневой массив (без обёртки items:)",
+    "status": "migrated"
   },
   {
     "id": "04f50e62065bb2e7f3cd7e8646dde08c82c0f7a2:packages/core/metadata/commonObjects/characteristicsDescription/fromXML.test.ts:8:350",
@@ -9027,10 +9027,10 @@
       "single.xml"
     ],
     "line": 8,
-    "behavior": "",
+    "behavior": "XML характеристики преобразуется в ожидаемый YAML",
     "targetPath": "packages/core/metadata/commonObjects/characteristicsDescription/fromXMLToYAML.test.ts",
-    "targetTitle": "",
-    "status": "pending"
+    "targetTitle": "round-trip: %s (direct XML → YAML)",
+    "status": "migrated"
   },
   {
     "id": "04f50e62065bb2e7f3cd7e8646dde08c82c0f7a2:packages/core/metadata/commonObjects/characteristicsDescription/fromXML.test.ts:18:644",
@@ -9045,10 +9045,10 @@
       "multiple.xml"
     ],
     "line": 18,
-    "behavior": "",
+    "behavior": "XML характеристики преобразуется в ожидаемый YAML",
     "targetPath": "packages/core/metadata/commonObjects/characteristicsDescription/fromXMLToYAML.test.ts",
-    "targetTitle": "",
-    "status": "pending"
+    "targetTitle": "round-trip: %s (direct XML → YAML)",
+    "status": "migrated"
   },
   {
     "id": "04f50e62065bb2e7f3cd7e8646dde08c82c0f7a2:packages/core/metadata/commonObjects/characteristicsDescription/fromXML.test.ts:28:945",
@@ -9063,10 +9063,10 @@
       "single.xml"
     ],
     "line": 28,
-    "behavior": "",
+    "behavior": "XML характеристики преобразуется в ожидаемый YAML",
     "targetPath": "packages/core/metadata/commonObjects/characteristicsDescription/fromXMLToYAML.test.ts",
-    "targetTitle": "",
-    "status": "pending"
+    "targetTitle": "round-trip: %s (direct XML → YAML)",
+    "status": "migrated"
   },
   {
     "id": "04f50e62065bb2e7f3cd7e8646dde08c82c0f7a2:packages/core/metadata/commonObjects/characteristicsDescription/fromXML.test.ts:38:1219",
@@ -9081,10 +9081,10 @@
       "multiple.xml"
     ],
     "line": 38,
-    "behavior": "",
+    "behavior": "XML характеристики преобразуется в ожидаемый YAML",
     "targetPath": "packages/core/metadata/commonObjects/characteristicsDescription/fromXMLToYAML.test.ts",
-    "targetTitle": "",
-    "status": "pending"
+    "targetTitle": "round-trip: %s (direct XML → YAML)",
+    "status": "migrated"
   },
   {
     "id": "04f50e62065bb2e7f3cd7e8646dde08c82c0f7a2:packages/core/metadata/commonObjects/characteristicsDescription/fromYAML.test.ts:14:470",
@@ -9098,10 +9098,10 @@
       "./__fixtures__/data"
     ],
     "line": 14,
-    "behavior": "",
+    "behavior": "Отсутствующее YAML-значение не создаёт XML",
     "targetPath": "packages/core/metadata/commonObjects/characteristicsDescription/fromYAMLToXML.test.ts",
-    "targetTitle": "",
-    "status": "pending"
+    "targetTitle": "imports undefined",
+    "status": "migrated"
   },
   {
     "id": "04f50e62065bb2e7f3cd7e8646dde08c82c0f7a2:packages/core/metadata/commonObjects/characteristicsDescription/fromYAML.test.ts:19:619",
@@ -9115,10 +9115,10 @@
       "./__fixtures__/data"
     ],
     "line": 19,
-    "behavior": "",
+    "behavior": "Пустой YAML-массив не создаёт XML",
     "targetPath": "packages/core/metadata/commonObjects/characteristicsDescription/fromYAMLToXML.test.ts",
-    "targetTitle": "",
-    "status": "pending"
+    "targetTitle": "imports empty array",
+    "status": "migrated"
   },
   {
     "id": "04f50e62065bb2e7f3cd7e8646dde08c82c0f7a2:packages/core/metadata/commonObjects/characteristicsDescription/fromYAML.test.ts:24:763",
@@ -9132,10 +9132,10 @@
       "./__fixtures__/data"
     ],
     "line": 24,
-    "behavior": "",
+    "behavior": "YAML характеристики преобразуется в ожидаемый XML",
     "targetPath": "packages/core/metadata/commonObjects/characteristicsDescription/fromYAMLToXML.test.ts",
-    "targetTitle": "",
-    "status": "pending"
+    "targetTitle": "exports %s characteristic (round-trip)",
+    "status": "migrated"
   },
   {
     "id": "04f50e62065bb2e7f3cd7e8646dde08c82c0f7a2:packages/core/metadata/commonObjects/characteristicsDescription/fromYAML.test.ts:29:953",
@@ -9149,10 +9149,10 @@
       "./__fixtures__/data"
     ],
     "line": 29,
-    "behavior": "",
+    "behavior": "YAML характеристики преобразуется в ожидаемый XML",
     "targetPath": "packages/core/metadata/commonObjects/characteristicsDescription/fromYAMLToXML.test.ts",
-    "targetTitle": "",
-    "status": "pending"
+    "targetTitle": "exports %s characteristic (round-trip)",
+    "status": "migrated"
   },
   {
     "id": "04f50e62065bb2e7f3cd7e8646dde08c82c0f7a2:packages/core/metadata/commonObjects/characteristicsDescription/toXML.test.ts:10:468",
@@ -9167,10 +9167,10 @@
       "single.xml"
     ],
     "line": 10,
-    "behavior": "",
+    "behavior": "XML характеристики восстанавливается после YAML",
     "targetPath": "packages/core/metadata/commonObjects/characteristicsDescription/fromYAMLToXML.test.ts",
-    "targetTitle": "",
-    "status": "pending"
+    "targetTitle": "exports %s characteristic (round-trip)",
+    "status": "migrated"
   },
   {
     "id": "04f50e62065bb2e7f3cd7e8646dde08c82c0f7a2:packages/core/metadata/commonObjects/characteristicsDescription/toXML.test.ts:21:802",
@@ -9185,10 +9185,10 @@
       "multiple.xml"
     ],
     "line": 21,
-    "behavior": "",
+    "behavior": "XML характеристики восстанавливается после YAML",
     "targetPath": "packages/core/metadata/commonObjects/characteristicsDescription/fromYAMLToXML.test.ts",
-    "targetTitle": "",
-    "status": "pending"
+    "targetTitle": "exports %s characteristic (round-trip)",
+    "status": "migrated"
   },
   {
     "id": "04f50e62065bb2e7f3cd7e8646dde08c82c0f7a2:packages/core/metadata/commonObjects/characteristicsDescription/toXML.test.ts:32:1144",
@@ -9202,10 +9202,10 @@
       "./__fixtures__/data"
     ],
     "line": 32,
-    "behavior": "",
+    "behavior": "Отсутствующие XML defaults не материализуются без reference",
     "targetPath": "packages/core/metadata/commonObjects/characteristicsDescription/fromYAMLToXML.test.ts",
-    "targetTitle": "",
-    "status": "pending"
+    "targetTitle": "does not materialize missing XML default fields without reference tags",
+    "status": "migrated"
   },
   {
     "id": "04f50e62065bb2e7f3cd7e8646dde08c82c0f7a2:packages/core/metadata/commonObjects/characteristicsDescription/toXML.test.ts:55:2330",
@@ -9219,10 +9219,10 @@
       "./__fixtures__/data"
     ],
     "line": 55,
-    "behavior": "",
+    "behavior": "Явные XML defaults сохраняются из reference",
     "targetPath": "packages/core/metadata/commonObjects/characteristicsDescription/fromYAMLToXML.test.ts",
-    "targetTitle": "",
-    "status": "pending"
+    "targetTitle": "preserves explicit XML default fields from reference",
+    "status": "migrated"
   },
   {
     "id": "04f50e62065bb2e7f3cd7e8646dde08c82c0f7a2:packages/core/metadata/commonObjects/characteristicsDescription/toYAML.test.ts:17:513",
@@ -9236,10 +9236,10 @@
       "./__fixtures__/data"
     ],
     "line": 17,
-    "behavior": "",
+    "behavior": "Отсутствующая характеристика не создаёт YAML-поле",
     "targetPath": "packages/core/metadata/commonObjects/characteristicsDescription/fromXMLToYAML.test.ts",
-    "targetTitle": "",
-    "status": "pending"
+    "targetTitle": "exports undefined",
+    "status": "migrated"
   },
   {
     "id": "04f50e62065bb2e7f3cd7e8646dde08c82c0f7a2:packages/core/metadata/commonObjects/characteristicsDescription/toYAML.test.ts:22:660",
@@ -9253,10 +9253,10 @@
       "./__fixtures__/data"
     ],
     "line": 22,
-    "behavior": "",
+    "behavior": "Пустая коллекция не создаёт YAML-поле",
     "targetPath": "packages/core/metadata/commonObjects/characteristicsDescription/fromXMLToYAML.test.ts",
-    "targetTitle": "",
-    "status": "pending"
+    "targetTitle": "exports empty array",
+    "status": "migrated"
   },
   {
     "id": "04f50e62065bb2e7f3cd7e8646dde08c82c0f7a2:packages/core/metadata/commonObjects/characteristicsDescription/toYAML.test.ts:27:802",
@@ -9270,10 +9270,10 @@
       "./__fixtures__/data"
     ],
     "line": 27,
-    "behavior": "",
+    "behavior": "Одна характеристика преобразуется в YAML",
     "targetPath": "packages/core/metadata/commonObjects/characteristicsDescription/fromXMLToYAML.test.ts",
-    "targetTitle": "",
-    "status": "pending"
+    "targetTitle": "exports single characteristic",
+    "status": "migrated"
   },
   {
     "id": "04f50e62065bb2e7f3cd7e8646dde08c82c0f7a2:packages/core/metadata/commonObjects/characteristicsDescription/toYAML.test.ts:32:1010",
@@ -9287,10 +9287,10 @@
       "./__fixtures__/data"
     ],
     "line": 32,
-    "behavior": "",
+    "behavior": "Несколько характеристик преобразуются в YAML",
     "targetPath": "packages/core/metadata/commonObjects/characteristicsDescription/fromXMLToYAML.test.ts",
-    "targetTitle": "",
-    "status": "pending"
+    "targetTitle": "exports multiple characteristics",
+    "status": "migrated"
   },
   {
     "id": "04f50e62065bb2e7f3cd7e8646dde08c82c0f7a2:packages/core/metadata/commonObjects/childFormNames/syncExternalFromXML.test.ts:18:803",
@@ -9355,10 +9355,10 @@
     "declarationText": "it(\"imports sections, panels, groups and panel definitions\", () => {\n    const result = importClientApplicationInterface(clientInterfaceXmlPath)\n\n    expect(result).toMatchObject({\n      itemType: \"ClientApplicationInterface\",\n      top: [\n        { kind: \"panel\", uuid: \"c933ac92-92cd-459d-81cc-e0c8a83ced99\" },\n        { kind: \"panel\", uuid: \"cbab57f2-a0f3-4f0a-89ea-4cb19570ab75\" },\n        { kind: \"panel\", uuid: \"00000000-0000-0000-0000-000000000000\" },\n      ],\n      left: [{ kind: \"panel\", uuid: \"b553047f-c9aa-4157-978d-448ecad24248\", height: 1 }, { kind: \"group\" }],\n      bottom: [{ kind: \"panel\", uuid: \"13322b22-3960-4d68-93a6-fe2dd7f28ca3\" }],\n      panelDefs: expect.arrayContaining([{ id: \"b553047f-c9aa-4157-978d-448ecad24248\", spr: \"PictureOnLeftAndText\" }]),\n    })\n  })",
     "fixtures": [],
     "line": 21,
-    "behavior": "",
+    "behavior": "Разделы, панели, группы и panelDef преобразуются в YAML",
     "targetPath": "packages/core/metadata/commonObjects/clientApplicationInterface/fromXMLToYAML.test.ts",
-    "targetTitle": "",
-    "status": "pending"
+    "targetTitle": "imports sections, panels, groups and panel definitions",
+    "status": "migrated"
   },
   {
     "id": "04f50e62065bb2e7f3cd7e8646dde08c82c0f7a2:packages/core/metadata/commonObjects/clientApplicationInterface/fromYAML.test.ts:9:314",
@@ -9370,10 +9370,10 @@
     "declarationText": "it(\"imports sections, short panels, expanded panels and groups\", () => {\n    const result = importMetadataItemFromYAML({\n      context: mockContext,\n      rule: ClientApplicationInterfaceRules,\n      yaml: {\n        Верх: [\n          { Панель: \"ПанельФункцийТекущегоРаздела\" },\n          { Панель: \"ПанельОткрытых\" },\n          { Панель: \"СтандартнаяПанель\" },\n        ],\n        Лево: [\n          {\n            Панель: {\n              Имя: \"ПанельИстории\",\n              Высота: 1,\n              Представление: \"КартинкаСлеваИТекст\",\n            },\n          },\n          { Группа: { Элементы: [] } },\n        ],\n        Низ: [{ Панель: \"ПанельРазделов\" }],\n      },\n    })\n\n    expect(result).toMatchObject({\n      itemType: \"ClientApplicationInterface\",\n      top: [\n        { kind: \"panel\", uuid: \"c933ac92-92cd-459d-81cc-e0c8a83ced99\" },\n        { kind: \"panel\", uuid: \"cbab57f2-a0f3-4f0a-89ea-4cb19570ab75\" },\n        { kind: \"panel\", uuid: \"00000000-0000-0000-0000-000000000000\" },\n      ],\n      left: [\n        {\n          kind: \"panel\",\n          uuid: \"b553047f-c9aa-4157-978d-448ecad24248\",\n          height: 1,\n          spr: \"PictureOnLeftAndText\",\n        },\n        { kind: \"group\", items: [] },\n      ],\n      bottom: [{ kind: \"panel\", uuid: \"13322b22-3960-4d68-93a6-fe2dd7f28ca3\" }],\n    })\n  })",
     "fixtures": [],
     "line": 9,
-    "behavior": "",
+    "behavior": "Краткие и расширенные панели и группы преобразуются в XML",
     "targetPath": "packages/core/metadata/commonObjects/clientApplicationInterface/fromYAMLToXML.test.ts",
-    "targetTitle": "",
-    "status": "pending"
+    "targetTitle": "imports sections, short panels, expanded panels and groups",
+    "status": "migrated"
   },
   {
     "id": "04f50e62065bb2e7f3cd7e8646dde08c82c0f7a2:packages/core/metadata/commonObjects/clientApplicationInterface/toXML.test.ts:113:3527",
@@ -9387,10 +9387,10 @@
       "round-trips ClientApplicationInterface.xml"
     ],
     "line": 113,
-    "behavior": "",
+    "behavior": "ClientApplicationInterface сохраняет структуру, идентификаторы и panelDef",
     "targetPath": "packages/core/metadata/commonObjects/clientApplicationInterface/fromYAMLToXML.test.ts",
-    "targetTitle": "",
-    "status": "pending"
+    "targetTitle": "round-trips ClientApplicationInterface.xml",
+    "status": "migrated"
   },
   {
     "id": "04f50e62065bb2e7f3cd7e8646dde08c82c0f7a2:packages/core/metadata/commonObjects/clientApplicationInterface/toXML.test.ts:119:3752",
@@ -9402,10 +9402,10 @@
     "declarationText": "it(\"preserves unknown XML details through YAML round-trip\", () => {\n    const xmlString = readFileSync(unknownPanelXmlPath, \"utf-8\")\n    const result = roundTripClientApplicationInterfaceThroughYAML(xmlString)\n\n    expect(result).toContain('customAttribute=\"keep\"')\n    expect(result).toContain(\"<UnknownPanelChild>keep panel</UnknownPanelChild>\")\n    expect(result).toContain('customDefAttribute=\"keep\"')\n    expect(result).toContain(\"<UnknownPanelDefChild>keep def</UnknownPanelDefChild>\")\n  })",
     "fixtures": [],
     "line": 119,
-    "behavior": "",
+    "behavior": "ClientApplicationInterface сохраняет структуру, идентификаторы и panelDef",
     "targetPath": "packages/core/metadata/commonObjects/clientApplicationInterface/fromYAMLToXML.test.ts",
-    "targetTitle": "",
-    "status": "pending"
+    "targetTitle": "preserves unknown XML details through YAML round-trip",
+    "status": "migrated"
   },
   {
     "id": "04f50e62065bb2e7f3cd7e8646dde08c82c0f7a2:packages/core/metadata/commonObjects/clientApplicationInterface/toXML.test.ts:129:4252",
@@ -9417,10 +9417,10 @@
     "declarationText": "it(\"round-trips mixed panel and group order\", () => {\n    expect(roundTripClientApplicationInterface(mixedOrderXmlPath)).toBe(\n      normalizeXML(readFileSync(mixedOrderXmlPath, \"utf-8\").trimEnd())\n    )\n  })",
     "fixtures": [],
     "line": 129,
-    "behavior": "",
+    "behavior": "ClientApplicationInterface сохраняет структуру, идентификаторы и panelDef",
     "targetPath": "packages/core/metadata/commonObjects/clientApplicationInterface/fromYAMLToXML.test.ts",
-    "targetTitle": "",
-    "status": "pending"
+    "targetTitle": "round-trips mixed panel and group order",
+    "status": "migrated"
   },
   {
     "id": "04f50e62065bb2e7f3cd7e8646dde08c82c0f7a2:packages/core/metadata/commonObjects/clientApplicationInterface/toXML.test.ts:135:4464",
@@ -9432,10 +9432,10 @@
     "declarationText": "it(\"round-trips named standard panel through YAML without losing uuid\", () => {\n    const xmlString = readFileSync(namedStandardPanelXmlPath, \"utf-8\")\n    const result = roundTripClientApplicationInterfaceThroughYAML(xmlString)\n\n    expect(result).toBe(normalizeXML(xmlString.trimEnd()))\n    expect(result).toContain(\"<uuid>b553047f-c9aa-4157-978d-448ecad24248</uuid>\")\n    expect(result).toContain(\"<name>МояПанельИстории</name>\")\n  })",
     "fixtures": [],
     "line": 135,
-    "behavior": "",
+    "behavior": "ClientApplicationInterface сохраняет структуру, идентификаторы и panelDef",
     "targetPath": "packages/core/metadata/commonObjects/clientApplicationInterface/fromYAMLToXML.test.ts",
-    "targetTitle": "",
-    "status": "pending"
+    "targetTitle": "round-trips named standard panel through YAML without losing uuid",
+    "status": "migrated"
   },
   {
     "id": "04f50e62065bb2e7f3cd7e8646dde08c82c0f7a2:packages/core/metadata/commonObjects/clientApplicationInterface/toXML.test.ts:144:4904",
@@ -9447,10 +9447,10 @@
     "declarationText": "it(\"creates default panel definitions for used standard panels without reference\", () => {\n    const data = importMetadataItemFromYAML({\n      context: mockContext,\n      rule: ClientApplicationInterfaceRules,\n      yaml: {\n        Верх: [{ Панель: \"ПанельОткрытых\" }],\n        Низ: [{ Панель: \"ПанельРазделов\" }],\n      },\n    })\n    const xml = exportMetadataItemToXML({\n      context: mockContextToXML(),\n      data,\n      rule: ClientApplicationInterfaceRules,\n    })\n    const result = normalizeXML(xmlExport(xml!).trimEnd())\n\n    expect(result).toContain('<panelDef id=\"cbab57f2-a0f3-4f0a-89ea-4cb19570ab75\"/>')\n    expect(result).toContain('<panelDef id=\"13322b22-3960-4d68-93a6-fe2dd7f28ca3\"/>')\n  })",
     "fixtures": [],
     "line": 144,
-    "behavior": "",
+    "behavior": "ClientApplicationInterface сохраняет структуру, идентификаторы и panelDef",
     "targetPath": "packages/core/metadata/commonObjects/clientApplicationInterface/fromYAMLToXML.test.ts",
-    "targetTitle": "",
-    "status": "pending"
+    "targetTitle": "creates default panel definitions for used standard panels without reference",
+    "status": "migrated"
   },
   {
     "id": "04f50e62065bb2e7f3cd7e8646dde08c82c0f7a2:packages/core/metadata/commonObjects/clientApplicationInterface/toXML.test.ts:164:5616",
@@ -9462,10 +9462,10 @@
     "declarationText": "it(\"creates default panel definition for new used standard panel when reference has partial panel definitions\", () => {\n    const referenceXml = `<?xml version=\"1.0\" encoding=\"UTF-8\"?>\n<ClientApplicationInterface xmlns=\"http://v8.1c.ru/8.2/managed-application/core\" xmlns:xs=\"http://www.w3.org/2001/XMLSchema\" xmlns:xsi=\"http://www.w3.org/2001/XMLSchema-instance\" xsi:type=\"InterfaceLayouter\">\n\\t<top>\n\\t\\t<panel id=\"opened-panel\">\n\\t\\t\\t<uuid>cbab57f2-a0f3-4f0a-89ea-4cb19570ab75</uuid>\n\\t\\t</panel>\n\\t</top>\n\\t<panelDef id=\"cbab57f2-a0f3-4f0a-89ea-4cb19570ab75\"/>\n</ClientApplicationInterface>`\n    const referenceData = importMetadataItemFromXML({\n      context: mockContextFromXML({ forReference: true }),\n      rule: ClientApplicationInterfaceRules,\n      xmlString: referenceXml,\n    })\n    const dataFromYAML = importMetadataItemFromYAML({\n      context: mockContext,\n      rule: ClientApplicationInterfaceRules,\n      source: referenceData,\n      yaml: {\n        Верх: [{ Панель: \"ПанельОткрытых\" }, { Панель: \"ПанельРазделов\" }],\n      },\n    })\n    const xml = exportMetadataItemToXML({\n      context: mockContextToXML(),\n      data: dataFromYAML,\n      rule: ClientApplicationInterfaceRules,\n      referenceData,\n    })\n    const result = normalizeXML(xmlExport(xml!).trimEnd())\n\n    expect(result).toContain('<panelDef id=\"cbab57f2-a0f3-4f0a-89ea-4cb19570ab75\"/>')\n    expect(result).toContain('<panelDef id=\"13322b22-3960-4d68-93a6-fe2dd7f28ca3\"/>')\n  })",
     "fixtures": [],
     "line": 164,
-    "behavior": "",
+    "behavior": "ClientApplicationInterface сохраняет структуру, идентификаторы и panelDef",
     "targetPath": "packages/core/metadata/commonObjects/clientApplicationInterface/fromYAMLToXML.test.ts",
-    "targetTitle": "",
-    "status": "pending"
+    "targetTitle": "creates default panel definition for new used standard panel when reference has partial panel definitions",
+    "status": "migrated"
   },
   {
     "id": "04f50e62065bb2e7f3cd7e8646dde08c82c0f7a2:packages/core/metadata/commonObjects/clientApplicationInterface/toXML.test.ts:199:7087",
@@ -9477,10 +9477,10 @@
     "declarationText": "it(\"creates default panel definition for used standard panel restored from reference without panel definition\", () => {\n    const referenceXml = `<?xml version=\"1.0\" encoding=\"UTF-8\"?>\n<ClientApplicationInterface xmlns=\"http://v8.1c.ru/8.2/managed-application/core\" xmlns:xs=\"http://www.w3.org/2001/XMLSchema\" xmlns:xsi=\"http://www.w3.org/2001/XMLSchema-instance\" xsi:type=\"InterfaceLayouter\">\n\\t<top>\n\\t\\t<panel id=\"sections-panel\">\n\\t\\t\\t<uuid>13322b22-3960-4d68-93a6-fe2dd7f28ca3</uuid>\n\\t\\t</panel>\n\\t</top>\n</ClientApplicationInterface>`\n    const result = exportClientApplicationInterfaceYAMLWithReference(referenceXml, {\n      Верх: [{ Панель: \"ПанельРазделов\" }],\n    })\n\n    expect(result).toContain(`<panel id=\"sections-panel\">\n\\t\\t\\t<uuid>13322b22-3960-4d68-93a6-fe2dd7f28ca3</uuid>\n\\t\\t</panel>`)\n    expect(result).toContain('<panelDef id=\"13322b22-3960-4d68-93a6-fe2dd7f28ca3\"/>')\n  })",
     "fixtures": [],
     "line": 199,
-    "behavior": "",
+    "behavior": "ClientApplicationInterface сохраняет структуру, идентификаторы и panelDef",
     "targetPath": "packages/core/metadata/commonObjects/clientApplicationInterface/fromYAMLToXML.test.ts",
-    "targetTitle": "",
-    "status": "pending"
+    "targetTitle": "creates default panel definition for used standard panel restored from reference without panel definition",
+    "status": "migrated"
   },
   {
     "id": "04f50e62065bb2e7f3cd7e8646dde08c82c0f7a2:packages/core/metadata/commonObjects/clientApplicationInterface/toXML.test.ts:218:7990",
@@ -9492,10 +9492,10 @@
     "declarationText": "it(\"preserves reference panel definitions even when panels are not used\", () => {\n    const referenceXml = `<?xml version=\"1.0\" encoding=\"UTF-8\"?>\n<ClientApplicationInterface xmlns=\"http://v8.1c.ru/8.2/managed-application/core\" xmlns:xs=\"http://www.w3.org/2001/XMLSchema\" xmlns:xsi=\"http://www.w3.org/2001/XMLSchema-instance\" xsi:type=\"InterfaceLayouter\">\n\\t<top>\n\\t\\t<panel id=\"opened-panel\">\n\\t\\t\\t<uuid>cbab57f2-a0f3-4f0a-89ea-4cb19570ab75</uuid>\n\\t\\t</panel>\n\\t</top>\n\\t<panelDef id=\"cbab57f2-a0f3-4f0a-89ea-4cb19570ab75\"/>\n\\t<panelDef id=\"13322b22-3960-4d68-93a6-fe2dd7f28ca3\"/>\n</ClientApplicationInterface>`\n    const result = exportClientApplicationInterfaceYAMLWithReference(referenceXml, {\n      Верх: [{ Панель: \"ПанельОткрытых\" }],\n    })\n\n    expect(result).toContain('<panelDef id=\"cbab57f2-a0f3-4f0a-89ea-4cb19570ab75\"/>')\n    expect(result).toContain('<panelDef id=\"13322b22-3960-4d68-93a6-fe2dd7f28ca3\"/>')\n  })",
     "fixtures": [],
     "line": 218,
-    "behavior": "",
+    "behavior": "ClientApplicationInterface сохраняет структуру, идентификаторы и panelDef",
     "targetPath": "packages/core/metadata/commonObjects/clientApplicationInterface/fromYAMLToXML.test.ts",
-    "targetTitle": "",
-    "status": "pending"
+    "targetTitle": "preserves reference panel definitions even when panels are not used",
+    "status": "migrated"
   },
   {
     "id": "04f50e62065bb2e7f3cd7e8646dde08c82c0f7a2:packages/core/metadata/commonObjects/clientApplicationInterface/toXML.test.ts:237:8922",
@@ -9507,10 +9507,10 @@
     "declarationText": "it(\"does not move existing panel id to a new panel inserted before it\", () => {\n    const referenceXml = `<?xml version=\"1.0\" encoding=\"UTF-8\"?>\n<ClientApplicationInterface xmlns=\"http://v8.1c.ru/8.2/managed-application/core\" xmlns:xs=\"http://www.w3.org/2001/XMLSchema\" xmlns:xsi=\"http://www.w3.org/2001/XMLSchema-instance\" xsi:type=\"InterfaceLayouter\">\n\\t<top>\n\\t\\t<panel id=\"opened-panel\">\n\\t\\t\\t<uuid>cbab57f2-a0f3-4f0a-89ea-4cb19570ab75</uuid>\n\\t\\t</panel>\n\\t</top>\n\\t<panelDef id=\"cbab57f2-a0f3-4f0a-89ea-4cb19570ab75\"/>\n</ClientApplicationInterface>`\n    const result = exportClientApplicationInterfaceYAMLWithReference(referenceXml, {\n      Верх: [{ Панель: { UUID: \"11111111-1111-1111-1111-111111111111\" } }, { Панель: \"ПанельОткрытых\" }],\n    })\n\n    expect(result).toContain(`<panel id=\"opened-panel\">\n\\t\\t\\t<uuid>cbab57f2-a0f3-4f0a-89ea-4cb19570ab75</uuid>\n\\t\\t</panel>`)\n    expect(result).not.toContain(`<panel id=\"opened-panel\">\n\\t\\t\\t<uuid>11111111-1111-1111-1111-111111111111</uuid>\n\\t\\t</panel>`)\n  })",
     "fixtures": [],
     "line": 237,
-    "behavior": "",
+    "behavior": "ClientApplicationInterface сохраняет структуру, идентификаторы и panelDef",
     "targetPath": "packages/core/metadata/commonObjects/clientApplicationInterface/fromYAMLToXML.test.ts",
-    "targetTitle": "",
-    "status": "pending"
+    "targetTitle": "does not move existing panel id to a new panel inserted before it",
+    "status": "migrated"
   },
   {
     "id": "04f50e62065bb2e7f3cd7e8646dde08c82c0f7a2:packages/core/metadata/commonObjects/clientApplicationInterface/toXML.test.ts:259:9944",
@@ -9522,10 +9522,10 @@
     "declarationText": "it(\"keeps panel ids with matching panels when panels are reordered\", () => {\n    const referenceXml = `<?xml version=\"1.0\" encoding=\"UTF-8\"?>\n<ClientApplicationInterface xmlns=\"http://v8.1c.ru/8.2/managed-application/core\" xmlns:xs=\"http://www.w3.org/2001/XMLSchema\" xmlns:xsi=\"http://www.w3.org/2001/XMLSchema-instance\" xsi:type=\"InterfaceLayouter\">\n\\t<top>\n\\t\\t<panel id=\"opened-panel\">\n\\t\\t\\t<uuid>cbab57f2-a0f3-4f0a-89ea-4cb19570ab75</uuid>\n\\t\\t</panel>\n\\t\\t<panel id=\"sections-panel\">\n\\t\\t\\t<uuid>13322b22-3960-4d68-93a6-fe2dd7f28ca3</uuid>\n\\t\\t</panel>\n\\t</top>\n\\t<panelDef id=\"cbab57f2-a0f3-4f0a-89ea-4cb19570ab75\"/>\n\\t<panelDef id=\"13322b22-3960-4d68-93a6-fe2dd7f28ca3\"/>\n</ClientApplicationInterface>`\n    const result = exportClientApplicationInterfaceYAMLWithReference(referenceXml, {\n      Верх: [{ Панель: \"ПанельРазделов\" }, { Панель: \"ПанельОткрытых\" }],\n    })\n\n    expect(result).toContain(`<panel id=\"sections-panel\">\n\\t\\t\\t<uuid>13322b22-3960-4d68-93a6-fe2dd7f28ca3</uuid>\n\\t\\t</panel>`)\n    expect(result).toContain(`<panel id=\"opened-panel\">\n\\t\\t\\t<uuid>cbab57f2-a0f3-4f0a-89ea-4cb19570ab75</uuid>\n\\t\\t</panel>`)\n  })",
     "fixtures": [],
     "line": 259,
-    "behavior": "",
+    "behavior": "ClientApplicationInterface сохраняет структуру, идентификаторы и panelDef",
     "targetPath": "packages/core/metadata/commonObjects/clientApplicationInterface/fromYAMLToXML.test.ts",
-    "targetTitle": "",
-    "status": "pending"
+    "targetTitle": "keeps panel ids with matching panels when panels are reordered",
+    "status": "migrated"
   },
   {
     "id": "04f50e62065bb2e7f3cd7e8646dde08c82c0f7a2:packages/core/metadata/commonObjects/clientApplicationInterface/toXML.test.ts:285:11086",
@@ -9537,10 +9537,10 @@
     "declarationText": "it(\"does not move existing group id to a new empty group inserted before it\", () => {\n    const referenceXml = `<?xml version=\"1.0\" encoding=\"UTF-8\"?>\n<ClientApplicationInterface xmlns=\"http://v8.1c.ru/8.2/managed-application/core\" xmlns:xs=\"http://www.w3.org/2001/XMLSchema\" xmlns:xsi=\"http://www.w3.org/2001/XMLSchema-instance\" xsi:type=\"InterfaceLayouter\">\n\\t<top>\n\\t\\t<panel id=\"anchor-panel\">\n\\t\\t\\t<uuid>cbab57f2-a0f3-4f0a-89ea-4cb19570ab75</uuid>\n\\t\\t</panel>\n\\t\\t<group id=\"existing-group\"/>\n\\t</top>\n\\t<panelDef id=\"cbab57f2-a0f3-4f0a-89ea-4cb19570ab75\"/>\n</ClientApplicationInterface>`\n    const result = exportClientApplicationInterfaceYAMLWithReference(referenceXml, {\n      Верх: [{ Панель: \"ПанельОткрытых\" }, { Группа: { Элементы: [] } }, { Группа: { Элементы: [] } }],\n    })\n\n    expect(result).toContain(\"<group/>\")\n    expect(result).toContain('<group id=\"existing-group\"/>')\n    expect(result).not.toContain('id=\"11111111-1111-4111-8111-111111111111\"')\n  })",
     "fixtures": [],
     "line": 285,
-    "behavior": "",
+    "behavior": "ClientApplicationInterface сохраняет структуру, идентификаторы и panelDef",
     "targetPath": "packages/core/metadata/commonObjects/clientApplicationInterface/fromYAMLToXML.test.ts",
-    "targetTitle": "",
-    "status": "pending"
+    "targetTitle": "does not move existing group id to a new empty group inserted before it",
+    "status": "migrated"
   },
   {
     "id": "04f50e62065bb2e7f3cd7e8646dde08c82c0f7a2:packages/core/metadata/commonObjects/clientApplicationInterface/toXML.test.ts:305:12067",
@@ -9552,10 +9552,10 @@
     "declarationText": "it(\"does not generate ids for reference groups that had no id\", () => {\n    const referenceXml = `<?xml version=\"1.0\" encoding=\"UTF-8\"?>\n<ClientApplicationInterface xmlns=\"http://v8.1c.ru/8.2/managed-application/core\" xmlns:xs=\"http://www.w3.org/2001/XMLSchema\" xmlns:xsi=\"http://www.w3.org/2001/XMLSchema-instance\" xsi:type=\"InterfaceLayouter\">\n\\t<top>\n\\t\\t<group>\n\\t\\t\\t<panel id=\"opened-panel\">\n\\t\\t\\t\\t<uuid>cbab57f2-a0f3-4f0a-89ea-4cb19570ab75</uuid>\n\\t\\t\\t</panel>\n\\t\\t</group>\n\\t</top>\n\\t<panelDef id=\"cbab57f2-a0f3-4f0a-89ea-4cb19570ab75\"/>\n</ClientApplicationInterface>`\n\n    const result = roundTripClientApplicationInterfaceThroughYAML(referenceXml)\n\n    expect(result).toContain(\"<group>\")\n    expect(result).not.toContain(\"<group id=\")\n  })",
     "fixtures": [],
     "line": 305,
-    "behavior": "",
+    "behavior": "ClientApplicationInterface сохраняет структуру, идентификаторы и panelDef",
     "targetPath": "packages/core/metadata/commonObjects/clientApplicationInterface/fromYAMLToXML.test.ts",
-    "targetTitle": "",
-    "status": "pending"
+    "targetTitle": "does not generate ids for reference groups that had no id",
+    "status": "migrated"
   },
   {
     "id": "04f50e62065bb2e7f3cd7e8646dde08c82c0f7a2:packages/core/metadata/commonObjects/clientApplicationInterface/toXML.test.ts:324:12824",
@@ -9567,10 +9567,10 @@
     "declarationText": "it(\"creates panel definition for a new non-standard panel with presentation\", () => {\n    const data = importMetadataItemFromYAML({\n      context: mockContext,\n      rule: ClientApplicationInterfaceRules,\n      yaml: {\n        Верх: [\n          {\n            Панель: {\n              UUID: \"11111111-1111-1111-1111-111111111111\",\n              Представление: \"КартинкаСлеваИТекст\",\n            },\n          },\n        ],\n      },\n    })\n    const xml = exportMetadataItemToXML({\n      context: mockContextToXML(),\n      data,\n      rule: ClientApplicationInterfaceRules,\n    })\n    const result = normalizeXML(xmlExport(xml!).trimEnd())\n\n    expect(result).toContain('<panelDef id=\"11111111-1111-1111-1111-111111111111\">')\n    expect(result).toContain(\"<spr>PictureOnLeftAndText</spr>\")\n  })",
     "fixtures": [],
     "line": 324,
-    "behavior": "",
+    "behavior": "ClientApplicationInterface сохраняет структуру, идентификаторы и panelDef",
     "targetPath": "packages/core/metadata/commonObjects/clientApplicationInterface/fromYAMLToXML.test.ts",
-    "targetTitle": "",
-    "status": "pending"
+    "targetTitle": "creates panel definition for a new non-standard panel with presentation",
+    "status": "migrated"
   },
   {
     "id": "04f50e62065bb2e7f3cd7e8646dde08c82c0f7a2:packages/core/metadata/commonObjects/clientApplicationInterface/toYAML.test.ts:32:1174",
@@ -9582,10 +9582,10 @@
     "declarationText": "it(\"exports standard panels without service ids\", () => {\n    const result = exportClientApplicationInterfaceToYAML(clientInterfaceXmlPath)\n\n    expect(result).toMatchObject({\n      Верх: [{ Панель: \"ПанельФункцийТекущегоРаздела\" }, { Панель: \"ПанельОткрытых\" }, { Панель: \"СтандартнаяПанель\" }],\n      Лево: [\n        {\n          Панель: {\n            Имя: \"ПанельИстории\",\n            Высота: 1,\n            Представление: \"КартинкаСлеваИТекст\",\n          },\n        },\n        { Группа: { Элементы: [] } },\n      ],\n      Низ: [{ Панель: \"ПанельРазделов\" }],\n    })\n    expect(exportToYAML(result)).not.toContain(\"id\")\n  })",
     "fixtures": [],
     "line": 32,
-    "behavior": "",
+    "behavior": "Панели преобразуются в компактный YAML без служебных id",
     "targetPath": "packages/core/metadata/commonObjects/clientApplicationInterface/fromXMLToYAML.test.ts",
-    "targetTitle": "",
-    "status": "pending"
+    "targetTitle": "exports standard panels without service ids",
+    "status": "migrated"
   },
   {
     "id": "04f50e62065bb2e7f3cd7e8646dde08c82c0f7a2:packages/core/metadata/commonObjects/clientApplicationInterface/toYAML.test.ts:52:1804",
@@ -9597,10 +9597,10 @@
     "declarationText": "it(\"exports unknown uuid and xml name through expanded panel form\", () => {\n    const result = exportClientApplicationInterfaceToYAML(unknownPanelXmlPath)\n\n    expect(result?.Право).toEqual([\n      {\n        Панель: {\n          Имя: \"НестандартнаяПанель\",\n          UUID: \"aaaaaaaa-bbbb-4ccc-8ddd-eeeeeeeeeeee\",\n          Представление: \"КартинкаСлеваИТекст\",\n        },\n      },\n    ])\n  })",
     "fixtures": [],
     "line": 52,
-    "behavior": "",
+    "behavior": "Панели преобразуются в компактный YAML без служебных id",
     "targetPath": "packages/core/metadata/commonObjects/clientApplicationInterface/fromXMLToYAML.test.ts",
-    "targetTitle": "",
-    "status": "pending"
+    "targetTitle": "exports unknown uuid and xml name through expanded panel form",
+    "status": "migrated"
   },
   {
     "id": "04f50e62065bb2e7f3cd7e8646dde08c82c0f7a2:packages/core/metadata/commonObjects/clientApplicationInterface/toYAML.test.ts:66:2199",
@@ -9612,10 +9612,10 @@
     "declarationText": "it(\"keeps mixed panel and group order\", () => {\n    const result = exportClientApplicationInterfaceToYAML(mixedOrderXmlPath)\n\n    expect(result?.Верх).toEqual([\n      { Панель: \"ПанельФункцийТекущегоРаздела\" },\n      { Группа: { Элементы: [] } },\n      { Панель: \"ПанельОткрытых\" },\n    ])\n  })",
     "fixtures": [],
     "line": 66,
-    "behavior": "",
+    "behavior": "Панели преобразуются в компактный YAML без служебных id",
     "targetPath": "packages/core/metadata/commonObjects/clientApplicationInterface/fromXMLToYAML.test.ts",
-    "targetTitle": "",
-    "status": "pending"
+    "targetTitle": "keeps mixed panel and group order",
+    "status": "migrated"
   },
   {
     "id": "04f50e62065bb2e7f3cd7e8646dde08c82c0f7a2:packages/core/metadata/commonObjects/clientApplicationInterface/toYAML.test.ts:76:2497",
@@ -9627,10 +9627,10 @@
     "declarationText": "it(\"does not expose uuid for named standard panel\", () => {\n    const result = exportClientApplicationInterfaceToYAML(namedStandardPanelXmlPath)\n\n    expect(result?.Лево).toEqual([\n      {\n        Панель: {\n          Имя: \"МояПанельИстории\",\n        },\n      },\n    ])\n    expect(exportToYAML(result)).not.toContain(\"b553047f-c9aa-4157-978d-448ecad24248\")\n  })",
     "fixtures": [],
     "line": 76,
-    "behavior": "",
+    "behavior": "Панели преобразуются в компактный YAML без служебных id",
     "targetPath": "packages/core/metadata/commonObjects/clientApplicationInterface/fromXMLToYAML.test.ts",
-    "targetTitle": "",
-    "status": "pending"
+    "targetTitle": "does not expose uuid for named standard panel",
+    "status": "migrated"
   },
   {
     "id": "04f50e62065bb2e7f3cd7e8646dde08c82c0f7a2:packages/core/metadata/commonObjects/dataCompositionSystem/appearanceFields/toYAML.test.ts:13:430",
@@ -12792,10 +12792,10 @@
       "content.xml"
     ],
     "line": 20,
-    "behavior": "",
+    "behavior": "Элементы Content с Allow и Deny преобразуются в YAML",
     "targetPath": "packages/core/metadata/commonObjects/exchangePlanContent/fromXMLToYAML.test.ts",
-    "targetTitle": "",
-    "status": "pending"
+    "targetTitle": "imports content items with Allow and Deny auto record",
+    "status": "migrated"
   },
   {
     "id": "04f50e62065bb2e7f3cd7e8646dde08c82c0f7a2:packages/core/metadata/commonObjects/exchangePlanContent/fromXML.test.ts:32:1147",
@@ -12809,10 +12809,10 @@
       "./__fixtures__/data"
     ],
     "line": 32,
-    "behavior": "",
+    "behavior": "Пустой XML-контейнер преобразуется в явный список",
     "targetPath": "packages/core/metadata/commonObjects/exchangePlanContent/fromXMLToYAML.test.ts",
-    "targetTitle": "",
-    "status": "pending"
+    "targetTitle": "imports empty content as an explicit empty list",
+    "status": "migrated"
   },
   {
     "id": "04f50e62065bb2e7f3cd7e8646dde08c82c0f7a2:packages/core/metadata/commonObjects/exchangePlanContent/fromYAML.test.ts:15:457",
@@ -12826,10 +12826,10 @@
       "./__fixtures__/data"
     ],
     "line": 15,
-    "behavior": "",
+    "behavior": "YAML-значения AutoChangeRecord преобразуются в XML",
     "targetPath": "packages/core/metadata/commonObjects/exchangePlanContent/fromYAMLToXML.test.ts",
-    "targetTitle": "",
-    "status": "pending"
+    "targetTitle": "imports content items with current AutoChangeRecord YAML values",
+    "status": "migrated"
   },
   {
     "id": "04f50e62065bb2e7f3cd7e8646dde08c82c0f7a2:packages/core/metadata/commonObjects/exchangePlanContent/fromYAML.test.ts:26:764",
@@ -12843,10 +12843,10 @@
       "./__fixtures__/data"
     ],
     "line": 26,
-    "behavior": "",
+    "behavior": "Пустой YAML-список остаётся явным пустым Content",
     "targetPath": "packages/core/metadata/commonObjects/exchangePlanContent/fromYAMLToXML.test.ts",
-    "targetTitle": "",
-    "status": "pending"
+    "targetTitle": "imports [] as explicit empty content",
+    "status": "migrated"
   },
   {
     "id": "04f50e62065bb2e7f3cd7e8646dde08c82c0f7a2:packages/core/metadata/commonObjects/exchangePlanContent/toXML.test.ts:17:603",
@@ -12861,10 +12861,10 @@
       "content.xml"
     ],
     "line": 17,
-    "behavior": "",
+    "behavior": "Content с Allow и Deny проходит YAML round-trip",
     "targetPath": "packages/core/metadata/commonObjects/exchangePlanContent/fromYAMLToXML.test.ts",
-    "targetTitle": "",
-    "status": "pending"
+    "targetTitle": "round-trips content items with Allow and Deny auto record",
+    "status": "migrated"
   },
   {
     "id": "04f50e62065bb2e7f3cd7e8646dde08c82c0f7a2:packages/core/metadata/commonObjects/exchangePlanContent/toXML.test.ts:36:1203",
@@ -12878,10 +12878,10 @@
       "./__fixtures__/data"
     ],
     "line": 36,
-    "behavior": "",
+    "behavior": "Пустой Content создаёт пустой XML-контейнер",
     "targetPath": "packages/core/metadata/commonObjects/exchangePlanContent/fromYAMLToXML.test.ts",
-    "targetTitle": "",
-    "status": "pending"
+    "targetTitle": "exports empty content as an empty ExchangePlanContent container",
+    "status": "migrated"
   },
   {
     "id": "04f50e62065bb2e7f3cd7e8646dde08c82c0f7a2:packages/core/metadata/commonObjects/exchangePlanContent/toYAML.test.ts:15:438",
@@ -12895,10 +12895,10 @@
       "./__fixtures__/data"
     ],
     "line": 15,
-    "behavior": "",
+    "behavior": "AutoChangeRecord выводится актуальными YAML-значениями",
     "targetPath": "packages/core/metadata/commonObjects/exchangePlanContent/fromXMLToYAML.test.ts",
-    "targetTitle": "",
-    "status": "pending"
+    "targetTitle": "exports content items with current AutoChangeRecord YAML values",
+    "status": "migrated"
   },
   {
     "id": "04f50e62065bb2e7f3cd7e8646dde08c82c0f7a2:packages/core/metadata/commonObjects/exchangePlanContent/toYAML.test.ts:25:705",
@@ -12912,10 +12912,10 @@
       "./__fixtures__/data"
     ],
     "line": 25,
-    "behavior": "",
+    "behavior": "Пустой Content выводится как []",
     "targetPath": "packages/core/metadata/commonObjects/exchangePlanContent/fromXMLToYAML.test.ts",
-    "targetTitle": "",
-    "status": "pending"
+    "targetTitle": "exports empty content as []",
+    "status": "migrated"
   },
   {
     "id": "04f50e62065bb2e7f3cd7e8646dde08c82c0f7a2:packages/core/metadata/commonObjects/homePageWorkArea/fromXML.test.ts:34:1247",
@@ -13596,10 +13596,10 @@
       "columns.xml"
     ],
     "line": 9,
-    "behavior": "",
+    "behavior": "Графы журнала преобразуются из XML в YAML-карту",
     "targetPath": "packages/core/metadata/commonObjects/metadataDocumentJournalColumn/fromXMLToYAML.test.ts",
-    "targetTitle": "",
-    "status": "pending"
+    "targetTitle": "imports document journal columns",
+    "status": "migrated"
   },
   {
     "id": "04f50e62065bb2e7f3cd7e8646dde08c82c0f7a2:packages/core/metadata/commonObjects/metadataDocumentJournalColumn/fromYAML.test.ts:9:362",
@@ -13613,10 +13613,10 @@
       "./__fixtures__/data"
     ],
     "line": 9,
-    "behavior": "",
+    "behavior": "YAML-карта граф преобразуется в XML-коллекцию",
     "targetPath": "packages/core/metadata/commonObjects/metadataDocumentJournalColumn/fromYAMLToXML.test.ts",
-    "targetTitle": "",
-    "status": "pending"
+    "targetTitle": "imports collection from YAML map keyed by name",
+    "status": "migrated"
   },
   {
     "id": "04f50e62065bb2e7f3cd7e8646dde08c82c0f7a2:packages/core/metadata/commonObjects/metadataDocumentJournalColumn/toXML.test.ts:9:354",
@@ -13631,10 +13631,10 @@
       "columns.xml"
     ],
     "line": 9,
-    "behavior": "",
+    "behavior": "Графы журнала проходят YAML round-trip",
     "targetPath": "packages/core/metadata/commonObjects/metadataDocumentJournalColumn/fromYAMLToXML.test.ts",
-    "targetTitle": "",
-    "status": "pending"
+    "targetTitle": "round-trips document journal columns",
+    "status": "migrated"
   },
   {
     "id": "04f50e62065bb2e7f3cd7e8646dde08c82c0f7a2:packages/core/metadata/commonObjects/metadataDocumentJournalColumn/toYAML.test.ts:7:310",
@@ -13648,10 +13648,10 @@
       "./__fixtures__/data"
     ],
     "line": 7,
-    "behavior": "",
+    "behavior": "Графы экспортируются YAML-картой по имени",
     "targetPath": "packages/core/metadata/commonObjects/metadataDocumentJournalColumn/fromXMLToYAML.test.ts",
-    "targetTitle": "",
-    "status": "pending"
+    "targetTitle": "exports collection as YAML map keyed by name",
+    "status": "migrated"
   },
   {
     "id": "04f50e62065bb2e7f3cd7e8646dde08c82c0f7a2:packages/core/metadata/commonObjects/metadataExternalDataSourceCube/fromXML.test.ts:28:1392",
@@ -13666,10 +13666,10 @@
       "minimal.xml"
     ],
     "line": 28,
-    "behavior": "",
+    "behavior": "Куб внешнего источника проходит YAML round-trip",
     "targetPath": "packages/core/metadata/commonObjects/metadataExternalDataSourceCube/fromXMLToYAML.test.ts",
-    "targetTitle": "",
-    "status": "pending"
+    "targetTitle": "round-trips %s",
+    "status": "migrated"
   },
   {
     "id": "04f50e62065bb2e7f3cd7e8646dde08c82c0f7a2:packages/core/metadata/commonObjects/metadataExternalDataSourceCube/fromXML.test.ts:51:2088",
@@ -13683,10 +13683,10 @@
       "full.xml"
     ],
     "line": 51,
-    "behavior": "",
+    "behavior": "DimensionTable сохраняются без legacy-поля в YAML",
     "targetPath": "packages/core/metadata/commonObjects/metadataExternalDataSourceCube/fromXMLToYAML.test.ts",
-    "targetTitle": "",
-    "status": "pending"
+    "targetTitle": "imports dimension table child names into dimensionTables without dimensionTableNames",
+    "status": "migrated"
   },
   {
     "id": "04f50e62065bb2e7f3cd7e8646dde08c82c0f7a2:packages/core/metadata/commonObjects/metadataExternalDataSourceCube/fromXML.test.ts:62:2444",
@@ -13698,10 +13698,10 @@
     "declarationText": "it(\"does not define legacy dimensionTableNames pseudo-form rule\", () => {\n    expect(MetadataExternalDataSourceCubeRules.properties).not.toHaveProperty(\"dimensionTableNames\")\n  })",
     "fixtures": [],
     "line": 62,
-    "behavior": "",
+    "behavior": "Правила куба не содержат legacy dimensionTableNames",
     "targetPath": "packages/core/metadata/commonObjects/metadataExternalDataSourceCube/fromXMLToYAML.test.ts",
-    "targetTitle": "",
-    "status": "pending"
+    "targetTitle": "does not define legacy dimensionTableNames pseudo-form rule",
+    "status": "migrated"
   },
   {
     "id": "04f50e62065bb2e7f3cd7e8646dde08c82c0f7a2:packages/core/metadata/commonObjects/metadataExternalDataSourceCube/toXML.test.ts:27:1340",
@@ -13716,10 +13716,10 @@
       "minimal.xml"
     ],
     "line": 27,
-    "behavior": "",
+    "behavior": "Куб внешнего источника восстанавливается из YAML",
     "targetPath": "packages/core/metadata/commonObjects/metadataExternalDataSourceCube/fromYAMLToXML.test.ts",
-    "targetTitle": "",
-    "status": "pending"
+    "targetTitle": "should export %s",
+    "status": "migrated"
   },
   {
     "id": "04f50e62065bb2e7f3cd7e8646dde08c82c0f7a2:packages/core/metadata/commonObjects/metadataExternalDataSourceCube/toXML.test.ts:50:2038",
@@ -13733,10 +13733,10 @@
       "full.xml"
     ],
     "line": 50,
-    "behavior": "",
+    "behavior": "Имена DimensionTable выводятся из текущих значений проекта",
     "targetPath": "packages/core/metadata/commonObjects/metadataExternalDataSourceCube/fromYAMLToXML.test.ts",
-    "targetTitle": "",
-    "status": "pending"
+    "targetTitle": "exports DimensionTable child names from dimensionTables",
+    "status": "migrated"
   },
   {
     "id": "04f50e62065bb2e7f3cd7e8646dde08c82c0f7a2:packages/core/metadata/commonObjects/metadataExternalDataSourceCubeDimension/fromXML.test.ts:9:402",
@@ -13751,10 +13751,10 @@
       "minimal.xml"
     ],
     "line": 9,
-    "behavior": "",
+    "behavior": "Кубическое измерение проходит YAML round-trip",
     "targetPath": "packages/core/metadata/commonObjects/metadataExternalDataSourceCubeDimension/fromXMLToYAML.test.ts",
-    "targetTitle": "",
-    "status": "pending"
+    "targetTitle": "round-trips %s",
+    "status": "migrated"
   },
   {
     "id": "04f50e62065bb2e7f3cd7e8646dde08c82c0f7a2:packages/core/metadata/commonObjects/metadataExternalDataSourceCubeDimension/fromXML.test.ts:28:851",
@@ -13766,10 +13766,10 @@
     "declarationText": "it(\"does not export non-cube dimension defaults without reference\", () => {\n    const { result } = testExportPropertyToXML({\n      rule,\n      value: {\n        name: \"ИзмерениеКуба\",\n        type: { type: [\"string\"] },\n      },\n      xmlRootTag: \"Dimension\",\n      referenceMetadata: undefined,\n    })\n\n    expect(result).not.toContain(\"<Balance>\")\n    expect(result).not.toContain(\"<BaseDimension>\")\n    expect(result).not.toContain(\"<DataHistory>\")\n    expect(result).not.toContain(\"<DenyIncompleteValues>\")\n    expect(result).not.toContain(\"<FullTextSearch>\")\n    expect(result).not.toContain(\"<Indexing>\")\n    expect(result).not.toContain(\"<MainFilter>\")\n    expect(result).not.toContain(\"<Master>\")\n    expect(result).not.toContain(\"<TypeReductionMode>\")\n    expect(result).not.toContain(\"<UseInTotals>\")\n  })",
     "fixtures": [],
     "line": 28,
-    "behavior": "",
+    "behavior": "Лишние defaults измерения не создаются без reference",
     "targetPath": "packages/core/metadata/commonObjects/metadataExternalDataSourceCubeDimension/fromXMLToYAML.test.ts",
-    "targetTitle": "",
-    "status": "pending"
+    "targetTitle": "does not export non-cube dimension defaults without reference",
+    "status": "migrated"
   },
   {
     "id": "04f50e62065bb2e7f3cd7e8646dde08c82c0f7a2:packages/core/metadata/commonObjects/metadataExternalDataSourceCubeResource/fromXML.test.ts:9:399",
@@ -13784,10 +13784,10 @@
       "minimal.xml"
     ],
     "line": 9,
-    "behavior": "",
+    "behavior": "Кубический ресурс проходит YAML round-trip",
     "targetPath": "packages/core/metadata/commonObjects/metadataExternalDataSourceCubeResource/fromXMLToYAML.test.ts",
-    "targetTitle": "",
-    "status": "pending"
+    "targetTitle": "round-trips %s",
+    "status": "migrated"
   },
   {
     "id": "04f50e62065bb2e7f3cd7e8646dde08c82c0f7a2:packages/core/metadata/commonObjects/metadataExternalDataSourceCubeResource/fromXML.test.ts:28:846",
@@ -13799,10 +13799,10 @@
     "declarationText": "it(\"does not export non-cube resource defaults without reference\", () => {\n    const { result } = testExportPropertyToXML({\n      rule,\n      value: {\n        name: \"РесурсКуба\",\n        type: { type: [\"decimal\"], numberQualifiers: { digits: 10, fractionDigits: 0, allowedSign: \"Any\" } },\n        nameInDataSource: \"ResourceInDataSource\",\n      },\n      xmlRootTag: \"Resource\",\n      referenceMetadata: undefined,\n    })\n\n    expect(result).not.toContain(\"<Balance>\")\n    expect(result).not.toContain(\"<ChoiceFoldersAndItems>\")\n    expect(result).not.toContain(\"<ChoiceHistoryOnInput>\")\n    expect(result).not.toContain(\"<CreateOnInput>\")\n    expect(result).not.toContain(\"<DataHistory>\")\n    expect(result).not.toContain(\"<FillChecking>\")\n    expect(result).not.toContain(\"<FillFromFillingValue>\")\n    expect(result).not.toContain(\"<FullTextSearch>\")\n    expect(result).not.toContain(\"<Indexing>\")\n  })",
     "fixtures": [],
     "line": 28,
-    "behavior": "",
+    "behavior": "Лишние defaults ресурса не создаются без reference",
     "targetPath": "packages/core/metadata/commonObjects/metadataExternalDataSourceCubeResource/fromXMLToYAML.test.ts",
-    "targetTitle": "",
-    "status": "pending"
+    "targetTitle": "does not export non-cube resource defaults without reference",
+    "status": "migrated"
   },
   {
     "id": "04f50e62065bb2e7f3cd7e8646dde08c82c0f7a2:packages/core/metadata/commonObjects/metadataExternalDataSourceDimensionTable/fromXML.test.ts:14:722",
@@ -13817,10 +13817,10 @@
       "minimal.xml"
     ],
     "line": 14,
-    "behavior": "",
+    "behavior": "Таблица измерения проходит YAML round-trip",
     "targetPath": "packages/core/metadata/commonObjects/metadataExternalDataSourceDimensionTable/fromXMLToYAML.test.ts",
-    "targetTitle": "",
-    "status": "pending"
+    "targetTitle": "round-trips %s",
+    "status": "migrated"
   },
   {
     "id": "04f50e62065bb2e7f3cd7e8646dde08c82c0f7a2:packages/core/metadata/commonObjects/metadataExternalDataSourceDimensionTable/toXML.test.ts:14:732",
@@ -13835,10 +13835,10 @@
       "minimal.xml"
     ],
     "line": 14,
-    "behavior": "",
+    "behavior": "Таблица измерения восстанавливается из YAML",
     "targetPath": "packages/core/metadata/commonObjects/metadataExternalDataSourceDimensionTable/fromYAMLToXML.test.ts",
-    "targetTitle": "",
-    "status": "pending"
+    "targetTitle": "should export %s",
+    "status": "migrated"
   },
   {
     "id": "04f50e62065bb2e7f3cd7e8646dde08c82c0f7a2:packages/core/metadata/commonObjects/metadataExternalDataSourceField/fromXML.test.ts:9:382",
@@ -13853,10 +13853,10 @@
       "minimal.xml"
     ],
     "line": 9,
-    "behavior": "",
+    "behavior": "Поле внешнего источника проходит YAML round-trip",
     "targetPath": "packages/core/metadata/commonObjects/metadataExternalDataSourceField/fromXMLToYAML.test.ts",
-    "targetTitle": "",
-    "status": "pending"
+    "targetTitle": "round-trips %s",
+    "status": "migrated"
   },
   {
     "id": "04f50e62065bb2e7f3cd7e8646dde08c82c0f7a2:packages/core/metadata/commonObjects/metadataExternalDataSourceFunction/fromXML.test.ts:9:391",
@@ -13871,10 +13871,10 @@
       "minimal.xml"
     ],
     "line": 9,
-    "behavior": "",
+    "behavior": "Функция внешнего источника проходит YAML round-trip",
     "targetPath": "packages/core/metadata/commonObjects/metadataExternalDataSourceFunction/fromXMLToYAML.test.ts",
-    "targetTitle": "",
-    "status": "pending"
+    "targetTitle": "round-trips %s",
+    "status": "migrated"
   },
   {
     "id": "04f50e62065bb2e7f3cd7e8646dde08c82c0f7a2:packages/core/metadata/commonObjects/metadataExternalDataSourceTable/fromXML.test.ts:13:611",
@@ -13889,10 +13889,10 @@
       "minimal.xml"
     ],
     "line": 13,
-    "behavior": "",
+    "behavior": "Таблица внешнего источника проходит YAML round-trip",
     "targetPath": "packages/core/metadata/commonObjects/metadataExternalDataSourceTable/fromXMLToYAML.test.ts",
-    "targetTitle": "",
-    "status": "pending"
+    "targetTitle": "round-trips %s",
+    "status": "migrated"
   },
   {
     "id": "04f50e62065bb2e7f3cd7e8646dde08c82c0f7a2:packages/core/metadata/commonObjects/metadataExternalDataSourceTable/toXML.test.ts:13:621",
@@ -13907,10 +13907,10 @@
       "minimal.xml"
     ],
     "line": 13,
-    "behavior": "",
+    "behavior": "Таблица внешнего источника восстанавливается из YAML",
     "targetPath": "packages/core/metadata/commonObjects/metadataExternalDataSourceTable/fromYAMLToXML.test.ts",
-    "targetTitle": "",
-    "status": "pending"
+    "targetTitle": "should export %s",
+    "status": "migrated"
   },
   {
     "id": "04f50e62065bb2e7f3cd7e8646dde08c82c0f7a2:packages/core/metadata/commonObjects/metadataHTTPServiceMethod/fromXML.test.ts:10:405",

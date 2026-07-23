@@ -109,7 +109,17 @@ export const getExportToYAMLResult = (
   }
   if ("implicitValueYAML" in rule && value === (rule as any).implicitValueYAML) return undefined
 
-  if (Array.isArray(value) && value.length === 0) return undefined
+  if (
+    Array.isArray(value) &&
+    value.length === 0 &&
+    !(
+      rule.yamlInline === true &&
+      Array.isArray(rule.defaultValue) &&
+      rule.defaultValue.length === 0 &&
+      Array.isArray(rule.defaultValueXMLEmpty)
+    )
+  )
+    return undefined
 
   if (value && typeof value === "object" && !Array.isArray(value) && Object.keys(value).length === 0) return undefined
 

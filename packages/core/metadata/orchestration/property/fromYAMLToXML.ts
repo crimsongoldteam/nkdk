@@ -137,7 +137,7 @@ export function convertPropertiesFromYAMLToXML(params: ConvertPropertiesFromYAML
   const externalWrites = [] as import("./fromYAMLToXMLTypes").YAMLToXMLExternalWrite[]
   const owner = metadataTargetOwnerFromRule({
     itemRule: params.rule,
-    name: params.name,
+    name: params.name ?? params.sourceItemName,
     context: params.context,
   })
   const orderedKeys = getOrderedKeysToXML({
@@ -169,6 +169,7 @@ export function convertPropertiesFromYAMLToXML(params: ConvertPropertiesFromYAML
       params.profile.propertyPaths.push(formatRulePath([...(params.rulePath ?? [params.rule.itemType]), propertyKey]))
     }
     const matchingOutputs = outputs.filter(({ request }) => matchesOutputTag(planned.propertyRule, request))
+    const exportHandler = getTypeRule(planned.propertyRule.type, "exportToXML")
     const references = matchingOutputs.map(({ request }) =>
       readReferenceProperty({
         context: params.context,
@@ -210,6 +211,7 @@ export function convertPropertiesFromYAMLToXML(params: ConvertPropertiesFromYAML
       !(planned.propertyKey === namePropertyKey && params.name !== undefined) &&
       matchingOutputs.every((output) => output.request.referenceXML !== undefined) &&
       references.every((reference) => !reference.exists) &&
+      !requiresYAMLToXMLEvaluation(planned.propertyRule) &&
       !hasExplicitXMLDefault(planned.propertyRule)
     ) {
       continue
@@ -221,7 +223,9 @@ export function convertPropertiesFromYAMLToXML(params: ConvertPropertiesFromYAML
       planned.propertyRule.runtimeOnly !== true &&
       planned.propertyRule.syncExternalOnly !== true &&
       planned.propertyRule.filePath === undefined &&
-      references.every((reference) => reference.exists)
+      !requiresYAMLToXMLEvaluation(planned.propertyRule) &&
+      references.every((reference) => reference.exists) &&
+      (!hasExplicitXMLDefault(planned.propertyRule) || references.every((reference) => reference.value !== undefined))
     ) {
       matchingOutputs.forEach((output, index) => {
         const reference = references[index]!
@@ -266,6 +270,7 @@ export function convertPropertiesFromYAMLToXML(params: ConvertPropertiesFromYAML
       if (
         nestedYAML === undefined &&
         effectiveNestedRule.kind === "collection" &&
+        !hasNestedDefault &&
         planned.propertyRule.preserveFromReferenceXML !== true &&
         references.every((reference) => isEmptyCollectionReference(reference.value, effectiveNestedRule.xmlElement))
       ) {
@@ -284,6 +289,14 @@ export function convertPropertiesFromYAMLToXML(params: ConvertPropertiesFromYAML
         matchingOutputs.forEach((output, index) =>
           writeXMLValue({ context: params.context, output, planned, value: [], reference: references[index]! })
         )
+        continue
+      }
+      if (
+        effectiveNestedRule.kind === "collection" &&
+        Array.isArray(nestedYAML) &&
+        nestedYAML.length === 0 &&
+        !hasNestedDefault
+      ) {
         continue
       }
       const nested =
@@ -399,7 +412,7 @@ export function convertPropertiesFromYAMLToXML(params: ConvertPropertiesFromYAML
           { configurationIndexAddressing: planned.propertyRule.configurationIndexAddressing }
         )
         const exported = callAtomicToXML({
-          handler: getTypeRule(planned.propertyRule.type, "exportToXML"),
+          handler: exportHandler,
           context: outputContext,
           rule: planned.propertyRule,
           value: imported,
@@ -570,6 +583,10 @@ function isYAMLPropertyExportEnabled(params: {
   const rule = planned.propertyRule
   if (rule.runtimeOnly || rule.syncExternalOnly || rule.filePath !== undefined || rule.toXML === false) return false
   return typeof rule.toXML !== "function" || rule.toXML(source, context)
+}
+
+function requiresYAMLToXMLEvaluation(rule: PropertyRule): boolean {
+  return rule.exportWithoutReferenceXML === true || rule.exportNilValue === true
 }
 
 function matchesOutputTag(rule: PropertyRule, output: YAMLToXMLOutputRequest): boolean {

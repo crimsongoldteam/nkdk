@@ -291,7 +291,7 @@ export function importPropertiesFromXMLToYAML(params: {
           : rawValue
       const defaultStartedAt = performance.now()
       const value =
-        !convertedDirectly && !forReference
+        !forReference
           ? getValueOrDefault({
               context: sourceContext,
               rule: propertyRule,

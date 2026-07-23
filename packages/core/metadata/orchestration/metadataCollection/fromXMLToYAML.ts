@@ -42,8 +42,7 @@ function configurationIndexItemContext(params: {
       `Адресуемая metadata-item коллекция ${options.propertyType ?? itemRule.itemType} содержит элемент без имени`
     )
   }
-  const uidSegment = options?.configurationIndexUidSegment ?? collection.childCollectionUidSegment
-  if (uidSegment === undefined) return context
+  const uidSegment = options?.configurationIndexUidSegment ?? collection.childCollectionUidSegment ?? itemRule.itemType
   return withConfigurationIndexLogicalAddress(
     context,
     itemName === undefined
@@ -186,6 +185,7 @@ function normalizeCollectionItems(xml: unknown, xmlElement: string): Record<stri
 
   const record = asRecord(xml)
   if (record === undefined) return []
+  if (Object.keys(record).length === 0) return []
   const nested = record[xmlElement]
   return nested === undefined
     ? [record]
