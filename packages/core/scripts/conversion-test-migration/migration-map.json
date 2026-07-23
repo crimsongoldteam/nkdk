@@ -11729,10 +11729,10 @@
       "full.xml"
     ],
     "line": 11,
-    "behavior": "",
+    "behavior": "Импортирует полный Filter из XML и в том же обходе формирует YAML.",
     "targetPath": "packages/core/metadata/commonObjects/dataCompositionSystem/filter/fromXMLToYAML.test.ts",
-    "targetTitle": "",
-    "status": "pending"
+    "targetTitle": "imports full XML and exports full YAML",
+    "status": "migrated"
   },
   {
     "id": "04f50e62065bb2e7f3cd7e8646dde08c82c0f7a2:packages/core/metadata/commonObjects/dataCompositionSystem/filter/fromYAML.test.ts:11:367",
@@ -11746,10 +11746,10 @@
       "./__fixtures__/data"
     ],
     "line": 11,
-    "behavior": "",
+    "behavior": "Импортирует полный Filter из YAML и в том же обходе формирует XML.",
     "targetPath": "packages/core/metadata/commonObjects/dataCompositionSystem/filter/fromYAMLToXML.test.ts",
-    "targetTitle": "",
-    "status": "pending"
+    "targetTitle": "imports full YAML and exports full XML",
+    "status": "migrated"
   },
   {
     "id": "04f50e62065bb2e7f3cd7e8646dde08c82c0f7a2:packages/core/metadata/commonObjects/dataCompositionSystem/filter/toXML.test.ts:11:335",
@@ -11764,10 +11764,10 @@
       "full.xml"
     ],
     "line": 11,
-    "behavior": "",
+    "behavior": "Формирует полный XML непосредственно из Filter YAML.",
     "targetPath": "packages/core/metadata/commonObjects/dataCompositionSystem/filter/fromYAMLToXML.test.ts",
-    "targetTitle": "",
-    "status": "pending"
+    "targetTitle": "imports full YAML and exports full XML",
+    "status": "migrated"
   },
   {
     "id": "04f50e62065bb2e7f3cd7e8646dde08c82c0f7a2:packages/core/metadata/commonObjects/dataCompositionSystem/filter/toYAML.test.ts:12:378",
@@ -11781,10 +11781,10 @@
       "./__fixtures__/data"
     ],
     "line": 12,
-    "behavior": "",
+    "behavior": "Формирует полный YAML из Filter, импортированного из XML.",
     "targetPath": "packages/core/metadata/commonObjects/dataCompositionSystem/filter/fromXMLToYAML.test.ts",
-    "targetTitle": "",
-    "status": "pending"
+    "targetTitle": "imports full XML and exports full YAML",
+    "status": "migrated"
   },
   {
     "id": "04f50e62065bb2e7f3cd7e8646dde08c82c0f7a2:packages/core/metadata/commonObjects/dataCompositionSystem/filterItem/fromXML.test.ts:23:856",
