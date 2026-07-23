@@ -229,6 +229,13 @@ function findReferenceItem(params: {
 }
 
 function collectionReferenceValue(referenceXML: unknown, xmlElement: string | undefined): unknown {
+  if (xmlElement !== undefined && Array.isArray(referenceXML)) {
+    return referenceXML.flatMap((value) => {
+      if (!isRecord(value) || !Object.prototype.hasOwnProperty.call(value, xmlElement)) return value
+      const nested = value[xmlElement]
+      return Array.isArray(nested) ? nested : [nested]
+    })
+  }
   if (
     xmlElement !== undefined &&
     isRecord(referenceXML) &&

@@ -151,6 +151,7 @@ export function testMetadataItemFromYAMLToXML(params: {
   name?: string
   referenceXML?: unknown
   propertyValues?: ReadonlyMap<string, unknown>
+  ownerYAML?: unknown
   externalWriteFactory?: YAMLToXMLExternalWriteFactory
 }): ToXMLResult {
   const result = convertMetadataItemFromYAMLToXML({
@@ -160,6 +161,7 @@ export function testMetadataItemFromYAMLToXML(params: {
     name: params.name,
     outputs: [{ key: "owner", referenceXML: params.referenceXML }],
     propertyValues: params.propertyValues,
+    ownerYAML: params.ownerYAML,
     externalWriteFactory: params.externalWriteFactory,
   })
   return { xml: result.outputs.get("owner") ?? {}, externalWrites: result.externalWrites }

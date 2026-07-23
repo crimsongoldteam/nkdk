@@ -14986,10 +14986,10 @@
       "imports full.xml"
     ],
     "line": 13,
-    "behavior": "",
+    "behavior": "Полный набор предопределённых значений преобразуется из XML в YAML",
     "targetPath": "packages/core/metadata/commonObjects/predefined/fromXMLToYAML.test.ts",
-    "targetTitle": "",
-    "status": "pending"
+    "targetTitle": "imports full.xml",
+    "status": "migrated"
   },
   {
     "id": "04f50e62065bb2e7f3cd7e8646dde08c82c0f7a2:packages/core/metadata/commonObjects/predefined/fromXML.test.ts:34:1313",
@@ -15004,10 +15004,10 @@
       "Справочники/Товары/Свойства.yaml"
     ],
     "line": 34,
-    "behavior": "",
+    "behavior": "Идентификаторы предопределённых элементов записываются по точным адресам индекса",
     "targetPath": "packages/core/metadata/commonObjects/predefined/fromXMLToYAML.test.ts",
-    "targetTitle": "",
-    "status": "pending"
+    "targetTitle": "пишет id предопределенных элементов в адреса конкретных элементов индекса",
+    "status": "migrated"
   },
   {
     "id": "04f50e62065bb2e7f3cd7e8646dde08c82c0f7a2:packages/core/metadata/commonObjects/predefined/fromYAML.test.ts:9:279",
@@ -15019,10 +15019,10 @@
     "declarationText": "it(\"inline-record парсится в items без обёртки\", () => {\n    const yaml = {\n      ПредопределенноеЗначение: { Код: \"000000001\", Наименование: \"Тест\", ЭтоГруппа: false },\n    }\n    const result = importMetadataItemFromYAML({\n      context: mockContext,\n      yaml: yaml as any,\n      rule: PredefinedRules,\n      name: \"predefined\",\n    })\n    expect(result).toMatchObject({ itemType: \"Predefined\" })\n    expect(result?.items?.[0]).toMatchObject({\n      name: \"ПредопределенноеЗначение\",\n      code: \"000000001\",\n      description: \"Тест\",\n      isFolder: false,\n    })\n  })",
     "fixtures": [],
     "line": 9,
-    "behavior": "",
+    "behavior": "Корневая YAML-запись преобразуется в элементы XML без обёртки",
     "targetPath": "packages/core/metadata/commonObjects/predefined/fromYAMLToXML.test.ts",
-    "targetTitle": "",
-    "status": "pending"
+    "targetTitle": "inline-record парсится в items без обёртки",
+    "status": "migrated"
   },
   {
     "id": "04f50e62065bb2e7f3cd7e8646dde08c82c0f7a2:packages/core/metadata/commonObjects/predefined/toXML.test.ts:16:679",
@@ -15037,10 +15037,10 @@
       "round-trip from full.xml"
     ],
     "line": 16,
-    "behavior": "",
+    "behavior": "Полный набор предопределённых значений сохраняется через YAML",
     "targetPath": "packages/core/metadata/commonObjects/predefined/fromYAMLToXML.test.ts",
-    "targetTitle": "",
-    "status": "pending"
+    "targetTitle": "round-trip from full.xml",
+    "status": "migrated"
   },
   {
     "id": "04f50e62065bb2e7f3cd7e8646dde08c82c0f7a2:packages/core/metadata/commonObjects/predefined/toXML.test.ts:38:1371",
@@ -15054,10 +15054,10 @@
       "../../appliedObjects/metadataChartOfAccounts/__fixtures__/sync/xml/ПланСчетовВсеСвойства/Ext/Predefined.xml"
     ],
     "line": 38,
-    "behavior": "",
+    "behavior": "Тип корневого XML сохраняется из референса",
     "targetPath": "packages/core/metadata/commonObjects/predefined/fromYAMLToXML.test.ts",
-    "targetTitle": "",
-    "status": "pending"
+    "targetTitle": "preserves reference root xsi:type",
+    "status": "migrated"
   },
   {
     "id": "04f50e62065bb2e7f3cd7e8646dde08c82c0f7a2:packages/core/metadata/commonObjects/predefined/toXML.test.ts:68:2343",
@@ -15069,10 +15069,10 @@
     "declarationText": "it(\"exports chart of characteristic types predefined root xsi:type\", () => {\n    const { result } = testExportPropertyToXML({\n      rule: { type: \"Predefined\" },\n      value: {\n        items: [\n          {\n            itemType: \"PredefinedItem\",\n            name: \"ПредопределенноеВсеСвойства\",\n            isFolder: false,\n            code: \"000000001\",\n            description: \"Предопределенное все свойства\",\n          },\n        ],\n      },\n      metadataItem: { itemType: \"MetadataChartOfCharacteristicTypes\" },\n      xmlRootTag: \"PredefinedData\",\n      exportXmlDataAsRoot: true,\n    })\n\n    expect(result).toContain('xsi:type=\"PlanOfCharacteristicKindPredefinedItems\"')\n  })",
     "fixtures": [],
     "line": 68,
-    "behavior": "",
+    "behavior": "Для плана видов характеристик формируется его тип корневого XML",
     "targetPath": "packages/core/metadata/commonObjects/predefined/fromYAMLToXML.test.ts",
-    "targetTitle": "",
-    "status": "pending"
+    "targetTitle": "exports chart of characteristic types predefined root xsi:type",
+    "status": "migrated"
   },
   {
     "id": "04f50e62065bb2e7f3cd7e8646dde08c82c0f7a2:packages/core/metadata/commonObjects/predefined/toYAML.test.ts:9:275",
@@ -15084,10 +15084,10 @@
     "declarationText": "it(\"экспортирует items как корневой Record (без обёртки items:)\", () => {\n    const data = {\n      itemType: \"Predefined\",\n      items: [{ name: \"X\", code: \"001\", description: \"X\", isFolder: false }],\n    } as any\n    const result = exportMetadataItemToYAML({\n      context: mockContext,\n      data,\n      rule: PredefinedRules,\n    })\n    expect(result).toEqual({\n      X: { Код: \"001\", Наименование: \"X\" },\n    })\n  })",
     "fixtures": [],
     "line": 9,
-    "behavior": "",
+    "behavior": "Элементы экспортируются корневой YAML-записью без служебной обёртки",
     "targetPath": "packages/core/metadata/commonObjects/predefined/fromXMLToYAML.test.ts",
-    "targetTitle": "",
-    "status": "pending"
+    "targetTitle": "экспортирует items как корневой Record (без обёртки items:)",
+    "status": "migrated"
   },
   {
     "id": "04f50e62065bb2e7f3cd7e8646dde08c82c0f7a2:packages/core/metadata/commonObjects/predefinedItem/fromXML.test.ts:17:684",

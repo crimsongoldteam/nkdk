@@ -211,7 +211,7 @@ function mergeReferenceXML(params: {
       if (propertyRule.preserveFromReferenceXML === true) result[key] = referenceValue
       continue
     }
-    result[key] = referenceValue
+    result[key] = referenceValue === undefined ? {} : referenceValue
   }
   for (const [key, generatedValue] of Object.entries(generated)) {
     if (generatedValue === undefined || Object.prototype.hasOwnProperty.call(result, key)) continue
