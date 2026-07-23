@@ -14474,10 +14474,10 @@
       "full.xml"
     ],
     "line": 8,
-    "behavior": "",
+    "behavior": "Полная табличная часть преобразуется из XML в YAML",
     "targetPath": "packages/core/metadata/commonObjects/metadataTabularSection/fromXMLToYAML.test.ts",
-    "targetTitle": "",
-    "status": "pending"
+    "targetTitle": "should import full",
+    "status": "migrated"
   },
   {
     "id": "04f50e62065bb2e7f3cd7e8646dde08c82c0f7a2:packages/core/metadata/commonObjects/metadataTabularSection/fromXML.test.ts:18:592",
@@ -14492,10 +14492,10 @@
       "minimal.xml"
     ],
     "line": 18,
-    "behavior": "",
+    "behavior": "Минимальная табличная часть преобразуется из XML в YAML",
     "targetPath": "packages/core/metadata/commonObjects/metadataTabularSection/fromXMLToYAML.test.ts",
-    "targetTitle": "",
-    "status": "pending"
+    "targetTitle": "should import minimal",
+    "status": "migrated"
   },
   {
     "id": "04f50e62065bb2e7f3cd7e8646dde08c82c0f7a2:packages/core/metadata/commonObjects/metadataTabularSection/fromXML.test.ts:28:846",
@@ -14509,10 +14509,10 @@
       "./__fixtures__/data"
     ],
     "line": 28,
-    "behavior": "",
+    "behavior": "Явный пустой Synonym не материализуется в YAML",
     "targetPath": "packages/core/metadata/commonObjects/metadataTabularSection/fromXMLToYAML.test.ts",
-    "targetTitle": "",
-    "status": "pending"
+    "targetTitle": "imports explicit empty Synonym as empty i18n text",
+    "status": "migrated"
   },
   {
     "id": "04f50e62065bb2e7f3cd7e8646dde08c82c0f7a2:packages/core/metadata/commonObjects/metadataTabularSection/fromXML.test.ts:57:1640",
@@ -14526,10 +14526,10 @@
       "./__fixtures__/data"
     ],
     "line": 57,
-    "behavior": "",
+    "behavior": "Отсутствующая XML-коллекция не создаёт YAML-свойство",
     "targetPath": "packages/core/metadata/commonObjects/metadataTabularSection/fromXMLToYAML.test.ts",
-    "targetTitle": "",
-    "status": "pending"
+    "targetTitle": "should return undefined when data is undefined",
+    "status": "migrated"
   },
   {
     "id": "04f50e62065bb2e7f3cd7e8646dde08c82c0f7a2:packages/core/metadata/commonObjects/metadataTabularSection/toXML.test.ts:98:4107",
@@ -14543,10 +14543,10 @@
       "./__fixtures__/data"
     ],
     "line": 98,
-    "behavior": "",
+    "behavior": "Полная табличная часть сохраняется через YAML",
     "targetPath": "packages/core/metadata/commonObjects/metadataTabularSection/fromYAMLToXML.test.ts",
-    "targetTitle": "",
-    "status": "pending"
+    "targetTitle": "should export full (round-trip)",
+    "status": "migrated"
   },
   {
     "id": "04f50e62065bb2e7f3cd7e8646dde08c82c0f7a2:packages/core/metadata/commonObjects/metadataTabularSection/toXML.test.ts:103:4251",
@@ -14560,10 +14560,10 @@
       "./__fixtures__/data"
     ],
     "line": 103,
-    "behavior": "",
+    "behavior": "Минимальная табличная часть сохраняется через YAML",
     "targetPath": "packages/core/metadata/commonObjects/metadataTabularSection/fromYAMLToXML.test.ts",
-    "targetTitle": "",
-    "status": "pending"
+    "targetTitle": "should export minimal (round-trip)",
+    "status": "migrated"
   },
   {
     "id": "04f50e62065bb2e7f3cd7e8646dde08c82c0f7a2:packages/core/metadata/commonObjects/metadataTabularSection/toXML.test.ts:108:4404",
@@ -14577,10 +14577,10 @@
       "./__fixtures__/data"
     ],
     "line": 108,
-    "behavior": "",
+    "behavior": "Явный пустой Synonym восстанавливается как пустой XML-тег",
     "targetPath": "packages/core/metadata/commonObjects/metadataTabularSection/fromYAMLToXML.test.ts",
-    "targetTitle": "",
-    "status": "pending"
+    "targetTitle": "preserves explicit empty Synonym as empty XML tag",
+    "status": "migrated"
   },
   {
     "id": "04f50e62065bb2e7f3cd7e8646dde08c82c0f7a2:packages/core/metadata/commonObjects/metadataTabularSection/toXML.test.ts:134:5460",
@@ -14594,10 +14594,10 @@
       "./__fixtures__/data"
     ],
     "line": 134,
-    "behavior": "",
+    "behavior": "Отсутствующая YAML-коллекция не создаёт XML",
     "targetPath": "packages/core/metadata/commonObjects/metadataTabularSection/fromYAMLToXML.test.ts",
-    "targetTitle": "",
-    "status": "pending"
+    "targetTitle": "should return undefined when data is undefined",
+    "status": "migrated"
   },
   {
     "id": "04f50e62065bb2e7f3cd7e8646dde08c82c0f7a2:packages/core/metadata/commonObjects/metadataTabularSection/toXML.test.ts:139:5612",
@@ -14611,10 +14611,10 @@
       "./__fixtures__/data"
     ],
     "line": 139,
-    "behavior": "",
+    "behavior": "Generated types табличной части обработки пересчитываются по владельцу",
     "targetPath": "packages/core/metadata/commonObjects/metadataTabularSection/fromYAMLToXML.test.ts",
-    "targetTitle": "",
-    "status": "pending"
+    "targetTitle": "should round-trip DataProcessor generated type names",
+    "status": "migrated"
   },
   {
     "id": "04f50e62065bb2e7f3cd7e8646dde08c82c0f7a2:packages/core/metadata/commonObjects/metadataTabularSection/toXML.test.ts:154:6290",
@@ -14628,10 +14628,10 @@
       "./__fixtures__/data"
     ],
     "line": 154,
-    "behavior": "",
+    "behavior": "Generated types табличной части плана обмена пересчитываются по владельцу",
     "targetPath": "packages/core/metadata/commonObjects/metadataTabularSection/fromYAMLToXML.test.ts",
-    "targetTitle": "",
-    "status": "pending"
+    "targetTitle": "should round-trip ExchangePlan generated type names",
+    "status": "migrated"
   },
   {
     "id": "04f50e62065bb2e7f3cd7e8646dde08c82c0f7a2:packages/core/metadata/commonObjects/metadataTabularSection/toYAML.test.ts:12:374",
@@ -14645,10 +14645,10 @@
       "./__fixtures__/data"
     ],
     "line": 12,
-    "behavior": "",
+    "behavior": "Отсутствующая табличная часть не экспортируется в YAML",
     "targetPath": "packages/core/metadata/commonObjects/metadataTabularSection/fromXMLToYAML.test.ts",
-    "targetTitle": "",
-    "status": "pending"
+    "targetTitle": "should return undefined when data is undefined",
+    "status": "migrated"
   },
   {
     "id": "04f50e62065bb2e7f3cd7e8646dde08c82c0f7a2:packages/core/metadata/commonObjects/metadataTabularSection/toYAML.test.ts:17:568",
@@ -14662,10 +14662,10 @@
       "./__fixtures__/data"
     ],
     "line": 17,
-    "behavior": "",
+    "behavior": "Полная табличная часть экспортируется в YAML",
     "targetPath": "packages/core/metadata/commonObjects/metadataTabularSection/fromXMLToYAML.test.ts",
-    "targetTitle": "",
-    "status": "pending"
+    "targetTitle": "should export full",
+    "status": "migrated"
   },
   {
     "id": "04f50e62065bb2e7f3cd7e8646dde08c82c0f7a2:packages/core/metadata/commonObjects/metadataTabularSection/toYAML.test.ts:22:761",
@@ -14679,10 +14679,10 @@
       "./__fixtures__/data"
     ],
     "line": 22,
-    "behavior": "",
+    "behavior": "Минимальная табличная часть экспортируется в YAML",
     "targetPath": "packages/core/metadata/commonObjects/metadataTabularSection/fromXMLToYAML.test.ts",
-    "targetTitle": "",
-    "status": "pending"
+    "targetTitle": "should export minimal",
+    "status": "migrated"
   },
   {
     "id": "04f50e62065bb2e7f3cd7e8646dde08c82c0f7a2:packages/core/metadata/commonObjects/metadataTaskAddressingAttribute/fromXML.test.ts:8:350",
@@ -14694,10 +14694,10 @@
     "declarationText": "it(\"does not expose fields that are not valid for task addressing attributes\", () => {\n    expect(MetadataTaskAddressingAttributeRules.properties).not.toHaveProperty(\"use\")\n    expect(MetadataTaskAddressingAttributeRules.properties).not.toHaveProperty(\"binaryDataStorageLocationUse\")\n    expect(MetadataTaskAddressingAttributeRules.properties).not.toHaveProperty(\"binaryDataStorageLocationUseField\")\n  })",
     "fixtures": [],
     "line": 8,
-    "behavior": "",
+    "behavior": "Правила реквизита адресации не содержат недопустимых полей",
     "targetPath": "packages/core/metadata/commonObjects/metadataTaskAddressingAttribute/fromXMLToYAML.test.ts",
-    "targetTitle": "",
-    "status": "pending"
+    "targetTitle": "does not expose fields that are not valid for task addressing attributes",
+    "status": "migrated"
   },
   {
     "id": "04f50e62065bb2e7f3cd7e8646dde08c82c0f7a2:packages/core/metadata/commonObjects/metadataTaskAddressingAttribute/fromXML.test.ts:14:758",
@@ -14709,10 +14709,10 @@
     "declarationText": "it(\"imports addressing dimension\", () => {\n    const result = importMetadataItemFromXML({\n      context: mockContextFromXML(),\n      rule: MetadataTaskAddressingAttributeRules,\n      xml: {\n        _uuid: \"d7d973ca-def2-485f-afd4-e16fb8ae54f5\",\n        Properties: {\n          Name: \"РеквизитАдресации\",\n          Synonym: \"\",\n          Comment: \"\",\n          Type: { \"v8:Type\": \"xs:string\" },\n          AddressingDimension: \"InformationRegister.Адресация.Dimension.Исполнитель\",\n        },\n      },\n    }) as MetadataTaskAddressingAttribute | undefined\n\n    expect(result).toMatchObject({\n      name: \"РеквизитАдресации\",\n      addressingDimension: \"InformationRegister.Адресация.Dimension.Исполнитель\",\n    })\n  })",
     "fixtures": [],
     "line": 14,
-    "behavior": "",
+    "behavior": "Измерение адресации преобразуется из XML в YAML",
     "targetPath": "packages/core/metadata/commonObjects/metadataTaskAddressingAttribute/fromXMLToYAML.test.ts",
-    "targetTitle": "",
-    "status": "pending"
+    "targetTitle": "imports addressing dimension",
+    "status": "migrated"
   },
   {
     "id": "04f50e62065bb2e7f3cd7e8646dde08c82c0f7a2:packages/core/metadata/commonObjects/metadataWebServiceOperation/fromXML.test.ts:10:431",

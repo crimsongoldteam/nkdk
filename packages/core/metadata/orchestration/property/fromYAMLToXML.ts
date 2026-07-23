@@ -225,7 +225,9 @@ export function convertPropertiesFromYAMLToXML(params: ConvertPropertiesFromYAML
       planned.propertyRule.filePath === undefined &&
       !requiresYAMLToXMLEvaluation(planned.propertyRule) &&
       references.every((reference) => reference.exists) &&
-      (!hasExplicitXMLDefault(planned.propertyRule) || references.every((reference) => reference.value !== undefined))
+      (!hasExplicitXMLDefault(planned.propertyRule) ||
+        planned.propertyRule.defaultValueXMLRaw === "" ||
+        references.every((reference) => reference.value !== undefined))
     ) {
       matchingOutputs.forEach((output, index) => {
         const reference = references[index]!
