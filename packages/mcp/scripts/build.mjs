@@ -62,13 +62,19 @@ await esbuild.build({
 await esbuild.build({
   ...commonOptions,
   entryPoints: [join(repoRoot, "packages/core/metadata/project/preparedYamlProjectWorker.ts")],
-  outfile: join(distDir, "preparedYamlProjectWorker.js"),
+  outfile: join(binDir, "preparedYamlProjectWorker.js"),
 })
 
 await esbuild.build({
   ...commonOptions,
   entryPoints: [join(repoRoot, "packages/core/metadata/importFromXml/worker.ts")],
-  outfile: join(distDir, "importFromXmlWorker.js"),
+  outfile: join(binDir, "importFromXmlWorker.js"),
+})
+
+await esbuild.build({
+  ...commonOptions,
+  entryPoints: [join(repoRoot, "packages/core/metadata/fullSyncToXml/worker.ts")],
+  outfile: join(binDir, "fullSyncToXmlWorker.js"),
 })
 
 await esbuild.build({
