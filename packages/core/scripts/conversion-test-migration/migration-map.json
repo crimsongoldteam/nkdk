@@ -13095,10 +13095,10 @@
       "minimal.xml"
     ],
     "line": 14,
-    "behavior": "",
+    "behavior": "Минимальный реквизит преобразуется из XML в YAML",
     "targetPath": "packages/core/metadata/commonObjects/metadataAttribute/fromXMLToYAML.test.ts",
-    "targetTitle": "",
-    "status": "pending"
+    "targetTitle": "should import minimal",
+    "status": "migrated"
   },
   {
     "id": "04f50e62065bb2e7f3cd7e8646dde08c82c0f7a2:packages/core/metadata/commonObjects/metadataAttribute/fromXML.test.ts:24:650",
@@ -13113,10 +13113,10 @@
       "multiple.xml"
     ],
     "line": 24,
-    "behavior": "",
+    "behavior": "Несколько реквизитов преобразуются из XML в YAML",
     "targetPath": "packages/core/metadata/commonObjects/metadataAttribute/fromXMLToYAML.test.ts",
-    "targetTitle": "",
-    "status": "pending"
+    "targetTitle": "should import multiple attributes",
+    "status": "migrated"
   },
   {
     "id": "04f50e62065bb2e7f3cd7e8646dde08c82c0f7a2:packages/core/metadata/commonObjects/metadataAttribute/fromXML.test.ts:34:913",
@@ -13131,10 +13131,10 @@
       "full.xml"
     ],
     "line": 34,
-    "behavior": "",
+    "behavior": "Полный реквизит преобразуется из XML в YAML",
     "targetPath": "packages/core/metadata/commonObjects/metadataAttribute/fromXMLToYAML.test.ts",
-    "targetTitle": "",
-    "status": "pending"
+    "targetTitle": "should import full",
+    "status": "migrated"
   },
   {
     "id": "04f50e62065bb2e7f3cd7e8646dde08c82c0f7a2:packages/core/metadata/commonObjects/metadataAttribute/fromXML.test.ts:44:1153",
@@ -13148,10 +13148,10 @@
       "./__fixtures__/data"
     ],
     "line": 44,
-    "behavior": "",
+    "behavior": "Явный пустой Synonym не материализуется в YAML",
     "targetPath": "packages/core/metadata/commonObjects/metadataAttribute/fromXMLToYAML.test.ts",
-    "targetTitle": "",
-    "status": "pending"
+    "targetTitle": "imports explicit empty Synonym as empty i18n text",
+    "status": "migrated"
   },
   {
     "id": "04f50e62065bb2e7f3cd7e8646dde08c82c0f7a2:packages/core/metadata/commonObjects/metadataAttribute/fromXML.test.ts:93:2923",
@@ -13165,10 +13165,10 @@
       "./__fixtures__/data"
     ],
     "line": 93,
-    "behavior": "",
+    "behavior": "Отсутствующая XML-коллекция не создаёт YAML-свойство",
     "targetPath": "packages/core/metadata/commonObjects/metadataAttribute/fromXMLToYAML.test.ts",
-    "targetTitle": "",
-    "status": "pending"
+    "targetTitle": "should return undefined when data is undefined",
+    "status": "migrated"
   },
   {
     "id": "04f50e62065bb2e7f3cd7e8646dde08c82c0f7a2:packages/core/metadata/commonObjects/metadataAttribute/fromXML.test.ts:106:3303",
@@ -13183,10 +13183,10 @@
       "document.xml"
     ],
     "line": 106,
-    "behavior": "",
+    "behavior": "Реквизит документа преобразуется из XML в YAML",
     "targetPath": "packages/core/metadata/commonObjects/metadataAttribute/fromXMLToYAML.test.ts",
-    "targetTitle": "",
-    "status": "pending"
+    "targetTitle": "should import document",
+    "status": "migrated"
   },
   {
     "id": "04f50e62065bb2e7f3cd7e8646dde08c82c0f7a2:packages/core/metadata/commonObjects/metadataAttribute/fromXML.test.ts:120:3736",
@@ -13201,10 +13201,10 @@
       "documentTabular.xml"
     ],
     "line": 120,
-    "behavior": "",
+    "behavior": "Реквизит табличной части документа преобразуется из XML в YAML",
     "targetPath": "packages/core/metadata/commonObjects/metadataAttribute/fromXMLToYAML.test.ts",
-    "targetTitle": "",
-    "status": "pending"
+    "targetTitle": "should import documentTabular",
+    "status": "migrated"
   },
   {
     "id": "04f50e62065bb2e7f3cd7e8646dde08c82c0f7a2:packages/core/metadata/commonObjects/metadataAttribute/fromYAML.test.ts:30:1166",
@@ -13218,10 +13218,10 @@
       "./__fixtures__/data"
     ],
     "line": 30,
-    "behavior": "",
+    "behavior": "Отсутствующая YAML-коллекция не создаёт XML",
     "targetPath": "packages/core/metadata/commonObjects/metadataAttribute/fromYAMLToXML.test.ts",
-    "targetTitle": "",
-    "status": "pending"
+    "targetTitle": "should return undefined when data is undefined",
+    "status": "migrated"
   },
   {
     "id": "04f50e62065bb2e7f3cd7e8646dde08c82c0f7a2:packages/core/metadata/commonObjects/metadataAttribute/fromYAML.test.ts:35:1344",
@@ -13235,10 +13235,10 @@
       "./__fixtures__/data"
     ],
     "line": 35,
-    "behavior": "",
+    "behavior": "Полное описание реквизита преобразуется из YAML в XML",
     "targetPath": "packages/core/metadata/commonObjects/metadataAttribute/fromYAMLToXML.test.ts",
-    "targetTitle": "",
-    "status": "pending"
+    "targetTitle": "should import full",
+    "status": "migrated"
   },
   {
     "id": "04f50e62065bb2e7f3cd7e8646dde08c82c0f7a2:packages/core/metadata/commonObjects/metadataAttribute/fromYAML.test.ts:44:1601",
@@ -13252,10 +13252,10 @@
       "./__fixtures__/data"
     ],
     "line": 44,
-    "behavior": "",
+    "behavior": "Минимальное описание реквизита преобразуется из YAML в XML",
     "targetPath": "packages/core/metadata/commonObjects/metadataAttribute/fromYAMLToXML.test.ts",
-    "targetTitle": "",
-    "status": "pending"
+    "targetTitle": "should import minimal",
+    "status": "migrated"
   },
   {
     "id": "04f50e62065bb2e7f3cd7e8646dde08c82c0f7a2:packages/core/metadata/commonObjects/metadataAttribute/fromYAML.test.ts:49:1793",
@@ -13269,10 +13269,10 @@
       "./__fixtures__/data"
     ],
     "line": 49,
-    "behavior": "",
+    "behavior": "Объектный формат реквизита преобразуется из YAML в XML",
     "targetPath": "packages/core/metadata/commonObjects/metadataAttribute/fromYAMLToXML.test.ts",
-    "targetTitle": "",
-    "status": "pending"
+    "targetTitle": "should import object format",
+    "status": "migrated"
   },
   {
     "id": "04f50e62065bb2e7f3cd7e8646dde08c82c0f7a2:packages/core/metadata/commonObjects/metadataAttribute/fromYAML.test.ts:54:1985",
@@ -13286,10 +13286,10 @@
       "./__fixtures__/data"
     ],
     "line": 54,
-    "behavior": "",
+    "behavior": "Скалярный краткий формат реквизита отклоняется",
     "targetPath": "packages/core/metadata/commonObjects/metadataAttribute/fromYAMLToXML.test.ts",
-    "targetTitle": "",
-    "status": "pending"
+    "targetTitle": "should reject scalar short format",
+    "status": "migrated"
   },
   {
     "id": "04f50e62065bb2e7f3cd7e8646dde08c82c0f7a2:packages/core/metadata/commonObjects/metadataAttribute/fromYAML.test.ts:65:2239",
@@ -13303,10 +13303,10 @@
       "./__fixtures__/data"
     ],
     "line": 65,
-    "behavior": "",
+    "behavior": "Идентификатор типа из YAML преобразуется в XML",
     "targetPath": "packages/core/metadata/commonObjects/metadataAttribute/fromYAMLToXML.test.ts",
-    "targetTitle": "",
-    "status": "pending"
+    "targetTitle": "should import TypeDescription typeId object format",
+    "status": "migrated"
   },
   {
     "id": "04f50e62065bb2e7f3cd7e8646dde08c82c0f7a2:packages/core/metadata/commonObjects/metadataAttribute/fromYAML.test.ts:86:2794",
@@ -13320,10 +13320,10 @@
       "./__fixtures__/data"
     ],
     "line": 86,
-    "behavior": "",
+    "behavior": "Многоязычный реквизит преобразуется из YAML в XML",
     "targetPath": "packages/core/metadata/commonObjects/metadataAttribute/fromYAMLToXML.test.ts",
-    "targetTitle": "",
-    "status": "pending"
+    "targetTitle": "should import multilanguage object format",
+    "status": "migrated"
   },
   {
     "id": "04f50e62065bb2e7f3cd7e8646dde08c82c0f7a2:packages/core/metadata/commonObjects/metadataAttribute/fromYAML.test.ts:91:3026",
@@ -13337,10 +13337,10 @@
       "./__fixtures__/data"
     ],
     "line": 91,
-    "behavior": "",
+    "behavior": "JSON Schema отклоняет скалярное описание реквизита",
     "targetPath": "packages/core/metadata/commonObjects/metadataAttribute/fromYAMLToXML.test.ts",
-    "targetTitle": "",
-    "status": "pending"
+    "targetTitle": "should reject scalar values in JSON Schema",
+    "status": "migrated"
   },
   {
     "id": "04f50e62065bb2e7f3cd7e8646dde08c82c0f7a2:packages/core/metadata/commonObjects/metadataAttribute/toXML.test.ts:10:482",
@@ -13355,10 +13355,10 @@
       "minimal.xml"
     ],
     "line": 10,
-    "behavior": "",
+    "behavior": "Минимальный реквизит сохраняется через YAML",
     "targetPath": "packages/core/metadata/commonObjects/metadataAttribute/fromYAMLToXML.test.ts",
-    "targetTitle": "",
-    "status": "pending"
+    "targetTitle": "should export minimal (round-trip)",
+    "status": "migrated"
   },
   {
     "id": "04f50e62065bb2e7f3cd7e8646dde08c82c0f7a2:packages/core/metadata/commonObjects/metadataAttribute/toXML.test.ts:21:791",
@@ -13373,10 +13373,10 @@
       "multiple.xml"
     ],
     "line": 21,
-    "behavior": "",
+    "behavior": "Несколько реквизитов сохраняются через YAML",
     "targetPath": "packages/core/metadata/commonObjects/metadataAttribute/fromYAMLToXML.test.ts",
-    "targetTitle": "",
-    "status": "pending"
+    "targetTitle": "should export multiple (round-trip)",
+    "status": "migrated"
   },
   {
     "id": "04f50e62065bb2e7f3cd7e8646dde08c82c0f7a2:packages/core/metadata/commonObjects/metadataAttribute/toXML.test.ts:32:1103",
@@ -13391,10 +13391,10 @@
       "full.xml"
     ],
     "line": 32,
-    "behavior": "",
+    "behavior": "Полный реквизит сохраняется через YAML",
     "targetPath": "packages/core/metadata/commonObjects/metadataAttribute/fromYAMLToXML.test.ts",
-    "targetTitle": "",
-    "status": "pending"
+    "targetTitle": "should export full (round-trip)",
+    "status": "migrated"
   },
   {
     "id": "04f50e62065bb2e7f3cd7e8646dde08c82c0f7a2:packages/core/metadata/commonObjects/metadataAttribute/toXML.test.ts:43:1403",
@@ -13408,10 +13408,10 @@
       "./__fixtures__/data"
     ],
     "line": 43,
-    "behavior": "",
+    "behavior": "Явный пустой синоним экспортируется как пустой XML-тег",
     "targetPath": "packages/core/metadata/commonObjects/metadataAttribute/fromYAMLToXML.test.ts",
-    "targetTitle": "",
-    "status": "pending"
+    "targetTitle": "exports explicit empty Synonym as empty XML tag",
+    "status": "migrated"
   },
   {
     "id": "04f50e62065bb2e7f3cd7e8646dde08c82c0f7a2:packages/core/metadata/commonObjects/metadataAttribute/toXML.test.ts:63:2013",
@@ -13425,10 +13425,10 @@
       "./__fixtures__/data"
     ],
     "line": 63,
-    "behavior": "",
+    "behavior": "Пустой Synonym из референса сохраняется при вычисленном синониме",
     "targetPath": "packages/core/metadata/commonObjects/metadataAttribute/fromYAMLToXML.test.ts",
-    "targetTitle": "",
-    "status": "pending"
+    "targetTitle": "preserves reference empty Synonym when current synonym is generated from name",
+    "status": "migrated"
   },
   {
     "id": "04f50e62065bb2e7f3cd7e8646dde08c82c0f7a2:packages/core/metadata/commonObjects/metadataAttribute/toXML.test.ts:91:2997",
@@ -13442,10 +13442,10 @@
       "./__fixtures__/data"
     ],
     "line": 91,
-    "behavior": "",
+    "behavior": "Отсутствующая коллекция реквизитов даёт пустой XML",
     "targetPath": "packages/core/metadata/commonObjects/metadataAttribute/fromYAMLToXML.test.ts",
-    "targetTitle": "",
-    "status": "pending"
+    "targetTitle": "should export empty string when data is undefined",
+    "status": "migrated"
   },
   {
     "id": "04f50e62065bb2e7f3cd7e8646dde08c82c0f7a2:packages/core/metadata/commonObjects/metadataAttribute/toXML.test.ts:101:3259",
@@ -13459,10 +13459,10 @@
       "./__fixtures__/data"
     ],
     "line": 101,
-    "behavior": "",
+    "behavior": "Тип xsi минимального значения сохраняется из референса",
     "targetPath": "packages/core/metadata/commonObjects/metadataAttribute/fromYAMLToXML.test.ts",
-    "targetTitle": "",
-    "status": "pending"
+    "targetTitle": "preserves minValue xsi type from reference",
+    "status": "migrated"
   },
   {
     "id": "04f50e62065bb2e7f3cd7e8646dde08c82c0f7a2:packages/core/metadata/commonObjects/metadataAttribute/toXML.test.ts:117:3801",
@@ -13476,10 +13476,10 @@
       "./__fixtures__/data"
     ],
     "line": 117,
-    "behavior": "",
+    "behavior": "Новое минимальное значение использует typedXML правила",
     "targetPath": "packages/core/metadata/commonObjects/metadataAttribute/fromYAMLToXML.test.ts",
-    "targetTitle": "",
-    "status": "pending"
+    "targetTitle": "fresh export MinValue uses rule typedXML",
+    "status": "migrated"
   },
   {
     "id": "04f50e62065bb2e7f3cd7e8646dde08c82c0f7a2:packages/core/metadata/commonObjects/metadataAttribute/toXML.test.ts:128:4130",
@@ -13493,10 +13493,10 @@
       "./__fixtures__/data"
     ],
     "line": 128,
-    "behavior": "",
+    "behavior": "Отсутствующий тип реквизита экспортируется пустым XML-тегом",
     "targetPath": "packages/core/metadata/commonObjects/metadataAttribute/fromYAMLToXML.test.ts",
-    "targetTitle": "",
-    "status": "pending"
+    "targetTitle": "exports empty Type tag when attribute type is missing",
+    "status": "migrated"
   },
   {
     "id": "04f50e62065bb2e7f3cd7e8646dde08c82c0f7a2:packages/core/metadata/commonObjects/metadataAttribute/toYAML.test.ts:27:866",
@@ -13510,10 +13510,10 @@
       "./__fixtures__/data"
     ],
     "line": 27,
-    "behavior": "",
+    "behavior": "Отсутствующий реквизит не экспортируется в YAML",
     "targetPath": "packages/core/metadata/commonObjects/metadataAttribute/fromXMLToYAML.test.ts",
-    "targetTitle": "",
-    "status": "pending"
+    "targetTitle": "should export undefined when data is undefined",
+    "status": "migrated"
   },
   {
     "id": "04f50e62065bb2e7f3cd7e8646dde08c82c0f7a2:packages/core/metadata/commonObjects/metadataAttribute/toYAML.test.ts:32:1055",
@@ -13527,10 +13527,10 @@
       "./__fixtures__/data"
     ],
     "line": 32,
-    "behavior": "",
+    "behavior": "Полный реквизит экспортируется в YAML",
     "targetPath": "packages/core/metadata/commonObjects/metadataAttribute/fromXMLToYAML.test.ts",
-    "targetTitle": "",
-    "status": "pending"
+    "targetTitle": "should export full",
+    "status": "migrated"
   },
   {
     "id": "04f50e62065bb2e7f3cd7e8646dde08c82c0f7a2:packages/core/metadata/commonObjects/metadataAttribute/toYAML.test.ts:37:1267",
@@ -13544,10 +13544,10 @@
       "./__fixtures__/data"
     ],
     "line": 37,
-    "behavior": "",
+    "behavior": "Реквизит экспортируется в объектном формате YAML",
     "targetPath": "packages/core/metadata/commonObjects/metadataAttribute/fromXMLToYAML.test.ts",
-    "targetTitle": "",
-    "status": "pending"
+    "targetTitle": "should export object format",
+    "status": "migrated"
   },
   {
     "id": "04f50e62065bb2e7f3cd7e8646dde08c82c0f7a2:packages/core/metadata/commonObjects/metadataAttribute/toYAML.test.ts:42:1470",
@@ -13561,10 +13561,10 @@
       "./__fixtures__/data"
     ],
     "line": 42,
-    "behavior": "",
+    "behavior": "Синоним, совпадающий с именем, пропускается в YAML",
     "targetPath": "packages/core/metadata/commonObjects/metadataAttribute/fromXMLToYAML.test.ts",
-    "targetTitle": "",
-    "status": "pending"
+    "targetTitle": "should skip synonym if it is equal to name",
+    "status": "migrated"
   },
   {
     "id": "04f50e62065bb2e7f3cd7e8646dde08c82c0f7a2:packages/core/metadata/commonObjects/metadataAttribute/toYAML.test.ts:47:1708",
@@ -13578,10 +13578,10 @@
       "./__fixtures__/data"
     ],
     "line": 47,
-    "behavior": "",
+    "behavior": "Многоязычный синоним экспортируется в объектном формате YAML",
     "targetPath": "packages/core/metadata/commonObjects/metadataAttribute/fromXMLToYAML.test.ts",
-    "targetTitle": "",
-    "status": "pending"
+    "targetTitle": "should export multilanguage object format",
+    "status": "migrated"
   },
   {
     "id": "04f50e62065bb2e7f3cd7e8646dde08c82c0f7a2:packages/core/metadata/commonObjects/metadataDocumentJournalColumn/fromXML.test.ts:9:360",

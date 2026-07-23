@@ -226,12 +226,17 @@ export function convertPropertiesFromYAMLToXML(params: ConvertPropertiesFromYAML
       !requiresYAMLToXMLEvaluation(planned.propertyRule) &&
       references.every((reference) => reference.exists) &&
       (!hasExplicitXMLDefault(planned.propertyRule) ||
-        planned.propertyRule.defaultValueXMLRaw === "" ||
+        Object.prototype.hasOwnProperty.call(planned.propertyRule, "defaultValueXMLRaw") ||
         references.every((reference) => reference.value !== undefined))
     ) {
       matchingOutputs.forEach((output, index) => {
         const reference = references[index]!
-        writeXMLValue({ context: params.context, output, planned, value: reference.value, reference })
+        const value =
+          reference.value === undefined &&
+          Object.prototype.hasOwnProperty.call(planned.propertyRule, "defaultValueXMLRaw")
+            ? planned.propertyRule.defaultValueXMLRaw
+            : reference.value
+        writeXMLValue({ context: params.context, output, planned, value, reference })
       })
       continue
     }
