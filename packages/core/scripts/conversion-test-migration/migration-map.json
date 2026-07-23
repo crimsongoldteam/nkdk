@@ -14878,10 +14878,10 @@
     "declarationText": "it(\"exports number as typed decimal without reference\", () => {\n    const result = exportPropertyToXML({\n      context: mockContextToXML(),\n      rule,\n      value: 1,\n    })\n\n    expect(result).toEqual({ \"_xsi:type\": \"xs:decimal\", \"#text\": \"1\" })\n  })",
     "fixtures": [],
     "line": 16,
-    "behavior": "",
+    "behavior": "Преобразует YAML-число и экспортирует его как типизированный xs:decimal без reference XML.",
     "targetPath": "packages/core/metadata/commonObjects/minMaxValue/fromYAMLToXML.test.ts",
-    "targetTitle": "",
-    "status": "pending"
+    "targetTitle": "exports number as typed decimal without reference",
+    "status": "migrated"
   },
   {
     "id": "04f50e62065bb2e7f3cd7e8646dde08c82c0f7a2:packages/core/metadata/commonObjects/minMaxValue/toXML.test.ts:26:832",
@@ -14893,10 +14893,10 @@
     "declarationText": "it(\"preserves xs:string from reference\", () => {\n    const { result } = testExportPropertyToXML({\n      rule,\n      value: 1,\n      referenceMetadata: testImportReference(),\n      xmlRootTag: \"MinValue\",\n    })\n\n    expect(result).toBe('<MinValue xsi:type=\"xs:string\">1</MinValue>')\n  })",
     "fixtures": [],
     "line": 26,
-    "behavior": "",
+    "behavior": "Сохраняет xs:string из reference XML после атомарного fromYAML → toXML.",
     "targetPath": "packages/core/metadata/commonObjects/minMaxValue/fromYAMLToXML.test.ts",
-    "targetTitle": "",
-    "status": "pending"
+    "targetTitle": "preserves xs:string from reference",
+    "status": "migrated"
   },
   {
     "id": "04f50e62065bb2e7f3cd7e8646dde08c82c0f7a2:packages/core/metadata/commonObjects/minMaxValue/toXML.test.ts:37:1123",
@@ -14908,10 +14908,10 @@
     "declarationText": "it(\"exports xs:string decimal comma from reference\", () => {\n    const { result } = testExportPropertyToXML({\n      rule,\n      value: 0.005,\n      referenceMetadata: testImportReference('<MinValue xsi:type=\"xs:string\">0,005</MinValue>'),\n      xmlRootTag: \"MinValue\",\n    })\n\n    expect(result).toBe('<MinValue xsi:type=\"xs:string\">0,005</MinValue>')\n  })",
     "fixtures": [],
     "line": 37,
-    "behavior": "",
+    "behavior": "Сохраняет десятичную запятую для xs:string из reference XML.",
     "targetPath": "packages/core/metadata/commonObjects/minMaxValue/fromYAMLToXML.test.ts",
-    "targetTitle": "",
-    "status": "pending"
+    "targetTitle": "exports xs:string decimal comma from reference",
+    "status": "migrated"
   },
   {
     "id": "04f50e62065bb2e7f3cd7e8646dde08c82c0f7a2:packages/core/metadata/commonObjects/minMaxValue/toXML.test.ts:48:1483",
@@ -14923,10 +14923,10 @@
     "declarationText": "it(\"exports xs:decimal decimal dot from reference\", () => {\n    const { result } = testExportPropertyToXML({\n      rule,\n      value: 0.005,\n      referenceMetadata: testImportReference('<MinValue xsi:type=\"xs:decimal\">0.005</MinValue>'),\n      xmlRootTag: \"MinValue\",\n    })\n\n    expect(result).toBe('<MinValue xsi:type=\"xs:decimal\">0.005</MinValue>')\n  })",
     "fixtures": [],
     "line": 48,
-    "behavior": "",
+    "behavior": "Сохраняет десятичную точку для xs:decimal из reference XML.",
     "targetPath": "packages/core/metadata/commonObjects/minMaxValue/fromYAMLToXML.test.ts",
-    "targetTitle": "",
-    "status": "pending"
+    "targetTitle": "exports xs:decimal decimal dot from reference",
+    "status": "migrated"
   },
   {
     "id": "04f50e62065bb2e7f3cd7e8646dde08c82c0f7a2:packages/core/metadata/commonObjects/minMaxValue/toXML.test.ts:59:1844",
@@ -14938,10 +14938,10 @@
     "declarationText": "it(\"preserves xs:string integer decimal comma from reference\", () => {\n    const { result } = testExportPropertyToXML({\n      rule,\n      value: 0,\n      referenceMetadata: testImportReference('<MinValue xsi:type=\"xs:string\">0,00</MinValue>'),\n      xmlRootTag: \"MinValue\",\n    })\n\n    expect(result).toBe('<MinValue xsi:type=\"xs:string\">0,00</MinValue>')\n  })",
     "fixtures": [],
     "line": 59,
-    "behavior": "",
+    "behavior": "Сохраняет формат целого числа с десятичной запятой для неизменённого xs:string.",
     "targetPath": "packages/core/metadata/commonObjects/minMaxValue/fromYAMLToXML.test.ts",
-    "targetTitle": "",
-    "status": "pending"
+    "targetTitle": "preserves xs:string integer decimal comma from reference",
+    "status": "migrated"
   },
   {
     "id": "04f50e62065bb2e7f3cd7e8646dde08c82c0f7a2:packages/core/metadata/commonObjects/minMaxValue/toXML.test.ts:70:2208",
@@ -14953,10 +14953,10 @@
     "declarationText": "it(\"formats changed value instead of stale reference XML text\", () => {\n    const { result } = testExportPropertyToXML({\n      rule,\n      value: 1,\n      referenceMetadata: testImportReference('<MinValue xsi:type=\"xs:string\">0,00</MinValue>'),\n      xmlRootTag: \"MinValue\",\n    })\n\n    expect(result).toBe('<MinValue xsi:type=\"xs:string\">1</MinValue>')\n  })",
     "fixtures": [],
     "line": 70,
-    "behavior": "",
+    "behavior": "Форматирует изменённое YAML-значение, не копируя устаревший текст reference XML.",
     "targetPath": "packages/core/metadata/commonObjects/minMaxValue/fromYAMLToXML.test.ts",
-    "targetTitle": "",
-    "status": "pending"
+    "targetTitle": "formats changed value instead of stale reference XML text",
+    "status": "migrated"
   },
   {
     "id": "04f50e62065bb2e7f3cd7e8646dde08c82c0f7a2:packages/core/metadata/commonObjects/minMaxValue/toXML.test.ts:81:2570",
@@ -14968,10 +14968,10 @@
     "declarationText": "it(\"preserves xs:string non-numeric text from reference for NaN\", () => {\n    const { result } = testExportPropertyToXML({\n      rule,\n      value: Number.NaN,\n      referenceMetadata: testImportReference('<MinValue xsi:type=\"xs:string\">abc</MinValue>'),\n      xmlRootTag: \"MinValue\",\n    })\n\n    expect(result).toBe('<MinValue xsi:type=\"xs:string\">abc</MinValue>')\n  })",
     "fixtures": [],
     "line": 81,
-    "behavior": "",
+    "behavior": "Сохраняет исходный нечисловой текст xs:string, когда YAML-значение равно NaN.",
     "targetPath": "packages/core/metadata/commonObjects/minMaxValue/fromYAMLToXML.test.ts",
-    "targetTitle": "",
-    "status": "pending"
+    "targetTitle": "preserves xs:string non-numeric text from reference for NaN",
+    "status": "migrated"
   },
   {
     "id": "04f50e62065bb2e7f3cd7e8646dde08c82c0f7a2:packages/core/metadata/commonObjects/predefined/fromXML.test.ts:13:600",
