@@ -39,6 +39,14 @@ type CollectionRule<Rule extends MetadataItemRule, CollectionType extends Proper
   preserveReferenceItems?: true
   /** Не выводить XML-свойства элемента, отсутствующие в его YAML-записи. */
   sparseItems?: true
+  /** Не создавать XML-значения по умолчанию для отсутствующих полей разреженного элемента. */
+  omitDefaultsForSparseItems?: true
+  omitDefaultsForSparseItem?: Extract<
+    import("../property/fromYAMLToXMLTypes").YAMLToXMLNestedRule,
+    { kind: "collection" }
+  >["omitDefaultsForSparseItem"]
+  /** Не создавать XML-контейнер, если после преобразования в коллекции нет элементов. */
+  omitEmptyOutput?: true
   mapItemOutput?: Extract<
     import("../property/fromYAMLToXMLTypes").YAMLToXMLNestedRule,
     { kind: "collection" }
@@ -130,6 +138,9 @@ export const registerMetadataItemCollectionRule = <
     completeItemNames: params.completeItemNames,
     preserveReferenceItems: params.preserveReferenceItems,
     sparseItems: params.sparseItems,
+    omitDefaultsForSparseItems: params.omitDefaultsForSparseItems,
+    omitDefaultsForSparseItem: params.omitDefaultsForSparseItem,
+    omitEmptyOutput: params.omitEmptyOutput,
     mapItemOutput: params.mapItemOutput,
     normalizeItemYAML: params.normalizeItemYAML,
     referenceIdentity: params.referenceIdentity,

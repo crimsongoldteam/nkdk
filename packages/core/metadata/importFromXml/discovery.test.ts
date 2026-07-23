@@ -41,10 +41,10 @@ const testRoutes = [
   },
 ] as const satisfies readonly XmlImportRoute[]
 
-function fakeFs(paths: readonly string[]) {
+function fakeFs(paths: readonly string[], contents: Readonly<Record<string, string>> = {}) {
   return {
     listFiles: async () => paths,
-    readFile: vi.fn(),
+    readFile: vi.fn(async (path: string) => contents[path]),
   }
 }
 
@@ -133,7 +133,9 @@ describe("XML import discovery", () => {
       "Справочник/Контрагенты/Свойства.yaml",
       "Справочник/Контрагенты/Формы/ФормаЭлемента/Форма.yaml",
     ])
-    expect(result.assignments.find((assignment) => assignment.targetProjectPath.endsWith("/Форма.yaml"))?.externalFiles).toContainEqual({
+    expect(
+      result.assignments.find((assignment) => assignment.targetProjectPath.endsWith("/Форма.yaml"))?.externalFiles
+    ).toContainEqual({
       sourcePath: join(xmlDir, "Catalogs/Контрагенты/Forms/ФормаЭлемента/Ext/Form/Module.bsl"),
       targetProjectPath: "Справочник/Контрагенты/Формы/ФормаЭлемента/Модуль.bsl",
     })
@@ -173,7 +175,9 @@ describe("XML import discovery", () => {
     const result = await discoverXmlImport({
       xmlDir,
       routes: describeRegisteredXmlImportRoutes(),
-      fs: fakeFs(["DataProcessors/ОбработкаВсеСвойства.xml", `${formRoot}.xml`, `${formRoot}/Ext/Help.xml`, helpHtml]),
+      fs: fakeFs(["DataProcessors/ОбработкаВсеСвойства.xml", `${formRoot}.xml`, `${formRoot}/Ext/Help.xml`, helpHtml], {
+        [join(xmlDir, `${formRoot}/Ext/Help.xml`)]: "<Help><Page>ru</Page></Help>",
+      }),
     })
 
     const form = result.assignments.find((assignment) => assignment.targetProjectPath.endsWith("/Форма/Форма.yaml"))

@@ -99,7 +99,8 @@ function expandRouteRecursion(route: XmlImportRoute): XmlImportRoute[] {
         xmlPattern,
         targetPattern,
         role: recursion.assignmentRole,
-        inputRole: route.inputRole ?? (route.role === "fileItem" || route.source.kind === "itemRule" ? "metadata" : "property"),
+        inputRole:
+          route.inputRole ?? (route.role === "fileItem" || route.source.kind === "itemRule" ? "metadata" : "property"),
       })
       continue
     }
@@ -112,6 +113,17 @@ function expandRouteRecursion(route: XmlImportRoute): XmlImportRoute[] {
         recursion.targetRootPattern,
         targetRootPattern
       ),
+      selection:
+        route.selection === undefined
+          ? undefined
+          : {
+              ...route.selection,
+              manifestPattern: replacePatternRoot(
+                route.selection.manifestPattern,
+                recursion.xmlRootPattern,
+                xmlRootPattern
+              ),
+            },
     })
   }
   return result

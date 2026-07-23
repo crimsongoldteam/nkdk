@@ -10,6 +10,7 @@ import {
 import { mockContext, mockContextToXML } from "../mockContext"
 import { readAndParseXMLFile, readXMLFileAsString } from "../readAndParseXMLFile"
 import { readAndParseXMLFixture, readXMLFixtureAsString } from "../readFixtureXML"
+import { importContentFromXML } from "../../xml/import/importer"
 
 type Params = {
   rule: PropertyRule
@@ -22,6 +23,7 @@ type Params = {
   referenceMetadata?: unknown
   importMetaUrl?: string
   path?: string
+  xmlString?: string
 }
 
 export function testExportPropertyModelThroughYAMLToXML(params: Params & { path: string }): {
@@ -37,20 +39,23 @@ export function testExportPropertyModelThroughYAMLToXML(params: Params): {
   result: string
 } {
   const expectedResult =
-    params.path === undefined
-      ? undefined
-      : (
-          params.importMetaUrl
+    params.xmlString !== undefined
+      ? params.xmlString.trimEnd()
+      : params.path === undefined
+        ? undefined
+        : (params.importMetaUrl
             ? readXMLFixtureAsString(params.importMetaUrl, params.path)
             : readXMLFileAsString(params.path)
-        ).trimEnd()
+          ).trimEnd()
   const effectiveRootTag = params.xmlRootTag ?? params.rule.xml
   const referenceRoot =
-    params.path === undefined || effectiveRootTag === undefined
+    (params.path === undefined && params.xmlString === undefined) || effectiveRootTag === undefined
       ? undefined
-      : params.importMetaUrl
-        ? readAndParseXMLFixture<Record<string, ElementXML>>(params.importMetaUrl, params.path)
-        : readAndParseXMLFile<Record<string, ElementXML>>(params.path)
+      : params.xmlString !== undefined
+        ? importContentFromXML<Record<string, ElementXML>>(params.xmlString)
+        : params.importMetaUrl
+          ? readAndParseXMLFixture<Record<string, ElementXML>>(params.importMetaUrl, params.path!)
+          : readAndParseXMLFile<Record<string, ElementXML>>(params.path!)
   const referenceValue =
     "referenceMetadata" in params ? params.referenceMetadata : referenceRoot?.[effectiveRootTag as string]
   const yamlKey = params.rule.yaml ?? "Значение"
@@ -96,9 +101,10 @@ export function testExportPropertyModelThroughYAMLToXML(params: Params): {
     context,
     rule,
     yaml,
-    referenceXML: { Value: referenceValue },
+    referenceXML: referenceValue === undefined ? undefined : { Value: referenceValue },
   })
   const xmlData = converted.xml.Value
+  if (xmlData === undefined) return { expectedResult, result: "" }
   const xmlDataIsRoot =
     xmlData !== null &&
     typeof xmlData === "object" &&

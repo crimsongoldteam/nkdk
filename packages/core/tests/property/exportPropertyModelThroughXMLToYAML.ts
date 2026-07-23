@@ -4,6 +4,7 @@ import { testPropertyFromXMLToYAML, testPropertyFromYAMLToXML } from "../directC
 import { mockContext } from "../mockContext"
 import { readAndParseXMLFile } from "../readAndParseXMLFile"
 import { readAndParseXMLFixture } from "../readFixtureXML"
+import { importContentFromXML } from "../../xml/import/importer"
 
 export const testExportPropertyModelThroughXMLToYAML = (params: {
   rule: PropertyRule
@@ -11,6 +12,7 @@ export const testExportPropertyModelThroughXMLToYAML = (params: {
   yaml?: unknown
   name?: string
   path?: string
+  xmlString?: string
   xmlRootTag?: string
   importMetaUrl?: string
 }): unknown => {
@@ -19,10 +21,13 @@ export const testExportPropertyModelThroughXMLToYAML = (params: {
     itemType: "DirectPropertyModelProbe",
     properties: { value: propertyRule },
   } as MetadataItemRule
-  if (params.path !== undefined) {
-    const parsed = params.importMetaUrl
-      ? readAndParseXMLFixture<Record<string, unknown>>(params.importMetaUrl, params.path)
-      : readAndParseXMLFile<Record<string, unknown>>(params.path)
+  if (params.path !== undefined || params.xmlString !== undefined) {
+    const parsed =
+      params.xmlString !== undefined
+        ? importContentFromXML<Record<string, unknown>>(params.xmlString)
+        : params.importMetaUrl
+          ? readAndParseXMLFixture<Record<string, unknown>>(params.importMetaUrl, params.path!)
+          : readAndParseXMLFile<Record<string, unknown>>(params.path!)
     const rootTag = params.xmlRootTag ?? params.rule.xml
     const value = rootTag === undefined ? parsed : parsed[rootTag]
     return testPropertyFromXMLToYAML({

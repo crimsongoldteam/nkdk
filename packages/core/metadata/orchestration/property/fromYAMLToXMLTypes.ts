@@ -109,6 +109,8 @@ export type YAMLToXMLNestedRule =
         itemRule: MetadataItemRule
         propertyRule: PropertyRule | undefined
         context: import("../../context/types").ConfigurationContextWithExportToXML
+        collectionYAML: unknown
+        referenceXML: Record<string, unknown> | undefined
       }) => unknown
       readonly unwrapReferenceItem?: (params: {
         xml: Record<string, unknown>
@@ -125,6 +127,14 @@ export type YAMLToXMLNestedRule =
       }) => readonly string[]
       readonly preserveReferenceItems?: true
       readonly sparseItems?: true
+      readonly omitDefaultsForSparseItems?: true
+      readonly omitDefaultsForSparseItem?: (params: {
+        yaml: unknown
+        name: string | undefined
+        referenceXML: Record<string, unknown> | undefined
+        propertyRule: PropertyRule | undefined
+      }) => boolean
+      readonly omitEmptyOutput?: true
       readonly configurationIndexUidSegment?: string
       readonly configurationIndexAddressing?: ConfigurationIndexAddressingMode
     }

@@ -8151,10 +8151,10 @@
     "declarationText": "it(\"записывает Формы/<form>/Форма.yaml для каталога\", async () => {\n    await convertAppliedObjectFromXML({\n      rule: MetadataCatalogRules,\n      context: mockContextFromXML(),\n      inputDir,\n      name,\n      outputDir,\n    })\n\n    const yamlPath = join(outputDir, name, \"Формы\", \"ФормаЭлемента\", \"Форма.yaml\")\n\n    expect(fs.existsSync(yamlPath), `expected ${yamlPath}`).toBe(true)\n\n    fs.rmSync(outputDir, { recursive: true })\n  })",
     "fixtures": ["Форма.yaml"],
     "line": 18,
-    "behavior": "",
+    "behavior": "Единый импорт XML → YAML сохраняет поведение удалённого сценария «записывает Формы/<form>/Форма.yaml для каталога».",
     "targetPath": "packages/core/metadata/commonObjects/childFormNames/syncExternalFromXML.test.ts",
-    "targetTitle": "",
-    "status": "pending"
+    "targetTitle": "записывает Формы/<form>/Форма.yaml для каталога",
+    "status": "migrated"
   },
   {
     "id": "04f50e62065bb2e7f3cd7e8646dde08c82c0f7a2:packages/core/metadata/commonObjects/childFormNames/syncExternalFromXML.test.ts:34:1245",
@@ -8166,10 +8166,10 @@
     "declarationText": "it(\"экспортирует ссылку на текущую форму в настройках формы локальным именем\", async () => {\n    const tmpRoot = getXMLFixturePath(\"sync/syncConfiguration/_tmp_form_owner_in\")\n    const tmpInputDir = join(tmpRoot, \"xml\", \"Catalogs\")\n    const tmpOutputDir = join(tmpRoot, \"yaml\")\n    const sourceDir = getXMLFixturePath(\"sync/syncConfiguration/xml/Catalogs\")\n    if (fs.existsSync(tmpRoot)) fs.rmSync(tmpRoot, { recursive: true })\n    fs.cpSync(sourceDir, tmpInputDir, { recursive: true })\n\n    const formPath = join(tmpInputDir, name, \"Forms\", \"ФормаЭлемента\", \"Ext\", \"Form.xml\")\n    const formXml = fs.readFileSync(formPath, \"utf-8\")\n    fs.writeFileSync(\n      formPath,\n      formXml.replace(\n        /(<Form\\b[^>]*>\\s*)/,\n        `$1\\n\\t<SettingsStorage>Catalog.${name}.Form.ФормаЭлемента</SettingsStorage>`\n      ),\n      \"utf-8\"\n    )\n\n    await convertAppliedObjectFromXML({\n      rule: MetadataCatalogRules,\n      context: mockContextFromXML(),\n      inputDir: tmpInputDir,\n      name,\n      outputDir: tmpOutputDir,\n    })\n\n    const yaml = fs.readFileSync(join(tmpOutputDir, name, \"Формы\", \"ФормаЭлемента\", \"Форма.yaml\"), \"utf-8\")\n    expect(yaml).toContain(\"ХранилищеНастроек: ФормаЭлемента\")\n\n    fs.rmSync(tmpRoot, { recursive: true })\n  })",
     "fixtures": ["Form.xml", "Форма.yaml"],
     "line": 34,
-    "behavior": "",
+    "behavior": "Единый импорт XML → YAML сохраняет поведение удалённого сценария «экспортирует ссылку на текущую форму в настройках формы локальным именем».",
     "targetPath": "packages/core/metadata/commonObjects/childFormNames/syncExternalFromXML.test.ts",
-    "targetTitle": "",
-    "status": "pending"
+    "targetTitle": "экспортирует ссылку на текущую форму в настройках формы локальным именем",
+    "status": "migrated"
   },
   {
     "id": "04f50e62065bb2e7f3cd7e8646dde08c82c0f7a2:packages/core/metadata/commonObjects/childFormNames/syncExternalFromXML.test.ts:67:2503",
@@ -8181,10 +8181,10 @@
     "declarationText": "it(\"импортирует только страницы справки формы, перечисленные в Forms/<form>/Ext/Help.xml\", async () => {\n    const tmpRoot = getXMLFixturePath(\"sync/syncConfiguration/_tmp_form_help_in\")\n    const tmpInputDir = join(tmpRoot, \"xml\", \"Catalogs\")\n    const tmpOutputDir = join(tmpRoot, \"yaml\")\n    const sourceDir = getXMLFixturePath(\"sync/syncConfiguration/xml/Catalogs\")\n    if (fs.existsSync(tmpRoot)) fs.rmSync(tmpRoot, { recursive: true })\n    fs.cpSync(sourceDir, tmpInputDir, { recursive: true })\n\n    const helpXmlPath = join(tmpInputDir, name, \"Forms\", \"ФормаЭлемента\", \"Ext\", \"Help.xml\")\n    const helpDir = join(tmpInputDir, name, \"Forms\", \"ФормаЭлемента\", \"Ext\", \"Help\")\n    fs.mkdirSync(dirname(helpXmlPath), { recursive: true })\n    fs.mkdirSync(helpDir, { recursive: true })\n    fs.writeFileSync(\n      helpXmlPath,\n      `<?xml version=\"1.0\" encoding=\"UTF-8\"?>\\n<Help xmlns=\"http://v8.1c.ru/8.3/xcf/extrnprops\" xmlns:xs=\"http://www.w3.org/2001/XMLSchema\" xmlns:xsi=\"http://www.w3.org/2001/XMLSchema-instance\" version=\"2.20\">\\n\\t<Page>ru</Page>\\n</Help>`,\n      \"utf-8\"\n    )\n    fs.writeFileSync(join(helpDir, \"ru.html\"), \"<html>current</html>\", \"utf-8\")\n    fs.writeFileSync(join(helpDir, \"stale.html\"), \"<html>stale</html>\", \"utf-8\")\n\n    await convertAppliedObjectFromXML({\n      rule: MetadataCatalogRules,\n      context: mockContextFromXML(),\n      inputDir: tmpInputDir,\n      name,\n      outputDir: tmpOutputDir,\n    })\n\n    const formHelpDir = join(tmpOutputDir, name, \"Формы\", \"ФормаЭлемента\", \"Справка\")\n    expect(fs.existsSync(join(formHelpDir, \"ru.html\"))).toBe(true)\n    expect(fs.existsSync(join(formHelpDir, \"stale.html\"))).toBe(false)\n\n    fs.rmSync(tmpRoot, { recursive: true })\n  })",
     "fixtures": ["Help.xml", "импортирует только страницы справки формы, перечисленные в Forms/<form>/Ext/Help.xml"],
     "line": 67,
-    "behavior": "",
+    "behavior": "Единый импорт XML → YAML сохраняет поведение удалённого сценария «импортирует только страницы справки формы, перечисленные в Forms/<form>/Ext/Help.xml».",
     "targetPath": "packages/core/metadata/commonObjects/childFormNames/syncExternalFromXML.test.ts",
-    "targetTitle": "",
-    "status": "pending"
+    "targetTitle": "импортирует только страницы справки формы, перечисленные в Forms/<form>/Ext/Help.xml",
+    "status": "migrated"
   },
   {
     "id": "04f50e62065bb2e7f3cd7e8646dde08c82c0f7a2:packages/core/metadata/commonObjects/clientApplicationInterface/fromXML.test.ts:21:734",
@@ -8571,10 +8571,10 @@
     "declarationText": "it(\"imports full.xml\", () => {\n    const result = testImportPropertyFromXML({\n      rule,\n      path: \"full.xml\",\n      xmlRootTag: \"CalculatedField\",\n      importMetaUrl: import.meta.url,\n    })\n\n    expect(result).toEqual(fullCalculatedField)\n  })",
     "fixtures": ["./__fixtures__/data", "full.xml", "imports full.xml"],
     "line": 11,
-    "behavior": "",
+    "behavior": "Поведение проверяется единым преобразованием XML → YAML.",
     "targetPath": "packages/core/metadata/commonObjects/dataCompositionSystem/calculatedField/fromXMLToYAML.test.ts",
-    "targetTitle": "",
-    "status": "pending"
+    "targetTitle": "exports full YAML",
+    "status": "migrated"
   },
   {
     "id": "04f50e62065bb2e7f3cd7e8646dde08c82c0f7a2:packages/core/metadata/commonObjects/dataCompositionSystem/calculatedField/fromXML.test.ts:22:780",
@@ -8586,10 +8586,10 @@
     "declarationText": "it(\"imports appearance.xml\", () => {\n    const result = testImportPropertyFromXML({\n      rule,\n      path: \"appearance.xml\",\n      xmlRootTag: \"CalculatedField\",\n      importMetaUrl: import.meta.url,\n    })\n\n    expect(result).toEqual(appearanceCalculatedField)\n  })",
     "fixtures": ["./__fixtures__/data", "appearance.xml", "imports appearance.xml"],
     "line": 22,
-    "behavior": "",
+    "behavior": "Поведение проверяется единым преобразованием XML → YAML.",
     "targetPath": "packages/core/metadata/commonObjects/dataCompositionSystem/calculatedField/fromXMLToYAML.test.ts",
-    "targetTitle": "",
-    "status": "pending"
+    "targetTitle": "exports appearance YAML",
+    "status": "migrated"
   },
   {
     "id": "04f50e62065bb2e7f3cd7e8646dde08c82c0f7a2:packages/core/metadata/commonObjects/dataCompositionSystem/calculatedField/fromXML.test.ts:33:1051",
@@ -8601,10 +8601,10 @@
     "declarationText": "it(\"imports available values\", () => {\n    const result = testImportPropertyFromXML({\n      rule,\n      path: \"availableValues.xml\",\n      xmlRootTag: \"CalculatedField\",\n      importMetaUrl: import.meta.url,\n    })\n\n    expect(result).toEqual(availableValuesCalculatedField)\n  })",
     "fixtures": ["./__fixtures__/data", "availableValues.xml"],
     "line": 33,
-    "behavior": "",
+    "behavior": "Поведение проверяется единым преобразованием XML → YAML.",
     "targetPath": "packages/core/metadata/commonObjects/dataCompositionSystem/calculatedField/fromXMLToYAML.test.ts",
-    "targetTitle": "",
-    "status": "pending"
+    "targetTitle": "exports available values",
+    "status": "migrated"
   },
   {
     "id": "04f50e62065bb2e7f3cd7e8646dde08c82c0f7a2:packages/core/metadata/commonObjects/dataCompositionSystem/calculatedField/fromXML.test.ts:44:1334",
@@ -8616,10 +8616,10 @@
     "declarationText": "it(\"round-trips availableValues.xml\", () => {\n    const imported = testImportPropertyFromXML({\n      rule,\n      path: \"availableValues.xml\",\n      xmlRootTag: \"CalculatedField\",\n      importMetaUrl: import.meta.url,\n    })\n\n    const { result, expectedResult } = testExportPropertyToXML({\n      rule,\n      value: imported,\n      xmlRootTag: \"CalculatedField\",\n      path: \"availableValues.xml\",\n      importMetaUrl: import.meta.url,\n    })\n\n    expect(result).toEqual(expectedResult)\n  })",
     "fixtures": ["./__fixtures__/data", "availableValues.xml", "round-trips availableValues.xml"],
     "line": 44,
-    "behavior": "",
-    "targetPath": "packages/core/metadata/commonObjects/dataCompositionSystem/calculatedField/fromXMLToYAML.test.ts",
-    "targetTitle": "",
-    "status": "pending"
+    "behavior": "Поведение проверяется единым преобразованием XML → YAML.",
+    "targetPath": "packages/core/metadata/commonObjects/dataCompositionSystem/calculatedField/fromYAMLToXML.test.ts",
+    "targetTitle": "exports availableValues.xml",
+    "status": "migrated"
   },
   {
     "id": "04f50e62065bb2e7f3cd7e8646dde08c82c0f7a2:packages/core/metadata/commonObjects/dataCompositionSystem/calculatedField/fromYAML.test.ts:14:451",
@@ -8631,10 +8631,10 @@
     "declarationText": "it(\"imports full YAML\", () => {\n    const result = testImportPropertyFromYAML({\n      rule: { type: \"CalculatedField\" },\n      value: fullCalculatedFieldYAML,\n    })\n\n    expect(result).toEqual(fullCalculatedFieldFromCompactYAML)\n  })",
     "fixtures": ["./__fixtures__/data"],
     "line": 14,
-    "behavior": "",
+    "behavior": "Поведение проверяется единым преобразованием YAML → XML.",
     "targetPath": "packages/core/metadata/commonObjects/dataCompositionSystem/calculatedField/fromYAMLToXML.test.ts",
-    "targetTitle": "",
-    "status": "pending"
+    "targetTitle": "exports full.xml",
+    "status": "migrated"
   },
   {
     "id": "04f50e62065bb2e7f3cd7e8646dde08c82c0f7a2:packages/core/metadata/commonObjects/dataCompositionSystem/calculatedField/fromYAML.test.ts:23:689",
@@ -8646,10 +8646,10 @@
     "declarationText": "it(\"imports appearance YAML\", () => {\n    const result = testImportPropertyFromYAML({\n      rule: { type: \"CalculatedField\" },\n      value: appearanceCalculatedFieldYAML,\n    })\n\n    expect(result).toEqual(appearanceCalculatedField)\n  })",
     "fixtures": ["./__fixtures__/data"],
     "line": 23,
-    "behavior": "",
+    "behavior": "Поведение проверяется единым преобразованием YAML → XML.",
     "targetPath": "packages/core/metadata/commonObjects/dataCompositionSystem/calculatedField/fromYAMLToXML.test.ts",
-    "targetTitle": "",
-    "status": "pending"
+    "targetTitle": "exports appearance.xml",
+    "status": "migrated"
   },
   {
     "id": "04f50e62065bb2e7f3cd7e8646dde08c82c0f7a2:packages/core/metadata/commonObjects/dataCompositionSystem/calculatedField/fromYAML.test.ts:32:930",
@@ -8661,10 +8661,10 @@
     "declarationText": "it(\"imports available values\", () => {\n    const result = testImportPropertyFromYAML({\n      rule: { type: \"CalculatedField\" },\n      value: availableValuesCalculatedFieldYAML,\n    })\n\n    expect(result).toEqual(availableValuesCalculatedField)\n  })",
     "fixtures": ["./__fixtures__/data"],
     "line": 32,
-    "behavior": "",
+    "behavior": "Поведение проверяется единым преобразованием YAML → XML.",
     "targetPath": "packages/core/metadata/commonObjects/dataCompositionSystem/calculatedField/fromYAMLToXML.test.ts",
-    "targetTitle": "",
-    "status": "pending"
+    "targetTitle": "exports availableValues.xml",
+    "status": "migrated"
   },
   {
     "id": "04f50e62065bb2e7f3cd7e8646dde08c82c0f7a2:packages/core/metadata/commonObjects/dataCompositionSystem/calculatedField/toXML.test.ts:7:322",
@@ -9231,10 +9231,10 @@
     "declarationText": "it(\"imports full.xml\", () => {\n    const result = testImportPropertyFromXML({\n      rule,\n      path: \"full.xml\",\n      xmlRootTag: \"ConditionalAppearance\",\n      importMetaUrl: import.meta.url,\n    })\n\n    expect(result).toEqual(fullConditionalAppearanceItems)\n  })",
     "fixtures": ["./__fixtures__/data", "full.xml", "imports full.xml"],
     "line": 12,
-    "behavior": "",
+    "behavior": "Поведение проверяется единым преобразованием XML → YAML.",
     "targetPath": "packages/core/metadata/commonObjects/dataCompositionSystem/conditionalAppearanceItem/fromXMLToYAML.test.ts",
-    "targetTitle": "",
-    "status": "pending"
+    "targetTitle": "exports full collection",
+    "status": "migrated"
   },
   {
     "id": "04f50e62065bb2e7f3cd7e8646dde08c82c0f7a2:packages/core/metadata/commonObjects/dataCompositionSystem/conditionalAppearanceItem/fromXML.test.ts:23:720",
@@ -9246,10 +9246,10 @@
     "declarationText": "it(\"imports minimal.xml\", () => {\n    const result = testImportPropertyFromXML({\n      rule,\n      path: \"minimal.xml\",\n      xmlRootTag: \"ConditionalAppearance\",\n      importMetaUrl: import.meta.url,\n    })\n\n    expect(result).toEqual(minimalConditionalAppearanceItems)\n  })",
     "fixtures": ["./__fixtures__/data", "imports minimal.xml", "minimal.xml"],
     "line": 23,
-    "behavior": "",
+    "behavior": "Поведение проверяется единым преобразованием XML → YAML.",
     "targetPath": "packages/core/metadata/commonObjects/dataCompositionSystem/conditionalAppearanceItem/fromXMLToYAML.test.ts",
-    "targetTitle": "",
-    "status": "pending"
+    "targetTitle": "exports minimal collection",
+    "status": "migrated"
   },
   {
     "id": "04f50e62065bb2e7f3cd7e8646dde08c82c0f7a2:packages/core/metadata/commonObjects/dataCompositionSystem/conditionalAppearanceItem/fromYAML.test.ts:17:545",
@@ -9261,10 +9261,10 @@
     "declarationText": "it(\"imports full collection\", () => {\n    const result = testImportPropertyFromYAML({\n      rule,\n      value: fullConditionalAppearanceItemsYAML,\n    })\n\n    expect(result).toEqual(fullConditionalAppearanceItemsFromYAML)\n  })",
     "fixtures": ["./__fixtures__/data"],
     "line": 17,
-    "behavior": "",
+    "behavior": "Поведение проверяется единым преобразованием YAML → XML.",
     "targetPath": "packages/core/metadata/commonObjects/dataCompositionSystem/conditionalAppearanceItem/fromYAMLToXML.test.ts",
-    "targetTitle": "",
-    "status": "pending"
+    "targetTitle": "exports full.xml",
+    "status": "migrated"
   },
   {
     "id": "04f50e62065bb2e7f3cd7e8646dde08c82c0f7a2:packages/core/metadata/commonObjects/dataCompositionSystem/conditionalAppearanceItem/fromYAML.test.ts:26:775",
@@ -9276,10 +9276,10 @@
     "declarationText": "it(\"imports minimal collection\", () => {\n    const result = testImportPropertyFromYAML({\n      rule,\n      value: minimalConditionalAppearanceItemsYAML,\n    })\n\n    expect(result).toEqual(minimalConditionalAppearanceItems)\n  })",
     "fixtures": ["./__fixtures__/data"],
     "line": 26,
-    "behavior": "",
+    "behavior": "Поведение проверяется единым преобразованием YAML → XML.",
     "targetPath": "packages/core/metadata/commonObjects/dataCompositionSystem/conditionalAppearanceItem/fromYAMLToXML.test.ts",
-    "targetTitle": "",
-    "status": "pending"
+    "targetTitle": "exports minimal.xml",
+    "status": "migrated"
   },
   {
     "id": "04f50e62065bb2e7f3cd7e8646dde08c82c0f7a2:packages/core/metadata/commonObjects/dataCompositionSystem/conditionalAppearanceItem/toXML.test.ts:12:444",
@@ -9351,10 +9351,10 @@
     "declarationText": "it(\"round-trips full.xml\", () => {\n    const imported = testImportPropertyFromXML({\n      rule,\n      path: \"full.xml\",\n      xmlRootTag: \"Field\",\n      importMetaUrl: import.meta.url,\n    })\n\n    const { result, expectedResult } = testExportPropertyToXML({\n      rule,\n      value: imported,\n      xmlRootTag: \"Field\",\n      path: \"full.xml\",\n      importMetaUrl: import.meta.url,\n    })\n\n    expect(result).toEqual(expectedResult)\n  })",
     "fixtures": ["./__fixtures__/data", "full.xml", "round-trips full.xml"],
     "line": 48,
-    "behavior": "",
-    "targetPath": "packages/core/metadata/commonObjects/dataCompositionSystem/dataCompositionSchemaDataSetField/fromXMLToYAML.test.ts",
-    "targetTitle": "",
-    "status": "pending"
+    "behavior": "Единый тест «exports full.xml» сохраняет поведение удалённого сценария «round-trips full.xml».",
+    "targetPath": "packages/core/metadata/commonObjects/dataCompositionSystem/dataCompositionSchemaDataSetField/fromYAMLToXML.test.ts",
+    "targetTitle": "exports full.xml",
+    "status": "migrated"
   },
   {
     "id": "04f50e62065bb2e7f3cd7e8646dde08c82c0f7a2:packages/core/metadata/commonObjects/dataCompositionSystem/dataCompositionSchemaDataSetField/fromXML.test.ts:67:2272",
@@ -9366,10 +9366,10 @@
     "declarationText": "it(\"imports full.xml\", () => {\n    const result = testImportPropertyFromXML({\n      rule,\n      path: \"full.xml\",\n      xmlRootTag: \"Field\",\n      importMetaUrl: import.meta.url,\n    })\n\n    expect(result).toEqual(fullDataCompositionSchemaDataSetField)\n  })",
     "fixtures": ["./__fixtures__/data", "full.xml", "imports full.xml"],
     "line": 67,
-    "behavior": "",
+    "behavior": "Единый тест «exports full YAML» сохраняет поведение удалённого сценария «imports full.xml».",
     "targetPath": "packages/core/metadata/commonObjects/dataCompositionSystem/dataCompositionSchemaDataSetField/fromXMLToYAML.test.ts",
-    "targetTitle": "",
-    "status": "pending"
+    "targetTitle": "exports full YAML",
+    "status": "migrated"
   },
   {
     "id": "04f50e62065bb2e7f3cd7e8646dde08c82c0f7a2:packages/core/metadata/commonObjects/dataCompositionSystem/dataCompositionSchemaDataSetField/fromXML.test.ts:78:2533",
@@ -9396,10 +9396,10 @@
     "declarationText": "it(\"round-trips availableValues.xml\", () => {\n    const imported = testImportPropertyFromXML({\n      rule,\n      path: \"availableValues.xml\",\n      xmlRootTag: \"Field\",\n      importMetaUrl: import.meta.url,\n    })\n\n    const { result, expectedResult } = testExportPropertyToXML({\n      rule,\n      value: imported,\n      xmlRootTag: \"Field\",\n      path: \"availableValues.xml\",\n      importMetaUrl: import.meta.url,\n    })\n\n    expect(result).toEqual(expectedResult)\n  })",
     "fixtures": ["./__fixtures__/data", "availableValues.xml", "round-trips availableValues.xml"],
     "line": 89,
-    "behavior": "",
-    "targetPath": "packages/core/metadata/commonObjects/dataCompositionSystem/dataCompositionSchemaDataSetField/fromXMLToYAML.test.ts",
-    "targetTitle": "",
-    "status": "pending"
+    "behavior": "Единый тест «exports availableValues.xml» сохраняет поведение удалённого сценария «round-trips availableValues.xml».",
+    "targetPath": "packages/core/metadata/commonObjects/dataCompositionSystem/dataCompositionSchemaDataSetField/fromYAMLToXML.test.ts",
+    "targetTitle": "exports availableValues.xml",
+    "status": "migrated"
   },
   {
     "id": "04f50e62065bb2e7f3cd7e8646dde08c82c0f7a2:packages/core/metadata/commonObjects/dataCompositionSystem/dataCompositionSchemaDataSetField/fromXML.test.ts:108:3298",
@@ -9411,10 +9411,10 @@
     "declarationText": "it(\"imports appearance.xml\", () => {\n    const result = testImportPropertyFromXML({\n      rule,\n      path: \"appearance.xml\",\n      xmlRootTag: \"Field\",\n      importMetaUrl: import.meta.url,\n    })\n\n    expect(result).toEqual(appearanceDataCompositionSchemaDataSetField)\n  })",
     "fixtures": ["./__fixtures__/data", "appearance.xml", "imports appearance.xml"],
     "line": 108,
-    "behavior": "",
+    "behavior": "Единый тест «exports appearance from XML» сохраняет поведение удалённого сценария «imports appearance.xml».",
     "targetPath": "packages/core/metadata/commonObjects/dataCompositionSystem/dataCompositionSchemaDataSetField/fromXMLToYAML.test.ts",
-    "targetTitle": "",
-    "status": "pending"
+    "targetTitle": "exports appearance from XML",
+    "status": "migrated"
   },
   {
     "id": "04f50e62065bb2e7f3cd7e8646dde08c82c0f7a2:packages/core/metadata/commonObjects/dataCompositionSystem/dataCompositionSchemaDataSetField/fromXML.test.ts:119:3577",
@@ -9426,10 +9426,10 @@
     "declarationText": "it(\"round-trips appearance.xml\", () => {\n    const imported = testImportPropertyFromXML({\n      rule,\n      path: \"appearance.xml\",\n      xmlRootTag: \"Field\",\n      importMetaUrl: import.meta.url,\n    })\n\n    const { result, expectedResult } = testExportPropertyToXML({\n      rule,\n      value: imported,\n      xmlRootTag: \"Field\",\n      path: \"appearance.xml\",\n      importMetaUrl: import.meta.url,\n    })\n\n    expect(result).toEqual(expectedResult)\n  })",
     "fixtures": ["./__fixtures__/data", "appearance.xml", "round-trips appearance.xml"],
     "line": 119,
-    "behavior": "",
-    "targetPath": "packages/core/metadata/commonObjects/dataCompositionSystem/dataCompositionSchemaDataSetField/fromXMLToYAML.test.ts",
-    "targetTitle": "",
-    "status": "pending"
+    "behavior": "Единый тест «exports appearance.xml» сохраняет поведение удалённого сценария «round-trips appearance.xml».",
+    "targetPath": "packages/core/metadata/commonObjects/dataCompositionSystem/dataCompositionSchemaDataSetField/fromYAMLToXML.test.ts",
+    "targetTitle": "exports appearance.xml",
+    "status": "migrated"
   },
   {
     "id": "04f50e62065bb2e7f3cd7e8646dde08c82c0f7a2:packages/core/metadata/commonObjects/dataCompositionSystem/dataCompositionSchemaDataSetField/fromXML.test.ts:138:4036",
@@ -9441,10 +9441,10 @@
     "declarationText": "it(\"round-trips appearance direct fields\", () => {\n    const imported = testImportPropertyFromXML({\n      rule,\n      path: \"appearance-direct-fields.xml\",\n      xmlRootTag: \"Field\",\n      importMetaUrl: import.meta.url,\n    })\n\n    expect(imported).toEqual(directAppearanceFieldsDataCompositionSchemaDataSetField)\n\n    const { result, expectedResult } = testExportPropertyToXML({\n      rule,\n      value: imported,\n      xmlRootTag: \"Field\",\n      path: \"appearance-direct-fields.xml\",\n      importMetaUrl: import.meta.url,\n    })\n\n    expect(result).toContain(`<dcsset:value xsi:type=\"xs:string\">ЧЦ=15; ЧДЦ=2</dcsset:value>`)\n    expect(result).toContain(`<dcsset:textColor>`)\n    expect(result).toEqual(expectedResult)\n  })",
     "fixtures": ["./__fixtures__/data", "appearance-direct-fields.xml"],
     "line": 138,
-    "behavior": "",
-    "targetPath": "packages/core/metadata/commonObjects/dataCompositionSystem/dataCompositionSchemaDataSetField/fromXMLToYAML.test.ts",
-    "targetTitle": "",
-    "status": "pending"
+    "behavior": "Единый тест «exports appearance-direct-fields.xml» сохраняет поведение удалённого сценария «round-trips appearance direct fields».",
+    "targetPath": "packages/core/metadata/commonObjects/dataCompositionSystem/dataCompositionSchemaDataSetField/fromYAMLToXML.test.ts",
+    "targetTitle": "exports appearance-direct-fields.xml",
+    "status": "migrated"
   },
   {
     "id": "04f50e62065bb2e7f3cd7e8646dde08c82c0f7a2:packages/core/metadata/commonObjects/dataCompositionSystem/dataCompositionSchemaDataSetField/fromXML.test.ts:161:4766",
@@ -9456,10 +9456,10 @@
     "declarationText": "it(\"round-trips nested-data-set.xml\", () => {\n    const imported = testImportPropertyFromXML({\n      rule,\n      path: \"nested-data-set.xml\",\n      xmlRootTag: \"Field\",\n      importMetaUrl: import.meta.url,\n    })\n\n    const { result, expectedResult } = testExportPropertyToXML({\n      rule,\n      value: imported,\n      xmlRootTag: \"Field\",\n      path: \"nested-data-set.xml\",\n      importMetaUrl: import.meta.url,\n    })\n\n    expect(result).toEqual(expectedResult)\n  })",
     "fixtures": ["./__fixtures__/data", "nested-data-set.xml", "round-trips nested-data-set.xml"],
     "line": 161,
-    "behavior": "",
-    "targetPath": "packages/core/metadata/commonObjects/dataCompositionSystem/dataCompositionSchemaDataSetField/fromXMLToYAML.test.ts",
-    "targetTitle": "",
-    "status": "pending"
+    "behavior": "Единый тест «exports nested-data-set.xml» сохраняет поведение удалённого сценария «round-trips nested-data-set.xml».",
+    "targetPath": "packages/core/metadata/commonObjects/dataCompositionSystem/dataCompositionSchemaDataSetField/fromYAMLToXML.test.ts",
+    "targetTitle": "exports nested-data-set.xml",
+    "status": "migrated"
   },
   {
     "id": "04f50e62065bb2e7f3cd7e8646dde08c82c0f7a2:packages/core/metadata/commonObjects/dataCompositionSystem/dataCompositionSchemaDataSetField/fromXML.test.ts:180:5240",
@@ -9486,10 +9486,10 @@
     "declarationText": "it(\"round-trips folder.xml\", () => {\n    const imported = testImportPropertyFromXML({\n      rule,\n      path: \"folder.xml\",\n      xmlRootTag: \"Field\",\n      importMetaUrl: import.meta.url,\n    })\n\n    const { result, expectedResult } = testExportPropertyToXML({\n      rule,\n      value: imported,\n      xmlRootTag: \"Field\",\n      path: \"folder.xml\",\n      importMetaUrl: import.meta.url,\n    })\n\n    expect(result).toEqual(expectedResult)\n  })",
     "fixtures": ["./__fixtures__/data", "folder.xml", "round-trips folder.xml"],
     "line": 191,
-    "behavior": "",
-    "targetPath": "packages/core/metadata/commonObjects/dataCompositionSystem/dataCompositionSchemaDataSetField/fromXMLToYAML.test.ts",
-    "targetTitle": "",
-    "status": "pending"
+    "behavior": "Единый тест «exports folder.xml» сохраняет поведение удалённого сценария «round-trips folder.xml».",
+    "targetPath": "packages/core/metadata/commonObjects/dataCompositionSystem/dataCompositionSchemaDataSetField/fromYAMLToXML.test.ts",
+    "targetTitle": "exports folder.xml",
+    "status": "migrated"
   },
   {
     "id": "04f50e62065bb2e7f3cd7e8646dde08c82c0f7a2:packages/core/metadata/commonObjects/dataCompositionSystem/dataCompositionSchemaDataSetField/fromXML.test.ts:210:5973",
@@ -9516,10 +9516,10 @@
     "declarationText": "it(\"imports and exports xs:string title\", () => {\n    const result = testImportPropertyFromXML({\n      rule,\n      xmlString: xmlWithStringTitle,\n      xmlRootTag: \"Field\",\n    })\n    const referenceMetadata = testImportPropertyFromXML({\n      rule,\n      xmlString: xmlWithStringTitle,\n      xmlRootTag: \"Field\",\n      forReference: true,\n    })\n\n    expect(result).toEqual({\n      itemType: \"DataCompositionSchemaDataSetField\",\n      kind: \"ПолеНабораДанныхСхемыКомпоновкиДанных\",\n      dataPath: \"StringTitleField\",\n      field: \"StringTitleField\",\n      title: { items: { ru: \"String title\" } },\n    })\n\n    const exported = exportDataCompositionSchemaDataSetField(result, referenceMetadata)\n    expect(exported).toContain(`<dcssch:title xsi:type=\"xs:string\">String title</dcssch:title>`)\n    expect(exported).not.toContain(`<dcssch:title xsi:type=\"v8:LocalStringType\">`)\n  })",
     "fixtures": ["./__fixtures__/data"],
     "line": 221,
-    "behavior": "",
-    "targetPath": "packages/core/metadata/commonObjects/dataCompositionSystem/dataCompositionSchemaDataSetField/fromXMLToYAML.test.ts",
-    "targetTitle": "",
-    "status": "pending"
+    "behavior": "Единый тест «preserves xs:string title in XML» сохраняет поведение удалённого сценария «imports and exports xs:string title».",
+    "targetPath": "packages/core/metadata/commonObjects/dataCompositionSystem/dataCompositionSchemaDataSetField/fromYAMLToXML.test.ts",
+    "targetTitle": "preserves xs:string title in XML",
+    "status": "migrated"
   },
   {
     "id": "04f50e62065bb2e7f3cd7e8646dde08c82c0f7a2:packages/core/metadata/commonObjects/dataCompositionSystem/dataCompositionSchemaDataSetField/fromXML.test.ts:247:7125",
@@ -9531,10 +9531,10 @@
     "declarationText": "it(\"round-trips attributeUseRestriction\", () => {\n    const result = testImportPropertyFromXML({\n      rule,\n      xmlString: xmlWithAttributeUseRestriction,\n      xmlRootTag: \"Field\",\n    })\n\n    expect(result).toEqual({\n      itemType: \"DataCompositionSchemaDataSetField\",\n      kind: \"ПолеНабораДанныхСхемыКомпоновкиДанных\",\n      dataPath: \"МЧД\",\n      field: \"МЧД\",\n      attributeUseRestriction: {\n        itemType: \"CalculatedFieldUseRestriction\",\n        field: true,\n        condition: true,\n        group: true,\n        order: true,\n      },\n    })\n\n    const exported = exportDataCompositionSchemaDataSetField(result)\n\n    expect(exported).toEqual(xmlWithAttributeUseRestriction)\n  })",
     "fixtures": ["./__fixtures__/data"],
     "line": 247,
-    "behavior": "",
-    "targetPath": "packages/core/metadata/commonObjects/dataCompositionSystem/dataCompositionSchemaDataSetField/fromXMLToYAML.test.ts",
-    "targetTitle": "",
-    "status": "pending"
+    "behavior": "Единый тест «exports attribute use restriction» сохраняет поведение удалённого сценария «round-trips attributeUseRestriction».",
+    "targetPath": "packages/core/metadata/commonObjects/dataCompositionSystem/dataCompositionSchemaDataSetField/fromYAMLToXML.test.ts",
+    "targetTitle": "exports attribute use restriction",
+    "status": "migrated"
   },
   {
     "id": "04f50e62065bb2e7f3cd7e8646dde08c82c0f7a2:packages/core/metadata/commonObjects/dataCompositionSystem/dataCompositionSchemaDataSetField/fromYAML.test.ts:17:691",
@@ -9576,10 +9576,10 @@
     "declarationText": "it(\"imports legacy YAML without kind as field kind\", () => {\n    const result = testImportPropertyFromYAML({\n      rule: { type: \"DataCompositionSchemaDataSetField\" },\n      value: legacyDataCompositionSchemaDataSetFieldYAML,\n    })\n\n    expect(result).toEqual(fullDataCompositionSchemaDataSetField)\n  })",
     "fixtures": ["./__fixtures__/data"],
     "line": 35,
-    "behavior": "",
+    "behavior": "Единый тест «exports legacy YAML without kind as field kind» сохраняет поведение удалённого сценария «imports legacy YAML without kind as field kind».",
     "targetPath": "packages/core/metadata/commonObjects/dataCompositionSystem/dataCompositionSchemaDataSetField/fromYAMLToXML.test.ts",
-    "targetTitle": "",
-    "status": "pending"
+    "targetTitle": "exports legacy YAML without kind as field kind",
+    "status": "migrated"
   },
   {
     "id": "04f50e62065bb2e7f3cd7e8646dde08c82c0f7a2:packages/core/metadata/commonObjects/dataCompositionSystem/dataCompositionSchemaDataSetField/fromYAML.test.ts:44:1582",
@@ -9621,10 +9621,10 @@
     "declarationText": "it(\"imports attribute use restriction\", () => {\n    const result = testImportPropertyFromYAML({\n      rule: { type: \"DataCompositionSchemaDataSetField\" },\n      value: {\n        Вид: \"ПолеНабораДанныхСхемыКомпоновкиДанных\",\n        ПутьКДанным: \"МЧД\",\n        Поле: \"МЧД\",\n        ОграничениеИспользованияРеквизитов: {\n          Поле: \"Истина\",\n          Условие: \"Истина\",\n          Группировка: \"Истина\",\n          Порядок: \"Истина\",\n        },\n      },\n    })\n\n    expect(result).toEqual({\n      itemType: \"DataCompositionSchemaDataSetField\",\n      kind: \"ПолеНабораДанныхСхемыКомпоновкиДанных\",\n      dataPath: \"МЧД\",\n      field: \"МЧД\",\n      attributeUseRestriction: {\n        itemType: \"CalculatedFieldUseRestriction\",\n        field: true,\n        condition: true,\n        group: true,\n        order: true,\n      },\n    })\n  })",
     "fixtures": ["./__fixtures__/data"],
     "line": 62,
-    "behavior": "",
+    "behavior": "Единый тест «exports attribute use restriction» сохраняет поведение удалённого сценария «imports attribute use restriction».",
     "targetPath": "packages/core/metadata/commonObjects/dataCompositionSystem/dataCompositionSchemaDataSetField/fromYAMLToXML.test.ts",
-    "targetTitle": "",
-    "status": "pending"
+    "targetTitle": "exports attribute use restriction",
+    "status": "migrated"
   },
   {
     "id": "04f50e62065bb2e7f3cd7e8646dde08c82c0f7a2:packages/core/metadata/commonObjects/dataCompositionSystem/dataCompositionSchemaDataSetField/toXML.test.ts:13:487",
@@ -9786,10 +9786,10 @@
     "declarationText": "it(\"imports full.xml\", () => {\n    const result = testImportPropertyFromXML({\n      rule,\n      path: \"full.xml\",\n      importMetaUrl: import.meta.url,\n      xmlRootTag: \"Settings\",\n    })\n    expect(result).toEqual(fullDCSParameters)\n  })",
     "fixtures": ["./__fixtures__/data", "full.xml", "imports full.xml"],
     "line": 76,
-    "behavior": "",
+    "behavior": "Единый тест «exports full collection» сохраняет поведение удалённого сценария «imports full.xml».",
     "targetPath": "packages/core/metadata/commonObjects/dataCompositionSystem/dcsParameter/fromXMLToYAML.test.ts",
-    "targetTitle": "",
-    "status": "pending"
+    "targetTitle": "exports full collection",
+    "status": "migrated"
   },
   {
     "id": "04f50e62065bb2e7f3cd7e8646dde08c82c0f7a2:packages/core/metadata/commonObjects/dataCompositionSystem/dcsParameter/fromXML.test.ts:86:2964",
@@ -9801,10 +9801,10 @@
     "declarationText": "it(\"imports minimal.xml\", () => {\n    const result = testImportPropertyFromXML({\n      rule,\n      path: \"minimal.xml\",\n      importMetaUrl: import.meta.url,\n      xmlRootTag: \"Settings\",\n    })\n    expect(result).toEqual(minimalDCSParameters)\n  })",
     "fixtures": ["./__fixtures__/data", "imports minimal.xml", "minimal.xml"],
     "line": 86,
-    "behavior": "",
+    "behavior": "Единый тест «exports minimal collection» сохраняет поведение удалённого сценария «imports minimal.xml».",
     "targetPath": "packages/core/metadata/commonObjects/dataCompositionSystem/dcsParameter/fromXMLToYAML.test.ts",
-    "targetTitle": "",
-    "status": "pending"
+    "targetTitle": "exports minimal collection",
+    "status": "migrated"
   },
   {
     "id": "04f50e62065bb2e7f3cd7e8646dde08c82c0f7a2:packages/core/metadata/commonObjects/dataCompositionSystem/dcsParameter/fromXML.test.ts:96:3216",
@@ -9816,10 +9816,10 @@
     "declarationText": "it(\"imports and exports xs:string title\", () => {\n    const result = testImportPropertyFromXML({\n      rule,\n      xmlString: xmlWithStringTitle,\n      xmlRootTag: \"Settings\",\n    })\n    const referenceMetadata = testImportPropertyFromXML({\n      rule,\n      xmlString: xmlWithStringTitle,\n      xmlRootTag: \"Settings\",\n      forReference: true,\n    })\n\n    expect(result).toEqual([\n      {\n        itemType: \"DCSParameter\",\n        name: \"StringTitleParameter\",\n        title: { items: { ru: \"String title\" } },\n      },\n    ])\n\n    const exported = exportDCSParameters(result, referenceMetadata)\n    expect(exported).toContain(`<dcssch:title xsi:type=\"xs:string\">String title</dcssch:title>`)\n    expect(exported).not.toContain(`<dcssch:title xsi:type=\"v8:LocalStringType\">`)\n  })",
     "fixtures": ["./__fixtures__/data"],
     "line": 96,
-    "behavior": "",
-    "targetPath": "packages/core/metadata/commonObjects/dataCompositionSystem/dcsParameter/fromXMLToYAML.test.ts",
-    "targetTitle": "",
-    "status": "pending"
+    "behavior": "Единый тест «preserves xs:string title in XML» сохраняет поведение удалённого сценария «imports and exports xs:string title».",
+    "targetPath": "packages/core/metadata/commonObjects/dataCompositionSystem/dcsParameter/fromYAMLToXML.test.ts",
+    "targetTitle": "preserves xs:string title in XML",
+    "status": "migrated"
   },
   {
     "id": "04f50e62065bb2e7f3cd7e8646dde08c82c0f7a2:packages/core/metadata/commonObjects/dataCompositionSystem/dcsParameter/fromXML.test.ts:122:4002",
@@ -9831,10 +9831,10 @@
     "declarationText": "it(\"imports v8 Type Undefined value as missing value\", () => {\n    const result = testImportPropertyFromXML({\n      rule,\n      xmlString: xmlWithUndefinedTypeValue,\n      xmlRootTag: \"Settings\",\n    }) as Record<string, unknown>[]\n\n    expect(result).toEqual([\n      {\n        itemType: \"DCSParameter\",\n        name: \"ТипЗначенияКлюча\",\n        title: { items: { ru: \"Тип значения ключа\" } },\n        valueType: { type: [\"Type\"] },\n        useRestriction: true,\n      },\n    ])\n    expect(Object.prototype.hasOwnProperty.call(result[0], \"value\")).toBe(false)\n  })",
     "fixtures": ["./__fixtures__/data"],
     "line": 122,
-    "behavior": "",
+    "behavior": "Единый тест «omits v8 Type Undefined value from YAML» сохраняет поведение удалённого сценария «imports v8 Type Undefined value as missing value».",
     "targetPath": "packages/core/metadata/commonObjects/dataCompositionSystem/dcsParameter/fromXMLToYAML.test.ts",
-    "targetTitle": "",
-    "status": "pending"
+    "targetTitle": "omits v8 Type Undefined value from YAML",
+    "status": "migrated"
   },
   {
     "id": "04f50e62065bb2e7f3cd7e8646dde08c82c0f7a2:packages/core/metadata/commonObjects/dataCompositionSystem/dcsParameter/fromXML.test.ts:141:4570",
@@ -9846,10 +9846,10 @@
     "declarationText": "it(\"imports reference v8 Type Undefined value so export preserves namespace\", () => {\n    const result = testImportPropertyFromXML({\n      rule,\n      xmlString: xmlWithUndefinedTypeValue,\n      xmlRootTag: \"Settings\",\n    })\n    const referenceMetadata = testImportPropertyFromXML({\n      rule,\n      xmlString: xmlWithUndefinedTypeValue,\n      xmlRootTag: \"Settings\",\n      forReference: true,\n    }) as Record<string, unknown>[]\n\n    expect(referenceMetadata[0]?.value).toEqual(undefinedTypeReferenceValue)\n\n    const exported = exportDCSParameters(result, referenceMetadata)\n    expect(exported).toContain(\n      '<dcssch:value xmlns:d6p1=\"http://v8.1c.ru/8.2/data/types\" xsi:type=\"v8:Type\">d6p1:Undefined</dcssch:value>'\n    )\n  })",
     "fixtures": ["./__fixtures__/data"],
     "line": 141,
-    "behavior": "",
-    "targetPath": "packages/core/metadata/commonObjects/dataCompositionSystem/dcsParameter/fromXMLToYAML.test.ts",
-    "targetTitle": "",
-    "status": "pending"
+    "behavior": "Единый тест «exports missing value from reference d6p1 Undefined» сохраняет поведение удалённого сценария «imports reference v8 Type Undefined value so export preserves namespace».",
+    "targetPath": "packages/core/metadata/commonObjects/dataCompositionSystem/dcsParameter/fromYAMLToXML.test.ts",
+    "targetTitle": "exports missing value from reference d6p1 Undefined",
+    "status": "migrated"
   },
   {
     "id": "04f50e62065bb2e7f3cd7e8646dde08c82c0f7a2:packages/core/metadata/commonObjects/dataCompositionSystem/dcsParameter/fromXML.test.ts:162:5310",
@@ -9876,10 +9876,10 @@
     "declarationText": "it(\"imports and exports ent system enumeration value\", () => {\n    const result = testImportPropertyFromXML({\n      rule,\n      xmlString: xmlWithAccumulationRecordTypeValue,\n      xmlRootTag: \"Settings\",\n    })\n\n    expect(result).toEqual([\n      {\n        itemType: \"DCSParameter\",\n        name: \"ВидДвижения\",\n        valueType: { type: [\"AccumulationRecordType\"] },\n        value: {\n          type: \"SystemEnumeration\",\n          typeSE: \"AccumulationRecordType\",\n          value: \"Expense\",\n        },\n        useRestriction: true,\n      },\n    ])\n\n    expect(exportDCSParameters(result)).toContain(\n      '<dcssch:value xsi:type=\"ent:AccumulationRecordType\">Expense</dcssch:value>'\n    )\n  })",
     "fixtures": ["./__fixtures__/data"],
     "line": 187,
-    "behavior": "",
-    "targetPath": "packages/core/metadata/commonObjects/dataCompositionSystem/dcsParameter/fromXMLToYAML.test.ts",
-    "targetTitle": "",
-    "status": "pending"
+    "behavior": "Единый тест «exports inferred system enumeration to XML» сохраняет поведение удалённого сценария «imports and exports ent system enumeration value».",
+    "targetPath": "packages/core/metadata/commonObjects/dataCompositionSystem/dcsParameter/fromYAMLToXML.test.ts",
+    "targetTitle": "exports inferred system enumeration to XML",
+    "status": "migrated"
   },
   {
     "id": "04f50e62065bb2e7f3cd7e8646dde08c82c0f7a2:packages/core/metadata/commonObjects/dataCompositionSystem/dcsParameter/fromXML.test.ts:213:6632",
@@ -9891,10 +9891,10 @@
     "declarationText": "it(\"preserves numeric-looking edit parameter mask as xs:string through YAML\", () => {\n    const xml = `<Settings>\n\t<Parameter>\n\t\t<dcssch:name>Параметр1</dcssch:name>\n\t\t<dcssch:inputParameters>\n\t\t\t<dcscor:item>\n\t\t\t\t<dcscor:parameter>Маска</dcscor:parameter>\n\t\t\t\t<dcscor:value xsi:type=\"xs:string\">123</dcscor:value>\n\t\t\t</dcscor:item>\n\t\t</dcssch:inputParameters>\n\t</Parameter>\n</Settings>`\n\n    const value = testImportPropertyFromXML({\n      rule,\n      xmlString: xml,\n      xmlRootTag: \"Settings\",\n    })\n\n    expect(value).toEqual([\n      {\n        itemType: \"DCSParameter\",\n        name: \"Параметр1\",\n        editParameters: {\n          itemType: \"SettingsParameterValueCollection\",\n          parameters: {\n            Маска: {\n              parameter: \"Маска\",\n              value: { type: \"string\", value: \"123\" },\n            },\n          },\n        },\n      },\n    ])\n\n    const exported = exportDCSParameters(value)\n\n    expect(exported).toContain('<dcscor:value xsi:type=\"xs:string\">123</dcscor:value>')\n    expect(exported).not.toContain('<dcscor:value xsi:type=\"xs:decimal\">123</dcscor:value>')\n\n    const yaml = exportPropertyToYAML({\n      context: mockContext,\n      rule: yamlRule,\n      value,\n    })\n\n    const yamlText = exportToYAML(yaml)\n    expect(yamlText).toContain('Значение: \"123\"')\n\n    const parsedYaml = importFromYAML<{ Параметры?: unknown }>(yamlText)\n\n    const valueFromYaml = importPropertyFromYAML({\n      context: mockContext,\n      rule,\n      value: parsedYaml.Параметры,\n    })\n\n    const exportedAfterYaml = exportDCSParameters(valueFromYaml)\n\n    expect(exportedAfterYaml).toContain('<dcscor:value xsi:type=\"xs:string\">123</dcscor:value>')\n    expect(exportedAfterYaml).not.toContain('<dcscor:value xsi:type=\"xs:decimal\">123</dcscor:value>')\n  })",
     "fixtures": ["./__fixtures__/data"],
     "line": 213,
-    "behavior": "",
-    "targetPath": "packages/core/metadata/commonObjects/dataCompositionSystem/dcsParameter/fromXMLToYAML.test.ts",
-    "targetTitle": "",
-    "status": "pending"
+    "behavior": "Единый тест «preserves numeric-looking edit parameter mask as xs:string» сохраняет поведение удалённого сценария «preserves numeric-looking edit parameter mask as xs:string through YAML».",
+    "targetPath": "packages/core/metadata/commonObjects/dataCompositionSystem/dcsParameter/fromYAMLToXML.test.ts",
+    "targetTitle": "preserves numeric-looking edit parameter mask as xs:string",
+    "status": "migrated"
   },
   {
     "id": "04f50e62065bb2e7f3cd7e8646dde08c82c0f7a2:packages/core/metadata/commonObjects/dataCompositionSystem/dcsParameter/fromYAML.test.ts:17:527",
@@ -10312,10 +10312,10 @@
     "declarationText": "it(\"imports FilterItemComparison from XML\", () => {\n    const { comparisonType: _xmlDefault, ...expected } = fullFilterItemComparison\n    const result = testImportPropertyFromXML({\n      rule,\n      path: \"full.xml\",\n      xmlRootTag: \"dcsset:item\",\n      importMetaUrl: import.meta.url,\n    })\n\n    expect(result).toEqual([expected])\n  })",
     "fixtures": ["./__fixtures__/data", "full.xml"],
     "line": 23,
-    "behavior": "",
+    "behavior": "Единый тест «exports FilterItemComparison to YAML» сохраняет поведение удалённого сценария «imports FilterItemComparison from XML».",
     "targetPath": "packages/core/metadata/commonObjects/dataCompositionSystem/filterItem/fromXMLToYAML.test.ts",
-    "targetTitle": "",
-    "status": "pending"
+    "targetTitle": "exports FilterItemComparison to YAML",
+    "status": "migrated"
   },
   {
     "id": "04f50e62065bb2e7f3cd7e8646dde08c82c0f7a2:packages/core/metadata/commonObjects/dataCompositionSystem/filterItem/fromXML.test.ts:35:1199",
@@ -10327,10 +10327,10 @@
     "declarationText": "it(\"preserves xs:string presentation as typed string\", () => {\n    const result = testImportPropertyFromXML({\n      rule,\n      xmlRootTag: \"dcsset:item\",\n      xmlString: `<dcsset:item\n        xmlns:dcsset=\"http://v8.1c.ru/8.1/data-composition-system/settings\"\n        xmlns:dcscor=\"http://v8.1c.ru/8.1/data-composition-system/core\"\n        xmlns:xsi=\"http://www.w3.org/2001/XMLSchema-instance\"\n        xsi:type=\"dcsset:FilterItemComparison\">\n        <dcsset:left xsi:type=\"dcscor:Field\">Ссылка.Реквизит1</dcsset:left>\n        <dcsset:comparisonType>Equal</dcsset:comparisonType>\n        <dcsset:right xsi:type=\"dcscor:Field\">ПараметрыДанных.Параметр1</dcsset:right>\n        <dcsset:presentation xsi:type=\"xs:string\">Английское</dcsset:presentation>\n      </dcsset:item>`,\n    })\n\n    expect(result).toEqual([\n      {\n        itemType: \"FilterItemComparison\",\n        leftValue: { type: \"Field\", value: \"Ссылка.Реквизит1\" },\n        rightValue: { type: \"Field\", value: \"ПараметрыДанных.Параметр1\" },\n        presentation: { type: \"string\", value: \"Английское\" },\n      },\n    ])\n  })",
     "fixtures": ["./__fixtures__/data"],
     "line": 35,
-    "behavior": "",
-    "targetPath": "packages/core/metadata/commonObjects/dataCompositionSystem/filterItem/fromXMLToYAML.test.ts",
-    "targetTitle": "",
-    "status": "pending"
+    "behavior": "Единый тест «FilterItemComparison: сохраняет xs:string userSettingPresentation из reference» сохраняет поведение удалённого сценария «preserves xs:string presentation as typed string».",
+    "targetPath": "packages/core/metadata/commonObjects/dataCompositionSystem/filterItem/fromYAMLToXML.test.ts",
+    "targetTitle": "FilterItemComparison: сохраняет xs:string userSettingPresentation из reference",
+    "status": "migrated"
   },
   {
     "id": "04f50e62065bb2e7f3cd7e8646dde08c82c0f7a2:packages/core/metadata/commonObjects/dataCompositionSystem/filterItem/fromXML.test.ts:61:2287",
@@ -10342,10 +10342,10 @@
     "declarationText": "it(\"imports FilterItemComparison InList (массив rightValue) from XML\", () => {\n    const result = testImportPropertyFromXML({\n      rule,\n      path: \"inList.xml\",\n      xmlRootTag: \"dcsset:item\",\n      importMetaUrl: import.meta.url,\n    })\n\n    expect(result).toEqual([inListFilterItemComparison])\n  })",
     "fixtures": ["./__fixtures__/data", "inList.xml"],
     "line": 61,
-    "behavior": "",
+    "behavior": "Единый тест «exports FilterItemComparison InList to YAML» сохраняет поведение удалённого сценария «imports FilterItemComparison InList (массив rightValue) from XML».",
     "targetPath": "packages/core/metadata/commonObjects/dataCompositionSystem/filterItem/fromXMLToYAML.test.ts",
-    "targetTitle": "",
-    "status": "pending"
+    "targetTitle": "exports FilterItemComparison InList to YAML",
+    "status": "migrated"
   },
   {
     "id": "04f50e62065bb2e7f3cd7e8646dde08c82c0f7a2:packages/core/metadata/commonObjects/dataCompositionSystem/filterItem/fromXML.test.ts:72:2595",
@@ -10357,10 +10357,10 @@
     "declarationText": "it(\"imports FilterItemComparison InList with xsi:nil from XML\", () => {\n    const result = testImportPropertyFromXML({\n      rule,\n      path: \"inListWithNil.xml\",\n      xmlRootTag: \"dcsset:item\",\n      importMetaUrl: import.meta.url,\n    })\n\n    expect(result).toEqual([inListWithNilFilterItemComparison])\n  })",
     "fixtures": ["./__fixtures__/data", "inListWithNil.xml"],
     "line": 72,
-    "behavior": "",
+    "behavior": "Единый тест «exports FilterItemComparison InList with xsi:nil to YAML» сохраняет поведение удалённого сценария «imports FilterItemComparison InList with xsi:nil from XML».",
     "targetPath": "packages/core/metadata/commonObjects/dataCompositionSystem/filterItem/fromXMLToYAML.test.ts",
-    "targetTitle": "",
-    "status": "pending"
+    "targetTitle": "exports FilterItemComparison InList with xsi:nil to YAML",
+    "status": "migrated"
   },
   {
     "id": "04f50e62065bb2e7f3cd7e8646dde08c82c0f7a2:packages/core/metadata/commonObjects/dataCompositionSystem/filterItem/fromXML.test.ts:83:2910",
@@ -10372,10 +10372,10 @@
     "declarationText": "it(\"imports FilterItemGroup from XML\", () => {\n    const result = testImportPropertyFromXML({\n      rule,\n      path: \"full-group.xml\",\n      xmlRootTag: \"dcsset:item\",\n      importMetaUrl: import.meta.url,\n    })\n\n    expect(result).toEqual([fullFilterItemGroup])\n  })",
     "fixtures": ["./__fixtures__/data", "full-group.xml"],
     "line": 83,
-    "behavior": "",
+    "behavior": "Единый тест «exports FilterItemGroup to YAML» сохраняет поведение удалённого сценария «imports FilterItemGroup from XML».",
     "targetPath": "packages/core/metadata/commonObjects/dataCompositionSystem/filterItem/fromXMLToYAML.test.ts",
-    "targetTitle": "",
-    "status": "pending"
+    "targetTitle": "exports FilterItemGroup to YAML",
+    "status": "migrated"
   },
   {
     "id": "04f50e62065bb2e7f3cd7e8646dde08c82c0f7a2:packages/core/metadata/commonObjects/dataCompositionSystem/filterItem/fromXML.test.ts:94:3183",
@@ -10387,10 +10387,10 @@
     "declarationText": "it(\"imports FilterItemComparison directly to YAML\", () => {\n    const direct = getTypeRule(\"FilterItem\", \"importFromXMLToYAML\")\n    if (direct === undefined) throw new Error(\"FilterItem direct converter is not registered\")\n    const fixtureXML = readAndParseXMLFile<Record<string, unknown>>(\"full.xml\", testFixturesDir(import.meta.url))[\"dcsset:item\"]\n\n    expect(\n      direct({\n        context: { ...mockContextFromXML(), exportToYAML: { toTyped: true } },\n        rule,\n        xml: fixtureXML,\n        traversal: {\n          yamlPath: [\"Элементы\"],\n          rulePath: [{ propertyKey: \"items\" }],\n          collector: createLocalIndexesCollector(),\n        },\n      })\n    ).toEqual([\n      {\n        Использование: \"Ложь\",\n        ЛевоеЗначение: \".Ссылка\",\n        ПравоеЗначение: \"Справочник.Справочник1.ПустаяСсылка\",\n        Представление: {\n          Тип: \"МногоязычнаяСтрока\",\n          Значение: \"Представление\",\n        },\n        ПредставлениеПользовательскойНастройки: \"Пользовательское представление\",\n        РежимОтображения: \"Обычный\",\n        ИспользоватьПользовательскуюНастройку: \"7b8eb4d9-8661-46f5-9da8-dbe4d77a2292\",\n      },\n    ])\n  })",
     "fixtures": ["./__fixtures__/data", "full.xml"],
     "line": 94,
-    "behavior": "",
+    "behavior": "Единый тест «exports FilterItemComparison to YAML» сохраняет поведение удалённого сценария «imports FilterItemComparison directly to YAML».",
     "targetPath": "packages/core/metadata/commonObjects/dataCompositionSystem/filterItem/fromXMLToYAML.test.ts",
-    "targetTitle": "",
-    "status": "pending"
+    "targetTitle": "exports FilterItemComparison to YAML",
+    "status": "migrated"
   },
   {
     "id": "04f50e62065bb2e7f3cd7e8646dde08c82c0f7a2:packages/core/metadata/commonObjects/dataCompositionSystem/filterItem/fromYAML.test.ts:18:536",
@@ -10822,10 +10822,11 @@
     "declarationText": "it(\"imports undefined\", () => {\n    const result = testImportPropertyFromYAML({ rule, value: undefined })\n    expect(result).toBeUndefined()\n  })",
     "fixtures": ["./__fixtures__/data"],
     "line": 10,
-    "behavior": "",
+    "behavior": "Отсутствующее YAML-свойство проверяется на уровне владельца и не создаёт коллекцию XML.",
     "targetPath": "packages/core/metadata/commonObjects/dataCompositionSystem/orderItemFields/fromYAMLToXML.test.ts",
     "targetTitle": "",
-    "status": "pending"
+    "status": "obsolete-internal",
+    "justification": "Сценарий проверял только undefined промежуточной metadata-модели удалённой fromYAML-оркестрации; в едином обходе отсутствующее свойство не вызывает вложенную коллекцию."
   },
   {
     "id": "04f50e62065bb2e7f3cd7e8646dde08c82c0f7a2:packages/core/metadata/commonObjects/dataCompositionSystem/orderItemFields/fromYAML.test.ts:15:568",
@@ -13919,10 +13920,10 @@
     "declarationText": "it(\"should import all parameters\", () => {\n    const result = testImportPropertyFromXML({\n      rule,\n      path: \"all.xml\",\n      xmlRootTag: \"StandardAttributes\",\n      importMetaUrl: import.meta.url,\n    })\n    expect(result).toEqual(all)\n  })",
     "fixtures": ["./__fixtures__/data", "./__fixtures__/fillValueEmptyRefTypeLoss", "all.xml"],
     "line": 25,
-    "behavior": "",
+    "behavior": "Единый тест «exports all.xml directly to YAML» сохраняет поведение удалённого сценария «should import all parameters».",
     "targetPath": "packages/core/metadata/commonObjects/standardAttributeDescription/fromXMLToYAML.test.ts",
-    "targetTitle": "",
-    "status": "pending"
+    "targetTitle": "exports all.xml directly to YAML",
+    "status": "migrated"
   },
   {
     "id": "04f50e62065bb2e7f3cd7e8646dde08c82c0f7a2:packages/core/metadata/commonObjects/standardAttributeDescription/fromXML.test.ts:35:1364",
@@ -13934,10 +13935,10 @@
     "declarationText": "it(\"should return undefined when only name is present\", () => {\n    const result = testImportPropertyFromXML({\n      rule,\n      path: \"minimal.xml\",\n      xmlRootTag: \"StandardAttributes\",\n      importMetaUrl: import.meta.url,\n    })\n    expect(result).toBeUndefined()\n  })",
     "fixtures": ["./__fixtures__/data", "./__fixtures__/fillValueEmptyRefTypeLoss", "minimal.xml"],
     "line": 35,
-    "behavior": "",
+    "behavior": "Единый тест «omits defaults from %s» сохраняет поведение удалённого сценария «should return undefined when only name is present».",
     "targetPath": "packages/core/metadata/commonObjects/standardAttributeDescription/fromXMLToYAML.test.ts",
-    "targetTitle": "",
-    "status": "pending"
+    "targetTitle": "omits defaults from %s",
+    "status": "migrated"
   },
   {
     "id": "04f50e62065bb2e7f3cd7e8646dde08c82c0f7a2:packages/core/metadata/commonObjects/standardAttributeDescription/fromXML.test.ts:45:1642",
@@ -13949,10 +13950,10 @@
     "declarationText": "it(\"should return undefined when all values are defaults\", () => {\n    const result = testImportPropertyFromXML({\n      rule,\n      path: \"default.xml\",\n      xmlRootTag: \"StandardAttributes\",\n      importMetaUrl: import.meta.url,\n    })\n    expect(result).toBeUndefined()\n  })",
     "fixtures": ["./__fixtures__/data", "./__fixtures__/fillValueEmptyRefTypeLoss", "default.xml"],
     "line": 45,
-    "behavior": "",
+    "behavior": "Единый тест «omits defaults from %s» сохраняет поведение удалённого сценария «should return undefined when all values are defaults».",
     "targetPath": "packages/core/metadata/commonObjects/standardAttributeDescription/fromXMLToYAML.test.ts",
-    "targetTitle": "",
-    "status": "pending"
+    "targetTitle": "omits defaults from %s",
+    "status": "migrated"
   },
   {
     "id": "04f50e62065bb2e7f3cd7e8646dde08c82c0f7a2:packages/core/metadata/commonObjects/standardAttributeDescription/fromXML.test.ts:55:1923",
@@ -13964,10 +13965,10 @@
     "declarationText": "it(\"should import with multiple values\", () => {\n    const result = testImportPropertyFromXML({\n      rule,\n      path: \"multiple.xml\",\n      xmlRootTag: \"StandardAttributes\",\n      importMetaUrl: import.meta.url,\n    })\n    expect(result).toEqual(multiple)\n  })",
     "fixtures": ["./__fixtures__/data", "./__fixtures__/fillValueEmptyRefTypeLoss", "multiple.xml"],
     "line": 55,
-    "behavior": "",
+    "behavior": "Единый тест «exports multiple.xml directly to YAML» сохраняет поведение удалённого сценария «should import with multiple values».",
     "targetPath": "packages/core/metadata/commonObjects/standardAttributeDescription/fromXMLToYAML.test.ts",
-    "targetTitle": "",
-    "status": "pending"
+    "targetTitle": "exports multiple.xml directly to YAML",
+    "status": "migrated"
   },
   {
     "id": "04f50e62065bb2e7f3cd7e8646dde08c82c0f7a2:packages/core/metadata/commonObjects/standardAttributeDescription/fromXML.test.ts:65:2189",
@@ -13979,10 +13980,10 @@
     "declarationText": "it(\"import fillValueEmptyRefTypeLoss\", () => {\n    const result = testImportPropertyFromXML({\n      rule,\n      path: \"fillValueEmptyRefTypeLoss.xml\",\n      xmlRootTag: \"StandardAttributes\",\n      importMetaUrl: import.meta.url,\n    })\n    expect(result).toEqual(fillValueEmptyRefTypeLoss)\n  })",
     "fixtures": ["./__fixtures__/data", "./__fixtures__/fillValueEmptyRefTypeLoss", "fillValueEmptyRefTypeLoss.xml"],
     "line": 65,
-    "behavior": "",
+    "behavior": "Единый тест «exports empty reference fill value without losing its type» сохраняет поведение удалённого сценария «import fillValueEmptyRefTypeLoss».",
     "targetPath": "packages/core/metadata/commonObjects/standardAttributeDescription/fromXMLToYAML.test.ts",
-    "targetTitle": "",
-    "status": "pending"
+    "targetTitle": "exports empty reference fill value without losing its type",
+    "status": "migrated"
   },
   {
     "id": "04f50e62065bb2e7f3cd7e8646dde08c82c0f7a2:packages/core/metadata/commonObjects/standardAttributeDescription/fromXML.test.ts:75:2487",
@@ -13994,10 +13995,10 @@
     "declarationText": "it(\"imports explicit accounting ExtDimension standard attributes\", () => {\n    const result = testImportPropertyFromXML({\n      rule: accountingRule,\n      path: \"accounting-ext-dimensions.xml\",\n      xmlRootTag: \"StandardAttributes\",\n      importMetaUrl: import.meta.url,\n    })\n    expect(result).toEqual(accountingExtDimensions)\n  })",
     "fixtures": ["./__fixtures__/data", "./__fixtures__/fillValueEmptyRefTypeLoss", "accounting-ext-dimensions.xml"],
     "line": 75,
-    "behavior": "",
+    "behavior": "Единый тест «exports explicit accounting ExtDimension attributes» сохраняет поведение удалённого сценария «imports explicit accounting ExtDimension standard attributes».",
     "targetPath": "packages/core/metadata/commonObjects/standardAttributeDescription/fromXMLToYAML.test.ts",
-    "targetTitle": "",
-    "status": "pending"
+    "targetTitle": "exports explicit accounting ExtDimension attributes",
+    "status": "migrated"
   },
   {
     "id": "04f50e62065bb2e7f3cd7e8646dde08c82c0f7a2:packages/core/metadata/commonObjects/standardAttributeDescription/fromXML.test.ts:85:2827",
@@ -14009,10 +14010,10 @@
     "declarationText": "it(\"imports all.xml directly to YAML\", () => {\n    const direct = getTypeRule(\"StandardAttributeDescriptions\", \"importFromXMLToYAML\")\n    if (direct === undefined) throw new Error(\"StandardAttributeDescriptions direct converter is not registered\")\n    const fixtureXML = readAndParseXMLFile<Record<string, unknown>>(\"all.xml\", testFixturesDir(import.meta.url))\n      .StandardAttributes\n\n    expect(\n      direct({\n        context: { ...mockContextFromXML(), exportToYAML: { toTyped: true } },\n        rule,\n        xml: fixtureXML,\n        traversal: {\n          yamlPath: [\"СтандартныеРеквизиты\"],\n          rulePath: [{ propertyKey: \"standardAttributes\" }],\n          collector: createLocalIndexesCollector(),\n        },\n      })\n    ).toEqual(allYAML)\n  })",
     "fixtures": ["./__fixtures__/data", "./__fixtures__/fillValueEmptyRefTypeLoss", "all.xml"],
     "line": 85,
-    "behavior": "",
+    "behavior": "Единый тест «exports all.xml directly to YAML» сохраняет поведение удалённого сценария «imports all.xml directly to YAML».",
     "targetPath": "packages/core/metadata/commonObjects/standardAttributeDescription/fromXMLToYAML.test.ts",
-    "targetTitle": "",
-    "status": "pending"
+    "targetTitle": "exports all.xml directly to YAML",
+    "status": "migrated"
   },
   {
     "id": "04f50e62065bb2e7f3cd7e8646dde08c82c0f7a2:packages/core/metadata/commonObjects/standardAttributeDescription/fromYAML.test.ts:13:511",
@@ -14024,10 +14025,10 @@
     "declarationText": "it(\"imports undefined\", () => {\n    const result = testImportPropertyFromYAML({ rule, value: undefined })\n    expect(result).toBeUndefined()\n  })",
     "fixtures": ["./__fixtures__/data"],
     "line": 13,
-    "behavior": "",
+    "behavior": "Единый тест «exports undefined and empty YAML» сохраняет поведение удалённого сценария «imports undefined».",
     "targetPath": "packages/core/metadata/commonObjects/standardAttributeDescription/fromYAMLToXML.test.ts",
-    "targetTitle": "",
-    "status": "pending"
+    "targetTitle": "exports undefined and empty YAML",
+    "status": "migrated"
   },
   {
     "id": "04f50e62065bb2e7f3cd7e8646dde08c82c0f7a2:packages/core/metadata/commonObjects/standardAttributeDescription/fromYAML.test.ts:18:660",
@@ -14039,10 +14040,10 @@
     "declarationText": "it(\"imports empty object\", () => {\n    const result = testImportPropertyFromYAML({ rule, value: {} })\n    expect(result).toBeUndefined()\n  })",
     "fixtures": ["./__fixtures__/data"],
     "line": 18,
-    "behavior": "",
+    "behavior": "Единый тест «exports undefined and empty YAML» сохраняет поведение удалённого сценария «imports empty object».",
     "targetPath": "packages/core/metadata/commonObjects/standardAttributeDescription/fromYAMLToXML.test.ts",
-    "targetTitle": "",
-    "status": "pending"
+    "targetTitle": "exports undefined and empty YAML",
+    "status": "migrated"
   },
   {
     "id": "04f50e62065bb2e7f3cd7e8646dde08c82c0f7a2:packages/core/metadata/commonObjects/standardAttributeDescription/fromYAML.test.ts:23:805",
@@ -14054,10 +14055,10 @@
     "declarationText": "it(\"imports full fixture\", () => {\n    const result = testImportPropertyFromYAML({ rule, value: allYAML })\n\n    expect(result).toEqual(all)\n  })",
     "fixtures": ["./__fixtures__/data"],
     "line": 23,
-    "behavior": "",
+    "behavior": "Единый тест «exports all.xml from YAML» сохраняет поведение удалённого сценария «imports full fixture».",
     "targetPath": "packages/core/metadata/commonObjects/standardAttributeDescription/fromYAMLToXML.test.ts",
-    "targetTitle": "",
-    "status": "pending"
+    "targetTitle": "exports all.xml from YAML",
+    "status": "migrated"
   },
   {
     "id": "04f50e62065bb2e7f3cd7e8646dde08c82c0f7a2:packages/core/metadata/commonObjects/standardAttributeDescription/fromYAML.test.ts:29:953",
@@ -14069,10 +14070,10 @@
     "declarationText": "it(\"imports minimal fixture\", () => {\n    const result = testImportPropertyFromYAML({ rule, value: minimalYAML })\n    expect(result).toEqual(minimal)\n  })",
     "fixtures": ["./__fixtures__/data"],
     "line": 29,
-    "behavior": "",
+    "behavior": "Единый тест «exports minimal fixture from YAML» сохраняет поведение удалённого сценария «imports minimal fixture».",
     "targetPath": "packages/core/metadata/commonObjects/standardAttributeDescription/fromYAMLToXML.test.ts",
-    "targetTitle": "",
-    "status": "pending"
+    "targetTitle": "exports minimal fixture from YAML",
+    "status": "migrated"
   },
   {
     "id": "04f50e62065bb2e7f3cd7e8646dde08c82c0f7a2:packages/core/metadata/commonObjects/standardAttributeDescription/toXML.test.ts:14:747",
@@ -14084,10 +14085,10 @@
     "declarationText": "it(\"exports all.xml fixture\", () => {\n    const rule: PropertyRule = {\n      type: \"StandardAttributeDescriptions\",\n      standartAttributeNames: {\n        PredefinedDataName: \"ИмяПредопределенныхДанных\",\n        Predefined: \"Предопределенный\",\n        Ref: \"Ссылка\",\n        DeletionMark: \"ПометкаУдаления\",\n        IsFolder: \"ЭтоГруппа\",\n        Owner: \"Владелец\",\n        Parent: \"Родитель\",\n        Description: \"Наименование\",\n        Code: \"Код\",\n      },\n    }\n    const { expectedResult, result } = testExportPropertyToXML({\n      rule,\n      value: all,\n      xmlRootTag: \"StandardAttributes\",\n      path: \"all.xml\",\n      importMetaUrl: import.meta.url,\n    })\n    expect(result).toEqual(expectedResult)\n  })",
     "fixtures": ["./__fixtures__/data", "./__fixtures__/fillValueEmptyRefTypeLoss", "all.xml"],
     "line": 14,
-    "behavior": "",
+    "behavior": "Единый тест «exports all.xml from YAML» сохраняет поведение удалённого сценария «exports all.xml fixture».",
     "targetPath": "packages/core/metadata/commonObjects/standardAttributeDescription/fromYAMLToXML.test.ts",
-    "targetTitle": "",
-    "status": "pending"
+    "targetTitle": "exports all.xml from YAML",
+    "status": "migrated"
   },
   {
     "id": "04f50e62065bb2e7f3cd7e8646dde08c82c0f7a2:packages/core/metadata/commonObjects/standardAttributeDescription/toXML.test.ts:39:1469",
@@ -14099,10 +14100,10 @@
     "declarationText": "it(\"exports multiple.xml fixture\", () => {\n    const rule: PropertyRule = {\n      type: \"StandardAttributeDescriptions\",\n      standartAttributeNames: { PredefinedDataName: \"ИмяПредопределенныхДанных\", Predefined: \"Предопределенный\" },\n    }\n    const { expectedResult, result } = testExportPropertyToXML({\n      rule,\n      value: multiple,\n      xmlRootTag: \"StandardAttributes\",\n      path: \"multiple.xml\",\n      importMetaUrl: import.meta.url,\n    })\n    expect(result).toEqual(expectedResult)\n  })",
     "fixtures": ["./__fixtures__/data", "./__fixtures__/fillValueEmptyRefTypeLoss", "multiple.xml"],
     "line": 39,
-    "behavior": "",
+    "behavior": "Единый тест «exports multiple.xml from YAML» сохраняет поведение удалённого сценария «exports multiple.xml fixture».",
     "targetPath": "packages/core/metadata/commonObjects/standardAttributeDescription/fromYAMLToXML.test.ts",
-    "targetTitle": "",
-    "status": "pending"
+    "targetTitle": "exports multiple.xml from YAML",
+    "status": "migrated"
   },
   {
     "id": "04f50e62065bb2e7f3cd7e8646dde08c82c0f7a2:packages/core/metadata/commonObjects/standardAttributeDescription/toXML.test.ts:54:1975",
@@ -14114,10 +14115,10 @@
     "declarationText": "it(\"exports minimal.xml fixture\", () => {\n    const rule: PropertyRule = {\n      type: \"StandardAttributeDescriptions\",\n      standartAttributeNames: { PredefinedDataName: \"ИмяПредопределенныхДанных\" },\n    }\n    const { expectedResult, result } = testExportPropertyToXML({\n      rule,\n      value: minimal,\n      xmlRootTag: \"StandardAttributes\",\n      path: \"default.xml\",\n      importMetaUrl: import.meta.url,\n    })\n    expect(result).toEqual(expectedResult)\n  })",
     "fixtures": ["./__fixtures__/data", "./__fixtures__/fillValueEmptyRefTypeLoss", "default.xml"],
     "line": 54,
-    "behavior": "",
+    "behavior": "Единый тест «exports minimal fixture from YAML» сохраняет поведение удалённого сценария «exports minimal.xml fixture».",
     "targetPath": "packages/core/metadata/commonObjects/standardAttributeDescription/fromYAMLToXML.test.ts",
-    "targetTitle": "",
-    "status": "pending"
+    "targetTitle": "exports minimal fixture from YAML",
+    "status": "migrated"
   },
   {
     "id": "04f50e62065bb2e7f3cd7e8646dde08c82c0f7a2:packages/core/metadata/commonObjects/standardAttributeDescription/toXML.test.ts:69:2446",
@@ -14129,10 +14130,10 @@
     "declarationText": "it(\"exports RecordType when it is part of standard attribute names\", () => {\n    const rule: PropertyRule = {\n      type: \"StandardAttributeDescriptions\",\n      standartAttributeNames: {\n        RecordType: \"ВидДвижения\",\n        Active: \"Активность\",\n      },\n    }\n    const { result } = testExportPropertyToXML({\n      rule,\n      value: [{ itemType: \"StandardAttributeDescription\", name: \"Active\", comment: \"changed\" }],\n      xmlRootTag: \"StandardAttributes\",\n    })\n\n    expect(result).toContain('<xr:StandardAttribute name=\"RecordType\">')\n    expect(result).toContain('<xr:StandardAttribute name=\"Active\">')\n    expect(result.indexOf('name=\"RecordType\"')).toBeLessThan(result.indexOf('name=\"Active\"'))\n  })",
     "fixtures": ["./__fixtures__/data", "./__fixtures__/fillValueEmptyRefTypeLoss"],
     "line": 69,
-    "behavior": "",
+    "behavior": "Единый тест «exports RecordType among canonical standard attributes» сохраняет поведение удалённого сценария «exports RecordType when it is part of standard attribute names».",
     "targetPath": "packages/core/metadata/commonObjects/standardAttributeDescription/fromYAMLToXML.test.ts",
-    "targetTitle": "",
-    "status": "pending"
+    "targetTitle": "exports RecordType among canonical standard attributes",
+    "status": "migrated"
   },
   {
     "id": "04f50e62065bb2e7f3cd7e8646dde08c82c0f7a2:packages/core/metadata/commonObjects/standardAttributeDescription/toXML.test.ts:88:3163",
@@ -14144,10 +14145,10 @@
     "declarationText": "it(\"keeps reference order when exporting standard attributes\", () => {\n    const rule: PropertyRule = {\n      type: \"StandardAttributeDescriptions\",\n      standartAttributeNames: {\n        RecordType: \"ВидДвижения\",\n        Active: \"Активность\",\n        LineNumber: \"НомерСтроки\",\n      },\n    }\n    const referenceMetadata = testImportPropertyFromXML({\n      rule,\n      xmlString: `\n        <StandardAttributes>\n          <xr:StandardAttribute name=\"Active\">\n            <xr:Comment>existing active comment</xr:Comment>\n          </xr:StandardAttribute>\n          <xr:StandardAttribute name=\"LineNumber\"/>\n          <xr:StandardAttribute name=\"RecordType\"/>\n          <xr:StandardAttribute name=\"LineNumber\"/>\n        </StandardAttributes>\n      `,\n      xmlRootTag: \"StandardAttributes\",\n      forReference: true,\n    })\n\n    const { result } = testExportPropertyToXML({\n      rule,\n      value: [\n        { itemType: \"StandardAttributeDescription\", name: \"Active\", comment: \"changed\" },\n        { itemType: \"StandardAttributeDescription\", name: \"RecordType\" },\n        { itemType: \"StandardAttributeDescription\", name: \"RecordType\" },\n      ],\n      referenceMetadata,\n      xmlRootTag: \"StandardAttributes\",\n    })\n\n    const names = Array.from(result.matchAll(/<xr:StandardAttribute name=\"([^\"]+)\"/g), ([, name]) => name)\n    expect(names).toEqual([\"Active\", \"LineNumber\", \"RecordType\"])\n  })",
     "fixtures": ["./__fixtures__/data", "./__fixtures__/fillValueEmptyRefTypeLoss"],
     "line": 88,
-    "behavior": "",
+    "behavior": "Единый тест «keeps reference order and removes duplicates» сохраняет поведение удалённого сценария «keeps reference order when exporting standard attributes».",
     "targetPath": "packages/core/metadata/commonObjects/standardAttributeDescription/fromYAMLToXML.test.ts",
-    "targetTitle": "",
-    "status": "pending"
+    "targetTitle": "keeps reference order and removes duplicates",
+    "status": "migrated"
   },
   {
     "id": "04f50e62065bb2e7f3cd7e8646dde08c82c0f7a2:packages/core/metadata/commonObjects/standardAttributeDescription/toXML.test.ts:128:4565",
@@ -14159,10 +14160,10 @@
     "declarationText": "it(\"exports undefined\", () => {\n    const rule: PropertyRule = {\n      type: \"StandardAttributeDescriptions\",\n      standartAttributeNames: { PredefinedDataName: \"ИмяПредопределенныхДанных\" },\n    }\n    const { expectedResult, result } = testExportPropertyToXML({\n      rule,\n      value: undefined,\n      xmlRootTag: \"StandardAttributes\",\n      path: \"default.xml\",\n      importMetaUrl: import.meta.url,\n    })\n    expect(result).toEqual(expectedResult)\n  })",
     "fixtures": ["./__fixtures__/data", "./__fixtures__/fillValueEmptyRefTypeLoss", "default.xml"],
     "line": 128,
-    "behavior": "",
+    "behavior": "Единый тест «exports undefined and empty YAML» сохраняет поведение удалённого сценария «exports undefined».",
     "targetPath": "packages/core/metadata/commonObjects/standardAttributeDescription/fromYAMLToXML.test.ts",
-    "targetTitle": "",
-    "status": "pending"
+    "targetTitle": "exports undefined and empty YAML",
+    "status": "migrated"
   },
   {
     "id": "04f50e62065bb2e7f3cd7e8646dde08c82c0f7a2:packages/core/metadata/commonObjects/standardAttributeDescription/toXML.test.ts:143:5028",
@@ -14174,10 +14175,10 @@
     "declarationText": "it(\"does not export canonical standard attributes without reference\", () => {\n    const rule: PropertyRule = {\n      type: \"StandardAttributeDescriptions\",\n      standartAttributeNames: {\n        PredefinedDataName: \"ИмяПредопределенныхДанных\",\n        Predefined: \"Предопределенный\",\n      },\n    }\n    const { result } = testExportPropertyToXML({\n      rule,\n      value: [\n        { itemType: \"StandardAttributeDescription\", name: \"PredefinedDataName\" },\n        { itemType: \"StandardAttributeDescription\", name: \"Predefined\" },\n      ],\n      referenceMetadata: undefined,\n      xmlRootTag: \"StandardAttributes\",\n    })\n\n    expect(result).toBe(\"\")\n  })",
     "fixtures": ["./__fixtures__/data", "./__fixtures__/fillValueEmptyRefTypeLoss"],
     "line": 143,
-    "behavior": "",
+    "behavior": "Единый тест «exports minimal fixture from YAML» сохраняет поведение удалённого сценария «does not export canonical standard attributes without reference».",
     "targetPath": "packages/core/metadata/commonObjects/standardAttributeDescription/fromYAMLToXML.test.ts",
-    "targetTitle": "",
-    "status": "pending"
+    "targetTitle": "exports minimal fixture from YAML",
+    "status": "migrated"
   },
   {
     "id": "04f50e62065bb2e7f3cd7e8646dde08c82c0f7a2:packages/core/metadata/commonObjects/standardAttributeDescription/toXML.test.ts:164:5689",
@@ -14189,10 +14190,10 @@
     "declarationText": "it(\"export fillValueEmptyRefTypeLoss\", () => {\n    const rule: PropertyRule = {\n      type: \"StandardAttributeDescriptions\",\n      standartAttributeNames: { Ref: \"Ссылка\" },\n    }\n    const { expectedResult, result } = testExportPropertyToXML({\n      rule,\n      value: fillValueEmptyRefTypeLoss,\n      xmlRootTag: \"StandardAttributes\",\n      path: \"fillValueEmptyRefTypeLoss.xml\",\n      importMetaUrl: import.meta.url,\n    })\n    expect(result).toEqual(expectedResult)\n  })",
     "fixtures": ["./__fixtures__/data", "./__fixtures__/fillValueEmptyRefTypeLoss", "fillValueEmptyRefTypeLoss.xml"],
     "line": 164,
-    "behavior": "",
+    "behavior": "Единый тест «exports empty reference fill value without type loss» сохраняет поведение удалённого сценария «export fillValueEmptyRefTypeLoss».",
     "targetPath": "packages/core/metadata/commonObjects/standardAttributeDescription/fromYAMLToXML.test.ts",
-    "targetTitle": "",
-    "status": "pending"
+    "targetTitle": "exports empty reference fill value without type loss",
+    "status": "migrated"
   },
   {
     "id": "04f50e62065bb2e7f3cd7e8646dde08c82c0f7a2:packages/core/metadata/commonObjects/standardAttributeDescription/toXML.test.ts:179:6167",
@@ -14204,10 +14205,10 @@
     "declarationText": "it(\"preserves maxValue xsi type from reference\", () => {\n    const { result } = testExportPropertyToXML({\n      rule: StandardAttributeDescriptionRules.properties.maxValue,\n      value: 99.99,\n      referenceMetadata: testImportPropertyFromXML({\n        rule: StandardAttributeDescriptionRules.properties.maxValue,\n        xmlString: '<xr:MaxValue xsi:type=\"xs:decimal\">99.99</xr:MaxValue>',\n        xmlRootTag: \"xr:MaxValue\",\n        forReference: true,\n      }),\n      xmlRootTag: \"xr:MaxValue\",\n    })\n\n    expect(result).toBe('<xr:MaxValue xsi:type=\"xs:decimal\">99.99</xr:MaxValue>')\n  })",
     "fixtures": ["./__fixtures__/data", "./__fixtures__/fillValueEmptyRefTypeLoss"],
     "line": 179,
-    "behavior": "",
+    "behavior": "Единый тест «preserves maxValue xsi type from reference» сохраняет поведение удалённого сценария «preserves maxValue xsi type from reference».",
     "targetPath": "packages/core/metadata/commonObjects/standardAttributeDescription/fromYAMLToXML.test.ts",
-    "targetTitle": "",
-    "status": "pending"
+    "targetTitle": "preserves maxValue xsi type from reference",
+    "status": "migrated"
   },
   {
     "id": "04f50e62065bb2e7f3cd7e8646dde08c82c0f7a2:packages/core/metadata/commonObjects/standardAttributeDescription/toXML.test.ts:195:6763",
@@ -14219,10 +14220,10 @@
     "declarationText": "it(\"preserves fillValue reference xsi type for missing value\", () => {\n    const { result } = testExportPropertyToXML({\n      rule: StandardAttributeDescriptionRules.properties.fillValue,\n      value: undefined,\n      referenceMetadata: testImportPropertyFromXML({\n        rule: StandardAttributeDescriptionRules.properties.fillValue,\n        xmlString: '<xr:FillValue xsi:type=\"v8:TypeDescription\"/>',\n        xmlRootTag: \"xr:FillValue\",\n        forReference: true,\n      }),\n      xmlRootTag: \"xr:FillValue\",\n    })\n\n    expect(result).toBe('<xr:FillValue xsi:type=\"v8:TypeDescription\"/>')\n  })",
     "fixtures": ["./__fixtures__/data", "./__fixtures__/fillValueEmptyRefTypeLoss"],
     "line": 195,
-    "behavior": "",
+    "behavior": "Единый тест «preserves missing fillValue xsi type from reference» сохраняет поведение удалённого сценария «preserves fillValue reference xsi type for missing value».",
     "targetPath": "packages/core/metadata/commonObjects/standardAttributeDescription/fromYAMLToXML.test.ts",
-    "targetTitle": "",
-    "status": "pending"
+    "targetTitle": "preserves missing fillValue xsi type from reference",
+    "status": "migrated"
   },
   {
     "id": "04f50e62065bb2e7f3cd7e8646dde08c82c0f7a2:packages/core/metadata/commonObjects/standardAttributeDescription/toXML.test.ts:211:7363",
@@ -14234,10 +14235,10 @@
     "declarationText": "it(\"preserves fillValue reference xsi type through collection export\", () => {\n    const rule: PropertyRule = {\n      type: \"StandardAttributeDescriptions\",\n      standartAttributeNames: { ValueType: \"ТипЗначения\" },\n    }\n    const referenceMetadata = testImportPropertyFromXML({\n      rule,\n      xmlString: `\n        <StandardAttributes>\n          <xr:StandardAttribute name=\"ValueType\">\n            <xr:Comment>changed</xr:Comment>\n            <xr:FillValue xsi:type=\"v8:TypeDescription\"/>\n          </xr:StandardAttribute>\n        </StandardAttributes>\n      `,\n      xmlRootTag: \"StandardAttributes\",\n      forReference: true,\n    })\n\n    const { result } = testExportPropertyToXML({\n      rule,\n      value: [{ itemType: \"StandardAttributeDescription\", name: \"ValueType\", comment: \"changed\" }],\n      referenceMetadata,\n      xmlRootTag: \"StandardAttributes\",\n    })\n\n    expect(result).toContain('<xr:FillValue xsi:type=\"v8:TypeDescription\"/>')\n  })",
     "fixtures": ["./__fixtures__/data", "./__fixtures__/fillValueEmptyRefTypeLoss"],
     "line": 211,
-    "behavior": "",
+    "behavior": "Единый тест «preserves fillValue reference type through changed collection item» сохраняет поведение удалённого сценария «preserves fillValue reference xsi type through collection export».",
     "targetPath": "packages/core/metadata/commonObjects/standardAttributeDescription/fromYAMLToXML.test.ts",
-    "targetTitle": "",
-    "status": "pending"
+    "targetTitle": "preserves fillValue reference type through changed collection item",
+    "status": "migrated"
   },
   {
     "id": "04f50e62065bb2e7f3cd7e8646dde08c82c0f7a2:packages/core/metadata/commonObjects/standardAttributeDescription/toXML.test.ts:240:8324",
@@ -14249,10 +14250,10 @@
     "declarationText": "it(\"preserves reference XML for an empty standard attribute item\", () => {\n    const rule: PropertyRule = {\n      type: \"StandardAttributeDescriptions\",\n      standartAttributeNames: { ValueType: \"ТипЗначения\" },\n    }\n    const referenceMetadata = testImportPropertyFromXML({\n      rule,\n      xmlString: `\n        <StandardAttributes>\n          <xr:StandardAttribute name=\"ValueType\">\n            <xr:FillValue xsi:type=\"v8:TypeDescription\"/>\n          </xr:StandardAttribute>\n        </StandardAttributes>\n      `,\n      xmlRootTag: \"StandardAttributes\",\n      forReference: true,\n    })\n\n    const { result } = testExportPropertyToXML({\n      rule,\n      value: [{ itemType: \"StandardAttributeDescription\", name: \"ValueType\" }],\n      referenceMetadata,\n      xmlRootTag: \"StandardAttributes\",\n    })\n\n    expect(result).toContain('<xr:FillValue xsi:type=\"v8:TypeDescription\"/>')\n    expect(result).not.toBe('<StandardAttributes><xr:StandardAttribute name=\"ValueType\"/></StandardAttributes>')\n  })",
     "fixtures": ["./__fixtures__/data", "./__fixtures__/fillValueEmptyRefTypeLoss"],
     "line": 240,
-    "behavior": "",
+    "behavior": "Единый тест «preserves reference-only collection values» сохраняет поведение удалённого сценария «preserves reference XML for an empty standard attribute item».",
     "targetPath": "packages/core/metadata/commonObjects/standardAttributeDescription/fromYAMLToXML.test.ts",
-    "targetTitle": "",
-    "status": "pending"
+    "targetTitle": "preserves reference-only collection values",
+    "status": "migrated"
   },
   {
     "id": "04f50e62065bb2e7f3cd7e8646dde08c82c0f7a2:packages/core/metadata/commonObjects/standardAttributeDescription/toXML.test.ts:269:9329",
@@ -14264,10 +14265,10 @@
     "declarationText": "it(\"preserves fillValue reference xsi type when standard attribute is missing from model\", () => {\n    const rule: PropertyRule = {\n      type: \"StandardAttributeDescriptions\",\n      standartAttributeNames: { ValueType: \"ТипЗначения\" },\n    }\n    const referenceMetadata = testImportPropertyFromXML({\n      rule,\n      xmlString: `\n        <StandardAttributes>\n          <xr:StandardAttribute name=\"ValueType\">\n            <xr:Comment>reference-only</xr:Comment>\n            <xr:FillValue xsi:type=\"v8:TypeDescription\"/>\n          </xr:StandardAttribute>\n        </StandardAttributes>\n      `,\n      xmlRootTag: \"StandardAttributes\",\n      forReference: true,\n    })\n\n    const { result } = testExportPropertyToXML({\n      rule,\n      value: undefined,\n      referenceMetadata,\n      xmlRootTag: \"StandardAttributes\",\n    })\n\n    expect(result).toContain('<xr:FillValue xsi:type=\"v8:TypeDescription\"/>')\n    expect(result).toContain(\"<xr:Comment>reference-only</xr:Comment>\")\n  })",
     "fixtures": ["./__fixtures__/data", "./__fixtures__/fillValueEmptyRefTypeLoss"],
     "line": 269,
-    "behavior": "",
+    "behavior": "Единый тест «preserves reference-only collection values» сохраняет поведение удалённого сценария «preserves fillValue reference xsi type when standard attribute is missing from model».",
     "targetPath": "packages/core/metadata/commonObjects/standardAttributeDescription/fromYAMLToXML.test.ts",
-    "targetTitle": "",
-    "status": "pending"
+    "targetTitle": "preserves reference-only collection values",
+    "status": "migrated"
   },
   {
     "id": "04f50e62065bb2e7f3cd7e8646dde08c82c0f7a2:packages/core/metadata/commonObjects/standardAttributeDescription/toXML.test.ts:299:10313",
@@ -14279,10 +14280,10 @@
     "declarationText": "it(\"preserves nil reference XML for empty standard attribute values\", () => {\n    const rule: PropertyRule = {\n      type: \"StandardAttributeDescriptions\",\n      standartAttributeNames: { Value: \"Значение\" },\n    }\n    const referenceMetadata = testImportPropertyFromXML({\n      rule,\n      xmlString: `\n        <StandardAttributes>\n          <xr:StandardAttribute name=\"Value\">\n            <xr:FillValue xsi:nil=\"true\"/>\n            <xr:MaxValue xsi:nil=\"true\"/>\n            <xr:MinValue xsi:nil=\"true\"/>\n          </xr:StandardAttribute>\n        </StandardAttributes>\n      `,\n      xmlRootTag: \"StandardAttributes\",\n      forReference: true,\n    })\n\n    const { result } = testExportPropertyToXML({\n      rule,\n      value: [{ itemType: \"StandardAttributeDescription\", name: \"Value\" }],\n      referenceMetadata,\n      xmlRootTag: \"StandardAttributes\",\n    })\n\n    expect(result).toContain('<xr:FillValue xsi:nil=\"true\"/>')\n    expect(result).toContain('<xr:MaxValue xsi:nil=\"true\"/>')\n    expect(result).toContain('<xr:MinValue xsi:nil=\"true\"/>')\n  })",
     "fixtures": ["./__fixtures__/data", "./__fixtures__/fillValueEmptyRefTypeLoss"],
     "line": 299,
-    "behavior": "",
+    "behavior": "Единый тест «preserves nil reference XML for empty standard attribute values» сохраняет поведение удалённого сценария «preserves nil reference XML for empty standard attribute values».",
     "targetPath": "packages/core/metadata/commonObjects/standardAttributeDescription/fromYAMLToXML.test.ts",
-    "targetTitle": "",
-    "status": "pending"
+    "targetTitle": "preserves nil reference XML for empty standard attribute values",
+    "status": "migrated"
   },
   {
     "id": "04f50e62065bb2e7f3cd7e8646dde08c82c0f7a2:packages/core/metadata/commonObjects/standardAttributeDescription/toXML.test.ts:331:11371",
@@ -14294,10 +14295,10 @@
     "declarationText": "it(\"exports explicit accounting ExtDimension standard attributes\", () => {\n    const rule = {\n      type: \"StandardAttributeDescriptions\",\n      standartAttributeNames: {},\n    } satisfies PropertyRule\n    const { expectedResult, result } = testExportPropertyToXML({\n      rule,\n      value: accountingExtDimensions,\n      xmlRootTag: \"StandardAttributes\",\n      path: \"accounting-ext-dimensions.xml\",\n      importMetaUrl: import.meta.url,\n    })\n    expect(result).toEqual(expectedResult)\n  })",
     "fixtures": ["./__fixtures__/data", "./__fixtures__/fillValueEmptyRefTypeLoss", "accounting-ext-dimensions.xml"],
     "line": 331,
-    "behavior": "",
+    "behavior": "Единый тест «exports explicit accounting ExtDimension attributes with reference» сохраняет поведение удалённого сценария «exports explicit accounting ExtDimension standard attributes».",
     "targetPath": "packages/core/metadata/commonObjects/standardAttributeDescription/fromYAMLToXML.test.ts",
-    "targetTitle": "",
-    "status": "pending"
+    "targetTitle": "exports explicit accounting ExtDimension attributes with reference",
+    "status": "migrated"
   },
   {
     "id": "04f50e62065bb2e7f3cd7e8646dde08c82c0f7a2:packages/core/metadata/commonObjects/standardAttributeDescription/toXML.test.ts:346:11869",
@@ -14309,10 +14310,10 @@
     "declarationText": "it(\"exports explicit accounting ExtDimension standard attributes without reference\", () => {\n    const rule = {\n      type: \"StandardAttributeDescriptions\",\n      standartAttributeNames: MetadataAccountingRegisterStandardAttributeNames,\n    } satisfies PropertyRule\n    const { result } = testExportPropertyToXML({\n      rule,\n      value: [\n        { itemType: \"StandardAttributeDescription\", name: \"ExtDimension50\" },\n        { itemType: \"StandardAttributeDescription\", name: \"ExtDimensionType50\" },\n      ],\n      referenceMetadata: undefined,\n      xmlRootTag: \"StandardAttributes\",\n    })\n\n    expect(result).toContain('<xr:StandardAttribute name=\"ExtDimension50\"/>')\n    expect(result).toContain('<xr:StandardAttribute name=\"ExtDimensionType50\"/>')\n    expect(result).not.toContain('<xr:StandardAttribute name=\"ExtDimension1\"/>')\n    expect(result).not.toContain('<xr:StandardAttribute name=\"ExtDimensionType1\"/>')\n  })",
     "fixtures": ["./__fixtures__/data", "./__fixtures__/fillValueEmptyRefTypeLoss"],
     "line": 346,
-    "behavior": "",
+    "behavior": "Единый тест «exports explicit high-number accounting ExtDimension attributes without reference» сохраняет поведение удалённого сценария «exports explicit accounting ExtDimension standard attributes without reference».",
     "targetPath": "packages/core/metadata/commonObjects/standardAttributeDescription/fromYAMLToXML.test.ts",
-    "targetTitle": "",
-    "status": "pending"
+    "targetTitle": "exports explicit high-number accounting ExtDimension attributes without reference",
+    "status": "migrated"
   },
   {
     "id": "04f50e62065bb2e7f3cd7e8646dde08c82c0f7a2:packages/core/metadata/commonObjects/standardAttributeDescription/toXML.test.ts:367:12798",
@@ -14324,10 +14325,10 @@
     "declarationText": "it(\"does not complete accounting ExtDimension standard attributes up to 50 without reference\", () => {\n    const rule = {\n      type: \"StandardAttributeDescriptions\",\n      standartAttributeNames: MetadataAccountingRegisterStandardAttributeNames,\n      standartAttributeNamesXML: MetadataAccountingRegisterStandardAttributeNamesXML,\n    } satisfies PropertyRule\n    const value = [\n      { itemType: \"StandardAttributeDescription\", name: \"ExtDimension1\", comment: \"changed\" },\n      { itemType: \"StandardAttributeDescription\", name: \"ExtDimensionType1\", comment: \"changed\" },\n      { itemType: \"StandardAttributeDescription\", name: \"ExtDimension4\", comment: \"changed\" },\n      { itemType: \"StandardAttributeDescription\", name: \"ExtDimensionType4\", comment: \"changed\" },\n    ]\n    const { result } = testExportPropertyToXML({\n      rule,\n      value,\n      metadataItem: { standardAttributes: value },\n      referenceMetadata: undefined,\n      xmlRootTag: \"StandardAttributes\",\n    })\n\n    const names = Array.from(result.matchAll(/<xr:StandardAttribute name=\"([^\"]+)\"/g), ([, name]) => name)\n    expect(names).toContain(\"ExtDimension1\")\n    expect(names).toContain(\"ExtDimensionType4\")\n    expect(names).not.toContain(\"ExtDimension5\")\n    expect(names).not.toContain(\"ExtDimensionType50\")\n  })",
     "fixtures": ["./__fixtures__/data", "./__fixtures__/fillValueEmptyRefTypeLoss"],
     "line": 367,
-    "behavior": "",
+    "behavior": "Единый тест «exports only explicit accounting ExtDimension attributes without reference» сохраняет поведение удалённого сценария «does not complete accounting ExtDimension standard attributes up to 50 without reference».",
     "targetPath": "packages/core/metadata/commonObjects/standardAttributeDescription/fromYAMLToXML.test.ts",
-    "targetTitle": "",
-    "status": "pending"
+    "targetTitle": "exports only explicit accounting ExtDimension attributes without reference",
+    "status": "migrated"
   },
   {
     "id": "04f50e62065bb2e7f3cd7e8646dde08c82c0f7a2:packages/core/metadata/commonObjects/standardAttributeDescription/toYAML.test.ts:14:557",
@@ -14339,10 +14340,10 @@
     "declarationText": "it(\"exports undefined\", () => {\n    const result = testExportPropertyToYAML({ rule, value: undefined })\n    expect(result).toBeUndefined()\n  })",
     "fixtures": ["./__fixtures__/data"],
     "line": 14,
-    "behavior": "",
-    "targetPath": "packages/core/metadata/commonObjects/standardAttributeDescription/fromXMLToYAML.test.ts",
-    "targetTitle": "",
-    "status": "pending"
+    "behavior": "Единый тест «exports undefined and empty YAML» сохраняет поведение удалённого сценария «exports undefined».",
+    "targetPath": "packages/core/metadata/commonObjects/standardAttributeDescription/fromYAMLToXML.test.ts",
+    "targetTitle": "exports undefined and empty YAML",
+    "status": "migrated"
   },
   {
     "id": "04f50e62065bb2e7f3cd7e8646dde08c82c0f7a2:packages/core/metadata/commonObjects/standardAttributeDescription/toYAML.test.ts:19:704",
@@ -14354,10 +14355,10 @@
     "declarationText": "it(\"exports empty array\", () => {\n    const result = testExportPropertyToYAML({ rule, value: [] })\n    expect(result).toBeUndefined()\n  })",
     "fixtures": ["./__fixtures__/data"],
     "line": 19,
-    "behavior": "",
+    "behavior": "Единый тест «omits defaults from %s» сохраняет поведение удалённого сценария «exports empty array».",
     "targetPath": "packages/core/metadata/commonObjects/standardAttributeDescription/fromXMLToYAML.test.ts",
-    "targetTitle": "",
-    "status": "pending"
+    "targetTitle": "omits defaults from %s",
+    "status": "migrated"
   },
   {
     "id": "04f50e62065bb2e7f3cd7e8646dde08c82c0f7a2:packages/core/metadata/commonObjects/standardAttributeDescription/toYAML.test.ts:24:846",
@@ -14369,10 +14370,10 @@
     "declarationText": "it(\"exports full fixture\", () => {\n    const result = testExportPropertyToYAML({ rule, value: all })\n\n    expect(result).toEqual({ СтандартныеРеквизиты: allYAML })\n  })",
     "fixtures": ["./__fixtures__/data"],
     "line": 24,
-    "behavior": "",
+    "behavior": "Единый тест «exports all.xml directly to YAML» сохраняет поведение удалённого сценария «exports full fixture».",
     "targetPath": "packages/core/metadata/commonObjects/standardAttributeDescription/fromXMLToYAML.test.ts",
-    "targetTitle": "",
-    "status": "pending"
+    "targetTitle": "exports all.xml directly to YAML",
+    "status": "migrated"
   },
   {
     "id": "04f50e62065bb2e7f3cd7e8646dde08c82c0f7a2:packages/core/metadata/commonObjects/standardAttributeDescription/toYAML.test.ts:30:1018",
@@ -14384,10 +14385,10 @@
     "declarationText": "it(\"exports minimal fixture\", () => {\n    const result = testExportPropertyToYAML({ rule, value: minimal })\n    expect(result).toEqual({ СтандартныеРеквизиты: minimalYAML })\n  })",
     "fixtures": ["./__fixtures__/data"],
     "line": 30,
-    "behavior": "",
-    "targetPath": "packages/core/metadata/commonObjects/standardAttributeDescription/fromXMLToYAML.test.ts",
-    "targetTitle": "",
-    "status": "pending"
+    "behavior": "Единый тест «exports minimal fixture from YAML» сохраняет поведение удалённого сценария «exports minimal fixture».",
+    "targetPath": "packages/core/metadata/commonObjects/standardAttributeDescription/fromYAMLToXML.test.ts",
+    "targetTitle": "exports minimal fixture from YAML",
+    "status": "migrated"
   },
   {
     "id": "04f50e62065bb2e7f3cd7e8646dde08c82c0f7a2:packages/core/metadata/commonObjects/userSettingsID/fromXML.test.ts:16:672",

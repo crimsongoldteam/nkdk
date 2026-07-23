@@ -87,33 +87,49 @@ export function convertMetadataCollectionFromYAMLToXML(
       namePropertyKey: params.descriptor.keyField,
       outputs: itemOutputs,
       sparseYAML: params.descriptor.sparseItems,
+      omitDefaultsForSparseYAML:
+        (params.descriptor.omitDefaultsForSparseItems === true &&
+          itemOutputs.some(({ referenceXML }) => isAttributeOnlyRecord(referenceXML))) ||
+        params.descriptor.omitDefaultsForSparseItem?.({
+          yaml: normalizedYAML,
+          name,
+          referenceXML: itemOutputs.find(({ referenceXML }) => referenceXML !== undefined)?.referenceXML,
+          propertyRule: params.propertyRule,
+        }) === true
+          ? true
+          : undefined,
       externalWriteFactory: params.externalWriteFactory,
       profile: params.profile,
       rulePath: [...(params.rulePath ?? [params.descriptor.itemRule.itemType]), name ?? index],
     })
     for (const output of itemOutputs) {
       const xml = converted.outputs.get(output.key) ?? {}
-      outputItems.get(output.key)!.push(
-        params.descriptor.mapItemOutput?.({
-          xml,
-          yaml: normalizedYAML,
-          name,
-          index,
-          itemRule,
-          propertyRule: params.propertyRule,
-          context: itemContext,
-        }) ?? xml
-      )
+      const mapped =
+        params.descriptor.mapItemOutput === undefined
+          ? xml
+          : params.descriptor.mapItemOutput({
+              xml,
+              yaml: normalizedYAML,
+              name,
+              index,
+              itemRule,
+              propertyRule: params.propertyRule,
+              context: itemContext,
+              collectionYAML: params.yaml,
+              referenceXML: output.referenceXML,
+            })
+      if (mapped !== undefined) outputItems.get(output.key)!.push(mapped)
     }
     externalWrites.push(...converted.externalWrites)
   })
 
   return {
     outputs: new Map(
-      params.outputs.map(({ key }) => {
+      params.outputs.flatMap(({ key }) => {
         const items = outputItems.get(key)!
+        if (items.length === 0 && params.descriptor.omitEmptyOutput === true) return []
         const value = params.descriptor.xmlElement === undefined ? items : { [params.descriptor.xmlElement]: items }
-        return [key, value as Record<string, unknown>]
+        return [[key, value as Record<string, unknown>]]
       })
     ),
     externalWrites,
@@ -333,4 +349,8 @@ function collectionKeyName(
 
 function isRecord(value: unknown): value is Record<string, unknown> {
   return value !== null && typeof value === "object" && !Array.isArray(value)
+}
+
+function isAttributeOnlyRecord(value: unknown): boolean {
+  return isRecord(value) && Object.keys(value).every((key) => key.startsWith("_"))
 }

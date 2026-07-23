@@ -42,6 +42,7 @@ export interface ConvertPropertiesFromYAMLToXMLParams {
   readonly outputs: readonly YAMLToXMLOutputRequest[]
   readonly propertyValues?: ReadonlyMap<string, unknown>
   readonly sparseYAML?: true
+  readonly omitDefaultsForSparseYAML?: true
   readonly externalWriteFactory?: YAMLToXMLExternalWriteFactory
   readonly profile?: YAMLToXMLProfile
   readonly rulePath?: readonly (string | number)[]
@@ -197,7 +198,7 @@ export function convertPropertiesFromYAMLToXML(params: ConvertPropertiesFromYAML
       !source.has(propertyKey) &&
       !references.some((reference) => reference.exists) &&
       planned.propertyRule.preserveFromReferenceXML !== true &&
-      !hasExplicitXMLDefault(planned.propertyRule)
+      (!hasExplicitXMLDefault(planned.propertyRule) || params.omitDefaultsForSparseYAML === true)
     ) {
       continue
     }
@@ -410,6 +411,7 @@ export function convertPropertiesFromYAMLToXML(params: ConvertPropertiesFromYAML
       if (effectiveNestedRule.kind !== "collection" && params.profile !== undefined) params.profile.nestedItemCount++
       externalWrites.push(...nested.externalWrites)
       matchingOutputs.forEach((output, index) => {
+        if (effectiveNestedRule.kind === "collection" && !nested.outputs.has(output.request.key)) return
         const reference = references[index]!
         let value: unknown = nested.outputs.get(output.request.key)
         if (

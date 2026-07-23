@@ -229,6 +229,16 @@ function compilePropertyRoute(
     xmlPattern,
     targetPattern,
     assignmentTargetPattern,
+    selection:
+      declaration.selection === undefined
+        ? undefined
+        : {
+            ...declaration.selection,
+            manifestPattern: joinPatternWithOverlap(
+              context.xmlBase,
+              substituteLocalParameters(declaration.selection.manifestPattern, context)
+            ),
+          },
     source,
     ...(recursion === undefined ? {} : { recursion }),
   }

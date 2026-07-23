@@ -10,6 +10,7 @@ import {
   nestedDataCompositionSchemaDataSetField,
   nestedDataCompositionSchemaDataSetFieldYAML,
 } from "./__fixtures__/data"
+import { explicitYAMLString } from "../../../../yaml/explicitString"
 import "./types"
 
 describe("export DataCompositionSchemaDataSetField to YAML", () => {
@@ -109,6 +110,49 @@ describe("export DataCompositionSchemaDataSetField to YAML", () => {
           Группировка: "Истина",
           Порядок: "Истина",
         },
+      },
+    })
+  })
+
+  it("exports appearance from XML", () => {
+    const result = testExportPropertyModelThroughXMLToYAML({
+      rule: { type: "DataCompositionSchemaDataSetField", yaml: "ПолеНабораДанныхСхемыКомпоновкиДанных" },
+      value: undefined,
+      path: "appearance.xml",
+      xmlRootTag: "Field",
+      importMetaUrl: import.meta.url,
+    })
+
+    expect(result).toEqual({
+      ПолеНабораДанныхСхемыКомпоновкиДанных: {
+        Вид: "ПолеНабораДанныхСхемыКомпоновкиДанных",
+        ПутьКДанным: "Сумма",
+        Поле: "Сумма",
+        Оформление: {
+          Формат: { Значение: explicitYAMLString("ЧЦ=15; ЧДЦ=2") },
+        },
+      },
+    })
+  })
+
+  it("preserves xs:string title in YAML", () => {
+    const result = testExportPropertyModelThroughXMLToYAML({
+      rule: { type: "DataCompositionSchemaDataSetField", yaml: "ПолеНабораДанныхСхемыКомпоновкиДанных" },
+      value: undefined,
+      xmlString: `<Field xsi:type="dcssch:DataSetFieldField">
+	<dcssch:dataPath>StringTitleField</dcssch:dataPath>
+	<dcssch:field>StringTitleField</dcssch:field>
+	<dcssch:title xsi:type="xs:string">String title</dcssch:title>
+</Field>`,
+      xmlRootTag: "Field",
+    })
+
+    expect(result).toEqual({
+      ПолеНабораДанныхСхемыКомпоновкиДанных: {
+        Вид: "ПолеНабораДанныхСхемыКомпоновкиДанных",
+        ПутьКДанным: "StringTitleField",
+        Поле: "StringTitleField",
+        Заголовок: "String title",
       },
     })
   })

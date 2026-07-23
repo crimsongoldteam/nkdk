@@ -1,7 +1,13 @@
 import { promises as nodeFs } from "fs"
 import { isAbsolute, join, relative, resolve } from "path"
+import importContentFromXML from "../../xml/import/importer"
 import { createImportAssignments, type ImportAssignmentGroup } from "./assignmentBuilder"
-import { compileXmlImportRouteStructure, matchXmlImportRouteStructure, type XmlImportRouteMatch } from "./routeStructure"
+import {
+  compileXmlImportRouteStructure,
+  matchXmlImportRouteStructure,
+  type XmlImportRouteMatch,
+} from "./routeStructure"
+import { expandImportPattern } from "./routes"
 import type { ImportAssignment, ImportExternalFile, ImportXmlInput, XmlImportRoute } from "./types"
 
 export interface XmlImportDiscoveryFileSystem {
@@ -25,6 +31,7 @@ export async function discoverXmlImport(params: DiscoverXmlImportParams): Promis
   const conflictPaths: string[] = []
   const assignmentsByTarget = new Map<string, ImportAssignmentGroup>()
   const externalMatches: Array<Extract<ResolvedMatch, { kind: "externalFile" }> & { path: string }> = []
+  const manifestValues = new Map<string, Promise<Set<string>>>()
 
   for (const path of paths) {
     const allMatches = matchXmlImportRouteStructure(routeStructure, path)
@@ -42,6 +49,7 @@ export async function discoverXmlImport(params: DiscoverXmlImportParams): Promis
     if (compatible.kind === "externalFile") {
       for (const match of compatibleMatches) {
         if (match.kind !== "externalFile") throw new Error("Несовместимые виды XML-import маршрутов")
+        if (!(await isSelectedExternalFile({ match, xmlDir: params.xmlDir, fileSystem, manifestValues }))) continue
         externalMatches.push({ ...match, path })
       }
       continue
@@ -98,6 +106,54 @@ export async function discoverXmlImport(params: DiscoverXmlImportParams): Promis
 
 const defaultFileSystem: XmlImportDiscoveryFileSystem = {
   listFiles: listRegularFiles,
+  readFile: nodeFs.readFile,
+}
+
+async function isSelectedExternalFile(params: {
+  match: Extract<ResolvedMatch, { kind: "externalFile" }>
+  xmlDir: string
+  fileSystem: XmlImportDiscoveryFileSystem
+  manifestValues: Map<string, Promise<Set<string>>>
+}): Promise<boolean> {
+  const selection = params.match.route.selection
+  if (selection === undefined) return true
+  const candidate = params.match.values[selection.candidateParameter]
+  if (candidate === undefined) return false
+  if (selection.alwaysIncludePrefixes?.some((prefix) => candidate.startsWith(prefix))) return true
+  const normalizedCandidate =
+    selection.candidateSuffix !== undefined && candidate.endsWith(selection.candidateSuffix)
+      ? candidate.slice(0, -selection.candidateSuffix.length)
+      : candidate
+  const manifestRelativePath = expandImportPattern(selection.manifestPattern, params.match.values).replace(/\\/g, "/")
+  const manifestPath = resolve(params.xmlDir, ...manifestRelativePath.split("/"))
+  let values = params.manifestValues.get(manifestPath)
+  if (values === undefined) {
+    values = readManifestValues({
+      fileSystem: params.fileSystem,
+      manifestPath,
+      listPath: selection.listPath,
+    })
+    params.manifestValues.set(manifestPath, values)
+  }
+  return (await values).has(normalizedCandidate)
+}
+
+async function readManifestValues(params: {
+  fileSystem: XmlImportDiscoveryFileSystem
+  manifestPath: string
+  listPath: readonly string[]
+}): Promise<Set<string>> {
+  if (params.fileSystem.readFile === undefined) return new Set()
+  const content = await params.fileSystem.readFile(params.manifestPath, "utf-8")
+  let value: unknown = importContentFromXML<Record<string, unknown>>(String(content))
+  for (const segment of params.listPath) {
+    value =
+      value !== null && typeof value === "object" && !Array.isArray(value)
+        ? (value as Record<string, unknown>)[segment]
+        : undefined
+  }
+  const items = Array.isArray(value) ? value : value === undefined ? [] : [value]
+  return new Set(items.filter((item): item is string => typeof item === "string"))
 }
 
 async function listRegularFiles(xmlDir: string): Promise<string[]> {

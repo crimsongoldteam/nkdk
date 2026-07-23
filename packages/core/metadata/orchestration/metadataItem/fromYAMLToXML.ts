@@ -21,6 +21,7 @@ export interface ConvertMetadataItemFromYAMLToXMLParams {
   readonly propertyValues?: ReadonlyMap<string, unknown>
   readonly ownerYAML?: unknown
   readonly sparseYAML?: true
+  readonly omitDefaultsForSparseYAML?: true
   readonly externalWriteFactory?: YAMLToXMLExternalWriteFactory
   readonly profile?: YAMLToXMLProfile
   readonly rulePath?: readonly (string | number)[]
@@ -67,6 +68,7 @@ export function convertMetadataItemFromYAMLToXML(params: ConvertMetadataItemFrom
     outputs: normalizedOutputs,
     propertyValues: params.propertyValues,
     sparseYAML: params.sparseYAML,
+    omitDefaultsForSparseYAML: params.omitDefaultsForSparseYAML,
     externalWriteFactory: params.externalWriteFactory,
     profile: params.profile,
     rulePath: params.rulePath,

@@ -10,6 +10,7 @@ import {
   fullDCSParametersYAML,
 } from "./__fixtures__/data"
 import "./types"
+import { explicitYAMLString } from "../../../../yaml/explicitString"
 
 const rule: PropertyRule = { type: "DCSParameters" }
 
@@ -62,6 +63,89 @@ describe("export DCSParameter to XML", () => {
       path: "full.xml",
       importMetaUrl: import.meta.url,
     })
+    expect(result).toEqual(expectedResult)
+  })
+
+  it("exports inferred system enumeration to XML", () => {
+    const xmlString = `<Settings>
+	<Parameter>
+		<dcssch:name>ВидДвижения</dcssch:name>
+		<dcssch:valueType>
+			<v8:Type>ent:AccumulationRecordType</v8:Type>
+		</dcssch:valueType>
+		<dcssch:value xsi:type="ent:AccumulationRecordType">Expense</dcssch:value>
+		<dcssch:useRestriction>true</dcssch:useRestriction>
+	</Parameter>
+</Settings>`
+    const { expectedResult, result } = testExportPropertyModelThroughYAMLToXML({
+      rule,
+      value: undefined,
+      yaml: {
+        ВидДвижения: {
+          ТипЗначения: "ВидДвиженияНакопления",
+          Значение: {
+            Тип: "СистемноеПеречисление",
+            Имя: "AccumulationRecordType",
+            Значение: "Расход",
+          },
+          ОграничениеИспользования: "Истина",
+        },
+      },
+      xmlRootTag: "Settings",
+      xmlString,
+    })
+
+    expect(result).toEqual(expectedResult)
+  })
+
+  it("preserves xs:string title in XML", () => {
+    const xmlString = `<Settings>
+	<Parameter>
+		<dcssch:name>StringTitleParameter</dcssch:name>
+		<dcssch:title xsi:type="xs:string">String title</dcssch:title>
+	</Parameter>
+</Settings>`
+    const { expectedResult, result } = testExportPropertyModelThroughYAMLToXML({
+      rule,
+      value: undefined,
+      yaml: {
+        StringTitleParameter: {
+          Заголовок: "String title",
+        },
+      },
+      xmlRootTag: "Settings",
+      xmlString,
+    })
+
+    expect(result).toEqual(expectedResult)
+  })
+
+  it("preserves numeric-looking edit parameter mask as xs:string", () => {
+    const xmlString = `<Settings>
+	<Parameter>
+		<dcssch:name>Параметр1</dcssch:name>
+		<dcssch:inputParameters>
+			<dcscor:item>
+				<dcscor:parameter>Маска</dcscor:parameter>
+				<dcscor:value xsi:type="xs:string">123</dcscor:value>
+			</dcscor:item>
+		</dcssch:inputParameters>
+	</Parameter>
+</Settings>`
+    const { expectedResult, result } = testExportPropertyModelThroughYAMLToXML({
+      rule,
+      value: undefined,
+      yaml: {
+        Параметр1: {
+          ПараметрыРедактирования: {
+            Маска: { Значение: explicitYAMLString("123") },
+          },
+        },
+      },
+      xmlRootTag: "Settings",
+      xmlString,
+    })
+
     expect(result).toEqual(expectedResult)
   })
 

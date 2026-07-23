@@ -100,6 +100,14 @@ export type XmlImportRoute = (
       assignmentTargetPattern: string
       /** Используется только когда тот же путь не описан более точным маршрутом. */
       fallback?: true
+      /** Ограничивает внешние файлы значениями, перечисленными в XML-манифесте. */
+      selection?: {
+        manifestPattern: string
+        listPath: readonly string[]
+        candidateParameter: string
+        candidateSuffix?: string
+        alwaysIncludePrefixes?: readonly string[]
+      }
       source: ProjectResourceSource
     }
   | {
