@@ -14,10 +14,10 @@
       "./__fixtures__/spreadsheetDocumentSettings"
     ],
     "line": 125,
-    "behavior": "",
+    "behavior": "Единый обход преобразует XML поля группировки с отключённым использованием в объект YAML.",
     "targetPath": "packages/core/metadata/forms/commonObjects/formAttribute/fromYAMLToXML.test.ts",
-    "targetTitle": "",
-    "status": "pending"
+    "targetTitle": "imports dynamicList.xml (use=false)",
+    "status": "migrated"
   },
   {
     "id": "1376404ce21e081d48459ceb89761b790e8c1959:packages/core/metadata/forms/commonObjects/formAttribute/fromYAML.test.ts:130:3694",
@@ -34,10 +34,10 @@
       "./__fixtures__/spreadsheetDocumentSettings"
     ],
     "line": 130,
-    "behavior": "",
+    "behavior": "Единый обход преобразует XML поля группировки с настройками по умолчанию в краткую строку YAML.",
     "targetPath": "packages/core/metadata/forms/commonObjects/formAttribute/fromYAMLToXML.test.ts",
-    "targetTitle": "",
-    "status": "pending"
+    "targetTitle": "imports dynamicListDefault.xml (use=true)",
+    "status": "migrated"
   },
   {
     "id": "1376404ce21e081d48459ceb89761b790e8c1959:packages/core/metadata/forms/commonObjects/formAttribute/fromYAML.test.ts:136:3878",
@@ -54,10 +54,10 @@
       "./__fixtures__/spreadsheetDocumentSettings"
     ],
     "line": 136,
-    "behavior": "",
+    "behavior": "Единый обход преобразует YAML отключённого поля группировки в исходный XML.",
     "targetPath": "packages/core/metadata/forms/commonObjects/formAttribute/fromYAMLToXML.test.ts",
-    "targetTitle": "",
-    "status": "pending"
+    "targetTitle": "exports dynamicList.xml (use=false)",
+    "status": "migrated"
   },
   {
     "id": "1376404ce21e081d48459ceb89761b790e8c1959:packages/core/metadata/forms/commonObjects/formAttribute/fromYAML.test.ts:142:4071",
@@ -74,10 +74,10 @@
       "./__fixtures__/spreadsheetDocumentSettings"
     ],
     "line": 142,
-    "behavior": "",
+    "behavior": "Единый обход преобразует краткий YAML поля группировки в исходный XML.",
     "targetPath": "packages/core/metadata/forms/commonObjects/formAttribute/fromYAMLToXML.test.ts",
-    "targetTitle": "",
-    "status": "pending"
+    "targetTitle": "exports dynamicListDefault.xml (use=true)",
+    "status": "migrated"
   },
   {
     "id": "1376404ce21e081d48459ceb89761b790e8c1959:packages/core/metadata/forms/commonObjects/formAttribute/fromYAML.test.ts:148:4264",
