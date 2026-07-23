@@ -67,6 +67,34 @@ registerMetadataItemCollectionRule({
 })
 
 describe("importMetadataItemCollectionFromXMLToYAML", () => {
+  it.each([
+    ["обычный объект-контейнер", { Item: { Name: "A" } }, { Элементы: { A: {} } }],
+    [
+      "контейнер со списком",
+      { Item: [{ Name: "A" }, { Name: "B", Value: "v" }] },
+      { Элементы: { A: {}, B: { Значение: "v" } } },
+    ],
+    ["одиночное тело", { Name: "A", Value: "v" }, { Элементы: { A: { Значение: "v" } } }],
+    [
+      "массив обёрток",
+      [{ Item: { Name: "A" } }, { Item: { Name: "B" } }],
+      { Элементы: { A: {}, B: {} } },
+    ],
+    [
+      "массив обёрток с вложенным массивом",
+      [{ Item: [{ Name: "A" }, { Name: "B", Value: "v" }] }],
+      { Элементы: { A: {}, B: { Значение: "v" } } },
+    ],
+    ["массив с одиночной обёрткой", [{ Item: { Name: "A" } }], { Элементы: { A: {} } }],
+    ["массив тел", [{ Name: "A" }, { Name: "B" }], { Элементы: { A: {}, B: {} } }],
+  ])("normalizes legacy XML collection shapes in the direct traversal: %s", (_name, value, expected) => {
+    expect(runDirectRule("TestRecordCollection" as PropertyRuleType, { Items: value }).yaml).toEqual(expected)
+  })
+
+  it("omits an undefined collection from direct YAML", () => {
+    expect(runDirectRule("TestRecordCollection" as PropertyRuleType, { Items: undefined }).yaml).toEqual({})
+  })
+
   it("builds record YAML and preserves deferred item paths", () => {
     const recordResult = runDirectRule("TestRecordCollection", {
       Items: { Item: { Name: "Первый", Value: "a", Path: "x" } },
@@ -150,6 +178,23 @@ describe("importMetadataItemCollectionFromXMLToYAML", () => {
         { logicalAddress: "Владелец.A[1]", order: ["uuid", "name", "value"] },
       ])
     )
+  })
+
+  it("завершает прямой импорт ошибкой, если адресуемый элемент коллекции не имеет имени", () => {
+    const indexCollector = createConfigurationIndexCollector()
+    const context = withConfigurationIndexCollector(
+      mockContextFromXML({ forReference: true }),
+      indexCollector,
+      "Владелец.A"
+    )
+
+    expect(() =>
+      runDirectRule(
+        "TestIndexedRecordCollection" as PropertyRuleType,
+        { Items: { Item: { _uuid: "11111111-1111-1111-1111-111111111111" } } },
+        context
+      )
+    ).toThrow("содержит элемент без имени")
   })
 
   it("uses recordYamlKeyFromYAML for record YAML keys", () => {

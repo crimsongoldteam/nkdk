@@ -17,10 +17,10 @@ export interface ResolvedMetadataOperationPath {
   ok: true
   displayPath: string
   item: OperationSnapshotItem
-  modelNode: Record<string, unknown>
+  yamlNode: Record<string, unknown>
+  renameYaml(nextName: string): void
   currentName: string
   collectionProperty?: string
-  collectionOwnerNode?: Record<string, unknown>
   collectionNames: string[]
   projectPath: string
   absolutePath: string
@@ -57,7 +57,8 @@ function resolveObjectTarget(
     ok: true,
     displayPath,
     item,
-    modelNode: item.model,
+    yamlNode: item.yaml,
+    renameYaml: () => undefined,
     currentName: path.owner.name,
     collectionNames: snapshot.items
       .filter((candidate) => candidate.resource.owner.dir === path.owner.itemTypePrefix)
@@ -80,7 +81,7 @@ function resolveChainedTarget(
   if (!item) return targetNotFound(`Владелец не найден: ${path.owner.itemTypePrefix}.${path.owner.name}`)
 
   let currentRule = item.resource.owner.spec.rule
-  let currentNode = item.model
+  let currentNode = item.yaml
   const displayParts = [path.owner.itemTypePrefix, path.owner.name]
   const canonicalParts = [canonicalObjectPrefix(path.owner.itemTypePrefix, path.owner.name)]
 
@@ -109,9 +110,13 @@ function resolveChainedTarget(
       return unsupportedTarget(`Для сегмента "${segment.collectionSegment}" нет collection operationTarget-декларации`)
     }
 
-    const collection = namedCollection(currentNode[descriptor.propertyName])
-    const modelNode = collection.find((candidate) => candidate.name === segment.name)
-    if (!modelNode) return targetNotFound(`Элемент не найден: ${segment.name}`)
+    const resolvedCollection = resolveYamlCollectionItem({
+      owner: currentNode,
+      ownerRule: currentRule,
+      propertyName: descriptor.propertyName,
+      name: segment.name,
+    })
+    if (!resolvedCollection) return targetNotFound(`Элемент не найден: ${segment.name}`)
 
     displayParts.push(descriptor.declaration.migrationSegment, segment.name)
     canonicalParts.push(canonicalNamedKind(descriptor.declaration.targetKind), segment.name)
@@ -122,11 +127,11 @@ function resolveChainedTarget(
         ok: true,
         displayPath,
         item,
-        modelNode,
+        yamlNode: resolvedCollection.node,
+        renameYaml: resolvedCollection.rename,
         currentName: segment.name,
         collectionProperty: descriptor.propertyName,
-        collectionOwnerNode: currentNode,
-        collectionNames: collection.map((candidate) => candidate.name),
+        collectionNames: resolvedCollection.names,
         projectPath: item.resource.projectPath,
         absolutePath: item.filePath,
         resources: [item.filePath],
@@ -142,7 +147,7 @@ function resolveChainedTarget(
       return unsupportedTarget(`Для сегмента "${segment.collectionSegment}" не описано правило вложенного элемента`)
     }
     currentRule = nextRule
-    currentNode = modelNode
+    currentNode = resolvedCollection.node
   }
 
   return unsupportedTarget(`Цель не поддержана: ${path.path}`)
@@ -176,10 +181,10 @@ function resolveFileItemTarget(params: {
     ok: true,
     displayPath,
     item: params.item,
-    modelNode: { name: params.segment.name },
+    yamlNode: {},
+    renameYaml: () => undefined,
     currentName: params.segment.name,
     collectionProperty: params.descriptor.propertyName,
-    collectionOwnerNode: params.item.model,
     collectionNames: fileItemNames(folderPath, params.descriptor.declaration.yamlFileName),
     projectPath: `${params.path.owner.itemTypePrefix}/${params.path.owner.name}/${params.descriptor.declaration.folderName}/${params.segment.name}/${params.descriptor.declaration.yamlFileName}`,
     absolutePath: yamlPath,
@@ -222,12 +227,66 @@ function findOwner(
   )
 }
 
-function namedCollection(value: unknown): Array<Record<string, unknown> & { name: string }> {
-  if (!Array.isArray(value)) return []
-  return value.filter(
-    (item): item is Record<string, unknown> & { name: string } =>
-      typeof item === "object" && item !== null && typeof (item as { name?: unknown }).name === "string"
-  )
+function resolveYamlCollectionItem(params: {
+  owner: Record<string, unknown>
+  ownerRule: MetadataItemRule
+  propertyName: string
+  name: string
+}): { node: Record<string, unknown>; names: string[]; rename(nextName: string): void } | undefined {
+  const propertyRule = params.ownerRule.properties[params.propertyName]
+  if (propertyRule?.yaml === undefined) return undefined
+  const descriptor = getTypeRule(propertyRule.type, "yamlToXMLNestedRule")
+  if (descriptor?.kind !== "collection") return undefined
+  const collection = params.owner[propertyRule.yaml]
+
+  if (descriptor.yamlShape === "record") {
+    if (!isRecord(collection)) return undefined
+    const entry = Object.entries(collection).find(([key]) => {
+      const resolvedName =
+        descriptor.nameFromYAMLKeyForProperty?.({ yamlKey: key, propertyRule }) ??
+        descriptor.nameFromYAMLKey?.(key) ??
+        key
+      return resolvedName === params.name
+    })
+    if (entry === undefined || !isRecord(entry[1])) return undefined
+    const [yamlKey, node] = entry
+    return {
+      node,
+      names: Object.keys(collection).map(
+        (key) =>
+          descriptor.nameFromYAMLKeyForProperty?.({ yamlKey: key, propertyRule }) ??
+          descriptor.nameFromYAMLKey?.(key) ??
+          key
+      ),
+      rename: (nextName) => renameRecordKeyPreservingOrder(collection, yamlKey, nextName),
+    }
+  }
+
+  if (!Array.isArray(collection)) return undefined
+  const keyField = descriptor.keyField ?? "name"
+  const keyRule = descriptor.itemRule.properties[keyField]
+  const yamlKey = keyRule?.yaml
+  if (yamlKey === undefined) return undefined
+  const items = collection.filter(isRecord)
+  const node = items.find((item) => item[yamlKey] === params.name)
+  if (node === undefined) return undefined
+  return {
+    node,
+    names: items.flatMap((item) => (typeof item[yamlKey] === "string" ? [item[yamlKey] as string] : [])),
+    rename: (nextName) => {
+      node[yamlKey] = nextName
+    },
+  }
+}
+
+function renameRecordKeyPreservingOrder(record: Record<string, unknown>, currentName: string, nextName: string): void {
+  const entries = Object.entries(record).map(([key, value]) => [key === currentName ? nextName : key, value] as const)
+  for (const key of Object.keys(record)) delete record[key]
+  for (const [key, value] of entries) record[key] = value
+}
+
+function isRecord(value: unknown): value is Record<string, unknown> {
+  return value !== null && typeof value === "object" && !Array.isArray(value)
 }
 
 function nestedItemRule(propRule: MetadataItemRule["properties"][string] | undefined): MetadataItemRule | undefined {

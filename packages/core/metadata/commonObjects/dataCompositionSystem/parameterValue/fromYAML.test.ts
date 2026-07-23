@@ -1,16 +1,16 @@
 import { describe, expect, it } from "vitest"
 import { PropertyRule } from "../../../orchestration"
-import { testImportPropertyFromYAML } from "../../../../tests/property/importPropertyFromYAML"
+import { testAtomicFromYAML } from "../../../../tests/property/atomicFromYAML"
 import { exportToYAML } from "../../../../yaml/export"
 import { importFromYAML } from "../../../../yaml/import"
 import { parameterValueFixtures } from "./__fixtures__/data"
 import "./fromYAML"
 
-describe("importParameterValueFromYAML (через importPropertyFromYAML)", () => {
+describe("importParameterValueFromYAML (через callAtomicFromYAML)", () => {
   const parseViaYamlText = <T>(value: T): T => importFromYAML<T>(exportToYAML(value))
 
   it.each(parameterValueFixtures)("imports $title", (fixture) => {
-    const result = testImportPropertyFromYAML({
+    const result = testAtomicFromYAML({
       rule: fixture.rule as PropertyRule,
       value: fixture.yaml,
     })
@@ -18,7 +18,7 @@ describe("importParameterValueFromYAML (через importPropertyFromYAML)", () 
   })
 
   it("imports wrapper whose name matches a Font YAML key for non-Font values", () => {
-    const result = testImportPropertyFromYAML({
+    const result = testAtomicFromYAML({
       rule: { type: "SettingsParameterValue", valueType: "DesignTimeValue" } as PropertyRule,
       value: {
         Имя: "Значение",
@@ -32,7 +32,7 @@ describe("importParameterValueFromYAML (через importPropertyFromYAML)", () 
   })
 
   it("imports expanded use-only SettingsParameterValue without treating it as value", () => {
-    const result = testImportPropertyFromYAML({
+    const result = testAtomicFromYAML({
       rule: { type: "SettingsParameterValue", valueType: "DesignTimeValue", yaml: "Текст" } as PropertyRule,
       value: {
         Использовать: "Ложь",
@@ -46,7 +46,7 @@ describe("importParameterValueFromYAML (через importPropertyFromYAML)", () 
   })
 
   it("imports full color value form without passing wrapper to Color importer", () => {
-    const result = testImportPropertyFromYAML({
+    const result = testAtomicFromYAML({
       rule: { type: "SettingsParameterValue", valueType: "Color", yaml: "ЦветТекста" } as PropertyRule,
       value: {
         Значение: "#FF0000",
@@ -63,7 +63,7 @@ describe("importParameterValueFromYAML (через importPropertyFromYAML)", () 
   })
 
   it("imports disabled full color value form", () => {
-    const result = testImportPropertyFromYAML({
+    const result = testAtomicFromYAML({
       rule: { type: "SettingsParameterValue", valueType: "Color", yaml: "ЦветТекста" } as PropertyRule,
       value: {
         Использовать: "Ложь",
@@ -82,7 +82,7 @@ describe("importParameterValueFromYAML (через importPropertyFromYAML)", () 
   })
 
   it("keeps legacy explicit DCS object value readable as compact value", () => {
-    const result = testImportPropertyFromYAML({
+    const result = testAtomicFromYAML({
       rule: { type: "SettingsParameterValue", valueType: "DesignTimeValue", yaml: "Текст" } as PropertyRule,
       value: {
         Тип: "Поле",
@@ -100,7 +100,7 @@ describe("importParameterValueFromYAML (через importPropertyFromYAML)", () 
   })
 
   it("imports object DCS value from full wrapper without flattening inner object", () => {
-    const result = testImportPropertyFromYAML({
+    const result = testAtomicFromYAML({
       rule: { type: "SettingsParameterValue", valueType: "DesignTimeValue", yaml: "Текст" } as PropertyRule,
       value: {
         Значение: {
@@ -120,7 +120,7 @@ describe("importParameterValueFromYAML (через importPropertyFromYAML)", () 
   })
 
   it("imports explicit empty string value in field context", () => {
-    const result = testImportPropertyFromYAML({
+    const result = testAtomicFromYAML({
       rule: { type: "SettingsParameterValue", valueType: "Field", yaml: "НоменклатураВключение" } as PropertyRule,
       value: {
         Использовать: "Ложь",
@@ -140,7 +140,7 @@ describe("importParameterValueFromYAML (через importPropertyFromYAML)", () 
 
   it("does not import explicit string wrapper as primitive string outside field context", () => {
     expect(() =>
-      testImportPropertyFromYAML({
+      testAtomicFromYAML({
         rule: { type: "SettingsParameterValue", valueType: "DesignTimeValue", yaml: "Текст" } as PropertyRule,
         value: {
           Использовать: "Ложь",
@@ -158,7 +158,7 @@ describe("importParameterValueFromYAML (через importPropertyFromYAML)", () 
       Значение: "123",
     })
 
-    const result = testImportPropertyFromYAML({
+    const result = testAtomicFromYAML({
       rule: { type: "SettingsParameterValue", valueType: "Primitive", yaml: "Маска" } as PropertyRule,
       value: yaml,
     })
@@ -174,7 +174,7 @@ describe("importParameterValueFromYAML (через importPropertyFromYAML)", () 
       Значение: ["123", 456],
     })
 
-    const result = testImportPropertyFromYAML({
+    const result = testAtomicFromYAML({
       rule: { type: "SettingsParameterValue", valueType: "Primitive", yaml: "Список" } as PropertyRule,
       value: yaml,
     })

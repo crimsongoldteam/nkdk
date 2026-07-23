@@ -208,7 +208,7 @@ describe("syncAppliedObjectToXML — MetadataExternalDataSource", () => {
       inputDir,
       name: "ВнешнийИсточник",
       outputDir,
-      referenceModel: null,
+      useReferenceXML: false,
     })
 
     const dimensionTableXml = fs.readFileSync(join(outputDir, "Cubes/Куб/DimensionTables/Измерение.xml"), "utf-8")
@@ -256,7 +256,7 @@ describe("syncAppliedObjectToXML — MetadataExternalDataSource", () => {
       inputDir,
       name: "ВнешнийИсточник",
       outputDir,
-      referenceModel: null,
+      useReferenceXML: false,
     })
 
     const rootXml = fs.readFileSync(join(outputDir, "ВнешнийИсточник.xml"), "utf-8")
@@ -321,7 +321,7 @@ describe("syncAppliedObjectToXML — MetadataExternalDataSource", () => {
       inputDir,
       name: "ВнешнийИсточник",
       outputDir,
-      referenceModel: null,
+      useReferenceXML: false,
     })
 
     const names = [...context.exportToXML.configDumpInfo.keys()]
@@ -356,7 +356,7 @@ describe("syncAppliedObjectToXML — MetadataExternalDataSource", () => {
       inputDir,
       name: "ВнешнийИсточник",
       outputDir,
-      referenceModel: null,
+      useReferenceXML: false,
     })
 
     const rootXml = fs.readFileSync(join(outputDir, "ВнешнийИсточник.xml"), "utf-8")
@@ -405,7 +405,7 @@ describe("syncAppliedObjectToXML — MetadataExternalDataSource", () => {
       name: "ВнешнийИсточник",
       outputDir,
       referenceDir,
-      referenceModel: null,
+      useReferenceXML: false,
     })
 
     const cubeXml = fs.readFileSync(join(outputDir, "Cubes/Куб.xml"), "utf-8")
@@ -629,7 +629,7 @@ describe("syncAppliedObjectToXML — MetadataExternalDataSource", () => {
         inputDir,
         name: "ВнешнийИсточник",
         outputDir,
-        referenceModel: null,
+        useReferenceXML: false,
       })
     ).rejects.toThrow(/Формы\/ФормаСписка\/Форма\.yaml/)
   })

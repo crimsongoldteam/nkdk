@@ -1,280 +1,59 @@
-import { compileValidationSchema } from "./../../validation/compileValidationSchema"
 import { Type } from "typebox"
 import { describe, expect, it } from "vitest"
-import { importPropertyFromXML, PropertyRule } from ".."
-import { createConfigurationIndexCollector } from "../../configurationIndex/collector/writer"
-import { withConfigurationIndexCollector } from "../../configurationIndex/collector/context"
-import {
-  createJSONSchemaExportContext,
-  getJSONSchemaIdentityExporter,
-} from "../jsonSchemaRefs"
+
+import { compileValidationSchema } from "../../validation/compileValidationSchema"
+import { createJSONSchemaExportContext, getJSONSchemaIdentityExporter } from "../jsonSchemaRefs"
 import { exportPropertyToJSONSchema } from "../property/toJSONSchema"
+import { PropertyRuleType } from "../property/registry"
 import { getTypeRule } from "../property/typeRuleRegistry"
-import type { MetadataItemRule } from "../property/types"
-import { mockContextFromXML } from "../../../tests/mockContext"
+import type { MetadataItemRule, PropertyRule } from "../property/types"
 import { registerMetadataItemCollectionRule } from "./ruleFactory"
 
-// Минимальное правило одиночного элемента для тестов коллекции.
-// itemType и propertyType намеренно не заведены в MetadataItemTypeRegistry/PropertyTypeRegistry —
-// тест проверяет только механику расплющивания входного XML, и нам достаточно прямой регистрации
-// правила через registerMetadataItemCollectionRule. Приведение `as MetadataItemRule` отключает
-// строгую проверку itemType на принадлежность глобальному реестру.
-const TestCollectionItemRules = {
+const itemRule = {
   itemType: "TestCollectionItem",
   properties: {
-    uuid: {
-      type: "string",
-      xml: "_uuid",
-      forReferenceOnly: true,
-    },
-    name: {
-      type: "string",
-      xml: "Name",
-      yaml: "name",
-      required: true,
-    },
-    value: {
-      type: "string",
-      xml: "Value",
-      yaml: "value",
-    },
+    name: { type: "string", xml: "Name", yaml: "name", required: true },
+    value: { type: "string", xml: "Value", yaml: "value" },
   },
-} as unknown as MetadataItemRule
+} as MetadataItemRule
 
-const TestRecursiveArrayItemRules = {
+const recursiveItemRule = {
   itemType: "TestRecursiveArrayItem",
   properties: {
-    name: {
-      type: "string",
-      yaml: "name",
-    },
-    children: {
-      type: "TestRecursiveArrayCollection" as any,
-      yaml: "children",
-    },
+    name: { type: "string", yaml: "name" },
+    children: { type: "TestRecursiveSchemaCollection" as PropertyRuleType, yaml: "children" },
   },
-} as unknown as MetadataItemRule
+} as MetadataItemRule
 
-// Регистрируем разовый тип для тестов. propertyType намеренно не добавлен в реестры
-// (PropertyTypeRegistry/MetadataItemTypeRegistry), потому что в тестах мы дёргаем
-// registerTypeRule напрямую и обращаемся к нему через importPropertyFromXML с `rule.type`.
-registerMetadataItemCollectionRule({
-  propertyType: "TestCollection" as any,
-  itemRule: TestCollectionItemRules,
-  xmlElement: "Item",
-  keyField: "name",
-})
+const recordType = "TestRecordSchemaCollection" as PropertyRuleType
+const arrayType = "TestArraySchemaCollection" as PropertyRuleType
+const recursiveType = "TestRecursiveSchemaCollection" as PropertyRuleType
 
+registerMetadataItemCollectionRule({ propertyType: recordType, itemRule, xmlElement: "Item", keyField: "name" })
+registerMetadataItemCollectionRule({ propertyType: arrayType, itemRule, xmlElement: "Item", yamlAsArray: true })
 registerMetadataItemCollectionRule({
-  propertyType: "TestArrayCollection" as any,
-  itemRule: TestCollectionItemRules,
+  propertyType: recursiveType,
+  itemRule: recursiveItemRule,
   xmlElement: "Item",
   yamlAsArray: true,
 })
 
-registerMetadataItemCollectionRule({
-  propertyType: "TestRecursiveArrayCollection" as any,
-  itemRule: TestRecursiveArrayItemRules,
-  xmlElement: "Item",
-  yamlAsArray: true,
-})
+const context = { defaultLanguage: "ru", version: "2.20" } as const
+const propertyRule = (type: PropertyRuleType): PropertyRule => ({ type })
 
-registerMetadataItemCollectionRule({
-  propertyType: "TestAddressableCollection" as any,
-  itemRule: TestCollectionItemRules,
-  xmlElement: "Item",
-  keyField: "name",
-  configurationIndexUidSegment: "Элемент",
-})
-
-registerMetadataItemCollectionRule({
-  propertyType: "TestYamlPathArrayCollection" as any,
-  itemRule: TestCollectionItemRules,
-  xmlElement: "Item",
-  yamlAsArray: true,
-  configurationIndexAddressing: "yamlPath",
-})
-
-const rule: PropertyRule = { type: "TestCollection" as any }
-const arrayRule: PropertyRule = { type: "TestArrayCollection" as any }
-const recursiveArrayRule: PropertyRule = { type: "TestRecursiveArrayCollection" as any }
-const addressableRule: PropertyRule = { type: "TestAddressableCollection" as any }
-const yamlPathArrayRule: PropertyRule = { type: "TestYamlPathArrayCollection" as any, yaml: "Элементы" }
-
-describe("registerMetadataItemCollectionRule default fromXML", () => {
-  it("does not register a standard direct importer for a custom legacy importer", () => {
-    registerMetadataItemCollectionRule({
-      propertyType: "TestCustomLegacyCollection" as any,
-      itemRule: TestCollectionItemRules,
-      xmlElement: "Item",
-      fromXML: () => [],
-    })
-
-    expect(getTypeRule("TestCustomLegacyCollection", "importFromXMLToYAML")).toBeUndefined()
-  })
-
-  it("registers an explicitly opted-in direct importer for a custom legacy importer", () => {
+describe("registerMetadataItemCollectionRule direct importer", () => {
+  it("registers an explicitly opted-in direct importer", () => {
+    const propertyType = "TestCustomDirectCollection" as PropertyRuleType
     const fromXMLToYAML = () => ({ Значение: "direct" })
-    registerMetadataItemCollectionRule({
-      propertyType: "TestCustomDirectCollection" as any,
-      itemRule: TestCollectionItemRules,
-      xmlElement: "Item",
-      fromXML: () => [],
-      fromXMLToYAML,
-    })
+    registerMetadataItemCollectionRule({ propertyType, itemRule, xmlElement: "Item", fromXMLToYAML })
 
-    expect(getTypeRule("TestCustomDirectCollection", "importFromXMLToYAML")).toBe(fromXMLToYAML)
-  })
-
-  it("импортирует обычный объект-контейнер {Item: body}", () => {
-    const xml = { Item: { Name: "A" } }
-    const result = importPropertyFromXML({ context: mockContextFromXML(), rule, value: xml })
-    expect(result).toEqual([{ itemType: "TestCollectionItem", name: "A" }])
-  })
-
-  it("импортирует контейнер со списком {Item: [body, body]}", () => {
-    const xml = { Item: [{ Name: "A" }, { Name: "B", Value: "v" }] }
-    const result = importPropertyFromXML({ context: mockContextFromXML(), rule, value: xml })
-    expect(result).toEqual([
-      { itemType: "TestCollectionItem", name: "A" },
-      { itemType: "TestCollectionItem", name: "B", value: "v" },
-    ])
-  })
-
-  it("импортирует одиночное тело без обёртки (parent уже вытащил содержимое)", () => {
-    const xml = { Name: "A", Value: "v" }
-    const result = importPropertyFromXML({ context: mockContextFromXML(), rule, value: xml })
-    expect(result).toEqual([{ itemType: "TestCollectionItem", name: "A", value: "v" }])
-  })
-
-  it("расплющивает массив обёрток [{Item: body}, {Item: body}] (форма от isArray-тегов)", () => {
-    // Такую форму порождает XML-парсер для тегов, помеченных options.isArray:
-    // содержимое тега всегда массив, даже для одного вхождения, и каждый элемент массива
-    // содержит вложенный тег со своим телом.
-    const xml = [{ Item: { Name: "A" } }, { Item: { Name: "B" } }]
-    const result = importPropertyFromXML({ context: mockContextFromXML(), rule, value: xml })
-    expect(result).toEqual([
-      { itemType: "TestCollectionItem", name: "A" },
-      { itemType: "TestCollectionItem", name: "B" },
-    ])
-  })
-
-  it("расплющивает массив обёрток с вложенным массивом [{Item: [body, body]}]", () => {
-    // isArray-тег встречается однажды, но внутри него несколько повторяющихся дочерних тегов.
-    const xml = [{ Item: [{ Name: "A" }, { Name: "B", Value: "v" }] }]
-    const result = importPropertyFromXML({ context: mockContextFromXML(), rule, value: xml })
-    expect(result).toEqual([
-      { itemType: "TestCollectionItem", name: "A" },
-      { itemType: "TestCollectionItem", name: "B", value: "v" },
-    ])
-  })
-
-  it("расплющивает массив обёрток с одиночной записью [{Item: body}] (типичный ChildItems)", () => {
-    const xml = [{ Item: { Name: "A" } }]
-    const result = importPropertyFromXML({ context: mockContextFromXML(), rule, value: xml })
-    expect(result).toEqual([{ itemType: "TestCollectionItem", name: "A" }])
-  })
-
-  it("массив тел без обёрток [body, body] передаётся без расплющивания", () => {
-    // Если записи массива уже являются телами (нет ключа effectiveElement), движок
-    // не должен пытаться что-то расплющить и должен передать массив как есть.
-    const xml = [{ Name: "A" }, { Name: "B" }]
-    const result = importPropertyFromXML({ context: mockContextFromXML(), rule, value: xml })
-    expect(result).toEqual([
-      { itemType: "TestCollectionItem", name: "A" },
-      { itemType: "TestCollectionItem", name: "B" },
-    ])
-  })
-
-  it("возвращает undefined для undefined", () => {
-    const result = importPropertyFromXML({ context: mockContextFromXML(), rule, value: undefined })
-    expect(result).toBeUndefined()
-  })
-
-  it("пишет идентификаторы элементов адресуемой коллекции в дочерние logicalAddress", () => {
-    const collector = createConfigurationIndexCollector()
-    const context = withConfigurationIndexCollector(mockContextFromXML({ forReference: true }), collector, "Владелец.A")
-
-    const result = importPropertyFromXML({
-      context,
-      rule: addressableRule,
-      value: {
-        Item: [
-          { _uuid: "11111111-1111-1111-1111-111111111111", Name: "Первый" },
-          { _uuid: "22222222-2222-2222-2222-222222222222", Name: "Второй" },
-        ],
-      },
-    })
-
-    expect(result).toMatchObject([
-      { itemType: "TestCollectionItem", uuid: "11111111-1111-1111-1111-111111111111", name: "Первый" },
-      { itemType: "TestCollectionItem", uuid: "22222222-2222-2222-2222-222222222222", name: "Второй" },
-    ])
-    const identities = collector.fragment("owner.yaml").identities
-    expect(identities).toHaveLength(2)
-    expect(identities).toEqual(
-      expect.arrayContaining([
-        {
-          logicalAddress: "Владелец.A.Элемент.Первый",
-          kind: "uuid",
-          value: "11111111-1111-1111-1111-111111111111",
-        },
-        {
-          logicalAddress: "Владелец.A.Элемент.Второй",
-          kind: "uuid",
-          value: "22222222-2222-2222-2222-222222222222",
-        },
-      ])
-    )
-  })
-
-  it("завершает импорт ошибкой, если адресуемый элемент коллекции не имеет имени", () => {
-    const collector = createConfigurationIndexCollector()
-    const context = withConfigurationIndexCollector(mockContextFromXML({ forReference: true }), collector, "Владелец.A")
-
-    expect(() =>
-      importPropertyFromXML({
-        context,
-        rule: addressableRule,
-        value: { Item: { _uuid: "11111111-1111-1111-1111-111111111111" } },
-      })
-    ).toThrow("Адресуемая metadata-item коллекция TestAddressableCollection содержит элемент без имени")
-  })
-
-  it("addresses YAML-path array collection items by position", () => {
-    const collector = createConfigurationIndexCollector()
-    const context = withConfigurationIndexCollector(
-      mockContextFromXML({ forReference: true }),
-      collector,
-      "Справочник.Товары.Свойство.Отбор.Элементы"
-    )
-
-    const imported = importPropertyFromXML({
-      context,
-      rule: yamlPathArrayRule,
-      value: {
-        Item: [{ Name: "Первый", Value: "one" }, { Name: "Второй", Value: "two" }],
-      },
-    })
-
-    expect(imported).toHaveLength(2)
-    expect(collector.fragment("Форма.yaml").xmlNodes.map((node) => node.logicalAddress)).toEqual(
-      expect.arrayContaining([
-        "Справочник.Товары.Свойство.Отбор.Элементы[0]",
-        "Справочник.Товары.Свойство.Отбор.Элементы[1]",
-      ])
-    )
+    expect(getTypeRule(propertyType, "importFromXMLToYAML")).toBe(fromXMLToYAML)
   })
 })
 
 describe("registerMetadataItemCollectionRule default toJSONSchema", () => {
-  const context = {
-    defaultLanguage: "ru",
-    version: "2.20",
-  } as const
-
   it("exports record schema for record YAML collections", () => {
-    const schema = exportPropertyToJSONSchema({ context, rule, value: undefined })
+    const schema = exportPropertyToJSONSchema({ context, rule: propertyRule(recordType), value: undefined })
     const compiled = compileValidationSchema(schema!)
 
     expect(compiled.Check({ A: { name: "A" } })).toBe(true)
@@ -282,7 +61,7 @@ describe("registerMetadataItemCollectionRule default toJSONSchema", () => {
   })
 
   it("exports array schema for yamlAsArray collections", () => {
-    const schema = exportPropertyToJSONSchema({ context, rule: arrayRule, value: undefined })
+    const schema = exportPropertyToJSONSchema({ context, rule: propertyRule(arrayType), value: undefined })
     const compiled = compileValidationSchema(schema!)
 
     expect(compiled.Check([{ name: "A" }])).toBe(true)
@@ -290,7 +69,7 @@ describe("registerMetadataItemCollectionRule default toJSONSchema", () => {
   })
 
   it("exports array schema inside recursive yamlAsArray collections", () => {
-    const schema = exportPropertyToJSONSchema({ context, rule: recursiveArrayRule, value: undefined })
+    const schema = exportPropertyToJSONSchema({ context, rule: propertyRule(recursiveType), value: undefined })
     const compiled = compileValidationSchema(schema!)
 
     expect(compiled.Check([{ name: "A", children: [] }])).toBe(true)
@@ -299,91 +78,64 @@ describe("registerMetadataItemCollectionRule default toJSONSchema", () => {
 })
 
 describe("registerMetadataItemCollectionRule JSON Schema refs", () => {
-  const context = {
-    defaultLanguage: "ru",
-    version: "2.20",
-  } as const
-
   it("registers record ref schema for metadata collections by default", () => {
-    registerMetadataItemCollectionRule({
-      propertyType: "TestRefCollection" as any,
-      itemRule: TestCollectionItemRules,
-      xmlElement: "Item",
-    })
+    const propertyType = "TestRefCollection" as PropertyRuleType
+    registerMetadataItemCollectionRule({ propertyType, itemRule, xmlElement: "Item" })
 
-    const schema = exportPropertyToJSONSchema({
-      context: createJSONSchemaExportContext(context, "externalRefs"),
-      rule: { type: "TestRefCollection" as any },
-      value: undefined,
-    })
-
-    expect(schema).toEqual({
-      type: "object",
-      additionalProperties: { $ref: "nkdk://schema/TestCollectionItem" },
-    })
+    expect(
+      exportPropertyToJSONSchema({
+        context: createJSONSchemaExportContext(context, "externalRefs"),
+        rule: propertyRule(propertyType),
+        value: undefined,
+      })
+    ).toEqual({ type: "object", additionalProperties: { $ref: "nkdk://schema/TestCollectionItem" } })
   })
 
   it("registers array ref schema when yamlAsArray is true", () => {
-    registerMetadataItemCollectionRule({
-      propertyType: "TestRefArrayCollection" as any,
-      itemRule: TestCollectionItemRules,
-      xmlElement: "Item",
-      yamlAsArray: true,
-    })
+    const propertyType = "TestRefArrayCollection" as PropertyRuleType
+    registerMetadataItemCollectionRule({ propertyType, itemRule, xmlElement: "Item", yamlAsArray: true })
 
-    const schema = exportPropertyToJSONSchema({
-      context: createJSONSchemaExportContext(context, "externalRefs"),
-      rule: { type: "TestRefArrayCollection" as any },
-      value: undefined,
-    })
-
-    expect(schema).toEqual({
-      type: "array",
-      items: { $ref: "nkdk://schema/TestCollectionItem" },
-    })
+    expect(
+      exportPropertyToJSONSchema({
+        context: createJSONSchemaExportContext(context, "externalRefs"),
+        rule: propertyRule(propertyType),
+        value: undefined,
+      })
+    ).toEqual({ type: "array", items: { $ref: "nkdk://schema/TestCollectionItem" } })
   })
 
   it("uses explicit schemaName for collection item refs", () => {
+    const propertyType = "TestExplicitRefCollection" as PropertyRuleType
     registerMetadataItemCollectionRule({
-      propertyType: "TestExplicitRefCollection" as any,
-      itemRule: TestCollectionItemRules,
+      propertyType,
+      itemRule,
       xmlElement: "Item",
       schemaName: "ExplicitCollectionItem",
     })
 
-    const schema = exportPropertyToJSONSchema({
-      context: createJSONSchemaExportContext(context, "externalRefs"),
-      rule: { type: "TestExplicitRefCollection" as any },
-      value: undefined,
-    })
-
-    expect(schema).toEqual({
-      type: "object",
-      additionalProperties: { $ref: "nkdk://schema/ExplicitCollectionItem" },
-    })
+    expect(
+      exportPropertyToJSONSchema({
+        context: createJSONSchemaExportContext(context, "externalRefs"),
+        rule: propertyRule(propertyType),
+        value: undefined,
+      })
+    ).toEqual({ type: "object", additionalProperties: { $ref: "nkdk://schema/ExplicitCollectionItem" } })
   })
 
   it("registers direct schema ref for custom collection schemas", () => {
+    const propertyType = "TestCustomSchemaCollection" as PropertyRuleType
     registerMetadataItemCollectionRule({
-      propertyType: "TestCustomSchemaCollection" as any,
-      itemRule: TestCollectionItemRules,
+      propertyType,
+      itemRule,
       xmlElement: "Item",
       schemaName: "CustomCollectionSchema",
       schemaShape: "schema",
-      toJSONSchema: () =>
-        Type.Array(
-          Type.Object(
-            {
-              custom: Type.Literal("yes"),
-            },
-            { additionalProperties: false }
-          )
-        ),
+      toJSONSchema: () => Type.Array(Type.Object({ custom: Type.Literal("yes") }, { additionalProperties: false })),
     })
 
     const schema = exportPropertyToJSONSchema({
       context: createJSONSchemaExportContext(context, "externalRefs"),
-      rule: { type: "TestCustomSchemaCollection" as any },
+      rule: propertyRule(propertyType),
       value: undefined,
     })
     const identityExporter = getJSONSchemaIdentityExporter("CustomCollectionSchema")
@@ -391,12 +143,7 @@ describe("registerMetadataItemCollectionRule JSON Schema refs", () => {
     expect(schema).toEqual({ $ref: "nkdk://schema/CustomCollectionSchema" })
     expect(identityExporter?.({ context })).toMatchObject({
       type: "array",
-      items: {
-        type: "object",
-        properties: {
-          custom: { const: "yes" },
-        },
-      },
+      items: { type: "object", properties: { custom: { const: "yes" } } },
     })
   })
 })

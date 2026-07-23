@@ -21,28 +21,24 @@ describe("buildMetadataOperationSnapshot", () => {
     for (const dir of tempDirs.splice(0)) rmSync(dir, { recursive: true, force: true })
   })
 
-  it(
-    "returns validation_failed before operation planning when project is invalid",
-    async () => {
-      const projectDir = mkdtempSync(join(tmpdir(), "nkdk-operation-snapshot-"))
-      tempDirs.push(projectDir)
-      mkdirSync(join(projectDir, "Справочник", "Товары"), { recursive: true })
-      writeFileSync(join(projectDir, "Справочник", "Товары", "Свойства.yaml"), "НеизвестноеПоле: true\n")
+  it("returns validation_failed before operation planning when project is invalid", async () => {
+    const projectDir = mkdtempSync(join(tmpdir(), "nkdk-operation-snapshot-"))
+    tempDirs.push(projectDir)
+    mkdirSync(join(projectDir, "Справочник", "Товары"), { recursive: true })
+    writeFileSync(join(projectDir, "Справочник", "Товары", "Свойства.yaml"), "НеизвестноеПоле: true\n")
 
-      const result = await buildMetadataOperationSnapshot({
-        projectDir,
-        requireValidProject: true,
-        validationWorkerPoolHandle,
-      })
+    const result = await buildMetadataOperationSnapshot({
+      projectDir,
+      requireValidProject: true,
+      validationWorkerPoolHandle,
+    })
 
-      expect(result).toMatchObject({
-        ok: false,
-        code: "validation_failed",
-        diagnostics: [expect.objectContaining({ severity: "error" })],
-      })
-    },
-    30_000
-  )
+    expect(result).toMatchObject({
+      ok: false,
+      code: "validation_failed",
+      diagnostics: [expect.objectContaining({ severity: "error" })],
+    })
+  }, 30_000)
 
   it("allows best-effort snapshot for listing targets", async () => {
     const projectDir = mkdtempSync(join(tmpdir(), "nkdk-operation-snapshot-"))
@@ -72,7 +68,7 @@ describe("buildMetadataOperationSnapshot", () => {
     ])
   })
 
-  it("imports operation models from prepared YAML data without source text", async () => {
+  it("uses prepared YAML data without constructing a model", async () => {
     const projectDir = mkdtempSync(join(tmpdir(), "nkdk-operation-snapshot-"))
     tempDirs.push(projectDir)
     mkdirSync(join(projectDir, "Справочник", "Товары"), { recursive: true })
@@ -94,7 +90,9 @@ describe("buildMetadataOperationSnapshot", () => {
     expect(result.items[0]).toMatchObject({
       projectPath: "Справочник/Товары/Свойства.yaml",
       kind: "properties",
+      yaml: {},
     })
+    expect(result.items[0]).not.toHaveProperty("model")
     expect(result.items[0]?.parsed.text).toBe("")
   })
 })

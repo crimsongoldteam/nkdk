@@ -1,5 +1,5 @@
 import { ConfigurationContext } from "../../../context/types"
-import { importPropertyFromYAML, PropertyRule, registerTypeRule } from "../../../orchestration"
+import { callAtomicFromYAML, PropertyRule, registerTypeRule } from "../../../orchestration"
 import { restoreExplicitMetadataValueYAMLString } from "../../metadataValue/explicitYAMLString"
 import { importDcsMetadataValueFromYAML } from "../dcsMetadataValue/fromYAML"
 import type { DcsMetadataValuePropertyRule } from "../dcsMetadataValue/types"
@@ -24,11 +24,11 @@ export const importDcsAvailableValuesFromYAML = (
       valueRule,
       restoreExplicitMetadataValueYAMLString(item, "Значение", item.Значение) as DcsAvailableValueYAML["Значение"]
     )
-    const presentation = importPropertyFromYAML({
+    const presentation = callAtomicFromYAML({
       context,
       rule: presentationRule,
       value: item.Представление,
-    })
+    }) as DcsAvailableValue["presentation"]
 
     return {
       itemType: "DcsAvailableValue",

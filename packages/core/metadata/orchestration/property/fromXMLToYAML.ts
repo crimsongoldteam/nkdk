@@ -19,11 +19,7 @@ import { importPropertyFromXML } from "./fromXML"
 import { canExportPropertyToYAML, exportPropertyValueToYAML, getExportToYAMLResult } from "./toYAML"
 import { getTypeRule } from "./typeRuleRegistry"
 import type { MetadataItemRule } from "./types"
-import {
-  getXMLImportPlan,
-  visitXMLImportPlan,
-  type XMLImportPlanEntry,
-} from "./xmlImportPlan"
+import { getXMLImportPlan, visitXMLImportPlan, type XMLImportPlanEntry } from "./xmlImportPlan"
 import { sortYamlRuleProperties } from "./yamlPropertyOrder"
 import { enterNestedYamlRule } from "./yamlRuleCursor"
 import type { LocalIndexesCollector } from "../../project/localIndexes"
@@ -81,8 +77,7 @@ export function importPropertiesFromXMLToYAML(params: {
     }
   })
   const planningStartedAt = performance.now()
-  const sourceByProperty =
-    sourceStates.length === 1 ? undefined : new Map<string, (typeof sourceStates)[number]>()
+  const sourceByProperty = sourceStates.length === 1 ? undefined : new Map<string, (typeof sourceStates)[number]>()
   if (sourceByProperty !== undefined) {
     for (const sourceState of sourceStates) {
       for (const propertyKey of sourceState.plan.entriesByPropertyKey.keys()) {
@@ -136,11 +131,7 @@ export function importPropertiesFromXMLToYAML(params: {
     }
 
     let xmlValue = sourceXMLValue
-    if (
-      xmlValue === undefined &&
-      propertyRule.type === "MetadataDcsMetadataValue" &&
-      presentInXML
-    ) {
+    if (xmlValue === undefined && propertyRule.type === "MetadataDcsMetadataValue" && presentInXML) {
       xmlValue = null
     }
     if (xmlValue === undefined && propertyRule.type === "MetadataValue" && presentInXML) {
@@ -168,10 +159,7 @@ export function importPropertiesFromXMLToYAML(params: {
       addProfileTime(params.profile, "configurationIndexMs", indexStartedAt)
     }
 
-    const shouldImportForReference =
-      forReference &&
-      propertyRule.fromXML === false &&
-      presentInXML
+    const shouldImportForReference = forReference && propertyRule.fromXML === false && presentInXML
     if (
       !shouldProcessProperty({ rule: propertyRule, operation: "importFromXML" }) &&
       !shouldImportForReference &&
@@ -296,16 +284,14 @@ export function importPropertiesFromXMLToYAML(params: {
           ? propertyRule.defaultValueXMLEmpty
           : importedValue
       const preserveExplicitDefault =
-        propertyRule.preserveExplicitDefaultXML === true &&
-        presentInXML &&
-        rawValue === propertyRule.defaultValueXML
+        propertyRule.preserveExplicitDefaultXML === true && presentInXML && rawValue === propertyRule.defaultValueXML
       const cleanValue =
         !convertedDirectly && !forReference && rawValue === propertyRule.defaultValueXML && !preserveExplicitDefault
           ? undefined
           : rawValue
       const defaultStartedAt = performance.now()
       const value =
-        !convertedDirectly && !forReference
+        !forReference
           ? getValueOrDefault({
               context: sourceContext,
               rule: propertyRule,

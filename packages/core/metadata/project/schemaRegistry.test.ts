@@ -54,7 +54,6 @@ describe("project schema registry", () => {
           },
           { additionalProperties: false }
         ),
-      importModel: () => undefined,
     })
 
     try {

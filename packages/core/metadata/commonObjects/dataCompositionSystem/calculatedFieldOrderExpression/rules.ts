@@ -18,6 +18,7 @@ export const CalculatedFieldOrderExpressionRules = {
       order: 2,
       xmlNamespace: "http://v8.1c.ru/8.1/data-composition-system/common",
       implicitValueYAML: "Asc",
+      omitNonImplicitReferenceXMLWhenYAMLMissing: true,
     }),
     autoOrder: booleanRule({
       xml: "autoOrder",

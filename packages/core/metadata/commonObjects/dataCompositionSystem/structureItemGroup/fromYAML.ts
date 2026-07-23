@@ -1,5 +1,5 @@
 import type { ConfigurationContext } from "../../../context/types"
-import { importPropertyFromYAML, type PropertyRule, registerTypeRule } from "../../../orchestration"
+import { callAtomicFromYAML, type PropertyRule, registerTypeRule } from "../../../orchestration"
 import type { StructureItemGroupCollection } from "./collection/types"
 import type { StructureItemGroup } from "./types"
 
@@ -10,7 +10,7 @@ export const importStructureItemGroupFromYAML = (
 ): StructureItemGroup | undefined => {
   if (!Array.isArray(value)) return undefined
 
-  const groupItems = importPropertyFromYAML({
+  const groupItems = callAtomicFromYAML({
     context,
     rule: { type: "StructureItemGroupCollection" } as PropertyRule,
     value,

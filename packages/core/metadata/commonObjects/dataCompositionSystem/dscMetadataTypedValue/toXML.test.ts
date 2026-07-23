@@ -1,6 +1,6 @@
 import { describe, expect, it } from "vitest"
 import { PropertyRule } from "../../../orchestration"
-import { testExportPropertyToXML } from "../../../../tests/property/exportPropertyToXML"
+import { testAtomicToXML } from "../../../../tests/property/atomicToXML"
 import { dcsMetadataTypedValueFixtures, emptyValueListTypedValue } from "./__fixtures__/data"
 
 const rule: PropertyRule = {
@@ -16,7 +16,7 @@ const undefinedTypeReferenceValue = {
 
 describe("export DcsMetadataTypedValue to XML", () => {
   it.each(dcsMetadataTypedValueFixtures)("exports $name", (fixture) => {
-    const { result } = testExportPropertyToXML({
+    const { result } = testAtomicToXML({
       rule,
       value: fixture.model,
       xmlRootTag: "value",
@@ -26,7 +26,7 @@ describe("export DcsMetadataTypedValue to XML", () => {
   })
 
   it("exports empty ValueListType", () => {
-    const { result, expectedResult } = testExportPropertyToXML({
+    const { result, expectedResult } = testAtomicToXML({
       rule,
       value: emptyValueListTypedValue,
       xmlRootTag: "value",
@@ -38,7 +38,7 @@ describe("export DcsMetadataTypedValue to XML", () => {
   })
 
   it("exports ref as xr DesignTimeRef", () => {
-    const { result } = testExportPropertyToXML({
+    const { result } = testAtomicToXML({
       rule,
       value: { type: "ref", value: "Catalog.Организации.EmptyRef" },
       xmlRootTag: "value",
@@ -48,7 +48,7 @@ describe("export DcsMetadataTypedValue to XML", () => {
   })
 
   it("exports missing value from reference v8 Type Undefined", () => {
-    const { result } = testExportPropertyToXML({
+    const { result } = testAtomicToXML({
       rule,
       value: undefined,
       referenceMetadata: undefinedTypeReferenceValue,
@@ -61,7 +61,7 @@ describe("export DcsMetadataTypedValue to XML", () => {
   })
 
   it("exports reference-only v8 Type Undefined when passed as value", () => {
-    const { result } = testExportPropertyToXML({
+    const { result } = testAtomicToXML({
       rule,
       value: undefinedTypeReferenceValue,
       referenceMetadata: undefinedTypeReferenceValue,
@@ -74,7 +74,7 @@ describe("export DcsMetadataTypedValue to XML", () => {
   })
 
   it("exports reference-only v8 Type Undefined inside value array", () => {
-    const { result } = testExportPropertyToXML({
+    const { result } = testAtomicToXML({
       rule,
       value: [{ type: "string", value: "x" }, undefinedTypeReferenceValue],
       referenceMetadata: [{ type: "string", value: "x" }, undefinedTypeReferenceValue],
@@ -88,7 +88,7 @@ describe("export DcsMetadataTypedValue to XML", () => {
   })
 
   it("exports missing array item as xsi:nil only when reference slot is missing too", () => {
-    const { result } = testExportPropertyToXML({
+    const { result } = testAtomicToXML({
       rule,
       value: [{ type: "string", value: "x" }, undefined, { type: "string", value: "y" }],
       referenceMetadata: [{ type: "string", value: "x" }, undefined, { type: "string", value: "y" }],
@@ -101,7 +101,7 @@ describe("export DcsMetadataTypedValue to XML", () => {
   })
 
   it("does not invent xsi:nil without a reference array slot", () => {
-    const { result } = testExportPropertyToXML({
+    const { result } = testAtomicToXML({
       rule,
       value: [{ type: "string", value: "x" }, undefined],
       referenceMetadata: [{ type: "string", value: "x" }],
@@ -113,7 +113,7 @@ describe("export DcsMetadataTypedValue to XML", () => {
 
   it("does not export invalid reference v8 Type value", () => {
     expect(() =>
-      testExportPropertyToXML({
+      testAtomicToXML({
         rule,
         value: undefined,
         referenceMetadata: {
@@ -127,7 +127,7 @@ describe("export DcsMetadataTypedValue to XML", () => {
 
   it("reports missing toXML handler for unknown runtime typed value", () => {
     expect(() =>
-      testExportPropertyToXML({
+      testAtomicToXML({
         rule,
         value: { type: "UnknownDcsTypedValue", value: "x" },
         xmlRootTag: "value",
@@ -138,7 +138,7 @@ describe("export DcsMetadataTypedValue to XML", () => {
   })
 
   it("does not restore unrelated reference metadata", () => {
-    const { result } = testExportPropertyToXML({
+    const { result } = testAtomicToXML({
       rule,
       value: undefined,
       referenceMetadata: { "_xsi:type": "xs:string", "#text": "x" },
@@ -149,7 +149,7 @@ describe("export DcsMetadataTypedValue to XML", () => {
   })
 
   it("exports beginning date as xs:dateTime", () => {
-    const { result } = testExportPropertyToXML({
+    const { result } = testAtomicToXML({
       rule,
       value: { type: "dateTime", value: "0001-01-01T00:00:00" },
       xmlRootTag: "value",

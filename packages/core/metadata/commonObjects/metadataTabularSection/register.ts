@@ -1,10 +1,4 @@
-import { ConfigurationContext, ConfigurationContextFromXML } from "../../context/types"
-import { importMetadataItemFromYAML } from "../../orchestration/metadataItem/fromYAML"
 import { registerMetadataItemCollectionRule } from "../../orchestration/metadataCollection/ruleFactory"
-import { exportMetadataCollectionToYAMLAsRecord } from "../../orchestration/metadataCollection/toYAML"
-import { importPropertyFromXML } from "../../orchestration/property/fromXML"
-import type { PropertyRule } from "../../orchestration/property/types"
-import { toYAMLImportError, withYAMLImportDiagnostics } from "../../orchestration/yamlImportError"
 import {
   MetadataChartOfAccountsTabularSectionRules,
   MetadataBusinessProcessTabularSectionRules,
@@ -17,89 +11,20 @@ import {
   MetadataTaskTabularSectionRules,
   MetadataTabularSectionRules,
 } from "./rules"
-import {
-  MetadataTabularSection,
-  MetadataTabularSectionYAML,
-  MetadataTabularSections,
-  MetadataTabularSectionsXML,
-  MetadataTabularSectionsYAML,
-} from "./types"
-
-const importMetadataTabularSectionFromYAML = (
-  context: ConfigurationContext,
-  yaml: MetadataTabularSectionYAML | undefined,
-  name: string
-): MetadataTabularSection | undefined => {
-  if (!yaml) return undefined
-
-  const properties = importMetadataItemFromYAML({
-    context,
-    yaml: yaml as MetadataTabularSectionYAML,
-    rule: MetadataTabularSectionRules,
-    name,
-  })
-
-  if (properties == undefined) throw new Error("Properties are required")
-
-  return {
-    ...properties,
-    name,
-  }
-}
-
-const importMetadataTabularSectionsFromYAML = (
-  context: ConfigurationContext,
-  _rule: PropertyRule | undefined,
-  data: MetadataTabularSectionsYAML | undefined
-): MetadataTabularSections | undefined => {
-  return importNamedTabularSectionsFromYAML(context, data, importMetadataTabularSectionFromYAML)
-}
 
 registerMetadataItemCollectionRule({
   propertyType: "MetadataTabularSections",
   itemRule: MetadataTabularSectionRules,
   xmlElement: "TabularSection",
   keyField: "name",
-  fromYAML: importMetadataTabularSectionsFromYAML,
   collectionItemRule: true,
 })
-
-const importMetadataDocumentTabularSectionFromYAML = (
-  context: ConfigurationContext,
-  yaml: MetadataTabularSectionYAML | undefined,
-  name: string
-): MetadataTabularSection | undefined => {
-  if (!yaml) return undefined
-
-  const properties = importMetadataItemFromYAML({
-    context,
-    yaml: yaml as MetadataTabularSectionYAML,
-    rule: MetadataDocumentTabularSectionRules,
-    name,
-  })
-
-  if (properties == undefined) throw new Error("Properties are required")
-
-  return {
-    ...properties,
-    name,
-  }
-}
-
-const importMetadataDocumentTabularSectionsFromYAML = (
-  context: ConfigurationContext,
-  _rule: PropertyRule | undefined,
-  data: MetadataTabularSectionsYAML | undefined
-): MetadataTabularSections | undefined => {
-  return importNamedTabularSectionsFromYAML(context, data, importMetadataDocumentTabularSectionFromYAML)
-}
 
 registerMetadataItemCollectionRule({
   propertyType: "MetadataDocumentTabularSections",
   itemRule: MetadataDocumentTabularSectionRules,
   xmlElement: "TabularSection",
   keyField: "name",
-  fromYAML: importMetadataDocumentTabularSectionsFromYAML,
   collectionItemRule: true,
 })
 
@@ -119,120 +44,27 @@ registerMetadataItemCollectionRule({
   collectionItemRule: true,
 })
 
-const importMetadataDataProcessorTabularSectionFromYAML = (
-  context: ConfigurationContext,
-  yaml: MetadataTabularSectionYAML | undefined,
-  name: string
-): MetadataTabularSection | undefined => {
-  if (!yaml) return undefined
-
-  const properties = importMetadataItemFromYAML({
-    context,
-    yaml: yaml as MetadataTabularSectionYAML,
-    rule: MetadataDataProcessorTabularSectionRules,
-    name,
-  })
-
-  if (properties == undefined) throw new Error("Properties are required")
-
-  return {
-    ...properties,
-    name,
-  }
-}
-
-const importMetadataDataProcessorTabularSectionsFromYAML = (
-  context: ConfigurationContext,
-  _rule: PropertyRule | undefined,
-  data: MetadataTabularSectionsYAML | undefined
-): MetadataTabularSections | undefined => {
-  return importNamedTabularSectionsFromYAML(context, data, importMetadataDataProcessorTabularSectionFromYAML)
-}
-
 registerMetadataItemCollectionRule({
   propertyType: "MetadataDataProcessorTabularSections",
   itemRule: MetadataDataProcessorTabularSectionRules,
   xmlElement: "TabularSection",
   keyField: "name",
-  fromYAML: importMetadataDataProcessorTabularSectionsFromYAML,
   collectionItemRule: true,
 })
-
-const importMetadataReportTabularSectionFromYAML = (
-  context: ConfigurationContext,
-  yaml: MetadataTabularSectionYAML | undefined,
-  name: string
-): MetadataTabularSection | undefined => {
-  if (!yaml) return undefined
-
-  const properties = importMetadataItemFromYAML({
-    context,
-    yaml: yaml as MetadataTabularSectionYAML,
-    rule: MetadataReportTabularSectionRules,
-    name,
-  })
-
-  if (properties == undefined) throw new Error("Properties are required")
-
-  return {
-    ...properties,
-    name,
-  }
-}
-
-const importMetadataReportTabularSectionsFromYAML = (
-  context: ConfigurationContext,
-  _rule: PropertyRule | undefined,
-  data: MetadataTabularSectionsYAML | undefined
-): MetadataTabularSections | undefined => {
-  return importNamedTabularSectionsFromYAML(context, data, importMetadataReportTabularSectionFromYAML)
-}
 
 registerMetadataItemCollectionRule({
   propertyType: "MetadataReportTabularSections",
   itemRule: MetadataReportTabularSectionRules,
   xmlElement: "TabularSection",
   keyField: "name",
-  fromYAML: importMetadataReportTabularSectionsFromYAML,
   collectionItemRule: true,
 })
-
-const importMetadataExchangePlanTabularSectionFromYAML = (
-  context: ConfigurationContext,
-  yaml: MetadataTabularSectionYAML | undefined,
-  name: string
-): MetadataTabularSection | undefined => {
-  if (!yaml) return undefined
-
-  const properties = importMetadataItemFromYAML({
-    context,
-    yaml: yaml as MetadataTabularSectionYAML,
-    rule: MetadataExchangePlanTabularSectionRules,
-    name,
-  })
-
-  if (properties == undefined) throw new Error("Properties are required")
-
-  return {
-    ...properties,
-    name,
-  }
-}
-
-const importMetadataExchangePlanTabularSectionsFromYAML = (
-  context: ConfigurationContext,
-  _rule: PropertyRule | undefined,
-  data: MetadataTabularSectionsYAML | undefined
-): MetadataTabularSections | undefined => {
-  return importNamedTabularSectionsFromYAML(context, data, importMetadataExchangePlanTabularSectionFromYAML)
-}
 
 registerMetadataItemCollectionRule({
   propertyType: "MetadataExchangePlanTabularSections",
   itemRule: MetadataExchangePlanTabularSectionRules,
   xmlElement: "TabularSection",
   keyField: "name",
-  fromYAML: importMetadataExchangePlanTabularSectionsFromYAML,
   collectionItemRule: true,
 })
 
@@ -259,61 +91,3 @@ registerMetadataItemCollectionRule({
   keyField: "name",
   collectionItemRule: true,
 })
-
-function importNamedTabularSectionsFromYAML(
-  context: ConfigurationContext,
-  data: MetadataTabularSectionsYAML | undefined,
-  importItem: (
-    context: ConfigurationContext,
-    yaml: MetadataTabularSectionYAML | undefined,
-    name: string
-  ) => MetadataTabularSection | undefined
-): MetadataTabularSections | undefined {
-  if (!data) return undefined
-
-  return Object.entries(data)
-    .map(([name, value]) => {
-      const itemContext = withYAMLImportDiagnostics(context, { propertyPath: [name], yamlPath: [name] })
-      try {
-        return importItem(itemContext, value, name)
-      } catch (error) {
-        throw toYAMLImportError(error, itemContext)
-      }
-    })
-    .filter((item): item is MetadataTabularSection => item !== undefined)
-}
-
-// Compat exports for consumers that call these functions directly
-export const importMetadataTabularSectionsFromXML = (
-  context: ConfigurationContextFromXML,
-  _rule: PropertyRule | undefined,
-  xml: MetadataTabularSectionsXML | undefined
-): MetadataTabularSections | undefined => {
-  return importPropertyFromXML({ context, rule: { type: "MetadataTabularSections" }, value: xml }) as
-    | MetadataTabularSections
-    | undefined
-}
-
-export const exportMetadataTabularSectionsToYAML = (
-  context: ConfigurationContext,
-  _rule: PropertyRule | undefined,
-  data: MetadataTabularSections | undefined
-): MetadataTabularSectionsYAML | undefined => {
-  return exportMetadataCollectionToYAMLAsRecord({
-    context,
-    data,
-    itemRule: MetadataTabularSectionRules,
-    keyField: "name",
-  }) as MetadataTabularSectionsYAML | undefined
-}
-
-export const exportMetadataTabularSectionToYAML = (
-  context: ConfigurationContext,
-  _rule: PropertyRule | undefined,
-  data: MetadataTabularSection | undefined
-): MetadataTabularSectionYAML | undefined => {
-  if (!data) return undefined
-  const result = exportMetadataTabularSectionsToYAML(context, _rule, [data])
-  if (!result) return undefined
-  return result[data.name] as MetadataTabularSectionYAML | undefined
-}

@@ -17,6 +17,17 @@ describe("exportChildFormNamesToXML", () => {
     ).toEqual(["ФормаЭлемента", "ФормаСписка"])
   })
 
+  it("сохраняет порядок существующих форм из reference и добавляет новые в конец", () => {
+    expect(
+      exportChildFormNamesToXML({
+        context: mockContextToXML(),
+        rule,
+        value: ["ФормаВыбора", "НоваяФорма", "ФормаОбъекта"],
+        referenceMetadata: ["ФормаОбъекта", "ФормаВыбора"],
+      })
+    ).toEqual(["ФормаОбъекта", "ФормаВыбора", "НоваяФорма"])
+  })
+
   it("возвращает формы из контекста при пустом value (IO-путь)", () => {
     expect(exportChildFormNamesToXML({ context: ctxWithForms(["ФормаЭлемента"]), rule, value: [] })).toEqual([
       "ФормаЭлемента",

@@ -6,7 +6,6 @@ import { getParentFromContext } from "../../../context/helpers"
 import { ConfigurationContextWithExportToXML } from "../../../context/types"
 import { registerElementAsType, registerElementRule } from "../../../orchestration/formElement/ruleFactory"
 import { ElementRule } from "../../../orchestration/formElement/types"
-import { BaseElement } from "../baseElement/types"
 import { getContextMenuName } from "./helper"
 export type { ElementRule }
 export const ContextMenuRules = {
@@ -40,7 +39,7 @@ registerElementAsType({
     referenceSuffixes: ["КонтекстноеМеню", "ContextMenu"],
     canonicalNameMode: "ownerSuffix",
   },
-  toXML: (params: { context: ConfigurationContextWithExportToXML; element: BaseElement | undefined }) => {
+  toXML: (params: { context: ConfigurationContextWithExportToXML }) => {
     const { context } = params
     const parent = getParentFromContext(context)
     const name = getContextMenuName(parent)

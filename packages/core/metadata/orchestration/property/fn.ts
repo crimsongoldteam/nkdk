@@ -24,6 +24,8 @@ import type {
   ResolveNestedImportXMLSourcesFunction,
 } from "./importYamlTypes"
 import type { MetadataItem, MetadataItemRule, PropertyRule } from "./types"
+import type { YAMLToXMLNestedRule } from "./fromYAMLToXMLTypes"
+import type { YAMLPropertySource } from "./fromYAMLToXMLTypes"
 
 export type ExportToXMLFunction = (
   context: ConfigurationContextWithExportToXML,
@@ -35,10 +37,15 @@ export type ExportToXMLFunction = (
 export type ExportToXMLFunctionNew = <T extends MetadataItem>(params: {
   context: ConfigurationContextWithExportToXML
   rule: PropertyRule
+  source?: YAMLPropertySource
+  propertyKey?: string
+  /** @deprecated Удаляется вместе со старой общей XML-оркестрацией. */
   metadataItem?: T
   referenceMetadata?: any
   value: any
 }) => any | undefined
+
+export type YAMLToXMLCondition = (source: YAMLPropertySource, context?: ConfigurationContextWithExportToXML) => boolean
 
 export type ImportFromXMLFunction = (
   context: ConfigurationContextFromXML,
@@ -262,11 +269,7 @@ export interface FileChildNamesDescriptor {
   xmlItemName: string
   useOwnerDirectoryForExternalSync: boolean
   preserveReferenceXmlFolder: boolean
-  expectedNames: (params: {
-    rule: MetadataItemRule
-    model: Record<string, unknown>
-    propertyValue: unknown
-  }) => string[]
+  expectedNames: (params: { rule: MetadataItemRule; yaml: Record<string, unknown>; propertyValue: unknown }) => string[]
 }
 
 export type FileChildNamesDescriptorFunction = (params: {
@@ -328,6 +331,7 @@ export interface TypeRule {
   resolveNestedImportXMLSources?: ResolveNestedImportXMLSourcesFunction
   finalizeImportedYAML?: FinalizeImportedYAMLFunction
   collectLocalFactsFromYAML?: CollectLocalFactsFromYAMLFunction
+  yamlToXMLNestedRule?: YAMLToXMLNestedRule
 }
 
 export type TypeRulesOperations =
@@ -356,6 +360,7 @@ export type TypeRulesOperations =
   | "resolveNestedImportXMLSources"
   | "finalizeImportedYAML"
   | "collectLocalFactsFromYAML"
+  | "yamlToXMLNestedRule"
 type TypeRuleKey = `${PropertyRuleType}:${TypeRulesOperations}`
 
 export const createRegistryKey = (type: PropertyRuleType, operation: TypeRulesOperations): TypeRuleKey => {
@@ -412,4 +417,6 @@ export type importExportFunction<O extends TypeRulesOperations> = O extends "imp
                                                 ? FinalizeImportedYAMLFunction | undefined
                                                 : O extends "collectLocalFactsFromYAML"
                                                   ? CollectLocalFactsFromYAMLFunction | undefined
-                                                  : never
+                                                  : O extends "yamlToXMLNestedRule"
+                                                    ? YAMLToXMLNestedRule | undefined
+                                                    : never

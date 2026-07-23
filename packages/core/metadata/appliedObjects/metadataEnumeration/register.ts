@@ -8,10 +8,8 @@ import {
   registerProjectReferenceObjectPathContributor,
   registerProjectReferenceValueContributor,
 } from "../../validation/projectReferenceIndexRegistry"
-import { importMetadataEnumerationFromYAML } from "./fromYAML"
 import { MetadataEnumerationRules } from "./rules"
 import { exportMetadataEnumerationToJSONSchema } from "./toJSONSchema"
-import type { MetadataEnumerationYAML } from "./types"
 import "./standardMembers"
 
 registerMetadataItemRule({
@@ -42,8 +40,6 @@ registerProjectSpec({
   dir: "Перечисление",
   rule: MetadataEnumerationRules,
   exportSchema: createProjectSchemaExporter(({ context }) => exportMetadataEnumerationToJSONSchema({ context })),
-  importModel: ({ context, parsed, name }) =>
-    importMetadataEnumerationFromYAML(context, parsed.data as MetadataEnumerationYAML | undefined, name),
 })
 
 function hasNamedItem(value: unknown, name: string): boolean {

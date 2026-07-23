@@ -1,5 +1,5 @@
 import { describe, expect, it } from "vitest"
-import { testExportPropertyToXML } from "../../../tests/property/exportPropertyToXML"
+import { testAtomicToXML } from "../../../tests/property/atomicToXML"
 import { i8nTextFixtures } from "./__fixtures__/legacy/data"
 import { mockContext, mockRule } from "../../../tests/mockContext"
 import { xmlExport } from "../../../xml/export/exporter"
@@ -57,7 +57,7 @@ describe("exportI8nTextToXML", () => {
 
   describe("typedXML", () => {
     it("выгружает v8:LocalStringType с xsi:type", () => {
-      const { result, expectedResult } = testExportPropertyToXML({
+      const { result, expectedResult } = testAtomicToXML({
         rule: typedI8nTextRule,
         value: typedI8nTextValue,
         xmlRootTag: "Title",

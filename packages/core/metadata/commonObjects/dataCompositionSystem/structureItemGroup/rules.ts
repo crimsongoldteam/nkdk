@@ -3,6 +3,7 @@ import { structureItemGroupRule } from "./builders"
 import { MetadataItemRule } from "../../../orchestration"
 export const StructureItemGroupRules = {
   itemType: "StructureItemGroup",
+  xsiType: "dcsset:StructureItemGroup",
   properties: {
     groupItems: structureItemGroupCollectionRule({
       xml: "dcsset:item",

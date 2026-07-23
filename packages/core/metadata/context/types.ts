@@ -12,6 +12,7 @@ import type { ConfigurationIndexCollectionContext } from "../configurationIndex/
 import type { ConfigurationIndexExportRuntime } from "../configurationIndex/exportRuntime"
 import type { DataPathFormatDiagnosticSink } from "../validation/dataPath/formatter"
 import type { OwnerMetadataCache } from "../validation/dataPath/ownerCache"
+import type { FormDataPathIndex } from "../validation/dataPath/formIndex"
 
 export type ContextElementToXML = {
   name: string
@@ -77,7 +78,7 @@ export type ToXMLConfigurationContext = {
     parentName: string
     metadataForNumbering: ToXMLContextElement<ElementType | "FormAttributeColumn" | "FormAttribute" | "FormCommand">[]
     currentXMLPath?: string
-    /** Стек объекта ItemXML, собираемого exportPropertiesToXML (для ElementId и нумерации _id) */
+    /** Стек текущего ItemXML для ElementId и нумерации _id. */
     propertiesItemXmlStack?: Record<string, unknown>[]
   }
 }
@@ -137,6 +138,13 @@ export interface FormimportFromYAMLContext {
   metadataTargetOwners?: MetadataTargetOwnerContext[]
   /** Реквизиты текущей формы для разбора ПутьКДанным. */
   formAttributes?: readonly FormDataPathAttributeContext[]
+  /** Компактный индекс реквизитов формы, построенный прямо из YAML без metadata-модели. */
+  formDataPathIndex?: FormDataPathIndex
+  /** Сопоставление текущих и reference-путей для вложенных metadata-коллекций. */
+  referenceRemap?: {
+    readonly currentPath: string
+    readonly referencePathByCurrentPath: ReadonlyMap<string, string>
+  }
 }
 
 export interface EnterpriseContext {

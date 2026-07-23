@@ -17,6 +17,7 @@ const resourcesByAttributes = new WeakMap<
   readonly FormDataPathAttributeContext[],
   Map<string, DataPathFormattingResources>
 >()
+const resourcesByDirectIndex = new WeakMap<FormDataPathIndex, Map<string, DataPathFormattingResources>>()
 
 export function exportDataPathStandardMembersToYAML(context: ConfigurationContext, value: unknown): unknown {
   if (typeof value !== "string") return value
@@ -50,16 +51,19 @@ function formatWithResolver(params: {
   direction: DataPathFormatDirection
 }): string {
   const formAttributes = currentFormAttributes(params.context)
+  const directIndex = params.context.importFromYAML?.formDataPathIndex
   const suppliedOwnerCache = params.context.exportToYAML?.ownerMetadataCache
   const projectDir = params.context.importFromYAML?.projectDir ?? params.context.exportToYAML?.projectDir
-  if (formAttributes.length === 0) return params.value
+  if (formAttributes.length === 0 && directIndex === undefined) return params.value
 
   const resources =
     suppliedOwnerCache !== undefined
       ? { index: formattingIndex(formAttributes), ownerCache: suppliedOwnerCache }
-      : projectDir !== undefined
-        ? getFormattingResources({ context: params.context, formAttributes, projectDir })
-        : undefined
+      : directIndex !== undefined && projectDir !== undefined
+        ? getDirectFormattingResources({ context: params.context, index: directIndex, projectDir })
+        : projectDir !== undefined
+          ? getFormattingResources({ context: params.context, formAttributes, projectDir })
+          : undefined
   if (resources === undefined) return params.value
 
   return formatDataPathStandardMembersWithIndex({
@@ -71,6 +75,30 @@ function formatWithResolver(params: {
       ? {}
       : { diagnosticSink: params.context.exportToYAML.dataPathDiagnosticSink }),
   })
+}
+
+function getDirectFormattingResources(params: {
+  context: ConfigurationContext
+  index: FormDataPathIndex
+  projectDir: string
+}): DataPathFormattingResources {
+  let byProjectDir = resourcesByDirectIndex.get(params.index)
+  if (byProjectDir === undefined) {
+    byProjectDir = new Map()
+    resourcesByDirectIndex.set(params.index, byProjectDir)
+  }
+  const cached = byProjectDir.get(params.projectDir)
+  if (cached !== undefined) return cached
+  const resources = {
+    index: params.index,
+    ownerCache: createOwnerMetadataCache({
+      projectDir: params.projectDir,
+      yamlCache: createProjectYamlCache(),
+      context: params.context,
+    }),
+  }
+  byProjectDir.set(params.projectDir, resources)
+  return resources
 }
 
 function currentFormAttributes(context: ConfigurationContext): readonly FormDataPathAttributeContext[] {

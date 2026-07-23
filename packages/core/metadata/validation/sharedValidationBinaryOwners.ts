@@ -402,7 +402,6 @@ function ownerResult(ref: OwnerTypeRef, view: ReturnType<typeof createBinaryOwne
     dir: ownerKind.projectDir,
     rule: ownerKind.rule,
     exportSchema: () => ({}) as never,
-    importModel: () => undefined,
   }
   const fieldIndex = readFieldIndex(view, owner)
   const facts = decodeOwnerFacts(owner.factsText, ref, owner.filePath, fieldIndex)

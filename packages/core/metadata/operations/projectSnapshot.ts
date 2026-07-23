@@ -1,9 +1,7 @@
 import { readFileSync } from "fs"
 import { dirname, resolve } from "path"
 import type { ConfigurationContext } from "../context/types"
-import { importClientApplicationFormFromYAML } from "../forms/clientApplicationForm/fromYAML"
 import { ClientApplicationFormRules } from "../forms/clientApplicationForm/rules"
-import { importMetadataItemFromYAML } from "../orchestration"
 import type { MetadataItemRule } from "../orchestration/property/types"
 import type { PreparedYamlFile, PreparedYamlProject } from "../project/preparedYamlProject"
 import { discoverValidationProjectFiles, type ValidationProjectFile } from "../validation/projectFiles"
@@ -20,7 +18,7 @@ export interface OperationSnapshotItem {
   projectPath: string
   ownerDirPath: string
   parsed: ParsedYaml
-  model: Record<string, unknown>
+  yaml: Record<string, unknown>
   rule: MetadataItemRule
   kind: ValidationProjectFile["kind"]
 }
@@ -106,18 +104,7 @@ function importSnapshotItem(params: {
   try {
     const parsed = parseMetadataYaml(readFileSync(params.resource.absolutePath, "utf-8"))
     const rule = params.resource.kind === "form" ? ClientApplicationFormRules : params.resource.owner.spec.rule
-    const model =
-      params.resource.kind === "form"
-        ? (importClientApplicationFormFromYAML(params.context, parsed.data as never) as Record<string, unknown>)
-        : (importMetadataItemFromYAML({
-            context: params.context,
-            yaml: parsed.data,
-            rule,
-            name: params.resource.owner.name,
-          }) as Record<string, unknown> | undefined)
-
-    if (model === undefined) throw new Error("Не удалось импортировать свойства")
-    if (params.resource.kind === "properties") model.name ??= params.resource.owner.name
+    const yaml = requireYamlObject(parsed.data)
 
     return {
       ok: true,
@@ -127,7 +114,7 @@ function importSnapshotItem(params: {
         projectPath: params.resource.projectPath,
         ownerDirPath: dirname(params.resource.absolutePath),
         parsed,
-        model,
+        yaml,
         rule,
         kind: params.resource.kind,
       },
@@ -163,18 +150,7 @@ function importPreparedSnapshotItem(params: {
   try {
     const parsed = parsedYamlForOperationTransition(params.yamlFile.data)
     const rule = params.resource.kind === "form" ? ClientApplicationFormRules : params.resource.owner.spec.rule
-    const model =
-      params.resource.kind === "form"
-        ? (importClientApplicationFormFromYAML(params.context, parsed.data as never) as Record<string, unknown>)
-        : (importMetadataItemFromYAML({
-            context: params.context,
-            yaml: parsed.data,
-            rule,
-            name: params.resource.owner.name,
-          }) as Record<string, unknown> | undefined)
-
-    if (model === undefined) throw new Error("Не удалось импортировать свойства")
-    if (params.resource.kind === "properties") model.name ??= params.resource.owner.name
+    const yaml = requireYamlObject(parsed.data)
 
     return {
       ok: true,
@@ -184,7 +160,7 @@ function importPreparedSnapshotItem(params: {
         projectPath: params.resource.projectPath,
         ownerDirPath: dirname(params.resource.absolutePath),
         parsed,
-        model,
+        yaml,
         rule,
         kind: params.resource.kind,
       },
@@ -209,6 +185,11 @@ function importPreparedSnapshotItem(params: {
       },
     }
   }
+}
+
+function requireYamlObject(value: unknown): Record<string, unknown> {
+  if (value !== null && typeof value === "object" && !Array.isArray(value)) return value as Record<string, unknown>
+  throw new Error("Ожидался YAML-объект")
 }
 
 function parsedYamlForOperationTransition(data: unknown): ParsedYaml {

@@ -1,8 +1,7 @@
 import type { TSchema } from "typebox"
 import type { ConfigurationContext, JSONSchemaExportMode } from "../context/types"
 import { registerJSONSchemaIdentity } from "../orchestration/jsonSchemaRefs"
-import type { MetadataItem, MetadataItemRule } from "../orchestration/property/types"
-import type { ParsedYaml } from "../../yaml/parseMetadataYaml"
+import type { MetadataItemRule } from "../orchestration/property/types"
 import type { XmlImportRoute } from "../importFromXml/types"
 
 export interface RegisteredProjectSpec {
@@ -10,7 +9,6 @@ export interface RegisteredProjectSpec {
   kind: string
   rule: MetadataItemRule
   exportSchema: (params: { context: ConfigurationContext; mode?: JSONSchemaExportMode; name?: string }) => TSchema
-  importModel: (params: { context: ConfigurationContext; parsed: ParsedYaml; name: string }) => MetadataItem | undefined
   nesting?: ProjectSpecNesting
   /** Дополнительные абсолютные маршруты XML-выгрузки, принадлежащие этому project spec. */
   xmlImportRoutes?: readonly XmlImportRoute[]

@@ -6,7 +6,6 @@ import { ConfigurationContextWithExportToXML } from "../../../context/types"
 import { registerElementAsType, registerElementRule } from "../../../orchestration/formElement/ruleFactory"
 import type { MetadataItemRule, PropertyRule } from "../../../orchestration/property/types"
 import { ElementRule } from "../../../orchestration/formElement/types"
-import { BaseElement } from "../baseElement/types"
 import { getViewStatusAdditionName } from "./helper"
 export type { ElementRule, PropertyRule }
 const commonProperties = {
@@ -127,7 +126,7 @@ registerElementAsType({
     referenceSuffixes: ["СостояниеПросмотра", "ViewStatus"],
     canonicalNameMode: "ownerSuffix",
   },
-  toXML: (params: { context: ConfigurationContextWithExportToXML; element: BaseElement | undefined }) => {
+  toXML: (params: { context: ConfigurationContextWithExportToXML }) => {
     const { context } = params
     const parent = getParentFromContext(context, ["Table", "PDFDocumentField"])
     const name = getViewStatusAdditionName(parent)

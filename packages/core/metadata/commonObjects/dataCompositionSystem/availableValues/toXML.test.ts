@@ -1,5 +1,5 @@
 import { describe, expect, it } from "vitest"
-import { exportPropertyToXML } from "../../../orchestration"
+import { callAtomicToXML } from "../../../orchestration"
 import { mockContextToXML } from "../../../../tests/mockContext"
 import { nilAndBooleanAvailableValues, stringAvailableValues } from "./__fixtures__/data"
 
@@ -7,7 +7,7 @@ const rule = { type: "DcsAvailableValues", xml: "dcssch:availableValue" } as con
 
 describe("export DcsAvailableValues to XML", () => {
   it("exports string values and presentations", () => {
-    const result = exportPropertyToXML({
+    const result = callAtomicToXML({
       context: mockContextToXML(),
       rule,
       value: stringAvailableValues,
@@ -32,7 +32,7 @@ describe("export DcsAvailableValues to XML", () => {
   })
 
   it("exports absent value as xsi:nil", () => {
-    const result = exportPropertyToXML({
+    const result = callAtomicToXML({
       context: mockContextToXML(),
       rule,
       value: nilAndBooleanAvailableValues,
@@ -45,11 +45,11 @@ describe("export DcsAvailableValues to XML", () => {
   })
 
   it("preserves xs:string presentation from reference metadata", () => {
-    const result = exportPropertyToXML({
+    const result = callAtomicToXML({
       context: mockContextToXML(),
       rule,
       value: stringAvailableValues,
-      referenceMetadata: [
+      referenceValue: [
         {
           itemType: "DcsAvailableValue",
           value: { type: "string", value: "Выставлен" },
@@ -58,7 +58,7 @@ describe("export DcsAvailableValues to XML", () => {
       ],
     })
 
-    expect(result[0]["dcssch:presentation"]).toEqual({
+    expect((result as Record<string, unknown>[])[0]?.["dcssch:presentation"]).toEqual({
       "_xsi:type": "xs:string",
       "#text": "Выставлен",
     })

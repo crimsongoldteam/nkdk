@@ -328,6 +328,65 @@ describe("metadata import boundaries", () => {
     expect(registerSource).toContain("registerMetadataItemRule")
     expect(registerSource).toContain('propertyType: "MetadataLanguage"')
   })
+
+  it("регистрации коллекций не обходят YAML и XML через модельные callbacks", () => {
+    const offenders = listTypeScriptFiles(METADATA_DIR)
+      .map((filePath) => ({
+        filePath: relative(process.cwd(), filePath),
+        source: readFileSync(filePath, "utf-8"),
+      }))
+      .filter(({ source }) => {
+        if (!source.includes("registerMetadataItemCollectionRule")) return false
+        return /fromYAML:\s*(?:import|createImport)/.test(source) || source.includes("exportMetadataCollectionToXML")
+      })
+      .map(({ filePath }) => filePath)
+
+    expect(offenders).toEqual([])
+  })
+
+  it("составные production-типы не вызывают общую YAML/XML-оркестрацию", () => {
+    const forbiddenSymbols = [
+      "importPropertiesFromYAML",
+      "exportPropertiesToXML",
+      "importPropertyFromYAML",
+      "exportPropertyToXML",
+      "importMetadataItemFromYAML",
+      "exportMetadataItemToXML",
+      "importMetadataItemCollectionFromYAMLAsArray",
+      "importMetadataItemCollectionFromYAMLAsRecord",
+      "exportMetadataCollectionToXML",
+      "importPropertiesFromXML",
+      "exportPropertiesToYAML",
+      "importMetadataItemFromXML",
+      "exportMetadataItemToYAML",
+      "importMetadataItemCollectionFromXML",
+      "exportMetadataCollectionToYAMLAsArray",
+      "exportMetadataCollectionToYAMLAsRecord",
+    ]
+    const offenders = listTypeScriptFiles(METADATA_DIR)
+      .filter((filePath) => !filePath.endsWith(".test.ts"))
+      .map((filePath) => ({
+        filePath: relative(process.cwd(), filePath),
+        source: readFileSync(filePath, "utf-8"),
+      }))
+      .filter(({ source }) => forbiddenSymbols.some((symbol) => new RegExp(`\\b${symbol}\\b`).test(source)))
+      .map(({ filePath }) => filePath)
+
+    expect(offenders).toEqual([])
+  })
+
+  it("синхронизация и операции не хранят metadata-модель", () => {
+    const files = [
+      ...listTypeScriptFiles(join(METADATA_DIR, "fullSyncToXml")),
+      ...listTypeScriptFiles(join(METADATA_DIR, "operations")),
+      join(METADATA_DIR, "orchestration", "appliedObject", "syncToXML.ts"),
+    ].filter((filePath) => !filePath.endsWith(".test.ts"))
+    const source = files.map((filePath) => readFileSync(filePath, "utf-8")).join("\n")
+
+    expect(source).not.toContain("ownerModelStub")
+    expect(source).not.toContain("modelStub")
+    expect(source).not.toMatch(/\bmodel\s*:/)
+  })
 })
 
 function findImportOffenders(dir: string, forbiddenImports: readonly string[]) {

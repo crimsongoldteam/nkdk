@@ -1,5 +1,5 @@
 import { describe, expect, it } from "vitest"
-import { testImportPropertyFromYAML } from "../../../../../../tests/property/importPropertyFromYAML"
+import { testAtomicFromYAML } from "../../../../../../tests/property/atomicFromYAML"
 import {
   dynamicListGroupItemFieldDefault,
   dynamicListGroupItemFieldDefaultYAML,
@@ -12,17 +12,17 @@ const rule = { type: "GroupItemField" } as const
 
 describe("import GroupItemField from YAML", () => {
   it("imports '(Наименование)' as use=false", () => {
-    const result = testImportPropertyFromYAML({ rule, value: dynamicListGroupItemFieldUseFalseLegacyYAML })
+    const result = testAtomicFromYAML({ rule, value: dynamicListGroupItemFieldUseFalseLegacyYAML })
     expect(result).toEqual(dynamicListGroupItemFieldUseFalse)
   })
 
   it("imports 'Наименование' as use=true (default)", () => {
-    const result = testImportPropertyFromYAML({ rule, value: dynamicListGroupItemFieldDefaultYAML })
+    const result = testAtomicFromYAML({ rule, value: dynamicListGroupItemFieldDefaultYAML })
     expect(result).toEqual(dynamicListGroupItemFieldDefault)
   })
 
   it("imports object with hierarchy group type", () => {
-    const result = testImportPropertyFromYAML({
+    const result = testAtomicFromYAML({
       rule,
       value: {
         Поле: "СсылкаВидЦен",

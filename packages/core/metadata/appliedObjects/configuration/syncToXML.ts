@@ -4,7 +4,6 @@ import { BatchTask, runBatch } from "../../../helpers/runBatch"
 import type { ConfigurationContextFromXML } from "../../context/types"
 import { ConfigurationContextWithExportToXML } from "../../context/types"
 import { syncAppliedObjectToXML } from "../../orchestration/appliedObject/syncToXML"
-import type { ReferenceModelRemapper } from "../../orchestration/appliedObject/syncToXML"
 import { resolveXmlSyncAreaForProjectPath, type XmlSyncArea } from "../../orchestration/appliedObject/xmlAreas"
 import {
   prepareMetadataMigrationChain,
@@ -13,8 +12,10 @@ import {
   type PreparedMetadataMigrationChain,
 } from "../../operations"
 import { getTypeRule } from "../../orchestration/property/typeRuleRegistry"
-import { exportPropertyToXML } from "../../orchestration/property/toXML"
-import type { PropertyRule } from "../../orchestration/property/types"
+import { callAtomicFromYAML, callAtomicToXML } from "../../orchestration/property/fromYAMLToXML"
+import { convertMetadataItemFromYAMLToXML } from "../../orchestration/metadataItem/fromYAMLToXML"
+import { importPropertyFromXML } from "../../orchestration/property/fromXML"
+import type { YAMLToXMLExternalWriteFactory } from "../../orchestration/property/fromYAMLToXMLTypes"
 import { discoverMetadataProjectResources, type MetadataProjectPropertiesYamlRef } from "../../project/resources"
 import {
   prepareYamlProject,
@@ -23,6 +24,7 @@ import {
 } from "../../project/preparedYamlProject"
 import type { PreparedYamlProjectWorkerPool } from "../../project/preparedYamlProjectWorkerPool"
 import { xmlExport } from "../../../xml/export/exporter"
+import { importContentFromXML } from "../../../xml/import/importer"
 import {
   applyPendingMigrationFiles,
   collectStructuralStateFromXML,
@@ -33,7 +35,6 @@ import {
   type StructuralState,
   writeAppliedMigrationsState,
 } from "./migrations"
-import { remapReferenceModel } from "./migrations/referenceRemap"
 import { pruneXmlByManifest, XmlSyncManifest } from "./migrations/xmlManifest"
 import { createConfigDumpInfoExternalMetadataCollector } from "../configDumpInfo/externalMetadataCollector"
 import { syncConfigDumpInfoToXML } from "../configDumpInfo/sync"
@@ -42,9 +43,8 @@ import { buildConfigurationChildObjects, readConfigurationChildObjectsFromXML } 
 import {
   CONFIGURATION_XML_FILE,
   CONFIGURATION_YAML_FILE,
-  readConfigurationFromXML,
-  readConfigurationFromYAML,
-  writeConfigurationToXML,
+  readRawConfigurationXML,
+  writePreparedConfigurationToXML,
 } from "./rootIO"
 import { MetadataConfigurationRules } from "./rules"
 import { TopLevelMetadataItemRules } from "./topLevelRules"
@@ -136,6 +136,7 @@ export async function prepareConfigurationXmlMigrationChain(params: {
     fromXML: { forReference: true },
     defaultLanguage: params.context.defaultLanguage,
     version: params.context.version,
+    exportToYAML: { toTyped: false },
   }
   const referenceState = referenceDir
     ? await collectStructuralStateFromXML({ xmlDir: referenceDir, context: contextFromXML })
@@ -164,6 +165,7 @@ export const syncConfigurationToXML = async (params: {
   outputDir: string
   referenceDir?: string
   preparedYamlProjectPool?: PreparedYamlProjectWorkerPool
+  preserveReferenceChildObjects?: boolean
 }): Promise<ConfigurationSyncResult> => {
   const { context, inputDir, outputDir } = params
   const referenceDir = params.referenceDir
@@ -203,11 +205,6 @@ export const syncConfigurationToXML = async (params: {
         context.exportToXML.externalMetadataCollector ?? createConfigDumpInfoExternalMetadataCollector(configDumpInfo),
     },
   }
-  const contextFromXML: ConfigurationContextFromXML = {
-    fromXML: { forReference: true },
-    defaultLanguage: syncContext.defaultLanguage,
-    version: syncContext.version,
-  }
   const prepared = await prepareConfigurationYamlProject({
     projectDir: inputDir,
     context: syncContext,
@@ -231,34 +228,29 @@ export const syncConfigurationToXML = async (params: {
   if (hasRootYAML) {
     const hasReferenceConfiguration =
       referenceDir !== undefined && fs.existsSync(join(referenceDir, CONFIGURATION_XML_FILE))
-    const referenceConfiguration = hasReferenceConfiguration
-      ? readConfigurationFromXML({ context: contextFromXML, inputDir: referenceDir })
-      : undefined
+    const referenceXML = hasReferenceConfiguration ? readRawConfigurationXML(referenceDir) : undefined
     const referenceChildObjects = hasReferenceConfiguration
       ? readConfigurationChildObjectsFromXML(referenceDir)
       : undefined
-    const configuration = readConfigurationFromYAML({
+    if (preparedRootYaml === undefined) throw new Error(`Не подготовлен ${CONFIGURATION_YAML_FILE}`)
+    const externalWrites = writePreparedConfigurationToXML({
       context: syncContext,
-      inputDir,
-      source: referenceConfiguration,
-      preparedYamlFile: preparedRootYaml,
-    })
-
-    writeConfigurationToXML({
-      context: syncContext,
-      configuration,
       outputDir,
-      referenceConfiguration,
-      childObjects: buildConfigurationChildObjects({ yamlDir: inputDir, referenceChildObjects }),
+      preparedYamlFile: preparedRootYaml,
+      referenceXML,
+      childObjects: buildConfigurationChildObjects({
+        yamlDir: inputDir,
+        referenceChildObjects,
+        preserveReferenceNames: params.preserveReferenceChildObjects,
+      }),
+      externalWriteFactory: createConfigurationExternalWriteFactory({
+        context: syncContext,
+        outputDir,
+        referenceDir,
+      }),
     })
     xmlManifest.addFile(join(outputDir, CONFIGURATION_XML_FILE))
-    await writeRootConfigurationFilePathPropertiesToXML({
-      context: syncContext,
-      configuration,
-      referenceConfiguration,
-      outputDir,
-      xmlManifest,
-    })
+    await executeConfigurationExternalWrites(externalWrites, xmlManifest)
     await syncRootConfigurationExternalFilesToXML({ context: syncContext, inputDir, outputDir, xmlManifest })
   }
 
@@ -278,17 +270,17 @@ export const syncConfigurationToXML = async (params: {
     const referencePath = migrationChain.referencePathByCurrentPath.get(currentObjectPath) ?? currentObjectPath
     const referencePathSegments = referencePath.split(".")
     const referenceName = referencePathSegments[referencePathSegments.length - 1]!
-    const referenceModelRemapper: ReferenceModelRemapper | undefined =
-      migrationChain.referencePathByCurrentPath.size > 0
-        ? ({ rule, currentModel, referenceModel }) =>
-            remapReferenceModel({
-              rule,
-              currentObjectPath,
-              currentModel,
-              referenceModel,
-              referencePathByCurrentPath: migrationChain.referencePathByCurrentPath,
-            })
-        : undefined
+    const objectContext: ConfigurationContextWithExportToXML = {
+      ...syncContext,
+      importFromYAML: {
+        ...syncContext.importFromYAML,
+        referenceRemap: {
+          currentPath: currentObjectPath,
+          referencePathByCurrentPath: migrationChain.referencePathByCurrentPath,
+        },
+      },
+      exportToXML: { ...syncContext.exportToXML },
+    }
     const xmlExternalOutputDir = join(xmlOutputDir, name)
     const xmlExternalReferenceDir = xmlReferenceDir ? join(xmlReferenceDir, referenceName) : undefined
     tasks.push({
@@ -297,7 +289,7 @@ export const syncConfigurationToXML = async (params: {
       run: () =>
         syncAppliedObjectToXML({
           rule,
-          context: { ...syncContext, exportToXML: { ...syncContext.exportToXML } },
+          context: objectContext,
           inputDir: yamlDirAbs,
           name,
           outputDir: xmlOutputDir,
@@ -305,7 +297,6 @@ export const syncConfigurationToXML = async (params: {
           referenceDir: xmlReferenceDir,
           externalReferenceDir: xmlExternalReferenceDir,
           referenceName,
-          referenceModelRemapper,
           xmlManifest,
           preparedYamlFile: preparedYamlByProjectPath.get(`${itemTypePrefix}/${name}/Свойства.yaml`),
         }),
@@ -500,42 +491,81 @@ function getAvailableRootExternalCaseRenameTempDir(outputDir: string): string {
   return candidate
 }
 
-async function writeRootConfigurationFilePathPropertiesToXML(params: {
+function createConfigurationExternalWriteFactory(params: {
   context: ConfigurationContextWithExportToXML
-  configuration: Record<string, unknown> | undefined
-  referenceConfiguration: Record<string, unknown> | undefined
   outputDir: string
-  xmlManifest: XmlSyncManifest
-}): Promise<void> {
-  const model = params.configuration
-  if (model === undefined) return
-
-  for (const [key, propRule] of Object.entries(MetadataConfigurationRules.properties) as [string, PropertyRule][]) {
-    if (propRule.filePath === undefined) continue
-    if (!getTypeRule(propRule.type, "exportToXML")) continue
-
-    const modelHasOwnValue = Object.prototype.hasOwnProperty.call(model, key)
-    const referenceValue = params.referenceConfiguration?.[key]
-    const valueToExport = modelHasOwnValue
-      ? model[key]
-      : propRule.exportReferenceFileOnMissingValue === true
-        ? referenceValue
-        : undefined
-    if (valueToExport === undefined) continue
-
-    const xmlFileObj = exportPropertyToXML({
-      context: params.context,
-      rule: propRule,
-      value: valueToExport,
-      referenceMetadata: referenceValue,
-    }) as Record<string, unknown> | undefined
-    if (xmlFileObj === undefined) continue
-
-    const outputPath = join(params.outputDir, propRule.filePath)
-    await fs.promises.mkdir(dirname(outputPath), { recursive: true })
-    await fs.promises.writeFile(outputPath, xmlExport(xmlFileObj), "utf-8")
-    params.xmlManifest.addFile(outputPath)
+  referenceDir?: string
+}): YAMLToXMLExternalWriteFactory {
+  const fromXMLContext: ConfigurationContextFromXML = {
+    fromXML: { forReference: true },
+    defaultLanguage: params.context.defaultLanguage,
+    version: params.context.version,
   }
+  return ({ propertyKey, propertyRule, source, name }) => {
+    if (propertyRule.filePath === undefined) return []
+    const referencePath =
+      params.referenceDir === undefined ? undefined : join(params.referenceDir, propertyRule.filePath)
+    const referenceXML =
+      referencePath !== undefined && fs.existsSync(referencePath)
+        ? importContentFromXML<Record<string, unknown>>(fs.readFileSync(referencePath, "utf-8"), {
+            preserveXsiNil: true,
+            preserveEmptyElements: true,
+          })
+        : undefined
+    if (!source.has(propertyKey) && propertyRule.exportReferenceFileOnMissingValue !== true) return []
+
+    const nestedRule = getTypeRule(propertyRule.type, "yamlToXMLNestedRule")
+    let xml: Record<string, unknown> | undefined
+    if (nestedRule?.kind === "item") {
+      xml = convertMetadataItemFromYAMLToXML({
+        context: params.context,
+        yaml: source.raw(propertyKey),
+        rule: nestedRule.itemRule,
+        name,
+        outputs: [{ key: "file", referenceXML }],
+      }).outputs.get("file")
+    } else {
+      const referenceValue =
+        referenceXML === undefined
+          ? undefined
+          : importPropertyFromXML({ context: fromXMLContext, rule: propertyRule, value: referenceXML, name })
+      const value = callAtomicFromYAML({
+        context: params.context,
+        rule: propertyRule,
+        value: source.raw(propertyKey),
+        referenceValue,
+        name,
+      })
+      const exported = callAtomicToXML({
+        context: params.context,
+        rule: propertyRule,
+        value,
+        referenceValue,
+        source,
+      })
+      xml = isRecord(exported) ? exported : undefined
+    }
+    return xml === undefined
+      ? []
+      : [{ kind: "xml", targetPath: join(params.outputDir, propertyRule.filePath), value: xml }]
+  }
+}
+
+async function executeConfigurationExternalWrites(
+  writes: readonly import("../../orchestration/property/fromYAMLToXMLTypes").YAMLToXMLExternalWrite[],
+  xmlManifest: XmlSyncManifest
+): Promise<void> {
+  for (const write of writes) {
+    if (write.kind === "handler") await write.run()
+    if (write.kind !== "xml") continue
+    await fs.promises.mkdir(dirname(write.targetPath), { recursive: true })
+    await fs.promises.writeFile(write.targetPath, xmlExport(write.value), "utf-8")
+    xmlManifest.addFile(write.targetPath)
+  }
+}
+
+function isRecord(value: unknown): value is Record<string, unknown> {
+  return value !== null && typeof value === "object" && !Array.isArray(value)
 }
 
 async function syncRootConfigurationExternalFilesToXML(params: {

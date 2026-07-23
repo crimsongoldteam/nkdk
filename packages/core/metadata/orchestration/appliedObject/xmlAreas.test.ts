@@ -75,13 +75,9 @@ describe("resolveXmlSyncAreaForProjectPath", () => {
 
   it("appliedObject sync uses fileChildNamesDescriptor instead of child form/template strings", () => {
     const syncToXmlSource = readFileSync(fileURLToPath(new URL("./syncToXML.ts", import.meta.url)), "utf-8")
-    const convertSource = readFileSync(fileURLToPath(new URL("./convertFromXML.ts", import.meta.url)), "utf-8")
 
     expect(syncToXmlSource).toContain("fileChildNamesDescriptor")
-    expect(convertSource).toContain("fileChildNamesDescriptor")
     expect(syncToXmlSource).not.toContain('rule.type === "ChildFormNames"')
     expect(syncToXmlSource).not.toContain('rule.type === "ChildTemplateNames"')
-    expect(convertSource).not.toContain('rule.type === "ChildFormNames"')
-    expect(convertSource).not.toContain('rule.type === "ChildTemplateNames"')
   })
 })

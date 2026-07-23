@@ -58,26 +58,19 @@ export type {
 } from "./metadata/appliedObjects/configuration/migrations"
 export {
   exportMetadataCatalogToJSONSchema,
-  exportMetadataCatalogToYAML,
-  importMetadataCatalogFromYAML,
   type MetadataCatalog,
   type MetadataCatalogXML,
   type MetadataCatalogYAML,
 } from "./metadata/appliedObjects/metadataCatalog/index"
 export { createEmptyClientApplicationForm } from "./metadata/forms/clientApplicationForm/createEmpty"
-export { importClientApplicationFormFromXML } from "./metadata/forms/clientApplicationForm/fromXML"
-export { importClientApplicationFormFromYAML } from "./metadata/forms/clientApplicationForm/fromYAML"
 export { exportClientApplicationFormToEnterprise } from "./metadata/forms/clientApplicationForm/toEnterprise"
 export { exportClientApplicationFormToJSONSchema } from "./metadata/forms/clientApplicationForm/toJSONSchema"
-export { exportClientApplicationFormToXML } from "./metadata/forms/clientApplicationForm/toXML"
-export { exportClientApplicationFormToYAML } from "./metadata/forms/clientApplicationForm/toYAML"
 export type {
   ClientApplicationForm,
   ClientApplicationFormEnterprise,
   ClientApplicationFormXML,
   ClientApplicationFormYAML,
 } from "./metadata/forms/clientApplicationForm/types"
-export { exportFormMetadataToXML } from "./metadata/forms/index"
 export type { FormMetadataXML } from "./metadata/forms/index"
 export { xmlExport } from "./xml/export/exporter"
 export { importContentFromXML } from "./xml/import/importer"
@@ -89,7 +82,6 @@ export { buildYamlLocationIndex } from "./yaml/locationIndex"
 export type { YamlLocationIndex, YamlPath, YamlPosition } from "./yaml/locationIndex"
 export { parseMetadataYaml } from "./yaml/parseMetadataYaml"
 export type { ParsedYaml } from "./yaml/parseMetadataYaml"
-export { importMetadataEnumerationFromYAML } from "./metadata/appliedObjects/metadataEnumeration/fromYAML"
 export type { Diagnostic, DiagnosticSource, DiagnosticSeverity, MetadataKind } from "./metadata/validation/types"
 export {
   createValidationWorkerPoolHandle,

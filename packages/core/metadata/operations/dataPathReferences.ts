@@ -1,8 +1,7 @@
 import { rootFromYAML } from "../commonObjects/metadataTargets/roots"
 import type { ConfigurationContext } from "../context/types"
-import type { ClientApplicationForm } from "../forms/clientApplicationForm/types"
-import { buildFormDataPathIndex } from "../validation/dataPath/formIndex"
-import { collectFormDataPathOccurrences } from "../validation/dataPath/formTraversal"
+import { createFormDataPathIndexFromYAML } from "../validation/dataPath/formYamlIndex"
+import { collectFormDataPathOccurrencesFromYAML } from "../validation/dataPath/formYamlTraversal"
 import { createOwnerMetadataCache, type OwnerMetadataCache } from "../validation/dataPath/ownerCache"
 import { resolveDataPath, type ResolvedDataPathTarget } from "../validation/dataPath/resolver"
 import { createProjectYamlCache } from "../validation/projectYamlCache"
@@ -53,15 +52,13 @@ export function collectFormDataPathReferencesForItem(params: {
 }): DataPathReferenceInput[] {
   if (params.item.kind !== "form") return []
 
-  const form = params.item.model as ClientApplicationForm
-  const index = buildFormDataPathIndex({
-    filePath: params.item.filePath,
-    parsed: params.item.parsed,
-    form,
-  })
+  const index = createFormDataPathIndexFromYAML(params.item.yaml)
 
   const references: DataPathReferenceInput[] = []
-  for (const occurrence of collectFormDataPathOccurrences(form)) {
+  for (const occurrence of collectFormDataPathOccurrencesFromYAML({
+    yaml: params.item.yaml,
+    rule: params.item.rule,
+  })) {
     const result = resolveDataPath({
       filePath: params.item.filePath,
       parsed: params.item.parsed,

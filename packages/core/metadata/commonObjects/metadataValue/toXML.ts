@@ -36,7 +36,7 @@ const isNilMetadataValueXML = (value: unknown): value is { "_xsi:nil": true } =>
   typeof value === "object" &&
   value !== null &&
   !Array.isArray(value) &&
-  (value as Record<string, unknown>)["_xsi:nil"] === true
+  ((value as Record<string, unknown>)["_xsi:nil"] === true || (value as Record<string, unknown>)["_xsi:nil"] === "true")
 
 const isV8NullMetadataValueXML = (value: unknown): value is { "_xsi:type": "v8:Null" } =>
   typeof value === "object" &&

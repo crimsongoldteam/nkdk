@@ -153,7 +153,7 @@ describe("syncAppliedObjectToXML — (б) формы из reference-XML", () => 
 })
 
 describe("syncAppliedObjectToXML — (б2) основной reference XML", () => {
-  it("не передаёт обычные свойства из reference в YAML import", async () => {
+  it("передаёт reference атомарному YAML-обработчику", async () => {
     const inputDir = join(tmpDir, "input")
     const referenceDir = join(tmpDir, "reference")
     const outputDir = join(tmpDir, "output")
@@ -225,7 +225,7 @@ describe("syncAppliedObjectToXML — (б2) основной reference XML", () =
       referenceDir,
     })
 
-    expect(observedYamlImportSource).toBeUndefined()
+    expect(observedYamlImportSource).toEqual({ marker: "from-main-reference" })
   })
 })
 
@@ -338,7 +338,7 @@ describe("syncAppliedObjectToXML — (д) explicit null reference", () => {
       name: "ТестСправочник",
       outputDir,
       referenceDir,
-      referenceModel: null,
+      useReferenceXML: false,
     })
 
     const result = fs.readFileSync(join(outputDir, "ТестСправочник.xml"), "utf-8")

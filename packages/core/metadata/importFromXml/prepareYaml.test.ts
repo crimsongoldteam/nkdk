@@ -70,11 +70,12 @@ describe("prepareImportYaml", () => {
   it("prepares an applied object without writing YAML or external files", async () => {
     const writeFile = vi.spyOn(fs.promises, "writeFile")
     const assignment = catalogAssignment()
+    const collector = createConfigurationIndexCollector()
 
     const prepared = await prepareImportYaml({
       assignment,
       context: mockContextFromXML(),
-      collector: createConfigurationIndexCollector(),
+      collector,
     })
 
     expect(prepared.assignment).toBe(assignment)
@@ -84,7 +85,139 @@ describe("prepareImportYaml", () => {
     expect(prepared).not.toHaveProperty("model")
     expect(prepared).not.toHaveProperty("xml")
     expect(prepared.generatedFiles).toEqual([])
+    expect(JSON.stringify(prepared.yaml)).not.toContain("ФормаЭлемента")
+    expect(collector.fragment(assignment.targetProjectPath).identities).toContainEqual({
+      logicalAddress: "Справочник.Контрагенты",
+      kind: "uuid",
+      value: "0f4c2a9b-1d3e-4b6f-8a7c-9e1d2c3b4a5f",
+    })
     expect(writeFile).not.toHaveBeenCalled()
+  })
+
+  it.each([
+    [
+      "DocumentNumerator",
+      "MetadataDocumentNumerator",
+      "НумераторПоУмолчанию",
+      "Документ/Нумераторы/НумераторПоУмолчанию/Свойства.yaml",
+      "../appliedObjects/metadataDocumentNumerator/__fixtures__/minimal.xml",
+    ],
+    [
+      "Document",
+      "MetadataDocument",
+      "ДокументПоУмолчанию",
+      "Документ/ДокументПоУмолчанию/Свойства.yaml",
+      "../appliedObjects/metadataDocument/__fixtures__/minimal.xml",
+    ],
+    [
+      "Sequence",
+      "MetadataSequence",
+      "ПоследовательностьПоУмолчанию",
+      "Последовательность/ПоследовательностьПоУмолчанию/Свойства.yaml",
+      "../appliedObjects/metadataSequence/__fixtures__/minimal.xml",
+    ],
+  ])("prepares %s through the direct XML to YAML traversal", async (_label, itemType, itemName, target, fixture) => {
+    const prepared = await prepareImportYaml({
+      assignment: {
+        id: itemName,
+        role: "properties",
+        targetProjectPath: target,
+        itemType,
+        itemName,
+        logicalAddress: `${itemType}.${itemName}`,
+        owner: undefined,
+        xmlFiles: [{ role: "metadata", sourcePath: join(import.meta.dirname, fixture) }],
+        externalFiles: [],
+      },
+      context: mockContextFromXML(),
+      collector: createConfigurationIndexCollector(),
+    })
+
+    expect(prepared.yaml).toEqual(expect.any(Object))
+    expect(prepared).not.toHaveProperty("model")
+  })
+
+  it("creates the child logical address before importing child properties", async () => {
+    const inputDir = fs.mkdtempSync(join(os.tmpdir(), "nkdk-import-child-address-"))
+    try {
+      const metadataPath = join(inputDir, "ТестСправочник.xml")
+      fs.writeFileSync(
+        metadataPath,
+        `<?xml version="1.0" encoding="UTF-8"?>
+<MetaDataObject xmlns="http://v8.1c.ru/8.3/MDClasses">
+  <Catalog uuid="00000000-0000-0000-0000-000000000001">
+    <Properties><Name>ТестСправочник</Name></Properties>
+    <ChildObjects><Command uuid="00000000-0000-0000-0000-000000000002"><Properties><Name>Обновить</Name></Properties></Command></ChildObjects>
+  </Catalog>
+</MetaDataObject>`
+      )
+      const collector = createConfigurationIndexCollector()
+      const targetProjectPath = "Справочник/ТестСправочник/Свойства.yaml"
+      await prepareImportYaml({
+        assignment: {
+          id: "catalog-with-command",
+          role: "properties",
+          targetProjectPath,
+          itemType: "MetadataCatalog",
+          itemName: "ТестСправочник",
+          logicalAddress: "Справочник.ТестСправочник",
+          owner: undefined,
+          xmlFiles: [{ role: "metadata", sourcePath: metadataPath }],
+          externalFiles: [],
+        },
+        context: mockContextFromXML(),
+        collector,
+      })
+
+      expect(collector.fragment(targetProjectPath).identities).toContainEqual({
+        logicalAddress: "Справочник.ТестСправочник.Команда.Обновить",
+        kind: "uuid",
+        value: "00000000-0000-0000-0000-000000000002",
+      })
+    } finally {
+      fs.rmSync(inputDir, { recursive: true, force: true })
+    }
+  })
+
+  it("preserves xsi:nil service data while reading applied XML", async () => {
+    const inputDir = fs.mkdtempSync(join(os.tmpdir(), "nkdk-import-xsi-nil-"))
+    try {
+      const sourceFixture = join(
+        import.meta.dirname,
+        "../appliedObjects/metadataCommonAttribute/__fixtures__/minimal.xml"
+      )
+      const metadataPath = join(inputDir, "ОбщийРеквизит.xml")
+      fs.writeFileSync(
+        metadataPath,
+        fs
+          .readFileSync(sourceFixture, "utf8")
+          .replace('<FillValue xsi:type="xs:string"/>', '<FillValue xsi:nil="true"/>')
+      )
+      const collector = createConfigurationIndexCollector()
+      const targetProjectPath = "ОбщийРеквизит/ОбщийРеквизитПоУмолчанию/Свойства.yaml"
+      await prepareImportYaml({
+        assignment: {
+          id: "common-attribute-nil",
+          role: "properties",
+          targetProjectPath,
+          itemType: "MetadataCommonAttribute",
+          itemName: "ОбщийРеквизитПоУмолчанию",
+          logicalAddress: "ОбщийРеквизит.ОбщийРеквизитПоУмолчанию",
+          owner: undefined,
+          xmlFiles: [{ role: "metadata", sourcePath: metadataPath }],
+          externalFiles: [],
+        },
+        context: mockContextFromXML(),
+        collector,
+      })
+
+      expect(collector.fragment(targetProjectPath).xmlValues).toContainEqual({
+        logicalAddress: "ОбщийРеквизит.ОбщийРеквизитПоУмолчанию.fillValue",
+        xsiNil: true,
+      })
+    } finally {
+      fs.rmSync(inputDir, { recursive: true, force: true })
+    }
   })
 
   it("prepares a nested file item through its registered metadata rule", async () => {

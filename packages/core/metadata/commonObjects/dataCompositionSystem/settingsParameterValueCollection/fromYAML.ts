@@ -28,7 +28,8 @@ const wrapYamlFragment = (paramName: string, yamlFragment: unknown): SettingsPar
 const importSettingsParameterValueCollectionFromYAML = (
   context: ConfigurationContext,
   rule: PropertyRule,
-  value: SettingsParameterValueCollectionYAML | unknown
+  value: SettingsParameterValueCollectionYAML | unknown,
+  source?: SettingsParameterValueCollection
 ): SettingsParameterValueCollection | undefined => {
   if (value === undefined || value === null) return undefined
   if (!isPlainObject(value)) return undefined
@@ -48,7 +49,15 @@ const importSettingsParameterValueCollectionFromYAML = (
     }
   }
 
-  return Object.keys(parameters).length > 0 ? { itemType: "SettingsParameterValueCollection", parameters } : undefined
+  if (Object.keys(parameters).length === 0) return undefined
+  const orderedParameters: SettingsParameterValueCollection["parameters"] = {}
+  for (const name of Object.keys(source?.parameters ?? {})) {
+    if (parameters[name] !== undefined) orderedParameters[name] = parameters[name]
+  }
+  for (const [name, parameter] of Object.entries(parameters)) {
+    if (orderedParameters[name] === undefined) orderedParameters[name] = parameter
+  }
+  return { itemType: "SettingsParameterValueCollection", parameters: orderedParameters }
 }
 
 registerTypeRule("SettingsParameterValueCollection", "importFromYAML", importSettingsParameterValueCollectionFromYAML)

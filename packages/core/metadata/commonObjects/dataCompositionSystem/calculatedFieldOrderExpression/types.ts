@@ -4,10 +4,8 @@ import { YAMLTypeByRule } from "../../../orchestration/metadataItem/yaml"
 import "../../../systemEnumerations/fromXML"
 import "../../../systemEnumerations/fromYAML"
 import "../../../systemEnumerations/toYAML"
-import { importCalculatedFieldOrderExpressionFromXML } from "./fromXML"
 import { importCalculatedFieldOrderExpressionFromXMLToYAML } from "./fromXMLToYAML"
 import { CalculatedFieldOrderExpressionRules } from "./rules"
-import { exportCalculatedFieldOrderExpressionToXML } from "./toXML"
 
 export type CalculatedFieldOrderExpressionItem = MetadataTypeByRule<typeof CalculatedFieldOrderExpressionRules>
 export type CalculatedFieldOrderExpressionItemYAML = YAMLTypeByRule<typeof CalculatedFieldOrderExpressionRules>
@@ -21,7 +19,5 @@ registerMetadataItemCollectionRule({
   xmlElement: "dcssch:orderExpression",
   yamlAsArray: true,
   configurationIndexAddressing: "yamlPath",
-  fromXML: importCalculatedFieldOrderExpressionFromXML,
   fromXMLToYAML: importCalculatedFieldOrderExpressionFromXMLToYAML,
-  toXML: exportCalculatedFieldOrderExpressionToXML,
 })

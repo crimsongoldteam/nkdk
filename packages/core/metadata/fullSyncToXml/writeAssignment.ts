@@ -13,6 +13,7 @@ import { writePreparedConfigurationToXML } from "../appliedObjects/configuration
 import { writePreparedFormToXML } from "../forms/clientApplicationForm/syncToXML"
 import { writePreparedAppliedObjectOwnerToXML } from "../orchestration/appliedObject/syncToXML"
 import type { FullXmlSyncAssignment, FullXmlSyncDiagnostic, FullXmlSyncWrittenFile } from "./types"
+import { createYAMLToXMLProfile, type YAMLToXMLProfile } from "../orchestration/property/fromYAMLToXMLTypes"
 
 export interface WriteFullXmlSyncAssignmentParams {
   readonly assignment: FullXmlSyncAssignment
@@ -27,12 +28,15 @@ export interface WriteFullXmlSyncAssignmentResult {
   readonly diagnostics: readonly FullXmlSyncDiagnostic[]
   readonly writtenFiles: readonly FullXmlSyncWrittenFile[]
   readonly fragment?: ConfigurationIndexFragment
+  readonly profile?: YAMLToXMLProfile
 }
 
 export async function writeFullXmlSyncAssignment(
   params: WriteFullXmlSyncAssignmentParams
 ): Promise<WriteFullXmlSyncAssignmentResult> {
-  const collector = profileAssignmentStep(params.assignment, "Создание сборщика индекса", () => createConfigurationIndexCollector())
+  const collector = profileAssignmentStep(params.assignment, "Создание сборщика индекса", () =>
+    createConfigurationIndexCollector()
+  )
   const runtime = profileAssignmentStep(params.assignment, "Создание runtime индекса", () =>
     createConfigurationIndexExportRuntime({
       source: params.index,
@@ -48,17 +52,23 @@ export async function writeFullXmlSyncAssignment(
       configurationIndex: runtime,
     },
   }
+  const profile = createYAMLToXMLProfile()
 
   try {
     const outputDiagnostic = missingOutputDiagnostic(params.assignment)
     if (outputDiagnostic !== undefined) return { diagnostics: [outputDiagnostic], writtenFiles: [] }
 
-    const writtenFiles = await profileAssignmentStepAsync(params.assignment, "Запись XML", () => writeAssignmentXML({ ...params, context }))
+    const writtenFiles = await profileAssignmentStepAsync(params.assignment, "Запись XML", () =>
+      writeAssignmentXML({ ...params, context, profile })
+    )
 
     return {
       diagnostics: [],
       writtenFiles,
-      fragment: profileAssignmentStep(params.assignment, "Сбор фрагмента индекса", () => collector.fragment(params.assignment.sourceProjectPath)),
+      fragment: profileAssignmentStep(params.assignment, "Сбор фрагмента индекса", () =>
+        collector.fragment(params.assignment.sourceProjectPath)
+      ),
+      profile,
     }
   } catch (caught) {
     return {
@@ -81,7 +91,11 @@ function profileAssignmentStep<T>(assignment: FullXmlSyncAssignment, step: strin
   }
 }
 
-async function profileAssignmentStepAsync<T>(assignment: FullXmlSyncAssignment, step: string, fn: () => Promise<T>): Promise<T> {
+async function profileAssignmentStepAsync<T>(
+  assignment: FullXmlSyncAssignment,
+  step: string,
+  fn: () => Promise<T>
+): Promise<T> {
   if (process.env["NKDK_FULL_SYNC_PROFILE"] !== "1") return fn()
   const startedAt = performance.now()
   const selected = isAssignmentProfileSelected(assignment)
@@ -122,7 +136,10 @@ function formatAssignmentProfile(
 }
 
 async function writeAssignmentXML(
-  params: WriteFullXmlSyncAssignmentParams & { context: ConfigurationContextWithExportToXML }
+  params: WriteFullXmlSyncAssignmentParams & {
+    context: ConfigurationContextWithExportToXML
+    profile: YAMLToXMLProfile
+  }
 ): Promise<FullXmlSyncWrittenFile[]> {
   if (params.assignment.role === "configuration") return writeConfigurationAssignmentXML(params)
   if (params.assignment.role === "form") return writeFormAssignmentXML(params)
@@ -130,7 +147,7 @@ async function writeAssignmentXML(
 }
 
 async function writeConfigurationAssignmentXML(
-  params: WriteFullXmlSyncAssignmentParams & { context: ConfigurationContextWithExportToXML }
+  params: WriteFullXmlSyncAssignmentParams & { context: ConfigurationContextWithExportToXML; profile: YAMLToXMLProfile }
 ): Promise<FullXmlSyncWrittenFile[]> {
   const output = params.assignment.outputs.find((item) => item.routeKind === "owner")
   if (output === undefined) throw new Error("У задания нет owner XML-выхода")
@@ -144,12 +161,13 @@ async function writeConfigurationAssignmentXML(
         assignment.role === "properties" ? [ownerEntryFromAssignment(assignment)] : []
       ),
     }),
+    profile: params.profile,
   })
   return [{ assignmentId: params.assignment.id, targetXmlPath: output.targetXmlPath }]
 }
 
 async function writeFormAssignmentXML(
-  params: WriteFullXmlSyncAssignmentParams & { context: ConfigurationContextWithExportToXML }
+  params: WriteFullXmlSyncAssignmentParams & { context: ConfigurationContextWithExportToXML; profile: YAMLToXMLProfile }
 ): Promise<FullXmlSyncWrittenFile[]> {
   const output = params.assignment.outputs.find((item) => item.routeKind === "fileItem")
   if (output === undefined) throw new Error("У задания нет fileItem XML-выхода")
@@ -161,6 +179,7 @@ async function writeFormAssignmentXML(
     formName: params.assignment.itemName,
     outputDir: ownerXmlDir,
     currentXMLPath: formBodyXmlPath(output.targetXmlPath, params.assignment.itemName),
+    profile: params.profile,
   })
   const metadataPath = join(params.outputDir, ...output.targetXmlPath.split("/"))
   const bodyPath = join(ownerXmlDir, "Forms", params.assignment.itemName, "Ext", "Form.xml")
@@ -170,7 +189,12 @@ async function writeFormAssignmentXML(
       ? [
           {
             assignmentId: params.assignment.id,
-            targetXmlPath: posix.join(posix.dirname(output.targetXmlPath), params.assignment.itemName, "Ext", "Form.xml"),
+            targetXmlPath: posix.join(
+              posix.dirname(output.targetXmlPath),
+              params.assignment.itemName,
+              "Ext",
+              "Form.xml"
+            ),
           },
         ]
       : []),
@@ -178,7 +202,7 @@ async function writeFormAssignmentXML(
 }
 
 async function writePropertiesAssignmentXML(
-  params: WriteFullXmlSyncAssignmentParams & { context: ConfigurationContextWithExportToXML }
+  params: WriteFullXmlSyncAssignmentParams & { context: ConfigurationContextWithExportToXML; profile: YAMLToXMLProfile }
 ): Promise<FullXmlSyncWrittenFile[]> {
   const ownerOutput = params.assignment.outputs.find((output) => output.routeKind === "owner")
   if (ownerOutput === undefined) throw new Error("У задания нет owner XML-выхода")
@@ -193,6 +217,7 @@ async function writePropertiesAssignmentXML(
     outputPath: join(params.outputDir, ...ownerOutput.targetXmlPath.split("/")),
     preparedYamlFile: params.preparedYamlFile,
     fileChildNames: fileChildNamesForOwner(params.assignment, params.assignments ?? []),
+    profile: params.profile,
   })
   return [{ assignmentId: params.assignment.id, targetXmlPath: ownerOutput.targetXmlPath }]
 }
@@ -212,14 +237,18 @@ function fileChildNamesForOwner(
   assignments: readonly FullXmlSyncAssignment[]
 ): { forms?: string[]; templates?: string[] } {
   const forms = assignments
-    .filter((assignment) => assignment.role === "form" && assignment.owner?.logicalAddress === ownerAssignment.logicalAddress)
+    .filter(
+      (assignment) => assignment.role === "form" && assignment.owner?.logicalAddress === ownerAssignment.logicalAddress
+    )
     .map((assignment) => assignment.itemName)
   return forms.length === 0 ? {} : { forms }
 }
 
 function ownerXmlOutputDir(outputDir: string, targetXmlPath: string, formName: string): string {
   const suffix = posix.join("Forms", `${formName}.xml`)
-  const ownerPath = targetXmlPath.endsWith(suffix) ? targetXmlPath.slice(0, -suffix.length).replace(/\/$/, "") : dirname(targetXmlPath)
+  const ownerPath = targetXmlPath.endsWith(suffix)
+    ? targetXmlPath.slice(0, -suffix.length).replace(/\/$/, "")
+    : dirname(targetXmlPath)
   return ownerPath.length === 0 ? outputDir : join(outputDir, ...ownerPath.split("/"))
 }
 
@@ -239,11 +268,7 @@ function missingOutputDiagnostic(assignment: FullXmlSyncAssignment): FullXmlSync
     : assignmentDiagnostic(assignment, "full_xml_sync_no_owner_output", "У задания нет owner XML-выхода")
 }
 
-function assignmentDiagnostic(
-  assignment: FullXmlSyncAssignment,
-  code: string,
-  message: string
-): FullXmlSyncDiagnostic {
+function assignmentDiagnostic(assignment: FullXmlSyncAssignment, code: string, message: string): FullXmlSyncDiagnostic {
   return {
     severity: "error",
     code,

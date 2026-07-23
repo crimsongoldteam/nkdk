@@ -1,7 +1,7 @@
 import { describe, expect, it } from "vitest"
 import type { DcsMetadataValuePropertyRule } from "../dataCompositionSystem/dcsMetadataValue/types"
 import type { PropertyRule } from "../../orchestration"
-import { testExportPropertyToXML } from "../../../tests/property/exportPropertyToXML"
+import { testAtomicToXML } from "../../../tests/property/atomicToXML"
 import { dcsTypeLink } from "./__fixtures__/data"
 
 const rule = {
@@ -12,7 +12,7 @@ const rule = {
 
 describe("export TypeLink to DCS XML", () => {
   it("exports dcs/typeLink.xml", () => {
-    const { expectedResult, result } = testExportPropertyToXML({
+    const { expectedResult, result } = testAtomicToXML({
       rule: rule as PropertyRule,
       value: dcsTypeLink,
       xmlRootTag: "dcscor:value",

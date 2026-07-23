@@ -1,6 +1,6 @@
 import { describe, expect, it } from "vitest"
 import { PropertyRule } from "../../../orchestration"
-import { testImportPropertyFromYAML } from "../../../../tests/property/importPropertyFromYAML"
+import { testAtomicFromYAML } from "../../../../tests/property/atomicFromYAML"
 import {
   fullAvailableFields,
   fullAvailableFieldsYAML,
@@ -15,7 +15,7 @@ const rule: PropertyRule = {
 
 describe("import available fields from YAML", () => {
   it("imports full YAML", () => {
-    const result = testImportPropertyFromYAML({
+    const result = testAtomicFromYAML({
       rule,
       value: fullAvailableFieldsYAML,
     })
@@ -24,7 +24,7 @@ describe("import available fields from YAML", () => {
   })
 
   it("imports selected items", () => {
-    const result = testImportPropertyFromYAML({
+    const result = testAtomicFromYAML({
       rule,
       value: selectedItemAvailableFieldsYAML,
     })
@@ -33,7 +33,7 @@ describe("import available fields from YAML", () => {
   })
 
   it("imports item with only field as string", () => {
-    const result = testImportPropertyFromYAML({
+    const result = testAtomicFromYAML({
       rule,
       value: [{ Поле: "Документ" }],
     })

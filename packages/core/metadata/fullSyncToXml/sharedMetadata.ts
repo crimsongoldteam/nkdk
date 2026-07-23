@@ -1,8 +1,14 @@
-import { createValidationOwnerFacts } from "../validation/dataPath/ownerFacts"
 import { createOwnerMetadataCacheFromSharedValidationSnapshot } from "../validation/dataPath/sharedOwnerCache"
-import { createBinarySharedOwnersSnapshot, type BinarySharedOwnersSnapshot } from "../validation/sharedValidationBinaryOwners"
+import {
+  createBinarySharedOwnersSnapshot,
+  type BinarySharedOwnersSnapshot,
+} from "../validation/sharedValidationBinaryOwners"
 import { createSharedProjectReferenceSnapshot } from "../validation/sharedProjectReferenceIndex"
-import { createSharedStringPool, createSharedStringPoolView, type SharedStringPool } from "../validation/sharedStringPool"
+import {
+  createSharedStringPool,
+  createSharedStringPoolView,
+  type SharedStringPool,
+} from "../validation/sharedStringPool"
 import type { ValidationObjectRecord, ValidationObjectTableSnapshot } from "../validation/projectValidationTypes"
 import type { FullXmlSyncAssignment, FullXmlSyncOwnerFacts } from "./types"
 
@@ -73,14 +79,9 @@ function ownerTableSnapshot(owners: readonly FullXmlSyncOwnerFacts[]): Validatio
   const records: ValidationObjectRecord[] = owners.map((owner) => {
     const ownerRef = owner.owner.dir.length === 0 ? undefined : { kind: owner.owner.dir, name: owner.owner.name }
     const ownerFacts =
-      ownerRef === undefined || owner.fieldIndex === undefined || owner.ownerModelStub === undefined
+      ownerRef === undefined || owner.fieldIndex === undefined || owner.ownerFacts === undefined
         ? undefined
-        : createValidationOwnerFacts({
-            ref: ownerRef,
-            filePath: owner.sourcePath,
-            fieldIndex: owner.fieldIndex,
-            model: owner.ownerModelStub as never,
-          })
+        : owner.ownerFacts
 
     return {
       filePath: owner.sourcePath,

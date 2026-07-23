@@ -22,7 +22,7 @@ describe("shortRoundTripXML", () => {
     }
   })
 
-  it("round-trip XML -> модель -> XML должен быть идемпотентным для зарегистрированных типов", async () => {
+  it("round-trip XML -> YAML -> XML должен быть идемпотентным для зарегистрированных типов", async () => {
     await shortRoundTripXML({ inputDir, outputDir })
 
     const expectedCatalogXML = readXMLFileAsString("sync/syncConfiguration/xml/Catalogs/Контрагенты.xml")
@@ -93,7 +93,7 @@ describe("shortRoundTripXML", () => {
     fs.writeFileSync(join(brokenInputDir, "Catalogs", "Сломанный.xml"), "<broken", "utf-8")
 
     await expect(shortRoundTripXML({ inputDir: brokenInputDir, outputDir: brokenOutputDir })).rejects.toThrow(
-      'Ошибка round-trip объекта "Catalogs/Сломанный"'
+      "Не удалось прочитать или разобрать XML-файл"
     )
   })
 
@@ -113,7 +113,7 @@ describe("shortRoundTripXML", () => {
     )
 
     await expect(shortRoundTripXML({ inputDir: brokenInputDir, outputDir: brokenOutputDir })).rejects.toThrow(
-      'Ошибка round-trip формы "Catalogs/Контрагенты/ФормаЭлемента"'
+      "Не удалось прочитать или разобрать XML-файл"
     )
   })
 })

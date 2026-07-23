@@ -1,10 +1,10 @@
 import { describe, expect, it } from "vitest"
-import { testExportPropertyToXML } from "../../../tests/property/exportPropertyToXML"
+import { testAtomicToXML } from "../../../tests/property/atomicToXML"
 import { typedNumberRule, typedNumberValue } from "./__fixtures__/data"
 
 describe("exportNumberToXML", () => {
   it("exports typed decimal to XML", () => {
-    const { result, expectedResult } = testExportPropertyToXML({
+    const { result, expectedResult } = testAtomicToXML({
       rule: typedNumberRule,
       value: typedNumberValue,
       xmlRootTag: "MinValue",

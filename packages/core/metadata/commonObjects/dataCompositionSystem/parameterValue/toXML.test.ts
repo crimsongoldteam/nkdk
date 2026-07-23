@@ -1,6 +1,6 @@
 import { describe, expect, it } from "vitest"
 import { PropertyRule } from "../../../orchestration"
-import { testExportPropertyToXML } from "../../../../tests/property/exportPropertyToXML"
+import { testAtomicToXML } from "../../../../tests/property/atomicToXML"
 import { testImportPropertyFromXML } from "../../../../tests/property/importPropertyFromXML"
 import {
   fixtureFormatLocalString,
@@ -12,7 +12,7 @@ import {
 
 describe("exportParameterValueToDcsXML", () => {
   it.each(parameterValueFixtures)("exports $title", (fixture) => {
-    const { result } = testExportPropertyToXML({
+    const { result } = testAtomicToXML({
       rule: fixture.rule,
       value: fixture.value,
       xmlRootTag: "dcscor:item",
@@ -29,7 +29,7 @@ describe("exportParameterValueToDcsXML", () => {
       forReference: true,
     })
 
-    const { result } = testExportPropertyToXML({
+    const { result } = testAtomicToXML({
       rule: nilSettingsParameterValueRule,
       value: nilSettingsParameterValue,
       xmlRootTag: "dcscor:item",
@@ -47,7 +47,7 @@ describe("exportParameterValueToDcsXML", () => {
       forReference: true,
     })
 
-    const { result } = testExportPropertyToXML({
+    const { result } = testAtomicToXML({
       rule: nilSettingsParameterValueRule,
       value: {
         ...nilSettingsParameterValue,
@@ -62,7 +62,7 @@ describe("exportParameterValueToDcsXML", () => {
   })
 
   it("restores empty LocalStringType from reference when current value is absent", () => {
-    const { result } = testExportPropertyToXML({
+    const { result } = testAtomicToXML({
       rule: { type: "SettingsParameterValue", valueType: "DesignTimeValue" },
       value: {
         parameter: "Текст",
@@ -80,7 +80,7 @@ describe("exportParameterValueToDcsXML", () => {
   })
 
   it("exports explicit empty xs:string instead of dcscor:Field", () => {
-    const { result } = testExportPropertyToXML({
+    const { result } = testAtomicToXML({
       rule: { type: "SettingsParameterValue", valueType: "Field" } as PropertyRule,
       value: {
         parameter: "НоменклатураВключение",
@@ -105,7 +105,7 @@ describe("exportParameterValueToDcsXML", () => {
       forReference: true,
     })
 
-    const { result } = testExportPropertyToXML({
+    const { result } = testAtomicToXML({
       rule: { type: "SettingsParameterValue", valueType: "Primitive", yaml: "Период" },
       value: {
         parameter: "Период",
@@ -129,7 +129,7 @@ describe("exportParameterValueToDcsXML", () => {
       forReference: true,
     })
 
-    const { result } = testExportPropertyToXML({
+    const { result } = testAtomicToXML({
       rule: { type: "SettingsParameterValue", valueType: "Primitive", yaml: "Период" },
       value: {
         parameter: "Период",

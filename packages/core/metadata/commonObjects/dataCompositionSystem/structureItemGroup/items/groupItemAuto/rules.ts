@@ -2,6 +2,7 @@ import { booleanRule } from "../../../../boolean/types"
 import { MetadataItemRule } from "../../../../../orchestration"
 export const GroupItemAutoRules = {
   itemType: "GroupItemAuto",
+  xsiType: "dcsset:GroupItemAuto",
   properties: {
     use: booleanRule({
       xml: "dcsset:use",

@@ -1,8 +1,9 @@
 import { join } from "path"
 import { rootFromYAML } from "../../commonObjects/metadataTargets/roots"
 import type { ConfigurationContext } from "../../context/types"
-import { buildFormDataPathIndex, type FormDataPathIndex } from "../../validation/dataPath/formIndex"
-import { collectFormDataPathOccurrences } from "../../validation/dataPath/formTraversal"
+import type { FormDataPathIndex } from "../../validation/dataPath/formIndex"
+import { createFormDataPathIndexFromYAML } from "../../validation/dataPath/formYamlIndex"
+import { collectFormDataPathOccurrencesFromYAML } from "../../validation/dataPath/formYamlTraversal"
 import { createOwnerMetadataCache, type OwnerMetadataCache } from "../../validation/dataPath/ownerCache"
 import { validateResolvedDataPathPolicy } from "../../validation/dataPath/policies"
 import { resolveDataPath } from "../../validation/dataPath/resolver"
@@ -15,16 +16,13 @@ import { validateExcludedEqualNameYAML } from "../../validation/excludeIfEqualNa
 import type { Diagnostic } from "../../validation/types"
 import { diagnosticAtYamlPath, type YamlPath } from "../../validation/yamlLocations"
 import type { ParsedYaml } from "../../../yaml/parseMetadataYaml"
-import { importClientApplicationFormFromYAML } from "./fromYAML"
 import { ClientApplicationFormRules } from "./rules"
-import type { ClientApplicationFormYAML } from "./types"
 
 interface ClientApplicationFormValidationState {
   filePath: string
   parsed: ParsedYaml
-  form: ReturnType<typeof importClientApplicationFormFromYAML>
   index: FormDataPathIndex
-  occurrences: ReturnType<typeof collectFormDataPathOccurrences>
+  occurrences: ReturnType<typeof collectFormDataPathOccurrencesFromYAML>
 }
 
 export function validateClientApplicationFormFirstPass(
@@ -43,16 +41,7 @@ export function validateClientApplicationFormFirstPass(
   }
 
   const context = params.context ?? defaultValidationContext()
-  const form = importForm({ context, yaml: entry.parsed.data, filePath: entry.filePath })
-  if ("diagnostics" in form) {
-    return { status: "failed", diagnostics: params.suppressFormImportDiagnostics === true ? [] : form.diagnostics }
-  }
-
-  const index = buildFormDataPathIndex({
-    filePath: entry.filePath,
-    parsed: entry.parsed,
-    form: form.value,
-  })
+  const index = createFormDataPathIndexFromYAML(entry.parsed.data)
   const diagnostics = [
     ...validateExcludedEqualNameYAML({
       filePath: entry.filePath,
@@ -73,9 +62,11 @@ export function validateClientApplicationFormFirstPass(
     state: {
       filePath: entry.filePath,
       parsed: entry.parsed,
-      form: form.value,
       index,
-      occurrences: collectFormDataPathOccurrences(form.value),
+      occurrences: collectFormDataPathOccurrencesFromYAML({
+        yaml: entry.parsed.data,
+        rule: ClientApplicationFormRules,
+      }),
     },
   }
 }
@@ -191,7 +182,7 @@ export function collectDynamicListTypeValueWarnings(params: { filePath: string; 
 }
 
 function isAcceptedOpaqueMultipleValueDataPath(
-  occurrence: ReturnType<typeof collectFormDataPathOccurrences>[number]
+  occurrence: ReturnType<typeof collectFormDataPathOccurrencesFromYAML>[number]
 ): boolean {
   return (
     occurrence.rule.allowOpaqueMultipleValue === true &&
@@ -280,32 +271,6 @@ function isMetadataObjectTargetYAML(value: unknown): value is string {
 
 function isRecord(value: unknown): value is Record<string, unknown> {
   return typeof value === "object" && value !== null && !Array.isArray(value)
-}
-
-function importForm(params: {
-  context: ConfigurationContext
-  yaml: unknown
-  filePath: string
-}): { value: ReturnType<typeof importClientApplicationFormFromYAML> } | { diagnostics: Diagnostic[] } {
-  try {
-    return {
-      value: importClientApplicationFormFromYAML(params.context, params.yaml as ClientApplicationFormYAML),
-    }
-  } catch (caught) {
-    const message = caught instanceof Error ? caught.message : String(caught)
-    return {
-      diagnostics: [
-        {
-          filePath: params.filePath,
-          line: 1,
-          col: 1,
-          severity: "error",
-          source: "structure",
-          message: `Не удалось импортировать форму: ${message}`,
-        },
-      ],
-    }
-  }
 }
 
 function diagnosticKey(diagnostic: Diagnostic): string {

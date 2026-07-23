@@ -8,7 +8,9 @@ export function getConfigurationIndexPropertyOrder(
   return context?.exportToXML.configurationIndex?.xmlNode()?.order ?? []
 }
 
-export function getConfigurationIndexXmlNodeLogicalAddress(context: ConfigurationContextWithExportToXML): string | undefined {
+export function getConfigurationIndexXmlNodeLogicalAddress(
+  context: ConfigurationContextWithExportToXML
+): string | undefined {
   const runtime = context.exportToXML.configurationIndex
   if (runtime === undefined) return undefined
   return runtime.xmlNodeLogicalAddress ?? runtime.logicalAddress
@@ -35,6 +37,29 @@ export function getConfigurationIndexPropertyXmlValue(
   const runtime = context?.exportToXML.configurationIndex
   if (runtime === undefined) return undefined
   return runtime.xmlValue(`${runtime.logicalAddress}.${propertyKey}`)
+}
+
+export function getConfigurationIndexPropertyReferenceXMLValue(
+  context: ConfigurationContextWithExportToXML | undefined,
+  propertyKey: string
+): unknown {
+  const value = getConfigurationIndexPropertyXmlValue(context, propertyKey)
+  if (value === undefined) return undefined
+  if (value.userSettingsId !== undefined) return value.userSettingsId
+  if (value.xsiNil === true) return { "_xsi:nil": true }
+  if (
+    value.xsiType !== undefined ||
+    value.xmlText !== undefined ||
+    value.xmlPrefix !== undefined ||
+    value.explicitEmpty === true
+  ) {
+    return {
+      ...(value.xsiType === undefined ? {} : { "_xsi:type": value.xsiType }),
+      ...(value.xmlPrefix === undefined ? {} : { _xmlns: value.xmlPrefix }),
+      ...(value.xmlText === undefined ? {} : { "#text": value.xmlText }),
+    }
+  }
+  return undefined
 }
 
 export function withConfigurationIndexExportLogicalAddress(

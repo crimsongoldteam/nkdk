@@ -1,6 +1,6 @@
 import { describe, expect, it } from "vitest"
 import { PropertyRule } from "../../../orchestration"
-import { testImportPropertyFromYAML } from "../../../../tests/property/importPropertyFromYAML"
+import { testAtomicFromYAML } from "../../../../tests/property/atomicFromYAML"
 import { exportToYAML } from "../../../../yaml/export"
 import { importFromYAML } from "../../../../yaml/import"
 import {
@@ -20,12 +20,12 @@ describe("import SettingsParameterValueCollection from YAML", { timeout: 60_000 
   const parseViaYamlText = <T>(value: T): T => importFromYAML<T>(exportToYAML(value))
 
   it("imports undefined", () => {
-    const result = testImportPropertyFromYAML({ rule, value: undefined })
+    const result = testAtomicFromYAML({ rule, value: undefined })
     expect(result).toBeUndefined()
   })
 
   it("imports fixture", () => {
-    const result = testImportPropertyFromYAML({
+    const result = testAtomicFromYAML({
       rule,
       value: settingsParameterValueCollectionFixtureYAML,
     })
@@ -34,7 +34,7 @@ describe("import SettingsParameterValueCollection from YAML", { timeout: 60_000 
   })
 
   it("imports full SettingsParameterValue entries while keeping outer parameter name", () => {
-    const result = testImportPropertyFromYAML({
+    const result = testAtomicFromYAML({
       rule,
       value: {
         Параметр1: {
@@ -55,7 +55,7 @@ describe("import SettingsParameterValueCollection from YAML", { timeout: 60_000 
   })
 
   it("imports nested ent system enumeration values", () => {
-    const result = testImportPropertyFromYAML({
+    const result = testAtomicFromYAML({
       rule,
       value: {
         ВидДвижения: {
@@ -90,7 +90,7 @@ describe("import SettingsParameterValueCollection from YAML", { timeout: 60_000 
       Маска: "123",
     })
 
-    const result = testImportPropertyFromYAML({
+    const result = testAtomicFromYAML({
       rule: {
         type: "SettingsParameterValueCollection",
         defaultItemRule: {
@@ -119,7 +119,7 @@ describe("import SettingsParameterValueCollection from YAML", { timeout: 60_000 
       },
     })
 
-    const result = testImportPropertyFromYAML({
+    const result = testAtomicFromYAML({
       rule: {
         type: "SettingsParameterValueCollection",
         defaultItemRule: {

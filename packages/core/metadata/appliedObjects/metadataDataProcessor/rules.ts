@@ -12,10 +12,7 @@ import { uuidRule } from "../../commonObjects/uuid/types"
 import { xmlRootRule } from "../../commonObjects/xmlRoot/types"
 import { systemEnumerationRule } from "../../systemEnumerations/types"
 import { V8_MDCLASSES_ROOT } from "../../orchestration/appliedObject/presets"
-import { exportMetadataCollectionToXML } from "../../orchestration/metadataCollection/toXML"
-import { registerTypeRule } from "../../orchestration/property/typeRuleRegistry"
-import { ExportToXMLFunctionNew } from "../../orchestration/property/fn"
-import type { MetadataItemRule, PropertyRule } from "../../orchestration/property/types"
+import type { MetadataItemRule } from "../../orchestration/property/types"
 import "../../commonObjects/metadataAttribute/register"
 import { MetadataAttributeRules } from "../../commonObjects/metadataAttribute/rules"
 import { MetadataCommandRules } from "../metadataCommand/rules"
@@ -42,23 +39,6 @@ const MetadataDataProcessorAttributeRules = {
     },
   },
 } as const satisfies MetadataItemRule
-const getMetadataAttributeItemRule = (rule: PropertyRule | undefined): MetadataItemRule => {
-  if (rule && "itemRule" in rule && rule.itemRule !== undefined) return rule.itemRule as MetadataItemRule
-  return MetadataAttributeRules
-}
-const exportMetadataAttributesToXML: ExportToXMLFunctionNew = (params) => {
-  const effectiveXmlElement = params.rule.xml === "Attribute" ? undefined : "Attribute"
-  return exportMetadataCollectionToXML({
-    context: params.context,
-    rule: params.rule,
-    data: params.value,
-    referenceData: params.referenceMetadata,
-    itemRule: getMetadataAttributeItemRule(params.rule),
-    xmlElement: effectiveXmlElement,
-    keyField: "name",
-  })
-}
-registerTypeRule("MetadataAttributes", "exportToXML", exportMetadataAttributesToXML)
 export const MetadataDataProcessorRules = {
   itemType: "MetadataDataProcessor",
   metadataTargetOwner: { kind: "self", root: "DataProcessor" },

@@ -1,6 +1,5 @@
-import "./fromXML"
+import "./fromXMLToYAML"
 import "./toXML"
-import "./fromYAML"
 import "./toYAML"
 import "../items/groupItemAuto"
 import "../items/groupItemField"

@@ -1,5 +1,5 @@
 import { ConfigurationContextWithExportToXML } from "../../../context/types"
-import { exportPropertyToXML, PropertyRule, registerTypeRule } from "../../../orchestration"
+import { callAtomicToXML, PropertyRule, registerTypeRule } from "../../../orchestration"
 import type {
   ParameterValueXML,
   SettingsParameterValue,
@@ -34,11 +34,11 @@ const exportDataSetFieldAppearanceToXML = (
     if (parameterRule === undefined || xmlTag === undefined) continue
 
     const referenceField = referenceMetadata?.[parameterName as keyof AppearanceFields]
-    const itemXml = exportPropertyToXML({
+    const itemXml = callAtomicToXML({
       context,
       rule: parameterRule,
       value: fieldValue,
-      referenceMetadata: referenceField,
+      referenceValue: referenceField,
     }) as ParameterValueXML | undefined
 
     if (itemXml?.["dcscor:value"] !== undefined) {

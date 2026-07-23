@@ -1,7 +1,7 @@
 import { describe, expect, it } from "vitest"
 import type { PropertyRule } from "../../../orchestration/property/types"
 import { testExportPropertyToYAML } from "../../../../tests/property/exportPropertyToYAML"
-import { testImportPropertyFromYAML } from "../../../../tests/property/importPropertyFromYAML"
+import { testAtomicFromYAML } from "../../../../tests/property/atomicFromYAML"
 import { testImportPropertyFromXML } from "../../../../tests/property/importPropertyFromXML"
 import { exportToYAML } from "../../../../yaml/export"
 import { importFromYAML } from "../../../../yaml/import"
@@ -88,7 +88,7 @@ describe("importParameterValueFromXML", () => {
     }) as { НоменклатураВключение?: unknown }
     const yamlText = exportToYAML(yamlObject)
     const reparsedYaml = importFromYAML<Record<string, unknown>>(yamlText)
-    const importedFromYaml = testImportPropertyFromYAML({
+    const importedFromYaml = testAtomicFromYAML({
       rule,
       value: reparsedYaml?.НоменклатураВключение,
     })

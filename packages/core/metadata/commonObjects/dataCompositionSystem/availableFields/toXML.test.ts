@@ -1,6 +1,6 @@
 import { describe, expect, it } from "vitest"
 import { PropertyRule } from "../../../orchestration"
-import { testExportPropertyToXML } from "../../../../tests/property/exportPropertyToXML"
+import { testAtomicToXML } from "../../../../tests/property/atomicToXML"
 import { fullAvailableFields, selectedItemAvailableFields } from "./__fixtures__/data"
 import "./types"
 
@@ -10,7 +10,7 @@ const rule: PropertyRule = {
 
 describe("export available fields to XML", () => {
   it("exports full.xml", () => {
-    const { expectedResult, result } = testExportPropertyToXML({
+    const { expectedResult, result } = testAtomicToXML({
       rule,
       value: fullAvailableFields,
       xmlRootTag: "dcsset:selection",
@@ -22,7 +22,7 @@ describe("export available fields to XML", () => {
   })
 
   it("exports selected items", () => {
-    const { expectedResult, result } = testExportPropertyToXML({
+    const { expectedResult, result } = testAtomicToXML({
       rule,
       value: selectedItemAvailableFields,
       xmlRootTag: "dcsset:selection",

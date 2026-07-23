@@ -243,16 +243,16 @@ registerTypeRule("ChildFormNames", "fileChildNamesDescriptor", ({ propertyRule }
     xmlItemName: rule.xml,
     useOwnerDirectoryForExternalSync: true,
     preserveReferenceXmlFolder: true,
-    expectedNames: ({ rule: ownerRule, model, propertyValue }) => [
+    expectedNames: ({ rule: ownerRule, yaml, propertyValue }) => [
       ...normalizeFormNames(propertyValue),
-      ...collectMetadataTargetFormNames({ rule: ownerRule, model }),
+      ...collectMetadataTargetFormNames({ rule: ownerRule, yaml }),
     ],
   }
 })
 
-function collectMetadataTargetFormNames(params: { rule: MetadataItemRule; model: Record<string, unknown> }): string[] {
+function collectMetadataTargetFormNames(params: { rule: MetadataItemRule; yaml: Record<string, unknown> }): string[] {
   const result = new Set<string>()
-  for (const [propertyName, propertyRule] of Object.entries(params.rule.properties)) {
+  for (const propertyRule of Object.values(params.rule.properties)) {
     if (propertyRule.type === "ChildFormNames") continue
 
     const target =
@@ -262,7 +262,7 @@ function collectMetadataTargetFormNames(params: { rule: MetadataItemRule; model:
         : undefined)
     if (target === undefined) continue
 
-    const value = params.model[propertyName]
+    const value = typeof propertyRule.yaml === "string" ? params.yaml[propertyRule.yaml] : undefined
     if (typeof value !== "string") continue
 
     const parts = value.split(".")

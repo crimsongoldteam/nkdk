@@ -59,6 +59,13 @@ registerTypeRule("Help", "xmlImportRoutes", ({ propertyRule }) => {
       xmlPattern: `${helpFilesPattern}/{relativePath...}`,
       targetPattern: `${rule.nkdkDir}/{relativePath...}`,
       assignmentTargetPattern: "",
+      selection: {
+        manifestPattern: xmlPath,
+        listPath: ["Help", "Page"],
+        candidateParameter: "relativePath",
+        candidateSuffix: ".html",
+        alwaysIncludePrefixes: ["_files/"],
+      },
       source: { kind: "propertyType", type: "Help" },
     },
   ]

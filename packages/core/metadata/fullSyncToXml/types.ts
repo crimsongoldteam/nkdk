@@ -1,4 +1,5 @@
 import type { ObjectFieldIndex } from "../validation/dataPath/objectFields"
+import type { ValidationOwnerFacts } from "../validation/dataPath/ownerFacts"
 import type { ConfigurationProjectFile } from "../configurationIndex/types"
 import type { ConfigurationContext } from "../context/types"
 import type { SharedConfigurationIndexSnapshot } from "../configurationIndex/sharedSnapshot"
@@ -39,7 +40,7 @@ export interface FullXmlSyncOwnerFacts {
   readonly role: FullXmlSyncAssignment["role"]
   readonly owner: { readonly dir: string; readonly name: string }
   readonly itemType: string
-  readonly ownerModelStub?: Record<string, unknown>
+  readonly ownerFacts?: ValidationOwnerFacts
   readonly fieldIndex?: ObjectFieldIndex
 }
 

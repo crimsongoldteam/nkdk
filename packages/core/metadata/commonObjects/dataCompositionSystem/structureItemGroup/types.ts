@@ -4,7 +4,6 @@ import { MetadataTypeByRule } from "../../../orchestration/metadataItem/element"
 import { YAMLTypeByRule } from "../../../orchestration/metadataItem/yaml"
 import "./collection/index"
 import { StructureItemGroupRules } from "./rules"
-import { exportStructureItemGroupToXML } from "./toXML"
 import { importStructureItemGroupFromXMLToYAML } from "./fromXMLToYAML"
 
 export type StructureItemGroup = MetadataTypeByRule<typeof StructureItemGroupRules>
@@ -16,4 +15,17 @@ registerMetadataItemRule({
 })
 
 registerTypeRule("StructureItemGroup", "importFromXMLToYAML", importStructureItemGroupFromXMLToYAML)
-registerTypeRule("StructureItemGroup", "exportToXML", exportStructureItemGroupToXML)
+registerTypeRule("StructureItemGroup", "yamlToXMLNestedRule", {
+  kind: "item",
+  itemRule: StructureItemGroupRules,
+  normalizeYAML: ({ yaml }) => normalizeStructureItemGroupYAML(yaml),
+})
+
+function normalizeStructureItemGroupYAML(yaml: unknown): unknown {
+  if (!Array.isArray(yaml) || yaml.length === 0) return undefined
+  const [head, ...tail] = yaml
+  return {
+    ПоляГруппировки: [head],
+    ...(tail.length === 0 ? {} : { Структура: normalizeStructureItemGroupYAML(tail) }),
+  }
+}

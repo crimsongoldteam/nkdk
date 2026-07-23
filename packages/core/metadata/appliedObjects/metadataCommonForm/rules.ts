@@ -105,3 +105,4 @@ export const MetadataCommonFormRules = {
     }),
   },
 } as const satisfies MetadataItemRule
+import "../../forms/clientApplicationForm/fromYAMLToXML"

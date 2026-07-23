@@ -111,6 +111,13 @@ registerTypeRule("ChildFormNames", "xmlImportRoutes", ({ propertyRule }) => {
       xmlPattern: "Forms/{itemName}/Ext/Help/{relativePath...}",
       targetPattern: `${folderName}/{itemName}/Справка/{relativePath...}`,
       assignmentTargetPattern,
+      selection: {
+        manifestPattern: "Forms/{itemName}/Ext/Help.xml",
+        listPath: ["Help", "Page"],
+        candidateParameter: "relativePath",
+        candidateSuffix: ".html",
+        alwaysIncludePrefixes: ["_files/"],
+      },
       source: { kind: "propertyType", type: "ChildFormNames" },
     },
     ...describeFormItemXmlImportRoutes({

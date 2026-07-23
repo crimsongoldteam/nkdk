@@ -3,10 +3,6 @@ import { registerJSONSchemaIdentity } from "../jsonSchemaRefs"
 import { PropertyRuleType } from "../property/registry"
 import type { MetadataItemRule } from "../property/types"
 import { registerTypeRule } from "../property/typeRuleRegistry"
-import { registerExportToXML } from "./registerExportToXML"
-import { registerExportToYAML } from "./registerExportToYAML"
-import { registerImportFromXML } from "./registerImportFromXML"
-import { registerImportFromYAML } from "./registerImportFromYAML"
 import { importMetadataItemFromXMLToYAML } from "./fromXMLToYAML"
 import { exportMetadataItemToJSONSchema } from "./toJSONSchema"
 
@@ -28,14 +24,11 @@ export const registerMetadataItemRule = <Rule extends MetadataItemRule, Property
     exporter: ({ context }) => exportMetadataItemToJSONSchema({ context, rule: itemRule }),
   })
 
-  registerImportFromXML(propertyType, itemRule)
-  registerImportFromYAML(propertyType, itemRule)
-  registerExportToYAML(propertyType, itemRule)
-  registerExportToXML(propertyType, itemRule)
   registerTypeRule(propertyType, "importFromXMLToYAML", ({ context, xml, name, traversal }) =>
     importMetadataItemFromXMLToYAML({ context, rule: itemRule, xml, name, traversal })
   )
   registerTypeRule(propertyType, "nestedItemRule", { itemRule })
+  registerTypeRule(propertyType, "yamlToXMLNestedRule", { kind: "item", itemRule })
   registerTypeRule(propertyType, "xmlImportRoutes", ({ propertyRule }) => {
     if (propertyRule?.filePath === undefined) return []
     return [

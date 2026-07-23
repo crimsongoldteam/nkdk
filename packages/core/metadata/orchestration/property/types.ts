@@ -2,7 +2,7 @@ import { SettingsParameterValuePropertyRule } from "../../commonObjects/dataComp
 import type { MetadataRootName, MetadataTargetConstraint } from "../../commonObjects/metadataTargets/types"
 import type { TypeDescriptionAllowedTypes } from "../../commonObjects/typeDescription/types"
 import type { SyncAreaDeclaration } from "../appliedObject/xmlAreas"
-import type { TypeRulesOperations } from "./fn"
+import type { TypeRulesOperations, YAMLToXMLCondition } from "./fn"
 import type { PropertyOperationTargetDeclaration } from "./operationTargets"
 
 import { ConfigurationContext, ConfigurationContextWithExportToXML } from "../../context/types"
@@ -114,6 +114,9 @@ export interface BasePropertyRule {
   /** Значение, подразумеваемое отсутствием YAML-ключа; при выгрузке не пишется явно. */
   implicitValueYAML?: any | DefaultValueFunction
 
+  /** При отсутствии YAML-ключа не переносить из reference XML значение, отличное от implicitValueYAML. */
+  omitNonImplicitReferenceXMLWhenYAMLMissing?: true
+
   /** Явно фиксирует, что для YAML-свойства нет неявного значения. */
   noImplicitValueYAML?: true
 
@@ -157,6 +160,8 @@ export interface BasePropertyRule {
    * but never inferred for newly-created XML.
    */
   preserveFromReferenceXML?: true
+  /** Не переносить неизвестные вложенные XML-данные из reference внутрь результата атомарного exportToXML. */
+  preserveUnknownReferenceXML?: false
 
   /**
    * Для preserveFromReferenceXML: разрешить экспорт, когда reference-модель отсутствует.
@@ -165,7 +170,7 @@ export interface BasePropertyRule {
   exportWithoutReferenceXML?: true
 
   /** Не экспортировать в XML. Функция получает родительский metadataItem и опциональный context, возвращает `true` если экспортировать, `false` если пропустить */
-  toXML?: false | ((metadataItem: any, context?: ConfigurationContextWithExportToXML) => boolean)
+  toXML?: false | YAMLToXMLCondition
 
   /** Родительские элементы в XML */
   xmlParents?: string[]
@@ -259,7 +264,9 @@ export interface StandardAttributeDescriptionPropertyRule extends BasePropertyRu
 export interface StandardAttributeDescriptionsPropertyRule extends BasePropertyRule {
   type: "StandardAttributeDescriptions"
   standartAttributeNames: Record<string, string>
-  standartAttributeNamesXML?: (metadataItem: unknown) => Record<string, string>
+  standartAttributeNamesXML?: (
+    source: import("./fromYAMLToXMLTypes").YAMLPropertySource | unknown
+  ) => Record<string, string>
 }
 
 export interface EventsPropertyRule extends BasePropertyRule {

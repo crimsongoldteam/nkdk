@@ -1,6 +1,6 @@
 import { describe, expect, it } from "vitest"
 import { PropertyRule } from "../../orchestration"
-import { testImportPropertyFromYAML } from "../../../tests/property/importPropertyFromYAML"
+import { testAtomicFromYAML } from "../../../tests/property/atomicFromYAML"
 import "./fromYAML"
 
 const rule: PropertyRule = {
@@ -10,7 +10,7 @@ const rule: PropertyRule = {
 
 describe("importFunctionalOptionsFromYAML", () => {
   it("imports empty item as explicit empty string", () => {
-    const result = testImportPropertyFromYAML({
+    const result = testAtomicFromYAML({
       rule,
       value: [""],
     })

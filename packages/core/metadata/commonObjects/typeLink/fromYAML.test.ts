@@ -6,7 +6,7 @@ import {
   typeLinkYamlCatalogWithoutLinkItem,
 } from "./__fixtures__/data"
 import { PropertyRule } from "../../orchestration"
-import { testImportPropertyFromYAML } from "../../../tests/property/importPropertyFromYAML"
+import { testAtomicFromYAML } from "../../../tests/property/atomicFromYAML"
 
 const rule: PropertyRule = {
   type: "TypeLink",
@@ -14,7 +14,7 @@ const rule: PropertyRule = {
 
 describe("import TypeLink from YAML", () => {
   it("imports string without link item", () => {
-    const result = testImportPropertyFromYAML({
+    const result = testAtomicFromYAML({
       rule,
       value: typeLinkYamlCatalogWithoutLinkItem,
     })
@@ -23,7 +23,7 @@ describe("import TypeLink from YAML", () => {
   })
 
   it("imports string with link item", () => {
-    const result = testImportPropertyFromYAML({
+    const result = testAtomicFromYAML({
       rule,
       value: typeLinkYamlCatalogWithLinkItem,
     })
@@ -32,7 +32,7 @@ describe("import TypeLink from YAML", () => {
   })
 
   it("returns undefined for undefined value", () => {
-    const result = testImportPropertyFromYAML({
+    const result = testAtomicFromYAML({
       rule,
       value: undefined,
     })

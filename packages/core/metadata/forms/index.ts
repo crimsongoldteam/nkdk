@@ -1,4 +1,3 @@
-export { exportFormMetadataToXML } from "./clientApplicationForm/toXML"
 export type { FormMetadataXML } from "./clientApplicationForm/types"
 
 export { clearElementRulesRegistry, getElementRule, registerElementRule } from "./elements/orchestration/ruleFactory"

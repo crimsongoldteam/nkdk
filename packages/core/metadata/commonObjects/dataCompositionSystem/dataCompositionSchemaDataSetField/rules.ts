@@ -11,6 +11,7 @@ import { dcsLocalStringTypeRule } from "../dcsLocalStringType/types"
 import { typeDescriptionRule } from "../../typeDescription/types"
 import { stringRule, type StringRuleParams } from "../../string/types"
 import { MetadataItemRule } from "../../../orchestration"
+import type { YAMLPropertySource } from "../../../orchestration/property/fromYAMLToXMLTypes"
 import type { AppearanceFieldsPropertyRule } from "../appearanceFields/rules"
 import {
   DATA_COMPOSITION_SCHEMA_DATA_SET_FIELD_KIND_FIELD,
@@ -18,13 +19,14 @@ import {
   DATA_COMPOSITION_SCHEMA_DATA_SET_FIELD_KIND_NESTED_DATA_SET,
   getDataCompositionSchemaDataSetFieldKind,
 } from "./kind"
-type DataSetFieldKindOwner = Parameters<typeof getDataCompositionSchemaDataSetFieldKind>[0]
-const isField = (item: DataSetFieldKindOwner) =>
-  getDataCompositionSchemaDataSetFieldKind(item) === DATA_COMPOSITION_SCHEMA_DATA_SET_FIELD_KIND_FIELD
-const isFolder = (item: DataSetFieldKindOwner) =>
-  getDataCompositionSchemaDataSetFieldKind(item) === DATA_COMPOSITION_SCHEMA_DATA_SET_FIELD_KIND_FOLDER
-const isNestedDataSet = (item: DataSetFieldKindOwner) =>
-  getDataCompositionSchemaDataSetFieldKind(item) === DATA_COMPOSITION_SCHEMA_DATA_SET_FIELD_KIND_NESTED_DATA_SET
+const kindFromSource = (source: YAMLPropertySource) =>
+  getDataCompositionSchemaDataSetFieldKind({ kind: source.raw("kind") as never })
+const isField = (source: YAMLPropertySource) =>
+  kindFromSource(source) === DATA_COMPOSITION_SCHEMA_DATA_SET_FIELD_KIND_FIELD
+const isFolder = (source: YAMLPropertySource) =>
+  kindFromSource(source) === DATA_COMPOSITION_SCHEMA_DATA_SET_FIELD_KIND_FOLDER
+const isNestedDataSet = (source: YAMLPropertySource) =>
+  kindFromSource(source) === DATA_COMPOSITION_SCHEMA_DATA_SET_FIELD_KIND_NESTED_DATA_SET
 const appearanceRule = {
   type: "AppearanceFields",
   xml: "dcssch:appearance",
@@ -42,7 +44,7 @@ export const DataCompositionSchemaDataSetFieldRules = {
       xml: "_xsi:type",
       yaml: "Вид",
       defaultValue: DATA_COMPOSITION_SCHEMA_DATA_SET_FIELD_KIND_FIELD,
-      toXML: (metadataItem: DataSetFieldKindOwner) => metadataItem?.kind !== undefined,
+      toXML: (source: YAMLPropertySource) => source.has("kind"),
       order: 0,
     } satisfies DataCompositionSchemaDataSetFieldKindRuleParams),
     dataPath: stringRule({
@@ -65,7 +67,7 @@ export const DataCompositionSchemaDataSetFieldRules = {
     useRestriction: calculatedFieldUseRestrictionRule({
       xml: "dcssch:useRestriction",
       yaml: "ОграничениеИспользования",
-      toXML: (metadataItem: DataSetFieldKindOwner) => isField(metadataItem) || isFolder(metadataItem),
+      toXML: (source: YAMLPropertySource) => isField(source) || isFolder(source),
       order: 5,
     } satisfies CalculatedFieldUseRestrictionRuleParams),
     attributeUseRestriction: calculatedFieldUseRestrictionRule({

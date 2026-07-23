@@ -1,5 +1,4 @@
-import "./fromXML"
+import "./fromXMLToYAML"
 import "./fromYAML"
-import "./toXML"
 import "./toYAML"
 import "./types"

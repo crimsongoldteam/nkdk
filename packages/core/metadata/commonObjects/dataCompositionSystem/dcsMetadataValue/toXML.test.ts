@@ -1,12 +1,12 @@
 import { describe, expect, it } from "vitest"
 import { mockContextToXML } from "../../../../tests/mockContext"
-import { testExportPropertyToXML } from "../../../../tests/property/exportPropertyToXML"
+import { testAtomicToXML } from "../../../../tests/property/atomicToXML"
 import { dcsMetadataValueXMLFixtures } from "./__fixtures__/data"
 import { exportDcsMetadataValueToXML } from "./toXML"
 
 describe("export MetadataDcsMetadataValue to XML", () => {
   it.each(dcsMetadataValueXMLFixtures)("exports $title", (fixture) => {
-    const { result, expectedResult } = testExportPropertyToXML({
+    const { result, expectedResult } = testAtomicToXML({
       rule: fixture.rule,
       value: fixture.value,
       xmlRootTag: "dcscor:value",

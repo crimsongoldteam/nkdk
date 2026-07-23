@@ -32,7 +32,7 @@ import type {
   RenameMetadataItemParams,
 } from "./types"
 import { defaultMetadataOperationsContext } from "./context"
-import { exportOperationItemToYamlText } from "./yamlModelIO"
+import { exportOperationItemToYamlText } from "./yamlIO"
 
 interface RenamePlan {
   steps: MetadataOperationFileStep[]
@@ -141,10 +141,8 @@ function buildRenamePlan(params: {
   now?: Date
 }): RenamePlanResult {
   const touchedItems = new Set<OperationSnapshotItem>()
-  if (params.resolved.targetKind === "object") {
-    params.resolved.item.model.name = params.newName
-  } else if (params.resolved.targetKind === "namedCollection") {
-    params.resolved.modelNode.name = params.newName
+  if (params.resolved.targetKind === "namedCollection") {
+    params.resolved.renameYaml(params.newName)
     touchedItems.add(params.resolved.item)
   }
 
@@ -167,7 +165,7 @@ function buildRenamePlan(params: {
   const steps: MetadataOperationFileStep[] = [...touchedItems].map((item) => ({
     kind: "writeFile" as const,
     path: item.filePath,
-    content: exportOperationItemToYamlText(item, params.snapshot.context),
+    content: exportOperationItemToYamlText(item),
   }))
 
   if (params.resolved.targetKind === "object") {
@@ -218,7 +216,7 @@ function rewriteStructuralReferences(params: {
 }): StructuralReferenceRewriteResult {
   const changes: MetadataOperationReferenceChange[] = []
   for (const item of params.snapshot.items) {
-    const collected = collectItemReferences(item)
+    const collected = collectItemReferences(item, params.snapshot.context)
     if (!collected.ok) return collected
     for (const reference of collected.references) {
       const to = rewriteCanonicalPrefix(reference.canonical, params.fromPrefix, params.toPrefix)
@@ -266,11 +264,15 @@ function rewriteDataPathReferences(params: {
   return changes
 }
 
-function collectItemReferences(item: OperationSnapshotItem): StructuralReferenceCollectionResult {
+function collectItemReferences(
+  item: OperationSnapshotItem,
+  context: MetadataOperationSnapshot["context"]
+): StructuralReferenceCollectionResult {
   return collectStructuralReferencesForItem({
     item,
     parsed: item.parsed,
     owner: ownerForItem(item),
+    context,
   })
 }
 

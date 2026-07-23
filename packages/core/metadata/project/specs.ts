@@ -6,15 +6,11 @@ import {
   getRegisteredProjectSpecs,
   type RegisteredProjectSpec,
 } from "./projectSpecRegistry"
-import {
-  createGenericProjectImportModel,
-  createMetadataItemProjectSchemaExporter,
-  createProjectSchemaExporter,
-} from "./projectSpecHelpers"
+import { createMetadataItemProjectSchemaExporter, createProjectSchemaExporter } from "./projectSpecHelpers"
 
 registerCoreMetadata()
 
-export { createGenericProjectImportModel, createMetadataItemProjectSchemaExporter, createProjectSchemaExporter }
+export { createMetadataItemProjectSchemaExporter, createProjectSchemaExporter }
 
 export type MetadataProjectSpec = RegisteredProjectSpec
 
@@ -27,7 +23,6 @@ export const configurationMetadataProjectSpec: MetadataProjectSpec = getRegister
   dir: "",
   rule: { itemType: "MetadataConfiguration", properties: {} } as MetadataItemRule,
   exportSchema: () => Type.Object({}),
-  importModel: () => undefined,
 }
 
 export const metadataProjectSpecByDir = new Map(metadataProjectSpecs.map((spec) => [spec.dir, spec]))

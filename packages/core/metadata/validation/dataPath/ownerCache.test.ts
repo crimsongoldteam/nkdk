@@ -246,7 +246,7 @@ describe("OwnerMetadataCache", () => {
     })
   })
 
-  it("returns import-error when model import throws", () => {
+  it("reads owner facts without importing a model", () => {
     const projectDir = createProject()
     writeProperties(
       projectDir,
@@ -262,10 +262,7 @@ describe("OwnerMetadataCache", () => {
 
     const result = cache.get({ kind: "Справочник", name: "Товары" })
 
-    expect(result).toMatchObject({
-      status: "import-error",
-      diagnostics: [expect.objectContaining({ source: "cross-file", severity: "error" })],
-    })
+    expect(result).toMatchObject({ status: "ok" })
   })
 
   it("does not run schema validation while loading owners for DataPath checks", () => {

@@ -2,8 +2,6 @@ import "./metadataCommand/register"
 import "./metadataCommonCommand"
 
 import "./metadataCatalog/register"
-import "./metadataCatalog/fromYAML"
-import "./metadataCatalog/toYAML"
 
 import "./metadataConstant/register"
 import "./metadataConstant"

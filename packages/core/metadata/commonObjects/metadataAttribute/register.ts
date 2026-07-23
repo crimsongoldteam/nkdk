@@ -1,13 +1,8 @@
 import { Type, type TSchema } from "typebox"
-import type { MetadataAttributeYAML, MetadataAttributes, MetadataAttributesXML, MetadataAttributesYAML } from "./types"
-import { ConfigurationContext, ConfigurationContextFromXML } from "../../context/types"
-import { importMetadataItemFromYAML } from "../../orchestration/metadataItem/fromYAML"
+import { ConfigurationContext } from "../../context/types"
 import { exportMetadataItemToJSONSchema } from "../../orchestration/metadataItem/toJSONSchema"
 import { registerMetadataItemCollectionRule } from "../../orchestration/metadataCollection/ruleFactory"
-import { exportMetadataCollectionToYAMLAsRecord } from "../../orchestration/metadataCollection/toYAML"
-import { importPropertyFromXML } from "../../orchestration/property/fromXML"
 import type { PropertyRule } from "../../orchestration/property/types"
-import { toYAMLImportError, withYAMLImportDiagnostics } from "../../orchestration/yamlImportError"
 import {
   MetadataAttributeRules,
   MetadataAttributesWithAllowedTypesRules,
@@ -29,48 +24,6 @@ type ExportMetadataAttributesToJSONSchemaFn = (params: {
   value: any | undefined
 }) => TSchema
 
-const importMetadataAttributeFromYAML = (
-  context: ConfigurationContext,
-  itemRule: MetadataAttributeItemRule,
-  yaml: MetadataAttributeYAML,
-  name: string
-) => {
-  const properties = importMetadataItemFromYAML({
-    context,
-    yaml,
-    rule: itemRule,
-    name,
-  })
-
-  if (properties == undefined) throw new Error("Properties are required")
-
-  return {
-    ...properties,
-    name,
-  }
-}
-
-const createImportMetadataAttributesFromYAML =
-  (itemRule: MetadataAttributeItemRule) =>
-  (
-    context: ConfigurationContext,
-    _rule: PropertyRule | undefined,
-    data: MetadataAttributesYAML | undefined
-  ): MetadataAttributes | undefined => {
-    if (!data) return undefined
-
-    const results = Object.entries(data).map(([name, value]) => {
-      const itemContext = withYAMLImportDiagnostics(context, { propertyPath: [name], yamlPath: [name] })
-      try {
-        return importMetadataAttributeFromYAML(itemContext, itemRule, value as MetadataAttributeYAML, name)
-      } catch (error) {
-        throw toYAMLImportError(error, itemContext)
-      }
-    })
-
-    return results.length > 0 ? (results as MetadataAttributes) : undefined
-  }
-
 const createExportMetadataAttributesToJSONSchema =
   (itemRule: MetadataAttributeItemRule): ExportMetadataAttributesToJSONSchemaFn =>
   ({ context }) => {
@@ -90,7 +43,6 @@ registerMetadataItemCollectionRule({
   schemaName: "MetadataCatalogAttribute",
   xmlElement: "Attribute",
   keyField: "name",
-  fromYAML: createImportMetadataAttributesFromYAML(MetadataCatalogAttributeRules),
   toJSONSchema: createExportMetadataAttributesToJSONSchema(MetadataCatalogAttributeRules),
   collectionItemRule: true,
 })
@@ -101,7 +53,6 @@ registerMetadataItemCollectionRule({
   schemaName: "MetadataAttribute",
   xmlElement: "Attribute",
   keyField: "name",
-  fromYAML: createImportMetadataAttributesFromYAML(MetadataAttributeRules),
   toJSONSchema: exportMetadataAttributesToJSONSchema,
   collectionItemRule: true,
 })
@@ -112,7 +63,6 @@ registerMetadataItemCollectionRule({
   schemaName: "MetadataAttributesWithAllowedTypes",
   xmlElement: "Attribute",
   keyField: "name",
-  fromYAML: createImportMetadataAttributesFromYAML(MetadataAttributesWithAllowedTypesRules),
   toJSONSchema: createExportMetadataAttributesToJSONSchema(MetadataAttributesWithAllowedTypesRules),
   collectionItemRule: true,
 })
@@ -123,7 +73,6 @@ registerMetadataItemCollectionRule({
   schemaName: "MetadataTabularSectionAttribute",
   xmlElement: "Attribute",
   keyField: "name",
-  fromYAML: createImportMetadataAttributesFromYAML(MetadataTabularSectionAttributeRules),
   toJSONSchema: createExportMetadataAttributesToJSONSchema(MetadataTabularSectionAttributeRules),
   collectionItemRule: true,
 })
@@ -134,31 +83,6 @@ registerMetadataItemCollectionRule({
   schemaName: "MetadataDocumentAttribute",
   xmlElement: "Attribute",
   keyField: "name",
-  fromYAML: createImportMetadataAttributesFromYAML(MetadataDocumentAttributeRules),
   toJSONSchema: createExportMetadataAttributesToJSONSchema(MetadataDocumentAttributeRules),
   collectionItemRule: true,
 })
-
-// Compat exports for consumers that call these functions directly
-export const importMetadataAttributesFromXML = (
-  context: ConfigurationContextFromXML,
-  _rule: PropertyRule | undefined,
-  xml: MetadataAttributesXML | undefined
-): MetadataAttributes | undefined => {
-  return importPropertyFromXML({ context, rule: { type: "MetadataAttributes" }, value: xml }) as
-    | MetadataAttributes
-    | undefined
-}
-
-export const exportMetadataAttributesToYAML = (
-  context: ConfigurationContext,
-  _rule: PropertyRule | undefined,
-  data: MetadataAttributes | undefined
-): MetadataAttributesYAML | undefined => {
-  return exportMetadataCollectionToYAMLAsRecord({
-    context,
-    data,
-    itemRule: MetadataAttributeRules,
-    keyField: "name",
-  }) as MetadataAttributesYAML | undefined
-}

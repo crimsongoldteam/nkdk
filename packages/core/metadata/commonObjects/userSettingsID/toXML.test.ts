@@ -1,6 +1,6 @@
 import { describe, expect, it } from "vitest"
 import { PropertyRule } from "../../orchestration"
-import { testExportPropertyToXML } from "../../../tests/property/exportPropertyToXML"
+import { testAtomicToXML } from "../../../tests/property/atomicToXML"
 import { fixtureUserSettingsIDFull, fixtureUserSettingsIDRefFull } from "./__fixtures__/data"
 
 const rule: PropertyRule = {
@@ -11,7 +11,7 @@ const xmlRootTag = "dcsset:userSettingID"
 
 describe("exportUserSettingsIDToXML", () => {
   it("с референсом из full.xml (forReference) совпадает с эталоном", () => {
-    const { expectedResult, result } = testExportPropertyToXML({
+    const { expectedResult, result } = testAtomicToXML({
       rule,
       value: fixtureUserSettingsIDFull,
       xmlRootTag,
@@ -23,7 +23,7 @@ describe("exportUserSettingsIDToXML", () => {
   })
 
   it("с явным referenceMetadata (GUID) совпадает с full.xml", () => {
-    const { expectedResult, result } = testExportPropertyToXML({
+    const { expectedResult, result } = testAtomicToXML({
       rule,
       value: fixtureUserSettingsIDFull,
       xmlRootTag,
@@ -36,7 +36,7 @@ describe("exportUserSettingsIDToXML", () => {
   })
 
   it("без референса при true не сериализует элемент", () => {
-    const { result } = testExportPropertyToXML({
+    const { result } = testAtomicToXML({
       rule,
       value: fixtureUserSettingsIDFull,
       xmlRootTag,
@@ -46,7 +46,7 @@ describe("exportUserSettingsIDToXML", () => {
   })
 
   it("с явным referenceMetadata: undefined при true не сериализует элемент", () => {
-    const { result } = testExportPropertyToXML({
+    const { result } = testAtomicToXML({
       rule,
       value: fixtureUserSettingsIDFull,
       xmlRootTag,
@@ -58,7 +58,7 @@ describe("exportUserSettingsIDToXML", () => {
 
   it("подставляет GUID из referenceMetadata, а не из модели (другой GUID)", () => {
     const otherGuid = "00000000-0000-0000-0000-000000000001"
-    const { result } = testExportPropertyToXML({
+    const { result } = testAtomicToXML({
       rule,
       value: fixtureUserSettingsIDFull,
       xmlRootTag,
@@ -70,7 +70,7 @@ describe("exportUserSettingsIDToXML", () => {
   })
 
   it("выгружает GUID из модели без referenceMetadata", () => {
-    const { result } = testExportPropertyToXML({
+    const { result } = testAtomicToXML({
       rule,
       value: fixtureUserSettingsIDRefFull,
       xmlRootTag,
@@ -80,7 +80,7 @@ describe("exportUserSettingsIDToXML", () => {
   })
 
   it("с референсом из empty.xml при undefined не сериализует элемент", () => {
-    const { expectedResult, result } = testExportPropertyToXML({
+    const { expectedResult, result } = testAtomicToXML({
       rule,
       value: undefined,
       xmlRootTag,

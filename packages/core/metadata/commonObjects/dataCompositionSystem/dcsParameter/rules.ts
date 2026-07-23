@@ -33,6 +33,7 @@ export const DCSParameterRules = {
       order: 4,
       exportNilValue: true,
       preserveFromReferenceXML: true,
+      preserveUnknownReferenceXML: false,
     }),
     useRestriction: booleanRule({
       xml: "dcssch:useRestriction",

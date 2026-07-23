@@ -2,7 +2,6 @@ import fs from "fs"
 import { join } from "path"
 import type { ConfigurationContextWithExportToXML } from "../../context/types"
 import { syncAppliedObjectAreaToXML, syncAppliedObjectToXML } from "../../orchestration/appliedObject/syncToXML"
-import type { ReferenceModelRemapper } from "../../orchestration/appliedObject/syncToXML"
 import { getTypeRule } from "../../orchestration/property/typeRuleRegistry"
 import type { PreparedMetadataMigrationChain } from "../../operations"
 import { updateConfigDumpInfoVersionsToXML } from "../configDumpInfo/sync"
@@ -10,14 +9,13 @@ import { buildConfigurationChildObjects, readConfigurationChildObjectsFromXML } 
 import type { ConfigurationSyncResult } from "./convertFromXML"
 import { buildIncrementalXmlSyncPlan } from "./incrementalPlan"
 import { parseMigrationPath, writeAppliedMigrationsState } from "./migrations"
-import { remapReferenceModel } from "./migrations/referenceRemap"
 import {
   CONFIGURATION_XML_FILE,
   CONFIGURATION_YAML_FILE,
-  readConfigurationFromXML,
-  readConfigurationFromYAML,
-  writeConfigurationToXML,
+  readRawConfigurationXML,
+  writePreparedConfigurationToXML,
 } from "./rootIO"
+import { importFromYAML } from "../../../yaml/import"
 import { diffSyncState, hashProjectFiles, readXmlSyncState, SYNC_STATE_FILE, writeXmlSyncState } from "./syncState"
 import { prepareConfigurationXmlMigrationChain, syncConfigurationToXML } from "./syncToXML"
 import { TopLevelMetadataItemRules } from "./topLevelRules"
@@ -125,7 +123,6 @@ export async function syncConfigurationIncrementallyToXML(params: {
               ? join(params.referenceDir, rule.xmlDir, planned.area.itemName)
               : join(params.outputDir, rule.xmlDir, reference.referenceName),
             referenceName: reference.referenceName,
-            referenceModelRemapper: reference.referenceModelRemapper,
             xmlManifest: tracker.manifest,
           })
           break
@@ -171,7 +168,6 @@ export async function syncConfigurationIncrementallyToXML(params: {
               ? join(params.referenceDir, rule.xmlDir, reference.referenceName)
               : join(params.outputDir, rule.xmlDir, reference.referenceName),
             referenceName: reference.referenceName,
-            referenceModelRemapper: reference.referenceModelRemapper,
             xmlManifest: tracker.manifest,
           }
           if (planned.fromMigration) {
@@ -222,24 +218,12 @@ function buildMigrationReference(params: {
   migrationChain: PreparedMetadataMigrationChain
   itemTypePrefix: string
   itemName: string
-}): { referenceName: string; referenceModelRemapper?: ReferenceModelRemapper } {
+}): { referenceName: string } {
   const currentObjectPath = `${params.itemTypePrefix}.${params.itemName}`
   const referencePath = params.migrationChain.referencePathByCurrentPath.get(currentObjectPath) ?? currentObjectPath
   const segments = referencePath.split(".")
   const referenceName = segments[segments.length - 1] ?? params.itemName
-  const referenceModelRemapper: ReferenceModelRemapper | undefined =
-    params.migrationChain.referencePathByCurrentPath.size > 0
-      ? ({ rule, currentModel, referenceModel }) =>
-          remapReferenceModel({
-            rule,
-            currentObjectPath,
-            currentModel,
-            referenceModel,
-            referencePathByCurrentPath: params.migrationChain.referencePathByCurrentPath,
-          })
-      : undefined
-
-  return { referenceName, referenceModelRemapper }
+  return { referenceName }
 }
 
 async function removeRenamedObjectXmlFiles(params: {
@@ -279,23 +263,23 @@ async function writeConfigurationArea(params: {
 
   const referenceDir = params.referenceDir ?? params.outputDir
   const hasReferenceConfiguration = fs.existsSync(join(referenceDir, CONFIGURATION_XML_FILE))
-  const referenceContext = { ...params.context, fromXML: { forReference: true } }
-  const referenceConfiguration = hasReferenceConfiguration
-    ? readConfigurationFromXML({ context: referenceContext, inputDir: referenceDir })
-    : undefined
+  const referenceXML = hasReferenceConfiguration ? readRawConfigurationXML(referenceDir) : undefined
   const referenceChildObjects = hasReferenceConfiguration
     ? readConfigurationChildObjectsFromXML(referenceDir)
     : undefined
-  const configuration = readConfigurationFromYAML({
+  const yamlPath = join(params.inputDir, CONFIGURATION_YAML_FILE)
+  writePreparedConfigurationToXML({
     context: params.context,
-    inputDir: params.inputDir,
-    source: referenceConfiguration,
-  })
-  writeConfigurationToXML({
-    context: params.context,
-    configuration,
     outputDir: params.outputDir,
-    referenceConfiguration,
+    preparedYamlFile: {
+      projectPath: CONFIGURATION_YAML_FILE,
+      filePath: yamlPath,
+      role: "configuration",
+      owner: { dir: "", name: "Конфигурация" },
+      data: importFromYAML<unknown>(fs.readFileSync(yamlPath, "utf-8")),
+      syntaxDiagnostics: [],
+    },
+    referenceXML,
     childObjects: buildConfigurationChildObjects({ yamlDir: params.inputDir, referenceChildObjects }),
   })
 }

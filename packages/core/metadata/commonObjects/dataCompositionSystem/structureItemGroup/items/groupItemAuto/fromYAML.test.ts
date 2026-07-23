@@ -1,5 +1,5 @@
 import { describe, expect, it } from "vitest"
-import { testImportPropertyFromYAML } from "../../../../../../tests/property/importPropertyFromYAML"
+import { testAtomicFromYAML } from "../../../../../../tests/property/atomicFromYAML"
 import {
   fixtureGroupItemAuto,
   fixtureGroupItemAutoUseFalse,
@@ -11,12 +11,12 @@ const rule = { type: "GroupItemAuto" } as const
 
 describe("import GroupItemAuto from YAML", () => {
   it("imports '[Авто]'", () => {
-    const result = testImportPropertyFromYAML({ rule, value: fixtureGroupItemAutoYAML })
+    const result = testAtomicFromYAML({ rule, value: fixtureGroupItemAutoYAML })
     expect(result).toEqual(fixtureGroupItemAuto)
   })
 
   it("imports '([Авто])'", () => {
-    const result = testImportPropertyFromYAML({ rule, value: fixtureGroupItemAutoUseFalseYAML })
+    const result = testAtomicFromYAML({ rule, value: fixtureGroupItemAutoUseFalseYAML })
     expect(result).toEqual(fixtureGroupItemAutoUseFalse)
   })
 })

@@ -21,6 +21,7 @@ export const I8N_TEXT_FIELDS = [
 
 export type ImportContentFromXMLOptions = {
   preserveXsiNil?: true
+  preserveEmptyElements?: true
 }
 
 export const importContentFromXML = <T>(data: string, importOptions: ImportContentFromXMLOptions = {}): T => {
@@ -139,7 +140,7 @@ function compress(arr: any[], options: any, jPath: string): any {
         }
       } else {
         // Element has no children, initialize as empty object if attributes exist
-        val = attrs ? {} : undefined
+        val = attrs || options.preserveEmptyElements === true ? {} : undefined
       }
 
       let assignedAttributesCount = 0
@@ -161,7 +162,7 @@ function compress(arr: any[], options: any, jPath: string): any {
             val = val[options.textNodeName]
           } else if (Object.keys(val).length === 0) {
             if (options.alwaysCreateTextNode) val[options.textNodeName] = ""
-            else val = undefined
+            else if (options.preserveEmptyElements !== true) val = undefined
           }
         }
       }

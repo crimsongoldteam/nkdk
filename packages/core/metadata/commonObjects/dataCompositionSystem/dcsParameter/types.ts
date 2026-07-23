@@ -2,7 +2,6 @@ import { registerMetadataItemCollectionRule } from "../../../orchestration"
 import { MetadataTypeByRule } from "../../../orchestration/metadataItem/element"
 import { YAMLTypeByRule } from "../../../orchestration/metadataItem/yaml"
 import { DCSParameterRules } from "./rules"
-import { exportDCSParametersToXML } from "./toXML"
 
 export type DCSParameter = MetadataTypeByRule<typeof DCSParameterRules>
 
@@ -17,5 +16,4 @@ registerMetadataItemCollectionRule({
   xmlElement: "Parameter",
   keyField: "name",
   configurationIndexAddressing: "yamlPath",
-  toXML: exportDCSParametersToXML,
 })

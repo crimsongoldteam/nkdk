@@ -1,5 +1,5 @@
 import { ConfigurationContextWithExportToXML } from "../../../../context/types"
-import { exportPropertyToXML, PropertyRule, registerTypeRule } from "../../../../orchestration"
+import { callAtomicToXML, PropertyRule, registerTypeRule } from "../../../../orchestration"
 import { StructureItemGroupRegistry } from "./registry"
 import { StructureItemGroupCollection, StructureItemGroupCollectionItem } from "./types"
 
@@ -27,12 +27,10 @@ export const exportStructureItemGroupCollectionToXML = ({
     if (!registryItem) continue
     // const referenceItem = referenceItems[index]
 
-    const converted = exportPropertyToXML({
+    const converted = callAtomicToXML({
       context,
       rule: { type: registryItem.itemType } as PropertyRule,
       value: item,
-      // referenceMetadata: referenceItem,
-      metadataItem: item,
     })
     if (converted) result.push(converted as Record<string, unknown>)
   }

@@ -8,6 +8,6 @@ describe("registerCoreMetadata", () => {
     registerCoreMetadata()
 
     expect(getTypeRule("I8nText", "exportToXML")).toBeDefined()
-    expect(getTypeRule("ClientApplicationForm", "exportToXML")).toBeDefined()
+    expect(getTypeRule("ClientApplicationForm", "yamlToXMLNestedRule")).toBeDefined()
   })
 })

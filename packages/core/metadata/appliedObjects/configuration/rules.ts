@@ -352,7 +352,7 @@ export const MetadataConfigurationRules = {
     }),
     dataLockControlMode: systemEnumerationRule({
       yaml: "РежимУправленияБлокировкойДанных",
-      typeSE: "DataLockControlMode",
+      typeSE: "DefaultDataLockControlMode",
       defaultValueXML: "Managed",
       implicitValueYAML: "Managed",
       xmlParents: configurationProperties,

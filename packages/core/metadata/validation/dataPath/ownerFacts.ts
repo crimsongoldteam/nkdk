@@ -125,6 +125,10 @@ function normalizedOwnerFact(role: OwnerFactRole, value: unknown): unknown {
   return undefined
 }
 
+export function ownerFactFromYAML(role: OwnerFactRole, value: unknown): unknown {
+  return normalizedOwnerFact(role, value)
+}
+
 function namedTypedItemsFromYaml(value: unknown): NamedTypeItems {
   return Object.entries(metadataRecord(value)).map(([name, item]) => {
     const type = typeDescriptionFromYAML(metadataRecord(item)["Тип"])

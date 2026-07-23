@@ -1,8 +1,12 @@
 import { describe, expect, it } from "vitest"
+
 import { mockContext } from "../../../tests/mockContext"
-import { importPropertiesFromYAML } from "./fromYAML"
-import { metadataTargetOwnerFromRule } from "./metadataTargetString"
-import { exportPropertiesToYAML } from "./toYAML"
+import type { MetadataTargetOwner } from "../../commonObjects/metadataTargets/types"
+import {
+  exportStringMetadataTargetToYAML,
+  importStringMetadataTargetFromYAML,
+  metadataTargetOwnerFromRule,
+} from "./metadataTargetString"
 import type { MetadataItemRule } from "./types"
 
 const documentRule = {
@@ -11,10 +15,7 @@ const documentRule = {
   metadataTargetOwner: { kind: "self", root: "Document" },
   properties: {
     name: { type: "string", defaultValue: ({ name }: { name?: string }) => name },
-    comment: {
-      yaml: "Комментарий",
-      type: "string",
-    },
+    comment: { yaml: "Комментарий", type: "string" },
     defaultObjectForm: {
       yaml: "ОсновнаяФормаОбъекта",
       type: "string",
@@ -23,16 +24,34 @@ const documentRule = {
   },
 } as const satisfies MetadataItemRule
 
+const documentRuleWithCommonForms = {
+  ...documentRule,
+  properties: {
+    ...documentRule.properties,
+    defaultObjectForm: {
+      ...documentRule.properties.defaultObjectForm,
+      metadataTarget: { kind: "member", owner: "this", memberKinds: ["Form"], objectRoots: ["CommonForm"] },
+    },
+  },
+} as const satisfies MetadataItemRule
+
+const documentRuleWithNumerator = {
+  ...documentRule,
+  properties: {
+    ...documentRule.properties,
+    numerator: {
+      yaml: "Нумератор",
+      type: "string",
+      metadataTarget: { kind: "object", roots: ["DocumentNumerator"] },
+    },
+  },
+} as const satisfies MetadataItemRule
+
+const documentOwner = { root: "Document", objectName: "АвансовыйОтчет" } as const
+
 describe("metadataTargetOwnerFromRule", () => {
   it("uses self declaration for simple root objects", () => {
-    const rule = {
-      itemType: "MetadataDocument",
-      itemTypePrefix: "Документ",
-      metadataTargetOwner: { kind: "self", root: "Document" },
-      properties: {},
-    } as const satisfies MetadataItemRule
-
-    expect(metadataTargetOwnerFromRule({ itemRule: rule, name: "Заказ" })).toEqual({
+    expect(metadataTargetOwnerFromRule({ itemRule: documentRule, name: "Заказ" })).toEqual({
       root: "Document",
       objectName: "Заказ",
     })
@@ -60,211 +79,148 @@ describe("metadataTargetOwnerFromRule", () => {
       })
     ).toEqual({ root: "Document", objectName: "Заказ" })
   })
+
+  it("reuses the owner of the current frame without resolving it twice", () => {
+    const owner = {
+      root: "ExternalDataSource",
+      objectName: "Источник.Table.Таблица",
+    } satisfies MetadataTargetOwner
+    const rule = { itemType: "MetadataExternalDataSourceTable", properties: {} } as const satisfies MetadataItemRule
+
+    expect(
+      metadataTargetOwnerFromRule({
+        itemRule: rule,
+        name: "Таблица",
+        context: {
+          ...mockContext,
+          importFromYAML: { metadataTargetOwners: [{ itemType: rule.itemType, name: "Таблица", owner }] },
+        },
+      })
+    ).toEqual(owner)
+  })
 })
-
-const documentRuleWithCommonForms = {
-  ...documentRule,
-  properties: {
-    ...documentRule.properties,
-    defaultObjectForm: {
-      ...documentRule.properties.defaultObjectForm,
-      metadataTarget: { kind: "member", owner: "this", memberKinds: ["Form"], objectRoots: ["CommonForm"] },
-    },
-  },
-} as const satisfies MetadataItemRule
-
-const documentRuleWithNumerator = {
-  ...documentRule,
-  properties: {
-    ...documentRule.properties,
-    numerator: {
-      yaml: "Нумератор",
-      type: "string",
-      metadataTarget: { kind: "object", roots: ["DocumentNumerator"] },
-    },
-  },
-} as const satisfies MetadataItemRule
 
 describe("string metadataTarget YAML", () => {
   it("exports canonical local member strings to short YAML", () => {
     expect(
-      exportPropertiesToYAML({
-        context: mockContext,
-        rule: documentRule,
-        data: {
-          itemType: "MetadataDocument",
-          name: "АвансовыйОтчет",
-          defaultObjectForm: "Document.АвансовыйОтчет.Form.ФормаДокумента",
-        },
+      exportStringMetadataTargetToYAML({
+        rule: documentRule.properties.defaultObjectForm,
+        value: "Document.АвансовыйОтчет.Form.ФормаДокумента",
+        owner: documentOwner,
       })
-    ).toEqual({
-      ОсновнаяФормаОбъекта: "ФормаДокумента",
-    })
+    ).toBe("ФормаДокумента")
   })
 
   it("imports short YAML member strings to canonical model strings", () => {
     expect(
-      importPropertiesFromYAML({
-        context: mockContext,
-        metadataRule: documentRule,
-        name: "АвансовыйОтчет",
-        yaml: { ОсновнаяФормаОбъекта: "ФормаДокумента" },
+      importStringMetadataTargetFromYAML({
+        rule: documentRule.properties.defaultObjectForm,
+        value: "ФормаДокумента",
+        owner: documentOwner,
       })
-    ).toMatchObject({
-      defaultObjectForm: "Document.АвансовыйОтчет.Form.ФормаДокумента",
-    })
+    ).toBe("Document.АвансовыйОтчет.Form.ФормаДокумента")
   })
 
   it("imports and exports common forms when objectRoots allows them", () => {
-    expect(
-      importPropertiesFromYAML({
-        context: mockContext,
-        metadataRule: documentRuleWithCommonForms,
-        name: "АвансовыйОтчет",
-        yaml: { ОсновнаяФормаОбъекта: "ОбщаяФорма.ФормаДокумента" },
-      })
-    ).toMatchObject({
-      defaultObjectForm: "CommonForm.ФормаДокумента",
-    })
-
-    expect(
-      exportPropertiesToYAML({
-        context: mockContext,
-        rule: documentRuleWithCommonForms,
-        data: {
-          itemType: "MetadataDocument",
-          name: "АвансовыйОтчет",
-          defaultObjectForm: "CommonForm.ФормаДокумента",
-        },
-      })
-    ).toEqual({
-      ОсновнаяФормаОбъекта: "ОбщаяФорма.ФормаДокумента",
-    })
+    const rule = documentRuleWithCommonForms.properties.defaultObjectForm
+    expect(importStringMetadataTargetFromYAML({ rule, value: "ОбщаяФорма.ФормаДокумента", owner: documentOwner })).toBe(
+      "CommonForm.ФормаДокумента"
+    )
+    expect(exportStringMetadataTargetToYAML({ rule, value: "CommonForm.ФормаДокумента", owner: documentOwner })).toBe(
+      "ОбщаяФорма.ФормаДокумента"
+    )
   })
 
   it("exports canonical object strings to YAML roots", () => {
     expect(
-      exportPropertiesToYAML({
-        context: mockContext,
-        rule: documentRuleWithNumerator,
-        data: {
-          itemType: "MetadataDocument",
-          name: "СчетФактура",
-          numerator: "DocumentNumerator.СчетаФактуры",
-        },
+      exportStringMetadataTargetToYAML({
+        rule: documentRuleWithNumerator.properties.numerator,
+        value: "DocumentNumerator.СчетаФактуры",
+        owner: { root: "Document", objectName: "СчетФактура" },
       })
-    ).toEqual({
-      Нумератор: "СчетаФактуры",
-    })
+    ).toBe("СчетаФактуры")
   })
 
   it("imports YAML object strings to canonical model roots", () => {
     expect(
-      importPropertiesFromYAML({
-        context: mockContext,
-        metadataRule: documentRuleWithNumerator,
-        name: "СчетФактура",
-        yaml: { Нумератор: "СчетаФактуры" },
+      importStringMetadataTargetFromYAML({
+        rule: documentRuleWithNumerator.properties.numerator,
+        value: "СчетаФактуры",
+        owner: { root: "Document", objectName: "СчетФактура" },
       })
-    ).toMatchObject({
-      numerator: "DocumentNumerator.СчетаФактуры",
-    })
+    ).toBe("DocumentNumerator.СчетаФактуры")
   })
 
   it("rejects YAML object strings with unknown YAML roots", () => {
     expect(() =>
-      importPropertiesFromYAML({
-        context: mockContext,
-        metadataRule: documentRuleWithNumerator,
-        name: "СчетФактура",
-        yaml: { Нумератор: "DocumentNumerator.СчетаФактуры" },
+      importStringMetadataTargetFromYAML({
+        rule: documentRuleWithNumerator.properties.numerator,
+        value: "DocumentNumerator.СчетаФактуры",
+        owner: documentOwner,
       })
     ).toThrow('Неизвестный корень "DocumentNumerator"')
   })
 
   it("rejects YAML object strings outside allowed roots", () => {
     expect(() =>
-      importPropertiesFromYAML({
-        context: mockContext,
-        metadataRule: documentRuleWithNumerator,
-        name: "СчетФактура",
-        yaml: { Нумератор: "Документ.СчетФактура" },
+      importStringMetadataTargetFromYAML({
+        rule: documentRuleWithNumerator.properties.numerator,
+        value: "Документ.СчетФактура",
+        owner: documentOwner,
       })
     ).toThrow('Корень "Document" не разрешён для цели метаданных')
   })
 
   it("keeps ordinary string properties unchanged", () => {
+    const rule = documentRule.properties.comment
     expect(
-      exportPropertiesToYAML({
-        context: mockContext,
-        rule: documentRule,
-        data: {
-          itemType: "MetadataDocument",
-          name: "АвансовыйОтчет",
-          comment: "Document.АвансовыйОтчет.Form.ФормаДокумента",
-        },
+      exportStringMetadataTargetToYAML({
+        rule,
+        value: "Document.АвансовыйОтчет.Form.ФормаДокумента",
+        owner: documentOwner,
       })
-    ).toEqual({
-      Комментарий: "Document.АвансовыйОтчет.Form.ФормаДокумента",
-    })
-
-    expect(
-      importPropertiesFromYAML({
-        context: mockContext,
-        metadataRule: documentRule,
-        name: "АвансовыйОтчет",
-        yaml: { Комментарий: "ФормаДокумента" },
-      })
-    ).toMatchObject({
-      comment: "ФормаДокумента",
-    })
+    ).toBe("Document.АвансовыйОтчет.Form.ФормаДокумента")
+    expect(importStringMetadataTargetFromYAML({ rule, value: "ФормаДокумента", owner: documentOwner })).toBe(
+      "ФормаДокумента"
+    )
   })
 
   it("rejects local member strings when owner context is unavailable on import", () => {
     expect(() =>
-      importPropertiesFromYAML({
-        context: mockContext,
-        metadataRule: documentRule,
-        yaml: { ОсновнаяФормаОбъекта: "ФормаДокумента" },
+      importStringMetadataTargetFromYAML({
+        rule: documentRule.properties.defaultObjectForm,
+        value: "ФормаДокумента",
+        owner: undefined,
       })
     ).toThrow('Для metadataTarget kind "member" owner "this" требуется контекст текущего объекта')
   })
 
   it("rejects local member strings when owner context is unavailable on export", () => {
     expect(() =>
-      exportPropertiesToYAML({
-        context: mockContext,
-        rule: documentRule,
-        data: {
-          itemType: "MetadataDocument",
-          name: "",
-          defaultObjectForm: "Document.АвансовыйОтчет.Form.ФормаДокумента",
-        },
+      exportStringMetadataTargetToYAML({
+        rule: documentRule.properties.defaultObjectForm,
+        value: "Document.АвансовыйОтчет.Form.ФормаДокумента",
+        owner: undefined,
       })
     ).toThrow('Для metadataTarget kind "member" owner "this" требуется контекст текущего объекта')
   })
 
   it("rejects YAML strings that do not match a member target", () => {
     expect(() =>
-      importPropertiesFromYAML({
-        context: mockContext,
-        metadataRule: documentRule,
-        name: "АвансовыйОтчет",
-        yaml: { ОсновнаяФормаОбъекта: "ОбщаяФорма.ФормаДокумента" },
+      importStringMetadataTargetFromYAML({
+        rule: documentRule.properties.defaultObjectForm,
+        value: "ОбщаяФорма.ФормаДокумента",
+        owner: documentOwner,
       })
     ).toThrow()
   })
 
   it("rejects model strings that do not match a member target", () => {
     expect(() =>
-      exportPropertiesToYAML({
-        context: mockContext,
-        rule: documentRule,
-        data: {
-          itemType: "MetadataDocument",
-          name: "АвансовыйОтчет",
-          defaultObjectForm: "CommonForm.ФормаДокумента",
-        },
+      exportStringMetadataTargetToYAML({
+        rule: documentRule.properties.defaultObjectForm,
+        value: "CommonForm.ФормаДокумента",
+        owner: documentOwner,
       })
     ).toThrow()
   })

@@ -7,14 +7,19 @@ import {
   externalDataSourceObjectServiceProperties,
 } from "../metadataExternalDataSourceField/rules"
 import type { MetadataItemRule } from "../../orchestration/property/types"
+import type { YAMLPropertySource } from "../../orchestration/property/fromYAMLToXMLTypes"
 const propertiesParents = ["Properties"]
 const hasOwnMetadataProperty =
   (propertyKey: string) =>
-  (metadataItem: unknown): boolean =>
-    metadataItem !== null &&
-    metadataItem !== undefined &&
-    typeof metadataItem === "object" &&
-    Object.prototype.hasOwnProperty.call(metadataItem, propertyKey)
+  (source: YAMLPropertySource | unknown): boolean =>
+    hasProperty(source, propertyKey)
+const hasProperty = (source: YAMLPropertySource | unknown, propertyKey: string): boolean =>
+  source !== null &&
+  source !== undefined &&
+  typeof source === "object" &&
+  ("has" in source && typeof source.has === "function"
+    ? source.has(propertyKey)
+    : Object.prototype.hasOwnProperty.call(source, propertyKey))
 export const MetadataExternalDataSourceCubeResourceRules = {
   itemType: "MetadataExternalDataSourceCubeResource",
   properties: {

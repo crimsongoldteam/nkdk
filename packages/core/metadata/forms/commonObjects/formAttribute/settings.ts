@@ -1,6 +1,6 @@
 import { ConfigurationContextFromXML, ConfigurationContextWithExportToXML } from "../../../context/types"
 import { importPropertyFromXML } from "../../../orchestration/property/fromXML"
-import { exportPropertyToXML } from "../../../orchestration/property/toXML"
+import { callAtomicToXML } from "../../../orchestration/property/fromYAMLToXML"
 import type { PropertyRule } from "../../../orchestration/property/types"
 import "../flowchartContext/types"
 import "../ganttChart/types"
@@ -120,47 +120,47 @@ export const exportTypedFormAttributeSettingsToXML = (
   data: TypedFormAttributeSettings,
   referenceData?: TypedFormAttributeSettings
 ): FormAttributeXML["Settings"] | undefined => {
-  const chart = exportPropertyToXML({
+  const chart = callAtomicToXML({
     context,
     rule: chartSettingsRule,
     value: data.chart,
-    referenceMetadata: referenceData?.chart,
+    referenceValue: referenceData?.chart,
   }) as FormAttributeXML["Settings"] | undefined
 
   if (chart !== undefined) return chart
 
-  const ganttChart = exportPropertyToXML({
+  const ganttChart = callAtomicToXML({
     context,
     rule: ganttChartSettingsRule,
     value: data.ganttChart,
-    referenceMetadata: referenceData?.ganttChart,
+    referenceValue: referenceData?.ganttChart,
   }) as FormAttributeXML["Settings"] | undefined
 
   if (ganttChart !== undefined) return ganttChart
 
-  const flowchartContext = exportPropertyToXML({
+  const flowchartContext = callAtomicToXML({
     context,
     rule: flowchartContextSettingsRule,
     value: data.flowchartContext,
-    referenceMetadata: referenceData?.flowchartContext,
+    referenceValue: referenceData?.flowchartContext,
   }) as FormAttributeXML["Settings"] | undefined
 
   if (flowchartContext !== undefined) return flowchartContext
 
-  const spreadsheetDocument = exportPropertyToXML({
+  const spreadsheetDocument = callAtomicToXML({
     context,
     rule: spreadsheetDocumentSettingsRule,
     value: data.spreadsheetDocument,
-    referenceMetadata: referenceData?.spreadsheetDocument,
+    referenceValue: referenceData?.spreadsheetDocument,
   }) as FormAttributeXML["Settings"] | undefined
 
   if (spreadsheetDocument !== undefined) return spreadsheetDocument
 
-  const planner = exportPropertyToXML({
+  const planner = callAtomicToXML({
     context,
     rule: plannerSettingsRule,
     value: data.planner,
-    referenceMetadata: referenceData?.planner,
+    referenceValue: referenceData?.planner,
   }) as FormAttributeXML["Settings"] | undefined
 
   if (planner !== undefined) return planner

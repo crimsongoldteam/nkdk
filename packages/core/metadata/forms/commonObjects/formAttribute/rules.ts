@@ -18,6 +18,8 @@ import { stringRule } from "../../../commonObjects/string/types"
 import { systemEnumerationRule } from "../../../systemEnumerations/types"
 import { splitPascalCase } from "../../../helpers/canConvertToPascalCase"
 import type { MetadataItemRule } from "../../../orchestration/property/types"
+import { registerMetadataItemCollectionRule } from "../../../orchestration/metadataCollection/ruleFactory"
+import { restoreKnownDuplicateErpAdditionalColumns } from "../../knownAnomalies"
 export const FormAttributeRules = {
   itemType: "FormAttribute",
   properties: {
@@ -96,15 +98,17 @@ export const FormAttributeRules = {
     }),
     columns: formAttributeColumnsRule({
       yaml: "Колонки",
+      xml: "Column",
+      xmlParents: ["Columns"],
       fromXML: false,
-      toXML: false,
       fromYAML: false,
       defaultValue: [],
     }),
     additionalColumns: formAttributeAdditionalColumnsRule({
       yaml: "ДополнительныеКолонки",
+      xml: "AdditionalColumns",
+      xmlParents: ["Columns"],
       fromXML: false,
-      toXML: false,
       fromYAML: false,
     }),
     functionalOptions: functionalOptionsPropertyRule({
@@ -129,39 +133,35 @@ export const FormAttributeRules = {
       xml: "Settings",
       yaml: "Диаграмма",
       fromXML: false,
-      toXML: false,
       order: 99,
     }),
     ganttChart: ganttChartRule({
       xml: "Settings",
       yaml: "ДиаграммаГанта",
       fromXML: false,
-      toXML: false,
       order: 99,
     }),
     flowchartContext: flowchartContextRule({
       xml: "Settings",
       yaml: "ГрафическаяСхема",
       fromXML: false,
-      toXML: false,
       order: 99,
     }),
     spreadsheetDocument: spreadsheetDocumentRule({
       xml: "Settings",
       yaml: "ТабличныйДокумент",
       fromXML: false,
-      toXML: false,
       order: 99,
     }),
     planner: plannerRule({
       xml: "Settings",
       yaml: "Планировщик",
       fromXML: false,
-      toXML: false,
       order: 99,
     }),
   },
 } as const satisfies MetadataItemRule
+
 export const FormAttributeColumnRules = {
   itemType: "FormAttributeColumn",
   properties: {
@@ -204,3 +204,55 @@ export const FormAttributeColumnRules = {
     }),
   },
 } as const satisfies MetadataItemRule
+
+const FormAttributeAdditionalColumnRules = {
+  itemType: "FormAttributeAdditionalColumn",
+  properties: {
+    table: stringRule({ xml: "_table", required: true }),
+    columns: formAttributeColumnsRule({ yaml: "Колонки", yamlInline: true, xml: "Column" }),
+  },
+} as const satisfies MetadataItemRule
+
+registerMetadataItemCollectionRule({
+  propertyType: "FormAttributes",
+  itemRule: FormAttributeRules,
+  xmlElement: "Attribute",
+  keyField: "name",
+  mapItemOutput: ({ xml }) => {
+    const { _name, _id, ...properties } = xml
+    return { _name, _id: typeof _id === "string" ? _id : "", ...properties }
+  },
+})
+
+registerMetadataItemCollectionRule({
+  propertyType: "FormAttributeColumns",
+  itemRule: FormAttributeColumnRules,
+  xmlElement: "Column",
+  keyField: "name",
+  mapItemOutput: ({ xml }) => {
+    const { _name, _id, ...properties } = xml
+    return { _name, _id: typeof _id === "string" ? _id : "", ...properties }
+  },
+})
+
+registerMetadataItemCollectionRule({
+  propertyType: "FormAttributeAdditionalColumns",
+  itemRule: FormAttributeAdditionalColumnRules,
+  xmlElement: "AdditionalColumns",
+  keyField: "table",
+  mapItemOutput: ({ xml, context }) => {
+    const table = typeof xml._table === "string" ? xml._table : ""
+    const columns = Array.isArray(xml.Column) ? xml.Column : xml.Column === undefined ? [] : [xml.Column]
+    const firstColumn = columns[0]
+    if (firstColumn === null || typeof firstColumn !== "object" || Array.isArray(firstColumn)) return xml
+    const name = typeof firstColumn._name === "string" ? firstColumn._name : undefined
+    const restored = restoreKnownDuplicateErpAdditionalColumns({
+      currentXMLPath: context.exportToXML.context?.currentXMLPath,
+      table,
+      columnName: name,
+      columnsCount: columns.length,
+      column: firstColumn,
+    })
+    return restored === undefined ? xml : { ...xml, Column: restored }
+  },
+})
