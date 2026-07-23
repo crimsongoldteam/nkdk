@@ -50,7 +50,6 @@ describe("direct conversion test helpers", () => {
 
     expect(calls).toEqual(["fromXML", "toYAML", "fromYAML", "toXML"])
     expect(imported.yaml).toEqual({ Значение: "ABC" })
-    expect(imported.indexes.dependencies).toEqual([])
     expect(imported.indexes.metadata.events).toHaveLength(1)
     expect(exported.xml).toEqual({ Value: "xml:ABC" })
     expect(exported.externalWrites).toHaveLength(1)

@@ -1,4 +1,4 @@
-import type { DeferredImportedYamlValue, LocalYamlFact } from "../orchestration/property/importYamlTypes"
+import type { LocalYamlFact } from "../orchestration/property/importYamlTypes"
 import { getTypeRule } from "../orchestration/property/typeRuleRegistry"
 import type { FormDataPathIndex } from "../validation/dataPath/formIndex"
 
@@ -15,11 +15,8 @@ export interface LocalMetadataIndex {
   ownerFacts?: Readonly<Record<string, unknown>>
   formDataPathIndex?: FormDataPathIndex
 }
-export type LocalDependencyIndex = DeferredImportedYamlValue[]
-
 export interface LocalIndexes {
   metadata: LocalMetadataIndex
-  dependencies: LocalDependencyIndex
 }
 
 export interface LocalIndexesCollector {
@@ -30,7 +27,6 @@ export interface LocalIndexesCollector {
 
 export function createLocalIndexesCollector(): LocalIndexesCollector {
   const events: LocalMetadataEvent[] = []
-  const dependencies: LocalDependencyIndex = []
   const ownerFacts: Record<string, unknown> = {}
   const writer = {
     setOwnerFact(role: string, value: unknown) {
@@ -51,8 +47,6 @@ export function createLocalIndexesCollector(): LocalIndexesCollector {
   const acceptProperty = (fact: LocalYamlFact): void => {
     recordEvent("property", fact)
     getTypeRule(fact.rule.type, "collectLocalFactsFromYAML")?.({ fact, writer })
-    if (getTypeRule(fact.rule.type, "finalizeImportedYAML") === undefined) return
-    dependencies.push({ yamlPath: fact.yamlPath, rulePath: fact.rulePath })
   }
 
   return {
@@ -60,7 +54,6 @@ export function createLocalIndexesCollector(): LocalIndexesCollector {
     completeValue: (fact) => recordEvent("complete", fact),
     finish: () => ({
       metadata: { events, ...(Object.keys(ownerFacts).length === 0 ? {} : { ownerFacts }) },
-      dependencies,
     }),
   }
 }

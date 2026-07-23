@@ -127,12 +127,12 @@ async function writePreparedYamlToOutput(
   profiler.measure(
     "Подготовка импорта конфигурации",
     "Уточнение отложенных значений YAML",
-    { items: prepared.localIndexes.dependencies.length },
+    { items: prepared.deferred.length },
     () =>
       finalizeImportedYamlValues({
         yaml: prepared.yaml,
         rootRule: prepared.rule,
-        deferred: prepared.localIndexes.dependencies,
+        deferred: prepared.deferred,
         context: contextWithOwners,
         formDataPathIndex: prepared.localIndexes.metadata.formDataPathIndex,
       })

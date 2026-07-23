@@ -24,6 +24,7 @@ import { sortYamlRuleProperties } from "./yamlPropertyOrder"
 import { enterNestedYamlRule } from "./yamlRuleCursor"
 import type { LocalIndexesCollector } from "../../project/localIndexes"
 import type { YamlPath } from "../../validation/yamlLocations"
+import type { DeferredValuePathCollector } from "./importYamlTypes"
 
 export class DirectImportConversionError extends Error {
   constructor(
@@ -48,10 +49,11 @@ export function importPropertiesFromXMLToYAML(params: {
   yamlPath: YamlPath
   rulePath: readonly DeferredRulePathSegment[]
   collector: LocalIndexesCollector
+  deferred?: DeferredValuePathCollector
   profile?: DirectImportProfile
   propertyXML?: ReadonlyMap<string, unknown>
 }): Record<string, unknown> | undefined {
-  const { context, rule, sources, itemName, yamlPath, rulePath, collector, propertyXML } = params
+  const { context, rule, sources, itemName, yamlPath, rulePath, collector, deferred, propertyXML } = params
   if (sources.length === 0) return undefined
 
   const result: Record<string, unknown> = {}
@@ -193,6 +195,7 @@ export function importPropertiesFromXMLToYAML(params: {
             yamlPath: propertyYamlPath,
             rulePath: propertyRulePath,
             collector,
+            deferred,
             profile: params.profile,
           },
           nested.itemRule.itemType
@@ -217,6 +220,7 @@ export function importPropertiesFromXMLToYAML(params: {
               yamlPath: nestedTraversal.yamlPath,
               rulePath: nestedTraversal.rulePath,
               collector,
+              deferred,
               profile: params.profile,
             }),
           { configurationIndexAddressing: propertyRule.configurationIndexAddressing }
@@ -267,7 +271,13 @@ export function importPropertiesFromXMLToYAML(params: {
               xml: xmlValue,
               name: itemName,
               ownerXmlName,
-              traversal: { yamlPath: propertyYamlPath, rulePath: propertyRulePath, collector, profile: params.profile },
+              traversal: {
+                yamlPath: propertyYamlPath,
+                rulePath: propertyRulePath,
+                collector,
+                deferred,
+                profile: params.profile,
+              },
             }),
           { configurationIndexAddressing: propertyRule.configurationIndexAddressing }
         )
@@ -371,6 +381,9 @@ export function importPropertiesFromXMLToYAML(params: {
         rule: propertyRule,
         value: yamlValue,
       })
+      if (getTypeRule(propertyRule.type, "finalizeImportedYAML") !== undefined) {
+        deferred?.accept({ valuePath: propertyYamlPath, rulePath: propertyRulePath })
+      }
       addProfileTime(params.profile, "collectorMs", collectorStartedAt)
     } catch (cause) {
       throw new DirectImportConversionError(propertyYamlPath, propertyRulePath, xmlPath, cause)

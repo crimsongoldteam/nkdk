@@ -1,6 +1,11 @@
 import type { ConfigurationContextFromXML } from "../../context/types"
 import { importMetadataItemFromXMLToYAML } from "../metadataItem/fromXMLToYAML"
-import type { DirectImportTraversal, LocalIndexesCollector, LocalYamlFact } from "../property/importYamlTypes"
+import type {
+  DeferredValuePathCollector,
+  DirectImportTraversal,
+  LocalIndexesCollector,
+  LocalYamlFact,
+} from "../property/importYamlTypes"
 import type { PropertyRuleType } from "../property/registry"
 import type { ConfigurationIndexAddressingMode, ItemXML, MetadataItemRule, PropertyRule } from "../property/types"
 import { enterNestedYamlRule } from "../property/yamlRuleCursor"
@@ -109,6 +114,10 @@ export function importMetadataItemCollectionFromXMLToYAML(params: {
       params.yamlAsArray === true || keyYaml === undefined || params.recordYamlKeyFromYAML === undefined
         ? undefined
         : createBufferedItemCollector(params.traversal.collector, yamlPath)
+    const bufferedDeferred =
+      bufferedCollector === undefined || params.traversal.deferred === undefined
+        ? undefined
+        : createBufferedDeferredCollector(params.traversal.deferred, yamlPath)
     const itemYamlValue = importMetadataItemFromXMLToYAML({
       context: itemContext,
       rule: params.itemRule,
@@ -119,6 +128,8 @@ export function importMetadataItemCollectionFromXMLToYAML(params: {
           yamlPath,
           rulePath: params.traversal.rulePath,
           collector: bufferedCollector?.collector ?? params.traversal.collector,
+          deferred: bufferedDeferred?.collector ?? params.traversal.deferred,
+          profile: params.traversal.profile,
         },
         params.itemRule.itemType
       ),
@@ -134,7 +145,11 @@ export function importMetadataItemCollectionFromXMLToYAML(params: {
         ? undefined
         : (params.recordYamlKeyFromYAML?.({ yaml: itemYaml, name }) ??
           (itemYaml[keyYaml] === undefined ? name : String(itemYaml[keyYaml])))
-    if (yamlKey !== undefined) bufferedCollector?.flush([...params.traversal.yamlPath, yamlKey])
+    if (yamlKey !== undefined) {
+      const targetYamlPath = [...params.traversal.yamlPath, yamlKey]
+      bufferedCollector?.flush(targetYamlPath)
+      bufferedDeferred?.flush(targetYamlPath)
+    }
     return [{ yaml: itemYaml, name, yamlKey }]
   })
   if (yamlItems.length === 0) return undefined
@@ -148,6 +163,27 @@ export function importMetadataItemCollectionFromXMLToYAML(params: {
       return [yamlKey!, yaml]
     })
   )
+}
+
+function createBufferedDeferredCollector(
+  parent: DeferredValuePathCollector,
+  sourceValuePath: readonly (string | number)[]
+) {
+  const paths: Parameters<DeferredValuePathCollector["accept"]>[0][] = []
+  return {
+    collector: {
+      accept: (path) => paths.push(path),
+      finish: () => paths,
+    } satisfies DeferredValuePathCollector,
+    flush(valuePath: readonly (string | number)[]) {
+      for (const path of paths) {
+        parent.accept({
+          ...path,
+          valuePath: [...valuePath, ...path.valuePath.slice(sourceValuePath.length)],
+        })
+      }
+    },
+  }
 }
 
 function createBufferedItemCollector(parent: LocalIndexesCollector, sourceYamlPath: readonly (string | number)[]) {

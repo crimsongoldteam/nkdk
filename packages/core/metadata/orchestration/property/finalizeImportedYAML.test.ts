@@ -4,6 +4,7 @@ import type { MetadataItemRule } from "./types"
 import type { PropertyRuleType } from "./registry"
 import { registerTypeRule } from "./typeRuleRegistry"
 import { finalizeImportedYamlValues, resolveDeferredPropertyRule } from "./finalizeImportedYAML"
+import { bindDeferredObjectValues } from "./deferredObjectValues"
 
 const pathType = "TestFinalizeImportedPath" as PropertyRuleType
 const itemsType = "TestFinalizeImportedItems" as PropertyRuleType
@@ -32,15 +33,15 @@ describe("finalizeImportedYamlValues", () => {
     finalizeImportedYamlValues({
       yaml,
       rootRule,
-      deferred: [
+      deferred: bindDeferredObjectValues(yaml, [
         {
-          yamlPath,
+          valuePath: yamlPath,
           rulePath: [
             { propertyKey: "items", nestedItemType: itemRule.itemType },
             { propertyKey: "path" },
           ],
         },
-      ],
+      ]),
       context: mockContext,
     })
 
@@ -51,21 +52,16 @@ describe("finalizeImportedYamlValues", () => {
 
   it("сообщает yamlPath и rulePath для отсутствующего значения", () => {
     expect(() =>
-      finalizeImportedYamlValues({
-        yaml: {},
-        rootRule,
-        deferred: [
-          {
-            yamlPath: ["Нет", "Пути"],
-            rulePath: [
-              { propertyKey: "items", nestedItemType: itemRule.itemType },
-              { propertyKey: "path" },
-            ],
-          },
-        ],
-        context: mockContext,
-      })
-    ).toThrow(/yamlPath=\/Нет\/Пути.*rulePath=\/items:TestFinalizeImportedItem\/path/)
+      bindDeferredObjectValues({}, [
+        {
+          valuePath: ["Нет", "Пути"],
+          rulePath: [
+            { propertyKey: "items", nestedItemType: itemRule.itemType },
+            { propertyKey: "path" },
+          ],
+        },
+      ])
+    ).toThrow(/valuePath=\/Нет\/Пути.*rulePath=\/items:TestFinalizeImportedItem\/path/)
   })
 
   it("сообщает неверный rulePath", () => {

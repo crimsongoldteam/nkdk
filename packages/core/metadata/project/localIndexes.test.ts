@@ -26,12 +26,6 @@ describe("createLocalIndexesCollector", () => {
           },
         ],
       },
-      dependencies: [
-        {
-          yamlPath: ["Элементы", 0, "Путь"],
-          rulePath: [{ propertyKey: "items", nestedItemType: "TestItem" }, { propertyKey: "path" }],
-        },
-      ],
     })
   })
 
@@ -119,7 +113,6 @@ describe("createLocalIndexesCollector", () => {
       accountingFlags: 9,
       commonAttributeOwnerLinks: 10,
     })
-    expect(imported.dependencies).toHaveLength(facts.length)
     expect(acceptedProperties).toBe(facts.length * 2)
     expect(JSON.stringify(imported)).not.toContain("rootYaml")
   })
