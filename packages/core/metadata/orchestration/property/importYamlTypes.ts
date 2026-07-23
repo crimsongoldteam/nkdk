@@ -9,6 +9,8 @@ export interface DeferredImportedYamlValue {
   rulePath: readonly DeferredRulePathSegment[]
 }
 
+export type { DeferredValuePath } from "./deferredObjectValues"
+
 export interface DeferredRulePathSegment {
   propertyKey: string
   nestedItemType?: string
