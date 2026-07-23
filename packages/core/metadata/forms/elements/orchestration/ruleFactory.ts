@@ -5,7 +5,12 @@ import { exportSingleElementRuleToJSONSchema } from "./toJSONSchema"
 import { PropertyRuleType } from "../../../orchestration/property/registry"
 import { registerTypeRule } from "../../../orchestration/property/typeRuleRegistry"
 import { importSingleFormElementFromXMLToYAML } from "./fromXMLToYAML"
-import type { SingletonNameStyle } from "./singletonName"
+import {
+  configurationIndexExportFormElementLogicalAddress,
+  configurationIndexExportFormSingletonLogicalAddress,
+  withConfigurationIndexExportLogicalAddress,
+} from "../../../configurationIndex/referenceView"
+import { getCanonicalSingletonName, type SingletonNameStyle } from "./singletonName"
 import type { ElementRule, ElementType, ElementXML, SingleElementType } from "./types"
 
 export const getElementRule = <Rule extends ElementRule>(itemType: Rule["itemType"]): Rule => {
@@ -57,6 +62,21 @@ export const registerElementAsType = <Rule extends ElementRule & { itemType: Sin
   registerTypeRule(propertyType, "yamlToXMLNestedRule", {
     kind: "item",
     itemRule: elementRule,
+    resolveContext: ({ context, name }) => {
+      const canonicalName = getCanonicalSingletonName({
+        ownerLogicalAddress: name ?? context.exportToXML.configurationIndex?.logicalAddress ?? "",
+        nameStyle,
+      })
+      const logicalAddress =
+        nameStyle?.canonicalNameMode === "ownerSuffix"
+          ? configurationIndexExportFormSingletonLogicalAddress(context, nameStyle.canonicalSuffix)
+          : canonicalName === undefined
+            ? undefined
+            : configurationIndexExportFormElementLogicalAddress(context, canonicalName)
+      return logicalAddress === undefined
+        ? context
+        : withConfigurationIndexExportLogicalAddress(context, logicalAddress)
+    },
     transformOutput: ({ context, xml }) => {
       const extra = toXML({ context })
       return {

@@ -366,6 +366,20 @@ export function convertPropertiesFromYAMLToXML(params: ConvertPropertiesFromYAML
               propertyRule: planned.propertyRule,
             })
           : nestedYAML
+      const nestedPropertyContext = withConfigurationIndexExportPropertyContext(
+        params.context,
+        planned.yamlKey ?? planned.propertyKey,
+        planned.propertyRule.configurationIndexUidSegment ?? planned.propertyRule.operationTarget?.migrationSegment,
+        { configurationIndexAddressing: planned.propertyRule.configurationIndexAddressing }
+      )
+      const nestedContext =
+        effectiveNestedRule.kind === "item" && effectiveNestedRule.resolveContext !== undefined
+          ? effectiveNestedRule.resolveContext({
+              context: nestedPropertyContext,
+              name: params.name,
+              propertyRule: planned.propertyRule,
+            })
+          : nestedPropertyContext
       if (
         effectiveNestedRule.kind === "collection" &&
         Array.isArray(nestedYAML) &&
@@ -388,7 +402,7 @@ export function convertPropertiesFromYAMLToXML(params: ConvertPropertiesFromYAML
       const nested =
         effectiveNestedRule.kind === "collection"
           ? convertMetadataCollectionFromYAMLToXML({
-              context: params.context,
+              context: nestedContext,
               yaml: nestedYAML,
               descriptor: effectiveNestedRule,
               propertyRule: planned.propertyRule,
@@ -399,7 +413,7 @@ export function convertPropertiesFromYAMLToXML(params: ConvertPropertiesFromYAML
               rulePath: [...(params.rulePath ?? [params.rule.itemType]), propertyKey],
             })
           : convertMetadataItemFromYAMLToXML({
-              context: params.context,
+              context: nestedContext,
               yaml: normalizedNestedYAML,
               rule:
                 effectiveNestedRule.kind === "item"
@@ -429,7 +443,7 @@ export function convertPropertiesFromYAMLToXML(params: ConvertPropertiesFromYAML
           isRecord(value)
         ) {
           value = effectiveNestedRule.transformOutput({
-            context: params.context,
+            context: nestedContext,
             xml: value,
             yaml: nestedYAML,
             referenceXML: isRecord(references[index]?.value) ? references[index]?.value : undefined,

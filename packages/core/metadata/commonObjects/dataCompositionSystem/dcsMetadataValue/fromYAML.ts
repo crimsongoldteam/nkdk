@@ -98,6 +98,33 @@ const isExplicitPrimitiveStringValueYAML = (
 const isDateTimeYAML = (data: unknown): data is string =>
   typeof data === "string" && /^\d{2}\.\d{2}\.\d{4}(\s+\d{2}:\d{2}:\d{2})?$/.test(data)
 
+const importPrimitiveMatchingSourceType = (
+  context: ConfigurationContext,
+  data: unknown,
+  sourceValue: MetadataDcsMetadataValue | undefined
+): MetadataDcsMetadataValue | undefined => {
+  if (
+    sourceValue === null ||
+    typeof sourceValue !== "object" ||
+    Array.isArray(sourceValue) ||
+    typeof (sourceValue as { type?: unknown }).type !== "string"
+  ) {
+    return undefined
+  }
+  const imported = importMetadataValueFromYAML(context, undefined, data as never) as
+    | MetadataDcsMetadataValue
+    | undefined
+  if (
+    imported === null ||
+    typeof imported !== "object" ||
+    Array.isArray(imported) ||
+    (imported as { type?: unknown }).type !== (sourceValue as { type: string }).type
+  ) {
+    return undefined
+  }
+  return imported
+}
+
 const importDcsSystemEnumerationValueFromYAML = (
   context: ConfigurationContext,
   data: MetadataDcsSystemEnumerationValueYAML
@@ -140,6 +167,8 @@ export const importDcsMetadataValueFromYAML = (
     case "Color":
       return importColorFromYAML(context, undefined, data as any)!
     case "Field": {
+      const sourceTypedPrimitive = importPrimitiveMatchingSourceType(context, data, sourceValue)
+      if (sourceTypedPrimitive !== undefined) return sourceTypedPrimitive
       const metadataValuePath =
         typeof data === "string" && !data.startsWith(".")
           ? importMetadataValueStringFromYAML(context, undefined, data)

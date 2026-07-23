@@ -72,6 +72,11 @@ export type YAMLToXMLNestedRule =
         name: string | undefined
         propertyRule: PropertyRule
       }) => unknown
+      readonly resolveContext?: (params: {
+        context: import("../../context/types").ConfigurationContextWithExportToXML
+        name: string | undefined
+        propertyRule: PropertyRule
+      }) => import("../../context/types").ConfigurationContextWithExportToXML
       readonly transformOutput?: (params: {
         context: import("../../context/types").ConfigurationContextWithExportToXML
         xml: Record<string, unknown>

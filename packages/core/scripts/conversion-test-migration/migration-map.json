@@ -15,8 +15,8 @@
     ],
     "line": 125,
     "behavior": "Единый обход преобразует XML поля группировки с отключённым использованием в объект YAML.",
-    "targetPath": "packages/core/metadata/forms/clientApplicationForm/syncToXML.test.ts",
-    "targetTitle": "читает форму из YAML и экспортирует XML",
+    "targetPath": "packages/core/metadata/forms/commonObjects/formAttribute/fromXMLToYAML.test.ts",
+    "targetTitle": "FormAttributes XML → YAML → XML",
     "status": "migrated"
   },
   {
@@ -35,8 +35,8 @@
     ],
     "line": 130,
     "behavior": "Единый обход преобразует XML поля группировки с настройками по умолчанию в краткую строку YAML.",
-    "targetPath": "packages/core/metadata/forms/clientApplicationForm/syncToXML.test.ts",
-    "targetTitle": "читает форму из YAML и экспортирует XML",
+    "targetPath": "packages/core/metadata/forms/commonObjects/formAttribute/fromXMLToYAML.test.ts",
+    "targetTitle": "FormAttributes XML → YAML → XML",
     "status": "migrated"
   },
   {
@@ -55,8 +55,8 @@
     ],
     "line": 136,
     "behavior": "Единый обход преобразует YAML отключённого поля группировки в исходный XML.",
-    "targetPath": "packages/core/metadata/forms/clientApplicationForm/syncToXML.test.ts",
-    "targetTitle": "читает форму из YAML и экспортирует XML",
+    "targetPath": "packages/core/metadata/forms/commonObjects/formAttribute/fromXMLToYAML.test.ts",
+    "targetTitle": "FormAttributes XML → YAML → XML",
     "status": "migrated"
   },
   {
@@ -75,8 +75,8 @@
     ],
     "line": 142,
     "behavior": "Единый обход преобразует краткий YAML поля группировки в исходный XML.",
-    "targetPath": "packages/core/metadata/forms/clientApplicationForm/syncToXML.test.ts",
-    "targetTitle": "читает форму из YAML и экспортирует XML",
+    "targetPath": "packages/core/metadata/forms/commonObjects/formAttribute/fromXMLToYAML.test.ts",
+    "targetTitle": "FormAttributes XML → YAML → XML",
     "status": "migrated"
   },
   {
@@ -95,8 +95,8 @@
     ],
     "line": 148,
     "behavior": "exports object form attribute YAML in JSON Schema",
-    "targetPath": "packages/core/metadata/forms/clientApplicationForm/syncToXML.test.ts",
-    "targetTitle": "читает форму из YAML и экспортирует XML",
+    "targetPath": "packages/core/metadata/forms/commonObjects/formAttribute/fromXMLToYAML.test.ts",
+    "targetTitle": "FormAttributes XML → YAML → XML",
     "status": "migrated"
   },
   {
@@ -115,8 +115,8 @@
     ],
     "line": 155,
     "behavior": "exports table columns in JSON Schema",
-    "targetPath": "packages/core/metadata/forms/clientApplicationForm/syncToXML.test.ts",
-    "targetTitle": "читает форму из YAML и экспортирует XML",
+    "targetPath": "packages/core/metadata/forms/commonObjects/formAttribute/fromXMLToYAML.test.ts",
+    "targetTitle": "FormAttributes XML → YAML → XML",
     "status": "migrated"
   },
   {
@@ -135,8 +135,8 @@
     ],
     "line": 162,
     "behavior": "exports additional table columns in JSON Schema",
-    "targetPath": "packages/core/metadata/forms/clientApplicationForm/syncToXML.test.ts",
-    "targetTitle": "читает форму из YAML и экспортирует XML",
+    "targetPath": "packages/core/metadata/forms/commonObjects/formAttribute/fromXMLToYAML.test.ts",
+    "targetTitle": "FormAttributes XML → YAML → XML",
     "status": "migrated"
   },
   {
@@ -155,8 +155,8 @@
     ],
     "line": 168,
     "behavior": "exports strict table column objects in JSON Schema",
-    "targetPath": "packages/core/metadata/forms/clientApplicationForm/syncToXML.test.ts",
-    "targetTitle": "читает форму из YAML и экспортирует XML",
+    "targetPath": "packages/core/metadata/forms/commonObjects/formAttribute/fromXMLToYAML.test.ts",
+    "targetTitle": "FormAttributes XML → YAML → XML",
     "status": "migrated"
   },
   {
@@ -175,8 +175,8 @@
     ],
     "line": 174,
     "behavior": "exports spreadsheet document settings in JSON Schema",
-    "targetPath": "packages/core/metadata/forms/clientApplicationForm/syncToXML.test.ts",
-    "targetTitle": "читает форму из YAML и экспортирует XML",
+    "targetPath": "packages/core/metadata/forms/commonObjects/formAttribute/fromXMLToYAML.test.ts",
+    "targetTitle": "FormAttributes XML → YAML → XML",
     "status": "migrated"
   },
   {
@@ -195,8 +195,8 @@
     ],
     "line": 180,
     "behavior": "exports chart settings in JSON Schema",
-    "targetPath": "packages/core/metadata/forms/clientApplicationForm/syncToXML.test.ts",
-    "targetTitle": "читает форму из YAML и экспортирует XML",
+    "targetPath": "packages/core/metadata/forms/commonObjects/formAttribute/fromXMLToYAML.test.ts",
+    "targetTitle": "FormAttributes XML → YAML → XML",
     "status": "migrated"
   },
   {
@@ -215,8 +215,8 @@
     ],
     "line": 186,
     "behavior": "exports gantt chart settings in JSON Schema",
-    "targetPath": "packages/core/metadata/forms/clientApplicationForm/syncToXML.test.ts",
-    "targetTitle": "читает форму из YAML и экспортирует XML",
+    "targetPath": "packages/core/metadata/forms/commonObjects/formAttribute/fromXMLToYAML.test.ts",
+    "targetTitle": "FormAttributes XML → YAML → XML",
     "status": "migrated"
   },
   {
@@ -235,8 +235,8 @@
     ],
     "line": 192,
     "behavior": "exports flowchart context settings in JSON Schema",
-    "targetPath": "packages/core/metadata/forms/clientApplicationForm/syncToXML.test.ts",
-    "targetTitle": "читает форму из YAML и экспортирует XML",
+    "targetPath": "packages/core/metadata/forms/commonObjects/formAttribute/fromXMLToYAML.test.ts",
+    "targetTitle": "FormAttributes XML → YAML → XML",
     "status": "migrated"
   },
   {
@@ -255,8 +255,8 @@
     ],
     "line": 198,
     "behavior": "exports planner settings in JSON Schema",
-    "targetPath": "packages/core/metadata/forms/clientApplicationForm/syncToXML.test.ts",
-    "targetTitle": "читает форму из YAML и экспортирует XML",
+    "targetPath": "packages/core/metadata/forms/commonObjects/formAttribute/fromXMLToYAML.test.ts",
+    "targetTitle": "FormAttributes XML → YAML → XML",
     "status": "migrated"
   },
   {
@@ -275,8 +275,8 @@
     ],
     "line": 204,
     "behavior": "exports string spreadsheet document settings in JSON Schema",
-    "targetPath": "packages/core/metadata/forms/clientApplicationForm/syncToXML.test.ts",
-    "targetTitle": "читает форму из YAML и экспортирует XML",
+    "targetPath": "packages/core/metadata/forms/commonObjects/formAttribute/fromXMLToYAML.test.ts",
+    "targetTitle": "FormAttributes XML → YAML → XML",
     "status": "migrated"
   },
   {
@@ -295,8 +295,8 @@
     ],
     "line": 210,
     "behavior": "should import title when mainAttribute=true and title equals name",
-    "targetPath": "packages/core/metadata/forms/clientApplicationForm/syncToXML.test.ts",
-    "targetTitle": "читает форму из YAML и экспортирует XML",
+    "targetPath": "packages/core/metadata/forms/commonObjects/formAttribute/fromXMLToYAML.test.ts",
+    "targetTitle": "FormAttributes XML → YAML → XML",
     "status": "migrated"
   },
   {
@@ -315,8 +315,8 @@
     ],
     "line": 216,
     "behavior": "should import choice list",
-    "targetPath": "packages/core/metadata/forms/clientApplicationForm/syncToXML.test.ts",
-    "targetTitle": "читает форму из YAML и экспортирует XML",
+    "targetPath": "packages/core/metadata/forms/commonObjects/formAttribute/fromXMLToYAML.test.ts",
+    "targetTitle": "FormAttributes XML → YAML → XML",
     "status": "migrated"
   },
   {
@@ -335,8 +335,8 @@
     ],
     "line": 222,
     "behavior": "should import with empty settings",
-    "targetPath": "packages/core/metadata/forms/clientApplicationForm/syncToXML.test.ts",
-    "targetTitle": "читает форму из YAML и экспортирует XML",
+    "targetPath": "packages/core/metadata/forms/commonObjects/formAttribute/fromXMLToYAML.test.ts",
+    "targetTitle": "FormAttributes XML → YAML → XML",
     "status": "migrated"
   },
   {
@@ -355,8 +355,8 @@
     ],
     "line": 234,
     "behavior": "should import table with columns",
-    "targetPath": "packages/core/metadata/forms/clientApplicationForm/syncToXML.test.ts",
-    "targetTitle": "читает форму из YAML и экспортирует XML",
+    "targetPath": "packages/core/metadata/forms/commonObjects/formAttribute/fromXMLToYAML.test.ts",
+    "targetTitle": "FormAttributes XML → YAML → XML",
     "status": "migrated"
   },
   {
@@ -375,8 +375,8 @@
     ],
     "line": 240,
     "behavior": "should import tree with column",
-    "targetPath": "packages/core/metadata/forms/clientApplicationForm/syncToXML.test.ts",
-    "targetTitle": "читает форму из YAML и экспортирует XML",
+    "targetPath": "packages/core/metadata/forms/commonObjects/formAttribute/fromXMLToYAML.test.ts",
+    "targetTitle": "FormAttributes XML → YAML → XML",
     "status": "migrated"
   },
   {
@@ -395,8 +395,8 @@
     ],
     "line": 246,
     "behavior": "should import with functional options",
-    "targetPath": "packages/core/metadata/forms/clientApplicationForm/syncToXML.test.ts",
-    "targetTitle": "читает форму из YAML и экспортирует XML",
+    "targetPath": "packages/core/metadata/forms/commonObjects/formAttribute/fromXMLToYAML.test.ts",
+    "targetTitle": "FormAttributes XML → YAML → XML",
     "status": "migrated"
   },
   {
@@ -415,8 +415,8 @@
     ],
     "line": 252,
     "behavior": "should import with additional column",
-    "targetPath": "packages/core/metadata/forms/clientApplicationForm/syncToXML.test.ts",
-    "targetTitle": "читает форму из YAML и экспортирует XML",
+    "targetPath": "packages/core/metadata/forms/commonObjects/formAttribute/fromXMLToYAML.test.ts",
+    "targetTitle": "FormAttributes XML → YAML → XML",
     "status": "migrated"
   },
   {
@@ -435,8 +435,8 @@
     ],
     "line": 258,
     "behavior": "should import mixed columns",
-    "targetPath": "packages/core/metadata/forms/clientApplicationForm/syncToXML.test.ts",
-    "targetTitle": "читает форму из YAML и экспортирует XML",
+    "targetPath": "packages/core/metadata/forms/commonObjects/formAttribute/fromXMLToYAML.test.ts",
+    "targetTitle": "FormAttributes XML → YAML → XML",
     "status": "migrated"
   },
   {
@@ -455,8 +455,8 @@
     ],
     "line": 264,
     "behavior": "should import chartSettings",
-    "targetPath": "packages/core/metadata/forms/clientApplicationForm/syncToXML.test.ts",
-    "targetTitle": "читает форму из YAML и экспортирует XML",
+    "targetPath": "packages/core/metadata/forms/commonObjects/formAttribute/fromXMLToYAML.test.ts",
+    "targetTitle": "FormAttributes XML → YAML → XML",
     "status": "migrated"
   },
   {
@@ -475,8 +475,8 @@
     ],
     "line": 270,
     "behavior": "should import spreadsheetDocumentSettings",
-    "targetPath": "packages/core/metadata/forms/clientApplicationForm/syncToXML.test.ts",
-    "targetTitle": "читает форму из YAML и экспортирует XML",
+    "targetPath": "packages/core/metadata/forms/commonObjects/formAttribute/fromXMLToYAML.test.ts",
+    "targetTitle": "FormAttributes XML → YAML → XML",
     "status": "migrated"
   },
   {
@@ -495,8 +495,8 @@
     ],
     "line": 276,
     "behavior": "should import plannerSettings",
-    "targetPath": "packages/core/metadata/forms/clientApplicationForm/syncToXML.test.ts",
-    "targetTitle": "читает форму из YAML и экспортирует XML",
+    "targetPath": "packages/core/metadata/forms/commonObjects/formAttribute/fromXMLToYAML.test.ts",
+    "targetTitle": "FormAttributes XML → YAML → XML",
     "status": "migrated"
   },
   {
@@ -515,8 +515,8 @@
     ],
     "line": 282,
     "behavior": "should preserve title languages from source when default language is absent",
-    "targetPath": "packages/core/metadata/forms/clientApplicationForm/syncToXML.test.ts",
-    "targetTitle": "читает форму из YAML и экспортирует XML",
+    "targetPath": "packages/core/metadata/forms/commonObjects/formAttribute/fromXMLToYAML.test.ts",
+    "targetTitle": "FormAttributes XML → YAML → XML",
     "status": "migrated"
   },
   {
@@ -535,8 +535,8 @@
     ],
     "line": 310,
     "behavior": "should preserve column title languages from source when default language is absent",
-    "targetPath": "packages/core/metadata/forms/clientApplicationForm/syncToXML.test.ts",
-    "targetTitle": "читает форму из YAML и экспортирует XML",
+    "targetPath": "packages/core/metadata/forms/commonObjects/formAttribute/fromXMLToYAML.test.ts",
+    "targetTitle": "FormAttributes XML → YAML → XML",
     "status": "migrated"
   },
   {
@@ -555,8 +555,8 @@
     ],
     "line": 351,
     "behavior": "should preserve additional column title languages from source when default language is absent",
-    "targetPath": "packages/core/metadata/forms/clientApplicationForm/syncToXML.test.ts",
-    "targetTitle": "читает форму из YAML и экспортирует XML",
+    "targetPath": "packages/core/metadata/forms/commonObjects/formAttribute/fromXMLToYAML.test.ts",
+    "targetTitle": "FormAttributes XML → YAML → XML",
     "status": "migrated"
   },
   {
@@ -585,8 +585,8 @@
     ],
     "line": 126,
     "behavior": "should export undefined when data is undefined",
-    "targetPath": "packages/core/metadata/forms/clientApplicationForm/syncToXML.test.ts",
-    "targetTitle": "читает форму из YAML и экспортирует XML",
+    "targetPath": "packages/core/metadata/forms/commonObjects/formAttribute/fromXMLToYAML.test.ts",
+    "targetTitle": "FormAttributes XML → YAML → XML",
     "status": "migrated"
   },
   {
@@ -616,8 +616,8 @@
     ],
     "line": 131,
     "behavior": "should export full",
-    "targetPath": "packages/core/metadata/forms/clientApplicationForm/syncToXML.test.ts",
-    "targetTitle": "читает форму из YAML и экспортирует XML",
+    "targetPath": "packages/core/metadata/forms/commonObjects/formAttribute/fromXMLToYAML.test.ts",
+    "targetTitle": "FormAttributes XML → YAML → XML",
     "status": "migrated"
   },
   {
@@ -647,8 +647,8 @@
     ],
     "line": 144,
     "behavior": "should export defaults",
-    "targetPath": "packages/core/metadata/forms/clientApplicationForm/syncToXML.test.ts",
-    "targetTitle": "читает форму из YAML и экспортирует XML",
+    "targetPath": "packages/core/metadata/forms/commonObjects/formAttribute/fromXMLToYAML.test.ts",
+    "targetTitle": "FormAttributes XML → YAML → XML",
     "status": "migrated"
   },
   {
@@ -678,8 +678,8 @@
     ],
     "line": 157,
     "behavior": "should export multiple attributes",
-    "targetPath": "packages/core/metadata/forms/clientApplicationForm/syncToXML.test.ts",
-    "targetTitle": "читает форму из YAML и экспортирует XML",
+    "targetPath": "packages/core/metadata/forms/commonObjects/formAttribute/fromXMLToYAML.test.ts",
+    "targetTitle": "FormAttributes XML → YAML → XML",
     "status": "migrated"
   },
   {
@@ -709,8 +709,8 @@
     ],
     "line": 170,
     "behavior": "should export choice list",
-    "targetPath": "packages/core/metadata/forms/clientApplicationForm/syncToXML.test.ts",
-    "targetTitle": "читает форму из YAML и экспортирует XML",
+    "targetPath": "packages/core/metadata/forms/commonObjects/formAttribute/fromXMLToYAML.test.ts",
+    "targetTitle": "FormAttributes XML → YAML → XML",
     "status": "migrated"
   },
   {
@@ -740,8 +740,8 @@
     ],
     "line": 183,
     "behavior": "should export with empty settings",
-    "targetPath": "packages/core/metadata/forms/clientApplicationForm/syncToXML.test.ts",
-    "targetTitle": "читает форму из YAML и экспортирует XML",
+    "targetPath": "packages/core/metadata/forms/commonObjects/formAttribute/fromXMLToYAML.test.ts",
+    "targetTitle": "FormAttributes XML → YAML → XML",
     "status": "migrated"
   },
   {
@@ -771,8 +771,8 @@
     ],
     "line": 202,
     "behavior": "restores nested xsi:nil in planner settings from reference",
-    "targetPath": "packages/core/metadata/forms/clientApplicationForm/syncToXML.test.ts",
-    "targetTitle": "читает форму из YAML и экспортирует XML",
+    "targetPath": "packages/core/metadata/forms/commonObjects/formAttribute/fromXMLToYAML.test.ts",
+    "targetTitle": "FormAttributes XML → YAML → XML",
     "status": "migrated"
   },
   {
@@ -802,8 +802,8 @@
     ],
     "line": 245,
     "behavior": "should export without type",
-    "targetPath": "packages/core/metadata/forms/clientApplicationForm/syncToXML.test.ts",
-    "targetTitle": "читает форму из YAML и экспортирует XML",
+    "targetPath": "packages/core/metadata/forms/commonObjects/formAttribute/fromXMLToYAML.test.ts",
+    "targetTitle": "FormAttributes XML → YAML → XML",
     "status": "migrated"
   },
   {
@@ -833,8 +833,8 @@
     ],
     "line": 268,
     "behavior": "should export table with columns",
-    "targetPath": "packages/core/metadata/forms/clientApplicationForm/syncToXML.test.ts",
-    "targetTitle": "читает форму из YAML и экспортирует XML",
+    "targetPath": "packages/core/metadata/forms/commonObjects/formAttribute/fromXMLToYAML.test.ts",
+    "targetTitle": "FormAttributes XML → YAML → XML",
     "status": "migrated"
   },
   {
@@ -864,8 +864,8 @@
     ],
     "line": 281,
     "behavior": "should export tree with column",
-    "targetPath": "packages/core/metadata/forms/clientApplicationForm/syncToXML.test.ts",
-    "targetTitle": "читает форму из YAML и экспортирует XML",
+    "targetPath": "packages/core/metadata/forms/commonObjects/formAttribute/fromXMLToYAML.test.ts",
+    "targetTitle": "FormAttributes XML → YAML → XML",
     "status": "migrated"
   },
   {
@@ -895,8 +895,8 @@
     ],
     "line": 294,
     "behavior": "should export with additional column",
-    "targetPath": "packages/core/metadata/forms/clientApplicationForm/syncToXML.test.ts",
-    "targetTitle": "читает форму из YAML и экспортирует XML",
+    "targetPath": "packages/core/metadata/forms/commonObjects/formAttribute/fromXMLToYAML.test.ts",
+    "targetTitle": "FormAttributes XML → YAML → XML",
     "status": "migrated"
   },
   {
@@ -925,8 +925,8 @@
     ],
     "line": 307,
     "behavior": "restores ERP duplicate AdditionalColumns only for the known form path",
-    "targetPath": "packages/core/metadata/forms/clientApplicationForm/syncToXML.test.ts",
-    "targetTitle": "читает форму из YAML и экспортирует XML",
+    "targetPath": "packages/core/metadata/forms/commonObjects/formAttribute/fromXMLToYAML.test.ts",
+    "targetTitle": "FormAttributes XML → YAML → XML",
     "status": "migrated"
   },
   {
@@ -956,8 +956,8 @@
     ],
     "line": 325,
     "behavior": "keeps canonical AdditionalColumns for other form paths",
-    "targetPath": "packages/core/metadata/forms/clientApplicationForm/syncToXML.test.ts",
-    "targetTitle": "читает форму из YAML и экспортирует XML",
+    "targetPath": "packages/core/metadata/forms/commonObjects/formAttribute/fromXMLToYAML.test.ts",
+    "targetTitle": "FormAttributes XML → YAML → XML",
     "status": "migrated"
   },
   {
@@ -986,8 +986,8 @@
     ],
     "line": 336,
     "behavior": "keeps canonical AdditionalColumns for the ERP path when table is different",
-    "targetPath": "packages/core/metadata/forms/clientApplicationForm/syncToXML.test.ts",
-    "targetTitle": "читает форму из YAML и экспортирует XML",
+    "targetPath": "packages/core/metadata/forms/commonObjects/formAttribute/fromXMLToYAML.test.ts",
+    "targetTitle": "FormAttributes XML → YAML → XML",
     "status": "migrated"
   },
   {
@@ -1016,8 +1016,8 @@
     ],
     "line": 353,
     "behavior": "keeps canonical AdditionalColumns for the ERP path when column name is different",
-    "targetPath": "packages/core/metadata/forms/clientApplicationForm/syncToXML.test.ts",
-    "targetTitle": "читает форму из YAML и экспортирует XML",
+    "targetPath": "packages/core/metadata/forms/commonObjects/formAttribute/fromXMLToYAML.test.ts",
+    "targetTitle": "FormAttributes XML → YAML → XML",
     "status": "migrated"
   },
   {
@@ -1046,8 +1046,8 @@
     ],
     "line": 364,
     "behavior": "keeps canonical AdditionalColumns for the ERP path when the known group has multiple columns",
-    "targetPath": "packages/core/metadata/forms/clientApplicationForm/syncToXML.test.ts",
-    "targetTitle": "читает форму из YAML и экспортирует XML",
+    "targetPath": "packages/core/metadata/forms/commonObjects/formAttribute/fromXMLToYAML.test.ts",
+    "targetTitle": "FormAttributes XML → YAML → XML",
     "status": "migrated"
   },
   {
@@ -1077,8 +1077,8 @@
     ],
     "line": 375,
     "behavior": "export tableWithColumns",
-    "targetPath": "packages/core/metadata/forms/clientApplicationForm/syncToXML.test.ts",
-    "targetTitle": "читает форму из YAML и экспортирует XML",
+    "targetPath": "packages/core/metadata/forms/commonObjects/formAttribute/fromXMLToYAML.test.ts",
+    "targetTitle": "FormAttributes XML → YAML → XML",
     "status": "migrated"
   },
   {
@@ -1108,8 +1108,8 @@
     ],
     "line": 389,
     "behavior": "export treeWithColumn",
-    "targetPath": "packages/core/metadata/forms/clientApplicationForm/syncToXML.test.ts",
-    "targetTitle": "читает форму из YAML и экспортирует XML",
+    "targetPath": "packages/core/metadata/forms/commonObjects/formAttribute/fromXMLToYAML.test.ts",
+    "targetTitle": "FormAttributes XML → YAML → XML",
     "status": "migrated"
   },
   {
@@ -1139,8 +1139,8 @@
     ],
     "line": 403,
     "behavior": "export twoTables",
-    "targetPath": "packages/core/metadata/forms/clientApplicationForm/syncToXML.test.ts",
-    "targetTitle": "читает форму из YAML и экспортирует XML",
+    "targetPath": "packages/core/metadata/forms/commonObjects/formAttribute/fromXMLToYAML.test.ts",
+    "targetTitle": "FormAttributes XML → YAML → XML",
     "status": "migrated"
   },
   {
@@ -1170,8 +1170,8 @@
     ],
     "line": 417,
     "behavior": "export mixedColumns",
-    "targetPath": "packages/core/metadata/forms/clientApplicationForm/syncToXML.test.ts",
-    "targetTitle": "читает форму из YAML и экспортирует XML",
+    "targetPath": "packages/core/metadata/forms/commonObjects/formAttribute/fromXMLToYAML.test.ts",
+    "targetTitle": "FormAttributes XML → YAML → XML",
     "status": "migrated"
   },
   {
@@ -1201,8 +1201,8 @@
     ],
     "line": 431,
     "behavior": "export titleColumnsType",
-    "targetPath": "packages/core/metadata/forms/clientApplicationForm/syncToXML.test.ts",
-    "targetTitle": "читает форму из YAML и экспортирует XML",
+    "targetPath": "packages/core/metadata/forms/commonObjects/formAttribute/fromXMLToYAML.test.ts",
+    "targetTitle": "FormAttributes XML → YAML → XML",
     "status": "migrated"
   },
   {
@@ -1231,8 +1231,8 @@
     ],
     "line": 445,
     "behavior": "round-trip keeps repeated DynamicList KeyField nodes in Settings",
-    "targetPath": "packages/core/metadata/forms/clientApplicationForm/syncToXML.test.ts",
-    "targetTitle": "читает форму из YAML и экспортирует XML",
+    "targetPath": "packages/core/metadata/forms/commonObjects/formAttribute/fromXMLToYAML.test.ts",
+    "targetTitle": "FormAttributes XML → YAML → XML",
     "status": "migrated"
   },
   {
@@ -1261,8 +1261,8 @@
     ],
     "line": 471,
     "behavior": "exports FlowchartContextType Settings",
-    "targetPath": "packages/core/metadata/forms/clientApplicationForm/syncToXML.test.ts",
-    "targetTitle": "читает форму из YAML и экспортирует XML",
+    "targetPath": "packages/core/metadata/forms/commonObjects/formAttribute/fromXMLToYAML.test.ts",
+    "targetTitle": "FormAttributes XML → YAML → XML",
     "status": "migrated"
   },
   {
@@ -1292,8 +1292,8 @@
     ],
     "line": 495,
     "behavior": "export attributeAnyType",
-    "targetPath": "packages/core/metadata/forms/clientApplicationForm/syncToXML.test.ts",
-    "targetTitle": "читает форму из YAML и экспортирует XML",
+    "targetPath": "packages/core/metadata/forms/commonObjects/formAttribute/fromXMLToYAML.test.ts",
+    "targetTitle": "FormAttributes XML → YAML → XML",
     "status": "migrated"
   },
   {
@@ -1323,8 +1323,8 @@
     ],
     "line": 509,
     "behavior": "export columnAnyType",
-    "targetPath": "packages/core/metadata/forms/clientApplicationForm/syncToXML.test.ts",
-    "targetTitle": "читает форму из YAML и экспортирует XML",
+    "targetPath": "packages/core/metadata/forms/commonObjects/formAttribute/fromXMLToYAML.test.ts",
+    "targetTitle": "FormAttributes XML → YAML → XML",
     "status": "migrated"
   },
   {
@@ -1354,8 +1354,8 @@
     ],
     "line": 523,
     "behavior": "export chartSettings",
-    "targetPath": "packages/core/metadata/forms/clientApplicationForm/syncToXML.test.ts",
-    "targetTitle": "читает форму из YAML и экспортирует XML",
+    "targetPath": "packages/core/metadata/forms/commonObjects/formAttribute/fromXMLToYAML.test.ts",
+    "targetTitle": "FormAttributes XML → YAML → XML",
     "status": "migrated"
   },
   {
@@ -1385,8 +1385,8 @@
     ],
     "line": 536,
     "behavior": "export ganttChartSettings",
-    "targetPath": "packages/core/metadata/forms/clientApplicationForm/syncToXML.test.ts",
-    "targetTitle": "читает форму из YAML и экспортирует XML",
+    "targetPath": "packages/core/metadata/forms/commonObjects/formAttribute/fromXMLToYAML.test.ts",
+    "targetTitle": "FormAttributes XML → YAML → XML",
     "status": "migrated"
   },
   {
@@ -1416,8 +1416,8 @@
     ],
     "line": 549,
     "behavior": "export spreadsheetDocumentSettings",
-    "targetPath": "packages/core/metadata/forms/clientApplicationForm/syncToXML.test.ts",
-    "targetTitle": "читает форму из YAML и экспортирует XML",
+    "targetPath": "packages/core/metadata/forms/commonObjects/formAttribute/fromXMLToYAML.test.ts",
+    "targetTitle": "FormAttributes XML → YAML → XML",
     "status": "migrated"
   },
   {
@@ -1447,8 +1447,8 @@
     ],
     "line": 562,
     "behavior": "export plannerSettings",
-    "targetPath": "packages/core/metadata/forms/clientApplicationForm/syncToXML.test.ts",
-    "targetTitle": "читает форму из YAML и экспортирует XML",
+    "targetPath": "packages/core/metadata/forms/commonObjects/formAttribute/fromXMLToYAML.test.ts",
+    "targetTitle": "FormAttributes XML → YAML → XML",
     "status": "migrated"
   },
   {
@@ -1478,8 +1478,8 @@
     ],
     "line": 575,
     "behavior": "export plannerSettingsWithNil",
-    "targetPath": "packages/core/metadata/forms/clientApplicationForm/syncToXML.test.ts",
-    "targetTitle": "читает форму из YAML и экспортирует XML",
+    "targetPath": "packages/core/metadata/forms/commonObjects/formAttribute/fromXMLToYAML.test.ts",
+    "targetTitle": "FormAttributes XML → YAML → XML",
     "status": "migrated"
   },
   {
@@ -1509,8 +1509,8 @@
     ],
     "line": 603,
     "behavior": "exports ValueListType without Settings when reference is absent",
-    "targetPath": "packages/core/metadata/forms/clientApplicationForm/syncToXML.test.ts",
-    "targetTitle": "читает форму из YAML и экспортирует XML",
+    "targetPath": "packages/core/metadata/forms/commonObjects/formAttribute/fromXMLToYAML.test.ts",
+    "targetTitle": "FormAttributes XML → YAML → XML",
     "status": "migrated"
   },
   {
@@ -1540,8 +1540,8 @@
     ],
     "line": 617,
     "behavior": "preserves empty Settings for ValueListType from reference",
-    "targetPath": "packages/core/metadata/forms/clientApplicationForm/syncToXML.test.ts",
-    "targetTitle": "читает форму из YAML и экспортирует XML",
+    "targetPath": "packages/core/metadata/forms/commonObjects/formAttribute/fromXMLToYAML.test.ts",
+    "targetTitle": "FormAttributes XML → YAML → XML",
     "status": "migrated"
   },
   {
@@ -1557,8 +1557,8 @@
     ],
     "line": 16,
     "behavior": "should return undefined for undefined input",
-    "targetPath": "packages/core/metadata/forms/clientApplicationForm/syncToXML.test.ts",
-    "targetTitle": "читает форму из YAML и экспортирует XML",
+    "targetPath": "packages/core/metadata/forms/commonObjects/formCommand/fromXMLToYAML.test.ts",
+    "targetTitle": "FormCommands XML → YAML → XML",
     "status": "migrated"
   },
   {
@@ -1575,8 +1575,8 @@
     ],
     "line": 26,
     "behavior": "should export full to XML",
-    "targetPath": "packages/core/metadata/forms/clientApplicationForm/syncToXML.test.ts",
-    "targetTitle": "читает форму из YAML и экспортирует XML",
+    "targetPath": "packages/core/metadata/forms/commonObjects/formCommand/fromXMLToYAML.test.ts",
+    "targetTitle": "FormCommands XML → YAML → XML",
     "status": "migrated"
   },
   {
@@ -1593,8 +1593,8 @@
     ],
     "line": 39,
     "behavior": "should export minimal",
-    "targetPath": "packages/core/metadata/forms/clientApplicationForm/syncToXML.test.ts",
-    "targetTitle": "читает форму из YAML и экспортирует XML",
+    "targetPath": "packages/core/metadata/forms/commonObjects/formCommand/fromXMLToYAML.test.ts",
+    "targetTitle": "FormCommands XML → YAML → XML",
     "status": "migrated"
   },
   {
@@ -16605,7 +16605,7 @@
     "line": 28,
     "behavior": "should read form from XML and export to YAML file in output dir",
     "targetPath": "packages/core/metadata/forms/clientApplicationForm/syncToXML.test.ts",
-    "targetTitle": "читает форму из YAML и экспортирует XML",
+    "targetTitle": "sync ClientApplicationForm to XML",
     "status": "migrated"
   },
   {
@@ -16620,7 +16620,7 @@
     "line": 43,
     "behavior": "collects the form uuid under the owner-derived logical address",
     "targetPath": "packages/core/metadata/forms/clientApplicationForm/syncToXML.test.ts",
-    "targetTitle": "читает форму из YAML и экспортирует XML",
+    "targetTitle": "sync ClientApplicationForm to XML",
     "status": "migrated"
   },
   {
@@ -16637,7 +16637,7 @@
     "line": 61,
     "behavior": "должен экспортировать текст запроса DynamicList во внешний .query файл",
     "targetPath": "packages/core/metadata/forms/clientApplicationForm/syncToXML.test.ts",
-    "targetTitle": "читает форму из YAML и экспортирует XML",
+    "targetTitle": "sync ClientApplicationForm to XML",
     "status": "migrated"
   },
   {
@@ -16655,7 +16655,7 @@
     "line": 85,
     "behavior": "imports ordinary form metadata and copies Form.bin without Form.xml",
     "targetPath": "packages/core/metadata/forms/clientApplicationForm/syncToXML.test.ts",
-    "targetTitle": "читает форму из YAML и экспортирует XML",
+    "targetTitle": "sync ClientApplicationForm to XML",
     "status": "migrated"
   },
   {
@@ -16672,7 +16672,7 @@
     "line": 125,
     "behavior": "omits form synonym equal to the form name",
     "targetPath": "packages/core/metadata/forms/clientApplicationForm/syncToXML.test.ts",
-    "targetTitle": "читает форму из YAML и экспортирует XML",
+    "targetTitle": "sync ClientApplicationForm to XML",
     "status": "migrated"
   },
   {
@@ -16689,7 +16689,7 @@
     "line": 161,
     "behavior": "imports metadata-only ordinary form without creating Form.bin",
     "targetPath": "packages/core/metadata/forms/clientApplicationForm/syncToXML.test.ts",
-    "targetTitle": "читает форму из YAML и экспортирует XML",
+    "targetTitle": "sync ClientApplicationForm to XML",
     "status": "migrated"
   },
   {
@@ -16706,7 +16706,7 @@
     "line": 199,
     "behavior": "keeps managed form without Form.xml as an input error",
     "targetPath": "packages/core/metadata/forms/clientApplicationForm/syncToXML.test.ts",
-    "targetTitle": "читает форму из YAML и экспортирует XML",
+    "targetTitle": "sync ClientApplicationForm to XML",
     "status": "migrated"
   },
   {
@@ -16723,7 +16723,7 @@
     "line": 228,
     "behavior": "copies managed form Form.bin even when Form.xml exists",
     "targetPath": "packages/core/metadata/forms/clientApplicationForm/syncToXML.test.ts",
-    "targetTitle": "читает форму из YAML и экспортирует XML",
+    "targetTitle": "sync ClientApplicationForm to XML",
     "status": "migrated"
   },
   {
@@ -16738,7 +16738,7 @@
     "line": 247,
     "behavior": "copies form help _files recursively",
     "targetPath": "packages/core/metadata/forms/clientApplicationForm/syncToXML.test.ts",
-    "targetTitle": "читает форму из YAML и экспортирует XML",
+    "targetTitle": "sync ClientApplicationForm to XML",
     "status": "migrated"
   },
   {
@@ -16753,7 +16753,7 @@
     "line": 273,
     "behavior": "копирует внешние картинки элементов формы в YAML-каталоги по имени элемента",
     "targetPath": "packages/core/metadata/forms/clientApplicationForm/syncToXML.test.ts",
-    "targetTitle": "читает форму из YAML и экспортирует XML",
+    "targetTitle": "sync ClientApplicationForm to XML",
     "status": "migrated"
   },
   {
@@ -16773,7 +16773,7 @@
     "line": 322,
     "behavior": "preserves xsi:nil in raw SettingsFragment when reading form XML",
     "targetPath": "packages/core/metadata/forms/clientApplicationForm/syncToXML.test.ts",
-    "targetTitle": "читает форму из YAML и экспортирует XML",
+    "targetTitle": "sync ClientApplicationForm to XML",
     "status": "migrated"
   },
   {
@@ -16791,7 +16791,7 @@
     "line": 364,
     "behavior": "экспортирует событие BeforeExecute в YAML как ПередВыполнением",
     "targetPath": "packages/core/metadata/forms/clientApplicationForm/syncToXML.test.ts",
-    "targetTitle": "читает форму из YAML и экспортирует XML",
+    "targetTitle": "sync ClientApplicationForm to XML",
     "status": "migrated"
   },
   {
@@ -16806,7 +16806,7 @@
     "line": 393,
     "behavior": "public core entrypoint exports form YAML rules",
     "targetPath": "packages/core/metadata/forms/clientApplicationForm/syncToXML.test.ts",
-    "targetTitle": "читает форму из YAML и экспортирует XML",
+    "targetTitle": "sync ClientApplicationForm to XML",
     "status": "migrated"
   },
   {
@@ -16827,7 +16827,7 @@
     "line": 20,
     "behavior": "should import all fields from XML",
     "targetPath": "packages/core/metadata/forms/clientApplicationForm/fromXMLToYAML.test.ts",
-    "targetTitle": "совпадает с действующим YAML полной формы",
+    "targetTitle": "форма XML → YAML → XML",
     "status": "migrated"
   },
   {
@@ -16848,7 +16848,7 @@
     "line": 32,
     "behavior": "should import minimal",
     "targetPath": "packages/core/metadata/forms/clientApplicationForm/fromXMLToYAML.test.ts",
-    "targetTitle": "совпадает с действующим YAML полной формы",
+    "targetTitle": "форма XML → YAML → XML",
     "status": "migrated"
   },
   {
@@ -16869,7 +16869,7 @@
     "line": 47,
     "behavior": "imports explicit empty ExtendedPresentation from metadata XML",
     "targetPath": "packages/core/metadata/forms/clientApplicationForm/fromXMLToYAML.test.ts",
-    "targetTitle": "совпадает с действующим YAML полной формы",
+    "targetTitle": "форма XML → YAML → XML",
     "status": "migrated"
   },
   {
@@ -16890,7 +16890,7 @@
     "line": 64,
     "behavior": "imports catalog full form from XML",
     "targetPath": "packages/core/metadata/forms/clientApplicationForm/fromXMLToYAML.test.ts",
-    "targetTitle": "совпадает с действующим YAML полной формы",
+    "targetTitle": "форма XML → YAML → XML",
     "status": "migrated"
   },
   {
@@ -16911,7 +16911,7 @@
     "line": 79,
     "behavior": "imports document full form from XML",
     "targetPath": "packages/core/metadata/forms/clientApplicationForm/fromXMLToYAML.test.ts",
-    "targetTitle": "совпадает с действующим YAML полной формы",
+    "targetTitle": "форма XML → YAML → XML",
     "status": "migrated"
   },
   {
@@ -16932,7 +16932,7 @@
     "line": 94,
     "behavior": "imports conditional appearance without attributes",
     "targetPath": "packages/core/metadata/forms/clientApplicationForm/fromXMLToYAML.test.ts",
-    "targetTitle": "совпадает с действующим YAML полной формы",
+    "targetTitle": "форма XML → YAML → XML",
     "status": "migrated"
   },
   {
@@ -16953,7 +16953,7 @@
     "line": 112,
     "behavior": "imports CustomSettingsFolder",
     "targetPath": "packages/core/metadata/forms/clientApplicationForm/fromXMLToYAML.test.ts",
-    "targetTitle": "совпадает с действующим YAML полной формы",
+    "targetTitle": "форма XML → YAML → XML",
     "status": "migrated"
   },
   {
@@ -16974,7 +16974,7 @@
     "line": 130,
     "behavior": "imports root ChildItemsWidth",
     "targetPath": "packages/core/metadata/forms/clientApplicationForm/fromXMLToYAML.test.ts",
-    "targetTitle": "совпадает с действующим YAML полной формы",
+    "targetTitle": "форма XML → YAML → XML",
     "status": "migrated"
   },
   {
@@ -16993,7 +16993,7 @@
     "line": 145,
     "behavior": "imports decimal report result fields as numbers",
     "targetPath": "packages/core/metadata/forms/clientApplicationForm/fromXMLToYAML.test.ts",
-    "targetTitle": "совпадает с действующим YAML полной формы",
+    "targetTitle": "форма XML → YAML → XML",
     "status": "migrated"
   },
   {
@@ -17014,7 +17014,7 @@
     "line": 159,
     "behavior": "imports report form extension fields",
     "targetPath": "packages/core/metadata/forms/clientApplicationForm/fromXMLToYAML.test.ts",
-    "targetTitle": "совпадает с действующим YAML полной формы",
+    "targetTitle": "форма XML → YAML → XML",
     "status": "migrated"
   },
   {
@@ -17036,7 +17036,7 @@
     "line": 174,
     "behavior": "collects form and nested item identities without collection order",
     "targetPath": "packages/core/metadata/forms/clientApplicationForm/fromXMLToYAML.test.ts",
-    "targetTitle": "совпадает с действующим YAML полной формы",
+    "targetTitle": "форма XML → YAML → XML",
     "status": "migrated"
   },
   {
@@ -17058,7 +17058,7 @@
     "line": 214,
     "behavior": "адресует singleton по каноническому имени и сохраняет нестандартное XML-имя",
     "targetPath": "packages/core/metadata/forms/clientApplicationForm/fromXMLToYAML.test.ts",
-    "targetTitle": "совпадает с действующим YAML полной формы",
+    "targetTitle": "форма XML → YAML → XML",
     "status": "migrated"
   },
   {
@@ -17078,7 +17078,7 @@
     "line": 249,
     "behavior": "адресует таблицу диаграммы Ганта как отдельный вложенный элемент индекса",
     "targetPath": "packages/core/metadata/forms/clientApplicationForm/fromXMLToYAML.test.ts",
-    "targetTitle": "совпадает с действующим YAML полной формы",
+    "targetTitle": "форма XML → YAML → XML",
     "status": "migrated"
   },
   {
@@ -17098,7 +17098,7 @@
     "line": 297,
     "behavior": "собирает порядок Form.xml отдельно от metadata XML",
     "targetPath": "packages/core/metadata/forms/clientApplicationForm/fromXMLToYAML.test.ts",
-    "targetTitle": "совпадает с действующим YAML полной формы",
+    "targetTitle": "форма XML → YAML → XML",
     "status": "migrated"
   },
   {
@@ -17116,8 +17116,8 @@
     ],
     "line": 215,
     "behavior": "imports report form settings storage from a local form reference",
-    "targetPath": "packages/core/metadata/forms/clientApplicationForm/syncToXML.test.ts",
-    "targetTitle": "читает форму из YAML и экспортирует XML",
+    "targetPath": "packages/core/metadata/forms/clientApplicationForm/fromYAMLToXML.test.ts",
+    "targetTitle": "convertClientApplicationFormFromYAMLToXML",
     "status": "migrated"
   },
   {
@@ -17135,8 +17135,8 @@
     ],
     "line": 225,
     "behavior": "keeps dynamic list field data paths in YAML spelling",
-    "targetPath": "packages/core/metadata/forms/clientApplicationForm/syncToXML.test.ts",
-    "targetTitle": "читает форму из YAML и экспортирует XML",
+    "targetPath": "packages/core/metadata/forms/clientApplicationForm/fromYAMLToXML.test.ts",
+    "targetTitle": "convertClientApplicationFormFromYAMLToXML",
     "status": "migrated"
   },
   {
@@ -17154,8 +17154,8 @@
     ],
     "line": 259,
     "behavior": "keeps ValueTable field data paths in YAML spelling",
-    "targetPath": "packages/core/metadata/forms/clientApplicationForm/syncToXML.test.ts",
-    "targetTitle": "читает форму из YAML и экспортирует XML",
+    "targetPath": "packages/core/metadata/forms/clientApplicationForm/fromYAMLToXML.test.ts",
+    "targetTitle": "convertClientApplicationFormFromYAMLToXML",
     "status": "migrated"
   },
   {
@@ -17173,8 +17173,8 @@
     ],
     "line": 277,
     "behavior": "imports object standard member data paths to internal spelling",
-    "targetPath": "packages/core/metadata/forms/clientApplicationForm/syncToXML.test.ts",
-    "targetTitle": "читает форму из YAML и экспортирует XML",
+    "targetPath": "packages/core/metadata/forms/clientApplicationForm/fromYAMLToXML.test.ts",
+    "targetTitle": "convertClientApplicationFormFromYAMLToXML",
     "status": "migrated"
   },
   {
@@ -17192,8 +17192,8 @@
     ],
     "line": 290,
     "behavior": "imports tabular section row number data paths from YAML spelling",
-    "targetPath": "packages/core/metadata/forms/clientApplicationForm/syncToXML.test.ts",
-    "targetTitle": "читает форму из YAML и экспортирует XML",
+    "targetPath": "packages/core/metadata/forms/clientApplicationForm/fromYAMLToXML.test.ts",
+    "targetTitle": "convertClientApplicationFormFromYAMLToXML",
     "status": "migrated"
   },
   {
@@ -17211,8 +17211,8 @@
     ],
     "line": 309,
     "behavior": "imports complete form from one YAML source without source",
-    "targetPath": "packages/core/metadata/forms/clientApplicationForm/syncToXML.test.ts",
-    "targetTitle": "читает форму из YAML и экспортирует XML",
+    "targetPath": "packages/core/metadata/forms/clientApplicationForm/fromYAMLToXML.test.ts",
+    "targetTitle": "convertClientApplicationFormFromYAMLToXML",
     "status": "migrated"
   },
   {
@@ -17230,8 +17230,8 @@
     ],
     "line": 354,
     "behavior": "imports disabled auto command bar autofill without source",
-    "targetPath": "packages/core/metadata/forms/clientApplicationForm/syncToXML.test.ts",
-    "targetTitle": "читает форму из YAML и экспортирует XML",
+    "targetPath": "packages/core/metadata/forms/clientApplicationForm/fromYAMLToXML.test.ts",
+    "targetTitle": "convertClientApplicationFormFromYAMLToXML",
     "status": "migrated"
   },
   {
@@ -17249,8 +17249,8 @@
     ],
     "line": 370,
     "behavior": "should import all fields from YAML",
-    "targetPath": "packages/core/metadata/forms/clientApplicationForm/syncToXML.test.ts",
-    "targetTitle": "читает форму из YAML и экспортирует XML",
+    "targetPath": "packages/core/metadata/forms/clientApplicationForm/fromYAMLToXML.test.ts",
+    "targetTitle": "convertClientApplicationFormFromYAMLToXML",
     "status": "migrated"
   },
   {
@@ -17268,8 +17268,8 @@
     ],
     "line": 385,
     "behavior": "imports catalog full YAML",
-    "targetPath": "packages/core/metadata/forms/clientApplicationForm/syncToXML.test.ts",
-    "targetTitle": "читает форму из YAML и экспортирует XML",
+    "targetPath": "packages/core/metadata/forms/clientApplicationForm/fromYAMLToXML.test.ts",
+    "targetTitle": "convertClientApplicationFormFromYAMLToXML",
     "status": "migrated"
   },
   {
@@ -17287,8 +17287,8 @@
     ],
     "line": 417,
     "behavior": "imports document full YAML",
-    "targetPath": "packages/core/metadata/forms/clientApplicationForm/syncToXML.test.ts",
-    "targetTitle": "читает форму из YAML и экспортирует XML",
+    "targetPath": "packages/core/metadata/forms/clientApplicationForm/fromYAMLToXML.test.ts",
+    "targetTitle": "convertClientApplicationFormFromYAMLToXML",
     "status": "migrated"
   },
   {
@@ -17306,8 +17306,8 @@
     ],
     "line": 455,
     "behavior": "should import from form command bar",
-    "targetPath": "packages/core/metadata/forms/clientApplicationForm/syncToXML.test.ts",
-    "targetTitle": "читает форму из YAML и экспортирует XML",
+    "targetPath": "packages/core/metadata/forms/clientApplicationForm/fromYAMLToXML.test.ts",
+    "targetTitle": "convertClientApplicationFormFromYAMLToXML",
     "status": "migrated"
   },
   {
@@ -17325,8 +17325,8 @@
     ],
     "line": 523,
     "behavior": "should import from table command bar",
-    "targetPath": "packages/core/metadata/forms/clientApplicationForm/syncToXML.test.ts",
-    "targetTitle": "читает форму из YAML и экспортирует XML",
+    "targetPath": "packages/core/metadata/forms/clientApplicationForm/fromYAMLToXML.test.ts",
+    "targetTitle": "convertClientApplicationFormFromYAMLToXML",
     "status": "migrated"
   },
   {
@@ -17344,8 +17344,8 @@
     ],
     "line": 611,
     "behavior": "imports CustomSettingsFolder from YAML",
-    "targetPath": "packages/core/metadata/forms/clientApplicationForm/syncToXML.test.ts",
-    "targetTitle": "читает форму из YAML и экспортирует XML",
+    "targetPath": "packages/core/metadata/forms/clientApplicationForm/fromYAMLToXML.test.ts",
+    "targetTitle": "convertClientApplicationFormFromYAMLToXML",
     "status": "migrated"
   },
   {
@@ -17363,8 +17363,8 @@
     ],
     "line": 650,
     "behavior": "does not apply report form Auto defaults when importing YAML",
-    "targetPath": "packages/core/metadata/forms/clientApplicationForm/syncToXML.test.ts",
-    "targetTitle": "читает форму из YAML и экспортирует XML",
+    "targetPath": "packages/core/metadata/forms/clientApplicationForm/fromYAMLToXML.test.ts",
+    "targetTitle": "convertClientApplicationFormFromYAMLToXML",
     "status": "migrated"
   },
   {
@@ -17384,8 +17384,8 @@
     ],
     "line": 27,
     "behavior": "uses configuration index logical address for form body",
-    "targetPath": "packages/core/metadata/forms/clientApplicationForm/syncToXML.test.ts",
-    "targetTitle": "читает форму из YAML и экспортирует XML",
+    "targetPath": "packages/core/metadata/forms/clientApplicationForm/fromYAMLToXML.test.ts",
+    "targetTitle": "convertClientApplicationFormFromYAMLToXML",
     "status": "migrated"
   },
   {
@@ -17405,8 +17405,8 @@
     ],
     "line": 55,
     "behavior": "should export all fields to XML",
-    "targetPath": "packages/core/metadata/forms/clientApplicationForm/syncToXML.test.ts",
-    "targetTitle": "читает форму из YAML и экспортирует XML",
+    "targetPath": "packages/core/metadata/forms/clientApplicationForm/fromYAMLToXML.test.ts",
+    "targetTitle": "convertClientApplicationFormFromYAMLToXML",
     "status": "migrated"
   },
   {
@@ -17426,8 +17426,8 @@
     ],
     "line": 82,
     "behavior": "exports CustomSettingsFolder",
-    "targetPath": "packages/core/metadata/forms/clientApplicationForm/syncToXML.test.ts",
-    "targetTitle": "читает форму из YAML и экспортирует XML",
+    "targetPath": "packages/core/metadata/forms/clientApplicationForm/fromYAMLToXML.test.ts",
+    "targetTitle": "convertClientApplicationFormFromYAMLToXML",
     "status": "migrated"
   },
   {
@@ -17447,8 +17447,8 @@
     ],
     "line": 109,
     "behavior": "exports root ChildItemsWidth",
-    "targetPath": "packages/core/metadata/forms/clientApplicationForm/syncToXML.test.ts",
-    "targetTitle": "читает форму из YAML и экспортирует XML",
+    "targetPath": "packages/core/metadata/forms/clientApplicationForm/fromYAMLToXML.test.ts",
+    "targetTitle": "convertClientApplicationFormFromYAMLToXML",
     "status": "migrated"
   },
   {
@@ -17468,8 +17468,8 @@
     ],
     "line": 136,
     "behavior": "exports report form extension fields",
-    "targetPath": "packages/core/metadata/forms/clientApplicationForm/syncToXML.test.ts",
-    "targetTitle": "читает форму из YAML и экспортирует XML",
+    "targetPath": "packages/core/metadata/forms/clientApplicationForm/fromYAMLToXML.test.ts",
+    "targetTitle": "convertClientApplicationFormFromYAMLToXML",
     "status": "migrated"
   },
   {
@@ -17487,8 +17487,8 @@
     ],
     "line": 163,
     "behavior": "exports decimal report result fields with xsi type",
-    "targetPath": "packages/core/metadata/forms/clientApplicationForm/syncToXML.test.ts",
-    "targetTitle": "читает форму из YAML и экспортирует XML",
+    "targetPath": "packages/core/metadata/forms/clientApplicationForm/fromYAMLToXML.test.ts",
+    "targetTitle": "convertClientApplicationFormFromYAMLToXML",
     "status": "migrated"
   },
   {
@@ -17508,8 +17508,8 @@
     ],
     "line": 190,
     "behavior": "should export minimal",
-    "targetPath": "packages/core/metadata/forms/clientApplicationForm/syncToXML.test.ts",
-    "targetTitle": "читает форму из YAML и экспортирует XML",
+    "targetPath": "packages/core/metadata/forms/clientApplicationForm/fromYAMLToXML.test.ts",
+    "targetTitle": "convertClientApplicationFormFromYAMLToXML",
     "status": "migrated"
   },
   {
@@ -17529,8 +17529,8 @@
     ],
     "line": 216,
     "behavior": "exports conditional appearance without attributes",
-    "targetPath": "packages/core/metadata/forms/clientApplicationForm/syncToXML.test.ts",
-    "targetTitle": "читает форму из YAML и экспортирует XML",
+    "targetPath": "packages/core/metadata/forms/clientApplicationForm/fromYAMLToXML.test.ts",
+    "targetTitle": "convertClientApplicationFormFromYAMLToXML",
     "status": "migrated"
   },
   {
@@ -17550,8 +17550,8 @@
     ],
     "line": 242,
     "behavior": "exports catalog full form to XML",
-    "targetPath": "packages/core/metadata/forms/clientApplicationForm/syncToXML.test.ts",
-    "targetTitle": "читает форму из YAML и экспортирует XML",
+    "targetPath": "packages/core/metadata/forms/clientApplicationForm/fromYAMLToXML.test.ts",
+    "targetTitle": "convertClientApplicationFormFromYAMLToXML",
     "status": "migrated"
   },
   {
@@ -17571,8 +17571,8 @@
     ],
     "line": 268,
     "behavior": "exports document full form to XML",
-    "targetPath": "packages/core/metadata/forms/clientApplicationForm/syncToXML.test.ts",
-    "targetTitle": "читает форму из YAML и экспортирует XML",
+    "targetPath": "packages/core/metadata/forms/clientApplicationForm/fromYAMLToXML.test.ts",
+    "targetTitle": "convertClientApplicationFormFromYAMLToXML",
     "status": "migrated"
   },
   {
@@ -17590,8 +17590,8 @@
     ],
     "line": 294,
     "behavior": "не добавляет Period и TopLevelParent для таблицы DynamicList без referenceForm",
-    "targetPath": "packages/core/metadata/forms/clientApplicationForm/syncToXML.test.ts",
-    "targetTitle": "читает форму из YAML и экспортирует XML",
+    "targetPath": "packages/core/metadata/forms/clientApplicationForm/fromYAMLToXML.test.ts",
+    "targetTitle": "convertClientApplicationFormFromYAMLToXML",
     "status": "migrated"
   },
   {
@@ -17609,8 +17609,8 @@
     ],
     "line": 330,
     "behavior": "сохраняет Period и TopLevelParent для таблицы из referenceForm",
-    "targetPath": "packages/core/metadata/forms/clientApplicationForm/syncToXML.test.ts",
-    "targetTitle": "читает форму из YAML и экспортирует XML",
+    "targetPath": "packages/core/metadata/forms/clientApplicationForm/fromYAMLToXML.test.ts",
+    "targetTitle": "convertClientApplicationFormFromYAMLToXML",
     "status": "migrated"
   },
   {
@@ -17628,8 +17628,8 @@
     ],
     "line": 390,
     "behavior": "не добавляет RowFilter для обычного реквизита без referenceForm",
-    "targetPath": "packages/core/metadata/forms/clientApplicationForm/syncToXML.test.ts",
-    "targetTitle": "читает форму из YAML и экспортирует XML",
+    "targetPath": "packages/core/metadata/forms/clientApplicationForm/fromYAMLToXML.test.ts",
+    "targetTitle": "convertClientApplicationFormFromYAMLToXML",
     "status": "migrated"
   },
   {
@@ -17647,8 +17647,8 @@
     ],
     "line": 423,
     "behavior": "сохраняет RowFilter для таблицы из referenceForm",
-    "targetPath": "packages/core/metadata/forms/clientApplicationForm/syncToXML.test.ts",
-    "targetTitle": "читает форму из YAML и экспортирует XML",
+    "targetPath": "packages/core/metadata/forms/clientApplicationForm/fromYAMLToXML.test.ts",
+    "targetTitle": "convertClientApplicationFormFromYAMLToXML",
     "status": "migrated"
   },
   {
@@ -17666,8 +17666,8 @@
     ],
     "line": 475,
     "behavior": "preserves command ids from reference form by name",
-    "targetPath": "packages/core/metadata/forms/clientApplicationForm/syncToXML.test.ts",
-    "targetTitle": "читает форму из YAML и экспортирует XML",
+    "targetPath": "packages/core/metadata/forms/clientApplicationForm/fromYAMLToXML.test.ts",
+    "targetTitle": "convertClientApplicationFormFromYAMLToXML",
     "status": "migrated"
   },
   {
@@ -17686,8 +17686,8 @@
     ],
     "line": 532,
     "behavior": "should export all fields to XML",
-    "targetPath": "packages/core/metadata/forms/clientApplicationForm/syncToXML.test.ts",
-    "targetTitle": "читает форму из YAML и экспортирует XML",
+    "targetPath": "packages/core/metadata/forms/clientApplicationForm/fromYAMLToXML.test.ts",
+    "targetTitle": "convertClientApplicationFormFromYAMLToXML",
     "status": "migrated"
   },
   {
@@ -17707,8 +17707,8 @@
     ],
     "line": 546,
     "behavior": "should export minimal",
-    "targetPath": "packages/core/metadata/forms/clientApplicationForm/syncToXML.test.ts",
-    "targetTitle": "читает форму из YAML и экспортирует XML",
+    "targetPath": "packages/core/metadata/forms/clientApplicationForm/fromYAMLToXML.test.ts",
+    "targetTitle": "convertClientApplicationFormFromYAMLToXML",
     "status": "migrated"
   },
   {
@@ -17728,8 +17728,8 @@
     ],
     "line": 571,
     "behavior": "preserves empty ExtendedPresentation when it exists in reference metadata",
-    "targetPath": "packages/core/metadata/forms/clientApplicationForm/syncToXML.test.ts",
-    "targetTitle": "читает форму из YAML и экспортирует XML",
+    "targetPath": "packages/core/metadata/forms/clientApplicationForm/fromYAMLToXML.test.ts",
+    "targetTitle": "convertClientApplicationFormFromYAMLToXML",
     "status": "migrated"
   },
   {
@@ -17748,7 +17748,7 @@
     "line": 41,
     "behavior": "should export all fields to YAML",
     "targetPath": "packages/core/metadata/forms/clientApplicationForm/fromXMLToYAML.test.ts",
-    "targetTitle": "совпадает с действующим YAML полной формы",
+    "targetTitle": "форма XML → YAML → XML",
     "status": "migrated"
   },
   {
@@ -17767,7 +17767,7 @@
     "line": 47,
     "behavior": "exports form and command bar elements from one YAML source",
     "targetPath": "packages/core/metadata/forms/clientApplicationForm/fromXMLToYAML.test.ts",
-    "targetTitle": "совпадает с действующим YAML полной формы",
+    "targetTitle": "форма XML → YAML → XML",
     "status": "migrated"
   },
   {
@@ -17786,7 +17786,7 @@
     "line": 92,
     "behavior": "exports disabled auto command bar autofill to YAML",
     "targetPath": "packages/core/metadata/forms/clientApplicationForm/fromXMLToYAML.test.ts",
-    "targetTitle": "совпадает с действующим YAML полной формы",
+    "targetTitle": "форма XML → YAML → XML",
     "status": "migrated"
   },
   {
@@ -17805,7 +17805,7 @@
     "line": 113,
     "behavior": "exports catalog full YAML",
     "targetPath": "packages/core/metadata/forms/clientApplicationForm/fromXMLToYAML.test.ts",
-    "targetTitle": "совпадает с действующим YAML полной формы",
+    "targetTitle": "форма XML → YAML → XML",
     "status": "migrated"
   },
   {
@@ -17824,7 +17824,7 @@
     "line": 119,
     "behavior": "exports document full YAML",
     "targetPath": "packages/core/metadata/forms/clientApplicationForm/fromXMLToYAML.test.ts",
-    "targetTitle": "совпадает с действующим YAML полной формы",
+    "targetTitle": "форма XML → YAML → XML",
     "status": "migrated"
   },
   {
@@ -17843,7 +17843,7 @@
     "line": 125,
     "behavior": "keeps dynamic list field data paths in XML spelling",
     "targetPath": "packages/core/metadata/forms/clientApplicationForm/fromXMLToYAML.test.ts",
-    "targetTitle": "совпадает с действующим YAML полной формы",
+    "targetTitle": "форма XML → YAML → XML",
     "status": "migrated"
   },
   {
@@ -17862,7 +17862,7 @@
     "line": 160,
     "behavior": "keeps ValueTable field data paths in internal-to-yaml formatting",
     "targetPath": "packages/core/metadata/forms/clientApplicationForm/fromXMLToYAML.test.ts",
-    "targetTitle": "совпадает с действующим YAML полной формы",
+    "targetTitle": "форма XML → YAML → XML",
     "status": "migrated"
   },
   {
@@ -17881,7 +17881,7 @@
     "line": 179,
     "behavior": "exports object standard member data paths to YAML spelling",
     "targetPath": "packages/core/metadata/forms/clientApplicationForm/fromXMLToYAML.test.ts",
-    "targetTitle": "совпадает с действующим YAML полной формы",
+    "targetTitle": "форма XML → YAML → XML",
     "status": "migrated"
   },
   {
@@ -17901,7 +17901,7 @@
     "line": 191,
     "behavior": "exports data paths through an injected owner cache without a YAML project",
     "targetPath": "packages/core/metadata/forms/clientApplicationForm/fromXMLToYAML.test.ts",
-    "targetTitle": "совпадает с действующим YAML полной формы",
+    "targetTitle": "форма XML → YAML → XML",
     "status": "migrated"
   },
   {
@@ -17920,7 +17920,7 @@
     "line": 240,
     "behavior": "exports tabular section row number data paths to YAML spelling",
     "targetPath": "packages/core/metadata/forms/clientApplicationForm/fromXMLToYAML.test.ts",
-    "targetTitle": "совпадает с действующим YAML полной формы",
+    "targetTitle": "форма XML → YAML → XML",
     "status": "migrated"
   },
   {
@@ -17939,7 +17939,7 @@
     "line": 252,
     "behavior": "exports report form settings storage as a local form reference",
     "targetPath": "packages/core/metadata/forms/clientApplicationForm/fromXMLToYAML.test.ts",
-    "targetTitle": "совпадает с действующим YAML полной формы",
+    "targetTitle": "форма XML → YAML → XML",
     "status": "migrated"
   },
   {
@@ -17958,7 +17958,7 @@
     "line": 280,
     "behavior": "exports report form settings storage as an external report form reference",
     "targetPath": "packages/core/metadata/forms/clientApplicationForm/fromXMLToYAML.test.ts",
-    "targetTitle": "совпадает с действующим YAML полной формы",
+    "targetTitle": "форма XML → YAML → XML",
     "status": "migrated"
   },
   {
@@ -17977,7 +17977,7 @@
     "line": 308,
     "behavior": "should export minimal",
     "targetPath": "packages/core/metadata/forms/clientApplicationForm/fromXMLToYAML.test.ts",
-    "targetTitle": "совпадает с действующим YAML полной формы",
+    "targetTitle": "форма XML → YAML → XML",
     "status": "migrated"
   },
   {
@@ -17996,7 +17996,7 @@
     "line": 314,
     "behavior": "exports CustomSettingsFolder to YAML",
     "targetPath": "packages/core/metadata/forms/clientApplicationForm/fromXMLToYAML.test.ts",
-    "targetTitle": "совпадает с действующим YAML полной формы",
+    "targetTitle": "форма XML → YAML → XML",
     "status": "migrated"
   },
   {
@@ -18015,7 +18015,7 @@
     "line": 322,
     "behavior": "omits report form Auto defaults when exporting YAML",
     "targetPath": "packages/core/metadata/forms/clientApplicationForm/fromXMLToYAML.test.ts",
-    "targetTitle": "совпадает с действующим YAML полной формы",
+    "targetTitle": "форма XML → YAML → XML",
     "status": "migrated"
   },
   {
@@ -18234,8 +18234,8 @@
     ],
     "line": 22,
     "behavior": "should return undefined when data is undefined",
-    "targetPath": "packages/core/metadata/forms/clientApplicationForm/fromXMLToYAML.test.ts",
-    "targetTitle": "совпадает с действующим YAML полной формы",
+    "targetPath": "packages/core/metadata/forms/commonObjects/dynamicList/fromXMLToYAML.test.ts",
+    "targetTitle": "DynamicList XML → YAML → XML",
     "status": "migrated"
   },
   {
@@ -18252,8 +18252,8 @@
     ],
     "line": 31,
     "behavior": "should import full",
-    "targetPath": "packages/core/metadata/forms/clientApplicationForm/fromXMLToYAML.test.ts",
-    "targetTitle": "совпадает с действующим YAML полной формы",
+    "targetPath": "packages/core/metadata/forms/commonObjects/dynamicList/fromXMLToYAML.test.ts",
+    "targetTitle": "DynamicList XML → YAML → XML",
     "status": "migrated"
   },
   {
@@ -18270,8 +18270,8 @@
     ],
     "line": 41,
     "behavior": "should import empty ListSettings",
-    "targetPath": "packages/core/metadata/forms/clientApplicationForm/fromXMLToYAML.test.ts",
-    "targetTitle": "совпадает с действующим YAML полной формы",
+    "targetPath": "packages/core/metadata/forms/commonObjects/dynamicList/fromXMLToYAML.test.ts",
+    "targetTitle": "DynamicList XML → YAML → XML",
     "status": "migrated"
   },
   {
@@ -18288,8 +18288,8 @@
     ],
     "line": 52,
     "behavior": "round-trip: full.xml import → export",
-    "targetPath": "packages/core/metadata/forms/clientApplicationForm/fromXMLToYAML.test.ts",
-    "targetTitle": "совпадает с действующим YAML полной формы",
+    "targetPath": "packages/core/metadata/forms/commonObjects/dynamicList/fromXMLToYAML.test.ts",
+    "targetTitle": "DynamicList XML → YAML → XML",
     "status": "migrated"
   },
   {
@@ -18306,8 +18306,8 @@
     ],
     "line": 69,
     "behavior": "round-trip: minimal.xml import → export",
-    "targetPath": "packages/core/metadata/forms/clientApplicationForm/fromXMLToYAML.test.ts",
-    "targetTitle": "совпадает с действующим YAML полной формы",
+    "targetPath": "packages/core/metadata/forms/commonObjects/dynamicList/fromXMLToYAML.test.ts",
+    "targetTitle": "DynamicList XML → YAML → XML",
     "status": "migrated"
   },
   {
@@ -18324,8 +18324,8 @@
     ],
     "line": 86,
     "behavior": "round-trip: emptyListSettings.xml import -> export",
-    "targetPath": "packages/core/metadata/forms/clientApplicationForm/fromXMLToYAML.test.ts",
-    "targetTitle": "совпадает с действующим YAML полной формы",
+    "targetPath": "packages/core/metadata/forms/commonObjects/dynamicList/fromXMLToYAML.test.ts",
+    "targetTitle": "DynamicList XML → YAML → XML",
     "status": "migrated"
   },
   {
@@ -18342,8 +18342,8 @@
     ],
     "line": 103,
     "behavior": "round-trip: designTimeDataParameters.xml import -> export",
-    "targetPath": "packages/core/metadata/forms/clientApplicationForm/fromXMLToYAML.test.ts",
-    "targetTitle": "совпадает с действующим YAML полной формы",
+    "targetPath": "packages/core/metadata/forms/commonObjects/dynamicList/fromXMLToYAML.test.ts",
+    "targetTitle": "DynamicList XML → YAML → XML",
     "status": "migrated"
   },
   {
@@ -18360,8 +18360,8 @@
     ],
     "line": 122,
     "behavior": "round-trip: customQuery.xml import → export",
-    "targetPath": "packages/core/metadata/forms/clientApplicationForm/fromXMLToYAML.test.ts",
-    "targetTitle": "совпадает с действующим YAML полной формы",
+    "targetPath": "packages/core/metadata/forms/commonObjects/dynamicList/fromXMLToYAML.test.ts",
+    "targetTitle": "DynamicList XML → YAML → XML",
     "status": "migrated"
   },
   {
@@ -18378,8 +18378,8 @@
     ],
     "line": 139,
     "behavior": "imports QueryText when ManualQuery is false",
-    "targetPath": "packages/core/metadata/forms/clientApplicationForm/fromXMLToYAML.test.ts",
-    "targetTitle": "совпадает с действующим YAML полной формы",
+    "targetPath": "packages/core/metadata/forms/commonObjects/dynamicList/fromXMLToYAML.test.ts",
+    "targetTitle": "DynamicList XML → YAML → XML",
     "status": "migrated"
   },
   {
@@ -18396,8 +18396,8 @@
     ],
     "line": 150,
     "behavior": "imports multiple CalculatedField nodes",
-    "targetPath": "packages/core/metadata/forms/clientApplicationForm/fromXMLToYAML.test.ts",
-    "targetTitle": "совпадает с действующим YAML полной формы",
+    "targetPath": "packages/core/metadata/forms/commonObjects/dynamicList/fromXMLToYAML.test.ts",
+    "targetTitle": "DynamicList XML → YAML → XML",
     "status": "migrated"
   },
   {
@@ -18414,8 +18414,8 @@
     ],
     "line": 161,
     "behavior": "imports KeyType and KeyField",
-    "targetPath": "packages/core/metadata/forms/clientApplicationForm/fromXMLToYAML.test.ts",
-    "targetTitle": "совпадает с действующим YAML полной формы",
+    "targetPath": "packages/core/metadata/forms/commonObjects/dynamicList/fromXMLToYAML.test.ts",
+    "targetTitle": "DynamicList XML → YAML → XML",
     "status": "migrated"
   },
   {
@@ -18431,8 +18431,8 @@
     ],
     "line": 172,
     "behavior": "imports XML with only KeyType and KeyField",
-    "targetPath": "packages/core/metadata/forms/clientApplicationForm/fromXMLToYAML.test.ts",
-    "targetTitle": "совпадает с действующим YAML полной формы",
+    "targetPath": "packages/core/metadata/forms/commonObjects/dynamicList/fromXMLToYAML.test.ts",
+    "targetTitle": "DynamicList XML → YAML → XML",
     "status": "migrated"
   },
   {
@@ -18448,8 +18448,8 @@
     ],
     "line": 191,
     "behavior": "imports repeated KeyField nodes as keyFields array",
-    "targetPath": "packages/core/metadata/forms/clientApplicationForm/fromXMLToYAML.test.ts",
-    "targetTitle": "совпадает с действующим YAML полной формы",
+    "targetPath": "packages/core/metadata/forms/commonObjects/dynamicList/fromXMLToYAML.test.ts",
+    "targetTitle": "DynamicList XML → YAML → XML",
     "status": "migrated"
   },
   {
@@ -18466,8 +18466,8 @@
     ],
     "line": 210,
     "behavior": "addresses DCS filter and order items under distinct YAML paths in configuration index",
-    "targetPath": "packages/core/metadata/forms/clientApplicationForm/fromXMLToYAML.test.ts",
-    "targetTitle": "совпадает с действующим YAML полной формы",
+    "targetPath": "packages/core/metadata/forms/commonObjects/dynamicList/fromXMLToYAML.test.ts",
+    "targetTitle": "DynamicList XML → YAML → XML",
     "status": "migrated"
   },
   {
@@ -18484,8 +18484,8 @@
     ],
     "line": 259,
     "behavior": "round-trip: queryTextWithManualQueryFalse.xml import -> export",
-    "targetPath": "packages/core/metadata/forms/clientApplicationForm/fromXMLToYAML.test.ts",
-    "targetTitle": "совпадает с действующим YAML полной формы",
+    "targetPath": "packages/core/metadata/forms/commonObjects/dynamicList/fromXMLToYAML.test.ts",
+    "targetTitle": "DynamicList XML → YAML → XML",
     "status": "migrated"
   },
   {
@@ -18501,8 +18501,8 @@
     ],
     "line": 40,
     "behavior": "should return undefined when data is undefined",
-    "targetPath": "packages/core/metadata/forms/clientApplicationForm/syncToXML.test.ts",
-    "targetTitle": "читает форму из YAML и экспортирует XML",
+    "targetPath": "packages/core/metadata/forms/commonObjects/dynamicList/fromXMLToYAML.test.ts",
+    "targetTitle": "DynamicList XML → YAML → XML",
     "status": "migrated"
   },
   {
@@ -18518,8 +18518,8 @@
     ],
     "line": 48,
     "behavior": "should import full",
-    "targetPath": "packages/core/metadata/forms/clientApplicationForm/syncToXML.test.ts",
-    "targetTitle": "читает форму из YAML и экспортирует XML",
+    "targetPath": "packages/core/metadata/forms/commonObjects/dynamicList/fromXMLToYAML.test.ts",
+    "targetTitle": "DynamicList XML → YAML → XML",
     "status": "migrated"
   },
   {
@@ -18535,8 +18535,8 @@
     ],
     "line": 56,
     "behavior": "round-trip: import → export даёт тот же YAML",
-    "targetPath": "packages/core/metadata/forms/clientApplicationForm/syncToXML.test.ts",
-    "targetTitle": "читает форму из YAML и экспортирует XML",
+    "targetPath": "packages/core/metadata/forms/commonObjects/dynamicList/fromXMLToYAML.test.ts",
+    "targetTitle": "DynamicList XML → YAML → XML",
     "status": "migrated"
   },
   {
@@ -18552,8 +18552,8 @@
     ],
     "line": 68,
     "behavior": "imports explicit ManualQuery false from YAML even when queryText exists in model fixture",
-    "targetPath": "packages/core/metadata/forms/clientApplicationForm/syncToXML.test.ts",
-    "targetTitle": "читает форму из YAML и экспортирует XML",
+    "targetPath": "packages/core/metadata/forms/commonObjects/dynamicList/fromXMLToYAML.test.ts",
+    "targetTitle": "DynamicList XML → YAML → XML",
     "status": "migrated"
   },
   {
@@ -18569,8 +18569,8 @@
     ],
     "line": 82,
     "behavior": "imports explicit ManualQuery true from YAML without query file",
-    "targetPath": "packages/core/metadata/forms/clientApplicationForm/syncToXML.test.ts",
-    "targetTitle": "читает форму из YAML и экспортирует XML",
+    "targetPath": "packages/core/metadata/forms/commonObjects/dynamicList/fromXMLToYAML.test.ts",
+    "targetTitle": "DynamicList XML → YAML → XML",
     "status": "migrated"
   },
   {
@@ -18586,8 +18586,8 @@
     ],
     "line": 100,
     "behavior": "does not derive ManualQuery from external query file",
-    "targetPath": "packages/core/metadata/forms/clientApplicationForm/syncToXML.test.ts",
-    "targetTitle": "читает форму из YAML и экспортирует XML",
+    "targetPath": "packages/core/metadata/forms/commonObjects/dynamicList/fromXMLToYAML.test.ts",
+    "targetTitle": "DynamicList XML → YAML → XML",
     "status": "migrated"
   },
   {
@@ -18603,8 +18603,8 @@
     ],
     "line": 127,
     "behavior": "imports KeyType and KeyField",
-    "targetPath": "packages/core/metadata/forms/clientApplicationForm/syncToXML.test.ts",
-    "targetTitle": "читает форму из YAML и экспортирует XML",
+    "targetPath": "packages/core/metadata/forms/commonObjects/dynamicList/fromXMLToYAML.test.ts",
+    "targetTitle": "DynamicList XML → YAML → XML",
     "status": "migrated"
   },
   {
@@ -18620,8 +18620,8 @@
     ],
     "line": 142,
     "behavior": "round-trip: KeyType and KeyField YAML import -> export",
-    "targetPath": "packages/core/metadata/forms/clientApplicationForm/syncToXML.test.ts",
-    "targetTitle": "читает форму из YAML и экспортирует XML",
+    "targetPath": "packages/core/metadata/forms/commonObjects/dynamicList/fromXMLToYAML.test.ts",
+    "targetTitle": "DynamicList XML → YAML → XML",
     "status": "migrated"
   },
   {
@@ -18637,8 +18637,8 @@
     ],
     "line": 162,
     "behavior": "imports ПоляКлюча array as keyFields array",
-    "targetPath": "packages/core/metadata/forms/clientApplicationForm/syncToXML.test.ts",
-    "targetTitle": "читает форму из YAML и экспортирует XML",
+    "targetPath": "packages/core/metadata/forms/commonObjects/dynamicList/fromXMLToYAML.test.ts",
+    "targetTitle": "DynamicList XML → YAML → XML",
     "status": "migrated"
   },
   {
@@ -18654,8 +18654,8 @@
     ],
     "line": 179,
     "behavior": "accepts scalar key fields in JSON Schema",
-    "targetPath": "packages/core/metadata/forms/clientApplicationForm/syncToXML.test.ts",
-    "targetTitle": "читает форму из YAML и экспортирует XML",
+    "targetPath": "packages/core/metadata/forms/commonObjects/dynamicList/fromXMLToYAML.test.ts",
+    "targetTitle": "DynamicList XML → YAML → XML",
     "status": "migrated"
   },
   {
@@ -18671,8 +18671,8 @@
     ],
     "line": 185,
     "behavior": "accepts list key fields in JSON Schema",
-    "targetPath": "packages/core/metadata/forms/clientApplicationForm/syncToXML.test.ts",
-    "targetTitle": "читает форму из YAML и экспортирует XML",
+    "targetPath": "packages/core/metadata/forms/commonObjects/dynamicList/fromXMLToYAML.test.ts",
+    "targetTitle": "DynamicList XML → YAML → XML",
     "status": "migrated"
   },
   {
@@ -18688,8 +18688,8 @@
     ],
     "line": 191,
     "behavior": "rejects non-string key fields in JSON Schema",
-    "targetPath": "packages/core/metadata/forms/clientApplicationForm/syncToXML.test.ts",
-    "targetTitle": "читает форму из YAML и экспортирует XML",
+    "targetPath": "packages/core/metadata/forms/commonObjects/dynamicList/fromXMLToYAML.test.ts",
+    "targetTitle": "DynamicList XML → YAML → XML",
     "status": "migrated"
   },
   {
@@ -18705,8 +18705,8 @@
     ],
     "line": 196,
     "behavior": "preserves calculated field Asc from raw XML source",
-    "targetPath": "packages/core/metadata/forms/clientApplicationForm/syncToXML.test.ts",
-    "targetTitle": "читает форму из YAML и экспортирует XML",
+    "targetPath": "packages/core/metadata/forms/commonObjects/dynamicList/fromXMLToYAML.test.ts",
+    "targetTitle": "DynamicList XML → YAML → XML",
     "status": "migrated"
   },
   {
@@ -18722,8 +18722,8 @@
     ],
     "line": 19,
     "behavior": "should export undefined when data is undefined",
-    "targetPath": "packages/core/metadata/forms/clientApplicationForm/syncToXML.test.ts",
-    "targetTitle": "читает форму из YAML и экспортирует XML",
+    "targetPath": "packages/core/metadata/forms/commonObjects/dynamicList/fromXMLToYAML.test.ts",
+    "targetTitle": "DynamicList XML → YAML → XML",
     "status": "migrated"
   },
   {
@@ -18740,8 +18740,8 @@
     ],
     "line": 28,
     "behavior": "should export full to XML",
-    "targetPath": "packages/core/metadata/forms/clientApplicationForm/syncToXML.test.ts",
-    "targetTitle": "читает форму из YAML и экспортирует XML",
+    "targetPath": "packages/core/metadata/forms/commonObjects/dynamicList/fromXMLToYAML.test.ts",
+    "targetTitle": "DynamicList XML → YAML → XML",
     "status": "migrated"
   },
   {
@@ -18758,8 +18758,8 @@
     ],
     "line": 39,
     "behavior": "should export minimal to XML",
-    "targetPath": "packages/core/metadata/forms/clientApplicationForm/syncToXML.test.ts",
-    "targetTitle": "читает форму из YAML и экспортирует XML",
+    "targetPath": "packages/core/metadata/forms/commonObjects/dynamicList/fromXMLToYAML.test.ts",
+    "targetTitle": "DynamicList XML → YAML → XML",
     "status": "migrated"
   },
   {
@@ -18776,8 +18776,8 @@
     ],
     "line": 50,
     "behavior": "should export empty ListSettings",
-    "targetPath": "packages/core/metadata/forms/clientApplicationForm/syncToXML.test.ts",
-    "targetTitle": "читает форму из YAML и экспортирует XML",
+    "targetPath": "packages/core/metadata/forms/commonObjects/dynamicList/fromXMLToYAML.test.ts",
+    "targetTitle": "DynamicList XML → YAML → XML",
     "status": "migrated"
   },
   {
@@ -18794,8 +18794,8 @@
     ],
     "line": 62,
     "behavior": "exports QueryText with explicit ManualQuery false",
-    "targetPath": "packages/core/metadata/forms/clientApplicationForm/syncToXML.test.ts",
-    "targetTitle": "читает форму из YAML и экспортирует XML",
+    "targetPath": "packages/core/metadata/forms/commonObjects/dynamicList/fromXMLToYAML.test.ts",
+    "targetTitle": "DynamicList XML → YAML → XML",
     "status": "migrated"
   },
   {
@@ -18812,8 +18812,8 @@
     ],
     "line": 74,
     "behavior": "exports multiple CalculatedField nodes",
-    "targetPath": "packages/core/metadata/forms/clientApplicationForm/syncToXML.test.ts",
-    "targetTitle": "читает форму из YAML и экспортирует XML",
+    "targetPath": "packages/core/metadata/forms/commonObjects/dynamicList/fromXMLToYAML.test.ts",
+    "targetTitle": "DynamicList XML → YAML → XML",
     "status": "migrated"
   },
   {
@@ -18830,8 +18830,8 @@
     ],
     "line": 86,
     "behavior": "exports KeyType and KeyField",
-    "targetPath": "packages/core/metadata/forms/clientApplicationForm/syncToXML.test.ts",
-    "targetTitle": "читает форму из YAML и экспортирует XML",
+    "targetPath": "packages/core/metadata/forms/commonObjects/dynamicList/fromXMLToYAML.test.ts",
+    "targetTitle": "DynamicList XML → YAML → XML",
     "status": "migrated"
   },
   {
@@ -18847,8 +18847,8 @@
     ],
     "line": 98,
     "behavior": "fresh export keeps QueryText, KeyType, KeyField, ListSettings order",
-    "targetPath": "packages/core/metadata/forms/clientApplicationForm/syncToXML.test.ts",
-    "targetTitle": "читает форму из YAML и экспортирует XML",
+    "targetPath": "packages/core/metadata/forms/commonObjects/dynamicList/fromXMLToYAML.test.ts",
+    "targetTitle": "DynamicList XML → YAML → XML",
     "status": "migrated"
   },
   {
@@ -18864,8 +18864,8 @@
     ],
     "line": 117,
     "behavior": "preserves reference KeyField when current value is undefined",
-    "targetPath": "packages/core/metadata/forms/clientApplicationForm/syncToXML.test.ts",
-    "targetTitle": "читает форму из YAML и экспортирует XML",
+    "targetPath": "packages/core/metadata/forms/commonObjects/dynamicList/fromXMLToYAML.test.ts",
+    "targetTitle": "DynamicList XML → YAML → XML",
     "status": "migrated"
   },
   {
@@ -18881,8 +18881,8 @@
     ],
     "line": 139,
     "behavior": "exports keyFields array as repeated KeyField nodes",
-    "targetPath": "packages/core/metadata/forms/clientApplicationForm/syncToXML.test.ts",
-    "targetTitle": "читает форму из YAML и экспортирует XML",
+    "targetPath": "packages/core/metadata/forms/commonObjects/dynamicList/fromXMLToYAML.test.ts",
+    "targetTitle": "DynamicList XML → YAML → XML",
     "status": "migrated"
   },
   {
@@ -18898,8 +18898,8 @@
     ],
     "line": 157,
     "behavior": "restores explicit Asc calculated field orderType from reference XML",
-    "targetPath": "packages/core/metadata/forms/clientApplicationForm/syncToXML.test.ts",
-    "targetTitle": "читает форму из YAML и экспортирует XML",
+    "targetPath": "packages/core/metadata/forms/commonObjects/dynamicList/fromXMLToYAML.test.ts",
+    "targetTitle": "DynamicList XML → YAML → XML",
     "status": "migrated"
   },
   {
@@ -18915,8 +18915,8 @@
     ],
     "line": 204,
     "behavior": "does not invent Asc calculated field orderType without reference XML",
-    "targetPath": "packages/core/metadata/forms/clientApplicationForm/syncToXML.test.ts",
-    "targetTitle": "читает форму из YAML и экспортирует XML",
+    "targetPath": "packages/core/metadata/forms/commonObjects/dynamicList/fromXMLToYAML.test.ts",
+    "targetTitle": "DynamicList XML → YAML → XML",
     "status": "migrated"
   },
   {
@@ -18932,8 +18932,8 @@
     ],
     "line": 231,
     "behavior": "does not restore Desc calculated field orderType from reference XML when current value omits it",
-    "targetPath": "packages/core/metadata/forms/clientApplicationForm/syncToXML.test.ts",
-    "targetTitle": "читает форму из YAML и экспортирует XML",
+    "targetPath": "packages/core/metadata/forms/commonObjects/dynamicList/fromXMLToYAML.test.ts",
+    "targetTitle": "DynamicList XML → YAML → XML",
     "status": "migrated"
   },
   {
@@ -18949,8 +18949,8 @@
     ],
     "line": 20,
     "behavior": "should export undefined when data is undefined",
-    "targetPath": "packages/core/metadata/forms/clientApplicationForm/fromXMLToYAML.test.ts",
-    "targetTitle": "совпадает с действующим YAML полной формы",
+    "targetPath": "packages/core/metadata/forms/commonObjects/dynamicList/fromXMLToYAML.test.ts",
+    "targetTitle": "DynamicList XML → YAML → XML",
     "status": "migrated"
   },
   {
@@ -18966,8 +18966,8 @@
     ],
     "line": 29,
     "behavior": "should export full",
-    "targetPath": "packages/core/metadata/forms/clientApplicationForm/fromXMLToYAML.test.ts",
-    "targetTitle": "совпадает с действующим YAML полной формы",
+    "targetPath": "packages/core/metadata/forms/commonObjects/dynamicList/fromXMLToYAML.test.ts",
+    "targetTitle": "DynamicList XML → YAML → XML",
     "status": "migrated"
   },
   {
@@ -18983,8 +18983,8 @@
     ],
     "line": 40,
     "behavior": "omits ManualQuery false when queryText is present",
-    "targetPath": "packages/core/metadata/forms/clientApplicationForm/fromXMLToYAML.test.ts",
-    "targetTitle": "совпадает с действующим YAML полной формы",
+    "targetPath": "packages/core/metadata/forms/commonObjects/dynamicList/fromXMLToYAML.test.ts",
+    "targetTitle": "DynamicList XML → YAML → XML",
     "status": "migrated"
   },
   {
@@ -19000,8 +19000,8 @@
     ],
     "line": 54,
     "behavior": "exports explicit ManualQuery true when queryText is present",
-    "targetPath": "packages/core/metadata/forms/clientApplicationForm/fromXMLToYAML.test.ts",
-    "targetTitle": "совпадает с действующим YAML полной формы",
+    "targetPath": "packages/core/metadata/forms/commonObjects/dynamicList/fromXMLToYAML.test.ts",
+    "targetTitle": "DynamicList XML → YAML → XML",
     "status": "migrated"
   },
   {
@@ -19017,8 +19017,8 @@
     ],
     "line": 75,
     "behavior": "exports calculatedFields as YAML array",
-    "targetPath": "packages/core/metadata/forms/clientApplicationForm/fromXMLToYAML.test.ts",
-    "targetTitle": "совпадает с действующим YAML полной формы",
+    "targetPath": "packages/core/metadata/forms/commonObjects/dynamicList/fromXMLToYAML.test.ts",
+    "targetTitle": "DynamicList XML → YAML → XML",
     "status": "migrated"
   },
   {
@@ -19034,8 +19034,8 @@
     ],
     "line": 101,
     "behavior": "exports KeyType and KeyField",
-    "targetPath": "packages/core/metadata/forms/clientApplicationForm/fromXMLToYAML.test.ts",
-    "targetTitle": "совпадает с действующим YAML полной формы",
+    "targetPath": "packages/core/metadata/forms/commonObjects/dynamicList/fromXMLToYAML.test.ts",
+    "targetTitle": "DynamicList XML → YAML → XML",
     "status": "migrated"
   },
   {
@@ -19051,8 +19051,8 @@
     ],
     "line": 117,
     "behavior": "exports keyFields array as ПоляКлюча array",
-    "targetPath": "packages/core/metadata/forms/clientApplicationForm/fromXMLToYAML.test.ts",
-    "targetTitle": "совпадает с действующим YAML полной формы",
+    "targetPath": "packages/core/metadata/forms/commonObjects/dynamicList/fromXMLToYAML.test.ts",
+    "targetTitle": "DynamicList XML → YAML → XML",
     "status": "migrated"
   },
   {
@@ -19068,8 +19068,8 @@
     ],
     "line": 136,
     "behavior": "exports ManualQuery true when queryText is present and collects query file",
-    "targetPath": "packages/core/metadata/forms/clientApplicationForm/fromXMLToYAML.test.ts",
-    "targetTitle": "совпадает с действующим YAML полной формы",
+    "targetPath": "packages/core/metadata/forms/commonObjects/dynamicList/fromXMLToYAML.test.ts",
+    "targetTitle": "DynamicList XML → YAML → XML",
     "status": "migrated"
   },
   {
@@ -19085,8 +19085,8 @@
     ],
     "line": 173,
     "behavior": "omits ManualQuery false because it is YAML default",
-    "targetPath": "packages/core/metadata/forms/clientApplicationForm/fromXMLToYAML.test.ts",
-    "targetTitle": "совпадает с действующим YAML полной формы",
+    "targetPath": "packages/core/metadata/forms/commonObjects/dynamicList/fromXMLToYAML.test.ts",
+    "targetTitle": "DynamicList XML → YAML → XML",
     "status": "migrated"
   },
   {
@@ -19102,8 +19102,8 @@
     ],
     "line": 192,
     "behavior": "does not emit ManualQuery false when queryText is present",
-    "targetPath": "packages/core/metadata/forms/clientApplicationForm/fromXMLToYAML.test.ts",
-    "targetTitle": "совпадает с действующим YAML полной формы",
+    "targetPath": "packages/core/metadata/forms/commonObjects/dynamicList/fromXMLToYAML.test.ts",
+    "targetTitle": "DynamicList XML → YAML → XML",
     "status": "migrated"
   },
   {
@@ -19132,8 +19132,8 @@
     ],
     "line": 40,
     "behavior": "импортирует таблицу с колонками напрямую в YAML",
-    "targetPath": "packages/core/metadata/forms/clientApplicationForm/fromXMLToYAML.test.ts",
-    "targetTitle": "совпадает с действующим YAML полной формы",
+    "targetPath": "packages/core/metadata/forms/commonObjects/formAttribute/fromXMLToYAML.test.ts",
+    "targetTitle": "FormAttributes XML → YAML → XML",
     "status": "migrated"
   },
   {
@@ -19162,8 +19162,8 @@
     ],
     "line": 59,
     "behavior": "импортирует дополнительные колонки напрямую в YAML",
-    "targetPath": "packages/core/metadata/forms/clientApplicationForm/fromXMLToYAML.test.ts",
-    "targetTitle": "совпадает с действующим YAML полной формы",
+    "targetPath": "packages/core/metadata/forms/commonObjects/formAttribute/fromXMLToYAML.test.ts",
+    "targetTitle": "FormAttributes XML → YAML → XML",
     "status": "migrated"
   },
   {
@@ -19191,8 +19191,8 @@
     ],
     "line": 78,
     "behavior": "should return undefined when data is undefined",
-    "targetPath": "packages/core/metadata/forms/clientApplicationForm/fromXMLToYAML.test.ts",
-    "targetTitle": "совпадает с действующим YAML полной формы",
+    "targetPath": "packages/core/metadata/forms/commonObjects/formAttribute/fromXMLToYAML.test.ts",
+    "targetTitle": "FormAttributes XML → YAML → XML",
     "status": "migrated"
   },
   {
@@ -19221,8 +19221,8 @@
     ],
     "line": 83,
     "behavior": "should import full",
-    "targetPath": "packages/core/metadata/forms/clientApplicationForm/fromXMLToYAML.test.ts",
-    "targetTitle": "совпадает с действующим YAML полной формы",
+    "targetPath": "packages/core/metadata/forms/commonObjects/formAttribute/fromXMLToYAML.test.ts",
+    "targetTitle": "FormAttributes XML → YAML → XML",
     "status": "migrated"
   },
   {
@@ -19251,8 +19251,8 @@
     ],
     "line": 91,
     "behavior": "should import minimal",
-    "targetPath": "packages/core/metadata/forms/clientApplicationForm/fromXMLToYAML.test.ts",
-    "targetTitle": "совпадает с действующим YAML полной формы",
+    "targetPath": "packages/core/metadata/forms/commonObjects/formAttribute/fromXMLToYAML.test.ts",
+    "targetTitle": "FormAttributes XML → YAML → XML",
     "status": "migrated"
   },
   {
@@ -19281,8 +19281,8 @@
     ],
     "line": 99,
     "behavior": "should import multiple attributes",
-    "targetPath": "packages/core/metadata/forms/clientApplicationForm/fromXMLToYAML.test.ts",
-    "targetTitle": "совпадает с действующим YAML полной формы",
+    "targetPath": "packages/core/metadata/forms/commonObjects/formAttribute/fromXMLToYAML.test.ts",
+    "targetTitle": "FormAttributes XML → YAML → XML",
     "status": "migrated"
   },
   {
@@ -19311,8 +19311,8 @@
     ],
     "line": 107,
     "behavior": "should import choice list",
-    "targetPath": "packages/core/metadata/forms/clientApplicationForm/fromXMLToYAML.test.ts",
-    "targetTitle": "совпадает с действующим YAML полной формы",
+    "targetPath": "packages/core/metadata/forms/commonObjects/formAttribute/fromXMLToYAML.test.ts",
+    "targetTitle": "FormAttributes XML → YAML → XML",
     "status": "migrated"
   },
   {
@@ -19341,8 +19341,8 @@
     ],
     "line": 115,
     "behavior": "should import with empty settings",
-    "targetPath": "packages/core/metadata/forms/clientApplicationForm/fromXMLToYAML.test.ts",
-    "targetTitle": "совпадает с действующим YAML полной формы",
+    "targetPath": "packages/core/metadata/forms/commonObjects/formAttribute/fromXMLToYAML.test.ts",
+    "targetTitle": "FormAttributes XML → YAML → XML",
     "status": "migrated"
   },
   {
@@ -19371,8 +19371,8 @@
     ],
     "line": 123,
     "behavior": "should import without type",
-    "targetPath": "packages/core/metadata/forms/clientApplicationForm/fromXMLToYAML.test.ts",
-    "targetTitle": "совпадает с действующим YAML полной формы",
+    "targetPath": "packages/core/metadata/forms/commonObjects/formAttribute/fromXMLToYAML.test.ts",
+    "targetTitle": "FormAttributes XML → YAML → XML",
     "status": "migrated"
   },
   {
@@ -19401,8 +19401,8 @@
     ],
     "line": 139,
     "behavior": "should import table with columns",
-    "targetPath": "packages/core/metadata/forms/clientApplicationForm/fromXMLToYAML.test.ts",
-    "targetTitle": "совпадает с действующим YAML полной формы",
+    "targetPath": "packages/core/metadata/forms/commonObjects/formAttribute/fromXMLToYAML.test.ts",
+    "targetTitle": "FormAttributes XML → YAML → XML",
     "status": "migrated"
   },
   {
@@ -19432,8 +19432,8 @@
     ],
     "line": 147,
     "behavior": "собирает id колонок по отдельным logicalAddress",
-    "targetPath": "packages/core/metadata/forms/clientApplicationForm/fromXMLToYAML.test.ts",
-    "targetTitle": "совпадает с действующим YAML полной формы",
+    "targetPath": "packages/core/metadata/forms/commonObjects/formAttribute/fromXMLToYAML.test.ts",
+    "targetTitle": "FormAttributes XML → YAML → XML",
     "status": "migrated"
   },
   {
@@ -19462,8 +19462,8 @@
     ],
     "line": 174,
     "behavior": "should import tree with column",
-    "targetPath": "packages/core/metadata/forms/clientApplicationForm/fromXMLToYAML.test.ts",
-    "targetTitle": "совпадает с действующим YAML полной формы",
+    "targetPath": "packages/core/metadata/forms/commonObjects/formAttribute/fromXMLToYAML.test.ts",
+    "targetTitle": "FormAttributes XML → YAML → XML",
     "status": "migrated"
   },
   {
@@ -19492,8 +19492,8 @@
     ],
     "line": 182,
     "behavior": "should import with additional column",
-    "targetPath": "packages/core/metadata/forms/clientApplicationForm/fromXMLToYAML.test.ts",
-    "targetTitle": "совпадает с действующим YAML полной формы",
+    "targetPath": "packages/core/metadata/forms/commonObjects/formAttribute/fromXMLToYAML.test.ts",
+    "targetTitle": "FormAttributes XML → YAML → XML",
     "status": "migrated"
   },
   {
@@ -19522,8 +19522,8 @@
     ],
     "line": 190,
     "behavior": "import tableWithColumns",
-    "targetPath": "packages/core/metadata/forms/clientApplicationForm/fromXMLToYAML.test.ts",
-    "targetTitle": "совпадает с действующим YAML полной формы",
+    "targetPath": "packages/core/metadata/forms/commonObjects/formAttribute/fromXMLToYAML.test.ts",
+    "targetTitle": "FormAttributes XML → YAML → XML",
     "status": "migrated"
   },
   {
@@ -19552,8 +19552,8 @@
     ],
     "line": 200,
     "behavior": "import treeWithColumn",
-    "targetPath": "packages/core/metadata/forms/clientApplicationForm/fromXMLToYAML.test.ts",
-    "targetTitle": "совпадает с действующим YAML полной формы",
+    "targetPath": "packages/core/metadata/forms/commonObjects/formAttribute/fromXMLToYAML.test.ts",
+    "targetTitle": "FormAttributes XML → YAML → XML",
     "status": "migrated"
   },
   {
@@ -19582,8 +19582,8 @@
     ],
     "line": 210,
     "behavior": "import twoTables",
-    "targetPath": "packages/core/metadata/forms/clientApplicationForm/fromXMLToYAML.test.ts",
-    "targetTitle": "совпадает с действующим YAML полной формы",
+    "targetPath": "packages/core/metadata/forms/commonObjects/formAttribute/fromXMLToYAML.test.ts",
+    "targetTitle": "FormAttributes XML → YAML → XML",
     "status": "migrated"
   },
   {
@@ -19612,8 +19612,8 @@
     ],
     "line": 220,
     "behavior": "import mixedColumns",
-    "targetPath": "packages/core/metadata/forms/clientApplicationForm/fromXMLToYAML.test.ts",
-    "targetTitle": "совпадает с действующим YAML полной формы",
+    "targetPath": "packages/core/metadata/forms/commonObjects/formAttribute/fromXMLToYAML.test.ts",
+    "targetTitle": "FormAttributes XML → YAML → XML",
     "status": "migrated"
   },
   {
@@ -19642,8 +19642,8 @@
     ],
     "line": 230,
     "behavior": "import attributeAnyType",
-    "targetPath": "packages/core/metadata/forms/clientApplicationForm/fromXMLToYAML.test.ts",
-    "targetTitle": "совпадает с действующим YAML полной формы",
+    "targetPath": "packages/core/metadata/forms/commonObjects/formAttribute/fromXMLToYAML.test.ts",
+    "targetTitle": "FormAttributes XML → YAML → XML",
     "status": "migrated"
   },
   {
@@ -19672,8 +19672,8 @@
     ],
     "line": 240,
     "behavior": "import columnAnyType",
-    "targetPath": "packages/core/metadata/forms/clientApplicationForm/fromXMLToYAML.test.ts",
-    "targetTitle": "совпадает с действующим YAML полной формы",
+    "targetPath": "packages/core/metadata/forms/commonObjects/formAttribute/fromXMLToYAML.test.ts",
+    "targetTitle": "FormAttributes XML → YAML → XML",
     "status": "migrated"
   },
   {
@@ -19702,8 +19702,8 @@
     ],
     "line": 250,
     "behavior": "import chartSettings",
-    "targetPath": "packages/core/metadata/forms/clientApplicationForm/fromXMLToYAML.test.ts",
-    "targetTitle": "совпадает с действующим YAML полной формы",
+    "targetPath": "packages/core/metadata/forms/commonObjects/formAttribute/fromXMLToYAML.test.ts",
+    "targetTitle": "FormAttributes XML → YAML → XML",
     "status": "migrated"
   },
   {
@@ -19732,8 +19732,8 @@
     ],
     "line": 260,
     "behavior": "import ganttChartSettings",
-    "targetPath": "packages/core/metadata/forms/clientApplicationForm/fromXMLToYAML.test.ts",
-    "targetTitle": "совпадает с действующим YAML полной формы",
+    "targetPath": "packages/core/metadata/forms/commonObjects/formAttribute/fromXMLToYAML.test.ts",
+    "targetTitle": "FormAttributes XML → YAML → XML",
     "status": "migrated"
   },
   {
@@ -19762,8 +19762,8 @@
     ],
     "line": 270,
     "behavior": "import spreadsheetDocumentSettings",
-    "targetPath": "packages/core/metadata/forms/clientApplicationForm/fromXMLToYAML.test.ts",
-    "targetTitle": "совпадает с действующим YAML полной формы",
+    "targetPath": "packages/core/metadata/forms/commonObjects/formAttribute/fromXMLToYAML.test.ts",
+    "targetTitle": "FormAttributes XML → YAML → XML",
     "status": "migrated"
   },
   {
@@ -19792,8 +19792,8 @@
     ],
     "line": 280,
     "behavior": "import plannerSettings",
-    "targetPath": "packages/core/metadata/forms/clientApplicationForm/fromXMLToYAML.test.ts",
-    "targetTitle": "совпадает с действующим YAML полной формы",
+    "targetPath": "packages/core/metadata/forms/commonObjects/formAttribute/fromXMLToYAML.test.ts",
+    "targetTitle": "FormAttributes XML → YAML → XML",
     "status": "migrated"
   },
   {
@@ -19821,8 +19821,8 @@
     ],
     "line": 290,
     "behavior": "imports FlowchartContextType Settings",
-    "targetPath": "packages/core/metadata/forms/clientApplicationForm/fromXMLToYAML.test.ts",
-    "targetTitle": "совпадает с действующим YAML полной формы",
+    "targetPath": "packages/core/metadata/forms/commonObjects/formAttribute/fromXMLToYAML.test.ts",
+    "targetTitle": "FormAttributes XML → YAML → XML",
     "status": "migrated"
   },
   {
@@ -19851,8 +19851,8 @@
     ],
     "line": 325,
     "behavior": "imports ValueListType without Settings",
-    "targetPath": "packages/core/metadata/forms/clientApplicationForm/fromXMLToYAML.test.ts",
-    "targetTitle": "совпадает с действующим YAML полной формы",
+    "targetPath": "packages/core/metadata/forms/commonObjects/formAttribute/fromXMLToYAML.test.ts",
+    "targetTitle": "FormAttributes XML → YAML → XML",
     "status": "migrated"
   },
   {
@@ -19881,8 +19881,8 @@
     ],
     "line": 335,
     "behavior": "imports ValueListType with empty reference Settings without valueType",
-    "targetPath": "packages/core/metadata/forms/clientApplicationForm/fromXMLToYAML.test.ts",
-    "targetTitle": "совпадает с действующим YAML полной формы",
+    "targetPath": "packages/core/metadata/forms/commonObjects/formAttribute/fromXMLToYAML.test.ts",
+    "targetTitle": "FormAttributes XML → YAML → XML",
     "status": "migrated"
   },
   {
@@ -19910,8 +19910,8 @@
     ],
     "line": 345,
     "behavior": "imports DynamicList Settings with repeated KeyField nodes",
-    "targetPath": "packages/core/metadata/forms/clientApplicationForm/fromXMLToYAML.test.ts",
-    "targetTitle": "совпадает с действующим YAML полной формы",
+    "targetPath": "packages/core/metadata/forms/commonObjects/formAttribute/fromXMLToYAML.test.ts",
+    "targetTitle": "FormAttributes XML → YAML → XML",
     "status": "migrated"
   },
   {
@@ -19930,8 +19930,8 @@
     ],
     "line": 92,
     "behavior": "should export undefined when data is undefined",
-    "targetPath": "packages/core/metadata/forms/clientApplicationForm/fromXMLToYAML.test.ts",
-    "targetTitle": "совпадает с действующим YAML полной формы",
+    "targetPath": "packages/core/metadata/forms/commonObjects/formAttribute/fromXMLToYAML.test.ts",
+    "targetTitle": "FormAttributes XML → YAML → XML",
     "status": "migrated"
   },
   {
@@ -19950,8 +19950,8 @@
     ],
     "line": 97,
     "behavior": "should export full",
-    "targetPath": "packages/core/metadata/forms/clientApplicationForm/fromXMLToYAML.test.ts",
-    "targetTitle": "совпадает с действующим YAML полной формы",
+    "targetPath": "packages/core/metadata/forms/commonObjects/formAttribute/fromXMLToYAML.test.ts",
+    "targetTitle": "FormAttributes XML → YAML → XML",
     "status": "migrated"
   },
   {
@@ -19970,8 +19970,8 @@
     ],
     "line": 103,
     "behavior": "should export object format",
-    "targetPath": "packages/core/metadata/forms/clientApplicationForm/fromXMLToYAML.test.ts",
-    "targetTitle": "совпадает с действующим YAML полной формы",
+    "targetPath": "packages/core/metadata/forms/commonObjects/formAttribute/fromXMLToYAML.test.ts",
+    "targetTitle": "FormAttributes XML → YAML → XML",
     "status": "migrated"
   },
   {
@@ -19990,8 +19990,8 @@
     ],
     "line": 115,
     "behavior": "should export choice list",
-    "targetPath": "packages/core/metadata/forms/clientApplicationForm/fromXMLToYAML.test.ts",
-    "targetTitle": "совпадает с действующим YAML полной формы",
+    "targetPath": "packages/core/metadata/forms/commonObjects/formAttribute/fromXMLToYAML.test.ts",
+    "targetTitle": "FormAttributes XML → YAML → XML",
     "status": "migrated"
   },
   {
@@ -20010,8 +20010,8 @@
     ],
     "line": 121,
     "behavior": "should export with empty settings",
-    "targetPath": "packages/core/metadata/forms/clientApplicationForm/fromXMLToYAML.test.ts",
-    "targetTitle": "совпадает с действующим YAML полной формы",
+    "targetPath": "packages/core/metadata/forms/commonObjects/formAttribute/fromXMLToYAML.test.ts",
+    "targetTitle": "FormAttributes XML → YAML → XML",
     "status": "migrated"
   },
   {
@@ -20030,8 +20030,8 @@
     ],
     "line": 133,
     "behavior": "should export table with columns",
-    "targetPath": "packages/core/metadata/forms/clientApplicationForm/fromXMLToYAML.test.ts",
-    "targetTitle": "совпадает с действующим YAML полной формы",
+    "targetPath": "packages/core/metadata/forms/commonObjects/formAttribute/fromXMLToYAML.test.ts",
+    "targetTitle": "FormAttributes XML → YAML → XML",
     "status": "migrated"
   },
   {
@@ -20050,8 +20050,8 @@
     ],
     "line": 139,
     "behavior": "should export tree with column",
-    "targetPath": "packages/core/metadata/forms/clientApplicationForm/fromXMLToYAML.test.ts",
-    "targetTitle": "совпадает с действующим YAML полной формы",
+    "targetPath": "packages/core/metadata/forms/commonObjects/formAttribute/fromXMLToYAML.test.ts",
+    "targetTitle": "FormAttributes XML → YAML → XML",
     "status": "migrated"
   },
   {
@@ -20070,8 +20070,8 @@
     ],
     "line": 145,
     "behavior": "should export with functional options",
-    "targetPath": "packages/core/metadata/forms/clientApplicationForm/fromXMLToYAML.test.ts",
-    "targetTitle": "совпадает с действующим YAML полной формы",
+    "targetPath": "packages/core/metadata/forms/commonObjects/formAttribute/fromXMLToYAML.test.ts",
+    "targetTitle": "FormAttributes XML → YAML → XML",
     "status": "migrated"
   },
   {
@@ -20090,8 +20090,8 @@
     ],
     "line": 151,
     "behavior": "should export with additional column",
-    "targetPath": "packages/core/metadata/forms/clientApplicationForm/fromXMLToYAML.test.ts",
-    "targetTitle": "совпадает с действующим YAML полной формы",
+    "targetPath": "packages/core/metadata/forms/commonObjects/formAttribute/fromXMLToYAML.test.ts",
+    "targetTitle": "FormAttributes XML → YAML → XML",
     "status": "migrated"
   },
   {
@@ -20110,8 +20110,8 @@
     ],
     "line": 157,
     "behavior": "should export mixed columns",
-    "targetPath": "packages/core/metadata/forms/clientApplicationForm/fromXMLToYAML.test.ts",
-    "targetTitle": "совпадает с действующим YAML полной формы",
+    "targetPath": "packages/core/metadata/forms/commonObjects/formAttribute/fromXMLToYAML.test.ts",
+    "targetTitle": "FormAttributes XML → YAML → XML",
     "status": "migrated"
   },
   {
@@ -20130,8 +20130,8 @@
     ],
     "line": 163,
     "behavior": "should export chartSettings",
-    "targetPath": "packages/core/metadata/forms/clientApplicationForm/fromXMLToYAML.test.ts",
-    "targetTitle": "совпадает с действующим YAML полной формы",
+    "targetPath": "packages/core/metadata/forms/commonObjects/formAttribute/fromXMLToYAML.test.ts",
+    "targetTitle": "FormAttributes XML → YAML → XML",
     "status": "migrated"
   },
   {
@@ -20150,8 +20150,8 @@
     ],
     "line": 169,
     "behavior": "should export spreadsheetDocumentSettings",
-    "targetPath": "packages/core/metadata/forms/clientApplicationForm/fromXMLToYAML.test.ts",
-    "targetTitle": "совпадает с действующим YAML полной формы",
+    "targetPath": "packages/core/metadata/forms/commonObjects/formAttribute/fromXMLToYAML.test.ts",
+    "targetTitle": "FormAttributes XML → YAML → XML",
     "status": "migrated"
   },
   {
@@ -20170,8 +20170,8 @@
     ],
     "line": 175,
     "behavior": "should export plannerSettings",
-    "targetPath": "packages/core/metadata/forms/clientApplicationForm/fromXMLToYAML.test.ts",
-    "targetTitle": "совпадает с действующим YAML полной формы",
+    "targetPath": "packages/core/metadata/forms/commonObjects/formAttribute/fromXMLToYAML.test.ts",
+    "targetTitle": "FormAttributes XML → YAML → XML",
     "status": "migrated"
   },
   {
@@ -20187,8 +20187,8 @@
     ],
     "line": 20,
     "behavior": "should return empty array for undefined input",
-    "targetPath": "packages/core/metadata/forms/clientApplicationForm/fromXMLToYAML.test.ts",
-    "targetTitle": "совпадает с действующим YAML полной формы",
+    "targetPath": "packages/core/metadata/forms/commonObjects/formCommand/fromXMLToYAML.test.ts",
+    "targetTitle": "FormCommands XML → YAML → XML",
     "status": "migrated"
   },
   {
@@ -20206,8 +20206,8 @@
     ],
     "line": 30,
     "behavior": "should import full.xml",
-    "targetPath": "packages/core/metadata/forms/clientApplicationForm/fromXMLToYAML.test.ts",
-    "targetTitle": "совпадает с действующим YAML полной формы",
+    "targetPath": "packages/core/metadata/forms/commonObjects/formCommand/fromXMLToYAML.test.ts",
+    "targetTitle": "FormCommands XML → YAML → XML",
     "status": "migrated"
   },
   {
@@ -20225,8 +20225,8 @@
     ],
     "line": 41,
     "behavior": "should import minimal.xml",
-    "targetPath": "packages/core/metadata/forms/clientApplicationForm/fromXMLToYAML.test.ts",
-    "targetTitle": "совпадает с действующим YAML полной формы",
+    "targetPath": "packages/core/metadata/forms/commonObjects/formCommand/fromXMLToYAML.test.ts",
+    "targetTitle": "FormCommands XML → YAML → XML",
     "status": "migrated"
   },
   {
@@ -20243,8 +20243,8 @@
     ],
     "line": 52,
     "behavior": "imports full.xml directly to YAML",
-    "targetPath": "packages/core/metadata/forms/clientApplicationForm/fromXMLToYAML.test.ts",
-    "targetTitle": "совпадает с действующим YAML полной формы",
+    "targetPath": "packages/core/metadata/forms/commonObjects/formCommand/fromXMLToYAML.test.ts",
+    "targetTitle": "FormCommands XML → YAML → XML",
     "status": "migrated"
   },
   {
@@ -20260,8 +20260,8 @@
     ],
     "line": 21,
     "behavior": "should return empty array for undefined input",
-    "targetPath": "packages/core/metadata/forms/clientApplicationForm/syncToXML.test.ts",
-    "targetTitle": "читает форму из YAML и экспортирует XML",
+    "targetPath": "packages/core/metadata/forms/commonObjects/formCommand/fromXMLToYAML.test.ts",
+    "targetTitle": "FormCommands XML → YAML → XML",
     "status": "migrated"
   },
   {
@@ -20277,8 +20277,8 @@
     ],
     "line": 31,
     "behavior": "should import full from YAML",
-    "targetPath": "packages/core/metadata/forms/clientApplicationForm/syncToXML.test.ts",
-    "targetTitle": "читает форму из YAML и экспортирует XML",
+    "targetPath": "packages/core/metadata/forms/commonObjects/formCommand/fromXMLToYAML.test.ts",
+    "targetTitle": "FormCommands XML → YAML → XML",
     "status": "migrated"
   },
   {
@@ -20294,8 +20294,8 @@
     ],
     "line": 40,
     "behavior": "should import minimal from YAML",
-    "targetPath": "packages/core/metadata/forms/clientApplicationForm/syncToXML.test.ts",
-    "targetTitle": "читает форму из YAML и экспортирует XML",
+    "targetPath": "packages/core/metadata/forms/commonObjects/formCommand/fromXMLToYAML.test.ts",
+    "targetTitle": "FormCommands XML → YAML → XML",
     "status": "migrated"
   },
   {
@@ -20311,8 +20311,8 @@
     ],
     "line": 21,
     "behavior": "should return undefined for undefined input",
-    "targetPath": "packages/core/metadata/forms/clientApplicationForm/fromXMLToYAML.test.ts",
-    "targetTitle": "совпадает с действующим YAML полной формы",
+    "targetPath": "packages/core/metadata/forms/commonObjects/formCommand/fromXMLToYAML.test.ts",
+    "targetTitle": "FormCommands XML → YAML → XML",
     "status": "migrated"
   },
   {
@@ -20328,8 +20328,8 @@
     ],
     "line": 31,
     "behavior": "should export full to YAML",
-    "targetPath": "packages/core/metadata/forms/clientApplicationForm/fromXMLToYAML.test.ts",
-    "targetTitle": "совпадает с действующим YAML полной формы",
+    "targetPath": "packages/core/metadata/forms/commonObjects/formCommand/fromXMLToYAML.test.ts",
+    "targetTitle": "FormCommands XML → YAML → XML",
     "status": "migrated"
   },
   {
@@ -20345,8 +20345,8 @@
     ],
     "line": 40,
     "behavior": "should export minimal",
-    "targetPath": "packages/core/metadata/forms/clientApplicationForm/fromXMLToYAML.test.ts",
-    "targetTitle": "совпадает с действующим YAML полной формы",
+    "targetPath": "packages/core/metadata/forms/commonObjects/formCommand/fromXMLToYAML.test.ts",
+    "targetTitle": "FormCommands XML → YAML → XML",
     "status": "migrated"
   },
   {
@@ -20360,8 +20360,8 @@
     "fixtures": [],
     "line": 20,
     "behavior": "$name",
-    "targetPath": "packages/core/metadata/forms/clientApplicationForm/fromXMLToYAML.test.ts",
-    "targetTitle": "совпадает с действующим YAML полной формы",
+    "targetPath": "packages/core/metadata/forms/elements/__tests__/fromXMLToYAML.test.ts",
+    "targetTitle": "элементы формы XML → YAML → XML",
     "status": "migrated"
   },
   {
@@ -20377,8 +20377,8 @@
     ],
     "line": 10,
     "behavior": "$name",
-    "targetPath": "packages/core/metadata/forms/clientApplicationForm/syncToXML.test.ts",
-    "targetTitle": "читает форму из YAML и экспортирует XML",
+    "targetPath": "packages/core/metadata/forms/elements/__tests__/fromXMLToYAML.test.ts",
+    "targetTitle": "элементы формы XML → YAML → XML",
     "status": "migrated"
   },
   {
@@ -20394,8 +20394,8 @@
     ],
     "line": 28,
     "behavior": "preserves TypeDescription Parameter from source when YAML omits Parameter",
-    "targetPath": "packages/core/metadata/forms/clientApplicationForm/syncToXML.test.ts",
-    "targetTitle": "читает форму из YAML и экспортирует XML",
+    "targetPath": "packages/core/metadata/forms/elements/__tests__/fromXMLToYAML.test.ts",
+    "targetTitle": "элементы формы XML → YAML → XML",
     "status": "migrated"
   },
   {
@@ -20411,8 +20411,8 @@
     ],
     "line": 44,
     "behavior": "does not materialize ExtendedTooltip Type for search control addition",
-    "targetPath": "packages/core/metadata/forms/clientApplicationForm/syncToXML.test.ts",
-    "targetTitle": "читает форму из YAML и экспортирует XML",
+    "targetPath": "packages/core/metadata/forms/elements/__tests__/fromXMLToYAML.test.ts",
+    "targetTitle": "элементы формы XML → YAML → XML",
     "status": "migrated"
   },
   {
@@ -20428,8 +20428,8 @@
     ],
     "line": 73,
     "behavior": "$name",
-    "targetPath": "packages/core/metadata/forms/clientApplicationForm/syncToXML.test.ts",
-    "targetTitle": "читает форму из YAML и экспортирует XML",
+    "targetPath": "packages/core/metadata/forms/elements/__tests__/fromXMLToYAML.test.ts",
+    "targetTitle": "элементы формы XML → YAML → XML",
     "status": "migrated"
   },
   {
@@ -20443,8 +20443,8 @@
     "fixtures": [],
     "line": 17,
     "behavior": "$name",
-    "targetPath": "packages/core/metadata/forms/clientApplicationForm/syncToXML.test.ts",
-    "targetTitle": "читает форму из YAML и экспортирует XML",
+    "targetPath": "packages/core/metadata/forms/elements/__tests__/fromXMLToYAML.test.ts",
+    "targetTitle": "элементы формы XML → YAML → XML",
     "status": "migrated"
   },
   {
@@ -20458,8 +20458,8 @@
     "fixtures": [],
     "line": 13,
     "behavior": "$name",
-    "targetPath": "packages/core/metadata/forms/clientApplicationForm/fromXMLToYAML.test.ts",
-    "targetTitle": "совпадает с действующим YAML полной формы",
+    "targetPath": "packages/core/metadata/forms/elements/__tests__/fromXMLToYAML.test.ts",
+    "targetTitle": "элементы формы XML → YAML → XML",
     "status": "migrated"
   },
   {
@@ -20473,8 +20473,8 @@
     "fixtures": [],
     "line": 23,
     "behavior": "exports search string addition source to partial YAML",
-    "targetPath": "packages/core/metadata/forms/clientApplicationForm/fromXMLToYAML.test.ts",
-    "targetTitle": "совпадает с действующим YAML полной формы",
+    "targetPath": "packages/core/metadata/forms/elements/__tests__/fromXMLToYAML.test.ts",
+    "targetTitle": "элементы формы XML → YAML → XML",
     "status": "migrated"
   },
   {
@@ -20488,8 +20488,8 @@
     "fixtures": [],
     "line": 38,
     "behavior": "exports search control addition source to partial YAML",
-    "targetPath": "packages/core/metadata/forms/clientApplicationForm/fromXMLToYAML.test.ts",
-    "targetTitle": "совпадает с действующим YAML полной формы",
+    "targetPath": "packages/core/metadata/forms/elements/__tests__/fromXMLToYAML.test.ts",
+    "targetTitle": "элементы формы XML → YAML → XML",
     "status": "migrated"
   },
   {
@@ -20503,8 +20503,8 @@
     "fixtures": [],
     "line": 57,
     "behavior": "`${group} -  $name`",
-    "targetPath": "packages/core/metadata/forms/clientApplicationForm/fromXMLToYAML.test.ts",
-    "targetTitle": "совпадает с действующим YAML полной формы",
+    "targetPath": "packages/core/metadata/forms/elements/__tests__/fromXMLToYAML.test.ts",
+    "targetTitle": "элементы формы XML → YAML → XML",
     "status": "migrated"
   },
   {
@@ -20518,8 +20518,8 @@
     "fixtures": [],
     "line": 69,
     "behavior": "do not hide fields from partial YAML",
-    "targetPath": "packages/core/metadata/forms/clientApplicationForm/fromXMLToYAML.test.ts",
-    "targetTitle": "совпадает с действующим YAML полной формы",
+    "targetPath": "packages/core/metadata/forms/elements/__tests__/fromXMLToYAML.test.ts",
+    "targetTitle": "элементы формы XML → YAML → XML",
     "status": "migrated"
   },
   {
@@ -20533,8 +20533,8 @@
     "fixtures": [],
     "line": 94,
     "behavior": "exports search string addition kind with source",
-    "targetPath": "packages/core/metadata/forms/clientApplicationForm/fromXMLToYAML.test.ts",
-    "targetTitle": "совпадает с действующим YAML полной формы",
+    "targetPath": "packages/core/metadata/forms/elements/__tests__/fromXMLToYAML.test.ts",
+    "targetTitle": "элементы формы XML → YAML → XML",
     "status": "migrated"
   },
   {
@@ -20548,8 +20548,8 @@
     "fixtures": [],
     "line": 110,
     "behavior": "exports search control addition kind with source",
-    "targetPath": "packages/core/metadata/forms/clientApplicationForm/fromXMLToYAML.test.ts",
-    "targetTitle": "совпадает с действующим YAML полной формы",
+    "targetPath": "packages/core/metadata/forms/elements/__tests__/fromXMLToYAML.test.ts",
+    "targetTitle": "элементы формы XML → YAML → XML",
     "status": "migrated"
   },
   {
@@ -20563,8 +20563,8 @@
     "fixtures": [],
     "line": 127,
     "behavior": "exports group kind, group mode and nested child items",
-    "targetPath": "packages/core/metadata/forms/clientApplicationForm/fromXMLToYAML.test.ts",
-    "targetTitle": "совпадает с действующим YAML полной формы",
+    "targetPath": "packages/core/metadata/forms/elements/__tests__/fromXMLToYAML.test.ts",
+    "targetTitle": "элементы формы XML → YAML → XML",
     "status": "migrated"
   },
   {
@@ -20578,8 +20578,8 @@
     "fixtures": [],
     "line": 156,
     "behavior": "exports explicit table data path",
-    "targetPath": "packages/core/metadata/forms/clientApplicationForm/fromXMLToYAML.test.ts",
-    "targetTitle": "совпадает с действующим YAML полной формы",
+    "targetPath": "packages/core/metadata/forms/elements/__tests__/fromXMLToYAML.test.ts",
+    "targetTitle": "элементы формы XML → YAML → XML",
     "status": "migrated"
   },
   {
@@ -20593,8 +20593,8 @@
     "fixtures": [],
     "line": 40,
     "behavior": "restores BackColor auto when model omits backColor and reference XML has auto",
-    "targetPath": "packages/core/metadata/forms/clientApplicationForm/syncToXML.test.ts",
-    "targetTitle": "читает форму из YAML и экспортирует XML",
+    "targetPath": "packages/core/metadata/forms/elements/__tests__/fromXMLToYAML.test.ts",
+    "targetTitle": "элементы формы XML → YAML → XML",
     "status": "migrated"
   },
   {
@@ -20608,8 +20608,8 @@
     "fixtures": [],
     "line": 52,
     "behavior": "does not invent BackColor auto without reference",
-    "targetPath": "packages/core/metadata/forms/clientApplicationForm/syncToXML.test.ts",
-    "targetTitle": "читает форму из YAML и экспортирует XML",
+    "targetPath": "packages/core/metadata/forms/elements/__tests__/fromXMLToYAML.test.ts",
+    "targetTitle": "элементы формы XML → YAML → XML",
     "status": "migrated"
   },
   {
@@ -20623,8 +20623,8 @@
     "fixtures": [],
     "line": 60,
     "behavior": "exports model color instead of reference auto",
-    "targetPath": "packages/core/metadata/forms/clientApplicationForm/syncToXML.test.ts",
-    "targetTitle": "читает форму из YAML и экспортирует XML",
+    "targetPath": "packages/core/metadata/forms/elements/__tests__/fromXMLToYAML.test.ts",
+    "targetTitle": "элементы формы XML → YAML → XML",
     "status": "migrated"
   },
   {
@@ -20641,8 +20641,8 @@
     ],
     "line": 14,
     "behavior": "imports all decoration fields",
-    "targetPath": "packages/core/metadata/forms/clientApplicationForm/fromXMLToYAML.test.ts",
-    "targetTitle": "совпадает с действующим YAML полной формы",
+    "targetPath": "packages/core/metadata/forms/elements/__tests__/fromXMLToYAML.test.ts",
+    "targetTitle": "элементы формы XML → YAML → XML",
     "status": "migrated"
   },
   {
@@ -20659,8 +20659,8 @@
     ],
     "line": 26,
     "behavior": "imports empty tooltip as minimal model",
-    "targetPath": "packages/core/metadata/forms/clientApplicationForm/fromXMLToYAML.test.ts",
-    "targetTitle": "совпадает с действующим YAML полной формы",
+    "targetPath": "packages/core/metadata/forms/elements/__tests__/fromXMLToYAML.test.ts",
+    "targetTitle": "элементы формы XML → YAML → XML",
     "status": "migrated"
   },
   {
@@ -20677,8 +20677,8 @@
     ],
     "line": 38,
     "behavior": "imports empty formatted title",
-    "targetPath": "packages/core/metadata/forms/clientApplicationForm/fromXMLToYAML.test.ts",
-    "targetTitle": "совпадает с действующим YAML полной формы",
+    "targetPath": "packages/core/metadata/forms/elements/__tests__/fromXMLToYAML.test.ts",
+    "targetTitle": "элементы формы XML → YAML → XML",
     "status": "migrated"
   },
   {
@@ -20695,8 +20695,8 @@
     ],
     "line": 37,
     "behavior": "exports all decoration fields",
-    "targetPath": "packages/core/metadata/forms/clientApplicationForm/syncToXML.test.ts",
-    "targetTitle": "читает форму из YAML и экспортирует XML",
+    "targetPath": "packages/core/metadata/forms/elements/__tests__/fromXMLToYAML.test.ts",
+    "targetTitle": "элементы формы XML → YAML → XML",
     "status": "migrated"
   },
   {
@@ -20713,8 +20713,8 @@
     ],
     "line": 44,
     "behavior": "exports empty tooltip with generated name",
-    "targetPath": "packages/core/metadata/forms/clientApplicationForm/syncToXML.test.ts",
-    "targetTitle": "читает форму из YAML и экспортирует XML",
+    "targetPath": "packages/core/metadata/forms/elements/__tests__/fromXMLToYAML.test.ts",
+    "targetTitle": "элементы формы XML → YAML → XML",
     "status": "migrated"
   },
   {
@@ -20731,8 +20731,8 @@
     ],
     "line": 51,
     "behavior": "exports empty formatted title",
-    "targetPath": "packages/core/metadata/forms/clientApplicationForm/syncToXML.test.ts",
-    "targetTitle": "читает форму из YAML и экспортирует XML",
+    "targetPath": "packages/core/metadata/forms/elements/__tests__/fromXMLToYAML.test.ts",
+    "targetTitle": "элементы формы XML → YAML → XML",
     "status": "migrated"
   },
   {
@@ -20748,8 +20748,8 @@
     ],
     "line": 58,
     "behavior": "does not export runtime Type",
-    "targetPath": "packages/core/metadata/forms/clientApplicationForm/syncToXML.test.ts",
-    "targetTitle": "читает форму из YAML и экспортирует XML",
+    "targetPath": "packages/core/metadata/forms/elements/__tests__/fromXMLToYAML.test.ts",
+    "targetTitle": "элементы формы XML → YAML → XML",
     "status": "migrated"
   },
   {
@@ -20763,8 +20763,8 @@
     "fixtures": [],
     "line": 8,
     "behavior": "exports XML-only Edit value",
-    "targetPath": "packages/core/metadata/forms/clientApplicationForm/syncToXML.test.ts",
-    "targetTitle": "читает форму из YAML и экспортирует XML",
+    "targetPath": "packages/core/metadata/forms/elements/__tests__/fromXMLToYAML.test.ts",
+    "targetTitle": "элементы формы XML → YAML → XML",
     "status": "migrated"
   },
   {
@@ -20778,8 +20778,8 @@
     "fixtures": [],
     "line": 38,
     "behavior": "restores BackColor auto when model omits backColor and reference XML has auto",
-    "targetPath": "packages/core/metadata/forms/clientApplicationForm/syncToXML.test.ts",
-    "targetTitle": "читает форму из YAML и экспортирует XML",
+    "targetPath": "packages/core/metadata/forms/elements/__tests__/fromXMLToYAML.test.ts",
+    "targetTitle": "элементы формы XML → YAML → XML",
     "status": "migrated"
   },
   {
@@ -20793,8 +20793,8 @@
     "fixtures": [],
     "line": 51,
     "behavior": "does not invent BackColor auto without reference XML key",
-    "targetPath": "packages/core/metadata/forms/clientApplicationForm/syncToXML.test.ts",
-    "targetTitle": "читает форму из YAML и экспортирует XML",
+    "targetPath": "packages/core/metadata/forms/elements/__tests__/fromXMLToYAML.test.ts",
+    "targetTitle": "элементы формы XML → YAML → XML",
     "status": "migrated"
   },
   {
@@ -20808,8 +20808,8 @@
     "fixtures": [],
     "line": 63,
     "behavior": "exports model color instead of reference auto",
-    "targetPath": "packages/core/metadata/forms/clientApplicationForm/syncToXML.test.ts",
-    "targetTitle": "читает форму из YAML и экспортирует XML",
+    "targetPath": "packages/core/metadata/forms/elements/__tests__/fromXMLToYAML.test.ts",
+    "targetTitle": "элементы формы XML → YAML → XML",
     "status": "migrated"
   },
   {
@@ -21059,8 +21059,8 @@
     ],
     "line": 34,
     "behavior": "экспортирует критичные XML-свойства таблицы в порядке 1С без reference",
-    "targetPath": "packages/core/metadata/forms/clientApplicationForm/syncToXML.test.ts",
-    "targetTitle": "читает форму из YAML и экспортирует XML",
+    "targetPath": "packages/core/metadata/forms/elements/__tests__/fromXMLToYAML.test.ts",
+    "targetTitle": "элементы формы XML → YAML → XML",
     "status": "migrated"
   },
   {
@@ -21076,8 +21076,8 @@
     ],
     "line": 59,
     "behavior": "сохраняет RowFilter, когда ключ есть в referenceMetadata со значением undefined",
-    "targetPath": "packages/core/metadata/forms/clientApplicationForm/syncToXML.test.ts",
-    "targetTitle": "читает форму из YAML и экспортирует XML",
+    "targetPath": "packages/core/metadata/forms/elements/__tests__/fromXMLToYAML.test.ts",
+    "targetTitle": "элементы формы XML → YAML → XML",
     "status": "migrated"
   },
   {
@@ -21093,8 +21093,8 @@
     ],
     "line": 71,
     "behavior": "не добавляет RowFilter без ключа в referenceMetadata",
-    "targetPath": "packages/core/metadata/forms/clientApplicationForm/syncToXML.test.ts",
-    "targetTitle": "читает форму из YAML и экспортирует XML",
+    "targetPath": "packages/core/metadata/forms/elements/__tests__/fromXMLToYAML.test.ts",
+    "targetTitle": "элементы формы XML → YAML → XML",
     "status": "migrated"
   },
   {
@@ -21110,8 +21110,8 @@
     ],
     "line": 88,
     "behavior": "сохраняет Period и TopLevelParent, когда ключи есть в referenceMetadata",
-    "targetPath": "packages/core/metadata/forms/clientApplicationForm/syncToXML.test.ts",
-    "targetTitle": "читает форму из YAML и экспортирует XML",
+    "targetPath": "packages/core/metadata/forms/elements/__tests__/fromXMLToYAML.test.ts",
+    "targetTitle": "элементы формы XML → YAML → XML",
     "status": "migrated"
   },
   {
@@ -21127,8 +21127,8 @@
     ],
     "line": 112,
     "behavior": "не добавляет XML-only поля без referenceMetadata",
-    "targetPath": "packages/core/metadata/forms/clientApplicationForm/syncToXML.test.ts",
-    "targetTitle": "читает форму из YAML и экспортирует XML",
+    "targetPath": "packages/core/metadata/forms/elements/__tests__/fromXMLToYAML.test.ts",
+    "targetTitle": "элементы формы XML → YAML → XML",
     "status": "migrated"
   },
   {

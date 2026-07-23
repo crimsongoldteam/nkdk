@@ -132,6 +132,82 @@ describe("sync ClientApplicationForm to XML", () => {
     }
   })
 
+  it("отклоняет managed form без Ext/Form.xml", async () => {
+    const tmpRoot = fs.mkdtempSync(join(os.tmpdir(), "nkdk-managed-form-without-body-"))
+    const xmlInputDir = join(tmpRoot, "xml", "Forms")
+    const managedFormName = "УправляемаяБезТела"
+
+    try {
+      fs.mkdirSync(xmlInputDir, { recursive: true })
+      fs.writeFileSync(join(xmlInputDir, `${managedFormName}.xml`), managedFormMetadataXML(managedFormName))
+
+      await expect(
+        convertFormFromXML({
+          context: mockContextFromXML(),
+          inputDir: xmlInputDir,
+          formName: managedFormName,
+          outputDir: join(tmpRoot, "yaml"),
+        })
+      ).rejects.toThrow("Form.xml")
+    } finally {
+      fs.rmSync(tmpRoot, { recursive: true, force: true })
+    }
+  })
+
+  it("сохраняет события и не пишет синоним, равный имени формы", async () => {
+    const tmpRoot = fs.mkdtempSync(join(os.tmpdir(), "nkdk-form-events-roundtrip-"))
+    const xmlInputDir = join(tmpRoot, "xml", "Forms")
+    const yamlInputDir = join(tmpRoot, "yaml")
+    const xmlOutputDir = join(tmpRoot, "out")
+    const eventFormName = "ФормаСобытияПередВыполнением"
+    const formExtDir = join(xmlInputDir, eventFormName, "Ext")
+
+    try {
+      fs.mkdirSync(formExtDir, { recursive: true })
+      fs.writeFileSync(
+        join(xmlInputDir, `${eventFormName}.xml`),
+        managedFormMetadataXML(eventFormName, "Форма события перед выполнением")
+      )
+      fs.writeFileSync(
+        join(formExtDir, "Form.xml"),
+        [
+          '<?xml version="1.0" encoding="UTF-8"?>',
+          '<Form xmlns="http://v8.1c.ru/8.3/xcf/logform" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" version="2.20">',
+          "  <Events>",
+          '    <Event name="OnOpen">ПриОткрытии</Event>',
+          '    <Event name="BeforeExecute">ПередВыполнением</Event>',
+          "  </Events>",
+          "</Form>",
+        ].join("\n")
+      )
+
+      await convertFormFromXML({
+        context: mockContextFromXML(),
+        inputDir: xmlInputDir,
+        formName: eventFormName,
+        outputDir: yamlInputDir,
+      })
+
+      const yaml = fs.readFileSync(join(yamlInputDir, "Формы", eventFormName, "Форма.yaml"), "utf-8")
+      expect(yaml).toContain("ПередВыполнением: ПередВыполнением")
+      expect(yaml).not.toContain("Синоним:")
+
+      await syncFormToXML({
+        context: mockContextToXML(),
+        inputDir: yamlInputDir,
+        outputDir: xmlOutputDir,
+        referenceDir: xmlInputDir,
+        formName: eventFormName,
+      })
+
+      expect(fs.readFileSync(join(xmlOutputDir, "Forms", eventFormName, "Ext", "Form.xml"), "utf-8")).toContain(
+        '<Event name="BeforeExecute">ПередВыполнением</Event>'
+      )
+    } finally {
+      fs.rmSync(tmpRoot, { recursive: true, force: true })
+    }
+  })
+
   it("передаёт currentXMLPath в экспорт формы и восстанавливает ERP AdditionalColumns", async () => {
     const tmpRoot = fs.mkdtempSync(join(os.tmpdir(), "nkdk-form-current-xml-path-"))
     const tmpInputDir = join(tmpRoot, "yaml")
@@ -237,22 +313,36 @@ describe("sync ClientApplicationForm to XML", () => {
     const xmlManifest = new XmlSyncManifest(outputDir)
 
     try {
-      fs.cpSync(inputDir, tmpInputDir, { recursive: true })
       fs.cpSync(referenceDir, tmpReferenceDir, { recursive: true })
-      fs.mkdirSync(join(tmpInputDir, "Формы", formName, "Картинки"), { recursive: true })
-      fs.mkdirSync(join(tmpInputDir, "Формы", formName, "КартинкиШапки"), { recursive: true })
-      fs.mkdirSync(join(tmpInputDir, "Формы", formName, "КартинкиЗначений"), { recursive: true })
-      fs.mkdirSync(join(tmpInputDir, "Формы", formName, "КартинкиСтрок"), { recursive: true })
-      fs.writeFileSync(join(tmpInputDir, "Формы", formName, "Картинки", "Декорация2.png"), Buffer.from([1, 2, 3]))
-      fs.writeFileSync(
-        join(tmpInputDir, "Формы", formName, "КартинкиШапки", "ГруппаСШапкой.gif"),
-        Buffer.from([7, 8, 9])
-      )
-      fs.writeFileSync(join(tmpInputDir, "Формы", formName, "КартинкиЗначений", "Статус.bmp"), Buffer.from([4, 5, 6]))
-      fs.writeFileSync(
-        join(tmpInputDir, "Формы", formName, "КартинкиСтрок", "ТаблицаСКартинкойСтрок.png"),
-        Buffer.from([11, 12, 13])
-      )
+      const itemsDir = join(tmpReferenceDir, formName, "Ext", "Form", "Items")
+      fs.mkdirSync(join(itemsDir, "Декорация2"), { recursive: true })
+      fs.mkdirSync(join(itemsDir, "ГруппаСШапкой"), { recursive: true })
+      fs.mkdirSync(join(itemsDir, "Статус"), { recursive: true })
+      fs.mkdirSync(join(itemsDir, "ТаблицаСКартинкойСтрок"), { recursive: true })
+      fs.writeFileSync(join(itemsDir, "Декорация2", "Picture.png"), Buffer.from([1, 2, 3]))
+      fs.writeFileSync(join(itemsDir, "ГруппаСШапкой", "HeaderPicture.gif"), Buffer.from([7, 8, 9]))
+      fs.writeFileSync(join(itemsDir, "Статус", "ValuesPicture.bmp"), Buffer.from([4, 5, 6]))
+      fs.writeFileSync(join(itemsDir, "ТаблицаСКартинкойСтрок", "RowsPicture.png"), Buffer.from([11, 12, 13]))
+
+      await convertFormFromXML({
+        context: mockContextFromXML(),
+        inputDir: tmpReferenceDir,
+        formName,
+        outputDir: tmpInputDir,
+      })
+
+      expect([...fs.readFileSync(join(tmpInputDir, "Формы", formName, "Картинки", "Декорация2.png"))]).toEqual([
+        1, 2, 3,
+      ])
+      expect([...fs.readFileSync(join(tmpInputDir, "Формы", formName, "КартинкиШапки", "ГруппаСШапкой.gif"))]).toEqual([
+        7, 8, 9,
+      ])
+      expect([...fs.readFileSync(join(tmpInputDir, "Формы", formName, "КартинкиЗначений", "Статус.bmp"))]).toEqual([
+        4, 5, 6,
+      ])
+      expect([
+        ...fs.readFileSync(join(tmpInputDir, "Формы", formName, "КартинкиСтрок", "ТаблицаСКартинкойСтрок.png")),
+      ]).toEqual([11, 12, 13])
 
       await syncFormToXML({
         context: mockContextToXML(),
@@ -318,9 +408,17 @@ describe("sync ClientApplicationForm to XML", () => {
     const tmpReferenceDir = join(tmpRoot, "reference-forms")
 
     try {
-      fs.cpSync(inputDir, tmpInputDir, { recursive: true })
       fs.cpSync(referenceDir, tmpReferenceDir, { recursive: true })
-      fs.writeFileSync(join(tmpInputDir, "Формы", formName, "Form.bin"), Buffer.from([10, 20, 30]))
+      fs.writeFileSync(join(tmpReferenceDir, formName, "Ext", "Form.bin"), Buffer.from([10, 20, 30]))
+
+      await convertFormFromXML({
+        context: mockContextFromXML(),
+        inputDir: tmpReferenceDir,
+        formName,
+        outputDir: tmpInputDir,
+      })
+
+      expect([...fs.readFileSync(join(tmpInputDir, "Формы", formName, "Form.bin"))]).toEqual([10, 20, 30])
 
       await syncFormToXML({
         context: mockContextToXML(),
@@ -344,14 +442,25 @@ describe("sync ClientApplicationForm to XML", () => {
     const xmlManifest = new XmlSyncManifest(outputDir)
 
     try {
-      fs.cpSync(inputDir, tmpInputDir, { recursive: true })
       fs.cpSync(referenceDir, tmpReferenceDir, { recursive: true })
-      fs.mkdirSync(join(tmpInputDir, "Формы", formName, "Справка", "_files", "nested"), { recursive: true })
-      fs.writeFileSync(join(tmpInputDir, "Формы", formName, "Справка", "_files", "001.png"), Buffer.from([1, 2]))
+      fs.mkdirSync(join(tmpReferenceDir, formName, "Ext", "Help", "_files", "nested"), { recursive: true })
+      fs.writeFileSync(join(tmpReferenceDir, formName, "Ext", "Help", "_files", "001.png"), Buffer.from([1, 2]))
       fs.writeFileSync(
-        join(tmpInputDir, "Формы", formName, "Справка", "_files", "nested", "002.png"),
+        join(tmpReferenceDir, formName, "Ext", "Help", "_files", "nested", "002.png"),
         Buffer.from([3, 4])
       )
+
+      await convertFormFromXML({
+        context: mockContextFromXML(),
+        inputDir: tmpReferenceDir,
+        formName,
+        outputDir: tmpInputDir,
+      })
+
+      expect([...fs.readFileSync(join(tmpInputDir, "Формы", formName, "Справка", "_files", "001.png"))]).toEqual([1, 2])
+      expect([
+        ...fs.readFileSync(join(tmpInputDir, "Формы", formName, "Справка", "_files", "nested", "002.png")),
+      ]).toEqual([3, 4])
 
       await syncFormToXML({
         context: mockContextToXML(),
@@ -496,6 +605,23 @@ const ordinaryFormMetadataXML = (formName: string): string => `<?xml version="1.
 			</Synonym>
 			<Comment/>
 			<FormType>Ordinary</FormType>
+			<IncludeHelpInContents>false</IncludeHelpInContents>
+		</Properties>
+	</Form>
+</MetaDataObject>`
+
+const managedFormMetadataXML = (formName: string, synonym?: string): string => `<?xml version="1.0" encoding="UTF-8"?>
+<MetaDataObject xmlns="http://v8.1c.ru/8.3/MDClasses" xmlns:v8="http://v8.1c.ru/8.1/data/core" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" version="2.20">
+	<Form uuid="aaaaaaaa-1111-4222-8333-bbbbbbbbbbbb">
+		<Properties>
+			<Name>${formName}</Name>
+			${
+        synonym !== undefined
+          ? `<Synonym><v8:item><v8:lang>ru</v8:lang><v8:content>${synonym}</v8:content></v8:item></Synonym>`
+          : "<Synonym/>"
+      }
+			<Comment/>
+			<FormType>Managed</FormType>
 			<IncludeHelpInContents>false</IncludeHelpInContents>
 		</Properties>
 	</Form>
