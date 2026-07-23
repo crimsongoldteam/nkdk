@@ -9644,10 +9644,10 @@
       "./__fixtures__/data"
     ],
     "line": 13,
-    "behavior": "",
+    "behavior": "Единый XML → YAML обход сохраняет проверяемое представление оформления.",
     "targetPath": "packages/core/metadata/commonObjects/dataCompositionSystem/appearanceFields/fromXMLToYAML.test.ts",
-    "targetTitle": "",
-    "status": "pending"
+    "targetTitle": "should export minimal appearance",
+    "status": "migrated"
   },
   {
     "id": "04f50e62065bb2e7f3cd7e8646dde08c82c0f7a2:packages/core/metadata/commonObjects/dataCompositionSystem/appearanceFields/toYAML.test.ts:24:672",
@@ -9661,10 +9661,10 @@
       "./__fixtures__/data"
     ],
     "line": 24,
-    "behavior": "",
+    "behavior": "Единый XML → YAML обход сохраняет проверяемое представление оформления.",
     "targetPath": "packages/core/metadata/commonObjects/dataCompositionSystem/appearanceFields/fromXMLToYAML.test.ts",
-    "targetTitle": "",
-    "status": "pending"
+    "targetTitle": "exports explicit Field value for text appearance",
+    "status": "migrated"
   },
   {
     "id": "04f50e62065bb2e7f3cd7e8646dde08c82c0f7a2:packages/core/metadata/commonObjects/dataCompositionSystem/appearanceFields/toYAML.test.ts:49:1169",
@@ -9678,10 +9678,10 @@
       "./__fixtures__/data"
     ],
     "line": 49,
-    "behavior": "",
+    "behavior": "Единый XML → YAML обход сохраняет проверяемое представление оформления.",
     "targetPath": "packages/core/metadata/commonObjects/dataCompositionSystem/appearanceFields/fromXMLToYAML.test.ts",
-    "targetTitle": "",
-    "status": "pending"
+    "targetTitle": "exports explicit LocalFormattedStringType value for text appearance",
+    "status": "migrated"
   },
   {
     "id": "04f50e62065bb2e7f3cd7e8646dde08c82c0f7a2:packages/core/metadata/commonObjects/dataCompositionSystem/appearanceFields/toYAML.test.ts:80:1935",
@@ -9695,10 +9695,10 @@
       "./__fixtures__/data"
     ],
     "line": 80,
-    "behavior": "",
+    "behavior": "Единый XML → YAML обход сохраняет проверяемое представление оформления.",
     "targetPath": "packages/core/metadata/commonObjects/dataCompositionSystem/appearanceFields/fromXMLToYAML.test.ts",
-    "targetTitle": "",
-    "status": "pending"
+    "targetTitle": "exports enabled DCS auto color as empty YAML value",
+    "status": "migrated"
   },
   {
     "id": "04f50e62065bb2e7f3cd7e8646dde08c82c0f7a2:packages/core/metadata/commonObjects/dataCompositionSystem/appearanceFields/toYAML.test.ts:98:2295",
@@ -9712,10 +9712,10 @@
       "./__fixtures__/data"
     ],
     "line": 98,
-    "behavior": "",
+    "behavior": "Единый XML → YAML обход сохраняет проверяемое представление оформления.",
     "targetPath": "packages/core/metadata/commonObjects/dataCompositionSystem/appearanceFields/fromXMLToYAML.test.ts",
-    "targetTitle": "",
-    "status": "pending"
+    "targetTitle": "exports disabled DCS auto color without YAML value",
+    "status": "migrated"
   },
   {
     "id": "04f50e62065bb2e7f3cd7e8646dde08c82c0f7a2:packages/core/metadata/commonObjects/dataCompositionSystem/appearanceFields/toYAML.test.ts:119:2710",
@@ -9729,10 +9729,10 @@
       "./__fixtures__/data"
     ],
     "line": 119,
-    "behavior": "",
+    "behavior": "Единый XML → YAML обход сохраняет проверяемое представление оформления.",
     "targetPath": "packages/core/metadata/commonObjects/dataCompositionSystem/appearanceFields/fromXMLToYAML.test.ts",
-    "targetTitle": "",
-    "status": "pending"
+    "targetTitle": "exports non-auto color in full SettingsParameterValue form",
+    "status": "migrated"
   },
   {
     "id": "04f50e62065bb2e7f3cd7e8646dde08c82c0f7a2:packages/core/metadata/commonObjects/dataCompositionSystem/calculatedField/fromXML.test.ts:11:527",
@@ -12701,10 +12701,10 @@
       "dynamicList.xml"
     ],
     "line": 9,
-    "behavior": "",
+    "behavior": "Единый обход преобразует XML поля группировки с отключённым использованием в объект YAML.",
     "targetPath": "packages/core/metadata/commonObjects/dataCompositionSystem/structureItemGroup/items/groupItemField/fromXMLToYAML.test.ts",
-    "targetTitle": "",
-    "status": "pending"
+    "targetTitle": "imports dynamicList.xml (use=false)",
+    "status": "migrated"
   },
   {
     "id": "04f50e62065bb2e7f3cd7e8646dde08c82c0f7a2:packages/core/metadata/commonObjects/dataCompositionSystem/structureItemGroup/items/groupItemField/fromXML.test.ts:20:661",
@@ -12719,10 +12719,10 @@
       "dynamicListDefault.xml"
     ],
     "line": 20,
-    "behavior": "",
+    "behavior": "Единый обход преобразует XML поля группировки с настройками по умолчанию в краткую строку YAML.",
     "targetPath": "packages/core/metadata/commonObjects/dataCompositionSystem/structureItemGroup/items/groupItemField/fromXMLToYAML.test.ts",
-    "targetTitle": "",
-    "status": "pending"
+    "targetTitle": "imports dynamicListDefault.xml (use=true)",
+    "status": "migrated"
   },
   {
     "id": "04f50e62065bb2e7f3cd7e8646dde08c82c0f7a2:packages/core/metadata/commonObjects/dataCompositionSystem/structureItemGroup/items/groupItemField/toXML.test.ts:10:454",
@@ -12737,10 +12737,10 @@
       "dynamicList.xml"
     ],
     "line": 10,
-    "behavior": "",
+    "behavior": "Единый обход преобразует YAML отключённого поля группировки в исходный XML.",
     "targetPath": "packages/core/metadata/commonObjects/dataCompositionSystem/structureItemGroup/items/groupItemField/fromYAMLToXML.test.ts",
-    "targetTitle": "",
-    "status": "pending"
+    "targetTitle": "exports dynamicList.xml (use=false)",
+    "status": "migrated"
   },
   {
     "id": "04f50e62065bb2e7f3cd7e8646dde08c82c0f7a2:packages/core/metadata/commonObjects/dataCompositionSystem/structureItemGroup/items/groupItemField/toXML.test.ts:22:792",
@@ -12755,10 +12755,10 @@
       "dynamicListDefault.xml"
     ],
     "line": 22,
-    "behavior": "",
+    "behavior": "Единый обход преобразует краткий YAML поля группировки в исходный XML.",
     "targetPath": "packages/core/metadata/commonObjects/dataCompositionSystem/structureItemGroup/items/groupItemField/fromYAMLToXML.test.ts",
-    "targetTitle": "",
-    "status": "pending"
+    "targetTitle": "exports dynamicListDefault.xml (use=true)",
+    "status": "migrated"
   },
   {
     "id": "04f50e62065bb2e7f3cd7e8646dde08c82c0f7a2:packages/core/metadata/commonObjects/dataCompositionSystem/structureItemGroup/toXML.test.ts:12:399",
