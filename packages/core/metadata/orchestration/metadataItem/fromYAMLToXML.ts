@@ -208,7 +208,6 @@ function mergeReferenceXML(params: {
     }
     const propertyRule = findPropertyRule(rule, path, key)
     if (propertyRule !== undefined) {
-      if (propertyRule.preserveFromReferenceXML === true) result[key] = referenceValue
       continue
     }
     result[key] = referenceValue === undefined ? {} : referenceValue

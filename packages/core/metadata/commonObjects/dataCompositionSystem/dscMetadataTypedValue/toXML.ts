@@ -1,6 +1,6 @@
 import { ConfigurationContextWithExportToXML } from "../../../context/types"
 import { registerTypeRule } from "../../../orchestration/property/typeRuleRegistry"
-import type { PropertyRule } from "../../../orchestration/property/types"
+import type { ExportToXMLFunctionNew } from "../../../orchestration/property/fn"
 import { DcsMetadataTypedValueRegistry } from "./rules"
 import {
   DcsMetadataTypedValue,
@@ -56,6 +56,7 @@ const exportSingle = (
   rule: DcsMetadataTypedValuePropertyRule,
   value: ExportableDcsMetadataTypedValue
 ): DcsMetadataTypedValueXML => {
+  if (isNilXML(value)) return value
   const valueUndefinedType = getReferenceUndefinedTypeValue(value)
   if (valueUndefinedType !== undefined) return valueUndefinedType
   if (isReferenceTypeValue(value)) {
@@ -111,17 +112,31 @@ export const exportDcsMetadataTypedValueToXML = (
   return exportSingle(context, rule, value)
 }
 
-const exportDcsMetadataTypedValueToXMLForRule = (
-  context: ConfigurationContextWithExportToXML,
-  rule: PropertyRule,
-  value: unknown,
-  referenceMetadata?: unknown
-): DcsMetadataTypedValueXML | DcsMetadataTypedValueEmptyXML | DcsMetadataTypedValueXML[] | undefined =>
-  exportDcsMetadataTypedValueToXML(
+const exportDcsMetadataTypedValueToXMLDirect: ExportToXMLFunctionNew = ({
+  context,
+  rule,
+  value,
+  referenceMetadata,
+  source,
+  propertyKey,
+}) => {
+  const rawYAML = propertyKey === undefined ? undefined : source?.raw(propertyKey)
+  const normalizedValue =
+    Array.isArray(value) && Array.isArray(rawYAML)
+      ? value.map((item, index) =>
+          item === undefined &&
+          isObject(rawYAML[index]) &&
+          Object.keys(rawYAML[index] as Record<string, unknown>).length === 0
+            ? ({ "_xsi:nil": "true" } as DcsMetadataTypedValueNilXML)
+            : item
+        )
+      : value
+  return exportDcsMetadataTypedValueToXML(
     context,
     rule as DcsMetadataTypedValuePropertyRule,
-    value as ExportableDcsMetadataTypedValue | ExportableDcsMetadataTypedValueOrNil[] | undefined,
+    normalizedValue,
     referenceMetadata
   )
+}
 
-registerTypeRule("DcsMetadataTypedValue", "exportToXML", exportDcsMetadataTypedValueToXMLForRule)
+registerTypeRule("DcsMetadataTypedValue", "exportToXML", exportDcsMetadataTypedValueToXMLDirect)

@@ -38,6 +38,7 @@ export type ExportToXMLFunctionNew = <T extends MetadataItem>(params: {
   context: ConfigurationContextWithExportToXML
   rule: PropertyRule
   source?: YAMLPropertySource
+  propertyKey?: string
   /** @deprecated Удаляется вместе со старой общей XML-оркестрацией. */
   metadataItem?: T
   referenceMetadata?: any

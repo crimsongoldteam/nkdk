@@ -208,6 +208,23 @@ function findReferenceItem(params: {
     const unwrapped = params.descriptor.unwrapReferenceItem?.({ xml: item, itemRule: params.itemRule })
     return unwrapped === undefined && params.descriptor.unwrapReferenceItem !== undefined ? [] : [unwrapped ?? item]
   })
+  if (params.descriptor.referenceIdentity !== undefined) {
+    const identity = params.descriptor.referenceIdentity.fromYAML({
+      yaml: params.yaml,
+      name: params.name,
+      itemRule: params.itemRule,
+    })
+    if (identity !== undefined) {
+      const matches = items.filter(
+        (item) =>
+          params.descriptor.referenceIdentity!.fromXML({
+            xml: item,
+            itemRule: params.itemRule,
+          }) === identity
+      )
+      return matches.length === 1 ? matches[0] : undefined
+    }
+  }
   const keyField = params.descriptor.keyField
   if (keyField !== undefined && isRecord(params.yaml)) {
     const keyRule = params.itemRule.properties[keyField]
@@ -223,6 +240,7 @@ function findReferenceItem(params: {
     if (nameRule !== undefined) {
       const found = items.find((item) => readXMLProperty(item, nameRule, "name") === params.name)
       if (found !== undefined) return found
+      return undefined
     }
   }
   return items[params.index]
@@ -290,7 +308,9 @@ function configurationIndexItemContext(params: {
     )
   }
   const segment =
-    params.descriptor.configurationIndexUidSegment ?? runtime.childCollectionUidSegment ?? params.descriptor.itemRule.itemType
+    params.descriptor.configurationIndexUidSegment ??
+    runtime.childCollectionUidSegment ??
+    params.descriptor.itemRule.itemType
   return withConfigurationIndexExportLogicalAddress(
     params.context,
     keyName === undefined

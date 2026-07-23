@@ -15,6 +15,7 @@ import { ChoiceParameterLinks } from "../../сhoiceParameterLinks/types"
 import { exportChoiceParameterToDcsXML } from "../../сhoiceParameters/toDcsXML"
 import { ChoiceParameter } from "../../сhoiceParameters/types"
 import type { PropertyRule } from "../../../orchestration/property/types"
+import type { ExportToXMLFunctionNew } from "../../../orchestration/property/fn"
 import { registerTypeRule } from "../../../orchestration/property/typeRuleRegistry"
 import { exportSystemEnumerationToDcsXML } from "../../../systemEnumerations/toDcsXML"
 import { SystemEnumerationPropertyRule } from "../../../systemEnumerations/types"
@@ -256,4 +257,18 @@ export const exportDcsMetadataValueToXML = (
   return root["dcscor:value"]
 }
 
-registerTypeRule("MetadataDcsMetadataValue", "exportToXML", exportDcsMetadataValueToXML)
+const exportDcsMetadataValueToXMLForRule: ExportToXMLFunctionNew = ({ context, rule, value, source }) => {
+  const valueType = source?.raw("valueType")
+  const normalizedValue =
+    valueType === "УникальныйИдентификатор" &&
+    value !== null &&
+    typeof value === "object" &&
+    !Array.isArray(value) &&
+    (value as Record<string, unknown>).type === "string" &&
+    typeof (value as Record<string, unknown>).value === "string"
+      ? { type: "uuid", value: (value as Record<string, unknown>).value }
+      : value
+  return exportDcsMetadataValueToXML(context, rule, normalizedValue)
+}
+
+registerTypeRule("MetadataDcsMetadataValue", "exportToXML", exportDcsMetadataValueToXMLForRule)

@@ -65,6 +65,7 @@ export interface AtomicToXMLParams {
   readonly value: unknown
   readonly referenceValue?: unknown
   readonly source?: YAMLPropertySource
+  readonly propertyKey?: string
 }
 
 interface MutableOutput {
@@ -220,6 +221,28 @@ export function convertPropertiesFromYAMLToXML(params: ConvertPropertiesFromYAML
     if (
       !source.has(propertyKey) &&
       !(planned.propertyKey === namePropertyKey && params.name !== undefined) &&
+      Object.prototype.hasOwnProperty.call(planned.propertyRule, "implicitValueYAML") &&
+      typeof planned.propertyRule.implicitValueYAML !== "function" &&
+      references.every((reference) => reference.exists)
+    ) {
+      matchingOutputs.forEach((output, index) => {
+        const reference = references[index]!
+        const referenceValue = callAtomicFromXML({
+          context: params.context,
+          rule: planned.propertyRule,
+          value: reference.value,
+          name: params.name,
+        })
+        if (referenceValue === planned.propertyRule.implicitValueYAML) {
+          writeXMLValue({ context: params.context, output, planned, value: reference.value, reference })
+        }
+      })
+      continue
+    }
+
+    if (
+      !source.has(propertyKey) &&
+      !(planned.propertyKey === namePropertyKey && params.name !== undefined) &&
       planned.propertyRule.runtimeOnly !== true &&
       planned.propertyRule.syncExternalOnly !== true &&
       planned.propertyRule.filePath === undefined &&
@@ -243,7 +266,45 @@ export function convertPropertiesFromYAMLToXML(params: ConvertPropertiesFromYAML
 
     if (!shouldConvertYAMLProperty({ source, planned, outputs: matchingOutputs, context: params.context })) continue
 
-    if (planned.propertyRule.preserveFromReferenceXML === true && !source.has(propertyKey)) {
+    if (
+      planned.propertyRule.preserveFromReferenceXML === true &&
+      planned.propertyRule.exportNilValue === true &&
+      !source.has(propertyKey)
+    ) {
+      matchingOutputs.forEach((output, index) => {
+        const reference = references[index]!
+        if (!reference.exists) return
+        if (reference.value === undefined) {
+          writeXMLValue({
+            context: params.context,
+            output,
+            planned,
+            value: { "_xsi:nil": true },
+            reference,
+          })
+          return
+        }
+        const importedReference = callAtomicFromXML({
+          context: params.context,
+          rule: planned.propertyRule,
+          value: reference.value,
+          name: params.name,
+        })
+        if (
+          (reference.value !== undefined && importedReference === reference.value) ||
+          isNilXMLValue(reference.value)
+        ) {
+          writeXMLValue({ context: params.context, output, planned, value: reference.value, reference })
+        }
+      })
+      continue
+    }
+
+    if (
+      planned.propertyRule.preserveFromReferenceXML === true &&
+      !source.has(propertyKey) &&
+      !requiresYAMLToXMLEvaluation(planned.propertyRule)
+    ) {
       matchingOutputs.forEach((output, index) => {
         const reference = references[index]!
         if (reference.exists)
@@ -432,6 +493,7 @@ export function convertPropertiesFromYAMLToXML(params: ConvertPropertiesFromYAML
           value: imported,
           referenceValue: atomicReferences[index],
           source,
+          propertyKey,
         })
         if (params.profile !== undefined) params.profile.atomicToXMLCount++
         writeXMLValue({ context: outputContext, output, planned, value: exported, reference })
@@ -460,6 +522,10 @@ function isEmptyCollectionReference(value: unknown, xmlElement: string | undefin
   if (xmlElement === undefined || !Object.prototype.hasOwnProperty.call(value, xmlElement)) return false
   const items = value[xmlElement]
   return items === undefined || (Array.isArray(items) && items.length === 0)
+}
+
+function isNilXMLValue(value: unknown): boolean {
+  return isRecord(value) && (value["_xsi:nil"] === true || value["_xsi:nil"] === "true")
 }
 
 function callAtomicFromXML(params: {
@@ -517,7 +583,7 @@ function normalizeReferenceFallback(rule: PropertyRule, value: unknown): unknown
 }
 
 export function callAtomicToXML(params: AtomicToXMLParams): unknown {
-  const { context, rule, value, referenceValue, source } = params
+  const { context, rule, value, referenceValue, source, propertyKey } = params
   const handler = params.handler ?? getTypeRule(rule.type, "exportToXML")
   const hasRaw = Object.prototype.hasOwnProperty.call(rule, "defaultValueXMLRaw")
   if (handler === undefined) {
@@ -535,6 +601,7 @@ export function callAtomicToXML(params: AtomicToXMLParams): unknown {
           rule,
           value: nextValue,
           source,
+          propertyKey,
           referenceMetadata: referenceValue,
         })
       : (handler as ExportToXMLFunction)(context, rule, nextValue, referenceValue)

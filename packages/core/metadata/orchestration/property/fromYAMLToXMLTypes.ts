@@ -97,6 +97,10 @@ export type YAMLToXMLNestedRule =
         index: number
         propertyRule: PropertyRule | undefined
       }) => unknown
+      readonly referenceIdentity?: {
+        fromYAML(params: { yaml: unknown; name: string | undefined; itemRule: MetadataItemRule }): string | undefined
+        fromXML(params: { xml: Record<string, unknown>; itemRule: MetadataItemRule }): string | undefined
+      }
       readonly mapItemOutput?: (params: {
         xml: Record<string, unknown>
         yaml: unknown

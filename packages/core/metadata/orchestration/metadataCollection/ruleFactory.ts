@@ -47,6 +47,10 @@ type CollectionRule<Rule extends MetadataItemRule, CollectionType extends Proper
     import("../property/fromYAMLToXMLTypes").YAMLToXMLNestedRule,
     { kind: "collection" }
   >["normalizeItemYAML"]
+  referenceIdentity?: Extract<
+    import("../property/fromYAMLToXMLTypes").YAMLToXMLNestedRule,
+    { kind: "collection" }
+  >["referenceIdentity"]
   /** Для YAML-объекта коллекции: YAML-элемент → ключ записи при прямом XML → YAML обходе. */
   recordYamlKeyFromYAML?: (params: { yaml: Record<string, unknown>; name: string }) => string
   fromXMLToYAML?: ImportFromXMLToYAMLFunction
@@ -128,6 +132,7 @@ export const registerMetadataItemCollectionRule = <
     sparseItems: params.sparseItems,
     mapItemOutput: params.mapItemOutput,
     normalizeItemYAML: params.normalizeItemYAML,
+    referenceIdentity: params.referenceIdentity,
     configurationIndexUidSegment: params.configurationIndexUidSegment,
     configurationIndexAddressing: params.configurationIndexAddressing,
   })
