@@ -24,6 +24,7 @@ import type {
 import { writeFullXmlSyncAssignment } from "./writeAssignment"
 import {
   createFullXmlSyncCompositionReader,
+  createFullXmlSyncSharedMetadataReader,
   type FullXmlSyncCompositionReader,
 } from "./sharedMetadata"
 import { prepareFullXmlSyncAssignment } from "./prepareAssignment"
@@ -65,7 +66,7 @@ export async function runFullXmlSyncWorkerCommand(
   }
 
   if (command.kind === "secondPass") {
-    return runSecondPass(requireInitializedState())
+    return runSecondPass(command.sharedMetadata, requireInitializedState())
   }
 
   return runFirstPass(command.assignments, requireInitializedState())
@@ -147,7 +148,10 @@ function runFirstPass(
   return { kind: "firstPassResult", diagnostics, projectFiles, ownerFacts }
 }
 
-async function runSecondPass(state: InitializedFullXmlSyncWorkerState): Promise<FullXmlSyncSecondPassResult> {
+async function runSecondPass(
+  sharedMetadata: Extract<FullXmlSyncWorkerCommand, { kind: "secondPass" }>["sharedMetadata"],
+  state: InitializedFullXmlSyncWorkerState
+): Promise<FullXmlSyncSecondPassResult> {
   const diagnostics: FullXmlSyncDiagnostic[] = []
   const warnings: FullXmlSyncDiagnostic[] = []
   const writtenFiles: FullXmlSyncWrittenFile[] = []
@@ -164,7 +168,7 @@ async function runSecondPass(state: InitializedFullXmlSyncWorkerState): Promise<
     try {
       const result = await writeFullXmlSyncAssignment({
         prepared,
-        context: exportContextForSecondPass(state),
+        context: secondPassContext(state, sharedMetadata),
         outputDir: state.outputDir,
       })
       diagnostics.push(...result.diagnostics)
@@ -380,6 +384,21 @@ function exportContextForSecondPass(state: InitializedFullXmlSyncWorkerState): C
         parentName: "",
       },
       ...(state.context.exportToXML ?? {}),
+    },
+  }
+}
+
+function secondPassContext(
+  state: InitializedFullXmlSyncWorkerState,
+  sharedMetadata: Extract<FullXmlSyncWorkerCommand, { kind: "secondPass" }>["sharedMetadata"]
+): ConfigurationContextWithExportToXML {
+  const context = exportContextForSecondPass(state)
+  return {
+    ...context,
+    exportToYAML: {
+      toTyped: context.exportToYAML?.toTyped ?? false,
+      ...context.exportToYAML,
+      ownerMetadataCache: createFullXmlSyncSharedMetadataReader(sharedMetadata).ownerCache(state.projectDir),
     },
   }
 }
