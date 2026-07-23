@@ -17,6 +17,10 @@ import type { ImportAssignment } from "./types"
 
 const syncXmlDir = join(import.meta.dirname, "../appliedObjects/configuration/__fixtures__/syncConfiguration/xml")
 const catalogFullXmlPath = join(import.meta.dirname, "../appliedObjects/metadataCatalog/__fixtures__/full.xml")
+const minimalNumeratorXmlPath = join(
+  import.meta.dirname,
+  "../appliedObjects/metadataDocumentNumerator/__fixtures__/minimal.xml"
+)
 const minimalFormXmlPath = join(import.meta.dirname, "../forms/clientApplicationForm/__fixtures__/minimal.xml")
 const minimalFormMetadataXmlPath = join(
   import.meta.dirname,
@@ -195,6 +199,41 @@ describe("XML import worker first pass", () => {
 })
 
 describe("XML import worker second pass", () => {
+  it.each([
+    ["Catalog", catalogAssignment()],
+    [
+      "DocumentNumerator",
+      catalogAssignment({
+        id: "document-numerator",
+        itemType: "MetadataDocumentNumerator",
+        itemName: "НумераторПоУмолчанию",
+        logicalAddress: "Нумератор.НумераторПоУмолчанию",
+        targetProjectPath: "Нумератор/НумераторПоУмолчанию/Свойства.yaml",
+        xmlFiles: [{ role: "metadata", sourcePath: minimalNumeratorXmlPath }],
+      }),
+    ],
+  ])("writes %s to its fixed Свойства.yaml target path", async (_itemType, assignment) => {
+    const outputDir = createTempDir("worker-target")
+    await initializeWorker(outputDir)
+    const first = expectFirstPass(
+      await runImportWorkerCommand({ kind: "firstPass", assignments: [assignment] })
+    )
+
+    const second = await runImportWorkerCommand({
+      kind: "secondPass",
+      sharedMetadata: createImportSharedMetadata(first.ownerFacts),
+    })
+
+    if (second?.kind !== "secondPassResult") throw new Error("Ожидался secondPassResult")
+    expect(second.files).toContainEqual({
+      sourceKind: "worker",
+      sourcePath: join(outputDir, assignment.targetProjectPath),
+      targetProjectPath: assignment.targetProjectPath,
+    })
+    expect(existsSync(join(outputDir, assignment.targetProjectPath))).toBe(true)
+    expect(existsSync(join(outputDir, assignment.targetProjectPath.replace(/\/Свойства\.yaml$/, ".yaml")))).toBe(false)
+  })
+
   it("writes a cross-object DataPath through the shared snapshot without reading a YAML project", async () => {
     const tempDir = createTempDir("worker")
     const projectDir = createTempDir("empty-project")

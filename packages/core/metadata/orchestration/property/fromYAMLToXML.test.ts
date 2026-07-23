@@ -1,6 +1,9 @@
 import { describe, expect, it } from "vitest"
 
 import { importFromYAML } from "../../../yaml/import"
+import "../../commonObjects/i8nText/fromXML"
+import "../../commonObjects/i8nText/fromYAML"
+import "../../commonObjects/i8nText/toXML"
 import type { ConfigurationContextWithExportToXML } from "../../context/types"
 import type { MetadataItemRule, PropertyRule } from "./types"
 import type { ExportToXMLFunctionNew, ImportFromYAMLFunctionNew } from "./fn"
@@ -21,6 +24,62 @@ const testRule = (properties: Record<string, PropertyRule>): MetadataItemRule =>
   ({ itemType: "Catalog", properties }) as MetadataItemRule
 
 describe("convertPropertiesFromYAMLToXML", () => {
+  it("does not apply implicitValueYAML to missing YAML", () => {
+    const result = convertPropertiesFromYAMLToXML({
+      context: context(),
+      yaml: {},
+      rule: testRule({
+        value: {
+          type: "string",
+          yaml: "Поле",
+          xml: "Field",
+          implicitValueYAML: "model-default",
+        },
+      }),
+      outputs: [{ key: "owner" }],
+    })
+
+    expect(result.outputs.get("owner")).toEqual({})
+  })
+
+  it("preserves explicit empty synonym from reference when YAML omits synonym", () => {
+    const result = convertPropertiesFromYAMLToXML({
+      context: context(),
+      yaml: {},
+      rule: synonymRule(),
+      name: "ПравилаОтправкиДокументов",
+      outputs: [{ key: "owner", referenceXML: { Synonym: {} } }],
+    })
+
+    expect(result.outputs.get("owner")).toEqual({ Synonym: {} })
+  })
+
+  it("does not apply default synonym when YAML omits synonym and reference has no synonym", () => {
+    const result = convertPropertiesFromYAMLToXML({
+      context: context(),
+      yaml: {},
+      rule: synonymRule(),
+      name: "ПравилаОтправкиДокументов",
+      outputs: [{ key: "owner" }],
+    })
+
+    expect(result.outputs.get("owner")).toEqual({})
+  })
+
+  it("uses explicit YAML synonym over empty synonym from reference", () => {
+    const result = convertPropertiesFromYAMLToXML({
+      context: context(),
+      yaml: { Синоним: "Явный синоним" },
+      rule: synonymRule(),
+      name: "ПравилаОтправкиДокументов",
+      outputs: [{ key: "owner", referenceXML: { Synonym: {} } }],
+    })
+
+    expect(result.outputs.get("owner")).toEqual({
+      Synonym: { "v8:item": [{ "v8:lang": "ru", "v8:content": "Явный синоним" }] },
+    })
+  })
+
   it("сразу передаёт атомарный результат fromYAML в toXML", () => {
     const calls: string[] = []
     registerTypeRule("TestAtomic" as never, "importFromYAML", (({ value }) => {
@@ -365,3 +424,15 @@ describe("convertPropertiesFromYAMLToXML", () => {
     expect(result.outputs.get("owner")).toEqual({})
   })
 })
+
+function synonymRule(): MetadataItemRule {
+  return testRule({
+    synonym: {
+      type: "I8nText",
+      yaml: "Синоним",
+      xml: "Synonym",
+      emptyAsRawXML: true,
+      implicitValueYAML: ({ name }: { name?: string }) => ({ items: { ru: name ?? "" } }),
+    },
+  })
+}

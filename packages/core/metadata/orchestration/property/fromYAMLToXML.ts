@@ -201,7 +201,10 @@ export function convertPropertiesFromYAMLToXML(params: ConvertPropertiesFromYAML
     }
     if (matchingOutputs.length === 0) continue
 
-    collectAutoRequiredXMLParentRoot(planned.propertyRule, autoRequiredXMLParentRoots)
+    if (isYAMLPropertyExportEnabled({ source, planned, context: params.context })) {
+      collectAutoRequiredXMLParentRoot(planned.propertyRule, autoRequiredXMLParentRoots)
+    }
+
     if (
       !source.has(propertyKey) &&
       !(planned.propertyKey === namePropertyKey && params.name !== undefined) &&
@@ -548,15 +551,25 @@ function shouldConvertYAMLProperty(params: {
   context: ConfigurationContextWithExportToXML
 }): boolean {
   const { source, planned, outputs, context } = params
+  if (!isYAMLPropertyExportEnabled({ source, planned, context })) return false
   const rule = planned.propertyRule
-  if (rule.runtimeOnly || rule.syncExternalOnly || rule.filePath !== undefined || rule.toXML === false) return false
-  if (typeof rule.toXML === "function" && !rule.toXML(source, context)) return false
   if (rule.preserveFromReferenceXML !== true || source.has(planned.propertyKey)) return true
   if (rule.exportWithoutReferenceXML === true) return true
   if (isConfigurationIndexPropertyPresent(context, planned.propertyKey)) return true
   return outputs.some(
     ({ request }) => readReferenceProperty({ context, referenceXML: request.referenceXML, planned }).exists
   )
+}
+
+function isYAMLPropertyExportEnabled(params: {
+  source: YAMLPropertySource
+  planned: YAMLToXMLPlannedProperty
+  context: ConfigurationContextWithExportToXML
+}): boolean {
+  const { source, planned, context } = params
+  const rule = planned.propertyRule
+  if (rule.runtimeOnly || rule.syncExternalOnly || rule.filePath !== undefined || rule.toXML === false) return false
+  return typeof rule.toXML !== "function" || rule.toXML(source, context)
 }
 
 function matchesOutputTag(rule: PropertyRule, output: YAMLToXMLOutputRequest): boolean {

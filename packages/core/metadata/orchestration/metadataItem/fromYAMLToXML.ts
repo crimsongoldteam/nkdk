@@ -37,6 +37,9 @@ interface XMLRootInfo {
 
 export function convertMetadataItemFromYAMLToXML(params: ConvertMetadataItemFromYAMLToXMLParams): YAMLToXMLResult {
   const inline = findInlineProperty(params.rule)
+  if (inline === undefined && params.yaml !== undefined && !isRecord(params.yaml)) {
+    throw new Error(`${params.rule.itemType}: ожидался YAML-объект`)
+  }
   const yaml = inline === undefined ? params.yaml : { [inline.yamlKey]: params.yaml }
   const root = findXMLRoot(params.rule)
   const normalizedOutputs = params.outputs.map((output) => ({
@@ -209,6 +212,17 @@ function mergeReferenceXML(params: {
   for (const [key, generatedValue] of Object.entries(generated)) {
     if (generatedValue === undefined || Object.prototype.hasOwnProperty.call(result, key)) continue
     const propertyRule = findPropertyRule(rule, path, key)
+    if (propertyRule === undefined && isRecord(generatedValue)) {
+      const nested = mergeReferenceXML({
+        generated: generatedValue,
+        reference: {},
+        rule,
+        path: [...path, key],
+      })
+      if (Object.keys(nested).length === 0) continue
+      result[key] = nested
+      continue
+    }
     if (
       propertyRule !== undefined &&
       propertyRule.defaultValueXML === generatedValue &&

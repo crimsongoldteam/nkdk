@@ -21094,10 +21094,10 @@
       "Свойства.yaml"
     ],
     "line": 64,
-    "behavior": "",
-    "targetPath": "packages/core/metadata/orchestration/appliedObject/convertFromXML.test.ts",
-    "targetTitle": "",
-    "status": "pending"
+    "behavior": "Запись прикладного объекта в Свойства.yaml",
+    "targetPath": "packages/core/metadata/importFromXml/worker.test.ts",
+    "targetTitle": "writes %s to its fixed Свойства.yaml target path",
+    "status": "migrated"
   },
   {
     "id": "04f50e62065bb2e7f3cd7e8646dde08c82c0f7a2:packages/core/metadata/orchestration/appliedObject/convertFromXML.test.ts:87:4169",
@@ -21113,10 +21113,10 @@
       "Свойства.yaml"
     ],
     "line": 87,
-    "behavior": "",
-    "targetPath": "packages/core/metadata/orchestration/appliedObject/convertFromXML.test.ts",
-    "targetTitle": "",
-    "status": "pending"
+    "behavior": "Прямое преобразование Document с xmlParents-обёрткой",
+    "targetPath": "packages/core/metadata/importFromXml/prepareYaml.test.ts",
+    "targetTitle": "prepares %s through the direct XML to YAML traversal",
+    "status": "migrated"
   },
   {
     "id": "04f50e62065bb2e7f3cd7e8646dde08c82c0f7a2:packages/core/metadata/orchestration/appliedObject/convertFromXML.test.ts:106:4926",
@@ -21132,10 +21132,10 @@
       "Свойства.yaml"
     ],
     "line": 106,
-    "behavior": "",
-    "targetPath": "packages/core/metadata/orchestration/appliedObject/convertFromXML.test.ts",
-    "targetTitle": "",
-    "status": "pending"
+    "behavior": "Прямое преобразование Sequence",
+    "targetPath": "packages/core/metadata/importFromXml/prepareYaml.test.ts",
+    "targetTitle": "prepares %s through the direct XML to YAML traversal",
+    "status": "migrated"
   },
   {
     "id": "04f50e62065bb2e7f3cd7e8646dde08c82c0f7a2:packages/core/metadata/orchestration/appliedObject/convertFromXML.test.ts:125:5677",
@@ -21153,10 +21153,10 @@
       "Свойства.yaml"
     ],
     "line": 125,
-    "behavior": "",
-    "targetPath": "packages/core/metadata/orchestration/appliedObject/convertFromXML.test.ts",
-    "targetTitle": "",
-    "status": "pending"
+    "behavior": "Фиксированное имя файла Свойства.yaml",
+    "targetPath": "packages/core/metadata/importFromXml/worker.test.ts",
+    "targetTitle": "writes %s to its fixed Свойства.yaml target path",
+    "status": "migrated"
   },
   {
     "id": "04f50e62065bb2e7f3cd7e8646dde08c82c0f7a2:packages/core/metadata/orchestration/appliedObject/convertFromXML.test.ts:151:6644",
@@ -21171,10 +21171,10 @@
       "ТестСправочник.xml"
     ],
     "line": 151,
-    "behavior": "",
-    "targetPath": "packages/core/metadata/orchestration/appliedObject/convertFromXML.test.ts",
-    "targetTitle": "",
-    "status": "pending"
+    "behavior": "Исключение форм forReferenceOnly из YAML",
+    "targetPath": "packages/core/metadata/importFromXml/prepareYaml.test.ts",
+    "targetTitle": "prepares an applied object without writing YAML or external files",
+    "status": "migrated"
   },
   {
     "id": "04f50e62065bb2e7f3cd7e8646dde08c82c0f7a2:packages/core/metadata/orchestration/appliedObject/convertFromXML.test.ts:173:7434",
@@ -21189,10 +21189,10 @@
       "ТестСправочник.xml"
     ],
     "line": 173,
-    "behavior": "",
-    "targetPath": "packages/core/metadata/orchestration/appliedObject/convertFromXML.test.ts",
-    "targetTitle": "",
-    "status": "pending"
+    "behavior": "UUID прикладного объекта по logicalAddress",
+    "targetPath": "packages/core/metadata/importFromXml/prepareYaml.test.ts",
+    "targetTitle": "prepares an applied object without writing YAML or external files",
+    "status": "migrated"
   },
   {
     "id": "04f50e62065bb2e7f3cd7e8646dde08c82c0f7a2:packages/core/metadata/orchestration/appliedObject/convertFromXML.test.ts:195:8293",
@@ -21207,10 +21207,10 @@
       "ТестСправочник.xml"
     ],
     "line": 195,
-    "behavior": "",
-    "targetPath": "packages/core/metadata/orchestration/appliedObject/convertFromXML.test.ts",
-    "targetTitle": "",
-    "status": "pending"
+    "behavior": "Контекст дочернего объекта создаётся до импорта свойств",
+    "targetPath": "packages/core/metadata/importFromXml/prepareYaml.test.ts",
+    "targetTitle": "creates the child logical address before importing child properties",
+    "status": "migrated"
   },
   {
     "id": "04f50e62065bb2e7f3cd7e8646dde08c82c0f7a2:packages/core/metadata/orchestration/appliedObject/convertFromXML.test.ts:217:9173",
@@ -21225,10 +21225,10 @@
       "Тест.xml"
     ],
     "line": 217,
-    "behavior": "",
-    "targetPath": "packages/core/metadata/orchestration/appliedObject/convertFromXML.test.ts",
-    "targetTitle": "",
-    "status": "pending"
+    "behavior": "Сохранение xsi:nil при прямом чтении applied XML",
+    "targetPath": "packages/core/metadata/importFromXml/prepareYaml.test.ts",
+    "targetTitle": "preserves xsi:nil service data while reading applied XML",
+    "status": "migrated"
   },
   {
     "id": "04f50e62065bb2e7f3cd7e8646dde08c82c0f7a2:packages/core/metadata/orchestration/metadataCollection/ruleFactory.test.ts:105:3627",
@@ -21240,10 +21240,11 @@
     "declarationText": "it(\"does not register a standard direct importer for a custom legacy importer\", () => {\n    registerMetadataItemCollectionRule({\n      propertyType: \"TestCustomLegacyCollection\" as any,\n      itemRule: TestCollectionItemRules,\n      xmlElement: \"Item\",\n      fromXML: () => [],\n    })\n\n    expect(getTypeRule(\"TestCustomLegacyCollection\", \"importFromXMLToYAML\")).toBeUndefined()\n  })",
     "fixtures": [],
     "line": 105,
-    "behavior": "",
-    "targetPath": "packages/core/metadata/orchestration/metadataCollection/ruleFactory.test.ts",
+    "behavior": "Регистрация совместимости с удалённым legacy fromXML",
+    "targetPath": "",
     "targetTitle": "",
-    "status": "pending"
+    "status": "obsolete-internal",
+    "justification": "Параметр fromXML старой регистрации коллекций удалён; прямой обработчик задаётся через fromXMLToYAML и проверяется соседним сценарием."
   },
   {
     "id": "04f50e62065bb2e7f3cd7e8646dde08c82c0f7a2:packages/core/metadata/orchestration/metadataCollection/ruleFactory.test.ts:116:4014",
@@ -21255,10 +21256,10 @@
     "declarationText": "it(\"registers an explicitly opted-in direct importer for a custom legacy importer\", () => {\n    const fromXMLToYAML = () => ({ Значение: \"direct\" })\n    registerMetadataItemCollectionRule({\n      propertyType: \"TestCustomDirectCollection\" as any,\n      itemRule: TestCollectionItemRules,\n      xmlElement: \"Item\",\n      fromXML: () => [],\n      fromXMLToYAML,\n    })\n\n    expect(getTypeRule(\"TestCustomDirectCollection\", \"importFromXMLToYAML\")).toBe(fromXMLToYAML)\n  })",
     "fixtures": [],
     "line": 116,
-    "behavior": "",
+    "behavior": "Явная регистрация прямого импортёра коллекции",
     "targetPath": "packages/core/metadata/orchestration/metadataCollection/ruleFactory.test.ts",
-    "targetTitle": "",
-    "status": "pending"
+    "targetTitle": "registers an explicitly opted-in direct importer",
+    "status": "migrated"
   },
   {
     "id": "04f50e62065bb2e7f3cd7e8646dde08c82c0f7a2:packages/core/metadata/orchestration/metadataCollection/ruleFactory.test.ts:129:4487",
@@ -21270,10 +21271,10 @@
     "declarationText": "it(\"импортирует обычный объект-контейнер {Item: body}\", () => {\n    const xml = { Item: { Name: \"A\" } }\n    const result = importPropertyFromXML({ context: mockContextFromXML(), rule, value: xml })\n    expect(result).toEqual([{ itemType: \"TestCollectionItem\", name: \"A\" }])\n  })",
     "fixtures": [],
     "line": 129,
-    "behavior": "",
-    "targetPath": "packages/core/metadata/orchestration/metadataCollection/ruleFactory.test.ts",
-    "targetTitle": "",
-    "status": "pending"
+    "behavior": "Нормализация поддерживаемой формы XML-коллекции",
+    "targetPath": "packages/core/metadata/orchestration/metadataCollection/fromXMLToYAML.test.ts",
+    "targetTitle": "normalizes legacy XML collection shapes in the direct traversal: %s",
+    "status": "migrated"
   },
   {
     "id": "04f50e62065bb2e7f3cd7e8646dde08c82c0f7a2:packages/core/metadata/orchestration/metadataCollection/ruleFactory.test.ts:135:4769",
@@ -21285,10 +21286,10 @@
     "declarationText": "it(\"импортирует контейнер со списком {Item: [body, body]}\", () => {\n    const xml = { Item: [{ Name: \"A\" }, { Name: \"B\", Value: \"v\" }] }\n    const result = importPropertyFromXML({ context: mockContextFromXML(), rule, value: xml })\n    expect(result).toEqual([\n      { itemType: \"TestCollectionItem\", name: \"A\" },\n      { itemType: \"TestCollectionItem\", name: \"B\", value: \"v\" },\n    ])\n  })",
     "fixtures": [],
     "line": 135,
-    "behavior": "",
-    "targetPath": "packages/core/metadata/orchestration/metadataCollection/ruleFactory.test.ts",
-    "targetTitle": "",
-    "status": "pending"
+    "behavior": "Нормализация поддерживаемой формы XML-коллекции",
+    "targetPath": "packages/core/metadata/orchestration/metadataCollection/fromXMLToYAML.test.ts",
+    "targetTitle": "normalizes legacy XML collection shapes in the direct traversal: %s",
+    "status": "migrated"
   },
   {
     "id": "04f50e62065bb2e7f3cd7e8646dde08c82c0f7a2:packages/core/metadata/orchestration/metadataCollection/ruleFactory.test.ts:144:5162",
@@ -21300,10 +21301,10 @@
     "declarationText": "it(\"импортирует одиночное тело без обёртки (parent уже вытащил содержимое)\", () => {\n    const xml = { Name: \"A\", Value: \"v\" }\n    const result = importPropertyFromXML({ context: mockContextFromXML(), rule, value: xml })\n    expect(result).toEqual([{ itemType: \"TestCollectionItem\", name: \"A\", value: \"v\" }])\n  })",
     "fixtures": [],
     "line": 144,
-    "behavior": "",
-    "targetPath": "packages/core/metadata/orchestration/metadataCollection/ruleFactory.test.ts",
-    "targetTitle": "",
-    "status": "pending"
+    "behavior": "Нормализация поддерживаемой формы XML-коллекции",
+    "targetPath": "packages/core/metadata/orchestration/metadataCollection/fromXMLToYAML.test.ts",
+    "targetTitle": "normalizes legacy XML collection shapes in the direct traversal: %s",
+    "status": "migrated"
   },
   {
     "id": "04f50e62065bb2e7f3cd7e8646dde08c82c0f7a2:packages/core/metadata/orchestration/metadataCollection/ruleFactory.test.ts:150:5479",
@@ -21315,10 +21316,10 @@
     "declarationText": "it(\"расплющивает массив обёрток [{Item: body}, {Item: body}] (форма от isArray-тегов)\", () => {\n    // Такую форму порождает XML-парсер для тегов, помеченных options.isArray:\n    // содержимое тега всегда массив, даже для одного вхождения, и каждый элемент массива\n    // содержит вложенный тег со своим телом.\n    const xml = [{ Item: { Name: \"A\" } }, { Item: { Name: \"B\" } }]\n    const result = importPropertyFromXML({ context: mockContextFromXML(), rule, value: xml })\n    expect(result).toEqual([\n      { itemType: \"TestCollectionItem\", name: \"A\" },\n      { itemType: \"TestCollectionItem\", name: \"B\" },\n    ])\n  })",
     "fixtures": [],
     "line": 150,
-    "behavior": "",
-    "targetPath": "packages/core/metadata/orchestration/metadataCollection/ruleFactory.test.ts",
-    "targetTitle": "",
-    "status": "pending"
+    "behavior": "Нормализация поддерживаемой формы XML-коллекции",
+    "targetPath": "packages/core/metadata/orchestration/metadataCollection/fromXMLToYAML.test.ts",
+    "targetTitle": "normalizes legacy XML collection shapes in the direct traversal: %s",
+    "status": "migrated"
   },
   {
     "id": "04f50e62065bb2e7f3cd7e8646dde08c82c0f7a2:packages/core/metadata/orchestration/metadataCollection/ruleFactory.test.ts:162:6101",
@@ -21330,10 +21331,10 @@
     "declarationText": "it(\"расплющивает массив обёрток с вложенным массивом [{Item: [body, body]}]\", () => {\n    // isArray-тег встречается однажды, но внутри него несколько повторяющихся дочерних тегов.\n    const xml = [{ Item: [{ Name: \"A\" }, { Name: \"B\", Value: \"v\" }] }]\n    const result = importPropertyFromXML({ context: mockContextFromXML(), rule, value: xml })\n    expect(result).toEqual([\n      { itemType: \"TestCollectionItem\", name: \"A\" },\n      { itemType: \"TestCollectionItem\", name: \"B\", value: \"v\" },\n    ])\n  })",
     "fixtures": [],
     "line": 162,
-    "behavior": "",
-    "targetPath": "packages/core/metadata/orchestration/metadataCollection/ruleFactory.test.ts",
-    "targetTitle": "",
-    "status": "pending"
+    "behavior": "Нормализация поддерживаемой формы XML-коллекции",
+    "targetPath": "packages/core/metadata/orchestration/metadataCollection/fromXMLToYAML.test.ts",
+    "targetTitle": "normalizes legacy XML collection shapes in the direct traversal: %s",
+    "status": "migrated"
   },
   {
     "id": "04f50e62065bb2e7f3cd7e8646dde08c82c0f7a2:packages/core/metadata/orchestration/metadataCollection/ruleFactory.test.ts:172:6609",
@@ -21345,10 +21346,10 @@
     "declarationText": "it(\"расплющивает массив обёрток с одиночной записью [{Item: body}] (типичный ChildItems)\", () => {\n    const xml = [{ Item: { Name: \"A\" } }]\n    const result = importPropertyFromXML({ context: mockContextFromXML(), rule, value: xml })\n    expect(result).toEqual([{ itemType: \"TestCollectionItem\", name: \"A\" }])\n  })",
     "fixtures": [],
     "line": 172,
-    "behavior": "",
-    "targetPath": "packages/core/metadata/orchestration/metadataCollection/ruleFactory.test.ts",
-    "targetTitle": "",
-    "status": "pending"
+    "behavior": "Нормализация поддерживаемой формы XML-коллекции",
+    "targetPath": "packages/core/metadata/orchestration/metadataCollection/fromXMLToYAML.test.ts",
+    "targetTitle": "normalizes legacy XML collection shapes in the direct traversal: %s",
+    "status": "migrated"
   },
   {
     "id": "04f50e62065bb2e7f3cd7e8646dde08c82c0f7a2:packages/core/metadata/orchestration/metadataCollection/ruleFactory.test.ts:178:6928",
@@ -21360,10 +21361,10 @@
     "declarationText": "it(\"массив тел без обёрток [body, body] передаётся без расплющивания\", () => {\n    // Если записи массива уже являются телами (нет ключа effectiveElement), движок\n    // не должен пытаться что-то расплющить и должен передать массив как есть.\n    const xml = [{ Name: \"A\" }, { Name: \"B\" }]\n    const result = importPropertyFromXML({ context: mockContextFromXML(), rule, value: xml })\n    expect(result).toEqual([\n      { itemType: \"TestCollectionItem\", name: \"A\" },\n      { itemType: \"TestCollectionItem\", name: \"B\" },\n    ])\n  })",
     "fixtures": [],
     "line": 178,
-    "behavior": "",
-    "targetPath": "packages/core/metadata/orchestration/metadataCollection/ruleFactory.test.ts",
-    "targetTitle": "",
-    "status": "pending"
+    "behavior": "Нормализация поддерживаемой формы XML-коллекции",
+    "targetPath": "packages/core/metadata/orchestration/metadataCollection/fromXMLToYAML.test.ts",
+    "targetTitle": "normalizes legacy XML collection shapes in the direct traversal: %s",
+    "status": "migrated"
   },
   {
     "id": "04f50e62065bb2e7f3cd7e8646dde08c82c0f7a2:packages/core/metadata/orchestration/metadataCollection/ruleFactory.test.ts:189:7461",
@@ -21375,10 +21376,10 @@
     "declarationText": "it(\"возвращает undefined для undefined\", () => {\n    const result = importPropertyFromXML({ context: mockContextFromXML(), rule, value: undefined })\n    expect(result).toBeUndefined()\n  })",
     "fixtures": [],
     "line": 189,
-    "behavior": "",
-    "targetPath": "packages/core/metadata/orchestration/metadataCollection/ruleFactory.test.ts",
-    "targetTitle": "",
-    "status": "pending"
+    "behavior": "Неопределённая XML-коллекция остаётся неопределённой",
+    "targetPath": "packages/core/metadata/orchestration/metadataCollection/fromXMLToYAML.test.ts",
+    "targetTitle": "omits an undefined collection from direct YAML",
+    "status": "migrated"
   },
   {
     "id": "04f50e62065bb2e7f3cd7e8646dde08c82c0f7a2:packages/core/metadata/orchestration/metadataCollection/ruleFactory.test.ts:194:7653",
@@ -21392,10 +21393,10 @@
       "owner.yaml"
     ],
     "line": 194,
-    "behavior": "",
-    "targetPath": "packages/core/metadata/orchestration/metadataCollection/ruleFactory.test.ts",
-    "targetTitle": "",
-    "status": "pending"
+    "behavior": "Адреса элементов коллекции записываются в дочерние logicalAddress",
+    "targetPath": "packages/core/metadata/orchestration/metadataCollection/fromXMLToYAML.test.ts",
+    "targetTitle": "uses per-item configuration index addresses for record and array YAML",
+    "status": "migrated"
   },
   {
     "id": "04f50e62065bb2e7f3cd7e8646dde08c82c0f7a2:packages/core/metadata/orchestration/metadataCollection/ruleFactory.test.ts:231:8981",
@@ -21407,10 +21408,10 @@
     "declarationText": "it(\"завершает импорт ошибкой, если адресуемый элемент коллекции не имеет имени\", () => {\n    const collector = createConfigurationIndexCollector()\n    const context = withConfigurationIndexCollector(mockContextFromXML({ forReference: true }), collector, \"Владелец.A\")\n\n    expect(() =>\n      importPropertyFromXML({\n        context,\n        rule: addressableRule,\n        value: { Item: { _uuid: \"11111111-1111-1111-1111-111111111111\" } },\n      })\n    ).toThrow(\"Адресуемая metadata-item коллекция TestAddressableCollection содержит элемент без имени\")\n  })",
     "fixtures": [],
     "line": 231,
-    "behavior": "",
-    "targetPath": "packages/core/metadata/orchestration/metadataCollection/ruleFactory.test.ts",
-    "targetTitle": "",
-    "status": "pending"
+    "behavior": "Ошибка для безымянного элемента адресуемой коллекции",
+    "targetPath": "packages/core/metadata/orchestration/metadataCollection/fromXMLToYAML.test.ts",
+    "targetTitle": "завершает прямой импорт ошибкой, если адресуемый элемент коллекции не имеет имени",
+    "status": "migrated"
   },
   {
     "id": "04f50e62065bb2e7f3cd7e8646dde08c82c0f7a2:packages/core/metadata/orchestration/metadataCollection/ruleFactory.test.ts:244:9543",
@@ -21424,10 +21425,10 @@
       "Форма.yaml"
     ],
     "line": 244,
-    "behavior": "",
-    "targetPath": "packages/core/metadata/orchestration/metadataCollection/ruleFactory.test.ts",
-    "targetTitle": "",
-    "status": "pending"
+    "behavior": "Элементы YAML-массива адресуются по позиции",
+    "targetPath": "packages/core/metadata/orchestration/metadataCollection/fromXMLToYAML.test.ts",
+    "targetTitle": "uses per-item configuration index addresses for record and array YAML",
+    "status": "migrated"
   },
   {
     "id": "04f50e62065bb2e7f3cd7e8646dde08c82c0f7a2:packages/core/metadata/orchestration/metadataCollection/ruleFactory.test.ts:276:10516",
@@ -21439,10 +21440,10 @@
     "declarationText": "it(\"exports record schema for record YAML collections\", () => {\n    const schema = exportPropertyToJSONSchema({ context, rule, value: undefined })\n    const compiled = compileValidationSchema(schema!)\n\n    expect(compiled.Check({ A: { name: \"A\" } })).toBe(true)\n    expect(compiled.Check([{ name: \"A\" }])).toBe(false)\n  })",
     "fixtures": [],
     "line": 276,
-    "behavior": "",
+    "behavior": "Формирование JSON Schema коллекции",
     "targetPath": "packages/core/metadata/orchestration/metadataCollection/ruleFactory.test.ts",
-    "targetTitle": "",
-    "status": "pending"
+    "targetTitle": "exports record schema for record YAML collections",
+    "status": "migrated"
   },
   {
     "id": "04f50e62065bb2e7f3cd7e8646dde08c82c0f7a2:packages/core/metadata/orchestration/metadataCollection/ruleFactory.test.ts:284:10842",
@@ -21454,10 +21455,10 @@
     "declarationText": "it(\"exports array schema for yamlAsArray collections\", () => {\n    const schema = exportPropertyToJSONSchema({ context, rule: arrayRule, value: undefined })\n    const compiled = compileValidationSchema(schema!)\n\n    expect(compiled.Check([{ name: \"A\" }])).toBe(true)\n    expect(compiled.Check({ A: { name: \"A\" } })).toBe(false)\n  })",
     "fixtures": [],
     "line": 284,
-    "behavior": "",
+    "behavior": "Формирование JSON Schema коллекции",
     "targetPath": "packages/core/metadata/orchestration/metadataCollection/ruleFactory.test.ts",
-    "targetTitle": "",
-    "status": "pending"
+    "targetTitle": "exports array schema for yamlAsArray collections",
+    "status": "migrated"
   },
   {
     "id": "04f50e62065bb2e7f3cd7e8646dde08c82c0f7a2:packages/core/metadata/orchestration/metadataCollection/ruleFactory.test.ts:292:11178",
@@ -21469,10 +21470,10 @@
     "declarationText": "it(\"exports array schema inside recursive yamlAsArray collections\", () => {\n    const schema = exportPropertyToJSONSchema({ context, rule: recursiveArrayRule, value: undefined })\n    const compiled = compileValidationSchema(schema!)\n\n    expect(compiled.Check([{ name: \"A\", children: [] }])).toBe(true)\n    expect(compiled.Check([{ name: \"A\", children: { B: {} } }])).toBe(false)\n  })",
     "fixtures": [],
     "line": 292,
-    "behavior": "",
+    "behavior": "Формирование JSON Schema коллекции",
     "targetPath": "packages/core/metadata/orchestration/metadataCollection/ruleFactory.test.ts",
-    "targetTitle": "",
-    "status": "pending"
+    "targetTitle": "exports array schema inside recursive yamlAsArray collections",
+    "status": "migrated"
   },
   {
     "id": "04f50e62065bb2e7f3cd7e8646dde08c82c0f7a2:packages/core/metadata/orchestration/metadataCollection/ruleFactory.test.ts:307:11723",
@@ -21484,10 +21485,10 @@
     "declarationText": "it(\"registers record ref schema for metadata collections by default\", () => {\n    registerMetadataItemCollectionRule({\n      propertyType: \"TestRefCollection\" as any,\n      itemRule: TestCollectionItemRules,\n      xmlElement: \"Item\",\n    })\n\n    const schema = exportPropertyToJSONSchema({\n      context: createJSONSchemaExportContext(context, \"externalRefs\"),\n      rule: { type: \"TestRefCollection\" as any },\n      value: undefined,\n    })\n\n    expect(schema).toEqual({\n      type: \"object\",\n      additionalProperties: { $ref: \"nkdk://schema/TestCollectionItem\" },\n    })\n  })",
     "fixtures": [],
     "line": 307,
-    "behavior": "",
+    "behavior": "Формирование JSON Schema коллекции",
     "targetPath": "packages/core/metadata/orchestration/metadataCollection/ruleFactory.test.ts",
-    "targetTitle": "",
-    "status": "pending"
+    "targetTitle": "registers record ref schema for metadata collections by default",
+    "status": "migrated"
   },
   {
     "id": "04f50e62065bb2e7f3cd7e8646dde08c82c0f7a2:packages/core/metadata/orchestration/metadataCollection/ruleFactory.test.ts:326:12306",
@@ -21499,10 +21500,10 @@
     "declarationText": "it(\"registers array ref schema when yamlAsArray is true\", () => {\n    registerMetadataItemCollectionRule({\n      propertyType: \"TestRefArrayCollection\" as any,\n      itemRule: TestCollectionItemRules,\n      xmlElement: \"Item\",\n      yamlAsArray: true,\n    })\n\n    const schema = exportPropertyToJSONSchema({\n      context: createJSONSchemaExportContext(context, \"externalRefs\"),\n      rule: { type: \"TestRefArrayCollection\" as any },\n      value: undefined,\n    })\n\n    expect(schema).toEqual({\n      type: \"array\",\n      items: { $ref: \"nkdk://schema/TestCollectionItem\" },\n    })\n  })",
     "fixtures": [],
     "line": 326,
-    "behavior": "",
+    "behavior": "Формирование JSON Schema коллекции",
     "targetPath": "packages/core/metadata/orchestration/metadataCollection/ruleFactory.test.ts",
-    "targetTitle": "",
-    "status": "pending"
+    "targetTitle": "registers array ref schema when yamlAsArray is true",
+    "status": "migrated"
   },
   {
     "id": "04f50e62065bb2e7f3cd7e8646dde08c82c0f7a2:packages/core/metadata/orchestration/metadataCollection/ruleFactory.test.ts:346:12896",
@@ -21514,10 +21515,10 @@
     "declarationText": "it(\"uses explicit schemaName for collection item refs\", () => {\n    registerMetadataItemCollectionRule({\n      propertyType: \"TestExplicitRefCollection\" as any,\n      itemRule: TestCollectionItemRules,\n      xmlElement: \"Item\",\n      schemaName: \"ExplicitCollectionItem\",\n    })\n\n    const schema = exportPropertyToJSONSchema({\n      context: createJSONSchemaExportContext(context, \"externalRefs\"),\n      rule: { type: \"TestExplicitRefCollection\" as any },\n      value: undefined,\n    })\n\n    expect(schema).toEqual({\n      type: \"object\",\n      additionalProperties: { $ref: \"nkdk://schema/ExplicitCollectionItem\" },\n    })\n  })",
     "fixtures": [],
     "line": 346,
-    "behavior": "",
+    "behavior": "Формирование JSON Schema коллекции",
     "targetPath": "packages/core/metadata/orchestration/metadataCollection/ruleFactory.test.ts",
-    "targetTitle": "",
-    "status": "pending"
+    "targetTitle": "uses explicit schemaName for collection item refs",
+    "status": "migrated"
   },
   {
     "id": "04f50e62065bb2e7f3cd7e8646dde08c82c0f7a2:packages/core/metadata/orchestration/metadataCollection/ruleFactory.test.ts:366:13529",
@@ -21529,10 +21530,10 @@
     "declarationText": "it(\"registers direct schema ref for custom collection schemas\", () => {\n    registerMetadataItemCollectionRule({\n      propertyType: \"TestCustomSchemaCollection\" as any,\n      itemRule: TestCollectionItemRules,\n      xmlElement: \"Item\",\n      schemaName: \"CustomCollectionSchema\",\n      schemaShape: \"schema\",\n      toJSONSchema: () =>\n        Type.Array(\n          Type.Object(\n            {\n              custom: Type.Literal(\"yes\"),\n            },\n            { additionalProperties: false }\n          )\n        ),\n    })\n\n    const schema = exportPropertyToJSONSchema({\n      context: createJSONSchemaExportContext(context, \"externalRefs\"),\n      rule: { type: \"TestCustomSchemaCollection\" as any },\n      value: undefined,\n    })\n    const identityExporter = getJSONSchemaIdentityExporter(\"CustomCollectionSchema\")\n\n    expect(schema).toEqual({ $ref: \"nkdk://schema/CustomCollectionSchema\" })\n    expect(identityExporter?.({ context })).toMatchObject({\n      type: \"array\",\n      items: {\n        type: \"object\",\n        properties: {\n          custom: { const: \"yes\" },\n        },\n      },\n    })\n  })",
     "fixtures": [],
     "line": 366,
-    "behavior": "",
+    "behavior": "Формирование JSON Schema коллекции",
     "targetPath": "packages/core/metadata/orchestration/metadataCollection/ruleFactory.test.ts",
-    "targetTitle": "",
-    "status": "pending"
+    "targetTitle": "registers direct schema ref for custom collection schemas",
+    "status": "migrated"
   },
   {
     "id": "04f50e62065bb2e7f3cd7e8646dde08c82c0f7a2:packages/core/metadata/orchestration/metadataItem/toXML.test.ts:100:2914",
@@ -21546,10 +21547,10 @@
       "../../commonObjects/metadataRegisterDimension/__fixtures__/data"
     ],
     "line": 100,
-    "behavior": "",
+    "behavior": "Сборка XML элемента из YAML с учётом reference",
     "targetPath": "packages/core/metadata/orchestration/metadataItem/fromYAMLToXML.test.ts",
-    "targetTitle": "",
-    "status": "pending"
+    "targetTitle": "создаёт пустой ChildObjects для rule с экспортируемым xmlParents[0] ChildObjects",
+    "status": "migrated"
   },
   {
     "id": "04f50e62065bb2e7f3cd7e8646dde08c82c0f7a2:packages/core/metadata/orchestration/metadataItem/toXML.test.ts:115:3318",
@@ -21563,10 +21564,10 @@
       "../../commonObjects/metadataRegisterDimension/__fixtures__/data"
     ],
     "line": 115,
-    "behavior": "",
+    "behavior": "Сборка XML элемента из YAML с учётом reference",
     "targetPath": "packages/core/metadata/orchestration/metadataItem/fromYAMLToXML.test.ts",
-    "targetTitle": "",
-    "status": "pending"
+    "targetTitle": "не создаёт ChildObjects, если единственное ChildObjects-свойство отфильтровано из XML-экспорта",
+    "status": "migrated"
   },
   {
     "id": "04f50e62065bb2e7f3cd7e8646dde08c82c0f7a2:packages/core/metadata/orchestration/metadataItem/toXML.test.ts:129:3707",
@@ -21580,10 +21581,10 @@
       "../../commonObjects/metadataRegisterDimension/__fixtures__/data"
     ],
     "line": 129,
-    "behavior": "",
+    "behavior": "Сборка XML элемента из YAML с учётом reference",
     "targetPath": "packages/core/metadata/orchestration/metadataItem/fromYAMLToXML.test.ts",
-    "targetTitle": "",
-    "status": "pending"
+    "targetTitle": "создаёт пустой ListSettings для rule с экспортируемым вложенным путём ListSettings",
+    "status": "migrated"
   },
   {
     "id": "04f50e62065bb2e7f3cd7e8646dde08c82c0f7a2:packages/core/metadata/orchestration/metadataItem/toXML.test.ts:143:4120",
@@ -21597,10 +21598,10 @@
       "../../commonObjects/metadataRegisterDimension/__fixtures__/data"
     ],
     "line": 143,
-    "behavior": "",
+    "behavior": "Сборка XML элемента из YAML с учётом reference",
     "targetPath": "packages/core/metadata/orchestration/metadataItem/fromYAMLToXML.test.ts",
-    "targetTitle": "",
-    "status": "pending"
+    "targetTitle": "deeply preserves unknown nested reference XML while generated fields take precedence",
+    "status": "migrated"
   },
   {
     "id": "04f50e62065bb2e7f3cd7e8646dde08c82c0f7a2:packages/core/metadata/orchestration/metadataItem/toXML.test.ts:176:5088",
@@ -21614,10 +21615,10 @@
       "../../commonObjects/metadataRegisterDimension/__fixtures__/data"
     ],
     "line": 176,
-    "behavior": "",
+    "behavior": "Сборка XML элемента из YAML с учётом reference",
     "targetPath": "packages/core/metadata/orchestration/metadataItem/fromYAMLToXML.test.ts",
-    "targetTitle": "",
-    "status": "pending"
+    "targetTitle": "keeps generated rule xsi:type over reference raw xsi:type",
+    "status": "migrated"
   },
   {
     "id": "04f50e62065bb2e7f3cd7e8646dde08c82c0f7a2:packages/core/metadata/orchestration/metadataItem/toXML.test.ts:199:5646",
@@ -21631,10 +21632,10 @@
       "../../commonObjects/metadataRegisterDimension/__fixtures__/data"
     ],
     "line": 199,
-    "behavior": "",
+    "behavior": "Сборка XML элемента из YAML с учётом reference",
     "targetPath": "packages/core/metadata/orchestration/metadataItem/fromYAMLToXML.test.ts",
-    "targetTitle": "",
-    "status": "pending"
+    "targetTitle": "keeps ordinary metadata item generation before raw reference fallback",
+    "status": "migrated"
   },
   {
     "id": "04f50e62065bb2e7f3cd7e8646dde08c82c0f7a2:packages/core/metadata/orchestration/metadataItem/toXML.test.ts:229:6396",
@@ -21648,10 +21649,10 @@
       "../../commonObjects/metadataRegisterDimension/__fixtures__/data"
     ],
     "line": 229,
-    "behavior": "",
+    "behavior": "Сборка XML элемента из YAML с учётом reference",
     "targetPath": "packages/core/metadata/orchestration/metadataItem/fromYAMLToXML.test.ts",
-    "targetTitle": "",
-    "status": "pending"
+    "targetTitle": "preserves unknown nested reference XML inside a generated object property",
+    "status": "migrated"
   },
   {
     "id": "04f50e62065bb2e7f3cd7e8646dde08c82c0f7a2:packages/core/metadata/orchestration/metadataItem/toXML.test.ts:260:7185",
@@ -21665,10 +21666,10 @@
       "../../commonObjects/metadataRegisterDimension/__fixtures__/data"
     ],
     "line": 260,
-    "behavior": "",
+    "behavior": "Сборка XML элемента из YAML с учётом reference",
     "targetPath": "packages/core/metadata/orchestration/metadataItem/fromYAMLToXML.test.ts",
-    "targetTitle": "",
-    "status": "pending"
+    "targetTitle": "exports nested generated fields when they are not XML defaults",
+    "status": "migrated"
   },
   {
     "id": "04f50e62065bb2e7f3cd7e8646dde08c82c0f7a2:packages/core/metadata/orchestration/metadataItem/toXML.test.ts:282:7669",
@@ -21682,10 +21683,10 @@
       "../../commonObjects/metadataRegisterDimension/__fixtures__/data"
     ],
     "line": 282,
-    "behavior": "",
+    "behavior": "Сборка XML элемента из YAML с учётом reference",
     "targetPath": "packages/core/metadata/orchestration/metadataItem/fromYAMLToXML.test.ts",
-    "targetTitle": "",
-    "status": "pending"
+    "targetTitle": "removes reference keys when generated nested field is undefined",
+    "status": "migrated"
   },
   {
     "id": "04f50e62065bb2e7f3cd7e8646dde08c82c0f7a2:packages/core/metadata/orchestration/metadataItem/yamlInline.test.ts:26:704",
@@ -21697,10 +21698,10 @@
     "declarationText": "it(\"export: значение payload подставляется как значение всего объекта\", () => {\n    const result = exportMetadataItemToYAML({\n      context: mockContext,\n      data: { itemType: \"InlineTest\", payload: \"hello\", name: \"X\" } as any,\n      rule: InlineRule,\n    })\n    expect(result).toBe(\"hello\")\n  })",
     "fixtures": [],
     "line": 26,
-    "behavior": "",
-    "targetPath": "packages/core/metadata/orchestration/metadataItem/yamlInline.test.ts",
-    "targetTitle": "",
-    "status": "pending"
+    "behavior": "Экспорт yamlInline без служебной обёртки",
+    "targetPath": "packages/core/metadata/orchestration/metadataItem/fromXMLToYAML.test.ts",
+    "targetTitle": "returns the inline YAML property without its service wrapper",
+    "status": "migrated"
   },
   {
     "id": "04f50e62065bb2e7f3cd7e8646dde08c82c0f7a2:packages/core/metadata/orchestration/metadataItem/yamlInline.test.ts:35:1006",
@@ -21712,10 +21713,10 @@
     "declarationText": "it(\"import: всё значение YAML кладётся в payload\", () => {\n    const result = importMetadataItemFromYAML({\n      context: mockContext,\n      yaml: \"hello\" as any,\n      rule: InlineRule,\n      name: \"X\",\n    })\n    expect(result).toMatchObject({ payload: \"hello\" })\n  })",
     "fixtures": [],
     "line": 35,
-    "behavior": "",
-    "targetPath": "packages/core/metadata/orchestration/metadataItem/yamlInline.test.ts",
-    "targetTitle": "",
-    "status": "pending"
+    "behavior": "Импорт всего YAML-значения в yamlInline",
+    "targetPath": "packages/core/metadata/orchestration/metadataItem/fromYAMLToXML.test.ts",
+    "targetTitle": "нормализует yamlInline, оборачивает XMLRoot и сохраняет неизвестный XML",
+    "status": "migrated"
   },
   {
     "id": "04f50e62065bb2e7f3cd7e8646dde08c82c0f7a2:packages/core/metadata/orchestration/metadataItem/yamlInline.test.ts:45:1280",
@@ -21727,10 +21728,10 @@
     "declarationText": "it(\"toJSONSchema: схема = схема payload, а не объект со свойствами\", () => {\n    const schema = exportMetadataItemToJSONSchema({ context: mockContext, rule: InlineRule })\n    expect((schema as any).type).toBe(\"string\")\n  })",
     "fixtures": [],
     "line": 45,
-    "behavior": "",
+    "behavior": "Схема yamlInline равна схеме payload",
     "targetPath": "packages/core/metadata/orchestration/metadataItem/yamlInline.test.ts",
-    "targetTitle": "",
-    "status": "pending"
+    "targetTitle": "toJSONSchema: схема = схема payload, а не объект со свойствами",
+    "status": "migrated"
   },
   {
     "id": "04f50e62065bb2e7f3cd7e8646dde08c82c0f7a2:packages/core/metadata/orchestration/property/fromXML.test.ts:17:565",
@@ -21744,10 +21745,10 @@
       "Справочник/Товары/Свойства.yaml"
     ],
     "line": 17,
-    "behavior": "",
+    "behavior": "Прямой обход свойства из XML в YAML сохраняет служебные данные",
     "targetPath": "packages/core/metadata/orchestration/property/fromXMLToYAML.test.ts",
-    "targetTitle": "",
-    "status": "pending"
+    "targetTitle": "collects XML-present properties in source order, aliases and significant presence",
+    "status": "migrated"
   },
   {
     "id": "04f50e62065bb2e7f3cd7e8646dde08c82c0f7a2:packages/core/metadata/orchestration/property/fromXML.test.ts:62:1862",
@@ -21761,10 +21762,10 @@
       "Форма.yaml"
     ],
     "line": 62,
-    "behavior": "",
+    "behavior": "Прямой обход свойства из XML в YAML сохраняет служебные данные",
     "targetPath": "packages/core/metadata/orchestration/property/fromXMLToYAML.test.ts",
-    "targetTitle": "",
-    "status": "pending"
+    "targetTitle": "сохраняет присутствие Color auto, которое теряется при прямом преобразовании",
+    "status": "migrated"
   },
   {
     "id": "04f50e62065bb2e7f3cd7e8646dde08c82c0f7a2:packages/core/metadata/orchestration/property/fromXML.test.ts:87:2632",
@@ -21778,10 +21779,10 @@
       "Справочник/Товары/Свойства.yaml"
     ],
     "line": 87,
-    "behavior": "",
+    "behavior": "Прямой обход свойства из XML в YAML сохраняет служебные данные",
     "targetPath": "packages/core/metadata/orchestration/property/fromXMLToYAML.test.ts",
-    "targetTitle": "",
-    "status": "pending"
+    "targetTitle": "collects XML identity attributes on the current logical address",
+    "status": "migrated"
   },
   {
     "id": "04f50e62065bb2e7f3cd7e8646dde08c82c0f7a2:packages/core/metadata/orchestration/property/fromXML.test.ts:131:4107",
@@ -21795,10 +21796,10 @@
       "Отчёт/Продажи/Свойства.yaml"
     ],
     "line": 131,
-    "behavior": "",
+    "behavior": "Прямой обход свойства из XML в YAML сохраняет служебные данные",
     "targetPath": "packages/core/metadata/orchestration/property/fromXMLToYAML.test.ts",
-    "targetTitle": "",
-    "status": "pending"
+    "targetTitle": "не сохраняет XML-представление, полностью восстанавливаемое из Project и rules",
+    "status": "migrated"
   },
   {
     "id": "04f50e62065bb2e7f3cd7e8646dde08c82c0f7a2:packages/core/metadata/orchestration/property/fromXML.test.ts:153:4830",
@@ -21812,10 +21813,10 @@
       "РегистрСведений/Остатки/Свойства.yaml"
     ],
     "line": 153,
-    "behavior": "",
+    "behavior": "Прямой обход свойства из XML в YAML сохраняет служебные данные",
     "targetPath": "packages/core/metadata/orchestration/property/fromXMLToYAML.test.ts",
-    "targetTitle": "",
-    "status": "pending"
+    "targetTitle": "сохраняет xsi:nil, потерянный преобразованием и не заданный rules",
+    "status": "migrated"
   },
   {
     "id": "04f50e62065bb2e7f3cd7e8646dde08c82c0f7a2:packages/core/metadata/orchestration/property/fromXML.test.ts:181:5751",
@@ -21829,10 +21830,10 @@
       "Форма.yaml"
     ],
     "line": 181,
-    "behavior": "",
+    "behavior": "Прямой обход свойства из XML в YAML сохраняет служебные данные",
     "targetPath": "packages/core/metadata/orchestration/property/fromXMLToYAML.test.ts",
-    "targetTitle": "",
-    "status": "pending"
+    "targetTitle": "uses direct YAML-path address for XML service data while YAML-path index addressing is active",
+    "status": "migrated"
   },
   {
     "id": "04f50e62065bb2e7f3cd7e8646dde08c82c0f7a2:packages/core/metadata/orchestration/property/fromXML.test.ts:206:6586",
@@ -21846,10 +21847,10 @@
       "Форма.yaml"
     ],
     "line": 206,
-    "behavior": "",
+    "behavior": "Прямой обход свойства из XML в YAML сохраняет служебные данные",
     "targetPath": "packages/core/metadata/orchestration/property/fromXMLToYAML.test.ts",
-    "targetTitle": "",
-    "status": "pending"
+    "targetTitle": "clears property XML node address when entering child item logical address",
+    "status": "migrated"
   },
   {
     "id": "04f50e62065bb2e7f3cd7e8646dde08c82c0f7a2:packages/core/metadata/orchestration/property/fromYAML.test.ts:26:773",
@@ -21861,10 +21862,10 @@
     "declarationText": "it(\"does not apply implicitValueYAML to missing YAML\", () => {\n    expect(\n      importPropertyFromYAML({\n        context: mockContext,\n        rule: defaultRule,\n        value: undefined,\n        yaml: {},\n      })\n    ).toBeUndefined()\n  })",
     "fixtures": [],
     "line": 26,
-    "behavior": "",
+    "behavior": "Прямой обход свойства из YAML в XML учитывает отсутствие и reference",
     "targetPath": "packages/core/metadata/orchestration/property/fromYAMLToXML.test.ts",
-    "targetTitle": "",
-    "status": "pending"
+    "targetTitle": "does not apply implicitValueYAML to missing YAML",
+    "status": "migrated"
   },
   {
     "id": "04f50e62065bb2e7f3cd7e8646dde08c82c0f7a2:packages/core/metadata/orchestration/property/fromYAML.test.ts:39:1067",
@@ -21876,10 +21877,10 @@
     "declarationText": "it(\"preserves explicit empty synonym from source when YAML omits synonym\", () => {\n    const result = importPropertiesFromYAML({\n      context: mockContext,\n      metadataRule: synonymRule,\n      name: \"ПравилаОтправкиДокументов\",\n      yaml: { Имя: \"ПравилаОтправкиДокументов\" },\n      source: {\n        itemType: \"MetadataCatalog\",\n        name: \"ПравилаОтправкиДокументов\",\n        synonym: { items: {} },\n      },\n    })\n\n    expect(result.synonym).toEqual({ items: {} })\n  })",
     "fixtures": [],
     "line": 39,
-    "behavior": "",
+    "behavior": "Прямой обход свойства из YAML в XML учитывает отсутствие и reference",
     "targetPath": "packages/core/metadata/orchestration/property/fromYAMLToXML.test.ts",
-    "targetTitle": "",
-    "status": "pending"
+    "targetTitle": "preserves explicit empty synonym from reference when YAML omits synonym",
+    "status": "migrated"
   },
   {
     "id": "04f50e62065bb2e7f3cd7e8646dde08c82c0f7a2:packages/core/metadata/orchestration/property/fromYAML.test.ts:55:1551",
@@ -21891,10 +21892,10 @@
     "declarationText": "it(\"does not apply default synonym when YAML omits synonym and source has no synonym\", () => {\n    const result = importPropertiesFromYAML({\n      context: mockContext,\n      metadataRule: synonymRule,\n      name: \"ПравилаОтправкиДокументов\",\n      yaml: { Имя: \"ПравилаОтправкиДокументов\" },\n      source: { itemType: \"MetadataCatalog\", name: \"ПравилаОтправкиДокументов\" },\n    })\n\n    expect(result.synonym).toBeUndefined()\n  })",
     "fixtures": [],
     "line": 55,
-    "behavior": "",
+    "behavior": "Прямой обход свойства из YAML в XML учитывает отсутствие и reference",
     "targetPath": "packages/core/metadata/orchestration/property/fromYAMLToXML.test.ts",
-    "targetTitle": "",
-    "status": "pending"
+    "targetTitle": "does not apply default synonym when YAML omits synonym and reference has no synonym",
+    "status": "migrated"
   },
   {
     "id": "04f50e62065bb2e7f3cd7e8646dde08c82c0f7a2:packages/core/metadata/orchestration/property/fromYAML.test.ts:67:1985",
@@ -21906,10 +21907,10 @@
     "declarationText": "it(\"uses explicit YAML synonym over empty synonym from source\", () => {\n    const result = importPropertiesFromYAML({\n      context: mockContext,\n      metadataRule: synonymRule,\n      name: \"ПравилаОтправкиДокументов\",\n      yaml: {\n        Имя: \"ПравилаОтправкиДокументов\",\n        Синоним: \"Явный синоним\",\n      },\n      source: {\n        itemType: \"MetadataCatalog\",\n        name: \"ПравилаОтправкиДокументов\",\n        synonym: { items: {} },\n      },\n    })\n\n    expect(result.synonym).toEqual({ items: { ru: \"Явный синоним\" } })\n  })",
     "fixtures": [],
     "line": 67,
-    "behavior": "",
+    "behavior": "Прямой обход свойства из YAML в XML учитывает отсутствие и reference",
     "targetPath": "packages/core/metadata/orchestration/property/fromYAMLToXML.test.ts",
-    "targetTitle": "",
-    "status": "pending"
+    "targetTitle": "uses explicit YAML synonym over empty synonym from reference",
+    "status": "migrated"
   },
   {
     "id": "04f50e62065bb2e7f3cd7e8646dde08c82c0f7a2:packages/core/metadata/orchestration/property/fromYAML.test.ts:86:2528",
@@ -21921,10 +21922,10 @@
     "declarationText": "it(\"rejects scalar YAML for metadata items without yamlInline\", () => {\n    expect(() =>\n      importPropertiesFromYAML({\n        context: mockContext,\n        metadataRule: {\n          itemType: \"MetadataAttribute\",\n          properties: {\n            type: { yaml: \"Тип\", type: \"TypeDescription\", required: true },\n          },\n        },\n        name: \"Организация\",\n        yaml: \"Справочник.Организации\" as never,\n      })\n    ).toThrow(\"MetadataAttribute: ожидался YAML-объект\")\n  })",
     "fixtures": [],
     "line": 86,
-    "behavior": "",
-    "targetPath": "packages/core/metadata/orchestration/property/fromYAMLToXML.test.ts",
-    "targetTitle": "",
-    "status": "pending"
+    "behavior": "Скалярный YAML запрещён для metadata item без yamlInline",
+    "targetPath": "packages/core/metadata/orchestration/metadataItem/fromYAMLToXML.test.ts",
+    "targetTitle": "rejects scalar YAML for metadata items without yamlInline",
+    "status": "migrated"
   },
   {
     "id": "04f50e62065bb2e7f3cd7e8646dde08c82c0f7a2:packages/core/metadata/orchestration/property/metadataTargetString.test.ts:27:903",
@@ -21936,10 +21937,10 @@
     "declarationText": "it(\"uses self declaration for simple root objects\", () => {\n    const rule = {\n      itemType: \"MetadataDocument\",\n      itemTypePrefix: \"Документ\",\n      metadataTargetOwner: { kind: \"self\", root: \"Document\" },\n      properties: {},\n    } as const satisfies MetadataItemRule\n\n    expect(metadataTargetOwnerFromRule({ itemRule: rule, name: \"Заказ\" })).toEqual({\n      root: \"Document\",\n      objectName: \"Заказ\",\n    })\n  })",
     "fixtures": [],
     "line": 27,
-    "behavior": "",
+    "behavior": "Атомарное преобразование metadata target string",
     "targetPath": "packages/core/metadata/orchestration/property/metadataTargetString.test.ts",
-    "targetTitle": "",
-    "status": "pending"
+    "targetTitle": "uses self declaration for simple root objects",
+    "status": "migrated"
   },
   {
     "id": "04f50e62065bb2e7f3cd7e8646dde08c82c0f7a2:packages/core/metadata/orchestration/property/metadataTargetString.test.ts:41:1331",
@@ -21951,10 +21952,10 @@
     "declarationText": "it(\"inherits owner for forms\", () => {\n    const rule = {\n      itemType: \"ClientApplicationForm\",\n      metadataTargetOwner: { kind: \"inherit\" },\n      properties: {},\n    } as const satisfies MetadataItemRule\n\n    expect(\n      metadataTargetOwnerFromRule({\n        itemRule: rule,\n        name: \"ФормаДокумента\",\n        context: {\n          ...mockContext,\n          importFromYAML: {\n            metadataTargetOwners: [\n              { itemType: \"MetadataDocument\", name: \"Заказ\", owner: { root: \"Document\", objectName: \"Заказ\" } },\n            ],\n          },\n        },\n      })\n    ).toEqual({ root: \"Document\", objectName: \"Заказ\" })\n  })",
     "fixtures": [],
     "line": 41,
-    "behavior": "",
+    "behavior": "Атомарное преобразование metadata target string",
     "targetPath": "packages/core/metadata/orchestration/property/metadataTargetString.test.ts",
-    "targetTitle": "",
-    "status": "pending"
+    "targetTitle": "inherits owner for forms",
+    "status": "migrated"
   },
   {
     "id": "04f50e62065bb2e7f3cd7e8646dde08c82c0f7a2:packages/core/metadata/orchestration/property/metadataTargetString.test.ts:64:1982",
@@ -21966,10 +21967,10 @@
     "declarationText": "it(\"reuses the owner of the current frame without resolving it twice\", () => {\n    const owner = { root: \"ExternalDataSource\", objectName: \"Источник.Table.Таблица\" }\n    const rule = {\n      itemType: \"MetadataExternalDataSourceTable\",\n      properties: {},\n    } as const satisfies MetadataItemRule\n\n    expect(\n      metadataTargetOwnerFromRule({\n        itemRule: rule,\n        name: \"Таблица\",\n        context: {\n          ...mockContext,\n          importFromYAML: {\n            metadataTargetOwners: [{ itemType: rule.itemType, name: \"Таблица\", owner }],\n          },\n        },\n      })\n    ).toEqual(owner)\n  })",
     "fixtures": [],
     "line": 64,
-    "behavior": "",
+    "behavior": "Атомарное преобразование metadata target string",
     "targetPath": "packages/core/metadata/orchestration/property/metadataTargetString.test.ts",
-    "targetTitle": "",
-    "status": "pending"
+    "targetTitle": "reuses the owner of the current frame without resolving it twice",
+    "status": "migrated"
   },
   {
     "id": "04f50e62065bb2e7f3cd7e8646dde08c82c0f7a2:packages/core/metadata/orchestration/property/metadataTargetString.test.ts:110:3286",
@@ -21981,10 +21982,10 @@
     "declarationText": "it(\"exports canonical local member strings to short YAML\", () => {\n    expect(\n      exportPropertiesToYAML({\n        context: mockContext,\n        rule: documentRule,\n        data: {\n          itemType: \"MetadataDocument\",\n          name: \"АвансовыйОтчет\",\n          defaultObjectForm: \"Document.АвансовыйОтчет.Form.ФормаДокумента\",\n        },\n      })\n    ).toEqual({\n      ОсновнаяФормаОбъекта: \"ФормаДокумента\",\n    })\n  })",
     "fixtures": [],
     "line": 110,
-    "behavior": "",
+    "behavior": "Атомарное преобразование metadata target string",
     "targetPath": "packages/core/metadata/orchestration/property/metadataTargetString.test.ts",
-    "targetTitle": "",
-    "status": "pending"
+    "targetTitle": "exports canonical local member strings to short YAML",
+    "status": "migrated"
   },
   {
     "id": "04f50e62065bb2e7f3cd7e8646dde08c82c0f7a2:packages/core/metadata/orchestration/property/metadataTargetString.test.ts:126:3717",
@@ -21996,10 +21997,10 @@
     "declarationText": "it(\"imports short YAML member strings to canonical model strings\", () => {\n    expect(\n      importPropertiesFromYAML({\n        context: mockContext,\n        metadataRule: documentRule,\n        name: \"АвансовыйОтчет\",\n        yaml: { ОсновнаяФормаОбъекта: \"ФормаДокумента\" },\n      })\n    ).toMatchObject({\n      defaultObjectForm: \"Document.АвансовыйОтчет.Form.ФормаДокумента\",\n    })\n  })",
     "fixtures": [],
     "line": 126,
-    "behavior": "",
+    "behavior": "Атомарное преобразование metadata target string",
     "targetPath": "packages/core/metadata/orchestration/property/metadataTargetString.test.ts",
-    "targetTitle": "",
-    "status": "pending"
+    "targetTitle": "imports short YAML member strings to canonical model strings",
+    "status": "migrated"
   },
   {
     "id": "04f50e62065bb2e7f3cd7e8646dde08c82c0f7a2:packages/core/metadata/orchestration/property/metadataTargetString.test.ts:139:4111",
@@ -22011,10 +22012,10 @@
     "declarationText": "it(\"imports and exports common forms when objectRoots allows them\", () => {\n    expect(\n      importPropertiesFromYAML({\n        context: mockContext,\n        metadataRule: documentRuleWithCommonForms,\n        name: \"АвансовыйОтчет\",\n        yaml: { ОсновнаяФормаОбъекта: \"ОбщаяФорма.ФормаДокумента\" },\n      })\n    ).toMatchObject({\n      defaultObjectForm: \"CommonForm.ФормаДокумента\",\n    })\n\n    expect(\n      exportPropertiesToYAML({\n        context: mockContext,\n        rule: documentRuleWithCommonForms,\n        data: {\n          itemType: \"MetadataDocument\",\n          name: \"АвансовыйОтчет\",\n          defaultObjectForm: \"CommonForm.ФормаДокумента\",\n        },\n      })\n    ).toEqual({\n      ОсновнаяФормаОбъекта: \"ОбщаяФорма.ФормаДокумента\",\n    })\n  })",
     "fixtures": [],
     "line": 139,
-    "behavior": "",
+    "behavior": "Атомарное преобразование metadata target string",
     "targetPath": "packages/core/metadata/orchestration/property/metadataTargetString.test.ts",
-    "targetTitle": "",
-    "status": "pending"
+    "targetTitle": "imports and exports common forms when objectRoots allows them",
+    "status": "migrated"
   },
   {
     "id": "04f50e62065bb2e7f3cd7e8646dde08c82c0f7a2:packages/core/metadata/orchestration/property/metadataTargetString.test.ts:166:4879",
@@ -22026,10 +22027,10 @@
     "declarationText": "it(\"exports canonical object strings to YAML roots\", () => {\n    expect(\n      exportPropertiesToYAML({\n        context: mockContext,\n        rule: documentRuleWithNumerator,\n        data: {\n          itemType: \"MetadataDocument\",\n          name: \"СчетФактура\",\n          numerator: \"DocumentNumerator.СчетаФактуры\",\n        },\n      })\n    ).toEqual({\n      Нумератор: \"СчетаФактуры\",\n    })\n  })",
     "fixtures": [],
     "line": 166,
-    "behavior": "",
+    "behavior": "Атомарное преобразование metadata target string",
     "targetPath": "packages/core/metadata/orchestration/property/metadataTargetString.test.ts",
-    "targetTitle": "",
-    "status": "pending"
+    "targetTitle": "exports canonical object strings to YAML roots",
+    "status": "migrated"
   },
   {
     "id": "04f50e62065bb2e7f3cd7e8646dde08c82c0f7a2:packages/core/metadata/orchestration/property/metadataTargetString.test.ts:182:5280",
@@ -22041,10 +22042,10 @@
     "declarationText": "it(\"imports YAML object strings to canonical model roots\", () => {\n    expect(\n      importPropertiesFromYAML({\n        context: mockContext,\n        metadataRule: documentRuleWithNumerator,\n        name: \"СчетФактура\",\n        yaml: { Нумератор: \"СчетаФактуры\" },\n      })\n    ).toMatchObject({\n      numerator: \"DocumentNumerator.СчетаФактуры\",\n    })\n  })",
     "fixtures": [],
     "line": 182,
-    "behavior": "",
+    "behavior": "Атомарное преобразование metadata target string",
     "targetPath": "packages/core/metadata/orchestration/property/metadataTargetString.test.ts",
-    "targetTitle": "",
-    "status": "pending"
+    "targetTitle": "imports YAML object strings to canonical model roots",
+    "status": "migrated"
   },
   {
     "id": "04f50e62065bb2e7f3cd7e8646dde08c82c0f7a2:packages/core/metadata/orchestration/property/metadataTargetString.test.ts:195:5642",
@@ -22056,10 +22057,10 @@
     "declarationText": "it(\"rejects YAML object strings with unknown YAML roots\", () => {\n    expect(() =>\n      importPropertiesFromYAML({\n        context: mockContext,\n        metadataRule: documentRuleWithNumerator,\n        name: \"СчетФактура\",\n        yaml: { Нумератор: \"DocumentNumerator.СчетаФактуры\" },\n      })\n    ).toThrow('Неизвестный корень \"DocumentNumerator\"')\n  })",
     "fixtures": [],
     "line": 195,
-    "behavior": "",
+    "behavior": "Атомарное преобразование metadata target string",
     "targetPath": "packages/core/metadata/orchestration/property/metadataTargetString.test.ts",
-    "targetTitle": "",
-    "status": "pending"
+    "targetTitle": "rejects YAML object strings with unknown YAML roots",
+    "status": "migrated"
   },
   {
     "id": "04f50e62065bb2e7f3cd7e8646dde08c82c0f7a2:packages/core/metadata/orchestration/property/metadataTargetString.test.ts:206:6002",
@@ -22071,10 +22072,10 @@
     "declarationText": "it(\"rejects YAML object strings outside allowed roots\", () => {\n    expect(() =>\n      importPropertiesFromYAML({\n        context: mockContext,\n        metadataRule: documentRuleWithNumerator,\n        name: \"СчетФактура\",\n        yaml: { Нумератор: \"Документ.СчетФактура\" },\n      })\n    ).toThrow('Корень \"Document\" не разрешён для цели метаданных')\n  })",
     "fixtures": [],
     "line": 206,
-    "behavior": "",
+    "behavior": "Атомарное преобразование metadata target string",
     "targetPath": "packages/core/metadata/orchestration/property/metadataTargetString.test.ts",
-    "targetTitle": "",
-    "status": "pending"
+    "targetTitle": "rejects YAML object strings outside allowed roots",
+    "status": "migrated"
   },
   {
     "id": "04f50e62065bb2e7f3cd7e8646dde08c82c0f7a2:packages/core/metadata/orchestration/property/metadataTargetString.test.ts:217:6361",
@@ -22086,10 +22087,10 @@
     "declarationText": "it(\"keeps ordinary string properties unchanged\", () => {\n    expect(\n      exportPropertiesToYAML({\n        context: mockContext,\n        rule: documentRule,\n        data: {\n          itemType: \"MetadataDocument\",\n          name: \"АвансовыйОтчет\",\n          comment: \"Document.АвансовыйОтчет.Form.ФормаДокумента\",\n        },\n      })\n    ).toEqual({\n      Комментарий: \"Document.АвансовыйОтчет.Form.ФормаДокумента\",\n    })\n\n    expect(\n      importPropertiesFromYAML({\n        context: mockContext,\n        metadataRule: documentRule,\n        name: \"АвансовыйОтчет\",\n        yaml: { Комментарий: \"ФормаДокумента\" },\n      })\n    ).toMatchObject({\n      comment: \"ФормаДокумента\",\n    })\n  })",
     "fixtures": [],
     "line": 217,
-    "behavior": "",
+    "behavior": "Атомарное преобразование metadata target string",
     "targetPath": "packages/core/metadata/orchestration/property/metadataTargetString.test.ts",
-    "targetTitle": "",
-    "status": "pending"
+    "targetTitle": "keeps ordinary string properties unchanged",
+    "status": "migrated"
   },
   {
     "id": "04f50e62065bb2e7f3cd7e8646dde08c82c0f7a2:packages/core/metadata/orchestration/property/metadataTargetString.test.ts:244:7056",
@@ -22101,10 +22102,10 @@
     "declarationText": "it(\"rejects local member strings when owner context is unavailable on import\", () => {\n    expect(() =>\n      importPropertiesFromYAML({\n        context: mockContext,\n        metadataRule: documentRule,\n        yaml: { ОсновнаяФормаОбъекта: \"ФормаДокумента\" },\n      })\n    ).toThrow('Для metadataTarget kind \"member\" owner \"this\" требуется контекст текущего объекта')\n  })",
     "fixtures": [],
     "line": 244,
-    "behavior": "",
+    "behavior": "Атомарное преобразование metadata target string",
     "targetPath": "packages/core/metadata/orchestration/property/metadataTargetString.test.ts",
-    "targetTitle": "",
-    "status": "pending"
+    "targetTitle": "rejects local member strings when owner context is unavailable on import",
+    "status": "migrated"
   },
   {
     "id": "04f50e62065bb2e7f3cd7e8646dde08c82c0f7a2:packages/core/metadata/orchestration/property/metadataTargetString.test.ts:254:7433",
@@ -22116,10 +22117,10 @@
     "declarationText": "it(\"rejects local member strings when owner context is unavailable on export\", () => {\n    expect(() =>\n      exportPropertiesToYAML({\n        context: mockContext,\n        rule: documentRule,\n        data: {\n          itemType: \"MetadataDocument\",\n          name: \"\",\n          defaultObjectForm: \"Document.АвансовыйОтчет.Form.ФормаДокумента\",\n        },\n      })\n    ).toThrow('Для metadataTarget kind \"member\" owner \"this\" требуется контекст текущего объекта')\n  })",
     "fixtures": [],
     "line": 254,
-    "behavior": "",
+    "behavior": "Атомарное преобразование metadata target string",
     "targetPath": "packages/core/metadata/orchestration/property/metadataTargetString.test.ts",
-    "targetTitle": "",
-    "status": "pending"
+    "targetTitle": "rejects local member strings when owner context is unavailable on export",
+    "status": "migrated"
   },
   {
     "id": "04f50e62065bb2e7f3cd7e8646dde08c82c0f7a2:packages/core/metadata/orchestration/property/metadataTargetString.test.ts:268:7905",
@@ -22131,10 +22132,10 @@
     "declarationText": "it(\"rejects YAML strings that do not match a member target\", () => {\n    expect(() =>\n      importPropertiesFromYAML({\n        context: mockContext,\n        metadataRule: documentRule,\n        name: \"АвансовыйОтчет\",\n        yaml: { ОсновнаяФормаОбъекта: \"ОбщаяФорма.ФормаДокумента\" },\n      })\n    ).toThrow()\n  })",
     "fixtures": [],
     "line": 268,
-    "behavior": "",
+    "behavior": "Атомарное преобразование metadata target string",
     "targetPath": "packages/core/metadata/orchestration/property/metadataTargetString.test.ts",
-    "targetTitle": "",
-    "status": "pending"
+    "targetTitle": "rejects YAML strings that do not match a member target",
+    "status": "migrated"
   },
   {
     "id": "04f50e62065bb2e7f3cd7e8646dde08c82c0f7a2:packages/core/metadata/orchestration/property/metadataTargetString.test.ts:279:8224",
@@ -22146,9 +22147,9 @@
     "declarationText": "it(\"rejects model strings that do not match a member target\", () => {\n    expect(() =>\n      exportPropertiesToYAML({\n        context: mockContext,\n        rule: documentRule,\n        data: {\n          itemType: \"MetadataDocument\",\n          name: \"АвансовыйОтчет\",\n          defaultObjectForm: \"CommonForm.ФормаДокумента\",\n        },\n      })\n    ).toThrow()\n  })",
     "fixtures": [],
     "line": 279,
-    "behavior": "",
+    "behavior": "Атомарное преобразование metadata target string",
     "targetPath": "packages/core/metadata/orchestration/property/metadataTargetString.test.ts",
-    "targetTitle": "",
-    "status": "pending"
+    "targetTitle": "rejects model strings that do not match a member target",
+    "status": "migrated"
   }
 ]

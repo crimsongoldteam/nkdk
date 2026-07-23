@@ -1,6 +1,10 @@
 import { describe, expect, it } from "vitest"
 import { mockContextFromXML } from "../../../tests/mockContext"
-import { withConfigurationIndexCollector } from "../../configurationIndex/collector/context"
+import {
+  runWithConfigurationIndexPropertyContext,
+  withConfigurationIndexCollector,
+  withConfigurationIndexLogicalAddress,
+} from "../../configurationIndex/collector/context"
 import { createConfigurationIndexCollector } from "../../configurationIndex/collector/writer"
 import { createLocalIndexesCollector } from "../../project/localIndexes"
 import { importPropertiesFromXMLToYAML as importPropertiesWithSources } from "./fromXMLToYAML"
@@ -481,6 +485,226 @@ describe("importPropertiesFromXMLToYAML", () => {
       expect((error as Error).message).toContain("xmlPath=/Attributes/Value")
       expect((error as Error).cause).toMatchObject({ message: "broken" })
     }
+  })
+
+  it("collects XML-present properties in source order, aliases and significant presence", () => {
+    const indexCollector = createConfigurationIndexCollector()
+    const context = withConfigurationIndexCollector(mockContextFromXML(), indexCollector, "Справочник.Товары")
+
+    importPropertiesFromXMLToYAML({
+      context,
+      rule: {
+        itemType: "Catalog",
+        properties: {
+          rowFilter: {
+            type: "string",
+            xml: "RowFilter",
+            fromXML: false,
+            preserveFromReferenceXML: true,
+          },
+          title: { type: "string", xml: "Title", xmlAliases: ["Caption"] },
+          explicitDefault: {
+            type: "string",
+            xml: "ExplicitDefault",
+            defaultValueXML: "Авто",
+            preserveExplicitDefaultXML: true,
+          },
+        },
+      } as MetadataItemRule,
+      xml: { Caption: "Заголовок", RowFilter: {}, ExplicitDefault: "Авто" },
+      yamlPath: [],
+      rulePath: [],
+      collector: createLocalIndexesCollector(),
+    })
+
+    expect(indexCollector.fragment("Справочник/Товары/Свойства.yaml").xmlNodes).toEqual([
+      {
+        logicalAddress: "Справочник.Товары",
+        order: ["title", "rowFilter", "explicitDefault"],
+        aliases: { title: "Caption" },
+        present: ["rowFilter", "explicitDefault"],
+      },
+    ])
+  })
+
+  it("сохраняет присутствие Color auto, которое теряется при прямом преобразовании", () => {
+    const indexCollector = createConfigurationIndexCollector()
+    const context = withConfigurationIndexCollector(mockContextFromXML(), indexCollector, "Форма.Основная")
+    const yaml = importPropertiesFromXMLToYAML({
+      context,
+      rule: {
+        itemType: "ClientApplicationForm",
+        properties: { backgroundColor: { type: "Color", xml: "BackgroundColor", yaml: "ЦветФона" } },
+      } as MetadataItemRule,
+      xml: { BackgroundColor: "auto" },
+      yamlPath: [],
+      rulePath: [],
+      collector: createLocalIndexesCollector(),
+    })
+
+    expect(yaml).toEqual({})
+    expect(indexCollector.fragment("Форма.yaml").xmlNodes).toEqual([
+      { logicalAddress: "Форма.Основная", order: ["backgroundColor"], present: ["backgroundColor"] },
+    ])
+  })
+
+  it("collects XML identity attributes on the current logical address", () => {
+    const indexCollector = createConfigurationIndexCollector()
+    const context = withConfigurationIndexCollector(mockContextFromXML(), indexCollector, "Справочник.Товары")
+    importPropertiesFromXMLToYAML({
+      context,
+      rule: {
+        itemType: "Catalog",
+        properties: {
+          uuid: { type: "string", xml: "_uuid", forReferenceOnly: true },
+          id: { type: "string", xml: "_id", forReferenceOnly: true },
+          name: { type: "string", xml: "_name" },
+        },
+      } as MetadataItemRule,
+      xml: { _uuid: "00000000-0000-4000-8000-000000000001", _id: "42", _name: "Товары" },
+      yamlPath: [],
+      rulePath: [],
+      collector: createLocalIndexesCollector(),
+    })
+    importPropertiesFromXMLToYAML({
+      context: withConfigurationIndexCollector(
+        mockContextFromXML(),
+        indexCollector,
+        "Справочник.Товары.Значение[0]"
+      ),
+      rule: {
+        itemType: "Catalog",
+        properties: { name: { type: "string", xml: "_name" } },
+      } as MetadataItemRule,
+      xml: { _name: "НепредставимоеАдресомИмя" },
+      yamlPath: [],
+      rulePath: [],
+      collector: createLocalIndexesCollector(),
+    })
+
+    expect(indexCollector.fragment("Справочник/Товары/Свойства.yaml").identities).toEqual([
+      {
+        logicalAddress: "Справочник.Товары",
+        kind: "uuid",
+        value: "00000000-0000-4000-8000-000000000001",
+      },
+      { logicalAddress: "Справочник.Товары", kind: "xmlId", value: "42" },
+      {
+        logicalAddress: "Справочник.Товары.Значение[0]",
+        kind: "xmlName",
+        value: "НепредставимоеАдресомИмя",
+      },
+    ])
+  })
+
+  it("не сохраняет XML-представление, полностью восстанавливаемое из Project и rules", () => {
+    const indexCollector = createConfigurationIndexCollector()
+    const context = withConfigurationIndexCollector(mockContextFromXML(), indexCollector, "Отчёт.Продажи")
+    importPropertiesFromXMLToYAML({
+      context,
+      rule: {
+        itemType: "Report",
+        properties: {
+          result: { type: "number", xml: "Result", yaml: "Результат" },
+          comment: { type: "string", xml: "Comment", yaml: "Комментарий", defaultValueXMLEmpty: "" },
+        },
+      } as MetadataItemRule,
+      xml: { Result: { "_xsi:type": "xs:decimal", "#text": "3" }, Comment: "" },
+      yamlPath: [],
+      rulePath: [],
+      collector: createLocalIndexesCollector(),
+    })
+
+    expect(indexCollector.fragment("Отчёт/Продажи/Свойства.yaml").xmlValues).toEqual([])
+  })
+
+  it("сохраняет xsi:nil, потерянный преобразованием и не заданный rules", () => {
+    const indexCollector = createConfigurationIndexCollector()
+    const context = withConfigurationIndexCollector(
+      mockContextFromXML(),
+      indexCollector,
+      "РегистрСведений.Остатки"
+    )
+    importPropertiesFromXMLToYAML({
+      context,
+      rule: {
+        itemType: "InformationRegister",
+        properties: {
+          sourceValue: { type: "MetadataValue", xml: "SourceValue", yaml: "Исходное" },
+          canonicalNil: {
+            type: "MetadataValue",
+            xml: "CanonicalNil",
+            yaml: "Каноническое",
+            defaultValueXMLRaw: { "_xsi:nil": true },
+          },
+        },
+      } as MetadataItemRule,
+      xml: { SourceValue: { "_xsi:nil": true }, CanonicalNil: { "_xsi:nil": true } },
+      yamlPath: [],
+      rulePath: [],
+      collector: createLocalIndexesCollector(),
+    })
+
+    expect(indexCollector.fragment("РегистрСведений/Остатки/Свойства.yaml").xmlValues).toEqual([
+      { logicalAddress: "РегистрСведений.Остатки.sourceValue", xsiNil: true },
+    ])
+  })
+
+  it("uses direct YAML-path address for XML service data while YAML-path index addressing is active", () => {
+    const indexCollector = createConfigurationIndexCollector()
+    const context = withConfigurationIndexCollector(
+      mockContextFromXML(),
+      indexCollector,
+      "Справочник.Товары.Свойство.Отбор"
+    )
+    importPropertiesFromXMLToYAML({
+      context,
+      rule: {
+        itemType: "FilterLike",
+        properties: {
+          sourceValue: {
+            type: "MetadataValue",
+            xml: "SourceValue",
+            yaml: "Значение",
+            configurationIndexAddressing: "yamlPath",
+          },
+        },
+      } as MetadataItemRule,
+      xml: { SourceValue: { "_xsi:nil": true } },
+      yamlPath: [],
+      rulePath: [],
+      collector: createLocalIndexesCollector(),
+    })
+
+    expect(indexCollector.fragment("Форма.yaml").xmlValues).toEqual([
+      { logicalAddress: "Справочник.Товары.Свойство.Отбор.Значение", xsiNil: true },
+    ])
+  })
+
+  it("clears property XML node address when entering child item logical address", () => {
+    const indexCollector = createConfigurationIndexCollector()
+    const context = withConfigurationIndexCollector(mockContextFromXML(), indexCollector, "Форма.Основная")
+    runWithConfigurationIndexPropertyContext(context, "Элементы", undefined, (propertyContext) => {
+      const itemContext = withConfigurationIndexLogicalAddress(propertyContext, "Форма.Основная.Элемент.Кнопка1")
+      importPropertiesFromXMLToYAML({
+        context: itemContext,
+        rule: {
+          itemType: "Button",
+          properties: {
+            title: { type: "string", xml: "Title", yaml: "Заголовок" },
+            commandName: { type: "string", xml: "CommandName", yaml: "Команда" },
+          },
+        } as MetadataItemRule,
+        xml: { Title: "Кнопка", CommandName: "Команда" },
+        yamlPath: [],
+        rulePath: [],
+        collector: createLocalIndexesCollector(),
+      })
+    })
+
+    expect(indexCollector.fragment("Форма.yaml").xmlNodes).toEqual([
+      { logicalAddress: "Форма.Основная.Элемент.Кнопка1", order: ["title", "commandName"] },
+    ])
   })
 })
 
