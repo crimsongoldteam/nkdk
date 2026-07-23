@@ -15474,10 +15474,10 @@
     "declarationText": "it(\"imports recalculation properties\", () => {\n    const result = importMetadataItemFromXML({\n      context: mockContextFromXML(),\n      rule: RecalculationRules,\n      xml: {\n        _uuid: \"46548bba-f23d-42e4-9c54-83d85954c94f\",\n        Properties: {\n          Name: \"ПерерасчетПоУмолчанию\",\n          Synonym: \"\",\n          Comment: \"\",\n          DataLockControlMode: \"Managed\",\n        },\n        ChildObjects: {},\n      },\n    }) as Recalculation | undefined\n\n    expect(result?.itemType).toBe(\"Recalculation\")\n    expect(result?.name).toBe(\"ПерерасчетПоУмолчанию\")\n    expect(result?.dataLockControlMode).toBeUndefined()\n  })",
     "fixtures": [],
     "line": 8,
-    "behavior": "",
+    "behavior": "Свойства перерасчёта преобразуются из XML в YAML одним проходом",
     "targetPath": "packages/core/metadata/commonObjects/recalculation/fromXMLToYAML.test.ts",
-    "targetTitle": "",
-    "status": "pending"
+    "targetTitle": "imports recalculation properties",
+    "status": "migrated"
   },
   {
     "id": "04f50e62065bb2e7f3cd7e8646dde08c82c0f7a2:packages/core/metadata/commonObjects/recalculation/syncExternal.test.ts:25:938",
@@ -15491,10 +15491,11 @@
       "Recalculation.xml"
     ],
     "line": 25,
-    "behavior": "",
+    "behavior": "Старый объектный импорт копировал внешний XML перерасчёта в проект",
     "targetPath": "packages/core/metadata/commonObjects/recalculation/syncExternal.test.ts",
     "targetTitle": "",
-    "status": "pending"
+    "status": "obsolete-internal",
+    "justification": "Удалённый convertAppliedObjectFromXML был частью прежней раздельной оркестрации; новый импорт выполняется единым конфигурационным проходом и не имеет объектного API копирования."
   },
   {
     "id": "04f50e62065bb2e7f3cd7e8646dde08c82c0f7a2:packages/core/metadata/commonObjects/recalculation/syncExternal.test.ts:44:1781",
@@ -15506,10 +15507,10 @@
     "declarationText": "it(\"syncToXML writes full recalculation XML from nkdk\", async () => {\n    const fixturesDir = join(import.meta.dirname, \"../../appliedObjects/metadataCalculationRegister/__fixtures__/sync\")\n    const referenceDir = join(fixturesDir, \"xml\")\n    const convertedDir = join(tmpDir, \"converted\")\n    const outputDir = join(tmpDir, \"xml\")\n\n    await convertAppliedObjectFromXML({\n      rule: MetadataCalculationRegisterRules,\n      context: mockContextFromXML(),\n      inputDir: referenceDir,\n      name: REGISTER_NAME,\n      outputDir: convertedDir,\n    })\n\n    await syncAppliedObjectToXML({\n      rule: MetadataCalculationRegisterRules,\n      context: mockContextToXML(),\n      inputDir: convertedDir,\n      name: REGISTER_NAME,\n      outputDir,\n      referenceDir,\n      externalOutputDir: join(outputDir, REGISTER_NAME),\n      externalReferenceDir: join(referenceDir, REGISTER_NAME),\n    })\n\n    const resultPath = join(outputDir, REGISTER_NAME, \"Recalculations\", `${RECALCULATION_NAME}.xml`)\n    const expectedPath = join(referenceDir, REGISTER_NAME, \"Recalculations\", `${RECALCULATION_NAME}.xml`)\n\n    expect(fs.readFileSync(resultPath, \"utf-8\")).toBe(fs.readFileSync(expectedPath, \"utf-8\"))\n    expect(fs.readFileSync(resultPath, \"utf-8\")).toContain(\"<Comment>Комментарий</Comment>\")\n  })",
     "fixtures": [],
     "line": 44,
-    "behavior": "",
+    "behavior": "Полный XML перерасчёта записывается текущей синхронизацией из YAML-проекта",
     "targetPath": "packages/core/metadata/commonObjects/recalculation/syncExternal.test.ts",
-    "targetTitle": "",
-    "status": "pending"
+    "targetTitle": "syncToXML writes full recalculation XML from nkdk",
+    "status": "migrated"
   },
   {
     "id": "04f50e62065bb2e7f3cd7e8646dde08c82c0f7a2:packages/core/metadata/commonObjects/recalculation/syncExternal.test.ts:76:3075",
@@ -15524,10 +15525,10 @@
       "ЛишнийПерерасчет.xml"
     ],
     "line": 76,
-    "behavior": "",
+    "behavior": "Каталоги перерасчётов вне списка модели не попадают в XML",
     "targetPath": "packages/core/metadata/commonObjects/recalculation/syncExternal.test.ts",
-    "targetTitle": "",
-    "status": "pending"
+    "targetTitle": "syncToXML ignores recalculation folders that are absent from the model list",
+    "status": "migrated"
   },
   {
     "id": "04f50e62065bb2e7f3cd7e8646dde08c82c0f7a2:packages/core/metadata/commonObjects/recalculation/syncExternal.test.ts:111:4518",
@@ -15541,10 +15542,10 @@
       "Recalculation.xml"
     ],
     "line": 111,
-    "behavior": "",
+    "behavior": "Перечисленный перерасчёт восстанавливается из референса при отсутствии файла проекта",
     "targetPath": "packages/core/metadata/commonObjects/recalculation/syncExternal.test.ts",
-    "targetTitle": "",
-    "status": "pending"
+    "targetTitle": "syncToXML restores listed recalculation XML from reference when nkdk file is missing",
+    "status": "migrated"
   },
   {
     "id": "04f50e62065bb2e7f3cd7e8646dde08c82c0f7a2:packages/core/metadata/commonObjects/rootCommandInterface/fromXML.test.ts:23:889",
