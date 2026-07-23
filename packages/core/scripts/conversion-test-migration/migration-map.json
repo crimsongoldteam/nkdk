@@ -10123,10 +10123,10 @@
       "imports full.xml"
     ],
     "line": 7,
-    "behavior": "",
+    "behavior": "Импортирует full.xml и в том же обходе формирует полный YAML.",
     "targetPath": "packages/core/metadata/commonObjects/dataCompositionSystem/calculatedFieldUseRestriction/fromXMLToYAML.test.ts",
-    "targetTitle": "",
-    "status": "pending"
+    "targetTitle": "imports full.xml and exports full YAML",
+    "status": "migrated"
   },
   {
     "id": "04f50e62065bb2e7f3cd7e8646dde08c82c0f7a2:packages/core/metadata/commonObjects/dataCompositionSystem/calculatedFieldUseRestriction/fromYAML.test.ts:7:309",
@@ -10140,10 +10140,10 @@
       "./__fixtures__/data"
     ],
     "line": 7,
-    "behavior": "",
+    "behavior": "Импортирует полный YAML и в том же обходе формирует XML.",
     "targetPath": "packages/core/metadata/commonObjects/dataCompositionSystem/calculatedFieldUseRestriction/fromYAMLToXML.test.ts",
-    "targetTitle": "",
-    "status": "pending"
+    "targetTitle": "imports full YAML and exports full.xml",
+    "status": "migrated"
   },
   {
     "id": "04f50e62065bb2e7f3cd7e8646dde08c82c0f7a2:packages/core/metadata/commonObjects/dataCompositionSystem/calculatedFieldUseRestriction/toXML.test.ts:7:276",
@@ -10159,10 +10159,10 @@
       "full.xml"
     ],
     "line": 7,
-    "behavior": "",
+    "behavior": "Формирует full.xml непосредственно из полного YAML.",
     "targetPath": "packages/core/metadata/commonObjects/dataCompositionSystem/calculatedFieldUseRestriction/fromYAMLToXML.test.ts",
-    "targetTitle": "",
-    "status": "pending"
+    "targetTitle": "imports full YAML and exports full.xml",
+    "status": "migrated"
   },
   {
     "id": "04f50e62065bb2e7f3cd7e8646dde08c82c0f7a2:packages/core/metadata/commonObjects/dataCompositionSystem/calculatedFieldUseRestriction/toYAML.test.ts:7:303",
@@ -10176,10 +10176,10 @@
       "./__fixtures__/data"
     ],
     "line": 7,
-    "behavior": "",
+    "behavior": "Формирует полный YAML из значения, импортированного из full.xml.",
     "targetPath": "packages/core/metadata/commonObjects/dataCompositionSystem/calculatedFieldUseRestriction/fromXMLToYAML.test.ts",
-    "targetTitle": "",
-    "status": "pending"
+    "targetTitle": "imports full.xml and exports full YAML",
+    "status": "migrated"
   },
   {
     "id": "04f50e62065bb2e7f3cd7e8646dde08c82c0f7a2:packages/core/metadata/commonObjects/dataCompositionSystem/calculatedFields/fromXML.test.ts:12:392",
