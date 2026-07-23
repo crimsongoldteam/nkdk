@@ -4,6 +4,7 @@ import { YAMLTypeByRule } from "../../../orchestration/metadataItem/yaml"
 import { importFilterItemFromXMLToYAML } from "./fromXMLToYAML"
 import { FilterItemComparisonRules, FilterItemGroupRules } from "./rules"
 import { exportFilterItemToJSONSchema } from "./toJSONSchema"
+import "./typedValues"
 
 export type FilterItemComparison = FormTypeByRule<typeof FilterItemComparisonRules>
 export type FilterItemComparisonYAML = YAMLTypeByRule<typeof FilterItemComparisonRules>

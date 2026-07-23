@@ -92,14 +92,12 @@ registerTypeRule("AppearanceFields", "yamlToXMLNestedRule", {
     }
 
     return {
-      "dcscor:item": Object.entries(xml).flatMap(([name, value]) =>
-        Object.prototype.hasOwnProperty.call(AppearanceFieldsRules.properties, name) &&
-        value !== null &&
-        typeof value === "object" &&
-        !Array.isArray(value)
+      "dcscor:item": Object.keys(AppearanceFieldsRules.properties).flatMap((name) => {
+        const value = xml[name]
+        return value !== null && typeof value === "object" && !Array.isArray(value)
           ? [value as Record<string, unknown>]
           : []
-      ),
+      }),
     }
   },
 })

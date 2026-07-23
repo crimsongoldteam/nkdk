@@ -2,7 +2,11 @@ import type { ConfigurationContextWithExportToXML, ContextElementToXML } from ".
 import { exportPropertyToYAML } from "../../metadata/orchestration"
 import type { ElementXML, MetadataItemRule, PropertyRule } from "../../metadata/orchestration"
 import { xmlExport } from "../../xml/export/exporter"
-import { testPropertyFromYAMLToXML } from "../directConversion"
+import {
+  createDirectRoundTripContexts,
+  testPropertyFromXMLToYAML,
+  testPropertyFromYAMLToXML,
+} from "../directConversion"
 import { mockContext, mockContextToXML } from "../mockContext"
 import { readAndParseXMLFile, readXMLFileAsString } from "../readAndParseXMLFile"
 import { readAndParseXMLFixture, readXMLFixtureAsString } from "../readFixtureXML"
@@ -65,8 +69,16 @@ export function testExportPropertyModelThroughYAMLToXML(params: Params): {
     itemType: "DirectPropertyModelProbe",
     properties: { value: propertyRule },
   } as MetadataItemRule
+  const contexts = createDirectRoundTripContexts({ logicalAddress: "Test.Item.Value" })
+  if (referenceValue !== undefined) {
+    testPropertyFromXMLToYAML({
+      context: contexts.importContext,
+      rule,
+      xml: { Value: referenceValue },
+    })
+  }
   const base = mockContextToXML()
-  const context: ConfigurationContextWithExportToXML = {
+  const contextBase: ConfigurationContextWithExportToXML = {
     ...base,
     exportToXML: {
       ...base.exportToXML,
@@ -79,6 +91,7 @@ export function testExportPropertyModelThroughYAMLToXML(params: Params): {
       },
     },
   }
+  const context = contexts.exportContext(contextBase)
   const converted = testPropertyFromYAMLToXML({
     context,
     rule,

@@ -14,6 +14,7 @@ describe("AppearanceFields XML → YAML", () => {
     const result = testExportPropertyModelThroughXMLToYAML({
       rule,
       value: fixtureAppearanceFields,
+      yaml: fixtureAppearanceFieldsYAML,
     })
 
     expect(result).toEqual({
@@ -32,6 +33,12 @@ describe("AppearanceFields XML → YAML", () => {
             type: "Field",
             value: "Реквизит1",
           },
+        },
+      },
+      yaml: {
+        Текст: {
+          Тип: "Поле",
+          Значение: "Реквизит1",
         },
       },
     })
@@ -62,6 +69,15 @@ describe("AppearanceFields XML → YAML", () => {
           },
         },
       },
+      yaml: {
+        Текст: {
+          Тип: "МногоязычнаяФорматированнаяСтрока",
+          Значение: {
+            Форматированный: "Истина",
+            Текст: "Многоязычная форматированная строка",
+          },
+        },
+      },
     })
 
     expect(result).toEqual({
@@ -86,6 +102,7 @@ describe("AppearanceFields XML → YAML", () => {
           parameter: "ЦветТекста",
         },
       },
+      yaml: { ЦветТекста: null },
     })
 
     expect(result).toEqual({
@@ -105,6 +122,7 @@ describe("AppearanceFields XML → YAML", () => {
           use: false,
         },
       },
+      yaml: { ЦветФона: { Использовать: "Ложь" } },
     })
 
     expect(result).toEqual({
@@ -129,6 +147,7 @@ describe("AppearanceFields XML → YAML", () => {
           },
         },
       },
+      yaml: { ЦветТекста: { Значение: "#FF0000" } },
     })
 
     expect(result).toEqual({
