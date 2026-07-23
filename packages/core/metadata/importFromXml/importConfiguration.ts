@@ -33,6 +33,7 @@ export interface ConfigurationImportResult {
 export interface ImportConfigurationFromXmlParams {
   context: ConfigurationContextFromXML
   inputDir: string
+  projectDir?: string
   outputDir: string
   concurrency?: number
   copyExternalConcurrency?: number
@@ -74,6 +75,7 @@ export async function importConfigurationFromXml(
   deps: ImportCoordinatorDependencies = defaultImportDependencies
 ): Promise<ConfigurationImportResult> {
   const operationId = params.operationId ?? "direct-write"
+  const projectDir = params.projectDir ?? params.outputDir
   const profiler = createOperationProfiler({ operation: "import-from-xml", scope: { scope: "main" } })
   const pool =
     params.xmlImportWorkerPoolHandle?.createOperationPool() ??
@@ -147,7 +149,7 @@ export async function importConfigurationFromXml(
           ...(params.hashConcurrency === undefined ? {} : { concurrency: params.hashConcurrency }),
         })
     )
-    const previousIndex = await readablePreviousIndex(deps, params.outputDir)
+    const previousIndex = await readablePreviousIndex(deps, projectDir)
     const indexData = profiler.measure(
       "Подготовка импорта конфигурации",
       "Формирование данных файла индекса конфигурации",
@@ -162,9 +164,9 @@ export async function importConfigurationFromXml(
         })
     )
     await profiler.measureAsync("Подготовка импорта конфигурации", "Запись файла индекса конфигурации", { items: projectFiles.length }, () =>
-      deps.writeIndex({ projectDir: params.outputDir, data: indexData })
+      deps.writeIndex({ projectDir, data: indexData })
     )
-    return successResult(discovered.assignments.length, warnings, params.outputDir)
+    return successResult(discovered.assignments.length, warnings, projectDir)
   } catch (caught) {
     return failedResult([operationDiagnostic(caught)], warnings)
   } finally {

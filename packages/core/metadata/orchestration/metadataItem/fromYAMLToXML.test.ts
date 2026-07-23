@@ -6,6 +6,9 @@ import "../../commonObjects/i8nText/toXML"
 import type { ConfigurationContextWithExportToXML } from "../../context/types"
 import type { MetadataItemRule } from "../property/types"
 import { convertMetadataItemFromYAMLToXML } from "./fromYAMLToXML"
+import { registerTypeRule } from "../property/typeRuleRegistry"
+import type { PropertyRuleType } from "../property/registry"
+import type { ExportToXMLFunctionNew } from "../property/fn"
 
 const context = (): ConfigurationContextWithExportToXML => ({
   defaultLanguage: "ru",
@@ -264,6 +267,38 @@ describe("convertMetadataItemFromYAMLToXML", () => {
         },
       },
     })
+  })
+
+  it("связывает отложенное значение с окончательным XML после оборачивания корнем", () => {
+    const deferredType = "TestDeferredMetadataItemXML" as PropertyRuleType
+    registerTypeRule(deferredType, "exportToXML", (({ value }) => value) as ExportToXMLFunctionNew)
+    registerTypeRule(deferredType, "finalizeExportedXML", ({ value }) => value)
+    const rule = {
+      itemType: "TestRoot",
+      properties: {
+        xmlRoot: {
+          type: "XMLRoot",
+          container: "TestRoot",
+          rootAttributes: {},
+          forReferenceOnly: true,
+        },
+        value: { type: deferredType, yaml: "Значение", xml: "Value", xmlParents: ["Properties"] },
+      },
+    } as const satisfies MetadataItemRule
+
+    const converted = convertMetadataItemFromYAMLToXML({
+      context: context(),
+      yaml: { Значение: "draft" },
+      rule,
+      outputs: [{ key: "owner" }],
+    })
+    const deferred = converted.deferredByOutput.get("owner")?.[0]
+
+    expect(deferred?.valuePath).toEqual(["MetaDataObject", "TestRoot", "Properties", "Value"])
+    expect(deferred).toHaveProperty("target")
+    if (deferred === undefined || !("target" in deferred)) throw new Error("Ожидалась связанная цель")
+    const target = deferred.target as { object: Record<string | number, unknown>; key: string | number }
+    expect(target.object[target.key]).toBe("draft")
   })
 })
 

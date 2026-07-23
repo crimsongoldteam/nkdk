@@ -13,15 +13,16 @@ import {
 
 describe("full XML sync worker pool", () => {
   const context = { version: "2.20", defaultLanguage: "ru", exportToYAML: { toTyped: false } } as const
+  const sharedInputs = { composition: {} as never, index: {} as never }
 
   it("uses static round-robin and keeps one assignment on the same worker between passes", async () => {
     const pools = createFakePools()
     const assignments = [assignment("one"), assignment("two"), assignment("three")]
     const pool = createFullXmlSyncWorkerPool({ concurrency: 2, createWorkerPool: pools.factory })
 
-    await pool.initialize({ projectDir: "/project", outputDir: "/out", context })
+    await pool.initialize({ projectDir: "/project", outputDir: "/out", context, ...sharedInputs })
     await pool.runFirstPass(assignments)
-    await pool.runSecondPass({ sharedMetadata: {} as never, index: {} as never, generationSeed: new Uint8Array() })
+    await pool.runSecondPass({ sharedMetadata: {} as never })
 
     expect(pools.runs(0).map((task) => task.kind)).toEqual(["initialize", "firstPass", "secondPass"])
     expect(pools.runs(1).map((task) => task.kind)).toEqual(["initialize", "firstPass", "secondPass"])
@@ -35,7 +36,7 @@ describe("full XML sync worker pool", () => {
     const pools = createFakePools()
     const pool = createFullXmlSyncWorkerPool({ concurrency: 4, createWorkerPool: pools.factory })
 
-    await pool.initialize({ projectDir: "/project", outputDir: "/out", context })
+    await pool.initialize({ projectDir: "/project", outputDir: "/out", context, ...sharedInputs })
     await pool.runFirstPass([assignment("only")])
 
     expect(pools.created()).toBe(1)
@@ -45,7 +46,7 @@ describe("full XML sync worker pool", () => {
 
     const single = createFakePools()
     const singlePool = createFullXmlSyncWorkerPool({ concurrency: 1, createWorkerPool: single.factory })
-    await singlePool.initialize({ projectDir: "/project", outputDir: "/out", context })
+    await singlePool.initialize({ projectDir: "/project", outputDir: "/out", context, ...sharedInputs })
     await singlePool.runFirstPass([assignment("single")])
     expect(single.created()).toBe(1)
     await singlePool.close()
@@ -62,14 +63,14 @@ describe("full XML sync worker pool", () => {
     })
     const pool = createFullXmlSyncWorkerPool({ concurrency: 2, createWorkerPool: pools.factory })
 
-    await pool.initialize({ projectDir: "/project", outputDir: "/out", context })
+    await pool.initialize({ projectDir: "/project", outputDir: "/out", context, ...sharedInputs })
     const first = await pool.runFirstPass([assignment("one"), assignment("two")])
 
     expect(first.diagnostics).toEqual([expect.objectContaining({ severity: "error", assignmentId: "two" })])
     expect(first.projectFiles.map((file) => file.projectPath)).toEqual(["one.yaml", "two.yaml"])
     expect(first.ownerFacts).toEqual([expect.objectContaining({ assignmentId: "one" })])
     await expect(
-      pool.runSecondPass({ sharedMetadata: {} as never, index: {} as never, generationSeed: new Uint8Array() })
+      pool.runSecondPass({ sharedMetadata: {} as never })
     ).rejects.toThrow("Первый проход full XML sync завершён с ошибками")
     await pool.close()
   })
@@ -79,7 +80,7 @@ describe("full XML sync worker pool", () => {
     pools.failWorker(1, new Error("worker crashed"))
     const pool = createFullXmlSyncWorkerPool({ concurrency: 2, createWorkerPool: pools.factory })
 
-    await pool.initialize({ projectDir: "/project", outputDir: "/out", context })
+    await pool.initialize({ projectDir: "/project", outputDir: "/out", context, ...sharedInputs })
     await expect(pool.runFirstPass([assignment("one"), assignment("two")])).rejects.toThrow("worker crashed")
 
     expect(pools.destroyCalls()).toEqual([1, 1])

@@ -1,6 +1,10 @@
 import type { ExternalFileEntry } from "../../context/types"
 import { importPropertiesFromXMLToYAML } from "../../orchestration/property/fromXMLToYAML"
-import type { DirectImportProfile, DirectImportResult } from "../../orchestration/property/importYamlTypes"
+import {
+  createDeferredValuePathCollector,
+  type DirectImportProfile,
+  type DirectImportResult,
+} from "../../orchestration/property/importYamlTypes"
 import { createLocalIndexesCollector } from "../../project/localIndexes"
 import { createFormDataPathIndexCollector } from "../../validation/dataPath/formYamlIndex"
 import { ClientApplicationFormRules } from "./rules"
@@ -19,6 +23,7 @@ export function importClientApplicationFormFromXMLToYAML(params: {
   }
 
   const localIndexesCollector = createLocalIndexesCollector()
+  const deferred = createDeferredValuePathCollector()
   const formDataPathIndexCollector = createFormDataPathIndexCollector({
     filePath: `Формы/${params.formName}/Форма.yaml`,
   })
@@ -57,6 +62,7 @@ export function importClientApplicationFormFromXMLToYAML(params: {
     yamlPath: [],
     rulePath: [],
     collector,
+    deferred,
     profile: params.profile,
   })
 
@@ -66,6 +72,7 @@ export function importClientApplicationFormFromXMLToYAML(params: {
   return {
     yaml,
     localIndexes,
+    deferred: deferred.finish(),
     generatedFiles,
   }
 }

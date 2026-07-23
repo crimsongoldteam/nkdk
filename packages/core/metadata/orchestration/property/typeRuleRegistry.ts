@@ -9,6 +9,7 @@ import {
   ValidationSchemaRefFn,
   ExportToXMLFunction,
   ExportToXMLFunctionNew,
+  FinalizeExportedXMLFunction,
   ExportToYAMLFunction,
   ExportToYAMLFunctionNew,
   FileChildNamesDescriptorFunction,
@@ -65,6 +66,7 @@ const typeRulesRegistry = new Map<
   | NestedItemRule
   | ResolveNestedImportXMLSourcesFunction
   | FinalizeImportedYAMLFunction
+  | FinalizeExportedXMLFunction
   | CollectLocalFactsFromYAMLFunction
   | YAMLToXMLNestedRule
 >()
@@ -129,6 +131,8 @@ export const getTypeRule = <O extends TypeRulesOperations>(
                                               ? ResolveNestedImportXMLSourcesFunction | undefined
                                               : O extends "finalizeImportedYAML"
                                                 ? FinalizeImportedYAMLFunction | undefined
+                                                : O extends "finalizeExportedXML"
+                                                  ? FinalizeExportedXMLFunction | undefined
                                                 : O extends "collectLocalFactsFromYAML"
                                                   ? CollectLocalFactsFromYAMLFunction | undefined
                                                   : O extends "yamlToXMLNestedRule"

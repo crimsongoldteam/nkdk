@@ -14,6 +14,7 @@ import type { ClientApplicationFormXML, ClientApplicationFormYAML, FormMetadataX
 import { FormRulesTags } from "./types"
 import { createFormDataPathIndexFromYAML } from "../../validation/dataPath/formYamlIndex"
 import { registerTypeRule } from "../../orchestration/property/typeRuleRegistry"
+import type { DeferredValuePath } from "../../orchestration/property/deferredObjectValues"
 
 export interface ConvertClientApplicationFormFromYAMLToXMLParams {
   readonly context: ConfigurationContextWithExportToXML
@@ -28,6 +29,7 @@ export interface DirectClientApplicationFormXMLResult {
   readonly formXML: ClientApplicationFormXML
   readonly metadataXML: FormMetadataXML
   readonly externalWrites: readonly YAMLToXMLExternalWrite[]
+  readonly deferredByDocument: ReadonlyMap<"metadata" | "form", readonly DeferredValuePath[]>
 }
 
 export function convertClientApplicationFormFromYAMLToXML(
@@ -74,7 +76,15 @@ export function convertClientApplicationFormFromYAMLToXML(
     Form: { ...generatedForm, _uuid: uuid },
   } as FormMetadataXML
 
-  return { formXML, metadataXML, externalWrites: converted.externalWrites }
+  return {
+    formXML,
+    metadataXML,
+    externalWrites: converted.externalWrites,
+    deferredByDocument: new Map([
+      ["metadata", converted.deferredByOutput.get("metadata") ?? []],
+      ["form", converted.deferredByOutput.get("form") ?? []],
+    ]),
+  }
 }
 
 function createFormBodyContext(context: ConfigurationContextWithExportToXML): ConfigurationContextWithExportToXML {

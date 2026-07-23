@@ -28,6 +28,7 @@ interface ImportFromXmlDeps {
       fromXML: { forReference: false }
     }
     inputDir: string
+    projectDir: string
     outputDir: string
   }) => Promise<CoreImportResult>
 }
@@ -71,6 +72,7 @@ export async function importFromXml(
         fromXML: { forReference: false },
       },
       inputDir: input.xmlDir,
+      projectDir: component.projectDir,
       outputDir: component.componentDir,
     })
 

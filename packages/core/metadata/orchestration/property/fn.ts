@@ -91,6 +91,12 @@ export type ExportToEnterpriseFunction = (params: {
   value: any | undefined
 }) => any | undefined
 
+export type FinalizeExportedXMLFunction = (params: {
+  context: ConfigurationContext
+  rule: PropertyRule
+  value: unknown
+}) => unknown
+
 export type ExportToJSONSchemaFn = (params: {
   context: ConfigurationContext
   rule: PropertyRule
@@ -330,6 +336,7 @@ export interface TypeRule {
   nestedItemRule?: NestedItemRule
   resolveNestedImportXMLSources?: ResolveNestedImportXMLSourcesFunction
   finalizeImportedYAML?: FinalizeImportedYAMLFunction
+  finalizeExportedXML?: FinalizeExportedXMLFunction
   collectLocalFactsFromYAML?: CollectLocalFactsFromYAMLFunction
   yamlToXMLNestedRule?: YAMLToXMLNestedRule
 }
@@ -359,6 +366,7 @@ export type TypeRulesOperations =
   | "nestedItemRule"
   | "resolveNestedImportXMLSources"
   | "finalizeImportedYAML"
+  | "finalizeExportedXML"
   | "collectLocalFactsFromYAML"
   | "yamlToXMLNestedRule"
 type TypeRuleKey = `${PropertyRuleType}:${TypeRulesOperations}`
@@ -415,6 +423,8 @@ export type importExportFunction<O extends TypeRulesOperations> = O extends "imp
                                               ? ResolveNestedImportXMLSourcesFunction | undefined
                                               : O extends "finalizeImportedYAML"
                                                 ? FinalizeImportedYAMLFunction | undefined
+                                                : O extends "finalizeExportedXML"
+                                                  ? FinalizeExportedXMLFunction | undefined
                                                 : O extends "collectLocalFactsFromYAML"
                                                   ? CollectLocalFactsFromYAMLFunction | undefined
                                                   : O extends "yamlToXMLNestedRule"

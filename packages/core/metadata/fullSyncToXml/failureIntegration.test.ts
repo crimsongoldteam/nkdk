@@ -48,6 +48,52 @@ describe("full XML sync failure integration", () => {
     expect(fs.readFileSync(join(xmlDir, "partial.xml"), "utf8")).toBe("partial")
     expect(fs.readFileSync(configurationIndexPath(projectDir))).toEqual(before)
   })
+
+  it("does not start XML writes or update the index after a first-pass preparation error", async () => {
+    const root = createTempRoot()
+    const projectDir = join(root, "project")
+    const xmlDir = join(root, "xml")
+    fs.mkdirSync(projectDir, { recursive: true })
+    fs.mkdirSync(xmlDir, { recursive: true })
+    let secondPassCalled = false
+    let writeIndexCalled = false
+    const deps: FullXmlSyncCoordinatorDependencies = {
+      ...transferFailureDeps(sampleIndex()),
+      createWorkerPool: () => ({
+        async initialize() {},
+        async runFirstPass() {
+          return {
+            diagnostics: [
+              {
+                severity: "error",
+                code: "full_xml_sync_first_pass_failed",
+                message: "Не удалось связать XML",
+              },
+            ],
+            projectFiles: [],
+            ownerFacts: [],
+          }
+        },
+        async runSecondPass() {
+          secondPassCalled = true
+          throw new Error("Второй проход не должен запускаться")
+        },
+        async close() {},
+      }),
+      async writeIndex() {
+        writeIndexCalled = true
+      },
+    }
+
+    const result = await syncConfigurationToXml({ context, yamlDir: projectDir, xmlDir }, deps)
+
+    expect(result.failed).toEqual([
+      expect.objectContaining({ code: "full_xml_sync_first_pass_failed" }),
+    ])
+    expect(fs.readdirSync(xmlDir)).toEqual([])
+    expect(secondPassCalled).toBe(false)
+    expect(writeIndexCalled).toBe(false)
+  })
 })
 
 function transferFailureDeps(previous: ConfigurationIndexData): FullXmlSyncCoordinatorDependencies {
@@ -70,7 +116,7 @@ function transferFailureDeps(previous: ConfigurationIndexData): FullXmlSyncCoord
             itemType: "MetadataConfiguration",
             itemName: "Конфигурация",
             logicalAddress: "Конфигурация",
-            outputs: [{ routeKind: "owner", targetXmlPath: "Configuration.xml" }],
+            outputs: [{ routeKind: "owner", targetXmlPath: "partial.xml" }],
           },
         ],
         externalFiles: [],

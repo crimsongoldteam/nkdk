@@ -16,6 +16,8 @@ import { metadataTargetOwnerFromRule } from "../orchestration/property/metadataT
 import { getTypeRule } from "../orchestration/property/typeRuleRegistry"
 import type { MetadataItemRule, PropertyRule } from "../orchestration/property/types"
 import type { DirectImportProfile } from "../orchestration/property/importYamlTypes"
+import { createDeferredValuePathCollector } from "../orchestration/property/importYamlTypes"
+import { bindDeferredObjectValues, type DeferredObjectValue } from "../orchestration/property/deferredObjectValues"
 import { createLocalIndexesCollector, type LocalIndexes } from "../project/localIndexes"
 import { configurationMetadataProjectSpec, metadataProjectSpecs } from "../project/specs"
 import type { ValidationProfiler } from "../validation/profile"
@@ -31,6 +33,7 @@ export interface PreparedImportYaml {
   rule: MetadataItemRule
   ownerContext: readonly MetadataItemOwnerContextEntry[]
   localIndexes: LocalIndexes
+  deferred: readonly DeferredObjectValue[]
   generatedFiles: ExternalFileEntry[]
 }
 
@@ -95,17 +98,18 @@ export async function prepareImportYaml(params: {
       }
 
       const collector = createLocalIndexesCollector()
+      const deferred = createDeferredValuePathCollector()
       const metadataXML = requireMetadataXml(xmlInputs ?? [])
       const yaml = importMetadataItemFromXMLToYAML({
         context: importContext,
         rule,
         name: params.assignment.itemName,
         xml: metadataXML["MetaDataObject"],
-        traversal: { yamlPath: [], rulePath: [], collector, profile: importProfile },
+        traversal: { yamlPath: [], rulePath: [], collector, deferred, profile: importProfile },
         propertyXML: mapPropertyXml(rule, xmlInputs ?? []),
       })
       if (yaml === undefined) throw new Error("XML-import не сформировал YAML")
-      return { yaml, localIndexes: collector.finish(), generatedFiles }
+      return { yaml, localIndexes: collector.finish(), deferred: deferred.finish(), generatedFiles }
     })
     recordDirectImportProfile(params.profiler, importProfile)
 
@@ -120,6 +124,7 @@ export async function prepareImportYaml(params: {
       rule,
       ownerContext,
       localIndexes: result.localIndexes,
+      deferred: bindDeferredObjectValues(result.yaml, result.deferred),
       generatedFiles: [...generatedFiles, ...result.generatedFiles.filter((file) => !generatedFiles.includes(file))],
     }
   } finally {

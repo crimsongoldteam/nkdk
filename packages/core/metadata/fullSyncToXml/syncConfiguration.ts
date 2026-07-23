@@ -16,14 +16,20 @@ import type {
 import type { ConfigurationContext } from "../context/types"
 import { createValidationProfiler } from "../validation/profile"
 import { buildFullXmlSyncPlan } from "./discovery"
-import { createFullXmlSyncSharedMetadata, type FullXmlSyncSharedMetadata } from "./sharedMetadata"
+import {
+  createFullXmlSyncCompositionSnapshot,
+  createFullXmlSyncSharedMetadata,
+  type FullXmlSyncSharedMetadata,
+} from "./sharedMetadata"
 import { transferFullXmlSyncExternalFiles } from "./transferExternalFiles"
 import type { FullXmlSyncDiagnostic, FullXmlSyncPlan } from "./types"
 import { createFullXmlSyncWorkerPool, type FullXmlSyncWorkerPool } from "./workerPool"
 import { writeFullXmlSyncConfigDumpInfo } from "./writeConfigDumpInfo"
+import { validateFullXmlSyncWrittenFiles } from "./validateWrittenFiles"
 
 export interface SyncConfigurationToXmlParams {
   readonly context: ConfigurationContext
+  readonly projectDir?: string
   readonly yamlDir: string
   readonly xmlDir: string
   readonly baseId?: string
@@ -32,6 +38,7 @@ export interface SyncConfigurationToXmlParams {
 }
 
 export interface PlanSyncConfigurationToXmlParams {
+  readonly projectDir?: string
   readonly yamlDir: string
   readonly xmlDir: string
   readonly baseId?: string
@@ -97,6 +104,7 @@ export async function syncConfigurationToXml(
   deps: FullXmlSyncCoordinatorDependencies = defaultDependencies
 ): Promise<FullXmlSyncResult> {
   const yamlDir = resolve(params.yamlDir)
+  const projectDir = resolve(params.projectDir ?? params.yamlDir)
   const xmlDir = resolve(params.xmlDir)
   const baseId = params.baseId ?? DEFAULT_CONFIGURATION_INDEX_BASE_ID
   let pool: FullXmlSyncWorkerPool | undefined
@@ -113,7 +121,7 @@ export async function syncConfigurationToXml(
     }
 
     const indexSnapshot = await profiler.measureAsync("Полная XML-синхронизация", "Чтение индекса конфигурации", {}, () =>
-      deps.readIndexSnapshot({ projectDir: yamlDir, baseId })
+      deps.readIndexSnapshot({ projectDir, baseId })
     )
     const indexReader = createConfigurationIndexReader(indexSnapshot)
     const previousBinding = indexReader.binding()
@@ -122,8 +130,15 @@ export async function syncConfigurationToXml(
     )
 
     pool = deps.createWorkerPool({ concurrency: normalizeConcurrency(params.concurrency) })
+    const composition = createFullXmlSyncCompositionSnapshot(plan.assignments)
     await profiler.measureAsync("Полная XML-синхронизация", "Инициализация worker", { items: plan.assignments.length }, () =>
-      pool!.initialize({ projectDir: yamlDir, outputDir: xmlDir, context: params.context })
+      pool!.initialize({
+        projectDir: yamlDir,
+        outputDir: xmlDir,
+        context: params.context,
+        composition,
+        index: indexSnapshot,
+      })
     )
     const first = await profiler.measureAsync("Полная XML-синхронизация", "Первый проход worker", { items: plan.assignments.length }, () =>
       pool!.runFirstPass(plan.assignments)
@@ -143,12 +158,15 @@ export async function syncConfigurationToXml(
     const second = await profiler.measureAsync("Полная XML-синхронизация", "Второй проход worker", { items: plan.assignments.length }, () =>
       pool!.runSecondPass({
         sharedMetadata,
-        index: indexSnapshot,
-        generationSeed: new Uint8Array(),
       })
     )
     warnings = second.warnings
     if (hasErrors(second.diagnostics)) return failedResult(second.diagnostics, warnings)
+    const outputDiagnostics = validateFullXmlSyncWrittenFiles({
+      plan,
+      writtenFiles: second.writtenFiles,
+    })
+    if (hasErrors(outputDiagnostics)) return failedResult(outputDiagnostics, warnings)
 
     const external = await profiler.measureAsync("Полная XML-синхронизация", "Перенос внешних файлов", { items: plan.externalFiles.length }, () =>
       deps.transferExternalFiles({
@@ -174,14 +192,14 @@ export async function syncConfigurationToXml(
       fragmentData: mergeFragmentData(second.fragmentData, configDumpFragmentData),
     })
     await profiler.measureAsync("Полная XML-синхронизация", "Запись индекса конфигурации", { items: indexData.projectFiles.length }, () =>
-      deps.writeIndex({ projectDir: yamlDir, data: indexData })
+      deps.writeIndex({ projectDir, data: indexData })
     )
 
     return {
       succeeded: plan.assignments.length + plan.externalFiles.length + 1,
       failed: [],
       warnings,
-      configurationIndexPath: configurationIndexPath(yamlDir, baseId),
+      configurationIndexPath: configurationIndexPath(projectDir, baseId),
     }
   } catch (caught) {
     return failedResult([operationDiagnostic("full_xml_sync_operation_failed", errorMessage(caught))], warnings)
@@ -196,20 +214,21 @@ export async function planSyncConfigurationToXml(
   deps: Pick<FullXmlSyncCoordinatorDependencies, "exists" | "isDirectoryEmpty" | "discover" | "readIndexSnapshot"> = defaultDependencies
 ): Promise<FullXmlSyncPlanResult> {
   const yamlDir = resolve(params.yamlDir)
+  const projectDir = resolve(params.projectDir ?? params.yamlDir)
   const xmlDir = resolve(params.xmlDir)
   const baseId = params.baseId ?? DEFAULT_CONFIGURATION_INDEX_BASE_ID
 
   try {
     const preflight = await preflightFullXmlSync({ yamlDir, xmlDir, deps })
     if ("failed" in preflight) return { ok: false, failed: preflight.failed }
-    await deps.readIndexSnapshot({ projectDir: yamlDir, baseId })
+    await deps.readIndexSnapshot({ projectDir, baseId })
     const plan = await deps.discover({ projectDir: yamlDir })
     return {
       ok: true,
       mode: "plan",
       assignments: plan.assignments.length,
       externalFiles: plan.externalFiles.length,
-      configurationIndexPath: configurationIndexPath(yamlDir, baseId),
+      configurationIndexPath: configurationIndexPath(projectDir, baseId),
     }
   } catch (caught) {
     return { ok: false, failed: [operationDiagnostic("full_xml_sync_operation_failed", errorMessage(caught))] }
@@ -254,10 +273,20 @@ function buildFullXmlSyncConfigurationIndex(params: {
     projectFiles: [...params.projectFiles].sort((left, right) =>
       Buffer.compare(Buffer.from(left.projectPath), Buffer.from(right.projectPath))
     ),
-    identities: params.fragmentData.identities,
-    xmlNodes: params.fragmentData.xmlNodes,
-    xmlValues: params.fragmentData.xmlValues,
+    identities: [...params.fragmentData.identities].sort((left, right) =>
+      compareIndexKeys(`${left.logicalAddress}\0${left.kind}`, `${right.logicalAddress}\0${right.kind}`)
+    ),
+    xmlNodes: [...params.fragmentData.xmlNodes].sort((left, right) =>
+      compareIndexKeys(left.logicalAddress, right.logicalAddress)
+    ),
+    xmlValues: [...params.fragmentData.xmlValues].sort((left, right) =>
+      compareIndexKeys(left.logicalAddress, right.logicalAddress)
+    ),
   }
+}
+
+function compareIndexKeys(left: string, right: string): number {
+  return Buffer.compare(Buffer.from(left), Buffer.from(right))
 }
 
 function mergeFragmentData(

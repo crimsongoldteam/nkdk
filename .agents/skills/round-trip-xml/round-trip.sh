@@ -205,23 +205,19 @@ if [ -n "$(git -C "${REPO_DIR}" status --porcelain)" ]; then
   exit 1
 fi
 
-# ── Поиск команды nkdk ────────────────────────────────────────────────────────
-
-if command -v nkdk &>/dev/null; then
-  NKDK="nkdk"
-elif [ -f "${REPO_DIR}/packages/cli/src/cli.ts" ]; then
-  NKDK="pnpm -s --dir ${REPO_DIR}/packages/cli exec tsx src/cli.ts"
-else
-  echo "Ошибка: команда nkdk не найдена" >&2
-  exit 1
-fi
+run_short_round_trip_xml() {
+  local xml_dir="$1"
+  pnpm --filter @nkdk/core exec tsx -e \
+    'import { shortRoundTripXML } from "@nkdk/core"; await shortRoundTripXML({ inputDir: process.argv[1], outputDir: process.argv[1] })' \
+    "${xml_dir}"
+}
 
 # ── Сводка ────────────────────────────────────────────────────────────────────
 
 echo "=== round-trip.sh ==="
 echo "XML репо:    ${NKDK_XML_REPO}"
 echo "XML каталог: ${NKDK_XML_DIR}"
-echo "nkdk:        ${NKDK}"
+echo "runner:      @nkdk/core shortRoundTripXML"
 echo "mode:        ${MODE}"
 echo "all configs: ${ALL_CONFIGS}"
 if [ "${MODE}" = "single" ]; then
@@ -253,8 +249,8 @@ DIFF_FILE_DIRS=()
 ACTIVE_XML_DIR=""
 
 for RUN_XML_DIR in "${RUN_DIRS[@]}"; do
-  echo "[round-trip] Запуск short-round-trip-test: ${RUN_XML_DIR}"
-  ${NKDK} short-round-trip-test "${RUN_XML_DIR}"
+  echo "[round-trip] Запуск shortRoundTripXML: ${RUN_XML_DIR}"
+  run_short_round_trip_xml "${RUN_XML_DIR}"
 
   CURRENT_DIFF_FILES=()
   while IFS= read -r diff_file; do

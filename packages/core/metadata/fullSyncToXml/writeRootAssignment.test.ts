@@ -9,6 +9,7 @@ import { createConfigurationIndexReader, snapshotConfigurationIndex } from "../c
 import { sampleIndex } from "../configurationIndex/testData"
 import { prepareYamlFiles } from "../project/prepareYamlFiles"
 import { writeFullXmlSyncAssignment } from "./writeAssignment"
+import { prepareFullXmlSyncAssignment } from "./prepareAssignment"
 import type { FullXmlSyncAssignment } from "./types"
 
 describe("writeFullXmlSyncAssignment for root Configuration", () => {
@@ -43,13 +44,18 @@ describe("writeFullXmlSyncAssignment for root Configuration", () => {
     fs.rmSync(sourcePath)
     const root = configurationAssignment(projectDir)
 
-    const result = await writeFullXmlSyncAssignment({
+    const context = mockContextToXML()
+    const preparedAssignment = prepareFullXmlSyncAssignment({
       assignment: root,
       assignments: [root, catalogAssignment(projectDir, "Товары"), catalogAssignment(projectDir, "Контрагенты")],
       preparedYamlFile: prepared.yamlFiles[0]!,
-      context: mockContextToXML(),
-      outputDir: join(projectDir, "xml"),
+      context,
       index: createConfigurationIndexReader(snapshotConfigurationIndex(encodeConfigurationIndex(sampleIndex()))),
+    })
+    const result = await writeFullXmlSyncAssignment({
+      prepared: preparedAssignment,
+      context,
+      outputDir: join(projectDir, "xml"),
     })
 
     expect(result.diagnostics).toEqual([])

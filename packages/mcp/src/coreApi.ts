@@ -105,7 +105,12 @@ export interface CoreApi {
     path: string
     allowWrite?: boolean
   }): Promise<MetadataOperationResult>
-  planSyncToXml(params: { yamlDir: string; xmlDir: string; baseId?: string }): Promise<FullXmlSyncPlanResult>
+  planSyncToXml(params: {
+    projectDir?: string
+    yamlDir: string
+    xmlDir: string
+    baseId?: string
+  }): Promise<FullXmlSyncPlanResult>
   syncConfigurationFromXML(params: {
     context: {
       defaultLanguage: "ru"
@@ -114,6 +119,7 @@ export interface CoreApi {
       fromXML: { forReference: false }
     }
     inputDir: string
+    projectDir?: string
     outputDir: string
   }): Promise<ConfigurationImportResult>
   syncConfigurationToXML(params: {
@@ -133,6 +139,7 @@ export interface CoreApi {
         }
       }
     }
+    projectDir?: string
     yamlDir: string
     xmlDir: string
     baseId?: string

@@ -48,6 +48,24 @@ describe("transferFullXmlSyncExternalFiles", () => {
     expect(result.copiedFiles.map((file) => file.sourceProjectPath)).toEqual(["a.bin", "b.bin"])
   })
 
+  it("streams files with the default I/O path instead of reading them into one Buffer", async () => {
+    const projectDir = tempDir()
+    const outputDir = join(projectDir, "xml")
+    const sourcePath = join(projectDir, "large.bin")
+    const bytes = Buffer.alloc(2 * 1024 * 1024, 7)
+    fs.writeFileSync(sourcePath, bytes)
+    const readFile = vi.spyOn(fs.promises, "readFile")
+
+    const result = await transferFullXmlSyncExternalFiles({
+      outputDir,
+      files: [externalFile("large.bin", sourcePath, "Ext/large.bin")],
+    })
+
+    expect(readFile).not.toHaveBeenCalled()
+    expect(fs.readFileSync(join(outputDir, "Ext", "large.bin"))).toEqual(bytes)
+    expect(result.projectFiles).toEqual([{ projectPath: "large.bin", contentHash: hashFileBytes(bytes) }])
+  })
+
   it("limits concurrent transfers", async () => {
     const outputDir = tempDir()
     let active = 0

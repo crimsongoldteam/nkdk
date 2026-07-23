@@ -11,13 +11,11 @@ const ORCHESTRATION_APPLIED_OBJECT_DIR = join(METADATA_DIR, "orchestration", "ap
 const ORCHESTRATION_FORM_ELEMENT_DIR = join(METADATA_DIR, "orchestration", "formElement")
 const PROJECT_DIR = join(METADATA_DIR, "project")
 const WORKSPACE_ROOT = join(process.cwd(), "..", "..")
-const PACKAGES_FOR_ALIAS_SCAN = ["packages/core", "packages/cli", "packages/mcp"] as const
+const PACKAGES_FOR_ALIAS_SCAN = ["packages/core", "packages/mcp"] as const
 const CONFIG_FILES_FOR_ALIAS_SCAN = [
   "packages/core/tsconfig.json",
-  "packages/cli/tsconfig.json",
   "packages/mcp/tsconfig.json",
   "packages/core/vitest.config.ts",
-  "packages/cli/vitest.config.ts",
   "packages/mcp/vitest.config.ts",
 ] as const
 

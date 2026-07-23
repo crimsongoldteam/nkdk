@@ -3,6 +3,7 @@ import { mockContextFromXML } from "../../../tests/mockContext"
 import { withConfigurationIndexCollector } from "../../configurationIndex/collector/context"
 import { createConfigurationIndexCollector } from "../../configurationIndex/collector/writer"
 import { createLocalIndexesCollector } from "../../project/localIndexes"
+import { createDeferredValuePathCollector } from "../property/importYamlTypes"
 import { importPropertiesFromXMLToYAML } from "../property/fromXMLToYAML"
 import { PropertyRuleType } from "../property/registry"
 import { registerTypeRule } from "../property/typeRuleRegistry"
@@ -101,9 +102,9 @@ describe("importMetadataItemCollectionFromXMLToYAML", () => {
     })
 
     expect(recordResult.yaml).toEqual({ Элементы: { Первый: { Значение: "a", Путь: "x" } } })
-    expect(recordResult.localIndexes.dependencies).toEqual([
+    expect(recordResult.deferred).toEqual([
       {
-        yamlPath: ["Элементы", "Первый", "Путь"],
+        valuePath: ["Элементы", "Первый", "Путь"],
         rulePath: [{ propertyKey: "items", nestedItemType: "TestItem" }, { propertyKey: "path" }],
       },
     ])
@@ -123,9 +124,9 @@ describe("importMetadataItemCollectionFromXMLToYAML", () => {
     })
 
     expect(arrayResult.yaml).toEqual({ Элементы: [{ Имя: "Первый", Значение: "a", Путь: "x" }] })
-    expect(arrayResult.localIndexes.dependencies).toEqual([
+    expect(arrayResult.deferred).toEqual([
       {
-        yamlPath: ["Элементы", 0, "Путь"],
+        valuePath: ["Элементы", 0, "Путь"],
         rulePath: [{ propertyKey: "items", nestedItemType: "TestItem" }, { propertyKey: "path" }],
       },
     ])
@@ -203,9 +204,9 @@ describe("importMetadataItemCollectionFromXMLToYAML", () => {
     })
 
     expect(result.yaml).toEqual({ Элементы: { "Ключ-Первый": { Значение: "a", Путь: "x" } } })
-    expect(result.localIndexes.dependencies).toEqual([
+    expect(result.deferred).toEqual([
       {
-        yamlPath: ["Элементы", "Ключ-Первый", "Путь"],
+        valuePath: ["Элементы", "Ключ-Первый", "Путь"],
         rulePath: [{ propertyKey: "items", nestedItemType: "TestItem" }, { propertyKey: "path" }],
       },
     ])
@@ -214,6 +215,7 @@ describe("importMetadataItemCollectionFromXMLToYAML", () => {
 
 function runDirectRule(type: PropertyRuleType, xml: Record<string, unknown>, context = mockContextFromXML()) {
   const collector = createLocalIndexesCollector()
+  const deferred = createDeferredValuePathCollector()
   const importContext = { ...context, exportToYAML: { toTyped: true } }
   const yaml = importPropertiesFromXMLToYAML({
     context: importContext,
@@ -225,6 +227,7 @@ function runDirectRule(type: PropertyRuleType, xml: Record<string, unknown>, con
     yamlPath: [],
     rulePath: [],
     collector,
+    deferred,
   })
-  return { yaml, localIndexes: collector.finish() }
+  return { yaml, localIndexes: collector.finish(), deferred: deferred.finish() }
 }

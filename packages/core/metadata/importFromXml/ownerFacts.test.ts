@@ -68,7 +68,8 @@ function preparedYaml(params: {
     targetProjectPath: params.assignment.targetProjectPath,
     yaml: {},
     ownerContext: [],
-    localIndexes: { metadata: { events: [], ownerFacts: params.ownerFacts }, dependencies: [] },
+    localIndexes: { metadata: { events: [], ownerFacts: params.ownerFacts } },
+    deferred: [],
     generatedFiles: [],
   }
 }

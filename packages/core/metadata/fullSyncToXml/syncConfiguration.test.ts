@@ -63,8 +63,8 @@ describe("syncConfigurationToXml", () => {
       { projectPath: "Справочник/Товары/Свойства.yaml", contentHash: 10n },
     ])
     expect(harness.writtenIndex?.identities).toEqual([
-      { logicalAddress: "Справочник.Товары", kind: "uuid", value: "00000000-0000-4000-8000-000000000002" },
       { logicalAddress: "Конфигурация.ConfigDumpInfo.Catalog%2EТовары", kind: "xmlId", value: "dump" },
+      { logicalAddress: "Справочник.Товары", kind: "uuid", value: "00000000-0000-4000-8000-000000000002" },
     ])
   })
 
@@ -121,6 +121,33 @@ describe("syncConfigurationToXml", () => {
     expect(harness.writtenIndex).toBeUndefined()
   })
 
+  it("stops when a worker does not report a declared XML output", async () => {
+    const harness = createHarness({ secondPassWrittenFiles: [] })
+    const result = await syncConfigurationToXml({ context, yamlDir: "/project", xmlDir: "/out" }, harness.deps)
+
+    expect(result.failed).toEqual([
+      expect.objectContaining({
+        code: "full_xml_sync_output_missing",
+        assignmentId: "catalog",
+        targetXmlPath: "Catalogs/Товары.xml",
+      }),
+    ])
+    expect(harness.events).toEqual([
+      "exists:/project",
+      "exists:/out",
+      "mkdir:/out",
+      "readIndex",
+      "discover",
+      "createPool:4",
+      "pool.initialize",
+      "pool.firstPass",
+      "sharedMetadata",
+      "pool.secondPass",
+      "pool.close",
+    ])
+    expect(harness.writtenIndex).toBeUndefined()
+  })
+
   it("keeps the previous index when external transfer or ConfigDumpInfo fails", async () => {
     const transfer = createHarness({ transferError: new Error("copy failed") })
     await syncConfigurationToXml({ context, yamlDir: "/project", xmlDir: "/out" }, transfer.deps)
@@ -139,6 +166,7 @@ interface HarnessOptions {
   readonly xmlEmpty?: boolean
   readonly firstPassDiagnostics?: readonly FullXmlSyncDiagnostic[]
   readonly secondPassDiagnostics?: readonly FullXmlSyncDiagnostic[]
+  readonly secondPassWrittenFiles?: FullXmlSyncSecondPassPoolResult["writtenFiles"]
   readonly transferError?: Error
   readonly configDumpInfoError?: Error
 }
@@ -276,7 +304,9 @@ function fakePool(events: string[], options: HarnessOptions): FullXmlSyncWorkerP
       return {
         diagnostics: [...options.secondPassDiagnostics ?? []],
         warnings: [{ severity: "warning", code: "soft", message: "warning" }],
-        writtenFiles: [{ assignmentId: "catalog", targetXmlPath: "Catalogs/Товары.xml" }],
+        writtenFiles: options.secondPassWrittenFiles ?? [
+          { assignmentId: "catalog", targetXmlPath: "Catalogs/Товары.xml" },
+        ],
         fragmentData: {
           identities: [
             { logicalAddress: "Справочник.Товары", kind: "uuid", value: "00000000-0000-4000-8000-000000000002" },

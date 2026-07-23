@@ -3,11 +3,9 @@ import type { FormDataPathIndex } from "../../validation/dataPath/formIndex"
 import type { YamlDiagnosticLocation, YamlPath } from "../../validation/yamlLocations"
 import type { LocalIndexes, LocalIndexesCollector, LocalMetadataIndex } from "../../project/localIndexes"
 import type { MetadataItemRule, PropertyRule } from "./types"
+import type { DeferredValuePath } from "./deferredObjectValues"
 
-export interface DeferredImportedYamlValue {
-  yamlPath: YamlPath
-  rulePath: readonly DeferredRulePathSegment[]
-}
+export type { DeferredValuePath } from "./deferredObjectValues"
 
 export interface DeferredRulePathSegment {
   propertyKey: string
@@ -18,7 +16,26 @@ export interface DirectImportTraversal {
   yamlPath: YamlPath
   rulePath: readonly DeferredRulePathSegment[]
   collector: LocalIndexesCollector
+  deferred?: DeferredValuePathCollector
   profile?: DirectImportProfile
+}
+
+export interface DeferredValuePathCollector {
+  accept(path: DeferredValuePath): void
+  finish(): readonly DeferredValuePath[]
+}
+
+export function createDeferredValuePathCollector(): DeferredValuePathCollector {
+  const paths: DeferredValuePath[] = []
+  return {
+    accept(path) {
+      paths.push({
+        valuePath: [...path.valuePath],
+        rulePath: path.rulePath.map((segment) => ({ ...segment })),
+      })
+    },
+    finish: () => paths,
+  }
 }
 
 export interface DirectImportXMLSource {
@@ -53,6 +70,7 @@ export interface DirectImportProfileBucket {
 export interface DirectImportResult {
   yaml: unknown
   localIndexes: LocalIndexes
+  deferred: readonly DeferredValuePath[]
   generatedFiles: ExternalFileEntry[]
 }
 

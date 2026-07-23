@@ -40,6 +40,7 @@ export function importFormElementPropertiesFromXMLToYAML(params: {
     yamlPath: params.traversal.yamlPath,
     rulePath: enterNestedYamlRule(params.traversal, params.rule.itemType).rulePath,
     collector: params.traversal.collector,
+    deferred: params.traversal.deferred,
     profile: params.traversal.profile,
   })
 }
@@ -87,6 +88,7 @@ export function importSingleFormElementFromXMLToYAML(params: {
       yamlPath: params.traversal.yamlPath,
       rulePath: enterNestedYamlRule(params.traversal, params.rule.itemType).rulePath,
       collector: params.traversal.collector,
+      deferred: params.traversal.deferred,
       profile: params.traversal.profile,
     }) ?? {}
   )

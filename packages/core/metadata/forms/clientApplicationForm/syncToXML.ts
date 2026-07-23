@@ -11,6 +11,9 @@ import { copyFormItemExternalFilesToXML } from "./externalItemFiles"
 import { copyExistingRawFile, copyRawDirectoryFiles } from "./externalRawFiles"
 import type { XmlWriteManifest } from "../../orchestration/xmlWriteManifest"
 import type { PreparedYamlFile } from "../../project/preparedYamlProject"
+import { bindDeferredObjectValues, type DeferredObjectValue } from "../../orchestration/property/deferredObjectValues"
+import type { MetadataItemRule } from "../../orchestration/property/types"
+import { ClientApplicationFormRules } from "./rules"
 
 export const syncFormToXML = async (params: {
   context: ConfigurationContextWithExportToXML
@@ -79,17 +82,21 @@ export const syncFormToXML = async (params: {
   await copyFormBinToXML({ formDir, formName, outputDir, xmlManifest: params.xmlManifest })
 }
 
-export const writePreparedFormToXML = async (params: {
+export const prepareFormXML = (params: {
   context: ConfigurationContextWithExportToXML
   preparedYamlFile: PreparedYamlFile
   formName: string
-  outputDir: string
   currentXMLPath?: string
   referenceFormXML?: ClientApplicationFormXML
   referenceMetadataXML?: FormMetadataXML
   xmlManifest?: XmlWriteManifest
   profile?: import("../../orchestration/property/fromYAMLToXMLTypes").YAMLToXMLProfile
-}): Promise<void> => {
+}): readonly {
+  targetKind: "metadata" | "body"
+  xml: Record<string, unknown>
+  deferred: readonly DeferredObjectValue[]
+  rootRule: MetadataItemRule
+}[] => {
   const yamlObj = params.preparedYamlFile.data as ClientApplicationFormYAML | undefined
   if (yamlObj === undefined)
     throw new Error(`Подготовленные YAML-данные формы отсутствуют: ${params.preparedYamlFile.projectPath}`)
@@ -112,11 +119,63 @@ export const writePreparedFormToXML = async (params: {
     referenceMetadataXML: params.referenceMetadataXML,
     profile: params.profile,
   })
+  const metadataDocument = { MetaDataObject: converted.metadataXML }
+  const formDocument = { Form: converted.formXML }
+  return [
+    {
+      targetKind: "metadata",
+      xml: metadataDocument,
+      deferred: bindDeferredObjectValues(
+        metadataDocument,
+        (converted.deferredByDocument.get("metadata") ?? []).map((entry) => ({
+          ...entry,
+          valuePath: ["MetaDataObject", ...entry.valuePath],
+        }))
+      ),
+      rootRule: ClientApplicationFormRules,
+    },
+    {
+      targetKind: "body",
+      xml: formDocument,
+      deferred: bindDeferredObjectValues(
+        formDocument,
+        (converted.deferredByDocument.get("form") ?? []).map((entry) => ({
+          ...entry,
+          valuePath: ["Form", ...entry.valuePath],
+        }))
+      ),
+      rootRule: ClientApplicationFormRules,
+    },
+  ]
+}
 
+export const writePreparedFormToXML = async (params: {
+  context: ConfigurationContextWithExportToXML
+  preparedYamlFile: PreparedYamlFile
+  formName: string
+  outputDir: string
+  currentXMLPath?: string
+  referenceFormXML?: ClientApplicationFormXML
+  referenceMetadataXML?: FormMetadataXML
+  xmlManifest?: XmlWriteManifest
+  profile?: import("../../orchestration/property/fromYAMLToXMLTypes").YAMLToXMLProfile
+}): Promise<void> => {
+  const prepared = prepareFormXML(params)
+  const metadataDocument = prepared.find((document) => document.targetKind === "metadata")?.xml
+  const formDocument = prepared.find((document) => document.targetKind === "body")?.xml
+  const contextWithFormDir = createFormScopedContext({
+    context: params.context,
+    formDir: dirname(params.preparedYamlFile.filePath),
+    currentXMLPath: params.currentXMLPath,
+  })
+  const contextWithFormExternalMetadata = createFormExternalMetadataContext({
+    context: contextWithFormDir,
+    formName: params.formName,
+  })
   await writeFormToXML({
     context: contextWithFormExternalMetadata,
-    formXML: converted.formXML,
-    metadataXML: converted.metadataXML,
+    formXML: formDocument?.Form as ClientApplicationFormXML,
+    metadataXML: metadataDocument?.MetaDataObject as FormMetadataXML,
     formName: params.formName,
     outputDir: params.outputDir,
     xmlManifest: params.xmlManifest,

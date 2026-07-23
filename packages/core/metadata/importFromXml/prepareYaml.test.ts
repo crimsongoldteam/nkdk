@@ -82,6 +82,16 @@ describe("prepareImportYaml", () => {
     expect(prepared.targetProjectPath).toBe("Справочник/Контрагенты/Свойства.yaml")
     expect(prepared.yaml).toMatchObject({ Синоним: "Контрагенты справочник" })
     expect(prepared.localIndexes).toEqual(expect.any(Object))
+    expect(prepared.deferred).toEqual(expect.any(Array))
+    for (const deferred of prepared.deferred) {
+      expect(deferred.target.object).toBe(
+        deferred.valuePath.slice(0, -1).reduce<unknown>(
+          (value, segment) => (value as Record<string | number, unknown>)[segment],
+          prepared.yaml
+        )
+      )
+    }
+    expect(prepared.localIndexes).not.toHaveProperty("dependencies")
     expect(prepared).not.toHaveProperty("model")
     expect(prepared).not.toHaveProperty("xml")
     expect(prepared.generatedFiles).toEqual([])

@@ -9,6 +9,8 @@ import type {
 import type { MetadataItemRule, PropertyRule } from "../property/types"
 import { findInlineProperty } from "./yamlInline"
 import { recordCurrentExternalMetadataUuid } from "../externalMetadata/record"
+import type { DeferredRulePathSegment } from "../property/importYamlTypes"
+import { bindDeferredObjectValues } from "../property/deferredObjectValues"
 
 export interface ConvertMetadataItemFromYAMLToXMLParams {
   readonly context: ConfigurationContextWithExportToXML
@@ -25,6 +27,7 @@ export interface ConvertMetadataItemFromYAMLToXMLParams {
   readonly externalWriteFactory?: YAMLToXMLExternalWriteFactory
   readonly profile?: YAMLToXMLProfile
   readonly rulePath?: readonly (string | number)[]
+  readonly deferredRulePath?: readonly DeferredRulePathSegment[]
 }
 
 interface XMLRootInfo {
@@ -72,8 +75,10 @@ export function convertMetadataItemFromYAMLToXML(params: ConvertMetadataItemFrom
     externalWriteFactory: params.externalWriteFactory,
     profile: params.profile,
     rulePath: params.rulePath,
+    deferredRulePath: enterDeferredNestedRule(params.deferredRulePath ?? [], params.rule.itemType),
   })
   const outputs = new Map<string, Record<string, unknown>>()
+  const deferredByOutput = new Map<string, ReturnType<typeof bindDeferredObjectValues>>()
 
   for (const request of params.outputs) {
     const generated = converted.outputs.get(request.key) ?? {}
@@ -86,7 +91,19 @@ export function convertMetadataItemFromYAMLToXML(params: ConvertMetadataItemFrom
       rule: params.rule,
       path: [],
     })
-    outputs.set(request.key, wrapXMLRoot({ params, request, root, value: merged }))
+    const finalRoot = wrapXMLRoot({ params, request, root, value: merged })
+    outputs.set(request.key, finalRoot)
+    const prefix = root === undefined ? [] : root.isFileRoot ? [root.container] : ["MetaDataObject", root.container]
+    deferredByOutput.set(
+      request.key,
+      bindDeferredObjectValues(
+        finalRoot,
+        (converted.deferredByOutput.get(request.key) ?? []).map((entry) => ({
+          ...entry,
+          valuePath: [...prefix, ...entry.valuePath],
+        }))
+      )
+    )
   }
 
   if (params.rule.externalMetadata !== undefined) {
@@ -94,7 +111,16 @@ export function convertMetadataItemFromYAMLToXML(params: ConvertMetadataItemFrom
     if (uuid !== undefined) recordCurrentExternalMetadataUuid({ context: itemContext, uuid })
   }
 
-  return { outputs, externalWrites: converted.externalWrites }
+  return { outputs, deferredByOutput, externalWrites: converted.externalWrites }
+}
+
+function enterDeferredNestedRule(
+  path: readonly DeferredRulePathSegment[],
+  itemType: string
+): readonly DeferredRulePathSegment[] {
+  const last = path.at(-1)
+  if (last === undefined) return path
+  return [...path.slice(0, -1), { ...last, nestedItemType: itemType }]
 }
 
 function readMetadataItemUuid(

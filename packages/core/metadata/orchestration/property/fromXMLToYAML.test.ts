@@ -200,7 +200,7 @@ describe("importPropertiesFromXMLToYAML", () => {
     expect(calls).toEqual(["fromXML", "toYAML"])
     expect(yaml).toEqual({ Значение: "ABC" })
     expect(yaml).not.toHaveProperty("value")
-    expect(collector.finish()).toEqual({ metadata: expect.anything(), dependencies: [] })
+    expect(collector.finish()).toEqual({ metadata: expect.anything() })
   })
 
   it("uses a direct handler instead of rebuilding a legacy value", () => {

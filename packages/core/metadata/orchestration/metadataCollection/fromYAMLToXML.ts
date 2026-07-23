@@ -13,6 +13,8 @@ import type {
 import type { MetadataItemRule, PropertyRule } from "../property/types"
 import type { YAMLPropertySource } from "../property/fromYAMLToXMLTypes"
 import { getChildContextToXML } from "../../context/helpers"
+import type { DeferredRulePathSegment } from "../property/importYamlTypes"
+import type { DeferredValuePath } from "../property/deferredObjectValues"
 
 type CollectionDescriptor = Extract<YAMLToXMLNestedRule, { kind: "collection" }>
 
@@ -26,6 +28,7 @@ export interface ConvertMetadataCollectionFromYAMLToXMLParams {
   readonly externalWriteFactory?: YAMLToXMLExternalWriteFactory
   readonly profile?: YAMLToXMLProfile
   readonly rulePath?: readonly (string | number)[]
+  readonly deferredRulePath?: readonly DeferredRulePathSegment[]
 }
 
 export function convertMetadataCollectionFromYAMLToXML(
@@ -40,6 +43,7 @@ export function convertMetadataCollectionFromYAMLToXML(
     outputs: params.outputs,
   })
   const outputItems = new Map(params.outputs.map(({ key }) => [key, [] as unknown[]]))
+  const deferredByOutput = new Map(params.outputs.map(({ key }) => [key, [] as DeferredValuePath[]]))
   const externalWrites: YAMLToXMLExternalWrite[] = []
 
   entries.forEach(({ yaml, name }, index) => {
@@ -122,6 +126,7 @@ export function convertMetadataCollectionFromYAMLToXML(
       externalWriteFactory: params.externalWriteFactory,
       profile: params.profile,
       rulePath: [...(params.rulePath ?? [params.descriptor.itemRule.itemType]), name ?? index],
+      deferredRulePath: params.deferredRulePath,
     })
     for (const output of itemOutputs) {
       const xml = converted.outputs.get(output.key) ?? {}
@@ -139,7 +144,21 @@ export function convertMetadataCollectionFromYAMLToXML(
               collectionYAML: params.yaml,
               referenceXML: output.referenceXML,
             })
-      if (mapped !== undefined) outputItems.get(output.key)!.push(mapped)
+      if (mapped !== undefined) {
+        const items = outputItems.get(output.key)!
+        const itemIndex = items.length
+        items.push(mapped)
+        const prefix =
+          params.descriptor.xmlElement === undefined
+            ? [itemIndex]
+            : [params.descriptor.xmlElement, itemIndex]
+        for (const deferred of converted.deferredByOutput.get(output.key) ?? []) {
+          deferredByOutput.get(output.key)!.push({
+            ...deferred,
+            valuePath: [...prefix, ...deferred.valuePath],
+          })
+        }
+      }
     }
     externalWrites.push(...converted.externalWrites)
   })
@@ -153,6 +172,7 @@ export function convertMetadataCollectionFromYAMLToXML(
         return [[key, value as Record<string, unknown>]]
       })
     ),
+    deferredByOutput,
     externalWrites,
   }
 }
