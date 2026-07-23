@@ -47,6 +47,12 @@ export interface FullXmlSyncSharedMetadataReader {
   ownerCache(projectDir: string): ReturnType<typeof createOwnerMetadataCacheFromSharedValidationSnapshot>
 }
 
+export interface FullXmlSyncCompositionReader {
+  assignment(id: string): FullXmlSyncCompositionEntry | undefined
+  assignmentsByOwner(ownerLogicalAddress: string): FullXmlSyncCompositionEntry[]
+  assignments(): FullXmlSyncCompositionEntry[]
+}
+
 export function createFullXmlSyncSharedMetadata(params: {
   assignments: readonly FullXmlSyncAssignment[]
   owners: readonly FullXmlSyncOwnerFacts[]
@@ -97,7 +103,7 @@ function ownerTableSnapshot(owners: readonly FullXmlSyncOwnerFacts[]): Validatio
   return { records, filePaths: [...new Set(owners.map((owner) => owner.sourcePath))] }
 }
 
-function createFullXmlSyncCompositionSnapshot(
+export function createFullXmlSyncCompositionSnapshot(
   assignments: readonly FullXmlSyncAssignment[]
 ): FullXmlSyncSharedCompositionSnapshot {
   const entries = [...assignments].sort((left, right) => Buffer.compare(Buffer.from(left.id), Buffer.from(right.id)))
@@ -137,11 +143,9 @@ function createFullXmlSyncCompositionSnapshot(
   return { strings, table, bytes: table.byteLength + strings.bytes, assignments: entries.length }
 }
 
-function createFullXmlSyncCompositionReader(snapshot: FullXmlSyncSharedCompositionSnapshot): {
-  assignment(id: string): FullXmlSyncCompositionEntry | undefined
-  assignmentsByOwner(ownerLogicalAddress: string): FullXmlSyncCompositionEntry[]
-  assignments(): FullXmlSyncCompositionEntry[]
-} {
+export function createFullXmlSyncCompositionReader(
+  snapshot: FullXmlSyncSharedCompositionSnapshot
+): FullXmlSyncCompositionReader {
   const header = new Int32Array(snapshot.table, 0, HEADER_INTS)
   if (header[0] !== COMPOSITION_MAGIC || header[1] !== COMPOSITION_VERSION) {
     throw new Error("Некорректный shared composition snapshot")

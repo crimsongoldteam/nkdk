@@ -16,7 +16,11 @@ import type {
 import type { ConfigurationContext } from "../context/types"
 import { createValidationProfiler } from "../validation/profile"
 import { buildFullXmlSyncPlan } from "./discovery"
-import { createFullXmlSyncSharedMetadata, type FullXmlSyncSharedMetadata } from "./sharedMetadata"
+import {
+  createFullXmlSyncCompositionSnapshot,
+  createFullXmlSyncSharedMetadata,
+  type FullXmlSyncSharedMetadata,
+} from "./sharedMetadata"
 import { transferFullXmlSyncExternalFiles } from "./transferExternalFiles"
 import type { FullXmlSyncDiagnostic, FullXmlSyncPlan } from "./types"
 import { createFullXmlSyncWorkerPool, type FullXmlSyncWorkerPool } from "./workerPool"
@@ -126,8 +130,15 @@ export async function syncConfigurationToXml(
     )
 
     pool = deps.createWorkerPool({ concurrency: normalizeConcurrency(params.concurrency) })
+    const composition = createFullXmlSyncCompositionSnapshot(plan.assignments)
     await profiler.measureAsync("Полная XML-синхронизация", "Инициализация worker", { items: plan.assignments.length }, () =>
-      pool!.initialize({ projectDir: yamlDir, outputDir: xmlDir, context: params.context })
+      pool!.initialize({
+        projectDir: yamlDir,
+        outputDir: xmlDir,
+        context: params.context,
+        composition,
+        index: indexSnapshot,
+      })
     )
     const first = await profiler.measureAsync("Полная XML-синхронизация", "Первый проход worker", { items: plan.assignments.length }, () =>
       pool!.runFirstPass(plan.assignments)
@@ -147,7 +158,6 @@ export async function syncConfigurationToXml(
     const second = await profiler.measureAsync("Полная XML-синхронизация", "Второй проход worker", { items: plan.assignments.length }, () =>
       pool!.runSecondPass({
         sharedMetadata,
-        index: indexSnapshot,
       })
     )
     warnings = second.warnings

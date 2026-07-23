@@ -17,14 +17,19 @@ import type {
 import type { ConfigurationProjectFile } from "../configurationIndex/types"
 import type { ConfigurationIndexData } from "../configurationIndex/types"
 import type { SharedConfigurationIndexSnapshot } from "../configurationIndex/sharedSnapshot"
-import type { FullXmlSyncSharedMetadata } from "./sharedMetadata"
+import type { FullXmlSyncSharedCompositionSnapshot, FullXmlSyncSharedMetadata } from "./sharedMetadata"
 
 export interface FullXmlSyncWorkerPool {
-  initialize(params: { projectDir: string; outputDir: string; context: ConfigurationContext }): Promise<void>
+  initialize(params: {
+    projectDir: string
+    outputDir: string
+    context: ConfigurationContext
+    composition: FullXmlSyncSharedCompositionSnapshot
+    index: SharedConfigurationIndexSnapshot
+  }): Promise<void>
   runFirstPass(assignments: readonly FullXmlSyncAssignment[]): Promise<FullXmlSyncFirstPassPoolResult>
   runSecondPass(params: {
     sharedMetadata: FullXmlSyncSharedMetadata
-    index: SharedConfigurationIndexSnapshot
   }): Promise<FullXmlSyncSecondPassPoolResult>
   close(): Promise<void>
 }
@@ -67,7 +72,15 @@ export function createFullXmlSyncWorkerPool(params: {
   const createPool = params.createWorkerPool ?? createPiscinaWorkerPool
   const activeWorkerIndexes: number[] = []
   let phase: PoolPhase = "new"
-  let initialization: { projectDir: string; outputDir: string; context: ConfigurationContext } | undefined
+  let initialization:
+    | {
+        projectDir: string
+        outputDir: string
+        context: ConfigurationContext
+        composition: FullXmlSyncSharedCompositionSnapshot
+        index: SharedConfigurationIndexSnapshot
+      }
+    | undefined
   let fatalError: unknown
   let destroyPromise: Promise<void> | undefined
 
@@ -100,6 +113,8 @@ export function createFullXmlSyncWorkerPool(params: {
             projectDir: initialized.projectDir,
             outputDir: initialized.outputDir,
             context: initialized.context,
+            composition: initialized.composition,
+            index: initialized.index,
           })
           if (initializeResponse !== undefined) {
             return failWorker(new Error("Worker вернул неожиданный результат initialize"))

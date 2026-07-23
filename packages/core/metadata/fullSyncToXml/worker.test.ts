@@ -12,7 +12,7 @@ import {
   runFullXmlSyncWorkerCommand,
 } from "./worker"
 import type { FullXmlSyncAssignment } from "./types"
-import { createFullXmlSyncSharedMetadata } from "./sharedMetadata"
+import { createFullXmlSyncCompositionSnapshot, createFullXmlSyncSharedMetadata } from "./sharedMetadata"
 
 describe("full XML sync worker", () => {
   const tempDirs: string[] = []
@@ -34,19 +34,26 @@ describe("full XML sync worker", () => {
     return projectDir
   }
 
-  it("first pass stores parsed YAML in worker state and returns only compact facts", async () => {
+  const sharedInputs = (assignments: readonly FullXmlSyncAssignment[]) => ({
+    composition: createFullXmlSyncCompositionSnapshot(assignments),
+    index: snapshotConfigurationIndex(encodeConfigurationIndex(sampleIndex())),
+  })
+
+  it("first pass stores prepared XML without retaining parsed YAML", async () => {
     const projectDir = createProject()
     const sourceProjectPath = "Справочник/Товары/Свойства.yaml"
     const sourcePath = join(projectDir, ...sourceProjectPath.split("/"))
 
+    const assigned = assignment(projectDir, "Товары")
     await runFullXmlSyncWorkerCommand({
       kind: "initialize",
       workerIndex: 0,
       projectDir,
       outputDir: join(projectDir, ".out"),
       context,
+      ...sharedInputs([assigned]),
     })
-    const result = await runFullXmlSyncWorkerCommand({ kind: "firstPass", assignments: [assignment(projectDir, "Товары")] })
+    const result = await runFullXmlSyncWorkerCommand({ kind: "firstPass", assignments: [assigned] })
 
     expect(result?.kind).toBe("firstPassResult")
     if (result?.kind !== "firstPassResult") throw new Error("unexpected result")
@@ -61,21 +68,32 @@ describe("full XML sync worker", () => {
     })
     expect(result).not.toHaveProperty("yamlFiles")
     expect(result).not.toHaveProperty("data")
-    expect(fullXmlSyncWorkerStateForTests().preparedIds).toEqual([sourceProjectPath])
+    expect(fullXmlSyncWorkerStateForTests()).toMatchObject({
+      preparedIds: [sourceProjectPath],
+      prepared: [
+        {
+          id: sourceProjectPath,
+          documents: ["Catalogs/Товары.xml"],
+          holdsPreparedYamlFile: false,
+        },
+      ],
+    })
   })
 
   it("keeps processing assignments after an I/O error and does not store the failed one", async () => {
     const projectDir = createProject()
+    const assigned = [assignment(projectDir, "Товары"), assignment(projectDir, "НетФайла")]
     await runFullXmlSyncWorkerCommand({
       kind: "initialize",
       workerIndex: 0,
       projectDir,
       outputDir: join(projectDir, ".out"),
       context,
+      ...sharedInputs(assigned),
     })
     const result = await runFullXmlSyncWorkerCommand({
       kind: "firstPass",
-      assignments: [assignment(projectDir, "Товары"), assignment(projectDir, "НетФайла")],
+      assignments: assigned,
     })
 
     expect(result?.kind).toBe("firstPassResult")
@@ -87,28 +105,30 @@ describe("full XML sync worker", () => {
 
   it("clears prepared YAML on dispose and after the phase second pass", async () => {
     const projectDir = createProject()
+    const assigned = assignment(projectDir, "Товары")
     await runFullXmlSyncWorkerCommand({
       kind: "initialize",
       workerIndex: 0,
       projectDir,
       outputDir: join(projectDir, ".out"),
       context,
+      ...sharedInputs([assigned]),
     })
-    const assigned = assignment(projectDir, "Товары")
     await runFullXmlSyncWorkerCommand({ kind: "firstPass", assignments: [assigned] })
     expect(fullXmlSyncWorkerStateForTests().preparedIds).toHaveLength(1)
+    fs.rmSync(assigned.sourcePath)
 
     const second = await runFullXmlSyncWorkerCommand({
       kind: "secondPass",
       sharedMetadata: createFullXmlSyncSharedMetadata({ assignments: [assigned], owners: [] }),
-      index: snapshotConfigurationIndex(encodeConfigurationIndex(sampleIndex())),
     })
 
     expect(second).toMatchObject({ kind: "secondPassResult", warnings: [] })
+    expect(fs.existsSync(join(projectDir, ".out", "Catalogs", "Товары.xml"))).toBe(true)
     expect(fullXmlSyncWorkerStateForTests().preparedIds).toEqual([])
 
     await runFullXmlSyncWorkerCommand({ kind: "dispose" })
-    expect(fullXmlSyncWorkerStateForTests()).toEqual({ initialized: false, preparedIds: [] })
+    expect(fullXmlSyncWorkerStateForTests()).toEqual({ initialized: false, preparedIds: [], prepared: [] })
   })
 })
 

@@ -1,14 +1,10 @@
 import fs from "node:fs"
 import { dirname, join } from "node:path"
 import { xmlExport } from "../../xml/export/exporter"
-import type { ConfigurationIndexReader } from "../configurationIndex/sharedSnapshot"
 import type { ConfigurationIndexFragment } from "../configurationIndex/types"
-import type { ConfigurationContext, ConfigurationContextWithExportToXML } from "../context/types"
+import type { ConfigurationContext } from "../context/types"
 import { finalizeExportedXmlValues } from "../orchestration/property/finalizeExportedXML"
 import type { YAMLToXMLProfile } from "../orchestration/property/fromYAMLToXMLTypes"
-import type { PreparedYamlFile } from "../project/preparedYamlProject"
-import { prepareFullXmlSyncAssignment } from "./prepareAssignment"
-import type { FullXmlSyncCompositionEntry } from "./sharedMetadata"
 import type {
   FullXmlSyncAssignment,
   FullXmlSyncDiagnostic,
@@ -22,15 +18,6 @@ interface PreparedWriteParams {
   readonly outputDir: string
 }
 
-interface LegacyWriteParams {
-  readonly assignment: FullXmlSyncAssignment
-  readonly preparedYamlFile: PreparedYamlFile
-  readonly context: ConfigurationContextWithExportToXML
-  readonly outputDir: string
-  readonly index: ConfigurationIndexReader
-  readonly assignments?: readonly FullXmlSyncCompositionEntry[]
-}
-
 export interface WriteFullXmlSyncAssignmentResult {
   readonly diagnostics: readonly FullXmlSyncDiagnostic[]
   readonly writtenFiles: readonly FullXmlSyncWrittenFile[]
@@ -39,21 +26,8 @@ export interface WriteFullXmlSyncAssignmentResult {
 }
 
 export async function writeFullXmlSyncAssignment(
-  params: PreparedWriteParams | LegacyWriteParams
+  params: PreparedWriteParams
 ): Promise<WriteFullXmlSyncAssignmentResult> {
-  if (!("prepared" in params)) {
-    const outputDiagnostic = missingOutputDiagnostic(params.assignment)
-    if (outputDiagnostic !== undefined) return { diagnostics: [outputDiagnostic], writtenFiles: [] }
-    try {
-      return writePreparedAssignment({
-        prepared: prepareFullXmlSyncAssignment(params),
-        context: params.context,
-        outputDir: params.outputDir,
-      })
-    } catch (caught) {
-      return failedResult(params.assignment, caught, [])
-    }
-  }
   return writePreparedAssignment(params)
 }
 
@@ -86,17 +60,6 @@ async function writePreparedAssignment(
   } catch (caught) {
     return failedResult(params.prepared.assignment, caught, writtenFiles)
   }
-}
-
-function missingOutputDiagnostic(assignment: FullXmlSyncAssignment): FullXmlSyncDiagnostic | undefined {
-  const routeKind = assignment.role === "form" ? "fileItem" : "owner"
-  return assignment.outputs.some((output) => output.routeKind === routeKind)
-    ? undefined
-    : assignmentDiagnostic(
-        assignment,
-        assignment.role === "form" ? "full_xml_sync_no_file_item_output" : "full_xml_sync_no_owner_output",
-        `У задания нет ${routeKind} XML-выхода`
-      )
 }
 
 function failedResult(

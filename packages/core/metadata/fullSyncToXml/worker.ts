@@ -1,14 +1,14 @@
 import { move, transferableSymbol, valueSymbol } from "piscina"
 import { performance } from "node:perf_hooks"
 import { encodeConfigurationIndexFragments } from "../configurationIndex/fragment"
-import { createConfigurationIndexReader } from "../configurationIndex/sharedSnapshot"
+import { createConfigurationIndexReader, type ConfigurationIndexReader } from "../configurationIndex/sharedSnapshot"
 import { hashFileBytes } from "../configurationIndex/hash"
 import { registerValidationMetadata } from "../validation/registerValidationMetadata"
 import { createValidationRulesSnapshot } from "../validation/rulesSnapshot"
 import { resolveValidationProjectFile } from "../validation/projectFiles"
 import { extractValidationOwnerYamlFacts } from "../validation/yamlFactExtractor"
 import { prepareYamlFiles } from "../project/prepareYamlFiles"
-import type { PreparedYamlFile, PreparedYamlProjectFileDescriptor } from "../project/preparedYamlProject"
+import type { PreparedYamlProjectFileDescriptor } from "../project/preparedYamlProject"
 import type { ConfigurationContext, ConfigurationContextWithExportToXML } from "../context/types"
 import type {
   FullXmlSyncAssignment,
@@ -19,9 +19,14 @@ import type {
   FullXmlSyncWorkerCommand,
   FullXmlSyncWorkerCommandResult,
   FullXmlSyncWrittenFile,
+  PreparedXMLAssignment,
 } from "./types"
 import { writeFullXmlSyncAssignment } from "./writeAssignment"
-import { createFullXmlSyncSharedMetadataReader } from "./sharedMetadata"
+import {
+  createFullXmlSyncCompositionReader,
+  type FullXmlSyncCompositionReader,
+} from "./sharedMetadata"
+import { prepareFullXmlSyncAssignment } from "./prepareAssignment"
 
 registerValidationMetadata()
 
@@ -30,16 +35,13 @@ interface InitializedFullXmlSyncWorkerState {
   projectDir: string
   outputDir: string
   context: ConfigurationContext
+  index: ConfigurationIndexReader
+  composition: FullXmlSyncCompositionReader
 }
 
 let initializedState: InitializedFullXmlSyncWorkerState | undefined
 
-interface PreparedSyncAssignment {
-  assignment: FullXmlSyncAssignment
-  yamlFile: PreparedYamlFile
-}
-
-const preparedAssignments = new Map<string, PreparedSyncAssignment>()
+const preparedAssignments = new Map<string, PreparedXMLAssignment>()
 
 export async function runFullXmlSyncWorkerCommand(
   command: FullXmlSyncWorkerCommand
@@ -51,6 +53,8 @@ export async function runFullXmlSyncWorkerCommand(
       projectDir: command.projectDir,
       outputDir: command.outputDir,
       context: command.context,
+      index: createConfigurationIndexReader(command.index),
+      composition: createFullXmlSyncCompositionReader(command.composition),
     }
     return undefined
   }
@@ -61,7 +65,7 @@ export async function runFullXmlSyncWorkerCommand(
   }
 
   if (command.kind === "secondPass") {
-    return runSecondPass(command, requireInitializedState())
+    return runSecondPass(requireInitializedState())
   }
 
   return runFirstPass(command.assignments, requireInitializedState())
@@ -79,60 +83,71 @@ function runFirstPass(
   state: InitializedFullXmlSyncWorkerState
 ): FullXmlSyncFirstPassResult {
   preparedAssignments.clear()
-  const prepared = prepareYamlFiles({
-    files: assignments.map(assignmentDescriptor),
-    itemTypeByYamlDir: itemTypeByYamlDir(assignments),
-    includeProjectFiles: true,
-    hashFileBytes,
-  })
-  const diagnostics: FullXmlSyncDiagnostic[] = [
-    ...prepared.diagnostics.map((diagnostic) => syncDiagnosticFromProjectDiagnostic(diagnostic)),
-  ]
+  const diagnostics: FullXmlSyncDiagnostic[] = []
+  const projectFiles: FullXmlSyncFirstPassResult["projectFiles"][number][] = []
   const ownerFacts: FullXmlSyncOwnerFacts[] = []
   const rulesSnapshot = createValidationRulesSnapshot(state.context)
-  const yamlFileByPath = new Map(prepared.yamlFiles.map((file) => [file.projectPath, file]))
 
   for (const assignment of assignments) {
-    const yamlFile = yamlFileByPath.get(assignment.sourceProjectPath)
-    if (yamlFile === undefined) continue
+    try {
+      const prepared = prepareYamlFiles({
+        files: [assignmentDescriptor(assignment)],
+        itemTypeByYamlDir: itemTypeByYamlDir(assignments),
+        includeProjectFiles: true,
+        hashFileBytes,
+      })
+      diagnostics.push(
+        ...prepared.diagnostics.map((diagnostic) => syncDiagnosticFromProjectDiagnostic(diagnostic, assignment))
+      )
+      projectFiles.push(...prepared.projectFiles)
+      const yamlFile = prepared.yamlFiles[0]
+      if (yamlFile === undefined) continue
+      const syntaxDiagnostics = yamlFile.syntaxDiagnostics.map((diagnostic) =>
+        syncDiagnosticFromProjectDiagnostic(diagnostic, assignment)
+      )
+      diagnostics.push(...syntaxDiagnostics)
+      if (syntaxDiagnostics.some((diagnostic) => diagnostic.severity === "error")) continue
 
-    const syntaxDiagnostics = yamlFile.syntaxDiagnostics.map((diagnostic) =>
-      syncDiagnosticFromProjectDiagnostic(diagnostic, assignment)
-    )
-    diagnostics.push(...syntaxDiagnostics)
-    if (syntaxDiagnostics.some((diagnostic) => diagnostic.severity === "error")) continue
-
-    preparedAssignments.set(assignment.id, { assignment, yamlFile })
-
-    const validationFile = resolveValidationProjectFile(state.projectDir, assignment.sourcePath)
-    if (validationFile === undefined) continue
-    const facts = extractValidationOwnerYamlFacts({
-      file: validationFile,
-      data: yamlFile.data,
-      rulesSnapshot,
-    })
-    ownerFacts.push({
-      assignmentId: assignment.id,
-      sourceProjectPath: assignment.sourceProjectPath,
-      sourcePath: assignment.sourcePath,
-      role: assignment.role,
-      owner: { dir: validationFile.owner.dir, name: validationFile.owner.name },
-      itemType: assignment.itemType,
-      ...(facts?.ownerFacts === undefined ? {} : { ownerFacts: facts.ownerFacts }),
-      ...(facts?.fieldIndex === undefined ? {} : { fieldIndex: facts.fieldIndex }),
-    })
+      const validationFile = resolveValidationProjectFile(state.projectDir, assignment.sourcePath)
+      if (validationFile !== undefined) {
+        const facts = extractValidationOwnerYamlFacts({
+          file: validationFile,
+          data: yamlFile.data,
+          rulesSnapshot,
+        })
+        ownerFacts.push({
+          assignmentId: assignment.id,
+          sourceProjectPath: assignment.sourceProjectPath,
+          sourcePath: assignment.sourcePath,
+          role: assignment.role,
+          owner: { dir: validationFile.owner.dir, name: validationFile.owner.name },
+          itemType: assignment.itemType,
+          ...(facts?.ownerFacts === undefined ? {} : { ownerFacts: facts.ownerFacts }),
+          ...(facts?.fieldIndex === undefined ? {} : { fieldIndex: facts.fieldIndex }),
+        })
+      }
+      preparedAssignments.set(
+        assignment.id,
+        prepareFullXmlSyncAssignment({
+          assignment,
+          preparedYamlFile: yamlFile,
+          context: exportContextForSecondPass(state),
+          index: state.index,
+          assignments: state.composition.assignments(),
+        })
+      )
+    } catch (caught) {
+      preparedAssignments.delete(assignment.id)
+      diagnostics.push(
+        assignmentDiagnostic(assignment, "full_xml_sync_first_pass_failed", errorMessage(caught))
+      )
+    }
   }
 
-  return { kind: "firstPassResult", diagnostics, projectFiles: prepared.projectFiles, ownerFacts }
+  return { kind: "firstPassResult", diagnostics, projectFiles, ownerFacts }
 }
 
-async function runSecondPass(
-  command: Extract<FullXmlSyncWorkerCommand, { kind: "secondPass" }>,
-  state: InitializedFullXmlSyncWorkerState
-): Promise<FullXmlSyncSecondPassResult> {
-  const index = createConfigurationIndexReader(command.index)
-  const sharedMetadata = createFullXmlSyncSharedMetadataReader(command.sharedMetadata)
-  const assignments = sharedMetadata.assignments()
+async function runSecondPass(state: InitializedFullXmlSyncWorkerState): Promise<FullXmlSyncSecondPassResult> {
   const diagnostics: FullXmlSyncDiagnostic[] = []
   const warnings: FullXmlSyncDiagnostic[] = []
   const writtenFiles: FullXmlSyncWrittenFile[] = []
@@ -148,12 +163,9 @@ async function runSecondPass(
     const writtenBefore = writtenFiles.length
     try {
       const result = await writeFullXmlSyncAssignment({
-        assignment: prepared.assignment,
-        assignments,
-        preparedYamlFile: prepared.yamlFile,
+        prepared,
         context: exportContextForSecondPass(state),
         outputDir: state.outputDir,
-        index,
       })
       diagnostics.push(...result.diagnostics)
       writtenFiles.push(...result.writtenFiles)
@@ -315,6 +327,7 @@ export function fullXmlSyncWorkerStateForTests(): {
   projectDir?: string
   outputDir?: string
   preparedIds: string[]
+  prepared: { id: string; documents: string[]; holdsPreparedYamlFile: false }[]
 } {
   return {
     initialized: initializedState !== undefined,
@@ -326,6 +339,11 @@ export function fullXmlSyncWorkerStateForTests(): {
           outputDir: initializedState.outputDir,
         }),
     preparedIds: [...preparedAssignments.keys()],
+    prepared: [...preparedAssignments.entries()].map(([id, prepared]) => ({
+      id,
+      documents: prepared.documents.map((document) => document.targetXmlPath),
+      holdsPreparedYamlFile: false,
+    })),
   }
 }
 

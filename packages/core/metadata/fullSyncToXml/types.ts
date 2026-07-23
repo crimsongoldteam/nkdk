@@ -3,7 +3,7 @@ import type { ValidationOwnerFacts } from "../validation/dataPath/ownerFacts"
 import type { ConfigurationProjectFile } from "../configurationIndex/types"
 import type { ConfigurationContext } from "../context/types"
 import type { SharedConfigurationIndexSnapshot } from "../configurationIndex/sharedSnapshot"
-import type { FullXmlSyncSharedMetadata } from "./sharedMetadata"
+import type { FullXmlSyncSharedCompositionSnapshot, FullXmlSyncSharedMetadata } from "./sharedMetadata"
 import type { DeferredObjectValue } from "../orchestration/property/deferredObjectValues"
 import type { MetadataItemRule } from "../orchestration/property/types"
 import type { ConfigurationIndexCollector } from "../configurationIndex/collector/writer"
@@ -86,12 +86,13 @@ export type FullXmlSyncWorkerCommand =
       readonly projectDir: string
       readonly outputDir: string
       readonly context: ConfigurationContext
+      readonly composition: FullXmlSyncSharedCompositionSnapshot
+      readonly index: SharedConfigurationIndexSnapshot
     }
   | { readonly kind: "firstPass"; readonly assignments: readonly FullXmlSyncAssignment[] }
   | {
       readonly kind: "secondPass"
       readonly sharedMetadata: FullXmlSyncSharedMetadata
-      readonly index: SharedConfigurationIndexSnapshot
     }
   | { readonly kind: "dispose" }
 

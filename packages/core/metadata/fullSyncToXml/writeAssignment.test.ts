@@ -82,7 +82,7 @@ describe("writeFullXmlSyncAssignment", () => {
 
   it("reports a contract diagnostic when assignment has no owner output", async () => {
     const projectDir = tempDir()
-    const result = await writeFullXmlSyncAssignment({
+    expect(() => prepareFullXmlSyncAssignment({
       assignment: {
         ...dataProcessorAssignment(projectDir),
         outputs: [{ routeKind: "fileItem", targetXmlPath: "child.xml" }],
@@ -96,15 +96,8 @@ describe("writeFullXmlSyncAssignment", () => {
         syntaxDiagnostics: [],
       },
       context: mockContextToXML(),
-      outputDir: join(projectDir, "xml"),
       index: createConfigurationIndexReader(snapshotConfigurationIndex(encodeConfigurationIndex(sampleIndex()))),
-    })
-
-    expect(result).toMatchObject({
-      diagnostics: [expect.objectContaining({ code: "full_xml_sync_no_owner_output" })],
-      writtenFiles: [],
-    })
-    expect(result.fragment).toBeUndefined()
+    })).toThrow("У задания нет owner XML-выхода")
   })
 
   it("writes form metadata and body XML from prepared YAML", async () => {
@@ -150,13 +143,14 @@ describe("writeFullXmlSyncAssignment", () => {
       outputs: [{ routeKind: "fileItem", targetXmlPath: "Catalogs/Товары/Forms/ФормаЭлемента.xml" }],
     }
 
-    const result = await writeFullXmlSyncAssignment({
+    const context = mockContextToXML()
+    const preparedAssignment = prepareFullXmlSyncAssignment({
       assignment,
       preparedYamlFile: prepared.yamlFiles[0]!,
-      context: mockContextToXML(),
-      outputDir,
+      context,
       index: createConfigurationIndexReader(snapshotConfigurationIndex(encodeConfigurationIndex(sampleIndex()))),
     })
+    const result = await writeFullXmlSyncAssignment({ prepared: preparedAssignment, context, outputDir })
 
     expect(result.diagnostics).toEqual([])
     expect(result.writtenFiles.map((file) => file.targetXmlPath)).toEqual([
