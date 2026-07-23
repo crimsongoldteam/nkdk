@@ -1,11 +1,12 @@
-import { callAtomicToXML } from "../../metadata/orchestration/property/fromYAMLToXML"
+import { exportPropertyToYAML } from "../../metadata/orchestration"
 import type { MetadataItemRule, PropertyRule } from "../../metadata/orchestration/property/types"
-import { testPropertyFromXMLToYAML } from "../directConversion"
-import { mockContextToXML } from "../mockContext"
+import { testPropertyFromXMLToYAML, testPropertyFromYAMLToXML } from "../directConversion"
+import { mockContext } from "../mockContext"
 
 export const testExportPropertyModelThroughXMLToYAML = (params: {
   rule: PropertyRule
   value: unknown
+  yaml?: unknown
   name?: string
 }): unknown => {
   const propertyRule = { ...params.rule, xml: "Value", yaml: params.rule.yaml ?? "Значение" }
@@ -13,15 +14,27 @@ export const testExportPropertyModelThroughXMLToYAML = (params: {
     itemType: "DirectPropertyModelProbe",
     properties: { value: propertyRule },
   } as MetadataItemRule
-  const xml = callAtomicToXML({
-    context: mockContextToXML(),
-    rule: propertyRule,
-    value: params.value,
+  const yaml =
+    "yaml" in params
+      ? params.yaml === undefined
+        ? undefined
+        : { [propertyRule.yaml]: params.yaml }
+      : exportPropertyToYAML({
+          context: mockContext,
+          rule: propertyRule,
+          value: params.value,
+          name: params.name,
+        })
+  if (yaml === undefined) return undefined
+  const xml = testPropertyFromYAMLToXML({
+    rule,
+    yaml,
+    name: params.name,
   })
 
   return testPropertyFromXMLToYAML({
     rule,
-    xml: { Value: xml },
+    xml: xml.xml,
     name: params.name,
   }).yaml
 }

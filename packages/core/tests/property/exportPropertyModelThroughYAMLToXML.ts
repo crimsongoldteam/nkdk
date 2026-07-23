@@ -10,6 +10,7 @@ import { readAndParseXMLFixture, readXMLFixtureAsString } from "../readFixtureXM
 type Params = {
   rule: PropertyRule
   value: unknown
+  yaml?: unknown
   xmlRootTag?: string
   exportXmlDataAsRoot?: boolean
   itemsTree?: ContextElementToXML[]
@@ -50,11 +51,16 @@ export function testExportPropertyModelThroughYAMLToXML(params: Params): {
     "referenceMetadata" in params ? params.referenceMetadata : referenceRoot?.[effectiveRootTag as string]
   const yamlKey = params.rule.yaml ?? "Значение"
   const propertyRule = { ...params.rule, xml: "Value", yaml: yamlKey }
-  const yaml = exportPropertyToYAML({
-    context: mockContext,
-    rule: propertyRule,
-    value: params.value,
-  })
+  const yaml =
+    "yaml" in params
+      ? params.yaml === undefined
+        ? undefined
+        : { [yamlKey]: params.yaml }
+      : exportPropertyToYAML({
+          context: mockContext,
+          rule: propertyRule,
+          value: params.value,
+        })
   const rule = {
     itemType: "DirectPropertyModelProbe",
     properties: { value: propertyRule },
@@ -80,8 +86,14 @@ export function testExportPropertyModelThroughYAMLToXML(params: Params): {
     referenceXML: { Value: referenceValue },
   })
   const xmlData = converted.xml.Value
+  const xmlDataIsRoot =
+    xmlData !== null &&
+    typeof xmlData === "object" &&
+    !Array.isArray(xmlData) &&
+    effectiveRootTag !== undefined &&
+    Object.prototype.hasOwnProperty.call(xmlData, effectiveRootTag)
   const result =
-    params.exportXmlDataAsRoot === true
+    params.exportXmlDataAsRoot === true || xmlDataIsRoot
       ? xmlExport(xmlData as Record<string, unknown>, false)
       : xmlExport({ [effectiveRootTag as string]: xmlData }, false)
 

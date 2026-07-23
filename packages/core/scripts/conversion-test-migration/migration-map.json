@@ -9929,10 +9929,10 @@
       "./__fixtures__/data"
     ],
     "line": 14,
-    "behavior": "",
+    "behavior": "Единый обход сохраняет конечное представление сценария exports full YAML.",
     "targetPath": "packages/core/metadata/commonObjects/dataCompositionSystem/calculatedField/fromXMLToYAML.test.ts",
-    "targetTitle": "",
-    "status": "pending"
+    "targetTitle": "exports full YAML",
+    "status": "migrated"
   },
   {
     "id": "04f50e62065bb2e7f3cd7e8646dde08c82c0f7a2:packages/core/metadata/commonObjects/dataCompositionSystem/calculatedField/toYAML.test.ts:23:697",
@@ -9946,10 +9946,10 @@
       "./__fixtures__/data"
     ],
     "line": 23,
-    "behavior": "",
+    "behavior": "Единый обход сохраняет конечное представление сценария exports appearance YAML.",
     "targetPath": "packages/core/metadata/commonObjects/dataCompositionSystem/calculatedField/fromXMLToYAML.test.ts",
-    "targetTitle": "",
-    "status": "pending"
+    "targetTitle": "exports appearance YAML",
+    "status": "migrated"
   },
   {
     "id": "04f50e62065bb2e7f3cd7e8646dde08c82c0f7a2:packages/core/metadata/commonObjects/dataCompositionSystem/calculatedField/toYAML.test.ts:32:982",
@@ -9963,10 +9963,10 @@
       "./__fixtures__/data"
     ],
     "line": 32,
-    "behavior": "",
+    "behavior": "Единый обход сохраняет конечное представление сценария exports available values.",
     "targetPath": "packages/core/metadata/commonObjects/dataCompositionSystem/calculatedField/fromXMLToYAML.test.ts",
-    "targetTitle": "",
-    "status": "pending"
+    "targetTitle": "exports available values",
+    "status": "migrated"
   },
   {
     "id": "04f50e62065bb2e7f3cd7e8646dde08c82c0f7a2:packages/core/metadata/commonObjects/dataCompositionSystem/calculatedFieldOrderExpression/fromXML.test.ts:12:677",
@@ -10104,10 +10104,10 @@
       "./__fixtures__/data"
     ],
     "line": 7,
-    "behavior": "",
+    "behavior": "Единый обход сохраняет конечное представление сценария exports full YAML.",
     "targetPath": "packages/core/metadata/commonObjects/dataCompositionSystem/calculatedFieldOrderExpression/fromXMLToYAML.test.ts",
-    "targetTitle": "",
-    "status": "pending"
+    "targetTitle": "exports full YAML",
+    "status": "migrated"
   },
   {
     "id": "04f50e62065bb2e7f3cd7e8646dde08c82c0f7a2:packages/core/metadata/commonObjects/dataCompositionSystem/calculatedFieldUseRestriction/fromXML.test.ts:7:282",
@@ -10295,10 +10295,10 @@
       "./__fixtures__/data"
     ],
     "line": 6,
-    "behavior": "",
+    "behavior": "Единый обход сохраняет конечное представление сценария exports YAML array.",
     "targetPath": "packages/core/metadata/commonObjects/dataCompositionSystem/calculatedFields/fromXMLToYAML.test.ts",
-    "targetTitle": "",
-    "status": "pending"
+    "targetTitle": "exports YAML array",
+    "status": "migrated"
   },
   {
     "id": "04f50e62065bb2e7f3cd7e8646dde08c82c0f7a2:packages/core/metadata/commonObjects/dataCompositionSystem/conditionalAppearance/fromXML.test.ts:16:479",
@@ -10602,10 +10602,10 @@
       "full.xml"
     ],
     "line": 12,
-    "behavior": "",
+    "behavior": "Единый обход сохраняет конечное представление сценария exports full.xml.",
     "targetPath": "packages/core/metadata/commonObjects/dataCompositionSystem/conditionalAppearanceItem/fromYAMLToXML.test.ts",
-    "targetTitle": "",
-    "status": "pending"
+    "targetTitle": "exports full.xml",
+    "status": "migrated"
   },
   {
     "id": "04f50e62065bb2e7f3cd7e8646dde08c82c0f7a2:packages/core/metadata/commonObjects/dataCompositionSystem/conditionalAppearanceItem/toXML.test.ts:24:761",
@@ -10621,10 +10621,10 @@
       "minimal.xml"
     ],
     "line": 24,
-    "behavior": "",
+    "behavior": "Единый обход сохраняет конечное представление сценария exports minimal.xml.",
     "targetPath": "packages/core/metadata/commonObjects/dataCompositionSystem/conditionalAppearanceItem/fromYAMLToXML.test.ts",
-    "targetTitle": "",
-    "status": "pending"
+    "targetTitle": "exports minimal.xml",
+    "status": "migrated"
   },
   {
     "id": "04f50e62065bb2e7f3cd7e8646dde08c82c0f7a2:packages/core/metadata/commonObjects/dataCompositionSystem/conditionalAppearanceItem/toYAML.test.ts:18:577",
@@ -10638,10 +10638,10 @@
       "./__fixtures__/data"
     ],
     "line": 18,
-    "behavior": "",
+    "behavior": "Единый обход сохраняет конечное представление сценария exports full collection.",
     "targetPath": "packages/core/metadata/commonObjects/dataCompositionSystem/conditionalAppearanceItem/fromXMLToYAML.test.ts",
-    "targetTitle": "",
-    "status": "pending"
+    "targetTitle": "exports full collection",
+    "status": "migrated"
   },
   {
     "id": "04f50e62065bb2e7f3cd7e8646dde08c82c0f7a2:packages/core/metadata/commonObjects/dataCompositionSystem/conditionalAppearanceItem/toYAML.test.ts:27:837",
@@ -10655,10 +10655,10 @@
       "./__fixtures__/data"
     ],
     "line": 27,
-    "behavior": "",
+    "behavior": "Единый обход сохраняет конечное представление сценария exports minimal collection.",
     "targetPath": "packages/core/metadata/commonObjects/dataCompositionSystem/conditionalAppearanceItem/fromXMLToYAML.test.ts",
-    "targetTitle": "",
-    "status": "pending"
+    "targetTitle": "exports minimal collection",
+    "status": "migrated"
   },
   {
     "id": "04f50e62065bb2e7f3cd7e8646dde08c82c0f7a2:packages/core/metadata/commonObjects/dataCompositionSystem/dataCompositionSchemaDataSetField/fromXML.test.ts:48:1831",
@@ -11015,10 +11015,10 @@
       "full.xml"
     ],
     "line": 13,
-    "behavior": "",
+    "behavior": "Единый обход сохраняет конечное представление сценария exports full.xml.",
     "targetPath": "packages/core/metadata/commonObjects/dataCompositionSystem/dataCompositionSchemaDataSetField/fromYAMLToXML.test.ts",
-    "targetTitle": "",
-    "status": "pending"
+    "targetTitle": "exports full.xml",
+    "status": "migrated"
   },
   {
     "id": "04f50e62065bb2e7f3cd7e8646dde08c82c0f7a2:packages/core/metadata/commonObjects/dataCompositionSystem/dataCompositionSchemaDataSetField/toXML.test.ts:25:842",
@@ -11034,10 +11034,10 @@
       "exports availableValues.xml"
     ],
     "line": 25,
-    "behavior": "",
+    "behavior": "Единый обход сохраняет конечное представление сценария exports availableValues.xml.",
     "targetPath": "packages/core/metadata/commonObjects/dataCompositionSystem/dataCompositionSchemaDataSetField/fromYAMLToXML.test.ts",
-    "targetTitle": "",
-    "status": "pending"
+    "targetTitle": "exports availableValues.xml",
+    "status": "migrated"
   },
   {
     "id": "04f50e62065bb2e7f3cd7e8646dde08c82c0f7a2:packages/core/metadata/commonObjects/dataCompositionSystem/dataCompositionSchemaDataSetField/toXML.test.ts:37:1230",
@@ -11053,10 +11053,10 @@
       "exports appearance.xml"
     ],
     "line": 37,
-    "behavior": "",
+    "behavior": "Единый обход сохраняет конечное представление сценария exports appearance.xml.",
     "targetPath": "packages/core/metadata/commonObjects/dataCompositionSystem/dataCompositionSchemaDataSetField/fromYAMLToXML.test.ts",
-    "targetTitle": "",
-    "status": "pending"
+    "targetTitle": "exports appearance.xml",
+    "status": "migrated"
   },
   {
     "id": "04f50e62065bb2e7f3cd7e8646dde08c82c0f7a2:packages/core/metadata/commonObjects/dataCompositionSystem/dataCompositionSchemaDataSetField/toXML.test.ts:49:1603",
@@ -11072,10 +11072,10 @@
       "nested-data-set.xml"
     ],
     "line": 49,
-    "behavior": "",
+    "behavior": "Единый обход сохраняет конечное представление сценария exports nested-data-set.xml.",
     "targetPath": "packages/core/metadata/commonObjects/dataCompositionSystem/dataCompositionSchemaDataSetField/fromYAMLToXML.test.ts",
-    "targetTitle": "",
-    "status": "pending"
+    "targetTitle": "exports nested-data-set.xml",
+    "status": "migrated"
   },
   {
     "id": "04f50e62065bb2e7f3cd7e8646dde08c82c0f7a2:packages/core/metadata/commonObjects/dataCompositionSystem/dataCompositionSchemaDataSetField/toXML.test.ts:61:1982",
@@ -11091,10 +11091,10 @@
       "folder.xml"
     ],
     "line": 61,
-    "behavior": "",
+    "behavior": "Единый обход сохраняет конечное представление сценария exports folder.xml.",
     "targetPath": "packages/core/metadata/commonObjects/dataCompositionSystem/dataCompositionSchemaDataSetField/fromYAMLToXML.test.ts",
-    "targetTitle": "",
-    "status": "pending"
+    "targetTitle": "exports folder.xml",
+    "status": "migrated"
   },
   {
     "id": "04f50e62065bb2e7f3cd7e8646dde08c82c0f7a2:packages/core/metadata/commonObjects/dataCompositionSystem/dataCompositionSchemaDataSetField/toYAML.test.ts:16:638",
@@ -12286,10 +12286,10 @@
       "full.xml"
     ],
     "line": 11,
-    "behavior": "",
+    "behavior": "Единый обход сохраняет конечное представление сценария exports full to XML.",
     "targetPath": "packages/core/metadata/commonObjects/dataCompositionSystem/order/fromYAMLToXML.test.ts",
-    "targetTitle": "",
-    "status": "pending"
+    "targetTitle": "exports full to XML",
+    "status": "migrated"
   },
   {
     "id": "04f50e62065bb2e7f3cd7e8646dde08c82c0f7a2:packages/core/metadata/commonObjects/dataCompositionSystem/order/toXML.test.ts:23:643",
@@ -12304,10 +12304,10 @@
       "auto.xml"
     ],
     "line": 23,
-    "behavior": "",
+    "behavior": "Единый обход сохраняет конечное представление сценария exports auto item to XML.",
     "targetPath": "packages/core/metadata/commonObjects/dataCompositionSystem/order/fromYAMLToXML.test.ts",
-    "targetTitle": "",
-    "status": "pending"
+    "targetTitle": "exports auto item to XML",
+    "status": "migrated"
   },
   {
     "id": "04f50e62065bb2e7f3cd7e8646dde08c82c0f7a2:packages/core/metadata/commonObjects/dataCompositionSystem/order/toYAML.test.ts:12:416",
@@ -12427,10 +12427,10 @@
       "full.xml"
     ],
     "line": 10,
-    "behavior": "",
+    "behavior": "Единый обход сохраняет конечное представление сценария exports full.xml.",
     "targetPath": "packages/core/metadata/commonObjects/dataCompositionSystem/orderItemFields/fromYAMLToXML.test.ts",
-    "targetTitle": "",
-    "status": "pending"
+    "targetTitle": "exports full.xml",
+    "status": "migrated"
   },
   {
     "id": "04f50e62065bb2e7f3cd7e8646dde08c82c0f7a2:packages/core/metadata/commonObjects/dataCompositionSystem/orderItemFields/toYAML.test.ts:13:455",
