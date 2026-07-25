@@ -262,8 +262,9 @@ registerMetadataXmlPrepareCapability({
 registerMetadataXmlPrepareCapability({
   id: "externalFileProperty",
   run: ({ assignment, context, preparedYamlFile, itemName, logicalAddress, outputs }) => {
+    const contextWithSourceDir = withImportFormDir(context, dirname(preparedYamlFile.filePath))
     const itemContext = getChildContextToXML({
-      context: withImportMetadataTargetOwner(context, assignment.itemRule, itemName),
+      context: withImportMetadataTargetOwner(contextWithSourceDir, assignment.itemRule, itemName),
       itemType: assignment.itemRule.itemType,
       path: logicalAddress,
       name: itemName,

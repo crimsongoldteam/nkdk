@@ -8,12 +8,84 @@ import { mockContextToXML } from "../../../tests/mockContext"
 import { XmlSyncManifest } from "../configuration/migrations/xmlManifest"
 import { MetadataBusinessProcessRules } from "../metadataBusinessProcess/rules"
 import { MetadataCommonFormRules } from "../metadataCommonForm/rules"
+import "../metadataCommonForm/types"
 import { MetadataTaskRules } from "../metadataTask/rules"
-import { syncAppliedObjectToXML } from "../../orchestration/appliedObject/syncToXML"
+import {
+  syncAppliedObjectToXML,
+} from "../../orchestration/appliedObject/syncToXML"
+import { importFromYAML } from "../../../yaml/import"
+import { compileRegisteredMetadataResourceTopology } from "../../resourceTopology/registry"
+import { prepareFullXmlSyncAssignment } from "../../fullSyncToXml/prepareAssignment"
+import { createConfigurationIndexReader, snapshotConfigurationIndex } from "../../configurationIndex/sharedSnapshot"
+import { encodeConfigurationIndex } from "../../configurationIndex/encode"
+import { sampleIndex } from "../../configurationIndex/testData"
+import type { FullXmlSyncAssignment } from "../../fullSyncToXml/types"
 
 const normalizeText = (value: string) => value.replace(/\r\n/g, "\n")
 
 describe("единая синхронизация внешних файлов applied objects", () => {
+  it("читает запрос динамического списка встроенной общей формы из каталога объекта", () => {
+    const root = fs.mkdtempSync(join(os.tmpdir(), "common-form-query-"))
+    try {
+      const yamlPath = join(root, "Свойства.yaml")
+      const queryDir = join(root, "ДинамическийСписок")
+      fs.mkdirSync(queryDir)
+      fs.writeFileSync(join(queryDir, "Список.query"), "ВЫБРАТЬ 1 КАК Значение")
+      const yaml = importFromYAML(`
+Форма:
+  Реквизиты:
+    Список:
+      Тип: ДинамическийСписок
+      ДинамическийСписок:
+        ПроизвольныйЗапрос: Истина
+`)
+
+      const topology = compileRegisteredMetadataResourceTopology()
+      const node = topology.assignments.find(
+        (candidate) =>
+          candidate.itemRule.itemType === "MetadataCommonForm" &&
+          candidate.projectPattern === "ОбщаяФорма/{ownerName}/Свойства.yaml" &&
+          candidate.xmlDocuments.some((document) => document.source.propertyName === "form")
+      )!
+      const assignment: FullXmlSyncAssignment = {
+        id: "ОбщаяФорма/Таблица/Свойства.yaml",
+        sourceProjectPath: "ОбщаяФорма/Таблица/Свойства.yaml",
+        sourcePath: yamlPath,
+        role: "properties",
+        itemType: "MetadataCommonForm",
+        itemName: "Таблица",
+        logicalAddress: "ОбщаяФорма.Таблица",
+        nodeId: node.id,
+        potentialOutputs: node.xmlDocuments.map((document) => ({
+          declarationId: document.id,
+          targetXmlPath: document.xmlPattern.replace("{ownerName}", "Таблица"),
+          role: document.role,
+          required: document.required,
+          prepareCapabilityId: document.prepareCapabilityId!,
+          ...(document.source.propertyName === undefined ? {} : { propertyName: document.source.propertyName }),
+        })),
+      }
+      const prepared = prepareFullXmlSyncAssignment({
+        assignment,
+        topology,
+        context: mockContextToXML(),
+        preparedYamlFile: {
+          projectPath: assignment.sourceProjectPath,
+          filePath: yamlPath,
+          role: "properties",
+          owner: { dir: "ОбщаяФорма", name: "Таблица" },
+          data: yaml,
+          syntaxDiagnostics: [],
+        },
+        index: createConfigurationIndexReader(snapshotConfigurationIndex(encodeConfigurationIndex(sampleIndex()))),
+      })
+
+      expect(JSON.stringify(prepared.documents)).toContain("ВЫБРАТЬ 1 КАК Значение")
+    } finally {
+      fs.rmSync(root, { recursive: true, force: true })
+    }
+  })
+
   it("восстанавливает модули и карту маршрута бизнес-процесса", async () => {
     const { comparisons } = await testSyncAppliedObjectToXML({
       rule: MetadataBusinessProcessRules,
