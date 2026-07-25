@@ -72,8 +72,6 @@ export const CalendarFieldRules = {
     }),
     dataPath: dataPathRule({
       yaml: "ПутьКДанным",
-      toYAML: false,
-      fromYAML: false,
       defaultType: "dateTime",
       allowedKinds: ["dateTime"],
       allowComposite: false,
