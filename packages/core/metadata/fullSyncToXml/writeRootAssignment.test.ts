@@ -11,6 +11,7 @@ import { prepareYamlFiles } from "../project/prepareYamlFiles"
 import { writeFullXmlSyncAssignment } from "./writeAssignment"
 import { prepareFullXmlSyncAssignment } from "./prepareAssignment"
 import type { FullXmlSyncAssignment } from "./types"
+import { fullXmlSyncTestTopologyFields } from "./testTopology"
 
 describe("writeFullXmlSyncAssignment for root Configuration", () => {
   const tempDirs: string[] = []
@@ -78,7 +79,7 @@ function configurationAssignment(projectDir: string): FullXmlSyncAssignment {
     itemType: "MetadataConfiguration",
     itemName: "Конфигурация",
     logicalAddress: "Конфигурация",
-    outputs: [{ routeKind: "owner", targetXmlPath: "Configuration.xml" }],
+    ...fullXmlSyncTestTopologyFields("Конфигурация.yaml"),
   }
 }
 
@@ -91,6 +92,6 @@ function catalogAssignment(projectDir: string, name: string): FullXmlSyncAssignm
     itemType: "MetadataCatalog",
     itemName: name,
     logicalAddress: `Справочник.${name}`,
-    outputs: [{ routeKind: "owner", targetXmlPath: `Catalogs/${name}.xml` }],
+    ...fullXmlSyncTestTopologyFields(`Справочник/${name}/Свойства.yaml`),
   }
 }

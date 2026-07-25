@@ -96,7 +96,7 @@ describe("property resource topology registry", () => {
       expect(describePropertyResourceTopology("forms", propertyRule)).toEqual([
         expect.objectContaining({
           kind: "content",
-          source: { kind: "property", description: "forms:ChildFormNames" },
+          source: expect.objectContaining({ kind: "property", description: "forms:ChildFormNames" }),
         }),
         expect.objectContaining({ kind: "xmlDocument", role: "metadata" }),
         expect.objectContaining({ kind: "xmlDocument", role: "body" }),

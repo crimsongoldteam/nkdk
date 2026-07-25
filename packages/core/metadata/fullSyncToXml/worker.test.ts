@@ -13,6 +13,7 @@ import {
 } from "./worker"
 import type { FullXmlSyncAssignment } from "./types"
 import { createFullXmlSyncCompositionSnapshot, createFullXmlSyncSharedMetadata } from "./sharedMetadata"
+import { fullXmlSyncTestTopologyFields } from "./testTopology"
 
 describe("full XML sync worker", () => {
   const tempDirs: string[] = []
@@ -141,6 +142,6 @@ function assignment(projectDir: string, name: string): FullXmlSyncAssignment {
     itemType: "MetadataCatalog",
     itemName: name,
     logicalAddress: `Справочник.${name}`,
-    outputs: [{ routeKind: "owner", targetXmlPath: `Catalogs/${name}.xml` }],
+    ...fullXmlSyncTestTopologyFields(`Справочник/${name}/Свойства.yaml`),
   }
 }

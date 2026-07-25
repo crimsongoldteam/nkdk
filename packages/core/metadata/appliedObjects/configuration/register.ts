@@ -32,11 +32,12 @@ registerProjectSpec({
   dir: "",
   rule: MetadataConfigurationRules,
   exportSchema: createMetadataItemProjectSchemaExporter(MetadataConfigurationRules),
-  xmlImportRoutes: [
+  resources: [
     {
       kind: "ignore",
-      xmlPattern: "ConfigDumpInfo.xml",
-      source: { kind: "itemRule", itemType: MetadataConfigurationRules.itemType },
+      side: "xml",
+      pattern: "ConfigDumpInfo.xml",
+      source: { kind: "itemRule", description: MetadataConfigurationRules.itemType },
     },
   ],
 })

@@ -11,6 +11,7 @@ import { prepareYamlFiles } from "../project/prepareYamlFiles"
 import { writeFullXmlSyncAssignment } from "./writeAssignment"
 import { prepareFullXmlSyncAssignment } from "./prepareAssignment"
 import type { FullXmlSyncAssignment } from "./types"
+import { fullXmlSyncTestOutput, fullXmlSyncTestTopologyFields } from "./testTopology"
 
 describe("writeFullXmlSyncAssignment", () => {
   const tempDirs: string[] = []
@@ -80,12 +81,12 @@ describe("writeFullXmlSyncAssignment", () => {
     )
   })
 
-  it("reports a contract diagnostic when assignment has no owner output", async () => {
+  it("rejects an assignment whose topology node is absent", async () => {
     const projectDir = tempDir()
     expect(() => prepareFullXmlSyncAssignment({
       assignment: {
         ...dataProcessorAssignment(projectDir),
-        outputs: [{ routeKind: "fileItem", targetXmlPath: "child.xml" }],
+        ...fullXmlSyncTestOutput("child.xml"),
       },
       preparedYamlFile: {
         projectPath: "Обработка/ОбработкаВсеСвойства/Свойства.yaml",
@@ -97,7 +98,7 @@ describe("writeFullXmlSyncAssignment", () => {
       },
       context: mockContextToXML(),
       index: createConfigurationIndexReader(snapshotConfigurationIndex(encodeConfigurationIndex(sampleIndex()))),
-    })).toThrow("У задания нет owner XML-выхода")
+    })).toThrow("Не найден узел топологии: test-assignment")
   })
 
   it("writes form metadata and body XML from prepared YAML", async () => {
@@ -140,7 +141,7 @@ describe("writeFullXmlSyncAssignment", () => {
       itemName: "ФормаЭлемента",
       logicalAddress: "Справочник.Товары.Форма.ФормаЭлемента",
       owner: { itemType: "MetadataCatalog", name: "Товары", logicalAddress: "Справочник.Товары" },
-      outputs: [{ routeKind: "fileItem", targetXmlPath: "Catalogs/Товары/Forms/ФормаЭлемента.xml" }],
+      ...fullXmlSyncTestTopologyFields(sourceProjectPath),
     }
 
     const context = mockContextToXML()
@@ -176,6 +177,6 @@ function dataProcessorAssignment(projectDir: string): FullXmlSyncAssignment {
     itemType: "MetadataDataProcessor",
     itemName: "ОбработкаВсеСвойства",
     logicalAddress: "Обработка.ОбработкаВсеСвойства",
-    outputs: [{ routeKind: "owner", targetXmlPath: "DataProcessors/ОбработкаВсеСвойства.xml" }],
+    ...fullXmlSyncTestTopologyFields("Обработка/ОбработкаВсеСвойства/Свойства.yaml"),
   }
 }

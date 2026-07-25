@@ -5,7 +5,6 @@ export {
   type ImportConfigurationFromXmlParams,
   type ImportCoordinatorDependencies,
 } from "./importConfiguration"
-export { describeRegisteredXmlImportRoutes, expandImportPattern, matchImportPattern } from "./routes"
 export {
   createXmlImportWorkerPoolHandle,
   type XmlImportWorkerPool,
@@ -19,5 +18,4 @@ export type {
   ImportIgnoredFile,
   ImportResultFile,
   ImportXmlInput,
-  XmlImportRoute,
 } from "./types"

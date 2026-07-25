@@ -2,6 +2,7 @@ import { ClientApplicationFormRules } from "../../forms/clientApplicationForm/ru
 import type { MetadataResourceDeclaration } from "../../resourceTopology/types"
 import { registerTypeRule } from "../../orchestration/property/typeRuleRegistry"
 import type { ChildFormNamesPropertyRule } from "./types"
+import { describeFormExternalResourceDeclarations } from "../../forms/clientApplicationForm/externalItemFiles"
 
 registerTypeRule("ChildFormNames", "resourceTopology", ({ propertyRule }) => {
   const folderName = (propertyRule as ChildFormNamesPropertyRule | undefined)?.folderName ?? "Формы"
@@ -57,6 +58,10 @@ registerTypeRule("ChildFormNames", "resourceTopology", ({ propertyRule }) => {
       compositionImpact: "none",
       source,
     },
+    ...describeFormExternalResourceDeclarations({
+      xmlFormDirPattern: "Forms/{itemName}/Ext",
+      targetFormDirPattern: `${folderName}/{itemName}`,
+    }),
     {
       kind: "xmlDocument",
       assignmentProjectPattern: "",

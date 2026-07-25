@@ -9,11 +9,6 @@ import type { MetadataItemRule } from "../orchestration/property/types"
 import type { ConfigurationIndexCollector } from "../configurationIndex/collector/writer"
 import type { YAMLToXMLProfile } from "../orchestration/property/fromYAMLToXMLTypes"
 
-export interface FullXmlSyncOutput {
-  readonly targetXmlPath: string
-  readonly routeKind: "owner" | "fileItem"
-}
-
 export interface FullXmlSyncPotentialOutput {
   readonly declarationId: string
   readonly targetXmlPath: string
@@ -31,9 +26,8 @@ export interface FullXmlSyncAssignment {
   readonly itemName: string
   readonly logicalAddress: string
   readonly owner?: { readonly itemType: string; readonly name: string; readonly logicalAddress: string }
-  readonly nodeId?: string
-  readonly potentialOutputs?: readonly FullXmlSyncPotentialOutput[]
-  readonly outputs: readonly FullXmlSyncOutput[]
+  readonly nodeId: string
+  readonly potentialOutputs: readonly FullXmlSyncPotentialOutput[]
 }
 
 export interface FullXmlSyncExternalFile {

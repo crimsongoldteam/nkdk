@@ -10,6 +10,7 @@ import { sampleIndex } from "../configurationIndex/testData"
 import type { ConfigurationIndexData } from "../configurationIndex/types"
 import { writeFullXmlSyncConfigDumpInfo } from "./writeConfigDumpInfo"
 import type { FullXmlSyncAssignment } from "./types"
+import { fullXmlSyncTestTopologyFields } from "./testTopology"
 
 describe("writeFullXmlSyncConfigDumpInfo", () => {
   const tempDirs: string[] = []
@@ -96,6 +97,6 @@ function catalogAssignment(name: string): FullXmlSyncAssignment {
     itemType: "MetadataCatalog",
     itemName: name,
     logicalAddress: `Справочник.${name}`,
-    outputs: [{ routeKind: "owner", targetXmlPath: `Catalogs/${name}.xml` }],
+    ...fullXmlSyncTestTopologyFields(`Справочник/${name}/Свойства.yaml`),
   }
 }

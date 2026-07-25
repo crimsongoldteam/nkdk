@@ -1,11 +1,11 @@
 import { isAbsolute, resolve, relative } from "path"
-import type { ProjectResourceDescriptor, ProjectResourceSource } from "../orchestration/property/fn"
 import {
   classifyMetadataProjectPath as classifyTopologyProjectPath,
   discoverMetadataProjectResources as discoverTopologyProjectResources,
   type MetadataProjectResourceMatch,
 } from "../resourceTopology/projectProjection"
 import { compileRegisteredMetadataResourceTopology } from "../resourceTopology/registry"
+import type { MetadataResourceSource } from "../resourceTopology/types"
 import { configurationMetadataProjectSpec, getMetadataProjectSpecByDir, type MetadataProjectSpec } from "./specs"
 
 export type MetadataProjectResourceKind = "yaml" | "resource"
@@ -66,8 +66,8 @@ export interface MetadataProjectResourceOnlyRef {
   projectPath: string
   absolutePath?: string
   owner: MetadataProjectResourceOwner
-  descriptorKind: ProjectResourceDescriptor["kind"]
-  source: ProjectResourceSource
+  descriptorKind: "externalFile"
+  source: MetadataResourceSource
 }
 
 export function classifyMetadataProjectPath(projectPath: string): MetadataProjectResourceRef | undefined {
@@ -148,10 +148,10 @@ function toLegacyResource(match: MetadataProjectResourceMatch): MetadataProjectR
     role: "resourceOnly",
     projectPath: match.projectPath,
     owner: rootOwner(match),
-    descriptorKind: "yaml",
-    source: {
+    descriptorKind: "externalFile",
+    source: match.externalFile?.source ?? {
       kind: "itemRule",
-      itemType: match.assignment?.itemRule.itemType ?? match.externalFile?.source.description ?? "resource",
+      description: match.assignment?.itemRule.itemType ?? "resource",
     },
   }
 }

@@ -135,6 +135,7 @@ async function listFiles(root: string): Promise<string[]> {
   while (directories.length > 0) {
     const directory = directories.pop()!
     for (const entry of await readdir(directory, { withFileTypes: true })) {
+      if (entry.isDirectory() && (entry.name === ".git" || entry.name === ".nkdk")) continue
       const path = join(directory, entry.name)
       if (entry.isDirectory()) directories.push(path)
       else if (entry.isFile()) files.push(path)

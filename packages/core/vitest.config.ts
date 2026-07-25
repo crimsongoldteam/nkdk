@@ -16,6 +16,9 @@ export default defineConfig({
     globals: true,
     watch: false,
     maxWorkers: 1,
+    // Source-mode worker tests запускают TypeScript через tsx; холодный запуск worker
+    // на CI заметно дольше обычного модульного теста.
+    testTimeout: 30_000,
     setupFiles: [resolve(__dirname, "./tests/setupTests")],
   },
 })

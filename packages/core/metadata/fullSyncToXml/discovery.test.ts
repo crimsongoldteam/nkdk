@@ -42,14 +42,14 @@ describe("full XML sync discovery", () => {
       itemType: "MetadataConfiguration",
       itemName: "Конфигурация",
       logicalAddress: "Конфигурация",
-      outputs: [{ targetXmlPath: "Configuration.xml" }],
+      potentialOutputs: expect.arrayContaining([expect.objectContaining({ targetXmlPath: "Configuration.xml" })]),
     })
     expect(plan.assignments[1]).toMatchObject({
       role: "properties",
       itemType: "MetadataCatalog",
       itemName: "Товары",
       logicalAddress: "Справочник.Товары",
-      outputs: [{ targetXmlPath: "Catalogs/Товары.xml" }],
+      potentialOutputs: expect.arrayContaining([expect.objectContaining({ targetXmlPath: "Catalogs/Товары.xml" })]),
     })
     expect(plan.assignments[2]).toMatchObject({
       role: "form",
@@ -57,7 +57,9 @@ describe("full XML sync discovery", () => {
       itemName: "ФормаЭлемента",
       logicalAddress: "Справочник.Товары.Форма.ФормаЭлемента",
       owner: { itemType: "MetadataCatalog", name: "Товары", logicalAddress: "Справочник.Товары" },
-      outputs: [{ targetXmlPath: "Catalogs/Товары/Forms/ФормаЭлемента.xml" }],
+      potentialOutputs: expect.arrayContaining([
+        expect.objectContaining({ targetXmlPath: "Catalogs/Товары/Forms/ФормаЭлемента.xml" }),
+      ]),
     })
     expect(plan.externalFiles).toEqual([
       expect.objectContaining({
@@ -85,7 +87,16 @@ describe("full XML sync discovery", () => {
             itemType: "ClientApplicationForm",
             itemName: "ФормаЭлемента",
             logicalAddress: "Дубль",
-            outputs: [{ routeKind: "fileItem", targetXmlPath: "Catalogs/Товары/Forms/ФормаЭлемента.xml" }],
+            nodeId: "duplicate",
+            potentialOutputs: [
+              {
+                declarationId: "duplicate",
+                targetXmlPath: "Catalogs/Товары/Forms/ФормаЭлемента.xml",
+                role: "metadata",
+                required: true,
+                prepareCapabilityId: "test",
+              },
+            ],
           },
         ],
       })

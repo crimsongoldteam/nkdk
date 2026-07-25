@@ -1,8 +1,12 @@
-import type { ImportAssignment, ImportExternalFile, ImportXmlInput, XmlImportRoute } from "./types"
+import type { ImportAssignment, ImportAssignmentRole, ImportExternalFile, ImportXmlInput } from "./types"
 import { childUid, configurationUid, metadataItemUid } from "../configurationIndex/logicalAddress"
 
 export interface ImportAssignmentGroup {
-  route: Extract<XmlImportRoute, { kind: "assignment" }>
+  definition: {
+    role: ImportAssignmentRole
+    itemType: string
+    logicalAddressSegment?: string
+  }
   values: Record<string, string>
   targetProjectPath: string
   xmlFiles: ImportXmlInput[]
@@ -26,7 +30,7 @@ export function createImportAssignments(groups: readonly ImportAssignmentGroup[]
 function buildDirectoryIndex(groups: readonly ImportAssignmentGroup[]): ReadonlyMap<string, ImportAssignmentGroup> {
   const directoryToGroup = new Map<string, ImportAssignmentGroup>()
   for (const group of groups) {
-    if (group.route.role === "configuration") continue
+    if (group.definition.role === "configuration") continue
     directoryToGroup.set(projectDirectory(group.targetProjectPath), group)
   }
   return directoryToGroup
@@ -39,18 +43,18 @@ function createAssignment(group: ImportAssignmentGroup, context: AssignmentBuild
   const itemName = assignmentItemName(group.targetProjectPath)
   const ownerGroup = findOwnerGroup(group, context)
   const owner = ownerGroup === undefined ? undefined : assignmentIdentity(ownerGroup, context)
-  const logicalAddressSegment = group.route.logicalAddressSegment ?? group.route.itemType
+  const logicalAddressSegment = group.definition.logicalAddressSegment ?? group.definition.itemType
   const logicalAddress =
-    group.route.role === "configuration"
+    group.definition.role === "configuration"
       ? configurationUid()
-      : group.route.role === "properties"
+      : group.definition.role === "properties"
         ? metadataItemUid(group.targetProjectPath.split("/")[0]!, itemName)
-        : childUid(owner?.logicalAddress ?? group.route.itemType, logicalAddressSegment, itemName)
+        : childUid(owner?.logicalAddress ?? group.definition.itemType, logicalAddressSegment, itemName)
   const assignment = {
     id: group.targetProjectPath,
-    role: group.route.role,
+    role: group.definition.role,
     targetProjectPath: group.targetProjectPath,
-    itemType: group.route.itemType,
+    itemType: group.definition.itemType,
     itemName,
     logicalAddress,
     owner,
@@ -75,7 +79,7 @@ function findOwnerGroup(
   group: ImportAssignmentGroup,
   context: AssignmentBuildContext
 ): ImportAssignmentGroup | undefined {
-  if (group.route.role !== "fileItem") return undefined
+  if (group.definition.role !== "fileItem") return undefined
   let directory = projectParentDirectory(projectDirectory(group.targetProjectPath))
   while (directory !== undefined) {
     const owner = context.directoryToGroup.get(directory)

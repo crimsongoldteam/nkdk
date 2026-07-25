@@ -12,7 +12,7 @@ import {
   registeredImportRuleLookupCountForTests,
   resetRegisteredImportRuleLookupCountForTests,
 } from "./prepareYaml"
-import { describeRegisteredXmlImportRoutes } from "./routes"
+import { compileRegisteredMetadataResourceTopology } from "../resourceTopology/registry"
 import type { ImportAssignment } from "./types"
 
 const configurationFixturesDir = join(import.meta.dirname, "../appliedObjects/configuration/__fixtures__")
@@ -291,7 +291,7 @@ describe("prepareImportYaml", () => {
 
       const discovered = await discoverXmlImport({
         xmlDir: inputDir,
-        routes: describeRegisteredXmlImportRoutes(),
+        topology: compileRegisteredMetadataResourceTopology(),
       })
       const prepared = await Promise.all(
         discovered.assignments.map((assignment) =>

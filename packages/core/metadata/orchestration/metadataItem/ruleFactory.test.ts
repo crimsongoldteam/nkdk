@@ -50,18 +50,18 @@ describe("registerMetadataItemRule JSON Schema identity", () => {
     registerMetadataItemRule({ propertyType: "RuleFactorySampleItemProperty", itemRule: SampleItemRule })
 
     expect(
-      getTypeRule("RuleFactorySampleItemProperty", "xmlImportRoutes")?.({
+      getTypeRule("RuleFactorySampleItemProperty", "resourceTopology")?.({
         propertyRule: { type: "RuleFactorySampleItemProperty", filePath: "Ext/Sample.xml" },
       })
     ).toEqual([
       {
-        kind: "assignment",
+        kind: "xmlDocument",
+        assignmentProjectPattern: "",
         xmlPattern: "Ext/Sample.xml",
-        targetPattern: "",
-        role: "properties",
-        inputRole: "property",
-        itemType: "",
-        source: { kind: "propertyType", type: "RuleFactorySampleItemProperty" },
+        role: "property",
+        required: false,
+        read: { inputRole: "property" },
+        source: { kind: "property", description: "RuleFactorySampleItemProperty" },
       },
     ])
   })

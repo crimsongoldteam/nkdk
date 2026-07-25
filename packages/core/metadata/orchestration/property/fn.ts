@@ -14,7 +14,6 @@ import type { Diagnostic } from "../../validation/types"
 import type { YamlPath } from "../../validation/yamlLocations"
 import type { ParsedYaml } from "../../../yaml/parseMetadataYaml"
 import type { XmlWriteManifest } from "../xmlWriteManifest"
-import type { XmlImportRoute } from "../../importFromXml/types"
 import type { MetadataResourceDeclaration } from "../../resourceTopology/types"
 import { PropertyRuleType } from "./registry"
 import type {
@@ -214,61 +213,6 @@ export type SyncExternalToXMLFunction = (params: {
   currentXMLDir?: string
 }) => Promise<void>
 
-export type ProjectResourceCompositionImpact = "none" | "configurationComposition"
-
-export type ProjectResourceSource =
-  | { kind: "itemRule"; itemType: string }
-  | { kind: "property"; propertyName: string; propertyType: PropertyRuleType }
-  | { kind: "propertyType"; type: PropertyRuleType }
-
-export type ProjectResourceDescriptor =
-  | {
-      kind: "yaml"
-      role: "configuration" | "properties" | "fileItem" | "resourceOnly"
-      projectPattern: string
-      required: boolean
-      repeatable: boolean
-      owner: "configuration" | "currentItem"
-      compositionImpact: ProjectResourceCompositionImpact
-      source: ProjectResourceSource
-      itemType?: string
-    }
-  | {
-      kind: "directory"
-      role: "resourceOnly"
-      projectPattern: string
-      required: boolean
-      repeatable: boolean
-      owner: "currentItem"
-      compositionImpact: "none"
-      source: ProjectResourceSource
-    }
-
-export type XmlSyncRoute =
-  | {
-      kind: "owner"
-      yamlPattern: string
-      xmlPathPattern: string
-      source: ProjectResourceSource
-    }
-  | {
-      kind: "fileItem" | "externalFile"
-      yamlPattern: string
-      xmlPathPattern: string
-      writerType: "propertyType"
-      source: ProjectResourceSource
-      dumpInfoNamePatterns?: string[]
-      deleteParentAreaBeforeWrite?: boolean
-    }
-  | {
-      kind: "resourceOnly"
-      yamlPattern: string
-      source: ProjectResourceSource
-    }
-
-export type ProjectResourcesFunction = (params: { propertyRule?: PropertyRule }) => ProjectResourceDescriptor[]
-export type XmlSyncRoutesFunction = (params: { propertyRule?: PropertyRule }) => XmlSyncRoute[]
-export type XmlImportRoutesFunction = (params: { propertyRule?: PropertyRule }) => readonly XmlImportRoute[]
 export type MetadataResourceTopologyFunction = (params: {
   propertyRule?: PropertyRule
 }) => readonly MetadataResourceDeclaration[]
@@ -336,9 +280,6 @@ export interface TypeRule {
   validateMetadataTarget?: ValidateMetadataTargetFunction
   collectMetadataTargetReferences?: CollectMetadataTargetReferencesFunction
   structuralReferences?: StructuralReferencesFunction
-  projectResources?: ProjectResourcesFunction
-  xmlSyncRoutes?: XmlSyncRoutesFunction
-  xmlImportRoutes?: XmlImportRoutesFunction
   resourceTopology?: MetadataResourceTopologyFunction
   fileChildNamesDescriptor?: FileChildNamesDescriptorFunction
   xmlSyncWriter?: XmlSyncWriterFunction
@@ -368,9 +309,6 @@ export type TypeRulesOperations =
   | "validateMetadataTarget"
   | "collectMetadataTargetReferences"
   | "structuralReferences"
-  | "projectResources"
-  | "xmlSyncRoutes"
-  | "xmlImportRoutes"
   | "resourceTopology"
   | "fileChildNamesDescriptor"
   | "xmlSyncWriter"
@@ -417,13 +355,7 @@ export type importExportFunction<O extends TypeRulesOperations> = O extends "imp
                           ? CollectMetadataTargetReferencesFunction | undefined
                           : O extends "structuralReferences"
                             ? StructuralReferencesFunction | undefined
-                            : O extends "projectResources"
-                              ? ProjectResourcesFunction | undefined
-                              : O extends "xmlSyncRoutes"
-                                ? XmlSyncRoutesFunction | undefined
-                                : O extends "xmlImportRoutes"
-                                  ? XmlImportRoutesFunction | undefined
-                                  : O extends "resourceTopology"
+                            : O extends "resourceTopology"
                                     ? MetadataResourceTopologyFunction | undefined
                                     : O extends "fileChildNamesDescriptor"
                                       ? FileChildNamesDescriptorFunction | undefined

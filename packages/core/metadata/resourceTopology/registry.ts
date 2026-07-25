@@ -1,7 +1,11 @@
 import type { PropertyRule } from "../orchestration/property/types"
 import type { MetadataItemRule } from "../orchestration/property/types"
-import { getTypeRule } from "../orchestration/property/typeRuleRegistry"
-import { getRegisteredProjectSpecs, type RegisteredProjectSpec } from "../project/projectSpecRegistry"
+import { getTypeRule, typeRulesRegistryRevision } from "../orchestration/property/typeRuleRegistry"
+import {
+  getRegisteredProjectSpecs,
+  projectSpecRegistryRevision,
+  type RegisteredProjectSpec,
+} from "../project/projectSpecRegistry"
 import { compileMetadataResourceTopology } from "./compiler"
 import { joinMetadataPathPatterns } from "./patterns"
 import type { MetadataResourceDeclaration } from "./types"
@@ -17,18 +21,26 @@ export function describePropertyResourceTopology(
     source: {
       kind: "property",
       description: `${propertyName}:${propertyRule.type}`,
+      propertyName,
+      propertyType: propertyRule.type,
     },
   }))
 }
 
 export function compileRegisteredMetadataResourceTopology(): CompiledMetadataResourceTopology {
-  return compileMetadataResourceTopology(
+  const revision = `${projectSpecRegistryRevision()}:${typeRulesRegistryRevision()}`
+  if (cachedTopology?.revision === revision) return cachedTopology.topology
+  const topology = compileMetadataResourceTopology(
     getRegisteredProjectSpecs().map((spec) => ({
       ...spec,
       resources: describeProjectSpecResourceTopology(spec),
     }))
   )
+  cachedTopology = { revision, topology }
+  return topology
 }
+
+let cachedTopology: { readonly revision: string; readonly topology: CompiledMetadataResourceTopology } | undefined
 
 export function describeProjectSpecResourceTopology(
   spec: RegisteredProjectSpec
@@ -98,15 +110,6 @@ export function describeProjectSpecResourceTopology(
   }
 
   declarations.push(...(spec.resources ?? []))
-  for (const route of spec.xmlImportRoutes ?? []) {
-    if (route.kind !== "ignore") continue
-    declarations.push({
-      kind: "ignore",
-      side: "xml",
-      pattern: route.xmlPattern,
-      source,
-    })
-  }
   return declarations
 }
 
@@ -196,10 +199,7 @@ function collectRuleDeclarations(
                   context.projectBase,
                   substituteLocalParameters(declaration.assignmentProjectPattern, context)
                 ),
-          xmlPattern: joinWithOverlap(
-            context.xmlBase,
-            substituteLocalParameters(declaration.xmlPattern, context)
-          ),
+          xmlPattern: joinWithOverlap(context.xmlBase, substituteLocalParameters(declaration.xmlPattern, context)),
         })
         continue
       }
@@ -217,10 +217,7 @@ function collectRuleDeclarations(
             context.projectBase,
             substituteLocalParameters(declaration.projectPattern, context)
           ),
-          xmlPattern: joinWithOverlap(
-            context.xmlBase,
-            substituteLocalParameters(declaration.xmlPattern, context)
-          ),
+          xmlPattern: joinWithOverlap(context.xmlBase, substituteLocalParameters(declaration.xmlPattern, context)),
           ...(declaration.selection === undefined
             ? {}
             : {

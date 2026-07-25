@@ -137,12 +137,3 @@ const getRecalculationNames = (value: unknown): string[] => {
 
 registerTypeRule("Recalculations", "syncExternalFromXML", syncRecalculationsFromXML)
 registerTypeRule("Recalculations", "syncExternalToXML", syncRecalculationsToXML)
-registerTypeRule("Recalculations", "xmlImportRoutes", () => [
-  {
-    kind: "externalFile",
-    xmlPattern: `${RECALCULATIONS_XML_DIR}/{itemName}.xml`,
-    targetPattern: `${RECALCULATIONS_NKDK_DIR}/{itemName}/${RECALCULATION_NKDK_XML}`,
-    assignmentTargetPattern: "",
-    source: { kind: "propertyType", type: "Recalculations" },
-  },
-])

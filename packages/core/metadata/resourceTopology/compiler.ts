@@ -198,10 +198,26 @@ function freezeAssignment(assignment: MutableAssignment): CompiledMetadataAssign
 }
 
 function createPathIndex(entries: readonly (readonly [string, string])[]): CompiledMetadataPathIndex {
-  const frozenEntries = Object.freeze([...entries])
+  const entriesByFirstSegment = new Map<string, Array<readonly [string, string]>>()
+  const fallbackEntries: Array<readonly [string, string]> = []
+  for (const entry of entries) {
+    const firstSegment = entry[1].split("/", 1)[0]
+    if (firstSegment === undefined || firstSegment.includes("{")) {
+      fallbackEntries.push(entry)
+      continue
+    }
+    const bucket = entriesByFirstSegment.get(firstSegment) ?? []
+    bucket.push(entry)
+    entriesByFirstSegment.set(firstSegment, bucket)
+  }
   return Object.freeze({
     match(path: string) {
-      return frozenEntries.flatMap(([nodeId, pattern]) => {
+      const firstSegment = path.replace(/\\/g, "/").split("/", 1)[0] ?? ""
+      const candidates = [
+        ...(entriesByFirstSegment.get(firstSegment) ?? []),
+        ...fallbackEntries,
+      ]
+      return candidates.flatMap(([nodeId, pattern]) => {
         const values = matchMetadataPathPattern(pattern, path)
         return values === undefined ? [] : [{ nodeId, values }]
       })

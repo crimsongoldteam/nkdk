@@ -13,6 +13,7 @@ import type {
   FullXmlSyncOwnerFacts,
 } from "./types"
 import { syncConfigurationToXml, type FullXmlSyncCoordinatorDependencies } from "./syncConfiguration"
+import { fullXmlSyncTestTopologyFields } from "./testTopology"
 import type {
   FullXmlSyncFirstPassPoolResult,
   FullXmlSyncSecondPassPoolResult,
@@ -197,7 +198,7 @@ function createHarness(options: HarnessOptions = {}) {
       itemType: "MetadataCatalog",
       itemName: "Товары",
       logicalAddress: "Справочник.Товары",
-      outputs: [{ routeKind: "owner", targetXmlPath: "Catalogs/Товары.xml" }],
+      ...fullXmlSyncTestTopologyFields("Справочник/Товары/Свойства.yaml"),
     },
   ]
   const externalFiles: FullXmlSyncExternalFile[] = [

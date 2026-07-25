@@ -29,17 +29,17 @@ export const registerMetadataItemRule = <Rule extends MetadataItemRule, Property
   )
   registerTypeRule(propertyType, "nestedItemRule", { itemRule })
   registerTypeRule(propertyType, "yamlToXMLNestedRule", { kind: "item", itemRule })
-  registerTypeRule(propertyType, "xmlImportRoutes", ({ propertyRule }) => {
+  registerTypeRule(propertyType, "resourceTopology", ({ propertyRule }) => {
     if (propertyRule?.filePath === undefined) return []
     return [
       {
-        kind: "assignment",
+        kind: "xmlDocument",
+        assignmentProjectPattern: "",
         xmlPattern: propertyRule.filePath,
-        targetPattern: "",
-        role: "properties",
-        inputRole: "property",
-        itemType: "",
-        source: { kind: "propertyType", type: propertyType },
+        role: "property",
+        required: false,
+        read: { inputRole: "property" },
+        source: { kind: "property", description: String(propertyType) },
       },
     ]
   })

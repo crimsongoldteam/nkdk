@@ -91,6 +91,6 @@ function assignmentDiagnostic(
     assignmentId: assignment.id,
     sourceProjectPath: assignment.sourceProjectPath,
     sourcePath: assignment.sourcePath,
-    targetXmlPath: assignment.outputs[0]?.targetXmlPath,
+    targetXmlPath: assignment.potentialOutputs[0]?.targetXmlPath,
   }
 }

@@ -115,7 +115,7 @@ describe("metadata import boundaries", () => {
   })
 
   it("XML import discovery не знает конкретные объекты и папки", () => {
-    const files = ["importFromXml/discovery.ts", "importFromXml/routes.ts"]
+    const files = ["importFromXml/discovery.ts", "resourceTopology/xmlImportProjection.ts"]
 
     for (const file of files) {
       const source = readFileSync(join(METADATA_DIR, file), "utf-8")

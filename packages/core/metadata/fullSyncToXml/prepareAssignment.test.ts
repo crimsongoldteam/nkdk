@@ -13,6 +13,7 @@ import type { FullXmlSyncAssignment } from "./types"
 import { compileMetadataResourceTopology } from "../resourceTopology/compiler"
 import { registerMetadataXmlPrepareCapability } from "../resourceTopology/capabilities"
 import type { MetadataItemRule } from "../orchestration/property/types"
+import { fullXmlSyncTestTopologyFields } from "./testTopology"
 
 describe("prepareFullXmlSyncAssignment", () => {
   const tempDirs: string[] = []
@@ -82,7 +83,6 @@ describe("prepareFullXmlSyncAssignment", () => {
       logicalAddress: "Объект.One",
       nodeId: node.id,
       potentialOutputs: outputs,
-      outputs: [],
     }
 
     const prepared = prepareFullXmlSyncAssignment({
@@ -136,7 +136,7 @@ describe("prepareFullXmlSyncAssignment", () => {
       itemName: "ОбработкаВсеСвойства",
       logicalAddress: "Обработка.ОбработкаВсеСвойства",
       owner: undefined,
-      outputs: [{ routeKind: "owner", targetXmlPath: "DataProcessors/ОбработкаВсеСвойства.xml" }],
+      ...fullXmlSyncTestTopologyFields(sourceProjectPath),
     }
     const writeFile = vi.spyOn(fs.promises, "writeFile")
 
@@ -193,7 +193,7 @@ describe("prepareFullXmlSyncAssignment", () => {
       itemName: "Товары",
       logicalAddress: "Справочник.Товары",
       owner: undefined,
-      outputs: [{ routeKind: "owner", targetXmlPath: "Catalogs/Товары.xml" }],
+      ...fullXmlSyncTestTopologyFields(sourceProjectPath),
     }
 
     const prepared = prepareFullXmlSyncAssignment({

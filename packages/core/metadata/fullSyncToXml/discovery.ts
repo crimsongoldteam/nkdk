@@ -35,12 +35,6 @@ export async function buildFullXmlSyncPlan(options: BuildFullXmlSyncPlanOptions)
         ...(projected.owner === undefined ? {} : { owner: projected.owner }),
         nodeId: projected.nodeId,
         potentialOutputs: projected.potentialOutputs,
-        outputs: projected.potentialOutputs
-          .filter((output) => output.role === "metadata")
-          .map((output) => ({
-          routeKind: projected.assignmentRole === "fileItem" ? "fileItem" : "owner",
-          targetXmlPath: output.targetXmlPath,
-        })),
       }
     })
   const externalFiles = resources
@@ -69,7 +63,7 @@ function assertUniqueXmlTargets(plan: FullXmlSyncPlan): void {
   const seen = new Map<string, string>()
   for (const [owner, target] of [
     ...plan.assignments.flatMap((assignment) =>
-      (assignment.potentialOutputs ?? assignment.outputs).map(
+      assignment.potentialOutputs.map(
         (output) => [assignment.sourceProjectPath, output.targetXmlPath] as const
       )
     ),

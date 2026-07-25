@@ -2,23 +2,17 @@ import { join } from "path"
 import { describe, expect, it } from "vitest"
 import { createImportAssignments, type ImportAssignmentGroup } from "./assignmentBuilder"
 
-const source = { kind: "itemRule", itemType: "test" } as const
-
 function group(
   targetProjectPath: string,
-  role: ImportAssignmentGroup["route"]["role"],
+  role: ImportAssignmentGroup["definition"]["role"],
   itemType: string,
   logicalAddressSegment?: string
 ): ImportAssignmentGroup {
   return {
-    route: {
-      kind: "assignment",
-      xmlPattern: `${targetProjectPath}.xml`,
-      targetPattern: targetProjectPath,
+    definition: {
       role,
       itemType,
       ...(logicalAddressSegment === undefined ? {} : { logicalAddressSegment }),
-      source,
     },
     values: {},
     targetProjectPath,

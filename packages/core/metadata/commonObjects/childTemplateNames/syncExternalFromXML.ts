@@ -51,30 +51,3 @@ async function copyDirectoryIfExists(params: { src: string; dst: string }): Prom
 }
 
 registerTypeRule("ChildTemplateNames", "syncExternalFromXML", syncChildTemplateNamesFromXML)
-registerTypeRule("ChildTemplateNames", "xmlImportRoutes", ({ propertyRule }) => {
-  const folderName = (propertyRule as ChildTemplateNamesPropertyRule | undefined)?.folderName ?? "Макеты"
-  const templateTargetPattern = `${folderName}/{itemName}/Template.xml`
-  return [
-    {
-      kind: "externalFile",
-      xmlPattern: "Templates/{itemName}.xml",
-      targetPattern: templateTargetPattern,
-      assignmentTargetPattern: "",
-      source: { kind: "propertyType", type: "ChildTemplateNames" },
-    },
-    ...(["txt", "bin"] as const).map((extension) => ({
-      kind: "externalFile" as const,
-      xmlPattern: `Templates/{itemName}/Ext/Template.${extension}`,
-      targetPattern: `${folderName}/{itemName}/Template.${extension}`,
-      assignmentTargetPattern: "",
-      source: { kind: "propertyType" as const, type: "ChildTemplateNames" as const },
-    })),
-    {
-      kind: "externalFile",
-      xmlPattern: "Templates/{itemName}/{relativePath...}",
-      targetPattern: `${folderName}/{itemName}/{relativePath...}`,
-      assignmentTargetPattern: "",
-      source: { kind: "propertyType", type: "ChildTemplateNames" },
-    },
-  ]
-})

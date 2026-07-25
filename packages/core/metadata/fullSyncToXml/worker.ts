@@ -312,7 +312,7 @@ function syncDiagnosticFromProjectDiagnostic(
       : {
           assignmentId: assignment.id,
           sourceProjectPath: assignment.sourceProjectPath,
-          targetXmlPath: assignment.outputs[0]?.targetXmlPath,
+          targetXmlPath: assignment.potentialOutputs[0]?.targetXmlPath,
         }),
     sourcePath: diagnostic.filePath,
     ...(diagnostic.line === undefined ? {} : { line: diagnostic.line }),
@@ -416,7 +416,7 @@ function assignmentDiagnostic(assignment: FullXmlSyncAssignment, code: string, m
     assignmentId: assignment.id,
     sourceProjectPath: assignment.sourceProjectPath,
     sourcePath: assignment.sourcePath,
-    targetXmlPath: assignment.outputs[0]?.targetXmlPath,
+    targetXmlPath: assignment.potentialOutputs[0]?.targetXmlPath,
   }
 }
 

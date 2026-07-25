@@ -10,6 +10,7 @@ import {
   normalizeFullXmlSyncConcurrency,
   type FullXmlSyncWorkerThreadPool,
 } from "./workerPool"
+import { fullXmlSyncTestOutput } from "./testTopology"
 
 describe("full XML sync worker pool", () => {
   const context = { version: "2.20", defaultLanguage: "ru", exportToYAML: { toTyped: false } } as const
@@ -106,7 +107,7 @@ function assignment(id: string): FullXmlSyncAssignment {
     itemType: "MetadataCatalog",
     itemName: id,
     logicalAddress: `Справочник.${id}`,
-    outputs: [{ routeKind: "owner", targetXmlPath: `${id}.xml` }],
+    ...fullXmlSyncTestOutput(`${id}.xml`),
   }
 }
 

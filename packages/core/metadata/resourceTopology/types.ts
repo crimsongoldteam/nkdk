@@ -12,6 +12,8 @@ export type MetadataResourceRole =
 export interface MetadataResourceSource {
   readonly kind: "projectSpec" | "itemRule" | "property"
   readonly description: string
+  readonly propertyName?: string
+  readonly propertyType?: string
 }
 
 export interface MetadataContentDeclaration {

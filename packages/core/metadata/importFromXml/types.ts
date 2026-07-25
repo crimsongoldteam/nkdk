@@ -1,4 +1,3 @@
-import type { ProjectResourceSource } from "../orchestration/property/fn"
 import type { ConfigurationContextFromXML } from "../context/types"
 import type { SharedValidationSnapshot } from "../validation/sharedValidationSnapshot"
 import type { ValidationOwnerFacts } from "../validation/dataPath/ownerFacts"
@@ -73,49 +72,3 @@ export interface ImportSecondPassResult {
 }
 
 export type ImportWorkerCommandResult = ImportFirstPassResult | ImportSecondPassResult | undefined
-
-export interface XmlImportRouteRecursion {
-  xmlRootPattern: string
-  targetRootPattern: string
-  xmlChildDir: string
-  targetChildDir: string
-  assignmentRole: ImportAssignmentRole
-}
-
-export type XmlImportRoute = (
-  | {
-      kind: "assignment"
-      xmlPattern: string
-      targetPattern: string
-      role: ImportAssignmentRole
-      inputRole?: ImportXmlInput["role"]
-      itemType: string
-      logicalAddressSegment?: string
-      source: ProjectResourceSource
-    }
-  | {
-      kind: "externalFile"
-      xmlPattern: string
-      targetPattern: string
-      assignmentTargetPattern: string
-      /** Используется только когда тот же путь не описан более точным маршрутом. */
-      fallback?: true
-      /** Ограничивает внешние файлы значениями, перечисленными в XML-манифесте. */
-      selection?: {
-        manifestPattern: string
-        listPath: readonly string[]
-        candidateParameter: string
-        candidateSuffix?: string
-        alwaysIncludePrefixes?: readonly string[]
-      }
-      source: ProjectResourceSource
-    }
-  | {
-      kind: "ignore"
-      xmlPattern: string
-      source: ProjectResourceSource
-    }
-) & {
-  /** Нейтральное описание повторяемой вложенности одного project spec. */
-  recursion?: XmlImportRouteRecursion
-}

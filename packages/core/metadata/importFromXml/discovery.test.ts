@@ -1,45 +1,17 @@
 import { join } from "path"
 import { describe, expect, it, vi } from "vitest"
 import { discoverXmlImport } from "./discovery"
-import { describeRegisteredXmlImportRoutes } from "./routes"
-import type { XmlImportRoute } from "./types"
+import { compileRegisteredMetadataResourceTopology } from "../resourceTopology/registry"
+import { compileMetadataResourceTopology } from "../resourceTopology/compiler"
+import type { MetadataItemRule } from "../orchestration/property/types"
 
 const xmlDir = "/xml-dump"
-const source = { kind: "itemRule", itemType: "test" } as const
+const source = { kind: "itemRule" as const, description: "test" }
+const configurationRule = { itemType: "MetadataConfiguration", properties: {} } as MetadataItemRule
+const catalogRule = { itemType: "MetadataCatalog", properties: {} } as MetadataItemRule
+const formRule = { itemType: "ClientApplicationForm", properties: {} } as MetadataItemRule
 
-const testRoutes = [
-  {
-    kind: "assignment",
-    xmlPattern: "Configuration.xml",
-    targetPattern: "Конфигурация.yaml",
-    role: "configuration",
-    itemType: "MetadataConfiguration",
-    source,
-  },
-  {
-    kind: "assignment",
-    xmlPattern: "Catalogs/{ownerName}.xml",
-    targetPattern: "Справочник/{ownerName}/Свойства.yaml",
-    role: "properties",
-    itemType: "MetadataCatalog",
-    source,
-  },
-  {
-    kind: "assignment",
-    xmlPattern: "Catalogs/{ownerName}/Forms/{itemName}.xml",
-    targetPattern: "Справочник/{ownerName}/Формы/{itemName}/Форма.yaml",
-    role: "fileItem",
-    itemType: "ClientApplicationForm",
-    source,
-  },
-  {
-    kind: "externalFile",
-    xmlPattern: "Catalogs/{ownerName}/Forms/{itemName}/Ext/Form/Module.bsl",
-    targetPattern: "Справочник/{ownerName}/Формы/{itemName}/Модуль.bsl",
-    assignmentTargetPattern: "Справочник/{ownerName}/Формы/{itemName}/Форма.yaml",
-    source,
-  },
-] as const satisfies readonly XmlImportRoute[]
+const testTopology = compileTestTopology()
 
 function fakeFs(paths: readonly string[], contents: Readonly<Record<string, string>> = {}) {
   return {
@@ -58,7 +30,7 @@ describe("XML import discovery", () => {
     ]
     const fs = fakeFs(fixturePaths)
 
-    const result = await discoverXmlImport({ xmlDir, routes: testRoutes, fs })
+    const result = await discoverXmlImport({ xmlDir, topology: testTopology, fs })
 
     expect(fs.readFile).not.toHaveBeenCalled()
     expect(result.assignments.map((assignment) => assignment.targetProjectPath)).toEqual([
@@ -84,7 +56,7 @@ describe("XML import discovery", () => {
     const formRoot = "Catalogs/Контрагенты/Forms/ФормаЭлемента"
     const result = await discoverXmlImport({
       xmlDir,
-      routes: describeRegisteredXmlImportRoutes(),
+      topology: compileRegisteredMetadataResourceTopology(),
       fs: fakeFs([
         "Catalogs/Контрагенты.xml",
         `${formRoot}.xml`,
@@ -122,7 +94,7 @@ describe("XML import discovery", () => {
 
     const result = await discoverXmlImport({
       xmlDir,
-      routes: describeRegisteredXmlImportRoutes(),
+      topology: compileRegisteredMetadataResourceTopology(),
       fs: fakeFs(paths),
     })
 
@@ -145,7 +117,7 @@ describe("XML import discovery", () => {
     const commonFormRoot = "CommonForms/КонстантаВсеСвойства"
     const result = await discoverXmlImport({
       xmlDir,
-      routes: describeRegisteredXmlImportRoutes(),
+      topology: compileRegisteredMetadataResourceTopology(),
       fs: fakeFs([`${commonFormRoot}.xml`, `${commonFormRoot}/Ext/Form.xml`]),
     })
 
@@ -160,7 +132,7 @@ describe("XML import discovery", () => {
     const helpXml = `${formRoot}/Ext/Help.xml`
     const result = await discoverXmlImport({
       xmlDir,
-      routes: describeRegisteredXmlImportRoutes(),
+      topology: compileRegisteredMetadataResourceTopology(),
       fs: fakeFs(["DataProcessors/ОбработкаВсеСвойства.xml", `${formRoot}.xml`, helpXml]),
     })
 
@@ -174,7 +146,7 @@ describe("XML import discovery", () => {
     const helpHtml = `${formRoot}/Ext/Help/ru.html`
     const result = await discoverXmlImport({
       xmlDir,
-      routes: describeRegisteredXmlImportRoutes(),
+      topology: compileRegisteredMetadataResourceTopology(),
       fs: fakeFs(["DataProcessors/ОбработкаВсеСвойства.xml", `${formRoot}.xml`, `${formRoot}/Ext/Help.xml`, helpHtml], {
         [join(xmlDir, `${formRoot}/Ext/Help.xml`)]: "<Help><Page>ru</Page></Help>",
       }),
@@ -192,7 +164,7 @@ describe("XML import discovery", () => {
     const picture = `${formRoot}/Ext/Form/Items/Декорация2/Picture.png`
     const result = await discoverXmlImport({
       xmlDir,
-      routes: describeRegisteredXmlImportRoutes(),
+      topology: compileRegisteredMetadataResourceTopology(),
       fs: fakeFs(["DataProcessors/ОбработкаВсеСвойства.xml", `${formRoot}.xml`, picture]),
     })
 
@@ -206,7 +178,7 @@ describe("XML import discovery", () => {
   it("discovers child subsystems recursively at arbitrary dump depth", async () => {
     const result = await discoverXmlImport({
       xmlDir,
-      routes: describeRegisteredXmlImportRoutes(),
+      topology: compileRegisteredMetadataResourceTopology(),
       fs: fakeFs([
         "Subsystems/Продажи.xml",
         "Subsystems/Продажи/Subsystems/Опт.xml",
@@ -234,7 +206,7 @@ describe("XML import discovery", () => {
     const templateRoot = "BusinessProcesses/БизнесПроцессВсеСвойства/Templates/Макет"
     const result = await discoverXmlImport({
       xmlDir,
-      routes: describeRegisteredXmlImportRoutes(),
+      topology: compileRegisteredMetadataResourceTopology(),
       fs: fakeFs([
         "BusinessProcesses/БизнесПроцессВсеСвойства.xml",
         `${templateRoot}.xml`,
@@ -249,45 +221,29 @@ describe("XML import discovery", () => {
     expect(result.assignments).not.toContainEqual(
       expect.objectContaining({ targetProjectPath: expect.stringMatching(/\/Макеты\/Макет\/Template\.xml$/) })
     )
+    expect(owner?.externalFiles).toHaveLength(3)
     expect(owner?.externalFiles).toEqual(
       expect.arrayContaining([
-        expect.objectContaining({
+        {
           sourcePath: join(xmlDir, `${templateRoot}.xml`),
           targetProjectPath: "БизнесПроцесс/БизнесПроцессВсеСвойства/Макеты/Макет/Template.xml",
-        }),
-        expect.objectContaining({
+        },
+        {
           sourcePath: join(xmlDir, `${templateRoot}/Ext/Template.txt`),
           targetProjectPath: "БизнесПроцесс/БизнесПроцессВсеСвойства/Макеты/Макет/Template.txt",
-        }),
-        expect.objectContaining({
-          sourcePath: join(xmlDir, `${templateRoot}/Ext/Template.txt`),
-          targetProjectPath: "БизнесПроцесс/БизнесПроцессВсеСвойства/Макеты/Макет/Ext/Template.txt",
-        }),
-        expect.objectContaining({
+        },
+        {
           sourcePath: join(xmlDir, `${templateRoot}/Ext/Template.bin`),
           targetProjectPath: "БизнесПроцесс/БизнесПроцессВсеСвойства/Макеты/Макет/Template.bin",
-        }),
-        expect.objectContaining({
-          sourcePath: join(xmlDir, `${templateRoot}/Ext/Template.bin`),
-          targetProjectPath: "БизнесПроцесс/БизнесПроцессВсеСвойства/Макеты/Макет/Ext/Template.bin",
-        }),
+        },
       ])
     )
   })
 
   it("groups several XML inputs into the same assignment", async () => {
-    const routes = [
-      testRoutes[1],
-      {
-        ...testRoutes[1],
-        xmlPattern: "Catalogs/{ownerName}/Ext/Predefined.xml",
-        source: { kind: "property", propertyName: "predefined", propertyType: "Predefined" } as const,
-      },
-    ] satisfies readonly XmlImportRoute[]
-
     const result = await discoverXmlImport({
       xmlDir,
-      routes,
+      topology: compileTestTopology(true),
       fs: fakeFs(["Catalogs/Контрагенты.xml", "Catalogs/Контрагенты/Ext/Predefined.xml"]),
     })
 
@@ -301,47 +257,77 @@ describe("XML import discovery", () => {
   it("ignores files that are not described by import routes", async () => {
     const fs = fakeFs(["z.bin", "Unknown.bin"])
 
-    await expect(discoverXmlImport({ xmlDir, routes: testRoutes, fs })).resolves.toEqual({ assignments: [] })
+    await expect(discoverXmlImport({ xmlDir, topology: testTopology, fs })).resolves.toEqual({ assignments: [] })
     expect(fs.readFile).not.toHaveBeenCalled()
-  })
-
-  it("rejects incompatible matches for one source path", async () => {
-    const conflictingRoutes = [
-      testRoutes[1],
-      { ...testRoutes[1], targetPattern: "Другой/{ownerName}/Свойства.yaml" },
-    ] satisfies readonly XmlImportRoute[]
-
-    await expect(
-      discoverXmlImport({
-        xmlDir,
-        routes: conflictingRoutes,
-        fs: fakeFs(["Catalogs/Контрагенты.xml"]),
-      })
-    ).rejects.toMatchObject({ code: "xml_import_route_conflict", paths: ["Catalogs/Контрагенты.xml"] })
-  })
-
-  it("rejects assignment matches with conflicting input roles", async () => {
-    const conflictingRoutes = [
-      { ...testRoutes[1], inputRole: "body" },
-      { ...testRoutes[1], inputRole: "property" },
-    ] satisfies readonly XmlImportRoute[]
-
-    await expect(
-      discoverXmlImport({
-        xmlDir,
-        routes: conflictingRoutes,
-        fs: fakeFs(["Catalogs/Контрагенты.xml"]),
-      })
-    ).rejects.toMatchObject({ code: "xml_import_route_conflict", paths: ["Catalogs/Контрагенты.xml"] })
   })
 
   it("rejects an external file whose assignment is absent", async () => {
     await expect(
       discoverXmlImport({
         xmlDir,
-        routes: [testRoutes[3]],
+        topology: testTopology,
         fs: fakeFs(["Catalogs/Контрагенты/Forms/ФормаЭлемента/Ext/Form/Module.bsl"]),
       })
     ).rejects.toMatchObject({ code: "xml_import_assignment_missing" })
   })
 })
+
+function compileTestTopology(withPropertyInput = false) {
+  return compileMetadataResourceTopology([
+    {
+      dir: "test",
+      kind: "test",
+      rule: catalogRule,
+      exportSchema: () => ({}) as never,
+      resources: [
+        content("Конфигурация.yaml", "configuration", configurationRule),
+        xmlDocument("", "Configuration.xml", "metadata"),
+        content("Справочник/{ownerName}/Свойства.yaml", "properties", catalogRule),
+        xmlDocument("", "Catalogs/{ownerName}.xml", "metadata"),
+        ...(withPropertyInput ? [xmlDocument("", "Catalogs/{ownerName}/Ext/Predefined.xml", "property")] : []),
+        content("Справочник/{ownerName}/Формы/{itemName}/Форма.yaml", "fileItem", formRule),
+        xmlDocument("", "Catalogs/{ownerName}/Forms/{itemName}.xml", "metadata"),
+        {
+          kind: "externalFile",
+          assignmentProjectPattern: "",
+          xmlPattern: "Catalogs/{ownerName}/Forms/{itemName}/Ext/Form/Module.bsl",
+          projectPattern: "Справочник/{ownerName}/Формы/{itemName}/Модуль.bsl",
+          direction: "both",
+          transferCapabilityId: "test",
+          compositionImpact: "none",
+          source,
+        },
+      ],
+    },
+  ])
+}
+
+function content(
+  projectPattern: string,
+  role: "configuration" | "properties" | "fileItem",
+  itemRule: MetadataItemRule
+) {
+  return {
+    kind: "content" as const,
+    projectPattern,
+    role,
+    required: true,
+    repeatable: role !== "configuration",
+    compositionImpact: "none" as const,
+    itemRule,
+    source,
+  }
+}
+
+function xmlDocument(assignmentProjectPattern: string, xmlPattern: string, role: "metadata" | "body" | "property") {
+  return {
+    kind: "xmlDocument" as const,
+    assignmentProjectPattern,
+    xmlPattern,
+    role,
+    required: true,
+    read: { inputRole: role },
+    prepareCapabilityId: "test",
+    source,
+  }
+}
