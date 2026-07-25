@@ -67,12 +67,8 @@ export const createSingletonElementYAMLToXMLNestedRule = <Rule extends ElementRu
           : configurationIndexExportFormElementLogicalAddress(context, canonicalName)
     return logicalAddress === undefined ? context : withConfigurationIndexExportLogicalAddress(context, logicalAddress)
   },
-  resolveItemContext: ({ context, name }) => {
-    const canonicalName = getCanonicalSingletonName({
-      ownerLogicalAddress: name ?? context.exportToXML.configurationIndex?.logicalAddress ?? "",
-      nameStyle: params.nameStyle,
-    })
-    const itemName = getConfigurationIndexXmlName(context) ?? canonicalName
+  resolveItemContext: ({ context }) => {
+    const itemName = getConfigurationIndexXmlName(context) ?? params.toXML({ context }).name
     return itemName === undefined
       ? context
       : getChildContextToXML({
