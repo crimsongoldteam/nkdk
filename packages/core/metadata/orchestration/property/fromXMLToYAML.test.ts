@@ -338,6 +338,49 @@ describe("importPropertiesFromXMLToYAML", () => {
     ).toEqual({ ТолькоСсылка: "one", Выключено: "two" })
   })
 
+  it("collects configuration-index data before skipping a reference-only property", () => {
+    const indexCollector = createConfigurationIndexCollector()
+    const context = withConfigurationIndexCollector(mockContextFromXML(), indexCollector, "Справочник.Товары")
+
+    registerTypeRule(
+      "TestReferenceIndex" as PropertyRuleType,
+      "collectConfigurationIndexFromXML",
+      ({ context: propertyContext, xml }) => {
+        propertyContext.fromXML.configurationIndex?.collector.setUuid(
+          "Справочник.Товары.ТехническийUUID",
+          String(xml)
+        )
+      }
+    )
+
+    const yaml = importPropertiesWithSources({
+      context,
+      rule: {
+        itemType: "TestDirectItem",
+        properties: {
+          technical: {
+            type: "TestReferenceIndex",
+            xml: "Technical",
+            forReferenceOnly: true,
+          },
+        },
+      } as MetadataItemRule,
+      sources: [{ context, xml: { Technical: "00000000-0000-4000-8000-000000000001" } }],
+      yamlPath: [],
+      rulePath: [],
+      collector: createLocalIndexesCollector(),
+    })
+
+    expect(yaml).toEqual({})
+    expect(indexCollector.fragment("test.yaml").identities).toEqual([
+      {
+        logicalAddress: "Справочник.Товары.ТехническийUUID",
+        kind: "uuid",
+        value: "00000000-0000-4000-8000-000000000001",
+      },
+    ])
+  })
+
   it.each([
     ["alias", { Alias: "x" }, { xml: "Value", xmlAliases: ["Alias"], yaml: "Значение" }, "x"],
     ["parent", { Properties: { Value: "x" } }, { xml: "Value", xmlParents: ["Properties"], yaml: "Значение" }, "x"],

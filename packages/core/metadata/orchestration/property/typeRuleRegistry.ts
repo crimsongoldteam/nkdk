@@ -1,6 +1,7 @@
 import { PropertyRuleType } from "./registry"
 import {
   CollectionItemRule,
+  CollectConfigurationIndexFromXMLFunction,
   CollectMetadataTargetReferencesFunction,
   ConfigurationIndexValueFromXMLDescriptor,
   createRegistryKey,
@@ -61,6 +62,7 @@ const typeRulesRegistry = new Map<
   | FileChildNamesDescriptorFunction
   | XmlSyncWriterFunction
   | ConfigurationIndexValueFromXMLDescriptor
+  | CollectConfigurationIndexFromXMLFunction
   | XMLImportPropertyBehavior
   | ImportFromXMLToYAMLFunction
   | NestedItemRule
@@ -123,21 +125,23 @@ export const getTypeRule = <O extends TypeRulesOperations>(
                                       ? XmlSyncWriterFunction | undefined
                                       : O extends "configurationIndexValueFromXML"
                                         ? ConfigurationIndexValueFromXMLDescriptor | undefined
-                                        : O extends "xmlImportPropertyBehavior"
-                                          ? XMLImportPropertyBehavior | undefined
-                                          : O extends "nestedItemRule"
-                                            ? NestedItemRule | undefined
-                                            : O extends "resolveNestedImportXMLSources"
-                                              ? ResolveNestedImportXMLSourcesFunction | undefined
-                                              : O extends "finalizeImportedYAML"
-                                                ? FinalizeImportedYAMLFunction | undefined
-                                                : O extends "finalizeExportedXML"
-                                                  ? FinalizeExportedXMLFunction | undefined
-                                                : O extends "collectLocalFactsFromYAML"
-                                                  ? CollectLocalFactsFromYAMLFunction | undefined
-                                                  : O extends "yamlToXMLNestedRule"
-                                                    ? YAMLToXMLNestedRule | undefined
-                                                    : never => {
+                                        : O extends "collectConfigurationIndexFromXML"
+                                          ? CollectConfigurationIndexFromXMLFunction | undefined
+                                          : O extends "xmlImportPropertyBehavior"
+                                            ? XMLImportPropertyBehavior | undefined
+                                            : O extends "nestedItemRule"
+                                              ? NestedItemRule | undefined
+                                              : O extends "resolveNestedImportXMLSources"
+                                                ? ResolveNestedImportXMLSourcesFunction | undefined
+                                                : O extends "finalizeImportedYAML"
+                                                  ? FinalizeImportedYAMLFunction | undefined
+                                                  : O extends "finalizeExportedXML"
+                                                    ? FinalizeExportedXMLFunction | undefined
+                                                  : O extends "collectLocalFactsFromYAML"
+                                                    ? CollectLocalFactsFromYAMLFunction | undefined
+                                                    : O extends "yamlToXMLNestedRule"
+                                                      ? YAMLToXMLNestedRule | undefined
+                                                      : never => {
   const key = createRegistryKey(type, operation)
   const result = typeRulesRegistry.get(key)
   return result as any

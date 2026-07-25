@@ -306,6 +306,12 @@ export interface ConfigurationIndexValueFromXMLDescriptor {
   xsiNilWhenNotRepresentable?: true
 }
 
+export type CollectConfigurationIndexFromXMLFunction = (params: {
+  context: ConfigurationContextFromXML
+  rule: PropertyRule
+  xml: unknown
+}) => void
+
 /** Декларативное поведение XML-import, одинаковое для всех свойств зарегистрированного типа. */
 export interface XMLImportPropertyBehavior {
   presenceAffectsExportForSourceValues?: readonly (string | number | boolean | null)[]
@@ -332,6 +338,7 @@ export interface TypeRule {
   fileChildNamesDescriptor?: FileChildNamesDescriptorFunction
   xmlSyncWriter?: XmlSyncWriterFunction
   configurationIndexValueFromXML?: ConfigurationIndexValueFromXMLDescriptor
+  collectConfigurationIndexFromXML?: CollectConfigurationIndexFromXMLFunction
   xmlImportPropertyBehavior?: XMLImportPropertyBehavior
   nestedItemRule?: NestedItemRule
   resolveNestedImportXMLSources?: ResolveNestedImportXMLSourcesFunction
@@ -362,6 +369,7 @@ export type TypeRulesOperations =
   | "fileChildNamesDescriptor"
   | "xmlSyncWriter"
   | "configurationIndexValueFromXML"
+  | "collectConfigurationIndexFromXML"
   | "xmlImportPropertyBehavior"
   | "nestedItemRule"
   | "resolveNestedImportXMLSources"
@@ -415,18 +423,20 @@ export type importExportFunction<O extends TypeRulesOperations> = O extends "imp
                                       ? XmlSyncWriterFunction | undefined
                                       : O extends "configurationIndexValueFromXML"
                                         ? ConfigurationIndexValueFromXMLDescriptor | undefined
-                                        : O extends "xmlImportPropertyBehavior"
-                                          ? XMLImportPropertyBehavior | undefined
-                                          : O extends "nestedItemRule"
-                                            ? NestedItemRule | undefined
-                                            : O extends "resolveNestedImportXMLSources"
-                                              ? ResolveNestedImportXMLSourcesFunction | undefined
-                                              : O extends "finalizeImportedYAML"
-                                                ? FinalizeImportedYAMLFunction | undefined
-                                                : O extends "finalizeExportedXML"
-                                                  ? FinalizeExportedXMLFunction | undefined
-                                                : O extends "collectLocalFactsFromYAML"
-                                                  ? CollectLocalFactsFromYAMLFunction | undefined
-                                                  : O extends "yamlToXMLNestedRule"
-                                                    ? YAMLToXMLNestedRule | undefined
-                                                    : never
+                                        : O extends "collectConfigurationIndexFromXML"
+                                          ? CollectConfigurationIndexFromXMLFunction | undefined
+                                          : O extends "xmlImportPropertyBehavior"
+                                            ? XMLImportPropertyBehavior | undefined
+                                            : O extends "nestedItemRule"
+                                              ? NestedItemRule | undefined
+                                              : O extends "resolveNestedImportXMLSources"
+                                                ? ResolveNestedImportXMLSourcesFunction | undefined
+                                                : O extends "finalizeImportedYAML"
+                                                  ? FinalizeImportedYAMLFunction | undefined
+                                                  : O extends "finalizeExportedXML"
+                                                    ? FinalizeExportedXMLFunction | undefined
+                                                  : O extends "collectLocalFactsFromYAML"
+                                                    ? CollectLocalFactsFromYAMLFunction | undefined
+                                                    : O extends "yamlToXMLNestedRule"
+                                                      ? YAMLToXMLNestedRule | undefined
+                                                      : never

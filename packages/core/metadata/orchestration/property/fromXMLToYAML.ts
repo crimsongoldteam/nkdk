@@ -113,6 +113,29 @@ export function importPropertiesFromXMLToYAML(params: {
     })
     addProfileTime(params.profile, "configurationIndexMs", identityStartedAt)
 
+    const childCollection = rule.childCollections?.find((candidate) => candidate.propertyKey === key)
+    const configurationIndexUidSegment =
+      childCollection?.configurationIndexUidSegment ??
+      propertyRule.configurationIndexUidSegment ??
+      propertyRule.operationTarget?.migrationSegment
+    const collectConfigurationIndex = getTypeRule(propertyRule.type, "collectConfigurationIndexFromXML")
+    if (indexCollection !== undefined && sourceXMLKey !== undefined && collectConfigurationIndex !== undefined) {
+      const indexStartedAt = performance.now()
+      runWithConfigurationIndexPropertyContext(
+        sourceContext,
+        propertyRule.yaml ?? key,
+        configurationIndexUidSegment,
+        (propertyContext) =>
+          collectConfigurationIndex({
+            context: propertyContext,
+            rule: propertyRule,
+            xml: sourceXMLValue,
+          }),
+        { configurationIndexAddressing: propertyRule.configurationIndexAddressing }
+      )
+      addProfileTime(params.profile, "configurationIndexMs", indexStartedAt)
+    }
+
     if (!forReference && propertyRule.forReferenceOnly === true) return
 
     if (indexCollection !== undefined && sourceXMLKey !== undefined) {
@@ -173,12 +196,6 @@ export function importPropertiesFromXMLToYAML(params: {
     const propertyRulePath = [...rulePath, { propertyKey: key }]
     const hasExplicitXMLKeyWithEmptyDefault = "defaultValueXMLEmpty" in propertyRule && presentInXML
     const hasRawEmptyXML = hasExplicitXMLKeyWithEmptyDefault && (xmlValue === undefined || xmlValue === "")
-    const childCollection = rule.childCollections?.find((candidate) => candidate.propertyKey === key)
-    const configurationIndexUidSegment =
-      childCollection?.configurationIndexUidSegment ??
-      propertyRule.configurationIndexUidSegment ??
-      propertyRule.operationTarget?.migrationSegment
-
     try {
       const direct = getTypeRule(propertyRule.type, "importFromXMLToYAML")
       const resolveNestedSources = getTypeRule(propertyRule.type, "resolveNestedImportXMLSources")
