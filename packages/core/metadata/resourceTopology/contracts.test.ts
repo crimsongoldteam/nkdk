@@ -3,6 +3,11 @@ import { registerCoreMetadata } from "../register"
 import { getMetadataExternalTransferCapability, getMetadataXmlPrepareCapability } from "./capabilities"
 import { classifyMetadataProjectPath } from "./projectProjection"
 import { compileRegisteredMetadataResourceTopology } from "./registry"
+import { mockContextToXML } from "../../tests/mockContext"
+import { createYAMLToXMLProfile } from "../orchestration/property/fromYAMLToXMLTypes"
+import { createConfigurationIndexReader, snapshotConfigurationIndex } from "../configurationIndex/sharedSnapshot"
+import { encodeConfigurationIndex } from "../configurationIndex/encode"
+import { sampleIndex } from "../configurationIndex/testData"
 
 registerCoreMetadata()
 
@@ -31,6 +36,49 @@ describe("registered metadata resource topology contracts", () => {
         expect(getMetadataExternalTransferCapability(file.transferCapabilityId), file.xmlPattern).toBeDefined()
       }
     }
+  })
+
+  it("prepares a required external XML property even when it is omitted from YAML", () => {
+    const assignment = topology.assignments.find(
+      (candidate) => candidate.projectPattern === "ОбщаяФорма/{ownerName}/Свойства.yaml"
+    )
+    const output = assignment?.xmlDocuments.find(
+      (candidate) => candidate.xmlPattern === "CommonForms/{ownerName}/Ext/Form.xml"
+    )
+    const capability =
+      output?.prepareCapabilityId === undefined ? undefined : getMetadataXmlPrepareCapability(output.prepareCapabilityId)
+    expect(assignment).toBeDefined()
+    expect(output).toBeDefined()
+    expect(capability).toBeDefined()
+
+    const documents = capability!.run({
+      context: mockContextToXML(),
+      preparedYamlFile: {
+        projectPath: "ОбщаяФорма/Пустая/Свойства.yaml",
+        filePath: "/project/ОбщаяФорма/Пустая/Свойства.yaml",
+        role: "properties",
+        owner: { dir: "ОбщаяФорма", name: "Пустая" },
+        data: {},
+        syntaxDiagnostics: [],
+      },
+      assignment: assignment!,
+      itemName: "Пустая",
+      logicalAddress: "ОбщаяФорма.Пустая",
+      outputs: [
+        {
+          declarationId: output!.id,
+          targetXmlPath: "CommonForms/Пустая/Ext/Form.xml",
+          role: "body",
+          propertyName: "form",
+        },
+      ],
+      index: createConfigurationIndexReader(snapshotConfigurationIndex(encodeConfigurationIndex(sampleIndex()))),
+      composition: [],
+      profile: createYAMLToXMLProfile(),
+    })
+
+    expect(documents).toHaveLength(1)
+    expect(documents[0]?.xml).toHaveProperty("Form")
   })
 
   it.each([

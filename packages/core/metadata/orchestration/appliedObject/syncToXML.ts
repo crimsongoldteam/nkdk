@@ -278,9 +278,10 @@ registerMetadataXmlPrepareCapability({
 
     return outputs.flatMap((output) => {
       const propertyKey = output.propertyName
-      if (propertyKey === undefined || !source.has(propertyKey)) return []
+      if (propertyKey === undefined) return []
       const propertyRule = assignment.itemRule.properties[propertyKey]
       if (propertyRule === undefined) return []
+      if (!source.has(propertyKey) && propertyRule.exportReferenceFileOnMissingValue !== true) return []
       const nestedRule = getTypeRule(propertyRule.type, "yamlToXMLNestedRule")
       if (nestedRule?.kind !== "externalFile") return []
 
