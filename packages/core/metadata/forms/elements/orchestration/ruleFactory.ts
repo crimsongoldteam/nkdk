@@ -9,6 +9,7 @@ import { importSingleFormElementFromXMLToYAML } from "./fromXMLToYAML"
 import {
   configurationIndexExportFormElementLogicalAddress,
   configurationIndexExportFormSingletonLogicalAddress,
+  getConfigurationIndexXmlName,
   withConfigurationIndexExportLogicalAddress,
 } from "../../../configurationIndex/referenceView"
 import { getCanonicalSingletonName, type SingletonNameStyle } from "./singletonName"
@@ -83,7 +84,7 @@ export const registerElementAsType = <Rule extends ElementRule & { itemType: Sin
         ownerLogicalAddress: name ?? context.exportToXML.configurationIndex?.logicalAddress ?? "",
         nameStyle,
       })
-      const itemName = context.exportToXML.configurationIndex?.identity("xmlName") ?? canonicalName
+      const itemName = getConfigurationIndexXmlName(context) ?? canonicalName
       return itemName === undefined
         ? context
         : getChildContextToXML({
@@ -96,9 +97,12 @@ export const registerElementAsType = <Rule extends ElementRule & { itemType: Sin
     transformOutput: ({ context, xml }) => {
       const extra = toXML({ context })
       const runtime = context.exportToXML.configurationIndex
-      const indexedName = runtime?.identity("xmlName")
+      const indexedName = getConfigurationIndexXmlName(context)
       const indexedId = runtime?.identity("xmlId")
-      if (indexedName !== undefined) runtime?.collector.setXmlName(runtime.logicalAddress, indexedName)
+      if (indexedName !== undefined) {
+        if (indexedName.length === 0) runtime?.collector.setAlias(runtime.logicalAddress, "_name", "")
+        else runtime?.collector.setXmlName(runtime.logicalAddress, indexedName)
+      }
       if (indexedId !== undefined) runtime?.collector.setXmlId(runtime.logicalAddress, indexedId)
       return {
         ...xml,

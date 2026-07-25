@@ -283,6 +283,8 @@ describe("форма XML → YAML → XML", () => {
     sourceInputField.ContextMenu._id = "33"
     sourceInputField.ExtendedTooltip._id = "44"
     sourceCommand._id = "55"
+    const autoCommandBar = form.Form.AutoCommandBar as { _name?: string } | undefined
+    if (autoCommandBar !== undefined) autoCommandBar._name = ""
     const contexts = createDirectRoundTripContexts({
       logicalAddress: "Справочник.Товары.Форма.ФормаЭлемента",
     })
@@ -314,7 +316,7 @@ describe("форма XML → YAML → XML", () => {
     expect(converted.formXML.Commands?.Command).toEqual(
       expect.arrayContaining([expect.objectContaining({ _name: "Команда1", _id: "55" })])
     )
-    expect(converted.formXML.AutoCommandBar).toEqual(expect.objectContaining({ _id: "-1" }))
+    expect(converted.formXML.AutoCommandBar).toEqual(expect.objectContaining({ _name: "", _id: "-1" }))
   })
 
   it("восстанавливает имена подсказок вложенных дополнений таблицы без reference XML", () => {

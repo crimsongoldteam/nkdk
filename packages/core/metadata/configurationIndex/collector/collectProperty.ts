@@ -29,7 +29,8 @@ export function collectConfigurationIndexIdentityFromXML(params: {
     params.sourceXmlKey === "_name" &&
     !isNameReconstructible(collection.logicalAddress, params.xmlValue, params.reconstructibleXmlName)
   ) {
-    collection.collector.setXmlName(collection.logicalAddress, params.xmlValue)
+    if (params.xmlValue.length === 0) collection.collector.setAlias(collection.logicalAddress, "_name", "")
+    else collection.collector.setXmlName(collection.logicalAddress, params.xmlValue)
   }
 }
 

@@ -3,6 +3,7 @@ import {
   getConfigurationIndexPropertyReferenceXMLValue,
   getConfigurationIndexPropertyOrder,
   getConfigurationIndexSourceXmlKey,
+  getConfigurationIndexXmlName,
   getConfigurationIndexXmlNodeLogicalAddress,
   isConfigurationIndexPropertyExcludedEqualName,
   isConfigurationIndexPropertyPresent,
@@ -858,10 +859,11 @@ function identityReferenceFromConfigurationIndex(
         : getTypeRule(planned.propertyRule.type, "configurationIndexValueFromXML")?.identityKind === "uuid"
           ? "uuid"
           : "xmlId"
-  const value = runtime.identity(kind)
+  const value = kind === "xmlName" ? getConfigurationIndexXmlName(context) : runtime.identity(kind)
   if (value === undefined) return undefined
   if (kind === "uuid") runtime.collector.setUuid(runtime.logicalAddress, value)
   else if (kind === "xmlId") runtime.collector.setXmlId(runtime.logicalAddress, value)
+  else if (value.length === 0) runtime.collector.setAlias(runtime.logicalAddress, "_name", "")
   else runtime.collector.setXmlName(runtime.logicalAddress, value)
   return { exists: true, key: xmlKey, value }
 }

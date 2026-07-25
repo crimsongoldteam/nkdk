@@ -8,6 +8,14 @@ export function getConfigurationIndexPropertyOrder(
   return context?.exportToXML.configurationIndex?.xmlNode()?.order ?? []
 }
 
+export function getConfigurationIndexXmlName(
+  context: ConfigurationContextWithExportToXML | undefined
+): string | undefined {
+  const runtime = context?.exportToXML.configurationIndex
+  if (runtime === undefined) return undefined
+  return runtime.identity("xmlName") ?? runtime.xmlNode(runtime.logicalAddress)?.aliases?.["_name"]
+}
+
 export function getConfigurationIndexXmlNodeLogicalAddress(
   context: ConfigurationContextWithExportToXML
 ): string | undefined {
