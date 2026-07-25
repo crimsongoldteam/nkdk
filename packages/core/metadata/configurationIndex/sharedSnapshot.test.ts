@@ -3,6 +3,7 @@ import { tmpdir } from "os"
 import { join } from "path"
 import { afterEach, describe, expect, it } from "vitest"
 import { ConfigurationIndexCompatibilityError } from "./decode"
+import { decodeConfigurationIndex } from "./decode"
 import { encodeConfigurationIndex } from "./encode"
 import { configurationIndexPath, writeConfigurationIndexAtomically } from "./fileIO"
 import {
@@ -80,6 +81,9 @@ describe("shared configuration index snapshot", () => {
       userSettingsId: "00000000-0000-4000-8000-000000000099",
     })
     expect(first.xmlValue("Нет.value")).toBeUndefined()
+    expect(
+      decodeConfigurationIndex(new Uint8Array(snapshot.bytes, 0, snapshot.byteLength)).localIndexes
+    ).toEqual(data.localIndexes)
   })
 
   it("rejects incompatible or corrupted index before creating a shared buffer", () => {

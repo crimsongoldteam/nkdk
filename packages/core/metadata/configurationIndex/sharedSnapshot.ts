@@ -36,7 +36,7 @@ interface DirectoryEntry {
 
 const HEADER_LENGTH = 64
 const DIRECTORY_ENTRY_LENGTH = 64
-const SECTION_COUNT = 7
+const SECTION_COUNT = 11
 const fatalUtf8Decoder = new TextDecoder("utf-8", { fatal: true })
 
 export async function readConfigurationIndexSnapshot(params: {

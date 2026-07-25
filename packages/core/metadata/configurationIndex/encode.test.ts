@@ -53,19 +53,19 @@ describe("encodeConfigurationIndex", () => {
     expect(values.readUInt32LE(4)).toBe(1 << 6)
   })
 
-  it("writes 1.0 container", () => {
+  it("writes incompatible 2.0 container with eleven mandatory sections", () => {
     const first = encodeConfigurationIndex(sample)
 
     expect(first.subarray(0, 8).toString("ascii")).toBe("NKDK1CIX")
-    expect(first.readUInt16LE(8)).toBe(1)
+    expect(first.readUInt16LE(8)).toBe(2)
     expect(first.readUInt16LE(10)).toBe(0)
-    expect(first.readUInt32LE(24)).toBe(7)
+    expect(first.readUInt32LE(24)).toBe(11)
     expect(first.readBigUInt64LE(40)).toBe(BigInt(first.length))
   })
 
-  it("writes exact layouts and checksums for all seven sections", () => {
+  it("writes exact layouts and checksums for all eleven sections", () => {
     const encoded = encodeConfigurationIndex(sample)
-    const directory = encoded.subarray(64, 512)
+    const directory = encoded.subarray(64, 768)
     const directoryHash = hashSection(directory)
 
     expect(encoded.readUInt32LE(12)).toBe(64)
@@ -76,7 +76,7 @@ describe("encodeConfigurationIndex", () => {
     expect(encoded.readBigUInt64LE(48)).toBe(directoryHash.low)
     expect(encoded.readBigUInt64LE(56)).toBe(directoryHash.high)
 
-    const entries = Array.from({ length: 7 }, (_, index) => {
+    const entries = Array.from({ length: 11 }, (_, index) => {
       const offset = index * 64
       const sectionOffset = Number(directory.readBigUInt64LE(offset + 16))
       const storedLength = Number(directory.readBigUInt64LE(offset + 24))
@@ -101,7 +101,7 @@ describe("encodeConfigurationIndex", () => {
       }
     })
 
-    let previousEnd = 512
+    let previousEnd = 768
     for (const entry of entries) {
       expect(entry.offset).toBeGreaterThanOrEqual(previousEnd)
       expectZero(encoded.subarray(previousEnd, entry.offset))
@@ -134,7 +134,7 @@ describe("encodeConfigurationIndex", () => {
       return id
     }
 
-    expect(entries.map((entry) => entry.count)).toEqual([1, strings.length, 2, 2, 2, 2, 2])
+    expect(entries.map((entry) => entry.count)).toEqual([1, strings.length, 2, 2, 2, 2, 2, 1, 1, 1, 1])
 
     const binding = entries[0].section
     expect(binding.length).toBe(64)
@@ -205,6 +205,13 @@ describe("encodeConfigurationIndex", () => {
     expect(values.readUInt32LE(36)).toBe((1 << 0) | (1 << 2))
     expect(values.readUInt32LE(40)).toBe(stringId("v8:Null"))
     expectZero(values.subarray(48, 64))
+
+    expect(entries[7].section).toEqual(Buffer.from(sample.localIndexes.metadata.reference))
+    expect(entries[8].section).toEqual(Buffer.from(sample.localIndexes.metadata.ownerStrings))
+    expect(entries[9].section).toEqual(Buffer.from(sample.localIndexes.metadata.ownerTable))
+    expect(JSON.parse(entries[10].section.subarray(4, 4 + entries[10].section.readUInt32LE(0)).toString("utf8"))).toEqual(
+      sample.localIndexes.dependencies[0]
+    )
   })
 
   it("rejects half-filled binding and duplicate records", () => {
@@ -284,6 +291,67 @@ describe("encodeConfigurationIndex", () => {
         xmlValues: [{ logicalAddress: "Документ.Заказ.name" }],
       })
     ).toThrow("Запись XML_VALUES без флагов")
+  })
+
+  it("rejects absolute local dependency paths", () => {
+    expect(() =>
+      encodeConfigurationIndex({
+        ...sample,
+        localIndexes: {
+          ...sample.localIndexes,
+          dependencies: [
+            {
+              ...sample.localIndexes.dependencies[0]!,
+              sourceProjectPath: "/tmp/Свойства.yaml",
+            },
+          ],
+        },
+      })
+    ).toThrow("Недопустимый sourceProjectPath LOCAL_DEPENDENCIES")
+  })
+
+  it("sorts local dependencies deterministically and rejects duplicates", () => {
+    const first = sample.localIndexes.dependencies[0]!
+    const second = {
+      ...first,
+      sourceProjectPath: "A.yaml",
+      canonical: "Document.Заказ",
+    }
+
+    expect(
+      encodeConfigurationIndex({
+        ...sample,
+        localIndexes: { ...sample.localIndexes, dependencies: [first, second] },
+      })
+    ).toEqual(
+      encodeConfigurationIndex({
+        ...sample,
+        localIndexes: { ...sample.localIndexes, dependencies: [second, first] },
+      })
+    )
+    expect(() =>
+      encodeConfigurationIndex({
+        ...sample,
+        localIndexes: { ...sample.localIndexes, dependencies: [first, first] },
+      })
+    ).toThrow("Повторная локальная зависимость")
+  })
+
+  it("rejects a local dependency from outside PROJECT_FILES", () => {
+    expect(() =>
+      encodeConfigurationIndex({
+        ...sample,
+        localIndexes: {
+          ...sample.localIndexes,
+          dependencies: [
+            {
+              ...sample.localIndexes.dependencies[0]!,
+              sourceProjectPath: "Чужой/Свойства.yaml",
+            },
+          ],
+        },
+      })
+    ).toThrow("sourceProjectPath LOCAL_DEPENDENCIES отсутствует в PROJECT_FILES")
   })
 })
 

@@ -28,6 +28,43 @@ describe("configuration index worker fragments", () => {
     expect(decodeConfigurationIndexFragments(buffer)).toEqual(fragments)
   })
 
+  it("сохраняет локальные зависимости first-pass во временном codec и merge", () => {
+    const fragment = sampleFragments()[0]!
+    const buffer = encodeConfigurationIndexFragments([fragment])
+
+    expect(decodeConfigurationIndexFragments(buffer)[0]!.localDependencies).toEqual(fragment.localDependencies)
+    expect(mergeConfigurationIndexFragments([buffer]).localDependencies).toEqual(fragment.localDependencies)
+  })
+
+  it("объединяет локальные зависимости уникально и детерминированно", () => {
+    const first = sampleFragments()[0]!.localDependencies![0]!
+    const second = {
+      ...first,
+      sourceProjectPath: "Документ/Заказ/Свойства.yaml",
+      canonical: "Document.Заказ",
+    }
+    const left = encodeConfigurationIndexFragments([
+      {
+        ...sampleFragments()[1]!,
+        identities: [],
+        xmlNodes: [],
+        xmlValues: [],
+        localDependencies: [first, second],
+      },
+    ])
+    const right = encodeConfigurationIndexFragments([
+      {
+        ...sampleFragments()[1]!,
+        identities: [],
+        xmlNodes: [],
+        xmlValues: [],
+        localDependencies: [first],
+      },
+    ])
+
+    expect(mergeConfigurationIndexFragments([right, left]).localDependencies).toEqual([second, first])
+  })
+
   it("merges buffers in worker result order and rejects address conflicts", () => {
     const left = encodeConfigurationIndexFragments([sampleFragments()[0]!])
     const right = encodeConfigurationIndexFragments([sampleFragments()[1]!])
@@ -36,6 +73,7 @@ describe("configuration index worker fragments", () => {
       identities: sampleFragments()[0]!.identities,
       xmlNodes: [...sampleFragments()[1]!.xmlNodes, ...sampleFragments()[0]!.xmlNodes],
       xmlValues: sampleFragments()[0]!.xmlValues,
+      localDependencies: sampleFragments()[0]!.localDependencies,
     })
     expect(() => mergeConfigurationIndexFragments([left, left])).toThrow("Конфликт logicalAddress")
   })
@@ -51,7 +89,7 @@ describe("configuration index worker fragments", () => {
     envelope.magic = "NKDK1CIX"
     expect(() => decodeConfigurationIndexFragments(encodeEnvelope(envelope))).toThrow("magic")
 
-    envelope.magic = "NKDKCIF1"
+    envelope.magic = "NKDKCIF2"
     envelope.fragments[0]!.targetProjectPathStringId = envelope.strings.length
     expect(() => decodeConfigurationIndexFragments(encodeEnvelope(envelope))).toThrow("string ID")
   })

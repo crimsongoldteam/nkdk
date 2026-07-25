@@ -3,6 +3,7 @@ import type {
   ConfigurationIdentity,
   ConfigurationIndexBinding,
   ConfigurationIndexData,
+  ConfigurationLocalDependency,
   ConfigurationProjectFile,
   ConfigurationXmlNode,
   ConfigurationXmlValue,
@@ -45,12 +46,12 @@ interface DecodedStrings {
   referencedIds: Set<number>
 }
 
-type SectionType = 1 | 2 | 3 | 4 | 5 | 6 | 7
+type SectionType = 1 | 2 | 3 | 4 | 5 | 6 | 7 | 8 | 9 | 10 | 11
 type LogicalValidationStage = 7 | 8 | 9
 
 const HEADER_LENGTH = 64
 const DIRECTORY_ENTRY_LENGTH = 64
-const SECTION_COUNT = 7
+const SECTION_COUNT = 11
 const DIRECTORY_LENGTH = DIRECTORY_ENTRY_LENGTH * SECTION_COUNT
 const XML_VALUE_FLAGS = (1 << 7) - 1
 const fatalUtf8Decoder = new TextDecoder("utf-8", { fatal: true })
@@ -97,9 +98,9 @@ function readAndValidateHeader(buffer: Buffer): ConfigurationIndexHeader {
 
   const majorVersion = buffer.readUInt16LE(8)
   const minorVersion = buffer.readUInt16LE(10)
-  if (majorVersion !== 1 || minorVersion !== 0) {
+  if (majorVersion !== 2 || minorVersion !== 0) {
     throw new ConfigurationIndexCompatibilityError(
-      `Неподдерживаемая версия файла индекса конфигурации ${majorVersion}.${minorVersion}`
+      `Неподдерживаемая версия файла индекса конфигурации ${majorVersion}.${minorVersion}; требуется повторный import`
     )
   }
   if (buffer.readUInt32LE(12) !== HEADER_LENGTH) throw new Error("неверная длина заголовка")
@@ -254,7 +255,30 @@ function decodeLogicalSections(
     strings,
     9
   )
-  return { binding, projectFiles, identities, xmlNodes, xmlValues }
+  const localIndexes = {
+    metadata: {
+      reference: decodeLocalMetadataBlock(
+        sectionFor(buffer, directory, 8),
+        directoryEntry(directory, 8).recordCount,
+        "LOCAL_REFERENCE_INDEX"
+      ),
+      ownerStrings: decodeLocalMetadataBlock(
+        sectionFor(buffer, directory, 9),
+        directoryEntry(directory, 9).recordCount,
+        "LOCAL_OWNER_STRINGS"
+      ),
+      ownerTable: decodeLocalMetadataBlock(
+        sectionFor(buffer, directory, 10),
+        directoryEntry(directory, 10).recordCount,
+        "LOCAL_OWNER_TABLE"
+      ),
+    },
+    dependencies: decodeLocalDependencies(
+      sectionFor(buffer, directory, 11),
+      directoryEntry(directory, 11).recordCount
+    ),
+  }
+  return { binding, projectFiles, identities, xmlNodes, xmlValues, localIndexes }
 }
 
 function validateLogicalSectionRecords(
@@ -268,6 +292,22 @@ function validateLogicalSectionRecords(
   decodeXmlOrders(sectionFor(buffer, directory, 5), directoryEntry(directory, 5).recordCount, strings, 7)
   decodeXmlNodes(sectionFor(buffer, directory, 6), directoryEntry(directory, 6).recordCount, strings, [], 7)
   decodeXmlValues(sectionFor(buffer, directory, 7), directoryEntry(directory, 7).recordCount, strings, 7)
+  decodeLocalMetadataBlock(
+    sectionFor(buffer, directory, 8),
+    directoryEntry(directory, 8).recordCount,
+    "LOCAL_REFERENCE_INDEX"
+  )
+  decodeLocalMetadataBlock(
+    sectionFor(buffer, directory, 9),
+    directoryEntry(directory, 9).recordCount,
+    "LOCAL_OWNER_STRINGS"
+  )
+  decodeLocalMetadataBlock(
+    sectionFor(buffer, directory, 10),
+    directoryEntry(directory, 10).recordCount,
+    "LOCAL_OWNER_TABLE"
+  )
+  decodeLocalDependencies(sectionFor(buffer, directory, 11), directoryEntry(directory, 11).recordCount)
 }
 
 function validateLogicalSectionUniqueness(
@@ -549,9 +589,157 @@ function decodeXmlValues(
   return result
 }
 
-function validateCrossReferences(_data: ConfigurationIndexData, strings: DecodedStrings): void {
+function decodeLocalMetadataBlock(section: Buffer, recordCount: bigint, label: string): Uint8Array {
+  if (recordCount !== 1n) throw new Error(`${label} должен содержать один блок`)
+  return Uint8Array.from(section)
+}
+
+function decodeLocalDependencies(section: Buffer, recordCountValue: bigint): ConfigurationLocalDependency[] {
+  const recordCount = variableRecordCount(section, recordCountValue, 8, "LOCAL_DEPENDENCIES")
+  const result: ConfigurationLocalDependency[] = []
+  const keys = new Set<string>()
+  let previousKey: string | undefined
+  let offset = 0
+  for (let index = 0; index < recordCount; index += 1) {
+    const contentStart = checkedEnd(section, offset, 4, "заголовок записи LOCAL_DEPENDENCIES")
+    const byteLength = section.readUInt32LE(offset)
+    const contentEnd = checkedEnd(section, contentStart, byteLength, "данные записи LOCAL_DEPENDENCIES")
+    const recordEnd = alignedEnd(section, contentEnd, "запись LOCAL_DEPENDENCIES")
+    assertZero(section.subarray(contentEnd, recordEnd), "padding LOCAL_DEPENDENCIES")
+    let dependency: ConfigurationLocalDependency
+    try {
+      const parsed: unknown = JSON.parse(fatalUtf8Decoder.decode(section.subarray(contentStart, contentEnd)))
+      dependency = decodeLocalDependency(parsed)
+    } catch (caught) {
+      throw new Error(`Некорректная запись LOCAL_DEPENDENCIES: ${errorMessage(caught)}`)
+    }
+    const key = localDependencyKey(dependency)
+    if (keys.has(key)) throw new Error(`Повторная локальная зависимость: ${dependency.canonical}`)
+    if (previousKey !== undefined && compareUtf8(key, previousKey) < 0) {
+      throw new Error("LOCAL_DEPENDENCIES не отсортированы")
+    }
+    keys.add(key)
+    previousKey = key
+    result.push(dependency)
+    offset = recordEnd
+  }
+  if (offset !== section.length) {
+    throw new Error("recordCount LOCAL_DEPENDENCIES не совпадает с длиной секции")
+  }
+  return result
+}
+
+function decodeLocalDependency(value: unknown): ConfigurationLocalDependency {
+  if (!isRecord(value)) throw new Error("запись LOCAL_DEPENDENCIES должна быть объектом")
+  assertExactKeys(
+    value,
+    ["sourceProjectPath", "yamlPath", "rulePath", "kind", "canonical"],
+    "запись LOCAL_DEPENDENCIES"
+  )
+  if (typeof value.sourceProjectPath !== "string") {
+    throw new Error("Некорректный sourceProjectPath LOCAL_DEPENDENCIES")
+  }
+  validateLocalDependencyProjectPath(value.sourceProjectPath)
+  if (!Array.isArray(value.yamlPath) || !value.yamlPath.every(isYamlPathSegment)) {
+    throw new Error("Некорректный yamlPath LOCAL_DEPENDENCIES")
+  }
+  if (!Array.isArray(value.rulePath)) throw new Error("Некорректный rulePath LOCAL_DEPENDENCIES")
+  const rulePath = value.rulePath.map(decodeLocalDependencyRulePathSegment)
+  if (value.kind !== "metadataTarget") throw new Error("Некорректный kind LOCAL_DEPENDENCIES")
+  if (typeof value.canonical !== "string" || value.canonical.length === 0) {
+    throw new Error("Пустой canonical LOCAL_DEPENDENCIES")
+  }
+  return {
+    sourceProjectPath: value.sourceProjectPath,
+    yamlPath: [...value.yamlPath],
+    rulePath,
+    kind: "metadataTarget",
+    canonical: value.canonical,
+  }
+}
+
+function decodeLocalDependencyRulePathSegment(
+  value: unknown
+): ConfigurationLocalDependency["rulePath"][number] {
+  if (!isRecord(value)) throw new Error("Сегмент rulePath LOCAL_DEPENDENCIES должен быть объектом")
+  assertExactKeys(value, ["propertyKey", "nestedItemType"], "сегмент rulePath LOCAL_DEPENDENCIES")
+  if (typeof value.propertyKey !== "string" || value.propertyKey.length === 0) {
+    throw new Error("Некорректный propertyKey rulePath LOCAL_DEPENDENCIES")
+  }
+  if (
+    value.nestedItemType !== undefined &&
+    (typeof value.nestedItemType !== "string" || value.nestedItemType.length === 0)
+  ) {
+    throw new Error("Некорректный nestedItemType rulePath LOCAL_DEPENDENCIES")
+  }
+  return {
+    propertyKey: value.propertyKey,
+    ...(value.nestedItemType === undefined ? {} : { nestedItemType: value.nestedItemType }),
+  }
+}
+
+function validateLocalDependencyProjectPath(projectPath: string): void {
+  const segments = projectPath.split("/")
+  if (
+    projectPath.length === 0 ||
+    projectPath.startsWith("/") ||
+    projectPath.endsWith("/") ||
+    projectPath.includes("\\") ||
+    /^[A-Za-z]:\//.test(projectPath) ||
+    segments.some((segment) => segment === "" || segment === "." || segment === "..") ||
+    segments[0] === ".nkdk"
+  ) {
+    throw new Error(`Недопустимый sourceProjectPath LOCAL_DEPENDENCIES: ${projectPath}`)
+  }
+}
+
+function isYamlPathSegment(value: unknown): value is string | number {
+  return (
+    (typeof value === "string" && value.length > 0) ||
+    (typeof value === "number" && Number.isSafeInteger(value) && value >= 0)
+  )
+}
+
+function isRecord(value: unknown): value is Record<string, unknown> {
+  return typeof value === "object" && value !== null && !Array.isArray(value)
+}
+
+function assertExactKeys(value: Record<string, unknown>, allowed: readonly string[], label: string): void {
+  const allowedKeys = new Set(allowed)
+  for (const key of Object.keys(value)) {
+    if (!allowedKeys.has(key)) throw new Error(`неизвестное поле ${key} в ${label}`)
+  }
+  for (const key of allowed) {
+    if (key === "nestedItemType") continue
+    if (!(key in value)) throw new Error(`отсутствует поле ${key} в ${label}`)
+  }
+}
+
+function localDependencyKey(dependency: ConfigurationLocalDependency): string {
+  return JSON.stringify({
+    sourceProjectPath: dependency.sourceProjectPath,
+    yamlPath: dependency.yamlPath,
+    rulePath: dependency.rulePath,
+    kind: dependency.kind,
+    canonical: dependency.canonical,
+  })
+}
+
+function compareUtf8(left: string, right: string): number {
+  return Buffer.compare(Buffer.from(left, "utf8"), Buffer.from(right, "utf8"))
+}
+
+function validateCrossReferences(data: ConfigurationIndexData, strings: DecodedStrings): void {
   if (strings.referencedIds.size !== strings.values.length) {
     throw new Error("STRINGS содержит строки без ссылок")
+  }
+  const projectFilePaths = new Set(data.projectFiles.map((file) => file.projectPath))
+  for (const dependency of data.localIndexes.dependencies) {
+    if (!projectFilePaths.has(dependency.sourceProjectPath)) {
+      throw new Error(
+        `sourceProjectPath LOCAL_DEPENDENCIES отсутствует в PROJECT_FILES: ${dependency.sourceProjectPath}`
+      )
+    }
   }
 }
 

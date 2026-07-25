@@ -1,3 +1,5 @@
+import type { PersistedSharedValidationSnapshot } from "../validation/persistedSharedValidationSnapshot"
+
 export interface ConfigurationIndexBinding {
   indexGeneration: bigint
   producerVersion: string
@@ -33,12 +35,31 @@ export interface ConfigurationXmlValue {
   userSettingsId?: string
 }
 
+export interface ConfigurationLocalDependencyRulePathSegment {
+  propertyKey: string
+  nestedItemType?: string
+}
+
+export interface ConfigurationLocalDependency {
+  sourceProjectPath: string
+  yamlPath: readonly (string | number)[]
+  rulePath: readonly ConfigurationLocalDependencyRulePathSegment[]
+  kind: "metadataTarget"
+  canonical: string
+}
+
+export interface ConfigurationLocalIndexes {
+  metadata: PersistedSharedValidationSnapshot
+  dependencies: readonly ConfigurationLocalDependency[]
+}
+
 export interface ConfigurationIndexData {
   binding: ConfigurationIndexBinding
   projectFiles: readonly ConfigurationProjectFile[]
   identities: readonly ConfigurationIdentity[]
   xmlNodes: readonly ConfigurationXmlNode[]
   xmlValues: readonly ConfigurationXmlValue[]
+  localIndexes: ConfigurationLocalIndexes
 }
 
 export interface ConfigurationIndexFragment {
@@ -46,4 +67,5 @@ export interface ConfigurationIndexFragment {
   identities: readonly ConfigurationIdentity[]
   xmlNodes: readonly ConfigurationXmlNode[]
   xmlValues: readonly ConfigurationXmlValue[]
+  localDependencies?: readonly ConfigurationLocalDependency[]
 }
