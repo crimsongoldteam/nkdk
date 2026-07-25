@@ -1,7 +1,7 @@
 export interface ConfigurationIndexBinding {
   indexGeneration: bigint
   producerVersion: string
-  baseId: string
+  componentPath: string
   baseFingerprint: Uint8Array
   configurationVersion: Uint8Array
 }

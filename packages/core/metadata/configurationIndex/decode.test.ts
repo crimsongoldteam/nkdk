@@ -16,7 +16,7 @@ describe("decodeConfigurationIndex", () => {
 
     expect(
       decodeConfigurationIndex(encoded, {
-        expectedBaseId: "default",
+        expectedComponentPath: "cf",
         expectedProducerVersion: NKDK_CORE_VERSION,
       })
     ).toEqual(sampleIndex())
@@ -157,7 +157,7 @@ describe("decodeConfigurationIndex", () => {
 
   it.each([
     ["BINDING reserved", 1, (section: Buffer) => flipByte(section, 24)],
-    ["STRINGS padding", 2, (section: Buffer) => flipStringPadding(section, "default")],
+    ["STRINGS padding", 2, (section: Buffer) => flipStringPadding(section, "cf")],
     ["PROJECT_FILES flags", 3, (section: Buffer) => flipByte(section, 4)],
     ["IDENTITIES flags", 4, (section: Buffer) => flipByte(section, 6)],
     ["XML_ORDERS reserved", 5, (section: Buffer) => flipByte(section, 4)],
@@ -170,8 +170,8 @@ describe("decodeConfigurationIndex", () => {
   })
 
   it.each([
-    ["invalid UTF-8", (section: Buffer) => writeStringByte(section, "default", 0xff)],
-    ["U+0000", (section: Buffer) => writeStringByte(section, "default", 0)],
+    ["invalid UTF-8", (section: Buffer) => writeStringByte(section, "cf", 0xff)],
+    ["U+0000", (section: Buffer) => writeStringByte(section, "cf", 0)],
   ] as const)("rejects invalid STRINGS %s", (_name, mutate) => {
     expectCorruption(mutateSection(encodeConfigurationIndex(sampleIndex()), 2, mutate))
   })
@@ -301,7 +301,7 @@ describe("decodeConfigurationIndex", () => {
   })
 
   it.each([
-    ["baseId", { expectedBaseId: "another" }],
+    ["componentPath", { expectedComponentPath: "another" }],
     ["producer version", { expectedProducerVersion: "another" }],
   ] as const)("reports incompatible %s separately", (_name, options) => {
     const encoded = encodeConfigurationIndex(sampleIndex())

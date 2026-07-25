@@ -33,7 +33,7 @@ describe("syncConfigurationToXml", () => {
       succeeded: 3,
       failed: [],
       warnings: [{ severity: "warning", code: "soft", message: "warning" }],
-      configurationIndexPath: configurationIndexPath("/project", "default"),
+      configurationIndexPath: configurationIndexPath("/project", { kind: "configuration" }),
     })
     expect(harness.events).toEqual([
       "exists:/project",
@@ -52,7 +52,7 @@ describe("syncConfigurationToXml", () => {
       "pool.close",
     ])
     expect(harness.writtenIndex?.binding).toMatchObject({
-      baseId: "default",
+      componentPath: "cf",
       producerVersion: NKDK_CORE_VERSION,
       indexGeneration: 2n,
     })

@@ -18,7 +18,6 @@ export {
   type CreateConfigurationIndexExportRuntimeOptions,
 } from "./exportRuntime"
 export {
-  DEFAULT_CONFIGURATION_INDEX_BASE_ID,
   configurationIndexPath,
   readConfigurationIndex,
   writeConfigurationIndexAtomically,
@@ -45,3 +44,4 @@ export type {
   ConfigurationXmlNode,
   ConfigurationXmlValue,
 } from "./types"
+export { componentPath, type ComponentAddress } from "../components/address"

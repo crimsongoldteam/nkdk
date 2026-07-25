@@ -42,8 +42,8 @@ describe("full XML sync determinism", () => {
     expect(first.failed).toEqual([])
     expect(second.failed).toEqual([])
     expect(readTree(outTwo)).toEqual(readTree(outOne))
-    expect(normalizeIndex(await readConfigurationIndex({ projectDir: projectTwo }))).toEqual(
-      normalizeIndex(await readConfigurationIndex({ projectDir: projectOne }))
+    expect(normalizeIndex(await readConfigurationIndex({ projectDir: projectTwo, address: { kind: "configuration" } }))).toEqual(
+      normalizeIndex(await readConfigurationIndex({ projectDir: projectOne, address: { kind: "configuration" } }))
     )
   })
 })

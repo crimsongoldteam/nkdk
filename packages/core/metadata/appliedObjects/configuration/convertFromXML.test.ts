@@ -94,8 +94,8 @@ describe("sync configuration from xml", () => {
     )
     expect(result.failed).toEqual([])
     expect(result.warnings).toEqual([])
-    expect((await readConfigurationIndex({ projectDir: outputDir, baseId: "default" })).binding).toMatchObject({
-      baseId: "default",
+    expect((await readConfigurationIndex({ projectDir: outputDir, address: { kind: "configuration" } })).binding).toMatchObject({
+      componentPath: "cf",
       baseFingerprint: new Uint8Array(),
       configurationVersion: new Uint8Array(),
     })

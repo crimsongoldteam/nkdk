@@ -4,9 +4,9 @@ import { resolve } from "node:path"
 import { NKDK_CORE_VERSION } from "../../version"
 import {
   configurationIndexPath,
-  DEFAULT_CONFIGURATION_INDEX_BASE_ID,
   writeConfigurationIndexAtomically,
 } from "../configurationIndex/fileIO"
+import type { ComponentAddress } from "../components/address"
 import { encodeConfigurationIndexFragments, mergeConfigurationIndexFragments } from "../configurationIndex/fragment"
 import { createConfigurationIndexReader, readConfigurationIndexSnapshot } from "../configurationIndex/sharedSnapshot"
 import type {
@@ -32,7 +32,6 @@ export interface SyncConfigurationToXmlParams {
   readonly projectDir?: string
   readonly yamlDir: string
   readonly xmlDir: string
-  readonly baseId?: string
   readonly concurrency?: number
   readonly transferConcurrency?: number
 }
@@ -41,7 +40,6 @@ export interface PlanSyncConfigurationToXmlParams {
   readonly projectDir?: string
   readonly yamlDir: string
   readonly xmlDir: string
-  readonly baseId?: string
 }
 
 export interface FullXmlSyncResult {
@@ -69,12 +67,12 @@ export interface FullXmlSyncCoordinatorDependencies {
   readonly isDirectoryEmpty: (path: string) => Promise<boolean>
   readonly mkdir: (path: string) => Promise<void>
   readonly discover: (params: { projectDir: string }) => Promise<FullXmlSyncPlan>
-  readonly readIndexSnapshot: (params: { projectDir: string; baseId: string }) => Promise<Awaited<ReturnType<typeof readConfigurationIndexSnapshot>>>
+  readonly readIndexSnapshot: (params: { projectDir: string; address: ComponentAddress }) => Promise<Awaited<ReturnType<typeof readConfigurationIndexSnapshot>>>
   readonly createWorkerPool: (params: { concurrency: number }) => FullXmlSyncWorkerPool
   readonly createSharedMetadata: typeof createFullXmlSyncSharedMetadata
   readonly transferExternalFiles: typeof transferFullXmlSyncExternalFiles
   readonly writeConfigDumpInfo: typeof writeFullXmlSyncConfigDumpInfo
-  readonly writeIndex: (params: { projectDir: string; data: ConfigurationIndexData }) => Promise<void>
+  readonly writeIndex: (params: { projectDir: string; address: ComponentAddress; data: ConfigurationIndexData }) => Promise<void>
 }
 
 const defaultDependencies: FullXmlSyncCoordinatorDependencies = {
@@ -106,7 +104,7 @@ export async function syncConfigurationToXml(
   const yamlDir = resolve(params.yamlDir)
   const projectDir = resolve(params.projectDir ?? params.yamlDir)
   const xmlDir = resolve(params.xmlDir)
-  const baseId = params.baseId ?? DEFAULT_CONFIGURATION_INDEX_BASE_ID
+  const address = { kind: "configuration" } as const
   let pool: FullXmlSyncWorkerPool | undefined
   let warnings: FullXmlSyncDiagnostic[] = []
   const profiler = createValidationProfiler({ scope: "main" })
@@ -121,7 +119,7 @@ export async function syncConfigurationToXml(
     }
 
     const indexSnapshot = await profiler.measureAsync("Полная XML-синхронизация", "Чтение индекса конфигурации", {}, () =>
-      deps.readIndexSnapshot({ projectDir, baseId })
+      deps.readIndexSnapshot({ projectDir, address })
     )
     const indexReader = createConfigurationIndexReader(indexSnapshot)
     const previousBinding = indexReader.binding()
@@ -192,14 +190,14 @@ export async function syncConfigurationToXml(
       fragmentData: mergeFragmentData(second.fragmentData, configDumpFragmentData),
     })
     await profiler.measureAsync("Полная XML-синхронизация", "Запись индекса конфигурации", { items: indexData.projectFiles.length }, () =>
-      deps.writeIndex({ projectDir, data: indexData })
+      deps.writeIndex({ projectDir, address, data: indexData })
     )
 
     return {
       succeeded: plan.assignments.length + plan.externalFiles.length + 1,
       failed: [],
       warnings,
-      configurationIndexPath: configurationIndexPath(projectDir, baseId),
+      configurationIndexPath: configurationIndexPath(projectDir, address),
     }
   } catch (caught) {
     return failedResult([operationDiagnostic("full_xml_sync_operation_failed", errorMessage(caught))], warnings)
@@ -216,19 +214,19 @@ export async function planSyncConfigurationToXml(
   const yamlDir = resolve(params.yamlDir)
   const projectDir = resolve(params.projectDir ?? params.yamlDir)
   const xmlDir = resolve(params.xmlDir)
-  const baseId = params.baseId ?? DEFAULT_CONFIGURATION_INDEX_BASE_ID
+  const address = { kind: "configuration" } as const
 
   try {
     const preflight = await preflightFullXmlSync({ yamlDir, xmlDir, deps })
     if ("failed" in preflight) return { ok: false, failed: preflight.failed }
-    await deps.readIndexSnapshot({ projectDir, baseId })
+    await deps.readIndexSnapshot({ projectDir, address })
     const plan = await deps.discover({ projectDir: yamlDir })
     return {
       ok: true,
       mode: "plan",
       assignments: plan.assignments.length,
       externalFiles: plan.externalFiles.length,
-      configurationIndexPath: configurationIndexPath(projectDir, baseId),
+      configurationIndexPath: configurationIndexPath(projectDir, address),
     }
   } catch (caught) {
     return { ok: false, failed: [operationDiagnostic("full_xml_sync_operation_failed", errorMessage(caught))] }

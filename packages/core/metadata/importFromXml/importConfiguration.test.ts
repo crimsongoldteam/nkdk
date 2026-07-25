@@ -73,7 +73,7 @@ describe("configuration XML import coordinator", () => {
       succeeded: assignments.length,
       failed: [],
       warnings: [],
-      configurationIndexPath: join(params.outputDir, ".nkdk", "configuration-index", "default.bin"),
+      configurationIndexPath: join(params.outputDir, ".nkdk", "components", "cf", "configuration-index.bin"),
     })
     expect(writtenIndexes).toHaveLength(1)
   })
@@ -320,7 +320,7 @@ function configurationIndex(
     binding: {
       indexGeneration,
       producerVersion: "0.0.0-dev",
-      baseId: "default",
+      componentPath: "cf",
       baseFingerprint: new Uint8Array(),
       configurationVersion: new Uint8Array(),
     },

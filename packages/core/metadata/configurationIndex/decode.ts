@@ -9,7 +9,7 @@ import type {
 } from "./types"
 
 export interface DecodeConfigurationIndexOptions {
-  expectedBaseId?: string
+  expectedComponentPath?: string
   expectedProducerVersion?: string
 }
 
@@ -292,7 +292,7 @@ function decodeBinding(
   checkedEnd(section, 0, HEADER_LENGTH, "заголовок BINDING")
   const indexGeneration = section.readBigUInt64LE(0)
   const producerVersion = requiredString(strings, section.readUInt32LE(8), "producerVersion BINDING")
-  const baseId = requiredString(strings, section.readUInt32LE(12), "baseId BINDING")
+  const componentPath = requiredString(strings, section.readUInt32LE(12), "componentPath BINDING")
   const baseFingerprintLength = section.readUInt32LE(16)
   const configurationVersionLength = section.readUInt32LE(20)
   assertZero(section.subarray(24, HEADER_LENGTH), "reserved BINDING")
@@ -311,9 +311,9 @@ function decodeBinding(
 
   if (indexGeneration === 0n) throw new Error("indexGeneration BINDING должен начинаться с 1")
   if (producerVersion.length === 0) throw new Error("producerVersion BINDING не должен быть пустым")
-  const baseIdLength = Buffer.byteLength(baseId)
-  if (baseIdLength < 1 || baseIdLength > 128 || !/^[A-Za-z0-9._-]+$/.test(baseId)) {
-    throw new Error("недопустимый baseId BINDING")
+  const componentPathLength = Buffer.byteLength(componentPath)
+  if (componentPathLength < 1 || componentPathLength > 128) {
+    throw new Error("недопустимый componentPath BINDING")
   }
   if ((baseFingerprintLength === 0) !== (configurationVersionLength === 0)) {
     throw new Error("baseFingerprint и configurationVersion BINDING должны быть заполнены вместе")
@@ -322,7 +322,7 @@ function decodeBinding(
   return {
     indexGeneration,
     producerVersion,
-    baseId,
+    componentPath,
     baseFingerprint: Uint8Array.from(section.subarray(HEADER_LENGTH, baseFingerprintEnd)),
     configurationVersion: Uint8Array.from(section.subarray(baseFingerprintEnd, configurationVersionEnd)),
   }
@@ -555,9 +555,9 @@ function validateCrossReferences(_data: ConfigurationIndexData, strings: Decoded
 }
 
 function validateExpectations(binding: ConfigurationIndexBinding, options: DecodeConfigurationIndexOptions): void {
-  if (options.expectedBaseId !== undefined && binding.baseId !== options.expectedBaseId) {
+  if (options.expectedComponentPath !== undefined && binding.componentPath !== options.expectedComponentPath) {
     throw new ConfigurationIndexCompatibilityError(
-      `Ожидалась привязка ${options.expectedBaseId}, получена ${binding.baseId}`
+      `Ожидалась привязка ${options.expectedComponentPath}, получена ${binding.componentPath}`
     )
   }
   if (options.expectedProducerVersion !== undefined && binding.producerVersion !== options.expectedProducerVersion) {

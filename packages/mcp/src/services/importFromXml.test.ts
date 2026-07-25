@@ -99,7 +99,7 @@ describe("importFromXml service", () => {
           targetProjectPath: "Форма.yaml",
         },
       ],
-      configurationIndexPath: "/yaml/.nkdk/configuration-index/default.bin",
+      configurationIndexPath: "/yaml/.nkdk/components/cf/configuration-index.bin",
     })
 
     const result = await importFromXml(
@@ -118,7 +118,7 @@ describe("importFromXml service", () => {
           targetProjectPath: "Форма.yaml",
         },
       ],
-      configurationIndexPath: "/yaml/.nkdk/configuration-index/default.bin",
+      configurationIndexPath: "/yaml/.nkdk/components/cf/configuration-index.bin",
     })
   })
 

@@ -91,15 +91,15 @@ describe("shared configuration index snapshot", () => {
     )
   })
 
-  it("reads default index file into shared memory", async () => {
+  it("reads the configuration component index into shared memory", async () => {
     const projectDir = await createProjectDir()
     const data = sampleIndex()
-    await writeConfigurationIndexAtomically({ projectDir, data })
+    await writeConfigurationIndexAtomically({ projectDir, address: { kind: "configuration" }, data })
 
-    const snapshot = await readConfigurationIndexSnapshot({ projectDir })
+    const snapshot = await readConfigurationIndexSnapshot({ projectDir, address: { kind: "configuration" } })
     expect(createConfigurationIndexReader(snapshot).binding()).toEqual(data.binding)
     expect(Buffer.from(new Uint8Array(snapshot.bytes, 0, snapshot.byteLength))).toEqual(
-      await fs.promises.readFile(configurationIndexPath(projectDir))
+      await fs.promises.readFile(configurationIndexPath(projectDir, { kind: "configuration" }))
     )
   })
 })

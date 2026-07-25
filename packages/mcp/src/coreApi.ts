@@ -109,7 +109,6 @@ export interface CoreApi {
     projectDir?: string
     yamlDir: string
     xmlDir: string
-    baseId?: string
   }): Promise<FullXmlSyncPlanResult>
   syncConfigurationFromXML(params: {
     context: {
@@ -142,7 +141,6 @@ export interface CoreApi {
     projectDir?: string
     yamlDir: string
     xmlDir: string
-    baseId?: string
     concurrency?: number
   }): Promise<FullXmlSyncResult>
   syncConfigurationIncrementallyToXML(params: {

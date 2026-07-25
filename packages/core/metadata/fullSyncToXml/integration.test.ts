@@ -50,7 +50,7 @@ describe("full XML sync integration", () => {
     const targetModule = fs.readFileSync(join(outDir, "Bots", "БотВсеСвойства", "Ext", "Module.bsl"))
     expect(targetModule).toEqual(sourceModule)
 
-    const index = await readConfigurationIndex({ projectDir: yamlDir })
+    const index = await readConfigurationIndex({ projectDir: yamlDir, address: { kind: "configuration" } })
     expect(index.projectFiles.map((file) => file.projectPath)).toContain("Конфигурация.yaml")
     expect(index.projectFiles.map((file) => file.projectPath)).toContain("Бот/БотВсеСвойства/Модуль.bsl")
     expect(index.identities).toContainEqual({
@@ -81,6 +81,6 @@ describe("full XML sync integration", () => {
     expect(synced.failed).toEqual([])
     expect(synced.configurationIndexPath).toContain(join(projectDir, ".nkdk"))
     expect(fs.existsSync(join(yamlDir, ".nkdk"))).toBe(false)
-    expect((await readConfigurationIndex({ projectDir })).projectFiles.length).toBeGreaterThan(0)
+    expect((await readConfigurationIndex({ projectDir, address: { kind: "configuration" } })).projectFiles.length).toBeGreaterThan(0)
   })
 })

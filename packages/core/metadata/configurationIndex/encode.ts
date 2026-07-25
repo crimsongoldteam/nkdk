@@ -104,9 +104,9 @@ function validateBinding({ binding }: ConfigurationIndexData): void {
   if (binding.producerVersion.length === 0) {
     throw new Error("producerVersion BINDING не должен быть пустым")
   }
-  const baseIdLength = Buffer.byteLength(binding.baseId)
-  if (baseIdLength < 1 || baseIdLength > 128 || !/^[A-Za-z0-9._-]+$/.test(binding.baseId)) {
-    throw new Error("Недопустимый baseId BINDING")
+  const componentPathLength = Buffer.byteLength(binding.componentPath)
+  if (componentPathLength < 1 || componentPathLength > 128) {
+    throw new Error("Недопустимый componentPath BINDING")
   }
   const hasFingerprint = binding.baseFingerprint.length > 0
   const hasConfigurationVersion = binding.configurationVersion.length > 0
@@ -169,7 +169,7 @@ function validateXmlValue(value: ConfigurationXmlValue): void {
 
 function* indexStrings(data: ConfigurationIndexData): Iterable<string> {
   yield data.binding.producerVersion
-  yield data.binding.baseId
+  yield data.binding.componentPath
   for (const file of data.projectFiles) yield file.projectPath
   for (const identity of data.identities) {
     yield identity.logicalAddress
@@ -199,7 +199,7 @@ function encodeBinding(normalized: NormalizedIndex): EncodedSection {
   const bytes = Buffer.alloc(align8(contentLength))
   bytes.writeBigUInt64LE(binding.indexGeneration, 0)
   bytes.writeUInt32LE(normalized.strings.id(binding.producerVersion), 8)
-  bytes.writeUInt32LE(normalized.strings.id(binding.baseId), 12)
+  bytes.writeUInt32LE(normalized.strings.id(binding.componentPath), 12)
   bytes.writeUInt32LE(binding.baseFingerprint.length, 16)
   bytes.writeUInt32LE(binding.configurationVersion.length, 20)
   Buffer.from(binding.baseFingerprint).copy(bytes, HEADER_LENGTH)

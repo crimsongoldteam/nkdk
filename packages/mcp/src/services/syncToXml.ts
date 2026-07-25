@@ -26,7 +26,7 @@ type ConfigDumpInfo = Map<
 >
 
 interface SyncToXmlDeps {
-  planSyncToXml?: (params: { projectDir: string; yamlDir: string; xmlDir: string; baseId?: string }) => Promise<unknown>
+  planSyncToXml?: (params: { projectDir: string; yamlDir: string; xmlDir: string }) => Promise<unknown>
   syncConfigurationToXML: (params: {
     context: {
       defaultLanguage: "ru"
@@ -47,7 +47,6 @@ interface SyncToXmlDeps {
     projectDir: string
     yamlDir: string
     xmlDir: string
-    baseId?: string
     concurrency?: number
   }) => Promise<CoreSyncResult>
 }
@@ -75,7 +74,6 @@ export async function syncToXml(input: SyncToXmlInput, deps?: SyncToXmlDeps): Pr
         projectDir: component.projectDir,
         yamlDir: component.componentDir,
         xmlDir: input.xmlDir,
-        ...(input.baseId === undefined ? {} : { baseId: input.baseId }),
       })
       return toolSuccess({ result })
     }
@@ -100,7 +98,6 @@ export async function syncToXml(input: SyncToXmlInput, deps?: SyncToXmlDeps): Pr
       projectDir: component.projectDir,
       yamlDir: component.componentDir,
       xmlDir: input.xmlDir,
-      ...(input.baseId === undefined ? {} : { baseId: input.baseId }),
       ...(input.concurrency === undefined ? {} : { concurrency: input.concurrency }),
     })
 

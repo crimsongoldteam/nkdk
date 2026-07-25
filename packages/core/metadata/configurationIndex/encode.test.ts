@@ -98,7 +98,7 @@ describe("encodeConfigurationIndex", () => {
     const strings = readStrings(entries[1].section, entries[1].count)
     const expectedStrings = [
       "0.0.3",
-      "default",
+      "cf",
       "Конфигурация.yaml",
       "A.yaml",
       "Справочник.Товары",
@@ -126,7 +126,7 @@ describe("encodeConfigurationIndex", () => {
     expect(binding.length).toBe(64)
     expect(binding.readBigUInt64LE(0)).toBe(1n)
     expect(binding.readUInt32LE(8)).toBe(stringId("0.0.3"))
-    expect(binding.readUInt32LE(12)).toBe(stringId("default"))
+    expect(binding.readUInt32LE(12)).toBe(stringId("cf"))
     expect(binding.readUInt32LE(16)).toBe(0)
     expect(binding.readUInt32LE(20)).toBe(0)
     expectZero(binding.subarray(24))

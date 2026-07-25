@@ -1,7 +1,8 @@
 import fs from "fs"
 import { NKDK_CORE_VERSION } from "../../version"
 import { decodeConfigurationIndex, type DecodeConfigurationIndexOptions } from "./decode"
-import { configurationIndexPath, DEFAULT_CONFIGURATION_INDEX_BASE_ID } from "./fileIO"
+import { componentPath, type ComponentAddress } from "../components/address"
+import { configurationIndexPath } from "./fileIO"
 import type {
   ConfigurationIdentity,
   ConfigurationIndexBinding,
@@ -40,12 +41,12 @@ const fatalUtf8Decoder = new TextDecoder("utf-8", { fatal: true })
 
 export async function readConfigurationIndexSnapshot(params: {
   projectDir: string
-  baseId?: string
+  address: ComponentAddress
 }): Promise<SharedConfigurationIndexSnapshot> {
-  const baseId = params.baseId ?? DEFAULT_CONFIGURATION_INDEX_BASE_ID
-  const encoded = await fs.promises.readFile(configurationIndexPath(params.projectDir, baseId))
+  const expectedComponentPath = componentPath(params.address)
+  const encoded = await fs.promises.readFile(configurationIndexPath(params.projectDir, params.address))
   return snapshotConfigurationIndex(encoded, {
-    expectedBaseId: baseId,
+    expectedComponentPath,
     expectedProducerVersion: NKDK_CORE_VERSION,
   })
 }
@@ -103,7 +104,7 @@ class SharedConfigurationIndexReader implements ConfigurationIndexReader {
     return {
       indexGeneration: binding.readBigUInt64LE(0),
       producerVersion: this.stringById(binding.readUInt32LE(8)),
-      baseId: this.stringById(binding.readUInt32LE(12)),
+      componentPath: this.stringById(binding.readUInt32LE(12)),
       baseFingerprint: Uint8Array.from(
         binding.subarray(baseFingerprintOffset, baseFingerprintOffset + baseFingerprintLength)
       ),

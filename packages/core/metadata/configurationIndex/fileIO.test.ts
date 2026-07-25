@@ -24,27 +24,32 @@ describe("configuration index file IO", () => {
     return projectDir
   }
 
-  it("writes default.bin directly after successful encoding", async () => {
+  it("writes the configuration component index directly after successful encoding", async () => {
     const projectDir = await createProjectDir()
     const first = sampleIndex()
-    await writeConfigurationIndexAtomically({ projectDir, data: first })
-    expect(await readConfigurationIndex({ projectDir, baseId: "default" })).toEqual(first)
+    await writeConfigurationIndexAtomically({ projectDir, address: { kind: "configuration" }, data: first })
+    expect(await readConfigurationIndex({ projectDir, address: { kind: "configuration" } })).toEqual(first)
 
     await expect(
       writeConfigurationIndexAtomically({
         projectDir,
-        data: { ...first, binding: { ...first.binding, baseId: "wrong" } },
+        address: { kind: "configuration" },
+        data: { ...first, binding: { ...first.binding, componentPath: "wrong" } },
       })
-    ).rejects.toThrow("baseId")
-    expect(await readConfigurationIndex({ projectDir, baseId: "default" })).toEqual(first)
-    expect((await fs.promises.readdir(join(projectDir, ".nkdk", "configuration-index"))).sort()).toEqual(["default.bin"])
+    ).rejects.toThrow("Ожидалась привязка")
+    expect(await readConfigurationIndex({ projectDir, address: { kind: "configuration" } })).toEqual(first)
+    expect((await fs.promises.readdir(join(projectDir, ".nkdk", "components", "cf"))).sort()).toEqual(["configuration-index.bin"])
   })
 
-  it("accepts only the default base ID in format 1.0", async () => {
+  it("addresses every index path through a component", async () => {
     const projectDir = await createProjectDir()
 
-    expect(configurationIndexPath(projectDir)).toBe(join(projectDir, ".nkdk", "configuration-index", "default.bin"))
-    expect(() => configurationIndexPath(projectDir, "another")).toThrow("baseId")
+    expect(configurationIndexPath(projectDir, { kind: "configuration" })).toBe(
+      join(projectDir, ".nkdk", "components", "cf", "configuration-index.bin")
+    )
+    expect(configurationIndexPath(projectDir, { kind: "configurationExtension", name: "Расширение" })).toBe(
+      join(projectDir, ".nkdk", "components", "cfe", "Расширение", "configuration-index.bin")
+    )
   })
 
   it("reads with the current core version expectation", async () => {
@@ -52,9 +57,12 @@ describe("configuration index file IO", () => {
     const data = sampleIndex()
     await writeConfigurationIndexAtomically({
       projectDir,
+      address: { kind: "configuration" },
       data: { ...data, binding: { ...data.binding, producerVersion: `${NKDK_CORE_VERSION}-another` } },
     })
 
-    await expect(readConfigurationIndex({ projectDir })).rejects.toThrowError(ConfigurationIndexCompatibilityError)
+    await expect(readConfigurationIndex({ projectDir, address: { kind: "configuration" } })).rejects.toThrowError(
+      ConfigurationIndexCompatibilityError
+    )
   })
 })

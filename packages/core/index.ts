@@ -4,6 +4,7 @@ registerCoreMetadata()
 
 export { registerCoreMetadata } from "./metadata/register"
 export * from "./metadata/configurationIndex"
+export { componentPath, type ComponentAddress } from "./metadata/components/address"
 export { NKDK_CORE_VERSION } from "./version"
 export {
   createXmlImportWorkerPoolHandle,

@@ -1,5 +1,6 @@
 import { availableParallelism } from "node:os"
 import {
+  componentPath,
   configurationIndexPath,
   hashConfigurationProjectFileList,
   readConfigurationIndex,
@@ -53,8 +54,8 @@ export interface ImportCoordinatorDependencies {
     concurrency?: number
   }): Promise<void>
   hashProject(projectDir: string, projectPaths: readonly string[], options: { concurrency?: number }): Promise<ConfigurationProjectFile[]>
-  readIndex(params: { projectDir: string; baseId: string }): Promise<ConfigurationIndexData | undefined>
-  writeIndex(params: { projectDir: string; data: ConfigurationIndexData }): Promise<void>
+  readIndex(params: { projectDir: string; address: { kind: "configuration" } }): Promise<ConfigurationIndexData | undefined>
+  writeIndex(params: { projectDir: string; address: { kind: "configuration" }; data: ConfigurationIndexData }): Promise<void>
 }
 
 const defaultImportDependencies: ImportCoordinatorDependencies = {
@@ -157,14 +158,14 @@ export async function importConfigurationFromXml(
       () =>
         buildImportedConfigurationIndex({
           producerVersion: NKDK_CORE_VERSION,
-          baseId: "default",
+          componentPath: componentPath({ kind: "configuration" }),
           indexGeneration: (previousIndex?.binding.indexGeneration ?? 0n) + 1n,
           projectFiles,
           fragmentData: first.fragmentData,
         })
     )
     await profiler.measureAsync("Подготовка импорта конфигурации", "Запись файла индекса конфигурации", { items: projectFiles.length }, () =>
-      deps.writeIndex({ projectDir, data: indexData })
+      deps.writeIndex({ projectDir, address: { kind: "configuration" }, data: indexData })
     )
     return successResult(discovered.assignments.length, warnings, projectDir)
   } catch (caught) {
@@ -180,7 +181,7 @@ async function readablePreviousIndex(
   projectDir: string
 ): Promise<ConfigurationIndexData | undefined> {
   try {
-    return await deps.readIndex({ projectDir, baseId: "default" })
+    return await deps.readIndex({ projectDir, address: { kind: "configuration" } })
   } catch {
     return undefined
   }
@@ -188,7 +189,7 @@ async function readablePreviousIndex(
 
 function buildImportedConfigurationIndex(params: {
   producerVersion: string
-  baseId: string
+  componentPath: string
   indexGeneration: bigint
   projectFiles: readonly ConfigurationProjectFile[]
   fragmentData: Pick<ConfigurationIndexData, "identities" | "xmlNodes" | "xmlValues">
@@ -197,7 +198,7 @@ function buildImportedConfigurationIndex(params: {
     binding: {
       indexGeneration: params.indexGeneration,
       producerVersion: params.producerVersion,
-      baseId: params.baseId,
+      componentPath: params.componentPath,
       baseFingerprint: new Uint8Array(),
       configurationVersion: new Uint8Array(),
     },
@@ -217,7 +218,7 @@ function successResult(
     succeeded,
     failed: [],
     warnings,
-    configurationIndexPath: configurationIndexPath(projectDir, "default"),
+    configurationIndexPath: configurationIndexPath(projectDir, { kind: "configuration" }),
   }
 }
 

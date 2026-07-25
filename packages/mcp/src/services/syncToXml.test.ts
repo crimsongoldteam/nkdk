@@ -18,11 +18,11 @@ describe("syncToXml service", () => {
       mode: "plan",
       assignments: 2,
       externalFiles: 1,
-      configurationIndexPath: "/yaml/.nkdk/configuration-index/default.bin",
+      configurationIndexPath: "/yaml/.nkdk/components/cf/configuration-index.bin",
     })
     const syncConfigurationToXML = vi.fn()
     const result = await syncToXml(
-      { projectDir, componentPath: "cfe/Расширение", xmlDir: "/xml", baseId: "default" },
+      { projectDir, componentPath: "cfe/Расширение", xmlDir: "/xml" },
       { planSyncToXml, syncConfigurationToXML },
     )
 
@@ -38,7 +38,6 @@ describe("syncToXml service", () => {
       projectDir,
       yamlDir: join(projectDir, "cfe", "Расширение"),
       xmlDir: "/xml",
-      baseId: "default",
     })
     expect(syncConfigurationToXML).not.toHaveBeenCalled()
   })
@@ -49,11 +48,11 @@ describe("syncToXml service", () => {
       succeeded: 1,
       failed: [],
       warnings: [],
-      configurationIndexPath: "/yaml/.nkdk/configuration-index/default.bin",
+      configurationIndexPath: "/yaml/.nkdk/components/cf/configuration-index.bin",
     })
 
     const result = await syncToXml(
-      { projectDir, componentPath: "cfe/Расширение", xmlDir: "/xml", allowWrite: true, baseId: "default", concurrency: 4 },
+      { projectDir, componentPath: "cfe/Расширение", xmlDir: "/xml", allowWrite: true, concurrency: 4 },
       { syncConfigurationToXML },
     )
 
@@ -62,14 +61,13 @@ describe("syncToXml service", () => {
         projectDir,
         yamlDir: join(projectDir, "cfe", "Расширение"),
         xmlDir: "/xml",
-        baseId: "default",
         concurrency: 4,
       }),
     )
     expect(result).toEqual({
       ok: true,
       succeeded: 1,
-      configurationIndexPath: "/yaml/.nkdk/configuration-index/default.bin",
+      configurationIndexPath: "/yaml/.nkdk/components/cf/configuration-index.bin",
       warnings: [],
       failed: [],
     })

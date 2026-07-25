@@ -39,14 +39,14 @@ describe("full XML sync failure integration", () => {
     fs.mkdirSync(projectDir, { recursive: true })
     fs.mkdirSync(xmlDir, { recursive: true })
     const previous = sampleIndex()
-    await writeConfigurationIndexAtomically({ projectDir, data: previous })
-    const before = fs.readFileSync(configurationIndexPath(projectDir))
+    await writeConfigurationIndexAtomically({ projectDir, address: { kind: "configuration" }, data: previous })
+    const before = fs.readFileSync(configurationIndexPath(projectDir, { kind: "configuration" }))
 
     const result = await syncConfigurationToXml({ context, yamlDir: projectDir, xmlDir }, transferFailureDeps(previous))
 
     expect(result.failed).toEqual([expect.objectContaining({ code: "full_xml_sync_operation_failed" })])
     expect(fs.readFileSync(join(xmlDir, "partial.xml"), "utf8")).toBe("partial")
-    expect(fs.readFileSync(configurationIndexPath(projectDir))).toEqual(before)
+    expect(fs.readFileSync(configurationIndexPath(projectDir, { kind: "configuration" }))).toEqual(before)
   })
 
   it("does not start XML writes or update the index after a first-pass preparation error", async () => {

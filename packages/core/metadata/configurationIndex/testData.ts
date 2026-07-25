@@ -6,7 +6,7 @@ export function sampleIndex(): ConfigurationIndexData {
     binding: {
       indexGeneration: 1n,
       producerVersion: NKDK_CORE_VERSION,
-      baseId: "default",
+      componentPath: "cf",
       baseFingerprint: new Uint8Array(),
       configurationVersion: new Uint8Array(),
     },

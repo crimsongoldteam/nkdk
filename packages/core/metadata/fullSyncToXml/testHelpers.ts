@@ -53,11 +53,12 @@ export async function writeSmallYamlProjectWithIndex(yamlDir: string): Promise<v
   })
   await writeConfigurationIndexAtomically({
     projectDir: yamlDir,
+    address: { kind: "configuration" },
     data: {
       binding: {
         indexGeneration: 1n,
         producerVersion: NKDK_CORE_VERSION,
-        baseId: "default",
+        componentPath: "cf",
         baseFingerprint: new Uint8Array(),
         configurationVersion: new Uint8Array(),
       },

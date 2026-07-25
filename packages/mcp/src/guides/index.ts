@@ -52,7 +52,7 @@ export const guideDefinitions: GuideDefinition[] = [
     text: [
       "# Синхронизация YAML в XML",
       "",
-      "Перед вызовом `nkdk.sync_to_xml` проверь корень NKDK-проекта, выбранный компонент и наличие файла индекса конфигурации `.nkdk/configuration-index/default.bin`.",
+      "Перед вызовом `nkdk.sync_to_xml` проверь корень NKDK-проекта, выбранный компонент и наличие файла индекса конфигурации `.nkdk/components/cf/configuration-index.bin`.",
       "`nkdk.sync_to_xml` выгружает один компонент `projectDir/componentPath` в заданный `xmlDir`; `xmlDir` не строится как `xmlRootDir/componentPath`.",
       "Tool пишет файлы только при `allowWrite: true`.",
     ].join("\n"),
