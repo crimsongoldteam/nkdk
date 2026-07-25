@@ -2,18 +2,20 @@ import { dirname, join } from "node:path"
 import { fileURLToPath } from "node:url"
 import Piscina from "piscina"
 import { mergeConfigurationIndexFragments } from "../configurationIndex/fragment"
-import type { ConfigurationIndexData } from "../configurationIndex/types"
+import type { ConfigurationIndexData, ConfigurationLocalDependency } from "../configurationIndex/types"
 import type {
   ConfigurationContextFromXML,
   XmlImportConfigurationContext,
 } from "../context/types"
 import type { ValidationOwnerFacts } from "../validation/dataPath/ownerFacts"
+import type { ValidationIndexContribution } from "../validation/projectValidationTypes"
 import { createOperationProfiler } from "../validation/profile"
 import type { LayeredImportReferenceSnapshot } from "./componentReferenceIndex"
 import type {
   ImportAssignment,
   ImportDiagnostic,
   ImportFirstPassResult,
+  ImportLocalDependency,
   ImportResultFile,
   ImportSecondPassResult,
   ImportWorkerCommand,
@@ -42,7 +44,11 @@ export interface XmlImportWorkerPoolHandle {
 export interface XmlImportFirstPassPoolResult {
   diagnostics: ImportDiagnostic[]
   ownerFacts: ValidationOwnerFacts[]
-  fragmentData: Pick<ConfigurationIndexData, "identities" | "xmlNodes" | "xmlValues">
+  validationContribution: ValidationIndexContribution
+  localDependencies: ImportLocalDependency[]
+  fragmentData: Pick<ConfigurationIndexData, "identities" | "xmlNodes" | "xmlValues"> & {
+    localDependencies: ConfigurationLocalDependency[]
+  }
 }
 
 export interface XmlImportSecondPassPoolResult {
@@ -231,6 +237,14 @@ function createXmlImportOperationPool(params: {
       return {
         diagnostics,
         ownerFacts: results.flatMap((result) => result.ownerFacts),
+        validationContribution: {
+          objectRecords: results.flatMap((result) => result.validationContribution.objectRecords),
+          objectIndexEntries: results.flatMap((result) => result.validationContribution.objectIndexEntries),
+          memberIndexEntries: results.flatMap((result) => result.validationContribution.memberIndexEntries),
+          valueIndexEntries: results.flatMap((result) => result.validationContribution.valueIndexEntries),
+          pendingReferences: results.flatMap((result) => result.validationContribution.pendingReferences),
+        },
+        localDependencies: fragmentData.localDependencies,
         fragmentData,
       }
     },

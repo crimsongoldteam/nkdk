@@ -38,13 +38,23 @@ describe("XML import worker pool", () => {
       outputDir: createTempDir("static"),
       componentKind: "configuration",
     })
-    await pool.runFirstPass(assignments)
+    const first = await pool.runFirstPass(assignments)
     await pool.runSecondPass(createLayeredImportReferenceSnapshot({ local: createImportSharedMetadata([]) }))
 
     expect(pools.runs(0).map((task) => task.kind)).toEqual(["initialize", "firstPass", "secondPass"])
     expect(pools.runs(1).map((task) => task.kind)).toEqual(["initialize", "firstPass", "secondPass"])
     expect(pools.firstPassIds(0)).toEqual([assignments[0]?.id, assignments[2]?.id])
     expect(pools.firstPassIds(1)).toEqual([assignments[1]?.id])
+    expect(first.validationContribution.objectIndexEntries.map((entry) => entry.canonical)).toEqual([
+      "Catalog.one",
+      "Catalog.three",
+      "Catalog.two",
+    ])
+    expect(first.localDependencies.map((dependency) => dependency.canonical)).toEqual([
+      "Catalog.one.Form.Основная",
+      "Catalog.three.Form.Основная",
+      "Catalog.two.Form.Основная",
+    ])
 
     await pool.close()
   })
@@ -172,6 +182,7 @@ describe("XML import worker pool", () => {
         identities: expected.identities,
         xmlNodes: expected.xmlNodes,
         xmlValues: expected.xmlValues,
+        localDependencies: [],
       })
     } finally {
       await pool.close()
@@ -262,6 +273,31 @@ function createFakePools() {
             return {
               kind: "firstPassResult" as const,
               ownerFacts: [],
+              localDependencies: task.assignments.map((item) => ({
+                sourceProjectPath: item.targetProjectPath,
+                yamlPath: ["ОсновнаяФорма"],
+                rulePath: [{ propertyKey: "defaultForm" }],
+                kind: "metadataTarget" as const,
+                canonical: `Catalog.${item.itemName}.Form.Основная`,
+              })),
+              validationContribution: {
+                objectRecords: [],
+                objectIndexEntries: task.assignments.map((item) => {
+                  const target = {
+                    kind: "object" as const,
+                    root: "Catalog" as const,
+                    objectName: item.itemName,
+                  }
+                  return {
+                    canonical: `Catalog.${item.itemName}`,
+                    target,
+                    result: { ok: true as const, filePath: item.targetProjectPath },
+                  }
+                }),
+                memberIndexEntries: [],
+                valueIndexEntries: [],
+                pendingReferences: [],
+              },
               diagnostics: diagnostics.get(workerIndex) ?? [],
               fragmentBuffer: encodeConfigurationIndexFragments(
                 task.assignments.map((item) => ({
@@ -269,6 +305,15 @@ function createFakePools() {
                   identities: [],
                   xmlNodes: [],
                   xmlValues: [],
+                  localDependencies: [
+                    {
+                      sourceProjectPath: item.targetProjectPath,
+                      yamlPath: ["ОсновнаяФорма"],
+                      rulePath: [{ propertyKey: "defaultForm" }],
+                      kind: "metadataTarget",
+                      canonical: `Catalog.${item.itemName}.Form.Основная`,
+                    },
+                  ],
                 }))
               ),
             }

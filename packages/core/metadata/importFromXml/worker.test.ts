@@ -47,22 +47,79 @@ afterEach(() => {
 })
 
 describe("XML import worker first pass", () => {
-  it("retains YAML locally and returns only owner facts and an index fragment buffer", async () => {
-    const assignment = catalogAssignment()
+  it("retains YAML locally and returns the complete local validation contribution", async () => {
+    const assignment = catalogAssignment({
+      itemName: "СправочникПолный",
+      targetProjectPath: "Справочник/СправочникПолный/Свойства.yaml",
+      logicalAddress: "Справочник.СправочникПолный",
+      xmlFiles: [{ role: "metadata", sourcePath: catalogFullXmlPath }],
+    })
 
     const result = expectFirstPass(await runImportWorkerCommand({ kind: "firstPass", assignments: [assignment] }))
 
     expect(result.diagnostics).toEqual([])
     expect(result.ownerFacts).toEqual([
       expect.objectContaining({
-        ref: { kind: "Справочник", name: "Контрагенты" },
+        ref: { kind: "Справочник", name: "СправочникПолный" },
         filePath: assignment.targetProjectPath,
       }),
     ])
     expect(decodeConfigurationIndexFragments(result.fragmentBuffer)).toEqual([
-      expect.objectContaining({ targetProjectPath: assignment.targetProjectPath }),
+      expect.objectContaining({
+        targetProjectPath: assignment.targetProjectPath,
+        localDependencies: expect.arrayContaining([
+          expect.objectContaining({
+            sourceProjectPath: assignment.targetProjectPath,
+            canonical: "Catalog.СправочникПолный.Form.ФормаЭлемента",
+          }),
+        ]),
+      }),
     ])
-    expect(Object.keys(result).sort()).toEqual(["diagnostics", "fragmentBuffer", "kind", "ownerFacts"])
+    expect(result.validationContribution.objectIndexEntries).toContainEqual(
+      expect.objectContaining({
+        canonical: "Catalog.СправочникПолный",
+        result: { ok: true, filePath: assignment.targetProjectPath, details: expect.any(Object) },
+      })
+    )
+    expect(result.validationContribution.memberIndexEntries).toContainEqual(
+      expect.objectContaining({
+        canonical: "Catalog.СправочникПолный.Attribute.РеквизитСправочника",
+        result: expect.objectContaining({ ok: true, filePath: assignment.targetProjectPath }),
+      })
+    )
+    expect(result.validationContribution.pendingReferences).toContainEqual(
+      expect.objectContaining({
+        filePath: assignment.targetProjectPath,
+        canonical: "Catalog.СправочникПолный.Form.ФормаЭлемента",
+        yamlPath: ["ОсновнаяФормаОбъекта"],
+      })
+    )
+    expect(result.localDependencies).toContainEqual({
+      sourceProjectPath: assignment.targetProjectPath,
+      yamlPath: ["ОсновнаяФормаОбъекта"],
+      rulePath: [{ propertyKey: "defaultObjectForm" }],
+      kind: "metadataTarget",
+      canonical: "Catalog.СправочникПолный.Form.ФормаЭлемента",
+    })
+    expect(result.validationContribution.objectRecords).toContainEqual(
+      expect.objectContaining({
+        filePath: assignment.targetProjectPath,
+        projectPath: assignment.targetProjectPath,
+        owner: { dir: "Справочник", name: "СправочникПолный" },
+        objectIndexEntries: expect.any(Array),
+        memberIndexEntries: expect.any(Array),
+        pendingReferences: expect.any(Array),
+      })
+    )
+    expect(() => structuredClone(result.validationContribution.pendingReferences)).not.toThrow()
+    expect(Object.keys(result).sort()).toEqual([
+      "diagnostics",
+      "fragmentBuffer",
+      "kind",
+      "localDependencies",
+      "ownerFacts",
+      "validationContribution",
+    ])
     expect(workerStateForTests()).toMatchObject({
       operationId: "test-operation",
       workerIndex: 2,
@@ -121,6 +178,14 @@ describe("XML import worker first pass", () => {
     const result: ImportFirstPassResult = {
       kind: "firstPassResult",
       ownerFacts: [],
+      localDependencies: [],
+      validationContribution: {
+        objectRecords: [],
+        objectIndexEntries: [],
+        memberIndexEntries: [],
+        valueIndexEntries: [],
+        pendingReferences: [],
+      },
       diagnostics: [],
       fragmentBuffer,
     }

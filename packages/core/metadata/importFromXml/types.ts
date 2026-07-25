@@ -1,6 +1,8 @@
 import type { ProjectResourceSource } from "../orchestration/property/fn"
 import type { XmlImportConfigurationContext } from "../context/types"
 import type { ValidationOwnerFacts } from "../validation/dataPath/ownerFacts"
+import type { ValidationIndexContribution } from "../validation/projectValidationTypes"
+import type { ConfigurationLocalDependency } from "../configurationIndex/types"
 import type { LayeredImportReferenceSnapshot } from "./componentReferenceIndex"
 
 export type ImportAssignmentRole = "configuration" | "properties" | "fileItem"
@@ -61,9 +63,13 @@ export type ImportWorkerCommand =
 export interface ImportFirstPassResult {
   kind: "firstPassResult"
   ownerFacts: ValidationOwnerFacts[]
+  validationContribution: ValidationIndexContribution
+  localDependencies: ImportLocalDependency[]
   diagnostics: ImportDiagnostic[]
   fragmentBuffer: ArrayBuffer
 }
+
+export type ImportLocalDependency = ConfigurationLocalDependency
 
 export interface ImportSecondPassResult {
   kind: "secondPassResult"

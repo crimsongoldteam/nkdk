@@ -16,6 +16,11 @@ import {
   type LayeredImportReferenceSnapshot,
 } from "./componentReferenceIndex"
 import { extractImportOwnerFacts } from "./ownerFacts"
+import {
+  extractImportValidationContribution,
+  mergeImportValidationContributions,
+  type ImportValidationContribution,
+} from "./validationContribution"
 import { ImportXmlInputError, prepareImportYaml, type PreparedImportYaml } from "./prepareYaml"
 import type {
   ImportAssignment,
@@ -218,6 +223,7 @@ async function runFirstPass(
   const diagnostics: ImportDiagnostic[] = []
   const ownerFacts: ValidationOwnerFacts[] = []
   const fragments: ConfigurationIndexFragment[] = []
+  const validationContributions: ImportValidationContribution[] = []
 
   for (const assignment of assignments) {
     const collector = createConfigurationIndexCollector()
@@ -235,9 +241,21 @@ async function runFirstPass(
         { items: 1 },
         () => collector.fragment(assignment.targetProjectPath)
       )
+      const validationContribution = profiler.measure(
+        "Подготовка импорта конфигурации",
+        "Извлечение validation contribution",
+        { items: 1 },
+        () => extractImportValidationContribution({ prepared, projectDir: state.outputDir })
+      )
       preparedYaml.set(assignment.id, prepared)
       ownerFacts.push(...preparedOwnerFacts)
-      fragments.push(fragment)
+      fragments.push({
+        ...fragment,
+        ...(validationContribution.localDependencies.length === 0
+          ? {}
+          : { localDependencies: validationContribution.localDependencies }),
+      })
+      validationContributions.push(validationContribution)
     } catch (caught) {
       preparedYaml.delete(assignment.id)
       diagnostics.push(importAssignmentDiagnostic(assignment, caught))
@@ -247,9 +265,12 @@ async function runFirstPass(
   }
 
   profiler.flush()
+  const validation = mergeImportValidationContributions(validationContributions)
   return {
     kind: "firstPassResult",
     ownerFacts,
+    validationContribution: validation.validationContribution,
+    localDependencies: validation.localDependencies,
     diagnostics,
     fragmentBuffer: encodeConfigurationIndexFragments(fragments),
   }

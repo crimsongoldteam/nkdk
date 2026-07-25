@@ -380,6 +380,7 @@ export function importPropertiesFromXMLToYAML(params: {
         rulePath: propertyRulePath,
         rule: propertyRule,
         value: yamlValue,
+        ...(owner === undefined ? {} : { metadataTargetOwner: owner }),
       })
       if (getTypeRule(propertyRule.type, "finalizeImportedYAML") !== undefined) {
         deferred?.accept({ valuePath: propertyYamlPath, rulePath: propertyRulePath })

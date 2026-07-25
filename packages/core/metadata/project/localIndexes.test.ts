@@ -62,6 +62,77 @@ describe("createLocalIndexesCollector", () => {
     expect(JSON.stringify(metadata)).not.toContain("retainedOnlyByCaller")
   })
 
+  it("сохраняет компактные metadataTarget-факты с владельцем без удержания исходного YAML", () => {
+    const collector = createLocalIndexesCollector()
+
+    collector.acceptProperty({
+      yamlPath: ["ОсновныеФормы"],
+      rulePath: [{ propertyKey: "defaultForms" }],
+      rule: {
+        type: "String" as PropertyRuleType,
+        metadataTarget: { kind: "member", owner: "this", memberKinds: ["Form"] },
+      },
+      value: ["ФормаОбъекта", "ФормаСписка"],
+      metadataTargetOwner: { root: "Catalog", objectName: "Контрагенты" },
+    })
+
+    expect(collector.finish().metadata.metadataTargets).toEqual([
+      {
+        yamlPath: ["ОсновныеФормы", 0],
+        value: "ФормаОбъекта",
+        constraint: { kind: "member", owner: "this", memberKinds: ["Form"] },
+        owner: { root: "Catalog", objectName: "Контрагенты" },
+        rulePath: [{ propertyKey: "defaultForms" }],
+      },
+      {
+        yamlPath: ["ОсновныеФормы", 1],
+        value: "ФормаСписка",
+        constraint: { kind: "member", owner: "this", memberKinds: ["Form"] },
+        owner: { root: "Catalog", objectName: "Контрагенты" },
+        rulePath: [{ propertyKey: "defaultForms" }],
+      },
+    ])
+  })
+
+  it("сохраняет dependency картинки по YAML-пути поля Ссылка", () => {
+    const collector = createLocalIndexesCollector()
+
+    collector.acceptProperty({
+      yamlPath: ["Картинка"],
+      rulePath: [{ propertyKey: "picture" }],
+      rule: {
+        type: "Picture",
+        metadataTarget: { kind: "object", roots: ["CommonPicture"] },
+      },
+      value: { Ссылка: "ОбщаяКартинка.Печать" },
+    })
+
+    expect(collector.finish().metadata.metadataTargets).toEqual([
+      {
+        yamlPath: ["Картинка", "Ссылка"],
+        value: "ОбщаяКартинка.Печать",
+        constraint: { kind: "object", roots: ["CommonPicture"] },
+        rulePath: [{ propertyKey: "picture" }],
+      },
+    ])
+  })
+
+  it("не считает стандартную картинку metadata dependency", () => {
+    const collector = createLocalIndexesCollector()
+
+    collector.acceptProperty({
+      yamlPath: ["Картинка"],
+      rulePath: [{ propertyKey: "picture" }],
+      rule: {
+        type: "Picture",
+        metadataTarget: { kind: "object", roots: ["CommonPicture"] },
+      },
+      value: "Печать",
+    })
+
+    expect(collector.finish().metadata.metadataTargets).toBeUndefined()
+  })
+
   it("собирает одинаковые факты import и validation из одного потока свойств", () => {
     const propertyType = "TestLocalOwnerFact" as PropertyRuleType
     let acceptedProperties = 0

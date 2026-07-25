@@ -1,6 +1,8 @@
 import type { LocalYamlFact } from "../orchestration/property/importYamlTypes"
 import { getTypeRule } from "../orchestration/property/typeRuleRegistry"
 import type { FormDataPathIndex } from "../validation/dataPath/formIndex"
+import type { MetadataTargetConstraint, MetadataTargetOwner } from "../commonObjects/metadataTargets/types"
+import { PictureLibFromYAML } from "../systemEnumerations/types"
 
 export interface LocalMetadataEvent {
   kind: "property" | "complete"
@@ -13,7 +15,16 @@ export interface LocalMetadataEvent {
 export interface LocalMetadataIndex {
   events: LocalMetadataEvent[]
   ownerFacts?: Readonly<Record<string, unknown>>
+  metadataTargets?: LocalMetadataTargetFact[]
   formDataPathIndex?: FormDataPathIndex
+}
+
+export interface LocalMetadataTargetFact {
+  yamlPath: readonly (string | number)[]
+  value: string
+  constraint: MetadataTargetConstraint
+  owner?: MetadataTargetOwner
+  rulePath: LocalYamlFact["rulePath"]
 }
 export interface LocalIndexes {
   metadata: LocalMetadataIndex
@@ -28,6 +39,7 @@ export interface LocalIndexesCollector {
 export function createLocalIndexesCollector(): LocalIndexesCollector {
   const events: LocalMetadataEvent[] = []
   const ownerFacts: Record<string, unknown> = {}
+  const metadataTargets: LocalMetadataTargetFact[] = []
   const writer = {
     setOwnerFact(role: string, value: unknown) {
       ownerFacts[role] = value
@@ -47,13 +59,76 @@ export function createLocalIndexesCollector(): LocalIndexesCollector {
   const acceptProperty = (fact: LocalYamlFact): void => {
     recordEvent("property", fact)
     getTypeRule(fact.rule.type, "collectLocalFactsFromYAML")?.({ fact, writer })
+    collectMetadataTargetFacts(metadataTargets, fact)
   }
 
   return {
     acceptProperty,
     completeValue: (fact) => recordEvent("complete", fact),
     finish: () => ({
-      metadata: { events, ...(Object.keys(ownerFacts).length === 0 ? {} : { ownerFacts }) },
+      metadata: {
+        events,
+        ...(Object.keys(ownerFacts).length === 0 ? {} : { ownerFacts }),
+        ...(metadataTargets.length === 0 ? {} : { metadataTargets }),
+      },
     }),
   }
+}
+
+function collectMetadataTargetFacts(target: LocalMetadataTargetFact[], fact: LocalYamlFact): void {
+  const constraint = fact.rule.metadataTarget
+  if (constraint === undefined) return
+
+  if (fact.rule.type === "Picture") {
+    const structuredPicture =
+      typeof fact.value === "object" && fact.value !== null && !Array.isArray(fact.value)
+    const picture = structuredPicture ? (fact.value as Record<string, unknown>)["Ссылка"] : fact.value
+    if (
+      typeof picture === "string" &&
+      !(picture in PictureLibFromYAML) &&
+      picture.startsWith("ОбщаяКартинка.")
+    ) {
+      appendMetadataTargetFact(
+        target,
+        fact,
+        constraint,
+        picture,
+        structuredPicture ? [...fact.yamlPath, "Ссылка"] : fact.yamlPath
+      )
+    }
+    return
+  }
+
+  collectStringValues(fact.value, fact.yamlPath, (value, yamlPath) =>
+    appendMetadataTargetFact(target, fact, constraint, value, yamlPath)
+  )
+}
+
+function collectStringValues(
+  value: unknown,
+  yamlPath: readonly (string | number)[],
+  accept: (value: string, yamlPath: readonly (string | number)[]) => void
+): void {
+  if (typeof value === "string") {
+    accept(value, yamlPath)
+    return
+  }
+  if (!Array.isArray(value)) return
+  value.forEach((item, index) => collectStringValues(item, [...yamlPath, index], accept))
+}
+
+function appendMetadataTargetFact(
+  target: LocalMetadataTargetFact[],
+  fact: LocalYamlFact,
+  constraint: MetadataTargetConstraint,
+  value: string,
+  yamlPath: readonly (string | number)[]
+): void {
+  target.push({
+    yamlPath: [...yamlPath],
+    value,
+    constraint,
+    ...(fact.metadataTargetOwner === undefined ? {} : { owner: { ...fact.metadataTargetOwner } }),
+    rulePath: fact.rulePath.map((segment) => ({ ...segment })),
+  })
 }
