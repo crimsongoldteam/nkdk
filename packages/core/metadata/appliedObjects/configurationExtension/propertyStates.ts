@@ -1,3 +1,4 @@
+import { capitalize } from "../../../helpers/capitalize"
 import { getConfigurationIndexCollectionContext } from "../../configurationIndex/collector/context"
 import { childSegmentUid } from "../../configurationIndex/logicalAddress"
 import type { MetadataItemXmlImportAugmenter } from "../../importFromXml/metadataItemAugmenter"
@@ -82,7 +83,10 @@ function notifyYamlName(rule: MetadataItemRule, xmlProperty: string): string | u
   const alias = NOTIFY_ALIASES[xmlProperty]
   if (alias !== undefined) return alias
   for (const [propertyKey, propertyRule] of Object.entries(rule.properties)) {
-    if ((propertyRule.xml ?? propertyKey) === xmlProperty && typeof propertyRule.yaml === "string") {
+    if (
+      (propertyRule.xml ?? capitalize(propertyKey)) === xmlProperty &&
+      typeof propertyRule.yaml === "string"
+    ) {
       return propertyRule.yaml
     }
   }

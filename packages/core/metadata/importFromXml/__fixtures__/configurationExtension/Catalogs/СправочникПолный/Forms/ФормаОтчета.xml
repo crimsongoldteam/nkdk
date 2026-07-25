@@ -1,0 +1,27 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<MetaDataObject xmlns="http://v8.1c.ru/8.3/MDClasses" xmlns:xr="http://v8.1c.ru/8.3/xcf/readable" version="2.20">
+	<Form uuid="77777777-7777-4777-8777-777777777777">
+		<InternalInfo>
+			<xr:PropertyState>
+				<xr:Property>Form</xr:Property>
+				<xr:State>Extended</xr:State>
+			</xr:PropertyState>
+			<xr:PropertyState>
+				<xr:Property>UnknownProperty</xr:Property>
+				<xr:State>Extended</xr:State>
+			</xr:PropertyState>
+			<xr:PropertyState>
+				<xr:Property>Form</xr:Property>
+				<xr:State>FutureState</xr:State>
+			</xr:PropertyState>
+		</InternalInfo>
+		<Properties>
+			<ObjectBelonging>Adopted</ObjectBelonging>
+			<Name>ФормаОтчета</Name>
+			<Comment>Форма расширения</Comment>
+			<ExtendedConfigurationObject>88888888-8888-4888-8888-888888888888</ExtendedConfigurationObject>
+			<FormType>Managed</FormType>
+			<UnknownProperty>Пропустить</UnknownProperty>
+		</Properties>
+	</Form>
+</MetaDataObject>

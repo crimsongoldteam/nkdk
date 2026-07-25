@@ -3,21 +3,21 @@ import { mockContextFromXML } from "../../../tests/mockContext"
 import { withConfigurationIndexCollector } from "../../configurationIndex/collector/context"
 import { createConfigurationIndexCollector } from "../../configurationIndex/collector/writer"
 import type { MetadataItemRule } from "../../orchestration/property/types"
+import { systemEnumerationRule } from "../../systemEnumerations/types"
 import { configurationExtensionPropertyStatesAugmenter } from "./propertyStates"
 
 describe("configuration extension PropertyState augmenter", () => {
-  it("преобразует одиночный и повторяющийся Notify только в известные уникальные YAML-имена", () => {
+  it("преобразует Notify по каноническому XML-имени builder-rule без явного xml", () => {
     const yaml: Record<string, unknown> = { ОсновнойРежимЗапуска: "ManagedApplication" }
     configurationExtensionPropertyStatesAugmenter.augment({
       context: extensionContext(),
       rule: {
         itemType: "MetadataConfigurationExtension",
         properties: {
-          defaultRunMode: {
-            type: "string",
-            xml: "DefaultRunMode",
+          defaultRunMode: systemEnumerationRule({
             yaml: "ОсновнойРежимЗапуска",
-          },
+            typeSE: "ClientRunMode",
+          }),
         },
       },
       source: propertyStates([

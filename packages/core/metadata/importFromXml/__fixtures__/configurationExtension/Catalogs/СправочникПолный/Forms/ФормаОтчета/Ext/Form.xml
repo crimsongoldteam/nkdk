@@ -1,0 +1,36 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<Form xmlns="http://v8.1c.ru/8.3/xcf/logform" xmlns:v8="http://v8.1c.ru/8.1/data/core" xmlns:xs="http://www.w3.org/2001/XMLSchema" version="2.20">
+	<AutoCommandBar name="ФормаКоманднаяПанель" id="-1"/>
+	<ChildItems>
+		<InputField name="СобственноеПоле" id="1">
+			<Width>10</Width>
+			<ContextMenu name="СобственноеПолеКонтекстноеМеню" id="2"/>
+			<ExtendedTooltip name="СобственноеПолеРасширеннаяПодсказка" id="3"/>
+		</InputField>
+	</ChildItems>
+	<Attributes>
+		<Attribute name="СобственныйРеквизитФормы" id="4">
+			<Type>
+				<v8:Type>xs:string</v8:Type>
+			</Type>
+		</Attribute>
+	</Attributes>
+	<UnknownProperty>Пропустить</UnknownProperty>
+	<BaseForm version="2.20">
+		<AutoCommandBar name="ФормаКоманднаяПанель" id="-1"/>
+		<ChildItems>
+			<InputField name="БазовоеПоле" id="1">
+				<Width>99</Width>
+				<ContextMenu name="БазовоеПолеКонтекстноеМеню" id="2"/>
+				<ExtendedTooltip name="БазовоеПолеРасширеннаяПодсказка" id="3"/>
+			</InputField>
+		</ChildItems>
+		<Attributes>
+			<Attribute name="БазовыйРеквизитФормы" id="4">
+				<Type>
+					<v8:Type>xs:dateTime</v8:Type>
+				</Type>
+			</Attribute>
+		</Attributes>
+	</BaseForm>
+</Form>
