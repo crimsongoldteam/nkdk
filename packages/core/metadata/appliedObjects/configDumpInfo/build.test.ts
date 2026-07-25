@@ -45,6 +45,42 @@ describe("buildConfigDumpInfo", () => {
     })
   })
 
+  it("сохраняет вложенный объект отдельной записью, если так задано в ConfigDumpInfo", () => {
+    const reference: ConfigDumpInfo = new Map([
+      [
+        "Subsystem.Основная",
+        {
+          id: "parent-id",
+          configVersion: "aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa",
+          children: new Map(),
+        },
+      ],
+      [
+        "Subsystem.Основная.Subsystem.Вложенная",
+        {
+          id: "nested-id",
+          configVersion: "bbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbb",
+          children: new Map(),
+        },
+      ],
+    ])
+
+    const yamlState = state(["Подсистема.Основная", "Подсистема.Основная.Подсистема.Вложенная"])
+    const result = buildConfigDumpInfo({
+      reference,
+      yamlState,
+      migrationState: yamlState,
+      referencePathByCurrentPath: new Map(),
+    })
+
+    expect(result.get("Subsystem.Основная.Subsystem.Вложенная")).toEqual({
+      id: "nested-id",
+      configVersion: "bbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbb",
+      children: new Map(),
+    })
+    expect(result.get("Subsystem.Основная")?.children).toEqual(new Map())
+  })
+
   it("переносит id/configVersion при переименовании объекта и id при переименовании реквизита", () => {
     const reference: ConfigDumpInfo = new Map([
       [
