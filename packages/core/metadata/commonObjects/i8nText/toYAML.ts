@@ -17,6 +17,10 @@ export const exportI8nTextToYAML: ExportToYAMLFunctionNew = (params: {
   const i8nRule = rule as I8nTextPropertyRule
   const textClean = getTextWithoutName({ context, rule: i8nRule, text, name })
 
+  if (i8nRule.preserveEmptyXML && textClean !== undefined && Object.keys(textClean.items).length === 0) {
+    return ""
+  }
+
   return exportFullI8nTextToYAML(context, textClean)
 }
 
