@@ -97,6 +97,20 @@ describe("exportTypeDescriptionToXML", () => {
     expect(result).toEqual("<TypeDescription>\n\t<v8:Type>v8:FillChecking</v8:Type>\n</TypeDescription>")
   })
 
+  it("exports default binary data qualifiers for base64Binary", () => {
+    const resultXml = exportTypeDescriptionToXML(mockContext, mockRule, { type: ["base64Binary"] })
+
+    expect(xmlExport({ TypeDescription: resultXml }, false)).toEqual(
+      "<TypeDescription>\n" +
+        "\t<v8:Type>xs:base64Binary</v8:Type>\n" +
+        "\t<v8:BinaryDataQualifiers>\n" +
+        "\t\t<v8:Length>0</v8:Length>\n" +
+        "\t\t<v8:AllowedLength>Variable</v8:AllowedLength>\n" +
+        "\t</v8:BinaryDataQualifiers>\n" +
+        "</TypeDescription>"
+    )
+  })
+
   it("should export ConditionalAppearance type to XML with entext namespace", () => {
     const referenceXml = importContentFromXML<{ Type?: TypeDescriptionXML }>(
       '<Type>\n\t<v8:Type xmlns:d7p1="http://v8.1c.ru/8.3/data/entext">d7p1:ConditionalAppearance</v8:Type>\n</Type>'

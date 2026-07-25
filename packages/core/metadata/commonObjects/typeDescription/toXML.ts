@@ -34,6 +34,7 @@ export const exportTypeDescriptionToXML = (
   const stringQualifiers = getStringQualifiers(typeDescription)
   const numberQualifiers = getNumberQualifiers(typeDescription)
   const dateQualifiers = getDateQualifiers(typeDescription)
+  const binaryDataQualifiers = getBinaryDataQualifiers(typeDescription)
 
   const referenceContainerByType = getMatchingReferenceContainerByType(typeDescription, referenceTypeDescription)
   const referenceSourceTypes = getReferenceSourceTypes(referenceTypeDescription)
@@ -60,6 +61,7 @@ export const exportTypeDescriptionToXML = (
     ...(numberQualifiers !== undefined ? { "v8:NumberQualifiers": numberQualifiers } : undefined),
     ...(stringQualifiers !== undefined ? { "v8:StringQualifiers": stringQualifiers } : undefined),
     ...(dateQualifiers !== undefined ? { "v8:DateQualifiers": dateQualifiers } : undefined),
+    ...(binaryDataQualifiers !== undefined ? { "v8:BinaryDataQualifiers": binaryDataQualifiers } : undefined),
   }
 
   return result
@@ -256,6 +258,16 @@ const getDateQualifiers = (typeDescription: TypeDescription): TypeDescriptionXML
 
   return {
     "v8:DateFractions": dateQualifiers.dateFractions,
+  }
+}
+
+const getBinaryDataQualifiers = (
+  typeDescription: TypeDescription
+): TypeDescriptionXML["v8:BinaryDataQualifiers"] | undefined => {
+  if (!typeDescription.type.includes("base64Binary")) return undefined
+  return {
+    "v8:Length": 0,
+    "v8:AllowedLength": "Variable",
   }
 }
 
