@@ -49,4 +49,25 @@ describe("XML import assignment builder", () => {
       logicalAddress: "Справочник.Контрагенты.Форма.Форма",
     })
   })
+
+  it("builds an owner chain for recursively nested properties", () => {
+    const assignments = createImportAssignments([
+      group(
+        "Подсистема/Родитель/Подсистемы/Дочерняя/Свойства.yaml",
+        "properties",
+        "MetadataSubsystem",
+        "Подсистема"
+      ),
+      group("Подсистема/Родитель/Свойства.yaml", "properties", "MetadataSubsystem"),
+    ])
+
+    expect(assignments.find((assignment) => assignment.itemName === "Дочерняя")).toMatchObject({
+      logicalAddress: "Подсистема.Родитель.Подсистема.Дочерняя",
+      owner: {
+        itemType: "MetadataSubsystem",
+        name: "Родитель",
+        logicalAddress: "Подсистема.Родитель",
+      },
+    })
+  })
 })

@@ -47,7 +47,7 @@ function createAssignment(group: ImportAssignmentGroup, context: AssignmentBuild
   const logicalAddress =
     group.definition.role === "configuration"
       ? configurationUid()
-      : group.definition.role === "properties"
+      : group.definition.role === "properties" && owner === undefined
         ? metadataItemUid(group.targetProjectPath.split("/")[0]!, itemName)
         : childUid(owner?.logicalAddress ?? group.definition.itemType, logicalAddressSegment, itemName)
   const assignment = {
@@ -79,7 +79,7 @@ function findOwnerGroup(
   group: ImportAssignmentGroup,
   context: AssignmentBuildContext
 ): ImportAssignmentGroup | undefined {
-  if (group.definition.role !== "fileItem") return undefined
+  if (group.definition.role !== "fileItem" && group.definition.logicalAddressSegment === undefined) return undefined
   let directory = projectParentDirectory(projectDirectory(group.targetProjectPath))
   while (directory !== undefined) {
     const owner = context.directoryToGroup.get(directory)
