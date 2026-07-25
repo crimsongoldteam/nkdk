@@ -43,6 +43,14 @@ export interface ValidationReferenceIndexEntries {
   pendingReferences?: PendingMetadataTargetReference[]
 }
 
+export interface ValidationIndexContribution {
+  objectRecords: ValidationObjectRecord[]
+  objectIndexEntries: ProjectObjectIndexEntry[]
+  memberIndexEntries: ProjectMemberIndexEntry[]
+  valueIndexEntries: ProjectValueIndexEntry[]
+  pendingReferences: PendingMetadataTargetReference[]
+}
+
 export interface ValidationObjectTableSnapshot extends ValidationReferenceIndexEntries {
   records: ValidationObjectRecord[]
   filePaths: string[]

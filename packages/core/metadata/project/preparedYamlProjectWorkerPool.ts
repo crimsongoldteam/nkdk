@@ -14,6 +14,7 @@ import { ProjectFileSchemaError } from "../validation/projectFileSchema"
 import { createValidationRulesSnapshot } from "../validation/rulesSnapshot"
 import type { Diagnostic } from "../validation/types"
 import { createValidationSnapshotProvider } from "../validation/validationSnapshotProvider"
+import type { ValidationIndexContribution } from "../validation/projectValidationTypes"
 import type {
   PreparedGlobalMetadataIndex,
   PreparedMetadataDeclaration,
@@ -35,6 +36,11 @@ export interface PreparedYamlProjectWorkerPool {
     context: ConfigurationContext
     files: PreparedYamlProjectFileDescriptor[]
   }): Promise<FirstPassPoolResult>
+  runValidationFactPass(params: {
+    projectDir: string
+    context: ConfigurationContext
+    files: PreparedYamlProjectFileDescriptor[]
+  }): Promise<ValidationIndexContribution>
   runValidationSecondPass(params: SecondPassPoolParams): Promise<SecondPassPoolResult>
   runPartialValidation(params: {
     projectDir: string
@@ -242,6 +248,38 @@ export function createPreparedYamlProjectWorkerPool(params: {
         },
       }
     },
+    async runValidationFactPass(factPassParams) {
+      const rulesSnapshot = createValidationRulesSnapshot(factPassParams.context)
+      const partitions = partitionRoundRobin(factPassParams.files, params.concurrency)
+      const results = await Promise.all(
+        partitions.map(async (files, index): Promise<ValidationIndexContribution> => {
+          if (files.length === 0) return emptyValidationIndexContribution()
+
+          const task = {
+            kind: "collectValidationFacts",
+            workerIndex: index,
+            projectDir: factPassParams.projectDir,
+            files,
+            rulesSnapshot,
+          } satisfies PreparedYamlProjectWorkerTask
+          const response = (await getOrCreatePool(pools, index, createPool).run(
+            task
+          )) as PreparedYamlProjectWorkerTaskResult
+          if (response.kind !== "collectValidationFactsResult") {
+            throw new Error("Worker вернул неожиданный результат collectValidationFacts")
+          }
+          return response.contribution
+        })
+      )
+
+      return {
+        objectRecords: results.flatMap((result) => result.objectRecords),
+        objectIndexEntries: results.flatMap((result) => result.objectIndexEntries),
+        memberIndexEntries: results.flatMap((result) => result.memberIndexEntries),
+        valueIndexEntries: results.flatMap((result) => result.valueIndexEntries),
+        pendingReferences: results.flatMap((result) => result.pendingReferences),
+      }
+    },
     async runValidationSecondPass(secondPassParams) {
       const activeIndexes = Array.from(activeWorkerIndexes)
       if (activeIndexes.length === 0) return { diagnostics: [] }
@@ -302,6 +340,16 @@ export function createPreparedYamlProjectWorkerPool(params: {
     size() {
       return params.concurrency
     },
+  }
+}
+
+function emptyValidationIndexContribution(): ValidationIndexContribution {
+  return {
+    objectRecords: [],
+    objectIndexEntries: [],
+    memberIndexEntries: [],
+    valueIndexEntries: [],
+    pendingReferences: [],
   }
 }
 

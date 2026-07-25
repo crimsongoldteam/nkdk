@@ -15,6 +15,7 @@ import { resolveValidationProjectFile } from "../validation/projectFiles"
 import { createProjectYamlCacheFromEntries } from "../validation/projectYamlCache"
 import { validatePendingReferencesWithIndex } from "../validation/projectReferenceIndex"
 import {
+  extractProjectValidationFileFacts,
   validateProjectFileFirstPass,
   validateProjectFileSecondPass,
   readProjectYamlDiagnostic,
@@ -32,7 +33,11 @@ import type { SharedValidationSnapshot } from "../validation/sharedValidationSna
 import type { Diagnostic } from "../validation/types"
 import type { ValidationYamlLifetime } from "../validation/validationWorkerPoolTypes"
 import { validateProjectPartial } from "../validation/validateProjectPartial"
-import type { ValidationMode, ValidationObjectRecord } from "../validation/projectValidationTypes"
+import type {
+  ValidationIndexContribution,
+  ValidationMode,
+  ValidationObjectRecord,
+} from "../validation/projectValidationTypes"
 import { prepareYamlFiles } from "./prepareYamlFiles"
 import type {
   PreparedMetadataDeclaration,
@@ -64,6 +69,13 @@ export type PreparedYamlProjectWorkerTask =
       projectDir: string
       context: ConfigurationContext
       files: PreparedYamlProjectFileDescriptor[]
+    }
+  | {
+      kind: "collectValidationFacts"
+      workerIndex: number
+      projectDir: string
+      files: PreparedYamlProjectFileDescriptor[]
+      rulesSnapshot: ValidationRulesSnapshot
     }
   | {
       kind: "validateSecondPass"
@@ -100,6 +112,10 @@ export type PreparedYamlProjectWorkerTaskResult =
       valueIndexEntries: ProjectValueIndexEntry[]
       pendingReferences: PendingMetadataTargetReference[]
       yamlLifetime: ValidationYamlLifetime
+    }
+  | {
+      kind: "collectValidationFactsResult"
+      contribution: ValidationIndexContribution
     }
   | {
       kind: "validateSecondPassResult"
@@ -143,6 +159,12 @@ export default async function runPreparedYamlProjectWorkerTask(
     return { kind: "initValidationResult", ...compileProfile }
   }
   if (message.kind === "validateFirstPass") return { kind: "validateFirstPassResult", ...runValidationFirstPass(message) }
+  if (message.kind === "collectValidationFacts") {
+    return {
+      kind: "collectValidationFactsResult",
+      contribution: await collectValidationFacts(message),
+    }
+  }
   if (message.kind === "validateSecondPass") {
     return { kind: "validateSecondPassResult", ...runValidationSecondPass(message) }
   }
@@ -178,6 +200,65 @@ export default async function runPreparedYamlProjectWorkerTask(
   })
   profiler.flush()
   return response
+}
+
+interface CollectValidationFactsDependencies {
+  readEntry?: typeof readProjectYamlEntryForValidation
+  extractFacts?: typeof extractProjectValidationFileFacts
+}
+
+export async function collectValidationFacts(
+  message: Extract<PreparedYamlProjectWorkerTask, { kind: "collectValidationFacts" }>,
+  dependencies: CollectValidationFactsDependencies = {}
+): Promise<ValidationIndexContribution> {
+  const readEntry = dependencies.readEntry ?? readProjectYamlEntryForValidation
+  const extractFacts = dependencies.extractFacts ?? extractProjectValidationFileFacts
+  const contribution = emptyValidationIndexContribution()
+
+  for (const descriptor of message.files) {
+    const file = resolveValidationProjectFile(message.projectDir, descriptor.filePath)
+    if (file === undefined) {
+      throw new Error(`Не удалось классифицировать YAML-файл компонента: ${descriptor.filePath}`)
+    }
+
+    const entry = readEntry(file.absolutePath)
+    if ("error" in entry) {
+      throw new Error(`Не удалось прочитать YAML-файл ${file.absolutePath}: ${entry.error.message}`, {
+        cause: entry.error,
+      })
+    }
+    if (entry.parsed.syntaxErrors.length > 0) {
+      const first = entry.parsed.syntaxErrors[0]
+      const location = first === undefined ? "" : `:${first.line}:${first.col}`
+      const details = first?.message ?? "неизвестная синтаксическая ошибка"
+      throw new Error(`Не удалось разобрать YAML-файл ${file.absolutePath}${location}: ${details}`)
+    }
+
+    const facts = extractFacts({
+      projectDir: message.projectDir,
+      file,
+      entry,
+      rulesSnapshot: message.rulesSnapshot,
+      validationDiagnostics: false,
+    })
+    contribution.objectRecords.push(...facts.objectRecords)
+    contribution.objectIndexEntries.push(...facts.objectIndexEntries)
+    contribution.memberIndexEntries.push(...facts.memberIndexEntries)
+    contribution.valueIndexEntries.push(...facts.valueIndexEntries)
+    contribution.pendingReferences.push(...facts.pendingReferences)
+  }
+
+  return contribution
+}
+
+function emptyValidationIndexContribution(): ValidationIndexContribution {
+  return {
+    objectRecords: [],
+    objectIndexEntries: [],
+    memberIndexEntries: [],
+    valueIndexEntries: [],
+    pendingReferences: [],
+  }
 }
 
 function withoutYamlData(file: PreparedYamlFile): PreparedYamlFile {

@@ -1,15 +1,14 @@
-import { readFile } from "node:fs/promises"
 import { resolve } from "node:path"
-import pLimit from "p-limit"
-import { parseMetadataYaml } from "../../yaml/parseMetadataYaml"
 import type { ConfigurationContext } from "../context/types"
 import { discoverPreparedYamlProjectFiles } from "../project/preparedYamlProject"
+import {
+  createPreparedYamlProjectWorkerPool,
+  type PreparedWorkerPool,
+} from "../project/preparedYamlProjectWorkerPool"
 import type { OwnerMetadataCache } from "../validation/dataPath/ownerCache"
 import { createOwnerMetadataCacheFromSharedValidationSnapshot } from "../validation/dataPath/sharedOwnerCache"
-import { resolveValidationProjectFile } from "../validation/projectFiles"
 import { createValidationObjectTable } from "../validation/projectValidationObjectTable"
-import { extractProjectValidationFileFacts } from "../validation/projectValidationPasses"
-import { createValidationRulesSnapshot } from "../validation/rulesSnapshot"
+import type { ValidationIndexContribution } from "../validation/projectValidationTypes"
 import {
   createSharedValidationSnapshot,
   type SharedValidationSnapshot,
@@ -24,46 +23,30 @@ export async function buildComponentReferenceSnapshot(params: {
   componentDir: string
   context: ConfigurationContext
   concurrency: number
+  createWorkerPool?: () => PreparedWorkerPool
 }): Promise<SharedValidationSnapshot> {
   const componentDir = resolve(params.componentDir)
   const descriptors = await discoverPreparedYamlProjectFiles(componentDir)
-  const rulesSnapshot = createValidationRulesSnapshot(params.context)
-  const limit = pLimit(normalizeConcurrency(params.concurrency))
-  const contributions = await Promise.all(
-    descriptors.map((descriptor) =>
-      limit(async () => {
-        const file = resolveValidationProjectFile(componentDir, descriptor.filePath)
-        if (file === undefined) {
-          throw new Error(`Не удалось классифицировать YAML-файл базового компонента: ${descriptor.filePath}`)
-        }
-
-        const text = await readFile(file.absolutePath, "utf8")
-        const parsed = parseMetadataYaml(text)
-        if (parsed.syntaxErrors.length > 0) {
-          const first = parsed.syntaxErrors[0]
-          const location = first === undefined ? "" : `:${first.line}:${first.col}`
-          const message = first?.message ?? "неизвестная синтаксическая ошибка"
-          throw new Error(`Не удалось разобрать YAML-файл ${file.absolutePath}${location}: ${message}`)
-        }
-
-        return extractProjectValidationFileFacts({
-          projectDir: componentDir,
-          file,
-          entry: { filePath: file.absolutePath, text, parsed },
-          rulesSnapshot,
-          validationDiagnostics: false,
-        })
-      })
-    )
-  )
+  const pool = createPreparedYamlProjectWorkerPool({
+    concurrency: normalizeConcurrency(params.concurrency),
+    ...(params.createWorkerPool === undefined ? {} : { createWorkerPool: params.createWorkerPool }),
+  })
+  let contribution: ValidationIndexContribution
+  try {
+    contribution = await pool.runValidationFactPass({
+      projectDir: componentDir,
+      context: params.context,
+      files: descriptors,
+    })
+  } finally {
+    await pool.close()
+  }
   const table = createValidationObjectTable({
     records: [],
     filePaths: descriptors.map(({ filePath }) => filePath),
   })
-  for (const contribution of contributions) {
-    table.mergeRecords(contribution.objectRecords)
-    table.mergeReferenceIndexEntries(contribution)
-  }
+  table.mergeRecords(contribution.objectRecords)
+  table.mergeReferenceIndexEntries(contribution)
 
   return createSharedValidationSnapshot(table.snapshot())
 }

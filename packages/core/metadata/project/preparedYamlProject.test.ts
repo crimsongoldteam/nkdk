@@ -460,4 +460,76 @@ describe("prepareYamlProject", () => {
       await pool.close()
     }
   })
+
+  it("dispatches fact-only extraction to physical workers with round-robin partitions", async () => {
+    const descriptors = ["Товары", "Услуги", "Материалы"].map((name) => ({
+      projectPath: `Справочник/${name}/Свойства.yaml`,
+      filePath: `/project/Справочник/${name}/Свойства.yaml`,
+      role: "properties" as const,
+      owner: { dir: "Справочник", name },
+      itemType: "Catalog",
+    }))
+    const workerTasks: PreparedYamlProjectWorkerTask[][] = [[], []]
+    let workerIndex = 0
+    const pool = createPreparedYamlProjectWorkerPool({
+      concurrency: 2,
+      createWorkerPool: () => {
+        const tasks = workerTasks[workerIndex++]
+        if (tasks === undefined) throw new Error("Создан лишний physical worker")
+        return {
+          async run(task: PreparedYamlProjectWorkerTask) {
+            tasks.push(task)
+            return {
+              kind: "collectValidationFactsResult" as const,
+              contribution: {
+                objectRecords: [],
+                objectIndexEntries: [],
+                memberIndexEntries: [],
+                valueIndexEntries: [],
+                pendingReferences: [],
+              },
+            }
+          },
+          async destroy() {
+            return undefined
+          },
+        }
+      },
+    })
+
+    try {
+      const contribution = await pool.runValidationFactPass({
+        projectDir: "/project",
+        context: validationContext,
+        files: descriptors,
+      })
+
+      expect(contribution).toEqual({
+        objectRecords: [],
+        objectIndexEntries: [],
+        memberIndexEntries: [],
+        valueIndexEntries: [],
+        pendingReferences: [],
+      })
+      expect(workerTasks).toHaveLength(2)
+      expect(workerTasks[0]).toHaveLength(1)
+      expect(workerTasks[1]).toHaveLength(1)
+      expect(workerTasks[0]?.[0]).toMatchObject({
+        kind: "collectValidationFacts",
+        workerIndex: 0,
+        projectDir: "/project",
+        files: [descriptors[0], descriptors[2]],
+      })
+      expect(workerTasks[1]?.[0]).toMatchObject({
+        kind: "collectValidationFacts",
+        workerIndex: 1,
+        projectDir: "/project",
+        files: [descriptors[1]],
+      })
+      expect(workerTasks[0]?.[0]).toHaveProperty("rulesSnapshot")
+      expect(workerTasks[1]?.[0]).toHaveProperty("rulesSnapshot")
+    } finally {
+      await pool.close()
+    }
+  })
 })

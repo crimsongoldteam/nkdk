@@ -1,8 +1,9 @@
 import { mkdirSync, mkdtempSync, rmSync, writeFileSync } from "node:fs"
 import { tmpdir } from "node:os"
 import { dirname, join } from "node:path"
-import { afterEach, describe, expect, it } from "vitest"
+import { afterEach, describe, expect, it, vi } from "vitest"
 import { mockContext } from "../../tests/mockContext"
+import type { PreparedYamlProjectWorkerTask } from "../project/preparedYamlProjectWorker"
 import type { ValidationOwnerFacts } from "../validation/dataPath/ownerFacts"
 import type { SharedValidationSnapshot } from "../validation/sharedValidationSnapshot"
 import { createImportSharedMetadata } from "./metadataSnapshot"
@@ -84,6 +85,39 @@ describe("buildComponentReferenceSnapshot", () => {
         concurrency: 1,
       })
     ).rejects.toThrow("Не удалось разобрать YAML-файл")
+  })
+
+  it("delegates fact extraction to the prepared YAML worker pool", async () => {
+    const componentDir = createTempDir("worker-boundary")
+    writeYaml(componentDir, "Справочник/Контрагенты/Свойства.yaml", "Реквизиты: {}")
+    const run = vi.fn(async (task: PreparedYamlProjectWorkerTask) => {
+      expect(task).toMatchObject({
+        kind: "collectValidationFacts",
+        workerIndex: 0,
+        projectDir: componentDir,
+      })
+      return {
+        kind: "collectValidationFactsResult" as const,
+        contribution: {
+          objectRecords: [],
+          objectIndexEntries: [],
+          memberIndexEntries: [],
+          valueIndexEntries: [],
+          pendingReferences: [],
+        },
+      }
+    })
+    const destroy = vi.fn(async () => undefined)
+
+    await buildComponentReferenceSnapshot({
+      componentDir,
+      context: mockContext,
+      concurrency: 1,
+      createWorkerPool: () => ({ run, destroy }),
+    })
+
+    expect(run).toHaveBeenCalledOnce()
+    expect(destroy).toHaveBeenCalledOnce()
   })
 })
 

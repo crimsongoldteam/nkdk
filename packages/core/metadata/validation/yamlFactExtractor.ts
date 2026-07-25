@@ -299,7 +299,7 @@ function collectPendingReferences(params: {
       })
     }
 
-    if (property.metadataTarget !== undefined && params.validationDiagnostics) {
+    if (property.metadataTarget !== undefined) {
       references.push(
         ...collectTargetValues({
           filePath: params.filePath,
