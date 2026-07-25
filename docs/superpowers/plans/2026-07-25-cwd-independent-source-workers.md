@@ -405,6 +405,7 @@ git commit -m "fix: :bug: показывать исходную ошибку MCP
 **Файлы:**
 
 - Изменить: `packages/mcp/package.json`
+- Изменить: `packages/mcp/scripts/smoke-packed.mjs`
 - Изменить: `packages/mcp/src/server.test.ts`
 - Изменить: `pnpm-lock.yaml`
 
@@ -487,6 +488,21 @@ pnpm --filter @nkdk/mcp run build
 
 - [ ] **Шаг 6: Запустить production smoke вне workspace**
 
+Перед запуском привести smoke-вызов `nkdk.get_schema` к текущему публичному договору:
+
+```js
+const result = await client.callTool({
+  name: "nkdk.get_schema",
+  arguments: {
+    projectDir: tmpRoot,
+    metadataRef: "InputField",
+    keys: true,
+  },
+})
+```
+
+`tmpRoot` намеренно находится вне монорепозитория и подтверждает, что metadataRef-схема не зависит от локального workspace.
+
 Команда:
 
 ```bash
@@ -503,7 +519,7 @@ env npm_config_cache=/private/tmp/nkdk-npm-cache pnpm --filter @nkdk/mcp run smo
 - [ ] **Шаг 7: Закоммитить production-границу**
 
 ```bash
-git add packages/mcp/package.json packages/mcp/src/server.test.ts pnpm-lock.yaml
+git add packages/mcp/package.json packages/mcp/scripts/smoke-packed.mjs packages/mcp/src/server.test.ts pnpm-lock.yaml
 git commit -m "fix: :bug: исключить core из runtime-зависимостей MCP"
 ```
 
