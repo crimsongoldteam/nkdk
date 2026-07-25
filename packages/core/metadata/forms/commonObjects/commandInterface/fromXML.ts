@@ -5,6 +5,11 @@ import { importUserVisibleFromXML } from "../../../commonObjects/userVisible/fro
 import { registerTypeRule } from "../../../orchestration"
 import { PropertyRule } from "../../elements/calendarField/rules"
 import { CommandInterface, CommandInterfaceItem, CommandInterfaceItemXML, CommandInterfaceXML } from "./types"
+import {
+  getConfigurationIndexCollectionContext,
+  getConfigurationIndexXmlNodeLogicalAddress,
+} from "../../../configurationIndex/collector/context"
+import { indexedUid } from "../../../configurationIndex/logicalAddress"
 
 export const importCommandInterfaceFromXML = (
   context: ConfigurationContextFromXML,
@@ -125,3 +130,23 @@ const getOrderedCommandInterfaceItemKeysFromXML = (item: CommandInterfaceItemXML
 }
 
 registerTypeRule("CommandInterface", "importFromXML", importCommandInterfaceFromXML)
+registerTypeRule("CommandInterface", "collectConfigurationIndexFromXML", ({ context, xml }) => {
+  const collection = getConfigurationIndexCollectionContext(context)
+  if (collection === undefined || xml === null || typeof xml !== "object" || Array.isArray(xml)) return
+  const commandInterface = xml as CommandInterfaceXML
+  const base = getConfigurationIndexXmlNodeLogicalAddress(collection)
+  collectItemOrders(collection, base, "NavigationPanel", commandInterface.NavigationPanel?.Item)
+  collectItemOrders(collection, base, "CommandBar", commandInterface.CommandBar?.Item)
+})
+
+function collectItemOrders(
+  collection: NonNullable<ReturnType<typeof getConfigurationIndexCollectionContext>>,
+  base: string,
+  section: "NavigationPanel" | "CommandBar",
+  source: CommandInterfaceItemXML | CommandInterfaceItemXML[] | undefined
+): void {
+  const items = Array.isArray(source) ? source : source === undefined ? [] : [source]
+  items.forEach((item, index) => {
+    collection.collector.setOrder(indexedUid(base, section, index), Object.keys(item))
+  })
+}

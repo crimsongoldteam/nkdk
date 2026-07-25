@@ -5,10 +5,10 @@ import importContentFromXML from "../../../xml/import/importer"
 import { importI8nTextFromXML } from "./fromXML"
 import { I8nTextPropertyRule, I8nTextXML } from "./types"
 
-const emptyRawXMLRule: I8nTextPropertyRule = {
+const preserveEmptyXMLRule: I8nTextPropertyRule = {
   yaml: "Шапка",
   type: "I8nText",
-  emptyAsRawXML: true,
+  preserveEmptyXML: true,
 }
 
 describe("importI8nTextFromXML", () => {
@@ -19,7 +19,7 @@ describe("importI8nTextFromXML", () => {
   })
 
   it("imports empty XML tag as empty text when rule opts in", () => {
-    const result = importI8nTextFromXML(mockContextFromXML(), emptyRawXMLRule, {})
+    const result = importI8nTextFromXML(mockContextFromXML(), preserveEmptyXMLRule, {})
 
     expect(result).toEqual({ items: {} })
   })

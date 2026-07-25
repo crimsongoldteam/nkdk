@@ -15,6 +15,7 @@ import {
   removeFullSyncTempDirs,
   writeSmallYamlProjectWithIndex,
 } from "./testHelpers"
+import { fullXmlSyncTestOutput } from "./testTopology"
 
 afterEach(async () => {
   await removeFullSyncTempDirs()
@@ -152,7 +153,7 @@ function transferFailureDeps(previous: ConfigurationIndexData): FullXmlSyncCoord
             itemType: "MetadataConfiguration",
             itemName: "Конфигурация",
             logicalAddress: "Конфигурация",
-            outputs: [{ routeKind: "owner", targetXmlPath: "partial.xml" }],
+            ...fullXmlSyncTestOutput("partial.xml"),
           },
         ],
         externalFiles: [],

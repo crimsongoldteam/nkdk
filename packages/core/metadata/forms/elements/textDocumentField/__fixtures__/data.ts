@@ -56,6 +56,7 @@ export const fullTextDocumentFieldEnterprise = {
 } satisfies Required<TextDocumentFieldEnterprise>
 
 export const fullTextDocumentFieldPartialYAML: TextDocumentFieldPartialYAML = {
+  ПутьКДанным: "Реквизит",
   АвтоМаксимальнаяВысота: "Ложь",
   АвтоМаксимальнаяШирина: "Ложь",
   Вывод: "Разрешить",

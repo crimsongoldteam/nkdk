@@ -1,7 +1,15 @@
 import { describe, expect, it } from "vitest"
 
 import { mockContextToXML } from "../../../tests/mockContext"
-import { testMetadataItemFromYAMLToXML, testPropertyFixtureThroughYAML } from "../../../tests/directConversion"
+import {
+  createDirectRoundTripContexts,
+  serializeDirectXML,
+  testMetadataItemFromYAMLToXML,
+  testPropertyFixtureThroughYAML,
+  testPropertyFromXMLToYAML,
+  testPropertyFromYAMLToXML,
+} from "../../../tests/directConversion"
+import type { MetadataItemRule } from "../../orchestration/property/types"
 import { MetadataExternalDataSourceCubeRules } from "./rules"
 
 import "./register"
@@ -56,6 +64,26 @@ describe("MetadataExternalDataSourceCube YAML → XML", () => {
 
     expect(xml).toContain("ТаблицаИзмеренияВсеСвойства")
     expect(xml).toContain("ТаблицаИзмеренияПоУмолчанию")
+  })
+
+  it("восстанавливает пустые характеристики без reference XML", () => {
+    const rule = {
+      itemType: "ExternalDataSourceCubeCharacteristicsProbe",
+      properties: { value: MetadataExternalDataSourceCubeRules.properties.characteristics },
+    } as const satisfies MetadataItemRule
+    const roundTrip = createDirectRoundTripContexts()
+    const imported = testPropertyFromXMLToYAML({
+      rule,
+      xml: { Properties: { Characteristics: {} } },
+      context: roundTrip.importContext,
+    })
+    const restored = testPropertyFromYAMLToXML({
+      rule,
+      yaml: imported.yaml,
+      context: roundTrip.exportContext(),
+    })
+
+    expect(serializeDirectXML(restored.xml)).toContain("<Characteristics/>")
   })
 })
 

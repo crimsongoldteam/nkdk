@@ -13,6 +13,11 @@ import { MetadataConfigurationRules } from "./rules"
 import { TopLevelMetadataItemRules } from "./topLevelRules"
 import "../metadataExternalDataSource/register"
 import "../metadataSubsystem/register"
+import { registerMetadataXmlPrepareCapability } from "../../resourceTopology/capabilities"
+import { prepareConfigurationXML } from "./rootIO"
+import { buildConfigurationChildObjectsFromProjectEntries } from "./childObjects"
+import { configurationChildObjectsFromIndex } from "./configurationChildObjects"
+import "../configDumpInfo/configurationIndex"
 
 const objectOwnedProjectSpecDirs = new Set(["Справочник", "Документ", "Перечисление"])
 const specialObjectPathProjectSpecDirs = new Set(["ВнешнийИсточникДанных", "Подсистема"])
@@ -29,13 +34,41 @@ registerProjectSpec({
   dir: "",
   rule: MetadataConfigurationRules,
   exportSchema: createMetadataItemProjectSchemaExporter(MetadataConfigurationRules),
-  xmlImportRoutes: [
+  resources: [
     {
       kind: "ignore",
-      xmlPattern: "ConfigDumpInfo.xml",
-      source: { kind: "itemRule", itemType: MetadataConfigurationRules.itemType },
+      side: "xml",
+      pattern: "ConfigDumpInfo.xml",
+      snapshotImport: {
+        capabilityId: "configDumpInfo",
+        targetProjectPath: "Конфигурация.yaml",
+      },
+      source: { kind: "itemRule", description: MetadataConfigurationRules.itemType },
     },
   ],
+})
+
+registerMetadataXmlPrepareCapability({
+  id: "configuration",
+  run: ({ context, preparedYamlFile, outputs, composition, profile }) => {
+    const output = outputs.find((candidate) => candidate.role === "metadata")
+    if (output === undefined) return []
+    const prepared = prepareConfigurationXML({
+      context,
+      preparedYamlFile,
+      childObjects: buildConfigurationChildObjectsFromProjectEntries({
+        entries: composition
+          .filter((entry) => entry.assignmentRole === "properties")
+          .map((entry) => {
+            const parts = entry.sourceProjectPath.split("/")
+            return { dir: parts[0] ?? "", name: parts[1] ?? entry.itemName }
+          }),
+        referenceChildObjects: configurationChildObjectsFromIndex(context.exportToXML.configurationIndex),
+      }),
+      profile,
+    })
+    return [{ declarationId: output.declarationId, targetXmlPath: output.targetXmlPath, ...prepared }]
+  },
 })
 
 registerProjectFileValidator("configuration", ({ filePath, parsed }) => {
@@ -86,6 +119,7 @@ for (const rule of TopLevelMetadataItemRules) {
             childDir: "Подсистемы",
             itemRole: "subsystem",
             collectionRole: "subsystems",
+            logicalAddressSegment: "Подсистема",
           },
         }
       : {}),

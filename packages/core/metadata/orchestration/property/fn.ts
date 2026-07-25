@@ -14,7 +14,7 @@ import type { Diagnostic } from "../../validation/types"
 import type { YamlPath } from "../../validation/yamlLocations"
 import type { ParsedYaml } from "../../../yaml/parseMetadataYaml"
 import type { XmlWriteManifest } from "../xmlWriteManifest"
-import type { XmlImportRoute } from "../../importFromXml/types"
+import type { MetadataResourceDeclaration } from "../../resourceTopology/types"
 import { PropertyRuleType } from "./registry"
 import type {
   CollectLocalFactsFromYAMLFunction,
@@ -62,6 +62,7 @@ export type ImportFromYAMLFunctionNew = (params: {
   value: any
   name?: string
   owner?: MetadataTargetOwner
+  restoreExcludedEqualName?: boolean
 }) => any | undefined
 
 export type importFromYAMLFunction = (
@@ -213,61 +214,9 @@ export type SyncExternalToXMLFunction = (params: {
   currentXMLDir?: string
 }) => Promise<void>
 
-export type ProjectResourceCompositionImpact = "none" | "configurationComposition"
-
-export type ProjectResourceSource =
-  | { kind: "itemRule"; itemType: string }
-  | { kind: "property"; propertyName: string; propertyType: PropertyRuleType }
-  | { kind: "propertyType"; type: PropertyRuleType }
-
-export type ProjectResourceDescriptor =
-  | {
-      kind: "yaml"
-      role: "configuration" | "properties" | "fileItem" | "resourceOnly"
-      projectPattern: string
-      required: boolean
-      repeatable: boolean
-      owner: "configuration" | "currentItem"
-      compositionImpact: ProjectResourceCompositionImpact
-      source: ProjectResourceSource
-      itemType?: string
-    }
-  | {
-      kind: "directory"
-      role: "resourceOnly"
-      projectPattern: string
-      required: boolean
-      repeatable: boolean
-      owner: "currentItem"
-      compositionImpact: "none"
-      source: ProjectResourceSource
-    }
-
-export type XmlSyncRoute =
-  | {
-      kind: "owner"
-      yamlPattern: string
-      xmlPathPattern: string
-      source: ProjectResourceSource
-    }
-  | {
-      kind: "fileItem" | "externalFile"
-      yamlPattern: string
-      xmlPathPattern: string
-      writerType: "propertyType"
-      source: ProjectResourceSource
-      dumpInfoNamePatterns?: string[]
-      deleteParentAreaBeforeWrite?: boolean
-    }
-  | {
-      kind: "resourceOnly"
-      yamlPattern: string
-      source: ProjectResourceSource
-    }
-
-export type ProjectResourcesFunction = (params: { propertyRule?: PropertyRule }) => ProjectResourceDescriptor[]
-export type XmlSyncRoutesFunction = (params: { propertyRule?: PropertyRule }) => XmlSyncRoute[]
-export type XmlImportRoutesFunction = (params: { propertyRule?: PropertyRule }) => readonly XmlImportRoute[]
+export type MetadataResourceTopologyFunction = (params: {
+  propertyRule?: PropertyRule
+}) => readonly MetadataResourceDeclaration[]
 
 export interface FileChildNamesDescriptor {
   folderName: string
@@ -302,12 +251,23 @@ export interface CollectionItemRule {
  * теряет при импорте в модель и которое поэтому требуется индексу конфигурации.
  */
 export interface ConfigurationIndexValueFromXMLDescriptor {
+  identityKind?: "uuid" | "xmlId"
   userSettingsIdFromSource?: true
   xsiNilWhenNotRepresentable?: true
+  xsiTypeWhenNotRepresentable?: true
+  referenceXMLFromValue?: (value: import("../../configurationIndex/types").ConfigurationXmlValue) => unknown
 }
+
+export type CollectConfigurationIndexFromXMLFunction = (params: {
+  context: ConfigurationContextFromXML
+  rule: PropertyRule
+  xml: unknown
+  propertyKey: string
+}) => void
 
 /** Декларативное поведение XML-import, одинаковое для всех свойств зарегистрированного типа. */
 export interface XMLImportPropertyBehavior {
+  presenceAffectsExport?: true
   presenceAffectsExportForSourceValues?: readonly (string | number | boolean | null)[]
 }
 
@@ -326,12 +286,11 @@ export interface TypeRule {
   validateMetadataTarget?: ValidateMetadataTargetFunction
   collectMetadataTargetReferences?: CollectMetadataTargetReferencesFunction
   structuralReferences?: StructuralReferencesFunction
-  projectResources?: ProjectResourcesFunction
-  xmlSyncRoutes?: XmlSyncRoutesFunction
-  xmlImportRoutes?: XmlImportRoutesFunction
+  resourceTopology?: MetadataResourceTopologyFunction
   fileChildNamesDescriptor?: FileChildNamesDescriptorFunction
   xmlSyncWriter?: XmlSyncWriterFunction
   configurationIndexValueFromXML?: ConfigurationIndexValueFromXMLDescriptor
+  collectConfigurationIndexFromXML?: CollectConfigurationIndexFromXMLFunction
   xmlImportPropertyBehavior?: XMLImportPropertyBehavior
   nestedItemRule?: NestedItemRule
   resolveNestedImportXMLSources?: ResolveNestedImportXMLSourcesFunction
@@ -356,12 +315,11 @@ export type TypeRulesOperations =
   | "validateMetadataTarget"
   | "collectMetadataTargetReferences"
   | "structuralReferences"
-  | "projectResources"
-  | "xmlSyncRoutes"
-  | "xmlImportRoutes"
+  | "resourceTopology"
   | "fileChildNamesDescriptor"
   | "xmlSyncWriter"
   | "configurationIndexValueFromXML"
+  | "collectConfigurationIndexFromXML"
   | "xmlImportPropertyBehavior"
   | "nestedItemRule"
   | "resolveNestedImportXMLSources"
@@ -403,28 +361,26 @@ export type importExportFunction<O extends TypeRulesOperations> = O extends "imp
                           ? CollectMetadataTargetReferencesFunction | undefined
                           : O extends "structuralReferences"
                             ? StructuralReferencesFunction | undefined
-                            : O extends "projectResources"
-                              ? ProjectResourcesFunction | undefined
-                              : O extends "xmlSyncRoutes"
-                                ? XmlSyncRoutesFunction | undefined
-                                : O extends "xmlImportRoutes"
-                                  ? XmlImportRoutesFunction | undefined
-                                  : O extends "fileChildNamesDescriptor"
-                                    ? FileChildNamesDescriptorFunction | undefined
-                                    : O extends "xmlSyncWriter"
-                                      ? XmlSyncWriterFunction | undefined
-                                      : O extends "configurationIndexValueFromXML"
-                                        ? ConfigurationIndexValueFromXMLDescriptor | undefined
-                                        : O extends "xmlImportPropertyBehavior"
-                                          ? XMLImportPropertyBehavior | undefined
-                                          : O extends "nestedItemRule"
-                                            ? NestedItemRule | undefined
-                                            : O extends "resolveNestedImportXMLSources"
-                                              ? ResolveNestedImportXMLSourcesFunction | undefined
-                                              : O extends "finalizeImportedYAML"
-                                                ? FinalizeImportedYAMLFunction | undefined
-                                                : O extends "finalizeExportedXML"
-                                                  ? FinalizeExportedXMLFunction | undefined
+                            : O extends "resourceTopology"
+                              ? MetadataResourceTopologyFunction | undefined
+                              : O extends "fileChildNamesDescriptor"
+                                ? FileChildNamesDescriptorFunction | undefined
+                                : O extends "xmlSyncWriter"
+                                  ? XmlSyncWriterFunction | undefined
+                                  : O extends "configurationIndexValueFromXML"
+                                    ? ConfigurationIndexValueFromXMLDescriptor | undefined
+                                    : O extends "collectConfigurationIndexFromXML"
+                                      ? CollectConfigurationIndexFromXMLFunction | undefined
+                                      : O extends "xmlImportPropertyBehavior"
+                                        ? XMLImportPropertyBehavior | undefined
+                                        : O extends "nestedItemRule"
+                                          ? NestedItemRule | undefined
+                                          : O extends "resolveNestedImportXMLSources"
+                                            ? ResolveNestedImportXMLSourcesFunction | undefined
+                                            : O extends "finalizeImportedYAML"
+                                              ? FinalizeImportedYAMLFunction | undefined
+                                              : O extends "finalizeExportedXML"
+                                                ? FinalizeExportedXMLFunction | undefined
                                                 : O extends "collectLocalFactsFromYAML"
                                                   ? CollectLocalFactsFromYAMLFunction | undefined
                                                   : O extends "yamlToXMLNestedRule"

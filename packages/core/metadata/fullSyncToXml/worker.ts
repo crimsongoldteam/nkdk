@@ -53,7 +53,13 @@ export async function runFullXmlSyncWorkerCommand(
       workerIndex: command.workerIndex,
       projectDir: command.projectDir,
       outputDir: command.outputDir,
-      context: command.context,
+      context: {
+        ...command.context,
+        importFromYAML: {
+          ...command.context.importFromYAML,
+          projectDir: command.projectDir,
+        },
+      },
       index: createConfigurationIndexReader(command.index),
       composition: createFullXmlSyncCompositionReader(command.composition),
     }
@@ -87,6 +93,7 @@ function runFirstPass(
   const diagnostics: FullXmlSyncDiagnostic[] = []
   const projectFiles: FullXmlSyncFirstPassResult["projectFiles"][number][] = []
   const ownerFacts: FullXmlSyncOwnerFacts[] = []
+  const expectedOutputs: Array<{ assignmentId: string; targetXmlPath: string }> = []
   const rulesSnapshot = createValidationRulesSnapshot(state.context)
 
   for (const assignment of assignments) {
@@ -127,15 +134,19 @@ function runFirstPass(
           ...(facts?.fieldIndex === undefined ? {} : { fieldIndex: facts.fieldIndex }),
         })
       }
-      preparedAssignments.set(
-        assignment.id,
-        prepareFullXmlSyncAssignment({
+      const preparedAssignment = prepareFullXmlSyncAssignment({
           assignment,
           preparedYamlFile: yamlFile,
           context: exportContextForSecondPass(state),
           index: state.index,
           assignments: state.composition.assignments(),
         })
+      preparedAssignments.set(assignment.id, preparedAssignment)
+      expectedOutputs.push(
+        ...preparedAssignment.documents.map((document) => ({
+          assignmentId: assignment.id,
+          targetXmlPath: document.targetXmlPath,
+        }))
       )
     } catch (caught) {
       preparedAssignments.delete(assignment.id)
@@ -145,7 +156,7 @@ function runFirstPass(
     }
   }
 
-  return { kind: "firstPassResult", diagnostics, projectFiles, ownerFacts }
+  return { kind: "firstPassResult", diagnostics, projectFiles, ownerFacts, expectedOutputs }
 }
 
 async function runSecondPass(
@@ -307,7 +318,7 @@ function syncDiagnosticFromProjectDiagnostic(
       : {
           assignmentId: assignment.id,
           sourceProjectPath: assignment.sourceProjectPath,
-          targetXmlPath: assignment.outputs[0]?.targetXmlPath,
+          targetXmlPath: assignment.potentialOutputs[0]?.targetXmlPath,
         }),
     sourcePath: diagnostic.filePath,
     ...(diagnostic.line === undefined ? {} : { line: diagnostic.line }),
@@ -329,6 +340,7 @@ export function fullXmlSyncWorkerStateForTests(): {
   initialized: boolean
   workerIndex?: number
   projectDir?: string
+  importProjectDir?: string
   outputDir?: string
   preparedIds: string[]
   prepared: { id: string; documents: string[]; holdsPreparedYamlFile: false }[]
@@ -340,6 +352,7 @@ export function fullXmlSyncWorkerStateForTests(): {
       : {
           workerIndex: initializedState.workerIndex,
           projectDir: initializedState.projectDir,
+          importProjectDir: initializedState.context.importFromYAML?.projectDir,
           outputDir: initializedState.outputDir,
         }),
     preparedIds: [...preparedAssignments.keys()],
@@ -411,7 +424,7 @@ function assignmentDiagnostic(assignment: FullXmlSyncAssignment, code: string, m
     assignmentId: assignment.id,
     sourceProjectPath: assignment.sourceProjectPath,
     sourcePath: assignment.sourcePath,
-    targetXmlPath: assignment.outputs[0]?.targetXmlPath,
+    targetXmlPath: assignment.potentialOutputs[0]?.targetXmlPath,
   }
 }
 

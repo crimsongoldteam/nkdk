@@ -17,6 +17,30 @@ describe("exportI8nTextToYAML", () => {
       const result = exportI8nTextToYAML({ context: contextWithExportToYAML, rule, value: fixture.text })
       expect(result).toEqual(fixture.fullYAML)
     })
+
+    it("exports explicit empty text when empty XML must be preserved", () => {
+      const rule: I8nTextPropertyRule = { type: "I8nText", preserveEmptyXML: true }
+
+      const result = exportI8nTextToYAML({
+        context: contextWithExportToYAML,
+        rule,
+        value: { items: {} },
+      })
+
+      expect(result).toBe("")
+    })
+
+    it("omits empty text without empty XML preservation", () => {
+      const rule: I8nTextPropertyRule = { type: "I8nText" }
+
+      const result = exportI8nTextToYAML({
+        context: contextWithExportToYAML,
+        rule,
+        value: { items: {} },
+      })
+
+      expect(result).toBeUndefined()
+    })
   })
 
   describe("excludeIfEqualNameYAML", () => {

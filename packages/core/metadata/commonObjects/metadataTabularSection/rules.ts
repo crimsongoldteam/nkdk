@@ -49,7 +49,7 @@ const commonTabularSectionProperties = {
         : { items: { [context.defaultLanguage]: "" } },
     order: 2,
     defaultValueXMLEmpty: { items: {} },
-    emptyAsRawXML: true,
+    preserveEmptyXML: true,
   },
   comment: {
     yaml: "Комментарий",

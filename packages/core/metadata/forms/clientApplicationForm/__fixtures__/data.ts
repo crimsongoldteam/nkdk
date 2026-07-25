@@ -615,6 +615,7 @@ export const minimalClientApplicationFormMetadataReference: ClientApplicationFor
 }
 export const minimalClientApplicationFormYAML: ClientApplicationFormYAML = {
   НазначенияИспользования: "ПлатформаИМобильноеПриложение",
+  Синоним: "",
 }
 
 export const customSettingsFolderClientApplicationForm: ClientApplicationFormWithCustomSettingsFolder = {

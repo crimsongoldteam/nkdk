@@ -1,12 +1,9 @@
-import { posix } from "path"
-import {
-  describeMetadataRuleXmlSyncRoutes,
-  expandProjectPattern,
-  matchProjectPattern,
-} from "../../project/ruleResources"
-import type { ProjectResourceCompositionImpact, ProjectResourceSource } from "../property/fn"
 import type { PropertyRuleType } from "../property/registry"
-import type { MetadataItemRule, PropertyRule } from "../property/types"
+import type { MetadataItemRule } from "../property/types"
+import type { CompiledMetadataResourceTopology } from "../../resourceTopology/types"
+import { compileRegisteredMetadataResourceTopology } from "../../resourceTopology/registry"
+import { expandMetadataPathPattern } from "../../resourceTopology/patterns"
+import { resolveMetadataProjectChangeImpact } from "../../resourceTopology/xmlExportProjection"
 
 export type XmlSyncArea =
   | {
@@ -26,7 +23,7 @@ export type XmlSyncArea =
       propertyName: string
       propertyType: PropertyRuleType
       routeParams: Record<string, string>
-      compositionImpact: ProjectResourceCompositionImpact
+      compositionImpact: "none" | "configurationComposition"
       dumpInfoNames: string[]
     }
   | {
@@ -50,138 +47,132 @@ export type SyncAreaDeclaration =
   | { kind: "templateContent"; yamlFile: string; xmlPath: string }
   | { kind: "commandModule"; yamlFile: string; xmlPath: string }
 
-const PROPERTIES_YAML = "Свойства.yaml"
-
 export function resolveXmlSyncAreaForProjectPath(
   projectPath: string,
-  rules: readonly MetadataItemRule[]
+  topologyOrLegacyRules?: CompiledMetadataResourceTopology | readonly MetadataItemRule[]
 ): XmlSyncArea | undefined {
-  const parts = normalizePath(projectPath).split("/")
-  const rule = rules.find((candidate) => candidate.itemTypePrefix === parts[0] && candidate.xmlDir !== undefined)
-  if (!rule?.itemTypePrefix || !rule.xmlDir || !parts[1]) return undefined
+  const topology =
+    topologyOrLegacyRules !== undefined && isCompiledTopology(topologyOrLegacyRules)
+      ? topologyOrLegacyRules
+      : compileRegisteredMetadataResourceTopology()
+  const impact = resolveMetadataProjectChangeImpact(topology, projectPath)
+  const assignment = impact?.assignment
+  if (impact === undefined || assignment === undefined) return undefined
+  const itemTypePrefix = assignment.projectPattern.split("/")[0] ?? ""
+  const itemName = impact.values.ownerName ?? impact.values.itemName ?? ""
+  const itemType = assignment.itemRule.itemType
+  const ownerAssignment =
+    assignment.ownerProjectPattern === undefined
+      ? undefined
+      : topology.assignments.find((candidate) => candidate.projectPattern === assignment.ownerProjectPattern)
+  const dumpRule = ownerAssignment?.itemRule ?? assignment.itemRule
 
-  const itemTypePrefix = rule.itemTypePrefix
-  const itemName = parts[1]
-  const xmlDir = rule.xmlDir
-
-  if (parts.length === 3 && parts[2] === PROPERTIES_YAML) {
-    return { kind: "owner", itemType: rule.itemType, itemTypePrefix, itemName, xmlDir }
-  }
-
-  const routedArea = resolveRouteArea({ rule, itemTypePrefix, itemName, xmlDir, projectTail: parts.slice(2).join("/") })
-  if (routedArea) return routedArea
-
-  return resolveDeclaredArea({ rule, itemTypePrefix, itemName, xmlDir, parts })
-}
-
-function resolveRouteArea(params: {
-  rule: MetadataItemRule
-  itemTypePrefix: string
-  itemName: string
-  xmlDir: string
-  projectTail: string
-}): XmlSyncArea | undefined {
-  for (const route of describeMetadataRuleXmlSyncRoutes(params.rule)) {
-    if (route.kind === "owner" || route.kind === "resourceOnly") continue
-    const routeParams = matchProjectPattern(route.yamlPattern, params.projectTail)
-    if (routeParams === undefined) continue
-    const sourceProperty = getSourceProperty(route.source)
-    if (sourceProperty === undefined) continue
-    const expansionParams = {
-      ...routeParams,
-      ownerName: params.itemName,
-      dumpRoot: dumpRoot(params.rule),
-    }
-    const areaBase = {
-      itemType: params.rule.itemType,
-      itemTypePrefix: params.itemTypePrefix,
-      itemName: params.itemName,
-      xmlDir: params.xmlDir,
-      xmlPath: posix.join(params.xmlDir, params.itemName, expandProjectPattern(route.xmlPathPattern, expansionParams)),
-      propertyName: sourceProperty.propertyName,
-      propertyType: sourceProperty.propertyType,
-      routeParams,
-      dumpInfoNames: (route.dumpInfoNamePatterns ?? []).map((pattern) =>
-        expandProjectPattern(pattern, expansionParams)
-      ),
-    }
-
-    if (route.kind === "fileItem") {
-      return {
-        kind: "fileItem",
-        ...areaBase,
-        compositionImpact: "none",
-      }
-    }
-
+  if (impact.externalFile !== undefined) {
+    const source = propertySource(impact.externalFile.source.description)
+    const xmlPath = expandMetadataPathPattern(impact.externalFile.xmlPattern, impact.values)
     return {
       kind: "externalFile",
-      ...areaBase,
-      deleteParentAreaBeforeWrite: route.deleteParentAreaBeforeWrite,
+      itemType,
+      itemTypePrefix,
+      itemName,
+      xmlDir: xmlPath.split("/")[0] ?? "",
+      xmlPath,
+      ...(source === undefined ? {} : source),
+      routeParams: localRouteParams(impact.values),
+      dumpInfoNames: expandDumpInfoNames(
+        impact.externalFile.dumpInfoNamePatterns ?? [],
+        dumpRule,
+        impact.values
+      ),
     }
   }
 
-  return undefined
-}
-
-function resolveDeclaredArea(params: {
-  rule: MetadataItemRule
-  itemTypePrefix: string
-  itemName: string
-  xmlDir: string
-  parts: string[]
-}): XmlSyncArea | undefined {
-  for (const [, propertyRule] of Object.entries(params.rule.properties) as [string, PropertyRule][]) {
-    const declaration = propertyRule.syncArea
-    if (!declaration) continue
-
-    if (declaration.kind === "objectModule" && matchesTail(params.parts, declaration.yamlFile)) {
-      return {
-        kind: "externalFile",
-        itemType: params.rule.itemType,
-        itemTypePrefix: params.itemTypePrefix,
-        itemName: params.itemName,
-        xmlDir: params.xmlDir,
-        xmlPath: posix.join(params.xmlDir, params.itemName, declaration.xmlPath),
-        routeParams: {},
-        dumpInfoNames: [
-          `${dumpRoot(params.rule)}.${params.itemName}`,
-          `${dumpRoot(params.rule)}.${params.itemName}.ObjectModule`,
-        ],
-      }
+  if (assignment.role === "fileItem") {
+    const output = impact.outputs.find((document) => document.role === "metadata") ?? impact.outputs[0]
+    if (output === undefined) return undefined
+    const source = propertySource(assignment.source.description)
+    if (source === undefined) return undefined
+    const xmlPath = expandMetadataPathPattern(output.xmlPattern, impact.values)
+    return {
+      kind: "fileItem",
+      itemType: ownerAssignment?.itemRule.itemType ?? itemType,
+      itemTypePrefix,
+      itemName,
+      xmlDir: xmlPath.split("/")[0] ?? "",
+      xmlPath,
+      ...source,
+      routeParams: localRouteParams(impact.values),
+      compositionImpact: impact.compositionImpact,
+      dumpInfoNames: expandDumpInfoNames(assignment.dumpInfoNamePatterns ?? [], dumpRule, impact.values),
     }
   }
 
-  return undefined
+  const metadata = impact.outputs.find((document) => document.role === "metadata")
+  const xmlPath = metadata === undefined ? "" : expandMetadataPathPattern(metadata.xmlPattern, impact.values)
+  return {
+    kind: "owner",
+    itemType,
+    itemTypePrefix,
+    itemName: lastAssignmentName(assignment.projectPattern, impact.values, itemName),
+    xmlDir: xmlPath.split("/")[0] ?? "",
+  }
 }
 
-function normalizePath(path: string): string {
-  return path
-    .split(/[\\/]+/)
-    .filter(Boolean)
-    .join("/")
+function isCompiledTopology(
+  value: CompiledMetadataResourceTopology | readonly MetadataItemRule[]
+): value is CompiledMetadataResourceTopology {
+  return "projectIndex" in value
 }
 
-function matchesTail(parts: string[], tail: string): boolean {
-  return parts.slice(2).join("/") === normalizePath(tail)
+function localRouteParams(values: Readonly<Record<string, string>>): Record<string, string> {
+  return Object.fromEntries(Object.entries(values).filter(([key]) => key !== "ownerName"))
 }
 
-function getSourceProperty(
-  source: ProjectResourceSource
+function propertySource(
+  description: string
 ): { propertyName: string; propertyType: PropertyRuleType } | undefined {
-  if (source.kind === "property") {
-    return { propertyName: source.propertyName, propertyType: source.propertyType }
+  const separator = description.lastIndexOf(":")
+  if (separator <= 0 || separator === description.length - 1) return undefined
+  return {
+    propertyName: description.slice(0, separator),
+    propertyType: description.slice(separator + 1) as PropertyRuleType,
   }
-  return undefined
 }
 
-function dumpRoot(rule: MetadataItemRule): string {
-  const external = rule.externalMetadata
-  if (external?.segment) return external.segment
+function expandDumpInfoNames(
+  patterns: readonly string[],
+  rule: MetadataItemRule,
+  values: Readonly<Record<string, string>>
+): string[] {
+  const dumpRoot = metadataDumpRoot(rule)
+  return patterns.map((pattern) =>
+    expandMetadataPathPattern(pattern, { ...values, dumpRoot })
+  )
+}
+
+function metadataDumpRoot(rule: MetadataItemRule): string {
+  if (rule.externalMetadata?.segment) return rule.externalMetadata.segment
   for (const propertyRule of Object.values(rule.properties)) {
-    if (propertyRule.type === "XMLRoot" && "container" in propertyRule && typeof propertyRule.container === "string") {
+    if (
+      propertyRule.type === "XMLRoot" &&
+      "container" in propertyRule &&
+      typeof propertyRule.container === "string"
+    ) {
       return propertyRule.container
     }
   }
   return String(rule.itemType).replace(/^Metadata/, "")
+}
+
+function lastAssignmentName(
+  pattern: string,
+  values: Readonly<Record<string, string>>,
+  fallback: string
+): string {
+  const parameters = [...pattern.matchAll(/\{([^}.]+)(?:\.\.\.)?\}/g)].map((match) => match[1]!)
+  for (const parameter of parameters.reverse()) {
+    const value = values[parameter]
+    if (value !== undefined) return value
+  }
+  return fallback
 }

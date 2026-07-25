@@ -345,8 +345,9 @@ for RUN_XML_DIR in "${RUN_DIRS[@]}"; do
   SYNC_INPUT="${RUN_PROJECT_DIR}.sync.json"
   SYNC_OUTPUT="${RUN_PROJECT_DIR}.sync-output.json"
 
-  echo "[restore] Откат XML-репо к HEAD..."
-  git -C "${NKDK_XML_REPO}" restore .
+  RUN_XML_REL="$(config_rel_path "${RUN_XML_DIR}")"
+  echo "[restore] Откат XML-каталога к HEAD: ${RUN_XML_REL}"
+  git -C "${NKDK_XML_REPO}" restore -- "${RUN_XML_REL}"
 
   echo "[yaml] Очистка временного YAML-каталога: ${RUN_YAML_DIR}"
   rm -rf "${RUN_YAML_DIR}"

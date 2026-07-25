@@ -19,6 +19,7 @@ import {
   type PlanSyncConfigurationToXmlParams,
   type SyncConfigurationToXmlParams,
 } from "./syncConfiguration"
+import { fullXmlSyncTestTopologyFields } from "./testTopology"
 import type {
   FullXmlSyncFirstPassPoolResult,
   FullXmlSyncSecondPassPoolResult,
@@ -207,6 +208,7 @@ describe("syncConfigurationToXml", () => {
       "pool.firstPass",
       "sharedMetadata",
       "pool.secondPass",
+      "transferExternalFiles",
       "pool.close",
     ])
     expect(harness.writtenIndex).toBeUndefined()
@@ -273,7 +275,7 @@ function createHarness(options: HarnessOptions = {}) {
       itemType: "MetadataCatalog",
       itemName: "Товары",
       logicalAddress: "Справочник.Товары",
-      outputs: [{ routeKind: "owner", targetXmlPath: "Catalogs/Товары.xml" }],
+      ...fullXmlSyncTestTopologyFields("Справочник/Товары/Свойства.yaml"),
     },
   ]
   const externalFiles: FullXmlSyncExternalFile[] = [

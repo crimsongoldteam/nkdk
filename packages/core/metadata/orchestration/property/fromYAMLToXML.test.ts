@@ -43,10 +43,22 @@ describe("convertPropertiesFromYAMLToXML", () => {
     expect(result.outputs.get("owner")).toEqual({})
   })
 
-  it("preserves explicit empty synonym from reference when YAML omits synonym", () => {
+  it("does not restore empty synonym from reference when YAML omits synonym", () => {
     const result = convertPropertiesFromYAMLToXML({
       context: context(),
       yaml: {},
+      rule: synonymRule(),
+      name: "ПравилаОтправкиДокументов",
+      outputs: [{ key: "owner", referenceXML: { Synonym: {} } }],
+    })
+
+    expect(result.outputs.get("owner")).toEqual({})
+  })
+
+  it("exports explicit empty YAML synonym as empty XML", () => {
+    const result = convertPropertiesFromYAMLToXML({
+      context: context(),
+      yaml: { Синоним: "" },
       rule: synonymRule(),
       name: "ПравилаОтправкиДокументов",
       outputs: [{ key: "owner", referenceXML: { Synonym: {} } }],
@@ -315,6 +327,30 @@ describe("convertPropertiesFromYAMLToXML", () => {
     expect(result.outputs.get("owner")).toEqual({ Items: {} })
   })
 
+  it("сохраняет пустой корневой XML-контейнер коллекции из reference", () => {
+    registerTypeRule("EmptyRootReferenceCollection" as never, "yamlToXMLNestedRule", {
+      kind: "collection",
+      itemRule: testRule({ name: { type: "string", xml: "Name" } }),
+      xmlElement: "Item",
+      yamlShape: "record",
+    })
+
+    const result = convertPropertiesFromYAMLToXML({
+      context: context(),
+      yaml: { Элементы: {} },
+      rule: testRule({
+        Items: {
+          type: "EmptyRootReferenceCollection" as never,
+          yaml: "Элементы",
+          defaultValueXMLEmpty: [],
+        },
+      }),
+      outputs: [{ key: "owner", referenceXML: { Items: undefined } }],
+    })
+
+    expect(result.outputs.get("owner")).toEqual({ Items: {} })
+  })
+
   it("не добавляет отсутствующее YAML-свойство в существующий reference XML", () => {
     const result = convertPropertiesFromYAMLToXML({
       context: context(),
@@ -451,7 +487,7 @@ function synonymRule(): MetadataItemRule {
       type: "I8nText",
       yaml: "Синоним",
       xml: "Synonym",
-      emptyAsRawXML: true,
+      preserveEmptyXML: true,
       implicitValueYAML: ({ name }: { name?: string }) => ({ items: { ru: name ?? "" } }),
     },
   })

@@ -1,9 +1,17 @@
 import { describe, expect, it } from "vitest"
 
-import { testPropertyFixtureThroughYAML } from "../../../tests/directConversion"
+import { testPropertyFixtureThroughYAML, testPropertyFromXMLToYAML } from "../../../tests/directConversion"
+import type { MetadataItemRule } from "../../orchestration/property/types"
 import { resourcesYAML } from "./__fixtures__/data"
 
 import "./register"
+
+const rule = {
+  itemType: "MetadataRegisterResourcesProbe",
+  properties: {
+    value: { type: "MetadataRegisterResources", yaml: "Значение", xml: "Resource" },
+  },
+} as MetadataItemRule
 
 describe("MetadataRegisterResources XML → YAML", () => {
   it("imports register resources with shared field properties", () => {
@@ -18,6 +26,30 @@ describe("MetadataRegisterResources XML → YAML", () => {
       "Значение.РесурсВсеСвойства.ПолеИспользованияХраненияВХранилищеДвоичныхДанных",
       "InformationRegister.Регистр.Attribute.ИспользоватьХранилищеДвоичныхДанных"
     )
+  })
+
+  it("exports empty resource synonym as explicit empty YAML", () => {
+    const result = testPropertyFromXMLToYAML({
+      rule,
+      xml: {
+        Resource: {
+          Properties: {
+            Name: "Ресурс1",
+            Synonym: "",
+            Type: {
+              "v8:Type": "xs:decimal",
+              "v8:NumberQualifiers": {
+                "v8:Digits": 10,
+                "v8:FractionDigits": 0,
+                "v8:AllowedSign": "Any",
+              },
+            },
+          },
+        },
+      },
+    })
+
+    expect(result.yaml).toHaveProperty("Значение.Ресурс1.Синоним", "")
   })
 })
 

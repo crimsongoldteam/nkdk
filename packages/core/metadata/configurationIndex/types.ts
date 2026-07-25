@@ -29,6 +29,7 @@ export interface ConfigurationXmlValue {
   extended?: true
   xsiNil?: true
   explicitEmpty?: true
+  excludedEqualName?: true
   xsiType?: string
   xmlText?: string
   xmlPrefix?: string

@@ -39,6 +39,15 @@ const fixtures = [
   "valueListWithoutSettings.xml",
 ] as const
 
+const settingsFixtures = [
+  "chartSettings.xml",
+  "ganttChartSettings.xml",
+  "plannerSettings.xml",
+  "plannerSettingsWithNil.xml",
+  "spreadsheetDocumentSettings.xml",
+  "valueListWithReferenceEmptySettings.xml",
+] as const
+
 describe("FormAttributes XML → YAML → XML", () => {
   it.each(fixtures)("сохраняет %s", (fixture) => {
     const expected = fs.readFileSync(fileURLToPath(new URL(`__fixtures__/${fixture}`, import.meta.url)), "utf8")
@@ -58,6 +67,29 @@ describe("FormAttributes XML → YAML → XML", () => {
       rule,
       yaml,
       referenceXML: parsed,
+      context: contexts.exportContext(),
+    })
+
+    expect(withoutDeclaration(xmlExport(xml, false))).toBe(expected.trim())
+  })
+
+  it.each(settingsFixtures)("восстанавливает %s без reference XML", (fixture) => {
+    const expected = fs.readFileSync(fileURLToPath(new URL(`__fixtures__/${fixture}`, import.meta.url)), "utf8")
+    const parsed = importContentFromXML<Record<string, unknown>>(expected, {
+      preserveEmptyElements: true,
+      preserveXsiNil: true,
+    })
+    const contexts = createDirectRoundTripContexts({
+      logicalAddress: "Справочник.Товары.Форма.ФормаЭлемента",
+    })
+    const yaml = testPropertyFromXMLToYAML({
+      rule,
+      xml: parsed,
+      context: contexts.importContext,
+    }).yaml
+    const { xml } = testPropertyFromYAMLToXML({
+      rule,
+      yaml,
       context: contexts.exportContext(),
     })
 
@@ -92,6 +124,33 @@ describe("FormAttributes XML → YAML → XML", () => {
         },
       },
     })
+  })
+
+  it("не создаёт настройки динамического списка у обычного реквизита без reference XML", () => {
+    const contexts = createDirectRoundTripContexts({
+      logicalAddress: "БизнесПроцесс.Заказ.Форма.ФормаЗадачи",
+    })
+    const source = {
+      Attribute: {
+        _name: "Объект",
+        _id: "1",
+        Type: { "v8:Type": "cfg:BusinessProcessObject.Заказ" },
+        MainAttribute: true,
+        SavedData: true,
+      },
+    }
+    const yaml = testPropertyFromXMLToYAML({
+      rule,
+      xml: source,
+      context: contexts.importContext,
+    }).yaml
+    const { xml } = testPropertyFromYAMLToXML({
+      rule,
+      yaml,
+      context: contexts.exportContext(),
+    })
+
+    expect(xml).toEqual({ Attribute: [source.Attribute] })
   })
 
   it("сохраняет строгую схему всех специальных настроек", () => {

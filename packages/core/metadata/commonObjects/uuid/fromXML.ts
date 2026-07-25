@@ -11,3 +11,6 @@ export const importUUIDFromXML = (
 }
 
 registerTypeRule("uuid", "importFromXML", importUUIDFromXML)
+registerTypeRule("uuid", "configurationIndexValueFromXML", {
+  identityKind: "uuid",
+})

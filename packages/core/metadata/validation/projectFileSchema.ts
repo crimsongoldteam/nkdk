@@ -54,7 +54,7 @@ export function exportJSONSchemaForProjectFile(params: ExportJSONSchemaForProjec
   if (resource.role === "form") {
     return exportRegisteredJSONSchemaForSchemaName({
       context: params.context,
-      name: "ClientApplicationForm",
+      name: resource.itemType,
       mode: params.mode,
     })
   }

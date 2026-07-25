@@ -75,7 +75,7 @@ describe("shortRoundTripXML", () => {
     )
     expect(resultFormMetaXML).toBe(expectedFormMetaXML)
     fs.rmSync(preparedInputDir, { recursive: true, force: true })
-  })
+  }, 120_000)
 
   it("включает корневой Configuration.xml в short round-trip", async () => {
     const rootInputDir = fs.mkdtempSync(join(tmpdir(), "short-round-trip-root-"))

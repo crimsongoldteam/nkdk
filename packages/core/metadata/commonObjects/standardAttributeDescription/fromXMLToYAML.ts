@@ -15,6 +15,8 @@ export const importStandardAttributeDescriptionsFromXMLToYAML: ImportFromXMLToYA
     xmlElement: "xr:StandardAttribute",
     keyField: "name",
     configurationIndexUidSegment: rule.configurationIndexUidSegment,
+    preserveItemPropertyPresence: true,
+    preserveOmittedItemNames: true,
     recordYamlKeyFromYAML: ({ name }) => names[name] ?? StandartAttributeNameToYAML[name as StandartAttributeName] ?? name,
     traversal: params.traversal,
   })

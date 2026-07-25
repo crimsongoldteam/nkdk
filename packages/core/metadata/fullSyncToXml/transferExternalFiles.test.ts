@@ -139,6 +139,20 @@ describe("transferFullXmlSyncExternalFiles", () => {
     expect([...fs.readFileSync(join(outputDir, "Ext", "ok.bin"))]).toEqual([9])
     expect(fs.existsSync(join(outputDir, "Ext", "missing.bin"))).toBe(false)
   })
+
+  it("rejects a file whose declared transfer capability is not registered", async () => {
+    await expect(
+      transferFullXmlSyncExternalFiles({
+        outputDir: tempDir(),
+        files: [
+          {
+            ...externalFile("a.bin", "/a.bin", "Ext/a.bin"),
+            transferCapabilityId: "missing-capability",
+          },
+        ],
+      })
+    ).rejects.toThrow("missing-capability")
+  })
 })
 
 function externalFile(sourceProjectPath: string, sourcePath: string, targetXmlPath: string): FullXmlSyncExternalFile {

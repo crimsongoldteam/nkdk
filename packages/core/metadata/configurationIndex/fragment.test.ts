@@ -65,6 +65,27 @@ describe("configuration index worker fragments", () => {
     expect(mergeConfigurationIndexFragments([right, left]).localDependencies).toEqual([second, first])
   })
 
+  it("preserves equal-name exclusion provenance across the worker boundary", () => {
+    const fragments = sampleFragments()
+    const first = fragments[0]!
+    const withExcludedEqualName = [
+      {
+        ...first,
+        xmlValues: [
+          ...first.xmlValues,
+          {
+            logicalAddress: "Справочник.Товары.description",
+            excludedEqualName: true as const,
+          },
+        ],
+      },
+    ]
+
+    expect(decodeConfigurationIndexFragments(encodeConfigurationIndexFragments(withExcludedEqualName))).toEqual(
+      withExcludedEqualName
+    )
+  })
+
   it("merges buffers in worker result order and rejects address conflicts", () => {
     const left = encodeConfigurationIndexFragments([sampleFragments()[0]!])
     const right = encodeConfigurationIndexFragments([sampleFragments()[1]!])

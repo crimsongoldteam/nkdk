@@ -24,26 +24,37 @@ export const registerMetadataItemRule = <Rule extends MetadataItemRule, Property
     exporter: ({ context }) => exportMetadataItemToJSONSchema({ context, rule: itemRule }),
   })
 
-  registerTypeRule(propertyType, "importFromXMLToYAML", ({ context, xml, name, traversal }) =>
-    importMetadataItemFromXMLToYAML({ context, rule: itemRule, xml, name, traversal })
+  registerTypeRule(propertyType, "importFromXMLToYAML", ({ context, rule, xml, name, traversal }) =>
+    importMetadataItemFromXMLToYAML({
+      context,
+      rule: propertyItemRule(rule) ?? itemRule,
+      xml,
+      name,
+      traversal,
+    })
   )
   registerTypeRule(propertyType, "nestedItemRule", { itemRule })
-  registerTypeRule(propertyType, "yamlToXMLNestedRule", { kind: "item", itemRule })
-  registerTypeRule(propertyType, "xmlImportRoutes", ({ propertyRule }) => {
+  registerTypeRule(propertyType, "yamlToXMLNestedRule", {
+    kind: "item",
+    itemRule,
+    itemRuleFromProperty: propertyItemRule,
+  })
+  registerTypeRule(propertyType, "resourceTopology", ({ propertyRule }) => {
     if (propertyRule?.filePath === undefined) return []
     return [
       {
-        kind: "assignment",
+        kind: "xmlDocument",
+        assignmentProjectPattern: "",
         xmlPattern: propertyRule.filePath,
-        targetPattern: "",
-        role: "properties",
-        inputRole: "property",
-        itemType: "",
-        source: { kind: "propertyType", type: propertyType },
+        role: "property",
+        required: false,
+        read: { inputRole: "property" },
+        prepareCapabilityId: "itemProperty",
+        source: { kind: "property", description: String(propertyType) },
       },
     ]
   })
-  registerTypeRule(propertyType, "exportToJSONSchema", ({ context }) => {
+  registerTypeRule(propertyType, "exportToJSONSchema", ({ context, rule }) => {
     const schemaStack = context.exportToJSONSchema?.schemaStack ?? []
     if (schemaStack.includes(propertyType)) return Type.Unknown()
 
@@ -58,7 +69,11 @@ export const registerMetadataItemRule = <Rule extends MetadataItemRule, Property
           schemaStack: [...schemaStack, propertyType],
         },
       },
-      rule: itemRule,
+      rule: propertyItemRule(rule) ?? itemRule,
     })
   })
+}
+
+function propertyItemRule(propertyRule: import("../property/types").PropertyRule): MetadataItemRule | undefined {
+  return propertyRule.itemRule as MetadataItemRule | undefined
 }

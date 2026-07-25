@@ -12,6 +12,7 @@ import { enterNestedYamlRule } from "../property/yamlRuleCursor"
 import { childUid, indexedUid, yamlIndexUid, yamlKeyUid } from "../../configurationIndex/logicalAddress"
 import {
   getConfigurationIndexCollectionContext,
+  getConfigurationIndexXmlNodeLogicalAddress,
   withConfigurationIndexLogicalAddress,
 } from "../../configurationIndex/collector/context"
 
@@ -26,13 +27,14 @@ function configurationIndexItemContext(params: {
   context: ConfigurationContextFromXML
   item: ItemXML
   itemRule: MetadataItemRule
+  keyField?: string
   index: number
   options?: MetadataItemCollectionImportOptions
 }): ConfigurationContextFromXML {
-  const { context, item, itemRule, index, options } = params
+  const { context, item, itemRule, keyField, index, options } = params
   const collection = getConfigurationIndexCollectionContext(context)
   if (collection === undefined) return context
-  const itemName = configurationIndexItemName(item, itemRule)
+  const itemName = itemNameFromXML(item, itemRule, keyField)
   const useYamlPath = collection.yamlPathAddressing === true || options?.configurationIndexAddressing === "yamlPath"
   if (useYamlPath) {
     return withConfigurationIndexLogicalAddress(
@@ -56,23 +58,6 @@ function configurationIndexItemContext(params: {
   )
 }
 
-function configurationIndexItemName(item: ItemXML, itemRule: MetadataItemRule): string | undefined {
-  if (typeof item._name === "string" && item._name.length > 0) return item._name
-  const nameRule = itemRule.properties.name
-  if (nameRule === undefined) return undefined
-  let source: unknown = item
-  for (const parent of nameRule.xmlParents ?? []) {
-    if (source === null || typeof source !== "object") return undefined
-    source = (source as Record<string, unknown>)[parent]
-  }
-  if (source === null || typeof source !== "object") return undefined
-  for (const key of [nameRule.xml ?? "Name", ...(nameRule.xmlAliases ?? [])]) {
-    const value = (source as Record<string, unknown>)[key]
-    if (typeof value === "string" && value.length > 0) return value
-  }
-  return undefined
-}
-
 export function importMetadataItemCollectionFromXMLToYAML(params: {
   context: ConfigurationContextFromXML
   rule: PropertyRule
@@ -84,20 +69,37 @@ export function importMetadataItemCollectionFromXMLToYAML(params: {
   propertyType?: PropertyRuleType
   configurationIndexUidSegment?: string
   configurationIndexAddressing?: ConfigurationIndexAddressingMode
+  preserveItemPropertyPresence?: true
+  preserveOmittedItemNames?: true
   recordYamlKeyFromYAML?: (params: { yaml: Record<string, unknown>; name: string }) => string
   traversal: DirectImportTraversal
 }): Record<string, unknown> | Array<Record<string, unknown>> | undefined {
   const items = normalizeCollectionItems(params.xml, params.xmlElement)
   if (items.length === 0) return undefined
+  const itemRule =
+    params.preserveItemPropertyPresence === true
+      ? withPreservedPropertyPresence(params.itemRule)
+      : params.itemRule
   const keyField = params.keyField
-  const keyYaml = keyField === undefined ? undefined : (params.itemRule.properties[keyField]?.yaml ?? keyField)
+  const keyYaml = keyField === undefined ? undefined : (itemRule.properties[keyField]?.yaml ?? keyField)
+  if (params.preserveOmittedItemNames === true) {
+    const collection = getConfigurationIndexCollectionContext(params.context)
+    const itemNames = items.map((item) => itemNameFromXML(item, itemRule, keyField))
+    if (collection !== undefined && itemNames.every((name): name is string => name !== undefined)) {
+      collection.collector.setOrder(
+        getConfigurationIndexXmlNodeLogicalAddress(collection),
+        [...new Set(itemNames)]
+      )
+    }
+  }
 
   const yamlItems = items.flatMap((itemXml, index) => {
-    const itemName = itemNameFromXML(itemXml, params.itemRule, params.keyField)
+    const itemName = itemNameFromXML(itemXml, itemRule, params.keyField)
     const itemContext = configurationIndexItemContext({
       context: params.context,
       item: itemXml,
-      itemRule: params.itemRule,
+      itemRule,
+      keyField: params.keyField,
       index,
       options: {
         propertyType: params.propertyType,
@@ -120,7 +122,7 @@ export function importMetadataItemCollectionFromXMLToYAML(params: {
         : createBufferedDeferredCollector(params.traversal.deferred, yamlPath)
     const itemYamlValue = importMetadataItemFromXMLToYAML({
       context: itemContext,
-      rule: params.itemRule,
+      rule: itemRule,
       xml: itemXml,
       name: itemName,
       traversal: enterNestedYamlRule(
@@ -131,13 +133,13 @@ export function importMetadataItemCollectionFromXMLToYAML(params: {
           deferred: bufferedDeferred?.collector ?? params.traversal.deferred,
           profile: params.traversal.profile,
         },
-        params.itemRule.itemType
+        itemRule.itemType
       ),
     })
     if (itemYamlValue === undefined) return []
     const itemYaml = asRecord(itemYamlValue)
     if (itemYaml === undefined) {
-      throw new Error(`Элемент коллекции ${params.itemRule.itemType} должен преобразовываться в YAML-объект`)
+      throw new Error(`Элемент коллекции ${itemRule.itemType} должен преобразовываться в YAML-объект`)
     }
     const name = itemName ?? String(index)
     const yamlKey =
@@ -163,6 +165,18 @@ export function importMetadataItemCollectionFromXMLToYAML(params: {
       return [yamlKey!, yaml]
     })
   )
+}
+
+function withPreservedPropertyPresence(itemRule: MetadataItemRule): MetadataItemRule {
+  return {
+    ...itemRule,
+    properties: Object.fromEntries(
+      Object.entries(itemRule.properties).map(([key, rule]) => [
+        key,
+        { ...rule, preserveExplicitDefaultXML: true },
+      ])
+    ),
+  }
 }
 
 function createBufferedDeferredCollector(

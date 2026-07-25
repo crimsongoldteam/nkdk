@@ -1,8 +1,10 @@
 import { describe, expect, it } from "vitest"
 
 import {
+  createDirectRoundTripContexts,
   readAppliedObjectFixture,
   serializeDirectXML,
+  testMetadataItemFromXMLToYAML,
   testMetadataItemFromYAMLToXML,
 } from "../../../tests/directConversion"
 import { readXMLFixtureAsString } from "../../../tests/readFixtureXML"
@@ -21,6 +23,25 @@ describe("ExchangePlanContent YAML → XML", () => {
     })
 
     expect(normalizeXML(serializeDirectXML(result.xml))).toBe(
+      normalizeXML(readXMLFixtureAsString(import.meta.url, "content.xml"))
+    )
+  })
+
+  it("round-trips content items through the configuration snapshot without reference XML", () => {
+    const source = readAppliedObjectFixture(import.meta.url, "content.xml")
+    const roundTrip = createDirectRoundTripContexts()
+    const imported = testMetadataItemFromXMLToYAML({
+      rule: ExchangePlanContentRules,
+      xml: source,
+      context: roundTrip.importContext,
+    })
+    const restored = testMetadataItemFromYAMLToXML({
+      rule: ExchangePlanContentRules,
+      yaml: imported.yaml,
+      context: roundTrip.exportContext(),
+    })
+
+    expect(normalizeXML(serializeDirectXML(restored.xml))).toBe(
       normalizeXML(readXMLFixtureAsString(import.meta.url, "content.xml"))
     )
   })

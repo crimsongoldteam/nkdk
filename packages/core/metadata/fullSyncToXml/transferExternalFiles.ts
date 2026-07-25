@@ -7,6 +7,8 @@ import pLimit from "p-limit"
 import { hashFileBytes } from "../configurationIndex/hash"
 import type { ConfigurationProjectFile } from "../configurationIndex/types"
 import type { FullXmlSyncExternalFile } from "./types"
+import type { FullXmlSyncCopiedFile } from "./types"
+import { getMetadataExternalTransferCapability } from "../resourceTopology/capabilities"
 
 const DEFAULT_TRANSFER_CONCURRENCY = 16
 
@@ -20,7 +22,7 @@ export interface TransferFullXmlSyncExternalFilesOptions {
 
 export interface TransferFullXmlSyncExternalFilesResult {
   readonly projectFiles: readonly ConfigurationProjectFile[]
-  readonly copiedFiles: readonly { sourceProjectPath: string; targetXmlPath: string }[]
+  readonly copiedFiles: readonly FullXmlSyncCopiedFile[]
 }
 
 export async function transferFullXmlSyncExternalFiles(
@@ -34,20 +36,31 @@ export async function transferFullXmlSyncExternalFiles(
   const results = await Promise.all(
     options.files.map((file, index) =>
       limit(async () => {
-        const targetPath = targetPaths[index]
-        if (targetPath === undefined) throw new Error(`Не найден target path для ${file.sourceProjectPath}`)
-        await fs.promises.mkdir(dirname(targetPath), { recursive: true })
+        const initialTargetPath = targetPaths[index]
+        if (initialTargetPath === undefined) throw new Error(`Не найден target path для ${file.sourceProjectPath}`)
+        const transfer =
+          file.transferCapabilityId === undefined
+            ? { sourcePath: file.sourcePath, targetPath: initialTargetPath }
+            : requireTransferCapability(file.transferCapabilityId).projectToXml({
+                sourcePath: file.sourcePath,
+                targetPath: initialTargetPath,
+              })
+        await fs.promises.mkdir(dirname(transfer.targetPath), { recursive: true })
         const contentHash = usesInjectedBufferIo
           ? await transferBufferedForInjectedIo({
-              sourcePath: file.sourcePath,
-              targetPath,
+              sourcePath: transfer.sourcePath,
+              targetPath: transfer.targetPath,
               readFile: options.readFile ?? fs.promises.readFile,
               writeFile: options.writeFile ?? fs.promises.writeFile,
             })
-          : await transferStreamedFile({ sourcePath: file.sourcePath, targetPath })
+          : await transferStreamedFile({ sourcePath: transfer.sourcePath, targetPath: transfer.targetPath })
         return {
           projectFile: { projectPath: file.sourceProjectPath, contentHash },
-          copiedFile: { sourceProjectPath: file.sourceProjectPath, targetXmlPath: file.targetXmlPath },
+          copiedFile: {
+            assignmentId: file.assignmentId ?? file.sourceProjectPath,
+            sourceProjectPath: file.sourceProjectPath,
+            targetXmlPath: file.targetXmlPath,
+          },
         }
       })
     )
@@ -61,6 +74,12 @@ export async function transferFullXmlSyncExternalFiles(
       .map((result) => result.copiedFile)
       .sort((left, right) => Buffer.compare(Buffer.from(left.sourceProjectPath), Buffer.from(right.sourceProjectPath))),
   }
+}
+
+function requireTransferCapability(id: string) {
+  const capability = getMetadataExternalTransferCapability(id)
+  if (capability === undefined) throw new Error(`Не зарегистрирована возможность переноса внешнего файла: ${id}`)
+  return capability
 }
 
 async function transferBufferedForInjectedIo(params: {

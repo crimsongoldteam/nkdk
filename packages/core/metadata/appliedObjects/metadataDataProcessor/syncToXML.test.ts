@@ -1,10 +1,48 @@
 import { describe, expect, it } from "vitest"
 import { testSyncAppliedObjectToXML } from "../../../tests/appliedObject"
+import {
+  createDirectRoundTripContexts,
+  testPropertyFromXMLToYAML,
+  testPropertyFromYAMLToXML,
+} from "../../../tests/directConversion"
+import { getTypeRule, type MetadataItemRule } from "../../orchestration"
 import { MetadataDataProcessorRules } from "./rules"
 
 const normalizeLineEndings = (value: string) => value.replace(/\r\n/g, "\n")
 
 describe("syncAppliedObjectToXML — MetadataDataProcessor", () => {
+  it("не дублирует корневой cfg namespace в типе реквизита без reference XML", () => {
+    const attributes = getTypeRule(
+      MetadataDataProcessorRules.properties.attributes.type,
+      "yamlToXMLNestedRule"
+    )
+    if (attributes?.kind !== "collection") throw new Error("Не зарегистрировано правило реквизитов обработки")
+    const attributeRule =
+      attributes.itemRuleFromProperty?.(MetadataDataProcessorRules.properties.attributes) ?? attributes.itemRule
+    const typeRule = attributeRule.properties.type
+    const rule = {
+      itemType: "DataProcessorAttributeTypeProbe",
+      properties: { type: typeRule },
+    } as const satisfies MetadataItemRule
+    const contexts = createDirectRoundTripContexts()
+    const imported = testPropertyFromXMLToYAML({
+      rule,
+      context: contexts.importContext,
+      xml: { Properties: { Type: { "v8:Type": "cfg:CatalogRef.СправочникПолный" } } },
+    })
+    const restored = testPropertyFromYAMLToXML({
+      rule,
+      yaml: imported.yaml,
+      context: contexts.exportContext(),
+    })
+
+    expect(restored.xml).toEqual({
+      Properties: {
+        Type: { "v8:Type": "cfg:CatalogRef.СправочникПолный" },
+      },
+    })
+  })
+
   it("читает DataProcessor из YAML и записывает XML в outputDir", async () => {
     const { comparisons } = await testSyncAppliedObjectToXML({
       rule: MetadataDataProcessorRules,

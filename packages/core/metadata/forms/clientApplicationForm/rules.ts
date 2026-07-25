@@ -83,6 +83,7 @@ export const ClientApplicationFormRules = {
       tag: FormRulesTags.Form,
       defaultValueXMLEmpty: [],
       itemRule: FormAttributeRules,
+      preserveExplicitDefaultXML: true,
       order: 3,
     }),
     attributesConditionalAppearance: conditionalAppearanceRule({
@@ -396,6 +397,7 @@ export const ClientApplicationFormRules = {
       tag: FormRulesTags.Metadata,
       xmlParents: ["Form", "Properties"],
       defaultValueXMLEmpty: { items: {} },
+      preserveEmptyXML: true,
     }),
     comment: stringRule({
       yaml: "Комментарий",

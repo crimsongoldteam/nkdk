@@ -2,6 +2,13 @@ import type { ConfigurationContext } from "../../context/types"
 import { ExportToXMLFunctionNew, InternalInfoPropertyRule, registerTypeRule } from "../../orchestration"
 import { getUUID } from "../../helpers/uuid"
 import {
+  internalInfoContainedObjectIdAddress,
+  internalInfoGeneratedTypeIdAddress,
+  internalInfoGeneratedValueIdAddress,
+  internalInfoThisNodeAddress,
+  resolveInternalInfoUuid,
+} from "./configurationIndex"
+import {
   InternalInfo,
   InternalInfoContainedObjectXML,
   InternalInfoItemsXML,
@@ -16,8 +23,15 @@ export const exportInternalInfoToXML: ExportToXMLFunctionNew = (params): Interna
 
   const metadata = value as InternalInfo | undefined
   const reference = referenceMetadata as InternalInfo | undefined
+  const ownerAddress = context.exportToXML.configurationIndex?.logicalAddress
   const thisNode =
-    internalInfoRule.thisNode === true ? (reference?.thisNode ?? metadata?.thisNode ?? getUUID(context)) : undefined
+    internalInfoRule.thisNode === true
+      ? resolveInternalInfoUuid({
+          context,
+          logicalAddress: ownerAddress === undefined ? undefined : internalInfoThisNodeAddress(ownerAddress),
+          fallback: reference?.thisNode ?? metadata?.thisNode,
+        })
+      : undefined
 
   const itemsRule = ((rule as any).items ?? []) as { name: string; category: string }[]
 
@@ -29,10 +43,18 @@ export const exportInternalInfoToXML: ExportToXMLFunctionNew = (params): Interna
   const generated = itemsRule.map((item) => {
     const name = item.name
 
-    const fromReference = getInternalInfoItem(reference?.[name])
+    const existing = getInternalInfoItem(reference?.[name]) ?? getInternalInfoItem(metadata?.[name])
 
-    const typeId = fromReference?.typeId ?? getUUID(context)
-    const valueId = fromReference?.valueId ?? getUUID(context)
+    const typeId = resolveInternalInfoUuid({
+      context,
+      logicalAddress: ownerAddress === undefined ? undefined : internalInfoGeneratedTypeIdAddress(ownerAddress, name),
+      fallback: existing?.typeId,
+    })
+    const valueId = resolveInternalInfoUuid({
+      context,
+      logicalAddress: ownerAddress === undefined ? undefined : internalInfoGeneratedValueIdAddress(ownerAddress, name),
+      fallback: existing?.valueId,
+    })
 
     const fullName = `${item.name}.${nameItemPart}`
 
@@ -56,6 +78,7 @@ export const exportInternalInfoToXML: ExportToXMLFunctionNew = (params): Interna
     classIds: internalInfoRule.containedObjectClassIds ?? [],
     metadata,
     reference,
+    ownerAddress,
   })
   if (containedObjects.length > 0) {
     result["xr:ContainedObject"] = containedObjects
@@ -75,6 +98,7 @@ const getContainedObjectsXML = (params: {
   classIds: string[]
   metadata: InternalInfo | undefined
   reference: InternalInfo | undefined
+  ownerAddress: string | undefined
 }): InternalInfoContainedObjectXML[] => {
   const referenceObjects = params.reference?.containedObjects ?? []
   const metadataObjects = params.metadata?.containedObjects ?? []
@@ -82,10 +106,20 @@ const getContainedObjectsXML = (params: {
   if (params.classIds.length === 0) {
     const containedObjects = referenceObjects.length > 0 ? referenceObjects : metadataObjects
 
-    return containedObjects.map((item) => ({
-      "xr:ClassId": item.classId,
-      "xr:ObjectId": item.objectId,
-    }))
+    return containedObjects.map((item) => {
+      const objectId = resolveInternalInfoUuid({
+        context: params.context,
+        logicalAddress:
+          params.ownerAddress === undefined
+            ? undefined
+            : internalInfoContainedObjectIdAddress(params.ownerAddress, item.classId),
+        fallback: item.objectId,
+      })
+      return {
+        "xr:ClassId": item.classId,
+        "xr:ObjectId": objectId,
+      }
+    })
   }
 
   const usedClassIds = new Set<string>()
@@ -96,9 +130,17 @@ const getContainedObjectsXML = (params: {
   const declared = params.classIds.map((classId) => {
     usedClassIds.add(classId)
     const item = findContainedObject(classId)
+    const objectId = resolveInternalInfoUuid({
+      context: params.context,
+      logicalAddress:
+        params.ownerAddress === undefined
+          ? undefined
+          : internalInfoContainedObjectIdAddress(params.ownerAddress, classId),
+      fallback: item?.objectId,
+    })
     return {
       "xr:ClassId": classId,
-      "xr:ObjectId": item?.objectId ?? getUUID(params.context),
+      "xr:ObjectId": objectId,
     }
   })
 
@@ -108,10 +150,20 @@ const getContainedObjectsXML = (params: {
       usedClassIds.add(item.classId)
       return true
     })
-    .map((item) => ({
-      "xr:ClassId": item.classId,
-      "xr:ObjectId": item.objectId,
-    }))
+    .map((item) => {
+      const objectId = resolveInternalInfoUuid({
+        context: params.context,
+        logicalAddress:
+          params.ownerAddress === undefined
+            ? undefined
+            : internalInfoContainedObjectIdAddress(params.ownerAddress, item.classId),
+        fallback: item.objectId,
+      })
+      return {
+        "xr:ClassId": item.classId,
+        "xr:ObjectId": objectId,
+      }
+    })
 
   return [...declared, ...extras]
 }

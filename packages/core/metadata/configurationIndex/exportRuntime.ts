@@ -21,6 +21,7 @@ export interface ConfigurationIndexExportRuntime {
   xmlValue(address?: string): ConfigurationXmlValue | undefined
   configVersion(address: string): string
   withLogicalAddress(logicalAddress: string): ConfigurationIndexExportRuntime
+  withXmlNodeLogicalAddress(xmlNodeLogicalAddress: string): ConfigurationIndexExportRuntime
   withFormElementRootLogicalAddress(logicalAddress: string): ConfigurationIndexExportRuntime
   withPropertyContext(
     propertyName: string,
@@ -107,7 +108,27 @@ class DefaultConfigurationIndexExportRuntime implements ConfigurationIndexExport
       ...(this.formElementRootLogicalAddress === undefined
         ? {}
         : { formElementRootLogicalAddress: this.formElementRootLogicalAddress }),
-      ...(this.childCollectionUidSegment === undefined ? {} : { childCollectionUidSegment: this.childCollectionUidSegment }),
+      ...(this.childCollectionUidSegment === undefined
+        ? {}
+        : { childCollectionUidSegment: this.childCollectionUidSegment }),
+      ...(this.yamlPathAddressing === undefined ? {} : { yamlPathAddressing: this.yamlPathAddressing }),
+    })
+  }
+
+  withXmlNodeLogicalAddress(xmlNodeLogicalAddress: string): ConfigurationIndexExportRuntime {
+    return new DefaultConfigurationIndexExportRuntime({
+      source: this.source,
+      collector: this.collector,
+      targetProjectPath: this.targetProjectPath,
+      logicalAddress: this.logicalAddress,
+      xmlNodeLogicalAddress,
+      targetGeneration: this.targetGeneration,
+      ...(this.formElementRootLogicalAddress === undefined
+        ? {}
+        : { formElementRootLogicalAddress: this.formElementRootLogicalAddress }),
+      ...(this.childCollectionUidSegment === undefined
+        ? {}
+        : { childCollectionUidSegment: this.childCollectionUidSegment }),
       ...(this.yamlPathAddressing === undefined ? {} : { yamlPathAddressing: this.yamlPathAddressing }),
     })
   }
@@ -121,7 +142,9 @@ class DefaultConfigurationIndexExportRuntime implements ConfigurationIndexExport
       targetGeneration: this.targetGeneration,
       formElementRootLogicalAddress: logicalAddress,
       ...(this.xmlNodeLogicalAddress === undefined ? {} : { xmlNodeLogicalAddress: this.xmlNodeLogicalAddress }),
-      ...(this.childCollectionUidSegment === undefined ? {} : { childCollectionUidSegment: this.childCollectionUidSegment }),
+      ...(this.childCollectionUidSegment === undefined
+        ? {}
+        : { childCollectionUidSegment: this.childCollectionUidSegment }),
       ...(this.yamlPathAddressing === undefined ? {} : { yamlPathAddressing: this.yamlPathAddressing }),
     })
   }
@@ -155,7 +178,8 @@ class DefaultConfigurationIndexExportRuntime implements ConfigurationIndexExport
     const cached = this.generated.get(cacheKey)
     if (cached !== undefined) return cached
     const bytes = this.generatedValue(kind, address)
-    const value = kind === "uuid" ? formatDeterministicUuid(bytes.subarray(0, 16)) : bytes.subarray(0, 16).toString("hex")
+    const value =
+      kind === "uuid" ? formatDeterministicUuid(bytes.subarray(0, 16)) : bytes.subarray(0, 16).toString("hex")
     this.generated.set(cacheKey, value)
     return value
   }

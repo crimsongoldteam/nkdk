@@ -7,6 +7,7 @@ import type {
   ConfigurationContextFromXML,
   XmlImportConfigurationContext,
 } from "../context/types"
+import { sourceWorkerExecArgv } from "../sourceWorkerRuntime"
 import type { ValidationOwnerFacts } from "../validation/dataPath/ownerFacts"
 import type { ValidationIndexContribution } from "../validation/projectValidationTypes"
 import { createOperationProfiler } from "../validation/profile"
@@ -351,7 +352,7 @@ function createPiscinaWorkerPool(): Piscina {
   const workerFile = currentFile.endsWith(".ts")
     ? join(dirname(currentFile), "worker.ts")
     : join(dirname(currentFile), "importFromXmlWorker.js")
-  const execArgv = currentFile.endsWith(".ts") ? ["--import", "tsx"] : []
+  const execArgv = currentFile.endsWith(".ts") ? sourceWorkerExecArgv() : []
   return new Piscina({
     filename: workerFile,
     minThreads: 1,

@@ -132,6 +132,7 @@ export const presenceAffectsExport = (params: {
 }): boolean =>
   params.rule.preserveFromReferenceXML === true ||
   params.rule.preserveExplicitDefaultXML === true ||
+  params.typeBehavior?.presenceAffectsExport === true ||
   params.typeBehavior?.presenceAffectsExportForSourceValues?.some((value) =>
     Object.is(value, params.sourceXmlValue)
   ) === true

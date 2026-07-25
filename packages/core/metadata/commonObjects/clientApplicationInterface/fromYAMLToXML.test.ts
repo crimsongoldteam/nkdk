@@ -34,6 +34,23 @@ describe("ClientApplicationInterface YAML → XML", () => {
     expect(roundTripFixture("ClientApplicationInterface.xml")).toBe(fixtureXML("ClientApplicationInterface.xml"))
   })
 
+  it("round-trips ClientApplicationInterface.xml through the configuration snapshot without reference XML", () => {
+    const xml = readAppliedObjectFixture(import.meta.url, "ClientApplicationInterface.xml")
+    const contexts = createDirectRoundTripContexts()
+    const imported = testMetadataItemFromXMLToYAML({
+      context: contexts.importContext,
+      rule: ClientApplicationInterfaceRules,
+      xml,
+    })
+    const exported = testMetadataItemFromYAMLToXML({
+      context: contexts.exportContext(),
+      rule: ClientApplicationInterfaceRules,
+      yaml: imported.yaml,
+    })
+
+    expect(normalizeXML(serializeDirectXML(exported.xml))).toBe(fixtureXML("ClientApplicationInterface.xml"))
+  })
+
   it("preserves unknown XML details through YAML round-trip", () => {
     const result = roundTripFixture("UnknownPanel.xml")
 

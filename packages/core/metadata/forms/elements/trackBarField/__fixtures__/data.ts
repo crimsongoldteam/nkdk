@@ -63,6 +63,7 @@ export const fullTrackBarFieldEnterprise = {
 } satisfies Required<TrackBarFieldEnterprise>
 
 export const fullTrackBarFieldPartialYAML: TrackBarFieldPartialYAML = {
+  ПутьКДанным: "Реквизит",
   События: {
     ПриИзменении: "ПроцедураПриИзменении",
   },

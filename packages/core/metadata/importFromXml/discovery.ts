@@ -2,13 +2,14 @@ import { promises as nodeFs } from "fs"
 import { isAbsolute, join, relative, resolve } from "path"
 import importContentFromXML from "../../xml/import/importer"
 import { createImportAssignments, type ImportAssignmentGroup } from "./assignmentBuilder"
+import { expandMetadataPathPattern } from "../resourceTopology/patterns"
+import type { ImportAssignment, ImportExternalFile, ImportSnapshotFile } from "./types"
 import {
-  compileXmlImportRouteStructure,
-  matchXmlImportRouteStructure,
-  type XmlImportRouteMatch,
-} from "./routeStructure"
-import { expandImportPattern } from "./routes"
-import type { ImportAssignment, ImportExternalFile, ImportXmlInput, XmlImportRoute } from "./types"
+  matchXmlImportResource,
+  projectXmlImportTopology,
+  type CompiledXmlResourceMatch,
+} from "../resourceTopology/xmlImportProjection"
+import type { CompiledMetadataResourceTopology } from "../resourceTopology/types"
 
 export interface XmlImportDiscoveryFileSystem {
   listFiles: (xmlDir: string) => Promise<readonly string[]>
@@ -17,11 +18,11 @@ export interface XmlImportDiscoveryFileSystem {
 
 export interface DiscoverXmlImportParams {
   xmlDir: string
-  routes: readonly XmlImportRoute[]
+  topology: CompiledMetadataResourceTopology
   fs?: XmlImportDiscoveryFileSystem
 }
 
-type ResolvedMatch = XmlImportRouteMatch
+type ResolvedMatch = CompiledXmlResourceMatch
 
 export async function readXmlImportComponentRoot(
   xmlDir: string,
@@ -39,20 +40,23 @@ export async function readXmlImportComponentRoot(
   return root
 }
 
-export async function discoverXmlImport(params: DiscoverXmlImportParams): Promise<{ assignments: ImportAssignment[] }> {
+export async function discoverXmlImport(
+  params: DiscoverXmlImportParams
+): Promise<{ assignments: ImportAssignment[]; snapshotFiles: ImportSnapshotFile[] }> {
   const fileSystem = params.fs ?? defaultFileSystem
-  const routeStructure = compileXmlImportRouteStructure(params.routes)
+  const topologyProjection = projectXmlImportTopology(params.topology)
   const listedPaths = await fileSystem.listFiles(params.xmlDir)
   const paths = [...new Set(listedPaths.map((path) => normalizeListedPath(params.xmlDir, path)))].sort(compareUtf8)
   const conflictPaths: string[] = []
   const assignmentsByTarget = new Map<string, ImportAssignmentGroup>()
   const externalMatches: Array<Extract<ResolvedMatch, { kind: "externalFile" }> & { path: string }> = []
+  const snapshotFiles: ImportSnapshotFile[] = []
   const manifestValues = new Map<string, Promise<Set<string>>>()
 
   for (const path of paths) {
-    const allMatches = matchXmlImportRouteStructure(routeStructure, path)
-    const matches = allMatches.some((match) => match.kind !== "externalFile" || match.route.fallback !== true)
-      ? allMatches.filter((match) => match.kind !== "externalFile" || match.route.fallback !== true)
+    const allMatches = matchXmlImportResource(topologyProjection, path)
+    const matches = allMatches.some((match) => match.kind !== "externalFile" || match.node.fallback !== true)
+      ? allMatches.filter((match) => match.kind !== "externalFile" || match.node.fallback !== true)
       : allMatches
     if (matches.length === 0) continue
     const compatibleMatches = resolveCompatibleMatches(matches)
@@ -61,7 +65,17 @@ export async function discoverXmlImport(params: DiscoverXmlImportParams): Promis
       continue
     }
     const compatible = compatibleMatches[0]
-    if (compatible.kind === "ignore") continue
+    if (compatible.kind === "ignore") {
+      const snapshotImport = compatible.node.snapshotImport
+      if (snapshotImport !== undefined) {
+        snapshotFiles.push({
+          sourcePath: resolve(params.xmlDir, ...path.split("/")),
+          capabilityId: snapshotImport.capabilityId,
+          targetProjectPath: snapshotImport.targetProjectPath,
+        })
+      }
+      continue
+    }
     if (compatible.kind === "externalFile") {
       for (const match of compatibleMatches) {
         if (match.kind !== "externalFile") throw new Error("Несовместимые виды XML-import маршрутов")
@@ -71,10 +85,11 @@ export async function discoverXmlImport(params: DiscoverXmlImportParams): Promis
       continue
     }
 
-    const existing = assignmentsByTarget.get(compatible.targetProjectPath)
+    const existing = assignmentsByTarget.get(compatible.assignmentProjectPath)
     if (
       existing !== undefined &&
-      (existing.route.role !== compatible.route.role || existing.route.itemType !== compatible.route.itemType)
+      (existing.definition.role !== compatible.assignment.role ||
+        existing.definition.itemType !== compatible.assignment.itemRule.itemType)
     ) {
       conflictPaths.push(path)
       continue
@@ -82,29 +97,35 @@ export async function discoverXmlImport(params: DiscoverXmlImportParams): Promis
     const group =
       existing ??
       ({
-        route: compatible.route,
+        definition: {
+          role: compatible.assignment.role,
+          itemType: compatible.assignment.itemRule.itemType,
+          ...(compatible.assignment.logicalAddressSegment === undefined
+            ? {}
+            : { logicalAddressSegment: compatible.assignment.logicalAddressSegment }),
+        },
         values: compatible.values,
-        targetProjectPath: compatible.targetProjectPath,
+        targetProjectPath: compatible.assignmentProjectPath,
         xmlFiles: [],
         externalFiles: [],
       } satisfies ImportAssignmentGroup)
     group.xmlFiles.push({
-      role: assignmentInputRole(compatible.route),
+      role: compatible.node.read?.inputRole ?? compatible.node.role,
       sourcePath: resolve(params.xmlDir, ...path.split("/")),
     })
-    assignmentsByTarget.set(compatible.targetProjectPath, group)
+    assignmentsByTarget.set(compatible.assignmentProjectPath, group)
   }
 
   if (conflictPaths.length > 0) throw importDiscoveryError("xml_import_route_conflict", conflictPaths)
 
   for (const match of externalMatches) {
-    const assignment = assignmentsByTarget.get(match.assignmentTargetProjectPath)
+    const assignment = assignmentsByTarget.get(match.assignmentProjectPath)
     if (assignment === undefined) {
       throw importDiscoveryError("xml_import_assignment_missing", [match.path])
     }
     assignment.externalFiles.push({
       sourcePath: resolve(params.xmlDir, ...match.path.split("/")),
-      targetProjectPath: match.targetProjectPath,
+      targetProjectPath: match.projectPath,
     })
   }
 
@@ -117,7 +138,7 @@ export async function discoverXmlImport(params: DiscoverXmlImportParams): Promis
   assertEveryMetadataXmlBelongsToOneAssignment(assignments)
   assertEveryExternalFileBelongsToOneAssignment(assignments)
 
-  return { assignments }
+  return { assignments, snapshotFiles }
 }
 
 const defaultFileSystem: XmlImportDiscoveryFileSystem = {
@@ -131,7 +152,7 @@ async function isSelectedExternalFile(params: {
   fileSystem: XmlImportDiscoveryFileSystem
   manifestValues: Map<string, Promise<Set<string>>>
 }): Promise<boolean> {
-  const selection = params.match.route.selection
+  const selection = params.match.node.selection
   if (selection === undefined) return true
   const candidate = params.match.values[selection.candidateParameter]
   if (candidate === undefined) return false
@@ -140,7 +161,10 @@ async function isSelectedExternalFile(params: {
     selection.candidateSuffix !== undefined && candidate.endsWith(selection.candidateSuffix)
       ? candidate.slice(0, -selection.candidateSuffix.length)
       : candidate
-  const manifestRelativePath = expandImportPattern(selection.manifestPattern, params.match.values).replace(/\\/g, "/")
+  const manifestRelativePath = expandMetadataPathPattern(selection.manifestPattern, params.match.values).replace(
+    /\\/g,
+    "/"
+  )
   const manifestPath = resolve(params.xmlDir, ...manifestRelativePath.split("/"))
   let values = params.manifestValues.get(manifestPath)
   if (values === undefined) {
@@ -236,7 +260,7 @@ function resolveCompatibleMatches(matches: readonly ResolvedMatch[]): ResolvedMa
   if (values.length === 1) return values
   if (
     values.every((match) => match.kind === "externalFile") &&
-    new Set(values.map((match) => (match.kind === "externalFile" ? match.assignmentTargetProjectPath : ""))).size === 1
+    new Set(values.map((match) => (match.kind === "externalFile" ? match.assignmentProjectPath : ""))).size === 1
   ) {
     return values
   }
@@ -245,14 +269,10 @@ function resolveCompatibleMatches(matches: readonly ResolvedMatch[]): ResolvedMa
 
 function resolvedMatchKey(match: ResolvedMatch): string {
   if (match.kind === "ignore") return "ignore"
-  if (match.kind === "assignment") {
-    return `${match.kind}\0${match.targetProjectPath}\0${match.route.role}\0${match.route.itemType}\0${assignmentInputRole(match.route)}`
+  if (match.kind === "xmlDocument") {
+    return `${match.kind}\0${match.assignmentProjectPath}\0${match.assignment.role}\0${match.assignment.itemRule.itemType}\0${match.node.read?.inputRole ?? match.node.role}`
   }
-  return `${match.kind}\0${match.targetProjectPath}\0${match.assignmentTargetProjectPath}`
-}
-
-function assignmentInputRole(route: Extract<XmlImportRoute, { kind: "assignment" }>): ImportXmlInput["role"] {
-  return route.inputRole ?? (route.role === "fileItem" || route.source.kind === "itemRule" ? "metadata" : "property")
+  return `${match.kind}\0${match.projectPath}\0${match.assignmentProjectPath}`
 }
 
 function assertUnique<T>(items: readonly T[], key: (item: T) => string, message: string): void {

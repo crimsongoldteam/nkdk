@@ -31,8 +31,6 @@ export const DendrogramFieldRules = {
     }),
     dataPath: dataPathRule({
       yaml: "ПутьКДанным",
-      toYAML: false,
-      fromYAML: false,
       defaultType: "Dendrogram",
     }),
     ...formFieldCommonProperties,

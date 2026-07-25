@@ -5,6 +5,7 @@ import { V8_MDCLASSES_ROOT } from "../../orchestration/appliedObject/presets"
 import type { MetadataItemRule } from "../../orchestration/property/types"
 import { commonBasedOnObjectPaths } from "../metadataTargets"
 import { externalDataSourceObjectServiceProperties } from "../metadataExternalDataSourceField/rules"
+import { characteristicsDescriptionsRule } from "../characteristicsDescription/types"
 
 const properties = ["Properties"]
 const childObjects = ["ChildObjects"]
@@ -139,13 +140,12 @@ const tableProperties = {
     xmlParents: properties,
     defaultValueXMLRaw: { "_xsi:nil": true },
   },
-  characteristics: {
+  characteristics: characteristicsDescriptionsRule({
     yaml: "Характеристики",
     xml: "Characteristics",
-    type: "CharacteristicsDescriptions",
     xmlParents: properties,
-    defaultValueXMLRaw: "",
-  },
+    defaultValueXMLRaw: {},
+  }),
   useStandardCommands: {
     yaml: "ИспользоватьСтандартныеКоманды",
     xml: "UseStandardCommands",

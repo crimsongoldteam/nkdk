@@ -49,7 +49,11 @@ try {
 
     const result = await client.callTool({
       name: "nkdk.get_schema",
-      arguments: { target: "InputField", keys: true },
+      arguments: {
+        projectDir: tmpRoot,
+        metadataRef: "InputField",
+        keys: true,
+      },
     })
     if (result.isError) throw new Error("nkdk.get_schema returned MCP error")
   } finally {

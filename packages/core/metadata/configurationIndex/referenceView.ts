@@ -1,11 +1,19 @@
 import type { ConfigurationContextWithExportToXML } from "../context/types"
 import type { ConfigurationIndexAddressingMode } from "../orchestration/property/types"
-import { childSegmentUid, childUid } from "./logicalAddress"
+import { childSegmentUid, childUid, yamlIndexUid, yamlKeyUid } from "./logicalAddress"
 
 export function getConfigurationIndexPropertyOrder(
   context: ConfigurationContextWithExportToXML | undefined
 ): readonly string[] {
   return context?.exportToXML.configurationIndex?.xmlNode()?.order ?? []
+}
+
+export function getConfigurationIndexXmlName(
+  context: ConfigurationContextWithExportToXML | undefined
+): string | undefined {
+  const runtime = context?.exportToXML.configurationIndex
+  if (runtime === undefined) return undefined
+  return runtime.identity("xmlName") ?? runtime.xmlNode(runtime.logicalAddress)?.aliases?.["_name"]
 }
 
 export function getConfigurationIndexXmlNodeLogicalAddress(
@@ -37,6 +45,13 @@ export function getConfigurationIndexPropertyXmlValue(
   const runtime = context?.exportToXML.configurationIndex
   if (runtime === undefined) return undefined
   return runtime.xmlValue(`${runtime.logicalAddress}.${propertyKey}`)
+}
+
+export function isConfigurationIndexPropertyExcludedEqualName(
+  context: ConfigurationContextWithExportToXML | undefined,
+  propertyKey: string
+): boolean {
+  return getConfigurationIndexPropertyXmlValue(context, propertyKey)?.excludedEqualName === true
 }
 
 export function getConfigurationIndexPropertyReferenceXMLValue(
@@ -73,6 +88,35 @@ export function withConfigurationIndexExportLogicalAddress(
     exportToXML: {
       ...context.exportToXML,
       configurationIndex: runtime.withLogicalAddress(logicalAddress),
+    },
+  }
+}
+
+export function withConfigurationIndexExportYamlCollectionItemContext(
+  context: ConfigurationContextWithExportToXML,
+  params: { index: number; yamlKey?: string; yamlAsArray?: true }
+): ConfigurationContextWithExportToXML {
+  const runtime = context.exportToXML.configurationIndex
+  if (runtime === undefined || runtime.yamlPathAddressing !== true) return context
+  return withConfigurationIndexExportLogicalAddress(
+    context,
+    params.yamlAsArray === true || params.yamlKey === undefined
+      ? yamlIndexUid(runtime.logicalAddress, params.index)
+      : yamlKeyUid(runtime.logicalAddress, params.yamlKey)
+  )
+}
+
+export function withConfigurationIndexExportXmlNodeLogicalAddress(
+  context: ConfigurationContextWithExportToXML,
+  xmlNodeLogicalAddress: string
+): ConfigurationContextWithExportToXML {
+  const runtime = context.exportToXML.configurationIndex
+  if (runtime === undefined) return context
+  return {
+    ...context,
+    exportToXML: {
+      ...context.exportToXML,
+      configurationIndex: runtime.withXmlNodeLogicalAddress(xmlNodeLogicalAddress),
     },
   }
 }

@@ -5,11 +5,14 @@ import { NKDK_CORE_VERSION } from "../../version"
 import {
   componentPath,
   configurationIndexPath,
+  encodeConfigurationIndexFragments,
   hashConfigurationProjectFileList,
+  mergeConfigurationIndexFragments,
   writeConfigurationIndexAtomically,
   type ComponentAddress,
   type ConfigurationIndexData,
   type ConfigurationProjectFile,
+  type ConfigurationIndexFragment,
 } from "../configurationIndex"
 import type { ConfigurationContextFromXML } from "../context/types"
 import { serializeSharedValidationSnapshot } from "../validation/persistedSharedValidationSnapshot"
@@ -17,6 +20,8 @@ import { createOperationProfiler } from "../validation/profile"
 import type { ValidationIndexContribution } from "../validation/projectValidationTypes"
 import type { SharedValidationSnapshot } from "../validation/sharedValidationSnapshot"
 import type { ConfigurationLocalDependency } from "../configurationIndex/types"
+import { getMetadataSnapshotImportCapability } from "../resourceTopology/capabilities"
+import { compileRegisteredMetadataResourceTopology } from "../resourceTopology/registry"
 import {
   buildComponentReferenceSnapshot,
   createLayeredImportReferenceSnapshot,
@@ -30,13 +35,12 @@ import {
   readXmlImportComponentRoot,
 } from "./discovery"
 import { createImportSharedValidationSnapshot } from "./metadataSnapshot"
-import { describeXmlImportComponentRoutes } from "./routes"
 import { copyXmlImportExternalFiles, mergeImportResultFiles } from "./transfer"
 import type {
   ImportAssignment,
   ImportDiagnostic,
   ImportResultFile,
-  XmlImportRoute,
+  ImportSnapshotFile,
 } from "./types"
 import {
   createXmlImportWorkerPool,
@@ -66,9 +70,13 @@ export interface ImportConfigurationFromXmlParams {
 
 export interface ImportCoordinatorDependencies {
   createWorkerPool(params: { concurrency: number }): XmlImportWorkerPool
-  discover(params: { xmlDir: string; routes: readonly XmlImportRoute[] }): Promise<{
-    assignments: ImportAssignment[]
-  }>
+  discover(params: {
+    xmlDir: string
+  }): Promise<{ assignments: ImportAssignment[]; snapshotFiles?: ImportSnapshotFile[] }>
+  collectSnapshotFragments?(params: {
+    context: ConfigurationContextFromXML
+    files: readonly ImportSnapshotFile[]
+  }): Promise<ConfigurationIndexFragment[]>
   createSharedMetadata(contribution: ValidationIndexContribution): SharedValidationSnapshot
   buildComponentReferenceSnapshot(params: {
     componentDir: string
@@ -95,7 +103,10 @@ export interface ImportCoordinatorDependencies {
 
 const defaultImportDependencies: ImportCoordinatorDependencies = {
   createWorkerPool: createXmlImportWorkerPool,
-  discover: discoverXmlImport,
+  async discover({ xmlDir }) {
+    return discoverXmlImport({ xmlDir, topology: compileRegisteredMetadataResourceTopology() })
+  },
+  collectSnapshotFragments,
   createSharedMetadata: createImportSharedValidationSnapshot,
   buildComponentReferenceSnapshot,
   mergeFiles: mergeImportResultFiles,
@@ -139,7 +150,6 @@ export async function importConfigurationFromXml(
       concurrency,
       profiler,
     })
-    const routes = describeXmlImportComponentRoutes(descriptor)
     pool =
       params.xmlImportWorkerPoolHandle?.createOperationPool() ??
       deps.createWorkerPool({ concurrency })
@@ -148,7 +158,7 @@ export async function importConfigurationFromXml(
       "Подготовка импорта конфигурации",
       "Поиск XML-файлов выгрузки",
       {},
-      () => deps.discover({ xmlDir: params.inputDir, routes })
+      () => deps.discover({ xmlDir: params.inputDir })
     )
     profiler.record("Подготовка импорта конфигурации", "Формирование и распределение заданий импорта", {
       items: discovered.assignments.length,
@@ -178,6 +188,16 @@ export async function importConfigurationFromXml(
     if (hasErrors(first.diagnostics)) {
       return failedResult(first.diagnostics, [], resolvedComponentPath)
     }
+    const snapshotFragments = await (deps.collectSnapshotFragments ?? collectSnapshotFragments)({
+      context: params.context,
+      files: discovered.snapshotFiles ?? [],
+    })
+    const fragmentData = mergeConfigurationIndexFragments([
+      encodeConfigurationIndexFragments([
+        { targetProjectPath: "worker", ...first.fragmentData },
+        ...snapshotFragments,
+      ]),
+    ])
 
     profiler.record("Подготовка импорта конфигурации", "Обобщение фрагментов данных файла индекса конфигурации", {
       items: discovered.assignments.length,
@@ -251,9 +271,9 @@ export async function importConfigurationFromXml(
           producerVersion: NKDK_CORE_VERSION,
           componentPath: selectedComponentPath,
           projectFiles,
-          fragmentData: first.fragmentData,
+          fragmentData,
           localSnapshot,
-          localDependencies: first.fragmentData.localDependencies,
+          localDependencies: fragmentData.localDependencies,
         })
     )
     await profiler.measureAsync(
@@ -278,6 +298,25 @@ export async function importConfigurationFromXml(
     profiler.flush()
     await pool?.close()
   }
+}
+
+async function collectSnapshotFragments(params: {
+  context: ConfigurationContextFromXML
+  files: readonly ImportSnapshotFile[]
+}): Promise<ConfigurationIndexFragment[]> {
+  return Promise.all(
+    params.files.map(async (file) => {
+      const capability = getMetadataSnapshotImportCapability(file.capabilityId)
+      if (capability === undefined) {
+        throw new Error(`Не зарегистрирована возможность дополнения снимка: ${file.capabilityId}`)
+      }
+      return capability.run({
+        context: params.context,
+        sourcePath: file.sourcePath,
+        targetProjectPath: file.targetProjectPath,
+      })
+    })
+  )
 }
 
 async function buildBaseSnapshot(params: {
@@ -366,7 +405,9 @@ function buildImportedConfigurationIndex(params: {
   producerVersion: string
   componentPath: string
   projectFiles: readonly ConfigurationProjectFile[]
-  fragmentData: Pick<ConfigurationIndexData, "identities" | "xmlNodes" | "xmlValues">
+  fragmentData: Pick<ConfigurationIndexData, "identities" | "xmlNodes" | "xmlValues"> & {
+    localDependencies: readonly ConfigurationLocalDependency[]
+  }
   localSnapshot: SharedValidationSnapshot
   localDependencies: readonly ConfigurationLocalDependency[]
 }): ConfigurationIndexData {

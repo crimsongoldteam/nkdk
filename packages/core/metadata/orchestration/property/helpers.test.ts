@@ -1,4 +1,5 @@
 import { describe, expect, it } from "vitest"
+import { createDirectRoundTripContexts, testPropertyFromXMLToYAML } from "../../../tests/directConversion"
 import { getOrderedKeysFromXML, getOrderedKeysToXML, shouldProcessProperty, XML_SOURCE_KEYS } from "./helpers"
 
 const createRule = (
@@ -13,10 +14,13 @@ const createRule = (
       filePath?: string
       order?: number
       toXML?: false
+      yaml?: string
+      forReferenceOnly?: true
     }
   >
 ): any => {
   return {
+    itemType: "TestDirectItem",
     // Остальное для этих тестов не важно, используются только свойства
     properties: Object.fromEntries(
       Object.entries(properties).map(([name, rule]) => [
@@ -142,6 +146,20 @@ describe("getOrderedKeysFromXML", () => {
 })
 
 describe("getOrderedKeysToXML", () => {
+  const contextWithImportedOrder = (rule: any) => {
+    const contexts = createDirectRoundTripContexts({ logicalAddress: "Справочник.Товары" })
+    testPropertyFromXMLToYAML({
+      context: contexts.importContext,
+      rule,
+      xml: {
+        InternalInfo: {},
+        Properties: { Name: "Товары" },
+        ChildObjects: { Resource: "Ресурс1" },
+      },
+    })
+    return contexts.exportContext()
+  }
+
   it("без reference ставит InternalInfo перед ordered Properties и ChildObjects", () => {
     const rule = createRule({
       name: { xml: "Name", xmlParents: ["Properties"], order: 1 },
@@ -189,6 +207,39 @@ describe("getOrderedKeysToXML", () => {
     })
 
     expect(result).toEqual(["name", "internalInfo", "dimensions"])
+  })
+
+  it("восстанавливает полный порядок свойств из снимка без reference", () => {
+    const rule = createRule({
+      resources: { xml: "Resource", xmlParents: ["ChildObjects"], order: 3 },
+      name: { xml: "Name", xmlParents: ["Properties"], order: 1, yaml: "Имя" },
+      internalInfo: { xml: "InternalInfo", forReferenceOnly: true },
+    })
+
+    expect(
+      getOrderedKeysToXML({
+        context: contextWithImportedOrder(rule),
+        rule,
+        referenceMetadata: undefined,
+      })
+    ).toEqual(["internalInfo", "name", "resources"])
+  })
+
+  it("вставляет новое свойство по rules.ts без перестановки существовавших", () => {
+    const rule = createRule({
+      resources: { xml: "Resource", xmlParents: ["ChildObjects"], order: 3 },
+      synonym: { xml: "Synonym", xmlParents: ["Properties"], order: 2, yaml: "Синоним" },
+      name: { xml: "Name", xmlParents: ["Properties"], order: 1, yaml: "Имя" },
+      internalInfo: { xml: "InternalInfo", forReferenceOnly: true },
+    })
+
+    expect(
+      getOrderedKeysToXML({
+        context: contextWithImportedOrder(rule),
+        rule,
+        referenceMetadata: undefined,
+      })
+    ).toEqual(["internalInfo", "name", "synonym", "resources"])
   })
 })
 

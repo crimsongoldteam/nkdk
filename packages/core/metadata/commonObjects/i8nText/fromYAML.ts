@@ -10,10 +10,15 @@ export const importI8nTextFromYAML: ImportFromYAMLFunctionNew = (params: {
   value: I8nTextYAML | undefined
   source?: I8nText | undefined
   name?: string
+  restoreExcludedEqualName?: boolean
 }): I8nText | undefined => {
-  const { context, rule, value, source, name } = params
+  const { context, rule, value, source, name, restoreExcludedEqualName } = params
   const i8nRule = rule as I8nTextPropertyRule
-  if (source === undefined && value === undefined) return undefined
+  if (source === undefined && value === undefined) {
+    return restoreExcludedEqualName === true && i8nRule.excludeIfEqualNameYAML && name !== undefined
+      ? addDefaultLanguageNameToSynonym(context, undefined, name)
+      : undefined
+  }
 
   const result: I8nText = {
     items: {},

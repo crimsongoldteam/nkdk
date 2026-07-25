@@ -102,6 +102,7 @@ export const fullPDFDocumentFieldEnterprise = {
 } satisfies Required<PDFDocumentFieldEnterprise>
 
 export const fullPDFDocumentFieldPartialYAML = {
+  ПутьКДанным: "Реквизит",
   АвтоМаксимальнаяВысота: "Ложь",
   АвтоМаксимальнаяШирина: "Ложь",
   Вывод: "Разрешить",

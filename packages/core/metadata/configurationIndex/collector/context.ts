@@ -10,6 +10,7 @@ export interface ConfigurationIndexCollectionContext {
   readonly formElementRootLogicalAddress?: string
   readonly childCollectionUidSegment?: string
   readonly yamlPathAddressing?: true
+  readonly propertyValueLogicalAddress?: string
 }
 
 export function withConfigurationIndexCollector(
@@ -100,7 +101,7 @@ export function runWithConfigurationIndexPropertyContext<T>(
   propertyName: string,
   childCollectionUidSegment: string | undefined,
   run: (context: ConfigurationContextFromXML) => T,
-  options: { configurationIndexAddressing?: ConfigurationIndexAddressingMode } = {}
+  options: { configurationIndexAddressing?: ConfigurationIndexAddressingMode; propertyKey?: string } = {}
 ): T {
   const collection = getConfigurationIndexCollectionContext(context)
   if (collection === undefined) return run(context)
@@ -112,18 +113,33 @@ export function runWithConfigurationIndexPropertyContext<T>(
     propertyName,
     options.configurationIndexAddressing
   )
+  const {
+    childCollectionUidSegment: _parentCollectionSegment,
+    propertyValueLogicalAddress: _parentPropertyValueLogicalAddress,
+    ...propertyCollection
+  } = collection
   context.fromXML.configurationIndex = {
-    ...collection,
+    ...propertyCollection,
     ...(useYamlPath ? { logicalAddress: propertyAddress } : {}),
     xmlNodeLogicalAddress: propertyAddress,
     ...(useYamlPath ? { yamlPathAddressing: true as const } : {}),
     ...(childCollectionUidSegment === undefined ? {} : { childCollectionUidSegment }),
+    ...(options.propertyKey === undefined
+      ? {}
+      : { propertyValueLogicalAddress: `${collection.logicalAddress}.${options.propertyKey}` }),
   }
   try {
     return run(context)
   } finally {
     context.fromXML.configurationIndex = previous
   }
+}
+
+export function getConfigurationIndexPropertyValueLogicalAddress(
+  collection: ConfigurationIndexCollectionContext,
+  propertyKey: string
+): string {
+  return collection.propertyValueLogicalAddress ?? `${collection.logicalAddress}.${propertyKey}`
 }
 
 export function getConfigurationIndexPropertyLogicalAddress(

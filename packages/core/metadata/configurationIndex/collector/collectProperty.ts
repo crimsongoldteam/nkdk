@@ -8,6 +8,7 @@ export function collectConfigurationIndexIdentityFromXML(params: {
   sourceXmlKey: string | undefined
   xmlValue: unknown
   reconstructibleXmlName?: string
+  descriptor?: ConfigurationIndexValueFromXMLDescriptor
 }): void {
   const collection = getConfigurationIndexCollectionContext(params.context)
   if (collection === undefined || typeof params.xmlValue !== "string") return
@@ -17,14 +18,19 @@ export function collectConfigurationIndexIdentityFromXML(params: {
     return
   }
   if (params.sourceXmlKey === "_id") {
-    collection.collector.setXmlId(collection.logicalAddress, params.xmlValue)
+    if (params.descriptor?.identityKind === "uuid") {
+      collection.collector.setUuid(collection.logicalAddress, params.xmlValue)
+    } else {
+      collection.collector.setXmlId(collection.logicalAddress, params.xmlValue)
+    }
     return
   }
   if (
     params.sourceXmlKey === "_name" &&
     !isNameReconstructible(collection.logicalAddress, params.xmlValue, params.reconstructibleXmlName)
   ) {
-    collection.collector.setXmlName(collection.logicalAddress, params.xmlValue)
+    if (params.xmlValue.length === 0) collection.collector.setAlias(collection.logicalAddress, "_name", "")
+    else collection.collector.setXmlName(collection.logicalAddress, params.xmlValue)
   }
 }
 
@@ -49,6 +55,10 @@ export function collectConfigurationIndexPropertyFromXML(params: {
     !ruleRepresentsXsiNil(params.rule)
   ) {
     collection.collector.setXsiNil(address)
+  }
+  if (params.descriptor?.xsiTypeWhenNotRepresentable === true) {
+    const xsiType = getUnrepresentedXsiType(params.xmlValue)
+    if (xsiType !== undefined) collection.collector.setXsiType(address, xsiType)
   }
 }
 
@@ -80,6 +90,12 @@ function isRecord(value: unknown): value is Record<string, unknown> {
 function hasXsiNil(value: unknown): boolean {
   if (!isRecord(value)) return false
   return value["_xsi:nil"] === true || value["_xsi:nil"] === "true"
+}
+
+function getUnrepresentedXsiType(value: unknown): string | undefined {
+  if (!isRecord(value) || Object.keys(value).some((key) => key !== "_xsi:type")) return undefined
+  const xsiType = value["_xsi:type"]
+  return typeof xsiType === "string" ? xsiType : undefined
 }
 
 function ruleRepresentsXsiNil(rule: PropertyRule): boolean {

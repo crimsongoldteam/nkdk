@@ -1,10 +1,8 @@
 import fs from "fs"
 import { basename, dirname, join } from "path"
 import { convertFormFromXML } from "../../forms/clientApplicationForm/convertFromXML"
-import { describeFormItemXmlImportRoutes } from "../../forms/clientApplicationForm/externalItemFiles"
 import { registerTypeRule } from "../../orchestration/property/typeRuleRegistry"
 import type { SyncExternalFromXMLFunction } from "../../orchestration/property/fn"
-import type { ChildFormNamesPropertyRule } from "./types"
 import { importContentFromXML } from "../../../xml/import/importer"
 
 /**
@@ -69,69 +67,3 @@ async function copyFormHelpFromXML(params: { formsDir: string; nkdkDir: string; 
 }
 
 registerTypeRule("ChildFormNames", "syncExternalFromXML", syncChildFormNamesFromXML)
-registerTypeRule("ChildFormNames", "xmlImportRoutes", ({ propertyRule }) => {
-  const folderName = (propertyRule as ChildFormNamesPropertyRule | undefined)?.folderName ?? "Формы"
-  const assignmentTargetPattern = `${folderName}/{itemName}/Форма.yaml`
-  return [
-    {
-      kind: "assignment",
-      xmlPattern: "Forms/{itemName}.xml",
-      targetPattern: assignmentTargetPattern,
-      role: "fileItem",
-      itemType: "ClientApplicationForm",
-      source: { kind: "propertyType", type: "ChildFormNames" },
-    },
-    {
-      kind: "assignment",
-      xmlPattern: "Forms/{itemName}/Ext/Form.xml",
-      targetPattern: assignmentTargetPattern,
-      role: "fileItem",
-      inputRole: "body",
-      itemType: "ClientApplicationForm",
-      source: { kind: "propertyType", type: "ChildFormNames" },
-    },
-    {
-      kind: "externalFile",
-      xmlPattern: "Forms/{itemName}/Ext/Form/Module.bsl",
-      targetPattern: `${folderName}/{itemName}/Модуль.bsl`,
-      assignmentTargetPattern,
-      source: { kind: "propertyType", type: "ChildFormNames" },
-    },
-    {
-      kind: "assignment",
-      xmlPattern: "Forms/{itemName}/Ext/Help.xml",
-      targetPattern: assignmentTargetPattern,
-      role: "fileItem",
-      inputRole: "property",
-      itemType: "ClientApplicationForm",
-      source: { kind: "propertyType", type: "ChildFormNames" },
-    },
-    {
-      kind: "externalFile",
-      xmlPattern: "Forms/{itemName}/Ext/Help/{relativePath...}",
-      targetPattern: `${folderName}/{itemName}/Справка/{relativePath...}`,
-      assignmentTargetPattern,
-      selection: {
-        manifestPattern: "Forms/{itemName}/Ext/Help.xml",
-        listPath: ["Help", "Page"],
-        candidateParameter: "relativePath",
-        candidateSuffix: ".html",
-        alwaysIncludePrefixes: ["_files/"],
-      },
-      source: { kind: "propertyType", type: "ChildFormNames" },
-    },
-    ...describeFormItemXmlImportRoutes({
-      xmlFormDirPattern: "Forms/{itemName}/Ext",
-      targetFormDirPattern: `${folderName}/{itemName}`,
-      assignmentTargetPattern,
-    }),
-    {
-      kind: "externalFile",
-      xmlPattern: "Forms/{itemName}/Ext/{relativePath...}",
-      targetPattern: `${folderName}/{itemName}/{relativePath...}`,
-      assignmentTargetPattern,
-      fallback: true,
-      source: { kind: "propertyType", type: "ChildFormNames" },
-    },
-  ]
-})

@@ -33,7 +33,7 @@ const commonAttributeProperties = {
     order: 2,
     defaultValueXMLEmpty: { items: {} },
     defaultValueXMLRaw: "",
-    emptyAsRawXML: true,
+    preserveEmptyXML: true,
   },
   comment: {
     yaml: "Комментарий",

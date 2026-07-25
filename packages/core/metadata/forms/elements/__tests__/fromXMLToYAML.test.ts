@@ -67,6 +67,23 @@ describe("элементы формы XML → YAML → XML", () => {
       },
     }).xml
 
+    if (typeof xml.DataPath === "string" && rule.properties.dataPath?.yaml !== undefined) {
+      expect(yaml).toMatchObject({ [rule.properties.dataPath.yaml]: xml.DataPath })
+      const withoutReference = testMetadataItemFromYAMLToXML({
+        rule,
+        yaml,
+        name,
+        context: {
+          ...exportContext,
+          exportToXML: {
+            ...exportContext.exportToXML,
+            configurationIndex: configurationIndex.withFormElementRootLogicalAddress(formLogicalAddress),
+          },
+        },
+      }).xml
+      expect(withoutReference.DataPath).toBe(xml.DataPath)
+    }
+
     expect(withoutDeclaration(xmlExport({ [xmlTag]: result }, false))).toBe(fs.readFileSync(fixture, "utf8").trim())
   })
 })

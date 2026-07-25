@@ -9,9 +9,13 @@ import type { MetadataItemRule } from "../orchestration/property/types"
 import type { ConfigurationIndexCollector } from "../configurationIndex/collector/writer"
 import type { YAMLToXMLProfile } from "../orchestration/property/fromYAMLToXMLTypes"
 
-export interface FullXmlSyncOutput {
+export interface FullXmlSyncPotentialOutput {
+  readonly declarationId: string
   readonly targetXmlPath: string
-  readonly routeKind: "owner" | "fileItem"
+  readonly role: "metadata" | "body" | "property"
+  readonly required: boolean
+  readonly prepareCapabilityId: string
+  readonly propertyName?: string
 }
 
 export interface FullXmlSyncAssignment {
@@ -23,13 +27,16 @@ export interface FullXmlSyncAssignment {
   readonly itemName: string
   readonly logicalAddress: string
   readonly owner?: { readonly itemType: string; readonly name: string; readonly logicalAddress: string }
-  readonly outputs: readonly FullXmlSyncOutput[]
+  readonly nodeId: string
+  readonly potentialOutputs: readonly FullXmlSyncPotentialOutput[]
 }
 
 export interface FullXmlSyncExternalFile {
+  readonly assignmentId?: string
   readonly sourceProjectPath: string
   readonly sourcePath: string
   readonly targetXmlPath: string
+  readonly transferCapabilityId?: string
 }
 
 export interface FullXmlSyncPlan {
@@ -66,6 +73,7 @@ export interface FullXmlSyncWrittenFile {
 }
 
 export interface PreparedXMLDocument {
+  readonly declarationId?: string
   readonly targetXmlPath: string
   readonly xml: Record<string, unknown>
   readonly deferred: readonly DeferredObjectValue[]
@@ -96,11 +104,23 @@ export type FullXmlSyncWorkerCommand =
     }
   | { readonly kind: "dispose" }
 
+export interface FullXmlSyncExpectedOutput {
+  readonly assignmentId: string
+  readonly targetXmlPath: string
+}
+
+export interface FullXmlSyncCopiedFile {
+  readonly assignmentId?: string
+  readonly sourceProjectPath: string
+  readonly targetXmlPath: string
+}
+
 export interface FullXmlSyncFirstPassResult {
   readonly kind: "firstPassResult"
   readonly diagnostics: readonly FullXmlSyncDiagnostic[]
   readonly projectFiles: readonly ConfigurationProjectFile[]
   readonly ownerFacts: readonly FullXmlSyncOwnerFacts[]
+  readonly expectedOutputs?: readonly FullXmlSyncExpectedOutput[]
 }
 
 export interface FullXmlSyncSecondPassResult {

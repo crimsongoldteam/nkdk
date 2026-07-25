@@ -1,0 +1,141 @@
+import { ClientApplicationFormRules } from "../../forms/clientApplicationForm/rules"
+import type { MetadataResourceDeclaration } from "../../resourceTopology/types"
+import { registerTypeRule } from "../../orchestration/property/typeRuleRegistry"
+import type { ChildFormNamesPropertyRule } from "./types"
+import { describeFormExternalResourceDeclarations } from "../../forms/clientApplicationForm/externalItemFiles"
+import fs from "fs"
+import { dirname, join } from "path"
+import { registerMetadataXmlPrepareCapability } from "../../resourceTopology/capabilities"
+
+registerTypeRule("ChildFormNames", "resourceTopology", ({ propertyRule }) => {
+  const folderName = (propertyRule as ChildFormNamesPropertyRule | undefined)?.folderName ?? "Формы"
+  const assignmentProjectPattern = `${folderName}/{itemName}/Форма.yaml`
+  const source = { kind: "property" as const, description: "ChildFormNames" }
+  const declarations: MetadataResourceDeclaration[] = [
+    {
+      kind: "content",
+      projectPattern: assignmentProjectPattern,
+      role: "fileItem",
+      required: true,
+      repeatable: true,
+      compositionImpact: "none",
+      itemRule: ClientApplicationFormRules,
+      logicalAddressSegment: "Форма",
+      dumpInfoNamePatterns: [
+        "{dumpRoot}.{ownerName}.Form.{itemName}",
+        "{dumpRoot}.{ownerName}.Form.{itemName}.Form",
+      ],
+      source,
+    },
+    {
+      kind: "xmlDocument",
+      assignmentProjectPattern: "",
+      xmlPattern: "Forms/{itemName}.xml",
+      role: "metadata",
+      required: true,
+      read: { inputRole: "metadata" },
+      prepareCapabilityId: "ClientApplicationForm",
+      source,
+    },
+    {
+      kind: "xmlDocument",
+      assignmentProjectPattern: "",
+      xmlPattern: "Forms/{itemName}/Ext/Form.xml",
+      role: "body",
+      required: true,
+      read: { inputRole: "body" },
+      prepareCapabilityId: "ClientApplicationForm",
+      source,
+    },
+    {
+      kind: "externalFile",
+      assignmentProjectPattern: "",
+      projectPattern: `${folderName}/{itemName}/Модуль.bsl`,
+      xmlPattern: "Forms/{itemName}/Ext/Form/Module.bsl",
+      direction: "both",
+      transferCapabilityId: "ChildFormNames",
+      dumpInfoNamePatterns: [
+        "{dumpRoot}.{ownerName}.Form.{itemName}",
+        "{dumpRoot}.{ownerName}.Form.{itemName}.Form",
+      ],
+      compositionImpact: "none",
+      source,
+    },
+    ...describeFormExternalResourceDeclarations({
+      xmlFormDirPattern: "Forms/{itemName}/Ext",
+      targetFormDirPattern: `${folderName}/{itemName}`,
+    }),
+    {
+      kind: "xmlDocument",
+      assignmentProjectPattern: "",
+      xmlPattern: "Forms/{itemName}/Ext/Help.xml",
+      role: "property",
+      required: false,
+      read: { inputRole: "property" },
+      prepareCapabilityId: "ClientApplicationFormHelp",
+      source,
+    },
+    {
+      kind: "externalFile",
+      assignmentProjectPattern: "",
+      projectPattern: `${folderName}/{itemName}/Справка/{relativePath...}`,
+      xmlPattern: "Forms/{itemName}/Ext/Help/{relativePath...}",
+      direction: "both",
+      transferCapabilityId: "ChildFormNames",
+      selection: {
+        manifestPattern: "Forms/{itemName}/Ext/Help.xml",
+        listPath: ["Help", "Page"],
+        candidateParameter: "relativePath",
+        candidateSuffix: ".html",
+        alwaysIncludePrefixes: ["_files/"],
+      },
+      compositionImpact: "none",
+      source,
+    },
+    {
+      kind: "externalFile",
+      assignmentProjectPattern: "",
+      projectPattern: `${folderName}/{itemName}/{relativePath...}`,
+      xmlPattern: "Forms/{itemName}/Ext/{relativePath...}",
+      direction: "both",
+      transferCapabilityId: "ChildFormNames",
+      fallback: true,
+      compositionImpact: "none",
+      source,
+    },
+  ]
+  return declarations
+})
+
+registerMetadataXmlPrepareCapability({
+  id: "ClientApplicationFormHelp",
+  run: ({ assignment, preparedYamlFile, outputs }) => {
+    const output = outputs.find((candidate) => candidate.role === "property")
+    if (output === undefined) return []
+    const helpDir = join(dirname(preparedYamlFile.filePath), "Справка")
+    if (!fs.existsSync(helpDir)) return []
+    const pages = fs
+      .readdirSync(helpDir)
+      .filter((file) => file.endsWith(".html"))
+      .map((file) => file.replace(/\.html$/, ""))
+      .sort((left, right) => Buffer.compare(Buffer.from(left), Buffer.from(right)))
+    if (pages.length === 0) return []
+    return [
+      {
+        declarationId: output.declarationId,
+        targetXmlPath: output.targetXmlPath,
+        xml: {
+          Help: {
+            _xmlns: "http://v8.1c.ru/8.3/xcf/extrnprops",
+            "_xmlns:xs": "http://www.w3.org/2001/XMLSchema",
+            "_xmlns:xsi": "http://www.w3.org/2001/XMLSchema-instance",
+            _version: "2.20",
+            Page: pages.length === 1 ? pages[0] : pages,
+          },
+        },
+        deferred: [],
+        rootRule: assignment.itemRule,
+      },
+    ]
+  },
+})

@@ -11,12 +11,6 @@ export {
   type ImportCoordinatorDependencies,
 } from "./importConfiguration"
 export {
-  describeRegisteredXmlImportRoutes,
-  describeXmlImportComponentRoutes,
-  expandImportPattern,
-  matchImportPattern,
-} from "./routes"
-export {
   createXmlImportWorkerPoolHandle,
   type XmlImportWorkerPool,
   type XmlImportWorkerPoolHandle,
@@ -28,6 +22,6 @@ export type {
   ImportExternalFile,
   ImportIgnoredFile,
   ImportResultFile,
+  ImportSnapshotFile,
   ImportXmlInput,
-  XmlImportRoute,
 } from "./types"

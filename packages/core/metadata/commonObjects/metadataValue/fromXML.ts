@@ -115,6 +115,7 @@ export const importMetadataSimpleValueFromXML = (
 
 registerTypeRule("MetadataValue", "configurationIndexValueFromXML", {
   xsiNilWhenNotRepresentable: true,
+  xsiTypeWhenNotRepresentable: true,
 })
 
 /** @deprecated Используй importFormChoiceListFromXML из submodule formChoiceList/fromXML */

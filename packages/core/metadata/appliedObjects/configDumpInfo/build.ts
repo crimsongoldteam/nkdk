@@ -48,7 +48,7 @@ export function buildConfigDumpInfo(params: {
   }
 
   for (const [path] of params.yamlState.nodes) {
-    if (isObjectPath(path)) continue
+    if (isTopLevelEntryPath(path)) continue
 
     const ownerPath = getOwnerPath(path)
     const ownerMapping = objectMappings.find((mapping) => mapping.currentPath === ownerPath)
@@ -93,7 +93,7 @@ function collectObjectMappings(params: {
   migrationState: StructuralState
   referencePathByCurrentPath: Map<string, string>
 }): Array<{ currentPath: string; currentDumpName: string; referenceDumpName?: string }> {
-  return [...params.yamlState.nodes.keys()].filter(isObjectPath).map((currentPath) => {
+  return [...params.yamlState.nodes.keys()].filter(isTopLevelEntryPath).map((currentPath) => {
     const currentDumpName = configDumpInfoNameFromMigrationPath(currentPath)
     const referencePath = resolveReferencePath(params, currentPath)
     const referenceDumpName = referencePath ? configDumpInfoNameFromMigrationPath(referencePath) : undefined
@@ -311,6 +311,12 @@ function orderObjectChildren(params: {
         continue
       }
 
+      const collectedId = entry.children.get(referenceChildName)
+      if (collectedId) {
+        orderedChildren.set(referenceChildName, collectedId)
+        continue
+      }
+
       if (!isManagedReferenceChild(referenceChildName, mapping.referenceDumpName)) {
         orderedChildren.set(
           remapReferenceChildName(referenceChildName, mapping),
@@ -393,6 +399,8 @@ function getOwnerPath(path: string): string {
   return path.split(".").slice(0, 2).join(".")
 }
 
-function isObjectPath(path: string): boolean {
-  return path.split(".").length === 2
+function isTopLevelEntryPath(path: string): boolean {
+  const dumpParts = configDumpInfoNameFromMigrationPath(path).split(".")
+  if (dumpParts.length === 2) return true
+  return !MANAGED_CHILD_SEGMENTS.has(dumpParts[2] ?? "")
 }

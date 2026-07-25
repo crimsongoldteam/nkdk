@@ -50,7 +50,7 @@ describe("encodeConfigurationIndex", () => {
     const values = encoded.subarray(sectionOffset, sectionOffset + sectionLength)
 
     expect(values).toHaveLength(32)
-    expect(values.readUInt32LE(4)).toBe(1 << 6)
+    expect(values.readUInt32LE(4)).toBe(1 << 7)
   })
 
   it("writes incompatible 2.0 container with eleven mandatory sections", () => {

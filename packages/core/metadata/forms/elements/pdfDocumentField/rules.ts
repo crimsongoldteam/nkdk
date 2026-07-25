@@ -54,8 +54,6 @@ export const PDFDocumentFieldRules = {
     }),
     dataPath: dataPathRule({
       yaml: "ПутьКДанным",
-      toYAML: false,
-      fromYAML: false,
       defaultType: "PDFDocument",
     }),
     ...formFieldCommonProperties,
