@@ -31,7 +31,7 @@ import { validateFullXmlSyncWrittenFiles } from "./validateWrittenFiles"
 export interface SyncConfigurationToXmlParams {
   readonly context: ConfigurationContext
   readonly projectDir?: string
-  readonly componentPath?: string
+  readonly componentPath: string
   readonly yamlDir: string
   readonly xmlDir: string
   readonly concurrency?: number
@@ -40,6 +40,7 @@ export interface SyncConfigurationToXmlParams {
 
 export interface PlanSyncConfigurationToXmlParams {
   readonly projectDir?: string
+  readonly componentPath: string
   readonly yamlDir: string
   readonly xmlDir: string
 }
@@ -103,8 +104,8 @@ export async function syncConfigurationToXml(
   params: SyncConfigurationToXmlParams,
   deps: FullXmlSyncCoordinatorDependencies = defaultDependencies
 ): Promise<FullXmlSyncResult> {
-  if (isConfigurationExtensionPath(params.componentPath)) {
-    return failedResult([unsupportedConfigurationExtensionDiagnostic()])
+  if (params.componentPath !== "cf") {
+    return failedResult([unsupportedComponentDiagnostic()])
   }
   const yamlDir = resolve(params.yamlDir)
   const projectDir = resolve(params.projectDir ?? params.yamlDir)
@@ -218,6 +219,9 @@ export async function planSyncConfigurationToXml(
   params: PlanSyncConfigurationToXmlParams,
   deps: Pick<FullXmlSyncCoordinatorDependencies, "exists" | "isDirectoryEmpty" | "discover" | "readIndexSnapshot"> = defaultDependencies
 ): Promise<FullXmlSyncPlanResult> {
+  if (params.componentPath !== "cf") {
+    return { ok: false, failed: [unsupportedComponentDiagnostic()] }
+  }
   const yamlDir = resolve(params.yamlDir)
   const projectDir = resolve(params.projectDir ?? params.yamlDir)
   const xmlDir = resolve(params.xmlDir)
@@ -320,14 +324,10 @@ function operationDiagnostic(code: string, message: string): FullXmlSyncDiagnost
   return { severity: "error", code, message }
 }
 
-function isConfigurationExtensionPath(componentPath: string | undefined): boolean {
-  return componentPath === "cfe" || componentPath?.startsWith("cfe/") === true
-}
-
-function unsupportedConfigurationExtensionDiagnostic(): FullXmlSyncDiagnostic {
+function unsupportedComponentDiagnostic(): FullXmlSyncDiagnostic {
   return operationDiagnostic(
     "full_xml_sync_component_not_supported",
-    "Синхронизация расширений конфигурации в XML пока не поддерживается"
+    "Полная синхронизация в XML поддерживает только компонент cf"
   )
 }
 

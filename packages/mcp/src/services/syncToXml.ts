@@ -28,6 +28,7 @@ type ConfigDumpInfo = Map<
 interface SyncToXmlDeps {
   planSyncToXml?: (params: {
     projectDir: string
+    componentPath: string
     yamlDir: string
     xmlDir: string
   }) => Promise<unknown>
@@ -49,7 +50,7 @@ interface SyncToXmlDeps {
       }
     }
     projectDir: string
-    componentPath?: string
+    componentPath: string
     yamlDir: string
     xmlDir: string
     concurrency?: number
@@ -84,6 +85,7 @@ export async function syncToXml(input: SyncToXmlInput, deps?: SyncToXmlDeps): Pr
       if (!core.planSyncToXml) return toolError("core_error", "План XML-синхронизации недоступен")
       const result = await core.planSyncToXml({
         projectDir: component.projectDir,
+        componentPath: component.componentPath,
         yamlDir: component.componentDir,
         xmlDir: input.xmlDir,
       })

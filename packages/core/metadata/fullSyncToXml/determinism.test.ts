@@ -28,12 +28,14 @@ describe("full XML sync determinism", () => {
 
     const first = await syncConfigurationToXml({
       context: mockContextToXML(),
+      componentPath: "cf",
       yamlDir: projectOne,
       xmlDir: outOne,
       concurrency: 1,
     })
     const second = await syncConfigurationToXml({
       context: mockContextToXML(),
+      componentPath: "cf",
       yamlDir: projectTwo,
       xmlDir: outTwo,
       concurrency: 2,

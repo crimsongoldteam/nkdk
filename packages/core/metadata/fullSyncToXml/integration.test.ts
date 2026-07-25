@@ -25,6 +25,7 @@ describe("full XML sync integration", () => {
     const synced = await syncConfigurationToXml(
       {
         context: mockContextToXML(),
+        componentPath: "cf",
         yamlDir,
         xmlDir: outDir,
         concurrency: 1,
@@ -71,6 +72,7 @@ describe("full XML sync integration", () => {
       {
         context: mockContextToXML(),
         projectDir,
+        componentPath: "cf",
         yamlDir,
         xmlDir: outDir,
         concurrency: 1,

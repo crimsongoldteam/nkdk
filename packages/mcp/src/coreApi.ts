@@ -108,6 +108,7 @@ export interface CoreApi {
   }): Promise<MetadataOperationResult>
   planSyncToXml(params: {
     projectDir?: string
+    componentPath: string
     yamlDir: string
     xmlDir: string
   }): Promise<FullXmlSyncPlanResult>
@@ -130,7 +131,7 @@ export interface CoreApi {
       }
     }
     projectDir?: string
-    componentPath?: string
+    componentPath: string
     yamlDir: string
     xmlDir: string
     concurrency?: number

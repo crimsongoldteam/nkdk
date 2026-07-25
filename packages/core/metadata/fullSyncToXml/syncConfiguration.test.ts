@@ -12,7 +12,13 @@ import type {
   FullXmlSyncExternalFile,
   FullXmlSyncOwnerFacts,
 } from "./types"
-import { syncConfigurationToXml, type FullXmlSyncCoordinatorDependencies } from "./syncConfiguration"
+import {
+  planSyncConfigurationToXml,
+  syncConfigurationToXml,
+  type FullXmlSyncCoordinatorDependencies,
+  type PlanSyncConfigurationToXmlParams,
+  type SyncConfigurationToXmlParams,
+} from "./syncConfiguration"
 import type {
   FullXmlSyncFirstPassPoolResult,
   FullXmlSyncSecondPassPoolResult,
@@ -22,10 +28,55 @@ import type {
 describe("syncConfigurationToXml", () => {
   const context = { version: "2.20", defaultLanguage: "ru", exportToYAML: { toTyped: false } } as const
 
+  it.each([undefined, "cfe/Расширение", "erf/Отчёт"])(
+    "rejects component identity %s before apply reads or writes anything",
+    async (componentPath) => {
+      const harness = createHarness()
+      const result = await syncConfigurationToXml(
+        {
+          context,
+          componentPath,
+          yamlDir: "/project/cfe/Расширение",
+          xmlDir: "/out",
+        } as SyncConfigurationToXmlParams,
+        harness.deps
+      )
+
+      expect(result.failed).toEqual([
+        expect.objectContaining({ code: "full_xml_sync_component_not_supported", severity: "error" }),
+      ])
+      expect(harness.events).toEqual([])
+      expect(harness.writtenIndex).toBeUndefined()
+    }
+  )
+
+  it.each([undefined, "cfe/Расширение", "erf/Отчёт"])(
+    "rejects component identity %s before plan reads anything",
+    async (componentPath) => {
+      const harness = createHarness()
+      const result = await planSyncConfigurationToXml(
+        {
+          componentPath,
+          yamlDir: "/project/cfe/Расширение",
+          xmlDir: "/out",
+        } as PlanSyncConfigurationToXmlParams,
+        harness.deps
+      )
+
+      expect(result).toEqual({
+        ok: false,
+        failed: [
+          expect.objectContaining({ code: "full_xml_sync_component_not_supported", severity: "error" }),
+        ],
+      })
+      expect(harness.events).toEqual([])
+    }
+  )
+
   it("runs the full operation in order and writes the new configuration index last", async () => {
     const harness = createHarness()
     const result = await syncConfigurationToXml(
-      { context, yamlDir: "/project", xmlDir: "/out", concurrency: 2 },
+      { context, componentPath: "cf", yamlDir: "/project", xmlDir: "/out", concurrency: 2 },
       harness.deps
     )
 
@@ -71,7 +122,10 @@ describe("syncConfigurationToXml", () => {
 
   it("does not create workers or write files when the target directory is not empty", async () => {
     const harness = createHarness({ xmlExists: true, xmlEmpty: false })
-    const result = await syncConfigurationToXml({ context, yamlDir: "/project", xmlDir: "/out" }, harness.deps)
+    const result = await syncConfigurationToXml(
+      { context, componentPath: "cf", yamlDir: "/project", xmlDir: "/out" },
+      harness.deps
+    )
 
     expect(result.failed).toEqual([
       expect.objectContaining({ code: "full_xml_sync_target_not_empty", severity: "error" }),
@@ -83,7 +137,10 @@ describe("syncConfigurationToXml", () => {
   it("stops after first-pass errors and keeps the previous index", async () => {
     const error: FullXmlSyncDiagnostic = { severity: "error", code: "yaml", message: "bad yaml" }
     const harness = createHarness({ firstPassDiagnostics: [error] })
-    const result = await syncConfigurationToXml({ context, yamlDir: "/project", xmlDir: "/out" }, harness.deps)
+    const result = await syncConfigurationToXml(
+      { context, componentPath: "cf", yamlDir: "/project", xmlDir: "/out" },
+      harness.deps
+    )
 
     expect(result.failed).toEqual([error])
     expect(harness.events).toEqual([
@@ -103,7 +160,10 @@ describe("syncConfigurationToXml", () => {
   it("stops after second-pass errors before transferring files and writing the index", async () => {
     const error: FullXmlSyncDiagnostic = { severity: "error", code: "xml", message: "bad xml" }
     const harness = createHarness({ secondPassDiagnostics: [error] })
-    const result = await syncConfigurationToXml({ context, yamlDir: "/project", xmlDir: "/out" }, harness.deps)
+    const result = await syncConfigurationToXml(
+      { context, componentPath: "cf", yamlDir: "/project", xmlDir: "/out" },
+      harness.deps
+    )
 
     expect(result.failed).toEqual([error])
     expect(harness.events).toEqual([
@@ -124,7 +184,10 @@ describe("syncConfigurationToXml", () => {
 
   it("stops when a worker does not report a declared XML output", async () => {
     const harness = createHarness({ secondPassWrittenFiles: [] })
-    const result = await syncConfigurationToXml({ context, yamlDir: "/project", xmlDir: "/out" }, harness.deps)
+    const result = await syncConfigurationToXml(
+      { context, componentPath: "cf", yamlDir: "/project", xmlDir: "/out" },
+      harness.deps
+    )
 
     expect(result.failed).toEqual([
       expect.objectContaining({
@@ -151,12 +214,18 @@ describe("syncConfigurationToXml", () => {
 
   it("keeps the previous index when external transfer or ConfigDumpInfo fails", async () => {
     const transfer = createHarness({ transferError: new Error("copy failed") })
-    await syncConfigurationToXml({ context, yamlDir: "/project", xmlDir: "/out" }, transfer.deps)
+    await syncConfigurationToXml(
+      { context, componentPath: "cf", yamlDir: "/project", xmlDir: "/out" },
+      transfer.deps
+    )
     expect(transfer.events.at(-2)).toBe("transferExternalFiles")
     expect(transfer.writtenIndex).toBeUndefined()
 
     const configDumpInfo = createHarness({ configDumpInfoError: new Error("dump failed") })
-    await syncConfigurationToXml({ context, yamlDir: "/project", xmlDir: "/out" }, configDumpInfo.deps)
+    await syncConfigurationToXml(
+      { context, componentPath: "cf", yamlDir: "/project", xmlDir: "/out" },
+      configDumpInfo.deps
+    )
     expect(configDumpInfo.events.at(-2)).toBe("writeConfigDumpInfo")
     expect(configDumpInfo.writtenIndex).toBeUndefined()
   })

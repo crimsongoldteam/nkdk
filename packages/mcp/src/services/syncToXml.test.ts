@@ -36,6 +36,7 @@ describe("syncToXml service", () => {
     })
     expect(planSyncToXml).toHaveBeenCalledWith({
       projectDir,
+      componentPath: "cf",
       yamlDir: join(projectDir, "cf"),
       xmlDir: "/xml",
     })

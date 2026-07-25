@@ -31,7 +31,7 @@ describe("full XML sync failure integration", () => {
     fs.mkdirSync(xmlDir, { recursive: true })
     fs.writeFileSync(join(xmlDir, "marker.txt"), "keep")
 
-    const result = await syncConfigurationToXml({ context, yamlDir: projectDir, xmlDir })
+    const result = await syncConfigurationToXml({ context, componentPath: "cf", yamlDir: projectDir, xmlDir })
 
     expect(result.failed).toEqual([expect.objectContaining({ code: "full_xml_sync_target_not_empty" })])
     expect(fs.readFileSync(join(xmlDir, "marker.txt"), "utf8")).toBe("keep")
@@ -47,7 +47,10 @@ describe("full XML sync failure integration", () => {
     await writeConfigurationIndexAtomically({ projectDir, address: { kind: "configuration" }, data: previous })
     const before = fs.readFileSync(configurationIndexPath(projectDir, { kind: "configuration" }))
 
-    const result = await syncConfigurationToXml({ context, yamlDir: projectDir, xmlDir }, transferFailureDeps(previous))
+    const result = await syncConfigurationToXml(
+      { context, componentPath: "cf", yamlDir: projectDir, xmlDir },
+      transferFailureDeps(previous)
+    )
 
     expect(result.failed).toEqual([expect.objectContaining({ code: "full_xml_sync_operation_failed" })])
     expect(fs.readFileSync(join(xmlDir, "partial.xml"), "utf8")).toBe("partial")
@@ -90,7 +93,7 @@ describe("full XML sync failure integration", () => {
       },
     }
 
-    const result = await syncConfigurationToXml({ context, yamlDir: projectDir, xmlDir }, deps)
+    const result = await syncConfigurationToXml({ context, componentPath: "cf", yamlDir: projectDir, xmlDir }, deps)
 
     expect(result.failed).toEqual([
       expect.objectContaining({ code: "full_xml_sync_first_pass_failed" }),
