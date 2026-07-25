@@ -47,6 +47,7 @@ export const fullChartFieldEnterprise = {
 } satisfies Required<ChartFieldEnterprise>
 
 export const fullChartFieldPartialYAML: ChartFieldPartialYAML = {
+  ПутьКДанным: "Реквизит",
   АвтоМаксимальнаяВысота: "Ложь",
   АвтоМаксимальнаяШирина: "Ложь",
   Высота: 200,

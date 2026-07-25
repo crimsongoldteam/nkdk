@@ -62,6 +62,7 @@ export const fullProgressBarFieldEnterprise = {
 } satisfies Required<ProgressBarFieldEnterprise>
 
 export const fullProgressBarFieldPartialYAML: ProgressBarFieldPartialYAML = {
+  ПутьКДанным: "Реквизит",
   АвтоМаксимальнаяВысота: "Ложь",
   АвтоМаксимальнаяШирина: "Ложь",
   Высота: 200,

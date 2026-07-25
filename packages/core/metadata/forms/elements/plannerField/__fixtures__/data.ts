@@ -86,6 +86,7 @@ export const fullPlannerFieldEnterprise = {
 } satisfies Required<PlannerFieldEnterprise>
 
 export const fullPlannerFieldPartialYAML: PlannerFieldPartialYAML = {
+  ПутьКДанным: "Реквизит",
   АвтоМаксимальнаяВысота: "Ложь",
   АвтоМаксимальнаяШирина: "Ложь",
   Команда: ["Begin"],

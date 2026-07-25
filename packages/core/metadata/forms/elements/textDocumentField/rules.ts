@@ -65,8 +65,6 @@ export const TextDocumentFieldRules = {
     }),
     dataPath: dataPathRule({
       yaml: "ПутьКДанным",
-      toYAML: false,
-      fromYAML: false,
       defaultType: "string",
     }),
     ...formFieldCommonProperties,

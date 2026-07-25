@@ -59,6 +59,7 @@ export const fullRadioButtonFieldEnterprise = {
 } satisfies Required<RadioButtonFieldEnterprise>
 
 export const fullRadioButtonFieldPartialYAML: RadioButtonFieldPartialYAML = {
+  ПутьКДанным: "Реквизит",
   ВидПереключателя: "Переключатель",
   ВысотаЗаголовкаЭлемента: 15,
   ВысотаЭлемента: 20,

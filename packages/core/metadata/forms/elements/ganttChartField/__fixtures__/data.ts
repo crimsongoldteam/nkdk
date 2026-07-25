@@ -114,6 +114,7 @@ const fullGanttChartFieldTablePartialYAML = {
 } satisfies TablePartialYAML
 
 export const fullGanttChartFieldPartialYAML: GanttChartFieldPartialYAML = {
+  ПутьКДанным: "Реквизит",
   АвтоМаксимальнаяВысота: "Ложь",
   АвтоМаксимальнаяШирина: "Ложь",
   ВертикальныеЛинии: "Ложь",

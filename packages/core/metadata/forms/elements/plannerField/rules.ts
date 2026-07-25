@@ -65,8 +65,6 @@ export const PlannerFieldRules = {
     }),
     dataPath: dataPathRule({
       yaml: "ПутьКДанным",
-      toYAML: false,
-      fromYAML: false,
       defaultType: "Planner",
     }),
     ...formFieldCommonProperties,

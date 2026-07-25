@@ -63,6 +63,7 @@ export const fullGraphicalSchemaFieldEnterprise = {
 } satisfies Required<GraphicalSchemaFieldEnterprise>
 
 export const fullGraphicalSchemaFieldPartialYAML: GraphicalSchemaFieldPartialYAML = {
+  ПутьКДанным: "Реквизит",
   АвтоМаксимальнаяВысота: "Ложь",
   АвтоМаксимальнаяШирина: "Ложь",
   Вывод: "Разрешить",

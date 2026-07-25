@@ -64,8 +64,6 @@ export const GanttChartFieldRules = {
     }),
     dataPath: dataPathRule({
       yaml: "ПутьКДанным",
-      toYAML: false,
-      fromYAML: false,
       defaultType: "GanttChart",
     }),
     ...formFieldCommonProperties,

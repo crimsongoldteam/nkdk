@@ -48,8 +48,6 @@ export const ProgressBarFieldRules = {
     }),
     dataPath: dataPathRule({
       yaml: "ПутьКДанным",
-      toYAML: false,
-      fromYAML: false,
       defaultType: "decimal",
     }),
     ...formFieldCommonProperties,

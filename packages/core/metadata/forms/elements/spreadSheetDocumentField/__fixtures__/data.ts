@@ -125,6 +125,7 @@ export const fullSpreadSheetDocumentFieldEnterprise = {
 } satisfies Required<SpreadSheetDocumentFieldEnterprise>
 
 export const fullSpreadSheetDocumentFieldPartialYAML: SpreadSheetDocumentFieldPartialYAML = {
+  ПутьКДанным: "Реквизит",
   АвтоМаксимальнаяВысота: "Ложь",
   АвтоМаксимальнаяШирина: "Ложь",
   Высота: 200,

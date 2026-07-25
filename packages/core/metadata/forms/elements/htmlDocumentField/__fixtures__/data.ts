@@ -63,6 +63,7 @@ export const fullHtmlDocumentFieldEnterprise = {
 } satisfies Required<HTMLDocumentFieldEnterprise>
 
 export const fullHtmlDocumentFieldPartialYAML: HTMLDocumentFieldPartialYAML = {
+  ПутьКДанным: "Реквизит",
   АвтоМаксимальнаяВысота: "Ложь",
   АвтоМаксимальнаяШирина: "Ложь",
   Вывод: "Разрешить",
