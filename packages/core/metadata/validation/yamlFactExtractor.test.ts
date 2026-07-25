@@ -195,4 +195,48 @@ describe("extractValidationYamlFacts", () => {
 
     expect(facts.localIndexes?.metadata.ownerFacts?.["chartOfAccounts"]).toBe("ChartOfAccounts.Хозрасчетный")
   })
+
+  it("can collect index facts without forming validation diagnostics", () => {
+    const projectDir = "/project"
+    const filePath = "/project/Справочник/Товары/Свойства.yaml"
+    const file = resolveValidationProjectFile(projectDir, filePath)
+    if (file === undefined) throw new Error("file not resolved")
+
+    const facts = extractValidationYamlFacts({
+      file,
+      parsed: parseMetadataYaml(
+        [
+          "Реквизиты:",
+          "  ОбщееИмя:",
+          "    Тип: Строка",
+          "ТабличныеЧасти:",
+          "  ОбщееИмя:",
+          "    Реквизиты: {}",
+        ].join("\n")
+      ),
+      rulesSnapshot: createValidationRulesSnapshot(mockContext),
+      validationDiagnostics: false,
+    })
+
+    expect(facts.objectIndexEntries).toEqual([
+      expect.objectContaining({ canonical: "Catalog.Товары" }),
+    ])
+    expect(facts.diagnostics).toEqual([])
+  })
+
+  it("does not form pending reference checks in fact-only mode", () => {
+    const projectDir = "/project"
+    const filePath = "/project/ГруппаКоманд/ПечатьДокумента/Свойства.yaml"
+    const file = resolveValidationProjectFile(projectDir, filePath)
+    if (file === undefined) throw new Error("file not resolved")
+
+    const facts = extractValidationYamlFacts({
+      file,
+      parsed: parseMetadataYaml("Картинка: ОбщаяКартинка.Печать\n"),
+      rulesSnapshot: createValidationRulesSnapshot(mockContext),
+      validationDiagnostics: false,
+    })
+
+    expect(facts.pendingReferences).toEqual([])
+  })
 })

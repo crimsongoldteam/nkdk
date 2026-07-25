@@ -8,11 +8,13 @@ import type { ConfigurationContext, XmlImportConfigurationContext } from "../con
 import type { ConfigurationIndexFragment } from "../configurationIndex/types"
 import { withExportMetadataTargetOwners } from "../orchestration/appliedObject/metadataItemOwnerContext"
 import { finalizeImportedYamlValues } from "../orchestration/property/finalizeImportedYAML"
-import { createOwnerMetadataCacheFromSharedValidationSnapshot } from "../validation/dataPath/sharedOwnerCache"
 import type { OwnerMetadataCache } from "../validation/dataPath/ownerCache"
 import type { ValidationOwnerFacts } from "../validation/dataPath/ownerFacts"
-import type { SharedValidationSnapshot } from "../validation/sharedValidationSnapshot"
 import { createOperationProfiler, type ValidationProfiler } from "../validation/profile"
+import {
+  createLayeredOwnerMetadataCache,
+  type LayeredImportReferenceSnapshot,
+} from "./componentReferenceIndex"
 import { extractImportOwnerFacts } from "./ownerFacts"
 import { ImportXmlInputError, prepareImportYaml, type PreparedImportYaml } from "./prepareYaml"
 import type {
@@ -53,14 +55,14 @@ export async function runImportWorkerCommand(command: ImportWorkerCommand): Prom
   }
 
   if (command.kind === "secondPass") {
-    return runSecondPass(command.sharedMetadata, requireInitializedState())
+    return runSecondPass(command.referenceSnapshots, requireInitializedState())
   }
 
   return runFirstPass(command.assignments, requireInitializedState())
 }
 
 async function runSecondPass(
-  sharedMetadata: SharedValidationSnapshot,
+  referenceSnapshots: LayeredImportReferenceSnapshot,
   state: InitializedImportWorkerState
 ): Promise<ImportSecondPassResult> {
   const profiler = createOperationProfiler({
@@ -71,9 +73,9 @@ async function runSecondPass(
   const diagnostics: ImportDiagnostic[] = []
   const warnings: ImportDiagnostic[] = []
   const files: ImportResultFile[] = []
-  const ownerMetadataCache = createOwnerMetadataCacheFromSharedValidationSnapshot({
+  const ownerMetadataCache = createLayeredOwnerMetadataCache({
     projectDir: state.outputDir,
-    snapshot: sharedMetadata,
+    snapshots: referenceSnapshots,
   })
 
   for (const [id, prepared] of preparedYaml) {

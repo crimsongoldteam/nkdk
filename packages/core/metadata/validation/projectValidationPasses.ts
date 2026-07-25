@@ -91,6 +91,22 @@ export interface ProjectValidationFirstPassProfile {
   propertyEvents: number
 }
 
+export interface ProjectValidationFileFacts {
+  objectRecords: ValidationObjectRecord[]
+  objectIndexEntries: ProjectObjectIndexEntry[]
+  memberIndexEntries: ProjectMemberIndexEntry[]
+  valueIndexEntries: ProjectValueIndexEntry[]
+  pendingReferences: PendingMetadataTargetReference[]
+  pendingChecks: ValidationPendingCheck[]
+  diagnostics: Diagnostic[]
+  profile: {
+    yamlFactsMs: number
+    fieldIndexMs: number
+    memberIndexMs: number
+    propertyEvents: number
+  }
+}
+
 export interface ProjectValidationSecondPassParams {
   state: ProjectValidationFileState
   projectDir: string
@@ -223,6 +239,107 @@ export function validateProjectFileFirstPass(params: {
   return validateProjectPropertiesFirstPass(params)
 }
 
+export function extractProjectValidationFileFacts(params: {
+  projectDir: string
+  file: ValidationProjectFile
+  entry: ProjectYamlEntry
+  rulesSnapshot: ValidationRulesSnapshot
+  validationDiagnostics?: boolean
+}): ProjectValidationFileFacts {
+  const parsed = parsedForProjectFile(params.file, params.entry.parsed)
+  const measuredYamlFacts = measureValidationPhase(() =>
+    extractValidationYamlFacts({
+      file: params.file,
+      parsed,
+      rulesSnapshot: params.rulesSnapshot,
+      ...(params.validationDiagnostics === undefined
+        ? {}
+        : { validationDiagnostics: params.validationDiagnostics }),
+    })
+  )
+  const yamlFacts = measuredYamlFacts.value
+
+  if (params.file.kind === "form") {
+    const measuredMemberIndex = measureValidationPhase(() => buildFormFileMemberIndexEntries(params.file))
+    return {
+      objectRecords: [],
+      objectIndexEntries: yamlFacts.objectIndexEntries,
+      memberIndexEntries: measuredMemberIndex.value,
+      valueIndexEntries: yamlFacts.valueIndexEntries,
+      pendingReferences: yamlFacts.pendingReferences,
+      pendingChecks: yamlFacts.pendingChecks,
+      diagnostics: yamlFacts.diagnostics,
+      profile: {
+        yamlFactsMs: measuredYamlFacts.timeMs,
+        fieldIndexMs: 0,
+        memberIndexMs: measuredMemberIndex.timeMs,
+        propertyEvents: yamlFacts.localIndexes?.metadata.events.filter(({ kind }) => kind === "property").length ?? 0,
+      },
+    }
+  }
+
+  const ownerRef = { kind: params.file.owner.dir, name: params.file.owner.name }
+  const measuredOwner = measureValidationPhase(() => {
+    const compactOwnerFacts = yamlFacts.localIndexes?.metadata.ownerFacts ?? {}
+    const ownerFactsWithoutIndex = {
+      ref: ownerRef,
+      filePath: params.file.absolutePath,
+      fieldIndex: emptyObjectFieldIndex(),
+      ...compactOwnerFacts,
+    } as ValidationOwnerFacts
+    const ownerWithoutIndex = {
+      ref: ownerRef,
+      filePath: params.file.absolutePath,
+      facts: ownerFactsWithoutIndex,
+      rule: params.file.owner.spec.rule,
+      spec: params.file.owner.spec,
+    }
+    const fieldIndex = buildObjectFieldIndex(ownerWithoutIndex)
+    const ownerFacts: ValidationOwnerFacts = { ...ownerFactsWithoutIndex, fieldIndex }
+    const owner: OwnerMetadata = { ...ownerWithoutIndex, facts: ownerFacts, fieldIndex }
+    return { fieldIndex, ownerFacts, owner }
+  })
+  const measuredMemberIndex = measureValidationPhase(() =>
+    buildMemberIndexEntries({
+      projectDir: params.projectDir,
+      owner: measuredOwner.value.owner,
+      hasFile: fs.existsSync,
+    })
+  )
+  const memberIndexEntries = measuredMemberIndex.value
+
+  return {
+    objectIndexEntries: yamlFacts.objectIndexEntries,
+    memberIndexEntries,
+    valueIndexEntries: yamlFacts.valueIndexEntries,
+    pendingReferences: yamlFacts.pendingReferences,
+    pendingChecks: yamlFacts.pendingChecks,
+    diagnostics: [...yamlFacts.diagnostics, ...measuredOwner.value.fieldIndex.diagnostics],
+    objectRecords: [
+      {
+        filePath: params.file.absolutePath,
+        projectPath: params.file.projectPath,
+        kind: params.file.kind,
+        owner: { dir: params.file.owner.dir, name: params.file.owner.name },
+        ownerRef,
+        ownerFacts: measuredOwner.value.ownerFacts,
+        fieldIndex: measuredOwner.value.fieldIndex,
+        objectIndexEntries: yamlFacts.objectIndexEntries,
+        memberIndexEntries,
+        valueIndexEntries: yamlFacts.valueIndexEntries,
+        pendingReferences: yamlFacts.pendingReferences,
+        importDiagnostics: [],
+      },
+    ],
+    profile: {
+      yamlFactsMs: measuredYamlFacts.timeMs,
+      fieldIndexMs: measuredOwner.timeMs,
+      memberIndexMs: measuredMemberIndex.timeMs,
+      propertyEvents: yamlFacts.localIndexes?.metadata.events.filter(({ kind }) => kind === "property").length ?? 0,
+    },
+  }
+}
+
 export function validateProjectFileSecondPass(
   params: ProjectValidationSecondPassParams
 ): ProjectValidationSecondPassResult {
@@ -284,39 +401,35 @@ function validateProjectFormFirstPass(params: {
     })
   }
 
-  const rulesSnapshot = requireRulesSnapshot(params.rulesSnapshot)
-  const measuredYamlFacts = measureValidationPhase(() =>
-    extractValidationYamlFacts({ file: params.file, parsed: entry.parsed, rulesSnapshot })
-  )
-  const yamlFacts = measuredYamlFacts.value
-  const yamlFactsMs = measuredYamlFacts.timeMs
-  const diagnostics = [...schemaDiagnostics, ...yamlFacts.diagnostics]
-
-  const memberIndexStartedAt = performance.now()
-  const memberIndexEntries = buildFormFileMemberIndexEntries(params.file)
-  const memberIndexMs = performance.now() - memberIndexStartedAt
+  const facts = extractProjectValidationFileFacts({
+    projectDir: params.projectDir,
+    file: params.file,
+    entry,
+    rulesSnapshot: requireRulesSnapshot(params.rulesSnapshot),
+  })
+  const diagnostics = [...schemaDiagnostics, ...facts.diagnostics]
 
   return {
     state: {
       kind: "form",
       file: params.file,
-      pendingChecks: yamlFacts.pendingChecks,
+      pendingChecks: facts.pendingChecks,
       firstPassDiagnostics: diagnostics,
     },
     diagnostics,
-    objectRecords: [],
-    objectIndexEntries: [],
-    memberIndexEntries,
-    valueIndexEntries: [],
-    pendingReferences: [],
+    objectRecords: facts.objectRecords,
+    objectIndexEntries: facts.objectIndexEntries,
+    memberIndexEntries: facts.memberIndexEntries,
+    valueIndexEntries: facts.valueIndexEntries,
+    pendingReferences: facts.pendingReferences,
     profile: {
       ...emptyFirstPassProfile("form"),
       totalMs: performance.now() - totalStartedAt,
       schemaMs,
-      memberIndexMs,
-      yamlFactsMs,
+      memberIndexMs: facts.profile.memberIndexMs,
+      yamlFactsMs: facts.profile.yamlFactsMs,
       diagnostics: diagnostics.length,
-      propertyEvents: yamlFacts.localIndexes?.metadata.events.filter(({ kind }) => kind === "property").length ?? 0,
+      propertyEvents: facts.profile.propertyEvents,
     },
   }
 }
@@ -388,7 +501,6 @@ function validateProjectPropertiesFirstPass(params: {
     })
   }
 
-  const rulesSnapshot = requireRulesSnapshot(params.rulesSnapshot)
   const equalNameValidationName =
     params.file.kind === "configuration" ? rootStringProperty(parsed.data, "Имя") : params.file.owner.name
   const equalNameStartedAt = performance.now()
@@ -400,71 +512,31 @@ function validateProjectPropertiesFirstPass(params: {
     name: equalNameValidationName,
   })
   const equalNameMs = performance.now() - equalNameStartedAt
-  const measuredYamlFacts = measureValidationPhase(() => extractValidationYamlFacts({ file: params.file, parsed, rulesSnapshot }))
-  const yamlFacts = measuredYamlFacts.value
-  const yamlFactsMs = measuredYamlFacts.timeMs
-  const ownerRef = { kind: params.file.owner.dir, name: params.file.owner.name }
-  const fieldIndexStartedAt = performance.now()
-  const compactOwnerFacts = yamlFacts.localIndexes?.metadata.ownerFacts ?? {}
-  const ownerFactsWithoutIndex = {
-    ref: ownerRef,
-    filePath: params.file.absolutePath,
-    fieldIndex: emptyObjectFieldIndex(),
-    ...compactOwnerFacts,
-  } as ValidationOwnerFacts
-  const ownerWithoutIndex = {
-    ref: ownerRef,
-    filePath: params.file.absolutePath,
-    facts: ownerFactsWithoutIndex,
-    rule: params.file.owner.spec.rule,
-    spec: params.file.owner.spec,
-  }
-  const fieldIndex = buildObjectFieldIndex(ownerWithoutIndex)
-  const fieldIndexMs = performance.now() - fieldIndexStartedAt
-  const ownerFacts: ValidationOwnerFacts = { ...ownerFactsWithoutIndex, fieldIndex }
-  const owner: OwnerMetadata = { ...ownerWithoutIndex, facts: ownerFacts, fieldIndex }
-  const memberIndexStartedAt = performance.now()
-  const memberIndexEntries = buildMemberIndexEntries({
+  const facts = extractProjectValidationFileFacts({
     projectDir: params.projectDir,
-    owner,
-    hasFile: fs.existsSync,
+    file: params.file,
+    entry: { ...entry, parsed },
+    rulesSnapshot: requireRulesSnapshot(params.rulesSnapshot),
   })
-  const memberIndexMs = performance.now() - memberIndexStartedAt
   const diagnostics = [
     ...suppressEqualNameSchemaDiagnostics(schemaDiagnostics, equalNameDiagnostics),
     ...equalNameDiagnostics,
-    ...yamlFacts.diagnostics,
-    ...fieldIndex.diagnostics,
+    ...facts.diagnostics,
   ]
 
   return {
     state: {
       kind: "properties",
       file: params.file,
-      pendingReferences: yamlFacts.pendingReferences,
+      pendingReferences: facts.pendingReferences,
       firstPassDiagnostics: diagnostics,
     },
     diagnostics,
-    objectIndexEntries: yamlFacts.objectIndexEntries,
-    memberIndexEntries,
-    valueIndexEntries: yamlFacts.valueIndexEntries,
-    pendingReferences: yamlFacts.pendingReferences,
-    objectRecords: [
-      {
-        filePath: params.file.absolutePath,
-        projectPath: params.file.projectPath,
-        kind: params.file.kind,
-        owner: { dir: params.file.owner.dir, name: params.file.owner.name },
-        ownerRef,
-        ownerFacts,
-        fieldIndex,
-        objectIndexEntries: yamlFacts.objectIndexEntries,
-        memberIndexEntries,
-        valueIndexEntries: yamlFacts.valueIndexEntries,
-        pendingReferences: yamlFacts.pendingReferences,
-        importDiagnostics: [],
-      },
-    ],
+    objectIndexEntries: facts.objectIndexEntries,
+    memberIndexEntries: facts.memberIndexEntries,
+    valueIndexEntries: facts.valueIndexEntries,
+    pendingReferences: facts.pendingReferences,
+    objectRecords: facts.objectRecords,
     profile: {
       key: validationFirstPassProfileKey(params.file),
       totalMs: performance.now() - totalStartedAt,
@@ -472,13 +544,13 @@ function validateProjectPropertiesFirstPass(params: {
       schemaMs,
       validatorsMs,
       equalNameMs,
-      yamlFactsMs,
-      fieldIndexMs,
+      yamlFactsMs: facts.profile.yamlFactsMs,
+      fieldIndexMs: facts.profile.fieldIndexMs,
       objectIndexMs: 0,
-      memberIndexMs,
+      memberIndexMs: facts.profile.memberIndexMs,
       valueIndexMs: 0,
       diagnostics: diagnostics.length,
-      propertyEvents: yamlFacts.localIndexes?.metadata.events.filter(({ kind }) => kind === "property").length ?? 0,
+      propertyEvents: facts.profile.propertyEvents,
     },
   }
 }

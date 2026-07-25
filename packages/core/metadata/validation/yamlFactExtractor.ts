@@ -55,9 +55,11 @@ export function extractValidationYamlFacts(params: {
   file: ValidationProjectFile
   parsed: ParsedYaml
   rulesSnapshot: ValidationRulesSnapshot
+  validationDiagnostics?: boolean
 }): ValidationYamlFacts {
+  const validationDiagnostics = params.validationDiagnostics !== false
   if (params.file.kind === "form") {
-    return extractFormYamlFacts(params.file, params.parsed)
+    return validationDiagnostics ? extractFormYamlFacts(params.file, params.parsed) : emptyFacts()
   }
 
   const spec = findValidationRulesSpec(params.rulesSnapshot, params.file.owner.dir)
@@ -79,6 +81,7 @@ export function extractValidationYamlFacts(params: {
           diagnostics: referenceDiagnostics,
           collector: localIndexesCollector,
           rulePath: [],
+          validationDiagnostics,
         })
   const localIndexes = localIndexesCollector.finish()
   return {
@@ -100,10 +103,12 @@ export function extractValidationYamlFacts(params: {
     valueIndexEntries: [],
     pendingReferences,
     pendingChecks: [],
-    diagnostics: [
-      ...referenceDiagnostics,
-      ...(spec === undefined ? [] : collectUniqueNameScopeDiagnostics(params.file, params.parsed, spec)),
-    ],
+    diagnostics: validationDiagnostics
+      ? [
+          ...referenceDiagnostics,
+          ...(spec === undefined ? [] : collectUniqueNameScopeDiagnostics(params.file, params.parsed, spec)),
+        ]
+      : [],
     localIndexes,
   }
 }
@@ -269,6 +274,7 @@ function collectPendingReferences(params: {
   diagnostics: Diagnostic[]
   collector: LocalIndexesCollector
   rulePath: readonly { propertyKey: string }[]
+  validationDiagnostics: boolean
 }): PendingMetadataTargetReference[] {
   const record = asRecord(params.value)
   if (record === undefined) return []
@@ -293,7 +299,7 @@ function collectPendingReferences(params: {
       })
     }
 
-    if (property.metadataTarget !== undefined) {
+    if (property.metadataTarget !== undefined && params.validationDiagnostics) {
       references.push(
         ...collectTargetValues({
           filePath: params.filePath,
@@ -304,6 +310,7 @@ function collectPendingReferences(params: {
           constraint: property.metadataTarget,
           yamlPath,
           diagnostics: params.diagnostics,
+          validationDiagnostics: params.validationDiagnostics,
         })
       )
     }
@@ -320,6 +327,7 @@ function collectPendingReferences(params: {
           diagnostics: params.diagnostics,
           collector: params.collector,
           rulePath,
+          validationDiagnostics: params.validationDiagnostics,
         })
       )
     }
@@ -338,6 +346,7 @@ function collectNestedReferences(params: {
   diagnostics: Diagnostic[]
   collector: LocalIndexesCollector
   rulePath: readonly { propertyKey: string }[]
+  validationDiagnostics: boolean
 }): PendingMetadataTargetReference[] {
   if (Array.isArray(params.value)) {
     return params.value.flatMap((item, index) =>
@@ -362,6 +371,7 @@ function collectTargetValues(params: {
   constraint: PendingMetadataTargetReference["constraint"]
   yamlPath: readonly (string | number)[]
   diagnostics: Diagnostic[]
+  validationDiagnostics: boolean
 }): PendingMetadataTargetReference[] {
   if (params.type === "Picture") {
     return collectPictureTargetValues(params)
@@ -389,6 +399,7 @@ function collectPictureTargetValues(params: {
   constraint: PendingMetadataTargetReference["constraint"]
   yamlPath: readonly (string | number)[]
   diagnostics: Diagnostic[]
+  validationDiagnostics: boolean
 }): PendingMetadataTargetReference[] {
   if (typeof params.value === "string") {
     const reference = pendingPictureReferenceFromYamlValue({
@@ -419,6 +430,7 @@ function pendingPictureReferenceFromYamlValue(params: {
   constraint: PendingMetadataTargetReference["constraint"]
   yamlPath: readonly (string | number)[]
   diagnostics: Diagnostic[]
+  validationDiagnostics: boolean
 }): PendingMetadataTargetReference | undefined {
   if (params.value in PictureLibFromYAML) return undefined
   if (!params.value.startsWith("ОбщаяКартинка.")) return undefined
@@ -437,6 +449,7 @@ function pendingReferenceFromYamlValue(params: {
   constraint: PendingMetadataTargetReference["constraint"]
   yamlPath: readonly (string | number)[]
   diagnostics: Diagnostic[]
+  validationDiagnostics: boolean
 }): PendingMetadataTargetReference | undefined {
   const parsed = parseMetadataTargetFromYAML({
     value: params.value,
@@ -444,6 +457,7 @@ function pendingReferenceFromYamlValue(params: {
     owner: params.owner,
   })
   if (!parsed.ok) {
+    if (!params.validationDiagnostics) return undefined
     params.diagnostics.push(
       diagnosticAtYamlPath({
         filePath: params.filePath,

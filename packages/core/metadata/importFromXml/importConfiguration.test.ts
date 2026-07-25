@@ -5,7 +5,9 @@ import { afterEach, describe, expect, it, vi } from "vitest"
 import { mockXmlImportContext } from "../../tests/mockContext"
 import type { ConfigurationIndexData } from "../configurationIndex"
 import type { MetadataItemRule } from "../orchestration/property/types"
+import type { ValidationOwnerFacts } from "../validation/dataPath/ownerFacts"
 import { createImportSharedMetadata } from "./metadataSnapshot"
+import type { LayeredImportReferenceSnapshot } from "./componentReferenceIndex"
 import { registerXmlImportComponentDescriptor } from "./componentDescriptor"
 import { discoverXmlImport } from "./discovery"
 import {
@@ -89,6 +91,59 @@ describe("configuration XML import coordinator", () => {
         targetProjectPath: "Конфигурация.yaml",
       }),
     ])
+  })
+
+  it("builds the descriptor base snapshot and passes local-first layers to the second pass", async () => {
+    const rootRule = { itemType: "MetadataDependentCoordinatorRoot", properties: {} } as MetadataItemRule
+    registerXmlImportComponentDescriptor({
+      kind: "test-dependent-coordinator",
+      rootRule,
+      detect: () => false,
+      resolveAddress: () => ({ kind: "configurationExtension", name: "Зависимое" }),
+      baseAddress: { kind: "configuration" },
+    })
+    const calls: string[] = []
+    const params = createParams()
+    const projectDir = fs.mkdtempSync(join(os.tmpdir(), "nkdk-import-dependent-project-"))
+    tempDirs.push(projectDir)
+    params.projectDir = projectDir
+    params.context = {
+      ...params.context,
+      fromXML: { ...params.context.fromXML, componentKind: "test-dependent-coordinator" },
+    }
+    const dependencies = fakeDependencies({ calls })
+    const base = createImportSharedMetadata([
+      ownerFacts("Базовый", "/project/cf/Справочник/Базовый/Свойства.yaml"),
+    ])
+    const local = createImportSharedMetadata([
+      ownerFacts("Локальный", "/project/cfe/Зависимое/Справочник/Локальный/Свойства.yaml"),
+    ])
+    let secondPassSnapshots: LayeredImportReferenceSnapshot | undefined
+    dependencies.buildComponentReferenceSnapshot = async ({ componentDir }) => {
+      calls.push("baseMetadata")
+      expect(componentDir).toBe(join(projectDir, "cf"))
+      return base
+    }
+    dependencies.createSharedMetadata = () => {
+      calls.push("mergeMetadata")
+      return local
+    }
+    const pool = dependencies.createWorkerPool({ concurrency: 1 })
+    dependencies.createWorkerPool = () => ({
+      ...pool,
+      async runSecondPass(snapshots) {
+        calls.push("secondPass")
+        secondPassSnapshots = snapshots
+        return { diagnostics: [], warnings: [], files: resultFiles }
+      },
+    })
+
+    const result = await importConfigurationFromXml(params, dependencies)
+
+    expect(result.failed).toEqual([])
+    expect(calls.indexOf("baseMetadata")).toBeLessThan(calls.indexOf("discover"))
+    expect(secondPassSnapshots?.local).toBe(local)
+    expect(secondPassSnapshots?.base).toBe(base)
   })
 
   it("writes the index after direct worker output and result-file hashing", async () => {
@@ -310,6 +365,9 @@ function fakeDependencies(params: {
       call("mergeMetadata")
       return createImportSharedMetadata([])
     },
+    async buildComponentReferenceSnapshot() {
+      return createImportSharedMetadata([])
+    },
     mergeFiles(files) {
       call("mergeFiles")
       return [...files]
@@ -368,5 +426,17 @@ function configurationIndex(
       configurationVersion: new Uint8Array(),
     },
     ...data,
+  }
+}
+
+function ownerFacts(name: string, filePath: string): ValidationOwnerFacts {
+  return {
+    ref: { kind: "Справочник", name },
+    filePath,
+    fieldIndex: {
+      fields: new Map(),
+      standardAttributeAliases: new Map(),
+      diagnostics: [],
+    },
   }
 }

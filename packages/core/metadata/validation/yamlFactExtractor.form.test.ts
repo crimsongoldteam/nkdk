@@ -82,4 +82,32 @@ describe("extractValidationYamlFacts form", () => {
       ])
     )
   })
+
+  it("не формирует DataPath checks и diagnostics в fact-only режиме", () => {
+    const projectDir = "/project"
+    const filePath = "/project/Справочник/Товары/Формы/ФормаЭлемента/Форма.yaml"
+    const file = resolveValidationProjectFile(projectDir, filePath)
+    if (file === undefined) throw new Error("file not resolved")
+
+    const facts = extractValidationYamlFacts({
+      file,
+      parsed: parseMetadataYaml(
+        [
+          "Реквизиты:",
+          "  КакоеТоПоле:",
+          "    Тип: Строка",
+          "    Заголовок: Какое то поле",
+          "Элементы:",
+          "  КакоеТоПоле:",
+          "    Вид: ПолеВвода",
+          "    ПутьКДанным: КакоеТоПоле",
+        ].join("\n")
+      ),
+      rulesSnapshot: createValidationRulesSnapshot(mockContext),
+      validationDiagnostics: false,
+    })
+
+    expect(facts.pendingChecks).toEqual([])
+    expect(facts.diagnostics).toEqual([])
+  })
 })

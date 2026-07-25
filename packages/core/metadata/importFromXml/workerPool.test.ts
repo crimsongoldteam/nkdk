@@ -6,6 +6,7 @@ import { mockContextFromXML, mockXmlImportContext } from "../../tests/mockContex
 import { encodeConfigurationIndexFragments } from "../configurationIndex/fragment"
 import { createConfigurationIndexCollector } from "../configurationIndex/collector/writer"
 import { createImportSharedMetadata } from "./metadataSnapshot"
+import { createLayeredImportReferenceSnapshot } from "./componentReferenceIndex"
 import { prepareImportYaml } from "./prepareYaml"
 import type { ImportAssignment, ImportDiagnostic, ImportWorkerCommand } from "./types"
 import {
@@ -33,7 +34,7 @@ describe("XML import worker pool", () => {
 
     await pool.initialize({ operationId: "op", context: mockXmlImportContext(), outputDir: createTempDir("static") })
     await pool.runFirstPass(assignments)
-    await pool.runSecondPass(createImportSharedMetadata([]))
+    await pool.runSecondPass(createLayeredImportReferenceSnapshot({ local: createImportSharedMetadata([]) }))
 
     expect(pools.runs(0).map((task) => task.kind)).toEqual(["initialize", "firstPass", "secondPass"])
     expect(pools.runs(1).map((task) => task.kind)).toEqual(["initialize", "firstPass", "secondPass"])
@@ -93,7 +94,9 @@ describe("XML import worker pool", () => {
     const result = await pool.runFirstPass([assignment("one"), assignment("two")])
 
     expect(result.diagnostics).toContainEqual(expect.objectContaining({ severity: "error" }))
-    await expect(pool.runSecondPass(createImportSharedMetadata([]))).rejects.toThrow(
+    await expect(
+      pool.runSecondPass(createLayeredImportReferenceSnapshot({ local: createImportSharedMetadata([]) }))
+    ).rejects.toThrow(
       "Первый проход import завершён с ошибками"
     )
     expect(pools.runs(0).map((task) => task.kind)).toEqual(["initialize", "firstPass"])
@@ -157,13 +160,13 @@ describe("XML import worker pool", () => {
       const firstOperation = handle.createOperationPool()
       await firstOperation.initialize({ operationId: "one", context: mockXmlImportContext(), outputDir: createTempDir("one") })
       await firstOperation.runFirstPass([assignment("one-a"), assignment("one-b")])
-      await firstOperation.runSecondPass(createImportSharedMetadata([]))
+      await firstOperation.runSecondPass(createLayeredImportReferenceSnapshot({ local: createImportSharedMetadata([]) }))
       await firstOperation.close()
 
       const secondOperation = handle.createOperationPool()
       await secondOperation.initialize({ operationId: "two", context: mockXmlImportContext(), outputDir: createTempDir("two") })
       await secondOperation.runFirstPass([assignment("two-a"), assignment("two-b")])
-      await secondOperation.runSecondPass(createImportSharedMetadata([]))
+      await secondOperation.runSecondPass(createLayeredImportReferenceSnapshot({ local: createImportSharedMetadata([]) }))
       await secondOperation.close()
 
       expect(pools.created()).toBe(2)

@@ -1,4 +1,5 @@
 import { availableParallelism } from "node:os"
+import { join } from "node:path"
 import {
   componentPath,
   configurationIndexPath,
@@ -17,6 +18,10 @@ import { createOperationProfiler } from "../validation/profile"
 import { discoverXmlImport } from "./discovery"
 import { getRegisteredXmlImportComponentDescriptor } from "./componentDescriptor"
 import { createImportSharedMetadata } from "./metadataSnapshot"
+import {
+  buildComponentReferenceSnapshot,
+  createLayeredImportReferenceSnapshot,
+} from "./componentReferenceIndex"
 import { describeRegisteredXmlImportRoutes } from "./routes"
 import { copyXmlImportExternalFiles, mergeImportResultFiles } from "./transfer"
 import type { ImportAssignment, ImportDiagnostic, ImportResultFile } from "./types"
@@ -51,6 +56,11 @@ export interface ImportCoordinatorDependencies {
     assignments: ImportAssignment[]
   }>
   createSharedMetadata(facts: readonly ValidationOwnerFacts[]): SharedValidationSnapshot
+  buildComponentReferenceSnapshot(params: {
+    componentDir: string
+    context: XmlImportConfigurationContext
+    concurrency: number
+  }): Promise<SharedValidationSnapshot>
   mergeFiles(files: readonly ImportResultFile[]): ImportResultFile[]
   copyExternalFiles(params: {
     projectDir: string
@@ -68,6 +78,7 @@ const defaultImportDependencies: ImportCoordinatorDependencies = {
     return discoverXmlImport({ xmlDir, routes: describeRegisteredXmlImportRoutes(rootRule) })
   },
   createSharedMetadata: createImportSharedMetadata,
+  buildComponentReferenceSnapshot,
   mergeFiles: mergeImportResultFiles,
   copyExternalFiles: copyXmlImportExternalFiles,
   hashProject: hashConfigurationProjectFileList,
@@ -89,6 +100,22 @@ export async function importConfigurationFromXml(
 
   try {
     const component = getRegisteredXmlImportComponentDescriptor(params.context.fromXML.componentKind)
+    const concurrency = normalizeConcurrency(params.concurrency)
+    const baseAddress = component.baseAddress
+    const baseSnapshot =
+      baseAddress === undefined
+        ? undefined
+        : await profiler.measureAsync(
+            "Подготовка импорта конфигурации",
+            "Холодное построение индекса базового компонента",
+            {},
+            () =>
+              deps.buildComponentReferenceSnapshot({
+                componentDir: join(projectDir, componentPath(baseAddress)),
+                context: params.context,
+                concurrency,
+              })
+          )
     const discovered = await profiler.measureAsync(
       "Подготовка импорта конфигурации",
       "Поиск XML-файлов выгрузки",
@@ -114,12 +141,16 @@ export async function importConfigurationFromXml(
       items: discovered.assignments.length,
       timeMs: 0,
     })
-    const sharedMetadata = profiler.measure(
+    const localSnapshot = profiler.measure(
       "Подготовка импорта конфигурации",
       "Обобщение индекса метаданных",
       { items: first.ownerFacts.length },
       () => deps.createSharedMetadata(first.ownerFacts)
     )
+    const referenceSnapshots = createLayeredImportReferenceSnapshot({
+      local: localSnapshot,
+      ...(baseSnapshot === undefined ? {} : { base: baseSnapshot }),
+    })
     profiler.record("Подготовка импорта конфигурации", "Распределение индекса метаданных", {
       items: discovered.assignments.length,
       timeMs: 0,
@@ -128,7 +159,7 @@ export async function importConfigurationFromXml(
       "Подготовка импорта конфигурации",
       "Второй проход worker",
       { items: discovered.assignments.length },
-      () => pool.runSecondPass(sharedMetadata)
+      () => pool.runSecondPass(referenceSnapshots)
     )
     warnings = second.warnings
     if (hasErrors(second.diagnostics)) return failedResult(second.diagnostics, warnings)

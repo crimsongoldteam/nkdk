@@ -1,7 +1,7 @@
 import type { ProjectResourceSource } from "../orchestration/property/fn"
 import type { XmlImportConfigurationContext } from "../context/types"
-import type { SharedValidationSnapshot } from "../validation/sharedValidationSnapshot"
 import type { ValidationOwnerFacts } from "../validation/dataPath/ownerFacts"
+import type { LayeredImportReferenceSnapshot } from "./componentReferenceIndex"
 
 export type ImportAssignmentRole = "configuration" | "properties" | "fileItem"
 
@@ -55,7 +55,7 @@ export type ImportWorkerCommand =
       outputDir: string
     }
   | { kind: "firstPass"; assignments: ImportAssignment[] }
-  | { kind: "secondPass"; sharedMetadata: SharedValidationSnapshot }
+  | { kind: "secondPass"; referenceSnapshots: LayeredImportReferenceSnapshot }
   | { kind: "dispose" }
 
 export interface ImportFirstPassResult {

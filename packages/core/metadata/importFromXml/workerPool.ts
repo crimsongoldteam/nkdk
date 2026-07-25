@@ -5,8 +5,8 @@ import { mergeConfigurationIndexFragments } from "../configurationIndex/fragment
 import type { ConfigurationIndexData } from "../configurationIndex/types"
 import type { XmlImportConfigurationContext } from "../context/types"
 import type { ValidationOwnerFacts } from "../validation/dataPath/ownerFacts"
-import type { SharedValidationSnapshot } from "../validation/sharedValidationSnapshot"
 import { createOperationProfiler } from "../validation/profile"
+import type { LayeredImportReferenceSnapshot } from "./componentReferenceIndex"
 import type {
   ImportAssignment,
   ImportDiagnostic,
@@ -20,7 +20,7 @@ import type {
 export interface XmlImportWorkerPool {
   initialize(params: { operationId: string; context: XmlImportConfigurationContext; outputDir: string }): Promise<void>
   runFirstPass(assignments: readonly ImportAssignment[]): Promise<XmlImportFirstPassPoolResult>
-  runSecondPass(sharedMetadata: SharedValidationSnapshot): Promise<XmlImportSecondPassPoolResult>
+  runSecondPass(referenceSnapshots: LayeredImportReferenceSnapshot): Promise<XmlImportSecondPassPoolResult>
   close(): Promise<void>
 }
 
@@ -224,7 +224,7 @@ function createXmlImportOperationPool(params: {
       }
     },
 
-    async runSecondPass(sharedMetadata) {
+    async runSecondPass(referenceSnapshots) {
       assertUsable(phase, fatalError)
       if (phase === "firstPassErrors") throw new Error("Первый проход import завершён с ошибками")
       if (phase !== "firstPassReady") throw new Error("Первый проход import не завершён успешно")
@@ -232,7 +232,7 @@ function createXmlImportOperationPool(params: {
       phase = "secondPassRunning"
       const results = await Promise.all(
         activeWorkerIndexes.map(async (workerIndex): Promise<ImportSecondPassResult> => {
-          const response = await runCommand(workerIndex, { kind: "secondPass", sharedMetadata })
+          const response = await runCommand(workerIndex, { kind: "secondPass", referenceSnapshots })
           if (response?.kind !== "secondPassResult") {
             return failWorker(new Error("Worker вернул неожиданный результат secondPass"))
           }
