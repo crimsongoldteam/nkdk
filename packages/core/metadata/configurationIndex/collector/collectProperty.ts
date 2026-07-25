@@ -56,6 +56,10 @@ export function collectConfigurationIndexPropertyFromXML(params: {
   ) {
     collection.collector.setXsiNil(address)
   }
+  if (params.descriptor?.xsiTypeWhenNotRepresentable === true) {
+    const xsiType = getUnrepresentedXsiType(params.xmlValue)
+    if (xsiType !== undefined) collection.collector.setXsiType(address, xsiType)
+  }
 }
 
 export function collectConfigurationIndexImportedValue(params: {
@@ -86,6 +90,12 @@ function isRecord(value: unknown): value is Record<string, unknown> {
 function hasXsiNil(value: unknown): boolean {
   if (!isRecord(value)) return false
   return value["_xsi:nil"] === true || value["_xsi:nil"] === "true"
+}
+
+function getUnrepresentedXsiType(value: unknown): string | undefined {
+  if (!isRecord(value) || Object.keys(value).some((key) => key !== "_xsi:type")) return undefined
+  const xsiType = value["_xsi:type"]
+  return typeof xsiType === "string" ? xsiType : undefined
 }
 
 function ruleRepresentsXsiNil(rule: PropertyRule): boolean {

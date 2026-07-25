@@ -15,6 +15,7 @@ import { createConfigurationIndexReader, snapshotConfigurationIndex } from "./sh
 import { sampleIndex } from "./testData"
 
 import "../commonObjects/metadataValue/toXML"
+import "../commonObjects/metadataValue/fromXML"
 import "../commonObjects/boolean/fromXML"
 import "../commonObjects/boolean/fromYAML"
 import "../commonObjects/boolean/toYAML"
@@ -465,6 +466,28 @@ describe("configuration index в едином YAML → XML-обходе", () => 
       FillValue: { "_xsi:nil": true },
       UserSettingsID: "00000000-0000-4000-8000-000000000099",
     })
+  })
+
+  it("восстанавливает потерянный xsi:type пустого MetadataValue без reference XML", () => {
+    const rule = {
+      itemType: "Catalog",
+      properties: {
+        fillValue: { type: "MetadataValue", yaml: "ЗначениеЗаполнения", xml: "FillValue" },
+      },
+    } as const satisfies MetadataItemRule
+    const roundTrip = createDirectRoundTripContexts()
+    const imported = testPropertyFromXMLToYAML({
+      context: roundTrip.importContext,
+      rule,
+      xml: { FillValue: { "_xsi:type": "v8:Null" } },
+    })
+    const restored = testPropertyFromYAMLToXML({
+      context: roundTrip.exportContext(),
+      rule,
+      yaml: imported.yaml,
+    })
+
+    expect(restored.xml).toEqual({ FillValue: { "_xsi:type": "v8:Null" } })
   })
 
   it("восстанавливает служебную XML-идентичность без reference XML", () => {
