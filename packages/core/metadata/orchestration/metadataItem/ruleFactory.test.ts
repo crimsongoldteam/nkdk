@@ -66,4 +66,22 @@ describe("registerMetadataItemRule JSON Schema identity", () => {
       },
     ])
   })
+
+  it("позволяет property-rule уточнить правило вложенного документа", () => {
+    registerMetadataItemRule({ propertyType: "RuleFactorySampleItemProperty", itemRule: SampleItemRule })
+    const override = {
+      ...SampleItemRule,
+      itemType: "RuleFactoryOverriddenSampleItem",
+    } as const satisfies MetadataItemRule
+    const descriptor = getTypeRule("RuleFactorySampleItemProperty", "yamlToXMLNestedRule")
+
+    expect(
+      descriptor?.kind === "item"
+        ? descriptor.itemRuleFromProperty?.({
+            type: "RuleFactorySampleItemProperty",
+            itemRule: override,
+          })
+        : undefined
+    ).toBe(override)
+  })
 })

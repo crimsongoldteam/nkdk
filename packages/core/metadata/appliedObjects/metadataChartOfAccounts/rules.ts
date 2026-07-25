@@ -27,6 +27,7 @@ import { V8_MDCLASSES_ROOT } from "../../orchestration/appliedObject/presets"
 import type { MetadataItemRule } from "../../orchestration/property/types"
 import { commonBasedOnObjectPaths } from "../../commonObjects/metadataTargets"
 import { MetadataCommandRules } from "../metadataCommand/rules"
+import { ChartOfAccountsPredefinedRules } from "./predefinedRules"
 const properties = ["Properties"]
 const childObjects = ["ChildObjects"]
 export const MetadataChartOfAccountsStandardAttributeNames: Record<string, string> = {
@@ -386,7 +387,11 @@ export const MetadataChartOfAccountsRules = {
       toXML: false,
       fromXML: false,
     }),
-    predefined: predefinedRule({ yaml: "Предопределенные", filePath: "Ext/Predefined.xml" }),
+    predefined: predefinedRule({
+      yaml: "Предопределенные",
+      filePath: "Ext/Predefined.xml",
+      itemRule: ChartOfAccountsPredefinedRules,
+    }),
     additionalIndexes: additionalIndexRule({
       yaml: "ДополнительныеИндексы",
       filePath: "Ext/AdditionalIndexes.xml",

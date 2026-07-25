@@ -356,7 +356,12 @@ export function convertPropertiesFromYAMLToXML(params: ConvertPropertiesFromYAML
                 params.rule.childCollections?.find((collection) => collection.propertyKey === propertyKey)?.itemRule ??
                 nestedRule.itemRule,
             }
-          : nestedRule
+          : nestedRule.kind === "item"
+            ? {
+                ...nestedRule,
+                itemRule: nestedRule.itemRuleFromProperty?.(planned.propertyRule) ?? nestedRule.itemRule,
+              }
+            : nestedRule
       const nestedPropertyContext = withConfigurationIndexExportPropertyContext(
         propertyContext,
         planned.yamlKey ?? planned.propertyKey,

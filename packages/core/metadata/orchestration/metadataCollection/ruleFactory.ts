@@ -114,7 +114,8 @@ export const registerMetadataItemCollectionRule = <
         context,
         rule,
         xml,
-        itemRule,
+        itemRule:
+          "itemRule" in rule && rule.itemRule !== undefined ? (rule.itemRule as MetadataItemRule) : itemRule,
         xmlElement: xmlElement ?? rule.xml ?? "Item",
         keyField: typeof params.keyField === "string" ? params.keyField : undefined,
         propertyType,

@@ -216,6 +216,7 @@ registerMetadataXmlPrepareCapability({
       if (propertyRule === undefined) return []
       const nestedRule = getTypeRule(propertyRule.type, "yamlToXMLNestedRule")
       if (nestedRule?.kind !== "item") return []
+      const itemRule = nestedRule.itemRuleFromProperty?.(propertyRule) ?? nestedRule.itemRule
 
       const nestedYAML = source.raw(propertyKey)
       const normalizedYAML =
@@ -233,7 +234,7 @@ registerMetadataXmlPrepareCapability({
       const converted = convertMetadataItemFromYAMLToXML({
         context: nestedItemContext,
         yaml: normalizedYAML,
-        rule: nestedRule.itemRule,
+        rule: itemRule,
         name: nestedRule.injectOwnerName === true ? itemName : undefined,
         sourceItemName: itemName,
         outputs: [{ key: "property" }],
@@ -251,7 +252,7 @@ registerMetadataXmlPrepareCapability({
           targetXmlPath: output.targetXmlPath,
           xml,
           deferred: bindDeferredObjectValues(xml, converted.deferredByOutput.get("property") ?? []),
-          rootRule: nestedRule.itemRule,
+          rootRule: itemRule,
         },
       ]
     })
@@ -509,10 +510,11 @@ const syncAppliedObjectToXMLInternal = async (params: InternalSyncAppliedObjectT
           return writes
         }
         if (nestedRule?.kind === "item") {
+          const itemRule = nestedRule.itemRuleFromProperty?.(propertyRule) ?? nestedRule.itemRule
           const convertedFile = convertMetadataItemFromYAMLToXML({
             context: contextWithOwner,
             yaml: source.raw(propertyKey),
-            rule: nestedRule.itemRule,
+            rule: itemRule,
             outputs: [{ key: "file", referenceXML: rawReferenceXML }],
             ownerYAML: { itemType: rule.itemType },
           }).outputs.get("file")
