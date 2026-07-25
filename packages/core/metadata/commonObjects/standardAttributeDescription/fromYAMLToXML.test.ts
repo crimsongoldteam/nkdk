@@ -387,6 +387,65 @@ describe("StandardAttributeDescriptions direct YAML to XML", () => {
     )
   })
 
+  it("does not restore an explicitly empty synonym as the standard attribute name", () => {
+    const itemRule = {
+      itemType: "TestItem",
+      properties: {
+        standardAttributes: {
+          type: "StandardAttributeDescriptions",
+          yaml: "СтандартныеРеквизиты",
+          xml: "StandardAttributes",
+          standartAttributeNames: {
+            PeriodAdjustment: "КорректировкаПериода",
+            Recorder: "Регистратор",
+          },
+        },
+      },
+    } as const satisfies MetadataItemRule
+    const sourceXML = {
+      StandardAttributes: {
+        "xr:StandardAttribute": [
+          { _name: "PeriodAdjustment", "xr:Synonym": {} },
+          {
+            _name: "Recorder",
+            "xr:Synonym": {
+              "v8:item": [{ "v8:lang": "ru", "v8:content": "Recorder" }],
+            },
+            "xr:Comment": "keep",
+          },
+        ],
+      },
+    }
+    const contexts = createDirectRoundTripContexts()
+
+    const imported = testPropertyFromXMLToYAML({
+      context: contexts.importContext,
+      rule: itemRule,
+      xml: sourceXML,
+    })
+    const excludedEqualNameValues = contexts.importContext.fromXML.configurationIndex?.collector
+      .fragment("Тест.yaml")
+      .xmlValues.filter((value) => value.excludedEqualName)
+    expect(excludedEqualNameValues?.map((value) => value.logicalAddress)).toEqual([
+      "Test.Item.StandardAttributeDescription.Recorder.synonym",
+    ])
+    const exported = testPropertyFromYAMLToXML({
+      context: contexts.exportContext(),
+      rule: itemRule,
+      yaml: imported.yaml,
+    })
+
+    const items = (
+      exported.xml.StandardAttributes as {
+        "xr:StandardAttribute": Array<Record<string, unknown>>
+      }
+    )["xr:StandardAttribute"]
+    expect(items.find((item) => item._name === "PeriodAdjustment")?.["xr:Synonym"]).toBe("")
+    expect(items.find((item) => item._name === "Recorder")?.["xr:Synonym"]).toEqual(
+      sourceXML.StandardAttributes["xr:StandardAttribute"][1]["xr:Synonym"]
+    )
+  })
+
   it("дополняет изменённую YAML-коллекцию каноническими именами", () => {
     const rule = {
       itemType: "TestItem",

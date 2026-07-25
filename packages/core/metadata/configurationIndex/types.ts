@@ -26,6 +26,7 @@ export interface ConfigurationXmlValue {
   logicalAddress: string
   xsiNil?: true
   explicitEmpty?: true
+  excludedEqualName?: true
   xsiType?: string
   xmlText?: string
   xmlPrefix?: string

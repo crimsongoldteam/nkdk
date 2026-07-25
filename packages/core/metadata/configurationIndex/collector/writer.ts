@@ -14,6 +14,7 @@ export interface ConfigurationIndexCollector {
   setPresent(address: string, propertyKey: string): void
   setXsiNil(address: string): void
   setExplicitEmpty(address: string): void
+  setExcludedEqualName(address: string): void
   setXsiType(address: string, value: string): void
   setXmlText(address: string, value: string): void
   setXmlPrefix(address: string, value: string): void
@@ -69,6 +70,10 @@ class InMemoryConfigurationIndexCollector implements ConfigurationIndexCollector
 
   setExplicitEmpty(address: string): void {
     this.value(address).explicitEmpty = true
+  }
+
+  setExcludedEqualName(address: string): void {
+    this.value(address).excludedEqualName = true
   }
 
   setXsiType(address: string, value: string): void {

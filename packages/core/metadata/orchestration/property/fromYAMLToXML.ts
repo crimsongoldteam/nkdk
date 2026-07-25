@@ -4,6 +4,7 @@ import {
   getConfigurationIndexPropertyOrder,
   getConfigurationIndexSourceXmlKey,
   getConfigurationIndexXmlNodeLogicalAddress,
+  isConfigurationIndexPropertyExcludedEqualName,
   isConfigurationIndexPropertyPresent,
   withConfigurationIndexExportPropertyContext,
 } from "../../configurationIndex/referenceView"
@@ -557,7 +558,7 @@ export function convertPropertiesFromYAMLToXML(params: ConvertPropertiesFromYAML
         restoreExcludedEqualName:
           !source.has(propertyKey) &&
           planned.propertyRule.excludeIfEqualNameYAML === true &&
-          isConfigurationIndexPropertyPresent(propertyContext, propertyKey),
+          isConfigurationIndexPropertyExcludedEqualName(propertyContext, propertyKey),
       }
       imported = hasIndexedImplicitYAMLValue
         ? importIndexedImplicitYAMLValue(importParams)

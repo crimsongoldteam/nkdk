@@ -372,6 +372,21 @@ export function importPropertiesFromXMLToYAML(params: {
         const profile = params.profile
         if (profile !== undefined) profile.yamlExportMs += performance.now() - exportStartedAt
       }
+      const wasExcludedAsEqualName =
+        propertyRule.excludeIfEqualNameYAML === true &&
+        yamlValue === undefined &&
+        value !== undefined &&
+        exportPropertyValueToYAML({
+          context: sourceContext,
+          rule: propertyRule,
+          value,
+          owner,
+        }) !== undefined
+      if (indexCollection !== undefined && wasExcludedAsEqualName) {
+        indexCollection.collector.setExcludedEqualName(
+          propertyLogicalAddress ?? `${indexCollection.logicalAddress}.${key}`
+        )
+      }
       if (
         indexCollection !== undefined &&
         presentInXML &&
@@ -379,10 +394,6 @@ export function importPropertiesFromXMLToYAML(params: {
           typeof propertyRule.implicitValueYAML !== "function" &&
           (Object.is(yamlValue, propertyRule.implicitValueYAML) ||
             (yamlValue === undefined && Object.is(value, propertyRule.implicitValueYAML)))) ||
-          (propertyRule.excludeIfEqualNameYAML === true &&
-            !hasRawEmptyXML &&
-            yamlValue === undefined &&
-            value !== undefined) ||
           (Object.prototype.hasOwnProperty.call(propertyRule, "defaultValue") &&
             Object.is(
               value,

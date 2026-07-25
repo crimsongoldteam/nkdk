@@ -39,6 +39,13 @@ export function getConfigurationIndexPropertyXmlValue(
   return runtime.xmlValue(`${runtime.logicalAddress}.${propertyKey}`)
 }
 
+export function isConfigurationIndexPropertyExcludedEqualName(
+  context: ConfigurationContextWithExportToXML | undefined,
+  propertyKey: string
+): boolean {
+  return getConfigurationIndexPropertyXmlValue(context, propertyKey)?.excludedEqualName === true
+}
+
 export function getConfigurationIndexPropertyReferenceXMLValue(
   context: ConfigurationContextWithExportToXML | undefined,
   propertyKey: string

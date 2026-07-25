@@ -366,6 +366,7 @@ function xmlValueFlags(value: ConfigurationXmlValue): number {
   let flags = 0
   if (value.xsiNil === true) flags |= 1 << 0
   if (value.explicitEmpty === true) flags |= 1 << 1
+  if (value.excludedEqualName === true) flags |= 1 << 6
   if (value.xsiType !== undefined) flags |= 1 << 2
   if (value.xmlText !== undefined) flags |= 1 << 3
   if (value.xmlPrefix !== undefined) flags |= 1 << 4
