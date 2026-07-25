@@ -5,6 +5,7 @@ import { ToMetadata } from "../../../orchestration/metadataItem/registry"
 import { exportSingleElementRuleToJSONSchema } from "./toJSONSchema"
 import { PropertyRuleType } from "../../../orchestration/property/registry"
 import { registerTypeRule } from "../../../orchestration/property/typeRuleRegistry"
+import type { YAMLToXMLNestedRule } from "../../../orchestration/property/fromYAMLToXMLTypes"
 import { importSingleFormElementFromXMLToYAML } from "./fromXMLToYAML"
 import {
   configurationIndexExportFormElementLogicalAddress,
@@ -42,6 +43,66 @@ type ToXMLFn<T extends BaseElement> = (params: {
   context: ConfigurationContextWithExportToXML
 }) => { name: string } & Partial<T>
 
+type SingletonElementYAMLToXMLNestedRule = Extract<YAMLToXMLNestedRule, { kind: "item" }>
+
+export const createSingletonElementYAMLToXMLNestedRule = <Rule extends ElementRule>(params: {
+  elementRule: Rule
+  toXML: ToXMLFn<ToMetadata<Rule["itemType"]>>
+  nameStyle?: SingletonNameStyle
+  directId?: string
+  transformOutput?: NonNullable<SingletonElementYAMLToXMLNestedRule["transformOutput"]>
+}): SingletonElementYAMLToXMLNestedRule => ({
+  kind: "item",
+  itemRule: params.elementRule,
+  resolveContext: ({ context, name }) => {
+    const canonicalName = getCanonicalSingletonName({
+      ownerLogicalAddress: name ?? context.exportToXML.configurationIndex?.logicalAddress ?? "",
+      nameStyle: params.nameStyle,
+    })
+    const logicalAddress =
+      params.nameStyle?.canonicalNameMode === "ownerSuffix"
+        ? configurationIndexExportFormSingletonLogicalAddress(context, params.nameStyle.canonicalSuffix)
+        : canonicalName === undefined
+          ? undefined
+          : configurationIndexExportFormElementLogicalAddress(context, canonicalName)
+    return logicalAddress === undefined ? context : withConfigurationIndexExportLogicalAddress(context, logicalAddress)
+  },
+  resolveItemContext: ({ context, name }) => {
+    const canonicalName = getCanonicalSingletonName({
+      ownerLogicalAddress: name ?? context.exportToXML.configurationIndex?.logicalAddress ?? "",
+      nameStyle: params.nameStyle,
+    })
+    const itemName = getConfigurationIndexXmlName(context) ?? canonicalName
+    return itemName === undefined
+      ? context
+      : getChildContextToXML({
+          context,
+          itemType: params.elementRule.itemType,
+          path: `${params.elementRule.itemType}.${itemName}`,
+          name: itemName,
+        })
+  },
+  transformOutput: (outputParams) => {
+    const { context, xml } = outputParams
+    const extra = params.toXML({ context })
+    const { _name, _id, ...properties } = xml
+    const runtime = context.exportToXML.configurationIndex
+    const indexedName = getConfigurationIndexXmlName(context)
+    const indexedId = runtime?.identity("xmlId")
+    if (indexedName !== undefined) {
+      if (indexedName.length === 0) runtime?.collector.setAlias(runtime.logicalAddress, "_name", "")
+      else runtime?.collector.setXmlName(runtime.logicalAddress, indexedName)
+    }
+    if (indexedId !== undefined) runtime?.collector.setXmlId(runtime.logicalAddress, indexedId)
+    const result = {
+      _name: typeof _name === "string" ? _name : (indexedName ?? extra.name),
+      _id: typeof _id === "string" && _id.length > 0 ? _id : (indexedId ?? params.directId ?? String(extra.id ?? "")),
+      ...properties,
+    }
+    return params.transformOutput?.({ ...outputParams, xml: result }) ?? result
+  },
+})
+
 export const registerElementAsType = <Rule extends ElementRule & { itemType: SingleElementType }>(params: {
   propertyType: PropertyRuleType
   elementRule: Rule
@@ -61,60 +122,11 @@ export const registerElementAsType = <Rule extends ElementRule & { itemType: Sin
     })
   )
   registerTypeRule(propertyType, "nestedItemRule", { itemRule: elementRule })
-  registerTypeRule(propertyType, "yamlToXMLNestedRule", {
-    kind: "item",
-    itemRule: elementRule,
-    resolveContext: ({ context, name }) => {
-      const canonicalName = getCanonicalSingletonName({
-        ownerLogicalAddress: name ?? context.exportToXML.configurationIndex?.logicalAddress ?? "",
-        nameStyle,
-      })
-      const logicalAddress =
-        nameStyle?.canonicalNameMode === "ownerSuffix"
-          ? configurationIndexExportFormSingletonLogicalAddress(context, nameStyle.canonicalSuffix)
-          : canonicalName === undefined
-            ? undefined
-            : configurationIndexExportFormElementLogicalAddress(context, canonicalName)
-      return logicalAddress === undefined
-        ? context
-        : withConfigurationIndexExportLogicalAddress(context, logicalAddress)
-    },
-    resolveItemContext: ({ context, name }) => {
-      const canonicalName = getCanonicalSingletonName({
-        ownerLogicalAddress: name ?? context.exportToXML.configurationIndex?.logicalAddress ?? "",
-        nameStyle,
-      })
-      const itemName = getConfigurationIndexXmlName(context) ?? canonicalName
-      return itemName === undefined
-        ? context
-        : getChildContextToXML({
-            context,
-            itemType: elementRule.itemType,
-            path: `${elementRule.itemType}.${itemName}`,
-            name: itemName,
-          })
-    },
-    transformOutput: ({ context, xml }) => {
-      const extra = toXML({ context })
-      const { _name, _id, ...properties } = xml
-      const runtime = context.exportToXML.configurationIndex
-      const indexedName = getConfigurationIndexXmlName(context)
-      const indexedId = runtime?.identity("xmlId")
-      if (indexedName !== undefined) {
-        if (indexedName.length === 0) runtime?.collector.setAlias(runtime.logicalAddress, "_name", "")
-        else runtime?.collector.setXmlName(runtime.logicalAddress, indexedName)
-      }
-      if (indexedId !== undefined) runtime?.collector.setXmlId(runtime.logicalAddress, indexedId)
-      return {
-        _name: typeof _name === "string" ? _name : (indexedName ?? extra.name),
-        _id:
-          typeof _id === "string" && _id.length > 0
-            ? _id
-            : (indexedId ?? params.directId ?? String(extra.id ?? "")),
-        ...properties,
-      }
-    },
-  })
+  registerTypeRule(
+    propertyType,
+    "yamlToXMLNestedRule",
+    createSingletonElementYAMLToXMLNestedRule({ elementRule, toXML, nameStyle, directId: params.directId })
+  )
   registerExportToJSONSchema({ propertyType, elementRule })
 }
 

@@ -10,6 +10,7 @@ import { TableRules } from "../../elements/table/rules"
 import type { Table, TablePartialYAML } from "../../elements/table/types"
 import { exportElementToJSONSchema } from "../../../orchestration/formElement/toJSONSchema"
 import { importSingleFormElementFromXMLToYAML } from "../../elements/orchestration/fromXMLToYAML"
+import { createSingletonElementYAMLToXMLNestedRule } from "../../elements/orchestration/ruleFactory"
 import type { SingletonNameStyle } from "../../../orchestration/formElement/singletonName"
 import { registerTypeRule } from "../../../orchestration/property/typeRuleRegistry"
 import type { ElementXML } from "../../../orchestration/formElement/types"
@@ -57,22 +58,27 @@ registerTypeRule("GanttChartFieldTable", "importFromXMLToYAML", ({ context, xml,
   })
 )
 registerTypeRule("GanttChartFieldTable", "nestedItemRule", { itemRule: TableRules })
-registerTypeRule("GanttChartFieldTable", "yamlToXMLNestedRule", {
-  kind: "item",
-  itemRule: TableRules,
-  transformOutput: ({ context, xml, yaml, referenceXML }) => {
-    const result: Record<string, unknown> = { _name: getGeneratedName(context, undefined), ...xml }
-    const yamlRecord = asRecord(yaml)
-    for (const propertyKey of ["searchControl", "searchStringRepresentation", "viewStatusRepresentation"] as const) {
-      const rule = TableRules.properties[propertyKey]
-      if (rule?.yaml === undefined || rule.xml === undefined) continue
-      if (Object.prototype.hasOwnProperty.call(yamlRecord ?? {}, rule.yaml)) continue
-      if (Object.prototype.hasOwnProperty.call(referenceXML ?? {}, rule.xml)) continue
-      delete result[rule.xml]
-    }
-    return result
-  },
-})
+registerTypeRule(
+  "GanttChartFieldTable",
+  "yamlToXMLNestedRule",
+  createSingletonElementYAMLToXMLNestedRule({
+    elementRule: TableRules,
+    nameStyle,
+    toXML: ({ context }) => ({ name: getGeneratedName(context, undefined) }),
+    transformOutput: ({ xml, yaml, referenceXML }) => {
+      const result: Record<string, unknown> = { ...xml }
+      const yamlRecord = asRecord(yaml)
+      for (const propertyKey of ["searchControl", "searchStringRepresentation", "viewStatusRepresentation"] as const) {
+        const rule = TableRules.properties[propertyKey]
+        if (rule?.yaml === undefined || rule.xml === undefined) continue
+        if (Object.prototype.hasOwnProperty.call(yamlRecord ?? {}, rule.yaml)) continue
+        if (Object.prototype.hasOwnProperty.call(referenceXML ?? {}, rule.xml)) continue
+        delete result[rule.xml]
+      }
+      return result
+    },
+  })
+)
 registerTypeRule("GanttChartFieldTable", "exportToJSONSchema", exportGanttChartFieldTableToJSONSchema)
 
 export interface GanttChartFieldTableWidePropertyRule extends WidePropertyRuleBase {
