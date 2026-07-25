@@ -118,7 +118,7 @@ describe("prepareFullXmlSyncAssignment", () => {
     expect(prepared.documents[0]?.xml).toMatchObject({
       MetaDataObject: {
         Catalog: {
-          Attributes: {
+          ChildObjects: {
             Attribute: [
               {
                 Properties: {
