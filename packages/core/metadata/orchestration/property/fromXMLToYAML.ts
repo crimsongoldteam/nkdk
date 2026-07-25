@@ -375,10 +375,21 @@ export function importPropertiesFromXMLToYAML(params: {
       if (
         indexCollection !== undefined &&
         presentInXML &&
-        Object.prototype.hasOwnProperty.call(propertyRule, "implicitValueYAML") &&
-        typeof propertyRule.implicitValueYAML !== "function" &&
-        (Object.is(yamlValue, propertyRule.implicitValueYAML) ||
-          (yamlValue === undefined && Object.is(value, propertyRule.implicitValueYAML)))
+        ((Object.prototype.hasOwnProperty.call(propertyRule, "implicitValueYAML") &&
+          typeof propertyRule.implicitValueYAML !== "function" &&
+          (Object.is(yamlValue, propertyRule.implicitValueYAML) ||
+            (yamlValue === undefined && Object.is(value, propertyRule.implicitValueYAML)))) ||
+          (Object.prototype.hasOwnProperty.call(propertyRule, "defaultValue") &&
+            Object.is(
+              value,
+              getValueOrDefault({
+                context: sourceContext,
+                rule: propertyRule,
+                value: undefined,
+                name: key,
+                operation: "importFromXML",
+              })
+            )))
       ) {
         const indexStartedAt = performance.now()
         indexCollection.collector.setPresent(xmlNodeLogicalAddress!, key)

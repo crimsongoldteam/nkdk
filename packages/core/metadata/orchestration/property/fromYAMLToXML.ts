@@ -21,7 +21,12 @@ import type {
   importFromYAMLFunction,
   ImportFromYAMLFunctionNew,
 } from "./fn"
-import { applyAutoRequiredXMLParents, collectAutoRequiredXMLParentRoot, getOrderedKeysToXML } from "./helpers"
+import {
+  applyAutoRequiredXMLParents,
+  collectAutoRequiredXMLParentRoot,
+  getOrderedKeysToXML,
+  getValueOrDefault,
+} from "./helpers"
 import { getYAMLToXMLPlan, type YAMLToXMLPlannedProperty } from "./fromYAMLToXMLPlan"
 import type {
   YAMLPropertySource,
@@ -552,6 +557,25 @@ export function convertPropertiesFromYAMLToXML(params: ConvertPropertiesFromYAML
         ? importIndexedImplicitYAMLValue(importParams)
         : callAtomicFromYAML(importParams)
       if (params.profile !== undefined) params.profile.atomicFromYAMLCount++
+      if (
+        source.has(propertyKey) &&
+        propertyContext.exportToXML.configurationIndex?.xmlNode() !== undefined &&
+        !isConfigurationIndexPropertyPresent(propertyContext, propertyKey) &&
+        Object.prototype.hasOwnProperty.call(planned.propertyRule, "defaultValue") &&
+        Object.is(
+          imported,
+          getValueOrDefault({
+            context: diagnosticContext,
+            rule: planned.propertyRule,
+            value: undefined,
+            yaml,
+            name: params.name,
+            operation: "importFromXML",
+          })
+        )
+      ) {
+        continue
+      }
 
       matchingOutputs.forEach((output, index) => {
         const reference = references[index]!

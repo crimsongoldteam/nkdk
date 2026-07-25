@@ -6,6 +6,7 @@ import {
 } from "../../tests/directConversion"
 import type { ConfigurationContextWithExportToXML } from "../context/types"
 import { convertPropertiesFromYAMLToXML } from "../orchestration/property/fromYAMLToXML"
+import type { TypeRulesOperations } from "../orchestration/property/fn"
 import type { MetadataItemRule } from "../orchestration/property/types"
 import { createConfigurationIndexCollector } from "./collector/writer"
 import { encodeConfigurationIndex } from "./encode"
@@ -168,6 +169,65 @@ describe("configuration index в едином YAML → XML-обходе", () => 
 
     expect(imported.yaml).toEqual({})
     expect(exported.xml).toEqual({ Enabled: false })
+  })
+
+  it("не экспортирует вычисленное значение по умолчанию отсутствующего XML-свойства", () => {
+    const contexts = createDirectRoundTripContexts()
+    const rule = {
+      itemType: "TestDirectItem",
+      properties: {
+        mode: {
+          type: "string",
+          xml: "Mode",
+          yaml: "Режим",
+          defaultValue: ({ operation }: { operation: TypeRulesOperations }) =>
+            operation === "importFromYAML" ? undefined : "QuickAccess",
+        },
+        name: { type: "string", xml: "Name", yaml: "Имя" },
+      },
+    } as const satisfies MetadataItemRule
+    const imported = testPropertyFromXMLToYAML({
+      context: contexts.importContext,
+      rule,
+      xml: { Name: "Тест" },
+    })
+    const exported = testPropertyFromYAMLToXML({
+      context: contexts.exportContext(),
+      rule,
+      yaml: imported.yaml,
+    })
+
+    expect(imported.yaml).toEqual({ Режим: "QuickAccess", Имя: "Тест" })
+    expect(exported.xml).toEqual({ Name: "Тест" })
+  })
+
+  it("сохраняет явно заданное XML-значение, совпадающее с вычисленным значением по умолчанию", () => {
+    const contexts = createDirectRoundTripContexts()
+    const rule = {
+      itemType: "TestDirectItem",
+      properties: {
+        mode: {
+          type: "string",
+          xml: "Mode",
+          yaml: "Режим",
+          defaultValue: ({ operation }: { operation: TypeRulesOperations }) =>
+            operation === "importFromYAML" ? undefined : "QuickAccess",
+        },
+        name: { type: "string", xml: "Name", yaml: "Имя" },
+      },
+    } as const satisfies MetadataItemRule
+    const imported = testPropertyFromXMLToYAML({
+      context: contexts.importContext,
+      rule,
+      xml: { Mode: "QuickAccess", Name: "Тест" },
+    })
+    const exported = testPropertyFromYAMLToXML({
+      context: contexts.exportContext(),
+      rule,
+      yaml: imported.yaml,
+    })
+
+    expect(exported.xml).toEqual({ Mode: "QuickAccess", Name: "Тест" })
   })
 
   it("round-trips the complete XML property order without reference XML", () => {
