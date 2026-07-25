@@ -133,6 +133,8 @@ export type YAMLToXMLNestedRule =
         propertyRule: PropertyRule
       }) => readonly string[]
       readonly preserveReferenceItems?: true
+      /** Восстанавливать из индекса имена элементов, намеренно опущенных в YAML. */
+      readonly preserveOmittedItemNames?: true
       readonly sparseItems?: true
       readonly omitDefaultsForSparseItems?: true
       readonly omitDefaultsForSparseItem?: (params: {

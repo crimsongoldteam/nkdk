@@ -37,6 +37,8 @@ type CollectionRule<Rule extends MetadataItemRule, CollectionType extends Proper
   }) => readonly string[]
   /** Сохранять элементы reference XML, отсутствующие в YAML. */
   preserveReferenceItems?: true
+  /** Восстанавливать из индекса имена элементов, намеренно опущенных в YAML. */
+  preserveOmittedItemNames?: true
   /** Сохранять в индексе присутствие каждого XML-свойства элемента коллекции. */
   preserveItemPropertyPresence?: true
   /** Не выводить XML-свойства элемента, отсутствующие в его YAML-записи. */
@@ -119,6 +121,7 @@ export const registerMetadataItemCollectionRule = <
         configurationIndexUidSegment: params.configurationIndexUidSegment,
         configurationIndexAddressing: params.configurationIndexAddressing,
         preserveItemPropertyPresence: params.preserveItemPropertyPresence,
+        preserveOmittedItemNames: params.preserveOmittedItemNames,
         ...(params.yamlAsArray === true ? { yamlAsArray: true as const } : {}),
         ...(params.recordYamlKeyFromYAML === undefined ? {} : { recordYamlKeyFromYAML: params.recordYamlKeyFromYAML }),
         traversal,
@@ -140,6 +143,7 @@ export const registerMetadataItemCollectionRule = <
     nameFromYAMLKeyForProperty: params.nameFromYAMLKeyForProperty,
     completeItemNames: params.completeItemNames,
     preserveReferenceItems: params.preserveReferenceItems,
+    preserveOmittedItemNames: params.preserveOmittedItemNames,
     sparseItems: params.sparseItems,
     omitDefaultsForSparseItems: params.omitDefaultsForSparseItems,
     omitDefaultsForSparseItem: params.omitDefaultsForSparseItem,

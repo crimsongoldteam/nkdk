@@ -12,6 +12,7 @@ import { enterNestedYamlRule } from "../property/yamlRuleCursor"
 import { childUid, indexedUid, yamlIndexUid, yamlKeyUid } from "../../configurationIndex/logicalAddress"
 import {
   getConfigurationIndexCollectionContext,
+  getConfigurationIndexXmlNodeLogicalAddress,
   withConfigurationIndexLogicalAddress,
 } from "../../configurationIndex/collector/context"
 
@@ -85,6 +86,7 @@ export function importMetadataItemCollectionFromXMLToYAML(params: {
   configurationIndexUidSegment?: string
   configurationIndexAddressing?: ConfigurationIndexAddressingMode
   preserveItemPropertyPresence?: true
+  preserveOmittedItemNames?: true
   recordYamlKeyFromYAML?: (params: { yaml: Record<string, unknown>; name: string }) => string
   traversal: DirectImportTraversal
 }): Record<string, unknown> | Array<Record<string, unknown>> | undefined {
@@ -96,6 +98,16 @@ export function importMetadataItemCollectionFromXMLToYAML(params: {
       : params.itemRule
   const keyField = params.keyField
   const keyYaml = keyField === undefined ? undefined : (itemRule.properties[keyField]?.yaml ?? keyField)
+  if (params.preserveOmittedItemNames === true) {
+    const collection = getConfigurationIndexCollectionContext(params.context)
+    const itemNames = items.map((item) => itemNameFromXML(item, itemRule, keyField))
+    if (collection !== undefined && itemNames.every((name): name is string => name !== undefined)) {
+      collection.collector.setOrder(
+        getConfigurationIndexXmlNodeLogicalAddress(collection),
+        [...new Set(itemNames)]
+      )
+    }
+  }
 
   const yamlItems = items.flatMap((itemXml, index) => {
     const itemName = itemNameFromXML(itemXml, itemRule, params.keyField)

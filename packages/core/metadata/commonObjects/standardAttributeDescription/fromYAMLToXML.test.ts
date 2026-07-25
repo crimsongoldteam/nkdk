@@ -353,6 +353,13 @@ describe("StandardAttributeDescriptions direct YAML to XML", () => {
             "xr:MultiLine": false,
             "xr:FillValue": { "_xsi:nil": true },
           },
+          {
+            _name: "ExtDimensionType1",
+            "xr:LinkByType": "",
+            "xr:FillChecking": "DontCheck",
+            "xr:MultiLine": false,
+            "xr:FillValue": { "_xsi:nil": true },
+          },
         ],
       },
     }
@@ -374,6 +381,9 @@ describe("StandardAttributeDescriptions direct YAML to XML", () => {
     })["xr:StandardAttribute"]
     expect(items.find((item) => item._name === "ExtDimension1")).toEqual(
       sourceXML.StandardAttributes["xr:StandardAttribute"][0]
+    )
+    expect(items.find((item) => item._name === "ExtDimensionType1")).toEqual(
+      sourceXML.StandardAttributes["xr:StandardAttribute"][1]
     )
   })
 

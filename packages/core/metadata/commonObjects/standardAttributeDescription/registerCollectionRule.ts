@@ -26,6 +26,7 @@ registerMetadataItemCollectionRule({
         {}
     ),
   preserveReferenceItems: true,
+  preserveOmittedItemNames: true,
   sparseItems: true,
   omitDefaultsForSparseItems: true,
   omitDefaultsForSparseItem: ({ name }) => name !== undefined && /^ExtDimension(Type)?\d+$/.test(name),
