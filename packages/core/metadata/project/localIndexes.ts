@@ -1,7 +1,6 @@
 import type { LocalYamlFact } from "../orchestration/property/importYamlTypes"
 import { getTypeRule } from "../orchestration/property/typeRuleRegistry"
 import type { FormDataPathIndex } from "../validation/dataPath/formIndex"
-import type { MetadataTargetConstraint, MetadataTargetOwner } from "../commonObjects/metadataTargets/types"
 import { PictureLibFromYAML } from "../systemEnumerations/types"
 
 export interface LocalMetadataEvent {
@@ -22,8 +21,8 @@ export interface LocalMetadataIndex {
 export interface LocalMetadataTargetFact {
   yamlPath: readonly (string | number)[]
   value: string
-  constraint: MetadataTargetConstraint
-  owner?: MetadataTargetOwner
+  constraint: NonNullable<LocalYamlFact["rule"]["metadataTarget"]>
+  owner?: NonNullable<LocalYamlFact["metadataTargetOwner"]>
   rulePath: LocalYamlFact["rulePath"]
 }
 export interface LocalIndexes {
@@ -120,7 +119,7 @@ function collectStringValues(
 function appendMetadataTargetFact(
   target: LocalMetadataTargetFact[],
   fact: LocalYamlFact,
-  constraint: MetadataTargetConstraint,
+  constraint: LocalMetadataTargetFact["constraint"],
   value: string,
   yamlPath: readonly (string | number)[]
 ): void {

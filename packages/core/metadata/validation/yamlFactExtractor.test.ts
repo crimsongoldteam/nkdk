@@ -224,7 +224,7 @@ describe("extractValidationYamlFacts", () => {
     expect(facts.diagnostics).toEqual([])
   })
 
-  it("does not form pending reference checks in fact-only mode", () => {
+  it("keeps reference facts while diagnostics are disabled", () => {
     const projectDir = "/project"
     const filePath = "/project/ГруппаКоманд/ПечатьДокумента/Свойства.yaml"
     const file = resolveValidationProjectFile(projectDir, filePath)
@@ -237,6 +237,12 @@ describe("extractValidationYamlFacts", () => {
       validationDiagnostics: false,
     })
 
-    expect(facts.pendingReferences).toEqual([])
+    expect(facts.pendingReferences).toEqual([
+      expect.objectContaining({
+        canonical: "CommonPicture.Печать",
+        yamlPath: ["Картинка"],
+      }),
+    ])
+    expect(facts.diagnostics).toEqual([])
   })
 })
