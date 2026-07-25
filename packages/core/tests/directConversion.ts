@@ -21,6 +21,7 @@ import type {
 import type { MetadataItemRule } from "../metadata/orchestration/property/types"
 import type { PropertyRule } from "../metadata/orchestration/property/types"
 import { createLocalIndexesCollector, type LocalIndexes } from "../metadata/project/localIndexes"
+import { createEmptyPersistedSharedValidationSnapshot } from "../metadata/validation/persistedSharedValidationSnapshot"
 import { mockContextFromXML, mockContextToXML } from "./mockContext"
 import { readAndParseXMLFixture, readXMLFixtureAsString } from "./readFixtureXML"
 import { xmlExport } from "../xml/export/exporter"
@@ -68,6 +69,10 @@ export function createDirectRoundTripContexts(
             identities: fragment.identities,
             xmlNodes: fragment.xmlNodes,
             xmlValues: fragment.xmlValues,
+            localIndexes: {
+              metadata: createEmptyPersistedSharedValidationSnapshot(),
+              dependencies: [],
+            },
           })
         )
       )

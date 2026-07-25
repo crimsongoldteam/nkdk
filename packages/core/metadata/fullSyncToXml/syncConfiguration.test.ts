@@ -66,6 +66,7 @@ describe("syncConfigurationToXml", () => {
       { logicalAddress: "Конфигурация.ConfigDumpInfo.Catalog%2EТовары", kind: "xmlId", value: "dump" },
       { logicalAddress: "Справочник.Товары", kind: "uuid", value: "00000000-0000-4000-8000-000000000002" },
     ])
+    expect(harness.writtenIndex?.localIndexes).toEqual(harness.previousLocalIndexes)
   })
 
   it("does not create workers or write files when the target directory is not empty", async () => {
@@ -186,6 +187,13 @@ function createHarness(options: HarnessOptions = {}) {
       { projectPath: "removed.yaml", contentHash: 1n },
       { projectPath: "Справочник/Товары/Свойства.yaml", contentHash: 1n },
     ],
+    localIndexes: {
+      ...sampleIndex().localIndexes,
+      dependencies: sampleIndex().localIndexes.dependencies.map((dependency) => ({
+        ...dependency,
+        sourceProjectPath: "Справочник/Товары/Свойства.yaml",
+      })),
+    },
   }
   const assignments: FullXmlSyncAssignment[] = [
     {
@@ -270,6 +278,7 @@ function createHarness(options: HarnessOptions = {}) {
   return {
     events,
     deps,
+    previousLocalIndexes: index.localIndexes,
     get writtenIndex() {
       return writtenIndex
     },

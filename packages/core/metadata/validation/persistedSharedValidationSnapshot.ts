@@ -1,6 +1,9 @@
 import type { SharedProjectReferenceSnapshot } from "./sharedProjectReferenceIndex"
 import type { BinarySharedOwnersSnapshot } from "./sharedValidationBinaryOwners"
-import type { SharedValidationSnapshot } from "./sharedValidationSnapshot"
+import {
+  createSharedValidationSnapshot,
+  type SharedValidationSnapshot,
+} from "./sharedValidationSnapshot"
 
 export interface PersistedSharedValidationSnapshot {
   reference: Uint8Array
@@ -33,6 +36,12 @@ export function serializeSharedValidationSnapshot(
     ownerStrings: Uint8Array.from(new Uint8Array(snapshot.owners.strings.buffer)),
     ownerTable: Uint8Array.from(new Uint8Array(snapshot.owners.table)),
   }
+}
+
+export function createEmptyPersistedSharedValidationSnapshot(): PersistedSharedValidationSnapshot {
+  return serializeSharedValidationSnapshot(
+    createSharedValidationSnapshot({ records: [], filePaths: [] })
+  )
 }
 
 export function restoreSharedValidationSnapshot(

@@ -6,6 +6,7 @@ import {
   configurationIndexPath,
   writeConfigurationIndexAtomically,
 } from "../configurationIndex/fileIO"
+import { decodeConfigurationIndex } from "../configurationIndex/decode"
 import type { ComponentAddress } from "../components/address"
 import { encodeConfigurationIndexFragments, mergeConfigurationIndexFragments } from "../configurationIndex/fragment"
 import { createConfigurationIndexReader, readConfigurationIndexSnapshot } from "../configurationIndex/sharedSnapshot"
@@ -126,7 +127,9 @@ export async function syncConfigurationToXml(
       deps.readIndexSnapshot({ projectDir, address })
     )
     const indexReader = createConfigurationIndexReader(indexSnapshot)
-    const previousBinding = indexReader.binding()
+    const previousIndex = decodeConfigurationIndex(
+      new Uint8Array(indexSnapshot.bytes, 0, indexSnapshot.byteLength)
+    )
     const plan = await profiler.measureAsync("Полная XML-синхронизация", "Построение плана XML", {}, () =>
       deps.discover({ projectDir: yamlDir })
     )
@@ -189,7 +192,7 @@ export async function syncConfigurationToXml(
       encodeConfigurationIndexFragments([configDumpInfo.fragment]),
     ])
     const indexData = buildFullXmlSyncConfigurationIndex({
-      previous: previousBinding,
+      previous: previousIndex,
       projectFiles: [...first.projectFiles, ...external.projectFiles],
       fragmentData: mergeFragmentData(second.fragmentData, configDumpFragmentData),
     })
@@ -262,15 +265,15 @@ async function preflightFullXmlSync(params: {
 }
 
 function buildFullXmlSyncConfigurationIndex(params: {
-  previous: ConfigurationIndexData["binding"]
+  previous: Pick<ConfigurationIndexData, "binding" | "localIndexes">
   projectFiles: readonly ConfigurationProjectFile[]
   fragmentData: Pick<ConfigurationIndexData, "identities" | "xmlNodes" | "xmlValues">
 }): ConfigurationIndexData {
   return {
     binding: {
-      ...params.previous,
+      ...params.previous.binding,
       producerVersion: NKDK_CORE_VERSION,
-      indexGeneration: params.previous.indexGeneration + 1n,
+      indexGeneration: params.previous.binding.indexGeneration + 1n,
     },
     projectFiles: [...params.projectFiles].sort((left, right) =>
       Buffer.compare(Buffer.from(left.projectPath), Buffer.from(right.projectPath))
@@ -284,6 +287,7 @@ function buildFullXmlSyncConfigurationIndex(params: {
     xmlValues: [...params.fragmentData.xmlValues].sort((left, right) =>
       compareIndexKeys(left.logicalAddress, right.logicalAddress)
     ),
+    localIndexes: params.previous.localIndexes,
   }
 }
 

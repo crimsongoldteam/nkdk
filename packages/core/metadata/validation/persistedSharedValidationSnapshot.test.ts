@@ -5,6 +5,7 @@ import { projectObjectIndexKey } from "./projectReferenceIndex"
 import { createSharedValidationSnapshot } from "./sharedValidationSnapshot"
 import type { ValidationObjectRecord } from "./projectValidationTypes"
 import {
+  createEmptyPersistedSharedValidationSnapshot,
   restoreSharedValidationSnapshot,
   serializeSharedValidationSnapshot,
 } from "./persistedSharedValidationSnapshot"
@@ -62,6 +63,17 @@ describe("persisted shared validation snapshot", () => {
       )
     }
   )
+
+  it("creates a valid empty persisted snapshot for components without local indexes", () => {
+    const restored = restoreSharedValidationSnapshot(createEmptyPersistedSharedValidationSnapshot())
+
+    expect(restored.reference.stats).toMatchObject({
+      objectEntries: 0,
+      memberEntries: 0,
+      valueEntries: 0,
+    })
+    expect(restored.owners).toMatchObject({ records: 0, files: 0 })
+  })
 })
 
 function objectTarget(value: string) {

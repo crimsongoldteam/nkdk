@@ -11,6 +11,7 @@ import { readConfigurationIndexSnapshot } from "../configurationIndex/sharedSnap
 import { writeConfigurationIndexAtomically } from "../configurationIndex/fileIO"
 import type { FullXmlSyncCoordinatorDependencies } from "./syncConfiguration"
 import { NKDK_CORE_VERSION } from "../../version"
+import { createEmptyPersistedSharedValidationSnapshot } from "../validation/persistedSharedValidationSnapshot"
 
 const tempDirs: string[] = []
 
@@ -72,6 +73,10 @@ export async function writeSmallYamlProjectWithIndex(yamlDir: string): Promise<v
       ],
       xmlNodes: [],
       xmlValues: [],
+      localIndexes: {
+        metadata: createEmptyPersistedSharedValidationSnapshot(),
+        dependencies: [],
+      },
     },
   })
 }
