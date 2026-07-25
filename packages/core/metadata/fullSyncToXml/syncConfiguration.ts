@@ -30,6 +30,7 @@ import { validateFullXmlSyncWrittenFiles } from "./validateWrittenFiles"
 export interface SyncConfigurationToXmlParams {
   readonly context: ConfigurationContext
   readonly projectDir?: string
+  readonly componentPath?: string
   readonly yamlDir: string
   readonly xmlDir: string
   readonly concurrency?: number
@@ -101,6 +102,9 @@ export async function syncConfigurationToXml(
   params: SyncConfigurationToXmlParams,
   deps: FullXmlSyncCoordinatorDependencies = defaultDependencies
 ): Promise<FullXmlSyncResult> {
+  if (isConfigurationExtensionPath(params.componentPath)) {
+    return failedResult([unsupportedConfigurationExtensionDiagnostic()])
+  }
   const yamlDir = resolve(params.yamlDir)
   const projectDir = resolve(params.projectDir ?? params.yamlDir)
   const xmlDir = resolve(params.xmlDir)
@@ -310,6 +314,17 @@ function hasErrors(diagnostics: readonly FullXmlSyncDiagnostic[]): boolean {
 
 function operationDiagnostic(code: string, message: string): FullXmlSyncDiagnostic {
   return { severity: "error", code, message }
+}
+
+function isConfigurationExtensionPath(componentPath: string | undefined): boolean {
+  return componentPath === "cfe" || componentPath?.startsWith("cfe/") === true
+}
+
+function unsupportedConfigurationExtensionDiagnostic(): FullXmlSyncDiagnostic {
+  return operationDiagnostic(
+    "full_xml_sync_component_not_supported",
+    "Синхронизация расширений конфигурации в XML пока не поддерживается"
+  )
 }
 
 function normalizeConcurrency(value: number | undefined): number {

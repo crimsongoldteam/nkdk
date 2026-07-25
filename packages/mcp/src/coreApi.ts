@@ -130,6 +130,7 @@ export interface CoreApi {
       }
     }
     projectDir?: string
+    componentPath?: string
     yamlDir: string
     xmlDir: string
     concurrency?: number

@@ -26,7 +26,11 @@ type ConfigDumpInfo = Map<
 >
 
 interface SyncToXmlDeps {
-  planSyncToXml?: (params: { projectDir: string; yamlDir: string; xmlDir: string }) => Promise<unknown>
+  planSyncToXml?: (params: {
+    projectDir: string
+    yamlDir: string
+    xmlDir: string
+  }) => Promise<unknown>
   syncConfigurationToXML: (params: {
     context: {
       defaultLanguage: "ru"
@@ -45,6 +49,7 @@ interface SyncToXmlDeps {
       }
     }
     projectDir: string
+    componentPath?: string
     yamlDir: string
     xmlDir: string
     concurrency?: number
@@ -61,6 +66,13 @@ export type SyncToXmlPayload = ToolPayload<{
 
 export async function syncToXml(input: SyncToXmlInput, deps?: SyncToXmlDeps): Promise<SyncToXmlPayload> {
   try {
+    if (isConfigurationExtensionPath(input.componentPath)) {
+      return toolError(
+        "invalid_arguments",
+        "Синхронизация расширений конфигурации в XML пока не поддерживается",
+        { componentPath: input.componentPath },
+      )
+    }
     const component = resolveComponent({
       projectDir: input.projectDir,
       componentPath: input.componentPath,
@@ -96,6 +108,7 @@ export async function syncToXml(input: SyncToXmlInput, deps?: SyncToXmlDeps): Pr
         },
       },
       projectDir: component.projectDir,
+      componentPath: component.componentPath,
       yamlDir: component.componentDir,
       xmlDir: input.xmlDir,
       ...(input.concurrency === undefined ? {} : { concurrency: input.concurrency }),
@@ -110,6 +123,10 @@ export async function syncToXml(input: SyncToXmlInput, deps?: SyncToXmlDeps): Pr
   } catch (caught) {
     return toolError("core_error", errorMessage(caught))
   }
+}
+
+function isConfigurationExtensionPath(componentPath: string | undefined): boolean {
+  return componentPath === "cfe" || componentPath?.startsWith("cfe/") === true
 }
 
 function mapWarning(diagnostic: CoreDiagnostic): { severity: "warning"; code: string; message: string } {

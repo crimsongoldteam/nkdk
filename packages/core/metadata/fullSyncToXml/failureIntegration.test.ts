@@ -9,7 +9,12 @@ import type { ConfigurationIndexData } from "../configurationIndex/types"
 import type { ConfigurationContext } from "../context/types"
 import { syncConfigurationToXml, type FullXmlSyncCoordinatorDependencies } from "./syncConfiguration"
 import type { FullXmlSyncWorkerPool } from "./workerPool"
-import { createTempRoot, removeFullSyncTempDirs } from "./testHelpers"
+import {
+  createDirectFullSyncDependencies,
+  createTempRoot,
+  removeFullSyncTempDirs,
+  writeSmallYamlProjectWithIndex,
+} from "./testHelpers"
 
 afterEach(async () => {
   await removeFullSyncTempDirs()
@@ -93,6 +98,34 @@ describe("full XML sync failure integration", () => {
     expect(fs.readdirSync(xmlDir)).toEqual([])
     expect(secondPassCalled).toBe(false)
     expect(writeIndexCalled).toBe(false)
+  })
+
+  it("rejects configuration extension sync before creating XML output or changing the cf snapshot", async () => {
+    const projectDir = createTempRoot()
+    const componentDir = join(projectDir, "cfe", "Расширение")
+    const xmlDir = join(projectDir, "xml")
+    await writeSmallYamlProjectWithIndex(componentDir)
+    fs.renameSync(join(componentDir, ".nkdk"), join(projectDir, ".nkdk"))
+    const cfSnapshotPath = configurationIndexPath(projectDir, { kind: "configuration" })
+    const cfSnapshotBefore = fs.readFileSync(cfSnapshotPath)
+
+    const result = await syncConfigurationToXml(
+      {
+        context,
+        projectDir,
+        componentPath: "cfe/Расширение",
+        yamlDir: componentDir,
+        xmlDir,
+        concurrency: 1,
+      },
+      createDirectFullSyncDependencies()
+    )
+
+    expect(result.failed).toEqual([
+      expect.objectContaining({ code: "full_xml_sync_component_not_supported" }),
+    ])
+    expect(fs.existsSync(xmlDir)).toBe(false)
+    expect(fs.readFileSync(cfSnapshotPath)).toEqual(cfSnapshotBefore)
   })
 })
 

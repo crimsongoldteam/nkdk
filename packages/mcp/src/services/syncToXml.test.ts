@@ -22,7 +22,7 @@ describe("syncToXml service", () => {
     })
     const syncConfigurationToXML = vi.fn()
     const result = await syncToXml(
-      { projectDir, componentPath: "cfe/Расширение", xmlDir: "/xml" },
+      { projectDir, componentPath: "cf", xmlDir: "/xml" },
       { planSyncToXml, syncConfigurationToXML },
     )
 
@@ -36,7 +36,7 @@ describe("syncToXml service", () => {
     })
     expect(planSyncToXml).toHaveBeenCalledWith({
       projectDir,
-      yamlDir: join(projectDir, "cfe", "Расширение"),
+      yamlDir: join(projectDir, "cf"),
       xmlDir: "/xml",
     })
     expect(syncConfigurationToXML).not.toHaveBeenCalled()
@@ -52,14 +52,15 @@ describe("syncToXml service", () => {
     })
 
     const result = await syncToXml(
-      { projectDir, componentPath: "cfe/Расширение", xmlDir: "/xml", allowWrite: true, concurrency: 4 },
+      { projectDir, componentPath: "cf", xmlDir: "/xml", allowWrite: true, concurrency: 4 },
       { syncConfigurationToXML },
     )
 
     expect(syncConfigurationToXML).toHaveBeenCalledWith(
       expect.objectContaining({
         projectDir,
-        yamlDir: join(projectDir, "cfe", "Расширение"),
+        componentPath: "cf",
+        yamlDir: join(projectDir, "cf"),
         xmlDir: "/xml",
         concurrency: 4,
       }),
@@ -71,6 +72,30 @@ describe("syncToXml service", () => {
       warnings: [],
       failed: [],
     })
+  })
+
+  it("rejects configuration extension sync before reading the project or calling core", async () => {
+    const planSyncToXml = vi.fn()
+    const syncConfigurationToXML = vi.fn()
+
+    const result = await syncToXml(
+      {
+        projectDir: "/missing/project",
+        componentPath: "cfe/Расширение",
+        xmlDir: "/xml",
+        allowWrite: true,
+      },
+      { planSyncToXml, syncConfigurationToXML },
+    )
+
+    expect(result).toEqual({
+      ok: false,
+      code: "invalid_arguments",
+      message: "Синхронизация расширений конфигурации в XML пока не поддерживается",
+      details: { componentPath: "cfe/Расширение" },
+    })
+    expect(planSyncToXml).not.toHaveBeenCalled()
+    expect(syncConfigurationToXML).not.toHaveBeenCalled()
   })
 
   it("maps diagnostics from the new full sync result", async () => {
