@@ -27,6 +27,14 @@ describe("configDumpInfoNameFromMigrationPath", () => {
     )
   })
 
+  it("переводит рекурсивно вложенную подсистему", () => {
+    expect(
+      configDumpInfoNameFromMigrationPath(
+        "Подсистема.ПодсистемаВсеСвойства.Подсистема.ПодчиненнаяПодсистема"
+      )
+    ).toBe("Subsystem.ПодсистемаВсеСвойства.Subsystem.ПодчиненнаяПодсистема")
+  })
+
   it("падает на неподдержанном сегменте", () => {
     expect(() => configDumpInfoNameFromMigrationPath("Справочник.Номенклатура.Форма.ФормаЭлемента")).toThrow(
       'Неподдерживаемый сегмент ConfigDumpInfo "Форма"'

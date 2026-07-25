@@ -7,6 +7,7 @@ const CHILD_SEGMENT_TO_DUMP = new Map<string, string>([
   ["ТабличнаяЧасть", "TabularSection"],
   ["Измерение", "Dimension"],
   ["Ресурс", "Resource"],
+  ["Подсистема", "Subsystem"],
 ])
 
 const rootSegmentToDump = new Map(
