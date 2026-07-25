@@ -8,6 +8,7 @@ import {
   getConfigurationIndexSourceXmlKey,
   getConfigurationIndexXmlNodeLogicalAddress,
 } from "../../../configurationIndex/referenceView"
+import { getReferenceEventXmlName } from "./fromXML"
 
 const isEventsPropertyRule = (rule: PropertyRule): rule is PropertyRule & { items: Record<string, string> } => {
   return rule.type === "Events"
@@ -61,6 +62,7 @@ export const exportEventsToXML = (
     if (eventValue === undefined) continue
     const xmlName =
       getConfigurationIndexSourceXmlKey(context, key) ??
+      (referenceEvents === undefined ? undefined : getReferenceEventXmlName(referenceEvents, key)) ??
       (referenceEvents !== undefined && key in referenceEvents && !knownEventKeys.has(key) ? key : capitalize(key))
     items.push({ _name: xmlName, "#text": eventValue })
   }

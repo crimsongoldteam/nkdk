@@ -4,6 +4,8 @@ import type { EventsPropertyRule, PropertyRule } from "../../../orchestration/pr
 import type { EventsXML } from "./types"
 import { getConfigurationIndexCollectionContext } from "../../../configurationIndex/collector/context"
 
+const referenceXmlNames = new WeakMap<object, ReadonlyMap<string, string>>()
+
 const isNonEmptyObject = (value: unknown): value is Record<string, unknown> => {
   return typeof value === "object" && value !== null && !Array.isArray(value) && Object.keys(value as object).length > 0
 }
@@ -19,6 +21,7 @@ export const importEventsFromXML = (
   const events = Array.isArray(eventsXML.Event) ? eventsXML.Event : [eventsXML.Event]
 
   const result: Record<string, string> = {}
+  const aliases = new Map<string, string>()
   for (const event of events) {
     if (!event || typeof event !== "object") continue
     const name = (event as any)._name as string | undefined
@@ -27,9 +30,16 @@ export const importEventsFromXML = (
 
     const key = eventRuleKey(_rule, name, text)
     result[key] = text
+    aliases.set(key, name)
   }
 
-  return isNonEmptyObject(result) ? result : undefined
+  if (!isNonEmptyObject(result)) return undefined
+  referenceXmlNames.set(result, aliases)
+  return result
+}
+
+export function getReferenceEventXmlName(value: object, key: string): string | undefined {
+  return referenceXmlNames.get(value)?.get(key)
 }
 
 registerTypeRule("Events", "importFromXML", importEventsFromXML)
