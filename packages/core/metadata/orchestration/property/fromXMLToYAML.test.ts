@@ -493,6 +493,59 @@ describe("importPropertiesFromXMLToYAML", () => {
     ])
   })
 
+  it("keeps reference-only properties in XML order without exposing them in YAML", () => {
+    const indexCollector = createConfigurationIndexCollector()
+    const context = withConfigurationIndexCollector(mockContextFromXML(), indexCollector, "Справочник.Товары")
+
+    const yaml = importPropertiesWithSources({
+      context,
+      rule: {
+        itemType: "TestDirectItem",
+        properties: {
+          internalInfo: {
+            type: "string",
+            xml: "InternalInfo",
+            forReferenceOnly: true,
+          },
+          name: {
+            type: "string",
+            xml: "Name",
+            xmlParents: ["Properties"],
+            yaml: "Имя",
+          },
+          resources: {
+            type: "string",
+            xml: "Resource",
+            xmlParents: ["ChildObjects"],
+            yaml: "Ресурсы",
+          },
+        },
+      } as MetadataItemRule,
+      sources: [
+        {
+          context,
+          xml: {
+            InternalInfo: {},
+            Unknown: {},
+            Properties: { Name: "Товары" },
+            ChildObjects: { Resource: "Ресурс1" },
+          },
+        },
+      ],
+      yamlPath: [],
+      rulePath: [],
+      collector: createLocalIndexesCollector(),
+    })
+
+    expect(yaml).toEqual({ Имя: "Товары", Ресурсы: "Ресурс1" })
+    expect(indexCollector.fragment("Справочник/Товары/Свойства.yaml").xmlNodes).toEqual([
+      {
+        logicalAddress: "Справочник.Товары",
+        order: ["internalInfo", "name", "resources"],
+      },
+    ])
+  })
+
   it("adds exact coordinates when a direct conversion fails", () => {
     registerTypeRule("TestBrokenDirect" as PropertyRuleType, "importFromXMLToYAML", () => {
       throw new Error("broken")

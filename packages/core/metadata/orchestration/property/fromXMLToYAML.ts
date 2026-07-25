@@ -118,6 +118,24 @@ export function importPropertiesFromXMLToYAML(params: {
       childCollection?.configurationIndexUidSegment ??
       propertyRule.configurationIndexUidSegment ??
       propertyRule.operationTarget?.migrationSegment
+
+    if (indexCollection !== undefined && sourceXMLKey !== undefined) {
+      const indexStartedAt = performance.now()
+      importedKeysInSourceOrder.push(key)
+      if (sourceXMLKey !== entry.canonicalXMLKey)
+        indexCollection.collector.setAlias(xmlNodeLogicalAddress!, key, sourceXMLKey)
+      if (
+        presenceAffectsExport({
+          rule: propertyRule,
+          sourceXmlValue: sourceXMLValue,
+          typeBehavior: getTypeRule(propertyRule.type, "xmlImportPropertyBehavior"),
+        })
+      ) {
+        indexCollection.collector.setPresent(xmlNodeLogicalAddress!, key)
+      }
+      addProfileTime(params.profile, "configurationIndexMs", indexStartedAt)
+    }
+
     const collectConfigurationIndex = getTypeRule(propertyRule.type, "collectConfigurationIndexFromXML")
     if (indexCollection !== undefined && sourceXMLKey !== undefined && collectConfigurationIndex !== undefined) {
       const indexStartedAt = performance.now()
@@ -137,23 +155,6 @@ export function importPropertiesFromXMLToYAML(params: {
     }
 
     if (!forReference && propertyRule.forReferenceOnly === true) return
-
-    if (indexCollection !== undefined && sourceXMLKey !== undefined) {
-      const indexStartedAt = performance.now()
-      importedKeysInSourceOrder.push(key)
-      if (sourceXMLKey !== entry.canonicalXMLKey)
-        indexCollection.collector.setAlias(xmlNodeLogicalAddress!, key, sourceXMLKey)
-      if (
-        presenceAffectsExport({
-          rule: propertyRule,
-          sourceXmlValue: sourceXMLValue,
-          typeBehavior: getTypeRule(propertyRule.type, "xmlImportPropertyBehavior"),
-        })
-      ) {
-        indexCollection.collector.setPresent(xmlNodeLogicalAddress!, key)
-      }
-      addProfileTime(params.profile, "configurationIndexMs", indexStartedAt)
-    }
 
     let xmlValue = sourceXMLValue
     if (xmlValue === undefined && propertyRule.type === "MetadataDcsMetadataValue" && presentInXML) {
