@@ -183,6 +183,34 @@ describe("buildConfigDumpInfo", () => {
     ])
   })
 
+  it("сохраняет порядок дочерних записей из снимка без отдельных YAML-узлов", () => {
+    const children = new Map([
+      ["Catalog.Товары.Attribute.Первый", "first-id"],
+      ["Catalog.Товары.Command.Команда", "command-id"],
+      ["Catalog.Товары.Attribute.Второй", "second-id"],
+    ])
+    const reference: ConfigDumpInfo = new Map([
+      [
+        "Catalog.Товары",
+        {
+          id: "catalog-id",
+          configVersion: "aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa",
+          children,
+        },
+      ],
+    ])
+
+    const result = buildConfigDumpInfo({
+      reference,
+      collected: reference,
+      yamlState: state(["Справочник.Товары"]),
+      migrationState: state(["Справочник.Товары"]),
+      referencePathByCurrentPath: new Map(),
+    })
+
+    expect([...(result.get("Catalog.Товары")?.children.keys() ?? [])]).toEqual([...children.keys()])
+  })
+
   it("сохраняет неподдерживаемые дочерние reference-записи живого владельца", () => {
     const reference: ConfigDumpInfo = new Map([
       [

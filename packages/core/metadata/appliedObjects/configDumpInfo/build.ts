@@ -311,6 +311,12 @@ function orderObjectChildren(params: {
         continue
       }
 
+      const collectedId = entry.children.get(referenceChildName)
+      if (collectedId) {
+        orderedChildren.set(referenceChildName, collectedId)
+        continue
+      }
+
       if (!isManagedReferenceChild(referenceChildName, mapping.referenceDumpName)) {
         orderedChildren.set(
           remapReferenceChildName(referenceChildName, mapping),
