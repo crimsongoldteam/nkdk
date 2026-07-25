@@ -113,11 +113,11 @@ function referenceConfigDumpInfoFromIndex(index: ConfigurationIndexReader): Conf
 }
 
 function structuralStateFromAssignments(assignments: readonly FullXmlSyncAssignment[]): StructuralState {
-  const nodes = new Map<string, { path: string; kind: "object"; name: string }>()
+  const nodes: StructuralState["nodes"] = new Map()
   for (const assignment of assignments) {
     if (assignment.role !== "properties") continue
     const path = assignment.logicalAddress
-    nodes.set(path, { path, kind: "object", name: assignment.itemName })
+    nodes.set(path, { path, kind: "object", name: assignment.itemName, referencePath: path })
   }
   return { nodes }
 }

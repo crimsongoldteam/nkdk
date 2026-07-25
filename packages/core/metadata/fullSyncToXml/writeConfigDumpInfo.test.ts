@@ -112,6 +112,42 @@ describe("writeFullXmlSyncConfigDumpInfo", () => {
       expect.arrayContaining([expect.objectContaining({ logicalAddress: expect.stringContaining(".configVersion") })])
     )
   })
+
+  it("preserves ConfigDumpInfo order independently of assignment order", async () => {
+    const outputDir = tempDir()
+    const base = sampleIndex()
+    await writeFullXmlSyncConfigDumpInfo({
+      context: mockContext,
+      outputDir,
+      assignments: [catalogAssignment("Первый"), catalogAssignment("Второй")],
+      index: reader({
+        ...base,
+        identities: [
+          ...base.identities,
+          {
+            logicalAddress: "Конфигурация.ConfigDumpInfo.Catalog%2EВторой",
+            kind: "xmlId",
+            value: "00000000-0000-4000-8000-000000000002",
+          },
+          {
+            logicalAddress: "Конфигурация.ConfigDumpInfo.Catalog%2EПервый",
+            kind: "xmlId",
+            value: "00000000-0000-4000-8000-000000000001",
+          },
+        ],
+        xmlNodes: [
+          ...base.xmlNodes,
+          {
+            logicalAddress: "Конфигурация.ConfigDumpInfo",
+            order: ["Catalog.Второй", "Catalog.Первый"],
+          },
+        ],
+      }),
+    })
+
+    const xml = fs.readFileSync(join(outputDir, "ConfigDumpInfo.xml"), "utf-8")
+    expect(xml.indexOf('name="Catalog.Второй"')).toBeLessThan(xml.indexOf('name="Catalog.Первый"'))
+  })
 })
 
 function reader(data: ConfigurationIndexData) {
