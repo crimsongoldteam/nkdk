@@ -51,7 +51,7 @@ describe("CharacteristicsDescriptions YAML → XML", () => {
       context: roundTrip.exportContext(),
     })
 
-    expect(result.xml).toEqual({ Characteristics: {} })
+    expect(serializeDirectXML(result.xml)).toContain("<Characteristics/>")
   })
 
   it.each([

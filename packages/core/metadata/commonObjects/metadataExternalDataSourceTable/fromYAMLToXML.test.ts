@@ -1,5 +1,13 @@
 import { describe, expect, it } from "vitest"
-import { testPropertyFixtureThroughYAML } from "../../../tests/directConversion"
+import {
+  createDirectRoundTripContexts,
+  serializeDirectXML,
+  testPropertyFixtureThroughYAML,
+  testPropertyFromXMLToYAML,
+  testPropertyFromYAMLToXML,
+} from "../../../tests/directConversion"
+import type { MetadataItemRule } from "../../orchestration/property/types"
+import { MetadataExternalDataSourceTableRules } from "./rules"
 import "./register"
 
 const itemsTree = [
@@ -13,6 +21,26 @@ describe("MetadataExternalDataSourceTable YAML → XML", () => {
   it.each(["full.xml", "minimal.xml"])("should export %s", (fixture) => {
     const result = convert(fixture)
     expect(normalize(result.result)).toBe(normalize(result.expected))
+  })
+
+  it("восстанавливает пустые характеристики без reference XML", () => {
+    const rule = {
+      itemType: "ExternalDataSourceTableCharacteristicsProbe",
+      properties: { value: MetadataExternalDataSourceTableRules.properties.characteristics },
+    } as const satisfies MetadataItemRule
+    const roundTrip = createDirectRoundTripContexts()
+    const imported = testPropertyFromXMLToYAML({
+      rule,
+      xml: { Properties: { Characteristics: {} } },
+      context: roundTrip.importContext,
+    })
+    const restored = testPropertyFromYAMLToXML({
+      rule,
+      yaml: imported.yaml,
+      context: roundTrip.exportContext(),
+    })
+
+    expect(serializeDirectXML(restored.xml)).toContain("<Characteristics/>")
   })
 })
 

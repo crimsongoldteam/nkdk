@@ -8,6 +8,7 @@ import {
   MetadataExternalDataSourceDimensionTableCollectionRules,
   MetadataExternalDataSourceDimensionTableRules,
 } from "../metadataExternalDataSourceDimensionTable/rules"
+import { characteristicsDescriptionsRule } from "../characteristicsDescription/types"
 
 const properties = ["Properties"]
 const childObjects = ["ChildObjects"]
@@ -87,13 +88,12 @@ const cubeProperties = {
     xmlParents: properties,
     required: true,
   },
-  characteristics: {
+  characteristics: characteristicsDescriptionsRule({
     yaml: "Характеристики",
     xml: "Characteristics",
-    type: "CharacteristicsDescriptions",
     xmlParents: properties,
-    defaultValueXMLRaw: "",
-  },
+    defaultValueXMLRaw: {},
+  }),
   useStandardCommands: {
     yaml: "ИспользоватьСтандартныеКоманды",
     xml: "UseStandardCommands",
