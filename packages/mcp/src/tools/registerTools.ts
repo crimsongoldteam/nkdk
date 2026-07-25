@@ -58,7 +58,7 @@ export function registerNkdkCapabilities(server: RegisterableServer): void {
     {
       title: "Import 1C XML to NKDK YAML",
       description:
-        "Импортирует готовую XML-выгрузку одного компонента из xmlDir в projectDir/componentPath. componentPath по умолчанию cf; цель должна отсутствовать или быть пустой. Операция не подключается к 1С и не импортирует все компоненты за один вызов. Пишет файлы только при allowWrite=true.",
+        "Импортирует готовую XML-выгрузку одного компонента из xmlDir в projectDir. Для расширения путь определяется из Configuration.xml, componentPath передавать не требуется; при передаче он служит ограничением, цель должна отсутствовать или быть пустой. Операция не подключается к 1С и не импортирует все компоненты за один вызов. Пишет файлы только при allowWrite=true.",
       inputSchema: importFromXmlInputShape,
     },
     async (input) => jsonToolResult(await importFromXml(input))

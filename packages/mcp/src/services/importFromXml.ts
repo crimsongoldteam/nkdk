@@ -1,7 +1,7 @@
 import { loadCoreApi } from "../coreApi"
 import { errorMessage, toolError, toolSuccess, type ToolPayload } from "../contracts/common"
 import { type ImportFromXmlInput } from "../contracts/importFromXml"
-import { assertImportTargetEmpty, resolveComponent } from "./componentResolver"
+import { resolveComponent } from "./componentResolver"
 
 interface CoreImportDiagnostic {
   severity: "error" | "warning"
@@ -13,6 +13,7 @@ interface CoreImportDiagnostic {
 }
 
 interface CoreImportResult {
+  componentPath?: string
   succeeded: number
   failed: CoreImportDiagnostic[]
   warnings: CoreImportDiagnostic[]
@@ -20,7 +21,7 @@ interface CoreImportResult {
 }
 
 interface ImportFromXmlDeps {
-  syncConfigurationFromXML: (params: {
+  importConfigurationFromXml: (params: {
     context: {
       defaultLanguage: "ru"
       version: "2.20"
@@ -29,11 +30,12 @@ interface ImportFromXmlDeps {
     }
     inputDir: string
     projectDir: string
-    outputDir: string
+    requestedComponentPath?: string
   }) => Promise<CoreImportResult>
 }
 
 export type ImportFromXmlPayload = ToolPayload<{
+  componentPath: string
   succeeded: number
   failed: Array<{ kind: string; name: string; parent?: string; message: string }>
   warnings: Array<{ code: string; message: string; targetProjectPath?: string }>
@@ -53,18 +55,11 @@ export async function importFromXml(
   }
 
   try {
-    const component = resolveComponent({
-      projectDir: input.projectDir,
-      componentPath: input.componentPath,
-      createIfMissing: true,
-    })
-    if (!component.ok) return component.error
-
-    const importTargetError = assertImportTargetEmpty(component.componentDir)
-    if (importTargetError !== undefined) return importTargetError
+    const project = resolveComponent({ projectDir: input.projectDir })
+    if (!project.ok) return project.error
 
     const core = deps ?? (await loadCoreApi())
-    const result = await core.syncConfigurationFromXML({
+    const result = await core.importConfigurationFromXml({
       context: {
         defaultLanguage: "ru",
         version: "2.20",
@@ -72,11 +67,12 @@ export async function importFromXml(
         fromXML: { forReference: false },
       },
       inputDir: input.xmlDir,
-      projectDir: component.projectDir,
-      outputDir: component.componentDir,
+      projectDir: project.projectDir,
+      ...(input.componentPath === undefined ? {} : { requestedComponentPath: input.componentPath }),
     })
 
     return toolSuccess({
+      componentPath: result.componentPath ?? input.componentPath ?? "cf",
       succeeded: result.succeeded,
       failed: result.failed.map(mapFailure),
       warnings: result.warnings.map(mapWarning),

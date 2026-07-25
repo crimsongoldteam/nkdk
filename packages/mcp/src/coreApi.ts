@@ -2,6 +2,7 @@ import type {
   ConfigurationImportResult,
   FullXmlSyncPlanResult,
   FullXmlSyncResult,
+  ImportConfigurationFromXmlParams,
   MetadataOperationChangedXmlFile,
   MetadataOperationResult,
   MetadataProjectDirectoryStructure,
@@ -110,17 +111,7 @@ export interface CoreApi {
     yamlDir: string
     xmlDir: string
   }): Promise<FullXmlSyncPlanResult>
-  syncConfigurationFromXML(params: {
-    context: {
-      defaultLanguage: "ru"
-      version: "2.20"
-      exportToYAML: { toTyped: false }
-      fromXML: { forReference: false }
-    }
-    inputDir: string
-    projectDir?: string
-    outputDir: string
-  }): Promise<ConfigurationImportResult>
+  importConfigurationFromXml(params: ImportConfigurationFromXmlParams): Promise<ConfigurationImportResult>
   syncConfigurationToXML(params: {
     context: {
       defaultLanguage: "ru"

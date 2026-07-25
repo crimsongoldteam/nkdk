@@ -44,6 +44,8 @@ describe("registerNkdkCapabilities", () => {
       | undefined
     expect(importTool?.description).toContain("одного компонента")
     expect(importTool?.description).toContain("цель должна отсутствовать или быть пустой")
+    expect(importTool?.description).toContain("расширения путь определяется из Configuration.xml")
+    expect(importTool?.description).toContain("componentPath передавать не требуется")
     expect(importTool?.description).not.toContain(".nkdk/tmp/import/<operation-id>")
     expect(importTool?.description).toContain("не подключается к 1С")
     expect(importTool?.description).toContain("не импортирует все компоненты")

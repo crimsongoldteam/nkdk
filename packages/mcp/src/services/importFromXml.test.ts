@@ -1,4 +1,4 @@
-import { mkdirSync, mkdtempSync, rmSync, writeFileSync } from "fs"
+import { existsSync, mkdirSync, mkdtempSync, rmSync, writeFileSync } from "fs"
 import { tmpdir } from "os"
 import { join } from "path"
 import { afterEach, describe, expect, it, vi } from "vitest"
@@ -11,24 +11,27 @@ describe("importFromXml service", () => {
     for (const dir of tempDirs.splice(0)) rmSync(dir, { recursive: true, force: true })
   })
 
-  it("requires allowWrite before calling core", async () => {
-    const projectDir = createProject()
-    const syncConfigurationFromXML = vi.fn()
-    const result = await importFromXml({ xmlDir: "/xml", projectDir }, { syncConfigurationFromXML })
+  it("requires allowWrite before reading project or calling core", async () => {
+    const importConfigurationFromXml = vi.fn()
+    const result = await importFromXml(
+      { xmlDir: "/xml", projectDir: "/missing/project", componentPath: "cfe/Расширение" },
+      { importConfigurationFromXml },
+    )
 
     expect(result).toEqual({
       ok: false,
       code: "confirmation_required",
       message: "import_from_xml пишет YAML-файлы; повторите вызов с allowWrite=true",
-      details: { xmlDir: "/xml", projectDir, componentPath: "cf" },
+      details: { xmlDir: "/xml", projectDir: "/missing/project", componentPath: "cfe/Расширение" },
     })
-    expect(syncConfigurationFromXML).not.toHaveBeenCalled()
+    expect(importConfigurationFromXml).not.toHaveBeenCalled()
   })
 
-  it("imports selected empty component and maps XML-import diagnostics to stable JSON", async () => {
+  it("delegates extension selection to core and returns detected component path", async () => {
     const projectDir = createProject()
     const componentDir = join(projectDir, "cfe", "Расширение")
-    const syncConfigurationFromXML = vi.fn().mockResolvedValue({
+    const importConfigurationFromXml = vi.fn().mockResolvedValue({
+      componentPath: "cfe/Расширение",
       succeeded: 1,
       failed: [
         {
@@ -43,11 +46,11 @@ describe("importFromXml service", () => {
     })
 
     const result = await importFromXml(
-      { xmlDir: "/xml", projectDir, componentPath: "cfe/Расширение", allowWrite: true },
-      { syncConfigurationFromXML },
+      { xmlDir: "/xml", projectDir, allowWrite: true },
+      { importConfigurationFromXml },
     )
 
-    expect(syncConfigurationFromXML).toHaveBeenCalledWith({
+    expect(importConfigurationFromXml).toHaveBeenCalledWith({
       context: {
         defaultLanguage: "ru",
         version: "2.20",
@@ -56,10 +59,11 @@ describe("importFromXml service", () => {
       },
       inputDir: "/xml",
       projectDir,
-      outputDir: componentDir,
     })
+    expect(existsSync(componentDir)).toBe(false)
     expect(result).toEqual({
       ok: true,
+      componentPath: "cfe/Расширение",
       succeeded: 1,
       failed: [
         {
@@ -72,23 +76,67 @@ describe("importFromXml service", () => {
     })
   })
 
-  it("refuses to import into non-empty component", async () => {
+  it("forwards target and snapshot conflicts from core without cleanup", async () => {
     const projectDir = createProject()
-    writeFileSync(join(projectDir, "cf", "Configuration.yaml"), "name: Test\n")
-    const syncConfigurationFromXML = vi.fn()
-
-    const result = await importFromXml({ xmlDir: "/xml", projectDir, allowWrite: true }, { syncConfigurationFromXML })
-
-    expect(result).toMatchObject({
-      ok: false,
-      code: "invalid_arguments",
+    const componentDir = join(projectDir, "cfe", "Расширение")
+    mkdirSync(componentDir, { recursive: true })
+    const configurationPath = join(componentDir, "Configuration.yaml")
+    writeFileSync(configurationPath, "name: Test\n")
+    const snapshotPath = join(projectDir, ".nkdk", "components", "cfe", "Расширение", "configuration-index.bin")
+    mkdirSync(join(projectDir, ".nkdk", "components", "cfe", "Расширение"), { recursive: true })
+    writeFileSync(snapshotPath, "snapshot")
+    const importConfigurationFromXml = vi.fn().mockResolvedValue({
+      componentPath: "cfe/Расширение",
+      succeeded: 0,
+      failed: [
+        {
+          severity: "error",
+          code: "xml_import_operation_failed",
+          message: "Целевой каталог компонента не пуст: cfe/Расширение",
+          targetProjectPath: "",
+        },
+        {
+          severity: "error",
+          code: "xml_import_operation_failed",
+          message: "Снимок компонента уже существует: cfe/Расширение",
+          targetProjectPath: "",
+        },
+      ],
+      warnings: [],
     })
-    expect(syncConfigurationFromXML).not.toHaveBeenCalled()
+
+    const result = await importFromXml(
+      { xmlDir: "/xml", projectDir, allowWrite: true },
+      { importConfigurationFromXml },
+    )
+
+    expect(result).toEqual({
+      ok: true,
+      componentPath: "cfe/Расширение",
+      succeeded: 0,
+      failed: [
+        {
+          kind: "xml_import_operation_failed",
+          name: "",
+          message: "Целевой каталог компонента не пуст: cfe/Расширение",
+        },
+        {
+          kind: "xml_import_operation_failed",
+          name: "",
+          message: "Снимок компонента уже существует: cfe/Расширение",
+        },
+      ],
+      warnings: [],
+    })
+    expect(importConfigurationFromXml).toHaveBeenCalledOnce()
+    expect(existsSync(configurationPath)).toBe(true)
+    expect(existsSync(snapshotPath)).toBe(true)
   })
 
-  it("returns warnings and configuration index path", async () => {
+  it("preserves an explicit component path as a core constraint", async () => {
     const projectDir = createProject()
-    const syncConfigurationFromXML = vi.fn().mockResolvedValue({
+    const importConfigurationFromXml = vi.fn().mockResolvedValue({
+      componentPath: "cf",
       succeeded: 1,
       failed: [],
       warnings: [
@@ -103,12 +151,24 @@ describe("importFromXml service", () => {
     })
 
     const result = await importFromXml(
-      { xmlDir: "/xml", projectDir, componentPath: "epf/Загрузка", allowWrite: true },
-      { syncConfigurationFromXML },
+      { xmlDir: "/xml", projectDir, componentPath: "cf", allowWrite: true },
+      { importConfigurationFromXml },
     )
 
+    expect(importConfigurationFromXml).toHaveBeenCalledWith({
+      context: {
+        defaultLanguage: "ru",
+        version: "2.20",
+        exportToYAML: { toTyped: false },
+        fromXML: { forReference: false },
+      },
+      inputDir: "/xml",
+      projectDir,
+      requestedComponentPath: "cf",
+    })
     expect(result).toEqual({
       ok: true,
+      componentPath: "cf",
       succeeded: 1,
       failed: [],
       warnings: [

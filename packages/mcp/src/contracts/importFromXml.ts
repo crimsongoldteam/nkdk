@@ -23,6 +23,7 @@ export const importFromXmlInputShape = {
 
 export const importFromXmlSuccessOutputShape = {
   ok: z.literal(true),
+  componentPath: z.string(),
   succeeded: z.number(),
   failed: z.array(failedObjectSchema),
   warnings: z.array(importWarningSchema),
