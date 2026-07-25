@@ -8,6 +8,12 @@ import {
   minimalConditionalAppearanceItemsYAML,
 } from "./__fixtures__/data"
 import "./types"
+import {
+  createDirectRoundTripContexts,
+  testPropertyFromXMLToYAML,
+  testPropertyFromYAMLToXML,
+} from "../../../../tests/directConversion"
+import type { MetadataItemRule } from "../../../orchestration"
 
 const rule: PropertyRule = {
   type: "ConditionalAppearanceItems",
@@ -33,5 +39,50 @@ describe("export ConditionalAppearanceItems to YAML", () => {
     })
 
     expect(result).toEqual({ УсловноеОформлениеКомпоновкиДанных: minimalConditionalAppearanceItemsYAML })
+  })
+
+  it("восстанавливает явно пустые части элемента без reference XML", () => {
+    const metadataRule = {
+      itemType: "ConditionalAppearanceProbe",
+      properties: {
+        value: {
+          type: "ConditionalAppearanceItems",
+          yaml: "Значение",
+          xml: "ConditionalAppearance",
+          configurationIndexAddressing: "yamlPath",
+        },
+      },
+    } as const satisfies MetadataItemRule
+    const contexts = createDirectRoundTripContexts({ logicalAddress: "Test.ConditionalAppearance" })
+    const imported = testPropertyFromXMLToYAML({
+      rule: metadataRule,
+      context: contexts.importContext,
+      xml: {
+        ConditionalAppearance: {
+          "dcsset:item": {
+            "dcsset:selection": {},
+            "dcsset:filter": {},
+            "dcsset:appearance": {},
+          },
+        },
+      },
+    })
+    const restored = testPropertyFromYAMLToXML({
+      rule: metadataRule,
+      yaml: imported.yaml,
+      context: contexts.exportContext(),
+    })
+
+    expect(restored.xml).toMatchObject({
+      ConditionalAppearance: {
+        "dcsset:item": [
+          {
+            "dcsset:selection": {},
+            "dcsset:filter": {},
+            "dcsset:appearance": {},
+          },
+        ],
+      },
+    })
   })
 })

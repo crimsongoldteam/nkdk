@@ -399,7 +399,9 @@ export function convertPropertiesFromYAMLToXML(params: ConvertPropertiesFromYAML
           : source.raw(propertyKey)
       const nestedYAML =
         sourceNestedYAML === undefined
-          ? effectiveNestedRule.kind === "item" &&
+          ? isConfigurationIndexPropertyPresent(propertyContext, propertyKey)
+            ? {}
+            : effectiveNestedRule.kind === "item" &&
             (references.some((reference) => reference.exists && reference.value === undefined) ||
               nestedContext.exportToXML.configurationIndex?.identity(
                 "xmlId",
