@@ -1,6 +1,10 @@
 import type { ConfigurationContextFromXML } from "../../context/types"
 import type { PropertyRule } from "../../orchestration"
 import { registerTypeRule } from "../../orchestration"
+import {
+  getConfigurationIndexCollectionContext,
+  getConfigurationIndexXmlNodeLogicalAddress,
+} from "../../configurationIndex/collector/context"
 
 export const importChildFileItemNamesFromXML = (
   _context: ConfigurationContextFromXML,
@@ -13,3 +17,10 @@ export const importChildFileItemNamesFromXML = (
 }
 
 registerTypeRule("ChildFileItemNames", "importFromXML", importChildFileItemNamesFromXML)
+registerTypeRule("ChildFileItemNames", "collectConfigurationIndexFromXML", ({ context, xml }) => {
+  const collection = getConfigurationIndexCollectionContext(context)
+  if (collection === undefined) return
+  const names = Array.isArray(xml) ? xml : [xml]
+  if (!names.every((value): value is string => typeof value === "string")) return
+  collection.collector.setOrder(getConfigurationIndexXmlNodeLogicalAddress(collection), names)
+})

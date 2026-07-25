@@ -71,6 +71,7 @@ function prepareTopologyAssignmentDocuments(
       index: params.index,
       composition: (params.assignments ?? []).map((entry) => ({
         sourceProjectPath: entry.sourceProjectPath,
+        itemType: entry.itemType,
         itemName: entry.itemName,
         logicalAddress: entry.logicalAddress,
         assignmentRole: entry.role === "form" ? "fileItem" : entry.role,

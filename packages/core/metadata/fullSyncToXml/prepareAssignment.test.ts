@@ -427,7 +427,18 @@ describe("prepareFullXmlSyncAssignment", () => {
       preparedYamlFile: yaml,
       context: mockContextToXML(),
       index: createConfigurationIndexReader(snapshotConfigurationIndex(encodeConfigurationIndex(sampleIndex()))),
-      assignments: [],
+      assignments: [
+        {
+          id: "dimension-table",
+          sourceProjectPath:
+            "ВнешнийИсточникДанных/Источник/Кубы/Куб/ТаблицыИзмерений/Таблица/Свойства.yaml",
+          role: "form",
+          itemType: "MetadataExternalDataSourceDimensionTable",
+          itemName: "Таблица",
+          logicalAddress: `${assignment.logicalAddress}.ТаблицаИзмерений.Таблица`,
+          ownerLogicalAddress: assignment.logicalAddress,
+        },
+      ],
     })
 
     expect(prepared.documents[0]?.xml).toMatchObject({
@@ -442,6 +453,9 @@ describe("prepareFullXmlSyncAssignment", () => {
           },
           Properties: {
             DefaultRecordForm: "ExternalDataSource.Источник.Cube.Куб.Form.ФормаЗаписи",
+          },
+          ChildObjects: {
+            DimensionTable: ["Таблица"],
           },
         },
       },

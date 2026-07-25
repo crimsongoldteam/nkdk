@@ -15,6 +15,7 @@ export interface MetadataXmlPrepareOutput {
 
 export interface MetadataXmlPrepareCompositionEntry {
   readonly sourceProjectPath: string
+  readonly itemType: string
   readonly itemName: string
   readonly logicalAddress: string
   readonly assignmentRole: "configuration" | "properties" | "fileItem"

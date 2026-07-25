@@ -25,6 +25,7 @@ import {
 } from "./fileItemChildCollections"
 import { registerMetadataXmlPrepareCapability } from "../../resourceTopology/capabilities"
 import { withConfigurationIndexExportPropertyContext } from "../../configurationIndex/referenceView"
+import type { MetadataXmlPrepareCompositionEntry } from "../../resourceTopology/capabilities"
 
 const PROPERTIES_YAML = "Свойства.yaml"
 
@@ -77,6 +78,7 @@ export const prepareAppliedObjectOwnerXML = (params: {
   preparedYamlFile: PreparedYamlFile
   referenceXML?: Record<string, unknown>
   fileChildNames?: { forms?: readonly string[]; templates?: readonly string[] }
+  compositionPropertyValues?: ReadonlyMap<string, unknown>
   profile?: import("../property/fromYAMLToXMLTypes").YAMLToXMLProfile
 }): {
   xml: Record<string, unknown>
@@ -119,11 +121,16 @@ export const prepareAppliedObjectOwnerXML = (params: {
     name: params.name,
     externalMetadata: params.rule.externalMetadata,
   })
-  const fileChildPropertyValues = collectFileChildPropertyValues({
-    rule: params.rule,
-    yaml: yamlObj,
-    ownerDir: dirname(params.preparedYamlFile.filePath),
-  })
+  const propertyValues = new Map(
+    collectFileChildPropertyValues({
+      rule: params.rule,
+      yaml: yamlObj,
+      ownerDir: dirname(params.preparedYamlFile.filePath),
+    })
+  )
+  for (const [propertyKey, value] of params.compositionPropertyValues ?? []) {
+    propertyValues.set(propertyKey, value)
+  }
 
   const converted = convertMetadataItemFromYAMLToXML({
     context: contextWithOwner,
@@ -131,7 +138,7 @@ export const prepareAppliedObjectOwnerXML = (params: {
     yaml: yamlObj,
     name: params.name,
     outputs: [{ key: "owner", referenceXML: params.referenceXML }],
-    propertyValues: fileChildPropertyValues,
+    propertyValues,
     profile: params.profile,
     rulePath: [params.rule.itemType],
   })
@@ -177,7 +184,7 @@ function collectFileChildPropertyValues(params: {
 
 registerMetadataXmlPrepareCapability({
   id: "appliedObject",
-  run: ({ assignment, context, preparedYamlFile, itemName, outputs, profile }) => {
+  run: ({ assignment, context, preparedYamlFile, itemName, logicalAddress, outputs, composition, profile }) => {
     const output = outputs.find((candidate) => candidate.role === "metadata")
     if (output === undefined) return []
     const prepared = prepareAppliedObjectOwnerXML({
@@ -185,11 +192,38 @@ registerMetadataXmlPrepareCapability({
       context,
       name: itemName,
       preparedYamlFile,
+      compositionPropertyValues: collectCompositionChildPropertyValues({
+        rule: assignment.itemRule,
+        ownerLogicalAddress: logicalAddress,
+        composition,
+      }),
       profile,
     })
     return [{ declarationId: output.declarationId, targetXmlPath: output.targetXmlPath, ...prepared }]
   },
 })
+
+function collectCompositionChildPropertyValues(params: {
+  rule: MetadataItemRule
+  ownerLogicalAddress: string
+  composition: readonly MetadataXmlPrepareCompositionEntry[]
+}): ReadonlyMap<string, unknown> {
+  const values = new Map<string, unknown>()
+  for (const childCollection of params.rule.childCollections ?? []) {
+    const fileItemRule = childCollection.fileItemRule
+    if (fileItemRule === undefined) continue
+    const names = params.composition
+      .filter(
+        (entry) =>
+          entry.assignmentRole === "fileItem" &&
+          entry.ownerLogicalAddress === params.ownerLogicalAddress &&
+          entry.itemType === fileItemRule.itemType
+      )
+      .map((entry) => entry.itemName)
+    if (names.length > 0) values.set(childCollection.propertyKey, names)
+  }
+  return values
+}
 
 registerMetadataXmlPrepareCapability({
   id: "itemProperty",
