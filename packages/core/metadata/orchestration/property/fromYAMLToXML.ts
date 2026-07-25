@@ -538,6 +538,15 @@ export function convertPropertiesFromYAMLToXML(params: ConvertPropertiesFromYAML
         ) {
           value = value[effectiveNestedRule.xmlElement]
         }
+        if (
+          effectiveNestedRule.kind === "collection" &&
+          effectiveNestedRule.xmlElement !== undefined &&
+          isEmptyCollectionOutput(value, effectiveNestedRule.xmlElement) &&
+          reference.exists &&
+          Object.prototype.hasOwnProperty.call(planned.propertyRule, "defaultValueXMLEmpty")
+        ) {
+          value = {}
+        }
         const valuePath = writeXMLValue({ context: propertyContext, output, planned, value, reference })
         if (valuePath !== undefined) {
           for (const deferred of nested.deferredByOutput.get(output.request.key) ?? []) {
@@ -958,6 +967,12 @@ function writeXMLValue(params: {
   const valuePath = [...(rule.xmlParents ?? []), xmlKey]
   setAtPath(output.xml, valuePath, value)
   return valuePath
+}
+
+function isEmptyCollectionOutput(value: unknown, xmlElement: string): boolean {
+  if (!isRecord(value) || Object.keys(value).length !== 1) return false
+  const items = value[xmlElement]
+  return Array.isArray(items) && items.length === 0
 }
 
 function isExplicitEmptyXMLReference(value: unknown): boolean {

@@ -327,6 +327,30 @@ describe("convertPropertiesFromYAMLToXML", () => {
     expect(result.outputs.get("owner")).toEqual({ Items: {} })
   })
 
+  it("сохраняет пустой корневой XML-контейнер коллекции из reference", () => {
+    registerTypeRule("EmptyRootReferenceCollection" as never, "yamlToXMLNestedRule", {
+      kind: "collection",
+      itemRule: testRule({ name: { type: "string", xml: "Name" } }),
+      xmlElement: "Item",
+      yamlShape: "record",
+    })
+
+    const result = convertPropertiesFromYAMLToXML({
+      context: context(),
+      yaml: { Элементы: {} },
+      rule: testRule({
+        Items: {
+          type: "EmptyRootReferenceCollection" as never,
+          yaml: "Элементы",
+          defaultValueXMLEmpty: [],
+        },
+      }),
+      outputs: [{ key: "owner", referenceXML: { Items: undefined } }],
+    })
+
+    expect(result.outputs.get("owner")).toEqual({ Items: {} })
+  })
+
   it("не добавляет отсутствующее YAML-свойство в существующий reference XML", () => {
     const result = convertPropertiesFromYAMLToXML({
       context: context(),
