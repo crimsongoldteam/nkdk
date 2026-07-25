@@ -17,6 +17,7 @@ import "../commonObjects/metadataValue/toXML"
 import "../commonObjects/internalInfo/fromXML"
 import "../commonObjects/internalInfo/toXML"
 import "../commonObjects/userSettingsID/toXML"
+import "../commonObjects/uuid/fromXML"
 
 function contextWithIndex(xmlValues = sampleIndex().xmlValues): {
   context: ConfigurationContextWithExportToXML
@@ -159,6 +160,30 @@ describe("configuration index в едином YAML → XML-обходе", () => 
     expect(result.outputs.get("owner")).toEqual({
       FillValue: { "_xsi:nil": true },
       UserSettingsID: "00000000-0000-4000-8000-000000000099",
+    })
+  })
+
+  it("восстанавливает служебную XML-идентичность без reference XML", () => {
+    const { context, collector } = contextWithIndex()
+    const rule = {
+      itemType: "Catalog",
+      properties: {
+        uuid: { type: "uuid", xml: "_uuid", forReferenceOnly: true },
+      },
+    } as const satisfies MetadataItemRule
+
+    const result = convertPropertiesFromYAMLToXML({
+      context,
+      yaml: {},
+      rule,
+      outputs: [{ key: "owner" }],
+    })
+
+    expect(result.outputs.get("owner")).toEqual({ _uuid: "00000000-0000-4000-8000-000000000001" })
+    expect(collector.fragment("Справочник/Товары/Свойства.yaml").identities).toContainEqual({
+      logicalAddress: "Справочник.Товары",
+      kind: "uuid",
+      value: "00000000-0000-4000-8000-000000000001",
     })
   })
 })

@@ -39,6 +39,7 @@ registerMetadataItemCollectionRule({
   itemRule: FormCommandRules,
   xmlElement: "Command",
   keyField: "name",
+  configurationIndexUidSegment: "Команда",
   fromXMLToYAML: importFormCommandsFromXMLToYAML,
   mapItemOutput: ({ xml }) => {
     const { _name, _id, ...properties } = xml

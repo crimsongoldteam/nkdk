@@ -69,13 +69,22 @@ export function convertMetadataCollectionFromYAMLToXML(
       params.descriptor.resolveItemRule?.({ yaml, name, index, propertyRule: params.propertyRule }) ?? defaultItemRule
     const normalizedYAML =
       params.descriptor.normalizeItemYAML?.({ yaml, name, index, propertyRule: params.propertyRule }) ?? yaml
-    const indexedItemContext = configurationIndexItemContext({
+    const defaultItemContext = configurationIndexItemContext({
       context: params.context,
       descriptor: params.descriptor,
       yaml: normalizedYAML,
       name,
       index,
     })
+    const indexedItemContext =
+      params.descriptor.resolveItemContext?.({
+        context: params.context,
+        yaml: normalizedYAML,
+        name,
+        index,
+        itemRule,
+        propertyRule: params.propertyRule,
+      }) ?? defaultItemContext
     const itemContext =
       name === undefined || itemRule.externalMetadata === undefined
         ? indexedItemContext
@@ -163,9 +172,7 @@ export function convertMetadataCollectionFromYAMLToXML(
         const itemIndex = items.length
         items.push(mapped)
         const prefix =
-          params.descriptor.xmlElement === undefined
-            ? [itemIndex]
-            : [params.descriptor.xmlElement, itemIndex]
+          params.descriptor.xmlElement === undefined ? [itemIndex] : [params.descriptor.xmlElement, itemIndex]
         for (const deferred of converted.deferredByOutput.get(output.key) ?? []) {
           deferredByOutput.get(output.key)!.push({
             ...deferred,
@@ -203,9 +210,7 @@ function completeCollectionEntries(params: {
   if (params.descriptor.yamlShape !== "record") return params.entries
   const referenceNames = collectReferenceNames(params)
   const indexedNames =
-    params.descriptor.preserveOmittedItemNames === true
-      ? [...getConfigurationIndexPropertyOrder(params.context)]
-      : []
+    params.descriptor.preserveOmittedItemNames === true ? [...getConfigurationIndexPropertyOrder(params.context)] : []
   if (params.descriptor.preserveReferenceItems !== true && referenceNames.length > 0) {
     const referenceOrder = new Map(referenceNames.map((name, index) => [name, index]))
     return params.entries.toSorted(
@@ -219,9 +224,9 @@ function completeCollectionEntries(params: {
       ? referenceNames
       : indexedNames.length > 0
         ? indexedNames
-      : params.entries.length > 0 && params.propertyRule !== undefined && params.source !== undefined
-        ? (params.descriptor.completeItemNames?.({ source: params.source, propertyRule: params.propertyRule }) ?? [])
-        : []
+        : params.entries.length > 0 && params.propertyRule !== undefined && params.source !== undefined
+          ? (params.descriptor.completeItemNames?.({ source: params.source, propertyRule: params.propertyRule }) ?? [])
+          : []
   if (requestedNames.length === 0) return params.entries
 
   const byName = new Map(params.entries.map((entry) => [entry.name, entry]))

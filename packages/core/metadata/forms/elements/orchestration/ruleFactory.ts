@@ -79,10 +79,18 @@ export const registerElementAsType = <Rule extends ElementRule & { itemType: Sin
     },
     transformOutput: ({ context, xml }) => {
       const extra = toXML({ context })
+      const runtime = context.exportToXML.configurationIndex
+      const indexedName = runtime?.identity("xmlName")
+      const indexedId = runtime?.identity("xmlId")
+      if (indexedName !== undefined) runtime?.collector.setXmlName(runtime.logicalAddress, indexedName)
+      if (indexedId !== undefined) runtime?.collector.setXmlId(runtime.logicalAddress, indexedId)
       return {
-        _name: typeof xml._name === "string" ? xml._name : extra.name,
-        _id: typeof xml._id === "string" ? xml._id : (params.directId ?? String(extra.id ?? "")),
         ...xml,
+        _name: typeof xml._name === "string" ? xml._name : (indexedName ?? extra.name),
+        _id:
+          typeof xml._id === "string" && xml._id.length > 0
+            ? xml._id
+            : (indexedId ?? params.directId ?? String(extra.id ?? "")),
       }
     },
   })

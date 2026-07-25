@@ -218,6 +218,7 @@ registerMetadataItemCollectionRule({
   itemRule: FormAttributeRules,
   xmlElement: "Attribute",
   keyField: "name",
+  configurationIndexUidSegment: "Атрибут",
   mapItemOutput: ({ xml }) => {
     const { _name, _id, ...properties } = xml
     return { _name, _id: typeof _id === "string" ? _id : "", ...properties }
@@ -229,6 +230,7 @@ registerMetadataItemCollectionRule({
   itemRule: FormAttributeColumnRules,
   xmlElement: "Column",
   keyField: "name",
+  configurationIndexUidSegment: "Колонка",
   mapItemOutput: ({ xml }) => {
     const { _name, _id, ...properties } = xml
     return { _name, _id: typeof _id === "string" ? _id : "", ...properties }

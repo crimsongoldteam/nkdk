@@ -7,6 +7,11 @@ import {
 } from "../../commonObjects/childItems/treeYAML"
 import { getElementRule, getElementXMLTagName } from "./ruleFactory"
 import { CollectableElementTypeToYAML, type CollectableElementType } from "./types"
+import {
+  configurationIndexExportFormElementLogicalAddress,
+  withConfigurationIndexExportLogicalAddress,
+} from "../../../configurationIndex/referenceView"
+import type { ConfigurationContextWithExportToXML } from "../../../context/types"
 
 export function registerDirectFormElementCollections(): void {
   for (const propertyType of childItemsTreePropertyTypes) {
@@ -18,8 +23,15 @@ export function registerDirectFormElementCollections(): void {
         resolveFormElementRule({ yaml, name, propertyRule: propertyRule ?? { type: propertyType } }),
       normalizeItemYAML: ({ yaml, name, propertyRule }) =>
         normalizeFormElementYAML({ yaml, name, propertyRule: propertyRule ?? { type: propertyType } }),
-      mapItemOutput: ({ xml, itemRule }) => ({
-        [getElementXMLTagName(itemRule.itemType as CollectableElementType)]: withNameAndId(xml),
+      resolveItemContext: ({ context, name }) => {
+        const logicalAddress =
+          name === undefined ? undefined : configurationIndexExportFormElementLogicalAddress(context, name)
+        return logicalAddress === undefined
+          ? context
+          : withConfigurationIndexExportLogicalAddress(context, logicalAddress)
+      },
+      mapItemOutput: ({ xml, itemRule, context, name }) => ({
+        [getElementXMLTagName(itemRule.itemType as CollectableElementType)]: withNameAndId(xml, name, context),
       }),
       unwrapReferenceItem: ({ xml, itemRule }) => {
         const value = xml[getElementXMLTagName(itemRule.itemType as CollectableElementType)]
@@ -28,14 +40,24 @@ export function registerDirectFormElementCollections(): void {
           : undefined
       },
       yamlShape: "record",
-      configurationIndexAddressing: "yamlPath",
     })
   }
 }
 
-function withNameAndId(xml: Record<string, unknown>): Record<string, unknown> {
+function withNameAndId(
+  xml: Record<string, unknown>,
+  name: string | undefined,
+  context: ConfigurationContextWithExportToXML
+): Record<string, unknown> {
   const { _name, _id, ...properties } = xml
-  return { _name, _id: typeof _id === "string" ? _id : "", ...properties }
+  const runtime = context.exportToXML.configurationIndex
+  const indexedId = runtime?.identity("xmlId")
+  if (indexedId !== undefined) runtime?.collector.setXmlId(runtime.logicalAddress, indexedId)
+  return {
+    _name: typeof _name === "string" ? _name : name,
+    _id: typeof _id === "string" && _id.length > 0 ? _id : (indexedId ?? ""),
+    ...properties,
+  }
 }
 
 export function resolveFormElementRule(params: {

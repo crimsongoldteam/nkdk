@@ -13,6 +13,7 @@ export interface YAMLToXMLOutputRequest {
   readonly key: string
   readonly tags?: readonly string[]
   readonly referenceXML?: unknown
+  readonly context?: import("../../context/types").ConfigurationContextWithExportToXML
 }
 
 export type YAMLToXMLExternalWrite =
@@ -98,6 +99,14 @@ export type YAMLToXMLNestedRule =
         index: number
         propertyRule: PropertyRule | undefined
       }) => MetadataItemRule
+      readonly resolveItemContext?: (params: {
+        context: import("../../context/types").ConfigurationContextWithExportToXML
+        yaml: unknown
+        name: string | undefined
+        index: number
+        itemRule: MetadataItemRule
+        propertyRule: PropertyRule | undefined
+      }) => import("../../context/types").ConfigurationContextWithExportToXML
       readonly normalizeItemYAML?: (params: {
         yaml: unknown
         name: string | undefined

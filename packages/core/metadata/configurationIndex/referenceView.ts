@@ -77,6 +77,21 @@ export function withConfigurationIndexExportLogicalAddress(
   }
 }
 
+export function withConfigurationIndexExportXmlNodeLogicalAddress(
+  context: ConfigurationContextWithExportToXML,
+  xmlNodeLogicalAddress: string
+): ConfigurationContextWithExportToXML {
+  const runtime = context.exportToXML.configurationIndex
+  if (runtime === undefined) return context
+  return {
+    ...context,
+    exportToXML: {
+      ...context.exportToXML,
+      configurationIndex: runtime.withXmlNodeLogicalAddress(xmlNodeLogicalAddress),
+    },
+  }
+}
+
 export function withConfigurationIndexExportFormElementRootLogicalAddress(
   context: ConfigurationContextWithExportToXML,
   logicalAddress: string

@@ -186,12 +186,66 @@ describe("importClientApplicationFormFromXMLToYAML", () => {
 })
 
 describe("форма XML → YAML → XML", () => {
+  it("восстанавливает идентификаторы элементов формы без reference XML", () => {
+    const form = readAndParseXMLFixture<{ Form: ClientApplicationFormXML }>(import.meta.url, "full.xml")
+    const metadata = readAndParseXMLFixture<{ MetaDataObject: FormMetadataXML }>(import.meta.url, "fullMetadata.xml")
+    const sourceAttributes = form.Form.Attributes?.Attribute
+    const sourceAttribute = (Array.isArray(sourceAttributes) ? sourceAttributes[0] : sourceAttributes) as {
+      _id: string
+    }
+    const sourceInputField = (
+      form.Form.ChildItems as Array<{
+        InputField: {
+          _id: string
+          ContextMenu: { _id: string }
+          ExtendedTooltip: { _id: string }
+        }
+      }>
+    )[0]!.InputField
+    const sourceCommands = form.Form.Commands?.Command
+    const sourceCommand = (Array.isArray(sourceCommands) ? sourceCommands[0] : sourceCommands) as { _id: string }
+    sourceAttribute._id = "11"
+    sourceInputField._id = "22"
+    sourceInputField.ContextMenu._id = "33"
+    sourceInputField.ExtendedTooltip._id = "44"
+    sourceCommand._id = "55"
+    const contexts = createDirectRoundTripContexts({
+      logicalAddress: "Справочник.Товары.Форма.ФормаЭлемента",
+    })
+
+    const imported = importClientApplicationFormFromXMLToYAML({
+      context: contexts.importContext,
+      formName: "ФормаЭлемента",
+      formXML: form.Form,
+      metadataXML: metadata.MetaDataObject,
+    })
+    const converted = convertClientApplicationFormFromYAMLToXML({
+      context: contexts.exportContext(),
+      yaml: imported.yaml as ClientApplicationFormYAML,
+      name: "ФормаЭлемента",
+    })
+    const inputField = (converted.formXML.ChildItems as Array<{ InputField: ClientApplicationFormXML }>)[0].InputField
+
+    expect(converted.formXML.Attributes?.Attribute).toEqual(
+      expect.arrayContaining([expect.objectContaining({ _name: "Объект", _id: "11" })])
+    )
+    expect(inputField).toEqual(
+      expect.objectContaining({
+        _name: "ПолеВвода1",
+        _id: "22",
+        ContextMenu: expect.objectContaining({ _id: "33" }),
+        ExtendedTooltip: expect.objectContaining({ _id: "44" }),
+      })
+    )
+    expect(converted.formXML.Commands?.Command).toEqual(
+      expect.arrayContaining([expect.objectContaining({ _name: "Команда1", _id: "55" })])
+    )
+    expect(converted.formXML.AutoCommandBar).toEqual(expect.objectContaining({ _id: "-1" }))
+  })
+
   it("восстанавливает порядок metadata-свойств по адресу metadata-файла", () => {
     const form = readAndParseXMLFixture<{ Form: ClientApplicationFormXML }>(import.meta.url, "full.xml")
-    const metadata = readAndParseXMLFixture<{ MetaDataObject: FormMetadataXML }>(
-      import.meta.url,
-      "fullMetadata.xml"
-    )
+    const metadata = readAndParseXMLFixture<{ MetaDataObject: FormMetadataXML }>(import.meta.url, "fullMetadata.xml")
     const sourceProperties = metadata.MetaDataObject.Form.Properties
     metadata.MetaDataObject.Form.Properties = {
       Name: sourceProperties.Name,
