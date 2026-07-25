@@ -1,4 +1,5 @@
 import type { ConfigurationContextFromXML } from "../../context/types"
+import { applyMetadataItemXmlImportAugmenter } from "../../importFromXml/metadataItemAugmenter"
 import { importPropertiesFromXMLToYAML } from "../property/fromXMLToYAML"
 import type { DirectImportTraversal } from "../property/importYamlTypes"
 import { enterNestedYamlRule } from "../property/yamlRuleCursor"
@@ -37,6 +38,14 @@ export function importMetadataItemFromXMLToYAML(params: {
     profile: params.traversal.profile,
     propertyXML: params.propertyXML,
   })
+  if (yaml !== undefined) {
+    applyMetadataItemXmlImportAugmenter({
+      context,
+      rule: params.rule,
+      source,
+      yaml,
+    })
+  }
   const inline = findInlinePropertyCached(params.rule)
   return inline === undefined ? yaml : yaml?.[inline.yamlKey]
 }

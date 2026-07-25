@@ -38,6 +38,7 @@ describe("shared configuration index snapshot", () => {
         ...data.xmlValues,
         {
           logicalAddress: "Справочник.Товары.form",
+          extended: true,
           xsiNil: true,
           xsiType: "v8:UUID",
           xmlText: "text",
@@ -71,6 +72,7 @@ describe("shared configuration index snapshot", () => {
     })
     expect(first.xmlValue("Справочник.Товары.form")).toEqual({
       logicalAddress: "Справочник.Товары.form",
+      extended: true,
       xsiNil: true,
       xsiType: "v8:UUID",
       xmlText: "text",

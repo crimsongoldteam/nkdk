@@ -173,6 +173,7 @@ class SharedConfigurationIndexReader implements ConfigurationIndexReader {
     const flags = values.readUInt32LE(offset + 4)
     return {
       logicalAddress,
+      ...((flags & (1 << 6)) === 0 ? {} : { extended: true as const }),
       ...((flags & (1 << 0)) === 0 ? {} : { xsiNil: true as const }),
       ...((flags & (1 << 1)) === 0 ? {} : { explicitEmpty: true as const }),
       ...this.optionalValue(values, offset + 8, flags, 2, "xsiType"),

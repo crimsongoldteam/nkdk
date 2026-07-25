@@ -370,6 +370,7 @@ function xmlValueFlags(value: ConfigurationXmlValue): number {
   if (value.xmlText !== undefined) flags |= 1 << 3
   if (value.xmlPrefix !== undefined) flags |= 1 << 4
   if (value.userSettingsId !== undefined) flags |= 1 << 5
+  if (value.extended === true) flags |= 1 << 6
   return flags
 }
 

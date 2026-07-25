@@ -25,6 +25,7 @@ interface EncodedFragmentXmlNode {
 
 interface EncodedFragmentXmlValue {
   logicalAddressStringId: number
+  extended?: true
   xsiNil?: true
   explicitEmpty?: true
   xsiTypeStringId?: number
@@ -81,6 +82,7 @@ export function encodeConfigurationIndexFragments(fragments: readonly Configurat
       })),
       xmlValues: fragment.xmlValues.map((value) => ({
         logicalAddressStringId: stringId(value.logicalAddress),
+        ...(value.extended === undefined ? {} : { extended: value.extended }),
         ...(value.xsiNil === undefined ? {} : { xsiNil: value.xsiNil }),
         ...(value.explicitEmpty === undefined ? {} : { explicitEmpty: value.explicitEmpty }),
         ...(value.xsiType === undefined ? {} : { xsiTypeStringId: stringId(value.xsiType) }),
@@ -191,6 +193,7 @@ function decodeEncodedXmlValue(value: unknown, strings: readonly string[]): Enco
     value,
     [
       "logicalAddressStringId",
+      "extended",
       "xsiNil",
       "explicitEmpty",
       "xsiTypeStringId",
@@ -200,10 +203,12 @@ function decodeEncodedXmlValue(value: unknown, strings: readonly string[]): Enco
     ],
     "запись XML_VALUES"
   )
+  if (value.extended !== undefined && value.extended !== true) throw new Error("некорректный extended")
   if (value.xsiNil !== undefined && value.xsiNil !== true) throw new Error("некорректный xsiNil")
   if (value.explicitEmpty !== undefined && value.explicitEmpty !== true) throw new Error("некорректный explicitEmpty")
   return {
     logicalAddressStringId: stringId(value.logicalAddressStringId, strings),
+    ...(value.extended === undefined ? {} : { extended: true }),
     ...(value.xsiNil === undefined ? {} : { xsiNil: true }),
     ...(value.explicitEmpty === undefined ? {} : { explicitEmpty: true }),
     ...(value.xsiTypeStringId === undefined ? {} : { xsiTypeStringId: stringId(value.xsiTypeStringId, strings) }),
@@ -240,6 +245,7 @@ function decodeFragment(
     })),
     xmlValues: fragment.xmlValues.map((value) => ({
       logicalAddress: strings[value.logicalAddressStringId]!,
+      ...(value.extended === undefined ? {} : { extended: true }),
       ...(value.xsiNil === undefined ? {} : { xsiNil: true }),
       ...(value.explicitEmpty === undefined ? {} : { explicitEmpty: true }),
       ...(value.xsiTypeStringId === undefined ? {} : { xsiType: strings[value.xsiTypeStringId]! }),

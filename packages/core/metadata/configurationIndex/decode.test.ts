@@ -11,6 +11,15 @@ const SECTION_COUNT = 7
 const DIRECTORY_LENGTH = DIRECTORY_ENTRY_LENGTH * SECTION_COUNT
 
 describe("decodeConfigurationIndex", () => {
+  it("сохраняет Extended при encode → decode", () => {
+    const data = {
+      ...sampleIndex(),
+      xmlValues: [{ logicalAddress: "Справочник.Товары.form", extended: true as const }],
+    }
+
+    expect(decodeConfigurationIndex(encodeConfigurationIndex(data))).toEqual(data)
+  })
+
   it("round-trips every logical section", () => {
     const encoded = encodeConfigurationIndex(sampleIndex())
 
@@ -183,7 +192,7 @@ describe("decodeConfigurationIndex", () => {
     ["unknown identity kind", 4, (section: Buffer) => writeU16(section, 4, 4)],
     ["duplicate order property", 5, duplicateOrderProperty],
     ["alias equal to canonical name", 6, duplicateAliasName],
-    ["unknown XML value flag", 7, (section: Buffer) => writeU32(section, 4, 1 << 6)],
+    ["unknown XML value flag", 7, (section: Buffer) => writeU32(section, 4, 1 << 7)],
     ["missing XML value stringId", 7, (section: Buffer) => writeU32(section, 12, 0)],
   ] as const)("rejects invalid logical record %s", (_name, sectionType, mutate) => {
     expectCorruption(mutateSection(encodeConfigurationIndex(sampleIndex()), sectionType, mutate))

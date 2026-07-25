@@ -7,6 +7,19 @@ import {
 import { sampleFragments } from "./testData"
 
 describe("configuration index worker fragments", () => {
+  it("сохраняет Extended при encode фрагмента и merge", () => {
+    const fragment = {
+      targetProjectPath: "Формы/ФормаЭлемента/Форма.yaml",
+      identities: [],
+      xmlNodes: [],
+      xmlValues: [{ logicalAddress: "Справочник.Товары.Форма.ФормаЭлемента.form", extended: true as const }],
+    }
+    const buffer = encodeConfigurationIndexFragments([fragment])
+
+    expect(decodeConfigurationIndexFragments(buffer)).toEqual([fragment])
+    expect(mergeConfigurationIndexFragments([buffer]).xmlValues).toEqual(fragment.xmlValues)
+  })
+
   it("uses one transferable ArrayBuffer per worker", () => {
     const fragments = sampleFragments()
     const buffer = encodeConfigurationIndexFragments(fragments)

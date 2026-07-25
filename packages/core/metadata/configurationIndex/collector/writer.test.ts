@@ -2,6 +2,19 @@ import { describe, expect, it } from "vitest"
 import { createConfigurationIndexCollector } from "./writer"
 
 describe("configuration index collector", () => {
+  it("сохраняет Extended как особое XML-значение по адресу свойства", () => {
+    const collector = createConfigurationIndexCollector()
+
+    collector.setExtended("Справочник.Товары.Форма.ФормаЭлемента.form")
+
+    expect(collector.fragment("Формы/ФормаЭлемента/Форма.yaml").xmlValues).toEqual([
+      {
+        logicalAddress: "Справочник.Товары.Форма.ФормаЭлемента.form",
+        extended: true,
+      },
+    ])
+  })
+
   it("collects identity, order, aliases and explicit values by uid", () => {
     const collector = createConfigurationIndexCollector()
     collector.setUuid("Справочник.Товары", "00000000-0000-4000-8000-000000000001")

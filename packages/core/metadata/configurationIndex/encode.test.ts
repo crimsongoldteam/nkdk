@@ -39,6 +39,20 @@ const sample: ConfigurationIndexData = {
 }
 
 describe("encodeConfigurationIndex", () => {
+  it("пишет Extended в свободный бит XML_VALUES без изменения размера записи", () => {
+    const encoded = encodeConfigurationIndex({
+      ...baseline,
+      xmlValues: [{ logicalAddress: "Справочник.Товары.form", extended: true }],
+    })
+    const directoryEntryOffset = 64 + 6 * 64
+    const sectionOffset = Number(encoded.readBigUInt64LE(directoryEntryOffset + 16))
+    const sectionLength = Number(encoded.readBigUInt64LE(directoryEntryOffset + 24))
+    const values = encoded.subarray(sectionOffset, sectionOffset + sectionLength)
+
+    expect(values).toHaveLength(32)
+    expect(values.readUInt32LE(4)).toBe(1 << 6)
+  })
+
   it("writes 1.0 container", () => {
     const first = encodeConfigurationIndex(sample)
 

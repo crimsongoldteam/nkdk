@@ -1,6 +1,6 @@
 import { describe, expect, it, vi } from "vitest"
 import { createDirectRoundTripContexts } from "../../../tests/directConversion"
-import { mockContextFromXML } from "../../../tests/mockContext"
+import { mockContextFromXML, mockXmlImportContext } from "../../../tests/mockContext"
 import { readAndParseXMLFixture, readXMLFixtureAsString } from "../../../tests/readFixtureXML"
 import { xmlExport } from "../../../xml/export/exporter"
 import { importContentFromXML } from "../../../xml/import/importer"
@@ -182,6 +182,56 @@ describe("importClientApplicationFormFromXMLToYAML", () => {
         }),
       ])
     )
+  })
+
+  it("добавляет Контроль metadata формы и сохраняет Extended Form только в снимке", () => {
+    const collector = createConfigurationIndexCollector()
+    const logicalAddress = "Справочник.Контрагенты.Форма.ФормаЭлемента"
+    const baseContext = mockXmlImportContext()
+    const extensionContext = {
+      ...baseContext,
+      fromXML: { ...baseContext.fromXML, metadataItemAugmenter: "configurationExtension" },
+    }
+    const context = withConfigurationIndexCollector(
+      extensionContext,
+      collector,
+      logicalAddress
+    )
+    const metadataXML: FormMetadataXML & {
+      Form: { InternalInfo: Record<string, unknown> }
+    } = {
+      Form: {
+        Properties: {
+          Name: "ФормаЭлемента",
+          Comment: "Комментарий",
+          FormType: "Managed",
+        },
+        InternalInfo: {
+          "xr:PropertyState": [
+            { "xr:Property": "ExtendedPresentation", "xr:State": "Notify" },
+            { "xr:Property": "Form", "xr:State": "Extended" },
+            { "xr:Property": "Form", "xr:State": "Notify" },
+          ],
+        },
+      },
+    }
+
+    const result = importClientApplicationFormFromXMLToYAML({
+      context,
+      formName: "ФормаЭлемента",
+      formXML: {},
+      metadataXML,
+    })
+
+    expect(result.yaml).toMatchObject({
+      Комментарий: "Комментарий",
+      Контроль: ["РасширенноеПредставление"],
+    })
+    expect(result.yaml).not.toHaveProperty("Контроль", expect.arrayContaining(["Форма"]))
+    expect(collector.fragment("Форма.yaml").xmlValues).toContainEqual({
+      logicalAddress: `${logicalAddress}.form`,
+      extended: true,
+    })
   })
 })
 

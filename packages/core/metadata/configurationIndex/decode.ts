@@ -52,7 +52,7 @@ const HEADER_LENGTH = 64
 const DIRECTORY_ENTRY_LENGTH = 64
 const SECTION_COUNT = 7
 const DIRECTORY_LENGTH = DIRECTORY_ENTRY_LENGTH * SECTION_COUNT
-const XML_VALUE_FLAGS = (1 << 6) - 1
+const XML_VALUE_FLAGS = (1 << 7) - 1
 const fatalUtf8Decoder = new TextDecoder("utf-8", { fatal: true })
 const FORM_SINGLETON_LOGICAL_ADDRESS_SEGMENTS = new Set([
   "АвтоКоманднаяПанель",
@@ -537,6 +537,7 @@ function decodeXmlValues(
     const userSettingsId = optionalFlaggedString(strings, userSettingsIdId, flags, 5, "userSettingsId")
     result.push({
       logicalAddress,
+      ...((flags & (1 << 6)) === 0 ? {} : { extended: true as const }),
       ...((flags & (1 << 0)) === 0 ? {} : { xsiNil: true as const }),
       ...((flags & (1 << 1)) === 0 ? {} : { explicitEmpty: true as const }),
       ...(xsiType === undefined ? {} : { xsiType }),

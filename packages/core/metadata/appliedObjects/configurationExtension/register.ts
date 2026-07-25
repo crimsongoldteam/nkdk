@@ -1,5 +1,9 @@
 import { registerXmlImportComponentDescriptor } from "../../importFromXml/componentDescriptor"
+import { registerMetadataItemXmlImportAugmenter } from "../../importFromXml/metadataItemAugmenter"
+import { configurationExtensionPropertyStatesAugmenter } from "./propertyStates"
 import { MetadataConfigurationExtensionRules } from "./rules"
+
+registerMetadataItemXmlImportAugmenter("configurationExtension", configurationExtensionPropertyStatesAugmenter)
 
 registerXmlImportComponentDescriptor({
   kind: "configurationExtension",

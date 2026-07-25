@@ -12,6 +12,7 @@ export interface ConfigurationIndexCollector {
   setOrder(address: string, keys: readonly string[]): void
   setAlias(address: string, propertyKey: string, sourceXmlKey: string): void
   setPresent(address: string, propertyKey: string): void
+  setExtended(address: string): void
   setXsiNil(address: string): void
   setExplicitEmpty(address: string): void
   setXsiType(address: string, value: string): void
@@ -61,6 +62,10 @@ class InMemoryConfigurationIndexCollector implements ConfigurationIndexCollector
   setPresent(address: string, propertyKey: string): void {
     const node = this.node(address)
     if (!node.present?.includes(propertyKey)) node.present = [...(node.present ?? []), propertyKey]
+  }
+
+  setExtended(address: string): void {
+    this.value(address).extended = true
   }
 
   setXsiNil(address: string): void {

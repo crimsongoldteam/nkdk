@@ -24,6 +24,7 @@ export interface ConfigurationXmlNode {
 
 export interface ConfigurationXmlValue {
   logicalAddress: string
+  extended?: true
   xsiNil?: true
   explicitEmpty?: true
   xsiType?: string
