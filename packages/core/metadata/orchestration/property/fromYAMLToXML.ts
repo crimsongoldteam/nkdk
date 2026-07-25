@@ -273,6 +273,7 @@ export function convertPropertiesFromYAMLToXML(params: ConvertPropertiesFromYAML
       planned.propertyRule.syncExternalOnly !== true &&
       planned.propertyRule.filePath === undefined &&
       planned.propertyRule.preserveEmptyXML !== true &&
+      planned.propertyRule.excludeIfEqualNameYAML !== true &&
       !hasIndexedImplicitYAMLValue &&
       getTypeRule(planned.propertyRule.type, "yamlToXMLNestedRule") === undefined &&
       !requiresYAMLToXMLEvaluation(planned.propertyRule) &&
@@ -550,7 +551,13 @@ export function convertPropertiesFromYAMLToXML(params: ConvertPropertiesFromYAML
         value: sourceValue,
         referenceValue: atomicReferences[0],
         yaml,
-        name: params.name,
+        name:
+          !source.has(propertyKey) &&
+          planned.propertyRule.excludeIfEqualNameYAML === true &&
+          propertyContext.exportToXML.configurationIndex?.xmlNode() !== undefined &&
+          !isConfigurationIndexPropertyPresent(propertyContext, propertyKey)
+            ? undefined
+            : params.name,
         owner,
       }
       imported = hasIndexedImplicitYAMLValue

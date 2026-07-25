@@ -18,6 +18,10 @@ import "../commonObjects/metadataValue/toXML"
 import "../commonObjects/boolean/fromXML"
 import "../commonObjects/boolean/fromYAML"
 import "../commonObjects/boolean/toYAML"
+import "../commonObjects/i8nText/fromXML"
+import "../commonObjects/i8nText/fromYAML"
+import "../commonObjects/i8nText/toXML"
+import "../commonObjects/i8nText/toYAML"
 import "../commonObjects/internalInfo/fromXML"
 import "../commonObjects/internalInfo/toXML"
 import "../commonObjects/userSettingsID/toXML"
@@ -228,6 +232,52 @@ describe("configuration index в едином YAML → XML-обходе", () => 
     })
 
     expect(exported.xml).toEqual({ Mode: "QuickAccess", Name: "Тест" })
+  })
+
+  it("восстанавливает из имени явно заданный Synonym, исключённый из YAML", () => {
+    const contexts = createDirectRoundTripContexts()
+    const rule = {
+      itemType: "TestDirectItem",
+      properties: {
+        synonym: {
+          type: "I8nText",
+          xml: "Synonym",
+          yaml: "Синоним",
+          excludeIfEqualNameYAML: true,
+        },
+      },
+    } as const satisfies MetadataItemRule
+    const imported = testPropertyFromXMLToYAML({
+      context: contexts.importContext,
+      rule,
+      name: "РегистрБухгалтерииПоУмолчанию",
+      xml: {
+        Synonym: {
+          "v8:item": {
+            "v8:lang": "ru",
+            "v8:content": "Регистр бухгалтерии по умолчанию",
+          },
+        },
+      },
+    })
+    const exported = testPropertyFromYAMLToXML({
+      context: contexts.exportContext(),
+      rule,
+      name: "РегистрБухгалтерииПоУмолчанию",
+      yaml: imported.yaml,
+    })
+
+    expect(imported.yaml).toEqual({})
+    expect(exported.xml).toEqual({
+      Synonym: {
+        "v8:item": [
+          {
+            "v8:lang": "ru",
+            "v8:content": "Регистр бухгалтерии по умолчанию",
+          },
+        ],
+      },
+    })
   })
 
   it("round-trips the complete XML property order without reference XML", () => {

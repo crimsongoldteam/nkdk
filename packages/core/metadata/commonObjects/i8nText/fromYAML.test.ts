@@ -26,6 +26,23 @@ describe("importI8nTextFromYAML", () => {
   })
 
   describe("excludeIfEqualNameYAML", () => {
+    it("restores an omitted default-language synonym from the name", () => {
+      const rule: I8nTextPropertyRule = { type: "I8nText", excludeIfEqualNameYAML: true }
+
+      const result = importI8nTextFromYAML({
+        context: mockContext,
+        rule,
+        name: "РегистрБухгалтерииПоУмолчанию",
+        value: undefined,
+      })
+
+      expect(result).toEqual({
+        items: {
+          ru: "Регистр бухгалтерии по умолчанию",
+        },
+      })
+    })
+
     it("restores default language from the name and preserves non-default languages", () => {
       const rule: I8nTextPropertyRule = { type: "I8nText", excludeIfEqualNameYAML: true }
 

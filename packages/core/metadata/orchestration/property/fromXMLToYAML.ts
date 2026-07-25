@@ -379,6 +379,10 @@ export function importPropertiesFromXMLToYAML(params: {
           typeof propertyRule.implicitValueYAML !== "function" &&
           (Object.is(yamlValue, propertyRule.implicitValueYAML) ||
             (yamlValue === undefined && Object.is(value, propertyRule.implicitValueYAML)))) ||
+          (propertyRule.excludeIfEqualNameYAML === true &&
+            !hasRawEmptyXML &&
+            yamlValue === undefined &&
+            value !== undefined) ||
           (Object.prototype.hasOwnProperty.call(propertyRule, "defaultValue") &&
             Object.is(
               value,
