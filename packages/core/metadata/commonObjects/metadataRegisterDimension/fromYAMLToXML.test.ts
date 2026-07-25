@@ -22,16 +22,10 @@ describe("MetadataRegisterDimensions YAML → XML", () => {
     expect(normalize(result.result)).toBe(normalize(result.expected))
   })
 
-  it("preserves reference empty Synonym when current synonym is generated from name", () => {
-    const referenceXML = {
-      Dimension: {
-        Properties: { Name: "Организация", Synonym: "", Type: { "v8:Type": "xs:boolean" } },
-      },
-    }
+  it("exports explicit empty YAML synonym", () => {
     const result = testPropertyFromYAMLToXML({
       rule,
-      yaml: { Значение: { Организация: { Тип: "Булево" } } },
-      referenceXML,
+      yaml: { Значение: { Организация: { Синоним: "", Тип: "Булево" } } },
     })
     const xml = serializeDirectXML(result.xml)
     expect(xml).toContain("<Synonym/>")

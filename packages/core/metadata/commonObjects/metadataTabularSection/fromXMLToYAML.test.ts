@@ -22,12 +22,12 @@ describe("MetadataTabularSections XML → YAML", () => {
     })
   })
 
-  it("imports explicit empty Synonym as empty i18n text", () => {
+  it("imports explicit empty Synonym as empty YAML string", () => {
     const result = testPropertyFromXMLToYAML({
       rule,
       xml: importContentFromXML(INLINE_XML),
     }).yaml
-    expect(result).toEqual({ Значение: { Исполнители: {} } })
+    expect(result).toEqual({ Значение: { Исполнители: { Синоним: "" } } })
   })
 
   it("should return undefined when data is undefined", () => {

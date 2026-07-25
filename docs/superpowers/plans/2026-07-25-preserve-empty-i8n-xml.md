@@ -127,6 +127,8 @@ git commit -m "refactor!: :recycle: переименовать признак п
 - Modify: `packages/core/metadata/commonObjects/i8nText/toYAML.test.ts`
 - Modify: `packages/core/metadata/commonObjects/i8nText/toYAML.ts`
 - Modify: `packages/core/metadata/commonObjects/metadataRegisterResource/fromXMLToYAML.test.ts`
+- Modify: `packages/core/metadata/commonObjects/metadataAttribute/fromXMLToYAML.test.ts`
+- Modify: `packages/core/metadata/commonObjects/metadataTabularSection/fromXMLToYAML.test.ts`
 
 **Interfaces:**
 - Consumes: `I8nTextPropertyRule.preserveEmptyXML`.
@@ -205,6 +207,9 @@ it("exports empty resource synonym as explicit empty YAML", () => {
 })
 ```
 
+В существующих inline-тестах реквизита и табличной части заменить ожидание
+отсутствующего ключа на пользовательский YAML `Синоним: ""`.
+
 - [ ] **Step 3: Запустить тесты и подтвердить потерю пустого значения**
 
 Run:
@@ -254,6 +259,7 @@ git commit -m "fix: :bug: выгружать пустой синоним в YAML
 - Modify: `packages/core/metadata/orchestration/property/fromYAMLToXML.test.ts`
 - Modify: `packages/core/metadata/orchestration/property/fromYAMLToXML.ts`
 - Modify: `packages/core/metadata/commonObjects/metadataRegisterField/fromYAMLToXML.test.ts`
+- Modify: `packages/core/metadata/commonObjects/metadataRegisterDimension/fromYAMLToXML.test.ts`
 - Modify: `packages/core/metadata/commonObjects/metadataRegisterResource/fromYAMLToXML.test.ts`
 
 **Interfaces:**
@@ -372,6 +378,9 @@ const result = testPropertyFromYAMLToXML({
 ```
 
 Сохранить ожидания `<Synonym/>` и отсутствия `<v8:item>`.
+
+В `metadataRegisterDimension/fromYAMLToXML.test.ts` выполнить такую же
+замену reference-сценария на явный `Синоним: ""`.
 
 - [ ] **Step 5: Запустить тесты оркестрации и полей регистра**
 
