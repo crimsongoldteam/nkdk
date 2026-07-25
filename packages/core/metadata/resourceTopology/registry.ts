@@ -103,7 +103,7 @@ export function describeProjectSpecResourceTopology(
             depth === 1
               ? `${projectBase}/Свойства.yaml`
               : `${[projectBase, ...recursiveSteps.slice(0, -1)].join("/")}/Свойства.yaml`,
-          logicalAddressSegment: spec.nesting.itemRole,
+          logicalAddressSegment: spec.nesting.logicalAddressSegment,
         })
       }
     }

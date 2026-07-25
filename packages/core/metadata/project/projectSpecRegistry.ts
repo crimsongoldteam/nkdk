@@ -19,6 +19,7 @@ export type ProjectSpecNesting = {
   childDir: string
   itemRole: string
   collectionRole: string
+  logicalAddressSegment: string
 }
 
 const specsByDir = new Map<string, RegisteredProjectSpec>()

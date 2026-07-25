@@ -114,4 +114,27 @@ describe("full XML sync discovery", () => {
       "CommonForms/Additional/Ext/Form.xml",
     ])
   })
+
+  it("uses semantic logical-address segments for recursively nested objects", async () => {
+    const projectDir = createProject()
+    touch(projectDir, "Подсистема/Родитель/Свойства.yaml")
+    touch(projectDir, "Подсистема/Родитель/Подсистемы/Потомок/Свойства.yaml")
+
+    const plan = await buildFullXmlSyncPlan({ projectDir })
+
+    expect(
+      plan.assignments.find(
+        (assignment) =>
+          assignment.sourceProjectPath ===
+          "Подсистема/Родитель/Подсистемы/Потомок/Свойства.yaml"
+      )
+    ).toMatchObject({
+      sourceProjectPath: "Подсистема/Родитель/Подсистемы/Потомок/Свойства.yaml",
+      logicalAddress: "Подсистема.Родитель.Подсистема.Потомок",
+      owner: {
+        name: "Родитель",
+        logicalAddress: "Подсистема.Родитель",
+      },
+    })
+  })
 })

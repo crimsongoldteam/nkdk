@@ -112,6 +112,7 @@ for (const rule of TopLevelMetadataItemRules) {
             childDir: "Подсистемы",
             itemRole: "subsystem",
             collectionRole: "subsystems",
+            logicalAddressSegment: "Подсистема",
           },
         }
       : {}),

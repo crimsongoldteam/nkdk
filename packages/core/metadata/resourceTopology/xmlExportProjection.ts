@@ -153,19 +153,12 @@ export function projectXmlExportOwnerChain(
 
 function rootLogicalAddress(
   assignment: CompiledMetadataAssignmentNode,
-  values: Readonly<Record<string, string>>,
+  _values: Readonly<Record<string, string>>,
   itemName: string
 ): string {
   if (assignment.role === "configuration") return "Конфигурация"
   const dir = assignment.projectPattern.split("/")[0] ?? assignment.itemRule.itemType
-  const names = [
-    values.ownerName,
-    ...Object.entries(values)
-      .filter(([key]) => /^recursiveItemName\d+$/.test(key))
-      .sort(([left], [right]) => numericSuffix(left) - numericSuffix(right))
-      .map(([, value]) => value),
-  ].filter((value): value is string => value !== undefined)
-  return [dir, ...(names.length === 0 ? [itemName] : names)].join(".")
+  return [dir, itemName].join(".")
 }
 
 function itemNameFor(
@@ -178,10 +171,6 @@ function itemNameFor(
     if (value !== undefined) return value
   }
   return assignment.role === "configuration" ? "Конфигурация" : ""
-}
-
-function numericSuffix(value: string): number {
-  return Number(value.replace(/\D/g, ""))
 }
 
 function requireContentAssignment(match: MetadataProjectResourceMatch): CompiledMetadataAssignmentNode {

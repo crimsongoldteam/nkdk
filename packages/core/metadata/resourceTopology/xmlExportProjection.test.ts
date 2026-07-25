@@ -80,7 +80,7 @@ describe("XML export topology projection", () => {
           },
           {
             kind: "content",
-            projectPattern: "Объект/{ownerName}/Дети/{itemName}/Свойства.yaml",
+            projectPattern: "Объект/{ownerName}/Дети/{recursiveItemName1}/Свойства.yaml",
             ownerProjectPattern: "Объект/{ownerName}/Свойства.yaml",
             logicalAddressSegment: "Дочерний",
             role: "fileItem",
@@ -92,8 +92,9 @@ describe("XML export topology projection", () => {
           },
           {
             kind: "content",
-            projectPattern: "Объект/{ownerName}/Дети/{itemName}/Вложенные/{nestedName}/Свойства.yaml",
-            ownerProjectPattern: "Объект/{ownerName}/Дети/{itemName}/Свойства.yaml",
+            projectPattern:
+              "Объект/{ownerName}/Дети/{recursiveItemName1}/Вложенные/{recursiveItemName2}/Свойства.yaml",
+            ownerProjectPattern: "Объект/{ownerName}/Дети/{recursiveItemName1}/Свойства.yaml",
             logicalAddressSegment: "Вложенный",
             role: "fileItem",
             required: true,
