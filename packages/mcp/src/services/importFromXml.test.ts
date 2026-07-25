@@ -76,6 +76,44 @@ describe("importFromXml service", () => {
     })
   })
 
+  it("returns core diagnostics as an error when component path was not detected", async () => {
+    const projectDir = createProject()
+    const importConfigurationFromXml = vi.fn().mockResolvedValue({
+      succeeded: 0,
+      failed: [
+        {
+          severity: "error",
+          code: "xml_import_operation_failed",
+          message: "Неизвестный корень Configuration.xml",
+          targetProjectPath: "",
+        },
+      ],
+      warnings: [],
+    })
+
+    const result = await importFromXml(
+      { xmlDir: "/xml", projectDir, allowWrite: true },
+      { importConfigurationFromXml },
+    )
+
+    expect(result).toEqual({
+      ok: false,
+      code: "core_error",
+      message: "Неизвестный корень Configuration.xml",
+      details: {
+        succeeded: 0,
+        failed: [
+          {
+            kind: "xml_import_operation_failed",
+            name: "",
+            message: "Неизвестный корень Configuration.xml",
+          },
+        ],
+        warnings: [],
+      },
+    })
+  })
+
   it("forwards target and snapshot conflicts from core without cleanup", async () => {
     const projectDir = createProject()
     const componentDir = join(projectDir, "cfe", "Расширение")

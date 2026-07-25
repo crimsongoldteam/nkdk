@@ -71,11 +71,28 @@ export async function importFromXml(
       ...(input.componentPath === undefined ? {} : { requestedComponentPath: input.componentPath }),
     })
 
+    const failed = result.failed.map(mapFailure)
+    const warnings = result.warnings.map(mapWarning)
+    if (result.componentPath === undefined) {
+      return toolError(
+        "core_error",
+        result.failed.find((failure) => failure.severity === "error")?.message ?? "Не удалось определить компонент XML-выгрузки",
+        {
+          succeeded: result.succeeded,
+          failed,
+          warnings,
+          ...(result.configurationIndexPath === undefined
+            ? {}
+            : { configurationIndexPath: result.configurationIndexPath }),
+        },
+      )
+    }
+
     return toolSuccess({
-      componentPath: result.componentPath ?? input.componentPath ?? "cf",
+      componentPath: result.componentPath,
       succeeded: result.succeeded,
-      failed: result.failed.map(mapFailure),
-      warnings: result.warnings.map(mapWarning),
+      failed,
+      warnings,
       ...(result.configurationIndexPath === undefined
         ? {}
         : { configurationIndexPath: result.configurationIndexPath }),
