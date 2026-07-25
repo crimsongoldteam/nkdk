@@ -124,6 +124,7 @@ registerTypeRule("Help", "resourceTopology", ({ propertyRule }) => {
       role: "property",
       required: false,
       read: { inputRole: "property" },
+      prepareCapabilityId: "Help",
       source: source("Help"),
     },
     {

@@ -120,6 +120,13 @@ describe("prepareFullXmlSyncAssignment", () => {
     fs.mkdirSync(join(projectDir, "Обработка", "ОбработкаВсеСвойства", "Шаблоны", "Макет"), {
       recursive: true,
     })
+    fs.mkdirSync(join(projectDir, "Обработка", "ОбработкаВсеСвойства", "Справка"), {
+      recursive: true,
+    })
+    fs.writeFileSync(
+      join(projectDir, "Обработка", "ОбработкаВсеСвойства", "Справка", "ru.html"),
+      "<html></html>"
+    )
     fs.writeFileSync(sourcePath, "Синоним: Синоним\nКомментарий: Комментарий\n")
     const yaml = prepareYamlFiles({
       files: [
@@ -156,6 +163,7 @@ describe("prepareFullXmlSyncAssignment", () => {
 
     expect(prepared.documents.map((document) => document.targetXmlPath)).toEqual([
       "DataProcessors/ОбработкаВсеСвойства.xml",
+      "DataProcessors/ОбработкаВсеСвойства/Ext/Help.xml",
     ])
     expect(prepared.documents[0]?.xml).toHaveProperty("MetaDataObject")
     expect(prepared.documents[0]?.xml).toMatchObject({
@@ -168,6 +176,7 @@ describe("prepareFullXmlSyncAssignment", () => {
         },
       },
     })
+    expect(prepared.documents[1]?.xml).toMatchObject({ Help: { Page: "ru" } })
     expect(prepared.profile.rulesPassCount).toBe(1)
     expect(writeFile).not.toHaveBeenCalled()
   })
