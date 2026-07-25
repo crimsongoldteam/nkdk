@@ -1,4 +1,9 @@
 import { describe, expect, it } from "vitest"
+import {
+  createDirectRoundTripContexts,
+  testPropertyFromXMLToYAML,
+  testPropertyFromYAMLToXML,
+} from "../../tests/directConversion"
 import type { ConfigurationContextWithExportToXML } from "../context/types"
 import { convertPropertiesFromYAMLToXML } from "../orchestration/property/fromYAMLToXML"
 import type { MetadataItemRule } from "../orchestration/property/types"
@@ -9,6 +14,8 @@ import { createConfigurationIndexReader, snapshotConfigurationIndex } from "./sh
 import { sampleIndex } from "./testData"
 
 import "../commonObjects/metadataValue/toXML"
+import "../commonObjects/internalInfo/fromXML"
+import "../commonObjects/internalInfo/toXML"
 import "../commonObjects/userSettingsID/toXML"
 
 function contextWithIndex(xmlValues = sampleIndex().xmlValues): {
@@ -40,6 +47,64 @@ function contextWithIndex(xmlValues = sampleIndex().xmlValues): {
 }
 
 describe("configuration index в едином YAML → XML-обходе", () => {
+  it("round-trips the complete XML property order without reference XML", () => {
+    const contexts = createDirectRoundTripContexts({
+      logicalAddress: "Справочник.Товары",
+      targetProjectPath: "Справочник/Товары/Свойства.yaml",
+    })
+    const rule = {
+      itemType: "TestDirectItem",
+      properties: {
+        resources: {
+          type: "string",
+          xml: "Resource",
+          xmlParents: ["ChildObjects"],
+          yaml: "Ресурсы",
+        },
+        name: {
+          type: "string",
+          xml: "Name",
+          xmlParents: ["Properties"],
+          yaml: "Имя",
+        },
+        internalInfo: {
+          type: "InternalInfo",
+          xml: "InternalInfo",
+          forReferenceOnly: true,
+          exportWithoutReferenceXML: true,
+          items: [{ name: "CatalogRef", category: "Ref" }],
+        },
+      },
+    } as const satisfies MetadataItemRule
+    const imported = testPropertyFromXMLToYAML({
+      context: contexts.importContext,
+      rule,
+      xml: {
+        InternalInfo: {
+          "xr:GeneratedType": {
+            _name: "CatalogRef.Товары",
+            _category: "Ref",
+            "xr:TypeId": "00000000-0000-0000-0000-000000000001",
+            "xr:ValueId": "00000000-0000-0000-0000-000000000002",
+          },
+        },
+        Properties: { Name: "Товары" },
+        ChildObjects: { Resource: "Ресурс1" },
+      },
+      name: "Товары",
+    })
+    const exported = testPropertyFromYAMLToXML({
+      context: contexts.exportContext(),
+      rule,
+      yaml: imported.yaml,
+      name: "Товары",
+    })
+
+    expect(imported.yaml).toEqual({ Имя: "Товары", Ресурсы: "Ресурс1" })
+    expect(Object.keys(exported.xml)).toEqual(["InternalInfo", "Properties", "ChildObjects"])
+    expect(Object.keys(exported.xml.Properties as object)).toEqual(["Name"])
+  })
+
   it("восстанавливает порядок свойств и XML aliases без reference XML", () => {
     const { context, collector } = contextWithIndex()
     const rule = {
