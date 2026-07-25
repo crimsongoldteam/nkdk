@@ -22,20 +22,10 @@ describe("MetadataRegisterResources YAML → XML", () => {
     expect(normalize(result.result)).toBe(normalize(result.expected))
   })
 
-  it("preserves reference empty Synonym when current synonym is generated from name", () => {
-    const referenceXML = {
-      Resource: {
-        Properties: {
-          Name: "Содержание",
-          Synonym: "",
-          Type: { "v8:Type": "xs:string", "v8:StringQualifiers": { "v8:Length": 100, "v8:AllowedLength": "Variable" } },
-        },
-      },
-    }
+  it("exports explicit empty YAML synonym", () => {
     const result = testPropertyFromYAMLToXML({
       rule,
-      yaml: { Значение: { Содержание: { Тип: "Строка(100)" } } },
-      referenceXML,
+      yaml: { Значение: { Содержание: { Синоним: "", Тип: "Строка(100)" } } },
     })
     const xml = serializeDirectXML(result.xml)
     expect(xml).toContain("<Synonym/>")

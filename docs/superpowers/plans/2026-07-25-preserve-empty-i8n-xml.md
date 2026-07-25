@@ -307,16 +307,39 @@ Expected: FAIL — отсутствующий `Синоним` пока копи
 
 - [ ] **Step 3: Не копировать reference для представимой в YAML пустоты**
 
-В ранней ветке `convertPropertiesFromYAMLToXML`, которая напрямую вызывает
-`writeXMLValue(...)` для отсутствующего YAML-свойства и существующего
-reference, добавить нейтральное условие:
+Старое восстановление reference проходит через три последовательные
+границы. На каждой использовать нейтральный договор
+`preserveEmptyXML`, а не имя `Synonym` или тип объекта:
 
-```ts
-planned.propertyRule.preserveEmptyXML !== true
-```
+1. В ранней ветке прямого `writeXMLValue(...)` не копировать reference:
 
-Условие относится к договору свойства, а не к `Synonym` или типу объекта.
-После пропуска ветки стандартный импорт применяет обычное значение по
+   ```ts
+   planned.propertyRule.preserveEmptyXML !== true
+   ```
+
+2. В `shouldUseOnlyImportedValue(...)` доверять результату обработчика,
+   когда YAML отсутствует:
+
+   ```ts
+   params.rule.preserveEmptyXML === true && params.value === undefined
+   ```
+
+   Пустой reference импортируется как пустая модель, после чего обработчик
+   `I8nText` возвращает `undefined`. Непустой reference остаётся непустым
+   результатом обработчика и не теряется.
+
+3. В `writeXMLValue(...)` не превращать итоговый `undefined` обратно в
+   пустой XML-объект только из-за существования reference:
+
+   ```ts
+   const value =
+     params.value === undefined && reference.exists && planned.propertyRule.preserveEmptyXML !== true
+       ? {}
+       : params.value
+   if (value === undefined) return undefined
+   ```
+
+После этих трёх границ стандартный импорт применяет обычное значение по
 умолчанию правила либо оставляет свойство отсутствующим.
 
 - [ ] **Step 4: Перевести тесты полей регистра на явный YAML**

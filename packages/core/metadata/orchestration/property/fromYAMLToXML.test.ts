@@ -43,10 +43,22 @@ describe("convertPropertiesFromYAMLToXML", () => {
     expect(result.outputs.get("owner")).toEqual({})
   })
 
-  it("preserves explicit empty synonym from reference when YAML omits synonym", () => {
+  it("does not restore empty synonym from reference when YAML omits synonym", () => {
     const result = convertPropertiesFromYAMLToXML({
       context: context(),
       yaml: {},
+      rule: synonymRule(),
+      name: "ПравилаОтправкиДокументов",
+      outputs: [{ key: "owner", referenceXML: { Synonym: {} } }],
+    })
+
+    expect(result.outputs.get("owner")).toEqual({})
+  })
+
+  it("exports explicit empty YAML synonym as empty XML", () => {
+    const result = convertPropertiesFromYAMLToXML({
+      context: context(),
+      yaml: { Синоним: "" },
       rule: synonymRule(),
       name: "ПравилаОтправкиДокументов",
       outputs: [{ key: "owner", referenceXML: { Synonym: {} } }],

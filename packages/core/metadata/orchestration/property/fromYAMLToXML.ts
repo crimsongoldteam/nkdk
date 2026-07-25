@@ -252,6 +252,7 @@ export function convertPropertiesFromYAMLToXML(params: ConvertPropertiesFromYAML
       planned.propertyRule.runtimeOnly !== true &&
       planned.propertyRule.syncExternalOnly !== true &&
       planned.propertyRule.filePath === undefined &&
+      planned.propertyRule.preserveEmptyXML !== true &&
       !requiresYAMLToXMLEvaluation(planned.propertyRule) &&
       references.every((reference) => reference.exists) &&
       (!hasExplicitXMLDefault(planned.propertyRule) ||
@@ -617,9 +618,10 @@ export function callAtomicFromYAML(params: AtomicFromYAMLParams): unknown {
 
 function shouldUseOnlyImportedValue(params: { rule: PropertyRule; value: unknown }): boolean {
   return (
-    params.rule.type === "MetadataDcsMetadataValue" &&
-    (params.rule as { valueType?: unknown }).valueType === "DesignTimeValue" &&
-    params.value === undefined
+    (params.rule.preserveEmptyXML === true && params.value === undefined) ||
+    (params.rule.type === "MetadataDcsMetadataValue" &&
+      (params.rule as { valueType?: unknown }).valueType === "DesignTimeValue" &&
+      params.value === undefined)
   )
 }
 
@@ -740,8 +742,11 @@ function writeXMLValue(params: {
   reference: ReferenceProperty
 }): readonly string[] | undefined {
   const { context, output, planned, reference } = params
-  const value = params.value === undefined && reference.exists ? {} : params.value
-  if (value === undefined && !reference.exists) return undefined
+  const value =
+    params.value === undefined && reference.exists && planned.propertyRule.preserveEmptyXML !== true
+      ? {}
+      : params.value
+  if (value === undefined) return undefined
   const rule = planned.propertyRule
   if (Array.isArray(value) && value.length === 0) {
     if (rule.xmlParents !== undefined && Object.prototype.hasOwnProperty.call(rule, "defaultValueXMLRaw")) {

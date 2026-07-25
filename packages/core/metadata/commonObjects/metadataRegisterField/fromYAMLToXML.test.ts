@@ -21,13 +21,11 @@ describe("metadata register field YAML → XML", () => {
     expect(xml).toContain("<v8:Type>xs:boolean</v8:Type>")
   })
 
-  it("keeps empty source synonym for object YAML register field", () => {
-    const xml = exportItem(
-      AccountingFlagRules,
-      "УдалитьОКТМО_КПП",
-      { Тип: "Строка(21)" },
-      { Properties: { Name: "УдалитьОКТМО_КПП", Synonym: "" } }
-    )
+  it("exports explicit empty synonym for object YAML register field", () => {
+    const xml = exportItem(AccountingFlagRules, "УдалитьОКТМО_КПП", {
+      Синоним: "",
+      Тип: "Строка(21)",
+    })
     expect(xml).toContain("<Synonym/>")
     expect(xml).not.toContain("<v8:item>")
     expect(xml).toContain("<v8:Length>21</v8:Length>")
@@ -47,16 +45,16 @@ describe("metadata register field YAML → XML", () => {
     )
   })
 
-  it("keeps empty source synonym for object YAML register dimension collection", () => {
-    expectEmptyCollectionSynonym(dimensionsRule, "Dimension", "УдалитьОКТМО_КПП", "Строка(21)")
+  it("exports explicit empty synonym for object YAML register dimension collection", () => {
+    expectExplicitEmptyCollectionSynonym(dimensionsRule, "УдалитьОКТМО_КПП", "Строка(21)")
   })
 
-  it("keeps empty source synonym for full YAML register resource collection", () => {
-    expectEmptyCollectionSynonym(resourcesRule, "Resource", "Содержание", "Строка(100)")
+  it("exports explicit empty synonym for full YAML register resource collection", () => {
+    expectExplicitEmptyCollectionSynonym(resourcesRule, "Содержание", "Строка(100)")
   })
 
-  it("keeps empty source synonym for full YAML register dimension collection", () => {
-    expectEmptyCollectionSynonym(dimensionsRule, "Dimension", "Организация", "Булево")
+  it("exports explicit empty synonym for full YAML register dimension collection", () => {
+    expectExplicitEmptyCollectionSynonym(dimensionsRule, "Организация", "Булево")
   })
 
   it("restores omitted synonym from name for object YAML register resource collection without source", () => {
@@ -97,18 +95,11 @@ function exportItem(rule: MetadataItemRule, name: string, yaml: unknown, referen
   return serializeDirectXML(testMetadataItemFromYAMLToXML({ rule, name, yaml, referenceXML }).xml)
 }
 
-function expectEmptyCollectionSynonym(
-  rule: MetadataItemRule,
-  xmlElement: string,
-  name: string,
-  type: string
-): void {
-  const referenceXML = { [xmlElement]: { Properties: { Name: name, Synonym: "" } } }
+function expectExplicitEmptyCollectionSynonym(rule: MetadataItemRule, name: string, type: string): void {
   const xml = serializeDirectXML(
     testPropertyFromYAMLToXML({
       rule,
-      yaml: { Значение: { [name]: { Тип: type } } },
-      referenceXML,
+      yaml: { Значение: { [name]: { Синоним: "", Тип: type } } },
     }).xml
   )
   expect(xml).toContain("<Synonym/>")
