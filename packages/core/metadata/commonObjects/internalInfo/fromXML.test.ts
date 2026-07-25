@@ -2,6 +2,11 @@ import { readFileSync } from "node:fs"
 import { dirname, join } from "node:path"
 import { fileURLToPath } from "node:url"
 import { describe, expect, it } from "vitest"
+import {
+  createDirectRoundTripContexts,
+  testPropertyFromXMLToYAML,
+  testPropertyFromYAMLToXML,
+} from "../../../tests/directConversion"
 import { mockContextFromXML, mockContextToXML } from "../../../tests/mockContext"
 import { withConfigurationIndexCollector } from "../../configurationIndex/collector/context"
 import { createConfigurationIndexCollector } from "../../configurationIndex/collector/writer"
@@ -32,6 +37,12 @@ const generatedContainedObjectsRule: PropertyRule = {
 }
 
 const ruleWithThisNode: PropertyRule = { ...rule, thisNode: true }
+
+const completeRule: PropertyRule = {
+  ...rule,
+  thisNode: true,
+  containedObjectClassIds: ["00000000-0000-0000-0000-000000000101"],
+}
 
 const xml = `
 <InternalInfo>
@@ -119,6 +130,143 @@ describe("importInternalInfoFromXML", () => {
         value: "00000000-0000-0000-0000-000000000201",
       },
     ])
+  })
+
+  it("restores every InternalInfo UUID from the configuration snapshot", () => {
+    const parsed = importContentFromXML<{ InternalInfo: InternalInfoRootXML }>(xmlWithContainedObject)
+    const contexts = createDirectRoundTripContexts({ logicalAddress: "Справочник.Товары" })
+    importPropertiesFromXMLToYAML({
+      context: contexts.importContext,
+      rule: {
+        itemType: "TestInternalInfoItem",
+        properties: {
+          internalInfo: {
+            ...completeRule,
+            xml: "InternalInfo",
+          },
+        },
+      } as MetadataItemRule,
+      sources: [{ context: contexts.importContext, xml: parsed }],
+      yamlPath: [],
+      rulePath: [],
+      collector: createLocalIndexesCollector(),
+    })
+
+    const exported = exportInternalInfoToXML({
+      context: contexts.exportContext(),
+      rule: completeRule,
+      value: undefined,
+      referenceMetadata: undefined,
+      metadataItem: { itemType: "MetadataCatalog" as never, name: "Товары" },
+    })
+
+    expect(exported).toMatchObject({
+      "xr:ThisNode": "00000000-0000-0000-0000-000000000002",
+      "xr:GeneratedType": [
+        {
+          "xr:TypeId": "00000000-0000-0000-0000-000000000001",
+          "xr:ValueId": "00000000-0000-0000-0000-000000000003",
+        },
+      ],
+      "xr:ContainedObject": [
+        {
+          "xr:ClassId": "00000000-0000-0000-0000-000000000101",
+          "xr:ObjectId": "00000000-0000-0000-0000-000000000201",
+        },
+      ],
+    })
+  })
+
+  it("creates distinct deterministic UUIDs for a new InternalInfo", () => {
+    const newRule: PropertyRule = {
+      type: "InternalInfo",
+      forReferenceOnly: true,
+      thisNode: true,
+      items: [
+        { name: "CatalogRef", category: "Ref" },
+        { name: "CatalogObject", category: "Object" },
+      ],
+      containedObjectClassIds: [
+        "00000000-0000-0000-0000-000000000101",
+        "00000000-0000-0000-0000-000000000102",
+      ],
+    }
+    const exportNew = () =>
+      exportInternalInfoToXML({
+        context: createDirectRoundTripContexts({ logicalAddress: "Справочник.Новый" }).exportContext(),
+        rule: newRule,
+        value: undefined,
+        referenceMetadata: undefined,
+        metadataItem: { itemType: "MetadataCatalog" as never, name: "Новый" },
+      })
+
+    const first = exportNew()
+    const second = exportNew()
+    const generated = Array.isArray(first["xr:GeneratedType"])
+      ? first["xr:GeneratedType"]
+      : [first["xr:GeneratedType"]!]
+    const contained = Array.isArray(first["xr:ContainedObject"])
+      ? first["xr:ContainedObject"]
+      : [first["xr:ContainedObject"]!]
+    const allUUIDs = [
+      first["xr:ThisNode"]!,
+      ...generated.flatMap((item) => [item["xr:TypeId"], item["xr:ValueId"]]),
+      ...contained.map((item) => item["xr:ObjectId"]),
+    ]
+
+    expect(new Set(allUUIDs).size).toBe(allUUIDs.length)
+    expect(second).toEqual(first)
+  })
+
+  it("round-trips InternalInfo UUIDs through YAML and the configuration snapshot", () => {
+    const parsed = importContentFromXML<{ InternalInfo: InternalInfoRootXML }>(xmlWithContainedObject)
+    const contexts = createDirectRoundTripContexts({
+      logicalAddress: "Справочник.Товары",
+      targetProjectPath: "Справочник/Товары/Свойства.yaml",
+    })
+    const metadataRule = {
+      itemType: "TestInternalInfoItem",
+      properties: {
+        internalInfo: {
+          ...completeRule,
+          xml: "InternalInfo",
+          exportWithoutReferenceXML: true,
+        },
+      },
+    } as MetadataItemRule
+    const imported = testPropertyFromXMLToYAML({
+      context: contexts.importContext,
+      rule: metadataRule,
+      xml: parsed,
+      name: "Товары",
+    })
+    const exportContext = contexts.exportContext()
+    const exported = testPropertyFromYAMLToXML({
+      context: exportContext,
+      rule: metadataRule,
+      yaml: imported.yaml,
+      name: "Товары",
+    })
+
+    expect(imported.yaml).toEqual({})
+    expect(exported.xml.InternalInfo).toMatchObject({
+      "xr:ThisNode": "00000000-0000-0000-0000-000000000002",
+      "xr:GeneratedType": [
+        {
+          "xr:TypeId": "00000000-0000-0000-0000-000000000001",
+          "xr:ValueId": "00000000-0000-0000-0000-000000000003",
+        },
+      ],
+      "xr:ContainedObject": [
+        {
+          "xr:ClassId": "00000000-0000-0000-0000-000000000101",
+          "xr:ObjectId": "00000000-0000-0000-0000-000000000201",
+        },
+      ],
+    })
+    expect(
+      exportContext.exportToXML.configurationIndex?.collector.fragment("Справочник/Товары/Свойства.yaml").identities
+    ).toHaveLength(4)
   })
 
   it("imports GeneratedType and ThisNode", () => {

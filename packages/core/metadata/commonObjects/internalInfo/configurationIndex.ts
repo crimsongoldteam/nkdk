@@ -1,6 +1,7 @@
-import type { ConfigurationContextFromXML } from "../../context/types"
+import type { ConfigurationContext, ConfigurationContextFromXML } from "../../context/types"
 import { getConfigurationIndexCollectionContext } from "../../configurationIndex/collector/context"
 import { childSegmentUid, childUid } from "../../configurationIndex/logicalAddress"
+import { getUUID } from "../../helpers/uuid"
 import type { CollectConfigurationIndexFromXMLFunction } from "../../orchestration/property/fn"
 import type { InternalInfoRootXML } from "./types"
 
@@ -23,6 +24,28 @@ export const internalInfoGeneratedValueIdAddress = (ownerAddress: string, name: 
 
 export const internalInfoContainedObjectIdAddress = (ownerAddress: string, classId: string): string =>
   childSegmentUid(containedObjectAddress(ownerAddress, classId), "ObjectId")
+
+export function resolveInternalInfoUuid(params: {
+  context: ConfigurationContext
+  logicalAddress: string | undefined
+  fallback?: string
+}): string {
+  const runtime = params.context.exportToXML?.configurationIndex
+  if (runtime === undefined || params.logicalAddress === undefined) {
+    return params.fallback ?? getUUID(params.context)
+  }
+
+  const stored = runtime.identity("uuid", params.logicalAddress)
+  if (stored !== undefined) {
+    runtime.collector.setUuid(params.logicalAddress, stored)
+    return stored
+  }
+  if (params.fallback !== undefined) {
+    runtime.collector.setUuid(params.logicalAddress, params.fallback)
+    return params.fallback
+  }
+  return runtime.identityOrCreate("uuid", params.logicalAddress)
+}
 
 export const collectInternalInfoConfigurationIndexFromXML: CollectConfigurationIndexFromXMLFunction = ({
   context,
