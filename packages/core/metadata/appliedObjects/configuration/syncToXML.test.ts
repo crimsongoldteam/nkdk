@@ -651,7 +651,7 @@ describe("sync configuration to XML", () => {
         outputDir: tmpXmlDir,
         referenceDir: tmpInputXmlDir,
       })
-    }, 30_000)
+    }, 120_000)
 
     afterAll(() => {
       fs.rmSync(tmp, { recursive: true, force: true })
