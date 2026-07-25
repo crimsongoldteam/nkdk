@@ -27,13 +27,14 @@ function configurationIndexItemContext(params: {
   context: ConfigurationContextFromXML
   item: ItemXML
   itemRule: MetadataItemRule
+  keyField?: string
   index: number
   options?: MetadataItemCollectionImportOptions
 }): ConfigurationContextFromXML {
-  const { context, item, itemRule, index, options } = params
+  const { context, item, itemRule, keyField, index, options } = params
   const collection = getConfigurationIndexCollectionContext(context)
   if (collection === undefined) return context
-  const itemName = configurationIndexItemName(item, itemRule)
+  const itemName = itemNameFromXML(item, itemRule, keyField)
   const useYamlPath = collection.yamlPathAddressing === true || options?.configurationIndexAddressing === "yamlPath"
   if (useYamlPath) {
     return withConfigurationIndexLogicalAddress(
@@ -55,23 +56,6 @@ function configurationIndexItemContext(params: {
       ? indexedUid(collection.logicalAddress, uidSegment, index)
       : childUid(collection.logicalAddress, uidSegment, itemName)
   )
-}
-
-function configurationIndexItemName(item: ItemXML, itemRule: MetadataItemRule): string | undefined {
-  if (typeof item._name === "string" && item._name.length > 0) return item._name
-  const nameRule = itemRule.properties.name
-  if (nameRule === undefined) return undefined
-  let source: unknown = item
-  for (const parent of nameRule.xmlParents ?? []) {
-    if (source === null || typeof source !== "object") return undefined
-    source = (source as Record<string, unknown>)[parent]
-  }
-  if (source === null || typeof source !== "object") return undefined
-  for (const key of [nameRule.xml ?? "Name", ...(nameRule.xmlAliases ?? [])]) {
-    const value = (source as Record<string, unknown>)[key]
-    if (typeof value === "string" && value.length > 0) return value
-  }
-  return undefined
 }
 
 export function importMetadataItemCollectionFromXMLToYAML(params: {
@@ -115,6 +99,7 @@ export function importMetadataItemCollectionFromXMLToYAML(params: {
       context: params.context,
       item: itemXml,
       itemRule,
+      keyField: params.keyField,
       index,
       options: {
         propertyType: params.propertyType,

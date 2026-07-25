@@ -23,6 +23,7 @@ registerMetadataItemCollectionRule({
   xmlElement: "Item",
   keyField: "metadata",
   yamlAsArray: true,
+  configurationIndexAddressing: "yamlPath",
 })
 
 registerMetadataItemRule({

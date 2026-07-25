@@ -34,6 +34,13 @@ registerMetadataItemCollectionRule({
   yamlAsArray: true,
 })
 registerMetadataItemCollectionRule({
+  propertyType: "TestKeyedArrayCollection" as PropertyRuleType,
+  itemRule,
+  xmlElement: "Item",
+  keyField: "value",
+  yamlAsArray: true,
+})
+registerMetadataItemCollectionRule({
   propertyType: "TestIndexedRecordCollection" as PropertyRuleType,
   itemRule,
   xmlElement: "Item",
@@ -179,6 +186,27 @@ describe("importMetadataItemCollectionFromXMLToYAML", () => {
         { logicalAddress: "Владелец.A.Элементы[1]", order: ["uuid", "name", "value"] },
       ])
     )
+  })
+
+  it("addresses an array item by keyField when YAML-path addressing is disabled", () => {
+    const indexCollector = createConfigurationIndexCollector()
+    const xml = {
+      Items: {
+        Item: { _uuid: "11111111-1111-1111-1111-111111111111", Name: "Первый", Value: "a" },
+      },
+    }
+
+    runDirectRule(
+      "TestKeyedArrayCollection",
+      xml,
+      withConfigurationIndexCollector(mockContextFromXML({ forReference: true }), indexCollector, "Владелец.A")
+    )
+
+    expect(indexCollector.fragment("test.yaml").identities).toContainEqual({
+      logicalAddress: "Владелец.A.TestItem.a",
+      kind: "uuid",
+      value: "11111111-1111-1111-1111-111111111111",
+    })
   })
 
   it("завершает прямой импорт ошибкой, если адресуемый элемент коллекции не имеет имени", () => {
