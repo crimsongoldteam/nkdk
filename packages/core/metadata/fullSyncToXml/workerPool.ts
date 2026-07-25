@@ -4,6 +4,7 @@ import { fileURLToPath } from "node:url"
 import Piscina from "piscina"
 import { mergeConfigurationIndexFragments } from "../configurationIndex/fragment"
 import type { ConfigurationContext } from "../context/types"
+import { sourceWorkerExecArgv } from "../sourceWorkerRuntime"
 import type {
   FullXmlSyncAssignment,
   FullXmlSyncDiagnostic,
@@ -230,7 +231,7 @@ function createPiscinaWorkerPool(): Piscina {
   const workerFile = currentFile.endsWith(".ts")
     ? join(dirname(currentFile), "worker.ts")
     : join(dirname(currentFile), "fullSyncToXmlWorker.js")
-  const execArgv = currentFile.endsWith(".ts") ? ["--import", "tsx"] : []
+  const execArgv = currentFile.endsWith(".ts") ? sourceWorkerExecArgv() : []
   return new Piscina({
     filename: workerFile,
     minThreads: 1,

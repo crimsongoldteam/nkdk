@@ -3,6 +3,7 @@ import { performance } from "node:perf_hooks"
 import { fileURLToPath, pathToFileURL } from "node:url"
 import Piscina from "piscina"
 import type { ConfigurationContext } from "../context/types"
+import { sourceWorkerExecArgv } from "../sourceWorkerRuntime"
 import type {
   FirstPassPoolResult,
   SecondPassPoolParams,
@@ -376,9 +377,10 @@ function createWorkerPool(): Piscina {
   const workerFile = currentFile.endsWith(".ts")
     ? join(dirname(currentFile), "preparedYamlProjectWorker.ts")
     : join(dirname(currentFile), "preparedYamlProjectWorker.js")
-  const execArgv = currentFile.endsWith(".ts")
-    ? ["--import", "tsx", "--import", pathToFileURL(join(dirname(currentFile), "../validation/projectValidationWorkerRegister.mjs")).href]
-    : []
+  const validationRegisterUrl = pathToFileURL(
+    join(dirname(currentFile), "../validation/projectValidationWorkerRegister.mjs")
+  ).href
+  const execArgv = currentFile.endsWith(".ts") ? sourceWorkerExecArgv([validationRegisterUrl]) : []
   return new Piscina({
     filename: workerFile,
     minThreads: 1,

@@ -4,6 +4,7 @@ import Piscina from "piscina"
 import { mergeConfigurationIndexFragments } from "../configurationIndex/fragment"
 import type { ConfigurationIndexData } from "../configurationIndex/types"
 import type { ConfigurationContextFromXML } from "../context/types"
+import { sourceWorkerExecArgv } from "../sourceWorkerRuntime"
 import type { ValidationOwnerFacts } from "../validation/dataPath/ownerFacts"
 import type { SharedValidationSnapshot } from "../validation/sharedValidationSnapshot"
 import { createOperationProfiler } from "../validation/profile"
@@ -326,7 +327,7 @@ function createPiscinaWorkerPool(): Piscina {
   const workerFile = currentFile.endsWith(".ts")
     ? join(dirname(currentFile), "worker.ts")
     : join(dirname(currentFile), "importFromXmlWorker.js")
-  const execArgv = currentFile.endsWith(".ts") ? ["--import", "tsx"] : []
+  const execArgv = currentFile.endsWith(".ts") ? sourceWorkerExecArgv() : []
   return new Piscina({
     filename: workerFile,
     minThreads: 1,

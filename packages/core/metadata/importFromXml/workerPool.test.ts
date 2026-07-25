@@ -1,6 +1,7 @@
 import fs from "node:fs"
 import os from "node:os"
 import { join } from "node:path"
+import { fileURLToPath } from "node:url"
 import { afterEach, describe, expect, it } from "vitest"
 import { mockContextFromXML } from "../../tests/mockContext"
 import { encodeConfigurationIndexFragments } from "../configurationIndex/fragment"
@@ -15,6 +16,7 @@ import {
 } from "./workerPool"
 
 const syncXmlDir = join(import.meta.dirname, "../appliedObjects/configuration/__fixtures__/syncConfiguration/xml")
+const repoRoot = fileURLToPath(new URL("../../../../", import.meta.url))
 const tempDirs: string[] = []
 
 afterEach(() => {
@@ -92,7 +94,7 @@ describe("XML import worker pool", () => {
     expect(pools.destroyCalls()).toEqual([1, 1])
   })
 
-  it("passes a real fragment buffer through Piscina when concurrency is one", async () => {
+  it("passes a real fragment buffer through Piscina when started outside the core package", async () => {
     const source = assignment("real", {
       itemName: "Контрагенты",
       logicalAddress: "Справочник.Контрагенты",
@@ -104,6 +106,8 @@ describe("XML import worker pool", () => {
     await prepareImportYaml({ assignment: source, context, collector })
     const expected = collector.fragment(source.targetProjectPath)
     const pool = createXmlImportWorkerPool({ concurrency: 1 })
+    const originalCwd = process.cwd()
+    process.chdir(repoRoot)
 
     try {
       await pool.initialize({ operationId: "real", context, outputDir: createTempDir("piscina") })
@@ -116,7 +120,11 @@ describe("XML import worker pool", () => {
         xmlValues: expected.xmlValues,
       })
     } finally {
-      await pool.close()
+      try {
+        await pool.close()
+      } finally {
+        process.chdir(originalCwd)
+      }
     }
   }, 30_000)
 
