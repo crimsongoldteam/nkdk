@@ -66,4 +66,70 @@ describe("prepareFullXmlSyncAssignment", () => {
     expect(prepared.profile.rulesPassCount).toBe(1)
     expect(writeFile).not.toHaveBeenCalled()
   })
+
+  it("provides the applied object owner to nested metadata targets", () => {
+    const projectDir = mkdtempSync(join(tmpdir(), "nkdk-prepare-assignment-owner-"))
+    tempDirs.push(projectDir)
+    const sourceProjectPath = "Справочник/Товары/Свойства.yaml"
+    const sourcePath = join(projectDir, ...sourceProjectPath.split("/"))
+    fs.mkdirSync(join(projectDir, "Справочник", "Товары"), { recursive: true })
+    fs.writeFileSync(
+      sourcePath,
+      [
+        "Реквизиты:",
+        "  ИспользоватьХранилище:",
+        "    Тип: Булево",
+        "    ПолеИспользованияХраненияВХранилищеДвоичныхДанных: ИспользоватьХранилище",
+        "",
+      ].join("\n")
+    )
+    const yaml = prepareYamlFiles({
+      files: [
+        {
+          projectPath: sourceProjectPath,
+          filePath: sourcePath,
+          role: "properties",
+          owner: { dir: "Справочник", name: "Товары" },
+          itemType: "MetadataCatalog",
+        },
+      ],
+      itemTypeByYamlDir: { Справочник: "MetadataCatalog" },
+    }).yamlFiles[0]!
+    const assignment: FullXmlSyncAssignment = {
+      id: sourceProjectPath,
+      sourceProjectPath,
+      sourcePath,
+      role: "properties",
+      itemType: "MetadataCatalog",
+      itemName: "Товары",
+      logicalAddress: "Справочник.Товары",
+      owner: undefined,
+      outputs: [{ routeKind: "owner", targetXmlPath: "Catalogs/Товары.xml" }],
+    }
+
+    const prepared = prepareFullXmlSyncAssignment({
+      assignment,
+      preparedYamlFile: yaml,
+      context: mockContextToXML(),
+      index: createConfigurationIndexReader(snapshotConfigurationIndex(encodeConfigurationIndex(sampleIndex()))),
+      assignments: [],
+    })
+
+    expect(prepared.documents[0]?.xml).toMatchObject({
+      MetaDataObject: {
+        Catalog: {
+          Attributes: {
+            Attribute: [
+              {
+                Properties: {
+                  BinaryDataStorageLocationUseField:
+                    "Catalog.Товары.Attribute.ИспользоватьХранилище",
+                },
+              },
+            ],
+          },
+        },
+      },
+    })
+  })
 })

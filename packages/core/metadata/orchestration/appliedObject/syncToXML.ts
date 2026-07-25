@@ -110,9 +110,16 @@ export const prepareAppliedObjectOwnerXML = (params: {
       },
     },
   }
+  const contextWithOwner = getChildContextToXML({
+    context: withImportMetadataTargetOwner(contextWithForms, params.rule, params.name),
+    itemType: params.rule.itemType,
+    path: `${params.rule.itemType}.${params.name}`,
+    name: params.name,
+    externalMetadata: params.rule.externalMetadata,
+  })
 
   const converted = convertMetadataItemFromYAMLToXML({
-    context: contextWithForms,
+    context: contextWithOwner,
     rule: withFileItemCollectionReferenceExportRules(params.rule),
     yaml: yamlObj,
     name: params.name,
