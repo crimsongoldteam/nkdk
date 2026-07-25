@@ -62,6 +62,7 @@ export type ImportFromYAMLFunctionNew = (params: {
   value: any
   name?: string
   owner?: MetadataTargetOwner
+  restoreExcludedEqualName?: boolean
 }) => any | undefined
 
 export type importFromYAMLFunction = (
@@ -357,27 +358,27 @@ export type importExportFunction<O extends TypeRulesOperations> = O extends "imp
                           : O extends "structuralReferences"
                             ? StructuralReferencesFunction | undefined
                             : O extends "resourceTopology"
-                                    ? MetadataResourceTopologyFunction | undefined
-                                    : O extends "fileChildNamesDescriptor"
-                                      ? FileChildNamesDescriptorFunction | undefined
-                                    : O extends "xmlSyncWriter"
-                                      ? XmlSyncWriterFunction | undefined
-                                      : O extends "configurationIndexValueFromXML"
-                                        ? ConfigurationIndexValueFromXMLDescriptor | undefined
-                                        : O extends "collectConfigurationIndexFromXML"
-                                          ? CollectConfigurationIndexFromXMLFunction | undefined
-                                          : O extends "xmlImportPropertyBehavior"
-                                            ? XMLImportPropertyBehavior | undefined
-                                            : O extends "nestedItemRule"
-                                              ? NestedItemRule | undefined
-                                              : O extends "resolveNestedImportXMLSources"
-                                                ? ResolveNestedImportXMLSourcesFunction | undefined
-                                                : O extends "finalizeImportedYAML"
-                                                  ? FinalizeImportedYAMLFunction | undefined
-                                                  : O extends "finalizeExportedXML"
-                                                    ? FinalizeExportedXMLFunction | undefined
-                                                  : O extends "collectLocalFactsFromYAML"
-                                                    ? CollectLocalFactsFromYAMLFunction | undefined
-                                                    : O extends "yamlToXMLNestedRule"
-                                                      ? YAMLToXMLNestedRule | undefined
-                                                      : never
+                              ? MetadataResourceTopologyFunction | undefined
+                              : O extends "fileChildNamesDescriptor"
+                                ? FileChildNamesDescriptorFunction | undefined
+                                : O extends "xmlSyncWriter"
+                                  ? XmlSyncWriterFunction | undefined
+                                  : O extends "configurationIndexValueFromXML"
+                                    ? ConfigurationIndexValueFromXMLDescriptor | undefined
+                                    : O extends "collectConfigurationIndexFromXML"
+                                      ? CollectConfigurationIndexFromXMLFunction | undefined
+                                      : O extends "xmlImportPropertyBehavior"
+                                        ? XMLImportPropertyBehavior | undefined
+                                        : O extends "nestedItemRule"
+                                          ? NestedItemRule | undefined
+                                          : O extends "resolveNestedImportXMLSources"
+                                            ? ResolveNestedImportXMLSourcesFunction | undefined
+                                            : O extends "finalizeImportedYAML"
+                                              ? FinalizeImportedYAMLFunction | undefined
+                                              : O extends "finalizeExportedXML"
+                                                ? FinalizeExportedXMLFunction | undefined
+                                                : O extends "collectLocalFactsFromYAML"
+                                                  ? CollectLocalFactsFromYAMLFunction | undefined
+                                                  : O extends "yamlToXMLNestedRule"
+                                                    ? YAMLToXMLNestedRule | undefined
+                                                    : never

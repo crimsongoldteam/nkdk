@@ -34,6 +34,7 @@ describe("importI8nTextFromYAML", () => {
         rule,
         name: "РегистрБухгалтерииПоУмолчанию",
         value: undefined,
+        restoreExcludedEqualName: true,
       })
 
       expect(result).toEqual({

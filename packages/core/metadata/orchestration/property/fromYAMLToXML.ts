@@ -67,6 +67,7 @@ export interface AtomicFromYAMLParams {
   readonly yaml?: unknown
   readonly name?: string
   readonly owner?: MetadataTargetOwner
+  readonly restoreExcludedEqualName?: boolean
 }
 
 export interface AtomicToXMLParams {
@@ -551,14 +552,12 @@ export function convertPropertiesFromYAMLToXML(params: ConvertPropertiesFromYAML
         value: sourceValue,
         referenceValue: atomicReferences[0],
         yaml,
-        name:
+        name: params.name,
+        owner,
+        restoreExcludedEqualName:
           !source.has(propertyKey) &&
           planned.propertyRule.excludeIfEqualNameYAML === true &&
-          propertyContext.exportToXML.configurationIndex?.xmlNode() !== undefined &&
-          !isConfigurationIndexPropertyPresent(propertyContext, propertyKey)
-            ? undefined
-            : params.name,
-        owner,
+          isConfigurationIndexPropertyPresent(propertyContext, propertyKey),
       }
       imported = hasIndexedImplicitYAMLValue
         ? importIndexedImplicitYAMLValue(importParams)
@@ -673,6 +672,7 @@ export function callAtomicFromYAML(params: AtomicFromYAMLParams): unknown {
           yaml,
           name,
           owner,
+          restoreExcludedEqualName: params.restoreExcludedEqualName,
         })
       : (handler as importFromYAMLFunction)(context, rule, value, referenceValue)
   if (rule.type === "MetadataDcsMetadataValue" && imported === null) return null
