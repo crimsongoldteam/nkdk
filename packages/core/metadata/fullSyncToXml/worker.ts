@@ -87,6 +87,7 @@ function runFirstPass(
   const diagnostics: FullXmlSyncDiagnostic[] = []
   const projectFiles: FullXmlSyncFirstPassResult["projectFiles"][number][] = []
   const ownerFacts: FullXmlSyncOwnerFacts[] = []
+  const expectedOutputs: Array<{ assignmentId: string; targetXmlPath: string }> = []
   const rulesSnapshot = createValidationRulesSnapshot(state.context)
 
   for (const assignment of assignments) {
@@ -127,15 +128,19 @@ function runFirstPass(
           ...(facts?.fieldIndex === undefined ? {} : { fieldIndex: facts.fieldIndex }),
         })
       }
-      preparedAssignments.set(
-        assignment.id,
-        prepareFullXmlSyncAssignment({
+      const preparedAssignment = prepareFullXmlSyncAssignment({
           assignment,
           preparedYamlFile: yamlFile,
           context: exportContextForSecondPass(state),
           index: state.index,
           assignments: state.composition.assignments(),
         })
+      preparedAssignments.set(assignment.id, preparedAssignment)
+      expectedOutputs.push(
+        ...preparedAssignment.documents.map((document) => ({
+          assignmentId: assignment.id,
+          targetXmlPath: document.targetXmlPath,
+        }))
       )
     } catch (caught) {
       preparedAssignments.delete(assignment.id)
@@ -145,7 +150,7 @@ function runFirstPass(
     }
   }
 
-  return { kind: "firstPassResult", diagnostics, projectFiles, ownerFacts }
+  return { kind: "firstPassResult", diagnostics, projectFiles, ownerFacts, expectedOutputs }
 }
 
 async function runSecondPass(

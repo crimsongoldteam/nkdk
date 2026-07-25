@@ -47,7 +47,10 @@ export async function buildFullXmlSyncPlan(options: BuildFullXmlSyncPlanOptions)
     .filter((resource) => resource.kind === "externalFile" && resource.externalFile !== undefined)
     .filter((resource) => resource.externalFile!.direction !== "xmlToProject")
     .map((resource): FullXmlSyncExternalFile => ({
-      assignmentId: resource.assignment?.id,
+      assignmentId:
+        resource.assignment === undefined
+          ? resource.projectPath
+          : expandMetadataPathPattern(resource.assignment.projectPattern, resource.values),
       sourceProjectPath: resource.projectPath,
       sourcePath: resolve(options.projectDir, ...resource.projectPath.split("/")),
       targetXmlPath: expandMetadataPathPattern(resource.externalFile!.xmlPattern, resource.values),

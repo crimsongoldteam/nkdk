@@ -18,7 +18,10 @@ import { ClientApplicationFormRules } from "./rules"
 import { createClientApplicationFormBodyImportSource } from "./xmlImportSources"
 import { exportClientApplicationFormToJSONSchema } from "./toJSONSchema"
 import { prepareFormXML } from "./syncToXML"
-import { registerMetadataXmlPrepareCapability } from "../../resourceTopology/capabilities"
+import {
+  registerMetadataExternalTransferCapability,
+  registerMetadataXmlPrepareCapability,
+} from "../../resourceTopology/capabilities"
 
 const getDirectFormXmlDir = (params: { baseDir: string; rule: { filePath?: string } }): string =>
   join(params.baseDir, dirname(params.rule.filePath ?? ""))
@@ -163,4 +166,8 @@ registerMetadataXmlPrepareCapability({
         : [{ declarationId: output.declarationId, targetXmlPath: output.targetXmlPath, ...document }]
     })
   },
+})
+registerMetadataExternalTransferCapability({
+  id: "ClientApplicationForm",
+  projectToXml: (params) => params,
 })

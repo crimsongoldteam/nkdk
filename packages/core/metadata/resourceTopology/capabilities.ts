@@ -45,6 +45,16 @@ export interface MetadataXmlPrepareCapability {
 
 const prepareCapabilities = new Map<string, MetadataXmlPrepareCapability>()
 
+export interface MetadataExternalTransferCapability {
+  readonly id: string
+  readonly projectToXml: (params: {
+    readonly sourcePath: string
+    readonly targetPath: string
+  }) => { readonly sourcePath: string; readonly targetPath: string }
+}
+
+const externalTransferCapabilities = new Map<string, MetadataExternalTransferCapability>()
+
 export function registerMetadataXmlPrepareCapability(capability: MetadataXmlPrepareCapability): void {
   const previous = prepareCapabilities.get(capability.id)
   if (previous !== undefined && previous.run !== capability.run) {
@@ -59,4 +69,20 @@ export function getMetadataXmlPrepareCapability(id: string): MetadataXmlPrepareC
 
 export function clearMetadataXmlPrepareCapabilitiesForTests(): void {
   prepareCapabilities.clear()
+}
+
+export function registerMetadataExternalTransferCapability(
+  capability: MetadataExternalTransferCapability
+): void {
+  const previous = externalTransferCapabilities.get(capability.id)
+  if (previous !== undefined && previous.projectToXml !== capability.projectToXml) {
+    throw new Error(`Возможность переноса внешнего файла уже зарегистрирована: ${capability.id}`)
+  }
+  externalTransferCapabilities.set(capability.id, capability)
+}
+
+export function getMetadataExternalTransferCapability(
+  id: string
+): MetadataExternalTransferCapability | undefined {
+  return externalTransferCapabilities.get(id)
 }

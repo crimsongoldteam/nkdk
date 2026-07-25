@@ -162,12 +162,6 @@ export async function syncConfigurationToXml(
     )
     warnings = second.warnings
     if (hasErrors(second.diagnostics)) return failedResult(second.diagnostics, warnings)
-    const outputDiagnostics = validateFullXmlSyncWrittenFiles({
-      plan,
-      writtenFiles: second.writtenFiles,
-    })
-    if (hasErrors(outputDiagnostics)) return failedResult(outputDiagnostics, warnings)
-
     const external = await profiler.measureAsync("Полная XML-синхронизация", "Перенос внешних файлов", { items: plan.externalFiles.length }, () =>
       deps.transferExternalFiles({
         outputDir: xmlDir,
@@ -175,6 +169,30 @@ export async function syncConfigurationToXml(
         ...(params.transferConcurrency === undefined ? {} : { concurrency: params.transferConcurrency }),
       })
     )
+    const outputDiagnostics = validateFullXmlSyncWrittenFiles({
+      expectedOutputs:
+        first.expectedOutputs ??
+        plan.assignments.flatMap((assignment) =>
+          assignment.outputs.map((output) => ({
+            assignmentId: assignment.id,
+            targetXmlPath: output.targetXmlPath,
+          }))
+        ),
+      writtenFiles: second.writtenFiles,
+      copiedFiles: external.copiedFiles.map((file) => ({
+        ...file,
+        assignmentId:
+          file.assignmentId ??
+          plan.externalFiles.find(
+            (candidate) =>
+              candidate.sourceProjectPath === file.sourceProjectPath &&
+              candidate.targetXmlPath === file.targetXmlPath
+          )?.assignmentId ??
+          (plan.assignments.length === 1 ? plan.assignments[0]?.id : undefined) ??
+          file.sourceProjectPath,
+      })),
+    })
+    if (hasErrors(outputDiagnostics)) return failedResult(outputDiagnostics, warnings)
     const configDumpInfo = await profiler.measureAsync("Полная XML-синхронизация", "Запись ConfigDumpInfo.xml", { items: plan.assignments.length }, () =>
       deps.writeConfigDumpInfo({
         context: params.context,

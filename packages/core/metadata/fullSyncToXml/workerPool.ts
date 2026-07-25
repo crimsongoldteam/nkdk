@@ -39,6 +39,7 @@ export interface FullXmlSyncFirstPassPoolResult {
   diagnostics: FullXmlSyncDiagnostic[]
   projectFiles: ConfigurationProjectFile[]
   ownerFacts: FullXmlSyncOwnerFacts[]
+  expectedOutputs?: import("./types").FullXmlSyncExpectedOutput[]
 }
 
 export interface FullXmlSyncSecondPassPoolResult {
@@ -135,6 +136,7 @@ export function createFullXmlSyncWorkerPool(params: {
         diagnostics,
         projectFiles: results.flatMap((result) => result.projectFiles).sort(compareProjectFiles),
         ownerFacts: results.flatMap((result) => result.ownerFacts),
+        expectedOutputs: results.flatMap((result) => result.expectedOutputs ?? []),
       }
     },
 

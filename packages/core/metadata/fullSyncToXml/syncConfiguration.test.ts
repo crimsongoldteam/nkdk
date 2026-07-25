@@ -143,6 +143,7 @@ describe("syncConfigurationToXml", () => {
       "pool.firstPass",
       "sharedMetadata",
       "pool.secondPass",
+      "transferExternalFiles",
       "pool.close",
     ])
     expect(harness.writtenIndex).toBeUndefined()

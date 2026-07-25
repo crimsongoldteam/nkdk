@@ -6,11 +6,27 @@ import type { ExternalFilePropertyRule } from "./externalFile/types"
 import type { HelpPropertyRule, ModulePropertyRule, PropertyRule, TemplatePropertyRule } from "../orchestration/property/types"
 import { registerTypeRule } from "../orchestration/property/typeRuleRegistry"
 import type { MetadataResourceDeclaration, MetadataResourceSource } from "../resourceTopology/types"
+import { registerMetadataExternalTransferCapability } from "../resourceTopology/capabilities"
 
 const source = (description: string): MetadataResourceSource => ({
   kind: "property",
   description,
 })
+
+const identityTransfer = (params: { sourcePath: string; targetPath: string }) => params
+for (const id of [
+  "Module",
+  "Template",
+  "Help",
+  "ExternalFile",
+  "ExternalPicture",
+  "WSDefinitionSchemas",
+  "Recalculations",
+  "ChildFormNames",
+  "ChildTemplateNames",
+] as const) {
+  registerMetadataExternalTransferCapability({ id, projectToXml: identityTransfer })
+}
 
 const pathPattern = (
   value: string | ((params: { name: string; parentName?: string }) => string)

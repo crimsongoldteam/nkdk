@@ -109,11 +109,23 @@ export type FullXmlSyncWorkerCommand =
     }
   | { readonly kind: "dispose" }
 
+export interface FullXmlSyncExpectedOutput {
+  readonly assignmentId: string
+  readonly targetXmlPath: string
+}
+
+export interface FullXmlSyncCopiedFile {
+  readonly assignmentId?: string
+  readonly sourceProjectPath: string
+  readonly targetXmlPath: string
+}
+
 export interface FullXmlSyncFirstPassResult {
   readonly kind: "firstPassResult"
   readonly diagnostics: readonly FullXmlSyncDiagnostic[]
   readonly projectFiles: readonly ConfigurationProjectFile[]
   readonly ownerFacts: readonly FullXmlSyncOwnerFacts[]
+  readonly expectedOutputs?: readonly FullXmlSyncExpectedOutput[]
 }
 
 export interface FullXmlSyncSecondPassResult {

@@ -1,97 +1,80 @@
 import { posix } from "node:path"
 import type {
+  FullXmlSyncCopiedFile,
   FullXmlSyncDiagnostic,
-  FullXmlSyncPlan,
+  FullXmlSyncExpectedOutput,
   FullXmlSyncWrittenFile,
 } from "./types"
 
 export function validateFullXmlSyncWrittenFiles(params: {
-  readonly plan: FullXmlSyncPlan
+  readonly expectedOutputs: readonly FullXmlSyncExpectedOutput[]
   readonly writtenFiles: readonly FullXmlSyncWrittenFile[]
+  readonly copiedFiles: readonly (FullXmlSyncCopiedFile & { readonly assignmentId: string })[]
 }): FullXmlSyncDiagnostic[] {
   const diagnostics: FullXmlSyncDiagnostic[] = []
-  const assignmentById = new Map(params.plan.assignments.map((assignment) => [assignment.id, assignment]))
-  const writtenByAssignment = new Map<string, Set<string>>()
-  const ownerByTarget = new Map(
-    params.plan.externalFiles.map((file) => [file.targetXmlPath, file.sourceProjectPath] as const)
-  )
-  ownerByTarget.set("ConfigDumpInfo.xml", "ConfigDumpInfo.xml")
+  const knownAssignments = new Set(params.expectedOutputs.map((output) => output.assignmentId))
+  const actual = [
+    ...params.writtenFiles.map((file) => ({ ...file, sourceProjectPath: undefined })),
+    ...params.copiedFiles,
+  ]
+  const ownerByTarget = new Map<string, string>()
+  const actualKeys = new Set<string>()
 
-  for (const written of params.writtenFiles) {
-    const assignment = assignmentById.get(written.assignmentId)
-    if (assignment === undefined) {
+  for (const output of actual) {
+    if (!knownAssignments.has(output.assignmentId)) {
       diagnostics.push({
         severity: "error",
         code: "full_xml_sync_output_unknown_assignment",
-        message: `Worker сообщил XML-файл неизвестного задания: ${written.assignmentId}`,
-        assignmentId: written.assignmentId,
-        targetXmlPath: written.targetXmlPath,
+        message: `Получен XML-файл неизвестного задания: ${output.assignmentId}`,
+        assignmentId: output.assignmentId,
+        targetXmlPath: output.targetXmlPath,
       })
       continue
     }
-
-    if (!isSafeRelativeXmlPath(written.targetXmlPath)) {
-      diagnostics.push(outputDiagnostic(
-        assignment,
-        written.targetXmlPath,
-        "full_xml_sync_output_invalid_path",
-        `Worker сообщил недопустимый XML-путь: ${written.targetXmlPath}`
-      ))
+    if (!isSafeRelativeXmlPath(output.targetXmlPath)) {
+      diagnostics.push({
+        severity: "error",
+        code: "full_xml_sync_output_invalid_path",
+        message: `Получен недопустимый XML-путь: ${output.targetXmlPath}`,
+        assignmentId: output.assignmentId,
+        targetXmlPath: output.targetXmlPath,
+      })
       continue
     }
-
-    const previousOwner = ownerByTarget.get(written.targetXmlPath)
-    if (previousOwner !== undefined) {
-      diagnostics.push(outputDiagnostic(
-        assignment,
-        written.targetXmlPath,
-        "full_xml_sync_output_conflict",
-        `Повторный XML-путь ${written.targetXmlPath}: ${previousOwner} и ${assignment.sourceProjectPath}`
-      ))
+    const previous = ownerByTarget.get(output.targetXmlPath)
+    if (previous !== undefined && previous !== output.assignmentId) {
+      diagnostics.push({
+        severity: "error",
+        code: "full_xml_sync_output_conflict",
+        message: `Повторный XML-путь ${output.targetXmlPath}: ${previous} и ${output.assignmentId}`,
+        assignmentId: output.assignmentId,
+        targetXmlPath: output.targetXmlPath,
+      })
       continue
     }
-    ownerByTarget.set(written.targetXmlPath, assignment.sourceProjectPath)
-
-    const paths = writtenByAssignment.get(assignment.id) ?? new Set<string>()
-    paths.add(written.targetXmlPath)
-    writtenByAssignment.set(assignment.id, paths)
+    ownerByTarget.set(output.targetXmlPath, output.assignmentId)
+    actualKeys.add(outputKey(output))
   }
 
-  for (const assignment of params.plan.assignments) {
-    const writtenPaths = writtenByAssignment.get(assignment.id)
-    for (const output of assignment.outputs) {
-      if (writtenPaths?.has(output.targetXmlPath) === true) continue
-      diagnostics.push(outputDiagnostic(
-        assignment,
-        output.targetXmlPath,
-        "full_xml_sync_output_missing",
-        `Worker не записал объявленный XML-файл: ${output.targetXmlPath}`
-      ))
-    }
+  for (const expected of params.expectedOutputs) {
+    if (actualKeys.has(outputKey(expected))) continue
+    diagnostics.push({
+      severity: "error",
+      code: "full_xml_sync_output_missing",
+      message: `Не записан объявленный XML-файл: ${expected.targetXmlPath}`,
+      assignmentId: expected.assignmentId,
+      targetXmlPath: expected.targetXmlPath,
+    })
   }
-
   return diagnostics
+}
+
+function outputKey(output: { assignmentId: string; targetXmlPath: string }): string {
+  return `${output.assignmentId}\0${output.targetXmlPath}`
 }
 
 function isSafeRelativeXmlPath(path: string): boolean {
   if (path.length === 0 || path.includes("\0") || posix.isAbsolute(path)) return false
   const normalized = posix.normalize(path)
   return normalized === path && normalized !== ".." && !normalized.startsWith("../")
-}
-
-function outputDiagnostic(
-  assignment: FullXmlSyncPlan["assignments"][number],
-  targetXmlPath: string,
-  code: string,
-  message: string
-): FullXmlSyncDiagnostic {
-  return {
-    severity: "error",
-    code,
-    message,
-    assignmentId: assignment.id,
-    sourceProjectPath: assignment.sourceProjectPath,
-    sourcePath: assignment.sourcePath,
-    targetXmlPath,
-  }
 }
