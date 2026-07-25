@@ -259,6 +259,56 @@ registerMetadataXmlPrepareCapability({
   },
 })
 
+registerMetadataXmlPrepareCapability({
+  id: "externalFileProperty",
+  run: ({ assignment, context, preparedYamlFile, itemName, logicalAddress, outputs }) => {
+    const itemContext = getChildContextToXML({
+      context: withImportMetadataTargetOwner(context, assignment.itemRule, itemName),
+      itemType: assignment.itemRule.itemType,
+      path: logicalAddress,
+      name: itemName,
+      externalMetadata: assignment.itemRule.externalMetadata,
+    })
+    const source = createYAMLPropertySource({
+      yaml: preparedYamlFile.data,
+      rule: assignment.itemRule,
+      itemName,
+      context: itemContext,
+    })
+
+    return outputs.flatMap((output) => {
+      const propertyKey = output.propertyName
+      if (propertyKey === undefined || !source.has(propertyKey)) return []
+      const propertyRule = assignment.itemRule.properties[propertyKey]
+      if (propertyRule === undefined) return []
+      const nestedRule = getTypeRule(propertyRule.type, "yamlToXMLNestedRule")
+      if (nestedRule?.kind !== "externalFile") return []
+
+      const propertyContext = withConfigurationIndexExportPropertyContext(
+        itemContext,
+        propertyRule.yaml ?? propertyKey,
+        propertyRule.configurationIndexUidSegment ?? propertyRule.operationTarget?.migrationSegment,
+        { configurationIndexAddressing: propertyRule.configurationIndexAddressing }
+      )
+      const xml = nestedRule.convert({
+        context: propertyContext,
+        yaml: source.raw(propertyKey),
+        name: itemName,
+        referenceXML: undefined,
+      })
+      return [
+        {
+          declarationId: output.declarationId,
+          targetXmlPath: output.targetXmlPath,
+          xml,
+          deferred: [],
+          rootRule: assignment.itemRule,
+        },
+      ]
+    })
+  },
+})
+
 export const writePreparedAppliedObjectOwnerToXML = async (params: {
   rule: MetadataItemRule
   context: ConfigurationContextWithExportToXML

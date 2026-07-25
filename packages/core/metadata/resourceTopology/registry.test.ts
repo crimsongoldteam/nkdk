@@ -174,6 +174,8 @@ describe("property resource topology registry", () => {
           expect.objectContaining({
             xmlPattern: "CommonForms/{ownerName}/Ext/Form.xml",
             role: "body",
+            prepareCapabilityId: "externalFileProperty",
+            source: expect.objectContaining({ propertyName: "form" }),
           }),
         ])
       )
