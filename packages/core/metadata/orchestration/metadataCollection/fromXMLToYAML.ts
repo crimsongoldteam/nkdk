@@ -84,20 +84,25 @@ export function importMetadataItemCollectionFromXMLToYAML(params: {
   propertyType?: PropertyRuleType
   configurationIndexUidSegment?: string
   configurationIndexAddressing?: ConfigurationIndexAddressingMode
+  preserveItemPropertyPresence?: true
   recordYamlKeyFromYAML?: (params: { yaml: Record<string, unknown>; name: string }) => string
   traversal: DirectImportTraversal
 }): Record<string, unknown> | Array<Record<string, unknown>> | undefined {
   const items = normalizeCollectionItems(params.xml, params.xmlElement)
   if (items.length === 0) return undefined
+  const itemRule =
+    params.preserveItemPropertyPresence === true
+      ? withPreservedPropertyPresence(params.itemRule)
+      : params.itemRule
   const keyField = params.keyField
-  const keyYaml = keyField === undefined ? undefined : (params.itemRule.properties[keyField]?.yaml ?? keyField)
+  const keyYaml = keyField === undefined ? undefined : (itemRule.properties[keyField]?.yaml ?? keyField)
 
   const yamlItems = items.flatMap((itemXml, index) => {
-    const itemName = itemNameFromXML(itemXml, params.itemRule, params.keyField)
+    const itemName = itemNameFromXML(itemXml, itemRule, params.keyField)
     const itemContext = configurationIndexItemContext({
       context: params.context,
       item: itemXml,
-      itemRule: params.itemRule,
+      itemRule,
       index,
       options: {
         propertyType: params.propertyType,
@@ -120,7 +125,7 @@ export function importMetadataItemCollectionFromXMLToYAML(params: {
         : createBufferedDeferredCollector(params.traversal.deferred, yamlPath)
     const itemYamlValue = importMetadataItemFromXMLToYAML({
       context: itemContext,
-      rule: params.itemRule,
+      rule: itemRule,
       xml: itemXml,
       name: itemName,
       traversal: enterNestedYamlRule(
@@ -131,13 +136,13 @@ export function importMetadataItemCollectionFromXMLToYAML(params: {
           deferred: bufferedDeferred?.collector ?? params.traversal.deferred,
           profile: params.traversal.profile,
         },
-        params.itemRule.itemType
+        itemRule.itemType
       ),
     })
     if (itemYamlValue === undefined) return []
     const itemYaml = asRecord(itemYamlValue)
     if (itemYaml === undefined) {
-      throw new Error(`Элемент коллекции ${params.itemRule.itemType} должен преобразовываться в YAML-объект`)
+      throw new Error(`Элемент коллекции ${itemRule.itemType} должен преобразовываться в YAML-объект`)
     }
     const name = itemName ?? String(index)
     const yamlKey =
@@ -163,6 +168,18 @@ export function importMetadataItemCollectionFromXMLToYAML(params: {
       return [yamlKey!, yaml]
     })
   )
+}
+
+function withPreservedPropertyPresence(itemRule: MetadataItemRule): MetadataItemRule {
+  return {
+    ...itemRule,
+    properties: Object.fromEntries(
+      Object.entries(itemRule.properties).map(([key, rule]) => [
+        key,
+        { ...rule, preserveExplicitDefaultXML: true },
+      ])
+    ),
+  }
 }
 
 function createBufferedDeferredCollector(

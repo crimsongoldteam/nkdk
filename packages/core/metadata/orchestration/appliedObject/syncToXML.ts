@@ -118,6 +118,11 @@ export const prepareAppliedObjectOwnerXML = (params: {
     name: params.name,
     externalMetadata: params.rule.externalMetadata,
   })
+  const fileChildPropertyValues = collectFileChildPropertyValues({
+    rule: params.rule,
+    yaml: yamlObj,
+    ownerDir: dirname(params.preparedYamlFile.filePath),
+  })
 
   const converted = convertMetadataItemFromYAMLToXML({
     context: contextWithOwner,
@@ -125,6 +130,7 @@ export const prepareAppliedObjectOwnerXML = (params: {
     yaml: yamlObj,
     name: params.name,
     outputs: [{ key: "owner", referenceXML: params.referenceXML }],
+    propertyValues: fileChildPropertyValues,
     profile: params.profile,
     rulePath: [params.rule.itemType],
   })
@@ -135,6 +141,37 @@ export const prepareAppliedObjectOwnerXML = (params: {
     deferred: bindDeferredObjectValues(xmlObj, converted.deferredByOutput.get("owner") ?? []),
     rootRule: params.rule,
   }
+}
+
+function collectFileChildPropertyValues(params: {
+  rule: MetadataItemRule
+  yaml: unknown
+  ownerDir: string
+}): ReadonlyMap<string, unknown> {
+  const yaml = asRecord(params.yaml) ?? {}
+  const values = new Map<string, unknown>()
+
+  for (const [propertyKey, propertyRule] of Object.entries(params.rule.properties)) {
+    const descriptor = getFileChildNamesDescriptor(propertyRule)
+    if (descriptor === undefined) continue
+
+    const childDir = join(params.ownerDir, descriptor.folderName)
+    const names = fs.existsSync(childDir)
+      ? fs
+          .readdirSync(childDir, { withFileTypes: true })
+          .filter((entry) => entry.isDirectory())
+          .map((entry) => entry.name)
+          .sort((left, right) => Buffer.compare(Buffer.from(left), Buffer.from(right)))
+      : []
+    const expected = descriptor.expectedNames({
+      rule: params.rule,
+      yaml,
+      propertyValue: names,
+    })
+    if (expected.length > 0) values.set(propertyKey, expected)
+  }
+
+  return values
 }
 
 registerMetadataXmlPrepareCapability({

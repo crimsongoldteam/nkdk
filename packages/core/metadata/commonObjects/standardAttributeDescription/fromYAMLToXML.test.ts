@@ -5,6 +5,11 @@ import { convertPropertiesFromYAMLToXML } from "../../orchestration/property/fro
 import type { MetadataItemRule } from "../../orchestration/property/types"
 import type { PropertyRule } from "../../orchestration"
 import { testExportPropertyModelThroughYAMLToXML } from "../../../tests/property/exportPropertyModelThroughYAMLToXML"
+import {
+  createDirectRoundTripContexts,
+  testPropertyFromXMLToYAML,
+  testPropertyFromYAMLToXML,
+} from "../../../tests/directConversion"
 import { accountingExtDimensions, all, allYAML, minimal, minimalYAML, multiple } from "./__fixtures__/data"
 import { fillValueEmptyRefTypeLoss } from "./__fixtures__/fillValueEmptyRefTypeLoss"
 import {
@@ -320,6 +325,56 @@ describe("StandardAttributeDescriptions direct YAML to XML", () => {
     expect(result).toContain('<xr:StandardAttribute name="ExtDimension50"/>')
     expect(result).toContain('<xr:StandardAttribute name="ExtDimensionType50"/>')
     expect(result).not.toContain('name="ExtDimension1"')
+  })
+
+  it("preserves the original XML shape of sparse accounting attributes through the configuration index", () => {
+    const itemRule = {
+      itemType: "TestItem",
+      properties: {
+        standardAttributes: {
+          type: "StandardAttributeDescriptions",
+          yaml: "СтандартныеРеквизиты",
+          xml: "StandardAttributes",
+          standartAttributeNames: MetadataAccountingRegisterStandardAttributeNames,
+          standartAttributeNamesXML: MetadataAccountingRegisterStandardAttributeNamesXML,
+        },
+      },
+    } as const satisfies MetadataItemRule
+    const sourceXML = {
+      StandardAttributes: {
+        "xr:StandardAttribute": [
+          {
+            _name: "ExtDimension1",
+            "xr:LinkByType": {
+              "xr:DataPath": "AccountingRegister.Test.StandardAttribute.Account",
+              "xr:LinkItem": 1,
+            },
+            "xr:FillChecking": "DontCheck",
+            "xr:MultiLine": false,
+            "xr:FillValue": { "_xsi:nil": true },
+          },
+        ],
+      },
+    }
+    const contexts = createDirectRoundTripContexts()
+
+    const imported = testPropertyFromXMLToYAML({
+      context: contexts.importContext,
+      rule: itemRule,
+      xml: sourceXML,
+    })
+    const exported = testPropertyFromYAMLToXML({
+      context: contexts.exportContext(),
+      rule: itemRule,
+      yaml: imported.yaml,
+    })
+
+    const items = (exported.xml.StandardAttributes as {
+      "xr:StandardAttribute": Array<Record<string, unknown>>
+    })["xr:StandardAttribute"]
+    expect(items.find((item) => item._name === "ExtDimension1")).toEqual(
+      sourceXML.StandardAttributes["xr:StandardAttribute"][0]
+    )
   })
 
   it("дополняет изменённую YAML-коллекцию каноническими именами", () => {

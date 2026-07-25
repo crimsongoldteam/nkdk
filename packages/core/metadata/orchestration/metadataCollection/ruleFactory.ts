@@ -37,6 +37,8 @@ type CollectionRule<Rule extends MetadataItemRule, CollectionType extends Proper
   }) => readonly string[]
   /** Сохранять элементы reference XML, отсутствующие в YAML. */
   preserveReferenceItems?: true
+  /** Сохранять в индексе присутствие каждого XML-свойства элемента коллекции. */
+  preserveItemPropertyPresence?: true
   /** Не выводить XML-свойства элемента, отсутствующие в его YAML-записи. */
   sparseItems?: true
   /** Не создавать XML-значения по умолчанию для отсутствующих полей разреженного элемента. */
@@ -116,6 +118,7 @@ export const registerMetadataItemCollectionRule = <
         propertyType,
         configurationIndexUidSegment: params.configurationIndexUidSegment,
         configurationIndexAddressing: params.configurationIndexAddressing,
+        preserveItemPropertyPresence: params.preserveItemPropertyPresence,
         ...(params.yamlAsArray === true ? { yamlAsArray: true as const } : {}),
         ...(params.recordYamlKeyFromYAML === undefined ? {} : { recordYamlKeyFromYAML: params.recordYamlKeyFromYAML }),
         traversal,
