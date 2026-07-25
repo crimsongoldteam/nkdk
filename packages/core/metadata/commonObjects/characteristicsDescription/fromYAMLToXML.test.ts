@@ -100,6 +100,27 @@ describe("CharacteristicsDescriptions YAML → XML", () => {
     expect(xml).toContain("<xr:MultipleValuesKeyField>-1</xr:MultipleValuesKeyField>")
     expect(xml).toContain("<xr:MultipleValuesOrderField>-1</xr:MultipleValuesOrderField>")
   })
+
+  it("preserves explicit XML default fields from the configuration snapshot", () => {
+    const referenceXML = readAppliedObjectFixture(import.meta.url, "single.xml")
+    const roundTrip = createDirectRoundTripContexts()
+    const imported = testPropertyFromXMLToYAML({
+      rule,
+      xml: referenceXML,
+      context: roundTrip.importContext,
+    })
+    const result = testPropertyFromYAMLToXML({
+      rule,
+      yaml: imported.yaml,
+      context: roundTrip.exportContext(),
+    })
+    const xml = serializeDirectXML(result.xml)
+
+    expect(xml).toContain("<xr:DataPathField>-1</xr:DataPathField>")
+    expect(xml).toContain("<xr:MultipleValuesUseField>-1</xr:MultipleValuesUseField>")
+    expect(xml).toContain("<xr:MultipleValuesKeyField>-1</xr:MultipleValuesKeyField>")
+    expect(xml).toContain("<xr:MultipleValuesOrderField>-1</xr:MultipleValuesOrderField>")
+  })
 })
 
 const normalizeXML = (value: string): string =>

@@ -815,9 +815,20 @@ function referenceFromConfigurationIndex(
   const identity = identityReferenceFromConfigurationIndex(context, planned)
   if (identity !== undefined) return identity
   const value = getConfigurationIndexPropertyReferenceXMLValue(context, planned.propertyKey)
-  return value === undefined
-    ? { exists: isConfigurationIndexPropertyPresent(context, planned.propertyKey) }
-    : { exists: true, key: getConfigurationIndexSourceXmlKey(context, planned.propertyKey), value }
+  const exists = isConfigurationIndexPropertyPresent(context, planned.propertyKey)
+  if (value !== undefined) {
+    return { exists: true, key: getConfigurationIndexSourceXmlKey(context, planned.propertyKey), value }
+  }
+  if (!exists) return { exists: false }
+  const rule = planned.propertyRule
+  const defaultValue = Object.prototype.hasOwnProperty.call(rule, "defaultValueXML")
+    ? rule.defaultValueXML
+    : undefined
+  return {
+    exists: true,
+    key: getConfigurationIndexSourceXmlKey(context, planned.propertyKey),
+    value: defaultValue,
+  }
 }
 
 function identityReferenceFromConfigurationIndex(

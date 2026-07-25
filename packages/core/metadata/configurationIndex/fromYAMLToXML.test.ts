@@ -118,6 +118,42 @@ describe("configuration index в едином YAML → XML-обходе", () => 
     expect(exported.xml).toEqual({ Enabled: true })
   })
 
+  it("восстанавливает явно заданные XML defaults по признаку присутствия", () => {
+    const contexts = createDirectRoundTripContexts()
+    const rule = {
+      itemType: "TestDirectItem",
+      properties: {
+        mode: {
+          type: "string",
+          xml: "Mode",
+          yaml: "Режим",
+          defaultValueXML: "Default",
+          preserveFromReferenceXML: true,
+        },
+        enabled: {
+          type: "boolean",
+          xml: "Enabled",
+          yaml: "Включено",
+          defaultValueXML: false,
+          preserveFromReferenceXML: true,
+        },
+      },
+    } as const satisfies MetadataItemRule
+    const imported = testPropertyFromXMLToYAML({
+      context: contexts.importContext,
+      rule,
+      xml: { Mode: "Default", Enabled: "false" },
+    })
+    const exported = testPropertyFromYAMLToXML({
+      context: contexts.exportContext(),
+      rule,
+      yaml: imported.yaml,
+    })
+
+    expect(imported.yaml).toEqual({})
+    expect(exported.xml).toEqual({ Mode: "Default", Enabled: false })
+  })
+
   it("восстанавливает XML-представление системного перечисления из implicitValueYAML", () => {
     const contexts = createDirectRoundTripContexts()
     const rule = {
