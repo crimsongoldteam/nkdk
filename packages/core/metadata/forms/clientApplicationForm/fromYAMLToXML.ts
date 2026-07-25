@@ -35,28 +35,34 @@ export interface DirectClientApplicationFormXMLResult {
 export function convertClientApplicationFormFromYAMLToXML(
   params: ConvertClientApplicationFormFromYAMLToXMLParams
 ): DirectClientApplicationFormXMLResult {
-  const formContext = createFormBodyContext({
+  const metadataContext = {
     ...params.context,
     importFromYAML: {
       ...params.context.importFromYAML,
       formDataPathIndex: createFormDataPathIndexFromYAML(params.yaml),
     },
-  })
-  const converted = convertPropertiesFromYAMLToXML({
-    context: formContext,
+  }
+  const metadataConverted = convertPropertiesFromYAMLToXML({
+    context: metadataContext,
     yaml: params.yaml,
     rule: ClientApplicationFormRules,
     name: params.name,
-    outputs: [
-      { key: "metadata", tags: [FormRulesTags.Metadata], referenceXML: params.referenceMetadataXML },
-      { key: "form", tags: [FormRulesTags.Form], referenceXML: params.referenceFormXML },
-    ],
+    outputs: [{ key: "metadata", tags: [FormRulesTags.Metadata], referenceXML: params.referenceMetadataXML }],
+    profile: params.profile,
+    rulePath: [ClientApplicationFormRules.itemType],
+  })
+  const formConverted = convertPropertiesFromYAMLToXML({
+    context: createFormBodyContext(metadataContext),
+    yaml: params.yaml,
+    rule: ClientApplicationFormRules,
+    name: params.name,
+    outputs: [{ key: "form", tags: [FormRulesTags.Form], referenceXML: params.referenceFormXML }],
     profile: params.profile,
     rulePath: [ClientApplicationFormRules.itemType],
   })
 
-  const formProperties = converted.outputs.get("form") ?? {}
-  const metadataProperties = converted.outputs.get("metadata") ?? {}
+  const formProperties = formConverted.outputs.get("form") ?? {}
+  const metadataProperties = metadataConverted.outputs.get("metadata") ?? {}
   const uuid =
     readMetadataUUID(metadataProperties) ?? params.referenceMetadataXML?.Form?._uuid ?? getUUID(params.context)
   recordCurrentExternalMetadataUuid({ context: params.context, uuid })
@@ -79,10 +85,10 @@ export function convertClientApplicationFormFromYAMLToXML(
   return {
     formXML,
     metadataXML,
-    externalWrites: converted.externalWrites,
+    externalWrites: [...metadataConverted.externalWrites, ...formConverted.externalWrites],
     deferredByDocument: new Map([
-      ["metadata", converted.deferredByOutput.get("metadata") ?? []],
-      ["form", converted.deferredByOutput.get("form") ?? []],
+      ["metadata", metadataConverted.deferredByOutput.get("metadata") ?? []],
+      ["form", formConverted.deferredByOutput.get("form") ?? []],
     ]),
   }
 }

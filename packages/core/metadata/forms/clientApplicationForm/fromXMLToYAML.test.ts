@@ -186,6 +186,46 @@ describe("importClientApplicationFormFromXMLToYAML", () => {
 })
 
 describe("форма XML → YAML → XML", () => {
+  it("восстанавливает порядок metadata-свойств по адресу metadata-файла", () => {
+    const form = readAndParseXMLFixture<{ Form: ClientApplicationFormXML }>(import.meta.url, "full.xml")
+    const metadata = readAndParseXMLFixture<{ MetaDataObject: FormMetadataXML }>(
+      import.meta.url,
+      "fullMetadata.xml"
+    )
+    const sourceProperties = metadata.MetaDataObject.Form.Properties
+    metadata.MetaDataObject.Form.Properties = {
+      Name: sourceProperties.Name,
+      Synonym: sourceProperties.Synonym,
+      Comment: sourceProperties.Comment,
+      FormType: sourceProperties.FormType,
+      IncludeHelpInContents: sourceProperties.IncludeHelpInContents,
+      UsePurposes: sourceProperties.UsePurposes,
+    }
+    const logicalAddress = "Справочник.Товары.Форма.ФормаСписка"
+    const contexts = createDirectRoundTripContexts({ logicalAddress })
+
+    const imported = importClientApplicationFormFromXMLToYAML({
+      context: contexts.importContext,
+      formName: "ФормаСписка",
+      formXML: form.Form,
+      metadataXML: metadata.MetaDataObject,
+    })
+    const converted = convertClientApplicationFormFromYAMLToXML({
+      context: contexts.exportContext(),
+      yaml: imported.yaml as ClientApplicationFormYAML,
+      name: "ФормаСписка",
+    })
+
+    expect(Object.keys(converted.metadataXML.Form.Properties)).toEqual([
+      "Name",
+      "Synonym",
+      "Comment",
+      "FormType",
+      "IncludeHelpInContents",
+      "UsePurposes",
+    ])
+  })
+
   const cases = [
     ["полная", "full.xml", "fullMetadata.xml"],
     ["минимальная", "minimal.xml", "minimalMetadata.xml"],
