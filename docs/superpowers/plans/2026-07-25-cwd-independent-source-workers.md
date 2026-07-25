@@ -384,14 +384,12 @@ pnpm --filter @nkdk/mcp exec vitest run src/callScript.test.ts src/server.test.t
 ```bash
 pnpm --filter @nkdk/mcp run type-check
 pnpm --filter @nkdk/mcp run build
-pnpm --filter @nkdk/mcp run smoke:packed
 ```
 
 Ожидаемый результат:
 
 - type-check проходит;
-- `dist/bin/nkdk-mcp` и три JavaScript worker создаются;
-- smoke test собранного пакета проходит без `tsx` в runtime.
+- `dist/bin/nkdk-mcp` и три JavaScript worker создаются.
 
 - [ ] **Шаг 8: Закоммитить диагностику**
 
@@ -402,7 +400,116 @@ git commit -m "fix: :bug: показывать исходную ошибку MCP
 
 ---
 
-### Задача 3: Общая проверка и повторный round-trip
+### Задача 3: Исключить core из runtime-зависимостей production-пакета
+
+**Файлы:**
+
+- Изменить: `packages/mcp/package.json`
+- Изменить: `packages/mcp/src/server.test.ts`
+- Изменить: `pnpm-lock.yaml`
+
+**Интерфейсы:**
+
+- Source/build потребляет: `@nkdk/core: workspace:*` из `devDependencies`
+- Production manifest гарантирует: `dependencies` не содержит `@nkdk/core` и других workspace-протоколов
+- Production bundle гарантирует: core включён esbuild внутрь JavaScript MCP и не указан в `external`
+
+- [ ] **Шаг 1: Добавить RED-тест границы package manifest**
+
+В `packages/mcp/src/server.test.ts` добавить:
+
+```ts
+it("keeps private core as a build-only dependency", async () => {
+  const packageJson = (
+    await import("../package.json", {
+      with: { type: "json" },
+    })
+  ).default
+
+  expect(packageJson.dependencies).not.toHaveProperty("@nkdk/core")
+  expect(packageJson.devDependencies).toHaveProperty("@nkdk/core", "workspace:*")
+})
+```
+
+- [ ] **Шаг 2: Запустить RED-проверку**
+
+Команда:
+
+```bash
+pnpm --filter @nkdk/mcp exec vitest run src/server.test.ts -t "keeps private core"
+```
+
+Ожидаемый результат: FAIL, потому что `@nkdk/core` находится в `dependencies` и отсутствует в `devDependencies`.
+
+- [ ] **Шаг 3: Перенести core в build-only зависимости**
+
+В `packages/mcp/package.json` удалить:
+
+```json
+"@nkdk/core": "workspace:*"
+```
+
+из `dependencies` и добавить то же значение в `devDependencies`:
+
+```json
+"devDependencies": {
+  "@nkdk/core": "workspace:*",
+  "@types/node": "^26.0.0",
+  "esbuild": "^0.28.1",
+  "typescript": "~6.0.0",
+  "vitest": "^4.1.9"
+}
+```
+
+Не добавлять `@nkdk/core` в `external` файла `packages/mcp/scripts/build.mjs`.
+
+- [ ] **Шаг 4: Обновить lockfile**
+
+Команда:
+
+```bash
+pnpm install --lockfile-only
+```
+
+Ожидаемый результат: importer `packages/mcp` переносит `@nkdk/core` из `dependencies` в `devDependencies`.
+
+- [ ] **Шаг 5: Запустить GREEN-тест и проверки сборки**
+
+Команды:
+
+```bash
+pnpm --filter @nkdk/mcp exec vitest run src/server.test.ts
+pnpm --filter @nkdk/mcp run type-check
+pnpm --filter @nkdk/mcp run build
+```
+
+Ожидаемый результат: тесты, type-check и build проходят; собранный MCP не содержит внешнего импорта `@nkdk/core`.
+
+- [ ] **Шаг 6: Запустить production smoke вне workspace**
+
+Команда:
+
+```bash
+env npm_config_cache=/private/tmp/nkdk-npm-cache pnpm --filter @nkdk/mcp run smoke:packed
+```
+
+Ожидаемый результат:
+
+- tarball устанавливается обычным `npm install`;
+- npm не видит `workspace:*` в runtime-зависимостях;
+- установленный `nkdk-mcp` регистрирует и выполняет `nkdk.get_schema`;
+- JavaScript workers запускаются без `tsx` в runtime.
+
+- [ ] **Шаг 7: Закоммитить production-границу**
+
+```bash
+git add packages/mcp/package.json packages/mcp/src/server.test.ts pnpm-lock.yaml
+git commit -m "fix: :bug: исключить core из runtime-зависимостей MCP"
+```
+
+---
+
+### Задача 4: Общая проверка и повторный round-trip
 
 **Файлы:**
 
@@ -475,12 +582,12 @@ env \
 Команды:
 
 ```bash
-git log -3 --oneline
+git log -7 --oneline
 git status --short
 ```
 
 Ожидаемый результат:
 
-- design-коммит, plan-коммит и два implementation-коммита присутствуют;
+- design-коммиты, plan-коммиты и три implementation-коммита присутствуют;
 - дерево `nkdk` чистое;
 - XML-репозиторий намеренно остаётся с диагностическим diff, если round-trip не чистый.
