@@ -29,5 +29,8 @@ export type IndexFieldRuleParams = Omit<IndexFieldWidePropertyRule, "type">
 export function indexFieldRule<const Params extends IndexFieldRuleParams>(
   params: WideExactRuleParams<IndexFieldRuleParams, Params>
 ): Readonly<{ type: "IndexField" } & Params> {
-  return defineWidePropertyRule("IndexField", params)
+  return defineWidePropertyRule("IndexField", {
+    preserveExplicitDefaultXML: true,
+    ...params,
+  })
 }

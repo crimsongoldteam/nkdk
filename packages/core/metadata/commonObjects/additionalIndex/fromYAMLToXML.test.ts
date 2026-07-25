@@ -99,4 +99,37 @@ describe("AdditionalIndex YAML → XML", () => {
       (exported.xml.AdditionalIndexes as { AdditionalIndex: Array<{ _id: string }> }).AdditionalIndex[0]?._id
     ).toBe("00000000-0000-0000-0000-000000000000")
   })
+
+  it("preserves an explicitly empty fields container through the configuration index", () => {
+    const contexts = createDirectRoundTripContexts()
+    const sourceXML = {
+      AdditionalIndexes: {
+        AdditionalIndex: [
+          {
+            _id: "00000000-0000-0000-0000-000000000001",
+            Name: "Индекс1",
+            Table: "Catalog.Товары",
+            IndexedFields: { Field: "Ref" },
+            AdditionalFields: {},
+          },
+        ],
+      },
+    }
+    const imported = testMetadataItemFromXMLToYAML({
+      context: contexts.importContext,
+      rule: AdditionalIndexRules,
+      xml: sourceXML,
+    })
+    const exported = testMetadataItemFromYAMLToXML({
+      context: contexts.exportContext(),
+      rule: AdditionalIndexRules,
+      yaml: imported.yaml,
+    })
+
+    expect(exported.xml).toMatchObject({
+      AdditionalIndexes: {
+        AdditionalIndex: [expect.objectContaining({ AdditionalFields: {} })],
+      },
+    })
+  })
 })
