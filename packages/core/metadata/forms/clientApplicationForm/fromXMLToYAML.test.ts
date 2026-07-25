@@ -186,6 +186,41 @@ describe("importClientApplicationFormFromXMLToYAML", () => {
 })
 
 describe("форма XML → YAML → XML", () => {
+  it("восстанавливает порядок событий формы без reference XML", () => {
+    const contexts = createDirectRoundTripContexts({
+      logicalAddress: "Справочник.Товары.Форма.ФормаЭлемента",
+    })
+    const formXML = {
+      Events: {
+        Event: [
+          { _name: "OnOpen", "#text": "ПриОткрытии" },
+          { _name: "BeforeClose", "#text": "ПередЗакрытием" },
+          { _name: "ActivationProcessing", "#text": "ОбработкаАктивизации" },
+        ],
+      },
+    } as ClientApplicationFormXML
+    const metadataXML = { Form: { Properties: { FormType: "Managed" } } } as FormMetadataXML
+
+    const imported = importClientApplicationFormFromXMLToYAML({
+      context: contexts.importContext,
+      formName: "ФормаЭлемента",
+      formXML,
+      metadataXML,
+    })
+    const converted = convertClientApplicationFormFromYAMLToXML({
+      context: contexts.exportContext(),
+      yaml: imported.yaml as ClientApplicationFormYAML,
+      name: "ФормаЭлемента",
+    })
+    const events = converted.formXML.Events?.Event
+
+    expect(Array.isArray(events) ? events.map((event) => event._name) : []).toEqual([
+      "OnOpen",
+      "BeforeClose",
+      "ActivationProcessing",
+    ])
+  })
+
   it("восстанавливает идентификаторы элементов формы без reference XML", () => {
     const form = readAndParseXMLFixture<{ Form: ClientApplicationFormXML }>(import.meta.url, "full.xml")
     const metadata = readAndParseXMLFixture<{ MetaDataObject: FormMetadataXML }>(import.meta.url, "fullMetadata.xml")
@@ -233,8 +268,8 @@ describe("форма XML → YAML → XML", () => {
       expect.objectContaining({
         _name: "ПолеВвода1",
         _id: "22",
-        ContextMenu: expect.objectContaining({ _id: "33" }),
-        ExtendedTooltip: expect.objectContaining({ _id: "44" }),
+        ContextMenu: expect.objectContaining({ _name: "ПолеВвода1КонтекстноеМеню", _id: "33" }),
+        ExtendedTooltip: expect.objectContaining({ _name: "ПолеВвода1РасширеннаяПодсказка", _id: "44" }),
       })
     )
     expect(converted.formXML.Commands?.Command).toEqual(

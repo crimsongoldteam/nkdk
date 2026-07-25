@@ -183,6 +183,11 @@ export function convertPropertiesFromYAMLToXML(params: ConvertPropertiesFromYAML
     }
     const matchingOutputs = outputs.filter(({ request }) => matchesOutputTag(planned.propertyRule, request))
     const propertyContext = matchingOutputs[0]?.request.context ?? params.context
+    const hasIndexedImplicitYAMLValue =
+      !source.has(propertyKey) &&
+      isConfigurationIndexPropertyPresent(propertyContext, propertyKey) &&
+      Object.prototype.hasOwnProperty.call(planned.propertyRule, "implicitValueYAML") &&
+      typeof planned.propertyRule.implicitValueYAML !== "function"
     const exportHandler = getTypeRule(planned.propertyRule.type, "exportToXML")
     const references = matchingOutputs.map(({ request }) =>
       readReferenceProperty({
@@ -261,6 +266,7 @@ export function convertPropertiesFromYAMLToXML(params: ConvertPropertiesFromYAML
       planned.propertyRule.syncExternalOnly !== true &&
       planned.propertyRule.filePath === undefined &&
       planned.propertyRule.preserveEmptyXML !== true &&
+      !hasIndexedImplicitYAMLValue &&
       getTypeRule(planned.propertyRule.type, "yamlToXMLNestedRule") === undefined &&
       !requiresYAMLToXMLEvaluation(planned.propertyRule) &&
       references.every((reference) => reference.exists) &&
@@ -501,9 +507,11 @@ export function convertPropertiesFromYAMLToXML(params: ConvertPropertiesFromYAML
         ? params.name
         : params.propertyValues?.has(propertyKey)
           ? source.raw(propertyKey)
-          : hasYAMLValue
-            ? restoreExplicitYAMLString({ yaml, yamlKey, rule: planned.propertyRule })
-            : source.raw(propertyKey)
+          : hasIndexedImplicitYAMLValue
+            ? planned.propertyRule.implicitValueYAML
+            : hasYAMLValue
+              ? restoreExplicitYAMLString({ yaml, yamlKey, rule: planned.propertyRule })
+              : source.raw(propertyKey)
     const diagnosticContext = withYAMLImportDiagnostics(propertyContext, {
       propertyPath: [yamlKey ?? propertyKey],
       ...(yamlKey === undefined ? {} : { yamlPath: [yamlKey] }),

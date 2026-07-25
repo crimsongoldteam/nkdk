@@ -336,16 +336,15 @@ export function importPropertiesFromXMLToYAML(params: {
           ? undefined
           : rawValue
       const defaultStartedAt = performance.now()
-      const value =
-        !forReference
-          ? getValueOrDefault({
-              context: sourceContext,
-              rule: propertyRule,
-              value: cleanValue,
-              name: key,
-              operation: "importFromXML",
-            })
-          : cleanValue
+      const value = !forReference
+        ? getValueOrDefault({
+            context: sourceContext,
+            rule: propertyRule,
+            value: cleanValue,
+            name: key,
+            operation: "importFromXML",
+          })
+        : cleanValue
       addProfileTime(params.profile, "defaultMs", defaultStartedAt)
 
       if (value !== undefined) {
@@ -372,6 +371,18 @@ export function importPropertiesFromXMLToYAML(params: {
       if (!convertedDirectly) {
         const profile = params.profile
         if (profile !== undefined) profile.yamlExportMs += performance.now() - exportStartedAt
+      }
+      if (
+        indexCollection !== undefined &&
+        presentInXML &&
+        Object.prototype.hasOwnProperty.call(propertyRule, "implicitValueYAML") &&
+        typeof propertyRule.implicitValueYAML !== "function" &&
+        (Object.is(yamlValue, propertyRule.implicitValueYAML) ||
+          (yamlValue === undefined && Object.is(value, propertyRule.implicitValueYAML)))
+      ) {
+        const indexStartedAt = performance.now()
+        indexCollection.collector.setPresent(xmlNodeLogicalAddress!, key)
+        addProfileTime(params.profile, "configurationIndexMs", indexStartedAt)
       }
 
       if (propertyRule.externalFile && propertyRule.toYAML !== false) {

@@ -12,6 +12,7 @@ import {
   withConfigurationIndexExportLogicalAddress,
 } from "../../../configurationIndex/referenceView"
 import type { ConfigurationContextWithExportToXML } from "../../../context/types"
+import { getChildContextToXML } from "../../../context/helpers"
 
 export function registerDirectFormElementCollections(): void {
   for (const propertyType of childItemsTreePropertyTypes) {
@@ -23,12 +24,19 @@ export function registerDirectFormElementCollections(): void {
         resolveFormElementRule({ yaml, name, propertyRule: propertyRule ?? { type: propertyType } }),
       normalizeItemYAML: ({ yaml, name, propertyRule }) =>
         normalizeFormElementYAML({ yaml, name, propertyRule: propertyRule ?? { type: propertyType } }),
-      resolveItemContext: ({ context, name }) => {
+      resolveItemContext: ({ context, name, itemRule }) => {
         const logicalAddress =
           name === undefined ? undefined : configurationIndexExportFormElementLogicalAddress(context, name)
-        return logicalAddress === undefined
-          ? context
-          : withConfigurationIndexExportLogicalAddress(context, logicalAddress)
+        const indexedContext =
+          logicalAddress === undefined ? context : withConfigurationIndexExportLogicalAddress(context, logicalAddress)
+        return name === undefined
+          ? indexedContext
+          : getChildContextToXML({
+              context: indexedContext,
+              itemType: itemRule.itemType,
+              path: `${itemRule.itemType}.${name}`,
+              name,
+            })
       },
       mapItemOutput: ({ xml, itemRule, context, name }) => ({
         [getElementXMLTagName(itemRule.itemType as CollectableElementType)]: withNameAndId(xml, name, context),

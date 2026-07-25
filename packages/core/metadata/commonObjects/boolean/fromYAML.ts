@@ -6,9 +6,10 @@ import type { StringboolYAML } from "./types"
 export const importBooleanFromYAML = (
   _context: ConfigurationContext,
   _rule: PropertyRule | undefined,
-  value: StringboolYAML | undefined
+  value: StringboolYAML | boolean | undefined
 ): boolean | undefined => {
   if (value === undefined) return undefined
+  if (typeof value === "boolean") return value
   return value === "Истина"
 }
 

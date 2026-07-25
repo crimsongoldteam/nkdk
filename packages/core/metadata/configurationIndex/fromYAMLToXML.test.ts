@@ -14,6 +14,8 @@ import { createConfigurationIndexReader, snapshotConfigurationIndex } from "./sh
 import { sampleIndex } from "./testData"
 
 import "../commonObjects/metadataValue/toXML"
+import "../commonObjects/boolean/fromXML"
+import "../commonObjects/boolean/toYAML"
 import "../commonObjects/internalInfo/fromXML"
 import "../commonObjects/internalInfo/toXML"
 import "../commonObjects/userSettingsID/toXML"
@@ -48,6 +50,65 @@ function contextWithIndex(xmlValues = sampleIndex().xmlValues): {
 }
 
 describe("configuration index в едином YAML → XML-обходе", () => {
+  it("восстанавливает явно заданное XML-значение, совпадающее с implicitValueYAML", () => {
+    const contexts = createDirectRoundTripContexts({
+      logicalAddress: "Справочник.Товары",
+      targetProjectPath: "Справочник/Товары/Свойства.yaml",
+    })
+    const rule = {
+      itemType: "TestDirectItem",
+      properties: {
+        mode: {
+          type: "string",
+          xml: "Mode",
+          yaml: "Режим",
+          implicitValueYAML: "Auto",
+        },
+      },
+    } as const satisfies MetadataItemRule
+    const imported = testPropertyFromXMLToYAML({
+      context: contexts.importContext,
+      rule,
+      xml: { Mode: "Auto" },
+    })
+    const exported = testPropertyFromYAMLToXML({
+      context: contexts.exportContext(),
+      rule,
+      yaml: imported.yaml,
+    })
+
+    expect(imported.yaml).toEqual({})
+    expect(exported.xml).toEqual({ Mode: "Auto" })
+  })
+
+  it("восстанавливает явно заданное логическое XML-значение из implicitValueYAML", () => {
+    const contexts = createDirectRoundTripContexts()
+    const rule = {
+      itemType: "TestDirectItem",
+      properties: {
+        enabled: {
+          type: "boolean",
+          xml: "Enabled",
+          yaml: "Включено",
+          implicitValueYAML: true,
+        },
+      },
+    } as const satisfies MetadataItemRule
+    const imported = testPropertyFromXMLToYAML({
+      context: contexts.importContext,
+      rule,
+      xml: { Enabled: "true" },
+    })
+    const exported = testPropertyFromYAMLToXML({
+      context: contexts.exportContext(),
+      rule,
+      yaml: imported.yaml,
+    })
+
+    expect(imported.yaml).toEqual({})
+    expect(exported.xml).toEqual({ Enabled: true })
+  })
+
   it("round-trips the complete XML property order without reference XML", () => {
     const contexts = createDirectRoundTripContexts({
       logicalAddress: "Справочник.Товары",
