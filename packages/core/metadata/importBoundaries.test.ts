@@ -24,7 +24,12 @@ const FORBIDDEN_ORCHESTRATION_APPLIED_OBJECT_IMPORTS = ["../../appliedObjects/co
 const FORBIDDEN_FORM_ELEMENT_FACTORY_IMPORTS = ["../formElement/factory", "./formElement/factory"] as const
 const FORBIDDEN_FORM_ELEMENT_LOCAL_FACTORY_IMPORTS = ["./factory"] as const
 const FORBIDDEN_ORCHESTRATION_FORM_MODEL_IMPORTS = ["../forms/elements/baseElement/types"] as const
-const FORBIDDEN_PROJECT_CONCRETE_METADATA_IMPORTS = ["../appliedObjects/", "../commonObjects/", "../forms/"] as const
+const FORBIDDEN_PROJECT_CONCRETE_METADATA_IMPORTS = [
+  "../appliedObjects/",
+  "../commonObjects/",
+  "../forms/",
+  "../systemEnumerations/",
+] as const
 const REGISTRATION_ENTRYPOINT_ALLOWLIST = new Set([
   "index.ts",
   "metadata/register.ts",

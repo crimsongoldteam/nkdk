@@ -117,6 +117,29 @@ describe("createLocalIndexesCollector", () => {
     ])
   })
 
+  it("сохраняет dependency картинки из строкового YAML", () => {
+    const collector = createLocalIndexesCollector()
+
+    collector.acceptProperty({
+      yamlPath: ["Картинка"],
+      rulePath: [{ propertyKey: "picture" }],
+      rule: {
+        type: "Picture",
+        metadataTarget: { kind: "object", roots: ["CommonPicture"] },
+      },
+      value: "ОбщаяКартинка.Печать",
+    })
+
+    expect(collector.finish().metadata.metadataTargets).toEqual([
+      {
+        yamlPath: ["Картинка"],
+        value: "ОбщаяКартинка.Печать",
+        constraint: { kind: "object", roots: ["CommonPicture"] },
+        rulePath: [{ propertyKey: "picture" }],
+      },
+    ])
+  })
+
   it("не считает стандартную картинку metadata dependency", () => {
     const collector = createLocalIndexesCollector()
 

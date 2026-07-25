@@ -86,6 +86,7 @@ export interface LocalYamlFact {
 
 export interface LocalMetadataFactsWriter {
   setOwnerFact(role: string, value: unknown): void
+  setMetadataTargetValues(values: readonly { value: string; yamlPath: YamlPath }[]): void
 }
 
 export type CollectLocalFactsFromYAMLFunction = (params: {

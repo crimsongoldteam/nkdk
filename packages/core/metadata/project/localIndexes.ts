@@ -1,7 +1,6 @@
-import type { LocalYamlFact } from "../orchestration/property/importYamlTypes"
+import type { LocalMetadataFactsWriter, LocalYamlFact } from "../orchestration/property/importYamlTypes"
 import { getTypeRule } from "../orchestration/property/typeRuleRegistry"
 import type { FormDataPathIndex } from "../validation/dataPath/formIndex"
-import { PictureLibFromYAML } from "../systemEnumerations/types"
 
 export interface LocalMetadataEvent {
   kind: "property" | "complete"
@@ -39,11 +38,6 @@ export function createLocalIndexesCollector(): LocalIndexesCollector {
   const events: LocalMetadataEvent[] = []
   const ownerFacts: Record<string, unknown> = {}
   const metadataTargets: LocalMetadataTargetFact[] = []
-  const writer = {
-    setOwnerFact(role: string, value: unknown) {
-      ownerFacts[role] = value
-    },
-  }
 
   const recordEvent = (kind: LocalMetadataEvent["kind"], fact: LocalYamlFact): void => {
     events.push({
@@ -57,8 +51,22 @@ export function createLocalIndexesCollector(): LocalIndexesCollector {
 
   const acceptProperty = (fact: LocalYamlFact): void => {
     recordEvent("property", fact)
+    let metadataTargetValuesHandled = false
+    const writer: LocalMetadataFactsWriter = {
+      setOwnerFact(role, value) {
+        ownerFacts[role] = value
+      },
+      setMetadataTargetValues(values) {
+        metadataTargetValuesHandled = true
+        const constraint = fact.rule.metadataTarget
+        if (constraint === undefined) return
+        for (const { value, yamlPath } of values) {
+          appendMetadataTargetFact(metadataTargets, fact, constraint, value, yamlPath)
+        }
+      },
+    }
     getTypeRule(fact.rule.type, "collectLocalFactsFromYAML")?.({ fact, writer })
-    collectMetadataTargetFacts(metadataTargets, fact)
+    if (!metadataTargetValuesHandled) collectDefaultMetadataTargetFacts(metadataTargets, fact)
   }
 
   return {
@@ -74,29 +82,9 @@ export function createLocalIndexesCollector(): LocalIndexesCollector {
   }
 }
 
-function collectMetadataTargetFacts(target: LocalMetadataTargetFact[], fact: LocalYamlFact): void {
+function collectDefaultMetadataTargetFacts(target: LocalMetadataTargetFact[], fact: LocalYamlFact): void {
   const constraint = fact.rule.metadataTarget
   if (constraint === undefined) return
-
-  if (fact.rule.type === "Picture") {
-    const structuredPicture =
-      typeof fact.value === "object" && fact.value !== null && !Array.isArray(fact.value)
-    const picture = structuredPicture ? (fact.value as Record<string, unknown>)["Ссылка"] : fact.value
-    if (
-      typeof picture === "string" &&
-      !(picture in PictureLibFromYAML) &&
-      picture.startsWith("ОбщаяКартинка.")
-    ) {
-      appendMetadataTargetFact(
-        target,
-        fact,
-        constraint,
-        picture,
-        structuredPicture ? [...fact.yamlPath, "Ссылка"] : fact.yamlPath
-      )
-    }
-    return
-  }
 
   collectStringValues(fact.value, fact.yamlPath, (value, yamlPath) =>
     appendMetadataTargetFact(target, fact, constraint, value, yamlPath)
