@@ -209,14 +209,20 @@ function getDateQualifiers(xml?: TypeDescriptionXML["v8:DateQualifiers"]) {
 }
 
 registerTypeRule("TypeDescription", "importFromXML", importTypeDescriptionFromXML)
-registerTypeRule("TypeDescription", "collectConfigurationIndexFromXML", ({ context, xml, propertyKey }) => {
+registerTypeRule("TypeDescription", "collectConfigurationIndexFromXML", ({ context, rule, xml, propertyKey }) => {
   const collection = getConfigurationIndexCollectionContext(context)
+  if (collection === undefined) return
+  const address = `${collection.logicalAddress}.${propertyKey}`
+  if (rule.preserveEmptyXML === true && isExplicitEmptyTypeDescriptionXML(xml)) {
+    collection.collector.setExplicitEmpty(address)
+    const xsiType = isRecord(xml) ? xml["_xsi:type"] : undefined
+    if (typeof xsiType === "string") collection.collector.setXsiType(address, xsiType)
+  }
   const type = isRecord(xml) ? xml["v8:Type"] : undefined
-  if (collection === undefined || Array.isArray(type) || !isRecord(type) || typeof type["#text"] !== "string") return
+  if (Array.isArray(type) || !isRecord(type) || typeof type["#text"] !== "string") return
   const prefix = getTypePrefix(type["#text"])
   const namespace = prefix === undefined ? undefined : type[`_xmlns:${prefix}`]
   if (prefix === undefined || typeof namespace !== "string") return
-  const address = `${collection.logicalAddress}.${propertyKey}`
   collection.collector.setXmlPrefix(address, prefix)
   collection.collector.setXmlText(address, `${namespace}\n${type["#text"]}`)
 })
@@ -238,4 +244,9 @@ registerTypeRule("TypeDescription", "configurationIndexValueFromXML", {
 
 function isRecord(value: unknown): value is Record<string, unknown> {
   return value !== null && typeof value === "object" && !Array.isArray(value)
+}
+
+function isExplicitEmptyTypeDescriptionXML(value: unknown): boolean {
+  if (value === "" || value === undefined) return true
+  return isRecord(value) && Object.keys(value).every((key) => key.startsWith("_"))
 }

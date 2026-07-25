@@ -36,6 +36,8 @@ export const FormAttributeRules = {
       xml: "Settings",
       order: 99,
       addTypeDescriptionAttributeToXML: true,
+      defaultValueXMLEmpty: { type: [] },
+      preserveEmptyXML: true,
     }),
     title: i8nTextRule({
       yaml: "Заголовок",

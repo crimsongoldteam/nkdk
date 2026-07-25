@@ -2,6 +2,7 @@ import { asExplicitYAMLStringIfMarked } from "../../../yaml/explicitString"
 import {
   getConfigurationIndexPropertyReferenceXMLValue,
   getConfigurationIndexPropertyOrder,
+  getConfigurationIndexPropertyXmlValue,
   getConfigurationIndexSourceXmlKey,
   getConfigurationIndexXmlName,
   getConfigurationIndexXmlNodeLogicalAddress,
@@ -92,6 +93,7 @@ interface ReferenceProperty {
   readonly exists: boolean
   readonly key?: string
   readonly value?: unknown
+  readonly indexedExplicitEmpty?: true
 }
 
 export function createYAMLPropertySource(params: {
@@ -819,7 +821,16 @@ function readReferenceProperty(params: {
       (candidate): candidate is string => candidate !== undefined
     )
     for (const key of candidates) {
-      if (Object.prototype.hasOwnProperty.call(current, key)) return { exists: true, key, value: current[key] }
+      if (Object.prototype.hasOwnProperty.call(current, key)) {
+        return {
+          exists: true,
+          key,
+          value: current[key],
+          ...(getConfigurationIndexPropertyXmlValue(params.context, params.planned.propertyKey)?.explicitEmpty === true
+            ? { indexedExplicitEmpty: true }
+            : {}),
+        }
+      }
     }
   }
   return referenceFromConfigurationIndex(params.context, params.planned)
@@ -832,6 +843,8 @@ function referenceFromConfigurationIndex(
   const identity = identityReferenceFromConfigurationIndex(context, planned)
   if (identity !== undefined) return identity
   const value = getConfigurationIndexPropertyReferenceXMLValue(context, planned.propertyKey)
+  const indexedExplicitEmpty =
+    getConfigurationIndexPropertyXmlValue(context, planned.propertyKey)?.explicitEmpty === true
   const exists = isConfigurationIndexPropertyPresent(context, planned.propertyKey)
   if (value !== undefined) {
     const indexedValue = context.exportToXML.configurationIndex?.xmlValue(
@@ -843,7 +856,12 @@ function referenceFromConfigurationIndex(
         : getTypeRule(planned.propertyRule.type, "configurationIndexValueFromXML")?.referenceXMLFromValue?.(
             indexedValue
           ) ?? value
-    return { exists: true, key: getConfigurationIndexSourceXmlKey(context, planned.propertyKey), value: restored }
+    return {
+      exists: true,
+      key: getConfigurationIndexSourceXmlKey(context, planned.propertyKey),
+      value: restored,
+      ...(indexedExplicitEmpty ? { indexedExplicitEmpty: true } : {}),
+    }
   }
   if (!exists) return { exists: false }
   const rule = planned.propertyRule
@@ -854,6 +872,7 @@ function referenceFromConfigurationIndex(
     exists: true,
     key: getConfigurationIndexSourceXmlKey(context, planned.propertyKey),
     value: defaultValue,
+    ...(indexedExplicitEmpty ? { indexedExplicitEmpty: true } : {}),
   }
 }
 
@@ -891,7 +910,15 @@ function writeXMLValue(params: {
 }): readonly string[] | undefined {
   const { context, output, planned, reference } = params
   const value =
-    params.value === undefined && reference.exists && planned.propertyRule.preserveEmptyXML !== true ? {} : params.value
+    params.value === undefined &&
+    reference.exists &&
+    planned.propertyRule.preserveEmptyXML === true &&
+    reference.indexedExplicitEmpty === true &&
+    isExplicitEmptyXMLReference(reference.value)
+      ? reference.value
+      : params.value === undefined && reference.exists && planned.propertyRule.preserveEmptyXML !== true
+        ? {}
+        : params.value
   if (value === undefined) return undefined
   const rule = planned.propertyRule
   if (Array.isArray(value) && value.length === 0) {
@@ -919,6 +946,11 @@ function writeXMLValue(params: {
   const valuePath = [...(rule.xmlParents ?? []), xmlKey]
   setAtPath(output.xml, valuePath, value)
   return valuePath
+}
+
+function isExplicitEmptyXMLReference(value: unknown): boolean {
+  if (value === "" || value === undefined) return true
+  return isRecord(value) && Object.keys(value).every((key) => key.startsWith("_"))
 }
 
 function setAtPath(target: Record<string, unknown>, path: readonly string[], value: unknown): void {
