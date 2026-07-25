@@ -250,6 +250,7 @@ export interface CollectionItemRule {
  * теряет при импорте в модель и которое поэтому требуется индексу конфигурации.
  */
 export interface ConfigurationIndexValueFromXMLDescriptor {
+  identityKind?: "uuid" | "xmlId"
   userSettingsIdFromSource?: true
   xsiNilWhenNotRepresentable?: true
 }

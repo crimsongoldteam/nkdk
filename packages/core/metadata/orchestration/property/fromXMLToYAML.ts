@@ -114,6 +114,7 @@ export function importPropertiesFromXMLToYAML(params: {
       context: sourceContext,
       sourceXmlKey: sourceXMLKey,
       xmlValue: sourceXMLValue,
+      descriptor: getTypeRule(propertyRule.type, "configurationIndexValueFromXML"),
     })
     addProfileTime(params.profile, "configurationIndexMs", identityStartedAt)
 

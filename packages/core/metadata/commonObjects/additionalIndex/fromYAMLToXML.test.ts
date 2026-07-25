@@ -1,6 +1,12 @@
 import { describe, expect, it } from "vitest"
 
-import { readAppliedObjectFixture, serializeDirectXML, testMetadataItemFromYAMLToXML } from "../../../tests/directConversion"
+import {
+  createDirectRoundTripContexts,
+  readAppliedObjectFixture,
+  serializeDirectXML,
+  testMetadataItemFromXMLToYAML,
+  testMetadataItemFromYAMLToXML,
+} from "../../../tests/directConversion"
 import { readXMLFixtureAsString } from "../../../tests/readFixtureXML"
 import { AdditionalIndexRules } from "./rules"
 
@@ -63,5 +69,34 @@ describe("AdditionalIndex YAML → XML", () => {
         "\t</AdditionalIndex>",
       ].join("\n")
     )
+  })
+
+  it("preserves a zero _id through the configuration index", () => {
+    const contexts = createDirectRoundTripContexts()
+    const sourceXML = {
+      AdditionalIndexes: {
+        AdditionalIndex: [
+          {
+            _id: "00000000-0000-0000-0000-000000000000",
+            Name: "Индекс1",
+            Table: "Catalog.Товары",
+          },
+        ],
+      },
+    }
+    const imported = testMetadataItemFromXMLToYAML({
+      context: contexts.importContext,
+      rule: AdditionalIndexRules,
+      xml: sourceXML,
+    })
+    const exported = testMetadataItemFromYAMLToXML({
+      context: contexts.exportContext(),
+      rule: AdditionalIndexRules,
+      yaml: imported.yaml,
+    })
+
+    expect(
+      (exported.xml.AdditionalIndexes as { AdditionalIndex: Array<{ _id: string }> }).AdditionalIndex[0]?._id
+    ).toBe("00000000-0000-0000-0000-000000000000")
   })
 })

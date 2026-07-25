@@ -8,6 +8,7 @@ export function collectConfigurationIndexIdentityFromXML(params: {
   sourceXmlKey: string | undefined
   xmlValue: unknown
   reconstructibleXmlName?: string
+  descriptor?: ConfigurationIndexValueFromXMLDescriptor
 }): void {
   const collection = getConfigurationIndexCollectionContext(params.context)
   if (collection === undefined || typeof params.xmlValue !== "string") return
@@ -17,7 +18,11 @@ export function collectConfigurationIndexIdentityFromXML(params: {
     return
   }
   if (params.sourceXmlKey === "_id") {
-    collection.collector.setXmlId(collection.logicalAddress, params.xmlValue)
+    if (params.descriptor?.identityKind === "uuid") {
+      collection.collector.setUuid(collection.logicalAddress, params.xmlValue)
+    } else {
+      collection.collector.setXmlId(collection.logicalAddress, params.xmlValue)
+    }
     return
   }
   if (
