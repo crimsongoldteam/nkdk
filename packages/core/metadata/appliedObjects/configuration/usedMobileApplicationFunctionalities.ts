@@ -3,9 +3,8 @@ import { importBooleanFromYAML } from "../../commonObjects/boolean/fromYAML"
 import { exportBooleanToYAML } from "../../commonObjects/boolean/toYAML"
 import { BooleanJSONSchema, StringboolYAML } from "../../commonObjects/boolean/types"
 import { ExportToJSONSchemaFn, registerTypeRule } from "../../orchestration"
-import type { ConfigurationContext, ConfigurationContextWithExportToXML } from "../../context/types"
+import type { ConfigurationContext } from "../../context/types"
 import type { PropertyRule } from "../../orchestration/property/types"
-import { isConfigurationIndexPropertyPresent } from "../../configurationIndex/referenceView"
 import {
   MobileApplicationFunctionalities,
   MobileApplicationFunctionalitiesFromYAML,
@@ -33,8 +32,6 @@ interface UsedMobileApplicationFunctionalityXML {
 interface UsedMobileApplicationFunctionalitiesXML {
   "app:functionality"?: UsedMobileApplicationFunctionalityXML | UsedMobileApplicationFunctionalityXML[]
 }
-
-const usedMobileApplicationFunctionalitiesKey = "usedMobileApplicationFunctionalities"
 
 export const UsedMobileApplicationFunctionalitiesJSONSchema = Type.Array(
   Type.Object({
@@ -110,17 +107,6 @@ const isCleanDefaultUsedMobileApplicationFunctionalities = (data: UsedMobileAppl
 const isReferenceXMLImport = (context: ConfigurationContext): boolean =>
   (context as { fromXML?: { forReference?: boolean } }).fromXML?.forReference === true
 
-const hasExplicitUsedMobileApplicationFunctionalities = (metadataItem: unknown): boolean =>
-  typeof metadataItem === "object" &&
-  metadataItem !== null &&
-  Object.prototype.hasOwnProperty.call(metadataItem, usedMobileApplicationFunctionalitiesKey)
-
-const hasCleanConfigurationIdentityDefaults = (metadataItem: unknown): boolean =>
-  typeof metadataItem === "object" &&
-  metadataItem !== null &&
-  Object.prototype.hasOwnProperty.call(metadataItem, "name") &&
-  Object.prototype.hasOwnProperty.call(metadataItem, "defaultLanguage")
-
 const exportUsedMobileApplicationFunctionalitiesItemsToXML = (
   data: UsedMobileApplicationFunctionalities
 ): UsedMobileApplicationFunctionalitiesXML =>
@@ -160,24 +146,6 @@ export function exportUsedMobileApplicationFunctionalitiesToXML(
   if (data.length === 0) return ""
 
   return exportUsedMobileApplicationFunctionalitiesItemsToXML(data)
-}
-
-const exportUsedMobileApplicationFunctionalitiesToXMLFromMetadata = (params: {
-  context: ConfigurationContextWithExportToXML
-  rule: PropertyRule
-  value: UsedMobileApplicationFunctionalities | undefined
-  metadataItem?: unknown
-}): UsedMobileApplicationFunctionalitiesXML | "" | undefined => {
-  if (
-    params.value === undefined &&
-    !hasExplicitUsedMobileApplicationFunctionalities(params.metadataItem) &&
-    !hasCleanConfigurationIdentityDefaults(params.metadataItem) &&
-    !isConfigurationIndexPropertyPresent(params.context, usedMobileApplicationFunctionalitiesKey)
-  ) {
-    return undefined
-  }
-
-  return exportUsedMobileApplicationFunctionalitiesToXML(params.context, params.rule, params.value)
 }
 
 export const importUsedMobileApplicationFunctionalitiesFromYAML = (
@@ -245,13 +213,10 @@ registerTypeRule(
   "importFromXML",
   importUsedMobileApplicationFunctionalitiesFromXML
 )
-registerTypeRule("UsedMobileApplicationFunctionalities", "xmlImportPropertyBehavior", {
-  presenceAffectsExport: true,
-})
 registerTypeRule(
   "UsedMobileApplicationFunctionalities",
   "exportToXML",
-  exportUsedMobileApplicationFunctionalitiesToXMLFromMetadata
+  exportUsedMobileApplicationFunctionalitiesToXML
 )
 registerTypeRule(
   "UsedMobileApplicationFunctionalities",

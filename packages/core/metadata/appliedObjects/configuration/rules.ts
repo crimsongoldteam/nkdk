@@ -21,7 +21,7 @@ import { xmlRootRule } from "../../commonObjects/xmlRoot/types"
 import { systemEnumerationRule } from "../../systemEnumerations/types"
 import "./allowedIncomingShareRequestTypes"
 import "./mobileApplicationURLs"
-import "./usedMobileApplicationFunctionalities"
+import { CLEAN_USED_MOBILE_APPLICATION_FUNCTIONALITIES } from "./usedMobileApplicationFunctionalities"
 import "../../commonObjects/clientApplicationInterface/register"
 import "../../commonObjects/homePageWorkArea/register"
 import "../../commonObjects/rootCommandInterface/register"
@@ -111,6 +111,7 @@ export const MetadataConfigurationRules = {
       yaml: "НазначенияИспользования",
       xml: "UsePurposes",
       xmlParents: configurationProperties,
+      defaultValue: () => ["PlatformApplication"],
     }),
     scriptVariant: systemEnumerationRule({
       yaml: "ВариантВстроенногоЯзыка",
@@ -283,6 +284,7 @@ export const MetadataConfigurationRules = {
     usedMobileApplicationFunctionalities: usedMobileApplicationFunctionalitiesRule({
       yaml: "ИспользуемаяФункциональностьМобильногоПриложения",
       xmlParents: configurationProperties,
+      defaultValue: () => CLEAN_USED_MOBILE_APPLICATION_FUNCTIONALITIES.map((item) => ({ ...item })),
     }),
     standaloneConfigurationRestrictionRoles: metadataItemLinksRule({
       yaml: "РолиОграниченияАвтономнойКонфигурации",

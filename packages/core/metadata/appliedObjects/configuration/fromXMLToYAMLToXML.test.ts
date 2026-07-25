@@ -75,8 +75,19 @@ describe("Configuration: единые XML → YAML и YAML → XML обходы"
     const properties = (exported.xml.MetaDataObject as { Configuration: { Properties: Record<string, unknown> } })
       .Configuration.Properties
 
-    expect(properties.UsePurposes).toBeDefined()
-    expect(properties.UsedMobileApplicationFunctionalities).toBeDefined()
+    expect(properties.UsePurposes).toEqual({
+      "v8:Value": {
+        "_xsi:type": "app:ApplicationUsePurpose",
+        "#text": "PlatformApplication",
+      },
+    })
+    expect(
+      (
+        properties.UsedMobileApplicationFunctionalities as {
+          "app:functionality": unknown[]
+        }
+      )["app:functionality"]
+    ).toHaveLength(38)
   })
 
   it("преобразует различия мобильной функциональности с русскими boolean-значениями", () => {
