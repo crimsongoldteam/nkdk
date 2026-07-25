@@ -14,7 +14,7 @@ import { NKDK_CORE_VERSION } from "../../version"
 import { createOperationProfiler } from "../validation/profile"
 import { discoverXmlImport } from "./discovery"
 import { createImportSharedMetadata } from "./metadataSnapshot"
-import { describeRegisteredXmlImportRoutes } from "./routes"
+import { compileRegisteredMetadataResourceTopology } from "../resourceTopology/registry"
 import { copyXmlImportExternalFiles, mergeImportResultFiles } from "./transfer"
 import type { ImportAssignment, ImportDiagnostic, ImportResultFile } from "./types"
 import {
@@ -60,7 +60,7 @@ export interface ImportCoordinatorDependencies {
 const defaultImportDependencies: ImportCoordinatorDependencies = {
   createWorkerPool: createXmlImportWorkerPool,
   async discover({ xmlDir }) {
-    return discoverXmlImport({ xmlDir, routes: describeRegisteredXmlImportRoutes() })
+    return discoverXmlImport({ xmlDir, topology: compileRegisteredMetadataResourceTopology() })
   },
   createSharedMetadata: createImportSharedMetadata,
   mergeFiles: mergeImportResultFiles,

@@ -85,9 +85,9 @@ function compileDeclarations(
         ...declaration,
         id: stableId("assignment", projectPattern, declaration.role, declaration.source.description),
         projectPattern,
-        ...(context.ownerProjectPattern === undefined
+        ...(declaration.ownerProjectPattern === undefined && context.ownerProjectPattern === undefined
           ? {}
-          : { ownerProjectPattern: context.ownerProjectPattern }),
+          : { ownerProjectPattern: declaration.ownerProjectPattern ?? context.ownerProjectPattern }),
         xmlDocuments: [],
         externalFiles: [],
       }

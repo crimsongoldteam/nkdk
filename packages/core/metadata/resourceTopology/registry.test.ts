@@ -131,6 +131,36 @@ describe("property resource topology registry", () => {
       expect(describePropertyResourceTopology("value", rule as PropertyRule)).not.toEqual([])
     })
   })
+
+  it("compiles registered project specs with their property resources", async () => {
+    await withFreshRegistry(async () => {
+      const { registerCoreMetadata } = await import("../register")
+      registerCoreMetadata()
+      const { compileRegisteredMetadataResourceTopology } = await import("./registry")
+      const topology = compileRegisteredMetadataResourceTopology()
+
+      expect(topology.assignments).toEqual(
+        expect.arrayContaining([
+          expect.objectContaining({
+            projectPattern: "Справочник/{ownerName}/Свойства.yaml",
+            xmlDocuments: expect.arrayContaining([
+              expect.objectContaining({ xmlPattern: "Catalogs/{ownerName}.xml", role: "metadata" }),
+            ]),
+          }),
+          expect.objectContaining({
+            projectPattern: "Справочник/{ownerName}/Формы/{itemName}/Форма.yaml",
+            ownerProjectPattern: "Справочник/{ownerName}/Свойства.yaml",
+            xmlDocuments: expect.arrayContaining([
+              expect.objectContaining({
+                xmlPattern: "Catalogs/{ownerName}/Forms/{itemName}/Ext/Form.xml",
+                role: "body",
+              }),
+            ]),
+          }),
+        ])
+      )
+    })
+  })
 })
 
 async function withFreshRegistry(assertions: () => Promise<void>): Promise<void> {

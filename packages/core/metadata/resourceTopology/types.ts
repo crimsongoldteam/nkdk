@@ -23,6 +23,7 @@ export interface MetadataContentDeclaration {
   readonly compositionImpact: "none" | "configurationComposition"
   readonly itemRule: MetadataItemRule
   readonly logicalAddressSegment?: string
+  readonly ownerProjectPattern?: string
   readonly source: MetadataResourceSource
 }
 

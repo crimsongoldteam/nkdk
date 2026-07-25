@@ -9,6 +9,12 @@ import {
 } from "./routeStructure"
 import { expandImportPattern } from "./routes"
 import type { ImportAssignment, ImportExternalFile, ImportXmlInput, XmlImportRoute } from "./types"
+import {
+  matchXmlImportResource,
+  projectXmlImportTopology,
+  type XmlImportTopologyProjection,
+} from "../resourceTopology/xmlImportProjection"
+import type { CompiledMetadataResourceTopology } from "../resourceTopology/types"
 
 export interface XmlImportDiscoveryFileSystem {
   listFiles: (xmlDir: string) => Promise<readonly string[]>
@@ -17,7 +23,8 @@ export interface XmlImportDiscoveryFileSystem {
 
 export interface DiscoverXmlImportParams {
   xmlDir: string
-  routes: readonly XmlImportRoute[]
+  routes?: readonly XmlImportRoute[]
+  topology?: CompiledMetadataResourceTopology
   fs?: XmlImportDiscoveryFileSystem
 }
 
@@ -25,7 +32,13 @@ type ResolvedMatch = XmlImportRouteMatch
 
 export async function discoverXmlImport(params: DiscoverXmlImportParams): Promise<{ assignments: ImportAssignment[] }> {
   const fileSystem = params.fs ?? defaultFileSystem
-  const routeStructure = compileXmlImportRouteStructure(params.routes)
+  if ((params.routes === undefined) === (params.topology === undefined)) {
+    throw new Error("XML-import требует ровно один источник маршрутов: topology или routes")
+  }
+  const routeStructure =
+    params.routes === undefined ? undefined : compileXmlImportRouteStructure(params.routes)
+  const topologyProjection =
+    params.topology === undefined ? undefined : projectXmlImportTopology(params.topology)
   const listedPaths = await fileSystem.listFiles(params.xmlDir)
   const paths = [...new Set(listedPaths.map((path) => normalizeListedPath(params.xmlDir, path)))].sort(compareUtf8)
   const conflictPaths: string[] = []
@@ -34,7 +47,7 @@ export async function discoverXmlImport(params: DiscoverXmlImportParams): Promis
   const manifestValues = new Map<string, Promise<Set<string>>>()
 
   for (const path of paths) {
-    const allMatches = matchXmlImportRouteStructure(routeStructure, path)
+    const allMatches = matchesForPath({ path, routeStructure, topologyProjection })
     const matches = allMatches.some((match) => match.kind !== "externalFile" || match.route.fallback !== true)
       ? allMatches.filter((match) => match.kind !== "externalFile" || match.route.fallback !== true)
       : allMatches
@@ -102,6 +115,64 @@ export async function discoverXmlImport(params: DiscoverXmlImportParams): Promis
   assertEveryExternalFileBelongsToOneAssignment(assignments)
 
   return { assignments }
+}
+
+function matchesForPath(params: {
+  path: string
+  routeStructure: ReturnType<typeof compileXmlImportRouteStructure> | undefined
+  topologyProjection: XmlImportTopologyProjection | undefined
+}): XmlImportRouteMatch[] {
+  if (params.routeStructure !== undefined) {
+    return matchXmlImportRouteStructure(params.routeStructure, params.path)
+  }
+  if (params.topologyProjection === undefined) return []
+  return matchXmlImportResource(params.topologyProjection, params.path).map((match): XmlImportRouteMatch => {
+    if (match.kind === "ignore") {
+      return {
+        kind: "ignore",
+        route: {
+          kind: "ignore",
+          xmlPattern: match.node.pattern,
+          source: { kind: "itemRule", itemType: match.node.source.description },
+        },
+        values: { ...match.values },
+      }
+    }
+    if (match.kind === "externalFile") {
+      return {
+        kind: "externalFile",
+        route: {
+          kind: "externalFile",
+          xmlPattern: match.node.xmlPattern,
+          targetPattern: match.node.projectPattern,
+          assignmentTargetPattern: match.assignment.projectPattern,
+          ...(match.node.fallback === true ? { fallback: true } : {}),
+          ...(match.node.selection === undefined ? {} : { selection: match.node.selection }),
+          source: { kind: "itemRule", itemType: match.assignment.itemRule.itemType },
+        },
+        targetProjectPath: match.projectPath,
+        assignmentTargetProjectPath: match.assignmentProjectPath,
+        values: { ...match.values },
+      }
+    }
+    return {
+      kind: "assignment",
+      route: {
+        kind: "assignment",
+        xmlPattern: match.node.xmlPattern,
+        targetPattern: match.assignment.projectPattern,
+        role: match.assignment.role,
+        inputRole: match.node.read?.inputRole ?? match.node.role,
+        itemType: match.assignment.itemRule.itemType,
+        ...(match.assignment.logicalAddressSegment === undefined
+          ? {}
+          : { logicalAddressSegment: match.assignment.logicalAddressSegment }),
+        source: { kind: "itemRule", itemType: match.assignment.itemRule.itemType },
+      },
+      targetProjectPath: match.assignmentProjectPath,
+      values: { ...match.values },
+    }
+  })
 }
 
 const defaultFileSystem: XmlImportDiscoveryFileSystem = {
