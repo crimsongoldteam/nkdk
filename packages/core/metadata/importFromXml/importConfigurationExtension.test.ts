@@ -28,6 +28,7 @@ describe("configuration extension XML import", () => {
   it("imports extension controls, own children and an extended form through the public API", async () => {
     const projectDir = temporaryDirectory()
     writeBaseLanguage(projectDir)
+    writeBaseCatalog(projectDir)
 
     const result = await importConfigurationFromXml({
       context: mockContextFromXML(),
@@ -84,6 +85,10 @@ describe("configuration extension XML import", () => {
     expect(form).toEqual({
       Комментарий: "Форма расширения",
       Реквизиты: {
+        БазовыйОбъект: {
+          Заголовок: "",
+          Тип: "СправочникОбъект.БазовыйСправочник",
+        },
         СобственныйРеквизитФормы: {
           Заголовок: "",
           Тип: "Строка",
@@ -93,6 +98,10 @@ describe("configuration extension XML import", () => {
         СобственноеПоле: {
           Вид: "ПолеВвода",
           Ширина: 10,
+        },
+        ПолеБазовогоРеквизита: {
+          Вид: "ПолеНадписи",
+          ПутьКДанным: "БазовыйОбъект.БазовыйРеквизит.Наименование",
         },
       },
     })
@@ -144,6 +153,26 @@ function writeBaseLanguage(projectDir: string): void {
   const path = join(projectDir, "cf", "Язык", "БазовыйЯзык.yaml")
   fs.mkdirSync(dirname(path), { recursive: true })
   fs.writeFileSync(path, "КодЯзыка: ru\n")
+}
+
+function writeBaseCatalog(projectDir: string): void {
+  const path = join(
+    projectDir,
+    "cf",
+    "Справочник",
+    "БазовыйСправочник",
+    "Свойства.yaml"
+  )
+  fs.mkdirSync(dirname(path), { recursive: true })
+  fs.writeFileSync(
+    path,
+    [
+      "Реквизиты:",
+      "  БазовыйРеквизит:",
+      "    Тип: Справочник.БазовыйСправочник",
+      "",
+    ].join("\n")
+  )
 }
 
 function readYaml(projectDir: string, relativePath: string): unknown {
