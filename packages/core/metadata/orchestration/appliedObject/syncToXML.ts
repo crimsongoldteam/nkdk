@@ -193,13 +193,20 @@ registerMetadataXmlPrepareCapability({
 
 registerMetadataXmlPrepareCapability({
   id: "itemProperty",
-  run: ({ assignment, context, preparedYamlFile, itemName, outputs, profile }) => {
+  run: ({ assignment, context, preparedYamlFile, itemName, logicalAddress, outputs, profile }) => {
     const yaml = preparedYamlFile.data
+    const itemContext = getChildContextToXML({
+      context: withImportMetadataTargetOwner(context, assignment.itemRule, itemName),
+      itemType: assignment.itemRule.itemType,
+      path: logicalAddress,
+      name: itemName,
+      externalMetadata: assignment.itemRule.externalMetadata,
+    })
     const source = createYAMLPropertySource({
       yaml,
       rule: assignment.itemRule,
       itemName,
-      context,
+      context: itemContext,
     })
 
     return outputs.flatMap((output) => {
@@ -214,7 +221,7 @@ registerMetadataXmlPrepareCapability({
       const normalizedYAML =
         nestedRule.normalizeYAML?.({ yaml: nestedYAML, name: itemName, propertyRule }) ?? nestedYAML
       const propertyContext = withConfigurationIndexExportPropertyContext(
-        context,
+        itemContext,
         propertyRule.yaml ?? propertyKey,
         propertyRule.configurationIndexUidSegment ?? propertyRule.operationTarget?.migrationSegment,
         { configurationIndexAddressing: propertyRule.configurationIndexAddressing }

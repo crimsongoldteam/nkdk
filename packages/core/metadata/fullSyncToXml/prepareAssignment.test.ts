@@ -245,6 +245,74 @@ describe("prepareFullXmlSyncAssignment", () => {
     })
   })
 
+  it("provides the current applied object context to a filePath metadata item", () => {
+    const projectDir = mkdtempSync(join(tmpdir(), "nkdk-prepare-item-property-owner-"))
+    tempDirs.push(projectDir)
+    const registerName = "Обороты"
+    const sourceProjectPath = `РегистрНакопления/${registerName}/Свойства.yaml`
+    const sourcePath = join(projectDir, ...sourceProjectPath.split("/"))
+    fs.mkdirSync(join(projectDir, "РегистрНакопления", registerName), { recursive: true })
+    fs.writeFileSync(
+      sourcePath,
+      [
+        "Агрегаты:",
+        "  - Использование: Всегда",
+        "    Периодичность: День",
+        "    Измерения:",
+        "      Склад: Истина",
+        "",
+      ].join("\n")
+    )
+    const yaml = prepareYamlFiles({
+      files: [
+        {
+          projectPath: sourceProjectPath,
+          filePath: sourcePath,
+          role: "properties",
+          owner: { dir: "РегистрНакопления", name: registerName },
+          itemType: "MetadataAccumulationRegister",
+        },
+      ],
+      itemTypeByYamlDir: { РегистрНакопления: "MetadataAccumulationRegister" },
+    }).yamlFiles[0]!
+    const assignment: FullXmlSyncAssignment = {
+      id: sourceProjectPath,
+      sourceProjectPath,
+      sourcePath,
+      role: "properties",
+      itemType: "MetadataAccumulationRegister",
+      itemName: registerName,
+      logicalAddress: `РегистрНакопления.${registerName}`,
+      ...fullXmlSyncTestTopologyFields(sourceProjectPath),
+    }
+
+    const prepared = prepareFullXmlSyncAssignment({
+      assignment,
+      preparedYamlFile: yaml,
+      context: mockContextToXML(),
+      index: createConfigurationIndexReader(snapshotConfigurationIndex(encodeConfigurationIndex(sampleIndex()))),
+      assignments: [],
+    })
+
+    const aggregates = prepared.documents.find((document) => document.targetXmlPath.endsWith("/Ext/Aggregates.xml"))
+    expect(aggregates?.xml).toMatchObject({
+      AccumulationRegisterAggregates: {
+        Aggregate: [
+          {
+            Dimensions: {
+              Dimension: [
+                {
+                  _ref: `AccumulationRegister.${registerName}.Dimension.Склад`,
+                  "#text": true,
+                },
+              ],
+            },
+          },
+        ],
+      },
+    })
+  })
+
   it("provides the applied object owner to nested metadata targets", () => {
     const projectDir = mkdtempSync(join(tmpdir(), "nkdk-prepare-assignment-owner-"))
     tempDirs.push(projectDir)
