@@ -15,6 +15,7 @@ import type { YamlPath } from "../../validation/yamlLocations"
 import type { ParsedYaml } from "../../../yaml/parseMetadataYaml"
 import type { XmlWriteManifest } from "../xmlWriteManifest"
 import type { XmlImportRoute } from "../../importFromXml/types"
+import type { MetadataResourceDeclaration } from "../../resourceTopology/types"
 import { PropertyRuleType } from "./registry"
 import type {
   CollectLocalFactsFromYAMLFunction,
@@ -268,6 +269,9 @@ export type XmlSyncRoute =
 export type ProjectResourcesFunction = (params: { propertyRule?: PropertyRule }) => ProjectResourceDescriptor[]
 export type XmlSyncRoutesFunction = (params: { propertyRule?: PropertyRule }) => XmlSyncRoute[]
 export type XmlImportRoutesFunction = (params: { propertyRule?: PropertyRule }) => readonly XmlImportRoute[]
+export type MetadataResourceTopologyFunction = (params: {
+  propertyRule?: PropertyRule
+}) => readonly MetadataResourceDeclaration[]
 
 export interface FileChildNamesDescriptor {
   folderName: string
@@ -335,6 +339,7 @@ export interface TypeRule {
   projectResources?: ProjectResourcesFunction
   xmlSyncRoutes?: XmlSyncRoutesFunction
   xmlImportRoutes?: XmlImportRoutesFunction
+  resourceTopology?: MetadataResourceTopologyFunction
   fileChildNamesDescriptor?: FileChildNamesDescriptorFunction
   xmlSyncWriter?: XmlSyncWriterFunction
   configurationIndexValueFromXML?: ConfigurationIndexValueFromXMLDescriptor
@@ -366,6 +371,7 @@ export type TypeRulesOperations =
   | "projectResources"
   | "xmlSyncRoutes"
   | "xmlImportRoutes"
+  | "resourceTopology"
   | "fileChildNamesDescriptor"
   | "xmlSyncWriter"
   | "configurationIndexValueFromXML"
@@ -417,8 +423,10 @@ export type importExportFunction<O extends TypeRulesOperations> = O extends "imp
                                 ? XmlSyncRoutesFunction | undefined
                                 : O extends "xmlImportRoutes"
                                   ? XmlImportRoutesFunction | undefined
-                                  : O extends "fileChildNamesDescriptor"
-                                    ? FileChildNamesDescriptorFunction | undefined
+                                  : O extends "resourceTopology"
+                                    ? MetadataResourceTopologyFunction | undefined
+                                    : O extends "fileChildNamesDescriptor"
+                                      ? FileChildNamesDescriptorFunction | undefined
                                     : O extends "xmlSyncWriter"
                                       ? XmlSyncWriterFunction | undefined
                                       : O extends "configurationIndexValueFromXML"

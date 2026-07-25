@@ -18,6 +18,7 @@ import {
   ImportFromXMLFunction,
   importFromYAMLFunction as ImportFromYAMLFunction,
   ImportFromYAMLFunctionNew,
+  MetadataResourceTopologyFunction,
   ProjectResourcesFunction,
   StructuralReferencesFunction,
   SyncExternalFromXMLFunction,
@@ -59,6 +60,7 @@ const typeRulesRegistry = new Map<
   | ProjectResourcesFunction
   | XmlSyncRoutesFunction
   | XmlImportRoutesFunction
+  | MetadataResourceTopologyFunction
   | FileChildNamesDescriptorFunction
   | XmlSyncWriterFunction
   | ConfigurationIndexValueFromXMLDescriptor
@@ -119,8 +121,10 @@ export const getTypeRule = <O extends TypeRulesOperations>(
                                 ? XmlSyncRoutesFunction | undefined
                                 : O extends "xmlImportRoutes"
                                   ? XmlImportRoutesFunction | undefined
-                                  : O extends "fileChildNamesDescriptor"
-                                    ? FileChildNamesDescriptorFunction | undefined
+                                  : O extends "resourceTopology"
+                                    ? MetadataResourceTopologyFunction | undefined
+                                    : O extends "fileChildNamesDescriptor"
+                                      ? FileChildNamesDescriptorFunction | undefined
                                     : O extends "xmlSyncWriter"
                                       ? XmlSyncWriterFunction | undefined
                                       : O extends "configurationIndexValueFromXML"
