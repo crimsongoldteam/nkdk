@@ -123,8 +123,8 @@ function toLegacyResource(match: MetadataProjectResourceMatch): MetadataProjectR
     }
   }
 
-  const owner = legacyOwner(match)
   if (match.kind === "content" && match.assignment?.role === "properties") {
+    const owner = legacyOwner(match)
     return {
       kind: "yaml",
       role: "properties",
@@ -168,6 +168,9 @@ function legacyOwner(match: MetadataProjectResourceMatch): MetadataProjectResour
 }
 
 function rootOwner(match: MetadataProjectResourceMatch): MetadataProjectResourceOwner {
+  if (match.assignment?.role === "configuration") {
+    return { dir: "", name: "Конфигурация", spec: configurationMetadataProjectSpec }
+  }
   const dir = match.projectPath.split("/")[0] ?? ""
   const spec = getMetadataProjectSpecByDir(dir)
   if (spec === undefined) throw new Error(`Не найден project spec для ${match.projectPath}`)

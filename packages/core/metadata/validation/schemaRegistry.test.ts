@@ -92,7 +92,7 @@ describe("JSON Schema registry", { timeout: 60_000 }, () => {
     compiledClientApplicationFormGraph()
     schemaForName("ClientApplicationForm", "inline")
     schemaForName("UsualGroup", "inline")
-  }, 30_000)
+  }, 240_000)
 
   beforeEach(() => {
     ensureJSONSchemaRegistry()

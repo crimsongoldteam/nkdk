@@ -165,12 +165,15 @@ registerTypeRule("ExternalPicture", "resourceTopology", ({ propertyRule }) => {
       xmlPattern: rule.xmlPath,
       transferCapabilityId: "ExternalPicture",
     }),
-    external({
-      description: "ExternalPicture",
-      projectPattern: `${rule.nkdkDir}/{relativePath...}`,
-      xmlPattern: `${rule.payloadXmlDir}/{relativePath...}`,
-      transferCapabilityId: "ExternalPicture",
-    }),
+    {
+      ...external({
+        description: "ExternalPicture",
+        projectPattern: `${rule.nkdkDir}/{relativePath...}`,
+        xmlPattern: `${rule.payloadXmlDir}/{relativePath...}`,
+        transferCapabilityId: "ExternalPicture",
+      }),
+      fallback: true,
+    },
   ]
 })
 
