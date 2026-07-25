@@ -132,31 +132,26 @@ export const FormAttributeRules = {
     chart: chartRule({
       xml: "Settings",
       yaml: "Диаграмма",
-      fromXML: false,
       order: 99,
     }),
     ganttChart: ganttChartRule({
       xml: "Settings",
       yaml: "ДиаграммаГанта",
-      fromXML: false,
       order: 99,
     }),
     flowchartContext: flowchartContextRule({
       xml: "Settings",
       yaml: "ГрафическаяСхема",
-      fromXML: false,
       order: 99,
     }),
     spreadsheetDocument: spreadsheetDocumentRule({
       xml: "Settings",
       yaml: "ТабличныйДокумент",
-      fromXML: false,
       order: 99,
     }),
     planner: plannerRule({
       xml: "Settings",
       yaml: "Планировщик",
-      fromXML: false,
       order: 99,
     }),
   },
