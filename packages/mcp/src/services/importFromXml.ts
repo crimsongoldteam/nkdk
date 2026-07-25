@@ -50,7 +50,7 @@ export async function importFromXml(
     return toolError("confirmation_required", "import_from_xml пишет YAML-файлы; повторите вызов с allowWrite=true", {
       xmlDir: input.xmlDir,
       projectDir: input.projectDir,
-      componentPath: input.componentPath ?? "cf",
+      ...(input.componentPath === undefined ? {} : { componentPath: input.componentPath }),
     })
   }
 

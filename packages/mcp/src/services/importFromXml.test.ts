@@ -27,6 +27,23 @@ describe("importFromXml service", () => {
     expect(importConfigurationFromXml).not.toHaveBeenCalled()
   })
 
+  it("does not report cf as the target when confirmation uses component auto-detection", async () => {
+    const importConfigurationFromXml = vi.fn()
+
+    const result = await importFromXml(
+      { xmlDir: "/xml", projectDir: "/missing/project" },
+      { importConfigurationFromXml },
+    )
+
+    expect(result).toEqual({
+      ok: false,
+      code: "confirmation_required",
+      message: "import_from_xml пишет YAML-файлы; повторите вызов с allowWrite=true",
+      details: { xmlDir: "/xml", projectDir: "/missing/project" },
+    })
+    expect(importConfigurationFromXml).not.toHaveBeenCalled()
+  })
+
   it("delegates extension selection to core and returns detected component path", async () => {
     const projectDir = createProject()
     const componentDir = join(projectDir, "cfe", "Расширение")
