@@ -10,6 +10,8 @@ import {
   readConfigurationIndex,
 } from "../../index"
 import { mockContextFromXML } from "../../tests/mockContext"
+import { createOwnerMetadataCacheFromSharedValidationSnapshot } from "../validation/dataPath/sharedOwnerCache"
+import { restoreSharedValidationSnapshot } from "../validation/persistedSharedValidationSnapshot"
 
 const fixtureDir = join(
   dirname(fileURLToPath(import.meta.url)),
@@ -140,6 +142,32 @@ describe("configuration extension XML import", () => {
       )
     ).toBe(true)
     expect(fs.existsSync(join(projectDir, ".nkdk", "configuration-index", "default.bin"))).toBe(false)
+
+    const localSnapshot = restoreSharedValidationSnapshot(snapshot.localIndexes.metadata)
+    const localOwners = createOwnerMetadataCacheFromSharedValidationSnapshot({
+      projectDir: join(projectDir, "cfe", "РасширениеКонтроль"),
+      snapshot: localSnapshot,
+    })
+    expect(localSnapshot.reference.stats.objectEntries).toBeGreaterThan(0)
+    expect(localSnapshot.reference.stats.memberEntries).toBeGreaterThan(0)
+    expect(localOwners.get({ kind: "Справочник", name: "СправочникПолный" }).status).toBe("ok")
+    expect(localOwners.get({ kind: "Справочник", name: "БазовыйСправочник" }).status).toBe("not-found")
+    expect(snapshot.localIndexes.dependencies).toEqual(
+      expect.arrayContaining([
+        expect.objectContaining({
+          sourceProjectPath: "Конфигурация.yaml",
+          canonical: "Language.БазовыйЯзык",
+        }),
+      ])
+    )
+    expect(
+      snapshot.localIndexes.dependencies.every(
+        ({ sourceProjectPath }) =>
+          !sourceProjectPath.startsWith("/") &&
+          !sourceProjectPath.startsWith("cf/") &&
+          !sourceProjectPath.startsWith("cfe/")
+      )
+    ).toBe(true)
   })
 })
 

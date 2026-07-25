@@ -12,9 +12,11 @@ import {
   type ConfigurationProjectFile,
 } from "../configurationIndex"
 import type { ConfigurationContextFromXML } from "../context/types"
-import type { ValidationOwnerFacts } from "../validation/dataPath/ownerFacts"
+import { serializeSharedValidationSnapshot } from "../validation/persistedSharedValidationSnapshot"
 import { createOperationProfiler } from "../validation/profile"
+import type { ValidationIndexContribution } from "../validation/projectValidationTypes"
 import type { SharedValidationSnapshot } from "../validation/sharedValidationSnapshot"
+import type { ConfigurationLocalDependency } from "../configurationIndex/types"
 import {
   buildComponentReferenceSnapshot,
   createLayeredImportReferenceSnapshot,
@@ -27,7 +29,7 @@ import {
   discoverXmlImport,
   readXmlImportComponentRoot,
 } from "./discovery"
-import { createImportSharedMetadata } from "./metadataSnapshot"
+import { createImportSharedValidationSnapshot } from "./metadataSnapshot"
 import { describeXmlImportComponentRoutes } from "./routes"
 import { copyXmlImportExternalFiles, mergeImportResultFiles } from "./transfer"
 import type {
@@ -67,7 +69,7 @@ export interface ImportCoordinatorDependencies {
   discover(params: { xmlDir: string; routes: readonly XmlImportRoute[] }): Promise<{
     assignments: ImportAssignment[]
   }>
-  createSharedMetadata(facts: readonly ValidationOwnerFacts[]): SharedValidationSnapshot
+  createSharedMetadata(contribution: ValidationIndexContribution): SharedValidationSnapshot
   buildComponentReferenceSnapshot(params: {
     componentDir: string
     context: ConfigurationContextFromXML
@@ -94,7 +96,7 @@ export interface ImportCoordinatorDependencies {
 const defaultImportDependencies: ImportCoordinatorDependencies = {
   createWorkerPool: createXmlImportWorkerPool,
   discover: discoverXmlImport,
-  createSharedMetadata: createImportSharedMetadata,
+  createSharedMetadata: createImportSharedValidationSnapshot,
   buildComponentReferenceSnapshot,
   mergeFiles: mergeImportResultFiles,
   copyExternalFiles: copyXmlImportExternalFiles,
@@ -184,8 +186,8 @@ export async function importConfigurationFromXml(
     const localSnapshot = profiler.measure(
       "Подготовка импорта конфигурации",
       "Обобщение индекса метаданных",
-      { items: first.ownerFacts.length },
-      () => deps.createSharedMetadata(first.ownerFacts)
+      { items: first.validationContribution.objectRecords.length },
+      () => deps.createSharedMetadata(first.validationContribution)
     )
     const referenceSnapshots = createLayeredImportReferenceSnapshot({
       local: localSnapshot,
@@ -250,6 +252,8 @@ export async function importConfigurationFromXml(
           componentPath: selectedComponentPath,
           projectFiles,
           fragmentData: first.fragmentData,
+          localSnapshot,
+          localDependencies: first.fragmentData.localDependencies,
         })
     )
     await profiler.measureAsync(
@@ -363,6 +367,8 @@ function buildImportedConfigurationIndex(params: {
   componentPath: string
   projectFiles: readonly ConfigurationProjectFile[]
   fragmentData: Pick<ConfigurationIndexData, "identities" | "xmlNodes" | "xmlValues">
+  localSnapshot: SharedValidationSnapshot
+  localDependencies: readonly ConfigurationLocalDependency[]
 }): ConfigurationIndexData {
   return {
     binding: {
@@ -376,6 +382,10 @@ function buildImportedConfigurationIndex(params: {
     identities: params.fragmentData.identities,
     xmlNodes: params.fragmentData.xmlNodes,
     xmlValues: params.fragmentData.xmlValues,
+    localIndexes: {
+      metadata: serializeSharedValidationSnapshot(params.localSnapshot),
+      dependencies: params.localDependencies,
+    },
   }
 }
 

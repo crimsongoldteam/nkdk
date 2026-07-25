@@ -9,6 +9,8 @@ import {
 } from "../configurationIndex"
 import type { ComponentAddress } from "../components/address"
 import type { ValidationOwnerFacts } from "../validation/dataPath/ownerFacts"
+import { serializeSharedValidationSnapshot } from "../validation/persistedSharedValidationSnapshot"
+import type { ValidationIndexContribution } from "../validation/projectValidationTypes"
 import { createImportSharedMetadata } from "./metadataSnapshot"
 import type { LayeredImportReferenceSnapshot } from "./componentReferenceIndex"
 import {
@@ -39,10 +41,13 @@ const resultFiles: ImportResultFile[] = [
     targetProjectPath: "Справочник/Контрагенты/Свойства.yaml",
   },
 ]
-const fragmentData: Pick<ConfigurationIndexData, "identities" | "xmlNodes" | "xmlValues"> = {
+const fragmentData: Pick<ConfigurationIndexData, "identities" | "xmlNodes" | "xmlValues"> & {
+  localDependencies: []
+} = {
   identities: [{ logicalAddress: "Справочник.Контрагенты", kind: "uuid", value: "new-uuid" }],
   xmlNodes: [{ logicalAddress: "Справочник.Контрагенты", present: ["Name"] }],
   xmlValues: [{ logicalAddress: "Справочник.Контрагенты.Name", xmlText: "Контрагенты" }],
+  localDependencies: [],
 }
 
 const tempDirs: string[] = []
@@ -467,7 +472,13 @@ function fakeDependencies(params: {
         },
         async runFirstPass() {
           call("firstPass")
-          return { diagnostics: [], ownerFacts: [], fragmentData }
+          return {
+            diagnostics: [],
+            ownerFacts: [],
+            validationContribution: emptyValidationContribution(),
+            localDependencies: [],
+            fragmentData,
+          }
         },
         async runSecondPass() {
           call("secondPass")
@@ -579,7 +590,23 @@ function configurationIndex(component: string): ConfigurationIndexData {
       configurationVersion: new Uint8Array(),
     },
     projectFiles: [{ projectPath: "Конфигурация.yaml", contentHash: 42n }],
-    ...fragmentData,
+    identities: fragmentData.identities,
+    xmlNodes: fragmentData.xmlNodes,
+    xmlValues: fragmentData.xmlValues,
+    localIndexes: {
+      metadata: serializeSharedValidationSnapshot(createImportSharedMetadata([])),
+      dependencies: [],
+    },
+  }
+}
+
+function emptyValidationContribution(): ValidationIndexContribution {
+  return {
+    objectRecords: [],
+    objectIndexEntries: [],
+    memberIndexEntries: [],
+    valueIndexEntries: [],
+    pendingReferences: [],
   }
 }
 
