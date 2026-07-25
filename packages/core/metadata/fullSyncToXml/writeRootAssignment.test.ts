@@ -7,6 +7,7 @@ import { mockContextToXML } from "../../tests/mockContext"
 import { encodeConfigurationIndex } from "../configurationIndex/encode"
 import { createConfigurationIndexReader, snapshotConfigurationIndex } from "../configurationIndex/sharedSnapshot"
 import { sampleIndex } from "../configurationIndex/testData"
+import { childUid } from "../configurationIndex/logicalAddress"
 import { prepareYamlFiles } from "../project/prepareYamlFiles"
 import { writeFullXmlSyncAssignment } from "./writeAssignment"
 import { prepareFullXmlSyncAssignment } from "./prepareAssignment"
@@ -67,6 +68,56 @@ describe("writeFullXmlSyncAssignment for root Configuration", () => {
     expect(xml).toContain("<Catalog>Товары</Catalog>")
     expect(result.profile?.rulesPassCount).toBe(1)
     expect(new Set(result.profile?.propertyPaths).size).toBe(result.profile?.propertyPaths.length)
+  })
+
+  it("restores ChildObjects order from the configuration index", async () => {
+    const projectDir = tempDir()
+    const sourcePath = join(projectDir, "Конфигурация.yaml")
+    fs.writeFileSync(sourcePath, "Имя: Конфигурация\n")
+    const prepared = prepareYamlFiles({
+      files: [
+        {
+          projectPath: "Конфигурация.yaml",
+          filePath: sourcePath,
+          role: "configuration",
+          owner: { dir: "", name: "Конфигурация" },
+          itemType: "MetadataConfiguration",
+        },
+      ],
+      itemTypeByYamlDir: {},
+    })
+    fs.rmSync(sourcePath)
+    const root = configurationAssignment(projectDir)
+    const baseIndex = sampleIndex()
+    const index = {
+      ...baseIndex,
+      xmlNodes: [
+        ...baseIndex.xmlNodes,
+        {
+          logicalAddress: childUid("Конфигурация", "Свойство", "childObjects"),
+          order: ['["Catalog","Товары"]', '["Catalog","Контрагенты"]'],
+        },
+      ],
+    }
+
+    const context = mockContextToXML()
+    const preparedAssignment = prepareFullXmlSyncAssignment({
+      assignment: root,
+      assignments: [root, catalogAssignment(projectDir, "Контрагенты"), catalogAssignment(projectDir, "Товары")],
+      preparedYamlFile: prepared.yamlFiles[0]!,
+      context,
+      index: createConfigurationIndexReader(snapshotConfigurationIndex(encodeConfigurationIndex(index))),
+    })
+    await writeFullXmlSyncAssignment({
+      prepared: preparedAssignment,
+      context,
+      outputDir: join(projectDir, "xml"),
+    })
+
+    const xml = fs.readFileSync(join(projectDir, "xml", "Configuration.xml"), "utf-8")
+    expect(xml.indexOf("<Catalog>Товары</Catalog>")).toBeLessThan(
+      xml.indexOf("<Catalog>Контрагенты</Catalog>")
+    )
   })
 })
 

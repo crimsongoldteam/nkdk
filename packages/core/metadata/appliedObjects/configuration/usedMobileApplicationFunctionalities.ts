@@ -3,8 +3,9 @@ import { importBooleanFromYAML } from "../../commonObjects/boolean/fromYAML"
 import { exportBooleanToYAML } from "../../commonObjects/boolean/toYAML"
 import { BooleanJSONSchema, StringboolYAML } from "../../commonObjects/boolean/types"
 import { ExportToJSONSchemaFn, registerTypeRule } from "../../orchestration"
-import type { ConfigurationContext } from "../../context/types"
+import type { ConfigurationContext, ConfigurationContextWithExportToXML } from "../../context/types"
 import type { PropertyRule } from "../../orchestration/property/types"
+import { isConfigurationIndexPropertyPresent } from "../../configurationIndex/referenceView"
 import {
   MobileApplicationFunctionalities,
   MobileApplicationFunctionalitiesFromYAML,
@@ -162,7 +163,7 @@ export function exportUsedMobileApplicationFunctionalitiesToXML(
 }
 
 const exportUsedMobileApplicationFunctionalitiesToXMLFromMetadata = (params: {
-  context: ConfigurationContext
+  context: ConfigurationContextWithExportToXML
   rule: PropertyRule
   value: UsedMobileApplicationFunctionalities | undefined
   metadataItem?: unknown
@@ -170,7 +171,8 @@ const exportUsedMobileApplicationFunctionalitiesToXMLFromMetadata = (params: {
   if (
     params.value === undefined &&
     !hasExplicitUsedMobileApplicationFunctionalities(params.metadataItem) &&
-    !hasCleanConfigurationIdentityDefaults(params.metadataItem)
+    !hasCleanConfigurationIdentityDefaults(params.metadataItem) &&
+    !isConfigurationIndexPropertyPresent(params.context, usedMobileApplicationFunctionalitiesKey)
   ) {
     return undefined
   }
@@ -243,6 +245,9 @@ registerTypeRule(
   "importFromXML",
   importUsedMobileApplicationFunctionalitiesFromXML
 )
+registerTypeRule("UsedMobileApplicationFunctionalities", "xmlImportPropertyBehavior", {
+  presenceAffectsExport: true,
+})
 registerTypeRule(
   "UsedMobileApplicationFunctionalities",
   "exportToXML",

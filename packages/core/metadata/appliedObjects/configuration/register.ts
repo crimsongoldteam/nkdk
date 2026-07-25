@@ -16,6 +16,7 @@ import "../metadataSubsystem/register"
 import { registerMetadataXmlPrepareCapability } from "../../resourceTopology/capabilities"
 import { prepareConfigurationXML } from "./rootIO"
 import { buildConfigurationChildObjectsFromProjectEntries } from "./childObjects"
+import { configurationChildObjectsFromIndex } from "./configurationChildObjects"
 
 const objectOwnedProjectSpecDirs = new Set(["Справочник", "Документ", "Перечисление"])
 const specialObjectPathProjectSpecDirs = new Set(["ВнешнийИсточникДанных", "Подсистема"])
@@ -57,6 +58,7 @@ registerMetadataXmlPrepareCapability({
             const parts = entry.sourceProjectPath.split("/")
             return { dir: parts[0] ?? "", name: parts[1] ?? entry.itemName }
           }),
+        referenceChildObjects: configurationChildObjectsFromIndex(context.exportToXML.configurationIndex),
       }),
       profile,
     })

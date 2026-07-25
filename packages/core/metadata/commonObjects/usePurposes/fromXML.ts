@@ -32,3 +32,4 @@ export const importUsePurposesFromXML = (
 }
 
 registerTypeRule("UsePurposes", "importFromXML", importUsePurposesFromXML)
+registerTypeRule("UsePurposes", "xmlImportPropertyBehavior", { presenceAffectsExport: true })

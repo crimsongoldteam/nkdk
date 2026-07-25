@@ -1,6 +1,8 @@
-import type { PropertyRule } from "../../orchestration/property/types"
 import { registerTypeRule } from "../../orchestration/property/typeRuleRegistry"
 import { ConfigurationContext } from "../../context/types"
+import type { ConfigurationContextWithExportToXML } from "../../context/types"
+import { isConfigurationIndexPropertyPresent } from "../../configurationIndex/referenceView"
+import type { PropertyRule } from "../../orchestration/property/types"
 import { MetadataPrimitiveValueXML } from "../metadataValue/types"
 import type { UsePurposes, UsePurposesXML } from "./types"
 
@@ -21,4 +23,21 @@ export const exportUsePurposesToXML = (
   }
 }
 
-registerTypeRule("UsePurposes", "exportToXML", exportUsePurposesToXML)
+registerTypeRule(
+  "UsePurposes",
+  "exportToXML",
+  (params: {
+    context: ConfigurationContextWithExportToXML
+    rule: PropertyRule
+    value: UsePurposes | undefined
+    propertyKey?: string
+  }) =>
+    exportUsePurposesToXML(
+      params.context,
+      undefined,
+      params.value === undefined &&
+        isConfigurationIndexPropertyPresent(params.context, params.propertyKey ?? "usePurposes")
+        ? ["PlatformApplication"]
+        : params.value
+    )
+)

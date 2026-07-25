@@ -1,6 +1,10 @@
 import { describe, expect, it } from "vitest"
 import { importContentFromXML } from "../../../xml/import/importer"
-import { testMetadataItemFromXMLToYAML, testMetadataItemFromYAMLToXML } from "../../../tests/directConversion"
+import {
+  createDirectRoundTripContexts,
+  testMetadataItemFromXMLToYAML,
+  testMetadataItemFromYAMLToXML,
+} from "../../../tests/directConversion"
 import { CLEAN_CONFIGURATION_XML, EXPECTED_CLEAN_CONFIGURATION_YAML } from "./cleanConfiguration.fixture"
 import { MetadataConfigurationRules } from "./rules"
 
@@ -48,6 +52,31 @@ describe("Configuration: единые XML → YAML и YAML → XML обходы"
         expect.objectContaining({ "app:functionality": "OSBackup", "app:use": "true" }),
       ])
     )
+  })
+
+  it("восстанавливает скрытые стандартные значения без reference XML", () => {
+    const contexts = createDirectRoundTripContexts({
+      logicalAddress: "Конфигурация",
+      targetProjectPath: "Конфигурация.yaml",
+    })
+    const imported = testMetadataItemFromXMLToYAML({
+      context: contexts.importContext,
+      rule: MetadataConfigurationRules,
+      xml: cleanFixture().MetaDataObject,
+      name: "Конфигурация",
+    })
+
+    const exported = testMetadataItemFromYAMLToXML({
+      context: contexts.exportContext(),
+      rule: MetadataConfigurationRules,
+      yaml: imported.yaml,
+      name: "Конфигурация",
+    })
+    const properties = (exported.xml.MetaDataObject as { Configuration: { Properties: Record<string, unknown> } })
+      .Configuration.Properties
+
+    expect(properties.UsePurposes).toBeDefined()
+    expect(properties.UsedMobileApplicationFunctionalities).toBeDefined()
   })
 
   it("преобразует различия мобильной функциональности с русскими boolean-значениями", () => {

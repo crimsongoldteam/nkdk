@@ -25,6 +25,7 @@ import "./usedMobileApplicationFunctionalities"
 import "../../commonObjects/clientApplicationInterface/register"
 import "../../commonObjects/homePageWorkArea/register"
 import "../../commonObjects/rootCommandInterface/register"
+import "./configurationChildObjects"
 import { V8_MDCLASSES_ROOT } from "../../orchestration/appliedObject/presets"
 import type { MetadataItemRule } from "../../orchestration/property/types"
 const configurationProperties = ["Properties"]
@@ -47,6 +48,14 @@ export const MetadataConfigurationRules = {
       toYAML: false,
       fromYAML: false,
     }),
+    childObjects: {
+      type: "ConfigurationChildObjects",
+      xml: "ChildObjects",
+      xmlParents: [],
+      toYAML: false,
+      fromYAML: false,
+      toXML: false,
+    },
     uuid: uuidRule({
       xml: "_uuid",
       forReferenceOnly: true,
