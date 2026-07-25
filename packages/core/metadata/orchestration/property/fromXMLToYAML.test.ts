@@ -867,6 +867,24 @@ describe("importPropertiesFromXMLToYAML", () => {
       { logicalAddress: "Форма.Основная.Элемент.Кнопка1", order: ["title", "commandName"] },
     ])
   })
+
+  it("does not inherit a parent collection segment in a nested property", () => {
+    const context = withConfigurationIndexCollector(
+      mockContextFromXML(),
+      createConfigurationIndexCollector(),
+      "Документ.Заказ.ТабличнаяЧасть.Товары"
+    )
+    context.fromXML.configurationIndex = {
+      ...context.fromXML.configurationIndex!,
+      childCollectionUidSegment: "ТабличнаяЧасть",
+    }
+
+    runWithConfigurationIndexPropertyContext(context, "СтандартныеРеквизиты", undefined, (propertyContext) => {
+      expect(propertyContext.fromXML.configurationIndex?.childCollectionUidSegment).toBeUndefined()
+    })
+
+    expect(context.fromXML.configurationIndex?.childCollectionUidSegment).toBe("ТабличнаяЧасть")
+  })
 })
 
 function runSingleProperty(

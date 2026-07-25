@@ -112,8 +112,9 @@ export function runWithConfigurationIndexPropertyContext<T>(
     propertyName,
     options.configurationIndexAddressing
   )
+  const { childCollectionUidSegment: _parentCollectionSegment, ...propertyCollection } = collection
   context.fromXML.configurationIndex = {
-    ...collection,
+    ...propertyCollection,
     ...(useYamlPath ? { logicalAddress: propertyAddress } : {}),
     xmlNodeLogicalAddress: propertyAddress,
     ...(useYamlPath ? { yamlPathAddressing: true as const } : {}),
