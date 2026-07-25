@@ -251,6 +251,7 @@ export function convertPropertiesFromYAMLToXML(params: ConvertPropertiesFromYAML
     if (
       !source.has(propertyKey) &&
       !(planned.propertyKey === namePropertyKey && params.name !== undefined) &&
+      !hasIndexedImplicitYAMLValue &&
       planned.propertyRule.omitNonImplicitReferenceXMLWhenYAMLMissing === true &&
       Object.prototype.hasOwnProperty.call(planned.propertyRule, "implicitValueYAML") &&
       typeof planned.propertyRule.implicitValueYAML !== "function" &&
@@ -368,7 +369,10 @@ export function convertPropertiesFromYAMLToXML(params: ConvertPropertiesFromYAML
         propertyContext,
         planned.yamlKey ?? planned.propertyKey,
         planned.propertyRule.configurationIndexUidSegment ?? planned.propertyRule.operationTarget?.migrationSegment,
-        { configurationIndexAddressing: planned.propertyRule.configurationIndexAddressing }
+        {
+          configurationIndexAddressing:
+            planned.propertyRule.configurationIndexAddressing ?? effectiveNestedRule.configurationIndexAddressing,
+        }
       )
       const nestedContext =
         effectiveNestedRule.kind === "item" && effectiveNestedRule.resolveContext !== undefined

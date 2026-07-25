@@ -59,6 +59,29 @@ describe("DynamicList XML → YAML → XML", () => {
     expect(withoutDeclaration(xmlExport(xml, false))).toBe(expected.trim())
   })
 
+  it("восстанавливает full.xml без reference XML", () => {
+    const expected = fs.readFileSync(fileURLToPath(new URL("__fixtures__/full.xml", import.meta.url)), "utf8")
+    const parsed = importContentFromXML<Record<string, unknown>>(expected, {
+      preserveEmptyElements: true,
+      preserveXsiNil: true,
+    })
+    const contexts = createDirectRoundTripContexts({
+      logicalAddress: "Справочник.Товары.Форма.ФормаСписка.Атрибут.Список",
+    })
+    const yaml = testPropertyFromXMLToYAML({
+      rule,
+      xml: parsed,
+      context: contexts.importContext,
+    }).yaml
+    const { xml } = testPropertyFromYAMLToXML({
+      rule,
+      yaml,
+      context: contexts.exportContext(),
+    })
+
+    expect(withoutDeclaration(xmlExport(xml, false))).toBe(expected.trim())
+  })
+
   it("не выводит в YAML значение ManualQuery=false по умолчанию", () => {
     const expected = fs.readFileSync(
       fileURLToPath(new URL("__fixtures__/queryTextWithManualQueryFalse.xml", import.meta.url)),

@@ -31,12 +31,12 @@ describe("Predefined XML → YAML", () => {
       expect.arrayContaining([
         {
           logicalAddress: "Справочник.Товары.Предопределенный.Группа",
-          kind: "xmlId",
+          kind: "uuid",
           value: "79d5668f-62a2-4d95-954b-8d3b03b76b99",
         },
         {
           logicalAddress: "Справочник.Товары.Предопределенный.Группа.Предопределенный.Предопределенный1",
-          kind: "xmlId",
+          kind: "uuid",
           value: "3234ebff-0d7f-4ad7-b6c4-1f86a23725dd",
         },
       ])

@@ -169,14 +169,14 @@ describe("importMetadataItemCollectionFromXMLToYAML", () => {
     )
     expect(arrayCollector.fragment("test.yaml").identities).toEqual(
       expect.arrayContaining([
-        expect.objectContaining({ logicalAddress: "Владелец.A[0]", kind: "uuid" }),
-        expect.objectContaining({ logicalAddress: "Владелец.A[1]", kind: "uuid" }),
+        expect.objectContaining({ logicalAddress: "Владелец.A.Элементы[0]", kind: "uuid" }),
+        expect.objectContaining({ logicalAddress: "Владелец.A.Элементы[1]", kind: "uuid" }),
       ])
     )
     expect(arrayCollector.fragment("test.yaml").xmlNodes).toEqual(
       expect.arrayContaining([
-        { logicalAddress: "Владелец.A[0]", order: ["uuid", "name", "value"] },
-        { logicalAddress: "Владелец.A[1]", order: ["uuid", "name", "value"] },
+        { logicalAddress: "Владелец.A.Элементы[0]", order: ["uuid", "name", "value"] },
+        { logicalAddress: "Владелец.A.Элементы[1]", order: ["uuid", "name", "value"] },
       ])
     )
   })

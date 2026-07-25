@@ -3,7 +3,10 @@ import type { PropertyRule } from "../../orchestration/property/types"
 import { registerTypeRule } from "../../orchestration/property/typeRuleRegistry"
 import { ConfigurationContext, ConfigurationContextFromXML } from "../../context/types"
 import { getTypePrefix, removeTypePrefix } from "./helper"
-import { getConfigurationIndexCollectionContext } from "../../configurationIndex/collector/context"
+import {
+  getConfigurationIndexCollectionContext,
+  getConfigurationIndexPropertyValueLogicalAddress,
+} from "../../configurationIndex/collector/context"
 import {
   TYPE_DESCRIPTION_SOURCE_TYPES,
   TYPE_DESCRIPTION_XML_CONTAINER_BY_TYPE,
@@ -212,7 +215,7 @@ registerTypeRule("TypeDescription", "importFromXML", importTypeDescriptionFromXM
 registerTypeRule("TypeDescription", "collectConfigurationIndexFromXML", ({ context, rule, xml, propertyKey }) => {
   const collection = getConfigurationIndexCollectionContext(context)
   if (collection === undefined) return
-  const address = `${collection.logicalAddress}.${propertyKey}`
+  const address = getConfigurationIndexPropertyValueLogicalAddress(collection, propertyKey)
   if (rule.preserveEmptyXML === true && isExplicitEmptyTypeDescriptionXML(xml)) {
     collection.collector.setExplicitEmpty(address)
     const xsiType = isRecord(xml) ? xml["_xsi:type"] : undefined

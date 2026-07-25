@@ -2,6 +2,10 @@ import { importI8nTextFromXML } from "../../i8nText/fromXML"
 import { I8nText, I8nTextXML } from "../../i8nText/types"
 import { ConfigurationContextFromXML } from "../../../context/types"
 import { PropertyRule, registerTypeRule } from "../../../orchestration"
+import {
+  getConfigurationIndexCollectionContext,
+  getConfigurationIndexPropertyValueLogicalAddress,
+} from "../../../configurationIndex/collector/context"
 import { DcsLocalStringTypeXML } from "./types"
 
 const extractStringValue = (xml: DcsLocalStringTypeXML): string | undefined => {
@@ -31,3 +35,15 @@ export const importDcsLocalStringTypeFromXML = (
 }
 
 registerTypeRule("DcsLocalStringType", "importFromXML", importDcsLocalStringTypeFromXML as any)
+registerTypeRule("DcsLocalStringType", "collectConfigurationIndexFromXML", ({ context, xml, propertyKey }) => {
+  const collection = getConfigurationIndexCollectionContext(context)
+  if (
+    collection === undefined ||
+    typeof xml !== "object" ||
+    xml === null ||
+    xml["_xsi:type"] !== "xs:string"
+  ) {
+    return
+  }
+  collection.collector.setXsiType(getConfigurationIndexPropertyValueLogicalAddress(collection, propertyKey), "xs:string")
+})

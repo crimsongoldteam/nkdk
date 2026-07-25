@@ -107,6 +107,9 @@ export function importPropertiesFromXMLToYAML(params: {
     if (params.profile !== undefined) params.profile.propertyCount++
     const { sourceState, entry, sourceXMLKey, xmlPath, sourceXMLValue, presentInXML } = match
     const { propertyKey: key, rule: propertyRule } = entry
+    const nestedRule = getTypeRule(propertyRule.type, "yamlToXMLNestedRule")
+    const nestedConfigurationIndexAddressing =
+      propertyRule.configurationIndexAddressing ?? nestedRule?.configurationIndexAddressing
     const { source, indexCollection, xmlNodeLogicalAddress, ownerXmlName } = sourceState
     const { context: sourceContext } = source
     const identityStartedAt = performance.now()
@@ -168,7 +171,7 @@ export function importPropertiesFromXMLToYAML(params: {
             xml: sourceXMLValue,
             propertyKey: key,
           }),
-        { configurationIndexAddressing: propertyRule.configurationIndexAddressing }
+        { configurationIndexAddressing: propertyRule.configurationIndexAddressing, propertyKey: key }
       )
       addProfileTime(params.profile, "configurationIndexMs", indexStartedAt)
     }
@@ -260,7 +263,7 @@ export function importPropertiesFromXMLToYAML(params: {
               deferred,
               profile: params.profile,
             }),
-          { configurationIndexAddressing: propertyRule.configurationIndexAddressing }
+          { configurationIndexAddressing: nestedConfigurationIndexAddressing }
         )
         const elapsedMs = performance.now() - startedAt
         const profile = params.profile
@@ -286,7 +289,7 @@ export function importPropertiesFromXMLToYAML(params: {
                     name: key,
                     ownerXmlName,
                   }),
-                { configurationIndexAddressing: propertyRule.configurationIndexAddressing }
+                { configurationIndexAddressing: nestedConfigurationIndexAddressing }
               )
         const elapsedMs = performance.now() - startedAt
         const profile = params.profile
@@ -316,7 +319,7 @@ export function importPropertiesFromXMLToYAML(params: {
                 profile: params.profile,
               },
             }),
-          { configurationIndexAddressing: propertyRule.configurationIndexAddressing }
+          { configurationIndexAddressing: nestedConfigurationIndexAddressing }
         )
         const elapsedMs = performance.now() - startedAt
         const profile = params.profile

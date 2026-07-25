@@ -1,5 +1,8 @@
 import { ConfigurationContext } from "../context/types"
-import { getConfigurationIndexCollectionContext } from "../configurationIndex/collector/context"
+import {
+  getConfigurationIndexCollectionContext,
+  getConfigurationIndexPropertyValueLogicalAddress,
+} from "../configurationIndex/collector/context"
 import { PropertyRule } from "../forms/elements/calendarField/rules"
 import { registerTypeRule } from "../orchestration/property/typeRuleRegistry"
 import * as SE from "./types"
@@ -31,7 +34,7 @@ registerTypeRule("SystemEnumeration", "collectConfigurationIndexFromXML", ({ con
   const canonicalValue = yamlValue === undefined ? undefined : fromYAML?.[yamlValue]
   if (canonicalValue === value) return
 
-  collection.collector.setXmlText(`${collection.logicalAddress}.${propertyKey}`, value)
+  collection.collector.setXmlText(getConfigurationIndexPropertyValueLogicalAddress(collection, propertyKey), value)
 })
 registerTypeRule("SystemEnumeration", "configurationIndexValueFromXML", {
   referenceXMLFromValue: (value) => value.xmlText,
