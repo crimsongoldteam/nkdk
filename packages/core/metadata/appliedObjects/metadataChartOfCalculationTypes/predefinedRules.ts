@@ -4,6 +4,11 @@ import { PredefinedRules } from "../../commonObjects/predefined/rules"
 import { PredefinedItemRules } from "../../commonObjects/predefinedItem/rules"
 import type { MetadataItemRule } from "../../orchestration/property/types"
 
+const predefinedCalculationTypeTarget = {
+  kind: "value",
+  valueKinds: ["predefinedValue"],
+} as const
+
 const ChartOfCalculationTypesPredefinedItemRules = {
   ...PredefinedItemRules,
   properties: {
@@ -22,16 +27,19 @@ const ChartOfCalculationTypesPredefinedItemRules = {
       yaml: "Базовые",
       xml: "Base",
       metadataItemLinksXMLItem: "CalculationType",
+      metadataTarget: predefinedCalculationTypeTarget,
     }),
     leading: metadataItemLinksRule({
       yaml: "Ведущие",
       xml: "Leading",
       metadataItemLinksXMLItem: "CalculationType",
+      metadataTarget: predefinedCalculationTypeTarget,
     }),
     displaced: metadataItemLinksRule({
       yaml: "Вытесняющие",
       xml: "Displaced",
       metadataItemLinksXMLItem: "CalculationType",
+      metadataTarget: predefinedCalculationTypeTarget,
     }),
   },
 } as const satisfies MetadataItemRule
