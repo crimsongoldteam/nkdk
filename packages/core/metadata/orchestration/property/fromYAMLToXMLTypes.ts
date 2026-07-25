@@ -69,6 +69,7 @@ export type YAMLToXMLNestedRule =
       readonly kind: "item"
       readonly itemRule: MetadataItemRule
       readonly itemRuleFromProperty?: (propertyRule: PropertyRule) => MetadataItemRule | undefined
+      readonly configurationIndexAddressing?: import("./types").ConfigurationIndexAddressingMode
       readonly sparseYAML?: true
       readonly injectOwnerName?: true
       readonly normalizeYAML?: (params: {
