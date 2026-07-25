@@ -94,6 +94,33 @@ describe("FormAttributes XML → YAML → XML", () => {
     })
   })
 
+  it("не создаёт настройки динамического списка у обычного реквизита без reference XML", () => {
+    const contexts = createDirectRoundTripContexts({
+      logicalAddress: "БизнесПроцесс.Заказ.Форма.ФормаЗадачи",
+    })
+    const source = {
+      Attribute: {
+        _name: "Объект",
+        _id: "1",
+        Type: { "v8:Type": "cfg:BusinessProcessObject.Заказ" },
+        MainAttribute: true,
+        SavedData: true,
+      },
+    }
+    const yaml = testPropertyFromXMLToYAML({
+      rule,
+      xml: source,
+      context: contexts.importContext,
+    }).yaml
+    const { xml } = testPropertyFromYAMLToXML({
+      rule,
+      yaml,
+      context: contexts.exportContext(),
+    })
+
+    expect(xml).toEqual({ Attribute: [source.Attribute] })
+  })
+
   it("сохраняет строгую схему всех специальных настроек", () => {
     const json = JSON.stringify(
       exportFormAttributesToJSONSchema({

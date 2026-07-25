@@ -5,6 +5,7 @@ import type { PropertyRule } from "../../../orchestration/property/types"
 import type { EventsXML, EventXML } from "./types"
 import {
   getConfigurationIndexPropertyOrder,
+  getConfigurationIndexSourceXmlKey,
   getConfigurationIndexXmlNodeLogicalAddress,
 } from "../../../configurationIndex/referenceView"
 
@@ -59,7 +60,8 @@ export const exportEventsToXML = (
     const eventValue = dataEvents[key] ?? referenceEvents?.[key]
     if (eventValue === undefined) continue
     const xmlName =
-      referenceEvents !== undefined && key in referenceEvents && !knownEventKeys.has(key) ? key : capitalize(key)
+      getConfigurationIndexSourceXmlKey(context, key) ??
+      (referenceEvents !== undefined && key in referenceEvents && !knownEventKeys.has(key) ? key : capitalize(key))
     items.push({ _name: xmlName, "#text": eventValue })
   }
 

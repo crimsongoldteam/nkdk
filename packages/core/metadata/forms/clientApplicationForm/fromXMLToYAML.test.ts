@@ -221,6 +221,45 @@ describe("форма XML → YAML → XML", () => {
     ])
   })
 
+  it("восстанавливает нестандартные XML-имена событий из снимка конфигурации", () => {
+    const contexts = createDirectRoundTripContexts({
+      logicalAddress: "БизнесПроцесс.Заказ.Форма.ФормаЗадачи",
+    })
+    const formXML = {
+      Events: {
+        Event: [
+          { _name: "81c01005-9b73-4278-853b-1a8d203c8e8c", "#text": "ОбработкаАктивации" },
+          { _name: "ea0a9886-1607-44fe-a446-2cc57548f57d", "#text": "ПередВыполнением" },
+        ],
+      },
+    } as ClientApplicationFormXML
+    const metadataXML = { Form: { Properties: { FormType: "Managed" } } } as FormMetadataXML
+
+    const imported = importClientApplicationFormFromXMLToYAML({
+      context: contexts.importContext,
+      formName: "ФормаЗадачи",
+      formXML,
+      metadataXML,
+    })
+    const converted = convertClientApplicationFormFromYAMLToXML({
+      context: contexts.exportContext(),
+      yaml: imported.yaml as ClientApplicationFormYAML,
+      name: "ФормаЗадачи",
+    })
+    const events = converted.formXML.Events?.Event
+
+    expect(imported.yaml).toMatchObject({
+      События: {
+        ОбработкаАктивации: "ОбработкаАктивации",
+        ПередВыполнением: "ПередВыполнением",
+      },
+    })
+    expect(Array.isArray(events) ? events.map((event) => event._name) : []).toEqual([
+      "81c01005-9b73-4278-853b-1a8d203c8e8c",
+      "ea0a9886-1607-44fe-a446-2cc57548f57d",
+    ])
+  })
+
   it("восстанавливает идентификаторы элементов формы без reference XML", () => {
     const form = readAndParseXMLFixture<{ Form: ClientApplicationFormXML }>(import.meta.url, "full.xml")
     const metadata = readAndParseXMLFixture<{ MetaDataObject: FormMetadataXML }>(import.meta.url, "fullMetadata.xml")

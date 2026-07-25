@@ -27,6 +27,11 @@ export const importEventsFromYAML = (
     if (eventValue === undefined) continue
     result[ruleKey] = eventValue
   }
+  const knownYamlKeys = new Set(Object.values(rule.items))
+  for (const [key, eventValue] of Object.entries(yamlObj)) {
+    if (knownYamlKeys.has(key)) continue
+    result[key] = eventValue
+  }
 
   return isNonEmptyObject(result) ? result : undefined
 }

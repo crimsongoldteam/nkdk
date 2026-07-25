@@ -386,8 +386,14 @@ export function convertPropertiesFromYAMLToXML(params: ConvertPropertiesFromYAML
         sourceNestedYAML === undefined
           ? effectiveNestedRule.kind === "item" &&
             (references.some((reference) => reference.exists && reference.value === undefined) ||
-              nestedContext.exportToXML.configurationIndex?.identity("xmlId") !== undefined ||
-              nestedContext.exportToXML.configurationIndex?.identity("xmlName") !== undefined)
+              nestedContext.exportToXML.configurationIndex?.identity(
+                "xmlId",
+                getConfigurationIndexXmlNodeLogicalAddress(nestedContext)
+              ) !== undefined ||
+              nestedContext.exportToXML.configurationIndex?.identity(
+                "xmlName",
+                getConfigurationIndexXmlNodeLogicalAddress(nestedContext)
+              ) !== undefined)
             ? {}
             : effectiveNestedRule.kind === "collection" &&
                 effectiveNestedRule.preserveOmittedItemNames === true &&

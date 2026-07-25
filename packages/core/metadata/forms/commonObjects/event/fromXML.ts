@@ -1,6 +1,6 @@
 import { ConfigurationContextFromXML } from "../../../context/types"
 import { registerTypeRule } from "../../../orchestration/property/typeRuleRegistry"
-import type { PropertyRule } from "../../../orchestration/property/types"
+import type { EventsPropertyRule, PropertyRule } from "../../../orchestration/property/types"
 import type { EventsXML } from "./types"
 import { getConfigurationIndexCollectionContext } from "../../../configurationIndex/collector/context"
 
@@ -25,7 +25,7 @@ export const importEventsFromXML = (
     const text = (event as any)["#text"] as string | undefined
     if (!name || text === undefined) continue
 
-    const key = name.length > 0 ? name[0].toLowerCase() + name.slice(1) : name
+    const key = eventRuleKey(_rule, name, text)
     result[key] = text
   }
 
@@ -33,16 +33,31 @@ export const importEventsFromXML = (
 }
 
 registerTypeRule("Events", "importFromXML", importEventsFromXML)
-registerTypeRule("Events", "collectConfigurationIndexFromXML", ({ context, xml }) => {
+registerTypeRule("Events", "collectConfigurationIndexFromXML", ({ context, rule, xml }) => {
   const collection = getConfigurationIndexCollectionContext(context)
   if (collection === undefined || xml === null || typeof xml !== "object" || Array.isArray(xml)) return
   const source = (xml as EventsXML).Event
   const events = Array.isArray(source) ? source : source === undefined ? [] : [source]
   const order = events.flatMap((event) => {
     const name = event?._name
-    return typeof name !== "string" || name.length === 0 ? [] : [`${name[0]!.toLowerCase()}${name.slice(1)}`]
+    const text = event?.["#text"]
+    if (typeof name !== "string" || name.length === 0 || typeof text !== "string") return []
+    const key = eventRuleKey(rule, name, text)
+    const canonicalName = `${key[0]!.toUpperCase()}${key.slice(1)}`
+    if (name !== canonicalName) {
+      collection.collector.setAlias(collection.xmlNodeLogicalAddress ?? collection.logicalAddress, key, name)
+    }
+    return [key]
   })
   if (order.length > 0) {
     collection.collector.setOrder(collection.xmlNodeLogicalAddress ?? collection.logicalAddress, order)
   }
 })
+
+function eventRuleKey(rule: PropertyRule, xmlName: string, handlerName: string): string {
+  const canonicalKey = `${xmlName[0]!.toLowerCase()}${xmlName.slice(1)}`
+  if (rule.type !== "Events") return canonicalKey
+  const items = (rule as EventsPropertyRule).items
+  if (Object.prototype.hasOwnProperty.call(items, canonicalKey)) return canonicalKey
+  return Object.entries(items).find(([, yamlKey]) => yamlKey === handlerName)?.[0] ?? handlerName
+}
