@@ -1,30 +1,41 @@
+import fs from "node:fs"
 import { availableParallelism } from "node:os"
 import { join } from "node:path"
+import { NKDK_CORE_VERSION } from "../../version"
 import {
   componentPath,
   configurationIndexPath,
   hashConfigurationProjectFileList,
-  readConfigurationIndex,
   writeConfigurationIndexAtomically,
+  type ComponentAddress,
   type ConfigurationIndexData,
   type ConfigurationProjectFile,
 } from "../configurationIndex"
-import type { XmlImportConfigurationContext } from "../context/types"
-import type { MetadataItemRule } from "../orchestration/property/types"
+import type { ConfigurationContextFromXML } from "../context/types"
 import type { ValidationOwnerFacts } from "../validation/dataPath/ownerFacts"
-import type { SharedValidationSnapshot } from "../validation/sharedValidationSnapshot"
-import { NKDK_CORE_VERSION } from "../../version"
 import { createOperationProfiler } from "../validation/profile"
-import { discoverXmlImport } from "./discovery"
-import { getRegisteredXmlImportComponentDescriptor } from "./componentDescriptor"
-import { createImportSharedMetadata } from "./metadataSnapshot"
+import type { SharedValidationSnapshot } from "../validation/sharedValidationSnapshot"
 import {
   buildComponentReferenceSnapshot,
   createLayeredImportReferenceSnapshot,
 } from "./componentReferenceIndex"
-import { describeRegisteredXmlImportRoutes } from "./routes"
+import {
+  resolveXmlImportComponent,
+  type XmlImportComponentDescriptor,
+} from "./componentDescriptor"
+import {
+  discoverXmlImport,
+  readXmlImportComponentRoot,
+} from "./discovery"
+import { createImportSharedMetadata } from "./metadataSnapshot"
+import { describeXmlImportComponentRoutes } from "./routes"
 import { copyXmlImportExternalFiles, mergeImportResultFiles } from "./transfer"
-import type { ImportAssignment, ImportDiagnostic, ImportResultFile } from "./types"
+import type {
+  ImportAssignment,
+  ImportDiagnostic,
+  ImportResultFile,
+  XmlImportRoute,
+} from "./types"
 import {
   createXmlImportWorkerPool,
   type XmlImportWorkerPool,
@@ -32,6 +43,7 @@ import {
 } from "./workerPool"
 
 export interface ConfigurationImportResult {
+  componentPath?: string
   succeeded: number
   failed: ImportDiagnostic[]
   warnings: ImportDiagnostic[]
@@ -39,10 +51,10 @@ export interface ConfigurationImportResult {
 }
 
 export interface ImportConfigurationFromXmlParams {
-  context: XmlImportConfigurationContext
+  context: ConfigurationContextFromXML
   inputDir: string
-  projectDir?: string
-  outputDir: string
+  projectDir: string
+  requestedComponentPath?: string
   concurrency?: number
   copyExternalConcurrency?: number
   hashConcurrency?: number
@@ -52,13 +64,13 @@ export interface ImportConfigurationFromXmlParams {
 
 export interface ImportCoordinatorDependencies {
   createWorkerPool(params: { concurrency: number }): XmlImportWorkerPool
-  discover(params: { xmlDir: string; rootRule: MetadataItemRule }): Promise<{
+  discover(params: { xmlDir: string; routes: readonly XmlImportRoute[] }): Promise<{
     assignments: ImportAssignment[]
   }>
   createSharedMetadata(facts: readonly ValidationOwnerFacts[]): SharedValidationSnapshot
   buildComponentReferenceSnapshot(params: {
     componentDir: string
-    context: XmlImportConfigurationContext
+    context: ConfigurationContextFromXML
     concurrency: number
   }): Promise<SharedValidationSnapshot>
   mergeFiles(files: readonly ImportResultFile[]): ImportResultFile[]
@@ -67,22 +79,26 @@ export interface ImportCoordinatorDependencies {
     files: readonly ImportResultFile[]
     concurrency?: number
   }): Promise<void>
-  hashProject(projectDir: string, projectPaths: readonly string[], options: { concurrency?: number }): Promise<ConfigurationProjectFile[]>
-  readIndex(params: { projectDir: string; address: { kind: "configuration" } }): Promise<ConfigurationIndexData | undefined>
-  writeIndex(params: { projectDir: string; address: { kind: "configuration" }; data: ConfigurationIndexData }): Promise<void>
+  hashProject(
+    projectDir: string,
+    projectPaths: readonly string[],
+    options: { concurrency?: number }
+  ): Promise<ConfigurationProjectFile[]>
+  writeIndex(params: {
+    projectDir: string
+    address: ComponentAddress
+    data: ConfigurationIndexData
+  }): Promise<void>
 }
 
 const defaultImportDependencies: ImportCoordinatorDependencies = {
   createWorkerPool: createXmlImportWorkerPool,
-  async discover({ xmlDir, rootRule }) {
-    return discoverXmlImport({ xmlDir, routes: describeRegisteredXmlImportRoutes(rootRule) })
-  },
+  discover: discoverXmlImport,
   createSharedMetadata: createImportSharedMetadata,
   buildComponentReferenceSnapshot,
   mergeFiles: mergeImportResultFiles,
   copyExternalFiles: copyXmlImportExternalFiles,
   hashProject: hashConfigurationProjectFileList,
-  readIndex: readConfigurationIndex,
   writeIndex: writeConfigurationIndexAtomically,
 }
 
@@ -91,51 +107,75 @@ export async function importConfigurationFromXml(
   deps: ImportCoordinatorDependencies = defaultImportDependencies
 ): Promise<ConfigurationImportResult> {
   const operationId = params.operationId ?? "direct-write"
-  const projectDir = params.projectDir ?? params.outputDir
   const profiler = createOperationProfiler({ operation: "import-from-xml", scope: { scope: "main" } })
-  const pool =
-    params.xmlImportWorkerPoolHandle?.createOperationPool() ??
-    deps.createWorkerPool({ concurrency: normalizeConcurrency(params.concurrency) })
+  let pool: XmlImportWorkerPool | undefined
   let warnings: ImportDiagnostic[] = []
+  let resolvedComponentPath: string | undefined
 
   try {
-    const component = getRegisteredXmlImportComponentDescriptor(params.context.fromXML.componentKind)
+    const root = await readXmlImportComponentRoot(params.inputDir)
+    const descriptor = resolveXmlImportComponent(root)
+    const address = descriptor.resolveAddress(root)
+    const selectedComponentPath = componentPath(address)
+    resolvedComponentPath = selectedComponentPath
+    assertRequestedComponentPath(params.requestedComponentPath, selectedComponentPath)
+
+    const componentDir = join(params.projectDir, selectedComponentPath)
+    await assertComponentPreflight({
+      projectDir: params.projectDir,
+      componentDir,
+      address,
+      descriptor,
+    })
+
     const concurrency = normalizeConcurrency(params.concurrency)
-    const baseAddress = component.baseAddress
-    const baseSnapshot =
-      baseAddress === undefined
-        ? undefined
-        : await profiler.measureAsync(
-            "Подготовка импорта конфигурации",
-            "Холодное построение индекса базового компонента",
-            {},
-            () =>
-              deps.buildComponentReferenceSnapshot({
-                componentDir: join(projectDir, componentPath(baseAddress)),
-                context: params.context,
-                concurrency,
-              })
-          )
+    const baseSnapshot = await buildBaseSnapshot({
+      deps,
+      descriptor,
+      projectDir: params.projectDir,
+      context: params.context,
+      concurrency,
+      profiler,
+    })
+    const routes = describeXmlImportComponentRoutes(descriptor)
+    pool =
+      params.xmlImportWorkerPoolHandle?.createOperationPool() ??
+      deps.createWorkerPool({ concurrency })
+
     const discovered = await profiler.measureAsync(
       "Подготовка импорта конфигурации",
       "Поиск XML-файлов выгрузки",
       {},
-      () => deps.discover({ xmlDir: params.inputDir, rootRule: component.rootRule })
+      () => deps.discover({ xmlDir: params.inputDir, routes })
     )
     profiler.record("Подготовка импорта конфигурации", "Формирование и распределение заданий импорта", {
       items: discovered.assignments.length,
       timeMs: 0,
     })
-    await profiler.measureAsync("Подготовка импорта конфигурации", "Инициализация worker", { items: discovered.assignments.length }, () =>
-      pool.initialize({ operationId, context: params.context, outputDir: params.outputDir })
+    await profiler.measureAsync(
+      "Подготовка импорта конфигурации",
+      "Инициализация worker",
+      { items: discovered.assignments.length },
+      () =>
+        pool!.initialize({
+          operationId,
+          context: params.context,
+          outputDir: componentDir,
+          componentKind: descriptor.kind,
+          ...(descriptor.metadataItemAugmenter === undefined
+            ? {}
+            : { metadataItemAugmenter: descriptor.metadataItemAugmenter }),
+        })
     )
     const first = await profiler.measureAsync(
       "Подготовка импорта конфигурации",
       "Первый проход worker",
       { items: discovered.assignments.length },
-      () => pool.runFirstPass(discovered.assignments)
+      () => pool!.runFirstPass(discovered.assignments)
     )
-    if (hasErrors(first.diagnostics)) return failedResult(first.diagnostics, [])
+    if (hasErrors(first.diagnostics)) {
+      return failedResult(first.diagnostics, [], resolvedComponentPath)
+    }
 
     profiler.record("Подготовка импорта конфигурации", "Обобщение фрагментов данных файла индекса конфигурации", {
       items: discovered.assignments.length,
@@ -159,10 +199,12 @@ export async function importConfigurationFromXml(
       "Подготовка импорта конфигурации",
       "Второй проход worker",
       { items: discovered.assignments.length },
-      () => pool.runSecondPass(referenceSnapshots)
+      () => pool!.runSecondPass(referenceSnapshots)
     )
     warnings = second.warnings
-    if (hasErrors(second.diagnostics)) return failedResult(second.diagnostics, warnings)
+    if (hasErrors(second.diagnostics)) {
+      return failedResult(second.diagnostics, warnings, resolvedComponentPath)
+    }
 
     const files = profiler.measure(
       "Подготовка импорта конфигурации",
@@ -170,23 +212,34 @@ export async function importConfigurationFromXml(
       { items: second.files.length },
       () => deps.mergeFiles(second.files)
     )
-    await profiler.measureAsync("Подготовка импорта конфигурации", "Копирование внешних файлов XML-выгрузки", { items: files.length }, () =>
-      deps.copyExternalFiles({
-        projectDir: params.outputDir,
-        files,
-        ...(params.copyExternalConcurrency === undefined ? {} : { concurrency: params.copyExternalConcurrency }),
-      })
+    await profiler.measureAsync(
+      "Подготовка импорта конфигурации",
+      "Копирование внешних файлов XML-выгрузки",
+      { items: files.length },
+      () =>
+        deps.copyExternalFiles({
+          projectDir: componentDir,
+          files,
+          ...(params.copyExternalConcurrency === undefined
+            ? {}
+            : { concurrency: params.copyExternalConcurrency }),
+        })
     )
     const projectFiles = await profiler.measureAsync(
       "Подготовка импорта конфигурации",
       "Вычисление хэшей файлов проекта",
       {},
       () =>
-        deps.hashProject(params.outputDir, files.map((file) => file.targetProjectPath), {
-          ...(params.hashConcurrency === undefined ? {} : { concurrency: params.hashConcurrency }),
-        })
+        deps.hashProject(
+          componentDir,
+          files.map((file) => file.targetProjectPath),
+          {
+            ...(params.hashConcurrency === undefined
+              ? {}
+              : { concurrency: params.hashConcurrency }),
+          }
+        )
     )
-    const previousIndex = await readablePreviousIndex(deps, projectDir)
     const indexData = profiler.measure(
       "Подготовка импорта конфигурации",
       "Формирование данных файла индекса конфигурации",
@@ -194,45 +247,126 @@ export async function importConfigurationFromXml(
       () =>
         buildImportedConfigurationIndex({
           producerVersion: NKDK_CORE_VERSION,
-          componentPath: componentPath({ kind: "configuration" }),
-          indexGeneration: (previousIndex?.binding.indexGeneration ?? 0n) + 1n,
+          componentPath: selectedComponentPath,
           projectFiles,
           fragmentData: first.fragmentData,
         })
     )
-    await profiler.measureAsync("Подготовка импорта конфигурации", "Запись файла индекса конфигурации", { items: projectFiles.length }, () =>
-      deps.writeIndex({ projectDir, address: { kind: "configuration" }, data: indexData })
+    await profiler.measureAsync(
+      "Подготовка импорта конфигурации",
+      "Запись файла индекса конфигурации",
+      { items: projectFiles.length },
+      () => deps.writeIndex({ projectDir: params.projectDir, address, data: indexData })
     )
-    return successResult(discovered.assignments.length, warnings, projectDir)
+    return successResult(
+      discovered.assignments.length,
+      warnings,
+      params.projectDir,
+      address
+    )
   } catch (caught) {
-    return failedResult([operationDiagnostic(caught)], warnings)
+    return failedResult(
+      [operationDiagnostic(caught)],
+      warnings,
+      resolvedComponentPath
+    )
   } finally {
     profiler.flush()
-    await pool.close()
+    await pool?.close()
   }
 }
 
-async function readablePreviousIndex(
-  deps: ImportCoordinatorDependencies,
+async function buildBaseSnapshot(params: {
+  deps: ImportCoordinatorDependencies
+  descriptor: XmlImportComponentDescriptor
   projectDir: string
-): Promise<ConfigurationIndexData | undefined> {
+  context: ConfigurationContextFromXML
+  concurrency: number
+  profiler: ReturnType<typeof createOperationProfiler>
+}): Promise<SharedValidationSnapshot | undefined> {
+  const baseAddress = params.descriptor.baseAddress
+  if (baseAddress === undefined) return undefined
+  return params.profiler.measureAsync(
+    "Подготовка импорта конфигурации",
+    "Холодное построение индекса базового компонента",
+    {},
+    () =>
+      params.deps.buildComponentReferenceSnapshot({
+        componentDir: join(params.projectDir, componentPath(baseAddress)),
+        context: params.context,
+        concurrency: params.concurrency,
+      })
+  )
+}
+
+async function assertComponentPreflight(params: {
+  projectDir: string
+  componentDir: string
+  address: ComponentAddress
+  descriptor: XmlImportComponentDescriptor
+}): Promise<void> {
+  if (params.descriptor.baseAddress !== undefined) {
+    const basePath = componentPath(params.descriptor.baseAddress)
+    const baseDir = join(params.projectDir, basePath)
+    const base = await statIfExists(baseDir)
+    if (base === undefined || !base.isDirectory()) {
+      throw new Error(`Не найден базовый компонент ${basePath}`)
+    }
+  }
+
+  const target = await statIfExists(params.componentDir)
+  if (target !== undefined) {
+    if (!target.isDirectory()) {
+      throw new Error(`Целевой компонент не является каталогом: ${componentPath(params.address)}`)
+    }
+    const entries = await fs.promises.readdir(params.componentDir)
+    if (entries.length > 0) {
+      throw new Error(`Целевой каталог компонента не пуст: ${componentPath(params.address)}`)
+    }
+  }
+
+  const snapshotPath = configurationIndexPath(params.projectDir, params.address)
+  if ((await statIfExists(snapshotPath)) !== undefined) {
+    throw new Error(`Снимок компонента уже существует: ${componentPath(params.address)}`)
+  }
+}
+
+async function statIfExists(path: string): Promise<fs.Stats | undefined> {
   try {
-    return await deps.readIndex({ projectDir, address: { kind: "configuration" } })
-  } catch {
-    return undefined
+    return await fs.promises.stat(path)
+  } catch (caught) {
+    if (isNodeError(caught) && caught.code === "ENOENT") return undefined
+    throw caught
+  }
+}
+
+function isNodeError(caught: unknown): caught is NodeJS.ErrnoException {
+  return caught instanceof Error && "code" in caught
+}
+
+function assertRequestedComponentPath(
+  requestedComponentPath: string | undefined,
+  detectedComponentPath: string
+): void {
+  if (
+    requestedComponentPath !== undefined &&
+    requestedComponentPath !== detectedComponentPath
+  ) {
+    throw new Error(
+      `Запрошенный путь компонента ${requestedComponentPath} не совпадает с обнаруженным ${detectedComponentPath}`
+    )
   }
 }
 
 function buildImportedConfigurationIndex(params: {
   producerVersion: string
   componentPath: string
-  indexGeneration: bigint
   projectFiles: readonly ConfigurationProjectFile[]
   fragmentData: Pick<ConfigurationIndexData, "identities" | "xmlNodes" | "xmlValues">
 }): ConfigurationIndexData {
   return {
     binding: {
-      indexGeneration: params.indexGeneration,
+      indexGeneration: 1n,
       producerVersion: params.producerVersion,
       componentPath: params.componentPath,
       baseFingerprint: new Uint8Array(),
@@ -248,21 +382,31 @@ function buildImportedConfigurationIndex(params: {
 function successResult(
   succeeded: number,
   warnings: ImportDiagnostic[],
-  projectDir: string
+  projectDir: string,
+  address: ComponentAddress
 ): ConfigurationImportResult {
   return {
+    componentPath: componentPath(address),
     succeeded,
     failed: [],
     warnings,
-    configurationIndexPath: configurationIndexPath(projectDir, { kind: "configuration" }),
+    configurationIndexPath: configurationIndexPath(projectDir, address),
   }
 }
 
 function failedResult(
   failed: ImportDiagnostic[],
-  warnings: ImportDiagnostic[]
+  warnings: ImportDiagnostic[],
+  resolvedComponentPath?: string
 ): ConfigurationImportResult {
-  return { succeeded: 0, failed, warnings }
+  return {
+    ...(resolvedComponentPath === undefined
+      ? {}
+      : { componentPath: resolvedComponentPath }),
+    succeeded: 0,
+    failed,
+    warnings,
+  }
 }
 
 function hasErrors(diagnostics: readonly ImportDiagnostic[]): boolean {

@@ -32,7 +32,12 @@ describe("XML import worker pool", () => {
     const assignments = [assignment("one"), assignment("two"), assignment("three")]
     const pool = createXmlImportWorkerPool({ concurrency: 2, createWorkerPool: pools.factory })
 
-    await pool.initialize({ operationId: "op", context: mockXmlImportContext(), outputDir: createTempDir("static") })
+    await pool.initialize({
+      operationId: "op",
+      context: mockContextFromXML(),
+      outputDir: createTempDir("static"),
+      componentKind: "configuration",
+    })
     await pool.runFirstPass(assignments)
     await pool.runSecondPass(createLayeredImportReferenceSnapshot({ local: createImportSharedMetadata([]) }))
 
@@ -48,7 +53,12 @@ describe("XML import worker pool", () => {
     const pools = createFakePools()
     const pool = createXmlImportWorkerPool({ concurrency: 4, createWorkerPool: pools.factory })
 
-    await pool.initialize({ operationId: "op", context: mockXmlImportContext(), outputDir: createTempDir("active") })
+    await pool.initialize({
+      operationId: "op",
+      context: mockContextFromXML(),
+      outputDir: createTempDir("active"),
+      componentKind: "configuration",
+    })
     await pool.runFirstPass([assignment("only")])
 
     expect(pools.created()).toBe(1)
@@ -58,14 +68,15 @@ describe("XML import worker pool", () => {
   it("passes cloneable component strings to the worker initialization command", async () => {
     const pools = createFakePools()
     const pool = createXmlImportWorkerPool({ concurrency: 1, createWorkerPool: pools.factory })
-    const context = mockXmlImportContext()
-    context.fromXML = {
-      ...context.fromXML,
+    const context = mockContextFromXML()
+
+    await pool.initialize({
+      operationId: "component",
+      context,
+      outputDir: createTempDir("component"),
       componentKind: "test-component",
       metadataItemAugmenter: "test-augmenter",
-    }
-
-    await pool.initialize({ operationId: "component", context, outputDir: createTempDir("component") })
+    })
     await pool.runFirstPass([assignment("component")])
 
     const initialize = pools.runs(0).find((command) => command.kind === "initialize")
@@ -90,7 +101,12 @@ describe("XML import worker pool", () => {
     })
     const pool = createXmlImportWorkerPool({ concurrency: 2, createWorkerPool: pools.factory })
 
-    await pool.initialize({ operationId: "op", context: mockXmlImportContext(), outputDir: createTempDir("diagnostic") })
+    await pool.initialize({
+      operationId: "op",
+      context: mockContextFromXML(),
+      outputDir: createTempDir("diagnostic"),
+      componentKind: "configuration",
+    })
     const result = await pool.runFirstPass([assignment("one"), assignment("two")])
 
     expect(result.diagnostics).toContainEqual(expect.objectContaining({ severity: "error" }))
@@ -114,7 +130,12 @@ describe("XML import worker pool", () => {
     fs.writeFileSync(sentinelPath, "partial")
     const pool = createXmlImportWorkerPool({ concurrency: 2, createWorkerPool: pools.factory })
 
-    await pool.initialize({ operationId: "op", context: mockXmlImportContext(), outputDir })
+    await pool.initialize({
+      operationId: "op",
+      context: mockContextFromXML(),
+      outputDir,
+      componentKind: "configuration",
+    })
     await expect(pool.runFirstPass([assignment("one"), assignment("two")])).rejects.toThrow("worker exited")
 
     expect(pools.destroyCalls()).toEqual([1, 1])
@@ -138,7 +159,12 @@ describe("XML import worker pool", () => {
     const pool = createXmlImportWorkerPool({ concurrency: 1 })
 
     try {
-      await pool.initialize({ operationId: "real", context, outputDir: createTempDir("piscina") })
+      await pool.initialize({
+        operationId: "real",
+        context,
+        outputDir: createTempDir("piscina"),
+        componentKind: "configuration",
+      })
       const result = await pool.runFirstPass([source])
 
       expect(result.diagnostics).toEqual([])
@@ -158,13 +184,23 @@ describe("XML import worker pool", () => {
 
     try {
       const firstOperation = handle.createOperationPool()
-      await firstOperation.initialize({ operationId: "one", context: mockXmlImportContext(), outputDir: createTempDir("one") })
+      await firstOperation.initialize({
+        operationId: "one",
+        context: mockContextFromXML(),
+        outputDir: createTempDir("one"),
+        componentKind: "configuration",
+      })
       await firstOperation.runFirstPass([assignment("one-a"), assignment("one-b")])
       await firstOperation.runSecondPass(createLayeredImportReferenceSnapshot({ local: createImportSharedMetadata([]) }))
       await firstOperation.close()
 
       const secondOperation = handle.createOperationPool()
-      await secondOperation.initialize({ operationId: "two", context: mockXmlImportContext(), outputDir: createTempDir("two") })
+      await secondOperation.initialize({
+        operationId: "two",
+        context: mockContextFromXML(),
+        outputDir: createTempDir("two"),
+        componentKind: "configuration",
+      })
       await secondOperation.runFirstPass([assignment("two-a"), assignment("two-b")])
       await secondOperation.runSecondPass(createLayeredImportReferenceSnapshot({ local: createImportSharedMetadata([]) }))
       await secondOperation.close()

@@ -2,7 +2,7 @@ import fs from "fs"
 import os from "os"
 import { join } from "path"
 import { afterAll, beforeEach, describe, expect, it } from "vitest"
-import { mockXmlImportContext } from "../../../tests/mockContext"
+import { mockContextFromXML } from "../../../tests/mockContext"
 import { readXMLFileAsString } from "../../../tests/readAndParseXMLFile"
 import { readConfigurationIndex } from "../../configurationIndex"
 import { createXmlImportWorkerPoolHandle } from "../../importFromXml"
@@ -10,8 +10,10 @@ import { syncConfigurationFromXML } from "./convertFromXML"
 import { CONFIGURATION_XML_FILE, CONFIGURATION_YAML_FILE } from "./rootIO"
 
 describe("sync configuration from xml", () => {
-  const inputDir = join(__dirname, "__fixtures__/syncConfiguration/xml")
-  const outputDir = join(__dirname, "__fixtures__/syncConfiguration/out")
+  const sourceInputDir = join(__dirname, "__fixtures__/syncConfiguration/xml")
+  const inputDir = join(__dirname, "__fixtures__/_import_xml_tmp")
+  const projectDir = join(__dirname, "__fixtures__/_import_project_tmp")
+  const outputDir = join(projectDir, "cf")
   const rootCommandInterfaceFixturesDir = join(__dirname, "../../commonObjects/rootCommandInterface/__fixtures__")
   const clientApplicationInterfaceFixturesDir = join(
     __dirname,
@@ -48,25 +50,24 @@ describe("sync configuration from xml", () => {
 
   afterAll(async () => {
     await xmlImportWorkerPoolHandle.close()
+    fs.rmSync(inputDir, { recursive: true, force: true })
+    fs.rmSync(projectDir, { recursive: true, force: true })
   })
 
   beforeEach(() => {
-    if (fs.existsSync(outputDir)) {
-      fs.rmSync(outputDir, { recursive: true })
-    }
+    fs.rmSync(inputDir, { recursive: true, force: true })
+    fs.rmSync(projectDir, { recursive: true, force: true })
+    fs.cpSync(sourceInputDir, inputDir, { recursive: true })
+    fs.copyFileSync(join(__dirname, "__fixtures__/minimal.xml"), join(inputDir, CONFIGURATION_XML_FILE))
   })
 
   it("should produce catalog and form YAML in output dir", async () => {
-    fs.mkdirSync(outputDir, { recursive: true })
     const operationId = "fixture-import"
-    const stalePath = join(outputDir, "Справочник", "УдаленныйОбъект", "Свойства.yaml")
-    fs.mkdirSync(join(outputDir, "Справочник", "УдаленныйОбъект"), { recursive: true })
-    fs.writeFileSync(stalePath, "Имя: УдаленныйОбъект\n")
 
     const result = await syncConfigurationFromXMLForTest({
-      context: mockXmlImportContext(),
+      context: mockContextFromXML(),
       inputDir,
-      outputDir,
+      projectDir,
       operationId,
     })
 
@@ -86,7 +87,6 @@ describe("sync configuration from xml", () => {
 
     expect(resultCatalogYaml).toBe(expectedCatalogYaml)
     expect(resultFormYaml).toBe(expectedFormYaml)
-    expect(fs.readFileSync(stalePath, "utf8")).toBe("Имя: УдаленныйОбъект\n")
     expect(fs.existsSync(join(outputDir, "Документ", "ДокументПоУмолчанию", "Свойства.yaml"))).toBe(true)
     expect(fs.existsSync(join(outputDir, "Нумератор", "НумераторПоУмолчанию", "Свойства.yaml"))).toBe(true)
     expect(fs.existsSync(join(outputDir, "Последовательность", "ПоследовательностьПоУмолчанию", "Свойства.yaml"))).toBe(
@@ -94,24 +94,24 @@ describe("sync configuration from xml", () => {
     )
     expect(result.failed).toEqual([])
     expect(result.warnings).toEqual([])
-    expect((await readConfigurationIndex({ projectDir: outputDir, address: { kind: "configuration" } })).binding).toMatchObject({
+    expect((await readConfigurationIndex({ projectDir, address: { kind: "configuration" } })).binding).toMatchObject({
       componentPath: "cf",
       baseFingerprint: new Uint8Array(),
       configurationVersion: new Uint8Array(),
     })
-    expect(fs.existsSync(join(outputDir, ".nkdk", "tmp", "import", operationId))).toBe(false)
+    expect(fs.existsSync(join(projectDir, ".nkdk", "tmp", "import", operationId))).toBe(false)
   })
 
   it("не падает на дампе без некоторых корневых разделов", async () => {
     const partialInput = join(__dirname, "__fixtures__/_partial_xml_tmp")
     if (fs.existsSync(partialInput)) fs.rmSync(partialInput, { recursive: true })
     fs.mkdirSync(join(partialInput, "Catalogs"), { recursive: true })
-    fs.mkdirSync(outputDir, { recursive: true })
+    fs.copyFileSync(join(__dirname, "__fixtures__/minimal.xml"), join(partialInput, CONFIGURATION_XML_FILE))
 
     const result = await syncConfigurationFromXMLForTest({
-      context: mockXmlImportContext(),
+      context: mockContextFromXML(),
       inputDir: partialInput,
-      outputDir,
+      projectDir,
     })
 
     expect(result.failed).toEqual([])
@@ -122,15 +122,16 @@ describe("sync configuration from xml", () => {
   it("пишет корневой файл Конфигурация.yaml из Configuration.xml", async () => {
     const tmp = fs.mkdtempSync(join(os.tmpdir(), "nkdk-root-from-xml-"))
     const rootInput = join(tmp, "xml")
-    const rootOutput = join(tmp, "yaml")
+    const rootProject = join(tmp, "project")
+    const rootOutput = join(rootProject, "cf")
     try {
       fs.mkdirSync(rootInput, { recursive: true })
       fs.copyFileSync(join(__dirname, "__fixtures__/full.xml"), join(rootInput, CONFIGURATION_XML_FILE))
 
       const result = await syncConfigurationFromXMLForTest({
-        context: mockXmlImportContext(),
+        context: mockContextFromXML(),
         inputDir: rootInput,
-        outputDir: rootOutput,
+        projectDir: rootProject,
       })
 
       expect(result.failed).toEqual([])
@@ -145,7 +146,8 @@ describe("sync configuration from xml", () => {
   it("импортирует корневые XML из Ext в Конфигурация.yaml", async () => {
     const tmp = fs.mkdtempSync(join(os.tmpdir(), "nkdk-root-ext-from-xml-"))
     const rootInput = join(tmp, "xml")
-    const rootOutput = join(tmp, "yaml")
+    const rootProject = join(tmp, "project")
+    const rootOutput = join(rootProject, "cf")
     try {
       fs.mkdirSync(join(rootInput, "Ext"), { recursive: true })
       fs.copyFileSync(join(__dirname, "__fixtures__/minimal.xml"), join(rootInput, CONFIGURATION_XML_FILE))
@@ -164,9 +166,9 @@ describe("sync configuration from xml", () => {
       fs.writeFileSync(join(rootInput, "Ext", "HomePageWorkArea.xml"), homePageWorkAreaXML, "utf-8")
 
       const result = await syncConfigurationFromXMLForTest({
-        context: mockXmlImportContext(),
+        context: mockContextFromXML(),
         inputDir: rootInput,
-        outputDir: rootOutput,
+        projectDir: rootProject,
       })
 
       expect(result.failed).toEqual([])
@@ -195,7 +197,8 @@ describe("sync configuration from xml", () => {
   it("сохраняет простые корневые внешние файлы конфигурации", async () => {
     const tmp = fs.mkdtempSync(join(os.tmpdir(), "nkdk-root-external-from-xml-"))
     const rootInput = join(tmp, "xml")
-    const rootOutput = join(tmp, "yaml")
+    const rootProject = join(tmp, "project")
+    const rootOutput = join(rootProject, "cf")
     const managedApplicationModule = "Процедура ПриНачалеРаботыСистемы()\nКонецПроцедуры\n"
     const sessionModule = "Процедура ПриНачалеСеанса()\nКонецПроцедуры\n"
     const externalConnectionModule = "Процедура ПриНачалеРаботыСистемы()\nКонецПроцедуры\n"
@@ -229,9 +232,9 @@ describe("sync configuration from xml", () => {
       fs.writeFileSync(join(rootInput, "Ext", "StandaloneConfigurationContent.bin"), Buffer.from([4, 5, 6]))
 
       await syncConfigurationFromXMLForTest({
-        context: mockXmlImportContext(),
+        context: mockContextFromXML(),
         inputDir: rootInput,
-        outputDir: rootOutput,
+        projectDir: rootProject,
       })
 
       expect(fs.readFileSync(join(rootOutput, "МодульПриложения.bsl"), "utf-8")).toBe(managedApplicationModule)

@@ -2,20 +2,20 @@ import fs from "node:fs"
 import os from "node:os"
 import { join } from "node:path"
 import { afterEach, describe, expect, it, vi } from "vitest"
-import { mockXmlImportContext } from "../../tests/mockContext"
-import type { ConfigurationIndexData } from "../configurationIndex"
-import type { MetadataItemRule } from "../orchestration/property/types"
+import { mockContextFromXML } from "../../tests/mockContext"
+import {
+  configurationIndexPath,
+  type ConfigurationIndexData,
+} from "../configurationIndex"
+import type { ComponentAddress } from "../components/address"
 import type { ValidationOwnerFacts } from "../validation/dataPath/ownerFacts"
 import { createImportSharedMetadata } from "./metadataSnapshot"
 import type { LayeredImportReferenceSnapshot } from "./componentReferenceIndex"
-import { registerXmlImportComponentDescriptor } from "./componentDescriptor"
-import { discoverXmlImport } from "./discovery"
 import {
   importConfigurationFromXml,
   type ImportConfigurationFromXmlParams,
   type ImportCoordinatorDependencies,
 } from "./importConfiguration"
-import { describeRegisteredXmlImportRoutes } from "./routes"
 import type { ImportAssignment, ImportDiagnostic, ImportResultFile } from "./types"
 
 const failurePhases = [
@@ -54,79 +54,53 @@ afterEach(async () => {
 })
 
 describe("configuration XML import coordinator", () => {
-  it("uses the selected component root rule while discovering assignments", async () => {
-    const rootRule = { itemType: "MetadataCoordinatorRoot", properties: {} } as MetadataItemRule
-    registerXmlImportComponentDescriptor({
-      kind: "test-coordinator-root",
-      rootRule,
-      detect: () => false,
-      resolveAddress: () => ({ kind: "configuration" }),
+  it("detects the main configuration and writes it to cf", async () => {
+    const calls: string[] = []
+    const params = createParams("configuration")
+    const writtenIndexes: Array<{ address: ComponentAddress; data: ConfigurationIndexData }> = []
+    const initialized: Array<{ outputDir: string; componentKind: string; metadataItemAugmenter?: string }> = []
+
+    const result = await importConfigurationFromXml(
+      params,
+      fakeDependencies({ calls, writtenIndexes, initialized })
+    )
+
+    expect(result).toEqual({
+      componentPath: "cf",
+      succeeded: assignments.length,
+      failed: [],
+      warnings: [],
+      configurationIndexPath: configurationIndexPath(params.projectDir, { kind: "configuration" }),
     })
-    const params = createParams()
-    const inputDir = fs.mkdtempSync(join(os.tmpdir(), "nkdk-import-component-root-"))
-    tempDirs.push(inputDir)
-    fs.writeFileSync(join(inputDir, "Configuration.xml"), "<MetaDataObject><Configuration/></MetaDataObject>")
-    params.inputDir = inputDir
-    params.context = {
-      ...params.context,
-      fromXML: { ...params.context.fromXML, componentKind: "test-coordinator-root" },
-    }
-    const dependencies = fakeDependencies({ calls: [] })
-    let discovered: ImportAssignment[] = []
-    dependencies.discover = async ({ xmlDir, rootRule: discoveredRootRule }) => {
-      const result = await discoverXmlImport({
-        xmlDir,
-        routes: describeRegisteredXmlImportRoutes(discoveredRootRule),
-      })
-      discovered = result.assignments
-      return result
-    }
-
-    await importConfigurationFromXml(params, dependencies)
-
-    expect(discovered).toEqual([
-      expect.objectContaining({
-        role: "configuration",
-        itemType: "MetadataCoordinatorRoot",
-        targetProjectPath: "Конфигурация.yaml",
-      }),
+    expect(initialized).toEqual([
+      {
+        outputDir: join(params.projectDir, "cf"),
+        componentKind: "configuration",
+      },
+    ])
+    expect(writtenIndexes).toEqual([
+      {
+        address: { kind: "configuration" },
+        data: configurationIndex("cf"),
+      },
     ])
   })
 
-  it("builds the descriptor base snapshot and passes local-first layers to the second pass", async () => {
-    const rootRule = { itemType: "MetadataDependentCoordinatorRoot", properties: {} } as MetadataItemRule
-    registerXmlImportComponentDescriptor({
-      kind: "test-dependent-coordinator",
-      rootRule,
-      detect: () => false,
-      resolveAddress: () => ({ kind: "configurationExtension", name: "Зависимое" }),
-      baseAddress: { kind: "configuration" },
-    })
+  it("detects Расширение_All and writes it to cfe/Расширение_All", async () => {
     const calls: string[] = []
-    const params = createParams()
-    const projectDir = fs.mkdtempSync(join(os.tmpdir(), "nkdk-import-dependent-project-"))
-    tempDirs.push(projectDir)
-    params.projectDir = projectDir
-    params.context = {
-      ...params.context,
-      fromXML: { ...params.context.fromXML, componentKind: "test-dependent-coordinator" },
-    }
-    const dependencies = fakeDependencies({ calls })
-    const base = createImportSharedMetadata([
-      ownerFacts("Базовый", "/project/cf/Справочник/Базовый/Свойства.yaml"),
-    ])
-    const local = createImportSharedMetadata([
-      ownerFacts("Локальный", "/project/cfe/Зависимое/Справочник/Локальный/Свойства.yaml"),
-    ])
+    const params = createParams("configurationExtension")
+    createBaseConfiguration(params.projectDir)
+    const writtenIndexes: Array<{ address: ComponentAddress; data: ConfigurationIndexData }> = []
+    const initialized: Array<{ outputDir: string; componentKind: string; metadataItemAugmenter?: string }> = []
     let secondPassSnapshots: LayeredImportReferenceSnapshot | undefined
+    const base = createImportSharedMetadata([
+      ownerFacts("Базовый", join(params.projectDir, "cf", "Справочник", "Базовый", "Свойства.yaml")),
+    ])
+    const dependencies = fakeDependencies({ calls, writtenIndexes, initialized })
     dependencies.buildComponentReferenceSnapshot = async ({ componentDir }) => {
       calls.push("baseMetadata")
-      expect(componentDir).toBe(join(projectDir, "cf"))
+      expect(componentDir).toBe(join(params.projectDir, "cf"))
       return base
-    }
-    dependencies.createSharedMetadata = () => {
-      calls.push("mergeMetadata")
-      return local
     }
     const pool = dependencies.createWorkerPool({ concurrency: 1 })
     dependencies.createWorkerPool = () => ({
@@ -140,24 +114,169 @@ describe("configuration XML import coordinator", () => {
 
     const result = await importConfigurationFromXml(params, dependencies)
 
-    expect(result.failed).toEqual([])
-    expect(calls.indexOf("baseMetadata")).toBeLessThan(calls.indexOf("discover"))
-    expect(secondPassSnapshots?.local).toBe(local)
+    expect(result).toMatchObject({
+      componentPath: "cfe/Расширение_All",
+      succeeded: assignments.length,
+      failed: [],
+      configurationIndexPath: configurationIndexPath(params.projectDir, {
+        kind: "configurationExtension",
+        name: "Расширение_All",
+      }),
+    })
+    expect(initialized).toEqual([
+      {
+        outputDir: join(params.projectDir, "cfe", "Расширение_All"),
+        componentKind: "configurationExtension",
+        metadataItemAugmenter: "configurationExtension",
+      },
+    ])
     expect(secondPassSnapshots?.base).toBe(base)
+    expect(writtenIndexes[0]).toMatchObject({
+      address: { kind: "configurationExtension", name: "Расширение_All" },
+      data: { binding: { componentPath: "cfe/Расширение_All", indexGeneration: 1n } },
+    })
+    expect(calls.indexOf("baseMetadata")).toBeLessThan(calls.indexOf("discover"))
   })
 
-  it("writes the index after direct worker output and result-file hashing", async () => {
+  it("accepts only a requested component path matching the detected extension", async () => {
+    const matching = createParams("configurationExtension")
+    matching.requestedComponentPath = "cfe/Расширение_All"
+    createBaseConfiguration(matching.projectDir)
+
+    const matchingResult = await importConfigurationFromXml(
+      matching,
+      fakeDependencies({ calls: [] })
+    )
+
+    expect(matchingResult.failed).toEqual([])
+
+    const mismatching = createParams("configurationExtension")
+    mismatching.requestedComponentPath = "cf"
+    createBaseConfiguration(mismatching.projectDir)
     const calls: string[] = []
-    const params = createParams()
-    const writtenIndexes: ConfigurationIndexData[] = []
+
+    const mismatchingResult = await importConfigurationFromXml(
+      mismatching,
+      fakeDependencies({ calls })
+    )
+
+    expect(mismatchingResult).toMatchObject({
+      componentPath: "cfe/Расширение_All",
+      succeeded: 0,
+      failed: [expect.objectContaining({ severity: "error", message: expect.stringMatching(/не совпадает/iu) })],
+    })
+    expect(calls).toEqual([])
+  })
+
+  it("rejects an extension without cf before XML discovery", async () => {
+    const params = createParams("configurationExtension")
+    const calls: string[] = []
+
+    const result = await importConfigurationFromXml(params, fakeDependencies({ calls }))
+
+    expect(result).toMatchObject({
+      componentPath: "cfe/Расширение_All",
+      succeeded: 0,
+      failed: [expect.objectContaining({ severity: "error", message: expect.stringMatching(/базов.*cf/iu) })],
+    })
+    expect(calls).toEqual([])
+    expect(fs.existsSync(join(params.projectDir, "cfe", "Расширение_All"))).toBe(false)
+  })
+
+  it.each(["missing", "empty"] as const)("accepts a %s component target", async (targetState) => {
+    const params = createParams("configuration")
+    if (targetState === "empty") fs.mkdirSync(join(params.projectDir, "cf"), { recursive: true })
 
     const result = await importConfigurationFromXml(
       params,
-      fakeDependencies({ calls, writtenIndexes })
+      fakeDependencies({ calls: [] })
+    )
+
+    expect(result.failed).toEqual([])
+  })
+
+  it("rejects a nonempty extension target without deleting it", async () => {
+    const params = createParams("configurationExtension")
+    createBaseConfiguration(params.projectDir)
+    const target = join(params.projectDir, "cfe", "Расширение_All")
+    const sentinel = join(target, "Сохранить.txt")
+    fs.mkdirSync(target, { recursive: true })
+    fs.writeFileSync(sentinel, "не удалять")
+    const calls: string[] = []
+
+    const result = await importConfigurationFromXml(params, fakeDependencies({ calls }))
+
+    expect(result).toMatchObject({
+      componentPath: "cfe/Расширение_All",
+      succeeded: 0,
+      failed: [expect.objectContaining({ severity: "error", message: expect.stringMatching(/не пуст/iu) })],
+    })
+    expect(fs.readFileSync(sentinel, "utf8")).toBe("не удалять")
+    expect(calls).toEqual([])
+  })
+
+  it("rejects an existing extension snapshot before XML discovery", async () => {
+    const params = createParams("configurationExtension")
+    createBaseConfiguration(params.projectDir)
+    const snapshotPath = configurationIndexPath(params.projectDir, {
+      kind: "configurationExtension",
+      name: "Расширение_All",
+    })
+    fs.mkdirSync(join(snapshotPath, ".."), { recursive: true })
+    fs.writeFileSync(snapshotPath, "existing snapshot")
+    const calls: string[] = []
+
+    const result = await importConfigurationFromXml(params, fakeDependencies({ calls }))
+
+    expect(result).toMatchObject({
+      componentPath: "cfe/Расширение_All",
+      succeeded: 0,
+      failed: [expect.objectContaining({ severity: "error", message: expect.stringMatching(/снимок.*существ/iu) })],
+    })
+    expect(fs.readFileSync(snapshotPath, "utf8")).toBe("existing snapshot")
+    expect(calls).toEqual([])
+  })
+
+  it("leaves a YAML file written before an error and does not write a snapshot", async () => {
+    const params = createParams("configuration")
+    const componentDir = join(params.projectDir, "cf")
+    const yamlPath = join(componentDir, "Конфигурация.yaml")
+    const calls: string[] = []
+    const writtenIndexes: Array<{ address: ComponentAddress; data: ConfigurationIndexData }> = []
+    const diagnostic = importError("broken second pass")
+    const dependencies = fakeDependencies({ calls, writtenIndexes })
+    const pool = dependencies.createWorkerPool({ concurrency: 1 })
+    dependencies.createWorkerPool = () => ({
+      ...pool,
+      async runSecondPass() {
+        calls.push("secondPass")
+        fs.mkdirSync(componentDir, { recursive: true })
+        fs.writeFileSync(yamlPath, "Имя: ЧастичныйРезультат\n")
+        return { diagnostics: [diagnostic], warnings: [], files: [] }
+      },
+    })
+
+    const result = await importConfigurationFromXml(params, dependencies)
+
+    expect(result.failed).toEqual([diagnostic])
+    expect(result.configurationIndexPath).toBeUndefined()
+    expect(fs.readFileSync(yamlPath, "utf8")).toBe("Имя: ЧастичныйРезультат\n")
+    expect(writtenIndexes).toEqual([])
+    expect(fs.existsSync(configurationIndexPath(params.projectDir, { kind: "configuration" }))).toBe(false)
+  })
+
+  it("writes the snapshot strictly after direct YAML output, copying and hashing", async () => {
+    const params = createParams("configuration")
+    const calls: string[] = []
+
+    const result = await importConfigurationFromXml(
+      params,
+      fakeDependencies({ calls })
     )
 
     expect(calls).toEqual([
       "discover",
+      "initialize",
       "firstPass",
       "mergeMetadata",
       "secondPass",
@@ -167,50 +286,75 @@ describe("configuration XML import coordinator", () => {
       "writeIndex",
       "closeWorkers",
     ])
-    expect(result).toEqual({
-      succeeded: assignments.length,
-      failed: [],
-      warnings: [],
-      configurationIndexPath: join(params.outputDir, ".nkdk", "components", "cf", "configuration-index.bin"),
-    })
-    expect(writtenIndexes).toHaveLength(1)
+    expect(result.configurationIndexPath).toBe(
+      configurationIndexPath(params.projectDir, { kind: "configuration" })
+    )
   })
 
-  it.each(failurePhases)("does not cross the %s failure barrier", async (failurePhase) => {
+  it.each(failurePhases)("does not publish a snapshot path after the %s failure", async (failurePhase) => {
+    const params = createParams("configuration")
     const calls: string[] = []
-    const params = createParams()
-    const result = await importConfigurationFromXml(params, fakeDependencies({ calls, failurePhase }))
+    const yamlPath = join(params.projectDir, "cf", "Конфигурация.yaml")
+
+    const result = await importConfigurationFromXml(
+      params,
+      fakeDependencies({ calls, failurePhase })
+    )
 
     expect(result).toMatchObject({
+      componentPath: "cf",
       succeeded: 0,
       failed: [expect.objectContaining({ severity: "error", message: `${failurePhase} failed` })],
       warnings: [],
     })
+    expect(result.configurationIndexPath).toBeUndefined()
     expect(calls.includes("writeIndex")).toBe(failurePhase === "writeIndex")
     expect(calls.at(-1)).toBe("closeWorkers")
+    expect(fs.existsSync(yamlPath)).toBe(
+      ["mergeFiles", "copyExternalFiles", "hashProject", "writeIndex"].includes(failurePhase)
+    )
   })
 
-  it("stops after first-pass diagnostics with errors and closes workers", async () => {
+  it("does not read unrelated XML before a preflight failure", async () => {
+    const params = createParams("configurationExtension")
+    createBaseConfiguration(params.projectDir)
+    const target = join(params.projectDir, "cfe", "Расширение_All")
+    fs.mkdirSync(target, { recursive: true })
+    fs.writeFileSync(join(target, "existing.yaml"), "")
+    fs.mkdirSync(join(params.inputDir, "Catalogs"), { recursive: true })
+    fs.writeFileSync(join(params.inputDir, "Catalogs", "Broken.xml"), "<broken")
     const calls: string[] = []
-    const diagnostic = importError("broken first pass")
-    const params = createParams()
-    const dependencies = fakeDependencies({ calls })
-    const pool = dependencies.createWorkerPool({ concurrency: 1 })
-    dependencies.createWorkerPool = () => ({
-      ...pool,
-      async runFirstPass() {
-        calls.push("firstPass")
-        return { diagnostics: [diagnostic], ownerFacts: [], fragmentData }
-      },
+
+    const result = await importConfigurationFromXml(params, fakeDependencies({ calls }))
+
+    expect(result.failed).toEqual([
+      expect.objectContaining({ message: expect.stringMatching(/не пуст/iu) }),
+    ])
+    expect(calls).toEqual([])
+  })
+
+  it("returns a diagnostic for an unknown Configuration.xml root", async () => {
+    const params = createParams("unknown")
+    const calls: string[] = []
+
+    const result = await importConfigurationFromXml(params, fakeDependencies({ calls }))
+
+    expect(result).toEqual({
+      succeeded: 0,
+      failed: [
+        expect.objectContaining({
+          severity: "error",
+          code: "xml_import_operation_failed",
+          message: expect.stringMatching(/не найдено.*XML-компонента/iu),
+        }),
+      ],
+      warnings: [],
     })
-
-    const result = await importConfigurationFromXml(params, dependencies)
-
-    expect(result.failed).toEqual([diagnostic])
-    expect(calls).toEqual(["discover", "firstPass", "closeWorkers"])
+    expect(calls).toEqual([])
   })
 
   it("preserves second-pass warnings when its diagnostics contain errors", async () => {
+    const params = createParams("configuration")
     const calls: string[] = []
     const diagnostic = importError("broken second pass")
     const warning: ImportDiagnostic = {
@@ -219,7 +363,6 @@ describe("configuration XML import coordinator", () => {
       message: "unresolved",
       targetProjectPath: "Справочник/Контрагенты/Формы/ФормаЭлемента/Форма.yaml",
     }
-    const params = createParams()
     const dependencies = fakeDependencies({ calls })
     const pool = dependencies.createWorkerPool({ concurrency: 1 })
     dependencies.createWorkerPool = () => ({
@@ -234,44 +377,6 @@ describe("configuration XML import coordinator", () => {
 
     expect(result.failed).toEqual([diagnostic])
     expect(result.warnings).toEqual([warning])
-    expect(calls).toEqual(["discover", "firstPass", "mergeMetadata", "secondPass", "closeWorkers"])
-  })
-
-  it("increments a readable index generation without reusing its project or XML facts", async () => {
-    const calls: string[] = []
-    const params = createParams()
-    const writtenIndexes: ConfigurationIndexData[] = []
-    const previousIndex = configurationIndex(7n, {
-      projectFiles: [{ projectPath: "old.yaml", contentHash: 1n }],
-      identities: [{ logicalAddress: "old", kind: "uuid", value: "old-uuid" }],
-      xmlNodes: [{ logicalAddress: "old" }],
-      xmlValues: [{ logicalAddress: "old", xmlText: "old" }],
-    })
-
-    await importConfigurationFromXml(
-      params,
-      fakeDependencies({ calls, previousIndex, writtenIndexes })
-    )
-
-    expect(writtenIndexes).toEqual([
-      configurationIndex(8n, {
-        projectFiles: [{ projectPath: "Конфигурация.yaml", contentHash: 42n }],
-        ...fragmentData,
-      }),
-    ])
-  })
-
-  it("starts index generation at one when the previous index is unreadable", async () => {
-    const params = createParams()
-    const writtenIndexes: ConfigurationIndexData[] = []
-    const dependencies = fakeDependencies({ calls: [], writtenIndexes })
-    dependencies.readIndex = async () => {
-      throw new Error("corrupt index")
-    }
-
-    await importConfigurationFromXml(params, dependencies)
-
-    expect(writtenIndexes[0]?.binding.indexGeneration).toBe(1n)
   })
 
   it("emits import profile records for main coordinator steps", async () => {
@@ -280,7 +385,10 @@ describe("configuration XML import coordinator", () => {
     let lines: string[] = []
     process.env["NKDK_PROFILE"] = "1"
     try {
-      await importConfigurationFromXml(createParams(), fakeDependencies({ calls: [] }))
+      await importConfigurationFromXml(
+        createParams("configuration"),
+        fakeDependencies({ calls: [] })
+      )
       lines = error.mock.calls.map(([line]) => String(line))
     } finally {
       if (previous === undefined) delete process.env["NKDK_PROFILE"]
@@ -296,16 +404,6 @@ describe("configuration XML import coordinator", () => {
           line.includes('substep="Поиск XML-файлов выгрузки"')
       )
     ).toBe(true)
-    expect(lines.some((line) => line.includes("[nkdk-profile-step]") && line.includes('substep="Первый проход worker"'))).toBe(
-      true
-    )
-    expect(
-      lines.some(
-        (line) =>
-          line.includes("[nkdk-profile-step]") &&
-          line.includes('substep="Обобщение фрагментов данных файла индекса конфигурации"')
-      )
-    ).toBe(true)
     expect(
       lines.some(
         (line) =>
@@ -317,24 +415,35 @@ describe("configuration XML import coordinator", () => {
   })
 })
 
-function createParams(): ImportConfigurationFromXmlParams {
-  const outputDir = fs.mkdtempSync(join(os.tmpdir(), "nkdk-import-coordinator-"))
-  tempDirs.push(outputDir)
+function createParams(
+  kind: "configuration" | "configurationExtension" | "unknown"
+): ImportConfigurationFromXmlParams {
+  const projectDir = temporaryDirectory("nkdk-import-project-")
+  const inputDir = temporaryDirectory("nkdk-import-xml-")
+  fs.writeFileSync(
+    join(inputDir, "Configuration.xml"),
+    kind === "configuration"
+      ? configurationXml()
+      : kind === "configurationExtension"
+        ? configurationExtensionXml()
+        : "<MetaDataObject><Unknown/></MetaDataObject>"
+  )
   return {
-    context: mockXmlImportContext(),
-    inputDir: "/xml",
-    outputDir,
+    context: mockContextFromXML(),
+    inputDir,
+    projectDir,
     concurrency: 2,
-    operationId: "task-8",
+    operationId: "task-6",
   }
 }
 
 function fakeDependencies(params: {
   calls: string[]
   failurePhase?: FailurePhase
-  previousIndex?: ConfigurationIndexData
-  writtenIndexes?: ConfigurationIndexData[]
+  writtenIndexes?: Array<{ address: ComponentAddress; data: ConfigurationIndexData }>
+  initialized?: Array<{ outputDir: string; componentKind: string; metadataItemAugmenter?: string }>
 }): ImportCoordinatorDependencies {
+  let componentDir: string | undefined
   const call = (phase: FailurePhase): void => {
     params.calls.push(phase)
     if (params.failurePhase === phase) throw new Error(`${phase} failed`)
@@ -343,13 +452,28 @@ function fakeDependencies(params: {
   return {
     createWorkerPool() {
       return {
-        async initialize() {},
+        async initialize(initializeParams) {
+          params.calls.push("initialize")
+          componentDir = initializeParams.outputDir
+          params.initialized?.push({
+            outputDir: initializeParams.outputDir,
+            componentKind: initializeParams.componentKind,
+            ...(
+              initializeParams.metadataItemAugmenter === undefined
+                ? {}
+                : { metadataItemAugmenter: initializeParams.metadataItemAugmenter }
+            ),
+          })
+        },
         async runFirstPass() {
           call("firstPass")
           return { diagnostics: [], ownerFacts: [], fragmentData }
         },
         async runSecondPass() {
           call("secondPass")
+          if (componentDir === undefined) throw new Error("Worker pool не инициализирован")
+          fs.mkdirSync(componentDir, { recursive: true })
+          fs.writeFileSync(join(componentDir, "Конфигурация.yaml"), "Имя: Конфигурация\n")
           return { diagnostics: [], warnings: [], files: resultFiles }
         },
         async close() {
@@ -380,14 +504,46 @@ function fakeDependencies(params: {
       expect(projectPaths).toEqual(resultFiles.map((file) => file.targetProjectPath))
       return [{ projectPath: "Конфигурация.yaml", contentHash: 42n }]
     },
-    async readIndex() {
-      return params.previousIndex
-    },
-    async writeIndex({ data }) {
+    async writeIndex({ address, data }) {
       call("writeIndex")
-      params.writtenIndexes?.push(data)
+      params.writtenIndexes?.push({ address, data })
     },
   }
+}
+
+function temporaryDirectory(prefix: string): string {
+  const directory = fs.mkdtempSync(join(os.tmpdir(), prefix))
+  tempDirs.push(directory)
+  return directory
+}
+
+function createBaseConfiguration(projectDir: string): void {
+  fs.mkdirSync(join(projectDir, "cf"), { recursive: true })
+}
+
+function configurationXml(): string {
+  return `
+<MetaDataObject>
+  <Configuration>
+    <Properties>
+      <Name>Основная</Name>
+    </Properties>
+  </Configuration>
+</MetaDataObject>
+`
+}
+
+function configurationExtensionXml(): string {
+  return `
+<MetaDataObject>
+  <Configuration>
+    <Properties>
+      <Name>Расширение_All</Name>
+      <ConfigurationExtensionPurpose>Customization</ConfigurationExtensionPurpose>
+    </Properties>
+  </Configuration>
+</MetaDataObject>
+`
 }
 
 function assignment(name: string): ImportAssignment {
@@ -413,19 +569,17 @@ function importError(message: string): ImportDiagnostic {
   }
 }
 
-function configurationIndex(
-  indexGeneration: bigint,
-  data: Pick<ConfigurationIndexData, "projectFiles" | "identities" | "xmlNodes" | "xmlValues">
-): ConfigurationIndexData {
+function configurationIndex(component: string): ConfigurationIndexData {
   return {
     binding: {
-      indexGeneration,
+      indexGeneration: 1n,
       producerVersion: "0.0.0-dev",
-      componentPath: "cf",
+      componentPath: component,
       baseFingerprint: new Uint8Array(),
       configurationVersion: new Uint8Array(),
     },
-    ...data,
+    projectFiles: [{ projectPath: "Конфигурация.yaml", contentHash: 42n }],
+    ...fragmentData,
   }
 }
 

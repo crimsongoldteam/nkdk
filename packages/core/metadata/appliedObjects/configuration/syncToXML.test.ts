@@ -2,7 +2,7 @@ import fs from "fs"
 import os from "os"
 import { dirname, join } from "path"
 import { afterAll, beforeAll, beforeEach, describe, expect, it } from "vitest"
-import { mockXmlImportContext, mockContextToXML } from "../../../tests/mockContext"
+import { mockContextFromXML, mockContextToXML } from "../../../tests/mockContext"
 import { getXMLFixturePath, readXMLFileAsString } from "../../../tests/readAndParseXMLFile"
 import { importContentFromXML } from "../../../xml/import/importer"
 import { createPreparedYamlProjectWorkerPool } from "../../project/preparedYamlProjectWorkerPool"
@@ -627,7 +627,8 @@ describe("sync configuration to XML", () => {
   describe("round-trip Document/DocumentNumerator/Sequence", () => {
     const tmp = fs.mkdtempSync(join(os.tmpdir(), "nkdk-round-trip-document-family-"))
     const tmpInputXmlDir = join(tmp, "input-xml")
-    const tmpYamlDir = join(tmp, "yaml")
+    const tmpProjectDir = join(tmp, "project")
+    const tmpYamlDir = join(tmpProjectDir, "cf")
     const tmpXmlDir = join(tmp, "xml")
 
     beforeAll(async () => {
@@ -638,11 +639,15 @@ describe("sync configuration to XML", () => {
         ["Documents", "ДокументПоУмолчанию.xml"],
         ["Sequences", "ПоследовательностьПоУмолчанию.xml"],
       ])
+      fs.copyFileSync(
+        getXMLFixturePath("configuration/minimal.xml"),
+        join(tmpInputXmlDir, CONFIGURATION_XML_FILE)
+      )
 
       await syncConfigurationFromXML({
-        context: mockXmlImportContext(),
+        context: mockContextFromXML(),
         inputDir: tmpInputXmlDir,
-        outputDir: tmpYamlDir,
+        projectDir: tmpProjectDir,
       })
 
       await syncConfigurationToXMLForTest({

@@ -23,7 +23,13 @@ describe("shortRoundTripXML", () => {
   })
 
   it("round-trip XML -> YAML -> XML должен быть идемпотентным для зарегистрированных типов", async () => {
-    await shortRoundTripXML({ inputDir, outputDir })
+    const preparedInputDir = fs.mkdtempSync(join(tmpdir(), "short-round-trip-input-"))
+    fs.cpSync(inputDir, preparedInputDir, { recursive: true })
+    fs.copyFileSync(
+      getXMLFixturePath("configuration/minimal.xml"),
+      join(preparedInputDir, CONFIGURATION_XML_FILE)
+    )
+    await shortRoundTripXML({ inputDir: preparedInputDir, outputDir })
 
     const expectedCatalogXML = readXMLFileAsString("sync/syncConfiguration/xml/Catalogs/Контрагенты.xml")
     const resultCatalogXML = fs.readFileSync(join(outputDir, "Catalogs", "Контрагенты.xml"), "utf-8")
@@ -68,6 +74,7 @@ describe("shortRoundTripXML", () => {
       "utf-8"
     )
     expect(resultFormMetaXML).toBe(expectedFormMetaXML)
+    fs.rmSync(preparedInputDir, { recursive: true, force: true })
   })
 
   it("включает корневой Configuration.xml в short round-trip", async () => {
@@ -90,6 +97,10 @@ describe("shortRoundTripXML", () => {
     const brokenInputDir = fs.mkdtempSync(join(tmpdir(), "short-round-trip-object-"))
     const brokenOutputDir = fs.mkdtempSync(join(tmpdir(), "short-round-trip-object-out-"))
     fs.mkdirSync(join(brokenInputDir, "Catalogs"), { recursive: true })
+    fs.copyFileSync(
+      getXMLFixturePath("configuration/minimal.xml"),
+      join(brokenInputDir, CONFIGURATION_XML_FILE)
+    )
     fs.writeFileSync(join(brokenInputDir, "Catalogs", "Сломанный.xml"), "<broken", "utf-8")
 
     await expect(shortRoundTripXML({ inputDir: brokenInputDir, outputDir: brokenOutputDir })).rejects.toThrow(
@@ -104,6 +115,10 @@ describe("shortRoundTripXML", () => {
     const catalogFixtureDir = join(inputDir, "Catalogs")
 
     fs.mkdirSync(catalogInputDir, { recursive: true })
+    fs.copyFileSync(
+      getXMLFixturePath("configuration/minimal.xml"),
+      join(brokenInputDir, CONFIGURATION_XML_FILE)
+    )
     fs.copyFileSync(join(catalogFixtureDir, "Контрагенты.xml"), join(catalogInputDir, "Контрагенты.xml"))
     fs.cpSync(join(catalogFixtureDir, "Контрагенты"), join(catalogInputDir, "Контрагенты"), { recursive: true })
     fs.writeFileSync(

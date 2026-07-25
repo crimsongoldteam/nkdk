@@ -2,14 +2,14 @@ import fs from "fs"
 import { mkdtemp } from "fs/promises"
 import { tmpdir } from "os"
 import { join } from "path"
-import type { ConfigurationContextWithExportToXML, XmlImportConfigurationContext } from "../../context/types"
+import type { ConfigurationContextFromXML, ConfigurationContextWithExportToXML } from "../../context/types"
 import { syncConfigurationFromXML } from "./convertFromXML"
 import { syncConfigurationToXML } from "./syncToXML"
 
-const contextFromXML = (): XmlImportConfigurationContext => ({
+const contextFromXML = (): ConfigurationContextFromXML => ({
   defaultLanguage: "ru",
   version: "2.20",
-  fromXML: { forReference: false, componentKind: "configuration" },
+  fromXML: { forReference: false },
   exportToYAML: { toTyped: false },
 })
 
@@ -27,12 +27,13 @@ const contextToXML = (): ConfigurationContextWithExportToXML => ({
 export const shortRoundTripXML = async (params: { inputDir: string; outputDir: string }): Promise<void> => {
   if (!fs.existsSync(params.inputDir)) return
 
-  const yamlDir = await mkdtemp(join(tmpdir(), "nkdk-short-round-trip-"))
+  const projectDir = await mkdtemp(join(tmpdir(), "nkdk-short-round-trip-"))
+  const yamlDir = join(projectDir, "cf")
   try {
     const imported = await syncConfigurationFromXML({
       context: contextFromXML(),
       inputDir: params.inputDir,
-      outputDir: yamlDir,
+      projectDir,
     })
     if (imported.failed.length > 0) throw new Error(imported.failed[0]?.message ?? "Не удалось импортировать XML")
 
@@ -45,6 +46,6 @@ export const shortRoundTripXML = async (params: { inputDir: string; outputDir: s
     })
     if (exported.failed.length > 0) throw exported.failed[0]?.error ?? new Error("Не удалось экспортировать XML")
   } finally {
-    await fs.promises.rm(yamlDir, { recursive: true, force: true })
+    await fs.promises.rm(projectDir, { recursive: true, force: true })
   }
 }

@@ -23,6 +23,22 @@ export interface DiscoverXmlImportParams {
 
 type ResolvedMatch = XmlImportRouteMatch
 
+export async function readXmlImportComponentRoot(
+  xmlDir: string,
+  fileSystem: Pick<XmlImportDiscoveryFileSystem, "readFile"> = defaultFileSystem
+): Promise<Record<string, unknown>> {
+  if (fileSystem.readFile === undefined) {
+    throw new Error("Не задано чтение корневого Configuration.xml")
+  }
+  const content = await fileSystem.readFile(resolve(xmlDir, "Configuration.xml"), "utf-8")
+  const parsed = importContentFromXML<Record<string, unknown>>(String(content))
+  const root = parsed["MetaDataObject"]
+  if (!isRecord(root)) {
+    throw new Error("Configuration.xml не содержит корень MetaDataObject")
+  }
+  return root
+}
+
 export async function discoverXmlImport(params: DiscoverXmlImportParams): Promise<{ assignments: ImportAssignment[] }> {
   const fileSystem = params.fs ?? defaultFileSystem
   const routeStructure = compileXmlImportRouteStructure(params.routes)
@@ -284,4 +300,8 @@ function importDiscoveryError(code: string, paths: readonly string[]): Error & {
 
 function compareUtf8(left: string, right: string): number {
   return Buffer.compare(Buffer.from(left, "utf8"), Buffer.from(right, "utf8"))
+}
+
+function isRecord(value: unknown): value is Record<string, unknown> {
+  return typeof value === "object" && value !== null && !Array.isArray(value)
 }

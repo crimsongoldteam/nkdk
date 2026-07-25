@@ -3,6 +3,7 @@ import type { ProjectResourceSource } from "../orchestration/property/fn"
 import { getTypeRule } from "../orchestration/property/typeRuleRegistry"
 import type { MetadataItemRule, PropertyRule } from "../orchestration/property/types"
 import { configurationMetadataProjectSpec, metadataProjectSpecs, type MetadataProjectSpec } from "../project/specs"
+import type { XmlImportComponentDescriptor } from "./componentDescriptor"
 
 interface CompileContext {
   xmlBase: string
@@ -26,6 +27,12 @@ export function describeRegisteredXmlImportRoutes(
     if (spec.dir !== "") collectSpecRoutes(routes, spec)
   }
   return deduplicateRoutes(routes)
+}
+
+export function describeXmlImportComponentRoutes(
+  descriptor: Pick<XmlImportComponentDescriptor, "rootRule">
+): readonly XmlImportRoute[] {
+  return describeRegisteredXmlImportRoutes(descriptor.rootRule)
 }
 
 export function matchImportPattern(pattern: string, path: string): Record<string, string> | undefined {

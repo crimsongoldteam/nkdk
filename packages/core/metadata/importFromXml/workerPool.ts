@@ -3,7 +3,10 @@ import { fileURLToPath } from "node:url"
 import Piscina from "piscina"
 import { mergeConfigurationIndexFragments } from "../configurationIndex/fragment"
 import type { ConfigurationIndexData } from "../configurationIndex/types"
-import type { XmlImportConfigurationContext } from "../context/types"
+import type {
+  ConfigurationContextFromXML,
+  XmlImportConfigurationContext,
+} from "../context/types"
 import type { ValidationOwnerFacts } from "../validation/dataPath/ownerFacts"
 import { createOperationProfiler } from "../validation/profile"
 import type { LayeredImportReferenceSnapshot } from "./componentReferenceIndex"
@@ -18,7 +21,13 @@ import type {
 } from "./types"
 
 export interface XmlImportWorkerPool {
-  initialize(params: { operationId: string; context: XmlImportConfigurationContext; outputDir: string }): Promise<void>
+  initialize(params: {
+    operationId: string
+    context: ConfigurationContextFromXML
+    outputDir: string
+    componentKind: string
+    metadataItemAugmenter?: string
+  }): Promise<void>
   runFirstPass(assignments: readonly ImportAssignment[]): Promise<XmlImportFirstPassPoolResult>
   runSecondPass(referenceSnapshots: LayeredImportReferenceSnapshot): Promise<XmlImportSecondPassPoolResult>
   close(): Promise<void>
@@ -154,8 +163,10 @@ function createXmlImportOperationPool(params: {
   let initialization:
     | {
         operationId: string
-        context: XmlImportConfigurationContext
+        context: ConfigurationContextFromXML
         outputDir: string
+        componentKind: string
+        metadataItemAugmenter?: string
       }
     | undefined
   let phase: PoolPhase = "new"
@@ -189,7 +200,7 @@ function createXmlImportOperationPool(params: {
             kind: "initialize",
             operationId: initialized.operationId,
             workerIndex,
-            context: initialized.context,
+            context: xmlImportContext(initialized),
             outputDir: initialized.outputDir,
           })
           if (initializeResponse !== undefined) {
@@ -348,4 +359,21 @@ function assertUsable(phase: PoolPhase, fatalError: unknown): void {
 
 function assertPhase(actual: PoolPhase, expected: PoolPhase, message: string): void {
   if (actual !== expected) throw new Error(message)
+}
+
+function xmlImportContext(params: {
+  context: ConfigurationContextFromXML
+  componentKind: string
+  metadataItemAugmenter?: string
+}): XmlImportConfigurationContext {
+  return {
+    ...params.context,
+    fromXML: {
+      ...params.context.fromXML,
+      componentKind: params.componentKind,
+      ...(params.metadataItemAugmenter === undefined
+        ? {}
+        : { metadataItemAugmenter: params.metadataItemAugmenter }),
+    },
+  }
 }
