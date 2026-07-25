@@ -16,6 +16,9 @@ import type {
   PreparedXMLAssignment,
   PreparedXMLDocument,
 } from "./types"
+import type { CompiledMetadataResourceTopology } from "../resourceTopology/types"
+import { compileRegisteredMetadataResourceTopology } from "../resourceTopology/registry"
+import { getMetadataXmlPrepareCapability } from "../resourceTopology/capabilities"
 
 export function prepareFullXmlSyncAssignment(params: {
   assignment: FullXmlSyncAssignment
@@ -23,6 +26,7 @@ export function prepareFullXmlSyncAssignment(params: {
   context: ConfigurationContextWithExportToXML
   index: ConfigurationIndexReader
   assignments?: readonly FullXmlSyncCompositionEntry[]
+  topology?: CompiledMetadataResourceTopology
 }): PreparedXMLAssignment {
   const indexCollector = createConfigurationIndexCollector()
   const runtime = createConfigurationIndexExportRuntime({
@@ -36,8 +40,62 @@ export function prepareFullXmlSyncAssignment(params: {
     exportToXML: { ...params.context.exportToXML, configurationIndex: runtime },
   }
   const profile = createYAMLToXMLProfile()
-  const documents = prepareAssignmentDocuments({ ...params, context, profile })
+  const documents =
+    params.assignment.nodeId === undefined || params.assignment.potentialOutputs === undefined
+      ? prepareAssignmentDocuments({ ...params, context, profile })
+      : prepareTopologyAssignmentDocuments({
+          ...params,
+          context,
+          profile,
+          topology: params.topology ?? compileRegisteredMetadataResourceTopology(),
+        })
   return { assignment: params.assignment, documents, indexCollector, profile }
+}
+
+function prepareTopologyAssignmentDocuments(
+  params: Parameters<typeof prepareFullXmlSyncAssignment>[0] & {
+    context: ConfigurationContextWithExportToXML
+    profile: ReturnType<typeof createYAMLToXMLProfile>
+    topology: CompiledMetadataResourceTopology
+  }
+): readonly PreparedXMLDocument[] {
+  const assignmentNode = params.topology.assignments.find((candidate) => candidate.id === params.assignment.nodeId)
+  if (assignmentNode === undefined) throw new Error(`Не найден узел топологии: ${params.assignment.nodeId}`)
+  const outputs = params.assignment.potentialOutputs ?? []
+  const outputsByCapability = Map.groupBy(outputs, (output) => output.prepareCapabilityId)
+  const documents = [...outputsByCapability].flatMap(([capabilityId, capabilityOutputs]) => {
+    const capability = getMetadataXmlPrepareCapability(capabilityId)
+    if (capability === undefined) throw new Error(`Не зарегистрирована возможность подготовки XML: ${capabilityId}`)
+    return capability.run({
+      context: params.context,
+      preparedYamlFile: params.preparedYamlFile,
+      assignment: assignmentNode,
+      itemName: params.assignment.itemName,
+      logicalAddress: params.assignment.logicalAddress,
+      outputs: capabilityOutputs,
+      index: params.index,
+      composition: (params.assignments ?? []).map((entry) => ({
+        sourceProjectPath: entry.sourceProjectPath,
+        itemName: entry.itemName,
+        logicalAddress: entry.logicalAddress,
+        assignmentRole: entry.role === "form" ? "fileItem" : entry.role,
+        ...(entry.ownerLogicalAddress === undefined ? {} : { ownerLogicalAddress: entry.ownerLogicalAddress }),
+      })),
+      profile: params.profile,
+    })
+  })
+  const allowed = new Set(outputs.map((output) => output.declarationId))
+  const seen = new Set<string>()
+  for (const document of documents) {
+    if (!allowed.has(document.declarationId)) {
+      throw new Error(`Возможность вернула необъявленный XML-документ: ${document.declarationId}`)
+    }
+    if (seen.has(document.declarationId)) {
+      throw new Error(`XML-документ подготовлен повторно: ${document.declarationId}`)
+    }
+    seen.add(document.declarationId)
+  }
+  return documents
 }
 
 function prepareAssignmentDocuments(

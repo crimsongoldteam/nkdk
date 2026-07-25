@@ -23,6 +23,7 @@ import {
   orderFileItemNames,
   resolveChildCollectionDir,
 } from "./fileItemChildCollections"
+import { registerMetadataXmlPrepareCapability } from "../../resourceTopology/capabilities"
 
 const PROPERTIES_YAML = "Свойства.yaml"
 
@@ -135,6 +136,22 @@ export const prepareAppliedObjectOwnerXML = (params: {
     rootRule: params.rule,
   }
 }
+
+registerMetadataXmlPrepareCapability({
+  id: "appliedObject",
+  run: ({ assignment, context, preparedYamlFile, itemName, outputs, profile }) => {
+    const output = outputs.find((candidate) => candidate.role === "metadata")
+    if (output === undefined) return []
+    const prepared = prepareAppliedObjectOwnerXML({
+      rule: assignment.itemRule,
+      context,
+      name: itemName,
+      preparedYamlFile,
+      profile,
+    })
+    return [{ declarationId: output.declarationId, targetXmlPath: output.targetXmlPath, ...prepared }]
+  },
+})
 
 export const writePreparedAppliedObjectOwnerToXML = async (params: {
   rule: MetadataItemRule

@@ -26,7 +26,7 @@ registerTypeRule("ChildFormNames", "resourceTopology", ({ propertyRule }) => {
       role: "metadata",
       required: true,
       read: { inputRole: "metadata" },
-      prepareCapabilityId: "ChildFormNames",
+      prepareCapabilityId: "ClientApplicationForm",
       source,
     },
     {
@@ -36,7 +36,7 @@ registerTypeRule("ChildFormNames", "resourceTopology", ({ propertyRule }) => {
       role: "body",
       required: true,
       read: { inputRole: "body" },
-      prepareCapabilityId: "ChildFormNames",
+      prepareCapabilityId: "ClientApplicationForm",
       source,
     },
     {
@@ -56,7 +56,6 @@ registerTypeRule("ChildFormNames", "resourceTopology", ({ propertyRule }) => {
       role: "property",
       required: false,
       read: { inputRole: "property" },
-      prepareCapabilityId: "ChildFormNames",
       source,
     },
     {

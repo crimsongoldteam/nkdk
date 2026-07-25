@@ -60,11 +60,12 @@ describe("full XML sync discovery", () => {
       outputs: [{ targetXmlPath: "Catalogs/Товары/Forms/ФормаЭлемента.xml" }],
     })
     expect(plan.externalFiles).toEqual([
-      {
+      expect.objectContaining({
         sourceProjectPath: "Справочник/Товары/Формы/ФормаЭлемента/Модуль.bsl",
         sourcePath: join(projectDir, "Справочник", "Товары", "Формы", "ФормаЭлемента", "Модуль.bsl"),
         targetXmlPath: "Catalogs/Товары/Forms/ФормаЭлемента/Ext/Form/Module.bsl",
-      },
+        transferCapabilityId: "ChildFormNames",
+      }),
     ])
   })
 
@@ -89,5 +90,17 @@ describe("full XML sync discovery", () => {
         ],
       })
     ).rejects.toThrow("Повторный XML-путь")
+  })
+
+  it("plans metadata and body XML for one common form assignment", async () => {
+    const projectDir = createProject()
+    touch(projectDir, "ОбщаяФорма/Additional/Свойства.yaml")
+
+    const plan = await buildFullXmlSyncPlan({ projectDir })
+
+    expect(plan.assignments[0]?.potentialOutputs?.map((output) => output.targetXmlPath)).toEqual([
+      "CommonForms/Additional.xml",
+      "CommonForms/Additional/Ext/Form.xml",
+    ])
   })
 })

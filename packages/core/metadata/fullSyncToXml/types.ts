@@ -14,6 +14,14 @@ export interface FullXmlSyncOutput {
   readonly routeKind: "owner" | "fileItem"
 }
 
+export interface FullXmlSyncPotentialOutput {
+  readonly declarationId: string
+  readonly targetXmlPath: string
+  readonly role: "metadata" | "body" | "property"
+  readonly required: boolean
+  readonly prepareCapabilityId: string
+}
+
 export interface FullXmlSyncAssignment {
   readonly id: string
   readonly sourceProjectPath: string
@@ -23,13 +31,17 @@ export interface FullXmlSyncAssignment {
   readonly itemName: string
   readonly logicalAddress: string
   readonly owner?: { readonly itemType: string; readonly name: string; readonly logicalAddress: string }
+  readonly nodeId?: string
+  readonly potentialOutputs?: readonly FullXmlSyncPotentialOutput[]
   readonly outputs: readonly FullXmlSyncOutput[]
 }
 
 export interface FullXmlSyncExternalFile {
+  readonly assignmentId?: string
   readonly sourceProjectPath: string
   readonly sourcePath: string
   readonly targetXmlPath: string
+  readonly transferCapabilityId?: string
 }
 
 export interface FullXmlSyncPlan {
@@ -66,6 +78,7 @@ export interface FullXmlSyncWrittenFile {
 }
 
 export interface PreparedXMLDocument {
+  readonly declarationId?: string
   readonly targetXmlPath: string
   readonly xml: Record<string, unknown>
   readonly deferred: readonly DeferredObjectValue[]

@@ -13,6 +13,9 @@ import { MetadataConfigurationRules } from "./rules"
 import { TopLevelMetadataItemRules } from "./topLevelRules"
 import "../metadataExternalDataSource/register"
 import "../metadataSubsystem/register"
+import { registerMetadataXmlPrepareCapability } from "../../resourceTopology/capabilities"
+import { prepareConfigurationXML } from "./rootIO"
+import { buildConfigurationChildObjectsFromProjectEntries } from "./childObjects"
 
 const objectOwnedProjectSpecDirs = new Set(["Справочник", "Документ", "Перечисление"])
 const specialObjectPathProjectSpecDirs = new Set(["ВнешнийИсточникДанных", "Подсистема"])
@@ -36,6 +39,28 @@ registerProjectSpec({
       source: { kind: "itemRule", itemType: MetadataConfigurationRules.itemType },
     },
   ],
+})
+
+registerMetadataXmlPrepareCapability({
+  id: "configuration",
+  run: ({ context, preparedYamlFile, outputs, composition, profile }) => {
+    const output = outputs.find((candidate) => candidate.role === "metadata")
+    if (output === undefined) return []
+    const prepared = prepareConfigurationXML({
+      context,
+      preparedYamlFile,
+      childObjects: buildConfigurationChildObjectsFromProjectEntries({
+        entries: composition
+          .filter((entry) => entry.assignmentRole === "properties")
+          .map((entry) => {
+            const parts = entry.sourceProjectPath.split("/")
+            return { dir: parts[0] ?? "", name: parts[1] ?? entry.itemName }
+          }),
+      }),
+      profile,
+    })
+    return [{ declarationId: output.declarationId, targetXmlPath: output.targetXmlPath, ...prepared }]
+  },
 })
 
 registerProjectFileValidator("configuration", ({ filePath, parsed }) => {

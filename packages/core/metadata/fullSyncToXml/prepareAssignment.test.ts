@@ -10,6 +10,9 @@ import { sampleIndex } from "../configurationIndex/testData"
 import { prepareYamlFiles } from "../project/prepareYamlFiles"
 import { prepareFullXmlSyncAssignment } from "./prepareAssignment"
 import type { FullXmlSyncAssignment } from "./types"
+import { compileMetadataResourceTopology } from "../resourceTopology/compiler"
+import { registerMetadataXmlPrepareCapability } from "../resourceTopology/capabilities"
+import type { MetadataItemRule } from "../orchestration/property/types"
 
 describe("prepareFullXmlSyncAssignment", () => {
   const tempDirs: string[] = []
@@ -17,6 +20,92 @@ describe("prepareFullXmlSyncAssignment", () => {
   afterEach(() => {
     vi.restoreAllMocks()
     for (const dir of tempDirs.splice(0)) fs.rmSync(dir, { recursive: true, force: true })
+  })
+
+  it("calls one registered capability once for all of its XML outputs", () => {
+    const rule = { itemType: "TestObject", properties: {} } as MetadataItemRule
+    const source = { kind: "itemRule" as const, description: "test" }
+    const topology = compileMetadataResourceTopology([
+      {
+        dir: "Объект",
+        kind: "test",
+        rule,
+        exportSchema: () => ({}) as never,
+        resources: [
+          {
+            kind: "content",
+            projectPattern: "Объект/{ownerName}/Свойства.yaml",
+            role: "properties",
+            required: true,
+            repeatable: true,
+            compositionImpact: "configurationComposition",
+            itemRule: rule,
+            source,
+          },
+          ...(["metadata", "body"] as const).map((role) => ({
+            kind: "xmlDocument" as const,
+            assignmentProjectPattern: "",
+            xmlPattern: `Objects/{ownerName}/${role}.xml`,
+            role,
+            required: true,
+            prepareCapabilityId: "test-two-documents",
+            source,
+          })),
+        ],
+      },
+    ])
+    const node = topology.assignments[0]!
+    const outputs = node.xmlDocuments.map((document) => ({
+      declarationId: document.id,
+      targetXmlPath: document.xmlPattern.replace("{ownerName}", "One"),
+      role: document.role,
+      required: document.required,
+      prepareCapabilityId: "test-two-documents",
+    }))
+    const run = vi.fn(({ outputs: requested }) =>
+      requested.map((output: (typeof outputs)[number]) => ({
+        declarationId: output.declarationId,
+        targetXmlPath: output.targetXmlPath,
+        xml: { Root: output.role },
+        deferred: [],
+        rootRule: rule,
+      }))
+    )
+    registerMetadataXmlPrepareCapability({ id: "test-two-documents", run })
+    const assignment: FullXmlSyncAssignment = {
+      id: "Объект/One/Свойства.yaml",
+      sourceProjectPath: "Объект/One/Свойства.yaml",
+      sourcePath: "/project/Объект/One/Свойства.yaml",
+      role: "properties",
+      itemType: "TestObject",
+      itemName: "One",
+      logicalAddress: "Объект.One",
+      nodeId: node.id,
+      potentialOutputs: outputs,
+      outputs: [],
+    }
+
+    const prepared = prepareFullXmlSyncAssignment({
+      assignment,
+      preparedYamlFile: {
+        projectPath: assignment.sourceProjectPath,
+        filePath: assignment.sourcePath,
+        role: "properties",
+        owner: { dir: "Объект", name: "One" },
+        data: {},
+        syntaxDiagnostics: [],
+      },
+      context: mockContextToXML(),
+      index: createConfigurationIndexReader(snapshotConfigurationIndex(encodeConfigurationIndex(sampleIndex()))),
+      assignments: [],
+      topology,
+    })
+
+    expect(run).toHaveBeenCalledTimes(1)
+    expect(prepared.documents.map((document) => document.targetXmlPath)).toEqual([
+      "Objects/One/metadata.xml",
+      "Objects/One/body.xml",
+    ])
   })
 
   it("prepares owner XML without writing files", () => {

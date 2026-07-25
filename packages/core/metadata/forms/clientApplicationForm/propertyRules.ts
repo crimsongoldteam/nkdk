@@ -17,6 +17,8 @@ import { copyExistingRawFile } from "./externalRawFiles"
 import { ClientApplicationFormRules } from "./rules"
 import { createClientApplicationFormBodyImportSource } from "./xmlImportSources"
 import { exportClientApplicationFormToJSONSchema } from "./toJSONSchema"
+import { prepareFormXML } from "./syncToXML"
+import { registerMetadataXmlPrepareCapability } from "../../resourceTopology/capabilities"
 
 const getDirectFormXmlDir = (params: { baseDir: string; rule: { filePath?: string } }): string =>
   join(params.baseDir, dirname(params.rule.filePath ?? ""))
@@ -141,4 +143,24 @@ registerTypeRule("ClientApplicationForm", "resourceTopology", ({ propertyRule })
       targetFormDirPattern: "",
     }),
   ]
+})
+
+registerMetadataXmlPrepareCapability({
+  id: "ClientApplicationForm",
+  run: ({ context, preparedYamlFile, itemName, outputs, profile }) => {
+    const byRole = new Map(outputs.map((output) => [output.role, output]))
+    const prepared = prepareFormXML({
+      context,
+      preparedYamlFile,
+      formName: itemName,
+      currentXMLPath: byRole.get("body")?.targetXmlPath,
+      profile,
+    })
+    return prepared.flatMap((document) => {
+      const output = byRole.get(document.targetKind)
+      return output === undefined
+        ? []
+        : [{ declarationId: output.declarationId, targetXmlPath: output.targetXmlPath, ...document }]
+    })
+  },
 })

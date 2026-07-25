@@ -51,7 +51,7 @@ export function describeProjectSpecResourceTopology(
         role: "metadata",
         required: true,
         read: { inputRole: "metadata" },
-        prepareCapabilityId: "metadataItem",
+        prepareCapabilityId: "configuration",
         source,
       }
     )
@@ -140,7 +140,7 @@ function collectSpecAssignment(
       role: "metadata",
       required: true,
       read: { inputRole: "metadata" },
-      prepareCapabilityId: "metadataItem",
+      prepareCapabilityId: "appliedObject",
       source: itemRuleSource(rule),
     }
   )
@@ -275,7 +275,7 @@ function collectRuleDeclarations(
           role: "metadata",
           required: true,
           read: { inputRole: "metadata" },
-          prepareCapabilityId: "metadataItem",
+          prepareCapabilityId: "appliedObject",
           source: itemRuleSource(collection.fileItemRule),
         }
       )
