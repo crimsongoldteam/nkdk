@@ -96,6 +96,7 @@ export function characteristicsDescriptionsRule<const Params extends Characteris
 ): Readonly<{ type: "CharacteristicsDescriptions" } & Params> {
   return defineWidePropertyRule("CharacteristicsDescriptions", {
     configurationIndexAddressing: "yamlPath",
+    preserveExplicitDefaultXML: true,
     ...params,
   })
 }
