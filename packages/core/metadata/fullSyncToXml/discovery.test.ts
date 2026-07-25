@@ -118,6 +118,7 @@ describe("full XML sync discovery", () => {
     expect(plan.assignments[0]?.potentialOutputs?.map((output) => output.targetXmlPath)).toEqual([
       "CommonForms/Additional.xml",
       "CommonForms/Additional/Ext/Form.xml",
+      "CommonForms/Additional/Ext/Help.xml",
     ])
   })
 
