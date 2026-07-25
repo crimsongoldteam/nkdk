@@ -166,6 +166,7 @@ export function importPropertiesFromXMLToYAML(params: {
             context: propertyContext,
             rule: propertyRule,
             xml: sourceXMLValue,
+            propertyKey: key,
           }),
         { configurationIndexAddressing: propertyRule.configurationIndexAddressing }
       )

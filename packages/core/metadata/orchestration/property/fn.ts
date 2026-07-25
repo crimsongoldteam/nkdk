@@ -254,12 +254,14 @@ export interface ConfigurationIndexValueFromXMLDescriptor {
   identityKind?: "uuid" | "xmlId"
   userSettingsIdFromSource?: true
   xsiNilWhenNotRepresentable?: true
+  referenceXMLFromValue?: (value: import("../../configurationIndex/types").ConfigurationXmlValue) => unknown
 }
 
 export type CollectConfigurationIndexFromXMLFunction = (params: {
   context: ConfigurationContextFromXML
   rule: PropertyRule
   xml: unknown
+  propertyKey: string
 }) => void
 
 /** Декларативное поведение XML-import, одинаковое для всех свойств зарегистрированного типа. */

@@ -3,6 +3,7 @@ import type { PropertyRule } from "../../orchestration/property/types"
 import { registerTypeRule } from "../../orchestration/property/typeRuleRegistry"
 import { ConfigurationContext, ConfigurationContextFromXML } from "../../context/types"
 import { getTypePrefix, removeTypePrefix } from "./helper"
+import { getConfigurationIndexCollectionContext } from "../../configurationIndex/collector/context"
 import {
   TYPE_DESCRIPTION_SOURCE_TYPES,
   TYPE_DESCRIPTION_XML_CONTAINER_BY_TYPE,
@@ -208,3 +209,33 @@ function getDateQualifiers(xml?: TypeDescriptionXML["v8:DateQualifiers"]) {
 }
 
 registerTypeRule("TypeDescription", "importFromXML", importTypeDescriptionFromXML)
+registerTypeRule("TypeDescription", "collectConfigurationIndexFromXML", ({ context, xml, propertyKey }) => {
+  const collection = getConfigurationIndexCollectionContext(context)
+  const type = isRecord(xml) ? xml["v8:Type"] : undefined
+  if (collection === undefined || Array.isArray(type) || !isRecord(type) || typeof type["#text"] !== "string") return
+  const prefix = getTypePrefix(type["#text"])
+  const namespace = prefix === undefined ? undefined : type[`_xmlns:${prefix}`]
+  if (prefix === undefined || typeof namespace !== "string") return
+  const address = `${collection.logicalAddress}.${propertyKey}`
+  collection.collector.setXmlPrefix(address, prefix)
+  collection.collector.setXmlText(address, `${namespace}\n${type["#text"]}`)
+})
+registerTypeRule("TypeDescription", "configurationIndexValueFromXML", {
+  referenceXMLFromValue: (value) => {
+    if (value.xmlPrefix === undefined || value.xmlText === undefined) return undefined
+    const separator = value.xmlText.indexOf("\n")
+    if (separator < 0) return undefined
+    const namespace = value.xmlText.slice(0, separator)
+    const text = value.xmlText.slice(separator + 1)
+    return {
+      "v8:Type": {
+        [`_xmlns:${value.xmlPrefix}`]: namespace,
+        "#text": text,
+      },
+    }
+  },
+})
+
+function isRecord(value: unknown): value is Record<string, unknown> {
+  return value !== null && typeof value === "object" && !Array.isArray(value)
+}

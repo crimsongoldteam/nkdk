@@ -834,7 +834,16 @@ function referenceFromConfigurationIndex(
   const value = getConfigurationIndexPropertyReferenceXMLValue(context, planned.propertyKey)
   const exists = isConfigurationIndexPropertyPresent(context, planned.propertyKey)
   if (value !== undefined) {
-    return { exists: true, key: getConfigurationIndexSourceXmlKey(context, planned.propertyKey), value }
+    const indexedValue = context.exportToXML.configurationIndex?.xmlValue(
+      `${context.exportToXML.configurationIndex.logicalAddress}.${planned.propertyKey}`
+    )
+    const restored =
+      indexedValue === undefined
+        ? value
+        : getTypeRule(planned.propertyRule.type, "configurationIndexValueFromXML")?.referenceXMLFromValue?.(
+            indexedValue
+          ) ?? value
+    return { exists: true, key: getConfigurationIndexSourceXmlKey(context, planned.propertyKey), value: restored }
   }
   if (!exists) return { exists: false }
   const rule = planned.propertyRule

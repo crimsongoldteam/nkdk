@@ -59,6 +59,42 @@ function contextWithIndex(xmlValues = sampleIndex().xmlValues): {
 }
 
 describe("configuration index в едином YAML → XML-обходе", () => {
+  it("восстанавливает исходный namespace-префикс описания типа без reference XML", () => {
+    const contexts = createDirectRoundTripContexts()
+    const rule = {
+      itemType: "TypeDescriptionPrefixProbe",
+      properties: {
+        type: {
+          type: "TypeDescription",
+          yaml: "Тип",
+          xml: "Type",
+          declareTypeNamespaceXML: true,
+        },
+      },
+    } as const satisfies MetadataItemRule
+    const source = {
+      Type: {
+        "v8:Type": {
+          "_xmlns:d4p1": "http://v8.1c.ru/8.1/data/enterprise/current-config",
+          "#text": "d4p1:CatalogRef.ЗначенияХарактеристик",
+        },
+      },
+    }
+
+    const imported = testPropertyFromXMLToYAML({
+      context: contexts.importContext,
+      rule,
+      xml: source,
+    })
+    const exported = testPropertyFromYAMLToXML({
+      context: contexts.exportContext(),
+      rule,
+      yaml: imported.yaml,
+    })
+
+    expect(exported.xml).toEqual(source)
+  })
+
   it("восстанавливает явно заданное XML-значение, совпадающее с implicitValueYAML", () => {
     const contexts = createDirectRoundTripContexts({
       logicalAddress: "Справочник.Товары",
