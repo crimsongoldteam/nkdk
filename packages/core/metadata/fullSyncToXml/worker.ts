@@ -53,7 +53,13 @@ export async function runFullXmlSyncWorkerCommand(
       workerIndex: command.workerIndex,
       projectDir: command.projectDir,
       outputDir: command.outputDir,
-      context: command.context,
+      context: {
+        ...command.context,
+        importFromYAML: {
+          ...command.context.importFromYAML,
+          projectDir: command.projectDir,
+        },
+      },
       index: createConfigurationIndexReader(command.index),
       composition: createFullXmlSyncCompositionReader(command.composition),
     }
@@ -334,6 +340,7 @@ export function fullXmlSyncWorkerStateForTests(): {
   initialized: boolean
   workerIndex?: number
   projectDir?: string
+  importProjectDir?: string
   outputDir?: string
   preparedIds: string[]
   prepared: { id: string; documents: string[]; holdsPreparedYamlFile: false }[]
@@ -345,6 +352,7 @@ export function fullXmlSyncWorkerStateForTests(): {
       : {
           workerIndex: initializedState.workerIndex,
           projectDir: initializedState.projectDir,
+          importProjectDir: initializedState.context.importFromYAML?.projectDir,
           outputDir: initializedState.outputDir,
         }),
     preparedIds: [...preparedAssignments.keys()],

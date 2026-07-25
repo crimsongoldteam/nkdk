@@ -70,6 +70,7 @@ describe("full XML sync worker", () => {
     expect(result).not.toHaveProperty("yamlFiles")
     expect(result).not.toHaveProperty("data")
     expect(fullXmlSyncWorkerStateForTests()).toMatchObject({
+      importProjectDir: projectDir,
       preparedIds: [sourceProjectPath],
       prepared: [
         {
