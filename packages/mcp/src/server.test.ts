@@ -54,6 +54,17 @@ describe("MCP server", () => {
     expect(source).toContain('from "@nkdk/core"')
   })
 
+  it("keeps private core as a build-only dependency", async () => {
+    const packageJson = (
+      await import("../package.json", {
+        with: { type: "json" },
+      })
+    ).default
+
+    expect(packageJson.dependencies).not.toHaveProperty("@nkdk/core")
+    expect(packageJson.devDependencies).toHaveProperty("@nkdk/core", "workspace:*")
+  })
+
   it("documents expected publish build outputs", () => {
     const outputs = [
       "dist/bin/nkdk-mcp",
