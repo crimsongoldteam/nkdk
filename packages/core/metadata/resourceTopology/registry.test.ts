@@ -5,6 +5,47 @@ const itemRule = { itemType: "TestForm", properties: {} } as MetadataItemRule
 const propertyRule = { type: "ChildFormNames" } as PropertyRule
 
 describe("property resource topology registry", () => {
+  it("describes registered child form resources in one contribution", async () => {
+    await withFreshRegistry(async () => {
+      const { registerCoreMetadata } = await import("../register")
+      registerCoreMetadata()
+      const { describePropertyResourceTopology } = await import("./registry")
+
+      expect(
+        describePropertyResourceTopology(
+          "forms",
+          {
+            type: "ChildFormNames",
+            folderName: "Формы",
+          } as PropertyRule
+        )
+      ).toEqual(
+        expect.arrayContaining([
+          expect.objectContaining({
+            kind: "content",
+            projectPattern: "Формы/{itemName}/Форма.yaml",
+            role: "fileItem",
+          }),
+          expect.objectContaining({
+            kind: "xmlDocument",
+            xmlPattern: "Forms/{itemName}.xml",
+            role: "metadata",
+          }),
+          expect.objectContaining({
+            kind: "xmlDocument",
+            xmlPattern: "Forms/{itemName}/Ext/Form.xml",
+            role: "body",
+          }),
+          expect.objectContaining({
+            kind: "externalFile",
+            projectPattern: "Формы/{itemName}/Модуль.bsl",
+            xmlPattern: "Forms/{itemName}/Ext/Form/Module.bsl",
+          }),
+        ])
+      )
+    })
+  })
+
   it("returns all resource kinds from one property-type contribution", async () => {
     await withFreshRegistry(async () => {
       const { registerTypeRule } = await import("../orchestration/property/typeRuleRegistry")
@@ -68,6 +109,26 @@ describe("property resource topology registry", () => {
     await withFreshRegistry(async () => {
       const { describePropertyResourceTopology } = await import("./registry")
       expect(describePropertyResourceTopology("forms", propertyRule)).toEqual([])
+    })
+  })
+
+  it.each([
+    ["Module", { type: "Module", xmlPath: "Ext/Module.bsl", nkdkPath: "Модуль.bsl" }],
+    ["Template", { type: "Template", xmlPath: "Ext/Template.xml", nkdkPath: "Template.xml" }],
+    ["Help", { type: "Help", filePath: "Ext/Help.xml", nkdkDir: "Справка" }],
+    ["ExternalFile", { type: "ExternalFile", xmlPath: "Ext/File.bin", nkdkPath: "Файл.bin" }],
+    [
+      "ExternalPicture",
+      { type: "ExternalPicture", xmlPath: "Ext/Picture.xml", payloadXmlDir: "Ext/Picture", nkdkDir: "Картинка" },
+    ],
+    ["WSDefinitionSchemas", { type: "WSDefinitionSchemas" }],
+    ["Recalculations", { type: "Recalculations" }],
+  ] as const)("describes %s resources through the common contribution", async (_type, rule) => {
+    await withFreshRegistry(async () => {
+      const { registerCoreMetadata } = await import("../register")
+      registerCoreMetadata()
+      const { describePropertyResourceTopology } = await import("./registry")
+      expect(describePropertyResourceTopology("value", rule as PropertyRule)).not.toEqual([])
     })
   })
 })

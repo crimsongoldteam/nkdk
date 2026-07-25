@@ -44,6 +44,14 @@ export interface MetadataExternalFileDeclaration {
   readonly xmlPattern: string
   readonly direction: "both" | "xmlToProject" | "projectToXml"
   readonly transferCapabilityId: string
+  readonly selection?: {
+    readonly manifestPattern: string
+    readonly listPath: readonly string[]
+    readonly candidateParameter: string
+    readonly candidateSuffix?: string
+    readonly alwaysIncludePrefixes?: readonly string[]
+  }
+  readonly fallback?: boolean
   readonly compositionImpact: "none" | "configurationComposition"
   readonly source: MetadataResourceSource
 }
