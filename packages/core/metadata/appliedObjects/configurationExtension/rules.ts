@@ -76,6 +76,7 @@ export const MetadataConfigurationExtensionRules = {
       yaml: "ОсновнойРежимЗапуска",
       typeSE: "ClientRunMode",
       defaultValueXML: "ManagedApplication",
+      noImplicitValueYAML: true,
       preserveExplicitDefaultXML: true,
       xmlParents: properties,
     }),
