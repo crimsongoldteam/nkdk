@@ -33,8 +33,8 @@ type I8nTextDefaultValueFunction = (params: {
 export interface I8nTextPropertyRule extends Omit<BasePropertyRule, "defaultValue"> {
   type: "I8nText"
   skipEmptyToXML?: true
-  /** Выгружать полностью пустой I8nText как пустой XML-тег. */
-  emptyAsRawXML?: true
+  /** Сохранять явно пустой XML-узел через модель и YAML. */
+  preserveEmptyXML?: true
 
   /**
    * Если значение поля приведенное к pascalCase равно имени элемента - поле не будет выгружено в yaml

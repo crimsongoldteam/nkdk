@@ -235,7 +235,7 @@ export function importPropertiesFromXMLToYAML(params: {
       } else if (direct === undefined) {
         const startedAt = performance.now()
         importedValue =
-          hasRawEmptyXML && propertyRule.emptyAsRawXML === true
+          hasRawEmptyXML && propertyRule.preserveEmptyXML === true
             ? propertyRule.defaultValueXMLEmpty
             : runWithConfigurationIndexPropertyContext(
                 sourceContext,

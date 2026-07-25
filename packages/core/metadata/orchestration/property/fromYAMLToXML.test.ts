@@ -451,7 +451,7 @@ function synonymRule(): MetadataItemRule {
       type: "I8nText",
       yaml: "Синоним",
       xml: "Synonym",
-      emptyAsRawXML: true,
+      preserveEmptyXML: true,
       implicitValueYAML: ({ name }: { name?: string }) => ({ items: { ru: name ?? "" } }),
     },
   })

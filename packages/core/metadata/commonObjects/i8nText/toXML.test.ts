@@ -7,10 +7,10 @@ import { typedI8nTextRule, typedI8nTextValue } from "./__fixtures__/data"
 import { exportI8nTextToXML, exportI8nTextToXMLWithDefaultLanguage } from "./toXML"
 import { I8nTextPropertyRule } from "./types"
 
-const emptyRawXMLRule: I8nTextPropertyRule = {
+const preserveEmptyXMLRule: I8nTextPropertyRule = {
   yaml: "Шапка",
   type: "I8nText",
-  emptyAsRawXML: true,
+  preserveEmptyXML: true,
 }
 
 describe("exportI8nTextToXML", () => {
@@ -40,7 +40,7 @@ describe("exportI8nTextToXML", () => {
     })
 
     it("exports empty text as raw XML when rule opts in", () => {
-      const result = exportI8nTextToXML(mockContext, emptyRawXMLRule, { items: { ru: "" } })
+      const result = exportI8nTextToXML(mockContext, preserveEmptyXMLRule, { items: { ru: "" } })
       const xml = result ? xmlExport({ Title: result }, false) : undefined
 
       expect(xml).toEqual("<Title/>")

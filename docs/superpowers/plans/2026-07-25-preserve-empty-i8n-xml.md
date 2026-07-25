@@ -57,7 +57,7 @@ const preserveEmptyXMLRule: I8nTextPropertyRule = {
 Run:
 
 ```bash
-pnpm --filter @nakidka/core type-check
+pnpm --filter @nkdk/core type-check
 ```
 
 Expected: FAIL с ошибкой о неизвестном свойстве `preserveEmptyXML`, пока
@@ -106,8 +106,8 @@ Expected: команда не выводит совпадений.
 Run:
 
 ```bash
-pnpm --filter @nakidka/core exec vitest run metadata/commonObjects/i8nText/fromXML.test.ts metadata/commonObjects/i8nText/toXML.test.ts metadata/orchestration/property/fromYAMLToXML.test.ts
-pnpm --filter @nakidka/core type-check
+pnpm --filter @nkdk/core exec vitest run metadata/commonObjects/i8nText/fromXML.test.ts metadata/commonObjects/i8nText/toXML.test.ts metadata/orchestration/property/fromYAMLToXML.test.ts
+pnpm --filter @nkdk/core type-check
 ```
 
 Expected: оба запуска завершаются успешно.
@@ -210,7 +210,7 @@ it("exports empty resource synonym as explicit empty YAML", () => {
 Run:
 
 ```bash
-pnpm --filter @nakidka/core exec vitest run metadata/commonObjects/i8nText/toYAML.test.ts metadata/commonObjects/metadataRegisterResource/fromXMLToYAML.test.ts
+pnpm --filter @nkdk/core exec vitest run metadata/commonObjects/i8nText/toYAML.test.ts metadata/commonObjects/metadataRegisterResource/fromXMLToYAML.test.ts
 ```
 
 Expected: FAIL — `exportI8nTextToYAML` возвращает `undefined`, а у
@@ -234,7 +234,7 @@ if (i8nRule.preserveEmptyXML && textClean !== undefined && Object.keys(textClean
 Run:
 
 ```bash
-pnpm --filter @nakidka/core exec vitest run metadata/commonObjects/i8nText/toYAML.test.ts metadata/commonObjects/i8nText/fromYAML.test.ts metadata/commonObjects/i8nText/fromXML.test.ts metadata/commonObjects/i8nText/toXML.test.ts metadata/commonObjects/metadataRegisterResource/fromXMLToYAML.test.ts
+pnpm --filter @nkdk/core exec vitest run metadata/commonObjects/i8nText/toYAML.test.ts metadata/commonObjects/i8nText/fromYAML.test.ts metadata/commonObjects/i8nText/fromXML.test.ts metadata/commonObjects/i8nText/toXML.test.ts metadata/commonObjects/metadataRegisterResource/fromXMLToYAML.test.ts
 ```
 
 Expected: PASS.
@@ -300,7 +300,7 @@ it("exports explicit empty YAML synonym as empty XML", () => {
 Run:
 
 ```bash
-pnpm --filter @nakidka/core exec vitest run metadata/orchestration/property/fromYAMLToXML.test.ts
+pnpm --filter @nkdk/core exec vitest run metadata/orchestration/property/fromYAMLToXML.test.ts
 ```
 
 Expected: FAIL — отсутствующий `Синоним` пока копируется из reference.
@@ -355,8 +355,8 @@ const result = testPropertyFromYAMLToXML({
 Run:
 
 ```bash
-pnpm --filter @nakidka/core exec vitest run metadata/orchestration/property/fromYAMLToXML.test.ts metadata/commonObjects/metadataRegisterField/fromYAMLToXML.test.ts metadata/commonObjects/metadataRegisterResource/fromYAMLToXML.test.ts
-pnpm --filter @nakidka/core type-check
+pnpm --filter @nkdk/core exec vitest run metadata/orchestration/property/fromYAMLToXML.test.ts metadata/commonObjects/metadataRegisterField/fromYAMLToXML.test.ts metadata/commonObjects/metadataRegisterResource/fromYAMLToXML.test.ts
+pnpm --filter @nkdk/core type-check
 ```
 
 Expected: PASS.
