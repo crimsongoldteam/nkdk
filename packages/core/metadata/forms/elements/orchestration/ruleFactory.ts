@@ -1,4 +1,5 @@
 import { ConfigurationContextWithExportToXML } from "../../../context/types"
+import { getChildContextToXML } from "../../../context/helpers"
 import { BaseElement } from "../baseElement/types"
 import { ToMetadata } from "../../../orchestration/metadataItem/registry"
 import { exportSingleElementRuleToJSONSchema } from "./toJSONSchema"
@@ -76,6 +77,21 @@ export const registerElementAsType = <Rule extends ElementRule & { itemType: Sin
       return logicalAddress === undefined
         ? context
         : withConfigurationIndexExportLogicalAddress(context, logicalAddress)
+    },
+    resolveItemContext: ({ context, name }) => {
+      const canonicalName = getCanonicalSingletonName({
+        ownerLogicalAddress: name ?? context.exportToXML.configurationIndex?.logicalAddress ?? "",
+        nameStyle,
+      })
+      const itemName = context.exportToXML.configurationIndex?.identity("xmlName") ?? canonicalName
+      return itemName === undefined
+        ? context
+        : getChildContextToXML({
+            context,
+            itemType: elementRule.itemType,
+            path: `${elementRule.itemType}.${itemName}`,
+            name: itemName,
+          })
     },
     transformOutput: ({ context, xml }) => {
       const extra = toXML({ context })

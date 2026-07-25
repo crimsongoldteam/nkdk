@@ -278,6 +278,47 @@ describe("форма XML → YAML → XML", () => {
     expect(converted.formXML.AutoCommandBar).toEqual(expect.objectContaining({ _id: "-1" }))
   })
 
+  it("восстанавливает имена подсказок вложенных дополнений таблицы без reference XML", () => {
+    const form = readAndParseXMLFixture<{ Form: ClientApplicationFormXML }>(import.meta.url, "reportForm.xml")
+    const metadata = readAndParseXMLFixture<{ MetaDataObject: FormMetadataXML }>(
+      import.meta.url,
+      "reportFormMetadata.xml"
+    )
+    const contexts = createDirectRoundTripContexts({
+      logicalAddress: "Отчет.ОтчетВсеСвойства.Форма.ФормаОтчета",
+    })
+    const imported = importClientApplicationFormFromXMLToYAML({
+      context: contexts.importContext,
+      formName: "ФормаОтчета",
+      formXML: form.Form,
+      metadataXML: metadata.MetaDataObject,
+    })
+    const converted = convertClientApplicationFormFromYAMLToXML({
+      context: contexts.exportContext(),
+      yaml: imported.yaml as ClientApplicationFormYAML,
+      name: "ФормаОтчета",
+    })
+    const table = (
+      converted.formXML.ChildItems as Array<{
+        Table?: {
+          SearchStringAddition?: { ExtendedTooltip?: { _name?: string } }
+          ViewStatusAddition?: { ExtendedTooltip?: { _name?: string } }
+          SearchControlAddition?: { ExtendedTooltip?: { _name?: string } }
+        }
+      }>
+    ).find((item) => item.Table !== undefined)?.Table
+
+    expect(table?.SearchStringAddition?.ExtendedTooltip?._name).toBe(
+      "ТабличнаяЧастьВсеСвойстваСтрокаПоискаРасширеннаяПодсказка"
+    )
+    expect(table?.ViewStatusAddition?.ExtendedTooltip?._name).toBe(
+      "ТабличнаяЧастьВсеСвойстваСостояниеПросмотраРасширеннаяПодсказка"
+    )
+    expect(table?.SearchControlAddition?.ExtendedTooltip?._name).toBe(
+      "ТабличнаяЧастьВсеСвойстваУправлениеПоискомРасширеннаяПодсказка"
+    )
+  })
+
   it("восстанавливает порядок metadata-свойств по адресу metadata-файла", () => {
     const form = readAndParseXMLFixture<{ Form: ClientApplicationFormXML }>(import.meta.url, "full.xml")
     const metadata = readAndParseXMLFixture<{ MetaDataObject: FormMetadataXML }>(import.meta.url, "fullMetadata.xml")

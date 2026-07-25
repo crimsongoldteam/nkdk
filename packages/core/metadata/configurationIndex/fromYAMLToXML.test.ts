@@ -15,11 +15,15 @@ import { sampleIndex } from "./testData"
 
 import "../commonObjects/metadataValue/toXML"
 import "../commonObjects/boolean/fromXML"
+import "../commonObjects/boolean/fromYAML"
 import "../commonObjects/boolean/toYAML"
 import "../commonObjects/internalInfo/fromXML"
 import "../commonObjects/internalInfo/toXML"
 import "../commonObjects/userSettingsID/toXML"
 import "../commonObjects/uuid/fromXML"
+import "../systemEnumerations/fromXML"
+import "../systemEnumerations/fromYAML"
+import "../systemEnumerations/toYAML"
 
 function contextWithIndex(xmlValues = sampleIndex().xmlValues): {
   context: ConfigurationContextWithExportToXML
@@ -107,6 +111,63 @@ describe("configuration index в едином YAML → XML-обходе", () => 
 
     expect(imported.yaml).toEqual({})
     expect(exported.xml).toEqual({ Enabled: true })
+  })
+
+  it("восстанавливает XML-представление системного перечисления из implicitValueYAML", () => {
+    const contexts = createDirectRoundTripContexts()
+    const rule = {
+      itemType: "TestDirectItem",
+      properties: {
+        type: {
+          type: "SystemEnumeration",
+          typeSE: "FormButtonType",
+          xml: "Type",
+          yaml: "Вид",
+          implicitValueYAML: "UsualButton",
+        },
+      },
+    } as const satisfies MetadataItemRule
+    const imported = testPropertyFromXMLToYAML({
+      context: contexts.importContext,
+      rule,
+      xml: { Type: "UsualButton" },
+    })
+    const exported = testPropertyFromYAMLToXML({
+      context: contexts.exportContext(),
+      rule,
+      yaml: imported.yaml,
+    })
+
+    expect(imported.yaml).toEqual({})
+    expect(exported.xml).toEqual({ Type: "UsualButton" })
+  })
+
+  it("восстанавливает локализованное логическое implicitValueYAML", () => {
+    const contexts = createDirectRoundTripContexts()
+    const rule = {
+      itemType: "TestDirectItem",
+      properties: {
+        enabled: {
+          type: "boolean",
+          xml: "Enabled",
+          yaml: "Включено",
+          implicitValueYAML: "Ложь",
+        },
+      },
+    } as const satisfies MetadataItemRule
+    const imported = testPropertyFromXMLToYAML({
+      context: contexts.importContext,
+      rule,
+      xml: { Enabled: "false" },
+    })
+    const exported = testPropertyFromYAMLToXML({
+      context: contexts.exportContext(),
+      rule,
+      yaml: imported.yaml,
+    })
+
+    expect(imported.yaml).toEqual({})
+    expect(exported.xml).toEqual({ Enabled: false })
   })
 
   it("round-trips the complete XML property order without reference XML", () => {

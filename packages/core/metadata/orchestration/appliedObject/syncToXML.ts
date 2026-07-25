@@ -220,10 +220,11 @@ registerMetadataXmlPrepareCapability({
         { configurationIndexAddressing: propertyRule.configurationIndexAddressing }
       )
       const nestedContext =
-        nestedRule.resolveContext?.({ context: propertyContext, name: itemName, propertyRule }) ??
-        propertyContext
+        nestedRule.resolveContext?.({ context: propertyContext, name: itemName, propertyRule }) ?? propertyContext
+      const nestedItemContext =
+        nestedRule.resolveItemContext?.({ context: nestedContext, name: itemName, propertyRule }) ?? nestedContext
       const converted = convertMetadataItemFromYAMLToXML({
-        context: nestedContext,
+        context: nestedItemContext,
         yaml: normalizedYAML,
         rule: nestedRule.itemRule,
         name: nestedRule.injectOwnerName === true ? itemName : undefined,

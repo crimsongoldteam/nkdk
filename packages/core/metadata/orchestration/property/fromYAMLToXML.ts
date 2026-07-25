@@ -16,6 +16,8 @@ import { toYAMLImportError, withYAMLImportDiagnostics } from "../yamlImportError
 import type {
   ExportToXMLFunction,
   ExportToXMLFunctionNew,
+  ExportToYAMLFunction,
+  ExportToYAMLFunctionNew,
   importFromYAMLFunction,
   ImportFromYAMLFunctionNew,
 } from "./fn"
@@ -360,6 +362,14 @@ export function convertPropertiesFromYAMLToXML(params: ConvertPropertiesFromYAML
               propertyRule: planned.propertyRule,
             })
           : nestedPropertyContext
+      const nestedItemContext =
+        effectiveNestedRule.kind === "item" && effectiveNestedRule.resolveItemContext !== undefined
+          ? effectiveNestedRule.resolveItemContext({
+              context: nestedContext,
+              name: params.name,
+              propertyRule: planned.propertyRule,
+            })
+          : nestedContext
       const sourceNestedYAML =
         planned.propertyKey === namePropertyKey && params.name !== undefined && !source.has(propertyKey)
           ? params.name
@@ -442,7 +452,7 @@ export function convertPropertiesFromYAMLToXML(params: ConvertPropertiesFromYAML
               deferredRulePath: [...(params.deferredRulePath ?? []), { propertyKey }],
             })
           : convertMetadataItemFromYAMLToXML({
-              context: nestedContext,
+              context: nestedItemContext,
               yaml: normalizedNestedYAML,
               rule:
                 effectiveNestedRule.kind === "item"
@@ -528,7 +538,7 @@ export function convertPropertiesFromYAMLToXML(params: ConvertPropertiesFromYAML
             })
           : undefined
       )
-      imported = callAtomicFromYAML({
+      const importParams: AtomicFromYAMLParams = {
         handler: getTypeRule(planned.propertyRule.type, "importFromYAML"),
         context: diagnosticContext,
         rule: planned.propertyRule,
@@ -537,7 +547,10 @@ export function convertPropertiesFromYAMLToXML(params: ConvertPropertiesFromYAML
         yaml,
         name: params.name,
         owner,
-      })
+      }
+      imported = hasIndexedImplicitYAMLValue
+        ? importIndexedImplicitYAMLValue(importParams)
+        : callAtomicFromYAML(importParams)
       if (params.profile !== undefined) params.profile.atomicFromYAMLCount++
 
       matchingOutputs.forEach((output, index) => {
@@ -636,6 +649,23 @@ export function callAtomicFromYAML(params: AtomicFromYAMLParams): unknown {
     ? imported
     : (imported ?? normalizeReferenceFallback(rule, referenceValue))
   return resolved === undefined ? defaultValue({ context, rule, yaml, name, operation: "importFromYAML" }) : resolved
+}
+
+function importIndexedImplicitYAMLValue(params: AtomicFromYAMLParams): unknown {
+  const imported = callAtomicFromYAML(params)
+  const handler = getTypeRule(params.rule.type, "exportToYAML")
+  if (handler === undefined) return imported
+  const exported =
+    handler.length === 1
+      ? (handler as ExportToYAMLFunctionNew)({
+          context: params.context,
+          rule: params.rule,
+          value: imported,
+          name: params.name,
+          owner: params.owner,
+        })
+      : (handler as ExportToYAMLFunction)(params.context, params.rule, imported)
+  return Object.is(exported, params.value) ? imported : params.value
 }
 
 function shouldUseOnlyImportedValue(params: { rule: PropertyRule; value: unknown }): boolean {
