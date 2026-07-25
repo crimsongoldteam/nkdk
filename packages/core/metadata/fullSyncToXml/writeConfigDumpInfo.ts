@@ -4,13 +4,22 @@ import { xmlExport } from "../../xml/export/exporter"
 import { buildConfigDumpInfo } from "../appliedObjects/configDumpInfo/build"
 import { exportConfigDumpInfoToXML } from "../appliedObjects/configDumpInfo/toXML"
 import type { ConfigDumpInfo } from "../appliedObjects/configDumpInfo/types"
-import { configDumpInfoNameFromMigrationPath } from "../appliedObjects/configDumpInfo/nameMapping"
+import {
+  configDumpInfoNameFromMigrationPath,
+  isManagedConfigDumpInfoRootSegment,
+} from "../appliedObjects/configDumpInfo/nameMapping"
+import {
+  collectConfigDumpInfoConfigurationIndex,
+  CONFIG_DUMP_INFO_INDEX_ROOT,
+  configDumpInfoChildAddress,
+  configDumpInfoChildrenAddress,
+  configDumpInfoEntryAddress,
+} from "../appliedObjects/configDumpInfo/configurationIndex"
 import type { StructuralState } from "../appliedObjects/configuration/migrations/types"
 import { createConfigurationIndexCollector } from "../configurationIndex/collector/writer"
 import { createConfigurationIndexExportRuntime } from "../configurationIndex/exportRuntime"
 import type { ConfigurationIndexReader } from "../configurationIndex/sharedSnapshot"
 import type { ConfigurationIndexFragment } from "../configurationIndex/types"
-import { yamlKeyUid } from "../configurationIndex/logicalAddress"
 import type { ConfigurationContext } from "../context/types"
 import type { FullXmlSyncAssignment } from "./types"
 
@@ -41,9 +50,10 @@ export async function writeFullXmlSyncConfigDumpInfo(
     targetProjectPath: TARGET_PROJECT_PATH,
     logicalAddress: "ConfigDumpInfo",
   })
-  const reference = referenceConfigDumpInfoFromIndex({ index: params.index, yamlState })
+  const reference = referenceConfigDumpInfoFromIndex(params.index)
   const idMap = buildConfigDumpInfo({
     reference,
+    collected: retainedReferenceEntries(reference, yamlState),
     yamlState,
     migrationState: yamlState,
     referencePathByCurrentPath: new Map(),
@@ -57,6 +67,7 @@ export async function writeFullXmlSyncConfigDumpInfo(
       },
     },
   })
+  collectConfigDumpInfoConfigurationIndex(idMap, collector)
   const xml = exportConfigDumpInfoToXML({ context: params.context, idMap })
   await fs.promises.mkdir(params.outputDir, { recursive: true })
   await fs.promises.writeFile(join(params.outputDir, CONFIG_DUMP_INFO_FILE), xmlExport({ ConfigDumpInfo: xml }), "utf-8")
@@ -69,18 +80,33 @@ export async function writeFullXmlSyncConfigDumpInfo(
   }
 }
 
-function referenceConfigDumpInfoFromIndex(params: {
-  index: ConfigurationIndexReader
-  yamlState: StructuralState
-}): ConfigDumpInfo {
+function retainedReferenceEntries(reference: ConfigDumpInfo, yamlState: StructuralState): ConfigDumpInfo | undefined {
+  const currentOwners = new Set(
+    [...yamlState.nodes.keys()].map((path) => configDumpInfoNameFromMigrationPath(path).split(".").slice(0, 2).join("."))
+  )
+  const retained = new Map(
+    [...reference].filter(([name]) => {
+      const rootSegment = name.split(".")[0]
+      if (rootSegment === undefined || !isManagedConfigDumpInfoRootSegment(rootSegment)) return false
+      return currentOwners.has(name.split(".").slice(0, 2).join("."))
+    })
+  )
+  return retained.size === 0 ? undefined : retained
+}
+
+function referenceConfigDumpInfoFromIndex(index: ConfigurationIndexReader): ConfigDumpInfo {
   const result: ConfigDumpInfo = new Map()
-  for (const path of params.yamlState.nodes.keys()) {
-    const dumpName = configDumpInfoNameFromMigrationPath(path)
-    const address = configDumpInfoAddress(dumpName)
-    const id = params.index.identity(address, "uuid")
-    const configVersion = params.index.xmlValue(`${address}.configVersion`)?.xmlText
+  for (const dumpName of index.xmlNode(CONFIG_DUMP_INFO_INDEX_ROOT)?.order ?? []) {
+    const address = configDumpInfoEntryAddress(dumpName)
+    const id = index.identity(address, "xmlId") ?? index.identity(address, "uuid")
+    const configVersion = index.xmlValue(`${address}.configVersion`)?.xmlText
     if (id !== undefined) {
-      result.set(dumpName, { id, configVersion: configVersion ?? "", children: new Map() })
+      const children = new Map<string, string>()
+      for (const childName of index.xmlNode(configDumpInfoChildrenAddress(dumpName))?.order ?? []) {
+        const childId = index.identity(configDumpInfoChildAddress(dumpName, childName), "xmlId")
+        if (childId !== undefined) children.set(childName, childId)
+      }
+      result.set(dumpName, { id, configVersion: configVersion ?? "", children })
     }
   }
   return result
@@ -104,5 +130,5 @@ function generationAddressesFromState(yamlState: StructuralState): string[] {
 }
 
 function configDumpInfoAddress(dumpName: string): string {
-  return yamlKeyUid("Конфигурация.ConfigDumpInfo", dumpName)
+  return configDumpInfoEntryAddress(dumpName)
 }

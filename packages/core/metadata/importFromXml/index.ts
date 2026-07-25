@@ -17,5 +17,6 @@ export type {
   ImportExternalFile,
   ImportIgnoredFile,
   ImportResultFile,
+  ImportSnapshotFile,
   ImportXmlInput,
 } from "./types"

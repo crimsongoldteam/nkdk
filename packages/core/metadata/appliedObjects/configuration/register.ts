@@ -17,6 +17,7 @@ import { registerMetadataXmlPrepareCapability } from "../../resourceTopology/cap
 import { prepareConfigurationXML } from "./rootIO"
 import { buildConfigurationChildObjectsFromProjectEntries } from "./childObjects"
 import { configurationChildObjectsFromIndex } from "./configurationChildObjects"
+import "../configDumpInfo/configurationIndex"
 
 const objectOwnedProjectSpecDirs = new Set(["Справочник", "Документ", "Перечисление"])
 const specialObjectPathProjectSpecDirs = new Set(["ВнешнийИсточникДанных", "Подсистема"])
@@ -38,6 +39,10 @@ registerProjectSpec({
       kind: "ignore",
       side: "xml",
       pattern: "ConfigDumpInfo.xml",
+      snapshotImport: {
+        capabilityId: "configDumpInfo",
+        targetProjectPath: "Конфигурация.yaml",
+      },
       source: { kind: "itemRule", description: MetadataConfigurationRules.itemType },
     },
   ],

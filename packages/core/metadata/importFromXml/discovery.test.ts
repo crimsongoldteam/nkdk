@@ -111,6 +111,13 @@ describe("XML import discovery", () => {
       sourcePath: join(xmlDir, "Catalogs/Контрагенты/Forms/ФормаЭлемента/Ext/Form/Module.bsl"),
       targetProjectPath: "Справочник/Контрагенты/Формы/ФормаЭлемента/Модуль.bsl",
     })
+    expect(result.snapshotFiles).toEqual([
+      {
+        sourcePath: join(xmlDir, "ConfigDumpInfo.xml"),
+        capabilityId: "configDumpInfo",
+        targetProjectPath: "Конфигурация.yaml",
+      },
+    ])
   })
 
   it("uses the body role for a real CommonForm Ext/Form.xml", async () => {
@@ -257,7 +264,10 @@ describe("XML import discovery", () => {
   it("ignores files that are not described by import routes", async () => {
     const fs = fakeFs(["z.bin", "Unknown.bin"])
 
-    await expect(discoverXmlImport({ xmlDir, topology: testTopology, fs })).resolves.toEqual({ assignments: [] })
+    await expect(discoverXmlImport({ xmlDir, topology: testTopology, fs })).resolves.toEqual({
+      assignments: [],
+      snapshotFiles: [],
+    })
     expect(fs.readFile).not.toHaveBeenCalled()
   })
 

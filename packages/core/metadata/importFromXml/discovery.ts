@@ -3,7 +3,7 @@ import { isAbsolute, join, relative, resolve } from "path"
 import importContentFromXML from "../../xml/import/importer"
 import { createImportAssignments, type ImportAssignmentGroup } from "./assignmentBuilder"
 import { expandMetadataPathPattern } from "../resourceTopology/patterns"
-import type { ImportAssignment, ImportExternalFile } from "./types"
+import type { ImportAssignment, ImportExternalFile, ImportSnapshotFile } from "./types"
 import {
   matchXmlImportResource,
   projectXmlImportTopology,
@@ -24,7 +24,9 @@ export interface DiscoverXmlImportParams {
 
 type ResolvedMatch = CompiledXmlResourceMatch
 
-export async function discoverXmlImport(params: DiscoverXmlImportParams): Promise<{ assignments: ImportAssignment[] }> {
+export async function discoverXmlImport(
+  params: DiscoverXmlImportParams
+): Promise<{ assignments: ImportAssignment[]; snapshotFiles: ImportSnapshotFile[] }> {
   const fileSystem = params.fs ?? defaultFileSystem
   const topologyProjection = projectXmlImportTopology(params.topology)
   const listedPaths = await fileSystem.listFiles(params.xmlDir)
@@ -32,6 +34,7 @@ export async function discoverXmlImport(params: DiscoverXmlImportParams): Promis
   const conflictPaths: string[] = []
   const assignmentsByTarget = new Map<string, ImportAssignmentGroup>()
   const externalMatches: Array<Extract<ResolvedMatch, { kind: "externalFile" }> & { path: string }> = []
+  const snapshotFiles: ImportSnapshotFile[] = []
   const manifestValues = new Map<string, Promise<Set<string>>>()
 
   for (const path of paths) {
@@ -46,7 +49,17 @@ export async function discoverXmlImport(params: DiscoverXmlImportParams): Promis
       continue
     }
     const compatible = compatibleMatches[0]
-    if (compatible.kind === "ignore") continue
+    if (compatible.kind === "ignore") {
+      const snapshotImport = compatible.node.snapshotImport
+      if (snapshotImport !== undefined) {
+        snapshotFiles.push({
+          sourcePath: resolve(params.xmlDir, ...path.split("/")),
+          capabilityId: snapshotImport.capabilityId,
+          targetProjectPath: snapshotImport.targetProjectPath,
+        })
+      }
+      continue
+    }
     if (compatible.kind === "externalFile") {
       for (const match of compatibleMatches) {
         if (match.kind !== "externalFile") throw new Error("Несовместимые виды XML-import маршрутов")
@@ -109,7 +122,7 @@ export async function discoverXmlImport(params: DiscoverXmlImportParams): Promis
   assertEveryMetadataXmlBelongsToOneAssignment(assignments)
   assertEveryExternalFileBelongsToOneAssignment(assignments)
 
-  return { assignments }
+  return { assignments, snapshotFiles }
 }
 
 const defaultFileSystem: XmlImportDiscoveryFileSystem = {

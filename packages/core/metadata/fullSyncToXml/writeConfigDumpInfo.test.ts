@@ -37,8 +37,29 @@ describe("writeFullXmlSyncConfigDumpInfo", () => {
           ...sampleIndex().identities,
           {
             logicalAddress: "Конфигурация.ConfigDumpInfo.Catalog%2EТовары",
-            kind: "uuid",
+            kind: "xmlId",
             value: "00000000-0000-4000-8000-000000000777",
+          },
+          {
+            logicalAddress: "Конфигурация.ConfigDumpInfo.Catalog%2EТовары.children.Catalog%2EТовары%2EAttribute%2EКод",
+            kind: "xmlId",
+            value: "00000000-0000-4000-8000-000000000778",
+          },
+          {
+            logicalAddress: "Конфигурация.ConfigDumpInfo.Catalog%2EТовары%2EForm%2EФорма",
+            kind: "xmlId",
+            value: "00000000-0000-4000-8000-000000000777.0",
+          },
+        ],
+        xmlNodes: [
+          ...sampleIndex().xmlNodes,
+          {
+            logicalAddress: "Конфигурация.ConfigDumpInfo",
+            order: ["Catalog.Товары", "Catalog.Товары.Form.Форма"],
+          },
+          {
+            logicalAddress: "Конфигурация.ConfigDumpInfo.Catalog%2EТовары.children",
+            order: ["Catalog.Товары.Attribute.Код"],
           },
         ],
         xmlValues: [
@@ -47,6 +68,10 @@ describe("writeFullXmlSyncConfigDumpInfo", () => {
             logicalAddress: "Конфигурация.ConfigDumpInfo.Catalog%2EТовары.configVersion",
             xmlText: "aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa",
           },
+          {
+            logicalAddress: "Конфигурация.ConfigDumpInfo.Catalog%2EТовары%2EForm%2EФорма.configVersion",
+            xmlText: "bbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbb",
+          },
         ],
       }),
     })
@@ -54,7 +79,12 @@ describe("writeFullXmlSyncConfigDumpInfo", () => {
     const xml = fs.readFileSync(join(outputDir, "ConfigDumpInfo.xml"), "utf-8")
     expect(xml).toContain('name="Catalog.Товары"')
     expect(xml).toContain('id="00000000-0000-4000-8000-000000000777"')
-    expect(xml).toMatch(/configVersion="[0-9a-f]{40}"/)
+    expect(xml).toContain(
+      '<Metadata name="Catalog.Товары.Attribute.Код" id="00000000-0000-4000-8000-000000000778"/>'
+    )
+    expect(xml).toContain(
+      '<Metadata name="Catalog.Товары.Form.Форма" id="00000000-0000-4000-8000-000000000777.0" configVersion="bbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbb"/>'
+    )
     expect(result).toMatchObject({ targetXmlPath: "ConfigDumpInfo.xml", fragment: { targetProjectPath: "Конфигурация.yaml" } })
   })
 

@@ -30,6 +30,12 @@ export interface ImportIgnoredFile {
   sourcePath: string
 }
 
+export interface ImportSnapshotFile {
+  sourcePath: string
+  capabilityId: string
+  targetProjectPath: string
+}
+
 export interface ImportDiagnostic {
   severity: "error" | "warning"
   code: string

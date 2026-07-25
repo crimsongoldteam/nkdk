@@ -1,4 +1,6 @@
 import type { ConfigurationIndexReader } from "../configurationIndex/sharedSnapshot"
+import type { ConfigurationIndexFragment } from "../configurationIndex/types"
+import type { ConfigurationContextFromXML } from "../context/types"
 import type { ConfigurationContextWithExportToXML } from "../context/types"
 import type { DeferredObjectValue } from "../orchestration/property/deferredObjectValues"
 import type { YAMLToXMLProfile } from "../orchestration/property/fromYAMLToXMLTypes"
@@ -57,6 +59,17 @@ export interface MetadataExternalTransferCapability {
 
 const externalTransferCapabilities = new Map<string, MetadataExternalTransferCapability>()
 
+export interface MetadataSnapshotImportCapability {
+  readonly id: string
+  readonly run: (params: {
+    readonly context: ConfigurationContextFromXML
+    readonly sourcePath: string
+    readonly targetProjectPath: string
+  }) => Promise<ConfigurationIndexFragment>
+}
+
+const snapshotImportCapabilities = new Map<string, MetadataSnapshotImportCapability>()
+
 export function registerMetadataXmlPrepareCapability(capability: MetadataXmlPrepareCapability): void {
   const previous = prepareCapabilities.get(capability.id)
   if (previous !== undefined && previous.run !== capability.run) {
@@ -87,4 +100,16 @@ export function getMetadataExternalTransferCapability(
   id: string
 ): MetadataExternalTransferCapability | undefined {
   return externalTransferCapabilities.get(id)
+}
+
+export function registerMetadataSnapshotImportCapability(capability: MetadataSnapshotImportCapability): void {
+  const previous = snapshotImportCapabilities.get(capability.id)
+  if (previous !== undefined && previous.run !== capability.run) {
+    throw new Error(`Возможность дополнения снимка уже зарегистрирована: ${capability.id}`)
+  }
+  snapshotImportCapabilities.set(capability.id, capability)
+}
+
+export function getMetadataSnapshotImportCapability(id: string): MetadataSnapshotImportCapability | undefined {
+  return snapshotImportCapabilities.get(id)
 }
