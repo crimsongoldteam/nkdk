@@ -1,7 +1,7 @@
 import { beforeEach, describe, expect, it } from "vitest"
-import { MetadataCatalogRules } from "../metadataCatalog/rules"
 import { registerCoreMetadata } from "../../register"
 import { buildIncrementalXmlSyncPlan } from "./incrementalPlan"
+import { compileRegisteredMetadataResourceTopology } from "../../resourceTopology/registry"
 
 describe("buildIncrementalXmlSyncPlan", () => {
   beforeEach(() => {
@@ -15,7 +15,7 @@ describe("buildIncrementalXmlSyncPlan", () => {
         changed: ["Справочник/Товары/Свойства.yaml", "Справочник/Товары/Свойства.yaml"],
         deleted: [],
       },
-      rules: [MetadataCatalogRules],
+      topology: compileRegisteredMetadataResourceTopology(),
     })
 
     expect(plan.rebuildConfigurationXml).toBe(false)
@@ -29,7 +29,7 @@ describe("buildIncrementalXmlSyncPlan", () => {
         changed: [],
         deleted: [],
       },
-      rules: [MetadataCatalogRules],
+      topology: compileRegisteredMetadataResourceTopology(),
     })
 
     expect(plan.rebuildConfigurationXml).toBe(true)
@@ -42,7 +42,7 @@ describe("buildIncrementalXmlSyncPlan", () => {
         changed: [],
         deleted: [],
       },
-      rules: [MetadataCatalogRules],
+      topology: compileRegisteredMetadataResourceTopology(),
     })
 
     expect(plan.rebuildConfigurationXml).toBe(false)
@@ -53,7 +53,7 @@ describe("buildIncrementalXmlSyncPlan", () => {
     expect(() =>
       buildIncrementalXmlSyncPlan({
         diff: { added: [], changed: [], deleted: ["x/y/z.txt"] },
-        rules: [MetadataCatalogRules],
+        topology: compileRegisteredMetadataResourceTopology(),
       })
     ).toThrow('Нет правила инкрементальной XML-синхронизации для "x/y/z.txt"')
   })

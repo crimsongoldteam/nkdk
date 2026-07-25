@@ -1,6 +1,12 @@
 import { expandMetadataPathPattern } from "./patterns"
 import type { MetadataProjectResourceMatch } from "./projectProjection"
-import type { CompiledMetadataAssignmentNode, CompiledMetadataResourceTopology } from "./types"
+import type {
+  CompiledMetadataAssignmentNode,
+  CompiledMetadataExternalFileNode,
+  CompiledMetadataResourceTopology,
+  CompiledMetadataXmlDocumentNode,
+} from "./types"
+import { classifyMetadataProjectPath } from "./projectProjection"
 
 export interface XmlExportPotentialOutput {
   readonly declarationId: string
@@ -22,6 +28,40 @@ export interface XmlExportAssignmentProjection {
     readonly logicalAddress: string
   }
   readonly potentialOutputs: readonly XmlExportPotentialOutput[]
+}
+
+export interface MetadataProjectChangeImpact {
+  readonly assignment: CompiledMetadataAssignmentNode | undefined
+  readonly outputs: readonly CompiledMetadataXmlDocumentNode[]
+  readonly externalFile: CompiledMetadataExternalFileNode | undefined
+  readonly compositionImpact: "none" | "configurationComposition"
+  readonly values: Readonly<Record<string, string>>
+}
+
+export function resolveMetadataProjectChangeImpact(
+  topology: CompiledMetadataResourceTopology,
+  projectPath: string
+): MetadataProjectChangeImpact | undefined {
+  const match = classifyMetadataProjectPath(topology, projectPath)
+  if (match === undefined || match.kind === "ignore") return undefined
+  if (match.kind === "externalFile") {
+    return {
+      assignment: match.assignment,
+      outputs: [],
+      externalFile: match.externalFile,
+      compositionImpact: match.compositionImpact,
+      values: match.values,
+    }
+  }
+  return {
+    assignment: match.assignment,
+    outputs: (match.assignment?.xmlDocuments ?? []).filter(
+      (document) => document.prepareCapabilityId !== undefined
+    ),
+    externalFile: undefined,
+    compositionImpact: match.compositionImpact,
+    values: match.values,
+  }
 }
 
 export function projectXmlExportAssignment(

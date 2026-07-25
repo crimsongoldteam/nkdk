@@ -1,6 +1,8 @@
 import { resolveXmlSyncAreaForProjectPath, type XmlSyncArea } from "../../orchestration/appliedObject/xmlAreas"
-import type { MetadataItemRule } from "../../orchestration/property/types"
 import type { XmlSyncStateDiff } from "./syncState"
+import type { CompiledMetadataResourceTopology } from "../../resourceTopology/types"
+import { compileRegisteredMetadataResourceTopology } from "../../resourceTopology/registry"
+import { resolveMetadataProjectChangeImpact } from "../../resourceTopology/xmlExportProjection"
 
 export interface PlannedXmlSyncArea {
   key: string
@@ -17,19 +19,20 @@ export interface IncrementalXmlSyncPlan {
 
 export function buildIncrementalXmlSyncPlan(params: {
   diff: XmlSyncStateDiff
-  rules: readonly MetadataItemRule[]
+  topology?: CompiledMetadataResourceTopology
   extraAreas?: readonly XmlSyncArea[]
 }): IncrementalXmlSyncPlan {
+  const topology = params.topology ?? compileRegisteredMetadataResourceTopology()
   const grouped = new Map<string, PlannedXmlSyncArea>()
 
   for (const path of params.diff.added) {
-    addPathToPlan({ grouped, path, rules: params.rules, changesConfigurationComposition: true })
+    addPathToPlan({ grouped, path, topology, changesConfigurationComposition: true })
   }
   for (const path of params.diff.changed) {
-    addPathToPlan({ grouped, path, rules: params.rules, changesConfigurationComposition: false })
+    addPathToPlan({ grouped, path, topology, changesConfigurationComposition: false })
   }
   for (const path of params.diff.deleted) {
-    addPathToPlan({ grouped, path, rules: params.rules, changesConfigurationComposition: true })
+    addPathToPlan({ grouped, path, topology, changesConfigurationComposition: true })
   }
   for (const area of params.extraAreas ?? []) {
     addAreaToPlan({
@@ -51,17 +54,17 @@ export function buildIncrementalXmlSyncPlan(params: {
 function addPathToPlan(params: {
   grouped: Map<string, PlannedXmlSyncArea>
   path: string
-  rules: readonly MetadataItemRule[]
+  topology: CompiledMetadataResourceTopology
   changesConfigurationComposition: boolean
 }): void {
-  const area = resolveXmlSyncAreaForProjectPath(params.path, params.rules)
+  const impact = resolveMetadataProjectChangeImpact(params.topology, params.path)
+  const area = resolveXmlSyncAreaForProjectPath(params.path, params.topology)
   if (!area) throw new Error(`Нет правила инкрементальной XML-синхронизации для "${params.path}"`)
 
   const key = areaKey(area)
   const existing = params.grouped.get(key)
   const changesConfigurationComposition =
-    params.changesConfigurationComposition &&
-    (area.kind === "owner" || (area.kind === "fileItem" && area.compositionImpact === "configurationComposition"))
+    params.changesConfigurationComposition && impact?.compositionImpact === "configurationComposition"
   if (existing) {
     existing.changedPaths.push(params.path)
     existing.changesConfigurationComposition ||= changesConfigurationComposition

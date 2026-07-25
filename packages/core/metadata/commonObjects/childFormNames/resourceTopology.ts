@@ -17,6 +17,10 @@ registerTypeRule("ChildFormNames", "resourceTopology", ({ propertyRule }) => {
       compositionImpact: "none",
       itemRule: ClientApplicationFormRules,
       logicalAddressSegment: "Форма",
+      dumpInfoNamePatterns: [
+        "{dumpRoot}.{ownerName}.Form.{itemName}",
+        "{dumpRoot}.{ownerName}.Form.{itemName}.Form",
+      ],
       source,
     },
     {
@@ -46,6 +50,10 @@ registerTypeRule("ChildFormNames", "resourceTopology", ({ propertyRule }) => {
       xmlPattern: "Forms/{itemName}/Ext/Form/Module.bsl",
       direction: "both",
       transferCapabilityId: "ChildFormNames",
+      dumpInfoNamePatterns: [
+        "{dumpRoot}.{ownerName}.Form.{itemName}",
+        "{dumpRoot}.{ownerName}.Form.{itemName}.Form",
+      ],
       compositionImpact: "none",
       source,
     },

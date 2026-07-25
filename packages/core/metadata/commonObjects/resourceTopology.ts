@@ -41,6 +41,7 @@ const external = (params: {
   xmlPattern: string
   transferCapabilityId: string
   fallback?: boolean
+  dumpInfoNamePatterns?: readonly string[]
 }): MetadataResourceDeclaration => ({
   kind: "externalFile",
   assignmentProjectPattern: "",
@@ -49,6 +50,7 @@ const external = (params: {
   direction: "both",
   transferCapabilityId: params.transferCapabilityId,
   ...(params.fallback === undefined ? {} : { fallback: params.fallback }),
+  ...(params.dumpInfoNamePatterns === undefined ? {} : { dumpInfoNamePatterns: params.dumpInfoNamePatterns }),
   compositionImpact: "none",
   source: source(params.description),
 })
@@ -63,6 +65,10 @@ const describeModuleResources = ({ propertyRule }: { propertyRule?: PropertyRule
       projectPattern,
       xmlPattern,
       transferCapabilityId: rule.type,
+      dumpInfoNamePatterns:
+        rule.externalMetadata?.segment === undefined
+          ? undefined
+          : ["{dumpRoot}.{ownerName}", `{dumpRoot}.{ownerName}.${rule.externalMetadata.segment}`],
     }),
   ]
 

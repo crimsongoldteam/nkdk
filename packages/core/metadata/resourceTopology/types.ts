@@ -24,6 +24,7 @@ export interface MetadataContentDeclaration {
   readonly itemRule: MetadataItemRule
   readonly logicalAddressSegment?: string
   readonly ownerProjectPattern?: string
+  readonly dumpInfoNamePatterns?: readonly string[]
   readonly source: MetadataResourceSource
 }
 
@@ -53,6 +54,7 @@ export interface MetadataExternalFileDeclaration {
     readonly alwaysIncludePrefixes?: readonly string[]
   }
   readonly fallback?: boolean
+  readonly dumpInfoNamePatterns?: readonly string[]
   readonly compositionImpact: "none" | "configurationComposition"
   readonly source: MetadataResourceSource
 }
