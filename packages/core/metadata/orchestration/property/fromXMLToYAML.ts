@@ -10,6 +10,7 @@ import {
   getConfigurationIndexXmlNodeLogicalAddress,
   runWithConfigurationIndexPropertyContext,
 } from "../../configurationIndex/collector/context"
+import type { ConfigurationIndexCollector } from "../../configurationIndex/collector/writer"
 import type { ConfigurationContextFromXML } from "../../context/types"
 import { buildExternalFileEntry } from "../../forms/commonObjects/dynamicList/externalFile"
 import { getValueOrDefault, presenceAffectsExport, shouldProcessProperty } from "./helpers"
@@ -60,6 +61,10 @@ export function importPropertiesFromXMLToYAML(params: {
   const owner = metadataTargetOwnerFromRule({ itemRule: rule, name: itemName, context })
   const forReference = context.fromXML.forReference
   const importedExternalProperties = new Set<string>()
+  const observedOrderByXmlNode = new Map<
+    string,
+    { collector: ConfigurationIndexCollector; keys: string[]; seen: Set<string> }
+  >()
 
   const includeAllTags = sources.length === 1 && sources[0]?.tags === undefined
   const sourceStates = sources.map((source) => {
@@ -74,7 +79,6 @@ export function importPropertiesFromXMLToYAML(params: {
       xmlNodeLogicalAddress:
         indexCollection === undefined ? undefined : getConfigurationIndexXmlNodeLogicalAddress(indexCollection),
       ownerXmlName: getOwnerXmlName(source.xml),
-      importedKeysInSourceOrder: [] as string[],
       foundPropertyKeys: new Set<string>(),
     }
   })
@@ -103,7 +107,7 @@ export function importPropertiesFromXMLToYAML(params: {
     if (params.profile !== undefined) params.profile.propertyCount++
     const { sourceState, entry, sourceXMLKey, xmlPath, sourceXMLValue, presentInXML } = match
     const { propertyKey: key, rule: propertyRule } = entry
-    const { source, indexCollection, xmlNodeLogicalAddress, ownerXmlName, importedKeysInSourceOrder } = sourceState
+    const { source, indexCollection, xmlNodeLogicalAddress, ownerXmlName } = sourceState
     const { context: sourceContext } = source
     const identityStartedAt = performance.now()
     collectConfigurationIndexIdentityFromXML({
@@ -121,7 +125,20 @@ export function importPropertiesFromXMLToYAML(params: {
 
     if (indexCollection !== undefined && sourceXMLKey !== undefined) {
       const indexStartedAt = performance.now()
-      importedKeysInSourceOrder.push(key)
+      const existingObservation = observedOrderByXmlNode.get(xmlNodeLogicalAddress!)
+      if (existingObservation !== undefined && existingObservation.collector !== indexCollection.collector) {
+        throw new Error(`Для одного XML-узла ${xmlNodeLogicalAddress} используются разные сборщики снимка`)
+      }
+      const observation = existingObservation ?? {
+        collector: indexCollection.collector,
+        keys: [],
+        seen: new Set<string>(),
+      }
+      if (!observation.seen.has(key)) {
+        observation.seen.add(key)
+        observation.keys.push(key)
+      }
+      observedOrderByXmlNode.set(xmlNodeLogicalAddress!, observation)
       if (sourceXMLKey !== entry.canonicalXMLKey)
         indexCollection.collector.setAlias(xmlNodeLogicalAddress!, key, sourceXMLKey)
       if (
@@ -472,10 +489,10 @@ export function importPropertiesFromXMLToYAML(params: {
     addProfileDuration(params.profile, "xmlTraversalMs", performance.now() - traversalStartedAt - conversionMs)
   }
 
-  for (const { indexCollection, xmlNodeLogicalAddress, importedKeysInSourceOrder } of sourceStates) {
-    if (indexCollection === undefined || importedKeysInSourceOrder.length === 0) continue
+  for (const [xmlNodeLogicalAddress, observation] of observedOrderByXmlNode) {
+    if (observation.keys.length === 0) continue
     const indexStartedAt = performance.now()
-    indexCollection.collector.setOrder(xmlNodeLogicalAddress!, importedKeysInSourceOrder)
+    observation.collector.setOrder(xmlNodeLogicalAddress, observation.keys)
     addProfileTime(params.profile, "configurationIndexMs", indexStartedAt)
   }
 

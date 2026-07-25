@@ -140,6 +140,71 @@ describe("importPropertiesFromXMLToYAML", () => {
     expect(calls).toEqual(["Body:body", "Metadata:metadata"])
   })
 
+  it("merges XML order from partial sources of one physical node", () => {
+    const indexCollector = createConfigurationIndexCollector()
+    const context = withConfigurationIndexCollector(mockContextFromXML(), indexCollector, "Справочник.Товары")
+
+    const yaml = importPropertiesWithSources({
+      context,
+      rule: {
+        itemType: "TestDirectItem",
+        properties: {
+          first: { type: "string", xml: "First", yaml: "Первое", tag: "main" },
+          second: { type: "string", xml: "Second", yaml: "Второе", tag: "additional" },
+          third: { type: "string", xml: "Third", yaml: "Третье", tag: "main" },
+        },
+      } as MetadataItemRule,
+      sources: [
+        { context, xml: { First: "1", Third: "3" }, tags: ["main"] },
+        { context, xml: { Second: "2" }, tags: ["additional"] },
+      ],
+      yamlPath: [],
+      rulePath: [],
+      collector: createLocalIndexesCollector(),
+    })
+
+    expect(yaml).toEqual({ Первое: "1", Второе: "2", Третье: "3" })
+    expect(indexCollector.fragment("test.yaml").xmlNodes).toEqual([
+      {
+        logicalAddress: "Справочник.Товары",
+        order: ["first", "third", "second"],
+      },
+    ])
+  })
+
+  it("rejects different snapshot collectors for one physical XML node", () => {
+    const firstContext = withConfigurationIndexCollector(
+      mockContextFromXML(),
+      createConfigurationIndexCollector(),
+      "Справочник.Товары"
+    )
+    const secondContext = withConfigurationIndexCollector(
+      mockContextFromXML(),
+      createConfigurationIndexCollector(),
+      "Справочник.Товары"
+    )
+
+    expect(() =>
+      importPropertiesWithSources({
+        context: firstContext,
+        rule: {
+          itemType: "TestDirectItem",
+          properties: {
+            first: { type: "string", xml: "First", yaml: "Первое", tag: "main" },
+            second: { type: "string", xml: "Second", yaml: "Второе", tag: "additional" },
+          },
+        } as MetadataItemRule,
+        sources: [
+          { context: firstContext, xml: { First: "1" }, tags: ["main"] },
+          { context: secondContext, xml: { Second: "2" }, tags: ["additional"] },
+        ],
+        yamlPath: [],
+        rulePath: [],
+        collector: createLocalIndexesCollector(),
+      })
+    ).toThrow("Для одного XML-узла Справочник.Товары используются разные сборщики снимка")
+  })
+
   it("imports a nested item from registered XML sources", () => {
     const propertyType = "TestNestedSources" as PropertyRuleType
     const nestedRule = {
