@@ -10,6 +10,12 @@ import {
 } from "../../orchestration"
 import type { ConfigurationContext, ConfigurationContextFromXML } from "../../context/types"
 import {
+  getConfigurationIndexCollectionContext,
+  getConfigurationIndexPropertyLogicalAddress,
+  type ConfigurationIndexCollectionContext,
+} from "../../configurationIndex/collector/context"
+import { indexedUid } from "../../configurationIndex/logicalAddress"
+import {
   SectionsPanelRepresentationFromYAML,
   SectionsPanelRepresentationToYAML,
   type SectionsPanelRepresentation,
@@ -48,6 +54,7 @@ const XML_REFERENCE_RAW = "__xmlReferenceRaw"
 const XML_METADATA = Symbol.for("metadata")
 const XML_ORDERED_CHILDREN = Symbol.for("xmlOrderedChildren")
 const XML_SECTION_LENGTHS = Symbol("clientApplicationInterfaceSectionLengths")
+const SECTION_KEYS = ["top", "left", "right", "bottom"] as const
 
 interface ClientApplicationInterfaceContext extends ConfigurationContext {
   clientApplicationInterfacePanelDefsById?: Map<string, ClientApplicationInterfacePanelDef>
@@ -109,6 +116,80 @@ const getXMLChildOrder = (xml: unknown): Array<{ key: string; index: number }> |
   )
 }
 
+const propertyAddress = (
+  collection: ConfigurationIndexCollectionContext,
+  propertyKey: (typeof SECTION_KEYS)[number] | "panelDefs"
+): string => {
+  const rule = ClientApplicationInterfaceRules.properties[propertyKey]
+  const yamlKey = "yaml" in rule ? rule.yaml : undefined
+  return getConfigurationIndexPropertyLogicalAddress(collection, yamlKey ?? propertyKey, undefined)
+}
+
+const itemAddress = (base: string, index: number): string => indexedUid(base, "Элемент", index)
+
+const collectItemConfigurationIndex = (
+  context: ConfigurationContextFromXML,
+  item: ClientApplicationInterfaceItem,
+  address: string
+): void => {
+  const collection = getConfigurationIndexCollectionContext(context)
+  if (collection === undefined) return
+  if (item.id !== undefined) collection.collector.setXmlId(address, item.id)
+  if (item.kind !== "group") return
+  for (const [index, child] of (item.items ?? []).entries()) {
+    collectItemConfigurationIndex(context, child, itemAddress(address, index))
+  }
+}
+
+const collectClientApplicationInterfaceConfigurationIndex = (
+  context: ConfigurationContextFromXML,
+  source: Record<string, unknown>,
+  sections: Partial<Record<(typeof SECTION_KEYS)[number], ClientApplicationInterfaceItems>>,
+  panelDefs: ClientApplicationInterfacePanelDefs | undefined
+): void => {
+  const collection = getConfigurationIndexCollectionContext(context)
+  if (collection === undefined) return
+  const base = collection.logicalAddress
+  const xmlKeyToPropertyKey = new Map<string, string>([
+    ...SECTION_KEYS.map((key) => [ClientApplicationInterfaceRules.properties[key].xml ?? key, key] as const),
+    [ClientApplicationInterfaceRules.properties.panelDefs.xml ?? "panelDef", "panelDefs"],
+  ])
+  const orderedPropertyKeys = [
+    ...new Set(
+      (getXMLChildOrder(source) ?? Object.keys(source).map((key) => ({ key, index: 0 }))).flatMap(({ key }) => {
+        const propertyKey = xmlKeyToPropertyKey.get(key)
+        return propertyKey === undefined ? [] : [propertyKey]
+      })
+    ),
+  ]
+  if (orderedPropertyKeys.length > 0) collection.collector.setOrder(base, orderedPropertyKeys)
+
+  for (const key of SECTION_KEYS) {
+    const xmlKey = ClientApplicationInterfaceRules.properties[key].xml ?? key
+    const sectionXML = toArray(source[xmlKey]).filter(isRecord)
+    const items = sections[key]
+    if (sectionXML.length === 0 || items === undefined) continue
+    const address = propertyAddress(collection, key)
+    collection.collector.setOrder(
+      address,
+      sectionXML.map((section, index) => `${index}:${getOrderedXMLChildren(section).length}`)
+    )
+    for (const [index, item] of items.entries()) {
+      collectItemConfigurationIndex(context, item, itemAddress(address, index))
+    }
+  }
+
+  const panelDefsAddress = propertyAddress(collection, "panelDefs")
+  const panelDefIds = (panelDefs ?? []).map((panelDef) => panelDef.id)
+  if (panelDefIds.length > 0) collection.collector.setOrder(panelDefsAddress, panelDefIds)
+  for (const [index, panelDef] of (panelDefs ?? []).entries()) {
+    const address = itemAddress(panelDefsAddress, index)
+    collection.collector.setXmlId(address, panelDef.id)
+    if (panelDef.name !== undefined) collection.collector.setXmlText(`${address}.name`, panelDef.name)
+    if (panelDef.spr !== undefined) collection.collector.setXmlText(`${address}.spr`, panelDef.spr)
+  }
+}
+
 const getOrderedXMLChildren = <
   T extends {
     panel?: ClientApplicationInterfacePanelXML | ClientApplicationInterfacePanelXML[]
@@ -144,9 +225,11 @@ const getOrderedXMLChildren = <
 }
 
 const defineSectionLengths = (items: ClientApplicationInterfaceItems, sectionLengths: number[]): void => {
+  if ((items as unknown as Record<PropertyKey, unknown>)[XML_SECTION_LENGTHS] !== undefined) return
   Object.defineProperty(items, XML_SECTION_LENGTHS, {
     value: sectionLengths,
     enumerable: false,
+    configurable: true,
   })
 }
 
@@ -439,12 +522,15 @@ const importClientApplicationInterfaceFromXMLToYAML: ImportFromXMLToYAMLFunction
   )
   const panelDefsById = new Map((panelDefs ?? []).map((panelDef) => [panelDef.id, panelDef]))
   const result: Record<string, unknown> = {}
-  for (const key of ["top", "left", "right", "bottom"] as const) {
+  const sections: Partial<Record<(typeof SECTION_KEYS)[number], ClientApplicationInterfaceItems>> = {}
+  for (const key of SECTION_KEYS) {
     const rule = ClientApplicationInterfaceRules.properties[key]
     const items = importItemsFromXML(context, rule, source[rule.xml ?? key])
+    if (items !== undefined) sections[key] = items
     const yaml = exportItemsToYAML(undefined, undefined, items, panelDefsById)
     if (yaml !== undefined) result[rule.yaml] = yaml
   }
+  collectClientApplicationInterfaceConfigurationIndex(context, source, sections, panelDefs)
   return result
 }
 
@@ -516,10 +602,60 @@ const importItemsYAMLValue = (
   return items.length > 0 ? items : []
 }
 
-const importItemsFromYAML: ImportFromYAMLFunctionNew = ({ value, source }) =>
-  importItemsYAMLValue(
+const restoreItemConfigurationIndex = (
+  context: ConfigurationContext,
+  item: ClientApplicationInterfaceItem,
+  address: string
+): void => {
+  const runtime = context.exportToXML?.configurationIndex
+  if (runtime === undefined) return
+  const id = runtime.identity("xmlId", address)
+  if (id !== undefined) {
+    item.id = id
+    runtime.collector.setXmlId(address, id)
+  }
+  if (item.kind !== "group") return
+  for (const [index, child] of (item.items ?? []).entries()) {
+    restoreItemConfigurationIndex(context, child, itemAddress(address, index))
+  }
+}
+
+const restoreItemsConfigurationIndex = (
+  context: ConfigurationContext,
+  rule: PropertyRule,
+  items: ClientApplicationInterfaceItems | undefined
+): ClientApplicationInterfaceItems | undefined => {
+  const runtime = context.exportToXML?.configurationIndex
+  if (runtime === undefined || items === undefined) return items
+  const propertyRuntime = runtime.withPropertyContext(rule.yaml ?? rule.xml ?? "items", undefined, {
+    configurationIndexAddressing: rule.configurationIndexAddressing,
+  })
+  const address = propertyRuntime.xmlNodeLogicalAddress ?? propertyRuntime.logicalAddress
+  for (const [index, item] of items.entries()) {
+    restoreItemConfigurationIndex(context, item, itemAddress(address, index))
+  }
+  const sectionLengths = runtime
+    .xmlNode(address)
+    ?.order?.map((token) => Number(token.slice(token.indexOf(":") + 1)))
+    .filter((length) => Number.isInteger(length) && length >= 0)
+  if (sectionLengths !== undefined && sectionLengths.reduce((sum, length) => sum + length, 0) === items.length) {
+    defineSectionLengths(items, sectionLengths)
+    runtime.collector.setOrder(
+      address,
+      sectionLengths.map((length, index) => `${index}:${length}`)
+    )
+  }
+  return items
+}
+
+const importItemsFromYAML: ImportFromYAMLFunctionNew = ({ context, rule, value, source }) =>
+  restoreItemsConfigurationIndex(
+    context,
+    rule,
+    importItemsYAMLValue(
     value as ClientApplicationInterfaceItemsYAML | undefined,
     source as ClientApplicationInterfaceItems | undefined
+    )
   )
 
 const mergePanelWithReference = (
@@ -689,13 +825,44 @@ const mergePanelDefWithReference = (params: {
   return xml
 }
 
-const exportPanelDefsToXML: ExportToXMLFunctionNew = ({ value, source, metadataItem, referenceMetadata }) => {
+const indexedPanelDefs = (
+  context: ConfigurationContext,
+  _rule: PropertyRule
+): ClientApplicationInterfacePanelDefs | undefined => {
+  const runtime = context.exportToXML?.configurationIndex
+  if (runtime === undefined) return undefined
+  const base = runtime.xmlNodeLogicalAddress ?? runtime.logicalAddress
+  const ids = runtime.xmlNode(base)?.order ?? []
+  const result = ids.flatMap((orderedId, index) => {
+    const address = itemAddress(base, index)
+    const id = runtime.identity("xmlId", address) ?? orderedId
+    if (id.length === 0) return []
+    const name = runtime.xmlValue(`${address}.name`)?.xmlText
+    const spr = runtime.xmlValue(`${address}.spr`)?.xmlText as SectionsPanelRepresentation | undefined
+    runtime.collector.setXmlId(address, id)
+    if (name !== undefined) runtime.collector.setXmlText(`${address}.name`, name)
+    if (spr !== undefined) runtime.collector.setXmlText(`${address}.spr`, spr)
+    return [{ id, ...(name === undefined ? {} : { name }), ...(spr === undefined ? {} : { spr }) }]
+  })
+  if (result.length > 0) runtime.collector.setOrder(base, ids)
+  return result.length > 0 ? result : undefined
+}
+
+const exportPanelDefsToXML: ExportToXMLFunctionNew = ({
+  context,
+  rule,
+  value,
+  source,
+  metadataItem,
+  referenceMetadata,
+}) => {
   const panels =
     source === undefined
       ? collectAllPanels(metadataItem as Record<string, unknown> | undefined)
       : collectAllPanelsFromYAMLSource(source)
-  const panelDefs = (value as ClientApplicationInterfacePanelDefs | undefined) ?? []
-  const referencePanelDefs = (referenceMetadata as ClientApplicationInterfacePanelDefs | undefined) ?? panelDefs
+  const indexed = indexedPanelDefs(context, rule)
+  const panelDefs = (value as ClientApplicationInterfacePanelDefs | undefined) ?? indexed ?? []
+  const referencePanelDefs = (referenceMetadata as ClientApplicationInterfacePanelDefs | undefined) ?? indexed ?? panelDefs
   const byId = new Map(panelDefs.map((panelDef) => [panelDef.id, panelDef]))
   const referenceById = new Map(referencePanelDefs.map((panelDef) => [panelDef.id, panelDef]))
   const emittedIds = new Set<string>()

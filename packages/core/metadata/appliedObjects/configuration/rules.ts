@@ -437,6 +437,7 @@ export const MetadataConfigurationRules = {
     clientApplicationInterface: clientApplicationInterfaceRule({
       yaml: "ИнтерфейсКлиентскогоПриложения",
       filePath: "Ext/ClientApplicationInterface.xml",
+      configurationIndexAddressing: "yamlPath",
     }),
     homePageWorkArea: homePageWorkAreaRule({
       yaml: "РабочаяОбластьНачальнойСтраницы",
