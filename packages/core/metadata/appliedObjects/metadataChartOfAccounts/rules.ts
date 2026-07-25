@@ -156,9 +156,8 @@ export const MetadataChartOfAccountsRules = {
       defaultValueXMLRaw: {},
     }),
     standardTabularSections: standardTabularSectionDescriptionsRule({
+      yaml: "СтандартныеТабличныеЧасти",
       xmlParents: properties,
-      toYAML: false,
-      fromYAML: false,
     }),
     predefinedDataUpdate: systemEnumerationRule({
       yaml: "ОбновлениеПредопределенныхДанных",
