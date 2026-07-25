@@ -27,6 +27,7 @@ interface EncodedFragmentXmlValue {
   logicalAddressStringId: number
   xsiNil?: true
   explicitEmpty?: true
+  excludedEqualName?: true
   xsiTypeStringId?: number
   xmlTextStringId?: number
   xmlPrefixStringId?: number
@@ -83,6 +84,7 @@ export function encodeConfigurationIndexFragments(fragments: readonly Configurat
         logicalAddressStringId: stringId(value.logicalAddress),
         ...(value.xsiNil === undefined ? {} : { xsiNil: value.xsiNil }),
         ...(value.explicitEmpty === undefined ? {} : { explicitEmpty: value.explicitEmpty }),
+        ...(value.excludedEqualName === undefined ? {} : { excludedEqualName: value.excludedEqualName }),
         ...(value.xsiType === undefined ? {} : { xsiTypeStringId: stringId(value.xsiType) }),
         ...(value.xmlText === undefined ? {} : { xmlTextStringId: stringId(value.xmlText) }),
         ...(value.xmlPrefix === undefined ? {} : { xmlPrefixStringId: stringId(value.xmlPrefix) }),
@@ -193,6 +195,7 @@ function decodeEncodedXmlValue(value: unknown, strings: readonly string[]): Enco
       "logicalAddressStringId",
       "xsiNil",
       "explicitEmpty",
+      "excludedEqualName",
       "xsiTypeStringId",
       "xmlTextStringId",
       "xmlPrefixStringId",
@@ -202,10 +205,14 @@ function decodeEncodedXmlValue(value: unknown, strings: readonly string[]): Enco
   )
   if (value.xsiNil !== undefined && value.xsiNil !== true) throw new Error("некорректный xsiNil")
   if (value.explicitEmpty !== undefined && value.explicitEmpty !== true) throw new Error("некорректный explicitEmpty")
+  if (value.excludedEqualName !== undefined && value.excludedEqualName !== true) {
+    throw new Error("некорректный excludedEqualName")
+  }
   return {
     logicalAddressStringId: stringId(value.logicalAddressStringId, strings),
     ...(value.xsiNil === undefined ? {} : { xsiNil: true }),
     ...(value.explicitEmpty === undefined ? {} : { explicitEmpty: true }),
+    ...(value.excludedEqualName === undefined ? {} : { excludedEqualName: true }),
     ...(value.xsiTypeStringId === undefined ? {} : { xsiTypeStringId: stringId(value.xsiTypeStringId, strings) }),
     ...(value.xmlTextStringId === undefined ? {} : { xmlTextStringId: stringId(value.xmlTextStringId, strings) }),
     ...(value.xmlPrefixStringId === undefined ? {} : { xmlPrefixStringId: stringId(value.xmlPrefixStringId, strings) }),
@@ -242,6 +249,7 @@ function decodeFragment(
       logicalAddress: strings[value.logicalAddressStringId]!,
       ...(value.xsiNil === undefined ? {} : { xsiNil: true }),
       ...(value.explicitEmpty === undefined ? {} : { explicitEmpty: true }),
+      ...(value.excludedEqualName === undefined ? {} : { excludedEqualName: true }),
       ...(value.xsiTypeStringId === undefined ? {} : { xsiType: strings[value.xsiTypeStringId]! }),
       ...(value.xmlTextStringId === undefined ? {} : { xmlText: strings[value.xmlTextStringId]! }),
       ...(value.xmlPrefixStringId === undefined ? {} : { xmlPrefix: strings[value.xmlPrefixStringId]! }),
