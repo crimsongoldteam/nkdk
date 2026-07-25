@@ -351,13 +351,14 @@ export function convertPropertiesFromYAMLToXML(params: ConvertPropertiesFromYAML
 
     const nestedRule = getTypeRule(planned.propertyRule.type, "yamlToXMLNestedRule")
     if (nestedRule !== undefined && nestedRule.kind !== "externalFile") {
+      const childCollection = params.rule.childCollections?.find(
+        (collection) => collection.propertyKey === propertyKey
+      )
       const effectiveNestedRule =
         nestedRule.kind === "collection"
           ? {
               ...nestedRule,
-              itemRule:
-                params.rule.childCollections?.find((collection) => collection.propertyKey === propertyKey)?.itemRule ??
-                nestedRule.itemRule,
+              itemRule: childCollection?.itemRule ?? nestedRule.itemRule,
             }
           : nestedRule.kind === "item"
             ? {
@@ -368,7 +369,9 @@ export function convertPropertiesFromYAMLToXML(params: ConvertPropertiesFromYAML
       const nestedPropertyContext = withConfigurationIndexExportPropertyContext(
         propertyContext,
         planned.yamlKey ?? planned.propertyKey,
-        planned.propertyRule.configurationIndexUidSegment ?? planned.propertyRule.operationTarget?.migrationSegment,
+        childCollection?.configurationIndexUidSegment ??
+          planned.propertyRule.configurationIndexUidSegment ??
+          planned.propertyRule.operationTarget?.migrationSegment,
         {
           configurationIndexAddressing:
             planned.propertyRule.configurationIndexAddressing ??

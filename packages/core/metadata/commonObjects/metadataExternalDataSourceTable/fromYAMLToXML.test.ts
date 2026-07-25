@@ -23,6 +23,20 @@ describe("MetadataExternalDataSourceTable YAML → XML", () => {
     expect(normalize(result.result)).toBe(normalize(result.expected))
   })
 
+  it("восстанавливает UUID вложенной команды без reference XML", () => {
+    const result = testPropertyFixtureThroughYAML({
+      propertyType: "MetadataExternalDataSourceTable",
+      xmlRootTag: "MetaDataObject",
+      importMetaUrl: import.meta.url,
+      fixture: "full.xml",
+      itemsTree,
+      metadataTargetOwners,
+      withReference: false,
+    })
+
+    expect(result.result).toContain('<Command uuid="1671b912-76b3-466c-b319-fa1e7c54f0f9">')
+  })
+
   it("восстанавливает пустые характеристики без reference XML", () => {
     const rule = {
       itemType: "ExternalDataSourceTableCharacteristicsProbe",
