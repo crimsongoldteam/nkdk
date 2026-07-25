@@ -1,5 +1,6 @@
 import { ConfigurationContextFromXML } from "../../context/types"
 import { PropertyRule, registerTypeRule } from "../../orchestration"
+import { collectInternalInfoConfigurationIndexFromXML } from "./configurationIndex"
 import { InternalInfo, InternalInfoRootXML } from "./types"
 
 export const importInternalInfoFromXML = (
@@ -46,3 +47,4 @@ export const importInternalInfoFromXML = (
 }
 
 registerTypeRule("InternalInfo", "importFromXML", importInternalInfoFromXML)
+registerTypeRule("InternalInfo", "collectConfigurationIndexFromXML", collectInternalInfoConfigurationIndexFromXML)

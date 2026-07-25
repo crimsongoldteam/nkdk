@@ -3,9 +3,13 @@ import { dirname, join } from "node:path"
 import { fileURLToPath } from "node:url"
 import { describe, expect, it } from "vitest"
 import { mockContextFromXML, mockContextToXML } from "../../../tests/mockContext"
+import { withConfigurationIndexCollector } from "../../configurationIndex/collector/context"
+import { createConfigurationIndexCollector } from "../../configurationIndex/collector/writer"
 import { xmlExport } from "../../../xml/export/exporter"
 import { importContentFromXML } from "../../../xml/import/importer"
-import { PropertyRule } from "../../orchestration"
+import { createLocalIndexesCollector } from "../../project/localIndexes"
+import { importPropertiesFromXMLToYAML } from "../../orchestration/property/fromXMLToYAML"
+import { MetadataItemRule, PropertyRule } from "../../orchestration"
 import { importInternalInfoFromXML } from "./fromXML"
 import { exportInternalInfoToXML } from "./toXML"
 import { InternalInfoRootXML } from "./types"
@@ -38,6 +42,19 @@ const xml = `
 	<xr:ThisNode>00000000-0000-0000-0000-000000000002</xr:ThisNode>
 </InternalInfo>`
 
+const xmlWithContainedObject = `
+<InternalInfo>
+	<xr:GeneratedType name="ExchangePlanRef.Товары" category="Ref">
+		<xr:TypeId>00000000-0000-0000-0000-000000000001</xr:TypeId>
+		<xr:ValueId>00000000-0000-0000-0000-000000000003</xr:ValueId>
+	</xr:GeneratedType>
+	<xr:ThisNode>00000000-0000-0000-0000-000000000002</xr:ThisNode>
+	<xr:ContainedObject>
+		<xr:ClassId>00000000-0000-0000-0000-000000000101</xr:ClassId>
+		<xr:ObjectId>00000000-0000-0000-0000-000000000201</xr:ObjectId>
+	</xr:ContainedObject>
+</InternalInfo>`
+
 const importFixture = () => {
   const parsed = importContentFromXML<{ InternalInfo: InternalInfoRootXML }>(xml)
   return importInternalInfoFromXML(mockContextFromXML({ forReference: true }), rule, parsed.InternalInfo)
@@ -56,6 +73,54 @@ const importContainedObjectsFixture = () => {
 }
 
 describe("importInternalInfoFromXML", () => {
+  it("collects every InternalInfo UUID without exposing InternalInfo in YAML", () => {
+    const parsed = importContentFromXML<{ InternalInfo: InternalInfoRootXML }>(xmlWithContainedObject)
+    const indexCollector = createConfigurationIndexCollector()
+    const context = withConfigurationIndexCollector(mockContextFromXML(), indexCollector, "Справочник.Товары")
+
+    const yaml = importPropertiesFromXMLToYAML({
+      context,
+      rule: {
+        itemType: "TestInternalInfoItem",
+        properties: {
+          internalInfo: {
+            ...rule,
+            xml: "InternalInfo",
+          },
+        },
+      } as MetadataItemRule,
+      sources: [{ context, xml: parsed }],
+      yamlPath: [],
+      rulePath: [],
+      collector: createLocalIndexesCollector(),
+    })
+
+    expect(yaml).toEqual({})
+    expect(indexCollector.fragment("Справочник/Товары/Свойства.yaml").identities).toEqual([
+      {
+        logicalAddress: "Справочник.Товары.InternalInfo.GeneratedType.ExchangePlanRef.TypeId",
+        kind: "uuid",
+        value: "00000000-0000-0000-0000-000000000001",
+      },
+      {
+        logicalAddress: "Справочник.Товары.InternalInfo.GeneratedType.ExchangePlanRef.ValueId",
+        kind: "uuid",
+        value: "00000000-0000-0000-0000-000000000003",
+      },
+      {
+        logicalAddress: "Справочник.Товары.InternalInfo.ThisNode",
+        kind: "uuid",
+        value: "00000000-0000-0000-0000-000000000002",
+      },
+      {
+        logicalAddress:
+          "Справочник.Товары.InternalInfo.ContainedObject.00000000-0000-0000-0000-000000000101.ObjectId",
+        kind: "uuid",
+        value: "00000000-0000-0000-0000-000000000201",
+      },
+    ])
+  })
+
   it("imports GeneratedType and ThisNode", () => {
     expect(importFixture()).toEqual({
       ExchangePlanRef: {
