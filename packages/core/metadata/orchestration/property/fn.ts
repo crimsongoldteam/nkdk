@@ -264,6 +264,7 @@ export type CollectConfigurationIndexFromXMLFunction = (params: {
 
 /** Декларативное поведение XML-import, одинаковое для всех свойств зарегистрированного типа. */
 export interface XMLImportPropertyBehavior {
+  presenceAffectsExport?: true
   presenceAffectsExportForSourceValues?: readonly (string | number | boolean | null)[]
 }
 

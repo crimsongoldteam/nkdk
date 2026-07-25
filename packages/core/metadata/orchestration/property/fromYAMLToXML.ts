@@ -383,12 +383,17 @@ export function convertPropertiesFromYAMLToXML(params: ConvertPropertiesFromYAML
           ? params.name
           : source.raw(propertyKey)
       const nestedYAML =
-        sourceNestedYAML === undefined &&
-        effectiveNestedRule.kind === "item" &&
-        (references.some((reference) => reference.exists && reference.value === undefined) ||
-          nestedContext.exportToXML.configurationIndex?.identity("xmlId") !== undefined ||
-          nestedContext.exportToXML.configurationIndex?.identity("xmlName") !== undefined)
-          ? {}
+        sourceNestedYAML === undefined
+          ? effectiveNestedRule.kind === "item" &&
+            (references.some((reference) => reference.exists && reference.value === undefined) ||
+              nestedContext.exportToXML.configurationIndex?.identity("xmlId") !== undefined ||
+              nestedContext.exportToXML.configurationIndex?.identity("xmlName") !== undefined)
+            ? {}
+            : effectiveNestedRule.kind === "collection" &&
+                effectiveNestedRule.preserveOmittedItemNames === true &&
+                getConfigurationIndexPropertyOrder(nestedContext).length > 0
+              ? {}
+              : undefined
           : sourceNestedYAML
       const hasNestedDefault =
         Object.prototype.hasOwnProperty.call(planned.propertyRule, "defaultValueXML") ||

@@ -387,6 +387,48 @@ describe("StandardAttributeDescriptions direct YAML to XML", () => {
     )
   })
 
+  it("restores a canonical empty standard attribute from the configuration index", () => {
+    const itemRule = {
+      itemType: "TestItem",
+      properties: {
+        standardAttributes: {
+          type: "StandardAttributeDescriptions",
+          yaml: "СтандартныеРеквизиты",
+          xml: "StandardAttributes",
+          standartAttributeNames: { LineNumber: "НомерСтроки" },
+        },
+      },
+    } as const satisfies MetadataItemRule
+    const sourceXML = {
+      StandardAttributes: {
+        "xr:StandardAttribute": {
+          _name: "LineNumber",
+        },
+      },
+    }
+    const contexts = createDirectRoundTripContexts()
+
+    const imported = testPropertyFromXMLToYAML({
+      context: contexts.importContext,
+      rule: itemRule,
+      xml: sourceXML,
+    })
+    const exported = testPropertyFromYAMLToXML({
+      context: contexts.exportContext(),
+      rule: itemRule,
+      yaml: imported.yaml,
+    })
+
+    expect(imported.yaml).toEqual({})
+    expect(
+      (
+        exported.xml.StandardAttributes as {
+          "xr:StandardAttribute": Array<Record<string, unknown>>
+        }
+      )["xr:StandardAttribute"]
+    ).toEqual([expect.objectContaining({ _name: "LineNumber" })])
+  })
+
   it("does not restore an explicitly empty synonym as the standard attribute name", () => {
     const itemRule = {
       itemType: "TestItem",
