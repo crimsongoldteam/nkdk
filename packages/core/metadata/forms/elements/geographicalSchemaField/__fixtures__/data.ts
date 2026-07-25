@@ -63,6 +63,7 @@ export const fullGeographicalSchemaFieldEnterprise = {
 } satisfies Required<GeographicalSchemaFieldEnterprise>
 
 export const fullGeographicalSchemaFieldPartialYAML: GeographicalSchemaFieldPartialYAML = {
+  ПутьКДанным: "Реквизит",
   АвтоМаксимальнаяВысота: "Ложь",
   АвтоМаксимальнаяШирина: "Ложь",
   Вывод: "Разрешить",

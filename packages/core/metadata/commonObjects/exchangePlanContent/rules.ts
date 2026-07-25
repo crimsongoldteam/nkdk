@@ -15,7 +15,9 @@ export const ExchangePlanContentItemRules = {
       yaml: "Авторегистрация",
       xml: "AutoRecord",
       typeSE: "AutoChangeRecord",
+      defaultValueXML: "Allow",
       implicitValueYAML: "Allow",
+      preserveExplicitDefaultXML: true,
     }),
   },
 } as const satisfies MetadataItemRule

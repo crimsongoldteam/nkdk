@@ -115,7 +115,7 @@ describe("metadata import boundaries", () => {
   })
 
   it("XML import discovery не знает конкретные объекты и папки", () => {
-    const files = ["importFromXml/discovery.ts", "importFromXml/routes.ts"]
+    const files = ["importFromXml/discovery.ts", "resourceTopology/xmlImportProjection.ts"]
 
     for (const file of files) {
       const source = readFileSync(join(METADATA_DIR, file), "utf-8")
@@ -213,6 +213,20 @@ describe("metadata import boundaries", () => {
     expect(source).not.toContain("exportClientApplicationFormToYAML")
     expect(source).not.toMatch(/PreparedImportModel|preparedModels/)
     expect(source).not.toContain('type === "DataPath"')
+  })
+
+  it("source worker pools resolve their TypeScript loader through one runtime helper", () => {
+    const sourceWorkerPools = [
+      "importFromXml/workerPool.ts",
+      "project/preparedYamlProjectWorkerPool.ts",
+      "fullSyncToXml/workerPool.ts",
+    ]
+
+    for (const relativePath of sourceWorkerPools) {
+      const source = readFileSync(join(METADATA_DIR, relativePath), "utf-8")
+      expect(source).toContain("sourceWorkerExecArgv")
+      expect(source).not.toContain('["--import", "tsx"]')
+    }
   })
 
   it("dataPath owner registrations живут в register.ts конкретных объектов", () => {

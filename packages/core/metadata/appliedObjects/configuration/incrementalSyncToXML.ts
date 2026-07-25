@@ -19,6 +19,7 @@ import { importFromYAML } from "../../../yaml/import"
 import { diffSyncState, hashProjectFiles, readXmlSyncState, SYNC_STATE_FILE, writeXmlSyncState } from "./syncState"
 import { prepareConfigurationXmlMigrationChain, syncConfigurationToXML } from "./syncToXML"
 import { TopLevelMetadataItemRules } from "./topLevelRules"
+import { compileRegisteredMetadataResourceTopology } from "../../resourceTopology/registry"
 import { createXmlChangeTracker, type XmlChangeTracker } from "./xmlChangeTracker"
 
 export async function syncConfigurationIncrementallyToXML(params: {
@@ -76,7 +77,11 @@ export async function syncConfigurationIncrementallyToXML(params: {
 
   let plan
   try {
-    plan = buildIncrementalXmlSyncPlan({ diff, rules: TopLevelMetadataItemRules, extraAreas: migrationChain.xmlAreas })
+    plan = buildIncrementalXmlSyncPlan({
+      diff,
+      topology: compileRegisteredMetadataResourceTopology(),
+      extraAreas: migrationChain.xmlAreas,
+    })
   } catch (error) {
     return {
       succeeded: 0,

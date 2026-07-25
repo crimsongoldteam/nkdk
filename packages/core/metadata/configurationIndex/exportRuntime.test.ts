@@ -73,6 +73,16 @@ describe("configuration index export runtime", () => {
     })
   })
 
+  it("uses a separate XML-node address without changing the item address", () => {
+    const { runtime } = createRuntime("Справочник.Другой")
+    const separated = runtime.withXmlNodeLogicalAddress("Справочник.Товары")
+
+    expect(separated.logicalAddress).toBe("Справочник.Другой")
+    expect(separated.xmlNode()).toEqual(
+      expect.objectContaining({ logicalAddress: "Справочник.Товары", order: ["name", "synonym"] })
+    )
+  })
+
   it("keeps collector conflicts visible", () => {
     const { collector, runtime } = createRuntime("Справочник.Новый")
     collector.setUuid("Справочник.Новый", "00000000-0000-4000-8000-000000000099")

@@ -701,6 +701,11 @@ export interface TypeDescriptionXMLDateQualifiers {
   "v8:DateFractions"?: "Date" | "Time" | "DateTime"
 }
 
+export interface TypeDescriptionXMLBinaryDataQualifiers {
+  "v8:Length": number | string
+  "v8:AllowedLength": "Variable" | "Fixed"
+}
+
 export type TypeDescriptionXML = {
   "v8:Type"?: TypeDescriptionXMLType | TypeDescriptionXMLType[]
   "v8:TypeSet"?: TypeDescriptionXMLType | TypeDescriptionXMLType[]
@@ -708,6 +713,7 @@ export type TypeDescriptionXML = {
   "v8:StringQualifiers"?: TypeDescriptionXMLStringQualifiers
   "v8:NumberQualifiers"?: TypeDescriptionXMLNumberQualifiers
   "v8:DateQualifiers"?: TypeDescriptionXMLDateQualifiers
+  "v8:BinaryDataQualifiers"?: TypeDescriptionXMLBinaryDataQualifiers
 }
 
 export interface TypeDescriptionXMLWithAttribute extends TypeDescriptionXML {

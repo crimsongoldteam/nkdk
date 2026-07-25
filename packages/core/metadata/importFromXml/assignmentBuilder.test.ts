@@ -2,23 +2,17 @@ import { join } from "path"
 import { describe, expect, it } from "vitest"
 import { createImportAssignments, type ImportAssignmentGroup } from "./assignmentBuilder"
 
-const source = { kind: "itemRule", itemType: "test" } as const
-
 function group(
   targetProjectPath: string,
-  role: ImportAssignmentGroup["route"]["role"],
+  role: ImportAssignmentGroup["definition"]["role"],
   itemType: string,
   logicalAddressSegment?: string
 ): ImportAssignmentGroup {
   return {
-    route: {
-      kind: "assignment",
-      xmlPattern: `${targetProjectPath}.xml`,
-      targetPattern: targetProjectPath,
+    definition: {
       role,
       itemType,
       ...(logicalAddressSegment === undefined ? {} : { logicalAddressSegment }),
-      source,
     },
     values: {},
     targetProjectPath,
@@ -53,6 +47,27 @@ describe("XML import assignment builder", () => {
       itemType: "ClientApplicationForm",
       name: "Форма",
       logicalAddress: "Справочник.Контрагенты.Форма.Форма",
+    })
+  })
+
+  it("builds an owner chain for recursively nested properties", () => {
+    const assignments = createImportAssignments([
+      group(
+        "Подсистема/Родитель/Подсистемы/Дочерняя/Свойства.yaml",
+        "properties",
+        "MetadataSubsystem",
+        "Подсистема"
+      ),
+      group("Подсистема/Родитель/Свойства.yaml", "properties", "MetadataSubsystem"),
+    ])
+
+    expect(assignments.find((assignment) => assignment.itemName === "Дочерняя")).toMatchObject({
+      logicalAddress: "Подсистема.Родитель.Подсистема.Дочерняя",
+      owner: {
+        itemType: "MetadataSubsystem",
+        name: "Родитель",
+        logicalAddress: "Подсистема.Родитель",
+      },
     })
   })
 })

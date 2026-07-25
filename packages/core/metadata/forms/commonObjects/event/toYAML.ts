@@ -26,6 +26,10 @@ export const exportEventsToYAML = (
     if (eventValue === undefined) continue
     result[yamlKey] = eventValue
   }
+  for (const [key, eventValue] of Object.entries(dataEvents)) {
+    if (Object.prototype.hasOwnProperty.call(rule.items, key)) continue
+    result[key] = eventValue
+  }
 
   return isNonEmptyObject(result) ? result : undefined
 }

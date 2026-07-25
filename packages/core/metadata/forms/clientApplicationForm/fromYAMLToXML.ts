@@ -2,7 +2,7 @@ import { childUid } from "../../configurationIndex/logicalAddress"
 import "../../commonObjects"
 import {
   withConfigurationIndexExportFormElementRootLogicalAddress,
-  withConfigurationIndexExportLogicalAddress,
+  withConfigurationIndexExportXmlNodeLogicalAddress,
 } from "../../configurationIndex/referenceView"
 import type { ConfigurationContextWithExportToXML } from "../../context/types"
 import { getUUID } from "../../helpers/uuid"
@@ -35,21 +35,22 @@ export interface DirectClientApplicationFormXMLResult {
 export function convertClientApplicationFormFromYAMLToXML(
   params: ConvertClientApplicationFormFromYAMLToXMLParams
 ): DirectClientApplicationFormXMLResult {
-  const formContext = createFormBodyContext({
+  const metadataContext = {
     ...params.context,
     importFromYAML: {
       ...params.context.importFromYAML,
       formDataPathIndex: createFormDataPathIndexFromYAML(params.yaml),
     },
-  })
+  }
+  const formContext = createFormBodyContext(metadataContext)
   const converted = convertPropertiesFromYAMLToXML({
-    context: formContext,
+    context: metadataContext,
     yaml: params.yaml,
     rule: ClientApplicationFormRules,
     name: params.name,
     outputs: [
       { key: "metadata", tags: [FormRulesTags.Metadata], referenceXML: params.referenceMetadataXML },
-      { key: "form", tags: [FormRulesTags.Form], referenceXML: params.referenceFormXML },
+      { key: "form", tags: [FormRulesTags.Form], referenceXML: params.referenceFormXML, context: formContext },
     ],
     profile: params.profile,
     rulePath: [ClientApplicationFormRules.itemType],
@@ -90,7 +91,7 @@ export function convertClientApplicationFormFromYAMLToXML(
 function createFormBodyContext(context: ConfigurationContextWithExportToXML): ConfigurationContextWithExportToXML {
   const runtime = context.exportToXML.configurationIndex
   if (runtime === undefined) return context
-  return withConfigurationIndexExportLogicalAddress(
+  return withConfigurationIndexExportXmlNodeLogicalAddress(
     withConfigurationIndexExportFormElementRootLogicalAddress(context, runtime.logicalAddress),
     childUid(runtime.logicalAddress, "ЧастьФормы", "Содержимое")
   )

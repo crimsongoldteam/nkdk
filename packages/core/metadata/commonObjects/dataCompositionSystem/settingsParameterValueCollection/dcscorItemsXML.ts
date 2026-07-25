@@ -1,6 +1,10 @@
 import { ConfigurationContextFromXML } from "../../../context/types"
 import { ConfigurationContextWithExportToXML } from "../../../context/types"
-import { withConfigurationIndexYamlCollectionItemContext } from "../../../configurationIndex/collector/context"
+import {
+  getConfigurationIndexCollectionContext,
+  withConfigurationIndexYamlCollectionItemContext,
+} from "../../../configurationIndex/collector/context"
+import { withConfigurationIndexExportYamlCollectionItemContext } from "../../../configurationIndex/referenceView"
 import { callAtomicToXML, importPropertyFromXML } from "../../../orchestration"
 import type { ParameterValueXML, SettingsParameterValue } from "../parameterValue/types"
 import { getSettingsParameterValueRuleForParameter } from "./ruleSet"
@@ -50,6 +54,22 @@ export const importSettingsParameterValueDcscorItemsFromXML = (params: {
       index: Object.keys(parameters).length,
       yamlKey: parameterName,
     })
+    const itemCollection = getConfigurationIndexCollectionContext(itemContext)
+    if (
+      itemCollection !== undefined &&
+      (Object.prototype.hasOwnProperty.call(itemXml, "dcscor:value") &&
+        (itemXml["dcscor:value"] === undefined ||
+          asDcscorItemArray(itemXml["dcscor:value"]).some(
+            (value) =>
+              typeof value === "object" &&
+              value !== null &&
+              !Array.isArray(value) &&
+              ((value as Record<string, unknown>)["_xsi:nil"] === true ||
+                (value as Record<string, unknown>)["_xsi:nil"] === "true")
+          )))
+    ) {
+      itemCollection.collector.setXsiNil(`${itemCollection.logicalAddress}.value`)
+    }
 
     const value = importPropertyFromXML({
       context: itemContext,
@@ -82,7 +102,7 @@ export const exportSettingsParameterValueDcscorItemsToXML = (params: {
 
   const items: ParameterValueXML[] = []
 
-  for (const parameterName of names) {
+  for (const [index, parameterName] of names.entries()) {
     const fieldValue = parameters[parameterName]
     if (fieldValue === undefined) continue
 
@@ -90,11 +110,22 @@ export const exportSettingsParameterValueDcscorItemsToXML = (params: {
     if (itemRule === undefined) continue
 
     const referenceField = referenceParameters?.[parameterName]
+    const itemContext = withConfigurationIndexExportYamlCollectionItemContext(context, {
+      index,
+      yamlKey: parameterName,
+    })
+    const indexedNil =
+      itemContext.exportToXML.configurationIndex?.xmlValue(
+        `${itemContext.exportToXML.configurationIndex.logicalAddress}.value`
+      )?.xsiNil === true
     const itemXml = callAtomicToXML({
-      context,
+      context: itemContext,
       rule: itemRule,
       value: fieldValue,
-      referenceValue: referenceField,
+      referenceValue:
+        indexedNil && referenceField?.__referenceNilValue !== true
+          ? { ...referenceField, __referenceNilValue: true as const }
+          : referenceField,
     })
     if (itemXml !== undefined) {
       items.push(itemXml as ParameterValueXML)

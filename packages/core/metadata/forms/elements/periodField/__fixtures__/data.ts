@@ -54,6 +54,7 @@ export const fullPeriodFieldEnterprise = {
 } satisfies Required<PeriodFieldEnterprise>
 
 export const fullPeriodFieldPartialYAML: PeriodFieldPartialYAML = {
+  ПутьКДанным: "Реквизит",
   Высота: 200,
   МаксимальнаяВысота: 500,
   МаксимальнаяШирина: 400,

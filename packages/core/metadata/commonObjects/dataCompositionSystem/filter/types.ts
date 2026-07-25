@@ -2,7 +2,7 @@ import { MetadataTypeByRule } from "../../../orchestration/metadataItem/element"
 import { YAMLTypeByRule } from "../../../orchestration/metadataItem/yaml"
 import "../filterItem/types"
 import { FilterRules } from "./rules"
-import { registerMetadataItemRule } from "../../../orchestration"
+import { registerMetadataItemRule, registerTypeRule } from "../../../orchestration"
 
 export type Filter = MetadataTypeByRule<typeof FilterRules>
 
@@ -12,3 +12,4 @@ registerMetadataItemRule({
   propertyType: "Filter",
   itemRule: FilterRules,
 })
+registerTypeRule("Filter", "xmlImportPropertyBehavior", { presenceAffectsExport: true })

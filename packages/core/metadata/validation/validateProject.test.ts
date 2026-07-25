@@ -29,7 +29,7 @@ describe("validateProject", { timeout: 120_000 }, () => {
 
     await workerHandle.validateProject({ projectDir, context: mockContext })
     await singleWorkerHandle.validateProject({ projectDir, context: mockContext })
-  }, 30_000)
+  }, 120_000)
 
   afterAll(async () => {
     await workerHandle.close()

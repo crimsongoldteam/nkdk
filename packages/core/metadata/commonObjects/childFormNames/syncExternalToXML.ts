@@ -1,12 +1,9 @@
 import fs from "fs"
 import { dirname, join, posix } from "path"
 import type { ConfigurationContextWithExportToXML } from "../../context/types"
-import { DynamicListRules } from "../../forms/commonObjects/dynamicList/rules"
 import { syncFormToXML } from "../../forms/clientApplicationForm/syncToXML"
-import { ClientApplicationFormRules } from "../../forms/clientApplicationForm/rules"
 import type { ExternalMetadataContextItem } from "../../orchestration/externalMetadata/types"
 import { registerTypeRule } from "../../orchestration/property/typeRuleRegistry"
-import { describeMetadataRuleProjectResources } from "../../project/ruleResources"
 import type { SyncExternalToXMLFunction } from "../../orchestration/property/fn"
 import type { MetadataItemRule } from "../../orchestration/property/types"
 import type { XmlWriteManifest } from "../../orchestration/xmlWriteManifest"
@@ -187,54 +184,6 @@ async function copyFormHelpToXML(params: {
 
 registerTypeRule("ChildFormNames", "syncExternalToXML", syncChildFormNamesToXML)
 registerTypeRule("ChildFormNames", "xmlSyncWriter", syncChildFormNamesToXML)
-registerTypeRule("ChildFormNames", "projectResources", ({ propertyRule }) => {
-  const folderName = (propertyRule as ChildFormNamesPropertyRule | undefined)?.folderName ?? "Формы"
-  return [
-    {
-      kind: "yaml",
-      role: "fileItem",
-      projectPattern: `${folderName}/{itemName}/Форма.yaml`,
-      required: true,
-      repeatable: true,
-      owner: "currentItem",
-      compositionImpact: "none",
-      source: { kind: "propertyType", type: "ChildFormNames" },
-      itemType: ClientApplicationFormRules.itemType,
-    },
-    {
-      kind: "yaml",
-      role: "resourceOnly",
-      projectPattern: `${folderName}/{itemName}/Модуль.bsl`,
-      required: false,
-      repeatable: true,
-      owner: "currentItem",
-      compositionImpact: "none",
-      source: { kind: "propertyType", type: "ChildFormNames" },
-    },
-    ...describeFormInnerProjectResources(folderName),
-  ]
-})
-registerTypeRule("ChildFormNames", "xmlSyncRoutes", ({ propertyRule }) => {
-  const folderName = (propertyRule as ChildFormNamesPropertyRule | undefined)?.folderName ?? "Формы"
-  return [
-    {
-      kind: "fileItem",
-      yamlPattern: `${folderName}/{itemName}/Форма.yaml`,
-      xmlPathPattern: "Forms/{itemName}.xml",
-      writerType: "propertyType",
-      source: { kind: "propertyType", type: "ChildFormNames" },
-      dumpInfoNamePatterns: ["{dumpRoot}.{ownerName}.Form.{itemName}", "{dumpRoot}.{ownerName}.Form.{itemName}.Form"],
-    },
-    {
-      kind: "externalFile",
-      yamlPattern: `${folderName}/{itemName}/Модуль.bsl`,
-      xmlPathPattern: "Forms/{itemName}/Ext/Form/Module.bsl",
-      writerType: "propertyType",
-      source: { kind: "propertyType", type: "ChildFormNames" },
-      dumpInfoNamePatterns: ["{dumpRoot}.{ownerName}.Form.{itemName}", "{dumpRoot}.{ownerName}.Form.{itemName}.Form"],
-    },
-  ]
-})
 registerTypeRule("ChildFormNames", "fileChildNamesDescriptor", ({ propertyRule }) => {
   const rule = propertyRule as ChildFormNamesPropertyRule
   return {
@@ -270,28 +219,4 @@ function collectMetadataTargetFormNames(params: { rule: MetadataItemRule; yaml: 
     if (formIndex >= 0 && parts[formIndex + 1]) result.add(parts[formIndex + 1])
   }
   return [...result]
-}
-
-function describeFormInnerProjectResources(folderName: string) {
-  const formRoot = `${folderName}/{itemName}`
-  return [
-    {
-      kind: "directory" as const,
-      role: "resourceOnly" as const,
-      projectPattern: "Справка",
-      required: false,
-      repeatable: false,
-      owner: "currentItem" as const,
-      compositionImpact: "none" as const,
-      source: { kind: "propertyType" as const, type: "ChildFormNames" as const },
-    },
-    ...describeMetadataRuleProjectResources(ClientApplicationFormRules),
-    ...describeMetadataRuleProjectResources(DynamicListRules),
-  ]
-    .filter((resource) => resource.role === "resourceOnly")
-    .map((resource) => ({
-      ...resource,
-      projectPattern: `${formRoot}/${resource.projectPattern}`,
-      repeatable: true,
-    }))
 }

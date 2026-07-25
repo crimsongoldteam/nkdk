@@ -2,7 +2,7 @@ import type { TSchema } from "typebox"
 import type { ConfigurationContext, JSONSchemaExportMode } from "../context/types"
 import { registerJSONSchemaIdentity } from "../orchestration/jsonSchemaRefs"
 import type { MetadataItemRule } from "../orchestration/property/types"
-import type { XmlImportRoute } from "../importFromXml/types"
+import type { MetadataResourceDeclaration } from "../resourceTopology/types"
 
 export interface RegisteredProjectSpec {
   dir: string
@@ -10,8 +10,8 @@ export interface RegisteredProjectSpec {
   rule: MetadataItemRule
   exportSchema: (params: { context: ConfigurationContext; mode?: JSONSchemaExportMode; name?: string }) => TSchema
   nesting?: ProjectSpecNesting
-  /** Дополнительные абсолютные маршруты XML-выгрузки, принадлежащие этому project spec. */
-  xmlImportRoutes?: readonly XmlImportRoute[]
+  /** Нейтральное описание файлов Проекта и связанных с ними XML-ресурсов. */
+  resources?: readonly MetadataResourceDeclaration[]
 }
 
 export type ProjectSpecNesting = {
@@ -19,12 +19,15 @@ export type ProjectSpecNesting = {
   childDir: string
   itemRole: string
   collectionRole: string
+  logicalAddressSegment: string
 }
 
 const specsByDir = new Map<string, RegisteredProjectSpec>()
+let registryRevision = 0
 
 export function registerProjectSpec(spec: RegisteredProjectSpec): void {
   specsByDir.set(spec.dir, spec)
+  registryRevision += 1
   registerJSONSchemaIdentity({
     name: spec.rule.itemType,
     source: spec.rule,
@@ -46,8 +49,14 @@ export function getRegisteredProjectSpecByDir(dir: string): RegisteredProjectSpe
 
 export function clearProjectSpecRegistryForTests(): void {
   specsByDir.clear()
+  registryRevision += 1
 }
 
 export function unregisterProjectSpecForTests(dir: string): void {
   specsByDir.delete(dir)
+  registryRevision += 1
+}
+
+export function projectSpecRegistryRevision(): number {
+  return registryRevision
 }

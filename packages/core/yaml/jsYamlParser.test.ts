@@ -1,4 +1,5 @@
 import { describe, expect, it } from "vitest"
+import { asExplicitYAMLStringIfMarked, explicitYAMLString } from "./explicitString"
 import { parseWithJsYaml } from "./jsYamlParser"
 
 describe("parseWithJsYaml", () => {
@@ -62,5 +63,15 @@ describe("parseMetadataYaml", () => {
     expect(parsed.syntaxErrors).toEqual([])
     expect("locations" in parsed).toBe(false)
     expect("text" in parsed).toBe(false)
+  })
+
+  it("preserves double-quoted scalar semantics for prepared YAML workers", async () => {
+    const { parseMetadataYamlData } = await import("./parseMetadataYaml")
+    const parsed = parseMetadataYamlData('Отбор.Код: "456"')
+    const data = parsed.data as Record<string, unknown>
+
+    expect(asExplicitYAMLStringIfMarked(data, "Отбор.Код", data["Отбор.Код"])).toEqual(
+      explicitYAMLString("456")
+    )
   })
 })

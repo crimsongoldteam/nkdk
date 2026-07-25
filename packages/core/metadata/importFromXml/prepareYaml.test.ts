@@ -12,7 +12,7 @@ import {
   registeredImportRuleLookupCountForTests,
   resetRegisteredImportRuleLookupCountForTests,
 } from "./prepareYaml"
-import { describeRegisteredXmlImportRoutes } from "./routes"
+import { compileRegisteredMetadataResourceTopology } from "../resourceTopology/registry"
 import type { ImportAssignment } from "./types"
 
 const configurationFixturesDir = join(import.meta.dirname, "../appliedObjects/configuration/__fixtures__")
@@ -27,6 +27,7 @@ afterEach(() => {
 describe("prepareImportYaml", () => {
   it("imports a common form through the standard nested rules converter", async () => {
     const fixtureDir = join(import.meta.dirname, "../appliedObjects/metadataCommonForm/__fixtures__/sync")
+    const collector = createConfigurationIndexCollector()
     const profiler = createOperationProfiler({
       operation: "import-from-xml",
       scope: { scope: "worker", workerIndex: 0 },
@@ -48,7 +49,7 @@ describe("prepareImportYaml", () => {
         externalFiles: [],
       },
       context: mockContextFromXML(),
-      collector: createConfigurationIndexCollector(),
+      collector,
       profiler,
     })
     const expected = parseMetadataYamlData(
@@ -65,6 +66,11 @@ describe("prepareImportYaml", () => {
     expect(substeps).toContain("XML в YAML: обход XML")
     expect(substeps).not.toContain("XML в YAML: определение порядка свойств")
     expect(substeps).not.toContain("XML в YAML: выбор свойств")
+    expect(collector.fragment("ОбщаяФорма/КонстантаВсеСвойства/Свойства.yaml").identities).toContainEqual({
+      logicalAddress: "ОбщаяФорма.КонстантаВсеСвойства.Элемент.КонстантаВсеСвойства",
+      kind: "xmlId",
+      value: "1",
+    })
   })
 
   it("prepares an applied object without writing YAML or external files", async () => {
@@ -291,7 +297,7 @@ describe("prepareImportYaml", () => {
 
       const discovered = await discoverXmlImport({
         xmlDir: inputDir,
-        routes: describeRegisteredXmlImportRoutes(),
+        topology: compileRegisteredMetadataResourceTopology(),
       })
       const prepared = await Promise.all(
         discovered.assignments.map((assignment) =>

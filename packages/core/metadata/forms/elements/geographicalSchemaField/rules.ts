@@ -44,8 +44,6 @@ export const GeographicalSchemaFieldRules = {
     }),
     dataPath: dataPathRule({
       yaml: "ПутьКДанным",
-      toYAML: false,
-      fromYAML: false,
       defaultType: "GeographicalSchema",
     }),
     ...formFieldCommonProperties,

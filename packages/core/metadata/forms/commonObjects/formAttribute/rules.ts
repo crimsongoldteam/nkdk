@@ -36,6 +36,8 @@ export const FormAttributeRules = {
       xml: "Settings",
       order: 99,
       addTypeDescriptionAttributeToXML: true,
+      defaultValueXMLEmpty: { type: [] },
+      preserveEmptyXML: true,
     }),
     title: i8nTextRule({
       yaml: "Заголовок",
@@ -132,31 +134,26 @@ export const FormAttributeRules = {
     chart: chartRule({
       xml: "Settings",
       yaml: "Диаграмма",
-      fromXML: false,
       order: 99,
     }),
     ganttChart: ganttChartRule({
       xml: "Settings",
       yaml: "ДиаграммаГанта",
-      fromXML: false,
       order: 99,
     }),
     flowchartContext: flowchartContextRule({
       xml: "Settings",
       yaml: "ГрафическаяСхема",
-      fromXML: false,
       order: 99,
     }),
     spreadsheetDocument: spreadsheetDocumentRule({
       xml: "Settings",
       yaml: "ТабличныйДокумент",
-      fromXML: false,
       order: 99,
     }),
     planner: plannerRule({
       xml: "Settings",
       yaml: "Планировщик",
-      fromXML: false,
       order: 99,
     }),
   },
@@ -218,6 +215,7 @@ registerMetadataItemCollectionRule({
   itemRule: FormAttributeRules,
   xmlElement: "Attribute",
   keyField: "name",
+  configurationIndexUidSegment: "Атрибут",
   mapItemOutput: ({ xml }) => {
     const { _name, _id, ...properties } = xml
     return { _name, _id: typeof _id === "string" ? _id : "", ...properties }
@@ -229,6 +227,7 @@ registerMetadataItemCollectionRule({
   itemRule: FormAttributeColumnRules,
   xmlElement: "Column",
   keyField: "name",
+  configurationIndexUidSegment: "Колонка",
   mapItemOutput: ({ xml }) => {
     const { _name, _id, ...properties } = xml
     return { _name, _id: typeof _id === "string" ? _id : "", ...properties }

@@ -50,8 +50,6 @@ export const PeriodFieldRules = {
     }),
     dataPath: dataPathRule({
       yaml: "ПутьКДанным",
-      toYAML: false,
-      fromYAML: false,
       defaultType: "dateTime",
     }),
     ...formFieldCommonProperties,

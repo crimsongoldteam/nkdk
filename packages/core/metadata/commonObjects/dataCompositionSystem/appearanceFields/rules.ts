@@ -91,13 +91,13 @@ registerTypeRule("AppearanceFields", "yamlToXMLNestedRule", {
       )
     }
 
-    return {
-      "dcscor:item": Object.keys(AppearanceFieldsRules.properties).flatMap((name) => {
-        const value = xml[name]
-        return value !== null && typeof value === "object" && !Array.isArray(value)
-          ? [value as Record<string, unknown>]
-          : []
-      }),
-    }
+    const items = Object.keys(AppearanceFieldsRules.properties).flatMap((name) => {
+      const value = xml[name]
+      return value !== null && typeof value === "object" && !Array.isArray(value)
+        ? [value as Record<string, unknown>]
+        : []
+    })
+    return items.length === 0 ? {} : { "dcscor:item": items }
   },
 })
+registerTypeRule("AppearanceFields", "xmlImportPropertyBehavior", { presenceAffectsExport: true })

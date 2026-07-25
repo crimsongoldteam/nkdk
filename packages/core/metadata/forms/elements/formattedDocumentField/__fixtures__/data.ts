@@ -76,6 +76,7 @@ export const fullFormattedDocumentFieldEnterprise = {
 } satisfies Required<FormattedDocumentFieldEnterprise>
 
 export const fullFormattedDocumentFieldPartialYAML: FormattedDocumentFieldPartialYAML = {
+  ПутьКДанным: "Реквизит",
   АвтоМаксимальнаяВысота: "Ложь",
   АвтоМаксимальнаяШирина: "Ложь",
   Вывод: "Разрешить",

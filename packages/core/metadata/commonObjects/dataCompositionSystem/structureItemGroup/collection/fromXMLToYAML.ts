@@ -3,6 +3,7 @@ import { getTypeRule, registerTypeRule } from "../../../../orchestration/propert
 import type { MetadataItemRule } from "../../../../orchestration/property/types"
 import { GroupItemAutoRules } from "../items/groupItemAuto/rules"
 import { GroupItemFieldRules } from "../items/groupItemField/rules"
+import { withConfigurationIndexYamlCollectionItemContext } from "../../../../configurationIndex/collector/context"
 
 const itemRules = [GroupItemAutoRules, GroupItemFieldRules] as const
 
@@ -19,7 +20,7 @@ export const importStructureItemGroupCollectionFromXMLToYAML: ImportFromXMLToYAM
     const direct = getTypeRule(rule.itemType, "importFromXMLToYAML")
     if (direct === undefined) continue
     const yaml = direct({
-      context,
+      context: withConfigurationIndexYamlCollectionItemContext(context, { index, yamlAsArray: true }),
       rule: { type: rule.itemType },
       xml: item,
       name,

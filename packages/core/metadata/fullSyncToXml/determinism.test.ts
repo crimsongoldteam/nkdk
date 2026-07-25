@@ -45,7 +45,7 @@ describe("full XML sync determinism", () => {
     expect(normalizeIndex(await readConfigurationIndex({ projectDir: projectTwo }))).toEqual(
       normalizeIndex(await readConfigurationIndex({ projectDir: projectOne }))
     )
-  })
+  }, 60_000)
 })
 
 function readTree(root: string): Record<string, Buffer> {

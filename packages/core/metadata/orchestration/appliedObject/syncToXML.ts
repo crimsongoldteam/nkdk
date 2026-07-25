@@ -3,7 +3,7 @@ import { basename, dirname, join, posix, relative, sep } from "path"
 import { getChildContextToXML } from "../../context/helpers"
 import type { ConfigurationContextFromXML, ConfigurationContextWithExportToXML } from "../../context/types"
 import { convertMetadataItemFromYAMLToXML } from "../metadataItem/fromYAMLToXML"
-import { callAtomicFromYAML, callAtomicToXML } from "../property/fromYAMLToXML"
+import { callAtomicFromYAML, callAtomicToXML, createYAMLPropertySource } from "../property/fromYAMLToXML"
 import type { YAMLToXMLExternalWrite } from "../property/fromYAMLToXMLTypes"
 import { getTypeRule } from "../property/typeRuleRegistry"
 import type { FileChildNamesDescriptor } from "../property/fn"
@@ -23,6 +23,9 @@ import {
   orderFileItemNames,
   resolveChildCollectionDir,
 } from "./fileItemChildCollections"
+import { registerMetadataXmlPrepareCapability } from "../../resourceTopology/capabilities"
+import { withConfigurationIndexExportPropertyContext } from "../../configurationIndex/referenceView"
+import type { MetadataXmlPrepareCompositionEntry } from "../../resourceTopology/capabilities"
 
 const PROPERTIES_YAML = "Свойства.yaml"
 
@@ -75,6 +78,7 @@ export const prepareAppliedObjectOwnerXML = (params: {
   preparedYamlFile: PreparedYamlFile
   referenceXML?: Record<string, unknown>
   fileChildNames?: { forms?: readonly string[]; templates?: readonly string[] }
+  compositionPropertyValues?: ReadonlyMap<string, unknown>
   profile?: import("../property/fromYAMLToXMLTypes").YAMLToXMLProfile
 }): {
   xml: Record<string, unknown>
@@ -110,13 +114,31 @@ export const prepareAppliedObjectOwnerXML = (params: {
       },
     },
   }
+  const contextWithOwner = getChildContextToXML({
+    context: withImportMetadataTargetOwner(contextWithForms, params.rule, params.name),
+    itemType: params.rule.itemType,
+    path: `${params.rule.itemType}.${params.name}`,
+    name: params.name,
+    externalMetadata: params.rule.externalMetadata,
+  })
+  const propertyValues = new Map(
+    collectFileChildPropertyValues({
+      rule: params.rule,
+      yaml: yamlObj,
+      ownerDir: dirname(params.preparedYamlFile.filePath),
+    })
+  )
+  for (const [propertyKey, value] of params.compositionPropertyValues ?? []) {
+    propertyValues.set(propertyKey, value)
+  }
 
   const converted = convertMetadataItemFromYAMLToXML({
-    context: contextWithForms,
+    context: contextWithOwner,
     rule: withFileItemCollectionReferenceExportRules(params.rule),
     yaml: yamlObj,
     name: params.name,
     outputs: [{ key: "owner", referenceXML: params.referenceXML }],
+    propertyValues,
     profile: params.profile,
     rulePath: [params.rule.itemType],
   })
@@ -128,6 +150,200 @@ export const prepareAppliedObjectOwnerXML = (params: {
     rootRule: params.rule,
   }
 }
+
+function collectFileChildPropertyValues(params: {
+  rule: MetadataItemRule
+  yaml: unknown
+  ownerDir: string
+}): ReadonlyMap<string, unknown> {
+  const yaml = asRecord(params.yaml) ?? {}
+  const values = new Map<string, unknown>()
+
+  for (const [propertyKey, propertyRule] of Object.entries(params.rule.properties)) {
+    const descriptor = getFileChildNamesDescriptor(propertyRule)
+    if (descriptor === undefined) continue
+
+    const childDir = join(params.ownerDir, descriptor.folderName)
+    const names = fs.existsSync(childDir)
+      ? fs
+          .readdirSync(childDir, { withFileTypes: true })
+          .filter((entry) => entry.isDirectory())
+          .map((entry) => entry.name)
+          .sort((left, right) => Buffer.compare(Buffer.from(left), Buffer.from(right)))
+      : []
+    const expected = descriptor.expectedNames({
+      rule: params.rule,
+      yaml,
+      propertyValue: names,
+    })
+    if (expected.length > 0) values.set(propertyKey, expected)
+  }
+
+  return values
+}
+
+registerMetadataXmlPrepareCapability({
+  id: "appliedObject",
+  run: ({ assignment, context, preparedYamlFile, itemName, logicalAddress, outputs, composition, profile }) => {
+    const output = outputs.find((candidate) => candidate.role === "metadata")
+    if (output === undefined) return []
+    const prepared = prepareAppliedObjectOwnerXML({
+      rule: assignment.itemRule,
+      context,
+      name: itemName,
+      preparedYamlFile,
+      compositionPropertyValues: collectCompositionChildPropertyValues({
+        rule: assignment.itemRule,
+        ownerLogicalAddress: logicalAddress,
+        composition,
+      }),
+      profile,
+    })
+    return [{ declarationId: output.declarationId, targetXmlPath: output.targetXmlPath, ...prepared }]
+  },
+})
+
+function collectCompositionChildPropertyValues(params: {
+  rule: MetadataItemRule
+  ownerLogicalAddress: string
+  composition: readonly MetadataXmlPrepareCompositionEntry[]
+}): ReadonlyMap<string, unknown> {
+  const values = new Map<string, unknown>()
+  for (const childCollection of params.rule.childCollections ?? []) {
+    const fileItemRule = childCollection.fileItemRule
+    if (fileItemRule === undefined) continue
+    const names = params.composition
+      .filter(
+        (entry) =>
+          entry.assignmentRole === "fileItem" &&
+          entry.ownerLogicalAddress === params.ownerLogicalAddress &&
+          entry.itemType === fileItemRule.itemType
+      )
+      .map((entry) => entry.itemName)
+    if (names.length > 0) values.set(childCollection.propertyKey, names)
+  }
+  return values
+}
+
+registerMetadataXmlPrepareCapability({
+  id: "itemProperty",
+  run: ({ assignment, context, preparedYamlFile, itemName, logicalAddress, outputs, profile }) => {
+    const yaml = preparedYamlFile.data
+    const itemContext = getChildContextToXML({
+      context: withImportMetadataTargetOwner(context, assignment.itemRule, itemName),
+      itemType: assignment.itemRule.itemType,
+      path: logicalAddress,
+      name: itemName,
+      externalMetadata: assignment.itemRule.externalMetadata,
+    })
+    const source = createYAMLPropertySource({
+      yaml,
+      rule: assignment.itemRule,
+      itemName,
+      context: itemContext,
+    })
+
+    return outputs.flatMap((output) => {
+      const propertyKey = output.propertyName
+      if (propertyKey === undefined || !source.has(propertyKey)) return []
+      const propertyRule = assignment.itemRule.properties[propertyKey]
+      if (propertyRule === undefined) return []
+      const nestedRule = getTypeRule(propertyRule.type, "yamlToXMLNestedRule")
+      if (nestedRule?.kind !== "item") return []
+      const itemRule = nestedRule.itemRuleFromProperty?.(propertyRule) ?? nestedRule.itemRule
+
+      const nestedYAML = source.raw(propertyKey)
+      const normalizedYAML =
+        nestedRule.normalizeYAML?.({ yaml: nestedYAML, name: itemName, propertyRule }) ?? nestedYAML
+      const propertyContext = withConfigurationIndexExportPropertyContext(
+        itemContext,
+        propertyRule.yaml ?? propertyKey,
+        propertyRule.configurationIndexUidSegment ?? propertyRule.operationTarget?.migrationSegment,
+        { configurationIndexAddressing: propertyRule.configurationIndexAddressing }
+      )
+      const nestedContext =
+        nestedRule.resolveContext?.({ context: propertyContext, name: itemName, propertyRule }) ?? propertyContext
+      const nestedItemContext =
+        nestedRule.resolveItemContext?.({ context: nestedContext, name: itemName, propertyRule }) ?? nestedContext
+      const converted = convertMetadataItemFromYAMLToXML({
+        context: nestedItemContext,
+        yaml: normalizedYAML,
+        rule: itemRule,
+        name: nestedRule.injectOwnerName === true ? itemName : undefined,
+        sourceItemName: itemName,
+        outputs: [{ key: "property" }],
+        sparseYAML: nestedRule.sparseYAML,
+        ownerYAML: { itemType: assignment.itemRule.itemType },
+        profile,
+        rulePath: [assignment.itemRule.itemType, propertyKey],
+        deferredRulePath: [{ propertyKey }],
+      })
+      const xml = converted.outputs.get("property")
+      if (xml === undefined) return []
+      return [
+        {
+          declarationId: output.declarationId,
+          targetXmlPath: output.targetXmlPath,
+          xml,
+          deferred: bindDeferredObjectValues(xml, converted.deferredByOutput.get("property") ?? []),
+          rootRule: itemRule,
+        },
+      ]
+    })
+  },
+})
+
+registerMetadataXmlPrepareCapability({
+  id: "externalFileProperty",
+  run: ({ assignment, context, preparedYamlFile, itemName, logicalAddress, outputs }) => {
+    const contextWithSourceDir = withImportFormDir(context, dirname(preparedYamlFile.filePath))
+    const itemContext = getChildContextToXML({
+      context: withImportMetadataTargetOwner(contextWithSourceDir, assignment.itemRule, itemName),
+      itemType: assignment.itemRule.itemType,
+      path: logicalAddress,
+      name: itemName,
+      externalMetadata: assignment.itemRule.externalMetadata,
+    })
+    const source = createYAMLPropertySource({
+      yaml: preparedYamlFile.data,
+      rule: assignment.itemRule,
+      itemName,
+      context: itemContext,
+    })
+
+    return outputs.flatMap((output) => {
+      const propertyKey = output.propertyName
+      if (propertyKey === undefined) return []
+      const propertyRule = assignment.itemRule.properties[propertyKey]
+      if (propertyRule === undefined) return []
+      if (!source.has(propertyKey) && propertyRule.exportReferenceFileOnMissingValue !== true) return []
+      const nestedRule = getTypeRule(propertyRule.type, "yamlToXMLNestedRule")
+      if (nestedRule?.kind !== "externalFile") return []
+
+      const propertyContext = withConfigurationIndexExportPropertyContext(
+        itemContext,
+        propertyRule.yaml ?? propertyKey,
+        propertyRule.configurationIndexUidSegment ?? propertyRule.operationTarget?.migrationSegment,
+        { configurationIndexAddressing: propertyRule.configurationIndexAddressing }
+      )
+      const xml = nestedRule.convert({
+        context: propertyContext,
+        yaml: source.raw(propertyKey),
+        name: itemName,
+        referenceXML: undefined,
+      })
+      return [
+        {
+          declarationId: output.declarationId,
+          targetXmlPath: output.targetXmlPath,
+          xml,
+          deferred: [],
+          rootRule: assignment.itemRule,
+        },
+      ]
+    })
+  },
+})
 
 export const writePreparedAppliedObjectOwnerToXML = async (params: {
   rule: MetadataItemRule
@@ -380,10 +596,11 @@ const syncAppliedObjectToXMLInternal = async (params: InternalSyncAppliedObjectT
           return writes
         }
         if (nestedRule?.kind === "item") {
+          const itemRule = nestedRule.itemRuleFromProperty?.(propertyRule) ?? nestedRule.itemRule
           const convertedFile = convertMetadataItemFromYAMLToXML({
             context: contextWithOwner,
             yaml: source.raw(propertyKey),
-            rule: nestedRule.itemRule,
+            rule: itemRule,
             outputs: [{ key: "file", referenceXML: rawReferenceXML }],
             ownerYAML: { itemType: rule.itemType },
           }).outputs.get("file")

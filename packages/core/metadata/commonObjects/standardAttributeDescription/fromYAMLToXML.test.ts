@@ -5,6 +5,11 @@ import { convertPropertiesFromYAMLToXML } from "../../orchestration/property/fro
 import type { MetadataItemRule } from "../../orchestration/property/types"
 import type { PropertyRule } from "../../orchestration"
 import { testExportPropertyModelThroughYAMLToXML } from "../../../tests/property/exportPropertyModelThroughYAMLToXML"
+import {
+  createDirectRoundTripContexts,
+  testPropertyFromXMLToYAML,
+  testPropertyFromYAMLToXML,
+} from "../../../tests/directConversion"
 import { accountingExtDimensions, all, allYAML, minimal, minimalYAML, multiple } from "./__fixtures__/data"
 import { fillValueEmptyRefTypeLoss } from "./__fixtures__/fillValueEmptyRefTypeLoss"
 import {
@@ -320,6 +325,167 @@ describe("StandardAttributeDescriptions direct YAML to XML", () => {
     expect(result).toContain('<xr:StandardAttribute name="ExtDimension50"/>')
     expect(result).toContain('<xr:StandardAttribute name="ExtDimensionType50"/>')
     expect(result).not.toContain('name="ExtDimension1"')
+  })
+
+  it("preserves the original XML shape of sparse accounting attributes through the configuration index", () => {
+    const itemRule = {
+      itemType: "TestItem",
+      properties: {
+        standardAttributes: {
+          type: "StandardAttributeDescriptions",
+          yaml: "СтандартныеРеквизиты",
+          xml: "StandardAttributes",
+          standartAttributeNames: MetadataAccountingRegisterStandardAttributeNames,
+          standartAttributeNamesXML: MetadataAccountingRegisterStandardAttributeNamesXML,
+        },
+      },
+    } as const satisfies MetadataItemRule
+    const sourceXML = {
+      StandardAttributes: {
+        "xr:StandardAttribute": [
+          {
+            _name: "ExtDimension1",
+            "xr:LinkByType": {
+              "xr:DataPath": "AccountingRegister.Test.StandardAttribute.Account",
+              "xr:LinkItem": 1,
+            },
+            "xr:FillChecking": "DontCheck",
+            "xr:MultiLine": false,
+            "xr:FillValue": { "_xsi:nil": true },
+          },
+          {
+            _name: "ExtDimensionType1",
+            "xr:LinkByType": "",
+            "xr:FillChecking": "DontCheck",
+            "xr:MultiLine": false,
+            "xr:FillValue": { "_xsi:nil": true },
+          },
+        ],
+      },
+    }
+    const contexts = createDirectRoundTripContexts()
+
+    const imported = testPropertyFromXMLToYAML({
+      context: contexts.importContext,
+      rule: itemRule,
+      xml: sourceXML,
+    })
+    const exported = testPropertyFromYAMLToXML({
+      context: contexts.exportContext(),
+      rule: itemRule,
+      yaml: imported.yaml,
+    })
+
+    const items = (exported.xml.StandardAttributes as {
+      "xr:StandardAttribute": Array<Record<string, unknown>>
+    })["xr:StandardAttribute"]
+    expect(items.find((item) => item._name === "ExtDimension1")).toEqual(
+      sourceXML.StandardAttributes["xr:StandardAttribute"][0]
+    )
+    expect(items.find((item) => item._name === "ExtDimensionType1")).toEqual(
+      sourceXML.StandardAttributes["xr:StandardAttribute"][1]
+    )
+  })
+
+  it("restores a canonical empty standard attribute from the configuration index", () => {
+    const itemRule = {
+      itemType: "TestItem",
+      properties: {
+        standardAttributes: {
+          type: "StandardAttributeDescriptions",
+          yaml: "СтандартныеРеквизиты",
+          xml: "StandardAttributes",
+          standartAttributeNames: { LineNumber: "НомерСтроки" },
+        },
+      },
+    } as const satisfies MetadataItemRule
+    const sourceXML = {
+      StandardAttributes: {
+        "xr:StandardAttribute": {
+          _name: "LineNumber",
+        },
+      },
+    }
+    const contexts = createDirectRoundTripContexts()
+
+    const imported = testPropertyFromXMLToYAML({
+      context: contexts.importContext,
+      rule: itemRule,
+      xml: sourceXML,
+    })
+    const exported = testPropertyFromYAMLToXML({
+      context: contexts.exportContext(),
+      rule: itemRule,
+      yaml: imported.yaml,
+    })
+
+    expect(imported.yaml).toEqual({})
+    expect(
+      (
+        exported.xml.StandardAttributes as {
+          "xr:StandardAttribute": Array<Record<string, unknown>>
+        }
+      )["xr:StandardAttribute"]
+    ).toEqual([expect.objectContaining({ _name: "LineNumber" })])
+  })
+
+  it("does not restore an explicitly empty synonym as the standard attribute name", () => {
+    const itemRule = {
+      itemType: "TestItem",
+      properties: {
+        standardAttributes: {
+          type: "StandardAttributeDescriptions",
+          yaml: "СтандартныеРеквизиты",
+          xml: "StandardAttributes",
+          standartAttributeNames: {
+            PeriodAdjustment: "КорректировкаПериода",
+            Recorder: "Регистратор",
+          },
+        },
+      },
+    } as const satisfies MetadataItemRule
+    const sourceXML = {
+      StandardAttributes: {
+        "xr:StandardAttribute": [
+          { _name: "PeriodAdjustment", "xr:Synonym": {} },
+          {
+            _name: "Recorder",
+            "xr:Synonym": {
+              "v8:item": [{ "v8:lang": "ru", "v8:content": "Recorder" }],
+            },
+            "xr:Comment": "keep",
+          },
+        ],
+      },
+    }
+    const contexts = createDirectRoundTripContexts()
+
+    const imported = testPropertyFromXMLToYAML({
+      context: contexts.importContext,
+      rule: itemRule,
+      xml: sourceXML,
+    })
+    const excludedEqualNameValues = contexts.importContext.fromXML.configurationIndex?.collector
+      .fragment("Тест.yaml")
+      .xmlValues.filter((value) => value.excludedEqualName)
+    expect(excludedEqualNameValues?.map((value) => value.logicalAddress)).toEqual([
+      "Test.Item.StandardAttributeDescription.Recorder.synonym",
+    ])
+    const exported = testPropertyFromYAMLToXML({
+      context: contexts.exportContext(),
+      rule: itemRule,
+      yaml: imported.yaml,
+    })
+
+    const items = (
+      exported.xml.StandardAttributes as {
+        "xr:StandardAttribute": Array<Record<string, unknown>>
+      }
+    )["xr:StandardAttribute"]
+    expect(items.find((item) => item._name === "PeriodAdjustment")?.["xr:Synonym"]).toBe("")
+    expect(items.find((item) => item._name === "Recorder")?.["xr:Synonym"]).toEqual(
+      sourceXML.StandardAttributes["xr:StandardAttribute"][1]["xr:Synonym"]
+    )
   })
 
   it("дополняет изменённую YAML-коллекцию каноническими именами", () => {

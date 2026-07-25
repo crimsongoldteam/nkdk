@@ -1,11 +1,14 @@
 import { availableParallelism } from "node:os"
 import {
   configurationIndexPath,
+  encodeConfigurationIndexFragments,
   hashConfigurationProjectFileList,
+  mergeConfigurationIndexFragments,
   readConfigurationIndex,
   writeConfigurationIndexAtomically,
   type ConfigurationIndexData,
   type ConfigurationProjectFile,
+  type ConfigurationIndexFragment,
 } from "../configurationIndex"
 import type { ConfigurationContextFromXML } from "../context/types"
 import type { ValidationOwnerFacts } from "../validation/dataPath/ownerFacts"
@@ -14,9 +17,10 @@ import { NKDK_CORE_VERSION } from "../../version"
 import { createOperationProfiler } from "../validation/profile"
 import { discoverXmlImport } from "./discovery"
 import { createImportSharedMetadata } from "./metadataSnapshot"
-import { describeRegisteredXmlImportRoutes } from "./routes"
+import { compileRegisteredMetadataResourceTopology } from "../resourceTopology/registry"
 import { copyXmlImportExternalFiles, mergeImportResultFiles } from "./transfer"
-import type { ImportAssignment, ImportDiagnostic, ImportResultFile } from "./types"
+import type { ImportAssignment, ImportDiagnostic, ImportResultFile, ImportSnapshotFile } from "./types"
+import { getMetadataSnapshotImportCapability } from "../resourceTopology/capabilities"
 import {
   createXmlImportWorkerPool,
   type XmlImportWorkerPool,
@@ -44,7 +48,13 @@ export interface ImportConfigurationFromXmlParams {
 
 export interface ImportCoordinatorDependencies {
   createWorkerPool(params: { concurrency: number }): XmlImportWorkerPool
-  discover(params: { xmlDir: string }): Promise<{ assignments: ImportAssignment[] }>
+  discover(params: {
+    xmlDir: string
+  }): Promise<{ assignments: ImportAssignment[]; snapshotFiles?: ImportSnapshotFile[] }>
+  collectSnapshotFragments?(params: {
+    context: ConfigurationContextFromXML
+    files: readonly ImportSnapshotFile[]
+  }): Promise<ConfigurationIndexFragment[]>
   createSharedMetadata(facts: readonly ValidationOwnerFacts[]): SharedValidationSnapshot
   mergeFiles(files: readonly ImportResultFile[]): ImportResultFile[]
   copyExternalFiles(params: {
@@ -60,8 +70,9 @@ export interface ImportCoordinatorDependencies {
 const defaultImportDependencies: ImportCoordinatorDependencies = {
   createWorkerPool: createXmlImportWorkerPool,
   async discover({ xmlDir }) {
-    return discoverXmlImport({ xmlDir, routes: describeRegisteredXmlImportRoutes() })
+    return discoverXmlImport({ xmlDir, topology: compileRegisteredMetadataResourceTopology() })
   },
+  collectSnapshotFragments,
   createSharedMetadata: createImportSharedMetadata,
   mergeFiles: mergeImportResultFiles,
   copyExternalFiles: copyXmlImportExternalFiles,
@@ -103,6 +114,16 @@ export async function importConfigurationFromXml(
       () => pool.runFirstPass(discovered.assignments)
     )
     if (hasErrors(first.diagnostics)) return failedResult(first.diagnostics, [])
+    const snapshotFragments = await (deps.collectSnapshotFragments ?? collectSnapshotFragments)({
+      context: params.context,
+      files: discovered.snapshotFiles ?? [],
+    })
+    const fragmentData = mergeConfigurationIndexFragments([
+      encodeConfigurationIndexFragments([
+        { targetProjectPath: "worker", ...first.fragmentData },
+        ...snapshotFragments,
+      ]),
+    ])
 
     profiler.record("Подготовка импорта конфигурации", "Обобщение фрагментов данных файла индекса конфигурации", {
       items: discovered.assignments.length,
@@ -160,7 +181,7 @@ export async function importConfigurationFromXml(
           baseId: "default",
           indexGeneration: (previousIndex?.binding.indexGeneration ?? 0n) + 1n,
           projectFiles,
-          fragmentData: first.fragmentData,
+          fragmentData,
         })
     )
     await profiler.measureAsync("Подготовка импорта конфигурации", "Запись файла индекса конфигурации", { items: projectFiles.length }, () =>
@@ -173,6 +194,25 @@ export async function importConfigurationFromXml(
     profiler.flush()
     await pool.close()
   }
+}
+
+async function collectSnapshotFragments(params: {
+  context: ConfigurationContextFromXML
+  files: readonly ImportSnapshotFile[]
+}): Promise<ConfigurationIndexFragment[]> {
+  return Promise.all(
+    params.files.map(async (file) => {
+      const capability = getMetadataSnapshotImportCapability(file.capabilityId)
+      if (capability === undefined) {
+        throw new Error(`Не зарегистрирована возможность дополнения снимка: ${file.capabilityId}`)
+      }
+      return capability.run({
+        context: params.context,
+        sourcePath: file.sourcePath,
+        targetProjectPath: file.targetProjectPath,
+      })
+    })
+  )
 }
 
 async function readablePreviousIndex(

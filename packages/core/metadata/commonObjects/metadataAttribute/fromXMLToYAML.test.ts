@@ -35,9 +35,15 @@ describe("MetadataAttributes XML → YAML", () => {
     )
   })
 
-  it("imports explicit empty Synonym as empty i18n text", () => {
+  it("imports explicit empty Synonym as empty YAML string", () => {
     expect(convertInline(EMPTY_SYNONYM_XML)).toEqual({
-      Значение: { ПравилаОтправкиДокументов: { Тип: "Строка(10)", ЗначениеЗаполнения: expect.anything() } },
+      Значение: {
+        ПравилаОтправкиДокументов: {
+          Синоним: "",
+          Тип: "Строка(10)",
+          ЗначениеЗаполнения: expect.anything(),
+        },
+      },
     })
   })
 

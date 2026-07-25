@@ -34,7 +34,7 @@ export const exportI8nTextToXML = (
     if (narrowRule.skipEmptyToXML) {
       return undefined
     }
-    if (narrowRule.emptyAsRawXML) {
+    if (narrowRule.preserveEmptyXML) {
       return {}
     }
   }

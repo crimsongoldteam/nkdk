@@ -13,6 +13,7 @@ export interface YAMLToXMLOutputRequest {
   readonly key: string
   readonly tags?: readonly string[]
   readonly referenceXML?: unknown
+  readonly context?: import("../../context/types").ConfigurationContextWithExportToXML
 }
 
 export type YAMLToXMLExternalWrite =
@@ -67,6 +68,8 @@ export type YAMLToXMLNestedRule =
   | {
       readonly kind: "item"
       readonly itemRule: MetadataItemRule
+      readonly itemRuleFromProperty?: (propertyRule: PropertyRule) => MetadataItemRule | undefined
+      readonly configurationIndexAddressing?: import("./types").ConfigurationIndexAddressingMode
       readonly sparseYAML?: true
       readonly injectOwnerName?: true
       readonly normalizeYAML?: (params: {
@@ -75,6 +78,11 @@ export type YAMLToXMLNestedRule =
         propertyRule: PropertyRule
       }) => unknown
       readonly resolveContext?: (params: {
+        context: import("../../context/types").ConfigurationContextWithExportToXML
+        name: string | undefined
+        propertyRule: PropertyRule
+      }) => import("../../context/types").ConfigurationContextWithExportToXML
+      readonly resolveItemContext?: (params: {
         context: import("../../context/types").ConfigurationContextWithExportToXML
         name: string | undefined
         propertyRule: PropertyRule
@@ -98,6 +106,14 @@ export type YAMLToXMLNestedRule =
         index: number
         propertyRule: PropertyRule | undefined
       }) => MetadataItemRule
+      readonly resolveItemContext?: (params: {
+        context: import("../../context/types").ConfigurationContextWithExportToXML
+        yaml: unknown
+        name: string | undefined
+        index: number
+        itemRule: MetadataItemRule
+        propertyRule: PropertyRule | undefined
+      }) => import("../../context/types").ConfigurationContextWithExportToXML
       readonly normalizeItemYAML?: (params: {
         yaml: unknown
         name: string | undefined
@@ -133,6 +149,8 @@ export type YAMLToXMLNestedRule =
         propertyRule: PropertyRule
       }) => readonly string[]
       readonly preserveReferenceItems?: true
+      /** Восстанавливать из индекса имена элементов, намеренно опущенных в YAML. */
+      readonly preserveOmittedItemNames?: true
       readonly sparseItems?: true
       readonly omitDefaultsForSparseItems?: true
       readonly omitDefaultsForSparseItem?: (params: {

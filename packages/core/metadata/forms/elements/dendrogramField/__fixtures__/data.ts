@@ -49,6 +49,7 @@ export const fullDendrogramFieldEnterprise = {
 } satisfies Required<DendrogramFieldEnterprise>
 
 export const fullDendrogramFieldPartialYAML: DendrogramFieldPartialYAML = {
+  ПутьКДанным: "Реквизит",
   АвтоМаксимальнаяВысота: "Ложь",
   АвтоМаксимальнаяШирина: "Ложь",
   Высота: 200,

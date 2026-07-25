@@ -50,19 +50,38 @@ describe("registerMetadataItemRule JSON Schema identity", () => {
     registerMetadataItemRule({ propertyType: "RuleFactorySampleItemProperty", itemRule: SampleItemRule })
 
     expect(
-      getTypeRule("RuleFactorySampleItemProperty", "xmlImportRoutes")?.({
+      getTypeRule("RuleFactorySampleItemProperty", "resourceTopology")?.({
         propertyRule: { type: "RuleFactorySampleItemProperty", filePath: "Ext/Sample.xml" },
       })
     ).toEqual([
       {
-        kind: "assignment",
+        kind: "xmlDocument",
+        assignmentProjectPattern: "",
         xmlPattern: "Ext/Sample.xml",
-        targetPattern: "",
-        role: "properties",
-        inputRole: "property",
-        itemType: "",
-        source: { kind: "propertyType", type: "RuleFactorySampleItemProperty" },
+        role: "property",
+        required: false,
+        read: { inputRole: "property" },
+        prepareCapabilityId: "itemProperty",
+        source: { kind: "property", description: "RuleFactorySampleItemProperty" },
       },
     ])
+  })
+
+  it("позволяет property-rule уточнить правило вложенного документа", () => {
+    registerMetadataItemRule({ propertyType: "RuleFactorySampleItemProperty", itemRule: SampleItemRule })
+    const override = {
+      ...SampleItemRule,
+      itemType: "RuleFactoryOverriddenSampleItem",
+    } as const satisfies MetadataItemRule
+    const descriptor = getTypeRule("RuleFactorySampleItemProperty", "yamlToXMLNestedRule")
+
+    expect(
+      descriptor?.kind === "item"
+        ? descriptor.itemRuleFromProperty?.({
+            type: "RuleFactorySampleItemProperty",
+            itemRule: override,
+          })
+        : undefined
+    ).toBe(override)
   })
 })

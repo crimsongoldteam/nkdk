@@ -27,15 +27,3 @@ export const syncWSDefinitionSchemasToXML = async (params: {
 }
 
 registerTypeRule("WSDefinitionSchemas", "syncExternalToXML", syncWSDefinitionSchemasToXML)
-registerTypeRule("WSDefinitionSchemas", "projectResources", () => [
-  {
-    kind: "directory",
-    role: "resourceOnly",
-    projectPattern: "XSD",
-    required: false,
-    repeatable: false,
-    owner: "currentItem",
-    compositionImpact: "none",
-    source: { kind: "propertyType", type: "WSDefinitionSchemas" },
-  },
-])

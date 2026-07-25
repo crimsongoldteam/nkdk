@@ -2,8 +2,8 @@ import fs from "fs"
 import { basename, dirname, extname, isAbsolute, join, relative, resolve, sep } from "path"
 import type { XmlWriteManifest } from "../../orchestration/xmlWriteManifest"
 import type { PropertyRule } from "../../orchestration"
-import type { XmlImportRoute } from "../../importFromXml/types"
 import { ClientApplicationFormRules } from "./rules"
+import type { MetadataResourceDeclaration } from "../../resourceTopology/types"
 
 type ExternalFormItemFileSpec = {
   propertyName: string
@@ -25,13 +25,13 @@ const getExternalItemFileSpecs = (): ExternalFormItemFileSpec[] =>
 
 const externalItemFileSpecs = getExternalItemFileSpecs()
 
-export function describeFormItemXmlImportRoutes(params: {
+export function describeFormItemResourceDeclarations(params: {
   xmlFormDirPattern: string
   targetFormDirPattern: string
-  assignmentTargetPattern: string
-}): XmlImportRoute[] {
+}): MetadataResourceDeclaration[] {
   return externalItemFileSpecs.map((spec) => ({
     kind: "externalFile",
+    assignmentProjectPattern: "",
     xmlPattern: joinImportPattern(
       params.xmlFormDirPattern,
       "Form",
@@ -39,10 +39,31 @@ export function describeFormItemXmlImportRoutes(params: {
       "{formItemName}",
       `${spec.xmlName}.{extension}`
     ),
-    targetPattern: joinImportPattern(params.targetFormDirPattern, spec.nkdkDir, "{formItemName}.{extension}"),
-    assignmentTargetPattern: params.assignmentTargetPattern,
-    source: { kind: "property", propertyName: spec.propertyName, propertyType: "ExternalFormItemFile" },
+    projectPattern: joinImportPattern(params.targetFormDirPattern, spec.nkdkDir, "{formItemName}.{extension}"),
+    direction: "both",
+    transferCapabilityId: "ClientApplicationForm",
+    compositionImpact: "none",
+    source: { kind: "property", description: `${spec.propertyName}:ExternalFormItemFile` },
   }))
+}
+
+export function describeFormExternalResourceDeclarations(params: {
+  xmlFormDirPattern: string
+  targetFormDirPattern: string
+}): MetadataResourceDeclaration[] {
+  return [
+    {
+      kind: "externalFile",
+      assignmentProjectPattern: "",
+      xmlPattern: joinImportPattern(params.xmlFormDirPattern, "Form.bin"),
+      projectPattern: joinImportPattern(params.targetFormDirPattern, "Form.bin"),
+      direction: "both",
+      transferCapabilityId: "ClientApplicationForm",
+      compositionImpact: "none",
+      source: { kind: "property", description: "ClientApplicationForm" },
+    },
+    ...describeFormItemResourceDeclarations(params),
+  ]
 }
 
 function joinImportPattern(...parts: string[]): string {

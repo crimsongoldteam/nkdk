@@ -79,12 +79,36 @@ describe("exportTypeDescriptionToXML", () => {
     expect(result).toEqual("<TypeDescription>\n\t<v8:Type>dcsset:SettingsComposer</v8:Type>\n</TypeDescription>")
   })
 
+  it("adds the TypeDescription attribute when the property rule requests it", () => {
+    const resultXml = exportTypeDescriptionToXML(
+      mockContext,
+      { type: "TypeDescription", addTypeDescriptionAttributeToXML: true },
+      { type: ["string"] }
+    )
+
+    expect(resultXml).toMatchObject({ "_xsi:type": "v8:TypeDescription" })
+  })
+
   it("should export known system enumeration type to XML with v8 prefix", () => {
     const resultXml = exportTypeDescriptionToXML(mockContext, mockRule, { type: ["FillChecking"] })
 
     const result = xmlExport({ TypeDescription: resultXml }, false)
 
     expect(result).toEqual("<TypeDescription>\n\t<v8:Type>v8:FillChecking</v8:Type>\n</TypeDescription>")
+  })
+
+  it("exports default binary data qualifiers for base64Binary", () => {
+    const resultXml = exportTypeDescriptionToXML(mockContext, mockRule, { type: ["base64Binary"] })
+
+    expect(xmlExport({ TypeDescription: resultXml }, false)).toEqual(
+      "<TypeDescription>\n" +
+        "\t<v8:Type>xs:base64Binary</v8:Type>\n" +
+        "\t<v8:BinaryDataQualifiers>\n" +
+        "\t\t<v8:Length>0</v8:Length>\n" +
+        "\t\t<v8:AllowedLength>Variable</v8:AllowedLength>\n" +
+        "\t</v8:BinaryDataQualifiers>\n" +
+        "</TypeDescription>"
+    )
   })
 
   it("should export ConditionalAppearance type to XML with entext namespace", () => {

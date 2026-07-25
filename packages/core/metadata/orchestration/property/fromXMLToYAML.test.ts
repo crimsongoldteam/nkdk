@@ -140,6 +140,71 @@ describe("importPropertiesFromXMLToYAML", () => {
     expect(calls).toEqual(["Body:body", "Metadata:metadata"])
   })
 
+  it("merges XML order from partial sources of one physical node", () => {
+    const indexCollector = createConfigurationIndexCollector()
+    const context = withConfigurationIndexCollector(mockContextFromXML(), indexCollector, "Справочник.Товары")
+
+    const yaml = importPropertiesWithSources({
+      context,
+      rule: {
+        itemType: "TestDirectItem",
+        properties: {
+          first: { type: "string", xml: "First", yaml: "Первое", tag: "main" },
+          second: { type: "string", xml: "Second", yaml: "Второе", tag: "additional" },
+          third: { type: "string", xml: "Third", yaml: "Третье", tag: "main" },
+        },
+      } as MetadataItemRule,
+      sources: [
+        { context, xml: { First: "1", Third: "3" }, tags: ["main"] },
+        { context, xml: { Second: "2" }, tags: ["additional"] },
+      ],
+      yamlPath: [],
+      rulePath: [],
+      collector: createLocalIndexesCollector(),
+    })
+
+    expect(yaml).toEqual({ Первое: "1", Второе: "2", Третье: "3" })
+    expect(indexCollector.fragment("test.yaml").xmlNodes).toEqual([
+      {
+        logicalAddress: "Справочник.Товары",
+        order: ["first", "third", "second"],
+      },
+    ])
+  })
+
+  it("rejects different snapshot collectors for one physical XML node", () => {
+    const firstContext = withConfigurationIndexCollector(
+      mockContextFromXML(),
+      createConfigurationIndexCollector(),
+      "Справочник.Товары"
+    )
+    const secondContext = withConfigurationIndexCollector(
+      mockContextFromXML(),
+      createConfigurationIndexCollector(),
+      "Справочник.Товары"
+    )
+
+    expect(() =>
+      importPropertiesWithSources({
+        context: firstContext,
+        rule: {
+          itemType: "TestDirectItem",
+          properties: {
+            first: { type: "string", xml: "First", yaml: "Первое", tag: "main" },
+            second: { type: "string", xml: "Second", yaml: "Второе", tag: "additional" },
+          },
+        } as MetadataItemRule,
+        sources: [
+          { context: firstContext, xml: { First: "1" }, tags: ["main"] },
+          { context: secondContext, xml: { Second: "2" }, tags: ["additional"] },
+        ],
+        yamlPath: [],
+        rulePath: [],
+        collector: createLocalIndexesCollector(),
+      })
+    ).toThrow("Для одного XML-узла Справочник.Товары используются разные сборщики снимка")
+  })
+
   it("imports a nested item from registered XML sources", () => {
     const propertyType = "TestNestedSources" as PropertyRuleType
     const nestedRule = {
@@ -338,6 +403,49 @@ describe("importPropertiesFromXMLToYAML", () => {
     ).toEqual({ ТолькоСсылка: "one", Выключено: "two" })
   })
 
+  it("collects configuration-index data before skipping a reference-only property", () => {
+    const indexCollector = createConfigurationIndexCollector()
+    const context = withConfigurationIndexCollector(mockContextFromXML(), indexCollector, "Справочник.Товары")
+
+    registerTypeRule(
+      "TestReferenceIndex" as PropertyRuleType,
+      "collectConfigurationIndexFromXML",
+      ({ context: propertyContext, xml }) => {
+        propertyContext.fromXML.configurationIndex?.collector.setUuid(
+          "Справочник.Товары.ТехническийUUID",
+          String(xml)
+        )
+      }
+    )
+
+    const yaml = importPropertiesWithSources({
+      context,
+      rule: {
+        itemType: "TestDirectItem",
+        properties: {
+          technical: {
+            type: "TestReferenceIndex",
+            xml: "Technical",
+            forReferenceOnly: true,
+          },
+        },
+      } as MetadataItemRule,
+      sources: [{ context, xml: { Technical: "00000000-0000-4000-8000-000000000001" } }],
+      yamlPath: [],
+      rulePath: [],
+      collector: createLocalIndexesCollector(),
+    })
+
+    expect(yaml).toEqual({})
+    expect(indexCollector.fragment("test.yaml").identities).toEqual([
+      {
+        logicalAddress: "Справочник.Товары.ТехническийUUID",
+        kind: "uuid",
+        value: "00000000-0000-4000-8000-000000000001",
+      },
+    ])
+  })
+
   it.each([
     ["alias", { Alias: "x" }, { xml: "Value", xmlAliases: ["Alias"], yaml: "Значение" }, "x"],
     ["parent", { Properties: { Value: "x" } }, { xml: "Value", xmlParents: ["Properties"], yaml: "Значение" }, "x"],
@@ -446,6 +554,59 @@ describe("importPropertiesFromXMLToYAML", () => {
         order: ["explicitDefault", "title"],
         aliases: { title: "Caption" },
         present: ["explicitDefault"],
+      },
+    ])
+  })
+
+  it("keeps reference-only properties in XML order without exposing them in YAML", () => {
+    const indexCollector = createConfigurationIndexCollector()
+    const context = withConfigurationIndexCollector(mockContextFromXML(), indexCollector, "Справочник.Товары")
+
+    const yaml = importPropertiesWithSources({
+      context,
+      rule: {
+        itemType: "TestDirectItem",
+        properties: {
+          internalInfo: {
+            type: "string",
+            xml: "InternalInfo",
+            forReferenceOnly: true,
+          },
+          name: {
+            type: "string",
+            xml: "Name",
+            xmlParents: ["Properties"],
+            yaml: "Имя",
+          },
+          resources: {
+            type: "string",
+            xml: "Resource",
+            xmlParents: ["ChildObjects"],
+            yaml: "Ресурсы",
+          },
+        },
+      } as MetadataItemRule,
+      sources: [
+        {
+          context,
+          xml: {
+            InternalInfo: {},
+            Unknown: {},
+            Properties: { Name: "Товары" },
+            ChildObjects: { Resource: "Ресурс1" },
+          },
+        },
+      ],
+      yamlPath: [],
+      rulePath: [],
+      collector: createLocalIndexesCollector(),
+    })
+
+    expect(yaml).toEqual({ Имя: "Товары", Ресурсы: "Ресурс1" })
+    expect(indexCollector.fragment("Справочник/Товары/Свойства.yaml").xmlNodes).toEqual([
+      {
+        logicalAddress: "Справочник.Товары",
+        order: ["internalInfo", "name", "resources"],
       },
     ])
   })
@@ -705,6 +866,24 @@ describe("importPropertiesFromXMLToYAML", () => {
     expect(indexCollector.fragment("Форма.yaml").xmlNodes).toEqual([
       { logicalAddress: "Форма.Основная.Элемент.Кнопка1", order: ["title", "commandName"] },
     ])
+  })
+
+  it("does not inherit a parent collection segment in a nested property", () => {
+    const context = withConfigurationIndexCollector(
+      mockContextFromXML(),
+      createConfigurationIndexCollector(),
+      "Документ.Заказ.ТабличнаяЧасть.Товары"
+    )
+    context.fromXML.configurationIndex = {
+      ...context.fromXML.configurationIndex!,
+      childCollectionUidSegment: "ТабличнаяЧасть",
+    }
+
+    runWithConfigurationIndexPropertyContext(context, "СтандартныеРеквизиты", undefined, (propertyContext) => {
+      expect(propertyContext.fromXML.configurationIndex?.childCollectionUidSegment).toBeUndefined()
+    })
+
+    expect(context.fromXML.configurationIndex?.childCollectionUidSegment).toBe("ТабличнаяЧасть")
   })
 })
 

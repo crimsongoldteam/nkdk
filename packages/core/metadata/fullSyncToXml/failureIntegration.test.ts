@@ -10,6 +10,7 @@ import type { ConfigurationContext } from "../context/types"
 import { syncConfigurationToXml, type FullXmlSyncCoordinatorDependencies } from "./syncConfiguration"
 import type { FullXmlSyncWorkerPool } from "./workerPool"
 import { createTempRoot, removeFullSyncTempDirs } from "./testHelpers"
+import { fullXmlSyncTestOutput } from "./testTopology"
 
 afterEach(async () => {
   await removeFullSyncTempDirs()
@@ -116,7 +117,7 @@ function transferFailureDeps(previous: ConfigurationIndexData): FullXmlSyncCoord
             itemType: "MetadataConfiguration",
             itemName: "Конфигурация",
             logicalAddress: "Конфигурация",
-            outputs: [{ routeKind: "owner", targetXmlPath: "partial.xml" }],
+            ...fullXmlSyncTestOutput("partial.xml"),
           },
         ],
         externalFiles: [],

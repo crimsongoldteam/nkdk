@@ -1,7 +1,13 @@
 import { describe, expect, it } from "vitest"
 
 import { testPropertyFixtureThroughYAML } from "../../../../tests/directConversion"
+import {
+  createDirectRoundTripContexts,
+  testPropertyFromXMLToYAML,
+  testPropertyFromYAMLToXML,
+} from "../../../../tests/directConversion"
 import { fixtureDynamicListStructureItemGroupYAML } from "./__fixtures__/data"
+import type { MetadataItemRule } from "../../../orchestration"
 
 import "./types"
 
@@ -16,6 +22,65 @@ describe("StructureItemGroup YAML → XML", () => {
     })
 
     expect(normalize(result.result)).toBe(normalize(result.expected))
+  })
+
+  it("восстанавливает вложенную структуру из снимка без reference XML", () => {
+    const result = testPropertyFixtureThroughYAML({
+      propertyType: "StructureItemGroup",
+      xmlRootTag: "dcsset:item",
+      importMetaUrl: import.meta.url,
+      fixture: "dynamicList.xml",
+      yaml: { Значение: fixtureDynamicListStructureItemGroupYAML },
+      withReference: false,
+    })
+
+    expect(normalize(result.result)).toBe(normalize(result.expected))
+  })
+
+  it("восстанавливает ветвление группировок из снимка", () => {
+    const rule = {
+      itemType: "StructureItemGroupProbe",
+      properties: {
+        value: {
+          type: "StructureItemGroup",
+          yaml: "Группировка",
+          xml: "dcsset:item",
+          configurationIndexAddressing: "yamlPath",
+        },
+      },
+    } as const satisfies MetadataItemRule
+    const group = (field: string) => ({
+      "_xsi:type": "dcsset:StructureItemGroup",
+      "dcsset:groupItems": {
+        "dcsset:item": {
+          "_xsi:type": "dcsset:GroupItemField",
+          "dcsset:field": field,
+        },
+      },
+    })
+    const source = {
+      ...group("Корень"),
+      "dcsset:item": [group("Левый"), group("Правый")],
+    }
+    const contexts = createDirectRoundTripContexts({ logicalAddress: "Test.Structure" })
+    const imported = testPropertyFromXMLToYAML({
+      rule,
+      context: contexts.importContext,
+      xml: { "dcsset:item": source },
+    })
+    expect(imported.yaml).toEqual({ Группировка: ["Корень", "Левый", "Правый"] })
+    const restored = testPropertyFromYAMLToXML({
+      rule,
+      yaml: imported.yaml,
+      context: contexts.exportContext(),
+    })
+
+    expect(restored.xml["dcsset:item"]).toMatchObject({
+      "dcsset:item": [
+        { "dcsset:groupItems": { "dcsset:item": [{ "dcsset:field": "Левый" }] } },
+        { "dcsset:groupItems": { "dcsset:item": [{ "dcsset:field": "Правый" }] } },
+      ],
+    })
   })
 })
 

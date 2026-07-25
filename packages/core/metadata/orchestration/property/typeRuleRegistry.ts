@@ -1,6 +1,7 @@
 import { PropertyRuleType } from "./registry"
 import {
   CollectionItemRule,
+  CollectConfigurationIndexFromXMLFunction,
   CollectMetadataTargetReferencesFunction,
   ConfigurationIndexValueFromXMLDescriptor,
   createRegistryKey,
@@ -17,14 +18,12 @@ import {
   ImportFromXMLFunction,
   importFromYAMLFunction as ImportFromYAMLFunction,
   ImportFromYAMLFunctionNew,
-  ProjectResourcesFunction,
+  MetadataResourceTopologyFunction,
   StructuralReferencesFunction,
   SyncExternalFromXMLFunction,
   SyncExternalToXMLFunction,
   TypeRulesOperations,
   ValidateMetadataTargetFunction,
-  XmlSyncRoutesFunction,
-  XmlImportRoutesFunction,
   XmlSyncWriterFunction,
   XMLImportPropertyBehavior,
 } from "./fn"
@@ -55,12 +54,11 @@ const typeRulesRegistry = new Map<
   | ValidateMetadataTargetFunction
   | CollectMetadataTargetReferencesFunction
   | StructuralReferencesFunction
-  | ProjectResourcesFunction
-  | XmlSyncRoutesFunction
-  | XmlImportRoutesFunction
+  | MetadataResourceTopologyFunction
   | FileChildNamesDescriptorFunction
   | XmlSyncWriterFunction
   | ConfigurationIndexValueFromXMLDescriptor
+  | CollectConfigurationIndexFromXMLFunction
   | XMLImportPropertyBehavior
   | ImportFromXMLToYAMLFunction
   | NestedItemRule
@@ -70,6 +68,7 @@ const typeRulesRegistry = new Map<
   | CollectLocalFactsFromYAMLFunction
   | YAMLToXMLNestedRule
 >()
+let registryRevision = 0
 
 export const registerTypeRule = <O extends TypeRulesOperations>(
   type: PropertyRuleType,
@@ -78,6 +77,7 @@ export const registerTypeRule = <O extends TypeRulesOperations>(
 ) => {
   const key = createRegistryKey(type, operation)
   typeRulesRegistry.set(key, ruleFunction)
+  registryRevision += 1
 }
 
 export const getTypeRule = <O extends TypeRulesOperations>(
@@ -111,28 +111,26 @@ export const getTypeRule = <O extends TypeRulesOperations>(
                           ? CollectMetadataTargetReferencesFunction | undefined
                           : O extends "structuralReferences"
                             ? StructuralReferencesFunction | undefined
-                            : O extends "projectResources"
-                              ? ProjectResourcesFunction | undefined
-                              : O extends "xmlSyncRoutes"
-                                ? XmlSyncRoutesFunction | undefined
-                                : O extends "xmlImportRoutes"
-                                  ? XmlImportRoutesFunction | undefined
-                                  : O extends "fileChildNamesDescriptor"
-                                    ? FileChildNamesDescriptorFunction | undefined
-                                    : O extends "xmlSyncWriter"
-                                      ? XmlSyncWriterFunction | undefined
-                                      : O extends "configurationIndexValueFromXML"
-                                        ? ConfigurationIndexValueFromXMLDescriptor | undefined
-                                        : O extends "xmlImportPropertyBehavior"
-                                          ? XMLImportPropertyBehavior | undefined
-                                          : O extends "nestedItemRule"
-                                            ? NestedItemRule | undefined
-                                            : O extends "resolveNestedImportXMLSources"
-                                              ? ResolveNestedImportXMLSourcesFunction | undefined
-                                              : O extends "finalizeImportedYAML"
-                                                ? FinalizeImportedYAMLFunction | undefined
-                                                : O extends "finalizeExportedXML"
-                                                  ? FinalizeExportedXMLFunction | undefined
+                            : O extends "resourceTopology"
+                              ? MetadataResourceTopologyFunction | undefined
+                              : O extends "fileChildNamesDescriptor"
+                                ? FileChildNamesDescriptorFunction | undefined
+                                : O extends "xmlSyncWriter"
+                                  ? XmlSyncWriterFunction | undefined
+                                  : O extends "configurationIndexValueFromXML"
+                                    ? ConfigurationIndexValueFromXMLDescriptor | undefined
+                                    : O extends "collectConfigurationIndexFromXML"
+                                      ? CollectConfigurationIndexFromXMLFunction | undefined
+                                      : O extends "xmlImportPropertyBehavior"
+                                        ? XMLImportPropertyBehavior | undefined
+                                        : O extends "nestedItemRule"
+                                          ? NestedItemRule | undefined
+                                          : O extends "resolveNestedImportXMLSources"
+                                            ? ResolveNestedImportXMLSourcesFunction | undefined
+                                            : O extends "finalizeImportedYAML"
+                                              ? FinalizeImportedYAMLFunction | undefined
+                                              : O extends "finalizeExportedXML"
+                                                ? FinalizeExportedXMLFunction | undefined
                                                 : O extends "collectLocalFactsFromYAML"
                                                   ? CollectLocalFactsFromYAMLFunction | undefined
                                                   : O extends "yamlToXMLNestedRule"
@@ -145,4 +143,7 @@ export const getTypeRule = <O extends TypeRulesOperations>(
 
 export const clearTypeRulesRegistry = (): void => {
   typeRulesRegistry.clear()
+  registryRevision += 1
 }
+
+export const typeRulesRegistryRevision = (): number => registryRevision

@@ -2,6 +2,7 @@ import "./appliedObjects/configuration/register"
 import { registerCommonObjects } from "./commonObjects"
 import { registerForms } from "./forms"
 import { registerAppliedObjects } from "./appliedObjects"
+import "./orchestration/appliedObject/syncToXML"
 
 let coreMetadataRegistered = false
 

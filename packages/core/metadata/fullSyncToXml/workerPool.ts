@@ -4,6 +4,7 @@ import { fileURLToPath } from "node:url"
 import Piscina from "piscina"
 import { mergeConfigurationIndexFragments } from "../configurationIndex/fragment"
 import type { ConfigurationContext } from "../context/types"
+import { sourceWorkerExecArgv } from "../sourceWorkerRuntime"
 import type {
   FullXmlSyncAssignment,
   FullXmlSyncDiagnostic,
@@ -38,6 +39,7 @@ export interface FullXmlSyncFirstPassPoolResult {
   diagnostics: FullXmlSyncDiagnostic[]
   projectFiles: ConfigurationProjectFile[]
   ownerFacts: FullXmlSyncOwnerFacts[]
+  expectedOutputs?: import("./types").FullXmlSyncExpectedOutput[]
 }
 
 export interface FullXmlSyncSecondPassPoolResult {
@@ -134,6 +136,7 @@ export function createFullXmlSyncWorkerPool(params: {
         diagnostics,
         projectFiles: results.flatMap((result) => result.projectFiles).sort(compareProjectFiles),
         ownerFacts: results.flatMap((result) => result.ownerFacts),
+        expectedOutputs: results.flatMap((result) => result.expectedOutputs ?? []),
       }
     },
 
@@ -230,7 +233,7 @@ function createPiscinaWorkerPool(): Piscina {
   const workerFile = currentFile.endsWith(".ts")
     ? join(dirname(currentFile), "worker.ts")
     : join(dirname(currentFile), "fullSyncToXmlWorker.js")
-  const execArgv = currentFile.endsWith(".ts") ? ["--import", "tsx"] : []
+  const execArgv = currentFile.endsWith(".ts") ? sourceWorkerExecArgv() : []
   return new Piscina({
     filename: workerFile,
     minThreads: 1,

@@ -3,13 +3,19 @@ import { ConfigurationContextWithExportToXML } from "../../../context/types"
 import { registerTypeRule } from "../../../orchestration/property/typeRuleRegistry"
 import type { PropertyRule } from "../../../orchestration/property/types"
 import type { EventsXML, EventXML } from "./types"
+import {
+  getConfigurationIndexPropertyOrder,
+  getConfigurationIndexSourceXmlKey,
+  getConfigurationIndexXmlNodeLogicalAddress,
+} from "../../../configurationIndex/referenceView"
+import { getReferenceEventXmlName } from "./fromXML"
 
 const isEventsPropertyRule = (rule: PropertyRule): rule is PropertyRule & { items: Record<string, string> } => {
   return rule.type === "Events"
 }
 
 export const exportEventsToXML = (
-  _context: ConfigurationContextWithExportToXML,
+  context: ConfigurationContextWithExportToXML,
   _rule: PropertyRule,
   value: unknown,
   _referenceValue?: unknown
@@ -42,19 +48,33 @@ export const exportEventsToXML = (
 
     orderedKeys.push(...restKeys)
   } else {
-    // если референса нет, сохраняем текущую логику: сортировка по имени
-    orderedKeys.push(...Object.keys(dataEvents).sort((a, b) => a.localeCompare(b)))
+    const indexedOrder = getConfigurationIndexPropertyOrder(context)
+    orderedKeys.push(...indexedOrder.filter((key) => key in dataEvents))
+    orderedKeys.push(
+      ...Object.keys(dataEvents)
+        .filter((key) => !orderedKeys.includes(key))
+        .sort((a, b) => a.localeCompare(b))
+    )
   }
 
   for (const key of orderedKeys) {
     const eventValue = dataEvents[key] ?? referenceEvents?.[key]
     if (eventValue === undefined) continue
     const xmlName =
-      referenceEvents !== undefined && key in referenceEvents && !knownEventKeys.has(key) ? key : capitalize(key)
+      getConfigurationIndexSourceXmlKey(context, key) ??
+      (referenceEvents === undefined ? undefined : getReferenceEventXmlName(referenceEvents, key)) ??
+      (referenceEvents !== undefined && key in referenceEvents && !knownEventKeys.has(key) ? key : capitalize(key))
     items.push({ _name: xmlName, "#text": eventValue })
   }
 
   if (items.length === 0) return undefined
+  const runtime = context.exportToXML.configurationIndex
+  if (runtime !== undefined) {
+    runtime.collector.setOrder(
+      getConfigurationIndexXmlNodeLogicalAddress(context) ?? runtime.logicalAddress,
+      orderedKeys
+    )
+  }
 
   return { Event: items }
 }

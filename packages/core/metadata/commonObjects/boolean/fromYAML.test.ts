@@ -20,4 +20,9 @@ describe("importBooleanFromYAML", () => {
 
     expect(result).toBe(false)
   })
+
+  it("сохраняет логическое implicitValueYAML без повторного преобразования", () => {
+    expect(importBooleanFromYAML(mockContext, mockRule, true)).toBe(true)
+    expect(importBooleanFromYAML(mockContext, mockRule, false)).toBe(false)
+  })
 })

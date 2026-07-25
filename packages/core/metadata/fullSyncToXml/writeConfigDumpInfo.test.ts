@@ -10,6 +10,7 @@ import { sampleIndex } from "../configurationIndex/testData"
 import type { ConfigurationIndexData } from "../configurationIndex/types"
 import { writeFullXmlSyncConfigDumpInfo } from "./writeConfigDumpInfo"
 import type { FullXmlSyncAssignment } from "./types"
+import { fullXmlSyncTestTopologyFields } from "./testTopology"
 
 describe("writeFullXmlSyncConfigDumpInfo", () => {
   const tempDirs: string[] = []
@@ -36,8 +37,29 @@ describe("writeFullXmlSyncConfigDumpInfo", () => {
           ...sampleIndex().identities,
           {
             logicalAddress: "Конфигурация.ConfigDumpInfo.Catalog%2EТовары",
-            kind: "uuid",
+            kind: "xmlId",
             value: "00000000-0000-4000-8000-000000000777",
+          },
+          {
+            logicalAddress: "Конфигурация.ConfigDumpInfo.Catalog%2EТовары.children.Catalog%2EТовары%2EAttribute%2EКод",
+            kind: "xmlId",
+            value: "00000000-0000-4000-8000-000000000778",
+          },
+          {
+            logicalAddress: "Конфигурация.ConfigDumpInfo.Catalog%2EТовары%2EForm%2EФорма",
+            kind: "xmlId",
+            value: "00000000-0000-4000-8000-000000000777.0",
+          },
+        ],
+        xmlNodes: [
+          ...sampleIndex().xmlNodes,
+          {
+            logicalAddress: "Конфигурация.ConfigDumpInfo",
+            order: ["Catalog.Товары", "Catalog.Товары.Form.Форма"],
+          },
+          {
+            logicalAddress: "Конфигурация.ConfigDumpInfo.Catalog%2EТовары.children",
+            order: ["Catalog.Товары.Attribute.Код"],
           },
         ],
         xmlValues: [
@@ -46,6 +68,10 @@ describe("writeFullXmlSyncConfigDumpInfo", () => {
             logicalAddress: "Конфигурация.ConfigDumpInfo.Catalog%2EТовары.configVersion",
             xmlText: "aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa",
           },
+          {
+            logicalAddress: "Конфигурация.ConfigDumpInfo.Catalog%2EТовары%2EForm%2EФорма.configVersion",
+            xmlText: "bbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbb",
+          },
         ],
       }),
     })
@@ -53,7 +79,12 @@ describe("writeFullXmlSyncConfigDumpInfo", () => {
     const xml = fs.readFileSync(join(outputDir, "ConfigDumpInfo.xml"), "utf-8")
     expect(xml).toContain('name="Catalog.Товары"')
     expect(xml).toContain('id="00000000-0000-4000-8000-000000000777"')
-    expect(xml).toMatch(/configVersion="[0-9a-f]{40}"/)
+    expect(xml).toContain(
+      '<Metadata name="Catalog.Товары.Attribute.Код" id="00000000-0000-4000-8000-000000000778"/>'
+    )
+    expect(xml).toContain(
+      '<Metadata name="Catalog.Товары.Form.Форма" id="00000000-0000-4000-8000-000000000777.0" configVersion="bbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbb"/>'
+    )
     expect(result).toMatchObject({ targetXmlPath: "ConfigDumpInfo.xml", fragment: { targetProjectPath: "Конфигурация.yaml" } })
   })
 
@@ -81,6 +112,42 @@ describe("writeFullXmlSyncConfigDumpInfo", () => {
       expect.arrayContaining([expect.objectContaining({ logicalAddress: expect.stringContaining(".configVersion") })])
     )
   })
+
+  it("preserves ConfigDumpInfo order independently of assignment order", async () => {
+    const outputDir = tempDir()
+    const base = sampleIndex()
+    await writeFullXmlSyncConfigDumpInfo({
+      context: mockContext,
+      outputDir,
+      assignments: [catalogAssignment("Первый"), catalogAssignment("Второй")],
+      index: reader({
+        ...base,
+        identities: [
+          ...base.identities,
+          {
+            logicalAddress: "Конфигурация.ConfigDumpInfo.Catalog%2EВторой",
+            kind: "xmlId",
+            value: "00000000-0000-4000-8000-000000000002",
+          },
+          {
+            logicalAddress: "Конфигурация.ConfigDumpInfo.Catalog%2EПервый",
+            kind: "xmlId",
+            value: "00000000-0000-4000-8000-000000000001",
+          },
+        ],
+        xmlNodes: [
+          ...base.xmlNodes,
+          {
+            logicalAddress: "Конфигурация.ConfigDumpInfo",
+            order: ["Catalog.Второй", "Catalog.Первый"],
+          },
+        ],
+      }),
+    })
+
+    const xml = fs.readFileSync(join(outputDir, "ConfigDumpInfo.xml"), "utf-8")
+    expect(xml.indexOf('name="Catalog.Второй"')).toBeLessThan(xml.indexOf('name="Catalog.Первый"'))
+  })
 })
 
 function reader(data: ConfigurationIndexData) {
@@ -96,6 +163,6 @@ function catalogAssignment(name: string): FullXmlSyncAssignment {
     itemType: "MetadataCatalog",
     itemName: name,
     logicalAddress: `Справочник.${name}`,
-    outputs: [{ routeKind: "owner", targetXmlPath: `Catalogs/${name}.xml` }],
+    ...fullXmlSyncTestTopologyFields(`Справочник/${name}/Свойства.yaml`),
   }
 }

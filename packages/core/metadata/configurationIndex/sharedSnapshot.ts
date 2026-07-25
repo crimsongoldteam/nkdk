@@ -174,6 +174,7 @@ class SharedConfigurationIndexReader implements ConfigurationIndexReader {
       logicalAddress,
       ...((flags & (1 << 0)) === 0 ? {} : { xsiNil: true as const }),
       ...((flags & (1 << 1)) === 0 ? {} : { explicitEmpty: true as const }),
+      ...((flags & (1 << 6)) === 0 ? {} : { excludedEqualName: true as const }),
       ...this.optionalValue(values, offset + 8, flags, 2, "xsiType"),
       ...this.optionalValue(values, offset + 12, flags, 3, "xmlText"),
       ...this.optionalValue(values, offset + 16, flags, 4, "xmlPrefix"),

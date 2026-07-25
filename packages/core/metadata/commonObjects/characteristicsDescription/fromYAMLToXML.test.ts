@@ -10,6 +10,7 @@ import {
 import { readXMLFixtureAsString } from "../../../tests/readFixtureXML"
 import type { MetadataItemRule } from "../../orchestration/property/types"
 import { multipleCharacteristicsYAML, singleCharacteristicYAML } from "./__fixtures__/data"
+import { characteristicsDescriptionsRule } from "./types"
 
 import "./registerCollectionRule"
 import "../metadataValue/fromXML"
@@ -19,7 +20,11 @@ import "../metadataValue/toXML"
 const rule = {
   itemType: "CharacteristicsDescriptionProbe",
   properties: {
-    value: { type: "CharacteristicsDescriptions", yaml: "Характеристики", xml: "Characteristics" },
+    value: characteristicsDescriptionsRule({
+      yaml: "Характеристики",
+      xml: "Characteristics",
+      defaultValueXMLRaw: {},
+    }),
   },
 } as MetadataItemRule
 
@@ -30,6 +35,23 @@ describe("CharacteristicsDescriptions YAML → XML", () => {
 
   it("imports empty array", () => {
     expect(testPropertyFromYAMLToXML({ rule, yaml: { Характеристики: [] } }).xml).toEqual({})
+  })
+
+  it("preserves an explicit empty XML container through the configuration snapshot", () => {
+    const roundTrip = createDirectRoundTripContexts()
+    testPropertyFromXMLToYAML({
+      rule,
+      xml: { Characteristics: {} },
+      context: roundTrip.importContext,
+    })
+
+    const result = testPropertyFromYAMLToXML({
+      rule,
+      yaml: {},
+      context: roundTrip.exportContext(),
+    })
+
+    expect(serializeDirectXML(result.xml)).toContain("<Characteristics/>")
   })
 
   it.each([
@@ -69,6 +91,27 @@ describe("CharacteristicsDescriptions YAML → XML", () => {
       rule,
       yaml: { Характеристики: singleCharacteristicYAML },
       referenceXML,
+      context: roundTrip.exportContext(),
+    })
+    const xml = serializeDirectXML(result.xml)
+
+    expect(xml).toContain("<xr:DataPathField>-1</xr:DataPathField>")
+    expect(xml).toContain("<xr:MultipleValuesUseField>-1</xr:MultipleValuesUseField>")
+    expect(xml).toContain("<xr:MultipleValuesKeyField>-1</xr:MultipleValuesKeyField>")
+    expect(xml).toContain("<xr:MultipleValuesOrderField>-1</xr:MultipleValuesOrderField>")
+  })
+
+  it("preserves explicit XML default fields from the configuration snapshot", () => {
+    const referenceXML = readAppliedObjectFixture(import.meta.url, "single.xml")
+    const roundTrip = createDirectRoundTripContexts()
+    const imported = testPropertyFromXMLToYAML({
+      rule,
+      xml: referenceXML,
+      context: roundTrip.importContext,
+    })
+    const result = testPropertyFromYAMLToXML({
+      rule,
+      yaml: imported.yaml,
       context: roundTrip.exportContext(),
     })
     const xml = serializeDirectXML(result.xml)
