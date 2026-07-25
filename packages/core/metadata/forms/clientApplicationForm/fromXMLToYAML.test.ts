@@ -175,7 +175,7 @@ describe("importClientApplicationFormFromXMLToYAML", () => {
 
     expect(collector.fragment("Форма.yaml").xmlNodes).toEqual(
       expect.arrayContaining([
-        expect.objectContaining({ logicalAddress, order: ["name", "comment", "formType"] }),
+        expect.objectContaining({ logicalAddress, order: ["uuid", "name", "comment", "formType"] }),
         expect.objectContaining({
           logicalAddress: `${logicalAddress}.ЧастьФормы.Содержимое`,
           order: ["title", "width"],
