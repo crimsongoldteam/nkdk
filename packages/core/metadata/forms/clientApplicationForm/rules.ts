@@ -83,6 +83,7 @@ export const ClientApplicationFormRules = {
       tag: FormRulesTags.Form,
       defaultValueXMLEmpty: [],
       itemRule: FormAttributeRules,
+      preserveExplicitDefaultXML: true,
       order: 3,
     }),
     attributesConditionalAppearance: conditionalAppearanceRule({

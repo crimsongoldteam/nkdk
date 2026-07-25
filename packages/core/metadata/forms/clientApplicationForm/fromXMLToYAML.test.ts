@@ -66,6 +66,28 @@ describe("importClientApplicationFormFromXMLToYAML", () => {
     expect(result).not.toHaveProperty("xml")
   })
 
+  it("восстанавливает пустой контейнер реквизитов без reference XML", () => {
+    const form = readAndParseXMLFixture<{ Form: ClientApplicationFormXML }>(import.meta.url, "minimal.xml")
+    const metadata = readAndParseXMLFixture<{ MetaDataObject: FormMetadataXML }>(import.meta.url, "minimalMetadata.xml")
+    const contexts = createDirectRoundTripContexts({
+      logicalAddress: "Справочник.Товары.Форма.Минимальная",
+    })
+
+    const imported = importClientApplicationFormFromXMLToYAML({
+      context: contexts.importContext,
+      formName: "Минимальная",
+      formXML: form.Form,
+      metadataXML: metadata.MetaDataObject,
+    })
+    const converted = convertClientApplicationFormFromYAMLToXML({
+      context: contexts.exportContext(),
+      yaml: imported.yaml as ClientApplicationFormYAML,
+      name: "Минимальная",
+    })
+
+    expect(converted.formXML.Attributes).toEqual({})
+  })
+
   it("собирает идентичности формы, вложенных элементов и singleton по каноническим адресам", () => {
     const collector = createConfigurationIndexCollector()
     const logicalAddress = "Справочник.Контрагенты.Форма.ФормаЭлемента"
