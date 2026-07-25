@@ -2,7 +2,7 @@ import fs from "fs"
 import os from "os"
 import { dirname, join } from "path"
 import { afterAll, beforeAll, beforeEach, describe, expect, it } from "vitest"
-import { mockContextFromXML, mockContextToXML } from "../../../tests/mockContext"
+import { mockXmlImportContext, mockContextToXML } from "../../../tests/mockContext"
 import { getXMLFixturePath, readXMLFileAsString } from "../../../tests/readAndParseXMLFile"
 import { importContentFromXML } from "../../../xml/import/importer"
 import { createPreparedYamlProjectWorkerPool } from "../../project/preparedYamlProjectWorkerPool"
@@ -640,7 +640,7 @@ describe("sync configuration to XML", () => {
       ])
 
       await syncConfigurationFromXML({
-        context: mockContextFromXML(),
+        context: mockXmlImportContext(),
         inputDir: tmpInputXmlDir,
         outputDir: tmpYamlDir,
       })

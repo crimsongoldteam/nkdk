@@ -4,12 +4,16 @@ import { join } from "node:path"
 import { afterEach, describe, expect, it, vi } from "vitest"
 import { mockXmlImportContext } from "../../tests/mockContext"
 import type { ConfigurationIndexData } from "../configurationIndex"
+import type { MetadataItemRule } from "../orchestration/property/types"
 import { createImportSharedMetadata } from "./metadataSnapshot"
+import { registerXmlImportComponentDescriptor } from "./componentDescriptor"
+import { discoverXmlImport } from "./discovery"
 import {
   importConfigurationFromXml,
   type ImportConfigurationFromXmlParams,
   type ImportCoordinatorDependencies,
 } from "./importConfiguration"
+import { describeRegisteredXmlImportRoutes } from "./routes"
 import type { ImportAssignment, ImportDiagnostic, ImportResultFile } from "./types"
 
 const failurePhases = [
@@ -48,6 +52,45 @@ afterEach(async () => {
 })
 
 describe("configuration XML import coordinator", () => {
+  it("uses the selected component root rule while discovering assignments", async () => {
+    const rootRule = { itemType: "MetadataCoordinatorRoot", properties: {} } as MetadataItemRule
+    registerXmlImportComponentDescriptor({
+      kind: "test-coordinator-root",
+      rootRule,
+      detect: () => false,
+      resolveAddress: () => ({ kind: "configuration" }),
+    })
+    const params = createParams()
+    const inputDir = fs.mkdtempSync(join(os.tmpdir(), "nkdk-import-component-root-"))
+    tempDirs.push(inputDir)
+    fs.writeFileSync(join(inputDir, "Configuration.xml"), "<MetaDataObject><Configuration/></MetaDataObject>")
+    params.inputDir = inputDir
+    params.context = {
+      ...params.context,
+      fromXML: { ...params.context.fromXML, componentKind: "test-coordinator-root" },
+    }
+    const dependencies = fakeDependencies({ calls: [] })
+    let discovered: ImportAssignment[] = []
+    dependencies.discover = async ({ xmlDir, rootRule: discoveredRootRule }) => {
+      const result = await discoverXmlImport({
+        xmlDir,
+        routes: describeRegisteredXmlImportRoutes(discoveredRootRule),
+      })
+      discovered = result.assignments
+      return result
+    }
+
+    await importConfigurationFromXml(params, dependencies)
+
+    expect(discovered).toEqual([
+      expect.objectContaining({
+        role: "configuration",
+        itemType: "MetadataCoordinatorRoot",
+        targetProjectPath: "Конфигурация.yaml",
+      }),
+    ])
+  })
+
   it("writes the index after direct worker output and result-file hashing", async () => {
     const calls: string[] = []
     const params = createParams()

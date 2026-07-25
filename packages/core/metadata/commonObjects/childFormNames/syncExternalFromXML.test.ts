@@ -2,7 +2,7 @@ import fs from "node:fs"
 import os from "node:os"
 import { dirname, join } from "node:path"
 import { afterEach, describe, expect, it } from "vitest"
-import { mockContextFromXML } from "../../../tests/mockContext"
+import { mockXmlImportContext } from "../../../tests/mockContext"
 import { getXMLFixturePath } from "../../../tests/readAndParseXMLFile"
 import { importConfigurationFromXml } from "../../importFromXml/importConfiguration"
 import "../../appliedObjects/metadataCatalog/register"
@@ -23,7 +23,7 @@ describe("ChildFormNames: единый импорт XML → YAML", () => {
     const outputDir = temporaryDirectory("nkdk-child-form-output-")
 
     const result = await importConfigurationFromXml({
-      context: mockContextFromXML(),
+      context: mockXmlImportContext(),
       inputDir: sourceDir,
       outputDir,
       concurrency: 1,
@@ -50,7 +50,7 @@ describe("ChildFormNames: единый импорт XML → YAML", () => {
     )
 
     const result = await importConfigurationFromXml({
-      context: mockContextFromXML(),
+      context: mockXmlImportContext(),
       inputDir,
       outputDir,
       concurrency: 1,
@@ -79,7 +79,7 @@ describe("ChildFormNames: единый импорт XML → YAML", () => {
     fs.writeFileSync(join(helpDir, "stale.html"), "<html>stale</html>", "utf-8")
 
     const result = await importConfigurationFromXml({
-      context: mockContextFromXML(),
+      context: mockXmlImportContext(),
       inputDir,
       outputDir,
       concurrency: 1,

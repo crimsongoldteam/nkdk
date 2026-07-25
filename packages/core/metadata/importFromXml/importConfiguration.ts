@@ -9,11 +9,13 @@ import {
   type ConfigurationProjectFile,
 } from "../configurationIndex"
 import type { XmlImportConfigurationContext } from "../context/types"
+import type { MetadataItemRule } from "../orchestration/property/types"
 import type { ValidationOwnerFacts } from "../validation/dataPath/ownerFacts"
 import type { SharedValidationSnapshot } from "../validation/sharedValidationSnapshot"
 import { NKDK_CORE_VERSION } from "../../version"
 import { createOperationProfiler } from "../validation/profile"
 import { discoverXmlImport } from "./discovery"
+import { getRegisteredXmlImportComponentDescriptor } from "./componentDescriptor"
 import { createImportSharedMetadata } from "./metadataSnapshot"
 import { describeRegisteredXmlImportRoutes } from "./routes"
 import { copyXmlImportExternalFiles, mergeImportResultFiles } from "./transfer"
@@ -45,7 +47,9 @@ export interface ImportConfigurationFromXmlParams {
 
 export interface ImportCoordinatorDependencies {
   createWorkerPool(params: { concurrency: number }): XmlImportWorkerPool
-  discover(params: { xmlDir: string }): Promise<{ assignments: ImportAssignment[] }>
+  discover(params: { xmlDir: string; rootRule: MetadataItemRule }): Promise<{
+    assignments: ImportAssignment[]
+  }>
   createSharedMetadata(facts: readonly ValidationOwnerFacts[]): SharedValidationSnapshot
   mergeFiles(files: readonly ImportResultFile[]): ImportResultFile[]
   copyExternalFiles(params: {
@@ -60,8 +64,8 @@ export interface ImportCoordinatorDependencies {
 
 const defaultImportDependencies: ImportCoordinatorDependencies = {
   createWorkerPool: createXmlImportWorkerPool,
-  async discover({ xmlDir }) {
-    return discoverXmlImport({ xmlDir, routes: describeRegisteredXmlImportRoutes() })
+  async discover({ xmlDir, rootRule }) {
+    return discoverXmlImport({ xmlDir, routes: describeRegisteredXmlImportRoutes(rootRule) })
   },
   createSharedMetadata: createImportSharedMetadata,
   mergeFiles: mergeImportResultFiles,
@@ -84,11 +88,12 @@ export async function importConfigurationFromXml(
   let warnings: ImportDiagnostic[] = []
 
   try {
+    const component = getRegisteredXmlImportComponentDescriptor(params.context.fromXML.componentKind)
     const discovered = await profiler.measureAsync(
       "Подготовка импорта конфигурации",
       "Поиск XML-файлов выгрузки",
       {},
-      () => deps.discover({ xmlDir: params.inputDir })
+      () => deps.discover({ xmlDir: params.inputDir, rootRule: component.rootRule })
     )
     profiler.record("Подготовка импорта конфигурации", "Формирование и распределение заданий импорта", {
       items: discovered.assignments.length,
