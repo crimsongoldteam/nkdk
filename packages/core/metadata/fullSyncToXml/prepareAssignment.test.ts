@@ -433,6 +433,13 @@ describe("prepareFullXmlSyncAssignment", () => {
     expect(prepared.documents[0]?.xml).toMatchObject({
       MetaDataObject: {
         Cube: {
+          InternalInfo: {
+            "xr:GeneratedType": expect.arrayContaining([
+              expect.objectContaining({
+                _name: "ExternalDataSourceCubeManager.Источник.Куб",
+              }),
+            ]),
+          },
           Properties: {
             DefaultRecordForm: "ExternalDataSource.Источник.Cube.Куб.Form.ФормаЗаписи",
           },

@@ -13,6 +13,7 @@ import { classifyMetadataProjectPath } from "../resourceTopology/projectProjecti
 import { projectXmlExportOwnerChain } from "../resourceTopology/xmlExportProjection"
 import {
   withImportMetadataTargetOwners,
+  withExportToXMLItemsTree,
 } from "../orchestration/appliedObject/metadataItemOwnerContext"
 import { metadataTargetOwnerFromRule } from "../orchestration/property/metadataTargetString"
 
@@ -108,14 +109,18 @@ function withTopologyMetadataTargetOwners(
       name: owner.itemName,
       context,
     })
-    context = withImportMetadataTargetOwners(context, [
+    const ownerContext = [
       {
         itemType: owner.assignment.itemRule.itemType,
         name: owner.itemName,
         path: owner.logicalAddress,
         ...(resolvedOwner === undefined ? {} : { owner: resolvedOwner }),
       },
-    ])
+    ]
+    context = withExportToXMLItemsTree(
+      withImportMetadataTargetOwners(context, ownerContext),
+      ownerContext
+    )
   }
   return context
 }
