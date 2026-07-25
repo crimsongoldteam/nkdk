@@ -3,6 +3,7 @@ import type { ConfigurationContext, JSONSchemaExportMode } from "../context/type
 import { registerJSONSchemaIdentity } from "../orchestration/jsonSchemaRefs"
 import type { MetadataItemRule } from "../orchestration/property/types"
 import type { XmlImportRoute } from "../importFromXml/types"
+import type { MetadataResourceDeclaration } from "../resourceTopology/types"
 
 export interface RegisteredProjectSpec {
   dir: string
@@ -12,6 +13,8 @@ export interface RegisteredProjectSpec {
   nesting?: ProjectSpecNesting
   /** Дополнительные абсолютные маршруты XML-выгрузки, принадлежащие этому project spec. */
   xmlImportRoutes?: readonly XmlImportRoute[]
+  /** Нейтральное описание файлов Проекта и связанных с ними XML-ресурсов. */
+  resources?: readonly MetadataResourceDeclaration[]
 }
 
 export type ProjectSpecNesting = {
