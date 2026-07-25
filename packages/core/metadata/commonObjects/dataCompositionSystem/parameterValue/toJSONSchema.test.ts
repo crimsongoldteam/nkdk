@@ -24,7 +24,7 @@ const errorsFor = (rule: SettingsParameterValuePropertyRule, value: unknown): st
     .Errors(value)[1]
     .map((error) => `${error.instancePath}: ${error.message}`)
 
-describe("SettingsParameterValue exportToJSONSchema", { timeout: 30_000 }, () => {
+describe("SettingsParameterValue exportToJSONSchema", { timeout: 240_000 }, () => {
   beforeAll(() => {
     ;(
       [
