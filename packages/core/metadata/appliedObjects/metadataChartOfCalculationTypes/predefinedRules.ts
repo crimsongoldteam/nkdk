@@ -20,18 +20,18 @@ const ChartOfCalculationTypesPredefinedItemRules = {
     }),
     base: metadataItemLinksRule({
       yaml: "Базовые",
-      xml: "CalculationType",
-      xmlParents: ["Base"],
+      xml: "Base",
+      metadataItemLinksXMLItem: "CalculationType",
     }),
     leading: metadataItemLinksRule({
       yaml: "Ведущие",
-      xml: "CalculationType",
-      xmlParents: ["Leading"],
+      xml: "Leading",
+      metadataItemLinksXMLItem: "CalculationType",
     }),
     displaced: metadataItemLinksRule({
       yaml: "Вытесняющие",
-      xml: "CalculationType",
-      xmlParents: ["Displaced"],
+      xml: "Displaced",
+      metadataItemLinksXMLItem: "CalculationType",
     }),
   },
 } as const satisfies MetadataItemRule
