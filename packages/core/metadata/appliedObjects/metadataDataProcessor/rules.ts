@@ -31,13 +31,6 @@ const MetadataDataProcessorCommandRules = {
 } as const satisfies MetadataItemRule
 const MetadataDataProcessorAttributeRules = {
   ...MetadataAttributeRules,
-  properties: {
-    ...MetadataAttributeRules.properties,
-    type: {
-      ...MetadataAttributeRules.properties.type,
-      declareTypeNamespaceXML: true,
-    },
-  },
 } as const satisfies MetadataItemRule
 export const MetadataDataProcessorRules = {
   itemType: "MetadataDataProcessor",

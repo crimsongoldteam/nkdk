@@ -32,13 +32,6 @@ const MetadataReportCommandRules = {
 } as const satisfies MetadataItemRule
 const MetadataReportAttributeRules = {
   ...MetadataAttributeRules,
-  properties: {
-    ...MetadataAttributeRules.properties,
-    type: {
-      ...MetadataAttributeRules.properties.type,
-      declareTypeNamespaceXML: true,
-    },
-  },
 } as const satisfies MetadataItemRule
 registerMetadataItemCollectionRule({
   propertyType: "MetadataReportAttributes",
