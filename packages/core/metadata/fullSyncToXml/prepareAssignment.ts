@@ -9,6 +9,12 @@ import type { FullXmlSyncAssignment, PreparedXMLAssignment, PreparedXMLDocument 
 import type { CompiledMetadataResourceTopology } from "../resourceTopology/types"
 import { compileRegisteredMetadataResourceTopology } from "../resourceTopology/registry"
 import { getMetadataXmlPrepareCapability } from "../resourceTopology/capabilities"
+import { classifyMetadataProjectPath } from "../resourceTopology/projectProjection"
+import { projectXmlExportOwnerChain } from "../resourceTopology/xmlExportProjection"
+import {
+  withImportMetadataTargetOwners,
+} from "../orchestration/appliedObject/metadataItemOwnerContext"
+import { metadataTargetOwnerFromRule } from "../orchestration/property/metadataTargetString"
 
 export function prepareFullXmlSyncAssignment(params: {
   assignment: FullXmlSyncAssignment
@@ -49,12 +55,13 @@ function prepareTopologyAssignmentDocuments(
   const assignmentNode = params.topology.assignments.find((candidate) => candidate.id === params.assignment.nodeId)
   if (assignmentNode === undefined) throw new Error(`Не найден узел топологии: ${params.assignment.nodeId}`)
   const outputs = params.assignment.potentialOutputs
+  const context = withTopologyMetadataTargetOwners(params)
   const outputsByCapability = Map.groupBy(outputs, (output) => output.prepareCapabilityId)
   const documents = [...outputsByCapability].flatMap(([capabilityId, capabilityOutputs]) => {
     const capability = getMetadataXmlPrepareCapability(capabilityId)
     if (capability === undefined) throw new Error(`Не зарегистрирована возможность подготовки XML: ${capabilityId}`)
     return capability.run({
-      context: params.context,
+      context,
       preparedYamlFile: params.preparedYamlFile,
       assignment: assignmentNode,
       itemName: params.assignment.itemName,
@@ -83,4 +90,32 @@ function prepareTopologyAssignmentDocuments(
     seen.add(document.declarationId)
   }
   return documents
+}
+
+function withTopologyMetadataTargetOwners(
+  params: Parameters<typeof prepareFullXmlSyncAssignment>[0] & {
+    context: ConfigurationContextWithExportToXML
+    topology: CompiledMetadataResourceTopology
+  }
+): ConfigurationContextWithExportToXML {
+  const match = classifyMetadataProjectPath(params.topology, params.assignment.sourceProjectPath)
+  if (match?.kind !== "content") return params.context
+
+  let context = params.context
+  for (const owner of projectXmlExportOwnerChain(params.topology, match)) {
+    const resolvedOwner = metadataTargetOwnerFromRule({
+      itemRule: owner.assignment.itemRule,
+      name: owner.itemName,
+      context,
+    })
+    context = withImportMetadataTargetOwners(context, [
+      {
+        itemType: owner.assignment.itemRule.itemType,
+        name: owner.itemName,
+        path: owner.logicalAddress,
+        ...(resolvedOwner === undefined ? {} : { owner: resolvedOwner }),
+      },
+    ])
+  }
+  return context
 }

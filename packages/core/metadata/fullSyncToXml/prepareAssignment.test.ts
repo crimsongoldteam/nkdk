@@ -221,4 +221,66 @@ describe("prepareFullXmlSyncAssignment", () => {
       },
     })
   })
+
+  it("restores the topology owner for an independently prepared nested object", () => {
+    const projectDir = mkdtempSync(join(tmpdir(), "nkdk-prepare-nested-assignment-owner-"))
+    tempDirs.push(projectDir)
+    const sourceProjectPath =
+      "ВнешнийИсточникДанных/Источник/Кубы/Куб/Свойства.yaml"
+    const sourcePath = join(projectDir, ...sourceProjectPath.split("/"))
+    fs.mkdirSync(join(projectDir, "ВнешнийИсточникДанных", "Источник", "Кубы", "Куб"), {
+      recursive: true,
+    })
+    fs.writeFileSync(
+      sourcePath,
+      ["ИмяВИсточникеДанных: Куб", "ОсновнаяФормаЗаписи: ФормаЗаписи", ""].join("\n")
+    )
+    const yaml = prepareYamlFiles({
+      files: [
+        {
+          projectPath: sourceProjectPath,
+          filePath: sourcePath,
+          role: "form",
+          owner: { dir: "ВнешнийИсточникДанных", name: "Источник" },
+          itemType: "MetadataExternalDataSourceCube",
+        },
+      ],
+      itemTypeByYamlDir: {
+        ВнешнийИсточникДанных: "MetadataExternalDataSource",
+      },
+    }).yamlFiles[0]!
+    const assignment: FullXmlSyncAssignment = {
+      id: sourceProjectPath,
+      sourceProjectPath,
+      sourcePath,
+      role: "form",
+      itemType: "MetadataExternalDataSourceCube",
+      itemName: "Куб",
+      logicalAddress: "ВнешнийИсточникДанных.Источник.Куб.Куб",
+      owner: {
+        itemType: "MetadataExternalDataSource",
+        name: "Источник",
+        logicalAddress: "ВнешнийИсточникДанных.Источник",
+      },
+      ...fullXmlSyncTestTopologyFields(sourceProjectPath),
+    }
+
+    const prepared = prepareFullXmlSyncAssignment({
+      assignment,
+      preparedYamlFile: yaml,
+      context: mockContextToXML(),
+      index: createConfigurationIndexReader(snapshotConfigurationIndex(encodeConfigurationIndex(sampleIndex()))),
+      assignments: [],
+    })
+
+    expect(prepared.documents[0]?.xml).toMatchObject({
+      MetaDataObject: {
+        Cube: {
+          Properties: {
+            DefaultRecordForm: "ExternalDataSource.Источник.Cube.Куб.Form.ФормаЗаписи",
+          },
+        },
+      },
+    })
+  })
 })

@@ -30,6 +30,14 @@ export interface XmlExportAssignmentProjection {
   readonly potentialOutputs: readonly XmlExportPotentialOutput[]
 }
 
+export interface XmlExportOwnerProjection {
+  readonly nodeId: string
+  readonly assignment: CompiledMetadataAssignmentNode
+  readonly itemType: string
+  readonly itemName: string
+  readonly logicalAddress: string
+}
+
 export interface MetadataProjectChangeImpact {
   readonly assignment: CompiledMetadataAssignmentNode | undefined
   readonly outputs: readonly CompiledMetadataXmlDocumentNode[]
@@ -70,7 +78,15 @@ export function projectXmlExportAssignment(
 ): XmlExportAssignmentProjection {
   const assignment = requireContentAssignment(match)
   const itemName = itemNameFor(assignment, match.values)
-  const owner = ownerFor(topology, assignment, match.values)
+  const ownerProjection = projectXmlExportOwnerChain(topology, match).at(-1)
+  const owner =
+    ownerProjection === undefined
+      ? undefined
+      : {
+          itemType: ownerProjection.itemType,
+          name: ownerProjection.itemName,
+          logicalAddress: ownerProjection.logicalAddress,
+        }
   const logicalAddress =
     owner === undefined
       ? rootLogicalAddress(assignment, match.values, itemName)
@@ -96,22 +112,43 @@ export function projectXmlExportAssignment(
   }
 }
 
-function ownerFor(
+export function projectXmlExportOwnerChain(
   topology: CompiledMetadataResourceTopology,
-  assignment: CompiledMetadataAssignmentNode,
-  values: Readonly<Record<string, string>>
-): XmlExportAssignmentProjection["owner"] {
-  if (assignment.ownerProjectPattern === undefined) return undefined
-  const owner = topology.assignments.find(
-    (candidate) => candidate.projectPattern === assignment.ownerProjectPattern
-  )
-  if (owner === undefined) throw new Error(`Не найден узел-владелец ${assignment.ownerProjectPattern}`)
-  const ownerName = itemNameFor(owner, values)
-  return {
-    itemType: owner.itemRule.itemType,
-    name: ownerName,
-    logicalAddress: rootLogicalAddress(owner, values, ownerName),
+  match: MetadataProjectResourceMatch
+): readonly XmlExportOwnerProjection[] {
+  const assignment = requireContentAssignment(match)
+  const owners: CompiledMetadataAssignmentNode[] = []
+  const visited = new Set<string>([assignment.id])
+  let current = assignment
+
+  while (current.ownerProjectPattern !== undefined) {
+    const owner = topology.assignments.find(
+      (candidate) => candidate.projectPattern === current.ownerProjectPattern
+    )
+    if (owner === undefined) throw new Error(`Не найден узел-владелец ${current.ownerProjectPattern}`)
+    if (visited.has(owner.id)) throw new Error(`Цикл узлов-владельцев топологии: ${owner.projectPattern}`)
+    visited.add(owner.id)
+    owners.push(owner)
+    current = owner
   }
+
+  let previous: XmlExportOwnerProjection | undefined
+  return owners.reverse().map((owner) => {
+    const itemName = itemNameFor(owner, match.values)
+    const logicalAddress =
+      previous === undefined
+        ? rootLogicalAddress(owner, match.values, itemName)
+        : [previous.logicalAddress, owner.logicalAddressSegment, itemName].filter(Boolean).join(".")
+    const projected = {
+      nodeId: owner.id,
+      assignment: owner,
+      itemType: owner.itemRule.itemType,
+      itemName,
+      logicalAddress,
+    }
+    previous = projected
+    return projected
+  })
 }
 
 function rootLogicalAddress(
