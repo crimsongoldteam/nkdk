@@ -2,7 +2,7 @@
 import { mkdir, readFile, writeFile } from "node:fs/promises"
 import { createRequire } from "node:module"
 import { dirname, resolve } from "node:path"
-import { fileURLToPath } from "node:url"
+import { fileURLToPath, pathToFileURL } from "node:url"
 
 const repoRoot = fileURLToPath(new URL("../../..", import.meta.url))
 const requireFromHere = createRequire(import.meta.url)
@@ -74,6 +74,19 @@ async function writeJson(path, value) {
   await writeText(path, `${JSON.stringify(value, null, 2)}\n`)
 }
 
+export async function reportServerStderr({
+  stderr,
+  failed,
+  debug,
+  logPath,
+  writeStderr = (text) => process.stderr.write(text),
+}) {
+  await writeText(logPath, stderr)
+  if (failed && !debug && stderr.length > 0) {
+    writeStderr(stderr.endsWith("\n") ? stderr : `${stderr}\n`)
+  }
+}
+
 function structuredPayload(result) {
   if (result.structuredContent && typeof result.structuredContent === "object") return result.structuredContent
   const textContent = result.content?.find((part) => part.type === "text")?.text
@@ -135,22 +148,37 @@ async function main() {
     })
   }
 
+  let failed = true
   try {
     const result = await client.callTool(request)
     const payload = structuredPayload(result)
     await writeJson(options.responseLog, result)
     await writeJson(options.output, payload ?? result)
-    await writeText(options.serverStderrLog, stderr)
     if (result.isError || operationFailed(payload)) {
       throw new Error(failureMessage(options.toolName, result, payload))
     }
+    failed = false
     if (options.debug) process.stderr.write(`[mcp] ok ${options.toolName}\n`)
   } finally {
-    await client.close()
+    try {
+      await client.close()
+    } finally {
+      await reportServerStderr({
+        stderr,
+        failed,
+        debug: options.debug,
+        logPath: options.serverStderrLog,
+      })
+    }
   }
 }
 
-main().catch((error) => {
-  process.stderr.write(`${error instanceof Error ? error.message : String(error)}\n`)
-  process.exitCode = 1
-})
+const isCliEntrypoint =
+  process.argv[1] !== undefined && pathToFileURL(resolve(process.argv[1])).href === import.meta.url
+
+if (isCliEntrypoint) {
+  main().catch((error) => {
+    process.stderr.write(`${error instanceof Error ? error.message : String(error)}\n`)
+    process.exitCode = 1
+  })
+}
