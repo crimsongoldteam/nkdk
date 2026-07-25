@@ -21,6 +21,7 @@ import { xmlRootRule } from "../../commonObjects/xmlRoot/types"
 import { systemEnumerationRule } from "../../systemEnumerations/types"
 import { V8_MDCLASSES_ROOT } from "../../orchestration/appliedObject/presets"
 import type { MetadataItemRule } from "../../orchestration/property/types"
+import { ChartOfCalculationTypesPredefinedRules } from "./predefinedRules"
 import { commonBasedOnObjectPaths } from "../../commonObjects/metadataTargets"
 import { MetadataCommandRules } from "../metadataCommand/rules"
 const properties = ["Properties"]
@@ -370,7 +371,11 @@ export const MetadataChartOfCalculationTypesRules = {
       toXML: false,
       fromXML: false,
     }),
-    predefined: predefinedRule({ yaml: "Предопределенные", filePath: "Ext/Predefined.xml" }),
+    predefined: predefinedRule({
+      yaml: "Предопределенные",
+      filePath: "Ext/Predefined.xml",
+      itemRule: ChartOfCalculationTypesPredefinedRules,
+    }),
     additionalIndexes: additionalIndexRule({
       yaml: "ДополнительныеИндексы",
       filePath: "Ext/AdditionalIndexes.xml",
