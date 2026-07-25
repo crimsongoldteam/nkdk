@@ -2,7 +2,7 @@ import fs from "fs"
 import os from "os"
 import { join } from "path"
 import { afterAll, beforeEach, describe, expect, it } from "vitest"
-import { mockContextFromXML } from "../../../tests/mockContext"
+import { mockXmlImportContext } from "../../../tests/mockContext"
 import { readXMLFileAsString } from "../../../tests/readAndParseXMLFile"
 import { readConfigurationIndex } from "../../configurationIndex"
 import { createXmlImportWorkerPoolHandle } from "../../importFromXml"
@@ -64,7 +64,7 @@ describe("sync configuration from xml", () => {
     fs.writeFileSync(stalePath, "Имя: УдаленныйОбъект\n")
 
     const result = await syncConfigurationFromXMLForTest({
-      context: mockContextFromXML(),
+      context: mockXmlImportContext(),
       inputDir,
       outputDir,
       operationId,
@@ -109,7 +109,7 @@ describe("sync configuration from xml", () => {
     fs.mkdirSync(outputDir, { recursive: true })
 
     const result = await syncConfigurationFromXMLForTest({
-      context: mockContextFromXML(),
+      context: mockXmlImportContext(),
       inputDir: partialInput,
       outputDir,
     })
@@ -128,7 +128,7 @@ describe("sync configuration from xml", () => {
       fs.copyFileSync(join(__dirname, "__fixtures__/full.xml"), join(rootInput, CONFIGURATION_XML_FILE))
 
       const result = await syncConfigurationFromXMLForTest({
-        context: mockContextFromXML(),
+        context: mockXmlImportContext(),
         inputDir: rootInput,
         outputDir: rootOutput,
       })
@@ -164,7 +164,7 @@ describe("sync configuration from xml", () => {
       fs.writeFileSync(join(rootInput, "Ext", "HomePageWorkArea.xml"), homePageWorkAreaXML, "utf-8")
 
       const result = await syncConfigurationFromXMLForTest({
-        context: mockContextFromXML(),
+        context: mockXmlImportContext(),
         inputDir: rootInput,
         outputDir: rootOutput,
       })
@@ -229,7 +229,7 @@ describe("sync configuration from xml", () => {
       fs.writeFileSync(join(rootInput, "Ext", "StandaloneConfigurationContent.bin"), Buffer.from([4, 5, 6]))
 
       await syncConfigurationFromXMLForTest({
-        context: mockContextFromXML(),
+        context: mockXmlImportContext(),
         inputDir: rootInput,
         outputDir: rootOutput,
       })

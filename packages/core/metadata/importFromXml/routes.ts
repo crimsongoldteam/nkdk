@@ -16,10 +16,15 @@ interface CompileContext {
   recursion: XmlImportRouteRecursion | undefined
 }
 
-export function describeRegisteredXmlImportRoutes(): readonly XmlImportRoute[] {
+export function describeRegisteredXmlImportRoutes(
+  rootRule: MetadataItemRule = configurationMetadataProjectSpec.rule
+): readonly XmlImportRoute[] {
   const routes: XmlImportRoute[] = []
-  collectSpecRoutes(routes, configurationMetadataProjectSpec)
-  for (const spec of metadataProjectSpecs) collectSpecRoutes(routes, spec)
+  collectRootRoutes(routes, rootRule)
+  for (const spec of [configurationMetadataProjectSpec, ...metadataProjectSpecs]) {
+    routes.push(...(spec.xmlImportRoutes ?? []))
+    if (spec.dir !== "") collectSpecRoutes(routes, spec)
+  }
   return deduplicateRoutes(routes)
 }
 
@@ -72,31 +77,6 @@ export function expandImportPattern(pattern: string, values: Readonly<Record<str
 }
 
 function collectSpecRoutes(routes: XmlImportRoute[], spec: MetadataProjectSpec): void {
-  routes.push(...(spec.xmlImportRoutes ?? []))
-  if (spec.dir === "") {
-    const assignmentTargetPattern = "Конфигурация.yaml"
-    routes.push({
-      kind: "assignment",
-      xmlPattern: "Configuration.xml",
-      targetPattern: assignmentTargetPattern,
-      role: "configuration",
-      itemType: spec.rule.itemType,
-      source: itemRuleSource(spec.rule),
-    })
-    collectRuleRoutes(routes, spec.rule, {
-      xmlBase: "",
-      targetBase: "",
-      assignmentTargetPattern,
-      assignmentRole: "configuration",
-      itemType: spec.rule.itemType,
-      currentNameParameter: "ownerName",
-      parentNameParameter: undefined,
-      nextNameIndex: 1,
-      recursion: undefined,
-    })
-    return
-  }
-
   if (typeof spec.rule.xmlDir !== "string") return
   const xmlBase = `${spec.rule.xmlDir}/{ownerName}`
   const targetBase = `${spec.dir}/{ownerName}`
@@ -130,6 +110,29 @@ function collectSpecRoutes(routes: XmlImportRoute[], spec: MetadataProjectSpec):
     parentNameParameter: undefined,
     nextNameIndex: 1,
     recursion,
+  })
+}
+
+function collectRootRoutes(routes: XmlImportRoute[], rootRule: MetadataItemRule): void {
+  const assignmentTargetPattern = "Конфигурация.yaml"
+  routes.push({
+    kind: "assignment",
+    xmlPattern: "Configuration.xml",
+    targetPattern: assignmentTargetPattern,
+    role: "configuration",
+    itemType: rootRule.itemType,
+    source: itemRuleSource(rootRule),
+  })
+  collectRuleRoutes(routes, rootRule, {
+    xmlBase: "",
+    targetBase: "",
+    assignmentTargetPattern,
+    assignmentRole: "configuration",
+    itemType: rootRule.itemType,
+    currentNameParameter: "ownerName",
+    parentNameParameter: undefined,
+    nextNameIndex: 1,
+    recursion: undefined,
   })
 }
 

@@ -2,7 +2,7 @@ import fs from "node:fs"
 import importContentFromXML from "../../xml/import/importer"
 import { withConfigurationIndexCollector } from "../configurationIndex/collector/context"
 import type { ConfigurationIndexCollector } from "../configurationIndex/collector/writer"
-import type { ConfigurationContextFromXML, ExternalFileEntry } from "../context/types"
+import type { ExternalFileEntry, XmlImportConfigurationContext } from "../context/types"
 import { importClientApplicationFormFromXMLToYAML } from "../forms/clientApplicationForm/fromXMLToYAML"
 import { ClientApplicationFormRules } from "../forms/clientApplicationForm/rules"
 import type { ClientApplicationFormXML, FormMetadataXML } from "../forms/clientApplicationForm/types"
@@ -13,13 +13,13 @@ import {
   withExportMetadataTargetOwners,
 } from "../orchestration/appliedObject/metadataItemOwnerContext"
 import { metadataTargetOwnerFromRule } from "../orchestration/property/metadataTargetString"
-import { getTypeRule } from "../orchestration/property/typeRuleRegistry"
 import type { MetadataItemRule, PropertyRule } from "../orchestration/property/types"
 import type { DirectImportProfile } from "../orchestration/property/importYamlTypes"
 import { createDeferredValuePathCollector } from "../orchestration/property/importYamlTypes"
 import { bindDeferredObjectValues, type DeferredObjectValue } from "../orchestration/property/deferredObjectValues"
 import { createLocalIndexesCollector, type LocalIndexes } from "../project/localIndexes"
-import { configurationMetadataProjectSpec, metadataProjectSpecs } from "../project/specs"
+import { findRegisteredProjectRule } from "../project/projectSpecRegistry"
+import { getRegisteredXmlImportComponentDescriptor } from "./componentDescriptor"
 import type { ValidationProfiler } from "../validation/profile"
 import { registerOwnerFactCollectors } from "../validation/registerValidationMetadata"
 import type { ImportAssignment, ImportXmlInput } from "./types"
@@ -56,7 +56,7 @@ export function resetRegisteredImportRuleLookupCountForTests(): void {
 
 export async function prepareImportYaml(params: {
   assignment: ImportAssignment
-  context: ConfigurationContextFromXML
+  context: XmlImportConfigurationContext
   collector: ConfigurationIndexCollector
   profiler?: ValidationProfiler
 }): Promise<PreparedImportYaml> {
@@ -64,7 +64,7 @@ export async function prepareImportYaml(params: {
   try {
     xmlInputs = await readAndParseAssignmentXml(params.assignment.xmlFiles, params.profiler)
     const generatedFiles: ExternalFileEntry[] = []
-    const rule = resolveAssignmentRule(params.assignment)
+    const rule = resolveAssignmentRule(params.assignment, params.context.fromXML.componentKind)
     const ownerContext = buildOwnerContext(params.assignment, rule)
     const collectedContext = withConfigurationIndexCollector(
       params.context,
@@ -81,7 +81,7 @@ export async function prepareImportYaml(params: {
         },
       },
       ownerContext
-    ) as ConfigurationContextFromXML
+    ) as XmlImportConfigurationContext
 
     const importProfile = createDirectImportProfile()
     const result = measureYaml(params.profiler, () => {
@@ -132,8 +132,8 @@ export async function prepareImportYaml(params: {
   }
 }
 
-function resolveAssignmentRule(assignment: ImportAssignment): MetadataItemRule {
-  if (assignment.role === "configuration") return configurationMetadataProjectSpec.rule
+export function resolveAssignmentRule(assignment: ImportAssignment, componentKind: string): MetadataItemRule {
+  if (assignment.role === "configuration") return getRegisteredXmlImportComponentDescriptor(componentKind).rootRule
   const rule = findRegisteredImportRule(assignment.itemType)
   if (rule !== undefined) return rule
   if (assignment.role === "fileItem" && assignment.targetProjectPath.endsWith(".yaml"))
@@ -286,35 +286,9 @@ function normalizedPath(path: string): string {
 function findRegisteredImportRule(itemType: string): MetadataItemRule | undefined {
   if (registeredImportRulesByItemType.has(itemType)) return registeredImportRulesByItemType.get(itemType)
   registeredImportRuleLookupCountValueForTests += 1
-  for (const spec of [configurationMetadataProjectSpec, ...metadataProjectSpecs]) {
-    const result = findRule(spec.rule, itemType, new Set())
-    if (result !== undefined) {
-      registeredImportRulesByItemType.set(itemType, result)
-      return result
-    }
-  }
-  registeredImportRulesByItemType.set(itemType, undefined)
-  return undefined
-}
-
-function findRule(rule: MetadataItemRule, itemType: string, seen: Set<MetadataItemRule>): MetadataItemRule | undefined {
-  if (seen.has(rule)) return undefined
-  seen.add(rule)
-  if (rule.itemType === itemType) return rule
-  for (const child of rule.childCollections ?? []) {
-    for (const candidate of [child.fileItemRule, child.itemRule]) {
-      if (candidate === undefined) continue
-      const result = findRule(candidate, itemType, seen)
-      if (result !== undefined) return result
-    }
-  }
-  for (const propertyRule of Object.values(rule.properties)) {
-    const itemRule = getTypeRule(propertyRule.type, "collectionItemRule")?.itemRule
-    if (itemRule === undefined) continue
-    const result = findRule(itemRule, itemType, seen)
-    if (result !== undefined) return result
-  }
-  return undefined
+  const rule = findRegisteredProjectRule(itemType)
+  registeredImportRulesByItemType.set(itemType, rule)
+  return rule
 }
 
 export class ImportXmlInputError extends Error {

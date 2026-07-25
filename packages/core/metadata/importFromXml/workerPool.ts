@@ -3,7 +3,7 @@ import { fileURLToPath } from "node:url"
 import Piscina from "piscina"
 import { mergeConfigurationIndexFragments } from "../configurationIndex/fragment"
 import type { ConfigurationIndexData } from "../configurationIndex/types"
-import type { ConfigurationContextFromXML } from "../context/types"
+import type { XmlImportConfigurationContext } from "../context/types"
 import type { ValidationOwnerFacts } from "../validation/dataPath/ownerFacts"
 import type { SharedValidationSnapshot } from "../validation/sharedValidationSnapshot"
 import { createOperationProfiler } from "../validation/profile"
@@ -18,7 +18,7 @@ import type {
 } from "./types"
 
 export interface XmlImportWorkerPool {
-  initialize(params: { operationId: string; context: ConfigurationContextFromXML; outputDir: string }): Promise<void>
+  initialize(params: { operationId: string; context: XmlImportConfigurationContext; outputDir: string }): Promise<void>
   runFirstPass(assignments: readonly ImportAssignment[]): Promise<XmlImportFirstPassPoolResult>
   runSecondPass(sharedMetadata: SharedValidationSnapshot): Promise<XmlImportSecondPassPoolResult>
   close(): Promise<void>
@@ -154,7 +154,7 @@ function createXmlImportOperationPool(params: {
   let initialization:
     | {
         operationId: string
-        context: ConfigurationContextFromXML
+        context: XmlImportConfigurationContext
         outputDir: string
       }
     | undefined

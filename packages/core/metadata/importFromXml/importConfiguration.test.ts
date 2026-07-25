@@ -2,7 +2,7 @@ import fs from "node:fs"
 import os from "node:os"
 import { join } from "node:path"
 import { afterEach, describe, expect, it, vi } from "vitest"
-import { mockContextFromXML } from "../../tests/mockContext"
+import { mockXmlImportContext } from "../../tests/mockContext"
 import type { ConfigurationIndexData } from "../configurationIndex"
 import { createImportSharedMetadata } from "./metadataSnapshot"
 import {
@@ -223,7 +223,7 @@ function createParams(): ImportConfigurationFromXmlParams {
   const outputDir = fs.mkdtempSync(join(os.tmpdir(), "nkdk-import-coordinator-"))
   tempDirs.push(outputDir)
   return {
-    context: mockContextFromXML(),
+    context: mockXmlImportContext(),
     inputDir: "/xml",
     outputDir,
     concurrency: 2,

@@ -2,7 +2,7 @@ import fs from "node:fs"
 import os from "node:os"
 import { join } from "node:path"
 import { afterEach, describe, expect, it } from "vitest"
-import { mockContextFromXML } from "../../tests/mockContext"
+import { mockContextFromXML, mockXmlImportContext } from "../../tests/mockContext"
 import { encodeConfigurationIndexFragments } from "../configurationIndex/fragment"
 import { createConfigurationIndexCollector } from "../configurationIndex/collector/writer"
 import { createImportSharedMetadata } from "./metadataSnapshot"
@@ -22,12 +22,16 @@ afterEach(() => {
 })
 
 describe("XML import worker pool", () => {
+  it("keeps the generic XML context free of component selection", () => {
+    expect(mockContextFromXML().fromXML).not.toHaveProperty("componentKind")
+  })
+
   it("sends one command per pass to each active worker with static round-robin assignments", async () => {
     const pools = createFakePools()
     const assignments = [assignment("one"), assignment("two"), assignment("three")]
     const pool = createXmlImportWorkerPool({ concurrency: 2, createWorkerPool: pools.factory })
 
-    await pool.initialize({ operationId: "op", context: mockContextFromXML(), outputDir: createTempDir("static") })
+    await pool.initialize({ operationId: "op", context: mockXmlImportContext(), outputDir: createTempDir("static") })
     await pool.runFirstPass(assignments)
     await pool.runSecondPass(createImportSharedMetadata([]))
 
@@ -43,10 +47,35 @@ describe("XML import worker pool", () => {
     const pools = createFakePools()
     const pool = createXmlImportWorkerPool({ concurrency: 4, createWorkerPool: pools.factory })
 
-    await pool.initialize({ operationId: "op", context: mockContextFromXML(), outputDir: createTempDir("active") })
+    await pool.initialize({ operationId: "op", context: mockXmlImportContext(), outputDir: createTempDir("active") })
     await pool.runFirstPass([assignment("only")])
 
     expect(pools.created()).toBe(1)
+    await pool.close()
+  })
+
+  it("passes cloneable component strings to the worker initialization command", async () => {
+    const pools = createFakePools()
+    const pool = createXmlImportWorkerPool({ concurrency: 1, createWorkerPool: pools.factory })
+    const context = mockXmlImportContext()
+    context.fromXML = {
+      ...context.fromXML,
+      componentKind: "test-component",
+      metadataItemAugmenter: "test-augmenter",
+    }
+
+    await pool.initialize({ operationId: "component", context, outputDir: createTempDir("component") })
+    await pool.runFirstPass([assignment("component")])
+
+    const initialize = pools.runs(0).find((command) => command.kind === "initialize")
+    expect(initialize).toMatchObject({
+      kind: "initialize",
+      context: {
+        fromXML: { componentKind: "test-component", metadataItemAugmenter: "test-augmenter" },
+      },
+    })
+    expect(() => structuredClone(initialize)).not.toThrow()
+
     await pool.close()
   })
 
@@ -60,7 +89,7 @@ describe("XML import worker pool", () => {
     })
     const pool = createXmlImportWorkerPool({ concurrency: 2, createWorkerPool: pools.factory })
 
-    await pool.initialize({ operationId: "op", context: mockContextFromXML(), outputDir: createTempDir("diagnostic") })
+    await pool.initialize({ operationId: "op", context: mockXmlImportContext(), outputDir: createTempDir("diagnostic") })
     const result = await pool.runFirstPass([assignment("one"), assignment("two")])
 
     expect(result.diagnostics).toContainEqual(expect.objectContaining({ severity: "error" }))
@@ -82,7 +111,7 @@ describe("XML import worker pool", () => {
     fs.writeFileSync(sentinelPath, "partial")
     const pool = createXmlImportWorkerPool({ concurrency: 2, createWorkerPool: pools.factory })
 
-    await pool.initialize({ operationId: "op", context: mockContextFromXML(), outputDir })
+    await pool.initialize({ operationId: "op", context: mockXmlImportContext(), outputDir })
     await expect(pool.runFirstPass([assignment("one"), assignment("two")])).rejects.toThrow("worker exited")
 
     expect(pools.destroyCalls()).toEqual([1, 1])
@@ -99,7 +128,7 @@ describe("XML import worker pool", () => {
       targetProjectPath: "Справочник/Контрагенты/Свойства.yaml",
       xmlFiles: [{ role: "metadata", sourcePath: join(syncXmlDir, "Catalogs/Контрагенты.xml") }],
     })
-    const context = mockContextFromXML()
+    const context = mockXmlImportContext()
     const collector = createConfigurationIndexCollector()
     await prepareImportYaml({ assignment: source, context, collector })
     const expected = collector.fragment(source.targetProjectPath)
@@ -126,13 +155,13 @@ describe("XML import worker pool", () => {
 
     try {
       const firstOperation = handle.createOperationPool()
-      await firstOperation.initialize({ operationId: "one", context: mockContextFromXML(), outputDir: createTempDir("one") })
+      await firstOperation.initialize({ operationId: "one", context: mockXmlImportContext(), outputDir: createTempDir("one") })
       await firstOperation.runFirstPass([assignment("one-a"), assignment("one-b")])
       await firstOperation.runSecondPass(createImportSharedMetadata([]))
       await firstOperation.close()
 
       const secondOperation = handle.createOperationPool()
-      await secondOperation.initialize({ operationId: "two", context: mockContextFromXML(), outputDir: createTempDir("two") })
+      await secondOperation.initialize({ operationId: "two", context: mockXmlImportContext(), outputDir: createTempDir("two") })
       await secondOperation.runFirstPass([assignment("two-a"), assignment("two-b")])
       await secondOperation.runSecondPass(createImportSharedMetadata([]))
       await secondOperation.close()

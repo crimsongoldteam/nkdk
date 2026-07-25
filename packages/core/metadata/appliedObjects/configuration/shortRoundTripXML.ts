@@ -2,14 +2,14 @@ import fs from "fs"
 import { mkdtemp } from "fs/promises"
 import { tmpdir } from "os"
 import { join } from "path"
-import type { ConfigurationContextFromXML, ConfigurationContextWithExportToXML } from "../../context/types"
+import type { ConfigurationContextWithExportToXML, XmlImportConfigurationContext } from "../../context/types"
 import { syncConfigurationFromXML } from "./convertFromXML"
 import { syncConfigurationToXML } from "./syncToXML"
 
-const contextFromXML = (): ConfigurationContextFromXML => ({
+const contextFromXML = (): XmlImportConfigurationContext => ({
   defaultLanguage: "ru",
   version: "2.20",
-  fromXML: { forReference: false },
+  fromXML: { forReference: false, componentKind: "configuration" },
   exportToYAML: { toTyped: false },
 })
 

@@ -4,7 +4,7 @@ import { dirname, join } from "node:path"
 import { fileURLToPath } from "node:url"
 import { afterAll, describe, expect, it } from "vitest"
 import { load } from "js-yaml"
-import { mockContextFromXML } from "../../../tests/mockContext"
+import { mockXmlImportContext } from "../../../tests/mockContext"
 import { importConfigurationFromXml, createXmlImportWorkerPoolHandle } from "../../importFromXml"
 import { appliedObjectSyncCases } from "./yamlFixtures"
 
@@ -38,7 +38,7 @@ describe("applied object XML → YAML import", () => {
       })
 
       const result = await importConfigurationFromXml({
-        context: mockContextFromXML(),
+        context: mockXmlImportContext(),
         inputDir,
         outputDir,
         operationId: `test-${scenario.group}`,

@@ -4,7 +4,7 @@ import { move, transferableSymbol, valueSymbol } from "piscina"
 import { exportToYAML } from "../../yaml/export"
 import { encodeConfigurationIndexFragments } from "../configurationIndex/fragment"
 import { createConfigurationIndexCollector } from "../configurationIndex/collector/writer"
-import type { ConfigurationContext, ConfigurationContextFromXML } from "../context/types"
+import type { ConfigurationContext, XmlImportConfigurationContext } from "../context/types"
 import type { ConfigurationIndexFragment } from "../configurationIndex/types"
 import { withExportMetadataTargetOwners } from "../orchestration/appliedObject/metadataItemOwnerContext"
 import { finalizeImportedYamlValues } from "../orchestration/property/finalizeImportedYAML"
@@ -28,7 +28,7 @@ import type {
 interface InitializedImportWorkerState {
   operationId: string
   workerIndex: number
-  context: ConfigurationContextFromXML
+  context: XmlImportConfigurationContext
   outputDir: string
 }
 
@@ -171,7 +171,7 @@ async function writePreparedYamlToOutput(
 }
 
 function secondPassExportContext(params: {
-  context: ConfigurationContextFromXML
+  context: XmlImportConfigurationContext
   ownerMetadataCache: OwnerMetadataCache
   targetProjectPath: string
   warnings: ImportDiagnostic[]

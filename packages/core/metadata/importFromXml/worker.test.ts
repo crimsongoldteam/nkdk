@@ -3,7 +3,7 @@ import { tmpdir } from "node:os"
 import { join } from "node:path"
 import { afterEach, beforeEach, describe, expect, it, vi } from "vitest"
 import { transferableSymbol, valueSymbol } from "piscina"
-import { mockContextFromXML } from "../../tests/mockContext"
+import { mockXmlImportContext } from "../../tests/mockContext"
 import { decodeConfigurationIndexFragments } from "../configurationIndex/fragment"
 import type { ImportFirstPassResult } from "./types"
 import { createImportSharedMetadata } from "./metadataSnapshot"
@@ -34,7 +34,7 @@ beforeEach(async () => {
     kind: "initialize",
     operationId: "test-operation",
     workerIndex: 2,
-    context: mockContextFromXML(),
+    context: mockXmlImportContext(),
     outputDir: "/tmp/nkdk-import-worker-2",
   })
 })
@@ -349,7 +349,7 @@ async function initializeWorker(outputDir: string): Promise<void> {
     kind: "initialize",
     operationId: "second-pass-test",
     workerIndex: 0,
-    context: mockContextFromXML(),
+    context: mockXmlImportContext(),
     outputDir,
   })
 }

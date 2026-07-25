@@ -8,7 +8,7 @@ import {
   type ConfigurationIndexData,
   type ConfigurationProjectFile,
 } from "../configurationIndex"
-import type { ConfigurationContextFromXML } from "../context/types"
+import type { XmlImportConfigurationContext } from "../context/types"
 import type { ValidationOwnerFacts } from "../validation/dataPath/ownerFacts"
 import type { SharedValidationSnapshot } from "../validation/sharedValidationSnapshot"
 import { NKDK_CORE_VERSION } from "../../version"
@@ -32,7 +32,7 @@ export interface ConfigurationImportResult {
 }
 
 export interface ImportConfigurationFromXmlParams {
-  context: ConfigurationContextFromXML
+  context: XmlImportConfigurationContext
   inputDir: string
   projectDir?: string
   outputDir: string

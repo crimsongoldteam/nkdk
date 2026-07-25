@@ -59,6 +59,11 @@ export interface ConfigurationContextFromXML extends ConfigurationContext {
   fromXML: FromXMLConfigurationContext
 }
 
+/** Контекст полного XML-import, передаваемый между главным процессом и Piscina worker. */
+export interface XmlImportConfigurationContext extends ConfigurationContextFromXML {
+  fromXML: XmlImportFromXMLConfigurationContext
+}
+
 type ToXMLContextElement<Type extends MetadataItemType> = {
   element: ToMetadata<Type> | undefined
   referenceElement?: ToMetadata<Type> | undefined
@@ -86,6 +91,13 @@ export type ToXMLConfigurationContext = {
 export type FromXMLConfigurationContext = {
   forReference: boolean
   configurationIndex?: ConfigurationIndexCollectionContext
+}
+
+export type XmlImportFromXMLConfigurationContext = FromXMLConfigurationContext & {
+  /** Строковый вид компонента; его можно передавать в Piscina без функций правил. */
+  componentKind: string
+  /** Имя зарегистрированного дополнения метаданных, если оно требуется компоненту. */
+  metadataItemAugmenter?: string
 }
 
 /** Контекст с обязательным exportToXML для функций экспорта в XML */

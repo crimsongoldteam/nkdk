@@ -1,5 +1,8 @@
 import { describe, expect, it } from "vitest"
+import type { MetadataItemRule } from "../orchestration/property/types"
 import { describeRegisteredXmlImportRoutes, matchImportPattern } from "./routes"
+
+const AlternateRootRule = { itemType: "MetadataAlternateRoot", properties: {} } as MetadataItemRule
 
 describe("XML import routes", () => {
   it("describes import without concrete itemType checks in discovery", () => {
@@ -26,6 +29,19 @@ describe("XML import routes", () => {
           kind: "externalFile",
           xmlPattern: "Catalogs/{ownerName}/Forms/{itemName}/Ext/{relativePath...}",
           assignmentTargetPattern: "Справочник/{ownerName}/Формы/{itemName}/Форма.yaml",
+        }),
+      ])
+    )
+  })
+
+  it("uses the selected component root rule for the configuration assignment", () => {
+    expect(describeRegisteredXmlImportRoutes(AlternateRootRule)).toEqual(
+      expect.arrayContaining([
+        expect.objectContaining({
+          kind: "assignment",
+          xmlPattern: "Configuration.xml",
+          role: "configuration",
+          itemType: "MetadataAlternateRoot",
         }),
       ])
     )

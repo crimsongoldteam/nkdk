@@ -1,5 +1,5 @@
 import type { ProjectResourceSource } from "../orchestration/property/fn"
-import type { ConfigurationContextFromXML } from "../context/types"
+import type { XmlImportConfigurationContext } from "../context/types"
 import type { SharedValidationSnapshot } from "../validation/sharedValidationSnapshot"
 import type { ValidationOwnerFacts } from "../validation/dataPath/ownerFacts"
 
@@ -51,7 +51,7 @@ export type ImportWorkerCommand =
       kind: "initialize"
       operationId: string
       workerIndex: number
-      context: ConfigurationContextFromXML
+      context: XmlImportConfigurationContext
       outputDir: string
     }
   | { kind: "firstPass"; assignments: ImportAssignment[] }

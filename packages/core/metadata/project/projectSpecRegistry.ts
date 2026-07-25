@@ -1,6 +1,7 @@
 import type { TSchema } from "typebox"
 import type { ConfigurationContext, JSONSchemaExportMode } from "../context/types"
 import { registerJSONSchemaIdentity } from "../orchestration/jsonSchemaRefs"
+import { getTypeRule } from "../orchestration/property/typeRuleRegistry"
 import type { MetadataItemRule } from "../orchestration/property/types"
 import type { XmlImportRoute } from "../importFromXml/types"
 
@@ -44,10 +45,42 @@ export function getRegisteredProjectSpecByDir(dir: string): RegisteredProjectSpe
   return specsByDir.get(dir)
 }
 
+export function findRegisteredProjectRule(itemType: string): MetadataItemRule | undefined {
+  for (const spec of getRegisteredProjectSpecs()) {
+    const rule = findProjectRule(spec.rule, itemType, new Set())
+    if (rule !== undefined) return rule
+  }
+  return undefined
+}
+
 export function clearProjectSpecRegistryForTests(): void {
   specsByDir.clear()
 }
 
 export function unregisterProjectSpecForTests(dir: string): void {
   specsByDir.delete(dir)
+}
+
+function findProjectRule(
+  rule: MetadataItemRule,
+  itemType: string,
+  seen: Set<MetadataItemRule>
+): MetadataItemRule | undefined {
+  if (seen.has(rule)) return undefined
+  seen.add(rule)
+  if (rule.itemType === itemType) return rule
+  for (const child of rule.childCollections ?? []) {
+    for (const candidate of [child.fileItemRule, child.itemRule]) {
+      if (candidate === undefined) continue
+      const result = findProjectRule(candidate, itemType, seen)
+      if (result !== undefined) return result
+    }
+  }
+  for (const propertyRule of Object.values(rule.properties)) {
+    const itemRule = getTypeRule(propertyRule.type, "collectionItemRule")?.itemRule
+    if (itemRule === undefined) continue
+    const result = findProjectRule(itemRule, itemType, seen)
+    if (result !== undefined) return result
+  }
+  return undefined
 }
