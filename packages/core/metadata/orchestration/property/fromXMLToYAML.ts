@@ -109,7 +109,10 @@ export function importPropertiesFromXMLToYAML(params: {
     const { propertyKey: key, rule: propertyRule } = entry
     const nestedRule = getTypeRule(propertyRule.type, "yamlToXMLNestedRule")
     const nestedConfigurationIndexAddressing =
-      propertyRule.configurationIndexAddressing ?? nestedRule?.configurationIndexAddressing
+      propertyRule.configurationIndexAddressing ??
+      (nestedRule !== undefined && "configurationIndexAddressing" in nestedRule
+        ? nestedRule.configurationIndexAddressing
+        : undefined)
     const { source, indexCollection, xmlNodeLogicalAddress, ownerXmlName } = sourceState
     const { context: sourceContext } = source
     const identityStartedAt = performance.now()

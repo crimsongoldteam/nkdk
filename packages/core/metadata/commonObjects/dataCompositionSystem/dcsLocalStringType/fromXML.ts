@@ -41,6 +41,7 @@ registerTypeRule("DcsLocalStringType", "collectConfigurationIndexFromXML", ({ co
     collection === undefined ||
     typeof xml !== "object" ||
     xml === null ||
+    !("_xsi:type" in xml) ||
     xml["_xsi:type"] !== "xs:string"
   ) {
     return

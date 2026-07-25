@@ -1,6 +1,6 @@
 import type { ConfigurationContextWithExportToXML } from "../context/types"
 import type { ConfigurationIndexAddressingMode } from "../orchestration/property/types"
-import { childSegmentUid, childUid } from "./logicalAddress"
+import { childSegmentUid, childUid, yamlIndexUid, yamlKeyUid } from "./logicalAddress"
 
 export function getConfigurationIndexPropertyOrder(
   context: ConfigurationContextWithExportToXML | undefined
@@ -90,6 +90,20 @@ export function withConfigurationIndexExportLogicalAddress(
       configurationIndex: runtime.withLogicalAddress(logicalAddress),
     },
   }
+}
+
+export function withConfigurationIndexExportYamlCollectionItemContext(
+  context: ConfigurationContextWithExportToXML,
+  params: { index: number; yamlKey?: string; yamlAsArray?: true }
+): ConfigurationContextWithExportToXML {
+  const runtime = context.exportToXML.configurationIndex
+  if (runtime === undefined || runtime.yamlPathAddressing !== true) return context
+  return withConfigurationIndexExportLogicalAddress(
+    context,
+    params.yamlAsArray === true || params.yamlKey === undefined
+      ? yamlIndexUid(runtime.logicalAddress, params.index)
+      : yamlKeyUid(runtime.logicalAddress, params.yamlKey)
+  )
 }
 
 export function withConfigurationIndexExportXmlNodeLogicalAddress(

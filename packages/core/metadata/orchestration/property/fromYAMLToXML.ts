@@ -371,7 +371,10 @@ export function convertPropertiesFromYAMLToXML(params: ConvertPropertiesFromYAML
         planned.propertyRule.configurationIndexUidSegment ?? planned.propertyRule.operationTarget?.migrationSegment,
         {
           configurationIndexAddressing:
-            planned.propertyRule.configurationIndexAddressing ?? effectiveNestedRule.configurationIndexAddressing,
+            planned.propertyRule.configurationIndexAddressing ??
+            ("configurationIndexAddressing" in effectiveNestedRule
+              ? effectiveNestedRule.configurationIndexAddressing
+              : undefined),
         }
       )
       const nestedContext =
