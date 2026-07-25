@@ -79,6 +79,16 @@ describe("exportTypeDescriptionToXML", () => {
     expect(result).toEqual("<TypeDescription>\n\t<v8:Type>dcsset:SettingsComposer</v8:Type>\n</TypeDescription>")
   })
 
+  it("adds the TypeDescription attribute when the property rule requests it", () => {
+    const resultXml = exportTypeDescriptionToXML(
+      mockContext,
+      { type: "TypeDescription", addTypeDescriptionAttributeToXML: true },
+      { type: ["string"] }
+    )
+
+    expect(resultXml).toMatchObject({ "_xsi:type": "v8:TypeDescription" })
+  })
+
   it("should export known system enumeration type to XML with v8 prefix", () => {
     const resultXml = exportTypeDescriptionToXML(mockContext, mockRule, { type: ["FillChecking"] })
 

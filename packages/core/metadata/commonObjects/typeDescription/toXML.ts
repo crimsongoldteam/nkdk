@@ -51,6 +51,9 @@ export const exportTypeDescriptionToXML = (
   )
 
   const result = {
+    ...(_rule?.type === "TypeDescription" && _rule.addTypeDescriptionAttributeToXML === true
+      ? { "_xsi:type": "v8:TypeDescription" }
+      : undefined),
     ...sourceTypeSetMarkerXML,
     ...typesXML,
     ...(typeIdXML !== undefined ? { "v8:TypeId": typeIdXML } : undefined),
