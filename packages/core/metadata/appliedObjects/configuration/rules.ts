@@ -1,6 +1,7 @@
 import {
   allowedIncomingShareRequestTypesRule,
   clientApplicationInterfaceRule,
+  configurationChildObjectsRule,
   homePageWorkAreaRule,
   mobileApplicationURLsRule,
   rootCommandInterfaceRule,
@@ -48,14 +49,13 @@ export const MetadataConfigurationRules = {
       toYAML: false,
       fromYAML: false,
     }),
-    childObjects: {
-      type: "ConfigurationChildObjects",
+    childObjects: configurationChildObjectsRule({
       xml: "ChildObjects",
       xmlParents: [],
       toYAML: false,
       fromYAML: false,
       toXML: false,
-    },
+    }),
     uuid: uuidRule({
       xml: "_uuid",
       forReferenceOnly: true,

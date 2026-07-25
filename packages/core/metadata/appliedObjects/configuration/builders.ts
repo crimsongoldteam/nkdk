@@ -75,3 +75,15 @@ export function usedMobileApplicationFunctionalitiesRule<
 ): Readonly<{ type: "UsedMobileApplicationFunctionalities" } & Params> {
   return defineWidePropertyRule("UsedMobileApplicationFunctionalities", params)
 }
+
+export interface ConfigurationChildObjectsWidePropertyRule extends WidePropertyRuleBase {
+  type: "ConfigurationChildObjects"
+}
+
+export type ConfigurationChildObjectsRuleParams = Omit<ConfigurationChildObjectsWidePropertyRule, "type">
+
+export function configurationChildObjectsRule<const Params extends ConfigurationChildObjectsRuleParams>(
+  params: WideExactRuleParams<ConfigurationChildObjectsRuleParams, Params>
+): Readonly<{ type: "ConfigurationChildObjects" } & Params> {
+  return defineWidePropertyRule("ConfigurationChildObjects", params)
+}
