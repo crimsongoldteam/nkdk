@@ -4,6 +4,7 @@ import type { XmlWriteManifest } from "../../orchestration/xmlWriteManifest"
 import type { PropertyRule } from "../../orchestration"
 import type { XmlImportRoute } from "../../importFromXml/types"
 import { ClientApplicationFormRules } from "./rules"
+import type { MetadataResourceDeclaration } from "../../resourceTopology/types"
 
 type ExternalFormItemFileSpec = {
   propertyName: string
@@ -42,6 +43,28 @@ export function describeFormItemXmlImportRoutes(params: {
     targetPattern: joinImportPattern(params.targetFormDirPattern, spec.nkdkDir, "{formItemName}.{extension}"),
     assignmentTargetPattern: params.assignmentTargetPattern,
     source: { kind: "property", propertyName: spec.propertyName, propertyType: "ExternalFormItemFile" },
+  }))
+}
+
+export function describeFormItemResourceDeclarations(params: {
+  xmlFormDirPattern: string
+  targetFormDirPattern: string
+}): MetadataResourceDeclaration[] {
+  return externalItemFileSpecs.map((spec) => ({
+    kind: "externalFile",
+    assignmentProjectPattern: "",
+    xmlPattern: joinImportPattern(
+      params.xmlFormDirPattern,
+      "Form",
+      "Items",
+      "{formItemName}",
+      `${spec.xmlName}.{extension}`
+    ),
+    projectPattern: joinImportPattern(params.targetFormDirPattern, spec.nkdkDir, "{formItemName}.{extension}"),
+    direction: "both",
+    transferCapabilityId: "ClientApplicationForm",
+    compositionImpact: "none",
+    source: { kind: "property", description: `${spec.propertyName}:ExternalFormItemFile` },
   }))
 }
 

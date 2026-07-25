@@ -85,7 +85,7 @@ export function describeProjectSpecResourceTopology(
         collectSpecAssignment(declarations, spec.rule, {
           projectBase: nestedProjectBase,
           xmlBase: [xmlBase, ...recursiveXmlSteps].join("/"),
-          role: "fileItem",
+          role: "properties",
           currentNameParameter: `recursiveItemName${depth}`,
           ownerProjectPattern:
             depth === 1

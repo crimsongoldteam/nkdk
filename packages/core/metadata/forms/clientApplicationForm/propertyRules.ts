@@ -10,6 +10,7 @@ import type {
 import {
   copyFormItemExternalFilesFromXML,
   copyFormItemExternalFilesToXML,
+  describeFormItemResourceDeclarations,
   describeFormItemXmlImportRoutes,
 } from "./externalItemFiles"
 import { copyExistingRawFile } from "./externalRawFiles"
@@ -107,6 +108,37 @@ registerTypeRule("ClientApplicationForm", "xmlImportRoutes", ({ propertyRule }) 
       xmlFormDirPattern: dirname(filePath).replace(/\\/g, "/"),
       targetFormDirPattern: "",
       assignmentTargetPattern: "",
+    }),
+  ]
+})
+registerTypeRule("ClientApplicationForm", "resourceTopology", ({ propertyRule }) => {
+  const filePath = propertyRule?.filePath
+  if (filePath === undefined) return []
+  const xmlFormDir = dirname(filePath).replace(/\\/g, "/")
+  return [
+    {
+      kind: "xmlDocument",
+      assignmentProjectPattern: "",
+      xmlPattern: filePath,
+      role: "body",
+      required: true,
+      read: { inputRole: "body" },
+      prepareCapabilityId: "ClientApplicationForm",
+      source: { kind: "property", description: "ClientApplicationForm" },
+    },
+    {
+      kind: "externalFile",
+      assignmentProjectPattern: "",
+      xmlPattern: join(xmlFormDir, "Form.bin").replace(/\\/g, "/"),
+      projectPattern: "Form.bin",
+      direction: "both",
+      transferCapabilityId: "ClientApplicationForm",
+      compositionImpact: "none",
+      source: { kind: "property", description: "ClientApplicationForm" },
+    },
+    ...describeFormItemResourceDeclarations({
+      xmlFormDirPattern: xmlFormDir,
+      targetFormDirPattern: "",
     }),
   ]
 })

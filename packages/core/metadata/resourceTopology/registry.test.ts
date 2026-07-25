@@ -159,6 +159,18 @@ describe("property resource topology registry", () => {
           }),
         ])
       )
+      expect(
+        topology.assignments
+          .find((assignment) => assignment.projectPattern === "ОбщаяФорма/{ownerName}/Свойства.yaml")
+          ?.xmlDocuments
+      ).toEqual(
+        expect.arrayContaining([
+          expect.objectContaining({
+            xmlPattern: "CommonForms/{ownerName}/Ext/Form.xml",
+            role: "body",
+          }),
+        ])
+      )
     })
   })
 })

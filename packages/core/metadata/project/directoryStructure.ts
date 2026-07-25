@@ -1,7 +1,7 @@
 import { existsSync, statSync } from "fs"
 import { isAbsolute, relative, resolve, sep } from "path"
 import { CONFIGURATION_YAML_FILE } from "./constants"
-import { describeMetadataRuleProjectResources } from "./ruleResources"
+import { compileRegisteredMetadataResourceTopology } from "../resourceTopology/registry"
 import { getMetadataProjectSpecByDir, metadataProjectSpecs, type MetadataProjectSpec } from "./specs"
 
 const PROPERTIES_FILE = "Свойства.yaml"
@@ -113,8 +113,8 @@ function classifyFileItemPosition(
   ownerPath: string,
   spec: MetadataProjectSpec
 ): DirectoryPosition | undefined {
-  for (const resource of describeMetadataRuleProjectResources(spec.rule)) {
-    if (resource.kind !== "yaml" || resource.role !== "fileItem") continue
+  for (const resource of topologyResourcesForSpec(spec)) {
+    if (resource.kind !== "content" || resource.role !== "fileItem") continue
     const [dirName, itemPlaceholder, fileName] = resource.projectPattern.split("/")
     if (!dirName || itemPlaceholder !== "{itemName}" || !fileName) continue
 
@@ -322,8 +322,8 @@ function metadataObjectNode(
 }
 
 function projectResourceNodes(spec: MetadataProjectSpec, objectPath: string): MetadataProjectStructureNode[] {
-  return describeMetadataRuleProjectResources(spec.rule).flatMap((resource) => {
-    if (resource.kind === "yaml" && resource.role === "fileItem") {
+  return topologyResourcesForSpec(spec).flatMap((resource) => {
+    if (resource.kind === "content" && resource.role === "fileItem") {
       const [dirName, itemName, fileName] = resource.projectPattern.split("/")
       return [
         directory(
@@ -356,7 +356,7 @@ function projectResourceNodes(spec: MetadataProjectSpec, objectPath: string): Me
       ]
     }
 
-    if (resource.kind === "directory" && resource.role === "resourceOnly") {
+    if (resource.kind === "directory") {
       return [
         directory(
           resource.projectPattern,
@@ -371,6 +371,49 @@ function projectResourceNodes(spec: MetadataProjectSpec, objectPath: string): Me
 
     return []
   })
+}
+
+type DirectoryTopologyResource =
+  | {
+      kind: "content"
+      role: "fileItem"
+      projectPattern: string
+      required: boolean
+      repeatable: boolean
+    }
+  | {
+      kind: "directory"
+      projectPattern: string
+      required: boolean
+      repeatable: boolean
+    }
+
+function topologyResourcesForSpec(spec: MetadataProjectSpec): DirectoryTopologyResource[] {
+  const topology = compileRegisteredMetadataResourceTopology()
+  const ownerPattern = `${spec.dir}/{ownerName}/Свойства.yaml`
+  const prefix = `${spec.dir}/{ownerName}/`
+  const contents = topology.assignments
+    .filter((assignment) => assignment.ownerProjectPattern === ownerPattern && assignment.role === "fileItem")
+    .map((assignment): DirectoryTopologyResource => ({
+      kind: "content",
+      role: "fileItem",
+      projectPattern: assignment.projectPattern.slice(prefix.length),
+      required: assignment.required,
+      repeatable: assignment.repeatable,
+    }))
+  const coveredDirectories = new Set(contents.map((content) => content.projectPattern.split("/")[0]))
+  const owner = topology.assignments.find((assignment) => assignment.projectPattern === ownerPattern)
+  const directories = (owner?.externalFiles ?? [])
+    .map((file) => file.projectPattern.slice(prefix.length).split("/")[0])
+    .filter((directory) => directory.length > 0 && !coveredDirectories.has(directory))
+    .filter((directory, index, all) => all.indexOf(directory) === index)
+    .map((projectPattern): DirectoryTopologyResource => ({
+      kind: "directory",
+      projectPattern,
+      required: false,
+      repeatable: false,
+    }))
+  return [...contents, ...directories]
 }
 
 function objectTemplate(dir: string): MetadataProjectStructureNode {
