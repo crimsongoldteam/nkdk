@@ -1,4 +1,5 @@
 import "./appliedObjects/configuration/register"
+import "./appliedObjects/configurationExtension/register"
 import { registerCommonObjects } from "./commonObjects"
 import { registerForms } from "./forms"
 import { registerAppliedObjects } from "./appliedObjects"
