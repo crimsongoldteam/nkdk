@@ -39,6 +39,7 @@ export const registerMetadataItemRule = <Rule extends MetadataItemRule, Property
         role: "property",
         required: false,
         read: { inputRole: "property" },
+        prepareCapabilityId: "itemProperty",
         source: { kind: "property", description: String(propertyType) },
       },
     ]

@@ -145,6 +145,12 @@ describe("property resource topology registry", () => {
             projectPattern: "Справочник/{ownerName}/Свойства.yaml",
             xmlDocuments: expect.arrayContaining([
               expect.objectContaining({ xmlPattern: "Catalogs/{ownerName}.xml", role: "metadata" }),
+              expect.objectContaining({
+                xmlPattern: "Catalogs/{ownerName}/Ext/AdditionalIndexes.xml",
+                role: "property",
+                prepareCapabilityId: "itemProperty",
+                source: expect.objectContaining({ propertyName: "additionalIndexes" }),
+              }),
             ]),
           }),
           expect.objectContaining({

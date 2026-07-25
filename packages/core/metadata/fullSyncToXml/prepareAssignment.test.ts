@@ -172,6 +172,70 @@ describe("prepareFullXmlSyncAssignment", () => {
     expect(writeFile).not.toHaveBeenCalled()
   })
 
+  it("prepares a filePath metadata item from the owner YAML", () => {
+    const projectDir = mkdtempSync(join(tmpdir(), "nkdk-prepare-item-property-"))
+    tempDirs.push(projectDir)
+    const sourceProjectPath = "Справочник/Товары/Свойства.yaml"
+    const sourcePath = join(projectDir, ...sourceProjectPath.split("/"))
+    fs.mkdirSync(join(projectDir, "Справочник", "Товары"), { recursive: true })
+    fs.writeFileSync(
+      sourcePath,
+      [
+        "ДополнительныеИндексы:",
+        "  - Имя: Индекс1",
+        "    Таблица: Catalog.Товары",
+        "    ИндексируемыеПоля:",
+        "      - Code",
+        "",
+      ].join("\n")
+    )
+    const yaml = prepareYamlFiles({
+      files: [
+        {
+          projectPath: sourceProjectPath,
+          filePath: sourcePath,
+          role: "properties",
+          owner: { dir: "Справочник", name: "Товары" },
+          itemType: "MetadataCatalog",
+        },
+      ],
+      itemTypeByYamlDir: { Справочник: "MetadataCatalog" },
+    }).yamlFiles[0]!
+    const assignment: FullXmlSyncAssignment = {
+      id: sourceProjectPath,
+      sourceProjectPath,
+      sourcePath,
+      role: "properties",
+      itemType: "MetadataCatalog",
+      itemName: "Товары",
+      logicalAddress: "Справочник.Товары",
+      ...fullXmlSyncTestTopologyFields(sourceProjectPath),
+    }
+
+    const prepared = prepareFullXmlSyncAssignment({
+      assignment,
+      preparedYamlFile: yaml,
+      context: mockContextToXML(),
+      index: createConfigurationIndexReader(snapshotConfigurationIndex(encodeConfigurationIndex(sampleIndex()))),
+      assignments: [],
+    })
+
+    expect(prepared.documents.map((document) => document.targetXmlPath)).toEqual([
+      "Catalogs/Товары.xml",
+      "Catalogs/Товары/Ext/AdditionalIndexes.xml",
+    ])
+    expect(prepared.documents[1]?.xml).toMatchObject({
+      AdditionalIndexes: {
+        AdditionalIndex: [
+          expect.objectContaining({
+            Name: "Индекс1",
+            Table: "Catalog.Товары",
+          }),
+        ],
+      },
+    })
+  })
+
   it("provides the applied object owner to nested metadata targets", () => {
     const projectDir = mkdtempSync(join(tmpdir(), "nkdk-prepare-assignment-owner-"))
     tempDirs.push(projectDir)

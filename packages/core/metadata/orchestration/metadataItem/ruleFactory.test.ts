@@ -61,6 +61,7 @@ describe("registerMetadataItemRule JSON Schema identity", () => {
         role: "property",
         required: false,
         read: { inputRole: "property" },
+        prepareCapabilityId: "itemProperty",
         source: { kind: "property", description: "RuleFactorySampleItemProperty" },
       },
     ])

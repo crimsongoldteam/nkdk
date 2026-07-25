@@ -49,7 +49,13 @@ describe("full XML sync discovery", () => {
       itemType: "MetadataCatalog",
       itemName: "Товары",
       logicalAddress: "Справочник.Товары",
-      potentialOutputs: expect.arrayContaining([expect.objectContaining({ targetXmlPath: "Catalogs/Товары.xml" })]),
+      potentialOutputs: expect.arrayContaining([
+        expect.objectContaining({ targetXmlPath: "Catalogs/Товары.xml" }),
+        expect.objectContaining({
+          targetXmlPath: "Catalogs/Товары/Ext/AdditionalIndexes.xml",
+          propertyName: "additionalIndexes",
+        }),
+      ]),
     })
     expect(plan.assignments[2]).toMatchObject({
       role: "form",

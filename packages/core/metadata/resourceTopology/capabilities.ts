@@ -10,6 +10,7 @@ export interface MetadataXmlPrepareOutput {
   readonly declarationId: string
   readonly targetXmlPath: string
   readonly role: "metadata" | "body" | "property"
+  readonly propertyName?: string
 }
 
 export interface MetadataXmlPrepareCompositionEntry {

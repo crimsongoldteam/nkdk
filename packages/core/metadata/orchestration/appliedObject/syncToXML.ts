@@ -3,7 +3,7 @@ import { basename, dirname, join, posix, relative, sep } from "path"
 import { getChildContextToXML } from "../../context/helpers"
 import type { ConfigurationContextFromXML, ConfigurationContextWithExportToXML } from "../../context/types"
 import { convertMetadataItemFromYAMLToXML } from "../metadataItem/fromYAMLToXML"
-import { callAtomicFromYAML, callAtomicToXML } from "../property/fromYAMLToXML"
+import { callAtomicFromYAML, callAtomicToXML, createYAMLPropertySource } from "../property/fromYAMLToXML"
 import type { YAMLToXMLExternalWrite } from "../property/fromYAMLToXMLTypes"
 import { getTypeRule } from "../property/typeRuleRegistry"
 import type { FileChildNamesDescriptor } from "../property/fn"
@@ -24,6 +24,7 @@ import {
   resolveChildCollectionDir,
 } from "./fileItemChildCollections"
 import { registerMetadataXmlPrepareCapability } from "../../resourceTopology/capabilities"
+import { withConfigurationIndexExportPropertyContext } from "../../configurationIndex/referenceView"
 
 const PROPERTIES_YAML = "Свойства.yaml"
 
@@ -187,6 +188,65 @@ registerMetadataXmlPrepareCapability({
       profile,
     })
     return [{ declarationId: output.declarationId, targetXmlPath: output.targetXmlPath, ...prepared }]
+  },
+})
+
+registerMetadataXmlPrepareCapability({
+  id: "itemProperty",
+  run: ({ assignment, context, preparedYamlFile, itemName, outputs, profile }) => {
+    const yaml = preparedYamlFile.data
+    const source = createYAMLPropertySource({
+      yaml,
+      rule: assignment.itemRule,
+      itemName,
+      context,
+    })
+
+    return outputs.flatMap((output) => {
+      const propertyKey = output.propertyName
+      if (propertyKey === undefined || !source.has(propertyKey)) return []
+      const propertyRule = assignment.itemRule.properties[propertyKey]
+      if (propertyRule === undefined) return []
+      const nestedRule = getTypeRule(propertyRule.type, "yamlToXMLNestedRule")
+      if (nestedRule?.kind !== "item") return []
+
+      const nestedYAML = source.raw(propertyKey)
+      const normalizedYAML =
+        nestedRule.normalizeYAML?.({ yaml: nestedYAML, name: itemName, propertyRule }) ?? nestedYAML
+      const propertyContext = withConfigurationIndexExportPropertyContext(
+        context,
+        propertyRule.yaml ?? propertyKey,
+        propertyRule.configurationIndexUidSegment ?? propertyRule.operationTarget?.migrationSegment,
+        { configurationIndexAddressing: propertyRule.configurationIndexAddressing }
+      )
+      const nestedContext =
+        nestedRule.resolveContext?.({ context: propertyContext, name: itemName, propertyRule }) ??
+        propertyContext
+      const converted = convertMetadataItemFromYAMLToXML({
+        context: nestedContext,
+        yaml: normalizedYAML,
+        rule: nestedRule.itemRule,
+        name: nestedRule.injectOwnerName === true ? itemName : undefined,
+        sourceItemName: itemName,
+        outputs: [{ key: "property" }],
+        sparseYAML: nestedRule.sparseYAML,
+        ownerYAML: { itemType: assignment.itemRule.itemType },
+        profile,
+        rulePath: [assignment.itemRule.itemType, propertyKey],
+        deferredRulePath: [{ propertyKey }],
+      })
+      const xml = converted.outputs.get("property")
+      if (xml === undefined) return []
+      return [
+        {
+          declarationId: output.declarationId,
+          targetXmlPath: output.targetXmlPath,
+          xml,
+          deferred: bindDeferredObjectValues(xml, converted.deferredByOutput.get("property") ?? []),
+          rootRule: nestedRule.itemRule,
+        },
+      ]
+    })
   },
 })
 

@@ -173,10 +173,12 @@ export async function syncConfigurationToXml(
       expectedOutputs:
         first.expectedOutputs ??
         plan.assignments.flatMap((assignment) =>
-          assignment.potentialOutputs.map((output) => ({
-            assignmentId: assignment.id,
-            targetXmlPath: output.targetXmlPath,
-          }))
+          assignment.potentialOutputs
+            .filter((output) => output.required)
+            .map((output) => ({
+              assignmentId: assignment.id,
+              targetXmlPath: output.targetXmlPath,
+            }))
         ),
       writtenFiles: second.writtenFiles,
       copiedFiles: external.copiedFiles.map((file) => ({

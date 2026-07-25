@@ -14,6 +14,7 @@ export interface XmlExportPotentialOutput {
   readonly role: "metadata" | "body" | "property"
   readonly required: boolean
   readonly prepareCapabilityId: string
+  readonly propertyName?: string
 }
 
 export interface XmlExportAssignmentProjection {
@@ -108,6 +109,7 @@ export function projectXmlExportAssignment(
       role: document.role,
       required: document.required,
       prepareCapabilityId: document.prepareCapabilityId,
+      ...(document.source.propertyName === undefined ? {} : { propertyName: document.source.propertyName }),
     })),
   }
 }

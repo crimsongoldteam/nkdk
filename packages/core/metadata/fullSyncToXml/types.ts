@@ -15,6 +15,7 @@ export interface FullXmlSyncPotentialOutput {
   readonly role: "metadata" | "body" | "property"
   readonly required: boolean
   readonly prepareCapabilityId: string
+  readonly propertyName?: string
 }
 
 export interface FullXmlSyncAssignment {
