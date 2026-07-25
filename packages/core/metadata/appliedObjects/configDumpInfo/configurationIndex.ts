@@ -27,12 +27,14 @@ export function collectConfigDumpInfoConfigurationIndex(
   idMap: ConfigDumpInfo,
   collector: ConfigurationIndexCollector
 ): void {
-  collector.setOrder(CONFIG_DUMP_INFO_INDEX_ROOT, [...idMap.keys()])
+  if (idMap.size > 0) collector.setOrder(CONFIG_DUMP_INFO_INDEX_ROOT, [...idMap.keys()])
   for (const [name, entry] of idMap) {
     const address = configDumpInfoEntryAddress(name)
     collector.setXmlId(address, entry.id)
     if (entry.configVersion.length > 0) collector.setXmlText(`${address}.configVersion`, entry.configVersion)
-    collector.setOrder(configDumpInfoChildrenAddress(name), [...entry.children.keys()])
+    if (entry.children.size > 0) {
+      collector.setOrder(configDumpInfoChildrenAddress(name), [...entry.children.keys()])
+    }
     for (const [childName, id] of entry.children) {
       collector.setXmlId(configDumpInfoChildAddress(name, childName), id)
     }

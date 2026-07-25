@@ -60,5 +60,6 @@ describe("ConfigDumpInfo configuration snapshot", () => {
         },
       ])
     )
+    expect(fragment?.xmlNodes.every((node) => (node.order?.length ?? 1) > 0)).toBe(true)
   })
 })
