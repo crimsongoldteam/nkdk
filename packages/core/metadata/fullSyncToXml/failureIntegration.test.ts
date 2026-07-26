@@ -9,6 +9,7 @@ import type { ConfigurationIndexData } from "../configurationIndex/types"
 import type { ConfigurationContext } from "../context/types"
 import { syncConfigurationToXml, type FullXmlSyncCoordinatorDependencies } from "./syncConfiguration"
 import type { FullXmlSyncWorkerPool } from "./workerPool"
+import { createEmptyPersistedSharedValidationSnapshot } from "../validation/persistedSharedValidationSnapshot"
 import {
   createDirectFullSyncDependencies,
   createTempRoot,
@@ -64,14 +65,14 @@ describe("full XML sync failure integration", () => {
     const xmlDir = join(root, "xml")
     fs.mkdirSync(projectDir, { recursive: true })
     fs.mkdirSync(xmlDir, { recursive: true })
-    let secondPassCalled = false
     let writeIndexCalled = false
     const deps: FullXmlSyncCoordinatorDependencies = {
       ...transferFailureDeps(sampleIndex()),
       createWorkerPool: () => ({
         async initialize() {},
-        async runFirstPass() {
+        async execute() {
           return {
+            warnings: [],
             diagnostics: [
               {
                 severity: "error",
@@ -79,13 +80,10 @@ describe("full XML sync failure integration", () => {
                 message: "Не удалось связать XML",
               },
             ],
-            projectFiles: [],
-            ownerFacts: [],
+            writtenFiles: [],
+            expectedOutputs: [],
+            fragmentData: { identities: [], xmlNodes: [], xmlValues: [] },
           }
-        },
-        async runSecondPass() {
-          secondPassCalled = true
-          throw new Error("Второй проход не должен запускаться")
         },
         async close() {},
       }),
@@ -100,7 +98,6 @@ describe("full XML sync failure integration", () => {
       expect.objectContaining({ code: "full_xml_sync_first_pass_failed" }),
     ])
     expect(fs.readdirSync(xmlDir)).toEqual([])
-    expect(secondPassCalled).toBe(false)
     expect(writeIndexCalled).toBe(false)
   })
 
@@ -161,13 +158,16 @@ function transferFailureDeps(previous: ConfigurationIndexData): FullXmlSyncCoord
       }
     },
     async readIndexSnapshot() {
-      return snapshotConfigurationIndex(encodeConfigurationIndex(previous))
+      return snapshotConfigurationIndex(encodeConfigurationIndex({
+        ...previous,
+        localIndexes: {
+          ...previous.localIndexes,
+          metadata: createEmptyPersistedSharedValidationSnapshot(),
+        },
+      }))
     },
     createWorkerPool() {
       return fakePartialWorkerPool()
-    },
-    createSharedMetadata() {
-      return {} as never
     },
     async transferExternalFiles() {
       throw new Error("copy failed")
@@ -187,19 +187,13 @@ function fakePartialWorkerPool(): FullXmlSyncWorkerPool {
     async initialize(params) {
       outputDir = params.outputDir
     },
-    async runFirstPass() {
-      return {
-        diagnostics: [],
-        projectFiles: [{ projectPath: "Конфигурация.yaml", contentHash: 1n }],
-        ownerFacts: [],
-      }
-    },
-    async runSecondPass() {
+    async execute() {
       fs.writeFileSync(join(outputDir, "partial.xml"), "partial")
       return {
         diagnostics: [],
         warnings: [],
         writtenFiles: [{ assignmentId: "Конфигурация.yaml", targetXmlPath: "partial.xml" }],
+        expectedOutputs: [{ assignmentId: "Конфигурация.yaml", targetXmlPath: "partial.xml" }],
         fragmentData: {
           identities: [],
           xmlNodes: [],

@@ -6,11 +6,11 @@ import { snapshotConfigurationIndex } from "../configurationIndex/sharedSnapshot
 import { sampleIndex } from "../configurationIndex/testData"
 import type { ConfigurationIndexData } from "../configurationIndex/types"
 import { NKDK_CORE_VERSION } from "../../version"
+import { createEmptyPersistedSharedValidationSnapshot } from "../validation/persistedSharedValidationSnapshot"
 import type {
   FullXmlSyncAssignment,
   FullXmlSyncDiagnostic,
   FullXmlSyncExternalFile,
-  FullXmlSyncOwnerFacts,
 } from "./types"
 import {
   planSyncConfigurationToXml,
@@ -21,8 +21,7 @@ import {
 } from "./syncConfiguration"
 import { fullXmlSyncTestTopologyFields } from "./testTopology"
 import type {
-  FullXmlSyncFirstPassPoolResult,
-  FullXmlSyncSecondPassPoolResult,
+  FullXmlSyncExecutionPoolResult,
   FullXmlSyncWorkerPool,
 } from "./workerPool"
 
@@ -95,9 +94,7 @@ describe("syncConfigurationToXml", () => {
       "discover",
       "createPool:2",
       "pool.initialize",
-      "pool.firstPass",
-      "sharedMetadata",
-      "pool.secondPass",
+      "pool.execute",
       "transferExternalFiles",
       "writeConfigDumpInfo",
       "writeIndex",
@@ -137,7 +134,7 @@ describe("syncConfigurationToXml", () => {
 
   it("stops after first-pass errors and keeps the previous index", async () => {
     const error: FullXmlSyncDiagnostic = { severity: "error", code: "yaml", message: "bad yaml" }
-    const harness = createHarness({ firstPassDiagnostics: [error] })
+    const harness = createHarness({ executionDiagnostics: [error] })
     const result = await syncConfigurationToXml(
       { context, componentPath: "cf", yamlDir: "/project", xmlDir: "/out" },
       harness.deps
@@ -152,7 +149,7 @@ describe("syncConfigurationToXml", () => {
       "discover",
       "createPool:4",
       "pool.initialize",
-      "pool.firstPass",
+      "pool.execute",
       "pool.close",
     ])
     expect(harness.writtenIndex).toBeUndefined()
@@ -160,7 +157,7 @@ describe("syncConfigurationToXml", () => {
 
   it("stops after second-pass errors before transferring files and writing the index", async () => {
     const error: FullXmlSyncDiagnostic = { severity: "error", code: "xml", message: "bad xml" }
-    const harness = createHarness({ secondPassDiagnostics: [error] })
+    const harness = createHarness({ executionDiagnostics: [error] })
     const result = await syncConfigurationToXml(
       { context, componentPath: "cf", yamlDir: "/project", xmlDir: "/out" },
       harness.deps
@@ -175,16 +172,14 @@ describe("syncConfigurationToXml", () => {
       "discover",
       "createPool:4",
       "pool.initialize",
-      "pool.firstPass",
-      "sharedMetadata",
-      "pool.secondPass",
+      "pool.execute",
       "pool.close",
     ])
     expect(harness.writtenIndex).toBeUndefined()
   })
 
   it("stops when a worker does not report a declared XML output", async () => {
-    const harness = createHarness({ secondPassWrittenFiles: [] })
+    const harness = createHarness({ executionWrittenFiles: [] })
     const result = await syncConfigurationToXml(
       { context, componentPath: "cf", yamlDir: "/project", xmlDir: "/out" },
       harness.deps
@@ -205,9 +200,7 @@ describe("syncConfigurationToXml", () => {
       "discover",
       "createPool:4",
       "pool.initialize",
-      "pool.firstPass",
-      "sharedMetadata",
-      "pool.secondPass",
+      "pool.execute",
       "transferExternalFiles",
       "pool.close",
     ])
@@ -236,9 +229,8 @@ describe("syncConfigurationToXml", () => {
 interface HarnessOptions {
   readonly xmlExists?: boolean
   readonly xmlEmpty?: boolean
-  readonly firstPassDiagnostics?: readonly FullXmlSyncDiagnostic[]
-  readonly secondPassDiagnostics?: readonly FullXmlSyncDiagnostic[]
-  readonly secondPassWrittenFiles?: FullXmlSyncSecondPassPoolResult["writtenFiles"]
+  readonly executionDiagnostics?: readonly FullXmlSyncDiagnostic[]
+  readonly executionWrittenFiles?: FullXmlSyncExecutionPoolResult["writtenFiles"]
   readonly transferError?: Error
   readonly configDumpInfoError?: Error
 }
@@ -260,6 +252,7 @@ function createHarness(options: HarnessOptions = {}) {
     ],
     localIndexes: {
       ...sampleIndex().localIndexes,
+      metadata: createEmptyPersistedSharedValidationSnapshot(),
       dependencies: sampleIndex().localIndexes.dependencies.map((dependency) => ({
         ...dependency,
         sourceProjectPath: "Справочник/Товары/Свойства.yaml",
@@ -275,7 +268,7 @@ function createHarness(options: HarnessOptions = {}) {
       id: "catalog",
       sourceProjectPath: "Справочник/Товары/Свойства.yaml",
       sourcePath: "/project/Справочник/Товары/Свойства.yaml",
-      expectedContentHash: 0n,
+      expectedContentHash: 10n,
       role: "properties",
       itemType: "MetadataCatalog",
       itemName: "Товары",
@@ -317,13 +310,6 @@ function createHarness(options: HarnessOptions = {}) {
     createWorkerPool({ concurrency }) {
       events.push(`createPool:${concurrency}`)
       return fakePool(events, options)
-    },
-    createSharedMetadata(params) {
-      events.push("sharedMetadata")
-      return {
-        assignmentCount: params.assignments.length,
-        ownerCount: params.owners.length,
-      } as never
     },
     async transferExternalFiles() {
       events.push("transferExternalFiles")
@@ -367,30 +353,15 @@ function fakePool(events: string[], options: HarnessOptions): FullXmlSyncWorkerP
     async initialize() {
       events.push("pool.initialize")
     },
-    async runFirstPass(): Promise<FullXmlSyncFirstPassPoolResult> {
-      events.push("pool.firstPass")
-      const ownerFacts: FullXmlSyncOwnerFacts[] = [
-        {
-          assignmentId: "catalog",
-          sourceProjectPath: "Справочник/Товары/Свойства.yaml",
-          sourcePath: "/project/Справочник/Товары/Свойства.yaml",
-          role: "properties",
-          owner: { dir: "Справочник", name: "Товары" },
-          itemType: "MetadataCatalog",
-        },
-      ]
+    async execute(): Promise<FullXmlSyncExecutionPoolResult> {
+      events.push("pool.execute")
       return {
-        diagnostics: [...options.firstPassDiagnostics ?? []],
-        projectFiles: [{ projectPath: "Справочник/Товары/Свойства.yaml", contentHash: 10n }],
-        ownerFacts,
-      }
-    },
-    async runSecondPass(): Promise<FullXmlSyncSecondPassPoolResult> {
-      events.push("pool.secondPass")
-      return {
-        diagnostics: [...options.secondPassDiagnostics ?? []],
+        diagnostics: [...options.executionDiagnostics ?? []],
         warnings: [{ severity: "warning", code: "soft", message: "warning" }],
-        writtenFiles: options.secondPassWrittenFiles ?? [
+        writtenFiles: options.executionWrittenFiles ?? [
+          { assignmentId: "catalog", targetXmlPath: "Catalogs/Товары.xml" },
+        ],
+        expectedOutputs: [
           { assignmentId: "catalog", targetXmlPath: "Catalogs/Товары.xml" },
         ],
         fragmentData: {

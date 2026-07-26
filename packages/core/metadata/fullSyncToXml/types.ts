@@ -1,13 +1,12 @@
-import type { ObjectFieldIndex } from "../validation/dataPath/objectFields"
-import type { ValidationOwnerFacts } from "../validation/dataPath/ownerFacts"
-import type { ConfigurationProjectFile } from "../configurationIndex/types"
 import type { ConfigurationContext } from "../context/types"
 import type { SharedConfigurationIndexSnapshot } from "../configurationIndex/sharedSnapshot"
-import type { FullXmlSyncSharedCompositionSnapshot, FullXmlSyncSharedMetadata } from "./sharedMetadata"
+import type { FullXmlSyncSharedCompositionSnapshot } from "./sharedMetadata"
 import type { DeferredObjectValue } from "../orchestration/property/deferredObjectValues"
 import type { MetadataItemRule } from "../orchestration/property/types"
 import type { ConfigurationIndexCollector } from "../configurationIndex/collector/writer"
 import type { YAMLToXMLProfile } from "../orchestration/property/fromYAMLToXMLTypes"
+import type { FullXmlSyncWorkerProfileRuntime } from "./componentProfile"
+import type { SharedValidationSnapshot } from "../validation/sharedValidationSnapshot"
 
 export interface FullXmlSyncPotentialOutput {
   readonly declarationId: string
@@ -46,17 +45,6 @@ export interface FullXmlSyncPlan {
   readonly externalFiles: readonly FullXmlSyncExternalFile[]
 }
 
-export interface FullXmlSyncOwnerFacts {
-  readonly assignmentId: string
-  readonly sourceProjectPath: string
-  readonly sourcePath: string
-  readonly role: FullXmlSyncAssignment["role"]
-  readonly owner: { readonly dir: string; readonly name: string }
-  readonly itemType: string
-  readonly ownerFacts?: ValidationOwnerFacts
-  readonly fieldIndex?: ObjectFieldIndex
-}
-
 export interface FullXmlSyncDiagnostic {
   readonly severity: "error" | "warning"
   readonly code: string
@@ -93,17 +81,16 @@ export type FullXmlSyncWorkerCommand =
   | {
       readonly kind: "initialize"
       readonly workerIndex: number
-      readonly projectDir: string
+      readonly componentDir: string
       readonly outputDir: string
       readonly context: ConfigurationContext
+      readonly profile: FullXmlSyncWorkerProfileRuntime
       readonly composition: FullXmlSyncSharedCompositionSnapshot
-      readonly index: SharedConfigurationIndexSnapshot
+      readonly targetIndex: SharedConfigurationIndexSnapshot
+      readonly localMetadata: SharedValidationSnapshot
+      readonly baseMetadata?: SharedValidationSnapshot
     }
-  | { readonly kind: "firstPass"; readonly assignments: readonly FullXmlSyncAssignment[] }
-  | {
-      readonly kind: "secondPass"
-      readonly sharedMetadata: FullXmlSyncSharedMetadata
-    }
+  | { readonly kind: "execute"; readonly assignments: readonly FullXmlSyncAssignment[] }
   | { readonly kind: "dispose" }
 
 export interface FullXmlSyncExpectedOutput {
@@ -117,20 +104,13 @@ export interface FullXmlSyncCopiedFile {
   readonly targetXmlPath: string
 }
 
-export interface FullXmlSyncFirstPassResult {
-  readonly kind: "firstPassResult"
-  readonly diagnostics: readonly FullXmlSyncDiagnostic[]
-  readonly projectFiles: readonly ConfigurationProjectFile[]
-  readonly ownerFacts: readonly FullXmlSyncOwnerFacts[]
-  readonly expectedOutputs?: readonly FullXmlSyncExpectedOutput[]
-}
-
-export interface FullXmlSyncSecondPassResult {
-  readonly kind: "secondPassResult"
+export interface FullXmlSyncExecutionResult {
+  readonly kind: "executionResult"
   readonly diagnostics: readonly FullXmlSyncDiagnostic[]
   readonly warnings: readonly FullXmlSyncDiagnostic[]
   readonly writtenFiles: readonly FullXmlSyncWrittenFile[]
+  readonly expectedOutputs: readonly FullXmlSyncExpectedOutput[]
   readonly fragmentBuffer: ArrayBuffer
 }
 
-export type FullXmlSyncWorkerCommandResult = FullXmlSyncFirstPassResult | FullXmlSyncSecondPassResult | undefined
+export type FullXmlSyncWorkerCommandResult = FullXmlSyncExecutionResult | undefined

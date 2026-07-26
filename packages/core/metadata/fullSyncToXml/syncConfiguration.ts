@@ -19,14 +19,13 @@ import { createValidationProfiler } from "../validation/profile"
 import { discoverFullXmlSyncPlan } from "./discovery"
 import {
   createFullXmlSyncCompositionSnapshot,
-  createFullXmlSyncSharedMetadata,
-  type FullXmlSyncSharedMetadata,
 } from "./sharedMetadata"
 import { transferFullXmlSyncExternalFiles } from "./transferExternalFiles"
 import type { FullXmlSyncDiagnostic, FullXmlSyncPlan } from "./types"
 import { createFullXmlSyncWorkerPool, type FullXmlSyncWorkerPool } from "./workerPool"
 import { writeFullXmlSyncConfigDumpInfo } from "./writeConfigDumpInfo"
 import { validateFullXmlSyncWrittenFiles } from "./validateWrittenFiles"
+import { restoreSharedValidationSnapshot } from "../validation/persistedSharedValidationSnapshot"
 
 export interface SyncConfigurationToXmlParams {
   readonly context: ConfigurationContext
@@ -72,7 +71,6 @@ export interface FullXmlSyncCoordinatorDependencies {
   readonly discover: (params: { projectDir: string }) => Promise<FullXmlSyncPlan>
   readonly readIndexSnapshot: (params: { projectDir: string; address: ComponentAddress }) => Promise<Awaited<ReturnType<typeof readConfigurationIndexSnapshot>>>
   readonly createWorkerPool: (params: { concurrency: number }) => FullXmlSyncWorkerPool
-  readonly createSharedMetadata: typeof createFullXmlSyncSharedMetadata
   readonly transferExternalFiles: typeof transferFullXmlSyncExternalFiles
   readonly writeConfigDumpInfo: typeof writeFullXmlSyncConfigDumpInfo
   readonly writeIndex: (params: { projectDir: string; address: ComponentAddress; data: ConfigurationIndexData }) => Promise<void>
@@ -94,7 +92,6 @@ const defaultDependencies: FullXmlSyncCoordinatorDependencies = {
   discover: ({ projectDir }) => discoverFullXmlSyncPlan(projectDir),
   readIndexSnapshot: readConfigurationIndexSnapshot,
   createWorkerPool: ({ concurrency }) => createFullXmlSyncWorkerPool({ concurrency }),
-  createSharedMetadata: createFullXmlSyncSharedMetadata,
   transferExternalFiles: transferFullXmlSyncExternalFiles,
   writeConfigDumpInfo: writeFullXmlSyncConfigDumpInfo,
   writeIndex: writeConfigurationIndexAtomically,
@@ -139,35 +136,24 @@ export async function syncConfigurationToXml(
     const composition = createFullXmlSyncCompositionSnapshot(plan.assignments)
     await profiler.measureAsync("Полная XML-синхронизация", "Инициализация worker", { items: plan.assignments.length }, () =>
       pool!.initialize({
-        projectDir: yamlDir,
+        componentDir: yamlDir,
         outputDir: xmlDir,
         context: params.context,
+        profile: {
+          kind: "configuration",
+          componentKind: "configuration",
+          adoptedUuids: {},
+        },
         composition,
-        index: indexSnapshot,
+        targetIndex: indexSnapshot,
+        localMetadata: restoreSharedValidationSnapshot(previousIndex.localIndexes.metadata),
       })
     )
-    const first = await profiler.measureAsync("Полная XML-синхронизация", "Первый проход worker", { items: plan.assignments.length }, () =>
-      pool!.runFirstPass(plan.assignments)
+    const execution = await profiler.measureAsync("Полная XML-синхронизация", "Выполнение worker", { items: plan.assignments.length }, () =>
+      pool!.execute(plan.assignments)
     )
-    if (hasErrors(first.diagnostics)) return failedResult(first.diagnostics)
-
-    const sharedMetadata: FullXmlSyncSharedMetadata = profiler.measure(
-      "Полная XML-синхронизация",
-      "Снимок данных Проекта",
-      { items: first.ownerFacts.length },
-      () =>
-        deps.createSharedMetadata({
-          assignments: plan.assignments,
-          owners: first.ownerFacts,
-        })
-    )
-    const second = await profiler.measureAsync("Полная XML-синхронизация", "Второй проход worker", { items: plan.assignments.length }, () =>
-      pool!.runSecondPass({
-        sharedMetadata,
-      })
-    )
-    warnings = second.warnings
-    if (hasErrors(second.diagnostics)) return failedResult(second.diagnostics, warnings)
+    warnings = execution.warnings
+    if (hasErrors(execution.diagnostics)) return failedResult(execution.diagnostics, warnings)
     const external = await profiler.measureAsync("Полная XML-синхронизация", "Перенос внешних файлов", { items: plan.externalFiles.length }, () =>
       deps.transferExternalFiles({
         outputDir: xmlDir,
@@ -177,16 +163,8 @@ export async function syncConfigurationToXml(
     )
     const outputDiagnostics = validateFullXmlSyncWrittenFiles({
       expectedOutputs:
-        first.expectedOutputs ??
-        plan.assignments.flatMap((assignment) =>
-          assignment.potentialOutputs
-            .filter((output) => output.required)
-            .map((output) => ({
-              assignmentId: assignment.id,
-              targetXmlPath: output.targetXmlPath,
-            }))
-        ),
-      writtenFiles: second.writtenFiles,
+        execution.expectedOutputs,
+      writtenFiles: execution.writtenFiles,
       copiedFiles: external.copiedFiles.map((file) => ({
         ...file,
         assignmentId:
@@ -214,8 +192,14 @@ export async function syncConfigurationToXml(
     ])
     const indexData = buildFullXmlSyncConfigurationIndex({
       previous: previousIndex,
-      projectFiles: [...first.projectFiles, ...external.projectFiles],
-      fragmentData: mergeFragmentData(second.fragmentData, configDumpFragmentData),
+      projectFiles: [
+        ...plan.assignments.map(({ sourceProjectPath, expectedContentHash }) => ({
+          projectPath: sourceProjectPath,
+          contentHash: expectedContentHash,
+        })),
+        ...external.projectFiles,
+      ],
+      fragmentData: mergeFragmentData(execution.fragmentData, configDumpFragmentData),
     })
     await profiler.measureAsync("Полная XML-синхронизация", "Запись индекса конфигурации", { items: indexData.projectFiles.length }, () =>
       deps.writeIndex({ projectDir, address, data: indexData })

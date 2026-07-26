@@ -1,10 +1,11 @@
 import { resolve } from "node:path"
 import type { ConfigurationContext } from "../context/types"
 import type { PreparedWorkerPool } from "../project/preparedYamlProjectWorkerPool"
-import type { OwnerMetadataCache } from "../validation/dataPath/ownerCache"
-import { createOwnerMetadataCacheFromSharedValidationSnapshot } from "../validation/dataPath/sharedOwnerCache"
 import type { SharedValidationSnapshot } from "../validation/sharedValidationSnapshot"
-import { buildColdComponentIndexes } from "../project/componentState/indexes"
+import {
+  buildColdComponentIndexes,
+  createLayeredOwnerMetadataCache as createComponentStateLayeredOwnerMetadataCache,
+} from "../project/componentState/indexes"
 
 export interface LayeredImportReferenceSnapshot {
   readonly local: SharedValidationSnapshot
@@ -39,45 +40,14 @@ export function createLayeredImportReferenceSnapshot(params: {
 export function createLayeredOwnerMetadataCache(params: {
   projectDir: string
   snapshots: LayeredImportReferenceSnapshot
-}): OwnerMetadataCache {
-  const local = createOwnerMetadataCacheFromSharedValidationSnapshot({
-    projectDir: params.projectDir,
-    snapshot: params.snapshots.local,
+}): ReturnType<typeof createComponentStateLayeredOwnerMetadataCache> {
+  return createComponentStateLayeredOwnerMetadataCache({
+    localProjectDir: params.projectDir,
+    baseProjectDir: params.projectDir,
+    snapshots: params.snapshots,
   })
-  const base =
-    params.snapshots.base === undefined
-      ? undefined
-      : createOwnerMetadataCacheFromSharedValidationSnapshot({
-          projectDir: params.projectDir,
-          snapshot: params.snapshots.base,
-        })
-
-  return {
-    get(ref) {
-      const localResult = local.get(ref)
-      if (localResult.status !== "not-found" || base === undefined) return localResult
-      return base.get(ref)
-    },
-    listRefs(kind) {
-      if (base === undefined) return local.listRefs(kind)
-
-      const result = [...local.listRefs(kind)]
-      const seen = new Set(result.map(ownerRefKey))
-      for (const ref of base.listRefs(kind)) {
-        const key = ownerRefKey(ref)
-        if (seen.has(key)) continue
-        seen.add(key)
-        result.push(ref)
-      }
-      return result
-    },
-  }
 }
 
 function normalizeConcurrency(concurrency: number): number {
   return Number.isInteger(concurrency) && concurrency > 0 ? concurrency : 1
-}
-
-function ownerRefKey(ref: { kind: string; name?: string }): string {
-  return `${ref.kind}:${ref.name ?? ""}`
 }

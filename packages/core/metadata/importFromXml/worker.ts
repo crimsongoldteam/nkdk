@@ -12,9 +12,9 @@ import type { OwnerMetadataCache } from "../validation/dataPath/ownerCache"
 import type { ValidationOwnerFacts } from "../validation/dataPath/ownerFacts"
 import { createOperationProfiler, type ValidationProfiler } from "../validation/profile"
 import {
-  createLayeredOwnerMetadataCache,
   type LayeredImportReferenceSnapshot,
 } from "./componentReferenceIndex"
+import { createLayeredOwnerMetadataCache } from "../project/componentState/indexes"
 import { extractImportOwnerFacts } from "./ownerFacts"
 import {
   extractImportValidationContribution,
@@ -79,7 +79,8 @@ async function runSecondPass(
   const warnings: ImportDiagnostic[] = []
   const files: ImportResultFile[] = []
   const ownerMetadataCache = createLayeredOwnerMetadataCache({
-    projectDir: state.outputDir,
+    localProjectDir: state.outputDir,
+    baseProjectDir: state.outputDir,
     snapshots: referenceSnapshots,
   })
 

@@ -8,52 +8,66 @@ import type {
 import {
   createFullXmlSyncWorkerPool,
   normalizeFullXmlSyncConcurrency,
+  type FullXmlSyncWorkerInitialization,
   type FullXmlSyncWorkerThreadPool,
 } from "./workerPool"
 import { fullXmlSyncTestOutput } from "./testTopology"
 
 describe("full XML sync worker pool", () => {
-  const context = { version: "2.20", defaultLanguage: "ru", exportToYAML: { toTyped: false } } as const
-  const sharedInputs = { composition: {} as never, index: {} as never }
+  const initialization = {
+    componentDir: "/project",
+    outputDir: "/out",
+    context: {
+      version: "2.20",
+      defaultLanguage: "ru",
+      exportToYAML: { toTyped: false },
+    },
+    profile: {
+      kind: "configuration",
+      componentKind: "configuration",
+      adoptedUuids: {},
+    },
+    composition: {} as never,
+    targetIndex: {} as never,
+    localMetadata: {} as never,
+  } satisfies FullXmlSyncWorkerInitialization
 
-  it("uses static round-robin and keeps one assignment on the same worker between passes", async () => {
+  it("executes each static partition once", async () => {
     const pools = createFakePools()
     const assignments = [assignment("one"), assignment("two"), assignment("three")]
-    const pool = createFullXmlSyncWorkerPool({ concurrency: 2, createWorkerPool: pools.factory })
+    const pool = createFullXmlSyncWorkerPool({
+      concurrency: 2,
+      createWorkerPool: pools.factory,
+    })
 
-    await pool.initialize({ projectDir: "/project", outputDir: "/out", context, ...sharedInputs })
-    await pool.runFirstPass(assignments)
-    await pool.runSecondPass({ sharedMetadata: {} as never })
+    await pool.initialize(initialization)
+    await pool.execute(assignments)
 
-    expect(pools.runs(0).map((task) => task.kind)).toEqual(["initialize", "firstPass", "secondPass"])
-    expect(pools.runs(1).map((task) => task.kind)).toEqual(["initialize", "firstPass", "secondPass"])
-    expect(pools.firstPassIds(0)).toEqual(["one", "three"])
-    expect(pools.firstPassIds(1)).toEqual(["two"])
-
+    expect(pools.runs(0).map(({ kind }) => kind)).toEqual(["initialize", "execute"])
+    expect(pools.runs(1).map(({ kind }) => kind)).toEqual(["initialize", "execute"])
+    expect(pools.executeIds(0)).toEqual(["one", "three"])
+    expect(pools.executeIds(1)).toEqual(["two"])
+    await expect(pool.execute(assignments)).rejects.toThrow("уже было запущено")
     await pool.close()
   })
 
-  it("does not start empty workers and still uses a worker when concurrency is one", async () => {
+  it("does not start empty workers", async () => {
     const pools = createFakePools()
-    const pool = createFullXmlSyncWorkerPool({ concurrency: 4, createWorkerPool: pools.factory })
+    const pool = createFullXmlSyncWorkerPool({
+      concurrency: 4,
+      createWorkerPool: pools.factory,
+    })
 
-    await pool.initialize({ projectDir: "/project", outputDir: "/out", context, ...sharedInputs })
-    await pool.runFirstPass([assignment("only")])
+    await pool.initialize(initialization)
+    await pool.execute([assignment("only")])
 
     expect(pools.created()).toBe(1)
-    expect(pools.runs(0).map((task) => task.kind)).toEqual(["initialize", "firstPass"])
+    expect(pools.runs(0).map(({ kind }) => kind)).toEqual(["initialize", "execute"])
     await pool.close()
     expect(pools.destroyCalls()).toEqual([1])
-
-    const single = createFakePools()
-    const singlePool = createFullXmlSyncWorkerPool({ concurrency: 1, createWorkerPool: single.factory })
-    await singlePool.initialize({ projectDir: "/project", outputDir: "/out", context, ...sharedInputs })
-    await singlePool.runFirstPass([assignment("single")])
-    expect(single.created()).toBe(1)
-    await singlePool.close()
   })
 
-  it("returns compact first-pass data and blocks second pass after errors", async () => {
+  it("merges execution results from workers", async () => {
     const pools = createFakePools()
     pools.diagnoseWorker(1, {
       severity: "error",
@@ -62,30 +76,34 @@ describe("full XML sync worker pool", () => {
       assignmentId: "two",
       sourceProjectPath: "two.yaml",
     })
-    const pool = createFullXmlSyncWorkerPool({ concurrency: 2, createWorkerPool: pools.factory })
+    const pool = createFullXmlSyncWorkerPool({
+      concurrency: 2,
+      createWorkerPool: pools.factory,
+    })
 
-    await pool.initialize({ projectDir: "/project", outputDir: "/out", context, ...sharedInputs })
-    const first = await pool.runFirstPass([assignment("one"), assignment("two")])
+    await pool.initialize(initialization)
+    const result = await pool.execute([assignment("one"), assignment("two")])
 
-    expect(first.diagnostics).toEqual([expect.objectContaining({ severity: "error", assignmentId: "two" })])
-    expect(first.projectFiles.map((file) => file.projectPath)).toEqual(["one.yaml", "two.yaml"])
-    expect(first.ownerFacts).toEqual([expect.objectContaining({ assignmentId: "one" })])
-    await expect(
-      pool.runSecondPass({ sharedMetadata: {} as never })
-    ).rejects.toThrow("Первый проход full XML sync завершён с ошибками")
+    expect(result.diagnostics).toEqual([
+      expect.objectContaining({ severity: "error", assignmentId: "two" }),
+    ])
+    expect(result.expectedOutputs).toHaveLength(2)
     await pool.close()
   })
 
   it("destroys every worker without retry after crash", async () => {
     const pools = createFakePools()
     pools.failWorker(1, new Error("worker crashed"))
-    const pool = createFullXmlSyncWorkerPool({ concurrency: 2, createWorkerPool: pools.factory })
+    const pool = createFullXmlSyncWorkerPool({
+      concurrency: 2,
+      createWorkerPool: pools.factory,
+    })
 
-    await pool.initialize({ projectDir: "/project", outputDir: "/out", context, ...sharedInputs })
-    await expect(pool.runFirstPass([assignment("one"), assignment("two")])).rejects.toThrow("worker crashed")
+    await pool.initialize(initialization)
+    await expect(pool.execute([assignment("one"), assignment("two")]))
+      .rejects.toThrow("worker crashed")
 
     expect(pools.destroyCalls()).toEqual([1, 1])
-    expect(pools.firstPassIds(1)).toEqual(["two"])
     await pool.close()
     expect(pools.destroyCalls()).toEqual([1, 1])
   })
@@ -125,37 +143,21 @@ function createFakePools() {
       destroyCounts.push(0)
       return {
         async run(task) {
-          commands[workerIndex]?.push(task)
-          if (task.kind === "firstPass") {
-            const failure = failures.get(workerIndex)
-            if (failure !== undefined) throw failure
-            return {
-              kind: "firstPassResult" as const,
-              diagnostics: diagnostics.get(workerIndex) ?? [],
-              projectFiles: task.assignments.map((item) => ({ projectPath: item.sourceProjectPath, contentHash: 1n })),
-              ownerFacts:
-                workerIndex === 0
-                  ? task.assignments.map((item) => ({
-                      assignmentId: item.id,
-                      sourceProjectPath: item.sourceProjectPath,
-                      sourcePath: item.sourcePath,
-                      role: item.role,
-                      owner: { dir: "Справочник", name: item.itemName },
-                      itemType: item.itemType,
-                    }))
-                  : [],
-            }
+          commands[workerIndex]!.push(task)
+          if (task.kind !== "execute") return undefined
+          const failure = failures.get(workerIndex)
+          if (failure !== undefined) throw failure
+          return {
+            kind: "executionResult" as const,
+            diagnostics: diagnostics.get(workerIndex) ?? [],
+            warnings: [],
+            writtenFiles: [],
+            expectedOutputs: task.assignments.map(({ id }) => ({
+              assignmentId: id,
+              targetXmlPath: `${id}.xml`,
+            })),
+            fragmentBuffer: encodeConfigurationIndexFragments([]),
           }
-          if (task.kind === "secondPass") {
-            return {
-              kind: "secondPassResult" as const,
-              diagnostics: [],
-              warnings: [],
-              writtenFiles: [],
-              fragmentBuffer: encodeConfigurationIndexFragments([]),
-            }
-          }
-          return undefined
         },
         async destroy() {
           destroyCounts[workerIndex] = (destroyCounts[workerIndex] ?? 0) + 1
@@ -165,22 +167,18 @@ function createFakePools() {
     runs(workerIndex: number): FullXmlSyncWorkerCommand[] {
       return commands[workerIndex] ?? []
     },
-    firstPassIds(workerIndex: number): string[] {
+    executeIds(workerIndex: number): string[] {
       return (commands[workerIndex] ?? []).flatMap((task) =>
-        task.kind === "firstPass" ? task.assignments.map((item) => item.id) : []
+        task.kind === "execute" ? task.assignments.map(({ id }) => id) : []
       )
     },
-    created(): number {
-      return commands.length
-    },
-    failWorker(workerIndex: number, error: Error): void {
+    created: () => commands.length,
+    failWorker(workerIndex: number, error: Error) {
       failures.set(workerIndex, error)
     },
-    diagnoseWorker(workerIndex: number, diagnostic: FullXmlSyncDiagnostic): void {
+    diagnoseWorker(workerIndex: number, diagnostic: FullXmlSyncDiagnostic) {
       diagnostics.set(workerIndex, [diagnostic])
     },
-    destroyCalls(): number[] {
-      return [...destroyCounts]
-    },
+    destroyCalls: () => [...destroyCounts],
   }
 }

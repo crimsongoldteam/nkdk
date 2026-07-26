@@ -2,7 +2,6 @@ import fs from "node:fs"
 import os from "node:os"
 import { join } from "node:path"
 import { discoverFullXmlSyncPlan } from "./discovery"
-import { createFullXmlSyncSharedMetadata } from "./sharedMetadata"
 import { transferFullXmlSyncExternalFiles } from "./transferExternalFiles"
 import { runFullXmlSyncWorkerCommand, resetFullXmlSyncWorkerStateForTests } from "./worker"
 import { createFullXmlSyncWorkerPool } from "./workerPool"
@@ -106,7 +105,6 @@ export function createDirectFullSyncDependencies(): FullXmlSyncCoordinatorDepend
         }),
       })
     },
-    createSharedMetadata: createFullXmlSyncSharedMetadata,
     transferExternalFiles: transferFullXmlSyncExternalFiles,
     writeConfigDumpInfo: writeFullXmlSyncConfigDumpInfo,
     writeIndex: writeConfigurationIndexAtomically,
