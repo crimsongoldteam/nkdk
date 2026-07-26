@@ -4,6 +4,7 @@ import { describeProjectStructureInputShape } from "../contracts/describeProject
 import { getSchemaInputShape } from "../contracts/getSchema"
 import { importFromXmlInputShape } from "../contracts/importFromXml"
 import { initSyncStateInputShape } from "../contracts/initSyncState"
+import { listInfobasesInputShape } from "../contracts/listInfobases"
 import { findReferencesInputShape, renameItemInputShape } from "../contracts/operations"
 import { syncToXmlInputShape } from "../contracts/syncToXml"
 import { validateProjectInputShape } from "../contracts/validateProject"
@@ -13,6 +14,7 @@ import { describeProjectStructure } from "../services/describeProjectStructure"
 import { getSchema } from "../services/getSchema"
 import { importFromXml } from "../services/importFromXml"
 import { initSyncState } from "../services/initSyncState"
+import { listInfobasesService } from "../services/listInfobases"
 import { findReferences } from "../services/findReferences"
 import { renameItem } from "../services/renameItem"
 import { syncToXml } from "../services/syncToXml"
@@ -41,6 +43,17 @@ export function registerNkdkCapabilities(server: RegisterableServer): void {
       inputSchema: describeProjectStructureInputShape,
     },
     async (input) => jsonToolResult(await describeProjectStructure(input))
+  )
+
+  server.registerTool(
+    "nkdk.list_infobases",
+    {
+      title: "List 1C infobases",
+      description:
+        "Возвращает дерево баз из личного и общих списков 1С вместе с источниками и предупреждениями. Не изменяет файлы.",
+      inputSchema: listInfobasesInputShape,
+    },
+    async () => jsonToolResult(await listInfobasesService())
   )
 
   server.registerTool(

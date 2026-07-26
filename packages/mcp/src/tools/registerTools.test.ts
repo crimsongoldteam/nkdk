@@ -19,6 +19,7 @@ describe("registerNkdkCapabilities", () => {
     expect(calls.tools).toEqual([
       "nkdk.get_schema",
       "nkdk.describe_project_structure",
+      "nkdk.list_infobases",
       "nkdk.validate_project",
       "nkdk.import_from_xml",
       "nkdk.sync_to_xml",
@@ -55,5 +56,12 @@ describe("registerNkdkCapabilities", () => {
     expect(syncTool?.description).toContain("projectDir/componentPath")
     expect(syncTool?.description).toContain("xmlRootDir/componentPath")
     expect(syncTool?.description).not.toContain("reference")
+
+    const listInfobasesTool = server.registerTool.mock.calls.find(([name]) => name === "nkdk.list_infobases")?.[1] as
+      | { description: string }
+      | undefined
+    expect(listInfobasesTool?.description).toContain("личного и общих списков")
+    expect(listInfobasesTool?.description).toContain("дерево")
+    expect(listInfobasesTool?.description).toContain("Не изменяет файлы")
   })
 })

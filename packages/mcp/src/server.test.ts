@@ -4,9 +4,20 @@ import { InMemoryTransport } from "@modelcontextprotocol/sdk/inMemory.js"
 import { createNkdkMcpServer, shutdownNkdkMcpServer } from "./server"
 
 const closeValidationHandle = vi.hoisted(() => vi.fn())
+const listInfobases = vi.hoisted(() =>
+  vi.fn(async () => ({
+    tree: [],
+    sources: [],
+    warnings: [],
+  })),
+)
 
 vi.mock("./services/validationHandle", () => ({
   closeValidationHandle,
+}))
+
+vi.mock("@nkdk/platform", () => ({
+  listInfobases,
 }))
 
 describe("MCP server", () => {
@@ -44,6 +55,32 @@ describe("MCP server", () => {
       await client.close()
     }
   }, 30_000)
+
+  it("returns the infobase tree through the MCP protocol", async () => {
+    const server = createNkdkMcpServer()
+    const client = new Client({ name: "nkdk-test-client", version: "1.0.0" })
+    const [clientTransport, serverTransport] = InMemoryTransport.createLinkedPair()
+
+    await Promise.all([server.connect(serverTransport), client.connect(clientTransport)])
+
+    try {
+      const result = await client.callTool({
+        name: "nkdk.list_infobases",
+        arguments: {},
+      })
+
+      expect(result.isError).not.toBe(true)
+      expect(result.structuredContent).toEqual({
+        ok: true,
+        tree: [],
+        sources: [],
+        warnings: [],
+      })
+      expect(listInfobases).toHaveBeenCalled()
+    } finally {
+      await client.close()
+    }
+  })
 
   it("loads core API without a monorepo-relative runtime import", async () => {
     const source = await import("node:fs/promises").then((fs) =>
