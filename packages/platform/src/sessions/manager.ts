@@ -61,9 +61,9 @@ export function createPlatformSessionManager(
         reusedConnection = true
       } else {
         if (cached !== undefined) {
-          sessions.delete(key)
           cancelIdleTimer(cached)
           await cached.session.close()
+          if (sessions.get(key) === cached) sessions.delete(key)
         }
         cached = await createSession(key, settings, mode, fingerprint)
         sessions.set(key, cached)
@@ -129,9 +129,9 @@ export function createPlatformSessionManager(
   async function closeCanonicalConnection(key: string) {
     const cached = sessions.get(key)
     if (cached === undefined) return { closed: false, stoppedOwnedProcess: false }
-    sessions.delete(key)
     cancelIdleTimer(cached)
     const result = await cached.session.close()
+    if (sessions.get(key) === cached) sessions.delete(key)
     return { closed: true, stoppedOwnedProcess: result.stoppedOwnedProcess }
   }
 
@@ -139,7 +139,7 @@ export function createPlatformSessionManager(
     cancelIdleTimer(cached)
     cached.timer = dependencies.setTimer(() => {
       cached.timer = undefined
-      void closeConnection(key).catch(() => undefined)
+      void enqueue(key, () => closeCanonicalConnection(key)).catch(() => undefined)
     }, timeoutSeconds * 1000)
   }
 
@@ -196,9 +196,6 @@ function assertRequiredComponents(
   }
   if (mode === "standalone-server" && installation.ibcmdPath === undefined) {
     throw missingComponent("ibcmd")
-  }
-  if (mode === "standalone-server" && installation.ibsrvPath === undefined) {
-    throw missingComponent("ibsrv")
   }
 }
 

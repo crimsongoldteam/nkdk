@@ -1,4 +1,3 @@
-import { parse } from "yaml"
 import { describe, expect, it } from "vitest"
 import type { CreatePlatformSessionParams } from "./types"
 import {
@@ -11,48 +10,22 @@ describe("standalone server session", () => {
     const fixture = createFixture()
     const session = await createStandaloneServerSession(createParams(), fixture.dependencies)
     await session.exportConfiguration("/project/.nkdk/tmp/op/xml", "/project/.nkdk/tmp/op/platform.log")
-    await expect(session.close()).resolves.toEqual({ stoppedOwnedProcess: true })
+    await expect(session.close()).resolves.toEqual({ stoppedOwnedProcess: false })
 
     expect(fixture.calls).toEqual([
-      "reservePort 127.0.0.1",
       "mkdir /project/.nkdk/platform-sessions/standalone",
-      "generateHostKey /project/.nkdk/platform-sessions/standalone/host.key",
-      "run ibcmd server config init --database-path=/bases/demo",
+      "run ibcmd server config init --database-path=/bases/demo timeout=1800000",
       "write /project/.nkdk/platform-sessions/standalone/config.yaml",
-      "spawn ibsrv --data /project/.nkdk/platform-sessions/standalone/data --session-data /project/.nkdk/platform-sessions/standalone/session-data --config /project/.nkdk/platform-sessions/standalone/config.yaml",
-      "wait-output Stand-alone Server ready. 60000",
-      "ssh.connect 127.0.0.1:8338",
-      "shell.connect-ib",
-      'shell.run config dump-config-to-files --dir="/project/.nkdk/tmp/op/xml" --format=hierarchical',
+      "run ibcmd infobase config export --password=secret --config=/project/.nkdk/platform-sessions/standalone/config.yaml /project/.nkdk/tmp/op/xml timeout=1800000",
       "write /project/.nkdk/tmp/op/platform.log",
-      "shell.close",
-      "process.signal SIGTERM",
-      "process.wait 5000",
     ])
-    expect(parse(fixture.writes.get("/project/.nkdk/platform-sessions/standalone/config.yaml") ?? "")).toEqual({
-      database: { path: "/bases/demo" },
-      gates: {
-        ssh: {
-          admin: {
-            address: "localhost",
-            port: 8338,
-            "host-key": "/project/.nkdk/platform-sessions/standalone/host.key",
-          },
-        },
-      },
-      features: {
-        "direct-gate": false,
-        "http-gate": false,
-        "ssh-gate": true,
-      },
-    })
+    expect(fixture.writes.get("/project/.nkdk/platform-sessions/standalone/config.yaml")).toBe(
+      "database:\n  path: /bases/demo\n"
+    )
     expect(fixture.writes.get("/project/.nkdk/tmp/op/platform.log")).not.toContain("secret")
   })
 
-  it.each([
-    [{ ibcmdPath: undefined, ibsrvPath: "ibsrv" }, "ibcmd"],
-    [{ ibcmdPath: "ibcmd", ibsrvPath: undefined }, "ibsrv"],
-  ])("rejects a missing platform component: %s", async (components, expected) => {
+  it("rejects a missing ibcmd", async () => {
     const fixture = createFixture()
     await expect(
       createStandaloneServerSession(
@@ -60,12 +33,11 @@ describe("standalone server session", () => {
           installation: {
             version: "8.3.27.2214",
             directory: "/opt/1cv8",
-            ...components,
           },
         }),
         fixture.dependencies
       )
-    ).rejects.toMatchObject({ code: "platform_component_missing", message: expect.stringContaining(expected) })
+    ).rejects.toMatchObject({ code: "platform_component_missing", message: expect.stringContaining("ibcmd") })
     expect(fixture.calls).toEqual([])
   })
 
@@ -80,31 +52,52 @@ describe("standalone server session", () => {
     expect(fixture.calls).toEqual([])
   })
 
-  it("maps ibcmd failure and readiness timeout without leaking a process", async () => {
+  it("maps ibcmd initialization and export failures", async () => {
     const initFailure = createFixture({ initExitCode: 1 })
     await expect(
       createStandaloneServerSession(createParams(), initFailure.dependencies)
     ).rejects.toMatchObject({ code: "session_start_failed" })
-    expect(initFailure.calls).not.toContain(expect.stringMatching(/^spawn /))
-
-    const readinessFailure = createFixture({ readinessError: new Error("timeout") })
-    await expect(
-      createStandaloneServerSession(createParams(), readinessFailure.dependencies)
-    ).rejects.toMatchObject({ code: "session_timeout" })
-    expect(readinessFailure.calls).toContain("process.kill")
+    const exportFailure = createFixture({ exportExitCode: 1 })
+    const session = await createStandaloneServerSession(createParams(), exportFailure.dependencies)
+    await expect(session.exportConfiguration("/xml", "/log")).rejects.toMatchObject({
+      code: "platform_command_failed",
+    })
   })
 
-  it("forces only an owned process after graceful shutdown times out", async () => {
-    const owned = createFixture({ processWaitResult: false, processOwned: true })
-    const ownedSession = await createStandaloneServerSession(createParams(), owned.dependencies)
-    await expect(ownedSession.close()).resolves.toEqual({ stoppedOwnedProcess: true })
-    expect(owned.calls).toContain("process.signal SIGTERM")
-    expect(owned.calls).toContain("process.kill")
+  it("maps ibcmd initialization and export timeouts", async () => {
+    const initTimeout = createFixture({ initTimedOut: true })
+    await expect(
+      createStandaloneServerSession(createParams(), initTimeout.dependencies)
+    ).rejects.toMatchObject({ code: "session_timeout" })
 
-    const external = createFixture({ processWaitResult: false, processOwned: false })
-    const externalSession = await createStandaloneServerSession(createParams(), external.dependencies)
-    await expect(externalSession.close()).resolves.toEqual({ stoppedOwnedProcess: false })
-    expect(external.calls).not.toContain(expect.stringMatching(/^process\.(signal|kill)/))
+    const exportTimeout = createFixture({ exportTimedOut: true })
+    const session = await createStandaloneServerSession(createParams(), exportTimeout.dependencies)
+    await expect(session.exportConfiguration("/xml", "/log")).rejects.toMatchObject({
+      code: "session_timeout",
+    })
+  })
+
+  it("rejects an invalid configuration returned by ibcmd", async () => {
+    const fixture = createFixture({ initStdout: "not: [valid" })
+
+    await expect(
+      createStandaloneServerSession(createParams(), fixture.dependencies)
+    ).rejects.toMatchObject({
+      code: "session_start_failed",
+      message: expect.stringContaining("некорректную конфигурацию"),
+    })
+    expect(
+      fixture.writes.has("/project/.nkdk/platform-sessions/standalone/config.yaml")
+    ).toBe(false)
+  })
+
+  it("closes the cached ibcmd session without stopping a process", async () => {
+    const fixture = createFixture()
+    const session = await createStandaloneServerSession(createParams(), fixture.dependencies)
+
+    expect(session.isAlive()).toBe(true)
+    await expect(session.close()).resolves.toEqual({ stoppedOwnedProcess: false })
+    expect(session.isAlive()).toBe(false)
   })
 })
 
@@ -137,9 +130,10 @@ function createParams(
 function createFixture(
   options: {
     initExitCode?: number
-    readinessError?: Error
-    processOwned?: boolean
-    processWaitResult?: boolean
+    initStdout?: string
+    initTimedOut?: boolean
+    exportExitCode?: number
+    exportTimedOut?: boolean
   } = {}
 ): {
   calls: string[]
@@ -148,46 +142,10 @@ function createFixture(
 } {
   const calls: string[] = []
   const writes = new Map<string, string>()
-  let alive = true
-  const processHandle = {
-    owned: options.processOwned ?? true,
-    isAlive: () => alive,
-    async wait(timeoutMs: number) {
-      calls.push(`process.wait ${timeoutMs}`)
-      if (options.processWaitResult ?? true) alive = false
-      return options.processWaitResult ?? true
-    },
-    async waitForOutput(value: string, timeoutMs: number) {
-      calls.push(`wait-output ${value} ${timeoutMs}`)
-      if (options.readinessError !== undefined) throw options.readinessError
-    },
-    async signal(signal: NodeJS.Signals) {
-      calls.push(`process.signal ${signal}`)
-    },
-    async kill() {
-      calls.push("process.kill")
-      alive = false
-    },
-  }
-  const commandSession = {
-    async run(command: string) {
-      calls.push(`shell.run ${command}`)
-    },
-    isAlive: () => true,
-    async close() {
-      calls.push("shell.close")
-    },
-  }
   return {
     calls,
     writes,
     dependencies: {
-      portRuntime: {
-        async reservePort(host) {
-          calls.push(`reservePort ${host}`)
-          return 8338
-        },
-      },
       fileSystem: {
         async mkdir(path) {
           calls.push(`mkdir ${path}`)
@@ -198,42 +156,22 @@ function createFixture(
         },
       },
       processRuntime: {
-        spawn(command, args) {
-          calls.push(`spawn ${command} ${args.join(" ")}`)
-          return processHandle
-        },
-        async run(command, args) {
-          calls.push(`run ${command} ${args.join(" ")}`)
+        async run(command, args, runOptions) {
+          calls.push(`run ${command} ${args.join(" ")} timeout=${runOptions?.timeoutMs}`)
+          const isExport = args.includes("export")
           return {
-            stdout: "database:\n  path: /bases/demo\n",
+            stdout: isExport
+              ? "[INFO] Export complete\n"
+              : (options.initStdout ?? "database:\n  path: /bases/demo\n"),
             stderr: "",
-            exitCode: options.initExitCode ?? 0,
+            exitCode: isExport ? (options.exportExitCode ?? 0) : (options.initExitCode ?? 0),
+            timedOut: isExport
+              ? (options.exportTimedOut ?? false)
+              : (options.initTimedOut ?? false),
           }
         },
       },
-      async generateHostKey(path) {
-        calls.push(`generateHostKey ${path}`)
-      },
-      sshTransport: {
-        async connect({ host, port }) {
-          calls.push(`ssh.connect ${host}:${port}`)
-          return {
-            write() {},
-            onData() {
-              return () => undefined
-            },
-            isOpen: () => true,
-            async close() {},
-          }
-        },
-      },
-      async openCommandSession() {
-        calls.push("shell.connect-ib")
-        return commandSession
-      },
-      platform: "linux",
-      startupTimeoutMs: 60_000,
-      closeTimeoutMs: 5_000,
+      commandTimeoutMs: 1_800_000,
     },
   }
 }

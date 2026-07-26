@@ -9,6 +9,7 @@ export type ProcessLaunch = {
 export function buildDesignerAgentLaunch(params: {
   enterprisePath: string
   connection: InfobaseConnection
+  hostKeyPath: string
   baseDir: string
   logPath: string
   port: number
@@ -19,7 +20,8 @@ export function buildDesignerAgentLaunch(params: {
       "DESIGNER",
       designerConnectionArgument(params.connection),
       "/AgentMode",
-      "/AgentSSHHostKeyAuto",
+      "/AgentSSHHostKey",
+      params.hostKeyPath,
       "/AgentBaseDir",
       params.baseDir,
       "/AppAutoCheckVersion-",
@@ -39,6 +41,27 @@ export function buildStandaloneConfigInit(params: {
   return {
     command: params.ibcmdPath,
     args: ["server", "config", "init", `--database-path=${params.databasePath}`],
+  }
+}
+
+export function buildStandaloneConfigExport(params: {
+  ibcmdPath: string
+  configPath: string
+  outputDir: string
+  user?: string
+  password?: string
+}): ProcessLaunch {
+  return {
+    command: params.ibcmdPath,
+    args: [
+      "infobase",
+      "config",
+      "export",
+      ...(params.user === undefined ? [] : [`--user=${params.user}`]),
+      ...(params.password === undefined ? [] : [`--password=${params.password}`]),
+      `--config=${params.configPath}`,
+      params.outputDir,
+    ],
   }
 }
 

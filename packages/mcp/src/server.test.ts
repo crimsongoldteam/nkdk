@@ -1,7 +1,11 @@
 import { beforeEach, describe, expect, it, vi } from "vitest"
 import { Client } from "@modelcontextprotocol/sdk/client/index.js"
 import { InMemoryTransport } from "@modelcontextprotocol/sdk/inMemory.js"
-import { createNkdkMcpServer, shutdownNkdkMcpServer } from "./server"
+import {
+  createNkdkMcpServer,
+  runServerUntilTransportCloses,
+  shutdownNkdkMcpServer,
+} from "./server"
 
 const closeValidationHandle = vi.hoisted(() => vi.fn())
 const closePlatformSessionManager = vi.hoisted(() => vi.fn())
@@ -152,6 +156,25 @@ describe("MCP server", () => {
     })
 
     await shutdownNkdkMcpServer()
+
+    expect(closeValidationHandle).toHaveBeenCalledTimes(1)
+    expect(closePlatformSessionManager).toHaveBeenCalledTimes(1)
+  })
+
+  it("closes validation and platform handles when the transport closes", async () => {
+    closeValidationHandle.mockResolvedValueOnce(undefined)
+    closePlatformSessionManager.mockResolvedValueOnce({
+      closedCount: 1,
+      stoppedOwnedProcesses: 1,
+    })
+    const transport: { onclose?: () => void } = {}
+    const server = {
+      async connect() {
+        queueMicrotask(() => transport.onclose?.())
+      },
+    }
+
+    await runServerUntilTransportCloses(server, transport)
 
     expect(closeValidationHandle).toHaveBeenCalledTimes(1)
     expect(closePlatformSessionManager).toHaveBeenCalledTimes(1)

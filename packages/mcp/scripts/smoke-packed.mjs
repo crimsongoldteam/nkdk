@@ -46,6 +46,15 @@ try {
     if (!toolNames.includes("nkdk.get_schema")) {
       throw new Error(`nkdk.get_schema not registered. Tools: ${toolNames.join(", ")}`)
     }
+    for (const name of [
+      "nkdk.import_from_infobase",
+      "nkdk.close_platform_connection",
+      "nkdk.close_all_platform_connections",
+    ]) {
+      if (!toolNames.includes(name)) {
+        throw new Error(`${name} not registered. Tools: ${toolNames.join(", ")}`)
+      }
+    }
 
     const result = await client.callTool({
       name: "nkdk.get_schema",
@@ -56,6 +65,44 @@ try {
       },
     })
     if (result.isError) throw new Error("nkdk.get_schema returned MCP error")
+
+    const confirmation = await client.callTool({
+      name: "nkdk.import_from_infobase",
+      arguments: {
+        projectDir: tmpRoot,
+        connectionString: 'File="/bases/demo";',
+      },
+    })
+    if (
+      !confirmation.isError ||
+      confirmation.structuredContent?.code !== "confirmation_required"
+    ) {
+      throw new Error("nkdk.import_from_infobase started without allowWrite=true")
+    }
+
+    const closeOne = await client.callTool({
+      name: "nkdk.close_platform_connection",
+      arguments: { projectDir: tmpRoot },
+    })
+    if (
+      closeOne.isError ||
+      closeOne.structuredContent?.closed !== false ||
+      closeOne.structuredContent?.stoppedOwnedProcess !== false
+    ) {
+      throw new Error("nkdk.close_platform_connection returned an unexpected empty result")
+    }
+
+    const closeAll = await client.callTool({
+      name: "nkdk.close_all_platform_connections",
+      arguments: {},
+    })
+    if (
+      closeAll.isError ||
+      closeAll.structuredContent?.closedCount !== 0 ||
+      closeAll.structuredContent?.stoppedOwnedProcesses !== 0
+    ) {
+      throw new Error("nkdk.close_all_platform_connections returned an unexpected empty result")
+    }
   } finally {
     await client.close()
   }

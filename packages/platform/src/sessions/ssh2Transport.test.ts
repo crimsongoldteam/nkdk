@@ -10,16 +10,26 @@ describe("ssh2 loopback transport", () => {
   it("opens an unauthenticated interactive shell only on loopback", async () => {
     const client = fakeClient()
     const transport = createSsh2Transport({ createClient: () => client })
-    const pending = transport.connect({ host: "127.0.0.1", port: 58248, timeoutMs: 1_000 })
+    const pending = transport.connect({
+      host: "127.0.0.1",
+      port: 58248,
+      timeoutMs: 1_000,
+      expectedHostKeyHash: "trusted",
+    })
 
     expect(client.connectConfig).toMatchObject({
       host: "127.0.0.1",
       port: 58248,
       readyTimeout: 1_000,
-      authHandler: [{ type: "none", username: "" }],
+      username: "",
+      password: "",
+      hostHash: "sha256",
     })
+    expect(client.connectConfig?.["hostVerifier"]?.("trusted")).toBe(true)
+    expect(client.connectConfig?.["hostVerifier"]?.("attacker")).toBe(false)
     client.emit("ready")
     const shell = await pending
+    expect(client.shellWindow).toBe(false)
     const chunks: string[] = []
     shell.onData((chunk) => chunks.push(chunk))
     client.stream.emit("data", Buffer.from("designer> "))
@@ -42,6 +52,7 @@ describe("ssh2 loopback transport", () => {
       host: "127.0.0.1",
       port: 58248,
       timeoutMs: 100,
+      expectedHostKeyHash: "trusted",
     })
 
     clock.expire()
@@ -58,7 +69,11 @@ type FakeStream = Ssh2ShellStream & {
 }
 
 type FakeClient = Ssh2ClientLike & {
-  connectConfig?: Record<string, unknown>
+  connectConfig?: {
+    hostVerifier?: (fingerprint: string) => boolean
+    [key: string]: unknown
+  }
+  shellWindow?: false
   stream: FakeStream
   ended: boolean
   destroyed: boolean
@@ -101,7 +116,8 @@ function fakeClient(): FakeClient {
     connect(config) {
       this.connectConfig = config
     },
-    shell(callback) {
+    shell(window, callback) {
+      this.shellWindow = window
       callback(undefined, stream)
     },
     end() {

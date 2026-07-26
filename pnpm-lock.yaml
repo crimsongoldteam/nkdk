@@ -116,6 +116,9 @@ importers:
       piscina:
         specifier: ^5.2.0
         version: 5.2.0
+      ssh2:
+        specifier: ^1.17.0
+        version: 1.17.0
       tsx:
         specifier: ^4.22.4
         version: 4.22.4
@@ -125,6 +128,9 @@ importers:
       uuid:
         specifier: ^14.0.0
         version: 14.0.0
+      yaml:
+        specifier: ^2.9.0
+        version: 2.9.0
       zod:
         specifier: ^4.0.0
         version: 4.4.3

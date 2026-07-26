@@ -146,6 +146,7 @@ class PlatformCommandProtocol implements PlatformCommandSession {
   }
 
   private receive(chunk: string): void {
+    if (this.pending === undefined) return
     this.buffer += chunk
     this.consumeBuffer()
   }
@@ -153,28 +154,47 @@ class PlatformCommandProtocol implements PlatformCommandSession {
   private consumeBuffer(): void {
     const pending = this.pending
     if (pending === undefined) return
-    const prompt = /(?:^|\n)[^\r\n>]*> $/.exec(this.buffer)
-    if (prompt === null || prompt.index + prompt[0].length !== this.buffer.length) return
-
-    const body = this.buffer.slice(0, prompt.index).trim()
-    this.buffer = ""
-    if (pending.initialPrompt && body === "") {
+    const prompt = /(?:[a-z][a-z0-9_-]*|@[0-9a-f-]+)> ?$/i.exec(this.buffer)
+    if (pending.initialPrompt) {
+      if (prompt === null) return
+      this.buffer = ""
       this.completePending()
       return
     }
 
+    if (prompt !== null) {
+      const body = this.buffer.slice(0, prompt.index).trim()
+      this.buffer = ""
+      if (body === "") return
+      this.consumeJsonResponse(body, pending)
+      return
+    }
+
+    const body = this.buffer.trim()
+    if (body === "") return
     try {
-      if (body === "") throw new Error("empty response")
-      for (const line of body.split(/\r?\n/).filter((value) => value.trim() !== "")) {
-        const messages: unknown = JSON.parse(line)
-        if (!Array.isArray(messages)) throw new Error("response is not an array")
-        for (const message of messages) this.consumeMessage(message, pending)
-      }
-      if (this.pending === undefined) return
-      if (pending.sawSuccess) this.completePending()
+      const messages: unknown = JSON.parse(body)
+      if (!Array.isArray(messages)) return
+      this.buffer = ""
+      this.consumeMessages(messages, pending)
+    } catch {
+      // JSON может приходить несколькими частями; ждём остаток или приглашение.
+    }
+  }
+
+  private consumeJsonResponse(body: string, pending: PendingExchange): void {
+    try {
+      const messages: unknown = JSON.parse(body)
+      if (!Array.isArray(messages)) throw new Error("response is not an array")
+      this.consumeMessages(messages, pending)
     } catch {
       this.failPending(pending.errorCode, "Платформа вернула неожиданный ответ")
     }
+  }
+
+  private consumeMessages(messages: unknown[], pending: PendingExchange): void {
+    for (const message of messages) this.consumeMessage(message, pending)
+    if (this.pending === pending && pending.sawSuccess) this.completePending()
   }
 
   private consumeMessage(message: unknown, pending: PendingExchange): void {

@@ -19,6 +19,7 @@ export interface DesignerAgentDependencies {
     writeFile(path: string, content: string): Promise<void>
   }
   processRuntime: Pick<SessionProcessRuntime, "spawn">
+  generateHostKey(path: string): Promise<string>
   sshTransport: SshTransport
   openCommandSession: typeof openPlatformCommandSession
   clock: {
@@ -42,18 +43,31 @@ export async function createDesignerAgentSession(
     )
   }
   const connection = parseConnection(params.settings.connectionString)
-  if (connection.type !== "file" && connection.type !== "server") {
+  if (connection.type !== "server") {
     throw new PlatformSessionError(
       "unsupported_connection",
-      "Агент Конфигуратора поддерживает только файловые и клиент-серверные базы"
+      connection.type === "file"
+        ? "Платформа игнорирует выгрузку XML через агент Конфигуратора для файловой базы; включите автономный сервер"
+        : "Агент Конфигуратора поддерживает только клиент-серверные базы"
     )
   }
 
   const port = await dependencies.portRuntime.reservePort("127.0.0.1")
   await dependencies.fileSystem.mkdir(params.sessionDir)
+  const hostKeyPath = join(params.sessionDir, "host.key")
+  let hostKeyHash: string
+  try {
+    hostKeyHash = await dependencies.generateHostKey(hostKeyPath)
+  } catch {
+    throw new PlatformSessionError(
+      "session_start_failed",
+      "Не удалось подготовить SSH-ключ агента Конфигуратора"
+    )
+  }
   const launch = buildDesignerAgentLaunch({
     enterprisePath,
     connection,
+    hostKeyPath,
     baseDir: params.sessionDir,
     logPath: join(params.sessionDir, "process.log"),
     port,
@@ -68,7 +82,7 @@ export async function createDesignerAgentSession(
 
   let commandSession: PlatformCommandSession
   try {
-    const shell = await connectWithRetry({ port, processHandle, dependencies })
+    const shell = await connectWithRetry({ port, hostKeyHash, processHandle, dependencies })
     commandSession = await dependencies.openCommandSession({
       shell,
       user: params.settings.user,
@@ -106,17 +120,21 @@ export async function createDesignerAgentSession(
     },
     async close() {
       if (closed) return { stoppedOwnedProcess: false }
-      closed = true
       await ignoreCleanupError(() => commandSession.run("common disconnect-ib"))
       await ignoreCleanupError(() => commandSession.run("common shutdown"))
       await ignoreCleanupError(() => commandSession.close())
       if (!processHandle.owned) {
         await ignoreCleanupError(() => processHandle.wait(dependencies.closeTimeoutMs))
+        closed = true
         return { stoppedOwnedProcess: false }
       }
-      if (!processHandle.isAlive()) return { stoppedOwnedProcess: false }
+      if (!processHandle.isAlive()) {
+        closed = true
+        return { stoppedOwnedProcess: false }
+      }
       const exited = await processHandle.wait(dependencies.closeTimeoutMs)
       if (!exited && processHandle.isAlive()) await processHandle.kill()
+      closed = true
       return { stoppedOwnedProcess: true }
     },
   }
@@ -124,6 +142,7 @@ export async function createDesignerAgentSession(
 
 async function connectWithRetry(params: {
   port: number
+  hostKeyHash: string
   processHandle: OwnedProcess
   dependencies: DesignerAgentDependencies
 }) {
@@ -140,6 +159,7 @@ async function connectWithRetry(params: {
         host: "127.0.0.1",
         port: params.port,
         timeoutMs: params.dependencies.startupTimeoutMs,
+        expectedHostKeyHash: params.hostKeyHash,
       })
     } catch {
       if (params.dependencies.clock.now() >= deadline) {

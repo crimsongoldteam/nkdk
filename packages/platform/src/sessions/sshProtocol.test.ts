@@ -6,8 +6,8 @@ describe("platform SSH command protocol", () => {
   it("selects JSON, connects to the infobase, and completes a command", async () => {
     const diagnostics: string[] = []
     const shell = scriptedShell([
-      "designer> ",
-      '[{"type":"success","message":"JSON mode"}]\ndesigner> ',
+      "1C:Enterprise 8.3 1C Designer Shell © 1C-Soft LLC 1996-2023\r\ndesigner> ",
+      '[\r\n{\r\n"type": "success",\r\n"message": "",\r\n"body": []\r\n}\r\n]designer> ',
       '[{"type":"question","message":"User"}]\ndesigner> ',
       '[{"type":"question","message":"Password"}]\ndesigner> ',
       '[{"type":"success","message":"Connected"}]\ndesigner> ',
@@ -44,6 +44,19 @@ describe("platform SSH command protocol", () => {
     await expect(openPlatformCommandSession({ shell, timeoutMs: 100 })).rejects.toMatchObject({
       code: "authentication_failed",
     })
+  })
+
+  it("accepts the standalone server UUID prompt without a trailing space", async () => {
+    const prompt = "@f8afddba-896a-4c97-b44e-338f8f44bc13>"
+    const shell = scriptedShell([
+      `1C:Enterprise 8.3 Stand-alone Server © 1C-Soft LLC 1996-2023\r\n${prompt}`,
+      '[{"type":"success","message":""}]',
+      '[{"type":"success","message":""}]',
+    ])
+
+    await expect(
+      openPlatformCommandSession({ shell, timeoutMs: 100 })
+    ).resolves.toMatchObject({ isAlive: expect.any(Function) })
   })
 
   it("maps a command error without leaking its secret values", async () => {

@@ -38,7 +38,9 @@ export function resolveComponent(options: ResolveComponentOptions): ResolveCompo
   }
 
   const cfDir = resolve(projectDir, "cf")
-  if (!existsSync(cfDir) || !statSync(cfDir).isDirectory()) {
+  const mayCreateRootCf =
+    componentPath === "cf" && options.createIfMissing === true && !existsSync(cfDir)
+  if (!mayCreateRootCf && (!existsSync(cfDir) || !statSync(cfDir).isDirectory())) {
     return { ok: false, error: toolError("not_found", "Компонент cf не найден", { projectDir: options.projectDir }) }
   }
 

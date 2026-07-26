@@ -94,6 +94,19 @@ describe("platform session manager", () => {
     await vi.waitFor(() => expect(fixture.sessions[0]?.closeCalls).toBe(1))
   })
 
+  it("idle timeout closes by canonical key even if the project path disappears", async () => {
+    const fixture = createFixture()
+    const manager = createPlatformSessionManager(fixture.dependencies)
+    await manager.exportConfiguration(exportParams())
+    fixture.dependencies.canonicalizeProjectDir = async () => {
+      throw new Error("project disappeared")
+    }
+
+    fixture.expireLatestTimer()
+
+    await vi.waitFor(() => expect(fixture.sessions[0]?.closeCalls).toBe(1))
+  })
+
   it("recovers a project queue after an export rejection", async () => {
     const fixture = createFixture({
       exportHook: async (_projectDir, call) => {
@@ -135,6 +148,34 @@ describe("platform session manager", () => {
     })
     expect(fixture.sessions).toHaveLength(2)
     expect(fixture.sessions.every((session) => session.closeCalls === 1)).toBe(true)
+  })
+
+  it("keeps a failed close available for retry", async () => {
+    const fixture = createFixture({ closeFailureProject: "/project" })
+    const manager = createPlatformSessionManager(fixture.dependencies)
+    await manager.exportConfiguration(exportParams())
+
+    await expect(manager.closeConnection("/project")).rejects.toThrow("close failed")
+    await expect(manager.closeConnection("/project")).resolves.toEqual({
+      closed: true,
+      stoppedOwnedProcess: true,
+    })
+    expect(fixture.sessions[0]?.closeCalls).toBe(2)
+  })
+
+  it("keeps a session available when replacement close fails", async () => {
+    const fixture = createFixture({ closeFailureProject: "/project" })
+    const manager = createPlatformSessionManager(fixture.dependencies)
+    await manager.exportConfiguration(exportParams())
+
+    await expect(
+      manager.exportConfiguration(exportParams({ password: "new-secret" }))
+    ).rejects.toThrow("close failed")
+    await expect(manager.closeConnection("/project")).resolves.toEqual({
+      closed: true,
+      stoppedOwnedProcess: true,
+    })
+    expect(fixture.sessions[0]?.closeCalls).toBe(2)
   })
 })
 
@@ -200,7 +241,10 @@ function createFixture(
       async close() {
         session.closeCalls += 1
         alive = false
-        if (params.projectDir === options.closeFailureProject) throw new Error("close failed")
+        if (params.projectDir === options.closeFailureProject && session.closeCalls === 1) {
+          alive = true
+          throw new Error("close failed")
+        }
         return { stoppedOwnedProcess: true }
       },
       markDead() {

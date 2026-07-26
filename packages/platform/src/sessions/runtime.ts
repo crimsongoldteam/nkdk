@@ -6,7 +6,12 @@ export interface SshShell {
 }
 
 export interface SshTransport {
-  connect(params: { host: "127.0.0.1"; port: number; timeoutMs: number }): Promise<SshShell>
+  connect(params: {
+    host: "127.0.0.1"
+    port: number
+    timeoutMs: number
+    expectedHostKeyHash: string
+  }): Promise<SshShell>
 }
 
 export interface PlatformCommandSession {
@@ -31,7 +36,11 @@ export interface OwnedProcess {
 
 export interface SessionProcessRuntime {
   spawn(command: string, args: readonly string[]): OwnedProcess
-  run(command: string, args: readonly string[]): Promise<{ stdout: string; stderr: string; exitCode: number }>
+  run(
+    command: string,
+    args: readonly string[],
+    options?: { timeoutMs: number }
+  ): Promise<{ stdout: string; stderr: string; exitCode: number; timedOut?: boolean }>
 }
 
 export interface SessionFileSystem {

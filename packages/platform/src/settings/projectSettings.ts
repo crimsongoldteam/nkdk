@@ -130,6 +130,9 @@ export function normalizePlatformConnectionSettings(
 function optionalString(value: unknown, fieldName: string): string | undefined {
   if (value === undefined) return undefined
   if (typeof value !== "string") throw invalidSettings(`${fieldName} должен быть строкой`)
+  if (/[\0\r\n]/.test(value)) {
+    throw invalidSettings(`${fieldName} содержит недопустимые управляющие символы`)
+  }
   return value
 }
 

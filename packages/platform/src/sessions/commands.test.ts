@@ -17,6 +17,7 @@ describe("platform session commands", () => {
       buildDesignerAgentLaunch({
         enterprisePath,
         connection: { type: "file", path: databasePath },
+        hostKeyPath: "/project/.nkdk/platform-sessions/agent/host.key",
         baseDir: "/project/.nkdk/platform/agent",
         logPath: "/project/.nkdk/platform/agent/process.log",
         port: 58248,
@@ -27,7 +28,8 @@ describe("platform session commands", () => {
         "DESIGNER",
         `/F${databasePath}`,
         "/AgentMode",
-        "/AgentSSHHostKeyAuto",
+        "/AgentSSHHostKey",
+        "/project/.nkdk/platform-sessions/agent/host.key",
         "/AgentBaseDir",
         "/project/.nkdk/platform/agent",
         "/AppAutoCheckVersion-",
@@ -45,6 +47,7 @@ describe("platform session commands", () => {
       buildDesignerAgentLaunch({
         enterprisePath: "1cv8",
         connection: { type: "server", server: "server", reference: "reference" },
+        hostKeyPath: "/agent/host.key",
         baseDir: "/agent",
         logPath: "/agent/process.log",
         port: 1543,
@@ -93,6 +96,7 @@ describe("platform session commands", () => {
   it("rejects web and unknown connections", () => {
     const common = {
       enterprisePath: "1cv8",
+      hostKeyPath: "/agent/host.key",
       baseDir: "/agent",
       logPath: "/agent/process.log",
       port: 1543,

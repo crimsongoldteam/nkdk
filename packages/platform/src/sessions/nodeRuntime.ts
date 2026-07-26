@@ -1,8 +1,9 @@
 import { spawn as spawnChild, type ChildProcessByStdio } from "node:child_process"
+import { createHash, generateKeyPair } from "node:crypto"
 import fs from "node:fs"
-import { generateKeyPair } from "node:crypto"
 import net from "node:net"
 import type { Readable } from "node:stream"
+import ssh2 from "ssh2"
 import { findPlatform } from "../platform/findPlatform"
 import { createDesignerAgentSession } from "./designerAgent"
 import { openPlatformCommandSession } from "./sshProtocol"
@@ -41,7 +42,7 @@ const processRuntime: SessionProcessRuntime = {
       })
     )
   },
-  async run(command, args) {
+  async run(command, args, options) {
     return new Promise((resolve, reject) => {
       const child = spawnChild(command, [...args], {
         shell: false,
@@ -49,14 +50,29 @@ const processRuntime: SessionProcessRuntime = {
       })
       let stdout = ""
       let stderr = ""
+      let timedOut = false
+      const timer =
+        options === undefined
+          ? undefined
+          : setTimeout(() => {
+              timedOut = true
+              child.kill("SIGKILL")
+            }, options.timeoutMs)
+      timer?.unref()
       child.stdout.on("data", (chunk: Buffer) => {
         stdout += chunk.toString("utf8")
       })
       child.stderr.on("data", (chunk: Buffer) => {
         stderr += chunk.toString("utf8")
       })
-      child.once("error", reject)
-      child.once("exit", (code) => resolve({ stdout, stderr, exitCode: code ?? 1 }))
+      child.once("error", (error) => {
+        if (timer !== undefined) clearTimeout(timer)
+        reject(error)
+      })
+      child.once("exit", (code) => {
+        if (timer !== undefined) clearTimeout(timer)
+        resolve({ stdout, stderr, exitCode: code ?? 1, timedOut })
+      })
     })
   },
 }
@@ -93,6 +109,7 @@ export function createNodePlatformSessionManagerDependencies(): PlatformSessionM
         portRuntime,
         fileSystem,
         processRuntime,
+        generateHostKey,
         sshTransport,
         openCommandSession: openPlatformCommandSession,
         clock: {
@@ -105,15 +122,9 @@ export function createNodePlatformSessionManagerDependencies(): PlatformSessionM
       }),
     createStandaloneSession: (params) =>
       createStandaloneServerSession(params, {
-        portRuntime,
         fileSystem,
         processRuntime,
-        generateHostKey,
-        sshTransport,
-        openCommandSession: openPlatformCommandSession,
-        platform: process.platform,
-        startupTimeoutMs: 60_000,
-        closeTimeoutMs: 5_000,
+        commandTimeoutMs: 30 * 60 * 1000,
       }),
     setTimer(callback, timeoutMs) {
       const timer = setTimeout(callback, timeoutMs)
@@ -124,6 +135,27 @@ export function createNodePlatformSessionManagerDependencies(): PlatformSessionM
       clearTimeout(timer as ReturnType<typeof setTimeout>)
     },
   }
+}
+
+async function generateHostKey(path: string): Promise<string> {
+  const privateKey = await new Promise<string>((resolve, reject) => {
+    generateKeyPair(
+      "rsa",
+      {
+        modulusLength: 2048,
+        privateKeyEncoding: { type: "pkcs1", format: "pem" },
+        publicKeyEncoding: { type: "spki", format: "pem" },
+      },
+      (error, _publicKey, generatedPrivateKey) => {
+        if (error !== null) reject(error)
+        else resolve(generatedPrivateKey)
+      }
+    )
+  })
+  const parsed = ssh2.utils.parseKey(privateKey)
+  if (parsed instanceof Error) throw parsed
+  await fs.promises.writeFile(path, privateKey, { mode: 0o600 })
+  return createHash("sha256").update(parsed.getPublicSSH()).digest("hex")
 }
 
 function wrapOwnedProcess(child: ChildProcessByStdio<null, Readable, Readable>): OwnedProcess {
@@ -190,22 +222,4 @@ function wrapOwnedProcess(child: ChildProcessByStdio<null, Readable, Readable>):
       child.kill(signal)
     },
   }
-}
-
-async function generateHostKey(path: string): Promise<void> {
-  const privateKey = await new Promise<string>((resolve, reject) => {
-    generateKeyPair(
-      "rsa",
-      {
-        modulusLength: 2048,
-        privateKeyEncoding: { type: "pkcs1", format: "pem" },
-        publicKeyEncoding: { type: "spki", format: "pem" },
-      },
-      (error, _publicKey, generatedPrivateKey) => {
-        if (error !== null) reject(error)
-        else resolve(generatedPrivateKey)
-      }
-    )
-  })
-  await fs.promises.writeFile(path, privateKey, { mode: 0o600 })
 }

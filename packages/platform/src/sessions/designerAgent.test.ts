@@ -15,8 +15,9 @@ describe("Designer agent session", () => {
     expect(fixture.calls).toEqual([
       "reservePort 127.0.0.1",
       "mkdir /project/.nkdk/platform-sessions/agent",
-      "spawn /opt/1cv8/8.3.27.2214/1cv8 DESIGNER /F/bases/demo /AgentMode /AgentSSHHostKeyAuto /AgentBaseDir /project/.nkdk/platform-sessions/agent /AppAutoCheckVersion- /AgentPort 58248 /Out /project/.nkdk/platform-sessions/agent/process.log -NoTruncate",
-      "ssh.connect 127.0.0.1:58248",
+      "generateHostKey /project/.nkdk/platform-sessions/agent/host.key",
+      "spawn /opt/1cv8/8.3.27.2214/1cv8 DESIGNER /Sserver\\reference /AgentMode /AgentSSHHostKey /project/.nkdk/platform-sessions/agent/host.key /AgentBaseDir /project/.nkdk/platform-sessions/agent /AppAutoCheckVersion- /AgentPort 58248 /Out /project/.nkdk/platform-sessions/agent/process.log -NoTruncate",
+      "ssh.connect 127.0.0.1:58248 fingerprint",
       "shell.connect-ib",
       'shell.run config dump-config-to-files --dir="/project/.nkdk/tmp/op/xml" --format=hierarchical',
       "write /project/.nkdk/tmp/op/platform.log",
@@ -28,18 +29,25 @@ describe("Designer agent session", () => {
     expect(fixture.writes.get("/project/.nkdk/tmp/op/platform.log")).not.toContain("secret")
   })
 
-  it("builds file and server connection arguments without a shell", async () => {
-    for (const [connectionString, expected] of [
-      ['File="/bases/demo";', "/F/bases/demo"],
-      ['Srvr="server";Ref="reference";', "/Sserver\\reference"],
-    ] as const) {
-      const fixture = createFixture()
-      await createDesignerAgentSession(
-        createParams({ settings: { connectionString } }),
+  it("builds a server connection argument without a shell", async () => {
+    const fixture = createFixture()
+    await createDesignerAgentSession(createParams(), fixture.dependencies)
+
+    expect(fixture.calls.find((call) => call.startsWith("spawn "))).toContain(
+      "/Sserver\\reference"
+    )
+  })
+
+  it("rejects file mode because the platform ignores XML dump commands there", async () => {
+    const fixture = createFixture()
+
+    await expect(
+      createDesignerAgentSession(
+        createParams({ settings: { connectionString: 'File="/bases/demo";' } }),
         fixture.dependencies
       )
-      expect(fixture.calls.find((call) => call.startsWith("spawn "))).toContain(expected)
-    }
+    ).rejects.toMatchObject({ code: "unsupported_connection" })
+    expect(fixture.calls).toEqual([])
   })
 
   it("rejects a platform installation without 1cv8", async () => {
@@ -60,7 +68,7 @@ describe("Designer agent session", () => {
     await expect(createDesignerAgentSession(createParams(), fixture.dependencies)).rejects.toMatchObject({
       code: "session_start_failed",
     })
-    expect(fixture.calls).not.toContain("ssh.connect 127.0.0.1:58248")
+    expect(fixture.calls).not.toContain("ssh.connect 127.0.0.1:58248 fingerprint")
   })
 
   it("retries a refused local SSH connection", async () => {
@@ -91,6 +99,15 @@ describe("Designer agent session", () => {
     await expect(externalSession.close()).resolves.toEqual({ stoppedOwnedProcess: false })
     expect(external.calls).not.toContain("process.kill")
   })
+
+  it("can retry closing when forced process termination fails", async () => {
+    const fixture = createFixture({ processWaitResult: false, killFailures: 1 })
+    const session = await createDesignerAgentSession(createParams(), fixture.dependencies)
+
+    await expect(session.close()).rejects.toThrow("kill failed")
+    await expect(session.close()).resolves.toEqual({ stoppedOwnedProcess: true })
+    expect(fixture.calls.filter((call) => call === "process.kill")).toHaveLength(2)
+  })
 })
 
 function createParams(
@@ -108,7 +125,7 @@ function createParams(
       enterprisePath: "/opt/1cv8/8.3.27.2214/1cv8",
     },
     settings: {
-      connectionString: 'File="/bases/demo";',
+      connectionString: 'Srvr="server";Ref="reference";',
       password: "secret",
       useStandaloneServer: false,
       sessionIdleTimeout: 900,
@@ -124,6 +141,7 @@ function createFixture(
     processOwned?: boolean
     processWaitResult?: boolean
     connectFailures?: number
+    killFailures?: number
   } = {}
 ): {
   calls: string[]
@@ -135,6 +153,7 @@ function createFixture(
   let alive = options.processAlive ?? true
   let now = 0
   let connectFailures = options.connectFailures ?? 0
+  let killFailures = options.killFailures ?? 0
   const processHandle = {
     owned: options.processOwned ?? true,
     isAlive: () => alive,
@@ -146,6 +165,10 @@ function createFixture(
     async waitForOutput() {},
     async kill() {
       calls.push("process.kill")
+      if (killFailures > 0) {
+        killFailures -= 1
+        throw new Error("kill failed")
+      }
       alive = false
     },
   }
@@ -183,9 +206,13 @@ function createFixture(
           return processHandle
         },
       },
+      async generateHostKey(path) {
+        calls.push(`generateHostKey ${path}`)
+        return "fingerprint"
+      },
       sshTransport: {
-        async connect({ host, port }) {
-          calls.push(`ssh.connect ${host}:${port}`)
+        async connect({ host, port, expectedHostKeyHash }) {
+          calls.push(`ssh.connect ${host}:${port} ${expectedHostKeyHash}`)
           if (connectFailures > 0) {
             connectFailures -= 1
             throw new Error("refused")

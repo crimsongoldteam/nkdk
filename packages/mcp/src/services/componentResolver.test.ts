@@ -66,6 +66,19 @@ describe("componentResolver", () => {
     })
   })
 
+  it("creates a missing cf when createIfMissing is true", () => {
+    const projectDir = mkdtempSync(join(tmpdir(), "nkdk-mcp-component-"))
+    tempDirs.push(projectDir)
+
+    expect(resolveComponent({ projectDir, componentPath: "cf", createIfMissing: true })).toEqual({
+      ok: true,
+      projectDir,
+      componentPath: "cf",
+      componentDir: join(projectDir, "cf"),
+      nkdkDir: join(projectDir, ".nkdk"),
+    })
+  })
+
   it("creates missing component only when createIfMissing is true", () => {
     const projectDir = createProject()
 

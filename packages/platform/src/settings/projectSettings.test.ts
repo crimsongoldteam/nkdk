@@ -1,6 +1,7 @@
 import { describe, expect, it } from "vitest"
 import { PlatformSessionError } from "../sessions/errors"
 import {
+  normalizePlatformConnectionSettings,
   parseProjectSettings,
   readProjectSettings,
   writeProjectSettings,
@@ -100,6 +101,23 @@ infobase:
         { fileSystem, platform: "linux" }
       )
     ).rejects.not.toThrow(password)
+  })
+
+  it.each([
+    ["user", "admin\ncommon shutdown"],
+    ["password", "secret\rcommon shutdown"],
+    ["password", "secret\0common shutdown"],
+  ])("rejects control characters in %s", (field, value) => {
+    expect(() =>
+      normalizePlatformConnectionSettings({
+        connectionString: 'Srvr="server";Ref="base";',
+        [field]: value,
+      })
+    ).toThrowError(
+      expect.objectContaining<Partial<PlatformSessionError>>({
+        code: "invalid_project_settings",
+      })
+    )
   })
 })
 

@@ -1,4 +1,4 @@
-import { Client, type ClientChannel, type ConnectConfig } from "ssh2"
+import ssh2, { type ClientChannel, type ConnectConfig } from "ssh2"
 import { PlatformSessionError } from "./errors"
 import {
   systemSessionClock,
@@ -11,8 +11,10 @@ type LoopbackConnectConfig = {
   host: "127.0.0.1"
   port: number
   readyTimeout: number
-  authHandler: Array<{ type: "none"; username: "" }>
-  hostVerifier: () => boolean
+  username: ""
+  password: ""
+  hostHash: "sha256"
+  hostVerifier: (fingerprint: string) => boolean
 }
 
 export interface Ssh2ShellStream {
@@ -24,7 +26,7 @@ export interface Ssh2ShellStream {
 export interface Ssh2ClientLike {
   on(event: "ready" | "error" | "close" | "end", listener: (value?: unknown) => void): Ssh2ClientLike
   connect(config: LoopbackConnectConfig): void
-  shell(callback: (error: Error | undefined, stream?: Ssh2ShellStream) => void): void
+  shell(window: false, callback: (error: Error | undefined, stream?: Ssh2ShellStream) => void): void
   end(): void
   destroy(): void
 }
@@ -63,7 +65,7 @@ export function createSsh2Transport(
           .on("close", rejectStartup)
           .on("end", rejectStartup)
           .on("ready", () => {
-            client.shell((error, stream) => {
+            client.shell(false, (error, stream) => {
               if (error !== undefined || stream === undefined) {
                 rejectStartup()
                 return
@@ -81,8 +83,10 @@ export function createSsh2Transport(
           host: "127.0.0.1",
           port: params.port,
           readyTimeout: params.timeoutMs,
-          authHandler: [{ type: "none", username: "" }],
-          hostVerifier: () => true,
+          username: "",
+          password: "",
+          hostHash: "sha256",
+          hostVerifier: (fingerprint) => fingerprint === params.expectedHostKeyHash,
         })
       })
     },
@@ -127,7 +131,7 @@ function createShell(client: Ssh2ClientLike, stream: Ssh2ShellStream): SshShell 
 }
 
 function createNativeClient(): Ssh2ClientLike {
-  const client = new Client()
+  const client = new ssh2.Client()
   const wrapped: Ssh2ClientLike = {
     on(event, listener) {
       if (event === "ready") client.on(event, () => listener())
@@ -140,8 +144,8 @@ function createNativeClient(): Ssh2ClientLike {
       const nativeConfig: ConnectConfig = config
       client.connect(nativeConfig)
     },
-    shell(callback) {
-      client.shell((error, stream) => {
+    shell(window, callback) {
+      client.shell(window, (error, stream) => {
         callback(error ?? undefined, stream === undefined ? undefined : wrapNativeStream(stream))
       })
     },
