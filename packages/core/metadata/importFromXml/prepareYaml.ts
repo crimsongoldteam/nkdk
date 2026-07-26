@@ -19,7 +19,7 @@ import { createDeferredValuePathCollector } from "../orchestration/property/impo
 import { bindDeferredObjectValues, type DeferredObjectValue } from "../orchestration/property/deferredObjectValues"
 import { createLocalIndexesCollector, type LocalIndexes } from "../project/localIndexes"
 import { findRegisteredProjectRule } from "../project/projectSpecRegistry"
-import { getRegisteredXmlImportComponentDescriptor } from "./componentDescriptor"
+import { getMetadataComponentDescriptor } from "../components/descriptor"
 import type { ValidationProfiler } from "../validation/profile"
 import { registerOwnerFactCollectors } from "../validation/registerValidationMetadata"
 import type { ImportAssignment, ImportXmlInput } from "./types"
@@ -133,7 +133,7 @@ export async function prepareImportYaml(params: {
 }
 
 export function resolveAssignmentRule(assignment: ImportAssignment, componentKind: string): MetadataItemRule {
-  if (assignment.role === "configuration") return getRegisteredXmlImportComponentDescriptor(componentKind).rootRule
+  if (assignment.role === "configuration") return getMetadataComponentDescriptor(componentKind).rootRule
   const rule = findRegisteredImportRule(assignment.itemType)
   if (rule !== undefined) return rule
   if (assignment.role === "fileItem" && assignment.targetProjectPath.endsWith(".yaml"))

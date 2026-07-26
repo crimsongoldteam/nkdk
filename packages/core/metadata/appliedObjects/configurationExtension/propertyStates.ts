@@ -51,6 +51,13 @@ export const EXTENDED_SNAPSHOT_SEGMENTS: Readonly<Record<string, Readonly<Record
 
 export const configurationExtensionPropertyStatesAugmenter: MetadataItemXmlImportAugmenter = {
   augment({ context, rule, source, yaml }): void {
+    const collection = getConfigurationIndexCollectionContext(context)
+    if (
+      collection !== undefined &&
+      asRecord(source["Properties"])?.["ObjectBelonging"] === "Adopted"
+    ) {
+      collection.collector.setPresent(collection.logicalAddress, "objectBelonging")
+    }
     for (const propertyState of propertyStates(source)) {
       const property = propertyState["xr:Property"]
       const state = propertyState["xr:State"]
@@ -62,7 +69,6 @@ export const configurationExtensionPropertyStatesAugmenter: MetadataItemXmlImpor
       }
       if (state !== "Extended") continue
       const segment = EXTENDED_SNAPSHOT_SEGMENTS[rule.itemType]?.[property]
-      const collection = getConfigurationIndexCollectionContext(context)
       if (segment === undefined || collection === undefined) continue
       collection.collector.setExtended(childSegmentUid(collection.logicalAddress, segment))
     }

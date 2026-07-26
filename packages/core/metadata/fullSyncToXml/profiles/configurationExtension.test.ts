@@ -94,6 +94,33 @@ describe("configuration extension full XML sync profile", () => {
     expect(runtime.workerProfile.adoptedUuids).toEqual({})
   })
 
+  it("does not adopt an existing same-name object without ObjectBelonging in the cfe snapshot", () => {
+    const logicalAddress = "Catalog.Товары.Form.ФормаЭлемента"
+    const base = state({
+      componentPath: "cf",
+      logicalAddresses: [logicalAddress],
+      identities: [{
+        logicalAddress,
+        kind: "uuid",
+        value: "11111111-1111-4111-8111-111111111111",
+      }],
+    })
+    const target = state({
+      componentPath: "cfe/Дополнение",
+      logicalAddresses: [logicalAddress],
+      identities: [{
+        logicalAddress,
+        kind: "uuid",
+        value: "22222222-2222-4222-8222-222222222222",
+      }],
+      xmlNodes: [{ logicalAddress, order: ["name", "formType", "uuid"] }],
+    })
+
+    const runtime = configurationExtensionFullXmlSyncProfile.confirm({ target, base })
+
+    expect(runtime.workerProfile.adoptedUuids).not.toHaveProperty(logicalAddress)
+  })
+
   it("adopts new current metadata elements that are absent from the old cfe snapshot", () => {
     const currentAddresses = [
       "Catalog.Товары",
@@ -157,6 +184,10 @@ describe("configuration extension full XML sync profile", () => {
         kind: "uuid",
         value: "22222222-2222-4222-8222-222222222222",
       }],
+      xmlNodes: [{
+        logicalAddress: snapshotAddress,
+        order: ["objectBelonging", "name", "extendedConfigurationObject", "uuid"],
+      }],
     })
 
     const runtime = configurationExtensionFullXmlSyncProfile.confirm({
@@ -166,6 +197,23 @@ describe("configuration extension full XML sync profile", () => {
 
     expect(runtime.workerProfile.adoptedUuids[snapshotAddress])
       .toBe("11111111-1111-4111-8111-111111111111")
+  })
+
+  it("does not treat the extension root as an adopted base object", () => {
+    const base = state({
+      componentPath: "cf",
+      logicalAddresses: ["Конфигурация"],
+      identities: [{
+        logicalAddress: "Конфигурация",
+        kind: "uuid",
+        value: "11111111-1111-4111-8111-111111111111",
+      }],
+    })
+    const target = extensionState(["Конфигурация"])
+
+    const runtime = configurationExtensionFullXmlSyncProfile.confirm({ target, base })
+
+    expect(runtime.workerProfile.adoptedUuids).not.toHaveProperty("Конфигурация")
   })
 })
 
@@ -178,6 +226,10 @@ function extensionState(logicalAddresses: readonly string[]): ConfirmedComponent
       kind: "uuid" as const,
       value: `eeeeeeee-eeee-4eee-8eee-${index.toString(16).padStart(12, "0")}`,
     })),
+    xmlNodes: logicalAddresses.map((logicalAddress) => ({
+      logicalAddress,
+      order: ["objectBelonging", "name", "extendedConfigurationObject", "uuid"],
+    })),
   })
 }
 
@@ -186,6 +238,7 @@ function state(params: {
   projectFiles?: ConfigurationIndexData["projectFiles"]
   snapshotProjectFiles?: ConfigurationIndexData["projectFiles"]
   identities?: ConfigurationIndexData["identities"]
+  xmlNodes?: ConfigurationIndexData["xmlNodes"]
   logicalAddresses?: readonly string[]
 }): ConfirmedComponentState {
   const data = sampleIndex()
@@ -197,6 +250,7 @@ function state(params: {
     binding: { ...data.binding, componentPath: params.componentPath },
     projectFiles: params.snapshotProjectFiles ?? projectFiles,
     identities: params.identities ?? [],
+    xmlNodes: params.xmlNodes ?? [],
     localIndexes: {
       ...data.localIndexes,
       dependencies: [],

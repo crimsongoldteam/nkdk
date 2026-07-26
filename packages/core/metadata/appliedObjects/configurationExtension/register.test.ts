@@ -2,6 +2,7 @@ import { describe, expect, it } from "vitest"
 import { importContentFromXML } from "../../../xml/import/importer"
 import { resolveXmlImportComponent } from "../../importFromXml/componentDescriptor"
 import { MetadataConfigurationExtensionRules } from "./rules"
+import { getMetadataComponentDescriptor } from "../../components/descriptor"
 import "./register"
 
 const EXTENSION_XML = `
@@ -21,7 +22,8 @@ describe("configurationExtension register", () => {
     const descriptor = resolveXmlImportComponent(root)
 
     expect(descriptor.kind).toBe("configurationExtension")
-    expect(descriptor.rootRule).toBe(MetadataConfigurationExtensionRules)
+    expect(getMetadataComponentDescriptor(descriptor.kind).rootRule)
+      .toBe(MetadataConfigurationExtensionRules)
     expect(descriptor.resolveAddress(root)).toEqual({
       kind: "configurationExtension",
       name: "РасширениеПоУмолчанию",

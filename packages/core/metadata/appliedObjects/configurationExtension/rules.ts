@@ -1,4 +1,5 @@
 import { homePageWorkAreaRule, rootCommandInterfaceRule } from "../configuration/builders"
+import { configurationInternalInfoRule, MetadataConfigurationRules } from "../configuration/rules"
 import { booleanRule } from "../../commonObjects/boolean/types"
 import { externalPictureRule } from "../../commonObjects/externalPicture/types"
 import { i8nTextRule } from "../../commonObjects/i8nText/types"
@@ -30,6 +31,7 @@ export const MetadataConfigurationExtensionRules = {
       forReferenceOnly: true,
       xmlParents: [],
     }),
+    internalInfo: configurationInternalInfoRule,
     name: stringRule({
       yaml: "Имя",
       xmlParents: properties,
@@ -232,6 +234,7 @@ export const MetadataConfigurationExtensionRules = {
       yaml: "КомандныйИнтерфейс",
       filePath: "Ext/CommandInterface.xml",
     }),
+    clientApplicationInterface: MetadataConfigurationRules.properties.clientApplicationInterface,
     homePageWorkArea: homePageWorkAreaRule({
       yaml: "РабочаяОбластьНачальнойСтраницы",
       filePath: "Ext/HomePageWorkArea.xml",

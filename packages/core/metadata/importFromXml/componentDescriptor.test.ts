@@ -1,17 +1,13 @@
 import fs from "node:fs"
 import { join } from "node:path"
 import { describe, expect, it } from "vitest"
-import { MetadataConfigurationRules } from "../appliedObjects/configuration/rules"
 import type { ComponentAddress } from "../components/address"
-import type { MetadataItemRule } from "../orchestration/property/types"
 import importContentFromXML from "../../xml/import/importer"
 import {
   registerXmlImportComponentDescriptor,
   resolveXmlImportComponent,
   type XmlImportComponentDescriptor,
 } from "./componentDescriptor"
-
-const TestRule = { itemType: "TestComponent", properties: {} } as MetadataItemRule
 
 function descriptor(params: {
   kind: string
@@ -20,7 +16,6 @@ function descriptor(params: {
 }): XmlImportComponentDescriptor {
   return {
     kind: params.kind,
-    rootRule: TestRule,
     detect: params.detect,
     resolveAddress: () => params.address ?? { kind: "configuration" },
   }
@@ -61,7 +56,6 @@ describe("XML import component descriptors", () => {
     const component = resolveXmlImportComponent(root)
 
     expect(component.kind).toBe("configuration")
-    expect(component.rootRule).toBe(MetadataConfigurationRules)
     expect(component.resolveAddress(root)).toEqual({ kind: "configuration" })
     expect(component.baseAddress).toBeUndefined()
     expect(component.metadataItemAugmenter).toBeUndefined()

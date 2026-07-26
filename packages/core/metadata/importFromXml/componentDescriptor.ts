@@ -1,10 +1,7 @@
-import { MetadataConfigurationRules } from "../appliedObjects/configuration/rules"
 import type { ComponentAddress } from "../components/address"
-import type { MetadataItemRule } from "../orchestration/property/types"
 
 export interface XmlImportComponentDescriptor {
   readonly kind: string
-  readonly rootRule: MetadataItemRule
   detect(root: Record<string, unknown>): boolean
   resolveAddress(root: Record<string, unknown>): ComponentAddress
   readonly baseAddress?: ComponentAddress
@@ -33,20 +30,4 @@ export function getRegisteredXmlImportComponentDescriptor(kind: string): XmlImpo
   const descriptor = descriptorsByKind.get(kind)
   if (descriptor === undefined) throw new Error(`Не найдено описание XML-компонента: ${kind}`)
   return descriptor
-}
-
-registerXmlImportComponentDescriptor({
-  kind: "configuration",
-  rootRule: MetadataConfigurationRules,
-  detect(root) {
-    const configuration = root["Configuration"]
-    if (!isRecord(configuration)) return false
-    const properties = configuration["Properties"]
-    return !isRecord(properties) || !("ConfigurationExtensionPurpose" in properties)
-  },
-  resolveAddress: () => ({ kind: "configuration" }),
-})
-
-function isRecord(value: unknown): value is Record<string, unknown> {
-  return typeof value === "object" && value !== null && !Array.isArray(value)
 }

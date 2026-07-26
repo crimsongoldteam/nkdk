@@ -1,11 +1,22 @@
 import { describe, expect, it } from "vitest"
 import { importContentFromXML } from "../../../xml/import/importer"
-import { testMetadataItemFromXMLToYAML } from "../../../tests/directConversion"
+import {
+  createDirectRoundTripContexts,
+  testMetadataItemFromXMLToYAML,
+  testMetadataItemFromYAMLToXML,
+} from "../../../tests/directConversion"
 import { MetadataConfigurationExtensionRules } from "./rules"
+import { MetadataConfigurationRules } from "../configuration/rules"
 
 const DEFAULT_EXTENSION_XML = `
 <MetaDataObject>
   <Configuration uuid="11111111-1111-1111-1111-111111111111">
+    <InternalInfo>
+      <xr:ContainedObject>
+        <xr:ClassId>9cd510cd-abfc-11d4-9434-004095e12fc7</xr:ClassId>
+        <xr:ObjectId>22222222-2222-4222-8222-222222222222</xr:ObjectId>
+      </xr:ContainedObject>
+    </InternalInfo>
     <Properties>
       <ObjectBelonging>Adopted</ObjectBelonging>
       <Name>РасширениеПоУмолчанию</Name>
@@ -76,5 +87,31 @@ describe("MetadataConfigurationExtensionRules", () => {
     })
     expect(yaml).not.toHaveProperty("ОсновнойЯзык")
     expect(yaml).not.toHaveProperty("Контроль")
+  })
+
+  it("восстанавливает InternalInfo корня из снимка расширения", () => {
+    const contexts = createDirectRoundTripContexts({ logicalAddress: "Конфигурация" })
+    const imported = testMetadataItemFromXMLToYAML({
+      rule: MetadataConfigurationExtensionRules,
+      xml: parseRoot(DEFAULT_EXTENSION_XML),
+      context: contexts.importContext,
+      name: "РасширениеПоУмолчанию",
+    })
+
+    const exported = testMetadataItemFromYAMLToXML({
+      rule: MetadataConfigurationExtensionRules,
+      yaml: imported.yaml,
+      context: contexts.exportContext(),
+      name: "РасширениеПоУмолчанию",
+    })
+
+    expect(exported.xml).toHaveProperty(
+      "MetaDataObject.Configuration.InternalInfo.xr:ContainedObject"
+    )
+  })
+
+  it("использует общий формат интерфейса клиентского приложения", () => {
+    expect((MetadataConfigurationExtensionRules.properties as Record<string, unknown>).clientApplicationInterface)
+      .toBe(MetadataConfigurationRules.properties.clientApplicationInterface)
   })
 })

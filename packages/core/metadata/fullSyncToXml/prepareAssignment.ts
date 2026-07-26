@@ -16,6 +16,7 @@ import {
   withExportToXMLItemsTree,
 } from "../orchestration/appliedObject/metadataItemOwnerContext"
 import { metadataTargetOwnerFromRule } from "../orchestration/property/metadataTargetString"
+import { getMetadataComponentDescriptor } from "../components/descriptor"
 
 export function prepareFullXmlSyncAssignment(params: {
   assignment: FullXmlSyncAssignment
@@ -56,6 +57,15 @@ function prepareTopologyAssignmentDocuments(
 ): readonly PreparedXMLDocument[] {
   const assignmentNode = params.topology.assignments.find((candidate) => candidate.id === params.assignment.nodeId)
   if (assignmentNode === undefined) throw new Error(`Не найден узел топологии: ${params.assignment.nodeId}`)
+  const effectiveAssignmentNode =
+    params.assignment.role === "configuration" && params.context.exportToXML.componentKind !== undefined
+      ? {
+          ...assignmentNode,
+          itemRule: getMetadataComponentDescriptor(
+            params.context.exportToXML.componentKind
+          ).rootRule,
+        }
+      : assignmentNode
   const outputs = params.assignment.potentialOutputs
   const context = withTopologyMetadataTargetOwners(params)
   const outputsByCapability = Map.groupBy(outputs, (output) => output.prepareCapabilityId)
@@ -68,7 +78,7 @@ function prepareTopologyAssignmentDocuments(
       ...(params.basePreparedYamlFile === undefined
         ? {}
         : { basePreparedYamlFile: params.basePreparedYamlFile }),
-      assignment: assignmentNode,
+      assignment: effectiveAssignmentNode,
       itemName: params.assignment.itemName,
       logicalAddress: params.assignment.logicalAddress,
       outputs: capabilityOutputs,

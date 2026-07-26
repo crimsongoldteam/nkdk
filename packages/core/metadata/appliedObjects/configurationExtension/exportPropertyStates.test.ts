@@ -8,6 +8,7 @@ import { sampleIndex } from "../../configurationIndex/testData"
 import type { ConfigurationContextWithExportToXML } from "../../context/types"
 import type { MetadataItemRule } from "../../orchestration/property/types"
 import { configurationExtensionYamlToXmlAugmenter } from "./exportPropertyStates"
+import { MetadataConfigurationExtensionRules } from "./rules"
 
 const BASE_UUID = "11111111-1111-1111-1111-111111111111"
 const logicalAddress = "Catalog.Товары.Attribute.Дата"
@@ -62,6 +63,21 @@ describe("configuration extension YAML-to-XML augmenter", () => {
     })
 
     expect(record(record(outputs.get("metadata")).Form).Properties).toEqual({})
+  })
+
+  it("marks the extension root as adopted without a base UUID", () => {
+    const outputs = new Map([["metadata", { Properties: {} }]])
+    configurationExtensionYamlToXmlAugmenter.augment({
+      context: context({ adoptedUuids: {} }),
+      rule: MetadataConfigurationExtensionRules,
+      yaml: {},
+      outputs,
+      logicalAddress: "Конфигурация",
+    })
+
+    expect(record(outputs.get("metadata")).Properties).toEqual({
+      ObjectBelonging: "Adopted",
+    })
   })
 
   it("rejects an unknown control name with the logical address", () => {

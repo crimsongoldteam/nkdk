@@ -6,8 +6,13 @@ import { registerFullXmlSyncComponentProfile } from "../../fullSyncToXml/compone
 import { configurationExtensionFullXmlSyncProfile } from "../../fullSyncToXml/profiles/configurationExtension"
 import { registerMetadataItemYamlToXmlAugmenter } from "../../orchestration/property/yamlToXmlAugmenter"
 import { configurationExtensionYamlToXmlAugmenter } from "./exportPropertyStates"
+import { registerMetadataComponentDescriptor } from "../../components/descriptor"
 
 registerFullXmlSyncComponentProfile(configurationExtensionFullXmlSyncProfile)
+registerMetadataComponentDescriptor({
+  kind: "configurationExtension",
+  rootRule: MetadataConfigurationExtensionRules,
+})
 registerMetadataItemYamlToXmlAugmenter(
   "configurationExtension",
   configurationExtensionYamlToXmlAugmenter
@@ -17,7 +22,6 @@ registerMetadataItemXmlImportAugmenter("configurationExtension", configurationEx
 
 registerXmlImportComponentDescriptor({
   kind: "configurationExtension",
-  rootRule: MetadataConfigurationExtensionRules,
   detect(root) {
     const configuration = root["Configuration"]
     if (!isRecord(configuration)) return false

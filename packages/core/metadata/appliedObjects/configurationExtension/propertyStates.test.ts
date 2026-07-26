@@ -92,6 +92,22 @@ describe("configuration extension PropertyState augmenter", () => {
     expect(collector.fragment("Свойства.yaml").xmlValues).toEqual([])
     expect(yaml).toEqual({})
   })
+
+  it("сохраняет признак заимствования даже для правила без служебных свойств", () => {
+    const collector = createConfigurationIndexCollector()
+    const logicalAddress = "Справочник.Товары.Форма.ФормаЭлемента"
+
+    configurationExtensionPropertyStatesAugmenter.augment({
+      context: extensionContext(collector, logicalAddress),
+      rule: { itemType: "ClientApplicationForm", properties: {} } as MetadataItemRule,
+      source: { Properties: { ObjectBelonging: "Adopted" } },
+      yaml: {},
+    })
+
+    expect(collector.fragment("Форма.yaml").xmlNodes).toEqual([
+      { logicalAddress, present: ["objectBelonging"] },
+    ])
+  })
 })
 
 function extensionContext(

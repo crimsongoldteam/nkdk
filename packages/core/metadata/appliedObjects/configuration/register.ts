@@ -19,8 +19,24 @@ import { buildConfigurationChildObjectsFromProjectEntries } from "./childObjects
 import { configurationChildObjectsFromIndex } from "./configurationChildObjects"
 import { registerFullXmlSyncComponentProfile } from "../../fullSyncToXml/componentProfile"
 import { configurationFullXmlSyncProfile } from "../../fullSyncToXml/profiles/configuration"
+import { registerMetadataComponentDescriptor } from "../../components/descriptor"
+import { registerXmlImportComponentDescriptor } from "../../importFromXml/componentDescriptor"
 
 registerFullXmlSyncComponentProfile(configurationFullXmlSyncProfile)
+registerMetadataComponentDescriptor({
+  kind: "configuration",
+  rootRule: MetadataConfigurationRules,
+})
+registerXmlImportComponentDescriptor({
+  kind: "configuration",
+  detect(root) {
+    const configuration = root["Configuration"]
+    if (!isRecord(configuration)) return false
+    const properties = configuration["Properties"]
+    return !isRecord(properties) || !("ConfigurationExtensionPurpose" in properties)
+  },
+  resolveAddress: () => ({ kind: "configuration" }),
+})
 
 const objectOwnedProjectSpecDirs = new Set(["Справочник", "Документ", "Перечисление"])
 const specialObjectPathProjectSpecDirs = new Set(["ВнешнийИсточникДанных", "Подсистема"])
@@ -41,12 +57,13 @@ registerProjectSpec({
 
 registerMetadataXmlPrepareCapability({
   id: "configuration",
-  run: ({ context, preparedYamlFile, outputs, composition, profile }) => {
+  run: ({ context, preparedYamlFile, assignment, outputs, composition, profile }) => {
     const output = outputs.find((candidate) => candidate.role === "metadata")
     if (output === undefined) return []
     const prepared = prepareConfigurationXML({
       context,
       preparedYamlFile,
+      rootRule: assignment.itemRule,
       childObjects: buildConfigurationChildObjectsFromProjectEntries({
         entries: composition
           .filter((entry) => entry.assignmentRole === "properties")
@@ -132,4 +149,8 @@ function hasNamedItem(value: unknown, name: string): boolean {
 
 function metadataRecord(value: unknown): Record<string, unknown> {
   return typeof value === "object" && value !== null ? (value as Record<string, unknown>) : {}
+}
+
+function isRecord(value: unknown): value is Record<string, unknown> {
+  return typeof value === "object" && value !== null && !Array.isArray(value)
 }

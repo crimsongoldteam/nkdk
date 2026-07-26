@@ -38,12 +38,19 @@ export const configurationExtensionFullXmlSyncProfile: FullXmlSyncComponentProfi
         .map(({ logicalAddress }) => logicalAddress)
     )
     const targetAddresses = new Set([
-      ...targetSnapshotUuidAddresses,
+      ...[...targetSnapshotUuidAddresses].filter((logicalAddress) =>
+        snapshotMarksAdopted(targetReader, logicalAddress)
+      ),
       ...target.indexes.logicalAddresses
         .map(({ logicalAddress }) => logicalAddress)
-        .filter((logicalAddress) => baseUuids.has(logicalAddress)),
+        .filter(
+          (logicalAddress) =>
+            !targetSnapshotUuidAddresses.has(logicalAddress) &&
+            baseUuids.has(logicalAddress)
+        ),
     ])
     for (const logicalAddress of targetAddresses) {
+      if (logicalAddress === "Конфигурация") continue
       if (!baseAddresses.has(logicalAddress)) continue
       const uuid = baseUuids.get(logicalAddress)
       if (uuid === undefined) {
@@ -67,6 +74,17 @@ export const configurationExtensionFullXmlSyncProfile: FullXmlSyncComponentProfi
       },
     }
   },
+}
+
+function snapshotMarksAdopted(
+  reader: ReturnType<typeof createConfigurationIndexReader>,
+  logicalAddress: string
+): boolean {
+  const node = reader.xmlNode(logicalAddress)
+  return (
+    node?.order?.includes("objectBelonging") === true ||
+    node?.present?.includes("objectBelonging") === true
+  )
 }
 
 function assertEqualProjectFiles(

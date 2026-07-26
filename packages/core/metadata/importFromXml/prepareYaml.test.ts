@@ -7,7 +7,7 @@ import { createConfigurationIndexCollector } from "../configurationIndex/collect
 import { createOperationProfiler } from "../validation/profile"
 import { parseMetadataYamlData } from "../../yaml/parseMetadataYaml"
 import { discoverXmlImport } from "./discovery"
-import { registerXmlImportComponentDescriptor } from "./componentDescriptor"
+import { registerMetadataComponentDescriptor } from "../components/descriptor"
 import {
   prepareImportYaml,
   registeredImportRuleLookupCountForTests,
@@ -30,11 +30,9 @@ afterEach(() => {
 
 describe("prepareImportYaml", () => {
   it("uses the component kind to resolve the configuration root rule", () => {
-    registerXmlImportComponentDescriptor({
-      kind: "test-alternate-component",
+    registerMetadataComponentDescriptor({
+      kind: "externalReport",
       rootRule: AlternateComponentRootRule,
-      detect: () => false,
-      resolveAddress: () => ({ kind: "configuration" }),
     })
 
     expect(
@@ -42,7 +40,7 @@ describe("prepareImportYaml", () => {
         {
           role: "configuration",
         } as ImportAssignment,
-        "test-alternate-component"
+        "externalReport"
       )
     ).toBe(AlternateComponentRootRule)
   })

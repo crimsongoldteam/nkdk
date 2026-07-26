@@ -9,7 +9,9 @@ const EXTENDED_CONFIGURATION_OBJECT_YAML = "ОбъектРасширяемойК
 export const configurationExtensionYamlToXmlAugmenter: MetadataItemYamlToXmlAugmenter = {
   augment({ context, rule, yaml, outputs, logicalAddress }) {
     const adoptedUuid = context.exportToXML.adoptedUuids?.[logicalAddress]
-    if (adoptedUuid !== undefined) {
+    if (rule.itemType === "MetadataConfigurationExtension") {
+      writeServiceProperty(outputs, rule, "objectBelonging", "ObjectBelonging", "Adopted")
+    } else if (adoptedUuid !== undefined) {
       writeServiceProperty(outputs, rule, "objectBelonging", "ObjectBelonging", "Adopted")
       writeServiceProperty(
         outputs,
