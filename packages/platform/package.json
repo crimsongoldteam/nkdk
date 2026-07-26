@@ -17,5 +17,8 @@
     "@types/node": "^26.0.0",
     "typescript": "~6.0.0",
     "vitest": "^4.1.9"
+  },
+  "dependencies": {
+    "yaml": "^2.9.0"
   }
 }
