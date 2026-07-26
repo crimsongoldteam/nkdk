@@ -7,6 +7,7 @@ import type { ConfigurationIndexCollector } from "../configurationIndex/collecto
 import type { YAMLToXMLProfile } from "../orchestration/property/fromYAMLToXMLTypes"
 import type { FullXmlSyncWorkerProfileRuntime } from "./componentProfile"
 import type { SharedValidationSnapshot } from "../validation/sharedValidationSnapshot"
+import type { MetadataXmlBaseInputDeclaration } from "../resourceTopology/types"
 
 export interface FullXmlSyncPotentialOutput {
   readonly declarationId: string
@@ -15,6 +16,7 @@ export interface FullXmlSyncPotentialOutput {
   readonly required: boolean
   readonly prepareCapabilityId: string
   readonly propertyName?: string
+  readonly baseInput?: MetadataXmlBaseInputDeclaration
 }
 
 export interface FullXmlSyncAssignment {

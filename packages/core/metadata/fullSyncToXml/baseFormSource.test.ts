@@ -52,14 +52,45 @@ describe("verified base form source", () => {
     } satisfies Partial<BaseFormSourceError>)
   })
 
-  async function createBase() {
+  it("читает подтверждённый YAML-владелец встроенной общей формы", async () => {
+    const state = await createBase(
+      "ОбщаяФорма/ФормаПродаж/Свойства.yaml",
+      [
+        "Имя: ФормаПродаж",
+        "Форма:",
+        "  Заголовок: Основная форма",
+        "",
+      ].join("\n")
+    )
+    const source = createVerifiedBaseFormSource({
+      baseStructure: state.structure,
+      baseHashes: state.hashes,
+    })
+
+    const prepared = await source.read({
+      extensionAssignment: assignment(
+        state.projectPath,
+        "/extension/Свойства.yaml"
+      ),
+      baseProjectPath: state.projectPath,
+    })
+
+    expect(prepared.role).toBe("properties")
+    expect(prepared.data).toMatchObject({
+      Форма: { Заголовок: "Основная форма" },
+    })
+  })
+
+  async function createBase(
+    projectPath =
+      "Справочник/СправочникПолный/Формы/ФормаЭлемента/Форма.yaml",
+    content = "Заголовок: Основная форма\n"
+  ) {
     const projectDir = fs.mkdtempSync(join(os.tmpdir(), "nkdk-base-form-source-"))
     tempDirs.push(projectDir)
-    const projectPath =
-      "Справочник/СправочникПолный/Формы/ФормаЭлемента/Форма.yaml"
     const sourcePath = join(projectDir, "cf", ...projectPath.split("/"))
     fs.mkdirSync(join(sourcePath, ".."), { recursive: true })
-    fs.writeFileSync(sourcePath, "Заголовок: Основная форма\n")
+    fs.writeFileSync(sourcePath, content)
     const structure = await readComponentProjectStructure({
       projectDir,
       address: { kind: "configuration" },

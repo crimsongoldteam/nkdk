@@ -15,6 +15,7 @@ import { FormRulesTags } from "./types"
 import { createFormDataPathIndexFromYAML } from "../../validation/dataPath/formYamlIndex"
 import { registerTypeRule } from "../../orchestration/property/typeRuleRegistry"
 import type { DeferredValuePath } from "../../orchestration/property/deferredObjectValues"
+import { buildClientApplicationBaseForm } from "./baseForm"
 
 export interface ConvertClientApplicationFormFromYAMLToXMLParams {
   readonly context: ConfigurationContextWithExportToXML
@@ -197,12 +198,27 @@ const METADATA_NAMESPACES = {
 
 registerTypeRule("ClientApplicationForm", "yamlToXMLNestedRule", {
   kind: "externalFile",
-  convert: ({ context, yaml, name, referenceXML }) => ({
-    Form: convertClientApplicationFormFromYAMLToXML({
-      context,
-      yaml: yaml as ClientApplicationFormYAML,
-      name,
-      referenceFormXML: referenceXML?.Form as ClientApplicationFormXML | undefined,
-    }).formXML,
-  }),
+  convert: ({ context, yaml, baseYAML, name, referenceXML }) => {
+    const extensionYaml = yaml as ClientApplicationFormYAML
+    const baseFormXML =
+      baseYAML === undefined
+        ? undefined
+        : buildClientApplicationBaseForm({
+            context,
+            baseYaml: baseYAML as ClientApplicationFormYAML,
+            extensionYaml,
+            formName: name,
+          })
+    return {
+      Form: convertClientApplicationFormFromYAMLToXML({
+        context,
+        yaml: extensionYaml,
+        name,
+        referenceFormXML: referenceXML?.Form as
+          | ClientApplicationFormXML
+          | undefined,
+        ...(baseFormXML === undefined ? {} : { baseFormXML }),
+      }).formXML,
+    }
+  },
 })

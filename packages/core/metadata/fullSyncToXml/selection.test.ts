@@ -91,6 +91,32 @@ describe("XML sync selection", () => {
     })
 
     expect(plan.assignments.map(({ sourceProjectPath }) => sourceProjectPath)).toEqual([formPath])
+    expect(
+      plan.assignments[0]?.potentialOutputs.find(({ role }) => role === "body")
+        ?.baseInput
+    ).toEqual({
+      kind: "sameProjectPath",
+      value: "wholeYaml",
+    })
+  })
+
+  it("разрешает базовый вход встроенной общей формы в свойство YAML", async () => {
+    const projectPath = "ОбщаяФорма/ФормаПродаж/Свойства.yaml"
+    const state = await createState([projectPath])
+
+    const plan = buildXmlSyncPlan({
+      ...state,
+      selection: { kind: "selected", projectPaths: [projectPath] },
+    })
+
+    expect(
+      plan.assignments[0]?.potentialOutputs.find(({ role }) => role === "body")
+        ?.baseInput
+    ).toEqual({
+      kind: "sameProjectPath",
+      value: "sourceProperty",
+      propertyName: "form",
+    })
   })
 
   it("rejects duplicate XML targets before worker execution", async () => {

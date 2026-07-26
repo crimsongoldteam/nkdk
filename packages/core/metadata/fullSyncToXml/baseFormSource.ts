@@ -48,10 +48,12 @@ export function createVerifiedBaseFormSource(params: {
       )
       if (
         resource?.kind !== "content" ||
-        resource.role !== "fileItem" ||
+        resource.assignment === undefined ||
         !params.baseStructure.projectPaths.includes(baseProjectPath)
       ) {
-        throw new Error(`Путь не является формой основной конфигурации: ${baseProjectPath}`)
+        throw new Error(
+          `Путь не является содержательным ресурсом основной конфигурации: ${baseProjectPath}`
+        )
       }
       const expectedHash = hashes.get(baseProjectPath)
       if (expectedHash === undefined) {
@@ -61,6 +63,7 @@ export function createVerifiedBaseFormSource(params: {
         params.baseStructure.componentDir,
         ...baseProjectPath.split("/")
       )
+      const baseAssignment = resource.assignment
       const bytes = await fs.promises.readFile(sourcePath)
       if (hashFileBytes(bytes) !== expectedHash) {
         throw new BaseFormSourceError(
@@ -71,9 +74,12 @@ export function createVerifiedBaseFormSource(params: {
         files: [{
           projectPath: baseProjectPath,
           filePath: sourcePath,
-          role: "form",
+          role:
+            baseAssignment.role === "fileItem"
+              ? "form"
+              : baseAssignment.role,
           owner: ownerFromPath(baseProjectPath, extensionAssignment.itemName),
-          itemType: extensionAssignment.itemType,
+          itemType: baseAssignment.itemRule.itemType,
         }],
         itemTypeByYamlDir: {},
         sourceBytes: new Map([[sourcePath, bytes]]),

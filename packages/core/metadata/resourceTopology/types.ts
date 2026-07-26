@@ -38,7 +38,14 @@ export interface MetadataXmlDocumentDeclaration {
   readonly required: boolean
   readonly read?: { readonly inputRole: "metadata" | "body" | "property" }
   readonly prepareCapabilityId?: string
+  readonly baseInput?: MetadataXmlBaseInputDeclaration
   readonly source: MetadataResourceSource
+}
+
+export interface MetadataXmlBaseInputDeclaration {
+  readonly kind: "sameProjectPath"
+  readonly value: "wholeYaml" | "sourceProperty"
+  readonly propertyName?: string
 }
 
 export interface MetadataExternalFileDeclaration {

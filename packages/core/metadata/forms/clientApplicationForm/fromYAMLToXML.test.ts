@@ -15,6 +15,7 @@ import {
 import { createValidationOwnerFacts } from "../../validation/dataPath/ownerFacts"
 import { buildObjectFieldIndex } from "../../validation/dataPath/objectFields"
 import { MetadataCatalogRules } from "../../appliedObjects/metadataCatalog/rules"
+import { getTypeRule } from "../../orchestration/property/typeRuleRegistry"
 
 describe("convertClientApplicationFormFromYAMLToXML", () => {
   it("формирует описание и содержимое формы прямо из YAML", () => {
@@ -211,6 +212,32 @@ describe("convertClientApplicationFormFromYAMLToXML", () => {
     })
 
     expect(firstInputField(result.formXML).DataPath).toBe("Объект.Code")
+  })
+
+  it("строит BaseForm встроенной формы из отдельного базового YAML", () => {
+    const nestedRule = getTypeRule(
+      "ClientApplicationForm",
+      "yamlToXMLNestedRule"
+    )
+    if (nestedRule?.kind !== "externalFile") {
+      throw new Error("Не зарегистрировано вложенное правило формы")
+    }
+
+    const result = nestedRule.convert({
+      context: mockContextToXML(),
+      yaml: { Ширина: 100 },
+      baseYAML: { Ширина: 80 },
+      name: "ОбщаяФорма",
+      referenceXML: undefined,
+    })
+
+    expect(result.Form).toMatchObject({
+      Width: 100,
+      BaseForm: {
+        _version: "2.20",
+        Width: 80,
+      },
+    })
   })
 })
 

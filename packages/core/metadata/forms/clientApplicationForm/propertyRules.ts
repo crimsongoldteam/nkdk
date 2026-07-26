@@ -72,6 +72,10 @@ registerTypeRule("ClientApplicationForm", "resourceTopology", ({ propertyRule })
       required: true,
       read: { inputRole: "body" },
       prepareCapabilityId: "externalFileProperty",
+      baseInput: {
+        kind: "sameProjectPath",
+        value: "sourceProperty",
+      },
       source: { kind: "property", description: "ClientApplicationForm" },
     },
     ...describeFormExternalResourceDeclarations({

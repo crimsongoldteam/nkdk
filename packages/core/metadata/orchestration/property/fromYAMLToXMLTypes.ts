@@ -61,6 +61,7 @@ export type YAMLToXMLNestedRule =
       readonly convert: (params: {
         context: import("../../context/types").ConfigurationContextWithExportToXML
         yaml: unknown
+        baseYAML?: unknown
         name: string
         referenceXML: Record<string, unknown> | undefined
       }) => Record<string, unknown>

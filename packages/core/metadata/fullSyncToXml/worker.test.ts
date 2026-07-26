@@ -129,6 +129,100 @@ describe("full XML sync worker", () => {
     expect(xml).not.toContain("<ExtendedConfigurationObject>")
   })
 
+  it("строит BaseForm заимствованной общей формы и не строит его собственной", async () => {
+    for (const adopted of [true, false]) {
+      resetFullXmlSyncWorkerStateForTests()
+      const projectDir = fs.mkdtempSync(
+        join(os.tmpdir(), "nkdk-full-sync-common-form-")
+      )
+      tempDirs.push(projectDir)
+      const componentDir = join(projectDir, "cfe", "Расширение")
+      const baseComponentDir = join(projectDir, "cf")
+      const projectPath = "ОбщаяФорма/ФормаПродаж/Свойства.yaml"
+      const sourcePath = join(componentDir, ...projectPath.split("/"))
+      const baseSourcePath = join(
+        baseComponentDir,
+        ...projectPath.split("/")
+      )
+      fs.mkdirSync(join(sourcePath, ".."), { recursive: true })
+      fs.mkdirSync(join(baseSourcePath, ".."), { recursive: true })
+      fs.writeFileSync(
+        sourcePath,
+        "Имя: ФормаПродаж\nФорма:\n  Ширина: 100\n"
+      )
+      fs.writeFileSync(
+        baseSourcePath,
+        "Имя: ФормаПродаж\nФорма:\n  Ширина: 80\n"
+      )
+      const logicalAddress = "ОбщаяФорма.ФормаПродаж"
+      const assigned: FullXmlSyncAssignment = {
+        id: projectPath,
+        sourceProjectPath: projectPath,
+        sourcePath,
+        expectedContentHash: hashFileBytes(fs.readFileSync(sourcePath)),
+        role: "properties",
+        itemType: "MetadataCommonForm",
+        itemName: "ФормаПродаж",
+        logicalAddress,
+        ...fullXmlSyncTestTopologyFields(projectPath),
+      }
+      await runFullXmlSyncWorkerCommand({
+        kind: "initialize",
+        workerIndex: 0,
+        componentDir,
+        outputDir: join(projectDir, ".out"),
+        context,
+        profile: {
+          kind: "configurationExtension",
+          componentKind: "configurationExtension",
+          adoptedUuids: adopted
+            ? {
+                [logicalAddress]:
+                  "11111111-1111-4111-8111-111111111111",
+              }
+            : {},
+          baseForms: {
+            componentDir: baseComponentDir,
+            projectFiles: [
+              {
+                projectPath,
+                contentHash: hashFileBytes(
+                  fs.readFileSync(baseSourcePath)
+                ),
+              },
+            ],
+          },
+        },
+        composition: createFullXmlSyncCompositionSnapshot([assigned]),
+        targetIndex: snapshotConfigurationIndex(
+          encodeConfigurationIndex(sampleIndex())
+        ),
+        localMetadata,
+        baseMetadata: localMetadata,
+      })
+
+      const result = await runFullXmlSyncWorkerCommand({
+        kind: "execute",
+        assignments: [assigned],
+      })
+
+      expect(result).toMatchObject({
+        kind: "executionResult",
+        diagnostics: [],
+      })
+      const formXml = fs.readFileSync(
+        join(projectDir, ".out", "CommonForms", "ФормаПродаж", "Ext", "Form.xml"),
+        "utf8"
+      )
+      if (adopted) {
+        expect(formXml).toContain("<BaseForm")
+        expect(formXml).toContain("<Width>80</Width>")
+      } else {
+        expect(formXml).not.toContain("<BaseForm")
+      }
+    }
+  })
+
   function createProject(names: readonly string[]): string {
     const projectDir = fs.mkdtempSync(join(os.tmpdir(), "nkdk-full-sync-worker-"))
     tempDirs.push(projectDir)

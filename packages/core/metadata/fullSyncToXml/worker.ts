@@ -194,8 +194,11 @@ async function readBaseFormIfAdopted(
   assignment: FullXmlSyncAssignment,
   state: InitializedFullXmlSyncWorkerState
 ) {
+  const baseInput = assignment.potentialOutputs
+    .map((output) => output.baseInput)
+    .find((value) => value !== undefined)
   if (
-    assignment.role !== "form" ||
+    baseInput === undefined ||
     state.profile.adoptedUuids[assignment.logicalAddress] === undefined
   ) {
     return undefined
