@@ -280,6 +280,7 @@ function exportContext(
       ownerMetadataCache: state.ownerMetadataCache,
     },
     exportToXML: {
+      ...(state.context.exportToXML ?? {}),
       itemsTree: [],
       version: state.context.version,
       context: {
@@ -290,7 +291,6 @@ function exportContext(
       },
       componentKind: state.profile.componentKind,
       adoptedUuids: state.profile.adoptedUuids,
-      ...(state.context.exportToXML ?? {}),
     },
   }
 }

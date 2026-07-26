@@ -6,6 +6,7 @@ import { encodeConfigurationIndex } from "../configurationIndex/encode"
 import { hashFileBytes } from "../configurationIndex/hash"
 import { snapshotConfigurationIndex } from "../configurationIndex/sharedSnapshot"
 import { sampleIndex } from "../configurationIndex/testData"
+import type { ConfigurationContext } from "../context/types"
 import { createSharedValidationSnapshot } from "../validation/sharedValidationSnapshot"
 import { createFullXmlSyncCompositionSnapshot } from "./sharedMetadata"
 import { fullXmlSyncTestTopologyFields } from "./testTopology"
@@ -93,6 +94,41 @@ describe("full XML sync worker", () => {
     expect(fullXmlSyncWorkerStateForTests()).toEqual({ initialized: false })
   })
 
+  it("does not let caller context override the confirmed component profile", async () => {
+    const projectDir = createProject(["Товары"])
+    const assigned = assignment(projectDir, "Товары")
+    await initialize(projectDir, [assigned], {
+      ...context,
+      exportToXML: {
+        version: context.version,
+        itemsTree: [],
+        componentKind: "configurationExtension",
+        adoptedUuids: {
+          [assigned.logicalAddress]: "11111111-1111-4111-8111-111111111111",
+        },
+        context: {
+          forms: [],
+          templates: [],
+          parentName: "",
+          metadataForNumbering: [],
+        },
+      },
+    })
+
+    const result = await runFullXmlSyncWorkerCommand({
+      kind: "execute",
+      assignments: [assigned],
+    })
+
+    expect(result).toMatchObject({ kind: "executionResult", diagnostics: [] })
+    const xml = fs.readFileSync(
+      join(projectDir, ".out", "Catalogs", "Товары.xml"),
+      "utf8"
+    )
+    expect(xml).not.toContain("<ObjectBelonging>Adopted</ObjectBelonging>")
+    expect(xml).not.toContain("<ExtendedConfigurationObject>")
+  })
+
   function createProject(names: readonly string[]): string {
     const projectDir = fs.mkdtempSync(join(os.tmpdir(), "nkdk-full-sync-worker-"))
     tempDirs.push(projectDir)
@@ -106,14 +142,15 @@ describe("full XML sync worker", () => {
 
   async function initialize(
     projectDir: string,
-    assignments: readonly FullXmlSyncAssignment[]
+    assignments: readonly FullXmlSyncAssignment[],
+    workerContext: ConfigurationContext = context
   ): Promise<void> {
     await runFullXmlSyncWorkerCommand({
       kind: "initialize",
       workerIndex: 0,
       componentDir: projectDir,
       outputDir: join(projectDir, ".out"),
-      context,
+      context: workerContext,
       profile: {
         kind: "configuration",
         componentKind: "configuration",
