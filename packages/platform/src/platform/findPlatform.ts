@@ -7,6 +7,7 @@ export type PlatformInstallation = {
   directory: string
   enterprisePath?: string
   ibcmdPath?: string
+  ibsrvPath?: string
 }
 
 type Candidate = PlatformInstallation & {
@@ -73,12 +74,18 @@ export async function findPlatformWithRuntime(
         directoryPath,
         runtime.environment.os === "win32" ? ["bin/ibcmd.exe"] : ["ibcmd", "bin/ibcmd"],
       )
-      if (enterprisePath === undefined && ibcmdPath === undefined) continue
+      const ibsrvPath = await firstApplication(
+        runtime,
+        directoryPath,
+        runtime.environment.os === "win32" ? ["bin/ibsrv.exe"] : ["ibsrv", "bin/ibsrv"],
+      )
+      if (enterprisePath === undefined && ibcmdPath === undefined && ibsrvPath === undefined) continue
       candidates.push({
         version: name,
         directory: await runtime.fs.realpath(directoryPath),
         ...(enterprisePath === undefined ? {} : { enterprisePath }),
         ...(ibcmdPath === undefined ? {} : { ibcmdPath }),
+        ...(ibsrvPath === undefined ? {} : { ibsrvPath }),
         build: Number(match[1]),
         architecture: root.architecture,
         rootOrder: root.order,

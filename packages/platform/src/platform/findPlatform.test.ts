@@ -16,6 +16,7 @@ describe("findPlatform", () => {
       .file("/opt/1cv8/x86_64/8.3.27.999/1cv8", { mode: 0o755 })
       .directory("/opt/1cv8/x86_64/8.3.27.1000")
       .file("/opt/1cv8/x86_64/8.3.27.1000/ibcmd", { mode: 0o755 })
+      .file("/opt/1cv8/x86_64/8.3.27.1000/ibsrv", { mode: 0o755 })
       .directory("/opt/1cv8/x86_64/8.3.28.1")
       .file("/opt/1cv8/x86_64/8.3.28.1/ibcmd", { mode: 0o755 })
 
@@ -23,6 +24,20 @@ describe("findPlatform", () => {
       version: "8.3.27.1000",
       directory: "/opt/1cv8/x86_64/8.3.27.1000",
       ibcmdPath: "/opt/1cv8/x86_64/8.3.27.1000/ibcmd",
+      ibsrvPath: "/opt/1cv8/x86_64/8.3.27.1000/ibsrv",
+    })
+  })
+
+  it("reports only executable standalone server applications", async () => {
+    const runtime = linuxRuntime()
+      .directory("/opt/1cv8/x86_64/8.3.27.1000")
+      .file("/opt/1cv8/x86_64/8.3.27.1000/1cv8", { mode: 0o755 })
+      .file("/opt/1cv8/x86_64/8.3.27.1000/ibsrv", { mode: 0o644 })
+
+    await expect(findPlatformWithRuntime(runtime)).resolves.toEqual({
+      version: "8.3.27.1000",
+      directory: "/opt/1cv8/x86_64/8.3.27.1000",
+      enterprisePath: "/opt/1cv8/x86_64/8.3.27.1000/1cv8",
     })
   })
 
