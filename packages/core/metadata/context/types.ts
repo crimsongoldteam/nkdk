@@ -63,7 +63,7 @@ export interface XmlImportConfigurationContext extends ConfigurationContextFromX
   fromXML: XmlImportFromXMLConfigurationContext
 }
 
-export type XMLDefaultVariant = "full" | "adopted"
+export type XMLDefaultVariant = "full" | "adopted" | "indexed"
 
 type ToXMLContextElement<Type extends MetadataItemType> = {
   element: ToMetadata<Type> | undefined
@@ -77,6 +77,7 @@ export type ToXMLConfigurationContext = {
   readonly componentKind?: string
   readonly adoptedUuids?: Readonly<Record<string, string>>
   readonly xmlDefaultVariantByLogicalAddress?: Readonly<Record<string, XMLDefaultVariant>>
+  readonly indexedPropertyOrderByLogicalAddress?: Readonly<Record<string, readonly string[]>>
   readonly externalMetadataCollector?: ExternalMetadataCollector
   readonly version: string
   readonly itemsTree: ContextElementToXML[]

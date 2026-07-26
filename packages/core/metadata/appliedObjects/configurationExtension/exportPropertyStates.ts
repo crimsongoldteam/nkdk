@@ -1,27 +1,49 @@
 import { capitalize } from "../../../helpers/capitalize"
 import { childSegmentUid } from "../../configurationIndex/logicalAddress"
+import { getConfigurationIndexPropertyOrder } from "../../configurationIndex/referenceView"
 import type { MetadataItemYamlToXmlAugmenter } from "../../orchestration/property/yamlToXmlAugmenter"
 import type { MetadataItemRule } from "../../orchestration/property/types"
-import { EXTENDED_SNAPSHOT_SEGMENTS } from "./propertyStates"
+import {
+  EXTENDED_SNAPSHOT_SEGMENTS,
+  EXTENSION_INTERNAL_INFO_SEGMENT,
+  EXTENSION_PROPERTY_ORDER_SEGMENT,
+} from "./propertyStates"
 
 const EXTENDED_CONFIGURATION_OBJECT_YAML = "ОбъектРасширяемойКонфигурации"
 
 export const configurationExtensionYamlToXmlAugmenter: MetadataItemYamlToXmlAugmenter = {
   augment({ context, rule, yaml, outputs, logicalAddress }) {
+    copyExtensionSnapshotState(context, rule, logicalAddress)
     const adoptedUuid = context.exportToXML.adoptedUuids?.[logicalAddress]
     if (rule.itemType === "MetadataConfigurationExtension") {
       writeServiceProperty(outputs, rule, "objectBelonging", "ObjectBelonging", "Adopted")
-    } else if (adoptedUuid !== undefined) {
+      if (adoptedUuid !== undefined) {
+        writeServiceProperty(
+          outputs,
+          rule,
+          "extendedConfigurationObject",
+          "ExtendedConfigurationObject",
+          adoptedUuid
+        )
+      }
+    } else if (
+      adoptedUuid !== undefined &&
+      hasIndexedServiceProperty(context, rule, "objectBelonging")
+    ) {
       writeServiceProperty(outputs, rule, "objectBelonging", "ObjectBelonging", "Adopted")
-      writeServiceProperty(
-        outputs,
-        rule,
-        "extendedConfigurationObject",
-        "ExtendedConfigurationObject",
-        adoptedUuid
-      )
+      if (hasIndexedServiceProperty(context, rule, "extendedConfigurationObject")) {
+        writeServiceProperty(
+          outputs,
+          rule,
+          "extendedConfigurationObject",
+          "ExtendedConfigurationObject",
+          adoptedUuid
+        )
+      }
     }
-
+    restoreMissingInternalInfo(context, outputs, rule)
+    reorderServiceProperties(context, outputs, rule)
+    reorderMetadataRoot(context, outputs, rule)
     const control = readControl(yaml, rule, logicalAddress)
     const states = propertyStates({
       context,
@@ -31,6 +53,227 @@ export const configurationExtensionYamlToXmlAugmenter: MetadataItemYamlToXmlAugm
     })
     if (states.length > 0) writePropertyStates(outputs, rule, states)
   },
+}
+
+function copyExtensionSnapshotState(
+  context: Parameters<MetadataItemYamlToXmlAugmenter["augment"]>[0]["context"],
+  rule: MetadataItemRule,
+  logicalAddress: string
+): void {
+  const runtime = context.exportToXML.configurationIndex
+  if (runtime === undefined) return
+
+  const serviceAddress = childSegmentUid(
+    logicalAddress,
+    EXTENSION_PROPERTY_ORDER_SEGMENT
+  )
+  const orderAddress = childSegmentUid(
+    logicalAddress,
+    `${EXTENSION_PROPERTY_ORDER_SEGMENT}:${rule.itemType}`
+  )
+  for (const propertyKey of [
+    "objectBelonging",
+    "extendedConfigurationObject",
+  ]) {
+    if (runtime.source.xmlNode(serviceAddress)?.present?.includes(propertyKey)) {
+      runtime.collector.setPresent(serviceAddress, propertyKey)
+    }
+    if (runtime.source.xmlNode(orderAddress)?.present?.includes(propertyKey)) {
+      runtime.collector.setPresent(orderAddress, propertyKey)
+    }
+  }
+  const order = runtime.source.xmlNode(orderAddress)?.order
+  if (order !== undefined) runtime.collector.setOrder(orderAddress, order)
+
+  const internalInfoAddress = childSegmentUid(
+    logicalAddress,
+    `${EXTENSION_INTERNAL_INFO_SEGMENT}:${rule.itemType}`
+  )
+  if (
+    runtime.source.xmlNode(internalInfoAddress)?.present?.includes("internalInfo")
+  ) {
+    runtime.collector.setPresent(internalInfoAddress, "internalInfo")
+  }
+
+  for (const segment of Object.values(
+    EXTENDED_SNAPSHOT_SEGMENTS[rule.itemType] ?? {}
+  )) {
+    const address = childSegmentUid(logicalAddress, segment)
+    if (runtime.source.xmlValue(address)?.extended === true) {
+      runtime.collector.setExtended(address)
+    }
+  }
+}
+
+function restoreMissingInternalInfo(
+  context: Parameters<MetadataItemYamlToXmlAugmenter["augment"]>[0]["context"],
+  outputs: ReadonlyMap<string, Record<string, unknown>>,
+  rule: MetadataItemRule
+): void {
+  if (
+    rule.properties.internalInfo !== undefined ||
+    !hasIndexedInternalInfo(context, rule)
+  ) {
+    return
+  }
+  const propertiesParents =
+    rule.itemType === "ClientApplicationForm"
+      ? ["Form", "Properties"]
+      : ["Properties"]
+  const output = findMetadataOutput(outputs, propertiesParents)
+  if (output === undefined) return
+  const owner =
+    rule.itemType === "ClientApplicationForm"
+      ? recordAt(output, ["Form"])
+      : output
+  if (!Object.prototype.hasOwnProperty.call(owner, "InternalInfo")) {
+    owner.InternalInfo = {}
+  }
+}
+
+function hasIndexedInternalInfo(
+  context: Parameters<MetadataItemYamlToXmlAugmenter["augment"]>[0]["context"],
+  rule: MetadataItemRule
+): boolean {
+  const runtime = context.exportToXML.configurationIndex
+  if (runtime === undefined) return false
+  return runtime.source.xmlNode(
+    childSegmentUid(
+      runtime.logicalAddress,
+      `${EXTENSION_INTERNAL_INFO_SEGMENT}:${rule.itemType}`
+    )
+  )?.present?.includes("internalInfo") === true
+}
+
+function reorderMetadataRoot(
+  context: Parameters<MetadataItemYamlToXmlAugmenter["augment"]>[0]["context"],
+  outputs: ReadonlyMap<string, Record<string, unknown>>,
+  rule: MetadataItemRule
+): void {
+  const propertiesParents =
+    rule.itemType === "ClientApplicationForm"
+      ? ["Form", "Properties"]
+      : ["Properties"]
+  const output = findMetadataOutput(outputs, propertiesParents)
+  if (output === undefined) return
+  const owner =
+    rule.itemType === "ClientApplicationForm"
+      ? recordAtIfPresent(output, ["Form"])
+      : output
+  if (owner === undefined) return
+
+  const order = extensionPropertyOrder(context, rule)
+  const rankByXmlName = new Map<string, number>()
+  for (const [propertyKey, propertyRule] of Object.entries(rule.properties)) {
+    const rank = order.indexOf(propertyKey)
+    if (rank < 0) continue
+    const parents = propertyRule.xmlParents ?? []
+    if (parents.length === 0) {
+      rankByXmlName.set(propertyRule.xml ?? capitalize(propertyKey), rank)
+    } else if (parents.at(-1) === "Properties") {
+      const previous = rankByXmlName.get("Properties")
+      if (previous === undefined || rank < previous) {
+        rankByXmlName.set("Properties", rank)
+      }
+    }
+  }
+  const internalInfoRank = order.indexOf("internalInfo")
+  if (internalInfoRank >= 0) rankByXmlName.set("InternalInfo", internalInfoRank)
+  for (const serviceKey of [
+    "objectBelonging",
+    "extendedConfigurationObject",
+  ]) {
+    const rank = order.indexOf(serviceKey)
+    const previous = rankByXmlName.get("Properties")
+    if (rank >= 0 && (previous === undefined || rank < previous)) {
+      rankByXmlName.set("Properties", rank)
+    }
+  }
+
+  const entries = Object.entries(owner)
+    .map(([xmlName, value], index) => ({
+      xmlName,
+      value,
+      index,
+      rank: rankByXmlName.get(xmlName) ?? Number.MAX_SAFE_INTEGER,
+    }))
+    .sort((left, right) => left.rank - right.rank || left.index - right.index)
+  for (const xmlName of Object.keys(owner)) delete owner[xmlName]
+  for (const { xmlName, value } of entries) owner[xmlName] = value
+}
+
+function reorderServiceProperties(
+  context: Parameters<MetadataItemYamlToXmlAugmenter["augment"]>[0]["context"],
+  outputs: ReadonlyMap<string, Record<string, unknown>>,
+  rule: MetadataItemRule
+): void {
+  const parents =
+    rule.itemType === "ClientApplicationForm"
+      ? ["Form", "Properties"]
+      : ["Properties"]
+  const output = findMetadataOutput(outputs, parents)
+  const properties = output === undefined
+    ? undefined
+    : recordAtIfPresent(output, parents)
+  if (properties === undefined) return
+
+  const xmlNameByPropertyKey = new Map<string, string>([
+    ["objectBelonging", "ObjectBelonging"],
+    ["extendedConfigurationObject", "ExtendedConfigurationObject"],
+  ])
+  for (const [propertyKey, propertyRule] of Object.entries(rule.properties)) {
+    xmlNameByPropertyKey.set(
+      propertyKey,
+      propertyRule.xml ?? capitalize(propertyKey)
+    )
+  }
+
+  const reordered: Record<string, unknown> = {}
+  for (const propertyKey of extensionPropertyOrder(context, rule)) {
+    const xmlName = xmlNameByPropertyKey.get(propertyKey)
+    if (
+      xmlName !== undefined &&
+      Object.prototype.hasOwnProperty.call(properties, xmlName)
+    ) {
+      reordered[xmlName] = properties[xmlName]
+    }
+  }
+  for (const [xmlName, value] of Object.entries(properties)) {
+    if (!Object.prototype.hasOwnProperty.call(reordered, xmlName)) {
+      reordered[xmlName] = value
+    }
+  }
+  for (const xmlName of Object.keys(properties)) delete properties[xmlName]
+  Object.assign(properties, reordered)
+}
+
+function extensionPropertyOrder(
+  context: Parameters<MetadataItemYamlToXmlAugmenter["augment"]>[0]["context"],
+  rule: MetadataItemRule
+): readonly string[] {
+  const runtime = context.exportToXML.configurationIndex
+  if (runtime === undefined) return getConfigurationIndexPropertyOrder(context)
+  return runtime.source.xmlNode(
+    childSegmentUid(
+      runtime.logicalAddress,
+      `${EXTENSION_PROPERTY_ORDER_SEGMENT}:${rule.itemType}`
+    )
+  )?.order ?? getConfigurationIndexPropertyOrder(context)
+}
+
+function hasIndexedServiceProperty(
+  context: Parameters<MetadataItemYamlToXmlAugmenter["augment"]>[0]["context"],
+  rule: MetadataItemRule,
+  propertyKey: "objectBelonging" | "extendedConfigurationObject"
+): boolean {
+  const runtime = context.exportToXML.configurationIndex
+  if (runtime === undefined) return false
+  return runtime.source.xmlNode(
+    childSegmentUid(
+      runtime.logicalAddress,
+      `${EXTENSION_PROPERTY_ORDER_SEGMENT}:${rule.itemType}`
+    )
+  )?.present?.includes(propertyKey) === true
 }
 
 function propertyStates(params: {
@@ -46,11 +289,12 @@ function propertyStates(params: {
 
   for (const [propertyKey, propertyRule] of Object.entries(params.rule.properties)) {
     const yamlName = propertyRule.yaml
-    if (typeof yamlName !== "string" || yamlName === EXTENDED_CONFIGURATION_OBJECT_YAML) {
-      continue
-    }
     const xmlName = propertyRule.xml ?? capitalize(propertyKey)
-    if (params.control.has(yamlName)) {
+    if (
+      typeof yamlName === "string" &&
+      yamlName !== EXTENDED_CONFIGURATION_OBJECT_YAML &&
+      params.control.has(yamlName)
+    ) {
       states.push(propertyState(xmlName, "Notify"))
       continue
     }

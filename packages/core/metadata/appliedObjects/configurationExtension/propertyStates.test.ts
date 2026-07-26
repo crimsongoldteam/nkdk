@@ -47,6 +47,7 @@ describe("configuration extension PropertyState augmenter", () => {
 
   it.each([
     ["ClientApplicationForm", "Form", "form"],
+    ["MetadataCommonForm", "Form", "form"],
     ["MetadataCommonModule", "Module", "module"],
     ["MetadataRole", "Rights", "rights"],
     ["MetadataConfigurationExtension", "CommandInterface", "commandInterface"],
@@ -105,7 +106,70 @@ describe("configuration extension PropertyState augmenter", () => {
     })
 
     expect(collector.fragment("Форма.yaml").xmlNodes).toEqual([
-      { logicalAddress, present: ["objectBelonging"] },
+      {
+        logicalAddress: `${logicalAddress}.extensionPropertyOrder`,
+        present: ["objectBelonging"],
+      },
+      {
+        logicalAddress: `${logicalAddress}.extensionPropertyOrder:ClientApplicationForm`,
+        order: ["objectBelonging"],
+        present: ["objectBelonging"],
+      },
+    ])
+  })
+
+  it("вставляет служебные свойства в исходный порядок Properties", () => {
+    const collector = createConfigurationIndexCollector()
+    const logicalAddress = "Справочник.Товары"
+    collector.setOrder(logicalAddress, ["name", "type"])
+
+    configurationExtensionPropertyStatesAugmenter.augment({
+      context: extensionContext(collector, logicalAddress),
+      rule: {
+        itemType: "Catalog",
+        properties: {
+          name: {
+            type: "string",
+            xml: "Name",
+            xmlParents: ["Properties"],
+          },
+          type: {
+            type: "string",
+            xml: "Type",
+            xmlParents: ["Properties"],
+          },
+        },
+      },
+      source: {
+        Properties: {
+          ObjectBelonging: "Adopted",
+          Name: "Товары",
+          ExtendedConfigurationObject: "uuid",
+          Type: "String",
+        },
+      },
+      yaml: {},
+    })
+
+    expect(collector.fragment("Свойства.yaml").xmlNodes).toEqual([
+      {
+        logicalAddress,
+        order: ["name", "type"],
+      },
+      {
+        logicalAddress: `${logicalAddress}.extensionPropertyOrder`,
+        present: ["objectBelonging", "extendedConfigurationObject"],
+      },
+      {
+        logicalAddress: `${logicalAddress}.extensionPropertyOrder:Catalog`,
+        order: [
+          "objectBelonging",
+          "name",
+          "extendedConfigurationObject",
+          "type",
+        ],
+        present: ["objectBelonging", "extendedConfigurationObject"],
+      },
     ])
   })
 })

@@ -41,8 +41,14 @@ registerTypeRule("ConfigurationChildObjects", "collectConfigurationIndexFromXML"
 export function configurationChildObjectsFromIndex(
   runtime: ConfigurationIndexExportRuntime | undefined
 ): ConfigurationChildObjectsXML | undefined {
-  const order = runtime?.withPropertyContext(PROPERTY_KEY).xmlNode()?.order
+  const propertyRuntime = runtime?.withPropertyContext(PROPERTY_KEY)
+  if (propertyRuntime === undefined) return undefined
+  const order = propertyRuntime.xmlNode()?.order
   if (order === undefined) return undefined
+  propertyRuntime.collector.setOrder(
+    propertyRuntime.xmlNodeLogicalAddress ?? propertyRuntime.logicalAddress,
+    order
+  )
 
   const result: ConfigurationChildObjectsXML = {}
   for (const encoded of order) {

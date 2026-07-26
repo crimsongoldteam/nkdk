@@ -114,4 +114,16 @@ describe("MetadataConfigurationExtensionRules", () => {
     expect((MetadataConfigurationExtensionRules.properties as Record<string, unknown>).clientApplicationInterface)
       .toBe(MetadataConfigurationRules.properties.clientApplicationInterface)
   })
+
+  it("использует общий индекс порядка ChildObjects", () => {
+    expect(MetadataConfigurationExtensionRules.properties.childObjects)
+      .toBe(MetadataConfigurationRules.properties.childObjects)
+  })
+
+  it("разделяет снимки внешних командных интерфейсов по пути YAML", () => {
+    expect(MetadataConfigurationExtensionRules.properties.commandInterface.configurationIndexAddressing)
+      .toBe("yamlPath")
+    expect(MetadataConfigurationExtensionRules.properties.mainSectionCommandInterface.configurationIndexAddressing)
+      .toBe("yamlPath")
+  })
 })

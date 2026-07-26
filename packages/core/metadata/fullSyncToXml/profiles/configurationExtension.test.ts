@@ -1,5 +1,6 @@
 import { describe, expect, it } from "vitest"
 import { encodeConfigurationIndex } from "../../configurationIndex/encode"
+import { childSegmentUid } from "../../configurationIndex/logicalAddress"
 import { snapshotConfigurationIndex } from "../../configurationIndex/sharedSnapshot"
 import { sampleIndex } from "../../configurationIndex/testData"
 import type { ConfigurationIndexData } from "../../configurationIndex/types"
@@ -69,8 +70,18 @@ describe("configuration extension full XML sync profile", () => {
       "Catalog.Товары.Attribute.Артикул": "21111111-1111-1111-1111-111111111111",
     })
     expect(runtime.workerProfile.xmlDefaultVariantByLogicalAddress).toEqual({
+      Конфигурация: "indexed",
       "Catalog.Товары": "adopted",
       "Catalog.Товары.Attribute.Артикул": "adopted",
+    })
+    expect(runtime.workerProfile.indexedPropertyOrderByLogicalAddress).toEqual({
+      "Catalog.Товары": ["objectBelonging", "name", "extendedConfigurationObject", "uuid"],
+      "Catalog.Товары.Attribute.Артикул": [
+        "objectBelonging",
+        "name",
+        "extendedConfigurationObject",
+        "uuid",
+      ],
     })
     expect(runtime.workerProfile.baseForms).toEqual({
       componentDir: "/project/cf",
@@ -219,6 +230,41 @@ describe("configuration extension full XML sync profile", () => {
 
     expect(runtime.workerProfile.adoptedUuids).not.toHaveProperty("Конфигурация")
   })
+
+  it("uses the base configuration UUID when the extension root contains ExtendedConfigurationObject", () => {
+    const baseUuid = "aaaaaaaa-aaaa-4aaa-8aaa-aaaaaaaaaaaa"
+    const base = state({
+      componentPath: "cf",
+      logicalAddresses: ["Конфигурация"],
+      identities: [{
+        logicalAddress: "Конфигурация",
+        kind: "uuid",
+        value: baseUuid,
+      }],
+    })
+    const target = state({
+      componentPath: "cfe/Дополнение",
+      logicalAddresses: ["Конфигурация"],
+      identities: [{
+        logicalAddress: "Конфигурация",
+        kind: "uuid",
+        value: "eeeeeeee-eeee-4eee-8eee-eeeeeeeeeeee",
+      }],
+      xmlNodes: [{
+        logicalAddress: "Конфигурация.extensionPropertyOrder",
+        present: ["extendedConfigurationObject"],
+      }],
+    })
+
+    const runtime = configurationExtensionFullXmlSyncProfile.confirm({ target, base })
+
+    expect(runtime.workerProfile.adoptedUuids).toHaveProperty(
+      "Конфигурация",
+      baseUuid
+    )
+    expect(runtime.workerProfile.xmlDefaultVariantByLogicalAddress)
+      .toHaveProperty("Конфигурация", "indexed")
+  })
 })
 
 function extensionState(logicalAddresses: readonly string[]): ConfirmedComponentState {
@@ -230,10 +276,26 @@ function extensionState(logicalAddresses: readonly string[]): ConfirmedComponent
       kind: "uuid" as const,
       value: `eeeeeeee-eeee-4eee-8eee-${index.toString(16).padStart(12, "0")}`,
     })),
-    xmlNodes: logicalAddresses.map((logicalAddress) => ({
-      logicalAddress,
-      order: ["objectBelonging", "name", "extendedConfigurationObject", "uuid"],
-    })),
+    xmlNodes: logicalAddresses.flatMap((logicalAddress) => [
+      {
+        logicalAddress,
+        order: ["objectBelonging", "name", "extendedConfigurationObject", "uuid"],
+      },
+      {
+        logicalAddress: childSegmentUid(
+          logicalAddress,
+          "extensionPropertyOrder:MetadataCatalog"
+        ),
+        order: ["objectBelonging", "name", "extendedConfigurationObject", "uuid"],
+      },
+      {
+        logicalAddress: childSegmentUid(
+          logicalAddress,
+          "extensionPropertyOrder:AdditionalIndexes"
+        ),
+        order: ["items"],
+      },
+    ]),
   })
 }
 

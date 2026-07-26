@@ -26,6 +26,7 @@ export const MetadataConfigurationExtensionRules = {
       toYAML: false,
       fromYAML: false,
     }),
+    childObjects: MetadataConfigurationRules.properties.childObjects,
     uuid: uuidRule({
       xml: "_uuid",
       forReferenceOnly: true,
@@ -86,6 +87,8 @@ export const MetadataConfigurationExtensionRules = {
       yaml: "НазначенияИспользования",
       xml: "UsePurposes",
       xmlParents: properties,
+      defaultValue: () => ["PlatformApplication"],
+      defaultValueXML: ["PlatformApplication"],
     }),
     scriptVariant: systemEnumerationRule({
       yaml: "ВариантВстроенногоЯзыка",

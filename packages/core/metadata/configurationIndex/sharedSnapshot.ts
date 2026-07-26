@@ -26,6 +26,7 @@ export interface ConfigurationIndexReader {
   projectFiles(): readonly ConfigurationProjectFile[]
   identity(logicalAddress: string, kind: ConfigurationIdentity["kind"]): string | undefined
   identities(): readonly ConfigurationIdentity[]
+  xmlNodes(): readonly ConfigurationXmlNode[]
   xmlNode(logicalAddress: string): ConfigurationXmlNode | undefined
   xmlValue(logicalAddress: string): ConfigurationXmlValue | undefined
 }
@@ -145,6 +146,15 @@ class SharedConfigurationIndexReader implements ConfigurationIndexReader {
 
   identities(): readonly ConfigurationIdentity[] {
     return this.decodedIndex().identities.map((identity) => ({ ...identity }))
+  }
+
+  xmlNodes(): readonly ConfigurationXmlNode[] {
+    return this.decodedIndex().xmlNodes.map((node) => ({
+      ...node,
+      ...(node.order === undefined ? {} : { order: [...node.order] }),
+      ...(node.present === undefined ? {} : { present: [...node.present] }),
+      ...(node.aliases === undefined ? {} : { aliases: { ...node.aliases } }),
+    }))
   }
 
   xmlNode(logicalAddress: string): ConfigurationXmlNode | undefined {

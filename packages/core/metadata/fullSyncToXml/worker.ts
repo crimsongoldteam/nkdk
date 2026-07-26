@@ -296,6 +296,8 @@ function exportContext(
       adoptedUuids: state.profile.adoptedUuids,
       xmlDefaultVariantByLogicalAddress:
         state.profile.xmlDefaultVariantByLogicalAddress,
+      indexedPropertyOrderByLogicalAddress:
+        state.profile.indexedPropertyOrderByLogicalAddress,
     },
   }
 }

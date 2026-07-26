@@ -6,6 +6,7 @@ import type { MetadataItemRule } from "../../orchestration/property/types"
 import { commonBasedOnObjectPaths } from "../metadataTargets"
 import { externalDataSourceObjectServiceProperties } from "../metadataExternalDataSourceField/rules"
 import { characteristicsDescriptionsRule } from "../characteristicsDescription/types"
+import { internalInfoRule } from "../internalInfo/types"
 
 const properties = ["Properties"]
 const childObjects = ["ChildObjects"]
@@ -34,8 +35,7 @@ const tableProperties = {
     toYAML: false,
     fromYAML: false,
   },
-  internalInfo: {
-    type: "InternalInfo",
+  internalInfo: internalInfoRule({
     xmlParents: root,
     forReferenceOnly: true,
     toYAML: false,
@@ -54,7 +54,7 @@ const tableProperties = {
       { name: "ExternalDataSourceTableRecordKey", category: "RecordKey" },
       { name: "ExternalDataSourceTableRecordManager", category: "RecordManager" },
     ] as { name: string; category: string }[],
-  },
+  }),
   uuid: {
     type: "uuid",
     xml: "_uuid",
