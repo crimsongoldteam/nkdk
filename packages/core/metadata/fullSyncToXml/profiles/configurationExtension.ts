@@ -67,6 +67,9 @@ export const configurationExtensionFullXmlSyncProfile: FullXmlSyncComponentProfi
         kind: "configurationExtension",
         componentKind: "configurationExtension",
         adoptedUuids,
+        xmlDefaultVariantByLogicalAddress: Object.fromEntries(
+          Object.keys(adoptedUuids).map((logicalAddress) => [logicalAddress, "adopted"] as const)
+        ),
         baseForms: {
           componentDir: base.structure.componentDir,
           projectFiles: base.hashes.projectFiles,

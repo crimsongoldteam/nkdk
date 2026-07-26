@@ -1,6 +1,7 @@
 import type { ComponentAddress } from "../components/address"
 import type { ConfigurationProjectFile } from "../configurationIndex"
 import type { ConfirmedComponentState } from "../project/componentState/types"
+import type { XMLDefaultVariant } from "../context/types"
 
 export type XmlSyncProfileKind = "configuration" | "configurationExtension"
 
@@ -8,6 +9,7 @@ export interface FullXmlSyncWorkerProfileRuntime {
   readonly kind: XmlSyncProfileKind
   readonly componentKind: ComponentAddress["kind"]
   readonly adoptedUuids: Readonly<Record<string, string>>
+  readonly xmlDefaultVariantByLogicalAddress?: Readonly<Record<string, XMLDefaultVariant>>
   readonly baseForms?: {
     readonly componentDir: string
     readonly projectFiles: readonly ConfigurationProjectFile[]

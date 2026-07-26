@@ -10,6 +10,16 @@ import type { ExportToXMLFunctionNew, ImportFromYAMLFunctionNew } from "./fn"
 import { registerTypeRule } from "./typeRuleRegistry"
 import { convertPropertiesFromYAMLToXML } from "./fromYAMLToXML"
 import type { PropertyRuleType } from "./registry"
+import { createConfigurationIndexCollector } from "../../configurationIndex/collector/writer"
+import { encodeConfigurationIndex } from "../../configurationIndex/encode"
+import { createConfigurationIndexExportRuntime } from "../../configurationIndex/exportRuntime"
+import {
+  createConfigurationIndexReader,
+  snapshotConfigurationIndex,
+} from "../../configurationIndex/sharedSnapshot"
+import { sampleIndex } from "../../configurationIndex/testData"
+
+const DEFAULT_TEST_LOGICAL_ADDRESS = "Catalog.Товары"
 
 const context = (): ConfigurationContextWithExportToXML => ({
   defaultLanguage: "ru",
@@ -23,6 +33,28 @@ const context = (): ConfigurationContextWithExportToXML => ({
 
 const testRule = (properties: Record<string, PropertyRule>): MetadataItemRule =>
   ({ itemType: "Catalog", properties }) as MetadataItemRule
+
+const contextWithXMLDefaultVariant = (
+  variant: "full" | "adopted"
+): ConfigurationContextWithExportToXML => {
+  const data = sampleIndex()
+  const snapshot = snapshotConfigurationIndex(encodeConfigurationIndex(data))
+  return {
+    ...context(),
+    exportToXML: {
+      ...context().exportToXML,
+      configurationIndex: createConfigurationIndexExportRuntime({
+        source: createConfigurationIndexReader(snapshot),
+        collector: createConfigurationIndexCollector(),
+        targetProjectPath: "Справочник/Товары/Свойства.yaml",
+        logicalAddress: DEFAULT_TEST_LOGICAL_ADDRESS,
+      }),
+      xmlDefaultVariantByLogicalAddress: {
+        [DEFAULT_TEST_LOGICAL_ADDRESS]: variant,
+      },
+    },
+  }
+}
 
 describe("convertPropertiesFromYAMLToXML", () => {
   it("does not apply implicitValueYAML to missing YAML", () => {
@@ -169,6 +201,77 @@ describe("convertPropertiesFromYAMLToXML", () => {
 
     expect(result.outputs.get("owner")).toEqual({ Value: "xml-по-умолчанию" })
   })
+
+  it("выбирает XML-default по варианту текущего metadata-объекта", () => {
+    const rule = testRule({
+      value: {
+        type: "string",
+        yaml: "Режим",
+        xml: "Mode",
+        defaultValue: "full-default",
+        defaultValueXML: "full-xml",
+        defaultValueAdoptedXML: "adopted-xml",
+      },
+    })
+
+    const full = convertPropertiesFromYAMLToXML({
+      context: contextWithXMLDefaultVariant("full"),
+      yaml: {},
+      rule,
+      outputs: [{ key: "owner" }],
+    })
+    const adopted = convertPropertiesFromYAMLToXML({
+      context: contextWithXMLDefaultVariant("adopted"),
+      yaml: {},
+      rule,
+      outputs: [{ key: "owner" }],
+    })
+
+    expect(full.outputs.get("owner")).toEqual({ Mode: "full-xml" })
+    expect(adopted.outputs.get("owner")).toEqual({ Mode: "adopted-xml" })
+  })
+
+  it("не применяет обычный XML-default к заимствованному объекту", () => {
+    const result = convertPropertiesFromYAMLToXML({
+      context: contextWithXMLDefaultVariant("adopted"),
+      yaml: {},
+      rule: testRule({
+        value: {
+          type: "string",
+          yaml: "Режим",
+          xml: "Mode",
+          defaultValue: "full-default",
+          defaultValueXML: "full-xml",
+        },
+      }),
+      outputs: [{ key: "owner" }],
+    })
+
+    expect(result.outputs.get("owner")).toEqual({})
+  })
+
+  it.each(["full", "adopted"] as const)(
+    "сохраняет приоритет явного YAML-значения в режиме %s",
+    (variant) => {
+      const result = convertPropertiesFromYAMLToXML({
+        context: contextWithXMLDefaultVariant(variant),
+        yaml: { Режим: "explicit" },
+        rule: testRule({
+          value: {
+            type: "string",
+            yaml: "Режим",
+            xml: "Mode",
+            defaultValue: "full-default",
+            defaultValueXML: "full-xml",
+            defaultValueAdoptedXML: "adopted-xml",
+          },
+        }),
+        outputs: [{ key: "owner" }],
+      })
+
+      expect(result.outputs.get("owner")).toEqual({ Mode: "explicit" })
+    }
+  )
 
   it("создаёт сырой пустой XML-контейнер для defaultValueXMLRaw", () => {
     const result = convertPropertiesFromYAMLToXML({

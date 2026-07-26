@@ -291,6 +291,8 @@ function exportContext(
       },
       componentKind: state.profile.componentKind,
       adoptedUuids: state.profile.adoptedUuids,
+      xmlDefaultVariantByLogicalAddress:
+        state.profile.xmlDefaultVariantByLogicalAddress,
     },
   }
 }

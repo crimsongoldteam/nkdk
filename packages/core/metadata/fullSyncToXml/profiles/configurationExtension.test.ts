@@ -68,6 +68,10 @@ describe("configuration extension full XML sync profile", () => {
       "Catalog.Товары": "11111111-1111-1111-1111-111111111111",
       "Catalog.Товары.Attribute.Артикул": "21111111-1111-1111-1111-111111111111",
     })
+    expect(runtime.workerProfile.xmlDefaultVariantByLogicalAddress).toEqual({
+      "Catalog.Товары": "adopted",
+      "Catalog.Товары.Attribute.Артикул": "adopted",
+    })
     expect(runtime.workerProfile.baseForms).toEqual({
       componentDir: "/project/cf",
       projectFiles: base.hashes.projectFiles,

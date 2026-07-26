@@ -132,6 +132,9 @@ export interface BasePropertyRule {
   /** Значение по умолчанию в XML (будет выгружено как при пустом значении)*/
   defaultValueXML?: any
 
+  /** Значение по умолчанию в XML для заимствованного объекта расширения. */
+  defaultValueAdoptedXML?: any
+
   /** Сохранять явно присутствующее XML-значение, даже если оно равно defaultValueXML. */
   preserveExplicitDefaultXML?: true
 

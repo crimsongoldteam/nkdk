@@ -196,6 +196,7 @@ export function convertPropertiesFromYAMLToXML(params: ConvertPropertiesFromYAML
     }
     const matchingOutputs = outputs.filter(({ request }) => matchesOutputTag(planned.propertyRule, request))
     const propertyContext = matchingOutputs[0]?.request.context ?? params.context
+    const hasXMLDefault = hasExplicitXMLDefault(propertyContext, planned.propertyRule)
     const hasIndexedImplicitYAMLValue =
       !source.has(propertyKey) &&
       isConfigurationIndexPropertyPresent(propertyContext, propertyKey) &&
@@ -228,7 +229,7 @@ export function convertPropertiesFromYAMLToXML(params: ConvertPropertiesFromYAML
       !source.has(propertyKey) &&
       !references.some((reference) => reference.exists) &&
       planned.propertyRule.preserveFromReferenceXML !== true &&
-      (!hasExplicitXMLDefault(planned.propertyRule) || params.omitDefaultsForSparseYAML === true)
+      (!hasXMLDefault || params.omitDefaultsForSparseYAML === true)
     ) {
       continue
     }
@@ -244,7 +245,7 @@ export function convertPropertiesFromYAMLToXML(params: ConvertPropertiesFromYAML
       matchingOutputs.every((output) => output.request.referenceXML !== undefined) &&
       references.every((reference) => !reference.exists) &&
       !requiresYAMLToXMLEvaluation(planned.propertyRule) &&
-      !hasExplicitXMLDefault(planned.propertyRule)
+      !hasXMLDefault
     ) {
       continue
     }
@@ -285,7 +286,7 @@ export function convertPropertiesFromYAMLToXML(params: ConvertPropertiesFromYAML
       getTypeRule(planned.propertyRule.type, "yamlToXMLNestedRule") === undefined &&
       !requiresYAMLToXMLEvaluation(planned.propertyRule) &&
       references.every((reference) => reference.exists) &&
-      (!hasExplicitXMLDefault(planned.propertyRule) ||
+      (!hasXMLDefault ||
         Object.prototype.hasOwnProperty.call(planned.propertyRule, "defaultValueXMLRaw") ||
         references.every((reference) => reference.value !== undefined))
     ) {
@@ -423,7 +424,7 @@ export function convertPropertiesFromYAMLToXML(params: ConvertPropertiesFromYAML
               : undefined
           : sourceNestedYAML
       const hasNestedDefault =
-        Object.prototype.hasOwnProperty.call(planned.propertyRule, "defaultValueXML") ||
+        resolveXMLDefault(propertyContext, planned.propertyRule).exists ||
         Object.prototype.hasOwnProperty.call(planned.propertyRule, "defaultValueXMLRaw") ||
         Object.prototype.hasOwnProperty.call(planned.propertyRule, "defaultValueXMLEmpty")
       if (nestedYAML === undefined && !references.some((reference) => reference.exists)) {
@@ -768,10 +769,15 @@ export function callAtomicToXML(params: AtomicToXMLParams): unknown {
   const { context, rule, value, referenceValue, source, propertyKey } = params
   const handler = params.handler ?? getTypeRule(rule.type, "exportToXML")
   const hasRaw = Object.prototype.hasOwnProperty.call(rule, "defaultValueXMLRaw")
+  const xmlDefault = resolveXMLDefault(context, rule)
   if (handler === undefined) {
     if (isDefaultValue(value, rule.defaultValue)) {
       if (shouldCreateRawParent(value, rule)) return value
-      return hasRaw ? rule.defaultValueXMLRaw : rule.defaultValueXML
+      return hasRaw
+        ? rule.defaultValueXMLRaw
+        : xmlDefault.exists
+          ? xmlDefault.value
+          : undefined
     }
     return wrapWithNamespace(rule, value)
   }
@@ -794,7 +800,9 @@ export function callAtomicToXML(params: AtomicToXMLParams): unknown {
   ) {
     if (shouldCreateRawParent(value, rule)) return value
     if (hasRaw) return rule.defaultValueXMLRaw
-    return wrapWithNamespace(rule, exportValue(rule.defaultValueXML))
+    return xmlDefault.exists
+      ? wrapWithNamespace(rule, exportValue(xmlDefault.value))
+      : undefined
   }
   return wrapWithNamespace(rule, exported)
 }
@@ -896,13 +904,11 @@ function referenceFromConfigurationIndex(
   }
   if (!exists) return { exists: false }
   const rule = planned.propertyRule
-  const defaultValue = Object.prototype.hasOwnProperty.call(rule, "defaultValueXML")
-    ? rule.defaultValueXML
-    : undefined
+  const defaultValue = resolveXMLDefault(context, rule)
   return {
     exists: true,
     key: getConfigurationIndexSourceXmlKey(context, planned.propertyKey),
-    value: defaultValue,
+    value: defaultValue.exists ? defaultValue.value : undefined,
     ...(indexedExplicitEmpty ? { indexedExplicitEmpty: true } : {}),
   }
 }
@@ -1040,12 +1046,34 @@ function shouldCreateRawParent(value: unknown, rule: PropertyRule): boolean {
   )
 }
 
-function hasExplicitXMLDefault(rule: PropertyRule): boolean {
+function hasExplicitXMLDefault(
+  context: ConfigurationContextWithExportToXML,
+  rule: PropertyRule
+): boolean {
   return (
-    Object.prototype.hasOwnProperty.call(rule, "defaultValueXML") ||
+    resolveXMLDefault(context, rule).exists ||
     Object.prototype.hasOwnProperty.call(rule, "defaultValueXMLRaw") ||
     Object.prototype.hasOwnProperty.call(rule, "defaultValueXMLEmpty")
   )
+}
+
+function resolveXMLDefault(
+  context: ConfigurationContextWithExportToXML,
+  rule: PropertyRule
+): { readonly exists: boolean; readonly value: unknown } {
+  const logicalAddress = context.exportToXML.configurationIndex?.logicalAddress
+  const variant =
+    logicalAddress === undefined
+      ? undefined
+      : context.exportToXML.xmlDefaultVariantByLogicalAddress?.[logicalAddress]
+  if (variant === "adopted") {
+    return Object.prototype.hasOwnProperty.call(rule, "defaultValueAdoptedXML")
+      ? { exists: true, value: rule.defaultValueAdoptedXML }
+      : { exists: false, value: undefined }
+  }
+  return Object.prototype.hasOwnProperty.call(rule, "defaultValueXML")
+    ? { exists: true, value: rule.defaultValueXML }
+    : { exists: false, value: undefined }
 }
 
 function wrapWithNamespace(rule: PropertyRule, value: unknown): unknown {

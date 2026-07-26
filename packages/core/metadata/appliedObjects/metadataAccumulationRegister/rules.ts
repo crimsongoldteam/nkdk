@@ -123,6 +123,7 @@ export const MetadataAccumulationRegisterRules = {
       yaml: "ВидРегистра",
       typeSE: "AccumulationRegisterType",
       defaultValueXML: "Balance",
+      defaultValueAdoptedXML: "Balance",
       implicitValueYAML: "Balance",
       xmlParents: properties,
     }),
