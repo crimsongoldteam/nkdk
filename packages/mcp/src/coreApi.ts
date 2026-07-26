@@ -98,9 +98,8 @@ export interface CoreApi {
     allowWrite?: boolean
   }): Promise<MetadataOperationResult>
   planSyncToXml(params: {
-    projectDir?: string
+    projectDir: string
     componentPath: string
-    yamlDir: string
     xmlDir: string
   }): Promise<FullXmlSyncPlanResult>
   importConfigurationFromXml(params: ImportConfigurationFromXmlParams): Promise<ConfigurationImportResult>
@@ -120,9 +119,8 @@ export interface CoreApi {
         }
       }
     }
-    projectDir?: string
+    projectDir: string
     componentPath: string
-    yamlDir: string
     xmlDir: string
     concurrency?: number
   }): Promise<FullXmlSyncResult>

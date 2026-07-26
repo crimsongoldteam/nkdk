@@ -37,7 +37,6 @@ describe("syncToXml service", () => {
     expect(planSyncToXml).toHaveBeenCalledWith({
       projectDir,
       componentPath: "cf",
-      yamlDir: join(projectDir, "cf"),
       xmlDir: "/xml",
     })
     expect(syncConfigurationToXML).not.toHaveBeenCalled()
@@ -61,7 +60,6 @@ describe("syncToXml service", () => {
       expect.objectContaining({
         projectDir,
         componentPath: "cf",
-        yamlDir: join(projectDir, "cf"),
         xmlDir: "/xml",
         concurrency: 4,
       }),
@@ -75,27 +73,98 @@ describe("syncToXml service", () => {
     })
   })
 
-  it("rejects configuration extension sync before reading the project or calling core", async () => {
-    const planSyncToXml = vi.fn()
-    const syncConfigurationToXML = vi.fn()
+  it.each([false, true])(
+    "routes cfe to the common coordinator in %s write mode",
+    async (allowWrite) => {
+      const projectDir = createProject()
+      const planSyncToXml = vi.fn().mockResolvedValue({
+        ok: true,
+        mode: "plan",
+        assignments: 1,
+        externalFiles: 0,
+        configurationIndexPath:
+          "/yaml/.nkdk/components/cfe/Расширение/configuration-index.bin",
+      })
+      const syncConfigurationToXML = vi.fn().mockResolvedValue({
+        succeeded: 1,
+        failed: [],
+        warnings: [],
+        configurationIndexPath:
+          "/yaml/.nkdk/components/cfe/Расширение/configuration-index.bin",
+      })
 
-    const result = await syncToXml(
-      {
-        projectDir: "/missing/project",
+      const result = await syncToXml({
+        projectDir,
         componentPath: "cfe/Расширение",
         xmlDir: "/xml",
-        allowWrite: true,
-      },
-      { planSyncToXml, syncConfigurationToXML },
-    )
+        allowWrite,
+      }, { planSyncToXml, syncConfigurationToXML })
+
+      const expected = {
+        projectDir,
+        componentPath: "cfe/Расширение",
+        xmlDir: "/xml",
+      }
+      if (allowWrite) {
+        expect(syncConfigurationToXML).toHaveBeenCalledWith(
+          expect.objectContaining(expected)
+        )
+        expect(planSyncToXml).not.toHaveBeenCalled()
+        expect(result).toMatchObject({
+          ok: true,
+          configurationIndexPath:
+            "/yaml/.nkdk/components/cfe/Расширение/configuration-index.bin",
+        })
+      } else {
+        expect(planSyncToXml).toHaveBeenCalledWith(expected)
+        expect(syncConfigurationToXML).not.toHaveBeenCalled()
+        expect(result).toMatchObject({
+          ok: true,
+          result: {
+            configurationIndexPath:
+              "/yaml/.nkdk/components/cfe/Расширение/configuration-index.bin",
+          },
+        })
+      }
+    }
+  )
+
+  it("rejects cfe without a component name", async () => {
+    const projectDir = createProject()
+    const syncConfigurationToXML = vi.fn()
+
+    const result = await syncToXml({
+      projectDir,
+      componentPath: "cfe",
+      xmlDir: "/xml",
+      allowWrite: true,
+    }, { syncConfigurationToXML })
 
     expect(result).toEqual({
       ok: false,
       code: "invalid_arguments",
-      message: "Синхронизация расширений конфигурации в XML пока не поддерживается",
-      details: { componentPath: "cfe/Расширение" },
+      message: "Ожидался путь cfe/<Имя>",
+      details: { componentPath: "cfe" },
     })
-    expect(planSyncToXml).not.toHaveBeenCalled()
+    expect(syncConfigurationToXML).not.toHaveBeenCalled()
+  })
+
+  it("rejects a component path without the matching directory", async () => {
+    const projectDir = createProject()
+    const syncConfigurationToXML = vi.fn()
+
+    const result = await syncToXml({
+      projectDir,
+      componentPath: "cfe/Другое",
+      xmlDir: "/xml",
+      allowWrite: true,
+    }, { syncConfigurationToXML })
+
+    expect(result).toMatchObject({
+      ok: false,
+      code: "not_found",
+      details: { projectDir, componentPath: "cfe/Другое" },
+    })
     expect(syncConfigurationToXML).not.toHaveBeenCalled()
   })
 
