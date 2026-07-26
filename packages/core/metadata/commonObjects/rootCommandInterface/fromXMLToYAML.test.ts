@@ -41,6 +41,25 @@ describe("RootCommandInterface XML → YAML", () => {
     expect(yaml).toHaveProperty("ПорядокКоманд.0.Команда", UUID_COMMAND)
   })
 
+  it("keeps a platform UUID visibility key as a string", () => {
+    const yaml = convertInline(
+      `${ROOT}<CommandsVisibility><Command name="0:test"><Visibility>` +
+      `<xr:Value name="${UUID_ROLE}">false</xr:Value>` +
+      `</Visibility></Command></CommandsVisibility></CommandInterface>`
+    )
+    expect(yaml).toHaveProperty(
+      `ВидимостьКоманд.0.Роли.${UUID_ROLE}`,
+      "Ложь"
+    )
+  })
+
+  it("keeps a platform UUID in subsystem order as a string", () => {
+    const yaml = convertInline(
+      `${ROOT}<SubsystemsOrder><Subsystem>${UUID_SUBSYSTEM}</Subsystem></SubsystemsOrder></CommandInterface>`
+    )
+    expect(yaml).toHaveProperty("ПорядокПодсистем", [UUID_SUBSYSTEM])
+  })
+
   it("exports root subsystem visibility and order", () => {
     expect(convert("CommandInterface.xml")).toHaveProperty("ВидимостьПодсистем")
   })
@@ -78,4 +97,7 @@ function convertInline(xml: string): unknown {
 }
 
 const UUID_COMMAND = "0:2f109eaa-d341-4592-a04f-3f199e75d879"
+const UUID_ROLE = "00000000-efd0-f8ea-3002-0000aa2905e2"
+const UUID_SUBSYSTEM = "f8eaf128-0230-0000-28f1-eaf830020000"
+const ROOT = `<CommandInterface xmlns="http://v8.1c.ru/8.3/xcf/extrnprops" xmlns:xr="http://v8.1c.ru/8.3/xcf/readable">`
 const DUPLICATE_XML = `<CommandInterface xmlns="http://v8.1c.ru/8.3/xcf/extrnprops"><CommandsVisibility><Command name="0"><Visibility><xr:Common>false</xr:Common></Visibility></Command><Command name="0"><Visibility><xr:Common>true</xr:Common></Visibility></Command></CommandsVisibility><CommandsPlacement><Command name="0"><CommandGroup>NavigationPanelImportant</CommandGroup><Placement>Manual</Placement></Command><Command name="0"><CommandGroup>ActionsPanelTools</CommandGroup><Placement>Auto</Placement></Command></CommandsPlacement></CommandInterface>`
