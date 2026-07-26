@@ -8,7 +8,7 @@ const NOTIFY_ALIASES: Readonly<Record<string, string>> = {
   ExtendedConfigurationObject: "ОбъектРасширяемойКонфигурации",
 }
 
-const EXTENDED_SNAPSHOT_SEGMENTS: Readonly<Record<string, Readonly<Record<string, string>>>> = {
+export const EXTENDED_SNAPSHOT_SEGMENTS: Readonly<Record<string, Readonly<Record<string, string>>>> = {
   ClientApplicationForm: {
     Form: "form",
   },

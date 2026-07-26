@@ -4,8 +4,14 @@ import { configurationExtensionPropertyStatesAugmenter } from "./propertyStates"
 import { MetadataConfigurationExtensionRules } from "./rules"
 import { registerFullXmlSyncComponentProfile } from "../../fullSyncToXml/componentProfile"
 import { configurationExtensionFullXmlSyncProfile } from "../../fullSyncToXml/profiles/configurationExtension"
+import { registerMetadataItemYamlToXmlAugmenter } from "../../orchestration/property/yamlToXmlAugmenter"
+import { configurationExtensionYamlToXmlAugmenter } from "./exportPropertyStates"
 
 registerFullXmlSyncComponentProfile(configurationExtensionFullXmlSyncProfile)
+registerMetadataItemYamlToXmlAugmenter(
+  "configurationExtension",
+  configurationExtensionYamlToXmlAugmenter
+)
 
 registerMetadataItemXmlImportAugmenter("configurationExtension", configurationExtensionPropertyStatesAugmenter)
 

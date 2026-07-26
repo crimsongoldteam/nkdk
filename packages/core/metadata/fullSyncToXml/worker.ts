@@ -25,6 +25,7 @@ import type {
   FullXmlSyncWrittenFile,
 } from "./types"
 import { writeFullXmlSyncAssignment } from "./writeAssignment"
+import type { FullXmlSyncWorkerProfileRuntime } from "./componentProfile"
 
 interface InitializedFullXmlSyncWorkerState {
   readonly workerIndex: number
@@ -34,6 +35,7 @@ interface InitializedFullXmlSyncWorkerState {
   readonly index: ConfigurationIndexReader
   readonly composition: FullXmlSyncCompositionReader
   readonly ownerMetadataCache: OwnerMetadataCache
+  readonly profile: FullXmlSyncWorkerProfileRuntime
   activeAssignmentId: string | undefined
 }
 
@@ -66,6 +68,7 @@ export async function runFullXmlSyncWorkerCommand(
           ...(command.baseMetadata === undefined ? {} : { base: command.baseMetadata }),
         },
       }),
+      profile: command.profile,
       activeAssignmentId: undefined,
     }
     return undefined
@@ -226,6 +229,8 @@ function exportContext(
         templates: [],
         parentName: "",
       },
+      componentKind: state.profile.componentKind,
+      adoptedUuids: state.profile.adoptedUuids,
       ...(state.context.exportToXML ?? {}),
     },
   }

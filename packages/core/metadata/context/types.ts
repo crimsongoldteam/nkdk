@@ -74,6 +74,8 @@ type ToXMLContextElement<Type extends MetadataItemType> = {
 export type ToXMLConfigurationContext = {
   readonly configDumpInfo: ConfigDumpInfo
   readonly configurationIndex?: ConfigurationIndexExportRuntime
+  readonly componentKind?: string
+  readonly adoptedUuids?: Readonly<Record<string, string>>
   readonly externalMetadataCollector?: ExternalMetadataCollector
   readonly version: string
   readonly itemsTree: ContextElementToXML[]

@@ -15,6 +15,7 @@ import type { ConfigurationContext, ConfigurationContextWithExportToXML } from "
 import { metadataTargetOwnerFromRule, importStringMetadataTargetFromYAML } from "./metadataTargetString"
 import { convertMetadataItemFromYAMLToXML } from "../metadataItem/fromYAMLToXML"
 import { convertMetadataCollectionFromYAMLToXML } from "../metadataCollection/fromYAMLToXML"
+import { augmentMetadataItemYamlToXml } from "./yamlToXmlAugmenter"
 import { toYAMLImportError, withYAMLImportDiagnostics } from "../yamlImportError"
 import type {
   ExportToXMLFunction,
@@ -656,8 +657,17 @@ export function convertPropertiesFromYAMLToXML(params: ConvertPropertiesFromYAML
   }
 
   for (const output of outputs) applyAutoRequiredXMLParents(output.xml, autoRequiredXMLParentRoots)
+  const outputMap = new Map(outputs.map(({ request, xml }) => [request.key, xml]))
+  if (yaml !== undefined) {
+    augmentMetadataItemYamlToXml({
+      context: params.context,
+      rule: params.rule,
+      yaml,
+      outputs: outputMap,
+    })
+  }
   return {
-    outputs: new Map(outputs.map(({ request, xml }) => [request.key, xml])),
+    outputs: outputMap,
     deferredByOutput: new Map(outputs.map(({ request, deferred }) => [request.key, deferred])),
     externalWrites,
   }
