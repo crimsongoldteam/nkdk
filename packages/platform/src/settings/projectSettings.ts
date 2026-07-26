@@ -54,7 +54,7 @@ export function parseProjectSettings(source: string): ProjectSettings {
   }
   return {
     version: 1,
-    infobase: normalizeConnectionSettings(parsed["infobase"]),
+    infobase: normalizePlatformConnectionSettings(parsed["infobase"]),
   }
 }
 
@@ -75,7 +75,7 @@ export async function writeProjectSettings(
   params: { projectDir: string; infobase: PlatformConnectionSettings },
   dependencies: ProjectSettingsDependencies = defaultDependencies
 ): Promise<{ settingsPath: string }> {
-  const infobase = normalizeConnectionSettings(params.infobase)
+  const infobase = normalizePlatformConnectionSettings(params.infobase)
   const nkdkDir = join(params.projectDir, ".nkdk")
   const settingsPath = projectSettingsPath(params.projectDir)
   try {
@@ -95,7 +95,9 @@ export async function writeProjectSettings(
   return { settingsPath }
 }
 
-function normalizeConnectionSettings(value: unknown): NormalizedPlatformConnectionSettings {
+export function normalizePlatformConnectionSettings(
+  value: unknown
+): NormalizedPlatformConnectionSettings {
   if (!isRecord(value) || typeof value["connectionString"] !== "string" || value["connectionString"].trim() === "") {
     throw invalidSettings("Не задана строка подключения к информационной базе")
   }

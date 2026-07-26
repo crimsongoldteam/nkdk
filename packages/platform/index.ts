@@ -21,6 +21,10 @@ export {
   type ProjectSettingsFileSystem,
 } from "./src/settings/projectSettings"
 export {
+  createPlatformSessionManager,
+  type PlatformSessionManagerDependencies,
+} from "./src/sessions/manager"
+export {
   listInfobases,
   type InfobaseConnection,
   type InfobaseFolderNode,
