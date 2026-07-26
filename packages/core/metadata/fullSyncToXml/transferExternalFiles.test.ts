@@ -28,8 +28,8 @@ describe("transferFullXmlSyncExternalFiles", () => {
     const result = await transferFullXmlSyncExternalFiles({
       outputDir,
       files: [
-        externalFile("b.bin", "/source/b.bin", "Ext/b.bin"),
-        externalFile("a.bin", "/source/a.bin", "Ext/a.bin"),
+        externalFile("b.bin", "/source/b.bin", "Ext/b.bin", Buffer.from([4, 5])),
+        externalFile("a.bin", "/source/a.bin", "Ext/a.bin", source),
       ],
       concurrency: 1,
       async readFile(path) {
@@ -58,7 +58,7 @@ describe("transferFullXmlSyncExternalFiles", () => {
 
     const result = await transferFullXmlSyncExternalFiles({
       outputDir,
-      files: [externalFile("large.bin", sourcePath, "Ext/large.bin")],
+      files: [externalFile("large.bin", sourcePath, "Ext/large.bin", bytes)],
     })
 
     expect(readFile).not.toHaveBeenCalled()
@@ -84,7 +84,11 @@ describe("transferFullXmlSyncExternalFiles", () => {
     )
     const promise = transferFullXmlSyncExternalFiles({
       outputDir,
-      files: [externalFile("1.bin", "/1.bin", "1.bin"), externalFile("2.bin", "/2.bin", "2.bin"), externalFile("3.bin", "/3.bin", "3.bin")],
+      files: [
+        externalFile("1.bin", "/1.bin", "1.bin", Buffer.from([1])),
+        externalFile("2.bin", "/2.bin", "2.bin", Buffer.from([1])),
+        externalFile("3.bin", "/3.bin", "3.bin", Buffer.from([1])),
+      ],
       concurrency: 2,
       readFile,
       async writeFile() {},
@@ -129,7 +133,7 @@ describe("transferFullXmlSyncExternalFiles", () => {
       transferFullXmlSyncExternalFiles({
         outputDir,
         files: [
-          externalFile("ok.bin", join(projectDir, "ok.bin"), "Ext/ok.bin"),
+          externalFile("ok.bin", join(projectDir, "ok.bin"), "Ext/ok.bin", Buffer.from([9])),
           externalFile("missing.bin", join(projectDir, "missing.bin"), "Ext/missing.bin"),
         ],
         concurrency: 1,
@@ -153,8 +157,41 @@ describe("transferFullXmlSyncExternalFiles", () => {
       })
     ).rejects.toThrow("missing-capability")
   })
+
+  it("rejects an external file changed after hashes were read", async () => {
+    const writeFile = vi.fn(async () => undefined)
+
+    await expect(
+      transferFullXmlSyncExternalFiles({
+        outputDir: tempDir(),
+        files: [
+          externalFile(
+            "changed.bin",
+            "/changed.bin",
+            "Ext/changed.bin",
+            Buffer.from("before")
+          ),
+        ],
+        async readFile() {
+          return Buffer.from("after")
+        },
+        writeFile,
+      })
+    ).rejects.toThrow("изменён после получения хэшей")
+    expect(writeFile).not.toHaveBeenCalled()
+  })
 })
 
-function externalFile(sourceProjectPath: string, sourcePath: string, targetXmlPath: string): FullXmlSyncExternalFile {
-  return { sourceProjectPath, sourcePath, expectedContentHash: 0n, targetXmlPath }
+function externalFile(
+  sourceProjectPath: string,
+  sourcePath: string,
+  targetXmlPath: string,
+  expectedBytes = Buffer.alloc(0)
+): FullXmlSyncExternalFile {
+  return {
+    sourceProjectPath,
+    sourcePath,
+    expectedContentHash: hashFileBytes(expectedBytes),
+    targetXmlPath,
+  }
 }

@@ -50,10 +50,17 @@ export async function transferFullXmlSyncExternalFiles(
           ? await transferBufferedForInjectedIo({
               sourcePath: transfer.sourcePath,
               targetPath: transfer.targetPath,
+              expectedContentHash: file.expectedContentHash,
+              sourceProjectPath: file.sourceProjectPath,
               readFile: options.readFile ?? fs.promises.readFile,
               writeFile: options.writeFile ?? fs.promises.writeFile,
             })
-          : await transferStreamedFile({ sourcePath: transfer.sourcePath, targetPath: transfer.targetPath })
+          : await transferStreamedFile({
+              sourcePath: transfer.sourcePath,
+              targetPath: transfer.targetPath,
+              expectedContentHash: file.expectedContentHash,
+              sourceProjectPath: file.sourceProjectPath,
+            })
         return {
           projectFile: { projectPath: file.sourceProjectPath, contentHash },
           copiedFile: {
@@ -85,15 +92,28 @@ function requireTransferCapability(id: string) {
 async function transferBufferedForInjectedIo(params: {
   sourcePath: string
   targetPath: string
+  expectedContentHash: bigint
+  sourceProjectPath: string
   readFile: (path: string) => Promise<Buffer>
   writeFile: (path: string, bytes: Buffer) => Promise<void>
 }): Promise<bigint> {
   const bytes = await params.readFile(params.sourcePath)
+  const contentHash = hashFileBytes(bytes)
+  assertExpectedContentHash({
+    actual: contentHash,
+    expected: params.expectedContentHash,
+    sourceProjectPath: params.sourceProjectPath,
+  })
   await params.writeFile(params.targetPath, bytes)
-  return hashFileBytes(bytes)
+  return contentHash
 }
 
-async function transferStreamedFile(params: { sourcePath: string; targetPath: string }): Promise<bigint> {
+async function transferStreamedFile(params: {
+  sourcePath: string
+  targetPath: string
+  expectedContentHash: bigint
+  sourceProjectPath: string
+}): Promise<bigint> {
   const hasher = xxh3.Xxh3.withSeed()
   const hashingTransform = new Transform({
     transform(chunk: Buffer, _encoding, callback) {
@@ -111,7 +131,25 @@ async function transferStreamedFile(params: { sourcePath: string; targetPath: st
     await fs.promises.rm(params.targetPath, { force: true })
     throw caught
   }
-  return hasher.digest()
+  const contentHash = hasher.digest()
+  assertExpectedContentHash({
+    actual: contentHash,
+    expected: params.expectedContentHash,
+    sourceProjectPath: params.sourceProjectPath,
+  })
+  return contentHash
+}
+
+function assertExpectedContentHash(params: {
+  actual: bigint
+  expected: bigint
+  sourceProjectPath: string
+}): void {
+  if (params.actual !== params.expected) {
+    throw new Error(
+      `Внешний файл изменён после получения хэшей: ${params.sourceProjectPath}`
+    )
+  }
 }
 
 function validateTransferPlan(params: { outputRoot: string; files: readonly FullXmlSyncExternalFile[] }): string[] {
