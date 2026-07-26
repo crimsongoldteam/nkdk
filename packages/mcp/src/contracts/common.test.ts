@@ -1,7 +1,20 @@
 import { describe, expect, it } from "vitest"
-import { jsonToolResult, toolError, toolSuccess } from "./common"
+import { errorCodeSchema, jsonToolResult, toolError, toolSuccess } from "./common"
 
 describe("common MCP contracts", () => {
+  it.each([
+    "platform_not_found",
+    "platform_component_missing",
+    "unsupported_connection",
+    "invalid_project_settings",
+    "authentication_failed",
+    "session_start_failed",
+    "session_timeout",
+    "platform_command_failed",
+  ])("accepts the stable platform error code %s", (code) => {
+    expect(errorCodeSchema.parse(code)).toBe(code)
+  })
+
   it("serializes success payloads to structuredContent and JSON text", () => {
     const payload = toolSuccess({ value: 42 })
 

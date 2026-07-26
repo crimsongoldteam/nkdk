@@ -7,6 +7,14 @@ export const errorCodeSchema = z.enum([
   "not_found",
   "sync_state_required",
   "core_error",
+  "platform_not_found",
+  "platform_component_missing",
+  "unsupported_connection",
+  "invalid_project_settings",
+  "authentication_failed",
+  "session_start_failed",
+  "session_timeout",
+  "platform_command_failed",
 ])
 
 export const toolErrorOutputShape = {
