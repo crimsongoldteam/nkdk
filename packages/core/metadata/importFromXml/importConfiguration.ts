@@ -18,8 +18,14 @@ import { createOperationProfiler } from "../validation/profile"
 import { discoverXmlImport } from "./discovery"
 import { createImportSharedMetadata } from "./metadataSnapshot"
 import { compileRegisteredMetadataResourceTopology } from "../resourceTopology/registry"
-import { copyXmlImportExternalFiles, mergeImportResultFiles } from "./transfer"
-import type { ImportAssignment, ImportDiagnostic, ImportResultFile, ImportSnapshotFile } from "./types"
+import { mergeImportResultFiles, transferXmlImportExternalFiles } from "./transfer"
+import type {
+  ExternalFileTransfer,
+  ImportAssignment,
+  ImportDiagnostic,
+  ImportResultFile,
+  ImportSnapshotFile,
+} from "./types"
 import { getMetadataSnapshotImportCapability } from "../resourceTopology/capabilities"
 import {
   createXmlImportWorkerPool,
@@ -41,6 +47,7 @@ export interface ImportConfigurationFromXmlParams {
   outputDir: string
   concurrency?: number
   copyExternalConcurrency?: number
+  externalFileTransfer?: ExternalFileTransfer
   hashConcurrency?: number
   operationId?: string
   xmlImportWorkerPoolHandle?: XmlImportWorkerPoolHandle
@@ -57,10 +64,11 @@ export interface ImportCoordinatorDependencies {
   }): Promise<ConfigurationIndexFragment[]>
   createSharedMetadata(facts: readonly ValidationOwnerFacts[]): SharedValidationSnapshot
   mergeFiles(files: readonly ImportResultFile[]): ImportResultFile[]
-  copyExternalFiles(params: {
+  transferExternalFiles(params: {
     projectDir: string
     files: readonly ImportResultFile[]
     concurrency?: number
+    transfer: ExternalFileTransfer
   }): Promise<void>
   hashProject(projectDir: string, projectPaths: readonly string[], options: { concurrency?: number }): Promise<ConfigurationProjectFile[]>
   readIndex(params: { projectDir: string; baseId: string }): Promise<ConfigurationIndexData | undefined>
@@ -75,7 +83,7 @@ const defaultImportDependencies: ImportCoordinatorDependencies = {
   collectSnapshotFragments,
   createSharedMetadata: createImportSharedMetadata,
   mergeFiles: mergeImportResultFiles,
-  copyExternalFiles: copyXmlImportExternalFiles,
+  transferExternalFiles: transferXmlImportExternalFiles,
   hashProject: hashConfigurationProjectFileList,
   readIndex: readConfigurationIndex,
   writeIndex: writeConfigurationIndexAtomically,
@@ -155,9 +163,10 @@ export async function importConfigurationFromXml(
       () => deps.mergeFiles(second.files)
     )
     await profiler.measureAsync("Подготовка импорта конфигурации", "Копирование внешних файлов XML-выгрузки", { items: files.length }, () =>
-      deps.copyExternalFiles({
+      deps.transferExternalFiles({
         projectDir: params.outputDir,
         files,
+        transfer: params.externalFileTransfer ?? "copy",
         ...(params.copyExternalConcurrency === undefined ? {} : { concurrency: params.copyExternalConcurrency }),
       })
     )

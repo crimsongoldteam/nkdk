@@ -3,6 +3,7 @@ import type { SharedValidationSnapshot } from "../validation/sharedValidationSna
 import type { ValidationOwnerFacts } from "../validation/dataPath/ownerFacts"
 
 export type ImportAssignmentRole = "configuration" | "properties" | "fileItem"
+export type ExternalFileTransfer = "copy" | "move"
 
 export interface ImportXmlInput {
   role: "metadata" | "body" | "property"

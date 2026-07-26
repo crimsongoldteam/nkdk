@@ -11,6 +11,7 @@ export {
   type XmlImportWorkerPoolHandle,
 } from "./workerPool"
 export type {
+  ExternalFileTransfer,
   ImportAssignment,
   ImportAssignmentRole,
   ImportDiagnostic,
