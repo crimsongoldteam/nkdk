@@ -5,6 +5,14 @@ import {
   importWarningSchema,
 } from "./importFromXml"
 
+const databaseConnectionSchema = z.strictObject({
+  dbms: z.enum(["MSSQLServer", "PostgreSQL", "IBMDB2", "OracleDatabase"]),
+  server: z.string().min(1),
+  name: z.string().min(1),
+  user: z.string().min(1),
+  password: z.string().optional(),
+})
+
 export const importFromInfobaseInputShape = {
   projectDir: z.string().min(1),
   connectionString: z.string().min(1),
@@ -12,6 +20,7 @@ export const importFromInfobaseInputShape = {
   password: z.string().optional(),
   useStandaloneServer: z.boolean().optional(),
   sessionIdleTimeout: z.number().int().positive().optional(),
+  database: databaseConnectionSchema.optional(),
   allowWrite: z.boolean().optional(),
 }
 

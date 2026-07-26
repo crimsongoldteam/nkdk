@@ -48,6 +48,8 @@ export interface SessionFileSystem {
   writeFile(path: string, content: string, options?: { mode?: number }): Promise<void>
   readFile(path: string): Promise<string>
   rm(path: string): Promise<void>
+  rename(from: string, to: string): Promise<void>
+  chmod(path: string, mode: number): Promise<void>
   realpath(path: string): Promise<string>
 }
 

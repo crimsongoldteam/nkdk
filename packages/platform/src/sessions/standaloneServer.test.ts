@@ -14,10 +14,13 @@ describe("standalone server session", () => {
 
     expect(fixture.calls).toEqual([
       "mkdir /project/.nkdk/platform-sessions/standalone",
+      "rm /project/.nkdk/platform-sessions/standalone/config.yaml",
       "run ibcmd server config init --database-path=/bases/demo timeout=1800000",
-      "write /project/.nkdk/platform-sessions/standalone/config.yaml",
+      "write /project/.nkdk/platform-sessions/standalone/config.yaml mode=384",
+      "chmod /project/.nkdk/platform-sessions/standalone/config.yaml mode=384",
       "run ibcmd infobase config export --password=secret --config=/project/.nkdk/platform-sessions/standalone/config.yaml /project/.nkdk/tmp/op/xml timeout=1800000",
       "write /project/.nkdk/tmp/op/platform.log",
+      "rm /project/.nkdk/platform-sessions/standalone/config.yaml",
     ])
     expect(fixture.writes.get("/project/.nkdk/platform-sessions/standalone/config.yaml")).toBe(
       "database:\n  path: /bases/demo\n"
@@ -41,11 +44,54 @@ describe("standalone server session", () => {
     expect(fixture.calls).toEqual([])
   })
 
-  it("rejects a client-server connection before touching runtime boundaries", async () => {
+  it("prepares an offline client-server configuration from database credentials", async () => {
     const fixture = createFixture()
+    const session = await createStandaloneServerSession(
+      createParams({
+        settings: {
+          connectionString: 'Srvr="cluster";Ref="production";',
+          database: {
+            dbms: "PostgreSQL",
+            server: "db.example.local",
+            name: "production",
+            user: "dbuser",
+            password: "dbsecret",
+          },
+        },
+      }),
+      fixture.dependencies
+    )
+    await session.exportConfiguration(
+      "/project/.nkdk/tmp/op/xml",
+      "/project/.nkdk/tmp/op/platform.log"
+    )
+
+    expect(fixture.calls).toContain(
+      "run ibcmd server config init --dbms=PostgreSQL --database-server=db.example.local --database-name=production --database-user=dbuser --database-password=dbsecret timeout=1800000"
+    )
+    expect(fixture.calls).toContain(
+      "run ibcmd infobase config export --password=secret --config=/project/.nkdk/platform-sessions/standalone/config.yaml /project/.nkdk/tmp/op/xml timeout=1800000"
+    )
+  })
+
+  it("rejects a client-server connection without database credentials", async () => {
+    const fixture = createFixture()
+
     await expect(
       createStandaloneServerSession(
         createParams({ settings: { connectionString: 'Srvr="server";Ref="base";' } }),
+        fixture.dependencies
+      )
+    ).rejects.toMatchObject({ code: "invalid_project_settings" })
+    expect(fixture.calls).toEqual([])
+  })
+
+  it("rejects an unsupported connection before touching runtime boundaries", async () => {
+    const fixture = createFixture()
+
+    await expect(
+      createStandaloneServerSession(
+        createParams({ settings: { connectionString: 'ws="https://example.test";' } }),
         fixture.dependencies
       )
     ).rejects.toMatchObject({ code: "unsupported_connection" })
@@ -57,6 +103,9 @@ describe("standalone server session", () => {
     await expect(
       createStandaloneServerSession(createParams(), initFailure.dependencies)
     ).rejects.toMatchObject({ code: "session_start_failed" })
+    expect(initFailure.calls).toContain(
+      "rm /project/.nkdk/platform-sessions/standalone/config.yaml"
+    )
     const exportFailure = createFixture({ exportExitCode: 1 })
     const session = await createStandaloneServerSession(createParams(), exportFailure.dependencies)
     await expect(session.exportConfiguration("/xml", "/log")).rejects.toMatchObject({
@@ -98,6 +147,19 @@ describe("standalone server session", () => {
     expect(session.isAlive()).toBe(true)
     await expect(session.close()).resolves.toEqual({ stoppedOwnedProcess: false })
     expect(session.isAlive()).toBe(false)
+    expect(fixture.calls).toContain(
+      "rm /project/.nkdk/platform-sessions/standalone/config.yaml"
+    )
+  })
+
+  it("can retry closing when removing the private config fails", async () => {
+    const fixture = createFixture({ rmFailureCall: 2 })
+    const session = await createStandaloneServerSession(createParams(), fixture.dependencies)
+
+    await expect(session.close()).rejects.toThrow("rm failed")
+    expect(session.isAlive()).toBe(true)
+    await expect(session.close()).resolves.toEqual({ stoppedOwnedProcess: false })
+    expect(fixture.calls.filter((call) => call.startsWith("rm "))).toHaveLength(3)
   })
 })
 
@@ -134,6 +196,7 @@ function createFixture(
     initTimedOut?: boolean
     exportExitCode?: number
     exportTimedOut?: boolean
+    rmFailureCall?: number
   } = {}
 ): {
   calls: string[]
@@ -142,6 +205,7 @@ function createFixture(
 } {
   const calls: string[] = []
   const writes = new Map<string, string>()
+  let rmCalls = 0
   return {
     calls,
     writes,
@@ -150,9 +214,21 @@ function createFixture(
         async mkdir(path) {
           calls.push(`mkdir ${path}`)
         },
-        async writeFile(path, content) {
-          calls.push(`write ${path}`)
+        async writeFile(path, content, writeOptions) {
+          calls.push(
+            `write ${path}${writeOptions?.mode === undefined ? "" : ` mode=${writeOptions.mode}`}`
+          )
           writes.set(path, content)
+        },
+        async chmod(path, mode) {
+          calls.push(`chmod ${path} mode=${mode}`)
+        },
+        async rm(path) {
+          calls.push(`rm ${path}`)
+          rmCalls += 1
+          if (rmCalls === options.rmFailureCall) {
+            throw new Error("rm failed")
+          }
         },
       },
       processRuntime: {
@@ -172,6 +248,7 @@ function createFixture(
         },
       },
       commandTimeoutMs: 1_800_000,
+      platform: "darwin",
     },
   }
 }

@@ -95,6 +95,7 @@ export async function importFromInfobase(
       ...(input.sessionIdleTimeout === undefined
         ? {}
         : { sessionIdleTimeout: input.sessionIdleTimeout }),
+      ...(input.database === undefined ? {} : { database: input.database }),
     })
     const result = await dependencies.importXml({
       context: {
@@ -134,6 +135,7 @@ export async function importFromInfobase(
         ...(input.sessionIdleTimeout === undefined
           ? {}
           : { sessionIdleTimeout: input.sessionIdleTimeout }),
+        ...(input.database === undefined ? {} : { database: input.database }),
       },
     })
     await dependencies.fs.rm(temporaryDirectory)

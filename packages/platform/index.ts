@@ -4,6 +4,8 @@ export type {
   CloseAllConnectionsResult,
   CloseConnectionResult,
   CreatePlatformSessionParams,
+  DatabaseConnectionSettings,
+  DatabaseManagementSystem,
   ExportConfigurationParams,
   ExportConfigurationResult,
   NormalizedPlatformConnectionSettings,

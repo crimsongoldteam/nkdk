@@ -45,6 +45,30 @@ describe("import from infobase", () => {
     expect(JSON.stringify(result)).not.toContain("secret")
   })
 
+  it("passes database credentials to the platform and project settings", async () => {
+    const fixture = createFixture()
+    const database = {
+      dbms: "PostgreSQL" as const,
+      server: "db.example.local",
+      name: "production",
+      user: "dbuser",
+      password: "dbsecret",
+    }
+
+    await importFromInfobase(
+      {
+        ...input(),
+        connectionString: 'Srvr="cluster";Ref="production";',
+        useStandaloneServer: true,
+        database,
+      },
+      fixture.dependencies
+    )
+
+    expect(fixture.exportedSettings).toMatchObject({ database })
+    expect(fixture.writtenSettings).toMatchObject({ infobase: { database } })
+  })
+
   it("preserves the dump and does not save settings after object failures", async () => {
     const fixture = createFixture({
       importResult: {
@@ -92,6 +116,34 @@ describe("import from infobase", () => {
     expect(fixture.calls).not.toContain("writeProjectSettings")
     expect(fixture.calls).not.toContain(expect.stringMatching(/^rm /))
   })
+
+  it("does not expose infobase or database passwords in an error result", async () => {
+    const fixture = createFixture({
+      exportError: new PlatformSessionError(
+        "session_start_failed",
+        "secret database-secret"
+      ),
+    })
+
+    const result = await importFromInfobase(
+      {
+        ...input(),
+        connectionString: 'Srvr="cluster";Ref="production";',
+        useStandaloneServer: true,
+        database: {
+          dbms: "PostgreSQL",
+          server: "db",
+          name: "base",
+          user: "dbuser",
+          password: "database-secret",
+        },
+      },
+      fixture.dependencies
+    )
+
+    expect(JSON.stringify(result)).not.toContain("secret")
+    expect(JSON.stringify(result)).not.toContain("database-secret")
+  })
 })
 
 function input() {
@@ -122,15 +174,22 @@ function createFixture(
   } = {}
 ): {
   calls: string[]
+  exportedSettings: Record<string, unknown>
+  writtenSettings: Record<string, unknown>
   dependencies: ImportFromInfobaseDependencies
 } {
   const calls: string[] = []
+  const exportedSettings: Record<string, unknown> = {}
+  const writtenSettings: Record<string, unknown> = {}
   return {
     calls,
+    exportedSettings,
+    writtenSettings,
     dependencies: {
       platformManager: {
-        async exportConfiguration() {
+        async exportConfiguration(params) {
           calls.push("exportConfiguration")
+          Object.assign(exportedSettings, params)
           if (options.exportError !== undefined) throw options.exportError
           return { mode: "designer-agent", reusedConnection: false }
         },
@@ -146,8 +205,9 @@ function createFixture(
           }
         )
       },
-      async writeSettings() {
+      async writeSettings(params) {
         calls.push("writeProjectSettings")
+        Object.assign(writtenSettings, params)
         return { settingsPath: "/project/.nkdk/project.yaml" }
       },
       resolveTarget({ projectDir, componentPath }) {

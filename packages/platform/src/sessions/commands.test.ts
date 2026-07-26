@@ -80,6 +80,47 @@ describe("platform session commands", () => {
     })
   })
 
+  it("builds offline client-server ibcmd arguments without a shell", () => {
+    expect(
+      buildStandaloneConfigInit({
+        ibcmdPath: "ibcmd",
+        database: {
+          dbms: "PostgreSQL",
+          server: "db.example.local",
+          name: "production",
+          user: "dbuser",
+          password: "dbsecret",
+        },
+      })
+    ).toEqual({
+      command: "ibcmd",
+      args: [
+        "server",
+        "config",
+        "init",
+        "--dbms=PostgreSQL",
+        "--database-server=db.example.local",
+        "--database-name=production",
+        "--database-user=dbuser",
+        "--database-password=dbsecret",
+      ],
+    })
+  })
+
+  it("omits an absent database password from ibcmd arguments", () => {
+    expect(
+      buildStandaloneConfigInit({
+        ibcmdPath: "ibcmd",
+        database: {
+          dbms: "PostgreSQL",
+          server: "db.example.local",
+          name: "production",
+          user: "dbuser",
+        },
+      }).args
+    ).not.toContain(expect.stringContaining("--database-password"))
+  })
+
   it("quotes a dump directory for the interactive 1C shell", () => {
     expect(buildDumpConfigurationCommand("/project/.nkdk/tmp/op/xml")).toBe(
       'config dump-config-to-files --dir="/project/.nkdk/tmp/op/xml" --format=hierarchical'

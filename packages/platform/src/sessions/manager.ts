@@ -24,6 +24,7 @@ type SessionFingerprint = {
   connectionString: string
   user?: string
   password?: string
+  database?: NormalizedPlatformConnectionSettings["database"]
   mode: PlatformSessionMode
 }
 
@@ -44,6 +45,7 @@ export function createPlatformSessionManager(
     params: Parameters<PlatformSessionManager["exportConfiguration"]>[0]
   ) {
     const key = await dependencies.canonicalizeProjectDir(params.projectDir)
+    const outputDir = await dependencies.canonicalizeProjectDir(params.outputDir)
     return enqueue(key, async () => {
       const settings = normalizePlatformConnectionSettings(params)
       const mode: PlatformSessionMode = settings.useStandaloneServer
@@ -70,7 +72,7 @@ export function createPlatformSessionManager(
       }
 
       try {
-        await cached.session.exportConfiguration(params.outputDir, params.logPath)
+        await cached.session.exportConfiguration(outputDir, params.logPath)
         return { mode, reusedConnection }
       } finally {
         if (sessions.get(key) === cached && (pendingOperations.get(key) ?? 0) <= 1) {
@@ -174,6 +176,7 @@ function createFingerprint(
     connectionString: settings.connectionString,
     ...(settings.user === undefined ? {} : { user: settings.user }),
     ...(settings.password === undefined ? {} : { password: settings.password }),
+    ...(settings.database === undefined ? {} : { database: settings.database }),
     mode,
   }
 }
@@ -183,7 +186,22 @@ function fingerprintsEqual(left: SessionFingerprint, right: SessionFingerprint):
     left.connectionString === right.connectionString &&
     left.user === right.user &&
     left.password === right.password &&
+    databaseSettingsEqual(left.database, right.database) &&
     left.mode === right.mode
+  )
+}
+
+function databaseSettingsEqual(
+  left: NormalizedPlatformConnectionSettings["database"],
+  right: NormalizedPlatformConnectionSettings["database"]
+): boolean {
+  if (left === undefined || right === undefined) return left === right
+  return (
+    left.dbms === right.dbms &&
+    left.server === right.server &&
+    left.name === right.name &&
+    left.user === right.user &&
+    left.password === right.password
   )
 }
 

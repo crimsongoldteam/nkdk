@@ -30,6 +30,8 @@ const fileSystem: SessionFileSystem = {
   async rm(path) {
     await fs.promises.rm(path, { recursive: true, force: true })
   },
+  rename: fs.promises.rename,
+  chmod: fs.promises.chmod,
   realpath: fs.promises.realpath,
 }
 
@@ -125,6 +127,7 @@ export function createNodePlatformSessionManagerDependencies(): PlatformSessionM
         fileSystem,
         processRuntime,
         commandTimeoutMs: 30 * 60 * 1000,
+        platform: process.platform,
       }),
     setTimer(callback, timeoutMs) {
       const timer = setTimeout(callback, timeoutMs)

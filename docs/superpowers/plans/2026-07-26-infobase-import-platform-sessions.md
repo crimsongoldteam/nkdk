@@ -632,7 +632,9 @@ expect(calls).toEqual([
   "spawn /opt/1cv8/8.3.27.2214/1cv8 DESIGNER ...",
   "ssh.connect 127.0.0.1:58248",
   "shell.connect-ib",
-  "shell.run config dump-config-to-files --dir=\"tmp/op/xml\" --format=hierarchical",
+  "read /project/.nkdk/agentbasedir.json",
+  "shell.run config dump-config-to-files --dir=\".nkdk-export\" --format=hierarchical",
+  "rename /project/.nkdk/0/.nkdk-export /project/.nkdk/tmp/op/xml",
 ])
 ```
 
@@ -657,14 +659,15 @@ alive. `/AgentBaseDir` is the project `.nkdk` directory; the process `/Out` log
 lives in `sessionDir/process.log`, so successful deletion of an operation
 directory does not remove a file used by a cached process.
 `exportConfiguration(outputDir, operationLogPath)` verifies that `outputDir`
-is inside `.nkdk`, converts it to a path relative to `/AgentBaseDir`, delegates
-to the shared command session with
-`buildDumpConfigurationCommand(relativeOutputDir)`, and writes only redacted
-command diagnostics to the operation log.
+is inside `.nkdk`, reads the empty SSH user's service directory from
+`agentbasedir.json`, exports to an owned staging directory inside that service
+directory, and renames the staging directory to `outputDir`. A partial dump is
+also moved after a command failure. Only redacted diagnostics are written to
+the operation log.
 
 - [ ] **Step 4: Implement safe close**
 
-Close sequence:
+Close sequence; each graceful command is bounded by `closeTimeoutMs`:
 
 ```ts
 await commandSession.run("common disconnect-ib")
@@ -1300,7 +1303,7 @@ Use `superpowers:requesting-code-review`, resolve findings, then re-run `pnpm te
 - Offline `ibcmd` mode accepts both, requiring `database` only for
   `Srvr`/`Ref`.
 
-- [ ] **Step 1: Add failing settings and MCP contract tests**
+- [x] **Step 1: Add failing settings and MCP contract tests**
 
 Using only mocked boundaries, cover:
 
@@ -1320,7 +1323,7 @@ pnpm --filter @nkdk/mcp exec vitest run src/contracts/importFromInfobase.test.ts
 
 Expected: FAIL because `database` is not in the contracts.
 
-- [ ] **Step 2: Implement the shared database settings contract**
+- [x] **Step 2: Implement the shared database settings contract**
 
 Add:
 
@@ -1339,14 +1342,16 @@ Include it in the private session fingerprint without serializing credentials.
 Mirror the strict shape in the MCP Zod input and pass it unchanged through the
 service.
 
-- [ ] **Step 3: Add failing Designer File tests**
+- [x] **Step 3: Add failing Designer File tests**
 
 Replace the rejection test with a `File` lifecycle test. Assert `/F<path>`,
 the same pinned SSH key, and a dump command without `--server`.
 
 Set `/AgentBaseDir` to `<projectDir>/.nkdk`. For an operation output such as
 `<projectDir>/.nkdk/tmp/import-from-infobase/op-1/xml`, assert the interactive
-command receives only `tmp/import-from-infobase/op-1/xml`. Reject an output
+command receives the owned staging path `.nkdk-export` inside the service
+directory from `agentbasedir.json`, then assert the staging directory is
+renamed to the operation output. Reject an unsafe service mapping or output
 path outside `.nkdk`.
 
 Run:
@@ -1358,14 +1363,15 @@ pnpm --filter @nkdk/platform exec vitest run src/sessions/designerAgent.test.ts 
 Expected: FAIL because the adapter currently rejects `File` and passes an
 absolute output path.
 
-- [ ] **Step 4: Implement Designer support for both connection types**
+- [x] **Step 4: Implement Designer support for both connection types**
 
 Allow `connection.type === "file" || connection.type === "server"`. Preserve
-the existing process ownership, SSH fingerprint verification, retry and close
-behavior. Compute the dump path with `relative(agentBaseDir, outputDir)` after
-verifying containment; normalize separators for the interactive 1C command.
+the existing process ownership, SSH fingerprint verification and retry
+behavior. Resolve the service directory from `agentbasedir.json`, stage the
+dump inside it, then rename the result to the canonical operation output.
+Bound graceful close commands by `closeTimeoutMs`.
 
-- [ ] **Step 5: Add failing standalone client-server tests**
+- [x] **Step 5: Add failing standalone client-server tests**
 
 Assert the exact `ibcmd server config init` arguments:
 
@@ -1392,21 +1398,22 @@ pnpm --filter @nkdk/platform exec vitest run src/sessions/standaloneServer.test.
 
 Expected: FAIL because the adapter currently accepts only `File`.
 
-- [ ] **Step 6: Implement standalone support for both connection types**
+- [x] **Step 6: Implement standalone support for both connection types**
 
 Keep the existing file branch. Add a server branch that builds `config init`
 from `database`; do not derive DBMS coordinates from `Srvr`/`Ref`. Validate the
 returned YAML before writing it, retain the 30-minute timeout, and keep
 infobase `user`/`password` only on `infobase config export`.
 
-- [ ] **Step 7: Update architecture and public documentation**
+- [x] **Step 7: Update architecture and public documentation**
 
-Correct the meaning of `--server`; document the complete 2×2 matrix, the
-relative `/AgentBaseDir` path, the nested `database` object, plaintext password
-limitations, and required settings for standalone client-server access.
+Correct the meaning of `--server`; document the complete 2×2 matrix,
+`agentbasedir.json` and staging transfer, the nested `database` object,
+plaintext password limitations, and required settings for standalone
+client-server access.
 Regenerate `packages/mcp/README.md` through the normal build.
 
-- [ ] **Step 8: Run focused and real verification**
+- [x] **Step 8: Run focused and real verification**
 
 Run:
 
@@ -1423,7 +1430,7 @@ Use the real MCP tool on `File="/Users/nikita/Базы 1С/all";` in both
 non-empty successful imports and close both connections. Client-server
 execution remains mocked until credentials for a real test base are supplied.
 
-- [ ] **Step 9: Run mandatory full verification and commit**
+- [x] **Step 9: Run mandatory full verification and commit**
 
 Run `pnpm test`, `git diff --check`, and `git status --short`. Use
 `superpowers:requesting-code-review`, resolve all Critical/Important findings,

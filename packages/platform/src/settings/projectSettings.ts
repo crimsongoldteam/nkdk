@@ -4,6 +4,8 @@ import { parse, stringify } from "yaml"
 import { parseConnection } from "../infobases/parseConnection"
 import { PlatformSessionError } from "../sessions/errors"
 import type {
+  DatabaseConnectionSettings,
+  DatabaseManagementSystem,
   NormalizedPlatformConnectionSettings,
   PlatformConnectionSettings,
   ProjectSettings,
@@ -11,6 +13,19 @@ import type {
 
 const DEFAULT_SESSION_IDLE_TIMEOUT = 900
 const PRIVATE_FILE_MODE = 0o600
+const DATABASE_MANAGEMENT_SYSTEMS: ReadonlySet<string> = new Set([
+  "MSSQLServer",
+  "PostgreSQL",
+  "IBMDB2",
+  "OracleDatabase",
+])
+const DATABASE_FIELDS: ReadonlySet<string> = new Set([
+  "dbms",
+  "server",
+  "name",
+  "user",
+  "password",
+])
 
 export interface ProjectSettingsFileSystem {
   readFile(path: string): Promise<string>
@@ -114,8 +129,12 @@ export function normalizePlatformConnectionSettings(
     value["sessionIdleTimeout"],
     DEFAULT_SESSION_IDLE_TIMEOUT
   )
-  if (useStandaloneServer && connection.type !== "file") {
-    throw invalidSettings("Автономный сервер поддерживает только файловую информационную базу")
+  const database = optionalDatabase(value["database"])
+  if (connection.type === "file" && database !== undefined) {
+    throw invalidSettings("Параметры СУБД нельзя задавать для файловой информационной базы")
+  }
+  if (useStandaloneServer && connection.type === "server" && database === undefined) {
+    throw invalidSettings("Для offline-доступа к клиент-серверной базе нужны параметры СУБД")
   }
 
   return {
@@ -124,7 +143,40 @@ export function normalizePlatformConnectionSettings(
     ...(password === undefined ? {} : { password }),
     useStandaloneServer,
     sessionIdleTimeout,
+    ...(database === undefined ? {} : { database }),
   }
+}
+
+function optionalDatabase(value: unknown): DatabaseConnectionSettings | undefined {
+  if (value === undefined) return undefined
+  if (!isRecord(value)) throw invalidSettings("Параметры СУБД должны быть объектом")
+  if (Object.keys(value).some((key) => !DATABASE_FIELDS.has(key))) {
+    throw invalidSettings("Параметры СУБД содержат неизвестное поле")
+  }
+
+  const dbms = value["dbms"]
+  if (typeof dbms !== "string" || !DATABASE_MANAGEMENT_SYSTEMS.has(dbms)) {
+    throw invalidSettings("Указана неподдерживаемая СУБД")
+  }
+  const server = requiredDatabaseString(value["server"], "Сервер СУБД")
+  const name = requiredDatabaseString(value["name"], "Имя базы данных")
+  const user = requiredDatabaseString(value["user"], "Пользователь СУБД")
+  const password = optionalString(value["password"], "Пароль СУБД")
+  return {
+    dbms: dbms as DatabaseManagementSystem,
+    server,
+    name,
+    user,
+    ...(password === undefined ? {} : { password }),
+  }
+}
+
+function requiredDatabaseString(value: unknown, fieldName: string): string {
+  const result = optionalString(value, fieldName)
+  if (result === undefined || result.trim() === "") {
+    throw invalidSettings(`${fieldName} не задан`)
+  }
+  return result
 }
 
 function optionalString(value: unknown, fieldName: string): string | undefined {

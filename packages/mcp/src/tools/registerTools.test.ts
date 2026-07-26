@@ -58,6 +58,7 @@ describe("registerNkdkCapabilities", () => {
     expect(infobaseImportTool?.description).toContain("allowWrite=true")
     expect(infobaseImportTool?.description).toContain("пустой cf")
     expect(infobaseImportTool?.description).toContain("Запускает 1С")
+    expect(infobaseImportTool?.description).toContain("параметры СУБД")
 
     for (const name of [
       "nkdk.close_platform_connection",

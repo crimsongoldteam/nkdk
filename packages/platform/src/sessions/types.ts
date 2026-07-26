@@ -2,18 +2,33 @@ import type { PlatformInstallation } from "../platform/findPlatform"
 
 export type PlatformSessionMode = "designer-agent" | "standalone-server"
 
+export type DatabaseManagementSystem =
+  | "MSSQLServer"
+  | "PostgreSQL"
+  | "IBMDB2"
+  | "OracleDatabase"
+
+export type DatabaseConnectionSettings = {
+  dbms: DatabaseManagementSystem
+  server: string
+  name: string
+  user: string
+  password?: string
+}
+
 export type PlatformConnectionSettings = {
   connectionString: string
   user?: string
   password?: string
   useStandaloneServer?: boolean
   sessionIdleTimeout?: number
+  database?: DatabaseConnectionSettings
 }
 
 export type NormalizedPlatformConnectionSettings = Required<
   Pick<PlatformConnectionSettings, "connectionString" | "useStandaloneServer" | "sessionIdleTimeout">
 > &
-  Pick<PlatformConnectionSettings, "user" | "password">
+  Pick<PlatformConnectionSettings, "user" | "password" | "database">
 
 export type ExportConfigurationParams = PlatformConnectionSettings & {
   projectDir: string

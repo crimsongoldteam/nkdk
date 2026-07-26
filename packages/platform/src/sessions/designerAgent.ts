@@ -1,4 +1,4 @@
-import { join } from "node:path"
+import { isAbsolute, join, relative, resolve, sep } from "node:path"
 import { parseConnection } from "../infobases/parseConnection"
 import { buildDesignerAgentLaunch, buildDumpConfigurationCommand } from "./commands"
 import { PlatformSessionError } from "./errors"
@@ -16,6 +16,10 @@ export interface DesignerAgentDependencies {
   portRuntime: SessionPortRuntime
   fileSystem: {
     mkdir(path: string): Promise<void>
+    readFile(path: string): Promise<string>
+    realpath(path: string): Promise<string>
+    rm(path: string): Promise<void>
+    rename(from: string, to: string): Promise<void>
     writeFile(path: string, content: string): Promise<void>
   }
   processRuntime: Pick<SessionProcessRuntime, "spawn">
@@ -43,15 +47,14 @@ export async function createDesignerAgentSession(
     )
   }
   const connection = parseConnection(params.settings.connectionString)
-  if (connection.type !== "server") {
+  if (connection.type !== "file" && connection.type !== "server") {
     throw new PlatformSessionError(
       "unsupported_connection",
-      connection.type === "file"
-        ? "Платформа игнорирует выгрузку XML через агент Конфигуратора для файловой базы; включите автономный сервер"
-        : "Агент Конфигуратора поддерживает только клиент-серверные базы"
+      "Агент Конфигуратора поддерживает только файловые и клиент-серверные базы"
     )
   }
 
+  const agentBaseDir = join(params.projectDir, ".nkdk")
   const port = await dependencies.portRuntime.reservePort("127.0.0.1")
   await dependencies.fileSystem.mkdir(params.sessionDir)
   const hostKeyPath = join(params.sessionDir, "host.key")
@@ -68,7 +71,7 @@ export async function createDesignerAgentSession(
     enterprisePath,
     connection,
     hostKeyPath,
-    baseDir: params.sessionDir,
+    baseDir: agentBaseDir,
     logPath: join(params.sessionDir, "process.log"),
     port,
   })
@@ -81,6 +84,8 @@ export async function createDesignerAgentSession(
   }
 
   let commandSession: PlatformCommandSession
+  let userServiceDir: string
+  let canonicalAgentBaseDir: string
   try {
     const shell = await connectWithRetry({ port, hostKeyHash, processHandle, dependencies })
     commandSession = await dependencies.openCommandSession({
@@ -89,6 +94,13 @@ export async function createDesignerAgentSession(
       password: params.settings.password,
       timeoutMs: dependencies.startupTimeoutMs,
     })
+    const directories = await readAgentDirectories(
+      params.projectDir,
+      agentBaseDir,
+      dependencies
+    )
+    canonicalAgentBaseDir = directories.agentBaseDir
+    userServiceDir = directories.userServiceDir
   } catch (caught) {
     await stopAfterFailedStart(processHandle)
     throw caught
@@ -105,7 +117,34 @@ export async function createDesignerAgentSession(
       if (closed) {
         throw new PlatformSessionError("platform_command_failed", "Соединение с платформой закрыто")
       }
-      await commandSession.run(buildDumpConfigurationCommand(outputDir))
+      const resolvedOutputDir = await checkedOutputDir(
+        canonicalAgentBaseDir,
+        outputDir,
+        dependencies
+      )
+      const stagingDir = join(userServiceDir, ".nkdk-export")
+      await prepareStagingDirectory(stagingDir, dependencies)
+      let commandFailure: unknown
+      try {
+        await commandSession.run(
+          buildDumpConfigurationCommand(
+            relativeAgentPath(userServiceDir, stagingDir)
+          )
+        )
+      } catch (caught) {
+        commandFailure = caught
+      }
+      try {
+        await moveStagingDirectory(stagingDir, resolvedOutputDir, dependencies)
+      } catch {
+        if (commandFailure === undefined) {
+          throw new PlatformSessionError(
+            "platform_command_failed",
+            "Не удалось переместить выгрузку агента в каталог операции"
+          )
+        }
+      }
+      if (commandFailure !== undefined) throw commandFailure
       try {
         await dependencies.fileSystem.writeFile(
           operationLogPath,
@@ -120,8 +159,18 @@ export async function createDesignerAgentSession(
     },
     async close() {
       if (closed) return { stoppedOwnedProcess: false }
-      await ignoreCleanupError(() => commandSession.run("common disconnect-ib"))
-      await ignoreCleanupError(() => commandSession.run("common shutdown"))
+      await ignoreCleanupError(() =>
+        runCleanupCommand(
+          () => commandSession.run("common disconnect-ib"),
+          dependencies
+        )
+      )
+      await ignoreCleanupError(() =>
+        runCleanupCommand(
+          () => commandSession.run("common shutdown"),
+          dependencies
+        )
+      )
       await ignoreCleanupError(() => commandSession.close())
       if (!processHandle.owned) {
         await ignoreCleanupError(() => processHandle.wait(dependencies.closeTimeoutMs))
@@ -138,6 +187,127 @@ export async function createDesignerAgentSession(
       return { stoppedOwnedProcess: true }
     },
   }
+}
+
+async function runCleanupCommand(
+  command: () => Promise<void>,
+  dependencies: DesignerAgentDependencies
+): Promise<void> {
+  await Promise.race([
+    command(),
+    dependencies.clock.sleep(dependencies.closeTimeoutMs),
+  ])
+}
+
+async function readAgentDirectories(
+  projectDir: string,
+  agentBaseDir: string,
+  dependencies: DesignerAgentDependencies
+): Promise<{ agentBaseDir: string; userServiceDir: string }> {
+  try {
+    const parsed: unknown = JSON.parse(
+      await dependencies.fileSystem.readFile(join(agentBaseDir, "agentbasedir.json"))
+    )
+    if (!isRecord(parsed) || !Array.isArray(parsed["usersInfo"])) {
+      throw new Error("invalid agent base mapping")
+    }
+    const user = parsed["usersInfo"].find(
+      (entry) =>
+        isRecord(entry) &&
+        entry["name"] === "" &&
+        typeof entry["dir"] === "string"
+    )
+    if (!isRecord(user) || typeof user["dir"] !== "string") {
+      throw new Error("agent user mapping not found")
+    }
+    const serviceDir = resolve(agentBaseDir, user["dir"])
+    if (!isPathInside(agentBaseDir, serviceDir)) {
+      throw new Error("agent user directory escapes base")
+    }
+    const canonicalProjectDir = await dependencies.fileSystem.realpath(projectDir)
+    const canonicalAgentBaseDir = await dependencies.fileSystem.realpath(agentBaseDir)
+    if (!isPathInside(canonicalProjectDir, canonicalAgentBaseDir)) {
+      throw new Error("agent base directory escapes project")
+    }
+    const canonicalServiceDir = await dependencies.fileSystem.realpath(serviceDir)
+    if (!isPathInside(canonicalAgentBaseDir, canonicalServiceDir)) {
+      throw new Error("agent user directory symlink escapes base")
+    }
+    return {
+      agentBaseDir: canonicalAgentBaseDir,
+      userServiceDir: canonicalServiceDir,
+    }
+  } catch {
+    throw new PlatformSessionError(
+      "session_start_failed",
+      "Не удалось определить рабочий каталог пользователя агента Конфигуратора"
+    )
+  }
+}
+
+async function checkedOutputDir(
+  agentBaseDir: string,
+  outputDir: string,
+  dependencies: DesignerAgentDependencies
+): Promise<string> {
+  let resolvedOutputDir: string
+  try {
+    resolvedOutputDir = await dependencies.fileSystem.realpath(outputDir)
+  } catch {
+    throw new PlatformSessionError(
+      "platform_command_failed",
+      "Не удалось канонизировать каталог выгрузки"
+    )
+  }
+  if (!isPathInside(agentBaseDir, resolvedOutputDir)) {
+    throw new PlatformSessionError(
+      "platform_command_failed",
+      "Каталог выгрузки должен находиться внутри AgentBaseDir"
+    )
+  }
+  return resolvedOutputDir
+}
+
+function relativeAgentPath(userServiceDir: string, stagingDir: string): string {
+  return relative(userServiceDir, stagingDir).split(sep).join("/")
+}
+
+async function prepareStagingDirectory(
+  stagingDir: string,
+  dependencies: DesignerAgentDependencies
+): Promise<void> {
+  try {
+    await dependencies.fileSystem.rm(stagingDir)
+    await dependencies.fileSystem.mkdir(stagingDir)
+  } catch {
+    throw new PlatformSessionError(
+      "platform_command_failed",
+      "Не удалось подготовить каталог выгрузки агента"
+    )
+  }
+}
+
+async function moveStagingDirectory(
+  stagingDir: string,
+  outputDir: string,
+  dependencies: DesignerAgentDependencies
+): Promise<void> {
+  await dependencies.fileSystem.rm(outputDir)
+  await dependencies.fileSystem.rename(stagingDir, outputDir)
+}
+
+function isPathInside(baseDir: string, targetDir: string): boolean {
+  const result = relative(resolve(baseDir), resolve(targetDir))
+  return (
+    result !== "" &&
+    result !== ".." &&
+    !result.startsWith(`..${sep}`) &&
+    !isAbsolute(result)
+  )
+}
+
+function isRecord(value: unknown): value is Record<string, unknown> {
+  return typeof value === "object" && value !== null && !Array.isArray(value)
 }
 
 async function connectWithRetry(params: {

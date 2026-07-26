@@ -1,5 +1,5 @@
 import { describe, expect, it, vi } from "vitest"
-import type { PlatformSession } from "./types"
+import type { ExportConfigurationParams, PlatformSession } from "./types"
 import {
   createPlatformSessionManager,
   type PlatformSessionManagerDependencies,
@@ -21,6 +21,19 @@ describe("platform session manager", () => {
     expect(fixture.created).toHaveLength(1)
   })
 
+  it("passes a canonical output directory to the platform session", async () => {
+    const fixture = createFixture()
+    fixture.dependencies.canonicalizeProjectDir = async (path) =>
+      path.replace(/^\/var\//, "/private/var/")
+    const manager = createPlatformSessionManager(fixture.dependencies)
+
+    await manager.exportConfiguration(exportParams({}, "/var/project"))
+
+    expect(fixture.exportedOutputDirs).toEqual([
+      "/private/var/project/.nkdk/tmp/op/xml",
+    ])
+  })
+
   it.each([
     { connectionString: 'File="/bases/other";' },
     { user: "Другой" },
@@ -34,6 +47,33 @@ describe("platform session manager", () => {
     await expect(manager.exportConfiguration(exportParams(change))).resolves.toMatchObject({
       reusedConnection: false,
     })
+
+    expect(fixture.created).toHaveLength(2)
+    expect(fixture.sessions[0]?.closeCalls).toBe(1)
+  })
+
+  it("replaces an offline session when database credentials change", async () => {
+    const fixture = createFixture()
+    const manager = createPlatformSessionManager(fixture.dependencies)
+    const database = {
+      dbms: "PostgreSQL" as const,
+      server: "db",
+      name: "base",
+      user: "dbuser",
+      password: "first",
+    }
+    const params = {
+      connectionString: 'Srvr="cluster";Ref="base";',
+      useStandaloneServer: true,
+      database,
+    }
+    await manager.exportConfiguration(exportParams(params))
+
+    await expect(
+      manager.exportConfiguration(
+        exportParams({ ...params, database: { ...database, password: "second" } })
+      )
+    ).resolves.toMatchObject({ reusedConnection: false })
 
     expect(fixture.created).toHaveLength(2)
     expect(fixture.sessions[0]?.closeCalls).toBe(1)
@@ -180,7 +220,7 @@ describe("platform session manager", () => {
 })
 
 function exportParams(
-  overrides: Partial<ReturnType<typeof baseExportParams>> = {},
+  overrides: Partial<ExportConfigurationParams> = {},
   projectDir = "/project"
 ) {
   return { ...baseExportParams(projectDir), ...overrides }
@@ -215,12 +255,14 @@ function createFixture(
   created: string[]
   sessions: FakeSession[]
   exportStarts: string[]
+  exportedOutputDirs: string[]
   activeTimers(): number[]
   expireLatestTimer(): void
 } {
   const created: string[] = []
   const sessions: FakeSession[] = []
   const exportStarts: string[] = []
+  const exportedOutputDirs: string[] = []
   let timerId = 0
   const timers = new Map<number, { callback: () => void; timeoutMs: number }>()
   const createSession = async (params: { projectDir: string }, mode: PlatformSession["mode"]) => {
@@ -232,9 +274,10 @@ function createFixture(
       mode,
       ownedProcess: true,
       closeCalls: 0,
-      async exportConfiguration() {
+      async exportConfiguration(outputDir) {
         exportCalls += 1
         exportStarts.push(`${params.projectDir}:${exportCalls}`)
+        exportedOutputDirs.push(outputDir)
         await options.exportHook?.(params.projectDir, exportCalls)
       },
       isAlive: () => alive,
@@ -258,6 +301,7 @@ function createFixture(
     created,
     sessions,
     exportStarts,
+    exportedOutputDirs,
     dependencies: {
       canonicalizeProjectDir: async (projectDir) => projectDir.replace(/\/+$/, ""),
       findPlatform: async () => ({

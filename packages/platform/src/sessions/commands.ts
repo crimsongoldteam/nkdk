@@ -1,5 +1,6 @@
 import type { InfobaseConnection } from "../infobases/types"
 import { PlatformSessionError } from "./errors"
+import type { DatabaseConnectionSettings } from "./types"
 
 export type ProcessLaunch = {
   command: string
@@ -34,13 +35,27 @@ export function buildDesignerAgentLaunch(params: {
   }
 }
 
-export function buildStandaloneConfigInit(params: {
-  ibcmdPath: string
-  databasePath: string
-}): ProcessLaunch {
+export function buildStandaloneConfigInit(
+  params: { ibcmdPath: string } & (
+    | { databasePath: string; database?: never }
+    | { database: DatabaseConnectionSettings; databasePath?: never }
+  )
+): ProcessLaunch {
+  const databaseArguments =
+    params.database === undefined
+      ? [`--database-path=${params.databasePath}`]
+      : [
+          `--dbms=${params.database.dbms}`,
+          `--database-server=${params.database.server}`,
+          `--database-name=${params.database.name}`,
+          `--database-user=${params.database.user}`,
+          ...(params.database.password === undefined
+            ? []
+            : [`--database-password=${params.database.password}`]),
+        ]
   return {
     command: params.ibcmdPath,
-    args: ["server", "config", "init", `--database-path=${params.databasePath}`],
+    args: ["server", "config", "init", ...databaseArguments],
   }
 }
 

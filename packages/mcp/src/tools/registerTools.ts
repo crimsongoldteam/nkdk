@@ -92,7 +92,7 @@ export function registerNkdkCapabilities(server: RegisterableServer): void {
     {
       title: "Import 1C infobase to NKDK YAML",
       description:
-        "Запускает 1С и импортирует основную конфигурацию базы только в отсутствующий или пустой cf проекта. Пишет файлы и сохраняет настройки только при allowWrite=true.",
+        "Запускает 1С и импортирует основную конфигурацию базы только в отсутствующий или пустой cf проекта. Агент и offline-режим ibcmd поддерживают File и Srvr/Ref; для offline Srvr/Ref нужны параметры СУБД. Пишет файлы и сохраняет настройки только при allowWrite=true.",
       inputSchema: importFromInfobaseInputShape,
     },
     async (input) => jsonToolResult(await importFromInfobase(input))

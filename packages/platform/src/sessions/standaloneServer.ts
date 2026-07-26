@@ -9,13 +9,18 @@ import { PlatformSessionError } from "./errors"
 import type { SessionProcessRuntime } from "./runtime"
 import type { CreatePlatformSessionParams, PlatformSession } from "./types"
 
+const PRIVATE_FILE_MODE = 0o600
+
 export interface StandaloneServerDependencies {
   fileSystem: {
     mkdir(path: string): Promise<void>
-    writeFile(path: string, content: string): Promise<void>
+    writeFile(path: string, content: string, options?: { mode?: number }): Promise<void>
+    chmod(path: string, mode: number): Promise<void>
+    rm(path: string): Promise<void>
   }
   processRuntime: Pick<SessionProcessRuntime, "run">
   commandTimeoutMs: number
+  platform: NodeJS.Platform
 }
 
 export async function createStandaloneServerSession(
@@ -27,20 +32,39 @@ export async function createStandaloneServerSession(
     throw missingComponent("ibcmd")
   }
   const connection = parseConnection(params.settings.connectionString)
-  if (connection.type !== "file") {
+  if (connection.type !== "file" && connection.type !== "server") {
     throw new PlatformSessionError(
       "unsupported_connection",
-      "Автономный сервер поддерживает только файловую информационную базу"
+      "Offline-режим ibcmd поддерживает только файловые и клиент-серверные базы"
     )
   }
+  const database = params.settings.database
 
   const configPath = join(params.sessionDir, "config.yaml")
+  let init
+  if (connection.type === "file") {
+    init = buildStandaloneConfigInit({
+      ibcmdPath,
+      databasePath: connection.path,
+    })
+  } else {
+    if (database === undefined) {
+      throw new PlatformSessionError(
+        "invalid_project_settings",
+        "Для offline-доступа к клиент-серверной базе нужны параметры СУБД"
+      )
+    }
+    init = buildStandaloneConfigInit({ ibcmdPath, database })
+  }
   await dependencies.fileSystem.mkdir(params.sessionDir)
-
-  const init = buildStandaloneConfigInit({
-    ibcmdPath,
-    databasePath: connection.path,
-  })
+  try {
+    await dependencies.fileSystem.rm(configPath)
+  } catch {
+    throw new PlatformSessionError(
+      "session_start_failed",
+      "Не удалось удалить прежнюю конфигурацию ibcmd"
+    )
+  }
   const initialized = await dependencies.processRuntime.run(init.command, init.args, {
     timeoutMs: dependencies.commandTimeoutMs,
   })
@@ -57,7 +81,26 @@ export async function createStandaloneServerSession(
     )
   }
   validateConfiguration(initialized.stdout)
-  await dependencies.fileSystem.writeFile(configPath, initialized.stdout)
+  try {
+    await dependencies.fileSystem.writeFile(
+      configPath,
+      initialized.stdout,
+      { mode: PRIVATE_FILE_MODE }
+    )
+    if (dependencies.platform !== "win32") {
+      await dependencies.fileSystem.chmod(configPath, PRIVATE_FILE_MODE)
+    }
+  } catch {
+    try {
+      await dependencies.fileSystem.rm(configPath)
+    } catch {
+      // Не заменяем безопасную ошибку подробностями файловой системы.
+    }
+    throw new PlatformSessionError(
+      "session_start_failed",
+      "Не удалось безопасно записать конфигурацию ibcmd"
+    )
+  }
 
   let closed = false
   return {
@@ -108,6 +151,7 @@ export async function createStandaloneServerSession(
     },
     async close() {
       if (closed) return { stoppedOwnedProcess: false }
+      await dependencies.fileSystem.rm(configPath)
       closed = true
       return { stoppedOwnedProcess: false }
     },

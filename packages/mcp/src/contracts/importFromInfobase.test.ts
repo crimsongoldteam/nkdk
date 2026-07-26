@@ -26,6 +26,51 @@ describe("import_from_infobase contract", () => {
     })
   })
 
+  it("accepts database credentials for an offline client-server connection", () => {
+    expect(
+      inputSchema.parse({
+        projectDir: "/project",
+        connectionString: 'Srvr="cluster";Ref="production";',
+        useStandaloneServer: true,
+        database: {
+          dbms: "PostgreSQL",
+          server: "db.example.local",
+          name: "production",
+          user: "dbuser",
+          password: "dbsecret",
+        },
+        allowWrite: true,
+      })
+    ).toEqual({
+      projectDir: "/project",
+      connectionString: 'Srvr="cluster";Ref="production";',
+      useStandaloneServer: true,
+      database: {
+        dbms: "PostgreSQL",
+        server: "db.example.local",
+        name: "production",
+        user: "dbuser",
+        password: "dbsecret",
+      },
+      allowWrite: true,
+    })
+  })
+
+  it.each([
+    { dbms: "Unsupported", server: "db", name: "base", user: "dbuser" },
+    { dbms: "PostgreSQL", server: "", name: "base", user: "dbuser" },
+    { dbms: "PostgreSQL", server: "db", name: "", user: "dbuser" },
+    { dbms: "PostgreSQL", server: "db", name: "base", user: "" },
+  ])("rejects invalid database credentials: %j", (database) => {
+    expect(() =>
+      inputSchema.parse({
+        projectDir: "/project",
+        connectionString: 'Srvr="cluster";Ref="production";',
+        database,
+      })
+    ).toThrow()
+  })
+
   it.each([0, -1, 1.5])("rejects an invalid timeout: %s", (sessionIdleTimeout) => {
     expect(() =>
       inputSchema.parse({
