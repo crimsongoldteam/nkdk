@@ -1,4 +1,8 @@
 import type { PersistedSharedValidationSnapshot } from "../validation/persistedSharedValidationSnapshot"
+import type {
+  ProjectLocalDependency,
+  ProjectLogicalAddressEntry,
+} from "../project/componentIndexFacts"
 
 export interface ConfigurationIndexBinding {
   indexGeneration: bigint
@@ -36,22 +40,17 @@ export interface ConfigurationXmlValue {
   userSettingsId?: string
 }
 
-export interface ConfigurationLocalDependencyRulePathSegment {
-  propertyKey: string
-  nestedItemType?: string
-}
+export type ConfigurationLocalDependencyRulePathSegment =
+  ProjectLocalDependency["rulePath"][number]
 
-export interface ConfigurationLocalDependency {
-  sourceProjectPath: string
-  yamlPath: readonly (string | number)[]
-  rulePath: readonly ConfigurationLocalDependencyRulePathSegment[]
-  kind: "metadataTarget"
-  canonical: string
-}
+export type ConfigurationLocalDependency = ProjectLocalDependency
+
+export type ComponentLogicalAddress = ProjectLogicalAddressEntry
 
 export interface ConfigurationLocalIndexes {
   metadata: PersistedSharedValidationSnapshot
   dependencies: readonly ConfigurationLocalDependency[]
+  logicalAddresses: readonly ComponentLogicalAddress[]
 }
 
 export interface ConfigurationIndexData {

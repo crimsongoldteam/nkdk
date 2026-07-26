@@ -4,12 +4,13 @@ import type {
   ConfigurationIdentity,
   ConfigurationIndexData,
   ConfigurationLocalDependency,
+  ComponentLogicalAddress,
   ConfigurationXmlNode,
   ConfigurationXmlValue,
 } from "./types"
 
 interface EncodedSection {
-  type: 1 | 2 | 3 | 4 | 5 | 6 | 7 | 8 | 9 | 10 | 11
+  type: 1 | 2 | 3 | 4 | 5 | 6 | 7 | 8 | 9 | 10 | 11 | 12
   recordCount: bigint
   bytes: Buffer
 }
@@ -23,7 +24,7 @@ interface NormalizedIndex {
 
 const HEADER_LENGTH = 64
 const DIRECTORY_ENTRY_LENGTH = 64
-const SECTION_COUNT = 11
+const SECTION_COUNT = 12
 const MAX_U64 = (1n << 64n) - 1n
 const utf8Encoder = new TextEncoder()
 
@@ -41,6 +42,7 @@ export function encodeConfigurationIndex(data: ConfigurationIndexData): Buffer {
     encodeLocalMetadataBlock(9, normalized.data.localIndexes.metadata.ownerStrings),
     encodeLocalMetadataBlock(10, normalized.data.localIndexes.metadata.ownerTable),
     encodeLocalDependencies(normalized.data.localIndexes.dependencies),
+    encodeLogicalAddresses(normalized.data.localIndexes.logicalAddresses),
   ]
   return encodeContainer(sections)
 }
@@ -75,6 +77,13 @@ function normalizeIndex(data: ConfigurationIndexData): NormalizedIndex {
     if (!projectFilePaths.has(dependency.sourceProjectPath)) {
       throw new Error(
         `sourceProjectPath LOCAL_DEPENDENCIES отсутствует в PROJECT_FILES: ${dependency.sourceProjectPath}`
+      )
+    }
+  }
+  for (const entry of localIndexes.logicalAddresses) {
+    if (!projectFilePaths.has(entry.sourceProjectPath)) {
+      throw new Error(
+        `sourceProjectPath LOGICAL_ADDRESSES отсутствует в PROJECT_FILES: ${entry.sourceProjectPath}`
       )
     }
   }
@@ -125,7 +134,25 @@ function normalizeLocalIndexes(data: ConfigurationIndexData): ConfigurationIndex
       ownerTable: Uint8Array.from(metadata.ownerTable),
     },
     dependencies: normalizeLocalDependencies(data.localIndexes.dependencies),
+    logicalAddresses: normalizeLogicalAddresses(data.localIndexes.logicalAddresses),
   }
+}
+
+function normalizeLogicalAddresses(
+  entries: readonly ComponentLogicalAddress[]
+): ComponentLogicalAddress[] {
+  const normalized = entries.map((entry) => {
+    validateProjectPath(entry.sourceProjectPath)
+    if (entry.logicalAddress.length === 0) {
+      throw new Error("Пустой logicalAddress LOGICAL_ADDRESSES")
+    }
+    return { ...entry }
+  })
+  rejectDuplicateStrings(
+    normalized.map(({ logicalAddress }) => logicalAddress),
+    "Повторный logicalAddress в LOGICAL_ADDRESSES"
+  )
+  return normalized.sort((left, right) => compareStrings(left.logicalAddress, right.logicalAddress))
 }
 
 function normalizeLocalDependencies(
@@ -501,6 +528,29 @@ function encodeLocalDependencies(dependencies: readonly ConfigurationLocalDepend
     recordCount: BigInt(records.length),
     bytes,
   }
+}
+
+function encodeLogicalAddresses(entries: readonly ComponentLogicalAddress[]): EncodedSection {
+  return encodeJsonRecords(12, entries)
+}
+
+function encodeJsonRecords(
+  type: 12,
+  values: readonly unknown[]
+): EncodedSection {
+  const records = values.map((value) => utf8Encoder.encode(JSON.stringify(value)))
+  const recordLengths = records.map((record) => {
+    assertU32(record.byteLength, `byteLength секции ${type}`)
+    return align8(4 + record.byteLength)
+  })
+  const bytes = Buffer.alloc(recordLengths.reduce((total, length) => total + length, 0))
+  let offset = 0
+  records.forEach((record, index) => {
+    bytes.writeUInt32LE(record.byteLength, offset)
+    bytes.set(record, offset + 4)
+    offset += recordLengths[index]!
+  })
+  return { type, recordCount: BigInt(records.length), bytes }
 }
 
 function writeOptionalStringId(

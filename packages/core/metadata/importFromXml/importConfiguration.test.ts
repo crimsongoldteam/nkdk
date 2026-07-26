@@ -593,10 +593,14 @@ function configurationIndex(component: string): ConfigurationIndexData {
     identities: fragmentData.identities,
     xmlNodes: fragmentData.xmlNodes,
     xmlValues: fragmentData.xmlValues,
-    localIndexes: {
-      metadata: serializeSharedValidationSnapshot(createImportSharedMetadata([])),
-      dependencies: [],
-    },
+      localIndexes: {
+        metadata: serializeSharedValidationSnapshot(createImportSharedMetadata([])),
+        dependencies: [],
+        logicalAddresses: fragmentData.identities.map(({ logicalAddress }) => ({
+          logicalAddress,
+          sourceProjectPath: "Конфигурация.yaml",
+        })),
+      },
   }
 }
 
@@ -607,6 +611,8 @@ function emptyValidationContribution(): ValidationIndexContribution {
     memberIndexEntries: [],
     valueIndexEntries: [],
     pendingReferences: [],
+    localDependencies: [],
+    logicalAddresses: [],
   }
 }
 

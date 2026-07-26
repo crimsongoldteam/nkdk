@@ -43,6 +43,7 @@ export type {
   ConfigurationLocalDependency,
   ConfigurationLocalDependencyRulePathSegment,
   ConfigurationLocalIndexes,
+  ComponentLogicalAddress,
   ConfigurationProjectFile,
   ConfigurationXmlNode,
   ConfigurationXmlValue,

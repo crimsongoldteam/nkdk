@@ -487,6 +487,8 @@ describe("prepareYamlProject", () => {
                 memberIndexEntries: [],
                 valueIndexEntries: [],
                 pendingReferences: [],
+                localDependencies: [],
+                logicalAddresses: [],
               },
             }
           },
@@ -510,6 +512,8 @@ describe("prepareYamlProject", () => {
         memberIndexEntries: [],
         valueIndexEntries: [],
         pendingReferences: [],
+        localDependencies: [],
+        logicalAddresses: [],
       })
       expect(workerTasks).toHaveLength(2)
       expect(workerTasks[0]).toHaveLength(1)

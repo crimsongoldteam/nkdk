@@ -53,19 +53,19 @@ describe("encodeConfigurationIndex", () => {
     expect(values.readUInt32LE(4)).toBe(1 << 7)
   })
 
-  it("writes incompatible 2.0 container with eleven mandatory sections", () => {
+  it("writes incompatible 2.0 container with twelve mandatory sections", () => {
     const first = encodeConfigurationIndex(sample)
 
     expect(first.subarray(0, 8).toString("ascii")).toBe("NKDK1CIX")
     expect(first.readUInt16LE(8)).toBe(2)
     expect(first.readUInt16LE(10)).toBe(0)
-    expect(first.readUInt32LE(24)).toBe(11)
+    expect(first.readUInt32LE(24)).toBe(12)
     expect(first.readBigUInt64LE(40)).toBe(BigInt(first.length))
   })
 
-  it("writes exact layouts and checksums for all eleven sections", () => {
+  it("writes exact layouts and checksums for all twelve sections", () => {
     const encoded = encodeConfigurationIndex(sample)
-    const directory = encoded.subarray(64, 768)
+    const directory = encoded.subarray(64, 832)
     const directoryHash = hashSection(directory)
 
     expect(encoded.readUInt32LE(12)).toBe(64)
@@ -76,7 +76,7 @@ describe("encodeConfigurationIndex", () => {
     expect(encoded.readBigUInt64LE(48)).toBe(directoryHash.low)
     expect(encoded.readBigUInt64LE(56)).toBe(directoryHash.high)
 
-    const entries = Array.from({ length: 11 }, (_, index) => {
+    const entries = Array.from({ length: 12 }, (_, index) => {
       const offset = index * 64
       const sectionOffset = Number(directory.readBigUInt64LE(offset + 16))
       const storedLength = Number(directory.readBigUInt64LE(offset + 24))
@@ -101,7 +101,7 @@ describe("encodeConfigurationIndex", () => {
       }
     })
 
-    let previousEnd = 768
+    let previousEnd = 832
     for (const entry of entries) {
       expect(entry.offset).toBeGreaterThanOrEqual(previousEnd)
       expectZero(encoded.subarray(previousEnd, entry.offset))
@@ -134,7 +134,7 @@ describe("encodeConfigurationIndex", () => {
       return id
     }
 
-    expect(entries.map((entry) => entry.count)).toEqual([1, strings.length, 2, 2, 2, 2, 2, 1, 1, 1, 1])
+    expect(entries.map((entry) => entry.count)).toEqual([1, strings.length, 2, 2, 2, 2, 2, 1, 1, 1, 1, 1])
 
     const binding = entries[0].section
     expect(binding.length).toBe(64)

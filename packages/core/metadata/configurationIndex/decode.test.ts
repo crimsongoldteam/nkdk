@@ -7,7 +7,7 @@ import { sampleIndex } from "./testData"
 
 const HEADER_LENGTH = 64
 const DIRECTORY_ENTRY_LENGTH = 64
-const SECTION_COUNT = 11
+const SECTION_COUNT = 12
 const DIRECTORY_LENGTH = DIRECTORY_ENTRY_LENGTH * SECTION_COUNT
 
 describe("decodeConfigurationIndex", () => {

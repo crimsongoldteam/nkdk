@@ -30,6 +30,7 @@ import { configurationValidationProjectSpec, validationProjectSpecs, type Valida
 import type { ValidationDependencyRequest, ValidationObjectRecord } from "./projectValidationTypes"
 import type { ValidationRulesSnapshot } from "./rulesSnapshot"
 import type { Diagnostic } from "./types"
+import { projectLocalDependenciesFromFacts } from "./projectLocalDependencies"
 import { validateParsedFile } from "./validateFile"
 import { extractValidationYamlFacts } from "./yamlFactExtractor"
 
@@ -99,6 +100,7 @@ export interface ProjectValidationFileFacts {
   pendingReferences: PendingMetadataTargetReference[]
   pendingChecks: ValidationPendingCheck[]
   diagnostics: Diagnostic[]
+  localDependencies: import("../project/componentIndexFacts").ProjectLocalDependency[]
   profile: {
     yamlFactsMs: number
     fieldIndexMs: number
@@ -269,6 +271,7 @@ export function extractProjectValidationFileFacts(params: {
       pendingReferences: yamlFacts.pendingReferences,
       pendingChecks: yamlFacts.pendingChecks,
       diagnostics: yamlFacts.diagnostics,
+      localDependencies: [],
       profile: {
         yamlFactsMs: measuredYamlFacts.timeMs,
         fieldIndexMs: 0,
@@ -315,6 +318,10 @@ export function extractProjectValidationFileFacts(params: {
     pendingReferences: yamlFacts.pendingReferences,
     pendingChecks: yamlFacts.pendingChecks,
     diagnostics: [...yamlFacts.diagnostics, ...measuredOwner.value.fieldIndex.diagnostics],
+    localDependencies: projectLocalDependenciesFromFacts(
+      params.file.projectPath,
+      yamlFacts.localIndexes?.metadata.metadataTargets ?? []
+    ),
     objectRecords: [
       {
         filePath: params.file.absolutePath,

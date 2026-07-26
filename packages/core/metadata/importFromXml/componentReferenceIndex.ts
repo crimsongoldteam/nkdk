@@ -1,18 +1,10 @@
 import { resolve } from "node:path"
 import type { ConfigurationContext } from "../context/types"
-import { discoverPreparedYamlProjectFiles } from "../project/preparedYamlProject"
-import {
-  createPreparedYamlProjectWorkerPool,
-  type PreparedWorkerPool,
-} from "../project/preparedYamlProjectWorkerPool"
+import type { PreparedWorkerPool } from "../project/preparedYamlProjectWorkerPool"
 import type { OwnerMetadataCache } from "../validation/dataPath/ownerCache"
 import { createOwnerMetadataCacheFromSharedValidationSnapshot } from "../validation/dataPath/sharedOwnerCache"
-import { createValidationObjectTable } from "../validation/projectValidationObjectTable"
-import type { ValidationIndexContribution } from "../validation/projectValidationTypes"
-import {
-  createSharedValidationSnapshot,
-  type SharedValidationSnapshot,
-} from "../validation/sharedValidationSnapshot"
+import type { SharedValidationSnapshot } from "../validation/sharedValidationSnapshot"
+import { buildColdComponentIndexes } from "../project/componentState/indexes"
 
 export interface LayeredImportReferenceSnapshot {
   readonly local: SharedValidationSnapshot
@@ -26,29 +18,12 @@ export async function buildComponentReferenceSnapshot(params: {
   createWorkerPool?: () => PreparedWorkerPool
 }): Promise<SharedValidationSnapshot> {
   const componentDir = resolve(params.componentDir)
-  const descriptors = await discoverPreparedYamlProjectFiles(componentDir)
-  const pool = createPreparedYamlProjectWorkerPool({
+  return (await buildColdComponentIndexes({
+    componentDir,
+    context: params.context,
     concurrency: normalizeConcurrency(params.concurrency),
     ...(params.createWorkerPool === undefined ? {} : { createWorkerPool: params.createWorkerPool }),
-  })
-  let contribution: ValidationIndexContribution
-  try {
-    contribution = await pool.runValidationFactPass({
-      projectDir: componentDir,
-      context: params.context,
-      files: descriptors,
-    })
-  } finally {
-    await pool.close()
-  }
-  const table = createValidationObjectTable({
-    records: [],
-    filePaths: descriptors.map(({ filePath }) => filePath),
-  })
-  table.mergeRecords(contribution.objectRecords)
-  table.mergeReferenceIndexEntries(contribution)
-
-  return createSharedValidationSnapshot(table.snapshot())
+  })).metadata
 }
 
 export function createLayeredImportReferenceSnapshot(params: {

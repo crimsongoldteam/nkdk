@@ -45,6 +45,12 @@ export function sampleIndex(): ConfigurationIndexData {
           canonical: "Catalog.Товары.Attribute.Артикул",
         },
       ],
+      logicalAddresses: [
+        {
+          logicalAddress: "Справочник.Товары",
+          sourceProjectPath: "Конфигурация.yaml",
+        },
+      ],
     },
   }
 }

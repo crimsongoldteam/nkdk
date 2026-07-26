@@ -57,6 +57,8 @@ export function extractImportValidationContribution(params: {
         memberIndexEntries,
         valueIndexEntries: [],
         pendingReferences,
+        localDependencies: [],
+        logicalAddresses: [],
       },
     }
   }
@@ -89,6 +91,8 @@ export function extractImportValidationContribution(params: {
       memberIndexEntries,
       valueIndexEntries: [],
       pendingReferences,
+      localDependencies: [],
+      logicalAddresses: [],
     },
   }
 }
@@ -104,6 +108,8 @@ export function mergeImportValidationContributions(
       memberIndexEntries: contributions.flatMap((item) => item.validationContribution.memberIndexEntries),
       valueIndexEntries: contributions.flatMap((item) => item.validationContribution.valueIndexEntries),
       pendingReferences: contributions.flatMap((item) => item.validationContribution.pendingReferences),
+      localDependencies: contributions.flatMap((item) => item.validationContribution.localDependencies),
+      logicalAddresses: contributions.flatMap((item) => item.validationContribution.logicalAddresses),
     },
   }
 }
@@ -117,6 +123,8 @@ export function emptyImportValidationContribution(): ImportValidationContributio
       memberIndexEntries: [],
       valueIndexEntries: [],
       pendingReferences: [],
+      localDependencies: [],
+      logicalAddresses: [],
     },
   }
 }

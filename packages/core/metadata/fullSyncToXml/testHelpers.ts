@@ -76,6 +76,7 @@ export async function writeSmallYamlProjectWithIndex(yamlDir: string): Promise<v
       localIndexes: {
         metadata: createEmptyPersistedSharedValidationSnapshot(),
         dependencies: [],
+        logicalAddresses: [],
       },
     },
   })

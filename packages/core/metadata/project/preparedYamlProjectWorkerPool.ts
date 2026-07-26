@@ -279,6 +279,8 @@ export function createPreparedYamlProjectWorkerPool(params: {
         memberIndexEntries: results.flatMap((result) => result.memberIndexEntries),
         valueIndexEntries: results.flatMap((result) => result.valueIndexEntries),
         pendingReferences: results.flatMap((result) => result.pendingReferences),
+        localDependencies: results.flatMap((result) => result.localDependencies),
+        logicalAddresses: results.flatMap((result) => result.logicalAddresses),
       }
     },
     async runValidationSecondPass(secondPassParams) {
@@ -351,6 +353,8 @@ function emptyValidationIndexContribution(): ValidationIndexContribution {
     memberIndexEntries: [],
     valueIndexEntries: [],
     pendingReferences: [],
+    localDependencies: [],
+    logicalAddresses: [],
   }
 }
 

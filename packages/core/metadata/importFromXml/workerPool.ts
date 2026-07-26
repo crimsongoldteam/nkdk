@@ -244,6 +244,8 @@ function createXmlImportOperationPool(params: {
           memberIndexEntries: results.flatMap((result) => result.validationContribution.memberIndexEntries),
           valueIndexEntries: results.flatMap((result) => result.validationContribution.valueIndexEntries),
           pendingReferences: results.flatMap((result) => result.validationContribution.pendingReferences),
+          localDependencies: results.flatMap((result) => result.validationContribution.localDependencies),
+          logicalAddresses: results.flatMap((result) => result.validationContribution.logicalAddresses),
         },
         localDependencies: fragmentData.localDependencies,
         fragmentData,

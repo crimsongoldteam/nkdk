@@ -4,6 +4,7 @@ import type {
   ConfigurationIndexBinding,
   ConfigurationIndexData,
   ConfigurationLocalDependency,
+  ComponentLogicalAddress,
   ConfigurationProjectFile,
   ConfigurationXmlNode,
   ConfigurationXmlValue,
@@ -46,12 +47,12 @@ interface DecodedStrings {
   referencedIds: Set<number>
 }
 
-type SectionType = 1 | 2 | 3 | 4 | 5 | 6 | 7 | 8 | 9 | 10 | 11
+type SectionType = 1 | 2 | 3 | 4 | 5 | 6 | 7 | 8 | 9 | 10 | 11 | 12
 type LogicalValidationStage = 7 | 8 | 9
 
 const HEADER_LENGTH = 64
 const DIRECTORY_ENTRY_LENGTH = 64
-const SECTION_COUNT = 11
+const SECTION_COUNT = 12
 const DIRECTORY_LENGTH = DIRECTORY_ENTRY_LENGTH * SECTION_COUNT
 const XML_VALUE_FLAGS = (1 << 8) - 1
 const fatalUtf8Decoder = new TextDecoder("utf-8", { fatal: true })
@@ -277,6 +278,10 @@ function decodeLogicalSections(
       sectionFor(buffer, directory, 11),
       directoryEntry(directory, 11).recordCount
     ),
+    logicalAddresses: decodeLogicalAddresses(
+      sectionFor(buffer, directory, 12),
+      directoryEntry(directory, 12).recordCount
+    ),
   }
   return { binding, projectFiles, identities, xmlNodes, xmlValues, localIndexes }
 }
@@ -308,6 +313,7 @@ function validateLogicalSectionRecords(
     "LOCAL_OWNER_TABLE"
   )
   decodeLocalDependencies(sectionFor(buffer, directory, 11), directoryEntry(directory, 11).recordCount)
+  decodeLogicalAddresses(sectionFor(buffer, directory, 12), directoryEntry(directory, 12).recordCount)
 }
 
 function validateLogicalSectionUniqueness(
@@ -659,6 +665,59 @@ function decodeLocalDependency(value: unknown): ConfigurationLocalDependency {
   }
 }
 
+function decodeLogicalAddresses(
+  section: Buffer,
+  recordCountValue: bigint
+): ComponentLogicalAddress[] {
+  const recordCount = safeNumber(recordCountValue, "recordCount LOGICAL_ADDRESSES")
+  const result: ComponentLogicalAddress[] = []
+  const seen = new Set<string>()
+  let previous: string | undefined
+  let offset = 0
+  for (let index = 0; index < recordCount; index += 1) {
+    const contentStart = checkedEnd(section, offset, 4, "заголовок записи LOGICAL_ADDRESSES")
+    const byteLength = section.readUInt32LE(offset)
+    const contentEnd = checkedEnd(section, contentStart, byteLength, "данные записи LOGICAL_ADDRESSES")
+    const recordEnd = alignedEnd(section, contentEnd, "запись LOGICAL_ADDRESSES")
+    assertZero(section.subarray(contentEnd, recordEnd), "padding LOGICAL_ADDRESSES")
+    let entry: ComponentLogicalAddress
+    try {
+      const value: unknown = JSON.parse(
+        fatalUtf8Decoder.decode(section.subarray(contentStart, contentEnd))
+      )
+      if (!isRecord(value)) throw new Error("запись должна быть объектом")
+      assertExactKeys(value, ["logicalAddress", "sourceProjectPath"], "запись LOGICAL_ADDRESSES")
+      if (typeof value.logicalAddress !== "string" || value.logicalAddress.length === 0) {
+        throw new Error("пустой logicalAddress")
+      }
+      if (typeof value.sourceProjectPath !== "string") {
+        throw new Error("некорректный sourceProjectPath")
+      }
+      validateLocalDependencyProjectPath(value.sourceProjectPath)
+      entry = {
+        logicalAddress: value.logicalAddress,
+        sourceProjectPath: value.sourceProjectPath,
+      }
+    } catch (caught) {
+      throw new Error(`Некорректная запись LOGICAL_ADDRESSES: ${errorMessage(caught)}`)
+    }
+    if (seen.has(entry.logicalAddress)) {
+      throw new Error(`Повторный logicalAddress в LOGICAL_ADDRESSES: ${entry.logicalAddress}`)
+    }
+    if (previous !== undefined && compareUtf8(entry.logicalAddress, previous) < 0) {
+      throw new Error("LOGICAL_ADDRESSES не отсортированы")
+    }
+    seen.add(entry.logicalAddress)
+    previous = entry.logicalAddress
+    result.push(entry)
+    offset = recordEnd
+  }
+  if (offset !== section.length) {
+    throw new Error("recordCount LOGICAL_ADDRESSES не совпадает с длиной секции")
+  }
+  return result
+}
+
 function decodeLocalDependencyRulePathSegment(
   value: unknown
 ): ConfigurationLocalDependency["rulePath"][number] {
@@ -739,6 +798,13 @@ function validateCrossReferences(data: ConfigurationIndexData, strings: DecodedS
     if (!projectFilePaths.has(dependency.sourceProjectPath)) {
       throw new Error(
         `sourceProjectPath LOCAL_DEPENDENCIES отсутствует в PROJECT_FILES: ${dependency.sourceProjectPath}`
+      )
+    }
+  }
+  for (const entry of data.localIndexes.logicalAddresses) {
+    if (!projectFilePaths.has(entry.sourceProjectPath)) {
+      throw new Error(
+        `sourceProjectPath LOGICAL_ADDRESSES отсутствует в PROJECT_FILES: ${entry.sourceProjectPath}`
       )
     }
   }

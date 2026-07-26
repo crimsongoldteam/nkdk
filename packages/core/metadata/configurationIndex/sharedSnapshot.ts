@@ -23,7 +23,9 @@ export interface ConfigurationIndexReader {
   readonly snapshot: SharedConfigurationIndexSnapshot
   binding(): ConfigurationIndexBinding
   projectFile(projectPath: string): ConfigurationProjectFile | undefined
+  projectFiles(): readonly ConfigurationProjectFile[]
   identity(logicalAddress: string, kind: ConfigurationIdentity["kind"]): string | undefined
+  identities(): readonly ConfigurationIdentity[]
   xmlNode(logicalAddress: string): ConfigurationXmlNode | undefined
   xmlValue(logicalAddress: string): ConfigurationXmlValue | undefined
 }
@@ -36,7 +38,7 @@ interface DirectoryEntry {
 
 const HEADER_LENGTH = 64
 const DIRECTORY_ENTRY_LENGTH = 64
-const SECTION_COUNT = 11
+const SECTION_COUNT = 12
 const fatalUtf8Decoder = new TextDecoder("utf-8", { fatal: true })
 
 export async function readConfigurationIndexSnapshot(params: {
@@ -85,6 +87,7 @@ class SharedConfigurationIndexReader implements ConfigurationIndexReader {
   private identityOffsets: Map<string, number> | undefined
   private xmlNodeOffsetsByAddress: Map<number, number> | undefined
   private xmlValueOffsets: Map<number, number> | undefined
+  private decoded: ReturnType<typeof decodeConfigurationIndex> | undefined
 
   constructor(snapshot: SharedConfigurationIndexSnapshot) {
     this.snapshot = snapshot
@@ -126,6 +129,10 @@ class SharedConfigurationIndexReader implements ConfigurationIndexReader {
     }
   }
 
+  projectFiles(): readonly ConfigurationProjectFile[] {
+    return this.decodedIndex().projectFiles.map((file) => ({ ...file }))
+  }
+
   identity(logicalAddress: string, kind: ConfigurationIdentity["kind"]): string | undefined {
     const logicalAddressId = this.findStringId(logicalAddress)
     if (logicalAddressId === undefined) return undefined
@@ -134,6 +141,10 @@ class SharedConfigurationIndexReader implements ConfigurationIndexReader {
     const offset = this.identityOffset(logicalAddressId, kindId)
     if (offset === undefined) return undefined
     return kind === "uuid" ? formatUuid(identities.subarray(offset + 16, offset + 32)) : this.stringById(identities.readUInt32LE(offset + 8))
+  }
+
+  identities(): readonly ConfigurationIdentity[] {
+    return this.decodedIndex().identities.map((identity) => ({ ...identity }))
   }
 
   xmlNode(logicalAddress: string): ConfigurationXmlNode | undefined {
@@ -193,6 +204,13 @@ class SharedConfigurationIndexReader implements ConfigurationIndexReader {
   ): Partial<ConfigurationXmlValue> {
     if ((flags & (1 << bit)) === 0) return {}
     return { [key]: this.stringById(values.readUInt32LE(offset)) }
+  }
+
+  private decodedIndex(): ReturnType<typeof decodeConfigurationIndex> {
+    this.decoded ??= decodeConfigurationIndex(
+      new Uint8Array(this.snapshot.bytes, 0, this.snapshot.byteLength)
+    )
+    return this.decoded
   }
 
   private orderById(orderId: number): string[] {

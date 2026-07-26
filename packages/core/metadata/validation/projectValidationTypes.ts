@@ -9,6 +9,10 @@ import type {
 } from "./projectReferenceIndex"
 import type { ValidationProjectFile } from "./projectFiles"
 import type { Diagnostic } from "./types"
+import type {
+  ProjectLocalDependency,
+  ProjectLogicalAddressEntry,
+} from "../project/componentIndexFacts"
 
 export type ValidationMode = "full" | "partial"
 
@@ -49,6 +53,8 @@ export interface ValidationIndexContribution {
   memberIndexEntries: ProjectMemberIndexEntry[]
   valueIndexEntries: ProjectValueIndexEntry[]
   pendingReferences: PendingMetadataTargetReference[]
+  localDependencies: ProjectLocalDependency[]
+  logicalAddresses: ProjectLogicalAddressEntry[]
 }
 
 export interface ValidationObjectTableSnapshot extends ValidationReferenceIndexEntries {

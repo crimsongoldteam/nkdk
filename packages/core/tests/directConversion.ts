@@ -72,6 +72,7 @@ export function createDirectRoundTripContexts(
             localIndexes: {
               metadata: createEmptyPersistedSharedValidationSnapshot(),
               dependencies: [],
+              logicalAddresses: [],
             },
           })
         )

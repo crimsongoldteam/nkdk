@@ -246,6 +246,7 @@ export async function collectValidationFacts(
     contribution.memberIndexEntries.push(...facts.memberIndexEntries)
     contribution.valueIndexEntries.push(...facts.valueIndexEntries)
     contribution.pendingReferences.push(...facts.pendingReferences)
+    contribution.localDependencies.push(...facts.localDependencies)
   }
 
   return contribution
@@ -258,6 +259,8 @@ function emptyValidationIndexContribution(): ValidationIndexContribution {
     memberIndexEntries: [],
     valueIndexEntries: [],
     pendingReferences: [],
+    localDependencies: [],
+    logicalAddresses: [],
   }
 }
 

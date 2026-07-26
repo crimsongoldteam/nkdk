@@ -426,8 +426,22 @@ function buildImportedConfigurationIndex(params: {
     localIndexes: {
       metadata: serializeSharedValidationSnapshot(params.localSnapshot),
       dependencies: params.localDependencies,
+      logicalAddresses: uniqueLogicalAddresses(
+        params.fragmentData.identities,
+        params.projectFiles[0]?.projectPath
+      ),
     },
   }
+}
+
+function uniqueLogicalAddresses(
+  identities: ConfigurationIndexData["identities"],
+  sourceProjectPath: string | undefined
+): ConfigurationIndexData["localIndexes"]["logicalAddresses"] {
+  if (sourceProjectPath === undefined) return []
+  return [...new Set(identities.map(({ logicalAddress }) => logicalAddress))].map(
+    (logicalAddress) => ({ logicalAddress, sourceProjectPath })
+  )
 }
 
 function successResult(

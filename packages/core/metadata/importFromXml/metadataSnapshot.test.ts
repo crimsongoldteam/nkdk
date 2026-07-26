@@ -51,6 +51,8 @@ describe("createImportSharedMetadata", () => {
       memberIndexEntries: [],
       valueIndexEntries: [],
       pendingReferences: [],
+      localDependencies: [],
+      logicalAddresses: [],
     })
 
     expect(snapshot.reference.stats.objectEntries).toBe(1)

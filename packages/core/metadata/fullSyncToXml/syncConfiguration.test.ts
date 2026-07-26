@@ -264,6 +264,10 @@ function createHarness(options: HarnessOptions = {}) {
         ...dependency,
         sourceProjectPath: "Справочник/Товары/Свойства.yaml",
       })),
+      logicalAddresses: sampleIndex().localIndexes.logicalAddresses.map((entry) => ({
+        ...entry,
+        sourceProjectPath: "Справочник/Товары/Свойства.yaml",
+      })),
     },
   }
   const assignments: FullXmlSyncAssignment[] = [

@@ -62,9 +62,25 @@ describe("shared configuration index snapshot", () => {
       contentHash: 42n,
     })
     expect(first.projectFile("Нет.yaml")).toBeUndefined()
+    expect(first.projectFiles()).toEqual([
+      { projectPath: "Конфигурация.yaml", contentHash: 1n },
+      { projectPath: "Catalogs/Товары/Свойства.yaml", contentHash: 42n },
+    ])
     expect(first.identity("Справочник.Товары", "uuid")).toBe("00000000-0000-4000-8000-000000000001")
     expect(first.identity("Справочник.Товары", "xmlId")).toBe("Catalog_Товары")
     expect(first.identity("Справочник.Товары", "xmlName")).toBeUndefined()
+    expect(first.identities()).toEqual([
+      {
+        logicalAddress: "Справочник.Товары",
+        kind: "uuid",
+        value: "00000000-0000-4000-8000-000000000001",
+      },
+      {
+        logicalAddress: "Справочник.Товары",
+        kind: "xmlId",
+        value: "Catalog_Товары",
+      },
+    ])
     expect(first.xmlNode("Справочник.Товары")).toEqual({
       logicalAddress: "Справочник.Товары",
       order: ["name", "synonym"],
