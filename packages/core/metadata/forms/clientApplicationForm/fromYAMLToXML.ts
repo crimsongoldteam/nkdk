@@ -22,6 +22,8 @@ export interface ConvertClientApplicationFormFromYAMLToXMLParams {
   readonly name: string
   readonly referenceFormXML?: ClientApplicationFormXML
   readonly referenceMetadataXML?: FormMetadataXML
+  readonly baseFormXML?: ClientApplicationFormXML
+  readonly dataPathYaml?: ClientApplicationFormYAML
   readonly profile?: YAMLToXMLProfile
 }
 
@@ -39,7 +41,9 @@ export function convertClientApplicationFormFromYAMLToXML(
     ...params.context,
     importFromYAML: {
       ...params.context.importFromYAML,
-      formDataPathIndex: createFormDataPathIndexFromYAML(params.yaml),
+      formDataPathIndex: createFormDataPathIndexFromYAML(
+        params.dataPathYaml ?? params.yaml
+      ),
     },
   }
   const formContext = createFormBodyContext(metadataContext)
@@ -66,6 +70,7 @@ export function convertClientApplicationFormFromYAMLToXML(
     ...FORM_NAMESPACES,
     _version: "2.20",
     ...formProperties,
+    ...(params.baseFormXML === undefined ? {} : { BaseForm: params.baseFormXML }),
   } as ClientApplicationFormXML
   assignGeneratedIds(formXML, params.referenceFormXML)
 

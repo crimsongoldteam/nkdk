@@ -20,6 +20,7 @@ import { metadataTargetOwnerFromRule } from "../orchestration/property/metadataT
 export function prepareFullXmlSyncAssignment(params: {
   assignment: FullXmlSyncAssignment
   preparedYamlFile: PreparedYamlFile
+  basePreparedYamlFile?: PreparedYamlFile
   context: ConfigurationContextWithExportToXML
   index: ConfigurationIndexReader
   assignments?: readonly FullXmlSyncCompositionEntry[]
@@ -64,6 +65,9 @@ function prepareTopologyAssignmentDocuments(
     return capability.run({
       context,
       preparedYamlFile: params.preparedYamlFile,
+      ...(params.basePreparedYamlFile === undefined
+        ? {}
+        : { basePreparedYamlFile: params.basePreparedYamlFile }),
       assignment: assignmentNode,
       itemName: params.assignment.itemName,
       logicalAddress: params.assignment.logicalAddress,

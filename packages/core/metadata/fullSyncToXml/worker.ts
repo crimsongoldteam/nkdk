@@ -26,6 +26,13 @@ import type {
 } from "./types"
 import { writeFullXmlSyncAssignment } from "./writeAssignment"
 import type { FullXmlSyncWorkerProfileRuntime } from "./componentProfile"
+import {
+  BaseFormSourceError,
+  createVerifiedBaseFormSource,
+  type BaseFormSource,
+} from "./baseFormSource"
+import { compileRegisteredMetadataResourceTopology } from "../resourceTopology/registry"
+import { classifyMetadataProjectPath } from "../resourceTopology/projectProjection"
 
 interface InitializedFullXmlSyncWorkerState {
   readonly workerIndex: number
@@ -36,6 +43,7 @@ interface InitializedFullXmlSyncWorkerState {
   readonly composition: FullXmlSyncCompositionReader
   readonly ownerMetadataCache: OwnerMetadataCache
   readonly profile: FullXmlSyncWorkerProfileRuntime
+  readonly baseFormSource?: BaseFormSource
   activeAssignmentId: string | undefined
 }
 
@@ -45,6 +53,7 @@ export async function runFullXmlSyncWorkerCommand(
   command: FullXmlSyncWorkerCommand
 ): Promise<FullXmlSyncWorkerCommandResult> {
   if (command.kind === "initialize") {
+    const baseFormSource = createBaseFormSource(command.profile)
     initializedState = {
       workerIndex: command.workerIndex,
       componentDir: command.componentDir,
@@ -69,6 +78,7 @@ export async function runFullXmlSyncWorkerCommand(
         },
       }),
       profile: command.profile,
+      ...(baseFormSource === undefined ? {} : { baseFormSource }),
       activeAssignmentId: undefined,
     }
     return undefined
@@ -132,9 +142,11 @@ async function executeAssignments(
       diagnostics.push(...syntaxDiagnostics)
       if (syntaxDiagnostics.some(({ severity }) => severity === "error")) continue
 
+      const basePreparedYamlFile = await readBaseFormIfAdopted(assignment, state)
       const prepared = prepareFullXmlSyncAssignment({
         assignment,
         preparedYamlFile: yamlFile,
+        ...(basePreparedYamlFile === undefined ? {} : { basePreparedYamlFile }),
         context: exportContext(state),
         index: state.index,
         assignments: state.composition.assignments(),
@@ -157,7 +169,9 @@ async function executeAssignments(
       diagnostics.push(
         assignmentDiagnostic(
           assignment,
-          "full_xml_sync_assignment_failed",
+          caught instanceof BaseFormSourceError
+            ? caught.code
+            : "full_xml_sync_assignment_failed",
           errorMessage(caught)
         )
       )
@@ -174,6 +188,52 @@ async function executeAssignments(
     expectedOutputs,
     fragmentBuffer: encodeConfigurationIndexFragments(fragments),
   }
+}
+
+async function readBaseFormIfAdopted(
+  assignment: FullXmlSyncAssignment,
+  state: InitializedFullXmlSyncWorkerState
+) {
+  if (
+    assignment.role !== "form" ||
+    state.profile.adoptedUuids[assignment.logicalAddress] === undefined
+  ) {
+    return undefined
+  }
+  if (state.baseFormSource === undefined) {
+    throw new Error(
+      `Для заимствованной формы не настроен источник основной конфигурации: ${assignment.logicalAddress}`
+    )
+  }
+  return state.baseFormSource.read({
+    extensionAssignment: assignment,
+    baseProjectPath: assignment.sourceProjectPath,
+  })
+}
+
+function createBaseFormSource(
+  profile: FullXmlSyncWorkerProfileRuntime
+): BaseFormSource | undefined {
+  if (profile.baseForms === undefined) return undefined
+  const topology = compileRegisteredMetadataResourceTopology()
+  const resources = profile.baseForms.projectFiles.flatMap(({ projectPath }) => {
+    const resource = classifyMetadataProjectPath(topology, projectPath)
+    return resource === undefined ? [] : [resource]
+  })
+  return createVerifiedBaseFormSource({
+    baseStructure: {
+      address: { kind: "configuration" },
+      componentPath: "cf",
+      componentDir: profile.baseForms.componentDir,
+      topology,
+      resources,
+      projectPaths: profile.baseForms.projectFiles.map(({ projectPath }) => projectPath),
+    },
+    baseHashes: {
+      componentPath: "cf",
+      projectFiles: profile.baseForms.projectFiles,
+    },
+  })
 }
 
 function assignmentDescriptor(

@@ -14,6 +14,7 @@ import type { PreparedYamlFile } from "../../project/preparedYamlProject"
 import { bindDeferredObjectValues, type DeferredObjectValue } from "../../orchestration/property/deferredObjectValues"
 import type { MetadataItemRule } from "../../orchestration/property/types"
 import { ClientApplicationFormRules } from "./rules"
+import { buildClientApplicationBaseForm } from "./baseForm"
 
 export const syncFormToXML = async (params: {
   context: ConfigurationContextWithExportToXML
@@ -91,6 +92,7 @@ export const prepareFormXML = (params: {
   referenceMetadataXML?: FormMetadataXML
   xmlManifest?: XmlWriteManifest
   profile?: import("../../orchestration/property/fromYAMLToXMLTypes").YAMLToXMLProfile
+  basePreparedYamlFile?: PreparedYamlFile
 }): readonly {
   targetKind: "metadata" | "body"
   xml: Record<string, unknown>
@@ -117,6 +119,16 @@ export const prepareFormXML = (params: {
     name: params.formName,
     referenceFormXML: params.referenceFormXML,
     referenceMetadataXML: params.referenceMetadataXML,
+    ...(params.basePreparedYamlFile === undefined
+      ? {}
+      : {
+          baseFormXML: buildClientApplicationBaseForm({
+            context: contextWithFormExternalMetadata,
+            baseYaml: params.basePreparedYamlFile.data as ClientApplicationFormYAML,
+            extensionYaml: yamlObj,
+            formName: params.formName,
+          }),
+        }),
     profile: params.profile,
   })
   const metadataDocument = { MetaDataObject: converted.metadataXML }
