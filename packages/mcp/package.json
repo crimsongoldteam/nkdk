@@ -37,6 +37,7 @@
   },
   "devDependencies": {
     "@nkdk/core": "workspace:*",
+    "@nkdk/platform": "workspace:*",
     "@types/node": "^26.0.0",
     "esbuild": "^0.28.1",
     "typescript": "~6.0.0",
