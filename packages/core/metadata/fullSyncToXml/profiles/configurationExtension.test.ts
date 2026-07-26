@@ -94,6 +94,42 @@ describe("configuration extension full XML sync profile", () => {
     expect(runtime.workerProfile.adoptedUuids).toEqual({})
   })
 
+  it("adopts new current metadata elements that are absent from the old cfe snapshot", () => {
+    const currentAddresses = [
+      "Catalog.Товары",
+      "Catalog.Товары.Attribute.Артикул",
+      "Catalog.Товары.Form.ФормаЭлемента",
+    ]
+    const base = state({
+      componentPath: "cf",
+      logicalAddresses: currentAddresses,
+      identities: currentAddresses.map((logicalAddress, index) => ({
+        logicalAddress,
+        kind: "uuid" as const,
+        value: `bbbbbbbb-bbbb-4bbb-8bbb-${index.toString(16).padStart(12, "0")}`,
+      })),
+    })
+    const target = state({
+      componentPath: "cfe/Дополнение",
+      logicalAddresses: currentAddresses,
+      identities: [],
+    })
+
+    const runtime = configurationExtensionFullXmlSyncProfile.confirm({
+      target,
+      base,
+    })
+
+    expect(runtime.workerProfile.adoptedUuids).toEqual(
+      Object.fromEntries(
+        currentAddresses.map((logicalAddress, index) => [
+          logicalAddress,
+          `bbbbbbbb-bbbb-4bbb-8bbb-${index.toString(16).padStart(12, "0")}`,
+        ])
+      )
+    )
+  })
+
   it("includes snapshot addresses used by nested YAML-to-XML rules", () => {
     const canonical = "Catalog.Товары.Attribute.Артикул"
     const snapshotAddress = "Справочник.Товары.Реквизит.Артикул"

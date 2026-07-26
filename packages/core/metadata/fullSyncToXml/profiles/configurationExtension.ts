@@ -31,12 +31,18 @@ export const configurationExtensionFullXmlSyncProfile: FullXmlSyncComponentProfi
         .map(({ logicalAddress, value }) => [logicalAddress, value])
     )
     const adoptedUuids: Record<string, string> = {}
-    const targetAddresses = new Set(
+    const targetSnapshotUuidAddresses = new Set(
       targetReader
         .identities()
         .filter(({ kind }) => kind === "uuid")
         .map(({ logicalAddress }) => logicalAddress)
     )
+    const targetAddresses = new Set([
+      ...targetSnapshotUuidAddresses,
+      ...target.indexes.logicalAddresses
+        .map(({ logicalAddress }) => logicalAddress)
+        .filter((logicalAddress) => baseUuids.has(logicalAddress)),
+    ])
     for (const logicalAddress of targetAddresses) {
       if (!baseAddresses.has(logicalAddress)) continue
       const uuid = baseUuids.get(logicalAddress)
