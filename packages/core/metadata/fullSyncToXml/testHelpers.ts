@@ -1,16 +1,23 @@
 import fs from "node:fs"
 import os from "node:os"
 import { join } from "node:path"
-import { discoverFullXmlSyncPlan } from "./discovery"
 import { transferFullXmlSyncExternalFiles } from "./transferExternalFiles"
 import { runFullXmlSyncWorkerCommand, resetFullXmlSyncWorkerStateForTests } from "./worker"
 import { createFullXmlSyncWorkerPool } from "./workerPool"
-import { writeFullXmlSyncConfigDumpInfo } from "./writeConfigDumpInfo"
 import { readConfigurationIndexSnapshot } from "../configurationIndex/sharedSnapshot"
 import { writeConfigurationIndexAtomically } from "../configurationIndex/fileIO"
 import type { FullXmlSyncCoordinatorDependencies } from "./syncConfiguration"
 import { NKDK_CORE_VERSION } from "../../version"
 import { createEmptyPersistedSharedValidationSnapshot } from "../validation/persistedSharedValidationSnapshot"
+import {
+  confirmComponentState,
+  readComponentHashState,
+  readComponentIndexes,
+  readComponentProjectStructure,
+} from "../project/componentState"
+import { resolveFullXmlSyncComponentProfile } from "./componentProfile"
+import { buildXmlSyncPlan } from "./selection"
+import { validateFullXmlSyncWrittenFiles } from "./validateWrittenFiles"
 
 const tempDirs: string[] = []
 
@@ -45,14 +52,15 @@ export function writeSmallXmlDump(xmlDir: string): void {
   })
 }
 
-export async function writeSmallYamlProjectWithIndex(yamlDir: string): Promise<void> {
+export async function writeSmallYamlProjectWithIndex(projectDir: string): Promise<void> {
+  const yamlDir = join(projectDir, "cf")
   fs.mkdirSync(yamlDir, { recursive: true })
   fs.writeFileSync(join(yamlDir, "Конфигурация.yaml"), "Имя: Конфигурация\n", "utf8")
   fs.cpSync(join(__dirname, "../appliedObjects/metadataBot/__fixtures__/sync/yaml"), join(yamlDir, "Бот"), {
     recursive: true,
   })
   await writeConfigurationIndexAtomically({
-    projectDir: yamlDir,
+    projectDir,
     address: { kind: "configuration" },
     data: {
       binding: {
@@ -92,8 +100,13 @@ export function createDirectFullSyncDependencies(): FullXmlSyncCoordinatorDepend
     async mkdir(path) {
       fs.mkdirSync(path, { recursive: true })
     },
-    discover: ({ projectDir }) => discoverFullXmlSyncPlan(projectDir),
-    readIndexSnapshot: readConfigurationIndexSnapshot,
+    readStructure: readComponentProjectStructure,
+    readSnapshot: readConfigurationIndexSnapshot,
+    readHashes: readComponentHashState,
+    readIndexes: readComponentIndexes,
+    confirmState: confirmComponentState,
+    resolveProfile: resolveFullXmlSyncComponentProfile,
+    buildPlan: buildXmlSyncPlan,
     createWorkerPool({ concurrency }) {
       return createFullXmlSyncWorkerPool({
         concurrency,
@@ -106,7 +119,7 @@ export function createDirectFullSyncDependencies(): FullXmlSyncCoordinatorDepend
       })
     },
     transferExternalFiles: transferFullXmlSyncExternalFiles,
-    writeConfigDumpInfo: writeFullXmlSyncConfigDumpInfo,
+    validateWrittenFiles: validateFullXmlSyncWrittenFiles,
     writeIndex: writeConfigurationIndexAtomically,
   }
 }

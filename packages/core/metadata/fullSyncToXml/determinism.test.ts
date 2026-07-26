@@ -4,6 +4,7 @@ import { afterEach, describe, expect, it } from "vitest"
 import { mockContextToXML } from "../../tests/mockContext"
 import { readConfigurationIndex } from "../configurationIndex"
 import type { ConfigurationIndexData } from "../configurationIndex/types"
+import { createEmptyPersistedSharedValidationSnapshot } from "../validation/persistedSharedValidationSnapshot"
 import { syncConfigurationToXml } from "./syncConfiguration"
 import { createTempRoot, removeFullSyncTempDirs, writeSmallYamlProjectWithIndex } from "./testHelpers"
 
@@ -20,8 +21,8 @@ describe("full XML sync determinism", () => {
     const outTwo = join(root, "out-two")
     await writeSmallYamlProjectWithIndex(projectOne)
     fs.cpSync(
-      join(projectOne, "Бот", "БотВсеСвойства"),
-      join(projectOne, "Бот", "ВторойБот"),
+      join(projectOne, "cf", "Бот", "БотВсеСвойства"),
+      join(projectOne, "cf", "Бот", "ВторойБот"),
       { recursive: true }
     )
     fs.cpSync(projectOne, projectTwo, { recursive: true })
@@ -29,14 +30,14 @@ describe("full XML sync determinism", () => {
     const first = await syncConfigurationToXml({
       context: mockContextToXML(),
       componentPath: "cf",
-      yamlDir: projectOne,
+      projectDir: projectOne,
       xmlDir: outOne,
       concurrency: 1,
     })
     const second = await syncConfigurationToXml({
       context: mockContextToXML(),
       componentPath: "cf",
-      yamlDir: projectTwo,
+      projectDir: projectTwo,
       xmlDir: outTwo,
       concurrency: 2,
     })
@@ -66,6 +67,11 @@ function normalizeIndex(index: ConfigurationIndexData): ConfigurationIndexData {
     ),
     xmlNodes: [...index.xmlNodes].sort((left, right) => compare(left.logicalAddress, right.logicalAddress)),
     xmlValues: [...index.xmlValues].sort((left, right) => compare(left.logicalAddress, right.logicalAddress)),
+    localIndexes: {
+      ...index.localIndexes,
+      // Кэш владельцев содержит абсолютные пути конкретной рабочей копии.
+      metadata: createEmptyPersistedSharedValidationSnapshot(),
+    },
   }
 }
 

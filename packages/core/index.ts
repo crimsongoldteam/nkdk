@@ -18,10 +18,12 @@ export type { ConfigurationSyncResult } from "./metadata/appliedObjects/configur
 export { syncConfigurationIncrementallyToXML } from "./metadata/appliedObjects/configuration/incrementalSyncToXML"
 export {
   planSyncConfigurationToXml as planSyncToXml,
+  syncComponentToXml,
   syncConfigurationToXml as syncConfigurationToXML,
   type FullXmlSyncPlanResult,
   type FullXmlSyncResult,
   type PlanSyncConfigurationToXmlParams,
+  type SyncComponentToXmlParams,
   type SyncConfigurationToXmlParams,
 } from "./metadata/fullSyncToXml"
 export {

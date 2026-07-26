@@ -18,15 +18,16 @@ afterEach(async () => {
 describe("full XML sync integration", () => {
   it("syncs a small YAML project through the configuration index without XML reference", async () => {
     const root = createTempRoot()
-    const yamlDir = join(root, "yaml")
+    const projectDir = join(root, "project")
+    const yamlDir = join(projectDir, "cf")
     const outDir = join(root, "out")
-    await writeSmallYamlProjectWithIndex(yamlDir)
+    await writeSmallYamlProjectWithIndex(projectDir)
 
     const synced = await syncConfigurationToXml(
       {
         context: mockContextToXML(),
         componentPath: "cf",
-        yamlDir,
+        projectDir,
         xmlDir: outDir,
         concurrency: 1,
       },
@@ -35,23 +36,21 @@ describe("full XML sync integration", () => {
 
     expect(synced.failed).toEqual([])
     expect(fs.existsSync(join(outDir, "Configuration.xml"))).toBe(true)
-    expect(fs.existsSync(join(outDir, "ConfigDumpInfo.xml"))).toBe(true)
+    expect(fs.existsSync(join(outDir, "ConfigDumpInfo.xml"))).toBe(false)
     expect(fs.existsSync(join(outDir, "Bots", "БотВсеСвойства.xml"))).toBe(true)
     expect(fs.existsSync(join(outDir, "Bots", "БотВсеСвойства", "Ext", "Module.bsl"))).toBe(true)
 
     const botXml = fs.readFileSync(join(outDir, "Bots", "БотВсеСвойства.xml"), "utf8")
     const configXml = fs.readFileSync(join(outDir, "Configuration.xml"), "utf8")
-    const configDumpInfoXml = fs.readFileSync(join(outDir, "ConfigDumpInfo.xml"), "utf8")
 
     expect(botXml).toContain('uuid="1f777cc7-ac1c-46e8-8e35-82485cee6798"')
     expect(configXml).toContain("<Bot>БотВсеСвойства</Bot>")
-    expect(configDumpInfoXml).toContain('name="Bot.БотВсеСвойства"')
 
     const sourceModule = fs.readFileSync(join(yamlDir, "Бот", "БотВсеСвойства", "Модуль.bsl"))
     const targetModule = fs.readFileSync(join(outDir, "Bots", "БотВсеСвойства", "Ext", "Module.bsl"))
     expect(targetModule).toEqual(sourceModule)
 
-    const index = await readConfigurationIndex({ projectDir: yamlDir, address: { kind: "configuration" } })
+    const index = await readConfigurationIndex({ projectDir, address: { kind: "configuration" } })
     expect(index.projectFiles.map((file) => file.projectPath)).toContain("Конфигурация.yaml")
     expect(index.projectFiles.map((file) => file.projectPath)).toContain("Бот/БотВсеСвойства/Модуль.bsl")
     expect(index.identities).toContainEqual({
@@ -63,17 +62,15 @@ describe("full XML sync integration", () => {
 
   it("reads and updates the index at the project root when YAML belongs to a component", async () => {
     const projectDir = createTempRoot()
-    const yamlDir = join(projectDir, "cf")
     const outDir = join(projectDir, "out")
-    await writeSmallYamlProjectWithIndex(yamlDir)
-    fs.renameSync(join(yamlDir, ".nkdk"), join(projectDir, ".nkdk"))
+    await writeSmallYamlProjectWithIndex(projectDir)
+    const yamlDir = join(projectDir, "cf")
 
     const synced = await syncConfigurationToXml(
       {
         context: mockContextToXML(),
         projectDir,
         componentPath: "cf",
-        yamlDir,
         xmlDir: outDir,
         concurrency: 1,
       },
