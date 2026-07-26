@@ -2,18 +2,23 @@
 
 > **For agentic workers:** REQUIRED SUB-SKILL: Use superpowers:subagent-driven-development (recommended) or superpowers:executing-plans to implement this plan task-by-task. Steps use checkbox (`- [ ]`) syntax for tracking.
 
-**Goal:** Добавить MCP-импорт основной конфигурации из информационной базы 1С через переиспользуемый сеанс агента Конфигуратора или `ibcmd`.
+**Goal:** Добавить MCP-импорт основной конфигурации из файловой или клиент-серверной информационной базы 1С через переиспользуемый сеанс агента Конфигуратора или offline-режим `ibcmd`.
 
-**Architecture:** `@nkdk/platform` инкапсулирует поиск приложений 1С, настройки проекта, SSH-сеанс клиент-серверного агента, команды `ibcmd` для файловой базы и кеш сеансов. `@nkdk/core` получает только нейтральную стратегию `copy | move` для внешних файлов, а `@nkdk/mcp` создаёт временную XML-выгрузку, вызывает существующий XML → YAML импорт и публикует импорт и закрытие сеансов.
+**Architecture:** `@nkdk/platform` инкапсулирует поиск приложений 1С, настройки проекта, SSH-сеанс агента для `File` и `Srvr`/`Ref`, команды offline-режима `ibcmd` для обоих видов баз и кеш сеансов. `@nkdk/core` получает только нейтральную стратегию `copy | move` для внешних файлов, а `@nkdk/mcp` создаёт временную XML-выгрузку, вызывает существующий XML → YAML импорт и публикует импорт и закрытие сеансов.
 
 **Tech Stack:** TypeScript 6, Node.js 26, Vitest 4, Zod 4, `ssh2`, `yaml`, MCP SDK, pnpm workspace.
+
+**Execution status:** Tasks 1–10 are implemented through commit `8b91ffc8b`.
+Execution resumes at Task 11, which corrects the connection-mode matrix after
+clarifying the scope of the documented `--server` limitation.
 
 ## Global Constraints
 
 - Поддерживается только платформа `8.3.27`; выбирается самый новый найденный build.
 - Поддерживаются строки подключения 1С `File="...";` и `Srvr="...";Ref="...";`; web-базы отклоняются.
-- Агентный режим поддерживает только `Srvr`/`Ref`; платформа игнорирует `dump-config-to-files` у агента файловой базы.
-- `useStandaloneServer: true` поддерживает только файловую базу и требует `ibcmd`; `ibsrv` не запускается, потому что его блокировка мешает `ibcmd export`.
+- Агентный режим поддерживает `File` и `Srvr`/`Ref`; `dump-config-to-files` вызывается без `--server`, потому что только этот параметр игнорируется агентом файловой базы.
+- `useStandaloneServer: true` поддерживает `File` и `Srvr`/`Ref` через offline-режим `ibcmd`; для клиент-серверной базы обязательны параметры СУБД.
+- `ibsrv` не запускается: адаптер кеширует подготовленный `config.yaml`, а каждую выгрузку выполняет отдельным `ibcmd`.
 - Основная конфигурация импортируется только в отсутствующий или пустой компонент `cf`.
 - Временная выгрузка находится в `.nkdk/tmp/import-from-infobase/<operation-id>/xml`.
 - Обычный XML-импорт по умолчанию копирует внешние файлы; импорт из базы передаёт `externalFileTransfer: "move"`.
@@ -50,7 +55,7 @@
 - `packages/platform/src/sessions/sshProtocol.ts`, `sshProtocol.test.ts` — общий интерактивный договор команд 1С.
 - `packages/platform/src/sessions/ssh2Transport.ts` — производственный транспорт поверх `ssh2`.
 - `packages/platform/src/sessions/designerAgent.ts`, `designerAgent.test.ts` — запуск и остановка агента Конфигуратора.
-- `packages/platform/src/sessions/standaloneServer.ts`, `standaloneServer.test.ts` — подготовка `config.yaml` и выгрузка файловой базы через `ibcmd`.
+- `packages/platform/src/sessions/standaloneServer.ts`, `standaloneServer.test.ts` — подготовка `config.yaml` и выгрузка файловой или клиент-серверной базы через `ibcmd`.
 - `packages/platform/src/sessions/manager.ts`, `manager.test.ts` — кеш, очереди, экспорт и закрытие соединений.
 - `packages/platform/index.ts` — публичный API менеджера и настроек.
 - `packages/platform/package.json`, `pnpm-lock.yaml` — зависимости `ssh2`, `yaml` и типы `@types/ssh2`.
@@ -240,7 +245,12 @@ infobase:
 })
 ```
 
-Also assert rejection of unknown versions, web/unknown connections, non-integer or non-positive timeout, and standalone `Srvr`/`Ref`. For writing, assert calls for `.nkdk/.gitignore`, `.nkdk/project.yaml`, and `chmod(..., 0o600)` on Unix; assert no password appears in thrown messages.
+Also assert rejection of unknown versions, web/unknown connections,
+non-integer or non-positive timeout, incomplete/unknown `database`, missing
+`database` for standalone `Srvr`/`Ref`, and `database` supplied for `File`.
+For writing, assert calls for `.nkdk/.gitignore`, `.nkdk/project.yaml`, and
+`chmod(..., 0o600)` on Unix; assert neither infobase nor database password
+appears in thrown messages.
 
 - [ ] **Step 2: Run settings tests and verify failure**
 
@@ -263,6 +273,13 @@ export type PlatformConnectionSettings = {
   connectionString: string
   user?: string
   password?: string
+  database?: {
+    dbms: "MSSQLServer" | "PostgreSQL" | "IBMDB2" | "OracleDatabase"
+    server: string
+    name: string
+    user: string
+    password?: string
+  }
   useStandaloneServer?: boolean
   sessionIdleTimeout?: number
 }
@@ -293,7 +310,7 @@ export type ProjectSettings = {
   infobase: Required<
     Pick<PlatformConnectionSettings, "connectionString" | "useStandaloneServer" | "sessionIdleTimeout">
   > &
-    Pick<PlatformConnectionSettings, "user" | "password">
+    Pick<PlatformConnectionSettings, "user" | "password" | "database">
 }
 
 export interface PlatformSession {
@@ -311,7 +328,7 @@ export type CreatePlatformSessionParams = {
   settings: Required<
     Pick<PlatformConnectionSettings, "connectionString" | "useStandaloneServer" | "sessionIdleTimeout">
   > &
-    Pick<PlatformConnectionSettings, "user" | "password">
+    Pick<PlatformConnectionSettings, "user" | "password" | "database">
 }
 ```
 
@@ -464,7 +481,10 @@ Expected: FAIL because `ibsrvPath` and the builders do not exist.
 
 - [ ] **Step 4: Implement discovery and builders**
 
-Search `ibsrv.exe` under `bin` on Windows and `ibsrv`, then `bin/ibsrv`, on Unix. Reuse existing executable validation. Parse connection strings with the existing `parseConnection`; throw `unsupported_connection` for web/unknown and for standalone server connections.
+Search `ibsrv.exe` under `bin` on Windows and `ibsrv`, then `bin/ibsrv`, on
+Unix. Reuse existing executable validation. Parse connection strings with the
+existing `parseConnection`; throw `unsupported_connection` only for
+web/unknown connections.
 
 Escape command values for the 1C interactive shell by doubling embedded `"` and reject NUL/newline characters. Keep process arguments as arrays so no shell interpolation occurs.
 
@@ -601,9 +621,9 @@ git commit -m "feat: :sparkles: добавить SSH-сеанс команд п�
 
 - [ ] **Step 1: Write failing adapter tests with all boundaries mocked**
 
-Cover the client-server connection on all three operating systems and assert
-that a file connection is rejected because the platform ignores the XML dump
-command in that agent mode. The main lifecycle test asserts this order:
+Cover file and client-server connections on all three operating systems.
+Assert that both use the same SSH lifecycle and `dump-config-to-files` without
+`--server`. The main lifecycle test asserts this order:
 
 ```ts
 expect(calls).toEqual([
@@ -612,7 +632,7 @@ expect(calls).toEqual([
   "spawn /opt/1cv8/8.3.27.2214/1cv8 DESIGNER ...",
   "ssh.connect 127.0.0.1:58248",
   "shell.connect-ib",
-  "shell.run config dump-config-to-files --dir=\"/project/.nkdk/tmp/op/xml\" --format=hierarchical",
+  "shell.run config dump-config-to-files --dir=\"tmp/op/xml\" --format=hierarchical",
 ])
 ```
 
@@ -632,7 +652,15 @@ Expected: FAIL because `createDesignerAgentSession` does not exist.
 
 Require `enterprisePath`, reserve a loopback port, create the session base directory through the injected filesystem, spawn without a shell, and retry SSH connection until ready or timeout. Keep the exact returned child handle as proof of ownership.
 
-`isAlive()` is true only when both the owned process and command session are alive. The process `/Out` log lives in `sessionDir/process.log`, so successful deletion of an operation directory does not remove a file used by a cached process. `exportConfiguration(outputDir, operationLogPath)` delegates to the shared command session with `buildDumpConfigurationCommand(outputDir)` and writes only redacted command diagnostics to the operation log.
+`isAlive()` is true only when both the owned process and command session are
+alive. `/AgentBaseDir` is the project `.nkdk` directory; the process `/Out` log
+lives in `sessionDir/process.log`, so successful deletion of an operation
+directory does not remove a file used by a cached process.
+`exportConfiguration(outputDir, operationLogPath)` verifies that `outputDir`
+is inside `.nkdk`, converts it to a path relative to `/AgentBaseDir`, delegates
+to the shared command session with
+`buildDumpConfigurationCommand(relativeOutputDir)`, and writes only redacted
+command diagnostics to the operation log.
 
 - [ ] **Step 4: Implement safe close**
 
@@ -672,7 +700,7 @@ git commit -m "feat: :sparkles: добавить сеанс агента Кон�
 - Create: `packages/platform/src/sessions/standaloneServer.test.ts`
 
 **Interfaces:**
-- Consumes: file connection, `ibcmdPath`, command builders and mocked process/filesystem boundaries.
+- Consumes: file or server connection, optional `database`, `ibcmdPath`, command builders and mocked process/filesystem boundaries.
 - Produces: internal `createStandaloneServerSession(params): Promise<PlatformSession>`.
 
 - [ ] **Step 1: Write failing adapter tests with all boundaries mocked**
@@ -689,10 +717,13 @@ expect(calls).toEqual([
 ])
 ```
 
-Assert that the generated `config.yaml` is reused, optional user/password
-arguments are passed only when present, `Srvr`/`Ref` is rejected, and
-initialization/export failures map to stable errors. Closing the cached session
-returns `stoppedOwnedProcess: false`.
+Assert that the generated `config.yaml` is reused and optional infobase
+user/password arguments are passed only when present. Cover `File` through
+`--database-path`; cover `Srvr`/`Ref` through the required `database` fields and
+the `--dbms`, `--database-server`, `--database-name`, `--database-user` and
+optional `--database-password` arguments. Initialization/export failures map
+to stable errors. Closing the cached session returns
+`stoppedOwnedProcess: false`.
 
 - [ ] **Step 2: Run the adapter test and verify failure**
 
@@ -706,13 +737,17 @@ Expected: FAIL before the adapter follows the `ibcmd export` contract.
 
 - [ ] **Step 3: Implement configuration preparation**
 
-Accept only `connection.type === "file"`. Capture stdout from:
+For `connection.type === "file"`, capture stdout from:
 
 ```ts
 run(ibcmdPath, ["server", "config", "init", `--database-path=${connection.path}`])
 ```
 
 Write the returned YAML as `config.yaml` through the injected filesystem.
+
+For `connection.type === "server"`, require `settings.database` and initialize
+the same file with the DBMS arguments. The `Srvr`/`Ref` values remain the
+public 1C address but are not treated as DBMS coordinates.
 
 - [ ] **Step 4: Implement export and close**
 
@@ -909,6 +944,10 @@ Use the exact input:
 ```
 
 Assert positive integer timeout and strict rejection of extra fields. Success output contains `succeeded`, `failed`, `warnings`, optional `configurationIndexPath`, `settingsPath`, `mode`, `reusedConnection`, and optional `temporaryDirectory` when object failures preserve the dump.
+
+Also accept `database` for `Srvr`/`Ref + useStandaloneServer: true` with the
+same strict DBMS shape as `PlatformConnectionSettings`; require it for this
+combination and reject it for `File`.
 
 - [ ] **Step 2: Write failing orchestration tests with no real filesystem**
 
@@ -1123,7 +1162,8 @@ git commit -m "feat: :sparkles: опубликовать управление с
 
 **Interfaces:**
 - Verifies: packed MCP can load the bundled platform integration and expose all three tools.
-- Documents: `.nkdk/project.yaml`, timeout seconds, standalone limitation, and explicit close tools.
+- Documents: `.nkdk/project.yaml`, timeout seconds, complete mode matrix,
+  client-server DBMS settings, and explicit close tools.
 
 - [ ] **Step 1: Add packed smoke assertions**
 
@@ -1161,14 +1201,23 @@ Add README rows for the three MCP tools. Include this settings example:
 ```yaml
 version: 1
 infobase:
-  connectionString: 'File="/bases/test";'
+  connectionString: 'Srvr="server";Ref="base";'
   user: Администратор
   password: secret
-  useStandaloneServer: false
+  useStandaloneServer: true
   sessionIdleTimeout: 900
+  database:
+    dbms: PostgreSQL
+    server: db.example.local
+    name: production
+    user: dbuser
+    password: dbsecret
 ```
 
-State: timeout is seconds; standalone supports only `File`; password is plaintext; `.nkdk` must not be committed; failed import preserves its temporary path.
+State: timeout is seconds; both modes support `File` and `Srvr`/`Ref`;
+standalone `Srvr`/`Ref` additionally requires `database`; both passwords are
+plaintext; `.nkdk` must not be committed; failed import preserves its
+temporary path.
 
 - [ ] **Step 4: Run focused package checks**
 
@@ -1219,3 +1268,165 @@ git commit -m "docs: :memo: описать импорт из базы через
 - [ ] **Step 8: Review the completed branch**
 
 Use `superpowers:requesting-code-review`, resolve findings, then re-run `pnpm test` and `pnpm type-check` before declaring implementation complete.
+
+---
+
+### Task 11: Complete the File/Srvr matrix in both platform modes
+
+**Files:**
+- Modify: `packages/platform/src/sessions/types.ts`
+- Modify: `packages/platform/src/settings/projectSettings.ts`
+- Modify: `packages/platform/src/settings/projectSettings.test.ts`
+- Modify: `packages/platform/src/sessions/designerAgent.ts`
+- Modify: `packages/platform/src/sessions/designerAgent.test.ts`
+- Modify: `packages/platform/src/sessions/commands.ts`
+- Modify: `packages/platform/src/sessions/commands.test.ts`
+- Modify: `packages/platform/src/sessions/standaloneServer.ts`
+- Modify: `packages/platform/src/sessions/standaloneServer.test.ts`
+- Modify: `packages/platform/src/sessions/manager.ts`
+- Modify: `packages/platform/src/sessions/manager.test.ts`
+- Modify: `packages/mcp/src/contracts/importFromInfobase.ts`
+- Modify: `packages/mcp/src/contracts/importFromInfobase.test.ts`
+- Modify: `packages/mcp/src/services/importFromInfobase.ts`
+- Modify: `packages/mcp/src/services/importFromInfobase.test.ts`
+- Modify: `.agents/architecture.md`
+- Modify: `README.md`
+- Modify: `packages/mcp/README.md`
+
+**Interfaces:**
+- `PlatformConnectionSettings.database?: DatabaseConnectionSettings`.
+- `ImportFromInfobaseInput.database?: DatabaseConnectionSettings`.
+- Agent mode accepts both `File` and `Srvr`/`Ref`.
+- Offline `ibcmd` mode accepts both, requiring `database` only for
+  `Srvr`/`Ref`.
+
+- [ ] **Step 1: Add failing settings and MCP contract tests**
+
+Using only mocked boundaries, cover:
+
+- strict parsing and round-trip writing of `database`;
+- all four supported DBMS values;
+- missing/incomplete `database` for standalone `Srvr`/`Ref`;
+- rejection of `database` for `File`;
+- propagation of `database` from MCP input to the manager and saved settings;
+- absence of both passwords from validation errors and MCP results.
+
+Run:
+
+```bash
+pnpm --filter @nkdk/platform exec vitest run src/settings/projectSettings.test.ts
+pnpm --filter @nkdk/mcp exec vitest run src/contracts/importFromInfobase.test.ts src/services/importFromInfobase.test.ts
+```
+
+Expected: FAIL because `database` is not in the contracts.
+
+- [ ] **Step 2: Implement the shared database settings contract**
+
+Add:
+
+```ts
+type DatabaseConnectionSettings = {
+  dbms: "MSSQLServer" | "PostgreSQL" | "IBMDB2" | "OracleDatabase"
+  server: string
+  name: string
+  user: string
+  password?: string
+}
+```
+
+Normalize it once in `@nkdk/platform`; reject empty strings and NUL/CR/LF.
+Include it in the private session fingerprint without serializing credentials.
+Mirror the strict shape in the MCP Zod input and pass it unchanged through the
+service.
+
+- [ ] **Step 3: Add failing Designer File tests**
+
+Replace the rejection test with a `File` lifecycle test. Assert `/F<path>`,
+the same pinned SSH key, and a dump command without `--server`.
+
+Set `/AgentBaseDir` to `<projectDir>/.nkdk`. For an operation output such as
+`<projectDir>/.nkdk/tmp/import-from-infobase/op-1/xml`, assert the interactive
+command receives only `tmp/import-from-infobase/op-1/xml`. Reject an output
+path outside `.nkdk`.
+
+Run:
+
+```bash
+pnpm --filter @nkdk/platform exec vitest run src/sessions/designerAgent.test.ts src/sessions/commands.test.ts
+```
+
+Expected: FAIL because the adapter currently rejects `File` and passes an
+absolute output path.
+
+- [ ] **Step 4: Implement Designer support for both connection types**
+
+Allow `connection.type === "file" || connection.type === "server"`. Preserve
+the existing process ownership, SSH fingerprint verification, retry and close
+behavior. Compute the dump path with `relative(agentBaseDir, outputDir)` after
+verifying containment; normalize separators for the interactive 1C command.
+
+- [ ] **Step 5: Add failing standalone client-server tests**
+
+Assert the exact `ibcmd server config init` arguments:
+
+```ts
+[
+  "server", "config", "init",
+  "--dbms=PostgreSQL",
+  "--database-server=db.example.local",
+  "--database-name=production",
+  "--database-user=dbuser",
+  "--database-password=dbsecret",
+]
+```
+
+Cover an omitted database password, missing settings, invalid connection
+types, timeouts, safe errors and normal export through the generated
+`config.yaml`.
+
+Run:
+
+```bash
+pnpm --filter @nkdk/platform exec vitest run src/sessions/standaloneServer.test.ts
+```
+
+Expected: FAIL because the adapter currently accepts only `File`.
+
+- [ ] **Step 6: Implement standalone support for both connection types**
+
+Keep the existing file branch. Add a server branch that builds `config init`
+from `database`; do not derive DBMS coordinates from `Srvr`/`Ref`. Validate the
+returned YAML before writing it, retain the 30-minute timeout, and keep
+infobase `user`/`password` only on `infobase config export`.
+
+- [ ] **Step 7: Update architecture and public documentation**
+
+Correct the meaning of `--server`; document the complete 2×2 matrix, the
+relative `/AgentBaseDir` path, the nested `database` object, plaintext password
+limitations, and required settings for standalone client-server access.
+Regenerate `packages/mcp/README.md` through the normal build.
+
+- [ ] **Step 8: Run focused and real verification**
+
+Run:
+
+```bash
+pnpm --filter @nkdk/platform test
+pnpm --filter @nkdk/mcp test
+pnpm type-check
+pnpm --filter @nkdk/mcp build
+pnpm --filter @nkdk/mcp smoke:packed
+```
+
+Use the real MCP tool on `File="/Users/nikita/Базы 1С/all";` in both
+`useStandaloneServer: false` and `true`, each with a new empty project. Assert
+non-empty successful imports and close both connections. Client-server
+execution remains mocked until credentials for a real test base are supplied.
+
+- [ ] **Step 9: Run mandatory full verification and commit**
+
+Run `pnpm test`, `git diff --check`, and `git status --short`. Use
+`superpowers:requesting-code-review`, resolve all Critical/Important findings,
+then re-run `pnpm test` and `pnpm type-check`.
+
+Commit with the project `commit` skill.
