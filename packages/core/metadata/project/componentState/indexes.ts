@@ -66,7 +66,10 @@ export async function readComponentIndexes(params: {
     sourceProjectFiles: params.hashes.projectFiles,
     metadata: cold.metadata,
     dependencies: cold.dependencies,
-    logicalAddresses: uniqueLogicalAddresses(logicalAddresses),
+    logicalAddresses: uniqueLogicalAddresses([
+      ...logicalAddresses,
+      ...cold.logicalAddresses,
+    ]),
   }
 }
 
@@ -76,7 +79,7 @@ export async function buildColdComponentIndexes(params: {
   readonly concurrency?: number
   readonly projectPaths?: ReadonlySet<string>
   readonly createWorkerPool?: () => PreparedWorkerPool
-}): Promise<Pick<ComponentIndexes, "metadata" | "dependencies">> {
+}): Promise<Pick<ComponentIndexes, "metadata" | "dependencies" | "logicalAddresses">> {
   const descriptors = (await discoverPreparedYamlProjectFiles(params.componentDir))
     .filter(({ projectPath }) => params.projectPaths?.has(projectPath) ?? true)
   const pool = createPreparedYamlProjectWorkerPool({
@@ -98,6 +101,7 @@ export async function buildColdComponentIndexes(params: {
     return {
       metadata: createSharedValidationSnapshot(table.snapshot()),
       dependencies: contribution.localDependencies,
+      logicalAddresses: contribution.logicalAddresses,
     }
   } finally {
     await pool.close()

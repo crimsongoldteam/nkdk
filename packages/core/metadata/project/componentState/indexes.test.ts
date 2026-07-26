@@ -77,4 +77,33 @@ describe("component indexes", () => {
       { logicalAddress: "Конфигурация", sourceProjectPath: "Конфигурация.yaml" },
     ])
   })
+
+  it("rebuilds canonical addresses of child metadata from current YAML", async () => {
+    const projectDir = mkdtempSync(join(tmpdir(), "nkdk-component-child-indexes-"))
+    tempDirs.push(projectDir)
+    const filePath = join(projectDir, "cf", "Справочник", "Товары", "Свойства.yaml")
+    mkdirSync(join(filePath, ".."), { recursive: true })
+    writeFileSync(filePath, [
+      "Реквизиты:",
+      "  Артикул:",
+      "    Тип: Строка",
+      "",
+    ].join("\n"))
+    const structure = await readComponentProjectStructure({
+      projectDir,
+      address: { kind: "configuration" },
+    })
+    const hashes = await readComponentHashState({ structure })
+
+    const indexes = await readComponentIndexes({
+      structure,
+      hashes,
+      context: mockContext,
+    })
+
+    expect(indexes.logicalAddresses).toContainEqual({
+      logicalAddress: "Catalog.Товары.Attribute.Артикул",
+      sourceProjectPath: "Справочник/Товары/Свойства.yaml",
+    })
+  })
 })

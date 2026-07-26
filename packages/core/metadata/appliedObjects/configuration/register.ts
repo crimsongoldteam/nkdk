@@ -18,6 +18,10 @@ import { prepareConfigurationXML } from "./rootIO"
 import { buildConfigurationChildObjectsFromProjectEntries } from "./childObjects"
 import { configurationChildObjectsFromIndex } from "./configurationChildObjects"
 import "../configDumpInfo/configurationIndex"
+import { registerFullXmlSyncComponentProfile } from "../../fullSyncToXml/componentProfile"
+import { configurationFullXmlSyncProfile } from "../../fullSyncToXml/profiles/configuration"
+
+registerFullXmlSyncComponentProfile(configurationFullXmlSyncProfile)
 
 const objectOwnedProjectSpecDirs = new Set(["Справочник", "Документ", "Перечисление"])
 const specialObjectPathProjectSpecDirs = new Set(["ВнешнийИсточникДанных", "Подсистема"])

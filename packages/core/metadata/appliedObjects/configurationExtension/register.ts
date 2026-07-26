@@ -2,6 +2,10 @@ import { registerXmlImportComponentDescriptor } from "../../importFromXml/compon
 import { registerMetadataItemXmlImportAugmenter } from "../../importFromXml/metadataItemAugmenter"
 import { configurationExtensionPropertyStatesAugmenter } from "./propertyStates"
 import { MetadataConfigurationExtensionRules } from "./rules"
+import { registerFullXmlSyncComponentProfile } from "../../fullSyncToXml/componentProfile"
+import { configurationExtensionFullXmlSyncProfile } from "../../fullSyncToXml/profiles/configurationExtension"
+
+registerFullXmlSyncComponentProfile(configurationExtensionFullXmlSyncProfile)
 
 registerMetadataItemXmlImportAugmenter("configurationExtension", configurationExtensionPropertyStatesAugmenter)
 

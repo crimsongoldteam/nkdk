@@ -247,6 +247,16 @@ export async function collectValidationFacts(
     contribution.valueIndexEntries.push(...facts.valueIndexEntries)
     contribution.pendingReferences.push(...facts.pendingReferences)
     contribution.localDependencies.push(...facts.localDependencies)
+    contribution.logicalAddresses.push(
+      ...[
+        ...facts.objectIndexEntries,
+        ...facts.memberIndexEntries,
+        ...facts.valueIndexEntries,
+      ].map(({ canonical }) => ({
+        logicalAddress: canonical,
+        sourceProjectPath: descriptor.projectPath,
+      }))
+    )
   }
 
   return contribution
