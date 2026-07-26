@@ -6,6 +6,7 @@ export type MemoryRuntime = PlatformRuntime & {
   file(path: string, options?: { mode?: number; content?: string }): MemoryRuntime
   canonical(path: string, canonicalPath: string): MemoryRuntime
   readError(path: string, error: Error): MemoryRuntime
+  readCount(path: string): number
 }
 
 export function createMemoryRuntime(environment: PlatformEnvironment): MemoryRuntime {
@@ -14,6 +15,7 @@ export function createMemoryRuntime(environment: PlatformEnvironment): MemoryRun
   const nodes = new Map<string, Node>()
   const canonicalPaths = new Map<string, string>()
   const readErrors = new Map<string, Error>()
+  const readCounts = new Map<string, number>()
   const normalize = (path: string) => {
     const normalized = pathApi.normalize(path)
     return environment.os === "win32" ? normalized.toLowerCase() : normalized
@@ -38,6 +40,8 @@ export function createMemoryRuntime(environment: PlatformEnvironment): MemoryRun
     environment,
     fs: {
       readFile: async (path) => {
+        const key = normalize(path)
+        readCounts.set(key, (readCounts.get(key) ?? 0) + 1)
         const error = readErrors.get(normalize(path))
         if (error !== undefined) throw error
         const node = resolveNode(path)
@@ -85,6 +89,7 @@ export function createMemoryRuntime(environment: PlatformEnvironment): MemoryRun
       readErrors.set(normalize(path), error)
       return runtime
     },
+    readCount: (path) => readCounts.get(normalize(path)) ?? 0,
   }
   return runtime
 }
