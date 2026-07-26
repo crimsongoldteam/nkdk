@@ -13,6 +13,18 @@ export type InfobaseWarningCode =
 
 export type InfobaseWarning = { code: InfobaseWarningCode; source: string; message: string }
 
+export type InfobaseSource = {
+  path: string
+  kind: "personal" | "common"
+}
+
+export type InfobaseSourceCandidate = InfobaseSource
+
+export type InfobaseSourcesResult = {
+  candidates: InfobaseSourceCandidate[]
+  warnings: InfobaseWarning[]
+}
+
 type ParsedRecordBase = {
   name: string
   folder: string
