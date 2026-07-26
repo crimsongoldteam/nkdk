@@ -1,7 +1,7 @@
 import fs from "node:fs"
 import os from "node:os"
 import { join } from "node:path"
-import { buildFullXmlSyncPlan } from "./discovery"
+import { discoverFullXmlSyncPlan } from "./discovery"
 import { createFullXmlSyncSharedMetadata } from "./sharedMetadata"
 import { transferFullXmlSyncExternalFiles } from "./transferExternalFiles"
 import { runFullXmlSyncWorkerCommand, resetFullXmlSyncWorkerStateForTests } from "./worker"
@@ -93,7 +93,7 @@ export function createDirectFullSyncDependencies(): FullXmlSyncCoordinatorDepend
     async mkdir(path) {
       fs.mkdirSync(path, { recursive: true })
     },
-    discover: ({ projectDir }) => buildFullXmlSyncPlan({ projectDir }),
+    discover: ({ projectDir }) => discoverFullXmlSyncPlan(projectDir),
     readIndexSnapshot: readConfigurationIndexSnapshot,
     createWorkerPool({ concurrency }) {
       return createFullXmlSyncWorkerPool({

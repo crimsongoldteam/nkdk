@@ -22,6 +22,7 @@ export interface FullXmlSyncAssignment {
   readonly id: string
   readonly sourceProjectPath: string
   readonly sourcePath: string
+  readonly expectedContentHash: bigint
   readonly role: "configuration" | "properties" | "form"
   readonly itemType: string
   readonly itemName: string
@@ -35,6 +36,7 @@ export interface FullXmlSyncExternalFile {
   readonly assignmentId?: string
   readonly sourceProjectPath: string
   readonly sourcePath: string
+  readonly expectedContentHash: bigint
   readonly targetXmlPath: string
   readonly transferCapabilityId?: string
 }

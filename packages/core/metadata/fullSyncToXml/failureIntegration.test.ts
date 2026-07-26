@@ -149,6 +149,7 @@ function transferFailureDeps(previous: ConfigurationIndexData): FullXmlSyncCoord
             id: "Конфигурация.yaml",
             sourceProjectPath: "Конфигурация.yaml",
             sourcePath: "Конфигурация.yaml",
+            expectedContentHash: 0n,
             role: "configuration",
             itemType: "MetadataConfiguration",
             itemName: "Конфигурация",

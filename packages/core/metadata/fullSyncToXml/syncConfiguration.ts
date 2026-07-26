@@ -16,7 +16,7 @@ import type {
 } from "../configurationIndex/types"
 import type { ConfigurationContext } from "../context/types"
 import { createValidationProfiler } from "../validation/profile"
-import { buildFullXmlSyncPlan } from "./discovery"
+import { discoverFullXmlSyncPlan } from "./discovery"
 import {
   createFullXmlSyncCompositionSnapshot,
   createFullXmlSyncSharedMetadata,
@@ -91,7 +91,7 @@ const defaultDependencies: FullXmlSyncCoordinatorDependencies = {
   async mkdir(path) {
     await fs.promises.mkdir(path, { recursive: true })
   },
-  discover: ({ projectDir }) => buildFullXmlSyncPlan({ projectDir }),
+  discover: ({ projectDir }) => discoverFullXmlSyncPlan(projectDir),
   readIndexSnapshot: readConfigurationIndexSnapshot,
   createWorkerPool: ({ concurrency }) => createFullXmlSyncWorkerPool({ concurrency }),
   createSharedMetadata: createFullXmlSyncSharedMetadata,

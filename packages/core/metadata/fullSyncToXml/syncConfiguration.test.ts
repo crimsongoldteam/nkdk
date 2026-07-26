@@ -275,6 +275,7 @@ function createHarness(options: HarnessOptions = {}) {
       id: "catalog",
       sourceProjectPath: "Справочник/Товары/Свойства.yaml",
       sourcePath: "/project/Справочник/Товары/Свойства.yaml",
+      expectedContentHash: 0n,
       role: "properties",
       itemType: "MetadataCatalog",
       itemName: "Товары",
@@ -286,6 +287,7 @@ function createHarness(options: HarnessOptions = {}) {
     {
       sourceProjectPath: "Справочник/Товары/Формы/ФормаЭлемента/Модуль.bsl",
       sourcePath: "/project/Справочник/Товары/Формы/ФормаЭлемента/Модуль.bsl",
+      expectedContentHash: 0n,
       targetXmlPath: "Catalogs/Товары/Forms/ФормаЭлемента/Ext/Form/Module.bsl",
     },
   ]

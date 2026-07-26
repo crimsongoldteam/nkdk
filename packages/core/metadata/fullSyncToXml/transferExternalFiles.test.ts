@@ -156,5 +156,5 @@ describe("transferFullXmlSyncExternalFiles", () => {
 })
 
 function externalFile(sourceProjectPath: string, sourcePath: string, targetXmlPath: string): FullXmlSyncExternalFile {
-  return { sourceProjectPath, sourcePath, targetXmlPath }
+  return { sourceProjectPath, sourcePath, expectedContentHash: 0n, targetXmlPath }
 }

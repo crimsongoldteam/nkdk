@@ -159,6 +159,7 @@ function catalogAssignment(name: string): FullXmlSyncAssignment {
     id: `Справочник/${name}/Свойства.yaml`,
     sourceProjectPath: `Справочник/${name}/Свойства.yaml`,
     sourcePath: `/project/Справочник/${name}/Свойства.yaml`,
+    expectedContentHash: 0n,
     role: "properties",
     itemType: "MetadataCatalog",
     itemName: name,

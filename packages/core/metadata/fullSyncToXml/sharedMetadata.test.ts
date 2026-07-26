@@ -7,7 +7,7 @@ import { registerValidationMetadata } from "../validation/registerValidationMeta
 import { resolveValidationProjectFile } from "../validation/projectFiles"
 import { extractValidationOwnerYamlFacts } from "../validation/yamlFactExtractor"
 import { prepareYamlFiles } from "../project/prepareYamlFiles"
-import { buildFullXmlSyncPlan } from "./discovery"
+import { discoverFullXmlSyncPlan } from "./discovery"
 import { createFullXmlSyncSharedMetadata, createFullXmlSyncSharedMetadataReader } from "./sharedMetadata"
 import type { FullXmlSyncOwnerFacts } from "./types"
 
@@ -38,7 +38,7 @@ describe("full sync shared metadata", () => {
 
   it("shares project composition through one SharedArrayBuffer", async () => {
     const projectDir = createProject()
-    const plan = await buildFullXmlSyncPlan({ projectDir })
+    const plan = await discoverFullXmlSyncPlan(projectDir)
     const shared = createFullXmlSyncSharedMetadata({ assignments: plan.assignments, owners: [] })
     const left = createFullXmlSyncSharedMetadataReader(shared)
     const right = createFullXmlSyncSharedMetadataReader(shared)
@@ -89,7 +89,7 @@ describe("full sync shared metadata", () => {
         ...(ownerFacts?.fieldIndex === undefined ? {} : { fieldIndex: ownerFacts.fieldIndex }),
       },
     ]
-    const plan = await buildFullXmlSyncPlan({ projectDir })
+    const plan = await discoverFullXmlSyncPlan(projectDir)
     const reader = createFullXmlSyncSharedMetadataReader(
       createFullXmlSyncSharedMetadata({ assignments: plan.assignments, owners })
     )

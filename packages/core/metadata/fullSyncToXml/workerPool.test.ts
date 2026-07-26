@@ -103,6 +103,7 @@ function assignment(id: string): FullXmlSyncAssignment {
     id,
     sourceProjectPath: `${id}.yaml`,
     sourcePath: `/project/${id}.yaml`,
+    expectedContentHash: 0n,
     role: "properties",
     itemType: "MetadataCatalog",
     itemName: id,

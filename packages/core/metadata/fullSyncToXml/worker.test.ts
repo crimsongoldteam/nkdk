@@ -139,6 +139,7 @@ function assignment(projectDir: string, name: string): FullXmlSyncAssignment {
     id: `Справочник/${name}/Свойства.yaml`,
     sourceProjectPath: `Справочник/${name}/Свойства.yaml`,
     sourcePath: join(projectDir, "Справочник", name, "Свойства.yaml"),
+    expectedContentHash: 0n,
     role: "properties",
     itemType: "MetadataCatalog",
     itemName: name,
