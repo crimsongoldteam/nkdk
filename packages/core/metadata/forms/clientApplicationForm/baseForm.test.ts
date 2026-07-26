@@ -11,6 +11,14 @@ import { sampleIndex } from "../../configurationIndex/testData"
 import type { ClientApplicationFormYAML } from "./types"
 import { buildClientApplicationBaseForm } from "./baseForm"
 import { convertClientApplicationFormFromYAMLToXML } from "./fromYAMLToXML"
+import { createImportSharedMetadata } from "../../importFromXml/metadataSnapshot"
+import {
+  createLayeredImportReferenceSnapshot,
+  createLayeredOwnerMetadataCache,
+} from "../../importFromXml/componentReferenceIndex"
+import { createValidationOwnerFacts } from "../../validation/dataPath/ownerFacts"
+import { buildObjectFieldIndex } from "../../validation/dataPath/objectFields"
+import { MetadataCatalogRules } from "../../appliedObjects/metadataCatalog/rules"
 
 describe("client application BaseForm", () => {
   it("builds a full form body through regular rules and strips root namespaces", () => {
@@ -77,4 +85,67 @@ describe("client application BaseForm", () => {
         xmlValues: [],
       })
   })
+
+  it("строит внутреннее имя стандартного реквизита по индексу итоговой формы", () => {
+    const baseForm = buildClientApplicationBaseForm({
+      context: contextWithLayeredCatalogOwner(),
+      baseYaml: {
+        Реквизиты: {
+          Объект: { Тип: "СправочникОбъект.СправочникПолный" },
+        },
+        Элементы: {
+          Код: {
+            Вид: "ПолеВвода",
+            ПутьКДанным: "Объект.Код",
+          },
+        },
+      } as ClientApplicationFormYAML,
+      extensionYaml: {
+        Реквизиты: {
+          Объект: { Тип: "СправочникОбъект.СправочникПолный" },
+        },
+      } as ClientApplicationFormYAML,
+      formName: "ФормаЭлемента",
+    })
+    const childItems = Array.isArray(baseForm.ChildItems)
+      ? baseForm.ChildItems
+      : baseForm.ChildItems?.ChildItem
+    const first = Array.isArray(childItems) ? childItems[0] : childItems
+
+    expect(first?.InputField?.DataPath).toBe("Объект.Code")
+  })
 })
+
+function contextWithLayeredCatalogOwner() {
+  const context = mockContextToXML()
+  const ref = { kind: "Справочник", name: "СправочникПолный" }
+  const filePath = "/project/cf/Справочник/СправочникПолный/Свойства.yaml"
+  const initialFacts = createValidationOwnerFacts({
+    ref,
+    filePath,
+    fieldIndex: {
+      fields: new Map(),
+      standardAttributeAliases: new Map(),
+      diagnostics: [],
+    },
+    model: { itemType: "MetadataCatalog" },
+  })
+  const fieldIndex = buildObjectFieldIndex({
+    ref,
+    facts: initialFacts,
+    rule: MetadataCatalogRules,
+  })
+  return {
+    ...context,
+    exportToYAML: {
+      toTyped: false,
+      ownerMetadataCache: createLayeredOwnerMetadataCache({
+        projectDir: "/project/cfe/Расширение",
+        snapshots: createLayeredImportReferenceSnapshot({
+          local: createImportSharedMetadata([]),
+          base: createImportSharedMetadata([{ ...initialFacts, fieldIndex }]),
+        }),
+      }),
+    },
+  }
+}

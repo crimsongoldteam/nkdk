@@ -7,6 +7,14 @@ import { mockContextToXML } from "../../../tests/mockContext"
 import { readAndParseXMLFixture } from "../../../tests/readFixtureXML"
 import type { ClientApplicationFormXML, ClientApplicationFormYAML, FormMetadataXML } from "./types"
 import { convertClientApplicationFormFromYAMLToXML } from "./fromYAMLToXML"
+import { createImportSharedMetadata } from "../../importFromXml/metadataSnapshot"
+import {
+  createLayeredImportReferenceSnapshot,
+  createLayeredOwnerMetadataCache,
+} from "../../importFromXml/componentReferenceIndex"
+import { createValidationOwnerFacts } from "../../validation/dataPath/ownerFacts"
+import { buildObjectFieldIndex } from "../../validation/dataPath/objectFields"
+import { MetadataCatalogRules } from "../../appliedObjects/metadataCatalog/rules"
 
 describe("convertClientApplicationFormFromYAMLToXML", () => {
   it("формирует описание и содержимое формы прямо из YAML", () => {
@@ -184,10 +192,70 @@ describe("convertClientApplicationFormFromYAMLToXML", () => {
 
     expect(result.metadataXML.Form.Properties.ExtendedPresentation).toBe("")
   })
+
+  it("возвращает стандартный реквизит DataPath по готовым индексам расширения", () => {
+    const result = convertClientApplicationFormFromYAMLToXML({
+      context: contextWithLayeredCatalogOwner(),
+      yaml: {
+        Реквизиты: {
+          Объект: { Тип: "СправочникОбъект.СправочникПолный" },
+        },
+        Элементы: {
+          Код: {
+            Вид: "ПолеВвода",
+            ПутьКДанным: "Объект.Код",
+          },
+        },
+      } as ClientApplicationFormYAML,
+      name: "ФормаЭлемента",
+    })
+
+    expect(firstInputField(result.formXML).DataPath).toBe("Объект.Code")
+  })
 })
 
 function firstTable(form: ClientApplicationFormXML): Record<string, unknown> {
   const childItems = Array.isArray(form.ChildItems) ? form.ChildItems : form.ChildItems?.ChildItem
   const first = Array.isArray(childItems) ? childItems[0] : childItems
   return first?.Table ?? {}
+}
+
+function firstInputField(form: ClientApplicationFormXML): Record<string, unknown> {
+  const childItems = Array.isArray(form.ChildItems) ? form.ChildItems : form.ChildItems?.ChildItem
+  const first = Array.isArray(childItems) ? childItems[0] : childItems
+  return first?.InputField ?? {}
+}
+
+function contextWithLayeredCatalogOwner() {
+  const context = mockContextToXML()
+  const ref = { kind: "Справочник", name: "СправочникПолный" }
+  const filePath = "/project/cf/Справочник/СправочникПолный/Свойства.yaml"
+  const initialFacts = createValidationOwnerFacts({
+    ref,
+    filePath,
+    fieldIndex: {
+      fields: new Map(),
+      standardAttributeAliases: new Map(),
+      diagnostics: [],
+    },
+    model: { itemType: "MetadataCatalog" },
+  })
+  const fieldIndex = buildObjectFieldIndex({
+    ref,
+    facts: initialFacts,
+    rule: MetadataCatalogRules,
+  })
+  return {
+    ...context,
+    exportToYAML: {
+      toTyped: false,
+      ownerMetadataCache: createLayeredOwnerMetadataCache({
+        projectDir: "/project/cfe/Расширение",
+        snapshots: createLayeredImportReferenceSnapshot({
+          local: createImportSharedMetadata([]),
+          base: createImportSharedMetadata([{ ...initialFacts, fieldIndex }]),
+        }),
+      }),
+    },
+  }
 }
