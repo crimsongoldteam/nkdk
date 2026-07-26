@@ -112,7 +112,7 @@ function context(params: {
     exportToXML: {
       version: "2.20",
       itemsTree: [],
-      configDumpInfo: new Map(),
+
       adoptedUuids: params.adoptedUuids,
       componentKind: "configurationExtension",
       configurationIndex: createConfigurationIndexExportRuntime({

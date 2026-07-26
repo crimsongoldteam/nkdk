@@ -281,7 +281,6 @@ function exportContext(
     },
     exportToXML: {
       itemsTree: [],
-      configDumpInfo: new Map(),
       version: state.context.version,
       context: {
         metadataForNumbering: [],

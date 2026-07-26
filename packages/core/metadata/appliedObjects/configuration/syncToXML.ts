@@ -36,8 +36,6 @@ import {
   writeAppliedMigrationsState,
 } from "./migrations"
 import { pruneXmlByManifest, XmlSyncManifest } from "./migrations/xmlManifest"
-import { createConfigDumpInfoExternalMetadataCollector } from "../configDumpInfo/externalMetadataCollector"
-import { syncConfigDumpInfoToXML } from "../configDumpInfo/sync"
 import { ConfigurationSyncResult } from "./convertFromXML"
 import { buildConfigurationChildObjects, readConfigurationChildObjectsFromXML } from "./childObjects"
 import {
@@ -112,7 +110,6 @@ function defaultConfigurationToXmlContext(): ConfigurationContextWithExportToXML
     exportToYAML: { toTyped: false },
     exportToXML: {
       itemsTree: [],
-      configDumpInfo: new Map(),
       version: "2.20",
       context: {
         forms: [],
@@ -191,7 +188,6 @@ export const syncConfigurationToXML = async (params: {
       migrationChain,
     }
   }
-  const configDumpInfo = context.exportToXML.configDumpInfo
   const syncContext: ConfigurationContextWithExportToXML = {
     ...context,
     importFromYAML: {
@@ -200,9 +196,6 @@ export const syncConfigurationToXML = async (params: {
     },
     exportToXML: {
       ...context.exportToXML,
-      configDumpInfo,
-      externalMetadataCollector:
-        context.exportToXML.externalMetadataCollector ?? createConfigDumpInfoExternalMetadataCollector(configDumpInfo),
     },
   }
   const prepared = await prepareConfigurationYamlProject({
@@ -307,15 +300,6 @@ export const syncConfigurationToXML = async (params: {
 
   if (batchResult.failed.length === 0) {
     try {
-      await syncConfigDumpInfoToXML({
-        context: syncContext,
-        outputDir,
-        referenceDir,
-        yamlState: migrationChain.yamlState,
-        migrationState: migrationChain.migrationState,
-        referencePathByCurrentPath: migrationChain.referencePathByCurrentPath,
-        xmlManifest,
-      })
       if (referenceDir) {
         await preserveUnsupportedRootExternalFilesToXML({ outputDir, referenceDir, xmlManifest })
       }
@@ -444,7 +428,7 @@ function isUnsupportedExtensionMetadataFile(relativePath: string): boolean {
     ? relativePath.slice(ROOT_EXTERNAL_XML_DIR.length + 1)
     : relativePath
 
-  if (pathInExt === CONFIGURATION_XML_FILE || pathInExt === "ConfigDumpInfo.xml") return true
+  if (pathInExt === CONFIGURATION_XML_FILE) return true
 
   return TopLevelMetadataItemRules.some((rule) => rule.xmlDir !== undefined && pathInExt.startsWith(`${rule.xmlDir}/`))
 }

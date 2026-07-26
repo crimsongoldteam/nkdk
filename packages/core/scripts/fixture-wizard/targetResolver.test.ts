@@ -46,9 +46,9 @@ describe("targetResolver", () => {
     const projectRoot = await createTempProject()
     const itemDir = await createMetadataItem(
       projectRoot,
-      "configDumpInfo",
-      `export const ConfigDumpInfoRules = {
-        itemType: "ConfigDumpInfo",
+      "metadataProbe",
+      `export const MetadataProbeRules = {
+        itemType: "MetadataProbe",
       }`
     )
 

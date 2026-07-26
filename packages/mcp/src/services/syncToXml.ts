@@ -16,15 +16,6 @@ interface CoreSyncResult {
   configurationIndexPath?: string
 }
 
-type ConfigDumpInfo = Map<
-  string,
-  {
-    children: Map<string, string>
-    id: string
-    configVersion: string
-  }
->
-
 interface SyncToXmlDeps {
   planSyncToXml?: (params: {
     projectDir: string
@@ -39,7 +30,6 @@ interface SyncToXmlDeps {
       exportToYAML: { toTyped: false }
       exportToXML: {
         itemsTree: []
-        configDumpInfo: ConfigDumpInfo
         version: "2.20"
         context: {
           forms: []
@@ -99,7 +89,6 @@ export async function syncToXml(input: SyncToXmlInput, deps?: SyncToXmlDeps): Pr
         exportToYAML: { toTyped: false },
         exportToXML: {
           itemsTree: [],
-          configDumpInfo: new Map<string, { children: Map<string, string>; id: string; configVersion: string }>(),
           version: "2.20",
           context: {
             forms: [],

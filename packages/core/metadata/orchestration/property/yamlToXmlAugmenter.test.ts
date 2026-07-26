@@ -82,7 +82,7 @@ function context(): ConfigurationContextWithExportToXML {
     exportToXML: {
       version: "2.20",
       itemsTree: [],
-      configDumpInfo: new Map(),
+
       componentKind: "recursive-augmenter-test",
       configurationIndex: createConfigurationIndexExportRuntime({
         source: createConfigurationIndexReader(

@@ -38,7 +38,6 @@ export const mockContextToXML = (): ConfigurationContextWithExportToXML => {
     ...mockContext,
     exportToXML: {
       itemsTree: [],
-      configDumpInfo: new Map(),
       version: "2.20",
       context: {
         metadataForNumbering: [],

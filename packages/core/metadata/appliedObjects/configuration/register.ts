@@ -17,7 +17,6 @@ import { registerMetadataXmlPrepareCapability } from "../../resourceTopology/cap
 import { prepareConfigurationXML } from "./rootIO"
 import { buildConfigurationChildObjectsFromProjectEntries } from "./childObjects"
 import { configurationChildObjectsFromIndex } from "./configurationChildObjects"
-import "../configDumpInfo/configurationIndex"
 import { registerFullXmlSyncComponentProfile } from "../../fullSyncToXml/componentProfile"
 import { configurationFullXmlSyncProfile } from "../../fullSyncToXml/profiles/configuration"
 
@@ -38,18 +37,6 @@ registerProjectSpec({
   dir: "",
   rule: MetadataConfigurationRules,
   exportSchema: createMetadataItemProjectSchemaExporter(MetadataConfigurationRules),
-  resources: [
-    {
-      kind: "ignore",
-      side: "xml",
-      pattern: "ConfigDumpInfo.xml",
-      snapshotImport: {
-        capabilityId: "configDumpInfo",
-        targetProjectPath: "Конфигурация.yaml",
-      },
-      source: { kind: "itemRule", description: MetadataConfigurationRules.itemType },
-    },
-  ],
 })
 
 registerMetadataXmlPrepareCapability({

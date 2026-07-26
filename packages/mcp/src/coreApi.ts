@@ -50,15 +50,6 @@ export interface XmlSyncState {
   files: Record<string, string>
 }
 
-type ConfigDumpInfo = Map<
-  string,
-  {
-    children: Map<string, string>
-    id: string
-    configVersion: string
-  }
->
-
 export interface CoreApi {
   ProjectFileSchemaError: {
     new (message: string): Error
@@ -120,7 +111,6 @@ export interface CoreApi {
       exportToYAML: { toTyped: false }
       exportToXML: {
         itemsTree: []
-        configDumpInfo: ConfigDumpInfo
         version: "2.20"
         context: {
           forms: []
@@ -143,7 +133,6 @@ export interface CoreApi {
       exportToYAML: { toTyped: false }
       exportToXML: {
         itemsTree: []
-        configDumpInfo: ConfigDumpInfo
         version: "2.20"
         context: {
           forms: []

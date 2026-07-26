@@ -37,16 +37,6 @@ export function writeSmallXmlDump(xmlDir: string): void {
     join(__dirname, "../appliedObjects/configuration/__fixtures__/minimal.xml"),
     join(xmlDir, "Configuration.xml")
   )
-  fs.writeFileSync(
-    join(xmlDir, "ConfigDumpInfo.xml"),
-    [
-      '<?xml version="1.0" encoding="UTF-8"?>',
-      '<ConfigDumpInfo xmlns="http://v8.1c.ru/8.3/xcf/dumpinfo" xmlns:xen="http://v8.1c.ru/8.3/xcf/enums" xmlns:xs="http://www.w3.org/2001/XMLSchema" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" format="Hierarchical" version="2.20">',
-      "\t<ConfigVersions/>",
-      "</ConfigDumpInfo>",
-      "",
-    ].join("\n")
-  )
   fs.cpSync(join(__dirname, "../appliedObjects/metadataBot/__fixtures__/sync/xml"), join(xmlDir, "Bots"), {
     recursive: true,
   })

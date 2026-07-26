@@ -15,7 +15,7 @@ describe("getParentFromContext", () => {
     version: "2.20",
     exportToXML: {
       itemsTree,
-      configDumpInfo: new Map(),
+
       version: "2.20",
       context: {
         forms: [],

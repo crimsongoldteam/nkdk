@@ -1,5 +1,4 @@
 import type { TSchema } from "typebox"
-import { ConfigDumpInfo } from "../appliedObjects/configDumpInfo/types"
 import { EnterpriseAttributeMapItem } from "../forms/clientApplicationForm/types"
 import type { FormAttribute } from "../forms/commonObjects/formAttribute/types"
 import { FormChildItemsPartialYAML, FormElementsYAML } from "../forms/commonObjects/childItems/types"
@@ -72,7 +71,6 @@ type ToXMLContextElement<Type extends MetadataItemType> = {
 }
 
 export type ToXMLConfigurationContext = {
-  readonly configDumpInfo: ConfigDumpInfo
   readonly configurationIndex?: ConfigurationIndexExportRuntime
   readonly componentKind?: string
   readonly adoptedUuids?: Readonly<Record<string, string>>

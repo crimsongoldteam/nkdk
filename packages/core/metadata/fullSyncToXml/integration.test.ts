@@ -58,6 +58,9 @@ describe("full XML sync integration", () => {
       kind: "uuid",
       value: "1f777cc7-ac1c-46e8-8e35-82485cee6798",
     })
+    expect(index.identities.some(({ logicalAddress }) =>
+      logicalAddress.includes("ConfigDumpInfo")
+    )).toBe(false)
   })
 
   it("reads and updates the index at the project root when YAML belongs to a component", async () => {

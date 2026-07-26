@@ -18,7 +18,6 @@ const contextToXML = (): ConfigurationContextWithExportToXML => ({
   version: "2.20",
   exportToXML: {
     itemsTree: [],
-    configDumpInfo: new Map(),
     version: "2.20",
     context: { forms: [], templates: [], parentName: "", metadataForNumbering: [] },
   },
