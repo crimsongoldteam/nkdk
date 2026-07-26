@@ -74,12 +74,74 @@ describe("configuration extension full XML sync profile", () => {
     })
     expect(Object.keys(runtime)).toEqual(["kind", "target", "base", "workerProfile"])
   })
+
+  it("does not require a UUID for a shared form element without an identity", () => {
+    const formElement = "Catalog.Товары.Form.ФормаЭлемента.Element.Группа"
+    const base = state({
+      componentPath: "cf",
+      logicalAddresses: [formElement],
+    })
+    const target = state({
+      componentPath: "cfe/Дополнение",
+      logicalAddresses: [formElement],
+    })
+
+    const runtime = configurationExtensionFullXmlSyncProfile.confirm({
+      target,
+      base,
+    })
+
+    expect(runtime.workerProfile.adoptedUuids).toEqual({})
+  })
+
+  it("includes snapshot addresses used by nested YAML-to-XML rules", () => {
+    const canonical = "Catalog.Товары.Attribute.Артикул"
+    const snapshotAddress = "Справочник.Товары.Реквизит.Артикул"
+    const base = state({
+      componentPath: "cf",
+      logicalAddresses: [canonical],
+      identities: [
+        {
+          logicalAddress: canonical,
+          kind: "uuid",
+          value: "33333333-3333-4333-8333-333333333333",
+        },
+        {
+          logicalAddress: snapshotAddress,
+          kind: "uuid",
+          value: "11111111-1111-4111-8111-111111111111",
+        },
+      ],
+    })
+    const target = state({
+      componentPath: "cfe/Дополнение",
+      logicalAddresses: [canonical],
+      identities: [{
+        logicalAddress: snapshotAddress,
+        kind: "uuid",
+        value: "22222222-2222-4222-8222-222222222222",
+      }],
+    })
+
+    const runtime = configurationExtensionFullXmlSyncProfile.confirm({
+      target,
+      base,
+    })
+
+    expect(runtime.workerProfile.adoptedUuids[snapshotAddress])
+      .toBe("11111111-1111-4111-8111-111111111111")
+  })
 })
 
 function extensionState(logicalAddresses: readonly string[]): ConfirmedComponentState {
   return state({
     componentPath: "cfe/Дополнение",
     logicalAddresses,
+    identities: logicalAddresses.map((logicalAddress, index) => ({
+      logicalAddress,
+      kind: "uuid" as const,
+      value: `eeeeeeee-eeee-4eee-8eee-${index.toString(16).padStart(12, "0")}`,
+    })),
   })
 }
 

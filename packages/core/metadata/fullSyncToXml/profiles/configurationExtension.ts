@@ -14,14 +14,16 @@ export const configurationExtensionFullXmlSyncProfile: FullXmlSyncComponentProfi
     }
 
     const baseReader = createConfigurationIndexReader(base.snapshot)
+    const targetReader = createConfigurationIndexReader(target.snapshot)
     assertEqualProjectFiles(
       base.hashes.projectFiles,
       baseReader.projectFiles(),
       "основная конфигурация не синхронизирована"
     )
-    const baseAddresses = new Set(
-      base.indexes.logicalAddresses.map(({ logicalAddress }) => logicalAddress)
-    )
+    const baseAddresses = new Set([
+      ...base.indexes.logicalAddresses.map(({ logicalAddress }) => logicalAddress),
+      ...baseReader.identities().map(({ logicalAddress }) => logicalAddress),
+    ])
     const baseUuids = new Map(
       baseReader
         .identities()
@@ -29,7 +31,13 @@ export const configurationExtensionFullXmlSyncProfile: FullXmlSyncComponentProfi
         .map(({ logicalAddress, value }) => [logicalAddress, value])
     )
     const adoptedUuids: Record<string, string> = {}
-    for (const { logicalAddress } of target.indexes.logicalAddresses) {
+    const targetAddresses = new Set(
+      targetReader
+        .identities()
+        .filter(({ kind }) => kind === "uuid")
+        .map(({ logicalAddress }) => logicalAddress)
+    )
+    for (const logicalAddress of targetAddresses) {
       if (!baseAddresses.has(logicalAddress)) continue
       const uuid = baseUuids.get(logicalAddress)
       if (uuid === undefined) {
