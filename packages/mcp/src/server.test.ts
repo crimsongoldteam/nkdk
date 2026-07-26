@@ -1,9 +1,10 @@
-import { describe, expect, it, vi } from "vitest"
+import { beforeEach, describe, expect, it, vi } from "vitest"
 import { Client } from "@modelcontextprotocol/sdk/client/index.js"
 import { InMemoryTransport } from "@modelcontextprotocol/sdk/inMemory.js"
 import { createNkdkMcpServer, shutdownNkdkMcpServer } from "./server"
 
 const closeValidationHandle = vi.hoisted(() => vi.fn())
+const closePlatformSessionManager = vi.hoisted(() => vi.fn())
 const listInfobases = vi.hoisted(() =>
   vi.fn(async () => ({
     tree: [],
@@ -16,11 +17,20 @@ vi.mock("./services/validationHandle", () => ({
   closeValidationHandle,
 }))
 
+vi.mock("./services/platformSessionHandle", () => ({
+  closePlatformSessionManager,
+  getPlatformSessionManager: vi.fn(),
+}))
+
 vi.mock("@nkdk/platform", () => ({
   listInfobases,
 }))
 
 describe("MCP server", () => {
+  beforeEach(() => {
+    vi.clearAllMocks()
+  })
+
   it("creates the NKDK MCP server", () => {
     const server = createNkdkMcpServer()
 
@@ -134,11 +144,29 @@ describe("MCP server", () => {
     expect(createNkdkMcpServer()).toBeDefined()
   })
 
-  it("closes validation handle on shutdown", async () => {
+  it("closes validation and platform handles on shutdown", async () => {
     closeValidationHandle.mockResolvedValueOnce(undefined)
+    closePlatformSessionManager.mockResolvedValueOnce({
+      closedCount: 0,
+      stoppedOwnedProcesses: 0,
+    })
 
     await shutdownNkdkMcpServer()
 
     expect(closeValidationHandle).toHaveBeenCalledTimes(1)
+    expect(closePlatformSessionManager).toHaveBeenCalledTimes(1)
+  })
+
+  it("attempts both shutdown branches when one fails", async () => {
+    closeValidationHandle.mockRejectedValueOnce(new Error("validation close failed"))
+    closePlatformSessionManager.mockResolvedValueOnce({
+      closedCount: 0,
+      stoppedOwnedProcesses: 0,
+    })
+
+    await expect(shutdownNkdkMcpServer()).rejects.toThrow("validation close failed")
+
+    expect(closeValidationHandle).toHaveBeenCalledTimes(1)
+    expect(closePlatformSessionManager).toHaveBeenCalledTimes(1)
   })
 })

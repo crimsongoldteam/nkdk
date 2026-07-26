@@ -5,6 +5,7 @@ import { McpServer } from "@modelcontextprotocol/sdk/server/mcp.js"
 import { StdioServerTransport } from "@modelcontextprotocol/sdk/server/stdio.js"
 import { registerNkdkCapabilities } from "./tools/registerTools"
 import { closeValidationHandle } from "./services/validationHandle"
+import { closePlatformSessionManager } from "./services/platformSessionHandle"
 
 declare const __NKDK_MCP_VERSION__: string | undefined
 
@@ -27,7 +28,12 @@ export async function runStdioServer(): Promise<void> {
 }
 
 export async function shutdownNkdkMcpServer(): Promise<void> {
-  await closeValidationHandle()
+  const results = await Promise.allSettled([
+    closeValidationHandle(),
+    closePlatformSessionManager(),
+  ])
+  const rejected = results.find((result) => result.status === "rejected")
+  if (rejected?.status === "rejected") throw rejected.reason
 }
 
 function isMainEntrypoint(): boolean {

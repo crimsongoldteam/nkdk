@@ -3,22 +3,32 @@ import { jsonToolResult } from "../contracts/common"
 import { describeProjectStructureInputShape } from "../contracts/describeProjectStructure"
 import { getSchemaInputShape } from "../contracts/getSchema"
 import { importFromXmlInputShape } from "../contracts/importFromXml"
+import { importFromInfobaseInputShape } from "../contracts/importFromInfobase"
 import { initSyncStateInputShape } from "../contracts/initSyncState"
 import { listInfobasesInputShape } from "../contracts/listInfobases"
 import { findReferencesInputShape, renameItemInputShape } from "../contracts/operations"
 import { syncToXmlInputShape } from "../contracts/syncToXml"
 import { validateProjectInputShape } from "../contracts/validateProject"
+import {
+  closeAllPlatformConnectionsInputShape,
+  closePlatformConnectionInputShape,
+} from "../contracts/platformConnections"
 import { guideDefinitions } from "../guides"
 import { promptDefinitions } from "../prompts"
 import { describeProjectStructure } from "../services/describeProjectStructure"
 import { getSchema } from "../services/getSchema"
 import { importFromXml } from "../services/importFromXml"
+import { importFromInfobase } from "../services/importFromInfobase"
 import { initSyncState } from "../services/initSyncState"
 import { listInfobasesService } from "../services/listInfobases"
 import { findReferences } from "../services/findReferences"
 import { renameItem } from "../services/renameItem"
 import { syncToXml } from "../services/syncToXml"
 import { validateYamlProject } from "../services/validateProject"
+import {
+  closeAllPlatformConnections,
+  closePlatformConnection,
+} from "../services/platformConnections"
 
 type RegisterableServer = Pick<McpServer, "registerTool" | "registerResource" | "registerPrompt">
 
@@ -75,6 +85,39 @@ export function registerNkdkCapabilities(server: RegisterableServer): void {
       inputSchema: importFromXmlInputShape,
     },
     async (input) => jsonToolResult(await importFromXml(input))
+  )
+
+  server.registerTool(
+    "nkdk.import_from_infobase",
+    {
+      title: "Import 1C infobase to NKDK YAML",
+      description:
+        "Запускает 1С и импортирует основную конфигурацию базы только в отсутствующий или пустой cf проекта. Пишет файлы и сохраняет настройки только при allowWrite=true.",
+      inputSchema: importFromInfobaseInputShape,
+    },
+    async (input) => jsonToolResult(await importFromInfobase(input))
+  )
+
+  server.registerTool(
+    "nkdk.close_platform_connection",
+    {
+      title: "Close project platform connection",
+      description:
+        "Закрывает сохранённое соединение проекта с платформой; завершает только процесс 1С, запущенный текущим MCP-процессом.",
+      inputSchema: closePlatformConnectionInputShape,
+    },
+    async (input) => jsonToolResult(await closePlatformConnection(input))
+  )
+
+  server.registerTool(
+    "nkdk.close_all_platform_connections",
+    {
+      title: "Close all platform connections",
+      description:
+        "Закрывает все сохранённые соединения с платформой; завершает только процессы 1С, запущенные текущим MCP-процессом.",
+      inputSchema: closeAllPlatformConnectionsInputShape,
+    },
+    async () => jsonToolResult(await closeAllPlatformConnections())
   )
 
   server.registerTool(
