@@ -21,6 +21,7 @@ export interface SessionClock {
 }
 
 export interface OwnedProcess {
+  owned: boolean
   isAlive(): boolean
   wait(timeoutMs: number): Promise<boolean>
   waitForOutput(value: string, timeoutMs: number): Promise<void>
