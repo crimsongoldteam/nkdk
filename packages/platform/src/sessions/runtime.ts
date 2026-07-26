@@ -25,6 +25,7 @@ export interface OwnedProcess {
   isAlive(): boolean
   wait(timeoutMs: number): Promise<boolean>
   waitForOutput(value: string, timeoutMs: number): Promise<void>
+  signal?(signal: NodeJS.Signals): Promise<void>
   kill(signal?: NodeJS.Signals): Promise<void>
 }
 
