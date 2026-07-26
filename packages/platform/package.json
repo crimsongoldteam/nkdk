@@ -1,0 +1,21 @@
+{
+  "name": "@nkdk/platform",
+  "version": "0.0.3",
+  "private": true,
+  "type": "module",
+  "main": "./index.ts",
+  "exports": {
+    ".": {
+      "import": "./index.ts"
+    }
+  },
+  "scripts": {
+    "test": "vitest run",
+    "type-check": "tsc --noEmit"
+  },
+  "devDependencies": {
+    "@types/node": "^26.0.0",
+    "typescript": "~6.0.0",
+    "vitest": "^4.1.9"
+  }
+}
