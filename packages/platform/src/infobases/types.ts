@@ -25,6 +25,32 @@ export type InfobaseSourcesResult = {
   warnings: InfobaseWarning[]
 }
 
+export type InfobaseFolderNode = {
+  kind: "folder"
+  name: string
+  children: InfobaseTreeNode[]
+  source: string
+}
+
+export type InfobaseNode = {
+  kind: "infobase"
+  name: string
+  id?: string
+  connection: InfobaseConnection
+  rawConnection: string
+  version?: string
+  defaultVersion?: string
+  app?: string
+  source: string
+}
+
+export type InfobaseTreeNode = InfobaseFolderNode | InfobaseNode
+
+export type BuildInfobaseTreeResult = {
+  tree: InfobaseTreeNode[]
+  warnings: InfobaseWarning[]
+}
+
 type ParsedRecordBase = {
   name: string
   folder: string
