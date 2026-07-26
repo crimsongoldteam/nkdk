@@ -1,6 +1,6 @@
 import { join } from "node:path"
 import { describe, expect, it } from "vitest"
-import { componentPath } from "./address"
+import { componentPath, parseComponentPath } from "./address"
 import { configurationIndexPath } from "../configurationIndex/fileIO"
 
 describe("component address", () => {
@@ -28,4 +28,19 @@ describe("component address", () => {
       join(projectDir, ".nkdk", "components", "cfe", "Расширение_All", "configuration-index.bin")
     )
   })
+
+  it("parses configuration and extension paths", () => {
+    expect(parseComponentPath("cf")).toEqual({ kind: "configuration" })
+    expect(parseComponentPath("cfe/Расширение_All")).toEqual({
+      kind: "configurationExtension",
+      name: "Расширение_All",
+    })
+  })
+
+  it.each(["cfe", "cfe/a/b", "cfe/", "cfe\\Дополнение"])(
+    "rejects an invalid component path %j",
+    (path) => {
+      expect(() => parseComponentPath(path)).toThrow()
+    }
+  )
 })

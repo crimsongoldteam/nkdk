@@ -18,6 +18,21 @@ export function componentPath(address: ComponentAddress): string {
   return `${root}/${address.name}`
 }
 
+export function parseComponentPath(path: string): ComponentAddress {
+  if (path === "cf") return { kind: "configuration" }
+
+  const parts = path.split("/")
+  if (parts.length === 2 && parts[0] === "cfe" && parts[1] !== "") {
+    const address = {
+      kind: "configurationExtension",
+      name: parts[1],
+    } as const
+    if (componentPath(address) === path) return address
+  }
+
+  throw new Error(`Недопустимый путь компонента: ${path}`)
+}
+
 function assertComponentName(name: string): void {
   if (name.length === 0 || name === "." || name === ".." || name.includes("/") || name.includes("\\") || isAbsolute(name)) {
     throw new Error(`Недопустимое имя компонента: ${name}`)
