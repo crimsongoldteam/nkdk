@@ -41,21 +41,21 @@ describe("RootCommandInterface YAML → XML", () => {
     expect(result).toContain("<CommandGroup>CommandGroup.ГруппаКомандПоУмолчанию</CommandGroup>")
   })
 
-  it("keeps a platform UUID visibility key unchanged", () => {
-    const result = convertYAML({
-      ВидимостьКоманд: [{
-        Команда: UUID_COMMAND,
-        Роли: { [UUID_ROLE]: "Ложь" },
-      }],
-    })
-    expect(result).toContain(
-      `<xr:Value name="${UUID_ROLE}">false</xr:Value>`
-    )
+  it("отклоняет UUID вместо ссылки на роль", () => {
+    expect(() =>
+      convertYAML({
+        ВидимостьКоманд: [{
+          Команда: UUID_COMMAND,
+          Роли: { [OPAQUE_UUID]: "Ложь" },
+        }],
+      })
+    ).toThrow()
   })
 
-  it("keeps a platform UUID in subsystem order unchanged", () => {
-    const result = convertYAML({ ПорядокПодсистем: [UUID_SUBSYSTEM] })
-    expect(result).toContain(`<Subsystem>${UUID_SUBSYSTEM}</Subsystem>`)
+  it("отклоняет UUID вместо ссылки на подсистему", () => {
+    expect(() =>
+      convertYAML({ ПорядокПодсистем: [OPAQUE_UUID] })
+    ).toThrow()
   })
 
   it.each(["CommandInterface.xml", "MainSectionCommandInterface.xml"])("round-trips %s", (fixture) => {
@@ -148,8 +148,7 @@ const normalize = (value: string): string =>
   value.replace(/^\uFEFF?<\?xml version="1\.0" encoding="UTF-8"\?>\r?\n/, "").replace(/\r\n/g, "\n").trim()
 
 const UUID_COMMAND = "0:2f109eaa-d341-4592-a04f-3f199e75d879"
-const UUID_ROLE = "00000000-efd0-f8ea-3002-0000aa2905e2"
-const UUID_SUBSYSTEM = "f8eaf128-0230-0000-28f1-eaf830020000"
+const OPAQUE_UUID = "12345678-1234-4234-9234-123456789abc"
 const FULL_YAML = { ВидимостьПодсистем: { "Subsystem.ПодсистемаПоУмолчанию": { Общее: "Ложь", Роли: { Администратор: "Ложь" } } }, ПорядокПодсистем: ["Подсистема.ПодсистемаПоУмолчанию"], ВидимостьКоманд: [{ Команда: "Справочник.СправочникПолный.Команда.ПоУмолчанию", Общее: "Истина" }], РазмещениеКоманд: [{ Команда: "Справочник.СправочникПолный.Команда.ПоУмолчанию", ГруппаКоманд: "ПанельНавигацииОбычное", Размещение: "Вручную" }], ПорядокКоманд: [{ Команда: "Справочник.СправочникПолный.Команда.ПоУмолчанию", ГруппаКоманд: "ПанельНавигацииОбычное" }], ПорядокГрупп: ["ПанельНавигацииОбычное"] }
 const ROOT = `<CommandInterface xmlns="http://v8.1c.ru/8.3/xcf/extrnprops" xmlns:xr="http://v8.1c.ru/8.3/xcf/readable" version="2.20">`
 const UNKNOWN_VISIBILITY_XML = `${ROOT}<CommandsVisibility><Command name="Catalog.Товары.StandardCommand.OpenList" customAttribute="keep"><Visibility><xr:Common>true</xr:Common><UnknownVisibility>keep nested</UnknownVisibility></Visibility><UnknownCommandChild>keep command</UnknownCommandChild></Command></CommandsVisibility></CommandInterface>`

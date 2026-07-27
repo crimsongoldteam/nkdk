@@ -4,9 +4,15 @@ import { importBooleanFromYAML } from "../boolean/fromYAML"
 import { exportBooleanToYAML } from "../boolean/toYAML"
 import { buildMetadataTargetSchema } from "../metadataTargets"
 import { importMetadataItemLinksFromXML } from "../metadataRef/fromXML"
-import { importMetadataItemLinkFromYAML } from "../metadataRef/fromYAML"
+import {
+  importMetadataItemLinkFromYAML,
+  importMetadataItemLinksFromYAML,
+} from "../metadataRef/fromYAML"
 import { exportMetadataItemLinksToXML } from "../metadataRef/toXML"
-import { exportMetadataItemLinkToYAML } from "../metadataRef/toYAML"
+import {
+  exportMetadataItemLinkToYAML,
+  exportMetadataItemLinksToYAML,
+} from "../metadataRef/toYAML"
 import {
   ExportToXMLFunctionNew,
   type ExportToJSONSchemaFn,
@@ -189,25 +195,6 @@ const commandReferenceFromYAML = (context: ConfigurationContext, value: string):
   return importMetadataItemLinkFromYAML(context, commandReferenceRule, value) ?? value
 }
 
-const PLATFORM_UUID_PATTERN =
-  /^[0-9a-f]{8}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{12}$/iu
-
-const roleReferenceToYAML = (
-  context: ConfigurationContext,
-  value: string
-): string | undefined =>
-  PLATFORM_UUID_PATTERN.test(value)
-    ? value
-    : exportMetadataItemLinkToYAML(context, roleNameRule, value)
-
-const roleReferenceFromYAML = (
-  context: ConfigurationContext,
-  value: string
-): string | undefined =>
-  PLATFORM_UUID_PATTERN.test(value)
-    ? value
-    : importMetadataItemLinkFromYAML(context, roleNameRule, value)
-
 const placementValueToYAML = (value: string): string =>
   value in placementToYAML ? placementToYAML[value as keyof typeof placementToYAML] : value
 
@@ -313,7 +300,8 @@ const importVisibilityFromYAMLValue = (
   if (entry.Роли !== undefined) {
     const roles: Record<string, boolean> = {}
     for (const [roleName, roleVisibility] of Object.entries(entry.Роли)) {
-      const importedRoleName = roleReferenceFromYAML(context, roleName)
+      const importedRoleName =
+        importMetadataItemLinkFromYAML(context, roleNameRule, roleName)
       const importedValue = importBooleanFromYAML(context, undefined, roleVisibility)
       if (importedRoleName !== undefined && importedValue !== undefined) roles[importedRoleName] = importedValue
     }
@@ -350,7 +338,8 @@ const exportVisibilityToYAMLValue = (
   if (visibility.roles !== undefined) {
     const roles: Record<string, "Истина" | "Ложь"> = {}
     for (const [roleName, roleVisibility] of Object.entries(visibility.roles)) {
-      const exportedRoleName = roleReferenceToYAML(context, roleName)
+      const exportedRoleName =
+        exportMetadataItemLinkToYAML(context, roleNameRule, roleName)
       const exportedValue = exportBooleanToYAML(context, undefined, roleVisibility)
       if (exportedRoleName !== undefined && exportedValue !== undefined) roles[exportedRoleName] = exportedValue
     }
@@ -603,39 +592,11 @@ const importMetadataItemLinksFromYAMLWithCommandGroups = (
   value: string[] | undefined
 ): string[] | undefined => value?.map(commandGroupFromYAML)
 
-const exportCommandInterfaceSubsystemsOrderToYAML = (
-  context: ConfigurationContext,
-  rule: PropertyRule,
-  value: string[] | undefined
-): string[] | undefined =>
-  value?.map((item) =>
-    item === "" || PLATFORM_UUID_PATTERN.test(item)
-      ? item
-      : exportMetadataItemLinkToYAML(context, rule, item)!
-  )
-
-const importCommandInterfaceSubsystemsOrderFromYAML = (
-  context: ConfigurationContext,
-  rule: PropertyRule,
-  value: string[] | undefined
-): string[] | undefined =>
-  value?.map((item) =>
-    item === "" || PLATFORM_UUID_PATTERN.test(item)
-      ? item
-      : importMetadataItemLinkFromYAML(context, rule, item)!
-  )
-
 const exportCommandInterfaceSubsystemsOrderToJSONSchema: ExportToJSONSchemaFn = ({ rule }) => {
   const subsystemSchema = buildMetadataTargetSchema(
     rule.metadataTarget ?? { kind: "object", roots: ["Subsystem"], allowNested: true }
   )
-  return Type.Array(
-    Type.Union([
-      subsystemSchema,
-      Type.Literal(""),
-      Type.String({ pattern: PLATFORM_UUID_PATTERN.source }),
-    ])
-  )
+  return Type.Array(Type.Union([subsystemSchema, Type.Literal("")]))
 }
 
 const importCommandGroupsFromXML = (
@@ -696,12 +657,12 @@ registerTypeRule("CommandInterfaceSubsystemsOrder", "exportToXML", exportMetadat
 registerTypeRule(
   "CommandInterfaceSubsystemsOrder",
   "importFromYAML",
-  importCommandInterfaceSubsystemsOrderFromYAML
+  importMetadataItemLinksFromYAML
 )
 registerTypeRule(
   "CommandInterfaceSubsystemsOrder",
   "exportToYAML",
-  exportCommandInterfaceSubsystemsOrderToYAML
+  exportMetadataItemLinksToYAML
 )
 registerTypeRule(
   "CommandInterfaceSubsystemsOrder",
