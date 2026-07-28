@@ -107,6 +107,11 @@ export const TopLevelMetadataItemRules: readonly MetadataItemRule[] = RawTopLeve
   externalMetadata: rule.externalMetadata ?? { segment: getXMLRootContainer(rule), placement: "rootEntry" },
 }))
 
+export const TopLevelMetadataItemRuleSources = TopLevelMetadataItemRules.map((rule, index) => ({
+  rule,
+  sourceRule: RawTopLevelMetadataItemRules[index]!,
+}))
+
 function getXMLRootContainer(rule: MetadataItemRule): string {
   const xmlRootEntry = Object.values(rule.properties).find((propertyRule) => propertyRule.type === "XMLRoot")
   const container = xmlRootEntry && "container" in xmlRootEntry ? xmlRootEntry.container : undefined

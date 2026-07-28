@@ -8,7 +8,10 @@ for (const filePath of await findRuleFiles(metadataDir)) {
   if (/\bexport\b/.test(await readFile(filePath, "utf8"))) files.push(filePath)
 }
 const lines = files.flatMap((filePath, index) => {
-  const relativePath = relative(resolve(metadataDir, "ruleOrderAnalysis"), filePath).split(sep).join("/")
+  const relativePath = relative(resolve(metadataDir, "ruleOrderAnalysis"), filePath)
+    .split(sep)
+    .join("/")
+    .replace(/\.ts$/, "")
   return [`import * as rules${index} from ${JSON.stringify(relativePath)}`]
 })
 lines.push(

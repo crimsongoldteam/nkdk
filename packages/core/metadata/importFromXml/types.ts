@@ -91,6 +91,7 @@ export interface RuleOrderAnalysisWorkerResult {
   diagnostics: ImportDiagnostic[]
   observations: RawRuleOrderObservation[]
   unmatchedObservationCount: number
+  unmatchedItemTypes: readonly { itemType: string; count: number }[]
 }
 
 export type ImportWorkerCommandResult =

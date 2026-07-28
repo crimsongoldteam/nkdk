@@ -1,4 +1,5 @@
 import { relative, resolve, sep } from "node:path"
+import { TopLevelMetadataItemRuleSources } from "../appliedObjects/configuration/topLevelRules"
 import type { MetadataItemRule } from "../orchestration/property/types"
 import { runtimeRuleOrderModules } from "./catalogImports.generated"
 import type { RuleOrderSource, RuntimeRuleOrderCatalog } from "./types"
@@ -35,6 +36,17 @@ export async function buildRuntimeRuleOrderCatalog(params: {
       source: sourceFor(root, exported, []),
     })
     directExports.add(exported.rule)
+  }
+  for (const relation of TopLevelMetadataItemRuleSources) {
+    const source = sources.get(relation.sourceRule)
+    if (source === undefined) {
+      ambiguities.push({
+        candidate: relation.sourceRule.itemType,
+        reason: "Не найден статический source для top-level runtime-правила",
+      })
+      continue
+    }
+    registerSource({ sources, ambiguities, rule: relation.rule, source })
   }
   for (const exported of exportedRules) {
     indexNestedRules({

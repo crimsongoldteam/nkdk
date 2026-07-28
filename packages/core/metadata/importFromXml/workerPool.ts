@@ -66,6 +66,7 @@ export interface XmlImportRuleOrderPoolResult {
   diagnostics: ImportDiagnostic[]
   observations: RawRuleOrderObservation[]
   unmatchedObservationCount: number
+  unmatchedItemTypes: readonly { itemType: string; count: number }[]
 }
 
 export interface XmlImportWorkerThreadPool {
@@ -306,6 +307,7 @@ function createXmlImportOperationPool(params: {
           (sum, result) => sum + result.unmatchedObservationCount,
           0
         ),
+        unmatchedItemTypes: mergeItemTypeCounts(results.flatMap((result) => result.unmatchedItemTypes)),
         observations: results
           .flatMap((result) => result.observations)
           .sort((left, right) => compareObservation(left, right)),
@@ -400,6 +402,16 @@ function createXmlImportOperationPool(params: {
       })
     )
   }
+}
+
+function mergeItemTypeCounts(
+  entries: readonly { itemType: string; count: number }[]
+): readonly { itemType: string; count: number }[] {
+  const counts = new Map<string, number>()
+  for (const entry of entries) counts.set(entry.itemType, (counts.get(entry.itemType) ?? 0) + entry.count)
+  return [...counts]
+    .sort(([left], [right]) => Buffer.compare(Buffer.from(left), Buffer.from(right)))
+    .map(([itemType, count]) => ({ itemType, count }))
 }
 
 function compareObservation(left: RawRuleOrderObservation, right: RawRuleOrderObservation): number {

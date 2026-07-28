@@ -89,6 +89,9 @@ export async function analyzeRuleOrder(params: AnalyzeRuleOrderParams): Promise<
           )
         }
         skippedObservationCount += analyzed.unmatchedObservationCount
+        for (const skipped of analyzed.unmatchedItemTypes) {
+          skippedItemTypes.set(skipped.itemType, (skippedItemTypes.get(skipped.itemType) ?? 0) + skipped.count)
+        }
         for (const observation of analyzed.observations) {
           observationCount += 1
           observations.push(observation)

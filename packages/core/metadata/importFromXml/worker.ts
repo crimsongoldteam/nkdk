@@ -93,6 +93,7 @@ async function runRuleOrderAnalysis(
   const diagnostics: ImportDiagnostic[] = []
   const observations: RuleOrderAnalysisWorkerResult["observations"] = []
   let unmatchedObservationCount = 0
+  const unmatchedItemTypes = new Map<string, number>()
   const catalog = await getRuleOrderCatalog(metadataDir)
   diagnostics.push(
     ...catalog.ambiguities().map((ambiguity) => ({
@@ -114,6 +115,7 @@ async function runRuleOrderAnalysis(
             const source = catalog.sourceOf(fact.rule)
             if (source === undefined) {
               unmatchedObservationCount += 1
+              unmatchedItemTypes.set(fact.rule.itemType, (unmatchedItemTypes.get(fact.rule.itemType) ?? 0) + 1)
               return
             }
             observations.push({
@@ -134,7 +136,15 @@ async function runRuleOrderAnalysis(
     }
   }
 
-  return { kind: "ruleOrderAnalysisResult", diagnostics, observations, unmatchedObservationCount }
+  return {
+    kind: "ruleOrderAnalysisResult",
+    diagnostics,
+    observations,
+    unmatchedObservationCount,
+    unmatchedItemTypes: [...unmatchedItemTypes]
+      .sort(([left], [right]) => Buffer.compare(Buffer.from(left), Buffer.from(right)))
+      .map(([itemType, count]) => ({ itemType, count })),
+  }
 }
 
 function getRuleOrderCatalog(metadataDir: string): Promise<RuntimeRuleOrderCatalog> {

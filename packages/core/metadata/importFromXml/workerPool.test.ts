@@ -17,6 +17,7 @@ import {
 } from "./workerPool"
 
 const syncXmlDir = join(import.meta.dirname, "../appliedObjects/configuration/__fixtures__/syncConfiguration/xml")
+const constantXmlPath = join(import.meta.dirname, "../appliedObjects/metadataConstant/__fixtures__/minimal.xml")
 const repoRoot = fileURLToPath(new URL("../../../../", import.meta.url))
 const tempDirs: string[] = []
 
@@ -42,14 +43,21 @@ describe("XML import worker pool", () => {
             logicalAddress: "Справочник.Контрагенты",
             xmlFiles: [{ role: "metadata", sourcePath: join(syncXmlDir, "Catalogs/Контрагенты.xml") }],
           }),
+          assignment("Константа", {
+            itemType: "MetadataConstant",
+            logicalAddress: "Константа.Константа",
+            targetProjectPath: "Константа/Константа/Свойства.yaml",
+            xmlFiles: [{ role: "metadata", sourcePath: constantXmlPath }],
+          }),
         ],
       })
 
       expect(result.diagnostics).toEqual([])
       expect(result.unmatchedObservationCount).toBe(0)
-      expect(result.observations[0]?.source.candidate).toBe(
-        "appliedObjects/metadataCatalog/rules.ts#MetadataCatalogRules"
-      )
+      expect(result.observations.map((observation) => observation.source.candidate)).toEqual([
+        "appliedObjects/metadataCatalog/rules.ts#MetadataCatalogRules",
+        "appliedObjects/metadataConstant/rules.ts#MetadataConstantRules",
+      ])
     } finally {
       await pool.close()
     }
@@ -390,6 +398,7 @@ function createFakePools() {
               kind: "ruleOrderAnalysisResult" as const,
               diagnostics: [],
               unmatchedObservationCount: 0,
+              unmatchedItemTypes: [],
               observations: task.assignments.map((item) => ({
                 configuration: task.configuration,
                 sourceXmlPath: item.xmlFiles[0]?.sourcePath ?? "",
