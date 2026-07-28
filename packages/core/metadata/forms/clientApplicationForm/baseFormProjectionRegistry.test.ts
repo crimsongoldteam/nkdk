@@ -1,7 +1,9 @@
 import { describe, expect, it } from "vitest"
-import "../commonObjects"
+import { registerCoreMetadata } from "../../register"
 import type { BaseFormProjectionContext } from "./baseFormProjectionRegistry"
 import { projectProperty } from "./baseFormProjectionRegistry"
+
+registerCoreMetadata()
 
 const context: BaseFormProjectionContext = {
   attributeNames: new Set(["Объект"]),
