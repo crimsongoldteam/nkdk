@@ -465,7 +465,7 @@ function fakeDependencies(params: {
           }
         },
         async analyzeRuleOrder() {
-          return { diagnostics: [], observations: [] }
+          return { diagnostics: [], observations: [], unmatchedObservationCount: 0 }
         },
         async runSecondPass() {
           call("secondPass")

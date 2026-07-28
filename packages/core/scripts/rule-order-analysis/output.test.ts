@@ -16,7 +16,14 @@ describe("rule order output", () => {
       logicalAddress: "A",
       xmlNodeLogicalAddress: "A",
       ruleId: "id",
-      ruleCandidates: ["a/rules.ts#Rules"],
+      source: {
+        candidate: "a/rules.ts#Rules",
+        filePath: "/a/rules.ts",
+        exportName: "Rules",
+        propertyPath: [],
+        declarationOrder: ["name", "use"],
+        numericOrder: {},
+      },
       itemType: "A",
       fields: ["name"],
     })

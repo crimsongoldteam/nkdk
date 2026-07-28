@@ -6,7 +6,6 @@ import { compileRegisteredMetadataResourceTopology } from "../resourceTopology/r
 import { discoverXmlImport } from "../importFromXml/discovery"
 import { createXmlImportWorkerPoolHandle } from "../importFromXml/workerPool"
 import { createRuleOrderAggregate, type RuleOrderRuleReport } from "./aggregate"
-import { buildRuleOrderCatalog } from "./catalog"
 import type { RuleOrderObservation } from "./types"
 
 export interface AnalyzeRuleOrderParams {
@@ -34,7 +33,7 @@ export interface AnalyzeRuleOrderResult {
   skippedObservationCount: number
   skippedItemTypes: readonly { itemType: string; count: number }[]
   rules: readonly RuleOrderRuleReport[]
-  ambiguities: readonly { ruleId: string; candidates: readonly string[] }[]
+  ambiguities: readonly { candidate: string; reason: string }[]
 }
 
 export async function analyzeRuleOrder(params: AnalyzeRuleOrderParams): Promise<AnalyzeRuleOrderResult> {
@@ -44,7 +43,6 @@ export async function analyzeRuleOrder(params: AnalyzeRuleOrderParams): Promise<
     .filter((entry) => entry.isDirectory())
     .map((entry) => entry.name)
     .sort(bytewiseCompare)
-  const catalog = await buildRuleOrderCatalog({ metadataDir: params.metadataDir })
   const aggregate = createRuleOrderAggregate({ witnessLimit: params.witnessLimit })
   const skippedItemTypes = new Map<string, number>()
   const configurationStats: RuleOrderConfigurationStat[] = []
@@ -75,6 +73,7 @@ export async function analyzeRuleOrder(params: AnalyzeRuleOrderParams): Promise<
         })
         const analyzed = await pool.analyzeRuleOrder({
           configuration,
+          metadataDir: params.metadataDir,
           assignments: discovered.assignments,
         })
         const failed = analyzed.diagnostics.find((diagnostic) => diagnostic.severity === "error")
@@ -83,13 +82,8 @@ export async function analyzeRuleOrder(params: AnalyzeRuleOrderParams): Promise<
             `${configuration}: ${failed.message}${failed.sourcePath === undefined ? "" : ` (${failed.sourcePath})`}`
           )
         }
-        for (const raw of analyzed.observations) {
-          const observation = catalog.match(raw)
-          if (observation === undefined) {
-            skippedObservationCount += 1
-            skippedItemTypes.set(raw.itemType, (skippedItemTypes.get(raw.itemType) ?? 0) + 1)
-            continue
-          }
+        skippedObservationCount += analyzed.unmatchedObservationCount
+        for (const observation of analyzed.observations) {
           observationCount += 1
           await params.onObservation?.(observation)
           aggregate.accept(observation)
@@ -120,7 +114,7 @@ export async function analyzeRuleOrder(params: AnalyzeRuleOrderParams): Promise<
       .sort(([left], [right]) => bytewiseCompare(left, right))
       .map(([itemType, count]) => ({ itemType, count })),
     rules: aggregate.finish(),
-    ambiguities: catalog.ambiguities(),
+    ambiguities: [],
   }
 }
 

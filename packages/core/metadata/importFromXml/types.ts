@@ -64,7 +64,7 @@ export type ImportWorkerCommand =
       outputDir: string
     }
   | { kind: "firstPass"; assignments: ImportAssignment[] }
-  | { kind: "analyzeRuleOrder"; configuration: string; assignments: ImportAssignment[] }
+  | { kind: "analyzeRuleOrder"; configuration: string; metadataDir: string; assignments: ImportAssignment[] }
   | { kind: "secondPass"; referenceSnapshots: LayeredImportReferenceSnapshot }
   | { kind: "dispose" }
 
@@ -90,6 +90,7 @@ export interface RuleOrderAnalysisWorkerResult {
   kind: "ruleOrderAnalysisResult"
   diagnostics: ImportDiagnostic[]
   observations: RawRuleOrderObservation[]
+  unmatchedObservationCount: number
 }
 
 export type ImportWorkerCommandResult =

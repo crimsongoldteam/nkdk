@@ -1,55 +1,46 @@
 import { dirname, join } from "node:path"
 import { fileURLToPath } from "node:url"
 import { describe, expect, it } from "vitest"
-import { MetadataAttributeRules } from "../commonObjects/metadataAttribute/rules"
-import { buildRuleOrderCatalog } from "./catalog"
-import { fingerprintMetadataItemRule } from "./fingerprint"
+import { MetadataDataProcessorRules } from "../appliedObjects/metadataDataProcessor/rules"
+import {
+  MetadataAttributesWithAllowedTypesRules,
+  MetadataCatalogAttributeRules,
+} from "../commonObjects/metadataAttribute/rules"
+import { buildRuntimeRuleOrderCatalog } from "./catalog"
 
 const metadataDir = join(dirname(fileURLToPath(import.meta.url)), "..")
 
-describe("buildRuleOrderCatalog", () => {
-  it("indexes exported rules by file and export name", async () => {
-    const catalog = await buildRuleOrderCatalog({ metadataDir })
-    const observation = catalog.match({
-      configuration: "all",
-      sourceXmlPath: "/xml/Test.xml",
-      logicalAddress: "Тест.Объект",
-      xmlNodeLogicalAddress: "Тест.Объект",
-      ruleId: fingerprintMetadataItemRule(MetadataAttributeRules),
-      itemType: MetadataAttributeRules.itemType,
-      fields: ["name"],
-    })
+describe("buildRuntimeRuleOrderCatalog", () => {
+  it("distinguishes structurally equal exports by runtime identity", async () => {
+    const catalog = await buildRuntimeRuleOrderCatalog({ metadataDir })
 
-    expect(observation?.ruleCandidates).toContain("commonObjects/metadataAttribute/rules.ts#MetadataAttributeRules")
+    expect(catalog.sourceOf(MetadataAttributesWithAllowedTypesRules)?.candidate).toBe(
+      "commonObjects/metadataAttribute/rules.ts#MetadataAttributesWithAllowedTypesRules"
+    )
+    expect(catalog.sourceOf(MetadataCatalogAttributeRules)?.candidate).toBe(
+      "commonObjects/metadataAttribute/rules.ts#MetadataCatalogAttributeRules"
+    )
   })
 
-  it("returns undefined for a rule outside rules.ts", async () => {
-    const catalog = await buildRuleOrderCatalog({ metadataDir })
-    expect(
-      catalog.match({
-        configuration: "all",
-        sourceXmlPath: "/xml/Test.xml",
-        logicalAddress: "Тест.Объект",
-        xmlNodeLogicalAddress: "Тест.Объект",
-        ruleId: "unknown",
-        itemType: "Unknown",
-        fields: ["name"],
-      })
-    ).toBeUndefined()
+  it("does not fall back to itemType for an unexported object", async () => {
+    const catalog = await buildRuntimeRuleOrderCatalog({ metadataDir })
+    const copy = {
+      ...MetadataCatalogAttributeRules,
+      properties: { ...MetadataCatalogAttributeRules.properties },
+    }
+
+    expect(catalog.sourceOf(copy)).toBeUndefined()
   })
 
-  it("falls back to itemType when a worker fingerprint differs", async () => {
-    const catalog = await buildRuleOrderCatalog({ metadataDir })
-    const observation = catalog.match({
-      configuration: "all",
-      sourceXmlPath: "/xml/Test.xml",
-      logicalAddress: "Тест.Объект",
-      xmlNodeLogicalAddress: "Тест.Объект",
-      ruleId: "worker-specific-id",
-      itemType: MetadataAttributeRules.itemType,
-      fields: ["name"],
-    })
+  it("indexes a static nested item rule through its exported parent", async () => {
+    const catalog = await buildRuntimeRuleOrderCatalog({ metadataDir })
+    const nestedRule = MetadataDataProcessorRules.properties.attributes.itemRule
+    expect(nestedRule).toBeDefined()
 
-    expect(observation?.ruleCandidates).toContain("commonObjects/metadataAttribute/rules.ts#MetadataAttributeRules")
+    expect(catalog.sourceOf(nestedRule!)).toMatchObject({
+      filePath: join(metadataDir, "appliedObjects/metadataDataProcessor/rules.ts"),
+      exportName: "MetadataDataProcessorRules",
+      propertyPath: ["properties", "attributes", "itemRule"],
+    })
   })
 })

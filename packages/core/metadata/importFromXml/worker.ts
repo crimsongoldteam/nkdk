@@ -16,7 +16,9 @@ import type { ValidationOwnerFacts } from "../validation/dataPath/ownerFacts"
 import { createOperationProfiler, type ValidationProfiler } from "../validation/profile"
 import { type LayeredImportReferenceSnapshot } from "./componentReferenceIndex"
 import { createLayeredOwnerMetadataCache } from "../project/componentState/indexes"
+import { buildRuntimeRuleOrderCatalog } from "../ruleOrderAnalysis/catalog"
 import { fingerprintMetadataItemRule } from "../ruleOrderAnalysis/fingerprint"
+import type { RuntimeRuleOrderCatalog } from "../ruleOrderAnalysis/types"
 import { extractImportOwnerFacts } from "./ownerFacts"
 import {
   extractImportValidationContribution,
@@ -44,6 +46,9 @@ interface InitializedImportWorkerState {
 
 let initializedState: InitializedImportWorkerState | undefined
 const preparedYaml = new Map<string, PreparedImportYaml>()
+let ruleOrderCatalog:
+  | { metadataDir: string; value: Promise<RuntimeRuleOrderCatalog> }
+  | undefined
 
 export async function runImportWorkerCommand(command: ImportWorkerCommand): Promise<ImportWorkerCommandResult> {
   if (command.kind === "initialize") {
@@ -67,7 +72,12 @@ export async function runImportWorkerCommand(command: ImportWorkerCommand): Prom
   }
 
   if (command.kind === "analyzeRuleOrder") {
-    return runRuleOrderAnalysis(command.configuration, command.assignments, requireInitializedState())
+    return runRuleOrderAnalysis(
+      command.configuration,
+      command.metadataDir,
+      command.assignments,
+      requireInitializedState()
+    )
   }
 
   return runFirstPass(command.assignments, requireInitializedState())
@@ -75,12 +85,23 @@ export async function runImportWorkerCommand(command: ImportWorkerCommand): Prom
 
 async function runRuleOrderAnalysis(
   configuration: string,
+  metadataDir: string,
   assignments: readonly ImportAssignment[],
   state: InitializedImportWorkerState
 ): Promise<RuleOrderAnalysisWorkerResult> {
   preparedYaml.clear()
   const diagnostics: ImportDiagnostic[] = []
   const observations: RuleOrderAnalysisWorkerResult["observations"] = []
+  let unmatchedObservationCount = 0
+  const catalog = await getRuleOrderCatalog(metadataDir)
+  diagnostics.push(
+    ...catalog.ambiguities().map((ambiguity) => ({
+      severity: "error" as const,
+      code: "xml_rule_order_catalog_ambiguous",
+      message: `${ambiguity.candidate}: ${ambiguity.reason}`,
+      targetProjectPath: assignments[0]?.targetProjectPath ?? "",
+    }))
+  )
 
   for (const assignment of assignments) {
     try {
@@ -90,12 +111,18 @@ async function runRuleOrderAnalysis(
         collector: createDiscardingConfigurationIndexCollector(),
         ruleOrderCollector: {
           accept(fact) {
+            const source = catalog.sourceOf(fact.rule)
+            if (source === undefined) {
+              unmatchedObservationCount += 1
+              return
+            }
             observations.push({
               configuration,
               sourceXmlPath: fact.sourceXmlPath,
               logicalAddress: assignment.logicalAddress,
               xmlNodeLogicalAddress: fact.logicalAddress,
               ruleId: fingerprintMetadataItemRule(fact.rule),
+              source,
               itemType: fact.rule.itemType,
               fields: [...fact.fields],
             })
@@ -107,7 +134,14 @@ async function runRuleOrderAnalysis(
     }
   }
 
-  return { kind: "ruleOrderAnalysisResult", diagnostics, observations }
+  return { kind: "ruleOrderAnalysisResult", diagnostics, observations, unmatchedObservationCount }
+}
+
+function getRuleOrderCatalog(metadataDir: string): Promise<RuntimeRuleOrderCatalog> {
+  if (ruleOrderCatalog?.metadataDir === metadataDir) return ruleOrderCatalog.value
+  const value = buildRuntimeRuleOrderCatalog({ metadataDir })
+  ruleOrderCatalog = { metadataDir, value }
+  return value
 }
 
 async function runSecondPass(
@@ -364,6 +398,7 @@ function requireInitializedState(): InitializedImportWorkerState {
 
 function disposeWorkerState(): void {
   preparedYaml.clear()
+  ruleOrderCatalog = undefined
   initializedState = undefined
 }
 

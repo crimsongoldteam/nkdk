@@ -31,7 +31,7 @@ export interface RuleOrderRuleReport {
 }
 
 interface RuleState {
-  ruleCandidates: readonly string[]
+  sourceCandidate: string
   itemType: string
   observationCount: number
   uniqueOrders: Set<string>
@@ -56,7 +56,7 @@ export function createRuleOrderAggregate(params: { witnessLimit?: number } = {})
       const state =
         rules.get(observation.ruleId) ??
         ({
-          ruleCandidates: observation.ruleCandidates,
+          sourceCandidate: observation.source.candidate,
           itemType: observation.itemType,
           observationCount: 0,
           uniqueOrders: new Set<string>(),
@@ -64,7 +64,7 @@ export function createRuleOrderAggregate(params: { witnessLimit?: number } = {})
         } satisfies RuleState)
       if (
         state.itemType !== observation.itemType ||
-        JSON.stringify(state.ruleCandidates) !== JSON.stringify(observation.ruleCandidates)
+        state.sourceCandidate !== observation.source.candidate
       ) {
         throw new Error(`Несогласованные данные ruleId ${observation.ruleId}`)
       }
@@ -115,7 +115,7 @@ function finishRule(ruleId: string, state: RuleState): RuleOrderRuleReport {
   )
   return {
     ruleId,
-    ruleCandidates: state.ruleCandidates,
+    ruleCandidates: [state.sourceCandidate],
     itemType: state.itemType,
     observationCount: state.observationCount,
     uniqueOrders: state.uniqueOrders.size,

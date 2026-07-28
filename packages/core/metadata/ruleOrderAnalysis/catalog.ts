@@ -2,44 +2,151 @@ import { readdir } from "node:fs/promises"
 import { relative, resolve, sep } from "node:path"
 import { pathToFileURL } from "node:url"
 import type { MetadataItemRule } from "../orchestration/property/types"
-import { fingerprintMetadataItemRule } from "./fingerprint"
-import type { RuleOrderCatalog } from "./types"
+import type { RuleOrderSource, RuntimeRuleOrderCatalog } from "./types"
 
-export async function buildRuleOrderCatalog(params: { metadataDir: string }): Promise<RuleOrderCatalog> {
+interface ExportedRule {
+  rule: MetadataItemRule
+  filePath: string
+  exportName: string
+}
+
+export async function buildRuntimeRuleOrderCatalog(params: {
+  metadataDir: string
+}): Promise<RuntimeRuleOrderCatalog> {
   const root = resolve(params.metadataDir)
-  const candidatesByRuleId = new Map<string, string[]>()
-  const candidatesByItemType = new Map<string, string[]>()
+  const exportedRules: ExportedRule[] = []
   for (const filePath of await findRuleFiles(root)) {
     const exports = (await import(pathToFileURL(filePath).href)) as Record<string, unknown>
     for (const exportName of Object.keys(exports).sort(bytewiseCompare)) {
       const value = exports[exportName]
       if (!isMetadataItemRule(value)) continue
-      const ruleId = fingerprintMetadataItemRule(value)
-      const candidate = `${relative(root, filePath).split(sep).join("/")}#${exportName}`
-      const candidates = candidatesByRuleId.get(ruleId) ?? []
-      candidates.push(candidate)
-      candidatesByRuleId.set(ruleId, candidates)
-      const itemCandidates = candidatesByItemType.get(value.itemType) ?? []
-      itemCandidates.push(candidate)
-      candidatesByItemType.set(value.itemType, itemCandidates)
+      exportedRules.push({ rule: value, filePath, exportName })
     }
   }
-  for (const candidates of candidatesByRuleId.values()) candidates.sort(bytewiseCompare)
-  for (const [itemType, candidates] of candidatesByItemType) {
-    candidatesByItemType.set(itemType, [...new Set(candidates)].sort(bytewiseCompare))
+
+  const sources = new WeakMap<MetadataItemRule, RuleOrderSource>()
+  const directExports = new WeakSet<MetadataItemRule>()
+  const ambiguities: { candidate: string; reason: string }[] = []
+  for (const exported of exportedRules) {
+    registerSource({
+      sources,
+      ambiguities,
+      rule: exported.rule,
+      source: sourceFor(root, exported, []),
+    })
+    directExports.add(exported.rule)
   }
+  for (const exported of exportedRules) {
+    indexNestedRules({
+      root,
+      exported,
+      rule: exported.rule,
+      propertyPath: [],
+      sources,
+      directExports,
+      ambiguities,
+      ancestors: new Set(),
+    })
+  }
+
   return {
-    candidates: (ruleId) => candidatesByRuleId.get(ruleId) ?? [],
-    match(observation) {
-      const candidates = candidatesByRuleId.get(observation.ruleId) ?? candidatesByItemType.get(observation.itemType)
-      return candidates === undefined ? undefined : { ...observation, ruleCandidates: candidates }
-    },
-    ambiguities: () =>
-      [...candidatesByRuleId]
-        .filter(([, candidates]) => candidates.length > 1)
-        .sort(([left], [right]) => bytewiseCompare(left, right))
-        .map(([ruleId, candidates]) => ({ ruleId, candidates })),
+    sourceOf: (rule) => sources.get(rule),
+    ambiguities: () => [...ambiguities].sort((left, right) => bytewiseCompare(left.candidate, right.candidate)),
   }
+}
+
+function indexNestedRules(params: {
+  root: string
+  exported: ExportedRule
+  rule: MetadataItemRule
+  propertyPath: readonly string[]
+  sources: WeakMap<MetadataItemRule, RuleOrderSource>
+  directExports: WeakSet<MetadataItemRule>
+  ambiguities: { candidate: string; reason: string }[]
+  ancestors: ReadonlySet<MetadataItemRule>
+}): void {
+  if (params.ancestors.has(params.rule)) return
+  const ancestors = new Set(params.ancestors)
+  ancestors.add(params.rule)
+  for (const nested of staticNestedRules(params.rule)) {
+    const propertyPath = [...params.propertyPath, ...nested.propertyPath]
+    if (!params.directExports.has(nested.rule)) {
+      registerSource({
+        sources: params.sources,
+        ambiguities: params.ambiguities,
+        rule: nested.rule,
+        source: sourceFor(params.root, params.exported, propertyPath),
+      })
+    }
+    indexNestedRules({ ...params, rule: nested.rule, propertyPath, ancestors })
+  }
+}
+
+function staticNestedRules(
+  rule: MetadataItemRule
+): readonly { rule: MetadataItemRule; propertyPath: readonly string[] }[] {
+  const result: { rule: MetadataItemRule; propertyPath: readonly string[] }[] = []
+  for (const [propertyKey, propertyRule] of Object.entries(rule.properties)) {
+    const itemRule = propertyRule.itemRule
+    if (isMetadataItemRule(itemRule)) {
+      result.push({ rule: itemRule, propertyPath: ["properties", propertyKey, "itemRule"] })
+    }
+  }
+  return result
+}
+
+function registerSource(params: {
+  sources: WeakMap<MetadataItemRule, RuleOrderSource>
+  ambiguities: { candidate: string; reason: string }[]
+  rule: MetadataItemRule
+  source: RuleOrderSource
+}): void {
+  const existing = params.sources.get(params.rule)
+  if (existing === undefined) {
+    params.sources.set(params.rule, params.source)
+    return
+  }
+  if (existing.candidate === params.source.candidate) return
+  params.sources.delete(params.rule)
+  params.ambiguities.push({
+    candidate: params.source.candidate,
+    reason: `Один runtime-объект уже связан с ${existing.candidate}`,
+  })
+}
+
+function sourceFor(
+  root: string,
+  exported: ExportedRule,
+  propertyPath: readonly string[]
+): RuleOrderSource {
+  const topLevelCandidate = `${relative(root, exported.filePath).split(sep).join("/")}#${exported.exportName}`
+  const candidate = propertyPath.length === 0 ? topLevelCandidate : `${topLevelCandidate}.${propertyPath.join(".")}`
+  return {
+    candidate,
+    filePath: exported.filePath,
+    exportName: exported.exportName,
+    propertyPath,
+    declarationOrder: Object.keys(exportedRuleAtPath(exported.rule, propertyPath).properties),
+    numericOrder: numericOrder(exportedRuleAtPath(exported.rule, propertyPath)),
+  }
+}
+
+function exportedRuleAtPath(rule: MetadataItemRule, propertyPath: readonly string[]): MetadataItemRule {
+  let current: unknown = rule
+  for (const segment of propertyPath) {
+    if (current === null || typeof current !== "object") throw new Error(`Некорректный путь правила: ${propertyPath}`)
+    current = (current as Record<string, unknown>)[segment]
+  }
+  if (!isMetadataItemRule(current)) throw new Error(`Путь не указывает на MetadataItemRule: ${propertyPath}`)
+  return current
+}
+
+function numericOrder(rule: MetadataItemRule): Readonly<Record<string, number>> {
+  const result: Record<string, number> = {}
+  for (const [key, propertyRule] of Object.entries(rule.properties)) {
+    if (typeof propertyRule.order === "number") result[key] = propertyRule.order
+  }
+  return result
 }
 
 async function findRuleFiles(directory: string): Promise<string[]> {

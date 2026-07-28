@@ -37,6 +37,7 @@ describe("XML import worker pool", () => {
 
     const result = await pool.analyzeRuleOrder({
       configuration: "all",
+      metadataDir: join(repoRoot, "packages/core/metadata"),
       assignments: [assignment("z"), assignment("a")],
     })
 
@@ -358,12 +359,21 @@ function createFakePools() {
             return {
               kind: "ruleOrderAnalysisResult" as const,
               diagnostics: [],
+              unmatchedObservationCount: 0,
               observations: task.assignments.map((item) => ({
                 configuration: task.configuration,
                 sourceXmlPath: item.xmlFiles[0]?.sourcePath ?? "",
                 logicalAddress: item.logicalAddress,
                 xmlNodeLogicalAddress: item.logicalAddress,
                 ruleId: item.id,
+                source: {
+                  candidate: `rules.ts#${item.id}`,
+                  filePath: "/rules.ts",
+                  exportName: item.id,
+                  propertyPath: [],
+                  declarationOrder: ["name"],
+                  numericOrder: {},
+                },
                 itemType: item.itemType,
                 fields: ["name"],
               })),

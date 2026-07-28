@@ -8,7 +8,14 @@ const observation = (fields: string[], configuration: string): RuleOrderObservat
   logicalAddress: `Тест.${configuration}`,
   xmlNodeLogicalAddress: `Тест.${configuration}`,
   ruleId: "rule",
-  ruleCandidates: ["rules.ts#Rule"],
+  source: {
+    candidate: "rules.ts#Rule",
+    filePath: "/rules.ts",
+    exportName: "Rule",
+    propertyPath: [],
+    declarationOrder: ["name", "use", "indexing", "a", "b", "c"],
+    numericOrder: {},
+  },
   itemType: "TestItem",
   fields,
 })

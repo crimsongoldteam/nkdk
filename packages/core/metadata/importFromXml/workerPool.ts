@@ -34,6 +34,7 @@ export interface XmlImportWorkerPool {
   runSecondPass(referenceSnapshots: LayeredImportReferenceSnapshot): Promise<XmlImportSecondPassPoolResult>
   analyzeRuleOrder(params: {
     configuration: string
+    metadataDir: string
     assignments: readonly ImportAssignment[]
   }): Promise<XmlImportRuleOrderPoolResult>
   close(): Promise<void>
@@ -64,6 +65,7 @@ export interface XmlImportSecondPassPoolResult {
 export interface XmlImportRuleOrderPoolResult {
   diagnostics: ImportDiagnostic[]
   observations: RawRuleOrderObservation[]
+  unmatchedObservationCount: number
 }
 
 export interface XmlImportWorkerThreadPool {
@@ -288,6 +290,7 @@ function createXmlImportOperationPool(params: {
           const response = await runCommand(workerIndex, {
             kind: "analyzeRuleOrder",
             configuration: analysisParams.configuration,
+            metadataDir: analysisParams.metadataDir,
             assignments: [...(partitions[workerIndex] ?? [])],
           })
           if (response?.kind !== "ruleOrderAnalysisResult") {
@@ -299,6 +302,10 @@ function createXmlImportOperationPool(params: {
       phase = "analysisDone"
       return {
         diagnostics: results.flatMap((result) => result.diagnostics),
+        unmatchedObservationCount: results.reduce(
+          (sum, result) => sum + result.unmatchedObservationCount,
+          0
+        ),
         observations: results
           .flatMap((result) => result.observations)
           .sort((left, right) => compareObservation(left, right)),

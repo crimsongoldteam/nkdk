@@ -28,6 +28,7 @@ const minimalFormMetadataXmlPath = join(
   import.meta.dirname,
   "../forms/clientApplicationForm/__fixtures__/minimalMetadata.xml"
 )
+const metadataDir = join(import.meta.dirname, "..")
 const tempDirs: string[] = []
 
 beforeEach(async () => {
@@ -280,21 +281,25 @@ describe("XML import worker rule order analysis", () => {
     const result = await runImportWorkerCommand({
       kind: "analyzeRuleOrder",
       configuration: "all",
+      metadataDir,
       assignments: [assignment],
-    } as never)
-
-    expect(result).toMatchObject({
-      kind: "ruleOrderAnalysisResult",
-      diagnostics: [],
-      observations: [
-        expect.objectContaining({
-          configuration: "all",
-          sourceXmlPath: assignment.xmlFiles[0]?.sourcePath,
-          logicalAddress: assignment.logicalAddress,
-          itemType: "MetadataCatalog",
-        }),
-      ],
     })
+
+    expect(result?.kind).toBe("ruleOrderAnalysisResult")
+    if (result?.kind !== "ruleOrderAnalysisResult") throw new Error("Ожидался результат анализа порядка")
+    expect(result.diagnostics).toEqual([])
+    expect(result.unmatchedObservationCount).toBe(0)
+    expect(result.observations).toHaveLength(1)
+    expect(result.observations[0]).toMatchObject({
+      configuration: "all",
+      sourceXmlPath: assignment.xmlFiles[0]?.sourcePath,
+      logicalAddress: assignment.logicalAddress,
+      itemType: "MetadataCatalog",
+    })
+    expect(result.observations[0]?.source.candidate).toBe(
+      "appliedObjects/metadataCatalog/rules.ts#MetadataCatalogRules"
+    )
+    expect(result.observations[0]?.source.declarationOrder).toContain("name")
     expect(workerStateForTests().preparedYamlIds).toEqual([])
     expect(existsSync(join(outputDir, assignment.targetProjectPath))).toBe(false)
   })
