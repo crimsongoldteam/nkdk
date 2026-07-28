@@ -1,7 +1,7 @@
-import { resolve } from "node:path"
+import { join, resolve } from "node:path"
 import { performance } from "node:perf_hooks"
 import type { ConfigurationContext } from "../context/types"
-import { createOwnerMetadataCacheFromSharedValidationSnapshot } from "../validation/dataPath/sharedOwnerCache"
+import { createOwnerMetadataCacheFromSharedProjectValidationGraph } from "../validation/dataPath/sharedOwnerCache"
 import { createValidationProfiler } from "../validation/profile"
 import { getProjectReferenceObjectPathContributor } from "../validation/projectReferenceIndexRegistry"
 import type {
@@ -29,7 +29,7 @@ import { createProjectValidationWorkerSchemaCache } from "../validation/projectV
 import { registerValidationMetadata } from "../validation/registerValidationMetadata"
 import type { ValidationRulesSnapshot } from "../validation/rulesSnapshot"
 import { createSharedProjectReferenceIndex } from "../validation/sharedProjectReferenceIndex"
-import type { SharedValidationSnapshot } from "../validation/sharedValidationSnapshot"
+import type { SharedProjectValidationGraph } from "../validation/sharedValidationSnapshot"
 import type { Diagnostic } from "../validation/types"
 import type {
   ComponentFirstPassPoolResult,
@@ -81,8 +81,12 @@ export type PreparedYamlProjectWorkerTask =
       workerIndex: number
       projectDir: string
       context: ConfigurationContext
-      sharedValidationSnapshot: SharedValidationSnapshot
-      pendingReferences: PendingMetadataTargetReference[]
+      sharedProjectValidationGraph: SharedProjectValidationGraph
+      blockedComponentPaths: readonly string[]
+      pendingReferenceLayers: Array<{
+        componentPath: string
+        references: PendingMetadataTargetReference[]
+      }>
     }
 
 export type PreparedYamlProjectWorkerTaskResult =
@@ -485,33 +489,62 @@ function runValidationSecondPass(message: Extract<PreparedYamlProjectWorkerTask,
 } {
   const profiler = createValidationProfiler({ scope: "worker", workerIndex: message.workerIndex })
   const diagnostics: Diagnostic[] = []
-  const { ownerCache, referenceIndex } = profiler.measure(
+  const blocked = new Set(message.blockedComponentPaths)
+  const view = profiler.measure(
     "Проверка зависимостей",
     "Построение контекста worker",
     { items: validationState.states.size },
     () => {
-      const ownerCache = createOwnerMetadataCacheFromSharedValidationSnapshot({
-        projectDir: message.projectDir,
-        snapshot: message.sharedValidationSnapshot,
-      })
-      const referenceIndex = createSharedProjectReferenceIndex({
-        projectDir: message.projectDir,
-        snapshot: message.sharedValidationSnapshot.reference,
-        resolveObjectFilePath: (target) => resolveObjectFilePath({ projectDir: message.projectDir, target }),
-      })
-      return { ownerCache, referenceIndex }
+      const views = new Map<
+        string,
+        {
+          ownerCache: ReturnType<typeof createOwnerMetadataCacheFromSharedProjectValidationGraph>
+          referenceIndex: ReturnType<typeof createSharedProjectReferenceIndex>
+        }
+      >()
+      return (componentPath: string) => {
+        const cached = views.get(componentPath)
+        if (cached !== undefined) return cached
+        const created = {
+          ownerCache: createOwnerMetadataCacheFromSharedProjectValidationGraph({
+            projectDir: message.projectDir,
+            componentPath,
+            graph: message.sharedProjectValidationGraph,
+          }),
+          referenceIndex: createSharedProjectReferenceIndex({
+            projectDir: message.projectDir,
+            componentPath,
+            snapshot: message.sharedProjectValidationGraph.reference,
+            resolveObjectFilePath: (target) =>
+              resolveObjectFilePath({
+                projectDir: join(message.projectDir, componentPath),
+                target,
+              }),
+          }),
+        }
+        views.set(componentPath, created)
+        return created
+      }
     }
   )
-  const referenceResult = profiler.measure("Проверка зависимостей", "Проверка ссылок", { items: message.pendingReferences.length }, () =>
-    validatePendingReferencesWithIndex({
-      index: referenceIndex,
-      references: message.pendingReferences,
-    })
+  const pendingReferenceCount = message.pendingReferenceLayers.reduce(
+    (count, layer) => count + layer.references.length,
+    0
   )
-  diagnostics.push(...referenceResult.diagnostics)
+  profiler.measure("Проверка зависимостей", "Проверка ссылок", { items: pendingReferenceCount }, () => {
+    for (const layer of message.pendingReferenceLayers) {
+      const referenceResult = validatePendingReferencesWithIndex({
+        index: view(layer.componentPath).referenceIndex,
+        references: layer.references,
+      })
+      diagnostics.push(...referenceResult.diagnostics)
+    }
+  })
 
   profiler.measure("Проверка зависимостей", "Worker second pass", { items: validationState.states.size }, () => {
     for (const state of validationState.states.values()) {
+      if (blocked.has(state.file.componentPath)) continue
+      const { ownerCache, referenceIndex } = view(state.file.componentPath)
       const second = validateProjectFileSecondPass({
         projectDir: message.projectDir,
         state,

@@ -12,9 +12,10 @@ import type {
   ValidationWorkerPoolStartProfile,
 } from "../validation/validationWorkerPoolTypes"
 import { createValidationProfiler } from "../validation/profile"
+import type { PendingMetadataTargetReference } from "../validation/projectMetadataReferences"
 import { createValidationRulesSnapshot } from "../validation/rulesSnapshot"
+import { createSharedProjectValidationGraph } from "../validation/sharedValidationSnapshot"
 import type { Diagnostic } from "../validation/types"
-import { createValidationSnapshotProvider } from "../validation/validationSnapshotProvider"
 import type { ValidationIndexContribution } from "../validation/projectValidationTypes"
 import type {
   PreparedGlobalMetadataIndex,
@@ -279,9 +280,16 @@ export function createPreparedYamlProjectWorkerPool(params: {
       const activeIndexes = Array.from(activeWorkerIndexes)
       if (activeIndexes.length === 0) return { diagnostics: [] }
 
-      const provider = createValidationSnapshotProvider(secondPassParams.objectTable)
-      const sharedValidationSnapshot = provider.sharedPayload()
-      const referencePartitions = partitionRoundRobin(secondPassParams.objectTable.pendingReferences ?? [], activeIndexes.length)
+      const sharedProjectValidationGraph = createSharedProjectValidationGraph(secondPassParams.graph)
+      const blocked = new Set(secondPassParams.blockedComponentPaths)
+      const referencePartitions = partitionRoundRobin(
+        secondPassParams.graph.layers
+          .filter(({ componentPath }) => !blocked.has(componentPath))
+          .flatMap(({ componentPath, contribution }) =>
+            (contribution.pendingReferences ?? []).map((reference) => ({ componentPath, reference }))
+          ),
+        activeIndexes.length
+      )
       const results = await Promise.all(
         activeIndexes.map(async (index, partitionIndex) => {
           const task = {
@@ -289,8 +297,9 @@ export function createPreparedYamlProjectWorkerPool(params: {
             workerIndex: index,
             projectDir: secondPassParams.projectDir,
             context: secondPassParams.context,
-            sharedValidationSnapshot,
-            pendingReferences: referencePartitions[partitionIndex] ?? [],
+            sharedProjectValidationGraph,
+            blockedComponentPaths: secondPassParams.blockedComponentPaths,
+            pendingReferenceLayers: groupPendingReferencesByComponent(referencePartitions[partitionIndex] ?? []),
           } satisfies PreparedYamlProjectWorkerTask
           const response = (await getOrCreatePool(pools, index, createPool).run(
             task
@@ -373,6 +382,24 @@ function emptyValidationIndexContribution(): ValidationIndexContribution {
     localDependencies: [],
     logicalAddresses: [],
   }
+}
+
+function groupPendingReferencesByComponent(
+  assignments: readonly {
+    componentPath: string
+    reference: PendingMetadataTargetReference
+  }[]
+): Array<{
+  componentPath: string
+  references: PendingMetadataTargetReference[]
+}> {
+  const byComponent = new Map<string, PendingMetadataTargetReference[]>()
+  for (const { componentPath, reference } of assignments) {
+    const references = byComponent.get(componentPath) ?? []
+    references.push(reference)
+    byComponent.set(componentPath, references)
+  }
+  return [...byComponent].map(([componentPath, references]) => ({ componentPath, references }))
 }
 
 function getOrCreatePool(

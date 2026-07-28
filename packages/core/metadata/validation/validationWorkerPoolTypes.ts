@@ -1,5 +1,5 @@
 import type { ConfigurationContext } from "../context/types"
-import type { ValidationGraphContribution, ValidationObjectTableSnapshot } from "./projectValidationTypes"
+import type { ProjectValidationGraph, ValidationGraphContribution } from "./projectValidationTypes"
 import type { Diagnostic } from "./types"
 
 export interface ValidationFirstPassFileResult {
@@ -36,7 +36,8 @@ export interface ValidationYamlLifetime {
 export interface SecondPassPoolParams {
   projectDir: string
   context: ConfigurationContext
-  objectTable: ValidationObjectTableSnapshot
+  graph: ProjectValidationGraph
+  blockedComponentPaths: readonly string[]
 }
 
 export interface SecondPassPoolResult {

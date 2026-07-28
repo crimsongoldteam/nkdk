@@ -1,6 +1,6 @@
 import { availableParallelism } from "node:os"
 import { performance } from "node:perf_hooks"
-import { resolve } from "path"
+import { isAbsolute, join, relative, resolve, sep } from "path"
 import type { ConfigurationContext } from "../context/types"
 import {
   discoverPreparedYamlProjectFiles,
@@ -14,7 +14,7 @@ import {
 import { createValidationProfiler } from "./profile"
 import { evaluateProjectFirstPass } from "./projectFirstPassReadiness"
 import { discoverValidationProjectComponents } from "./projectComponents"
-import { createValidationObjectTable } from "./projectValidationObjectTable"
+import { createProjectValidationGraph } from "./projectValidationGraph"
 import type { Diagnostic } from "./types"
 
 export interface ValidateProjectParams {
@@ -106,7 +106,6 @@ async function validateProjectWithPreparedYaml(
   let propertiesSchemaMs = 0
   let firstPassMs = 0
   let mergeMs = 0
-  let snapshotMs = 0
   let secondPassMs = 0
   let sortMs = 0
   let fileCount = 0
@@ -150,40 +149,44 @@ async function validateProjectWithPreparedYaml(
       (count, component) => count + component.contribution.objectRecords.length,
       0
     )
-    const objectTable = profiler.measure("Обобщение индексов", "Слияние first pass", { items: firstPassRecordCount }, () => {
-      const table = createValidationObjectTable()
-      for (const { contribution } of first.components) {
-        table.mergeRecords(contribution.objectRecords)
-        table.mergeReferenceIndexEntries(contribution)
-      }
-      return table
-    })
-    mergeMs = profiler.records().find((record) => record.substep === "Слияние first pass")?.timeMs ?? 0
-    const objectTableSnapshot = profiler.measure(
-      "Обобщение индексов",
-      "Снимок object table",
-      {
-        items: first.components.reduce(
-          (count, component) => count + (component.contribution.pendingReferences?.length ?? 0),
-          0
-        ),
-      },
-      () => objectTable.snapshot()
+    const graph = profiler.measure("Обобщение индексов", "Слияние first pass", { items: firstPassRecordCount }, () =>
+      createProjectValidationGraph(first.components)
     )
-    snapshotMs = profiler.records().find((record) => record.substep === "Снимок object table")?.timeMs ?? 0
-    const second = await profiler.measureAsync("Проверка зависимостей", "Ожидание worker second pass", { items: fileCount }, () =>
-      pool.runValidationSecondPass({
-        projectDir,
-        context,
-        objectTable: objectTableSnapshot,
-      })
+    mergeMs = profiler.records().find((record) => record.substep === "Слияние first pass")?.timeMs ?? 0
+    const second = await profiler.measureAsync(
+      "Проверка зависимостей",
+      "Ожидание worker second pass",
+      { items: fileCount },
+      () =>
+        pool.runValidationSecondPass({
+          projectDir,
+          context,
+          graph,
+          blockedComponentPaths: firstPassReadiness.blockedExtensionPaths,
+        })
     )
     secondPassMs = profiler.records().find((record) => record.substep === "Ожидание worker second pass")?.timeMs ?? 0
+    const degradationDiagnostics = createDegradationDiagnostics({
+      projectDir,
+      hasConfiguration: componentDiscovery.hasConfiguration,
+      usesComponentLayout,
+      blockedComponentPaths: firstPassReadiness.blockedExtensionPaths,
+    })
     const diagnostics = profiler.measure(
       "Завершение validation",
       "Сортировка и дедупликация диагностик",
-      { items: firstPassReadiness.publishedDiagnostics.length + second.diagnostics.length },
-      () => sortDiagnostics(dedupeDiagnostics([...firstPassReadiness.publishedDiagnostics, ...second.diagnostics]))
+      {
+        items:
+          firstPassReadiness.publishedDiagnostics.length + second.diagnostics.length + degradationDiagnostics.length,
+      },
+      () =>
+        sortDiagnostics(
+          dedupeDiagnostics(
+            [...firstPassReadiness.publishedDiagnostics, ...second.diagnostics, ...degradationDiagnostics].map(
+              (diagnostic) => toRootProjectDiagnostic(projectDir, diagnostic)
+            )
+          )
+        )
     )
     sortMs = profiler.records().find((record) => record.substep === "Сортировка и дедупликация диагностик")?.timeMs ?? 0
     profiler.flush()
@@ -197,7 +200,6 @@ async function validateProjectWithPreparedYaml(
       propertiesSchemaMs,
       firstPassMs,
       mergeMs,
-      snapshotMs,
       secondPassMs,
       sortMs,
       totalMs: performance.now() - totalStartedAt,
@@ -219,7 +221,6 @@ function logWorkerValidationProfile(params: {
   propertiesSchemaMs: number
   firstPassMs: number
   mergeMs: number
-  snapshotMs: number
   secondPassMs: number
   sortMs: number
   totalMs: number
@@ -237,7 +238,6 @@ function logWorkerValidationProfile(params: {
       `propertiesSchema=${params.propertiesSchemaMs.toFixed(2)}ms`,
       `firstPassWall=${params.firstPassMs.toFixed(2)}ms`,
       `mergeFirstPass=${params.mergeMs.toFixed(2)}ms`,
-      `objectTableSnapshot=${params.snapshotMs.toFixed(2)}ms`,
       `secondPassWall=${params.secondPassMs.toFixed(2)}ms`,
       `sortDedupe=${params.sortMs.toFixed(2)}ms`,
       `total=${params.totalMs.toFixed(2)}ms`,
@@ -288,6 +288,48 @@ function diagnosticKey(diagnostic: Diagnostic): string {
     diagnostic.path ?? "",
     diagnostic.message,
   ].join("\0")
+}
+
+export function toRootProjectDiagnostic(projectDir: string, diagnostic: Diagnostic): Diagnostic {
+  const relativePath = relative(resolve(projectDir), resolve(diagnostic.filePath))
+  if (relativePath === ".." || relativePath.startsWith(`..${sep}`) || isAbsolute(relativePath)) {
+    throw new Error(`Путь диагностики находится за пределами projectDir: ${diagnostic.filePath}`)
+  }
+  const rootProjectPath = relativePath.split(sep).join("/")
+  const componentProjectPath =
+    rootProjectPath.startsWith("cf/") || /^cfe\/[^/]+\//.test(rootProjectPath)
+      ? rootProjectPath
+      : `cf/${rootProjectPath}`
+  return { ...diagnostic, filePath: componentProjectPath }
+}
+
+function createDegradationDiagnostics(params: {
+  projectDir: string
+  hasConfiguration: boolean
+  usesComponentLayout: boolean
+  blockedComponentPaths: readonly string[]
+}): Diagnostic[] {
+  const diagnostics = params.blockedComponentPaths.map(
+    (componentPath): Diagnostic => ({
+      filePath: join(params.projectDir, componentPath, "Конфигурация.yaml"),
+      line: 1,
+      col: 1,
+      severity: "error",
+      source: "cross-file",
+      message: "Семантическая валидация расширения невозможна из-за ошибок базовой конфигурации",
+    })
+  )
+  if (params.usesComponentLayout && !params.hasConfiguration) {
+    diagnostics.push({
+      filePath: join(params.projectDir, "cf", "Конфигурация.yaml"),
+      line: 1,
+      col: 1,
+      severity: "error",
+      source: "structure",
+      message: "Базовая конфигурация cf не найдена",
+    })
+  }
+  return diagnostics
 }
 
 function defaultValidationContext(): ConfigurationContext {
