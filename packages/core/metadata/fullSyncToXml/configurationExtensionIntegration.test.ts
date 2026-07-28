@@ -245,7 +245,11 @@ describe("configuration extension full XML sync integration", () => {
 
     const result = await syncExtension(state)
 
-    expectAssignmentFailure(state.xmlDir, result.failed, /Не найден обязательный xmlId BaseForm/u)
+    expectAssignmentFailure(
+      state.xmlDir,
+      result.failed,
+      /Не найден обязательный xmlId: .*ПеремещаемоеПоле/u
+    )
   }, 60_000)
 
   it("reports an assignment failure when an explicitly borrowed cfe xmlId is missing and keeps earlier XML", async () => {
@@ -256,7 +260,11 @@ describe("configuration extension full XML sync integration", () => {
 
     const result = await syncExtension(state)
 
-    expectAssignmentFailure(state.xmlDir, result.failed, /Не найден обязательный xmlId BaseForm/u)
+    expectAssignmentFailure(
+      state.xmlDir,
+      result.failed,
+      /Не найден обязательный xmlId: .*ЗаимствованныйРеквизит/u
+    )
   }, 60_000)
 })
 
