@@ -227,6 +227,54 @@ export const BaseRules = {
     expect(edits.find((edit) => edit.filePath === derivedPath)?.updatedText).toContain("xmlOrder:")
   })
 
+  it("разрешает импорт из файла с составным именем *Rules", async () => {
+    const ownerPath = "/metadata/owner/rules.ts"
+    const nestedPath = "/metadata/owner/predefinedRules.ts"
+    const nestedSource = ruleSource({
+      candidate: "owner/rules.ts#Rules.properties.predefined.itemRule",
+      filePath: ownerPath,
+      propertyPath: ["properties", "predefined", "itemRule"],
+      declarationOrder: ["name"],
+    })
+    const files = new Map([
+      [
+        ownerPath,
+        `
+import { PredefinedRules } from "./predefinedRules"
+export const Rules = {
+  itemType: "Owner",
+  properties: {
+    predefined: predefinedRule({ itemRule: PredefinedRules }),
+  },
+}
+`,
+      ],
+      [
+        nestedPath,
+        `
+export const PredefinedRules = {
+  itemType: "Predefined",
+  properties: { name: { type: "string" } },
+}
+`,
+      ],
+    ])
+
+    const edits = await buildRuleSourceEdits({
+      orders: [order(["name"], nestedSource)],
+      sources: [nestedSource],
+      readFile: async (path) => {
+        const source = files.get(path)
+        if (source === undefined) throw new Error(`Неожиданный путь ${path}`)
+        return source
+      },
+    })
+
+    expect(edits).toHaveLength(1)
+    expect(edits[0]?.filePath).toBe(nestedPath)
+    expect(edits[0]?.updatedText).toContain("xmlOrder:")
+  })
+
   it("отклоняет computed-свойство в пути правила", async () => {
     const nestedSource = ruleSource({
       propertyPath: ["properties", "child", "itemRule"],

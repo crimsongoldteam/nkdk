@@ -150,7 +150,8 @@ function createSourceModel(filePath: string, text: string): SourceModel {
 }
 
 function isRulesImport(specifier: string): boolean {
-  return specifier === "./rules" || specifier.endsWith("/rules") || specifier.endsWith("/rules.ts")
+  const fileName = specifier.split("/").at(-1)?.replace(/\.ts$/i, "")
+  return fileName?.toLowerCase().endsWith("rules") === true
 }
 
 function resolveImportPath(containingFile: string, specifier: string): string {
