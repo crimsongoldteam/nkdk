@@ -6,7 +6,12 @@ import {
   createPreparedYamlProjectWorkerPool,
   type PreparedYamlProjectWorkerPool,
 } from "./preparedYamlProjectWorkerPool"
-import { discoverMetadataProjectResources, type MetadataProjectResourceInclude } from "./resources"
+import {
+  discoverMetadataProjectResources,
+  type MetadataProjectResourceInclude,
+  type MetadataProjectResourceRef,
+} from "./resources"
+import { discoverValidationProjectComponents } from "../validation/projectComponents"
 
 export interface PreparedYamlProject {
   projectDir: string
@@ -17,6 +22,9 @@ export interface PreparedYamlProject {
 }
 
 export interface PreparedYamlProjectFileDescriptor {
+  componentPath?: string
+  componentDir?: string
+  rootProjectPath?: string
   projectPath: string
   filePath: string
   role: "configuration" | "properties" | "form"
@@ -103,21 +111,25 @@ export async function prepareYamlProjectWithPool(params: {
       (resource) => resource.absolutePath !== undefined
     )
   )
-  const files = profiler.measure("Подготовка YAML-проекта", "Классификация файлов проекта", { items: resources.length }, () =>
-    resources
-      .filter((resource) => resource.kind === "yaml")
-      .map(
-        (resource): PreparedYamlProjectFileDescriptor => ({
-          projectPath: resource.projectPath,
-          filePath: resource.absolutePath!,
-          role: resource.role,
-          owner: { dir: resource.owner.dir, name: resource.owner.name },
-          itemType:
-            resource.owner.spec.rule.metadataTargetOwner?.kind === "self"
-              ? resource.owner.spec.rule.metadataTargetOwner.root
-              : (resource.owner.spec.rule.itemTypePrefix ?? resource.owner.spec.rule.itemType),
-        })
-      )
+  const files = profiler.measure(
+    "Подготовка YAML-проекта",
+    "Классификация файлов проекта",
+    { items: resources.length },
+    () =>
+      resources
+        .filter((resource) => resource.kind === "yaml")
+        .map(
+          (resource): PreparedYamlProjectFileDescriptor => ({
+            projectPath: resource.projectPath,
+            filePath: resource.absolutePath!,
+            role: resource.role,
+            owner: { dir: resource.owner.dir, name: resource.owner.name },
+            itemType:
+              resource.owner.spec.rule.metadataTargetOwner?.kind === "self"
+                ? resource.owner.spec.rule.metadataTargetOwner.root
+                : (resource.owner.spec.rule.itemTypePrefix ?? resource.owner.spec.rule.itemType),
+          })
+        )
   )
   const resourceFiles = profiler.measure(
     "Подготовка YAML-проекта",
@@ -140,7 +152,8 @@ export async function prepareYamlProjectWithPool(params: {
     "Подготовка YAML-проекта",
     "Ожидание результата подготовки",
     { items: files.length },
-    () => params.pool.run({ projectDir, context: params.context, files, includeYamlData: params.includeYamlData ?? true })
+    () =>
+      params.pool.run({ projectDir, context: params.context, files, includeYamlData: params.includeYamlData ?? true })
   )
   profiler.flush()
   if (prepared.diagnostics.length > 0) {
@@ -166,21 +179,55 @@ export async function prepareYamlProjectWithPool(params: {
   }
 }
 
-export async function discoverPreparedYamlProjectFiles(projectDir: string): Promise<PreparedYamlProjectFileDescriptor[]> {
+export async function discoverPreparedYamlProjectFiles(
+  projectDir: string
+): Promise<PreparedYamlProjectFileDescriptor[]> {
   const root = resolve(projectDir)
   const resources = (await discoverMetadataProjectResources(root, { include: "yaml" })).filter(
     (resource) => resource.absolutePath !== undefined && resource.kind === "yaml"
   )
-  return resources.map(
-    (resource): PreparedYamlProjectFileDescriptor => ({
-      projectPath: resource.projectPath,
-      filePath: resource.absolutePath!,
-      role: resource.role as PreparedYamlProjectFileDescriptor["role"],
-      owner: { dir: resource.owner.dir, name: resource.owner.name },
-      itemType:
-        resource.owner.spec.rule.metadataTargetOwner?.kind === "self"
-          ? resource.owner.spec.rule.metadataTargetOwner.root
-          : (resource.owner.spec.rule.itemTypePrefix ?? resource.owner.spec.rule.itemType),
+  return resources.map((resource) =>
+    toPreparedYamlProjectFileDescriptor(resource, { componentPath: "cf", componentDir: root })
+  )
+}
+
+export async function discoverPreparedYamlValidationProjectFiles(
+  projectDir: string
+): Promise<PreparedYamlProjectFileDescriptor[]> {
+  const components = await discoverValidationProjectComponents(projectDir)
+  const files = await Promise.all(
+    components.components.map(async (component) => {
+      const resources = await discoverMetadataProjectResources(component.componentDir, { include: "yaml" }, component)
+      return resources
+        .filter((resource) => resource.absolutePath !== undefined && resource.kind === "yaml")
+        .map((resource) => toPreparedYamlProjectFileDescriptor(resource, component))
     })
   )
+  return files
+    .flat()
+    .sort((left, right) =>
+      (left.rootProjectPath ?? left.projectPath).localeCompare(right.rootProjectPath ?? right.projectPath, "ru")
+    )
+}
+
+function toPreparedYamlProjectFileDescriptor(
+  resource: MetadataProjectResourceRef,
+  component: { componentPath: string; componentDir: string }
+): PreparedYamlProjectFileDescriptor {
+  if (resource.absolutePath === undefined || resource.kind !== "yaml") {
+    throw new Error(`Ожидался YAML-файл проекта: ${resource.projectPath}`)
+  }
+  return {
+    componentPath: component.componentPath,
+    componentDir: component.componentDir,
+    rootProjectPath: `${component.componentPath}/${resource.projectPath}`,
+    projectPath: resource.projectPath,
+    filePath: resource.absolutePath,
+    role: resource.role,
+    owner: { dir: resource.owner.dir, name: resource.owner.name },
+    itemType:
+      resource.owner.spec.rule.metadataTargetOwner?.kind === "self"
+        ? resource.owner.spec.rule.metadataTargetOwner.root
+        : (resource.owner.spec.rule.itemTypePrefix ?? resource.owner.spec.rule.itemType),
+  }
 }

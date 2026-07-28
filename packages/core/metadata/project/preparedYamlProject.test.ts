@@ -7,7 +7,7 @@ import {
   resetProjectValidationReadCountForTests,
 } from "../validation/projectValidationPasses"
 import { createProjectYamlCacheFromPreparedFiles } from "../validation/projectYamlCache"
-import { prepareYamlProjectWithPool } from "./preparedYamlProject"
+import { discoverPreparedYamlValidationProjectFiles, prepareYamlProjectWithPool } from "./preparedYamlProject"
 import type { PreparedYamlProjectWorkerTask } from "./preparedYamlProjectWorker"
 import {
   createPreparedYamlProjectWorkerPool,
@@ -76,6 +76,19 @@ describe("prepareYamlProject", () => {
       resourceInclude: params.resourceInclude,
     })
   }
+
+  it("discovers prepared YAML files from configuration and configuration extensions", async () => {
+    const projectDir = createProject()
+    mkdirSync(join(projectDir, "cf", "Справочник", "Товары"), { recursive: true })
+    mkdirSync(join(projectDir, "cfe", "Продажи"), { recursive: true })
+    writeFileSync(join(projectDir, "cf", "Справочник", "Товары", "Свойства.yaml"), "")
+    writeFileSync(join(projectDir, "cfe", "Продажи", "Конфигурация.yaml"), "")
+
+    expect((await discoverPreparedYamlValidationProjectFiles(projectDir)).map((file) => file.rootProjectPath)).toEqual([
+      "cf/Справочник/Товары/Свойства.yaml",
+      "cfe/Продажи/Конфигурация.yaml",
+    ])
+  })
 
   it(
     "prepares whole project and uses projectPath as YAML key without source text",
@@ -159,14 +172,18 @@ describe("prepareYamlProject", () => {
         error.mockRestore()
       }
 
-      expect(lines.some((line) => line.includes("[nkdk-profile-step]") && line.includes('substep="Поиск файлов проекта"'))).toBe(
-        true
-      )
       expect(
-        lines.some((line) => line.includes("[nkdk-profile-step]") && line.includes('substep="Классификация файлов проекта"'))
+        lines.some((line) => line.includes("[nkdk-profile-step]") && line.includes('substep="Поиск файлов проекта"'))
       ).toBe(true)
       expect(
-        lines.some((line) => line.includes("[nkdk-profile-step]") && line.includes('substep="Ожидание результата подготовки"'))
+        lines.some(
+          (line) => line.includes("[nkdk-profile-step]") && line.includes('substep="Классификация файлов проекта"')
+        )
+      ).toBe(true)
+      expect(
+        lines.some(
+          (line) => line.includes("[nkdk-profile-step]") && line.includes('substep="Ожидание результата подготовки"')
+        )
       ).toBe(true)
       expect(lines.every((line) => !line.includes("scope=worker"))).toBe(true)
     },
@@ -196,7 +213,10 @@ describe("prepareYamlProject", () => {
     "returns resource file descriptions without reading resource content",
     async () => {
       const projectDir = createProject()
-      writeFileSync(join(projectDir, "Справочник", "Товары", "МодульМенеджера.bsl"), "Процедура Тест()\nКонецПроцедуры\n")
+      writeFileSync(
+        join(projectDir, "Справочник", "Товары", "МодульМенеджера.bsl"),
+        "Процедура Тест()\nКонецПроцедуры\n"
+      )
 
       const result = await prepareProject({
         projectDir,
@@ -214,9 +234,9 @@ describe("prepareYamlProject", () => {
           }),
         ])
       )
-      expect(result.project.workers.flatMap((worker) => worker.yamlFiles).map((file) => file.projectPath)).not.toContain(
-        "Справочник/Товары/МодульМенеджера.bsl"
-      )
+      expect(
+        result.project.workers.flatMap((worker) => worker.yamlFiles).map((file) => file.projectPath)
+      ).not.toContain("Справочник/Товары/МодульМенеджера.bsl")
     },
     testTimeout
   )
@@ -225,7 +245,10 @@ describe("prepareYamlProject", () => {
     "can prepare only YAML project files for validation",
     async () => {
       const projectDir = createProject()
-      writeFileSync(join(projectDir, "Справочник", "Товары", "МодульМенеджера.bsl"), "Процедура Тест()\nКонецПроцедуры\n")
+      writeFileSync(
+        join(projectDir, "Справочник", "Товары", "МодульМенеджера.bsl"),
+        "Процедура Тест()\nКонецПроцедуры\n"
+      )
 
       const result = await prepareProject({
         projectDir,

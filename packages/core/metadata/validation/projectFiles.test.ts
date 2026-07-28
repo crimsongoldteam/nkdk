@@ -3,6 +3,7 @@ import { tmpdir } from "os"
 import { join, resolve } from "path"
 import { afterEach, describe, expect, it } from "vitest"
 import { TopLevelMetadataItemRules } from "../appliedObjects/configuration/topLevelRules"
+import { discoverValidationProjectComponents } from "./projectComponents"
 import { assertProjectFileInside, discoverValidationProjectFiles, resolveValidationProjectFile } from "./projectFiles"
 import { validationProjectSpecs } from "./projectSpecs"
 
@@ -202,5 +203,20 @@ describe("validation project files", () => {
         spec: expect.objectContaining({ kind: "configuration" }),
       },
     })
+  })
+
+  it("discovers files with their component address", async () => {
+    const projectDir = createProject()
+    touchProjectFile(projectDir, "cf/Справочник/Товары/Свойства.yaml")
+    const component = (await discoverValidationProjectComponents(projectDir)).components[0]!
+
+    expect(await discoverValidationProjectFiles(component.componentDir, component)).toEqual([
+      expect.objectContaining({
+        componentPath: "cf",
+        componentDir: join(projectDir, "cf"),
+        projectPath: "Справочник/Товары/Свойства.yaml",
+        rootProjectPath: "cf/Справочник/Товары/Свойства.yaml",
+      }),
+    ])
   })
 })
