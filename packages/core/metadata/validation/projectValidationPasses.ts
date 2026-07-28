@@ -6,6 +6,8 @@ import { dirname, join, resolve } from "path"
 import { rootFromYAML } from "../commonObjects/metadataTargets/roots"
 import type { MetadataFieldKind, ParsedMetadataTarget } from "../commonObjects/metadataTargets/types"
 import type { ConfigurationContext } from "../context/types"
+import { getMetadataComponentDescriptor } from "../components/descriptor"
+import type { MetadataItemRule } from "../orchestration/property/types"
 import { stripCollectedSchemaRefs } from "../orchestration/jsonSchemaRefs"
 import { parseMetadataYaml, type ParsedYaml } from "../../yaml/parseMetadataYaml"
 import { type OwnerMetadata, type OwnerMetadataCache } from "./dataPath/ownerCache"
@@ -26,7 +28,7 @@ import { exportJSONSchemaGraph } from "./projectFileSchema"
 import type { ValidationProjectFile } from "./projectFiles"
 import type { ProjectYamlCache, ProjectYamlEntry } from "./projectYamlCache"
 import { validatePendingChecks, type ValidationPendingCheck } from "./projectValidationPendingChecks"
-import { configurationValidationProjectSpec, validationProjectSpecs, type ValidationProjectSpec } from "./projectSpecs"
+import { configurationValidationProjectSpec, validationProjectSpecs } from "./projectSpecs"
 import type { ValidationObjectRecord } from "./projectValidationTypes"
 import type { ValidationRulesSnapshot } from "./rulesSnapshot"
 import type { Diagnostic } from "./types"
@@ -40,7 +42,7 @@ const propertiesSchemaCache = new Map<string, CompiledSchema>()
 
 export interface ValidationSchemaCache {
   form: () => CompiledSchema
-  properties: (spec: ValidationProjectSpec) => CompiledSchema
+  properties: (rule: MetadataItemRule) => CompiledSchema
   compileAll: () => ValidationSchemaCacheCompileProfile
 }
 
@@ -164,13 +166,13 @@ export function createValidationSchemaCache(context: ConfigurationContext): Vali
 
       return formSchema
     },
-    properties(spec) {
-      const key = spec.dir
+    properties(rule) {
+      const key = rule.itemType
       const existing = propertiesSchemas.get(key)
       if (existing) return existing
 
-      const globalKey = `${context.version}:${context.defaultLanguage}:${spec.dir}`
-      const compiled = propertiesSchemaCache.get(globalKey) ?? compileProjectPropertiesSchema(context, spec)
+      const globalKey = [context.version, context.defaultLanguage, rule.itemType].join(":")
+      const compiled = propertiesSchemaCache.get(globalKey) ?? compileProjectPropertiesSchema(context, rule)
       propertiesSchemaCache.set(globalKey, compiled)
       propertiesSchemas.set(key, compiled)
 
@@ -183,10 +185,9 @@ export function createValidationSchemaCache(context: ConfigurationContext): Vali
       const formMs = performance.now() - formStartedAt
 
       const propertiesStartedAt = performance.now()
-      for (const spec of validationProjectSpecs) {
-        this.properties(spec)
+      for (const rule of validationProjectPropertyRules()) {
+        this.properties(rule)
       }
-      this.properties(configurationValidationProjectSpec)
       const propertiesMs = performance.now() - propertiesStartedAt
 
       return {
@@ -198,15 +199,27 @@ export function createValidationSchemaCache(context: ConfigurationContext): Vali
   }
 }
 
-function compileProjectPropertiesSchema(context: ConfigurationContext, spec: ValidationProjectSpec): CompiledSchema {
+function compileProjectPropertiesSchema(context: ConfigurationContext, rule: MetadataItemRule): CompiledSchema {
   const graph = exportJSONSchemaGraph({
     context,
     excludeImplicitValueYAML: true,
     validationPropertyRefs: true,
-    roots: [{ key: "properties", name: spec.rule.itemType }],
+    roots: [{ key: "properties", name: rule.itemType }],
   })
   const rootSchema = stripCollectedSchemaRefs(graph.roots["properties"]!)
   return compileValidationSchema(graph.schemas, rootSchema, { inlineRefs: false })
+}
+
+function validationProjectPropertyRules(): MetadataItemRule[] {
+  return uniqueRulesByItemType([
+    configurationValidationProjectSpec.rule,
+    getMetadataComponentDescriptor("configurationExtension").rootRule,
+    ...validationProjectSpecs.map((spec) => spec.rule),
+  ])
+}
+
+function uniqueRulesByItemType(rules: readonly MetadataItemRule[]): MetadataItemRule[] {
+  return [...new Map(rules.map((rule) => [rule.itemType, rule])).values()]
 }
 
 function compileRegisteredFormSchema(context: ConfigurationContext): CompiledSchema {
@@ -453,7 +466,7 @@ function validateProjectPropertiesFirstPass(params: {
     const diagnostics = validateProjectFileSchema({
       file: params.file,
       cache: params.cache,
-      schema: params.schemaCache.properties(params.file.owner.spec),
+      schema: params.schemaCache.properties(params.file.owner.spec.rule),
     })
     const schemaMs = performance.now() - schemaStartedAt
     return failedFirstPass(params.file, diagnostics, {
@@ -470,7 +483,7 @@ function validateProjectPropertiesFirstPass(params: {
   const baseSchemaDiagnostics = validateProjectFileSchema({
     file: params.file,
     cache: params.cache,
-    schema: params.schemaCache.properties(params.file.owner.spec),
+    schema: params.schemaCache.properties(params.file.owner.spec.rule),
     parsed,
   })
   const schemaDiagnostics = baseSchemaDiagnostics

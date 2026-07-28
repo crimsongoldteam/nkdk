@@ -2,6 +2,8 @@ import { mkdirSync, mkdtempSync, rmSync, writeFileSync } from "fs"
 import { tmpdir } from "os"
 import { dirname, join } from "path"
 import { afterEach, beforeAll, describe, expect, it } from "vitest"
+import { MetadataConfigurationRules } from "../appliedObjects/configuration/rules"
+import { MetadataConfigurationExtensionRules } from "../appliedObjects/configurationExtension/rules"
 import { mockContext } from "../../tests/mockContext"
 import { resolveValidationProjectFile } from "./projectFiles"
 import { createProjectYamlCache } from "./projectYamlCache"
@@ -18,7 +20,7 @@ describe("validateProjectFileFirstPass references", () => {
 
     const commonFormSpec = getValidationProjectSpecByDir("ОбщаяФорма")
     if (commonFormSpec === undefined) throw new Error("Common form validation spec is not registered")
-    sharedSchemaCache.properties(commonFormSpec)
+    sharedSchemaCache.properties(commonFormSpec.rule)
   }, 120_000)
 
   afterEach(() => {
@@ -32,11 +34,22 @@ describe("validateProjectFileFirstPass references", () => {
     expect(result.propertiesMs).toBeGreaterThanOrEqual(0)
   }, 120_000)
 
+  it("distinguishes extension root properties from configuration properties", () => {
+    const cache = createValidationSchemaCache(mockContext)
+    const yaml = {
+      Имя: "Продажи",
+      НазначениеРасширенияКонфигурации: "Адаптация",
+    }
+
+    expect(cache.properties(MetadataConfigurationExtensionRules).Check(yaml)).toBe(true)
+    expect(cache.properties(MetadataConfigurationRules).Check(yaml)).toBe(false)
+  }, 20_000)
+
   it("compiles common form properties in the same validation graph", () => {
     const spec = getValidationProjectSpecByDir("ОбщаяФорма")
     if (spec === undefined) throw new Error("Common form validation spec is not registered")
 
-    const compiled = sharedSchemaCache.properties(spec)
+    const compiled = sharedSchemaCache.properties(spec.rule)
 
     expect(compiled.Schema()).toMatchObject({
       properties: {
