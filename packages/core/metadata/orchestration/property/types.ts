@@ -90,17 +90,11 @@ export interface BasePropertyRule {
   /** Нейтральное описание внешней metadata-записи, которую создаёт внешний файл свойства. */
   externalMetadata?: ExternalMetadataPropertyRule
 
-  /** Порядок свойства при выгрузке в XML (используй только при необходимости) */
-  order?: number
-
   /** Канонический сегмент logicalAddress для элементов коллекции свойства. */
   configurationIndexUidSegment?: string
 
   /** Режим построения logicalAddress для данных файла индекса конфигурации. */
   configurationIndexAddressing?: ConfigurationIndexAddressingMode
-
-  /** Не считать запись свойства в сохранённом порядке доказательством его присутствия в XML. */
-  configurationIndexPresenceFromOrder?: false
 
   /** Название ключа в YAML */
   yaml?: string

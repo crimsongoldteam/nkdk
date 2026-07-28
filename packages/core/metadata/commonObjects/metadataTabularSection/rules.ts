@@ -26,7 +26,6 @@ const commonTabularSectionProperties = {
     type: "string",
     required: true,
     xmlParents: propertiesParents,
-    order: 1,
   },
   synonym: {
     yaml: "Синоним",
@@ -47,7 +46,6 @@ const commonTabularSectionProperties = {
       operation === "importFromYAML" && name
         ? addDefaultLanguageNameToSynonym(context, undefined, name)
         : { items: { [context.defaultLanguage]: "" } },
-    order: 2,
     defaultValueXMLEmpty: { items: {} },
     preserveEmptyXML: true,
   },
@@ -57,7 +55,6 @@ const commonTabularSectionProperties = {
     type: "string",
     xmlParents: propertiesParents,
     defaultValueXMLRaw: "",
-    order: 3,
   },
   toolTip: {
     yaml: "Подсказка",
@@ -65,7 +62,6 @@ const commonTabularSectionProperties = {
     type: "I8nText",
     xmlParents: propertiesParents,
     defaultValueXMLRaw: "",
-    order: 4,
   },
   fillChecking: {
     yaml: "ПроверкаЗаполнения",
@@ -75,7 +71,6 @@ const commonTabularSectionProperties = {
     xmlParents: propertiesParents,
     defaultValueXML: "DontCheck",
     implicitValueYAML: "DontCheck",
-    order: 5,
   },
   standardAttributes: {
     yaml: "СтандартныеРеквизиты",
@@ -83,7 +78,6 @@ const commonTabularSectionProperties = {
     type: "StandardAttributeDescriptions",
     standartAttributeNames: { LineNumber: "НомерСтроки" },
     xmlParents: propertiesParents,
-    order: 6,
   },
   lineNumberLength: {
     yaml: "ДлинаНомераСтроки",
@@ -93,7 +87,6 @@ const commonTabularSectionProperties = {
     defaultValueXML: 5,
     implicitValueYAML: 5,
     preserveFromReferenceXML: true,
-    order: 8,
   },
   objectBelonging: {
     yaml: "ПринадлежностьОбъекта",
@@ -102,7 +95,6 @@ const commonTabularSectionProperties = {
     typeSE: "ObjectBelonging",
     xmlParents: propertiesParents,
     noImplicitValueYAML: true,
-    order: 9,
   },
   attributes: {
     yaml: "Реквизиты",
@@ -149,7 +141,6 @@ export const MetadataTabularSectionRules = {
       xmlParents: propertiesParents,
       defaultValueXML: "ForItem",
       implicitValueYAML: "ForItem",
-      order: 7,
     }),
   },
 } as const satisfies MetadataItemRule
@@ -370,7 +361,6 @@ export const MetadataChartOfCharacteristicTypesTabularSectionRules = {
       xmlParents: propertiesParents,
       defaultValueXML: "ForItem",
       implicitValueYAML: "ForItem",
-      order: 7,
     }),
   },
 } as const satisfies MetadataItemRule

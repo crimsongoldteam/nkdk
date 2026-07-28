@@ -83,6 +83,9 @@ const ChartOfAccountsPredefinedItemRules = {
 
 export const ChartOfAccountsPredefinedRules = {
   ...PredefinedRules,
+  xmlOrder: [
+    "items",
+  ],
   properties: {
     ...PredefinedRules.properties,
     items: {

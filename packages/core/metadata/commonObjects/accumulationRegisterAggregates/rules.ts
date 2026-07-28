@@ -33,6 +33,9 @@ export const AccumulationRegisterAggregateRules = {
 } as const satisfies MetadataItemRule
 export const AccumulationRegisterAggregatesRules = {
   itemType: "AccumulationRegisterAggregates",
+  xmlOrder: [
+    "items",
+  ],
   properties: {
     xmlRoot: xmlRootRule({
       container: "AccumulationRegisterAggregates",

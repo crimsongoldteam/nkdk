@@ -8,7 +8,6 @@ const source = (overrides: Partial<RuleOrderSource> = {}): RuleOrderSource => ({
   exportName: "Rules",
   propertyPath: [],
   declarationOrder: ["name", "comment", "use", "indexing", "unseen"],
-  numericOrder: {},
   ...overrides,
 })
 
@@ -74,13 +73,11 @@ describe("deriveCanonicalRuleOrders", () => {
     expect(result[0]?.propertyKeys).not.toContain("unseen")
   })
 
-  it("использует порядок объявления, а не numeric order, для несвязанных наблюдавшихся ключей", () => {
-    const orderedSource = source({ numericOrder: { use: 1, comment: 2 } })
-
+  it("использует порядок объявления для несвязанных наблюдавшихся ключей", () => {
     expect(
       deriveCanonicalRuleOrders([
-        observation(["name", "use"], { source: orderedSource }),
-        observation(["name", "comment"], { source: orderedSource }),
+        observation(["name", "use"]),
+        observation(["name", "comment"]),
       ])[0]?.propertyKeys
     ).toEqual(["name", "comment", "use"])
   })

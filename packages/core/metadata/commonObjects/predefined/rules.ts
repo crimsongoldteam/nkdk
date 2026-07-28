@@ -32,6 +32,9 @@ const predefinedRootAttributes = (params: { ownerMetadataItem: unknown }): Recor
 }
 export const PredefinedRules = {
   itemType: "Predefined",
+  xmlOrder: [
+    "items",
+  ],
   properties: {
     xmlRoot: xmlRootRule({
       container: "PredefinedData",

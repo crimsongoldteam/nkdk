@@ -20,6 +20,23 @@ export const MetadataFilterCriterionRules = {
   metadataTargetOwner: { kind: "self", root: "FilterCriterion" },
   itemTypePrefix: "КритерийОтбора",
   xmlDir: "FilterCriteria",
+  xmlOrder: [
+    "internalInfo",
+    "name",
+    "synonym",
+    "comment",
+    "type",
+    "useStandardCommands",
+    "content",
+    "defaultForm",
+    "auxiliaryForm",
+    "listPresentation",
+    "extendedListPresentation",
+    "explanation",
+    "forms",
+    "commands",
+    "uuid",
+  ],
   properties: {
     xmlRoot: xmlRootRule({
       container: "FilterCriterion",

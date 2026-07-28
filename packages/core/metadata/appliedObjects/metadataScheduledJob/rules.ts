@@ -14,6 +14,19 @@ export const MetadataScheduledJobRules = {
   metadataTargetOwner: { kind: "self", root: "ScheduledJob" },
   itemTypePrefix: "РегламентноеЗадание",
   xmlDir: "ScheduledJobs",
+  xmlOrder: [
+    "name",
+    "synonym",
+    "comment",
+    "methodName",
+    "description",
+    "key",
+    "use",
+    "predefined",
+    "restartCountOnFailure",
+    "restartIntervalOnFailure",
+    "uuid",
+  ],
   properties: {
     xmlRoot: xmlRootRule({
       container: "ScheduledJob",

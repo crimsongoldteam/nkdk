@@ -16,6 +16,45 @@ const dimensionExternalMetadata = { segment: "Dimension", placement: "ownerChild
 export const MetadataRegisterDimensionRules = {
   itemType: "MetadataRegisterDimension",
   externalMetadata: dimensionExternalMetadata,
+  xmlOrder: [
+    "name",
+    "synonym",
+    "comment",
+    "type",
+    "passwordMode",
+    "format",
+    "editFormat",
+    "toolTip",
+    "markNegatives",
+    "mask",
+    "multiLine",
+    "extendedEdit",
+    "minValue",
+    "maxValue",
+    "fillFromFillingValue",
+    "fillValue",
+    "fillChecking",
+    "choiceFoldersAndItems",
+    "choiceParameterLinks",
+    "choiceParameters",
+    "quickChoice",
+    "createOnInput",
+    "choiceForm",
+    "linkByType",
+    "choiceHistoryOnInput",
+    "balance",
+    "accountingFlag",
+    "master",
+    "mainFilter",
+    "denyIncompleteValues",
+    "indexing",
+    "fullTextSearch",
+    "dataHistory",
+    "binaryDataStorageLocationUse",
+    "useInTotals",
+    "binaryDataStorageLocationUseField",
+    "typeReductionMode",
+  ],
   properties: {
     ...commonRegisterFieldProperties,
     master: booleanRule({
@@ -26,7 +65,6 @@ export const MetadataRegisterDimensionRules = {
       implicitValueYAML: false,
       toXML: (source: YAMLPropertySource | unknown, context?: ConfigurationContextWithExportToXML) =>
         exportDimensionDefaultForXML("master", source, context, "MetadataInformationRegister"),
-      order: 26,
     }),
     mainFilter: booleanRule({
       yaml: "ОсновнойОтбор",
@@ -36,7 +74,6 @@ export const MetadataRegisterDimensionRules = {
       implicitValueYAML: true,
       toXML: (source: YAMLPropertySource | unknown, context?: ConfigurationContextWithExportToXML) =>
         exportDimensionDefaultForXML("mainFilter", source, context, "MetadataInformationRegister"),
-      order: 26,
     }),
     denyIncompleteValues: booleanRule({
       yaml: "ЗапретНезавершенныхЗначений",
@@ -44,7 +81,6 @@ export const MetadataRegisterDimensionRules = {
       xmlParents: ["Properties"],
       defaultValueXML: false,
       implicitValueYAML: false,
-      order: 26,
     }),
     baseDimension: booleanRule({
       yaml: "БазовоеИзмерение",
@@ -71,7 +107,6 @@ export const MetadataRegisterDimensionRules = {
       implicitValueYAML: true,
       toXML: (_metadataItem: unknown, context?: ConfigurationContextWithExportToXML) =>
         isAccountingRegisterField(context),
-      order: 25.1,
     }),
     accountingFlag: stringRule({
       yaml: "ПризнакУчета",
@@ -80,7 +115,6 @@ export const MetadataRegisterDimensionRules = {
       defaultValueXMLRaw: "",
       toXML: (_metadataItem: unknown, context?: ConfigurationContextWithExportToXML) =>
         isAccountingRegisterField(context),
-      order: 25.2,
     }),
     useInTotals: booleanRule({
       yaml: "ИспользоватьВИтогах",
@@ -90,7 +124,6 @@ export const MetadataRegisterDimensionRules = {
       implicitValueYAML: true,
       toXML: (source: YAMLPropertySource | unknown, context?: ConfigurationContextWithExportToXML) =>
         exportDimensionDefaultForXML("useInTotals", source, context, "MetadataAccumulationRegister"),
-      order: 30,
     }),
     typeReductionMode: systemEnumerationRule({
       yaml: "РежимСокращенияТипа",
@@ -101,7 +134,6 @@ export const MetadataRegisterDimensionRules = {
       implicitValueYAML: "TransformValues",
       toXML: (source: YAMLPropertySource | unknown, context?: ConfigurationContextWithExportToXML) =>
         exportDimensionDefaultForXML("typeReductionMode", source, context, "MetadataInformationRegister"),
-      order: 31,
     }),
   },
 } as const satisfies MetadataItemRule

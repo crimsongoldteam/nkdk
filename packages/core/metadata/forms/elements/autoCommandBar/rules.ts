@@ -13,6 +13,13 @@ export const AutoCommandBarRules = {
   itemType: "AutoCommandBar",
   enterpriseField: "FormGroup",
   enterpriseFieldType: "FormGroupType.CommandBar",
+  xmlOrder: [
+    "horizontalAlign",
+    "autofill",
+    "childItems",
+    "name",
+    "displayImportance",
+  ],
   properties: {
     name: stringRule({
       xml: "_name",

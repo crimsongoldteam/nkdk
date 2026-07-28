@@ -15,7 +15,7 @@ import type { SingletonNameStyle } from "../../../orchestration/formElement/sing
 import { registerTypeRule } from "../../../orchestration/property/typeRuleRegistry"
 import type { ElementXML } from "../../../orchestration/formElement/types"
 import type { ExportToJSONSchemaFn } from "../../../orchestration"
-import { getConfigurationIndexPropertyOrder } from "../../../configurationIndex/referenceView"
+import { isConfigurationIndexPropertyPresent } from "../../../configurationIndex/referenceView"
 
 export type GanttChartFieldTable = Table
 export type GanttChartFieldTableYAML = TablePartialYAML
@@ -69,13 +69,12 @@ registerTypeRule(
     transformOutput: ({ context, xml, yaml, referenceXML }) => {
       const result: Record<string, unknown> = { ...xml }
       const yamlRecord = asRecord(yaml)
-      const indexedProperties = new Set(getConfigurationIndexPropertyOrder(context))
       for (const propertyKey of ["searchControl", "searchStringRepresentation", "viewStatusRepresentation"] as const) {
         const rule = TableRules.properties[propertyKey]
         if (rule?.yaml === undefined || rule.xml === undefined) continue
         if (Object.prototype.hasOwnProperty.call(yamlRecord ?? {}, rule.yaml)) continue
         if (Object.prototype.hasOwnProperty.call(referenceXML ?? {}, rule.xml)) continue
-        if (indexedProperties.has(propertyKey)) continue
+        if (isConfigurationIndexPropertyPresent(context, propertyKey)) continue
         delete result[rule.xml]
       }
       return result

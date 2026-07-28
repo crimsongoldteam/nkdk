@@ -13,6 +13,14 @@ export const MetadataCommonPictureRules = {
   metadataTargetOwner: { kind: "self", root: "CommonPicture" },
   itemTypePrefix: "ОбщаяКартинка",
   xmlDir: "CommonPictures",
+  xmlOrder: [
+    "name",
+    "synonym",
+    "comment",
+    "availabilityForChoice",
+    "availabilityForAppearance",
+    "uuid",
+  ],
   properties: {
     xmlRoot: xmlRootRule({
       container: "CommonPicture",

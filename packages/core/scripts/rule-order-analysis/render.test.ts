@@ -35,7 +35,6 @@ describe("rule order report rendering", () => {
           exportName: "UnseenRules",
           propertyPath: [],
           declarationOrder: ["name"],
-          numericOrder: {},
         },
       ],
     })

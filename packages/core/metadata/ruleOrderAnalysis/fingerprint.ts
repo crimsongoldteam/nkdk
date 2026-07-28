@@ -30,7 +30,6 @@ function canonicalValue(value: unknown, stack: Set<object>, itemType: string): s
       throw new Error(`Неподдерживаемый объект правила ${itemType}: ${prototype?.constructor?.name ?? "unknown"}`)
     }
     return `{${Object.keys(value)
-      .filter((key) => key !== "order")
       .sort(bytewiseCompare)
       .map(
         (key) => `${JSON.stringify(key)}:${canonicalValue((value as Record<string, unknown>)[key], stack, itemType)}`

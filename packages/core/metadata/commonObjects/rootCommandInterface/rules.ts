@@ -17,6 +17,14 @@ const commandInterfaceRootAttributes = {
 }
 export const RootCommandInterfaceRules = {
   itemType: "RootCommandInterface",
+  xmlOrder: [
+    "commandsVisibility",
+    "commandsPlacement",
+    "commandsOrder",
+    "subsystemsVisibility",
+    "subsystemsOrder",
+    "groupsOrder",
+  ],
   properties: {
     xmlRoot: xmlRootRule({
       container: "CommandInterface",

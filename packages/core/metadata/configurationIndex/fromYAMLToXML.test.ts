@@ -394,13 +394,14 @@ describe("configuration index в едином YAML → XML-обходе", () => 
     })
   })
 
-  it("round-trips the complete XML property order without reference XML", () => {
+  it("uses the rule XML property order without reference XML", () => {
     const contexts = createDirectRoundTripContexts({
       logicalAddress: "Справочник.Товары",
       targetProjectPath: "Справочник/Товары/Свойства.yaml",
     })
     const rule = {
       itemType: "TestDirectItem",
+      xmlOrder: ["internalInfo", "name", "resources"],
       properties: {
         resources: {
           type: "string",

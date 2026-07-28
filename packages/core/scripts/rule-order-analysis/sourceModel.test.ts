@@ -12,7 +12,6 @@ function ruleSource(overrides: Partial<RuleOrderSource> = {}): RuleOrderSource {
     exportName: "Rules",
     propertyPath: [],
     declarationOrder: ["own", "title"],
-    numericOrder: {},
     ...overrides,
   }
 }

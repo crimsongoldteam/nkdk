@@ -14,6 +14,14 @@ export const MetadataBotRules = {
   metadataTargetOwner: { kind: "self", root: "Bot" },
   itemTypePrefix: "Бот",
   xmlDir: "Bots",
+  xmlOrder: [
+    "name",
+    "synonym",
+    "comment",
+    "predefined",
+    "picture",
+    "uuid",
+  ],
   properties: {
     xmlRoot: xmlRootRule({
       container: "Bot",

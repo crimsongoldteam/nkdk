@@ -14,6 +14,11 @@ const homePageWorkAreaRootAttributes = {
 }
 export const HomePageWorkAreaRules = {
   itemType: "HomePageWorkArea",
+  xmlOrder: [
+    "workingAreaTemplate",
+    "leftColumn",
+    "rightColumn",
+  ],
   properties: {
     xmlRoot: xmlRootRule({
       container: "HomePageWorkArea",
@@ -26,27 +31,22 @@ export const HomePageWorkAreaRules = {
     workingAreaTemplate: homePageWorkAreaTemplateRule({
       yaml: "ШаблонРабочейОбласти",
       xml: "WorkingAreaTemplate",
-      order: 10,
     }),
     column: homePageWorkAreaColumnItemsRule({
       yaml: "Колонка",
       xml: "Column",
-      order: 20,
     }),
     leftColumn: homePageWorkAreaColumnItemsRule({
       yaml: "ЛеваяКолонка",
       xml: "LeftColumn",
-      order: 30,
     }),
     rightColumn: homePageWorkAreaColumnItemsRule({
       yaml: "ПраваяКолонка",
       xml: "RightColumn",
-      order: 40,
     }),
     maCommandInterfaceDisplays: homePageWorkAreaCommandInterfaceDisplayRule({
       yaml: "ОтображениеКомандногоИнтерфейса",
       xml: "MACommandInterfaceDisplays",
-      order: 50,
     }),
   },
 } as const satisfies MetadataItemRule

@@ -44,6 +44,5 @@ function source(candidate: string): RuleOrderSource {
     exportName: "Rules",
     propertyPath: [],
     declarationOrder: ["name"],
-    numericOrder: {},
   }
 }

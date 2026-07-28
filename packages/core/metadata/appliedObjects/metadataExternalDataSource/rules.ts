@@ -23,6 +23,17 @@ export const MetadataExternalDataSourceRules = {
   metadataTargetOwner: { kind: "self", root: "ExternalDataSource" },
   itemTypePrefix: "ВнешнийИсточникДанных",
   xmlDir: "ExternalDataSources",
+  xmlOrder: [
+    "internalInfo",
+    "name",
+    "synonym",
+    "comment",
+    "dataLockControlMode",
+    "tables",
+    "cubes",
+    "functions",
+    "uuid",
+  ],
   properties: {
     xmlRoot: xmlRootRule({
       container: "ExternalDataSource",

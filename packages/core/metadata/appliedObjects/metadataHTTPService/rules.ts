@@ -15,6 +15,16 @@ export const MetadataHTTPServiceRules = {
   metadataTargetOwner: { kind: "self", root: "HTTPService" },
   itemTypePrefix: "HTTPСервис",
   xmlDir: "HTTPServices",
+  xmlOrder: [
+    "name",
+    "synonym",
+    "comment",
+    "rootURL",
+    "reuseSessions",
+    "sessionMaxAge",
+    "urlTemplates",
+    "uuid",
+  ],
   properties: {
     xmlRoot: xmlRootRule({
       container: "HTTPService",

@@ -13,7 +13,7 @@ import {
 import type { ConfigurationIndexCollector } from "../../configurationIndex/collector/writer"
 import type { ConfigurationContextFromXML } from "../../context/types"
 import { buildExternalFileEntry } from "../../forms/commonObjects/dynamicList/externalFile"
-import { getValueOrDefault, shouldProcessProperty } from "./helpers"
+import { getValueOrDefault, presenceAffectsExport, shouldProcessProperty } from "./helpers"
 import type {
   DeferredRulePathSegment,
   DirectImportProfile,
@@ -74,6 +74,7 @@ export function importPropertiesFromXMLToYAML(params: {
       collector: ConfigurationIndexCollector
       keys: string[]
       seen: Set<string>
+      present: Set<string>
       sourceXmlPath?: string
       logicalAddress: string
     }
@@ -116,9 +117,10 @@ export function importPropertiesFromXMLToYAML(params: {
     xmlPath: readonly string[] | undefined
     sourceXMLValue: unknown
     presentInXML: boolean
+    ambiguousXMLKey: boolean
   }): void => {
     if (params.profile !== undefined) params.profile.propertyCount++
-    const { sourceState, entry, sourceXMLKey, xmlPath, sourceXMLValue, presentInXML } = match
+    const { sourceState, entry, sourceXMLKey, xmlPath, sourceXMLValue, presentInXML, ambiguousXMLKey } = match
     const { propertyKey: key, rule: propertyRule } = entry
     const nestedRule = getTypeRule(propertyRule.type, "yamlToXMLNestedRule")
     const nestedConfigurationIndexAddressing =
@@ -153,6 +155,7 @@ export function importPropertiesFromXMLToYAML(params: {
         collector: indexCollection.collector,
         keys: [],
         seen: new Set<string>(),
+        present: new Set<string>(),
         sourceXmlPath: source.sourceXmlPath ?? params.sourceXmlPath,
         logicalAddress: indexCollection.logicalAddress,
       }
@@ -163,6 +166,16 @@ export function importPropertiesFromXMLToYAML(params: {
       observedOrderByXmlNode.set(xmlNodeLogicalAddress!, observation)
       if (sourceXMLKey !== undefined && sourceXMLKey !== entry.canonicalXMLKey)
         indexCollection.collector.setAlias(xmlNodeLogicalAddress!, key, sourceXMLKey)
+      if (
+        !ambiguousXMLKey ||
+        presenceAffectsExport({
+          rule: propertyRule,
+          sourceXmlValue: sourceXMLValue,
+          typeBehavior: getTypeRule(propertyRule.type, "xmlImportPropertyBehavior"),
+        })
+      ) {
+        observation.present.add(key)
+      }
       addProfileTime(params.profile, "configurationIndexMs", indexStartedAt)
     }
 
@@ -406,6 +419,27 @@ export function importPropertiesFromXMLToYAML(params: {
           propertyLogicalAddress ?? `${indexCollection.logicalAddress}.${key}`
         )
       }
+      if (
+        indexCollection !== undefined &&
+        presentInXML &&
+        ((Object.prototype.hasOwnProperty.call(propertyRule, "implicitValueYAML") &&
+          typeof propertyRule.implicitValueYAML !== "function" &&
+          (Object.is(yamlValue, propertyRule.implicitValueYAML) ||
+            (yamlValue === undefined && Object.is(value, propertyRule.implicitValueYAML)))) ||
+          (Object.prototype.hasOwnProperty.call(propertyRule, "defaultValue") &&
+            Object.is(
+              value,
+              getValueOrDefault({
+                context: sourceContext,
+                rule: propertyRule,
+                value: undefined,
+                name: key,
+                operation: "importFromXML",
+              })
+            )))
+      ) {
+        observedOrderByXmlNode.get(xmlNodeLogicalAddress!)?.present.add(key)
+      }
       if (propertyRule.externalFile && propertyRule.toYAML !== false) {
         const outputStartedAt = performance.now()
         const parentName = sourceContext.exportToYAML?.parent?.name
@@ -475,6 +509,7 @@ export function importPropertiesFromXMLToYAML(params: {
           xmlPath: match.xmlPath,
           sourceXMLValue: match.xmlValue,
           presentInXML: true,
+          ambiguousXMLKey: match.ambiguousXMLKey,
         })
         conversionMs += performance.now() - conversionStartedAt
       },
@@ -498,6 +533,7 @@ export function importPropertiesFromXMLToYAML(params: {
         xmlPath: [entry.canonicalXMLKey],
         sourceXMLValue,
         presentInXML: true,
+        ambiguousXMLKey: false,
       })
       conversionMs += performance.now() - conversionStartedAt
     }
@@ -517,6 +553,7 @@ export function importPropertiesFromXMLToYAML(params: {
         xmlPath: undefined,
         sourceXMLValue: undefined,
         presentInXML: false,
+        ambiguousXMLKey: false,
       })
       conversionMs += performance.now() - conversionStartedAt
     }
@@ -539,7 +576,9 @@ export function importPropertiesFromXMLToYAML(params: {
     }
     const indexStartedAt = performance.now()
     for (const propertyKey of Object.keys(rule.properties)) {
-      if (observation.seen.has(propertyKey)) observation.collector.setPresent(xmlNodeLogicalAddress, propertyKey)
+      if (observation.present.has(propertyKey)) {
+        observation.collector.setPresent(xmlNodeLogicalAddress, propertyKey)
+      }
     }
     addProfileTime(params.profile, "configurationIndexMs", indexStartedAt)
   }

@@ -161,7 +161,6 @@ function sourceFor(
     exportName: exported.exportName,
     propertyPath,
     declarationOrder: Object.keys(exportedRuleAtPath(exported.rule, propertyPath).properties),
-    numericOrder: numericOrder(exportedRuleAtPath(exported.rule, propertyPath)),
   }
 }
 
@@ -173,14 +172,6 @@ function exportedRuleAtPath(rule: MetadataItemRule, propertyPath: readonly strin
   }
   if (!isMetadataItemRule(current)) throw new Error(`Путь не указывает на MetadataItemRule: ${propertyPath}`)
   return current
-}
-
-function numericOrder(rule: MetadataItemRule): Readonly<Record<string, number>> {
-  const result: Record<string, number> = {}
-  for (const [key, propertyRule] of Object.entries(rule.properties)) {
-    if (typeof propertyRule.order === "number") result[key] = propertyRule.order
-  }
-  return result
 }
 
 function isMetadataItemRule(value: unknown): value is MetadataItemRule {

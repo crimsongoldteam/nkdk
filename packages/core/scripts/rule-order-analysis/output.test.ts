@@ -22,7 +22,6 @@ describe("rule order output", () => {
         exportName: "Rules",
         propertyPath: [],
         declarationOrder: ["name", "use"],
-        numericOrder: {},
       },
       itemType: "A",
       fields: ["name"],

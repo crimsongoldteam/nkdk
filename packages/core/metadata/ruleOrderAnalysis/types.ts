@@ -6,7 +6,6 @@ export interface RuleOrderSource {
   exportName: string
   propertyPath: readonly string[]
   declarationOrder: readonly string[]
-  numericOrder: Readonly<Record<string, number>>
 }
 
 export interface RuleOrderObservation {

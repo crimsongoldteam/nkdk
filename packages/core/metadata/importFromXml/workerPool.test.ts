@@ -411,7 +411,6 @@ function createFakePools() {
                   exportName: item.id,
                   propertyPath: [],
                   declarationOrder: ["name"],
-                  numericOrder: {},
                 },
                 itemType: item.itemType,
                 fields: ["name"],

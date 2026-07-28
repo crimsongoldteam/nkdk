@@ -109,6 +109,15 @@ export const MetadataFunctionalOptionRules = {
   metadataTargetOwner: { kind: "self", root: "FunctionalOption" },
   itemTypePrefix: "ФункциональнаяОпция",
   xmlDir: "FunctionalOptions",
+  xmlOrder: [
+    "name",
+    "synonym",
+    "comment",
+    "location",
+    "privilegedGetMode",
+    "content",
+    "uuid",
+  ],
   properties: {
     xmlRoot: xmlRootRule({
       container: "FunctionalOption",

@@ -46,6 +46,9 @@ const ChartOfCalculationTypesPredefinedItemRules = {
 
 export const ChartOfCalculationTypesPredefinedRules = {
   ...PredefinedRules,
+  xmlOrder: [
+    "items",
+  ],
   properties: {
     ...PredefinedRules.properties,
     items: {

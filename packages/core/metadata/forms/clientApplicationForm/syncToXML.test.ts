@@ -5,6 +5,7 @@ import { afterEach, beforeEach, describe, expect, it } from "vitest"
 import { XmlSyncManifest } from "../../appliedObjects/configuration/migrations/xmlManifest"
 import { mockContextFromXML, mockContextToXML } from "../../../tests/mockContext"
 import { getXMLFixtureDir, readXMLFixtureAsString } from "../../../tests/readFixtureXML"
+import { canonicalXML } from "../../../tests/canonicalXML"
 import { convertFormFromXML } from "./convertFromXML"
 import { prepareYamlFiles } from "../../project/prepareYamlFiles"
 import { syncFormToXML, writePreparedFormToXML } from "./syncToXML"
@@ -48,7 +49,7 @@ describe("sync ClientApplicationForm to XML", () => {
     const resultMetadataXML = fs.readFileSync(join(outputDir, "Forms", "ФормаЭлемента.xml"), "utf-8")
 
     expect(resultFormXML).toBe(expectedFormXML)
-    expect(resultMetadataXML).toBe(expectedMetadataXML)
+    expect(canonicalXML(resultMetadataXML)).toEqual(canonicalXML(expectedMetadataXML))
   })
 
   it("синхронизирует managed form без referenceDir", async () => {

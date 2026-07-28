@@ -1273,12 +1273,9 @@ function usesOrdinaryXMLDefaults(
 function isConfigurationIndexPropertyPresentForRule(
   context: ConfigurationContextWithExportToXML,
   propertyKey: string,
-  rule: PropertyRule
+  _rule: PropertyRule
 ): boolean {
-  if (rule.configurationIndexPresenceFromOrder !== false) {
-    return isConfigurationIndexPropertyPresent(context, propertyKey)
-  }
-  return context.exportToXML.configurationIndex?.xmlNode()?.present?.includes(propertyKey) === true
+  return isConfigurationIndexPropertyPresent(context, propertyKey)
 }
 
 function isIndexedXMLDefaultVariant(

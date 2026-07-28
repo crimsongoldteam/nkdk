@@ -3,6 +3,9 @@ import { MetadataItemRule } from "../../../../../orchestration"
 export const GroupItemAutoRules = {
   itemType: "GroupItemAuto",
   xsiType: "dcsset:GroupItemAuto",
+  xmlOrder: [
+    "use",
+  ],
   properties: {
     use: booleanRule({
       xml: "dcsset:use",

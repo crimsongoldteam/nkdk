@@ -12,6 +12,13 @@ export const MetadataFunctionalOptionsParameterRules = {
   metadataTargetOwner: { kind: "self", root: "FunctionalOptionsParameter" },
   itemTypePrefix: "ПараметрФункциональныхОпций",
   xmlDir: "FunctionalOptionsParameters",
+  xmlOrder: [
+    "name",
+    "synonym",
+    "comment",
+    "use",
+    "uuid",
+  ],
   properties: {
     xmlRoot: xmlRootRule({
       container: "FunctionalOptionsParameter",

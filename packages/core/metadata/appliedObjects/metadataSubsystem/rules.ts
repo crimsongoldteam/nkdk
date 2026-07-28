@@ -68,6 +68,21 @@ export const MetadataSubsystemRules = {
   metadataTargetOwner: { kind: "self", root: "Subsystem" },
   itemTypePrefix: "Подсистема",
   xmlDir: "Subsystems",
+  xmlOrder: [
+    "name",
+    "synonym",
+    "comment",
+    "includeHelpInContents",
+    "includeInCommandInterface",
+    "useOneCommand",
+    "explanation",
+    "picture",
+    "content",
+    "subsystems",
+    "uuid",
+    "commandInterface",
+    "help",
+  ],
   properties: {
     xmlRoot: xmlRootRule({
       container: "Subsystem",

@@ -13,25 +13,21 @@ export const ConditionalAppearanceItemRules = {
       xml: "dcsset:use",
       yaml: "Использование",
       implicitValueYAML: true,
-      order: 0,
     }),
     fields: availableFieldsRule({
       xml: "dcsset:selection",
       yaml: "Поля",
-      order: 1,
       defaultValueXMLRaw: {},
     }),
     filter: filterRule({
       xml: "dcsset:filter",
       yaml: "Отбор",
-      order: 2,
       defaultValueXMLRaw: {},
     }),
     appearance: appearanceFieldsRule({
       xml: "dcsset:appearance",
       yaml: "Оформление",
       defaultValueXMLRaw: {},
-      order: 3,
     }),
     presentation: dcsLocalStringTypeRule({
       xml: "dcsset:presentation",

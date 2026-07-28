@@ -8,6 +8,12 @@ const conditionalAppearanceViewModeDefaultValue = ({ operation }: { operation: T
   operation === "importFromYAML" ? undefined : "QuickAccess"
 export const ConditionalAppearanceRules = {
   itemType: "ConditionalAppearance",
+  xmlOrder: [
+    "conditionalAppearanceItems",
+    "viewMode",
+    "userSettingID",
+    "userSettingPresentation",
+  ],
   properties: {
     conditionalAppearanceItems: conditionalAppearanceItemsRule({
       xml: "dcsset:item",

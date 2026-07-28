@@ -14,7 +14,6 @@ const observation = (fields: string[], configuration: string): RuleOrderObservat
     exportName: "Rule",
     propertyPath: [],
     declarationOrder: ["name", "use", "indexing", "a", "b", "c"],
-    numericOrder: {},
   },
   itemType: "TestItem",
   fields,

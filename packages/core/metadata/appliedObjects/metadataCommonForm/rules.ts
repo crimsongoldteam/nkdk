@@ -17,6 +17,20 @@ export const MetadataCommonFormRules = {
   metadataTargetOwner: { kind: "self", root: "CommonForm" },
   itemTypePrefix: "ОбщаяФорма",
   xmlDir: "CommonForms",
+  xmlOrder: [
+    "name",
+    "synonym",
+    "comment",
+    "formType",
+    "includeHelpInContents",
+    "usePurposes",
+    "useStandardCommands",
+    "extendedPresentation",
+    "explanation",
+    "uuid",
+    "form",
+    "help",
+  ],
   properties: {
     xmlRoot: xmlRootRule({
       container: "CommonForm",

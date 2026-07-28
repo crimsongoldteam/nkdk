@@ -16,6 +16,18 @@ export const MetadataWebServiceRules = {
   metadataTargetOwner: { kind: "self", root: "WebService" },
   itemTypePrefix: "WebСервис",
   xmlDir: "WebServices",
+  xmlOrder: [
+    "name",
+    "synonym",
+    "comment",
+    "namespace",
+    "xdtoPackages",
+    "descriptorFileName",
+    "reuseSessions",
+    "sessionMaxAge",
+    "operations",
+    "uuid",
+  ],
   properties: {
     xmlRoot: xmlRootRule({
       container: "WebService",

@@ -12,6 +12,16 @@ export const MetadataCommandGroupRules = {
   metadataTargetOwner: { kind: "self", root: "CommandGroup" },
   itemTypePrefix: "ГруппаКоманд",
   xmlDir: "CommandGroups",
+  xmlOrder: [
+    "name",
+    "synonym",
+    "comment",
+    "representation",
+    "toolTip",
+    "picture",
+    "category",
+    "uuid",
+  ],
   properties: {
     xmlRoot: xmlRootRule({
       container: "CommandGroup",

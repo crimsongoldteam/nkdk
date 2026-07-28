@@ -2,16 +2,18 @@ import { describe, expect, it } from "vitest"
 import { fingerprintMetadataItemRule } from "./fingerprint"
 
 describe("fingerprintMetadataItemRule", () => {
-  it("ignores order recursively", () => {
+  it("учитывает xmlOrder", () => {
     expect(
       fingerprintMetadataItemRule({
         itemType: "TestItem" as never,
-        properties: { name: { type: "string", order: 1 } },
+        xmlOrder: ["name", "value"],
+        properties: { name: { type: "string" }, value: { type: "string" } },
       })
-    ).toBe(
+    ).not.toBe(
       fingerprintMetadataItemRule({
         itemType: "TestItem" as never,
-        properties: { name: { type: "string", order: 99 } },
+        xmlOrder: ["value", "name"],
+        properties: { name: { type: "string" }, value: { type: "string" } },
       })
     )
   })

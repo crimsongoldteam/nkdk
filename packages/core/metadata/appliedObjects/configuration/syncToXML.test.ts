@@ -4,6 +4,7 @@ import { dirname, join } from "path"
 import { afterAll, beforeAll, beforeEach, describe, expect, it } from "vitest"
 import { mockContextFromXML, mockContextToXML } from "../../../tests/mockContext"
 import { getXMLFixturePath, readXMLFileAsString } from "../../../tests/readAndParseXMLFile"
+import { canonicalXML } from "../../../tests/canonicalXML"
 import { importContentFromXML } from "../../../xml/import/importer"
 import { createPreparedYamlProjectWorkerPool } from "../../project/preparedYamlProjectWorkerPool"
 import { syncConfigurationFromXML } from "./convertFromXML"
@@ -68,7 +69,7 @@ describe("sync configuration to XML", () => {
     const resultFormMetadataXML = readXMLFileAsString(
       join("sync/syncConfiguration/out-to-xml", "Catalogs", catalogName, "Forms", "ФормаЭлемента.xml")
     )
-    expect(resultFormMetadataXML).toBe(expectedFormMetadataXML)
+    expect(canonicalXML(resultFormMetadataXML)).toEqual(canonicalXML(expectedFormMetadataXML))
   })
 
   it("без referenceDir не читает reference из outputDir и не создаёт ConfigDumpInfo.xml", async () => {

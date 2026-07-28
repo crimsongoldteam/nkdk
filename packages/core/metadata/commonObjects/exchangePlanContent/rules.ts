@@ -23,6 +23,9 @@ export const ExchangePlanContentItemRules = {
 } as const satisfies MetadataItemRule
 export const ExchangePlanContentRules = {
   itemType: "ExchangePlanContent",
+  xmlOrder: [
+    "items",
+  ],
   properties: {
     xmlRoot: xmlRootRule({
       container: "ExchangePlanContent",
