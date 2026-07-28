@@ -246,6 +246,8 @@ export function importPropertiesFromXMLToYAML(params: {
             collector,
             deferred,
             profile: params.profile,
+            ruleOrderCollector: params.ruleOrderCollector,
+            sourceXmlPath: source.sourceXmlPath ?? params.sourceXmlPath,
           },
           nested.itemRule.itemType
         )
@@ -328,6 +330,8 @@ export function importPropertiesFromXMLToYAML(params: {
                 collector,
                 deferred,
                 profile: params.profile,
+                ruleOrderCollector: params.ruleOrderCollector,
+                sourceXmlPath: source.sourceXmlPath ?? params.sourceXmlPath,
               },
             }),
           { configurationIndexAddressing: nestedConfigurationIndexAddressing }
