@@ -16,6 +16,7 @@ import { sampleIndex } from "./testData"
 
 import "../commonObjects/metadataValue/toXML"
 import "../commonObjects/metadataValue/fromXML"
+import "../commonObjects/dataCompositionSystem/conditionalAppearance/types"
 import "../commonObjects/boolean/fromXML"
 import "../commonObjects/boolean/fromYAML"
 import "../commonObjects/boolean/toYAML"
@@ -29,6 +30,7 @@ import "../commonObjects/userSettingsID/toXML"
 import "../commonObjects/uuid/fromXML"
 import "../systemEnumerations/fromXML"
 import "../systemEnumerations/fromYAML"
+import "../systemEnumerations/toXML"
 import "../systemEnumerations/toYAML"
 
 function contextWithIndex(xmlValues = sampleIndex().xmlValues): {
@@ -125,6 +127,45 @@ describe("configuration index в едином YAML → XML-обходе", () => 
 
     expect(imported.yaml).toEqual({})
     expect(exported.xml).toEqual({ Mode: "Auto" })
+  })
+
+  it("не заменяет явно заданный Normal на XML-default QuickAccess", () => {
+    const contexts = createDirectRoundTripContexts()
+    const rule = {
+      itemType: "DynamicListProbe",
+      properties: {
+        conditionalAppearance: {
+          type: "ConditionalAppearance",
+          xml: "dcsset:conditionalAppearance",
+          yaml: "УсловноеОформление",
+          configurationIndexAddressing: "yamlPath",
+        },
+      },
+    } as const satisfies MetadataItemRule
+    const source = {
+      "dcsset:conditionalAppearance": {
+        "dcsset:viewMode": "Normal",
+        "dcsset:userSettingID": "b75fecce-942b-4aed-abc9-e6a02e460fb3",
+      },
+    }
+
+    const imported = testPropertyFromXMLToYAML({
+      context: contexts.importContext,
+      rule,
+      xml: source,
+    })
+    const exported = testPropertyFromYAMLToXML({
+      context: contexts.exportContext(),
+      rule,
+      yaml: imported.yaml,
+    })
+
+    expect(imported.yaml).toEqual({
+      УсловноеОформление: {
+        ИспользоватьПользовательскуюНастройку: "b75fecce-942b-4aed-abc9-e6a02e460fb3",
+      },
+    })
+    expect(exported.xml).toEqual(source)
   })
 
   it("восстанавливает явно заданное логическое XML-значение из implicitValueYAML", () => {

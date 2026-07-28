@@ -69,7 +69,9 @@ export function collectConfigurationIndexPropertyFromXML(params: {
     collection.collector.setExplicitEmpty(address)
   }
   const ambiguousScalar = ambiguousImplicitScalarXMLValue(params.rule, params.xmlValue)
-  if (ambiguousScalar !== undefined) collection.collector.setXmlText(address, ambiguousScalar)
+  if (ambiguousScalar !== undefined) {
+    collection.collector.setXmlText(`${collection.logicalAddress}.${params.propertyKey}`, ambiguousScalar)
+  }
 }
 
 export function collectConfigurationIndexImportedValue(params: {
