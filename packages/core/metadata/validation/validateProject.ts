@@ -2,10 +2,7 @@ import { availableParallelism } from "node:os"
 import { performance } from "node:perf_hooks"
 import { isAbsolute, join, relative, resolve, sep } from "path"
 import type { ConfigurationContext } from "../context/types"
-import {
-  discoverPreparedYamlProjectFiles,
-  discoverPreparedYamlValidationProjectFiles,
-} from "../project/preparedYamlProject"
+import { discoverPreparedYamlValidationProjectFiles } from "../project/preparedYamlProject"
 import {
   createPreparedYamlProjectWorkerPool,
   type PreparedWorkerPool,
@@ -113,10 +110,7 @@ async function validateProjectWithPreparedYaml(
   try {
     const prepareStartedAt = performance.now()
     const componentDiscovery = await discoverValidationProjectComponents(projectDir)
-    const usesComponentLayout = componentDiscovery.components.length > 0
-    const files = usesComponentLayout
-      ? await discoverPreparedYamlValidationProjectFiles(projectDir)
-      : await discoverPreparedYamlProjectFiles(projectDir)
+    const files = await discoverPreparedYamlValidationProjectFiles(componentDiscovery.components)
     const prepareMs = performance.now() - prepareStartedAt
 
     fileCount = files.length
@@ -139,10 +133,8 @@ async function validateProjectWithPreparedYaml(
     const first = await pool.runValidationFirstPass({ projectDir, context, files })
     firstPassMs = performance.now() - firstPassStartedAt
     const firstPassReadiness = evaluateProjectFirstPass({
-      hasConfiguration: usesComponentLayout ? componentDiscovery.hasConfiguration : true,
-      componentPaths: usesComponentLayout
-        ? componentDiscovery.components.map(({ componentPath }) => componentPath)
-        : ["cf"],
+      hasConfiguration: componentDiscovery.hasConfiguration,
+      componentPaths: componentDiscovery.components.map(({ componentPath }) => componentPath),
       firstPass: first,
     })
     const firstPassRecordCount = first.components.reduce(
@@ -169,7 +161,6 @@ async function validateProjectWithPreparedYaml(
     const degradationDiagnostics = createDegradationDiagnostics({
       projectDir,
       hasConfiguration: componentDiscovery.hasConfiguration,
-      usesComponentLayout,
       blockedComponentPaths: firstPassReadiness.blockedExtensionPaths,
     })
     const diagnostics = profiler.measure(
@@ -306,7 +297,6 @@ export function toRootProjectDiagnostic(projectDir: string, diagnostic: Diagnost
 function createDegradationDiagnostics(params: {
   projectDir: string
   hasConfiguration: boolean
-  usesComponentLayout: boolean
   blockedComponentPaths: readonly string[]
 }): Diagnostic[] {
   const diagnostics = params.blockedComponentPaths.map(
@@ -319,7 +309,7 @@ function createDegradationDiagnostics(params: {
       message: "Семантическая валидация расширения невозможна из-за ошибок базовой конфигурации",
     })
   )
-  if (params.usesComponentLayout && !params.hasConfiguration) {
+  if (!params.hasConfiguration) {
     diagnostics.push({
       filePath: join(params.projectDir, "cf", "Конфигурация.yaml"),
       line: 1,

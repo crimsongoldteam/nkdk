@@ -6,6 +6,7 @@ import {
   getProjectValidationReadCountForTests,
   resetProjectValidationReadCountForTests,
 } from "../validation/projectValidationPasses"
+import { discoverValidationProjectComponents } from "../validation/projectComponents"
 import { createProjectYamlCacheFromPreparedFiles } from "../validation/projectYamlCache"
 import { discoverPreparedYamlValidationProjectFiles, prepareYamlProjectWithPool } from "./preparedYamlProject"
 import type { PreparedYamlProjectWorkerTask } from "./preparedYamlProjectWorker"
@@ -84,11 +85,11 @@ describe("prepareYamlProject", () => {
     mkdirSync(join(projectDir, "cfe", "Продажи"), { recursive: true })
     writeFileSync(join(projectDir, "cf", "Справочник", "Товары", "Свойства.yaml"), "")
     writeFileSync(join(projectDir, "cfe", "Продажи", "Конфигурация.yaml"), "")
+    const discovery = await discoverValidationProjectComponents(projectDir)
 
-    expect((await discoverPreparedYamlValidationProjectFiles(projectDir)).map((file) => file.rootProjectPath)).toEqual([
-      "cf/Справочник/Товары/Свойства.yaml",
-      "cfe/Продажи/Конфигурация.yaml",
-    ])
+    expect(
+      (await discoverPreparedYamlValidationProjectFiles(discovery.components)).map((file) => file.rootProjectPath)
+    ).toEqual(["cf/Справочник/Товары/Свойства.yaml", "cfe/Продажи/Конфигурация.yaml"])
   })
 
   it(

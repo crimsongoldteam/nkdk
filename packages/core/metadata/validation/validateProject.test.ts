@@ -142,7 +142,7 @@ describe("validateProject", { timeout: 120_000 }, () => {
 
   it("uses worker validation for a full project below the old file threshold", async () => {
     const projectDir = createProject()
-    const filePath = join(projectDir, "Справочник", "Товары", "Свойства.yaml")
+    const filePath = absoluteProjectFilePathForTest(projectDir, "Справочник/Товары/Свойства.yaml")
     writeProjectFile(projectDir, "Справочник/Товары/Свойства.yaml", "{}\n")
     resetProjectValidationReadCountForTests()
 
@@ -164,7 +164,7 @@ describe("validateProject", { timeout: 120_000 }, () => {
     for (const projectPath of projectPaths.slice(1)) {
       writeProjectFile(projectDir, projectPath, "НесуществующееПоле: true\n")
     }
-    const filePaths = projectPaths.map((projectPath) => join(projectDir, ...projectPath.split("/")))
+    const filePaths = projectPaths.map((projectPath) => absoluteProjectFilePathForTest(projectDir, projectPath))
     resetProjectValidationReadCountForTests()
 
     const result = await validateProject({ projectDir, context: mockContext, concurrency: 2 })
@@ -374,6 +374,54 @@ describe("validateProject", { timeout: 120_000 }, () => {
     expect(messagesFor(diagnostics, projectDir, "cfe/B")).toContain('Не найден объект "Справочник.НетВB"')
     expect(blockingDiagnosticsFor(diagnostics, projectDir, "cfe/A")).toHaveLength(0)
     expect(blockingDiagnosticsFor(diagnostics, projectDir, "cfe/B")).toHaveLength(0)
+  })
+
+  it("reports missing cf for an empty project root", async () => {
+    const projectDir = createProject()
+
+    const diagnostics = (await validateProject({ projectDir, context: mockContext, concurrency: 1 })).diagnostics
+
+    expect(diagnostics).toContainEqual({
+      filePath: "cf/Конфигурация.yaml",
+      line: 1,
+      col: 1,
+      severity: "error",
+      source: "structure",
+      message: "Базовая конфигурация cf не найдена",
+    })
+  })
+
+  it("reports missing cf when the project contains an empty cfe directory", async () => {
+    const projectDir = createProject()
+    mkdirSync(join(projectDir, "cfe"), { recursive: true })
+
+    const diagnostics = (await validateProject({ projectDir, context: mockContext, concurrency: 1 })).diagnostics
+
+    expect(diagnostics).toContainEqual({
+      filePath: "cf/Конфигурация.yaml",
+      line: 1,
+      col: 1,
+      severity: "error",
+      source: "structure",
+      message: "Базовая конфигурация cf не найдена",
+    })
+  })
+
+  it("reports missing cf when the project contains only erf and epf", async () => {
+    const projectDir = createProject()
+    mkdirSync(join(projectDir, "erf", "Отчёт"), { recursive: true })
+    mkdirSync(join(projectDir, "epf", "Обработка"), { recursive: true })
+
+    const diagnostics = (await validateProject({ projectDir, context: mockContext, concurrency: 1 })).diagnostics
+
+    expect(diagnostics).toContainEqual({
+      filePath: "cf/Конфигурация.yaml",
+      line: 1,
+      col: 1,
+      severity: "error",
+      source: "structure",
+      message: "Базовая конфигурация cf не найдена",
+    })
   })
 
   it("keeps every extension schema error and blocks each extension when cf is absent", async () => {
@@ -1480,7 +1528,7 @@ describe("validateProject", { timeout: 120_000 }, () => {
 
     await validateProject({ projectDir, context: mockContext, concurrency: 1 })
 
-    const ownerPath = join(projectDir, "Справочник", "Номенклатура", "Свойства.yaml")
+    const ownerPath = absoluteProjectFilePathForTest(projectDir, "Справочник/Номенклатура/Свойства.yaml")
     expect(getProjectValidationReadCountForTests(ownerPath)).toBe(0)
   })
 
@@ -1492,10 +1540,14 @@ describe("validateProject", { timeout: 120_000 }, () => {
     resetProjectValidationReadCountForTests()
     await validateProject({ projectDir, context: mockContext, concurrency: 1 })
 
-    expect(getProjectValidationReadCountForTests(join(projectDir, "Справочник", "Товары", "Свойства.yaml"))).toBe(0)
     expect(
       getProjectValidationReadCountForTests(
-        join(projectDir, "Справочник", "Товары", "Формы", "ФормаЭлемента", "Форма.yaml")
+        absoluteProjectFilePathForTest(projectDir, "Справочник/Товары/Свойства.yaml")
+      )
+    ).toBe(0)
+    expect(
+      getProjectValidationReadCountForTests(
+        absoluteProjectFilePathForTest(projectDir, "Справочник/Товары/Формы/ФормаЭлемента/Форма.yaml")
       )
     ).toBe(0)
   })
@@ -1554,9 +1606,14 @@ function minimalTopLevelPropertiesYAML(dir: string): string {
 }
 
 function writeProjectFile(projectDir: string, projectPath: string, lines: string[] | string): void {
-  const filePath = join(projectDir, ...projectPath.split("/"))
+  const filePath = absoluteProjectFilePathForTest(projectDir, projectPath)
   mkdirSync(resolve(filePath, ".."), { recursive: true })
   writeFileSync(filePath, Array.isArray(lines) ? `${lines.join("\n")}\n` : lines)
+}
+
+function absoluteProjectFilePathForTest(projectDir: string, projectPath: string): string {
+  const rootProjectPath = /^(?:cf|cfe\/[^/]+)\//.test(projectPath) ? projectPath : `cf/${projectPath}`
+  return join(projectDir, ...rootProjectPath.split("/"))
 }
 
 function catalogFormWithDataPaths(dataPaths: readonly string[]): string[] {

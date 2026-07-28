@@ -1,6 +1,7 @@
 import { resolve } from "node:path"
 import type { ConfigurationContext } from "../context/types"
 import { createValidationProfiler } from "../validation/profile"
+import type { ValidationProjectComponent } from "../validation/projectComponents"
 import type { Diagnostic } from "../validation/types"
 import {
   createPreparedYamlProjectWorkerPool,
@@ -11,7 +12,6 @@ import {
   type MetadataProjectResourceInclude,
   type MetadataProjectResourceRef,
 } from "./resources"
-import { discoverValidationProjectComponents } from "../validation/projectComponents"
 
 export interface PreparedYamlProject {
   projectDir: string
@@ -186,11 +186,10 @@ export async function discoverPreparedYamlProjectFiles(
 }
 
 export async function discoverPreparedYamlValidationProjectFiles(
-  projectDir: string
+  components: readonly ValidationProjectComponent[]
 ): Promise<PreparedYamlProjectFileDescriptor[]> {
-  const components = await discoverValidationProjectComponents(projectDir)
   const files = await Promise.all(
-    components.components.map(async (component) => {
+    components.map(async (component) => {
       const resources = await discoverMetadataProjectResources(component.componentDir, { include: "yaml" }, component)
       return resources
         .filter((resource) => resource.absolutePath !== undefined && resource.kind === "yaml")
