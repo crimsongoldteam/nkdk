@@ -313,6 +313,68 @@ describe("client application BaseForm", () => {
     ).not.toHaveProperty("Parameter")
   })
 
+  it("does not treat the tree element kind as the XML button type", () => {
+    const buttonAddress = childUid(
+      formAddress,
+      "Элемент",
+      "Кнопка"
+    )
+    const baseIndex = reader({
+      componentPath: "cf",
+      identities: [xmlId(buttonAddress, "1")],
+      xmlNodes: [{
+        logicalAddress: buttonAddress,
+        order: ["type", "name"],
+      }],
+    })
+    const extensionIndex = reader({
+      componentPath: "cfe/Расширение",
+      identities: [xmlId(buttonAddress, "1")],
+      xmlNodes: [{
+        logicalAddress: buttonAddress,
+        order: ["name"],
+      }],
+    })
+    const baseContext = mockContextToXML()
+    const context = {
+      ...baseContext,
+      exportToXML: {
+        ...baseContext.exportToXML,
+        configurationIndex: createConfigurationIndexExportRuntime({
+          source: extensionIndex,
+          collector: createConfigurationIndexCollector(),
+          targetProjectPath:
+            "Справочник/Товары/Формы/ФормаЭлемента/Форма.yaml",
+          logicalAddress: formAddress,
+        }),
+      },
+    }
+
+    const baseForm = buildClientApplicationBaseForm({
+      context,
+      baseIndex,
+      baseYaml: {
+        Элементы: {
+          Кнопка: {
+            Вид: "Кнопка",
+            ТипКнопки: "ОбычнаяКнопка",
+          },
+        },
+      } as ClientApplicationFormYAML,
+      extensionYaml: {
+        Элементы: {
+          Кнопка: {
+            Вид: "Кнопка",
+          },
+        },
+      } as ClientApplicationFormYAML,
+      formName: "ФормаЭлемента",
+    })
+
+    expect(asChildItemArray(baseForm.ChildItems)[0]?.Button)
+      .not.toHaveProperty("Type")
+  })
+
   it("uses cf element state and cfe identities only for explicitly borrowed components", () => {
     const baseYaml = {
       Реквизиты: {

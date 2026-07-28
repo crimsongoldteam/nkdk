@@ -26,6 +26,7 @@ import type {
   MetadataItemRule,
   PropertyRule,
 } from "../../orchestration/property/types"
+import { getTypeRule } from "../../orchestration/property/typeRuleRegistry"
 
 export function buildClientApplicationBaseForm(params: {
   readonly context: ConfigurationContextWithExportToXML
@@ -85,10 +86,13 @@ export function buildClientApplicationBaseForm(params: {
 }
 
 function selectedPropertyKeys(
-  yaml: object,
+  yaml: unknown,
   rule: MetadataItemRule
 ): ReadonlySet<string> {
   const selected = new Set<string>()
+  if (yaml === null || typeof yaml !== "object" || Array.isArray(yaml)) {
+    return selected
+  }
   for (const [propertyKey, propertyRule] of Object.entries(rule.properties)) {
     if (Object.hasOwn(yaml, propertyRule.yaml ?? propertyKey)) {
       selected.add(propertyKey)
@@ -129,7 +133,7 @@ function visitProjectedElements(params: {
   readonly result: BaseFormNodeProjection[]
 }): void {
   if (params.elements === undefined) return
-  for (const [name, yaml] of Object.entries(params.elements)) {
+  for (const [index, [name, yaml]] of Object.entries(params.elements).entries()) {
     const rule = resolveFormElementRule({
       yaml,
       name,
@@ -140,7 +144,15 @@ function visitProjectedElements(params: {
       logicalAddress,
       xmlNodeLogicalAddress: logicalAddress,
       rule,
-      selectedPropertyKeys: selectedPropertyKeys(yaml, rule),
+      selectedPropertyKeys: selectedPropertyKeys(
+        normalizeCollectionItemYAML({
+          yaml,
+          name,
+          index,
+          collectionRule: params.collectionRule,
+        }),
+        rule
+      ),
     })
     const children = yaml.Элементы
     const childCollectionRule = propertyRuleByYamlKey(rule, "Элементы")
@@ -153,6 +165,26 @@ function visitProjectedElements(params: {
       })
     }
   }
+}
+
+function normalizeCollectionItemYAML(params: {
+  readonly yaml: unknown
+  readonly name: string
+  readonly index: number
+  readonly collectionRule: PropertyRule
+}): unknown {
+  const nestedRule = getTypeRule(
+    params.collectionRule.type,
+    "yamlToXMLNestedRule"
+  )
+  return nestedRule?.kind === "collection"
+    ? nestedRule.normalizeItemYAML?.({
+        yaml: params.yaml,
+        name: params.name,
+        index: params.index,
+        propertyRule: params.collectionRule,
+      }) ?? params.yaml
+    : params.yaml
 }
 
 function propertyRuleByYamlKey(

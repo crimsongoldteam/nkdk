@@ -19,12 +19,18 @@
 - Явное значение по умолчанию, восстановленное из неявного значения YAML, терялось при обратном преобразовании. В общий вызов атомарного `toXML` передан нейтральный признак сохранения индексированного неявного значения.
 - Пустые вложенные проекции не создаются, если XML-правило не задаёт `defaultValueXMLEmpty`; псевдонимы берутся из существующего YAML-дерева.
 
+## Исправление по итоговой рецензии
+
+- `selectedPropertyKeys` для элементов формы вычислялся по сырому tree-YAML. У кнопок структурный `Вид` ошибочно считался значением XML-свойства `type`, хотя обычный toXML получает его из `ТипКнопки` после `normalizeItemYAML`.
+- Добавлен RED-тест: в `cf` у кнопки задан `ТипКнопки`, в `cfe` он отсутствует, поэтому `BaseForm` не должен содержать `<Type>`. До исправления создавался `Type: UsualButton`.
+- Перед вычислением выбранных свойств теперь применяется зарегистрированный договор `yamlToXMLNestedRule.normalizeItemYAML`. Исправление не содержит списка типов элементов или имён свойств и использует ту же нормализацию, что обычный toXML.
+
 ## Проверки
 
 | Команда | Результат |
 | --- | --- |
-| `pnpm exec vitest run metadata/orchestration/property/fromYAMLToXML.test.ts metadata/forms/clientApplicationForm/baseFormIndex.test.ts metadata/forms/clientApplicationForm/baseFormProjection.test.ts metadata/forms/clientApplicationForm/baseForm.test.ts --no-isolate` из `packages/core` | 4 файла, 71 тест пройден |
-| `pnpm type-check` из `packages/core` | пройдено |
+| `pnpm exec vitest run metadata/orchestration/property/fromYAMLToXML.test.ts metadata/forms/clientApplicationForm/baseFormIndex.test.ts metadata/forms/clientApplicationForm/baseFormProjection.test.ts metadata/forms/clientApplicationForm/baseForm.test.ts --no-isolate` из `packages/core` | 4 файла, 72 теста пройдено |
+| `pnpm type-check` из корня | пройдено |
 | `git diff --check` | пройдено |
 | Сравнение `/Users/nikita/git/round-trip/cfe/all-extension` и `/private/tmp/nkdk-cfe-wave-zero2/cfe-output` без `ConfigDumpInfo.xml` | 0 файлов, 0 строк |
 
