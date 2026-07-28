@@ -1,4 +1,5 @@
 import { describe, expect, it, vi } from "vitest"
+import { PlatformSessionError } from "./errors"
 import type { ExportConfigurationParams, PlatformSession } from "./types"
 import {
   createPlatformSessionManager,
@@ -217,6 +218,51 @@ describe("platform session manager", () => {
     })
     expect(fixture.sessions[0]?.closeCalls).toBe(2)
   })
+
+  it("cancels and replaces a session after an aborted export", async () => {
+    let blockFirstExport = true
+    const fixture = createFixture({
+      exportHook: async (_projectDir, _call, signal) => {
+        if (!blockFirstExport) return
+        blockFirstExport = false
+        if (signal === undefined) throw new Error("signal missing")
+        await new Promise<void>((_resolve, reject) => {
+          signal.addEventListener(
+            "abort",
+            () =>
+              reject(
+                new PlatformSessionError(
+                  "operation_cancelled",
+                  "operation cancelled"
+                )
+              ),
+            { once: true }
+          )
+        })
+      },
+    })
+    const manager = createPlatformSessionManager(fixture.dependencies)
+    const controller = new AbortController()
+
+    const first = manager.exportConfiguration(
+      exportParams({ signal: controller.signal })
+    )
+    const firstResult = expect(first).rejects.toMatchObject({
+      code: "operation_cancelled",
+    })
+    await vi.waitFor(() => expect(fixture.exportStarts).toEqual(["/project:1"]))
+    controller.abort()
+
+    await firstResult
+    expect(fixture.sessions[0]?.cancelCalls).toBe(1)
+    expect(fixture.activeTimers()).toEqual([])
+
+    await expect(manager.exportConfiguration(exportParams())).resolves.toMatchObject({
+      reusedConnection: false,
+    })
+    expect(fixture.created).toHaveLength(2)
+    expect(fixture.activeTimers()).toEqual([900_000])
+  })
 })
 
 function exportParams(
@@ -242,12 +288,18 @@ function baseExportParams(projectDir: string) {
 type FakeSession = PlatformSession & {
   projectDir: string
   closeCalls: number
+  cancelCalls: number
+  cancel(): Promise<{ stoppedOwnedProcess: boolean }>
   markDead(): void
 }
 
 function createFixture(
   options: {
-    exportHook?: (projectDir: string, call: number) => Promise<void>
+    exportHook?: (
+      projectDir: string,
+      call: number,
+      signal?: AbortSignal
+    ) => Promise<void>
     closeFailureProject?: string
   } = {}
 ): {
@@ -274,11 +326,12 @@ function createFixture(
       mode,
       ownedProcess: true,
       closeCalls: 0,
-      async exportConfiguration(outputDir) {
+      cancelCalls: 0,
+      async exportConfiguration(outputDir, _operationLogPath, signal) {
         exportCalls += 1
         exportStarts.push(`${params.projectDir}:${exportCalls}`)
         exportedOutputDirs.push(outputDir)
-        await options.exportHook?.(params.projectDir, exportCalls)
+        await options.exportHook?.(params.projectDir, exportCalls, signal)
       },
       isAlive: () => alive,
       async close() {
@@ -288,6 +341,11 @@ function createFixture(
           alive = true
           throw new Error("close failed")
         }
+        return { stoppedOwnedProcess: true }
+      },
+      async cancel() {
+        session.cancelCalls += 1
+        alive = false
         return { stoppedOwnedProcess: true }
       },
       markDead() {

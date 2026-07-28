@@ -1,5 +1,6 @@
 import { describe, expect, it, vi } from "vitest"
-import type { CreatePlatformSessionParams } from "./types"
+import { PlatformSessionError } from "./errors"
+import type { CreatePlatformSessionParams, PlatformSession } from "./types"
 import {
   createDesignerAgentSession,
   type DesignerAgentDependencies,
@@ -226,6 +227,42 @@ describe("Designer agent session", () => {
     expect(fixture.calls).toContain("shell.close")
     expect(fixture.calls).toContain("process.kill")
   })
+
+  it("cancels a pending export and terminates the owned process", async () => {
+    const fixture = createFixture({
+      dumpWaitsForAbort: true,
+      processWaitResult: false,
+    })
+    const session = await createDesignerAgentSession(createParams(), fixture.dependencies)
+    const controller = new AbortController()
+
+    const exporting = session.exportConfiguration(
+      "/project/.nkdk/tmp/op/xml",
+      "/project/.nkdk/tmp/op/platform.log",
+      controller.signal
+    )
+    const exportResult = expect(exporting).rejects.toMatchObject({
+      code: "operation_cancelled",
+    })
+    await vi.waitFor(() =>
+      expect(fixture.calls).toContain(
+        'shell.run config dump-config-to-files --dir=".nkdk-export" --format=hierarchical'
+      )
+    )
+    controller.abort()
+
+    await exportResult
+    await expect(
+      (session as PlatformSession & {
+        cancel(): Promise<{ stoppedOwnedProcess: boolean }>
+      }).cancel()
+    ).resolves.toEqual({ stoppedOwnedProcess: true })
+
+    expect(fixture.calls).toContain("shell.close")
+    expect(fixture.calls).toContain("process.signal SIGTERM")
+    expect(fixture.calls).toContain("process.wait 5000")
+    expect(fixture.calls).toContain("process.kill SIGKILL")
+  })
 })
 
 function createParams(
@@ -261,6 +298,7 @@ function createFixture(
     connectFailures?: number
     killFailures?: number
     cleanupCommandsHang?: boolean
+    dumpWaitsForAbort?: boolean
     agentBaseConfig?: string
     dumpFailure?: boolean
     realpaths?: Record<string, string>
@@ -285,8 +323,11 @@ function createFixture(
       return options.processWaitResult ?? true
     },
     async waitForOutput() {},
-    async kill() {
-      calls.push("process.kill")
+    async signal(signal: NodeJS.Signals) {
+      calls.push(`process.signal ${signal}`)
+    },
+    async kill(signal?: NodeJS.Signals) {
+      calls.push(signal === undefined ? "process.kill" : `process.kill ${signal}`)
       if (killFailures > 0) {
         killFailures -= 1
         throw new Error("kill failed")
@@ -295,10 +336,26 @@ function createFixture(
     },
   }
   const commandSession = {
-    async run(command: string) {
+    async run(command: string, runOptions?: { signal?: AbortSignal }) {
       calls.push(`shell.run ${command}`)
       if (options.dumpFailure === true && command.startsWith("config ")) {
         throw new Error("dump failed")
+      }
+      if (options.dumpWaitsForAbort === true && command.startsWith("config ")) {
+        if (runOptions?.signal === undefined) throw new Error("signal missing")
+        await new Promise<void>((_resolve, reject) => {
+          runOptions.signal?.addEventListener(
+            "abort",
+            () =>
+              reject(
+                new PlatformSessionError(
+                  "operation_cancelled",
+                  "operation cancelled"
+                )
+              ),
+            { once: true }
+          )
+        })
       }
       if (options.cleanupCommandsHang === true && command.startsWith("common ")) {
         await new Promise<void>(() => undefined)

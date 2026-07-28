@@ -113,7 +113,7 @@ export async function createDesignerAgentSession(
     isAlive() {
       return !closed && processHandle.isAlive() && commandSession.isAlive()
     },
-    async exportConfiguration(outputDir, operationLogPath) {
+    async exportConfiguration(outputDir, operationLogPath, signal) {
       if (closed) {
         throw new PlatformSessionError("platform_command_failed", "Соединение с платформой закрыто")
       }
@@ -129,7 +129,8 @@ export async function createDesignerAgentSession(
         await commandSession.run(
           buildDumpConfigurationCommand(
             relativeAgentPath(userServiceDir, stagingDir)
-          )
+          ),
+          { signal }
         )
       } catch (caught) {
         commandFailure = caught
@@ -183,6 +184,30 @@ export async function createDesignerAgentSession(
       }
       const exited = await processHandle.wait(dependencies.closeTimeoutMs)
       if (!exited && processHandle.isAlive()) await processHandle.kill()
+      closed = true
+      return { stoppedOwnedProcess: true }
+    },
+    async cancel() {
+      if (closed) return { stoppedOwnedProcess: false }
+      await ignoreCleanupError(() => commandSession.close())
+      if (!processHandle.owned) {
+        await ignoreCleanupError(() => processHandle.wait(dependencies.closeTimeoutMs))
+        closed = true
+        return { stoppedOwnedProcess: false }
+      }
+      if (!processHandle.isAlive()) {
+        closed = true
+        return { stoppedOwnedProcess: false }
+      }
+      if (processHandle.signal !== undefined) {
+        await processHandle.signal("SIGTERM")
+      } else {
+        await processHandle.kill("SIGTERM")
+      }
+      const exited = await processHandle.wait(dependencies.closeTimeoutMs)
+      if (!exited && processHandle.isAlive()) {
+        await processHandle.kill("SIGKILL")
+      }
       closed = true
       return { stoppedOwnedProcess: true }
     },

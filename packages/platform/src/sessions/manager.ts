@@ -47,6 +47,7 @@ export function createPlatformSessionManager(
     const key = await dependencies.canonicalizeProjectDir(params.projectDir)
     const outputDir = await dependencies.canonicalizeProjectDir(params.outputDir)
     return enqueue(key, async () => {
+      throwIfCancelled(params.signal)
       const settings = normalizePlatformConnectionSettings(params)
       const mode: PlatformSessionMode = settings.useStandaloneServer
         ? "standalone-server"
@@ -72,8 +73,21 @@ export function createPlatformSessionManager(
       }
 
       try {
-        await cached.session.exportConfiguration(outputDir, params.logPath)
+        await cached.session.exportConfiguration(
+          outputDir,
+          params.logPath,
+          params.signal
+        )
         return { mode, reusedConnection }
+      } catch (caught) {
+        if (
+          caught instanceof PlatformSessionError &&
+          caught.code === "operation_cancelled"
+        ) {
+          await cached.session.cancel()
+          if (sessions.get(key) === cached) sessions.delete(key)
+        }
+        throw caught
       } finally {
         if (sessions.get(key) === cached && (pendingOperations.get(key) ?? 0) <= 1) {
           armIdleTimer(key, cached, settings.sessionIdleTimeout)
@@ -166,6 +180,14 @@ export function createPlatformSessionManager(
   }
 
   return { exportConfiguration, closeConnection, closeAllConnections }
+}
+
+function throwIfCancelled(signal?: AbortSignal): void {
+  if (signal?.aborted !== true) return
+  throw new PlatformSessionError(
+    "operation_cancelled",
+    "Операция платформы отменена"
+  )
 }
 
 function createFingerprint(

@@ -104,6 +104,12 @@ export async function createStandaloneServerSession(
   }
 
   let closed = false
+  const closeSession = async () => {
+    if (closed) return { stoppedOwnedProcess: false }
+    await dependencies.fileSystem.rm(configPath)
+    closed = true
+    return { stoppedOwnedProcess: false }
+  }
   return {
     mode: "standalone-server",
     ownedProcess: false,
@@ -151,12 +157,8 @@ export async function createStandaloneServerSession(
         )
       }
     },
-    async close() {
-      if (closed) return { stoppedOwnedProcess: false }
-      await dependencies.fileSystem.rm(configPath)
-      closed = true
-      return { stoppedOwnedProcess: false }
-    },
+    close: closeSession,
+    cancel: closeSession,
   }
 }
 

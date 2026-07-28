@@ -67,6 +67,7 @@ export interface PlatformSession {
   ): Promise<void>
   isAlive(): boolean
   close(): Promise<{ stoppedOwnedProcess: boolean }>
+  cancel(): Promise<{ stoppedOwnedProcess: boolean }>
 }
 
 export type CreatePlatformSessionParams = {
