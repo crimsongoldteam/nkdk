@@ -1,8 +1,8 @@
-import { isAbsolute, relative, resolve, sep } from "path"
+import { isAbsolute } from "path"
 import { loadCoreApi } from "../coreApi"
 import { errorMessage, toolError, toolSuccess, type ToolPayload } from "../contracts/common"
 import { type ValidateProjectInput } from "../contracts/validateProject"
-import { resolveComponent } from "./componentResolver"
+import { resolveProjectRoot } from "./componentResolver"
 import { getValidationHandle } from "./validationHandle"
 
 export type ValidateProjectPayload = ToolPayload<{
@@ -19,17 +19,17 @@ export type ValidateProjectPayload = ToolPayload<{
 }>
 
 export async function validateYamlProject(input: ValidateProjectInput): Promise<ValidateProjectPayload> {
-  const component = resolveComponent({ projectDir: input.projectDir, componentPath: "cf" })
-  if (!component.ok) return component.error
+  const project = resolveProjectRoot(input.projectDir)
+  if (!project.ok) return project.error
 
   try {
     const handle = await getValidationHandle()
     const diagnostics = (await handle.validateProject({
-      projectDir: component.componentDir,
+      projectDir: project.projectDir,
     })).diagnostics
 
     const mapped = diagnostics.filter(isVisibleDiagnostic).map((diagnostic) => ({
-      filePath: toProjectRelativePath(component.componentDir, diagnostic.filePath),
+      filePath: visibleProjectPath(diagnostic.filePath),
       severity: diagnostic.severity,
       message: diagnostic.message,
       ...(diagnostic.path !== undefined ? { path: diagnostic.path } : {}),
@@ -54,9 +54,12 @@ export async function validateYamlProject(input: ValidateProjectInput): Promise<
   }
 }
 
-function toProjectRelativePath(projectDir: string, filePath: string): string {
-  const absolutePath = isAbsolute(filePath) ? resolve(filePath) : resolve(projectDir, filePath)
-  return relative(resolve(projectDir), absolutePath).split(sep).join("/")
+function visibleProjectPath(filePath: string): string {
+  const normalized = filePath.replaceAll("\\", "/")
+  if (isAbsolute(filePath) || normalized.split("/").includes("..")) {
+    throw new Error("Core вернул путь диагностики вне NKDK-проекта")
+  }
+  return normalized
 }
 
 function isVisibleDiagnostic(diagnostic: { severity: "error" | "warning" }): boolean {

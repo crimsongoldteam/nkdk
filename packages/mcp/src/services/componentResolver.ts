@@ -14,8 +14,30 @@ export type ResolveComponentResult =
   | { ok: true; projectDir: string; componentPath: string; componentDir: string; nkdkDir: string }
   | { ok: false; error: ToolFailure }
 
+export function resolveProjectRoot(
+  projectDirInput: string
+): { ok: true; projectDir: string; nkdkDir: string } | { ok: false; error: ToolFailure } {
+  const projectDir = resolve(projectDirInput)
+  if (!existsSync(projectDir)) {
+    return {
+      ok: false,
+      error: toolError("not_found", "Проект не найден", {
+        projectDir: projectDirInput,
+      }),
+    }
+  }
+  if (!statSync(projectDir).isDirectory()) {
+    return {
+      ok: false,
+      error: toolError("invalid_arguments", "Путь не является каталогом проекта", {
+        projectDir: projectDirInput,
+      }),
+    }
+  }
+  return { ok: true, projectDir, nkdkDir: resolve(projectDir, ".nkdk") }
+}
+
 export function resolveComponent(options: ResolveComponentOptions): ResolveComponentResult {
-  const projectDir = resolve(options.projectDir)
   const componentPath = normalizeRelativePath(options.componentPath ?? "cf")
 
   if (componentPath === undefined) {
@@ -27,15 +49,9 @@ export function resolveComponent(options: ResolveComponentOptions): ResolveCompo
     return { ok: false, error: toolError("invalid_arguments", "componentPath должен начинаться с cf, cfe, erf или epf") }
   }
 
-  if (!existsSync(projectDir)) {
-    return { ok: false, error: toolError("not_found", "Проект не найден", { projectDir: options.projectDir }) }
-  }
-  if (!statSync(projectDir).isDirectory()) {
-    return {
-      ok: false,
-      error: toolError("invalid_arguments", "Путь не является каталогом проекта", { projectDir: options.projectDir }),
-    }
-  }
+  const project = resolveProjectRoot(options.projectDir)
+  if (!project.ok) return project
+  const { projectDir } = project
 
   const cfDir = resolve(projectDir, "cf")
   const mayCreateRootCf =
@@ -73,7 +89,7 @@ export function resolveComponent(options: ResolveComponentOptions): ResolveCompo
     projectDir,
     componentPath,
     componentDir,
-    nkdkDir: resolve(projectDir, ".nkdk"),
+    nkdkDir: project.nkdkDir,
   }
 }
 

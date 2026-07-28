@@ -70,7 +70,7 @@ export function registerNkdkCapabilities(server: RegisterableServer): void {
     "nkdk.validate_project",
     {
       title: "Validate NKDK YAML project",
-      description: "Проверяет компонент cf в корне NKDK-проекта и возвращает diagnostics в JSON.",
+      description: "Проверяет все компоненты в корне NKDK-проекта и возвращает diagnostics в JSON.",
       inputSchema: validateProjectInputShape,
     },
     async (input) => jsonToolResult(await validateYamlProject(input))

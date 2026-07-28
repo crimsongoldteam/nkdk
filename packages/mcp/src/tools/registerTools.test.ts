@@ -45,6 +45,12 @@ describe("registerNkdkCapabilities", () => {
       "nkdk_config_validate_yaml",
     ])
 
+    const validateTool = server.registerTool.mock.calls.find(([name]) => name === "nkdk.validate_project")?.[1] as
+      | { description: string }
+      | undefined
+    expect(validateTool?.description).toContain("все компоненты")
+    expect(validateTool?.description).not.toContain("компонент cf")
+
     const importTool = server.registerTool.mock.calls.find(([name]) => name === "nkdk.import_from_xml")?.[1] as
       | { description: string }
       | undefined
