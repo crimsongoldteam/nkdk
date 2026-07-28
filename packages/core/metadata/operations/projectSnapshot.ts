@@ -32,18 +32,27 @@ export interface MetadataOperationSnapshot {
 
 export type MetadataOperationSnapshotResult = MetadataOperationSnapshot | MetadataOperationValidationFailed
 
-export async function buildMetadataOperationSnapshot(params: {
+export type BuildMetadataOperationSnapshotParams = {
   projectDir: string
   context?: ConfigurationContext
-  requireValidProject: boolean
   validationWorkerPoolHandle?: ValidationWorkerPoolHandle
-}): Promise<MetadataOperationSnapshotResult> {
+} & (
+  | { requireValidProject: true; validationProjectDir: string }
+  | { requireValidProject: false; validationProjectDir?: never }
+)
+
+export async function buildMetadataOperationSnapshot(
+  params: BuildMetadataOperationSnapshotParams
+): Promise<MetadataOperationSnapshotResult> {
   const projectDir = resolve(params.projectDir)
   const context = params.context ?? defaultMetadataOperationsContext()
 
   if (params.requireValidProject) {
-    const validation = await (params.validationWorkerPoolHandle?.validateProject({ projectDir, context }) ??
-      validateProject({ projectDir, context, concurrency: 1 }))
+    const validationProjectDir = resolve(params.validationProjectDir)
+    const validation = await (params.validationWorkerPoolHandle?.validateProject({
+      projectDir: validationProjectDir,
+      context,
+    }) ?? validateProject({ projectDir: validationProjectDir, context, concurrency: 1 }))
     const errors = validation.diagnostics.filter((diagnostic) => diagnostic.severity === "error")
     if (errors.length > 0) {
       return {
