@@ -15,9 +15,16 @@ export interface SshTransport {
 }
 
 export interface PlatformCommandSession {
-  run(command: string, options?: { signal?: AbortSignal }): Promise<void>
+  run(
+    command: string,
+    options?: { signal?: AbortSignal }
+  ): Promise<PlatformCommandResult>
   isAlive(): boolean
   close(): Promise<void>
+}
+
+export type PlatformCommandResult = {
+  extensionInfo: unknown[]
 }
 
 export interface SessionClock {

@@ -21,7 +21,9 @@ describe("platform SSH command protocol", () => {
       timeoutMs: 60_000,
       diagnostic: (message) => diagnostics.push(message),
     })
-    await expect(session.run('config dump-config-to-files --dir="xml"')).resolves.toBeUndefined()
+    await expect(
+      session.run('config dump-config-to-files --dir="xml"')
+    ).resolves.toEqual({ extensionInfo: [] })
 
     expect(shell.rawWrites).toEqual([
       "options set --output-format=json\n",
@@ -75,6 +77,42 @@ describe("platform SSH command protocol", () => {
     const error = await session.run("bad command").catch((caught: unknown) => caught)
     expect(error).toMatchObject({ code: "platform_command_failed" })
     expect(String(error)).not.toContain("secret")
+  })
+
+  it("returns extension-info bodies in platform order", async () => {
+    const shell = scriptedShell([
+      "designer> ",
+      '[{"type":"success","message":"JSON mode"}]\ndesigner> ',
+      '[{"type":"success","message":"Connected"}]\ndesigner> ',
+      '[{"type":"extension-info","body":{"name":"First"}},{"type":"extension-info","body":{"name":"Second"}},{"type":"success","message":"Done"}]\ndesigner> ',
+    ])
+    const session = await openPlatformCommandSession({
+      shell,
+      timeoutMs: 100,
+    })
+
+    await expect(
+      session.run("config extensions properties get --all-extensions")
+    ).resolves.toEqual({
+      extensionInfo: [{ name: "First" }, { name: "Second" }],
+    })
+  })
+
+  it("rejects extension-info without a body", async () => {
+    const shell = scriptedShell([
+      "designer> ",
+      '[{"type":"success","message":"JSON mode"}]\ndesigner> ',
+      '[{"type":"success","message":"Connected"}]\ndesigner> ',
+      '[{"type":"extension-info"},{"type":"success","message":"Done"}]\ndesigner> ',
+    ])
+    const session = await openPlatformCommandSession({
+      shell,
+      timeoutMs: 100,
+    })
+
+    await expect(
+      session.run("config extensions properties get --all-extensions")
+    ).rejects.toMatchObject({ code: "platform_command_failed" })
   })
 
   it("rejects malformed JSON from the platform", async () => {

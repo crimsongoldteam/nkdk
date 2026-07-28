@@ -408,6 +408,7 @@ function createFixture(
       if (options.cleanupCommandsHang === true && command.startsWith("common ")) {
         await new Promise<void>(() => undefined)
       }
+      return { extensionInfo: [] }
     },
     isAlive: () => true,
     async close() {

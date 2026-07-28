@@ -263,7 +263,7 @@ async function ensureProcessStopped(
 }
 
 async function runCleanupCommand(
-  command: () => Promise<void>,
+  command: () => Promise<unknown>,
   dependencies: DesignerAgentDependencies
 ): Promise<void> {
   await Promise.race([

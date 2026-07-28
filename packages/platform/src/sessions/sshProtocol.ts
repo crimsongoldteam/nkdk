@@ -2,6 +2,7 @@ import { PlatformSessionError, type PlatformSessionErrorCode } from "./errors"
 import {
   systemSessionClock,
   type PlatformCommandSession,
+  type PlatformCommandResult,
   type SessionClock,
   type SshShell,
 } from "./runtime"
@@ -11,9 +12,10 @@ type PendingExchange = {
   allowQuestions: boolean
   initialPrompt: boolean
   sawSuccess: boolean
+  extensionInfo: unknown[]
   timer?: unknown
   removeAbortListener?: () => void
-  resolve(): void
+  resolve(result: PlatformCommandResult): void
   reject(error: PlatformSessionError): void
 }
 
@@ -100,8 +102,11 @@ class PlatformCommandProtocol implements PlatformCommandSession {
     )
   }
 
-  async run(command: string, options?: { signal?: AbortSignal }): Promise<void> {
-    await this.execute(command, "platform_command_failed", false, options)
+  async run(
+    command: string,
+    options?: { signal?: AbortSignal }
+  ): Promise<PlatformCommandResult> {
+    return this.execute(command, "platform_command_failed", false, options)
   }
 
   isAlive(): boolean {
@@ -124,7 +129,7 @@ class PlatformCommandProtocol implements PlatformCommandSession {
     errorCode: PlatformSessionErrorCode,
     allowQuestions: boolean,
     options: ExchangeOptions = {}
-  ): Promise<void> {
+  ): Promise<PlatformCommandResult> {
     if (!this.shell.isOpen()) {
       throw new PlatformSessionError(errorCode, "SSH-сеанс платформы закрыт")
     }
@@ -136,7 +141,7 @@ class PlatformCommandProtocol implements PlatformCommandSession {
     )
     this.diagnostic("Команда платформы отправлена")
     this.shell.write(`${command}\n`)
-    await completion
+    return completion
   }
 
   private beginExchange(
@@ -144,18 +149,19 @@ class PlatformCommandProtocol implements PlatformCommandSession {
     allowQuestions: boolean,
     initialPrompt: boolean,
     options: ExchangeOptions
-  ): Promise<void> {
+  ): Promise<PlatformCommandResult> {
     if (this.pending !== undefined) {
       return Promise.reject(
         new PlatformSessionError(errorCode, "Параллельные команды в одном SSH-сеансе не поддерживаются")
       )
     }
-    return new Promise<void>((resolve, reject) => {
+    return new Promise<PlatformCommandResult>((resolve, reject) => {
       const pending: PendingExchange = {
         errorCode,
         allowQuestions,
         initialPrompt,
         sawSuccess: false,
+        extensionInfo: [],
         resolve,
         reject,
       }
@@ -260,6 +266,13 @@ class PlatformCommandProtocol implements PlatformCommandSession {
       pending.sawSuccess = true
       return
     }
+    if (type === "extension-info") {
+      if (!Object.hasOwn(message, "body")) {
+        throw new Error("extension-info body is missing")
+      }
+      pending.extensionInfo.push(message["body"])
+      return
+    }
     if (type === "error" || type === "cancel") {
       this.failPending(pending.errorCode, safeFailureMessage(pending.errorCode))
       return
@@ -287,7 +300,7 @@ class PlatformCommandProtocol implements PlatformCommandSession {
     if (pending === undefined) return
     this.cleanupPending(pending)
     this.pending = undefined
-    pending.resolve()
+    pending.resolve({ extensionInfo: [...pending.extensionInfo] })
   }
 
   private failPending(code: PlatformSessionErrorCode, message: string): void {
