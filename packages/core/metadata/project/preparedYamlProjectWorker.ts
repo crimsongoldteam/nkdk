@@ -490,10 +490,18 @@ function runValidationSecondPass(message: Extract<PreparedYamlProjectWorkerTask,
   const profiler = createValidationProfiler({ scope: "worker", workerIndex: message.workerIndex })
   const diagnostics: Diagnostic[] = []
   const blocked = new Set(message.blockedComponentPaths)
-  const view = profiler.measure(
+  const activeStates = [...validationState.states.values()].filter(({ file }) => !blocked.has(file.componentPath))
+  const activeReferenceLayers = message.pendingReferenceLayers.filter(({ componentPath }) => !blocked.has(componentPath))
+  const activeComponentPaths = [
+    ...new Set([
+      ...activeStates.map(({ file }) => file.componentPath),
+      ...activeReferenceLayers.map(({ componentPath }) => componentPath),
+    ]),
+  ]
+  const views = profiler.measure(
     "Проверка зависимостей",
     "Построение контекста worker",
-    { items: validationState.states.size },
+    { items: activeComponentPaths.length },
     () => {
       const views = new Map<
         string,
@@ -502,10 +510,8 @@ function runValidationSecondPass(message: Extract<PreparedYamlProjectWorkerTask,
           referenceIndex: ReturnType<typeof createSharedProjectReferenceIndex>
         }
       >()
-      return (componentPath: string) => {
-        const cached = views.get(componentPath)
-        if (cached !== undefined) return cached
-        const created = {
+      for (const componentPath of activeComponentPaths) {
+        views.set(componentPath, {
           ownerCache: createOwnerMetadataCacheFromSharedProjectValidationGraph({
             projectDir: message.projectDir,
             componentPath,
@@ -521,18 +527,22 @@ function runValidationSecondPass(message: Extract<PreparedYamlProjectWorkerTask,
                 target,
               }),
           }),
-        }
-        views.set(componentPath, created)
-        return created
+        })
       }
+      return views
     }
   )
-  const pendingReferenceCount = message.pendingReferenceLayers.reduce(
+  const view = (componentPath: string) => {
+    const created = views.get(componentPath)
+    if (created === undefined) throw new Error(`Не построен validation view компонента: ${componentPath}`)
+    return created
+  }
+  const pendingReferenceCount = activeReferenceLayers.reduce(
     (count, layer) => count + layer.references.length,
     0
   )
   profiler.measure("Проверка зависимостей", "Проверка ссылок", { items: pendingReferenceCount }, () => {
-    for (const layer of message.pendingReferenceLayers) {
+    for (const layer of activeReferenceLayers) {
       const referenceResult = validatePendingReferencesWithIndex({
         index: view(layer.componentPath).referenceIndex,
         references: layer.references,
@@ -541,9 +551,8 @@ function runValidationSecondPass(message: Extract<PreparedYamlProjectWorkerTask,
     }
   })
 
-  profiler.measure("Проверка зависимостей", "Worker second pass", { items: validationState.states.size }, () => {
-    for (const state of validationState.states.values()) {
-      if (blocked.has(state.file.componentPath)) continue
+  profiler.measure("Проверка зависимостей", "Worker second pass", { items: activeStates.length }, () => {
+    for (const state of activeStates) {
       const { ownerCache, referenceIndex } = view(state.file.componentPath)
       const second = validateProjectFileSecondPass({
         projectDir: message.projectDir,

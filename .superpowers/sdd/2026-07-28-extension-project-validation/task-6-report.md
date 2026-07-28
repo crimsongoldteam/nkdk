@@ -89,3 +89,34 @@
   расширения.
 - Единственный оставшийся риск — полный набор пакетов не прогнан в этой задаче
   согласно ограничению brief.
+
+## Fix round 1
+
+Исправлена атрибуция затрат component-scoped views в worker profile.
+Уникальные component paths теперь заранее вычисляются только из
+незаблокированных worker states и назначенных worker reference layers, а
+owner/reference views создаются внутри подэтапа
+`Построение контекста worker`. `Проверка ссылок` и `Worker second pass` только
+читают готовую Map; их `items` считают pending references и active states
+соответственно. Неожиданная blocked reference layer безопасно отбрасывается,
+а отсутствие заранее построенного active view завершается явной ошибкой.
+
+Covering test использует настоящий worker, graph и shared indexes. Управляемый
+доступ к reference buffer детерминированно сдвигает подменённые часы, поэтому
+профиль показывает, в каком именно подэтапе был создан view; два blocked states
+одновременно проверяют точность `items`.
+
+RED:
+
+- `pnpm --filter @nkdk/core exec vitest run metadata/project/preparedYamlProjectWorker.test.ts`
+  — 1 failed / 5 passed; `Построение контекста worker` вернул
+  `items=3 time=0.00ms` вместо одного active view с ненулевым временем.
+
+GREEN:
+
+- `pnpm --filter @nkdk/core exec vitest run metadata/project/preparedYamlProjectWorker.test.ts`
+  — 1 файл, 6 тестов passed.
+- `pnpm --filter @nkdk/core exec vitest run metadata/validation/validateProject.test.ts metadata/validation/projectMetadataReferences.test.ts metadata/validation/dataPath/resolver.test.ts metadata/validation/sharedProjectReferenceIndex.test.ts metadata/validation/sharedValidationBinaryOwners.test.ts`
+  — 5 файлов, 189 тестов passed.
+- `pnpm --filter @nkdk/core type-check` — PASS.
+- `git diff --check` — PASS.
