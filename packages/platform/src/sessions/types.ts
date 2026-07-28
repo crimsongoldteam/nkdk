@@ -1,4 +1,5 @@
 import type { PlatformInstallation } from "../platform/findPlatform"
+import type { ConfigurationExtensionInfo } from "../extensions/types"
 
 export type PlatformSessionMode = "designer-agent" | "standalone-server"
 
@@ -65,6 +66,7 @@ export interface PlatformSession {
     operationLogPath: string,
     signal?: AbortSignal
   ): Promise<void>
+  listExtensions(signal?: AbortSignal): Promise<ConfigurationExtensionInfo[]>
   isAlive(): boolean
   close(): Promise<{ stoppedOwnedProcess: boolean }>
   cancel(): Promise<{ stoppedOwnedProcess: boolean }>

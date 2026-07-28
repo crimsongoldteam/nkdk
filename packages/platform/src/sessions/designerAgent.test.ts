@@ -67,6 +67,38 @@ describe("Designer agent session", () => {
     expect(fixture.calls.some((call) => call.includes("--server"))).toBe(false)
   })
 
+  it("lists and normalizes extensions through one agent command", async () => {
+    const fixture = createFixture({
+      extensionInfo: [extensionRecord("First"), extensionRecord("Second")],
+    })
+    const session = await createDesignerAgentSession(
+      createParams(),
+      fixture.dependencies
+    )
+
+    await expect(session.listExtensions()).resolves.toEqual([
+      extensionInfo("First"),
+      extensionInfo("Second"),
+    ])
+    expect(fixture.calls).toContain(
+      "shell.run config extensions properties get --all-extensions"
+    )
+  })
+
+  it("rejects malformed extension properties returned by the agent", async () => {
+    const fixture = createFixture({
+      extensionInfo: [{ name: "SecretMalformedExtension" }],
+    })
+    const session = await createDesignerAgentSession(
+      createParams(),
+      fixture.dependencies
+    )
+
+    const error = await session.listExtensions().catch((caught: unknown) => caught)
+    expect(error).toMatchObject({ code: "platform_command_failed" })
+    expect(String(error)).not.toContain("SecretMalformedExtension")
+  })
+
   it("moves a partial agent dump to the operation directory after a command failure", async () => {
     const fixture = createFixture({ dumpFailure: true })
     const session = await createDesignerAgentSession(createParams(), fixture.dependencies)
@@ -345,6 +377,7 @@ function createFixture(
     agentBaseConfig?: string
     dumpFailure?: boolean
     realpaths?: Record<string, string>
+    extensionInfo?: unknown[]
   } = {}
 ): {
   calls: string[]
@@ -408,7 +441,11 @@ function createFixture(
       if (options.cleanupCommandsHang === true && command.startsWith("common ")) {
         await new Promise<void>(() => undefined)
       }
-      return { extensionInfo: [] }
+      return {
+        extensionInfo: command.includes("extensions properties get")
+          ? (options.extensionInfo ?? [])
+          : [],
+      }
     },
     isAlive: () => true,
     async close() {
@@ -492,5 +529,35 @@ function createFixture(
       retryDelayMs: 100,
       closeTimeoutMs: 5_000,
     },
+  }
+}
+
+function extensionRecord(name: string) {
+  return {
+    name,
+    version: "",
+    active: "yes",
+    purpose: "customization",
+    "safe-mode": "yes",
+    "security-profile-name": "",
+    "unsafe-action-protection": "yes",
+    "used-in-distributed-infobase": "no",
+    scope: "infobase",
+    "hash-sum": `${name}-hash`,
+  }
+}
+
+function extensionInfo(name: string) {
+  return {
+    name,
+    version: "",
+    active: true,
+    purpose: "customization",
+    safeMode: true,
+    securityProfileName: "",
+    unsafeActionProtection: true,
+    usedInDistributedInfobase: false,
+    scope: "infobase",
+    hashSum: `${name}-hash`,
   }
 }

@@ -1,6 +1,11 @@
 import { isAbsolute, join, relative, resolve, sep } from "node:path"
 import { parseConnection } from "../infobases/parseConnection"
-import { buildDesignerAgentLaunch, buildDumpConfigurationCommand } from "./commands"
+import { parseExtensionPropertyRecords } from "../extensions/parse"
+import {
+  buildDesignerAgentLaunch,
+  buildDumpConfigurationCommand,
+  buildListDesignerExtensionsCommand,
+} from "./commands"
 import { PlatformSessionError } from "./errors"
 import { openPlatformCommandSession } from "./sshProtocol"
 import type {
@@ -215,6 +220,19 @@ export async function createDesignerAgentSession(
           "Не удалось записать журнал операции платформы"
         )
       }
+    },
+    async listExtensions(signal) {
+      if (closed) {
+        throw new PlatformSessionError(
+          "platform_command_failed",
+          "Соединение с платформой закрыто"
+        )
+      }
+      const result = await commandSession.run(
+        buildListDesignerExtensionsCommand(),
+        { signal }
+      )
+      return parseExtensionPropertyRecords(result.extensionInfo)
     },
     async close() {
       if (closed) return { stoppedOwnedProcess: false }

@@ -3,7 +3,9 @@ import { PlatformSessionError } from "./errors"
 import {
   buildDesignerAgentLaunch,
   buildDumpConfigurationCommand,
+  buildListDesignerExtensionsCommand,
   buildStandaloneConfigInit,
+  buildStandaloneListExtensions,
   buildStandaloneLaunch,
 } from "./commands"
 
@@ -126,6 +128,46 @@ describe("platform session commands", () => {
       'config dump-config-to-files --dir="/project/.nkdk/tmp/op/xml" --format=hierarchical'
     )
     expect(buildDumpConfigurationCommand('/project/a"b')).toContain('--dir="/project/a""b"')
+  })
+
+  it("builds list extension commands for both platform modes", () => {
+    expect(buildListDesignerExtensionsCommand()).toBe(
+      "config extensions properties get --all-extensions"
+    )
+    expect(
+      buildStandaloneListExtensions({
+        ibcmdPath: "ibcmd",
+        configPath: "/session/config.yaml",
+        user: "Admin",
+        password: "secret",
+      })
+    ).toEqual({
+      command: "ibcmd",
+      args: [
+        "infobase",
+        "config",
+        "extension",
+        "list",
+        "--user=Admin",
+        "--password=secret",
+        "--config=/session/config.yaml",
+      ],
+    })
+  })
+
+  it("omits absent infobase credentials from extension list arguments", () => {
+    expect(
+      buildStandaloneListExtensions({
+        ibcmdPath: "ibcmd",
+        configPath: "/session/config.yaml",
+      }).args
+    ).toEqual([
+      "infobase",
+      "config",
+      "extension",
+      "list",
+      "--config=/session/config.yaml",
+    ])
   })
 
   it.each(["/project/a\nb", "/project/a\0b"])("rejects unsafe interactive values", (path) => {

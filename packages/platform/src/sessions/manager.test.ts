@@ -336,6 +336,9 @@ function createFixture(
         exportedOutputDirs.push(outputDir)
         await options.exportHook?.(params.projectDir, exportCalls, signal)
       },
+      async listExtensions() {
+        return []
+      },
       isAlive: () => alive,
       async close() {
         session.closeCalls += 1
