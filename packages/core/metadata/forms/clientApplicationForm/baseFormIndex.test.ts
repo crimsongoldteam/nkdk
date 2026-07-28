@@ -100,6 +100,34 @@ describe("BaseForm configuration index reader", () => {
       .toThrow(attributeAddress)
   })
 
+  it("returns no xmlId for an optional form property presence check", () => {
+    const base = reader({ componentPath: "cf" })
+    const extension = reader({ componentPath: "cfe/Дополнение" })
+    const projected = createBaseFormConfigurationIndexReader({
+      base,
+      extension,
+      extensionIdentityAddresses: new Set(),
+    })
+    const optionalPropertyAddress = yamlPropertyUid(
+      formAddress,
+      "УсловноеОформлениеРеквизитов"
+    )
+
+    expect(
+      projected.identity(optionalPropertyAddress, "xmlId")
+    ).toBeUndefined()
+    expect(
+      projected.identity(
+        childUid(
+          attributeAddress,
+          "Свойство",
+          "ДинамическийСписок"
+        ),
+        "xmlId"
+      )
+    ).toBeUndefined()
+  })
+
   it("enumerates the same identity projection as point lookups", () => {
     const base = reader({
       componentPath: "cf",

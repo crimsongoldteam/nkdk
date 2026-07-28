@@ -152,7 +152,14 @@ async function executeAssignments(
       const prepared = prepareFullXmlSyncAssignment({
         assignment,
         preparedYamlFile: yamlFile,
-        ...(basePreparedYamlFile === undefined ? {} : { basePreparedYamlFile }),
+        ...(basePreparedYamlFile === undefined
+          ? {}
+          : {
+              basePreparedYamlFile,
+              ...(state.baseIndex === undefined
+                ? {}
+                : { baseConfigurationIndex: state.baseIndex }),
+            }),
         context: exportContext(state),
         index: state.index,
         assignments: state.composition.assignments(),

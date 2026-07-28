@@ -22,6 +22,7 @@ export function prepareFullXmlSyncAssignment(params: {
   assignment: FullXmlSyncAssignment
   preparedYamlFile: PreparedYamlFile
   basePreparedYamlFile?: PreparedYamlFile
+  baseConfigurationIndex?: ConfigurationIndexReader
   context: ConfigurationContextWithExportToXML
   index: ConfigurationIndexReader
   assignments?: readonly FullXmlSyncCompositionEntry[]
@@ -78,6 +79,12 @@ function prepareTopologyAssignmentDocuments(
       ...(params.basePreparedYamlFile === undefined
         ? {}
         : { basePreparedYamlFile: params.basePreparedYamlFile }),
+      ...(params.baseConfigurationIndex === undefined
+        ? {}
+        : {
+            baseConfigurationIndex:
+              params.baseConfigurationIndex,
+          }),
       assignment: effectiveAssignmentNode,
       itemName: params.assignment.itemName,
       logicalAddress: params.assignment.logicalAddress,

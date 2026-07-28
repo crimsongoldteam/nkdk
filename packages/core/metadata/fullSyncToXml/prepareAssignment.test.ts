@@ -65,11 +65,28 @@ describe("prepareFullXmlSyncAssignment", () => {
       required: document.required,
       prepareCapabilityId: "test-two-documents",
     }))
-    const run = vi.fn(({ outputs: requested }) =>
+    const baseConfigurationIndex = createConfigurationIndexReader(
+      snapshotConfigurationIndex(
+        encodeConfigurationIndex({
+          ...sampleIndex(),
+          identities: [
+            {
+              logicalAddress: "Объект.One",
+              kind: "xmlId",
+              value: "base-marker",
+            },
+          ],
+        })
+      )
+    )
+    const run = vi.fn(({ outputs: requested, baseConfigurationIndex: baseIndex }) =>
       requested.map((output: (typeof outputs)[number]) => ({
         declarationId: output.declarationId,
         targetXmlPath: output.targetXmlPath,
-        xml: { Root: output.role },
+        xml: {
+          Root: output.role,
+          BaseMarker: baseIndex?.identity("Объект.One", "xmlId"),
+        },
         deferred: [],
         rootRule: rule,
       }))
@@ -100,6 +117,7 @@ describe("prepareFullXmlSyncAssignment", () => {
       },
       context: mockContextToXML(),
       index: createConfigurationIndexReader(snapshotConfigurationIndex(encodeConfigurationIndex(sampleIndex()))),
+      baseConfigurationIndex,
       assignments: [],
       topology,
     })
@@ -108,6 +126,10 @@ describe("prepareFullXmlSyncAssignment", () => {
     expect(prepared.documents.map((document) => document.targetXmlPath)).toEqual([
       "Objects/One/metadata.xml",
       "Objects/One/body.xml",
+    ])
+    expect(prepared.documents.map((document) => document.xml.BaseMarker)).toEqual([
+      "base-marker",
+      "base-marker",
     ])
   })
 

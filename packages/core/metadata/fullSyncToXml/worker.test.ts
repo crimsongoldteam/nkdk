@@ -4,6 +4,10 @@ import { join } from "node:path"
 import { afterEach, describe, expect, it } from "vitest"
 import { encodeConfigurationIndex } from "../configurationIndex/encode"
 import { hashFileBytes } from "../configurationIndex/hash"
+import {
+  childSegmentUid,
+  childUid,
+} from "../configurationIndex/logicalAddress"
 import { snapshotConfigurationIndex } from "../configurationIndex/sharedSnapshot"
 import { sampleIndex } from "../configurationIndex/testData"
 import type { ConfigurationContext } from "../context/types"
@@ -157,16 +161,71 @@ describe("full XML sync worker", () => {
       fs.mkdirSync(join(baseSourcePath, ".."), { recursive: true })
       fs.writeFileSync(
         sourcePath,
-        "Имя: ФормаПродаж\nФорма:\n  Ширина: 100\n"
+        [
+          "Имя: ФормаПродаж",
+          "Форма:",
+          "  Ширина: 100",
+          "  Элементы:",
+          "    Поле:",
+          "      Вид: ПолеВвода",
+          "",
+        ].join("\n")
       )
       fs.writeFileSync(
         baseSourcePath,
-        "Имя: ФормаПродаж\nФорма:\n  Ширина: 80\n"
+        [
+          "Имя: ФормаПродаж",
+          "Форма:",
+          "  Ширина: 80",
+          "  Элементы:",
+          "    Поле:",
+          "      Вид: ПолеВвода",
+          "",
+        ].join("\n")
       )
       const logicalAddress = "ОбщаяФорма.ФормаПродаж"
+      const formAddress = logicalAddress
+      const elementAddress = childUid(formAddress, "Элемент", "Поле")
+      const baseIndex = sampleIndex()
       const baseSnapshot = snapshotConfigurationIndex(
-        encodeConfigurationIndex(sampleIndex())
+        encodeConfigurationIndex({
+          ...baseIndex,
+          identities: [
+            ...baseIndex.identities,
+            {
+              logicalAddress: childUid(
+                formAddress,
+                "Элемент",
+                "ФормаКоманднаяПанель"
+              ),
+              kind: "xmlId",
+              value: "9",
+            },
+            {
+              logicalAddress: elementAddress,
+              kind: "xmlId",
+              value: "10",
+            },
+            {
+              logicalAddress: childSegmentUid(
+                elementAddress,
+                "КонтекстноеМеню"
+              ),
+              kind: "xmlId",
+              value: "11",
+            },
+            {
+              logicalAddress: childSegmentUid(
+                elementAddress,
+                "РасширеннаяПодсказка"
+              ),
+              kind: "xmlId",
+              value: "12",
+            },
+          ],
+        })
       )
+      const extensionIndex = sampleIndex()
       const assigned: FullXmlSyncAssignment = {
         id: projectPath,
         sourceProjectPath: projectPath,
@@ -208,7 +267,17 @@ describe("full XML sync worker", () => {
         },
         composition: createFullXmlSyncCompositionSnapshot([assigned]),
         targetIndex: snapshotConfigurationIndex(
-          encodeConfigurationIndex(sampleIndex())
+          encodeConfigurationIndex({
+            ...extensionIndex,
+            identities: [
+              ...extensionIndex.identities,
+              {
+                logicalAddress: elementAddress,
+                kind: "xmlId",
+                value: "1000010",
+              },
+            ],
+          })
         ),
         localMetadata,
         baseMetadata: localMetadata,
@@ -232,6 +301,12 @@ describe("full XML sync worker", () => {
       if (adopted) {
         expect(formXml).toContain("<BaseForm")
         expect(formXml).toContain("<Width>80</Width>")
+        const baseFormXml = formXml.slice(
+          formXml.indexOf("<BaseForm"),
+          formXml.indexOf("</BaseForm>") + "</BaseForm>".length
+        )
+        expect(baseFormXml).toContain('name="Поле" id="10"')
+        expect(baseFormXml).not.toContain('id="1000010"')
       } else {
         expect(formXml).not.toContain("<BaseForm")
       }

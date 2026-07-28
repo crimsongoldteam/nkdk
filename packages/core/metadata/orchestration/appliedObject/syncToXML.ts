@@ -300,6 +300,7 @@ registerMetadataXmlPrepareCapability({
     context,
     preparedYamlFile,
     basePreparedYamlFile,
+    baseConfigurationIndex,
     itemName,
     logicalAddress,
     outputs,
@@ -358,6 +359,9 @@ registerMetadataXmlPrepareCapability({
             : {}),
         name: itemName,
         referenceXML: undefined,
+        ...(baseConfigurationIndex === undefined
+          ? {}
+          : { baseConfigurationIndex }),
       })
       return [
         {

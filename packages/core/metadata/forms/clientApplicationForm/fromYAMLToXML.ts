@@ -1,4 +1,5 @@
 import { childUid } from "../../configurationIndex/logicalAddress"
+import type { ConfigurationIndexReader } from "../../configurationIndex/sharedSnapshot"
 import "../../commonObjects"
 import {
   withConfigurationIndexExportFormElementRootLogicalAddress,
@@ -198,13 +199,23 @@ const METADATA_NAMESPACES = {
 
 registerTypeRule("ClientApplicationForm", "yamlToXMLNestedRule", {
   kind: "externalFile",
-  convert: ({ context, yaml, baseYAML, name, referenceXML }) => {
+  convert: ({
+    context,
+    yaml,
+    baseYAML,
+    baseConfigurationIndex,
+    name,
+    referenceXML,
+  }) => {
     const extensionYaml = yaml as ClientApplicationFormYAML
     const baseFormXML =
       baseYAML === undefined
         ? undefined
         : buildClientApplicationBaseForm({
             context,
+            baseIndex: requireBaseConfigurationIndex(
+              baseConfigurationIndex
+            ),
             baseYaml: baseYAML as ClientApplicationFormYAML,
             extensionYaml,
             formName: name,
@@ -222,3 +233,14 @@ registerTypeRule("ClientApplicationForm", "yamlToXMLNestedRule", {
     }
   },
 })
+
+function requireBaseConfigurationIndex(
+  baseConfigurationIndex: ConfigurationIndexReader | undefined
+): ConfigurationIndexReader {
+  if (baseConfigurationIndex !== undefined) {
+    return baseConfigurationIndex
+  }
+  throw new Error(
+    "Для построения BaseForm не передан индекс основной конфигурации"
+  )
+}

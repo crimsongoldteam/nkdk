@@ -25,7 +25,11 @@ export function createBaseFormConfigurationIndexReader(params: {
         logicalAddress,
         kind
       )
-      if (value === undefined && kind === "xmlId") {
+      if (
+        value === undefined &&
+        kind === "xmlId" &&
+        requiresBaseFormXmlId(logicalAddress)
+      ) {
         throw new Error(
           `Не найден обязательный xmlId BaseForm: ${logicalAddress}`
         )
@@ -57,4 +61,33 @@ function projectedIdentities(params: {
         params.extensionIdentityAddresses.has(logicalAddress)
       ),
   ]
+}
+
+const requiredBaseFormIdentitySegments = new Set([
+  "Элемент",
+  "Атрибут",
+  "Команда",
+  "Параметр",
+])
+const requiredBaseFormSingletonSegments = new Set([
+  "АвтоКоманднаяПанель",
+  "КоманднаяПанель",
+  "КонтекстноеМеню",
+  "РасширеннаяПодсказка",
+  "СостояниеПросмотра",
+  "СтрокаПоиска",
+  "Таблица",
+  "УправлениеПоиском",
+])
+
+function requiresBaseFormXmlId(logicalAddress: string): boolean {
+  const segments = logicalAddress.split(".")
+  const directKind = segments.at(-2)
+  const singleton = segments.at(-1)
+  return (
+    (directKind !== undefined &&
+      requiredBaseFormIdentitySegments.has(directKind)) ||
+    (singleton !== undefined &&
+      requiredBaseFormSingletonSegments.has(singleton))
+  )
 }

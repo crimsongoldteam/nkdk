@@ -16,6 +16,12 @@ import { createValidationOwnerFacts } from "../../validation/dataPath/ownerFacts
 import { buildObjectFieldIndex } from "../../validation/dataPath/objectFields"
 import { MetadataCatalogRules } from "../../appliedObjects/metadataCatalog/rules"
 import { getTypeRule } from "../../orchestration/property/typeRuleRegistry"
+import { encodeConfigurationIndex } from "../../configurationIndex/encode"
+import {
+  createConfigurationIndexReader,
+  snapshotConfigurationIndex,
+} from "../../configurationIndex/sharedSnapshot"
+import { sampleIndex } from "../../configurationIndex/testData"
 
 describe("convertClientApplicationFormFromYAMLToXML", () => {
   it("формирует описание и содержимое формы прямо из YAML", () => {
@@ -227,6 +233,11 @@ describe("convertClientApplicationFormFromYAMLToXML", () => {
       context: mockContextToXML(),
       yaml: { Ширина: 100 },
       baseYAML: { Ширина: 80 },
+      baseConfigurationIndex: createConfigurationIndexReader(
+        snapshotConfigurationIndex(
+          encodeConfigurationIndex(sampleIndex())
+        )
+      ),
       name: "ОбщаяФорма",
       referenceXML: undefined,
     })

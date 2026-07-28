@@ -62,6 +62,7 @@ export type YAMLToXMLNestedRule =
         context: import("../../context/types").ConfigurationContextWithExportToXML
         yaml: unknown
         baseYAML?: unknown
+        baseConfigurationIndex?: import("../../configurationIndex/sharedSnapshot").ConfigurationIndexReader
         name: string
         referenceXML: Record<string, unknown> | undefined
       }) => Record<string, unknown>
