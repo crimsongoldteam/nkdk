@@ -172,6 +172,73 @@ export const Rules = {
     expect(edit.updatedText.indexOf("own:")).toBeLessThan(edit.updatedText.indexOf("title:"))
   })
 
+  it("добавляет xmlOrder в правило, которое наследует properties через spread", async () => {
+    const edit = await editFor(
+      `
+const BaseRules = {
+  itemType: "Base",
+  properties: {
+    own: { type: "string" },
+    title: { type: "string" },
+  },
+}
+export const Rules = {
+  ...BaseRules,
+}
+`,
+      [order(["title", "own"])]
+    )
+
+    expect(edit.updatedText).toContain(`export const Rules = {
+  ...BaseRules,
+  xmlOrder: [
+    "title",
+    "own",
+  ],
+}`)
+    expect(edit.updatedText.indexOf("own:")).toBeLessThan(edit.updatedText.indexOf("title:"))
+  })
+
+  it("разрешает словарь properties из rest-деструктуризации", async () => {
+    const edit = await editFor(
+      `
+const allProperties = {
+  xmlRoot: { type: "XMLRoot" },
+  own: { type: "string" },
+  title: { type: "string" },
+}
+const { xmlRoot: _xmlRoot, ...collectionProperties } = allProperties
+export const Rules = {
+  itemType: "Collection",
+  properties: collectionProperties,
+}
+`,
+      [order(["title", "own"])]
+    )
+
+    expect(edit.updatedText).toContain("xmlOrder:")
+    expect(edit.updatedText).toContain("properties: collectionProperties")
+  })
+
+  it("записывает xmlOrder без разворачивания динамического spread properties", async () => {
+    const edit = await editFor(
+      `
+export const Rules = {
+  itemType: "Dynamic",
+  properties: {
+    ...createCommonProperties(),
+    own: { type: "string", order: 2 },
+  },
+}
+`,
+      [order(["title", "own"])]
+    )
+
+    expect(edit.updatedText).toContain("xmlOrder:")
+    expect(edit.updatedText).toContain("...createCommonProperties()")
+    expect(edit.updatedText).not.toContain("order: 2")
+  })
+
   it("удаляет numeric order из ненаблюдавшегося импортированного правила", async () => {
     const derivedPath = "/metadata/derived/rules.ts"
     const basePath = "/metadata/base/rules.ts"

@@ -54,12 +54,7 @@ export async function buildRuleSourceEdits(params: {
 
   for (const order of params.orders) {
     const rule = resolveRuleObject(graph, order.source)
-    const properties = propertyObject(graph, rule, "properties", order.source.candidate)
-    const propertyKeys = new Set(
-      expandObject(graph, properties.model, properties.object, order.source.candidate, new Set()).map(
-        (entry) => entry.key
-      )
-    )
+    const propertyKeys = new Set(order.source.declarationOrder)
     const missing = order.propertyKeys.filter((key) => !propertyKeys.has(key))
     if (missing.length > 0) {
       throw new Error(`${order.source.candidate} не содержит свойства xmlOrder: ${missing.join(", ")}`)
@@ -143,6 +138,13 @@ function createSourceModel(filePath: string, text: string): SourceModel {
     for (const declaration of statement.declarationList.declarations) {
       if (ts.isIdentifier(declaration.name) && declaration.initializer !== undefined) {
         variables.set(declaration.name.text, declaration.initializer)
+      }
+      if (ts.isObjectBindingPattern(declaration.name) && declaration.initializer !== undefined) {
+        for (const element of declaration.name.elements) {
+          if (element.dotDotDotToken !== undefined && ts.isIdentifier(element.name)) {
+            variables.set(element.name.text, declaration.initializer)
+          }
+        }
       }
     }
   }
@@ -280,10 +282,12 @@ function propertyObject(
   name: string,
   candidate: string
 ): { model: SourceModel; object: ts.ObjectLiteralExpression } {
+  const property = findObjectProperty(graph, resolved.model, resolved.object, name, candidate, new Set())
+  if (property === undefined) throw new Error(`Не найдено свойство ${name} в ${candidate}`)
   const value = unwrapExpression(
     graph,
-    resolved.model,
-    propertyInitializer(resolved.object, name, candidate),
+    property.model,
+    property.expression,
     candidate
   )
   if (!ts.isObjectLiteralExpression(value.expression)) {
@@ -365,7 +369,25 @@ function addXMLOrderReplacement(
   }
 
   const properties = namedProperty(rule, "properties", candidate)
-  if (properties === undefined) throw new Error(`Не найдено свойство properties в ${candidate}`)
+  if (properties === undefined) {
+    const start = rule.end - 1
+    const closingIndent = lineIndent(model.text, start)
+    const memberIndent =
+      rule.properties[0] === undefined
+        ? `${closingIndent}  `
+        : lineIndent(model.text, rule.properties[0].getStart(model.sourceFile))
+    const lineStart = model.text.lastIndexOf("\n", start - 1) + 1
+    const needsLeadingNewline = model.text.slice(lineStart, start).trim().length > 0
+    addReplacement(replacements, model, {
+      start,
+      end: start,
+      text:
+        `${needsLeadingNewline ? "\n" : ""}${memberIndent}xmlOrder: ` +
+        `${formatArray(keys, memberIndent)},\n${closingIndent}`,
+      candidate,
+    })
+    return
+  }
   const start = properties.getStart(model.sourceFile)
   const indent = lineIndent(model.text, start)
   addReplacement(replacements, model, {
@@ -414,7 +436,8 @@ function collectNumericOrderRemovals(params: {
   ancestors.add(params.object)
   for (const element of params.object.properties) {
     if (ts.isSpreadAssignment(element)) {
-      const spread = resolveObjectExpression(params.graph, params.model, element.expression, params.candidate)
+      const spread = tryResolveObjectExpression(params.graph, params.model, element.expression, params.candidate)
+      if (spread === undefined) continue
       collectNumericOrderRemovals({ ...params, model: spread.model, object: spread.object, ancestors })
       continue
     }
@@ -458,44 +481,6 @@ function orderRemovalRanges(element: ts.ObjectLiteralElementLike): { start: numb
   )
 }
 
-function expandObject(
-  graph: SourceGraph,
-  model: SourceModel,
-  object: ts.ObjectLiteralExpression,
-  candidate: string,
-  ancestors: ReadonlySet<ts.ObjectLiteralExpression>
-): { key: string; element: ts.ObjectLiteralElementLike }[] {
-  if (ancestors.has(object)) throw new Error(`Циклический spread в ${candidate}`)
-  const nestedAncestors = new Set(ancestors)
-  nestedAncestors.add(object)
-  const result: { key: string; element: ts.ObjectLiteralElementLike }[] = []
-  const positions = new Map<string, number>()
-  for (const element of object.properties) {
-    if (ts.isSpreadAssignment(element)) {
-      const spread = resolveObjectExpression(graph, model, element.expression, candidate)
-      for (const entry of expandObject(graph, spread.model, spread.object, candidate, nestedAncestors)) {
-        const position = positions.get(entry.key)
-        if (position === undefined) {
-          positions.set(entry.key, result.length)
-          result.push(entry)
-        } else {
-          result[position] = entry
-        }
-      }
-      continue
-    }
-    const key = elementKey(element, candidate)
-    const position = positions.get(key)
-    if (position === undefined) {
-      positions.set(key, result.length)
-      result.push({ key, element })
-    } else {
-      result[position] = { key, element }
-    }
-  }
-  return result
-}
-
 function resolveObjectExpression(
   graph: SourceGraph,
   model: SourceModel,
@@ -506,6 +491,17 @@ function resolveObjectExpression(
   if (!ts.isObjectLiteralExpression(resolved.expression)) {
     throw new Error(`Spread в ${candidate} не разрешается в локальный объектный литерал`)
   }
+  return { model: resolved.model, object: resolved.expression }
+}
+
+function tryResolveObjectExpression(
+  graph: SourceGraph,
+  model: SourceModel,
+  expression: ts.Expression,
+  candidate: string
+): { model: SourceModel; object: ts.ObjectLiteralExpression } | undefined {
+  const resolved = unwrapExpression(graph, model, expression, candidate)
+  if (!ts.isObjectLiteralExpression(resolved.expression)) return undefined
   return { model: resolved.model, object: resolved.expression }
 }
 
@@ -551,14 +547,6 @@ function unwrapSyntax(expression: ts.Expression): ts.Expression {
     current = current.expression
   }
   return current
-}
-
-function elementKey(element: ts.ObjectLiteralElementLike, candidate: string): string {
-  if (ts.isSpreadAssignment(element)) throw new Error(`Spread не является самостоятельным ключом в ${candidate}`)
-  if (element.name === undefined || ts.isComputedPropertyName(element.name)) {
-    throw new Error(`Вычисляемое computed-свойство не поддерживается в ${candidate}`)
-  }
-  return propertyName(element.name)
 }
 
 function propertyName(name: ts.PropertyName): string {
