@@ -135,6 +135,26 @@ describe("MCP server", () => {
     }
   })
 
+  it("rejects extra infobase extension connection arguments through MCP", async () => {
+    const server = createNkdkMcpServer()
+    const client = new Client({ name: "nkdk-test-client", version: "1.0.0" })
+    const [clientTransport, serverTransport] = InMemoryTransport.createLinkedPair()
+
+    await Promise.all([server.connect(serverTransport), client.connect(clientTransport)])
+
+    try {
+      const result = await client.callTool({
+        name: "nkdk.list_infobase_extensions",
+        arguments: { projectDir: "/project", user: "Admin" },
+      })
+
+      expect(result.isError).toBe(true)
+      expect(listInfobaseExtensions).not.toHaveBeenCalled()
+    } finally {
+      await client.close()
+    }
+  })
+
   it("loads core API without a monorepo-relative runtime import", async () => {
     const source = await import("node:fs/promises").then((fs) =>
       fs.readFile(new URL("./coreApi.ts", import.meta.url), "utf8")

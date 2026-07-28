@@ -36,6 +36,7 @@ export interface DesignerAgentDependencies {
     sleep(timeoutMs: number): Promise<void>
   }
   startupTimeoutMs: number
+  commandTimeoutMs: number
   retryDelayMs: number
   closeTimeoutMs: number
 }
@@ -230,8 +231,14 @@ export async function createDesignerAgentSession(
       }
       const result = await commandSession.run(
         buildListDesignerExtensionsCommand(),
-        { signal }
+        { signal, timeoutMs: dependencies.commandTimeoutMs }
       )
+      if (result.extensionInfo === undefined) {
+        throw new PlatformSessionError(
+          "platform_command_failed",
+          "Платформа вернула некорректный список расширений"
+        )
+      }
       return parseExtensionPropertyRecords(result.extensionInfo)
     },
     async close() {

@@ -1,4 +1,5 @@
 import { describe, expect, it, vi } from "vitest"
+import { z } from "zod/v4"
 import * as registerToolsModule from "./registerTools"
 
 const { registerNkdkCapabilities } = registerToolsModule
@@ -97,6 +98,25 @@ describe("registerNkdkCapabilities", () => {
     expect(listExtensionsTool?.description).toContain("агент")
     expect(listExtensionsTool?.description).toContain("ibcmd")
     expect(listExtensionsTool?.description).toContain("Не изменяет")
+    const listExtensionsOptions = server.registerTool.mock.calls.find(
+      ([name]) => name === "nkdk.list_infobase_extensions"
+    )?.[1] as
+      | { inputSchema: z.ZodType; outputSchema: z.ZodType }
+      | undefined
+    expect(
+      listExtensionsOptions?.inputSchema.safeParse({
+        projectDir: "/project",
+        user: "Admin",
+      }).success
+    ).toBe(false)
+    expect(
+      listExtensionsOptions?.outputSchema.safeParse({
+        ok: true,
+        extensions: [],
+        mode: "designer-agent",
+        reusedConnection: false,
+      }).success
+    ).toBe(true)
   })
 
   it("passes the MCP cancellation signal to infobase import", async () => {

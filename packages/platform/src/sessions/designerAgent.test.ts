@@ -83,6 +83,50 @@ describe("Designer agent session", () => {
     expect(fixture.calls).toContain(
       "shell.run config extensions properties get --all-extensions"
     )
+    expect(fixture.calls).toContain("shell.run-options timeout=1800000")
+  })
+
+  it("rejects a success response without an extension-properties body", async () => {
+    const fixture = createFixture({
+      extensionResponseComplete: false,
+    })
+    const session = await createDesignerAgentSession(
+      createParams(),
+      fixture.dependencies
+    )
+
+    await expect(session.listExtensions()).rejects.toMatchObject({
+      code: "platform_command_failed",
+    })
+  })
+
+  it("returns an empty list and passes cancellation to the agent command", async () => {
+    const fixture = createFixture()
+    const session = await createDesignerAgentSession(
+      createParams(),
+      fixture.dependencies
+    )
+    const controller = new AbortController()
+
+    await expect(session.listExtensions(controller.signal)).resolves.toEqual([])
+    expect(fixture.calls).toContain("shell.run-options signal=true")
+  })
+
+  it("preserves a timeout from the agent extension command", async () => {
+    const fixture = createFixture({
+      extensionListError: new PlatformSessionError(
+        "session_timeout",
+        "timed out"
+      ),
+    })
+    const session = await createDesignerAgentSession(
+      createParams(),
+      fixture.dependencies
+    )
+
+    await expect(session.listExtensions()).rejects.toMatchObject({
+      code: "session_timeout",
+    })
   })
 
   it("rejects malformed extension properties returned by the agent", async () => {
@@ -378,6 +422,8 @@ function createFixture(
     dumpFailure?: boolean
     realpaths?: Record<string, string>
     extensionInfo?: unknown[]
+    extensionResponseComplete?: boolean
+    extensionListError?: Error
   } = {}
 ): {
   calls: string[]
@@ -417,8 +463,23 @@ function createFixture(
     },
   }
   const commandSession = {
-    async run(command: string, runOptions?: { signal?: AbortSignal }) {
+    async run(
+      command: string,
+      runOptions?: { signal?: AbortSignal; timeoutMs?: number }
+    ) {
       calls.push(`shell.run ${command}`)
+      if (runOptions?.timeoutMs !== undefined) {
+        calls.push(`shell.run-options timeout=${runOptions.timeoutMs}`)
+      }
+      if (runOptions?.signal !== undefined) {
+        calls.push("shell.run-options signal=true")
+      }
+      if (
+        options.extensionListError !== undefined &&
+        command.includes("extensions properties get")
+      ) {
+        throw options.extensionListError
+      }
       if (options.dumpFailure === true && command.startsWith("config ")) {
         throw new Error("dump failed")
       }
@@ -441,11 +502,10 @@ function createFixture(
       if (options.cleanupCommandsHang === true && command.startsWith("common ")) {
         await new Promise<void>(() => undefined)
       }
-      return {
-        extensionInfo: command.includes("extensions properties get")
-          ? (options.extensionInfo ?? [])
-          : [],
-      }
+      if (!command.includes("extensions properties get")) return {}
+      return options.extensionResponseComplete === false
+        ? {}
+        : { extensionInfo: options.extensionInfo ?? [] }
     },
     isAlive: () => true,
     async close() {
@@ -526,6 +586,7 @@ function createFixture(
         },
       },
       startupTimeoutMs: 200,
+      commandTimeoutMs: 30 * 60 * 1000,
       retryDelayMs: 100,
       closeTimeoutMs: 5_000,
     },

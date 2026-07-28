@@ -1,8 +1,9 @@
 import { describe, expect, it } from "vitest"
-import { z } from "zod/v4"
 import {
+  listInfobaseExtensionsInputSchema,
   listInfobaseExtensionsInputShape,
   listInfobaseExtensionsOutputShape,
+  listInfobaseExtensionsSuccessSchema,
 } from "./listInfobaseExtensions"
 
 const extension = {
@@ -19,7 +20,7 @@ const extension = {
 }
 
 describe("list_infobase_extensions contract", () => {
-  const inputSchema = z.strictObject(listInfobaseExtensionsInputShape)
+  const inputSchema = listInfobaseExtensionsInputSchema
 
   it("accepts only a non-empty project directory", () => {
     expect(inputSchema.parse({ projectDir: "/project" })).toEqual({
@@ -57,6 +58,26 @@ describe("list_infobase_extensions contract", () => {
         extensions: [{ ...extension, secretRawField: "raw" }],
         mode: "designer-agent",
         reusedConnection: false,
+      })
+    ).toThrow()
+  })
+
+  it("publishes the strict successful output schema", () => {
+    expect(
+      listInfobaseExtensionsSuccessSchema.parse({
+        ok: true,
+        extensions: [],
+        mode: "designer-agent",
+        reusedConnection: false,
+      })
+    ).toMatchObject({ ok: true, extensions: [] })
+    expect(() =>
+      listInfobaseExtensionsSuccessSchema.parse({
+        ok: true,
+        extensions: [],
+        mode: "designer-agent",
+        reusedConnection: false,
+        raw: "unexpected",
       })
     ).toThrow()
   })

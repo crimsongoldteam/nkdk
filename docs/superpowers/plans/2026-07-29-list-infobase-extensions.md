@@ -191,13 +191,13 @@ git commit -m "feat: :sparkles: типизировать свойства рас
 
 ```ts
 export type PlatformCommandResult = {
-  extensionInfo: unknown[]
+  extensionInfo?: unknown[]
 }
 
 export interface PlatformCommandSession {
   run(
     command: string,
-    options?: { signal?: AbortSignal }
+    options?: { signal?: AbortSignal; timeoutMs?: number }
   ): Promise<PlatformCommandResult>
   // остальные методы без изменений
 }
@@ -589,9 +589,17 @@ export const listInfobaseExtensionsInputShape = {
   projectDir: z.string().min(1),
 }
 
-export type ListInfobaseExtensionsInput = {
-  projectDir: string
-}
+export const listInfobaseExtensionsInputSchema =
+  z.strictObject(listInfobaseExtensionsInputShape)
+
+export const listInfobaseExtensionsSuccessSchema = z
+  .object({
+    ok: z.literal(true),
+    extensions: z.array(configurationExtensionSchema),
+    mode: z.enum(["designer-agent", "standalone-server"]),
+    reusedConnection: z.boolean(),
+  })
+  .strict()
 
 export async function listInfobaseExtensions(
   input: ListInfobaseExtensionsInput,
@@ -704,7 +712,8 @@ git commit -m "feat: :sparkles: добавить сервис списка ра�
 
 **Interfaces:**
 - Consumes:
-  - `listInfobaseExtensionsInputShape`
+  - `listInfobaseExtensionsInputSchema`
+  - `listInfobaseExtensionsSuccessSchema`
   - `listInfobaseExtensions(input, dependencies?, signal?)`
 - Produces: публичный инструмент `nkdk.list_infobase_extensions`.
 
@@ -743,7 +752,8 @@ server.registerTool(
     title: "List 1C infobase extensions",
     description:
       "Читает настройки подключения из .nkdk/project.yaml и возвращает свойства расширений через агент 1С или offline-режим ibcmd. Не изменяет проект и базу.",
-    inputSchema: listInfobaseExtensionsInputShape,
+    inputSchema: listInfobaseExtensionsInputSchema,
+    outputSchema: listInfobaseExtensionsSuccessSchema,
   },
   createListInfobaseExtensionsHandler()
 )

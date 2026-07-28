@@ -17,14 +17,14 @@ export interface SshTransport {
 export interface PlatformCommandSession {
   run(
     command: string,
-    options?: { signal?: AbortSignal }
+    options?: { signal?: AbortSignal; timeoutMs?: number }
   ): Promise<PlatformCommandResult>
   isAlive(): boolean
   close(): Promise<void>
 }
 
 export type PlatformCommandResult = {
-  extensionInfo: unknown[]
+  extensionInfo?: unknown[]
 }
 
 export interface SessionClock {

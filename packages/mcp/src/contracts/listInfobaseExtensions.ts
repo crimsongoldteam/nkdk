@@ -6,8 +6,12 @@ export const listInfobaseExtensionsInputShape = {
   projectDir: z.string().min(1),
 }
 
+export const listInfobaseExtensionsInputSchema = z.strictObject(
+  listInfobaseExtensionsInputShape
+)
+
 export type ListInfobaseExtensionsInput = z.infer<
-  z.ZodObject<typeof listInfobaseExtensionsInputShape>
+  typeof listInfobaseExtensionsInputSchema
 >
 
 const configurationExtensionSchema: z.ZodType<ConfigurationExtensionInfo> = z
@@ -25,14 +29,16 @@ const configurationExtensionSchema: z.ZodType<ConfigurationExtensionInfo> = z
   })
   .strict()
 
+export const listInfobaseExtensionsSuccessSchema = z
+  .object({
+    ok: z.literal(true),
+    extensions: z.array(configurationExtensionSchema),
+    mode: z.enum(["designer-agent", "standalone-server"]),
+    reusedConnection: z.boolean(),
+  })
+  .strict()
+
 export const listInfobaseExtensionsOutputShape = z.union([
-  z
-    .object({
-      ok: z.literal(true),
-      extensions: z.array(configurationExtensionSchema),
-      mode: z.enum(["designer-agent", "standalone-server"]),
-      reusedConnection: z.boolean(),
-    })
-    .strict(),
+  listInfobaseExtensionsSuccessSchema,
   z.object(toolErrorOutputShape).strict(),
 ])

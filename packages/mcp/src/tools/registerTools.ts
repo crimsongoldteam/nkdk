@@ -6,7 +6,10 @@ import { importFromXmlInputShape } from "../contracts/importFromXml"
 import { importFromInfobaseInputShape } from "../contracts/importFromInfobase"
 import { initSyncStateInputShape } from "../contracts/initSyncState"
 import { listInfobasesInputShape } from "../contracts/listInfobases"
-import { listInfobaseExtensionsInputShape } from "../contracts/listInfobaseExtensions"
+import {
+  listInfobaseExtensionsInputSchema,
+  listInfobaseExtensionsSuccessSchema,
+} from "../contracts/listInfobaseExtensions"
 import { findReferencesInputShape, renameItemInputShape } from "../contracts/operations"
 import { syncToXmlInputShape } from "../contracts/syncToXml"
 import { validateProjectInputShape } from "../contracts/validateProject"
@@ -74,7 +77,8 @@ export function registerNkdkCapabilities(server: RegisterableServer): void {
       title: "List 1C infobase extensions",
       description:
         "Возвращает свойства расширений информационной базы по настройкам .nkdk/project.yaml. Поддерживает соединение через агент 1С и offline-режим ibcmd. Не изменяет базу и файлы проекта.",
-      inputSchema: listInfobaseExtensionsInputShape,
+      inputSchema: listInfobaseExtensionsInputSchema,
+      outputSchema: listInfobaseExtensionsSuccessSchema,
     },
     createListInfobaseExtensionsHandler()
   )
