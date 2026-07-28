@@ -161,6 +161,29 @@ export function createConfigurationIndexCollector(): ConfigurationIndexCollector
   return new InMemoryConfigurationIndexCollector()
 }
 
+export function createDiscardingConfigurationIndexCollector(): ConfigurationIndexCollector {
+  const discard = (): void => undefined
+  return {
+    setUuid: discard,
+    setXmlId: discard,
+    setXmlName: discard,
+    setOrder: discard,
+    setAlias: discard,
+    setPresent: discard,
+    setXsiNil: discard,
+    setExplicitEmpty: discard,
+    setExcludedEqualName: discard,
+    setXsiType: discard,
+    setXmlText: discard,
+    setXmlPrefix: discard,
+    setUserSettingsId: discard,
+    setExtended: discard,
+    fragment(targetProjectPath) {
+      return { targetProjectPath, identities: [], xmlNodes: [], xmlValues: [] }
+    },
+  }
+}
+
 function copyNode(node: MutableXmlNode): ConfigurationXmlNode {
   return {
     logicalAddress: node.logicalAddress,

@@ -14,7 +14,7 @@ import {
 } from "../orchestration/appliedObject/metadataItemOwnerContext"
 import { metadataTargetOwnerFromRule } from "../orchestration/property/metadataTargetString"
 import type { MetadataItemRule, PropertyRule } from "../orchestration/property/types"
-import type { DirectImportProfile } from "../orchestration/property/importYamlTypes"
+import type { DirectImportProfile, RulePropertyOrderCollector } from "../orchestration/property/importYamlTypes"
 import { createDeferredValuePathCollector } from "../orchestration/property/importYamlTypes"
 import { bindDeferredObjectValues, type DeferredObjectValue } from "../orchestration/property/deferredObjectValues"
 import { createLocalIndexesCollector, type LocalIndexes } from "../project/localIndexes"
@@ -59,6 +59,7 @@ export async function prepareImportYaml(params: {
   context: XmlImportConfigurationContext
   collector: ConfigurationIndexCollector
   profiler?: ValidationProfiler
+  ruleOrderCollector?: RulePropertyOrderCollector
 }): Promise<PreparedImportYaml> {
   let xmlInputs: ParsedImportXmlInput[] | undefined
   try {
@@ -87,25 +88,39 @@ export async function prepareImportYaml(params: {
     const result = measureYaml(params.profiler, () => {
       if (rule === ClientApplicationFormRules) {
         const metadataXML = requireMetadataXml(xmlInputs ?? [])
-        const bodyXML = xmlInputs?.find(({ input }) => input.role === "body")?.parsed
+        const metadataInput = xmlInputs?.find(({ input }) => input.role === "metadata")
+        const bodyInput = xmlInputs?.find(({ input }) => input.role === "body")
+        const bodyXML = bodyInput?.parsed
         return importClientApplicationFormFromXMLToYAML({
           context: importContext,
           formName: params.assignment.itemName,
           formXML: bodyXML?.["Form"] as ClientApplicationFormXML | undefined,
           metadataXML: metadataXML["MetaDataObject"] as FormMetadataXML,
           profile: importProfile,
+          ruleOrderCollector: params.ruleOrderCollector,
+          metadataSourceXmlPath: metadataInput?.input.sourcePath,
+          bodySourceXmlPath: bodyInput?.input.sourcePath,
         })
       }
 
       const collector = createLocalIndexesCollector()
       const deferred = createDeferredValuePathCollector()
       const metadataXML = requireMetadataXml(xmlInputs ?? [])
+      const metadataSourceXmlPath = xmlInputs?.find(({ input }) => input.role === "metadata")?.input.sourcePath
       const yaml = importMetadataItemFromXMLToYAML({
         context: importContext,
         rule,
         name: params.assignment.itemName,
         xml: metadataXML["MetaDataObject"],
-        traversal: { yamlPath: [], rulePath: [], collector, deferred, profile: importProfile },
+        traversal: {
+          yamlPath: [],
+          rulePath: [],
+          collector,
+          deferred,
+          profile: importProfile,
+          ruleOrderCollector: params.ruleOrderCollector,
+          sourceXmlPath: metadataSourceXmlPath,
+        },
         propertyXML: mapPropertyXml(rule, xmlInputs ?? []),
       })
       if (yaml === undefined) throw new Error("XML-import не сформировал YAML")

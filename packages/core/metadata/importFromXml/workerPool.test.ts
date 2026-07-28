@@ -25,6 +25,29 @@ afterEach(() => {
 })
 
 describe("XML import worker pool", () => {
+  it("combines rule-order observations from partitions in deterministic order", async () => {
+    const pools = createFakePools()
+    const pool = createXmlImportWorkerPool({ concurrency: 2, createWorkerPool: pools.factory })
+    await pool.initialize({
+      operationId: "order",
+      context: mockContextFromXML(),
+      outputDir: createTempDir("order"),
+      componentKind: "configuration",
+    })
+
+    const result = await pool.analyzeRuleOrder({
+      configuration: "all",
+      assignments: [assignment("z"), assignment("a")],
+    })
+
+    expect(result.observations.map((observation) => observation.logicalAddress)).toEqual([
+      "Справочник.a",
+      "Справочник.z",
+    ])
+    expect(pools.runs(0).map((task) => task.kind)).toEqual(["initialize", "analyzeRuleOrder"])
+    await pool.close()
+  })
+
   it("keeps the generic XML context free of component selection", () => {
     expect(mockContextFromXML().fromXML).not.toHaveProperty("componentKind")
   })
@@ -124,9 +147,7 @@ describe("XML import worker pool", () => {
     expect(result.diagnostics).toContainEqual(expect.objectContaining({ severity: "error" }))
     await expect(
       pool.runSecondPass(createLayeredImportReferenceSnapshot({ local: createImportSharedMetadata([]) }))
-    ).rejects.toThrow(
-      "Первый проход import завершён с ошибками"
-    )
+    ).rejects.toThrow("Первый проход import завершён с ошибками")
     expect(pools.runs(0).map((task) => task.kind)).toEqual(["initialize", "firstPass"])
     expect(pools.runs(1).map((task) => task.kind)).toEqual(["initialize", "firstPass"])
 
@@ -210,7 +231,9 @@ describe("XML import worker pool", () => {
         componentKind: "configuration",
       })
       await firstOperation.runFirstPass([assignment("one-a"), assignment("one-b")])
-      await firstOperation.runSecondPass(createLayeredImportReferenceSnapshot({ local: createImportSharedMetadata([]) }))
+      await firstOperation.runSecondPass(
+        createLayeredImportReferenceSnapshot({ local: createImportSharedMetadata([]) })
+      )
       await firstOperation.close()
 
       const secondOperation = handle.createOperationPool()
@@ -221,7 +244,9 @@ describe("XML import worker pool", () => {
         componentKind: "configuration",
       })
       await secondOperation.runFirstPass([assignment("two-a"), assignment("two-b")])
-      await secondOperation.runSecondPass(createLayeredImportReferenceSnapshot({ local: createImportSharedMetadata([]) }))
+      await secondOperation.runSecondPass(
+        createLayeredImportReferenceSnapshot({ local: createImportSharedMetadata([]) })
+      )
       await secondOperation.close()
 
       expect(pools.created()).toBe(2)
@@ -328,6 +353,21 @@ function createFakePools() {
           }
           if (task.kind === "secondPass") {
             return { kind: "secondPassResult" as const, diagnostics: [], warnings: [], files: [] }
+          }
+          if (task.kind === "analyzeRuleOrder") {
+            return {
+              kind: "ruleOrderAnalysisResult" as const,
+              diagnostics: [],
+              observations: task.assignments.map((item) => ({
+                configuration: task.configuration,
+                sourceXmlPath: item.xmlFiles[0]?.sourcePath ?? "",
+                logicalAddress: item.logicalAddress,
+                xmlNodeLogicalAddress: item.logicalAddress,
+                ruleId: item.id,
+                itemType: item.itemType,
+                fields: ["name"],
+              })),
+            }
           }
           return undefined
         },

@@ -14,7 +14,12 @@ import type { ConfigurationIndexCollector } from "../../configurationIndex/colle
 import type { ConfigurationContextFromXML } from "../../context/types"
 import { buildExternalFileEntry } from "../../forms/commonObjects/dynamicList/externalFile"
 import { getValueOrDefault, presenceAffectsExport, shouldProcessProperty } from "./helpers"
-import type { DeferredRulePathSegment, DirectImportProfile, DirectImportXMLSource } from "./importYamlTypes"
+import type {
+  DeferredRulePathSegment,
+  DirectImportProfile,
+  DirectImportXMLSource,
+  RulePropertyOrderCollector,
+} from "./importYamlTypes"
 import { metadataTargetOwnerFromRule } from "./metadataTargetString"
 import { importPropertyFromXML } from "./fromXML"
 import { canExportPropertyToYAML, exportPropertyValueToYAML, getExportToYAMLResult } from "./toYAML"
@@ -53,6 +58,8 @@ export function importPropertiesFromXMLToYAML(params: {
   deferred?: DeferredValuePathCollector
   profile?: DirectImportProfile
   propertyXML?: ReadonlyMap<string, unknown>
+  ruleOrderCollector?: RulePropertyOrderCollector
+  sourceXmlPath?: string
 }): Record<string, unknown> | undefined {
   const { context, rule, sources, itemName, yamlPath, rulePath, collector, deferred, propertyXML } = params
   if (sources.length === 0) return undefined
@@ -63,7 +70,13 @@ export function importPropertiesFromXMLToYAML(params: {
   const importedExternalProperties = new Set<string>()
   const observedOrderByXmlNode = new Map<
     string,
-    { collector: ConfigurationIndexCollector; keys: string[]; seen: Set<string> }
+    {
+      collector: ConfigurationIndexCollector
+      keys: string[]
+      seen: Set<string>
+      sourceXmlPath?: string
+      logicalAddress: string
+    }
   >()
 
   const includeAllTags = sources.length === 1 && sources[0]?.tags === undefined
@@ -140,6 +153,8 @@ export function importPropertiesFromXMLToYAML(params: {
         collector: indexCollection.collector,
         keys: [],
         seen: new Set<string>(),
+        sourceXmlPath: source.sourceXmlPath ?? params.sourceXmlPath,
+        logicalAddress: indexCollection.logicalAddress,
       }
       if (!observation.seen.has(key)) {
         observation.seen.add(key)
@@ -265,6 +280,8 @@ export function importPropertiesFromXMLToYAML(params: {
               collector,
               deferred,
               profile: params.profile,
+              ruleOrderCollector: params.ruleOrderCollector,
+              sourceXmlPath: source.sourceXmlPath ?? params.sourceXmlPath,
             }),
           { configurationIndexAddressing: nestedConfigurationIndexAddressing }
         )
@@ -537,6 +554,18 @@ export function importPropertiesFromXMLToYAML(params: {
 
   for (const [xmlNodeLogicalAddress, observation] of observedOrderByXmlNode) {
     if (observation.keys.length === 0) continue
+    if (params.ruleOrderCollector !== undefined) {
+      const sourceXmlPath = observation.sourceXmlPath
+      if (sourceXmlPath === undefined) throw new Error(`Не определён XML-путь наблюдения ${xmlNodeLogicalAddress}`)
+      params.ruleOrderCollector.accept({
+        rule,
+        rulePath,
+        sourceXmlPath,
+        logicalAddress: observation.logicalAddress,
+        xmlNodeLogicalAddress,
+        fields: [...observation.keys],
+      })
+    }
     const indexStartedAt = performance.now()
     observation.collector.setOrder(xmlNodeLogicalAddress, observation.keys)
     addProfileTime(params.profile, "configurationIndexMs", indexStartedAt)

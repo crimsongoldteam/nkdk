@@ -55,7 +55,7 @@ export function fingerprintMetadataItemRule(rule: MetadataItemRule): string
 
 export interface RuleOrderCatalog {
   candidates(ruleId: string): readonly string[]
-  assertKnown(observation: RawRuleOrderObservation): RuleOrderObservation
+  match(observation: RawRuleOrderObservation): RuleOrderObservation | undefined
   ambiguities(): readonly { ruleId: string; candidates: readonly string[] }[]
 }
 
@@ -112,7 +112,7 @@ it("is stable when object key insertion order differs", () => {
 })
 ```
 
-Add a test for a nested rule registered through `nestedItemRule` and a test proving normalized function source participates in the fingerprint.
+Add a test for a nested rule registered through `nestedItemRule` and a test proving function implementation does not make the fingerprint runtime-dependent.
 
 - [ ] **Step 2: Run fingerprint tests and verify failure**
 
@@ -131,10 +131,10 @@ In `fingerprint.ts`:
 - recursively sort plain-object keys;
 - omit every key named `order`;
 - encode `undefined`, arrays, primitives and functions explicitly;
-- normalize function source with `Function.prototype.toString.call(value).replace(/\s+/g, " ").trim()`;
+- encode functions as an opaque marker because the main process and `tsx` workers may compile their source differently;
 - reject symbol, bigint, cyclic values and unsupported object prototypes with a message containing the rule `itemType`;
 - include the reachable static `nestedItemRule.itemRule` in the property representation;
-- encode `{ resolveItemRule }` by normalized resolver source without calling it;
+- encode `{ resolveItemRule }` without calling it;
 - hash the canonical UTF-8 representation with `createHash("sha256").update(...).digest("hex")`;
 - cache completed rule fingerprints in a `WeakMap<MetadataItemRule, string>`.
 
@@ -153,7 +153,7 @@ Create temporary `rules.ts` modules under a per-test temporary directory and ver
 ```ts
 it("indexes exported rules by file and export name", async () => {
   const catalog = await buildRuleOrderCatalog({ metadataDir })
-  const observation = catalog.assertKnown({
+  const observation = catalog.match({
     configuration: "all",
     sourceXmlPath: "/xml/Test.xml",
     logicalAddress: "Тест.Объект",
@@ -162,11 +162,11 @@ it("indexes exported rules by file and export name", async () => {
     itemType: "TestItem",
     fields: ["name"],
   })
-  expect(observation.ruleCandidates).toEqual([expect.stringMatching(/rules\.ts#TestRules$/)])
+  expect(observation?.ruleCandidates).toEqual([expect.stringMatching(/rules\.ts#TestRules$/)])
 })
 ```
 
-Also test two exports with the same fingerprint, an unknown fingerprint, deterministic bytewise ordering of candidates and recursive discovery of a nested static rule.
+Also test two exports with the same fingerprint, an unknown fingerprint returning `undefined`, deterministic bytewise ordering of candidates and recursive discovery of a nested static rule.
 
 - [ ] **Step 6: Run catalog tests and verify failure**
 
@@ -189,7 +189,7 @@ In `catalog.ts`:
 - index the export as `<relative-posix-path>#<exportName>`;
 - recursively index static `nestedItemRule.itemRule` as `<parent-candidate>.<propertyKey>`;
 - map every fingerprint to a sorted, de-duplicated candidate array;
-- make `assertKnown` throw `Не найдено исходное rules.ts для ruleId ...` for an unknown ID;
+- make `match` return `undefined` for an unknown ID;
 - return only IDs with more than one candidate from `ambiguities()`.
 
 Do not call `resolveItemRule`: dynamically selected rules must also be exported by their own `rules.ts` to enter the catalog.
@@ -548,10 +548,13 @@ export interface AnalyzeRuleOrderResult {
     assignmentCount: number
     xmlFileCount: number
     observationCount: number
+    skippedObservationCount: number
   }[]
   assignmentCount: number
   xmlFileCount: number
   observationCount: number
+  skippedObservationCount: number
+  skippedItemTypes: readonly { itemType: string; count: number }[]
   rules: readonly RuleOrderRuleReport[]
   ambiguities: readonly { ruleId: string; candidates: readonly string[] }[]
 }
@@ -645,10 +648,11 @@ In `analyze.test.ts`, inject dependencies for filesystem listing, discovery, cat
 - names are sorted bytewise;
 - configurations run sequentially;
 - each operation pool is closed in `finally`;
-- observations are passed through `catalog.assertKnown`, then `onObservation`, then aggregate;
+- observations matched by `catalog.match` are passed to `onObservation`, then aggregate;
+- unmatched observations are counted by `itemType` and are not aggregated;
 - any error diagnostic throws with configuration and source path;
 - a directory with zero assignments is still listed as processed.
-- per-configuration statistics contain assignment, XML-file and observation counts.
+- per-configuration statistics contain assignment, XML-file, matched and skipped observation counts.
 
 Use exact expected order `["acc", "all", "clean", "doc", "erp", "small", "trade"]`.
 
@@ -663,8 +667,8 @@ Use exact expected order `["acc", "all", "clean", "doc", "erp", "small", "trade"
 5. for each configuration, create an operation pool, initialize it with standard context `{ defaultLanguage: "ru", version: "2.20", exportToYAML: { toTyped: false }, fromXML: { forReference: false } }`, discover assignments and call `pool.analyzeRuleOrder`;
 6. close each operation pool in `finally`;
 7. close the handle in the outer `finally`;
-8. decorate observations through the catalog and send them to the callback and aggregate;
-9. return per-configuration and total assignment, XML-file and observation counts, reports and catalog ambiguities.
+8. match observations through the catalog, count unmatched rules by `itemType`, and send matched observations to the callback and aggregate;
+9. return per-configuration and total assignment, XML-file, matched and skipped observation counts, reports and catalog ambiguities.
 
 Use a harmless `outputDir` below `tmpdir()` only to satisfy the shared initialize contract; the analysis command must never create it.
 
@@ -739,7 +743,7 @@ Use a fixed result with one `use/indexing` conflict and one three-node cycle. As
 
 - JSON ends with one newline;
 - all object keys and arrays are stable between two renders;
-- Markdown begins with processed configuration, XML-file, assignment, observation, rule, conflict, cycle and ambiguity counts;
+- Markdown begins with processed configuration, XML-file, assignment, matched observation, skipped observation, rule, conflict, cycle and ambiguity counts;
 - both directions include counts and witness paths;
 - an empty result says `Конфликты порядка не найдены.`;
 - candidates and conflicts are bytewise sorted.
@@ -767,6 +771,7 @@ Render `conflicts.json` through a recursively stable object builder rather than 
 - XML-файлы: ...
 - Задания: ...
 - Наблюдения: ...
+- Пропущенные наблюдения вне rules.ts: ...
 - Правила: ...
 - Конфликты пар: ...
 - Циклы: ...

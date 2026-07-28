@@ -5,6 +5,7 @@ import {
   createDeferredValuePathCollector,
   type DirectImportProfile,
   type DirectImportResult,
+  type RulePropertyOrderCollector,
 } from "../../orchestration/property/importYamlTypes"
 import { createLocalIndexesCollector } from "../../project/localIndexes"
 import { createFormDataPathIndexCollector } from "../../validation/dataPath/formYamlIndex"
@@ -18,6 +19,9 @@ export function importClientApplicationFormFromXMLToYAML(params: {
   formXML?: ClientApplicationFormXML
   metadataXML: FormMetadataXML
   profile?: DirectImportProfile
+  ruleOrderCollector?: RulePropertyOrderCollector
+  metadataSourceXmlPath?: string
+  bodySourceXmlPath?: string
 }): DirectImportResult {
   if (params.formXML === undefined && params.metadataXML.Form.Properties.FormType !== "Ordinary") {
     throw new Error(`Не найден Form.xml для управляемой формы ${params.formName}`)
@@ -58,6 +62,8 @@ export function importClientApplicationFormFromXMLToYAML(params: {
       context,
       formXML: params.formXML,
       metadataXML: params.metadataXML,
+      metadataSourceXmlPath: params.metadataSourceXmlPath,
+      bodySourceXmlPath: params.bodySourceXmlPath,
     }),
     itemName: params.formName,
     yamlPath: [],
@@ -65,6 +71,7 @@ export function importClientApplicationFormFromXMLToYAML(params: {
     collector,
     deferred,
     profile: params.profile,
+    ruleOrderCollector: params.ruleOrderCollector,
   })
   if (yaml !== undefined) {
     applyMetadataItemXmlImportAugmenter({

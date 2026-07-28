@@ -3,10 +3,7 @@ import { fileURLToPath } from "node:url"
 import Piscina from "piscina"
 import { mergeConfigurationIndexFragments } from "../configurationIndex/fragment"
 import type { ConfigurationIndexData, ConfigurationLocalDependency } from "../configurationIndex/types"
-import type {
-  ConfigurationContextFromXML,
-  XmlImportConfigurationContext,
-} from "../context/types"
+import type { ConfigurationContextFromXML, XmlImportConfigurationContext } from "../context/types"
 import { sourceWorkerExecArgv } from "../sourceWorkerRuntime"
 import type { ValidationOwnerFacts } from "../validation/dataPath/ownerFacts"
 import type { ValidationIndexContribution } from "../validation/projectValidationTypes"
@@ -21,7 +18,9 @@ import type {
   ImportSecondPassResult,
   ImportWorkerCommand,
   ImportWorkerCommandResult,
+  RuleOrderAnalysisWorkerResult,
 } from "./types"
+import type { RawRuleOrderObservation } from "../ruleOrderAnalysis/types"
 
 export interface XmlImportWorkerPool {
   initialize(params: {
@@ -33,6 +32,10 @@ export interface XmlImportWorkerPool {
   }): Promise<void>
   runFirstPass(assignments: readonly ImportAssignment[]): Promise<XmlImportFirstPassPoolResult>
   runSecondPass(referenceSnapshots: LayeredImportReferenceSnapshot): Promise<XmlImportSecondPassPoolResult>
+  analyzeRuleOrder(params: {
+    configuration: string
+    assignments: readonly ImportAssignment[]
+  }): Promise<XmlImportRuleOrderPoolResult>
   close(): Promise<void>
 }
 
@@ -58,6 +61,11 @@ export interface XmlImportSecondPassPoolResult {
   files: ImportResultFile[]
 }
 
+export interface XmlImportRuleOrderPoolResult {
+  diagnostics: ImportDiagnostic[]
+  observations: RawRuleOrderObservation[]
+}
+
 export interface XmlImportWorkerThreadPool {
   run(task: ImportWorkerCommand): Promise<unknown>
   destroy(): Promise<void>
@@ -71,6 +79,8 @@ type PoolPhase =
   | "firstPassReady"
   | "secondPassRunning"
   | "secondPassDone"
+  | "analysisRunning"
+  | "analysisDone"
   | "crashed"
   | "closed"
 
@@ -252,6 +262,49 @@ function createXmlImportOperationPool(params: {
       }
     },
 
+    async analyzeRuleOrder(analysisParams) {
+      assertUsable(phase, fatalError)
+      assertPhase(phase, "initialized", "Анализ порядка XML уже был запущен")
+      if (initialization === undefined) throw new Error("XML-import worker pool не инициализирован")
+      const initialized = initialization
+      phase = "analysisRunning"
+      const partitions = partitionRoundRobin(analysisParams.assignments, params.concurrency)
+      for (let index = 0; index < partitions.length; index += 1) {
+        if ((partitions[index]?.length ?? 0) > 0) activeWorkerIndexes.push(index)
+      }
+
+      const results = await Promise.all(
+        activeWorkerIndexes.map(async (workerIndex): Promise<RuleOrderAnalysisWorkerResult> => {
+          const initializeResponse = await runCommand(workerIndex, {
+            kind: "initialize",
+            operationId: initialized.operationId,
+            workerIndex,
+            context: xmlImportContext(initialized),
+            outputDir: initialized.outputDir,
+          })
+          if (initializeResponse !== undefined) {
+            return failWorker(new Error("Worker вернул неожиданный результат initialize"))
+          }
+          const response = await runCommand(workerIndex, {
+            kind: "analyzeRuleOrder",
+            configuration: analysisParams.configuration,
+            assignments: [...(partitions[workerIndex] ?? [])],
+          })
+          if (response?.kind !== "ruleOrderAnalysisResult") {
+            return failWorker(new Error("Worker вернул неожиданный результат analyzeRuleOrder"))
+          }
+          return response
+        })
+      )
+      phase = "analysisDone"
+      return {
+        diagnostics: results.flatMap((result) => result.diagnostics),
+        observations: results
+          .flatMap((result) => result.observations)
+          .sort((left, right) => compareObservation(left, right)),
+      }
+    },
+
     async runSecondPass(referenceSnapshots) {
       assertUsable(phase, fatalError)
       if (phase === "firstPassErrors") throw new Error("Первый проход import завершён с ошибками")
@@ -282,26 +335,26 @@ function createXmlImportOperationPool(params: {
   }
 
   async function closeOperation(): Promise<void> {
-      if (phase === "closed") return
-      if (phase === "crashed") {
-        try {
-          await destroyAfterCrash()
-        } catch {
-          // Исходная ошибка worker важнее ошибки остановки уже аварийного пула.
-        } finally {
-          phase = "closed"
-          await params.releaseOperation?.()
-        }
-        return
-      }
-
+    if (phase === "closed") return
+    if (phase === "crashed") {
       try {
-        if (params.closeMode === "destroy") await destroyAllWorkers()
-        else await disposeActiveWorkers()
+        await destroyAfterCrash()
+      } catch {
+        // Исходная ошибка worker важнее ошибки остановки уже аварийного пула.
       } finally {
         phase = "closed"
         await params.releaseOperation?.()
       }
+      return
+    }
+
+    try {
+      if (params.closeMode === "destroy") await destroyAllWorkers()
+      else await disposeActiveWorkers()
+    } finally {
+      phase = "closed"
+      await params.releaseOperation?.()
+    }
   }
 
   async function runCommand(workerIndex: number, command: ImportWorkerCommand): Promise<ImportWorkerCommandResult> {
@@ -340,6 +393,20 @@ function createXmlImportOperationPool(params: {
       })
     )
   }
+}
+
+function compareObservation(left: RawRuleOrderObservation, right: RawRuleOrderObservation): number {
+  for (const [leftPart, rightPart] of [
+    [left.configuration, right.configuration],
+    [left.sourceXmlPath, right.sourceXmlPath],
+    [left.logicalAddress, right.logicalAddress],
+    [left.xmlNodeLogicalAddress, right.xmlNodeLogicalAddress],
+    [left.ruleId, right.ruleId],
+  ]) {
+    const compared = Buffer.compare(Buffer.from(leftPart), Buffer.from(rightPart))
+    if (compared !== 0) return compared
+  }
+  return Buffer.compare(Buffer.from(left.fields.join("\0")), Buffer.from(right.fields.join("\0")))
 }
 
 function normalizeConcurrency(concurrency: number): number {
@@ -388,9 +455,7 @@ function xmlImportContext(params: {
     fromXML: {
       ...params.context.fromXML,
       componentKind: params.componentKind,
-      ...(params.metadataItemAugmenter === undefined
-        ? {}
-        : { metadataItemAugmenter: params.metadataItemAugmenter }),
+      ...(params.metadataItemAugmenter === undefined ? {} : { metadataItemAugmenter: params.metadataItemAugmenter }),
     },
   }
 }

@@ -242,7 +242,9 @@ describe("XML import worker first pass", () => {
           line.includes('substep="Чтение XML"')
       )
     ).toBe(true)
-    expect(lines.some((line) => line.includes("[nkdk-profile-step]") && line.includes('substep="Парсинг XML"'))).toBe(true)
+    expect(lines.some((line) => line.includes("[nkdk-profile-step]") && line.includes('substep="Парсинг XML"'))).toBe(
+      true
+    )
     expect(lines.some((line) => line.includes('substep="Преобразование XML в YAML"'))).toBe(true)
     expect(lines.some((line) => line.includes('substep="Сбор локальных индексов"'))).toBe(true)
     expect(lines.some((line) => line.includes('substep="Извлечение данных для индекса конфигурации"'))).toBe(true)
@@ -269,6 +271,35 @@ describe("XML import worker first pass", () => {
   })
 })
 
+describe("XML import worker rule order analysis", () => {
+  it("returns observations without retaining or writing YAML", async () => {
+    const outputDir = createTempDir("rule-order")
+    await initializeWorker(outputDir)
+    const assignment = catalogAssignment()
+
+    const result = await runImportWorkerCommand({
+      kind: "analyzeRuleOrder",
+      configuration: "all",
+      assignments: [assignment],
+    } as never)
+
+    expect(result).toMatchObject({
+      kind: "ruleOrderAnalysisResult",
+      diagnostics: [],
+      observations: [
+        expect.objectContaining({
+          configuration: "all",
+          sourceXmlPath: assignment.xmlFiles[0]?.sourcePath,
+          logicalAddress: assignment.logicalAddress,
+          itemType: "MetadataCatalog",
+        }),
+      ],
+    })
+    expect(workerStateForTests().preparedYamlIds).toEqual([])
+    expect(existsSync(join(outputDir, assignment.targetProjectPath))).toBe(false)
+  })
+})
+
 describe("XML import worker second pass", () => {
   it.each([
     ["Catalog", catalogAssignment()],
@@ -286,9 +317,7 @@ describe("XML import worker second pass", () => {
   ])("writes %s to its fixed Свойства.yaml target path", async (_itemType, assignment) => {
     const outputDir = createTempDir("worker-target")
     await initializeWorker(outputDir)
-    const first = expectFirstPass(
-      await runImportWorkerCommand({ kind: "firstPass", assignments: [assignment] })
-    )
+    const first = expectFirstPass(await runImportWorkerCommand({ kind: "firstPass", assignments: [assignment] }))
 
     const second = await runImportWorkerCommand({
       kind: "secondPass",

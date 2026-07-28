@@ -3,10 +3,7 @@ import os from "node:os"
 import { join } from "node:path"
 import { afterEach, describe, expect, it, vi } from "vitest"
 import { mockContextFromXML } from "../../tests/mockContext"
-import {
-  configurationIndexPath,
-  type ConfigurationIndexData,
-} from "../configurationIndex"
+import { configurationIndexPath, type ConfigurationIndexData } from "../configurationIndex"
 import type { ComponentAddress } from "../components/address"
 import type { ValidationOwnerFacts } from "../validation/dataPath/ownerFacts"
 import { serializeSharedValidationSnapshot } from "../validation/persistedSharedValidationSnapshot"
@@ -53,9 +50,7 @@ const fragmentData: Pick<ConfigurationIndexData, "identities" | "xmlNodes" | "xm
 const tempDirs: string[] = []
 
 afterEach(async () => {
-  await Promise.all(
-    tempDirs.splice(0).map((directory) => fs.promises.rm(directory, { recursive: true, force: true }))
-  )
+  await Promise.all(tempDirs.splice(0).map((directory) => fs.promises.rm(directory, { recursive: true, force: true })))
 })
 
 describe("configuration XML import coordinator", () => {
@@ -65,10 +60,7 @@ describe("configuration XML import coordinator", () => {
     const writtenIndexes: Array<{ address: ComponentAddress; data: ConfigurationIndexData }> = []
     const initialized: Array<{ outputDir: string; componentKind: string; metadataItemAugmenter?: string }> = []
 
-    const result = await importConfigurationFromXml(
-      params,
-      fakeDependencies({ calls, writtenIndexes, initialized })
-    )
+    const result = await importConfigurationFromXml(params, fakeDependencies({ calls, writtenIndexes, initialized }))
 
     expect(result).toEqual({
       componentPath: "cf",
@@ -148,10 +140,7 @@ describe("configuration XML import coordinator", () => {
     matching.requestedComponentPath = "cfe/Расширение_All"
     createBaseConfiguration(matching.projectDir)
 
-    const matchingResult = await importConfigurationFromXml(
-      matching,
-      fakeDependencies({ calls: [] })
-    )
+    const matchingResult = await importConfigurationFromXml(matching, fakeDependencies({ calls: [] }))
 
     expect(matchingResult.failed).toEqual([])
 
@@ -160,10 +149,7 @@ describe("configuration XML import coordinator", () => {
     createBaseConfiguration(mismatching.projectDir)
     const calls: string[] = []
 
-    const mismatchingResult = await importConfigurationFromXml(
-      mismatching,
-      fakeDependencies({ calls })
-    )
+    const mismatchingResult = await importConfigurationFromXml(mismatching, fakeDependencies({ calls }))
 
     expect(mismatchingResult).toMatchObject({
       componentPath: "cfe/Расширение_All",
@@ -192,10 +178,7 @@ describe("configuration XML import coordinator", () => {
     const params = createParams("configuration")
     if (targetState === "empty") fs.mkdirSync(join(params.projectDir, "cf"), { recursive: true })
 
-    const result = await importConfigurationFromXml(
-      params,
-      fakeDependencies({ calls: [] })
-    )
+    const result = await importConfigurationFromXml(params, fakeDependencies({ calls: [] }))
 
     expect(result.failed).toEqual([])
   })
@@ -274,10 +257,7 @@ describe("configuration XML import coordinator", () => {
     const params = createParams("configuration")
     const calls: string[] = []
 
-    const result = await importConfigurationFromXml(
-      params,
-      fakeDependencies({ calls })
-    )
+    const result = await importConfigurationFromXml(params, fakeDependencies({ calls }))
 
     expect(calls).toEqual([
       "discover",
@@ -291,9 +271,7 @@ describe("configuration XML import coordinator", () => {
       "writeIndex",
       "closeWorkers",
     ])
-    expect(result.configurationIndexPath).toBe(
-      configurationIndexPath(params.projectDir, { kind: "configuration" })
-    )
+    expect(result.configurationIndexPath).toBe(configurationIndexPath(params.projectDir, { kind: "configuration" }))
   })
 
   it.each(failurePhases)("does not publish a snapshot path after the %s failure", async (failurePhase) => {
@@ -301,10 +279,7 @@ describe("configuration XML import coordinator", () => {
     const calls: string[] = []
     const yamlPath = join(params.projectDir, "cf", "Конфигурация.yaml")
 
-    const result = await importConfigurationFromXml(
-      params,
-      fakeDependencies({ calls, failurePhase })
-    )
+    const result = await importConfigurationFromXml(params, fakeDependencies({ calls, failurePhase }))
 
     expect(result).toMatchObject({
       componentPath: "cf",
@@ -332,9 +307,7 @@ describe("configuration XML import coordinator", () => {
 
     const result = await importConfigurationFromXml(params, fakeDependencies({ calls }))
 
-    expect(result.failed).toEqual([
-      expect.objectContaining({ message: expect.stringMatching(/не пуст/iu) }),
-    ])
+    expect(result.failed).toEqual([expect.objectContaining({ message: expect.stringMatching(/не пуст/iu) })])
     expect(calls).toEqual([])
   })
 
@@ -390,10 +363,7 @@ describe("configuration XML import coordinator", () => {
     let lines: string[] = []
     process.env["NKDK_PROFILE"] = "1"
     try {
-      await importConfigurationFromXml(
-        createParams("configuration"),
-        fakeDependencies({ calls: [] })
-      )
+      await importConfigurationFromXml(createParams("configuration"), fakeDependencies({ calls: [] }))
       lines = error.mock.calls.map(([line]) => String(line))
     } finally {
       if (previous === undefined) delete process.env["NKDK_PROFILE"]
@@ -412,8 +382,7 @@ describe("configuration XML import coordinator", () => {
     expect(
       lines.some(
         (line) =>
-          line.includes("[nkdk-profile-step]") &&
-          line.includes('substep="Копирование внешних файлов XML-выгрузки"')
+          line.includes("[nkdk-profile-step]") && line.includes('substep="Копирование внешних файлов XML-выгрузки"')
       )
     ).toBe(true)
     expect(lines.some((line) => line.includes('substep="Перенос результата импорта в проект"'))).toBe(false)
@@ -438,9 +407,7 @@ describe("configuration XML import coordinator", () => {
   })
 })
 
-function createParams(
-  kind: "configuration" | "configurationExtension" | "unknown"
-): ImportConfigurationFromXmlParams {
+function createParams(kind: "configuration" | "configurationExtension" | "unknown"): ImportConfigurationFromXmlParams {
   const projectDir = temporaryDirectory("nkdk-import-project-")
   const inputDir = temporaryDirectory("nkdk-import-xml-")
   fs.writeFileSync(
@@ -482,11 +449,9 @@ function fakeDependencies(params: {
           params.initialized?.push({
             outputDir: initializeParams.outputDir,
             componentKind: initializeParams.componentKind,
-            ...(
-              initializeParams.metadataItemAugmenter === undefined
-                ? {}
-                : { metadataItemAugmenter: initializeParams.metadataItemAugmenter }
-            ),
+            ...(initializeParams.metadataItemAugmenter === undefined
+              ? {}
+              : { metadataItemAugmenter: initializeParams.metadataItemAugmenter }),
           })
         },
         async runFirstPass() {
@@ -498,6 +463,9 @@ function fakeDependencies(params: {
             localDependencies: [],
             fragmentData,
           }
+        },
+        async analyzeRuleOrder() {
+          return { diagnostics: [], observations: [] }
         },
         async runSecondPass() {
           call("secondPass")
@@ -613,14 +581,14 @@ function configurationIndex(component: string): ConfigurationIndexData {
     identities: fragmentData.identities,
     xmlNodes: fragmentData.xmlNodes,
     xmlValues: fragmentData.xmlValues,
-      localIndexes: {
-        metadata: serializeSharedValidationSnapshot(createImportSharedMetadata([])),
-        dependencies: [],
-        logicalAddresses: fragmentData.identities.map(({ logicalAddress }) => ({
-          logicalAddress,
-          sourceProjectPath: "Конфигурация.yaml",
-        })),
-      },
+    localIndexes: {
+      metadata: serializeSharedValidationSnapshot(createImportSharedMetadata([])),
+      dependencies: [],
+      logicalAddresses: fragmentData.identities.map(({ logicalAddress }) => ({
+        logicalAddress,
+        sourceProjectPath: "Конфигурация.yaml",
+      })),
+    },
   }
 }
 
