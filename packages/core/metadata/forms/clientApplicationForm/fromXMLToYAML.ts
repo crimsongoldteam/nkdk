@@ -1,4 +1,5 @@
 import type { ExternalFileEntry } from "../../context/types"
+import { applyMetadataItemXmlImportAugmenter } from "../../importFromXml/metadataItemAugmenter"
 import { importPropertiesFromXMLToYAML } from "../../orchestration/property/fromXMLToYAML"
 import {
   createDeferredValuePathCollector,
@@ -65,6 +66,14 @@ export function importClientApplicationFormFromXMLToYAML(params: {
     deferred,
     profile: params.profile,
   })
+  if (yaml !== undefined) {
+    applyMetadataItemXmlImportAugmenter({
+      context,
+      rule: ClientApplicationFormRules,
+      source: { ...params.metadataXML.Form },
+      yaml,
+    })
+  }
 
   const localIndexes = localIndexesCollector.finish()
   const formDataPathIndex = formDataPathIndexCollector.finish()

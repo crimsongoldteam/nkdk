@@ -2,6 +2,7 @@ import type {
   ConfigurationImportResult,
   FullXmlSyncPlanResult,
   FullXmlSyncResult,
+  ImportConfigurationFromXmlParams,
   MetadataOperationChangedXmlFile,
   MetadataOperationResult,
   MetadataProjectDirectoryStructure,
@@ -48,15 +49,6 @@ export interface XmlSyncState {
   version: 1
   files: Record<string, string>
 }
-
-type ConfigDumpInfo = Map<
-  string,
-  {
-    children: Map<string, string>
-    id: string
-    configVersion: string
-  }
->
 
 export interface CoreApi {
   ProjectFileSchemaError: {
@@ -106,10 +98,9 @@ export interface CoreApi {
     allowWrite?: boolean
   }): Promise<MetadataOperationResult>
   planSyncToXml(params: {
-    projectDir?: string
-    yamlDir: string
+    projectDir: string
+    componentPath: string
     xmlDir: string
-    baseId?: string
   }): Promise<FullXmlSyncPlanResult>
   syncConfigurationFromXML(params: {
     context: {
@@ -123,6 +114,7 @@ export interface CoreApi {
     outputDir: string
     externalFileTransfer?: "copy" | "move"
   }): Promise<ConfigurationImportResult>
+  importConfigurationFromXml(params: ImportConfigurationFromXmlParams): Promise<ConfigurationImportResult>
   syncConfigurationToXML(params: {
     context: {
       defaultLanguage: "ru"
@@ -130,7 +122,6 @@ export interface CoreApi {
       exportToYAML: { toTyped: false }
       exportToXML: {
         itemsTree: []
-        configDumpInfo: ConfigDumpInfo
         version: "2.20"
         context: {
           forms: []
@@ -140,10 +131,9 @@ export interface CoreApi {
         }
       }
     }
-    projectDir?: string
-    yamlDir: string
+    projectDir: string
+    componentPath: string
     xmlDir: string
-    baseId?: string
     concurrency?: number
   }): Promise<FullXmlSyncResult>
   syncConfigurationIncrementallyToXML(params: {
@@ -153,7 +143,6 @@ export interface CoreApi {
       exportToYAML: { toTyped: false }
       exportToXML: {
         itemsTree: []
-        configDumpInfo: ConfigDumpInfo
         version: "2.20"
         context: {
           forms: []

@@ -26,7 +26,7 @@ describe("getUUID", () => {
       version: "2.20",
       testMode: true,
       exportToXML: {
-        configDumpInfo: new Map(),
+
         version: "2.20",
         itemsTree: [],
         configurationIndex,

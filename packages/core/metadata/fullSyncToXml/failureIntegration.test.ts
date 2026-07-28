@@ -2,14 +2,24 @@ import fs from "node:fs"
 import { join } from "node:path"
 import { afterEach, describe, expect, it } from "vitest"
 import { encodeConfigurationIndex } from "../configurationIndex/encode"
-import { configurationIndexPath, writeConfigurationIndexAtomically } from "../configurationIndex/fileIO"
+import {
+  configurationIndexPath,
+  writeConfigurationIndexAtomically,
+} from "../configurationIndex/fileIO"
 import { snapshotConfigurationIndex } from "../configurationIndex/sharedSnapshot"
 import { sampleIndex } from "../configurationIndex/testData"
 import type { ConfigurationIndexData } from "../configurationIndex/types"
 import type { ConfigurationContext } from "../context/types"
-import { syncConfigurationToXml, type FullXmlSyncCoordinatorDependencies } from "./syncConfiguration"
-import type { FullXmlSyncWorkerPool } from "./workerPool"
-import { createTempRoot, removeFullSyncTempDirs } from "./testHelpers"
+import { createSharedValidationSnapshot } from "../validation/sharedValidationSnapshot"
+import { compileRegisteredMetadataResourceTopology } from "../resourceTopology/registry"
+import {
+  syncComponentToXml,
+  type FullXmlSyncCoordinatorDependencies,
+} from "./syncConfiguration"
+import {
+  createTempRoot,
+  removeFullSyncTempDirs,
+} from "./testHelpers"
 import { fullXmlSyncTestOutput } from "./testTopology"
 
 afterEach(async () => {
@@ -17,159 +27,291 @@ afterEach(async () => {
 })
 
 describe("full XML sync failure integration", () => {
-  const context = { version: "2.20", defaultLanguage: "ru", exportToYAML: { toTyped: false } } as ConfigurationContext
+  const context = {
+    version: "2.20",
+    defaultLanguage: "ru",
+    exportToYAML: { toTyped: false },
+  } as ConfigurationContext
 
   it("does not touch a non-empty XML target", async () => {
     const root = createTempRoot()
-    const projectDir = join(root, "project")
     const xmlDir = join(root, "xml")
-    fs.mkdirSync(projectDir, { recursive: true })
     fs.mkdirSync(xmlDir, { recursive: true })
     fs.writeFileSync(join(xmlDir, "marker.txt"), "keep")
 
-    const result = await syncConfigurationToXml({ context, yamlDir: projectDir, xmlDir })
+    const result = await syncComponentToXml({
+      context,
+      projectDir: root,
+      componentPath: "cf",
+      xmlDir,
+    })
 
-    expect(result.failed).toEqual([expect.objectContaining({ code: "full_xml_sync_target_not_empty" })])
+    expect(result.failed).toEqual([
+      expect.objectContaining({ code: "full_xml_sync_target_not_empty" }),
+    ])
     expect(fs.readFileSync(join(xmlDir, "marker.txt"), "utf8")).toBe("keep")
   })
 
-  it("keeps the previous index when transfer fails after workers wrote partial XML", async () => {
-    const root = createTempRoot()
-    const projectDir = join(root, "project")
-    const xmlDir = join(root, "xml")
-    fs.mkdirSync(projectDir, { recursive: true })
-    fs.mkdirSync(xmlDir, { recursive: true })
-    const previous = sampleIndex()
-    await writeConfigurationIndexAtomically({ projectDir, data: previous })
-    const before = fs.readFileSync(configurationIndexPath(projectDir))
+  it("keeps written XML but preserves the previous snapshot when transfer fails", async () => {
+    const state = await createIndexedProject()
+    const before = fs.readFileSync(state.indexPath)
+    const deps = failureDeps(state.previous, state.projectDir, state.xmlDir)
 
-    const result = await syncConfigurationToXml({ context, yamlDir: projectDir, xmlDir }, transferFailureDeps(previous))
+    const result = await syncComponentToXml({
+      context,
+      projectDir: state.projectDir,
+      componentPath: "cf",
+      xmlDir: state.xmlDir,
+    }, deps)
 
-    expect(result.failed).toEqual([expect.objectContaining({ code: "full_xml_sync_operation_failed" })])
-    expect(fs.readFileSync(join(xmlDir, "partial.xml"), "utf8")).toBe("partial")
-    expect(fs.readFileSync(configurationIndexPath(projectDir))).toEqual(before)
+    expect(result.failed).toEqual([
+      expect.objectContaining({ code: "full_xml_sync_operation_failed" }),
+    ])
+    expect(fs.readFileSync(join(state.xmlDir, "partial.xml"), "utf8"))
+      .toBe("partial")
+    expect(fs.readFileSync(state.indexPath)).toEqual(before)
   })
 
-  it("does not start XML writes or update the index after a first-pass preparation error", async () => {
-    const root = createTempRoot()
-    const projectDir = join(root, "project")
-    const xmlDir = join(root, "xml")
-    fs.mkdirSync(projectDir, { recursive: true })
-    fs.mkdirSync(xmlDir, { recursive: true })
-    let secondPassCalled = false
-    let writeIndexCalled = false
+  it("does not transfer files or update the snapshot after a worker error", async () => {
+    const state = await createIndexedProject()
+    let transferred = false
+    let written = false
+    const baseDeps = failureDeps(state.previous, state.projectDir, state.xmlDir)
     const deps: FullXmlSyncCoordinatorDependencies = {
-      ...transferFailureDeps(sampleIndex()),
+      ...baseDeps,
       createWorkerPool: () => ({
         async initialize() {},
-        async runFirstPass() {
+        async execute() {
           return {
-            diagnostics: [
-              {
-                severity: "error",
-                code: "full_xml_sync_first_pass_failed",
-                message: "Не удалось связать XML",
-              },
-            ],
-            projectFiles: [],
-            ownerFacts: [],
+            warnings: [],
+            diagnostics: [{
+              severity: "error" as const,
+              code: "full_xml_sync_assignment_failed",
+              message: "Не удалось построить XML",
+            }],
+            writtenFiles: [],
+            expectedOutputs: [],
+            fragmentData: { identities: [], xmlNodes: [], xmlValues: [] },
           }
-        },
-        async runSecondPass() {
-          secondPassCalled = true
-          throw new Error("Второй проход не должен запускаться")
         },
         async close() {},
       }),
+      async transferExternalFiles() {
+        transferred = true
+        return { copiedFiles: [], projectFiles: [] }
+      },
       async writeIndex() {
-        writeIndexCalled = true
+        written = true
       },
     }
 
-    const result = await syncConfigurationToXml({ context, yamlDir: projectDir, xmlDir }, deps)
+    const result = await syncComponentToXml({
+      context,
+      projectDir: state.projectDir,
+      componentPath: "cf",
+      xmlDir: state.xmlDir,
+    }, deps)
 
     expect(result.failed).toEqual([
-      expect.objectContaining({ code: "full_xml_sync_first_pass_failed" }),
+      expect.objectContaining({ code: "full_xml_sync_assignment_failed" }),
     ])
-    expect(fs.readdirSync(xmlDir)).toEqual([])
-    expect(secondPassCalled).toBe(false)
-    expect(writeIndexCalled).toBe(false)
+    expect(transferred).toBe(false)
+    expect(written).toBe(false)
+  })
+
+  it("does not start workers when cfe confirmation cannot find an adopted UUID", async () => {
+    const state = await createIndexedProject()
+    let workerCreated = false
+    const baseDeps = failureDeps(state.previous, state.projectDir, state.xmlDir)
+    const deps: FullXmlSyncCoordinatorDependencies = {
+      ...baseDeps,
+      resolveProfile: () => ({
+        kind: "configurationExtension",
+        supports: () => true,
+        baseAddress: () => ({ kind: "configuration" }),
+        confirm() {
+          throw new Error("Не найден UUID заимствованного элемента")
+        },
+      }),
+      createWorkerPool: () => {
+        workerCreated = true
+        throw new Error("worker must not be created")
+      },
+    }
+
+    const result = await syncComponentToXml({
+      context,
+      projectDir: state.projectDir,
+      componentPath: "cfe/Дополнение",
+      xmlDir: state.xmlDir,
+    }, deps)
+
+    expect(result.failed).toEqual([
+      expect.objectContaining({
+        message: "Не найден UUID заимствованного элемента",
+      }),
+    ])
+    expect(workerCreated).toBe(false)
   })
 })
 
-function transferFailureDeps(previous: ConfigurationIndexData): FullXmlSyncCoordinatorDependencies {
+async function createIndexedProject() {
+  const projectDir = createTempRoot()
+  const xmlDir = join(projectDir, "xml")
+  fs.mkdirSync(xmlDir)
+  const previous = {
+    ...sampleIndex(),
+    projectFiles: [{ projectPath: "Конфигурация.yaml", contentHash: 10n }],
+  }
+  await writeConfigurationIndexAtomically({
+    projectDir,
+    address: { kind: "configuration" },
+    data: previous,
+  })
+  await writeConfigurationIndexAtomically({
+    projectDir,
+    address: { kind: "configurationExtension", name: "Дополнение" },
+    data: {
+      ...previous,
+      binding: { ...previous.binding, componentPath: "cfe/Дополнение" },
+    },
+  })
   return {
-    async exists() {
-      return true
+    projectDir,
+    xmlDir,
+    previous,
+    indexPath: configurationIndexPath(projectDir, { kind: "configuration" }),
+  }
+}
+
+function failureDeps(
+  previous: ConfigurationIndexData,
+  projectDir: string,
+  xmlDir: string
+): FullXmlSyncCoordinatorDependencies {
+  const topology = compileRegisteredMetadataResourceTopology()
+  const metadata = createSharedValidationSnapshot({ records: [], filePaths: [] })
+  const deps: FullXmlSyncCoordinatorDependencies = {
+    async exists(path) {
+      return path === projectDir || path === xmlDir
     },
     async isDirectoryEmpty() {
       return true
     },
     async mkdir() {},
-    async discover() {
+    async readStructure({ address }) {
+      const componentPath =
+        address.kind === "configuration" ? "cf" : `cfe/${address.name}`
       return {
-        assignments: [
-          {
-            id: "Конфигурация.yaml",
-            sourceProjectPath: "Конфигурация.yaml",
-            sourcePath: "Конфигурация.yaml",
-            role: "configuration",
-            itemType: "MetadataConfiguration",
-            itemName: "Конфигурация",
-            logicalAddress: "Конфигурация",
-            ...fullXmlSyncTestOutput("partial.xml"),
-          },
-        ],
-        externalFiles: [],
+        address,
+        componentPath,
+        componentDir: join(projectDir, componentPath),
+        topology,
+        resources: [],
+        projectPaths: ["Конфигурация.yaml"],
       }
     },
-    async readIndexSnapshot() {
-      return snapshotConfigurationIndex(encodeConfigurationIndex(previous))
+    async readSnapshot({ address }) {
+      return snapshotConfigurationIndex(encodeConfigurationIndex({
+        ...previous,
+        binding: {
+          ...previous.binding,
+          componentPath:
+            address.kind === "configuration" ? "cf" : `cfe/${address.name}`,
+        },
+      }))
+    },
+    async readHashes({ structure }) {
+      return {
+        componentPath: structure.componentPath,
+        projectFiles: [{ projectPath: "Конфигурация.yaml", contentHash: 10n }],
+      }
+    },
+    async readIndexes({ structure, hashes }) {
+      return {
+        componentPath: structure.componentPath,
+        sourceProjectFiles: hashes.projectFiles,
+        metadata,
+        dependencies: [],
+        logicalAddresses: [],
+      }
+    },
+    confirmState(params) {
+      return Object.freeze(params)
+    },
+    resolveProfile() {
+      return {
+        kind: "configuration",
+        supports: () => true,
+        baseAddress: () => undefined,
+        confirm({ target }) {
+          return {
+            kind: "configuration",
+            target,
+            workerProfile: {
+              kind: "configuration",
+              componentKind: "configuration",
+              adoptedUuids: {},
+            },
+          }
+        },
+      }
+    },
+    buildPlan({ structure }) {
+      return {
+        assignments: [{
+          id: "Конфигурация.yaml",
+          sourceProjectPath: "Конфигурация.yaml",
+          sourcePath: join(structure.componentDir, "Конфигурация.yaml"),
+          expectedContentHash: 10n,
+          role: "configuration",
+          itemType: "MetadataConfiguration",
+          itemName: "Конфигурация",
+          logicalAddress: "Конфигурация",
+          ...fullXmlSyncTestOutput("partial.xml"),
+        }],
+        externalFiles: [{
+          assignmentId: "Конфигурация.yaml",
+          sourceProjectPath: "Модуль.bsl",
+          sourcePath: join(structure.componentDir, "Модуль.bsl"),
+          expectedContentHash: 20n,
+          targetXmlPath: "Module.bsl",
+        }],
+      }
     },
     createWorkerPool() {
-      return fakePartialWorkerPool()
-    },
-    createSharedMetadata() {
-      return {} as never
+      return {
+        async initialize() {},
+        async execute() {
+          fs.writeFileSync(join(xmlDir, "partial.xml"), "partial")
+          return {
+            diagnostics: [],
+            warnings: [],
+            writtenFiles: [{
+              assignmentId: "Конфигурация.yaml",
+              targetXmlPath: "partial.xml",
+            }],
+            expectedOutputs: [{
+              assignmentId: "Конфигурация.yaml",
+              targetXmlPath: "partial.xml",
+            }],
+            fragmentData: {
+              identities: [],
+              xmlNodes: [],
+              xmlValues: [],
+            },
+          }
+        },
+        async close() {},
+      }
     },
     async transferExternalFiles() {
       throw new Error("copy failed")
     },
-    async writeConfigDumpInfo() {
-      throw new Error("must not be called")
+    validateWrittenFiles() {
+      return []
     },
-    async writeIndex() {
-      throw new Error("must not be called")
-    },
+    writeIndex: writeConfigurationIndexAtomically,
   }
-}
-
-function fakePartialWorkerPool(): FullXmlSyncWorkerPool {
-  let outputDir = ""
-  return {
-    async initialize(params) {
-      outputDir = params.outputDir
-    },
-    async runFirstPass() {
-      return {
-        diagnostics: [],
-        projectFiles: [{ projectPath: "Конфигурация.yaml", contentHash: 1n }],
-        ownerFacts: [],
-      }
-    },
-    async runSecondPass() {
-      fs.writeFileSync(join(outputDir, "partial.xml"), "partial")
-      return {
-        diagnostics: [],
-        warnings: [],
-        writtenFiles: [{ assignmentId: "Конфигурация.yaml", targetXmlPath: "partial.xml" }],
-        fragmentData: {
-          identities: [],
-          xmlNodes: [],
-          xmlValues: [],
-        },
-      }
-    },
-    async close() {},
-  }
+  return deps
 }

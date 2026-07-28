@@ -92,7 +92,6 @@ describe("FormAttributes XML → YAML → XML", () => {
       yaml,
       context: contexts.exportContext(),
     })
-
     expect(withoutDeclaration(xmlExport(xml, false))).toBe(expected.trim())
   })
 

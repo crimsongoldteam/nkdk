@@ -45,6 +45,10 @@ registerTypeRule("ChildFormNames", "resourceTopology", ({ propertyRule }) => {
       required: true,
       read: { inputRole: "body" },
       prepareCapabilityId: "ClientApplicationForm",
+      baseInput: {
+        kind: "sameProjectPath",
+        value: "wholeYaml",
+      },
       source,
     },
     {

@@ -11,9 +11,11 @@ import { copyFormItemExternalFilesToXML } from "./externalItemFiles"
 import { copyExistingRawFile, copyRawDirectoryFiles } from "./externalRawFiles"
 import type { XmlWriteManifest } from "../../orchestration/xmlWriteManifest"
 import type { PreparedYamlFile } from "../../project/preparedYamlProject"
+import type { ConfigurationIndexReader } from "../../configurationIndex/sharedSnapshot"
 import { bindDeferredObjectValues, type DeferredObjectValue } from "../../orchestration/property/deferredObjectValues"
 import type { MetadataItemRule } from "../../orchestration/property/types"
 import { ClientApplicationFormRules } from "./rules"
+import { buildClientApplicationBaseForm } from "./baseForm"
 
 export const syncFormToXML = async (params: {
   context: ConfigurationContextWithExportToXML
@@ -91,6 +93,8 @@ export const prepareFormXML = (params: {
   referenceMetadataXML?: FormMetadataXML
   xmlManifest?: XmlWriteManifest
   profile?: import("../../orchestration/property/fromYAMLToXMLTypes").YAMLToXMLProfile
+  basePreparedYamlFile?: PreparedYamlFile
+  baseConfigurationIndex?: ConfigurationIndexReader
 }): readonly {
   targetKind: "metadata" | "body"
   xml: Record<string, unknown>
@@ -117,6 +121,17 @@ export const prepareFormXML = (params: {
     name: params.formName,
     referenceFormXML: params.referenceFormXML,
     referenceMetadataXML: params.referenceMetadataXML,
+    ...(params.basePreparedYamlFile === undefined
+      ? {}
+      : {
+          baseFormXML: buildClientApplicationBaseForm({
+            context: contextWithFormExternalMetadata,
+            baseIndex: requireBaseConfigurationIndex(params),
+            baseYaml: params.basePreparedYamlFile.data as ClientApplicationFormYAML,
+            extensionYaml: yamlObj,
+            formName: params.formName,
+          }),
+        }),
     profile: params.profile,
   })
   const metadataDocument = { MetaDataObject: converted.metadataXML }
@@ -147,6 +162,18 @@ export const prepareFormXML = (params: {
       rootRule: ClientApplicationFormRules,
     },
   ]
+}
+
+function requireBaseConfigurationIndex(params: {
+  readonly basePreparedYamlFile?: PreparedYamlFile
+  readonly baseConfigurationIndex?: ConfigurationIndexReader
+}): ConfigurationIndexReader {
+  if (params.baseConfigurationIndex !== undefined) {
+    return params.baseConfigurationIndex
+  }
+  throw new Error(
+    "Для построения BaseForm не передан индекс основной конфигурации"
+  )
 }
 
 export const writePreparedFormToXML = async (params: {

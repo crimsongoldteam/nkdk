@@ -5,6 +5,7 @@ import type {
   CompiledMetadataExternalFileNode,
   CompiledMetadataResourceTopology,
   CompiledMetadataXmlDocumentNode,
+  MetadataXmlBaseInputDeclaration,
 } from "./types"
 import { classifyMetadataProjectPath } from "./projectProjection"
 
@@ -15,6 +16,7 @@ export interface XmlExportPotentialOutput {
   readonly required: boolean
   readonly prepareCapabilityId: string
   readonly propertyName?: string
+  readonly baseInput?: MetadataXmlBaseInputDeclaration
 }
 
 export interface XmlExportAssignmentProjection {
@@ -110,8 +112,30 @@ export function projectXmlExportAssignment(
       required: document.required,
       prepareCapabilityId: document.prepareCapabilityId,
       ...(document.source.propertyName === undefined ? {} : { propertyName: document.source.propertyName }),
+      ...(document.baseInput === undefined
+        ? {}
+        : {
+            baseInput: projectBaseInput(document),
+          }),
     })),
   }
+}
+
+function projectBaseInput(
+  document: CompiledMetadataXmlDocumentNode
+): MetadataXmlBaseInputDeclaration {
+  const baseInput = document.baseInput
+  if (baseInput === undefined) {
+    throw new Error("XML-документ не объявляет базовый вход")
+  }
+  if (baseInput.value === "wholeYaml") return baseInput
+  const propertyName = document.source.propertyName
+  if (propertyName === undefined) {
+    throw new Error(
+      `Базовый вход sourceProperty не связан со свойством: ${document.xmlPattern}`
+    )
+  }
+  return { ...baseInput, propertyName }
 }
 
 export function projectXmlExportOwnerChain(

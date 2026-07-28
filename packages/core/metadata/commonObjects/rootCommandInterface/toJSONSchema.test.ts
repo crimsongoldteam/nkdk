@@ -18,5 +18,10 @@ describe("RootCommandInterface JSON Schema", () => {
       })
     ).toBe(true)
     expect(compiled.Check({ ПорядокПодсистем: ["Подсистема.A", 1] })).toBe(false)
+    expect(
+      compiled.Check({
+        ПорядокПодсистем: ["12345678-1234-4234-9234-123456789abc"],
+      })
+    ).toBe(false)
   })
 })

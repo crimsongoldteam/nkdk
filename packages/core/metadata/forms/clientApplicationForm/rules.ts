@@ -387,6 +387,7 @@ export const ClientApplicationFormRules = {
       typeSE: "FormType",
       tag: FormRulesTags.Metadata,
       defaultValueXML: "Managed",
+      defaultValueAdoptedXML: "Managed",
       xml: "FormType",
       xmlParents: ["Form", "Properties"],
       implicitValueYAML: "Managed",

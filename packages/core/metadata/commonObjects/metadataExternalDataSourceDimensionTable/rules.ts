@@ -4,6 +4,7 @@ import { MetadataCommandRules } from "../../appliedObjects/metadataCommand/rules
 import { V8_MDCLASSES_ROOT } from "../../orchestration/appliedObject/presets"
 import type { MetadataItemRule } from "../../orchestration/property/types"
 import { externalDataSourceObjectServiceProperties } from "../metadataExternalDataSourceField/rules"
+import { internalInfoRule } from "../internalInfo/types"
 
 const properties = ["Properties"]
 const childObjects = ["ChildObjects"]
@@ -32,8 +33,7 @@ const dimensionTableProperties = {
     toYAML: false,
     fromYAML: false,
   },
-  internalInfo: {
-    type: "InternalInfo",
+  internalInfo: internalInfoRule({
     xmlParents: root,
     forReferenceOnly: true,
     toYAML: false,
@@ -49,7 +49,7 @@ const dimensionTableProperties = {
       { name: "ExternalDataSourceCubeDimensionTableRef", category: "Ref" },
       { name: "ExternalDataSourceCubeDimensionTableList", category: "List" },
     ] as { name: string; category: string }[],
-  },
+  }),
   uuid: {
     type: "uuid",
     xml: "_uuid",

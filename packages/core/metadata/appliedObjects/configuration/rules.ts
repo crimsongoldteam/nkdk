@@ -28,7 +28,7 @@ import "../../commonObjects/homePageWorkArea/register"
 import "../../commonObjects/rootCommandInterface/register"
 import "./configurationChildObjects"
 import { V8_MDCLASSES_ROOT } from "../../orchestration/appliedObject/presets"
-import type { MetadataItemRule } from "../../orchestration/property/types"
+import type { MetadataItemRule, PropertyRule } from "../../orchestration/property/types"
 const configurationProperties = ["Properties"]
 const configurationInternalInfoContainedObjectClassIds = [
   "9cd510cd-abfc-11d4-9434-004095e12fc7",
@@ -39,6 +39,13 @@ const configurationInternalInfoContainedObjectClassIds = [
   "e68182ea-4237-4383-967f-90c1e3370bc7",
   "fb282519-d103-4dd3-bc12-cb271d631dfc",
 ]
+export const configurationInternalInfoRule: PropertyRule = internalInfoRule({
+  xmlParents: [],
+  forReferenceOnly: true,
+  preserveFromReferenceXML: true,
+  exportWithoutReferenceXML: true,
+  containedObjectClassIds: configurationInternalInfoContainedObjectClassIds,
+})
 export const MetadataConfigurationRules = {
   itemType: "MetadataConfiguration",
   properties: {
@@ -61,13 +68,7 @@ export const MetadataConfigurationRules = {
       forReferenceOnly: true,
       xmlParents: [],
     }),
-    internalInfo: internalInfoRule({
-      xmlParents: [],
-      forReferenceOnly: true,
-      preserveFromReferenceXML: true,
-      exportWithoutReferenceXML: true,
-      containedObjectClassIds: configurationInternalInfoContainedObjectClassIds,
-    }),
+    internalInfo: configurationInternalInfoRule,
     name: stringRule({
       yaml: "Имя",
       xmlParents: configurationProperties,

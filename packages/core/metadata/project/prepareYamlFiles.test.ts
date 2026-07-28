@@ -64,6 +64,24 @@ describe("prepareYamlFiles", () => {
     })
   })
 
+  it("parses provided source bytes without reading the file again", () => {
+    const projectDir = createProject()
+    const projectPath = "Справочник/Товары/Свойства.yaml"
+    const filePath = join(projectDir, ...projectPath.split("/"))
+    const bytes = Buffer.from("Имя: Товары\n")
+    const readFileSync = vi.fn()
+
+    const result = prepareYamlFiles({
+      files: [descriptor(projectDir, projectPath, "Catalog")],
+      itemTypeByYamlDir: { Справочник: "Catalog" },
+      sourceBytes: new Map([[filePath, bytes]]),
+      readFileSync,
+    })
+
+    expect(readFileSync).not.toHaveBeenCalled()
+    expect(result.yamlFiles[0]?.data).toEqual({ Имя: "Товары" })
+  })
+
   it("extracts declarations and dependencies without schema or reference validation", () => {
     const projectDir = createProject()
     writeFileSync(

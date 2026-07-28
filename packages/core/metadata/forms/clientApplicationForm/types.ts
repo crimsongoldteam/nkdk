@@ -28,6 +28,7 @@ export interface ClientApplicationFormXML {
   "_xmlns:xs"?: string
   "_xmlns:xsi"?: string
   _version?: string
+  BaseForm?: ClientApplicationFormXML
 
   Attributes?: {
     Attribute?: FormAttributesXML

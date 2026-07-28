@@ -25,6 +25,15 @@ describe("prompt definitions", () => {
     expect(editPrompt?.text).toContain("Документ.Заказ.ТабличнаяЧасть.Товары.Реквизит.Количество")
   })
 
+  it("delegates XML-import component selection and conflicts to core", () => {
+    const importPrompt = promptDefinitions.find((prompt) => prompt.name === "nkdk_config_import_from_xml")
+
+    expect(importPrompt?.text).toContain("корень NKDK-проекта с каталогом cf")
+    expect(importPrompt?.text).toContain("не определяй и не создавай cfe")
+    expect(importPrompt?.text).toContain("core вернёт componentPath и конфликты")
+    expect(importPrompt?.text).not.toContain("пустоту целевого `projectDir/componentPath`")
+  })
+
   it("describes sync through configuration index without reference catalog", () => {
     const syncPrompt = promptDefinitions.find((prompt) => prompt.name === "nkdk_config_sync_to_xml")
 

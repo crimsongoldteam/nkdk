@@ -1,7 +1,13 @@
+import type { PersistedSharedValidationSnapshot } from "../validation/persistedSharedValidationSnapshot"
+import type {
+  ProjectLocalDependency,
+  ProjectLogicalAddressEntry,
+} from "../project/componentIndexFacts"
+
 export interface ConfigurationIndexBinding {
   indexGeneration: bigint
   producerVersion: string
-  baseId: string
+  componentPath: string
   baseFingerprint: Uint8Array
   configurationVersion: Uint8Array
 }
@@ -24,6 +30,7 @@ export interface ConfigurationXmlNode {
 
 export interface ConfigurationXmlValue {
   logicalAddress: string
+  extended?: true
   xsiNil?: true
   explicitEmpty?: true
   excludedEqualName?: true
@@ -33,12 +40,26 @@ export interface ConfigurationXmlValue {
   userSettingsId?: string
 }
 
+export type ConfigurationLocalDependencyRulePathSegment =
+  ProjectLocalDependency["rulePath"][number]
+
+export type ConfigurationLocalDependency = ProjectLocalDependency
+
+export type ComponentLogicalAddress = ProjectLogicalAddressEntry
+
+export interface ConfigurationLocalIndexes {
+  metadata: PersistedSharedValidationSnapshot
+  dependencies: readonly ConfigurationLocalDependency[]
+  logicalAddresses: readonly ComponentLogicalAddress[]
+}
+
 export interface ConfigurationIndexData {
   binding: ConfigurationIndexBinding
   projectFiles: readonly ConfigurationProjectFile[]
   identities: readonly ConfigurationIdentity[]
   xmlNodes: readonly ConfigurationXmlNode[]
   xmlValues: readonly ConfigurationXmlValue[]
+  localIndexes: ConfigurationLocalIndexes
 }
 
 export interface ConfigurationIndexFragment {
@@ -46,4 +67,5 @@ export interface ConfigurationIndexFragment {
   identities: readonly ConfigurationIdentity[]
   xmlNodes: readonly ConfigurationXmlNode[]
   xmlValues: readonly ConfigurationXmlValue[]
+  localDependencies?: readonly ConfigurationLocalDependency[]
 }

@@ -20,12 +20,14 @@ describe("ChildFormNames: единый импорт XML → YAML", () => {
   const name = "Контрагенты"
 
   it("записывает Формы/<form>/Форма.yaml для каталога", async () => {
-    const outputDir = temporaryDirectory("nkdk-child-form-output-")
+    const inputDir = preparedInputDirectory(sourceDir)
+    const projectDir = temporaryDirectory("nkdk-child-form-project-")
+    const outputDir = join(projectDir, "cf")
 
     const result = await importConfigurationFromXml({
       context: mockContextFromXML(),
-      inputDir: sourceDir,
-      outputDir,
+      inputDir,
+      projectDir,
       concurrency: 1,
     })
 
@@ -35,8 +37,10 @@ describe("ChildFormNames: единый импорт XML → YAML", () => {
 
   it("экспортирует ссылку на текущую форму в настройках формы локальным именем", async () => {
     const inputDir = temporaryDirectory("nkdk-child-form-input-")
-    const outputDir = temporaryDirectory("nkdk-child-form-output-")
+    const projectDir = temporaryDirectory("nkdk-child-form-project-")
+    const outputDir = join(projectDir, "cf")
     fs.cpSync(sourceDir, inputDir, { recursive: true })
+    writeMinimalConfigurationXml(inputDir)
 
     const formPath = join(inputDir, "Catalogs", name, "Forms", "ФормаЭлемента", "Ext", "Form.xml")
     const formXml = fs.readFileSync(formPath, "utf-8")
@@ -52,7 +56,7 @@ describe("ChildFormNames: единый импорт XML → YAML", () => {
     const result = await importConfigurationFromXml({
       context: mockContextFromXML(),
       inputDir,
-      outputDir,
+      projectDir,
       concurrency: 1,
     })
 
@@ -63,8 +67,10 @@ describe("ChildFormNames: единый импорт XML → YAML", () => {
 
   it("импортирует только страницы справки формы, перечисленные в Forms/<form>/Ext/Help.xml", async () => {
     const inputDir = temporaryDirectory("nkdk-child-form-input-")
-    const outputDir = temporaryDirectory("nkdk-child-form-output-")
+    const projectDir = temporaryDirectory("nkdk-child-form-project-")
+    const outputDir = join(projectDir, "cf")
     fs.cpSync(sourceDir, inputDir, { recursive: true })
+    writeMinimalConfigurationXml(inputDir)
 
     const helpXmlPath = join(inputDir, "Catalogs", name, "Forms", "ФормаЭлемента", "Ext", "Help.xml")
     const helpDir = join(inputDir, "Catalogs", name, "Forms", "ФормаЭлемента", "Ext", "Help")
@@ -81,7 +87,7 @@ describe("ChildFormNames: единый импорт XML → YAML", () => {
     const result = await importConfigurationFromXml({
       context: mockContextFromXML(),
       inputDir,
-      outputDir,
+      projectDir,
       concurrency: 1,
     })
 
@@ -96,4 +102,18 @@ function temporaryDirectory(prefix: string): string {
   const directory = fs.mkdtempSync(join(os.tmpdir(), prefix))
   temporaryDirectories.push(directory)
   return directory
+}
+
+function preparedInputDirectory(sourceDir: string): string {
+  const inputDir = temporaryDirectory("nkdk-child-form-input-")
+  fs.cpSync(sourceDir, inputDir, { recursive: true })
+  writeMinimalConfigurationXml(inputDir)
+  return inputDir
+}
+
+function writeMinimalConfigurationXml(inputDir: string): void {
+  fs.copyFileSync(
+    getXMLFixturePath("configuration/minimal.xml"),
+    join(inputDir, "Configuration.xml")
+  )
 }

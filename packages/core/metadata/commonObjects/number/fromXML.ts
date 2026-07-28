@@ -30,3 +30,6 @@ export const importNumberFromXML = (
 }
 
 registerTypeRule("number", "importFromXML", importNumberFromXML)
+registerTypeRule("number", "configurationIndexValueFromXML", {
+  referenceXMLFromValue: (value) => value.xmlText === undefined ? undefined : Number(value.xmlText),
+})

@@ -4,7 +4,6 @@ import type { ConfigurationContextWithExportToXML } from "../../context/types"
 import { syncAppliedObjectAreaToXML, syncAppliedObjectToXML } from "../../orchestration/appliedObject/syncToXML"
 import { getTypeRule } from "../../orchestration/property/typeRuleRegistry"
 import type { PreparedMetadataMigrationChain } from "../../operations"
-import { updateConfigDumpInfoVersionsToXML } from "../configDumpInfo/sync"
 import { buildConfigurationChildObjects, readConfigurationChildObjectsFromXML } from "./childObjects"
 import type { ConfigurationSyncResult } from "./convertFromXML"
 import { buildIncrementalXmlSyncPlan } from "./incrementalPlan"
@@ -17,7 +16,7 @@ import {
 } from "./rootIO"
 import { importFromYAML } from "../../../yaml/import"
 import { diffSyncState, hashProjectFiles, readXmlSyncState, SYNC_STATE_FILE, writeXmlSyncState } from "./syncState"
-import { prepareConfigurationXmlMigrationChain, syncConfigurationToXML } from "./syncToXML"
+import { prepareConfigurationXmlMigrationChain } from "./syncToXML"
 import { TopLevelMetadataItemRules } from "./topLevelRules"
 import { compileRegisteredMetadataResourceTopology } from "../../resourceTopology/registry"
 import { createXmlChangeTracker, type XmlChangeTracker } from "./xmlChangeTracker"
@@ -59,13 +58,6 @@ export async function syncConfigurationIncrementallyToXML(params: {
       migrationChain,
     }
   }
-  if (migrationChain.migrationsToApply.length > 0 && !fs.existsSync(join(params.outputDir, "ConfigDumpInfo.xml"))) {
-    return syncConfigurationToXML({
-      ...params,
-      context: contextWithProjectDir,
-      referenceDir: params.referenceDir ?? params.outputDir,
-    })
-  }
   if (
     diff.added.length === 0 &&
     diff.changed.length === 0 &&
@@ -90,7 +82,6 @@ export async function syncConfigurationIncrementallyToXML(params: {
   }
 
   try {
-    const dumpInfoNames = new Set<string>()
     const tracker = createXmlChangeTracker(params.outputDir)
     if (plan.rebuildConfigurationXml) {
       if (fs.existsSync(join(params.inputDir, CONFIGURATION_YAML_FILE))) {
@@ -105,7 +96,6 @@ export async function syncConfigurationIncrementallyToXML(params: {
 
       switch (planned.area.kind) {
         case "externalFile": {
-          for (const name of planned.area.dumpInfoNames) dumpInfoNames.add(name)
           const reference = buildMigrationReference({
             migrationChain,
             itemTypePrefix: planned.area.itemTypePrefix,
@@ -133,7 +123,6 @@ export async function syncConfigurationIncrementallyToXML(params: {
           break
         }
         case "fileItem": {
-          for (const name of planned.area.dumpInfoNames) dumpInfoNames.add(name)
           const propertyRule = rule.properties[planned.area.propertyName]
           const writer = getTypeRule(planned.area.propertyType, "xmlSyncWriter")
           if (!propertyRule || !writer) throw new Error(`Не найден writer для ${planned.key}`)
@@ -187,14 +176,6 @@ export async function syncConfigurationIncrementallyToXML(params: {
       }
     }
 
-    if (dumpInfoNames.size > 0 && fs.existsSync(join(params.outputDir, "ConfigDumpInfo.xml"))) {
-      await tracker.markWrite(join(params.outputDir, "ConfigDumpInfo.xml"))
-    }
-    await updateConfigDumpInfoVersionsToXML({
-      context: contextWithProjectDir,
-      outputDir: params.outputDir,
-      names: dumpInfoNames,
-    })
     await removeRenamedObjectXmlFiles({
       outputDir: params.outputDir,
       migrations: migrationChain.migrationsToApply,

@@ -2,16 +2,21 @@ import { dirname, join } from "node:path"
 import { fileURLToPath } from "node:url"
 import Piscina from "piscina"
 import { mergeConfigurationIndexFragments } from "../configurationIndex/fragment"
-import type { ConfigurationIndexData } from "../configurationIndex/types"
-import type { ConfigurationContextFromXML } from "../context/types"
+import type { ConfigurationIndexData, ConfigurationLocalDependency } from "../configurationIndex/types"
+import type {
+  ConfigurationContextFromXML,
+  XmlImportConfigurationContext,
+} from "../context/types"
 import { sourceWorkerExecArgv } from "../sourceWorkerRuntime"
 import type { ValidationOwnerFacts } from "../validation/dataPath/ownerFacts"
-import type { SharedValidationSnapshot } from "../validation/sharedValidationSnapshot"
+import type { ValidationIndexContribution } from "../validation/projectValidationTypes"
 import { createOperationProfiler } from "../validation/profile"
+import type { LayeredImportReferenceSnapshot } from "./componentReferenceIndex"
 import type {
   ImportAssignment,
   ImportDiagnostic,
   ImportFirstPassResult,
+  ImportLocalDependency,
   ImportResultFile,
   ImportSecondPassResult,
   ImportWorkerCommand,
@@ -19,9 +24,15 @@ import type {
 } from "./types"
 
 export interface XmlImportWorkerPool {
-  initialize(params: { operationId: string; context: ConfigurationContextFromXML; outputDir: string }): Promise<void>
+  initialize(params: {
+    operationId: string
+    context: ConfigurationContextFromXML
+    outputDir: string
+    componentKind: string
+    metadataItemAugmenter?: string
+  }): Promise<void>
   runFirstPass(assignments: readonly ImportAssignment[]): Promise<XmlImportFirstPassPoolResult>
-  runSecondPass(sharedMetadata: SharedValidationSnapshot): Promise<XmlImportSecondPassPoolResult>
+  runSecondPass(referenceSnapshots: LayeredImportReferenceSnapshot): Promise<XmlImportSecondPassPoolResult>
   close(): Promise<void>
 }
 
@@ -34,7 +45,11 @@ export interface XmlImportWorkerPoolHandle {
 export interface XmlImportFirstPassPoolResult {
   diagnostics: ImportDiagnostic[]
   ownerFacts: ValidationOwnerFacts[]
-  fragmentData: Pick<ConfigurationIndexData, "identities" | "xmlNodes" | "xmlValues">
+  validationContribution: ValidationIndexContribution
+  localDependencies: ImportLocalDependency[]
+  fragmentData: Pick<ConfigurationIndexData, "identities" | "xmlNodes" | "xmlValues"> & {
+    localDependencies: ConfigurationLocalDependency[]
+  }
 }
 
 export interface XmlImportSecondPassPoolResult {
@@ -157,6 +172,8 @@ function createXmlImportOperationPool(params: {
         operationId: string
         context: ConfigurationContextFromXML
         outputDir: string
+        componentKind: string
+        metadataItemAugmenter?: string
       }
     | undefined
   let phase: PoolPhase = "new"
@@ -190,7 +207,7 @@ function createXmlImportOperationPool(params: {
             kind: "initialize",
             operationId: initialized.operationId,
             workerIndex,
-            context: initialized.context,
+            context: xmlImportContext(initialized),
             outputDir: initialized.outputDir,
           })
           if (initializeResponse !== undefined) {
@@ -221,11 +238,21 @@ function createXmlImportOperationPool(params: {
       return {
         diagnostics,
         ownerFacts: results.flatMap((result) => result.ownerFacts),
+        validationContribution: {
+          objectRecords: results.flatMap((result) => result.validationContribution.objectRecords),
+          objectIndexEntries: results.flatMap((result) => result.validationContribution.objectIndexEntries),
+          memberIndexEntries: results.flatMap((result) => result.validationContribution.memberIndexEntries),
+          valueIndexEntries: results.flatMap((result) => result.validationContribution.valueIndexEntries),
+          pendingReferences: results.flatMap((result) => result.validationContribution.pendingReferences),
+          localDependencies: results.flatMap((result) => result.validationContribution.localDependencies),
+          logicalAddresses: results.flatMap((result) => result.validationContribution.logicalAddresses),
+        },
+        localDependencies: fragmentData.localDependencies,
         fragmentData,
       }
     },
 
-    async runSecondPass(sharedMetadata) {
+    async runSecondPass(referenceSnapshots) {
       assertUsable(phase, fatalError)
       if (phase === "firstPassErrors") throw new Error("Первый проход import завершён с ошибками")
       if (phase !== "firstPassReady") throw new Error("Первый проход import не завершён успешно")
@@ -233,7 +260,7 @@ function createXmlImportOperationPool(params: {
       phase = "secondPassRunning"
       const results = await Promise.all(
         activeWorkerIndexes.map(async (workerIndex): Promise<ImportSecondPassResult> => {
-          const response = await runCommand(workerIndex, { kind: "secondPass", sharedMetadata })
+          const response = await runCommand(workerIndex, { kind: "secondPass", referenceSnapshots })
           if (response?.kind !== "secondPassResult") {
             return failWorker(new Error("Worker вернул неожиданный результат secondPass"))
           }
@@ -349,4 +376,21 @@ function assertUsable(phase: PoolPhase, fatalError: unknown): void {
 
 function assertPhase(actual: PoolPhase, expected: PoolPhase, message: string): void {
   if (actual !== expected) throw new Error(message)
+}
+
+function xmlImportContext(params: {
+  context: ConfigurationContextFromXML
+  componentKind: string
+  metadataItemAugmenter?: string
+}): XmlImportConfigurationContext {
+  return {
+    ...params.context,
+    fromXML: {
+      ...params.context.fromXML,
+      componentKind: params.componentKind,
+      ...(params.metadataItemAugmenter === undefined
+        ? {}
+        : { metadataItemAugmenter: params.metadataItemAugmenter }),
+    },
+  }
 }

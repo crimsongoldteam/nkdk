@@ -1,5 +1,6 @@
 import type { PropertyRule } from "../../orchestration/property/types"
 import { registerTypeRule } from "../../orchestration/property/typeRuleRegistry"
+import type { CollectLocalFactsFromYAMLFunction } from "../../orchestration/property/importYamlTypes"
 import { ConfigurationContext } from "../../context/types"
 import { importSystemEnumerationFromYAMLDeprecated } from "../../systemEnumerations/fromYAML"
 import * as SE from "../../systemEnumerations/types"
@@ -116,4 +117,26 @@ function createPicture(
   return { ref, type, loadTransparent, ...(transparentPixel ? { transparentPixel } : {}) }
 }
 
+const collectPictureLocalFactsFromYAML: CollectLocalFactsFromYAMLFunction = ({ fact, writer }) => {
+  const structuredPicture =
+    typeof fact.value === "object" && fact.value !== null && !Array.isArray(fact.value)
+  const picture = structuredPicture ? (fact.value as Record<string, unknown>)["Ссылка"] : fact.value
+  const isCommonPicture =
+    typeof picture === "string" &&
+    !(picture in SE.PictureLibFromYAML) &&
+    picture.startsWith("ОбщаяКартинка.")
+
+  writer.setMetadataTargetValues(
+    isCommonPicture
+      ? [
+          {
+            value: picture,
+            yamlPath: structuredPicture ? [...fact.yamlPath, "Ссылка"] : fact.yamlPath,
+          },
+        ]
+      : []
+  )
+}
+
 registerTypeRule("Picture", "importFromYAML", importPictureFromYAML)
+registerTypeRule("Picture", "collectLocalFactsFromYAML", collectPictureLocalFactsFromYAML)

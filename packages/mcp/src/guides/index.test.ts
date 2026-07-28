@@ -26,11 +26,20 @@ describe("guide definitions", () => {
     expect(editGuide?.text).toContain("Документ.Заказ.ТабличнаяЧасть.Товары.Реквизит.Количество")
   })
 
-  it("describes XML-import preservation and version boundaries", () => {
+  it("describes core-owned XML-import component selection and conflicts", () => {
     const importGuide = guideDefinitions.find((guide) => guide.uri === "nkdk://guides/config-import-from-xml")
 
     expect(importGuide?.text).toContain("одного компонента")
-    expect(importGuide?.text).toContain("должен отсутствовать или быть пустым")
+    expect(importGuide?.text).toContain("корень NKDK-проекта с каталогом cf")
+    expect(importGuide?.text).toContain("Не определяй и не создавай cfe")
+    expect(importGuide?.text).toContain("core определит componentPath")
+    expect(importGuide?.text).toContain("конфликты целевого каталога и снимка")
+    expect(importGuide?.text).toContain("Не очищай существующую цель автоматически")
+    expect(importGuide?.text).toContain("явного устранения пользователем конкретного конфликта")
+    expect(importGuide?.text).toContain("Конфликт только снимка не устраняется очисткой целевого компонента")
+    expect(importGuide?.text).not.toContain("projectDir/componentPath")
+    expect(importGuide?.text).not.toContain("должен отсутствовать или быть пустым")
+    expect(importGuide?.text).not.toContain("перед повтором его нужно очистить")
     expect(importGuide?.text).toContain("пишет результат напрямую")
     expect(importGuide?.text).not.toContain(".nkdk/tmp/import/<operation-id>")
     expect(importGuide?.text).toContain("не подключается к 1С")

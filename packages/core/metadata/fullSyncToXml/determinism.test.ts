@@ -4,6 +4,7 @@ import { afterEach, describe, expect, it } from "vitest"
 import { mockContextToXML } from "../../tests/mockContext"
 import { readConfigurationIndex } from "../configurationIndex"
 import type { ConfigurationIndexData } from "../configurationIndex/types"
+import { createEmptyPersistedSharedValidationSnapshot } from "../validation/persistedSharedValidationSnapshot"
 import { syncConfigurationToXml } from "./syncConfiguration"
 import { createTempRoot, removeFullSyncTempDirs, writeSmallYamlProjectWithIndex } from "./testHelpers"
 
@@ -20,21 +21,23 @@ describe("full XML sync determinism", () => {
     const outTwo = join(root, "out-two")
     await writeSmallYamlProjectWithIndex(projectOne)
     fs.cpSync(
-      join(projectOne, "Бот", "БотВсеСвойства"),
-      join(projectOne, "Бот", "ВторойБот"),
+      join(projectOne, "cf", "Бот", "БотВсеСвойства"),
+      join(projectOne, "cf", "Бот", "ВторойБот"),
       { recursive: true }
     )
     fs.cpSync(projectOne, projectTwo, { recursive: true })
 
     const first = await syncConfigurationToXml({
       context: mockContextToXML(),
-      yamlDir: projectOne,
+      componentPath: "cf",
+      projectDir: projectOne,
       xmlDir: outOne,
       concurrency: 1,
     })
     const second = await syncConfigurationToXml({
       context: mockContextToXML(),
-      yamlDir: projectTwo,
+      componentPath: "cf",
+      projectDir: projectTwo,
       xmlDir: outTwo,
       concurrency: 2,
     })
@@ -42,8 +45,8 @@ describe("full XML sync determinism", () => {
     expect(first.failed).toEqual([])
     expect(second.failed).toEqual([])
     expect(readTree(outTwo)).toEqual(readTree(outOne))
-    expect(normalizeIndex(await readConfigurationIndex({ projectDir: projectTwo }))).toEqual(
-      normalizeIndex(await readConfigurationIndex({ projectDir: projectOne }))
+    expect(normalizeIndex(await readConfigurationIndex({ projectDir: projectTwo, address: { kind: "configuration" } }))).toEqual(
+      normalizeIndex(await readConfigurationIndex({ projectDir: projectOne, address: { kind: "configuration" } }))
     )
   }, 60_000)
 })
@@ -64,6 +67,11 @@ function normalizeIndex(index: ConfigurationIndexData): ConfigurationIndexData {
     ),
     xmlNodes: [...index.xmlNodes].sort((left, right) => compare(left.logicalAddress, right.logicalAddress)),
     xmlValues: [...index.xmlValues].sort((left, right) => compare(left.logicalAddress, right.logicalAddress)),
+    localIndexes: {
+      ...index.localIndexes,
+      // Кэш владельцев содержит абсолютные пути конкретной рабочей копии.
+      metadata: createEmptyPersistedSharedValidationSnapshot(),
+    },
   }
 }
 

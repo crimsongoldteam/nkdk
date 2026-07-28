@@ -3,12 +3,14 @@ import { createStringPool } from "./stringPool"
 import type {
   ConfigurationIdentity,
   ConfigurationIndexData,
+  ConfigurationLocalDependency,
+  ComponentLogicalAddress,
   ConfigurationXmlNode,
   ConfigurationXmlValue,
 } from "./types"
 
 interface EncodedSection {
-  type: 1 | 2 | 3 | 4 | 5 | 6 | 7
+  type: 1 | 2 | 3 | 4 | 5 | 6 | 7 | 8 | 9 | 10 | 11 | 12
   recordCount: bigint
   bytes: Buffer
 }
@@ -22,8 +24,9 @@ interface NormalizedIndex {
 
 const HEADER_LENGTH = 64
 const DIRECTORY_ENTRY_LENGTH = 64
-const SECTION_COUNT = 7
+const SECTION_COUNT = 12
 const MAX_U64 = (1n << 64n) - 1n
+const utf8Encoder = new TextEncoder()
 
 export function encodeConfigurationIndex(data: ConfigurationIndexData): Buffer {
   const normalized = normalizeIndex(data)
@@ -35,6 +38,11 @@ export function encodeConfigurationIndex(data: ConfigurationIndexData): Buffer {
     encodeXmlOrders(normalized),
     encodeXmlNodes(normalized),
     encodeXmlValues(normalized),
+    encodeLocalMetadataBlock(8, normalized.data.localIndexes.metadata.reference),
+    encodeLocalMetadataBlock(9, normalized.data.localIndexes.metadata.ownerStrings),
+    encodeLocalMetadataBlock(10, normalized.data.localIndexes.metadata.ownerTable),
+    encodeLocalDependencies(normalized.data.localIndexes.dependencies),
+    encodeLogicalAddresses(normalized.data.localIndexes.logicalAddresses),
   ]
   return encodeContainer(sections)
 }
@@ -63,6 +71,22 @@ function normalizeIndex(data: ConfigurationIndexData): NormalizedIndex {
   const xmlValues = [...data.xmlValues]
   for (const value of xmlValues) validateXmlValue(value)
   rejectDuplicateStrings(xmlValues.map((value) => value.logicalAddress), "Повторный logicalAddress в XML_VALUES")
+  const localIndexes = normalizeLocalIndexes(data)
+  const projectFilePaths = new Set(projectFiles.map((file) => file.projectPath))
+  for (const dependency of localIndexes.dependencies) {
+    if (!projectFilePaths.has(dependency.sourceProjectPath)) {
+      throw new Error(
+        `sourceProjectPath LOCAL_DEPENDENCIES отсутствует в PROJECT_FILES: ${dependency.sourceProjectPath}`
+      )
+    }
+  }
+  for (const entry of localIndexes.logicalAddresses) {
+    if (!projectFilePaths.has(entry.sourceProjectPath)) {
+      throw new Error(
+        `sourceProjectPath LOGICAL_ADDRESSES отсутствует в PROJECT_FILES: ${entry.sourceProjectPath}`
+      )
+    }
+  }
 
   const normalizedData: ConfigurationIndexData = {
     binding: data.binding,
@@ -70,6 +94,7 @@ function normalizeIndex(data: ConfigurationIndexData): NormalizedIndex {
     identities,
     xmlNodes,
     xmlValues,
+    localIndexes,
   }
   const strings = createStringPool(indexStrings(normalizedData))
   const ordersByKey = new Map<string, readonly string[]>()
@@ -96,6 +121,130 @@ function normalizeIndex(data: ConfigurationIndexData): NormalizedIndex {
   }
 }
 
+function normalizeLocalIndexes(data: ConfigurationIndexData): ConfigurationIndexData["localIndexes"] {
+  const metadata = data.localIndexes?.metadata
+  if (metadata === undefined) throw new Error("Отсутствуют обязательные локальные metadata-индексы")
+  assertUint8Array(metadata.reference, "reference LOCAL_REFERENCE_INDEX")
+  assertUint8Array(metadata.ownerStrings, "ownerStrings LOCAL_OWNER_STRINGS")
+  assertUint8Array(metadata.ownerTable, "ownerTable LOCAL_OWNER_TABLE")
+  return {
+    metadata: {
+      reference: Uint8Array.from(metadata.reference),
+      ownerStrings: Uint8Array.from(metadata.ownerStrings),
+      ownerTable: Uint8Array.from(metadata.ownerTable),
+    },
+    dependencies: normalizeLocalDependencies(data.localIndexes.dependencies),
+    logicalAddresses: normalizeLogicalAddresses(data.localIndexes.logicalAddresses),
+  }
+}
+
+function normalizeLogicalAddresses(
+  entries: readonly ComponentLogicalAddress[]
+): ComponentLogicalAddress[] {
+  const normalized = entries.map((entry) => {
+    validateProjectPath(entry.sourceProjectPath)
+    if (entry.logicalAddress.length === 0) {
+      throw new Error("Пустой logicalAddress LOGICAL_ADDRESSES")
+    }
+    return { ...entry }
+  })
+  rejectDuplicateStrings(
+    normalized.map(({ logicalAddress }) => logicalAddress),
+    "Повторный logicalAddress в LOGICAL_ADDRESSES"
+  )
+  return normalized.sort((left, right) => compareStrings(left.logicalAddress, right.logicalAddress))
+}
+
+function normalizeLocalDependencies(
+  dependencies: readonly ConfigurationLocalDependency[]
+): ConfigurationLocalDependency[] {
+  const normalized = dependencies.map(normalizeLocalDependency)
+  const keys = new Set<string>()
+  for (const dependency of normalized) {
+    const key = localDependencyKey(dependency)
+    if (keys.has(key)) throw new Error(`Повторная локальная зависимость: ${dependency.canonical}`)
+    keys.add(key)
+  }
+  return normalized.sort((left, right) => compareStrings(localDependencyKey(left), localDependencyKey(right)))
+}
+
+function normalizeLocalDependency(dependency: ConfigurationLocalDependency): ConfigurationLocalDependency {
+  validateLocalDependency(dependency)
+  return {
+    sourceProjectPath: dependency.sourceProjectPath,
+    yamlPath: [...dependency.yamlPath],
+    rulePath: dependency.rulePath.map((segment) => ({
+      propertyKey: segment.propertyKey,
+      ...(segment.nestedItemType === undefined ? {} : { nestedItemType: segment.nestedItemType }),
+    })),
+    kind: "metadataTarget",
+    canonical: dependency.canonical,
+  }
+}
+
+function validateLocalDependency(dependency: ConfigurationLocalDependency): void {
+  validateLocalDependencyProjectPath(dependency.sourceProjectPath)
+  if (!Array.isArray(dependency.yamlPath) || !dependency.yamlPath.every(isYamlPathSegment)) {
+    throw new Error("Некорректный yamlPath LOCAL_DEPENDENCIES")
+  }
+  if (
+    !Array.isArray(dependency.rulePath) ||
+    !dependency.rulePath.every(
+      (segment) =>
+        typeof segment === "object" &&
+        segment !== null &&
+        typeof segment.propertyKey === "string" &&
+        segment.propertyKey.length > 0 &&
+        (segment.nestedItemType === undefined ||
+          (typeof segment.nestedItemType === "string" && segment.nestedItemType.length > 0))
+    )
+  ) {
+    throw new Error("Некорректный rulePath LOCAL_DEPENDENCIES")
+  }
+  if (dependency.kind !== "metadataTarget") {
+    throw new Error("Некорректный kind LOCAL_DEPENDENCIES")
+  }
+  if (typeof dependency.canonical !== "string" || dependency.canonical.length === 0) {
+    throw new Error("Пустой canonical LOCAL_DEPENDENCIES")
+  }
+}
+
+function validateLocalDependencyProjectPath(projectPath: string): void {
+  const segments = projectPath.split("/")
+  if (
+    projectPath.length === 0 ||
+    projectPath.startsWith("/") ||
+    projectPath.endsWith("/") ||
+    projectPath.includes("\\") ||
+    /^[A-Za-z]:\//.test(projectPath) ||
+    segments.some((segment) => segment === "" || segment === "." || segment === "..") ||
+    segments[0] === ".nkdk"
+  ) {
+    throw new Error(`Недопустимый sourceProjectPath LOCAL_DEPENDENCIES: ${projectPath}`)
+  }
+}
+
+function isYamlPathSegment(value: unknown): value is string | number {
+  return (
+    (typeof value === "string" && value.length > 0) ||
+    (typeof value === "number" && Number.isSafeInteger(value) && value >= 0)
+  )
+}
+
+function localDependencyKey(dependency: ConfigurationLocalDependency): string {
+  return JSON.stringify({
+    sourceProjectPath: dependency.sourceProjectPath,
+    yamlPath: dependency.yamlPath,
+    rulePath: dependency.rulePath,
+    kind: dependency.kind,
+    canonical: dependency.canonical,
+  })
+}
+
+function compareStrings(left: string, right: string): number {
+  return Buffer.compare(Buffer.from(left, "utf8"), Buffer.from(right, "utf8"))
+}
+
 function validateBinding({ binding }: ConfigurationIndexData): void {
   assertU64(binding.indexGeneration, "indexGeneration BINDING")
   if (binding.indexGeneration === 0n) {
@@ -104,9 +253,9 @@ function validateBinding({ binding }: ConfigurationIndexData): void {
   if (binding.producerVersion.length === 0) {
     throw new Error("producerVersion BINDING не должен быть пустым")
   }
-  const baseIdLength = Buffer.byteLength(binding.baseId)
-  if (baseIdLength < 1 || baseIdLength > 128 || !/^[A-Za-z0-9._-]+$/.test(binding.baseId)) {
-    throw new Error("Недопустимый baseId BINDING")
+  const componentPathLength = Buffer.byteLength(binding.componentPath)
+  if (componentPathLength < 1 || componentPathLength > 128) {
+    throw new Error("Недопустимый componentPath BINDING")
   }
   const hasFingerprint = binding.baseFingerprint.length > 0
   const hasConfigurationVersion = binding.configurationVersion.length > 0
@@ -169,7 +318,7 @@ function validateXmlValue(value: ConfigurationXmlValue): void {
 
 function* indexStrings(data: ConfigurationIndexData): Iterable<string> {
   yield data.binding.producerVersion
-  yield data.binding.baseId
+  yield data.binding.componentPath
   for (const file of data.projectFiles) yield file.projectPath
   for (const identity of data.identities) {
     yield identity.logicalAddress
@@ -199,7 +348,7 @@ function encodeBinding(normalized: NormalizedIndex): EncodedSection {
   const bytes = Buffer.alloc(align8(contentLength))
   bytes.writeBigUInt64LE(binding.indexGeneration, 0)
   bytes.writeUInt32LE(normalized.strings.id(binding.producerVersion), 8)
-  bytes.writeUInt32LE(normalized.strings.id(binding.baseId), 12)
+  bytes.writeUInt32LE(normalized.strings.id(binding.componentPath), 12)
   bytes.writeUInt32LE(binding.baseFingerprint.length, 16)
   bytes.writeUInt32LE(binding.configurationVersion.length, 20)
   Buffer.from(binding.baseFingerprint).copy(bytes, HEADER_LENGTH)
@@ -353,6 +502,57 @@ function encodeXmlValues(normalized: NormalizedIndex): EncodedSection {
   }
 }
 
+function encodeLocalMetadataBlock(type: 8 | 9 | 10, value: Uint8Array): EncodedSection {
+  return {
+    type,
+    recordCount: 1n,
+    bytes: Buffer.from(value),
+  }
+}
+
+function encodeLocalDependencies(dependencies: readonly ConfigurationLocalDependency[]): EncodedSection {
+  const records = dependencies.map((dependency) => utf8Encoder.encode(JSON.stringify(dependency)))
+  const recordLengths = records.map((record) => {
+    assertU32(record.byteLength, "byteLength LOCAL_DEPENDENCIES")
+    return align8(4 + record.byteLength)
+  })
+  const bytes = Buffer.alloc(recordLengths.reduce((total, length) => total + length, 0))
+  let offset = 0
+  records.forEach((record, index) => {
+    bytes.writeUInt32LE(record.byteLength, offset)
+    bytes.set(record, offset + 4)
+    offset += recordLengths[index]!
+  })
+  return {
+    type: 11,
+    recordCount: BigInt(records.length),
+    bytes,
+  }
+}
+
+function encodeLogicalAddresses(entries: readonly ComponentLogicalAddress[]): EncodedSection {
+  return encodeJsonRecords(12, entries)
+}
+
+function encodeJsonRecords(
+  type: 12,
+  values: readonly unknown[]
+): EncodedSection {
+  const records = values.map((value) => utf8Encoder.encode(JSON.stringify(value)))
+  const recordLengths = records.map((record) => {
+    assertU32(record.byteLength, `byteLength секции ${type}`)
+    return align8(4 + record.byteLength)
+  })
+  const bytes = Buffer.alloc(recordLengths.reduce((total, length) => total + length, 0))
+  let offset = 0
+  records.forEach((record, index) => {
+    bytes.writeUInt32LE(record.byteLength, offset)
+    bytes.set(record, offset + 4)
+    offset += recordLengths[index]!
+  })
+  return { type, recordCount: BigInt(records.length), bytes }
+}
+
 function writeOptionalStringId(
   bytes: Buffer,
   offset: number,
@@ -371,6 +571,7 @@ function xmlValueFlags(value: ConfigurationXmlValue): number {
   if (value.xmlText !== undefined) flags |= 1 << 3
   if (value.xmlPrefix !== undefined) flags |= 1 << 4
   if (value.userSettingsId !== undefined) flags |= 1 << 5
+  if (value.extended === true) flags |= 1 << 7
   return flags
 }
 
@@ -423,7 +624,7 @@ function encodeHeader(
   }
 ): void {
   result.write("NKDK1CIX", 0, "ascii")
-  result.writeUInt16LE(1, 8)
+  result.writeUInt16LE(2, 8)
   result.writeUInt16LE(0, 10)
   result.writeUInt32LE(HEADER_LENGTH, 12)
   result.writeUInt8(1, 16)
@@ -480,4 +681,8 @@ function assertU32(value: number, label: string): void {
 
 function assertU64(value: bigint, label: string): void {
   if (value < 0n || value > MAX_U64) throw new Error(`${label} не помещается в u64`)
+}
+
+function assertUint8Array(value: unknown, label: string): asserts value is Uint8Array {
+  if (!(value instanceof Uint8Array)) throw new Error(`${label} должен быть Uint8Array`)
 }

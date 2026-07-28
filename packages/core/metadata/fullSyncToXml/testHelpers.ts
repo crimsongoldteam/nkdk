@@ -1,16 +1,23 @@
 import fs from "node:fs"
 import os from "node:os"
 import { join } from "node:path"
-import { buildFullXmlSyncPlan } from "./discovery"
-import { createFullXmlSyncSharedMetadata } from "./sharedMetadata"
 import { transferFullXmlSyncExternalFiles } from "./transferExternalFiles"
 import { runFullXmlSyncWorkerCommand, resetFullXmlSyncWorkerStateForTests } from "./worker"
 import { createFullXmlSyncWorkerPool } from "./workerPool"
-import { writeFullXmlSyncConfigDumpInfo } from "./writeConfigDumpInfo"
 import { readConfigurationIndexSnapshot } from "../configurationIndex/sharedSnapshot"
 import { writeConfigurationIndexAtomically } from "../configurationIndex/fileIO"
 import type { FullXmlSyncCoordinatorDependencies } from "./syncConfiguration"
 import { NKDK_CORE_VERSION } from "../../version"
+import { createEmptyPersistedSharedValidationSnapshot } from "../validation/persistedSharedValidationSnapshot"
+import {
+  confirmComponentState,
+  readComponentHashState,
+  readComponentIndexes,
+  readComponentProjectStructure,
+} from "../project/componentState"
+import { resolveFullXmlSyncComponentProfile } from "./componentProfile"
+import { buildXmlSyncPlan } from "./selection"
+import { validateFullXmlSyncWrittenFiles } from "./validateWrittenFiles"
 
 const tempDirs: string[] = []
 
@@ -30,34 +37,26 @@ export function writeSmallXmlDump(xmlDir: string): void {
     join(__dirname, "../appliedObjects/configuration/__fixtures__/minimal.xml"),
     join(xmlDir, "Configuration.xml")
   )
-  fs.writeFileSync(
-    join(xmlDir, "ConfigDumpInfo.xml"),
-    [
-      '<?xml version="1.0" encoding="UTF-8"?>',
-      '<ConfigDumpInfo xmlns="http://v8.1c.ru/8.3/xcf/dumpinfo" xmlns:xen="http://v8.1c.ru/8.3/xcf/enums" xmlns:xs="http://www.w3.org/2001/XMLSchema" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" format="Hierarchical" version="2.20">',
-      "\t<ConfigVersions/>",
-      "</ConfigDumpInfo>",
-      "",
-    ].join("\n")
-  )
   fs.cpSync(join(__dirname, "../appliedObjects/metadataBot/__fixtures__/sync/xml"), join(xmlDir, "Bots"), {
     recursive: true,
   })
 }
 
-export async function writeSmallYamlProjectWithIndex(yamlDir: string): Promise<void> {
+export async function writeSmallYamlProjectWithIndex(projectDir: string): Promise<void> {
+  const yamlDir = join(projectDir, "cf")
   fs.mkdirSync(yamlDir, { recursive: true })
   fs.writeFileSync(join(yamlDir, "Конфигурация.yaml"), "Имя: Конфигурация\n", "utf8")
   fs.cpSync(join(__dirname, "../appliedObjects/metadataBot/__fixtures__/sync/yaml"), join(yamlDir, "Бот"), {
     recursive: true,
   })
   await writeConfigurationIndexAtomically({
-    projectDir: yamlDir,
+    projectDir,
+    address: { kind: "configuration" },
     data: {
       binding: {
         indexGeneration: 1n,
         producerVersion: NKDK_CORE_VERSION,
-        baseId: "default",
+        componentPath: "cf",
         baseFingerprint: new Uint8Array(),
         configurationVersion: new Uint8Array(),
       },
@@ -71,6 +70,11 @@ export async function writeSmallYamlProjectWithIndex(yamlDir: string): Promise<v
       ],
       xmlNodes: [],
       xmlValues: [],
+      localIndexes: {
+        metadata: createEmptyPersistedSharedValidationSnapshot(),
+        dependencies: [],
+        logicalAddresses: [],
+      },
     },
   })
 }
@@ -86,8 +90,13 @@ export function createDirectFullSyncDependencies(): FullXmlSyncCoordinatorDepend
     async mkdir(path) {
       fs.mkdirSync(path, { recursive: true })
     },
-    discover: ({ projectDir }) => buildFullXmlSyncPlan({ projectDir }),
-    readIndexSnapshot: readConfigurationIndexSnapshot,
+    readStructure: readComponentProjectStructure,
+    readSnapshot: readConfigurationIndexSnapshot,
+    readHashes: readComponentHashState,
+    readIndexes: readComponentIndexes,
+    confirmState: confirmComponentState,
+    resolveProfile: resolveFullXmlSyncComponentProfile,
+    buildPlan: buildXmlSyncPlan,
     createWorkerPool({ concurrency }) {
       return createFullXmlSyncWorkerPool({
         concurrency,
@@ -99,9 +108,8 @@ export function createDirectFullSyncDependencies(): FullXmlSyncCoordinatorDepend
         }),
       })
     },
-    createSharedMetadata: createFullXmlSyncSharedMetadata,
     transferExternalFiles: transferFullXmlSyncExternalFiles,
-    writeConfigDumpInfo: writeFullXmlSyncConfigDumpInfo,
+    validateWrittenFiles: validateFullXmlSyncWrittenFiles,
     writeIndex: writeConfigurationIndexAtomically,
   }
 }

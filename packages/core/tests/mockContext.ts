@@ -3,6 +3,7 @@ import {
   ConfigurationContext,
   ConfigurationContextFromXML,
   ConfigurationContextWithExportToXML,
+  XmlImportConfigurationContext,
 } from "../metadata/context/types"
 
 export const mockContext: ConfigurationContext = {
@@ -37,7 +38,6 @@ export const mockContextToXML = (): ConfigurationContextWithExportToXML => {
     ...mockContext,
     exportToXML: {
       itemsTree: [],
-      configDumpInfo: new Map(),
       version: "2.20",
       context: {
         metadataForNumbering: [],
@@ -56,6 +56,14 @@ export const mockContextFromXML = (params?: { forReference?: boolean }): Configu
     fromXML: {
       forReference: forReference,
     },
+  }
+}
+
+export const mockXmlImportContext = (params?: { forReference?: boolean }): XmlImportConfigurationContext => {
+  const context = mockContextFromXML(params)
+  return {
+    ...context,
+    fromXML: { ...context.fromXML, componentKind: "configuration" },
   }
 }
 

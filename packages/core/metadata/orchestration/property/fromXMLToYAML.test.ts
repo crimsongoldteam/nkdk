@@ -779,6 +779,61 @@ describe("importPropertiesFromXMLToYAML", () => {
     expect(indexCollector.fragment("Отчёт/Продажи/Свойства.yaml").xmlValues).toEqual([])
   })
 
+  it("сохраняет скалярное XML-значение, неоднозначное при отсутствующем YAML", () => {
+    const indexCollector = createConfigurationIndexCollector()
+    const context = withConfigurationIndexCollector(mockContextFromXML(), indexCollector, "Справочник.Товары")
+    importPropertiesFromXMLToYAML({
+      context,
+      rule: {
+        itemType: "Catalog",
+        properties: {
+          descriptionLength: {
+            type: "number",
+            xml: "DescriptionLength",
+            yaml: "ДлинаНаименования",
+            defaultValueXML: 25,
+            implicitValueYAML: 30,
+          },
+        },
+      } as MetadataItemRule,
+      xml: { DescriptionLength: 30 },
+      yamlPath: [],
+      rulePath: [],
+      collector: createLocalIndexesCollector(),
+    })
+
+    expect(indexCollector.fragment("Справочник/Товары/Свойства.yaml").xmlValues).toEqual([
+      { logicalAddress: "Справочник.Товары.descriptionLength", xmlText: "30" },
+    ])
+  })
+
+  it("сохраняет явно пустое XML-значение с defaultValueXMLEmpty", () => {
+    const indexCollector = createConfigurationIndexCollector()
+    const context = withConfigurationIndexCollector(mockContextFromXML(), indexCollector, "Отчет.Остатки")
+    importPropertiesFromXMLToYAML({
+      context,
+      rule: {
+        itemType: "Report",
+        properties: {
+          extendedPresentation: {
+            type: "string",
+            xml: "ExtendedPresentation",
+            yaml: "РасширенноеПредставление",
+            defaultValueXMLEmpty: { items: {} },
+          },
+        },
+      } as MetadataItemRule,
+      xml: { ExtendedPresentation: "" },
+      yamlPath: [],
+      rulePath: [],
+      collector: createLocalIndexesCollector(),
+    })
+
+    expect(indexCollector.fragment("Отчет/Остатки/Свойства.yaml").xmlValues).toEqual([
+      { logicalAddress: "Отчет.Остатки.extendedPresentation", explicitEmpty: true },
+    ])
+  })
+
   it("сохраняет xsi:nil, потерянный преобразованием и не заданный rules", () => {
     const indexCollector = createConfigurationIndexCollector()
     const context = withConfigurationIndexCollector(
