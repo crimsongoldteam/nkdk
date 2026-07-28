@@ -31,6 +31,7 @@ describe("prepareYamlProject", () => {
       includeYamlData: false,
       files: [
         {
+          ...componentFileAddress(projectDir, "Справочник/Товары/Свойства.yaml"),
           projectPath: "Справочник/Товары/Свойства.yaml",
           filePath: join(projectDir, "Справочник", "Товары", "Свойства.yaml"),
           role: "properties",
@@ -120,6 +121,27 @@ describe("prepareYamlProject", () => {
         },
       })
       expect(JSON.stringify(result.project)).not.toContain("Реквизиты:")
+    },
+    testTimeout
+  )
+
+  it(
+    "keeps the component-local directory in prepared file addresses",
+    async () => {
+      const projectDir = createProject()
+      const result = await prepareProject({ projectDir })
+
+      expect(result.ok).toBe(true)
+      if (!result.ok) throw new Error(result.message)
+
+      expect(result.project.files).toEqual([
+        expect.objectContaining({
+          componentPath: "cf",
+          componentDir: projectDir,
+          projectPath: "Справочник/Товары/Свойства.yaml",
+          rootProjectPath: "cf/Справочник/Товары/Свойства.yaml",
+        }),
+      ])
     },
     testTimeout
   )
@@ -303,6 +325,7 @@ describe("prepareYamlProject", () => {
         includeYamlData: false,
         files: [
           {
+            ...componentFileAddress(projectDir, "Справочник/Товары/Свойства.yaml"),
             projectPath: "Справочник/Товары/Свойства.yaml",
             filePath: yamlPath,
             role: "properties",
@@ -319,6 +342,7 @@ describe("prepareYamlProject", () => {
         context: validationContext,
         files: [
           {
+            ...componentFileAddress(projectDir, "Справочник/Товары/Свойства.yaml"),
             projectPath: "Справочник/Товары/Свойства.yaml",
             filePath: yamlPath,
             role: "properties",
@@ -326,6 +350,7 @@ describe("prepareYamlProject", () => {
             itemType: "Catalog",
           },
           {
+            ...componentFileAddress(projectDir, "Справочник/Услуги/Свойства.yaml"),
             projectPath: "Справочник/Услуги/Свойства.yaml",
             filePath: secondYamlPath,
             role: "properties",
@@ -408,6 +433,7 @@ describe("prepareYamlProject", () => {
 
   it("uses the worker pool when concurrency is one", async () => {
     const descriptor = {
+      ...componentFileAddress("/project", "Справочник/Товары/Свойства.yaml"),
       projectPath: "Справочник/Товары/Свойства.yaml",
       filePath: "/project/Справочник/Товары/Свойства.yaml",
       role: "properties" as const,
@@ -468,6 +494,7 @@ describe("prepareYamlProject", () => {
         context: { version: "2.20", defaultLanguage: "ru", exportToYAML: { toTyped: false } },
         files: [
           {
+            ...componentFileAddress("/project", "Справочник/Товары/Свойства.yaml"),
             projectPath: "Справочник/Товары/Свойства.yaml",
             filePath: "/project/Справочник/Товары/Свойства.yaml",
             role: "properties",
@@ -486,6 +513,7 @@ describe("prepareYamlProject", () => {
 
   it("dispatches fact-only extraction to physical workers with round-robin partitions", async () => {
     const descriptors = ["Товары", "Услуги", "Материалы"].map((name) => ({
+      ...componentFileAddress("/project", `Справочник/${name}/Свойства.yaml`),
       projectPath: `Справочник/${name}/Свойства.yaml`,
       filePath: `/project/Справочник/${name}/Свойства.yaml`,
       role: "properties" as const,
@@ -559,4 +587,12 @@ describe("prepareYamlProject", () => {
       await pool.close()
     }
   })
+
+  function componentFileAddress(projectDir: string, projectPath: string) {
+    return {
+      componentPath: "cf",
+      componentDir: projectDir,
+      rootProjectPath: `cf/${projectPath}`,
+    }
+  }
 })

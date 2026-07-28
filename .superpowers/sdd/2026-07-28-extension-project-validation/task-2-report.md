@@ -46,3 +46,22 @@
 ## Риски
 
 - Полный core-набор не завершился до остановки; перед объединением следует повторить его в среде без этого зависания.
+
+## Fix round 1
+
+- `PreparedYamlProjectFileDescriptor` теперь содержит обязательные `componentPath`, `componentDir` и `rootProjectPath`.
+- Обычный component-local `prepareYamlProjectWithPool` объявляет себя как `cf`, сохраняет переданный каталог в `componentDir` и формирует `rootProjectPath` от `cf/`.
+- `prepareYamlFiles` принимает отдельный минимальный входной тип: самостоятельная подготовка YAML не обязана изобретать адрес компонента, а публичный prepared descriptor остаётся полным.
+- Full XML worker получает `componentPath` в инициализации и добавляет его в descriptor assignment; это сохраняет корректные адреса и для `cfe/*`.
+- Covering tests: `packages/core/metadata/project/preparedYamlProject.test.ts`, `packages/core/metadata/fullSyncToXml/worker.test.ts`, `packages/core/metadata/fullSyncToXml/workerPool.test.ts`.
+
+### RED/GREEN
+
+- RED: `keeps the component-local directory in prepared file addresses` не находил `componentPath`, `componentDir`, `rootProjectPath` в результате `prepareYamlProjectWithPool`.
+- GREEN: `pnpm --filter @nkdk/core exec vitest run metadata/project/preparedYamlProject.test.ts` — PASS, 1 файл / 16 тестов.
+
+### Проверки
+
+- `pnpm --filter @nkdk/core exec vitest run metadata/validation/projectComponents.test.ts metadata/project/resources.test.ts metadata/validation/projectFiles.test.ts` — PASS, 3 файла / 23 теста.
+- `pnpm --filter @nkdk/core exec vitest run metadata/fullSyncToXml/worker.test.ts metadata/fullSyncToXml/workerPool.test.ts` — PASS, 2 файла / 10 тестов.
+- `pnpm --filter @nkdk/core run type-check` — PASS.

@@ -56,10 +56,7 @@ describe("collectValidationFacts", () => {
     const projectDir = createTempDir()
     const filePath = join(projectDir, "ФункциональнаяОпция", "ИспользоватьАртикулы", "Свойства.yaml")
     mkdirSync(join(projectDir, "ФункциональнаяОпция", "ИспользоватьАртикулы"), { recursive: true })
-    writeFileSync(
-      filePath,
-      ["СоставФункциональнойОпции:", "  - Catalog.Номенклатура.Attribute.Артикул", ""].join("\n")
-    )
+    writeFileSync(filePath, ["СоставФункциональнойОпции:", "  - Catalog.Номенклатура.Attribute.Артикул", ""].join("\n"))
 
     const contribution = await collectValidationFacts({
       kind: "collectValidationFacts",
@@ -67,6 +64,9 @@ describe("collectValidationFacts", () => {
       projectDir,
       files: [
         {
+          componentPath: "cf",
+          componentDir: projectDir,
+          rootProjectPath: "cf/ФункциональнаяОпция/ИспользоватьАртикулы/Свойства.yaml",
           projectPath: "ФункциональнаяОпция/ИспользоватьАртикулы/Свойства.yaml",
           filePath,
           role: "properties",
@@ -95,6 +95,9 @@ function createTempDir(): string {
 
 function descriptor(filePath: string) {
   return {
+    componentPath: "cf",
+    componentDir: filePath.replace(/\/Справочник\/Товары\/Свойства\.yaml$/, ""),
+    rootProjectPath: "cf/Справочник/Товары/Свойства.yaml",
     projectPath: "Справочник/Товары/Свойства.yaml",
     filePath,
     role: "properties" as const,

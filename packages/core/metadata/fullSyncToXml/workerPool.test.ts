@@ -1,10 +1,6 @@
 import { describe, expect, it } from "vitest"
 import { encodeConfigurationIndexFragments } from "../configurationIndex/fragment"
-import type {
-  FullXmlSyncAssignment,
-  FullXmlSyncDiagnostic,
-  FullXmlSyncWorkerCommand,
-} from "./types"
+import type { FullXmlSyncAssignment, FullXmlSyncDiagnostic, FullXmlSyncWorkerCommand } from "./types"
 import {
   createFullXmlSyncWorkerPool,
   normalizeFullXmlSyncConcurrency,
@@ -15,6 +11,7 @@ import { fullXmlSyncTestOutput } from "./testTopology"
 
 describe("full XML sync worker pool", () => {
   const initialization = {
+    componentPath: "cf",
     componentDir: "/project",
     outputDir: "/out",
     context: {
@@ -84,9 +81,7 @@ describe("full XML sync worker pool", () => {
     await pool.initialize(initialization)
     const result = await pool.execute([assignment("one"), assignment("two")])
 
-    expect(result.diagnostics).toEqual([
-      expect.objectContaining({ severity: "error", assignmentId: "two" }),
-    ])
+    expect(result.diagnostics).toEqual([expect.objectContaining({ severity: "error", assignmentId: "two" })])
     expect(result.expectedOutputs).toHaveLength(2)
     await pool.close()
   })
@@ -100,8 +95,7 @@ describe("full XML sync worker pool", () => {
     })
 
     await pool.initialize(initialization)
-    await expect(pool.execute([assignment("one"), assignment("two")]))
-      .rejects.toThrow("worker crashed")
+    await expect(pool.execute([assignment("one"), assignment("two")])).rejects.toThrow("worker crashed")
 
     expect(pools.destroyCalls()).toEqual([1, 1])
     await pool.close()

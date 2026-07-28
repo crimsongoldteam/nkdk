@@ -21,15 +21,18 @@ export interface PreparedYamlProject {
   workers: PreparedYamlWorkerPartition[]
 }
 
-export interface PreparedYamlProjectFileDescriptor {
-  componentPath?: string
-  componentDir?: string
-  rootProjectPath?: string
+export interface PreparedYamlProjectFileInput {
   projectPath: string
   filePath: string
   role: "configuration" | "properties" | "form"
   owner: { dir: string; name: string }
   itemType: string
+}
+
+export interface PreparedYamlProjectFileDescriptor extends PreparedYamlProjectFileInput {
+  componentPath: string
+  componentDir: string
+  rootProjectPath: string
 }
 
 export interface PreparedYamlProjectResourceDescriptor {
@@ -118,17 +121,8 @@ export async function prepareYamlProjectWithPool(params: {
     () =>
       resources
         .filter((resource) => resource.kind === "yaml")
-        .map(
-          (resource): PreparedYamlProjectFileDescriptor => ({
-            projectPath: resource.projectPath,
-            filePath: resource.absolutePath!,
-            role: resource.role,
-            owner: { dir: resource.owner.dir, name: resource.owner.name },
-            itemType:
-              resource.owner.spec.rule.metadataTargetOwner?.kind === "self"
-                ? resource.owner.spec.rule.metadataTargetOwner.root
-                : (resource.owner.spec.rule.itemTypePrefix ?? resource.owner.spec.rule.itemType),
-          })
+        .map((resource) =>
+          toPreparedYamlProjectFileDescriptor(resource, { componentPath: "cf", componentDir: projectDir })
         )
   )
   const resourceFiles = profiler.measure(
@@ -203,11 +197,7 @@ export async function discoverPreparedYamlValidationProjectFiles(
         .map((resource) => toPreparedYamlProjectFileDescriptor(resource, component))
     })
   )
-  return files
-    .flat()
-    .sort((left, right) =>
-      (left.rootProjectPath ?? left.projectPath).localeCompare(right.rootProjectPath ?? right.projectPath, "ru")
-    )
+  return files.flat().sort((left, right) => left.rootProjectPath.localeCompare(right.rootProjectPath, "ru"))
 }
 
 function toPreparedYamlProjectFileDescriptor(
