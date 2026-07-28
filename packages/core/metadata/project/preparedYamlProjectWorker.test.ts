@@ -3,6 +3,7 @@ import { tmpdir } from "node:os"
 import { join } from "node:path"
 import { afterEach, describe, expect, it } from "vitest"
 import { mockContext } from "../../tests/mockContext"
+import { evaluateProjectFirstPass } from "../validation/projectFirstPassReadiness"
 import { createValidationRulesSnapshot } from "../validation/rulesSnapshot"
 import runPreparedYamlProjectWorkerTask, { collectValidationFacts } from "./preparedYamlProjectWorker"
 
@@ -128,6 +129,67 @@ describe("validation first-pass worker boundary", () => {
       "cfe/Склад/Справочник/Склад/Свойства.yaml",
     ])
     expect(result.yamlLifetime).toMatchObject({ current: 0, max: 1, parsed: 3 })
+  }, 120_000)
+
+  it("returns a failed file result when a descriptor cannot be classified", async () => {
+    const projectDir = createTempDir()
+    const componentDir = join(projectDir, "cf")
+    const filePath = join(componentDir, "Неизвестно.yaml")
+    const file = {
+      componentPath: "cf",
+      componentDir,
+      rootProjectPath: "cf/Конфигурация.yaml",
+      projectPath: "Конфигурация.yaml",
+      filePath,
+      role: "configuration" as const,
+      owner: { dir: "", name: "Конфигурация" },
+      itemType: "Configuration",
+    }
+    await runPreparedYamlProjectWorkerTask({
+      kind: "initValidation",
+      workerIndex: 0,
+      context: mockContext,
+      rulesSnapshot: createValidationRulesSnapshot(mockContext),
+    })
+
+    const result = await runPreparedYamlProjectWorkerTask({
+      kind: "validateFirstPass",
+      workerIndex: 0,
+      projectDir,
+      context: mockContext,
+      files: [file],
+    })
+
+    expect(result.kind).toBe("validateFirstPassResult")
+    if (result.kind !== "validateFirstPassResult") throw new Error("unexpected worker response")
+    expect(result.fileResults).toEqual([
+      {
+        componentPath: "cf",
+        filePath,
+        rootProjectPath: "cf/Конфигурация.yaml",
+        contributedFacts: false,
+        schemaDiagnostics: [],
+      },
+    ])
+    expect(result.diagnostics).toEqual([
+      expect.objectContaining({
+        filePath,
+        source: "structure",
+        severity: "error",
+        message: expect.stringContaining("Не удалось классифицировать YAML-файл компонента"),
+      }),
+    ])
+    expect(result.schemaDiagnostics).toEqual([])
+    expect(
+      evaluateProjectFirstPass({
+        hasConfiguration: true,
+        componentPaths: ["cf", "cfe/Продажи"],
+        firstPass: result,
+      })
+    ).toMatchObject({
+      configurationReady: false,
+      blockedExtensionPaths: ["cfe/Продажи"],
+    })
   }, 120_000)
 })
 

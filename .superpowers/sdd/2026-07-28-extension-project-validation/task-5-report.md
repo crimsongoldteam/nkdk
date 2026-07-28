@@ -46,3 +46,23 @@ GREEN:
 - Component-local snapshot formats и XML-фикстуры не менялись.
 - Независимое ревью diff не выявило Critical/Important замечаний.
 - Текущий second pass ещё использует прежнюю общую object table; корректные component layers и политика деградации будут подключены в Task 6.
+
+## Fix round 1
+
+Исправлено молчаливое исчезновение descriptor, который worker не смог классифицировать как `ValidationProjectFile`. Теперь для него сохраняются component-scoped `structure` diagnostic и `fileResult` с абсолютным `filePath`, исходным `rootProjectPath`, `contributedFacts: false` и пустыми `schemaDiagnostics`; readiness из-за такого корневого файла остаётся `false`.
+
+Covering test:
+
+- `packages/core/metadata/project/preparedYamlProjectWorker.test.ts` выполняет настоящий worker first pass с неклассифицируемым descriptor и проверяет failed `fileResult`, несхемную диагностику и заблокированное расширение через `evaluateProjectFirstPass`.
+
+RED:
+
+- `pnpm --filter @nkdk/core exec vitest run metadata/project/preparedYamlProjectWorker.test.ts` — FAIL: ожидался один failed `fileResult`, получен пустой массив; 1 failed, 4 passed.
+
+GREEN:
+
+- `pnpm --filter @nkdk/core exec vitest run metadata/project/preparedYamlProjectWorker.test.ts` — PASS, 5/5.
+- `pnpm --filter @nkdk/core exec vitest run metadata/validation/projectFirstPassReadiness.test.ts metadata/project/preparedYamlProjectWorker.test.ts metadata/validation/projectValidationPasses.test.ts metadata/validation/validateProject.test.ts` — PASS, 78/78.
+- `pnpm --filter @nkdk/core type-check` — PASS.
+- `git diff --check` — PASS.
+- Независимое ревью fix diff — Critical/Important замечаний нет.

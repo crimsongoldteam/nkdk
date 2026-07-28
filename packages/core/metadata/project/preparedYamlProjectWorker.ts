@@ -302,7 +302,25 @@ function runValidationFirstPass(message: Extract<PreparedYamlProjectWorkerTask, 
     const component = componentFirstPassResult(components, descriptor.componentPath)
     const projectComponent = validationProjectComponentFromAddress(message.projectDir, descriptor)
     const file = resolveValidationProjectFile(descriptor.componentDir, descriptor.filePath, projectComponent)
-    if (file === undefined) continue
+    if (file === undefined) {
+      const filePath = resolve(descriptor.filePath)
+      component.diagnostics.push({
+        filePath,
+        line: 1,
+        col: 1,
+        severity: "error",
+        source: "structure",
+        message: `Не удалось классифицировать YAML-файл компонента: ${descriptor.rootProjectPath}`,
+      })
+      component.fileResults.push({
+        componentPath: descriptor.componentPath,
+        filePath,
+        rootProjectPath: descriptor.rootProjectPath,
+        contributedFacts: false,
+        schemaDiagnostics: [],
+      })
+      continue
+    }
     const entry = readProjectYamlEntryForValidation(file.absolutePath)
     if ("error" in entry) {
       const diagnostic = readProjectYamlDiagnostic(entry)
