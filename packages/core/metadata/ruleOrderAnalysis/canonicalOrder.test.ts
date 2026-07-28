@@ -34,7 +34,7 @@ describe("deriveCanonicalRuleOrders", () => {
       observation(["name", "comment", "indexing"]),
     ])
 
-    expect(result[0]?.propertyKeys).toEqual(["name", "comment", "use", "indexing", "unseen"])
+    expect(result[0]?.propertyKeys).toEqual(["name", "comment", "use", "indexing"])
     expect(result[0]?.observationCount).toBe(2)
   })
 
@@ -64,19 +64,25 @@ describe("deriveCanonicalRuleOrders", () => {
       observation(["name", "indexing"]),
     ])
 
-    expect(result[0]?.propertyKeys).toEqual(["name", "comment", "use", "indexing", "unseen"])
+    expect(result[0]?.propertyKeys).toEqual(["name", "use", "indexing"])
   })
 
-  it("uses numeric order after declaration position for otherwise equal source data", () => {
-    const orderedSource = source({ numericOrder: { use: 2, comment: 1 } })
+  it("не включает ненаблюдавшиеся свойства", () => {
+    const result = deriveCanonicalRuleOrders([observation(["name", "use"])])
 
-    expect(deriveCanonicalRuleOrders([observation(["name"], { source: orderedSource })])[0]?.propertyKeys).toEqual([
-      "name",
-      "comment",
-      "use",
-      "indexing",
-      "unseen",
-    ])
+    expect(result[0]?.propertyKeys).toEqual(["name", "use"])
+    expect(result[0]?.propertyKeys).not.toContain("unseen")
+  })
+
+  it("использует порядок объявления, а не numeric order, для несвязанных наблюдавшихся ключей", () => {
+    const orderedSource = source({ numericOrder: { use: 1, comment: 2 } })
+
+    expect(
+      deriveCanonicalRuleOrders([
+        observation(["name", "use"], { source: orderedSource }),
+        observation(["name", "comment"], { source: orderedSource }),
+      ])[0]?.propertyKeys
+    ).toEqual(["name", "comment", "use"])
   })
 
   it("rejects an observation key missing from the declaration", () => {

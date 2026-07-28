@@ -18,11 +18,17 @@ export function renderRuleOrderReportMarkdown(result: AnalyzeRuleOrderResult): s
     `- Наблюдения: ${result.observationCount}`,
     `- Пропущенные наблюдения вне rules.ts: ${result.skippedObservationCount}`,
     `- Правила: ${result.rules.length}`,
+    `- Правила без наблюдений: ${result.unobservedSources.length}`,
     `- Конфликты пар: ${conflictCount}`,
     `- Циклы: ${cycleCount}`,
     `- Неоднозначные правила: ${result.ambiguities.length}`,
     "",
   ]
+  if (result.unobservedSources.length > 0) {
+    lines.push("## Правила без наблюдений", "")
+    for (const source of result.unobservedSources) lines.push(`- \`${source.candidate}\``)
+    lines.push("")
+  }
   if (conflictCount === 0) {
     lines.push("Конфликты порядка не найдены.", "")
     return lines.join("\n")

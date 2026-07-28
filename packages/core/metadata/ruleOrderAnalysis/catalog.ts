@@ -26,11 +26,13 @@ export async function buildRuntimeRuleOrderCatalog(params: {
   }
 
   const sources = new WeakMap<MetadataItemRule, RuleOrderSource>()
+  const sourcesByCandidate = new Map<string, RuleOrderSource>()
   const directExports = new WeakSet<MetadataItemRule>()
   const ambiguities: { candidate: string; reason: string }[] = []
   for (const exported of exportedRules) {
     registerSource({
       sources,
+      sourcesByCandidate,
       ambiguities,
       rule: exported.rule,
       source: sourceFor(root, exported, []),
@@ -46,7 +48,7 @@ export async function buildRuntimeRuleOrderCatalog(params: {
       })
       continue
     }
-    registerSource({ sources, ambiguities, rule: relation.rule, source })
+    registerSource({ sources, sourcesByCandidate, ambiguities, rule: relation.rule, source })
   }
   for (const exported of exportedRules) {
     indexNestedRules({
@@ -55,6 +57,7 @@ export async function buildRuntimeRuleOrderCatalog(params: {
       rule: exported.rule,
       propertyPath: [],
       sources,
+      sourcesByCandidate,
       directExports,
       ambiguities,
       ancestors: new Set(),
@@ -63,6 +66,7 @@ export async function buildRuntimeRuleOrderCatalog(params: {
 
   return {
     sourceOf: (rule) => sources.get(rule),
+    sources: () => [...sourcesByCandidate.values()].sort((left, right) => bytewiseCompare(left.candidate, right.candidate)),
     ambiguities: () => [...ambiguities].sort((left, right) => bytewiseCompare(left.candidate, right.candidate)),
   }
 }
@@ -73,6 +77,7 @@ function indexNestedRules(params: {
   rule: MetadataItemRule
   propertyPath: readonly string[]
   sources: WeakMap<MetadataItemRule, RuleOrderSource>
+  sourcesByCandidate: Map<string, RuleOrderSource>
   directExports: WeakSet<MetadataItemRule>
   ambiguities: { candidate: string; reason: string }[]
   ancestors: ReadonlySet<MetadataItemRule>
@@ -85,6 +90,7 @@ function indexNestedRules(params: {
     if (!params.directExports.has(nested.rule)) {
       registerSource({
         sources: params.sources,
+        sourcesByCandidate: params.sourcesByCandidate,
         ambiguities: params.ambiguities,
         rule: nested.rule,
         source: sourceFor(params.root, params.exported, propertyPath),
@@ -109,21 +115,37 @@ function staticNestedRules(
 
 function registerSource(params: {
   sources: WeakMap<MetadataItemRule, RuleOrderSource>
+  sourcesByCandidate: Map<string, RuleOrderSource>
   ambiguities: { candidate: string; reason: string }[]
   rule: MetadataItemRule
   source: RuleOrderSource
 }): void {
+  const candidateSource = params.sourcesByCandidate.get(params.source.candidate)
+  if (candidateSource === undefined) {
+    params.sourcesByCandidate.set(params.source.candidate, params.source)
+  } else if (!sameSource(candidateSource, params.source)) {
+    params.sourcesByCandidate.delete(params.source.candidate)
+    params.ambiguities.push({
+      candidate: params.source.candidate,
+      reason: "Один candidate связан с различающимися source",
+    })
+  }
+
   const existing = params.sources.get(params.rule)
   if (existing === undefined) {
     params.sources.set(params.rule, params.source)
     return
   }
-  if (existing.candidate === params.source.candidate) return
+  if (sameSource(existing, params.source)) return
   params.sources.delete(params.rule)
   params.ambiguities.push({
     candidate: params.source.candidate,
     reason: `Один runtime-объект уже связан с ${existing.candidate}`,
   })
+}
+
+function sameSource(left: RuleOrderSource, right: RuleOrderSource): boolean {
+  return JSON.stringify(left) === JSON.stringify(right)
 }
 
 function sourceFor(

@@ -49,18 +49,23 @@ function deriveCanonicalRuleOrder(observations: readonly RuleOrderObservation[])
   if (declarationSet.size !== declarationKeys.length) {
     throw new Error(`В ${first.source.candidate} повторяется объявленный ключ свойства`)
   }
-  const adjacency = new Map(declarationKeys.map((key) => [key, new Set<string>()]))
-  const indegree = new Map(declarationKeys.map((key) => [key, 0]))
+  const observedKeys = new Set<string>()
 
   for (const observation of observations) {
     for (const key of observation.fields) {
       if (!declarationSet.has(key)) {
         throw new Error(`Наблюдение ${observation.source.candidate} содержит неизвестный ключ ${key}`)
       }
+      observedKeys.add(key)
     }
     if (new Set(observation.fields).size !== observation.fields.length) {
       throw new Error(`В наблюдении ${observation.logicalAddress} повторяется ключ свойства`)
     }
+  }
+
+  const adjacency = new Map([...observedKeys].map((key) => [key, new Set<string>()]))
+  const indegree = new Map([...observedKeys].map((key) => [key, 0]))
+  for (const observation of observations) {
     for (let left = 0; left < observation.fields.length; left += 1) {
       for (let right = left + 1; right < observation.fields.length; right += 1) {
         addEdge(observation.fields[left]!, observation.fields[right]!, adjacency, indegree, first.source)
@@ -69,7 +74,7 @@ function deriveCanonicalRuleOrder(observations: readonly RuleOrderObservation[])
   }
 
   const compareKeys = keyComparator(first.source)
-  const available = declarationKeys.filter((key) => indegree.get(key) === 0).sort(compareKeys)
+  const available = [...observedKeys].filter((key) => indegree.get(key) === 0).sort(compareKeys)
   const propertyKeys: string[] = []
   while (available.length > 0) {
     const key = available.shift()!
@@ -83,8 +88,8 @@ function deriveCanonicalRuleOrder(observations: readonly RuleOrderObservation[])
       }
     }
   }
-  if (propertyKeys.length !== declarationKeys.length) {
-    const remaining = declarationKeys.filter((key) => !propertyKeys.includes(key)).sort(compareKeys)
+  if (propertyKeys.length !== observedKeys.size) {
+    const remaining = [...observedKeys].filter((key) => !propertyKeys.includes(key)).sort(compareKeys)
     throw new Error(`В порядке ${first.source.candidate} обнаружен цикл: ${remaining.join(", ")}`)
   }
   for (const observation of observations) assertObservationSubsequence({ order: propertyKeys, observation })
@@ -124,10 +129,6 @@ function keyComparator(source: RuleOrderSource): (left: string, right: string) =
   return (left, right) => {
     const declarationComparison = declarationPositions.get(left)! - declarationPositions.get(right)!
     if (declarationComparison !== 0) return declarationComparison
-    const numericComparison =
-      (source.numericOrder[left] ?? Number.POSITIVE_INFINITY) -
-      (source.numericOrder[right] ?? Number.POSITIVE_INFINITY)
-    if (numericComparison !== 0) return numericComparison
     return bytewiseCompare(left, right)
   }
 }

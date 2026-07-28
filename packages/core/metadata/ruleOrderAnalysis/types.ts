@@ -24,5 +24,6 @@ export type RawRuleOrderObservation = RuleOrderObservation
 
 export interface RuntimeRuleOrderCatalog {
   sourceOf(rule: MetadataItemRule): RuleOrderSource | undefined
+  sources(): readonly RuleOrderSource[]
   ambiguities(): readonly { candidate: string; reason: string }[]
 }

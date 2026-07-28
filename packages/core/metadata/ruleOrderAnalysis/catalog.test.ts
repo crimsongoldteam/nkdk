@@ -43,4 +43,13 @@ describe("buildRuntimeRuleOrderCatalog", () => {
       propertyPath: ["properties", "attributes", "itemRule"],
     })
   })
+
+  it("перечисляет все конкретные источники без дубликатов и в стабильном порядке", async () => {
+    const catalog = await buildRuntimeRuleOrderCatalog({ metadataDir })
+    const candidates = catalog.sources().map((source) => source.candidate)
+
+    expect(candidates).toContain("forms/elements/usualGroup/rules.ts#UsualGroupRules")
+    expect(candidates).toEqual([...new Set(candidates)])
+    expect(candidates).toEqual([...candidates].sort((left, right) => Buffer.compare(Buffer.from(left), Buffer.from(right))))
+  })
 })

@@ -10,7 +10,8 @@ import {
   deriveCanonicalRuleOrders,
   type CanonicalRuleOrder,
 } from "./canonicalOrder"
-import type { RuleOrderObservation } from "./types"
+import { buildRuntimeRuleOrderCatalog } from "./catalog"
+import type { RuleOrderObservation, RuleOrderSource } from "./types"
 
 export interface AnalyzeRuleOrderParams {
   xmlRoot: string
@@ -38,11 +39,13 @@ export interface AnalyzeRuleOrderResult {
   skippedItemTypes: readonly { itemType: string; count: number }[]
   rules: readonly RuleOrderRuleReport[]
   canonicalOrders: readonly CanonicalRuleOrder[]
+  unobservedSources: readonly RuleOrderSource[]
   ambiguities: readonly { candidate: string; reason: string }[]
 }
 
 export async function analyzeRuleOrder(params: AnalyzeRuleOrderParams): Promise<AnalyzeRuleOrderResult> {
   registerCoreMetadata()
+  const catalog = await buildRuntimeRuleOrderCatalog({ metadataDir: params.metadataDir })
   const xmlRoot = resolve(params.xmlRoot)
   const configurations = (await readdir(xmlRoot, { withFileTypes: true }))
     .filter((entry) => entry.isDirectory())
@@ -113,6 +116,10 @@ export async function analyzeRuleOrder(params: AnalyzeRuleOrderParams): Promise<
     await handle.close()
   }
 
+  const canonicalOrders = deriveCanonicalRuleOrders(observations)
+  const observedCandidates = new Set(canonicalOrders.map((order) => order.source.candidate))
+  const unobservedSources = catalog.sources().filter((source) => !observedCandidates.has(source.candidate))
+
   return {
     configurations,
     configurationStats,
@@ -124,8 +131,9 @@ export async function analyzeRuleOrder(params: AnalyzeRuleOrderParams): Promise<
       .sort(([left], [right]) => bytewiseCompare(left, right))
       .map(([itemType, count]) => ({ itemType, count })),
     rules: aggregate.finish(),
-    canonicalOrders: deriveCanonicalRuleOrders(observations),
-    ambiguities: [],
+    canonicalOrders,
+    unobservedSources,
+    ambiguities: catalog.ambiguities(),
   }
 }
 
