@@ -204,7 +204,32 @@ function resolvePath(
       )
       continue
     }
-    throw new Error(`Невозможно пройти путь ${candidate}.${path.join(".")}`)
+    if (ts.isCallExpression(current.expression)) {
+      let matched: { model: SourceModel; expression: ts.Expression } | undefined
+      for (const argument of current.expression.arguments) {
+        const unwrapped = unwrapSyntax(argument)
+        if (!ts.isObjectLiteralExpression(unwrapped)) continue
+        const property = namedProperty(unwrapped, segment, candidate)
+        if (property === undefined) continue
+        if (matched !== undefined) {
+          throw new Error(`Несколько параметров builder содержат ${segment} в ${candidate}`)
+        }
+        if (!ts.isPropertyAssignment(property) && !ts.isShorthandPropertyAssignment(property)) {
+          throw new Error(`Неподдерживаемое свойство ${segment} в ${candidate}`)
+        }
+        matched = unwrapExpression(
+          graph,
+          current.model,
+          ts.isPropertyAssignment(property) ? property.initializer : property.name,
+          candidate
+        )
+      }
+      if (matched !== undefined) {
+        current = matched
+        continue
+      }
+    }
+    throw new Error(`Невозможно пройти путь ${candidate}`)
   }
   return current
 }

@@ -118,6 +118,38 @@ export const Rules = {
     expect(edit.updatedText.match(/xmlOrder:/g)).toHaveLength(1)
   })
 
+  it("проходит propertyPath через объект параметров builder", async () => {
+    const nestedSource = ruleSource({
+      candidate: "rules.ts#Rules.properties.predefined.itemRule",
+      propertyPath: ["properties", "predefined", "itemRule"],
+      declarationOrder: ["name"],
+    })
+    const edit = await editFor(
+      `
+export const Rules = {
+  itemType: "Test",
+  properties: {
+    predefined: predefinedRule({
+      itemRule: {
+        itemType: "Predefined",
+        properties: {
+          name: { type: "string" },
+        },
+      },
+    }),
+  },
+}
+`,
+      [order(["name"], nestedSource)]
+    )
+
+    expect(edit.updatedText).toContain(`itemType: "Predefined",
+        xmlOrder: [
+          "name",
+        ],
+        properties:`)
+  })
+
   it("сохраняет комментарии properties", async () => {
     const edit = await editFor(
       `
