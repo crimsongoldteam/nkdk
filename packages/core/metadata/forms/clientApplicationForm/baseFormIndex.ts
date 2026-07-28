@@ -207,21 +207,15 @@ function projectXmlNode(
 function isXmlNodePropertyAvailable(
   node: ConfigurationXmlNode | undefined,
   propertyKey: string,
-  rule: MetadataItemRule["properties"][string]
+  _rule: MetadataItemRule["properties"][string]
 ): boolean {
-  return (
-    node?.present?.includes(propertyKey) === true ||
-    (
-      rule.configurationIndexPresenceFromOrder !== false &&
-      node?.order?.includes(propertyKey) === true
-    )
-  )
+  return node?.present?.includes(propertyKey) === true
 }
 
 function xmlNodePropertyKeys(
   node: ConfigurationXmlNode | undefined
 ): ReadonlySet<string> {
-  return new Set([...(node?.order ?? []), ...(node?.present ?? [])])
+  return new Set(node?.present ?? [])
 }
 
 function projectedPropertyOrder(params: {

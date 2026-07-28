@@ -79,7 +79,9 @@ describe("BaseForm configuration index reader", () => {
     expect(projected.identity(attributeAddress, "xmlId")).toBe("1000001")
     expect(projected.identity(commandAddress, "xmlId")).toBe("1000002")
     expect(projected.identity(parameterAddress, "xmlId")).toBe("1000003")
-    expect(projected.xmlNode(elementAddress)).toEqual(base.xmlNode(elementAddress))
+    expect(projected.xmlNode(elementAddress)).toEqual({
+      logicalAddress: elementAddress,
+    })
     expect(projected.xmlValue(elementPropertyAddress)).toEqual(
       base.xmlValue(elementPropertyAddress)
     )
@@ -211,7 +213,7 @@ describe("BaseForm configuration index reader", () => {
     })
   })
 
-  it("projects shared nested presence into the property context", () => {
+  it("does not project nested presence from order-only extension state", () => {
     const propertyAddress = childUid(
       formAddress,
       "Свойство",
@@ -244,10 +246,7 @@ describe("BaseForm configuration index reader", () => {
       }],
     })
 
-    expect(projected.xmlNode(propertyAddress)).toEqual({
-      logicalAddress: propertyAddress,
-      present: ["autoCommandBar"],
-    })
+    expect(projected.xmlNode(propertyAddress)).toBeUndefined()
   })
 
   it("keeps selected order-only state without treating it as present", () => {

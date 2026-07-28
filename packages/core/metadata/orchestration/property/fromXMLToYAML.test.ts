@@ -140,7 +140,7 @@ describe("importPropertiesFromXMLToYAML", () => {
     expect(calls).toEqual(["Body:body", "Metadata:metadata"])
   })
 
-  it("merges XML order from partial sources of one physical node", () => {
+  it("records present keys from partial sources in declaration order", () => {
     const indexCollector = createConfigurationIndexCollector()
     const context = withConfigurationIndexCollector(mockContextFromXML(), indexCollector, "Справочник.Товары")
 
@@ -167,7 +167,7 @@ describe("importPropertiesFromXMLToYAML", () => {
     expect(indexCollector.fragment("test.yaml").xmlNodes).toEqual([
       {
         logicalAddress: "Справочник.Товары",
-        order: ["first", "third", "second"],
+        present: ["first", "second", "third"],
       },
     ])
   })
@@ -202,6 +202,13 @@ describe("importPropertiesFromXMLToYAML", () => {
         xmlNodeLogicalAddress: "Справочник.Товары",
         fields: ["name", "legacyValue"],
       }),
+    ])
+    expect(indexCollector.fragment("test.yaml").xmlNodes).toEqual([
+      {
+        logicalAddress: "Справочник.Товары",
+        present: ["name", "legacyValue"],
+        aliases: { legacyValue: "LegacyValue" },
+      },
     ])
   })
 
@@ -550,7 +557,7 @@ describe("importPropertiesFromXMLToYAML", () => {
     expect(externalFilesCollector).toEqual([{ relativePath: "Запросы/Владелец.txt", content: "ВЫБРАТЬ 1" }])
   })
 
-  it("preserves configuration-index aliases, order and significant presence", () => {
+  it("preserves configuration-index aliases and canonical presence", () => {
     const indexCollector = createConfigurationIndexCollector()
 
     importPropertiesFromXMLToYAML({
@@ -581,14 +588,13 @@ describe("importPropertiesFromXMLToYAML", () => {
     expect(indexCollector.fragment("test.yaml").xmlNodes).toEqual([
       {
         logicalAddress: "Справочник.Товары",
-        order: ["explicitDefault", "title"],
         aliases: { title: "Caption" },
-        present: ["explicitDefault"],
+        present: ["title", "explicitDefault"],
       },
     ])
   })
 
-  it("keeps reference-only properties in XML order without exposing them in YAML", () => {
+  it("keeps reference-only properties present without exposing them in YAML", () => {
     const indexCollector = createConfigurationIndexCollector()
     const context = withConfigurationIndexCollector(mockContextFromXML(), indexCollector, "Справочник.Товары")
 
@@ -636,7 +642,7 @@ describe("importPropertiesFromXMLToYAML", () => {
     expect(indexCollector.fragment("Справочник/Товары/Свойства.yaml").xmlNodes).toEqual([
       {
         logicalAddress: "Справочник.Товары",
-        order: ["internalInfo", "name", "resources"],
+        present: ["internalInfo", "name", "resources"],
       },
     ])
   })
@@ -678,7 +684,7 @@ describe("importPropertiesFromXMLToYAML", () => {
     }
   })
 
-  it("collects XML-present properties in source order, aliases and significant presence", () => {
+  it("collects XML-present properties in declaration order with aliases", () => {
     const indexCollector = createConfigurationIndexCollector()
     const context = withConfigurationIndexCollector(mockContextFromXML(), indexCollector, "Справочник.Товары")
 
@@ -711,9 +717,8 @@ describe("importPropertiesFromXMLToYAML", () => {
     expect(indexCollector.fragment("Справочник/Товары/Свойства.yaml").xmlNodes).toEqual([
       {
         logicalAddress: "Справочник.Товары",
-        order: ["title", "rowFilter", "explicitDefault"],
         aliases: { title: "Caption" },
-        present: ["rowFilter", "explicitDefault"],
+        present: ["rowFilter", "title", "explicitDefault"],
       },
     ])
   })
@@ -735,7 +740,7 @@ describe("importPropertiesFromXMLToYAML", () => {
 
     expect(yaml).toEqual({})
     expect(indexCollector.fragment("Форма.yaml").xmlNodes).toEqual([
-      { logicalAddress: "Форма.Основная", order: ["backgroundColor"], present: ["backgroundColor"] },
+      { logicalAddress: "Форма.Основная", present: ["backgroundColor"] },
     ])
   })
 
@@ -941,7 +946,7 @@ describe("importPropertiesFromXMLToYAML", () => {
     })
 
     expect(indexCollector.fragment("Форма.yaml").xmlNodes).toEqual([
-      { logicalAddress: "Форма.Основная.Элемент.Кнопка1", order: ["title", "commandName"] },
+      { logicalAddress: "Форма.Основная.Элемент.Кнопка1", present: ["title", "commandName"] },
     ])
   })
 
