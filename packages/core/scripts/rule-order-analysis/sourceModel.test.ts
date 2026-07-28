@@ -99,6 +99,57 @@ export const Rules = {
     expect(edit.updatedText.indexOf("name:")).toBeLessThan(edit.updatedText.indexOf("use:"))
   })
 
+  it("reorders a spread fragment imported from another rules.ts", async () => {
+    const derivedPath = "/metadata/derived/rules.ts"
+    const basePath = "/metadata/base/rules.ts"
+    const files = new Map([
+      [
+        derivedPath,
+        `
+import { BaseRules } from "../base/rules"
+export const DerivedRules = {
+  itemType: "Derived",
+  properties: {
+    ...BaseRules.properties,
+    extra: { type: "string" },
+  },
+}
+`,
+      ],
+      [
+        basePath,
+        `
+export const BaseRules = {
+  itemType: "Base",
+  properties: {
+    use: { type: "boolean" },
+    name: { type: "string" },
+  },
+}
+`,
+      ],
+    ])
+
+    const edits = await buildRuleSourceEdits({
+      orders: [
+        order(["name", "use", "extra"], {
+          candidate: "derived/rules.ts#DerivedRules",
+          filePath: derivedPath,
+          exportName: "DerivedRules",
+        }),
+      ],
+      readFile: async (path) => {
+        const source = files.get(path)
+        if (source === undefined) throw new Error(`Неожиданный путь ${path}`)
+        return source
+      },
+    })
+
+    expect(edits).toHaveLength(1)
+    expect(edits[0]?.filePath).toBe(basePath)
+    expect(edits[0]?.updatedText.indexOf("name:")).toBeLessThan(edits[0]!.updatedText.indexOf("use:"))
+  })
+
   it("keeps the insertion position of an override after a spread", async () => {
     const edit = await editFor(
       `
