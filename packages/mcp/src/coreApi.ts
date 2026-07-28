@@ -121,6 +121,7 @@ export interface CoreApi {
     inputDir: string
     projectDir?: string
     outputDir: string
+    externalFileTransfer?: "copy" | "move"
   }): Promise<ConfigurationImportResult>
   syncConfigurationToXML(params: {
     context: {

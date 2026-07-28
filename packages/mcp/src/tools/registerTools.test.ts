@@ -19,8 +19,12 @@ describe("registerNkdkCapabilities", () => {
     expect(calls.tools).toEqual([
       "nkdk.get_schema",
       "nkdk.describe_project_structure",
+      "nkdk.list_infobases",
       "nkdk.validate_project",
       "nkdk.import_from_xml",
+      "nkdk.import_from_infobase",
+      "nkdk.close_platform_connection",
+      "nkdk.close_all_platform_connections",
       "nkdk.sync_to_xml",
       "nkdk.init_sync_state",
       "nkdk.rename_item",
@@ -48,6 +52,24 @@ describe("registerNkdkCapabilities", () => {
     expect(importTool?.description).toContain("не подключается к 1С")
     expect(importTool?.description).toContain("не импортирует все компоненты")
 
+    const infobaseImportTool = server.registerTool.mock.calls.find(
+      ([name]) => name === "nkdk.import_from_infobase"
+    )?.[1] as { description: string } | undefined
+    expect(infobaseImportTool?.description).toContain("allowWrite=true")
+    expect(infobaseImportTool?.description).toContain("пустой cf")
+    expect(infobaseImportTool?.description).toContain("Запускает 1С")
+    expect(infobaseImportTool?.description).toContain("параметры СУБД")
+
+    for (const name of [
+      "nkdk.close_platform_connection",
+      "nkdk.close_all_platform_connections",
+    ]) {
+      const tool = server.registerTool.mock.calls.find(([registered]) => registered === name)?.[1] as
+        | { description: string }
+        | undefined
+      expect(tool?.description).toContain("текущим MCP-процессом")
+    }
+
     const syncTool = server.registerTool.mock.calls.find(([name]) => name === "nkdk.sync_to_xml")?.[1] as
       | { description: string }
       | undefined
@@ -55,5 +77,12 @@ describe("registerNkdkCapabilities", () => {
     expect(syncTool?.description).toContain("projectDir/componentPath")
     expect(syncTool?.description).toContain("xmlRootDir/componentPath")
     expect(syncTool?.description).not.toContain("reference")
+
+    const listInfobasesTool = server.registerTool.mock.calls.find(([name]) => name === "nkdk.list_infobases")?.[1] as
+      | { description: string }
+      | undefined
+    expect(listInfobasesTool?.description).toContain("личного и общих списков")
+    expect(listInfobasesTool?.description).toContain("дерево")
+    expect(listInfobasesTool?.description).toContain("Не изменяет файлы")
   })
 })

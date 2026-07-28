@@ -1,7 +1,5 @@
-import fs from "node:fs"
-import os from "node:os"
 import { join } from "node:path"
-import { afterEach, describe, expect, it, vi } from "vitest"
+import { describe, expect, it, vi } from "vitest"
 import { mockContextFromXML } from "../../tests/mockContext"
 import type { ConfigurationIndexData } from "../configurationIndex"
 import { createImportSharedMetadata } from "./metadataSnapshot"
@@ -18,7 +16,7 @@ const failurePhases = [
   "mergeMetadata",
   "secondPass",
   "mergeFiles",
-  "copyExternalFiles",
+  "transferExternalFiles",
   "hashProject",
   "writeIndex",
 ] as const
@@ -39,14 +37,6 @@ const fragmentData: Pick<ConfigurationIndexData, "identities" | "xmlNodes" | "xm
   xmlValues: [{ logicalAddress: "Справочник.Контрагенты.Name", xmlText: "Контрагенты" }],
 }
 
-const tempDirs: string[] = []
-
-afterEach(async () => {
-  await Promise.all(
-    tempDirs.splice(0).map((directory) => fs.promises.rm(directory, { recursive: true, force: true }))
-  )
-})
-
 describe("configuration XML import coordinator", () => {
   it("writes the index after direct worker output and result-file hashing", async () => {
     const calls: string[] = []
@@ -64,7 +54,7 @@ describe("configuration XML import coordinator", () => {
       "mergeMetadata",
       "secondPass",
       "mergeFiles",
-      "copyExternalFiles",
+      "transferExternalFiles",
       "hashProject",
       "writeIndex",
       "closeWorkers",
@@ -217,15 +207,31 @@ describe("configuration XML import coordinator", () => {
     ).toBe(true)
     expect(lines.some((line) => line.includes('substep="Перенос результата импорта в проект"'))).toBe(false)
   })
+
+  it.each([
+    [undefined, "copy"],
+    ["move", "move"],
+  ] as const)("passes transfer strategy %s", async (externalFileTransfer, expected) => {
+    const transfers: string[] = []
+    const dependencies = fakeDependencies({ calls: [], transfers })
+
+    await importConfigurationFromXml(
+      {
+        ...createParams(),
+        ...(externalFileTransfer === undefined ? {} : { externalFileTransfer }),
+      },
+      dependencies
+    )
+
+    expect(transfers).toEqual([expected])
+  })
 })
 
 function createParams(): ImportConfigurationFromXmlParams {
-  const outputDir = fs.mkdtempSync(join(os.tmpdir(), "nkdk-import-coordinator-"))
-  tempDirs.push(outputDir)
   return {
     context: mockContextFromXML(),
     inputDir: "/xml",
-    outputDir,
+    outputDir: "/project/cf",
     concurrency: 2,
     operationId: "task-8",
   }
@@ -236,6 +242,7 @@ function fakeDependencies(params: {
   failurePhase?: FailurePhase
   previousIndex?: ConfigurationIndexData
   writtenIndexes?: ConfigurationIndexData[]
+  transfers?: string[]
 }): ImportCoordinatorDependencies {
   const call = (phase: FailurePhase): void => {
     params.calls.push(phase)
@@ -271,8 +278,9 @@ function fakeDependencies(params: {
       call("mergeFiles")
       return [...files]
     },
-    async copyExternalFiles() {
-      call("copyExternalFiles")
+    async transferExternalFiles({ transfer }) {
+      call("transferExternalFiles")
+      params.transfers?.push(transfer)
     },
     async hashProject(_projectDir, projectPaths) {
       call("hashProject")

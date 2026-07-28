@@ -5,6 +5,7 @@ import { McpServer } from "@modelcontextprotocol/sdk/server/mcp.js"
 import { StdioServerTransport } from "@modelcontextprotocol/sdk/server/stdio.js"
 import { registerNkdkCapabilities } from "./tools/registerTools"
 import { closeValidationHandle } from "./services/validationHandle"
+import { closePlatformSessionManager } from "./services/platformSessionHandle"
 
 declare const __NKDK_MCP_VERSION__: string | undefined
 
@@ -23,11 +24,33 @@ export function createNkdkMcpServer(): McpServer {
 export async function runStdioServer(): Promise<void> {
   const server = createNkdkMcpServer()
   const transport = new StdioServerTransport()
-  await server.connect(transport)
+  await runServerUntilTransportCloses(server, transport)
+}
+
+export async function runServerUntilTransportCloses(
+  server: { connect(transport: { onclose?: () => void }): Promise<void> },
+  transport: { onclose?: () => void }
+): Promise<void> {
+  let resolveClosed!: () => void
+  const closed = new Promise<void>((resolve) => {
+    resolveClosed = resolve
+  })
+  transport.onclose = resolveClosed
+  try {
+    await server.connect(transport)
+    await closed
+  } finally {
+    await shutdownNkdkMcpServer()
+  }
 }
 
 export async function shutdownNkdkMcpServer(): Promise<void> {
-  await closeValidationHandle()
+  const results = await Promise.allSettled([
+    closeValidationHandle(),
+    closePlatformSessionManager(),
+  ])
+  const rejected = results.find((result) => result.status === "rejected")
+  if (rejected?.status === "rejected") throw rejected.reason
 }
 
 function isMainEntrypoint(): boolean {

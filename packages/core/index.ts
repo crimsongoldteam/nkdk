@@ -9,6 +9,7 @@ export {
   createXmlImportWorkerPoolHandle,
   importConfigurationFromXml,
   type ConfigurationImportResult,
+  type ExternalFileTransfer,
   type ImportConfigurationFromXmlParams,
   type XmlImportWorkerPoolHandle,
 } from "./metadata/importFromXml"

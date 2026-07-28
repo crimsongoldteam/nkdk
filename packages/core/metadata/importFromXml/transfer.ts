@@ -1,7 +1,7 @@
 import fs from "node:fs"
 import { dirname, isAbsolute, posix, relative, resolve, sep, win32 } from "node:path"
 import pLimit from "p-limit"
-import type { ImportResultFile } from "./types"
+import type { ExternalFileTransfer, ImportResultFile } from "./types"
 
 const DEFAULT_COPY_CONCURRENCY = 16
 const VIRTUAL_PROJECT_ROOT = "/__nkdk_project__"
@@ -10,12 +10,14 @@ interface ImportTransferFileOperations {
   realpath(path: string): Promise<string>
   mkdir(path: string): Promise<void>
   copyFile(source: string, target: string): Promise<void>
+  rename(source: string, target: string): Promise<void>
 }
 
 interface TransferImportResultParams {
   projectDir: string
   files: readonly ImportResultFile[]
   concurrency?: number
+  transfer: ExternalFileTransfer
 }
 
 const defaultFileOperations: ImportTransferFileOperations = {
@@ -24,6 +26,7 @@ const defaultFileOperations: ImportTransferFileOperations = {
     await fs.promises.mkdir(path, { recursive: true })
   },
   copyFile: fs.promises.copyFile,
+  rename: fs.promises.rename,
 }
 
 export function mergeImportResultFiles(files: readonly ImportResultFile[]): ImportResultFile[] {
@@ -36,7 +39,7 @@ export function mergeImportResultFiles(files: readonly ImportResultFile[]): Impo
   return [...files]
 }
 
-export async function copyXmlImportExternalFiles(
+export async function transferXmlImportExternalFiles(
   params: TransferImportResultParams,
   fileOperations: ImportTransferFileOperations = defaultFileOperations
 ): Promise<void> {
@@ -54,11 +57,13 @@ export async function copyXmlImportExternalFiles(
     })
   )
   const limit = pLimit(concurrency)
+  const transferFile =
+    params.transfer === "move" ? fileOperations.rename : fileOperations.copyFile
   await Promise.all(
     preparedFiles.map((prepared) =>
       limit(async () => {
         await fileOperations.mkdir(dirname(prepared.targetPath))
-        await fileOperations.copyFile(prepared.file.sourcePath, prepared.targetPath)
+        await transferFile(prepared.file.sourcePath, prepared.targetPath)
       })
     )
   )
