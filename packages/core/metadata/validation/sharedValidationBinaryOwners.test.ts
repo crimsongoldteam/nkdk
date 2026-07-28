@@ -44,7 +44,10 @@ describe("SharedValidationBinaryOwners", () => {
     const snapshot = createBinarySharedOwnersSnapshot(table.snapshot())
     const binary = createOwnerMetadataCacheFromBinarySharedOwners({ projectDir: "/project", snapshot })
 
-    expect(binary.get({ kind: "Справочник", name: "НетТакого" })).toMatchObject({ status: "not-found" })
+    expect(binary.get({ kind: "Справочник", name: "НетТакого" })).toMatchObject({
+      status: "not-found",
+      diagnostics: [{ filePath: "/project/Справочник/НетТакого/Свойства.yaml" }],
+    })
   })
 
   it("lists owner refs by data path kind", () => {
@@ -164,6 +167,23 @@ describe("SharedValidationBinaryOwners", () => {
       { kind: "Справочник", name: "Контрагенты" },
       { kind: "Справочник", name: "Товары" },
     ])
+  })
+
+  it.each([
+    ["cf", "/project/cf/Справочник/НетТакого/Свойства.yaml"],
+    ["cfe/Продажи", "/project/cfe/Продажи/Справочник/НетТакого/Свойства.yaml"],
+  ])("reports a missing owner inside component %s", (componentPath, filePath) => {
+    const graph = createSharedProjectValidationGraph(createProjectValidationGraph([]))
+    const cache = createOwnerMetadataCacheFromSharedProjectValidationGraph({
+      projectDir: "/project",
+      componentPath,
+      graph,
+    })
+
+    expect(cache.get({ kind: "Справочник", name: "НетТакого" })).toMatchObject({
+      status: "not-found",
+      diagnostics: [{ filePath }],
+    })
   })
 })
 

@@ -290,7 +290,11 @@ export function createOwnerMetadataCacheFromBinarySharedProjectOwners(params: {
       }
       const result =
         ownerId === undefined
-          ? notFound(resolve(params.projectDir), ownerKind?.projectDir ?? ref.kind, ref)
+          ? notFound(
+              resolve(params.projectDir, params.componentPath),
+              ownerKind?.projectDir ?? ref.kind,
+              ref
+            )
           : ownerResult(ref, view, ownerId)
       results.set(key, result)
       return result
