@@ -90,13 +90,14 @@ function mergeEventBindings(
   knownEventKeys: ReadonlySet<string>
 ): EventBinding[] {
   const pending = new Map(dataBindings.map((binding) => [binding.key, binding]))
+  const dataEventKeys = new Set(dataBindings.map(({ eventKey }) => eventKey))
   const bindings: EventBinding[] = []
   for (const referenceBinding of referenceBindings) {
     const dataBinding = pending.get(referenceBinding.key)
     if (dataBinding !== undefined) {
       bindings.push(dataBinding)
       pending.delete(referenceBinding.key)
-    } else if (!knownEventKeys.has(referenceBinding.eventKey)) {
+    } else if (!knownEventKeys.has(referenceBinding.eventKey) && !dataEventKeys.has(referenceBinding.eventKey)) {
       bindings.push(referenceBinding)
     }
   }

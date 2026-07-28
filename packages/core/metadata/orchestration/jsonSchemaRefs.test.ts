@@ -189,7 +189,21 @@ describe("jsonSchemaRefs", () => {
     ).toEqual({
       type: "object",
       properties: {
-        ПриОткрытии: { type: "string" },
+        ПриОткрытии: {
+          anyOf: [
+            { type: "string" },
+            {
+              type: "object",
+              properties: {
+                Перед: { type: "string" },
+                После: { type: "string" },
+                Вместо: { type: "string" },
+              },
+              minProperties: 1,
+              additionalProperties: false,
+            },
+          ],
+        },
       },
       additionalProperties: false,
     })

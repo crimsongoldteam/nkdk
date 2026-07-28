@@ -107,6 +107,29 @@ describe("export Events to XML", () => {
     })
   })
 
+  it("заменяет неизвестную обычную reference-привязку режимной", () => {
+    expect(
+      exportEventsToXML(
+        mockContextToXML(),
+        eventRule,
+        {
+          vendorSpecificFormEvent: { Before: "ПередВендорскимСобытием" },
+        },
+        {
+          vendorSpecificFormEvent: "ВендорскоеСобытие",
+        }
+      )
+    ).toEqual({
+      Event: [
+        {
+          _name: "vendorSpecificFormEvent",
+          _callType: "Before",
+          "#text": "ПередВендорскимСобытием",
+        },
+      ],
+    })
+  })
+
   it("восстанавливает смешанный порядок обычных и режимных привязок", () => {
     const order = [
       eventBindingKey("onChange", "After"),
