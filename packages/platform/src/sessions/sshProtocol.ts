@@ -263,14 +263,8 @@ class PlatformCommandProtocol implements PlatformCommandSession {
     }
     const type = message["type"].toLowerCase()
     if (type === "success") {
+      this.captureExtensionProperties(message["body"], pending)
       pending.sawSuccess = true
-      return
-    }
-    if (type === "extension-info") {
-      if (!Object.hasOwn(message, "body")) {
-        throw new Error("extension-info body is missing")
-      }
-      pending.extensionInfo.push(message["body"])
       return
     }
     if (type === "error" || type === "cancel") {
@@ -293,6 +287,26 @@ class PlatformCommandProtocol implements PlatformCommandSession {
       return
     }
     throw new Error("unknown question")
+  }
+
+  private captureExtensionProperties(
+    body: unknown,
+    pending: PendingExchange
+  ): void {
+    if (!Array.isArray(body)) return
+    for (const item of body) {
+      if (
+        !isRecord(item) ||
+        typeof item["type"] !== "string" ||
+        item["type"].toLowerCase() !== "extension-properties"
+      ) {
+        continue
+      }
+      if (!Object.hasOwn(item, "body")) {
+        throw new Error("extension-properties body is missing")
+      }
+      pending.extensionInfo.push(item["body"])
+    }
   }
 
   private completePending(): void {

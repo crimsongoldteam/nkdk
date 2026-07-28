@@ -68,10 +68,24 @@ describe("configuration extension property parser", () => {
     expect(parseExtensionPropertyRecords([])).toEqual([])
   })
 
+  it("accepts native booleans returned by the designer agent", () => {
+    expect(
+      parseExtensionPropertyRecords([
+        {
+          ...firstRecord,
+          active: true,
+          "safe-mode": false,
+          "unsafe-action-protection": true,
+          "used-in-distributed-infobase": false,
+        },
+      ])
+    ).toEqual([firstExtension])
+  })
+
   it.each([
     [{ ...firstRecord, unexpected: "value" }],
     [{ ...firstRecord, version: undefined }],
-    [{ ...firstRecord, active: true }],
+    [{ ...firstRecord, active: 1 }],
     [{ ...firstRecord, active: "unknown" }],
     [{ ...firstRecord, purpose: "unknown" }],
     [{ ...firstRecord, scope: "unknown" }],

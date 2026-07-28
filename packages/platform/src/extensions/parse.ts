@@ -63,12 +63,15 @@ function parseExtensionPropertyRecord(
   return {
     name: requiredString(value, "name"),
     version: requiredString(value, "version"),
-    active: yesNo(value, "active"),
+    active: platformBoolean(value, "active"),
     purpose: enumValue(value, "purpose", PURPOSES),
-    safeMode: yesNo(value, "safe-mode"),
+    safeMode: platformBoolean(value, "safe-mode"),
     securityProfileName: requiredString(value, "security-profile-name"),
-    unsafeActionProtection: yesNo(value, "unsafe-action-protection"),
-    usedInDistributedInfobase: yesNo(
+    unsafeActionProtection: platformBoolean(
+      value,
+      "unsafe-action-protection"
+    ),
+    usedInDistributedInfobase: platformBoolean(
       value,
       "used-in-distributed-infobase"
     ),
@@ -107,11 +110,12 @@ function requiredString(
   return value
 }
 
-function yesNo(
+function platformBoolean(
   record: Record<string, unknown>,
   key: string
 ): boolean {
-  const value = requiredString(record, key)
+  const value = record[key]
+  if (typeof value === "boolean") return value
   if (value === "yes") return true
   if (value === "no") return false
   throw invalidExtensionProperties()

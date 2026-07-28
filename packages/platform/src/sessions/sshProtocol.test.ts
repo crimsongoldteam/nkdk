@@ -79,12 +79,12 @@ describe("platform SSH command protocol", () => {
     expect(String(error)).not.toContain("secret")
   })
 
-  it("returns extension-info bodies in platform order", async () => {
+  it("returns extension properties nested in the success body in platform order", async () => {
     const shell = scriptedShell([
       "designer> ",
       '[{"type":"success","message":"JSON mode"}]\ndesigner> ',
       '[{"type":"success","message":"Connected"}]\ndesigner> ',
-      '[{"type":"extension-info","body":{"name":"First"}},{"type":"extension-info","body":{"name":"Second"}},{"type":"success","message":"Done"}]\ndesigner> ',
+      '[{"type":"success","message":"Done","body":[{"type":"extension-properties","body":{"name":"First"}},{"type":"extension-properties","body":{"name":"Second"}}]}]\ndesigner> ',
     ])
     const session = await openPlatformCommandSession({
       shell,
@@ -98,12 +98,12 @@ describe("platform SSH command protocol", () => {
     })
   })
 
-  it("rejects extension-info without a body", async () => {
+  it("rejects nested extension properties without a body", async () => {
     const shell = scriptedShell([
       "designer> ",
       '[{"type":"success","message":"JSON mode"}]\ndesigner> ',
       '[{"type":"success","message":"Connected"}]\ndesigner> ',
-      '[{"type":"extension-info"},{"type":"success","message":"Done"}]\ndesigner> ',
+      '[{"type":"success","message":"Done","body":[{"type":"extension-properties"}]}]\ndesigner> ',
     ])
     const session = await openPlatformCommandSession({
       shell,
