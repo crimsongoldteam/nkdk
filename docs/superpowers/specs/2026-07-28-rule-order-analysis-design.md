@@ -87,7 +87,7 @@ packages/core/metadata/commonObjects/metadataAttribute/rules.ts#MetadataAttribut
 Временная команда имеет интерфейс:
 
 ```bash
-pnpm --filter @nakidka/core analyze-rule-order \
+pnpm --filter @nkdk/core analyze-rule-order \
   --xml-root /Users/nikita/git/round-trip/cf \
   --output /private/tmp/nkdk-rule-order-report
 ```
