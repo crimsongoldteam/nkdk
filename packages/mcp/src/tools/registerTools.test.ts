@@ -1,5 +1,7 @@
 import { describe, expect, it, vi } from "vitest"
-import { registerNkdkCapabilities } from "./registerTools"
+import * as registerToolsModule from "./registerTools"
+
+const { registerNkdkCapabilities } = registerToolsModule
 
 describe("registerNkdkCapabilities", () => {
   it("registers operation tools, base tools, resources, and prompts", () => {
@@ -84,5 +86,35 @@ describe("registerNkdkCapabilities", () => {
     expect(listInfobasesTool?.description).toContain("личного и общих списков")
     expect(listInfobasesTool?.description).toContain("дерево")
     expect(listInfobasesTool?.description).toContain("Не изменяет файлы")
+  })
+
+  it("passes the MCP cancellation signal to infobase import", async () => {
+    const factory = (registerToolsModule as Record<string, unknown>)[
+      "createImportFromInfobaseHandler"
+    ]
+    expect(factory).toBeTypeOf("function")
+    const service = vi.fn().mockResolvedValue({
+      ok: false,
+      code: "operation_cancelled",
+      message: "cancelled",
+    })
+    const handler = (
+      factory as (
+        serviceFunction: typeof service
+      ) => (
+        input: Record<string, unknown>,
+        extra: { signal: AbortSignal }
+      ) => Promise<unknown>
+    )(service)
+    const input = {
+      projectDir: "/project",
+      connectionString: 'File="/bases/demo";',
+      allowWrite: true,
+    }
+    const controller = new AbortController()
+
+    await handler(input, { signal: controller.signal })
+
+    expect(service).toHaveBeenCalledWith(input, undefined, controller.signal)
   })
 })

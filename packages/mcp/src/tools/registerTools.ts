@@ -95,7 +95,7 @@ export function registerNkdkCapabilities(server: RegisterableServer): void {
         "Запускает 1С и импортирует основную конфигурацию базы только в отсутствующий или пустой cf проекта. Агент и offline-режим ibcmd поддерживают File и Srvr/Ref; для offline Srvr/Ref нужны параметры СУБД. Пишет файлы и сохраняет настройки только при allowWrite=true.",
       inputSchema: importFromInfobaseInputShape,
     },
-    async (input) => jsonToolResult(await importFromInfobase(input))
+    createImportFromInfobaseHandler()
   )
 
   server.registerTool(
@@ -205,4 +205,13 @@ export function registerNkdkCapabilities(server: RegisterableServer): void {
       })
     )
   }
+}
+
+export function createImportFromInfobaseHandler(
+  service: typeof importFromInfobase = importFromInfobase
+) {
+  return async (
+    input: Parameters<typeof importFromInfobase>[0],
+    extra: { signal: AbortSignal }
+  ) => jsonToolResult(await service(input, undefined, extra.signal))
 }

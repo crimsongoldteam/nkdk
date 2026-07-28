@@ -144,7 +144,55 @@ describe("import from infobase", () => {
     expect(JSON.stringify(result)).not.toContain("secret")
     expect(JSON.stringify(result)).not.toContain("database-secret")
   })
+
+  it("passes cancellation to the platform and returns a safe error", async () => {
+    const controller = new AbortController()
+    const fixture = createFixture({
+      exportError: new PlatformSessionError(
+        "operation_cancelled",
+        "secret cancellation"
+      ),
+    })
+
+    const result = await callCancellableImport(
+      input(),
+      fixture.dependencies,
+      controller.signal
+    )
+
+    expect(fixture.exportedSettings["signal"]).toBe(controller.signal)
+    expect(result).toMatchObject({
+      ok: false,
+      code: "operation_cancelled",
+      details: {
+        temporaryDirectory: "/project/.nkdk/tmp/import-from-infobase/op-1",
+      },
+    })
+    expect(JSON.stringify(result)).not.toContain("secret")
+  })
+
+  it("does not start XML import when cancellation arrives after export", async () => {
+    const controller = new AbortController()
+    const fixture = createFixture({
+      afterExport: () => controller.abort(),
+    })
+
+    const result = await callCancellableImport(
+      input(),
+      fixture.dependencies,
+      controller.signal
+    )
+
+    expect(result).toMatchObject({ ok: false, code: "operation_cancelled" })
+    expect(fixture.calls).not.toContain("syncConfigurationFromXML move")
+  })
 })
+
+const callCancellableImport = importFromInfobase as (
+  importInput: ReturnType<typeof input>,
+  dependencies: ImportFromInfobaseDependencies,
+  signal: AbortSignal
+) => ReturnType<typeof importFromInfobase>
 
 function input() {
   return {
@@ -161,6 +209,7 @@ function input() {
 function createFixture(
   options: {
     exportError?: Error
+    afterExport?: () => void
     importResult?: {
       succeeded: number
       failed: Array<{
@@ -191,6 +240,7 @@ function createFixture(
           calls.push("exportConfiguration")
           Object.assign(exportedSettings, params)
           if (options.exportError !== undefined) throw options.exportError
+          options.afterExport?.()
           return { mode: "designer-agent", reusedConnection: false }
         },
       },

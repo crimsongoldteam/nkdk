@@ -87,6 +87,12 @@ export async function reportServerStderr({
   }
 }
 
+export const MCP_CALL_TIMEOUT_MS = 2_147_483_647
+
+export function callToolWithoutPracticalLimit(client, request) {
+  return client.callTool(request, undefined, { timeout: MCP_CALL_TIMEOUT_MS })
+}
+
 function structuredPayload(result) {
   if (result.structuredContent && typeof result.structuredContent === "object") return result.structuredContent
   const textContent = result.content?.find((part) => part.type === "text")?.text
@@ -150,7 +156,7 @@ async function main() {
 
   let failed = true
   try {
-    const result = await client.callTool(request)
+    const result = await callToolWithoutPracticalLimit(client, request)
     const payload = structuredPayload(result)
     await writeJson(options.responseLog, result)
     await writeJson(options.output, payload ?? result)

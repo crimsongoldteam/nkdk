@@ -51,7 +51,8 @@ export type ImportFromInfobasePayload = ToolPayload<{
 
 export async function importFromInfobase(
   input: ImportFromInfobaseInput,
-  providedDependencies?: ImportFromInfobaseDependencies
+  providedDependencies?: ImportFromInfobaseDependencies,
+  signal?: AbortSignal
 ): Promise<ImportFromInfobasePayload> {
   if (input.allowWrite !== true) {
     return toolError(
@@ -82,6 +83,7 @@ export async function importFromInfobase(
     )
     const xmlDirectory = join(temporaryDirectory, "xml")
     await dependencies.fs.mkdir(xmlDirectory)
+    throwIfCancelled(signal)
     const connection = await dependencies.platformManager.exportConfiguration({
       projectDir: component.projectDir,
       outputDir: xmlDirectory,
@@ -96,7 +98,9 @@ export async function importFromInfobase(
         ? {}
         : { sessionIdleTimeout: input.sessionIdleTimeout }),
       ...(input.database === undefined ? {} : { database: input.database }),
+      signal,
     })
+    throwIfCancelled(signal)
     const result = await dependencies.importXml({
       context: {
         defaultLanguage: "ru",
@@ -147,6 +151,14 @@ export async function importFromInfobase(
       ...(temporaryDirectory === undefined ? {} : { temporaryDirectory }),
     })
   }
+}
+
+function throwIfCancelled(signal?: AbortSignal): void {
+  if (signal?.aborted !== true) return
+  throw new PlatformSessionError(
+    "operation_cancelled",
+    "Импорт конфигурации отменён"
+  )
 }
 
 function defaultDependencies(): ImportFromInfobaseDependencies {

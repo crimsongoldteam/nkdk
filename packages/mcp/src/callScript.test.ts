@@ -5,11 +5,12 @@ import { tmpdir } from "node:os"
 import { join } from "node:path"
 import { fileURLToPath } from "node:url"
 import { promisify } from "node:util"
-import { describe, expect, it } from "vitest"
+import { describe, expect, it, vi } from "vitest"
 
 const execFileAsync = promisify(execFile)
 const callScript = new URL("../../../.agents/tools/mcp/call.mjs", import.meta.url)
-const { reportServerStderr } = await import(callScript.href)
+const callScriptModule = await import(callScript.href)
+const { reportServerStderr } = callScriptModule
 
 describe("MCP call script", () => {
   it("keeps the CLI usage contract", async () => {
@@ -46,5 +47,25 @@ describe("MCP call script", () => {
     })
 
     expect(written).toEqual([])
+  })
+
+  it("calls MCP tools without the default 60-second timeout", async () => {
+    const callToolWithoutPracticalLimit = (
+      callScriptModule as Record<string, unknown>
+    )["callToolWithoutPracticalLimit"]
+    expect(callToolWithoutPracticalLimit).toBeTypeOf("function")
+    const client = { callTool: vi.fn().mockResolvedValue({}) }
+    const request = { name: "nkdk.import_from_infobase", arguments: {} }
+
+    await (
+      callToolWithoutPracticalLimit as (
+        clientArgument: typeof client,
+        requestArgument: typeof request
+      ) => Promise<unknown>
+    )(client, request)
+
+    expect(client.callTool).toHaveBeenCalledWith(request, undefined, {
+      timeout: 2_147_483_647,
+    })
   })
 })
