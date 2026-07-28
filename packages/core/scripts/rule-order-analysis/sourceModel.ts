@@ -1,6 +1,7 @@
 import { dirname, extname, resolve } from "node:path"
 import ts from "typescript"
 import type { CanonicalRuleOrder } from "../../metadata/ruleOrderAnalysis/canonicalOrder"
+import type { RuleOrderSource } from "../../metadata/ruleOrderAnalysis/types"
 
 export interface RuleSourceEdit {
   filePath: string
@@ -21,71 +22,84 @@ interface SourceGraph {
   models: Map<string, SourceModel>
 }
 
-interface ObjectConstraint {
-  model: SourceModel
-  object: ts.ObjectLiteralExpression
-  keys?: readonly string[]
-  elements?: readonly ts.ObjectLiteralElementLike[]
+interface TextReplacement {
+  start: number
+  end: number
+  text: string
   candidate: string
 }
 
 export async function buildRuleSourceEdits(params: {
   orders: readonly CanonicalRuleOrder[]
+  sources: readonly RuleOrderSource[]
   readFile(path: string): Promise<string>
 }): Promise<readonly RuleSourceEdit[]> {
   const graph: SourceGraph = { models: new Map() }
-  for (const order of params.orders) {
-    await loadSourceModel(graph, order.source.filePath, params.readFile)
+  const allSources = uniqueSources([...params.sources, ...params.orders.map((order) => order.source)])
+  for (const source of allSources) await loadSourceModel(graph, source.filePath, params.readFile)
+
+  const replacements = new Map<string, Map<string, TextReplacement>>()
+  for (const source of allSources) {
+    const rule = resolveRuleObject(graph, source)
+    const properties = propertyObject(graph, rule, "properties", source.candidate)
+    collectNumericOrderRemovals({
+      graph,
+      model: properties.model,
+      object: properties.object,
+      candidate: source.candidate,
+      ancestors: new Set(),
+      replacements,
+    })
   }
 
-  const constraints = new Map<ts.ObjectLiteralExpression, ObjectConstraint>()
-  const candidatesByFile = new Map<string, Set<string>>()
   for (const order of params.orders) {
-    const model = graph.models.get(order.source.filePath)
-    if (model === undefined) throw new Error(`Не загружен ${order.source.filePath}`)
-    const exported = model.variables.get(order.source.exportName)
-    if (exported === undefined) throw new Error(`Не найден экспорт ${order.source.candidate}`)
-    const resolvedRule = resolvePath(graph, model, exported, order.source.propertyPath, order.source.candidate)
-    const properties = propertyObject(graph, resolvedRule, "properties", order.source.candidate)
-    constrainObject(
-      graph,
-      properties.model,
-      properties.object,
-      order.propertyKeys,
-      order.source.candidate,
-      constraints,
-      new Set()
+    const rule = resolveRuleObject(graph, order.source)
+    const properties = propertyObject(graph, rule, "properties", order.source.candidate)
+    const propertyKeys = new Set(
+      expandObject(graph, properties.model, properties.object, order.source.candidate, new Set()).map(
+        (entry) => entry.key
+      )
     )
+    const missing = order.propertyKeys.filter((key) => !propertyKeys.has(key))
+    if (missing.length > 0) {
+      throw new Error(`${order.source.candidate} не содержит свойства xmlOrder: ${missing.join(", ")}`)
+    }
+    addXMLOrderReplacement(rule.model, rule.object, order.propertyKeys, order.source.candidate, replacements)
   }
 
   const edits: RuleSourceEdit[] = []
-  const constraintsByFile = Map.groupBy([...constraints.values()], (constraint) => constraint.model.filePath)
-  for (const [filePath, fileConstraints] of [...constraintsByFile].sort(([left], [right]) =>
-    bytewiseCompare(left, right)
-  )) {
+  for (const [filePath, byRange] of [...replacements].sort(([left], [right]) => bytewiseCompare(left, right))) {
     const model = graph.models.get(filePath)
     if (model === undefined) throw new Error(`Не загружен ${filePath}`)
-    for (const constraint of fileConstraints) {
-      const candidates = candidatesByFile.get(filePath) ?? new Set<string>()
-      candidates.add(constraint.candidate)
-      candidatesByFile.set(filePath, candidates)
+    const fileReplacements = [...byRange.values()].sort((left, right) => right.start - left.start)
+    assertNonOverlapping(fileReplacements, filePath)
+    let updatedText = model.text
+    for (const replacement of fileReplacements) {
+      updatedText =
+        updatedText.slice(0, replacement.start) + replacement.text + updatedText.slice(replacement.end)
     }
-    const updatedText = applyConstraints(model, new Map(fileConstraints.map((constraint) => [constraint.object, constraint])))
-    const reparsed = ts.createSourceFile(filePath, updatedText, ts.ScriptTarget.Latest, true, ts.ScriptKind.TS)
-    const diagnostics = (reparsed as ts.SourceFile & { parseDiagnostics?: readonly ts.Diagnostic[] }).parseDiagnostics ?? []
-    if (diagnostics.length > 0) {
-      throw new Error(`Переписанный ${filePath} содержит синтаксические ошибки`)
-    }
-    if (updatedText !== model.text) {
-      edits.push({
-        filePath,
-        originalText: model.text,
-        updatedText,
-        candidates: [...(candidatesByFile.get(filePath) ?? [])].sort(bytewiseCompare),
-      })
-    }
+    assertParses(filePath, updatedText)
+    if (updatedText === model.text) continue
+    edits.push({
+      filePath,
+      originalText: model.text,
+      updatedText,
+      candidates: [...new Set(fileReplacements.map((replacement) => replacement.candidate))].sort(bytewiseCompare),
+    })
   }
   return edits
+}
+
+function uniqueSources(sources: readonly RuleOrderSource[]): readonly RuleOrderSource[] {
+  const result = new Map<string, RuleOrderSource>()
+  for (const source of sources) {
+    const existing = result.get(source.candidate)
+    if (existing !== undefined && JSON.stringify(existing) !== JSON.stringify(source)) {
+      throw new Error(`Различающиеся source для ${source.candidate}`)
+    }
+    result.set(source.candidate, source)
+  }
+  return [...result.values()].sort((left, right) => bytewiseCompare(left.candidate, right.candidate))
 }
 
 async function loadSourceModel(
@@ -144,6 +158,21 @@ function resolveImportPath(containingFile: string, specifier: string): string {
   return extname(resolved) === ".ts" ? resolved : `${resolved}.ts`
 }
 
+function resolveRuleObject(
+  graph: SourceGraph,
+  source: RuleOrderSource
+): { model: SourceModel; object: ts.ObjectLiteralExpression } {
+  const model = graph.models.get(source.filePath)
+  if (model === undefined) throw new Error(`Не загружен ${source.filePath}`)
+  const exported = model.variables.get(source.exportName)
+  if (exported === undefined) throw new Error(`Не найден экспорт ${source.candidate}`)
+  const resolved = resolvePath(graph, model, exported, source.propertyPath, source.candidate)
+  if (!ts.isObjectLiteralExpression(resolved.expression)) {
+    throw new Error(`${source.candidate} не является объектным литералом`)
+  }
+  return { model: resolved.model, object: resolved.expression }
+}
+
 function resolvePath(
   graph: SourceGraph,
   model: SourceModel,
@@ -182,18 +211,14 @@ function resolvePath(
 
 function propertyObject(
   graph: SourceGraph,
-  resolved: { model: SourceModel; expression: ts.Expression },
+  resolved: { model: SourceModel; object: ts.ObjectLiteralExpression },
   name: string,
   candidate: string
 ): { model: SourceModel; object: ts.ObjectLiteralExpression } {
-  const object = unwrapExpression(graph, resolved.model, resolved.expression, candidate)
-  if (!ts.isObjectLiteralExpression(object.expression)) {
-    throw new Error(`${candidate} не является объектным литералом`)
-  }
   const value = unwrapExpression(
     graph,
-    object.model,
-    propertyInitializer(object.expression, name, candidate),
+    resolved.model,
+    propertyInitializer(resolved.object, name, candidate),
     candidate
   )
   if (!ts.isObjectLiteralExpression(value.expression)) {
@@ -222,15 +247,7 @@ function unwrapExpression(
   expression: ts.Expression,
   candidate: string
 ): { model: SourceModel; expression: ts.Expression } {
-  let current = expression
-  while (
-    ts.isAsExpression(current) ||
-    ts.isSatisfiesExpression(current) ||
-    ts.isParenthesizedExpression(current) ||
-    ts.isTypeAssertionExpression(current)
-  ) {
-    current = current.expression
-  }
+  const current = unwrapSyntax(expression)
   if (ts.isIdentifier(current)) {
     const resolved = model.variables.get(current.text)
     if (resolved !== undefined) return unwrapExpression(graph, model, resolved, candidate)
@@ -260,65 +277,120 @@ function unwrapExpression(
   return { model, expression: current }
 }
 
-function constrainObject(
-  graph: SourceGraph,
+function addXMLOrderReplacement(
   model: SourceModel,
-  object: ts.ObjectLiteralExpression,
-  canonicalKeys: readonly string[],
+  rule: ts.ObjectLiteralExpression,
+  keys: readonly string[],
   candidate: string,
-  constraints: Map<ts.ObjectLiteralExpression, ObjectConstraint>,
-  ancestors: ReadonlySet<ts.ObjectLiteralExpression>
+  replacements: Map<string, Map<string, TextReplacement>>
 ): void {
-  if (ancestors.has(object)) throw new Error(`Циклический spread в ${candidate}`)
-  const nextAncestors = new Set(ancestors)
-  nextAncestors.add(object)
-  const expanded = expandObject(graph, model, object, candidate, nextAncestors)
-  const expandedKeys = expanded.map((entry) => entry.key)
-  const expectedKeys = canonicalKeys.filter((key) => expandedKeys.includes(key))
-  if (expectedKeys.length !== expandedKeys.length || expectedKeys.some((key, index) => key !== canonicalKeys[index])) {
-    const missing = expandedKeys.filter((key) => !canonicalKeys.includes(key))
-    if (missing.length > 0) throw new Error(`${candidate} не содержит порядок для: ${missing.join(", ")}`)
-  }
-
-  for (const element of object.properties) {
-    if (!ts.isSpreadAssignment(element)) continue
-    const spread = resolveObjectExpression(graph, model, element.expression, candidate)
-    const spreadKeys = expandObject(graph, spread.model, spread.object, candidate, nextAncestors).map(
-      (entry) => entry.key
-    )
-    constrainObject(
-      graph,
-      spread.model,
-      spread.object,
-      canonicalKeys.filter((key) => spreadKeys.includes(key)),
-      candidate,
-      constraints,
-      nextAncestors
-    )
-  }
-
-  const directKeys = directInsertionKeys(graph, model, object, candidate, nextAncestors)
-  const hasSpread = object.properties.some(ts.isSpreadAssignment)
-  const hasOverride = directKeys.some((entry) => entry.keys.length === 0)
-  if (hasSpread || hasOverride) {
-    const desiredEntryIndexes = assertCompositionIsProvable(directKeys, canonicalKeys, candidate)
-    const currentEntryIndexes = directKeys.flatMap((entry, index) => (entry.keys.length === 0 ? [] : [index]))
-    if (hasOverride) {
-      if (JSON.stringify(desiredEntryIndexes) !== JSON.stringify(currentEntryIndexes)) {
-        throw new Error(`Недоказуемая перестановка spread-композиции в ${candidate}`)
-      }
-      return
+  const existing = namedProperty(rule, "xmlOrder", candidate)
+  if (existing !== undefined) {
+    if (!ts.isPropertyAssignment(existing)) {
+      throw new Error(`${candidate}.xmlOrder должен быть property assignment`)
     }
-    setConstraint(constraints, {
-      model,
-      object,
-      elements: desiredEntryIndexes.map((index) => directKeys[index]!.element),
+    const indent = lineIndent(model.text, existing.getStart(model.sourceFile))
+    addReplacement(replacements, model, {
+      start: existing.initializer.getStart(model.sourceFile),
+      end: existing.initializer.end,
+      text: formatArray(keys, indent),
       candidate,
     })
     return
   }
-  const keys = canonicalKeys.filter((key) => expandedKeys.includes(key))
-  setConstraint(constraints, { model, object, keys, candidate })
+
+  const properties = namedProperty(rule, "properties", candidate)
+  if (properties === undefined) throw new Error(`Не найдено свойство properties в ${candidate}`)
+  const start = properties.getStart(model.sourceFile)
+  const indent = lineIndent(model.text, start)
+  addReplacement(replacements, model, {
+    start,
+    end: start,
+    text: `xmlOrder: ${formatArray(keys, indent)},\n${indent}`,
+    candidate,
+  })
+}
+
+function namedProperty(
+  object: ts.ObjectLiteralExpression,
+  name: string,
+  candidate: string
+): ts.ObjectLiteralElementLike | undefined {
+  let result: ts.ObjectLiteralElementLike | undefined
+  for (const element of object.properties) {
+    if (element.name !== undefined && ts.isComputedPropertyName(element.name)) {
+      throw new Error(`Вычисляемое computed-свойство не поддерживается в ${candidate}`)
+    }
+    if (element.name !== undefined && propertyName(element.name) === name) result = element
+  }
+  return result
+}
+
+function formatArray(keys: readonly string[], indent: string): string {
+  if (keys.length === 0) return "[]"
+  return `[\n${keys.map((key) => `${indent}  ${JSON.stringify(key)},`).join("\n")}\n${indent}]`
+}
+
+function lineIndent(text: string, position: number): string {
+  const lineStart = text.lastIndexOf("\n", position - 1) + 1
+  return text.slice(lineStart, position).match(/^\s*/)?.[0] ?? ""
+}
+
+function collectNumericOrderRemovals(params: {
+  graph: SourceGraph
+  model: SourceModel
+  object: ts.ObjectLiteralExpression
+  candidate: string
+  ancestors: ReadonlySet<ts.ObjectLiteralExpression>
+  replacements: Map<string, Map<string, TextReplacement>>
+}): void {
+  if (params.ancestors.has(params.object)) throw new Error(`Циклический spread в ${params.candidate}`)
+  const ancestors = new Set(params.ancestors)
+  ancestors.add(params.object)
+  for (const element of params.object.properties) {
+    if (ts.isSpreadAssignment(element)) {
+      const spread = resolveObjectExpression(params.graph, params.model, element.expression, params.candidate)
+      collectNumericOrderRemovals({ ...params, model: spread.model, object: spread.object, ancestors })
+      continue
+    }
+    for (const range of orderRemovalRanges(element)) {
+      addReplacement(params.replacements, params.model, {
+        ...range,
+        text: "",
+        candidate: params.candidate,
+      })
+    }
+  }
+}
+
+function orderRemovalRanges(element: ts.ObjectLiteralElementLike): { start: number; end: number }[] {
+  if (!ts.isPropertyAssignment(element)) return []
+  const objects: ts.ObjectLiteralExpression[] = []
+  const initializer = unwrapSyntax(element.initializer)
+  if (ts.isObjectLiteralExpression(initializer)) objects.push(initializer)
+  if (ts.isCallExpression(initializer)) {
+    for (const argument of initializer.arguments) {
+      const unwrapped = unwrapSyntax(argument)
+      if (ts.isObjectLiteralExpression(unwrapped)) objects.push(unwrapped)
+    }
+  }
+  return objects.flatMap((object) =>
+    object.properties.flatMap((property, index) => {
+      if (
+        !ts.isPropertyAssignment(property) ||
+        ts.isComputedPropertyName(property.name) ||
+        propertyName(property.name) !== "order" ||
+        !ts.isNumericLiteral(unwrapSyntax(property.initializer))
+      ) {
+        return []
+      }
+      const next = object.properties[index + 1]
+      const previous = object.properties[index - 1]
+      if (next !== undefined) return [{ start: property.getStart(), end: next.getStart() }]
+      if (previous !== undefined) return [{ start: previous.end, end: property.end }]
+      return [{ start: property.getStart(), end: property.end }]
+    })
+  )
 }
 
 function expandObject(
@@ -328,14 +400,14 @@ function expandObject(
   candidate: string,
   ancestors: ReadonlySet<ts.ObjectLiteralExpression>
 ): { key: string; element: ts.ObjectLiteralElementLike }[] {
+  if (ancestors.has(object)) throw new Error(`Циклический spread в ${candidate}`)
+  const nestedAncestors = new Set(ancestors)
+  nestedAncestors.add(object)
   const result: { key: string; element: ts.ObjectLiteralElementLike }[] = []
   const positions = new Map<string, number>()
   for (const element of object.properties) {
     if (ts.isSpreadAssignment(element)) {
       const spread = resolveObjectExpression(graph, model, element.expression, candidate)
-      if (ancestors.has(spread.object)) throw new Error(`Циклический spread в ${candidate}`)
-      const nestedAncestors = new Set(ancestors)
-      nestedAncestors.add(spread.object)
       for (const entry of expandObject(graph, spread.model, spread.object, candidate, nestedAncestors)) {
         const position = positions.get(entry.key)
         if (position === undefined) {
@@ -359,66 +431,6 @@ function expandObject(
   return result
 }
 
-function directInsertionKeys(
-  graph: SourceGraph,
-  model: SourceModel,
-  object: ts.ObjectLiteralExpression,
-  candidate: string,
-  ancestors: ReadonlySet<ts.ObjectLiteralExpression>
-): { element: ts.ObjectLiteralElementLike; keys: string[] }[] {
-  const seen = new Set<string>()
-  return object.properties.map((element) => {
-    const keys = ts.isSpreadAssignment(element)
-      ? (() => {
-          const spread = resolveObjectExpression(graph, model, element.expression, candidate)
-          return expandObject(graph, spread.model, spread.object, candidate, ancestors).map((entry) => entry.key)
-        })()
-      : [elementKey(element, candidate)]
-    const inserted = keys.filter((key) => {
-      if (seen.has(key)) return false
-      seen.add(key)
-      return true
-    })
-    return { element, keys: inserted }
-  })
-}
-
-function assertCompositionIsProvable(
-  entries: readonly { keys: readonly string[] }[],
-  canonicalKeys: readonly string[],
-  candidate: string
-): readonly number[] {
-  const owners = new Map<string, number>()
-  entries.forEach((entry, index) => entry.keys.forEach((key) => owners.set(key, index)))
-  const sequence = canonicalKeys.flatMap((key) => {
-    const owner = owners.get(key)
-    return owner === undefined ? [] : [owner]
-  })
-  const compact = sequence.filter((owner, index) => index === 0 || sequence[index - 1] !== owner)
-  if (new Set(compact).size !== compact.length) {
-    throw new Error(`Недоказуемая spread-композиция в ${candidate}`)
-  }
-  return compact
-}
-
-function setConstraint(
-  constraints: Map<ts.ObjectLiteralExpression, ObjectConstraint>,
-  constraint: ObjectConstraint
-): void {
-  const existing = constraints.get(constraint.object)
-  if (existing !== undefined && constraintSignature(existing) !== constraintSignature(constraint)) {
-    throw new Error(`Несовместимые потребители общего fragment в ${constraint.candidate}: ${existing.candidate}`)
-  }
-  constraints.set(constraint.object, constraint)
-}
-
-function constraintSignature(constraint: ObjectConstraint): string {
-  if (constraint.keys !== undefined) return JSON.stringify({ keys: constraint.keys })
-  return JSON.stringify({
-    elements: constraint.elements?.map((element) => [element.pos, element.end]),
-  })
-}
-
 function resolveObjectExpression(
   graph: SourceGraph,
   model: SourceModel,
@@ -432,83 +444,35 @@ function resolveObjectExpression(
   return { model: resolved.model, object: resolved.expression }
 }
 
-function applyConstraints(
+function addReplacement(
+  replacements: Map<string, Map<string, TextReplacement>>,
   model: SourceModel,
-  constraints: ReadonlyMap<ts.ObjectLiteralExpression, ObjectConstraint>
-): string {
-  const replacements = [...constraints.values()]
-    .map((constraint) => objectReplacement(model, constraint))
-    .sort((left, right) => right.start - left.start)
-  let text = model.text
-  for (const replacement of replacements) {
-    text = text.slice(0, replacement.start) + replacement.text + text.slice(replacement.end)
+  replacement: TextReplacement
+): void {
+  const byRange = replacements.get(model.filePath) ?? new Map<string, TextReplacement>()
+  const key = `${replacement.start}:${replacement.end}`
+  const existing = byRange.get(key)
+  if (existing !== undefined && existing.text !== replacement.text) {
+    throw new Error(`Несовместимые изменения ${replacement.candidate} и ${existing.candidate}`)
   }
-  return text
+  byRange.set(key, replacement)
+  replacements.set(model.filePath, byRange)
 }
 
-function objectReplacement(
-  model: SourceModel,
-  constraint: ObjectConstraint
-): { start: number; end: number; text: string } {
-  const ordered =
-    constraint.elements ??
-    constraint.keys!.map((key) => {
-      const element = constraint.object.properties.find(
-        (property) => !ts.isSpreadAssignment(property) && elementKey(property, constraint.candidate) === key
-      )
-      if (element === undefined) throw new Error(`Не найден ключ ${key} в ${constraint.candidate}`)
-      return element
-    })
-  if (ordered.length === 0) {
-    return { start: constraint.object.getStart(model.sourceFile) + 1, end: constraint.object.end - 1, text: "" }
-  }
-  const first = constraint.object.properties[0]!
-  const last = constraint.object.properties.at(-1)!
-  return {
-    start: first.getFullStart(),
-    end: last.end,
-    text: ordered.map((element) => propertySegment(model, element)).join(","),
-  }
-}
-
-function propertySegment(model: SourceModel, element: ts.ObjectLiteralElementLike): string {
-  const start = element.getFullStart()
-  let segment = model.text.slice(start, element.end)
-  const removals = orderRemovalRanges(element)
-    .map((range) => ({ start: range.start - start, end: range.end - start }))
-    .sort((left, right) => right.start - left.start)
-  for (const removal of removals) {
-    segment = segment.slice(0, removal.start) + segment.slice(removal.end)
-  }
-  return segment
-}
-
-function orderRemovalRanges(element: ts.ObjectLiteralElementLike): { start: number; end: number }[] {
-  if (!ts.isPropertyAssignment(element)) return []
-  const objects: ts.ObjectLiteralExpression[] = []
-  const initializer = unwrapSyntax(element.initializer)
-  if (ts.isObjectLiteralExpression(initializer)) objects.push(initializer)
-  if (ts.isCallExpression(initializer)) {
-    for (const argument of initializer.arguments) {
-      const unwrapped = unwrapSyntax(argument)
-      if (ts.isObjectLiteralExpression(unwrapped)) objects.push(unwrapped)
+function assertNonOverlapping(replacements: readonly TextReplacement[], filePath: string): void {
+  for (let index = 1; index < replacements.length; index += 1) {
+    const previous = replacements[index - 1]!
+    const current = replacements[index]!
+    if (current.end > previous.start && !(current.start === current.end || previous.start === previous.end)) {
+      throw new Error(`Пересекающиеся изменения в ${filePath}`)
     }
   }
-  return objects.flatMap((object) => {
-    const index = object.properties.findIndex(
-      (property) =>
-        ts.isPropertyAssignment(property) &&
-        !ts.isComputedPropertyName(property.name) &&
-        propertyName(property.name) === "order"
-    )
-    if (index < 0) return []
-    const property = object.properties[index]!
-    const next = object.properties[index + 1]
-    const previous = object.properties[index - 1]
-    if (next !== undefined) return [{ start: property.getStart(), end: next.getStart() }]
-    if (previous !== undefined) return [{ start: previous.end, end: property.end }]
-    return [{ start: property.getStart(), end: property.end }]
-  })
+}
+
+function assertParses(filePath: string, text: string): void {
+  const reparsed = ts.createSourceFile(filePath, text, ts.ScriptTarget.Latest, true, ts.ScriptKind.TS)
+  const diagnostics = (reparsed as ts.SourceFile & { parseDiagnostics?: readonly ts.Diagnostic[] }).parseDiagnostics ?? []
+  if (diagnostics.length > 0) throw new Error(`Переписанный ${filePath} содержит синтаксические ошибки`)
 }
 
 function unwrapSyntax(expression: ts.Expression): ts.Expression {

@@ -4,6 +4,8 @@ import { isAbsolute, join } from "node:path"
 import { pathToFileURL } from "node:url"
 import { promisify } from "node:util"
 import { analyzeRuleOrder } from "../../metadata/ruleOrderAnalysis/analyze"
+import type { CanonicalRuleOrder } from "../../metadata/ruleOrderAnalysis/canonicalOrder"
+import type { RuleOrderSource } from "../../metadata/ruleOrderAnalysis/types"
 import { createRuleOrderOutput } from "./output"
 import { applyRuleSourceEdits } from "./rewrite"
 import { buildRuleSourceEdits } from "./sourceModel"
@@ -74,8 +76,16 @@ export async function main(argv = process.argv.slice(2)): Promise<void> {
     })
     await output.complete(result)
     if (args.apply) {
+      if (result.skippedObservationCount > 0) {
+        throw new Error(`Нельзя переписать rules.ts: пропущено наблюдений ${result.skippedObservationCount}`)
+      }
+      if (result.ambiguities.length > 0) {
+        throw new Error(`Нельзя переписать rules.ts: неоднозначных правил ${result.ambiguities.length}`)
+      }
+      const sources = sourcesForRewrite(result)
       const edits = await buildRuleSourceEdits({
         orders: result.canonicalOrders,
+        sources,
         readFile: (path) => readFile(path, "utf8"),
       })
       await writeFile(
@@ -97,6 +107,7 @@ export async function main(argv = process.argv.slice(2)): Promise<void> {
         verify: async () => {
           const remaining = await buildRuleSourceEdits({
             orders: result.canonicalOrders,
+            sources,
             readFile: (path) => readFile(path, "utf8"),
           })
           if (remaining.length > 0) throw new Error("Проверка переписанных rules.ts обнаружила оставшиеся изменения")
@@ -111,6 +122,26 @@ export async function main(argv = process.argv.slice(2)): Promise<void> {
     await output.fail(caught)
     throw caught
   }
+}
+
+export function sourcesForRewrite(result: {
+  canonicalOrders: readonly CanonicalRuleOrder[]
+  unobservedSources: readonly RuleOrderSource[]
+}): readonly RuleOrderSource[] {
+  const byCandidate = new Map<string, RuleOrderSource>()
+  for (const source of [
+    ...result.canonicalOrders.map((order) => order.source),
+    ...result.unobservedSources,
+  ]) {
+    const existing = byCandidate.get(source.candidate)
+    if (existing !== undefined && JSON.stringify(existing) !== JSON.stringify(source)) {
+      throw new Error(`Различающиеся source для ${source.candidate}`)
+    }
+    byCandidate.set(source.candidate, source)
+  }
+  return [...byCandidate.values()].sort((left, right) =>
+    Buffer.compare(Buffer.from(left.candidate), Buffer.from(right.candidate))
+  )
 }
 
 async function assertCleanWorktree(): Promise<void> {
