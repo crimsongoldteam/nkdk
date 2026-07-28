@@ -1,7 +1,6 @@
-import { readdir } from "node:fs/promises"
 import { relative, resolve, sep } from "node:path"
-import { pathToFileURL } from "node:url"
 import type { MetadataItemRule } from "../orchestration/property/types"
+import { runtimeRuleOrderModules } from "./catalogImports.generated"
 import type { RuleOrderSource, RuntimeRuleOrderCatalog } from "./types"
 
 interface ExportedRule {
@@ -15,8 +14,9 @@ export async function buildRuntimeRuleOrderCatalog(params: {
 }): Promise<RuntimeRuleOrderCatalog> {
   const root = resolve(params.metadataDir)
   const exportedRules: ExportedRule[] = []
-  for (const filePath of await findRuleFiles(root)) {
-    const exports = (await import(pathToFileURL(filePath).href)) as Record<string, unknown>
+  for (const module of runtimeRuleOrderModules) {
+    const filePath = resolve(root, module.metadataRelativePath)
+    const exports = module.exports as Record<string, unknown>
     for (const exportName of Object.keys(exports).sort(bytewiseCompare)) {
       const value = exports[exportName]
       if (!isMetadataItemRule(value)) continue
@@ -145,18 +145,6 @@ function numericOrder(rule: MetadataItemRule): Readonly<Record<string, number>> 
   const result: Record<string, number> = {}
   for (const [key, propertyRule] of Object.entries(rule.properties)) {
     if (typeof propertyRule.order === "number") result[key] = propertyRule.order
-  }
-  return result
-}
-
-async function findRuleFiles(directory: string): Promise<string[]> {
-  const result: string[] = []
-  for (const entry of (await readdir(directory, { withFileTypes: true })).sort((left, right) =>
-    bytewiseCompare(left.name, right.name)
-  )) {
-    const path = resolve(directory, entry.name)
-    if (entry.isDirectory()) result.push(...(await findRuleFiles(path)))
-    else if (entry.isFile() && entry.name === "rules.ts") result.push(path)
   }
   return result
 }

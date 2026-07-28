@@ -25,6 +25,36 @@ afterEach(() => {
 })
 
 describe("XML import worker pool", () => {
+  it("keeps exact rule identity in a real source worker", async () => {
+    const pool = createXmlImportWorkerPool({ concurrency: 1 })
+    await pool.initialize({
+      operationId: "real-rule-identity",
+      context: mockContextFromXML(),
+      outputDir: createTempDir("real-rule-identity"),
+      componentKind: "configuration",
+    })
+    try {
+      const result = await pool.analyzeRuleOrder({
+        configuration: "all",
+        metadataDir: join(repoRoot, "packages/core/metadata"),
+        assignments: [
+          assignment("Контрагенты", {
+            logicalAddress: "Справочник.Контрагенты",
+            xmlFiles: [{ role: "metadata", sourcePath: join(syncXmlDir, "Catalogs/Контрагенты.xml") }],
+          }),
+        ],
+      })
+
+      expect(result.diagnostics).toEqual([])
+      expect(result.unmatchedObservationCount).toBe(0)
+      expect(result.observations[0]?.source.candidate).toBe(
+        "appliedObjects/metadataCatalog/rules.ts#MetadataCatalogRules"
+      )
+    } finally {
+      await pool.close()
+    }
+  })
+
   it("combines rule-order observations from partitions in deterministic order", async () => {
     const pools = createFakePools()
     const pool = createXmlImportWorkerPool({ concurrency: 2, createWorkerPool: pools.factory })
