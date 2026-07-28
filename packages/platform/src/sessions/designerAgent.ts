@@ -107,6 +107,30 @@ export async function createDesignerAgentSession(
   }
 
   let closed = false
+  const cancelSession = async () => {
+    if (closed) return { stoppedOwnedProcess: false }
+    await ignoreCleanupError(() => commandSession.close())
+    if (!processHandle.owned) {
+      await ignoreCleanupError(() => processHandle.wait(dependencies.closeTimeoutMs))
+      closed = true
+      return { stoppedOwnedProcess: false }
+    }
+    if (!processHandle.isAlive()) {
+      closed = true
+      return { stoppedOwnedProcess: false }
+    }
+    if (processHandle.signal !== undefined) {
+      await processHandle.signal("SIGTERM")
+    } else {
+      await processHandle.kill("SIGTERM")
+    }
+    const exited = await processHandle.wait(dependencies.closeTimeoutMs)
+    if (!exited && processHandle.isAlive()) {
+      await processHandle.kill("SIGKILL")
+    }
+    closed = true
+    return { stoppedOwnedProcess: true }
+  }
   return {
     mode: "designer-agent",
     ownedProcess: processHandle.owned,
@@ -133,6 +157,12 @@ export async function createDesignerAgentSession(
           { signal }
         )
       } catch (caught) {
+        if (
+          caught instanceof PlatformSessionError &&
+          caught.code === "operation_cancelled"
+        ) {
+          await cancelSession()
+        }
         commandFailure = caught
       }
       try {
@@ -187,30 +217,7 @@ export async function createDesignerAgentSession(
       closed = true
       return { stoppedOwnedProcess: true }
     },
-    async cancel() {
-      if (closed) return { stoppedOwnedProcess: false }
-      await ignoreCleanupError(() => commandSession.close())
-      if (!processHandle.owned) {
-        await ignoreCleanupError(() => processHandle.wait(dependencies.closeTimeoutMs))
-        closed = true
-        return { stoppedOwnedProcess: false }
-      }
-      if (!processHandle.isAlive()) {
-        closed = true
-        return { stoppedOwnedProcess: false }
-      }
-      if (processHandle.signal !== undefined) {
-        await processHandle.signal("SIGTERM")
-      } else {
-        await processHandle.kill("SIGTERM")
-      }
-      const exited = await processHandle.wait(dependencies.closeTimeoutMs)
-      if (!exited && processHandle.isAlive()) {
-        await processHandle.kill("SIGKILL")
-      }
-      closed = true
-      return { stoppedOwnedProcess: true }
-    },
+    cancel: cancelSession,
   }
 }
 

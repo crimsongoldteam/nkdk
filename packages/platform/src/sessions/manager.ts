@@ -84,8 +84,17 @@ export function createPlatformSessionManager(
           caught instanceof PlatformSessionError &&
           caught.code === "operation_cancelled"
         ) {
-          await cached.session.cancel()
-          if (sessions.get(key) === cached) sessions.delete(key)
+          try {
+            await cached.session.cancel()
+          } catch {
+            try {
+              await cached.session.close()
+            } catch {
+              // Исходная отмена важнее ошибки повторной очистки.
+            }
+          } finally {
+            if (sessions.get(key) === cached) sessions.delete(key)
+          }
         }
         throw caught
       } finally {

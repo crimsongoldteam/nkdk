@@ -222,6 +222,7 @@ describe("platform session manager", () => {
   it("cancels and replaces a session after an aborted export", async () => {
     let blockFirstExport = true
     const fixture = createFixture({
+      cancelFailures: 1,
       exportHook: async (_projectDir, _call, signal) => {
         if (!blockFirstExport) return
         blockFirstExport = false
@@ -301,6 +302,7 @@ function createFixture(
       signal?: AbortSignal
     ) => Promise<void>
     closeFailureProject?: string
+    cancelFailures?: number
   } = {}
 ): {
   dependencies: PlatformSessionManagerDependencies
@@ -315,6 +317,7 @@ function createFixture(
   const sessions: FakeSession[] = []
   const exportStarts: string[] = []
   const exportedOutputDirs: string[] = []
+  let cancelFailures = options.cancelFailures ?? 0
   let timerId = 0
   const timers = new Map<number, { callback: () => void; timeoutMs: number }>()
   const createSession = async (params: { projectDir: string }, mode: PlatformSession["mode"]) => {
@@ -345,6 +348,10 @@ function createFixture(
       },
       async cancel() {
         session.cancelCalls += 1
+        if (cancelFailures > 0) {
+          cancelFailures -= 1
+          throw new Error("cancel failed")
+        }
         alive = false
         return { stoppedOwnedProcess: true }
       },

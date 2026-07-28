@@ -107,9 +107,21 @@ export async function runNodeProcess(
     const abort = () => {
       if (cancelled || child.exitCode !== null) return
       cancelled = true
-      child.kill("SIGTERM")
+      try {
+        child.kill("SIGTERM")
+      } catch (caught) {
+        fail(asError(caught))
+        return
+      }
       forceKillTimer = setTimeout(() => {
-        if (child.exitCode === null) child.kill("SIGKILL")
+        if (child.exitCode !== null) return
+        try {
+          if (!child.kill("SIGKILL") && child.exitCode === null) {
+            fail(new Error("Не удалось принудительно остановить дочерний процесс"))
+          }
+        } catch (caught) {
+          fail(asError(caught))
+        }
       }, options.terminationGraceMs ?? 0)
       forceKillTimer.unref()
     }
@@ -132,6 +144,10 @@ export async function runNodeProcess(
     }
     if (options.signal?.aborted === true) abort()
   })
+}
+
+function asError(caught: unknown): Error {
+  return caught instanceof Error ? caught : new Error(String(caught))
 }
 
 function spawnPipedProcess(

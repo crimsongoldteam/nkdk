@@ -1,6 +1,6 @@
 import { describe, expect, it, vi } from "vitest"
 import { PlatformSessionError } from "./errors"
-import type { CreatePlatformSessionParams, PlatformSession } from "./types"
+import type { CreatePlatformSessionParams } from "./types"
 import {
   createDesignerAgentSession,
   type DesignerAgentDependencies,
@@ -252,16 +252,16 @@ describe("Designer agent session", () => {
     controller.abort()
 
     await exportResult
-    await expect(
-      (session as PlatformSession & {
-        cancel(): Promise<{ stoppedOwnedProcess: boolean }>
-      }).cancel()
-    ).resolves.toEqual({ stoppedOwnedProcess: true })
 
     expect(fixture.calls).toContain("shell.close")
     expect(fixture.calls).toContain("process.signal SIGTERM")
     expect(fixture.calls).toContain("process.wait 5000")
     expect(fixture.calls).toContain("process.kill SIGKILL")
+    expect(fixture.calls.indexOf("process.signal SIGTERM")).toBeLessThan(
+      fixture.calls.indexOf(
+        "rename /project/.nkdk/0/.nkdk-export /project/.nkdk/tmp/op/xml"
+      )
+    )
   })
 })
 
