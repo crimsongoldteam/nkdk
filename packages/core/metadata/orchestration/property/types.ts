@@ -450,6 +450,12 @@ export interface MetadataItemRule extends MetadataItem {
   properties: PropertiesType
 
   /**
+   * Наблюдавшийся порядок XML-свойств. Остальные свойства следуют за ними
+   * в порядке объявления в properties.
+   */
+  xmlOrder?: readonly string[]
+
+  /**
    * Коллекции, внутри которых имена дочерних элементов должны быть уникальны.
    */
   uniqueNameScopes?: readonly UniqueNameScope[]
