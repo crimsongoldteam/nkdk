@@ -114,6 +114,17 @@ describe("BaseForm property projection registry", () => {
     ).toEqual({ kind: "include", value: "0" })
   })
 
+  it("keeps the extension sentinel instead of restoring a cf standard command", () => {
+    expect(
+      projectProperty({
+        rule: { type: "CommandName" },
+        baseValue: "Form.StandardCommand.ShowInList",
+        extensionValue: "0",
+        context: { ...context, commandNames: new Set() },
+      })
+    ).toEqual({ kind: "include", value: "0" })
+  })
+
   it("rejects an unavailable local reference without registered projection behavior", () => {
     expect(() =>
       projectProperty({

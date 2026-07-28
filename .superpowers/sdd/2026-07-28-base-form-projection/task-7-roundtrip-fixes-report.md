@@ -34,12 +34,19 @@
 - Из `baseFormIndex.ts` удалены списки сегментов logical address. `FormAttribute`, `FormAttributeColumn`, `FormCommand`, прямые элементы формы и singleton-элементы объявляют обязательный `xmlId` при своей регистрации.
 - Коммит исправления: `a57b7c847` (`fix: :bug: завершить проекцию структуры BaseForm`).
 
+## Регрессия `CommandName: 0`
+
+- Свежий round-trip выявил расхождение в `Documents/ДокументКнопкаСПараметрами/Forms/ФормаДокумента/Ext/Form.xml`: вместо двух исходных `<CommandName>0</CommandName>` проекция возвращала `Form.StandardCommand.ShowInList` из текущей формы `cf`.
+- Значение `0` в форме расширения — конечный sentinel: оно явно отменяет связь элемента с командой основной формы. Поэтому оно имеет приоритет над базовым значением и не проходит проверку доступности обычной ссылки.
+- RED-тесты покрывают обычную кнопку и кнопку командной панели, а также прямой вызов зарегистрированного проектора `CommandName`.
+- Исправление осталось рядом с property-type `CommandName`: проектор возвращает `0`, если sentinel указан в `cf` или `cfe`, и сохраняет прежнюю обработку локальных и внешних ссылок во всех остальных случаях.
+
 ## Проверки
 
 | Команда | Результат |
 | --- | --- |
 | `pnpm exec vitest run metadata/orchestration/property/fromYAMLToXML.test.ts metadata/forms/clientApplicationForm/baseFormIndex.test.ts metadata/forms/clientApplicationForm/baseFormProjection.test.ts metadata/forms/clientApplicationForm/baseForm.test.ts --no-isolate` из `packages/core` | 4 файла, 72 теста пройдено |
-| `pnpm --filter @nkdk/core exec vitest run metadata/forms/clientApplicationForm/baseFormProjectionRegistry.test.ts metadata/forms/clientApplicationForm/baseFormProjection.test.ts metadata/forms/clientApplicationForm/baseFormIndex.test.ts metadata/forms/clientApplicationForm/baseForm.test.ts metadata/orchestration/property/fromYAMLToXML.test.ts metadata/orchestration/metadataCollection/fromYAMLToXML.test.ts metadata/forms/commonObjects/commandInterface metadata/forms/commonObjects/formAttribute metadata/forms/commonObjects/formCommand metadata/forms/elements/orchestration --no-isolate` | 16 файлов, 158 тестов пройдено |
+| `pnpm --filter @nkdk/core exec vitest run metadata/forms/clientApplicationForm/baseFormProjectionRegistry.test.ts metadata/forms/clientApplicationForm/baseFormProjection.test.ts metadata/forms/clientApplicationForm/baseFormIndex.test.ts metadata/forms/clientApplicationForm/baseForm.test.ts metadata/orchestration/property/fromYAMLToXML.test.ts metadata/orchestration/metadataCollection/fromYAMLToXML.test.ts metadata/forms/commonObjects/commandInterface metadata/forms/commonObjects/formAttribute metadata/forms/commonObjects/formCommand metadata/forms/elements/orchestration --no-isolate` | 16 файлов, 160 тестов пройдено |
 | `pnpm type-check` из корня | пройдено |
 | `git diff --check` | пройдено |
 | Сравнение `/Users/nikita/git/round-trip/cfe/all-extension` и `/private/tmp/nkdk-cfe-wave-zero2/cfe-output` без `ConfigDumpInfo.xml` | 0 файлов, 0 строк |

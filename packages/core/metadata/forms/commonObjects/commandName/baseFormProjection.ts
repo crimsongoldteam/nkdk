@@ -5,8 +5,10 @@ import {
 } from "../../clientApplicationForm/baseFormProjectionRegistry"
 
 const commandNameReferenceProjector = {
-  project: ({ baseValue, context }) => {
-    if (baseValue === "0") return { kind: "include", value: baseValue }
+  project: ({ baseValue, extensionValue, context }) => {
+    if (baseValue === "0" || extensionValue === "0") {
+      return { kind: "include", value: "0" }
+    }
     if (typeof baseValue !== "string") {
       return { kind: "include", value: baseValue }
     }

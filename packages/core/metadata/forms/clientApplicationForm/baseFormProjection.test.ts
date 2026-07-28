@@ -319,6 +319,57 @@ describe("client application BaseForm projection", () => {
     })
   })
 
+  it("keeps command sentinel values from the extension in all element trees", () => {
+    const standardCommand = "Form.StandardCommand.ShowInList"
+    const baseYaml = {
+      КоманднаяПанель: {
+        Элементы: {
+          ПанельнаяКнопка: {
+            Вид: "КнопкаКоманднойПанели",
+            ИмяКоманды: standardCommand,
+            ТипКнопки: "КнопкаКоманднойПанели",
+          },
+        },
+      },
+      Элементы: {
+        ОбычнаяКнопка: {
+          Вид: "Кнопка",
+          ИмяКоманды: standardCommand,
+        },
+      },
+    } as ClientApplicationFormYAML
+    const extensionYaml = {
+      КоманднаяПанель: {
+        Элементы: {
+          ПанельнаяКнопка: {
+            Вид: "КнопкаКоманднойПанели",
+            ИмяКоманды: "0",
+            ТипКнопки: "КнопкаКоманднойПанели",
+          },
+        },
+      },
+      Элементы: {
+        ОбычнаяКнопка: {
+          Вид: "Кнопка",
+          ИмяКоманды: "0",
+        },
+      },
+    } as ClientApplicationFormYAML
+
+    const projection = projectClientApplicationBaseForm({
+      baseYaml,
+      extensionYaml,
+    })
+
+    expect(
+      projection.yaml.КоманднаяПанель?.Элементы.ПанельнаяКнопка
+        .ИмяКоманды
+    ).toBe("0")
+    expect(
+      projection.yaml.Элементы?.ОбычнаяКнопка.ИмяКоманды
+    ).toBe("0")
+  })
+
   it("removes command interface items that reference an unselected form command", () => {
     const baseYaml = {
       Команды: {
