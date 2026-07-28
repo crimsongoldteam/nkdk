@@ -168,6 +168,44 @@ describe("client application BaseForm projection", () => {
     })
   })
 
+  it("omits an empty nested intersection unless the rule declares empty XML", () => {
+    const projection = projectClientApplicationBaseForm({
+      baseYaml: {
+        Реквизиты: { ТолькоОснова: { Тип: "Строка" } },
+        Команды: { ТолькоОснова: {} },
+      } as ClientApplicationFormYAML,
+      extensionYaml: {
+        Реквизиты: { ТолькоРасширение: { Тип: "Строка" } },
+        Команды: { ТолькоРасширение: {} },
+      } as ClientApplicationFormYAML,
+    })
+
+    expect(projection.yaml).toEqual({ Реквизиты: {} })
+  })
+
+  it("preserves a nested tree property exposed through its YAML alias", () => {
+    const button = {
+      Вид: "КнопкаКоманднойПанели",
+      ТипКнопки: "КнопкаКоманднойПанели",
+    } as const
+    const projection = projectClientApplicationBaseForm({
+      baseYaml: {
+        КоманднаяПанель: {
+          Элементы: { Команда: button },
+        },
+      } as ClientApplicationFormYAML,
+      extensionYaml: {
+        КоманднаяПанель: {
+          Элементы: { Команда: button },
+        },
+      } as ClientApplicationFormYAML,
+    })
+
+    expect(projection.yaml.КоманднаяПанель?.Элементы).toEqual({
+      Команда: button,
+    })
+  })
+
   it("uses the cf kind rule and the external kind rule when intersecting properties", () => {
     const baseYaml = {
       Элементы: {

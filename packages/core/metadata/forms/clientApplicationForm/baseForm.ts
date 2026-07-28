@@ -2,14 +2,30 @@ import type { ConfigurationContextWithExportToXML } from "../../context/types"
 import { createConfigurationIndexCollector } from "../../configurationIndex/collector/writer"
 import { createConfigurationIndexExportRuntime } from "../../configurationIndex/exportRuntime"
 import { childUid } from "../../configurationIndex/logicalAddress"
+import {
+  getConfigurationIndexPropertyOrder,
+  withConfigurationIndexExportXmlNodeLogicalAddress,
+} from "../../configurationIndex/referenceView"
 import type { ConfigurationIndexReader } from "../../configurationIndex/sharedSnapshot"
 import type {
   ClientApplicationFormXML,
   ClientApplicationFormYAML,
 } from "./types"
 import { convertClientApplicationFormFromYAMLToXML } from "./fromYAMLToXML"
-import { createBaseFormConfigurationIndexReader } from "./baseFormIndex"
+import {
+  createBaseFormConfigurationIndexReader,
+  type BaseFormNodeProjection,
+} from "./baseFormIndex"
 import { projectClientApplicationBaseForm } from "./baseFormProjection"
+import { ClientApplicationFormRules } from "./rules"
+import { resolveFormElementRule } from "../elements/orchestration/fromYAMLToXML"
+import type {
+  FormElementTreeYAML,
+} from "../commonObjects/childItems/types"
+import type {
+  MetadataItemRule,
+  PropertyRule,
+} from "../../orchestration/property/types"
 
 export function buildClientApplicationBaseForm(params: {
   readonly context: ConfigurationContextWithExportToXML
@@ -23,8 +39,12 @@ export function buildClientApplicationBaseForm(params: {
     extensionYaml: params.extensionYaml,
   })
   const runtime = params.context.exportToXML.configurationIndex
-  const projectedSource =
+  const formBodyAddress =
     runtime === undefined
+      ? undefined
+      : childUid(runtime.logicalAddress, "ЧастьФормы", "Содержимое")
+  const projectedSource =
+    runtime === undefined || formBodyAddress === undefined
       ? undefined
       : createBaseFormConfigurationIndexReader({
           base: params.baseIndex,
@@ -32,6 +52,21 @@ export function buildClientApplicationBaseForm(params: {
           extensionIdentityAddresses: extensionIdentityAddresses({
             formAddress: runtime.logicalAddress,
             projected,
+          }),
+          nodeProjections: projectedNodeProjections({
+            formAddress: runtime.logicalAddress,
+            formBodyAddress,
+            yaml: projected.yaml,
+            effectiveRootPropertyOrder:
+              params.context.exportToXML.indexedPropertyOrderByLogicalAddress?.[
+                runtime.logicalAddress
+              ] ??
+              getConfigurationIndexPropertyOrder(
+                withConfigurationIndexExportXmlNodeLogicalAddress(
+                  params.context,
+                  formBodyAddress
+                )
+              ),
           }),
         })
   const context = withDiscardedConfigurationIndexWrites(
@@ -47,6 +82,87 @@ export function buildClientApplicationBaseForm(params: {
   return Object.fromEntries(
     Object.entries(converted).filter(([key]) => !key.startsWith("_xmlns"))
   ) as ClientApplicationFormXML
+}
+
+function selectedPropertyKeys(
+  yaml: object,
+  rule: MetadataItemRule
+): ReadonlySet<string> {
+  const selected = new Set<string>()
+  for (const [propertyKey, propertyRule] of Object.entries(rule.properties)) {
+    if (Object.hasOwn(yaml, propertyRule.yaml ?? propertyKey)) {
+      selected.add(propertyKey)
+    }
+  }
+  return selected
+}
+
+function projectedNodeProjections(params: {
+  readonly formAddress: string
+  readonly formBodyAddress: string
+  readonly yaml: ClientApplicationFormYAML
+  readonly effectiveRootPropertyOrder: readonly string[]
+}): readonly BaseFormNodeProjection[] {
+  const result: BaseFormNodeProjection[] = [{
+    logicalAddress: params.formAddress,
+    xmlNodeLogicalAddress: params.formBodyAddress,
+    rule: ClientApplicationFormRules,
+    selectedPropertyKeys: selectedPropertyKeys(
+      params.yaml,
+      ClientApplicationFormRules
+    ),
+    effectivePropertyOrder: params.effectiveRootPropertyOrder,
+  }]
+  visitProjectedElements({
+    formAddress: params.formAddress,
+    elements: params.yaml.Элементы,
+    collectionRule: ClientApplicationFormRules.properties.childItems,
+    result,
+  })
+  return result
+}
+
+function visitProjectedElements(params: {
+  readonly formAddress: string
+  readonly elements: FormElementTreeYAML | undefined
+  readonly collectionRule: PropertyRule
+  readonly result: BaseFormNodeProjection[]
+}): void {
+  if (params.elements === undefined) return
+  for (const [name, yaml] of Object.entries(params.elements)) {
+    const rule = resolveFormElementRule({
+      yaml,
+      name,
+      propertyRule: params.collectionRule,
+    })
+    const logicalAddress = childUid(params.formAddress, "Элемент", name)
+    params.result.push({
+      logicalAddress,
+      xmlNodeLogicalAddress: logicalAddress,
+      rule,
+      selectedPropertyKeys: selectedPropertyKeys(yaml, rule),
+    })
+    const children = yaml.Элементы
+    const childCollectionRule = propertyRuleByYamlKey(rule, "Элементы")
+    if (children !== undefined && childCollectionRule !== undefined) {
+      visitProjectedElements({
+        formAddress: params.formAddress,
+        elements: children,
+        collectionRule: childCollectionRule,
+        result: params.result,
+      })
+    }
+  }
+}
+
+function propertyRuleByYamlKey(
+  rule: MetadataItemRule,
+  yamlKey: string
+): PropertyRule | undefined {
+  return Object.entries(rule.properties).find(
+    ([propertyKey, propertyRule]) =>
+      (propertyRule.yaml ?? propertyKey) === yamlKey
+  )?.[1]
 }
 
 function withDiscardedConfigurationIndexWrites(
@@ -78,6 +194,10 @@ function withDiscardedConfigurationIndexWrites(
     exportToXML: {
       ...context.exportToXML,
       configurationIndex,
+      xmlDefaultVariantByLogicalAddress: {
+        ...context.exportToXML.xmlDefaultVariantByLogicalAddress,
+        [runtime.logicalAddress]: "indexed",
+      },
     },
   }
 }

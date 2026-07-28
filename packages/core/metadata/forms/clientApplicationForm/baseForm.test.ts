@@ -64,6 +64,255 @@ describe("client application BaseForm", () => {
     })
   })
 
+  it("uses the canonical singleton name when indexed name output is empty", () => {
+    const autoCommandBarAddress = childUid(
+      formAddress,
+      "Элемент",
+      "ФормаКоманднаяПанель"
+    )
+    const baseIndex = reader({
+      componentPath: "cf",
+      identities: [xmlId(autoCommandBarAddress, "-1")],
+      xmlNodes: [
+        {
+          logicalAddress: childUid(
+            formAddress,
+            "ЧастьФормы",
+            "Содержимое"
+          ),
+          present: ["autoCommandBar"],
+        },
+        {
+          logicalAddress: autoCommandBarAddress,
+          aliases: { _name: "", name: "_name" },
+          present: ["name"],
+        },
+      ],
+    })
+    const extensionIndex = reader({
+      componentPath: "cfe/Расширение",
+      xmlNodes: [
+        {
+          logicalAddress: childUid(
+            formAddress,
+            "ЧастьФормы",
+            "Содержимое"
+          ),
+          order: ["autoCommandBar"],
+        },
+        {
+          logicalAddress: autoCommandBarAddress,
+          order: ["name"],
+        },
+      ],
+    })
+    const baseContext = mockContextToXML()
+    const context = {
+      ...baseContext,
+      exportToXML: {
+        ...baseContext.exportToXML,
+        configurationIndex: createConfigurationIndexExportRuntime({
+          source: extensionIndex,
+          collector: createConfigurationIndexCollector(),
+          targetProjectPath:
+            "Справочник/Товары/Формы/ФормаЭлемента/Форма.yaml",
+          logicalAddress: formAddress,
+        }),
+      },
+    }
+    const yaml = {} as ClientApplicationFormYAML
+
+    const baseForm = buildClientApplicationBaseForm({
+      context,
+      baseIndex,
+      baseYaml: yaml,
+      extensionYaml: yaml,
+      formName: "ФормаЭлемента",
+    })
+
+    expect(asRecord(baseForm.AutoCommandBar)?._name)
+      .toBe("ФормаКоманднаяПанель")
+  })
+
+  it("uses indexed XML defaults while converting the base projection", () => {
+    const listAttributeAddress = childUid(
+      formAddress,
+      "Атрибут",
+      "Список"
+    )
+    const dynamicListAddress = childUid(
+      listAttributeAddress,
+      "Свойство",
+      "ДинамическийСписок"
+    )
+    const baseIndex = reader({
+      componentPath: "cf",
+      identities: [
+        xmlId(listAttributeAddress, "1"),
+        xmlId(
+          childUid(
+            formAddress,
+            "Элемент",
+            "ФормаКоманднаяПанель"
+          ),
+          "-1"
+        ),
+      ],
+      xmlNodes: [{
+        logicalAddress: dynamicListAddress,
+        order: ["customQuery", "mainTable"],
+        present: ["customQuery"],
+      }],
+    })
+    const extensionIndex = reader({
+      componentPath: "cfe/Расширение",
+      identities: [xmlId(listAttributeAddress, "1000001")],
+    })
+    const baseContext = mockContextToXML()
+    const context = {
+      ...baseContext,
+      exportToXML: {
+        ...baseContext.exportToXML,
+        configurationIndex: createConfigurationIndexExportRuntime({
+          source: extensionIndex,
+          collector: createConfigurationIndexCollector(),
+          targetProjectPath:
+            "Справочник/Товары/Формы/ФормаЭлемента/Форма.yaml",
+          logicalAddress: formAddress,
+        }),
+        xmlDefaultVariantByLogicalAddress: {
+          [formAddress]: "adopted" as const,
+        },
+      },
+    }
+    const yaml = {
+      Реквизиты: {
+        Список: {
+          Тип: "ДинамическийСписок",
+          ДинамическийСписок: {
+            ОсновнаяТаблица: "Catalog.Товары",
+          },
+        },
+      },
+    } as ClientApplicationFormYAML
+
+    const baseForm = buildClientApplicationBaseForm({
+      context,
+      baseIndex,
+      baseYaml: yaml,
+      extensionYaml: yaml,
+      formName: "ФормаЭлемента",
+    })
+
+    expect(
+      asRecord(
+        asRecord(baseForm.Attributes?.Attribute?.[0])?.Settings
+      )?.ManualQuery
+    ).toBe(false)
+  })
+
+  it("intersects state of nested items outside the root element tree", () => {
+    const autoCommandBarAddress = childUid(
+      formAddress,
+      "Элемент",
+      "ФормаКоманднаяПанель"
+    )
+    const buttonAddress = childUid(
+      formAddress,
+      "Элемент",
+      "Кнопка"
+    )
+    const baseIndex = reader({
+      componentPath: "cf",
+      identities: [
+        xmlId(autoCommandBarAddress, "-1"),
+        xmlId(buttonAddress, "1"),
+      ],
+      xmlNodes: [
+        {
+          logicalAddress: childUid(
+            formAddress,
+            "ЧастьФормы",
+            "Содержимое"
+          ),
+          present: ["autoCommandBar"],
+        },
+        {
+          logicalAddress: autoCommandBarAddress,
+          order: ["childItems", "name"],
+        },
+        {
+          logicalAddress: buttonAddress,
+          order: ["type", "commandName", "parameter", "name"],
+        },
+      ],
+    })
+    const extensionIndex = reader({
+      componentPath: "cfe/Расширение",
+      identities: [
+        xmlId(autoCommandBarAddress, "-1"),
+        xmlId(buttonAddress, "1"),
+      ],
+      xmlNodes: [
+        {
+          logicalAddress: childUid(
+            formAddress,
+            "ЧастьФормы",
+            "Содержимое"
+          ),
+          order: ["autoCommandBar"],
+        },
+        {
+          logicalAddress: autoCommandBarAddress,
+          order: ["childItems", "name"],
+        },
+        {
+          logicalAddress: buttonAddress,
+          order: ["type", "commandName", "name"],
+        },
+      ],
+    })
+    const baseContext = mockContextToXML()
+    const context = {
+      ...baseContext,
+      exportToXML: {
+        ...baseContext.exportToXML,
+        configurationIndex: createConfigurationIndexExportRuntime({
+          source: extensionIndex,
+          collector: createConfigurationIndexCollector(),
+          targetProjectPath:
+            "Справочник/Товары/Формы/ФормаЭлемента/Форма.yaml",
+          logicalAddress: formAddress,
+        }),
+      },
+    }
+    const yaml = {
+      КоманднаяПанель: {
+        Элементы: {
+          Кнопка: {
+            Вид: "КнопкаКоманднойПанели",
+            ТипКнопки: "КнопкаКоманднойПанели",
+            ИмяКоманды: "0",
+          },
+        },
+      },
+    } as ClientApplicationFormYAML
+
+    const baseForm = buildClientApplicationBaseForm({
+      context,
+      baseIndex,
+      baseYaml: yaml,
+      extensionYaml: yaml,
+      formName: "ФормаЭлемента",
+    })
+
+    expect(
+      asChildItemArray(
+        asRecord(baseForm.AutoCommandBar)?.ChildItems
+      )[0]?.Button
+    ).not.toHaveProperty("Parameter")
+  })
+
   it("uses cf element state and cfe identities only for explicitly borrowed components", () => {
     const baseYaml = {
       Реквизиты: {
@@ -198,6 +447,10 @@ describe("client application BaseForm", () => {
         ),
         xmlId(attributeAddress, "20"),
       ],
+      xmlNodes: [{
+        logicalAddress: elementAddresses.unavailableDataPath,
+        order: ["dataPath"],
+      }],
     })
     const extensionIndex = reader({
       componentPath: "cfe/Расширение",
@@ -212,6 +465,10 @@ describe("client application BaseForm", () => {
         xmlId(elementAddresses.unavailableCommand, "1000013"),
         xmlId(attributeAddress, "1000020"),
       ],
+      xmlNodes: [{
+        logicalAddress: elementAddresses.unavailableDataPath,
+        order: ["dataPath"],
+      }],
     })
     const collector = createConfigurationIndexCollector()
     const baseContext = mockContextToXML()
@@ -274,7 +531,7 @@ describe("client application BaseForm", () => {
       _id: "13",
       CommandName: "0",
     })
-    expect(baseForm.Commands?.Command).toEqual([])
+    expect(baseForm.Commands).toBeUndefined()
     expect(JSON.stringify(baseForm)).not.toContain("СобственныйЭлемент")
     expect(JSON.stringify(baseForm)).not.toContain("СобственнаяКоманда")
   })
@@ -367,4 +624,10 @@ function asChildItemArray(value: unknown): Array<Record<string, any>> {
   return childItem === undefined
     ? []
     : [childItem as Record<string, any>]
+}
+
+function asRecord(value: unknown): Record<string, unknown> | undefined {
+  return value !== null && typeof value === "object" && !Array.isArray(value)
+    ? value as Record<string, unknown>
+    : undefined
 }

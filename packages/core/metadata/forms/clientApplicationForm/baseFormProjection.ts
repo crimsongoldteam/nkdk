@@ -2,6 +2,7 @@ import type { MetadataItemRule, PropertyRule } from "../../orchestration/propert
 import { getTypeRule } from "../../orchestration/property/typeRuleRegistry"
 import { resolveFormElementRule } from "../elements/orchestration/fromYAMLToXML"
 import type { FormElementTreeNodeYAML, FormElementTreeYAML } from "../commonObjects/childItems/types"
+import { getTreeNodeJSONSchemaPropertyAliases } from "../commonObjects/childItems/treeYAML"
 import { projectProperty, type BaseFormProjectionContext } from "./baseFormProjectionRegistry"
 import { ClientApplicationFormRules } from "./rules"
 import type { ClientApplicationFormYAML } from "./types"
@@ -143,13 +144,13 @@ function projectElementSelection(params: {
   const properties =
     params.extensionElement === undefined
       ? {}
-      : projectMetadataItemProperties({
+      : projectAliasedMetadataItemProperties({
           baseYaml: params.baseElement,
           extensionYaml: params.extensionElement.yaml,
           baseRule,
           extensionRule: params.extensionElement.rule,
           context: params.context,
-          skippedYamlKeys: new Set(["Вид", "Элементы"]),
+          skippedYamlKeys: new Set(["Элементы"]),
         })
   const result: FormElementTreeNodeYAML = {
     Вид: params.baseElement.Вид,
@@ -170,6 +171,74 @@ function projectElementSelection(params: {
   }
 
   return result
+}
+
+function projectAliasedMetadataItemProperties(params: {
+  readonly baseYaml: Record<string, unknown>
+  readonly extensionYaml: Record<string, unknown>
+  readonly baseRule: MetadataItemRule
+  readonly extensionRule: MetadataItemRule
+  readonly context: BaseFormProjectionContext
+  readonly skippedYamlKeys?: ReadonlySet<string>
+}): Record<string, unknown> {
+  const baseAliases = getTreeNodeJSONSchemaPropertyAliases(
+    params.baseRule.itemType
+  )
+  const extensionAliases = getTreeNodeJSONSchemaPropertyAliases(
+    params.extensionRule.itemType
+  )
+  const projected = projectMetadataItemProperties({
+    ...params,
+    baseYaml: normalizeProjectionAliases(params.baseYaml, baseAliases),
+    extensionYaml: normalizeProjectionAliases(
+      params.extensionYaml,
+      extensionAliases
+    ),
+  })
+  return restoreProjectionAliases(
+    projected,
+    params.baseYaml,
+    baseAliases
+  )
+}
+
+function normalizeProjectionAliases(
+  yaml: Record<string, unknown>,
+  aliases: Readonly<Record<string, string>>
+): Record<string, unknown> {
+  const result = { ...yaml }
+  for (const [ruleYamlKey, treeYamlKey] of Object.entries(aliases)) {
+    if (Object.hasOwn(yaml, treeYamlKey)) {
+      result[ruleYamlKey] = yaml[treeYamlKey]
+    } else {
+      delete result[ruleYamlKey]
+    }
+  }
+  return result
+}
+
+function restoreProjectionAliases(
+  projected: Record<string, unknown>,
+  baseYaml: Record<string, unknown>,
+  aliases: Readonly<Record<string, string>>
+): Record<string, unknown> {
+  const result = { ...projected }
+  for (const [ruleYamlKey, treeYamlKey] of Object.entries(aliases)) {
+    if (Object.hasOwn(result, ruleYamlKey)) {
+      result[treeYamlKey] = result[ruleYamlKey]
+      delete result[ruleYamlKey]
+    }
+  }
+  return {
+    ...Object.fromEntries(
+      Object.keys(aliases).flatMap((ruleYamlKey) =>
+        Object.hasOwn(baseYaml, ruleYamlKey)
+          ? [[ruleYamlKey, baseYaml[ruleYamlKey]]]
+          : []
+      )
+    ),
+    ...result,
+  }
 }
 
 function projectMetadataItemProperties(params: {
@@ -210,6 +279,13 @@ function projectMetadataItemProperties(params: {
       context: params.context,
     })
     if (nestedProjection.kind === "omit") continue
+    if (
+      nestedProjection.kind === "include" &&
+      isEmptyNestedProjection(nestedProjection.value) &&
+      !Object.hasOwn(basePropertyRule, "defaultValueXMLEmpty")
+    ) {
+      continue
+    }
     result[yamlKey] =
       nestedProjection.kind === "include"
         ? nestedProjection.value
@@ -217,6 +293,15 @@ function projectMetadataItemProperties(params: {
   }
 
   return result
+}
+
+function isEmptyNestedProjection(value: unknown): boolean {
+  if (Array.isArray(value)) return value.length === 0
+  return (
+    typeof value === "object" &&
+    value !== null &&
+    Object.keys(value).length === 0
+  )
 }
 
 type NestedProjection =
@@ -253,7 +338,7 @@ function projectNestedProperty(params: {
     }
     return {
       kind: "include",
-      value: projectMetadataItemProperties({
+      value: projectAliasedMetadataItemProperties({
         baseYaml,
         extensionYaml,
         baseRule: itemRuleFromProperty(baseNestedRule, params.basePropertyRule),
@@ -278,7 +363,7 @@ function projectNestedProperty(params: {
       const baseItemYaml = asYamlRecord(baseItem)
       const extensionItemYaml = asYamlRecord(extensionYaml[name])
       if (baseItemYaml === undefined || extensionItemYaml === undefined) continue
-      value[name] = projectMetadataItemProperties({
+      value[name] = projectAliasedMetadataItemProperties({
         baseYaml: baseItemYaml,
         extensionYaml: extensionItemYaml,
         baseRule: baseNestedRule.resolveItemRule({ yaml: baseYaml, name }),
@@ -309,7 +394,7 @@ function projectNestedProperty(params: {
       const baseItemYaml = asYamlRecord(baseItem)
       const extensionItemYaml = asYamlRecord(extensionYaml[name])
       if (baseItemYaml !== undefined && extensionItemYaml !== undefined) {
-        value[name] = projectMetadataItemProperties({
+        value[name] = projectAliasedMetadataItemProperties({
           baseYaml: baseItemYaml,
           extensionYaml: extensionItemYaml,
           baseRule: collectionItemRule({
@@ -346,7 +431,7 @@ function projectNestedProperty(params: {
     const extensionItemYaml = asYamlRecord(extensionItem)
     if (baseItemYaml === undefined || extensionItemYaml === undefined) continue
     value.push(
-      projectMetadataItemProperties({
+      projectAliasedMetadataItemProperties({
         baseYaml: baseItemYaml,
         extensionYaml: extensionItemYaml,
         baseRule: collectionItemRule({

@@ -561,6 +561,26 @@ describe("convertPropertiesFromYAMLToXML", () => {
     expect(result.outputs.get("owner")).toEqual({})
   })
 
+  it("сохраняет индексированное неявное значение заимствованного объекта", () => {
+    const result = convertPropertiesFromYAMLToXML({
+      context: contextWithXMLDefaultVariant("adopted", ["value"]),
+      yaml: {},
+      rule: testRule({
+        value: {
+          type: "boolean",
+          yaml: "Значение",
+          xml: "Value",
+          defaultValue: false,
+          defaultValueXML: false,
+          implicitValueYAML: false,
+        },
+      }),
+      outputs: [{ key: "owner" }],
+    })
+
+    expect(result.outputs.get("owner")).toEqual({ Value: false })
+  })
+
   it("наследует вариант XML-default во вложенном логическом адресе", () => {
     const result = convertPropertiesFromYAMLToXML({
       context: contextWithXMLDefaultVariant(

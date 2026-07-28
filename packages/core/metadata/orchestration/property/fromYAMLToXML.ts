@@ -87,6 +87,7 @@ export interface AtomicToXMLParams {
   readonly referenceValue?: unknown
   readonly source?: YAMLPropertySource
   readonly propertyKey?: string
+  readonly preserveIndexedImplicitValue?: true
 }
 
 interface MutableOutput {
@@ -718,6 +719,9 @@ export function convertPropertiesFromYAMLToXML(params: ConvertPropertiesFromYAML
           referenceValue: atomicReferences[index],
           source,
           propertyKey,
+          ...(hasIndexedImplicitYAMLValue
+            ? { preserveIndexedImplicitValue: true as const }
+            : {}),
         })
         if (params.profile !== undefined) params.profile.atomicToXMLCount++
         const valuePath = writeXMLValue({ context: outputContext, output, planned, value: exported, reference })
@@ -882,6 +886,9 @@ export function callAtomicToXML(params: AtomicToXMLParams): unknown {
   if (handler === undefined) {
     if (isDefaultValue(value, rule.defaultValue)) {
       if (shouldCreateRawParent(value, rule)) return value
+      if (params.preserveIndexedImplicitValue === true) {
+        return wrapWithNamespace(rule, value)
+      }
       return hasRaw
         ? rule.defaultValueXMLRaw
         : xmlDefault.exists
@@ -908,6 +915,12 @@ export function callAtomicToXML(params: AtomicToXMLParams): unknown {
     (exported === undefined && isDefaultValue(value, rule.defaultValue))
   ) {
     if (shouldCreateRawParent(value, rule)) return value
+    if (params.preserveIndexedImplicitValue === true) {
+      return wrapWithNamespace(
+        rule,
+        exported ?? exportValue(value)
+      )
+    }
     if (hasRaw) return rule.defaultValueXMLRaw
     return xmlDefault.exists
       ? wrapWithNamespace(rule, exportValue(xmlDefault.value))

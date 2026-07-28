@@ -91,7 +91,11 @@ export const createSingletonElementYAMLToXMLNestedRule = <Rule extends ElementRu
     }
     if (indexedId !== undefined) runtime?.collector.setXmlId(runtime.logicalAddress, indexedId)
     const result = {
-      _name: typeof _name === "string" ? _name : (indexedName ?? extra.name),
+      _name:
+        typeof _name === "string" &&
+          (_name.length > 0 || indexedName === "")
+          ? _name
+          : (indexedName ?? extra.name),
       _id: typeof _id === "string" && _id.length > 0 ? _id : (indexedId ?? params.directId ?? String(extra.id ?? "")),
       ...properties,
     }
