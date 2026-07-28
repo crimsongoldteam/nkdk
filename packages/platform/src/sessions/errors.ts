@@ -7,6 +7,7 @@ export type PlatformSessionErrorCode =
   | "session_start_failed"
   | "session_timeout"
   | "platform_command_failed"
+  | "operation_cancelled"
 
 export class PlatformSessionError extends Error {
   readonly code: PlatformSessionErrorCode

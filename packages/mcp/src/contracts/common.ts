@@ -15,6 +15,7 @@ export const errorCodeSchema = z.enum([
   "session_start_failed",
   "session_timeout",
   "platform_command_failed",
+  "operation_cancelled",
 ])
 
 export const toolErrorOutputShape = {

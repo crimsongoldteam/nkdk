@@ -34,6 +34,7 @@ export type ExportConfigurationParams = PlatformConnectionSettings & {
   projectDir: string
   outputDir: string
   logPath: string
+  signal?: AbortSignal
 }
 
 export type ExportConfigurationResult = {
@@ -59,7 +60,11 @@ export type ProjectSettings = {
 export interface PlatformSession {
   mode: PlatformSessionMode
   ownedProcess: boolean
-  exportConfiguration(outputDir: string, operationLogPath: string): Promise<void>
+  exportConfiguration(
+    outputDir: string,
+    operationLogPath: string,
+    signal?: AbortSignal
+  ): Promise<void>
   isAlive(): boolean
   close(): Promise<{ stoppedOwnedProcess: boolean }>
 }

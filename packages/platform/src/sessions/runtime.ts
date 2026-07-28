@@ -15,7 +15,7 @@ export interface SshTransport {
 }
 
 export interface PlatformCommandSession {
-  run(command: string): Promise<void>
+  run(command: string, options?: { signal?: AbortSignal }): Promise<void>
   isAlive(): boolean
   close(): Promise<void>
 }
@@ -39,8 +39,22 @@ export interface SessionProcessRuntime {
   run(
     command: string,
     args: readonly string[],
-    options?: { timeoutMs: number }
-  ): Promise<{ stdout: string; stderr: string; exitCode: number; timedOut?: boolean }>
+    options?: ProcessRunOptions
+  ): Promise<ProcessRunResult>
+}
+
+export type ProcessRunOptions = {
+  timeoutMs?: number
+  signal?: AbortSignal
+  terminationGraceMs?: number
+}
+
+export type ProcessRunResult = {
+  stdout: string
+  stderr: string
+  exitCode: number
+  timedOut?: boolean
+  cancelled?: boolean
 }
 
 export interface SessionFileSystem {

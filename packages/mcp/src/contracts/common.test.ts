@@ -11,6 +11,7 @@ describe("common MCP contracts", () => {
     "session_start_failed",
     "session_timeout",
     "platform_command_failed",
+    "operation_cancelled",
   ])("accepts the stable platform error code %s", (code) => {
     expect(errorCodeSchema.parse(code)).toBe(code)
   })
