@@ -8,13 +8,12 @@ import type {
   ParsedMetadataTarget,
 } from "../commonObjects/metadataTargets"
 import { objectPathKindToYAML, rootToYAML } from "../commonObjects/metadataTargets/roots"
-import type { ValidationDependencyRequest } from "./projectValidationTypes"
 import type { Diagnostic } from "./types"
 import type { YamlPath } from "./yamlLocations"
 
 export type MetadataReferenceResolveResult =
   | { ok: true; filePath?: string; details?: unknown }
-  | { ok: false; diagnostics: Diagnostic[]; dependency?: ValidationDependencyRequest }
+  | { ok: false; diagnostics: Diagnostic[] }
 
 export interface ProjectObjectIndexEntry {
   canonical: string
@@ -74,7 +73,6 @@ export type ProjectReferenceIndexResult =
   | { ok: false; reason: "notFound"; diagnostics: Diagnostic[] }
   | { ok: false; reason: "conflict"; diagnostics: Diagnostic[] }
   | { ok: false; reason: "filter"; diagnostics: Diagnostic[] }
-  | { ok: false; reason: "needsDependency"; dependency: ValidationDependencyRequest; diagnostics: Diagnostic[] }
   | { ok: false; reason: "unsupported"; diagnostics: Diagnostic[] }
 
 export interface ProjectReferenceIndexStats {
@@ -82,7 +80,6 @@ export interface ProjectReferenceIndexStats {
   misses: number
   conflicts: number
   filterFailures: number
-  dependencies: number
   unsupported: number
   fallbacks: 0
 }
@@ -90,7 +87,6 @@ export interface ProjectReferenceIndexStats {
 export interface ValidatePendingReferencesWithIndexResult {
   diagnostics: Diagnostic[]
   stats: ProjectReferenceIndexStats
-  firstDependency?: ValidationDependencyRequest
 }
 
 export function projectObjectIndexKey(target: Extract<ParsedMetadataTarget, { kind: "object" }>): string {
@@ -170,17 +166,14 @@ export function estimateProjectReferenceSnapshotBytes(
 
 export function createProjectReferenceIndex(params: {
   projectDir: string
-  mode: "full" | "partial"
   snapshot: ProjectReferenceSnapshot
   resolveObjectFilePath?: (target: Extract<ParsedMetadataTarget, { kind: "object" }>) => string | undefined
-  resolveProjectFile?: (target: Extract<ParsedMetadataTarget, { kind: "object" }>) => ValidationDependencyRequest | undefined
 }): ProjectReferenceIndex {
   const stats: ProjectReferenceIndexStats = {
     hits: 0,
     misses: 0,
     conflicts: 0,
     filterFailures: 0,
-    dependencies: 0,
     unsupported: 0,
     fallbacks: 0,
   }
@@ -192,7 +185,6 @@ export function createProjectReferenceIndex(params: {
       else if (result.reason === "notFound") stats.misses += 1
       else if (result.reason === "conflict") stats.conflicts += 1
       else if (result.reason === "filter") stats.filterFailures += 1
-      else if (result.reason === "needsDependency") stats.dependencies += 1
       else stats.unsupported += 1
       return result
     },
@@ -207,39 +199,25 @@ export function validatePendingReferencesWithIndex(params: {
   references: readonly PendingMetadataTargetReference[]
 }): ValidatePendingReferencesWithIndexResult {
   const diagnostics: Diagnostic[] = []
-  let firstDependency: ValidationDependencyRequest | undefined
   for (const reference of params.references) {
     const result = params.index.resolve(reference)
-    if (!result.ok && result.reason === "needsDependency" && firstDependency === undefined) {
-      firstDependency = result.dependency
-    }
     if (!result.ok) diagnostics.push(...result.diagnostics)
   }
   return {
     diagnostics,
     stats: params.index.stats(),
-    ...(firstDependency === undefined ? {} : { firstDependency }),
   }
 }
 
 function resolveReference(
   params: {
-    mode: "full" | "partial"
     snapshot: ProjectReferenceSnapshot
     resolveObjectFilePath?: (target: Extract<ParsedMetadataTarget, { kind: "object" }>) => string | undefined
-    resolveProjectFile?: (target: Extract<ParsedMetadataTarget, { kind: "object" }>) => ValidationDependencyRequest | undefined
   },
   reference: PendingMetadataTargetReference
 ): ProjectReferenceIndexResult {
   const entry = lookupEntry(params.snapshot, reference.target)
   if (entry === undefined) {
-    const dependency =
-      params.mode === "partial" && reference.target.kind === "object"
-        ? params.resolveProjectFile?.(reference.target)
-        : undefined
-    if (dependency !== undefined) {
-      return { ok: false, reason: "needsDependency", dependency, diagnostics: [] }
-    }
     if (reference.target.kind === "object") {
       const filePath = params.resolveObjectFilePath?.(reference.target)
       return {
@@ -264,14 +242,6 @@ function resolveReference(
     }
   }
   if (!entry.result.ok) {
-    if (entry.result.dependency !== undefined) {
-      return {
-        ok: false,
-        reason: "needsDependency",
-        dependency: entry.result.dependency,
-        diagnostics: entry.result.diagnostics,
-      }
-    }
     return { ok: false, reason: "notFound", diagnostics: entry.result.diagnostics }
   }
   if (reference.target.kind === "object") {

@@ -5,7 +5,7 @@ import type {
   ProjectObjectIndexEntry,
   ProjectValueIndexEntry,
 } from "./projectMetadataReferences"
-import type { ValidationMode, ValidationObjectRecord, ValidationObjectTableSnapshot } from "./projectValidationTypes"
+import type { ValidationObjectRecord, ValidationObjectTableSnapshot } from "./projectValidationTypes"
 import type { Diagnostic } from "./types"
 
 export interface FirstPassPoolResult {
@@ -28,7 +28,6 @@ export interface ValidationYamlLifetime {
 export interface SecondPassPoolParams {
   projectDir: string
   context: ConfigurationContext
-  mode: ValidationMode
   objectTable: ValidationObjectTableSnapshot
 }
 

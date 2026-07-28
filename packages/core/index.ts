@@ -94,7 +94,6 @@ export {
   type ValidateProjectResult,
   type ValidationWorkerPoolHandle,
 } from "./metadata/validation/validateProject"
-export { validateParsedFile } from "./metadata/validation/validateFile"
 export { validateForm, type ValidateFormParams } from "./metadata/validation/validateForm"
 export {
   exportJSONSchemaForProjectFile,

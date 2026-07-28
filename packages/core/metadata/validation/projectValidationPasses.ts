@@ -27,7 +27,7 @@ import type { ValidationProjectFile } from "./projectFiles"
 import type { ProjectYamlCache, ProjectYamlEntry } from "./projectYamlCache"
 import { validatePendingChecks, type ValidationPendingCheck } from "./projectValidationPendingChecks"
 import { configurationValidationProjectSpec, validationProjectSpecs, type ValidationProjectSpec } from "./projectSpecs"
-import type { ValidationDependencyRequest, ValidationObjectRecord } from "./projectValidationTypes"
+import type { ValidationObjectRecord } from "./projectValidationTypes"
 import type { ValidationRulesSnapshot } from "./rulesSnapshot"
 import type { Diagnostic } from "./types"
 import { projectLocalDependenciesFromFacts } from "./projectLocalDependencies"
@@ -118,9 +118,7 @@ export interface ProjectValidationSecondPassParams {
   skipMetadataTargetValidation?: boolean
 }
 
-export type ProjectValidationSecondPassResult =
-  | { status: "ok"; diagnostics: Diagnostic[] }
-  | { status: "needsDependency"; diagnostics: Diagnostic[]; dependency: ValidationDependencyRequest }
+export type ProjectValidationSecondPassResult = { status: "ok"; diagnostics: Diagnostic[] }
 
 type ProjectValidationYamlReadResult = ProjectYamlEntry | { filePath: string; error: Error }
 
@@ -367,9 +365,6 @@ export function validateProjectFileSecondPass(
     references: collected.references,
   })
   const diagnostics = [...collected.diagnostics, ...resolved.diagnostics]
-  if (resolved.firstDependency !== undefined) {
-    return { status: "needsDependency", diagnostics, dependency: resolved.firstDependency }
-  }
   return { status: "ok", diagnostics }
 }
 

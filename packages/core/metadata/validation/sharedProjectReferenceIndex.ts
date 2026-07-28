@@ -18,7 +18,6 @@ import {
   type ProjectReferenceIndexStats,
   type ProjectValueIndexEntry,
 } from "./projectReferenceIndex"
-import type { ValidationDependencyRequest } from "./projectValidationTypes"
 import type { Diagnostic } from "./types"
 
 const MAGIC = 0x4e4b4452
@@ -140,10 +139,8 @@ export function createSharedProjectReferenceSnapshot(params: {
 
 export function createSharedProjectReferenceIndex(params: {
   projectDir: string
-  mode: "full" | "partial"
   snapshot: SharedProjectReferenceSnapshot
   resolveObjectFilePath?: (target: Extract<ParsedMetadataTarget, { kind: "object" }>) => string | undefined
-  resolveProjectFile?: (target: Extract<ParsedMetadataTarget, { kind: "object" }>) => ValidationDependencyRequest | undefined
 }): ProjectReferenceIndex {
   const view = sharedSnapshotView(params.snapshot)
   const stats: ProjectReferenceIndexStats = {
@@ -151,7 +148,6 @@ export function createSharedProjectReferenceIndex(params: {
     misses: 0,
     conflicts: 0,
     filterFailures: 0,
-    dependencies: 0,
     unsupported: 0,
     fallbacks: 0,
   }
@@ -163,7 +159,6 @@ export function createSharedProjectReferenceIndex(params: {
       else if (result.reason === "notFound") stats.misses += 1
       else if (result.reason === "conflict") stats.conflicts += 1
       else if (result.reason === "filter") stats.filterFailures += 1
-      else if (result.reason === "needsDependency") stats.dependencies += 1
       else stats.unsupported += 1
       return result
     },
@@ -175,20 +170,13 @@ export function createSharedProjectReferenceIndex(params: {
 
 function resolveSharedReference(
   params: {
-    mode: "full" | "partial"
     view: SharedSnapshotView
     resolveObjectFilePath?: (target: Extract<ParsedMetadataTarget, { kind: "object" }>) => string | undefined
-    resolveProjectFile?: (target: Extract<ParsedMetadataTarget, { kind: "object" }>) => ValidationDependencyRequest | undefined
   },
   reference: PendingMetadataTargetReference
 ): ProjectReferenceIndexResult {
   const entry = lookupSharedEntry(params.view, reference.target)
   if (entry === undefined) {
-    const dependency =
-      params.mode === "partial" && reference.target.kind === "object"
-        ? params.resolveProjectFile?.(reference.target)
-        : undefined
-    if (dependency !== undefined) return { ok: false, reason: "needsDependency", dependency, diagnostics: [] }
     if (reference.target.kind === "object") {
       const filePath = params.resolveObjectFilePath?.(reference.target)
       return {

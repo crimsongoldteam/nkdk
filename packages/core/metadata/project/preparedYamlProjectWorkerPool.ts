@@ -11,7 +11,6 @@ import type {
   ValidationWorkerPoolStartProfile,
 } from "../validation/validationWorkerPoolTypes"
 import { createValidationProfiler } from "../validation/profile"
-import { ProjectFileSchemaError } from "../validation/projectFileSchema"
 import { createValidationRulesSnapshot } from "../validation/rulesSnapshot"
 import type { Diagnostic } from "../validation/types"
 import { createValidationSnapshotProvider } from "../validation/validationSnapshotProvider"
@@ -43,11 +42,6 @@ export interface PreparedYamlProjectWorkerPool {
     files: PreparedYamlProjectFileDescriptor[]
   }): Promise<ValidationIndexContribution>
   runValidationSecondPass(params: SecondPassPoolParams): Promise<SecondPassPoolResult>
-  runPartialValidation(params: {
-    projectDir: string
-    filePath: string
-    context: ConfigurationContext
-  }): Promise<{ diagnostics: Diagnostic[] }>
   close(): Promise<void>
   size(): number
 }
@@ -297,7 +291,6 @@ export function createPreparedYamlProjectWorkerPool(params: {
             workerIndex: index,
             projectDir: secondPassParams.projectDir,
             context: secondPassParams.context,
-            mode: secondPassParams.mode,
             sharedValidationSnapshot,
             pendingReferences: referencePartitions[partitionIndex] ?? [],
           } satisfies PreparedYamlProjectWorkerTask
@@ -312,26 +305,6 @@ export function createPreparedYamlProjectWorkerPool(params: {
       )
 
       return { diagnostics: results.flatMap((result) => result.diagnostics) }
-    },
-    async runPartialValidation(partialParams) {
-      const task = {
-        kind: "validatePartial",
-        workerIndex: 0,
-        projectDir: partialParams.projectDir,
-        filePath: partialParams.filePath,
-        context: partialParams.context,
-      } satisfies PreparedYamlProjectWorkerTask
-      let response: PreparedYamlProjectWorkerTaskResult
-      try {
-        response = (await getOrCreatePool(pools, 0, createPool).run(task)) as PreparedYamlProjectWorkerTaskResult
-      } catch (caught) {
-        if (isProjectFileSchemaWorkerError(caught)) throw new ProjectFileSchemaError(caught.message)
-        throw caught
-      }
-      if (response.kind !== "validatePartialResult") {
-        throw new Error("Worker вернул неожиданный результат validatePartial")
-      }
-      return { diagnostics: response.diagnostics }
     },
     async close() {
       await Promise.all([...pools.values()].map((pool) => pool.destroy()))
@@ -356,11 +329,6 @@ function emptyValidationIndexContribution(): ValidationIndexContribution {
     localDependencies: [],
     logicalAddresses: [],
   }
-}
-
-function isProjectFileSchemaWorkerError(caught: unknown): caught is Error {
-  if (!(caught instanceof Error) || typeof caught.cause !== "object" || caught.cause === null) return false
-  return "code" in caught.cause && caught.cause.code === "project_file_schema"
 }
 
 function getOrCreatePool(

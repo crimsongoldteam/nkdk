@@ -14,7 +14,6 @@ import type { Diagnostic } from "./types"
 
 export interface ValidateProjectParams {
   projectDir: string
-  filePath?: string
   context?: ConfigurationContext
   concurrency?: number
 }
@@ -30,20 +29,10 @@ export interface ValidationWorkerPoolHandle {
 }
 
 export async function validateProject(params: ValidateProjectParams): Promise<ValidateProjectResult> {
-  const concurrency = normalizeValidationConcurrency(params.concurrency)
-  if (params.filePath !== undefined) {
-    const pool = createPreparedYamlProjectWorkerPool({ concurrency })
-    try {
-      return await pool.runPartialValidation({
-        projectDir: params.projectDir,
-        filePath: params.filePath,
-        context: params.context ?? defaultValidationContext(),
-      })
-    } finally {
-      await pool.close()
-    }
-  }
-  return validateProjectWithPreparedYaml({ ...params, concurrency })
+  return validateProjectWithPreparedYaml({
+    ...params,
+    concurrency: normalizeValidationConcurrency(params.concurrency),
+  })
 }
 
 export function createValidationWorkerPoolHandle(
@@ -72,13 +61,6 @@ export function createValidationWorkerPoolHandle(
     validateProject(projectParams) {
       if (closed) throw new Error("Validation worker pool handle is closed")
       return runExclusive(async () => {
-        if (projectParams.filePath !== undefined) {
-          return pool.runPartialValidation({
-            projectDir: projectParams.projectDir,
-            filePath: projectParams.filePath,
-            context: projectParams.context ?? defaultValidationContext(),
-          })
-        }
         return validateProjectWithPreparedYaml({
           ...projectParams,
           concurrency,
@@ -166,7 +148,6 @@ async function validateProjectWithPreparedYaml(
       pool.runValidationSecondPass({
         projectDir,
         context,
-        mode: "full",
         objectTable: objectTableSnapshot,
       })
     )

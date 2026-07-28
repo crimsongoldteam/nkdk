@@ -58,12 +58,10 @@ describe("SharedProjectReferenceIndex", () => {
     ]
     const regular = createProjectReferenceIndex({
       projectDir,
-      mode: "full",
       snapshot: createProjectReferenceSnapshot({ objectIndexEntries: objectEntries, memberIndexEntries: memberEntries, valueIndexEntries: valueEntries, pendingReferences: [] }),
     })
     const shared = createSharedProjectReferenceIndex({
       projectDir,
-      mode: "full",
       snapshot: createSharedProjectReferenceSnapshot({ objectIndexEntries: objectEntries, memberIndexEntries: memberEntries, valueIndexEntries: valueEntries }),
     })
 
@@ -81,7 +79,6 @@ describe("SharedProjectReferenceIndex", () => {
     ]
     const index = createSharedProjectReferenceIndex({
       projectDir,
-      mode: "full",
       snapshot: createSharedProjectReferenceSnapshot({ objectIndexEntries: [], memberIndexEntries: entries, valueIndexEntries: [] }),
     })
 

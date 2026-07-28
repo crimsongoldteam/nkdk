@@ -3,7 +3,6 @@ import { performance } from "node:perf_hooks"
 import type { ConfigurationContext } from "../context/types"
 import { createOwnerMetadataCacheFromSharedValidationSnapshot } from "../validation/dataPath/sharedOwnerCache"
 import { createValidationProfiler } from "../validation/profile"
-import { ProjectFileSchemaError } from "../validation/projectFileSchema"
 import { getProjectReferenceObjectPathContributor } from "../validation/projectReferenceIndexRegistry"
 import type {
   ProjectMemberIndexEntry,
@@ -32,10 +31,8 @@ import { createSharedProjectReferenceIndex } from "../validation/sharedProjectRe
 import type { SharedValidationSnapshot } from "../validation/sharedValidationSnapshot"
 import type { Diagnostic } from "../validation/types"
 import type { ValidationYamlLifetime } from "../validation/validationWorkerPoolTypes"
-import { validateProjectPartial } from "../validation/validateProjectPartial"
 import type {
   ValidationIndexContribution,
-  ValidationMode,
   ValidationObjectRecord,
 } from "../validation/projectValidationTypes"
 import { prepareYamlFiles } from "./prepareYamlFiles"
@@ -82,16 +79,8 @@ export type PreparedYamlProjectWorkerTask =
       workerIndex: number
       projectDir: string
       context: ConfigurationContext
-      mode: ValidationMode
       sharedValidationSnapshot: SharedValidationSnapshot
       pendingReferences: PendingMetadataTargetReference[]
-    }
-  | {
-      kind: "validatePartial"
-      workerIndex: number
-      projectDir: string
-      filePath: string
-      context: ConfigurationContext
     }
 
 export type PreparedYamlProjectWorkerTaskResult =
@@ -121,10 +110,6 @@ export type PreparedYamlProjectWorkerTaskResult =
       kind: "validateSecondPassResult"
       diagnostics: Diagnostic[]
     }
-  | {
-      kind: "validatePartialResult"
-      diagnostics: Diagnostic[]
-    }
 
 interface WorkerValidationState {
   states: Map<string, ProjectValidationFileState>
@@ -137,17 +122,6 @@ interface WorkerValidationState {
 export default async function runPreparedYamlProjectWorkerTask(
   message: PreparedYamlProjectWorkerTask
 ): Promise<PreparedYamlProjectWorkerTaskResult> {
-  if (message.kind === "validatePartial") {
-    try {
-      const result = await validateProjectPartial(message)
-      return { kind: "validatePartialResult", diagnostics: result.diagnostics }
-    } catch (caught) {
-      if (caught instanceof ProjectFileSchemaError) {
-        throw new Error(caught.message, { cause: { code: "project_file_schema" } })
-      }
-      throw caught
-    }
-  }
   if (message.kind === "initValidation") {
     const profiler = createValidationProfiler({ scope: "worker", workerIndex: message.workerIndex })
     validationSchemaCache = await profiler.measureAsync("Инициализация", "Инициализация validation worker", { items: 1 }, () =>
@@ -456,7 +430,6 @@ function runValidationSecondPass(message: Extract<PreparedYamlProjectWorkerTask,
       })
       const referenceIndex = createSharedProjectReferenceIndex({
         projectDir: message.projectDir,
-        mode: message.mode,
         snapshot: message.sharedValidationSnapshot.reference,
         resolveObjectFilePath: (target) => resolveObjectFilePath({ projectDir: message.projectDir, target }),
       })

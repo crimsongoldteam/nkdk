@@ -14,17 +14,6 @@ import type {
   ProjectLogicalAddressEntry,
 } from "../project/componentIndexFacts"
 
-export type ValidationMode = "full" | "partial"
-
-export type ValidationQueueStatus = "pending" | "running" | "ready" | "error"
-
-export interface ValidationQueueEntry {
-  file: ValidationProjectFile
-  status: ValidationQueueStatus
-}
-
-export type EnqueueDependencyResult = "enqueued" | "already-known"
-
 export interface ValidationObjectRecord {
   filePath: string
   projectPath: string
@@ -61,13 +50,3 @@ export interface ValidationObjectTableSnapshot extends ValidationReferenceIndexE
   records: ValidationObjectRecord[]
   filePaths: string[]
 }
-
-export interface ValidationDependencyRequest {
-  kind: "needsDependency"
-  file: ValidationProjectFile
-  requestedBy: string
-}
-
-export type ValidationResolveResult =
-  | { ok: true; filePath?: string; details?: unknown }
-  | { ok: false; diagnostics: Diagnostic[]; dependency?: ValidationDependencyRequest }
