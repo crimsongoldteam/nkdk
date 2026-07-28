@@ -91,7 +91,10 @@ expect(parseExtensionPropertyRecords([raw])).toEqual([{
 }])
 ```
 
-Добавить отдельные проверки пустого массива, сохранения порядка, `customization`/`add-on`, `data-separation`, неизвестного поля, отсутствующего поля, нестрокового значения, неизвестного `yes/no`, назначения и области.
+Добавить отдельные проверки пустого массива, сохранения порядка,
+`customization`/`add-on`, `data-separation`, логических значений агента,
+текстовых `yes`/`no` от `ibcmd`, неизвестного поля, отсутствующего поля,
+некорректного значения, назначения и области.
 
 - [ ] **Step 2: Запустить тест нормализатора и подтвердить падение**
 
@@ -182,7 +185,8 @@ git commit -m "feat: :sparkles: типизировать свойства рас
 - Modify: `packages/platform/src/sessions/designerAgent.test.ts`
 
 **Interfaces:**
-- Consumes: платформенное сообщение `type: "extension-info"` с `body: unknown`.
+- Consumes: платформенное сообщение `type: "success"` с массивом записей
+  `type: "extension-properties"` в `body`.
 - Produces:
 
 ```ts
@@ -199,15 +203,21 @@ export interface PlatformCommandSession {
 }
 ```
 
-- [ ] **Step 1: Написать падающие тесты захвата `extension-info`**
+- [ ] **Step 1: Написать падающие тесты захвата `extension-properties`**
 
-В `sshProtocol.test.ts` перед завершающим `success` вернуть два сообщения:
+В `sshProtocol.test.ts` вернуть две записи внутри `body` завершающего
+`success`:
 
 ```json
 [
-  {"type":"extension-info","body":{"name":"First"}},
-  {"type":"extension-info","body":{"name":"Second"}},
-  {"type":"success","message":"Done"}
+  {
+    "type":"success",
+    "message":"Done",
+    "body":[
+      {"type":"extension-properties","body":{"name":"First"}},
+      {"type":"extension-properties","body":{"name":"Second"}}
+    ]
+  }
 ]
 ```
 
@@ -230,13 +240,14 @@ Run:
 pnpm --filter @nkdk/platform exec vitest run src/sessions/sshProtocol.test.ts
 ```
 
-Expected: FAIL, потому что `run()` возвращает `void` и не распознаёт `extension-info`.
+Expected: FAIL, потому что `run()` возвращает `void` и не извлекает
+`extension-properties` из `success.body`.
 
 - [ ] **Step 3: Реализовать накопление содержательного ответа**
 
-Добавить в `PendingExchange` массив `extensionInfo`. При сообщении
-`extension-info` требовать наличие `body` и добавлять только `body`. При
-`success` завершать обмен значением:
+Добавить в `PendingExchange` массив `extensionInfo`. При сообщении `success`
+обойти его массив `body`, у каждой записи `extension-properties` потребовать
+собственное `body` и добавить только его. Затем завершать обмен значением:
 
 ```ts
 { extensionInfo: [...pending.extensionInfo] }
