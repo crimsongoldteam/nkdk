@@ -1,16 +1,20 @@
 import { describe, expect, it } from "vitest"
+import { InputFieldRules } from "../elements/inputField/rules"
 import { projectClientApplicationBaseForm } from "./baseFormProjection"
 import type { ClientApplicationFormYAML } from "./types"
 
 describe("client application BaseForm projection", () => {
   it("selects the cf element tree and only explicitly borrowed named components", () => {
-    const baseAttribute = { Тип: "CatalogObject.Товары" }
+    const baseAttribute = {
+      Тип: "CatalogObject.Товары",
+      НеизвестноеСвойство: "Основа",
+    }
     const baseCommand = { Заголовок: { ru: "Основная команда" } }
     const baseParameter = { Тип: "string" }
     const baseYaml = {
       Элементы: {
         Группа: {
-          Вид: "ОбычнаяГруппа",
+          Вид: "Группа",
           Элементы: {
             Код: { Вид: "ПолеВвода", Ширина: 10 },
           },
@@ -30,7 +34,7 @@ describe("client application BaseForm projection", () => {
     const extensionYaml = {
       Элементы: {
         СобственнаяГруппа: {
-          Вид: "ОбычнаяГруппа",
+          Вид: "Группа",
           Элементы: {
             Код: { Вид: "ПолеНадписи", Ширина: 20 },
             Дополнение: { Вид: "ПолеВвода" },
@@ -38,7 +42,10 @@ describe("client application BaseForm projection", () => {
         },
       },
       Реквизиты: {
-        Объект: { Тип: "CatalogObject.ДругиеТовары" },
+        Объект: {
+          Тип: "CatalogObject.ДругиеТовары",
+          НеизвестноеСвойство: "Расширение",
+        },
         СобственныйРеквизит: { Тип: "number" },
       },
       Команды: {
@@ -59,13 +66,15 @@ describe("client application BaseForm projection", () => {
     expect(projection.yaml).toEqual({
       Элементы: {
         Группа: {
-          Вид: "ОбычнаяГруппа",
+          Вид: "Группа",
           Элементы: {
-            Код: { Вид: "ПолеВвода" },
+            Код: { Вид: "ПолеВвода", Ширина: 10 },
           },
         },
       },
-      Реквизиты: { Объект: baseAttribute },
+      Реквизиты: {
+        Объект: { Тип: "CatalogObject.Товары" },
+      },
       Команды: { Команда1: baseCommand },
       Параметры: { Параметр1: baseParameter },
     })
@@ -80,7 +89,7 @@ describe("client application BaseForm projection", () => {
     const baseYaml = {
       Элементы: {
         Группа: {
-          Вид: "ОбычнаяГруппа",
+          Вид: "Группа",
           Элементы: {
             Код: { Вид: "ПолеВвода" },
             ТолькоОснова: { Вид: "ПолеНадписи" },
@@ -91,7 +100,7 @@ describe("client application BaseForm projection", () => {
     const extensionYaml = {
       Элементы: {
         ДругаяВетка: {
-          Вид: "ОбычнаяГруппа",
+          Вид: "Группа",
           Элементы: {
             Код: { Вид: "ПолеНадписи" },
           },
@@ -105,10 +114,7 @@ describe("client application BaseForm projection", () => {
     })
 
     expect(projection.yaml.Элементы).toEqual(baseYaml.Элементы)
-    expect(Object.keys(projection.yaml.Элементы?.Группа.Элементы ?? {})).toEqual([
-      "Код",
-      "ТолькоОснова",
-    ])
+    expect(Object.keys(projection.yaml.Элементы?.Группа.Элементы ?? {})).toEqual(["Код", "ТолькоОснова"])
   })
 
   it("rejects duplicate external element names from different branches", () => {
@@ -120,13 +126,13 @@ describe("client application BaseForm projection", () => {
     const extensionYaml = {
       Элементы: {
         ПерваяГруппа: {
-          Вид: "ОбычнаяГруппа",
+          Вид: "Группа",
           Элементы: {
             Код: { Вид: "ПолеВвода" },
           },
         },
         ВтораяГруппа: {
-          Вид: "ОбычнаяГруппа",
+          Вид: "Группа",
           Элементы: {
             Код: { Вид: "ПолеНадписи" },
           },
@@ -134,8 +140,182 @@ describe("client application BaseForm projection", () => {
       },
     } as ClientApplicationFormYAML
 
-    expect(() =>
-      projectClientApplicationBaseForm({ baseYaml, extensionYaml })
-    ).toThrow(/duplicate element name "Код"/)
+    expect(() => projectClientApplicationBaseForm({ baseYaml, extensionYaml })).toThrow(/duplicate element name "Код"/)
+  })
+
+  it("projects scalar, nested, and event properties by their YAML keys", () => {
+    const baseYaml = {
+      Ширина: 100,
+      Высота: 50,
+      Заголовок: { ru: "Основная форма", en: "Base form" },
+      События: { ПриОткрытии: "ОсновнойОбработчик" },
+    } as ClientApplicationFormYAML
+    const extensionYaml = {
+      Ширина: 200,
+      Группировка: "Горизонтальная",
+      Заголовок: { ru: "Форма расширения", de: "Extension form" },
+      События: { ПриОткрытии: "ОбработчикРасширения" },
+    } as ClientApplicationFormYAML
+
+    const projection = projectClientApplicationBaseForm({
+      baseYaml,
+      extensionYaml,
+    })
+
+    expect(projection.yaml).toEqual({
+      Ширина: 100,
+      Заголовок: { ru: "Основная форма" },
+    })
+  })
+
+  it("uses the cf kind rule and the external kind rule when intersecting properties", () => {
+    const baseYaml = {
+      Элементы: {
+        Код: {
+          Вид: "ПолеВвода",
+          Ширина: 10,
+          КнопкаВыбора: true,
+        },
+      },
+    } as ClientApplicationFormYAML
+    const extensionYaml = {
+      Элементы: {
+        Код: {
+          Вид: "ПолеНадписи",
+          Ширина: 20,
+          КнопкаВыбора: false,
+        },
+      },
+    } as ClientApplicationFormYAML
+
+    const projection = projectClientApplicationBaseForm({
+      baseYaml,
+      extensionYaml,
+    })
+
+    expect(projection.yaml.Элементы).toEqual({
+      Код: {
+        Вид: "ПолеВвода",
+        Ширина: 10,
+      },
+    })
+  })
+
+  it("projects DataPath and CommandName against explicitly selected components", () => {
+    const baseYaml = {
+      Реквизиты: {
+        Объект: { Тип: "CatalogObject.Товары" },
+        СкрытыйРеквизит: { Тип: "string" },
+      },
+      Команды: {
+        Команда1: {},
+        СкрытаяКоманда: {},
+      },
+      Элементы: {
+        ДоступныйПуть: {
+          Вид: "ПолеВвода",
+          ПутьКДанным: "Объект.Код",
+        },
+        НедоступныйПуть: {
+          Вид: "ПолеВвода",
+          ПутьКДанным: "СкрытыйРеквизит.Код",
+        },
+        ДоступнаяКоманда: {
+          Вид: "Кнопка",
+          ИмяКоманды: "Команда1",
+        },
+        НедоступнаяКоманда: {
+          Вид: "Кнопка",
+          ИмяКоманды: "СкрытаяКоманда",
+        },
+      },
+    } as ClientApplicationFormYAML
+    const extensionYaml = {
+      Реквизиты: {
+        Объект: { Тип: "CatalogObject.ДругиеТовары" },
+      },
+      Команды: {
+        Команда1: {},
+      },
+      Элементы: {
+        ДоступныйПуть: {
+          Вид: "ПолеВвода",
+          ПутьКДанным: "Объект.Артикул",
+        },
+        НедоступныйПуть: {
+          Вид: "ПолеВвода",
+          ПутьКДанным: "СкрытыйРеквизит.Код",
+        },
+        ДоступнаяКоманда: {
+          Вид: "Кнопка",
+          ИмяКоманды: "Команда1",
+        },
+        НедоступнаяКоманда: {
+          Вид: "Кнопка",
+          ИмяКоманды: "СкрытаяКоманда",
+        },
+      },
+    } as ClientApplicationFormYAML
+
+    const projection = projectClientApplicationBaseForm({
+      baseYaml,
+      extensionYaml,
+    })
+
+    expect(projection.yaml.Элементы).toEqual({
+      ДоступныйПуть: {
+        Вид: "ПолеВвода",
+        ПутьКДанным: "Объект.Код",
+      },
+      НедоступныйПуть: {
+        Вид: "ПолеВвода",
+      },
+      ДоступнаяКоманда: {
+        Вид: "Кнопка",
+        ИмяКоманды: "Команда1",
+      },
+      НедоступнаяКоманда: {
+        Вид: "Кнопка",
+        ИмяКоманды: "0",
+      },
+    })
+  })
+
+  it("rejects an unavailable reference without registered projection behavior", () => {
+    const properties = InputFieldRules.properties as Record<string, unknown>
+    properties.unregisteredReference = {
+      type: "UnregisteredAttributeReference",
+      yaml: "ИскусственнаяСсылка",
+      metadataTarget: {
+        kind: "member",
+        owner: "this",
+        memberKinds: ["Attribute"],
+      },
+    }
+
+    try {
+      const baseYaml = {
+        Элементы: {
+          Код: {
+            Вид: "ПолеВвода",
+            ИскусственнаяСсылка: "СкрытыйРеквизит",
+          },
+        },
+      } as ClientApplicationFormYAML
+      const extensionYaml = {
+        Элементы: {
+          Код: {
+            Вид: "ПолеВвода",
+            ИскусственнаяСсылка: "СкрытыйРеквизит",
+          },
+        },
+      } as ClientApplicationFormYAML
+
+      expect(() => projectClientApplicationBaseForm({ baseYaml, extensionYaml })).toThrow(
+        /UnregisteredAttributeReference/
+      )
+    } finally {
+      delete properties.unregisteredReference
+    }
   })
 })
