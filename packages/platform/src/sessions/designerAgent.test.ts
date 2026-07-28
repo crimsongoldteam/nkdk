@@ -255,7 +255,9 @@ describe("Designer agent session", () => {
 
     expect(fixture.calls).toContain("shell.close")
     expect(fixture.calls).toContain("process.signal SIGTERM")
-    expect(fixture.calls).toContain("process.wait 5000")
+    expect(
+      fixture.calls.filter((call) => call === "process.wait 5000")
+    ).toHaveLength(2)
     expect(fixture.calls).toContain("process.kill SIGKILL")
     expect(fixture.calls.indexOf("process.signal SIGTERM")).toBeLessThan(
       fixture.calls.indexOf(

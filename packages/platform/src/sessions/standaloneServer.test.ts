@@ -134,6 +134,19 @@ describe("standalone server session", () => {
     })
   })
 
+  it("preserves cancellation after a failed forced termination attempt", async () => {
+    const fixture = createFixture({
+      exportCancelled: true,
+      exportTerminationFailed: true,
+    })
+    const session = await createStandaloneServerSession(createParams(), fixture.dependencies)
+
+    await expect(session.exportConfiguration("/xml", "/log")).rejects.toMatchObject({
+      code: "operation_cancelled",
+      message: expect.stringContaining("после ошибки остановки"),
+    })
+  })
+
   it("rejects an invalid configuration returned by ibcmd", async () => {
     const fixture = createFixture({ initStdout: "not: [valid" })
 
@@ -204,6 +217,7 @@ function createFixture(
     initTimedOut?: boolean
     exportExitCode?: number
     exportCancelled?: boolean
+    exportTerminationFailed?: boolean
     rmFailureCall?: number
   } = {}
 ): {
@@ -262,6 +276,9 @@ function createFixture(
             exitCode: isExport ? (options.exportExitCode ?? 0) : (options.initExitCode ?? 0),
             timedOut: isExport ? false : (options.initTimedOut ?? false),
             cancelled: isExport ? (options.exportCancelled ?? false) : false,
+            terminationFailed: isExport
+              ? (options.exportTerminationFailed ?? false)
+              : false,
           }
         },
       },

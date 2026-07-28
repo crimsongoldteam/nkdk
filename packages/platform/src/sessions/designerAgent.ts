@@ -130,6 +130,7 @@ export async function createDesignerAgentSession(
     const exited = await processHandle.wait(dependencies.closeTimeoutMs)
     if (!exited && processHandle.isAlive()) {
       await processHandle.kill("SIGKILL")
+      await ensureProcessStopped(processHandle, dependencies.closeTimeoutMs)
     }
     closed = true
     return { stoppedOwnedProcess: true }
@@ -240,11 +241,24 @@ export async function createDesignerAgentSession(
         return { stoppedOwnedProcess: false }
       }
       const exited = await processHandle.wait(dependencies.closeTimeoutMs)
-      if (!exited && processHandle.isAlive()) await processHandle.kill()
+      if (!exited && processHandle.isAlive()) {
+        await processHandle.kill()
+        await ensureProcessStopped(processHandle, dependencies.closeTimeoutMs)
+      }
       closed = true
       return { stoppedOwnedProcess: true }
     },
     cancel: cancelSession,
+  }
+}
+
+async function ensureProcessStopped(
+  processHandle: OwnedProcess,
+  timeoutMs: number
+): Promise<void> {
+  const exited = await processHandle.wait(timeoutMs)
+  if (!exited && processHandle.isAlive()) {
+    throw new Error("Не удалось остановить дочерний процесс")
   }
 }
 

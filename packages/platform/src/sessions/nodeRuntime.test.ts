@@ -46,7 +46,7 @@ describe("node process runtime", () => {
     }
   })
 
-  it("finishes cancellation when SIGKILL cannot be sent", async () => {
+  it("keeps control until exit when SIGKILL cannot be sent", async () => {
     vi.useFakeTimers()
     try {
       const runtimeModule = await import("./nodeRuntime") as Record<string, unknown>
@@ -59,17 +59,18 @@ describe("node process runtime", () => {
         { signal: controller.signal, terminationGraceMs: 5_000 },
         () => child.process
       )
-      const outcome = settled(pending)
+      const resolved = vi.fn()
+      void pending.then(resolved)
 
       controller.abort()
       await vi.advanceTimersByTimeAsync(5_000)
 
-      expect(await outcome).toMatchObject({
-        status: "fulfilled",
-        value: {
-          cancelled: true,
-          terminationFailed: true,
-        },
+      expect(resolved).not.toHaveBeenCalled()
+
+      child.exit(1)
+      await expect(pending).resolves.toMatchObject({
+        cancelled: true,
+        terminationFailed: true,
       })
     } finally {
       vi.useRealTimers()
@@ -89,32 +90,31 @@ describe("node process runtime", () => {
         { signal: controller.signal, terminationGraceMs: 5_000 },
         () => child.process
       )
-      const outcome = settled(pending)
 
       controller.abort()
       await vi.advanceTimersByTimeAsync(5_000)
 
       expect(child.signals).toEqual(["SIGTERM", "SIGKILL"])
-      expect(await outcome).toMatchObject({
-        status: "fulfilled",
-        value: { cancelled: true },
-      })
+      await expect(pending).resolves.toMatchObject({ cancelled: true })
     } finally {
       vi.useRealTimers()
     }
   })
-})
 
-async function settled<T>(promise: Promise<T>): Promise<
-  | { status: "fulfilled"; value: T }
-  | { status: "rejected"; reason: unknown }
-> {
-  try {
-    return { status: "fulfilled", value: await promise }
-  } catch (reason) {
-    return { status: "rejected", reason }
-  }
-}
+  it("reports a failed signal for a still running owned process", async () => {
+    const runtimeModule = await import("./nodeRuntime") as Record<string, unknown>
+    const wrapOwnedProcess = runtimeModule["wrapOwnedProcess"]
+    expect(wrapOwnedProcess).toBeTypeOf("function")
+    const child = controlledChildProcess({ forceKillSucceeds: false })
+    const owned = (wrapOwnedProcess as (child: unknown) => {
+      kill(signal?: NodeJS.Signals): Promise<void>
+    })(child.process)
+
+    await expect(owned.kill("SIGKILL")).rejects.toThrow(
+      "Не удалось отправить SIGKILL"
+    )
+  })
+})
 
 function controlledChildProcess(
   options: {
@@ -124,6 +124,7 @@ function controlledChildProcess(
 ): {
   process: TestChildProcess
   signals: NodeJS.Signals[]
+  exit(code: number): void
 } {
   const signals: NodeJS.Signals[] = []
   const events = new EventEmitter()
@@ -144,5 +145,12 @@ function controlledChildProcess(
       return true
     },
   })
-  return { process, signals }
+  return {
+    process,
+    signals,
+    exit(code) {
+      process.exitCode = code
+      events.emit("exit", code)
+    },
+  }
 }

@@ -136,7 +136,9 @@ export async function createStandaloneServerSession(
       if (exported.cancelled === true) {
         throw new PlatformSessionError(
           "operation_cancelled",
-          "Выгрузка конфигурации через ibcmd отменена"
+          exported.terminationFailed === true
+            ? "Выгрузка конфигурации через ibcmd отменена после ошибки остановки процесса"
+            : "Выгрузка конфигурации через ibcmd отменена"
         )
       }
       if (exported.exitCode !== 0) {

@@ -80,6 +80,7 @@ export async function runNodeProcess(
     let stderr = ""
     let timedOut = false
     let cancelled = false
+    let terminationFailed = false
     let timeoutTimer: ReturnType<typeof setTimeout> | undefined
     let forceKillTimer: ReturnType<typeof setTimeout> | undefined
 
@@ -98,30 +99,21 @@ export async function runNodeProcess(
         exitCode: code ?? 1,
         ...(timedOut ? { timedOut: true } : {}),
         ...(cancelled ? { cancelled: true } : {}),
+        ...(terminationFailed ? { terminationFailed: true } : {}),
       })
     }
     const fail = (error: Error) => {
       cleanup()
       reject(error)
     }
-    const finishFailedCancellation = () => {
-      cleanup()
-      resolve({
-        stdout,
-        stderr,
-        exitCode: 1,
-        cancelled: true,
-        terminationFailed: true,
-      })
-    }
     const forceKill = () => {
       if (child.exitCode !== null) return
       try {
         if (!child.kill("SIGKILL") && child.exitCode === null) {
-          finishFailedCancellation()
+          terminationFailed = true
         }
       } catch {
-        finishFailedCancellation()
+        terminationFailed = true
       }
     }
     const abort = () => {
@@ -253,7 +245,9 @@ async function generateHostKey(path: string): Promise<string> {
   return createHash("sha256").update(parsed.getPublicSSH()).digest("hex")
 }
 
-function wrapOwnedProcess(child: ChildProcessByStdio<null, Readable, Readable>): OwnedProcess {
+export function wrapOwnedProcess(
+  child: ChildProcessByStdio<null, Readable, Readable>
+): OwnedProcess {
   let output = ""
   const outputListeners = new Set<() => void>()
   const appendOutput = (chunk: Buffer) => {
@@ -311,10 +305,19 @@ function wrapOwnedProcess(child: ChildProcessByStdio<null, Readable, Readable>):
       })
     },
     async signal(signal) {
-      child.kill(signal)
+      sendSignal(child, signal)
     },
     async kill(signal = "SIGKILL") {
-      child.kill(signal)
+      sendSignal(child, signal)
     },
+  }
+}
+
+function sendSignal(
+  child: Pick<ChildProcessByStdio<null, Readable, Readable>, "exitCode" | "kill">,
+  signal: NodeJS.Signals
+): void {
+  if (!child.kill(signal) && child.exitCode === null) {
+    throw new Error(`Не удалось отправить ${signal} дочернему процессу`)
   }
 }
