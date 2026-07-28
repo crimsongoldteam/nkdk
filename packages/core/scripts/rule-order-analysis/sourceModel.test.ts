@@ -130,12 +130,14 @@ export const Rules = {
   itemType: "Test",
   properties: {
     predefined: predefinedRule({
-      itemRule: {
-        itemType: "Predefined",
-        properties: {
-          name: { type: "string" },
+      ...({
+        itemRule: {
+          itemType: "Predefined",
+          properties: {
+            name: { type: "string" },
+          },
         },
-      },
+      }),
     }),
   },
 }
@@ -144,10 +146,10 @@ export const Rules = {
     )
 
     expect(edit.updatedText).toContain(`itemType: "Predefined",
-        xmlOrder: [
-          "name",
-        ],
-        properties:`)
+          xmlOrder: [
+            "name",
+          ],
+          properties:`)
   })
 
   it("сохраняет комментарии properties", async () => {

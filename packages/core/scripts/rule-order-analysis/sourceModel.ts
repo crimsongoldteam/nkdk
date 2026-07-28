@@ -210,18 +210,22 @@ function resolvePath(
       for (const argument of current.expression.arguments) {
         const unwrapped = unwrapSyntax(argument)
         if (!ts.isObjectLiteralExpression(unwrapped)) continue
-        const property = namedProperty(unwrapped, segment, candidate)
+        const property = findObjectProperty(
+          graph,
+          current.model,
+          unwrapped,
+          segment,
+          candidate,
+          new Set()
+        )
         if (property === undefined) continue
         if (matched !== undefined) {
           throw new Error(`Несколько параметров builder содержат ${segment} в ${candidate}`)
         }
-        if (!ts.isPropertyAssignment(property) && !ts.isShorthandPropertyAssignment(property)) {
-          throw new Error(`Неподдерживаемое свойство ${segment} в ${candidate}`)
-        }
         matched = unwrapExpression(
           graph,
-          current.model,
-          ts.isPropertyAssignment(property) ? property.initializer : property.name,
+          property.model,
+          property.expression,
           candidate
         )
       }
@@ -233,6 +237,41 @@ function resolvePath(
     throw new Error(`Невозможно пройти путь ${candidate}`)
   }
   return current
+}
+
+function findObjectProperty(
+  graph: SourceGraph,
+  model: SourceModel,
+  object: ts.ObjectLiteralExpression,
+  name: string,
+  candidate: string,
+  ancestors: ReadonlySet<ts.ObjectLiteralExpression>
+): { model: SourceModel; expression: ts.Expression } | undefined {
+  if (ancestors.has(object)) throw new Error(`Циклический spread в ${candidate}`)
+  const nestedAncestors = new Set(ancestors)
+  nestedAncestors.add(object)
+  let result: { model: SourceModel; expression: ts.Expression } | undefined
+  for (const element of object.properties) {
+    if (ts.isSpreadAssignment(element)) {
+      const spread = resolveObjectExpression(graph, model, element.expression, candidate)
+      result =
+        findObjectProperty(graph, spread.model, spread.object, name, candidate, nestedAncestors) ??
+        result
+      continue
+    }
+    if (element.name === undefined || ts.isComputedPropertyName(element.name)) {
+      throw new Error(`Вычисляемое computed-свойство не поддерживается в ${candidate}`)
+    }
+    if (propertyName(element.name) !== name) continue
+    if (!ts.isPropertyAssignment(element) && !ts.isShorthandPropertyAssignment(element)) {
+      throw new Error(`Неподдерживаемое свойство ${name} в ${candidate}`)
+    }
+    result = {
+      model,
+      expression: ts.isPropertyAssignment(element) ? element.initializer : element.name,
+    }
+  }
+  return result
 }
 
 function propertyObject(
