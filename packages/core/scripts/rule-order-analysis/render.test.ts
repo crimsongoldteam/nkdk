@@ -11,6 +11,7 @@ const empty: AnalyzeRuleOrderResult = {
   skippedObservationCount: 0,
   skippedItemTypes: [],
   rules: [],
+  canonicalOrders: [],
   ambiguities: [],
 }
 

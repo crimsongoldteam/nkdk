@@ -6,6 +6,10 @@ import { compileRegisteredMetadataResourceTopology } from "../resourceTopology/r
 import { discoverXmlImport } from "../importFromXml/discovery"
 import { createXmlImportWorkerPoolHandle } from "../importFromXml/workerPool"
 import { createRuleOrderAggregate, type RuleOrderRuleReport } from "./aggregate"
+import {
+  deriveCanonicalRuleOrders,
+  type CanonicalRuleOrder,
+} from "./canonicalOrder"
 import type { RuleOrderObservation } from "./types"
 
 export interface AnalyzeRuleOrderParams {
@@ -33,6 +37,7 @@ export interface AnalyzeRuleOrderResult {
   skippedObservationCount: number
   skippedItemTypes: readonly { itemType: string; count: number }[]
   rules: readonly RuleOrderRuleReport[]
+  canonicalOrders: readonly CanonicalRuleOrder[]
   ambiguities: readonly { candidate: string; reason: string }[]
 }
 
@@ -44,6 +49,7 @@ export async function analyzeRuleOrder(params: AnalyzeRuleOrderParams): Promise<
     .map((entry) => entry.name)
     .sort(bytewiseCompare)
   const aggregate = createRuleOrderAggregate({ witnessLimit: params.witnessLimit })
+  const observations: RuleOrderObservation[] = []
   const skippedItemTypes = new Map<string, number>()
   const configurationStats: RuleOrderConfigurationStat[] = []
   const handle = createXmlImportWorkerPoolHandle({
@@ -85,6 +91,7 @@ export async function analyzeRuleOrder(params: AnalyzeRuleOrderParams): Promise<
         skippedObservationCount += analyzed.unmatchedObservationCount
         for (const observation of analyzed.observations) {
           observationCount += 1
+          observations.push(observation)
           await params.onObservation?.(observation)
           aggregate.accept(observation)
         }
@@ -114,6 +121,7 @@ export async function analyzeRuleOrder(params: AnalyzeRuleOrderParams): Promise<
       .sort(([left], [right]) => bytewiseCompare(left, right))
       .map(([itemType, count]) => ({ itemType, count })),
     rules: aggregate.finish(),
+    canonicalOrders: deriveCanonicalRuleOrders(observations),
     ambiguities: [],
   }
 }

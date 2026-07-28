@@ -36,6 +36,7 @@ describe("rule order output", () => {
       skippedObservationCount: 0,
       skippedItemTypes: [],
       rules: [],
+      canonicalOrders: [],
       ambiguities: [],
     }
     await output.complete(result)

@@ -31,6 +31,7 @@ export interface RuleOrderRuleReport {
 }
 
 interface RuleState {
+  ruleId: string
   sourceCandidate: string
   itemType: string
   observationCount: number
@@ -54,8 +55,9 @@ export function createRuleOrderAggregate(params: { witnessLimit?: number } = {})
         throw new Error(`В наблюдении ${observation.logicalAddress} повторяется ключ свойства`)
       }
       const state =
-        rules.get(observation.ruleId) ??
+        rules.get(observation.source.candidate) ??
         ({
+          ruleId: observation.ruleId,
           sourceCandidate: observation.source.candidate,
           itemType: observation.itemType,
           observationCount: 0,
@@ -63,6 +65,7 @@ export function createRuleOrderAggregate(params: { witnessLimit?: number } = {})
           directions: new Map<string, MutableDirection>(),
         } satisfies RuleState)
       if (
+        state.ruleId !== observation.ruleId ||
         state.itemType !== observation.itemType ||
         state.sourceCandidate !== observation.source.candidate
       ) {
@@ -82,12 +85,12 @@ export function createRuleOrderAggregate(params: { witnessLimit?: number } = {})
           state.directions.set(key, direction)
         }
       }
-      rules.set(observation.ruleId, state)
+      rules.set(observation.source.candidate, state)
     },
     finish(): readonly RuleOrderRuleReport[] {
       return [...rules]
         .sort(([left], [right]) => bytewiseCompare(left, right))
-        .map(([ruleId, state]) => finishRule(ruleId, state))
+        .map(([, state]) => finishRule(state.ruleId, state))
     },
   }
 }
