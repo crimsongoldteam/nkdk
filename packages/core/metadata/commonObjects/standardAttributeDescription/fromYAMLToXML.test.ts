@@ -22,7 +22,7 @@ import { StandartAttributeNameToYAML } from "./types"
 const context: ConfigurationContextWithExportToXML = {
   defaultLanguage: "ru",
   version: "2.20",
-  exportToXML: { configDumpInfo: new Map(), version: "2.20", itemsTree: [] },
+  exportToXML: { version: "2.20", itemsTree: [] },
 }
 
 describe("StandardAttributeDescriptions direct YAML to XML", () => {

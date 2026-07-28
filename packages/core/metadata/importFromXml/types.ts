@@ -1,6 +1,8 @@
-import type { ConfigurationContextFromXML } from "../context/types"
-import type { SharedValidationSnapshot } from "../validation/sharedValidationSnapshot"
+import type { XmlImportConfigurationContext } from "../context/types"
 import type { ValidationOwnerFacts } from "../validation/dataPath/ownerFacts"
+import type { ValidationIndexContribution } from "../validation/projectValidationTypes"
+import type { ConfigurationLocalDependency } from "../configurationIndex/types"
+import type { LayeredImportReferenceSnapshot } from "./componentReferenceIndex"
 
 export type ImportAssignmentRole = "configuration" | "properties" | "fileItem"
 export type ExternalFileTransfer = "copy" | "move"
@@ -57,19 +59,23 @@ export type ImportWorkerCommand =
       kind: "initialize"
       operationId: string
       workerIndex: number
-      context: ConfigurationContextFromXML
+      context: XmlImportConfigurationContext
       outputDir: string
     }
   | { kind: "firstPass"; assignments: ImportAssignment[] }
-  | { kind: "secondPass"; sharedMetadata: SharedValidationSnapshot }
+  | { kind: "secondPass"; referenceSnapshots: LayeredImportReferenceSnapshot }
   | { kind: "dispose" }
 
 export interface ImportFirstPassResult {
   kind: "firstPassResult"
   ownerFacts: ValidationOwnerFacts[]
+  validationContribution: ValidationIndexContribution
+  localDependencies: ImportLocalDependency[]
   diagnostics: ImportDiagnostic[]
   fragmentBuffer: ArrayBuffer
 }
+
+export type ImportLocalDependency = ConfigurationLocalDependency
 
 export interface ImportSecondPassResult {
   kind: "secondPassResult"

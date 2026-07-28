@@ -3,6 +3,7 @@ import { tmpdir } from "os"
 import { join } from "path"
 import { afterEach, describe, expect, it } from "vitest"
 import { ConfigurationIndexCompatibilityError } from "./decode"
+import { decodeConfigurationIndex } from "./decode"
 import { encodeConfigurationIndex } from "./encode"
 import { configurationIndexPath, writeConfigurationIndexAtomically } from "./fileIO"
 import {
@@ -38,6 +39,7 @@ describe("shared configuration index snapshot", () => {
         ...data.xmlValues,
         {
           logicalAddress: "Справочник.Товары.form",
+          extended: true,
           xsiNil: true,
           xsiType: "v8:UUID",
           xmlText: "text",
@@ -60,9 +62,25 @@ describe("shared configuration index snapshot", () => {
       contentHash: 42n,
     })
     expect(first.projectFile("Нет.yaml")).toBeUndefined()
+    expect(first.projectFiles()).toEqual([
+      { projectPath: "Конфигурация.yaml", contentHash: 1n },
+      { projectPath: "Catalogs/Товары/Свойства.yaml", contentHash: 42n },
+    ])
     expect(first.identity("Справочник.Товары", "uuid")).toBe("00000000-0000-4000-8000-000000000001")
     expect(first.identity("Справочник.Товары", "xmlId")).toBe("Catalog_Товары")
     expect(first.identity("Справочник.Товары", "xmlName")).toBeUndefined()
+    expect(first.identities()).toEqual([
+      {
+        logicalAddress: "Справочник.Товары",
+        kind: "uuid",
+        value: "00000000-0000-4000-8000-000000000001",
+      },
+      {
+        logicalAddress: "Справочник.Товары",
+        kind: "xmlId",
+        value: "Catalog_Товары",
+      },
+    ])
     expect(first.xmlNode("Справочник.Товары")).toEqual({
       logicalAddress: "Справочник.Товары",
       order: ["name", "synonym"],
@@ -71,6 +89,7 @@ describe("shared configuration index snapshot", () => {
     })
     expect(first.xmlValue("Справочник.Товары.form")).toEqual({
       logicalAddress: "Справочник.Товары.form",
+      extended: true,
       xsiNil: true,
       xsiType: "v8:UUID",
       xmlText: "text",
@@ -78,6 +97,9 @@ describe("shared configuration index snapshot", () => {
       userSettingsId: "00000000-0000-4000-8000-000000000099",
     })
     expect(first.xmlValue("Нет.value")).toBeUndefined()
+    expect(
+      decodeConfigurationIndex(new Uint8Array(snapshot.bytes, 0, snapshot.byteLength)).localIndexes
+    ).toEqual(data.localIndexes)
   })
 
   it("rejects incompatible or corrupted index before creating a shared buffer", () => {
@@ -91,15 +113,15 @@ describe("shared configuration index snapshot", () => {
     )
   })
 
-  it("reads default index file into shared memory", async () => {
+  it("reads the configuration component index into shared memory", async () => {
     const projectDir = await createProjectDir()
     const data = sampleIndex()
-    await writeConfigurationIndexAtomically({ projectDir, data })
+    await writeConfigurationIndexAtomically({ projectDir, address: { kind: "configuration" }, data })
 
-    const snapshot = await readConfigurationIndexSnapshot({ projectDir })
+    const snapshot = await readConfigurationIndexSnapshot({ projectDir, address: { kind: "configuration" } })
     expect(createConfigurationIndexReader(snapshot).binding()).toEqual(data.binding)
     expect(Buffer.from(new Uint8Array(snapshot.bytes, 0, snapshot.byteLength))).toEqual(
-      await fs.promises.readFile(configurationIndexPath(projectDir))
+      await fs.promises.readFile(configurationIndexPath(projectDir, { kind: "configuration" }))
     )
   })
 })

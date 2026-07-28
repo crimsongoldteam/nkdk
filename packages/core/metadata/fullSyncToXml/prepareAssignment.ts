@@ -16,10 +16,13 @@ import {
   withExportToXMLItemsTree,
 } from "../orchestration/appliedObject/metadataItemOwnerContext"
 import { metadataTargetOwnerFromRule } from "../orchestration/property/metadataTargetString"
+import { getMetadataComponentDescriptor } from "../components/descriptor"
 
 export function prepareFullXmlSyncAssignment(params: {
   assignment: FullXmlSyncAssignment
   preparedYamlFile: PreparedYamlFile
+  basePreparedYamlFile?: PreparedYamlFile
+  baseConfigurationIndex?: ConfigurationIndexReader
   context: ConfigurationContextWithExportToXML
   index: ConfigurationIndexReader
   assignments?: readonly FullXmlSyncCompositionEntry[]
@@ -55,6 +58,15 @@ function prepareTopologyAssignmentDocuments(
 ): readonly PreparedXMLDocument[] {
   const assignmentNode = params.topology.assignments.find((candidate) => candidate.id === params.assignment.nodeId)
   if (assignmentNode === undefined) throw new Error(`Не найден узел топологии: ${params.assignment.nodeId}`)
+  const effectiveAssignmentNode =
+    params.assignment.role === "configuration" && params.context.exportToXML.componentKind !== undefined
+      ? {
+          ...assignmentNode,
+          itemRule: getMetadataComponentDescriptor(
+            params.context.exportToXML.componentKind
+          ).rootRule,
+        }
+      : assignmentNode
   const outputs = params.assignment.potentialOutputs
   const context = withTopologyMetadataTargetOwners(params)
   const outputsByCapability = Map.groupBy(outputs, (output) => output.prepareCapabilityId)
@@ -64,7 +76,16 @@ function prepareTopologyAssignmentDocuments(
     return capability.run({
       context,
       preparedYamlFile: params.preparedYamlFile,
-      assignment: assignmentNode,
+      ...(params.basePreparedYamlFile === undefined
+        ? {}
+        : { basePreparedYamlFile: params.basePreparedYamlFile }),
+      ...(params.baseConfigurationIndex === undefined
+        ? {}
+        : {
+            baseConfigurationIndex:
+              params.baseConfigurationIndex,
+          }),
+      assignment: effectiveAssignmentNode,
       itemName: params.assignment.itemName,
       logicalAddress: params.assignment.logicalAddress,
       outputs: capabilityOutputs,

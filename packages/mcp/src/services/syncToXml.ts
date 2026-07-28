@@ -16,17 +16,12 @@ interface CoreSyncResult {
   configurationIndexPath?: string
 }
 
-type ConfigDumpInfo = Map<
-  string,
-  {
-    children: Map<string, string>
-    id: string
-    configVersion: string
-  }
->
-
 interface SyncToXmlDeps {
-  planSyncToXml?: (params: { projectDir: string; yamlDir: string; xmlDir: string; baseId?: string }) => Promise<unknown>
+  planSyncToXml?: (params: {
+    projectDir: string
+    componentPath: string
+    xmlDir: string
+  }) => Promise<unknown>
   syncConfigurationToXML: (params: {
     context: {
       defaultLanguage: "ru"
@@ -34,7 +29,6 @@ interface SyncToXmlDeps {
       exportToYAML: { toTyped: false }
       exportToXML: {
         itemsTree: []
-        configDumpInfo: ConfigDumpInfo
         version: "2.20"
         context: {
           forms: []
@@ -45,9 +39,8 @@ interface SyncToXmlDeps {
       }
     }
     projectDir: string
-    yamlDir: string
+    componentPath: string
     xmlDir: string
-    baseId?: string
     concurrency?: number
   }) => Promise<CoreSyncResult>
 }
@@ -62,6 +55,11 @@ export type SyncToXmlPayload = ToolPayload<{
 
 export async function syncToXml(input: SyncToXmlInput, deps?: SyncToXmlDeps): Promise<SyncToXmlPayload> {
   try {
+    if (input.componentPath === "cfe") {
+      return toolError("invalid_arguments", "Ожидался путь cfe/<Имя>", {
+        componentPath: input.componentPath,
+      })
+    }
     const component = resolveComponent({
       projectDir: input.projectDir,
       componentPath: input.componentPath,
@@ -73,9 +71,8 @@ export async function syncToXml(input: SyncToXmlInput, deps?: SyncToXmlDeps): Pr
       if (!core.planSyncToXml) return toolError("core_error", "План XML-синхронизации недоступен")
       const result = await core.planSyncToXml({
         projectDir: component.projectDir,
-        yamlDir: component.componentDir,
+        componentPath: component.componentPath,
         xmlDir: input.xmlDir,
-        ...(input.baseId === undefined ? {} : { baseId: input.baseId }),
       })
       return toolSuccess({ result })
     }
@@ -87,7 +84,6 @@ export async function syncToXml(input: SyncToXmlInput, deps?: SyncToXmlDeps): Pr
         exportToYAML: { toTyped: false },
         exportToXML: {
           itemsTree: [],
-          configDumpInfo: new Map<string, { children: Map<string, string>; id: string; configVersion: string }>(),
           version: "2.20",
           context: {
             forms: [],
@@ -98,9 +94,8 @@ export async function syncToXml(input: SyncToXmlInput, deps?: SyncToXmlDeps): Pr
         },
       },
       projectDir: component.projectDir,
-      yamlDir: component.componentDir,
+      componentPath: component.componentPath,
       xmlDir: input.xmlDir,
-      ...(input.baseId === undefined ? {} : { baseId: input.baseId }),
       ...(input.concurrency === undefined ? {} : { concurrency: input.concurrency }),
     })
 

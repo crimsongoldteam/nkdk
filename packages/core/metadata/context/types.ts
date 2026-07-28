@@ -1,5 +1,4 @@
 import type { TSchema } from "typebox"
-import { ConfigDumpInfo } from "../appliedObjects/configDumpInfo/types"
 import { EnterpriseAttributeMapItem } from "../forms/clientApplicationForm/types"
 import type { FormAttribute } from "../forms/commonObjects/formAttribute/types"
 import { FormChildItemsPartialYAML, FormElementsYAML } from "../forms/commonObjects/childItems/types"
@@ -59,6 +58,13 @@ export interface ConfigurationContextFromXML extends ConfigurationContext {
   fromXML: FromXMLConfigurationContext
 }
 
+/** Контекст полного XML-import, передаваемый между главным процессом и Piscina worker. */
+export interface XmlImportConfigurationContext extends ConfigurationContextFromXML {
+  fromXML: XmlImportFromXMLConfigurationContext
+}
+
+export type XMLDefaultVariant = "full" | "adopted" | "indexed"
+
 type ToXMLContextElement<Type extends MetadataItemType> = {
   element: ToMetadata<Type> | undefined
   referenceElement?: ToMetadata<Type> | undefined
@@ -67,8 +73,13 @@ type ToXMLContextElement<Type extends MetadataItemType> = {
 }
 
 export type ToXMLConfigurationContext = {
-  readonly configDumpInfo: ConfigDumpInfo
   readonly configurationIndex?: ConfigurationIndexExportRuntime
+  /** Запрещает создавать заново идентификаторы, объявленные nested rule обязательными. */
+  readonly requireExistingConfigurationIdentities?: true
+  readonly componentKind?: string
+  readonly adoptedUuids?: Readonly<Record<string, string>>
+  readonly xmlDefaultVariantByLogicalAddress?: Readonly<Record<string, XMLDefaultVariant>>
+  readonly indexedPropertyOrderByLogicalAddress?: Readonly<Record<string, readonly string[]>>
   readonly externalMetadataCollector?: ExternalMetadataCollector
   readonly version: string
   readonly itemsTree: ContextElementToXML[]
@@ -86,6 +97,13 @@ export type ToXMLConfigurationContext = {
 export type FromXMLConfigurationContext = {
   forReference: boolean
   configurationIndex?: ConfigurationIndexCollectionContext
+}
+
+export type XmlImportFromXMLConfigurationContext = FromXMLConfigurationContext & {
+  /** Строковый вид компонента; его можно передавать в Piscina без функций правил. */
+  componentKind: string
+  /** Имя зарегистрированного дополнения метаданных, если оно требуется компоненту. */
+  metadataItemAugmenter?: string
 }
 
 /** Контекст с обязательным exportToXML для функций экспорта в XML */

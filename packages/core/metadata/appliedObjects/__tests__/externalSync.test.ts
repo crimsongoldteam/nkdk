@@ -51,6 +51,7 @@ describe("единая синхронизация внешних файлов ap
         id: "ОбщаяФорма/Таблица/Свойства.yaml",
         sourceProjectPath: "ОбщаяФорма/Таблица/Свойства.yaml",
         sourcePath: yamlPath,
+        expectedContentHash: 0n,
         role: "properties",
         itemType: "MetadataCommonForm",
         itemName: "Таблица",

@@ -57,10 +57,12 @@ function formatWithResolver(params: {
   if (formAttributes.length === 0 && directIndex === undefined) return params.value
 
   const resources =
-    suppliedOwnerCache !== undefined
-      ? { index: formattingIndex(formAttributes), ownerCache: suppliedOwnerCache }
+    directIndex !== undefined && suppliedOwnerCache !== undefined
+      ? { index: directIndex, ownerCache: suppliedOwnerCache }
       : directIndex !== undefined && projectDir !== undefined
         ? getDirectFormattingResources({ context: params.context, index: directIndex, projectDir })
+        : suppliedOwnerCache !== undefined && formAttributes.length > 0
+          ? { index: formattingIndex(formAttributes), ownerCache: suppliedOwnerCache }
         : projectDir !== undefined
           ? getFormattingResources({ context: params.context, formAttributes, projectDir })
           : undefined

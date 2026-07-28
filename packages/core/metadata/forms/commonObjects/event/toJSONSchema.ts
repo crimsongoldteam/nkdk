@@ -16,7 +16,19 @@ export const exportEventsToJSONSchema = (params: {
 
   const props: Record<string, TSchema> = {}
   for (const yamlKey of Object.values(params.rule.items) as string[]) {
-    props[yamlKey] = Type.Optional(Type.String())
+    props[yamlKey] = Type.Optional(
+      Type.Union([
+        Type.String(),
+        Type.Object(
+          {
+            Перед: Type.Optional(Type.String()),
+            После: Type.Optional(Type.String()),
+            Вместо: Type.Optional(Type.String()),
+          },
+          { additionalProperties: false, minProperties: 1 }
+        ),
+      ])
+    )
   }
 
   return Type.Object(props, { additionalProperties: false })

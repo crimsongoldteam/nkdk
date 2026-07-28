@@ -5,7 +5,12 @@ import { childSegmentUid, childUid, yamlIndexUid, yamlKeyUid } from "./logicalAd
 export function getConfigurationIndexPropertyOrder(
   context: ConfigurationContextWithExportToXML | undefined
 ): readonly string[] {
-  return context?.exportToXML.configurationIndex?.xmlNode()?.order ?? []
+  const runtime = context?.exportToXML.configurationIndex
+  if (runtime === undefined) return []
+  return runtime.xmlNode()?.order ??
+    context?.exportToXML.indexedPropertyOrderByLogicalAddress?.[
+      runtime.xmlNodeLogicalAddress ?? runtime.logicalAddress
+    ] ?? []
 }
 
 export function getConfigurationIndexXmlName(
@@ -35,7 +40,10 @@ export function isConfigurationIndexPropertyPresent(
   context: ConfigurationContextWithExportToXML | undefined,
   propertyKey: string
 ): boolean {
-  return context?.exportToXML.configurationIndex?.xmlNode()?.present?.includes(propertyKey) === true
+  const node = context?.exportToXML.configurationIndex?.xmlNode()
+  return node?.present?.includes(propertyKey) === true ||
+    node?.order?.includes(propertyKey) === true ||
+    getConfigurationIndexPropertyOrder(context).includes(propertyKey)
 }
 
 export function getConfigurationIndexPropertyXmlValue(

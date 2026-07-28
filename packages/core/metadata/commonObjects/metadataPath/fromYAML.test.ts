@@ -9,6 +9,15 @@ import "../../appliedObjects/dataPathCommon/register"
 import "../../appliedObjects/metadataCatalog/register"
 import { importDataPathStandardMembersFromYAML } from "./dataPathStandardMembers"
 import { importMetadataFieldStringFromYAML, importMetadataValueStringFromYAML } from "./fromYAML"
+import { createFormDataPathIndexFromYAML } from "../../validation/dataPath/formYamlIndex"
+import { createImportSharedMetadata } from "../../importFromXml/metadataSnapshot"
+import {
+  createLayeredImportReferenceSnapshot,
+  createLayeredOwnerMetadataCache,
+} from "../../importFromXml/componentReferenceIndex"
+import { MetadataCatalogRules } from "../../appliedObjects/metadataCatalog/rules"
+import { createValidationOwnerFacts } from "../../validation/dataPath/ownerFacts"
+import { buildObjectFieldIndex } from "../../validation/dataPath/objectFields"
 
 const dirs: string[] = []
 
@@ -89,6 +98,58 @@ describe("importDataPathStandardMembersFromYAML", () => {
 
   test("preserves disabled data path prefix", () => {
     expect(importDataPathStandardMembersFromYAML(catalogContext(), "~Список.Владелец")).toBe("~Список.Owner")
+  })
+
+  test("использует вместе готовый индекс формы и слоёный индекс владельцев", () => {
+    const formDataPathIndex = createFormDataPathIndexFromYAML({
+      Реквизиты: {
+        Объект: { Тип: "СправочникОбъект.СправочникПолный" },
+      },
+    })
+    const emptySnapshot = createImportSharedMetadata([])
+    const ref = { kind: "Справочник", name: "СправочникПолный" }
+    const filePath = "/project/cf/Справочник/СправочникПолный/Свойства.yaml"
+    const initialFacts = createValidationOwnerFacts({
+      ref,
+      filePath,
+      fieldIndex: {
+        fields: new Map(),
+        standardAttributeAliases: new Map(),
+        diagnostics: [],
+      },
+      model: { itemType: "MetadataCatalog" },
+    })
+    const fieldIndex = buildObjectFieldIndex({
+      ref,
+      facts: initialFacts,
+      rule: MetadataCatalogRules,
+    })
+    const baseSnapshot = createImportSharedMetadata([
+      {
+        ...initialFacts,
+        fieldIndex,
+      },
+    ])
+    const context: ConfigurationContext = {
+      ...mockContext,
+      importFromYAML: {
+        formDataPathIndex,
+        formAttributes: [],
+      },
+      exportToYAML: {
+        toTyped: false,
+        ownerMetadataCache: createLayeredOwnerMetadataCache({
+          projectDir: "/project/cfe/Расширение",
+          snapshots: createLayeredImportReferenceSnapshot({
+            local: emptySnapshot,
+            base: baseSnapshot,
+          }),
+        }),
+      },
+    }
+
+    expect(importDataPathStandardMembersFromYAML(context, "Объект.Код"))
+      .toBe("Объект.Code")
   })
 })
 

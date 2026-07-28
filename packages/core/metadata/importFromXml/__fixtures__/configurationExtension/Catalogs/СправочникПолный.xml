@@ -1,0 +1,66 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<MetaDataObject xmlns="http://v8.1c.ru/8.3/MDClasses" xmlns:v8="http://v8.1c.ru/8.1/data/core" xmlns:xr="http://v8.1c.ru/8.3/xcf/readable" xmlns:xs="http://www.w3.org/2001/XMLSchema" version="2.20">
+	<Catalog uuid="22222222-2222-4222-8222-222222222222">
+		<Properties>
+			<ObjectBelonging>Adopted</ObjectBelonging>
+			<Name>СправочникПолный</Name>
+			<ExtendedConfigurationObject>33333333-3333-4333-8333-333333333333</ExtendedConfigurationObject>
+			<UnknownProperty>Пропустить</UnknownProperty>
+		</Properties>
+		<ChildObjects>
+			<Attribute uuid="44444444-4444-4444-8444-444444444444">
+				<InternalInfo>
+					<xr:PropertyState>
+						<xr:Property>ExtendedConfigurationObject</xr:Property>
+						<xr:State>Notify</xr:State>
+					</xr:PropertyState>
+					<xr:PropertyState>
+						<xr:Property>Format</xr:Property>
+						<xr:State>Notify</xr:State>
+					</xr:PropertyState>
+					<xr:PropertyState>
+						<xr:Property>UnknownProperty</xr:Property>
+						<xr:State>Notify</xr:State>
+					</xr:PropertyState>
+					<xr:PropertyState>
+						<xr:Property>Type</xr:Property>
+						<xr:State>FutureState</xr:State>
+					</xr:PropertyState>
+				</InternalInfo>
+				<Properties>
+					<ObjectBelonging>Adopted</ObjectBelonging>
+					<Name>РеквизитСправочника</Name>
+					<Synonym/>
+					<ExtendedConfigurationObject>55555555-5555-4555-8555-555555555555</ExtendedConfigurationObject>
+					<Type>
+						<v8:Type>xs:dateTime</v8:Type>
+						<v8:DateQualifiers>
+							<v8:DateFractions>Date</v8:DateFractions>
+						</v8:DateQualifiers>
+					</Type>
+					<Format>
+						<v8:item>
+							<v8:lang>ru</v8:lang>
+							<v8:content>ДФ=dd.MM.yyyy</v8:content>
+						</v8:item>
+					</Format>
+				</Properties>
+			</Attribute>
+			<Attribute uuid="66666666-6666-4666-8666-666666666666">
+				<Properties>
+					<ObjectBelonging>Native</ObjectBelonging>
+					<Name>СобственныйРеквизит</Name>
+					<Synonym/>
+					<Type>
+						<v8:Type>xs:string</v8:Type>
+						<v8:StringQualifiers>
+							<v8:Length>20</v8:Length>
+							<v8:AllowedLength>Variable</v8:AllowedLength>
+						</v8:StringQualifiers>
+					</Type>
+				</Properties>
+			</Attribute>
+			<Form>ФормаОтчета</Form>
+		</ChildObjects>
+	</Catalog>
+</MetaDataObject>

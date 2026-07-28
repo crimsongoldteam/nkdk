@@ -35,6 +35,10 @@ describe("property resource topology registry", () => {
             kind: "xmlDocument",
             xmlPattern: "Forms/{itemName}/Ext/Form.xml",
             role: "body",
+            baseInput: {
+              kind: "sameProjectPath",
+              value: "wholeYaml",
+            },
           }),
           expect.objectContaining({
             kind: "externalFile",
@@ -160,6 +164,10 @@ describe("property resource topology registry", () => {
               expect.objectContaining({
                 xmlPattern: "Catalogs/{ownerName}/Forms/{itemName}/Ext/Form.xml",
                 role: "body",
+                baseInput: {
+                  kind: "sameProjectPath",
+                  value: "wholeYaml",
+                },
               }),
             ]),
           }),
@@ -176,6 +184,10 @@ describe("property resource topology registry", () => {
             role: "body",
             prepareCapabilityId: "externalFileProperty",
             source: expect.objectContaining({ propertyName: "form" }),
+            baseInput: {
+              kind: "sameProjectPath",
+              value: "sourceProperty",
+            },
           }),
         ])
       )

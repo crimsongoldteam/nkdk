@@ -61,7 +61,7 @@ export const getChildItemTypesByPropertyType = (
   return childItemTypesByPropertyType[propertyType]
 }
 
-export const getTreeNodeJSONSchemaPropertyAliases = (itemType: CollectableElementType): Record<string, string> => {
+export const getTreeNodeJSONSchemaPropertyAliases = (itemType: string): Record<string, string> => {
   return isButtonElementType(itemType) ? { Вид: "ТипКнопки" } : {}
 }
 
@@ -77,6 +77,6 @@ export const moveButtonTypeToTreeYAML = (params: {
   return result
 }
 
-const isButtonElementType = (itemType: CollectableElementType): itemType is "Button" | "CommandBarButton" => {
+const isButtonElementType = (itemType: string): itemType is "Button" | "CommandBarButton" => {
   return itemType === "Button" || itemType === "CommandBarButton"
 }

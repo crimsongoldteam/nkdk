@@ -1,4 +1,5 @@
 import type { ConfigurationContextFromXML } from "../../context/types"
+import { isDeepStrictEqual } from "node:util"
 import type { ConfigurationIndexValueFromXMLDescriptor } from "../../orchestration/property/fn"
 import type { PropertyRule } from "../../orchestration/property/types"
 import { getConfigurationIndexCollectionContext } from "./context"
@@ -60,6 +61,17 @@ export function collectConfigurationIndexPropertyFromXML(params: {
     const xsiType = getUnrepresentedXsiType(params.xmlValue)
     if (xsiType !== undefined) collection.collector.setXsiType(address, xsiType)
   }
+  if (
+    Object.prototype.hasOwnProperty.call(params.rule, "defaultValueXMLEmpty") &&
+    (params.xmlValue === undefined || params.xmlValue === "") &&
+    !isDeepStrictEqual(params.rule.defaultValueXMLEmpty, params.xmlValue)
+  ) {
+    collection.collector.setExplicitEmpty(address)
+  }
+  const ambiguousScalar = ambiguousImplicitScalarXMLValue(params.rule, params.xmlValue)
+  if (ambiguousScalar !== undefined) {
+    collection.collector.setXmlText(`${collection.logicalAddress}.${params.propertyKey}`, ambiguousScalar)
+  }
 }
 
 export function collectConfigurationIndexImportedValue(params: {
@@ -101,4 +113,27 @@ function getUnrepresentedXsiType(value: unknown): string | undefined {
 function ruleRepresentsXsiNil(rule: PropertyRule): boolean {
   if ("exportNilValue" in rule && rule.exportNilValue === true) return true
   return hasXsiNil(rule.defaultValueXMLRaw)
+}
+
+function ambiguousImplicitScalarXMLValue(rule: PropertyRule, xmlValue: unknown): string | undefined {
+  if (
+    !Object.prototype.hasOwnProperty.call(rule, "defaultValueXML") ||
+    !Object.prototype.hasOwnProperty.call(rule, "implicitValueYAML") ||
+    typeof rule.defaultValueXML === "function" ||
+    typeof rule.implicitValueYAML === "function" ||
+    String(rule.defaultValueXML) === String(rule.implicitValueYAML)
+  ) {
+    return undefined
+  }
+  const scalar =
+    xmlValue !== null && typeof xmlValue === "object" && !Array.isArray(xmlValue) && "#text" in xmlValue
+      ? xmlValue["#text"]
+      : xmlValue
+  if (
+    (typeof scalar !== "string" && typeof scalar !== "number" && typeof scalar !== "boolean") ||
+    String(scalar) !== String(rule.implicitValueYAML)
+  ) {
+    return undefined
+  }
+  return String(scalar)
 }

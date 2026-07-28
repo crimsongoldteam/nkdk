@@ -1,4 +1,5 @@
 import type { ConfigurationContext, ConfigurationContextFromXML, ExternalFileEntry } from "../../context/types"
+import type { MetadataTargetOwner } from "../../commonObjects/metadataTargets/types"
 import type { FormDataPathIndex } from "../../validation/dataPath/formIndex"
 import type { YamlDiagnosticLocation, YamlPath } from "../../validation/yamlLocations"
 import type { LocalIndexes, LocalIndexesCollector, LocalMetadataIndex } from "../../project/localIndexes"
@@ -80,10 +81,12 @@ export interface LocalYamlFact {
   rule: PropertyRule
   value: unknown
   source?: YamlDiagnosticLocation
+  metadataTargetOwner?: MetadataTargetOwner
 }
 
 export interface LocalMetadataFactsWriter {
   setOwnerFact(role: string, value: unknown): void
+  setMetadataTargetValues(values: readonly { value: string; yamlPath: YamlPath }[]): void
 }
 
 export type CollectLocalFactsFromYAMLFunction = (params: {

@@ -11,9 +11,11 @@ import { prepareYamlFiles } from "../project/prepareYamlFiles"
 import { prepareFullXmlSyncAssignment } from "./prepareAssignment"
 import type { FullXmlSyncAssignment } from "./types"
 import { compileMetadataResourceTopology } from "../resourceTopology/compiler"
+import { compileRegisteredMetadataResourceTopology } from "../resourceTopology/registry"
 import { registerMetadataXmlPrepareCapability } from "../resourceTopology/capabilities"
 import type { MetadataItemRule } from "../orchestration/property/types"
 import { fullXmlSyncTestTopologyFields } from "./testTopology"
+import { MetadataConfigurationExtensionRules } from "../appliedObjects/configurationExtension/rules"
 
 describe("prepareFullXmlSyncAssignment", () => {
   const tempDirs: string[] = []
@@ -63,11 +65,28 @@ describe("prepareFullXmlSyncAssignment", () => {
       required: document.required,
       prepareCapabilityId: "test-two-documents",
     }))
-    const run = vi.fn(({ outputs: requested }) =>
+    const baseConfigurationIndex = createConfigurationIndexReader(
+      snapshotConfigurationIndex(
+        encodeConfigurationIndex({
+          ...sampleIndex(),
+          identities: [
+            {
+              logicalAddress: "Объект.One",
+              kind: "xmlId",
+              value: "base-marker",
+            },
+          ],
+        })
+      )
+    )
+    const run = vi.fn(({ outputs: requested, baseConfigurationIndex: baseIndex }) =>
       requested.map((output: (typeof outputs)[number]) => ({
         declarationId: output.declarationId,
         targetXmlPath: output.targetXmlPath,
-        xml: { Root: output.role },
+        xml: {
+          Root: output.role,
+          BaseMarker: baseIndex?.identity("Объект.One", "xmlId"),
+        },
         deferred: [],
         rootRule: rule,
       }))
@@ -77,6 +96,7 @@ describe("prepareFullXmlSyncAssignment", () => {
       id: "Объект/One/Свойства.yaml",
       sourceProjectPath: "Объект/One/Свойства.yaml",
       sourcePath: "/project/Объект/One/Свойства.yaml",
+      expectedContentHash: 0n,
       role: "properties",
       itemType: "TestObject",
       itemName: "One",
@@ -97,6 +117,7 @@ describe("prepareFullXmlSyncAssignment", () => {
       },
       context: mockContextToXML(),
       index: createConfigurationIndexReader(snapshotConfigurationIndex(encodeConfigurationIndex(sampleIndex()))),
+      baseConfigurationIndex,
       assignments: [],
       topology,
     })
@@ -106,6 +127,63 @@ describe("prepareFullXmlSyncAssignment", () => {
       "Objects/One/metadata.xml",
       "Objects/One/body.xml",
     ])
+    expect(prepared.documents.map((document) => document.xml.BaseMarker)).toEqual([
+      "base-marker",
+      "base-marker",
+    ])
+  })
+
+  it("uses the registered component root rule for the configuration assignment", () => {
+    const topology = compileRegisteredMetadataResourceTopology()
+    const assignmentNode = topology.assignments.find((candidate) => candidate.role === "configuration")!
+    const outputNode = assignmentNode.xmlDocuments[0]!
+    if (outputNode.prepareCapabilityId === undefined) {
+      throw new Error("У корневого XML-документа отсутствует prepare capability")
+    }
+    const assignment: FullXmlSyncAssignment = {
+      id: "Конфигурация.yaml",
+      sourceProjectPath: "Конфигурация.yaml",
+      sourcePath: "/project/Конфигурация.yaml",
+      expectedContentHash: 0n,
+      role: "configuration",
+      itemType: assignmentNode.itemRule.itemType,
+      itemName: "Расширение",
+      logicalAddress: "Конфигурация",
+      nodeId: assignmentNode.id,
+      potentialOutputs: [{
+        declarationId: outputNode.id,
+        targetXmlPath: "Configuration.xml",
+        role: outputNode.role,
+        required: outputNode.required,
+        prepareCapabilityId: outputNode.prepareCapabilityId,
+      }],
+    }
+
+    const prepared = prepareFullXmlSyncAssignment({
+      assignment,
+      preparedYamlFile: {
+        projectPath: assignment.sourceProjectPath,
+        filePath: assignment.sourcePath,
+        role: "configuration",
+        owner: { dir: "", name: "Расширение" },
+        data: {
+          Имя: "Расширение",
+          НазначениеРасширенияКонфигурации: "Customization",
+        },
+        syntaxDiagnostics: [],
+      },
+      context: {
+        ...mockContextToXML(),
+        exportToXML: {
+          ...mockContextToXML().exportToXML,
+          componentKind: "configurationExtension",
+        },
+      },
+      index: createConfigurationIndexReader(snapshotConfigurationIndex(encodeConfigurationIndex(sampleIndex()))),
+      topology,
+    })
+
+    expect(prepared.documents[0]?.rootRule).toBe(MetadataConfigurationExtensionRules)
   })
 
   it("prepares owner XML without writing files", () => {
@@ -144,6 +222,7 @@ describe("prepareFullXmlSyncAssignment", () => {
       id: sourceProjectPath,
       sourceProjectPath,
       sourcePath,
+      expectedContentHash: 0n,
       role: "properties",
       itemType: "MetadataDataProcessor",
       itemName: "ОбработкаВсеСвойства",
@@ -214,6 +293,7 @@ describe("prepareFullXmlSyncAssignment", () => {
       id: sourceProjectPath,
       sourceProjectPath,
       sourcePath,
+      expectedContentHash: 0n,
       role: "properties",
       itemType: "MetadataCatalog",
       itemName: "Товары",
@@ -279,6 +359,7 @@ describe("prepareFullXmlSyncAssignment", () => {
       id: sourceProjectPath,
       sourceProjectPath,
       sourcePath,
+      expectedContentHash: 0n,
       role: "properties",
       itemType: "MetadataAccumulationRegister",
       itemName: registerName,
@@ -345,6 +426,7 @@ describe("prepareFullXmlSyncAssignment", () => {
       id: sourceProjectPath,
       sourceProjectPath,
       sourcePath,
+      expectedContentHash: 0n,
       role: "properties",
       itemType: "MetadataCatalog",
       itemName: "Товары",
@@ -410,6 +492,7 @@ describe("prepareFullXmlSyncAssignment", () => {
       id: sourceProjectPath,
       sourceProjectPath,
       sourcePath,
+      expectedContentHash: 0n,
       role: "form",
       itemType: "MetadataExternalDataSourceCube",
       itemName: "Куб",

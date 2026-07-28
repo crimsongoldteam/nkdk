@@ -16,6 +16,7 @@ import type { YAMLPropertySource } from "../property/fromYAMLToXMLTypes"
 import { getChildContextToXML } from "../../context/helpers"
 import type { DeferredRulePathSegment } from "../property/importYamlTypes"
 import type { DeferredValuePath } from "../property/deferredObjectValues"
+import { assertRequiredConfigurationIdentity } from "../property/requiredIdentity"
 
 type CollectionDescriptor = Extract<YAMLToXMLNestedRule, { kind: "collection" }>
 
@@ -114,6 +115,10 @@ export function convertMetadataCollectionFromYAMLToXML(
               },
             },
           }
+    assertRequiredConfigurationIdentity({
+      context: itemContextWithReferenceRemap,
+      kind: params.descriptor.requiredIdentity,
+    })
     const itemOutputs = params.outputs.map((output) => ({
       key: output.key,
       referenceXML: findReferenceItem({

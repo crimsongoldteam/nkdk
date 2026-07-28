@@ -11,7 +11,6 @@ const movedFixtures = [
   ["childItems", "../metadata/forms/commonObjects/childItems/__fixtures__"],
   ["choiceList", "../metadata/commonObjects/choiceList/__fixtures__"],
   ["color", "../metadata/commonObjects/color/__fixtures__"],
-  ["configDumpInfo", "../metadata/appliedObjects/configDumpInfo/__fixtures__"],
   ["configuration", "../metadata/appliedObjects/configuration/__fixtures__"],
   ["fieldsList", "../metadata/commonObjects/fieldsList/__fixtures__"],
   ["formAttributes", "../metadata/forms/commonObjects/formAttribute/__fixtures__/legacy"],

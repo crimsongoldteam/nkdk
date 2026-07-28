@@ -72,6 +72,10 @@ registerTypeRule("ClientApplicationForm", "resourceTopology", ({ propertyRule })
       required: true,
       read: { inputRole: "body" },
       prepareCapabilityId: "externalFileProperty",
+      baseInput: {
+        kind: "sameProjectPath",
+        value: "sourceProperty",
+      },
       source: { kind: "property", description: "ClientApplicationForm" },
     },
     ...describeFormExternalResourceDeclarations({
@@ -83,7 +87,15 @@ registerTypeRule("ClientApplicationForm", "resourceTopology", ({ propertyRule })
 
 registerMetadataXmlPrepareCapability({
   id: "ClientApplicationForm",
-  run: ({ context, preparedYamlFile, itemName, outputs, profile }) => {
+  run: ({
+    context,
+    preparedYamlFile,
+    basePreparedYamlFile,
+    baseConfigurationIndex,
+    itemName,
+    outputs,
+    profile,
+  }) => {
     const byRole = new Map(outputs.map((output) => [output.role, output]))
     const prepared = prepareFormXML({
       context,
@@ -91,6 +103,10 @@ registerMetadataXmlPrepareCapability({
       formName: itemName,
       currentXMLPath: byRole.get("body")?.targetXmlPath,
       profile,
+      ...(basePreparedYamlFile === undefined ? {} : { basePreparedYamlFile }),
+      ...(baseConfigurationIndex === undefined
+        ? {}
+        : { baseConfigurationIndex }),
     })
     return prepared.flatMap((document) => {
       const output = byRole.get(document.targetKind)

@@ -1,7 +1,7 @@
 import { loadCoreApi } from "../coreApi"
 import { errorMessage, toolError, toolSuccess, type ToolPayload } from "../contracts/common"
 import { type ImportFromXmlInput } from "../contracts/importFromXml"
-import { assertImportTargetEmpty, resolveComponent } from "./componentResolver"
+import { resolveComponent } from "./componentResolver"
 
 interface CoreImportDiagnostic {
   severity: "error" | "warning"
@@ -13,6 +13,7 @@ interface CoreImportDiagnostic {
 }
 
 interface CoreImportResult {
+  componentPath?: string
   succeeded: number
   failed: CoreImportDiagnostic[]
   warnings: CoreImportDiagnostic[]
@@ -20,7 +21,7 @@ interface CoreImportResult {
 }
 
 interface ImportFromXmlDeps {
-  syncConfigurationFromXML: (params: {
+  importConfigurationFromXml: (params: {
     context: {
       defaultLanguage: "ru"
       version: "2.20"
@@ -29,11 +30,12 @@ interface ImportFromXmlDeps {
     }
     inputDir: string
     projectDir: string
-    outputDir: string
+    requestedComponentPath?: string
   }) => Promise<CoreImportResult>
 }
 
 export type ImportFromXmlPayload = ToolPayload<{
+  componentPath: string
   succeeded: number
   failed: Array<{ kind: string; name: string; parent?: string; message: string }>
   warnings: Array<{ code: string; message: string; targetProjectPath?: string }>
@@ -48,23 +50,16 @@ export async function importFromXml(
     return toolError("confirmation_required", "import_from_xml пишет YAML-файлы; повторите вызов с allowWrite=true", {
       xmlDir: input.xmlDir,
       projectDir: input.projectDir,
-      componentPath: input.componentPath ?? "cf",
+      ...(input.componentPath === undefined ? {} : { componentPath: input.componentPath }),
     })
   }
 
   try {
-    const component = resolveComponent({
-      projectDir: input.projectDir,
-      componentPath: input.componentPath,
-      createIfMissing: true,
-    })
-    if (!component.ok) return component.error
-
-    const importTargetError = assertImportTargetEmpty(component.componentDir)
-    if (importTargetError !== undefined) return importTargetError
+    const project = resolveComponent({ projectDir: input.projectDir })
+    if (!project.ok) return project.error
 
     const core = deps ?? (await loadCoreApi())
-    const result = await core.syncConfigurationFromXML({
+    const result = await core.importConfigurationFromXml({
       context: {
         defaultLanguage: "ru",
         version: "2.20",
@@ -72,14 +67,32 @@ export async function importFromXml(
         fromXML: { forReference: false },
       },
       inputDir: input.xmlDir,
-      projectDir: component.projectDir,
-      outputDir: component.componentDir,
+      projectDir: project.projectDir,
+      ...(input.componentPath === undefined ? {} : { requestedComponentPath: input.componentPath }),
     })
 
+    const failed = result.failed.map(mapFailure)
+    const warnings = result.warnings.map(mapWarning)
+    if (result.componentPath === undefined) {
+      return toolError(
+        "core_error",
+        result.failed.find((failure) => failure.severity === "error")?.message ?? "Не удалось определить компонент XML-выгрузки",
+        {
+          succeeded: result.succeeded,
+          failed,
+          warnings,
+          ...(result.configurationIndexPath === undefined
+            ? {}
+            : { configurationIndexPath: result.configurationIndexPath }),
+        },
+      )
+    }
+
     return toolSuccess({
+      componentPath: result.componentPath,
       succeeded: result.succeeded,
-      failed: result.failed.map(mapFailure),
-      warnings: result.warnings.map(mapWarning),
+      failed,
+      warnings,
       ...(result.configurationIndexPath === undefined
         ? {}
         : { configurationIndexPath: result.configurationIndexPath }),

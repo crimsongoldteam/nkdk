@@ -25,10 +25,15 @@ describe("applied object XML → YAML import", () => {
     const temporaryRoot = fs.mkdtempSync(join(os.tmpdir(), "applied-import-"))
     try {
       const inputDir = join(temporaryRoot, "xml")
-      const outputDir = join(temporaryRoot, "yaml")
+      const projectDir = join(temporaryRoot, "project")
+      const outputDir = join(projectDir, "cf")
       const objectXmlDir = join(inputDir, scenario.rule.xmlDir!)
       const fixtureDir = join(dirname(fileURLToPath(scenario.importMetaUrl)), "__fixtures__", "sync", "xml")
       fs.mkdirSync(objectXmlDir, { recursive: true })
+      fs.copyFileSync(
+        join(import.meta.dirname, "../configuration/__fixtures__/minimal.xml"),
+        join(inputDir, "Configuration.xml")
+      )
       fs.copyFileSync(join(fixtureDir, `${sync.name}.xml`), join(objectXmlDir, `${sync.name}.xml`))
       copyExternalFixture({
         fixtureDir,
@@ -40,7 +45,7 @@ describe("applied object XML → YAML import", () => {
       const result = await importConfigurationFromXml({
         context: mockContextFromXML(),
         inputDir,
-        outputDir,
+        projectDir,
         operationId: `test-${scenario.group}`,
         xmlImportWorkerPoolHandle: workerPool,
       })

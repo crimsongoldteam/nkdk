@@ -4,9 +4,15 @@ import { importBooleanFromYAML } from "../boolean/fromYAML"
 import { exportBooleanToYAML } from "../boolean/toYAML"
 import { buildMetadataTargetSchema } from "../metadataTargets"
 import { importMetadataItemLinksFromXML } from "../metadataRef/fromXML"
-import { importMetadataItemLinkFromYAML, importMetadataItemLinksFromYAML } from "../metadataRef/fromYAML"
+import {
+  importMetadataItemLinkFromYAML,
+  importMetadataItemLinksFromYAML,
+} from "../metadataRef/fromYAML"
 import { exportMetadataItemLinksToXML } from "../metadataRef/toXML"
-import { exportMetadataItemLinkToYAML, exportMetadataItemLinksToYAML } from "../metadataRef/toYAML"
+import {
+  exportMetadataItemLinkToYAML,
+  exportMetadataItemLinksToYAML,
+} from "../metadataRef/toYAML"
 import {
   ExportToXMLFunctionNew,
   type ExportToJSONSchemaFn,
@@ -294,7 +300,8 @@ const importVisibilityFromYAMLValue = (
   if (entry.Роли !== undefined) {
     const roles: Record<string, boolean> = {}
     for (const [roleName, roleVisibility] of Object.entries(entry.Роли)) {
-      const importedRoleName = importMetadataItemLinkFromYAML(context, roleNameRule, roleName)
+      const importedRoleName =
+        importMetadataItemLinkFromYAML(context, roleNameRule, roleName)
       const importedValue = importBooleanFromYAML(context, undefined, roleVisibility)
       if (importedRoleName !== undefined && importedValue !== undefined) roles[importedRoleName] = importedValue
     }
@@ -331,7 +338,8 @@ const exportVisibilityToYAMLValue = (
   if (visibility.roles !== undefined) {
     const roles: Record<string, "Истина" | "Ложь"> = {}
     for (const [roleName, roleVisibility] of Object.entries(visibility.roles)) {
-      const exportedRoleName = exportMetadataItemLinkToYAML(context, roleNameRule, roleName)
+      const exportedRoleName =
+        exportMetadataItemLinkToYAML(context, roleNameRule, roleName)
       const exportedValue = exportBooleanToYAML(context, undefined, roleVisibility)
       if (exportedRoleName !== undefined && exportedValue !== undefined) roles[exportedRoleName] = exportedValue
     }
@@ -646,8 +654,16 @@ registerTypeRule("CommandInterfaceOrder", "exportToJSONSchema", () => CommandInt
 
 registerTypeRule("CommandInterfaceSubsystemsOrder", "importFromXML", importMetadataItemLinksFromXML)
 registerTypeRule("CommandInterfaceSubsystemsOrder", "exportToXML", exportMetadataItemLinksToXML)
-registerTypeRule("CommandInterfaceSubsystemsOrder", "importFromYAML", importMetadataItemLinksFromYAML)
-registerTypeRule("CommandInterfaceSubsystemsOrder", "exportToYAML", exportMetadataItemLinksToYAML)
+registerTypeRule(
+  "CommandInterfaceSubsystemsOrder",
+  "importFromYAML",
+  importMetadataItemLinksFromYAML
+)
+registerTypeRule(
+  "CommandInterfaceSubsystemsOrder",
+  "exportToYAML",
+  exportMetadataItemLinksToYAML
+)
 registerTypeRule(
   "CommandInterfaceSubsystemsOrder",
   "exportToJSONSchema",

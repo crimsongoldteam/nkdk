@@ -3,50 +3,49 @@ import { dirname, join } from "node:path"
 import { fileURLToPath } from "node:url"
 import Piscina from "piscina"
 import { mergeConfigurationIndexFragments } from "../configurationIndex/fragment"
+import type { ConfigurationIndexData } from "../configurationIndex/types"
+import type { SharedConfigurationIndexSnapshot } from "../configurationIndex/sharedSnapshot"
 import type { ConfigurationContext } from "../context/types"
+import type { SharedValidationSnapshot } from "../validation/sharedValidationSnapshot"
 import { sourceWorkerExecArgv } from "../sourceWorkerRuntime"
+import type { FullXmlSyncWorkerProfileRuntime } from "./componentProfile"
+import type { FullXmlSyncSharedCompositionSnapshot } from "./sharedMetadata"
 import type {
   FullXmlSyncAssignment,
   FullXmlSyncDiagnostic,
-  FullXmlSyncFirstPassResult,
-  FullXmlSyncOwnerFacts,
-  FullXmlSyncSecondPassResult,
+  FullXmlSyncExecutionResult,
+  FullXmlSyncExpectedOutput,
   FullXmlSyncWorkerCommand,
   FullXmlSyncWorkerCommandResult,
   FullXmlSyncWrittenFile,
 } from "./types"
-import type { ConfigurationProjectFile } from "../configurationIndex/types"
-import type { ConfigurationIndexData } from "../configurationIndex/types"
-import type { SharedConfigurationIndexSnapshot } from "../configurationIndex/sharedSnapshot"
-import type { FullXmlSyncSharedCompositionSnapshot, FullXmlSyncSharedMetadata } from "./sharedMetadata"
+
+export interface FullXmlSyncWorkerInitialization {
+  readonly componentDir: string
+  readonly outputDir: string
+  readonly context: ConfigurationContext
+  readonly profile: FullXmlSyncWorkerProfileRuntime
+  readonly composition: FullXmlSyncSharedCompositionSnapshot
+  readonly targetIndex: SharedConfigurationIndexSnapshot
+  readonly localMetadata: SharedValidationSnapshot
+  readonly baseMetadata?: SharedValidationSnapshot
+}
+
+export interface FullXmlSyncExecutionPoolResult {
+  readonly diagnostics: FullXmlSyncDiagnostic[]
+  readonly warnings: FullXmlSyncDiagnostic[]
+  readonly writtenFiles: FullXmlSyncWrittenFile[]
+  readonly expectedOutputs: FullXmlSyncExpectedOutput[]
+  readonly fragmentData: Pick<
+    ConfigurationIndexData,
+    "identities" | "xmlNodes" | "xmlValues"
+  >
+}
 
 export interface FullXmlSyncWorkerPool {
-  initialize(params: {
-    projectDir: string
-    outputDir: string
-    context: ConfigurationContext
-    composition: FullXmlSyncSharedCompositionSnapshot
-    index: SharedConfigurationIndexSnapshot
-  }): Promise<void>
-  runFirstPass(assignments: readonly FullXmlSyncAssignment[]): Promise<FullXmlSyncFirstPassPoolResult>
-  runSecondPass(params: {
-    sharedMetadata: FullXmlSyncSharedMetadata
-  }): Promise<FullXmlSyncSecondPassPoolResult>
+  initialize(params: FullXmlSyncWorkerInitialization): Promise<void>
+  execute(assignments: readonly FullXmlSyncAssignment[]): Promise<FullXmlSyncExecutionPoolResult>
   close(): Promise<void>
-}
-
-export interface FullXmlSyncFirstPassPoolResult {
-  diagnostics: FullXmlSyncDiagnostic[]
-  projectFiles: ConfigurationProjectFile[]
-  ownerFacts: FullXmlSyncOwnerFacts[]
-  expectedOutputs?: import("./types").FullXmlSyncExpectedOutput[]
-}
-
-export interface FullXmlSyncSecondPassPoolResult {
-  diagnostics: FullXmlSyncDiagnostic[]
-  warnings: FullXmlSyncDiagnostic[]
-  writtenFiles: FullXmlSyncWrittenFile[]
-  fragmentData: Pick<ConfigurationIndexData, "identities" | "xmlNodes" | "xmlValues">
 }
 
 export interface FullXmlSyncWorkerThreadPool {
@@ -54,16 +53,7 @@ export interface FullXmlSyncWorkerThreadPool {
   destroy(): Promise<void>
 }
 
-type PoolPhase =
-  | "new"
-  | "initialized"
-  | "firstPassRunning"
-  | "firstPassErrors"
-  | "firstPassReady"
-  | "secondPassRunning"
-  | "secondPassDone"
-  | "crashed"
-  | "closed"
+type PoolPhase = "new" | "initialized" | "executing" | "done" | "crashed" | "closed"
 
 export function createFullXmlSyncWorkerPool(params: {
   concurrency?: number
@@ -72,17 +62,8 @@ export function createFullXmlSyncWorkerPool(params: {
   const concurrency = normalizeFullXmlSyncConcurrency(params.concurrency)
   const pools = new Map<number, FullXmlSyncWorkerThreadPool>()
   const createPool = params.createWorkerPool ?? createPiscinaWorkerPool
-  const activeWorkerIndexes: number[] = []
   let phase: PoolPhase = "new"
-  let initialization:
-    | {
-        projectDir: string
-        outputDir: string
-        context: ConfigurationContext
-        composition: FullXmlSyncSharedCompositionSnapshot
-        index: SharedConfigurationIndexSnapshot
-      }
-    | undefined
+  let initialization: FullXmlSyncWorkerInitialization | undefined
   let fatalError: unknown
   let destroyPromise: Promise<void> | undefined
 
@@ -93,74 +74,46 @@ export function createFullXmlSyncWorkerPool(params: {
       phase = "initialized"
     },
 
-    async runFirstPass(assignments) {
+    async execute(assignments) {
       assertUsable(phase, fatalError)
-      assertPhase(phase, "initialized", "Первый проход full XML sync уже был запущен")
-      if (initialization === undefined) throw new Error("Full XML sync worker pool не инициализирован")
-
-      phase = "firstPassRunning"
-      activeWorkerIndexes.splice(0)
-      const partitions = partitionRoundRobin(assignments, concurrency)
-      for (let index = 0; index < partitions.length; index += 1) {
-        if ((partitions[index]?.length ?? 0) > 0) activeWorkerIndexes.push(index)
+      assertPhase(phase, "initialized", "Выполнение full XML sync уже было запущено")
+      if (initialization === undefined) {
+        throw new Error("Full XML sync worker pool не инициализирован")
       }
-
+      phase = "executing"
+      const partitions = partitionRoundRobin(assignments, concurrency).filter(
+        (partition) => partition.length > 0
+      )
       const initialized = initialization
       const results = await Promise.all(
-        activeWorkerIndexes.map(async (workerIndex): Promise<FullXmlSyncFirstPassResult> => {
-          const assignmentsForWorker = partitions[workerIndex] ?? []
+        partitions.map(async (partition, workerIndex): Promise<FullXmlSyncExecutionResult> => {
           const initializeResponse = await runCommand(workerIndex, {
             kind: "initialize",
             workerIndex,
-            projectDir: initialized.projectDir,
-            outputDir: initialized.outputDir,
-            context: initialized.context,
-            composition: initialized.composition,
-            index: initialized.index,
+            ...initialized,
           })
           if (initializeResponse !== undefined) {
             return failWorker(new Error("Worker вернул неожиданный результат initialize"))
           }
-
-          const response = await runCommand(workerIndex, { kind: "firstPass", assignments: assignmentsForWorker })
-          if (response?.kind !== "firstPassResult") {
-            return failWorker(new Error("Worker вернул неожиданный результат firstPass"))
+          const response = await runCommand(workerIndex, {
+            kind: "execute",
+            assignments: partition,
+          })
+          if (response?.kind !== "executionResult") {
+            return failWorker(new Error("Worker вернул неожиданный результат execute"))
           }
           return response
         })
       )
-
-      const diagnostics = results.flatMap((result) => result.diagnostics)
-      phase = diagnostics.some((diagnostic) => diagnostic.severity === "error") ? "firstPassErrors" : "firstPassReady"
+      phase = "done"
       return {
-        diagnostics,
-        projectFiles: results.flatMap((result) => result.projectFiles).sort(compareProjectFiles),
-        ownerFacts: results.flatMap((result) => result.ownerFacts),
-        expectedOutputs: results.flatMap((result) => result.expectedOutputs ?? []),
-      }
-    },
-
-    async runSecondPass(secondPassParams) {
-      assertUsable(phase, fatalError)
-      if (phase === "firstPassErrors") throw new Error("Первый проход full XML sync завершён с ошибками")
-      if (phase !== "firstPassReady") throw new Error("Первый проход full XML sync не завершён успешно")
-
-      phase = "secondPassRunning"
-      const results = await Promise.all(
-        activeWorkerIndexes.map(async (workerIndex): Promise<FullXmlSyncSecondPassResult> => {
-          const response = await runCommand(workerIndex, { kind: "secondPass", ...secondPassParams })
-          if (response?.kind !== "secondPassResult") {
-            return failWorker(new Error("Worker вернул неожиданный результат secondPass"))
-          }
-          return response
-        })
-      )
-      phase = "secondPassDone"
-      return {
-        diagnostics: results.flatMap((result) => result.diagnostics),
-        warnings: results.flatMap((result) => result.warnings),
-        writtenFiles: results.flatMap((result) => result.writtenFiles),
-        fragmentData: mergeConfigurationIndexFragments(results.map((result) => result.fragmentBuffer)),
+        diagnostics: results.flatMap(({ diagnostics }) => diagnostics),
+        warnings: results.flatMap(({ warnings }) => warnings),
+        writtenFiles: results.flatMap(({ writtenFiles }) => writtenFiles),
+        expectedOutputs: results.flatMap(({ expectedOutputs }) => expectedOutputs),
+        fragmentData: mergeConfigurationIndexFragments(
+          results.map(({ fragmentBuffer }) => fragmentBuffer)
+        ),
       }
     },
 
@@ -175,7 +128,6 @@ export function createFullXmlSyncWorkerPool(params: {
         phase = "closed"
         return
       }
-
       try {
         await destroyAllWorkers()
       } finally {
@@ -184,7 +136,10 @@ export function createFullXmlSyncWorkerPool(params: {
     },
   }
 
-  async function runCommand(workerIndex: number, command: FullXmlSyncWorkerCommand): Promise<FullXmlSyncWorkerCommandResult> {
+  async function runCommand(
+    workerIndex: number,
+    command: FullXmlSyncWorkerCommand
+  ): Promise<FullXmlSyncWorkerCommandResult> {
     try {
       return (await getOrCreatePool(workerIndex).run(command)) as FullXmlSyncWorkerCommandResult
     } catch (caught) {
@@ -212,7 +167,8 @@ export function createFullXmlSyncWorkerPool(params: {
   }
 
   function destroyAllWorkers(): Promise<void> {
-    destroyPromise ??= Promise.all([...pools.values()].map((pool) => pool.destroy())).then(() => undefined)
+    destroyPromise ??= Promise.all([...pools.values()].map((pool) => pool.destroy()))
+      .then(() => undefined)
     return destroyPromise
   }
 }
@@ -220,11 +176,12 @@ export function createFullXmlSyncWorkerPool(params: {
 export function normalizeFullXmlSyncConcurrency(value: number | undefined): number {
   if (value !== undefined) {
     if (!Number.isSafeInteger(value) || value < 1) {
-      throw new Error("Степень параллелизма full XML sync должна быть положительным целым числом")
+      throw new Error(
+        "Степень параллелизма full XML sync должна быть положительным целым числом"
+      )
     }
     return value
   }
-
   return Math.max(1, Math.min(4, os.availableParallelism() - 1))
 }
 
@@ -246,10 +203,6 @@ function partitionRoundRobin<T>(items: readonly T[], count: number): T[][] {
   const result = Array.from({ length: count }, () => [] as T[])
   items.forEach((item, index) => result[index % count]?.push(item))
   return result
-}
-
-function compareProjectFiles(left: ConfigurationProjectFile, right: ConfigurationProjectFile): number {
-  return Buffer.compare(Buffer.from(left.projectPath), Buffer.from(right.projectPath))
 }
 
 function assertUsable(phase: PoolPhase, fatalError: unknown): void {

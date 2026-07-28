@@ -6,13 +6,17 @@ import type { DeferredObjectValue } from "../orchestration/property/deferredObje
 import type { YAMLToXMLProfile } from "../orchestration/property/fromYAMLToXMLTypes"
 import type { MetadataItemRule } from "../orchestration/property/types"
 import type { PreparedYamlFile } from "../project/preparedYamlProject"
-import type { CompiledMetadataAssignmentNode } from "./types"
+import type {
+  CompiledMetadataAssignmentNode,
+  MetadataXmlBaseInputDeclaration,
+} from "./types"
 
 export interface MetadataXmlPrepareOutput {
   readonly declarationId: string
   readonly targetXmlPath: string
   readonly role: "metadata" | "body" | "property"
   readonly propertyName?: string
+  readonly baseInput?: MetadataXmlBaseInputDeclaration
 }
 
 export interface MetadataXmlPrepareCompositionEntry {
@@ -37,6 +41,8 @@ export interface MetadataXmlPrepareCapability {
   readonly run: (params: {
     readonly context: ConfigurationContextWithExportToXML
     readonly preparedYamlFile: PreparedYamlFile
+    readonly basePreparedYamlFile?: PreparedYamlFile
+    readonly baseConfigurationIndex?: ConfigurationIndexReader
     readonly assignment: CompiledMetadataAssignmentNode
     readonly itemName: string
     readonly logicalAddress: string

@@ -39,6 +39,7 @@ const setConfigurationChildObjectsXML = (
 export const prepareConfigurationXML = (params: {
   context: ConfigurationContextWithExportToXML
   preparedYamlFile: PreparedYamlFile
+  rootRule?: MetadataItemRule
   childObjects?: ConfigurationChildObjectsXML
   referenceXML?: Record<string, unknown>
   externalWriteFactory?: YAMLToXMLExternalWriteFactory
@@ -53,15 +54,16 @@ export const prepareConfigurationXML = (params: {
   if (yaml === undefined) {
     throw new Error(`Подготовленные YAML-данные конфигурации отсутствуют: ${params.preparedYamlFile.projectPath}`)
   }
+  const rootRule = params.rootRule ?? MetadataConfigurationRules
   const converted = convertMetadataItemFromYAMLToXML({
     context: params.context,
     yaml,
-    rule: MetadataConfigurationRules,
+    rule: rootRule,
     name: typeof yaml.Имя === "string" ? yaml.Имя : undefined,
     outputs: [{ key: "configuration", referenceXML: params.referenceXML }],
     externalWriteFactory: params.externalWriteFactory,
     profile: params.profile,
-    rulePath: [MetadataConfigurationRules.itemType],
+    rulePath: [rootRule.itemType],
   })
   const xmlObject = converted.outputs.get("configuration")
   if (xmlObject === undefined) throw new Error("Преобразование конфигурации не сформировало XML")
@@ -69,7 +71,7 @@ export const prepareConfigurationXML = (params: {
   return {
     xml: xmlObject,
     deferred: bindDeferredObjectValues(xmlObject, converted.deferredByOutput.get("configuration") ?? []),
-    rootRule: MetadataConfigurationRules,
+    rootRule,
     externalWrites: converted.externalWrites,
   }
 }

@@ -24,7 +24,7 @@ export const promptDefinitions: PromptDefinition[] = [
     description: "Импортировать XML-выгрузку 1С в YAML-проект.",
     text: [
       "Прочитай resource `nkdk://guides/config-import-from-xml`.",
-      "Проверь XML-каталог одного компонента и пустоту целевого `projectDir/componentPath`.",
+      "Проверь XML-каталог одного компонента и корень NKDK-проекта с каталогом cf; не определяй и не создавай cfe, core вернёт componentPath и конфликты.",
       "Вызови `nkdk.import_from_xml` только после явного решения писать файлы с `allowWrite: true`.",
     ].join("\n"),
   },

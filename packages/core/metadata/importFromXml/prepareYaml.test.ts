@@ -2,29 +2,49 @@ import fs from "node:fs"
 import os from "node:os"
 import { join } from "node:path"
 import { afterEach, describe, expect, it, vi } from "vitest"
-import { mockContextFromXML } from "../../tests/mockContext"
+import { mockXmlImportContext } from "../../tests/mockContext"
 import { createConfigurationIndexCollector } from "../configurationIndex/collector/writer"
 import { createOperationProfiler } from "../validation/profile"
 import { parseMetadataYamlData } from "../../yaml/parseMetadataYaml"
 import { discoverXmlImport } from "./discovery"
+import { registerMetadataComponentDescriptor } from "../components/descriptor"
 import {
   prepareImportYaml,
   registeredImportRuleLookupCountForTests,
   resetRegisteredImportRuleLookupCountForTests,
+  resolveAssignmentRule,
 } from "./prepareYaml"
 import { compileRegisteredMetadataResourceTopology } from "../resourceTopology/registry"
 import type { ImportAssignment } from "./types"
+import type { MetadataItemRule } from "../orchestration/property/types"
 
 const configurationFixturesDir = join(import.meta.dirname, "../appliedObjects/configuration/__fixtures__")
 const syncXmlDir = join(configurationFixturesDir, "syncConfiguration/xml")
 const catalogSyncFixtureDir = join(import.meta.dirname, "../appliedObjects/metadataCatalog/__fixtures__/sync/xml")
 const subsystemFixturePath = join(import.meta.dirname, "../appliedObjects/metadataSubsystem/__fixtures__/full.xml")
+const AlternateComponentRootRule = { itemType: "MetadataAlternateComponent", properties: {} } as MetadataItemRule
 
 afterEach(() => {
   vi.restoreAllMocks()
 })
 
 describe("prepareImportYaml", () => {
+  it("uses the component kind to resolve the configuration root rule", () => {
+    registerMetadataComponentDescriptor({
+      kind: "externalReport",
+      rootRule: AlternateComponentRootRule,
+    })
+
+    expect(
+      resolveAssignmentRule(
+        {
+          role: "configuration",
+        } as ImportAssignment,
+        "externalReport"
+      )
+    ).toBe(AlternateComponentRootRule)
+  })
+
   it("imports a common form through the standard nested rules converter", async () => {
     const fixtureDir = join(import.meta.dirname, "../appliedObjects/metadataCommonForm/__fixtures__/sync")
     const collector = createConfigurationIndexCollector()
@@ -48,7 +68,7 @@ describe("prepareImportYaml", () => {
         ],
         externalFiles: [],
       },
-      context: mockContextFromXML(),
+      context: mockXmlImportContext(),
       collector,
       profiler,
     })
@@ -80,7 +100,7 @@ describe("prepareImportYaml", () => {
 
     const prepared = await prepareImportYaml({
       assignment,
-      context: mockContextFromXML(),
+      context: mockXmlImportContext(),
       collector,
     })
 
@@ -145,7 +165,7 @@ describe("prepareImportYaml", () => {
         xmlFiles: [{ role: "metadata", sourcePath: join(import.meta.dirname, fixture) }],
         externalFiles: [],
       },
-      context: mockContextFromXML(),
+      context: mockXmlImportContext(),
       collector: createConfigurationIndexCollector(),
     })
 
@@ -181,7 +201,7 @@ describe("prepareImportYaml", () => {
           xmlFiles: [{ role: "metadata", sourcePath: metadataPath }],
           externalFiles: [],
         },
-        context: mockContextFromXML(),
+        context: mockXmlImportContext(),
         collector,
       })
 
@@ -223,7 +243,7 @@ describe("prepareImportYaml", () => {
           xmlFiles: [{ role: "metadata", sourcePath: metadataPath }],
           externalFiles: [],
         },
-        context: mockContextFromXML(),
+        context: mockXmlImportContext(),
         collector,
       })
 
@@ -255,7 +275,7 @@ describe("prepareImportYaml", () => {
 
     const prepared = await prepareImportYaml({
       assignment,
-      context: mockContextFromXML(),
+      context: mockXmlImportContext(),
       collector: createConfigurationIndexCollector(),
     })
 
@@ -270,12 +290,12 @@ describe("prepareImportYaml", () => {
 
     await prepareImportYaml({
       assignment,
-      context: mockContextFromXML(),
+      context: mockXmlImportContext(),
       collector: createConfigurationIndexCollector(),
     })
     await prepareImportYaml({
       assignment: { ...assignment, id: "catalog-copy" },
-      context: mockContextFromXML(),
+      context: mockXmlImportContext(),
       collector: createConfigurationIndexCollector(),
     })
 
@@ -303,7 +323,7 @@ describe("prepareImportYaml", () => {
         discovered.assignments.map((assignment) =>
           prepareImportYaml({
             assignment,
-            context: mockContextFromXML(),
+            context: mockXmlImportContext(),
             collector: createConfigurationIndexCollector(),
           })
         )
@@ -340,7 +360,7 @@ describe("prepareImportYaml", () => {
 
     const prepared = await prepareImportYaml({
       assignment,
-      context: mockContextFromXML(),
+      context: mockXmlImportContext(),
       collector: createConfigurationIndexCollector(),
     })
 
@@ -379,7 +399,7 @@ describe("prepareImportYaml", () => {
 
     const prepared = await prepareImportYaml({
       assignment,
-      context: mockContextFromXML(),
+      context: mockXmlImportContext(),
       collector: createConfigurationIndexCollector(),
     })
 
@@ -425,7 +445,7 @@ describe("prepareImportYaml", () => {
 
       const prepared = await prepareImportYaml({
         assignment,
-        context: mockContextFromXML(),
+        context: mockXmlImportContext(),
         collector: createConfigurationIndexCollector(),
       })
 
@@ -468,7 +488,7 @@ describe("prepareImportYaml", () => {
       await expect(
         prepareImportYaml({
           assignment,
-          context: mockContextFromXML(),
+          context: mockXmlImportContext(),
           collector: createConfigurationIndexCollector(),
         })
       ).rejects.toThrow("Form.xml")

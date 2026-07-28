@@ -16,6 +16,7 @@ export interface PrepareYamlFilesOptions {
   includeProjectFiles?: boolean
   hashFileBytes?: (bytes: Uint8Array) => bigint
   readFileSync?: (filePath: string) => Buffer
+  sourceBytes?: ReadonlyMap<string, Uint8Array>
 }
 
 export interface PrepareYamlFilesProfile {
@@ -45,7 +46,10 @@ export function prepareYamlFiles(options: PrepareYamlFilesOptions): PreparedYaml
   for (const file of options.files) {
     try {
       const readFileSync = options.readFileSync ?? fs.readFileSync
-      const [bytes, measuredReadMs] = measureDuration(() => readFileSync(file.filePath))
+      const [bytes, measuredReadMs] = measureDuration(() => {
+        const provided = options.sourceBytes?.get(file.filePath)
+        return provided === undefined ? readFileSync(file.filePath) : Buffer.from(provided)
+      })
       profile.readMs += measuredReadMs
       if (options.includeProjectFiles === true) {
         if (options.hashFileBytes === undefined) throw new Error("hashFileBytes is required when includeProjectFiles is true")

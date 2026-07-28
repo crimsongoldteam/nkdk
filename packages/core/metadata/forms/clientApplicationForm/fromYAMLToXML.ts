@@ -1,4 +1,5 @@
 import { childUid } from "../../configurationIndex/logicalAddress"
+import type { ConfigurationIndexReader } from "../../configurationIndex/sharedSnapshot"
 import "../../commonObjects"
 import {
   withConfigurationIndexExportFormElementRootLogicalAddress,
@@ -15,6 +16,7 @@ import { FormRulesTags } from "./types"
 import { createFormDataPathIndexFromYAML } from "../../validation/dataPath/formYamlIndex"
 import { registerTypeRule } from "../../orchestration/property/typeRuleRegistry"
 import type { DeferredValuePath } from "../../orchestration/property/deferredObjectValues"
+import { buildClientApplicationBaseForm } from "./baseForm"
 
 export interface ConvertClientApplicationFormFromYAMLToXMLParams {
   readonly context: ConfigurationContextWithExportToXML
@@ -22,6 +24,8 @@ export interface ConvertClientApplicationFormFromYAMLToXMLParams {
   readonly name: string
   readonly referenceFormXML?: ClientApplicationFormXML
   readonly referenceMetadataXML?: FormMetadataXML
+  readonly baseFormXML?: ClientApplicationFormXML
+  readonly dataPathYaml?: ClientApplicationFormYAML
   readonly profile?: YAMLToXMLProfile
 }
 
@@ -39,7 +43,9 @@ export function convertClientApplicationFormFromYAMLToXML(
     ...params.context,
     importFromYAML: {
       ...params.context.importFromYAML,
-      formDataPathIndex: createFormDataPathIndexFromYAML(params.yaml),
+      formDataPathIndex: createFormDataPathIndexFromYAML(
+        params.dataPathYaml ?? params.yaml
+      ),
     },
   }
   const formContext = createFormBodyContext(metadataContext)
@@ -66,6 +72,7 @@ export function convertClientApplicationFormFromYAMLToXML(
     ...FORM_NAMESPACES,
     _version: "2.20",
     ...formProperties,
+    ...(params.baseFormXML === undefined ? {} : { BaseForm: params.baseFormXML }),
   } as ClientApplicationFormXML
   assignGeneratedIds(formXML, params.referenceFormXML)
 
@@ -192,12 +199,48 @@ const METADATA_NAMESPACES = {
 
 registerTypeRule("ClientApplicationForm", "yamlToXMLNestedRule", {
   kind: "externalFile",
-  convert: ({ context, yaml, name, referenceXML }) => ({
-    Form: convertClientApplicationFormFromYAMLToXML({
-      context,
-      yaml: yaml as ClientApplicationFormYAML,
-      name,
-      referenceFormXML: referenceXML?.Form as ClientApplicationFormXML | undefined,
-    }).formXML,
-  }),
+  convert: ({
+    context,
+    yaml,
+    baseYAML,
+    baseConfigurationIndex,
+    name,
+    referenceXML,
+  }) => {
+    const extensionYaml = yaml as ClientApplicationFormYAML
+    const baseFormXML =
+      baseYAML === undefined
+        ? undefined
+        : buildClientApplicationBaseForm({
+            context,
+            baseIndex: requireBaseConfigurationIndex(
+              baseConfigurationIndex
+            ),
+            baseYaml: baseYAML as ClientApplicationFormYAML,
+            extensionYaml,
+            formName: name,
+          })
+    return {
+      Form: convertClientApplicationFormFromYAMLToXML({
+        context,
+        yaml: extensionYaml,
+        name,
+        referenceFormXML: referenceXML?.Form as
+          | ClientApplicationFormXML
+          | undefined,
+        ...(baseFormXML === undefined ? {} : { baseFormXML }),
+      }).formXML,
+    }
+  },
 })
+
+function requireBaseConfigurationIndex(
+  baseConfigurationIndex: ConfigurationIndexReader | undefined
+): ConfigurationIndexReader {
+  if (baseConfigurationIndex !== undefined) {
+    return baseConfigurationIndex
+  }
+  throw new Error(
+    "Для построения BaseForm не передан индекс основной конфигурации"
+  )
+}

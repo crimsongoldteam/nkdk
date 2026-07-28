@@ -1,4 +1,8 @@
 import { ConfigurationContextFromXML } from "../../context/types"
+import {
+  getConfigurationIndexCollectionContext,
+  getConfigurationIndexXmlNodeLogicalAddress,
+} from "../../configurationIndex/collector/context"
 import { PropertyRule, registerTypeRule } from "../../orchestration"
 
 /** Импортирует список имён макетов из XML-тегов Template в ChildObjects. */
@@ -13,3 +17,11 @@ export const importChildTemplateNamesFromXML = (
 }
 
 registerTypeRule("ChildTemplateNames", "importFromXML", importChildTemplateNamesFromXML)
+
+registerTypeRule("ChildTemplateNames", "collectConfigurationIndexFromXML", ({ context, xml }) => {
+  const collection = getConfigurationIndexCollectionContext(context)
+  if (collection === undefined) return
+  const names = Array.isArray(xml) ? xml : [xml]
+  if (!names.every((name): name is string => typeof name === "string")) return
+  collection.collector.setOrder(getConfigurationIndexXmlNodeLogicalAddress(collection), names)
+})

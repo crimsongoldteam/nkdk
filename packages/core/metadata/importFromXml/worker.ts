@@ -4,16 +4,23 @@ import { move, transferableSymbol, valueSymbol } from "piscina"
 import { exportToYAML } from "../../yaml/export"
 import { encodeConfigurationIndexFragments } from "../configurationIndex/fragment"
 import { createConfigurationIndexCollector } from "../configurationIndex/collector/writer"
-import type { ConfigurationContext, ConfigurationContextFromXML } from "../context/types"
+import type { ConfigurationContext, XmlImportConfigurationContext } from "../context/types"
 import type { ConfigurationIndexFragment } from "../configurationIndex/types"
 import { withExportMetadataTargetOwners } from "../orchestration/appliedObject/metadataItemOwnerContext"
 import { finalizeImportedYamlValues } from "../orchestration/property/finalizeImportedYAML"
-import { createOwnerMetadataCacheFromSharedValidationSnapshot } from "../validation/dataPath/sharedOwnerCache"
 import type { OwnerMetadataCache } from "../validation/dataPath/ownerCache"
 import type { ValidationOwnerFacts } from "../validation/dataPath/ownerFacts"
-import type { SharedValidationSnapshot } from "../validation/sharedValidationSnapshot"
 import { createOperationProfiler, type ValidationProfiler } from "../validation/profile"
+import {
+  type LayeredImportReferenceSnapshot,
+} from "./componentReferenceIndex"
+import { createLayeredOwnerMetadataCache } from "../project/componentState/indexes"
 import { extractImportOwnerFacts } from "./ownerFacts"
+import {
+  extractImportValidationContribution,
+  mergeImportValidationContributions,
+  type ImportValidationContribution,
+} from "./validationContribution"
 import { ImportXmlInputError, prepareImportYaml, type PreparedImportYaml } from "./prepareYaml"
 import type {
   ImportAssignment,
@@ -28,7 +35,7 @@ import type {
 interface InitializedImportWorkerState {
   operationId: string
   workerIndex: number
-  context: ConfigurationContextFromXML
+  context: XmlImportConfigurationContext
   outputDir: string
 }
 
@@ -53,14 +60,14 @@ export async function runImportWorkerCommand(command: ImportWorkerCommand): Prom
   }
 
   if (command.kind === "secondPass") {
-    return runSecondPass(command.sharedMetadata, requireInitializedState())
+    return runSecondPass(command.referenceSnapshots, requireInitializedState())
   }
 
   return runFirstPass(command.assignments, requireInitializedState())
 }
 
 async function runSecondPass(
-  sharedMetadata: SharedValidationSnapshot,
+  referenceSnapshots: LayeredImportReferenceSnapshot,
   state: InitializedImportWorkerState
 ): Promise<ImportSecondPassResult> {
   const profiler = createOperationProfiler({
@@ -71,9 +78,10 @@ async function runSecondPass(
   const diagnostics: ImportDiagnostic[] = []
   const warnings: ImportDiagnostic[] = []
   const files: ImportResultFile[] = []
-  const ownerMetadataCache = createOwnerMetadataCacheFromSharedValidationSnapshot({
-    projectDir: state.outputDir,
-    snapshot: sharedMetadata,
+  const ownerMetadataCache = createLayeredOwnerMetadataCache({
+    localProjectDir: state.outputDir,
+    baseProjectDir: state.outputDir,
+    snapshots: referenceSnapshots,
   })
 
   for (const [id, prepared] of preparedYaml) {
@@ -171,7 +179,7 @@ async function writePreparedYamlToOutput(
 }
 
 function secondPassExportContext(params: {
-  context: ConfigurationContextFromXML
+  context: XmlImportConfigurationContext
   ownerMetadataCache: OwnerMetadataCache
   targetProjectPath: string
   warnings: ImportDiagnostic[]
@@ -216,6 +224,7 @@ async function runFirstPass(
   const diagnostics: ImportDiagnostic[] = []
   const ownerFacts: ValidationOwnerFacts[] = []
   const fragments: ConfigurationIndexFragment[] = []
+  const validationContributions: ImportValidationContribution[] = []
 
   for (const assignment of assignments) {
     const collector = createConfigurationIndexCollector()
@@ -233,9 +242,21 @@ async function runFirstPass(
         { items: 1 },
         () => collector.fragment(assignment.targetProjectPath)
       )
+      const validationContribution = profiler.measure(
+        "Подготовка импорта конфигурации",
+        "Извлечение validation contribution",
+        { items: 1 },
+        () => extractImportValidationContribution({ prepared, projectDir: state.outputDir })
+      )
       preparedYaml.set(assignment.id, prepared)
       ownerFacts.push(...preparedOwnerFacts)
-      fragments.push(fragment)
+      fragments.push({
+        ...fragment,
+        ...(validationContribution.localDependencies.length === 0
+          ? {}
+          : { localDependencies: validationContribution.localDependencies }),
+      })
+      validationContributions.push(validationContribution)
     } catch (caught) {
       preparedYaml.delete(assignment.id)
       diagnostics.push(importAssignmentDiagnostic(assignment, caught))
@@ -245,9 +266,12 @@ async function runFirstPass(
   }
 
   profiler.flush()
+  const validation = mergeImportValidationContributions(validationContributions)
   return {
     kind: "firstPassResult",
     ownerFacts,
+    validationContribution: validation.validationContribution,
+    localDependencies: validation.localDependencies,
     diagnostics,
     fragmentBuffer: encodeConfigurationIndexFragments(fragments),
   }

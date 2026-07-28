@@ -5,7 +5,6 @@ export const syncToXmlInputShape = {
   projectDir: z.string().min(1),
   componentPath: z.string().min(1).optional(),
   xmlDir: z.string().min(1),
-  baseId: z.string().min(1).optional(),
   concurrency: z.number().int().positive().optional(),
   allowWrite: z.boolean().optional(),
 }

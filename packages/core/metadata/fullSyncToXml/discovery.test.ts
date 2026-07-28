@@ -2,6 +2,8 @@ import { mkdirSync, mkdtempSync, rmSync, writeFileSync } from "fs"
 import { tmpdir } from "os"
 import { join, resolve } from "path"
 import { afterEach, describe, expect, it } from "vitest"
+import { readComponentHashState } from "../project/componentState/hashes"
+import { readComponentProjectStructure } from "../project/componentState/structure"
 import { buildFullXmlSyncPlan } from "./discovery"
 
 describe("full XML sync discovery", () => {
@@ -18,9 +20,18 @@ describe("full XML sync discovery", () => {
   }
 
   function touch(projectDir: string, projectPath: string): void {
-    const filePath = join(projectDir, ...projectPath.split("/"))
+    const filePath = join(projectDir, "cf", ...projectPath.split("/"))
     mkdirSync(resolve(filePath, ".."), { recursive: true })
     writeFileSync(filePath, "")
+  }
+
+  async function buildPlan(projectDir: string) {
+    const structure = await readComponentProjectStructure({
+      projectDir,
+      address: { kind: "configuration" },
+    })
+    const hashes = await readComponentHashState({ structure })
+    return buildFullXmlSyncPlan({ structure, hashes })
   }
 
   it("creates assignments for YAML and external file plans without reading YAML contents", async () => {
@@ -30,7 +41,7 @@ describe("full XML sync discovery", () => {
     touch(projectDir, "Справочник/Товары/Формы/ФормаЭлемента/Форма.yaml")
     touch(projectDir, "Справочник/Товары/Формы/ФормаЭлемента/Модуль.bsl")
 
-    const plan = await buildFullXmlSyncPlan({ projectDir })
+    const plan = await buildPlan(projectDir)
 
     expect(plan.assignments.map((assignment) => assignment.sourceProjectPath)).toEqual([
       "Конфигурация.yaml",
@@ -70,50 +81,18 @@ describe("full XML sync discovery", () => {
     expect(plan.externalFiles).toEqual([
       expect.objectContaining({
         sourceProjectPath: "Справочник/Товары/Формы/ФормаЭлемента/Модуль.bsl",
-        sourcePath: join(projectDir, "Справочник", "Товары", "Формы", "ФормаЭлемента", "Модуль.bsl"),
+        sourcePath: join(projectDir, "cf", "Справочник", "Товары", "Формы", "ФормаЭлемента", "Модуль.bsl"),
         targetXmlPath: "Catalogs/Товары/Forms/ФормаЭлемента/Ext/Form/Module.bsl",
         transferCapabilityId: "ChildFormNames",
       }),
     ])
   })
 
-  it("rejects duplicate XML targets before workers", async () => {
-    const projectDir = createProject()
-    touch(projectDir, "Справочник/Товары/Формы/ФормаЭлемента/Форма.yaml")
-
-    await expect(
-      buildFullXmlSyncPlan({
-        projectDir,
-        extraAssignments: [
-          {
-            id: "duplicate",
-            sourceProjectPath: "duplicate.yaml",
-            sourcePath: join(projectDir, "duplicate.yaml"),
-            role: "form",
-            itemType: "ClientApplicationForm",
-            itemName: "ФормаЭлемента",
-            logicalAddress: "Дубль",
-            nodeId: "duplicate",
-            potentialOutputs: [
-              {
-                declarationId: "duplicate",
-                targetXmlPath: "Catalogs/Товары/Forms/ФормаЭлемента.xml",
-                role: "metadata",
-                required: true,
-                prepareCapabilityId: "test",
-              },
-            ],
-          },
-        ],
-      })
-    ).rejects.toThrow("Повторный XML-путь")
-  })
-
   it("plans metadata and body XML for one common form assignment", async () => {
     const projectDir = createProject()
     touch(projectDir, "ОбщаяФорма/Additional/Свойства.yaml")
 
-    const plan = await buildFullXmlSyncPlan({ projectDir })
+    const plan = await buildPlan(projectDir)
 
     expect(plan.assignments[0]?.potentialOutputs?.map((output) => output.targetXmlPath)).toEqual([
       "CommonForms/Additional.xml",
@@ -127,7 +106,7 @@ describe("full XML sync discovery", () => {
     touch(projectDir, "Подсистема/Родитель/Свойства.yaml")
     touch(projectDir, "Подсистема/Родитель/Подсистемы/Потомок/Свойства.yaml")
 
-    const plan = await buildFullXmlSyncPlan({ projectDir })
+    const plan = await buildPlan(projectDir)
 
     expect(
       plan.assignments.find(

@@ -1,6 +1,6 @@
 import { describe, expect, it, vi } from "vitest"
 import { createDirectRoundTripContexts } from "../../../tests/directConversion"
-import { mockContextFromXML } from "../../../tests/mockContext"
+import { mockContextFromXML, mockXmlImportContext } from "../../../tests/mockContext"
 import { readAndParseXMLFixture, readXMLFixtureAsString } from "../../../tests/readFixtureXML"
 import { xmlExport } from "../../../xml/export/exporter"
 import { importContentFromXML } from "../../../xml/import/importer"
@@ -205,9 +205,121 @@ describe("importClientApplicationFormFromXMLToYAML", () => {
       ])
     )
   })
+
+  it("добавляет Контроль metadata формы и сохраняет Extended Form только в снимке", () => {
+    const collector = createConfigurationIndexCollector()
+    const logicalAddress = "Справочник.Контрагенты.Форма.ФормаЭлемента"
+    const baseContext = mockXmlImportContext()
+    const extensionContext = {
+      ...baseContext,
+      fromXML: { ...baseContext.fromXML, metadataItemAugmenter: "configurationExtension" },
+    }
+    const context = withConfigurationIndexCollector(
+      extensionContext,
+      collector,
+      logicalAddress
+    )
+    const metadataXML: FormMetadataXML & {
+      Form: { InternalInfo: Record<string, unknown> }
+    } = {
+      Form: {
+        Properties: {
+          Name: "ФормаЭлемента",
+          Comment: "Комментарий",
+          FormType: "Managed",
+        },
+        InternalInfo: {
+          "xr:PropertyState": [
+            { "xr:Property": "ExtendedPresentation", "xr:State": "Notify" },
+            { "xr:Property": "Form", "xr:State": "Extended" },
+            { "xr:Property": "Form", "xr:State": "Notify" },
+          ],
+        },
+      },
+    }
+
+    const result = importClientApplicationFormFromXMLToYAML({
+      context,
+      formName: "ФормаЭлемента",
+      formXML: {},
+      metadataXML,
+    })
+
+    expect(result.yaml).toMatchObject({
+      Комментарий: "Комментарий",
+      Контроль: ["РасширенноеПредставление"],
+    })
+    expect(result.yaml).not.toHaveProperty("Контроль", expect.arrayContaining(["Форма"]))
+    expect(collector.fragment("Форма.yaml").xmlValues).toContainEqual({
+      logicalAddress: `${logicalAddress}.form`,
+      extended: true,
+    })
+  })
 })
 
 describe("форма XML → YAML → XML", () => {
+  it("сохраняет режимные события элемента формы", () => {
+    const contexts = createDirectRoundTripContexts({
+      logicalAddress: "Справочник.Товары.Форма.ФормаЭлемента",
+    })
+    const formXML = {
+      ChildItems: [
+        {
+          InputField: {
+            _name: "ПолеВвода",
+            _id: "1",
+            Events: {
+              Event: [
+                { _name: "OnChange", _callType: "Before", "#text": "ПередИзменением" },
+                { _name: "OnChange", _callType: "After", "#text": "ПослеИзменения" },
+                { _name: "StartChoice", _callType: "Override", "#text": "ВместоВыбора" },
+              ],
+            },
+          },
+        },
+      ],
+    } as ClientApplicationFormXML
+    const metadataXML = { Form: { Properties: { FormType: "Managed" } } } as FormMetadataXML
+
+    const imported = importClientApplicationFormFromXMLToYAML({
+      context: contexts.importContext,
+      formName: "ФормаЭлемента",
+      formXML,
+      metadataXML,
+    })
+
+    expect(imported.yaml).toMatchObject({
+      Элементы: {
+        ПолеВвода: {
+          События: {
+            ПриИзменении: {
+              Перед: "ПередИзменением",
+              После: "ПослеИзменения",
+            },
+            НачалоВыбора: {
+              Вместо: "ВместоВыбора",
+            },
+          },
+        },
+      },
+    })
+
+    const converted = convertClientApplicationFormFromYAMLToXML({
+      context: contexts.exportContext(),
+      yaml: imported.yaml as ClientApplicationFormYAML,
+      name: "ФормаЭлемента",
+    })
+    const inputField = (converted.formXML.ChildItems as Array<{ InputField: { Events?: unknown } }>)[0]?.InputField
+
+    expect(inputField?.Events).toEqual({
+      Event: [
+        { _name: "OnChange", _callType: "Before", "#text": "ПередИзменением" },
+        { _name: "OnChange", _callType: "After", "#text": "ПослеИзменения" },
+        { _name: "StartChoice", _callType: "Override", "#text": "ВместоВыбора" },
+      ],
+    })
+  })
+
   it("восстанавливает порядок событий формы без reference XML", () => {
     const contexts = createDirectRoundTripContexts({
       logicalAddress: "Справочник.Товары.Форма.ФормаЭлемента",

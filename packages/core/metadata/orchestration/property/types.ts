@@ -99,6 +99,9 @@ export interface BasePropertyRule {
   /** Режим построения logicalAddress для данных файла индекса конфигурации. */
   configurationIndexAddressing?: ConfigurationIndexAddressingMode
 
+  /** Не считать запись свойства в сохранённом порядке доказательством его присутствия в XML. */
+  configurationIndexPresenceFromOrder?: false
+
   /** Название ключа в YAML */
   yaml?: string
 
@@ -131,6 +134,9 @@ export interface BasePropertyRule {
 
   /** Значение по умолчанию в XML (будет выгружено как при пустом значении)*/
   defaultValueXML?: any
+
+  /** Значение по умолчанию в XML для заимствованного объекта расширения. */
+  defaultValueAdoptedXML?: any
 
   /** Сохранять явно присутствующее XML-значение, даже если оно равно defaultValueXML. */
   preserveExplicitDefaultXML?: true

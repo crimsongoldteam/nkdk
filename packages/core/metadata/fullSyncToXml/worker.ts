@@ -1,185 +1,178 @@
+import fs from "node:fs"
 import { move, transferableSymbol, valueSymbol } from "piscina"
-import { performance } from "node:perf_hooks"
 import { encodeConfigurationIndexFragments } from "../configurationIndex/fragment"
-import { createConfigurationIndexReader, type ConfigurationIndexReader } from "../configurationIndex/sharedSnapshot"
 import { hashFileBytes } from "../configurationIndex/hash"
-import { registerValidationMetadata } from "../validation/registerValidationMetadata"
-import { createValidationRulesSnapshot } from "../validation/rulesSnapshot"
-import { resolveValidationProjectFile } from "../validation/projectFiles"
-import { extractValidationOwnerYamlFacts } from "../validation/yamlFactExtractor"
+import {
+  createConfigurationIndexReader,
+  type ConfigurationIndexReader,
+} from "../configurationIndex/sharedSnapshot"
+import type {
+  ConfigurationContext,
+  ConfigurationContextWithExportToXML,
+} from "../context/types"
 import { prepareYamlFiles } from "../project/prepareYamlFiles"
 import type { PreparedYamlProjectFileDescriptor } from "../project/preparedYamlProject"
-import type { ConfigurationContext, ConfigurationContextWithExportToXML } from "../context/types"
+import { createLayeredOwnerMetadataCache } from "../project/componentState/indexes"
+import type { OwnerMetadataCache } from "../validation/dataPath/ownerCache"
+import { prepareFullXmlSyncAssignment } from "./prepareAssignment"
+import { createFullXmlSyncCompositionReader, type FullXmlSyncCompositionReader } from "./sharedMetadata"
 import type {
   FullXmlSyncAssignment,
   FullXmlSyncDiagnostic,
-  FullXmlSyncFirstPassResult,
-  FullXmlSyncOwnerFacts,
-  FullXmlSyncSecondPassResult,
+  FullXmlSyncExecutionResult,
   FullXmlSyncWorkerCommand,
   FullXmlSyncWorkerCommandResult,
   FullXmlSyncWrittenFile,
-  PreparedXMLAssignment,
 } from "./types"
 import { writeFullXmlSyncAssignment } from "./writeAssignment"
+import type { FullXmlSyncWorkerProfileRuntime } from "./componentProfile"
 import {
-  createFullXmlSyncCompositionReader,
-  createFullXmlSyncSharedMetadataReader,
-  type FullXmlSyncCompositionReader,
-} from "./sharedMetadata"
-import { prepareFullXmlSyncAssignment } from "./prepareAssignment"
-
-registerValidationMetadata()
+  BaseFormSourceError,
+  createVerifiedBaseFormSource,
+  type BaseFormSource,
+} from "./baseFormSource"
+import { compileRegisteredMetadataResourceTopology } from "../resourceTopology/registry"
+import { classifyMetadataProjectPath } from "../resourceTopology/projectProjection"
 
 interface InitializedFullXmlSyncWorkerState {
-  workerIndex: number
-  projectDir: string
-  outputDir: string
-  context: ConfigurationContext
-  index: ConfigurationIndexReader
-  composition: FullXmlSyncCompositionReader
+  readonly workerIndex: number
+  readonly componentDir: string
+  readonly outputDir: string
+  readonly context: ConfigurationContext
+  readonly index: ConfigurationIndexReader
+  readonly baseIndex?: ConfigurationIndexReader
+  readonly composition: FullXmlSyncCompositionReader
+  readonly ownerMetadataCache: OwnerMetadataCache
+  readonly profile: FullXmlSyncWorkerProfileRuntime
+  readonly baseFormSource?: BaseFormSource
+  activeAssignmentId: string | undefined
 }
 
 let initializedState: InitializedFullXmlSyncWorkerState | undefined
-
-const preparedAssignments = new Map<string, PreparedXMLAssignment>()
 
 export async function runFullXmlSyncWorkerCommand(
   command: FullXmlSyncWorkerCommand
 ): Promise<FullXmlSyncWorkerCommandResult> {
   if (command.kind === "initialize") {
-    preparedAssignments.clear()
+    const baseFormSource = createBaseFormSource(command.profile)
+    const baseIndex =
+      command.profile.baseForms === undefined
+        ? undefined
+        : createConfigurationIndexReader(command.profile.baseForms.snapshot)
     initializedState = {
       workerIndex: command.workerIndex,
-      projectDir: command.projectDir,
+      componentDir: command.componentDir,
       outputDir: command.outputDir,
       context: {
         ...command.context,
         importFromYAML: {
           ...command.context.importFromYAML,
-          projectDir: command.projectDir,
+          projectDir: command.componentDir,
         },
       },
-      index: createConfigurationIndexReader(command.index),
+      index: createConfigurationIndexReader(command.targetIndex),
+      ...(baseIndex === undefined ? {} : { baseIndex }),
       composition: createFullXmlSyncCompositionReader(command.composition),
+      ownerMetadataCache: createLayeredOwnerMetadataCache({
+        localProjectDir: command.componentDir,
+        ...(command.profile.baseForms === undefined
+          ? {}
+          : { baseProjectDir: command.profile.baseForms.componentDir }),
+        snapshots: {
+          local: command.localMetadata,
+          ...(command.baseMetadata === undefined ? {} : { base: command.baseMetadata }),
+        },
+      }),
+      profile: command.profile,
+      ...(baseFormSource === undefined ? {} : { baseFormSource }),
+      activeAssignmentId: undefined,
     }
     return undefined
   }
-
   if (command.kind === "dispose") {
-    disposeWorkerState()
+    initializedState = undefined
     return undefined
   }
-
-  if (command.kind === "secondPass") {
-    return runSecondPass(command.sharedMetadata, requireInitializedState())
-  }
-
-  return runFirstPass(command.assignments, requireInitializedState())
+  return executeAssignments(command.assignments, requireInitializedState())
 }
 
 export default async function fullXmlSyncWorkerEntryPoint(
   command: FullXmlSyncWorkerCommand
 ): Promise<FullXmlSyncWorkerCommandResult> {
   const result = await runFullXmlSyncWorkerCommand(command)
-  return result?.kind === "secondPassResult" ? movableSecondPassResult(result) : result
+  return result === undefined ? undefined : movableExecutionResult(result)
 }
 
-function runFirstPass(
+async function executeAssignments(
   assignments: readonly FullXmlSyncAssignment[],
   state: InitializedFullXmlSyncWorkerState
-): FullXmlSyncFirstPassResult {
-  preparedAssignments.clear()
+): Promise<FullXmlSyncExecutionResult> {
   const diagnostics: FullXmlSyncDiagnostic[] = []
-  const projectFiles: FullXmlSyncFirstPassResult["projectFiles"][number][] = []
-  const ownerFacts: FullXmlSyncOwnerFacts[] = []
+  const warnings: FullXmlSyncDiagnostic[] = []
+  const writtenFiles: FullXmlSyncWrittenFile[] = []
   const expectedOutputs: Array<{ assignmentId: string; targetXmlPath: string }> = []
-  const rulesSnapshot = createValidationRulesSnapshot(state.context)
+  const fragments: NonNullable<Awaited<ReturnType<typeof writeFullXmlSyncAssignment>>["fragment"]>[] = []
+  const itemTypes = itemTypeByYamlDir(state.composition.assignments())
 
   for (const assignment of assignments) {
+    state.activeAssignmentId = assignment.id
     try {
-      const prepared = prepareYamlFiles({
+      const bytes = await fs.promises.readFile(assignment.sourcePath)
+      const actualHash = hashFileBytes(bytes)
+      if (actualHash !== assignment.expectedContentHash) {
+        diagnostics.push(
+          assignmentDiagnostic(
+            assignment,
+            "full_xml_sync_source_changed",
+            `YAML изменён после получения хэшей: ${assignment.sourceProjectPath}`
+          )
+        )
+        break
+      }
+
+      const preparedYaml = prepareYamlFiles({
         files: [assignmentDescriptor(assignment)],
-        itemTypeByYamlDir: itemTypeByYamlDir(assignments),
-        includeProjectFiles: true,
-        hashFileBytes,
+        itemTypeByYamlDir: itemTypes,
+        sourceBytes: new Map([[assignment.sourcePath, bytes]]),
       })
       diagnostics.push(
-        ...prepared.diagnostics.map((diagnostic) => syncDiagnosticFromProjectDiagnostic(diagnostic, assignment))
+        ...preparedYaml.diagnostics.map((diagnostic) =>
+          syncDiagnosticFromProjectDiagnostic(diagnostic, assignment)
+        )
       )
-      projectFiles.push(...prepared.projectFiles)
-      const yamlFile = prepared.yamlFiles[0]
+      const yamlFile = preparedYaml.yamlFiles[0]
       if (yamlFile === undefined) continue
       const syntaxDiagnostics = yamlFile.syntaxDiagnostics.map((diagnostic) =>
         syncDiagnosticFromProjectDiagnostic(diagnostic, assignment)
       )
       diagnostics.push(...syntaxDiagnostics)
-      if (syntaxDiagnostics.some((diagnostic) => diagnostic.severity === "error")) continue
+      if (syntaxDiagnostics.some(({ severity }) => severity === "error")) continue
 
-      const validationFile = resolveValidationProjectFile(state.projectDir, assignment.sourcePath)
-      if (validationFile !== undefined) {
-        const facts = extractValidationOwnerYamlFacts({
-          file: validationFile,
-          data: yamlFile.data,
-          rulesSnapshot,
-        })
-        ownerFacts.push({
-          assignmentId: assignment.id,
-          sourceProjectPath: assignment.sourceProjectPath,
-          sourcePath: assignment.sourcePath,
-          role: assignment.role,
-          owner: { dir: validationFile.owner.dir, name: validationFile.owner.name },
-          itemType: assignment.itemType,
-          ...(facts?.ownerFacts === undefined ? {} : { ownerFacts: facts.ownerFacts }),
-          ...(facts?.fieldIndex === undefined ? {} : { fieldIndex: facts.fieldIndex }),
-        })
-      }
-      const preparedAssignment = prepareFullXmlSyncAssignment({
-          assignment,
-          preparedYamlFile: yamlFile,
-          context: exportContextForSecondPass(state),
-          index: state.index,
-          assignments: state.composition.assignments(),
-        })
-      preparedAssignments.set(assignment.id, preparedAssignment)
+      const basePreparedYamlFile = await readBaseFormIfAdopted(assignment, state)
+      const prepared = prepareFullXmlSyncAssignment({
+        assignment,
+        preparedYamlFile: yamlFile,
+        ...(basePreparedYamlFile === undefined
+          ? {}
+          : {
+              basePreparedYamlFile,
+              ...(state.baseIndex === undefined
+                ? {}
+                : { baseConfigurationIndex: state.baseIndex }),
+            }),
+        context: exportContext(state),
+        index: state.index,
+        assignments: state.composition.assignments(),
+      })
       expectedOutputs.push(
-        ...preparedAssignment.documents.map((document) => ({
+        ...prepared.documents.map(({ targetXmlPath }) => ({
           assignmentId: assignment.id,
-          targetXmlPath: document.targetXmlPath,
+          targetXmlPath,
         }))
       )
-    } catch (caught) {
-      preparedAssignments.delete(assignment.id)
-      diagnostics.push(
-        assignmentDiagnostic(assignment, "full_xml_sync_first_pass_failed", errorMessage(caught))
-      )
-    }
-  }
-
-  return { kind: "firstPassResult", diagnostics, projectFiles, ownerFacts, expectedOutputs }
-}
-
-async function runSecondPass(
-  sharedMetadata: Extract<FullXmlSyncWorkerCommand, { kind: "secondPass" }>["sharedMetadata"],
-  state: InitializedFullXmlSyncWorkerState
-): Promise<FullXmlSyncSecondPassResult> {
-  const diagnostics: FullXmlSyncDiagnostic[] = []
-  const warnings: FullXmlSyncDiagnostic[] = []
-  const writtenFiles: FullXmlSyncWrittenFile[] = []
-  const fragments: NonNullable<Awaited<ReturnType<typeof writeFullXmlSyncAssignment>>["fragment"]>[] = []
-  const progress = createSecondPassProgressReporter(state.workerIndex, preparedAssignments.size)
-  let assignmentIndex = 0
-
-  for (const [id, prepared] of preparedAssignments) {
-    assignmentIndex += 1
-    progress.assignmentStart(assignmentIndex, prepared.assignment)
-    const startedAt = performance.now()
-    const diagnosticsBefore = diagnostics.length
-    const writtenBefore = writtenFiles.length
-    try {
       const result = await writeFullXmlSyncAssignment({
         prepared,
-        context: secondPassContext(state, sharedMetadata),
+        context: exportContext(state),
         outputDir: state.outputDir,
       })
       diagnostics.push(...result.diagnostics)
@@ -187,110 +180,104 @@ async function runSecondPass(
       if (result.fragment !== undefined) fragments.push(result.fragment)
     } catch (caught) {
       diagnostics.push(
-        assignmentDiagnostic(prepared.assignment, "full_xml_sync_second_pass_failed", errorMessage(caught))
+        assignmentDiagnostic(
+          assignment,
+          caught instanceof BaseFormSourceError
+            ? caught.code
+            : "full_xml_sync_assignment_failed",
+          errorMessage(caught)
+        )
       )
     } finally {
-      progress.assignmentEnd({
-        index: assignmentIndex,
-        assignment: prepared.assignment,
-        timeMs: performance.now() - startedAt,
-        diagnostics: diagnostics.length - diagnosticsBefore,
-        writtenFiles: writtenFiles.length - writtenBefore,
-      })
-      preparedAssignments.delete(id)
+      state.activeAssignmentId = undefined
     }
   }
 
   return {
-    kind: "secondPassResult",
+    kind: "executionResult",
     diagnostics,
     warnings,
     writtenFiles,
+    expectedOutputs,
     fragmentBuffer: encodeConfigurationIndexFragments(fragments),
   }
 }
 
-function createSecondPassProgressReporter(
-  workerIndex: number,
-  total: number
-): {
-  assignmentStart(index: number, assignment: FullXmlSyncAssignment): void
-  assignmentEnd(params: {
-    index: number
-    assignment: FullXmlSyncAssignment
-    timeMs: number
-    diagnostics: number
-    writtenFiles: number
-  }): void
-} {
-  let lastProgressAt = 0
-  const enabled = process.env["NKDK_FULL_SYNC_PROFILE"] === "1"
-
-  return {
-    assignmentStart(index, assignment) {
-      if (!enabled) return
-      const now = performance.now()
-      if (index !== 1 && now - lastProgressAt < 5_000) return
-      lastProgressAt = now
-      console.error(formatSecondPassProgress("assignment-start", workerIndex, total, { index, assignment }))
-    },
-    assignmentEnd(params) {
-      if (!enabled || params.timeMs < 1_000) return
-      console.error(formatSecondPassProgress("slow-assignment", workerIndex, total, params))
-    },
+async function readBaseFormIfAdopted(
+  assignment: FullXmlSyncAssignment,
+  state: InitializedFullXmlSyncWorkerState
+) {
+  const baseInput = assignment.potentialOutputs
+    .map((output) => output.baseInput)
+    .find((value) => value !== undefined)
+  if (
+    baseInput === undefined ||
+    state.profile.adoptedUuids[assignment.logicalAddress] === undefined
+  ) {
+    return undefined
   }
+  if (state.baseFormSource === undefined) {
+    throw new Error(
+      `Для заимствованной формы не настроен источник основной конфигурации: ${assignment.logicalAddress}`
+    )
+  }
+  return state.baseFormSource.read({
+    extensionAssignment: assignment,
+    baseProjectPath: assignment.sourceProjectPath,
+  })
 }
 
-function formatSecondPassProgress(
-  event: "assignment-start" | "slow-assignment",
-  workerIndex: number,
-  total: number,
-  params: {
-    index: number
-    assignment: FullXmlSyncAssignment
-    timeMs?: number
-    diagnostics?: number
-    writtenFiles?: number
-  }
-): string {
-  const memory = process.memoryUsage()
-  return [
-    "[full-sync-worker-progress]",
-    `event=${event}`,
-    `worker=${workerIndex}`,
-    `index=${params.index}`,
-    `total=${total}`,
-    `role=${JSON.stringify(params.assignment.role)}`,
-    `itemType=${JSON.stringify(params.assignment.itemType)}`,
-    `source=${JSON.stringify(params.assignment.sourceProjectPath)}`,
-    params.timeMs === undefined ? undefined : `time=${params.timeMs.toFixed(2)}ms`,
-    params.diagnostics === undefined ? undefined : `diagnostics=${params.diagnostics}`,
-    params.writtenFiles === undefined ? undefined : `written=${params.writtenFiles}`,
-    `rss=${bytesToMiB(memory.rss).toFixed(1)}MiB`,
-    `heap=${bytesToMiB(memory.heapUsed).toFixed(1)}MiB`,
-  ]
-    .filter((part): part is string => part !== undefined)
-    .join(" ")
+function createBaseFormSource(
+  profile: FullXmlSyncWorkerProfileRuntime
+): BaseFormSource | undefined {
+  if (profile.baseForms === undefined) return undefined
+  const topology = compileRegisteredMetadataResourceTopology()
+  const resources = profile.baseForms.projectFiles.flatMap(({ projectPath }) => {
+    const resource = classifyMetadataProjectPath(topology, projectPath)
+    return resource === undefined ? [] : [resource]
+  })
+  return createVerifiedBaseFormSource({
+    baseStructure: {
+      address: { kind: "configuration" },
+      componentPath: "cf",
+      componentDir: profile.baseForms.componentDir,
+      topology,
+      resources,
+      projectPaths: profile.baseForms.projectFiles.map(({ projectPath }) => projectPath),
+    },
+    baseHashes: {
+      componentPath: "cf",
+      projectFiles: profile.baseForms.projectFiles,
+    },
+  })
 }
 
-function assignmentDescriptor(assignment: FullXmlSyncAssignment): PreparedYamlProjectFileDescriptor {
-  const owner = ownerFromAssignment(assignment)
+function assignmentDescriptor(
+  assignment: FullXmlSyncAssignment
+): PreparedYamlProjectFileDescriptor {
   return {
     projectPath: assignment.sourceProjectPath,
     filePath: assignment.sourcePath,
     role: assignment.role,
-    owner,
+    owner: ownerFromAssignment(assignment),
     itemType: assignment.itemType,
   }
 }
 
-function ownerFromAssignment(assignment: FullXmlSyncAssignment): { dir: string; name: string } {
+function ownerFromAssignment(
+  assignment: Pick<FullXmlSyncAssignment, "role" | "itemName" | "sourceProjectPath">
+): { dir: string; name: string } {
   if (assignment.role === "configuration") return { dir: "", name: assignment.itemName }
   const parts = assignment.sourceProjectPath.split("/")
   return { dir: parts[0] ?? "", name: parts[1] ?? assignment.itemName }
 }
 
-function itemTypeByYamlDir(assignments: readonly FullXmlSyncAssignment[]): Record<string, string> {
+function itemTypeByYamlDir(
+  assignments: readonly Pick<
+    FullXmlSyncAssignment,
+    "role" | "itemName" | "sourceProjectPath" | "itemType"
+  >[]
+): Record<string, string> {
   return Object.fromEntries(
     assignments
       .map((assignment) => [ownerFromAssignment(assignment).dir, assignment.itemType] as const)
@@ -298,97 +285,19 @@ function itemTypeByYamlDir(assignments: readonly FullXmlSyncAssignment[]): Recor
   )
 }
 
-function syncDiagnosticFromProjectDiagnostic(
-  diagnostic: {
-    severity: "error" | "warning"
-    source: string
-    message: string
-    filePath: string
-    line?: number
-    col?: number
-  },
-  assignment?: FullXmlSyncAssignment
-): FullXmlSyncDiagnostic {
-  return {
-    severity: diagnostic.severity,
-    code: diagnostic.source,
-    message: diagnostic.message,
-    ...(assignment === undefined
-      ? {}
-      : {
-          assignmentId: assignment.id,
-          sourceProjectPath: assignment.sourceProjectPath,
-          targetXmlPath: assignment.potentialOutputs[0]?.targetXmlPath,
-        }),
-    sourcePath: diagnostic.filePath,
-    ...(diagnostic.line === undefined ? {} : { line: diagnostic.line }),
-    ...(diagnostic.col === undefined ? {} : { col: diagnostic.col }),
-  }
-}
-
-function requireInitializedState(): InitializedFullXmlSyncWorkerState {
-  if (initializedState === undefined) throw new Error("Full XML sync worker не инициализирован")
-  return initializedState
-}
-
-function disposeWorkerState(): void {
-  preparedAssignments.clear()
-  initializedState = undefined
-}
-
-export function fullXmlSyncWorkerStateForTests(): {
-  initialized: boolean
-  workerIndex?: number
-  projectDir?: string
-  importProjectDir?: string
-  outputDir?: string
-  preparedIds: string[]
-  prepared: { id: string; documents: string[]; holdsPreparedYamlFile: false }[]
-} {
-  return {
-    initialized: initializedState !== undefined,
-    ...(initializedState === undefined
-      ? {}
-      : {
-          workerIndex: initializedState.workerIndex,
-          projectDir: initializedState.projectDir,
-          importProjectDir: initializedState.context.importFromYAML?.projectDir,
-          outputDir: initializedState.outputDir,
-        }),
-    preparedIds: [...preparedAssignments.keys()],
-    prepared: [...preparedAssignments.entries()].map(([id, prepared]) => ({
-      id,
-      documents: prepared.documents.map((document) => document.targetXmlPath),
-      holdsPreparedYamlFile: false,
-    })),
-  }
-}
-
-export function resetFullXmlSyncWorkerStateForTests(): void {
-  disposeWorkerState()
-}
-
-export function createSecondPassTransferable(result: FullXmlSyncSecondPassResult) {
-  return {
-    get [transferableSymbol]() {
-      return [result.fragmentBuffer]
-    },
-    get [valueSymbol]() {
-      return result
-    },
-  }
-}
-
-function movableSecondPassResult(result: FullXmlSyncSecondPassResult): FullXmlSyncSecondPassResult {
-  return move(createSecondPassTransferable(result)) as unknown as FullXmlSyncSecondPassResult
-}
-
-function exportContextForSecondPass(state: InitializedFullXmlSyncWorkerState): ConfigurationContextWithExportToXML {
+function exportContext(
+  state: InitializedFullXmlSyncWorkerState
+): ConfigurationContextWithExportToXML {
   return {
     ...state.context,
+    exportToYAML: {
+      toTyped: state.context.exportToYAML?.toTyped ?? false,
+      ...state.context.exportToYAML,
+      ownerMetadataCache: state.ownerMetadataCache,
+    },
     exportToXML: {
+      ...(state.context.exportToXML ?? {}),
       itemsTree: [],
-      configDumpInfo: new Map(),
       version: state.context.version,
       context: {
         metadataForNumbering: [],
@@ -396,27 +305,45 @@ function exportContextForSecondPass(state: InitializedFullXmlSyncWorkerState): C
         templates: [],
         parentName: "",
       },
-      ...(state.context.exportToXML ?? {}),
+      componentKind: state.profile.componentKind,
+      adoptedUuids: state.profile.adoptedUuids,
+      xmlDefaultVariantByLogicalAddress:
+        state.profile.xmlDefaultVariantByLogicalAddress,
+      indexedPropertyOrderByLogicalAddress:
+        state.profile.indexedPropertyOrderByLogicalAddress,
     },
   }
 }
 
-function secondPassContext(
-  state: InitializedFullXmlSyncWorkerState,
-  sharedMetadata: Extract<FullXmlSyncWorkerCommand, { kind: "secondPass" }>["sharedMetadata"]
-): ConfigurationContextWithExportToXML {
-  const context = exportContextForSecondPass(state)
+function syncDiagnosticFromProjectDiagnostic(
+  diagnostic: {
+    readonly severity: "error" | "warning"
+    readonly source: string
+    readonly message: string
+    readonly filePath: string
+    readonly line?: number
+    readonly col?: number
+  },
+  assignment: FullXmlSyncAssignment
+): FullXmlSyncDiagnostic {
   return {
-    ...context,
-    exportToYAML: {
-      toTyped: context.exportToYAML?.toTyped ?? false,
-      ...context.exportToYAML,
-      ownerMetadataCache: createFullXmlSyncSharedMetadataReader(sharedMetadata).ownerCache(state.projectDir),
-    },
+    severity: diagnostic.severity,
+    code: diagnostic.source,
+    message: diagnostic.message,
+    assignmentId: assignment.id,
+    sourceProjectPath: assignment.sourceProjectPath,
+    sourcePath: diagnostic.filePath,
+    targetXmlPath: assignment.potentialOutputs[0]?.targetXmlPath,
+    ...(diagnostic.line === undefined ? {} : { line: diagnostic.line }),
+    ...(diagnostic.col === undefined ? {} : { col: diagnostic.col }),
   }
 }
 
-function assignmentDiagnostic(assignment: FullXmlSyncAssignment, code: string, message: string): FullXmlSyncDiagnostic {
+function assignmentDiagnostic(
+  assignment: FullXmlSyncAssignment,
+  code: string,
+  message: string
+): FullXmlSyncDiagnostic {
   return {
     severity: "error",
     code,
@@ -428,10 +355,57 @@ function assignmentDiagnostic(assignment: FullXmlSyncAssignment, code: string, m
   }
 }
 
-function errorMessage(error: unknown): string {
-  return error instanceof Error ? error.message : String(error)
+function requireInitializedState(): InitializedFullXmlSyncWorkerState {
+  if (initializedState === undefined) throw new Error("Full XML sync worker не инициализирован")
+  return initializedState
 }
 
-function bytesToMiB(value: number): number {
-  return value / 1024 / 1024
+export function fullXmlSyncWorkerStateForTests(): {
+  readonly initialized: boolean
+  readonly workerIndex?: number
+  readonly componentDir?: string
+  readonly importProjectDir?: string
+  readonly outputDir?: string
+  readonly activeAssignmentId?: string
+  readonly baseIndexSnapshot?: ConfigurationIndexReader["snapshot"]
+} {
+  if (initializedState === undefined) return { initialized: false }
+  return {
+    initialized: true,
+    workerIndex: initializedState.workerIndex,
+    componentDir: initializedState.componentDir,
+    importProjectDir: initializedState.context.importFromYAML?.projectDir,
+    outputDir: initializedState.outputDir,
+    ...(initializedState.baseIndex === undefined
+      ? {}
+      : { baseIndexSnapshot: initializedState.baseIndex.snapshot }),
+    ...(initializedState.activeAssignmentId === undefined
+      ? {}
+      : { activeAssignmentId: initializedState.activeAssignmentId }),
+  }
+}
+
+export function resetFullXmlSyncWorkerStateForTests(): void {
+  initializedState = undefined
+}
+
+export function createExecutionTransferable(result: FullXmlSyncExecutionResult) {
+  return {
+    get [transferableSymbol]() {
+      return [result.fragmentBuffer]
+    },
+    get [valueSymbol]() {
+      return result
+    },
+  }
+}
+
+function movableExecutionResult(
+  result: FullXmlSyncExecutionResult
+): FullXmlSyncExecutionResult {
+  return move(createExecutionTransferable(result)) as unknown as FullXmlSyncExecutionResult
+}
+
+function errorMessage(error: unknown): string {
+  return error instanceof Error ? error.message : String(error)
 }

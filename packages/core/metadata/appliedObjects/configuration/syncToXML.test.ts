@@ -71,7 +71,7 @@ describe("sync configuration to XML", () => {
     expect(resultFormMetadataXML).toBe(expectedFormMetadataXML)
   })
 
-  it("без referenceDir не читает reference из outputDir и создаёт новый ConfigDumpInfo.xml", async () => {
+  it("без referenceDir не читает reference из outputDir и не создаёт ConfigDumpInfo.xml", async () => {
     const tmp = fs.mkdtempSync(join(os.tmpdir(), "nkdk-configuration-no-reference-"))
     const yamlDir = join(tmp, "yaml")
     const outDir = join(tmp, "xml")
@@ -98,9 +98,7 @@ describe("sync configuration to XML", () => {
       const catalogXML = fs.readFileSync(join(outDir, "Catalogs", "Контрагенты.xml"), "utf-8")
       expect(catalogXML).toContain("<Catalog")
       expect(catalogXML).not.toContain("ФормаЭлемента")
-      expect(fs.readFileSync(join(outDir, "ConfigDumpInfo.xml"), "utf-8")).toContain(
-        '<Metadata name="Catalog.Контрагенты"'
-      )
+      expect(fs.existsSync(join(outDir, "ConfigDumpInfo.xml"))).toBe(false)
       expect(fs.existsSync(join(outDir, "Ext", "Unsupported.xml"))).toBe(false)
     } finally {
       fs.rmSync(tmp, { recursive: true, force: true })
@@ -313,7 +311,6 @@ describe("sync configuration to XML", () => {
       fs.writeFileSync(join(yamlDir, "МодульПриложения.bsl"), "Процедура Новая()\nКонецПроцедуры\n", "utf-8")
       fs.writeFileSync(join(referenceDir, "Ext", "ManagedApplicationModule.bsl"), "old", "utf-8")
       fs.writeFileSync(join(referenceDir, "Ext", "Configuration.xml"), "<ExtensionConfiguration/>", "utf-8")
-      fs.writeFileSync(join(referenceDir, "Ext", "ConfigDumpInfo.xml"), "<ConfigDumpInfo/>", "utf-8")
       fs.writeFileSync(join(referenceDir, "Ext", "CommonForms", "PeriodField.xml"), "<MetaDataObject/>", "utf-8")
       fs.writeFileSync(join(referenceDir, "Ext", "CommonForms", "PeriodField", "Ext", "Form.xml"), "<Form/>", "utf-8")
       fs.writeFileSync(join(referenceDir, "Ext", "Roles", "Расш1_ОсновнаяРоль.xml"), "<MetaDataObject/>", "utf-8")
@@ -331,7 +328,6 @@ describe("sync configuration to XML", () => {
         "Процедура Новая()\nКонецПроцедуры\n"
       )
       expect(fs.readFileSync(join(outDir, "Ext", "Configuration.xml"), "utf-8")).toBe("<ExtensionConfiguration/>")
-      expect(fs.readFileSync(join(outDir, "Ext", "ConfigDumpInfo.xml"), "utf-8")).toBe("<ConfigDumpInfo/>")
       expect(fs.readFileSync(join(outDir, "Ext", "CommonForms", "PeriodField.xml"), "utf-8")).toBe("<MetaDataObject/>")
       expect(fs.readFileSync(join(outDir, "Ext", "CommonForms", "PeriodField", "Ext", "Form.xml"), "utf-8")).toBe(
         "<Form/>"
@@ -627,7 +623,8 @@ describe("sync configuration to XML", () => {
   describe("round-trip Document/DocumentNumerator/Sequence", () => {
     const tmp = fs.mkdtempSync(join(os.tmpdir(), "nkdk-round-trip-document-family-"))
     const tmpInputXmlDir = join(tmp, "input-xml")
-    const tmpYamlDir = join(tmp, "yaml")
+    const tmpProjectDir = join(tmp, "project")
+    const tmpYamlDir = join(tmpProjectDir, "cf")
     const tmpXmlDir = join(tmp, "xml")
 
     beforeAll(async () => {
@@ -638,11 +635,15 @@ describe("sync configuration to XML", () => {
         ["Documents", "ДокументПоУмолчанию.xml"],
         ["Sequences", "ПоследовательностьПоУмолчанию.xml"],
       ])
+      fs.copyFileSync(
+        getXMLFixturePath("configuration/minimal.xml"),
+        join(tmpInputXmlDir, CONFIGURATION_XML_FILE)
+      )
 
       await syncConfigurationFromXML({
         context: mockContextFromXML(),
         inputDir: tmpInputXmlDir,
-        outputDir: tmpYamlDir,
+        projectDir: tmpProjectDir,
       })
 
       await syncConfigurationToXMLForTest({
@@ -934,13 +935,7 @@ describe("sync configuration to XML", () => {
       expect(result).toContain('<Catalog uuid="00000000-0000-0000-0000-000000000001">')
       expect(result).toContain('<Attribute uuid="00000000-0000-0000-0000-000000000101">')
       expect(result).toContain("<Name>НовыйАртикул</Name>")
-      const dumpInfo = fs.readFileSync(join(outDir, "ConfigDumpInfo.xml"), "utf-8")
-      expect(dumpInfo).toContain(
-        '<Metadata name="Catalog.Номенклатура" id="00000000-0000-0000-0000-000000000001" configVersion="catalog-version">'
-      )
-      expect(dumpInfo).toContain(
-        '<Metadata name="Catalog.Номенклатура.Attribute.НовыйАртикул" id="00000000-0000-0000-0000-000000000101"/>'
-      )
+      expect(fs.existsSync(join(outDir, "ConfigDumpInfo.xml"))).toBe(false)
     } finally {
       if (fs.existsSync(tmp)) fs.rmSync(tmp, { recursive: true })
     }

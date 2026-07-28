@@ -1,5 +1,6 @@
 import "./metadataCommand/register"
 import "./metadataCommonCommand"
+import "./configurationExtension/register"
 
 import "./metadataCatalog/register"
 

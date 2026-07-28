@@ -7,6 +7,21 @@ import { mockContextToXML } from "../../../tests/mockContext"
 import { readAndParseXMLFixture } from "../../../tests/readFixtureXML"
 import type { ClientApplicationFormXML, ClientApplicationFormYAML, FormMetadataXML } from "./types"
 import { convertClientApplicationFormFromYAMLToXML } from "./fromYAMLToXML"
+import { createImportSharedMetadata } from "../../importFromXml/metadataSnapshot"
+import {
+  createLayeredImportReferenceSnapshot,
+  createLayeredOwnerMetadataCache,
+} from "../../importFromXml/componentReferenceIndex"
+import { createValidationOwnerFacts } from "../../validation/dataPath/ownerFacts"
+import { buildObjectFieldIndex } from "../../validation/dataPath/objectFields"
+import { MetadataCatalogRules } from "../../appliedObjects/metadataCatalog/rules"
+import { getTypeRule } from "../../orchestration/property/typeRuleRegistry"
+import { encodeConfigurationIndex } from "../../configurationIndex/encode"
+import {
+  createConfigurationIndexReader,
+  snapshotConfigurationIndex,
+} from "../../configurationIndex/sharedSnapshot"
+import { sampleIndex } from "../../configurationIndex/testData"
 
 describe("convertClientApplicationFormFromYAMLToXML", () => {
   it("формирует описание и содержимое формы прямо из YAML", () => {
@@ -184,10 +199,101 @@ describe("convertClientApplicationFormFromYAMLToXML", () => {
 
     expect(result.metadataXML.Form.Properties.ExtendedPresentation).toBe("")
   })
+
+  it("возвращает стандартный реквизит DataPath по готовым индексам расширения", () => {
+    const result = convertClientApplicationFormFromYAMLToXML({
+      context: contextWithLayeredCatalogOwner(),
+      yaml: {
+        Реквизиты: {
+          Объект: { Тип: "СправочникОбъект.СправочникПолный" },
+        },
+        Элементы: {
+          Код: {
+            Вид: "ПолеВвода",
+            ПутьКДанным: "Объект.Код",
+          },
+        },
+      } as ClientApplicationFormYAML,
+      name: "ФормаЭлемента",
+    })
+
+    expect(firstInputField(result.formXML).DataPath).toBe("Объект.Code")
+  })
+
+  it("строит BaseForm встроенной формы из отдельного базового YAML", () => {
+    const nestedRule = getTypeRule(
+      "ClientApplicationForm",
+      "yamlToXMLNestedRule"
+    )
+    if (nestedRule?.kind !== "externalFile") {
+      throw new Error("Не зарегистрировано вложенное правило формы")
+    }
+
+    const result = nestedRule.convert({
+      context: mockContextToXML(),
+      yaml: { Ширина: 100 },
+      baseYAML: { Ширина: 80 },
+      baseConfigurationIndex: createConfigurationIndexReader(
+        snapshotConfigurationIndex(
+          encodeConfigurationIndex(sampleIndex())
+        )
+      ),
+      name: "ОбщаяФорма",
+      referenceXML: undefined,
+    })
+
+    expect(result.Form).toMatchObject({
+      Width: 100,
+      BaseForm: {
+        _version: "2.20",
+        Width: 80,
+      },
+    })
+  })
 })
 
 function firstTable(form: ClientApplicationFormXML): Record<string, unknown> {
   const childItems = Array.isArray(form.ChildItems) ? form.ChildItems : form.ChildItems?.ChildItem
   const first = Array.isArray(childItems) ? childItems[0] : childItems
   return first?.Table ?? {}
+}
+
+function firstInputField(form: ClientApplicationFormXML): Record<string, unknown> {
+  const childItems = Array.isArray(form.ChildItems) ? form.ChildItems : form.ChildItems?.ChildItem
+  const first = Array.isArray(childItems) ? childItems[0] : childItems
+  return first?.InputField ?? {}
+}
+
+function contextWithLayeredCatalogOwner() {
+  const context = mockContextToXML()
+  const ref = { kind: "Справочник", name: "СправочникПолный" }
+  const filePath = "/project/cf/Справочник/СправочникПолный/Свойства.yaml"
+  const initialFacts = createValidationOwnerFacts({
+    ref,
+    filePath,
+    fieldIndex: {
+      fields: new Map(),
+      standardAttributeAliases: new Map(),
+      diagnostics: [],
+    },
+    model: { itemType: "MetadataCatalog" },
+  })
+  const fieldIndex = buildObjectFieldIndex({
+    ref,
+    facts: initialFacts,
+    rule: MetadataCatalogRules,
+  })
+  return {
+    ...context,
+    exportToYAML: {
+      toTyped: false,
+      ownerMetadataCache: createLayeredOwnerMetadataCache({
+        projectDir: "/project/cfe/Расширение",
+        snapshots: createLayeredImportReferenceSnapshot({
+          local: createImportSharedMetadata([]),
+          base: createImportSharedMetadata([{ ...initialFacts, fieldIndex }]),
+        }),
+      }),
+    },
+  }
 }

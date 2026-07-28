@@ -3,6 +3,7 @@ import { ConfigurationContextWithExportToXML } from "../../context/types"
 import { MetadataCommandRules } from "../../appliedObjects/metadataCommand/rules"
 import { V8_MDCLASSES_ROOT } from "../../orchestration/appliedObject/presets"
 import type { MetadataItemRule } from "../../orchestration/property/types"
+import { internalInfoRule } from "../internalInfo/types"
 import { externalDataSourceObjectServiceProperties } from "../metadataExternalDataSourceField/rules"
 import {
   MetadataExternalDataSourceDimensionTableCollectionRules,
@@ -37,8 +38,7 @@ const cubeProperties = {
     toYAML: false,
     fromYAML: false,
   },
-  internalInfo: {
-    type: "InternalInfo",
+  internalInfo: internalInfoRule({
     xmlParents: root,
     forReferenceOnly: true,
     toYAML: false,
@@ -56,7 +56,7 @@ const cubeProperties = {
       { name: "ExternalDataSourceCubeRecordManager", category: "RecordManager" },
       { name: "ExternalDataSourceCubeDimensionsTablesManager", category: "DimensionTables" },
     ] as { name: string; category: string }[],
-  },
+  }),
   uuid: {
     type: "uuid",
     xml: "_uuid",

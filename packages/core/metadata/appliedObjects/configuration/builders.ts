@@ -12,8 +12,14 @@ export type RootCommandInterfaceRuleParams = Omit<RootCommandInterfaceWideProper
 
 export function rootCommandInterfaceRule<const Params extends RootCommandInterfaceRuleParams>(
   params: WideExactRuleParams<RootCommandInterfaceRuleParams, Params>
-): Readonly<{ type: "RootCommandInterface" } & Params> {
-  return defineWidePropertyRule("RootCommandInterface", params)
+): Readonly<{
+  type: "RootCommandInterface"
+  configurationIndexAddressing: "yamlPath"
+} & Params> {
+  return defineWidePropertyRule("RootCommandInterface", {
+    configurationIndexAddressing: "yamlPath" as const,
+    ...params,
+  })
 }
 export interface AllowedIncomingShareRequestTypesWidePropertyRule extends WidePropertyRuleBase {
   type: "AllowedIncomingShareRequestTypes"

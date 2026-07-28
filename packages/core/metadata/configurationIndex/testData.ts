@@ -6,7 +6,7 @@ export function sampleIndex(): ConfigurationIndexData {
     binding: {
       indexGeneration: 1n,
       producerVersion: NKDK_CORE_VERSION,
-      baseId: "default",
+      componentPath: "cf",
       baseFingerprint: new Uint8Array(),
       configurationVersion: new Uint8Array(),
     },
@@ -27,6 +27,31 @@ export function sampleIndex(): ConfigurationIndexData {
       },
     ],
     xmlValues: [{ logicalAddress: "Справочник.Товары.synonym", explicitEmpty: true, xmlText: "" }],
+    localIndexes: {
+      metadata: {
+        reference: Uint8Array.of(0x52, 0x45, 0x46),
+        ownerStrings: Uint8Array.of(0x53, 0x54, 0x52),
+        ownerTable: Uint8Array.of(0x4f, 0x57, 0x4e),
+      },
+      dependencies: [
+        {
+          sourceProjectPath: "Конфигурация.yaml",
+          yamlPath: ["Реквизиты", 0, "Тип"],
+          rulePath: [
+            { propertyKey: "attributes", nestedItemType: "Attribute" },
+            { propertyKey: "type" },
+          ],
+          kind: "metadataTarget",
+          canonical: "Catalog.Товары.Attribute.Артикул",
+        },
+      ],
+      logicalAddresses: [
+        {
+          logicalAddress: "Справочник.Товары",
+          sourceProjectPath: "Конфигурация.yaml",
+        },
+      ],
+    },
   }
 }
 
@@ -38,6 +63,10 @@ export function sampleFragments(): ConfigurationIndexFragment[] {
       identities: data.identities,
       xmlNodes: data.xmlNodes,
       xmlValues: data.xmlValues,
+      localDependencies: data.localIndexes.dependencies.map((dependency) => ({
+        ...dependency,
+        sourceProjectPath: "Справочник/Товары/Свойства.yaml",
+      })),
     },
     {
       targetProjectPath: "Конфигурация.yaml",

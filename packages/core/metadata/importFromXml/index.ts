@@ -1,4 +1,9 @@
-export { discoverXmlImport, type DiscoverXmlImportParams, type XmlImportDiscoveryFileSystem } from "./discovery"
+export {
+  discoverXmlImport,
+  readXmlImportComponentRoot,
+  type DiscoverXmlImportParams,
+  type XmlImportDiscoveryFileSystem,
+} from "./discovery"
 export {
   importConfigurationFromXml,
   type ConfigurationImportResult,

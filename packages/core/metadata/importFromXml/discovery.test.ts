@@ -111,13 +111,7 @@ describe("XML import discovery", () => {
       sourcePath: join(xmlDir, "Catalogs/Контрагенты/Forms/ФормаЭлемента/Ext/Form/Module.bsl"),
       targetProjectPath: "Справочник/Контрагенты/Формы/ФормаЭлемента/Модуль.bsl",
     })
-    expect(result.snapshotFiles).toEqual([
-      {
-        sourcePath: join(xmlDir, "ConfigDumpInfo.xml"),
-        capabilityId: "configDumpInfo",
-        targetProjectPath: "Конфигурация.yaml",
-      },
-    ])
+    expect(result.snapshotFiles).toEqual([])
   })
 
   it("uses the body role for a real CommonForm Ext/Form.xml", async () => {

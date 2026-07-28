@@ -1,16 +1,9 @@
-import { createOwnerMetadataCacheFromSharedValidationSnapshot } from "../validation/dataPath/sharedOwnerCache"
-import {
-  createBinarySharedOwnersSnapshot,
-  type BinarySharedOwnersSnapshot,
-} from "../validation/sharedValidationBinaryOwners"
-import { createSharedProjectReferenceSnapshot } from "../validation/sharedProjectReferenceIndex"
 import {
   createSharedStringPool,
   createSharedStringPoolView,
   type SharedStringPool,
 } from "../validation/sharedStringPool"
-import type { ValidationObjectRecord, ValidationObjectTableSnapshot } from "../validation/projectValidationTypes"
-import type { FullXmlSyncAssignment, FullXmlSyncOwnerFacts } from "./types"
+import type { FullXmlSyncAssignment } from "./types"
 
 const COMPOSITION_MAGIC = 0x4e4b434d
 const COMPOSITION_VERSION = 1
@@ -25,11 +18,6 @@ export interface FullXmlSyncSharedCompositionSnapshot {
   readonly assignments: number
 }
 
-export interface FullXmlSyncSharedMetadata {
-  readonly owners: BinarySharedOwnersSnapshot
-  readonly composition: FullXmlSyncSharedCompositionSnapshot
-}
-
 export interface FullXmlSyncCompositionEntry {
   readonly id: string
   readonly sourceProjectPath: string
@@ -40,67 +28,10 @@ export interface FullXmlSyncCompositionEntry {
   readonly ownerLogicalAddress?: string
 }
 
-export interface FullXmlSyncSharedMetadataReader {
-  assignment(id: string): FullXmlSyncCompositionEntry | undefined
-  assignmentsByOwner(ownerLogicalAddress: string): FullXmlSyncCompositionEntry[]
-  assignments(): FullXmlSyncCompositionEntry[]
-  ownerCache(projectDir: string): ReturnType<typeof createOwnerMetadataCacheFromSharedValidationSnapshot>
-}
-
 export interface FullXmlSyncCompositionReader {
   assignment(id: string): FullXmlSyncCompositionEntry | undefined
   assignmentsByOwner(ownerLogicalAddress: string): FullXmlSyncCompositionEntry[]
   assignments(): FullXmlSyncCompositionEntry[]
-}
-
-export function createFullXmlSyncSharedMetadata(params: {
-  assignments: readonly FullXmlSyncAssignment[]
-  owners: readonly FullXmlSyncOwnerFacts[]
-}): FullXmlSyncSharedMetadata {
-  const ownerSnapshot = createBinarySharedOwnersSnapshot(ownerTableSnapshot(params.owners))
-  return {
-    owners: ownerSnapshot,
-    composition: createFullXmlSyncCompositionSnapshot(params.assignments),
-  }
-}
-
-export function createFullXmlSyncSharedMetadataReader(
-  snapshot: FullXmlSyncSharedMetadata
-): FullXmlSyncSharedMetadataReader {
-  const composition = createFullXmlSyncCompositionReader(snapshot.composition)
-  return {
-    assignment: composition.assignment,
-    assignmentsByOwner: composition.assignmentsByOwner,
-    assignments: composition.assignments,
-    ownerCache(projectDir) {
-      return createOwnerMetadataCacheFromSharedValidationSnapshot({
-        projectDir,
-        snapshot: { reference: emptySharedReferenceSnapshot(), owners: snapshot.owners },
-      })
-    },
-  }
-}
-
-function ownerTableSnapshot(owners: readonly FullXmlSyncOwnerFacts[]): ValidationObjectTableSnapshot {
-  const records: ValidationObjectRecord[] = owners.map((owner) => {
-    const ownerRef = owner.owner.dir.length === 0 ? undefined : { kind: owner.owner.dir, name: owner.owner.name }
-    const ownerFacts =
-      ownerRef === undefined || owner.fieldIndex === undefined || owner.ownerFacts === undefined
-        ? undefined
-        : owner.ownerFacts
-
-    return {
-      filePath: owner.sourcePath,
-      projectPath: owner.sourceProjectPath,
-      kind: owner.role,
-      owner: owner.owner,
-      ...(ownerRef === undefined ? {} : { ownerRef }),
-      ...(ownerFacts === undefined ? {} : { ownerFacts, fieldIndex: owner.fieldIndex }),
-      importDiagnostics: [],
-    }
-  })
-
-  return { records, filePaths: [...new Set(owners.map((owner) => owner.sourcePath))] }
 }
 
 export function createFullXmlSyncCompositionSnapshot(
@@ -197,12 +128,4 @@ export function createFullXmlSyncCompositionReader(
       return result
     },
   }
-}
-
-function emptySharedReferenceSnapshot() {
-  return createSharedProjectReferenceSnapshot({
-    objectIndexEntries: [],
-    memberIndexEntries: [],
-    valueIndexEntries: [],
-  })
 }

@@ -295,7 +295,16 @@ registerMetadataXmlPrepareCapability({
 
 registerMetadataXmlPrepareCapability({
   id: "externalFileProperty",
-  run: ({ assignment, context, preparedYamlFile, itemName, logicalAddress, outputs }) => {
+  run: ({
+    assignment,
+    context,
+    preparedYamlFile,
+    basePreparedYamlFile,
+    baseConfigurationIndex,
+    itemName,
+    logicalAddress,
+    outputs,
+  }) => {
     const contextWithSourceDir = withImportFormDir(context, dirname(preparedYamlFile.filePath))
     const itemContext = getChildContextToXML({
       context: withImportMetadataTargetOwner(contextWithSourceDir, assignment.itemRule, itemName),
@@ -310,6 +319,15 @@ registerMetadataXmlPrepareCapability({
       itemName,
       context: itemContext,
     })
+    const baseSource =
+      basePreparedYamlFile === undefined
+        ? undefined
+        : createYAMLPropertySource({
+            yaml: basePreparedYamlFile.data,
+            rule: assignment.itemRule,
+            itemName,
+            context: itemContext,
+          })
 
     return outputs.flatMap((output) => {
       const propertyKey = output.propertyName
@@ -329,8 +347,21 @@ registerMetadataXmlPrepareCapability({
       const xml = nestedRule.convert({
         context: propertyContext,
         yaml: source.raw(propertyKey),
+        ...(output.baseInput?.value === "wholeYaml" &&
+        basePreparedYamlFile !== undefined
+          ? { baseYAML: basePreparedYamlFile.data }
+          : output.baseInput?.value === "sourceProperty" &&
+              output.baseInput.propertyName !== undefined &&
+              baseSource !== undefined
+            ? {
+                baseYAML: baseSource.raw(output.baseInput.propertyName),
+              }
+            : {}),
         name: itemName,
         referenceXML: undefined,
+        ...(baseConfigurationIndex === undefined
+          ? {}
+          : { baseConfigurationIndex }),
       })
       return [
         {
