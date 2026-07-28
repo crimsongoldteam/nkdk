@@ -247,6 +247,7 @@ function createHarness(options: HarnessOptions = {}) {
                     baseForms: {
                       componentDir: base.structure.componentDir,
                       projectFiles: base.hashes.projectFiles,
+                      snapshot: base.snapshot,
                     },
                   }),
             },

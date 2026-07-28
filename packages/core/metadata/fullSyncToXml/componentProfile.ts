@@ -1,5 +1,8 @@
 import type { ComponentAddress } from "../components/address"
-import type { ConfigurationProjectFile } from "../configurationIndex"
+import type {
+  ConfigurationProjectFile,
+  SharedConfigurationIndexSnapshot,
+} from "../configurationIndex"
 import type { ConfirmedComponentState } from "../project/componentState/types"
 import type { XMLDefaultVariant } from "../context/types"
 
@@ -14,6 +17,7 @@ export interface FullXmlSyncWorkerProfileRuntime {
   readonly baseForms?: {
     readonly componentDir: string
     readonly projectFiles: readonly ConfigurationProjectFile[]
+    readonly snapshot: SharedConfigurationIndexSnapshot
   }
 }
 

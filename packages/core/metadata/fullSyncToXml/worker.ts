@@ -40,6 +40,7 @@ interface InitializedFullXmlSyncWorkerState {
   readonly outputDir: string
   readonly context: ConfigurationContext
   readonly index: ConfigurationIndexReader
+  readonly baseIndex?: ConfigurationIndexReader
   readonly composition: FullXmlSyncCompositionReader
   readonly ownerMetadataCache: OwnerMetadataCache
   readonly profile: FullXmlSyncWorkerProfileRuntime
@@ -54,6 +55,10 @@ export async function runFullXmlSyncWorkerCommand(
 ): Promise<FullXmlSyncWorkerCommandResult> {
   if (command.kind === "initialize") {
     const baseFormSource = createBaseFormSource(command.profile)
+    const baseIndex =
+      command.profile.baseForms === undefined
+        ? undefined
+        : createConfigurationIndexReader(command.profile.baseForms.snapshot)
     initializedState = {
       workerIndex: command.workerIndex,
       componentDir: command.componentDir,
@@ -66,6 +71,7 @@ export async function runFullXmlSyncWorkerCommand(
         },
       },
       index: createConfigurationIndexReader(command.targetIndex),
+      ...(baseIndex === undefined ? {} : { baseIndex }),
       composition: createFullXmlSyncCompositionReader(command.composition),
       ownerMetadataCache: createLayeredOwnerMetadataCache({
         localProjectDir: command.componentDir,
@@ -354,6 +360,7 @@ export function fullXmlSyncWorkerStateForTests(): {
   readonly importProjectDir?: string
   readonly outputDir?: string
   readonly activeAssignmentId?: string
+  readonly baseIndexSnapshot?: ConfigurationIndexReader["snapshot"]
 } {
   if (initializedState === undefined) return { initialized: false }
   return {
@@ -362,6 +369,9 @@ export function fullXmlSyncWorkerStateForTests(): {
     componentDir: initializedState.componentDir,
     importProjectDir: initializedState.context.importFromYAML?.projectDir,
     outputDir: initializedState.outputDir,
+    ...(initializedState.baseIndex === undefined
+      ? {}
+      : { baseIndexSnapshot: initializedState.baseIndex.snapshot }),
     ...(initializedState.activeAssignmentId === undefined
       ? {}
       : { activeAssignmentId: initializedState.activeAssignmentId }),

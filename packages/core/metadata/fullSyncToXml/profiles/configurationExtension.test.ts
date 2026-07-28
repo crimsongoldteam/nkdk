@@ -86,7 +86,9 @@ describe("configuration extension full XML sync profile", () => {
     expect(runtime.workerProfile.baseForms).toEqual({
       componentDir: "/project/cf",
       projectFiles: base.hashes.projectFiles,
+      snapshot: base.snapshot,
     })
+    expect(runtime.workerProfile.baseForms?.snapshot).toBe(base.snapshot)
     expect(Object.keys(runtime)).toEqual(["kind", "target", "base", "workerProfile"])
   })
 

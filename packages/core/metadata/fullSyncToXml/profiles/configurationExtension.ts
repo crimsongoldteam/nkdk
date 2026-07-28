@@ -90,6 +90,7 @@ export const configurationExtensionFullXmlSyncProfile: FullXmlSyncComponentProfi
         baseForms: {
           componentDir: base.structure.componentDir,
           projectFiles: base.hashes.projectFiles,
+          snapshot: base.snapshot,
         },
       },
     }

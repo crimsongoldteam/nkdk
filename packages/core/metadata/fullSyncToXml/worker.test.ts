@@ -57,6 +57,9 @@ describe("full XML sync worker", () => {
     })
     expect(fullXmlSyncWorkerStateForTests()).not.toHaveProperty("activeAssignmentId")
     expect(fullXmlSyncWorkerStateForTests()).not.toHaveProperty("preparedIds")
+    expect(fullXmlSyncWorkerStateForTests()).not.toHaveProperty(
+      "baseIndexSnapshot"
+    )
   })
 
   it("keeps an already written XML and stops when the next YAML hash changed", async () => {
@@ -87,7 +90,13 @@ describe("full XML sync worker", () => {
   it("releases all state on dispose", async () => {
     const projectDir = createProject(["Товары"])
     const assigned = assignment(projectDir, "Товары")
-    await initialize(projectDir, [assigned])
+    const baseSnapshot = snapshotConfigurationIndex(
+      encodeConfigurationIndex(sampleIndex())
+    )
+    await initialize(projectDir, [assigned], context, baseSnapshot)
+
+    expect(fullXmlSyncWorkerStateForTests().baseIndexSnapshot)
+      .toBe(baseSnapshot)
 
     await runFullXmlSyncWorkerCommand({ kind: "dispose" })
 
@@ -155,6 +164,9 @@ describe("full XML sync worker", () => {
         "Имя: ФормаПродаж\nФорма:\n  Ширина: 80\n"
       )
       const logicalAddress = "ОбщаяФорма.ФормаПродаж"
+      const baseSnapshot = snapshotConfigurationIndex(
+        encodeConfigurationIndex(sampleIndex())
+      )
       const assigned: FullXmlSyncAssignment = {
         id: projectPath,
         sourceProjectPath: projectPath,
@@ -191,6 +203,7 @@ describe("full XML sync worker", () => {
                 ),
               },
             ],
+            snapshot: baseSnapshot,
           },
         },
         composition: createFullXmlSyncCompositionSnapshot([assigned]),
@@ -200,6 +213,8 @@ describe("full XML sync worker", () => {
         localMetadata,
         baseMetadata: localMetadata,
       })
+      expect(fullXmlSyncWorkerStateForTests().baseIndexSnapshot)
+        .toBe(baseSnapshot)
 
       const result = await runFullXmlSyncWorkerCommand({
         kind: "execute",
@@ -237,7 +252,8 @@ describe("full XML sync worker", () => {
   async function initialize(
     projectDir: string,
     assignments: readonly FullXmlSyncAssignment[],
-    workerContext: ConfigurationContext = context
+    workerContext: ConfigurationContext = context,
+    baseSnapshot?: ReturnType<typeof snapshotConfigurationIndex>
   ): Promise<void> {
     await runFullXmlSyncWorkerCommand({
       kind: "initialize",
@@ -246,15 +262,31 @@ describe("full XML sync worker", () => {
       outputDir: join(projectDir, ".out"),
       context: workerContext,
       profile: {
-        kind: "configuration",
-        componentKind: "configuration",
+        kind:
+          baseSnapshot === undefined
+            ? "configuration"
+            : "configurationExtension",
+        componentKind:
+          baseSnapshot === undefined
+            ? "configuration"
+            : "configurationExtension",
         adoptedUuids: {},
+        ...(baseSnapshot === undefined
+          ? {}
+          : {
+              baseForms: {
+                componentDir: projectDir,
+                projectFiles: [],
+                snapshot: baseSnapshot,
+              },
+            }),
       },
       composition: createFullXmlSyncCompositionSnapshot(assignments),
       targetIndex: snapshotConfigurationIndex(
         encodeConfigurationIndex(sampleIndex())
       ),
       localMetadata,
+      ...(baseSnapshot === undefined ? {} : { baseMetadata: localMetadata }),
     })
   }
 })
