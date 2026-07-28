@@ -9,9 +9,7 @@ describe("platform connection services", () => {
   it("closes one project connection", async () => {
     const dependencies = fakeDependencies()
 
-    await expect(
-      closePlatformConnection({ projectDir: "/project" }, dependencies)
-    ).resolves.toEqual({
+    await expect(closePlatformConnection({ projectDir: "/project" }, dependencies)).resolves.toEqual({
       ok: true,
       closed: true,
       stoppedOwnedProcess: true,
@@ -46,6 +44,13 @@ function fakeDependencies(): PlatformConnectionsDependencies {
     manager: {
       async exportConfiguration() {
         return { mode: "designer-agent", reusedConnection: false }
+      },
+      async listExtensions() {
+        return {
+          extensions: [],
+          mode: "designer-agent",
+          reusedConnection: false,
+        }
       },
       async closeConnection() {
         return { closed: true, stoppedOwnedProcess: true }

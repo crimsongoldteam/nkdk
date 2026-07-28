@@ -6,6 +6,10 @@ import { importFromXmlInputShape } from "../contracts/importFromXml"
 import { importFromInfobaseInputShape } from "../contracts/importFromInfobase"
 import { initSyncStateInputShape } from "../contracts/initSyncState"
 import { listInfobasesInputShape } from "../contracts/listInfobases"
+import {
+  listInfobaseExtensionsInputSchema,
+  listInfobaseExtensionsSuccessSchema,
+} from "../contracts/listInfobaseExtensions"
 import { findReferencesInputShape, renameItemInputShape } from "../contracts/operations"
 import { syncToXmlInputShape } from "../contracts/syncToXml"
 import { validateProjectInputShape } from "../contracts/validateProject"
@@ -21,6 +25,7 @@ import { importFromXml } from "../services/importFromXml"
 import { importFromInfobase } from "../services/importFromInfobase"
 import { initSyncState } from "../services/initSyncState"
 import { listInfobasesService } from "../services/listInfobases"
+import { listInfobaseExtensions } from "../services/listInfobaseExtensions"
 import { findReferences } from "../services/findReferences"
 import { renameItem } from "../services/renameItem"
 import { syncToXml } from "../services/syncToXml"
@@ -64,6 +69,18 @@ export function registerNkdkCapabilities(server: RegisterableServer): void {
       inputSchema: listInfobasesInputShape,
     },
     async () => jsonToolResult(await listInfobasesService())
+  )
+
+  server.registerTool(
+    "nkdk.list_infobase_extensions",
+    {
+      title: "List 1C infobase extensions",
+      description:
+        "Возвращает свойства расширений информационной базы по настройкам .nkdk/project.yaml. Поддерживает соединение через агент 1С и offline-режим ibcmd. Не изменяет базу и файлы проекта.",
+      inputSchema: listInfobaseExtensionsInputSchema,
+      outputSchema: listInfobaseExtensionsSuccessSchema,
+    },
+    createListInfobaseExtensionsHandler()
   )
 
   server.registerTool(
@@ -212,6 +229,15 @@ export function createImportFromInfobaseHandler(
 ) {
   return async (
     input: Parameters<typeof importFromInfobase>[0],
+    extra: { signal: AbortSignal }
+  ) => jsonToolResult(await service(input, undefined, extra.signal))
+}
+
+export function createListInfobaseExtensionsHandler(
+  service: typeof listInfobaseExtensions = listInfobaseExtensions
+) {
+  return async (
+    input: Parameters<typeof listInfobaseExtensions>[0],
     extra: { signal: AbortSignal }
   ) => jsonToolResult(await service(input, undefined, extra.signal))
 }

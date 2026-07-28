@@ -202,6 +202,7 @@ export function createNodePlatformSessionManagerDependencies(): PlatformSessionM
           sleep: (timeoutMs) => new Promise((resolve) => setTimeout(resolve, timeoutMs)),
         },
         startupTimeoutMs: 60_000,
+        commandTimeoutMs: 30 * 60 * 1000,
         retryDelayMs: 100,
         closeTimeoutMs: 5_000,
       }),

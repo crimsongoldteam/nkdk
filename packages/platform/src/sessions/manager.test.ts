@@ -1,10 +1,7 @@
 import { describe, expect, it, vi } from "vitest"
 import { PlatformSessionError } from "./errors"
-import type { ExportConfigurationParams, PlatformSession } from "./types"
-import {
-  createPlatformSessionManager,
-  type PlatformSessionManagerDependencies,
-} from "./manager"
+import type { ExportConfigurationParams, ListConfigurationExtensionsParams, PlatformSession } from "./types"
+import { createPlatformSessionManager, type PlatformSessionManagerDependencies } from "./manager"
 
 describe("platform session manager", () => {
   it("reuses one healthy session with the same private fingerprint", async () => {
@@ -22,17 +19,90 @@ describe("platform session manager", () => {
     expect(fixture.created).toHaveLength(1)
   })
 
+  it("reuses an exported session to list extensions", async () => {
+    const fixture = createFixture()
+    const manager = createPlatformSessionManager(fixture.dependencies)
+    await manager.exportConfiguration(exportParams())
+
+    await expect(manager.listExtensions(listParams())).resolves.toEqual({
+      extensions: [listedExtension],
+      mode: "designer-agent",
+      reusedConnection: true,
+    })
+    expect(fixture.created).toHaveLength(1)
+    expect(fixture.listStarts).toEqual(["/project:1"])
+  })
+
+  it("serializes extension listing with other operations of one project", async () => {
+    const pending = deferred<void>()
+    const fixture = createFixture({
+      exportHook: async () => pending.promise,
+    })
+    const manager = createPlatformSessionManager(fixture.dependencies)
+
+    const exporting = manager.exportConfiguration(exportParams())
+    await vi.waitFor(() => expect(fixture.exportStarts).toEqual(["/project:1"]))
+    const listing = manager.listExtensions(listParams())
+    expect(fixture.listStarts).toEqual([])
+
+    pending.resolve()
+    await exporting
+    await listing
+    expect(fixture.listStarts).toEqual(["/project:1"])
+  })
+
+  it("cancels and replaces a session after an aborted extension list", async () => {
+    const fixture = createFixture({
+      listHook: async (_projectDir, _call, signal) => {
+        if (signal === undefined) throw new Error("signal missing")
+        throw new PlatformSessionError("operation_cancelled", "operation cancelled")
+      },
+    })
+    const manager = createPlatformSessionManager(fixture.dependencies)
+    const controller = new AbortController()
+
+    await expect(manager.listExtensions(listParams({ signal: controller.signal }))).rejects.toMatchObject({
+      code: "operation_cancelled",
+    })
+    expect(fixture.sessions[0]?.cancelCalls).toBe(1)
+    expect(fixture.activeTimers()).toEqual([])
+
+    fixture.options.listHook = undefined
+    await expect(manager.listExtensions(listParams())).resolves.toMatchObject({
+      reusedConnection: false,
+    })
+    expect(fixture.created).toHaveLength(2)
+  })
+
+  it("cancels and replaces a session after an extension list timeout", async () => {
+    const fixture = createFixture({
+      listHook: async () => {
+        throw new PlatformSessionError("session_timeout", "operation timed out")
+      },
+    })
+    const manager = createPlatformSessionManager(fixture.dependencies)
+
+    await expect(manager.listExtensions(listParams())).rejects.toMatchObject({
+      code: "session_timeout",
+    })
+    expect(fixture.sessions[0]?.cancelCalls).toBe(1)
+    expect(fixture.activeTimers()).toEqual([])
+
+    fixture.options.listHook = undefined
+    await expect(manager.listExtensions(listParams())).resolves.toMatchObject({
+      reusedConnection: false,
+    })
+    expect(fixture.created).toHaveLength(2)
+  })
+
   it("passes a canonical output directory to the platform session", async () => {
     const fixture = createFixture()
-    fixture.dependencies.canonicalizeProjectDir = async (path) =>
-      path.replace(/^\/var\//, "/private/var/")
+    fixture.dependencies.canonicalizeProjectDir = async (path) => path.replace(/^\/var\//, "/private/var/")
     const manager = createPlatformSessionManager(fixture.dependencies)
 
     await manager.exportConfiguration(exportParams({}, "/var/project"))
 
-    expect(fixture.exportedOutputDirs).toEqual([
-      "/private/var/project/.nkdk/tmp/op/xml",
-    ])
+    expect(fixture.exportedOutputDirs).toEqual(["/private/var/project/.nkdk/tmp/op/xml"])
   })
 
   it.each([
@@ -71,9 +141,7 @@ describe("platform session manager", () => {
     await manager.exportConfiguration(exportParams(params))
 
     await expect(
-      manager.exportConfiguration(
-        exportParams({ ...params, database: { ...database, password: "second" } })
-      )
+      manager.exportConfiguration(exportParams({ ...params, database: { ...database, password: "second" } }))
     ).resolves.toMatchObject({ reusedConnection: false })
 
     expect(fixture.created).toHaveLength(2)
@@ -209,9 +277,7 @@ describe("platform session manager", () => {
     const manager = createPlatformSessionManager(fixture.dependencies)
     await manager.exportConfiguration(exportParams())
 
-    await expect(
-      manager.exportConfiguration(exportParams({ password: "new-secret" }))
-    ).rejects.toThrow("close failed")
+    await expect(manager.exportConfiguration(exportParams({ password: "new-secret" }))).rejects.toThrow("close failed")
     await expect(manager.closeConnection("/project")).resolves.toEqual({
       closed: true,
       stoppedOwnedProcess: true,
@@ -230,13 +296,7 @@ describe("platform session manager", () => {
         await new Promise<void>((_resolve, reject) => {
           signal.addEventListener(
             "abort",
-            () =>
-              reject(
-                new PlatformSessionError(
-                  "operation_cancelled",
-                  "operation cancelled"
-                )
-              ),
+            () => reject(new PlatformSessionError("operation_cancelled", "operation cancelled")),
             { once: true }
           )
         })
@@ -245,9 +305,7 @@ describe("platform session manager", () => {
     const manager = createPlatformSessionManager(fixture.dependencies)
     const controller = new AbortController()
 
-    const first = manager.exportConfiguration(
-      exportParams({ signal: controller.signal })
-    )
+    const first = manager.exportConfiguration(exportParams({ signal: controller.signal }))
     const firstResult = expect(first).rejects.toMatchObject({
       code: "operation_cancelled",
     })
@@ -266,11 +324,13 @@ describe("platform session manager", () => {
   })
 })
 
-function exportParams(
-  overrides: Partial<ExportConfigurationParams> = {},
-  projectDir = "/project"
-) {
+function exportParams(overrides: Partial<ExportConfigurationParams> = {}, projectDir = "/project") {
   return { ...baseExportParams(projectDir), ...overrides }
+}
+
+function listParams(overrides: Partial<ListConfigurationExtensionsParams> = {}, projectDir = "/project") {
+  const { outputDir: _outputDir, logPath: _logPath, ...params } = baseExportParams(projectDir)
+  return { ...params, ...overrides }
 }
 
 function baseExportParams(projectDir: string) {
@@ -296,26 +356,28 @@ type FakeSession = PlatformSession & {
 
 function createFixture(
   options: {
-    exportHook?: (
-      projectDir: string,
-      call: number,
-      signal?: AbortSignal
-    ) => Promise<void>
+    exportHook?: (projectDir: string, call: number, signal?: AbortSignal) => Promise<void>
     closeFailureProject?: string
     cancelFailures?: number
+    listHook?: (projectDir: string, call: number, signal?: AbortSignal) => Promise<void>
   } = {}
 ): {
   dependencies: PlatformSessionManagerDependencies
   created: string[]
   sessions: FakeSession[]
   exportStarts: string[]
+  listStarts: string[]
   exportedOutputDirs: string[]
+  options: {
+    listHook?: (projectDir: string, call: number, signal?: AbortSignal) => Promise<void>
+  }
   activeTimers(): number[]
   expireLatestTimer(): void
 } {
   const created: string[] = []
   const sessions: FakeSession[] = []
   const exportStarts: string[] = []
+  const listStarts: string[] = []
   const exportedOutputDirs: string[] = []
   let cancelFailures = options.cancelFailures ?? 0
   let timerId = 0
@@ -324,6 +386,7 @@ function createFixture(
     created.push(`${params.projectDir}:${mode}`)
     let alive = true
     let exportCalls = 0
+    let listCalls = 0
     const session: FakeSession = {
       projectDir: params.projectDir,
       mode,
@@ -335,6 +398,12 @@ function createFixture(
         exportStarts.push(`${params.projectDir}:${exportCalls}`)
         exportedOutputDirs.push(outputDir)
         await options.exportHook?.(params.projectDir, exportCalls, signal)
+      },
+      async listExtensions(signal) {
+        listCalls += 1
+        listStarts.push(`${params.projectDir}:${listCalls}`)
+        await options.listHook?.(params.projectDir, listCalls, signal)
+        return [listedExtension]
       },
       isAlive: () => alive,
       async close() {
@@ -366,7 +435,9 @@ function createFixture(
     created,
     sessions,
     exportStarts,
+    listStarts,
     exportedOutputDirs,
+    options,
     dependencies: {
       canonicalizeProjectDir: async (projectDir) => projectDir.replace(/\/+$/, ""),
       findPlatform: async () => ({
@@ -395,6 +466,19 @@ function createFixture(
       latest[1].callback()
     },
   }
+}
+
+const listedExtension = {
+  name: "Extension",
+  version: "",
+  active: true,
+  purpose: "customization" as const,
+  safeMode: true,
+  securityProfileName: "",
+  unsafeActionProtection: true,
+  usedInDistributedInfobase: false,
+  scope: "infobase" as const,
+  hashSum: "hash",
 }
 
 function deferred<T>() {

@@ -2,6 +2,7 @@ import { PlatformSessionError, type PlatformSessionErrorCode } from "./errors"
 import {
   systemSessionClock,
   type PlatformCommandSession,
+  type PlatformCommandResult,
   type SessionClock,
   type SshShell,
 } from "./runtime"
@@ -11,9 +12,10 @@ type PendingExchange = {
   allowQuestions: boolean
   initialPrompt: boolean
   sawSuccess: boolean
+  extensionInfo?: unknown[]
   timer?: unknown
   removeAbortListener?: () => void
-  resolve(): void
+  resolve(result: PlatformCommandResult): void
   reject(error: PlatformSessionError): void
 }
 
@@ -100,8 +102,11 @@ class PlatformCommandProtocol implements PlatformCommandSession {
     )
   }
 
-  async run(command: string, options?: { signal?: AbortSignal }): Promise<void> {
-    await this.execute(command, "platform_command_failed", false, options)
+  async run(
+    command: string,
+    options?: { signal?: AbortSignal; timeoutMs?: number }
+  ): Promise<PlatformCommandResult> {
+    return this.execute(command, "platform_command_failed", false, options)
   }
 
   isAlive(): boolean {
@@ -124,9 +129,15 @@ class PlatformCommandProtocol implements PlatformCommandSession {
     errorCode: PlatformSessionErrorCode,
     allowQuestions: boolean,
     options: ExchangeOptions = {}
-  ): Promise<void> {
+  ): Promise<PlatformCommandResult> {
     if (!this.shell.isOpen()) {
       throw new PlatformSessionError(errorCode, "SSH-сеанс платформы закрыт")
+    }
+    if (options.signal?.aborted === true) {
+      throw new PlatformSessionError(
+        "operation_cancelled",
+        "Операция платформы отменена"
+      )
     }
     const completion = this.beginExchange(
       errorCode,
@@ -136,7 +147,7 @@ class PlatformCommandProtocol implements PlatformCommandSession {
     )
     this.diagnostic("Команда платформы отправлена")
     this.shell.write(`${command}\n`)
-    await completion
+    return completion
   }
 
   private beginExchange(
@@ -144,13 +155,13 @@ class PlatformCommandProtocol implements PlatformCommandSession {
     allowQuestions: boolean,
     initialPrompt: boolean,
     options: ExchangeOptions
-  ): Promise<void> {
+  ): Promise<PlatformCommandResult> {
     if (this.pending !== undefined) {
       return Promise.reject(
         new PlatformSessionError(errorCode, "Параллельные команды в одном SSH-сеансе не поддерживаются")
       )
     }
-    return new Promise<void>((resolve, reject) => {
+    return new Promise<PlatformCommandResult>((resolve, reject) => {
       const pending: PendingExchange = {
         errorCode,
         allowQuestions,
@@ -226,13 +237,28 @@ class PlatformCommandProtocol implements PlatformCommandSession {
 
     const body = this.buffer.trim()
     if (body === "") return
+    let messages: unknown
     try {
-      const messages: unknown = JSON.parse(body)
-      if (!Array.isArray(messages)) return
-      this.buffer = ""
-      this.consumeMessages(messages, pending)
+      messages = JSON.parse(body)
     } catch {
       // JSON может приходить несколькими частями; ждём остаток или приглашение.
+      return
+    }
+    this.buffer = ""
+    if (!Array.isArray(messages)) {
+      this.failPending(
+        pending.errorCode,
+        "Платформа вернула неожиданный ответ"
+      )
+      return
+    }
+    try {
+      this.consumeMessages(messages, pending)
+    } catch {
+      this.failPending(
+        pending.errorCode,
+        "Платформа вернула неожиданный ответ"
+      )
     }
   }
 
@@ -257,6 +283,7 @@ class PlatformCommandProtocol implements PlatformCommandSession {
     }
     const type = message["type"].toLowerCase()
     if (type === "success") {
+      this.captureExtensionProperties(message["body"], pending)
       pending.sawSuccess = true
       return
     }
@@ -282,12 +309,42 @@ class PlatformCommandProtocol implements PlatformCommandSession {
     throw new Error("unknown question")
   }
 
+  private captureExtensionProperties(
+    body: unknown,
+    pending: PendingExchange
+  ): void {
+    if (!Array.isArray(body)) {
+      pending.extensionInfo = undefined
+      return
+    }
+    const extensionInfo: unknown[] = []
+    for (const item of body) {
+      if (
+        !isRecord(item) ||
+        typeof item["type"] !== "string" ||
+        item["type"].toLowerCase() !== "extension-properties"
+      ) {
+        pending.extensionInfo = undefined
+        return
+      }
+      if (!Object.hasOwn(item, "body")) {
+        throw new Error("extension-properties body is missing")
+      }
+      extensionInfo.push(item["body"])
+    }
+    pending.extensionInfo = extensionInfo
+  }
+
   private completePending(): void {
     const pending = this.pending
     if (pending === undefined) return
     this.cleanupPending(pending)
     this.pending = undefined
-    pending.resolve()
+    pending.resolve(
+      pending.extensionInfo === undefined
+        ? {}
+        : { extensionInfo: [...pending.extensionInfo] }
+    )
   }
 
   private failPending(code: PlatformSessionErrorCode, message: string): void {
