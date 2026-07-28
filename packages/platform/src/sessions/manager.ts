@@ -98,14 +98,18 @@ export function createPlatformSessionManager(
         const value = await operation(cached.session)
         return { value, mode, reusedConnection }
       } catch (caught) {
-        if (caught instanceof PlatformSessionError && caught.code === "operation_cancelled") {
+        if (
+          caught instanceof PlatformSessionError &&
+          (caught.code === "operation_cancelled" ||
+            caught.code === "session_timeout")
+        ) {
           try {
             await cached.session.cancel()
           } catch {
             try {
               await cached.session.close()
             } catch {
-              // Исходная отмена важнее ошибки повторной очистки.
+              // Исходная ошибка операции важнее ошибки повторной очистки.
             }
           } finally {
             if (sessions.get(key) === cached) sessions.delete(key)

@@ -74,6 +74,27 @@ describe("platform session manager", () => {
     expect(fixture.created).toHaveLength(2)
   })
 
+  it("cancels and replaces a session after an extension list timeout", async () => {
+    const fixture = createFixture({
+      listHook: async () => {
+        throw new PlatformSessionError("session_timeout", "operation timed out")
+      },
+    })
+    const manager = createPlatformSessionManager(fixture.dependencies)
+
+    await expect(manager.listExtensions(listParams())).rejects.toMatchObject({
+      code: "session_timeout",
+    })
+    expect(fixture.sessions[0]?.cancelCalls).toBe(1)
+    expect(fixture.activeTimers()).toEqual([])
+
+    fixture.options.listHook = undefined
+    await expect(manager.listExtensions(listParams())).resolves.toMatchObject({
+      reusedConnection: false,
+    })
+    expect(fixture.created).toHaveLength(2)
+  })
+
   it("passes a canonical output directory to the platform session", async () => {
     const fixture = createFixture()
     fixture.dependencies.canonicalizeProjectDir = async (path) => path.replace(/^\/var\//, "/private/var/")
