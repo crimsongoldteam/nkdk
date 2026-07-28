@@ -5,6 +5,7 @@ import Piscina from "piscina"
 import type { ConfigurationContext } from "../context/types"
 import { sourceWorkerExecArgv } from "../sourceWorkerRuntime"
 import type {
+  ComponentFirstPassPoolResult,
   FirstPassPoolResult,
   SecondPassPoolParams,
   SecondPassPoolResult,
@@ -201,12 +202,10 @@ export function createPreparedYamlProjectWorkerPool(params: {
           if (files.length === 0) {
             return {
               kind: "validateFirstPassResult" as const,
+              components: [],
               diagnostics: [],
-              objectRecords: [],
-              objectIndexEntries: [],
-              memberIndexEntries: [],
-              valueIndexEntries: [],
-              pendingReferences: [],
+              schemaDiagnostics: [],
+              fileResults: [],
               yamlLifetime: { current: 0, max: 0, parsed: 0, propertyEvents: 0 },
             }
           }
@@ -228,13 +227,12 @@ export function createPreparedYamlProjectWorkerPool(params: {
         })
       )
 
+      const components = mergeComponentFirstPassResults(results.flatMap((result) => result.components))
       return {
-        diagnostics: results.flatMap((result) => result.diagnostics),
-        objectRecords: results.flatMap((result) => result.objectRecords),
-        objectIndexEntries: results.flatMap((result) => result.objectIndexEntries),
-        memberIndexEntries: results.flatMap((result) => result.memberIndexEntries),
-        valueIndexEntries: results.flatMap((result) => result.valueIndexEntries),
-        pendingReferences: results.flatMap((result) => result.pendingReferences),
+        components,
+        diagnostics: components.flatMap(({ diagnostics }) => diagnostics),
+        schemaDiagnostics: components.flatMap(({ schemaDiagnostics }) => schemaDiagnostics),
+        fileResults: components.flatMap(({ fileResults }) => fileResults),
         yamlLifetime: {
           current: results.reduce((sum, result) => sum + result.yamlLifetime.current, 0),
           max: Math.max(0, ...results.map((result) => result.yamlLifetime.max)),
@@ -316,6 +314,52 @@ export function createPreparedYamlProjectWorkerPool(params: {
     size() {
       return params.concurrency
     },
+  }
+}
+
+function mergeComponentFirstPassResults(
+  results: readonly ComponentFirstPassPoolResult[]
+): ComponentFirstPassPoolResult[] {
+  const merged = new Map<string, ComponentFirstPassPoolResult>()
+  for (const result of results) {
+    const current = merged.get(result.componentPath) ?? emptyComponentFirstPassResult(result.componentPath)
+    merged.set(result.componentPath, {
+      componentPath: result.componentPath,
+      contribution: mergeGraphContributions(current.contribution, result.contribution),
+      diagnostics: [...current.diagnostics, ...result.diagnostics],
+      schemaDiagnostics: [...current.schemaDiagnostics, ...result.schemaDiagnostics],
+      fileResults: [...current.fileResults, ...result.fileResults],
+    })
+  }
+  return [...merged.values()].sort((left, right) => left.componentPath.localeCompare(right.componentPath, "ru"))
+}
+
+function emptyComponentFirstPassResult(componentPath: string): ComponentFirstPassPoolResult {
+  return {
+    componentPath,
+    contribution: {
+      objectRecords: [],
+      objectIndexEntries: [],
+      memberIndexEntries: [],
+      valueIndexEntries: [],
+      pendingReferences: [],
+    },
+    diagnostics: [],
+    schemaDiagnostics: [],
+    fileResults: [],
+  }
+}
+
+function mergeGraphContributions(
+  left: ComponentFirstPassPoolResult["contribution"],
+  right: ComponentFirstPassPoolResult["contribution"]
+): ComponentFirstPassPoolResult["contribution"] {
+  return {
+    objectRecords: [...left.objectRecords, ...right.objectRecords],
+    objectIndexEntries: [...(left.objectIndexEntries ?? []), ...(right.objectIndexEntries ?? [])],
+    memberIndexEntries: [...(left.memberIndexEntries ?? []), ...(right.memberIndexEntries ?? [])],
+    valueIndexEntries: [...(left.valueIndexEntries ?? []), ...(right.valueIndexEntries ?? [])],
+    pendingReferences: [...(left.pendingReferences ?? []), ...(right.pendingReferences ?? [])],
   }
 }
 

@@ -1,20 +1,28 @@
 import type { ConfigurationContext } from "../context/types"
-import type {
-  PendingMetadataTargetReference,
-  ProjectMemberIndexEntry,
-  ProjectObjectIndexEntry,
-  ProjectValueIndexEntry,
-} from "./projectMetadataReferences"
-import type { ValidationObjectRecord, ValidationObjectTableSnapshot } from "./projectValidationTypes"
+import type { ValidationGraphContribution, ValidationObjectTableSnapshot } from "./projectValidationTypes"
 import type { Diagnostic } from "./types"
 
-export interface FirstPassPoolResult {
+export interface ValidationFirstPassFileResult {
+  componentPath: string
+  filePath: string
+  rootProjectPath: string
+  contributedFacts: boolean
+  schemaDiagnostics: Diagnostic[]
+}
+
+export interface ComponentFirstPassPoolResult {
+  componentPath: string
+  contribution: ValidationGraphContribution
   diagnostics: Diagnostic[]
-  objectRecords: ValidationObjectRecord[]
-  objectIndexEntries: ProjectObjectIndexEntry[]
-  memberIndexEntries: ProjectMemberIndexEntry[]
-  valueIndexEntries: ProjectValueIndexEntry[]
-  pendingReferences: PendingMetadataTargetReference[]
+  schemaDiagnostics: Diagnostic[]
+  fileResults: ValidationFirstPassFileResult[]
+}
+
+export interface FirstPassPoolResult {
+  components: ComponentFirstPassPoolResult[]
+  diagnostics: Diagnostic[]
+  schemaDiagnostics: Diagnostic[]
+  fileResults: ValidationFirstPassFileResult[]
   yamlLifetime: ValidationYamlLifetime
 }
 

@@ -69,6 +69,8 @@ export type ProjectValidationFileState =
 
 export interface ProjectValidationFirstPassResult {
   state: ProjectValidationFileState
+  schemaDiagnostics: Diagnostic[]
+  contributedFacts: boolean
   objectRecords: ValidationObjectRecord[]
   objectIndexEntries: ProjectObjectIndexEntry[]
   memberIndexEntries: ProjectMemberIndexEntry[]
@@ -408,12 +410,17 @@ function validateProjectFormFirstPass(params: {
 
   const entry = params.cache.get(params.file.absolutePath)
   if ("error" in entry) {
-    return failedFirstPass(params.file, schemaDiagnostics, {
-      ...emptyFirstPassProfile("form"),
-      totalMs: performance.now() - totalStartedAt,
-      schemaMs,
-      diagnostics: schemaDiagnostics.length,
-    })
+    return failedFirstPass(
+      params.file,
+      schemaDiagnostics,
+      {
+        ...emptyFirstPassProfile("form"),
+        totalMs: performance.now() - totalStartedAt,
+        schemaMs,
+        diagnostics: schemaDiagnostics.length,
+      },
+      []
+    )
   }
 
   const facts = extractProjectValidationFileFacts({
@@ -431,6 +438,8 @@ function validateProjectFormFirstPass(params: {
       pendingChecks: facts.pendingChecks,
       firstPassDiagnostics: diagnostics,
     },
+    schemaDiagnostics,
+    contributedFacts: true,
     diagnostics,
     objectRecords: facts.objectRecords,
     objectIndexEntries: facts.objectIndexEntries,
@@ -469,13 +478,18 @@ function validateProjectPropertiesFirstPass(params: {
       schema: params.schemaCache.properties(params.file.owner.spec.rule),
     })
     const schemaMs = performance.now() - schemaStartedAt
-    return failedFirstPass(params.file, diagnostics, {
-      ...emptyFirstPassProfile(validationFirstPassProfileKey(params.file)),
-      totalMs: performance.now() - totalStartedAt,
-      cacheMs,
-      schemaMs,
-      diagnostics: diagnostics.length,
-    })
+    return failedFirstPass(
+      params.file,
+      diagnostics,
+      {
+        ...emptyFirstPassProfile(validationFirstPassProfileKey(params.file)),
+        totalMs: performance.now() - totalStartedAt,
+        cacheMs,
+        schemaMs,
+        diagnostics: diagnostics.length,
+      },
+      []
+    )
   }
 
   const parsed = parsedForProjectFile(params.file, entry.parsed)
@@ -506,14 +520,19 @@ function validateProjectPropertiesFirstPass(params: {
   const validatorsMs = performance.now() - validatorsStartedAt
   if (requiredDiagnostics.length > 0) {
     const diagnostics = [...schemaDiagnostics, ...requiredDiagnostics]
-    return failedFirstPass(params.file, diagnostics, {
-      ...emptyFirstPassProfile(validationFirstPassProfileKey(params.file)),
-      totalMs: performance.now() - totalStartedAt,
-      cacheMs,
-      schemaMs,
-      validatorsMs,
-      diagnostics: diagnostics.length,
-    })
+    return failedFirstPass(
+      params.file,
+      diagnostics,
+      {
+        ...emptyFirstPassProfile(validationFirstPassProfileKey(params.file)),
+        totalMs: performance.now() - totalStartedAt,
+        cacheMs,
+        schemaMs,
+        validatorsMs,
+        diagnostics: diagnostics.length,
+      },
+      schemaDiagnostics
+    )
   }
 
   const equalNameValidationName =
@@ -533,8 +552,9 @@ function validateProjectPropertiesFirstPass(params: {
     entry: { ...entry, parsed },
     rulesSnapshot: requireRulesSnapshot(params.rulesSnapshot),
   })
+  const publishedSchemaDiagnostics = suppressEqualNameSchemaDiagnostics(schemaDiagnostics, equalNameDiagnostics)
   const diagnostics = [
-    ...suppressEqualNameSchemaDiagnostics(schemaDiagnostics, equalNameDiagnostics),
+    ...publishedSchemaDiagnostics,
     ...equalNameDiagnostics,
     ...facts.diagnostics,
   ]
@@ -546,6 +566,8 @@ function validateProjectPropertiesFirstPass(params: {
       pendingReferences: facts.pendingReferences,
       firstPassDiagnostics: diagnostics,
     },
+    schemaDiagnostics: publishedSchemaDiagnostics,
+    contributedFacts: true,
     diagnostics,
     objectIndexEntries: facts.objectIndexEntries,
     memberIndexEntries: facts.memberIndexEntries,
@@ -573,10 +595,13 @@ function validateProjectPropertiesFirstPass(params: {
 function failedFirstPass(
   file: ValidationProjectFile,
   diagnostics: Diagnostic[],
-  profile?: ProjectValidationFirstPassProfile
+  profile?: ProjectValidationFirstPassProfile,
+  schemaDiagnostics: Diagnostic[] = diagnostics
 ): ProjectValidationFirstPassResult {
   return {
     state: { kind: "failed", file, diagnostics },
+    schemaDiagnostics,
+    contributedFacts: false,
     diagnostics,
     objectRecords: [],
     objectIndexEntries: [],

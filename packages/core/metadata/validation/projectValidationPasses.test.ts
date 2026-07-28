@@ -8,6 +8,11 @@ import { mockContext } from "../../tests/mockContext"
 import { resolveValidationProjectFile } from "./projectFiles"
 import { createProjectYamlCache } from "./projectYamlCache"
 import { createValidationSchemaCache, validateProjectFileFirstPass } from "./projectValidationPasses"
+import {
+  registerProjectFileValidator,
+  restoreProjectReferenceIndexRegistryForTests,
+  snapshotProjectReferenceIndexRegistryForTests,
+} from "./projectReferenceIndexRegistry"
 import { getValidationProjectSpecByDir } from "./projectSpecs"
 import { createValidationRulesSnapshot } from "./rulesSnapshot"
 
@@ -44,6 +49,113 @@ describe("validateProjectFileFirstPass references", () => {
     expect(cache.properties(MetadataConfigurationExtensionRules).Check(yaml)).toBe(true)
     expect(cache.properties(MetadataConfigurationRules).Check(yaml)).toBe(false)
   }, 20_000)
+
+  it("marks syntax failure as a file without contributed facts", () => {
+    const projectDir = mkdtempSync(join(tmpdir(), "nkdk-validation-first-pass-"))
+    tempDirs.push(projectDir)
+    writeProjectFile(projectDir, "Справочник/Товары/Свойства.yaml", "Реквизиты: [")
+    const file = resolveValidationProjectFile(projectDir, join(projectDir, "Справочник/Товары/Свойства.yaml"))
+    if (!file) throw new Error("file not resolved")
+
+    const first = validateProjectFileFirstPass({
+      projectDir,
+      file,
+      cache: createProjectYamlCache(),
+      context: mockContext,
+      schemaCache: sharedSchemaCache,
+      rulesSnapshot: createValidationRulesSnapshot(mockContext),
+    })
+
+    expect(first.contributedFacts).toBe(false)
+    expect(first.schemaDiagnostics).toEqual(
+      expect.arrayContaining([expect.objectContaining({ source: "syntax", severity: "error" })])
+    )
+  })
+
+  it("keeps a read failure out of schema diagnostics and rejects the contribution", () => {
+    const projectDir = mkdtempSync(join(tmpdir(), "nkdk-validation-first-pass-"))
+    tempDirs.push(projectDir)
+    const file = resolveValidationProjectFile(projectDir, join(projectDir, "Справочник/Товары/Свойства.yaml"))
+    if (!file) throw new Error("file not resolved")
+
+    const first = validateProjectFileFirstPass({
+      projectDir,
+      file,
+      cache: createProjectYamlCache(),
+      context: mockContext,
+      schemaCache: sharedSchemaCache,
+      rulesSnapshot: createValidationRulesSnapshot(mockContext),
+    })
+
+    expect(first.contributedFacts).toBe(false)
+    expect(first.diagnostics).toEqual(
+      expect.arrayContaining([expect.objectContaining({ source: "external-file", severity: "error" })])
+    )
+    expect(first.schemaDiagnostics).toEqual([])
+  })
+
+  it("keeps contributed facts after JSON Schema errors when extraction succeeds", () => {
+    const projectDir = mkdtempSync(join(tmpdir(), "nkdk-validation-first-pass-"))
+    tempDirs.push(projectDir)
+    writeProjectFile(projectDir, "Справочник/Товары/Свойства.yaml", "НесуществующееПоле: true")
+    const file = resolveValidationProjectFile(projectDir, join(projectDir, "Справочник/Товары/Свойства.yaml"))
+    if (!file) throw new Error("file not resolved")
+
+    const first = validateProjectFileFirstPass({
+      projectDir,
+      file,
+      cache: createProjectYamlCache(),
+      context: mockContext,
+      schemaCache: sharedSchemaCache,
+      rulesSnapshot: createValidationRulesSnapshot(mockContext),
+    })
+
+    expect(first.contributedFacts).toBe(true)
+    expect(first.schemaDiagnostics).toEqual(
+      expect.arrayContaining([
+        expect.objectContaining({ source: "structure", severity: "error", path: "/НесуществующееПоле" }),
+      ])
+    )
+  })
+
+  it("keeps registered structural validator diagnostics out of schema diagnostics and rejects the contribution", () => {
+    const projectDir = mkdtempSync(join(tmpdir(), "nkdk-validation-first-pass-"))
+    tempDirs.push(projectDir)
+    writeProjectFile(projectDir, "Справочник/Товары/Свойства.yaml", "{}")
+    const file = resolveValidationProjectFile(projectDir, join(projectDir, "Справочник/Товары/Свойства.yaml"))
+    if (!file) throw new Error("file not resolved")
+    const registry = snapshotProjectReferenceIndexRegistryForTests()
+    try {
+      registerProjectFileValidator(file.owner.spec.kind, ({ filePath }) => [
+        {
+          filePath,
+          line: 1,
+          col: 1,
+          severity: "error",
+          source: "structure",
+          path: "/RegisteredFailure",
+          message: "registered first-pass failure",
+        },
+      ])
+
+      const first = validateProjectFileFirstPass({
+        projectDir,
+        file,
+        cache: createProjectYamlCache(),
+        context: mockContext,
+        schemaCache: sharedSchemaCache,
+        rulesSnapshot: createValidationRulesSnapshot(mockContext),
+      })
+
+      expect(first.contributedFacts).toBe(false)
+      expect(first.diagnostics).toEqual(
+        expect.arrayContaining([expect.objectContaining({ path: "/RegisteredFailure", source: "structure" })])
+      )
+      expect(first.schemaDiagnostics).toEqual([])
+    } finally {
+      restoreProjectReferenceIndexRegistryForTests(registry)
+    }
+  })
 
   it("compiles common form properties in the same validation graph", () => {
     const spec = getValidationProjectSpecByDir("ОбщаяФорма")

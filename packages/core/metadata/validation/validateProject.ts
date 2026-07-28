@@ -2,13 +2,18 @@ import { availableParallelism } from "node:os"
 import { performance } from "node:perf_hooks"
 import { resolve } from "path"
 import type { ConfigurationContext } from "../context/types"
-import { discoverPreparedYamlProjectFiles } from "../project/preparedYamlProject"
+import {
+  discoverPreparedYamlProjectFiles,
+  discoverPreparedYamlValidationProjectFiles,
+} from "../project/preparedYamlProject"
 import {
   createPreparedYamlProjectWorkerPool,
   type PreparedWorkerPool,
   type PreparedYamlProjectWorkerPool,
 } from "../project/preparedYamlProjectWorkerPool"
 import { createValidationProfiler } from "./profile"
+import { evaluateProjectFirstPass } from "./projectFirstPassReadiness"
+import { discoverValidationProjectComponents } from "./projectComponents"
 import { createValidationObjectTable } from "./projectValidationObjectTable"
 import type { Diagnostic } from "./types"
 
@@ -108,7 +113,11 @@ async function validateProjectWithPreparedYaml(
 
   try {
     const prepareStartedAt = performance.now()
-    const files = await discoverPreparedYamlProjectFiles(projectDir)
+    const componentDiscovery = await discoverValidationProjectComponents(projectDir)
+    const usesComponentLayout = componentDiscovery.components.length > 0
+    const files = usesComponentLayout
+      ? await discoverPreparedYamlValidationProjectFiles(projectDir)
+      : await discoverPreparedYamlProjectFiles(projectDir)
     const prepareMs = performance.now() - prepareStartedAt
 
     fileCount = files.length
@@ -130,17 +139,35 @@ async function validateProjectWithPreparedYaml(
     const firstPassStartedAt = performance.now()
     const first = await pool.runValidationFirstPass({ projectDir, context, files })
     firstPassMs = performance.now() - firstPassStartedAt
-    const objectTable = profiler.measure("Обобщение индексов", "Слияние first pass", { items: first.objectRecords.length }, () => {
+    const firstPassReadiness = evaluateProjectFirstPass({
+      hasConfiguration: usesComponentLayout ? componentDiscovery.hasConfiguration : true,
+      componentPaths: usesComponentLayout
+        ? componentDiscovery.components.map(({ componentPath }) => componentPath)
+        : ["cf"],
+      firstPass: first,
+    })
+    const firstPassRecordCount = first.components.reduce(
+      (count, component) => count + component.contribution.objectRecords.length,
+      0
+    )
+    const objectTable = profiler.measure("Обобщение индексов", "Слияние first pass", { items: firstPassRecordCount }, () => {
       const table = createValidationObjectTable()
-      table.mergeRecords(first.objectRecords)
-      table.mergeReferenceIndexEntries(first)
+      for (const { contribution } of first.components) {
+        table.mergeRecords(contribution.objectRecords)
+        table.mergeReferenceIndexEntries(contribution)
+      }
       return table
     })
     mergeMs = profiler.records().find((record) => record.substep === "Слияние first pass")?.timeMs ?? 0
     const objectTableSnapshot = profiler.measure(
       "Обобщение индексов",
       "Снимок object table",
-      { items: first.pendingReferences.length },
+      {
+        items: first.components.reduce(
+          (count, component) => count + (component.contribution.pendingReferences?.length ?? 0),
+          0
+        ),
+      },
       () => objectTable.snapshot()
     )
     snapshotMs = profiler.records().find((record) => record.substep === "Снимок object table")?.timeMs ?? 0
@@ -155,8 +182,8 @@ async function validateProjectWithPreparedYaml(
     const diagnostics = profiler.measure(
       "Завершение validation",
       "Сортировка и дедупликация диагностик",
-      { items: first.diagnostics.length + second.diagnostics.length },
-      () => sortDiagnostics(dedupeDiagnostics([...first.diagnostics, ...second.diagnostics]))
+      { items: firstPassReadiness.publishedDiagnostics.length + second.diagnostics.length },
+      () => sortDiagnostics(dedupeDiagnostics([...firstPassReadiness.publishedDiagnostics, ...second.diagnostics]))
     )
     sortMs = profiler.records().find((record) => record.substep === "Сортировка и дедупликация диагностик")?.timeMs ?? 0
     profiler.flush()

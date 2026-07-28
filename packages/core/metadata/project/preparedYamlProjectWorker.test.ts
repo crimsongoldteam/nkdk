@@ -4,7 +4,7 @@ import { join } from "node:path"
 import { afterEach, describe, expect, it } from "vitest"
 import { mockContext } from "../../tests/mockContext"
 import { createValidationRulesSnapshot } from "../validation/rulesSnapshot"
-import { collectValidationFacts } from "./preparedYamlProjectWorker"
+import runPreparedYamlProjectWorkerTask, { collectValidationFacts } from "./preparedYamlProjectWorker"
 
 const tempDirs: string[] = []
 
@@ -87,6 +87,50 @@ describe("collectValidationFacts", () => {
   })
 })
 
+describe("validation first-pass worker boundary", () => {
+  it("parses a mixed component batch once and keeps contributions component-scoped", async () => {
+    const projectDir = createTempDir()
+    const files = [
+      componentProperties(projectDir, "cf", "Основная"),
+      componentProperties(projectDir, "cfe/Продажи", "Продажи"),
+      componentProperties(projectDir, "cfe/Склад", "Склад"),
+    ]
+    for (const file of files) {
+      mkdirSync(join(file.componentDir, "Справочник", file.owner.name), { recursive: true })
+      writeFileSync(file.filePath, "{}\n")
+    }
+
+    await runPreparedYamlProjectWorkerTask({
+      kind: "initValidation",
+      workerIndex: 0,
+      context: mockContext,
+      rulesSnapshot: createValidationRulesSnapshot(mockContext),
+    })
+    const result = await runPreparedYamlProjectWorkerTask({
+      kind: "validateFirstPass",
+      workerIndex: 0,
+      projectDir,
+      context: mockContext,
+      files,
+    })
+
+    expect(result.kind).toBe("validateFirstPassResult")
+    if (result.kind !== "validateFirstPassResult") throw new Error("unexpected worker response")
+    expect(result.components.map(({ componentPath }) => componentPath)).toEqual([
+      "cf",
+      "cfe/Продажи",
+      "cfe/Склад",
+    ])
+    expect(result.components.map(({ contribution }) => contribution.objectRecords.length)).toEqual([1, 1, 1])
+    expect(result.fileResults.map(({ rootProjectPath }) => rootProjectPath)).toEqual([
+      "cf/Справочник/Основная/Свойства.yaml",
+      "cfe/Продажи/Справочник/Продажи/Свойства.yaml",
+      "cfe/Склад/Справочник/Склад/Свойства.yaml",
+    ])
+    expect(result.yamlLifetime).toMatchObject({ current: 0, max: 1, parsed: 3 })
+  }, 120_000)
+})
+
 function createTempDir(): string {
   const dir = mkdtempSync(join(tmpdir(), "nkdk-validation-facts-worker-"))
   tempDirs.push(dir)
@@ -102,6 +146,21 @@ function descriptor(filePath: string) {
     filePath,
     role: "properties" as const,
     owner: { dir: "Справочник", name: "Товары" },
+    itemType: "Catalog",
+  }
+}
+
+function componentProperties(projectDir: string, componentPath: string, name: string) {
+  const componentDir = join(projectDir, ...componentPath.split("/"))
+  const projectPath = `Справочник/${name}/Свойства.yaml`
+  return {
+    componentPath,
+    componentDir,
+    rootProjectPath: `${componentPath}/${projectPath}`,
+    projectPath,
+    filePath: join(componentDir, ...projectPath.split("/")),
+    role: "properties" as const,
+    owner: { dir: "Справочник", name },
     itemType: "Catalog",
   }
 }

@@ -72,12 +72,10 @@ describe("validateProject", { timeout: 120_000 }, () => {
       if (task.kind === "validateFirstPass") {
         return {
           kind: "validateFirstPassResult" as const,
+          components: [],
           diagnostics: [],
-          objectRecords: [],
-          objectIndexEntries: [],
-          memberIndexEntries: [],
-          valueIndexEntries: [],
-          pendingReferences: [],
+          schemaDiagnostics: [],
+          fileResults: [],
           yamlLifetime: { current: 0, max: 0, parsed: 0, propertyEvents: 0 },
         }
       }
@@ -151,6 +149,33 @@ describe("validateProject", { timeout: 120_000 }, () => {
 
     expect(result.diagnostics).toEqual([])
     expect(getProjectValidationReadCountForTests(filePath)).toBe(0)
+  }, 120_000)
+
+  it("reads mixed cf and cfe YAML only inside the common worker first pass", async () => {
+    const projectDir = createProject()
+    const projectPaths = [
+      "cf/Конфигурация.yaml",
+      "cf/Справочник/Основная/Свойства.yaml",
+      "cfe/Продажи/Справочник/Продажи/Свойства.yaml",
+      "cfe/Склад/Справочник/Склад/Свойства.yaml",
+    ]
+    writeProjectFile(projectDir, projectPaths[0]!, ["Имя: Конфигурация", "ОсновнойЯзык: Русский"])
+    for (const projectPath of projectPaths.slice(1)) {
+      writeProjectFile(projectDir, projectPath, "НесуществующееПоле: true\n")
+    }
+    const filePaths = projectPaths.map((projectPath) => join(projectDir, ...projectPath.split("/")))
+    resetProjectValidationReadCountForTests()
+
+    const result = await validateProject({ projectDir, context: mockContext, concurrency: 2 })
+
+    for (const filePath of filePaths) {
+      expect(getProjectValidationReadCountForTests(filePath)).toBe(0)
+    }
+    expect(
+      result.diagnostics
+        .filter(({ path }) => path === "/НесуществующееПоле")
+        .map(({ filePath }) => filePath)
+    ).toEqual(filePaths.slice(1))
   }, 120_000)
 
   it("validates all supported project files and sorts diagnostics", async () => {

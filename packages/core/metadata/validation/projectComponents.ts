@@ -30,7 +30,7 @@ export async function discoverValidationProjectComponents(
   const components: ValidationProjectComponent[] = []
 
   if (await isDirectory(join(root, "cf"))) {
-    components.push(createComponent(root, { kind: "configuration" }))
+    components.push(createValidationProjectComponent(root, { kind: "configuration" }))
   }
 
   const extensionsDir = join(root, "cfe")
@@ -39,14 +39,14 @@ export async function discoverValidationProjectComponents(
     for (const entry of entries
       .filter((entry) => entry.isDirectory())
       .sort((left, right) => left.name.localeCompare(right.name, "ru"))) {
-      components.push(createComponent(root, { kind: "configurationExtension", name: entry.name }))
+      components.push(createValidationProjectComponent(root, { kind: "configurationExtension", name: entry.name }))
     }
   }
 
   return { components, hasConfiguration: components.some((component) => component.kind === "configuration") }
 }
 
-function createComponent(
+export function createValidationProjectComponent(
   projectDir: string,
   address: { kind: "configuration" } | { kind: "configurationExtension"; name: string }
 ): ValidationProjectComponent {
@@ -66,6 +66,30 @@ function createComponent(
     rootSpec,
     topology: compileMetadataResourceTopologyForRootRule(descriptor.rootRule),
   }
+}
+
+export function validationProjectComponentFromAddress(
+  projectDir: string,
+  address: { componentPath: string; componentDir: string }
+): ValidationProjectComponent {
+  const componentAddress =
+    address.componentPath === "cf"
+      ? ({ kind: "configuration" } as const)
+      : address.componentPath.startsWith("cfe/") && address.componentPath.length > "cfe/".length
+        ? ({ kind: "configurationExtension", name: address.componentPath.slice("cfe/".length) } as const)
+        : undefined
+  if (componentAddress === undefined) {
+    throw new Error(`Недопустимый validation componentPath: ${address.componentPath}`)
+  }
+
+  const component = createValidationProjectComponent(projectDir, componentAddress)
+  if (address.componentPath === "cf" && resolve(address.componentDir) === resolve(projectDir)) {
+    return { ...component, componentDir: resolve(address.componentDir) }
+  }
+  if (resolve(component.componentDir) !== resolve(address.componentDir)) {
+    throw new Error(`Каталог компонента не соответствует componentPath: ${address.componentPath}`)
+  }
+  return component
 }
 
 async function isDirectory(path: string): Promise<boolean> {
