@@ -108,6 +108,41 @@ describe("platform SSH command protocol", () => {
 
     await expect(pending).rejects.toMatchObject({ code: "session_timeout" })
   })
+
+  it("does not arm a timer for a platform command", async () => {
+    const clock = controlledClock()
+    const shell = scriptedShell([
+      "designer> ",
+      '[{"type":"success","message":"JSON mode"}]\ndesigner> ',
+      '[{"type":"success","message":"Connected"}]\ndesigner> ',
+      '[{"type":"success","message":"Done"}]\ndesigner> ',
+    ])
+    const session = await openPlatformCommandSession({ shell, timeoutMs: 100, clock })
+    clock.resetCounters()
+
+    await session.run("config dump-config-to-files")
+
+    expect(clock.setCalls()).toBe(0)
+  })
+
+  it("cancels a pending platform command", async () => {
+    const controller = new AbortController()
+    const session = await openPlatformCommandSession({
+      shell: scriptedShell([
+        "designer> ",
+        '[{"type":"success","message":"JSON mode"}]\ndesigner> ',
+        '[{"type":"success","message":"Connected"}]\ndesigner> ',
+      ]),
+      timeoutMs: 100,
+    })
+
+    const pending = session.run("config dump-config-to-files", {
+      signal: controller.signal,
+    })
+    controller.abort()
+
+    await expect(pending).rejects.toMatchObject({ code: "operation_cancelled" })
+  })
 })
 
 type ScriptedShell = SshShell & { rawWrites: string[] }
@@ -142,10 +177,16 @@ function scriptedShell(chunks: string[], initiallyOpen = true): ScriptedShell {
   }
 }
 
-function controlledClock(): SessionClock & { expire(): void } {
+function controlledClock(): SessionClock & {
+  expire(): void
+  resetCounters(): void
+  setCalls(): number
+} {
   let callback: (() => void) | undefined
+  let setCalls = 0
   return {
     setTimeout(nextCallback) {
+      setCalls += 1
       callback = nextCallback
       return nextCallback
     },
@@ -156,6 +197,12 @@ function controlledClock(): SessionClock & { expire(): void } {
       const current = callback
       callback = undefined
       current?.()
+    },
+    resetCounters() {
+      setCalls = 0
+    },
+    setCalls() {
+      return setCalls
     },
   }
 }

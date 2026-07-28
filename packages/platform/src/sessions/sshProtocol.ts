@@ -11,9 +11,15 @@ type PendingExchange = {
   allowQuestions: boolean
   initialPrompt: boolean
   sawSuccess: boolean
-  timer: unknown
+  timer?: unknown
+  removeAbortListener?: () => void
   resolve(): void
   reject(error: PlatformSessionError): void
+}
+
+type ExchangeOptions = {
+  timeoutMs?: number
+  signal?: AbortSignal
 }
 
 export async function openPlatformCommandSession(params: {
@@ -41,9 +47,15 @@ export async function openPlatformCommandSession(params: {
     await protocol.execute(
       "options set --output-format=json",
       "session_start_failed",
-      false
+      false,
+      { timeoutMs: params.timeoutMs }
     )
-    await protocol.execute("common connect-ib", "authentication_failed", true)
+    await protocol.execute(
+      "common connect-ib",
+      "authentication_failed",
+      true,
+      { timeoutMs: params.timeoutMs }
+    )
     return protocol
   } catch (caught) {
     await protocol.close()
@@ -80,11 +92,16 @@ class PlatformCommandProtocol implements PlatformCommandSession {
   }
 
   async waitForPrompt(): Promise<void> {
-    await this.beginExchange("session_start_failed", false, true)
+    await this.beginExchange(
+      "session_start_failed",
+      false,
+      true,
+      { timeoutMs: this.timeoutMs }
+    )
   }
 
-  async run(command: string): Promise<void> {
-    await this.execute(command, "platform_command_failed", false)
+  async run(command: string, options?: { signal?: AbortSignal }): Promise<void> {
+    await this.execute(command, "platform_command_failed", false, options)
   }
 
   isAlive(): boolean {
@@ -95,7 +112,7 @@ class PlatformCommandProtocol implements PlatformCommandSession {
     this.unsubscribe()
     const pending = this.pending
     if (pending !== undefined) {
-      this.clock.clearTimeout(pending.timer)
+      this.cleanupPending(pending)
       this.pending = undefined
       pending.reject(new PlatformSessionError("session_start_failed", "SSH-сеанс платформы закрыт"))
     }
@@ -105,12 +122,18 @@ class PlatformCommandProtocol implements PlatformCommandSession {
   async execute(
     command: string,
     errorCode: PlatformSessionErrorCode,
-    allowQuestions: boolean
+    allowQuestions: boolean,
+    options: ExchangeOptions = {}
   ): Promise<void> {
     if (!this.shell.isOpen()) {
       throw new PlatformSessionError(errorCode, "SSH-сеанс платформы закрыт")
     }
-    const completion = this.beginExchange(errorCode, allowQuestions, false)
+    const completion = this.beginExchange(
+      errorCode,
+      allowQuestions,
+      false,
+      options
+    )
     this.diagnostic("Команда платформы отправлена")
     this.shell.write(`${command}\n`)
     await completion
@@ -119,7 +142,8 @@ class PlatformCommandProtocol implements PlatformCommandSession {
   private beginExchange(
     errorCode: PlatformSessionErrorCode,
     allowQuestions: boolean,
-    initialPrompt: boolean
+    initialPrompt: boolean,
+    options: ExchangeOptions
   ): Promise<void> {
     if (this.pending !== undefined) {
       return Promise.reject(
@@ -127,20 +151,50 @@ class PlatformCommandProtocol implements PlatformCommandSession {
       )
     }
     return new Promise<void>((resolve, reject) => {
-      const timer = this.clock.setTimeout(() => {
-        if (this.pending === undefined) return
-        this.pending = undefined
-        reject(new PlatformSessionError("session_timeout", "Истекло время ожидания ответа платформы"))
-      }, this.timeoutMs)
-      this.pending = {
+      const pending: PendingExchange = {
         errorCode,
         allowQuestions,
         initialPrompt,
         sawSuccess: false,
-        timer,
         resolve,
         reject,
       }
+      if (options.timeoutMs !== undefined) {
+        pending.timer = this.clock.setTimeout(() => {
+          if (this.pending !== pending) return
+          this.cleanupPending(pending)
+          this.pending = undefined
+          reject(
+            new PlatformSessionError(
+              "session_timeout",
+              "Истекло время ожидания ответа платформы"
+            )
+          )
+        }, options.timeoutMs)
+      }
+      if (options.signal !== undefined) {
+        const signal = options.signal
+        const abort = () => {
+          if (this.pending !== pending) return
+          this.cleanupPending(pending)
+          this.pending = undefined
+          reject(
+            new PlatformSessionError(
+              "operation_cancelled",
+              "Операция платформы отменена"
+            )
+          )
+        }
+        signal.addEventListener("abort", abort, { once: true })
+        pending.removeAbortListener = () =>
+          signal.removeEventListener("abort", abort)
+        this.pending = pending
+        if (signal.aborted) {
+          abort()
+          return
+        }
+      }
+      this.pending = pending
       this.consumeBuffer()
     })
   }
@@ -231,7 +285,7 @@ class PlatformCommandProtocol implements PlatformCommandSession {
   private completePending(): void {
     const pending = this.pending
     if (pending === undefined) return
-    this.clock.clearTimeout(pending.timer)
+    this.cleanupPending(pending)
     this.pending = undefined
     pending.resolve()
   }
@@ -239,9 +293,14 @@ class PlatformCommandProtocol implements PlatformCommandSession {
   private failPending(code: PlatformSessionErrorCode, message: string): void {
     const pending = this.pending
     if (pending === undefined) return
-    this.clock.clearTimeout(pending.timer)
+    this.cleanupPending(pending)
     this.pending = undefined
     pending.reject(new PlatformSessionError(code, message))
+  }
+
+  private cleanupPending(pending: PendingExchange): void {
+    if (pending.timer !== undefined) this.clock.clearTimeout(pending.timer)
+    pending.removeAbortListener?.()
   }
 }
 
