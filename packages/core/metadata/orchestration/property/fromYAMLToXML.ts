@@ -44,6 +44,7 @@ import type {
   YAMLToXMLResult,
   YAMLToXMLProfile,
 } from "./fromYAMLToXMLTypes"
+import { assertRequiredConfigurationIdentity } from "./requiredIdentity"
 import { getTypeRule } from "./typeRuleRegistry"
 import type { MetadataItemRule, PropertyRule } from "./types"
 import { readExternalFile } from "../../forms/commonObjects/dynamicList/externalFile"
@@ -544,6 +545,12 @@ export function convertPropertiesFromYAMLToXML(params: ConvertPropertiesFromYAML
         !hasNestedDefault
       ) {
         continue
+      }
+      if (effectiveNestedRule.kind === "item") {
+        assertRequiredConfigurationIdentity({
+          context: nestedItemContext,
+          kind: effectiveNestedRule.requiredIdentity,
+        })
       }
       const nested =
         effectiveNestedRule.kind === "collection"

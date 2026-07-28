@@ -319,6 +319,78 @@ describe("client application BaseForm projection", () => {
     })
   })
 
+  it("removes command interface items that reference an unselected form command", () => {
+    const baseYaml = {
+      Команды: {
+        Базовая: {},
+      },
+      ИнтерфейсКоманды: {
+        КоманднаяПанель: [{
+          Команда: "Form.Command.Базовая",
+          Тип: "Added",
+        }],
+      },
+    } as ClientApplicationFormYAML
+    const extensionYaml = {
+      Команды: {},
+      ИнтерфейсКоманды: {
+        КоманднаяПанель: [{
+          Команда: "Form.Command.Базовая",
+          Тип: "Added",
+        }],
+      },
+    } as ClientApplicationFormYAML
+
+    const projection = projectClientApplicationBaseForm({
+      baseYaml,
+      extensionYaml,
+    })
+
+    expect(projection.yaml).not.toHaveProperty("ИнтерфейсКоманды")
+  })
+
+  it("removes only the command interface item that has an unavailable required reference", () => {
+    const externalItem = {
+      Команда: "Catalog.Товары.Command.Открыть",
+      Тип: "Added",
+    }
+    const baseYaml = {
+      Команды: {
+        Базовая: {},
+      },
+      ИнтерфейсКоманды: {
+        КоманднаяПанель: [
+          {
+            Команда: "Form.Command.Базовая",
+            Тип: "Added",
+          },
+          externalItem,
+        ],
+      },
+    } as ClientApplicationFormYAML
+    const extensionYaml = {
+      Команды: {},
+      ИнтерфейсКоманды: {
+        КоманднаяПанель: [
+          {
+            Команда: "Form.Command.Базовая",
+            Тип: "Added",
+          },
+          externalItem,
+        ],
+      },
+    } as ClientApplicationFormYAML
+
+    const projection = projectClientApplicationBaseForm({
+      baseYaml,
+      extensionYaml,
+    })
+
+    expect(projection.yaml.ИнтерфейсКоманды).toEqual({
+      КоманднаяПанель: [externalItem],
+    })
+  })
+
   it("rejects an unavailable reference without registered projection behavior", () => {
     const properties = InputFieldRules.properties as Record<string, unknown>
     properties.unregisteredReference = {

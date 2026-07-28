@@ -54,6 +54,7 @@ export const createSingletonElementYAMLToXMLNestedRule = <Rule extends ElementRu
 }): SingletonElementYAMLToXMLNestedRule => ({
   kind: "item",
   itemRule: params.elementRule,
+  requiredIdentity: "xmlId",
   resolveContext: ({ context, name }) => {
     const canonicalName = getCanonicalSingletonName({
       ownerLogicalAddress: name ?? context.exportToXML.configurationIndex?.logicalAddress ?? "",

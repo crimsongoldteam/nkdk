@@ -24,6 +24,8 @@ type CollectionRule<Rule extends MetadataItemRule, CollectionType extends Proper
   keyField?: keyof Rule["properties"]
   /** Канонический сегмент logicalAddress для элементов этой metadata-item коллекции. */
   configurationIndexUidSegment?: string
+  /** Идентификатор каждого элемента обязателен в режиме существующих identity. */
+  requiredIdentity?: "xmlId"
   /** Режим построения logicalAddress для данных файла индекса конфигурации. */
   configurationIndexAddressing?: ConfigurationIndexAddressingMode
   /** Для YAML-объекта коллекции: ключ записи → внутреннее имя элемента (например стандартный реквизит) */
@@ -153,6 +155,7 @@ export const registerMetadataItemCollectionRule = <
     normalizeItemYAML: params.normalizeItemYAML,
     referenceIdentity: params.referenceIdentity,
     configurationIndexUidSegment: params.configurationIndexUidSegment,
+    requiredIdentity: params.requiredIdentity,
     configurationIndexAddressing: params.configurationIndexAddressing,
   })
 

@@ -211,6 +211,63 @@ describe("client application BaseForm", () => {
     ).toBe(false)
   })
 
+  it("rejects a borrowed table attribute when its cf column has no xmlId", () => {
+    const tableAddress = childUid(
+      formAddress,
+      "Атрибут",
+      "Таблица"
+    )
+    const columnAddress = childUid(
+      tableAddress,
+      "Колонка",
+      "Значение"
+    )
+    const baseIndex = reader({
+      componentPath: "cf",
+      identities: [xmlId(tableAddress, "1")],
+    })
+    const extensionIndex = reader({
+      componentPath: "cfe/Расширение",
+      identities: [xmlId(tableAddress, "1000001")],
+    })
+    const baseContext = mockContextToXML()
+    const context = {
+      ...baseContext,
+      exportToXML: {
+        ...baseContext.exportToXML,
+        configurationIndex: createConfigurationIndexExportRuntime({
+          source: extensionIndex,
+          collector: createConfigurationIndexCollector(),
+          targetProjectPath:
+            "Справочник/Товары/Формы/ФормаЭлемента/Форма.yaml",
+          logicalAddress: formAddress,
+        }),
+      },
+    }
+    const yaml = {
+      Реквизиты: {
+        Таблица: {
+          Тип: "ТаблицаЗначений",
+          Колонки: {
+            Значение: {
+              Тип: "Строка",
+            },
+          },
+        },
+      },
+    } as ClientApplicationFormYAML
+
+    expect(() =>
+      buildClientApplicationBaseForm({
+        context,
+        baseIndex,
+        baseYaml: yaml,
+        extensionYaml: yaml,
+        formName: "ФормаЭлемента",
+      })
+    ).toThrow(columnAddress)
+  })
+
   it("intersects state of nested items outside the root element tree", () => {
     const autoCommandBarAddress = childUid(
       formAddress,

@@ -2,7 +2,11 @@ import { resolveDataPathCore } from "../../../validation/dataPath/coreResolver"
 import type { FormDataPathIndex } from "../../../validation/dataPath/formIndex"
 import type { OwnerMetadataCache } from "../../../validation/dataPath/ownerCache"
 import type { FormDataPathSource } from "../../../validation/dataPath/types"
-import { registerBaseFormPropertyProjector } from "../../clientApplicationForm/baseFormProjectionRegistry"
+import {
+  registerBaseFormPropertyProjector,
+  registerBaseFormReferenceProjector,
+  type BaseFormReferenceProjector,
+} from "../../clientApplicationForm/baseFormProjectionRegistry"
 
 const unusedOwnerCache: OwnerMetadataCache = {
   get: () => {
@@ -11,7 +15,7 @@ const unusedOwnerCache: OwnerMetadataCache = {
   listRefs: () => [],
 }
 
-registerBaseFormPropertyProjector("DataPath", {
+const dataPathReferenceProjector = {
   project: ({ baseValue, context }) => {
     if (typeof baseValue !== "string" || baseValue === "" || baseValue === "0") {
       return { kind: "include", value: baseValue }
@@ -20,7 +24,16 @@ registerBaseFormPropertyProjector("DataPath", {
       ? { kind: "include", value: baseValue }
       : { kind: "omit" }
   },
-})
+} satisfies BaseFormReferenceProjector
+
+registerBaseFormReferenceProjector(
+  "DataPath",
+  dataPathReferenceProjector
+)
+registerBaseFormPropertyProjector(
+  "DataPath",
+  dataPathReferenceProjector
+)
 
 function isBaseFormDataPathRootAvailable(value: string, attributeNames: ReadonlySet<string>): boolean {
   const rootIndex = createBaseFormDataPathRootIndex(attributeNames)

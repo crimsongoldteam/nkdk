@@ -70,6 +70,8 @@ export type YAMLToXMLNestedRule =
   | {
       readonly kind: "item"
       readonly itemRule: MetadataItemRule
+      /** Идентификатор каждого элемента обязателен в режиме существующих identity. */
+      readonly requiredIdentity?: "xmlId"
       readonly itemRuleFromProperty?: (propertyRule: PropertyRule) => MetadataItemRule | undefined
       readonly configurationIndexAddressing?: import("./types").ConfigurationIndexAddressingMode
       readonly sparseYAML?: true
@@ -101,6 +103,8 @@ export type YAMLToXMLNestedRule =
   | {
       readonly kind: "collection"
       readonly itemRule: MetadataItemRule
+      /** Идентификатор каждого элемента обязателен в режиме существующих identity. */
+      readonly requiredIdentity?: "xmlId"
       readonly itemRuleFromProperty?: (propertyRule: PropertyRule) => MetadataItemRule | undefined
       readonly resolveItemRule?: (params: {
         yaml: unknown

@@ -74,6 +74,8 @@ type ToXMLContextElement<Type extends MetadataItemType> = {
 
 export type ToXMLConfigurationContext = {
   readonly configurationIndex?: ConfigurationIndexExportRuntime
+  /** Запрещает создавать заново идентификаторы, объявленные nested rule обязательными. */
+  readonly requireExistingConfigurationIdentities?: true
   readonly componentKind?: string
   readonly adoptedUuids?: Readonly<Record<string, string>>
   readonly xmlDefaultVariantByLogicalAddress?: Readonly<Record<string, XMLDefaultVariant>>

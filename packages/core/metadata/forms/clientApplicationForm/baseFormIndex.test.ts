@@ -88,7 +88,7 @@ describe("BaseForm configuration index reader", () => {
     expect(projected.projectFiles()).toEqual(base.projectFiles())
   })
 
-  it("reports the logical address when a required xmlId is absent", () => {
+  it("does not infer identity requirements from logical address segments", () => {
     const base = reader({ componentPath: "cf" })
     const extension = reader({ componentPath: "cfe/Дополнение" })
     const projected = createBaseFormConfigurationIndexReader({
@@ -97,10 +97,8 @@ describe("BaseForm configuration index reader", () => {
       extensionIdentityAddresses: new Set([attributeAddress]),
     })
 
-    expect(() => projected.identity(elementAddress, "xmlId"))
-      .toThrow(elementAddress)
-    expect(() => projected.identity(attributeAddress, "xmlId"))
-      .toThrow(attributeAddress)
+    expect(projected.identity(elementAddress, "xmlId")).toBeUndefined()
+    expect(projected.identity(attributeAddress, "xmlId")).toBeUndefined()
   })
 
   it("returns no xmlId for an optional form property presence check", () => {

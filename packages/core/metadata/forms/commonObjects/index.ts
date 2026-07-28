@@ -19,6 +19,7 @@ import "./commandInterface/fromYAML"
 import "./commandInterface/toJSONSchema"
 import "./commandInterface/toXML"
 import "./commandInterface/toYAML"
+import "./commandInterface/baseFormProjection"
 
 import "./formCommand/toJSONSchema"
 import "./formCommand/types"

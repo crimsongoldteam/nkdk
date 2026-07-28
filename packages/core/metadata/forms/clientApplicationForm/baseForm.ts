@@ -226,6 +226,7 @@ function withDiscardedConfigurationIndexWrites(
     exportToXML: {
       ...context.exportToXML,
       configurationIndex,
+      requireExistingConfigurationIdentities: true,
       xmlDefaultVariantByLogicalAddress: {
         ...context.exportToXML.xmlDefaultVariantByLogicalAddress,
         [runtime.logicalAddress]: "indexed",

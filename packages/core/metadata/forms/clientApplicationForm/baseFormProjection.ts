@@ -3,7 +3,11 @@ import { getTypeRule } from "../../orchestration/property/typeRuleRegistry"
 import { resolveFormElementRule } from "../elements/orchestration/fromYAMLToXML"
 import type { FormElementTreeNodeYAML, FormElementTreeYAML } from "../commonObjects/childItems/types"
 import { getTreeNodeJSONSchemaPropertyAliases } from "../commonObjects/childItems/treeYAML"
-import { projectProperty, type BaseFormProjectionContext } from "./baseFormProjectionRegistry"
+import {
+  intersectBaseFormValues,
+  projectProperty,
+  type BaseFormProjectionContext,
+} from "./baseFormProjectionRegistry"
 import { ClientApplicationFormRules } from "./rules"
 import type { ClientApplicationFormYAML } from "./types"
 
@@ -289,7 +293,7 @@ function projectMetadataItemProperties(params: {
     result[yamlKey] =
       nestedProjection.kind === "include"
         ? nestedProjection.value
-        : intersectPlainYaml(projection.value, extensionValue)
+        : intersectBaseFormValues(projection.value, extensionValue)
   }
 
   return result
@@ -483,19 +487,6 @@ function collectionItemRule(params: {
 
 function getYamlToXmlNestedRule(type: string) {
   return getTypeRule(type, "yamlToXMLNestedRule")
-}
-
-function intersectPlainYaml(baseValue: unknown, extensionValue: unknown): unknown {
-  const baseYaml = asYamlRecord(baseValue)
-  const extensionYaml = asYamlRecord(extensionValue)
-  if (baseYaml === undefined || extensionYaml === undefined) return baseValue
-
-  const result: Record<string, unknown> = {}
-  for (const [key, value] of Object.entries(baseYaml)) {
-    if (!Object.hasOwn(extensionYaml, key)) continue
-    result[key] = intersectPlainYaml(value, extensionYaml[key])
-  }
-  return result
 }
 
 function propertyRulesByYamlKey(rule: MetadataItemRule): ReadonlyMap<string, PropertyRule> {

@@ -20,6 +20,7 @@ export function registerDirectFormElementCollections(): void {
     registerTypeRule(propertyType, "yamlToXMLNestedRule", {
       kind: "collection",
       itemRule: fallbackRule,
+      requiredIdentity: "xmlId",
       resolveItemRule: ({ yaml, name, propertyRule }) =>
         resolveFormElementRule({ yaml, name, propertyRule: propertyRule ?? { type: propertyType } }),
       normalizeItemYAML: ({ yaml, name, propertyRule }) =>

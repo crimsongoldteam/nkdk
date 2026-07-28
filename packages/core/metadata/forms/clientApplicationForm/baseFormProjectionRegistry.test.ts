@@ -1,7 +1,10 @@
 import { describe, expect, it } from "vitest"
 import { registerCoreMetadata } from "../../register"
 import type { BaseFormProjectionContext } from "./baseFormProjectionRegistry"
-import { projectProperty } from "./baseFormProjectionRegistry"
+import {
+  createStructuredBaseFormPropertyProjector,
+  projectProperty,
+} from "./baseFormProjectionRegistry"
 
 registerCoreMetadata()
 
@@ -124,6 +127,27 @@ describe("BaseForm property projection registry", () => {
         },
         baseValue: "СкрытыйРеквизит",
         extensionValue: "СкрытыйРеквизит",
+        context,
+      })
+    ).toThrow(/UnregisteredAttributeReference/)
+  })
+
+  it("rejects an unregistered reference inside a structured property", () => {
+    const projector = createStructuredBaseFormPropertyProjector({
+      kind: "object",
+      properties: {
+        Ссылка: {
+          kind: "reference",
+          type: "UnregisteredAttributeReference",
+        },
+      },
+    })
+
+    expect(() =>
+      projector.project({
+        rule: { type: "string" },
+        baseValue: { Ссылка: "СкрытыйРеквизит" },
+        extensionValue: { Ссылка: "СкрытыйРеквизит" },
         context,
       })
     ).toThrow(/UnregisteredAttributeReference/)

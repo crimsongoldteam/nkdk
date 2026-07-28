@@ -1,10 +1,38 @@
-import { registerBaseFormPropertyProjector } from "../../clientApplicationForm/baseFormProjectionRegistry"
+import {
+  registerBaseFormPropertyProjector,
+  registerBaseFormReferenceProjector,
+  type BaseFormReferenceProjector,
+} from "../../clientApplicationForm/baseFormProjectionRegistry"
 
-registerBaseFormPropertyProjector("CommandName", {
+const commandNameReferenceProjector = {
   project: ({ baseValue, context }) => {
     if (baseValue === "0") return { kind: "include", value: baseValue }
-    return typeof baseValue === "string" && context.commandNames.has(baseValue)
+    if (typeof baseValue !== "string") {
+      return { kind: "include", value: baseValue }
+    }
+    const localName = localFormCommandName(baseValue)
+    return localName === undefined || context.commandNames.has(localName)
       ? { kind: "include", value: baseValue }
+      : { kind: "omit" }
+  },
+} satisfies BaseFormReferenceProjector
+
+registerBaseFormReferenceProjector(
+  "CommandName",
+  commandNameReferenceProjector
+)
+
+registerBaseFormPropertyProjector("CommandName", {
+  project: (params) => {
+    const result = commandNameReferenceProjector.project(params)
+    return result.kind === "include"
+      ? result
       : { kind: "include", value: "0" }
   },
 })
+
+function localFormCommandName(value: string): string | undefined {
+  const prefix = "Form.Command."
+  if (value.startsWith(prefix)) return value.slice(prefix.length)
+  return value.includes(".") ? undefined : value
+}
