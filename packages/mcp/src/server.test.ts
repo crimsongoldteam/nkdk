@@ -1,11 +1,7 @@
 import { beforeEach, describe, expect, it, vi } from "vitest"
 import { Client } from "@modelcontextprotocol/sdk/client/index.js"
 import { InMemoryTransport } from "@modelcontextprotocol/sdk/inMemory.js"
-import {
-  createNkdkMcpServer,
-  runServerUntilTransportCloses,
-  shutdownNkdkMcpServer,
-} from "./server"
+import { createNkdkMcpServer, runServerUntilTransportCloses, shutdownNkdkMcpServer } from "./server"
 
 const closeValidationHandle = vi.hoisted(() => vi.fn())
 const closePlatformSessionManager = vi.hoisted(() => vi.fn())
@@ -14,7 +10,7 @@ const listInfobases = vi.hoisted(() =>
     tree: [],
     sources: [],
     warnings: [],
-  })),
+  }))
 )
 
 vi.mock("./services/validationHandle", () => ({
@@ -28,6 +24,7 @@ vi.mock("./services/platformSessionHandle", () => ({
 
 vi.mock("@nkdk/platform", () => ({
   listInfobases,
+  readProjectSettings: vi.fn(),
 }))
 
 describe("MCP server", () => {
@@ -63,7 +60,7 @@ describe("MCP server", () => {
             kind: "keys",
             keys: expect.arrayContaining(["ПутьКДанным"]),
           }),
-        }),
+        })
       )
     } finally {
       await client.close()
@@ -98,7 +95,7 @@ describe("MCP server", () => {
 
   it("loads core API without a monorepo-relative runtime import", async () => {
     const source = await import("node:fs/promises").then((fs) =>
-      fs.readFile(new URL("./coreApi.ts", import.meta.url), "utf8"),
+      fs.readFile(new URL("./coreApi.ts", import.meta.url), "utf8")
     )
 
     expect(source).not.toContain("../../core/index.ts")
@@ -140,7 +137,7 @@ describe("MCP server", () => {
     const { createNkdkMcpServer } = await import("./server")
     const packageJson = await import("../package.json", { with: { type: "json" } })
     const source = await import("node:fs/promises").then((fs) =>
-      fs.readFile(new URL("./server.ts", import.meta.url), "utf8"),
+      fs.readFile(new URL("./server.ts", import.meta.url), "utf8")
     )
 
     expect(source).not.toContain('version: "1.0.0"')

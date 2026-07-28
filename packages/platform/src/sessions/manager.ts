@@ -5,6 +5,7 @@ import { createNodePlatformSessionManagerDependencies } from "./nodeRuntime"
 import type {
   CreatePlatformSessionParams,
   NormalizedPlatformConnectionSettings,
+  PlatformConnectionSettings,
   PlatformSession,
   PlatformSessionManager,
   PlatformSessionMode,
@@ -41,25 +42,46 @@ export function createPlatformSessionManager(
   const queues = new Map<string, Promise<void>>()
   const pendingOperations = new Map<string, number>()
 
-  async function exportConfiguration(
-    params: Parameters<PlatformSessionManager["exportConfiguration"]>[0]
-  ) {
-    const key = await dependencies.canonicalizeProjectDir(params.projectDir)
+  async function exportConfiguration(params: Parameters<PlatformSessionManager["exportConfiguration"]>[0]) {
     const outputDir = await dependencies.canonicalizeProjectDir(params.outputDir)
+    const result = await withSession(params, (session) =>
+      session.exportConfiguration(outputDir, params.logPath, params.signal)
+    )
+    return {
+      mode: result.mode,
+      reusedConnection: result.reusedConnection,
+    }
+  }
+
+  async function listExtensions(params: Parameters<PlatformSessionManager["listExtensions"]>[0]) {
+    const result = await withSession(params, (session) => session.listExtensions(params.signal))
+    return {
+      extensions: result.value,
+      mode: result.mode,
+      reusedConnection: result.reusedConnection,
+    }
+  }
+
+  async function withSession<T>(
+    params: PlatformConnectionSettings & {
+      projectDir: string
+      signal?: AbortSignal
+    },
+    operation: (session: PlatformSession) => Promise<T>
+  ): Promise<{
+    value: T
+    mode: PlatformSessionMode
+    reusedConnection: boolean
+  }> {
+    const key = await dependencies.canonicalizeProjectDir(params.projectDir)
     return enqueue(key, async () => {
       throwIfCancelled(params.signal)
       const settings = normalizePlatformConnectionSettings(params)
-      const mode: PlatformSessionMode = settings.useStandaloneServer
-        ? "standalone-server"
-        : "designer-agent"
+      const mode: PlatformSessionMode = settings.useStandaloneServer ? "standalone-server" : "designer-agent"
       const fingerprint = createFingerprint(settings, mode)
       let cached = sessions.get(key)
       let reusedConnection = false
-      if (
-        cached !== undefined &&
-        cached.session.isAlive() &&
-        fingerprintsEqual(cached.fingerprint, fingerprint)
-      ) {
+      if (cached !== undefined && cached.session.isAlive() && fingerprintsEqual(cached.fingerprint, fingerprint)) {
         cancelIdleTimer(cached)
         reusedConnection = true
       } else {
@@ -73,17 +95,10 @@ export function createPlatformSessionManager(
       }
 
       try {
-        await cached.session.exportConfiguration(
-          outputDir,
-          params.logPath,
-          params.signal
-        )
-        return { mode, reusedConnection }
+        const value = await operation(cached.session)
+        return { value, mode, reusedConnection }
       } catch (caught) {
-        if (
-          caught instanceof PlatformSessionError &&
-          caught.code === "operation_cancelled"
-        ) {
+        if (caught instanceof PlatformSessionError && caught.code === "operation_cancelled") {
           try {
             await cached.session.cancel()
           } catch {
@@ -131,10 +146,7 @@ export function createPlatformSessionManager(
   ): Promise<CachedSession> {
     const installation = await dependencies.findPlatform()
     if (installation === undefined) {
-      throw new PlatformSessionError(
-        "platform_not_found",
-        "Не найдена поддерживаемая платформа 1С:Предприятие 8.3.27"
-      )
+      throw new PlatformSessionError("platform_not_found", "Не найдена поддерживаемая платформа 1С:Предприятие 8.3.27")
     }
     assertRequiredComponents(installation, mode)
     const sessionDir = join(
@@ -178,7 +190,10 @@ export function createPlatformSessionManager(
     pendingOperations.set(key, (pendingOperations.get(key) ?? 0) + 1)
     const previous = queues.get(key) ?? Promise.resolve()
     const result = previous.catch(() => undefined).then(operation)
-    const tail = result.then(() => undefined, () => undefined)
+    const tail = result.then(
+      () => undefined,
+      () => undefined
+    )
     queues.set(key, tail)
     return result.finally(() => {
       const remaining = (pendingOperations.get(key) ?? 1) - 1
@@ -188,15 +203,17 @@ export function createPlatformSessionManager(
     })
   }
 
-  return { exportConfiguration, closeConnection, closeAllConnections }
+  return {
+    exportConfiguration,
+    listExtensions,
+    closeConnection,
+    closeAllConnections,
+  }
 }
 
 function throwIfCancelled(signal?: AbortSignal): void {
   if (signal?.aborted !== true) return
-  throw new PlatformSessionError(
-    "operation_cancelled",
-    "Операция платформы отменена"
-  )
+  throw new PlatformSessionError("operation_cancelled", "Операция платформы отменена")
 }
 
 function createFingerprint(
@@ -236,10 +253,7 @@ function databaseSettingsEqual(
   )
 }
 
-function assertRequiredComponents(
-  installation: PlatformInstallation,
-  mode: PlatformSessionMode
-): void {
+function assertRequiredComponents(installation: PlatformInstallation, mode: PlatformSessionMode): void {
   if (mode === "designer-agent" && installation.enterprisePath === undefined) {
     throw missingComponent("1cv8")
   }
@@ -249,8 +263,5 @@ function assertRequiredComponents(
 }
 
 function missingComponent(name: string): PlatformSessionError {
-  return new PlatformSessionError(
-    "platform_component_missing",
-    `В установке платформы 8.3.27 не найден ${name}`
-  )
+  return new PlatformSessionError("platform_component_missing", `В установке платформы 8.3.27 не найден ${name}`)
 }
