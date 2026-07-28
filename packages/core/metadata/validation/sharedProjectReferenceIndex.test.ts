@@ -12,7 +12,13 @@ import {
   type ProjectObjectIndexEntry,
   type ProjectValueIndexEntry,
 } from "./projectReferenceIndex"
-import { createSharedProjectReferenceIndex, createSharedProjectReferenceSnapshot } from "./sharedProjectReferenceIndex"
+import { createProjectValidationGraph } from "./projectValidationGraph"
+import type { ComponentValidationLayer } from "./projectValidationTypes"
+import {
+  createSharedProjectReferenceIndex,
+  createSharedProjectReferenceSnapshot,
+  createSharedProjectReferenceSnapshotFromGraph,
+} from "./sharedProjectReferenceIndex"
 
 describe("SharedProjectReferenceIndex", () => {
   it("matches object, member, value and filter behavior of the regular index", () => {
@@ -58,11 +64,20 @@ describe("SharedProjectReferenceIndex", () => {
     ]
     const regular = createProjectReferenceIndex({
       projectDir,
-      snapshot: createProjectReferenceSnapshot({ objectIndexEntries: objectEntries, memberIndexEntries: memberEntries, valueIndexEntries: valueEntries, pendingReferences: [] }),
+      snapshot: createProjectReferenceSnapshot({
+        objectIndexEntries: objectEntries,
+        memberIndexEntries: memberEntries,
+        valueIndexEntries: valueEntries,
+        pendingReferences: [],
+      }),
     })
     const shared = createSharedProjectReferenceIndex({
       projectDir,
-      snapshot: createSharedProjectReferenceSnapshot({ objectIndexEntries: objectEntries, memberIndexEntries: memberEntries, valueIndexEntries: valueEntries }),
+      snapshot: createSharedProjectReferenceSnapshot({
+        objectIndexEntries: objectEntries,
+        memberIndexEntries: memberEntries,
+        valueIndexEntries: valueEntries,
+      }),
     })
 
     expect(references.map((item) => shared.resolve(item))).toEqual(references.map((item) => regular.resolve(item)))
@@ -79,7 +94,11 @@ describe("SharedProjectReferenceIndex", () => {
     ]
     const index = createSharedProjectReferenceIndex({
       projectDir,
-      snapshot: createSharedProjectReferenceSnapshot({ objectIndexEntries: [], memberIndexEntries: entries, valueIndexEntries: [] }),
+      snapshot: createSharedProjectReferenceSnapshot({
+        objectIndexEntries: [],
+        memberIndexEntries: entries,
+        valueIndexEntries: [],
+      }),
     })
 
     expect(
@@ -93,7 +112,105 @@ describe("SharedProjectReferenceIndex", () => {
     ).toMatchObject({ ok: false, reason: "conflict" })
     expect(index.stats()).toMatchObject({ conflicts: 1 })
   })
+
+  it("resolves references only through visible component layers", () => {
+    const common = memberTarget("Справочник.Товары.Реквизит.Представление")
+    const warehouseOnly = memberTarget("Справочник.Склад.Реквизит.Адрес")
+    const graph = createProjectValidationGraph([
+      referenceLayer("cf", [memberEntry(common, "string")]),
+      referenceLayer("cfe/Продажи", [memberEntry(common, "decimal")]),
+      referenceLayer("cfe/Склад", [memberEntry(common, "boolean"), memberEntry(warehouseOnly, "string")]),
+    ])
+    const snapshot = createSharedProjectReferenceSnapshotFromGraph(graph)
+    const base = createSharedProjectReferenceIndex({
+      projectDir: "/project",
+      componentPath: "cf",
+      snapshot,
+    })
+    const sales = createSharedProjectReferenceIndex({
+      projectDir: "/project",
+      componentPath: "cfe/Продажи",
+      snapshot,
+    })
+
+    expect(base.resolve(typedReference(common, "string"))).toEqual({
+      ok: true,
+    })
+    expect(sales.resolve(typedReference(common, "decimal"))).toEqual({
+      ok: true,
+    })
+    expect(sales.resolve(typedReference(warehouseOnly, "string"))).toMatchObject({ ok: false, reason: "notFound" })
+    expect(snapshot.stats.conflicts).toBe(0)
+  })
+
+  it("preserves conflicts within a component layer", () => {
+    const target = memberTarget("Справочник.Товары.Реквизит.Представление")
+    const entry = memberEntry(target, "string")
+    const snapshot = createSharedProjectReferenceSnapshotFromGraph(
+      createProjectValidationGraph([referenceLayer("cfe/Продажи", [entry, entry])])
+    )
+    const index = createSharedProjectReferenceIndex({
+      projectDir: "/project",
+      componentPath: "cfe/Продажи",
+      snapshot,
+    })
+
+    expect(index.resolve(typedReference(target, "string"))).toMatchObject({
+      ok: false,
+      reason: "conflict",
+    })
+    expect(snapshot.stats.conflicts).toBe(1)
+  })
 })
+
+function referenceLayer(
+  componentPath: string,
+  memberIndexEntries: ProjectMemberIndexEntry[]
+): ComponentValidationLayer {
+  return {
+    componentPath,
+    contribution: {
+      objectRecords: [],
+      objectIndexEntries: [],
+      memberIndexEntries,
+      valueIndexEntries: [],
+      pendingReferences: [],
+    },
+  }
+}
+
+function memberEntry(
+  target: Extract<ParsedMetadataTarget, { kind: "member" }>,
+  type: "boolean" | "decimal" | "string"
+): ProjectMemberIndexEntry {
+  return {
+    canonical: projectMemberIndexKey(target),
+    target,
+    result: {
+      ok: true,
+      details: {
+        kind: "attribute",
+        typeInfo: { kinds: [type], sourceText: type },
+      },
+    },
+  }
+}
+
+function typedReference(
+  target: Extract<ParsedMetadataTarget, { kind: "member" }>,
+  type: "boolean" | "decimal" | "string"
+) {
+  return reference({
+    filePath: "/project/Справочник/Товары/Свойства.yaml",
+    canonical: projectMemberIndexKey(target),
+    target,
+    constraint: {
+      kind: "member",
+      owner: "explicit",
+      filters: [{ kind: "hasType", type }],
+    },
+  })
+}
 
 function reference(params: {
   filePath: string
@@ -123,7 +240,10 @@ function memberTarget(value: string): Extract<ParsedMetadataTarget, { kind: "mem
 }
 
 function valueTarget(value: string): Extract<ParsedMetadataTarget, { kind: "value" }> {
-  const parsed = parseMetadataTargetFromYAML({ value, constraint: { kind: "value", roots: ["Enum"], valueKinds: ["enumValue"] } })
+  const parsed = parseMetadataTargetFromYAML({
+    value,
+    constraint: { kind: "value", roots: ["Enum"], valueKinds: ["enumValue"] },
+  })
   if (!parsed.ok || parsed.target.kind !== "value") throw new Error(value)
   return parsed.target
 }

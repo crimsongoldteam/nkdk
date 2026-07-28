@@ -9,10 +9,7 @@ import type {
 } from "./projectReferenceIndex"
 import type { ValidationProjectFile } from "./projectFiles"
 import type { Diagnostic } from "./types"
-import type {
-  ProjectLocalDependency,
-  ProjectLogicalAddressEntry,
-} from "../project/componentIndexFacts"
+import type { ProjectLocalDependency, ProjectLogicalAddressEntry } from "../project/componentIndexFacts"
 
 export interface ValidationObjectRecord {
   filePath: string
@@ -34,6 +31,19 @@ export interface ValidationReferenceIndexEntries {
   memberIndexEntries?: ProjectMemberIndexEntry[]
   valueIndexEntries?: ProjectValueIndexEntry[]
   pendingReferences?: PendingMetadataTargetReference[]
+}
+
+export interface ValidationGraphContribution extends ValidationReferenceIndexEntries {
+  objectRecords: ValidationObjectRecord[]
+}
+
+export interface ComponentValidationLayer {
+  componentPath: string
+  contribution: ValidationGraphContribution
+}
+
+export interface ProjectValidationGraph {
+  layers: readonly ComponentValidationLayer[]
 }
 
 export interface ValidationIndexContribution {

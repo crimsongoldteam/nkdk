@@ -18,12 +18,17 @@ import {
   type ProjectReferenceIndexStats,
   type ProjectValueIndexEntry,
 } from "./projectReferenceIndex"
+import { validationComponentLayers } from "./componentVisibility"
+import type { ProjectValidationGraph } from "./projectValidationTypes"
 import type { Diagnostic } from "./types"
 
 const MAGIC = 0x4e4b4452
 const VERSION = 1
 const HEADER_INTS = 9
 const ENTRY_INTS = 9
+const PROJECT_MAGIC = 0x4e4b5052
+const PROJECT_VERSION = 1
+const PROJECT_ENTRY_INTS = 11
 
 const SECTION_OBJECT = 0
 const SECTION_MEMBER = 1
@@ -59,6 +64,7 @@ export interface SharedProjectReferenceSnapshot {
 }
 
 interface EncodedEntry {
+  componentPath?: string
   section: number
   canonical: string
   conflict: boolean
@@ -68,21 +74,121 @@ interface EncodedEntry {
   sourceText: string
 }
 
+export function createSharedProjectReferenceSnapshotFromGraph(
+  graph: ProjectValidationGraph
+): SharedProjectReferenceSnapshot {
+  const objectEntries = uniqueEntries(
+    graph.layers.flatMap(({ componentPath, contribution }) =>
+      (contribution.objectIndexEntries ?? []).map((entry) => ({
+        ...encodedEntry(SECTION_OBJECT, entry.canonical, entry.result.ok ? entry.result.details : undefined),
+        componentPath,
+      }))
+    )
+  )
+  const memberEntries = uniqueEntries(
+    graph.layers.flatMap(({ componentPath, contribution }) =>
+      (contribution.memberIndexEntries ?? []).map((entry) => ({
+        ...encodedEntry(SECTION_MEMBER, entry.canonical, entry.result.ok ? entry.result.details : undefined),
+        componentPath,
+      }))
+    )
+  )
+  const valueEntries = uniqueEntries(
+    graph.layers.flatMap(({ componentPath, contribution }) =>
+      (contribution.valueIndexEntries ?? []).map((entry) => ({
+        ...encodedEntry(SECTION_VALUE, entry.canonical, entry.result.ok ? entry.result.details : undefined),
+        componentPath,
+      }))
+    )
+  )
+  const entries = [...objectEntries.entries, ...memberEntries.entries, ...valueEntries.entries].sort(
+    compareEncodedEntries
+  )
+  const stringBytes = entries.map((entry) => ({
+    component: textEncoder.encode(entry.componentPath ?? ""),
+    key: textEncoder.encode(entry.canonical),
+    source: textEncoder.encode(entry.sourceText),
+  }))
+  const stringsLength = stringBytes.reduce(
+    (total, item) => total + item.component.byteLength + item.key.byteLength + item.source.byteLength,
+    0
+  )
+  const headerBytes = HEADER_INTS * Int32Array.BYTES_PER_ELEMENT
+  const tableBytes = entries.length * PROJECT_ENTRY_INTS * Int32Array.BYTES_PER_ELEMENT
+  const stringsOffset = headerBytes + tableBytes
+  const buffer = new SharedArrayBuffer(stringsOffset + stringsLength)
+  const ints = new Int32Array(buffer, 0, HEADER_INTS + entries.length * PROJECT_ENTRY_INTS)
+  const bytes = new Uint8Array(buffer)
+
+  ints[0] = PROJECT_MAGIC
+  ints[1] = PROJECT_VERSION
+  ints[2] = entries.length
+  ints[3] = stringsOffset
+  ints[4] = objectEntries.entries.length
+  ints[5] = memberEntries.entries.length
+  ints[6] = valueEntries.entries.length
+  ints[7] = objectEntries.conflicts + memberEntries.conflicts + valueEntries.conflicts
+  ints[8] = buffer.byteLength
+
+  let cursor = stringsOffset
+  entries.forEach((entry, index) => {
+    const encoded = stringBytes[index]
+    if (encoded === undefined) return
+    const base = HEADER_INTS + index * PROJECT_ENTRY_INTS
+    ints[base] = cursor
+    ints[base + 1] = encoded.component.byteLength
+    bytes.set(encoded.component, cursor)
+    cursor += encoded.component.byteLength
+    ints[base + 2] = entry.section
+    ints[base + 3] = cursor
+    ints[base + 4] = encoded.key.byteLength
+    bytes.set(encoded.key, cursor)
+    cursor += encoded.key.byteLength
+    ints[base + 5] = entry.conflict ? 1 : 0
+    ints[base + 6] = entry.detailKindFlags
+    ints[base + 7] = entry.typeFlags
+    ints[base + 8] = entry.styleItemType
+    ints[base + 9] = cursor
+    ints[base + 10] = encoded.source.byteLength
+    bytes.set(encoded.source, cursor)
+    cursor += encoded.source.byteLength
+  })
+
+  return {
+    buffer,
+    stats: {
+      objectEntries: objectEntries.entries.length,
+      memberEntries: memberEntries.entries.length,
+      valueEntries: valueEntries.entries.length,
+      conflicts: objectEntries.conflicts + memberEntries.conflicts + valueEntries.conflicts,
+      snapshotBytes: buffer.byteLength,
+    },
+  }
+}
+
 export function createSharedProjectReferenceSnapshot(params: {
   objectIndexEntries: readonly ProjectObjectIndexEntry[]
   memberIndexEntries: readonly ProjectMemberIndexEntry[]
   valueIndexEntries: readonly ProjectValueIndexEntry[]
 }): SharedProjectReferenceSnapshot {
   const objectEntries = uniqueEntries(
-    params.objectIndexEntries.map((entry) => encodedEntry(SECTION_OBJECT, entry.canonical, entry.result.ok ? entry.result.details : undefined))
+    params.objectIndexEntries.map((entry) =>
+      encodedEntry(SECTION_OBJECT, entry.canonical, entry.result.ok ? entry.result.details : undefined)
+    )
   )
   const memberEntries = uniqueEntries(
-    params.memberIndexEntries.map((entry) => encodedEntry(SECTION_MEMBER, entry.canonical, entry.result.ok ? entry.result.details : undefined))
+    params.memberIndexEntries.map((entry) =>
+      encodedEntry(SECTION_MEMBER, entry.canonical, entry.result.ok ? entry.result.details : undefined)
+    )
   )
   const valueEntries = uniqueEntries(
-    params.valueIndexEntries.map((entry) => encodedEntry(SECTION_VALUE, entry.canonical, entry.result.ok ? entry.result.details : undefined))
+    params.valueIndexEntries.map((entry) =>
+      encodedEntry(SECTION_VALUE, entry.canonical, entry.result.ok ? entry.result.details : undefined)
+    )
   )
-  const entries = [...objectEntries.entries, ...memberEntries.entries, ...valueEntries.entries].sort(compareEncodedEntries)
+  const entries = [...objectEntries.entries, ...memberEntries.entries, ...valueEntries.entries].sort(
+    compareEncodedEntries
+  )
   const stringBytes = entries.map((entry) => ({
     key: textEncoder.encode(entry.canonical),
     source: textEncoder.encode(entry.sourceText),
@@ -139,6 +245,7 @@ export function createSharedProjectReferenceSnapshot(params: {
 
 export function createSharedProjectReferenceIndex(params: {
   projectDir: string
+  componentPath?: string
   snapshot: SharedProjectReferenceSnapshot
   resolveObjectFilePath?: (target: Extract<ParsedMetadataTarget, { kind: "object" }>) => string | undefined
 }): ProjectReferenceIndex {
@@ -171,11 +278,23 @@ export function createSharedProjectReferenceIndex(params: {
 function resolveSharedReference(
   params: {
     view: SharedSnapshotView
+    componentPath?: string
     resolveObjectFilePath?: (target: Extract<ParsedMetadataTarget, { kind: "object" }>) => string | undefined
   },
   reference: PendingMetadataTargetReference
 ): ProjectReferenceIndexResult {
-  const entry = lookupSharedEntry(params.view, reference.target)
+  let entry: SharedEntryView | undefined
+  if (params.view.project) {
+    if (params.componentPath === undefined) {
+      throw new Error("Не указан validation componentPath для shared project reference index")
+    }
+    for (const layer of validationComponentLayers(params.componentPath)) {
+      entry = lookupSharedEntry(params.view, layer, reference.target)
+      if (entry !== undefined) break
+    }
+  } else {
+    entry = lookupSharedEntry(params.view, undefined, reference.target)
+  }
   if (entry === undefined) {
     if (reference.target.kind === "object") {
       const filePath = params.resolveObjectFilePath?.(reference.target)
@@ -209,6 +328,7 @@ interface SharedSnapshotView {
   ints: Int32Array
   bytes: Uint8Array
   entryCount: number
+  project: boolean
 }
 
 interface SharedEntryView {
@@ -222,16 +342,24 @@ interface SharedEntryView {
 
 function sharedSnapshotView(snapshot: SharedProjectReferenceSnapshot): SharedSnapshotView {
   const header = new Int32Array(snapshot.buffer, 0, HEADER_INTS)
-  if (header[0] !== MAGIC || header[1] !== VERSION) throw new Error("Некорректный shared reference index")
+  const project = header[0] === PROJECT_MAGIC && header[1] === PROJECT_VERSION
+  if (!project && (header[0] !== MAGIC || header[1] !== VERSION)) {
+    throw new Error("Некорректный shared reference index")
+  }
   const entryCount = header[2] ?? 0
   return {
-    ints: new Int32Array(snapshot.buffer, 0, HEADER_INTS + entryCount * ENTRY_INTS),
+    ints: new Int32Array(snapshot.buffer, 0, HEADER_INTS + entryCount * (project ? PROJECT_ENTRY_INTS : ENTRY_INTS)),
     bytes: new Uint8Array(snapshot.buffer),
     entryCount,
+    project,
   }
 }
 
-function lookupSharedEntry(view: SharedSnapshotView, target: ParsedMetadataTarget): SharedEntryView | undefined {
+function lookupSharedEntry(
+  view: SharedSnapshotView,
+  componentPath: string | undefined,
+  target: ParsedMetadataTarget
+): SharedEntryView | undefined {
   const section = sectionForTarget(target)
   const canonical = keyForTarget(target)
   let left = 0
@@ -239,7 +367,16 @@ function lookupSharedEntry(view: SharedSnapshotView, target: ParsedMetadataTarge
   while (left <= right) {
     const middle = Math.floor((left + right) / 2)
     const current = entryAt(view, middle)
-    const order = compareSectionAndKey(current.section, current.canonical, section, canonical)
+    const order = view.project
+      ? compareComponentSectionAndKey(
+          current.componentPath ?? "",
+          current.section,
+          current.canonical,
+          componentPath ?? "",
+          section,
+          canonical
+        )
+      : compareSectionAndKey(current.section, current.canonical, section, canonical)
     if (order === 0) return current
     if (order < 0) left = middle + 1
     else right = middle - 1
@@ -247,7 +384,23 @@ function lookupSharedEntry(view: SharedSnapshotView, target: ParsedMetadataTarge
   return undefined
 }
 
-function entryAt(view: SharedSnapshotView, index: number): SharedEntryView & { canonical: string } {
+function entryAt(
+  view: SharedSnapshotView,
+  index: number
+): SharedEntryView & { componentPath?: string; canonical: string } {
+  if (view.project) {
+    const base = HEADER_INTS + index * PROJECT_ENTRY_INTS
+    return {
+      componentPath: decodeString(view, view.ints[base] ?? 0, view.ints[base + 1] ?? 0),
+      section: view.ints[base + 2] ?? 0,
+      canonical: decodeString(view, view.ints[base + 3] ?? 0, view.ints[base + 4] ?? 0),
+      conflict: view.ints[base + 5] === 1,
+      detailKindFlags: view.ints[base + 6] ?? 0,
+      typeFlags: view.ints[base + 7] ?? 0,
+      styleItemType: view.ints[base + 8] ?? 0,
+      sourceText: decodeString(view, view.ints[base + 9] ?? 0, view.ints[base + 10] ?? 0),
+    }
+  }
   const base = HEADER_INTS + index * ENTRY_INTS
   return {
     section: view.ints[base] ?? 0,
@@ -319,8 +472,12 @@ function matchesMemberFilter(params: {
   const displayName = params.reference.canonical
   switch (params.filter.kind) {
     case "directMember":
-      if (params.reference.target.kind === "member" && params.reference.target.segments.length === 1) return { ok: true }
-      return memberFilterError(params.reference, `Член "${displayName}" не подходит: ожидаются прямые члены текущего объекта`)
+      if (params.reference.target.kind === "member" && params.reference.target.segments.length === 1)
+        return { ok: true }
+      return memberFilterError(
+        params.reference,
+        `Член "${displayName}" не подходит: ожидаются прямые члены текущего объекта`
+      )
     case "hasType":
       if (matchesHasTypeFilter(params.entry, params.filter.type)) return { ok: true }
       return memberFilterError(
@@ -404,15 +561,16 @@ function compactDetails(details: unknown): Omit<EncodedEntry, "section" | "canon
   const record = objectRecord(details)
   const kind = typeof record["kind"] === "string" ? record["kind"] : undefined
   const typeInfo = objectRecord(record["typeInfo"])
-  const kinds = Array.isArray(typeInfo["kinds"]) ? typeInfo["kinds"].filter((item): item is string => typeof item === "string") : []
+  const kinds = Array.isArray(typeInfo["kinds"])
+    ? typeInfo["kinds"].filter((item): item is string => typeof item === "string")
+    : []
   const definedTypes = Array.isArray(typeInfo["definedTypes"]) ? typeInfo["definedTypes"] : []
   const sourceText = typeof typeInfo["sourceText"] === "string" ? typeInfo["sourceText"] : ""
   return {
     detailKindFlags:
       (kind === "attribute" ? DETAIL_KIND_ATTRIBUTE : 0) |
       (kind === "standardAttribute" ? DETAIL_KIND_STANDARD_ATTRIBUTE : 0),
-    typeFlags:
-      kinds.reduce((flags, item) => flags | typeFlag(item), 0) | (definedTypes.length > 0 ? TYPE_DEFINED : 0),
+    typeFlags: kinds.reduce((flags, item) => flags | typeFlag(item), 0) | (definedTypes.length > 0 ? TYPE_DEFINED : 0),
     styleItemType: styleItemTypeCode(details),
     sourceText,
   }
@@ -448,7 +606,7 @@ function styleItemTypeFromCode(code: number): "Color" | "Font" | "Border" | unde
 function uniqueEntries(entries: readonly EncodedEntry[]): { entries: EncodedEntry[]; conflicts: number } {
   const byKey = new Map<string, EncodedEntry>()
   for (const entry of entries) {
-    const key = `${entry.section}\0${entry.canonical}`
+    const key = `${entry.componentPath ?? ""}\0${entry.section}\0${entry.canonical}`
     const existing = byKey.get(key)
     if (existing === undefined) {
       byKey.set(key, entry)
@@ -461,7 +619,28 @@ function uniqueEntries(entries: readonly EncodedEntry[]): { entries: EncodedEntr
 }
 
 function compareEncodedEntries(left: EncodedEntry, right: EncodedEntry): number {
-  return compareSectionAndKey(left.section, left.canonical, right.section, right.canonical)
+  return compareComponentSectionAndKey(
+    left.componentPath ?? "",
+    left.section,
+    left.canonical,
+    right.componentPath ?? "",
+    right.section,
+    right.canonical
+  )
+}
+
+function compareComponentSectionAndKey(
+  leftComponentPath: string,
+  leftSection: number,
+  leftKey: string,
+  rightComponentPath: string,
+  rightSection: number,
+  rightKey: string
+): number {
+  return (
+    (leftComponentPath < rightComponentPath ? -1 : leftComponentPath > rightComponentPath ? 1 : 0) ||
+    compareSectionAndKey(leftSection, leftKey, rightSection, rightKey)
+  )
 }
 
 function compareSectionAndKey(leftSection: number, leftKey: string, rightSection: number, rightKey: string): number {

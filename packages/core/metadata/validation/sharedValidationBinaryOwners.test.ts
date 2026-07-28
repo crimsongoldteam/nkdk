@@ -1,8 +1,14 @@
 import { describe, expect, it } from "vitest"
 import { createOwnerMetadataCacheFromValidationTable } from "./dataPath/ownerCache"
+import { createOwnerMetadataCacheFromSharedProjectValidationGraph } from "./dataPath/sharedOwnerCache"
+import { createProjectValidationGraph } from "./projectValidationGraph"
 import { createValidationObjectTable } from "./projectValidationObjectTable"
-import type { ValidationObjectRecord } from "./projectValidationTypes"
-import { createBinarySharedOwnersSnapshot, createOwnerMetadataCacheFromBinarySharedOwners } from "./sharedValidationBinaryOwners"
+import type { ComponentValidationLayer, ValidationObjectRecord } from "./projectValidationTypes"
+import { createSharedProjectValidationGraph } from "./sharedValidationSnapshot"
+import {
+  createBinarySharedOwnersSnapshot,
+  createOwnerMetadataCacheFromBinarySharedOwners,
+} from "./sharedValidationBinaryOwners"
 
 describe("SharedValidationBinaryOwners", () => {
   it("restores owner field indexes without JSON decoding", () => {
@@ -21,10 +27,12 @@ describe("SharedValidationBinaryOwners", () => {
     expect(binaryOwner.status).toBe("ok")
     expect(binaryOwner).toMatchObject({ status: regularOwner.status })
     if (binaryOwner.status !== "ok" || regularOwner.status !== "ok") throw new Error("owner expected")
-    expect([...binaryOwner.owner.fieldIndex.fields.entries()]).toEqual([...regularOwner.owner.fieldIndex.fields.entries()])
-    expect([...binaryOwner.owner.fieldIndex.standardAttributeAliases.entries()]).toEqual(
-      [...regularOwner.owner.fieldIndex.standardAttributeAliases.entries()]
-    )
+    expect([...binaryOwner.owner.fieldIndex.fields.entries()]).toEqual([
+      ...regularOwner.owner.fieldIndex.fields.entries(),
+    ])
+    expect([...binaryOwner.owner.fieldIndex.standardAttributeAliases.entries()]).toEqual([
+      ...regularOwner.owner.fieldIndex.standardAttributeAliases.entries(),
+    ])
     const binaryTable = binaryOwner.owner.fieldIndex.fields.get("Товары")
     const regularTable = regularOwner.owner.fieldIndex.fields.get("Товары")
     expect(binaryTable).toEqual(regularTable)
@@ -114,7 +122,73 @@ describe("SharedValidationBinaryOwners", () => {
     if (owner.status !== "ok") throw new Error("owner expected")
     expect([...owner.owner.fieldIndex.fields.keys()]).toEqual(["Артикул", "Товары"])
   })
+
+  it("resolves owners through visible component layers", () => {
+    const graph = createSharedProjectValidationGraph(
+      createProjectValidationGraph([
+        ownerLayer("cf", [
+          namedCatalogRecord("Товары", "/project/cf/base.yaml"),
+          namedCatalogRecord("Контрагенты", "/project/cf/partners.yaml"),
+        ]),
+        ownerLayer("cfe/Продажи", [
+          namedCatalogRecord("Товары", "/project/cfe/Продажи/sales.yaml"),
+          namedCatalogRecord("Клиенты", "/project/cfe/Продажи/customers.yaml"),
+        ]),
+        ownerLayer("cfe/Склад", [
+          namedCatalogRecord("Товары", "/project/cfe/Склад/warehouse.yaml"),
+          namedCatalogRecord("Склады", "/project/cfe/Склад/warehouses.yaml"),
+        ]),
+      ])
+    )
+    const sales = createOwnerMetadataCacheFromSharedProjectValidationGraph({
+      projectDir: "/project",
+      componentPath: "cfe/Продажи",
+      graph,
+    })
+    const base = createOwnerMetadataCacheFromSharedProjectValidationGraph({
+      projectDir: "/project",
+      componentPath: "cf",
+      graph,
+    })
+
+    expect(sales.get({ kind: "Справочник", name: "Товары" })).toMatchObject({
+      status: "ok",
+      owner: { filePath: "/project/cfe/Продажи/sales.yaml" },
+    })
+    expect(base.get({ kind: "Справочник", name: "Товары" })).toMatchObject({
+      status: "ok",
+      owner: { filePath: "/project/cf/base.yaml" },
+    })
+    expect(sortRefs(sales.listRefs("Справочник"))).toEqual([
+      { kind: "Справочник", name: "Клиенты" },
+      { kind: "Справочник", name: "Контрагенты" },
+      { kind: "Справочник", name: "Товары" },
+    ])
+  })
 })
+
+function ownerLayer(componentPath: string, objectRecords: ValidationObjectRecord[]): ComponentValidationLayer {
+  return {
+    componentPath,
+    contribution: {
+      objectRecords,
+      objectIndexEntries: [],
+      memberIndexEntries: [],
+      valueIndexEntries: [],
+      pendingReferences: [],
+    },
+  }
+}
+
+function namedCatalogRecord(name: string, filePath: string): ValidationObjectRecord {
+  return {
+    ...catalogRecord(),
+    filePath,
+    projectPath: `Справочник/${name}/Свойства.yaml`,
+    owner: { dir: "Справочник", name },
+    ownerRef: { kind: "Справочник", name },
+  }
+}
 
 function sortRefs(refs: readonly { kind: string; name?: string }[]): Array<{ kind: string; name?: string }> {
   return [...refs].sort((left, right) =>
