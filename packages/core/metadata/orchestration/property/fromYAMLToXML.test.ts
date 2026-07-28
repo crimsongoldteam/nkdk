@@ -33,8 +33,8 @@ const context = (): ConfigurationContextWithExportToXML => ({
   },
 })
 
-const testRule = (properties: Record<string, PropertyRule>): MetadataItemRule =>
-  ({ itemType: "Catalog", properties }) as MetadataItemRule
+const testRule = (properties: Record<string, PropertyRule>, xmlOrder?: readonly string[]): MetadataItemRule =>
+  ({ itemType: "Catalog", properties, xmlOrder }) as MetadataItemRule
 
 const contextWithXMLDefaultVariant = (
   variant: "full" | "adopted" | "indexed",
@@ -74,6 +74,30 @@ const contextWithXMLDefaultVariant = (
 }
 
 describe("convertPropertiesFromYAMLToXML", () => {
+  it("экспортирует свойства по xmlOrder независимо от reference XML", () => {
+    const result = convertPropertiesFromYAMLToXML({
+      context: context(),
+      yaml: { Имя: "Группа", Группировка: "Vertical", Заголовок: "Заголовок" },
+      rule: testRule(
+        {
+          name: { type: "string", yaml: "Имя", xml: "Name" },
+          group: { type: "string", yaml: "Группировка", xml: "Group" },
+          title: { type: "string", yaml: "Заголовок", xml: "Title" },
+        },
+        ["title", "group"]
+      ),
+      outputs: [{ key: "owner", referenceXML: { Name: "старое", Group: "старое", Title: "старое" } }],
+    })
+
+    const xml = result.outputs.get("owner")
+    expect(Object.keys(xml ?? {})).toEqual(["Title", "Group", "Name"])
+    expect(xml).toEqual({
+      Title: "Заголовок",
+      Group: "Vertical",
+      Name: "Группа",
+    })
+  })
+
   it("does not apply implicitValueYAML to missing YAML", () => {
     const result = convertPropertiesFromYAMLToXML({
       context: context(),
@@ -293,7 +317,7 @@ describe("convertPropertiesFromYAMLToXML", () => {
     expect(present.outputs.get("owner")).toEqual({ Mode: "full-xml" })
   })
 
-  it("считает свойство из сохранённого порядка присутствовавшим в XML", () => {
+  it("не считает свойство из сохранённого порядка присутствовавшим в XML", () => {
     const result = convertPropertiesFromYAMLToXML({
       context: contextWithXMLDefaultVariant("indexed", ["value"], true),
       yaml: {},
@@ -309,7 +333,7 @@ describe("convertPropertiesFromYAMLToXML", () => {
       outputs: [{ key: "owner" }],
     })
 
-    expect(result.outputs.get("owner")).toEqual({ Mode: "full-xml" })
+    expect(result.outputs.get("owner")).toEqual({})
   })
 
   it("преобразует синтезированный XML-default через обработчик типа", () => {

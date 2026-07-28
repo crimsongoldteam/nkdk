@@ -16,10 +16,12 @@ const createRule = (
       yaml?: string
       forReferenceOnly?: true
     }
-  >
+  >,
+  xmlOrder?: readonly string[]
 ): any => {
   return {
     itemType: "TestDirectItem",
+    xmlOrder,
     // Остальное для этих тестов не важно, используются только свойства
     properties: Object.fromEntries(
       Object.entries(properties).map(([name, rule]) => [
@@ -144,6 +146,36 @@ describe("getOrderedKeysFromXML", () => {
 })
 
 describe("getOrderedKeysToXML", () => {
+  it("использует xmlOrder и дописывает неназванные свойства", () => {
+    const rule = createRule(
+      {
+        name: {},
+        group: {},
+        title: {},
+        unseen: {},
+      },
+      ["title", "group"]
+    )
+
+    expect(getOrderedKeysToXML({ rule })).toEqual(["title", "group", "name", "unseen"])
+  })
+
+  it("фильтрует служебные свойства после применения xmlOrder", () => {
+    const rule = createRule(
+      {
+        name: { tag: "form" },
+        runtime: { runtimeOnly: true, tag: "form" },
+        external: { syncExternalOnly: true, tag: "form" },
+        file: { filePath: "Module.bsl", tag: "form" },
+        metadata: { tag: "metadata" },
+        title: { tag: "form" },
+      },
+      ["title", "runtime", "external", "file", "metadata", "name"]
+    )
+
+    expect(getOrderedKeysToXML({ rule, tag: ["form"] })).toEqual(["title", "name"])
+  })
+
   it("использует порядок объявления вместо порядка XML-имён", () => {
     const rule = createRule({
       lastAlphabetically: { xml: "Zulu" },

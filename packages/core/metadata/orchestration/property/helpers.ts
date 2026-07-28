@@ -6,6 +6,7 @@ import {
 import { ConfigurationContext } from "../../context/types"
 import { TypeRulesOperations, type XMLImportPropertyBehavior } from "./fn"
 import type { ItemXML, MetadataItemRule, PropertyRule } from "./types"
+import { getCompiledXMLPropertyOrder } from "./xmlPropertyOrder"
 
 type Path = string[]
 
@@ -192,12 +193,11 @@ export const getOrderedKeysToXML = <Rule extends MetadataItemRule>(params: {
   rule: Rule
   tag?: string[]
 }): string[] =>
-  Object.entries(params.rule.properties)
-    .filter(([_key, ruleProp]) => {
-      if (ruleProp.runtimeOnly || ruleProp.syncExternalOnly || ruleProp.filePath !== undefined) return false
-      return params.tag === undefined || (ruleProp.tag !== undefined && params.tag.includes(ruleProp.tag))
-    })
-    .map(([key]) => key)
+  getCompiledXMLPropertyOrder(params.rule).filter((key) => {
+    const ruleProp = params.rule.properties[key]!
+    if (ruleProp.runtimeOnly || ruleProp.syncExternalOnly || ruleProp.filePath !== undefined) return false
+    return params.tag === undefined || (ruleProp.tag !== undefined && params.tag.includes(ruleProp.tag))
+  })
 
 export const getOrderedKeysFromXML = <Rule extends MetadataItemRule>(params: {
   rule: Rule
