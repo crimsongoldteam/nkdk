@@ -158,7 +158,15 @@ describe("validateProject service", () => {
     expect(core.validateProject).toHaveBeenCalledWith({ projectDir })
   })
 
-  it.each(["/private/secret.yaml", "cfe/Продажи/../../secret.yaml"])(
+  it.each([
+    "/private/secret.yaml",
+    "C:\\secret.yaml",
+    "\\\\server\\share\\secret.yaml",
+    "\\secret.yaml",
+    "file:///secret.yaml",
+    "cfe\\Продажи/..\\..\\secret.yaml",
+    "cfe/Продажи/../../secret.yaml",
+  ])(
     "rejects core diagnostic path outside project: %s",
     async (filePath) => {
       const projectDir = createProject()
@@ -175,6 +183,26 @@ describe("validateProject service", () => {
       })
     },
   )
+
+  it("normalizes backslashes in valid root-relative core paths", async () => {
+    const projectDir = createProject()
+    core.validateProject.mockResolvedValue({
+      diagnostics: [
+        {
+          filePath: "cfe\\Продажи\\Справочник\\Товары\\Свойства.yaml",
+          line: 1,
+          col: 1,
+          severity: "error",
+          message: "Не найдена ссылка",
+        },
+      ],
+    })
+
+    await expect(validateYamlProject({ projectDir })).resolves.toMatchObject({
+      ok: true,
+      diagnostics: [{ filePath: "cfe/Продажи/Справочник/Товары/Свойства.yaml" }],
+    })
+  })
 
   function createProject(): string {
     const projectDir = mkdtempSync(join(tmpdir(), "nkdk-mcp-validate-"))
