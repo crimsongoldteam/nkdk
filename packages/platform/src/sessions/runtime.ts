@@ -55,6 +55,7 @@ export type ProcessRunResult = {
   exitCode: number
   timedOut?: boolean
   cancelled?: boolean
+  terminationFailed?: boolean
 }
 
 export interface SessionFileSystem {

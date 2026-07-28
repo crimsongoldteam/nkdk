@@ -104,25 +104,39 @@ export async function runNodeProcess(
       cleanup()
       reject(error)
     }
+    const finishFailedCancellation = () => {
+      cleanup()
+      resolve({
+        stdout,
+        stderr,
+        exitCode: 1,
+        cancelled: true,
+        terminationFailed: true,
+      })
+    }
+    const forceKill = () => {
+      if (child.exitCode !== null) return
+      try {
+        if (!child.kill("SIGKILL") && child.exitCode === null) {
+          finishFailedCancellation()
+        }
+      } catch {
+        finishFailedCancellation()
+      }
+    }
     const abort = () => {
       if (cancelled || child.exitCode !== null) return
       cancelled = true
       try {
-        child.kill("SIGTERM")
-      } catch (caught) {
-        fail(asError(caught))
+        if (!child.kill("SIGTERM") && child.exitCode === null) {
+          forceKill()
+          return
+        }
+      } catch {
+        forceKill()
         return
       }
-      forceKillTimer = setTimeout(() => {
-        if (child.exitCode !== null) return
-        try {
-          if (!child.kill("SIGKILL") && child.exitCode === null) {
-            fail(new Error("Не удалось принудительно остановить дочерний процесс"))
-          }
-        } catch (caught) {
-          fail(asError(caught))
-        }
-      }, options.terminationGraceMs ?? 0)
+      forceKillTimer = setTimeout(forceKill, options.terminationGraceMs ?? 0)
       forceKillTimer.unref()
     }
 
@@ -144,10 +158,6 @@ export async function runNodeProcess(
     }
     if (options.signal?.aborted === true) abort()
   })
-}
-
-function asError(caught: unknown): Error {
-  return caught instanceof Error ? caught : new Error(String(caught))
 }
 
 function spawnPipedProcess(

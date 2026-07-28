@@ -46,38 +46,81 @@ describe("node process runtime", () => {
     }
   })
 
-  it("rejects cancellation when SIGKILL cannot be sent", async () => {
+  it("finishes cancellation when SIGKILL cannot be sent", async () => {
     vi.useFakeTimers()
     try {
       const runtimeModule = await import("./nodeRuntime") as Record<string, unknown>
       const runNodeProcess = runtimeModule["runNodeProcess"] as RunNodeProcess
       const controller = new AbortController()
       const child = controlledChildProcess({ forceKillSucceeds: false })
-      let rejection: unknown
       const pending = runNodeProcess(
         "ibcmd",
         ["infobase", "config", "export"],
         { signal: controller.signal, terminationGraceMs: 5_000 },
         () => child.process
-      ).catch((caught: unknown) => {
-        rejection = caught
-      })
+      )
+      const outcome = settled(pending)
 
       controller.abort()
       await vi.advanceTimersByTimeAsync(5_000)
 
-      expect(rejection).toMatchObject({
-        message: "Не удалось принудительно остановить дочерний процесс",
+      expect(await outcome).toMatchObject({
+        status: "fulfilled",
+        value: {
+          cancelled: true,
+          terminationFailed: true,
+        },
       })
-      await pending
+    } finally {
+      vi.useRealTimers()
+    }
+  })
+
+  it("tries SIGKILL when SIGTERM throws", async () => {
+    vi.useFakeTimers()
+    try {
+      const runtimeModule = await import("./nodeRuntime") as Record<string, unknown>
+      const runNodeProcess = runtimeModule["runNodeProcess"] as RunNodeProcess
+      const controller = new AbortController()
+      const child = controlledChildProcess({ termKillThrows: true })
+      const pending = runNodeProcess(
+        "ibcmd",
+        ["infobase", "config", "export"],
+        { signal: controller.signal, terminationGraceMs: 5_000 },
+        () => child.process
+      )
+      const outcome = settled(pending)
+
+      controller.abort()
+      await vi.advanceTimersByTimeAsync(5_000)
+
+      expect(child.signals).toEqual(["SIGTERM", "SIGKILL"])
+      expect(await outcome).toMatchObject({
+        status: "fulfilled",
+        value: { cancelled: true },
+      })
     } finally {
       vi.useRealTimers()
     }
   })
 })
 
+async function settled<T>(promise: Promise<T>): Promise<
+  | { status: "fulfilled"; value: T }
+  | { status: "rejected"; reason: unknown }
+> {
+  try {
+    return { status: "fulfilled", value: await promise }
+  } catch (reason) {
+    return { status: "rejected", reason }
+  }
+}
+
 function controlledChildProcess(
-  options: { forceKillSucceeds?: boolean } = {}
+  options: {
+    forceKillSucceeds?: boolean
+    termKillThrows?: boolean
+  } = {}
 ): {
   process: TestChildProcess
   signals: NodeJS.Signals[]
@@ -90,6 +133,9 @@ function controlledChildProcess(
     exitCode: null as number | null,
     kill(signal: NodeJS.Signals = "SIGTERM") {
       signals.push(signal)
+      if (signal === "SIGTERM" && options.termKillThrows === true) {
+        throw new Error("term failed")
+      }
       if (signal === "SIGKILL") {
         if (options.forceKillSucceeds === false) return false
         process.exitCode = 1

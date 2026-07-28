@@ -263,6 +263,46 @@ describe("Designer agent session", () => {
       )
     )
   })
+
+  it("preserves cancellation when stopping needs a retry", async () => {
+    const fixture = createFixture({
+      dumpWaitsForAbort: true,
+      processWaitResult: false,
+      signalFailures: 1,
+    })
+    const session = await createDesignerAgentSession(createParams(), fixture.dependencies)
+    const controller = new AbortController()
+
+    const exporting = session.exportConfiguration(
+      "/project/.nkdk/tmp/op/xml",
+      "/project/.nkdk/tmp/op/platform.log",
+      controller.signal
+    )
+    const exportResult = expect(exporting).rejects.toMatchObject({
+      code: "operation_cancelled",
+    })
+    await vi.waitFor(() =>
+      expect(fixture.calls).toContain(
+        'shell.run config dump-config-to-files --dir=".nkdk-export" --format=hierarchical'
+      )
+    )
+    controller.abort()
+
+    await exportResult
+    expect(fixture.calls).not.toContain(
+      "rename /project/.nkdk/0/.nkdk-export /project/.nkdk/tmp/op/xml"
+    )
+
+    await expect(session.cancel()).resolves.toEqual({
+      stoppedOwnedProcess: true,
+    })
+    expect(
+      fixture.calls.filter((call) => call === "process.signal SIGTERM")
+    ).toHaveLength(2)
+    expect(fixture.calls).toContain(
+      "rename /project/.nkdk/0/.nkdk-export /project/.nkdk/tmp/op/xml"
+    )
+  })
 })
 
 function createParams(
@@ -297,6 +337,7 @@ function createFixture(
     processWaitResult?: boolean
     connectFailures?: number
     killFailures?: number
+    signalFailures?: number
     cleanupCommandsHang?: boolean
     dumpWaitsForAbort?: boolean
     agentBaseConfig?: string
@@ -314,6 +355,7 @@ function createFixture(
   let now = 0
   let connectFailures = options.connectFailures ?? 0
   let killFailures = options.killFailures ?? 0
+  let signalFailures = options.signalFailures ?? 0
   const processHandle = {
     owned: options.processOwned ?? true,
     isAlive: () => alive,
@@ -325,6 +367,10 @@ function createFixture(
     async waitForOutput() {},
     async signal(signal: NodeJS.Signals) {
       calls.push(`process.signal ${signal}`)
+      if (signalFailures > 0) {
+        signalFailures -= 1
+        throw new Error("signal failed")
+      }
     },
     async kill(signal?: NodeJS.Signals) {
       calls.push(signal === undefined ? "process.kill" : `process.kill ${signal}`)

@@ -107,7 +107,10 @@ export async function createDesignerAgentSession(
   }
 
   let closed = false
-  const cancelSession = async () => {
+  let pendingCancelledDump:
+    | { stagingDir: string; outputDir: string }
+    | undefined
+  const stopCancelledSession = async () => {
     if (closed) return { stoppedOwnedProcess: false }
     await ignoreCleanupError(() => commandSession.close())
     if (!processHandle.owned) {
@@ -130,6 +133,21 @@ export async function createDesignerAgentSession(
     }
     closed = true
     return { stoppedOwnedProcess: true }
+  }
+  const finalizeCancelledDump = async () => {
+    const pending = pendingCancelledDump
+    if (pending === undefined) return
+    await moveStagingDirectory(
+      pending.stagingDir,
+      pending.outputDir,
+      dependencies
+    )
+    pendingCancelledDump = undefined
+  }
+  const cancelSession = async () => {
+    const result = await stopCancelledSession()
+    await finalizeCancelledDump()
+    return result
   }
   return {
     mode: "designer-agent",
@@ -161,7 +179,16 @@ export async function createDesignerAgentSession(
           caught instanceof PlatformSessionError &&
           caught.code === "operation_cancelled"
         ) {
-          await cancelSession()
+          pendingCancelledDump = {
+            stagingDir,
+            outputDir: resolvedOutputDir,
+          }
+          try {
+            await cancelSession()
+          } catch {
+            // Менеджер повторит остановку, сохранив исходную отмену.
+          }
+          throw caught
         }
         commandFailure = caught
       }
