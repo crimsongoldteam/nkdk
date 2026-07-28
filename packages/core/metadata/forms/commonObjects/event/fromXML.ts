@@ -1,7 +1,8 @@
 import { ConfigurationContextFromXML } from "../../../context/types"
 import { registerTypeRule } from "../../../orchestration/property/typeRuleRegistry"
 import type { EventsPropertyRule, PropertyRule } from "../../../orchestration/property/types"
-import type { EventsXML } from "./types"
+import { eventBindingKey } from "./callType"
+import type { EventCallTypeXML, EventXML, Events, EventsXML } from "./types"
 import { getConfigurationIndexCollectionContext } from "../../../configurationIndex/collector/context"
 
 const referenceXmlNames = new WeakMap<object, ReadonlyMap<string, string>>()
@@ -14,23 +15,33 @@ export const importEventsFromXML = (
   _context: ConfigurationContextFromXML,
   _rule: PropertyRule,
   value: unknown
-): Record<string, string> | undefined => {
+): Events | undefined => {
   if (!value || typeof value !== "object") return undefined
 
   const eventsXML = value as EventsXML
   const events = Array.isArray(eventsXML.Event) ? eventsXML.Event : [eventsXML.Event]
 
-  const result: Record<string, string> = {}
+  const result: Events = {}
   const aliases = new Map<string, string>()
   for (const event of events) {
-    if (!event || typeof event !== "object") continue
-    const name = (event as any)._name as string | undefined
-    const text = (event as any)["#text"] as string | undefined
-    if (!name || text === undefined) continue
+    if (!isEventXML(event)) continue
 
-    const key = eventRuleKey(_rule, name, text)
-    result[key] = text
-    aliases.set(key, name)
+    const key = eventRuleKey(_rule, event._name, event["#text"])
+    const bindingKey = eventBindingKey(key, event._callType)
+    const previous = result[key]
+
+    if (event._callType === undefined) {
+      if (previous !== undefined) throwBindingConflict(key, event._callType)
+      result[key] = event["#text"]
+    } else {
+      if (typeof previous === "string") throwBindingConflict(key, event._callType)
+      const handlers = previous ?? {}
+      if (Object.hasOwn(handlers, event._callType)) throwBindingConflict(key, event._callType)
+      handlers[event._callType] = event["#text"]
+      result[key] = handlers
+    }
+
+    aliases.set(bindingKey, event._name)
   }
 
   if (!isNonEmptyObject(result)) return undefined
@@ -49,20 +60,42 @@ registerTypeRule("Events", "collectConfigurationIndexFromXML", ({ context, rule,
   const source = (xml as EventsXML).Event
   const events = Array.isArray(source) ? source : source === undefined ? [] : [source]
   const order = events.flatMap((event) => {
-    const name = event?._name
-    const text = event?.["#text"]
-    if (typeof name !== "string" || name.length === 0 || typeof text !== "string") return []
-    const key = eventRuleKey(rule, name, text)
+    if (!isEventXML(event)) return []
+    const key = eventRuleKey(rule, event._name, event["#text"])
+    const bindingKey = eventBindingKey(key, event._callType)
     const canonicalName = `${key[0]!.toUpperCase()}${key.slice(1)}`
-    if (name !== canonicalName) {
-      collection.collector.setAlias(collection.xmlNodeLogicalAddress ?? collection.logicalAddress, key, name)
+    if (event._name !== canonicalName) {
+      collection.collector.setAlias(
+        collection.xmlNodeLogicalAddress ?? collection.logicalAddress,
+        bindingKey,
+        event._name
+      )
     }
-    return [key]
+    return [bindingKey]
   })
   if (order.length > 0) {
     collection.collector.setOrder(collection.xmlNodeLogicalAddress ?? collection.logicalAddress, order)
   }
 })
+
+function isEventXML(value: unknown): value is EventXML {
+  if (!value || typeof value !== "object" || Array.isArray(value)) return false
+  const { _name: name, _callType: callType, "#text": text } = value as Record<string, unknown>
+  return (
+    typeof name === "string" &&
+    name.length > 0 &&
+    typeof text === "string" &&
+    (callType === undefined || isEventCallType(callType))
+  )
+}
+
+function isEventCallType(value: unknown): value is EventCallTypeXML {
+  return value === "Before" || value === "After" || value === "Override"
+}
+
+function throwBindingConflict(key: string, callType: EventCallTypeXML | undefined): never {
+  throw new Error(`Противоречивые XML-привязки события ${key} (${callType ?? "обычный вызов"})`)
+}
 
 function eventRuleKey(rule: PropertyRule, xmlName: string, handlerName: string): string {
   const canonicalKey = `${xmlName[0]!.toLowerCase()}${xmlName.slice(1)}`
