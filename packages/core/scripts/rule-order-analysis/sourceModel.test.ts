@@ -99,6 +99,28 @@ export const Rules = {
     expect(edit.updatedText.indexOf("name:")).toBeLessThan(edit.updatedText.indexOf("use:"))
   })
 
+  it("reorders direct properties around a non-interleaved spread group", async () => {
+    const edit = await editFor(
+      `
+const common = {
+  use: { type: "boolean" },
+  name: { type: "string" },
+}
+export const Rules = {
+  itemType: "Test",
+  properties: {
+    extra: { type: "string" },
+    ...common,
+  },
+}
+`,
+      [order(["name", "use", "extra"])]
+    )
+
+    expect(edit.updatedText.indexOf("...common")).toBeLessThan(edit.updatedText.indexOf("extra:"))
+    expect(edit.updatedText.indexOf("name:")).toBeLessThan(edit.updatedText.indexOf("use:"))
+  })
+
   it("reorders a spread fragment imported from another rules.ts", async () => {
     const derivedPath = "/metadata/derived/rules.ts"
     const basePath = "/metadata/base/rules.ts"

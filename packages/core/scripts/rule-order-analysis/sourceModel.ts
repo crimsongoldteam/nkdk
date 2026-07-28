@@ -24,7 +24,8 @@ interface SourceGraph {
 interface ObjectConstraint {
   model: SourceModel
   object: ts.ObjectLiteralExpression
-  keys: readonly string[]
+  keys?: readonly string[]
+  elements?: readonly ts.ObjectLiteralElementLike[]
   candidate: string
 }
 
@@ -300,15 +301,24 @@ function constrainObject(
   const hasSpread = object.properties.some(ts.isSpreadAssignment)
   const hasOverride = directKeys.some((entry) => entry.keys.length === 0)
   if (hasSpread || hasOverride) {
-    assertCompositionIsProvable(directKeys, canonicalKeys, candidate)
+    const desiredEntryIndexes = assertCompositionIsProvable(directKeys, canonicalKeys, candidate)
+    const currentEntryIndexes = directKeys.flatMap((entry, index) => (entry.keys.length === 0 ? [] : [index]))
+    if (hasOverride) {
+      if (JSON.stringify(desiredEntryIndexes) !== JSON.stringify(currentEntryIndexes)) {
+        throw new Error(`Недоказуемая перестановка spread-композиции в ${candidate}`)
+      }
+      return
+    }
+    setConstraint(constraints, {
+      model,
+      object,
+      elements: desiredEntryIndexes.map((index) => directKeys[index]!.element),
+      candidate,
+    })
     return
   }
   const keys = canonicalKeys.filter((key) => expandedKeys.includes(key))
-  const existing = constraints.get(object)
-  if (existing !== undefined && JSON.stringify(existing.keys) !== JSON.stringify(keys)) {
-    throw new Error(`Несовместимые потребители общего fragment в ${candidate}: ${existing.candidate}`)
-  }
-  constraints.set(object, { model, object, keys, candidate })
+  setConstraint(constraints, { model, object, keys, candidate })
 }
 
 function expandObject(
@@ -377,7 +387,7 @@ function assertCompositionIsProvable(
   entries: readonly { keys: readonly string[] }[],
   canonicalKeys: readonly string[],
   candidate: string
-): void {
+): readonly number[] {
   const owners = new Map<string, number>()
   entries.forEach((entry, index) => entry.keys.forEach((key) => owners.set(key, index)))
   const sequence = canonicalKeys.flatMap((key) => {
@@ -388,10 +398,25 @@ function assertCompositionIsProvable(
   if (new Set(compact).size !== compact.length) {
     throw new Error(`Недоказуемая spread-композиция в ${candidate}`)
   }
-  const current = entries.flatMap((entry, index) => (entry.keys.length === 0 ? [] : [index]))
-  if (JSON.stringify(compact) !== JSON.stringify(current)) {
-    throw new Error(`Недоказуемая перестановка spread-композиции в ${candidate}`)
+  return compact
+}
+
+function setConstraint(
+  constraints: Map<ts.ObjectLiteralExpression, ObjectConstraint>,
+  constraint: ObjectConstraint
+): void {
+  const existing = constraints.get(constraint.object)
+  if (existing !== undefined && constraintSignature(existing) !== constraintSignature(constraint)) {
+    throw new Error(`Несовместимые потребители общего fragment в ${constraint.candidate}: ${existing.candidate}`)
   }
+  constraints.set(constraint.object, constraint)
+}
+
+function constraintSignature(constraint: ObjectConstraint): string {
+  if (constraint.keys !== undefined) return JSON.stringify({ keys: constraint.keys })
+  return JSON.stringify({
+    elements: constraint.elements?.map((element) => [element.pos, element.end]),
+  })
 }
 
 function resolveObjectExpression(
@@ -425,14 +450,15 @@ function objectReplacement(
   model: SourceModel,
   constraint: ObjectConstraint
 ): { start: number; end: number; text: string } {
-  const elementsByKey = new Map(
-    constraint.object.properties.map((element) => [elementKey(element, constraint.candidate), element])
-  )
-  const ordered = constraint.keys.map((key) => {
-    const element = elementsByKey.get(key)
-    if (element === undefined) throw new Error(`Не найден ключ ${key} в ${constraint.candidate}`)
-    return element
-  })
+  const ordered =
+    constraint.elements ??
+    constraint.keys!.map((key) => {
+      const element = constraint.object.properties.find(
+        (property) => !ts.isSpreadAssignment(property) && elementKey(property, constraint.candidate) === key
+      )
+      if (element === undefined) throw new Error(`Не найден ключ ${key} в ${constraint.candidate}`)
+      return element
+    })
   if (ordered.length === 0) {
     return { start: constraint.object.getStart(model.sourceFile) + 1, end: constraint.object.end - 1, text: "" }
   }
