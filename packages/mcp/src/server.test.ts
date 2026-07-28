@@ -12,6 +12,14 @@ const listInfobases = vi.hoisted(() =>
     warnings: [],
   }))
 )
+const listInfobaseExtensions = vi.hoisted(() =>
+  vi.fn(async () => ({
+    ok: true,
+    extensions: [],
+    mode: "designer-agent",
+    reusedConnection: false,
+  }))
+)
 
 vi.mock("./services/validationHandle", () => ({
   closeValidationHandle,
@@ -25,6 +33,10 @@ vi.mock("./services/platformSessionHandle", () => ({
 vi.mock("@nkdk/platform", () => ({
   listInfobases,
   readProjectSettings: vi.fn(),
+}))
+
+vi.mock("./services/listInfobaseExtensions", () => ({
+  listInfobaseExtensions,
 }))
 
 describe("MCP server", () => {
@@ -88,6 +100,36 @@ describe("MCP server", () => {
         warnings: [],
       })
       expect(listInfobases).toHaveBeenCalled()
+    } finally {
+      await client.close()
+    }
+  })
+
+  it("returns infobase extensions through the MCP protocol", async () => {
+    const server = createNkdkMcpServer()
+    const client = new Client({ name: "nkdk-test-client", version: "1.0.0" })
+    const [clientTransport, serverTransport] = InMemoryTransport.createLinkedPair()
+
+    await Promise.all([server.connect(serverTransport), client.connect(clientTransport)])
+
+    try {
+      const result = await client.callTool({
+        name: "nkdk.list_infobase_extensions",
+        arguments: { projectDir: "/project" },
+      })
+
+      expect(result.isError).not.toBe(true)
+      expect(result.structuredContent).toEqual({
+        ok: true,
+        extensions: [],
+        mode: "designer-agent",
+        reusedConnection: false,
+      })
+      expect(listInfobaseExtensions).toHaveBeenCalledWith(
+        { projectDir: "/project" },
+        undefined,
+        expect.any(AbortSignal)
+      )
     } finally {
       await client.close()
     }

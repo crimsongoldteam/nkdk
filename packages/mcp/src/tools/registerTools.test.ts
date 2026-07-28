@@ -22,6 +22,7 @@ describe("registerNkdkCapabilities", () => {
       "nkdk.get_schema",
       "nkdk.describe_project_structure",
       "nkdk.list_infobases",
+      "nkdk.list_infobase_extensions",
       "nkdk.validate_project",
       "nkdk.import_from_xml",
       "nkdk.import_from_infobase",
@@ -88,6 +89,14 @@ describe("registerNkdkCapabilities", () => {
     expect(listInfobasesTool?.description).toContain("личного и общих списков")
     expect(listInfobasesTool?.description).toContain("дерево")
     expect(listInfobasesTool?.description).toContain("Не изменяет файлы")
+
+    const listExtensionsTool = server.registerTool.mock.calls.find(
+      ([name]) => name === "nkdk.list_infobase_extensions"
+    )?.[1] as { description: string } | undefined
+    expect(listExtensionsTool?.description).toContain(".nkdk/project.yaml")
+    expect(listExtensionsTool?.description).toContain("агент")
+    expect(listExtensionsTool?.description).toContain("ibcmd")
+    expect(listExtensionsTool?.description).toContain("Не изменяет")
   })
 
   it("passes the MCP cancellation signal to infobase import", async () => {
@@ -113,6 +122,32 @@ describe("registerNkdkCapabilities", () => {
       connectionString: 'File="/bases/demo";',
       allowWrite: true,
     }
+    const controller = new AbortController()
+
+    await handler(input, { signal: controller.signal })
+
+    expect(service).toHaveBeenCalledWith(input, undefined, controller.signal)
+  })
+
+  it("passes the MCP cancellation signal to extension listing", async () => {
+    const factory = (registerToolsModule as Record<string, unknown>)[
+      "createListInfobaseExtensionsHandler"
+    ]
+    expect(factory).toBeTypeOf("function")
+    const service = vi.fn().mockResolvedValue({
+      ok: false,
+      code: "operation_cancelled",
+      message: "cancelled",
+    })
+    const handler = (
+      factory as (
+        serviceFunction: typeof service
+      ) => (
+        input: Record<string, unknown>,
+        extra: { signal: AbortSignal }
+      ) => Promise<unknown>
+    )(service)
+    const input = { projectDir: "/project" }
     const controller = new AbortController()
 
     await handler(input, { signal: controller.signal })
