@@ -40,12 +40,15 @@ import { registerDirectFormElementCollections } from "../elements/orchestration/
 registerDirectFormElementCollections()
 
 import "./dataPath/toEnterprise"
+import "./dataPath/baseFormProjection"
 
 import "./commandName/toEnterprise"
 import "./commandName/toJSONSchema"
+import "./commandName/baseFormProjection"
 
 import "./event/fromXML"
 import "./event/fromYAML"
+import "./event/baseFormProjection"
 import "./event/toJSONSchema"
 import "./event/toXML"
 import "./event/toYAML"
