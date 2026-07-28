@@ -37,3 +37,8 @@ export {
   type InfobaseWarning,
   type InfobaseWarningCode,
 } from "./src/infobases/listInfobases"
+export type {
+  ConfigurationExtensionInfo,
+  ConfigurationExtensionPurpose,
+  ConfigurationExtensionScope,
+} from "./src/extensions/types"
