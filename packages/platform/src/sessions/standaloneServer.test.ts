@@ -8,8 +8,13 @@ import {
 describe("standalone server session", () => {
   it("prepares configuration, exports, and closes a local server", async () => {
     const fixture = createFixture()
+    const controller = new AbortController()
     const session = await createStandaloneServerSession(createParams(), fixture.dependencies)
-    await session.exportConfiguration("/project/.nkdk/tmp/op/xml", "/project/.nkdk/tmp/op/platform.log")
+    await session.exportConfiguration(
+      "/project/.nkdk/tmp/op/xml",
+      "/project/.nkdk/tmp/op/platform.log",
+      controller.signal
+    )
     await expect(session.close()).resolves.toEqual({ stoppedOwnedProcess: false })
 
     expect(fixture.calls).toEqual([
@@ -18,7 +23,7 @@ describe("standalone server session", () => {
       "run ibcmd server config init --database-path=/bases/demo timeout=1800000",
       "write /project/.nkdk/platform-sessions/standalone/config.yaml mode=384",
       "chmod /project/.nkdk/platform-sessions/standalone/config.yaml mode=384",
-      "run ibcmd infobase config export --password=secret --config=/project/.nkdk/platform-sessions/standalone/config.yaml /project/.nkdk/tmp/op/xml timeout=1800000",
+      "run ibcmd infobase config export --password=secret --config=/project/.nkdk/platform-sessions/standalone/config.yaml /project/.nkdk/tmp/op/xml timeout=undefined signal=true grace=5000",
       "write /project/.nkdk/tmp/op/platform.log",
       "rm /project/.nkdk/platform-sessions/standalone/config.yaml",
     ])
@@ -70,7 +75,7 @@ describe("standalone server session", () => {
       "run ibcmd server config init --dbms=PostgreSQL --database-server=db.example.local --database-name=production --database-user=dbuser --database-password=dbsecret timeout=1800000"
     )
     expect(fixture.calls).toContain(
-      "run ibcmd infobase config export --password=secret --config=/project/.nkdk/platform-sessions/standalone/config.yaml /project/.nkdk/tmp/op/xml timeout=1800000"
+      "run ibcmd infobase config export --password=secret --config=/project/.nkdk/platform-sessions/standalone/config.yaml /project/.nkdk/tmp/op/xml timeout=undefined signal=false grace=5000"
     )
   })
 
@@ -113,16 +118,19 @@ describe("standalone server session", () => {
     })
   })
 
-  it("maps ibcmd initialization and export timeouts", async () => {
+  it("maps an ibcmd initialization timeout", async () => {
     const initTimeout = createFixture({ initTimedOut: true })
     await expect(
       createStandaloneServerSession(createParams(), initTimeout.dependencies)
     ).rejects.toMatchObject({ code: "session_timeout" })
+  })
 
-    const exportTimeout = createFixture({ exportTimedOut: true })
-    const session = await createStandaloneServerSession(createParams(), exportTimeout.dependencies)
+  it("maps an aborted ibcmd export to operation_cancelled", async () => {
+    const fixture = createFixture({ exportCancelled: true })
+    const session = await createStandaloneServerSession(createParams(), fixture.dependencies)
+
     await expect(session.exportConfiguration("/xml", "/log")).rejects.toMatchObject({
-      code: "session_timeout",
+      code: "operation_cancelled",
     })
   })
 
@@ -195,7 +203,7 @@ function createFixture(
     initStdout?: string
     initTimedOut?: boolean
     exportExitCode?: number
-    exportTimedOut?: boolean
+    exportCancelled?: boolean
     rmFailureCall?: number
   } = {}
 ): {
@@ -233,7 +241,18 @@ function createFixture(
       },
       processRuntime: {
         async run(command, args, runOptions) {
-          calls.push(`run ${command} ${args.join(" ")} timeout=${runOptions?.timeoutMs}`)
+          calls.push(
+            [
+              `run ${command} ${args.join(" ")}`,
+              `timeout=${runOptions?.timeoutMs}`,
+              ...(args.includes("export")
+                ? [
+                    `signal=${runOptions?.signal instanceof AbortSignal}`,
+                    `grace=${runOptions?.terminationGraceMs}`,
+                  ]
+                : []),
+            ].join(" ")
+          )
           const isExport = args.includes("export")
           return {
             stdout: isExport
@@ -241,13 +260,13 @@ function createFixture(
               : (options.initStdout ?? "database:\n  path: /bases/demo\n"),
             stderr: "",
             exitCode: isExport ? (options.exportExitCode ?? 0) : (options.initExitCode ?? 0),
-            timedOut: isExport
-              ? (options.exportTimedOut ?? false)
-              : (options.initTimedOut ?? false),
+            timedOut: isExport ? false : (options.initTimedOut ?? false),
+            cancelled: isExport ? (options.exportCancelled ?? false) : false,
           }
         },
       },
       commandTimeoutMs: 1_800_000,
+      closeTimeoutMs: 5_000,
       platform: "darwin",
     },
   }

@@ -20,6 +20,7 @@ export interface StandaloneServerDependencies {
   }
   processRuntime: Pick<SessionProcessRuntime, "run">
   commandTimeoutMs: number
+  closeTimeoutMs: number
   platform: NodeJS.Platform
 }
 
@@ -109,7 +110,7 @@ export async function createStandaloneServerSession(
     isAlive() {
       return !closed
     },
-    async exportConfiguration(outputDir, operationLogPath) {
+    async exportConfiguration(outputDir, operationLogPath, signal) {
       if (closed) {
         throw new PlatformSessionError("platform_command_failed", "Соединение с платформой закрыто")
       }
@@ -123,12 +124,13 @@ export async function createStandaloneServerSession(
           : { password: params.settings.password }),
       })
       const exported = await dependencies.processRuntime.run(command.command, command.args, {
-        timeoutMs: dependencies.commandTimeoutMs,
+        signal,
+        terminationGraceMs: dependencies.closeTimeoutMs,
       })
-      if (exported.timedOut === true) {
+      if (exported.cancelled === true) {
         throw new PlatformSessionError(
-          "session_timeout",
-          "Истекло время выгрузки конфигурации через ibcmd"
+          "operation_cancelled",
+          "Выгрузка конфигурации через ibcmd отменена"
         )
       }
       if (exported.exitCode !== 0) {

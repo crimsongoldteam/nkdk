@@ -11,6 +11,8 @@ import { createSsh2Transport } from "./ssh2Transport"
 import { createStandaloneServerSession } from "./standaloneServer"
 import type {
   OwnedProcess,
+  ProcessRunOptions,
+  ProcessRunResult,
   SessionFileSystem,
   SessionPortRuntime,
   SessionProcessRuntime,
@@ -35,7 +37,7 @@ const fileSystem: SessionFileSystem = {
   realpath: fs.promises.realpath,
 }
 
-const processRuntime: SessionProcessRuntime = {
+export const nodeProcessRuntime: SessionProcessRuntime = {
   spawn(command, args) {
     return wrapOwnedProcess(
       spawnChild(command, [...args], {
@@ -44,39 +46,102 @@ const processRuntime: SessionProcessRuntime = {
       })
     )
   },
-  async run(command, args, options) {
-    return new Promise((resolve, reject) => {
-      const child = spawnChild(command, [...args], {
-        shell: false,
-        stdio: ["ignore", "pipe", "pipe"],
+  run: runNodeProcess,
+}
+
+type PipedChildProcess = Pick<
+  ChildProcessByStdio<null, Readable, Readable>,
+  "stdout" | "stderr" | "exitCode" | "kill" | "once" | "off"
+>
+
+type SpawnPipedProcess = (
+  command: string,
+  args: readonly string[]
+) => PipedChildProcess
+
+export async function runNodeProcess(
+  command: string,
+  args: readonly string[],
+  options: ProcessRunOptions = {},
+  spawnProcess: SpawnPipedProcess = spawnPipedProcess
+): Promise<ProcessRunResult> {
+  if (options.signal?.aborted === true) {
+    return {
+      stdout: "",
+      stderr: "",
+      exitCode: 1,
+      cancelled: true,
+    }
+  }
+
+  const child = spawnProcess(command, args)
+  return new Promise((resolve, reject) => {
+    let stdout = ""
+    let stderr = ""
+    let timedOut = false
+    let cancelled = false
+    let timeoutTimer: ReturnType<typeof setTimeout> | undefined
+    let forceKillTimer: ReturnType<typeof setTimeout> | undefined
+
+    const cleanup = () => {
+      if (timeoutTimer !== undefined) clearTimeout(timeoutTimer)
+      if (forceKillTimer !== undefined) clearTimeout(forceKillTimer)
+      options.signal?.removeEventListener("abort", abort)
+      child.off("error", fail)
+      child.off("exit", finish)
+    }
+    const finish = (code: number | null) => {
+      cleanup()
+      resolve({
+        stdout,
+        stderr,
+        exitCode: code ?? 1,
+        ...(timedOut ? { timedOut: true } : {}),
+        ...(cancelled ? { cancelled: true } : {}),
       })
-      let stdout = ""
-      let stderr = ""
-      let timedOut = false
-      const timer =
-        options === undefined
-          ? undefined
-          : setTimeout(() => {
-              timedOut = true
-              child.kill("SIGKILL")
-            }, options.timeoutMs)
-      timer?.unref()
-      child.stdout.on("data", (chunk: Buffer) => {
-        stdout += chunk.toString("utf8")
-      })
-      child.stderr.on("data", (chunk: Buffer) => {
-        stderr += chunk.toString("utf8")
-      })
-      child.once("error", (error) => {
-        if (timer !== undefined) clearTimeout(timer)
-        reject(error)
-      })
-      child.once("exit", (code) => {
-        if (timer !== undefined) clearTimeout(timer)
-        resolve({ stdout, stderr, exitCode: code ?? 1, timedOut })
-      })
+    }
+    const fail = (error: Error) => {
+      cleanup()
+      reject(error)
+    }
+    const abort = () => {
+      if (cancelled || child.exitCode !== null) return
+      cancelled = true
+      child.kill("SIGTERM")
+      forceKillTimer = setTimeout(() => {
+        if (child.exitCode === null) child.kill("SIGKILL")
+      }, options.terminationGraceMs ?? 0)
+      forceKillTimer.unref()
+    }
+
+    child.stdout.on("data", (chunk: Buffer) => {
+      stdout += chunk.toString("utf8")
     })
-  },
+    child.stderr.on("data", (chunk: Buffer) => {
+      stderr += chunk.toString("utf8")
+    })
+    child.once("error", fail)
+    child.once("exit", finish)
+    options.signal?.addEventListener("abort", abort, { once: true })
+    if (options.timeoutMs !== undefined) {
+      timeoutTimer = setTimeout(() => {
+        timedOut = true
+        child.kill("SIGKILL")
+      }, options.timeoutMs)
+      timeoutTimer.unref()
+    }
+    if (options.signal?.aborted === true) abort()
+  })
+}
+
+function spawnPipedProcess(
+  command: string,
+  args: readonly string[]
+): PipedChildProcess {
+  return spawnChild(command, [...args], {
+    shell: false,
+    stdio: ["ignore", "pipe", "pipe"],
+  })
 }
 
 const portRuntime: SessionPortRuntime = {
@@ -110,7 +175,7 @@ export function createNodePlatformSessionManagerDependencies(): PlatformSessionM
       createDesignerAgentSession(params, {
         portRuntime,
         fileSystem,
-        processRuntime,
+        processRuntime: nodeProcessRuntime,
         generateHostKey,
         sshTransport,
         openCommandSession: openPlatformCommandSession,
@@ -125,8 +190,9 @@ export function createNodePlatformSessionManagerDependencies(): PlatformSessionM
     createStandaloneSession: (params) =>
       createStandaloneServerSession(params, {
         fileSystem,
-        processRuntime,
+        processRuntime: nodeProcessRuntime,
         commandTimeoutMs: 30 * 60 * 1000,
+        closeTimeoutMs: 5_000,
         platform: process.platform,
       }),
     setTimer(callback, timeoutMs) {
