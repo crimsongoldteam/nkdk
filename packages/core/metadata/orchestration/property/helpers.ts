@@ -1,11 +1,9 @@
 import { capitalize } from "../../../helpers/capitalize"
 import {
   getConfigurationIndexPropertyXmlValue,
-  getConfigurationIndexPropertyOrder,
   isConfigurationIndexPropertyPresent,
 } from "../../configurationIndex/referenceView"
 import { ConfigurationContext } from "../../context/types"
-import { ToMetadata } from ".."
 import { TypeRulesOperations, type XMLImportPropertyBehavior } from "./fn"
 import type { ItemXML, MetadataItemRule, PropertyRule } from "./types"
 
@@ -16,7 +14,6 @@ const pathKey = (path: Path): string => JSON.stringify(path)
 interface PathInfo {
   keys: string[]
   xmlKeyToKey: Record<string, string>
-  orderByRule: { key: string; order: number | undefined; xmlKey: string }[]
 }
 
 interface PathStructure {
@@ -26,17 +23,6 @@ interface PathStructure {
 }
 
 export const XML_SOURCE_KEYS = Symbol("xmlSourceKeys")
-
-const XML_CONTAINER_ORDER = new Map<string, number>([
-  ["InternalInfo", 0],
-  ["Properties", 1],
-  ["ChildObjects", 2],
-])
-
-const getEntryTopLevelXMLName = (entry: { path: Path; xmlKey: string }): string => entry.path[0] ?? entry.xmlKey
-
-const getKnownXMLContainerOrder = (entry: { path: Path; xmlKey: string }): number | undefined =>
-  XML_CONTAINER_ORDER.get(getEntryTopLevelXMLName(entry))
 
 const AUTO_REQUIRED_XML_PARENT_ROOTS = new Set<string>(["ChildObjects", "ListSettings"])
 
@@ -139,9 +125,7 @@ export const presenceAffectsExport = (params: {
 
 const buildPathStructure = <Rule extends MetadataItemRule>(
   rule: Rule,
-  tagFilter: string[] | undefined,
-  /** При экспорте в XML задаёт порядок свойств без `order` (порядок ключей как в референсе после импорта). */
-  referenceMetadata?: ToMetadata<Rule["itemType"]> | null
+  tagFilter: string[] | undefined
 ): PathStructure => {
   const pathOrder: Path[] = []
   const pathOrderSet = new Set<string>()
@@ -164,46 +148,18 @@ const buildPathStructure = <Rule extends MetadataItemRule>(
     const info = pathToInfo.get(pk)
     const xmlKey = ruleProp.xml ?? capitalize(key)
     const xmlAliases = (ruleProp as any).xmlAliases ?? []
-    const entry = { key, xmlKey, order: ruleProp.order }
     if (!info) {
       const xmlKeyToKey: Record<string, string> = { [xmlKey]: key }
       for (const xmlAlias of xmlAliases) xmlKeyToKey[xmlAlias] = key
       pathToInfo.set(pk, {
         keys: [key],
         xmlKeyToKey,
-        orderByRule: [entry],
       })
     } else {
       info.keys.push(key)
       info.xmlKeyToKey[xmlKey] = key
       for (const xmlAlias of xmlAliases) info.xmlKeyToKey[xmlAlias] = key
-      info.orderByRule.push(entry)
     }
-  }
-
-  const refKeyOrder = new Map<string, number>()
-  if (referenceMetadata !== undefined && referenceMetadata !== null && typeof referenceMetadata === "object") {
-    let i = 0
-    for (const k of Object.keys(referenceMetadata)) {
-      if (k === "itemType") continue
-      if (!refKeyOrder.has(k)) refKeyOrder.set(k, i++)
-    }
-  }
-
-  for (const info of Array.from(pathToInfo.values())) {
-    info.orderByRule.sort((a, b) => {
-      if (a.order !== undefined && b.order !== undefined) return a.order - b.order
-      if (a.order !== undefined) return -1
-      if (b.order !== undefined) return 1
-      if (refKeyOrder.size > 0) {
-        const ia = refKeyOrder.get(a.key)
-        const ib = refKeyOrder.get(b.key)
-        if (ia !== undefined && ib !== undefined) return ia - ib
-        if (ia !== undefined) return -1
-        if (ib !== undefined) return 1
-      }
-      return a.xmlKey.localeCompare(b.xmlKey)
-    })
   }
 
   // Compute child containers for all traversal paths, including ancestor paths not in
@@ -233,104 +189,15 @@ const buildPathStructure = <Rule extends MetadataItemRule>(
 }
 
 export const getOrderedKeysToXML = <Rule extends MetadataItemRule>(params: {
-  context?: import("../../context/types").ConfigurationContextWithExportToXML
   rule: Rule
-  referenceMetadata: ToMetadata<Rule["itemType"]> | undefined
   tag?: string[]
-}): string[] => {
-  const { context, rule, referenceMetadata, tag } = params
-  const { pathOrder, pathToInfo } = buildPathStructure(rule, tag, referenceMetadata)
-
-  // Если есть референс (например, метаданные, полученные из импорта XML), порядок ключей
-  // в нём имеет приоритет над `order` из правил — это нужно, чтобы round-trip сохранял
-  // порядок тегов, даже когда часть полей уходит во вложенный контейнер (xmlParents),
-  // или когда разные XML-источники раскладывают свойства в разном порядке.
-  const refKeyOrder = new Map<string, number>()
-  if (referenceMetadata !== undefined && referenceMetadata !== null && typeof referenceMetadata === "object") {
-    let i = 0
-    for (const k of Object.keys(referenceMetadata)) {
-      if (k === "itemType") continue
-      if (!refKeyOrder.has(k)) refKeyOrder.set(k, i++)
-    }
-  }
-  for (const key of getConfigurationIndexPropertyOrder(context as any)) {
-    if (key !== "itemType" && !refKeyOrder.has(key)) refKeyOrder.set(key, refKeyOrder.size)
-  }
-
-  type FlatEntry = {
-    key: string
-    order: number | undefined
-    pathIdx: number
-    withinPathIdx: number
-    path: Path
-    xmlKey: string
-  }
-  const entries: FlatEntry[] = []
-
-  for (let pathIdx = 0; pathIdx < pathOrder.length; pathIdx++) {
-    const path = pathOrder[pathIdx]!
-    const info = pathToInfo.get(pathKey(path))
-    if (!info) continue
-    info.orderByRule.forEach((e, withinPathIdx) => {
-      entries.push({ key: e.key, order: e.order, pathIdx, withinPathIdx, path, xmlKey: e.xmlKey })
+}): string[] =>
+  Object.entries(params.rule.properties)
+    .filter(([_key, ruleProp]) => {
+      if (ruleProp.runtimeOnly || ruleProp.syncExternalOnly || ruleProp.filePath !== undefined) return false
+      return params.tag === undefined || (ruleProp.tag !== undefined && params.tag.includes(ruleProp.tag))
     })
-  }
-
-  const byRuleOrder = (a: FlatEntry, b: FlatEntry): number => {
-    if (a.order !== undefined && b.order !== undefined) return a.order - b.order
-    if (a.order !== undefined) return -1
-    if (b.order !== undefined) return 1
-    if (a.pathIdx !== b.pathIdx) return a.pathIdx - b.pathIdx
-    return a.withinPathIdx - b.withinPathIdx
-  }
-
-  const byKnownXMLContainerThenRuleOrder = (a: FlatEntry, b: FlatEntry): number => {
-    const containerOrderA = getKnownXMLContainerOrder(a)
-    const containerOrderB = getKnownXMLContainerOrder(b)
-
-    if (containerOrderA !== undefined && containerOrderB !== undefined && containerOrderA !== containerOrderB) {
-      return containerOrderA - containerOrderB
-    }
-
-    return byRuleOrder(a, b)
-  }
-
-  if (refKeyOrder.size === 0) {
-    entries.sort(byKnownXMLContainerThenRuleOrder)
-    return entries.map((e) => e.key)
-  }
-
-  // Референс задаёт относительный порядок для своих ключей; ключи, которых в референсе
-  // нет (авто-эмитятся экспортом — например, `<dcssch:value xsi:nil/>`), вставляются
-  // между ними по правилу: перед первым anchored-ключом с бо́льшим `order`.
-  const anchored: FlatEntry[] = []
-  const free: FlatEntry[] = []
-  for (const e of entries) {
-    if (refKeyOrder.has(e.key)) anchored.push(e)
-    else free.push(e)
-  }
-  anchored.sort((a, b) => refKeyOrder.get(a.key)! - refKeyOrder.get(b.key)!)
-  free.sort(byKnownXMLContainerThenRuleOrder)
-
-  const result: FlatEntry[] = [...anchored]
-  for (const f of free) {
-    if (f.order === undefined) {
-      result.push(f)
-      continue
-    }
-    let insertIdx = result.length
-    for (let i = 0; i < result.length; i++) {
-      const r = result[i]!
-      if (r.order !== undefined && r.order > f.order) {
-        insertIdx = i
-        break
-      }
-    }
-    result.splice(insertIdx, 0, f)
-  }
-
-  return result.map((e) => e.key)
-}
+    .map(([key]) => key)
 
 export const getOrderedKeysFromXML = <Rule extends MetadataItemRule>(params: {
   rule: Rule
@@ -343,7 +210,7 @@ export const getOrderedKeysFromXML = <Rule extends MetadataItemRule>(params: {
   const allKeysFallback: string[] = []
   for (const path of structure.pathOrder) {
     const info = structure.pathToInfo.get(pathKey(path))
-    if (info) allKeysFallback.push(...info.orderByRule.map(({ key }) => key))
+    if (info) allKeysFallback.push(...info.keys)
   }
   if (xml === undefined) {
     return allKeysFallback

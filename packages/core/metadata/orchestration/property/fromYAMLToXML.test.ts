@@ -680,7 +680,7 @@ describe("convertPropertiesFromYAMLToXML", () => {
     })
   })
 
-  it("переносит порядок XML-узла в следующий снимок", () => {
+  it("не переносит порядок обычного XML-узла в следующий снимок", () => {
     const testContext = contextWithXMLDefaultVariant(
       "full",
       ["first", "items"],
@@ -698,12 +698,10 @@ describe("convertPropertiesFromYAMLToXML", () => {
     })
 
     expect(
-      testContext.exportToXML.configurationIndex!.collector.fragment("Свойства.yaml")
-        .xmlNodes
-    ).toContainEqual({
-      logicalAddress: DEFAULT_TEST_LOGICAL_ADDRESS,
-      order: ["first", "items"],
-    })
+      testContext.exportToXML.configurationIndex!.collector
+        .fragment("Свойства.yaml")
+        .xmlNodes.find((node) => node.logicalAddress === DEFAULT_TEST_LOGICAL_ADDRESS)
+    ).toBeUndefined()
   })
 
   it("сохраняет XML-алиас и исходное значение для preserveFromReferenceXML", () => {
@@ -765,7 +763,7 @@ describe("convertPropertiesFromYAMLToXML", () => {
     expect(result.outputs.get("owner")).toEqual({ Value: {} })
   })
 
-  it("сохраняет порядок свойств отдельно для каждого XML-файла", () => {
+  it("сохраняет декларативный порядок свойств отдельно для каждого XML-файла", () => {
     const result = convertPropertiesFromYAMLToXML({
       context: context(),
       yaml: { Заголовок: "форма", Значение: "объект", Ширина: 20 },
@@ -780,7 +778,22 @@ describe("convertPropertiesFromYAMLToXML", () => {
       ],
     })
 
-    expect(Object.keys(result.outputs.get("form")!)).toEqual(["Title", "Width"])
+    expect(Object.keys(result.outputs.get("form")!)).toEqual(["Width", "Title"])
+  })
+
+  it("вставляет отсутствующее в reference свойство на декларативную позицию", () => {
+    const result = convertPropertiesFromYAMLToXML({
+      context: context(),
+      yaml: { Первое: "1", Новое: "2", Последнее: "3" },
+      rule: testRule({
+        first: { type: "string", yaml: "Первое", xml: "First" },
+        added: { type: "string", yaml: "Новое", xml: "Added" },
+        last: { type: "string", yaml: "Последнее", xml: "Last" },
+      }),
+      outputs: [{ key: "owner", referenceXML: { Last: "старое", First: "старое" } }],
+    })
+
+    expect(Object.keys(result.outputs.get("owner")!)).toEqual(["First", "Added", "Last"])
   })
 
   it("создаёт пустое значение по умолчанию внутри разреженной коллекции", () => {
