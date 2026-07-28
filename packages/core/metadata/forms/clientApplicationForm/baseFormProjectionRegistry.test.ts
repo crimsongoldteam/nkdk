@@ -43,6 +43,17 @@ describe("BaseForm property projection registry", () => {
     ).toEqual({ kind: "omit" })
   })
 
+  it("omits an early-resolved DataPath when its root attribute is unavailable", () => {
+    expect(
+      projectProperty({
+        rule: { type: "DataPath" },
+        baseValue: "Items.Таблица.CurrentData.Код",
+        extensionValue: "Items.Таблица.CurrentData.Код",
+        context: { ...context, attributeNames: new Set() },
+      })
+    ).toEqual({ kind: "omit" })
+  })
+
   it("keeps the cf DataPath when its root attribute is available", () => {
     expect(
       projectProperty({

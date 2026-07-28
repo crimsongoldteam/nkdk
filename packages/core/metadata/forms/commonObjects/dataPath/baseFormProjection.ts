@@ -23,18 +23,22 @@ registerBaseFormPropertyProjector("DataPath", {
 })
 
 function isBaseFormDataPathRootAvailable(value: string, attributeNames: ReadonlySet<string>): boolean {
-  const index = projectionDataPathIndex(attributeNames)
+  const rootIndex = createBaseFormDataPathRootIndex(attributeNames)
   const result = resolveDataPathCore({
     value,
     nameMode: "yaml",
-    index,
+    index: rootIndex.index,
     ownerCache: unusedOwnerCache,
   })
-  return result.status !== "error"
+  return result.status !== "error" && rootIndex.didResolveAvailableRoot()
 }
 
-function projectionDataPathIndex(attributeNames: ReadonlySet<string>): FormDataPathIndex {
+function createBaseFormDataPathRootIndex(attributeNames: ReadonlySet<string>): {
+  readonly index: FormDataPathIndex
+  didResolveAvailableRoot(): boolean
+} {
   const roots = new Map<string, FormDataPathSource>()
+  let resolvedAvailableRoot = false
   for (const name of attributeNames) {
     roots.set(name, {
       kind: "formAttribute",
@@ -46,9 +50,16 @@ function projectionDataPathIndex(attributeNames: ReadonlySet<string>): FormDataP
     })
   }
   return {
-    roots,
-    additionalColumnsByTablePath: new Map(),
-    duplicateDiagnostics: [],
-    getRoot: (name) => roots.get(name),
+    index: {
+      roots,
+      additionalColumnsByTablePath: new Map(),
+      duplicateDiagnostics: [],
+      getRoot(name) {
+        const root = roots.get(name)
+        resolvedAvailableRoot ||= root !== undefined
+        return root
+      },
+    },
+    didResolveAvailableRoot: () => resolvedAvailableRoot,
   }
 }
