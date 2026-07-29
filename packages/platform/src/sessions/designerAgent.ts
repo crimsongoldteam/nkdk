@@ -1,6 +1,11 @@
 import { isAbsolute, join, relative, resolve, sep } from "node:path"
 import { parseConnection } from "../infobases/parseConnection"
-import { buildDesignerAgentLaunch, buildDumpConfigurationCommand } from "./commands"
+import { parseExtensionPropertyRecords } from "../extensions/parse"
+import {
+  buildDesignerAgentLaunch,
+  buildDumpConfigurationCommand,
+  buildListDesignerExtensionsCommand,
+} from "./commands"
 import { PlatformSessionError } from "./errors"
 import { openPlatformCommandSession } from "./sshProtocol"
 import type {
@@ -31,6 +36,7 @@ export interface DesignerAgentDependencies {
     sleep(timeoutMs: number): Promise<void>
   }
   startupTimeoutMs: number
+  commandTimeoutMs: number
   retryDelayMs: number
   closeTimeoutMs: number
 }
@@ -216,6 +222,25 @@ export async function createDesignerAgentSession(
         )
       }
     },
+    async listExtensions(signal) {
+      if (closed) {
+        throw new PlatformSessionError(
+          "platform_command_failed",
+          "Соединение с платформой закрыто"
+        )
+      }
+      const result = await commandSession.run(
+        buildListDesignerExtensionsCommand(),
+        { signal, timeoutMs: dependencies.commandTimeoutMs }
+      )
+      if (result.extensionInfo === undefined) {
+        throw new PlatformSessionError(
+          "platform_command_failed",
+          "Платформа вернула некорректный список расширений"
+        )
+      }
+      return parseExtensionPropertyRecords(result.extensionInfo)
+    },
     async close() {
       if (closed) return { stoppedOwnedProcess: false }
       await ignoreCleanupError(() =>
@@ -263,7 +288,7 @@ async function ensureProcessStopped(
 }
 
 async function runCleanupCommand(
-  command: () => Promise<void>,
+  command: () => Promise<unknown>,
   dependencies: DesignerAgentDependencies
 ): Promise<void> {
   await Promise.race([

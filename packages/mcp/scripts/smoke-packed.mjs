@@ -48,6 +48,7 @@ try {
     }
     for (const name of [
       "nkdk.import_from_infobase",
+      "nkdk.list_infobase_extensions",
       "nkdk.close_platform_connection",
       "nkdk.close_all_platform_connections",
     ]) {

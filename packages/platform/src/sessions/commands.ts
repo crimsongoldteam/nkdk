@@ -80,6 +80,26 @@ export function buildStandaloneConfigExport(params: {
   }
 }
 
+export function buildStandaloneListExtensions(params: {
+  ibcmdPath: string
+  configPath: string
+  user?: string
+  password?: string
+}): ProcessLaunch {
+  return {
+    command: params.ibcmdPath,
+    args: [
+      "infobase",
+      "config",
+      "extension",
+      "list",
+      ...(params.user === undefined ? [] : [`--user=${params.user}`]),
+      ...(params.password === undefined ? [] : [`--password=${params.password}`]),
+      `--config=${params.configPath}`,
+    ],
+  }
+}
+
 export function buildStandaloneLaunch(params: {
   ibsrvPath: string
   dataDir: string
@@ -101,6 +121,10 @@ export function buildStandaloneLaunch(params: {
 
 export function buildDumpConfigurationCommand(outputDir: string): string {
   return `config dump-config-to-files --dir="${interactiveValue(outputDir)}" --format=hierarchical`
+}
+
+export function buildListDesignerExtensionsCommand(): string {
+  return "config extensions properties get --all-extensions"
 }
 
 function designerConnectionArgument(connection: InfobaseConnection): string {

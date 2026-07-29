@@ -8,6 +8,8 @@ export type {
   DatabaseManagementSystem,
   ExportConfigurationParams,
   ExportConfigurationResult,
+  ListConfigurationExtensionsParams,
+  ListConfigurationExtensionsResult,
   NormalizedPlatformConnectionSettings,
   PlatformConnectionSettings,
   PlatformSession,
@@ -22,10 +24,7 @@ export {
   type ProjectSettingsDependencies,
   type ProjectSettingsFileSystem,
 } from "./src/settings/projectSettings"
-export {
-  createPlatformSessionManager,
-  type PlatformSessionManagerDependencies,
-} from "./src/sessions/manager"
+export { createPlatformSessionManager, type PlatformSessionManagerDependencies } from "./src/sessions/manager"
 export {
   listInfobases,
   type InfobaseConnection,
@@ -37,3 +36,8 @@ export {
   type InfobaseWarning,
   type InfobaseWarningCode,
 } from "./src/infobases/listInfobases"
+export type {
+  ConfigurationExtensionInfo,
+  ConfigurationExtensionPurpose,
+  ConfigurationExtensionScope,
+} from "./src/extensions/types"
