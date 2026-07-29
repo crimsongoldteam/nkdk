@@ -4,115 +4,84 @@ import {
   encodeConfigurationIndexFragments,
   mergeConfigurationIndexFragments,
 } from "./fragment"
-import { sampleFragments } from "./testData"
+import { entity, fragment } from "./testData"
 
-describe("configuration index worker fragments", () => {
-  it("сохраняет Extended при encode фрагмента и merge", () => {
-    const fragment = {
-      targetProjectPath: "Формы/ФормаЭлемента/Форма.yaml",
-      identities: [],
-      xmlNodes: [],
-      xmlValues: [{ logicalAddress: "Справочник.Товары.Форма.ФормаЭлемента.form", extended: true as const }],
-    }
-    const buffer = encodeConfigurationIndexFragments([fragment])
+describe("configuration snapshot worker fragments", () => {
+  it("сохраняет целую entity в конверте версии 3", () => {
+    const value = fragment("Справочники/Товары.yaml", {
+      ...entity("Справочник.Товары", "Справочники/Товары.yaml"),
+      identities: { uuid: "00000000-0000-4000-8000-000000000001", xmlName: "" },
+      omittedChildren: { kind: "typedNames", items: [{ xmlName: "Attribute", name: "Код" }] },
+      xml: { extended: true, xsiType: "xs:string", xmlText: "", xmlPrefix: "xs" },
+    })
 
-    expect(decodeConfigurationIndexFragments(buffer)).toEqual([fragment])
-    expect(mergeConfigurationIndexFragments([buffer]).xmlValues).toEqual(fragment.xmlValues)
+    expect(decodeConfigurationIndexFragments(encodeConfigurationIndexFragments([value]))).toEqual([value])
   })
 
-  it("uses one transferable ArrayBuffer per worker", () => {
-    const fragments = sampleFragments()
-    const buffer = encodeConfigurationIndexFragments(fragments)
+  it("объединяет фрагменты независимо от порядка worker", () => {
+    const left = encodeConfigurationIndexFragments([fragment("Б.yaml", entity("Б", "Б.yaml"))])
+    const right = encodeConfigurationIndexFragments([fragment("А.yaml", entity("А", "А.yaml"))])
 
-    expect(buffer).toBeInstanceOf(ArrayBuffer)
-    expect(decodeConfigurationIndexFragments(buffer)).toEqual(fragments)
+    expect(mergeConfigurationIndexFragments([left, right])).toEqual(mergeConfigurationIndexFragments([right, left]))
+    expect(mergeConfigurationIndexFragments([left, right]).sourceProjectPaths).toEqual(["А.yaml", "Б.yaml"])
   })
 
-  it("сохраняет локальные зависимости first-pass во временном codec и merge", () => {
-    const fragment = sampleFragments()[0]!
-    const buffer = encodeConfigurationIndexFragments([fragment])
+  it("объединяет одинаковые повторные наблюдения", () => {
+    const item = fragment("А.yaml", { ...entity("Объект", "А.yaml"), xml: { explicitEmpty: true } })
+    const encoded = encodeConfigurationIndexFragments([item])
 
-    expect(decodeConfigurationIndexFragments(buffer)[0]!.localDependencies).toEqual(fragment.localDependencies)
-    expect(mergeConfigurationIndexFragments([buffer]).localDependencies).toEqual(fragment.localDependencies)
+    expect(mergeConfigurationIndexFragments([encoded, encoded])).toEqual({
+      sourceProjectPaths: ["А.yaml"],
+      entities: [item.entities[0]],
+    })
   })
 
-  it("объединяет локальные зависимости уникально и детерминированно", () => {
-    const first = sampleFragments()[0]!.localDependencies![0]!
-    const second = {
-      ...first,
-      sourceProjectPath: "Документ/Заказ/Свойства.yaml",
-      canonical: "Document.Заказ",
-    }
+  it("отклоняет один logicalAddress из разных файлов", () => {
+    const left = encodeConfigurationIndexFragments([fragment("А.yaml", entity("Объект", "А.yaml"))])
+    const right = encodeConfigurationIndexFragments([fragment("Б.yaml", entity("Объект", "Б.yaml"))])
+
+    expect(() => mergeConfigurationIndexFragments([left, right])).toThrow("разные sourceProjectPath")
+  })
+
+  it("отклоняет конфликт содержимого одной entity", () => {
     const left = encodeConfigurationIndexFragments([
-      {
-        ...sampleFragments()[1]!,
-        identities: [],
-        xmlNodes: [],
-        xmlValues: [],
-        localDependencies: [first, second],
-      },
+      fragment("А.yaml", { ...entity("Объект", "А.yaml"), identities: { xmlId: "one" } }),
     ])
     const right = encodeConfigurationIndexFragments([
-      {
-        ...sampleFragments()[1]!,
-        identities: [],
-        xmlNodes: [],
-        xmlValues: [],
-        localDependencies: [first],
-      },
+      fragment("А.yaml", { ...entity("Объект", "А.yaml"), identities: { xmlId: "two" } }),
     ])
 
-    expect(mergeConfigurationIndexFragments([right, left]).localDependencies).toEqual([second, first])
+    expect(() => mergeConfigurationIndexFragments([left, right])).toThrow("Конфликт logicalAddress Объект")
   })
 
-  it("preserves equal-name exclusion provenance across the worker boundary", () => {
-    const fragments = sampleFragments()
-    const first = fragments[0]!
-    const withExcludedEqualName = [
-      {
-        ...first,
-        xmlValues: [
-          ...first.xmlValues,
-          {
-            logicalAddress: "Справочник.Товары.description",
-            excludedEqualName: true as const,
-          },
-        ],
-      },
-    ]
+  it("обрабатывает пустой фрагмент", () => {
+    const encoded = encodeConfigurationIndexFragments([fragment("Пустой.yaml")])
 
-    expect(decodeConfigurationIndexFragments(encodeConfigurationIndexFragments(withExcludedEqualName))).toEqual(
-      withExcludedEqualName
-    )
+    expect(mergeConfigurationIndexFragments([encoded])).toEqual({ sourceProjectPaths: [], entities: [] })
   })
 
-  it("merges buffers in worker result order and rejects address conflicts", () => {
-    const left = encodeConfigurationIndexFragments([sampleFragments()[0]!])
-    const right = encodeConfigurationIndexFragments([sampleFragments()[1]!])
-
-    expect(mergeConfigurationIndexFragments([right, left])).toEqual({
-      identities: sampleFragments()[0]!.identities,
-      xmlNodes: [...sampleFragments()[1]!.xmlNodes, ...sampleFragments()[0]!.xmlNodes],
-      xmlValues: sampleFragments()[0]!.xmlValues,
-      localDependencies: sampleFragments()[0]!.localDependencies,
-    })
-    expect(() => mergeConfigurationIndexFragments([left, left])).toThrow("Конфликт logicalAddress")
-  })
-
-  it("rejects invalid transient envelopes", () => {
-    const buffer = encodeConfigurationIndexFragments(sampleFragments())
-    const envelope = JSON.parse(new TextDecoder("utf-8", { fatal: true }).decode(buffer)) as {
+  it("отклоняет пустые entity, неизвестные поля и несовпадающий путь", () => {
+    const encoded = encodeConfigurationIndexFragments([fragment("А.yaml", entity("Объект", "А.yaml"))])
+    const envelope = JSON.parse(new TextDecoder().decode(encoded)) as {
       magic: string
+      fragments: Array<{ entities: Array<Record<string, unknown>> }>
       strings: string[]
-      fragments: Array<{ targetProjectPathStringId: number }>
     }
+    const item = envelope.fragments[0]!.entities[0]!
 
-    envelope.magic = "NKDK1CIX"
-    expect(() => decodeConfigurationIndexFragments(encodeEnvelope(envelope))).toThrow("magic")
+    delete item.identities
+    expect(() => decodeConfigurationIndexFragments(encodeEnvelope(envelope))).toThrow("пустая entity")
 
-    envelope.magic = "NKDKCIF2"
-    envelope.fragments[0]!.targetProjectPathStringId = envelope.strings.length
-    expect(() => decodeConfigurationIndexFragments(encodeEnvelope(envelope))).toThrow("string ID")
+    envelope.fragments[0]!.entities[0] = { ...item, xml: { explicitEmpty: true }, extra: true }
+    expect(() => decodeConfigurationIndexFragments(encodeEnvelope(envelope))).toThrow("неизвестное поле")
+
+    const sourceProjectPathStringId = envelope.strings.push("Б.yaml") - 1
+    envelope.fragments[0]!.entities[0] = {
+      ...item,
+      xml: { explicitEmpty: true },
+      sourceProjectPathStringId,
+    }
+    expect(() => decodeConfigurationIndexFragments(encodeEnvelope(envelope))).toThrow("sourceProjectPath")
   })
 })
 

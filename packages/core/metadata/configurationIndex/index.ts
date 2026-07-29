@@ -36,16 +36,14 @@ export {
   type SharedConfigurationIndexSnapshot,
 } from "./sharedSnapshot"
 export type {
-  ConfigurationIdentity,
   ConfigurationIndexBinding,
-  ConfigurationIndexData,
-  ConfigurationIndexFragment,
-  ConfigurationLocalDependency,
-  ConfigurationLocalDependencyRulePathSegment,
-  ConfigurationLocalIndexes,
-  ComponentLogicalAddress,
   ConfigurationProjectFile,
-  ConfigurationXmlNode,
-  ConfigurationXmlValue,
+  ConfigurationSnapshot,
+  ConfigurationSnapshotEntity,
+  ConfigurationSnapshotFile,
+  ConfigurationSnapshotFragment,
+  ConfigurationSnapshotXml,
+  MergedConfigurationSnapshotFragments,
+  OmittedChildren,
 } from "./types"
 export { componentPath, type ComponentAddress } from "../components/address"

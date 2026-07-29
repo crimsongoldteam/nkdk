@@ -1,201 +1,158 @@
 import type {
-  ConfigurationIdentity,
-  ConfigurationIndexFragment,
-  ConfigurationXmlNode,
-  ConfigurationXmlValue,
+  ConfigurationSnapshotEntity,
+  ConfigurationSnapshotFragment,
+  OmittedChildren,
 } from "../types"
 
+type IdentityKind = "uuid" | "xmlId" | "xmlName"
+type XmlFlag = "extended" | "xsiNil" | "explicitEmpty"
+type XmlValue = "xsiType" | "xmlText" | "xmlPrefix"
+
 export interface ConfigurationIndexCollector {
-  setUuid(address: string, value: string): void
-  setXmlId(address: string, value: string): void
-  setXmlName(address: string, value: string): void
-  setOrder(address: string, keys: readonly string[]): void
-  setAlias(address: string, propertyKey: string, sourceXmlKey: string): void
-  setPresent(address: string, propertyKey: string): void
-  setExtended(address: string): void
-  setXsiNil(address: string): void
-  setExplicitEmpty(address: string): void
-  setExcludedEqualName(address: string): void
-  setXsiType(address: string, value: string): void
-  setXmlText(address: string, value: string): void
-  setXmlPrefix(address: string, value: string): void
-  setUserSettingsId(address: string, value: string): void
-  fragment(targetProjectPath: string): ConfigurationIndexFragment
+  setIdentity(address: string, kind: IdentityKind, value: string): void
+  setOmittedChildren(address: string, value: OmittedChildren): void
+  setXmlFlag(address: string, field: XmlFlag): void
+  setXmlValue(address: string, field: XmlValue, value: string): void
+  fragment(targetProjectPath: string): ConfigurationSnapshotFragment
+}
+
+interface MutableEntity {
+  logicalAddress: string
+  identities?: { uuid?: string; xmlId?: string; xmlName?: string }
+  omittedChildren?: OmittedChildren
+  xml?: MutableXml
+}
+
+interface MutableXml {
+  extended?: true
+  xsiNil?: true
+  explicitEmpty?: true
+  xsiType?: string
+  xmlText?: string
+  xmlPrefix?: string
 }
 
 class InMemoryConfigurationIndexCollector implements ConfigurationIndexCollector {
-  private readonly identities: ConfigurationIdentity[] = []
-  private readonly identityValues = new Map<string, string>()
-  private readonly xmlNodes = new Map<string, MutableXmlNode>()
-  private readonly xmlValues = new Map<string, ConfigurationXmlValue>()
+  private readonly entities = new Map<string, MutableEntity>()
 
-  constructor(private readonly conflictingXmlId: "error" | "keepFirst") {}
+  setIdentity(address: string, kind: IdentityKind, value: string): void {
+    if (kind === "uuid") assertUuid(value)
+    if (kind === "xmlId" && value.length === 0) throw new Error("Пустой xmlId")
 
-  setUuid(address: string, value: string): void {
-    this.setIdentity(address, "uuid", value)
-  }
-
-  setXmlId(address: string, value: string): void {
-    this.setIdentity(address, "xmlId", value)
-  }
-
-  setXmlName(address: string, value: string): void {
-    this.setIdentity(address, "xmlName", value)
-  }
-
-  setOrder(address: string, keys: readonly string[]): void {
-    const node = this.node(address)
-    if (node.order !== undefined) {
-      assertEqualValues(address, "order", node.order, keys, equalStringArrays)
-      return
-    }
-    node.order = [...keys]
-  }
-
-  setAlias(address: string, propertyKey: string, sourceXmlKey: string): void {
-    const node = this.node(address)
-    const previous = node.aliases?.[propertyKey]
-    if (previous !== undefined) {
-      assertEqualValues(address, `alias ${propertyKey}`, previous, sourceXmlKey)
-      return
-    }
-    node.aliases = { ...node.aliases, [propertyKey]: sourceXmlKey }
-  }
-
-  setPresent(address: string, propertyKey: string): void {
-    const node = this.node(address)
-    if (!node.present?.includes(propertyKey)) node.present = [...(node.present ?? []), propertyKey]
-  }
-
-  setExtended(address: string): void {
-    this.value(address).extended = true
-  }
-
-  setXsiNil(address: string): void {
-    this.value(address).xsiNil = true
-  }
-
-  setExplicitEmpty(address: string): void {
-    this.value(address).explicitEmpty = true
-  }
-
-  setExcludedEqualName(address: string): void {
-    this.value(address).excludedEqualName = true
-  }
-
-  setXsiType(address: string, value: string): void {
-    this.setXmlValue(address, "xsiType", value)
-  }
-
-  setXmlText(address: string, value: string): void {
-    this.setXmlValue(address, "xmlText", value)
-  }
-
-  setXmlPrefix(address: string, value: string): void {
-    this.setXmlValue(address, "xmlPrefix", value)
-  }
-
-  setUserSettingsId(address: string, value: string): void {
-    this.setXmlValue(address, "userSettingsId", value)
-  }
-
-  fragment(targetProjectPath: string): ConfigurationIndexFragment {
-    return {
-      targetProjectPath,
-      identities: [...this.identities],
-      xmlNodes: [...this.xmlNodes.values()].map(copyNode),
-      xmlValues: [...this.xmlValues.values()].map((value) => ({ ...value })),
-    }
-  }
-
-  private setIdentity(address: string, kind: ConfigurationIdentity["kind"], value: string): void {
-    if (value.length === 0) return
-
-    const key = `${address}\0${kind}`
-    const previous = this.identityValues.get(key)
-    if (previous !== undefined) {
-      if (kind === "xmlId" && this.conflictingXmlId === "keepFirst") return
+    const entity = this.entity(address)
+    const identities = (entity.identities ??= {})
+    const previous = identities[kind]
+    if (previous !== undefined || Object.hasOwn(identities, kind)) {
       assertEqualValues(address, kind, previous, value)
       return
     }
-    this.identityValues.set(key, value)
-    this.identities.push({ logicalAddress: address, kind, value })
+    identities[kind] = value
   }
 
-  private setXmlValue(
-    address: string,
-    field: "xsiType" | "xmlText" | "xmlPrefix" | "userSettingsId",
-    value: string
-  ): void {
-    const xmlValue = this.value(address)
-    const previous = xmlValue[field]
-    if (previous !== undefined) {
+  setOmittedChildren(address: string, value: OmittedChildren): void {
+    assertOmittedChildren(value)
+    const entity = this.entity(address)
+    if (entity.omittedChildren !== undefined) {
+      assertEqualValues(address, "omittedChildren", entity.omittedChildren, value, equalOmittedChildren)
+      return
+    }
+    entity.omittedChildren = copyOmittedChildren(value)
+  }
+
+  setXmlFlag(address: string, field: XmlFlag): void {
+    const xml = (this.entity(address).xml ??= {})
+    xml[field] = true
+  }
+
+  setXmlValue(address: string, field: XmlValue, value: string): void {
+    const xml = (this.entity(address).xml ??= {})
+    const previous = xml[field]
+    if (previous !== undefined || Object.hasOwn(xml, field)) {
       assertEqualValues(address, field, previous, value)
       return
     }
-    xmlValue[field] = value
+    xml[field] = value
   }
 
-  private node(address: string): MutableXmlNode {
-    const existing = this.xmlNodes.get(address)
-    if (existing !== undefined) return existing
-    const node: MutableXmlNode = { logicalAddress: address }
-    this.xmlNodes.set(address, node)
-    return node
+  fragment(targetProjectPath: string): ConfigurationSnapshotFragment {
+    const entities = [...this.entities.values()]
+      .flatMap((entity) => {
+        const normalized = normalizeEntity(entity, targetProjectPath)
+        return normalized === undefined ? [] : [normalized]
+      })
+      .sort((left, right) => compareUtf8(left.logicalAddress, right.logicalAddress))
+
+    return { targetProjectPath, entities }
   }
 
-  private value(address: string): ConfigurationXmlValue {
-    const existing = this.xmlValues.get(address)
+  private entity(logicalAddress: string): MutableEntity {
+    const existing = this.entities.get(logicalAddress)
     if (existing !== undefined) return existing
-    const value: ConfigurationXmlValue = { logicalAddress: address }
-    this.xmlValues.set(address, value)
-    return value
+    const entity: MutableEntity = { logicalAddress }
+    this.entities.set(logicalAddress, entity)
+    return entity
   }
 }
 
-type MutableXmlNode = {
-  logicalAddress: string
-  order?: string[]
-  aliases?: Record<string, string>
-  present?: string[]
-}
-
-export function createConfigurationIndexCollector(
-  options: { conflictingXmlId?: "error" | "keepFirst" } = {}
-): ConfigurationIndexCollector {
-  return new InMemoryConfigurationIndexCollector(options.conflictingXmlId ?? "error")
+export function createConfigurationIndexCollector(): ConfigurationIndexCollector {
+  return new InMemoryConfigurationIndexCollector()
 }
 
 export function createDiscardingConfigurationIndexCollector(): ConfigurationIndexCollector {
   const discard = (): void => undefined
   return {
-    setUuid: discard,
-    setXmlId: discard,
-    setXmlName: discard,
-    setOrder: discard,
-    setAlias: discard,
-    setPresent: discard,
-    setXsiNil: discard,
-    setExplicitEmpty: discard,
-    setExcludedEqualName: discard,
-    setXsiType: discard,
-    setXmlText: discard,
-    setXmlPrefix: discard,
-    setUserSettingsId: discard,
-    setExtended: discard,
+    setIdentity: discard,
+    setOmittedChildren: discard,
+    setXmlFlag: discard,
+    setXmlValue: discard,
     fragment(targetProjectPath) {
-      return { targetProjectPath, identities: [], xmlNodes: [], xmlValues: [] }
+      return { targetProjectPath, entities: [] }
     },
   }
 }
 
-function copyNode(node: MutableXmlNode): ConfigurationXmlNode {
+function normalizeEntity(entity: MutableEntity, sourceProjectPath: string): ConfigurationSnapshotEntity | undefined {
+  const identities = entity.identities
+  const xml = entity.xml
+  if (identities === undefined && entity.omittedChildren === undefined && xml === undefined) return undefined
+
   return {
-    logicalAddress: node.logicalAddress,
-    ...(node.order === undefined ? {} : { order: [...node.order] }),
-    ...(node.aliases === undefined ? {} : { aliases: { ...node.aliases } }),
-    ...(node.present === undefined ? {} : { present: [...node.present] }),
+    logicalAddress: entity.logicalAddress,
+    sourceProjectPath,
+    ...(identities === undefined ? {} : { identities: { ...identities } }),
+    ...(entity.omittedChildren === undefined ? {} : { omittedChildren: copyOmittedChildren(entity.omittedChildren) }),
+    ...(xml === undefined ? {} : { xml: { ...xml } }),
   }
+}
+
+function assertUuid(value: string): void {
+  if (!/^[0-9a-f]{8}-[0-9a-f]{4}-[1-5][0-9a-f]{3}-[89ab][0-9a-f]{3}-[0-9a-f]{12}$/iu.test(value)) {
+    throw new Error("Некорректный UUID")
+  }
+}
+
+function assertOmittedChildren(value: OmittedChildren): void {
+  const size = value.kind === "names" ? value.names.length : value.items.length
+  if (size === 0) throw new Error("Пустой список omittedChildren")
+}
+
+function copyOmittedChildren(value: OmittedChildren): OmittedChildren {
+  return value.kind === "names"
+    ? { kind: "names", names: [...value.names] }
+    : { kind: "typedNames", items: value.items.map((item) => ({ ...item })) }
+}
+
+function equalOmittedChildren(left: OmittedChildren, right: OmittedChildren): boolean {
+  if (left.kind !== right.kind) return false
+  if (left.kind === "names" && right.kind === "names") {
+    return equalStringArrays(left.names, right.names)
+  }
+  if (left.kind === "typedNames" && right.kind === "typedNames") {
+    return left.items.length === right.items.length && left.items.every(
+      (item, index) => item.xmlName === right.items[index]?.xmlName && item.name === right.items[index]?.name
+    )
+  }
+  return false
 }
 
 function assertEqualValues<T>(
@@ -214,4 +171,15 @@ function assertEqualValues<T>(
 
 function equalStringArrays(left: readonly string[], right: readonly string[]): boolean {
   return left.length === right.length && left.every((value, index) => value === right[index])
+}
+
+function compareUtf8(left: string, right: string): number {
+  const leftBytes = new TextEncoder().encode(left)
+  const rightBytes = new TextEncoder().encode(right)
+  const length = Math.min(leftBytes.length, rightBytes.length)
+  for (let index = 0; index < length; index++) {
+    const difference = leftBytes[index]! - rightBytes[index]!
+    if (difference !== 0) return difference
+  }
+  return leftBytes.length - rightBytes.length
 }

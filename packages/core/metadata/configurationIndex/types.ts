@@ -1,9 +1,3 @@
-import type { PersistedSharedValidationSnapshot } from "../validation/persistedSharedValidationSnapshot"
-import type {
-  ProjectLocalDependency,
-  ProjectLogicalAddressEntry,
-} from "../project/componentIndexFacts"
-
 export interface ConfigurationIndexBinding {
   indexGeneration: bigint
   producerVersion: string
@@ -17,55 +11,56 @@ export interface ConfigurationProjectFile {
   contentHash: bigint
 }
 
-export type ConfigurationIdentity =
-  | { logicalAddress: string; kind: "uuid"; value: string }
-  | { logicalAddress: string; kind: "xmlId" | "xmlName"; value: string }
-
-export interface ConfigurationXmlNode {
-  logicalAddress: string
-  order?: readonly string[]
-  aliases?: Readonly<Record<string, string>>
-  present?: readonly string[]
+export interface ConfigurationSnapshot {
+  readonly specificationVersion: "1.3"
+  readonly indexGeneration: bigint
+  readonly componentPath: string
+  readonly files: readonly ConfigurationSnapshotFile[]
+  readonly entities: readonly ConfigurationSnapshotEntity[]
 }
 
-export interface ConfigurationXmlValue {
-  logicalAddress: string
-  extended?: true
-  xsiNil?: true
-  explicitEmpty?: true
-  excludedEqualName?: true
-  xsiType?: string
-  xmlText?: string
-  xmlPrefix?: string
-  userSettingsId?: string
+export interface ConfigurationSnapshotFile {
+  readonly projectPath: string
+  readonly contentHash: bigint
 }
 
-export type ConfigurationLocalDependencyRulePathSegment =
-  ProjectLocalDependency["rulePath"][number]
-
-export type ConfigurationLocalDependency = ProjectLocalDependency
-
-export type ComponentLogicalAddress = ProjectLogicalAddressEntry
-
-export interface ConfigurationLocalIndexes {
-  metadata: PersistedSharedValidationSnapshot
-  dependencies: readonly ConfigurationLocalDependency[]
-  logicalAddresses: readonly ComponentLogicalAddress[]
+export interface ConfigurationSnapshotEntity {
+  readonly logicalAddress: string
+  readonly sourceProjectPath: string
+  readonly identities?: {
+    readonly uuid?: string
+    readonly xmlId?: string
+    readonly xmlName?: string
+  }
+  readonly omittedChildren?: OmittedChildren
+  readonly xml?: ConfigurationSnapshotXml
 }
 
-export interface ConfigurationIndexData {
-  binding: ConfigurationIndexBinding
-  projectFiles: readonly ConfigurationProjectFile[]
-  identities: readonly ConfigurationIdentity[]
-  xmlNodes: readonly ConfigurationXmlNode[]
-  xmlValues: readonly ConfigurationXmlValue[]
-  localIndexes: ConfigurationLocalIndexes
+export type OmittedChildren =
+  | { readonly kind: "names"; readonly names: readonly string[] }
+  | {
+      readonly kind: "typedNames"
+      readonly items: readonly {
+        readonly xmlName: string
+        readonly name: string
+      }[]
+    }
+
+export interface ConfigurationSnapshotXml {
+  readonly extended?: true
+  readonly xsiNil?: true
+  readonly explicitEmpty?: true
+  readonly xsiType?: string
+  readonly xmlText?: string
+  readonly xmlPrefix?: string
 }
 
-export interface ConfigurationIndexFragment {
-  targetProjectPath: string
-  identities: readonly ConfigurationIdentity[]
-  xmlNodes: readonly ConfigurationXmlNode[]
-  xmlValues: readonly ConfigurationXmlValue[]
-  localDependencies?: readonly ConfigurationLocalDependency[]
+export interface ConfigurationSnapshotFragment {
+  readonly targetProjectPath: string
+  readonly entities: readonly ConfigurationSnapshotEntity[]
+}
+
+export interface MergedConfigurationSnapshotFragments {
+  readonly sourceProjectPaths: readonly string[]
+  readonly entities: readonly ConfigurationSnapshotEntity[]
 }
