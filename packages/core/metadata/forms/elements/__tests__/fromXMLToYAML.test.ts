@@ -12,11 +12,7 @@ import { importContentFromXML } from "../../../../xml/import/importer"
 import { xmlExport } from "../../../../xml/export/exporter"
 import { withConfigurationIndexFormElementRootLogicalAddress } from "../../../configurationIndex/collector/context"
 import type { CollectableElementType } from "../../../orchestration/formElement/types"
-import type { RulePropertyOrderFact } from "../../../orchestration/property/importYamlTypes"
-import { createLocalIndexesCollector } from "../../../project/localIndexes"
-import { importFormElementPropertiesFromXMLToYAML } from "../orchestration/fromXMLToYAML"
 import { getElementRule } from "../orchestration/ruleFactory"
-import { UsualGroupRules } from "../usualGroup/rules"
 
 import "../index"
 
@@ -34,44 +30,6 @@ const fixtures = fs
   })
 
 describe("элементы формы XML → YAML → XML", () => {
-  it("передаёт порядок свойств вложенного UsualGroup", () => {
-    const formLogicalAddress = "Справочник.Товары.Форма.ФормаЭлемента"
-    const contexts = createDirectRoundTripContexts({
-      logicalAddress: `${formLogicalAddress}.Элемент.Группа`,
-    })
-    const facts: RulePropertyOrderFact[] = []
-
-    importFormElementPropertiesFromXMLToYAML({
-      context: withConfigurationIndexFormElementRootLogicalAddress(contexts.importContext, formLogicalAddress),
-      rule: UsualGroupRules,
-      xml: {
-        _name: "Группа",
-        _id: "1",
-        Title: { "v8:item": [{ "v8:lang": "ru", "v8:content": "Группа" }] },
-        VerticalStretch: false,
-        Group: "Vertical",
-        ShowTitle: false,
-        ExtendedTooltip: { _name: "Подсказка", _id: "2" },
-      },
-      name: "Группа",
-      traversal: {
-        yamlPath: ["Элементы", "Группа"],
-        rulePath: [{ propertyKey: "childItems" }],
-        collector: createLocalIndexesCollector(),
-        ruleOrderCollector: { accept: (fact) => facts.push(fact) },
-        sourceXmlPath: "/Forms/Форма/Ext/Form.xml",
-      },
-    })
-
-    expect(facts).toContainEqual(
-      expect.objectContaining({
-        rule: UsualGroupRules,
-        sourceXmlPath: "/Forms/Форма/Ext/Form.xml",
-        fields: ["name", "title", "verticalStretch", "group", "showTitle", "extendedTooltip"],
-      })
-    )
-  })
-
   it.each(fixtures)("%s", (fixture) => {
     const parsed = importContentFromXML<Record<string, Record<string, unknown>>>(fs.readFileSync(fixture, "utf8"), {
       preserveXsiNil: true,

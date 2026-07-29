@@ -28,7 +28,6 @@ const minimalFormMetadataXmlPath = join(
   import.meta.dirname,
   "../forms/clientApplicationForm/__fixtures__/minimalMetadata.xml"
 )
-const metadataDir = join(import.meta.dirname, "..")
 const tempDirs: string[] = []
 
 beforeEach(async () => {
@@ -269,120 +268,6 @@ describe("XML import worker first pass", () => {
 
     expect(workerStateForTests().preparedYamlIds).toEqual([])
     expect(workerStateForTests().initialized).toBe(false)
-  })
-})
-
-describe("XML import worker rule order analysis", () => {
-  it("returns first-pass data with observations and retains YAML for the second pass", async () => {
-    const outputDir = createTempDir("rule-order")
-    await initializeWorker(outputDir)
-    const assignment = catalogAssignment()
-
-    const result = await runImportWorkerCommand({
-      kind: "analyzeRuleOrder",
-      configuration: "all",
-      metadataDir,
-      assignments: [assignment],
-    })
-
-    expect(result?.kind).toBe("ruleOrderAnalysisFirstPassResult")
-    if (result?.kind !== "ruleOrderAnalysisFirstPassResult") {
-      throw new Error("Ожидался первый проход анализа порядка")
-    }
-    expect(result.diagnostics).toEqual([])
-    expect(result.ownerFacts).not.toEqual([])
-    expect(result.validationContribution.objectRecords).not.toEqual([])
-    expect(result.unmatchedObservationCount).toBe(0)
-    expect(result.observations).toHaveLength(1)
-    expect(result.observations[0]).toMatchObject({
-      configuration: "all",
-      sourceXmlPath: assignment.xmlFiles[0]?.sourcePath,
-      logicalAddress: assignment.logicalAddress,
-      itemType: "MetadataCatalog",
-    })
-    expect(result.observations[0]?.source.candidate).toBe(
-      "appliedObjects/metadataCatalog/rules.ts#MetadataCatalogRules"
-    )
-    expect(result.observations[0]?.source.declarationOrder).toContain("name")
-    expect(workerStateForTests().preparedYamlIds).toEqual([assignment.id])
-    expect(existsSync(join(outputDir, assignment.targetProjectPath))).toBe(false)
-
-    const second = await runImportWorkerCommand({
-      kind: "secondPass",
-      referenceSnapshots: createLayeredImportReferenceSnapshot({
-        local: createImportSharedMetadata(result.ownerFacts),
-      }),
-    })
-
-    expect(second?.kind).toBe("secondPassResult")
-    expect(existsSync(join(outputDir, assignment.targetProjectPath))).toBe(true)
-  })
-
-  it("собирает наблюдение вложенного UsualGroup", async () => {
-    const outputDir = createTempDir("rule-order-form")
-    await initializeWorker(outputDir)
-    const assignments = createCatalogAndFormAssignments("Объект.Товары.LineNumber", "Товары", true)
-
-    const result = await runImportWorkerCommand({
-      kind: "analyzeRuleOrder",
-      configuration: "all",
-      metadataDir,
-      assignments: [assignments.form],
-    })
-
-    if (result?.kind !== "ruleOrderAnalysisFirstPassResult") {
-      throw new Error("Ожидался первый проход анализа порядка")
-    }
-    expect(result.diagnostics).toEqual([])
-    expect(result.unmatchedObservationCount).toBe(0)
-    expect(result.observations).toContainEqual(
-      expect.objectContaining({
-        itemType: "UsualGroup",
-        source: expect.objectContaining({
-          candidate: "forms/elements/usualGroup/rules.ts#UsualGroupRules",
-        }),
-      })
-    )
-  })
-
-  it("собирает порядок стандартных реквизитов и табличной части с internalInfo", async () => {
-    const outputDir = createTempDir("rule-order-catalog-collections")
-    await initializeWorker(outputDir)
-    const assignment = catalogAssignment({
-      itemName: "СправочникПолный",
-      targetProjectPath: "Справочник/СправочникПолный/Свойства.yaml",
-      logicalAddress: "Справочник.СправочникПолный",
-      xmlFiles: [{ role: "metadata", sourcePath: catalogFullXmlPath }],
-    })
-
-    const result = await runImportWorkerCommand({
-      kind: "analyzeRuleOrder",
-      configuration: "all",
-      metadataDir,
-      assignments: [assignment],
-    })
-    if (result?.kind !== "ruleOrderAnalysisFirstPassResult") {
-      throw new Error("Ожидался первый проход анализа порядка")
-    }
-
-    const candidates = result.observations.map(({ source }) => source.candidate)
-    expect(candidates).toContain(
-      "commonObjects/standardAttributeDescription/rules.ts#StandardAttributeDescriptionRules"
-    )
-    expect(candidates).toContain("commonObjects/metadataAttribute/rules.ts#MetadataCatalogAttributeRules")
-    expect(candidates).toContain("commonObjects/metadataTabularSection/rules.ts#MetadataTabularSectionRules")
-    expect(candidates).toContain(
-      "commonObjects/metadataAttribute/rules.ts#MetadataTabularSectionAttributeRules"
-    )
-
-    const tabularFields = result.observations
-      .filter(
-        ({ source }) =>
-          source.candidate === "commonObjects/metadataTabularSection/rules.ts#MetadataTabularSectionRules"
-      )
-      .flatMap(({ fields }) => fields)
-    expect(tabularFields).toContain("internalInfo")
-    expect(result.unmatchedObservationCount).toBe(0)
   })
 })
 

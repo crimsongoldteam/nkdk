@@ -11,7 +11,6 @@ import { FormRulesTags } from "./types"
 export function createClientApplicationFormBodyImportSource(params: {
   context: ConfigurationContextFromXML
   xml: unknown
-  sourceXmlPath?: string
 }): DirectImportXMLSource {
   const collection = getConfigurationIndexCollectionContext(params.context)
   const context =
@@ -26,7 +25,6 @@ export function createClientApplicationFormBodyImportSource(params: {
     context,
     xml: extractFormBody(params.xml) ?? {},
     tags: [FormRulesTags.Form],
-    sourceXmlPath: params.sourceXmlPath,
   }
 }
 
@@ -34,20 +32,16 @@ export function createClientApplicationFormImportSources(params: {
   context: ConfigurationContextFromXML
   formXML: unknown
   metadataXML: unknown
-  metadataSourceXmlPath?: string
-  bodySourceXmlPath?: string
 }): DirectImportXMLSource[] {
   return [
     createClientApplicationFormBodyImportSource({
       context: params.context,
       xml: params.formXML,
-      sourceXmlPath: params.bodySourceXmlPath,
     }),
     {
       context: params.context,
       xml: asRecord(params.metadataXML) ?? {},
       tags: [FormRulesTags.Metadata],
-      sourceXmlPath: params.metadataSourceXmlPath,
     },
   ]
 }

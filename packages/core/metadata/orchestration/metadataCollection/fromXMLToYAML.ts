@@ -5,7 +5,6 @@ import type {
   DirectImportTraversal,
   LocalIndexesCollector,
   LocalYamlFact,
-  RulePropertyOrderCollector,
 } from "../property/importYamlTypes"
 import type { PropertyRuleType } from "../property/registry"
 import type { ConfigurationIndexAddressingMode, ItemXML, MetadataItemRule, PropertyRule } from "../property/types"
@@ -133,11 +132,6 @@ export function importMetadataItemCollectionFromXMLToYAML(params: {
           yamlPath,
           collector: bufferedCollector?.collector ?? params.traversal.collector,
           deferred: bufferedDeferred?.collector ?? params.traversal.deferred,
-          ruleOrderCollector: remapItemRuleCollector(
-            params.traversal.ruleOrderCollector,
-            itemRule,
-            sourceItemRule
-          ),
         },
         itemRule.itemType
       ),
@@ -171,19 +165,6 @@ export function importMetadataItemCollectionFromXMLToYAML(params: {
       return [yamlKey!, yaml]
     })
   )
-}
-
-function remapItemRuleCollector(
-  collector: RulePropertyOrderCollector | undefined,
-  importedRule: MetadataItemRule,
-  sourceRule: MetadataItemRule
-): RulePropertyOrderCollector | undefined {
-  if (collector === undefined || importedRule === sourceRule) return collector
-  return {
-    accept(fact) {
-      collector.accept(fact.rule === importedRule ? { ...fact, rule: sourceRule } : fact)
-    },
-  }
 }
 
 function withPreservedPropertyPresence(itemRule: MetadataItemRule): MetadataItemRule {

@@ -19,8 +19,6 @@
     "type-check": "tsc --noEmit",
     "measure:validation-schemas": "tsx --expose-gc scripts/measure-validation-schemas.mjs",
     "measure:validation-workers": "node scripts/measure-validation-workers.mjs",
-    "analyze-rule-order": "tsx scripts/rule-order-analysis/index.ts",
-    "rewrite-rule-order": "tsx scripts/rule-order-analysis/index.ts --apply",
     "prepare": "ts-patch install"
   },
   "dependencies": {
