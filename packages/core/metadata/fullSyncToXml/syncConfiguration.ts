@@ -291,7 +291,6 @@ async function readConfirmedComponentState(params: {
     structure,
     hashes,
     context: params.context,
-    snapshot,
     ...(params.concurrency === undefined ? {} : { concurrency: params.concurrency }),
   })
   return params.deps.confirmState({ structure, snapshot, hashes, indexes })

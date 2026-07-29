@@ -1,13 +1,9 @@
 import { mkdirSync, mkdtempSync, rmSync, writeFileSync } from "fs"
 import { tmpdir } from "os"
 import { join } from "path"
-import { afterEach, describe, expect, it } from "vitest"
+import { afterEach, describe, expect, it, vi } from "vitest"
 import { mockContext } from "../../../tests/mockContext"
-import { encodeConfigurationIndex } from "../../configurationIndex/encode"
-import { snapshotConfigurationIndex } from "../../configurationIndex/sharedSnapshot"
-import { sampleIndex } from "../../configurationIndex/testData"
-import { createEmptyPersistedSharedValidationSnapshot } from "../../validation/persistedSharedValidationSnapshot"
-import type { ComponentProjectStructure } from "./types"
+import type { PreparedYamlProjectWorkerTask } from "../preparedYamlProjectWorker"
 import { readComponentIndexes } from "./indexes"
 import { readComponentHashState } from "./hashes"
 import { readComponentProjectStructure } from "./structure"
@@ -19,41 +15,66 @@ describe("component indexes", () => {
     for (const dir of tempDirs.splice(0)) rmSync(dir, { recursive: true, force: true })
   })
 
-  it("restores component-local indexes only from a snapshot with the same hashes", async () => {
-    const projectFiles = [{ projectPath: "Конфигурация.yaml", contentHash: 42n }]
-    const data = {
-      ...sampleIndex(),
-      projectFiles,
-      localIndexes: {
-        metadata: createEmptyPersistedSharedValidationSnapshot(),
-        dependencies: [],
-        logicalAddresses: [
-          { logicalAddress: "Конфигурация", sourceProjectPath: "Конфигурация.yaml" },
-        ],
-      },
-    }
-    const structure = {
+  it("always builds indexes from current topology and YAML", async () => {
+    const projectDir = mkdtempSync(join(tmpdir(), "nkdk-component-indexes-cold-"))
+    tempDirs.push(projectDir)
+    const filePath = join(projectDir, "cf", "Справочник", "Товары", "Свойства.yaml")
+    mkdirSync(join(filePath, ".."), { recursive: true })
+    writeFileSync(filePath, "Реквизиты: {}\n")
+    const structure = await readComponentProjectStructure({
+      projectDir,
       address: { kind: "configuration" },
-      componentPath: "cf",
-      componentDir: "/project/cf",
-      topology: {} as ComponentProjectStructure["topology"],
-      resources: [],
-      projectPaths: ["Конфигурация.yaml"],
-    } satisfies ComponentProjectStructure
+    })
+    const hashes = await readComponentHashState({ structure })
+    const run = vi.fn(async (task: PreparedYamlProjectWorkerTask) => {
+      if (task.kind !== "collectValidationFacts") {
+        throw new Error(`Неожиданное задание worker: ${task.kind}`)
+      }
+      return {
+        kind: "collectValidationFactsResult" as const,
+        contribution: {
+          objectRecords: [],
+          objectIndexEntries: [],
+          memberIndexEntries: [],
+          valueIndexEntries: [],
+          pendingReferences: [],
+          localDependencies: [],
+          logicalAddresses: [
+            {
+              logicalAddress: "Catalog.Товары.Attribute.Артикул",
+              sourceProjectPath: "Справочник/Товары/Свойства.yaml",
+            },
+          ],
+        },
+      }
+    })
+    const destroy = vi.fn(async () => undefined)
+    const createWorkerPool = vi.fn(() => ({ run, destroy }))
 
     const indexes = await readComponentIndexes({
       structure,
-      hashes: { componentPath: "cf", projectFiles },
+      hashes,
       context: mockContext,
-      snapshot: snapshotConfigurationIndex(encodeConfigurationIndex(data)),
+      createWorkerPool,
     })
 
-    expect(indexes.sourceProjectFiles).toEqual(projectFiles)
-    expect(indexes.dependencies).toEqual([])
-    expect(indexes.logicalAddresses).toEqual(data.localIndexes.logicalAddresses)
+    expect(createWorkerPool).toHaveBeenCalledOnce()
+    expect(run).toHaveBeenCalledOnce()
+    expect(destroy).toHaveBeenCalledOnce()
+    expect(indexes.sourceProjectFiles).toEqual(hashes.projectFiles)
+    expect(indexes.logicalAddresses).toEqual([
+      {
+        logicalAddress: "Справочник.Товары",
+        sourceProjectPath: "Справочник/Товары/Свойства.yaml",
+      },
+      {
+        logicalAddress: "Catalog.Товары.Attribute.Артикул",
+        sourceProjectPath: "Справочник/Товары/Свойства.yaml",
+      },
+    ])
   })
 
-  it("rebuilds indexes from current YAML when snapshot hashes differ", async () => {
+  it("builds indexes from the current root YAML", async () => {
     const projectDir = mkdtempSync(join(tmpdir(), "nkdk-component-indexes-"))
     tempDirs.push(projectDir)
     const filePath = join(projectDir, "cf", "Конфигурация.yaml")
@@ -69,7 +90,6 @@ describe("component indexes", () => {
       structure,
       hashes,
       context: mockContext,
-      snapshot: snapshotConfigurationIndex(encodeConfigurationIndex(sampleIndex())),
     })
 
     expect(indexes.sourceProjectFiles).toEqual(hashes.projectFiles)
@@ -83,12 +103,7 @@ describe("component indexes", () => {
     tempDirs.push(projectDir)
     const filePath = join(projectDir, "cf", "Справочник", "Товары", "Свойства.yaml")
     mkdirSync(join(filePath, ".."), { recursive: true })
-    writeFileSync(filePath, [
-      "Реквизиты:",
-      "  Артикул:",
-      "    Тип: Строка",
-      "",
-    ].join("\n"))
+    writeFileSync(filePath, ["Реквизиты:", "  Артикул:", "    Тип: Строка", ""].join("\n"))
     const structure = await readComponentProjectStructure({
       projectDir,
       address: { kind: "configuration" },
