@@ -20,7 +20,17 @@ describe("StandardAttributeDescriptions XML → YAML", () => {
       importMetaUrl: import.meta.url,
     })
 
-    expect(result).toEqual({ СтандартныеРеквизиты: allYAML })
+    expect(result).toEqual({
+      СтандартныеРеквизиты: {
+        ...allYAML,
+        ИмяПредопределенныхДанных: {},
+        Код: {},
+        ПометкаУдаления: {},
+        Предопределенный: {},
+        Ссылка: {},
+        ЭтоГруппа: {},
+      },
+    })
   })
 
   it.each(["minimal.xml", "default.xml"])("omits defaults from %s", (path) => {
@@ -32,7 +42,11 @@ describe("StandardAttributeDescriptions XML → YAML", () => {
       importMetaUrl: import.meta.url,
     })
 
-    expect(result).toEqual({})
+    expect(result).toEqual(
+      path === "minimal.xml"
+        ? { СтандартныеРеквизиты: { ИмяПредопределенныхДанных: {} } }
+        : {}
+    )
   })
 
   it("exports multiple.xml directly to YAML", () => {

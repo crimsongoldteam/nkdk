@@ -252,10 +252,9 @@ export interface CollectionItemRule {
  */
 export interface ConfigurationIndexValueFromXMLDescriptor {
   identityKind?: "uuid" | "xmlId"
-  userSettingsIdFromSource?: true
   xsiNilWhenNotRepresentable?: true
   xsiTypeWhenNotRepresentable?: true
-  referenceXMLFromValue?: (value: import("../../configurationIndex/types").ConfigurationXmlValue) => unknown
+  referenceXMLFromValue?: (value: import("../../configurationIndex/types").ConfigurationSnapshotXml) => unknown
 }
 
 export type CollectConfigurationIndexFromXMLFunction = (params: {

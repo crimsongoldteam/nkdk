@@ -149,7 +149,7 @@ describe("exportCommandInterfaceToXML", () => {
     expect(result).toEqual(expectedResult)
   })
 
-  it("export commandGroupReferenceOrder without reference uses fallback order", () => {
+  it("export commandGroupReferenceOrder without reference uses YAML object order", () => {
     const data = {
       ...commandGroupReferenceOrder,
       CommandBar: commandGroupReferenceOrder.CommandBar.map((item, index) =>
@@ -164,10 +164,13 @@ describe("exportCommandInterfaceToXML", () => {
       [
         "\t\t\t<Command>Catalog.ДоговорыКонтрагентов.Command.ДоговорКонтрагентаВводНаОсновании</Command>",
         "\t\t\t<Type>Auto</Type>",
-        "\t\t\t<Attribute>Объект.Ref</Attribute>",
+        "\t\t\t<CommandGroup>FormCommandBarCreateBasedOn</CommandGroup>",
         "\t\t\t<Index>1</Index>",
         "\t\t\t<DefaultVisible>false</DefaultVisible>",
-        "\t\t\t<CommandGroup>FormCommandBarCreateBasedOn</CommandGroup>",
+        "\t\t\t<Visible>",
+        "\t\t\t\t<xr:Common>false</xr:Common>",
+        "\t\t\t</Visible>",
+        "\t\t\t<Attribute>Объект.Ref</Attribute>",
       ].join("\n")
     )
   })

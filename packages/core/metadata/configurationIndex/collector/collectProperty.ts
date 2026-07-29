@@ -15,14 +15,14 @@ export function collectConfigurationIndexIdentityFromXML(params: {
   if (collection === undefined || typeof params.xmlValue !== "string") return
 
   if (params.sourceXmlKey === "_uuid") {
-    collection.collector.setUuid(collection.logicalAddress, params.xmlValue)
+    collection.collector.setIdentity(collection.logicalAddress, "uuid", params.xmlValue)
     return
   }
   if (params.sourceXmlKey === "_id") {
     if (params.descriptor?.identityKind === "uuid") {
-      collection.collector.setUuid(collection.logicalAddress, params.xmlValue)
+      collection.collector.setIdentity(collection.logicalAddress, "uuid", params.xmlValue)
     } else {
-      collection.collector.setXmlId(collection.logicalAddress, params.xmlValue)
+      collection.collector.setIdentity(collection.logicalAddress, "xmlId", params.xmlValue)
     }
     return
   }
@@ -30,8 +30,7 @@ export function collectConfigurationIndexIdentityFromXML(params: {
     params.sourceXmlKey === "_name" &&
     !isNameReconstructible(collection.logicalAddress, params.xmlValue, params.reconstructibleXmlName)
   ) {
-    if (params.xmlValue.length === 0) collection.collector.setAlias(collection.logicalAddress, "_name", "")
-    else collection.collector.setXmlName(collection.logicalAddress, params.xmlValue)
+    collection.collector.setIdentity(collection.logicalAddress, "xmlName", params.xmlValue)
   }
 }
 
@@ -47,30 +46,27 @@ export function collectConfigurationIndexPropertyFromXML(params: {
   if (collection === undefined) return
 
   const address = params.logicalAddress ?? `${collection.logicalAddress}.${params.propertyKey}`
-  if (params.descriptor?.userSettingsIdFromSource === true && typeof params.xmlValue === "string") {
-    collection.collector.setUserSettingsId(address, params.xmlValue)
-  }
   if (
     params.descriptor?.xsiNilWhenNotRepresentable === true &&
     hasXsiNil(params.xmlValue) &&
     !ruleRepresentsXsiNil(params.rule)
   ) {
-    collection.collector.setXsiNil(address)
+    collection.collector.setXmlFlag(address, "xsiNil")
   }
   if (params.descriptor?.xsiTypeWhenNotRepresentable === true) {
     const xsiType = getUnrepresentedXsiType(params.xmlValue)
-    if (xsiType !== undefined) collection.collector.setXsiType(address, xsiType)
+    if (xsiType !== undefined) collection.collector.setXmlValue(address, "xsiType", xsiType)
   }
   if (
     Object.prototype.hasOwnProperty.call(params.rule, "defaultValueXMLEmpty") &&
     (params.xmlValue === undefined || params.xmlValue === "") &&
     !isDeepStrictEqual(params.rule.defaultValueXMLEmpty, params.xmlValue)
   ) {
-    collection.collector.setExplicitEmpty(address)
+    collection.collector.setXmlFlag(address, "explicitEmpty")
   }
   const ambiguousScalar = ambiguousImplicitScalarXMLValue(params.rule, params.xmlValue)
   if (ambiguousScalar !== undefined) {
-    collection.collector.setXmlText(`${collection.logicalAddress}.${params.propertyKey}`, ambiguousScalar)
+    collection.collector.setXmlValue(`${collection.logicalAddress}.${params.propertyKey}`, "xmlText", ambiguousScalar)
   }
 }
 
@@ -86,7 +82,7 @@ export function collectConfigurationIndexImportedValue(params: {
   const xmlPrefix = params.importedValue.xmlPrefix
   const address = params.logicalAddress ?? `${collection.logicalAddress}.${params.propertyKey}`
   if (typeof xmlPrefix === "string") {
-    collection.collector.setXmlPrefix(address, xmlPrefix)
+    collection.collector.setXmlValue(address, "xmlPrefix", xmlPrefix)
   }
 }
 

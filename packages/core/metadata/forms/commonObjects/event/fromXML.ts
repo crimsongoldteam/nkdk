@@ -3,7 +3,6 @@ import { registerTypeRule } from "../../../orchestration/property/typeRuleRegist
 import type { EventsPropertyRule, PropertyRule } from "../../../orchestration/property/types"
 import { eventBindingKey } from "./callType"
 import type { EventCallTypeXML, EventXML, Events, EventsXML } from "./types"
-import { getConfigurationIndexCollectionContext } from "../../../configurationIndex/collector/context"
 
 const referenceXmlNames = new WeakMap<object, ReadonlyMap<string, string>>()
 
@@ -57,33 +56,6 @@ export function getReferenceEventXmlName(value: object, key: string): string | u
 }
 
 registerTypeRule("Events", "importFromXML", importEventsFromXML)
-registerTypeRule("Events", "collectConfigurationIndexFromXML", ({ context, rule, xml }) => {
-  const collection = getConfigurationIndexCollectionContext(context)
-  if (collection === undefined || xml === null || typeof xml !== "object" || Array.isArray(xml)) return
-  const source = (xml as EventsXML).Event
-  const events = Array.isArray(source) ? source : source === undefined ? [] : [source]
-  const parsedEvents = events.flatMap((event) => {
-    const parsed = parseEventXML(event)
-    return parsed === undefined ? [] : [parsed]
-  })
-  const eventKeys = eventRuleKeys(rule, parsedEvents)
-  const order = parsedEvents.map((event) => {
-    const key = eventKeys.get(event._name)!
-    const bindingKey = eventBindingKey(key, event._callType)
-    const canonicalName = `${key[0]!.toUpperCase()}${key.slice(1)}`
-    if (event._name !== canonicalName) {
-      collection.collector.setAlias(
-        collection.xmlNodeLogicalAddress ?? collection.logicalAddress,
-        bindingKey,
-        event._name
-      )
-    }
-    return bindingKey
-  })
-  if (order.length > 0) {
-    collection.collector.setOrder(collection.xmlNodeLogicalAddress ?? collection.logicalAddress, order)
-  }
-})
 
 function parseEventXML(value: unknown): EventXML | undefined {
   if (!value || typeof value !== "object" || Array.isArray(value)) return undefined
