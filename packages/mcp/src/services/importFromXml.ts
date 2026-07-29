@@ -31,6 +31,7 @@ interface ImportFromXmlDeps {
     inputDir: string
     projectDir: string
     requestedComponentPath?: string
+    concurrency?: number
   }) => Promise<CoreImportResult>
 }
 
@@ -69,6 +70,7 @@ export async function importFromXml(
       inputDir: input.xmlDir,
       projectDir: project.projectDir,
       ...(input.componentPath === undefined ? {} : { requestedComponentPath: input.componentPath }),
+      ...(input.concurrency === undefined ? {} : { concurrency: input.concurrency }),
     })
 
     const failed = result.failed.map(mapFailure)
