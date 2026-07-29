@@ -5,6 +5,7 @@ import type {
   DirectImportTraversal,
   LocalIndexesCollector,
   LocalYamlFact,
+  RulePropertyOrderCollector,
 } from "../property/importYamlTypes"
 import type { PropertyRuleType } from "../property/registry"
 import type { ConfigurationIndexAddressingMode, ItemXML, MetadataItemRule, PropertyRule } from "../property/types"
@@ -76,10 +77,11 @@ export function importMetadataItemCollectionFromXMLToYAML(params: {
 }): Record<string, unknown> | Array<Record<string, unknown>> | undefined {
   const items = normalizeCollectionItems(params.xml, params.xmlElement)
   if (items.length === 0) return undefined
+  const sourceItemRule = params.itemRule
   const itemRule =
     params.preserveItemPropertyPresence === true
-      ? withPreservedPropertyPresence(params.itemRule)
-      : params.itemRule
+      ? withPreservedPropertyPresence(sourceItemRule)
+      : sourceItemRule
   const keyField = params.keyField
   const keyYaml = keyField === undefined ? undefined : (itemRule.properties[keyField]?.yaml ?? keyField)
   if (params.preserveOmittedItemNames === true) {
@@ -127,11 +129,15 @@ export function importMetadataItemCollectionFromXMLToYAML(params: {
       name: itemName,
       traversal: enterNestedYamlRule(
         {
+          ...params.traversal,
           yamlPath,
-          rulePath: params.traversal.rulePath,
           collector: bufferedCollector?.collector ?? params.traversal.collector,
           deferred: bufferedDeferred?.collector ?? params.traversal.deferred,
-          profile: params.traversal.profile,
+          ruleOrderCollector: remapItemRuleCollector(
+            params.traversal.ruleOrderCollector,
+            itemRule,
+            sourceItemRule
+          ),
         },
         itemRule.itemType
       ),
@@ -165,6 +171,19 @@ export function importMetadataItemCollectionFromXMLToYAML(params: {
       return [yamlKey!, yaml]
     })
   )
+}
+
+function remapItemRuleCollector(
+  collector: RulePropertyOrderCollector | undefined,
+  importedRule: MetadataItemRule,
+  sourceRule: MetadataItemRule
+): RulePropertyOrderCollector | undefined {
+  if (collector === undefined || importedRule === sourceRule) return collector
+  return {
+    accept(fact) {
+      collector.accept(fact.rule === importedRule ? { ...fact, rule: sourceRule } : fact)
+    },
+  }
 }
 
 function withPreservedPropertyPresence(itemRule: MetadataItemRule): MetadataItemRule {

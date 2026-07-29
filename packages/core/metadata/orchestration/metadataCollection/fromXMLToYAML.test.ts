@@ -3,7 +3,11 @@ import { mockContextFromXML } from "../../../tests/mockContext"
 import { withConfigurationIndexCollector } from "../../configurationIndex/collector/context"
 import { createConfigurationIndexCollector } from "../../configurationIndex/collector/writer"
 import { createLocalIndexesCollector } from "../../project/localIndexes"
-import { createDeferredValuePathCollector } from "../property/importYamlTypes"
+import {
+  createDeferredValuePathCollector,
+  type RulePropertyOrderCollector,
+  type RulePropertyOrderFact,
+} from "../property/importYamlTypes"
 import { importPropertiesFromXMLToYAML } from "../property/fromXMLToYAML"
 import { PropertyRuleType } from "../property/registry"
 import { registerTypeRule } from "../property/typeRuleRegistry"
@@ -60,6 +64,13 @@ registerMetadataItemCollectionRule({
   xmlElement: "Item",
   keyField: "name",
   preserveOmittedItemNames: true,
+})
+registerMetadataItemCollectionRule({
+  propertyType: "TestPreservedPresenceCollection" as PropertyRuleType,
+  itemRule,
+  xmlElement: "Item",
+  keyField: "name",
+  preserveItemPropertyPresence: true,
 })
 registerMetadataItemCollectionRule({
   propertyType: "TestCustomKeyCollection" as PropertyRuleType,
@@ -214,6 +225,29 @@ describe("importMetadataItemCollectionFromXMLToYAML", () => {
     })
   })
 
+  it("передаёт наблюдение элемента и связывает техническую копию с исходным правилом", () => {
+    const facts: RulePropertyOrderFact[] = []
+    const indexCollector = createConfigurationIndexCollector()
+
+    runDirectRule(
+      "TestPreservedPresenceCollection" as PropertyRuleType,
+      { Items: { Item: { Name: "Первый", Value: "a" } } },
+      withConfigurationIndexCollector(mockContextFromXML(), indexCollector, "Владелец.A"),
+      {
+        accept: (fact) => facts.push(fact),
+        sourceXmlPath: "/Catalogs/Test.xml",
+      }
+    )
+
+    expect(facts).toContainEqual(
+      expect.objectContaining({
+        rule: itemRule,
+        sourceXmlPath: "/Catalogs/Test.xml",
+        fields: ["name", "value"],
+      })
+    )
+  })
+
   it("addresses an array item by keyField when YAML-path addressing is disabled", () => {
     const indexCollector = createConfigurationIndexCollector()
     const xml = {
@@ -267,7 +301,15 @@ describe("importMetadataItemCollectionFromXMLToYAML", () => {
   })
 })
 
-function runDirectRule(type: PropertyRuleType, xml: Record<string, unknown>, context = mockContextFromXML()) {
+function runDirectRule(
+  type: PropertyRuleType,
+  xml: Record<string, unknown>,
+  context = mockContextFromXML(),
+  analysis?: {
+    accept: RulePropertyOrderCollector["accept"]
+    sourceXmlPath: string
+  }
+) {
   const collector = createLocalIndexesCollector()
   const deferred = createDeferredValuePathCollector()
   const importContext = { ...context, exportToYAML: { toTyped: true } }
@@ -282,6 +324,12 @@ function runDirectRule(type: PropertyRuleType, xml: Record<string, unknown>, con
     rulePath: [],
     collector,
     deferred,
+    ...(analysis === undefined
+      ? {}
+      : {
+          ruleOrderCollector: { accept: analysis.accept },
+          sourceXmlPath: analysis.sourceXmlPath,
+        }),
   })
   return { yaml, localIndexes: collector.finish(), deferred: deferred.finish() }
 }
