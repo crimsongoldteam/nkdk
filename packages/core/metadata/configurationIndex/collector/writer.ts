@@ -29,6 +29,8 @@ class InMemoryConfigurationIndexCollector implements ConfigurationIndexCollector
   private readonly xmlNodes = new Map<string, MutableXmlNode>()
   private readonly xmlValues = new Map<string, ConfigurationXmlValue>()
 
+  constructor(private readonly conflictingXmlId: "error" | "keepFirst") {}
+
   setUuid(address: string, value: string): void {
     this.setIdentity(address, "uuid", value)
   }
@@ -112,6 +114,7 @@ class InMemoryConfigurationIndexCollector implements ConfigurationIndexCollector
     const key = `${address}\0${kind}`
     const previous = this.identityValues.get(key)
     if (previous !== undefined) {
+      if (kind === "xmlId" && this.conflictingXmlId === "keepFirst") return
       assertEqualValues(address, kind, previous, value)
       return
     }
@@ -157,8 +160,10 @@ type MutableXmlNode = {
   present?: string[]
 }
 
-export function createConfigurationIndexCollector(): ConfigurationIndexCollector {
-  return new InMemoryConfigurationIndexCollector()
+export function createConfigurationIndexCollector(
+  options: { conflictingXmlId?: "error" | "keepFirst" } = {}
+): ConfigurationIndexCollector {
+  return new InMemoryConfigurationIndexCollector(options.conflictingXmlId ?? "error")
 }
 
 export function createDiscardingConfigurationIndexCollector(): ConfigurationIndexCollector {

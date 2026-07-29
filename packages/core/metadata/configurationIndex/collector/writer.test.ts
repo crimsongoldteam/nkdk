@@ -121,6 +121,22 @@ describe("configuration index collector", () => {
     }
   })
 
+  it("can keep the first conflicting xmlId without weakening other identities", () => {
+    const collector = createConfigurationIndexCollector({ conflictingXmlId: "keepFirst" })
+    collector.setXmlId("Форма.Элемент.ЕстьКЭП", "1823")
+    collector.setXmlId("Форма.Элемент.ЕстьКЭП", "1314")
+
+    expect(collector.fragment("Форма.yaml").identities).toEqual([
+      {
+        logicalAddress: "Форма.Элемент.ЕстьКЭП",
+        kind: "xmlId",
+        value: "1823",
+      },
+    ])
+    collector.setUuid("Объект", "first")
+    expect(() => collector.setUuid("Объект", "second")).toThrow("Конфликт logicalAddress")
+  })
+
   it("deduplicates equal node and XML values and rejects conflicting replacements", () => {
     const collector = createConfigurationIndexCollector()
     collector.setOrder("Справочник.Товары", ["name", "synonym"])

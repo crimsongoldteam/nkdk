@@ -276,7 +276,9 @@ async function runFirstPass(
   }
 
   for (const assignment of assignments) {
-    const collector = createConfigurationIndexCollector()
+    const collector = createConfigurationIndexCollector({
+      ...(ruleOrderAnalysis === undefined ? {} : { conflictingXmlId: "keepFirst" }),
+    })
     try {
       const prepared = await prepareImportYaml({
         assignment,
