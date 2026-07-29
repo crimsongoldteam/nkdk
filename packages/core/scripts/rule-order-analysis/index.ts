@@ -12,6 +12,8 @@ import { buildRuleSourceEdits } from "./sourceModel"
 
 interface Arguments {
   xmlRoot: string
+  extensionRoot?: string
+  extensionBase?: string
   output: string
   apply: boolean
   concurrency?: number
@@ -20,7 +22,14 @@ interface Arguments {
 
 export function parseArguments(argv: readonly string[]): Arguments {
   const values = new Map<string, string>()
-  const allowed = new Set(["--xml-root", "--output", "--concurrency", "--witness-limit"])
+  const allowed = new Set([
+    "--xml-root",
+    "--extension-root",
+    "--extension-base",
+    "--output",
+    "--concurrency",
+    "--witness-limit",
+  ])
   let apply = false
   for (let index = 0; index < argv.length; ) {
     const name = argv[index]
@@ -38,11 +47,20 @@ export function parseArguments(argv: readonly string[]): Arguments {
     index += 2
   }
   const xmlRoot = values.get("--xml-root")
+  const extensionRoot = values.get("--extension-root")
+  const extensionBase = values.get("--extension-base")
   const output = values.get("--output")
   if (xmlRoot === undefined || output === undefined) throw new Error("Обязательны --xml-root и --output")
-  if (!isAbsolute(xmlRoot) || !isAbsolute(output)) throw new Error("Пути должны быть абсолютными")
+  if ((extensionRoot === undefined) !== (extensionBase === undefined)) {
+    throw new Error("--extension-root и --extension-base должны быть указаны вместе")
+  }
+  if (!isAbsolute(xmlRoot) || !isAbsolute(output) || (extensionRoot !== undefined && !isAbsolute(extensionRoot))) {
+    throw new Error("Пути должны быть абсолютными")
+  }
   return {
     xmlRoot,
+    ...(extensionRoot === undefined ? {} : { extensionRoot }),
+    ...(extensionBase === undefined ? {} : { extensionBase }),
     output,
     apply,
     ...optionalPositiveInteger(values, "--concurrency", "concurrency"),
@@ -69,6 +87,8 @@ export async function main(argv = process.argv.slice(2)): Promise<void> {
   try {
     const result = await analyzeRuleOrder({
       xmlRoot: args.xmlRoot,
+      extensionRoot: args.extensionRoot,
+      extensionBase: args.extensionBase,
       metadataDir: join(import.meta.dirname, "../../metadata"),
       concurrency: args.concurrency,
       witnessLimit: args.witnessLimit,

@@ -5,7 +5,6 @@ import { exportToYAML } from "../../yaml/export"
 import { encodeConfigurationIndexFragments } from "../configurationIndex/fragment"
 import {
   createConfigurationIndexCollector,
-  createDiscardingConfigurationIndexCollector,
 } from "../configurationIndex/collector/writer"
 import type { ConfigurationContext, XmlImportConfigurationContext } from "../context/types"
 import type { ConfigurationIndexFragment } from "../configurationIndex/types"
@@ -34,7 +33,7 @@ import type {
   ImportSecondPassResult,
   ImportWorkerCommand,
   ImportWorkerCommandResult,
-  RuleOrderAnalysisWorkerResult,
+  RuleOrderAnalysisFirstPassResult,
 } from "./types"
 
 interface InitializedImportWorkerState {
@@ -72,79 +71,13 @@ export async function runImportWorkerCommand(command: ImportWorkerCommand): Prom
   }
 
   if (command.kind === "analyzeRuleOrder") {
-    return runRuleOrderAnalysis(
-      command.configuration,
-      command.metadataDir,
-      command.assignments,
-      requireInitializedState()
-    )
+    return runFirstPass(command.assignments, requireInitializedState(), {
+      configuration: command.configuration,
+      metadataDir: command.metadataDir,
+    })
   }
 
   return runFirstPass(command.assignments, requireInitializedState())
-}
-
-async function runRuleOrderAnalysis(
-  configuration: string,
-  metadataDir: string,
-  assignments: readonly ImportAssignment[],
-  state: InitializedImportWorkerState
-): Promise<RuleOrderAnalysisWorkerResult> {
-  preparedYaml.clear()
-  const diagnostics: ImportDiagnostic[] = []
-  const observations: RuleOrderAnalysisWorkerResult["observations"] = []
-  let unmatchedObservationCount = 0
-  const unmatchedItemTypes = new Map<string, number>()
-  const catalog = await getRuleOrderCatalog(metadataDir)
-  diagnostics.push(
-    ...catalog.ambiguities().map((ambiguity) => ({
-      severity: "error" as const,
-      code: "xml_rule_order_catalog_ambiguous",
-      message: `${ambiguity.candidate}: ${ambiguity.reason}`,
-      targetProjectPath: assignments[0]?.targetProjectPath ?? "",
-    }))
-  )
-
-  for (const assignment of assignments) {
-    try {
-      await prepareImportYaml({
-        assignment,
-        context: state.context,
-        collector: createDiscardingConfigurationIndexCollector(),
-        ruleOrderCollector: {
-          accept(fact) {
-            const source = catalog.sourceOf(fact.rule)
-            if (source === undefined) {
-              unmatchedObservationCount += 1
-              unmatchedItemTypes.set(fact.rule.itemType, (unmatchedItemTypes.get(fact.rule.itemType) ?? 0) + 1)
-              return
-            }
-            observations.push({
-              configuration,
-              sourceXmlPath: fact.sourceXmlPath,
-              logicalAddress: assignment.logicalAddress,
-              xmlNodeLogicalAddress: fact.logicalAddress,
-              ruleId: fingerprintMetadataItemRule(fact.rule),
-              source,
-              itemType: fact.rule.itemType,
-              fields: [...fact.fields],
-            })
-          },
-        },
-      })
-    } catch (caught) {
-      diagnostics.push(importAssignmentDiagnostic(assignment, caught, "xml_rule_order_analysis_failed"))
-    }
-  }
-
-  return {
-    kind: "ruleOrderAnalysisResult",
-    diagnostics,
-    observations,
-    unmatchedObservationCount,
-    unmatchedItemTypes: [...unmatchedItemTypes]
-      .sort(([left], [right]) => Buffer.compare(Buffer.from(left), Buffer.from(right)))
-      .map(([itemType, count]) => ({ itemType, count })),
-  }
 }
 
 function getRuleOrderCatalog(metadataDir: string): Promise<RuntimeRuleOrderCatalog> {
@@ -299,13 +232,23 @@ function secondPassExportContext(params: {
 
 export default async function importWorkerEntryPoint(command: ImportWorkerCommand): Promise<ImportWorkerCommandResult> {
   const result = await runImportWorkerCommand(command)
-  return result?.kind === "firstPassResult" ? movableFirstPassResult(result) : result
+  return result?.kind === "firstPassResult" || result?.kind === "ruleOrderAnalysisFirstPassResult"
+    ? movableFirstPassResult(result)
+    : result
 }
+
+interface RuleOrderAnalysisOptions {
+  configuration: string
+  metadataDir: string
+}
+
+type FirstPassWorkerResult = ImportFirstPassResult | RuleOrderAnalysisFirstPassResult
 
 async function runFirstPass(
   assignments: readonly ImportAssignment[],
-  state: InitializedImportWorkerState
-): Promise<ImportFirstPassResult> {
+  state: InitializedImportWorkerState,
+  ruleOrderAnalysis?: RuleOrderAnalysisOptions
+): Promise<FirstPassWorkerResult> {
   preparedYaml.clear()
   const profiler = createOperationProfiler({
     operation: "import-from-xml",
@@ -316,11 +259,58 @@ async function runFirstPass(
   const ownerFacts: ValidationOwnerFacts[] = []
   const fragments: ConfigurationIndexFragment[] = []
   const validationContributions: ImportValidationContribution[] = []
+  const observations: RuleOrderAnalysisFirstPassResult["observations"] = []
+  let unmatchedObservationCount = 0
+  const unmatchedItemTypes = new Map<string, number>()
+  const catalog =
+    ruleOrderAnalysis === undefined ? undefined : await getRuleOrderCatalog(ruleOrderAnalysis.metadataDir)
+  if (catalog !== undefined) {
+    diagnostics.push(
+      ...catalog.ambiguities().map((ambiguity) => ({
+        severity: "error" as const,
+        code: "xml_rule_order_catalog_ambiguous",
+        message: `${ambiguity.candidate}: ${ambiguity.reason}`,
+        targetProjectPath: assignments[0]?.targetProjectPath ?? "",
+      }))
+    )
+  }
 
   for (const assignment of assignments) {
     const collector = createConfigurationIndexCollector()
     try {
-      const prepared = await prepareImportYaml({ assignment, context: state.context, collector, profiler })
+      const prepared = await prepareImportYaml({
+        assignment,
+        context: state.context,
+        collector,
+        profiler,
+        ...(catalog === undefined || ruleOrderAnalysis === undefined
+          ? {}
+          : {
+              ruleOrderCollector: {
+                accept(fact) {
+                  const source = catalog.sourceOf(fact.rule)
+                  if (source === undefined) {
+                    unmatchedObservationCount += 1
+                    unmatchedItemTypes.set(
+                      fact.rule.itemType,
+                      (unmatchedItemTypes.get(fact.rule.itemType) ?? 0) + 1
+                    )
+                    return
+                  }
+                  observations.push({
+                    configuration: ruleOrderAnalysis.configuration,
+                    sourceXmlPath: fact.sourceXmlPath,
+                    logicalAddress: assignment.logicalAddress,
+                    xmlNodeLogicalAddress: fact.logicalAddress,
+                    ruleId: fingerprintMetadataItemRule(fact.rule),
+                    source,
+                    itemType: fact.rule.itemType,
+                    fields: [...fact.fields],
+                  })
+                },
+              },
+            }),
+      })
       const preparedOwnerFacts = profiler.measure(
         "Подготовка импорта конфигурации",
         "Извлечение локального индекса метаданных",
@@ -358,17 +348,26 @@ async function runFirstPass(
 
   profiler.flush()
   const validation = mergeImportValidationContributions(validationContributions)
-  return {
-    kind: "firstPassResult",
+  const firstPass = {
     ownerFacts,
     validationContribution: validation.validationContribution,
     localDependencies: validation.localDependencies,
     diagnostics,
     fragmentBuffer: encodeConfigurationIndexFragments(fragments),
   }
+  if (ruleOrderAnalysis === undefined) return { kind: "firstPassResult", ...firstPass }
+  return {
+    kind: "ruleOrderAnalysisFirstPassResult",
+    ...firstPass,
+    observations,
+    unmatchedObservationCount,
+    unmatchedItemTypes: [...unmatchedItemTypes]
+      .sort(([left], [right]) => Buffer.compare(Buffer.from(left), Buffer.from(right)))
+      .map(([itemType, count]) => ({ itemType, count })),
+  }
 }
 
-export function createFirstPassTransferable(result: ImportFirstPassResult) {
+export function createFirstPassTransferable(result: FirstPassWorkerResult) {
   return {
     get [transferableSymbol]() {
       return [result.fragmentBuffer]
@@ -379,8 +378,8 @@ export function createFirstPassTransferable(result: ImportFirstPassResult) {
   }
 }
 
-function movableFirstPassResult(result: ImportFirstPassResult): ImportFirstPassResult {
-  return move(createFirstPassTransferable(result)) as unknown as ImportFirstPassResult
+function movableFirstPassResult(result: FirstPassWorkerResult): FirstPassWorkerResult {
+  return move(createFirstPassTransferable(result)) as unknown as FirstPassWorkerResult
 }
 
 function importAssignmentDiagnostic(

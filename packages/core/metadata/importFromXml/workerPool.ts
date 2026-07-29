@@ -18,7 +18,7 @@ import type {
   ImportSecondPassResult,
   ImportWorkerCommand,
   ImportWorkerCommandResult,
-  RuleOrderAnalysisWorkerResult,
+  RuleOrderAnalysisFirstPassResult,
 } from "./types"
 import type { RawRuleOrderObservation } from "../ruleOrderAnalysis/types"
 
@@ -32,11 +32,11 @@ export interface XmlImportWorkerPool {
   }): Promise<void>
   runFirstPass(assignments: readonly ImportAssignment[]): Promise<XmlImportFirstPassPoolResult>
   runSecondPass(referenceSnapshots: LayeredImportReferenceSnapshot): Promise<XmlImportSecondPassPoolResult>
-  analyzeRuleOrder(params: {
+  runRuleOrderAnalysisFirstPass(params: {
     configuration: string
     metadataDir: string
     assignments: readonly ImportAssignment[]
-  }): Promise<XmlImportRuleOrderPoolResult>
+  }): Promise<XmlImportRuleOrderFirstPassPoolResult>
   close(): Promise<void>
 }
 
@@ -62,8 +62,7 @@ export interface XmlImportSecondPassPoolResult {
   files: ImportResultFile[]
 }
 
-export interface XmlImportRuleOrderPoolResult {
-  diagnostics: ImportDiagnostic[]
+export interface XmlImportRuleOrderFirstPassPoolResult extends XmlImportFirstPassPoolResult {
   observations: RawRuleOrderObservation[]
   unmatchedObservationCount: number
   unmatchedItemTypes: readonly { itemType: string; count: number }[]
@@ -82,8 +81,6 @@ type PoolPhase =
   | "firstPassReady"
   | "secondPassRunning"
   | "secondPassDone"
-  | "analysisRunning"
-  | "analysisDone"
   | "crashed"
   | "closed"
 
@@ -265,19 +262,19 @@ function createXmlImportOperationPool(params: {
       }
     },
 
-    async analyzeRuleOrder(analysisParams) {
+    async runRuleOrderAnalysisFirstPass(analysisParams) {
       assertUsable(phase, fatalError)
       assertPhase(phase, "initialized", "Анализ порядка XML уже был запущен")
       if (initialization === undefined) throw new Error("XML-import worker pool не инициализирован")
       const initialized = initialization
-      phase = "analysisRunning"
+      phase = "firstPassRunning"
       const partitions = partitionRoundRobin(analysisParams.assignments, params.concurrency)
       for (let index = 0; index < partitions.length; index += 1) {
         if ((partitions[index]?.length ?? 0) > 0) activeWorkerIndexes.push(index)
       }
 
       const results = await Promise.all(
-        activeWorkerIndexes.map(async (workerIndex): Promise<RuleOrderAnalysisWorkerResult> => {
+        activeWorkerIndexes.map(async (workerIndex): Promise<RuleOrderAnalysisFirstPassResult> => {
           const initializeResponse = await runCommand(workerIndex, {
             kind: "initialize",
             operationId: initialized.operationId,
@@ -294,15 +291,21 @@ function createXmlImportOperationPool(params: {
             metadataDir: analysisParams.metadataDir,
             assignments: [...(partitions[workerIndex] ?? [])],
           })
-          if (response?.kind !== "ruleOrderAnalysisResult") {
+          if (response?.kind !== "ruleOrderAnalysisFirstPassResult") {
             return failWorker(new Error("Worker вернул неожиданный результат analyzeRuleOrder"))
           }
           return response
         })
       )
-      phase = "analysisDone"
+      const diagnostics = results.flatMap((result) => result.diagnostics)
+      const fragmentData = mergeConfigurationIndexFragments(results.map((result) => result.fragmentBuffer))
+      phase = diagnostics.some((diagnostic) => diagnostic.severity === "error") ? "firstPassErrors" : "firstPassReady"
       return {
-        diagnostics: results.flatMap((result) => result.diagnostics),
+        diagnostics,
+        ownerFacts: results.flatMap((result) => result.ownerFacts),
+        validationContribution: mergeValidationContributions(results),
+        localDependencies: fragmentData.localDependencies,
+        fragmentData,
         unmatchedObservationCount: results.reduce(
           (sum, result) => sum + result.unmatchedObservationCount,
           0
@@ -412,6 +415,20 @@ function mergeItemTypeCounts(
   return [...counts]
     .sort(([left], [right]) => Buffer.compare(Buffer.from(left), Buffer.from(right)))
     .map(([itemType, count]) => ({ itemType, count }))
+}
+
+function mergeValidationContributions(
+  results: readonly Pick<ImportFirstPassResult, "validationContribution">[]
+): ValidationIndexContribution {
+  return {
+    objectRecords: results.flatMap((result) => result.validationContribution.objectRecords),
+    objectIndexEntries: results.flatMap((result) => result.validationContribution.objectIndexEntries),
+    memberIndexEntries: results.flatMap((result) => result.validationContribution.memberIndexEntries),
+    valueIndexEntries: results.flatMap((result) => result.validationContribution.valueIndexEntries),
+    pendingReferences: results.flatMap((result) => result.validationContribution.pendingReferences),
+    localDependencies: results.flatMap((result) => result.validationContribution.localDependencies),
+    logicalAddresses: results.flatMap((result) => result.validationContribution.logicalAddresses),
+  }
 }
 
 function compareObservation(left: RawRuleOrderObservation, right: RawRuleOrderObservation): number {

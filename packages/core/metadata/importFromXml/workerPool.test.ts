@@ -35,7 +35,7 @@ describe("XML import worker pool", () => {
       componentKind: "configuration",
     })
     try {
-      const result = await pool.analyzeRuleOrder({
+      const result = await pool.runRuleOrderAnalysisFirstPass({
         configuration: "all",
         metadataDir: join(repoRoot, "packages/core/metadata"),
         assignments: [
@@ -73,7 +73,7 @@ describe("XML import worker pool", () => {
       componentKind: "configuration",
     })
 
-    const result = await pool.analyzeRuleOrder({
+    const result = await pool.runRuleOrderAnalysisFirstPass({
       configuration: "all",
       metadataDir: join(repoRoot, "packages/core/metadata"),
       assignments: [assignment("z"), assignment("a")],
@@ -84,6 +84,31 @@ describe("XML import worker pool", () => {
       "Справочник.z",
     ])
     expect(pools.runs(0).map((task) => task.kind)).toEqual(["initialize", "analyzeRuleOrder"])
+    await pool.close()
+  })
+
+  it("allows the ordinary second pass after rule-order analysis", async () => {
+    const pools = createFakePools()
+    const pool = createXmlImportWorkerPool({ concurrency: 1, createWorkerPool: pools.factory })
+    await pool.initialize({
+      operationId: "order-second-pass",
+      context: mockContextFromXML(),
+      outputDir: createTempDir("order-second-pass"),
+      componentKind: "configuration",
+    })
+
+    await pool.runRuleOrderAnalysisFirstPass({
+      configuration: "cf/all",
+      metadataDir: join(repoRoot, "packages/core/metadata"),
+      assignments: [assignment("one")],
+    })
+    await pool.runSecondPass(createLayeredImportReferenceSnapshot({ local: createImportSharedMetadata([]) }))
+
+    expect(pools.runs(0).map((task) => task.kind)).toEqual([
+      "initialize",
+      "analyzeRuleOrder",
+      "secondPass",
+    ])
     await pool.close()
   })
 
@@ -395,8 +420,20 @@ function createFakePools() {
           }
           if (task.kind === "analyzeRuleOrder") {
             return {
-              kind: "ruleOrderAnalysisResult" as const,
+              kind: "ruleOrderAnalysisFirstPassResult" as const,
               diagnostics: [],
+              ownerFacts: [],
+              localDependencies: [],
+              validationContribution: {
+                objectRecords: [],
+                objectIndexEntries: [],
+                memberIndexEntries: [],
+                valueIndexEntries: [],
+                pendingReferences: [],
+                localDependencies: [],
+                logicalAddresses: [],
+              },
+              fragmentBuffer: encodeConfigurationIndexFragments([]),
               unmatchedObservationCount: 0,
               unmatchedItemTypes: [],
               observations: task.assignments.map((item) => ({

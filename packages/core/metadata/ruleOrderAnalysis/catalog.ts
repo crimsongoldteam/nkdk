@@ -128,6 +128,14 @@ function registerSource(params: {
   rule: MetadataItemRule
   source: RuleOrderSource
 }): void {
+  const existing = params.sources.get(params.rule)
+  if (existing !== undefined) {
+    if (sameSource(existing, params.source)) return
+    const priority = compareSourcePriority(params.source, existing)
+    if (priority > 0) return
+    params.sourcesByCandidate.delete(existing.candidate)
+  }
+
   const candidateSource = params.sourcesByCandidate.get(params.source.candidate)
   if (candidateSource === undefined) {
     params.sourcesByCandidate.set(params.source.candidate, params.source)
@@ -138,22 +146,16 @@ function registerSource(params: {
       reason: "Один candidate связан с различающимися source",
     })
   }
-
-  const existing = params.sources.get(params.rule)
-  if (existing === undefined) {
-    params.sources.set(params.rule, params.source)
-    return
-  }
-  if (sameSource(existing, params.source)) return
-  params.sources.delete(params.rule)
-  params.ambiguities.push({
-    candidate: params.source.candidate,
-    reason: `Один runtime-объект уже связан с ${existing.candidate}`,
-  })
+  params.sources.set(params.rule, params.source)
 }
 
 function sameSource(left: RuleOrderSource, right: RuleOrderSource): boolean {
   return JSON.stringify(left) === JSON.stringify(right)
+}
+
+function compareSourcePriority(left: RuleOrderSource, right: RuleOrderSource): number {
+  const pathLength = left.propertyPath.length - right.propertyPath.length
+  return pathLength === 0 ? bytewiseCompare(left.candidate, right.candidate) : pathLength
 }
 
 function sourceFor(

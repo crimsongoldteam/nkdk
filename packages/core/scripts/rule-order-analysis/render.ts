@@ -24,6 +24,42 @@ export function renderRuleOrderReportMarkdown(result: AnalyzeRuleOrderResult): s
     `- Неоднозначные правила: ${result.ambiguities.length}`,
     "",
   ]
+  const configurations = result.configurationStats.filter(
+    (stat) => stat.sourceKind === "configuration"
+  )
+  if (configurations.length > 0) {
+    lines.push(
+      "## Конфигурации cf",
+      "",
+      "| Источник | Задания | XML-файлы | Наблюдения | Пропущено |",
+      "| --- | ---: | ---: | ---: | ---: |"
+    )
+    for (const stat of configurations) {
+      lines.push(
+        `| ${stat.configuration} | ${stat.assignmentCount} | ${stat.xmlFileCount} | ` +
+          `${stat.observationCount} | ${stat.skippedObservationCount} |`
+      )
+    }
+    lines.push("")
+  }
+  const extensions = result.configurationStats.filter(
+    (stat) => stat.sourceKind === "configurationExtension"
+  )
+  if (extensions.length > 0) {
+    lines.push(
+      "## Расширения cfe",
+      "",
+      "| Источник | База | Задания | XML-файлы | Наблюдения | Пропущено |",
+      "| --- | --- | ---: | ---: | ---: | ---: |"
+    )
+    for (const stat of extensions) {
+      lines.push(
+        `| ${stat.configuration} | ${stat.baseConfiguration ?? "—"} | ${stat.assignmentCount} | ` +
+          `${stat.xmlFileCount} | ${stat.observationCount} | ${stat.skippedObservationCount} |`
+      )
+    }
+    lines.push("")
+  }
   if (result.unobservedSources.length > 0) {
     lines.push("## Правила без наблюдений", "")
     for (const source of result.unobservedSources) lines.push(`- \`${source.candidate}\``)

@@ -464,8 +464,17 @@ function fakeDependencies(params: {
             fragmentData,
           }
         },
-        async analyzeRuleOrder() {
-          return { diagnostics: [], observations: [], unmatchedObservationCount: 0, unmatchedItemTypes: [] }
+        async runRuleOrderAnalysisFirstPass() {
+          return {
+            diagnostics: [],
+            ownerFacts: [],
+            validationContribution: emptyValidationContribution(),
+            localDependencies: [],
+            fragmentData,
+            observations: [],
+            unmatchedObservationCount: 0,
+            unmatchedItemTypes: [],
+          }
         },
         async runSecondPass() {
           call("secondPass")

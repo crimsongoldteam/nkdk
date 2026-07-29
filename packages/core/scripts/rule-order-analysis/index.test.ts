@@ -16,6 +16,53 @@ describe("parseArguments", () => {
       parseArguments(["--apply", "--xml-root", "/xml", "--output", "/out", "--apply"])
     ).toThrow(/повторно/)
   })
+
+  it("accepts an extension root together with its base configuration", () => {
+    expect(
+      parseArguments([
+        "--xml-root",
+        "/xml/cf",
+        "--extension-root",
+        "/xml/cfe",
+        "--extension-base",
+        "all",
+        "--output",
+        "/out",
+      ])
+    ).toMatchObject({
+      xmlRoot: "/xml/cf",
+      extensionRoot: "/xml/cfe",
+      extensionBase: "all",
+    })
+  })
+
+  it("requires extension root and base together", () => {
+    expect(() =>
+      parseArguments([
+        "--xml-root",
+        "/xml/cf",
+        "--extension-root",
+        "/xml/cfe",
+        "--output",
+        "/out",
+      ])
+    ).toThrow(/extension-base/)
+  })
+
+  it("requires an absolute extension root", () => {
+    expect(() =>
+      parseArguments([
+        "--xml-root",
+        "/xml/cf",
+        "--extension-root",
+        "cfe",
+        "--extension-base",
+        "all",
+        "--output",
+        "/out",
+      ])
+    ).toThrow(/абсолютн/i)
+  })
 })
 
 describe("sourcesForRewrite", () => {

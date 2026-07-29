@@ -42,4 +42,35 @@ describe("rule order report rendering", () => {
     expect(report).toContain("Правила без наблюдений: 1")
     expect(report).toContain("forms/elements/unseen/rules.ts#UnseenRules")
   })
+
+  it("renders separate cf and cfe tables with extension bases", () => {
+    const report = renderRuleOrderReportMarkdown({
+      ...empty,
+      configurations: ["cf/all", "cfe/control"],
+      configurationStats: [
+        {
+          sourceKind: "configuration",
+          configuration: "cf/all",
+          assignmentCount: 10,
+          xmlFileCount: 12,
+          observationCount: 20,
+          skippedObservationCount: 0,
+        },
+        {
+          sourceKind: "configurationExtension",
+          configuration: "cfe/control",
+          baseConfiguration: "cf/all",
+          assignmentCount: 2,
+          xmlFileCount: 3,
+          observationCount: 4,
+          skippedObservationCount: 0,
+        },
+      ],
+    })
+
+    expect(report).toContain("## Конфигурации cf")
+    expect(report).toContain("| cf/all | 10 | 12 | 20 | 0 |")
+    expect(report).toContain("## Расширения cfe")
+    expect(report).toContain("| cfe/control | cf/all | 2 | 3 | 4 | 0 |")
+  })
 })

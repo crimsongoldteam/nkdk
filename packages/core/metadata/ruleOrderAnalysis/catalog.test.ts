@@ -7,6 +7,7 @@ import {
   MetadataAttributesWithAllowedTypesRules,
   MetadataCatalogAttributeRules,
 } from "../commonObjects/metadataAttribute/rules"
+import { MetadataExternalDataSourceCubeCollectionRules } from "../commonObjects/metadataExternalDataSourceCube/rules"
 import { buildRuntimeRuleOrderCatalog } from "./catalog"
 
 const metadataDir = join(dirname(fileURLToPath(import.meta.url)), "..")
@@ -63,6 +64,17 @@ describe("buildRuntimeRuleOrderCatalog", () => {
     expect(catalog.sources().map(({ candidate }) => candidate)).not.toContain(
       "forms/elements/formGroup/rules.ts#formGroupCommonProperties"
     )
+  })
+
+  it("chooses the nearest exported owner for a reused nested rule", async () => {
+    const catalog = await buildRuntimeRuleOrderCatalog({ metadataDir })
+    const nestedRule = MetadataExternalDataSourceCubeCollectionRules.childCollections?.[0]?.itemRule
+    expect(nestedRule).toBeDefined()
+
+    expect(catalog.sourceOf(nestedRule!)?.candidate).toBe(
+      "commonObjects/metadataExternalDataSourceDimensionTable/rules.ts#MetadataExternalDataSourceDimensionTableCollectionRules"
+    )
+    expect(catalog.ambiguities()).toEqual([])
   })
 
   it("перечисляет все конкретные источники без дубликатов и в стабильном порядке", async () => {

@@ -86,9 +86,8 @@ export interface ImportSecondPassResult {
   files: ImportResultFile[]
 }
 
-export interface RuleOrderAnalysisWorkerResult {
-  kind: "ruleOrderAnalysisResult"
-  diagnostics: ImportDiagnostic[]
+export interface RuleOrderAnalysisFirstPassResult extends Omit<ImportFirstPassResult, "kind"> {
+  kind: "ruleOrderAnalysisFirstPassResult"
   observations: RawRuleOrderObservation[]
   unmatchedObservationCount: number
   unmatchedItemTypes: readonly { itemType: string; count: number }[]
@@ -97,5 +96,5 @@ export interface RuleOrderAnalysisWorkerResult {
 export type ImportWorkerCommandResult =
   | ImportFirstPassResult
   | ImportSecondPassResult
-  | RuleOrderAnalysisWorkerResult
+  | RuleOrderAnalysisFirstPassResult
   | undefined

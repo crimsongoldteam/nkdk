@@ -1,10 +1,23 @@
-import { readdir } from "node:fs/promises"
+import { mkdtemp, readdir, rm } from "node:fs/promises"
 import { availableParallelism, tmpdir } from "node:os"
 import { join, resolve } from "node:path"
+import type { SharedValidationSnapshot } from "../validation/sharedValidationSnapshot"
 import { registerCoreMetadata } from "../register"
 import { compileRegisteredMetadataResourceTopology } from "../resourceTopology/registry"
-import { discoverXmlImport } from "../importFromXml/discovery"
-import { createXmlImportWorkerPoolHandle } from "../importFromXml/workerPool"
+import {
+  discoverXmlImport,
+  readXmlImportComponentRoot,
+} from "../importFromXml/discovery"
+import { resolveXmlImportComponent } from "../importFromXml/componentDescriptor"
+import {
+  createLayeredImportReferenceSnapshot,
+} from "../importFromXml/componentReferenceIndex"
+import { createImportSharedValidationSnapshot } from "../importFromXml/metadataSnapshot"
+import {
+  createXmlImportWorkerPoolHandle,
+  type XmlImportWorkerPoolHandle,
+} from "../importFromXml/workerPool"
+import type { ImportAssignment } from "../importFromXml/types"
 import { createRuleOrderAggregate, type RuleOrderRuleReport } from "./aggregate"
 import {
   deriveCanonicalRuleOrders,
@@ -15,6 +28,8 @@ import type { RuleOrderObservation, RuleOrderSource } from "./types"
 
 export interface AnalyzeRuleOrderParams {
   xmlRoot: string
+  extensionRoot?: string
+  extensionBase?: string
   metadataDir: string
   concurrency?: number
   witnessLimit?: number
@@ -22,7 +37,9 @@ export interface AnalyzeRuleOrderParams {
 }
 
 export interface RuleOrderConfigurationStat {
+  sourceKind: "configuration" | "configurationExtension"
   configuration: string
+  baseConfiguration?: string
   assignmentCount: number
   xmlFileCount: number
   observationCount: number
@@ -43,59 +60,124 @@ export interface AnalyzeRuleOrderResult {
   ambiguities: readonly { candidate: string; reason: string }[]
 }
 
-export async function analyzeRuleOrder(params: AnalyzeRuleOrderParams): Promise<AnalyzeRuleOrderResult> {
+interface RuleOrderInput {
+  label: string
+  xmlDir: string
+  sourceKind: "configuration" | "configurationExtension"
+  expectedComponentKind: "configuration" | "configurationExtension"
+  baseConfiguration?: string
+}
+
+export interface RuleOrderAnalyzerDependencies {
+  listDirectories(root: string): Promise<readonly string[]>
+  readComponentRoot(xmlDir: string): Promise<Record<string, unknown>>
+  resolveComponent(root: Record<string, unknown>): {
+    kind: string
+    metadataItemAugmenter?: string
+  }
+  discover(xmlDir: string): Promise<{ assignments: ImportAssignment[] }>
+  createWorkerPoolHandle(concurrency: number): XmlImportWorkerPoolHandle
+}
+
+const defaultDependencies: RuleOrderAnalyzerDependencies = {
+  async listDirectories(root) {
+    return (await readdir(root, { withFileTypes: true }))
+      .filter((entry) => entry.isDirectory())
+      .map((entry) => entry.name)
+      .sort(bytewiseCompare)
+  },
+  readComponentRoot: readXmlImportComponentRoot,
+  resolveComponent: resolveXmlImportComponent,
+  discover(xmlDir) {
+    return discoverXmlImport({
+      xmlDir,
+      topology: compileRegisteredMetadataResourceTopology(),
+    })
+  },
+  createWorkerPoolHandle(concurrency) {
+    return createXmlImportWorkerPoolHandle({ concurrency })
+  },
+}
+
+export async function analyzeRuleOrder(
+  params: AnalyzeRuleOrderParams,
+  dependencies: RuleOrderAnalyzerDependencies = defaultDependencies
+): Promise<AnalyzeRuleOrderResult> {
   registerCoreMetadata()
+  validateExtensionParams(params)
   const catalog = await buildRuntimeRuleOrderCatalog({ metadataDir: params.metadataDir })
-  const xmlRoot = resolve(params.xmlRoot)
-  const configurations = (await readdir(xmlRoot, { withFileTypes: true }))
-    .filter((entry) => entry.isDirectory())
-    .map((entry) => entry.name)
-    .sort(bytewiseCompare)
+  const inputs = await createInputs(params, dependencies)
   const aggregate = createRuleOrderAggregate({ witnessLimit: params.witnessLimit })
   const observations: RuleOrderObservation[] = []
   const skippedItemTypes = new Map<string, number>()
   const configurationStats: RuleOrderConfigurationStat[] = []
-  const handle = createXmlImportWorkerPoolHandle({
-    concurrency: params.concurrency ?? Math.max(1, availableParallelism() - 1),
-  })
+  const handle = dependencies.createWorkerPoolHandle(
+    params.concurrency ?? Math.max(1, availableParallelism() - 1)
+  )
+  let extensionBaseSnapshot: SharedValidationSnapshot | undefined
 
   try {
-    for (const configuration of configurations) {
-      const discovered = await discoverXmlImport({
-        xmlDir: join(xmlRoot, configuration),
-        topology: compileRegisteredMetadataResourceTopology(),
-      })
+    for (const input of inputs) {
+      const root = await dependencies.readComponentRoot(input.xmlDir)
+      const descriptor = dependencies.resolveComponent(root)
+      if (descriptor.kind !== input.expectedComponentKind) {
+        throw new Error(
+          `${input.label}: ожидался XML-компонент ${input.expectedComponentKind}, обнаружен ${descriptor.kind}`
+        )
+      }
+      if (input.sourceKind === "configurationExtension" && extensionBaseSnapshot === undefined) {
+        throw new Error(`${input.label}: не подготовлен базовый снимок ${input.baseConfiguration}`)
+      }
+
+      const discovered = await dependencies.discover(input.xmlDir)
       const pool = handle.createOperationPool()
+      const outputDir = await mkdtemp(join(tmpdir(), "nkdk-rule-order-analysis-"))
       let observationCount = 0
       let skippedObservationCount = 0
       try {
         await pool.initialize({
-          operationId: `rule-order-${configuration}`,
+          operationId: `rule-order-${input.label.replace("/", "-")}`,
           context: {
             defaultLanguage: "ru",
             version: "2.20",
             exportToYAML: { toTyped: false },
             fromXML: { forReference: false },
           },
-          outputDir: join(tmpdir(), "nkdk-rule-order-analysis-unused"),
-          componentKind: "configuration",
+          outputDir,
+          componentKind: descriptor.kind,
+          ...(descriptor.metadataItemAugmenter === undefined
+            ? {}
+            : { metadataItemAugmenter: descriptor.metadataItemAugmenter }),
         })
-        const analyzed = await pool.analyzeRuleOrder({
-          configuration,
+        const first = await pool.runRuleOrderAnalysisFirstPass({
+          configuration: input.label,
           metadataDir: params.metadataDir,
           assignments: discovered.assignments,
         })
-        const failed = analyzed.diagnostics.find((diagnostic) => diagnostic.severity === "error")
-        if (failed !== undefined) {
-          throw new Error(
-            `${configuration}: ${failed.message}${failed.sourcePath === undefined ? "" : ` (${failed.sourcePath})`}`
-          )
+        assertNoErrors(input.label, first.diagnostics)
+        const localSnapshot = createImportSharedValidationSnapshot(first.validationContribution)
+        const second = await pool.runSecondPass(
+          createLayeredImportReferenceSnapshot({
+            local: localSnapshot,
+            ...(input.sourceKind === "configurationExtension"
+              ? { base: extensionBaseSnapshot }
+              : {}),
+          })
+        )
+        assertNoErrors(input.label, second.diagnostics)
+        if (
+          input.sourceKind === "configuration" &&
+          params.extensionBase !== undefined &&
+          input.label === `cf/${params.extensionBase}`
+        ) {
+          extensionBaseSnapshot = localSnapshot
         }
-        skippedObservationCount += analyzed.unmatchedObservationCount
-        for (const skipped of analyzed.unmatchedItemTypes) {
+
+        skippedObservationCount = first.unmatchedObservationCount
+        for (const skipped of first.unmatchedItemTypes) {
           skippedItemTypes.set(skipped.itemType, (skippedItemTypes.get(skipped.itemType) ?? 0) + skipped.count)
         }
-        for (const observation of analyzed.observations) {
+        for (const observation of first.observations) {
           observationCount += 1
           observations.push(observation)
           await params.onObservation?.(observation)
@@ -103,11 +185,19 @@ export async function analyzeRuleOrder(params: AnalyzeRuleOrderParams): Promise<
         }
       } finally {
         await pool.close()
+        await rm(outputDir, { recursive: true, force: true })
       }
       configurationStats.push({
-        configuration,
+        sourceKind: input.sourceKind,
+        configuration: input.label,
+        ...(input.baseConfiguration === undefined
+          ? {}
+          : { baseConfiguration: input.baseConfiguration }),
         assignmentCount: discovered.assignments.length,
-        xmlFileCount: discovered.assignments.reduce((sum, assignment) => sum + assignment.xmlFiles.length, 0),
+        xmlFileCount: discovered.assignments.reduce(
+          (sum, assignment) => sum + assignment.xmlFiles.length,
+          0
+        ),
         observationCount,
         skippedObservationCount,
       })
@@ -121,7 +211,7 @@ export async function analyzeRuleOrder(params: AnalyzeRuleOrderParams): Promise<
   const unobservedSources = catalog.sources().filter((source) => !observedCandidates.has(source.candidate))
 
   return {
-    configurations,
+    configurations: inputs.map((input) => input.label),
     configurationStats,
     assignmentCount: configurationStats.reduce((sum, stat) => sum + stat.assignmentCount, 0),
     xmlFileCount: configurationStats.reduce((sum, stat) => sum + stat.xmlFileCount, 0),
@@ -135,6 +225,58 @@ export async function analyzeRuleOrder(params: AnalyzeRuleOrderParams): Promise<
     unobservedSources,
     ambiguities: catalog.ambiguities(),
   }
+}
+
+async function createInputs(
+  params: AnalyzeRuleOrderParams,
+  dependencies: RuleOrderAnalyzerDependencies
+): Promise<readonly RuleOrderInput[]> {
+  const xmlRoot = resolve(params.xmlRoot)
+  const configurationNames = await dependencies.listDirectories(xmlRoot)
+  if (
+    params.extensionBase !== undefined &&
+    !configurationNames.includes(params.extensionBase)
+  ) {
+    throw new Error(`Не найдена базовая конфигурация cf/${params.extensionBase}`)
+  }
+  const configurations = configurationNames.map((name): RuleOrderInput => ({
+    label: `cf/${name}`,
+    xmlDir: join(xmlRoot, name),
+    sourceKind: "configuration",
+    expectedComponentKind: "configuration",
+  }))
+  if (params.extensionRoot === undefined || params.extensionBase === undefined) return configurations
+
+  const extensionRoot = resolve(params.extensionRoot)
+  const extensionNames = await dependencies.listDirectories(extensionRoot)
+  return [
+    ...configurations,
+    ...extensionNames.map((name): RuleOrderInput => ({
+      label: `cfe/${name}`,
+      xmlDir: join(extensionRoot, name),
+      sourceKind: "configurationExtension",
+      expectedComponentKind: "configurationExtension",
+      baseConfiguration: `cf/${params.extensionBase}`,
+    })),
+  ]
+}
+
+function validateExtensionParams(params: AnalyzeRuleOrderParams): void {
+  if ((params.extensionRoot === undefined) !== (params.extensionBase === undefined)) {
+    throw new Error("extensionRoot и extensionBase должны быть указаны вместе")
+  }
+}
+
+function assertNoErrors(label: string, diagnostics: readonly {
+  severity: string
+  message: string
+  sourcePath?: string
+}[]): void {
+  const failed = diagnostics.find((diagnostic) => diagnostic.severity === "error")
+  if (failed === undefined) return
+  throw new Error(
+    `${label}: ${failed.message}${failed.sourcePath === undefined ? "" : ` (${failed.sourcePath})`}`
+  )
 }
 
 function bytewiseCompare(left: string, right: string): number {

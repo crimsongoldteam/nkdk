@@ -273,7 +273,7 @@ describe("XML import worker first pass", () => {
 })
 
 describe("XML import worker rule order analysis", () => {
-  it("returns observations without retaining or writing YAML", async () => {
+  it("returns first-pass data with observations and retains YAML for the second pass", async () => {
     const outputDir = createTempDir("rule-order")
     await initializeWorker(outputDir)
     const assignment = catalogAssignment()
@@ -285,9 +285,13 @@ describe("XML import worker rule order analysis", () => {
       assignments: [assignment],
     })
 
-    expect(result?.kind).toBe("ruleOrderAnalysisResult")
-    if (result?.kind !== "ruleOrderAnalysisResult") throw new Error("Ожидался результат анализа порядка")
+    expect(result?.kind).toBe("ruleOrderAnalysisFirstPassResult")
+    if (result?.kind !== "ruleOrderAnalysisFirstPassResult") {
+      throw new Error("Ожидался первый проход анализа порядка")
+    }
     expect(result.diagnostics).toEqual([])
+    expect(result.ownerFacts).not.toEqual([])
+    expect(result.validationContribution.objectRecords).not.toEqual([])
     expect(result.unmatchedObservationCount).toBe(0)
     expect(result.observations).toHaveLength(1)
     expect(result.observations[0]).toMatchObject({
@@ -300,8 +304,18 @@ describe("XML import worker rule order analysis", () => {
       "appliedObjects/metadataCatalog/rules.ts#MetadataCatalogRules"
     )
     expect(result.observations[0]?.source.declarationOrder).toContain("name")
-    expect(workerStateForTests().preparedYamlIds).toEqual([])
+    expect(workerStateForTests().preparedYamlIds).toEqual([assignment.id])
     expect(existsSync(join(outputDir, assignment.targetProjectPath))).toBe(false)
+
+    const second = await runImportWorkerCommand({
+      kind: "secondPass",
+      referenceSnapshots: createLayeredImportReferenceSnapshot({
+        local: createImportSharedMetadata(result.ownerFacts),
+      }),
+    })
+
+    expect(second?.kind).toBe("secondPassResult")
+    expect(existsSync(join(outputDir, assignment.targetProjectPath))).toBe(true)
   })
 
   it("собирает наблюдение вложенного UsualGroup", async () => {
@@ -316,7 +330,9 @@ describe("XML import worker rule order analysis", () => {
       assignments: [assignments.form],
     })
 
-    if (result?.kind !== "ruleOrderAnalysisResult") throw new Error("Ожидался результат анализа порядка")
+    if (result?.kind !== "ruleOrderAnalysisFirstPassResult") {
+      throw new Error("Ожидался первый проход анализа порядка")
+    }
     expect(result.diagnostics).toEqual([])
     expect(result.unmatchedObservationCount).toBe(0)
     expect(result.observations).toContainEqual(
