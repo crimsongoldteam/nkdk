@@ -4,12 +4,7 @@ import type { ConfigurationContext } from "../context/types"
 import { createOwnerMetadataCacheFromSharedProjectValidationGraph } from "../validation/dataPath/sharedOwnerCache"
 import { createValidationProfiler } from "../validation/profile"
 import { getProjectReferenceObjectPathContributor } from "../validation/projectReferenceIndexRegistry"
-import type {
-  ProjectMemberIndexEntry,
-  ProjectObjectIndexEntry,
-  ProjectValueIndexEntry,
-  PendingMetadataTargetReference,
-} from "../validation/projectMetadataReferences"
+import type { PendingMetadataTargetReference } from "../validation/projectMetadataReferences"
 import { resolveValidationProjectFile } from "../validation/projectFiles"
 import { validationProjectComponentFromAddress } from "../validation/projectComponents"
 import { createProjectYamlCacheFromEntries } from "../validation/projectYamlCache"
@@ -117,10 +112,6 @@ export type PreparedYamlProjectWorkerTaskResult =
 
 interface WorkerValidationState {
   states: Map<string, ProjectValidationFileState>
-  objectIndexEntries: ProjectObjectIndexEntry[]
-  memberIndexEntries: ProjectMemberIndexEntry[]
-  valueIndexEntries: ProjectValueIndexEntry[]
-  pendingReferences: PendingMetadataTargetReference[]
 }
 
 export default async function runPreparedYamlProjectWorkerTask(
@@ -281,10 +272,6 @@ export function getValidationYamlLifetimeForTests(): Readonly<typeof validationY
 function createEmptyWorkerValidationState(): WorkerValidationState {
   return {
     states: new Map(),
-    objectIndexEntries: [],
-    memberIndexEntries: [],
-    valueIndexEntries: [],
-    pendingReferences: [],
   }
 }
 
@@ -362,10 +349,6 @@ function runValidationFirstPass(message: Extract<PreparedYamlProjectWorkerTask, 
     if (first.profile !== undefined) addFirstPassProfile(firstPassProfile, first.profile)
     validationYamlLifetimeForTests.propertyEvents += first.profile?.propertyEvents ?? 0
     validationState.states.set(resolve(file.absolutePath), first.state)
-    validationState.objectIndexEntries.push(...first.objectIndexEntries)
-    validationState.memberIndexEntries.push(...first.memberIndexEntries)
-    validationState.valueIndexEntries.push(...first.valueIndexEntries)
-    validationState.pendingReferences.push(...first.pendingReferences)
     component.contribution.objectRecords.push(...first.objectRecords)
     component.contribution.objectIndexEntries?.push(...first.objectIndexEntries)
     component.contribution.memberIndexEntries?.push(...first.memberIndexEntries)

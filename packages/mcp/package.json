@@ -42,7 +42,7 @@
     "@nkdk/platform": "workspace:*",
     "@types/node": "^26.0.0",
     "esbuild": "^0.28.1",
-    "typescript": "~6.0.0",
+    "typescript": "~7.0.0",
     "vitest": "^4.1.9"
   }
 }

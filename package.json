@@ -14,15 +14,13 @@
     "build": "tsc -p tsconfig.build.json && tsc-alias -p tsconfig.build.json",
     "type-check": "pnpm -r exec tsc --noEmit",
     "test": "pnpm -r run test",
-    "test:isolated": "pnpm -r run test:isolated",
-    "prepare": "ts-patch install"
+    "test:isolated": "pnpm -r run test:isolated"
   },
   "devDependencies": {
     "@types/node": "^26.0.0",
     "prettier": "^3.8.4",
-    "ts-patch": "^3.3.0",
     "tsc-alias": "^1.8.17",
-    "typescript": "~6.0.0",
+    "typescript": "~7.0.0",
     "vitest": "^4.1.9"
   }
 }
