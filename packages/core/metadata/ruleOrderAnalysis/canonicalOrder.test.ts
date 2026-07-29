@@ -1,6 +1,10 @@
 import { describe, expect, it } from "vitest"
 import type { RuleOrderObservation, RuleOrderSource } from "./types"
-import { assertObservationSubsequence, deriveCanonicalRuleOrders } from "./canonicalOrder"
+import {
+  assertObservationSubsequence,
+  createCanonicalRuleOrderAggregate,
+  deriveCanonicalRuleOrders,
+} from "./canonicalOrder"
 
 const source = (overrides: Partial<RuleOrderSource> = {}): RuleOrderSource => ({
   candidate: "test/rules.ts#Rules",
@@ -27,6 +31,17 @@ const observation = (
 })
 
 describe("deriveCanonicalRuleOrders", () => {
+  it("derives the same orders from incremental observations", () => {
+    const observations = [
+      observation(["name", "use", "indexing"]),
+      observation(["name", "comment", "indexing"]),
+    ]
+    const aggregate = createCanonicalRuleOrderAggregate()
+    for (const item of observations) aggregate.accept(item)
+
+    expect(aggregate.finish()).toEqual(deriveCanonicalRuleOrders(observations))
+  })
+
   it("uses observed constraints and declaration order as a stable tie-break", () => {
     const result = deriveCanonicalRuleOrders([
       observation(["name", "use", "indexing"]),

@@ -20,7 +20,7 @@ import {
 import type { ImportAssignment } from "../importFromXml/types"
 import { createRuleOrderAggregate, type RuleOrderRuleReport } from "./aggregate"
 import {
-  deriveCanonicalRuleOrders,
+  createCanonicalRuleOrderAggregate,
   type CanonicalRuleOrder,
 } from "./canonicalOrder"
 import { buildRuntimeRuleOrderCatalog } from "./catalog"
@@ -108,7 +108,7 @@ export async function analyzeRuleOrder(
   const catalog = await buildRuntimeRuleOrderCatalog({ metadataDir: params.metadataDir })
   const inputs = await createInputs(params, dependencies)
   const aggregate = createRuleOrderAggregate({ witnessLimit: params.witnessLimit })
-  const observations: RuleOrderObservation[] = []
+  const canonicalOrderAggregate = createCanonicalRuleOrderAggregate()
   const skippedItemTypes = new Map<string, number>()
   const configurationStats: RuleOrderConfigurationStat[] = []
   const handle = dependencies.createWorkerPoolHandle(
@@ -179,9 +179,9 @@ export async function analyzeRuleOrder(
         }
         for (const observation of first.observations) {
           observationCount += 1
-          observations.push(observation)
           await params.onObservation?.(observation)
           aggregate.accept(observation)
+          canonicalOrderAggregate.accept(observation)
         }
       } finally {
         await pool.close()
@@ -206,7 +206,7 @@ export async function analyzeRuleOrder(
     await handle.close()
   }
 
-  const canonicalOrders = deriveCanonicalRuleOrders(observations)
+  const canonicalOrders = canonicalOrderAggregate.finish()
   const observedCandidates = new Set(canonicalOrders.map((order) => order.source.candidate))
   const unobservedSources = catalog.sources().filter((source) => !observedCandidates.has(source.candidate))
 
