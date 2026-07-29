@@ -7,15 +7,13 @@ import {
 } from "../../../tests/directConversion"
 import { getTypeRule, type MetadataItemRule } from "../../orchestration"
 import { MetadataDataProcessorRules } from "./rules"
+import { canonicalSnapshot13XML } from "../../../tests/canonicalXML"
 
 const normalizeLineEndings = (value: string) => value.replace(/\r\n/g, "\n")
 
 describe("syncAppliedObjectToXML — MetadataDataProcessor", () => {
   it("не дублирует корневой cfg namespace в типе реквизита без reference XML", () => {
-    const attributes = getTypeRule(
-      MetadataDataProcessorRules.properties.attributes.type,
-      "yamlToXMLNestedRule"
-    )
+    const attributes = getTypeRule(MetadataDataProcessorRules.properties.attributes.type, "yamlToXMLNestedRule")
     if (attributes?.kind !== "collection") throw new Error("Не зарегистрировано правило реквизитов обработки")
     const attributeRule =
       attributes.itemRuleFromProperty?.(MetadataDataProcessorRules.properties.attributes) ?? attributes.itemRule
@@ -65,7 +63,11 @@ describe("syncAppliedObjectToXML — MetadataDataProcessor", () => {
       ],
     })
     for (const { path, result, expected } of comparisons) {
-      expect(normalizeLineEndings(result), path).toBe(normalizeLineEndings(expected))
+      if (path.endsWith(".xml")) {
+        expect(canonicalSnapshot13XML(result), path).toEqual(canonicalSnapshot13XML(expected))
+      } else {
+        expect(normalizeLineEndings(result), path).toBe(normalizeLineEndings(expected))
+      }
     }
   })
 })

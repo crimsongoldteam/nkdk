@@ -1,6 +1,6 @@
 import { describe, expect, it } from "vitest"
-import { importContentFromXML } from "../../../xml/import/importer"
 import { testAppliedObjectFromXMLToYAML, testAppliedObjectFromYAMLToXML } from "../../../tests/directConversion"
+import { canonicalSnapshot13XML } from "../../../tests/canonicalXML"
 import { appliedObjectModelCases } from "./yamlFixtures"
 
 describe("applied object direct XML → YAML → XML", () => {
@@ -20,20 +20,6 @@ describe("applied object direct XML → YAML → XML", () => {
     })
 
     expect(imported.yaml).toBeDefined()
-    expect(normalizeXML(exported.result)).toEqual(normalizeXML(exported.expected))
+    expect(canonicalSnapshot13XML(exported.result)).toEqual(canonicalSnapshot13XML(exported.expected))
   })
 })
-
-function normalizeXML(value: string): unknown {
-  return removeFormattingText(importContentFromXML(value.replace(/^\uFEFF/, "")))
-}
-
-function removeFormattingText(value: unknown): unknown {
-  if (Array.isArray(value)) return value.map(removeFormattingText)
-  if (value === null || typeof value !== "object") return value
-  return Object.fromEntries(
-    Object.entries(value as Record<string, unknown>).flatMap(([key, child]) =>
-      key === "#text" && typeof child === "string" && child.trim() === "" ? [] : [[key, removeFormattingText(child)]]
-    )
-  )
-}

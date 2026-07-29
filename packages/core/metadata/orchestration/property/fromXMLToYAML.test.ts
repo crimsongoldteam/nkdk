@@ -776,6 +776,7 @@ describe("importPropertiesFromXMLToYAML", () => {
             yaml: "ДлинаНаименования",
             defaultValueXML: 25,
             implicitValueYAML: 30,
+            omitNonImplicitReferenceXMLWhenYAMLMissing: true,
           },
         },
       } as MetadataItemRule,
@@ -823,6 +824,31 @@ describe("importPropertiesFromXMLToYAML", () => {
         xml: { explicitEmpty: true },
       },
     ])
+  })
+
+  it("не считает отсутствующее XML-свойство явно пустым", () => {
+    const indexCollector = createConfigurationIndexCollector()
+    const context = withConfigurationIndexCollector(mockContextFromXML(), indexCollector, "Отчет.Остатки")
+    importPropertiesFromXMLToYAML({
+      context,
+      rule: {
+        itemType: "Report",
+        properties: {
+          extendedPresentation: {
+            type: "string",
+            xml: "ExtendedPresentation",
+            yaml: "РасширенноеПредставление",
+            preserveExplicitDefaultXML: true,
+          },
+        },
+      } as MetadataItemRule,
+      xml: {},
+      yamlPath: [],
+      rulePath: [],
+      collector: createLocalIndexesCollector(),
+    })
+
+    expect(indexCollector.fragment("Отчет/Остатки/Свойства.yaml").entities).toEqual([])
   })
 
   it("сохраняет xsi:nil, потерянный преобразованием и не заданный rules", () => {
@@ -882,6 +908,7 @@ describe("importPropertiesFromXMLToYAML", () => {
             configurationIndexAddressing: "yamlPath",
             defaultValueXML: 25,
             implicitValueYAML: 30,
+            omitNonImplicitReferenceXMLWhenYAMLMissing: true,
           },
         },
       } as MetadataItemRule,

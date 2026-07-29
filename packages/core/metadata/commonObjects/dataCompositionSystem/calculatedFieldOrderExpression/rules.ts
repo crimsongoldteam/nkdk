@@ -4,11 +4,7 @@ import { systemEnumerationRule } from "../../../systemEnumerations/types"
 import { MetadataItemRule } from "../../../orchestration"
 export const CalculatedFieldOrderExpressionRules = {
   itemType: "CalculatedFieldOrderExpression",
-  xmlOrder: [
-    "expression",
-    "orderType",
-    "autoOrder",
-  ],
+  xmlOrder: ["expression", "orderType", "autoOrder"],
   properties: {
     expression: stringRule({
       xml: "expression",
@@ -28,6 +24,7 @@ export const CalculatedFieldOrderExpressionRules = {
       yaml: "Автоупорядочивание",
       xmlNamespace: "http://v8.1c.ru/8.1/data-composition-system/common",
       implicitValueYAML: false,
+      omitNonImplicitReferenceXMLWhenYAMLMissing: true,
     }),
   },
 } as const satisfies MetadataItemRule

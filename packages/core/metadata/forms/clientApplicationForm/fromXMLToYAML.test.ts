@@ -207,11 +207,7 @@ describe("importClientApplicationFormFromXMLToYAML", () => {
       ...baseContext,
       fromXML: { ...baseContext.fromXML, metadataItemAugmenter: "configurationExtension" },
     }
-    const context = withConfigurationIndexCollector(
-      extensionContext,
-      collector,
-      logicalAddress
-    )
+    const context = withConfigurationIndexCollector(extensionContext, collector, logicalAddress)
     const metadataXML: FormMetadataXML & {
       Form: { InternalInfo: Record<string, unknown> }
     } = {
@@ -325,7 +321,7 @@ describe("форма XML → YAML → XML", () => {
     })
   })
 
-  it("формирует канонический порядок событий формы без reference XML", () => {
+  it("сохраняет порядок событий формы без reference XML", () => {
     const contexts = createDirectRoundTripContexts({
       logicalAddress: "Справочник.Товары.Форма.ФормаЭлемента",
     })
@@ -354,9 +350,9 @@ describe("форма XML → YAML → XML", () => {
     const events = converted.formXML.Events?.Event
 
     expect(Array.isArray(events) ? events.map((event) => event._name) : []).toEqual([
-      "ActivationProcessing",
-      "BeforeClose",
       "OnOpen",
+      "BeforeClose",
+      "ActivationProcessing",
     ])
   })
 
@@ -395,8 +391,8 @@ describe("форма XML → YAML → XML", () => {
     })
     expect(importedForm.События).not.toHaveProperty("ОбработкаАктивации")
     expect(Array.isArray(events) ? events.map((event) => event._name) : []).toEqual([
-      "BeforeExecute",
       "81c01005-9b73-4278-853b-1a8d203c8e8c",
+      "BeforeExecute",
     ])
   })
 
@@ -599,18 +595,13 @@ function normalizeSnapshot13XML(value: unknown): unknown {
   if (Array.isArray(value)) {
     const normalized = value.map(normalizeSnapshot13XML)
     if (normalized.every((item) => isEventXML(item))) {
-      normalized.sort((left, right) =>
-        eventXMLKey(left).localeCompare(eventXMLKey(right))
-      )
+      normalized.sort((left, right) => eventXMLKey(left).localeCompare(eventXMLKey(right)))
     }
     return normalized
   }
   if (value === null || typeof value !== "object") return value
   return Object.fromEntries(
-    Object.entries(value).map(([key, child]) => [
-      SNAPSHOT_13_XML_NAMES[key] ?? key,
-      normalizeSnapshot13XML(child),
-    ])
+    Object.entries(value).map(([key, child]) => [SNAPSHOT_13_XML_NAMES[key] ?? key, normalizeSnapshot13XML(child)])
   )
 }
 

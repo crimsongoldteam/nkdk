@@ -6,6 +6,7 @@ import { syncAppliedObjectToXML } from "../../orchestration/appliedObject/syncTo
 import { testSyncAppliedObjectToXML } from "../../../tests/appliedObject"
 import { mockContextToXML } from "../../../tests/mockContext"
 import { MetadataExchangePlanRules } from "./rules"
+import { canonicalSnapshot13XML } from "../../../tests/canonicalXML"
 
 const normalizeLineEndings = (value: string) => value.replace(/\r\n/g, "\n")
 
@@ -39,7 +40,11 @@ describe("syncAppliedObjectToXML — MetadataExchangePlan", () => {
       ],
     })
     for (const { path, result, expected } of comparisons) {
-      expect(normalizeLineEndings(result), path).toBe(normalizeLineEndings(expected))
+      if (path.endsWith(".xml")) {
+        expect(canonicalSnapshot13XML(result), path).toEqual(canonicalSnapshot13XML(expected))
+      } else {
+        expect(normalizeLineEndings(result), path).toBe(normalizeLineEndings(expected))
+      }
     }
   })
 

@@ -10,11 +10,7 @@ import {
   withConfigurationIndexExportPropertyContext,
 } from "../../configurationIndex/referenceView"
 import type { MetadataTargetOwner } from "../../commonObjects/metadataTargets"
-import type {
-  ConfigurationContext,
-  ConfigurationContextWithExportToXML,
-  XMLDefaultVariant,
-} from "../../context/types"
+import type { ConfigurationContext, ConfigurationContextWithExportToXML, XMLDefaultVariant } from "../../context/types"
 import { metadataTargetOwnerFromRule, importStringMetadataTargetFromYAML } from "./metadataTargetString"
 import { convertMetadataItemFromYAMLToXML } from "../metadataItem/fromYAMLToXML"
 import { convertMetadataCollectionFromYAMLToXML } from "../metadataCollection/fromYAMLToXML"
@@ -26,11 +22,7 @@ import type {
   importFromYAMLFunction,
   ImportFromYAMLFunctionNew,
 } from "./fn"
-import {
-  applyAutoRequiredXMLParents,
-  collectAutoRequiredXMLParentRoot,
-  getOrderedKeysToXML,
-} from "./helpers"
+import { applyAutoRequiredXMLParents, collectAutoRequiredXMLParentRoot, getOrderedKeysToXML } from "./helpers"
 import { getYAMLToXMLPlan, type YAMLToXMLPlannedProperty } from "./fromYAMLToXMLPlan"
 import type {
   YAMLPropertySource,
@@ -183,11 +175,7 @@ export function convertPropertiesFromYAMLToXML(params: ConvertPropertiesFromYAML
     if (!source.has(propertyKey)) {
       copyConfigurationIndexPropertyValue(propertyContext, planned)
     }
-    const hasXMLDefault = hasExplicitXMLDefault(
-      propertyContext,
-      planned.propertyRule,
-      planned.propertyKey
-    )
+    const hasXMLDefault = hasExplicitXMLDefault(propertyContext, planned.propertyRule, planned.propertyKey)
     const exportHandler = getTypeRule(planned.propertyRule.type, "exportToXML")
     const references = matchingOutputs.map(({ request }) =>
       readReferenceProperty({
@@ -346,25 +334,15 @@ export function convertPropertiesFromYAMLToXML(params: ConvertPropertiesFromYAML
       !source.has(propertyKey) &&
       !(planned.propertyKey === namePropertyKey && params.name !== undefined) &&
       references.every((reference) => !reference.exists) &&
-      (
-        Object.prototype.hasOwnProperty.call(
-          planned.propertyRule,
-          "defaultValueXMLRaw"
-        ) ||
-        Object.prototype.hasOwnProperty.call(
-          planned.propertyRule,
-          "defaultValueXMLEmpty"
-        )
-      )
+      (Object.prototype.hasOwnProperty.call(planned.propertyRule, "defaultValueXMLRaw") ||
+        Object.prototype.hasOwnProperty.call(planned.propertyRule, "defaultValueXMLEmpty"))
     ) {
       continue
     }
 
     const nestedRule = getTypeRule(planned.propertyRule.type, "yamlToXMLNestedRule")
     if (nestedRule !== undefined && nestedRule.kind !== "externalFile") {
-      const childCollection = params.rule.childCollections?.find(
-        (collection) => collection.propertyKey === propertyKey
-      )
+      const childCollection = params.rule.childCollections?.find((collection) => collection.propertyKey === propertyKey)
       const effectiveNestedRule =
         nestedRule.kind === "collection"
           ? {
@@ -426,11 +404,7 @@ export function convertPropertiesFromYAMLToXML(params: ConvertPropertiesFromYAML
             ? {}
             : undefined
           : sourceNestedYAML
-      const hasNestedDefault = hasExplicitXMLDefault(
-        propertyContext,
-        planned.propertyRule,
-        planned.propertyKey
-      )
+      const hasNestedDefault = hasExplicitXMLDefault(propertyContext, planned.propertyRule, planned.propertyKey)
       if (nestedYAML === undefined && !references.some((reference) => reference.exists)) {
         continue
       }
@@ -448,7 +422,8 @@ export function convertPropertiesFromYAMLToXML(params: ConvertPropertiesFromYAML
         !hasNestedDefault &&
         planned.propertyRule.preserveFromReferenceXML !== true &&
         references.every((reference) => isEmptyCollectionReference(reference.value, effectiveNestedRule.xmlElement))
-      ) continue
+      )
+        continue
       const nestedOutputs = matchingOutputs.map((output, index) => ({
         key: output.request.key,
         referenceXML: references[index]?.value,
@@ -754,11 +729,7 @@ export function callAtomicToXML(params: AtomicToXMLParams): unknown {
   if (handler === undefined) {
     if (isDefaultValue(value, rule.defaultValue)) {
       if (shouldCreateRawParent(value, rule)) return value
-      return hasRaw
-        ? rule.defaultValueXMLRaw
-        : xmlDefault.exists
-          ? xmlDefault.value
-          : undefined
+      return hasRaw ? rule.defaultValueXMLRaw : xmlDefault.exists ? xmlDefault.value : undefined
     }
     return wrapWithNamespace(rule, value)
   }
@@ -781,9 +752,7 @@ export function callAtomicToXML(params: AtomicToXMLParams): unknown {
   ) {
     if (shouldCreateRawParent(value, rule)) return value
     if (hasRaw) return rule.defaultValueXMLRaw
-    return xmlDefault.exists
-      ? wrapWithNamespace(rule, exportValue(xmlDefault.value))
-      : undefined
+    return xmlDefault.exists ? wrapWithNamespace(rule, exportValue(xmlDefault.value)) : undefined
   }
   return wrapWithNamespace(rule, exported)
 }
@@ -865,12 +834,9 @@ function referenceFromConfigurationIndex(
   const indexedValue = getConfigurationIndexPropertyXmlValue(context, property)
   const indexedDescriptor = getTypeRule(planned.propertyRule.type, "configurationIndexValueFromXML")
   const value =
-    (indexedValue === undefined
-      ? undefined
-      : indexedDescriptor?.referenceXMLFromValue?.(indexedValue)) ??
+    (indexedValue === undefined ? undefined : indexedDescriptor?.referenceXMLFromValue?.(indexedValue)) ??
     getConfigurationIndexPropertyReferenceXMLValue(context, property)
-  const indexedExplicitEmpty =
-    indexedValue?.explicitEmpty === true
+  const indexedExplicitEmpty = indexedValue?.explicitEmpty === true
   if (value !== undefined) {
     return {
       exists: true,
@@ -924,11 +890,10 @@ function writeXMLValue(params: {
   reference: ReferenceProperty
 }): readonly string[] | undefined {
   const { output, planned, reference } = params
+  const rule = planned.propertyRule
   const usesEmptyReferenceFallback =
-    params.value === undefined &&
-    reference.exists &&
-    planned.propertyRule.preserveEmptyXML !== true
-  const value =
+    params.value === undefined && reference.exists && planned.propertyRule.preserveEmptyXML !== true
+  const rawValue =
     params.value === undefined &&
     reference.exists &&
     planned.propertyRule.preserveEmptyXML === true &&
@@ -938,14 +903,12 @@ function writeXMLValue(params: {
       : params.value === undefined && reference.exists && planned.propertyRule.preserveEmptyXML !== true
         ? {}
         : params.value
+  const value = wrapWithNamespace(rule, rawValue)
   if (value === undefined) return undefined
-  const rule = planned.propertyRule
   if (Array.isArray(value) && value.length === 0) {
     if (rule.xmlParents !== undefined && Object.prototype.hasOwnProperty.call(rule, "defaultValueXMLRaw")) {
       const canonical = rule.xml ?? capitalize(planned.propertyKey)
-      const rawPath = isRecord(rule.defaultValueXMLRaw)
-        ? rule.xmlParents
-        : [...rule.xmlParents, canonical]
+      const rawPath = isRecord(rule.defaultValueXMLRaw) ? rule.xmlParents : [...rule.xmlParents, canonical]
       setAtPath(output.xml, rawPath, rule.defaultValueXMLRaw)
     } else if (reference.exists && Object.prototype.hasOwnProperty.call(rule, "defaultValueXMLEmpty")) {
       const canonical = rule.xml ?? capitalize(planned.propertyKey)
@@ -1040,13 +1003,9 @@ function hasExplicitXMLDefault(
 ): boolean {
   return (
     resolveXMLDefault(context, rule, propertyKey).exists ||
-    (
-      usesOrdinaryXMLDefaults(context, propertyKey, rule) &&
-      (
-        Object.prototype.hasOwnProperty.call(rule, "defaultValueXMLRaw") ||
-        Object.prototype.hasOwnProperty.call(rule, "defaultValueXMLEmpty")
-      )
-    )
+    (usesOrdinaryXMLDefaults(context, propertyKey, rule) &&
+      (Object.prototype.hasOwnProperty.call(rule, "defaultValueXMLRaw") ||
+        Object.prototype.hasOwnProperty.call(rule, "defaultValueXMLEmpty")))
   )
 }
 
@@ -1074,9 +1033,7 @@ function resolveXMLDefault(
     : { exists: false, value: undefined }
 }
 
-function getXMLDefaultVariant(
-  context: ConfigurationContextWithExportToXML
-): XMLDefaultVariant | undefined {
+function getXMLDefaultVariant(context: ConfigurationContextWithExportToXML): XMLDefaultVariant | undefined {
   const variants = context.exportToXML?.xmlDefaultVariantByLogicalAddress
   let logicalAddress = context.exportToXML?.configurationIndex?.logicalAddress
   while (logicalAddress !== undefined) {
@@ -1090,8 +1047,11 @@ function getXMLDefaultVariant(
 }
 
 function wrapWithNamespace(rule: PropertyRule, value: unknown): unknown {
-  if (value === undefined || value === null || rule.xmlNamespace === undefined || typeof value === "object")
-    return value
+  if (value === undefined || value === null || rule.xmlNamespace === undefined) return value
+  if (isRecord(value)) {
+    return "#text" in value && !("_xmlns" in value) ? { ...value, _xmlns: rule.xmlNamespace } : value
+  }
+  if (typeof value === "object") return value
   return { "#text": value, _xmlns: rule.xmlNamespace }
 }
 

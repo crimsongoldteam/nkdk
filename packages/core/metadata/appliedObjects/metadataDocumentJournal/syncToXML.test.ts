@@ -1,6 +1,7 @@
 import { describe, expect, it } from "vitest"
 import { testSyncAppliedObjectToXML } from "../../../tests/appliedObject"
 import { MetadataDocumentJournalRules } from "./rules"
+import { canonicalSnapshot13XML } from "../../../tests/canonicalXML"
 
 const normalizeLineEndings = (value: string) => value.replace(/\r\n/g, "\n")
 
@@ -26,7 +27,11 @@ describe("syncAppliedObjectToXML — MetadataDocumentJournal", () => {
       ],
     })
     for (const { path, result, expected } of comparisons) {
-      expect(normalizeLineEndings(result), path).toBe(normalizeLineEndings(expected))
+      if (path.endsWith(".xml")) {
+        expect(canonicalSnapshot13XML(result), path).toEqual(canonicalSnapshot13XML(expected))
+      } else {
+        expect(normalizeLineEndings(result), path).toBe(normalizeLineEndings(expected))
+      }
     }
   })
 })

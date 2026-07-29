@@ -509,7 +509,6 @@ function fakeDependencies(params: {
             diagnostics: [],
             ownerFacts: [],
             validationContribution: emptyValidationContribution(),
-            localDependencies: [],
             fragmentData,
           }
         },

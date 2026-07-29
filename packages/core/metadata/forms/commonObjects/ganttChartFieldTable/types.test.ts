@@ -10,7 +10,7 @@ import { GanttChartFieldRules } from "../../elements/ganttChartField/rules"
 import "../../elements/index"
 
 describe("таблица поля диаграммы Ганта", () => {
-  it("восстанавливает собственные id и вложенные элементы без reference XML", () => {
+  it("восстанавливает id вложенного элемента, явно заданного в YAML", () => {
     const contexts = createDirectRoundTripContexts({
       logicalAddress: "ОбщаяФорма.GanttChartField.Элемент.ПоУмолчанию",
       targetProjectPath: "ОбщаяФорма/GanttChartField/Свойства.yaml",
@@ -53,10 +53,17 @@ describe("таблица поля диаграммы Ганта", () => {
       xml: source,
       name: "ПоУмолчанию",
     })
+    const importedYAML = imported.yaml as { Таблица: Record<string, unknown> }
     const exported = testPropertyFromYAMLToXML({
       context: contexts.exportContext(),
       rule: GanttChartFieldRules,
-      yaml: imported.yaml,
+      yaml: {
+        ...importedYAML,
+        Таблица: {
+          ...importedYAML.Таблица,
+          ОтображениеСтрокиПоиска: {},
+        },
+      },
       name: "ПоУмолчанию",
     })
 

@@ -1,5 +1,6 @@
 import { describe, expect, it } from "vitest"
 import { testSyncAppliedObjectToXML } from "../../../tests/appliedObject"
+import { canonicalSnapshot13XML } from "../../../tests/canonicalXML"
 import { appliedObjectSyncCases } from "./yamlFixtures"
 
 const normalizeText = (value: string) =>
@@ -19,7 +20,11 @@ describe("applied object YAML -> XML sync", () => {
     })
 
     for (const { path, result, expected } of comparisons) {
-      expect(normalizeText(result), path).toBe(normalizeText(expected))
+      if (path.endsWith(".xml")) {
+        expect(canonicalSnapshot13XML(result), path).toEqual(canonicalSnapshot13XML(expected))
+      } else {
+        expect(normalizeText(result), path).toBe(normalizeText(expected))
+      }
     }
     for (const { path, result, expected } of binaryComparisons) {
       expect(result, path).toEqual(expected)

@@ -40,6 +40,7 @@ export function collectConfigurationIndexPropertyFromXML(params: {
   logicalAddress?: string
   propertyKey: string
   xmlValue: unknown
+  presentInXML: boolean
   rule: PropertyRule
   descriptor?: ConfigurationIndexValueFromXMLDescriptor
 }): void {
@@ -52,7 +53,7 @@ export function collectConfigurationIndexPropertyFromXML(params: {
   if (
     params.descriptor?.xsiNilWhenNotRepresentable === true &&
     hasXsiNil(params.xmlValue) &&
-    !ruleRepresentsXsiNil(params.rule)
+    !ruleHasCanonicalXsiNil(params.rule)
   ) {
     collection.collector.setXmlFlag(address, "xsiNil")
   }
@@ -61,9 +62,18 @@ export function collectConfigurationIndexPropertyFromXML(params: {
     if (xsiType !== undefined) collection.collector.setXmlValue(address, "xsiType", xsiType)
   }
   if (
+    params.presentInXML &&
     Object.prototype.hasOwnProperty.call(params.rule, "defaultValueXMLEmpty") &&
     (params.xmlValue === undefined || params.xmlValue === "") &&
     !isDeepStrictEqual(params.rule.defaultValueXMLEmpty, params.xmlValue)
+  ) {
+    collection.collector.setXmlFlag(address, "explicitEmpty")
+  }
+  if (
+    params.presentInXML &&
+    isExplicitEmptyXMLValue(params.xmlValue) &&
+    Object.prototype.hasOwnProperty.call(params.rule, "defaultValueXMLRaw") &&
+    isDeepStrictEqual(params.rule.defaultValueXMLRaw, params.xmlValue)
   ) {
     collection.collector.setXmlFlag(address, "explicitEmpty")
   }
@@ -111,18 +121,19 @@ function getUnrepresentedXsiType(value: unknown): string | undefined {
   return typeof xsiType === "string" ? xsiType : undefined
 }
 
-function ruleRepresentsXsiNil(rule: PropertyRule): boolean {
-  if ("exportNilValue" in rule && rule.exportNilValue === true) return true
+function ruleHasCanonicalXsiNil(rule: PropertyRule): boolean {
   return hasXsiNil(rule.defaultValueXMLRaw)
+}
+
+function isExplicitEmptyXMLValue(value: unknown): boolean {
+  return value === undefined || value === "" || (isRecord(value) && Object.keys(value).length === 0)
 }
 
 function ambiguousImplicitScalarXMLValue(rule: PropertyRule, xmlValue: unknown): string | undefined {
   if (
-    !Object.prototype.hasOwnProperty.call(rule, "defaultValueXML") ||
+    rule.omitNonImplicitReferenceXMLWhenYAMLMissing !== true ||
     !Object.prototype.hasOwnProperty.call(rule, "implicitValueYAML") ||
-    typeof rule.defaultValueXML === "function" ||
-    typeof rule.implicitValueYAML === "function" ||
-    String(rule.defaultValueXML) === String(rule.implicitValueYAML)
+    typeof rule.implicitValueYAML === "function"
   ) {
     return undefined
   }

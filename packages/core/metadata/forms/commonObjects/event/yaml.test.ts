@@ -51,6 +51,20 @@ describe("события в YAML", () => {
     expect(importEventsFromYAML(mockContext, rule, yaml)).toEqual(model)
   })
 
+  it("сохраняет порядок событий из XML-модели и YAML", () => {
+    const model = {
+      startChoice: "КодНачалоВыбора",
+      onChange: "КодПриИзменении",
+    }
+    const yaml = {
+      НачалоВыбора: "КодНачалоВыбора",
+      ПриИзменении: "КодПриИзменении",
+    }
+
+    expect(Object.keys(exportEventsToYAML(mockContext, rule, model)!)).toEqual(Object.keys(yaml))
+    expect(Object.keys(importEventsFromYAML(mockContext, rule, yaml)!)).toEqual(Object.keys(model))
+  })
+
   it("отклоняет неизвестный режим вызова с именем события", () => {
     expect(() => exportEventsToYAML(mockContext, rule, { onChange: { Auto: "Обработчик" } })).toThrow(
       "ПриИзменении и режима Auto"

@@ -13,11 +13,7 @@ import { configurationIndexPropertyXmlStateUid } from "../../configurationIndex/
 import type { ConfigurationContextFromXML } from "../../context/types"
 import { buildExternalFileEntry } from "../../forms/commonObjects/dynamicList/externalFile"
 import { getValueOrDefault, shouldProcessProperty } from "./helpers"
-import type {
-  DeferredRulePathSegment,
-  DirectImportProfile,
-  DirectImportXMLSource,
-} from "./importYamlTypes"
+import type { DeferredRulePathSegment, DirectImportProfile, DirectImportXMLSource } from "./importYamlTypes"
 import { metadataTargetOwnerFromRule } from "./metadataTargetString"
 import { importPropertyFromXML } from "./fromXML"
 import { canExportPropertyToYAML, exportPropertyValueToYAML, getExportToYAMLResult } from "./toYAML"
@@ -164,8 +160,7 @@ export function importPropertiesFromXMLToYAML(params: {
             indexCollection.logicalAddress,
             key,
             propertyRule.yaml,
-            indexCollection.yamlPathAddressing === true ||
-              propertyRule.configurationIndexAddressing === "yamlPath"
+            indexCollection.yamlPathAddressing === true || propertyRule.configurationIndexAddressing === "yamlPath"
           )
     if (sourceXMLKey !== undefined) {
       const indexStartedAt = performance.now()
@@ -174,6 +169,7 @@ export function importPropertiesFromXMLToYAML(params: {
         logicalAddress: propertyLogicalAddress,
         propertyKey: key,
         xmlValue,
+        presentInXML,
         rule: propertyRule,
         descriptor: getTypeRule(propertyRule.type, "configurationIndexValueFromXML"),
       })
