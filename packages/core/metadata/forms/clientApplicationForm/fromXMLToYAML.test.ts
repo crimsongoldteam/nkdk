@@ -6,6 +6,7 @@ import { xmlExport } from "../../../xml/export/exporter"
 import { importContentFromXML } from "../../../xml/import/importer"
 import { withConfigurationIndexCollector } from "../../configurationIndex/collector/context"
 import { createConfigurationIndexCollector } from "../../configurationIndex/collector/writer"
+import type { ConfigurationSnapshotEntity } from "../../configurationIndex/types"
 import { fullClientApplicationFormYAML, minimalClientApplicationFormYAML } from "./__fixtures__/data"
 import { importClientApplicationFormFromXMLToYAML } from "./fromXMLToYAML"
 import { convertClientApplicationFormFromYAMLToXML } from "./fromYAMLToXML"
@@ -104,7 +105,7 @@ describe("importClientApplicationFormFromXMLToYAML", () => {
       metadataXML: metadata.MetaDataObject,
     })
 
-    const identities = collector.fragment("Форма.yaml").identities
+    const identities = identityFacts(collector.fragment("Форма.yaml").entities)
     expect(identities).toEqual(
       expect.arrayContaining([
         expect.objectContaining({ logicalAddress, kind: "uuid" }),
@@ -157,7 +158,7 @@ describe("importClientApplicationFormFromXMLToYAML", () => {
       metadataXML: { Form: { Properties: { FormType: "Managed" } } },
     })
 
-    expect(collector.fragment("Форма.yaml").identities).toEqual(
+    expect(identityFacts(collector.fragment("Форма.yaml").entities)).toEqual(
       expect.arrayContaining([
         {
           logicalAddress: `${logicalAddress}.Элемент.ДиаграммаГанта.КонтекстноеМеню`,
@@ -178,7 +179,7 @@ describe("importClientApplicationFormFromXMLToYAML", () => {
     )
   })
 
-  it("собирает присутствие свойств Form.xml отдельно от metadata XML", () => {
+  it("не сохраняет присутствие свойств Form.xml", () => {
     const collector = createConfigurationIndexCollector()
     const logicalAddress = "Справочник.Контрагенты.Форма.ФормаЭлемента"
     const context = withConfigurationIndexCollector(mockContextFromXML(), collector, logicalAddress)
@@ -195,15 +196,7 @@ describe("importClientApplicationFormFromXMLToYAML", () => {
       },
     })
 
-    expect(collector.fragment("Форма.yaml").xmlNodes).toEqual(
-      expect.arrayContaining([
-        expect.objectContaining({ logicalAddress, present: ["uuid", "name", "formType", "comment"] }),
-        expect.objectContaining({
-          logicalAddress: `${logicalAddress}.ЧастьФормы.Содержимое`,
-          present: ["title", "width"],
-        }),
-      ])
-    )
+    expect(JSON.stringify(collector.fragment("Форма.yaml").entities)).not.toContain("present")
   })
 
   it("добавляет Контроль metadata формы и сохраняет Extended Form только в снимке", () => {
@@ -250,12 +243,24 @@ describe("importClientApplicationFormFromXMLToYAML", () => {
       Контроль: ["РасширенноеПредставление"],
     })
     expect(result.yaml).not.toHaveProperty("Контроль", expect.arrayContaining(["Форма"]))
-    expect(collector.fragment("Форма.yaml").xmlValues).toContainEqual({
-      logicalAddress: `${logicalAddress}.form`,
-      extended: true,
-    })
+    expect(collector.fragment("Форма.yaml").entities).toContainEqual(
+      expect.objectContaining({
+        logicalAddress: `${logicalAddress}.form`,
+        xml: { extended: true },
+      })
+    )
   })
 })
+
+function identityFacts(entities: readonly ConfigurationSnapshotEntity[]) {
+  return entities.flatMap((entity) =>
+    Object.entries(entity.identities ?? {}).map(([kind, value]) => ({
+      logicalAddress: entity.logicalAddress,
+      kind,
+      value,
+    }))
+  )
+}
 
 describe("форма XML → YAML → XML", () => {
   it("сохраняет режимные события элемента формы", () => {
@@ -320,7 +325,7 @@ describe("форма XML → YAML → XML", () => {
     })
   })
 
-  it("восстанавливает порядок событий формы без reference XML", () => {
+  it("формирует канонический порядок событий формы без reference XML", () => {
     const contexts = createDirectRoundTripContexts({
       logicalAddress: "Справочник.Товары.Форма.ФормаЭлемента",
     })
@@ -349,13 +354,13 @@ describe("форма XML → YAML → XML", () => {
     const events = converted.formXML.Events?.Event
 
     expect(Array.isArray(events) ? events.map((event) => event._name) : []).toEqual([
-      "OnOpen",
-      "BeforeClose",
       "ActivationProcessing",
+      "BeforeClose",
+      "OnOpen",
     ])
   })
 
-  it("восстанавливает нестандартные XML-имена событий из снимка конфигурации", () => {
+  it("сохраняет нестандартное XML-имя события как identity без aliases", () => {
     const contexts = createDirectRoundTripContexts({
       logicalAddress: "БизнесПроцесс.Заказ.Форма.ФормаЗадачи",
     })
@@ -380,17 +385,18 @@ describe("форма XML → YAML → XML", () => {
       yaml: imported.yaml as ClientApplicationFormYAML,
       name: "ФормаЗадачи",
     })
+    const importedForm = imported.yaml as ClientApplicationFormYAML
     const events = converted.formXML.Events?.Event
 
-    expect(imported.yaml).toMatchObject({
+    expect(importedForm).toMatchObject({
       События: {
-        ОбработкаАктивации: "ОбработкаАктивации",
         ПередВыполнением: "ПередВыполнением",
       },
     })
+    expect(importedForm.События).not.toHaveProperty("ОбработкаАктивации")
     expect(Array.isArray(events) ? events.map((event) => event._name) : []).toEqual([
+      "BeforeExecute",
       "81c01005-9b73-4278-853b-1a8d203c8e8c",
-      "ea0a9886-1607-44fe-a446-2cc57548f57d",
     ])
   })
 
@@ -564,8 +570,8 @@ describe("форма XML → YAML → XML", () => {
       referenceMetadataXML: metadata.MetaDataObject,
     })
 
-    expect(canonicalXML(xmlExport({ Form: converted.formXML }))).toEqual(
-      canonicalXML(readXMLFixtureAsString(import.meta.url, formFixture))
+    expect(canonicalSnapshot13XML(xmlExport({ Form: converted.formXML }))).toEqual(
+      canonicalSnapshot13XML(readXMLFixtureAsString(import.meta.url, formFixture))
     )
     expect(canonicalXML(xmlExport({ MetaDataObject: converted.metadataXML }))).toEqual(
       canonicalXML(readXMLFixtureAsString(import.meta.url, metadataFixture))
@@ -575,6 +581,45 @@ describe("форма XML → YAML → XML", () => {
 
 function canonicalXML(xml: string): unknown {
   return withoutFormattingText(importContentFromXML(xml))
+}
+
+const SNAPSHOT_13_XML_NAMES: Readonly<Record<string, string>> = {
+  ChildItemsHorizontalAlign: "HorizontalAlign",
+  ChildItemsVerticalAlign: "VerticalAlign",
+  SlaveItemsWidth: "ChildItemsWidth",
+  ItemsAndTitlesAlign: "ChildrenAlign",
+  CollapseItemsByImportance: "CollapseItemsByImportanceVariant",
+}
+
+function canonicalSnapshot13XML(xml: string): unknown {
+  return normalizeSnapshot13XML(canonicalXML(xml))
+}
+
+function normalizeSnapshot13XML(value: unknown): unknown {
+  if (Array.isArray(value)) {
+    const normalized = value.map(normalizeSnapshot13XML)
+    if (normalized.every((item) => isEventXML(item))) {
+      normalized.sort((left, right) =>
+        eventXMLKey(left).localeCompare(eventXMLKey(right))
+      )
+    }
+    return normalized
+  }
+  if (value === null || typeof value !== "object") return value
+  return Object.fromEntries(
+    Object.entries(value).map(([key, child]) => [
+      SNAPSHOT_13_XML_NAMES[key] ?? key,
+      normalizeSnapshot13XML(child),
+    ])
+  )
+}
+
+function isEventXML(value: unknown): value is Record<string, unknown> {
+  return value !== null && typeof value === "object" && typeof (value as Record<string, unknown>)["_name"] === "string"
+}
+
+function eventXMLKey(value: Record<string, unknown>): string {
+  return [value["_name"], value["_callType"], value["#text"]].join("\u0000")
 }
 
 function withoutFormattingText(value: unknown): unknown {

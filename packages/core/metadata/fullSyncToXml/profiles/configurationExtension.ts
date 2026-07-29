@@ -1,4 +1,6 @@
 import { createConfigurationIndexReader } from "../../configurationIndex"
+import { formatMetadataTargetToYAML } from "../../commonObjects/metadataTargets"
+import type { MetadataTargetConstraint } from "../../commonObjects/metadataTargets"
 import type { FullXmlSyncComponentProfile } from "../componentProfile"
 
 export const configurationExtensionFullXmlSyncProfile: FullXmlSyncComponentProfile = {
@@ -26,9 +28,12 @@ export const configurationExtensionFullXmlSyncProfile: FullXmlSyncComponentProfi
     for (const logicalAddress of targetAddresses) {
       if (logicalAddress === "Конфигурация") continue
       if (!baseAddresses.has(logicalAddress)) continue
-      const uuid = baseReader.entity(logicalAddress)?.identities?.uuid
+      const workerLogicalAddress = toWorkerLogicalAddress(logicalAddress)
+      const uuid =
+        baseReader.entity(logicalAddress)?.identities?.uuid ??
+        baseReader.entity(workerLogicalAddress)?.identities?.uuid
       if (uuid === undefined) continue
-      adoptedUuids[logicalAddress] = uuid
+      adoptedUuids[workerLogicalAddress] = uuid
     }
     if (
       targetAddresses.has("Конфигурация") &&
@@ -64,6 +69,23 @@ export const configurationExtensionFullXmlSyncProfile: FullXmlSyncComponentProfi
       },
     }
   },
+}
+
+const PROJECT_ADDRESS_CONSTRAINTS: readonly MetadataTargetConstraint[] = [
+  { kind: "object", allowNested: true },
+  { kind: "member", owner: "explicit", allowOwner: true },
+  { kind: "value", allowEmptyRef: true },
+]
+
+function toWorkerLogicalAddress(logicalAddress: string): string {
+  for (const constraint of PROJECT_ADDRESS_CONSTRAINTS) {
+    try {
+      return formatMetadataTargetToYAML({ canonical: logicalAddress, constraint })
+    } catch {
+      // Не все worker-адреса являются metadata target, например "Конфигурация".
+    }
+  }
+  return logicalAddress
 }
 
 function assertEqualProjectFiles(

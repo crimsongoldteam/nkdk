@@ -51,16 +51,23 @@ describe("full XML sync integration", () => {
     expect(targetModule).toEqual(sourceModule)
 
     const index = await readConfigurationIndex({ projectDir, address: { kind: "configuration" } })
-    expect(index.projectFiles.map((file) => file.projectPath)).toContain("Конфигурация.yaml")
-    expect(index.projectFiles.map((file) => file.projectPath)).toContain("Бот/БотВсеСвойства/Модуль.bsl")
-    expect(index.identities).toContainEqual({
+    expect(index.indexGeneration).toBe(2n)
+    expect(index.files.map((file) => file.projectPath)).toContain("Конфигурация.yaml")
+    expect(index.files.map((file) => file.projectPath)).toContain("Бот/БотВсеСвойства/Модуль.bsl")
+    expect(index.entities).toContainEqual(expect.objectContaining({
       logicalAddress: "Бот.БотВсеСвойства",
-      kind: "uuid",
-      value: "1f777cc7-ac1c-46e8-8e35-82485cee6798",
-    })
-    expect(index.identities.some(({ logicalAddress }) =>
+      identities: expect.objectContaining({
+        uuid: "1f777cc7-ac1c-46e8-8e35-82485cee6798",
+      }),
+    }))
+    expect(index.entities.some(({ logicalAddress }) =>
       logicalAddress.includes("ConfigDumpInfo")
     )).toBe(false)
+    expect(index.entities).toContainEqual({
+      logicalAddress: "ВнешнееСостояние",
+      sourceProjectPath: "Бот/БотВсеСвойства/Модуль.bsl",
+      xml: { explicitEmpty: true },
+    })
   })
 
   it("reads and updates the index at the project root when YAML belongs to a component", async () => {
@@ -83,6 +90,6 @@ describe("full XML sync integration", () => {
     expect(synced.failed).toEqual([])
     expect(synced.configurationIndexPath).toContain(join(projectDir, ".nkdk"))
     expect(fs.existsSync(join(yamlDir, ".nkdk"))).toBe(false)
-    expect((await readConfigurationIndex({ projectDir, address: { kind: "configuration" } })).projectFiles.length).toBeGreaterThan(0)
+    expect((await readConfigurationIndex({ projectDir, address: { kind: "configuration" } })).files.length).toBeGreaterThan(0)
   })
 })

@@ -1,5 +1,6 @@
 import { describe, expect, it } from "vitest"
 import { encodeConfigurationIndexFragments } from "../configurationIndex/fragment"
+import { entity, fragment } from "../configurationIndex/testData"
 import type { FullXmlSyncAssignment, FullXmlSyncDiagnostic, FullXmlSyncWorkerCommand } from "./types"
 import {
   createFullXmlSyncWorkerPool,
@@ -66,6 +67,8 @@ describe("full XML sync worker pool", () => {
 
   it("merges execution results from workers", async () => {
     const pools = createFakePools()
+    pools.returnFragments(0, [fragment("one.yaml")])
+    pools.returnFragments(1, [fragment("two.yaml", entity("Справочник.two", "two.yaml"))])
     pools.diagnoseWorker(1, {
       severity: "error",
       code: "syntax",
@@ -83,6 +86,10 @@ describe("full XML sync worker pool", () => {
 
     expect(result.diagnostics).toEqual([expect.objectContaining({ severity: "error", assignmentId: "two" })])
     expect(result.expectedOutputs).toHaveLength(2)
+    expect(result.fragmentData).toEqual({
+      sourceProjectPaths: ["one.yaml", "two.yaml"],
+      entities: [entity("Справочник.two", "two.yaml")],
+    })
     await pool.close()
   })
 
@@ -129,6 +136,7 @@ function createFakePools() {
   const destroyCounts: number[] = []
   const failures = new Map<number, Error>()
   const diagnostics = new Map<number, FullXmlSyncDiagnostic[]>()
+  const fragments = new Map<number, Parameters<typeof encodeConfigurationIndexFragments>[0]>()
 
   return {
     factory(): FullXmlSyncWorkerThreadPool {
@@ -150,7 +158,7 @@ function createFakePools() {
               assignmentId: id,
               targetXmlPath: `${id}.xml`,
             })),
-            fragmentBuffer: encodeConfigurationIndexFragments([]),
+            fragmentBuffer: encodeConfigurationIndexFragments(fragments.get(workerIndex) ?? []),
           }
         },
         async destroy() {
@@ -172,6 +180,12 @@ function createFakePools() {
     },
     diagnoseWorker(workerIndex: number, diagnostic: FullXmlSyncDiagnostic) {
       diagnostics.set(workerIndex, [diagnostic])
+    },
+    returnFragments(
+      workerIndex: number,
+      value: Parameters<typeof encodeConfigurationIndexFragments>[0]
+    ) {
+      fragments.set(workerIndex, value)
     },
     destroyCalls: () => [...destroyCounts],
   }

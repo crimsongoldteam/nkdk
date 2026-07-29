@@ -41,7 +41,7 @@ describe("configuration extension full XML sync profile", () => {
     const runtime = configurationExtensionFullXmlSyncProfile.confirm({ target, base })
 
     expect(runtime.workerProfile.adoptedUuids).toEqual({
-      [adopted]: "11111111-1111-4111-8111-111111111111",
+      "Справочник.Товары": "11111111-1111-4111-8111-111111111111",
     })
   })
 
@@ -64,13 +64,13 @@ describe("configuration extension full XML sync profile", () => {
     expect(runtime.target).toBe(target)
     expect(runtime.base).toBe(base)
     expect(runtime.workerProfile.adoptedUuids).toEqual({
-      "Catalog.Товары": "11111111-1111-4111-8111-111111111111",
-      "Catalog.Товары.Attribute.Артикул": "21111111-1111-4111-8111-111111111111",
+      "Справочник.Товары": "11111111-1111-4111-8111-111111111111",
+      "Справочник.Товары.Реквизит.Артикул": "21111111-1111-4111-8111-111111111111",
     })
     expect(runtime.workerProfile.xmlDefaultVariantByLogicalAddress).toEqual({
       Конфигурация: "indexed",
-      "Catalog.Товары": "adopted",
-      "Catalog.Товары.Attribute.Артикул": "adopted",
+      "Справочник.Товары": "adopted",
+      "Справочник.Товары.Реквизит.Артикул": "adopted",
     })
     expect(runtime.workerProfile).not.toHaveProperty("indexedPropertyOrderByLogicalAddress")
     expect(runtime.workerProfile.baseForms).toEqual({
@@ -99,10 +99,11 @@ describe("configuration extension full XML sync profile", () => {
 
   it("adopts a new current address absent from the old extension snapshot", () => {
     const logicalAddress = "Catalog.Товары.Attribute.Артикул"
+    const workerLogicalAddress = "Справочник.Товары.Реквизит.Артикул"
     const base = state({
       componentPath: "cf",
       logicalAddresses: [logicalAddress],
-      entities: [uuidEntity(logicalAddress, "33333333-3333-4333-8333-333333333333")],
+      entities: [uuidEntity(workerLogicalAddress, "33333333-3333-4333-8333-333333333333")],
     })
     const target = state({
       componentPath: "cfe/Дополнение",
@@ -112,8 +113,9 @@ describe("configuration extension full XML sync profile", () => {
     const runtime = configurationExtensionFullXmlSyncProfile.confirm({ target, base })
 
     expect(runtime.workerProfile.adoptedUuids).toEqual({
-      [logicalAddress]: "33333333-3333-4333-8333-333333333333",
+      [workerLogicalAddress]: "33333333-3333-4333-8333-333333333333",
     })
+    expect(runtime.workerProfile.adoptedUuids).not.toHaveProperty(logicalAddress)
   })
 
   it("does not treat the extension root as an adopted base object", () => {

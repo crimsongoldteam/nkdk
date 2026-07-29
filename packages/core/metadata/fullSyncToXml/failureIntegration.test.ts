@@ -7,8 +7,8 @@ import {
   writeConfigurationIndexAtomically,
 } from "../configurationIndex/fileIO"
 import { snapshotConfigurationIndex } from "../configurationIndex/sharedSnapshot"
-import { sampleIndex } from "../configurationIndex/testData"
-import type { ConfigurationIndexData } from "../configurationIndex/types"
+import { entity } from "../configurationIndex/testData"
+import type { ConfigurationSnapshot } from "../configurationIndex/types"
 import type { ConfigurationContext } from "../context/types"
 import { createSharedValidationSnapshot } from "../validation/sharedValidationSnapshot"
 import { compileRegisteredMetadataResourceTopology } from "../resourceTopology/registry"
@@ -74,6 +74,7 @@ describe("full XML sync failure integration", () => {
 
   it("does not transfer files or update the snapshot after a worker error", async () => {
     const state = await createIndexedProject()
+    const before = fs.readFileSync(state.indexPath)
     let transferred = false
     let written = false
     const baseDeps = failureDeps(state.previous, state.projectDir, state.xmlDir)
@@ -91,7 +92,7 @@ describe("full XML sync failure integration", () => {
             }],
             writtenFiles: [],
             expectedOutputs: [],
-            fragmentData: { identities: [], xmlNodes: [], xmlValues: [] },
+            fragmentData: { sourceProjectPaths: [], entities: [] },
           }
         },
         async close() {},
@@ -117,6 +118,38 @@ describe("full XML sync failure integration", () => {
     ])
     expect(transferred).toBe(false)
     expect(written).toBe(false)
+    expect(fs.readFileSync(state.indexPath)).toEqual(before)
+  })
+
+  it("сохраняет прежние байты снимка при ошибке проверки результата", async () => {
+    const state = await createIndexedProject()
+    const before = fs.readFileSync(state.indexPath)
+    const baseDeps = failureDeps(state.previous, state.projectDir, state.xmlDir)
+    const deps: FullXmlSyncCoordinatorDependencies = {
+      ...baseDeps,
+      async transferExternalFiles() {
+        return { copiedFiles: [], projectFiles: [] }
+      },
+      validateWrittenFiles() {
+        return [{
+          severity: "error",
+          code: "full_xml_sync_output_invalid",
+          message: "Некорректный результат",
+        }]
+      },
+    }
+
+    const result = await syncComponentToXml({
+      context,
+      projectDir: state.projectDir,
+      componentPath: "cf",
+      xmlDir: state.xmlDir,
+    }, deps)
+
+    expect(result.failed).toEqual([
+      expect.objectContaining({ code: "full_xml_sync_output_invalid" }),
+    ])
+    expect(fs.readFileSync(state.indexPath)).toEqual(before)
   })
 
   it("does not start workers when cfe confirmation cannot find an adopted UUID", async () => {
@@ -159,9 +192,18 @@ async function createIndexedProject() {
   const projectDir = createTempRoot()
   const xmlDir = join(projectDir, "xml")
   fs.mkdirSync(xmlDir)
-  const previous = {
-    ...sampleIndex(),
-    projectFiles: [{ projectPath: "Конфигурация.yaml", contentHash: 10n }],
+  const previous: ConfigurationSnapshot = {
+    specificationVersion: "1.3",
+    indexGeneration: 1n,
+    componentPath: "cf",
+    files: [
+      { projectPath: "Конфигурация.yaml", contentHash: 10n },
+      { projectPath: "Модуль.bsl", contentHash: 20n },
+    ],
+    entities: [
+      entity("СтароеСостояние", "Конфигурация.yaml"),
+      entity("ВнешнееСостояние", "Модуль.bsl"),
+    ],
   }
   await writeConfigurationIndexAtomically({
     projectDir,
@@ -173,7 +215,7 @@ async function createIndexedProject() {
     address: { kind: "configurationExtension", name: "Дополнение" },
     data: {
       ...previous,
-      binding: { ...previous.binding, componentPath: "cfe/Дополнение" },
+      componentPath: "cfe/Дополнение",
     },
   })
   return {
@@ -185,7 +227,7 @@ async function createIndexedProject() {
 }
 
 function failureDeps(
-  previous: ConfigurationIndexData,
+  previous: ConfigurationSnapshot,
   projectDir: string,
   xmlDir: string
 ): FullXmlSyncCoordinatorDependencies {
@@ -214,11 +256,8 @@ function failureDeps(
     async readSnapshot({ address }) {
       return snapshotConfigurationIndex(encodeConfigurationIndex({
         ...previous,
-        binding: {
-          ...previous.binding,
-          componentPath:
-            address.kind === "configuration" ? "cf" : `cfe/${address.name}`,
-        },
+        componentPath:
+          address.kind === "configuration" ? "cf" : `cfe/${address.name}`,
       }))
     },
     async readHashes({ structure }) {
@@ -296,9 +335,8 @@ function failureDeps(
               targetXmlPath: "partial.xml",
             }],
             fragmentData: {
-              identities: [],
-              xmlNodes: [],
-              xmlValues: [],
+              sourceProjectPaths: ["Конфигурация.yaml"],
+              entities: [],
             },
           }
         },

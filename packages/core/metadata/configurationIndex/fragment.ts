@@ -91,8 +91,10 @@ export function decodeConfigurationIndexFragments(buffer: ArrayBuffer): Configur
 export function mergeConfigurationIndexFragments(
   workerBuffers: readonly ArrayBuffer[]
 ): MergedConfigurationSnapshotFragments {
+  const sourceProjectPaths = new Set<string>()
   const entities = new Map<string, ConfigurationSnapshotEntity>()
   for (const fragment of workerBuffers.flatMap(decodeConfigurationIndexFragments)) {
+    sourceProjectPaths.add(fragment.targetProjectPath)
     for (const entity of fragment.entities) {
       const previous = entities.get(entity.logicalAddress)
       entities.set(entity.logicalAddress, previous === undefined ? copyEntity(entity) : mergeEntity(previous, entity))
@@ -101,7 +103,7 @@ export function mergeConfigurationIndexFragments(
 
   const mergedEntities = [...entities.values()].sort((left, right) => compareUtf8(left.logicalAddress, right.logicalAddress))
   return {
-    sourceProjectPaths: [...new Set(mergedEntities.map((entity) => entity.sourceProjectPath))].sort(compareUtf8),
+    sourceProjectPaths: [...sourceProjectPaths].sort(compareUtf8),
     entities: mergedEntities,
   }
 }

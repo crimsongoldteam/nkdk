@@ -1,10 +1,13 @@
 import fs from "node:fs"
 import { resolve } from "node:path"
-import { NKDK_CORE_VERSION } from "../../version"
 import { parseComponentPath, type ComponentAddress } from "../components/address"
 import { configurationIndexPath, writeConfigurationIndexAtomically } from "../configurationIndex/fileIO"
 import { decodeConfigurationIndex, readConfigurationIndexSnapshot } from "../configurationIndex"
-import type { ConfigurationIndexData } from "../configurationIndex/types"
+import type {
+  ConfigurationSnapshot,
+  ConfigurationSnapshotEntity,
+  MergedConfigurationSnapshotFragments,
+} from "../configurationIndex/types"
 import type { ConfigurationContext } from "../context/types"
 import {
   confirmComponentState,
@@ -13,7 +16,6 @@ import {
   readComponentProjectStructure,
   type ConfirmedComponentState,
 } from "../project/componentState"
-import { serializeSharedValidationSnapshot } from "../validation/persistedSharedValidationSnapshot"
 import { createValidationProfiler } from "../validation/profile"
 import { resolveFullXmlSyncComponentProfile } from "./componentProfile"
 import { buildXmlSyncPlan, type XmlSyncSelection } from "./selection"
@@ -85,7 +87,7 @@ export interface FullXmlSyncCoordinatorDependencies {
   readonly writeIndex: (params: {
     projectDir: string
     address: ComponentAddress
-    data: ConfigurationIndexData
+    data: ConfigurationSnapshot
   }) => Promise<void>
 }
 
@@ -193,7 +195,7 @@ export async function syncComponentToXml(
     if (hasErrors(outputDiagnostics)) return failedResult(outputDiagnostics, warnings)
 
     const previous = decodeSnapshot(target.snapshot)
-    const indexData = buildFullXmlSyncConfigurationIndex({
+    const indexData = buildFullXmlSyncConfigurationSnapshot({
       previous,
       target,
       fragmentData: execution.fragmentData,
@@ -322,36 +324,43 @@ async function preflightFullXmlSync(params: {
   return { targetExists: false }
 }
 
-function buildFullXmlSyncConfigurationIndex(params: {
-  readonly previous: ConfigurationIndexData
+function buildFullXmlSyncConfigurationSnapshot(params: {
+  readonly previous: ConfigurationSnapshot
   readonly target: ConfirmedComponentState
-  readonly fragmentData: Pick<ConfigurationIndexData, "identities" | "xmlNodes" | "xmlValues">
-}): ConfigurationIndexData {
+  readonly fragmentData: MergedConfigurationSnapshotFragments
+}): ConfigurationSnapshot {
   return {
-    binding: {
-      ...params.previous.binding,
-      producerVersion: NKDK_CORE_VERSION,
-      indexGeneration: params.previous.binding.indexGeneration + 1n,
-    },
-    projectFiles: [...params.target.hashes.projectFiles],
-    identities: [...params.fragmentData.identities].sort((left, right) =>
-      compareIndexKeys(`${left.logicalAddress}\0${left.kind}`, `${right.logicalAddress}\0${right.kind}`)
-    ),
-    xmlNodes: [...params.fragmentData.xmlNodes].sort((left, right) =>
-      compareIndexKeys(left.logicalAddress, right.logicalAddress)
-    ),
-    xmlValues: [...params.fragmentData.xmlValues].sort((left, right) =>
-      compareIndexKeys(left.logicalAddress, right.logicalAddress)
-    ),
-    localIndexes: {
-      metadata: serializeSharedValidationSnapshot(params.target.indexes.metadata),
-      dependencies: [...params.target.indexes.dependencies],
-      logicalAddresses: [...params.target.indexes.logicalAddresses],
-    },
+    specificationVersion: "1.3",
+    indexGeneration: params.previous.indexGeneration + 1n,
+    componentPath: params.previous.componentPath,
+    files: [...params.target.hashes.projectFiles],
+    entities: replaceSnapshotEntities({
+      previous: params.previous.entities,
+      replacements: params.fragmentData,
+    }),
   }
 }
 
-function decodeSnapshot(snapshot: ConfirmedComponentState["snapshot"]): ConfigurationIndexData {
+export function replaceSnapshotEntities(params: {
+  readonly previous: readonly ConfigurationSnapshotEntity[]
+  readonly replacements: MergedConfigurationSnapshotFragments
+}): ConfigurationSnapshotEntity[] {
+  const replacedPaths = new Set(params.replacements.sourceProjectPaths)
+  const entities = [
+    ...params.previous.filter(({ sourceProjectPath }) => !replacedPaths.has(sourceProjectPath)),
+    ...params.replacements.entities,
+  ]
+  const logicalAddresses = new Set<string>()
+  for (const entity of entities) {
+    if (logicalAddresses.has(entity.logicalAddress)) {
+      throw new Error(`Повторный logicalAddress в снимке конфигурации: ${entity.logicalAddress}`)
+    }
+    logicalAddresses.add(entity.logicalAddress)
+  }
+  return entities.sort((left, right) => compareUtf8(left.logicalAddress, right.logicalAddress))
+}
+
+function decodeSnapshot(snapshot: ConfirmedComponentState["snapshot"]): ConfigurationSnapshot {
   return decodeConfigurationIndex(new Uint8Array(snapshot.bytes, 0, snapshot.byteLength))
 }
 
@@ -414,7 +423,7 @@ function operationDiagnostic(code: string, message: string): FullXmlSyncDiagnost
   return { severity: "error", code, message }
 }
 
-function compareIndexKeys(left: string, right: string): number {
+function compareUtf8(left: string, right: string): number {
   return Buffer.compare(Buffer.from(left), Buffer.from(right))
 }
 

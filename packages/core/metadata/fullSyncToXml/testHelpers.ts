@@ -7,8 +7,6 @@ import { createFullXmlSyncWorkerPool } from "./workerPool"
 import { readConfigurationIndexSnapshot } from "../configurationIndex/sharedSnapshot"
 import { writeConfigurationIndexAtomically } from "../configurationIndex/fileIO"
 import type { FullXmlSyncCoordinatorDependencies } from "./syncConfiguration"
-import { NKDK_CORE_VERSION } from "../../version"
-import { createEmptyPersistedSharedValidationSnapshot } from "../validation/persistedSharedValidationSnapshot"
 import {
   confirmComponentState,
   readComponentHashState,
@@ -53,28 +51,30 @@ export async function writeSmallYamlProjectWithIndex(projectDir: string): Promis
     projectDir,
     address: { kind: "configuration" },
     data: {
-      binding: {
-        indexGeneration: 1n,
-        producerVersion: NKDK_CORE_VERSION,
-        componentPath: "cf",
-        baseFingerprint: new Uint8Array(),
-        configurationVersion: new Uint8Array(),
-      },
-      projectFiles: [],
-      identities: [
+      specificationVersion: "1.3",
+      indexGeneration: 1n,
+      componentPath: "cf",
+      files: [{
+        projectPath: "Бот/БотВсеСвойства/Свойства.yaml",
+        contentHash: 0n,
+      }, {
+        projectPath: "Бот/БотВсеСвойства/Модуль.bsl",
+        contentHash: 0n,
+      }],
+      entities: [
         {
           logicalAddress: "Бот.БотВсеСвойства",
-          kind: "uuid",
-          value: "1f777cc7-ac1c-46e8-8e35-82485cee6798",
+          sourceProjectPath: "Бот/БотВсеСвойства/Свойства.yaml",
+          identities: {
+            uuid: "1f777cc7-ac1c-46e8-8e35-82485cee6798",
+          },
+        },
+        {
+          logicalAddress: "ВнешнееСостояние",
+          sourceProjectPath: "Бот/БотВсеСвойства/Модуль.bsl",
+          xml: { explicitEmpty: true },
         },
       ],
-      xmlNodes: [],
-      xmlValues: [],
-      localIndexes: {
-        metadata: createEmptyPersistedSharedValidationSnapshot(),
-        dependencies: [],
-        logicalAddresses: [],
-      },
     },
   })
 }

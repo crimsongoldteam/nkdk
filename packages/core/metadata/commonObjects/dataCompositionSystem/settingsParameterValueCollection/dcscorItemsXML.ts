@@ -68,7 +68,7 @@ export const importSettingsParameterValueDcscorItemsFromXML = (params: {
                 (value as Record<string, unknown>)["_xsi:nil"] === "true")
           )))
     ) {
-      itemCollection.collector.setXsiNil(`${itemCollection.logicalAddress}.value`)
+      itemCollection.collector.setXmlFlag(`${itemCollection.logicalAddress}.value`, "xsiNil")
     }
 
     const value = importPropertyFromXML({
@@ -115,7 +115,7 @@ export const exportSettingsParameterValueDcscorItemsToXML = (params: {
       yamlKey: parameterName,
     })
     const indexedNil =
-      itemContext.exportToXML.configurationIndex?.xmlValue(
+      itemContext.exportToXML.configurationIndex?.xml(
         `${itemContext.exportToXML.configurationIndex.logicalAddress}.value`
       )?.xsiNil === true
     const itemXml = callAtomicToXML({

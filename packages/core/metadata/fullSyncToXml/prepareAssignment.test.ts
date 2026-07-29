@@ -6,7 +6,7 @@ import { afterEach, describe, expect, it, vi } from "vitest"
 import { mockContextToXML } from "../../tests/mockContext"
 import { encodeConfigurationIndex } from "../configurationIndex/encode"
 import { createConfigurationIndexReader, snapshotConfigurationIndex } from "../configurationIndex/sharedSnapshot"
-import { sampleIndex } from "../configurationIndex/testData"
+import { sampleSnapshot } from "../configurationIndex/testData"
 import { prepareYamlFiles } from "../project/prepareYamlFiles"
 import { prepareFullXmlSyncAssignment } from "./prepareAssignment"
 import type { FullXmlSyncAssignment } from "./types"
@@ -68,12 +68,12 @@ describe("prepareFullXmlSyncAssignment", () => {
     const baseConfigurationIndex = createConfigurationIndexReader(
       snapshotConfigurationIndex(
         encodeConfigurationIndex({
-          ...sampleIndex(),
-          identities: [
+          ...sampleSnapshot(),
+          entities: [
             {
               logicalAddress: "Объект.One",
-              kind: "xmlId",
-              value: "base-marker",
+              sourceProjectPath: "Configuration.yaml",
+              identities: { xmlId: "base-marker" },
             },
           ],
         })
@@ -85,7 +85,7 @@ describe("prepareFullXmlSyncAssignment", () => {
         targetXmlPath: output.targetXmlPath,
         xml: {
           Root: output.role,
-          BaseMarker: baseIndex?.identity("Объект.One", "xmlId"),
+          BaseMarker: baseIndex?.entity("Объект.One")?.identities?.xmlId,
         },
         deferred: [],
         rootRule: rule,
@@ -116,7 +116,7 @@ describe("prepareFullXmlSyncAssignment", () => {
         syntaxDiagnostics: [],
       },
       context: mockContextToXML(),
-      index: createConfigurationIndexReader(snapshotConfigurationIndex(encodeConfigurationIndex(sampleIndex()))),
+      index: createConfigurationIndexReader(snapshotConfigurationIndex(encodeConfigurationIndex(sampleSnapshot()))),
       baseConfigurationIndex,
       assignments: [],
       topology,
@@ -179,7 +179,7 @@ describe("prepareFullXmlSyncAssignment", () => {
           componentKind: "configurationExtension",
         },
       },
-      index: createConfigurationIndexReader(snapshotConfigurationIndex(encodeConfigurationIndex(sampleIndex()))),
+      index: createConfigurationIndexReader(snapshotConfigurationIndex(encodeConfigurationIndex(sampleSnapshot()))),
       topology,
     })
 
@@ -236,7 +236,7 @@ describe("prepareFullXmlSyncAssignment", () => {
       assignment,
       preparedYamlFile: yaml,
       context: mockContextToXML(),
-      index: createConfigurationIndexReader(snapshotConfigurationIndex(encodeConfigurationIndex(sampleIndex()))),
+      index: createConfigurationIndexReader(snapshotConfigurationIndex(encodeConfigurationIndex(sampleSnapshot()))),
       assignments: [],
     })
 
@@ -305,7 +305,7 @@ describe("prepareFullXmlSyncAssignment", () => {
       assignment,
       preparedYamlFile: yaml,
       context: mockContextToXML(),
-      index: createConfigurationIndexReader(snapshotConfigurationIndex(encodeConfigurationIndex(sampleIndex()))),
+      index: createConfigurationIndexReader(snapshotConfigurationIndex(encodeConfigurationIndex(sampleSnapshot()))),
       assignments: [],
     })
 
@@ -371,7 +371,7 @@ describe("prepareFullXmlSyncAssignment", () => {
       assignment,
       preparedYamlFile: yaml,
       context: mockContextToXML(),
-      index: createConfigurationIndexReader(snapshotConfigurationIndex(encodeConfigurationIndex(sampleIndex()))),
+      index: createConfigurationIndexReader(snapshotConfigurationIndex(encodeConfigurationIndex(sampleSnapshot()))),
       assignments: [],
     })
 
@@ -439,7 +439,7 @@ describe("prepareFullXmlSyncAssignment", () => {
       assignment,
       preparedYamlFile: yaml,
       context: mockContextToXML(),
-      index: createConfigurationIndexReader(snapshotConfigurationIndex(encodeConfigurationIndex(sampleIndex()))),
+      index: createConfigurationIndexReader(snapshotConfigurationIndex(encodeConfigurationIndex(sampleSnapshot()))),
       assignments: [],
     })
 
@@ -509,7 +509,7 @@ describe("prepareFullXmlSyncAssignment", () => {
       assignment,
       preparedYamlFile: yaml,
       context: mockContextToXML(),
-      index: createConfigurationIndexReader(snapshotConfigurationIndex(encodeConfigurationIndex(sampleIndex()))),
+      index: createConfigurationIndexReader(snapshotConfigurationIndex(encodeConfigurationIndex(sampleSnapshot()))),
       assignments: [
         {
           id: "dimension-table",

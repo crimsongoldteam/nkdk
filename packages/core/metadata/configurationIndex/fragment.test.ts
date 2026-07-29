@@ -57,7 +57,10 @@ describe("configuration snapshot worker fragments", () => {
   it("обрабатывает пустой фрагмент", () => {
     const encoded = encodeConfigurationIndexFragments([fragment("Пустой.yaml")])
 
-    expect(mergeConfigurationIndexFragments([encoded])).toEqual({ sourceProjectPaths: [], entities: [] })
+    expect(mergeConfigurationIndexFragments([encoded])).toEqual({
+      sourceProjectPaths: ["Пустой.yaml"],
+      entities: [],
+    })
   })
 
   it("отклоняет пустые entity, неизвестные поля и несовпадающий путь", () => {
