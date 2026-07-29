@@ -1,7 +1,9 @@
 import { describe, expect, it } from "vitest"
 import { testSyncAppliedObjectToXML } from "../../../tests/appliedObject"
-import { canonicalSnapshot13XML } from "../../../tests/canonicalXML"
+import { canonicalXML } from "../../../tests/canonicalXML"
+import { canonicalFormSyncXML } from "../../../tests/formSyncXML"
 import { appliedObjectSyncCases } from "./yamlFixtures"
+import { canonicalAccountingRegisterXML } from "./accountingRegisterXML"
 
 const normalizeText = (value: string) =>
   value
@@ -11,7 +13,7 @@ const normalizeText = (value: string) =>
 
 describe("applied object YAML -> XML sync", () => {
   it.each(appliedObjectSyncCases)("$label", async ({ scenario, sync }) => {
-    const { comparisons, binaryComparisons } = await testSyncAppliedObjectToXML({
+    const { inputDir, comparisons, binaryComparisons } = await testSyncAppliedObjectToXML({
       rule: scenario.rule,
       name: sync.name,
       importMetaUrl: scenario.importMetaUrl,
@@ -20,8 +22,13 @@ describe("applied object YAML -> XML sync", () => {
     })
 
     for (const { path, result, expected } of comparisons) {
-      if (path.endsWith(".xml")) {
-        expect(canonicalSnapshot13XML(result), path).toEqual(canonicalSnapshot13XML(expected))
+      if (path.endsWith("/Ext/Form.xml")) {
+        const form = canonicalFormSyncXML({ path, result, expected, inputDir })
+        expect(form.result, path).toEqual(form.expected)
+      } else if (path.endsWith(".xml")) {
+        const canonical =
+          scenario.group === "metadataAccountingRegister" ? canonicalAccountingRegisterXML : canonicalXML
+        expect(canonical(result), path).toEqual(canonical(expected))
       } else {
         expect(normalizeText(result), path).toBe(normalizeText(expected))
       }

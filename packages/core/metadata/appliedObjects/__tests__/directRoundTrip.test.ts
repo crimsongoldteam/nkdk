@@ -1,7 +1,8 @@
 import { describe, expect, it } from "vitest"
 import { testAppliedObjectFromXMLToYAML, testAppliedObjectFromYAMLToXML } from "../../../tests/directConversion"
-import { canonicalSnapshot13XML } from "../../../tests/canonicalXML"
+import { canonicalXML } from "../../../tests/canonicalXML"
 import { appliedObjectModelCases } from "./yamlFixtures"
+import { canonicalAccountingRegisterXML } from "./accountingRegisterXML"
 
 describe("applied object direct XML → YAML → XML", () => {
   it.each(appliedObjectModelCases)("$label direct XML → YAML → XML", ({ scenario, fixture }) => {
@@ -20,6 +21,10 @@ describe("applied object direct XML → YAML → XML", () => {
     })
 
     expect(imported.yaml).toBeDefined()
-    expect(canonicalSnapshot13XML(exported.result)).toEqual(canonicalSnapshot13XML(exported.expected))
+    const canonical =
+      scenario.group === "metadataAccountingRegister" && fixture.fixture === "full.xml"
+        ? canonicalAccountingRegisterXML
+        : canonicalXML
+    expect(canonical(exported.result)).toEqual(canonical(exported.expected))
   })
 })

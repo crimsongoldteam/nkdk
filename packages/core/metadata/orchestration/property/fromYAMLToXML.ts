@@ -289,7 +289,19 @@ export function convertPropertiesFromYAMLToXML(params: ConvertPropertiesFromYAML
     ) {
       matchingOutputs.forEach((output, index) => {
         const reference = references[index]!
-        if (!reference.exists) return
+        if (!reference.exists) {
+          if (output.request.referenceXML !== undefined) return
+          const value = callAtomicToXML({
+            handler: exportHandler,
+            context: propertyContext,
+            rule: planned.propertyRule,
+            value: undefined,
+            source,
+            propertyKey,
+          })
+          writeXMLValue({ context: propertyContext, output, planned, value, reference })
+          return
+        }
         if (reference.value === undefined) {
           writeXMLValue({
             context: propertyContext,
@@ -767,7 +779,7 @@ function shouldConvertYAMLProperty(params: {
   if (!isYAMLPropertyExportEnabled({ source, planned, context })) return false
   const rule = planned.propertyRule
   if (rule.preserveFromReferenceXML !== true || source.has(planned.propertyKey)) return true
-  if (rule.exportWithoutReferenceXML === true) return true
+  if (rule.exportWithoutReferenceXML === true || rule.exportNilValue === true) return true
   return outputs.some(
     ({ request }) => readReferenceProperty({ context, referenceXML: request.referenceXML, planned }).exists
   )

@@ -4,7 +4,7 @@ import { tsImport } from "tsx/esm/api"
 
 const HEADER_CHECKSUM_BYTES = 16
 const SECTION_CHECKSUM_BYTES = 16
-const STRING_OWNER_NAMES = ["files", "entityBase", "identities", "omittedChildren", "xml"]
+const STRING_OWNER_NAMES = ["container", "files", "entityBase", "identities", "omittedChildren", "xml"]
 
 try {
   const snapshotPath = commandSnapshotPath(process.argv.slice(2))

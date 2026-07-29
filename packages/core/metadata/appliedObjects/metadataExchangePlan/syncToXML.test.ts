@@ -6,13 +6,14 @@ import { syncAppliedObjectToXML } from "../../orchestration/appliedObject/syncTo
 import { testSyncAppliedObjectToXML } from "../../../tests/appliedObject"
 import { mockContextToXML } from "../../../tests/mockContext"
 import { MetadataExchangePlanRules } from "./rules"
-import { canonicalSnapshot13XML } from "../../../tests/canonicalXML"
+import { canonicalXML } from "../../../tests/canonicalXML"
+import { canonicalFormSyncXML } from "../../../tests/formSyncXML"
 
 const normalizeLineEndings = (value: string) => value.replace(/\r\n/g, "\n")
 
 describe("syncAppliedObjectToXML — MetadataExchangePlan", () => {
   it("читает ExchangePlan из YAML и записывает XML в outputDir", async () => {
-    const { comparisons } = await testSyncAppliedObjectToXML({
+    const { inputDir, comparisons } = await testSyncAppliedObjectToXML({
       rule: MetadataExchangePlanRules,
       name: "ПланОбменаВсеСвойства",
       importMetaUrl: import.meta.url,
@@ -40,8 +41,11 @@ describe("syncAppliedObjectToXML — MetadataExchangePlan", () => {
       ],
     })
     for (const { path, result, expected } of comparisons) {
-      if (path.endsWith(".xml")) {
-        expect(canonicalSnapshot13XML(result), path).toEqual(canonicalSnapshot13XML(expected))
+      if (path.endsWith("/Ext/Form.xml")) {
+        const form = canonicalFormSyncXML({ path, result, expected, inputDir })
+        expect(form.result, path).toEqual(form.expected)
+      } else if (path.endsWith(".xml")) {
+        expect(canonicalXML(result), path).toEqual(canonicalXML(expected))
       } else {
         expect(normalizeLineEndings(result), path).toBe(normalizeLineEndings(expected))
       }

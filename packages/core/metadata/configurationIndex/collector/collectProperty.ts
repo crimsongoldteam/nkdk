@@ -122,7 +122,7 @@ function getUnrepresentedXsiType(value: unknown): string | undefined {
 }
 
 function ruleHasCanonicalXsiNil(rule: PropertyRule): boolean {
-  return hasXsiNil(rule.defaultValueXMLRaw)
+  return rule.exportNilValue === true || hasXsiNil(rule.defaultValueXMLRaw)
 }
 
 function isExplicitEmptyXMLValue(value: unknown): boolean {

@@ -42,7 +42,7 @@ function collectPreservedEmptyNames(xml: unknown): Set<string> {
     const record = asRecord(item)
     if (record === undefined || typeof record._name !== "string") continue
     if (!/^ExtDimension(Type)?\d+$/.test(record._name)) continue
-    if (Object.keys(record).every((key) => key.startsWith("_"))) names.add(record._name)
+    names.add(record._name)
   }
   return names
 }

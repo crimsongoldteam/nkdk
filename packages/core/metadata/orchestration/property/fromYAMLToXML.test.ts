@@ -827,6 +827,25 @@ describe("convertPropertiesFromYAMLToXML", () => {
     expect(result.outputs.get("owner")).toEqual({ CanonicalValue: referenceValue })
   })
 
+  it("восстанавливает канонический xsi:nil по exportNilValue без reference XML", () => {
+    const result = convertPropertiesFromYAMLToXML({
+      context: context(),
+      yaml: {},
+      rule: testRule({
+        value: {
+          type: "MetadataValue",
+          yaml: "Значение",
+          xml: "Value",
+          exportNilValue: true,
+          preserveFromReferenceXML: true,
+        },
+      }),
+      outputs: [{ key: "owner" }],
+    })
+
+    expect(result.outputs.get("owner")).toEqual({ Value: { "_xsi:nil": true } })
+  })
+
   it("сохраняет reference XML для свойства без YAML-представления", () => {
     const result = convertPropertiesFromYAMLToXML({
       context: context(),

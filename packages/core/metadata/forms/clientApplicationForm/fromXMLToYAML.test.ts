@@ -593,24 +593,12 @@ function canonicalSnapshot13XML(xml: string): unknown {
 
 function normalizeSnapshot13XML(value: unknown): unknown {
   if (Array.isArray(value)) {
-    const normalized = value.map(normalizeSnapshot13XML)
-    if (normalized.every((item) => isEventXML(item))) {
-      normalized.sort((left, right) => eventXMLKey(left).localeCompare(eventXMLKey(right)))
-    }
-    return normalized
+    return value.map(normalizeSnapshot13XML)
   }
   if (value === null || typeof value !== "object") return value
   return Object.fromEntries(
     Object.entries(value).map(([key, child]) => [SNAPSHOT_13_XML_NAMES[key] ?? key, normalizeSnapshot13XML(child)])
   )
-}
-
-function isEventXML(value: unknown): value is Record<string, unknown> {
-  return value !== null && typeof value === "object" && typeof (value as Record<string, unknown>)["_name"] === "string"
-}
-
-function eventXMLKey(value: Record<string, unknown>): string {
-  return [value["_name"], value["_callType"], value["#text"]].join("\u0000")
 }
 
 function withoutFormattingText(value: unknown): unknown {

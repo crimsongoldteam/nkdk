@@ -41,6 +41,7 @@ describe("measure-configuration-snapshot", () => {
     expect(measurement.strings.sharedBytes).toBeGreaterThan(0)
     expect(
       measurement.strings.sharedBytes +
+        measurement.strings.byOwner.container +
         measurement.strings.byOwner.files +
         measurement.strings.byOwner.entityBase +
         measurement.strings.byOwner.identities +
@@ -60,6 +61,31 @@ describe("measure-configuration-snapshot", () => {
       measurement.physical.paddingBytes
     expect(physicalSum).toBe(encoded.length)
     expect(measurement.physical.totalBytes).toBe(encoded.length)
+  })
+
+  it("относит единственный componentPath к container, а shared оставляет только общим владельцам", () => {
+    const snapshot = sampleSnapshot()
+    const encoded = encodeConfigurationIndex({
+      ...snapshot,
+      componentPath: "container-only",
+      files: [{ projectPath: "shared", contentHash: 1n }],
+      entities: [
+        {
+          logicalAddress: "entity-only",
+          sourceProjectPath: "shared",
+          identities: { xmlName: "identity-only" },
+        },
+      ],
+    })
+    const snapshotPath = temporarySnapshot(encoded)
+
+    const result = spawnSync(process.execPath, [scriptPath, "--", snapshotPath], { encoding: "utf8" })
+
+    expect(result.status).toBe(0)
+    expect(result.stderr).toBe("")
+    const measurement = JSON.parse(result.stdout) as Measurement
+    expect(measurement.strings.byOwner.container).toBe(Buffer.byteLength("container-only"))
+    expect(measurement.strings.sharedBytes).toBe(Buffer.byteLength("shared"))
   })
 
   it.each([
@@ -97,6 +123,7 @@ interface Measurement {
     totalBytes: number
     sharedBytes: number
     byOwner: {
+      container: number
       files: number
       entityBase: number
       identities: number

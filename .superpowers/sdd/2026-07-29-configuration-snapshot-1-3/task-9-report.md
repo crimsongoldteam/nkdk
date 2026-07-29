@@ -1,40 +1,60 @@
 # Task 9 — отчёт проверки снимка конфигурации 1.3
 
+## Исправления по review
+
+- Общая нормализация `canonicalSnapshot13XML` удалена. `Event` и обычные
+  `xr:StandardAttribute` больше не сортируются в `canonicalXML.ts`.
+- Порядок событий результата sync явно проверяется по исходному YAML до
+  локального семантического сравнения со старым reference XML. Отрицательный
+  тест подтверждает, что перестановка событий не маскируется.
+- Единственная нормализация `xr:StandardAttribute` ограничена
+  `ExtDimension(Type)N` в тестах accounting register. Порядок остальных
+  стандартных реквизитов сравнивается точно; отдельный тест ожидает
+  rules-order `RecordType`, `Active`, `LineNumber`.
+- Физически присутствующий `ExtDimension(Type)N` сохраняет пустой YAML-маркер,
+  даже если его атрибуты и дочерние поля схлопнулись в значения по умолчанию.
+- `exportNilValue: true` считается каноническим `xsi:nil`: снимок не сохраняет
+  лишнюю entity, а exporter восстанавливает nil без reference XML. При
+  существующем reference физическое отсутствие узла сохраняется.
+- Единственный `componentPath` учитывается владельцем `container`; `sharedBytes`
+  содержит только строки с несколькими логическими владельцами.
+- XML-фикстуры не изменялись.
+
 ## RED / GREEN
 
-- RED 1: `measure.test.ts` завершился с `1 failed, 3 passed`, потому что
-  `measure-configuration-snapshot.mjs` ещё отсутствовал.
-- GREEN 1: focused-прогон измерителя завершился с `4 passed`.
-- RED 2: документированная команда `pnpm ... -- <path>` передала `--`
-  Node-скрипту; valid snapshot завершился с кодом 1.
-- GREEN 2: скрипт принимает необязательный CLI-разделитель `--`, после чего
-  focused-прогон снова завершился с `4 passed`.
-- Deferred minors Task 7: из заглушки координатора удалено устаревшее
-  верхнеуровневое `localDependencies`; добавлен проход пустого фрагмента через
-  настоящий Piscina worker. Совместный focused-прогон измерителя и import-тестов:
-  `37 passed`.
-- Полный прогон выявил устаревшие ожидания порядка XML-коллекций и несколько
-  потерянных XML-состояний. Общие эвристики по `defaultValueXML` /
-  `implicitValueYAML` не добавлялись: состояния сохраняются только явными
-  rules или регистрациями конкретных типов.
-- Финальный GREEN: `pnpm test` — platform `162 passed`, core `5016 passed`,
-  mcp `138 passed`.
+- После удаления общей сортировки RED: один direct round-trip
+  `metadataAccountingRegister/full.xml` на порядке `ExtDimension(Type)N` и
+  шесть sync-сравнений на порядке `Event`.
+- GREEN порядка: 10 файлов / 165 тестов; отрицательный тест помощника
+  сравнения формы — 1/1.
+- RED сохранения данных: четыре точных сбоя — потерянный
+  `ExtDimensionType1`, лишняя entity для `exportNilValue`, отсутствие
+  `container` и неверная сумма строк.
+- GREEN сохранения данных: 3 файла / 61 тест.
+- Полный прогон выявил отсутствующий вызов exporter для канонического nil без
+  reference XML. После отдельного RED добавлена положительная проверка
+  exporter; focused-прогон property/DynamicList/collector — 100/100.
+- Граница DCS-параметра с reference другого имени уточнена: чужой
+  `d6p1:Undefined` не переносится, канонический exporter создаёт `xsi:nil`.
+  Итоговый focused-прогон — 4 файла / 116 тестов.
+- Финальный `pnpm test`: platform `162 passed`, core `5019 passed`, mcp
+  `138 passed`.
 
 ## Import `cf/doc`
 
 - Read-only источник:
   `/Users/nikita/git/round-trip-compact/cf/doc`.
-- Временный Проект:
-  `/private/tmp/nkdk-snapshot-task9-final3.mImYzj`.
+- Финальный временный Проект:
+  `/private/tmp/nkdk-snapshot-task9-review-final.rdfRmI`.
 - Результат MCP service:
 
 ```json
-{"ok":true,"componentPath":"cf","succeeded":9937,"failed":[],"warnings":[],"configurationIndexPath":"/private/tmp/nkdk-snapshot-task9-final3.mImYzj/.nkdk/components/cf/configuration-index.bin"}
+{"ok":true,"componentPath":"cf","succeeded":9937,"failed":[],"warnings":[],"configurationIndexPath":"/private/tmp/nkdk-snapshot-task9-review-final.rdfRmI/.nkdk/components/cf/configuration-index.bin"}
 ```
 
-Команда из brief с top-level await не запустилась из-за CJS-режима `tsx -e`.
-Импорт выполнен тем же `importFromXml` через ESM-запуск
-`node --import tsx/esm --input-type=module`.
+Импорт выполнен через тот же `importFromXml` с ESM-запуском
+`node --import tsx/esm --input-type=module`, потому что документированный
+`tsx -e` использует несовместимый CJS-режим для top-level await.
 
 ## Измерение
 
@@ -44,24 +64,25 @@
 
 ```json
 {
-  "fileBytes": 57610432,
+  "fileBytes": 57545376,
   "files": {
     "records": 22182,
     "payloadBytes": 266184
   },
   "entities": {
-    "records": 250608,
-    "basePayloadBytes": 3007296,
+    "records": 250320,
+    "basePayloadBytes": 3003840,
     "identitiesPayloadBytes": 1711060,
     "omittedChildrenPayloadBytes": 74932,
     "xmlPayloadBytes": 17832
   },
   "strings": {
-    "totalBytes": 48523214,
-    "sharedBytes": 1085985,
+    "totalBytes": 48464887,
+    "sharedBytes": 1085983,
     "byOwner": {
+      "container": 2,
       "files": 1403416,
-      "entityBase": 43888264,
+      "entityBase": 43829937,
       "identities": 1652534,
       "omittedChildren": 491338,
       "xml": 1677
@@ -73,12 +94,12 @@
     "checksumBytes": 80,
     "sectionPayloadBytes": {
       "snapshot": 16,
-      "strings": 49749726,
+      "strings": 49690247,
       "files": 354912,
-      "entities": 5817064
+      "entities": 5812456
     },
-    "paddingBytes": 1688394,
-    "totalBytes": 57610432
+    "paddingBytes": 1687425,
+    "totalBytes": 57545376
   }
 }
 ```
@@ -87,22 +108,22 @@
 
 | Группа | Байты | Доля |
 |---|---:|---:|
-| files | 266 184 | 0,4620% |
-| entity base | 3 007 296 | 5,2201% |
-| identities | 1 711 060 | 2,9701% |
-| omittedChildren | 74 932 | 0,1301% |
+| files | 266 184 | 0,4626% |
+| entity base | 3 003 840 | 5,2200% |
+| identities | 1 711 060 | 2,9734% |
+| omittedChildren | 74 932 | 0,1302% |
 | XML | 17 832 | 0,0310% |
-| строки | 48 523 214 | 84,2264% |
+| строки | 48 464 887 | 84,2203% |
 
-`sharedBytes` составляет 1 085 985 байт: 1,8850% всего файла и 2,2381%
-строкового payload. Строка, принадлежащая нескольким логическим группам,
-учитывается только в `sharedBytes`.
+`sharedBytes` составляет 1 085 983 байта: 1,8872% всего файла и 2,2408%
+строкового payload. Уникальный `componentPath` `cf` занимает 2 байта в
+`byOwner.container` и не входит в shared.
 
 Физический инвариант:
 
 ```text
-48 + 192 + 80 + 16 + 49 749 726 + 354 912 + 5 817 064 + 1 688 394
-= 57 610 432
+48 + 192 + 80 + 16 + 49 690 247 + 354 912 + 5 812 456 + 1 687 425
+= 57 545 376
 = fileBytes
 ```
 
@@ -115,10 +136,10 @@ Decoder подтвердил:
   "specificationVersion": "1.3",
   "indexGeneration": "1",
   "files": 22182,
-  "entities": 250608,
+  "entities": 250320,
   "withIdentities": 241370,
   "withOmittedChildren": 878,
-  "withXml": 8360,
+  "withXml": 8072,
   "meaningfulPayload": true,
   "sourceProjectPathsExist": true,
   "omittedChildrenKinds": ["names", "typedNames"],
@@ -133,24 +154,100 @@ Decoder подтвердил:
 logical-address списка. Физически присутствуют только `SNAPSHOT`, `STRINGS`,
 `FILES`, `ENTITIES`.
 
-## Round-trip
+## Точный штатный round-trip
 
-Проверка запускалась в отдельном чистом detached-worktree. Штатный
-`.agents/skills/round-trip-yaml/round-trip.sh` не дошёл до round-trip из-за
-несовместимости bootstrap с текущим `tsx` (top-level await в CJS, self-import
-пакета и `import.meta.resolve`). После временной ESM-совместимой правки копии
-скрипта, не перенесённой в рабочую ветку, round-trip дошёл до данных и завершился
-на существующем значении источника:
+Команда из brief запускалась дословно в отдельном чистом detached-worktree
+`/private/tmp/nkdk-task9-review-verify` на `b22a1f7ca`; XML-репозиторий
+`/Users/nikita/git/round-trip-compact` до и после запусков был чист. Скрипт не
+изменялся.
 
-```text
-cf/doc
-/СтандартныеРеквизиты/PredefinedDataName/ЗначениеЗаполнения
-MetadataValue: неподдерживаемый тип для YAML: undefined
+```bash
+env NKDK_XML_REPO=/Users/nikita/git/round-trip-compact \
+  NKDK_XML_DIR=/Users/nikita/git/round-trip-compact/cf/doc \
+  ./.agents/skills/round-trip-xml/round-trip.sh
 ```
 
-Исходная XML-выгрузка и рабочая ветка проверки после запуска остались чистыми.
+Первый необработанный результат до установки зависимостей, exit 254:
 
-## Активная документация
+```text
+=== round-trip.sh ===
+XML репо:    /Users/nikita/git/round-trip-compact
+XML каталог: /Users/nikita/git/round-trip-compact/cf/doc
+runner:      @nkdk/core shortRoundTripXML
+mode:        single
+all configs: 0
+diff index:  1
+
+[restore] Откат XML-репо к HEAD...
+[round-trip] Запуск shortRoundTripXML: /Users/nikita/git/round-trip-compact/cf/doc
+undefined
+/private/tmp/nkdk-task9-review-verify/packages/core:
+ ERR_PNPM_RECURSIVE_EXEC_FIRST_FAIL  Command "tsx" not found
+```
+
+После `pnpm install --offline --frozen-lockfile` verify-worktree остался чист.
+Повтор той же команды дошёл до штатного runner и завершился exit 1. Полный
+необработанный результат:
+
+```text
+=== round-trip.sh ===
+XML репо:    /Users/nikita/git/round-trip-compact
+XML каталог: /Users/nikita/git/round-trip-compact/cf/doc
+runner:      @nkdk/core shortRoundTripXML
+mode:        single
+all configs: 0
+diff index:  1
+
+[restore] Откат XML-репо к HEAD...
+[round-trip] Запуск shortRoundTripXML: /Users/nikita/git/round-trip-compact/cf/doc
+node:internal/process/promises:324
+    triggerUncaughtException(err, true /* fromPromise */);
+    ^
+
+Error: Transform failed with 1 error:
+/eval.ts:1:48: ERROR: Top-level await is currently not supported with the "cjs" output format
+    at failureErrorWithLog (/private/tmp/nkdk-task9-review-verify/node_modules/.pnpm/esbuild@0.28.1/node_modules/esbuild/lib/main.js:1748:15)
+    at /private/tmp/nkdk-task9-review-verify/node_modules/.pnpm/esbuild@0.28.1/node_modules/esbuild/lib/main.js:1017:50
+    at responseCallbacks.<computed> (/private/tmp/nkdk-task9-review-verify/node_modules/.pnpm/esbuild@0.28.1/node_modules/esbuild/lib/main.js:884:9)
+    at handleIncomingPacket (/private/tmp/nkdk-task9-review-verify/node_modules/.pnpm/esbuild@0.28.1/node_modules/esbuild/lib/main.js:939:12)
+    at Socket.readFromStdout (/private/tmp/nkdk-task9-review-verify/node_modules/.pnpm/esbuild@0.28.1/node_modules/esbuild/lib/main.js:862:7)
+    at Socket.emit (node:events:509:20)
+    at addChunk (node:internal/streams/readable:568:12)
+    at readableAddChunkPushByteMode (node:internal/streams/readable:519:3)
+    at Readable.push (node:internal/streams/readable:399:5)
+    at Pipe.onStreamRead (node:internal/stream_base_commons:189:23) {
+  errors: [
+    {
+      detail: undefined,
+      id: '',
+      location: {
+        column: 48,
+        file: '/eval.ts',
+        length: 5,
+        line: 1,
+        lineText: 'import { shortRoundTripXML } from "@nkdk/core"; await shortRoundTripXML({ inputDir: process.argv[1], outputDir: process.argv[1] })',
+        namespace: '',
+        suggestion: ''
+      },
+      notes: [],
+      pluginName: '',
+      text: 'Top-level await is currently not supported with the "cjs" output format'
+    }
+  ],
+  warnings: []
+}
+
+Node.js v26.4.0
+undefined
+/private/tmp/nkdk-task9-review-verify/packages/core:
+ ERR_PNPM_RECURSIVE_EXEC_FIRST_FAIL  Command failed with exit code 1: tsx -e import { shortRoundTripXML } from "@nkdk/core"; await shortRoundTripXML({ inputDir: process.argv[1], outputDir: process.argv[1] }) /Users/nikita/git/round-trip-compact/cf/doc
+```
+
+Штатный сценарий не дошёл до данных или diff: это bootstrap error
+`tsx -e`/CJS. Временная правка скрипта не применялась и результат обходного
+сценария за штатный round-trip не выдаётся.
+
+## Активная документация и старый договор
 
 - `.agents/architecture.md` описывает только `files` и содержательные `entity`,
   привязку worker-фрагмента к одному `targetProjectPath`, замену `entity`
@@ -160,22 +257,20 @@ MetadataValue: неподдерживаемый тип для YAML: undefined
 - Из `.agents/restrictions.md` удалено устаревшее ограничение прямой
   неатомарной записи `configuration-index.bin`; ограничения транзакционности
   YAML/XML-каталогов сохранены.
-- `.agents/configuration-snapshot.md` не изменялся: mismatch логической
-  спецификации 1.3 не обнаружен.
-
-## Проверка старого договора
-
-Точный `rg` из brief не нашёл старых типов или секций снимка. Оставшиеся
-совпадения относятся к временным `localIndexes` текущей операции и отрицательным
-тестам, которые проверяют отсутствие старых полей в снимке; production-договор
-снимка их не содержит.
+- Точный `rg` из brief находит только временные `localIndexes` текущей операции,
+  required identity и отрицательные тесты старых полей. Production-договор
+  снимка старых секций и полей не содержит.
 
 ## Итоговые проверки
 
 - `pnpm type-check`: PASS.
+- focused порядка: `165 passed`; отрицательная проверка порядка: `1 passed`.
+- focused ExtDimension/exportNil/container: `61 passed`.
+- focused exporter/DCS после полного прогона: `116 passed`.
 - `pnpm test`: PASS — platform `18 files / 162 tests`, core
-  `666 files / 5016 tests`, mcp `24 files / 138 tests`.
+  `667 files / 5019 tests`, mcp `24 files / 138 tests`.
 - `git diff --check`: PASS.
 
-Статус: код, измерение и полный тестовый прогон завершены; round-trip
-заблокирован описанной ошибкой существующих данных после обхода bootstrap.
+Статус: все замечания review исправлены; импорт, измерение, инварианты,
+type-check и полный тестовый прогон завершены. Поддержанный round-trip
+честно заблокирован bootstrap-ошибкой штатного скрипта до доступа к данным.

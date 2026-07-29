@@ -7,7 +7,8 @@ import { syncAppliedObjectToXML } from "../../orchestration/appliedObject/syncTo
 import { testSyncAppliedObjectToXML } from "../../../tests/appliedObject"
 import { mockContextToXML } from "../../../tests/mockContext"
 import { MetadataInformationRegisterRules } from "./rules"
-import { canonicalSnapshot13XML } from "../../../tests/canonicalXML"
+import { canonicalXML } from "../../../tests/canonicalXML"
+import { canonicalFormSyncXML } from "../../../tests/formSyncXML"
 
 const normalizeLineEndings = (value: string) =>
   value
@@ -17,7 +18,7 @@ const normalizeLineEndings = (value: string) =>
 
 describe("syncAppliedObjectToXML — MetadataInformationRegister", () => {
   it("читает InformationRegister из YAML и записывает XML в outputDir", async () => {
-    const { comparisons } = await testSyncAppliedObjectToXML({
+    const { inputDir, comparisons } = await testSyncAppliedObjectToXML({
       rule: MetadataInformationRegisterRules,
       name: "РегистрСведенийВсеСвойстваНезависимый",
       importMetaUrl: import.meta.url,
@@ -38,8 +39,11 @@ describe("syncAppliedObjectToXML — MetadataInformationRegister", () => {
       ],
     })
     for (const { path, result, expected } of comparisons) {
-      if (path.endsWith(".xml")) {
-        expect(canonicalSnapshot13XML(result), path).toEqual(canonicalSnapshot13XML(expected))
+      if (path.endsWith("/Ext/Form.xml")) {
+        const form = canonicalFormSyncXML({ path, result, expected, inputDir })
+        expect(form.result, path).toEqual(form.expected)
+      } else if (path.endsWith(".xml")) {
+        expect(canonicalXML(result), path).toEqual(canonicalXML(expected))
       } else {
         expect(normalizeLineEndings(result), path).toBe(normalizeLineEndings(expected))
       }

@@ -388,6 +388,12 @@ describe("StandardAttributeDescriptions direct YAML to XML", () => {
       rule: itemRule,
       xml: sourceXML,
     })
+    expect(imported.yaml).toMatchObject({
+      СтандартныеРеквизиты: {
+        Субконто1: {},
+        ВидСубконто1: {},
+      },
+    })
     const exported = testPropertyFromYAMLToXML({
       context: contexts.exportContext(),
       rule: itemRule,
@@ -407,6 +413,7 @@ describe("StandardAttributeDescriptions direct YAML to XML", () => {
       "Recorder",
       "Period",
       "ExtDimension1",
+      "ExtDimensionType1",
     ])
     expect(items.find((item) => item._name === "ExtDimension1")?.["xr:LinkByType"]).toEqual(
       sourceXML.StandardAttributes["xr:StandardAttribute"][0]["xr:LinkByType"]
