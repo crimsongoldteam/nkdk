@@ -68,6 +68,21 @@ describe("analyzeRuleOrder inputs", () => {
     ).rejects.toThrow("Не найдена базовая конфигурация cf/missing")
   })
 
+  it("обрабатывает только выбранную конфигурацию и её расширения", async () => {
+    const result = await analyzeRuleOrder(
+      {
+        xmlRoot: "/xml/cf",
+        configuration: "all",
+        extensionRoot: "/xml/cfe",
+        extensionBase: "all",
+        metadataDir,
+      },
+      fakeDependencies()
+    )
+
+    expect(result.configurations).toEqual(["cf/all", "cfe/control", "cfe/default"])
+  })
+
   it("rejects a component kind that does not match its source root", async () => {
     const dependencies = fakeDependencies()
     dependencies.resolveComponent = () => ({ kind: "configurationExtension" })

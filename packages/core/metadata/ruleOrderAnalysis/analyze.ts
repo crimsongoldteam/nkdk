@@ -28,6 +28,7 @@ import type { RuleOrderObservation, RuleOrderSource } from "./types"
 
 export interface AnalyzeRuleOrderParams {
   xmlRoot: string
+  configuration?: string
   extensionRoot?: string
   extensionBase?: string
   metadataDir: string
@@ -232,7 +233,15 @@ async function createInputs(
   dependencies: RuleOrderAnalyzerDependencies
 ): Promise<readonly RuleOrderInput[]> {
   const xmlRoot = resolve(params.xmlRoot)
-  const configurationNames = await dependencies.listDirectories(xmlRoot)
+  const discoveredConfigurationNames = await dependencies.listDirectories(xmlRoot)
+  if (
+    params.configuration !== undefined &&
+    !discoveredConfigurationNames.includes(params.configuration)
+  ) {
+    throw new Error(`Не найдена конфигурация cf/${params.configuration}`)
+  }
+  const configurationNames =
+    params.configuration === undefined ? discoveredConfigurationNames : [params.configuration]
   if (
     params.extensionBase !== undefined &&
     !configurationNames.includes(params.extensionBase)

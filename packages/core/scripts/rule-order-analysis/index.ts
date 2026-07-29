@@ -12,6 +12,7 @@ import { buildRuleSourceEdits } from "./sourceModel"
 
 interface Arguments {
   xmlRoot: string
+  configuration?: string
   extensionRoot?: string
   extensionBase?: string
   output: string
@@ -24,6 +25,7 @@ export function parseArguments(argv: readonly string[]): Arguments {
   const values = new Map<string, string>()
   const allowed = new Set([
     "--xml-root",
+    "--configuration",
     "--extension-root",
     "--extension-base",
     "--output",
@@ -47,6 +49,7 @@ export function parseArguments(argv: readonly string[]): Arguments {
     index += 2
   }
   const xmlRoot = values.get("--xml-root")
+  const configuration = values.get("--configuration")
   const extensionRoot = values.get("--extension-root")
   const extensionBase = values.get("--extension-base")
   const output = values.get("--output")
@@ -59,6 +62,7 @@ export function parseArguments(argv: readonly string[]): Arguments {
   }
   return {
     xmlRoot,
+    ...(configuration === undefined ? {} : { configuration }),
     ...(extensionRoot === undefined ? {} : { extensionRoot }),
     ...(extensionBase === undefined ? {} : { extensionBase }),
     output,
@@ -87,6 +91,7 @@ export async function main(argv = process.argv.slice(2)): Promise<void> {
   try {
     const result = await analyzeRuleOrder({
       xmlRoot: args.xmlRoot,
+      configuration: args.configuration,
       extensionRoot: args.extensionRoot,
       extensionBase: args.extensionBase,
       metadataDir: join(import.meta.dirname, "../../metadata"),

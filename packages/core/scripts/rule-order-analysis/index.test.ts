@@ -36,6 +36,22 @@ describe("parseArguments", () => {
     })
   })
 
+  it("ограничивает анализ одной конфигурацией", () => {
+    expect(
+      parseArguments([
+        "--xml-root",
+        "/xml/cf",
+        "--configuration",
+        "all",
+        "--output",
+        "/out",
+      ])
+    ).toMatchObject({
+      xmlRoot: "/xml/cf",
+      configuration: "all",
+    })
+  })
+
   it("requires extension root and base together", () => {
     expect(() =>
       parseArguments([
