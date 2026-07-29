@@ -2,6 +2,11 @@ import { parseMetadataTargetFromYAML } from "../commonObjects/metadataTargets"
 import type { MetadataTargetOwner, ParsedMetadataTarget } from "../commonObjects/metadataTargets/types"
 import { CollectableElementTypeFromYAML, type ElementType } from "../forms/elements/orchestration/types"
 import { ClientApplicationFormRules } from "../forms/clientApplicationForm/rules"
+import {
+  createFormElementNameCollector,
+  FORM_ELEMENT_NAMES_PROFILE_SUBSTEP,
+  type FormElementNameCollector,
+} from "../forms/clientApplicationForm/validateElementNames"
 import type { DataPathPropertyRule, PropertyRule } from "../orchestration/property/types"
 import { getElementRule } from "../orchestration/formElement/ruleFactory"
 import { getTypeRule } from "../orchestration/property/typeRuleRegistry"
@@ -34,6 +39,9 @@ import { diagnosticAtYamlPath, yamlDiagnosticLocationAtPath } from "./yamlLocati
 import type { Diagnostic } from "./types"
 import { createLocalIndexesCollector } from "../project/localIndexes"
 import type { LocalIndexesCollector } from "../project/localIndexes"
+import { validateRegisteredLocalYamlValue } from "./yamlValueValidationRegistry"
+
+export type LocalValueValidationProfile = Record<string, { items: number; timeMs: number }>
 
 export interface ValidationYamlFacts {
   objectIndexEntries: ProjectObjectIndexEntry[]
@@ -42,6 +50,7 @@ export interface ValidationYamlFacts {
   pendingReferences: PendingMetadataTargetReference[]
   pendingChecks: ValidationPendingCheck[]
   diagnostics: Diagnostic[]
+  localValueValidationProfile: LocalValueValidationProfile
   fieldIndex?: ObjectFieldIndex
   localIndexes?: ReturnType<LocalIndexesCollector["finish"]>
 }
@@ -67,6 +76,20 @@ export function extractValidationYamlFacts(params: {
   const owner =
     objectTarget === undefined ? undefined : { root: objectTarget.root, objectName: objectTarget.objectName }
   const referenceDiagnostics: Diagnostic[] = []
+  const localValueDiagnostics: Diagnostic[] = []
+  const localValueValidationProfile: LocalValueValidationProfile = {}
+  if (validationDiagnostics) {
+    collectLocalValueValidation({
+      filePath: params.file.absolutePath,
+      parsed: params.parsed,
+      owner: params.file.owner,
+      type: params.file.itemType,
+      value: params.parsed.data,
+      yamlPath: [],
+      diagnostics: localValueDiagnostics,
+      profile: localValueValidationProfile,
+    })
+  }
   const localIndexesCollector = createLocalIndexesCollector()
   const pendingReferences =
     spec === undefined
@@ -79,7 +102,10 @@ export function extractValidationYamlFacts(params: {
           properties: spec.properties,
           yamlPath: [],
           diagnostics: referenceDiagnostics,
+          localValueDiagnostics,
+          localValueValidationProfile,
           collector: localIndexesCollector,
+          fileOwner: params.file.owner,
           rulePath: [],
           validationDiagnostics,
         })
@@ -106,9 +132,11 @@ export function extractValidationYamlFacts(params: {
     diagnostics: validationDiagnostics
       ? [
           ...referenceDiagnostics,
+          ...localValueDiagnostics,
           ...(spec === undefined ? [] : collectUniqueNameScopeDiagnostics(params.file, params.parsed, spec)),
         ]
       : [],
+    localValueValidationProfile,
     localIndexes,
   }
 }
@@ -174,6 +202,7 @@ function emptyFacts(): ValidationYamlFacts {
     pendingReferences: [],
     pendingChecks: [],
     diagnostics: [],
+    localValueValidationProfile: {},
   }
 }
 
@@ -264,6 +293,34 @@ function yamlPathByModelKey(spec: ValidationRulesSpecSnapshot, modelKey: string)
   return spec.properties.find((property) => property.modelKey === modelKey)?.yamlPath
 }
 
+function collectLocalValueValidation(params: {
+  filePath: string
+  parsed: ParsedYaml
+  owner: ValidationProjectFile["owner"]
+  type: string
+  value: unknown
+  yamlPath: readonly (string | number)[]
+  diagnostics: Diagnostic[]
+  profile: LocalValueValidationProfile
+}): void {
+  const result = validateRegisteredLocalYamlValue({
+    type: params.type,
+    filePath: params.filePath,
+    parsed: params.parsed,
+    owner: { dir: params.owner.dir, name: params.owner.name },
+    value: params.value,
+    yamlPath: params.yamlPath,
+  })
+  params.diagnostics.push(...result.diagnostics)
+  if (result.profile === undefined) return
+
+  const current = params.profile[result.profile.substep]
+  params.profile[result.profile.substep] = {
+    items: (current?.items ?? 0) + 1,
+    timeMs: (current?.timeMs ?? 0) + result.profile.timeMs,
+  }
+}
+
 function collectPendingReferences(params: {
   filePath: string
   parsed: ParsedYaml
@@ -272,7 +329,10 @@ function collectPendingReferences(params: {
   properties: readonly ValidationRulesSpecSnapshot["properties"][number][]
   yamlPath: readonly (string | number)[]
   diagnostics: Diagnostic[]
+  localValueDiagnostics: Diagnostic[]
+  localValueValidationProfile: LocalValueValidationProfile
   collector: LocalIndexesCollector
+  fileOwner: ValidationProjectFile["owner"]
   rulePath: readonly { propertyKey: string }[]
   validationDiagnostics: boolean
 }): PendingMetadataTargetReference[] {
@@ -286,6 +346,18 @@ function collectPendingReferences(params: {
     const yamlPath = [...params.yamlPath, ...property.yamlPath]
     const rulePath = [...params.rulePath, { propertyKey: property.modelKey }]
     if (property.type !== undefined) {
+      if (params.validationDiagnostics) {
+        collectLocalValueValidation({
+          filePath: params.filePath,
+          parsed: params.parsed,
+          owner: params.fileOwner,
+          type: property.type,
+          value,
+          yamlPath,
+          diagnostics: params.localValueDiagnostics,
+          profile: params.localValueValidationProfile,
+        })
+      }
       params.collector.acceptProperty({
         yamlPath,
         rulePath,
@@ -325,7 +397,10 @@ function collectPendingReferences(params: {
           properties: property.children,
           yamlPath,
           diagnostics: params.diagnostics,
+          localValueDiagnostics: params.localValueDiagnostics,
+          localValueValidationProfile: params.localValueValidationProfile,
           collector: params.collector,
+          fileOwner: params.fileOwner,
           rulePath,
           validationDiagnostics: params.validationDiagnostics,
         })
@@ -344,7 +419,10 @@ function collectNestedReferences(params: {
   properties: readonly ValidationRulesSpecSnapshot["properties"][number][]
   yamlPath: readonly (string | number)[]
   diagnostics: Diagnostic[]
+  localValueDiagnostics: Diagnostic[]
+  localValueValidationProfile: LocalValueValidationProfile
   collector: LocalIndexesCollector
+  fileOwner: ValidationProjectFile["owner"]
   rulePath: readonly { propertyKey: string }[]
   validationDiagnostics: boolean
 }): PendingMetadataTargetReference[] {
@@ -491,7 +569,7 @@ function extractFormYamlFacts(file: ValidationProjectFile, parsed: ParsedYaml): 
   if (data === undefined) return emptyFacts()
 
   const index = buildFormDataPathIndexFromYaml({ filePath: file.absolutePath, parsed })
-  const pendingChecks = collectFormPendingChecks({
+  const collected = collectFormPendingChecks({
     file,
     parsed,
     value: data,
@@ -501,7 +579,13 @@ function extractFormYamlFacts(file: ValidationProjectFile, parsed: ParsedYaml): 
 
   return {
     ...emptyFacts(),
-    pendingChecks,
+    pendingChecks: collected.pendingChecks,
+    localValueValidationProfile: {
+      [FORM_ELEMENT_NAMES_PROFILE_SUBSTEP]: {
+        items: 1,
+        timeMs: collected.formElementNamesMs,
+      },
+    },
     diagnostics: [
       ...validateExcludedEqualNameYAML({
         filePath: file.absolutePath,
@@ -510,6 +594,7 @@ function extractFormYamlFacts(file: ValidationProjectFile, parsed: ParsedYaml): 
         context: { version: "2.20", defaultLanguage: "ru" },
         name: file.formName,
       }),
+      ...collected.formElementNameDiagnostics,
       ...index.duplicateDiagnostics,
     ],
   }
@@ -557,8 +642,16 @@ function collectFormPendingChecks(params: {
   index: FormDataPathIndex
   yamlPath: readonly (string | number)[]
   tableContext?: { dataPath: string }
-}): ValidationPendingCheck[] {
-  return collectNestedFormElementChecks({
+}): {
+  pendingChecks: ValidationPendingCheck[]
+  formElementNameDiagnostics: Diagnostic[]
+  formElementNamesMs: number
+} {
+  const nameCollector = createFormElementNameCollector({
+    filePath: params.file.absolutePath,
+    parsed: params.parsed,
+  })
+  const pendingChecks = collectNestedFormElementChecks({
     file: params.file,
     parsed: params.parsed,
     owner: params.value,
@@ -566,7 +659,16 @@ function collectFormPendingChecks(params: {
     index: params.index,
     cursor: { yamlPath: params.yamlPath, rulePath: [] },
     tableContext: params.tableContext,
+    nameCollector,
+    singletonRuleStack: new Set(),
   })
+  const namesStartedAt = performance.now()
+  const formElementNameDiagnostics = nameCollector.finish()
+  return {
+    pendingChecks,
+    formElementNameDiagnostics,
+    formElementNamesMs: performance.now() - namesStartedAt,
+  }
 }
 
 function collectNestedFormElementChecks(params: {
@@ -577,46 +679,113 @@ function collectNestedFormElementChecks(params: {
   index: FormDataPathIndex
   cursor: YamlRuleCursor
   tableContext?: { dataPath: string }
+  nameCollector?: FormElementNameCollector
+  ownerName?: string
+  singletonRuleStack: ReadonlySet<string>
 }): ValidationPendingCheck[] {
   const checks: ValidationPendingCheck[] = []
   for (const [propertyKey, propertyRule] of Object.entries(params.properties)) {
     if (typeof propertyRule.yaml !== "string") continue
     const nested = getTypeRule(propertyRule.type, "nestedItemRule")
     if (nested === undefined) continue
-    const value = asRecord(params.owner[propertyRule.yaml])
-    if (value === undefined) continue
     const propertyCursor = enterYamlProperty({
       cursor: params.cursor,
       propertyKey,
       yamlKey: propertyRule.yaml,
     })
+    const value = asRecord(params.owner[propertyRule.yaml])
 
     if ("itemRule" in nested) {
-      if (!("enterpriseField" in nested.itemRule)) continue
+      const identity = getTypeRule(propertyRule.type, "nestedItemIdentity")
+      const singletonName = identity?.resolveName(params.ownerName)
+      if (singletonName !== undefined && singletonName.length > 0) {
+        params.nameCollector?.acceptReserved({
+          name: singletonName,
+          path: params.cursor.yamlPath,
+          ...(params.ownerName === undefined ? {} : { ownerName: params.ownerName }),
+          propertyName: propertyRule.yaml,
+        })
+      }
+
+      const singletonRuleStack = new Set(params.singletonRuleStack)
+      const canRecurseNames = !singletonRuleStack.has(nested.itemRule.itemType)
+      if (canRecurseNames) singletonRuleStack.add(nested.itemRule.itemType)
+
+      if (value === undefined) {
+        if (singletonName === undefined || !canRecurseNames) continue
+        checks.push(
+          ...collectNestedFormElementChecks({
+            ...params,
+            owner: {},
+            properties: nested.itemRule.properties,
+            cursor: params.cursor,
+            ownerName: singletonName,
+            singletonRuleStack,
+            nameCollector: params.nameCollector,
+          })
+        )
+        continue
+      }
+
+      if (!("enterpriseField" in nested.itemRule)) {
+        checks.push(
+          ...collectNestedFormElementChecks({
+            ...params,
+            owner: value,
+            properties: nested.itemRule.properties,
+            cursor: enterNestedYamlRule(propertyCursor, nested.itemRule.itemType),
+            ...(singletonName === undefined ? {} : { ownerName: singletonName }),
+            singletonRuleStack,
+            nameCollector: identity === undefined ? undefined : params.nameCollector,
+          })
+        )
+        continue
+      }
       checks.push(
         ...collectFormElementChecks({
           ...params,
           owner: value,
           rule: nested.itemRule as ReturnType<typeof getElementRule>,
           cursor: enterNestedYamlRule(propertyCursor, nested.itemRule.itemType),
+          ...(singletonName === undefined ? {} : { ownerName: singletonName }),
+          singletonRuleStack,
+          nameCollector: identity === undefined ? undefined : params.nameCollector,
         })
       )
       continue
     }
 
+    if (value === undefined) continue
     for (const [name, rawElement] of Object.entries(value)) {
       const element = asRecord(rawElement)
       if (element === undefined) continue
+      const elementCursor = {
+        ...propertyCursor,
+        yamlPath: [...propertyCursor.yamlPath, name],
+      }
+      params.nameCollector?.acceptExplicit({ name, path: elementCursor.yamlPath })
       const elementType = elementTypeFromYaml(element["Вид"], params.tableContext)
       if (elementType === undefined) continue
       const itemRule = nested.resolveItemRule(elementType)
-      if (!("enterpriseField" in itemRule)) continue
+      if (!("enterpriseField" in itemRule)) {
+        checks.push(
+          ...collectNestedFormElementChecks({
+            ...params,
+            owner: element,
+            properties: itemRule.properties,
+            cursor: enterNestedYamlRule(elementCursor, elementType),
+            ownerName: name,
+          })
+        )
+        continue
+      }
       checks.push(
         ...collectFormElementChecks({
           ...params,
           owner: element,
           rule: itemRule as ReturnType<typeof getElementRule>,
-          cursor: enterNestedYamlRule({ ...propertyCursor, yamlPath: [...propertyCursor.yamlPath, name] }, elementType),
+          cursor: enterNestedYamlRule(elementCursor, elementType),
+          ownerName: name,
         })
       )
     }
@@ -632,6 +801,9 @@ function collectFormElementChecks(params: {
   index: FormDataPathIndex
   cursor: YamlRuleCursor
   tableContext?: { dataPath: string }
+  nameCollector?: FormElementNameCollector
+  ownerName?: string
+  singletonRuleStack: ReadonlySet<string>
 }): ValidationPendingCheck[] {
   const itemChecks = collectRuleDataPathChecks({
     file: params.file,
@@ -647,11 +819,9 @@ function collectFormElementChecks(params: {
   return [
     ...itemChecks,
     ...collectNestedFormElementChecks({
-      file: params.file,
-      parsed: params.parsed,
+      ...params,
       owner: params.owner,
       properties: params.rule.properties,
-      index: params.index,
       cursor: params.cursor,
       tableContext: childTableContext,
     }),

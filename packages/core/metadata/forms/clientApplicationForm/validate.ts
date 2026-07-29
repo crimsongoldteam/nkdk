@@ -17,6 +17,7 @@ import type { Diagnostic } from "../../validation/types"
 import { diagnosticAtYamlPath, type YamlPath } from "../../validation/yamlLocations"
 import type { ParsedYaml } from "../../../yaml/parseMetadataYaml"
 import { ClientApplicationFormRules } from "./rules"
+import { validateFormElementNames } from "./validateElementNames"
 
 interface ClientApplicationFormValidationState {
   filePath: string
@@ -49,6 +50,13 @@ export function validateClientApplicationFormFirstPass(
       rule: ClientApplicationFormRules,
       context,
       name: params.formName,
+    }),
+    ...validateFormElementNames({
+      filePath: entry.filePath,
+      parsed: entry.parsed,
+      value: entry.parsed.data,
+      yamlPath: [],
+      rule: ClientApplicationFormRules,
     }),
     ...index.duplicateDiagnostics,
   ]

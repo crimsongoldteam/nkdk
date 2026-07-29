@@ -431,6 +431,7 @@ function createEmptyFirstPassProfileSummary(): Omit<ProjectValidationFirstPassPr
     schemaMs: 0,
     validatorsMs: 0,
     equalNameMs: 0,
+    localValueValidationProfile: {},
     yamlFactsMs: 0,
     fieldIndexMs: 0,
     objectIndexMs: 0,
@@ -450,6 +451,7 @@ function addFirstPassProfile(
   summary.schemaMs += profile.schemaMs
   summary.validatorsMs += profile.validatorsMs
   summary.equalNameMs += profile.equalNameMs
+  mergeLocalValueValidationProfile(summary.localValueValidationProfile, profile.localValueValidationProfile)
   summary.yamlFactsMs += profile.yamlFactsMs
   summary.fieldIndexMs += profile.fieldIndexMs
   summary.objectIndexMs += profile.objectIndexMs
@@ -467,11 +469,27 @@ function recordFirstPassProfile(
   profiler.record("Первичная проверка YAML", "Проверка JSON Schema", { items, timeMs: profile.schemaMs })
   profiler.record("Первичная проверка YAML", "Дополнительные валидаторы", { items, timeMs: profile.validatorsMs })
   profiler.record("Первичная проверка YAML", "Проверка equal-name", { items, timeMs: profile.equalNameMs })
+  for (const [substep, value] of Object.entries(profile.localValueValidationProfile)) {
+    profiler.record("Первичная проверка YAML", substep, value)
+  }
   profiler.record("Первичная проверка YAML", "Извлечение YAML-фактов", { items, timeMs: profile.yamlFactsMs })
   profiler.record("Первичная проверка YAML", "Построение field index", { items, timeMs: profile.fieldIndexMs })
   profiler.record("Первичная проверка YAML", "Построение object index", { items, timeMs: profile.objectIndexMs })
   profiler.record("Первичная проверка YAML", "Построение member index", { items, timeMs: profile.memberIndexMs })
   profiler.record("Первичная проверка YAML", "Построение value index", { items, timeMs: profile.valueIndexMs })
+}
+
+function mergeLocalValueValidationProfile(
+  target: Record<string, { items: number; timeMs: number }>,
+  source: Readonly<Record<string, { items: number; timeMs: number }>>
+): void {
+  for (const [substep, value] of Object.entries(source)) {
+    const current = target[substep]
+    target[substep] = {
+      items: (current?.items ?? 0) + value.items,
+      timeMs: (current?.timeMs ?? 0) + value.timeMs,
+    }
+  }
 }
 
 function requireValidationSchemaCache(): ValidationSchemaCache {

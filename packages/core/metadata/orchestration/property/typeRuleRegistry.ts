@@ -32,6 +32,7 @@ import type {
   CollectLocalFactsFromYAMLFunction,
   FinalizeImportedYAMLFunction,
   ImportFromXMLToYAMLFunction,
+  NestedItemIdentityDescriptor,
   NestedItemRule,
   ResolveNestedImportXMLSourcesFunction,
 } from "./importYamlTypes"
@@ -66,6 +67,7 @@ const typeRulesRegistry = new Map<
   | FinalizeImportedYAMLFunction
   | FinalizeExportedXMLFunction
   | CollectLocalFactsFromYAMLFunction
+  | NestedItemIdentityDescriptor
   | YAMLToXMLNestedRule
 >()
 let registryRevision = 0
@@ -123,19 +125,21 @@ export const getTypeRule = <O extends TypeRulesOperations>(
                                       ? CollectConfigurationIndexFromXMLFunction | undefined
                                       : O extends "xmlImportPropertyBehavior"
                                         ? XMLImportPropertyBehavior | undefined
-                                        : O extends "nestedItemRule"
-                                          ? NestedItemRule | undefined
-                                          : O extends "resolveNestedImportXMLSources"
-                                            ? ResolveNestedImportXMLSourcesFunction | undefined
-                                            : O extends "finalizeImportedYAML"
-                                              ? FinalizeImportedYAMLFunction | undefined
-                                              : O extends "finalizeExportedXML"
-                                                ? FinalizeExportedXMLFunction | undefined
-                                                : O extends "collectLocalFactsFromYAML"
-                                                  ? CollectLocalFactsFromYAMLFunction | undefined
-                                                  : O extends "yamlToXMLNestedRule"
-                                                    ? YAMLToXMLNestedRule | undefined
-                                                    : never => {
+                                        : O extends "nestedItemIdentity"
+                                          ? NestedItemIdentityDescriptor | undefined
+                                          : O extends "nestedItemRule"
+                                            ? NestedItemRule | undefined
+                                            : O extends "resolveNestedImportXMLSources"
+                                              ? ResolveNestedImportXMLSourcesFunction | undefined
+                                              : O extends "finalizeImportedYAML"
+                                                ? FinalizeImportedYAMLFunction | undefined
+                                                : O extends "finalizeExportedXML"
+                                                  ? FinalizeExportedXMLFunction | undefined
+                                                  : O extends "collectLocalFactsFromYAML"
+                                                    ? CollectLocalFactsFromYAMLFunction | undefined
+                                                    : O extends "yamlToXMLNestedRule"
+                                                      ? YAMLToXMLNestedRule | undefined
+                                                      : never => {
   const key = createRegistryKey(type, operation)
   const result = typeRulesRegistry.get(key)
   return result as any
