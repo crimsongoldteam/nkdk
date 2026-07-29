@@ -857,7 +857,7 @@ describe("importPropertiesFromXMLToYAML", () => {
     ])
   })
 
-  it("uses direct YAML-path address for XML service data while YAML-path index addressing is active", () => {
+  it("uses direct YAML-path address for all XML service data while YAML-path index addressing is active", () => {
     const indexCollector = createConfigurationIndexCollector()
     const context = withConfigurationIndexCollector(
       mockContextFromXML(),
@@ -875,9 +875,17 @@ describe("importPropertiesFromXMLToYAML", () => {
             yaml: "Значение",
             configurationIndexAddressing: "yamlPath",
           },
+          sourceScalar: {
+            type: "number",
+            xml: "SourceScalar",
+            yaml: "Скаляр",
+            configurationIndexAddressing: "yamlPath",
+            defaultValueXML: 25,
+            implicitValueYAML: 30,
+          },
         },
       } as MetadataItemRule,
-      xml: { SourceValue: { "_xsi:nil": true } },
+      xml: { SourceValue: { "_xsi:nil": true }, SourceScalar: 30 },
       yamlPath: [],
       rulePath: [],
       collector: createLocalIndexesCollector(),
@@ -888,6 +896,11 @@ describe("importPropertiesFromXMLToYAML", () => {
         logicalAddress: "Справочник.Товары.Свойство.Отбор.Значение",
         sourceProjectPath: "Форма.yaml",
         xml: { xsiNil: true },
+      },
+      {
+        logicalAddress: "Справочник.Товары.Свойство.Отбор.Скаляр",
+        sourceProjectPath: "Форма.yaml",
+        xml: { xmlText: "30" },
       },
     ])
   })

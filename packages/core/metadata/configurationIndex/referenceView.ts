@@ -1,7 +1,14 @@
 import type { ConfigurationContextWithExportToXML } from "../context/types"
 import type { ConfigurationIndexAddressingMode } from "../orchestration/property/types"
+import type { ConfigurationIndexExportRuntime } from "./exportRuntime"
 import type { OmittedChildren } from "./types"
-import { childSegmentUid, childUid, yamlIndexUid, yamlKeyUid } from "./logicalAddress"
+import {
+  childSegmentUid,
+  childUid,
+  configurationIndexPropertyXmlStateUid,
+  yamlIndexUid,
+  yamlKeyUid,
+} from "./logicalAddress"
 
 export function getConfigurationIndexXmlName(
   context: ConfigurationContextWithExportToXML | undefined
@@ -25,18 +32,18 @@ export function getConfigurationIndexOmittedChildren(
 
 export function getConfigurationIndexPropertyXmlValue(
   context: ConfigurationContextWithExportToXML | undefined,
-  propertyKey: string
+  property: ConfigurationIndexPropertyXmlStateAddress
 ) {
   const runtime = context?.exportToXML.configurationIndex
   if (runtime === undefined) return undefined
-  return runtime.xml(`${runtime.logicalAddress}.${propertyKey}`)
+  return runtime.xml(configurationIndexPropertyXmlStateLogicalAddress(runtime, property))
 }
 
 export function getConfigurationIndexPropertyReferenceXMLValue(
   context: ConfigurationContextWithExportToXML | undefined,
-  propertyKey: string
+  property: ConfigurationIndexPropertyXmlStateAddress
 ): unknown {
-  const value = getConfigurationIndexPropertyXmlValue(context, propertyKey)
+  const value = getConfigurationIndexPropertyXmlValue(context, property)
   if (value === undefined) return undefined
   if (value.xsiNil === true) return { "_xsi:nil": true }
   if (
@@ -52,6 +59,24 @@ export function getConfigurationIndexPropertyReferenceXMLValue(
     }
   }
   return undefined
+}
+
+export interface ConfigurationIndexPropertyXmlStateAddress {
+  readonly propertyKey: string
+  readonly yamlKey?: string
+  readonly configurationIndexAddressing?: ConfigurationIndexAddressingMode
+}
+
+export function configurationIndexPropertyXmlStateLogicalAddress(
+  runtime: ConfigurationIndexExportRuntime,
+  property: ConfigurationIndexPropertyXmlStateAddress
+): string {
+  return configurationIndexPropertyXmlStateUid(
+    runtime.logicalAddress,
+    property.propertyKey,
+    property.yamlKey,
+    runtime.yamlPathAddressing === true || property.configurationIndexAddressing === "yamlPath"
+  )
 }
 
 export function withConfigurationIndexExportLogicalAddress(

@@ -418,6 +418,91 @@ describe("convertPropertiesFromYAMLToXML", () => {
     })
   })
 
+  it("восстанавливает XML-state YAML-path свойства без reference XML", () => {
+    const xmlStates = [
+      {
+        logicalAddress: `${DEFAULT_TEST_LOGICAL_ADDRESS}.NilЗначение`,
+        xsiNil: true as const,
+      },
+      {
+        logicalAddress: `${DEFAULT_TEST_LOGICAL_ADDRESS}.ТипизированноеЗначение`,
+        xsiType: "xs:string",
+        xmlText: "значение",
+        xmlPrefix: "xs",
+      },
+      {
+        logicalAddress: `${DEFAULT_TEST_LOGICAL_ADDRESS}.ПустоеЗначение`,
+        explicitEmpty: true as const,
+      },
+      {
+        logicalAddress: `${DEFAULT_TEST_LOGICAL_ADDRESS}.РасширенноеЗначение`,
+        extended: true as const,
+      },
+    ]
+    const testContext = contextWithXMLDefaultVariant(
+      "indexed",
+      [],
+      false,
+      DEFAULT_TEST_LOGICAL_ADDRESS,
+      xmlStates
+    )
+    const yamlPathRule = (yaml: string, xml: string): PropertyRule => ({
+      type: "string",
+      yaml,
+      xml,
+      configurationIndexAddressing: "yamlPath",
+    })
+
+    const result = convertPropertiesFromYAMLToXML({
+      context: testContext,
+      yaml: {},
+      rule: testRule({
+        nilValue: yamlPathRule("NilЗначение", "NilValue"),
+        typedValue: yamlPathRule("ТипизированноеЗначение", "TypedValue"),
+        emptyValue: yamlPathRule("ПустоеЗначение", "EmptyValue"),
+        extendedValue: yamlPathRule("РасширенноеЗначение", "ExtendedValue"),
+      }),
+      outputs: [{ key: "owner" }],
+    })
+
+    expect(result.outputs.get("owner")).toEqual({
+      NilValue: { "_xsi:nil": true },
+      TypedValue: {
+        "_xsi:type": "xs:string",
+        _xmlns: "xs",
+        "#text": "значение",
+      },
+      EmptyValue: {},
+    })
+    const targetEntities =
+      testContext.exportToXML.configurationIndex!.collector.fragment("Свойства.yaml").entities
+    expect(targetEntities).toHaveLength(4)
+    expect(targetEntities).toEqual(
+      expect.arrayContaining([
+        {
+          logicalAddress: `${DEFAULT_TEST_LOGICAL_ADDRESS}.NilЗначение`,
+          sourceProjectPath: "Свойства.yaml",
+          xml: { xsiNil: true },
+        },
+        {
+          logicalAddress: `${DEFAULT_TEST_LOGICAL_ADDRESS}.ТипизированноеЗначение`,
+          sourceProjectPath: "Свойства.yaml",
+          xml: { xsiType: "xs:string", xmlText: "значение", xmlPrefix: "xs" },
+        },
+        {
+          logicalAddress: `${DEFAULT_TEST_LOGICAL_ADDRESS}.ПустоеЗначение`,
+          sourceProjectPath: "Свойства.yaml",
+          xml: { explicitEmpty: true },
+        },
+        {
+          logicalAddress: `${DEFAULT_TEST_LOGICAL_ADDRESS}.РасширенноеЗначение`,
+          sourceProjectPath: "Свойства.yaml",
+          xml: { extended: true },
+        },
+      ])
+    )
+  })
+
   it("не восстанавливает значение пустого XML-default из старого present", () => {
     const result = convertPropertiesFromYAMLToXML({
       context: contextWithXMLDefaultVariant("indexed", ["value"]),

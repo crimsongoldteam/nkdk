@@ -1,6 +1,8 @@
 import { asExplicitYAMLStringIfMarked } from "../../../yaml/explicitString"
 import { capitalize } from "../../../helpers/capitalize"
 import {
+  configurationIndexPropertyXmlStateLogicalAddress,
+  type ConfigurationIndexPropertyXmlStateAddress,
   getConfigurationIndexPropertyReferenceXMLValue,
   getConfigurationIndexPropertyXmlValue,
   getConfigurationIndexXmlName,
@@ -179,7 +181,7 @@ export function convertPropertiesFromYAMLToXML(params: ConvertPropertiesFromYAML
     const matchingOutputs = outputs.filter(({ request }) => matchesOutputTag(planned.propertyRule, request))
     const propertyContext = matchingOutputs[0]?.request.context ?? params.context
     if (!source.has(propertyKey)) {
-      copyConfigurationIndexPropertyValue(propertyContext, propertyKey)
+      copyConfigurationIndexPropertyValue(propertyContext, planned)
     }
     const hasXMLDefault = hasExplicitXMLDefault(
       propertyContext,
@@ -655,12 +657,13 @@ export function convertPropertiesFromYAMLToXML(params: ConvertPropertiesFromYAML
 
 function copyConfigurationIndexPropertyValue(
   context: ConfigurationContextWithExportToXML,
-  propertyKey: string
+  planned: YAMLToXMLPlannedProperty
 ): void {
   const runtime = context.exportToXML.configurationIndex
-  const value = getConfigurationIndexPropertyXmlValue(context, propertyKey)
+  const property = configurationIndexPropertyXmlStateAddress(planned)
+  const value = getConfigurationIndexPropertyXmlValue(context, property)
   if (runtime === undefined || value === undefined) return
-  const address = `${runtime.logicalAddress}.${propertyKey}`
+  const address = configurationIndexPropertyXmlStateLogicalAddress(runtime, property)
   if (value.extended === true) runtime.collector.setXmlFlag(address, "extended")
   if (value.xsiNil === true) runtime.collector.setXmlFlag(address, "xsiNil")
   if (value.explicitEmpty === true) runtime.collector.setXmlFlag(address, "explicitEmpty")
@@ -839,7 +842,10 @@ function readReferenceProperty(params: {
           exists: true,
           key,
           value: current[key],
-          ...(getConfigurationIndexPropertyXmlValue(params.context, params.planned.propertyKey)?.explicitEmpty === true
+          ...(getConfigurationIndexPropertyXmlValue(
+            params.context,
+            configurationIndexPropertyXmlStateAddress(params.planned)
+          )?.explicitEmpty === true
             ? { indexedExplicitEmpty: true }
             : {}),
         }
@@ -855,13 +861,14 @@ function referenceFromConfigurationIndex(
 ): ReferenceProperty {
   const identity = identityReferenceFromConfigurationIndex(context, planned)
   if (identity !== undefined) return identity
-  const indexedValue = getConfigurationIndexPropertyXmlValue(context, planned.propertyKey)
+  const property = configurationIndexPropertyXmlStateAddress(planned)
+  const indexedValue = getConfigurationIndexPropertyXmlValue(context, property)
   const indexedDescriptor = getTypeRule(planned.propertyRule.type, "configurationIndexValueFromXML")
   const value =
     (indexedValue === undefined
       ? undefined
       : indexedDescriptor?.referenceXMLFromValue?.(indexedValue)) ??
-    getConfigurationIndexPropertyReferenceXMLValue(context, planned.propertyKey)
+    getConfigurationIndexPropertyReferenceXMLValue(context, property)
   const indexedExplicitEmpty =
     indexedValue?.explicitEmpty === true
   if (value !== undefined) {
@@ -873,6 +880,18 @@ function referenceFromConfigurationIndex(
     }
   }
   return { exists: false }
+}
+
+function configurationIndexPropertyXmlStateAddress(
+  planned: YAMLToXMLPlannedProperty
+): ConfigurationIndexPropertyXmlStateAddress {
+  return {
+    propertyKey: planned.propertyKey,
+    ...(planned.yamlKey === undefined ? {} : { yamlKey: planned.yamlKey }),
+    ...(planned.propertyRule.configurationIndexAddressing === undefined
+      ? {}
+      : { configurationIndexAddressing: planned.propertyRule.configurationIndexAddressing }),
+  }
 }
 
 function identityReferenceFromConfigurationIndex(

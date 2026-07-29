@@ -112,6 +112,37 @@ describe("export Events to XML", () => {
     })
   })
 
+  it.each([
+    [
+      "обычное",
+      { Event: { _name: "VendorEvent", "#text": "ОбработчикVendorEvent" } },
+      { Event: [{ _name: "VendorEvent", "#text": "ОбработчикVendorEvent" }] },
+    ],
+    [
+      "с одним callType",
+      {
+        Event: {
+          _name: "VendorEvent",
+          _callType: "Before" as const,
+          "#text": "ПередVendorEvent",
+        },
+      },
+      {
+        Event: [
+          {
+            _name: "VendorEvent",
+            _callType: "Before",
+            "#text": "ПередVendorEvent",
+          },
+        ],
+      },
+    ],
+  ])("делает no-reference round-trip неизвестного события: %s", (_description, xml, expected) => {
+    const yaml = importEventsFromXML(mockContextFromXML(), InputFieldRules.properties.events, xml)
+
+    expect(exportEventsToXML(mockContextToXML(), InputFieldRules.properties.events, yaml)).toEqual(expected)
+  })
+
   it("заменяет неизвестную обычную reference-привязку режимной", () => {
     expect(
       exportEventsToXML(

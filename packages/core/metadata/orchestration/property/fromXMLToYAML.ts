@@ -6,10 +6,10 @@ import {
 } from "../../configurationIndex/collector/collectProperty"
 import {
   getConfigurationIndexCollectionContext,
-  getConfigurationIndexPropertyLogicalAddress,
   getConfigurationIndexXmlNodeLogicalAddress,
   runWithConfigurationIndexPropertyContext,
 } from "../../configurationIndex/collector/context"
+import { configurationIndexPropertyXmlStateUid } from "../../configurationIndex/logicalAddress"
 import type { ConfigurationContextFromXML } from "../../context/types"
 import { buildExternalFileEntry } from "../../forms/commonObjects/dynamicList/externalFile"
 import { getValueOrDefault, shouldProcessProperty } from "./helpers"
@@ -158,13 +158,14 @@ export function importPropertiesFromXMLToYAML(params: {
       xmlValue = { "_xsi:nil": true }
     }
     const propertyLogicalAddress =
-      indexCollection === undefined ||
-      (indexCollection.yamlPathAddressing !== true && propertyRule.configurationIndexAddressing !== "yamlPath")
+      indexCollection === undefined
         ? undefined
-        : getConfigurationIndexPropertyLogicalAddress(
-            indexCollection,
-            propertyRule.yaml ?? key,
-            propertyRule.configurationIndexAddressing
+        : configurationIndexPropertyXmlStateUid(
+            indexCollection.logicalAddress,
+            key,
+            propertyRule.yaml,
+            indexCollection.yamlPathAddressing === true ||
+              propertyRule.configurationIndexAddressing === "yamlPath"
           )
     if (sourceXMLKey !== undefined) {
       const indexStartedAt = performance.now()

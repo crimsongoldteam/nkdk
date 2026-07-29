@@ -101,7 +101,7 @@ function eventRuleKey(rule: PropertyRule, xmlName: string, handlerNames: readonl
   if (Object.prototype.hasOwnProperty.call(items, canonicalKey)) return canonicalKey
   if (handlerNames.length === 1) {
     const handlerName = handlerNames[0]!
-    return Object.entries(items).find(([, yamlKey]) => yamlKey === handlerName)?.[0] ?? handlerName
+    return Object.entries(items).find(([, yamlKey]) => yamlKey === handlerName)?.[0] ?? canonicalKey
   }
   return canonicalKey
 }

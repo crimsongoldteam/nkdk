@@ -34,6 +34,30 @@ describe("import Events from XML", () => {
     expect(result).toEqual({ onChange: "ПриИзменении" })
   })
 
+  it("использует канонический ключ одиночного неизвестного события", () => {
+    const result = importEventsFromXML(mockContextFromXML(), eventsRule, {
+      Event: { _name: "VendorEvent", "#text": "ОбработчикVendorEvent" },
+    })
+
+    expect(result).toEqual({ vendorEvent: "ОбработчикVendorEvent" })
+  })
+
+  it("использует канонический ключ неизвестного события с одним callType", () => {
+    const result = importEventsFromXML(mockContextFromXML(), eventsRule, {
+      Event: {
+        _name: "VendorEvent",
+        _callType: "Before",
+        "#text": "ПередVendorEvent",
+      },
+    })
+
+    expect(result).toEqual({
+      vendorEvent: {
+        Before: "ПередVendorEvent",
+      },
+    })
+  })
+
   it("отклоняет Auto с XML-именем события и значением callType", () => {
     expect(() =>
       importEventsFromXML(mockContextFromXML(), eventsRule, {

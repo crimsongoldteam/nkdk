@@ -23,6 +23,15 @@ export function yamlPropertyUid(parent: string, propertyName: string): string {
   return `${address(parent)}.${segment(propertyName)}`
 }
 
+export function configurationIndexPropertyXmlStateUid(
+  parent: string,
+  propertyKey: string,
+  yamlKey: string | undefined,
+  yamlPathAddressing: boolean
+): string {
+  return yamlPropertyUid(parent, yamlPathAddressing ? (yamlKey ?? propertyKey) : propertyKey)
+}
+
 export function yamlKeyUid(parent: string, key: string): string {
   return `${address(parent)}.${segment(key)}`
 }

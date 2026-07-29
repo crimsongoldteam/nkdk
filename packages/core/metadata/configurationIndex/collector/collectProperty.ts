@@ -1,5 +1,6 @@
 import type { ConfigurationContextFromXML } from "../../context/types"
 import { isDeepStrictEqual } from "node:util"
+import { configurationIndexPropertyXmlStateUid } from "../logicalAddress"
 import type { ConfigurationIndexValueFromXMLDescriptor } from "../../orchestration/property/fn"
 import type { PropertyRule } from "../../orchestration/property/types"
 import { getConfigurationIndexCollectionContext } from "./context"
@@ -45,7 +46,9 @@ export function collectConfigurationIndexPropertyFromXML(params: {
   const collection = getConfigurationIndexCollectionContext(params.context)
   if (collection === undefined) return
 
-  const address = params.logicalAddress ?? `${collection.logicalAddress}.${params.propertyKey}`
+  const address =
+    params.logicalAddress ??
+    configurationIndexPropertyXmlStateUid(collection.logicalAddress, params.propertyKey, undefined, false)
   if (
     params.descriptor?.xsiNilWhenNotRepresentable === true &&
     hasXsiNil(params.xmlValue) &&
@@ -66,7 +69,7 @@ export function collectConfigurationIndexPropertyFromXML(params: {
   }
   const ambiguousScalar = ambiguousImplicitScalarXMLValue(params.rule, params.xmlValue)
   if (ambiguousScalar !== undefined) {
-    collection.collector.setXmlValue(`${collection.logicalAddress}.${params.propertyKey}`, "xmlText", ambiguousScalar)
+    collection.collector.setXmlValue(address, "xmlText", ambiguousScalar)
   }
 }
 
@@ -80,7 +83,9 @@ export function collectConfigurationIndexImportedValue(params: {
   if (collection === undefined || !isRecord(params.importedValue)) return
 
   const xmlPrefix = params.importedValue.xmlPrefix
-  const address = params.logicalAddress ?? `${collection.logicalAddress}.${params.propertyKey}`
+  const address =
+    params.logicalAddress ??
+    configurationIndexPropertyXmlStateUid(collection.logicalAddress, params.propertyKey, undefined, false)
   if (typeof xmlPrefix === "string") {
     collection.collector.setXmlValue(address, "xmlPrefix", xmlPrefix)
   }
