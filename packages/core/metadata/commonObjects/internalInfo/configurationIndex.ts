@@ -37,11 +37,11 @@ export function resolveInternalInfoUuid(params: {
 
   const stored = runtime.identity("uuid", params.logicalAddress)
   if (stored !== undefined) {
-    runtime.collector.setUuid(params.logicalAddress, stored)
+    runtime.collector.setIdentity(params.logicalAddress, "uuid", stored)
     return stored
   }
   if (params.fallback !== undefined) {
-    runtime.collector.setUuid(params.logicalAddress, params.fallback)
+    runtime.collector.setIdentity(params.logicalAddress, "uuid", params.fallback)
     return params.fallback
   }
   return runtime.identityOrCreate("uuid", params.logicalAddress)
@@ -60,24 +60,27 @@ function collectInternalInfoIdentities(context: ConfigurationContextFromXML, xml
 
   for (const item of asArray(xml["xr:GeneratedType"])) {
     const name = item._name.split(".")[0]!
-    collection.collector.setUuid(
+    collection.collector.setIdentity(
       internalInfoGeneratedTypeIdAddress(collection.logicalAddress, name),
+      "uuid",
       item["xr:TypeId"]
     )
-    collection.collector.setUuid(
+    collection.collector.setIdentity(
       internalInfoGeneratedValueIdAddress(collection.logicalAddress, name),
+      "uuid",
       item["xr:ValueId"]
     )
   }
 
   const thisNode = xml["xr:ThisNode"]
   if (thisNode !== undefined) {
-    collection.collector.setUuid(internalInfoThisNodeAddress(collection.logicalAddress), thisNode)
+    collection.collector.setIdentity(internalInfoThisNodeAddress(collection.logicalAddress), "uuid", thisNode)
   }
 
   for (const item of asArray(xml["xr:ContainedObject"])) {
-    collection.collector.setUuid(
+    collection.collector.setIdentity(
       internalInfoContainedObjectIdAddress(collection.logicalAddress, item["xr:ClassId"]),
+      "uuid",
       item["xr:ObjectId"]
     )
   }
