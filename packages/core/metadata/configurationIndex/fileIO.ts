@@ -6,6 +6,8 @@ import { decodeConfigurationIndex } from "./decode"
 import { encodeConfigurationIndex } from "./encode"
 import type { ConfigurationSnapshot } from "./types"
 
+const MAX_TEMPORARY_FILE_ATTEMPTS = 100
+
 export function configurationIndexPath(projectDir: string, address: ComponentAddress): string {
   return join(resolve(projectDir), ".nkdk", "components", componentPath(address), "configuration-index.bin")
 }
@@ -30,11 +32,9 @@ export async function writeConfigurationIndexAtomically(params: {
   }
   const target = configurationIndexPath(params.projectDir, params.address)
   const directory = dirname(target)
-  const nonce = randomBytes(8).toString("hex")
-  const temporary = join(directory, `.configuration-index.bin.${process.pid}.${nonce}.tmp`)
   await fs.promises.mkdir(directory, { recursive: true })
+  const { temporary, handle } = await createTemporaryFile(directory)
   try {
-    const handle = await fs.promises.open(temporary, "wx")
     try {
       await handle.writeFile(encodeConfigurationIndex(params.data))
       await handle.sync()
@@ -52,4 +52,22 @@ export async function writeConfigurationIndexAtomically(params: {
     await fs.promises.unlink(temporary).catch(() => undefined)
     throw caught
   }
+}
+
+async function createTemporaryFile(directory: string) {
+  for (let attempt = 0; attempt < MAX_TEMPORARY_FILE_ATTEMPTS; attempt += 1) {
+    const nonce = randomBytes(8).toString("hex")
+    const temporary = join(directory, `.configuration-index.bin.${process.pid}.${nonce}.tmp`)
+    try {
+      const handle = await fs.promises.open(temporary, "wx")
+      return { temporary, handle }
+    } catch (caught) {
+      if (!hasErrorCode(caught, "EEXIST")) throw caught
+    }
+  }
+  throw new Error(`Не удалось создать временный файл индекса за ${MAX_TEMPORARY_FILE_ATTEMPTS} попыток`)
+}
+
+function hasErrorCode(caught: unknown, code: string): boolean {
+  return typeof caught === "object" && caught !== null && "code" in caught && caught.code === code
 }

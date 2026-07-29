@@ -37,17 +37,24 @@ export interface CreateConfigurationIndexExportRuntimeOptions {
   readonly collector: ConfigurationIndexCollector
   readonly targetProjectPath: string
   readonly logicalAddress: string
-  readonly targetGeneration?: bigint
   readonly xmlNodeLogicalAddress?: string
   readonly formElementRootLogicalAddress?: string
   readonly childCollectionUidSegment?: string
   readonly yamlPathAddressing?: true
 }
 
+interface InternalConfigurationIndexExportRuntimeOptions extends CreateConfigurationIndexExportRuntimeOptions {
+  readonly seed: Buffer
+}
+
 export function createConfigurationIndexExportRuntime(
   options: CreateConfigurationIndexExportRuntimeOptions
 ): ConfigurationIndexExportRuntime {
-  return new DefaultConfigurationIndexExportRuntime(options)
+  const targetGeneration = options.source.header().indexGeneration + 1n
+  return new DefaultConfigurationIndexExportRuntime({
+    ...options,
+    seed: operationSeed(options.source.snapshot, targetGeneration),
+  })
 }
 
 class DefaultConfigurationIndexExportRuntime implements ConfigurationIndexExportRuntime {
@@ -59,11 +66,10 @@ class DefaultConfigurationIndexExportRuntime implements ConfigurationIndexExport
   readonly formElementRootLogicalAddress?: string
   readonly childCollectionUidSegment?: string
   readonly yamlPathAddressing?: true
-  private readonly targetGeneration: bigint
   private readonly seed: Buffer
   private readonly generated = new Map<string, string>()
 
-  constructor(options: CreateConfigurationIndexExportRuntimeOptions) {
+  constructor(options: InternalConfigurationIndexExportRuntimeOptions) {
     this.source = options.source
     this.collector = options.collector
     this.targetProjectPath = options.targetProjectPath
@@ -72,8 +78,7 @@ class DefaultConfigurationIndexExportRuntime implements ConfigurationIndexExport
     this.formElementRootLogicalAddress = options.formElementRootLogicalAddress
     this.childCollectionUidSegment = options.childCollectionUidSegment
     this.yamlPathAddressing = options.yamlPathAddressing
-    this.targetGeneration = options.targetGeneration ?? this.source.header().indexGeneration + 1n
-    this.seed = operationSeed(this.source.snapshot, this.targetGeneration)
+    this.seed = options.seed
   }
 
   identity(kind: IdentityKind, address = this.logicalAddress): string | undefined {
@@ -105,7 +110,7 @@ class DefaultConfigurationIndexExportRuntime implements ConfigurationIndexExport
       collector: this.collector,
       targetProjectPath: this.targetProjectPath,
       logicalAddress,
-      targetGeneration: this.targetGeneration,
+      seed: this.seed,
       ...(this.formElementRootLogicalAddress === undefined
         ? {}
         : { formElementRootLogicalAddress: this.formElementRootLogicalAddress }),
@@ -123,7 +128,7 @@ class DefaultConfigurationIndexExportRuntime implements ConfigurationIndexExport
       targetProjectPath: this.targetProjectPath,
       logicalAddress: this.logicalAddress,
       xmlNodeLogicalAddress,
-      targetGeneration: this.targetGeneration,
+      seed: this.seed,
       ...(this.formElementRootLogicalAddress === undefined
         ? {}
         : { formElementRootLogicalAddress: this.formElementRootLogicalAddress }),
@@ -140,7 +145,7 @@ class DefaultConfigurationIndexExportRuntime implements ConfigurationIndexExport
       collector: this.collector,
       targetProjectPath: this.targetProjectPath,
       logicalAddress: this.logicalAddress,
-      targetGeneration: this.targetGeneration,
+      seed: this.seed,
       formElementRootLogicalAddress: logicalAddress,
       ...(this.xmlNodeLogicalAddress === undefined ? {} : { xmlNodeLogicalAddress: this.xmlNodeLogicalAddress }),
       ...(this.childCollectionUidSegment === undefined
@@ -165,7 +170,7 @@ class DefaultConfigurationIndexExportRuntime implements ConfigurationIndexExport
       targetProjectPath: this.targetProjectPath,
       logicalAddress: useYamlPath ? propertyAddress : this.logicalAddress,
       xmlNodeLogicalAddress: propertyAddress,
-      targetGeneration: this.targetGeneration,
+      seed: this.seed,
       ...(this.formElementRootLogicalAddress === undefined
         ? {}
         : { formElementRootLogicalAddress: this.formElementRootLogicalAddress }),

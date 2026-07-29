@@ -1,11 +1,20 @@
-import { describe, expect, it } from "vitest"
+import { describe, expect, expectTypeOf, it } from "vitest"
 import { createConfigurationIndexCollector } from "./collector/writer"
 import { encodeConfigurationIndex } from "./encode"
 import { createConfigurationIndexExportRuntime } from "./exportRuntime"
+import type { CreateConfigurationIndexExportRuntimeOptions } from "./exportRuntime"
 import { createConfigurationIndexReader, snapshotConfigurationIndex } from "./sharedSnapshot"
 import { sampleSnapshot, TEST_UUID } from "./testData"
 
 describe("configuration index export runtime", () => {
+  it("does not expose generation overrides in the public factory options", () => {
+    type HasTargetGeneration = "targetGeneration" extends keyof CreateConfigurationIndexExportRuntimeOptions
+      ? true
+      : false
+
+    expectTypeOf<HasTargetGeneration>().toEqualTypeOf<false>()
+  })
+
   function createRuntime(logicalAddress = "Документ.Заказ") {
     const collector = createConfigurationIndexCollector()
     const source = createConfigurationIndexReader(

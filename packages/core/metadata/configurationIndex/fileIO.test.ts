@@ -58,6 +58,26 @@ describe("configuration index file IO", () => {
     expect(await indexDirectoryEntries(projectDir)).toEqual(["configuration-index.bin"])
   })
 
+  it("keeps a colliding temporary file owned by another writer and retries with a new name", async () => {
+    const projectDir = await createProjectDir()
+    const data = sampleSnapshot()
+    const originalOpen = fs.promises.open.bind(fs.promises)
+    let collidingTemporary: string | undefined
+    vi.spyOn(fs.promises, "open").mockImplementationOnce(async (path) => {
+      collidingTemporary = String(path)
+      await fs.promises.writeFile(collidingTemporary, "foreign writer", { flag: "wx" })
+      return originalOpen(collidingTemporary, "wx")
+    })
+
+    await writeConfigurationIndexAtomically({ projectDir, address: { kind: "configuration" }, data })
+
+    expect(collidingTemporary).toBeDefined()
+    expect(await fs.promises.readFile(collidingTemporary!, "utf8")).toBe("foreign writer")
+    expect(await readConfigurationIndex({ projectDir, address: { kind: "configuration" } })).toEqual(
+      reverseInputOrder(data)
+    )
+  })
+
   it("rejects a snapshot bound to another component before replacing the target", async () => {
     const projectDir = await createProjectDir()
     const first = sampleSnapshot()
