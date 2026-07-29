@@ -13,7 +13,6 @@ export interface FullXmlSyncWorkerProfileRuntime {
   readonly componentKind: ComponentAddress["kind"]
   readonly adoptedUuids: Readonly<Record<string, string>>
   readonly xmlDefaultVariantByLogicalAddress?: Readonly<Record<string, XMLDefaultVariant>>
-  readonly indexedPropertyOrderByLogicalAddress?: Readonly<Record<string, readonly string[]>>
   readonly baseForms?: {
     readonly componentDir: string
     readonly projectFiles: readonly ConfigurationProjectFile[]

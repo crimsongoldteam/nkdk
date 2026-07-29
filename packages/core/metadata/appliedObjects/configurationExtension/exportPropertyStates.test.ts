@@ -7,6 +7,7 @@ import { createConfigurationIndexReader, snapshotConfigurationIndex } from "../.
 import type { ConfigurationSnapshot } from "../../configurationIndex/types"
 import type { ConfigurationContextWithExportToXML } from "../../context/types"
 import type { MetadataItemRule } from "../../orchestration/property/types"
+import { MetadataCatalogRules } from "../metadataCatalog/rules"
 import { configurationExtensionYamlToXmlAugmenter } from "./exportPropertyStates"
 import { MetadataConfigurationExtensionRules } from "./rules"
 
@@ -57,6 +58,36 @@ describe("configuration extension YAML-to-XML augmenter", () => {
       { "xr:Property": "Form", "xr:State": "Extended" },
     ])
     expect(outputs.get("body")).toEqual({})
+  })
+
+  it("orders the adopted catalog service property by its real rules", () => {
+    const outputs = new Map([
+      [
+        "metadata",
+        {
+          Properties: {
+            Name: "Товары",
+            Synonym: "Товары",
+          },
+        },
+      ],
+    ])
+    configurationExtensionYamlToXmlAugmenter.augment({
+      context: context({
+        adoptedUuids: { "Catalog.Товары": BASE_UUID },
+      }),
+      rule: MetadataCatalogRules,
+      yaml: {},
+      outputs,
+      logicalAddress: "Catalog.Товары",
+    })
+
+    expect(Object.keys(record(record(outputs.get("metadata")).Properties))).toEqual([
+      "ObjectBelonging",
+      "Name",
+      "ExtendedConfigurationObject",
+      "Synonym",
+    ])
   })
 
   it("copies only xml.extended into the next snapshot", () => {

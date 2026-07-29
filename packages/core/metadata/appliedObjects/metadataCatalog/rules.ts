@@ -32,6 +32,7 @@ export const MetadataCatalogRules = {
     "internalInfo",
     "objectBelonging",
     "name",
+    "extendedConfigurationObject",
     "synonym",
     "comment",
     "hierarchical",
@@ -411,6 +412,11 @@ export const MetadataCatalogRules = {
       toYAML: false,
       fromYAML: false,
       implicitValueYAML: "Native",
+    }),
+    extendedConfigurationObject: stringRule({
+      xml: "ExtendedConfigurationObject",
+      xmlParents: ["Properties"],
+      runtimeOnly: true,
     }),
     objectPresentation: i8nTextRule({
       yaml: "ПредставлениеОбъекта",

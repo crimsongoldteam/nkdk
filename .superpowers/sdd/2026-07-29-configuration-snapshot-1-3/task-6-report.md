@@ -136,3 +136,19 @@ changed_error_count: 0
   падение `rules.test.ts` обращается к старому `collector.setUuid` в общем
   `internalInfo/configurationIndex.ts`. Это миграция Tasks 7–8 и находится вне
   Task 6.
+
+## Fix round 1
+
+- Регрессионный тест на реальном `MetadataCatalogRules` подтвердил, что
+  `ExtendedConfigurationObject` оставался после `Synonym`, потому что свойство
+  отсутствовало в `rules.ts`.
+- Служебное runtime-only свойство и его место после `name` объявлены в
+  `MetadataCatalogRules`; порядок больше не восстанавливается из снимка.
+- Удалено неиспользуемое поле
+  `indexedPropertyOrderByLogicalAddress` из профиля worker, контекста и передачи
+  в worker.
+- RED: 1 из 11 тестов упал на порядке
+  `ObjectBelonging, Name, Synonym, ExtendedConfigurationObject`.
+- GREEN: целевой набор Task 6 — 7 файлов, 42 теста успешно.
+- Общий `tsc --noEmit` остаётся красным на Tasks 7–8; в изменённых файлах ошибок
+  TypeScript нет.
