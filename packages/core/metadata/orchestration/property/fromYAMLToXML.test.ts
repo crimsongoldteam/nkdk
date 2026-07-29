@@ -33,8 +33,8 @@ const context = (): ConfigurationContextWithExportToXML => ({
   },
 })
 
-const testRule = (properties: Record<string, PropertyRule>): MetadataItemRule =>
-  ({ itemType: "Catalog", properties }) as MetadataItemRule
+const testRule = (properties: Record<string, PropertyRule>, xmlOrder?: readonly string[]): MetadataItemRule =>
+  ({ itemType: "Catalog", properties, xmlOrder }) as MetadataItemRule
 
 const contextWithXMLDefaultVariant = (
   variant: "full" | "adopted" | "indexed",
@@ -74,6 +74,30 @@ const contextWithXMLDefaultVariant = (
 }
 
 describe("convertPropertiesFromYAMLToXML", () => {
+  it("экспортирует свойства по xmlOrder независимо от reference XML", () => {
+    const result = convertPropertiesFromYAMLToXML({
+      context: context(),
+      yaml: { Имя: "Группа", Группировка: "Vertical", Заголовок: "Заголовок" },
+      rule: testRule(
+        {
+          name: { type: "string", yaml: "Имя", xml: "Name" },
+          group: { type: "string", yaml: "Группировка", xml: "Group" },
+          title: { type: "string", yaml: "Заголовок", xml: "Title" },
+        },
+        ["title", "group"]
+      ),
+      outputs: [{ key: "owner", referenceXML: { Name: "старое", Group: "старое", Title: "старое" } }],
+    })
+
+    const xml = result.outputs.get("owner")
+    expect(Object.keys(xml ?? {})).toEqual(["Title", "Group", "Name"])
+    expect(xml).toEqual({
+      Title: "Заголовок",
+      Group: "Vertical",
+      Name: "Группа",
+    })
+  })
+
   it("does not apply implicitValueYAML to missing YAML", () => {
     const result = convertPropertiesFromYAMLToXML({
       context: context(),
@@ -293,7 +317,7 @@ describe("convertPropertiesFromYAMLToXML", () => {
     expect(present.outputs.get("owner")).toEqual({ Mode: "full-xml" })
   })
 
-  it("считает свойство из сохранённого порядка присутствовавшим в XML", () => {
+  it("не считает свойство из сохранённого порядка присутствовавшим в XML", () => {
     const result = convertPropertiesFromYAMLToXML({
       context: contextWithXMLDefaultVariant("indexed", ["value"], true),
       yaml: {},
@@ -309,7 +333,7 @@ describe("convertPropertiesFromYAMLToXML", () => {
       outputs: [{ key: "owner" }],
     })
 
-    expect(result.outputs.get("owner")).toEqual({ Mode: "full-xml" })
+    expect(result.outputs.get("owner")).toEqual({})
   })
 
   it("преобразует синтезированный XML-default через обработчик типа", () => {
@@ -680,7 +704,7 @@ describe("convertPropertiesFromYAMLToXML", () => {
     })
   })
 
-  it("переносит порядок XML-узла в следующий снимок", () => {
+  it("не переносит порядок обычного XML-узла в следующий снимок", () => {
     const testContext = contextWithXMLDefaultVariant(
       "full",
       ["first", "items"],
@@ -698,12 +722,10 @@ describe("convertPropertiesFromYAMLToXML", () => {
     })
 
     expect(
-      testContext.exportToXML.configurationIndex!.collector.fragment("Свойства.yaml")
-        .xmlNodes
-    ).toContainEqual({
-      logicalAddress: DEFAULT_TEST_LOGICAL_ADDRESS,
-      order: ["first", "items"],
-    })
+      testContext.exportToXML.configurationIndex!.collector
+        .fragment("Свойства.yaml")
+        .xmlNodes.find((node) => node.logicalAddress === DEFAULT_TEST_LOGICAL_ADDRESS)
+    ).toBeUndefined()
   })
 
   it("сохраняет XML-алиас и исходное значение для preserveFromReferenceXML", () => {
@@ -765,7 +787,7 @@ describe("convertPropertiesFromYAMLToXML", () => {
     expect(result.outputs.get("owner")).toEqual({ Value: {} })
   })
 
-  it("сохраняет порядок свойств отдельно для каждого XML-файла", () => {
+  it("сохраняет декларативный порядок свойств отдельно для каждого XML-файла", () => {
     const result = convertPropertiesFromYAMLToXML({
       context: context(),
       yaml: { Заголовок: "форма", Значение: "объект", Ширина: 20 },
@@ -780,7 +802,22 @@ describe("convertPropertiesFromYAMLToXML", () => {
       ],
     })
 
-    expect(Object.keys(result.outputs.get("form")!)).toEqual(["Title", "Width"])
+    expect(Object.keys(result.outputs.get("form")!)).toEqual(["Width", "Title"])
+  })
+
+  it("вставляет отсутствующее в reference свойство на декларативную позицию", () => {
+    const result = convertPropertiesFromYAMLToXML({
+      context: context(),
+      yaml: { Первое: "1", Новое: "2", Последнее: "3" },
+      rule: testRule({
+        first: { type: "string", yaml: "Первое", xml: "First" },
+        added: { type: "string", yaml: "Новое", xml: "Added" },
+        last: { type: "string", yaml: "Последнее", xml: "Last" },
+      }),
+      outputs: [{ key: "owner", referenceXML: { Last: "старое", First: "старое" } }],
+    })
+
+    expect(Object.keys(result.outputs.get("owner")!)).toEqual(["First", "Added", "Last"])
   })
 
   it("создаёт пустое значение по умолчанию внутри разреженной коллекции", () => {

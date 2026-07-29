@@ -15,6 +15,22 @@ export const MetadataWebSocketClientRules = {
   metadataTargetOwner: { kind: "self", root: "WebSocketClient" },
   itemTypePrefix: "WebSocketКлиент",
   xmlDir: "WebSocketClients",
+  xmlOrder: [
+    "objectBelonging",
+    "name",
+    "synonym",
+    "comment",
+    "predefined",
+    "autoConnect",
+    "serverURL",
+    "user",
+    "password",
+    "headers",
+    "useOSProxy",
+    "useOSAuthentication",
+    "timeout",
+    "uuid",
+  ],
   properties: {
     xmlRoot: xmlRootRule({
       container: "WebSocketClient",

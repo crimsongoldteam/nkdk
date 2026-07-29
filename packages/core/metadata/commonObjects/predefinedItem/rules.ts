@@ -14,6 +14,15 @@ const isChartOfCharacteristicTypesPredefined = (context?: ConfigurationContextWi
     : false
 export const PredefinedItemRules = {
   itemType: "PredefinedItem",
+  xmlOrder: [
+    "name",
+    "code",
+    "description",
+    "type",
+    "isFolder",
+    "childItems",
+    "id",
+  ],
   properties: {
     id: {
       ...uuidPropertyRule,

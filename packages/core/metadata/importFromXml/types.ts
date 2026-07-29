@@ -84,4 +84,7 @@ export interface ImportSecondPassResult {
   files: ImportResultFile[]
 }
 
-export type ImportWorkerCommandResult = ImportFirstPassResult | ImportSecondPassResult | undefined
+export type ImportWorkerCommandResult =
+  | ImportFirstPassResult
+  | ImportSecondPassResult
+  | undefined

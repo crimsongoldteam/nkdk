@@ -242,7 +242,9 @@ describe("XML import worker first pass", () => {
           line.includes('substep="Чтение XML"')
       )
     ).toBe(true)
-    expect(lines.some((line) => line.includes("[nkdk-profile-step]") && line.includes('substep="Парсинг XML"'))).toBe(true)
+    expect(lines.some((line) => line.includes("[nkdk-profile-step]") && line.includes('substep="Парсинг XML"'))).toBe(
+      true
+    )
     expect(lines.some((line) => line.includes('substep="Преобразование XML в YAML"'))).toBe(true)
     expect(lines.some((line) => line.includes('substep="Сбор локальных индексов"'))).toBe(true)
     expect(lines.some((line) => line.includes('substep="Извлечение данных для индекса конфигурации"'))).toBe(true)
@@ -286,9 +288,7 @@ describe("XML import worker second pass", () => {
   ])("writes %s to its fixed Свойства.yaml target path", async (_itemType, assignment) => {
     const outputDir = createTempDir("worker-target")
     await initializeWorker(outputDir)
-    const first = expectFirstPass(
-      await runImportWorkerCommand({ kind: "firstPass", assignments: [assignment] })
-    )
+    const first = expectFirstPass(await runImportWorkerCommand({ kind: "firstPass", assignments: [assignment] }))
 
     const second = await runImportWorkerCommand({
       kind: "secondPass",
@@ -480,7 +480,8 @@ async function initializeWorker(outputDir: string): Promise<void> {
 
 function createCatalogAndFormAssignments(
   dataPath: string,
-  objectTypeName = "Товары"
+  objectTypeName = "Товары",
+  includeUsualGroup = false
 ): { catalog: ImportAssignment; form: ImportAssignment } {
   const sourceDir = createTempDir("sources")
   const catalogXmlPath = join(sourceDir, "Товары.xml")
@@ -494,6 +495,23 @@ function createCatalogAndFormAssignments(
     "utf-8"
   )
   writeFileSync(formMetadataPath, readFileSync(minimalFormMetadataXmlPath, "utf-8"), "utf-8")
+  const labelField = `<LabelField name="Путь" id="2">
+\t\t\t<DataPath>${dataPath}</DataPath>
+\t\t\t<ContextMenu name="ПутьКонтекстноеМеню" id="3"/>
+\t\t\t<ExtendedTooltip name="ПутьРасширеннаяПодсказка" id="4"/>
+\t\t</LabelField>`
+  const formElement = includeUsualGroup
+    ? `<UsualGroup name="Группа" id="5">
+\t\t\t<Title><v8:item><v8:lang>ru</v8:lang><v8:content>Группа</v8:content></v8:item></Title>
+\t\t\t<VerticalStretch>false</VerticalStretch>
+\t\t\t<Group>Vertical</Group>
+\t\t\t<ShowTitle>false</ShowTitle>
+\t\t\t<ExtendedTooltip name="ГруппаРасширеннаяПодсказка" id="6"/>
+\t\t\t<ChildItems>
+\t\t\t\t${labelField.replaceAll("\n", "\n\t\t\t\t")}
+\t\t\t</ChildItems>
+\t\t</UsualGroup>`
+    : labelField
   writeFileSync(
     formBodyPath,
     readFileSync(minimalFormXmlPath, "utf-8")
@@ -501,11 +519,7 @@ function createCatalogAndFormAssignments(
         '<AutoCommandBar name="ФормаКоманднаяПанель" id="-1"/>',
         `<AutoCommandBar name="ФормаКоманднаяПанель" id="-1"/>
 \t<ChildItems>
-\t\t<LabelField name="Путь" id="2">
-\t\t\t<DataPath>${dataPath}</DataPath>
-\t\t\t<ContextMenu name="ПутьКонтекстноеМеню" id="3"/>
-\t\t\t<ExtendedTooltip name="ПутьРасширеннаяПодсказка" id="4"/>
-\t\t</LabelField>
+\t\t${formElement.replaceAll("\n", "\n\t\t")}
 \t</ChildItems>`
       )
       .replace(

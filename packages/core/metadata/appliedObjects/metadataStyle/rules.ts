@@ -12,6 +12,13 @@ export const MetadataStyleRules = {
   metadataTargetOwner: { kind: "self", root: "Style" },
   itemTypePrefix: "Стиль",
   xmlDir: "Styles",
+  xmlOrder: [
+    "objectBelonging",
+    "name",
+    "synonym",
+    "comment",
+    "uuid",
+  ],
   properties: {
     xmlRoot: xmlRootRule({
       container: "Style",

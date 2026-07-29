@@ -27,6 +27,38 @@ export function extDimensionAccountingFlagsRule<const Params extends ExtDimensio
 ): Readonly<{ type: "ExtDimensionAccountingFlags" } & Params> {
   return defineWidePropertyRule("ExtDimensionAccountingFlags", params)
 }
+export interface ChartOfAccountsPredefinedAccountingFlagsWidePropertyRule extends WidePropertyRuleBase {
+  type: "ChartOfAccountsPredefinedAccountingFlags"
+}
+
+export type ChartOfAccountsPredefinedAccountingFlagsRuleParams = Omit<
+  ChartOfAccountsPredefinedAccountingFlagsWidePropertyRule,
+  "type"
+>
+
+export function chartOfAccountsPredefinedAccountingFlagsRule<
+  const Params extends ChartOfAccountsPredefinedAccountingFlagsRuleParams,
+>(
+  params: WideExactRuleParams<ChartOfAccountsPredefinedAccountingFlagsRuleParams, Params>
+): Readonly<{ type: "ChartOfAccountsPredefinedAccountingFlags" } & Params> {
+  return defineWidePropertyRule("ChartOfAccountsPredefinedAccountingFlags", params)
+}
+export interface ChartOfAccountsPredefinedExtDimensionTypesWidePropertyRule extends WidePropertyRuleBase {
+  type: "ChartOfAccountsPredefinedExtDimensionTypes"
+}
+
+export type ChartOfAccountsPredefinedExtDimensionTypesRuleParams = Omit<
+  ChartOfAccountsPredefinedExtDimensionTypesWidePropertyRule,
+  "type"
+>
+
+export function chartOfAccountsPredefinedExtDimensionTypesRule<
+  const Params extends ChartOfAccountsPredefinedExtDimensionTypesRuleParams,
+>(
+  params: WideExactRuleParams<ChartOfAccountsPredefinedExtDimensionTypesRuleParams, Params>
+): Readonly<{ type: "ChartOfAccountsPredefinedExtDimensionTypes" } & Params> {
+  return defineWidePropertyRule("ChartOfAccountsPredefinedExtDimensionTypes", params)
+}
 export interface MetadataChartOfAccountsTabularSectionsWidePropertyRule extends WidePropertyRuleBase {
   type: "MetadataChartOfAccountsTabularSections"
 }

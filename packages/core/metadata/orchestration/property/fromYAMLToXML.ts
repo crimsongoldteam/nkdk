@@ -151,7 +151,6 @@ export function createYAMLPropertySource(params: {
 }
 
 export function convertPropertiesFromYAMLToXML(params: ConvertPropertiesFromYAMLToXMLParams): YAMLToXMLResult {
-  copyConfigurationIndexNodeOrder(params.context)
   const yaml = asRecord(params.yaml)
   const source = createYAMLPropertySource({
     yaml,
@@ -169,9 +168,7 @@ export function convertPropertiesFromYAMLToXML(params: ConvertPropertiesFromYAML
     context: params.context,
   })
   const orderedKeys = getOrderedKeysToXML({
-    context: params.context,
     rule: params.rule,
-    referenceMetadata: undefined,
   })
   const planByKey = new Map(getYAMLToXMLPlan(params.rule).properties.map((planned) => [planned.propertyKey, planned]))
   if (params.externalWriteFactory !== undefined) {
@@ -179,21 +176,6 @@ export function convertPropertiesFromYAMLToXML(params: ConvertPropertiesFromYAML
       if (!orderedKeys.includes(propertyKey)) orderedKeys.push(propertyKey)
     }
   }
-  const indexOrder = new Map(
-    getYAMLToXMLPlan(params.rule).properties.flatMap((planned) => {
-      const output = params.outputs.find((request) => matchesOutputTag(planned.propertyRule, request))
-      const context = output?.context ?? params.context
-      const index = getConfigurationIndexPropertyOrder(context).indexOf(planned.propertyKey)
-      return index < 0 ? [] : [[planned.propertyKey, index] as const]
-    })
-  )
-  const referenceOrder = getReferencePropertyOrder({ outputs: params.outputs, planByKey })
-  orderedKeys.sort((left, right) => {
-    const byReference =
-      (referenceOrder.get(left) ?? Number.MAX_SAFE_INTEGER) - (referenceOrder.get(right) ?? Number.MAX_SAFE_INTEGER)
-    if (byReference !== 0) return byReference
-    return (indexOrder.get(left) ?? Number.MAX_SAFE_INTEGER) - (indexOrder.get(right) ?? Number.MAX_SAFE_INTEGER)
-  })
   const namePropertyKey = params.namePropertyKey ?? "name"
 
   for (const propertyKey of orderedKeys) {
@@ -761,17 +743,6 @@ export function convertPropertiesFromYAMLToXML(params: ConvertPropertiesFromYAML
   }
 }
 
-function copyConfigurationIndexNodeOrder(
-  context: ConfigurationContextWithExportToXML
-): void {
-  const runtime = context.exportToXML.configurationIndex
-  if (runtime === undefined) return
-  const logicalAddress =
-    getConfigurationIndexXmlNodeLogicalAddress(context) ?? runtime.logicalAddress
-  const order = runtime.source.xmlNode(logicalAddress)?.order
-  if (order !== undefined) runtime.collector.setOrder(logicalAddress, order)
-}
-
 function copyConfigurationIndexPropertyValue(
   context: ConfigurationContextWithExportToXML,
   propertyKey: string
@@ -1302,12 +1273,9 @@ function usesOrdinaryXMLDefaults(
 function isConfigurationIndexPropertyPresentForRule(
   context: ConfigurationContextWithExportToXML,
   propertyKey: string,
-  rule: PropertyRule
+  _rule: PropertyRule
 ): boolean {
-  if (rule.configurationIndexPresenceFromOrder !== false) {
-    return isConfigurationIndexPropertyPresent(context, propertyKey)
-  }
-  return context.exportToXML.configurationIndex?.xmlNode()?.present?.includes(propertyKey) === true
+  return isConfigurationIndexPropertyPresent(context, propertyKey)
 }
 
 function isIndexedXMLDefaultVariant(
@@ -1364,47 +1332,6 @@ function wrapWithNamespace(rule: PropertyRule, value: unknown): unknown {
 
 function asRecord(value: unknown): Record<string, unknown> | undefined {
   return isRecord(value) ? value : undefined
-}
-
-function getReferencePropertyOrder(params: {
-  outputs: readonly YAMLToXMLOutputRequest[]
-  planByKey: ReadonlyMap<string, YAMLToXMLPlannedProperty>
-}): ReadonlyMap<string, number> {
-  const pathsByOutput = new Map<YAMLToXMLOutputRequest, string[]>()
-  for (const output of params.outputs) {
-    if (!isRecord(output.referenceXML)) continue
-    const paths: string[] = []
-    collectReferenceXMLPaths(output.referenceXML, [], paths)
-    pathsByOutput.set(output, paths)
-  }
-  const result = new Map<string, number>()
-  for (const [propertyKey, planned] of params.planByKey) {
-    const parent = planned.propertyRule.xmlParents ?? []
-    const keys = [
-      planned.propertyRule.xml ?? capitalizePropertyKey(propertyKey),
-      ...(planned.propertyRule.xmlAliases ?? []),
-    ]
-    const indices = params.outputs
-      .filter((output) => matchesOutputTag(planned.propertyRule, output))
-      .flatMap((output) => {
-        const paths = pathsByOutput.get(output) ?? []
-        return keys.map((key) => paths.indexOf([...parent, key].join("\u0000"))).filter((index) => index >= 0)
-      })
-    if (indices.length > 0) result.set(propertyKey, Math.min(...indices))
-  }
-  return result
-}
-
-function collectReferenceXMLPaths(value: Record<string, unknown>, parent: readonly string[], result: string[]): void {
-  for (const [key, child] of Object.entries(value)) {
-    const path = [...parent, key]
-    result.push(path.join("\u0000"))
-    if (isRecord(child)) collectReferenceXMLPaths(child, path, result)
-  }
-}
-
-function capitalizePropertyKey(value: string): string {
-  return `${value.charAt(0).toUpperCase()}${value.slice(1)}`
 }
 
 function isRecord(value: unknown): value is Record<string, unknown> {

@@ -2,10 +2,6 @@ import type { ConfigurationContextWithExportToXML } from "../../context/types"
 import { createConfigurationIndexCollector } from "../../configurationIndex/collector/writer"
 import { createConfigurationIndexExportRuntime } from "../../configurationIndex/exportRuntime"
 import { childUid } from "../../configurationIndex/logicalAddress"
-import {
-  getConfigurationIndexPropertyOrder,
-  withConfigurationIndexExportXmlNodeLogicalAddress,
-} from "../../configurationIndex/referenceView"
 import type { ConfigurationIndexReader } from "../../configurationIndex/sharedSnapshot"
 import type {
   ClientApplicationFormXML,
@@ -58,16 +54,6 @@ export function buildClientApplicationBaseForm(params: {
             formAddress: runtime.logicalAddress,
             formBodyAddress,
             yaml: projected.yaml,
-            effectiveRootPropertyOrder:
-              params.context.exportToXML.indexedPropertyOrderByLogicalAddress?.[
-                runtime.logicalAddress
-              ] ??
-              getConfigurationIndexPropertyOrder(
-                withConfigurationIndexExportXmlNodeLogicalAddress(
-                  params.context,
-                  formBodyAddress
-                )
-              ),
           }),
         })
   const context = withDiscardedConfigurationIndexWrites(
@@ -105,7 +91,6 @@ function projectedNodeProjections(params: {
   readonly formAddress: string
   readonly formBodyAddress: string
   readonly yaml: ClientApplicationFormYAML
-  readonly effectiveRootPropertyOrder: readonly string[]
 }): readonly BaseFormNodeProjection[] {
   const result: BaseFormNodeProjection[] = [{
     logicalAddress: params.formAddress,
@@ -115,7 +100,6 @@ function projectedNodeProjections(params: {
       params.yaml,
       ClientApplicationFormRules
     ),
-    effectivePropertyOrder: params.effectiveRootPropertyOrder,
   }]
   visitProjectedElements({
     formAddress: params.formAddress,

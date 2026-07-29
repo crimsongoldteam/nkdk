@@ -76,10 +76,11 @@ export function importMetadataItemCollectionFromXMLToYAML(params: {
 }): Record<string, unknown> | Array<Record<string, unknown>> | undefined {
   const items = normalizeCollectionItems(params.xml, params.xmlElement)
   if (items.length === 0) return undefined
+  const sourceItemRule = params.itemRule
   const itemRule =
     params.preserveItemPropertyPresence === true
-      ? withPreservedPropertyPresence(params.itemRule)
-      : params.itemRule
+      ? withPreservedPropertyPresence(sourceItemRule)
+      : sourceItemRule
   const keyField = params.keyField
   const keyYaml = keyField === undefined ? undefined : (itemRule.properties[keyField]?.yaml ?? keyField)
   if (params.preserveOmittedItemNames === true) {
@@ -127,11 +128,10 @@ export function importMetadataItemCollectionFromXMLToYAML(params: {
       name: itemName,
       traversal: enterNestedYamlRule(
         {
+          ...params.traversal,
           yamlPath,
-          rulePath: params.traversal.rulePath,
           collector: bufferedCollector?.collector ?? params.traversal.collector,
           deferred: bufferedDeferred?.collector ?? params.traversal.deferred,
-          profile: params.traversal.profile,
         },
         itemRule.itemType
       ),

@@ -41,9 +41,7 @@ export function isConfigurationIndexPropertyPresent(
   propertyKey: string
 ): boolean {
   const node = context?.exportToXML.configurationIndex?.xmlNode()
-  return node?.present?.includes(propertyKey) === true ||
-    node?.order?.includes(propertyKey) === true ||
-    getConfigurationIndexPropertyOrder(context).includes(propertyKey)
+  return node?.present?.includes(propertyKey) === true
 }
 
 export function getConfigurationIndexPropertyXmlValue(

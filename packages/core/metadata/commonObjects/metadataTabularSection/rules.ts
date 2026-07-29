@@ -26,7 +26,6 @@ const commonTabularSectionProperties = {
     type: "string",
     required: true,
     xmlParents: propertiesParents,
-    order: 1,
   },
   synonym: {
     yaml: "Синоним",
@@ -47,7 +46,6 @@ const commonTabularSectionProperties = {
       operation === "importFromYAML" && name
         ? addDefaultLanguageNameToSynonym(context, undefined, name)
         : { items: { [context.defaultLanguage]: "" } },
-    order: 2,
     defaultValueXMLEmpty: { items: {} },
     preserveEmptyXML: true,
   },
@@ -57,7 +55,6 @@ const commonTabularSectionProperties = {
     type: "string",
     xmlParents: propertiesParents,
     defaultValueXMLRaw: "",
-    order: 3,
   },
   toolTip: {
     yaml: "Подсказка",
@@ -65,7 +62,6 @@ const commonTabularSectionProperties = {
     type: "I8nText",
     xmlParents: propertiesParents,
     defaultValueXMLRaw: "",
-    order: 4,
   },
   fillChecking: {
     yaml: "ПроверкаЗаполнения",
@@ -75,7 +71,6 @@ const commonTabularSectionProperties = {
     xmlParents: propertiesParents,
     defaultValueXML: "DontCheck",
     implicitValueYAML: "DontCheck",
-    order: 5,
   },
   standardAttributes: {
     yaml: "СтандартныеРеквизиты",
@@ -83,7 +78,6 @@ const commonTabularSectionProperties = {
     type: "StandardAttributeDescriptions",
     standartAttributeNames: { LineNumber: "НомерСтроки" },
     xmlParents: propertiesParents,
-    order: 6,
   },
   lineNumberLength: {
     yaml: "ДлинаНомераСтроки",
@@ -93,7 +87,6 @@ const commonTabularSectionProperties = {
     defaultValueXML: 5,
     implicitValueYAML: 5,
     preserveFromReferenceXML: true,
-    order: 8,
   },
   objectBelonging: {
     yaml: "ПринадлежностьОбъекта",
@@ -102,7 +95,6 @@ const commonTabularSectionProperties = {
     typeSE: "ObjectBelonging",
     xmlParents: propertiesParents,
     noImplicitValueYAML: true,
-    order: 9,
   },
   attributes: {
     yaml: "Реквизиты",
@@ -122,6 +114,20 @@ const commonTabularSectionProperties = {
 export const MetadataTabularSectionRules = {
   itemType: "MetadataTabularSection",
   externalMetadata: tabularSectionExternalMetadata,
+  xmlOrder: [
+    "internalInfo",
+    "objectBelonging",
+    "name",
+    "synonym",
+    "comment",
+    "toolTip",
+    "fillChecking",
+    "standardAttributes",
+    "use",
+    "lineNumberLength",
+    "attributes",
+    "uuid",
+  ],
   properties: {
     ...commonTabularSectionProperties,
     internalInfo: internalInfoRule({
@@ -149,13 +155,25 @@ export const MetadataTabularSectionRules = {
       xmlParents: propertiesParents,
       defaultValueXML: "ForItem",
       implicitValueYAML: "ForItem",
-      order: 7,
     }),
   },
 } as const satisfies MetadataItemRule
 export const MetadataDocumentTabularSectionRules = {
   itemType: "MetadataTabularSection",
   externalMetadata: tabularSectionExternalMetadata,
+  xmlOrder: [
+    "internalInfo",
+    "objectBelonging",
+    "name",
+    "synonym",
+    "comment",
+    "toolTip",
+    "fillChecking",
+    "standardAttributes",
+    "lineNumberLength",
+    "attributes",
+    "uuid",
+  ],
   properties: {
     ...commonTabularSectionProperties,
     internalInfo: internalInfoRule({
@@ -181,6 +199,19 @@ export const MetadataDocumentTabularSectionRules = {
 export const MetadataTaskTabularSectionRules = {
   itemType: "MetadataTabularSection",
   externalMetadata: tabularSectionExternalMetadata,
+  xmlOrder: [
+    "internalInfo",
+    "objectBelonging",
+    "name",
+    "synonym",
+    "comment",
+    "toolTip",
+    "fillChecking",
+    "standardAttributes",
+    "lineNumberLength",
+    "attributes",
+    "uuid",
+  ],
   properties: {
     ...commonTabularSectionProperties,
     internalInfo: internalInfoRule({
@@ -204,6 +235,19 @@ export const MetadataTaskTabularSectionRules = {
 export const MetadataBusinessProcessTabularSectionRules = {
   itemType: "MetadataTabularSection",
   externalMetadata: tabularSectionExternalMetadata,
+  xmlOrder: [
+    "internalInfo",
+    "objectBelonging",
+    "name",
+    "synonym",
+    "comment",
+    "toolTip",
+    "fillChecking",
+    "standardAttributes",
+    "lineNumberLength",
+    "attributes",
+    "uuid",
+  ],
   properties: {
     ...commonTabularSectionProperties,
     internalInfo: internalInfoRule({
@@ -227,6 +271,18 @@ export const MetadataBusinessProcessTabularSectionRules = {
 export const MetadataDataProcessorTabularSectionRules = {
   itemType: "MetadataTabularSection",
   externalMetadata: tabularSectionExternalMetadata,
+  xmlOrder: [
+    "internalInfo",
+    "objectBelonging",
+    "name",
+    "synonym",
+    "comment",
+    "toolTip",
+    "fillChecking",
+    "standardAttributes",
+    "attributes",
+    "uuid",
+  ],
   properties: {
     ...commonTabularSectionProperties,
     internalInfo: internalInfoRule({
@@ -251,6 +307,18 @@ export const MetadataDataProcessorTabularSectionRules = {
 export const MetadataReportTabularSectionRules = {
   itemType: "MetadataTabularSection",
   externalMetadata: tabularSectionExternalMetadata,
+  xmlOrder: [
+    "internalInfo",
+    "objectBelonging",
+    "name",
+    "synonym",
+    "comment",
+    "toolTip",
+    "fillChecking",
+    "standardAttributes",
+    "attributes",
+    "uuid",
+  ],
   properties: {
     ...commonTabularSectionProperties,
     internalInfo: internalInfoRule({
@@ -275,6 +343,19 @@ export const MetadataReportTabularSectionRules = {
 export const MetadataExchangePlanTabularSectionRules = {
   itemType: "MetadataTabularSection",
   externalMetadata: tabularSectionExternalMetadata,
+  xmlOrder: [
+    "internalInfo",
+    "objectBelonging",
+    "name",
+    "synonym",
+    "comment",
+    "toolTip",
+    "fillChecking",
+    "standardAttributes",
+    "lineNumberLength",
+    "attributes",
+    "uuid",
+  ],
   properties: {
     ...commonTabularSectionProperties,
     internalInfo: internalInfoRule({
@@ -299,6 +380,19 @@ export const MetadataExchangePlanTabularSectionRules = {
 export const MetadataChartOfAccountsTabularSectionRules = {
   itemType: "MetadataTabularSection",
   externalMetadata: tabularSectionExternalMetadata,
+  xmlOrder: [
+    "internalInfo",
+    "objectBelonging",
+    "name",
+    "synonym",
+    "comment",
+    "toolTip",
+    "fillChecking",
+    "standardAttributes",
+    "lineNumberLength",
+    "attributes",
+    "uuid",
+  ],
   properties: {
     ...commonTabularSectionProperties,
     internalInfo: internalInfoRule({
@@ -322,6 +416,19 @@ export const MetadataChartOfAccountsTabularSectionRules = {
 export const MetadataChartOfCalculationTypesTabularSectionRules = {
   itemType: "MetadataTabularSection",
   externalMetadata: tabularSectionExternalMetadata,
+  xmlOrder: [
+    "internalInfo",
+    "objectBelonging",
+    "name",
+    "synonym",
+    "comment",
+    "toolTip",
+    "fillChecking",
+    "standardAttributes",
+    "lineNumberLength",
+    "attributes",
+    "uuid",
+  ],
   properties: {
     ...commonTabularSectionProperties,
     internalInfo: internalInfoRule({
@@ -345,6 +452,20 @@ export const MetadataChartOfCalculationTypesTabularSectionRules = {
 export const MetadataChartOfCharacteristicTypesTabularSectionRules = {
   itemType: "MetadataTabularSection",
   externalMetadata: tabularSectionExternalMetadata,
+  xmlOrder: [
+    "internalInfo",
+    "objectBelonging",
+    "name",
+    "synonym",
+    "comment",
+    "toolTip",
+    "fillChecking",
+    "standardAttributes",
+    "use",
+    "lineNumberLength",
+    "attributes",
+    "uuid",
+  ],
   properties: {
     ...commonTabularSectionProperties,
     internalInfo: internalInfoRule({
@@ -370,7 +491,6 @@ export const MetadataChartOfCharacteristicTypesTabularSectionRules = {
       xmlParents: propertiesParents,
       defaultValueXML: "ForItem",
       implicitValueYAML: "ForItem",
-      order: 7,
     }),
   },
 } as const satisfies MetadataItemRule

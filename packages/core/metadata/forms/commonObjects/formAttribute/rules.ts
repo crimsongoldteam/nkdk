@@ -22,6 +22,26 @@ import { registerMetadataItemCollectionRule } from "../../../orchestration/metad
 import { restoreKnownDuplicateErpAdditionalColumns } from "../../knownAnomalies"
 export const FormAttributeRules = {
   itemType: "FormAttribute",
+  xmlOrder: [
+    "title",
+    "type",
+    "mainAttribute",
+    "storedData",
+    "view",
+    "edit",
+    "columns",
+    "functionalOptions",
+    "fieldsList",
+    "valueType",
+    "dynamicList",
+    "chart",
+    "ganttChart",
+    "flowchartContext",
+    "spreadsheetDocument",
+    "planner",
+    "name",
+    "id",
+  ],
   properties: {
     id: stringRule({
       xml: "_id",
@@ -34,11 +54,9 @@ export const FormAttributeRules = {
     valueType: typeDescriptionRule({
       yaml: "ТипЗначения",
       xml: "Settings",
-      order: 99,
       addTypeDescriptionAttributeToXML: true,
       defaultValueXMLEmpty: { type: [] },
       preserveEmptyXML: true,
-      configurationIndexPresenceFromOrder: false,
     }),
     title: i8nTextRule({
       yaml: "Заголовок",
@@ -65,39 +83,32 @@ export const FormAttributeRules = {
         }
       },
       excludeIfEqualNameYAML: true,
-      order: 1,
     }),
     type: typeDescriptionRule({
       yaml: "Тип",
       xml: "Type",
       defaultValueXMLRaw: {},
-      order: 2,
     }),
     mainAttribute: booleanRule({
       yaml: "ОсновнойРеквизит",
       xml: "MainAttribute",
       implicitValueYAML: false,
-      order: 5,
     }),
     storedData: booleanRule({
       yaml: "СохраняемыеДанные",
       xml: "SavedData",
       implicitValueYAML: false,
-      order: 6,
     }),
     view: userVisibleRule({
       yaml: "Просмотр",
-      order: 3,
     }),
     edit: userVisibleRule({
       yaml: "Редактирование",
-      order: 4,
     }),
     fillCheck: systemEnumerationRule({
       yaml: "ПроверкаЗаполнения",
       typeSE: "FillChecking",
       implicitValueYAML: "DontCheck",
-      order: 7,
     }),
     columns: formAttributeColumnsRule({
       yaml: "Колонки",
@@ -116,58 +127,49 @@ export const FormAttributeRules = {
     }),
     functionalOptions: functionalOptionsPropertyRule({
       yaml: "ФункциональныеОпции",
-      order: 10,
     }),
     fieldsList: fieldsListRule({
       yaml: "ИспользоватьВсегда",
       xml: "UseAlways",
-      order: 8,
     }),
     save: fieldsListRule({
       yaml: "Сохранение",
-      order: 9,
     }),
     dynamicList: dynamicListRule({
       xml: "Settings",
       yaml: "ДинамическийСписок",
-      order: 99,
-      configurationIndexPresenceFromOrder: false,
     }),
     chart: chartRule({
       xml: "Settings",
       yaml: "Диаграмма",
-      order: 99,
-      configurationIndexPresenceFromOrder: false,
     }),
     ganttChart: ganttChartRule({
       xml: "Settings",
       yaml: "ДиаграммаГанта",
-      order: 99,
-      configurationIndexPresenceFromOrder: false,
     }),
     flowchartContext: flowchartContextRule({
       xml: "Settings",
       yaml: "ГрафическаяСхема",
-      order: 99,
-      configurationIndexPresenceFromOrder: false,
     }),
     spreadsheetDocument: spreadsheetDocumentRule({
       xml: "Settings",
       yaml: "ТабличныйДокумент",
-      order: 99,
-      configurationIndexPresenceFromOrder: false,
     }),
     planner: plannerRule({
       xml: "Settings",
       yaml: "Планировщик",
-      order: 99,
-      configurationIndexPresenceFromOrder: false,
     }),
   },
 } as const satisfies MetadataItemRule
 
 export const FormAttributeColumnRules = {
   itemType: "FormAttributeColumn",
+  xmlOrder: [
+    "title",
+    "type",
+    "name",
+    "id",
+  ],
   properties: {
     id: stringRule({
       xml: "_id",
@@ -180,31 +182,25 @@ export const FormAttributeColumnRules = {
     title: i8nTextRule({
       yaml: "Заголовок",
       excludeIfEqualNameYAML: true,
-      order: 2,
     }),
     type: typeDescriptionRule({
       yaml: "Тип",
       xml: "Type",
-      order: 3,
       defaultValueXMLRaw: {},
     }),
     view: userVisibleRule({
       yaml: "Просмотр",
-      order: 4,
     }),
     edit: userVisibleRule({
       yaml: "Редактирование",
-      order: 0,
     }),
     fillCheck: systemEnumerationRule({
       yaml: "ПроверкаЗаполнения",
       typeSE: "FillChecking",
-      order: 1,
       implicitValueYAML: "DontCheck",
     }),
     functionalOptions: functionalOptionsPropertyRule({
       yaml: "ФункциональныеОпции",
-      order: 5,
     }),
   },
 } as const satisfies MetadataItemRule

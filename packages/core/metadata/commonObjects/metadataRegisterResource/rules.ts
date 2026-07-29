@@ -8,6 +8,43 @@ const resourceExternalMetadata = { segment: "Resource", placement: "ownerChild" 
 export const MetadataRegisterResourceRules = {
   itemType: "MetadataRegisterResource",
   externalMetadata: resourceExternalMetadata,
+  xmlOrder: [
+    "objectBelonging",
+    "name",
+    "synonym",
+    "comment",
+    "type",
+    "passwordMode",
+    "format",
+    "editFormat",
+    "toolTip",
+    "markNegatives",
+    "mask",
+    "multiLine",
+    "extendedEdit",
+    "minValue",
+    "maxValue",
+    "fillFromFillingValue",
+    "fillValue",
+    "fillChecking",
+    "choiceFoldersAndItems",
+    "choiceParameterLinks",
+    "choiceParameters",
+    "quickChoice",
+    "createOnInput",
+    "choiceForm",
+    "linkByType",
+    "choiceHistoryOnInput",
+    "indexing",
+    "balance",
+    "accountingFlag",
+    "extDimensionAccountingFlag",
+    "fullTextSearch",
+    "dataHistory",
+    "binaryDataStorageLocationUse",
+    "binaryDataStorageLocationUseField",
+    "uuid",
+  ],
   properties: {
     ...commonRegisterFieldProperties,
     balance: booleanRule({
@@ -18,7 +55,6 @@ export const MetadataRegisterResourceRules = {
       implicitValueYAML: true,
       toXML: (_metadataItem: unknown, context?: ConfigurationContextWithExportToXML) =>
         isAccountingRegisterField(context),
-      order: 25.1,
     }),
     accountingFlag: stringRule({
       yaml: "ПризнакУчета",
@@ -27,7 +63,6 @@ export const MetadataRegisterResourceRules = {
       defaultValueXMLRaw: "",
       toXML: (_metadataItem: unknown, context?: ConfigurationContextWithExportToXML) =>
         isAccountingRegisterField(context),
-      order: 25.2,
     }),
     extDimensionAccountingFlag: stringRule({
       yaml: "ПризнакУчетаСубконто",
@@ -36,7 +71,6 @@ export const MetadataRegisterResourceRules = {
       defaultValueXMLRaw: "",
       toXML: (_metadataItem: unknown, context?: ConfigurationContextWithExportToXML) =>
         isAccountingRegisterField(context),
-      order: 25.3,
     }),
   },
 } as const satisfies MetadataItemRule

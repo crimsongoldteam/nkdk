@@ -6,6 +6,12 @@ import { systemEnumerationRule } from "../../../systemEnumerations/types"
 import { MetadataItemRule } from "../../../orchestration"
 export const FilterRules = {
   itemType: "Filter",
+  xmlOrder: [
+    "items",
+    "viewMode",
+    "userSettingID",
+    "userSettingPresentation",
+  ],
   properties: {
     availableFields: availableFieldsRule({
       xml: "dcsset:availableFields",

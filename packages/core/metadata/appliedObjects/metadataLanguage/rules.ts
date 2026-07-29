@@ -13,6 +13,14 @@ export const MetadataLanguageRules = {
   metadataTargetOwner: { kind: "self", root: "Language" },
   itemTypePrefix: "Язык",
   xmlDir: "Languages",
+  xmlOrder: [
+    "objectBelonging",
+    "name",
+    "synonym",
+    "comment",
+    "languageCode",
+    "uuid",
+  ],
   properties: {
     xmlRoot: xmlRootRule({
       container: "Language",

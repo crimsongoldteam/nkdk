@@ -12,6 +12,14 @@ export const MetadataSessionParameterRules = {
   metadataTargetOwner: { kind: "self", root: "SessionParameter" },
   itemTypePrefix: "ПараметрСеанса",
   xmlDir: "SessionParameters",
+  xmlOrder: [
+    "objectBelonging",
+    "name",
+    "synonym",
+    "comment",
+    "type",
+    "uuid",
+  ],
   properties: {
     xmlRoot: xmlRootRule({
       container: "SessionParameter",

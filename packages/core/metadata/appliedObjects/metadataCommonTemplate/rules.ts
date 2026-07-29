@@ -12,6 +12,14 @@ export const MetadataCommonTemplateRules = {
   metadataTargetOwner: { kind: "self", root: "CommonTemplate" },
   itemTypePrefix: "ОбщийМакет",
   xmlDir: "CommonTemplates",
+  xmlOrder: [
+    "objectBelonging",
+    "name",
+    "synonym",
+    "comment",
+    "templateType",
+    "uuid",
+  ],
   properties: {
     xmlRoot: xmlRootRule({
       container: "CommonTemplate",

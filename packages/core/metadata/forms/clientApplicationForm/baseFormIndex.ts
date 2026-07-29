@@ -8,13 +8,13 @@ import type {
 } from "../../configurationIndex/sharedSnapshot"
 import type { MetadataItemRule } from "../../orchestration/property/types"
 import { getTypeRule } from "../../orchestration/property/typeRuleRegistry"
+import { getCompiledXMLPropertyOrder } from "../../orchestration/property/xmlPropertyOrder"
 
 export interface BaseFormNodeProjection {
   readonly logicalAddress: string
   readonly xmlNodeLogicalAddress: string
   readonly rule: MetadataItemRule
   readonly selectedPropertyKeys: ReadonlySet<string>
-  readonly effectivePropertyOrder?: readonly string[]
 }
 
 export function createBaseFormConfigurationIndexReader(params: {
@@ -181,12 +181,9 @@ function projectXmlNode(
     }
   }
 
-  const order = projectedPropertyOrder({
-    effectivePropertyOrder: projection.effectivePropertyOrder ?? [],
-    basePropertyOrder: baseNode?.order ?? [],
-    extensionPropertyOrder: extensionNode?.order ?? [],
-    available,
-  })
+  const order = getCompiledXMLPropertyOrder(projection.rule).filter(
+    (propertyKey) => available.has(propertyKey)
+  )
   const orderedPresent = [
     ...order.filter((propertyKey) => present.has(propertyKey)),
     ...[...present].filter((propertyKey) => !order.includes(propertyKey)),
@@ -198,7 +195,6 @@ function projectXmlNode(
 
   return {
     logicalAddress: projection.xmlNodeLogicalAddress,
-    ...(order.length === 0 ? {} : { order }),
     ...(orderedPresent.length === 0 ? {} : { present: orderedPresent }),
     ...(Object.keys(aliases).length === 0 ? {} : { aliases }),
   }
@@ -207,21 +203,15 @@ function projectXmlNode(
 function isXmlNodePropertyAvailable(
   node: ConfigurationXmlNode | undefined,
   propertyKey: string,
-  rule: MetadataItemRule["properties"][string]
+  _rule: MetadataItemRule["properties"][string]
 ): boolean {
-  return (
-    node?.present?.includes(propertyKey) === true ||
-    (
-      rule.configurationIndexPresenceFromOrder !== false &&
-      node?.order?.includes(propertyKey) === true
-    )
-  )
+  return node?.present?.includes(propertyKey) === true
 }
 
 function xmlNodePropertyKeys(
   node: ConfigurationXmlNode | undefined
 ): ReadonlySet<string> {
-  return new Set([...(node?.order ?? []), ...(node?.present ?? [])])
+  return new Set(node?.present ?? [])
 }
 
 function projectedPropertyOrder(params: {

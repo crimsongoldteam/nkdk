@@ -18,6 +18,7 @@ export const importFromXmlInputShape = {
   xmlDir: z.string().min(1),
   projectDir: z.string().min(1),
   componentPath: z.string().min(1).optional(),
+  concurrency: z.number().int().positive().optional(),
   allowWrite: z.boolean().optional(),
 }
 

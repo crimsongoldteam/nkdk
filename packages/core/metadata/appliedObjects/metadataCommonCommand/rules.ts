@@ -10,6 +10,23 @@ export const MetadataCommonCommandRules = {
   itemTypePrefix: "ОбщаяКоманда",
   xmlDir: "CommonCommands",
   externalMetadata: { segment: "CommonCommand", placement: "rootEntry" },
+  xmlOrder: [
+    "objectBelonging",
+    "name",
+    "synonym",
+    "comment",
+    "group",
+    "representation",
+    "toolTip",
+    "picture",
+    "shortcut",
+    "includeHelpInContents",
+    "commandParameterType",
+    "parameterUseMode",
+    "modifiesData",
+    "onMainServerUnavalableBehavior",
+    "uuid",
+  ],
   properties: {
     xmlRoot: xmlRootRule({
       container: "CommonCommand",
@@ -25,23 +42,18 @@ export const MetadataCommonCommandRules = {
       xmlParents: ["Properties"],
       defaultValueXML: false,
       implicitValueYAML: false,
-      order: 12,
     }),
     commandParameterType: {
       ...MetadataCommandRules.properties.commandParameterType,
-      order: 13,
     },
     parameterUseMode: {
       ...MetadataCommandRules.properties.parameterUseMode,
-      order: 14,
     },
     modifiesData: {
       ...MetadataCommandRules.properties.modifiesData,
-      order: 15,
     },
     onMainServerUnavalableBehavior: {
       ...MetadataCommandRules.properties.onMainServerUnavalableBehavior,
-      order: 16,
     },
     commandModule: {
       ...MetadataCommandRules.properties.commandModule,

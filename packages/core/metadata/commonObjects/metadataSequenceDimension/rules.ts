@@ -7,6 +7,15 @@ import type { MetadataItemRule } from "../../orchestration/property/types"
 export const MetadataSequenceDimensionRules = {
   itemType: "MetadataSequenceDimension",
   externalMetadata: { segment: "Dimension", placement: "ownerChild" },
+  xmlOrder: [
+    "name",
+    "synonym",
+    "comment",
+    "type",
+    "documentMap",
+    "registerRecordsMap",
+    "uuid",
+  ],
   properties: {
     uuid: uuidPropertyRule,
     name: stringRule({
