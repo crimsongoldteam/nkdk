@@ -6,7 +6,13 @@ import { uuidPropertyRule } from "../uuid/rule"
 import type { MetadataItemRule } from "../../orchestration/property/types"
 export const AdditionalIndexItemRules = {
   itemType: "AdditionalIndexItem",
-  xmlOrder: ["name", "table", "indexedFields", "additionalFields"],
+  xmlOrder: [
+    "name",
+    "table",
+    "indexedFields",
+    "additionalFields",
+    "id",
+  ],
   properties: {
     id: {
       ...uuidPropertyRule,

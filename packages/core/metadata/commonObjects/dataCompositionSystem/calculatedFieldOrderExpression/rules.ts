@@ -4,6 +4,11 @@ import { systemEnumerationRule } from "../../../systemEnumerations/types"
 import { MetadataItemRule } from "../../../orchestration"
 export const CalculatedFieldOrderExpressionRules = {
   itemType: "CalculatedFieldOrderExpression",
+  xmlOrder: [
+    "expression",
+    "orderType",
+    "autoOrder",
+  ],
   properties: {
     expression: stringRule({
       xml: "expression",

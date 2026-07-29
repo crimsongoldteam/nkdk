@@ -76,11 +76,8 @@ export const FilterItemGroupRules = {
   itemType: "FilterItemGroup",
   xsiType: "dcsset:FilterItemGroup",
   xmlOrder: [
-    "use",
     "groupType",
     "items",
-    "presentation",
-    "viewMode",
   ],
   properties: {
     use: booleanRule({

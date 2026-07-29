@@ -25,6 +25,8 @@ export const ClientApplicationFormRules = {
   itemType: "ClientApplicationForm",
   metadataTargetOwner: { kind: "inherit" },
   xmlOrder: [
+    "reportResult",
+    "detailsData",
     "title",
     "width",
     "height",
@@ -39,7 +41,6 @@ export const ClientApplicationFormRules = {
     "group",
     "itemsAndTitlesAlign",
     "horizontalSpacing",
-    "slaveItemsWidth",
     "verticalSpacing",
     "childItemsHorizontalAlign",
     "childItemsVerticalAlign",
@@ -53,8 +54,6 @@ export const ClientApplicationFormRules = {
     "conversationsRepresentation",
     "mobileDeviceCommandBarContent",
     "commandSet",
-    "reportResult",
-    "detailsData",
     "showTitle",
     "showCloseButton",
     "collapseItemsByImportance",
@@ -82,9 +81,9 @@ export const ClientApplicationFormRules = {
     "childItems",
     "attributes",
     "attributesConditionalAppearance",
+    "commandInterface",
     "commands",
     "parameters",
-    "commandInterface",
   ],
   properties: {
     // #region Form

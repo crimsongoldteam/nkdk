@@ -83,16 +83,10 @@ export const SingleSearchControlAdditionRules = {
   enterpriseField: "FormField",
   enterpriseFieldType: "None",
   xmlOrder: [
-    "toolTipRepresentation",
-    "visible",
-    "enabled",
     "additionSource",
-    "autoMaxWidth",
     "title",
-    "width",
     "contextMenu",
     "extendedTooltip",
-    "displayImportance",
   ],
   properties: {
     additionSource: {

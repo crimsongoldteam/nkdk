@@ -8,6 +8,18 @@ const propertiesParents = ["Properties"]
 
 export const MetadataIntegrationServiceChannelRules = {
   itemType: "MetadataIntegrationServiceChannel",
+  xmlOrder: [
+    "internalInfo",
+    "objectBelonging",
+    "name",
+    "synonym",
+    "comment",
+    "externalIntegrationServiceChannelName",
+    "messageDirection",
+    "receiveMessageProcessing",
+    "transactioned",
+    "uuid",
+  ],
   properties: {
     uuid: uuidPropertyRule,
     internalInfo: internalInfoRule({

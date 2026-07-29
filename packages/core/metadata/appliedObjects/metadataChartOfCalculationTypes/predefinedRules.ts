@@ -11,6 +11,16 @@ const predefinedCalculationTypeTarget = {
 
 const ChartOfCalculationTypesPredefinedItemRules = {
   ...PredefinedItemRules,
+  xmlOrder: [
+    "name",
+    "code",
+    "description",
+    "actionPeriodIsBase",
+    "base",
+    "leading",
+    "displaced",
+    "id",
+  ],
   properties: {
     ...PredefinedItemRules.properties,
     isFolder: {

@@ -6,6 +6,15 @@ const childObjectsParents = ["ChildObjects"]
 
 export const MetadataHTTPServiceURLTemplateRules = {
   itemType: "MetadataHTTPServiceURLTemplate",
+  xmlOrder: [
+    "objectBelonging",
+    "name",
+    "synonym",
+    "comment",
+    "template",
+    "methods",
+    "uuid",
+  ],
   properties: {
     uuid: uuidPropertyRule,
     name: {

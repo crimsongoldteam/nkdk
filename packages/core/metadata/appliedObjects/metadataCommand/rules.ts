@@ -11,6 +11,22 @@ import type { MetadataItemRule } from "../../orchestration/property/types"
 export const MetadataCommandRules = {
   itemType: "MetadataCommand",
   externalMetadata: { segment: "Command", placement: "ownerChild" },
+  xmlOrder: [
+    "objectBelonging",
+    "name",
+    "synonym",
+    "comment",
+    "group",
+    "commandParameterType",
+    "parameterUseMode",
+    "modifiesData",
+    "representation",
+    "toolTip",
+    "picture",
+    "shortcut",
+    "onMainServerUnavalableBehavior",
+    "uuid",
+  ],
   properties: {
     uuid: uuidPropertyRule,
     name: stringRule({

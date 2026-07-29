@@ -3,6 +3,20 @@ import { stringRule } from "../string/types"
 import type { MetadataItemRule } from "../../orchestration/property/types"
 export const CharacteristicsDescriptionRules = {
   itemType: "CharacteristicsDescription",
+  xmlOrder: [
+    "keyField",
+    "typesFilterField",
+    "typesFilterValue",
+    "dataPathField",
+    "multipleValuesUseField",
+    "characteristicTypes",
+    "objectField",
+    "typeField",
+    "valueField",
+    "multipleValuesKeyField",
+    "multipleValuesOrderField",
+    "characteristicValues",
+  ],
   properties: {
     characteristicTypes: stringRule({
       yaml: "ВидыХарактеристик",

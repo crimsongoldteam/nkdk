@@ -5,6 +5,10 @@ import { systemEnumerationRule } from "../../systemEnumerations/types"
 import type { MetadataItemRule } from "../../orchestration/property/types"
 export const ExchangePlanContentItemRules = {
   itemType: "ExchangePlanContentItem",
+  xmlOrder: [
+    "metadata",
+    "autoRecord",
+  ],
   properties: {
     metadata: metadataItemLinkRule({
       yaml: "Метаданные",

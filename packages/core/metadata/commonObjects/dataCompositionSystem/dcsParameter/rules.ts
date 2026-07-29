@@ -9,6 +9,16 @@ import { systemEnumerationRule } from "../../../systemEnumerations/types"
 import { MetadataItemRule } from "../../../orchestration"
 export const DCSParameterRules = {
   itemType: "DCSParameter",
+  xmlOrder: [
+    "name",
+    "title",
+    "valueType",
+    "value",
+    "useRestriction",
+    "valueListAllowed",
+    "editParameters",
+    "use",
+  ],
   properties: {
     name: stringRule({
       xml: "dcssch:name",

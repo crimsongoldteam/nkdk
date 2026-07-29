@@ -81,7 +81,6 @@ export const MetadataInformationRegisterRules = {
     "commands",
     "uuid",
     "additionalIndexes",
-    "help",
   ],
   properties: {
     xmlRoot: xmlRootRule({

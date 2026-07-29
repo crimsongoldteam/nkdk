@@ -22,6 +22,27 @@ const hasProperty = (source: YAMLPropertySource | unknown, propertyKey: string):
     : Object.prototype.hasOwnProperty.call(source, propertyKey))
 export const MetadataExternalDataSourceCubeResourceRules = {
   itemType: "MetadataExternalDataSourceCubeResource",
+  xmlOrder: [
+    "objectBelonging",
+    "name",
+    "synonym",
+    "comment",
+    "type",
+    "passwordMode",
+    "format",
+    "editFormat",
+    "toolTip",
+    "markNegatives",
+    "mask",
+    "multiLine",
+    "choiceParameterLinks",
+    "choiceParameters",
+    "quickChoice",
+    "choiceForm",
+    "extendedEdit",
+    "nameInDataSource",
+    "uuid",
+  ],
   properties: {
     ...externalDataSourceFieldBaseProperties,
     fillFromFillingValue: {

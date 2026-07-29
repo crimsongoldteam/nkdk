@@ -6,6 +6,16 @@ const childObjectsParents = ["ChildObjects"]
 
 export const MetadataWebServiceParameterRules = {
   itemType: "MetadataWebServiceParameter",
+  xmlOrder: [
+    "objectBelonging",
+    "name",
+    "synonym",
+    "comment",
+    "xdtoValueType",
+    "nillable",
+    "transferDirection",
+    "uuid",
+  ],
   properties: {
     uuid: uuidPropertyRule,
     name: {
@@ -77,6 +87,19 @@ export const MetadataWebServiceParameterRules = {
 
 export const MetadataWebServiceOperationRules = {
   itemType: "MetadataWebServiceOperation",
+  xmlOrder: [
+    "objectBelonging",
+    "name",
+    "synonym",
+    "comment",
+    "xdtoReturningValueType",
+    "nillable",
+    "transactioned",
+    "procedureName",
+    "dataLockControlMode",
+    "parameters",
+    "uuid",
+  ],
   properties: {
     uuid: uuidPropertyRule,
     name: {

@@ -7,6 +7,15 @@ import { stringRule } from "../../string/types"
 import { MetadataItemRule } from "../../../orchestration"
 export const CalculatedFieldRules = {
   itemType: "CalculatedField",
+  xmlOrder: [
+    "dataPath",
+    "expression",
+    "title",
+    "useRestriction",
+    "presentationExpression",
+    "orderExpressions",
+    "valueType",
+  ],
   properties: {
     dataPath: stringRule({
       xml: "dcssch:dataPath",

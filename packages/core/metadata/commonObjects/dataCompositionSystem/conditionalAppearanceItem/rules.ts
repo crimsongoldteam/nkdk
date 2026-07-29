@@ -8,6 +8,12 @@ import { systemEnumerationRule } from "../../../systemEnumerations/types"
 import { MetadataItemRule } from "../../../orchestration"
 export const ConditionalAppearanceItemRules = {
   itemType: "ConditionalAppearanceItem",
+  xmlOrder: [
+    "fields",
+    "filter",
+    "appearance",
+    "presentation",
+  ],
   properties: {
     use: booleanRule({
       xml: "dcsset:use",

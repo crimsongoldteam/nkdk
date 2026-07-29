@@ -38,6 +38,13 @@ const appearanceRule = {
 export const DataCompositionSchemaDataSetFieldRules = {
   itemType: "DataCompositionSchemaDataSetField",
   xsiType: "dcssch:DataSetFieldField",
+  xmlOrder: [
+    "dataPath",
+    "field",
+    "useRestriction",
+    "title",
+    "kind",
+  ],
   properties: {
     kind: dataCompositionSchemaDataSetFieldKindRule({
       xml: "_xsi:type",

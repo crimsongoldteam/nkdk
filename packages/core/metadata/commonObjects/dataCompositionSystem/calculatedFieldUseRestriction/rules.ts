@@ -2,6 +2,11 @@ import { booleanRule } from "../../boolean/types"
 import type { MetadataItemRule } from "../../../orchestration/property/types"
 export const CalculatedFieldUseRestrictionRules = {
   itemType: "CalculatedFieldUseRestriction",
+  xmlOrder: [
+    "field",
+    "condition",
+    "group",
+  ],
   properties: {
     field: booleanRule({
       xml: "dcssch:field",

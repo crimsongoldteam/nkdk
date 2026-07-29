@@ -5,6 +5,12 @@ import { uuidPropertyRule } from "../uuid/rule"
 import type { MetadataItemRule } from "../../orchestration/property/types"
 export const AccumulationRegisterAggregateRules = {
   itemType: "AccumulationRegisterAggregate",
+  xmlOrder: [
+    "use",
+    "periodicity",
+    "dimensions",
+    "id",
+  ],
   properties: {
     id: {
       ...uuidPropertyRule,

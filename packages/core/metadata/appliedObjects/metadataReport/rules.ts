@@ -32,6 +32,33 @@ const MetadataReportCommandRules = {
 } as const satisfies MetadataItemRule
 export const MetadataReportAttributeRules = {
   ...MetadataAttributeRules,
+  xmlOrder: [
+    "objectBelonging",
+    "name",
+    "synonym",
+    "comment",
+    "type",
+    "passwordMode",
+    "format",
+    "editFormat",
+    "toolTip",
+    "markNegatives",
+    "mask",
+    "multiLine",
+    "extendedEdit",
+    "minValue",
+    "maxValue",
+    "fillChecking",
+    "choiceFoldersAndItems",
+    "choiceParameterLinks",
+    "choiceParameters",
+    "quickChoice",
+    "createOnInput",
+    "choiceForm",
+    "linkByType",
+    "choiceHistoryOnInput",
+    "uuid",
+  ],
 } as const satisfies MetadataItemRule
 registerMetadataItemCollectionRule({
   propertyType: "MetadataReportAttributes",

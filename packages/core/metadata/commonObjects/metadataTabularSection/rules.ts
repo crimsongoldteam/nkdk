@@ -114,6 +114,20 @@ const commonTabularSectionProperties = {
 export const MetadataTabularSectionRules = {
   itemType: "MetadataTabularSection",
   externalMetadata: tabularSectionExternalMetadata,
+  xmlOrder: [
+    "internalInfo",
+    "objectBelonging",
+    "name",
+    "synonym",
+    "comment",
+    "toolTip",
+    "fillChecking",
+    "standardAttributes",
+    "use",
+    "lineNumberLength",
+    "attributes",
+    "uuid",
+  ],
   properties: {
     ...commonTabularSectionProperties,
     internalInfo: internalInfoRule({
@@ -147,6 +161,19 @@ export const MetadataTabularSectionRules = {
 export const MetadataDocumentTabularSectionRules = {
   itemType: "MetadataTabularSection",
   externalMetadata: tabularSectionExternalMetadata,
+  xmlOrder: [
+    "internalInfo",
+    "objectBelonging",
+    "name",
+    "synonym",
+    "comment",
+    "toolTip",
+    "fillChecking",
+    "standardAttributes",
+    "lineNumberLength",
+    "attributes",
+    "uuid",
+  ],
   properties: {
     ...commonTabularSectionProperties,
     internalInfo: internalInfoRule({
@@ -172,6 +199,19 @@ export const MetadataDocumentTabularSectionRules = {
 export const MetadataTaskTabularSectionRules = {
   itemType: "MetadataTabularSection",
   externalMetadata: tabularSectionExternalMetadata,
+  xmlOrder: [
+    "internalInfo",
+    "objectBelonging",
+    "name",
+    "synonym",
+    "comment",
+    "toolTip",
+    "fillChecking",
+    "standardAttributes",
+    "lineNumberLength",
+    "attributes",
+    "uuid",
+  ],
   properties: {
     ...commonTabularSectionProperties,
     internalInfo: internalInfoRule({
@@ -195,6 +235,19 @@ export const MetadataTaskTabularSectionRules = {
 export const MetadataBusinessProcessTabularSectionRules = {
   itemType: "MetadataTabularSection",
   externalMetadata: tabularSectionExternalMetadata,
+  xmlOrder: [
+    "internalInfo",
+    "objectBelonging",
+    "name",
+    "synonym",
+    "comment",
+    "toolTip",
+    "fillChecking",
+    "standardAttributes",
+    "lineNumberLength",
+    "attributes",
+    "uuid",
+  ],
   properties: {
     ...commonTabularSectionProperties,
     internalInfo: internalInfoRule({
@@ -218,6 +271,18 @@ export const MetadataBusinessProcessTabularSectionRules = {
 export const MetadataDataProcessorTabularSectionRules = {
   itemType: "MetadataTabularSection",
   externalMetadata: tabularSectionExternalMetadata,
+  xmlOrder: [
+    "internalInfo",
+    "objectBelonging",
+    "name",
+    "synonym",
+    "comment",
+    "toolTip",
+    "fillChecking",
+    "standardAttributes",
+    "attributes",
+    "uuid",
+  ],
   properties: {
     ...commonTabularSectionProperties,
     internalInfo: internalInfoRule({
@@ -242,6 +307,18 @@ export const MetadataDataProcessorTabularSectionRules = {
 export const MetadataReportTabularSectionRules = {
   itemType: "MetadataTabularSection",
   externalMetadata: tabularSectionExternalMetadata,
+  xmlOrder: [
+    "internalInfo",
+    "objectBelonging",
+    "name",
+    "synonym",
+    "comment",
+    "toolTip",
+    "fillChecking",
+    "standardAttributes",
+    "attributes",
+    "uuid",
+  ],
   properties: {
     ...commonTabularSectionProperties,
     internalInfo: internalInfoRule({
@@ -266,6 +343,19 @@ export const MetadataReportTabularSectionRules = {
 export const MetadataExchangePlanTabularSectionRules = {
   itemType: "MetadataTabularSection",
   externalMetadata: tabularSectionExternalMetadata,
+  xmlOrder: [
+    "internalInfo",
+    "objectBelonging",
+    "name",
+    "synonym",
+    "comment",
+    "toolTip",
+    "fillChecking",
+    "standardAttributes",
+    "lineNumberLength",
+    "attributes",
+    "uuid",
+  ],
   properties: {
     ...commonTabularSectionProperties,
     internalInfo: internalInfoRule({
@@ -290,6 +380,19 @@ export const MetadataExchangePlanTabularSectionRules = {
 export const MetadataChartOfAccountsTabularSectionRules = {
   itemType: "MetadataTabularSection",
   externalMetadata: tabularSectionExternalMetadata,
+  xmlOrder: [
+    "internalInfo",
+    "objectBelonging",
+    "name",
+    "synonym",
+    "comment",
+    "toolTip",
+    "fillChecking",
+    "standardAttributes",
+    "lineNumberLength",
+    "attributes",
+    "uuid",
+  ],
   properties: {
     ...commonTabularSectionProperties,
     internalInfo: internalInfoRule({
@@ -313,6 +416,19 @@ export const MetadataChartOfAccountsTabularSectionRules = {
 export const MetadataChartOfCalculationTypesTabularSectionRules = {
   itemType: "MetadataTabularSection",
   externalMetadata: tabularSectionExternalMetadata,
+  xmlOrder: [
+    "internalInfo",
+    "objectBelonging",
+    "name",
+    "synonym",
+    "comment",
+    "toolTip",
+    "fillChecking",
+    "standardAttributes",
+    "lineNumberLength",
+    "attributes",
+    "uuid",
+  ],
   properties: {
     ...commonTabularSectionProperties,
     internalInfo: internalInfoRule({
@@ -336,6 +452,20 @@ export const MetadataChartOfCalculationTypesTabularSectionRules = {
 export const MetadataChartOfCharacteristicTypesTabularSectionRules = {
   itemType: "MetadataTabularSection",
   externalMetadata: tabularSectionExternalMetadata,
+  xmlOrder: [
+    "internalInfo",
+    "objectBelonging",
+    "name",
+    "synonym",
+    "comment",
+    "toolTip",
+    "fillChecking",
+    "standardAttributes",
+    "use",
+    "lineNumberLength",
+    "attributes",
+    "uuid",
+  ],
   properties: {
     ...commonTabularSectionProperties,
     internalInfo: internalInfoRule({

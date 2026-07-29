@@ -29,7 +29,6 @@ export const MetadataCommonFormRules = {
     "explanation",
     "uuid",
     "form",
-    "help",
   ],
   properties: {
     xmlRoot: xmlRootRule({

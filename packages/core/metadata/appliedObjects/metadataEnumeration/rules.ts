@@ -24,6 +24,13 @@ export const MetadataEnumerationStandardAttributeNames: Record<string, string> =
 export const MetadataEnumerationValueRules = {
   itemType: "MetadataEnumerationValue",
   externalMetadata: { segment: "EnumValue", placement: "ownerChild" },
+  xmlOrder: [
+    "objectBelonging",
+    "name",
+    "synonym",
+    "comment",
+    "uuid",
+  ],
   properties: {
     uuid: uuidRule({
       xml: "_uuid",

@@ -41,8 +41,6 @@ export const ExtendedTooltipRules = {
   enterpriseField: "FormDecoration",
   enterpriseFieldType: "None",
   xmlOrder: [
-    "visible",
-    "enabled",
     "width",
     "autoMaxWidth",
     "maxWidth",
@@ -58,7 +56,6 @@ export const ExtendedTooltipRules = {
     "verticalAlignInGroup",
     "onMainServerUnavalableBehavior",
     "hyperlink",
-    "horizontalAlign",
     "verticalAlign",
     "titleHeight",
     "backColor",

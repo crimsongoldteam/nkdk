@@ -5,9 +5,17 @@ import { stringRule } from "../../../commonObjects/string/types"
 import { registerMetadataItemCollectionRule } from "../../../orchestration/metadataCollection/ruleFactory"
 import type { MetadataItemRule } from "../../../orchestration/property/types"
 import { systemEnumerationRule } from "../../../systemEnumerations/types"
+import {
+  chartOfAccountsPredefinedAccountingFlagsRule,
+  chartOfAccountsPredefinedExtDimensionTypesRule,
+} from "../builders"
 
 export const PredefinedAccountingFlagRules = {
   itemType: "ChartOfAccountsPredefinedAccountingFlag",
+  xmlOrder: [
+    "value",
+    "ref",
+  ],
   properties: {
     ref: stringRule({ xml: "_ref", required: true }),
     value: booleanRule({ yaml: "Значение", xml: "#text", required: true }),
@@ -23,15 +31,24 @@ registerMetadataItemCollectionRule({
 
 export const PredefinedExtDimensionTypeRules = {
   itemType: "ChartOfAccountsPredefinedExtDimensionType",
+  xmlOrder: [
+    "turnover",
+    "accountingFlags",
+    "name",
+  ],
   properties: {
     name: stringRule({ xml: "_name", required: true }),
-    turnover: booleanRule({ yaml: "Оборотный", xml: "Turnover", defaultValueXML: false }),
-    accountingFlags: {
-      type: "ChartOfAccountsPredefinedAccountingFlags",
+    turnover: booleanRule({
+      yaml: "Оборотный",
+      xml: "Turnover",
+      defaultValueXML: false,
+      implicitValueYAML: false,
+    }),
+    accountingFlags: chartOfAccountsPredefinedAccountingFlagsRule({
       yaml: "ПризнакиУчета",
       xml: "AccountingFlags",
       itemRule: PredefinedAccountingFlagRules,
-    },
+    }),
   },
 } as const satisfies MetadataItemRule
 
@@ -44,6 +61,17 @@ registerMetadataItemCollectionRule({
 
 export const ChartOfAccountsPredefinedItemRules = {
   ...PredefinedItemRules,
+  xmlOrder: [
+    "name",
+    "code",
+    "description",
+    "accountType",
+    "offBalance",
+    "order",
+    "accountingFlags",
+    "extDimensionTypes",
+    "id",
+  ],
   properties: {
     ...PredefinedItemRules.properties,
     isFolder: {
@@ -55,11 +83,13 @@ export const ChartOfAccountsPredefinedItemRules = {
       xml: "AccountType",
       typeSE: "AccountType",
       defaultValueXML: "ActivePassive",
+      implicitValueYAML: "ActivePassive",
     }),
     offBalance: booleanRule({
       yaml: "Забалансовый",
       xml: "OffBalance",
       defaultValueXML: false,
+      implicitValueYAML: false,
       preserveExplicitDefaultXML: true,
     }),
     order: stringRule({
@@ -67,20 +97,18 @@ export const ChartOfAccountsPredefinedItemRules = {
       xml: "Order",
       defaultValueXMLEmpty: "",
     }),
-    accountingFlags: {
-      type: "ChartOfAccountsPredefinedAccountingFlags",
+    accountingFlags: chartOfAccountsPredefinedAccountingFlagsRule({
       yaml: "ПризнакиУчета",
       xml: "AccountingFlags",
       itemRule: PredefinedAccountingFlagRules,
-    },
-    extDimensionTypes: {
-      type: "ChartOfAccountsPredefinedExtDimensionTypes",
+    }),
+    extDimensionTypes: chartOfAccountsPredefinedExtDimensionTypesRule({
       yaml: "ВидыСубконто",
       xml: "ExtDimensionTypes",
       defaultValueXMLEmpty: [],
       preserveExplicitDefaultXML: true,
       itemRule: PredefinedExtDimensionTypeRules,
-    },
+    }),
   },
 } as const satisfies MetadataItemRule
 
