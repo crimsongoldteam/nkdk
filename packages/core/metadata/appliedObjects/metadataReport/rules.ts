@@ -30,7 +30,7 @@ const MetadataReportCommandRules = {
     },
   },
 } as const satisfies MetadataItemRule
-const MetadataReportAttributeRules = {
+export const MetadataReportAttributeRules = {
   ...MetadataAttributeRules,
 } as const satisfies MetadataItemRule
 registerMetadataItemCollectionRule({
@@ -233,6 +233,7 @@ export const MetadataReportRules = {
       yaml: "Реквизиты",
       xmlParents: childObjects,
       xml: "Attribute",
+      itemRule: MetadataReportAttributeRules,
     }),
     tabularSections: metadataReportTabularSectionsRule({
       yaml: "ТабличныеЧасти",

@@ -27,7 +27,7 @@ import { V8_MDCLASSES_ROOT } from "../../orchestration/appliedObject/presets"
 import type { MetadataItemRule } from "../../orchestration/property/types"
 import { commonBasedOnObjectPaths } from "../../commonObjects/metadataTargets"
 import { MetadataCommandRules } from "../metadataCommand/rules"
-import { ChartOfAccountsPredefinedRules } from "./predefinedRules"
+import { ChartOfAccountsPredefinedRules } from "./predefined/rules"
 const properties = ["Properties"]
 const childObjects = ["ChildObjects"]
 export const MetadataChartOfAccountsStandardAttributeNames: Record<string, string> = {

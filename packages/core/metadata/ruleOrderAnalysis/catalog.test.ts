@@ -2,12 +2,15 @@ import { dirname, join } from "node:path"
 import { fileURLToPath } from "node:url"
 import { describe, expect, it } from "vitest"
 import { MetadataAccountingRegisterRules } from "../appliedObjects/metadataAccountingRegister/rules"
+import { MetadataChartOfAccountsRules } from "../appliedObjects/metadataChartOfAccounts/rules"
 import { MetadataDataProcessorRules } from "../appliedObjects/metadataDataProcessor/rules"
+import { MetadataReportRules } from "../appliedObjects/metadataReport/rules"
 import {
   MetadataAttributesWithAllowedTypesRules,
   MetadataCatalogAttributeRules,
 } from "../commonObjects/metadataAttribute/rules"
 import { MetadataExternalDataSourceCubeCollectionRules } from "../commonObjects/metadataExternalDataSourceCube/rules"
+import { getTypeRule } from "../orchestration/property/typeRuleRegistry"
 import { buildRuntimeRuleOrderCatalog } from "./catalog"
 
 const metadataDir = join(dirname(fileURLToPath(import.meta.url)), "..")
@@ -75,6 +78,43 @@ describe("buildRuntimeRuleOrderCatalog", () => {
       "commonObjects/metadataExternalDataSourceDimensionTable/rules.ts#MetadataExternalDataSourceDimensionTableCollectionRules"
     )
     expect(catalog.ambiguities()).toEqual([])
+  })
+
+  it("сопоставляет зарегистрированное правило реквизита отчёта", async () => {
+    const catalog = await buildRuntimeRuleOrderCatalog({ metadataDir })
+    const nested = getTypeRule("MetadataReportAttributes", "nestedItemRule")
+    if (nested === undefined || !("itemRule" in nested)) {
+      throw new Error("Не найдено правило реквизита отчёта")
+    }
+
+    expect(catalog.sourceOf(nested.itemRule)?.candidate).toBe(
+      "appliedObjects/metadataReport/rules.ts#MetadataReportAttributeRules"
+    )
+    expect(
+      "itemRule" in MetadataReportRules.properties.attributes
+        ? MetadataReportRules.properties.attributes.itemRule
+        : undefined
+    ).toBe(nested.itemRule)
+  })
+
+  it("сопоставляет вложенные правила предопределённых счетов", async () => {
+    const catalog = await buildRuntimeRuleOrderCatalog({ metadataDir })
+    const accountingFlags = getTypeRule("ChartOfAccountsPredefinedAccountingFlags", "nestedItemRule")
+    const extDimensionTypes = getTypeRule("ChartOfAccountsPredefinedExtDimensionTypes", "nestedItemRule")
+    if (accountingFlags === undefined || !("itemRule" in accountingFlags)) {
+      throw new Error("Не найдено правило признака учёта")
+    }
+    if (extDimensionTypes === undefined || !("itemRule" in extDimensionTypes)) {
+      throw new Error("Не найдено правило вида субконто")
+    }
+
+    expect(catalog.sourceOf(accountingFlags.itemRule)?.candidate).toBe(
+      "appliedObjects/metadataChartOfAccounts/predefined/rules.ts#PredefinedAccountingFlagRules"
+    )
+    expect(catalog.sourceOf(extDimensionTypes.itemRule)?.candidate).toBe(
+      "appliedObjects/metadataChartOfAccounts/predefined/rules.ts#PredefinedExtDimensionTypeRules"
+    )
+    expect(MetadataChartOfAccountsRules.properties.predefined.itemRule).toBeDefined()
   })
 
   it("перечисляет все конкретные источники без дубликатов и в стабильном порядке", async () => {

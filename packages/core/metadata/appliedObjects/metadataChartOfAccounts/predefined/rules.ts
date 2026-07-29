@@ -1,12 +1,12 @@
-import { booleanRule } from "../../commonObjects/boolean/types"
-import { PredefinedRules } from "../../commonObjects/predefined/rules"
-import { PredefinedItemRules } from "../../commonObjects/predefinedItem/rules"
-import { stringRule } from "../../commonObjects/string/types"
-import { registerMetadataItemCollectionRule } from "../../orchestration/metadataCollection/ruleFactory"
-import type { MetadataItemRule } from "../../orchestration/property/types"
-import { systemEnumerationRule } from "../../systemEnumerations/types"
+import { booleanRule } from "../../../commonObjects/boolean/types"
+import { PredefinedRules } from "../../../commonObjects/predefined/rules"
+import { PredefinedItemRules } from "../../../commonObjects/predefinedItem/rules"
+import { stringRule } from "../../../commonObjects/string/types"
+import { registerMetadataItemCollectionRule } from "../../../orchestration/metadataCollection/ruleFactory"
+import type { MetadataItemRule } from "../../../orchestration/property/types"
+import { systemEnumerationRule } from "../../../systemEnumerations/types"
 
-const PredefinedAccountingFlagRules = {
+export const PredefinedAccountingFlagRules = {
   itemType: "ChartOfAccountsPredefinedAccountingFlag",
   properties: {
     ref: stringRule({ xml: "_ref", required: true }),
@@ -21,7 +21,7 @@ registerMetadataItemCollectionRule({
   keyField: "ref",
 })
 
-const PredefinedExtDimensionTypeRules = {
+export const PredefinedExtDimensionTypeRules = {
   itemType: "ChartOfAccountsPredefinedExtDimensionType",
   properties: {
     name: stringRule({ xml: "_name", required: true }),
@@ -30,6 +30,7 @@ const PredefinedExtDimensionTypeRules = {
       type: "ChartOfAccountsPredefinedAccountingFlags",
       yaml: "ПризнакиУчета",
       xml: "AccountingFlags",
+      itemRule: PredefinedAccountingFlagRules,
     },
   },
 } as const satisfies MetadataItemRule
@@ -41,7 +42,7 @@ registerMetadataItemCollectionRule({
   keyField: "name",
 })
 
-const ChartOfAccountsPredefinedItemRules = {
+export const ChartOfAccountsPredefinedItemRules = {
   ...PredefinedItemRules,
   properties: {
     ...PredefinedItemRules.properties,
@@ -70,6 +71,7 @@ const ChartOfAccountsPredefinedItemRules = {
       type: "ChartOfAccountsPredefinedAccountingFlags",
       yaml: "ПризнакиУчета",
       xml: "AccountingFlags",
+      itemRule: PredefinedAccountingFlagRules,
     },
     extDimensionTypes: {
       type: "ChartOfAccountsPredefinedExtDimensionTypes",
@@ -77,6 +79,7 @@ const ChartOfAccountsPredefinedItemRules = {
       xml: "ExtDimensionTypes",
       defaultValueXMLEmpty: [],
       preserveExplicitDefaultXML: true,
+      itemRule: PredefinedExtDimensionTypeRules,
     },
   },
 } as const satisfies MetadataItemRule
