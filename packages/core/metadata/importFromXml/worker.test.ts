@@ -344,6 +344,46 @@ describe("XML import worker rule order analysis", () => {
       })
     )
   })
+
+  it("собирает порядок стандартных реквизитов и табличной части с internalInfo", async () => {
+    const outputDir = createTempDir("rule-order-catalog-collections")
+    await initializeWorker(outputDir)
+    const assignment = catalogAssignment({
+      itemName: "СправочникПолный",
+      targetProjectPath: "Справочник/СправочникПолный/Свойства.yaml",
+      logicalAddress: "Справочник.СправочникПолный",
+      xmlFiles: [{ role: "metadata", sourcePath: catalogFullXmlPath }],
+    })
+
+    const result = await runImportWorkerCommand({
+      kind: "analyzeRuleOrder",
+      configuration: "all",
+      metadataDir,
+      assignments: [assignment],
+    })
+    if (result?.kind !== "ruleOrderAnalysisFirstPassResult") {
+      throw new Error("Ожидался первый проход анализа порядка")
+    }
+
+    const candidates = result.observations.map(({ source }) => source.candidate)
+    expect(candidates).toContain(
+      "commonObjects/standardAttributeDescription/rules.ts#StandardAttributeDescriptionRules"
+    )
+    expect(candidates).toContain("commonObjects/metadataAttribute/rules.ts#MetadataCatalogAttributeRules")
+    expect(candidates).toContain("commonObjects/metadataTabularSection/rules.ts#MetadataTabularSectionRules")
+    expect(candidates).toContain(
+      "commonObjects/metadataAttribute/rules.ts#MetadataTabularSectionAttributeRules"
+    )
+
+    const tabularFields = result.observations
+      .filter(
+        ({ source }) =>
+          source.candidate === "commonObjects/metadataTabularSection/rules.ts#MetadataTabularSectionRules"
+      )
+      .flatMap(({ fields }) => fields)
+    expect(tabularFields).toContain("internalInfo")
+    expect(result.unmatchedObservationCount).toBe(0)
+  })
 })
 
 describe("XML import worker second pass", () => {
