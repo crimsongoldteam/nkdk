@@ -1,11 +1,11 @@
 import { describe, expect, it } from "vitest"
+import { createMockWorkerThreadPoolFactory } from "../../tests/mockWorkerThreadPool"
 import { encodeConfigurationIndexFragments } from "../configurationIndex/fragment"
 import type { FullXmlSyncAssignment, FullXmlSyncDiagnostic, FullXmlSyncWorkerCommand } from "./types"
 import {
   createFullXmlSyncWorkerPool,
   normalizeFullXmlSyncConcurrency,
   type FullXmlSyncWorkerInitialization,
-  type FullXmlSyncWorkerThreadPool,
 } from "./workerPool"
 import { fullXmlSyncTestOutput } from "./testTopology"
 
@@ -125,54 +125,48 @@ function assignment(id: string): FullXmlSyncAssignment {
 }
 
 function createFakePools() {
-  const commands: FullXmlSyncWorkerCommand[][] = []
-  const destroyCounts: number[] = []
   const failures = new Map<number, Error>()
   const diagnostics = new Map<number, FullXmlSyncDiagnostic[]>()
+  const pools = createMockWorkerThreadPoolFactory<
+    FullXmlSyncWorkerCommand,
+    unknown
+  >(async (task, workerIndex) => {
+    if (task.kind !== "execute") return undefined
+    const failure = failures.get(workerIndex)
+    if (failure !== undefined) throw failure
+    return {
+      kind: "executionResult" as const,
+      diagnostics: diagnostics.get(workerIndex) ?? [],
+      warnings: [],
+      writtenFiles: [],
+      expectedOutputs: task.assignments.map(({ id }) => ({
+        assignmentId: id,
+        targetXmlPath: `${id}.xml`,
+      })),
+      fragmentBuffer: encodeConfigurationIndexFragments([]),
+    }
+  })
 
   return {
-    factory(): FullXmlSyncWorkerThreadPool {
-      const workerIndex = commands.length
-      commands.push([])
-      destroyCounts.push(0)
-      return {
-        async run(task) {
-          commands[workerIndex]!.push(task)
-          if (task.kind !== "execute") return undefined
-          const failure = failures.get(workerIndex)
-          if (failure !== undefined) throw failure
-          return {
-            kind: "executionResult" as const,
-            diagnostics: diagnostics.get(workerIndex) ?? [],
-            warnings: [],
-            writtenFiles: [],
-            expectedOutputs: task.assignments.map(({ id }) => ({
-              assignmentId: id,
-              targetXmlPath: `${id}.xml`,
-            })),
-            fragmentBuffer: encodeConfigurationIndexFragments([]),
-          }
-        },
-        async destroy() {
-          destroyCounts[workerIndex] = (destroyCounts[workerIndex] ?? 0) + 1
-        },
-      }
-    },
+    factory: pools.factory,
     runs(workerIndex: number): FullXmlSyncWorkerCommand[] {
-      return commands[workerIndex] ?? []
+      return [...pools.commands(workerIndex)]
     },
     executeIds(workerIndex: number): string[] {
-      return (commands[workerIndex] ?? []).flatMap((task) =>
+      return pools.commands(workerIndex).flatMap((task) =>
         task.kind === "execute" ? task.assignments.map(({ id }) => id) : []
       )
     },
-    created: () => commands.length,
+    created: pools.created,
     failWorker(workerIndex: number, error: Error) {
       failures.set(workerIndex, error)
     },
     diagnoseWorker(workerIndex: number, diagnostic: FullXmlSyncDiagnostic) {
       diagnostics.set(workerIndex, [diagnostic])
     },
-    destroyCalls: () => [...destroyCounts],
+    destroyCalls: () =>
+      Array.from({ length: pools.created() }, (_, workerIndex) =>
+        pools.destroyCalls(workerIndex)
+      ),
   }
 }
