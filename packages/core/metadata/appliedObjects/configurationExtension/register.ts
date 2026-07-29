@@ -7,12 +7,17 @@ import { configurationExtensionFullXmlSyncProfile } from "../../fullSyncToXml/pr
 import { registerMetadataItemYamlToXmlAugmenter } from "../../orchestration/property/yamlToXmlAugmenter"
 import { configurationExtensionYamlToXmlAugmenter } from "./exportPropertyStates"
 import { registerMetadataComponentDescriptor } from "../../components/descriptor"
+import { exportMetadataItemToJSONSchema } from "../../orchestration/metadataItem/toJSONSchema"
+import { registerProjectJSONSchema } from "../../project/schemaRegistry"
 
 registerFullXmlSyncComponentProfile(configurationExtensionFullXmlSyncProfile)
 registerMetadataComponentDescriptor({
   kind: "configurationExtension",
   rootRule: MetadataConfigurationExtensionRules,
 })
+registerProjectJSONSchema(MetadataConfigurationExtensionRules.itemType, ({ context }) =>
+  exportMetadataItemToJSONSchema({ context, rule: MetadataConfigurationExtensionRules })
+)
 registerMetadataItemYamlToXmlAugmenter(
   "configurationExtension",
   configurationExtensionYamlToXmlAugmenter

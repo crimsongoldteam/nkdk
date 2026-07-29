@@ -83,6 +83,7 @@ export type FullXmlSyncWorkerCommand =
   | {
       readonly kind: "initialize"
       readonly workerIndex: number
+      readonly componentPath: string
       readonly componentDir: string
       readonly outputDir: string
       readonly context: ConfigurationContext

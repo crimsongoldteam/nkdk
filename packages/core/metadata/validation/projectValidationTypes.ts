@@ -9,21 +9,7 @@ import type {
 } from "./projectReferenceIndex"
 import type { ValidationProjectFile } from "./projectFiles"
 import type { Diagnostic } from "./types"
-import type {
-  ProjectLocalDependency,
-  ProjectLogicalAddressEntry,
-} from "../project/componentIndexFacts"
-
-export type ValidationMode = "full" | "partial"
-
-export type ValidationQueueStatus = "pending" | "running" | "ready" | "error"
-
-export interface ValidationQueueEntry {
-  file: ValidationProjectFile
-  status: ValidationQueueStatus
-}
-
-export type EnqueueDependencyResult = "enqueued" | "already-known"
+import type { ProjectLocalDependency, ProjectLogicalAddressEntry } from "../project/componentIndexFacts"
 
 export interface ValidationObjectRecord {
   filePath: string
@@ -47,6 +33,19 @@ export interface ValidationReferenceIndexEntries {
   pendingReferences?: PendingMetadataTargetReference[]
 }
 
+export interface ValidationGraphContribution extends ValidationReferenceIndexEntries {
+  objectRecords: ValidationObjectRecord[]
+}
+
+export interface ComponentValidationLayer {
+  componentPath: string
+  contribution: ValidationGraphContribution
+}
+
+export interface ProjectValidationGraph {
+  layers: readonly ComponentValidationLayer[]
+}
+
 export interface ValidationIndexContribution {
   objectRecords: ValidationObjectRecord[]
   objectIndexEntries: ProjectObjectIndexEntry[]
@@ -61,13 +60,3 @@ export interface ValidationObjectTableSnapshot extends ValidationReferenceIndexE
   records: ValidationObjectRecord[]
   filePaths: string[]
 }
-
-export interface ValidationDependencyRequest {
-  kind: "needsDependency"
-  file: ValidationProjectFile
-  requestedBy: string
-}
-
-export type ValidationResolveResult =
-  | { ok: true; filePath?: string; details?: unknown }
-  | { ok: false; diagnostics: Diagnostic[]; dependency?: ValidationDependencyRequest }

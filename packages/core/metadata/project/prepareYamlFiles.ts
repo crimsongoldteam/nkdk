@@ -7,11 +7,11 @@ import type {
   PreparedMetadataDeclaration,
   PreparedMetadataDependency,
   PreparedYamlFile,
-  PreparedYamlProjectFileDescriptor,
+  PreparedYamlProjectFileInput,
 } from "./preparedYamlProject"
 
 export interface PrepareYamlFilesOptions {
-  files: readonly PreparedYamlProjectFileDescriptor[]
+  files: readonly PreparedYamlProjectFileInput[]
   itemTypeByYamlDir: Readonly<Record<string, string>>
   includeProjectFiles?: boolean
   hashFileBytes?: (bytes: Uint8Array) => bigint
@@ -52,7 +52,8 @@ export function prepareYamlFiles(options: PrepareYamlFilesOptions): PreparedYaml
       })
       profile.readMs += measuredReadMs
       if (options.includeProjectFiles === true) {
-        if (options.hashFileBytes === undefined) throw new Error("hashFileBytes is required when includeProjectFiles is true")
+        if (options.hashFileBytes === undefined)
+          throw new Error("hashFileBytes is required when includeProjectFiles is true")
         projectFiles.push({ projectPath: file.projectPath, contentHash: options.hashFileBytes(bytes) })
       }
 
@@ -61,7 +62,9 @@ export function prepareYamlFiles(options: PrepareYamlFilesOptions): PreparedYaml
 
       const [, measuredIndexMs] = measureDuration(() => {
         declarations.push(...extractDeclarations(file))
-        dependencies.push(...extractDependencies({ file, data: parsed.data, itemTypeByYamlDir: options.itemTypeByYamlDir }))
+        dependencies.push(
+          ...extractDependencies({ file, data: parsed.data, itemTypeByYamlDir: options.itemTypeByYamlDir })
+        )
       })
       profile.indexMs += measuredIndexMs
 
@@ -100,7 +103,7 @@ export function prepareYamlFiles(options: PrepareYamlFilesOptions): PreparedYaml
   return { yamlFiles, projectFiles, declarations, dependencies, diagnostics, profile }
 }
 
-function extractDeclarations(file: PreparedYamlProjectFileDescriptor): PreparedMetadataDeclaration[] {
+function extractDeclarations(file: PreparedYamlProjectFileInput): PreparedMetadataDeclaration[] {
   if (file.role !== "properties") return []
   const canonical = objectCanonicalFromProjectFile(file)
   if (canonical === undefined) return []
@@ -113,7 +116,7 @@ function measureDuration<T>(fn: () => T): [T, number] {
   return [result, performance.now() - startedAt]
 }
 
-function objectCanonicalFromProjectFile(file: PreparedYamlProjectFileDescriptor): string | undefined {
+function objectCanonicalFromProjectFile(file: PreparedYamlProjectFileInput): string | undefined {
   const root = file.itemType
   if (root === undefined || file.owner.name.length === 0) return undefined
 
@@ -134,7 +137,7 @@ function objectCanonicalFromProjectFile(file: PreparedYamlProjectFileDescriptor)
 }
 
 function extractDependencies(params: {
-  file: PreparedYamlProjectFileDescriptor
+  file: PreparedYamlProjectFileInput
   data: unknown
   itemTypeByYamlDir: Readonly<Record<string, string>>
 }): PreparedMetadataDependency[] {

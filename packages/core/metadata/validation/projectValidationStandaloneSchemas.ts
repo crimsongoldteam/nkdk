@@ -1,5 +1,7 @@
 import { type TSchema } from "typebox"
 import type { ConfigurationContext } from "../context/types"
+import { getMetadataComponentDescriptor } from "../components/descriptor"
+import type { MetadataItemRule } from "../orchestration/property/types"
 import { stripCollectedSchemaRefs } from "../orchestration/jsonSchemaRefs"
 import { exportJSONSchemaGraph, type JSONSchemaGraphRoot } from "./projectFileSchema"
 import { configurationValidationProjectSpec, validationProjectSpecs } from "./projectSpecs"
@@ -8,7 +10,7 @@ export interface ProjectValidationStandaloneSchemaSet {
   context: ConfigurationContext
   form: TSchema
   refs: Record<string, TSchema>
-  byProjectDir: Record<string, TSchema>
+  byItemType: Record<string, TSchema>
 }
 
 export const defaultStandaloneValidationContext: ConfigurationContext = {
@@ -20,11 +22,15 @@ export const defaultStandaloneValidationContext: ConfigurationContext = {
 export function createProjectValidationStandaloneSchemaSet(
   context: ConfigurationContext = defaultStandaloneValidationContext
 ): ProjectValidationStandaloneSchemaSet {
-  const specs = [configurationValidationProjectSpec, ...validationProjectSpecs]
+  const propertyRules = uniqueRulesByItemType([
+    configurationValidationProjectSpec.rule,
+    getMetadataComponentDescriptor("configurationExtension").rootRule,
+    ...validationProjectSpecs.map((spec) => spec.rule),
+  ])
   const formRootKey = "__form"
   const roots: JSONSchemaGraphRoot[] = [
     { key: formRootKey, name: "ClientApplicationForm", includeNestedChildItems: true },
-    ...specs.map((spec) => ({ key: spec.dir, name: spec.rule.itemType })),
+    ...propertyRules.map((rule) => ({ key: rule.itemType, name: rule.itemType })),
   ]
   const graph = exportJSONSchemaGraph({
     context,
@@ -32,15 +38,20 @@ export function createProjectValidationStandaloneSchemaSet(
     validationPropertyRefs: true,
     roots,
   })
-  const byProjectDir = Object.fromEntries(specs.map((spec) => [spec.dir, stripCollectedSchemaRefs(graph.roots[spec.dir]!)]))
+  const byItemType = Object.fromEntries(
+    propertyRules.map((rule) => [rule.itemType, stripCollectedSchemaRefs(graph.roots[rule.itemType]!)]))
   const form = stripCollectedSchemaRefs(graph.roots[formRootKey]!)
 
   return {
     context,
     form,
     refs: graph.schemas,
-    byProjectDir,
+    byItemType,
   }
+}
+
+function uniqueRulesByItemType(rules: readonly MetadataItemRule[]): MetadataItemRule[] {
+  return [...new Map(rules.map((rule) => [rule.itemType, rule])).values()]
 }
 
 export function assertStandaloneValidationContext(

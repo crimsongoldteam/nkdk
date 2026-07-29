@@ -25,6 +25,9 @@ describe("prepareYamlFiles", () => {
   function descriptor(projectDir: string, projectPath: string, itemType: string): PreparedYamlProjectFileDescriptor {
     const parts = projectPath.split("/")
     return {
+      componentPath: "cf",
+      componentDir: projectDir,
+      rootProjectPath: `cf/${projectPath}`,
       projectPath,
       filePath: join(projectDir, ...parts),
       role: "properties",

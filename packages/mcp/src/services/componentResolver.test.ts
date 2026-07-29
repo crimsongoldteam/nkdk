@@ -2,7 +2,12 @@ import { mkdirSync, mkdtempSync, rmSync, writeFileSync } from "fs"
 import { tmpdir } from "os"
 import { join } from "path"
 import { afterEach, describe, expect, it } from "vitest"
-import { assertImportTargetEmpty, resolveComponent, resolveStructurePath } from "./componentResolver"
+import {
+  assertImportTargetEmpty,
+  resolveComponent,
+  resolveProjectRoot,
+  resolveStructurePath,
+} from "./componentResolver"
 
 describe("componentResolver", () => {
   const tempDirs: string[] = []
@@ -19,6 +24,17 @@ describe("componentResolver", () => {
       projectDir,
       componentPath: "cf",
       componentDir: join(projectDir, "cf"),
+      nkdkDir: join(projectDir, ".nkdk"),
+    })
+  })
+
+  it("resolves project root without requiring cf", () => {
+    const projectDir = mkdtempSync(join(tmpdir(), "nkdk-mcp-project-root-"))
+    tempDirs.push(projectDir)
+
+    expect(resolveProjectRoot(projectDir)).toEqual({
+      ok: true,
+      projectDir,
       nkdkDir: join(projectDir, ".nkdk"),
     })
   })

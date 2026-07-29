@@ -21,6 +21,7 @@ import type {
 } from "./types"
 
 export interface FullXmlSyncWorkerInitialization {
+  readonly componentPath: string
   readonly componentDir: string
   readonly outputDir: string
   readonly context: ConfigurationContext
@@ -36,10 +37,7 @@ export interface FullXmlSyncExecutionPoolResult {
   readonly warnings: FullXmlSyncDiagnostic[]
   readonly writtenFiles: FullXmlSyncWrittenFile[]
   readonly expectedOutputs: FullXmlSyncExpectedOutput[]
-  readonly fragmentData: Pick<
-    ConfigurationIndexData,
-    "identities" | "xmlNodes" | "xmlValues"
-  >
+  readonly fragmentData: Pick<ConfigurationIndexData, "identities" | "xmlNodes" | "xmlValues">
 }
 
 export interface FullXmlSyncWorkerPool {
@@ -81,9 +79,7 @@ export function createFullXmlSyncWorkerPool(params: {
         throw new Error("Full XML sync worker pool не инициализирован")
       }
       phase = "executing"
-      const partitions = partitionRoundRobin(assignments, concurrency).filter(
-        (partition) => partition.length > 0
-      )
+      const partitions = partitionRoundRobin(assignments, concurrency).filter((partition) => partition.length > 0)
       const initialized = initialization
       const results = await Promise.all(
         partitions.map(async (partition, workerIndex): Promise<FullXmlSyncExecutionResult> => {
@@ -111,9 +107,7 @@ export function createFullXmlSyncWorkerPool(params: {
         warnings: results.flatMap(({ warnings }) => warnings),
         writtenFiles: results.flatMap(({ writtenFiles }) => writtenFiles),
         expectedOutputs: results.flatMap(({ expectedOutputs }) => expectedOutputs),
-        fragmentData: mergeConfigurationIndexFragments(
-          results.map(({ fragmentBuffer }) => fragmentBuffer)
-        ),
+        fragmentData: mergeConfigurationIndexFragments(results.map(({ fragmentBuffer }) => fragmentBuffer)),
       }
     },
 
@@ -167,8 +161,7 @@ export function createFullXmlSyncWorkerPool(params: {
   }
 
   function destroyAllWorkers(): Promise<void> {
-    destroyPromise ??= Promise.all([...pools.values()].map((pool) => pool.destroy()))
-      .then(() => undefined)
+    destroyPromise ??= Promise.all([...pools.values()].map((pool) => pool.destroy())).then(() => undefined)
     return destroyPromise
   }
 }
@@ -176,9 +169,7 @@ export function createFullXmlSyncWorkerPool(params: {
 export function normalizeFullXmlSyncConcurrency(value: number | undefined): number {
   if (value !== undefined) {
     if (!Number.isSafeInteger(value) || value < 1) {
-      throw new Error(
-        "Степень параллелизма full XML sync должна быть положительным целым числом"
-      )
+      throw new Error("Степень параллелизма full XML sync должна быть положительным целым числом")
     }
     return value
   }

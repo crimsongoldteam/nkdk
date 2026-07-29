@@ -21,7 +21,9 @@ describe("platform SSH command protocol", () => {
       timeoutMs: 60_000,
       diagnostic: (message) => diagnostics.push(message),
     })
-    await expect(session.run('config dump-config-to-files --dir="xml"')).resolves.toBeUndefined()
+    await expect(
+      session.run('config dump-config-to-files --dir="xml"')
+    ).resolves.toEqual({})
 
     expect(shell.rawWrites).toEqual([
       "options set --output-format=json\n",
@@ -75,6 +77,103 @@ describe("platform SSH command protocol", () => {
     const error = await session.run("bad command").catch((caught: unknown) => caught)
     expect(error).toMatchObject({ code: "platform_command_failed" })
     expect(String(error)).not.toContain("secret")
+  })
+
+  it("returns extension properties nested in the success body in platform order", async () => {
+    const shell = scriptedShell([
+      "designer> ",
+      '[{"type":"success","message":"JSON mode"}]\ndesigner> ',
+      '[{"type":"success","message":"Connected"}]\ndesigner> ',
+      '[{"type":"success","message":"Done","body":[{"type":"extension-properties","body":{"name":"First"}},{"type":"extension-properties","body":{"name":"Second"}}]}]\ndesigner> ',
+    ])
+    const session = await openPlatformCommandSession({
+      shell,
+      timeoutMs: 100,
+    })
+
+    await expect(
+      session.run("config extensions properties get --all-extensions")
+    ).resolves.toEqual({
+      extensionInfo: [{ name: "First" }, { name: "Second" }],
+    })
+  })
+
+  it("rejects nested extension properties without a body", async () => {
+    const shell = scriptedShell([
+      "designer> ",
+      '[{"type":"success","message":"JSON mode"}]\ndesigner> ',
+      '[{"type":"success","message":"Connected"}]\ndesigner> ',
+      '[{"type":"success","message":"Done","body":[{"type":"extension-properties"}]}]\ndesigner> ',
+    ])
+    const session = await openPlatformCommandSession({
+      shell,
+      timeoutMs: 100,
+    })
+
+    await expect(
+      session.run("config extensions properties get --all-extensions")
+    ).rejects.toMatchObject({ code: "platform_command_failed" })
+  })
+
+  it("rejects an unexpected complete response split from the prompt", async () => {
+    const clock = controlledClock()
+    const shell = scriptedShell([
+      "designer> ",
+      '[{"type":"success","message":"JSON mode"}]\ndesigner> ',
+      '[{"type":"success","message":"Connected"}]\ndesigner> ',
+      '[{"type":"unexpected"}]',
+      "designer> ",
+    ])
+    const session = await openPlatformCommandSession({
+      shell,
+      timeoutMs: 100,
+      clock,
+    })
+
+    const pending = session.run("bad command", { timeoutMs: 100 })
+    await Promise.resolve()
+    shell.emitNext()
+    clock.expire()
+
+    await expect(pending).rejects.toMatchObject({
+      code: "platform_command_failed",
+    })
+  })
+
+  it("does not send a command when its signal is already aborted", async () => {
+    const shell = scriptedShell([
+      "designer> ",
+      '[{"type":"success","message":"JSON mode"}]\ndesigner> ',
+      '[{"type":"success","message":"Connected"}]\ndesigner> ',
+    ])
+    const session = await openPlatformCommandSession({
+      shell,
+      timeoutMs: 100,
+    })
+    const controller = new AbortController()
+    controller.abort()
+
+    await expect(
+      session.run("must-not-run", { signal: controller.signal })
+    ).rejects.toMatchObject({ code: "operation_cancelled" })
+    expect(shell.rawWrites).not.toContain("must-not-run\n")
+  })
+
+  it("does not expose extension records for an invalid success body", async () => {
+    const shell = scriptedShell([
+      "designer> ",
+      '[{"type":"success","message":"JSON mode"}]\ndesigner> ',
+      '[{"type":"success","message":"Connected"}]\ndesigner> ',
+      '[{"type":"success","message":"Done"}]\ndesigner> ',
+    ])
+    const session = await openPlatformCommandSession({
+      shell,
+      timeoutMs: 100,
+    })
+
+    await expect(
+      session.run("config extensions properties get --all-extensions")
+    ).resolves.toEqual({})
   })
 
   it("rejects malformed JSON from the platform", async () => {
@@ -145,7 +244,10 @@ describe("platform SSH command protocol", () => {
   })
 })
 
-type ScriptedShell = SshShell & { rawWrites: string[] }
+type ScriptedShell = SshShell & {
+  rawWrites: string[]
+  emitNext(): void
+}
 
 function scriptedShell(chunks: string[], initiallyOpen = true): ScriptedShell {
   let open = initiallyOpen
@@ -157,6 +259,7 @@ function scriptedShell(chunks: string[], initiallyOpen = true): ScriptedShell {
   }
   return {
     rawWrites: [],
+    emitNext,
     write(value) {
       this.rawWrites.push(value)
       emitNext()

@@ -1,13 +1,16 @@
 import type { ValidateFunction } from "ajv"
 import { describe, expect, it } from "vitest"
 import { Type } from "typebox"
+import { MetadataConfigurationExtensionRules } from "../appliedObjects/configurationExtension/rules"
+import type { MetadataItemRule } from "../orchestration/property/types"
 import { createValidationSchemaCacheFromStandaloneModule } from "./projectValidationStandaloneLoader"
 import {
   configurationValidationProjectSpec,
   validationProjectSpecs,
-  type ValidationProjectSpec,
 } from "./projectSpecs"
 import type { ProjectValidationStandaloneModule } from "./projectValidationStandaloneTypes"
+
+const catalogRule = { itemType: "MetadataCatalog", properties: {} } as MetadataItemRule
 
 describe("project validation standalone loader", () => {
   it("creates form and properties validators from a standalone-like module", () => {
@@ -16,34 +19,34 @@ describe("project validation standalone loader", () => {
     const formValidate = validWhenHasString("Вид")
     const propertiesValidate = validWhenHasString("Имя")
     const cache = createValidationSchemaCacheFromStandaloneModule({
-      format: "project-validation-ajv-standalone-v1",
+      format: "project-validation-ajv-standalone-v2",
       context: {
         version: "2.20",
         defaultLanguage: "ru",
         exportToYAML: { toTyped: false },
       },
       form: { schema: formSchema, validate: formValidate },
-      byProjectDir: {
-        Справочник: { schema: propertiesSchema, validate: propertiesValidate },
+      byItemType: {
+        MetadataCatalog: { schema: propertiesSchema, validate: propertiesValidate },
       },
     })
 
     expect(cache.form().Check({ Вид: "Форма" })).toBe(true)
     expect(cache.form().Check({})).toBe(false)
-    expect(cache.properties({ dir: "Справочник" } as ValidationProjectSpec).Check({ Имя: "Номенклатура" })).toBe(true)
-    expect(cache.properties({ dir: "Справочник" } as ValidationProjectSpec).Check({})).toBe(false)
+    expect(cache.properties(catalogRule).Check({ Имя: "Номенклатура" })).toBe(true)
+    expect(cache.properties(catalogRule).Check({})).toBe(false)
   })
 
   it("rejects unsupported context instead of silently using wrong schemas", () => {
     const module = {
-      format: "project-validation-ajv-standalone-v1",
+      format: "project-validation-ajv-standalone-v2",
       context: {
         version: "2.20",
         defaultLanguage: "ru",
         exportToYAML: { toTyped: false },
       },
       form: { schema: Type.Any(), validate: validWhenHasString("Вид") },
-      byProjectDir: {},
+      byItemType: {},
     } satisfies ProjectValidationStandaloneModule
 
     expect(() =>
@@ -55,25 +58,30 @@ describe("project validation standalone loader", () => {
     ).toThrow("Standalone validation schemas were built for context")
   })
 
-  it("compileAll eagerly checks every project dir including configuration", () => {
+  it("compileAll eagerly checks every root rule including configuration extension", () => {
     const module = {
-      format: "project-validation-ajv-standalone-v1",
+      format: "project-validation-ajv-standalone-v2",
       context: {
         version: "2.20",
         defaultLanguage: "ru",
         exportToYAML: { toTyped: false },
       },
       form: { schema: Type.Any(), validate: validAny() },
-      byProjectDir: Object.fromEntries(
-        validationProjectSpecs.map((spec) => [spec.dir, { schema: Type.Any(), validate: validAny() }])
+      byItemType: Object.fromEntries(
+        [configurationValidationProjectSpec.rule, ...validationProjectSpecs.map((spec) => spec.rule)].map((rule) => [
+          rule.itemType,
+          { schema: Type.Any(), validate: validAny() },
+        ])
       ),
     } satisfies ProjectValidationStandaloneModule
 
     const cache = createValidationSchemaCacheFromStandaloneModule(module)
 
-    expect(() => cache.compileAll()).toThrow('Standalone validation schema was not generated for project dir ""')
+    expect(() => cache.compileAll()).toThrow(
+      'Standalone validation schema was not generated for item type "MetadataConfigurationExtension"'
+    )
 
-    module.byProjectDir[configurationValidationProjectSpec.dir] = { schema: Type.Any(), validate: validAny() }
+    module.byItemType[MetadataConfigurationExtensionRules.itemType] = { schema: Type.Any(), validate: validAny() }
 
     expect(cache.compileAll()).toEqual({
       formMs: expect.any(Number),

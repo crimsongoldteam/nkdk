@@ -1,12 +1,9 @@
 import type { PlatformInstallation } from "../platform/findPlatform"
+import type { ConfigurationExtensionInfo } from "../extensions/types"
 
 export type PlatformSessionMode = "designer-agent" | "standalone-server"
 
-export type DatabaseManagementSystem =
-  | "MSSQLServer"
-  | "PostgreSQL"
-  | "IBMDB2"
-  | "OracleDatabase"
+export type DatabaseManagementSystem = "MSSQLServer" | "PostgreSQL" | "IBMDB2" | "OracleDatabase"
 
 export type DatabaseConnectionSettings = {
   dbms: DatabaseManagementSystem
@@ -42,6 +39,17 @@ export type ExportConfigurationResult = {
   reusedConnection: boolean
 }
 
+export type ListConfigurationExtensionsParams = PlatformConnectionSettings & {
+  projectDir: string
+  signal?: AbortSignal
+}
+
+export type ListConfigurationExtensionsResult = {
+  extensions: ConfigurationExtensionInfo[]
+  mode: PlatformSessionMode
+  reusedConnection: boolean
+}
+
 export type CloseConnectionResult = {
   closed: boolean
   stoppedOwnedProcess: boolean
@@ -60,11 +68,8 @@ export type ProjectSettings = {
 export interface PlatformSession {
   mode: PlatformSessionMode
   ownedProcess: boolean
-  exportConfiguration(
-    outputDir: string,
-    operationLogPath: string,
-    signal?: AbortSignal
-  ): Promise<void>
+  exportConfiguration(outputDir: string, operationLogPath: string, signal?: AbortSignal): Promise<void>
+  listExtensions(signal?: AbortSignal): Promise<ConfigurationExtensionInfo[]>
   isAlive(): boolean
   close(): Promise<{ stoppedOwnedProcess: boolean }>
   cancel(): Promise<{ stoppedOwnedProcess: boolean }>
@@ -79,6 +84,7 @@ export type CreatePlatformSessionParams = {
 
 export interface PlatformSessionManager {
   exportConfiguration(params: ExportConfigurationParams): Promise<ExportConfigurationResult>
+  listExtensions(params: ListConfigurationExtensionsParams): Promise<ListConfigurationExtensionsResult>
   closeConnection(projectDir: string): Promise<CloseConnectionResult>
   closeAllConnections(): Promise<CloseAllConnectionsResult>
 }

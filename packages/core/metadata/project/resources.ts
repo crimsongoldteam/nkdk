@@ -5,7 +5,7 @@ import {
   type MetadataProjectResourceMatch,
 } from "../resourceTopology/projectProjection"
 import { compileRegisteredMetadataResourceTopology } from "../resourceTopology/registry"
-import type { MetadataResourceSource } from "../resourceTopology/types"
+import type { CompiledMetadataResourceTopology, MetadataResourceSource } from "../resourceTopology/types"
 import { configurationMetadataProjectSpec, getMetadataProjectSpecByDir, type MetadataProjectSpec } from "./specs"
 
 export type MetadataProjectResourceKind = "yaml" | "resource"
@@ -14,6 +14,11 @@ export type MetadataProjectYamlRole = "configuration" | "properties" | "form"
 
 export interface MetadataProjectResourceDiscoveryOptions {
   include?: MetadataProjectResourceInclude
+}
+
+export interface MetadataProjectResourceContext {
+  topology: CompiledMetadataResourceTopology
+  rootSpec: MetadataProjectSpec
 }
 
 export interface MetadataProjectResourceOwner {
@@ -70,26 +75,30 @@ export interface MetadataProjectResourceOnlyRef {
   source: MetadataResourceSource
 }
 
-export function classifyMetadataProjectPath(projectPath: string): MetadataProjectResourceRef | undefined {
-  const topology = compileRegisteredMetadataResourceTopology()
-  const match = classifyTopologyProjectPath(topology, projectPath)
-  return match === undefined || match.kind === "ignore" ? undefined : toLegacyResource(match)
+export function classifyMetadataProjectPath(
+  projectPath: string,
+  context: MetadataProjectResourceContext = defaultResourceContext()
+): MetadataProjectResourceRef | undefined {
+  const match = classifyTopologyProjectPath(context.topology, projectPath)
+  return match === undefined || match.kind === "ignore" ? undefined : toLegacyResource(match, context)
 }
 
 export async function discoverMetadataProjectResources(
   projectDir: string,
-  options: MetadataProjectResourceDiscoveryOptions = {}
+  options: MetadataProjectResourceDiscoveryOptions = {},
+  context: MetadataProjectResourceContext = defaultResourceContext()
 ): Promise<MetadataProjectResourceRef[]> {
-  const topology = compileRegisteredMetadataResourceTopology()
   const matches = await discoverTopologyProjectResources({
-    topology,
+    topology: context.topology,
     projectDir,
     include: options.include === "yaml" ? "content" : "all",
   })
-  return matches.map((match) => ({
-    ...toLegacyResource(match),
-    absolutePath: resolve(projectDir, ...match.projectPath.split("/")),
-  })).sort((left, right) => left.projectPath.localeCompare(right.projectPath, "ru"))
+  return matches
+    .map((match) => ({
+      ...toLegacyResource(match, context),
+      absolutePath: resolve(projectDir, ...match.projectPath.split("/")),
+    }))
+    .sort((left, right) => left.projectPath.localeCompare(right.projectPath, "ru"))
 }
 
 export function assertMetadataProjectPathInside(projectDir: string, filePath: string): string {
@@ -104,22 +113,26 @@ export function assertMetadataProjectPathInside(projectDir: string, filePath: st
 
 export function resolveMetadataProjectResource(
   projectDir: string,
-  filePath: string
+  filePath: string,
+  context: MetadataProjectResourceContext = defaultResourceContext()
 ): MetadataProjectResourceRef | undefined {
   const projectRoot = resolve(projectDir)
   const absolutePath = isAbsolute(filePath) ? resolve(filePath) : resolve(projectRoot, filePath)
   const projectPath = assertMetadataProjectPathInside(projectRoot, absolutePath)
-  const resource = classifyMetadataProjectPath(projectPath)
+  const resource = classifyMetadataProjectPath(projectPath, context)
   return resource === undefined ? undefined : { ...resource, absolutePath }
 }
 
-function toLegacyResource(match: MetadataProjectResourceMatch): MetadataProjectResourceRef {
+function toLegacyResource(
+  match: MetadataProjectResourceMatch,
+  context: MetadataProjectResourceContext
+): MetadataProjectResourceRef {
   if (match.kind === "content" && match.assignment?.role === "configuration") {
     return {
       kind: "yaml",
       role: "configuration",
       projectPath: match.projectPath,
-      owner: { dir: "", name: "Конфигурация", spec: configurationMetadataProjectSpec },
+      owner: { dir: "", name: "Конфигурация", spec: context.rootSpec },
     }
   }
 
@@ -138,7 +151,7 @@ function toLegacyResource(match: MetadataProjectResourceMatch): MetadataProjectR
       kind: "yaml",
       role: "form",
       projectPath: match.projectPath,
-      owner: rootOwner(match),
+      owner: rootOwner(match, context),
       formName: lastItemName(match.values),
       itemType: match.assignment.itemRule.itemType,
     }
@@ -147,7 +160,7 @@ function toLegacyResource(match: MetadataProjectResourceMatch): MetadataProjectR
     kind: "resource",
     role: "resourceOnly",
     projectPath: match.projectPath,
-    owner: rootOwner(match),
+    owner: rootOwner(match, context),
     descriptorKind: "externalFile",
     source: match.externalFile?.source ?? {
       kind: "itemRule",
@@ -167,14 +180,24 @@ function legacyOwner(match: MetadataProjectResourceMatch): MetadataProjectResour
   }
 }
 
-function rootOwner(match: MetadataProjectResourceMatch): MetadataProjectResourceOwner {
+function rootOwner(
+  match: MetadataProjectResourceMatch,
+  context: MetadataProjectResourceContext
+): MetadataProjectResourceOwner {
   if (match.assignment?.role === "configuration") {
-    return { dir: "", name: "Конфигурация", spec: configurationMetadataProjectSpec }
+    return { dir: "", name: "Конфигурация", spec: context.rootSpec }
   }
   const dir = match.projectPath.split("/")[0] ?? ""
   const spec = getMetadataProjectSpecByDir(dir)
   if (spec === undefined) throw new Error(`Не найден project spec для ${match.projectPath}`)
   return { dir, name: match.values.ownerName ?? match.projectPath.split("/")[1] ?? "", spec }
+}
+
+function defaultResourceContext(): MetadataProjectResourceContext {
+  return {
+    topology: compileRegisteredMetadataResourceTopology(),
+    rootSpec: configurationMetadataProjectSpec,
+  }
 }
 
 function lastOwnerName(values: Readonly<Record<string, string>>): string {
@@ -197,10 +220,7 @@ function itemIndex(key: string): number {
   return suffix === "" ? 1 : Number(suffix)
 }
 
-function nestingSegments(
-  match: MetadataProjectResourceMatch,
-  dir: string
-): MetadataProjectNestingSegment[] {
+function nestingSegments(match: MetadataProjectResourceMatch, dir: string): MetadataProjectNestingSegment[] {
   const recursive = Object.entries(match.values)
     .filter(([key]) => /^recursiveItemName\d+$/.test(key))
     .sort(([left], [right]) => Number(left.replace(/\D/g, "")) - Number(right.replace(/\D/g, "")))

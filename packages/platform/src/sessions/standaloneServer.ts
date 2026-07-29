@@ -1,9 +1,11 @@
 import { join } from "node:path"
 import { parse } from "yaml"
+import { parseIbcmdExtensionList } from "../extensions/parse"
 import { parseConnection } from "../infobases/parseConnection"
 import {
   buildStandaloneConfigExport,
   buildStandaloneConfigInit,
+  buildStandaloneListExtensions,
 } from "./commands"
 import { PlatformSessionError } from "./errors"
 import type { SessionProcessRuntime } from "./runtime"
@@ -158,6 +160,58 @@ export async function createStandaloneServerSession(
           "Не удалось записать журнал операции платформы"
         )
       }
+    },
+    async listExtensions(signal) {
+      if (closed) {
+        throw new PlatformSessionError(
+          "platform_command_failed",
+          "Соединение с платформой закрыто"
+        )
+      }
+      if (signal?.aborted === true) {
+        throw new PlatformSessionError(
+          "operation_cancelled",
+          "Получение списка расширений через ibcmd отменено"
+        )
+      }
+      const command = buildStandaloneListExtensions({
+        ibcmdPath,
+        configPath,
+        ...(params.settings.user === undefined
+          ? {}
+          : { user: params.settings.user }),
+        ...(params.settings.password === undefined
+          ? {}
+          : { password: params.settings.password }),
+      })
+      const listed = await dependencies.processRuntime.run(
+        command.command,
+        command.args,
+        {
+          timeoutMs: dependencies.commandTimeoutMs,
+          signal,
+          terminationGraceMs: dependencies.closeTimeoutMs,
+        }
+      )
+      if (listed.cancelled === true) {
+        throw new PlatformSessionError(
+          "operation_cancelled",
+          "Получение списка расширений через ibcmd отменено"
+        )
+      }
+      if (listed.timedOut === true) {
+        throw new PlatformSessionError(
+          "session_timeout",
+          "Истекло время получения списка расширений через ibcmd"
+        )
+      }
+      if (listed.exitCode !== 0) {
+        throw new PlatformSessionError(
+          "platform_command_failed",
+          "ibcmd не смог получить список расширений"
+        )
+      }
+      return parseIbcmdExtensionList(listed.stdout)
     },
     close: closeSession,
     cancel: closeSession,

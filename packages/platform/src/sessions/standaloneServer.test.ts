@@ -79,6 +79,45 @@ describe("standalone server session", () => {
     )
   })
 
+  it("lists and normalizes extensions with one ibcmd command", async () => {
+    const fixture = createFixture({
+      listStdout: `${ibcmdExtension("First")}\n\n${ibcmdExtension("Second")}\n`,
+    })
+    const controller = new AbortController()
+    const session = await createStandaloneServerSession(
+      createParams(),
+      fixture.dependencies
+    )
+
+    await expect(
+      session.listExtensions(controller.signal)
+    ).resolves.toEqual([
+      extensionInfo("First"),
+      extensionInfo("Second"),
+    ])
+    expect(fixture.calls).toContain(
+      "run ibcmd infobase config extension list --password=secret --config=/project/.nkdk/platform-sessions/standalone/config.yaml timeout=1800000 signal=true grace=5000"
+    )
+  })
+
+  it("maps extension list timeout, cancellation, failure, and malformed output", async () => {
+    for (const [options, code] of [
+      [{ listTimedOut: true }, "session_timeout"],
+      [{ listCancelled: true }, "operation_cancelled"],
+      [{ listExitCode: 1 }, "platform_command_failed"],
+      [{ listStdout: "secret malformed output" }, "platform_command_failed"],
+    ] as const) {
+      const fixture = createFixture(options)
+      const session = await createStandaloneServerSession(
+        createParams(),
+        fixture.dependencies
+      )
+      const error = await session.listExtensions().catch((caught: unknown) => caught)
+      expect(error).toMatchObject({ code })
+      expect(String(error)).not.toContain("secret")
+    }
+  })
+
   it("rejects a client-server connection without database credentials", async () => {
     const fixture = createFixture()
 
@@ -219,6 +258,10 @@ function createFixture(
     exportCancelled?: boolean
     exportTerminationFailed?: boolean
     rmFailureCall?: number
+    listStdout?: string
+    listExitCode?: number
+    listTimedOut?: boolean
+    listCancelled?: boolean
   } = {}
 ): {
   calls: string[]
@@ -255,11 +298,12 @@ function createFixture(
       },
       processRuntime: {
         async run(command, args, runOptions) {
+          const isList = args.includes("extension")
           calls.push(
             [
               `run ${command} ${args.join(" ")}`,
               `timeout=${runOptions?.timeoutMs}`,
-              ...(args.includes("export")
+              ...(args.includes("export") || isList
                 ? [
                     `signal=${runOptions?.signal instanceof AbortSignal}`,
                     `grace=${runOptions?.terminationGraceMs}`,
@@ -268,6 +312,15 @@ function createFixture(
             ].join(" ")
           )
           const isExport = args.includes("export")
+          if (isList) {
+            return {
+              stdout: options.listStdout ?? "",
+              stderr: "",
+              exitCode: options.listExitCode ?? 0,
+              timedOut: options.listTimedOut ?? false,
+              cancelled: options.listCancelled ?? false,
+            }
+          }
           return {
             stdout: isExport
               ? "[INFO] Export complete\n"
@@ -286,5 +339,35 @@ function createFixture(
       closeTimeoutMs: 5_000,
       platform: "darwin",
     },
+  }
+}
+
+function ibcmdExtension(name: string): string {
+  return [
+    `name                         : ${JSON.stringify(name)}`,
+    "version                      : ",
+    "active                       : yes",
+    "purpose                      : customization",
+    "safe-mode                    : yes",
+    "security-profile-name        : ",
+    "unsafe-action-protection     : yes",
+    "used-in-distributed-infobase : no",
+    "scope                        : infobase",
+    `hash-sum                     : ${JSON.stringify(`${name}-hash`)}`,
+  ].join("\n")
+}
+
+function extensionInfo(name: string) {
+  return {
+    name,
+    version: "",
+    active: true,
+    purpose: "customization",
+    safeMode: true,
+    securityProfileName: "",
+    unsafeActionProtection: true,
+    usedInDistributedInfobase: false,
+    scope: "infobase",
+    hashSum: `${name}-hash`,
   }
 }

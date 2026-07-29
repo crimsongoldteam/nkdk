@@ -21,16 +21,16 @@ export async function generateProjectValidationAjvStandalone(params: { outfile: 
     validateForm: { schema: formSchema, schemaId: formSchema.$id },
   }
 
-  const entries: Array<{ dir: string; exportName: string; schema: unknown }> = []
+  const entries: Array<{ itemType: string; exportName: string; schema: unknown }> = []
   let index = 0
-  for (const [dir, sourceSchema] of Object.entries(schemaSet.byProjectDir)) {
+  for (const [itemType, sourceSchema] of Object.entries(schemaSet.byItemType)) {
     const exportName = `validateProperties${index}`
     const schema = withSchemaId(
       prepareSchemaForAjv(sourceSchema),
-      `nkdk://validation/properties/${encodeURIComponent(dir)}`
+      `nkdk://validation/properties/${encodeURIComponent(itemType)}`
     )
     validators[exportName] = { schema, schemaId: schema.$id }
-    entries.push({ dir, exportName, schema })
+    entries.push({ itemType, exportName, schema })
     index += 1
   }
 
@@ -39,14 +39,14 @@ export async function generateProjectValidationAjvStandalone(params: { outfile: 
     validatorsCode,
     "",
     "const module = {",
-    '  format: "project-validation-ajv-standalone-v1",',
+    '  format: "project-validation-ajv-standalone-v2",',
     `  context: ${JSON.stringify(schemaSet.context)},`,
     `  refs: ${JSON.stringify(refs)},`,
     `  form: { schema: ${JSON.stringify(formSchema)}, validate: validateForm },`,
-    "  byProjectDir: {",
+    "  byItemType: {",
     ...entries.map(
       (entry) =>
-        `    ${JSON.stringify(entry.dir)}: { schema: ${JSON.stringify(entry.schema)}, validate: ${
+        `    ${JSON.stringify(entry.itemType)}: { schema: ${JSON.stringify(entry.schema)}, validate: ${
           entry.exportName
         } },`
     ),

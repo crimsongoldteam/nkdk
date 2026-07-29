@@ -15,6 +15,13 @@ describe("platform session process handle", () => {
         async exportConfiguration() {
           return { mode: "designer-agent", reusedConnection: false }
         },
+        async listExtensions() {
+          return {
+            extensions: [],
+            mode: "designer-agent",
+            reusedConnection: false,
+          }
+        },
         async closeConnection() {
           return { closed: false, stoppedOwnedProcess: false }
         },

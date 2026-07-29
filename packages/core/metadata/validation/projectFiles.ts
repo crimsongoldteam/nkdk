@@ -5,9 +5,16 @@ import {
   resolveMetadataProjectResource,
   type MetadataProjectResourceRef,
 } from "../project/resources"
+import type { ValidationProjectComponent } from "./projectComponents"
 import type { ValidationProjectSpec } from "./projectSpecs"
 
-export interface ValidationProjectFile {
+export interface ComponentFileAddress {
+  componentPath: string
+  componentDir: string
+  rootProjectPath: string
+}
+
+export interface ValidationProjectFile extends ComponentFileAddress {
   absolutePath: string
   projectPath: string
   kind: "configuration" | "properties" | "form"
@@ -15,16 +22,25 @@ export interface ValidationProjectFile {
   formName?: string
 }
 
-export async function discoverValidationProjectFiles(projectDir: string): Promise<ValidationProjectFile[]> {
-  return (await discoverMetadataProjectResources(projectDir, { include: "yaml" })).flatMap((resource) => {
-    const file = toValidationProjectFile(resource)
+export async function discoverValidationProjectFiles(
+  projectDir: string,
+  component?: ValidationProjectComponent
+): Promise<ValidationProjectFile[]> {
+  const componentAddress = componentFileAddress(projectDir, component)
+  return (await discoverMetadataProjectResources(projectDir, { include: "yaml" }, component)).flatMap((resource) => {
+    const file = toValidationProjectFile(resource, componentAddress)
     return file ? [file] : []
   })
 }
 
-export function resolveValidationProjectFile(projectDir: string, filePath: string): ValidationProjectFile | undefined {
-  const resource = resolveMetadataProjectResource(projectDir, filePath)
-  return resource ? toValidationProjectFile(resource) : undefined
+export function resolveValidationProjectFile(
+  projectDir: string,
+  filePath: string,
+  component?: ValidationProjectComponent
+): ValidationProjectFile | undefined {
+  const componentAddress = componentFileAddress(projectDir, component)
+  const resource = resolveMetadataProjectResource(projectDir, filePath, component)
+  return resource ? toValidationProjectFile(resource, componentAddress) : undefined
 }
 
 export function assertProjectFileInside(projectDir: string, filePath: string): string {
@@ -33,11 +49,20 @@ export function assertProjectFileInside(projectDir: string, filePath: string): s
   return assertMetadataProjectPathInside(projectRoot, absolutePath)
 }
 
-function toValidationProjectFile(resource: MetadataProjectResourceRef): ValidationProjectFile | undefined {
+function toValidationProjectFile(
+  resource: MetadataProjectResourceRef,
+  component: Omit<ComponentFileAddress, "rootProjectPath">
+): ValidationProjectFile | undefined {
   if (resource.absolutePath === undefined) return undefined
+
+  const address: ComponentFileAddress = {
+    ...component,
+    rootProjectPath: `${component.componentPath}/${resource.projectPath}`,
+  }
 
   if (resource.role === "configuration") {
     return {
+      ...address,
       absolutePath: resource.absolutePath,
       projectPath: resource.projectPath,
       kind: "configuration",
@@ -47,6 +72,7 @@ function toValidationProjectFile(resource: MetadataProjectResourceRef): Validati
 
   if (resource.role === "properties") {
     return {
+      ...address,
       absolutePath: resource.absolutePath,
       projectPath: resource.projectPath,
       kind: "properties",
@@ -56,6 +82,7 @@ function toValidationProjectFile(resource: MetadataProjectResourceRef): Validati
 
   if (resource.kind === "yaml" && resource.role === "form") {
     return {
+      ...address,
       absolutePath: resource.absolutePath,
       projectPath: resource.projectPath,
       kind: "form",
@@ -65,4 +92,13 @@ function toValidationProjectFile(resource: MetadataProjectResourceRef): Validati
   }
 
   return undefined
+}
+
+function componentFileAddress(
+  projectDir: string,
+  component: ValidationProjectComponent | undefined
+): Omit<ComponentFileAddress, "rootProjectPath"> {
+  return component === undefined
+    ? { componentPath: "cf", componentDir: resolve(projectDir) }
+    : { componentPath: component.componentPath, componentDir: component.componentDir }
 }
