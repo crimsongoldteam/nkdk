@@ -67,7 +67,7 @@ const ENTITY_FLAGS = {
   xmlPrefix: 1 << 10,
 } as const
 const KNOWN_ENTITY_FLAGS = (1 << 11) - 1
-const fatalUtf8Decoder = new TextDecoder("utf-8", { fatal: true })
+const fatalUtf8Decoder = new TextDecoder("utf-8", { fatal: true, ignoreBOM: true })
 
 export function decodeConfigurationIndex(
   input: Uint8Array,

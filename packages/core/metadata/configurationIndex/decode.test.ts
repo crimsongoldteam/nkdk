@@ -27,6 +27,20 @@ describe("decodeConfigurationIndex", () => {
     expect(decoded.entities[0]!.identities).toMatchObject({ xmlName: "" })
   })
 
+  it("сохраняет начальный U+FEFF в строковом значении", () => {
+    const source = sampleSnapshot()
+    const encoded = encodeConfigurationIndex({
+      ...source,
+      entities: source.entities.map((entity) =>
+        entity.logicalAddress === "Документ.Заказ"
+          ? { ...entity, xml: { ...entity.xml, xmlText: "\uFEFFтекст" } }
+          : entity
+      ),
+    })
+
+    expect(decodeConfigurationIndex(encoded).entities[0]!.xml?.xmlText).toBe("\uFEFFтекст")
+  })
+
   it.each([
     ["magic", (buffer: Buffer) => writeAscii(buffer, "BROKEN!!", 0)],
     ["header length", (buffer: Buffer) => writeU32(buffer, 12, 63)],

@@ -46,6 +46,7 @@ export function encodeConfigurationIndex(snapshot: ConfigurationSnapshot): Buffe
 }
 
 function normalizeSnapshot(snapshot: ConfigurationSnapshot): NormalizedSnapshot {
+  validateWellFormedStrings(snapshot)
   const files = [...snapshot.files].sort((left, right) => compareUtf8(left.projectPath, right.projectPath))
   const entities = [...snapshot.entities].sort((left, right) => compareUtf8(left.logicalAddress, right.logicalAddress))
   const normalized = { ...snapshot, files, entities }
@@ -53,6 +54,12 @@ function normalizeSnapshot(snapshot: ConfigurationSnapshot): NormalizedSnapshot 
   return {
     snapshot: normalized,
     strings: createStringPool(snapshotStrings(normalized)),
+  }
+}
+
+function validateWellFormedStrings(snapshot: ConfigurationSnapshot): void {
+  for (const value of snapshotStrings(snapshot, true)) {
+    if (!value.isWellFormed()) throw new Error(`Некорректная Unicode-строка: ${JSON.stringify(value)}`)
   }
 }
 
@@ -111,12 +118,13 @@ function validateEntity(entity: ConfigurationSnapshotEntity): void {
   if (mask === 0) throw new Error(`Пустая entity ENTITIES: ${entity.logicalAddress}`)
 }
 
-function* snapshotStrings(snapshot: ConfigurationSnapshot): Iterable<string> {
+function* snapshotStrings(snapshot: ConfigurationSnapshot, includeBinaryUuid = false): Iterable<string> {
   yield snapshot.componentPath
   for (const file of snapshot.files) yield file.projectPath
   for (const entity of snapshot.entities) {
     yield entity.logicalAddress
     yield entity.sourceProjectPath
+    if (includeBinaryUuid && entity.identities?.uuid !== undefined) yield entity.identities.uuid
     if (entity.identities?.xmlId !== undefined) yield entity.identities.xmlId
     if (entity.identities?.xmlName !== undefined) yield entity.identities.xmlName
     if (entity.omittedChildren?.kind === "names") {

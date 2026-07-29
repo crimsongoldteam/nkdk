@@ -36,6 +36,27 @@ describe("encodeConfigurationIndex", () => {
     expect(encodeConfigurationIndex(snapshot)).toEqual(encodeConfigurationIndex(reverseInputOrder(snapshot)))
   })
 
+  it("отклоняет одиночный суррогат до сортировки при любом top-level порядке", () => {
+    const snapshot = sampleSnapshot()
+    const invalid: ConfigurationSnapshot = {
+      ...snapshot,
+      entities: [{ ...snapshot.entities[0]!, logicalAddress: "\uD800" }, snapshot.entities[1]!],
+    }
+
+    expect(() => encodeConfigurationIndex(invalid)).toThrow("Некорректная Unicode-строка")
+    expect(() => encodeConfigurationIndex(reverseInputOrder(invalid))).toThrow("Некорректная Unicode-строка")
+  })
+
+  it("проверяет двоичный UUID тем же Unicode-валидатором", () => {
+    const snapshot = sampleSnapshot()
+    const invalid: ConfigurationSnapshot = {
+      ...snapshot,
+      entities: [{ ...snapshot.entities[0]!, identities: { uuid: "\uD800" } }, snapshot.entities[1]!],
+    }
+
+    expect(() => encodeConfigurationIndex(invalid)).toThrow("Некорректная Unicode-строка")
+  })
+
   it("пишет точную физическую раскладку SNAPSHOT, STRINGS, FILES и ENTITIES", () => {
     const encoded = encodeConfigurationIndex(sampleSnapshot())
     const entries = readDirectory(encoded)
